@@ -1,0 +1,69 @@
+{
+  "Actor": {
+    "types": ["pc", "npc"],
+    "templates": {
+      "common": {
+        "hase": {
+          "hull": {
+            "value": 0
+          },
+          "agility": {
+            "value": 0
+          },
+          "systems": {
+            "value": 0
+          },
+          "engineering": {
+            "value": 0
+          }
+        },
+        "attributes": {
+          "hp": {
+            "value": 6,
+            "min": 0,
+            "max": 6
+          },
+          "structure": {
+            "value": 1,
+            "min": 0,
+            "max": 1
+          },
+          "heat": {
+            "value": 0,
+            "min": 0,
+            "max": 6
+          },
+          "stress": {
+            "value": 1,
+            "min": 0,
+            "max": 1
+          },
+          "armor": {
+            "min": 0
+          },
+          "speed": {
+            "value": 4
+          },
+          "evasion": {
+            "value": 8
+          },
+          "edef": {
+            "value": 8
+          },
+          "sensors": {
+            "value": 10
+          },
+          "save": {
+            "value": 10
+          }
+        }
+      }
+    },
+    "pc": {
+      "templates": ["common"]
+    },
+    "npc": {
+      "templates": ["common"]
+    }
+  }
+}
