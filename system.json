@@ -1,0 +1,21 @@
+{
+    "name": "lancer",
+    "title": "LANCER",
+    "description": "A WIP game system for running games of Massif Press' LANCER RPG in the Foundry VTT environment. May include Comp/Con integration/connection at a later date.",
+    "version": 0.1,
+    "minimumCoreVersion": "0.4.7",
+    "compatibleCoreVersion": "0.5.0",
+    "author": "Eranziel",
+    "scripts": [],
+    "esmodules": [],
+    "styles": [],
+    "packs": [],
+    "languages": [],
+    "gridDistance": 10,
+    "gridUnits": "ft",
+    "primaryTokenAttribute": "hp",
+    "secondaryTokenAttribute": "heat",
+    "url": "https://github.com/Eranziel/foundryvtt-lancer",
+    "manifest": "https://github.com/Eranziel/foundryvtt-lancer/raw/master/system.json",
+    "download": "https://github.com/Eranziel/foundryvtt-lancer/archive/master.zip"
+}
