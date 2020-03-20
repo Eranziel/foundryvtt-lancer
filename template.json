@@ -19,9 +19,9 @@
         },
         "attributes": {
           "hp": {
-            "value": 6,
+            "value": 10,
             "min": 0,
-            "max": 6
+            "max": 10
           },
           "structure": {
             "value": 1,
@@ -39,6 +39,7 @@
             "max": 1
           },
           "armor": {
+            "value": 0,
             "min": 0
           },
           "speed": {
