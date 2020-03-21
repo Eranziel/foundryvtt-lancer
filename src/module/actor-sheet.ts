@@ -2,6 +2,8 @@
  * Extend the basic ActorSheet with some very simple modifications
  */
 export class LancerActorSheet extends ActorSheet {
+    _sheetTab: string;
+
     constructor(...args) {
       super(...args);
   
@@ -36,7 +38,7 @@ export class LancerActorSheet extends ActorSheet {
     getData() {
       const data = super.getData();
     //   console.log(data)
-      data.dtypes = ["String", "Number", "Boolean"];
+      // data.dtypes = ["String", "Number", "Boolean"];
     //   for ( let attr of Object.values(data.data.attributes) ) {
     //     attr.isCheckbox = attr.dtype === "Boolean";
     //   }
@@ -117,9 +119,10 @@ export class LancerActorSheet extends ActorSheet {
      * @private
      */
     _updateObject(event, formData) {
+      // TODO: This isn't used anymore.
   
       // Handle the free-form attributes list
-      const formAttrs = expandObject(formData).data.attributes || {};
+      const formAttrs = formData.data.attributes || {};
       const attributes = Object.values(formAttrs).reduce((obj, v) => {
         let k = v["key"].trim();
         if ( /[\s\.]/.test(k) )  return ui.notifications.error("Attribute keys may not contain spaces or periods");

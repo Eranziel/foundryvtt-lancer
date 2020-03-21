@@ -1,4 +1,12 @@
 # IDE
 .vscode/**
 
-npm-debug.log
+# NPM
+node_modules
+
+# Build
+foundryconfig.json
+dist/module
+dist/templates
+dist/**/*.js
+dist/**/*.json
