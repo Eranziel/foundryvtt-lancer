@@ -1,2 +1,4 @@
 # IDE
 .vscode/**
+
+npm-debug.log

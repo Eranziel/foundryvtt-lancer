@@ -1,0 +1,16 @@
+{
+  "private": true,
+  "name": "lancer",
+  "version": "0.0.3",
+  "description": "A WIP game system for running games of Massif Press' LANCER RPG in the Foundry VTT environment. May include Comp/Con integration/connection at a later date.",
+  "scripts": {
+    "package": "gulp package",
+    "build": "gulp build && gulp link",
+    "build:watch": "gulp watch",
+    "clean": "gulp clean && gulp link --clean",
+    "update": "npm install --save-dev gitlab:foundry-projects/foundry-pc/foundry-pc-types"
+  },
+  "author": "",
+  "license": "",
+  "devDependencies": {}
+}
