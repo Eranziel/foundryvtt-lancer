@@ -2,7 +2,7 @@
   "name": "lancer",
   "title": "LANCER",
   "description": "A WIP game system for running games of Massif Press' LANCER RPG in the Foundry VTT environment. May include Comp/Con integration/connection at a later date.",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "minimumCoreVersion": "0.4.7",
   "compatibleCoreVersion": "0.5.0",
   "author": "Eranziel",

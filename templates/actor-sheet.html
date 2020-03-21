@@ -5,15 +5,17 @@
         <img class="profile-img" src="{{actor.img}}" data-edit="img" title="{{actor.name}}" height="100" width="100"/>
         <div class="header-fields">
             <h1 class="charname"><input name="name" type="text" value="{{actor.name}}" placeholder="Name"/></h1>
-            <div class="resource">
-                <input type="text" name="data.attributes.hp.value" value="{{data.attributes.hp.value}}" data-dtype="Number"/>
+            <div class="resource flexrow">
+                <span>HP: </span>
+                <input type="text" name="data.stats.hp.value" value="{{data.stats.hp.value}}" data-dtype="Number"/>
                 <span> / </span>
-                <input type="text" name="data.attributes.hp.max" value="{{data.attributes.hp.max}}" data-dtype="Number"/>
+                <input type="text" name="data.stats.hp.max" value="{{data.stats.hp.max}}" data-dtype="Number"/>
             </div>
-            <div class="resource">
-                <input type="text" name="data.attributes.heat.value" value="{{data.attributes.heat.value}}" data-dtype="Number"/>
+            <div class="resource flexrow">
+                <span>Heat: </span>
+                <input type="text" name="data.stats.heat.value" value="{{data.stats.heat.value}}" data-dtype="Number"/>
                 <span> / </span>
-                <input type="text" name="data.attributes.heat.max" value="{{data.attributes.heat.max}}" data-dtype="Number"/>
+                <input type="text" name="data.stats.heat.max" value="{{data.stats.heat.max}}" data-dtype="Number"/>
             </div>
         </div>
     </header>
@@ -21,8 +23,8 @@
     {{!-- Sheet Tab Navigation --}}
     <nav class="sheet-tabs tabs" data-group="primary">
         <a class="item" data-tab="description">Description</a>
-        <a class="item" data-tab="items">Items</a>
-        <a class="item" data-tab="attributes">Attributes</a>
+        <!-- <a class="item" data-tab="items">Items</a> -->
+        <a class="item" data-tab="stats">Stats</a>
     </nav>
 
     {{!-- Sheet Body --}}
@@ -30,10 +32,10 @@
 
         {{!-- Biography Tab --}}
         <div class="tab biography active" data-group="primary" data-tab="description">
-            {{editor content=data.biography target="data.biography" button=true owner=owner editable=editable}}
+            {{editor content=data.pilot.history target="data.pilot.history" button=true owner=owner editable=editable}}
         </div>
 
-        {{!-- Owned Items Tab --}}
+        <!-- {{!-- Owned Items Tab --}}
         <div class="tab items" data-group="primary" data-tab="items">
             <ol class="items-list">
             {{#each actor.items as |item id|}}
@@ -47,36 +49,36 @@
                 </li>
             {{/each}}
             </ol>
-        </div>
+        </div> -->
 
-        {{!-- Attributes Tab --}}
-        <div class="tab attributes" data-group="primary" data-tab="attributes">
-            <header class="attributes-header flexrow">
-                <span class="attribute-key">Attribute Key</span>
-                <span class="attribute-value">Value</span>
-                <span class="attribute-label">Label</span>
-                <span class="attribute-dtype">Data Type</span>
-                <a class="attribute-control" data-action="create"><i class="fas fa-plus"></i></a>
+        {{!-- Stats Tab --}}
+        <div class="tab stats" data-group="primary" data-tab="stats">
+            <header class="stats-header flexrow">
+                <span class="stats-key">Stats Key</span>
+                <span class="stats-value">Value</span>
+                <span class="stats-label">Label</span>
+                <span class="stats-dtype">Data Type</span>
+                <a class="stats-control" data-action="create"><i class="fas fa-plus"></i></a>
             </header>
 
-            <ol class="attributes-list">
-            {{#each data.attributes as |attr key|}}
-                <li class="attribute flexrow" data-attribute="{{key}}">
-                    <input class="attribute-key" type="text" name="data.attributes.{{key}}.key" value="{{key}}"/>
-                    {{#if attr.isCheckbox}}
-                    <label class="attribute-value checkbox"><input type="checkbox" name="data.attributes.{{key}}.value" {{checked attr.value}}/></label>
+            <ol class="stats-list">
+            {{#each data.stats as |stat key|}}
+                <li class="stats flexrow" data-stats="{{key}}">
+                    <input class="stats-key" type="text" name="data.stats.{{key}}.key" value="{{key}}"/>
+                    {{#if stat.isCheckbox}}
+                    <label class="stats-value checkbox"><input type="checkbox" name="data.stats.{{key}}.value" {{checked stat.value}}/></label>
                     {{else}}
-                    <input class="attribute-value" type="text" name="data.attributes.{{key}}.value" value="{{attr.value}}" data-dtype="{{attr.dtype}}"/>
+                    <input class="stats-value" type="text" name="data.stats.{{key}}.value" value="{{stat.value}}" data-dtype="{{stat.dtype}}"/>
                     {{/if}}
-                    <input class="attribute-label" type="text" name="data.attributes.{{key}}.label" value="{{attr.label}}"/>
-                    <select class="attribute-dtype" name="data.attributes.{{key}}.dtype">
-                        {{#select attr.dtype}}
+                    <input class="stats-label" type="text" name="data.stats.{{key}}.label" value="{{stat.label}}"/>
+                    <select class="stats-dtype" name="data.stats.{{key}}.dtype">
+                        {{#select stat.dtype}}
                         {{#each ../dtypes as |t|}}
                         <option value="{{t}}">{{t}}</option>
                         {{/each}}
                         {{/select}}
                     </select>
-                    <a class="attribute-control" data-action="delete"><i class="fas fa-trash"></i></a>
+                    <a class="stats-control" data-action="delete"><i class="fas fa-trash"></i></a>
                 </li>
             {{/each}}
             </ol>

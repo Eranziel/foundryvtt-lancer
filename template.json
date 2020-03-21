@@ -17,7 +17,7 @@
             "value": 0
           }
         },
-        "attributes": {
+        "stats": {
           "hp": {
             "value": 10,
             "min": 0,
@@ -61,7 +61,32 @@
       }
     },
     "pc": {
-      "templates": ["common"]
+      "templates": ["common"],
+      "pilot": {
+        "level": 0,
+        "callsign": "",
+        "status": "",
+        "notes": "",
+        "quirk": "",
+        "background": "",
+        "history": "",
+        "stats": {
+          "hp": {
+            "value": 6,
+            "min": 0,
+            "max": 6
+          },
+          "armor": {
+            "value": 0,
+            "max": 4
+          }
+        },
+        "licenses": [],
+        "skills": [],
+        "talents": [],
+        "core_bonuses": [],
+        "reserves": []
+      }
     },
     "npc": {
       "templates": ["common"]
