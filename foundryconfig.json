@@ -1,5 +1,6 @@
 {
-  "dataPath": "",
-  "repository": "",
-  "rawURL": ""
+  "dataPath": "/home/matthew/.local/share/FoundryVTT/",
+  "systemName": "lancer",
+  "repository": "https://github.com/Eranziel/foundryvtt-lancer",
+  "rawURL": "https://github.com/Eranziel/foundryvtt-lancer/blob"
 }

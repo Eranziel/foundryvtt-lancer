@@ -285,7 +285,7 @@ async function linkUserData() {
 			if (!fs.existsSync(path.join(config.dataPath, 'Data')))
 				throw Error('User Data path invalid, no Data directory found');
 
-			linkDir = path.join(config.dataPath, 'Data', destDir, name);
+			linkDir = path.join(config.dataPath, 'Data', destDir, config.systemName);
 		} else {
 			throw Error('No User Data path defined in foundryconfig.json');
 		}
