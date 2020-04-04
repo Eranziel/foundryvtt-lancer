@@ -11,12 +11,19 @@
 import { registerSettings } from './module/settings.js';
 import { preloadTemplates } from './module/preloadTemplates.js';
 import { LancerActorSheet } from "./module/actor-sheet.js";
+import { AttackMacro } from './module/macros.js';
 
 /* ------------------------------------ */
 /* Initialize system					*/
 /* ------------------------------------ */
 Hooks.once('init', async function() {
-	console.log(`Initializing LANCER RPG System`);
+	console.log(`Initializing LANCER RPG System 
+	╭╮╱╱╭━━━┳━╮╱╭┳━━━┳━━━┳━━━╮ 
+	┃┃╱╱┃╭━╮┃┃╰╮┃┃╭━╮┃╭━━┫╭━╮┃ 
+	┃┃╱╱┃┃╱┃┃╭╮╰╯┃┃╱╰┫╰━━┫╰━╯┃ 
+	┃┃╱╭┫╰━╯┃┃╰╮┃┃┃╱╭┫╭━━┫╭╮╭╯ 
+	┃╰━╯┃╭━╮┃┃╱┃┃┃╰━╯┃╰━━┫┃┃╰╮ 
+	╰━━━┻╯╱╰┻╯╱╰━┻━━━┻━━━┻╯╰━╯`); 
 
 	// Assign custom classes and constants here
 
