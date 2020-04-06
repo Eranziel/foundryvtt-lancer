@@ -76,17 +76,25 @@ async function rollAttackMacro(title:string, grit:number, accuracy:number, damag
 	let damage_roll = new Roll(damage).roll();
 
 	// Output
-	let result = `<b>${title}</b><p>
-								<b>Attack:</b> ${attack_roll.total}       // ${attack_roll.result}<br>
-								<b>Damage:</b> ${damage_roll.total}       // ${damage_roll.result}`;
-	if (effect) result += `<br><b>Effect:</b> ${effect}`;
+	const attack_tt = await attack_roll.getTooltip();
+	const damage_tt = await damage_roll.getTooltip();
+	const templateData = {
+		title: title,
+		attack: attack_roll,
+		attack_tooltip: attack_tt,
+		damage: damage_roll,
+		damage_tooltip: damage_tt,
+		effect: effect ? effect : null
+	};
+	const template = `systems/lancer/templates/chat/attack-card.html`
+	const html = await renderTemplate(template, templateData)
 	let chat_data = {
 		user: game.user,
 		type: CONST.CHAT_MESSAGE_TYPES.IC,
 		speaker: {
 			actor: actor
 		},
-		content: result
+		content: html
 	};
 	let cm = await ChatMessage.create(chat_data);
 	cm.render();

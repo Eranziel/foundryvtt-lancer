@@ -1,0 +1,19 @@
+
+<div class="lancer-card">
+  <h3 class="title">WEAPON :: {{ title }}</h3>
+  <h4 class="section-title">// ATTACK \\</h4>
+  <div class="lancer-dice-roll">
+    <div class="lancer-dice-formula flexcol">{{ attack.formula }}</div>
+    <h4 class="lancer-dice-total flexcol">{{ attack.total }}</h4>
+  </div>
+  <h4 class="section-title">// DAMAGE \\</h4>
+  <div class="lancer-dice-roll">
+    <div class="lancer-dice-formula">{{ damage.formula }}</div>
+    <h4 class="lancer-dice-total">{{ damage.total }}</h4>
+  </div>
+  {{#if effect}}
+  <h4 class="section-title">// EFFECT \\</h4>
+  {{ effect }}
+  {{/if}}
+</div>
+
