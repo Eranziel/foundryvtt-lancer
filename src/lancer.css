@@ -1,4 +1,21 @@
 
+.lancer-stat-title {
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+  margin-left: 10px;
+  margin-right: 10px;
+  color: white;
+  background-color: #991e2a;
+}
+
+.lancer-stat-key {
+  text-align: center;
+  border-radius: 3px;
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
 .lancer-card .title {
   text-align: center;
   font-size: 16px;

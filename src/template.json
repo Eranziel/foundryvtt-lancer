@@ -2,7 +2,7 @@
   "Actor": {
     "types": ["pc", "npc"],
     "templates": {
-      "common": {
+      "mech_stats": {
         "hase": {
           "hull": {
             "value": 0
@@ -61,7 +61,7 @@
       }
     },
     "pc": {
-      "templates": ["common"],
+      "templates": ["mech_stats"],
       "pilot": {
         "level": 0,
         "callsign": "",
@@ -71,6 +71,10 @@
         "background": "",
         "history": "",
         "stats": {
+          "grit": {
+            "value": 0,
+            "max": 6
+          },
           "hp": {
             "value": 6,
             "min": 0,
@@ -79,7 +83,10 @@
           "armor": {
             "value": 0,
             "max": 4
-          }
+          },
+          "evasion": 8,
+          "edef": 8,
+          "speed": 4
         },
         "licenses": [],
         "skills": [],
@@ -89,7 +96,12 @@
       }
     },
     "npc": {
-      "templates": ["common"]
+      "templates": ["mech_stats"],
+      "npc_stats": {
+        "type": "mech",
+        "class": "",
+        "templates": []
+      }
     }
   }
 }

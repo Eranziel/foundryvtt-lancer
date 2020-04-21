@@ -11,7 +11,7 @@ export class LancerActorSheet extends ActorSheet {
        * Keep track of the currently active sheet tab
        * @type {string}
        */
-      this._sheetTab = "description";
+      this._sheetTab = "dossier";
     }
   
     /* -------------------------------------------- */

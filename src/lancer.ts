@@ -8,10 +8,10 @@
  */
 
 // Import TypeScript modules
-import { registerSettings } from './module/settings.js';
-import { preloadTemplates } from './module/preloadTemplates.js';
-import { LancerActorSheet } from './module/actor-sheet.js';
-import { LancerGame } from './module/lancer-game.js';
+import { registerSettings } from './module/settings.js'
+import { preloadTemplates } from './module/preloadTemplates.js'
+import { LancerActorSheet } from './module/actor-sheet.js'
+import { LancerGame } from './module/lancer-game.js'
 
 /* ------------------------------------ */
 /* Initialize system					*/
@@ -64,9 +64,9 @@ Hooks.once('ready', function() {
 async function rollAttackMacro(title:string, grit:number, accuracy:number, damage:string, effect?:string) {
 	// Determine which Actor to speak as
 	const speaker = ChatMessage.getSpeaker();
-	let actor;
-	if (speaker.token) actor = game.actors.tokens[speaker.token];
-	if (!actor) actor = game.actors.get(speaker.actor, {strict : false});
+	let actor: Actor;
+	if (speaker.token) actor = game.actors.tokens[speaker.token].actor;
+	if (!actor) actor = game.actors.get(speaker.actor, {strict : false}) as Actor;
 
 	// Do the rolling
 	let acc_str = "";
