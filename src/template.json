@@ -2,8 +2,9 @@
   "Actor": {
     "types": ["pc", "npc"],
     "templates": {
-      "mech_stats": {
-        "hase": {
+      "mech": {
+        "mech": {
+          "frame": "",
           "hull": {
             "value": 0
           },
@@ -15,9 +16,7 @@
           },
           "engineering": {
             "value": 0
-          }
-        },
-        "stats": {
+          },
           "hp": {
             "value": 10,
             "min": 0,
@@ -61,9 +60,13 @@
       }
     },
     "pc": {
-      "templates": ["mech_stats"],
+      "templates": ["mech"],
       "pilot": {
         "level": 0,
+        "grit": {
+          "value": 0,
+          "max": 6
+        },
         "callsign": "",
         "status": "",
         "notes": "",
@@ -71,10 +74,6 @@
         "background": "",
         "history": "",
         "stats": {
-          "grit": {
-            "value": 0,
-            "max": 6
-          },
           "hp": {
             "value": 6,
             "min": 0,
@@ -84,19 +83,34 @@
             "value": 0,
             "max": 4
           },
-          "evasion": 8,
-          "edef": 8,
-          "speed": 4
+          "evasion": {
+            "value": 8
+          },
+          "edef": {
+            "value": 8
+          },
+          "speed": {
+            "value": 4
+          }
+        },
+        "loadout": {
+          "armor": "",
+          "weapons": [],
+          "gear": []
         },
         "licenses": [],
         "skills": [],
         "talents": [],
         "core_bonuses": [],
         "reserves": []
+      },
+      "loadout": {
+        "weapons": [],
+        "systems": []
       }
     },
     "npc": {
-      "templates": ["mech_stats"],
+      "templates": ["mech"],
       "npc_stats": {
         "type": "mech",
         "class": "",

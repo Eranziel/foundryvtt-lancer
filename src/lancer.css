@@ -1,19 +1,42 @@
 
-.lancer-stat-title {
+.clipped {
+  clip-path: polygon( 10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, );
+  -webkit-clip-path: polygon( 10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px );
+}
+
+.lancer-title {
   text-align: center;
-  font-size: 18px;
-  font-weight: bold;
   margin-left: 10px;
   margin-right: 10px;
+  margin-top: 3px;
+  margin-bottom: 3px;
   color: white;
   background-color: #991e2a;
 }
 
-.lancer-stat-key {
+.major {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.medium {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.minor {
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.lancer-stat-input {
   text-align: center;
   border-radius: 3px;
   margin-left: 10px;
-  margin-right: 10px;
+  margin-right: 10px; 
+  margin-top: 3px;
+  margin-bottom: 3px;
+  max-width: 50px;
 }
 
 .lancer-card .title {
