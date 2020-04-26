@@ -1,17 +1,29 @@
 
 .clipped {
-  clip-path: polygon( 10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, );
+  clip-path: polygon( 10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px );
   -webkit-clip-path: polygon( 10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px );
 }
 
-.lancer-title {
-  text-align: center;
+.clipped-top {
+  clip-path: polygon( 10px 0, 100% 0, 100% 100%, 0 100%, 0 10px );
+  -webkit-clip-path: polygon( 10px 0, 100% 0, 100% 100%, 0 100%, 0 10px );
+}
+
+.clipped-bot {
+  clip-path: polygon( 0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100% );
+  -webkit-clip-path: polygon( 0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100% );
+}
+
+.sheet-bg {
+  background-color: #eee;
+}
+
+.card {
+  background-color: rgba(0,0,0,0.1);
   margin-left: 10px;
   margin-right: 10px;
   margin-top: 3px;
   margin-bottom: 3px;
-  color: white;
-  background-color: #991e2a;
 }
 
 .major {
@@ -29,13 +41,24 @@
   font-weight: bold;
 }
 
-.lancer-stat-input {
+.lancer-title {
   text-align: center;
-  border-radius: 3px;
   margin-left: 10px;
-  margin-right: 10px; 
+  margin-right: 10px;
   margin-top: 3px;
   margin-bottom: 3px;
+  color: white;
+  background-color: #991e2a;
+}
+
+.lancer-stat-header {
+  text-align: center;
+  color: white;
+  background-color: #991e2a;
+}
+
+.lancer-stat-input {
+  text-align: center;
   max-width: 50px;
 }
 

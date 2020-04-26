@@ -1,7 +1,7 @@
-<form class="{{cssClass}}" autocomplete="off">
+<form class="{{cssClass}} sheet-bg" autocomplete="off">
 
 	{{!-- Sheet Header --}}
-	<header class="sheet-header">
+	<header class="sheet-header card">
 		<img class="profile-img" src="{{actor.img}}" data-edit="img" title="{{actor.name}}" height="100" width="100"/>
 		<div class="header-fields">
 			<h1 class="charname"><input name="name" type="text" value="{{actor.name}}" placeholder="Name"/></h1>
@@ -42,44 +42,66 @@
 		{{!-- Pilot Tactical Tab --}}
 		<div class="tab pilot" data-group="primary" data-tab="pilot">
 			<div class="flexrow">
-				<span class="lancer-title major clipped">LICENSE LEVEL</span>
-				<input class="lancer-stat-input major" type="number" name="data.pilot.level" value="{{data.pilot.level}}" data-dtype="Number"\>
-				<span class="lancer-title major clipped">GRIT</span>
-				<input class="lancer-stat-input major" type="number" name="data.pilot.grit" value="{{data.pilot.grit.value}}" data-dtype="Number"\>
-			</div>
-			<div class="flexcol">
-				<div class="flexrow">
-					<span class="lancer-title major clipped">HULL</span>
-					<input class="lancer-stat-input major" type="number" name="data.mech.hull" value="{{data.mech.hull.value}}" data-dtype="Number"/>
-					<span class="lancer-title major clipped">AGILITY</span>
-					<input class="lancer-stat-input major" type="number" name="data.mech.agility" value="{{data.mech.agility.value}}" data-dtype="Number"/>
+				<div class="flexcol card clipped">
+					<span class="lancer-stat-header major clipped-top">LICENSE LEVEL</span>
+					<input class="lancer-stat-input major clipped-bot" type="number" name="data.pilot.level" value="{{data.pilot.level}}" data-dtype="Number"\>
 				</div>
-				<div class="flexrow">
-					<span class="lancer-title major clipped">SYSTEMS</span>
-					<input class="lancer-stat-input major" type="number" name="data.mech.systems" value="{{data.mech.systems.value}}" data-dtype="Number"/>
-					<span class="lancer-title major clipped">ENGINEERING</span>
-					<input class="lancer-stat-input major" type="number" name="data.mech.engineering" value="{{data.mech.engineering.value}}" data-dtype="Number"/>
+				<div class="flexcol card clipped">
+					<span class="lancer-stat-header major clipped-top">GRIT</span>
+					<input class="lancer-stat-input major clipped-bot" type="number" name="data.pilot.grit" value="{{data.pilot.grit.value}}" data-dtype="Number"\>
+				</div>
+			</div>
+			<div class="flexrow">
+				<div class="flexcol card clipped">
+					<span class="lancer-stat-header major clipped-top">HULL</span>
+					<input class="lancer-stat-input major clipped-bot" type="number" name="data.mech.hull" value="{{data.mech.hull.value}}" data-dtype="Number"/>
+				</div>
+				<div class="flexcol card clipped">
+					<span class="lancer-stat-header major clipped-top">AGILITY</span>
+					<input class="lancer-stat-input major clipped-bot" type="number" name="data.mech.agility" value="{{data.mech.agility.value}}" data-dtype="Number"/>
+				</div>
+				<div class="flexcol card clipped">
+					<span class="lancer-stat-header major clipped-top">SYSTEMS</span>
+					<input class="lancer-stat-input major clipped-bot" type="number" name="data.mech.systems" value="{{data.mech.systems.value}}" data-dtype="Number"/>
+				</div>
+				<div class="flexcol card clipped">
+					<span class="lancer-stat-header major clipped-top">ENGINEERING</span>
+					<input class="lancer-stat-input major clipped-bot" type="number" name="data.mech.engineering" value="{{data.mech.engineering.value}}" data-dtype="Number"/>
 				</div>
 			</div>
 			<div class="flexrow"><span class="lancer-title major clipped">PILOT STATS</span></div>
-			<div class="flexrow">
-				<span class="lancer-title medium clipped">HP</span>
-				<input class="lancer-stat-input medium" type="number" name="data.pilot.stats.hp.value" value="{{data.pilot.stats.hp.value}}" data-dtype="Number"/>
-				<span style="max-width: min-content;" >/</span>
-				<input class="lancer-stat-input medium" type="number" name="data.pilot.stats.hp.max" value="{{data.pilot.stats.hp.max}}" data-dtype="Number"/>
+			<div class="flexcol card clipped">
+				<span class="lancer-stat-header medium clipped-top">HP</span>
+				<div class="flexrow">
+					<input class="lancer-stat-input medium" type="number" name="data.pilot.stats.hp.value" value="{{data.pilot.stats.hp.value}}" data-dtype="Number"/>
+					<span style="max-width: min-content;" >/</span>
+					<input class="lancer-stat-input medium clipped-bot" type="number" name="data.pilot.stats.hp.max" value="{{data.pilot.stats.hp.max}}" data-dtype="Number"/>
+				</div>
 			</div>
 			<div class="flexrow">
-				<span class="lancer-title medium clipped">ARMOR</span>
-				<input class="lancer-stat-input medium" type="number" name="data.pilot.stats.armor" value="{{data.pilot.stats.armor.value}}" data-dtype="Number"/>
-				<span class="lancer-title medium clipped">EVASION</span>
-				<input class="lancer-stat-input medium" type="number" name="data.pilot.stats.evasion" value="{{data.pilot.stats.evasion.value}}" data-dtype="Number"/>
+				<div class="flexcol card clipped">
+					<span class="lancer-stat-header medium clipped-top">ARMOR</span>
+					<input class="lancer-stat-input medium clipped-bot" type="number" name="data.pilot.stats.armor" value="{{data.pilot.stats.armor.value}}" data-dtype="Number"/>
+				</div>
+				<div class="flexcol card clipped">
+					<span class="lancer-stat-header medium clipped-top">EVASION</span>
+					<input class="lancer-stat-input medium clipped-bot" type="number" name="data.pilot.stats.evasion" value="{{data.pilot.stats.evasion.value}}" data-dtype="Number"/>
+				</div>
+				<div class="flexcol card clipped">
+					<span class="lancer-stat-header medium clipped-top">E-DEFENSE</span>
+					<input class="lancer-stat-input medium clipped-bot" type="number" name="data.pilot.stats.edef" value="{{data.pilot.stats.edef.value}}" data-dtype="Number"/>
+				</div>
+				<div class="flexcol card clipped">
+					<span class="lancer-stat-header medium clipped-top">SPEED</span>
+					<input class="lancer-stat-input medium clipped-bot" type="number" name="data.pilot.stats.speed" value="{{data.pilot.stats.stats.value}}" data-dtype="Number"/>
+				</div>
 			</div>
-			<div class="flexrow">
-				<span class="lancer-title medium clipped">E-DEFENSE</span>
-				<input class="lancer-stat-input medium" type="number" name="data.pilot.stats.edef" value="{{data.pilot.stats.edef.value}}" data-dtype="Number"/>
-				<span class="lancer-title medium clipped">SPEED</span>
-				<input class="lancer-stat-input medium" type="number" name="data.pilot.stats.speed" value="{{data.pilot.stats.stats.value}}" data-dtype="Number"/>
-			</div>
+			<h2 class="lancer-title clipped">SKILL TRIGGERS</h2>
+			<h2 class="lancer-title clipped">TALENTS</h2>
+			<h2 class="lancer-title clipped">LICENSES</h2>
+			<h2 class="lancer-title clipped">CORE BONUSES</h2>
+			<h2 class="lancer-title clipped">GEAR</h2>
+			
 			<!-- <header class="stats-header flexrow">
 				<span class="stats-key">Stats Key</span>
 				<span class="stats-value">Value</span>
@@ -115,68 +137,64 @@
 		<div class="tab mech" data-group="primary" data-tab="mech">
 			<span class="lancer-title major clipped">{{data.mech.frame}}</span>
 			<div class="flexrow">
-				<div class="flexcol">
-					<span class="lancer-title major clipped">STRUCTURE</span>
+				<div class="flexcol card clipped">
+					<span class="lancer-stat-header major clipped-top">STRUCTURE</span>
 					<div class="flexrow">
 						<input class="lancer-stat-input major" type="number" name="data.mech.structure.value" value="{{data.mech.structure.value}}" data-dtype="Number"/>
 						<span style="max-width: min-content;" >/</span>
-						<input class="lancer-stat-input major" type="number" name="data.mech.structure.max" value="{{data.mech.structure.max}}" data-dtype="Number"/>
+						<input class="lancer-stat-input major clipped-bot" type="number" name="data.mech.structure.max" value="{{data.mech.structure.max}}" data-dtype="Number"/>
 					</div>
 				</div>
-				<div class="flexcol">
-					<span class="lancer-title major clipped">HP</span>
+				<div class="flexcol card clipped">
+					<span class="lancer-stat-header major clipped-top">HP</span>
 					<div class="flexrow">
 						<input class="lancer-stat-input major" type="number" name="data.mech.hp.value" value="{{data.mech.hp.value}}" data-dtype="Number"/>
 						<span style="max-width: min-content;" >/</span>
-						<input class="lancer-stat-input major" type="number" name="data.mech.hp.max" value="{{data.mech.hp.max}}" data-dtype="Number"/>
+						<input class="lancer-stat-input major clipped-bot" type="number" name="data.mech.hp.max" value="{{data.mech.hp.max}}" data-dtype="Number"/>
 					</div>
 				</div>
-			</div>
-			<div class="flexrow">
-				<div class="flexcol">
-					<span class="lancer-title major clipped">STRESS</span>
+				<div class="flexcol card clipped">
+					<span class="lancer-stat-header major clipped-top">STRESS</span>
 					<div class="flexrow">
 						<input class="lancer-stat-input major" type="number" name="data.mech.stress.value" value="{{data.mech.stress.value}}" data-dtype="Number"/>
 						<span style="max-width: min-content;">/</span>
-						<input class="lancer-stat-input major" type="number" name="data.mech.stress.max" value="{{data.mech.stress.max}}" data-dtype="Number"/>
+						<input class="lancer-stat-input major clipped-bot" type="number" name="data.mech.stress.max" value="{{data.mech.stress.max}}" data-dtype="Number"/>
 					</div>
 				</div>
-				<div class="flexcol">
-					<span class="lancer-title major clipped">HEAT</span>
+				<div class="flexcol card clipped">
+					<span class="lancer-stat-header major clipped-top">HEAT</span>
 					<div class="flexrow">
 						<input class="lancer-stat-input major" type="number" name="data.mech.heat.value" value="{{data.mech.heat.value}}" data-dtype="Number"/>
 						<span style="max-width: min-content;">/</span>
-						<input class="lancer-stat-input major" type="number" name="data.mech.heat.max" value="{{data.mech.heat.max}}" data-dtype="Number"/>
+						<input class="lancer-stat-input major clipped-bot" type="number" name="data.mech.heat.max" value="{{data.mech.heat.max}}" data-dtype="Number"/>
 					</div>
 				</div>
 			</div>
 			</p>
 			<div class="flexrow">
-				<div class="flexcol">
-					<span class="lancer-title major clipped">ARMOR</span>
-					<input class="lancer-stat-input medium" type="number" name="data.mech.armor.value" value="{{data.mech.armor.value}}" data-dtype="Number"/>
+				<div class="flexcol card clipped">
+					<span class="lancer-stat-header major clipped-top">ARMOR</span>
+					<input class="lancer-stat-input medium clipped-bot" type="number" name="data.mech.armor.value" value="{{data.mech.armor.value}}" data-dtype="Number"/>
 				</div>
-				<div class="flexcol">
-					<span class="lancer-title major clipped">EVASION</span>
-					<input class="lancer-stat-input medium" type="number" name="data.mech.evasion.value" value="{{data.mech.evasion.value}}" data-dtype="Number"/>
+				<div class="flexcol card clipped">
+					<span class="lancer-stat-header major clipped-top">EVASION</span>
+					<input class="lancer-stat-input medium clipped-bot" type="number" name="data.mech.evasion.value" value="{{data.mech.evasion.value}}" data-dtype="Number"/>
 				</div>
-				<div class="flexcol">
-					<span class="lancer-title major clipped">E-DEFENSE</span>
-					<input class="lancer-stat-input medium" type="number" name="data.mech.edef.value" value="{{data.mech.edef.value}}" data-dtype="Number"/>
+				<div class="flexcol card clipped">
+					<span class="lancer-stat-header major clipped-top">E-DEFENSE</span>
+					<input class="lancer-stat-input medium clipped-bot" type="number" name="data.mech.edef.value" value="{{data.mech.edef.value}}" data-dtype="Number"/>
 				</div>
-			</div>
-			<div class="flexrow">
-				<div class="flexcol">
-					<span class="lancer-title major clipped">SPEED</span>
-					<input class="lancer-stat-input medium" type="number" name="data.mech.speed.value" value="{{data.mech.speed.value}}" data-dtype="Number"/>
+				<div class="flexcol card clipped">
+					<span class="lancer-stat-header major clipped-top">SPEED</span>
+					<input class="lancer-stat-input medium clipped-bot" type="number" name="data.mech.speed.value" value="{{data.mech.speed.value}}" data-dtype="Number"/>
 				</div>
-				<div class="flexcol">
-					<span class="lancer-title major clipped">SENSORS</span>
-					<input class="lancer-stat-input medium" type="number" name="data.mech.sensors.value" value="{{data.mech.sensors.value}}" data-dtype="Number"/>
+				<div class="flexcol card clipped">
+					<span class="lancer-stat-header major clipped-top">SENSORS</span>
+					<input class="lancer-stat-input medium clipped-bot" type="number" name="data.mech.sensors.value" value="{{data.mech.sensors.value}}" data-dtype="Number"/>
 				</div>
-				<div class="flexcol">
-					<span class="lancer-title major clipped">SAVE TARGET</span>
-					<input class="lancer-stat-input medium" type="number" name="data.mech.save.value" value="{{data.mech.save.value}}" data-dtype="Number"/>
+				<div class="flexcol card clipped">
+					<span class="lancer-stat-header major clipped-top">SAVE TARGET</span>
+					<input class="lancer-stat-input medium clipped-bot" type="number" name="data.mech.save.value" value="{{data.mech.save.value}}" data-dtype="Number"/>
 				</div>
 			</div>
 			<h2 class="lancer-title major clipped">WEAPONS</h2>
