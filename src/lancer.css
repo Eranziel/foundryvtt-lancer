@@ -58,6 +58,7 @@
 }
 
 .lancer-stat-input {
+  align-self: center;
   text-align: center;
   max-width: 50px;
 }
