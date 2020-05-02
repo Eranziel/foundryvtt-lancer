@@ -13,6 +13,10 @@ import { preloadTemplates } from './module/preloadTemplates.js'
 import { LancerActorSheet } from './module/actor-sheet.js'
 import { LancerGame } from './module/lancer-game.js'
 
+// TODO: What is the difference between require and import???
+// const lancerData = require('lancer-data');
+import { lancerData } from 'lancer-data'
+
 /* ------------------------------------ */
 /* Initialize system					*/
 /* ------------------------------------ */
@@ -46,8 +50,10 @@ Hooks.once('init', async function() {
 /* Setup system							*/
 /* ------------------------------------ */
 Hooks.once('setup', function() {
-	// Do anything after initialization but before
-	// ready
+	//=== Code below must be omitted from release ====
+	convertLancerData();
+	//=== End omit from release ======================
+
 });
 
 /* ------------------------------------ */
@@ -98,4 +104,37 @@ async function rollAttackMacro(title:string, grit:number, accuracy:number, damag
 	};
 	let cm = await ChatMessage.create(chat_data);
 	cm.render();
+}
+
+//========================================================
+// Everything below here should NOT go in release!
+//========================================================
+
+async function convertLancerData() {
+	console.log("LANCER - building Skill Triggers compendium.")
+	await convertSkills();
+	return Promise.resolve();
+}
+
+async function convertSkills() {
+	const skills = lancerData.skills; 
+	// Create a Compendium for skill triggers
+	const metaData : Object = {
+      name: "skills",
+      label: "Skill Triggers",
+      system: "lancer",
+      path: "./packs/skills.db",
+      entity: "Item"
+	}
+	let skillComp : Compendium = new Compendium(metaData, null);
+	game.packs.push(skillComp);
+
+	for (var i=0; i<skills.length; i++) {
+		let sd : Object = skills[i];
+		sd['type'] = "skill";
+		console.log(sd);
+		// Create an Item from the skill data
+		await skillComp.createEntity(sd);
+	} 
+	return Promise.resolve(); 
 }
