@@ -111,7 +111,7 @@ async function rollAttackMacro(title:string, grit:number, accuracy:number, damag
 //========================================================
 
 async function convertLancerData() {
-	console.log("LANCER - building Skill Triggers compendium.")
+	console.log("LANCER | Building Skill Triggers compendium.")
 	await convertSkills();
 	return Promise.resolve();
 }
@@ -132,9 +132,9 @@ async function convertSkills() {
 	for (var i=0; i<skills.length; i++) {
 		let sd : Object = skills[i];
 		sd['type'] = "skill";
-		console.log(sd);
+		console.log(`LANCER | Adding skill: ${sd}`);
 		// Create an Item from the skill data
 		await skillComp.createEntity(sd);
-	} 
+	}
 	return Promise.resolve(); 
 }
