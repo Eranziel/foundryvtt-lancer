@@ -57,10 +57,16 @@
             "value": 10
           }
         }
+      },
+      "mech_loadout": {
+        "mech_loadout": {
+          "mounts": [],
+          "systems": []
+        }
       }
     },
     "pc": {
-      "templates": ["mech"],
+      "templates": ["mech", "mech_loadout"],
       "pilot": {
         "level": 0,
         "grit": {
@@ -111,11 +117,93 @@
     },
     "npc": {
       "templates": ["mech"],
-      "npc_stats": {
-        "type": "mech",
-        "class": "",
-        "templates": []
+      "type": "mech",
+      "class": "",
+      "npc_templates": [],
+      "activations": 1,
+      "features": []
+    }
+  },
+  "Item": {
+    "types": ["skill", "talent", "core_bonus", "license", "pilot_armor", "pilot_weapon", "pilot_gear"],
+    "templates": {
+      "compendium_item": {
+        "id": "",
+        "name": "",
+        "description": "",
+        "note": "",
+        "item_type": "",
+        "flavor_name": "",
+        "flavor_description": ""
+      },
+      "pilot_equip": {
+        "type": "",
+        "tags": [],
+        "current_uses": 0,
+        "custom_damage_type": ""
+      },
+      "mech_equip": {
+        "type": "",
+        "tags": []
       }
+    },
+    "skill": {
+      "id": "",
+      "name": "",
+      "description": "",
+      "detail": "",
+      "rank": 1
+    },
+    "talent": {
+      "id": "",
+      "name": "",
+      "description": "",
+      "ranks": [
+        {
+          "name": "",
+          "description": ""
+        },
+        {
+          "name": "",
+          "description": ""
+        },
+        {
+          "name": "",
+          "description": ""
+        }
+      ],
+      "rank": 1
+    },
+    "core_bonus": {
+      "id": "",
+      "source": "",
+      "effect": "",
+      "mounted_effect": ""
+    },
+    "license": {
+      "name": "",
+      "source": "",
+      "rank": 1
+    },
+    "pilot_armor": {
+      "templates": ["compendium_item", "pilot_equip"],
+      "hp_bonus": 0,
+      "speed": 0,
+      "speed_bonus": 0,
+      "armor": 0,
+      "edef": 0,
+      "edef_bonus": 0,
+      "evasion": 0,
+      "evasion_bonus": 0
+    },
+    "pilot_weapon": {
+      "templates": ["compendium_item", "pilot_equip"],
+      "range": [],
+      "damage": [],
+      "effect": ""
+    },
+    "pilot_gear": {
+      "uses": ""
     }
   }
 }
