@@ -203,6 +203,7 @@
       "effect": ""
     },
     "pilot_gear": {
+      "templates": ["compendium_item", "pilot_equip"],
       "uses": ""
     }
   }
