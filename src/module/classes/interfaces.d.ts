@@ -1,5 +1,5 @@
 
-import { LancerPCActor } from './actor/lancer-actor.js'
+import { LancerPilot } from './actor/lancer-actor.js'
 
 declare interface ResourceData {
   value: number;
@@ -44,7 +44,7 @@ declare interface LancerPilotLoadoutData {
   gear: LancerPilotGearData[];
 }
 
-declare interface LancerPilotData {
+declare interface LancerPilotSubData {
   level: number;
   grit: number;
   callsign: string;
@@ -62,18 +62,18 @@ declare interface LancerPilotData {
   reserves: Item[]; // TODO: reserve data type
 }
 
-declare interface LancerPCActorData extends ActorData {
-  pilot: LancerPilotData;
+declare interface LancerPilotData extends ActorData {
+  pilot: LancerPilotSubData;
   mech: LancerMechData;
   loadout: LancerMechLoadoutData;
 }
 
-declare interface LancerPCActorSheetData extends ActorSheetData {
-  actor: LancerPCActor;
-  data: LancerPCActorData;
+declare interface LancerPilotSheetData extends ActorSheetData {
+  actor: LancerPilot;
+  data: LancerPilotData;
 }
 
-declare interface LancerNPCActorData extends ActorData {
+declare interface LancerNPCData extends ActorData {
   mech: LancerMechData;
   type: string;
   class: string;

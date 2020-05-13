@@ -1,10 +1,10 @@
-import { LancerPCActor } from './classes/actor/lancer-actor.js'
-import { LancerPCActorSheetData } from './classes/interfaces.js';
+import { LancerPilot } from './classes/actor/lancer-actor.js'
+import { LancerPilotSheetData } from './classes/interfaces.js';
 
 /**
  * Extend the basic ActorSheet
  */
-export class LancerPCSheet extends ActorSheet {
+export class LancerPilotSheet extends ActorSheet {
     _sheetTab: string;
 
     constructor(...args) {
@@ -46,7 +46,7 @@ export class LancerPCSheet extends ActorSheet {
      * The prepared data object contains both the actor data as well as additional sheet options
      */
     getData() {
-      const data: LancerPCActorSheetData = super.getData() as LancerPCActorSheetData;
+      const data: LancerPilotSheetData = super.getData() as LancerPilotSheetData;
       // data.dtypes = ["String", "Number", "Boolean"];
     //   for ( let attr of Object.values(data.data.attributes) ) {
     //     attr.isCheckbox = attr.dtype === "Boolean";
