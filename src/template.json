@@ -5,18 +5,10 @@
       "mech": {
         "mech": {
           "frame": "",
-          "hull": {
-            "value": 0
-          },
-          "agility": {
-            "value": 0
-          },
-          "systems": {
-            "value": 0
-          },
-          "engineering": {
-            "value": 0
-          },
+          "hull": 0,
+          "agility": 0,
+          "systems": 0,
+          "engineering": 0,
           "hp": {
             "value": 10,
             "min": 0,
@@ -37,25 +29,12 @@
             "min": 0,
             "max": 1
           },
-          "armor": {
-            "value": 0,
-            "min": 0
-          },
-          "speed": {
-            "value": 4
-          },
-          "evasion": {
-            "value": 8
-          },
-          "edef": {
-            "value": 8
-          },
-          "sensors": {
-            "value": 10
-          },
-          "save": {
-            "value": 10
-          }
+          "armor": 0,
+          "speed": 4,
+          "evasion": 8,
+          "edef": 8,
+          "sensors": 10,
+          "save": 10
         }
       },
       "mech_loadout": {
@@ -69,10 +48,7 @@
       "templates": ["mech", "mech_loadout"],
       "pilot": {
         "level": 0,
-        "grit": {
-          "value": 0,
-          "max": 6
-        },
+        "grit": 6,
         "callsign": "",
         "status": "",
         "notes": "",
@@ -85,19 +61,10 @@
             "min": 0,
             "max": 6
           },
-          "armor": {
-            "value": 0,
-            "max": 4
-          },
-          "evasion": {
-            "value": 8
-          },
-          "edef": {
-            "value": 8
-          },
-          "speed": {
-            "value": 4
-          }
+          "armor": 0,
+          "evasion": 8,
+          "edef": 8,
+          "speed": 4
         },
         "loadout": {
           "armor": "",
@@ -109,10 +76,6 @@
         "talents": [],
         "core_bonuses": [],
         "reserves": []
-      },
-      "loadout": {
-        "weapons": [],
-        "systems": []
       }
     },
     "npc": {
@@ -204,7 +167,7 @@
     },
     "pilot_gear": {
       "templates": ["compendium_item", "pilot_equip"],
-      "uses": ""
+      "uses": 0
     }
   }
 }
