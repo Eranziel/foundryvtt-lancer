@@ -1,4 +1,5 @@
 import { LancerPCActor } from './classes/actor/lancer-actor.js'
+import { LancerPCActorSheetData } from './classes/interfaces.js';
 
 /**
  * Extend the basic ActorSheet
@@ -32,7 +33,7 @@ export class LancerPCSheet extends ActorSheet {
     static get defaultOptions() {
       return mergeObject(super.defaultOptions, {
         classes: ["lancer", "sheet", "actor"],
-        template: "systems/lancer/templates/actor-sheet.html",
+        template: "systems/lancer/templates/pilot-sheet.html",
         width: 600,
         height: 600
       });
@@ -45,12 +46,13 @@ export class LancerPCSheet extends ActorSheet {
      * The prepared data object contains both the actor data as well as additional sheet options
      */
     getData() {
-      const data = super.getData();
-    //   console.log(data)
+      const data: LancerPCActorSheetData = super.getData() as LancerPCActorSheetData;
       // data.dtypes = ["String", "Number", "Boolean"];
     //   for ( let attr of Object.values(data.data.attributes) ) {
     //     attr.isCheckbox = attr.dtype === "Boolean";
     //   }
+      if (data.data.pilot.background == "") data.data.pilot.background = "//:AWAIT_ENTRY>"
+      console.log("LANCER | PC data: ")
       console.log(data)
       return data;
     }
@@ -75,12 +77,12 @@ export class LancerPCSheet extends ActorSheet {
       // Everything below here is only needed if the sheet is editable
       if (!this.options.editable) return;
   
-    //   // Update Inventory Item
-    //   html.find('.item-edit').click(ev => {
-    //     const li = $(ev.currentTarget).parents(".item");
-    //     const item = this.actor.getOwnedItem(li.data("itemId"));
-    //     item.sheet.render(true);
-    //   });
+      // Update Inventory Item
+      // html.find('.item-edit').click(ev => {
+      //   const li = $(ev.currentTarget).parents(".item");
+      //   const item = this.actor.getOwnedItem(li.data("itemId"));
+      //   item.sheet.render(true);
+      // });
   
     //   // Delete Inventory Item
     //   html.find('.item-delete').click(ev => {
@@ -128,28 +130,28 @@ export class LancerPCSheet extends ActorSheet {
      * @private
      */
     _updateObject(event, formData) {
-      // TODO: This isn't used anymore.
   
+      // TODO: "attributes" aren't used anymore.
       // Handle the free-form attributes list
-      const formAttrs = formData.data.attributes || {};
-      const attributes = Object.values(formAttrs).reduce((obj, v) => {
-        let k = v["key"].trim();
-        if ( /[\s\.]/.test(k) )  return ui.notifications.error("Attribute keys may not contain spaces or periods");
-        delete v["key"];
-        obj[k] = v;
-        return obj;
-      }, {});
+      // const formAttrs = formData.data.attributes || {};
+      // const attributes = Object.values(formAttrs).reduce((obj, v) => {
+      //   let k = v["key"].trim();
+      //   if ( /[\s\.]/.test(k) )  return ui.notifications.error("Attribute keys may not contain spaces or periods");
+      //   delete v["key"];
+      //   obj[k] = v;
+      //   return obj;
+      // }, {});
       
-      // Remove attributes which are no longer used
-      for ( let k of Object.keys(this.object.data.data.attributes) ) {
-        if ( !attributes.hasOwnProperty(k) ) attributes[`-=${k}`] = null;
-      }
+      // // Remove attributes which are no longer used
+      // for ( let k of Object.keys(this.object.data.data.attributes) ) {
+      //   if ( !attributes.hasOwnProperty(k) ) attributes[`-=${k}`] = null;
+      // }
   
-      // Re-combine formData
-      formData = Object.entries(formData).filter(e => !e[0].startsWith("data.attributes")).reduce((obj, e) => {
-        obj[e[0]] = e[1];
-        return obj;
-      }, {_id: this.object._id, "data.attributes": attributes});
+      // // Re-combine formData
+      // formData = Object.entries(formData).filter(e => !e[0].startsWith("data.attributes")).reduce((obj, e) => {
+      //   obj[e[0]] = e[1];
+      //   return obj;
+      // }, {_id: this.object._id, "data.attributes": attributes});
       
       // Update the Actor
       return this.object.update(formData);
