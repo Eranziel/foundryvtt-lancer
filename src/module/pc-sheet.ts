@@ -1,7 +1,9 @@
+import { LancerPCActor } from './classes/actor/lancer-actor.js'
+
 /**
- * Extend the basic ActorSheet with some very simple modifications
+ * Extend the basic ActorSheet
  */
-export class LancerActorSheet extends ActorSheet {
+export class LancerPCSheet extends ActorSheet {
     _sheetTab: string;
 
     constructor(...args) {
@@ -14,16 +16,23 @@ export class LancerActorSheet extends ActorSheet {
       this._sheetTab = "dossier";
     }
   
+    /**
+     * A convenience reference to the Actor entity
+     */
+    // get actor(): LancerPCActor {
+    //   return this.actor;
+    // };
+
     /* -------------------------------------------- */
   
     /**
      * Extend and override the default options used by the 5e Actor Sheet
      * @returns {Object}
      */
-      static get defaultOptions() {
-        return mergeObject(super.defaultOptions, {
-          classes: ["lancer", "sheet", "actor"],
-          template: "systems/lancer/templates/actor-sheet.html",
+    static get defaultOptions() {
+      return mergeObject(super.defaultOptions, {
+        classes: ["lancer", "sheet", "actor"],
+        template: "systems/lancer/templates/actor-sheet.html",
         width: 600,
         height: 600
       });
@@ -52,7 +61,7 @@ export class LancerActorSheet extends ActorSheet {
      * Activate event listeners using the prepared sheet HTML
      * @param html {HTML}   The prepared HTML object ready to be rendered into the DOM
      */
-      activateListeners(html) {
+    activateListeners(html) {
       super.activateListeners(html);
   
       // Activate tabs
