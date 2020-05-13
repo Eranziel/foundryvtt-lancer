@@ -1,4 +1,6 @@
 
+import { LancerPCActor } from './actor/lancer-actor.js'
+
 declare interface ResourceData {
   value: number;
   min: number;
@@ -64,6 +66,11 @@ declare interface LancerPCActorData extends ActorData {
   pilot: LancerPilotData;
   mech: LancerMechData;
   loadout: LancerMechLoadoutData;
+}
+
+declare interface LancerPCActorSheetData extends ActorSheetData {
+  actor: LancerPCActor;
+  data: LancerPCActorData;
 }
 
 declare interface LancerNPCActorData extends ActorData {

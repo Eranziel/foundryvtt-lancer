@@ -1,4 +1,12 @@
 
+import {  LancerSkillData, 
+          LancerTalentData,
+          LancerCoreBonusData,
+          LancerLicenseData,
+          LancerPilotArmorData,
+          LancerPilotWeaponData,
+          LancerPilotGearData } from '../interfaces'
+
 export class LancerSkill extends Item {
   data: LancerSkillData;
 }

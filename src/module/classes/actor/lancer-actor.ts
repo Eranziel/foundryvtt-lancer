@@ -1,4 +1,6 @@
 
+import { LancerPCActorData, LancerNPCActorData } from '../interfaces'
+
 /**
  * Extend the Actor class for Lancer PC-type actors.
  */
