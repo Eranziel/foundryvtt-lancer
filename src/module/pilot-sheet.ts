@@ -1,6 +1,8 @@
 import { LancerPilot } from './classes/actor/lancer-actor.js'
 import { LancerPilotSheetData } from './classes/interfaces.js';
 
+const entryPrompt = "//:AWAIT_ENTRY>";
+
 /**
  * Extend the basic ActorSheet
  */
@@ -51,9 +53,11 @@ export class LancerPilotSheet extends ActorSheet {
     //   for ( let attr of Object.values(data.data.attributes) ) {
     //     attr.isCheckbox = attr.dtype === "Boolean";
     //   }
-      if (data.data.pilot.background == "") data.data.pilot.background = "//:AWAIT_ENTRY>"
-      console.log("LANCER | PC data: ")
-      console.log(data)
+      if (data.data.pilot.background == "") data.data.pilot.background = entryPrompt;
+      if (data.data.pilot.history == "")    data.data.pilot.history = entryPrompt;
+      if (data.data.pilot.notes == "")      data.data.pilot.notes = entryPrompt;
+      console.log("LANCER | PC data: ");
+      console.log(data);
       return data;
     }
   
