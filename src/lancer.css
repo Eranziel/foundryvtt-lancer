@@ -18,10 +18,6 @@
   background-color: #ccc;
 }
 
-.dossier-grid {
-  grid-template: 1fr 1fr 1fr 1fr / 1fr;
-}
-
 .editor {
   height: -webkit-fill-available;
   min-height: 100px;
@@ -76,6 +72,7 @@
   align-self: center;
   text-align: left;
   width: calc(100% - 20px);
+  margin: 5px;
 }
 
 .lancer-card .title {
