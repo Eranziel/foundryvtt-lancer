@@ -10,7 +10,7 @@
 // Import TypeScript modules
 import { registerSettings } from './module/settings.js'
 import { preloadTemplates } from './module/preloadTemplates.js'
-import { LancerActorSheet } from './module/actor-sheet.js'
+import { LancerPilotSheet } from './module/pilot-sheet.js'
 import { LancerGame } from './module/lancer-game.js'
 
 // TODO: What is the difference between require and import???
@@ -43,7 +43,7 @@ Hooks.once('init', async function() {
 
 	// Register sheet application classes
 	Actors.unregisterSheet("core", ActorSheet);
-	Actors.registerSheet("lancer", LancerActorSheet, { makeDefault: true });
+	Actors.registerSheet("lancer", LancerPilotSheet, { makeDefault: true });
 });
 
 /* ------------------------------------ */
