@@ -12,10 +12,12 @@ import { registerSettings } from './module/settings.js'
 import { preloadTemplates } from './module/preloadTemplates.js'
 import { LancerPilotSheet } from './module/pilot-sheet.js'
 import { LancerGame } from './module/lancer-game.js'
+import {  LancerSkill,
+					LancerTalent } from './module/classes/item/lancer-item'
+import {  LancerSkillData,
+					LancerTalentData } from './module/classes/interfaces'
 
-// TODO: What is the difference between require and import???
-// const lancerData = require('lancer-data');
-import { lancerData } from 'lancer-data'
+import data from 'lancer-data'
 
 /* ------------------------------------ */
 /* Initialize system					*/
@@ -50,9 +52,6 @@ Hooks.once('init', async function() {
 /* Setup system							*/
 /* ------------------------------------ */
 Hooks.once('setup', function() {
-	//=== Code below must be omitted from release ====
-	convertLancerData();
-	//=== End omit from release ======================
 
 });
 
@@ -60,7 +59,9 @@ Hooks.once('setup', function() {
 /* When ready							*/
 /* ------------------------------------ */
 Hooks.once('ready', function() {
-	// Do anything once the system is ready
+	//=== Code below must be omitted from release ====
+	convertLancerData();
+	//=== End omit from release ======================
 });
 
 // Add any additional hooks if necessary
@@ -111,13 +112,14 @@ async function rollAttackMacro(title:string, grit:number, accuracy:number, damag
 //========================================================
 
 async function convertLancerData() {
-	console.log("LANCER | Building Skill Triggers compendium.")
-	await convertSkills();
+	await buildSkillCompendium();
+	await buildTalentCompendium();
 	return Promise.resolve();
 }
 
-async function convertSkills() {
-	const skills = lancerData.skills; 
+async function buildSkillCompendium() {
+	console.log("LANCER | Building Skill Triggers compendium.");
+	const skills = data.skills; 
 	// Create a Compendium for skill triggers
 	const metaData : Object = {
       name: "skills",
@@ -126,15 +128,49 @@ async function convertSkills() {
       path: "./packs/skills.db",
       entity: "Item"
 	}
-	let skillComp : Compendium = new Compendium(metaData, null);
-	game.packs.push(skillComp);
+	let pack : Compendium = await Compendium.create(metaData);
 
+	// Iterate through the list of skills and add them each to the Compendium
 	for (var i=0; i<skills.length; i++) {
-		let sd : Object = skills[i];
-		sd['type'] = "skill";
-		console.log(`LANCER | Adding skill: ${sd}`);
+		let sd : LancerSkillData = {
+			name: skills[i].name,
+			type: "skill",
+			flags: {},
+			data: skills[i]
+		};
+		console.log(`LANCER | Adding skill ${sd.name} to compendium ${pack.collection}`);
 		// Create an Item from the skill data
-		await skillComp.createEntity(sd);
+		let newSkill : LancerSkill = (await pack.createEntity(sd)) as LancerSkill;
+		console.log(newSkill);
+	}
+	return Promise.resolve(); 
+}
+
+async function buildTalentCompendium() {
+	console.log("LANCER | Building Talents compendium.");
+	const talents = data.talents; 
+	// Create a Compendium for talents
+	const metaData : Object = {
+      name: "talents",
+      label: "Talents",
+      system: "lancer",
+      path: "./packs/talents.db",
+      entity: "Item"
+	}
+	let pack : Compendium = await Compendium.create(metaData);
+
+	// Iterate through the list of talents and add them each to the Compendium
+	for (var i=0; i<talents.length; i++) {
+		let td : LancerTalentData = {
+			name: talents[i].name,
+			type: "talent",
+			flags: {},
+			data: talents[i]
+		};
+		console.log(`LANCER | Adding talent ${td.name} to compendium ${pack.collection}`);
+		// Create an Item from the talent data
+		let newTalent : LancerTalent = (await pack.createEntity(td)) as LancerTalent;
+		console.log(newTalent);
 	}
 	return Promise.resolve(); 
 }

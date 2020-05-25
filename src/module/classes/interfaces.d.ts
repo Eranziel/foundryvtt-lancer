@@ -117,22 +117,26 @@ declare interface LancerMechEquipmentData {
 }
 
 declare interface LancerSkillData extends BaseEntityData {
-  id: string;
-  name: string;
-  description: string;
-  detail: string;
-  rank: number;
+  data: {
+    id: string;
+    name: string;
+    description: string;
+    detail: string;
+    rank: number;
+  }
 }
 
 declare interface LancerTalentData extends BaseEntityData {
-  id: string;
-  name: string;
-  description: string;
-  ranks: { // TODO: do we need a specific type here?
-    name: string; 
-    description: string
-  }[];
-  rank: number;
+  data: {
+    id: string;
+    name: string;
+    description: string;
+    ranks: { // TODO: do we need a specific type here?
+      name: string; 
+      description: string
+    }[];
+    rank: number;
+  }
 }
 
 declare interface LancerCoreBonusData extends BaseEntityData {
