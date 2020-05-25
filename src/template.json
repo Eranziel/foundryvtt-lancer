@@ -1,10 +1,11 @@
 {
   "Actor": {
-    "types": ["pc", "npc"],
+    "types": ["pc", "npc", "deployable"],
     "templates": {
       "mech": {
         "mech": {
           "frame": "",
+          "size": 1,
           "hull": 0,
           "agility": 0,
           "systems": 0,
@@ -56,6 +57,7 @@
         "background": "",
         "history": "",
         "stats": {
+          "size": 0.5,
           "hp": {
             "value": 6,
             "min": 0,
@@ -85,10 +87,31 @@
       "npc_templates": [],
       "activations": 1,
       "features": []
+    },
+    "deployable": {
+      "size": 0.5,
+      "hp": {
+        "value": 5,
+        "min": 0,
+        "max": 5
+      },
+      "armor": 0,
+      "evasion": 10,
+      "edef": 10,
+      "description": "",
+      "effect": ""
     }
   },
   "Item": {
-    "types": ["skill", "talent", "core_bonus", "license", "pilot_armor", "pilot_weapon", "pilot_gear"],
+    "types": [
+      "skill", 
+      "talent", 
+      "core_bonus", 
+      "license", 
+      "pilot_armor", 
+      "pilot_weapon", 
+      "pilot_gear"
+    ],
     "templates": {
       "compendium_item": {
         "id": "",
