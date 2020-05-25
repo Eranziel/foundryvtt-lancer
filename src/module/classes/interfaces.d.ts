@@ -9,6 +9,7 @@ declare interface ResourceData {
 
 declare interface LancerMechData {
   frame: string;
+  size: number;
   hull: number;
   agility: number;
   systems: number;
@@ -26,11 +27,12 @@ declare interface LancerMechData {
 }
 
 declare interface LancerMechLoadoutData {
-  mounts: object[];
-  systems: object[];
+  mounts: object[]; // TODO
+  systems: object[]; // TODO
 }
 
 declare interface LancerPilotStatsData {
+  size: number;
   hp: ResourceData;
   armor: number;
   evasion: number;
@@ -80,6 +82,16 @@ declare interface LancerNPCData extends ActorData {
   npc_templates: string[];
   activations: number;
   features: Item[]; // TODO: NPC feature data type
+}
+
+declare interface LancerDeployableData extends ActorData {
+  size: number;
+  hp: ResourceData;
+  armor: number;
+  evasion: number;
+  edef: number;
+  description: string;
+  effect: string;
 }
 
 declare interface LancerCompendiumItemData {
