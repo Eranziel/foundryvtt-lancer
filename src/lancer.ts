@@ -13,9 +13,11 @@ import { preloadTemplates } from './module/preloadTemplates.js'
 import { LancerPilotSheet } from './module/pilot-sheet.js'
 import { LancerGame } from './module/lancer-game.js'
 import {  LancerSkill,
-					LancerTalent } from './module/classes/item/lancer-item'
+					LancerTalent, 
+					LancerCoreBonus} from './module/classes/item/lancer-item'
 import {  LancerSkillData,
-					LancerTalentData } from './module/classes/interfaces'
+					LancerTalentData, 
+					LancerCoreBonusData} from './module/classes/interfaces'
 
 import data from 'lancer-data'
 
@@ -114,6 +116,7 @@ async function rollAttackMacro(title:string, grit:number, accuracy:number, damag
 async function convertLancerData() {
 	await buildSkillCompendium();
 	await buildTalentCompendium();
+	await buildCoreBonusCompendium();
 	return Promise.resolve();
 }
 
@@ -131,18 +134,18 @@ async function buildSkillCompendium() {
 	let pack : Compendium = await Compendium.create(metaData);
 
 	// Iterate through the list of skills and add them each to the Compendium
-	for (var i=0; i<skills.length; i++) {
-		let sd : LancerSkillData = {
-			name: skills[i].name,
+	skills.forEach(async (skill : LancerSkillData) => {
+		const sd : BaseEntityData = {
+			name: skill.name,
 			type: "skill",
 			flags: {},
-			data: skills[i]
+			data: skill
 		};
 		console.log(`LANCER | Adding skill ${sd.name} to compendium ${pack.collection}`);
 		// Create an Item from the skill data
 		let newSkill : LancerSkill = (await pack.createEntity(sd)) as LancerSkill;
-		console.log(newSkill);
-	}
+		// console.log(newSkill);
+	});
 	return Promise.resolve(); 
 }
 
@@ -160,17 +163,46 @@ async function buildTalentCompendium() {
 	let pack : Compendium = await Compendium.create(metaData);
 
 	// Iterate through the list of talents and add them each to the Compendium
-	for (var i=0; i<talents.length; i++) {
-		let td : LancerTalentData = {
-			name: talents[i].name,
+	talents.forEach(async (talent : LancerTalentData) => {
+		const td : BaseEntityData = {
+			name: talent.name,
 			type: "talent",
 			flags: {},
-			data: talents[i]
+			data: talent
 		};
 		console.log(`LANCER | Adding talent ${td.name} to compendium ${pack.collection}`);
 		// Create an Item from the talent data
 		let newTalent : LancerTalent = (await pack.createEntity(td)) as LancerTalent;
-		console.log(newTalent);
+		// console.log(newTalent);
+	});
+	return Promise.resolve(); 
+}
+
+async function buildCoreBonusCompendium() {
+	console.log("LANCER | Building Core Bonus compendium.");
+	const coreBonus = data.core_bonuses; 
+	// Create a Compendium for core bonuses
+	const metaData : Object = {
+      name: "core_bonuses",
+      label: "Core Bonuses",
+      system: "lancer",
+      path: "./packs/core_bonuses.db",
+      entity: "Item"
 	}
+	let pack : Compendium = await Compendium.create(metaData);
+
+	// Iterate through the list of talents and add them each to the Compendium
+	coreBonus.forEach(async (cbonus : LancerCoreBonusData) => {
+		const cb : BaseEntityData = {
+			name: cbonus.name,
+			type: "talent",
+			flags: {},
+			data: cbonus
+		};
+		console.log(`LANCER | Adding core bonus ${cb.name} to compendium ${pack.collection}`);
+		// Create an Item from the talent data
+		let newCoreBonus : LancerCoreBonus = (await pack.createEntity(cb)) as LancerCoreBonus;
+		// console.log(newCoreBonus);
+	});
 	return Promise.resolve(); 
 }
