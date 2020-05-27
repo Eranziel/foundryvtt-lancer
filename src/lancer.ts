@@ -14,10 +14,23 @@ import { LancerPilotSheet } from './module/pilot-sheet.js'
 import { LancerGame } from './module/lancer-game.js'
 import {  LancerSkill,
 					LancerTalent, 
-					LancerCoreBonus} from './module/classes/item/lancer-item'
+					LancerCoreBonus,
+					LancerPilotArmor,
+					LancerPilotWeapon,
+					LancerPilotGear} from './module/classes/item/lancer-item'
 import {  LancerSkillData,
 					LancerTalentData, 
-					LancerCoreBonusData} from './module/classes/interfaces'
+					LancerCoreBonusData,
+					LancerPilotGearData,
+					LancerPilotEquipmentData,
+					LancerPilotArmorData,
+					LancerSkillEntityData,
+					LancerTalentEntityData,
+					LancerCoreBonusEntityData,
+					LancerPilotArmorEntityData,
+					LancerPilotWeaponData,
+					LancerPilotWeaponEntityData,
+					LancerPilotGearEntityData} from './module/classes/interfaces'
 
 import data from 'lancer-data'
 
@@ -121,30 +134,58 @@ async function convertLancerData() {
 }
 
 async function buildSkillCompendium() {
-	console.log("LANCER | Building Skill Triggers compendium.");
-	const skills = data.skills; 
-	// Create a Compendium for skill triggers
-	const metaData : Object = {
-      name: "skills",
-      label: "Skill Triggers",
-      system: "lancer",
-      path: "./packs/skills.db",
-      entity: "Item"
+	const skills = data.skills;
+	let pack : Compendium;
+	let orig_locked : boolean = false;
+	console.log(game.packs);
+	// Find existing system compendium
+	pack = game.packs.get("lancer.skills");
+	if (!pack) {
+		// System compendium doesn't exist, attempt to find a world compendium
+		pack = game.packs.get("world.skills");
+		}
+	if (pack) {
+		console.log(`LANCER | Updating existing Skill Triggers compendium ${pack.collection}.`);
+		orig_locked = pack.locked;
+		pack.locked = false;
 	}
-	let pack : Compendium = await Compendium.create(metaData);
+	else {
+		// Compendium doesn't exist yet. Create a Compendium for skill triggers.
+		const metaData : Object = {
+				name: "skills",
+				label: "Skill Triggers",
+				system: "lancer",
+				package: "lancer",
+				path: "./packs/skills.db",
+				entity: "Item"
+		}
+		pack = await Compendium.create(metaData);
+		console.log(`LANCER | Building new Skill Triggers compendium ${pack.collection}.`);
+	}
+	await pack.getIndex();
 
 	// Iterate through the list of skills and add them each to the Compendium
 	skills.forEach(async (skill : LancerSkillData) => {
-		const sd : BaseEntityData = {
-			name: skill.name,
-			type: "skill",
-			flags: {},
-			data: skill
-		};
-		console.log(`LANCER | Adding skill ${sd.name} to compendium ${pack.collection}`);
-		// Create an Item from the skill data
-		let newSkill : LancerSkill = (await pack.createEntity(sd)) as LancerSkill;
-		// console.log(newSkill);
+		let entry : any = pack.index.find(e => e.name === skill.name);
+		// The skill already exists in the pack, update its data.
+		if (entry) {
+			console.log(`LANCER | Updating skill ${entry.name} in compendium ${pack.collection}`)
+			pack.getEntity(entry._id).then(
+				async (existingSkill : LancerSkill) => existingSkill.data.data = skill);
+		}
+		else {
+			// The skill doesn't exist yet, create it
+			const sd : LancerSkillEntityData = {
+				name: skill.name,
+				type: "skill",
+				flags: {},
+				data: skill
+			};
+			console.log(`LANCER | Adding skill ${sd.name} to compendium ${pack.collection}`);
+			// Create an Item from the skill data
+			let newSkill : LancerSkill = (await pack.createEntity(sd)) as LancerSkill;
+			// console.log(newSkill);
+		}
 	});
 	return Promise.resolve(); 
 }
