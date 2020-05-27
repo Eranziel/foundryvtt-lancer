@@ -162,6 +162,7 @@
     },
     "core_bonus": {
       "id": "",
+      "name": "",
       "source": "",
       "effect": "",
       "mounted_effect": ""
