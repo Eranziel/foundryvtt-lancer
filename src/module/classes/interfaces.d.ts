@@ -116,7 +116,7 @@ declare interface LancerMechEquipmentData {
   tags: object[]; // TODO: replace with real type
 }
 
-declare interface LancerSkillData extends BaseEntityData {
+declare interface LancerSkillData {
   id: string;
   name: string;
   description: string;
@@ -124,7 +124,11 @@ declare interface LancerSkillData extends BaseEntityData {
   rank: number;
 }
 
-declare interface LancerTalentData extends BaseEntityData {
+declare interface LancerSkillEntityData extends BaseEntityData {
+  data: LancerSkillData;
+}
+
+declare interface LancerTalentData {
   id: string;
   name: string;
   description: string;
@@ -135,20 +139,33 @@ declare interface LancerTalentData extends BaseEntityData {
   rank: number;
 }
 
-declare interface LancerCoreBonusData extends BaseEntityData {
+declare interface LancerTalentEntityData extends BaseEntityData {
+  data: LancerTalentData;
+}
+
+declare interface LancerCoreBonusData {
   id: string;
+  name: string;
   source: string;
   effect: string;
   mounted_effect: string;
 }
 
-declare interface LancerLicenseData extends BaseEntityData {
+declare interface LancerCoreBonusEntityData extends BaseEntityData {
+  data: LancerCoreBonusData;
+}
+
+declare interface LancerLicenseData {
   name: string;
   source: string;
   rank: number;
 }
 
-declare interface LancerPilotArmorData extends BaseEntityData, LancerCompendiumItemData, LancerPilotEquipmentData {
+declare interface LancerLicenseEntityData extends BaseEntityData {
+  data: LancerLicenseData;
+}
+
+declare interface LancerPilotArmorData extends LancerCompendiumItemData, LancerPilotEquipmentData {
   hp_bonus: number;
   speed: number;
   speed_bonus: number;
@@ -159,12 +176,24 @@ declare interface LancerPilotArmorData extends BaseEntityData, LancerCompendiumI
   evasion_bonus: number;
 }
 
-declare interface LancerPilotWeaponData extends BaseEntityData, LancerCompendiumItemData, LancerPilotEquipmentData {
+declare interface LancerPilotArmorEntityData extends BaseEntityData {
+  data: LancerPilotArmorData;
+}
+
+declare interface LancerPilotWeaponData extends LancerCompendiumItemData, LancerPilotEquipmentData {
   range: object[]; // TODO: replace with Range type
   damage: object[]; // TODO: replace with Damage type
   effect: string;
 }
 
-declare interface LancerPilotGearData extends BaseEntityData, LancerCompendiumItemData, LancerPilotEquipmentData {
+declare interface LancerPilotWeaponEntityData extends BaseEntityData {
+  data: LancerPilotWeaponData;
+}
+
+declare interface LancerPilotGearData extends LancerCompendiumItemData, LancerPilotEquipmentData {
   uses: number;
+}
+
+declare interface LancerPilotGearEntityData extends BaseEntityData {
+  data: LancerPilotGearData;
 }
