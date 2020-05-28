@@ -170,6 +170,7 @@ async function copyFiles() {
 		'lang',
 		'fonts',
 		'assets',
+		'packs',
 		'templates',
 		'lancer.css', // TODO: Should this be dynamic, or have a different home??
 		'module.json',
