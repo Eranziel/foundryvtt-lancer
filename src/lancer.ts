@@ -130,38 +130,43 @@ async function convertLancerData() {
 	await buildSkillCompendium();
 	await buildTalentCompendium();
 	await buildCoreBonusCompendium();
+	await buildPilotEquipmentCompendiums();
 	return Promise.resolve();
+}
+
+async function findPack(pack_name : string, metaData: object): Promise<Compendium> {
+	let pack : Compendium;
+	
+	// Find existing system compendium
+	pack = game.packs.get(`lancer.${pack_name}`);
+	if (!pack) {
+		// System compendium doesn't exist, attempt to find a world compendium
+		pack = game.packs.get(`world.${pack_name}`);
+		}
+	if (pack) {
+		console.log(`LANCER | Updating existing compendium: ${pack.collection}.`);
+		pack.locked = false;
+	}
+	else {
+		// Compendium doesn't exist yet. Create a new one.
+		pack = await Compendium.create(metaData);
+		console.log(`LANCER | Building new compendium: ${pack.collection}.`);
+	}
+
+	return pack;
 }
 
 async function buildSkillCompendium() {
 	const skills = data.skills;
-	let pack : Compendium;
-	let orig_locked : boolean = false;
-
-	// Find existing system compendium
-	pack = game.packs.get("lancer.skills");
-	if (!pack) {
-		// System compendium doesn't exist, attempt to find a world compendium
-		pack = game.packs.get("world.skills");
-		}
-	if (pack) {
-		console.log(`LANCER | Updating existing Skill Triggers compendium ${pack.collection}.`);
-		orig_locked = pack.locked;
-		pack.locked = false;
+	const metaData : Object = {
+		name: "skills",
+		label: "Skill Triggers",
+		system: "lancer",
+		package: "lancer",
+		path: "./packs/skills.db",
+		entity: "Item"
 	}
-	else {
-		// Compendium doesn't exist yet. Create a Compendium for skill triggers.
-		const metaData : Object = {
-				name: "skills",
-				label: "Skill Triggers",
-				system: "lancer",
-				package: "lancer",
-				path: "./packs/skills.db",
-				entity: "Item"
-		}
-		pack = await Compendium.create(metaData);
-		console.log(`LANCER | Building new Skill Triggers compendium ${pack.collection}.`);
-	}
+	let pack : Compendium = await findPack("skills", metaData);
 	await pack.getIndex();
 
 	// Iterate through the list of skills and add them each to the Compendium
@@ -187,39 +192,21 @@ async function buildSkillCompendium() {
 			// console.log(newSkill);
 		}
 	});
-	pack.locked = orig_locked;
+	pack.locked = true;
 	return Promise.resolve(); 
 }
 
 async function buildTalentCompendium() {
 	const talents = data.talents;
-	let pack : Compendium;
-	let orig_locked : boolean = false;
-
-	// Find existing system compendium
-	pack = game.packs.get("lancer.talents");
-	if (!pack) {
-		// System compendium doesn't exist, attempt to find a world compendium
-		pack = game.packs.get("world.talents");
-		}
-	if (pack) {
-		console.log(`LANCER | Updating existing Talent compendium ${pack.collection}.`);
-		orig_locked = pack.locked;
-		pack.locked = false;
+	const metaData : Object = {
+		name: "talents",
+		label: "Talents",
+		system: "lancer",
+		package: "lancer",
+		path: "./packs/talents.db",
+		entity: "Item"
 	}
-	else {
-		// Compendium doesn't exist yet. Create a Compendium for talents.
-		const metaData : Object = {
-				name: "talents",
-				label: "Talents",
-				system: "lancer",
-				package: "lancer",
-				path: "./packs/talents.db",
-				entity: "Item"
-		}
-		pack = await Compendium.create(metaData);
-		console.log(`LANCER | Building new Talent compendium ${pack.collection}.`);
-	}
+	let pack : Compendium = await findPack("talents", metaData);
 	await pack.getIndex();
 
 	// Iterate through the list of talents and add them each to the Compendium
@@ -245,38 +232,22 @@ async function buildTalentCompendium() {
 			// console.log(newTalent);
 		}
 	});
-	pack.locked = orig_locked;
+	pack.locked = true;
 	return Promise.resolve(); 
 }
 
 async function buildCoreBonusCompendium() {
 	const coreBonus = data.core_bonuses;
-	let pack : Compendium;
-	let orig_locked : boolean = false;
-
-	// Find existing system compendium
-	pack = game.packs.get("lancer.core_bonuses");
-	if (!pack) {
-		// System compendium doesn't exist, attempt to find a world compendium
-		pack = game.packs.get("world.core_bonuses");
-		}
-	if (pack) {
-		console.log(`LANCER | Updating existing Core Bonuses compendium ${pack.collection}.`);
-		orig_locked = pack.locked;
-		pack.locked = false;
+	const metaData : Object = {
+		name: "core_bonuses",
+		label: "Core Bonuses",
+		system: "lancer",
+		package: "lancer",
+		path: "./packs/core_bonuses.db",
+		entity: "Item"
 	}
-	else {
-		// Compendium doesn't exist yet. Create a Compendium for core bonuses.
-		const metaData : Object = {
-				name: "core_bonuses",
-				label: "Core Bonuses",
-				system: "lancer",
-				package: "lancer",
-				path: "./packs/core_bonuses.db",
-				entity: "Item"
-		}
-		pack = await Compendium.create(metaData);
-	}
+	let pack : Compendium = await findPack("core_bonuses", metaData);
+	await pack.getIndex();
 
 	// Iterate through the list of core bonuses and add them each to the Compendium
 	coreBonus.forEach(async (cbonus : LancerCoreBonusData) => {
@@ -301,5 +272,6 @@ async function buildCoreBonusCompendium() {
 			// console.log(newCoreBonus);
 		}
 	});
+	pack.locked = true;
 	return Promise.resolve(); 
 }
