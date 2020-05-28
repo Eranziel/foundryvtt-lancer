@@ -9,7 +9,56 @@
   "scripts": [],
   "esmodules": ["lancer.js"],
   "styles": ["lancer.css"],
-  "packs": [],
+  "packs": [
+    {
+      "name": "skills",
+      "label": "Skills",
+      "system": "lancer",
+      "module": "lancer",
+      "path": "packs/skills.db",
+      "entity": "Item"
+    },
+    {
+      "name": "talents",
+      "label": "Talents",
+      "system": "lancer",
+      "module": "lancer",
+      "path": "packs/lancer.db",
+      "entity": "Item"
+    },
+    {
+      "name": "core_bonuses",
+      "label": "Core Bonuses",
+      "system": "lancer",
+      "module": "lancer",
+      "path": "packs/core_bonuses.db",
+      "entity": "Item"
+    },
+    {
+      "name": "pilot_armor",
+      "label": "Pilot Armor",
+      "system": "lancer",
+      "module": "lancer",
+      "path": "packs/pilot_armor.db",
+      "entity": "Item"
+    },
+    {
+      "name": "pilot_weapons",
+      "label": "Pilot Weapons",
+      "system": "lancer",
+      "module": "lancer",
+      "path": "packs/pilot_weapons.db",
+      "entity": "Item"
+    },
+    {
+      "name": "pilot_gear",
+      "label": "Pilot Gear",
+      "system": "lancer",
+      "module": "lancer",
+      "path": "packs/pilot_gear.db",
+      "entity": "Item"
+    }
+  ],
   "languages": [],
   "socket": true,
   "gridDistance": 10,
