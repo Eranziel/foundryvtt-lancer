@@ -1,5 +1,6 @@
 
-import { LancerPilot } from './actor/lancer-actor'
+import { LancerPilot, LancerNPC, LancerDeployable } from './actor/lancer-actor'
+import { LancerSkill, LancerTalent, LancerCoreBonus, LancerLicense } from './item/lancer-item';
 
 declare interface ResourceData {
   value: number;
@@ -84,6 +85,11 @@ declare interface LancerNPCData extends ActorData {
   features: Item[]; // TODO: NPC feature data type
 }
 
+declare interface LancerNPCSheetData extends ActorSheetData {
+  actor: LancerNPC;
+  data: LancerNPCData;
+}
+
 declare interface LancerDeployableData extends ActorData {
   size: number;
   hp: ResourceData;
@@ -92,6 +98,11 @@ declare interface LancerDeployableData extends ActorData {
   edef: number;
   description: string;
   effect: string;
+}
+
+declare interface LancerDeployableSheetData extends ActorSheetData {
+  actor: LancerDeployable;
+  data: LancerDeployableData;
 }
 
 declare interface LancerCompendiumItemData {
@@ -128,6 +139,11 @@ declare interface LancerSkillEntityData extends BaseEntityData {
   data: LancerSkillData;
 }
 
+declare interface LancerSkillSheetData extends ItemSheetData {
+  item?: LancerSkill;
+  data?: LancerSkillData;
+}
+
 declare interface LancerTalentData {
   id: string;
   name: string;
@@ -143,6 +159,11 @@ declare interface LancerTalentEntityData extends BaseEntityData {
   data: LancerTalentData;
 }
 
+declare interface LancerTalentSheetData extends ItemSheetData {
+  item?: LancerTalent;
+  data?: LancerTalentData;
+}
+
 declare interface LancerCoreBonusData {
   id: string;
   name: string;
@@ -155,6 +176,11 @@ declare interface LancerCoreBonusEntityData extends BaseEntityData {
   data: LancerCoreBonusData;
 }
 
+declare interface LancerCoreBonusSheetData extends ItemSheetData {
+  item?: LancerCoreBonus;
+  data?: LancerCoreBonusData;
+}
+
 declare interface LancerLicenseData {
   name: string;
   source: string;
@@ -163,6 +189,11 @@ declare interface LancerLicenseData {
 
 declare interface LancerLicenseEntityData extends BaseEntityData {
   data: LancerLicenseData;
+}
+
+declare interface LancerLicenseSheetData extends ItemSheetData {
+  item?: LancerLicense;
+  data?: LancerLicenseData;
 }
 
 declare interface LancerPilotArmorData extends LancerCompendiumItemData, LancerPilotEquipmentData {
