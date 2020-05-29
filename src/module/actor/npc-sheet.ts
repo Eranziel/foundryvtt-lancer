@@ -1,12 +1,12 @@
-import { LancerPilot } from './lancer-actor'
-import { LancerPilotSheetData } from '../interfaces';
+import { LancerNPC } from './lancer-actor'
+import { LancerNPCSheetData } from '../interfaces';
 
 const entryPrompt = "//:AWAIT_ENTRY>";
 
 /**
  * Extend the basic ActorSheet
  */
-export class LancerPilotSheet extends ActorSheet {
+export class LancerNPCSheet extends ActorSheet {
     _sheetTab: string;
 
     constructor(...args) {
@@ -29,13 +29,13 @@ export class LancerPilotSheet extends ActorSheet {
     /* -------------------------------------------- */
   
     /**
-     * Extend and override the default options used by the Pilot Sheet
+     * Extend and override the default options used by the NPC Sheet
      * @returns {Object}
      */
     static get defaultOptions() {
       return mergeObject(super.defaultOptions, {
         classes: ["lancer", "sheet", "actor"],
-        template: "systems/lancer/templates/pilot.html",
+        template: "systems/lancer/templates/npc.html",
         width: 600,
         height: 600
       });
@@ -48,15 +48,12 @@ export class LancerPilotSheet extends ActorSheet {
      * The prepared data object contains both the actor data as well as additional sheet options
      */
     getData() {
-      const data: LancerPilotSheetData = super.getData() as LancerPilotSheetData;
+      const data: LancerNPCSheetData = super.getData() as LancerNPCSheetData;
       // data.dtypes = ["String", "Number", "Boolean"];
     //   for ( let attr of Object.values(data.data.attributes) ) {
     //     attr.isCheckbox = attr.dtype === "Boolean";
     //   }
-      if (data.data.pilot.background == "") data.data.pilot.background = entryPrompt;
-      if (data.data.pilot.history == "")    data.data.pilot.history = entryPrompt;
-      if (data.data.pilot.notes == "")      data.data.pilot.notes = entryPrompt;
-      console.log("LANCER | Pilot data: ");
+      console.log("LANCER | NPC data: ");
       console.log(data);
       return data;
     }

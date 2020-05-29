@@ -12,9 +12,10 @@ import { registerSettings } from './module/settings'
 import { preloadTemplates } from './module/preloadTemplates'
 import { LancerPilotSheet } from './module/actor/pilot-sheet'
 import { LancerGame } from './module/lancer-game'
+import { LancerNPCSheet } from './module/actor/npc-sheet';
 
 /* ------------------------------------ */
-/* Initialize system					*/
+/* Initialize system				          	*/
 /* ------------------------------------ */
 Hooks.once('init', async function() {
 	console.log(`Initializing LANCER RPG System 
@@ -40,6 +41,9 @@ Hooks.once('init', async function() {
 	// Register sheet application classes
 	Actors.unregisterSheet("core", ActorSheet);
 	Actors.registerSheet("lancer", LancerPilotSheet, { types: ["pilot"], makeDefault: true });
+	Actors.registerSheet("lancer", LancerNPCSheet, { types: ["npc"], makeDefault: true });
+	// Items.unregisterSheet("core", ItemSheet);
+	// Items.registerSheet("lancer", LancerSkillSheet, { types: ["skill"], makeDefault: true });
 });
 
 /* ------------------------------------ */
