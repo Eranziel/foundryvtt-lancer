@@ -8,10 +8,10 @@
  */
 
 // Import TypeScript modules
-import { registerSettings } from './module/settings.js'
-import { preloadTemplates } from './module/preloadTemplates.js'
-import { LancerPilotSheet } from './module/pilot-sheet.js'
-import { LancerGame } from './module/lancer-game.js'
+import { registerSettings } from './module/settings'
+import { preloadTemplates } from './module/preloadTemplates'
+import { LancerPilotSheet } from './module/actor/pilot-sheet'
+import { LancerGame } from './module/lancer-game'
 
 /* ------------------------------------ */
 /* Initialize system					*/

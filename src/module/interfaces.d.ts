@@ -1,5 +1,5 @@
 
-import { LancerPilot } from './actor/lancer-actor.js'
+import { LancerPilot } from './actor/lancer-actor'
 
 declare interface ResourceData {
   value: number;

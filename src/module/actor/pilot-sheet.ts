@@ -1,5 +1,5 @@
-import { LancerPilot } from './classes/actor/lancer-actor.js'
-import { LancerPilotSheetData } from './classes/interfaces.js';
+import { LancerPilot } from './lancer-actor'
+import { LancerPilotSheetData } from '../interfaces';
 
 const entryPrompt = "//:AWAIT_ENTRY>";
 
