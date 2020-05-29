@@ -22,7 +22,7 @@ export class LancerPilotSheet extends ActorSheet {
     /**
      * A convenience reference to the Actor entity
      */
-    // get actor(): LancerPCActor {
+    // get actor(): LancerPilot {
     //   return this.actor;
     // };
 
@@ -35,7 +35,7 @@ export class LancerPilotSheet extends ActorSheet {
     static get defaultOptions() {
       return mergeObject(super.defaultOptions, {
         classes: ["lancer", "sheet", "actor"],
-        template: "systems/lancer/templates/pilot-sheet.html",
+        template: "systems/lancer/templates/pilot.html",
         width: 600,
         height: 600
       });
@@ -56,7 +56,7 @@ export class LancerPilotSheet extends ActorSheet {
       if (data.data.pilot.background == "") data.data.pilot.background = entryPrompt;
       if (data.data.pilot.history == "")    data.data.pilot.history = entryPrompt;
       if (data.data.pilot.notes == "")      data.data.pilot.notes = entryPrompt;
-      console.log("LANCER | PC data: ");
+      console.log("LANCER | Pilot data: ");
       console.log(data);
       return data;
     }

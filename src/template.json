@@ -1,6 +1,6 @@
 {
   "Actor": {
-    "types": ["pc", "npc", "deployable"],
+    "types": ["pilot", "npc", "deployable"],
     "templates": {
       "mech": {
         "mech": {
@@ -45,7 +45,7 @@
         }
       }
     },
-    "pc": {
+    "pilot": {
       "templates": ["mech", "mech_loadout"],
       "pilot": {
         "level": 0,

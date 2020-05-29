@@ -39,7 +39,7 @@ Hooks.once('init', async function() {
 
 	// Register sheet application classes
 	Actors.unregisterSheet("core", ActorSheet);
-	Actors.registerSheet("lancer", LancerPilotSheet, { makeDefault: true });
+	Actors.registerSheet("lancer", LancerPilotSheet, { types: ["pilot"], makeDefault: true });
 });
 
 /* ------------------------------------ */
