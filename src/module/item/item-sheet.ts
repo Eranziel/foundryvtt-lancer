@@ -22,7 +22,7 @@ export class LancerItemSheet extends ItemSheet {
 
   /** @override */
   get template() {
-    const path = "systems/lancer/templates/items";
+    const path = "systems/lancer/templates/item";
     return `${path}/${this.item.data.type}.html`;
   }
 
