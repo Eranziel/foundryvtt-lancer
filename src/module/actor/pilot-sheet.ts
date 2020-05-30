@@ -35,7 +35,7 @@ export class LancerPilotSheet extends ActorSheet {
     static get defaultOptions() {
       return mergeObject(super.defaultOptions, {
         classes: ["lancer", "sheet", "actor"],
-        template: "systems/lancer/templates/actor/pilot.html",
+        template: "systems/lancer/templates/actors/pilot.html",
         width: 600,
         height: 600
       });
