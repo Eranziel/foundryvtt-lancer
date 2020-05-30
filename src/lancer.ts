@@ -15,6 +15,9 @@ import { LancerGame } from './module/lancer-game'
 import { LancerNPCSheet } from './module/actor/npc-sheet';
 import { LancerItemSheet } from './module/item/item-sheet';
 
+
+import * as migrations from "./module/migration.js";
+
 /* ------------------------------------ */
 /* Initialize system				          	*/
 /* ------------------------------------ */
@@ -30,7 +33,8 @@ Hooks.once('init', async function() {
 	// Assign custom classes and constants here
 	// Create a Lancer namespace within the game global
 	(game as LancerGame).lancer = {
-		rollAttackMacro
+		rollAttackMacro,
+    migrations: migrations,
 	};
 
 	// Register custom system settings
@@ -62,7 +66,23 @@ Hooks.once('setup', function() {
 /* When ready							*/
 /* ------------------------------------ */
 Hooks.once('ready', function() {
-	// Do anything once the system is ready
+
+  // Determine whether a system migration is required and feasible
+	const currentVersion = game.settings.get("lancer", "systemMigrationVersion");
+	// TODO: implement/import version comparison for semantic version numbers
+  // const NEEDS_MIGRATION_VERSION = "0.0.4";
+  // const COMPATIBLE_MIGRATION_VERSION = "0.0.4";
+  // let needMigration = (currentVersion < NEEDS_MIGRATION_VERSION) || (currentVersion === null);
+
+	// Perform the migration
+	// TODO: replace game.system.version with needMigration once version number checking is implemented
+  if ( currentVersion != game.system.data.version && game.user.isGM ) {
+    // if ( currentVersion && (currentVersion < COMPATIBLE_MIGRATION_VERSION) ) {
+    //   ui.notifications.error(`Your LANCER system data is from too old a Foundry version and cannot be reliably migrated to the latest version. The process will be attempted, but errors may occur.`, {permanent: true});
+    // }
+		migrations.migrateWorld();
+  }
+
 });
 
 // Add any additional hooks if necessary
