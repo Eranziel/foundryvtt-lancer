@@ -35,7 +35,7 @@ export class LancerNPCSheet extends ActorSheet {
     static get defaultOptions() {
       return mergeObject(super.defaultOptions, {
         classes: ["lancer", "sheet", "actor"],
-        template: "systems/lancer/templates/npc.html",
+        template: "systems/lancer/templates/actor/npc.html",
         width: 600,
         height: 600
       });
