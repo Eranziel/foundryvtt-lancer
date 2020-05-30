@@ -49,7 +49,7 @@
       "templates": ["mech", "mech_loadout"],
       "pilot": {
         "level": 0,
-        "grit": 6,
+        "grit": 0,
         "callsign": "",
         "status": "",
         "notes": "",
