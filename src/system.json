@@ -23,7 +23,7 @@
       "label": "Talents",
       "system": "lancer",
       "module": "lancer",
-      "path": "packs/lancer.db",
+      "path": "packs/talents.db",
       "entity": "Item"
     },
     {
