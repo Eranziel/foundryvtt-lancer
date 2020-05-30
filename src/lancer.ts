@@ -13,6 +13,7 @@ import { preloadTemplates } from './module/preloadTemplates'
 import { LancerPilotSheet } from './module/actor/pilot-sheet'
 import { LancerGame } from './module/lancer-game'
 import { LancerNPCSheet } from './module/actor/npc-sheet';
+import { LancerPilotAttributeSheet } from './module/item/attribute-sheet';
 
 /* ------------------------------------ */
 /* Initialize system				          	*/
@@ -42,8 +43,11 @@ Hooks.once('init', async function() {
 	Actors.unregisterSheet("core", ActorSheet);
 	Actors.registerSheet("lancer", LancerPilotSheet, { types: ["pilot"], makeDefault: true });
 	Actors.registerSheet("lancer", LancerNPCSheet, { types: ["npc"], makeDefault: true });
-	// Items.unregisterSheet("core", ItemSheet);
-	// Items.registerSheet("lancer", LancerSkillSheet, { types: ["skill"], makeDefault: true });
+	Items.unregisterSheet("core", ItemSheet);
+	Items.registerSheet("lancer", LancerPilotAttributeSheet, { types: ["skill"], makeDefault: true });
+	Items.registerSheet("lancer", LancerPilotAttributeSheet, { types: ["talent"], makeDefault: true });
+	Items.registerSheet("lancer", LancerPilotAttributeSheet, { types: ["license"], makeDefault: true });
+	Items.registerSheet("lancer", LancerPilotAttributeSheet, { types: ["core_bonus"], makeDefault: true });
 });
 
 /* ------------------------------------ */
