@@ -35,7 +35,7 @@ export class LancerItemSheet extends ItemSheet {
    * The prepared data object contains both the item data as well as additional sheet options
    */
   getData() {
-    const data : LancerSkillSheetData = super.getData() as LancerSkillSheetData;
+    const data: ItemSheetData = super.getData();
     // data.dtypes = ["String", "Number", "Boolean"];
     // for ( let attr of Object.values(data.data.attributes) ) {
     //   attr.isCheckbox = attr.dtype === "Boolean";

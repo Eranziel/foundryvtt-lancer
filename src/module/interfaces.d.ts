@@ -1,6 +1,6 @@
 
 import { LancerPilot, LancerNPC, LancerDeployable } from './actor/lancer-actor'
-import { LancerSkill, LancerTalent, LancerCoreBonus, LancerLicense } from './item/lancer-item';
+import { LancerSkill, LancerTalent, LancerCoreBonus, LancerLicense, LancerFrame } from './item/lancer-item';
 import { DamageType, RangeType, WeaponSize, WeaponType, SystemType, MechType, ItemType } from './enums';
 
 // ------------------------------------------------------
@@ -332,7 +332,7 @@ declare interface LancerFrameEntityData extends BaseEntityData {
 }
 
 declare interface LancerFrameSheetData extends ItemSheetData {
-  item?: LancerLicense; // TODO
+  item?: LancerFrame;
   data?: LancerFrameData;
 }
 

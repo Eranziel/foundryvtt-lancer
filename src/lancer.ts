@@ -49,13 +49,15 @@ Hooks.once('init', async function() {
 	Actors.registerSheet("lancer", LancerNPCSheet, { types: ["npc"], makeDefault: true });
 	Items.unregisterSheet("core", ItemSheet);
 	Items.registerSheet("lancer", LancerItemSheet, { 
-		types: ["skill", "talent", "license", "core_bonus", "pilot_armor", "pilot_weapon", "pilot_gear"], 
+		types: ["skill", "talent", "license", "core_bonus", 
+			"pilot_armor", "pilot_weapon", "pilot_gear", 
+			"mech_system", "mech_weapon"], 
 		makeDefault: true 
 	});
 });
 
 /* ------------------------------------ */
-/* Setup system							*/
+/* Setup system			            				*/
 /* ------------------------------------ */
 Hooks.once('setup', function() {
 	// Do anything after initialization but before
@@ -63,7 +65,7 @@ Hooks.once('setup', function() {
 });
 
 /* ------------------------------------ */
-/* When ready							*/
+/* When ready					              		*/
 /* ------------------------------------ */
 Hooks.once('ready', function() {
 
