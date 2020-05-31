@@ -20,7 +20,7 @@ import {LancerSkillData,
 	LancerFrameData,
 	LancerMechSystemData,
 	LancerMechWeaponData} from './interfaces'
-import { PilotEquipType } from './enums';
+import { PilotEquipType, ItemType } from './enums';
 import data from 'lancer-data'
 
 export const convertLancerData = async function(): Promise<any> {
@@ -189,15 +189,25 @@ async function buildPilotEquipmentCompendiums() {
 	await pgPack.getIndex();
 
 	// Iterate through the list of talents and add them each to the Compendium
-	pilotGear.forEach(async (equip: LancerPilotEquipmentData) => {
+	pilotGear.forEach(async (equip: any) => {
 		if (equip.type === PilotEquipType.PilotArmor) {
+			delete equip.type;
+			equip.item_type = ItemType.PilotArmor;
 			updateItem(paPack, equip, "pilot_armor", armImg);
 		}
 		else if (equip.type === PilotEquipType.PilotWeapon) {
+			delete equip.type;
+			equip.item_type = ItemType.PilotWeapon;
 			updateItem(pwPack, equip, "pilot_weapon", weapImg);
 		}
 		else if (equip.type === PilotEquipType.PilotGear) {
-			updateItem(pgPack, equip, "pilot_gear", gearImg);
+			delete equip.type;
+			let gear: LancerPilotGearData = equip;
+			gear.item_type = ItemType.PilotGear;
+			if (gear.uses) {
+				gear.current_uses = gear.uses;
+			}
+			updateItem(pgPack, gear, "pilot_gear", gearImg);
 		}
 		else {
 			// Error - unknown type!
