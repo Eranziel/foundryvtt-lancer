@@ -126,10 +126,7 @@
         "flavor_description": ""
       },
       "pilot_equip": {
-        "type": "",
-        "tags": [],
-        "current_uses": 0,
-        "custom_damage_type": ""
+        "tags": []
       },
       "licensed_item": {
         "source": "",
@@ -203,11 +200,13 @@
       "templates": ["compendium_item", "pilot_equip"],
       "range": [],
       "damage": [],
+      "custom_damage_type": "",
       "effect": ""
     },
     "pilot_gear": {
       "templates": ["compendium_item", "pilot_equip"],
-      "uses": 0
+      "uses": 0,
+      "current_uses": 0
     },
     "frame": {
       "templates": ["compendium_item", "licensed_item"],

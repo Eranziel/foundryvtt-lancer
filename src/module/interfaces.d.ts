@@ -156,10 +156,7 @@ declare interface LancerCompendiumItemData {
 }
 
 declare interface LancerPilotEquipmentData {
-  type: PilotEquipType;
   tags: TagData[];
-  current_uses: number;
-  custom_damage_type: string;
 }
 
 declare interface LancerLicensedItemData extends LancerCompendiumItemData {
@@ -278,6 +275,7 @@ declare interface LancerPilotWeaponData extends LancerCompendiumItemData, Lancer
   range: RangeData[];
   damage: DamageData[];
   effect: string;
+  custom_damage_type: DamageType;
 }
 
 declare interface LancerPilotWeaponEntityData extends ItemData {
@@ -287,6 +285,7 @@ declare interface LancerPilotWeaponEntityData extends ItemData {
 // -------- Pilot Gear data --------------------------------------
 declare interface LancerPilotGearData extends LancerCompendiumItemData, LancerPilotEquipmentData {
   uses: number;
+  current_uses: number;
 }
 
 declare interface LancerPilotGearEntityData extends ItemData {
