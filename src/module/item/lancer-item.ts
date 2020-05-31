@@ -5,7 +5,10 @@ import {  LancerSkillEntityData,
           LancerLicenseEntityData,
           LancerPilotArmorEntityData,
           LancerPilotWeaponEntityData,
-          LancerPilotGearEntityData } from '../interfaces'
+          LancerPilotGearEntityData, 
+          LancerFrameEntityData,
+          LancerMechSystemEntityData,
+          LancerMechWeaponEntityData} from '../interfaces'
 
 export class LancerSkill extends Item {
   data: LancerSkillEntityData;
@@ -33,4 +36,16 @@ export class LancerPilotWeapon extends Item {
 
 export class LancerPilotGear extends Item {
   data: LancerPilotGearEntityData;
+}
+
+export class LancerFrame extends Item {
+  data: LancerFrameEntityData;
+}
+
+export class LancerMechSystem extends Item {
+  data: LancerMechSystemEntityData;
+}
+
+export class LancerMechWeapon extends Item {
+  data: LancerMechWeaponEntityData;
 }

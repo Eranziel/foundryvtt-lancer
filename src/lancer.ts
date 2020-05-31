@@ -8,10 +8,12 @@
  */
 
 // Import TypeScript modules
-import { registerSettings } from './module/settings.js'
-import { preloadTemplates } from './module/preloadTemplates.js'
-import { LancerPilotSheet } from './module/pilot-sheet.js'
-import { LancerGame } from './module/lancer-game.js'
+import { registerSettings } from './module/settings'
+import { preloadTemplates } from './module/preloadTemplates'
+import { LancerPilotSheet } from './module/actor/pilot-sheet'
+import { LancerGame } from './module/lancer-game'
+import { LancerNPCSheet } from './module/actor/npc-sheet';
+import { LancerItemSheet } from './module/item/item-sheet';
 import {  LancerSkill,
 					LancerTalent, 
 					LancerCoreBonus,
@@ -32,10 +34,13 @@ import {  LancerSkillData,
 					LancerPilotWeaponEntityData,
 					LancerPilotGearEntityData} from './module/classes/interfaces'
 
+
+import * as migrations from "./module/migration.js";
+
 import data from 'lancer-data'
 
 /* ------------------------------------ */
-/* Initialize system					*/
+/* Initialize system				          	*/
 /* ------------------------------------ */
 Hooks.once('init', async function() {
 	console.log(`Initializing LANCER RPG System 
@@ -49,7 +54,8 @@ Hooks.once('init', async function() {
 	// Assign custom classes and constants here
 	// Create a Lancer namespace within the game global
 	(game as LancerGame).lancer = {
-		rollAttackMacro
+		rollAttackMacro,
+    migrations: migrations,
 	};
 
 	// Register custom system settings
@@ -60,20 +66,45 @@ Hooks.once('init', async function() {
 
 	// Register sheet application classes
 	Actors.unregisterSheet("core", ActorSheet);
-	Actors.registerSheet("lancer", LancerPilotSheet, { makeDefault: true });
+	Actors.registerSheet("lancer", LancerPilotSheet, { types: ["pilot"], makeDefault: true });
+	Actors.registerSheet("lancer", LancerNPCSheet, { types: ["npc"], makeDefault: true });
+	Items.unregisterSheet("core", ItemSheet);
+	Items.registerSheet("lancer", LancerItemSheet, { 
+		types: ["skill", "talent", "license", "core_bonus", 
+			"pilot_armor", "pilot_weapon", "pilot_gear", 
+			"mech_system", "mech_weapon"], 
+		makeDefault: true 
+	});
 });
 
 /* ------------------------------------ */
-/* Setup system							*/
+/* Setup system			            				*/
 /* ------------------------------------ */
 Hooks.once('setup', function() {
 
 });
 
 /* ------------------------------------ */
-/* When ready							*/
+/* When ready					              		*/
 /* ------------------------------------ */
 Hooks.once('ready', function() {
+
+  // Determine whether a system migration is required and feasible
+	const currentVersion = game.settings.get("lancer", "systemMigrationVersion");
+	// TODO: implement/import version comparison for semantic version numbers
+  // const NEEDS_MIGRATION_VERSION = "0.0.4";
+  // const COMPATIBLE_MIGRATION_VERSION = "0.0.4";
+  // let needMigration = (currentVersion < NEEDS_MIGRATION_VERSION) || (currentVersion === null);
+
+	// Perform the migration
+	// TODO: replace game.system.version with needMigration once version number checking is implemented
+  if ( currentVersion != game.system.data.version && game.user.isGM ) {
+    // if ( currentVersion && (currentVersion < COMPATIBLE_MIGRATION_VERSION) ) {
+    //   ui.notifications.error(`Your LANCER system data is from too old a Foundry version and cannot be reliably migrated to the latest version. The process will be attempted, but errors may occur.`, {permanent: true});
+    // }
+		migrations.migrateWorld();
+  }
+
 	//=== Code below must be omitted from release ====
 	convertLancerData();
 	//=== End omit from release ======================
