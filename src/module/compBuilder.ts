@@ -16,7 +16,10 @@ import {LancerSkillData,
 	LancerPilotArmorEntityData,
 	LancerPilotWeaponData,
 	LancerPilotWeaponEntityData,
-	LancerPilotGearEntityData} from './interfaces'
+	LancerPilotGearEntityData,
+	LancerFrameData,
+	LancerMechSystemData,
+	LancerMechWeaponData} from './interfaces'
 import { PilotEquipType } from './enums';
 import data from 'lancer-data'
 
@@ -25,6 +28,9 @@ export const convertLancerData = async function(): Promise<any> {
 	await buildTalentCompendium();
 	await buildCoreBonusCompendium();
 	await buildPilotEquipmentCompendiums();
+	await buildFrameCompendium();
+	await buildMechSystemCompendium();
+	await buildMechWeaponCompendium();
 	return Promise.resolve();
 }
 
@@ -197,6 +203,72 @@ async function buildPilotEquipmentCompendiums() {
 			// Error - unknown type!
 			throw TypeError(`Unknown pilot equipment type: ${equip.type}.`)
 		}
+	});
+	return Promise.resolve(); 
+}
+
+async function buildFrameCompendium() {
+	const frames = data.frames;
+	const img = "systems/lancer/assets/icons/frame.svg";
+	const metaData: Object = {
+		name: "frames",
+		label: "Frames",
+		system: "lancer",
+		package: "lancer",
+		path: "./packs/frames.db",
+		entity: "Item"
+	}
+	let pack: Compendium = await findPack("frames", metaData);
+	pack.locked = false;
+	await pack.getIndex();
+
+	// Iterate through the list of core bonuses and add them each to the Compendium
+	frames.forEach(async (frame: LancerFrameData) => {
+		updateItem(pack, frame, "frame", img);
+	});
+	return Promise.resolve(); 
+}
+
+async function buildMechSystemCompendium() {
+	const systems = data.systems;
+	const img = "systems/lancer/assets/icons/system.svg";
+	const metaData: Object = {
+		name: "systems",
+		label: "Systems",
+		system: "lancer",
+		package: "lancer",
+		path: "./packs/systems.db",
+		entity: "Item"
+	}
+	let pack: Compendium = await findPack("systems", metaData);
+	pack.locked = false;
+	await pack.getIndex();
+
+	// Iterate through the list of core bonuses and add them each to the Compendium
+	systems.forEach(async (system: LancerMechSystemData) => {
+		updateItem(pack, system, "mech_system", img);
+	});
+	return Promise.resolve(); 
+}
+
+async function buildMechWeaponCompendium() {
+	const weapons = data.weapons;
+	const img = "systems/lancer/assets/icons/weapon.svg";
+	const metaData: Object = {
+		name: "weapons",
+		label: "Weapons",
+		system: "lancer",
+		package: "lancer",
+		path: "./packs/weapons.db",
+		entity: "Item"
+	}
+	let pack: Compendium = await findPack("weapons", metaData);
+	pack.locked = false;
+	await pack.getIndex();
+
+	// Iterate through the list of core bonuses and add them each to the Compendium
+	weapons.forEach(async (weapon: LancerMechWeaponData) => {
+		updateItem(pack, weapon, "mech_weapon", img);
 	});
 	return Promise.resolve(); 
 }
