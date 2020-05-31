@@ -57,6 +57,30 @@
       "module": "lancer",
       "path": "packs/pilot_gear.db",
       "entity": "Item"
+    },
+    {
+      "name": "frames",
+      "label": "Frames",
+      "system": "lancer",
+      "package": "world",
+      "path": "packs/frames.db",
+      "entity": "Item"
+    },
+    {
+      "name": "systems",
+      "label": "Systems",
+      "system": "lancer",
+      "package": "world",
+      "path": "packs/systems.db",
+      "entity": "Item"
+    },
+    {
+      "name": "weapons",
+      "label": "Weapons",
+      "system": "lancer",
+      "package": "world",
+      "path": "packs/weapons.db",
+      "entity": "Item"
     }
   ],
   "languages": [],
