@@ -1,22 +1,23 @@
-import {  LancerSkill,
-  LancerTalent, 
-  LancerCoreBonus,
-  LancerPilotArmor,
-  LancerPilotWeapon,
-  LancerPilotGear} from './item/lancer-item'
-import {  LancerSkillData,
-  LancerTalentData, 
-  LancerCoreBonusData,
-  LancerPilotGearData,
-  LancerPilotEquipmentData,
-  LancerPilotArmorData,
-  LancerSkillEntityData,
-  LancerTalentEntityData,
-  LancerCoreBonusEntityData,
-  LancerPilotArmorEntityData,
-  LancerPilotWeaponData,
-  LancerPilotWeaponEntityData,
-  LancerPilotGearEntityData} from './interfaces'
+import {LancerSkill,
+	LancerTalent, 
+	LancerCoreBonus,
+	LancerPilotArmor,
+	LancerPilotWeapon,
+	LancerPilotGear} from './item/lancer-item'
+import {LancerSkillData,
+	LancerTalentData, 
+	LancerCoreBonusData,
+	LancerPilotGearData,
+	LancerPilotEquipmentData,
+	LancerPilotArmorData,
+	LancerSkillEntityData,
+	LancerTalentEntityData,
+	LancerCoreBonusEntityData,
+	LancerPilotArmorEntityData,
+	LancerPilotWeaponData,
+	LancerPilotWeaponEntityData,
+	LancerPilotGearEntityData} from './interfaces'
+import { PilotEquipType } from './enums';
 import data from 'lancer-data'
 
 export const convertLancerData = async function(): Promise<any> {
@@ -27,8 +28,8 @@ export const convertLancerData = async function(): Promise<any> {
 	return Promise.resolve();
 }
 
-async function findPack(pack_name : string, metaData: object): Promise<Compendium> {
-	let pack : Compendium;
+async function findPack(pack_name: string, metaData: object): Promise<Compendium> {
+	let pack: Compendium;
 	
 	// Find existing system compendium
 	pack = game.packs.get(`lancer.${pack_name}`);
@@ -51,7 +52,8 @@ async function findPack(pack_name : string, metaData: object): Promise<Compendiu
 
 async function buildSkillCompendium() {
 	const skills = data.skills;
-	const metaData : Object = {
+	const img = "systems/lancer/assets/icons/accuracy.svg";
+	const metaData: Object = {
 		name: "skills",
 		label: "Skill Triggers",
 		system: "lancer",
@@ -59,39 +61,44 @@ async function buildSkillCompendium() {
 		path: "./packs/skills.db",
 		entity: "Item"
 	}
-	let pack : Compendium = await findPack("skills", metaData);
+	let pack: Compendium = await findPack("skills", metaData);
+	pack.locked = false;
 	await pack.getIndex();
 
 	// Iterate through the list of skills and add them each to the Compendium
-	skills.forEach(async (skill : LancerSkillData) => {
-		let entry : any = pack.index.find(e => e.name === skill.name);
+	skills.forEach(async (skill: LancerSkillData) => {
+		let entry: {_id: string; name: string;} = pack.index.find(e => e.name === skill.name);
 		// The skill already exists in the pack, update its data.
 		if (entry) {
-			console.log(`LANCER | Updating skill ${entry.name} in compendium ${pack.collection}`)
-			pack.getEntity(entry._id).then(
-				async (e : LancerSkill) => e.data.data = skill);
+			console.log(`LANCER | Updating skill ${entry.name} in compendium ${pack.collection}`);
+			let e: Item = (await pack.getEntity(entry._id)) as Item;
+			let d: ItemData = e.data;
+			d.data = skill;
+			d.img = img;
+			await pack.updateEntity(d, {entity: e});
 		}
 		else {
 			// The skill doesn't exist yet, create it
-			const sd : LancerSkillEntityData = {
+			const sd: LancerSkillEntityData = {
 				name: skill.name,
+				img: img,
 				type: "skill",
 				flags: {},
 				data: skill
 			};
 			console.log(`LANCER | Adding skill ${sd.name} to compendium ${pack.collection}`);
 			// Create an Item from the skill data
-			let newSkill : LancerSkill = (await pack.createEntity(sd)) as LancerSkill;
+			let newSkill: LancerSkill = (await pack.createEntity(sd)) as LancerSkill;
 			// console.log(newSkill);
 		}
 	});
-	pack.locked = true;
 	return Promise.resolve(); 
 }
 
 async function buildTalentCompendium() {
 	const talents = data.talents;
-	const metaData : Object = {
+	const img = "systems/lancer/assets/icons/chevron_3.svg";
+	const metaData: Object = {
 		name: "talents",
 		label: "Talents",
 		system: "lancer",
@@ -99,39 +106,44 @@ async function buildTalentCompendium() {
 		path: "./packs/talents.db",
 		entity: "Item"
 	}
-	let pack : Compendium = await findPack("talents", metaData);
+	let pack: Compendium = await findPack("talents", metaData);
+	pack.locked = false;
 	await pack.getIndex();
 
 	// Iterate through the list of talents and add them each to the Compendium
-	talents.forEach(async (talent : LancerTalentData) => {
-		let entry : any = pack.index.find(e => e.name === talent.name);
+	talents.forEach(async (talent: LancerTalentData) => {
+		let entry: any = pack.index.find(e => e.name === talent.name);
 		// The skill already exists in the pack, update its data.
 		if (entry) {
-			console.log(`LANCER | Updating talent ${entry.name} in compendium ${pack.collection}`)
-			pack.getEntity(entry._id).then(
-				async (e : LancerTalent) => e.data.data = talent);
+			console.log(`LANCER | Updating talent ${entry.name} in compendium ${pack.collection}`);
+			let e: Item = (await pack.getEntity(entry._id)) as Item;
+			let d: ItemData = e.data;
+			d.data = talent;
+			d.img = img;
+			await pack.updateEntity(d, {entity: e});
 		}
 		else {
 			// The talent doesn't exist yet, create it
-			const td : LancerTalentEntityData = {
+			const td: LancerTalentEntityData = {
 				name: talent.name,
+				img: img,
 				type: "talent",
 				flags: {},
 				data: talent
 			};
 			console.log(`LANCER | Adding talent ${td.name} to compendium ${pack.collection}`);
 			// Create an Item from the talent data
-			let newTalent : LancerTalent = (await pack.createEntity(td)) as LancerTalent;
+			let newTalent: LancerTalent = (await pack.createEntity(td)) as LancerTalent;
 			// console.log(newTalent);
 		}
 	});
-	pack.locked = true;
 	return Promise.resolve(); 
 }
 
 async function buildCoreBonusCompendium() {
 	const coreBonus = data.core_bonuses;
-	const metaData : Object = {
+	const img = "systems/lancer/assets/icons/corebonus.svg";
+	const metaData: Object = {
 		name: "core_bonuses",
 		label: "Core Bonuses",
 		system: "lancer",
@@ -139,40 +151,47 @@ async function buildCoreBonusCompendium() {
 		path: "./packs/core_bonuses.db",
 		entity: "Item"
 	}
-	let pack : Compendium = await findPack("core_bonuses", metaData);
+	let pack: Compendium = await findPack("core_bonuses", metaData);
+	pack.locked = false;
 	await pack.getIndex();
 
 	// Iterate through the list of core bonuses and add them each to the Compendium
-	coreBonus.forEach(async (cbonus : LancerCoreBonusData) => {
-		let entry : any = pack.index.find(e => e.name === cbonus.name);
+	coreBonus.forEach(async (cbonus: LancerCoreBonusData) => {
+		let entry: any = pack.index.find(e => e.name === cbonus.name);
 		// The core bonus already exists in the pack, update its data.
 		if (entry) {
-			console.log(`LANCER | Updating core bonus ${entry.name} in compendium ${pack.collection}`)
-			pack.getEntity(entry._id).then(
-				async (e : LancerCoreBonus) => e.data.data = cbonus);
+			console.log(`LANCER | Updating core bonus ${entry.name} in compendium ${pack.collection}`);
+			let e: Item = (await pack.getEntity(entry._id)) as Item;
+			let d: ItemData = e.data;
+			d.data = cbonus;
+			d.img = img;
+			await pack.updateEntity(d, {entity: e});
 		}
 		else {
 			// The core bonus doesn't exist yet, create it
-			const cb : LancerCoreBonusEntityData = {
+			const cb: LancerCoreBonusEntityData = {
 				name: cbonus.name,
+				img: img,
 				type: "core_bonus",
 				flags: {},
 				data: cbonus
 			};
 			console.log(`LANCER | Adding core bonus ${cb.name} to compendium ${pack.collection}`);
 			// Create an Item from the talent data
-			let newCoreBonus : LancerCoreBonus = (await pack.createEntity(cb)) as LancerCoreBonus;
+			let newCoreBonus: LancerCoreBonus = (await pack.createEntity(cb)) as LancerCoreBonus;
 			// console.log(newCoreBonus);
 		}
 	});
-	pack.locked = true;
 	return Promise.resolve(); 
 }
 
 async function buildPilotEquipmentCompendiums() {
 	console.log("LANCER | Building Pilot Equipment compendiums.");
 	const pilotGear = data.pilot_gear;
-	const armorMeta : Object = {
+	const armImg = "systems/lancer/assets/icons/role_tank.svg";
+	const weapImg = "systems/lancer/assets/icons/weapon.svg";
+	const gearImg = "systems/lancer/assets/icons/trait.svg";
+	const armorMeta: Object = {
 		name: "pilot_armor",
 		label: "Pilot Armor",
 		system: "lancer",
@@ -180,8 +199,8 @@ async function buildPilotEquipmentCompendiums() {
 		path: "./packs/pilot_armor.db",
 		entity: "Item"
 	}
-	let paPack : Compendium = await findPack("pilot_armor", armorMeta);
-	const weaponMeta : Object = {
+	let paPack: Compendium = await findPack("pilot_armor", armorMeta);
+	const weaponMeta: Object = {
 		name: "pilot_weapons",
 		label: "Pilot Weapons",
 		system: "lancer",
@@ -189,8 +208,8 @@ async function buildPilotEquipmentCompendiums() {
 		path: "./packs/pilot_weapons.db",
 		entity: "Item"
 	}
-	let pwPack : Compendium = await findPack("pilot_weapons", weaponMeta);
-	const gearMeta : Object = {
+	let pwPack: Compendium = await findPack("pilot_weapons", weaponMeta);
+	const gearMeta: Object = {
 		name: "pilot_gear",
 		label: "Pilot Gear",
 		system: "lancer",
@@ -198,76 +217,91 @@ async function buildPilotEquipmentCompendiums() {
 		path: "./packs/pilot_gear.db",
 		entity: "Item"
 	}
-	let pgPack : Compendium = await findPack("pilot_gear", gearMeta);
+	let pgPack: Compendium = await findPack("pilot_gear", gearMeta);
+	paPack.locked = false;
+	pwPack.locked = false;
+	pgPack.locked = false;
 	await paPack.getIndex();
 	await pwPack.getIndex();
 	await pgPack.getIndex();
 
 	// Iterate through the list of talents and add them each to the Compendium
-	pilotGear.forEach(async (equip : LancerPilotEquipmentData) => {
-		if (equip.type == "armor") {
-			const armor : LancerPilotArmorData = equip as LancerPilotArmorData;
-			let entry : any = paPack.index.find(e => e.name === armor.name);
+	pilotGear.forEach(async (equip: LancerPilotEquipmentData) => {
+		if (equip.type === PilotEquipType.PilotArmor) {
+			const armor: LancerPilotArmorData = equip as LancerPilotArmorData;
+			let entry: any = paPack.index.find(e => e.name === armor.name);
 			// The armor already exists in the pack, update its data.
 			if (entry) {
-				console.log(`LANCER | Updating pilot armor ${entry.name} in compendium ${paPack.collection}`)
-				paPack.getEntity(entry._id).then(
-					async (e : LancerPilotArmor) => e.data.data = armor);
+				console.log(`LANCER | Updating pilot armor ${entry.name} in compendium ${paPack.collection}`);
+				let e: Item = (await paPack.getEntity(entry._id)) as Item;
+				let d: ItemData = e.data;
+				d.data = armor;
+				d.img = armImg;
+				await paPack.updateEntity(d, {entity: e});
 			}
 			else {
-				const pg : LancerPilotArmorEntityData = {
+				const pg: LancerPilotArmorEntityData = {
 					name: armor.name,
+					img: armImg,
 					type: "pilot_armor",
 					flags: {},
 					data: armor
 				};
 				console.log(`LANCER | Adding pilot armor ${pg.name} to compendium ${paPack.collection}`);
 				// Create an Item from the pilot armor data
-				let newArmor : LancerPilotArmor = (await paPack.createEntity(pg)) as LancerPilotArmor;
+				let newArmor: LancerPilotArmor = (await paPack.createEntity(pg)) as LancerPilotArmor;
 				// console.log(newArmor);
 			}
 		}
-		else if (equip.type == "weapon") {
-			const weapon : LancerPilotWeaponData = equip as LancerPilotWeaponData;
-			let entry : any = pwPack.index.find(e => e.name === weapon.name);
+		else if (equip.type === PilotEquipType.PilotWeapon) {
+			const weapon: LancerPilotWeaponData = equip as LancerPilotWeaponData;
+			let entry: any = pwPack.index.find(e => e.name === weapon.name);
 			// The weapon already exists in the pack, update its data.
 			if (entry) {
-				console.log(`LANCER | Updating pilot weapon ${entry.name} in compendium ${pwPack.collection}`)
-				pwPack.getEntity(entry._id).then(
-					async (e : LancerPilotWeapon) => e.data.data = weapon);
+				console.log(`LANCER | Updating pilot weapon ${entry.name} in compendium ${pwPack.collection}`);
+				let e: Item = (await pwPack.getEntity(entry._id)) as Item;
+				let d: ItemData = e.data;
+				d.data = weapon;
+				d.img = weapImg;
+				await pwPack.updateEntity(d, {entity: e});
 			}
 			else {
-				const pg : LancerPilotWeaponEntityData = {
+				const pg: LancerPilotWeaponEntityData = {
 					name: weapon.name,
+					img: weapImg,
 					type: "pilot_weapon",
 					flags: {},
 					data: weapon
 				};
 				console.log(`LANCER | Adding pilot weapon ${pg.name} to compendium ${pwPack.collection}`);
 				// Create an Item from the pilot weapon data
-				let newWeapon : LancerPilotWeapon = (await pwPack.createEntity(pg)) as LancerPilotWeapon;
+				let newWeapon: LancerPilotWeapon = (await pwPack.createEntity(pg)) as LancerPilotWeapon;
 				// console.log(newWeapon);
 			}
 		}
-		else if (equip.type == "gear") {
-			const gear : LancerPilotGearData = equip as LancerPilotGearData;
-			let entry : any = pgPack.index.find(e => e.name === gear.name);
+		else if (equip.type === PilotEquipType.PilotGear) {
+			const gear: LancerPilotGearData = equip as LancerPilotGearData;
+			let entry: any = pgPack.index.find(e => e.name === gear.name);
 			// The gear already exists in the pack, update its data.
 			if (entry) {
-				console.log(`LANCER | Updating pilot gear ${entry.name} in compendium ${pgPack.collection}`)
-				pgPack.getEntity(entry._id).then(
-					async (e : LancerPilotGear) => e.data.data = gear);
+				console.log(`LANCER | Updating pilot gear ${entry.name} in compendium ${pgPack.collection}`);
+				let e: Item = (await pgPack.getEntity(entry._id)) as Item;
+				let d: ItemData = e.data;
+				d.data = gear;
+				d.img = gearImg;
+				await pgPack.updateEntity(d, {entity: e});
 			}
 			else {
-				const pg : LancerPilotGearEntityData = {
+				const pg: LancerPilotGearEntityData = {
 					name: gear.name,
+					img: gearImg,
 					type: "pilot_gear",
 					flags: {},
 					data: gear
 				};
 				console.log(`LANCER | Adding pilot gear ${pg.name} to compendium ${pgPack.collection}`);
 				// Create an Item from the pilot armor data
-				let newGear : LancerPilotGear = (await pgPack.createEntity(pg)) as LancerPilotGear;
+				let newGear: LancerPilotGear = (await pgPack.createEntity(pg)) as LancerPilotGear;
 				// console.log(newGear);
 			}
 		}
@@ -276,8 +310,5 @@ async function buildPilotEquipmentCompendiums() {
 			throw TypeError(`Unknown pilot equipment type: ${equip.type}.`)
 		}
 	});
-	paPack.locked = true;
-	pwPack.locked = true;
-	pgPack.locked = true;
 	return Promise.resolve(); 
 }
