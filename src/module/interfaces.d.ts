@@ -1,7 +1,7 @@
 
 import { LancerPilot, LancerNPC, LancerDeployable } from './actor/lancer-actor'
 import { LancerSkill, LancerTalent, LancerCoreBonus, LancerLicense, LancerFrame } from './item/lancer-item';
-import { DamageType, RangeType, WeaponSize, WeaponType, SystemType, MechType, ItemType } from './enums';
+import { DamageType, RangeType, WeaponSize, WeaponType, SystemType, MechType, ItemType, PilotEquipType } from './enums';
 
 // ------------------------------------------------------
 // |       UTILITY DATA TYPES                           |
@@ -156,7 +156,7 @@ declare interface LancerCompendiumItemData {
 }
 
 declare interface LancerPilotEquipmentData {
-  type: ItemType;
+  type: PilotEquipType;
   tags: TagData[];
   current_uses: number;
   custom_damage_type: string;
