@@ -41,6 +41,12 @@ enum ItemType {
   NpcFeature = 'NpcFeature',
 }
 
+enum PilotEquipType {
+  PilotArmor = 'armor',
+  PilotWeapon = 'weapon',
+  PilotGear = 'gear',
+}
+
 enum SystemType {
   System = 'System',
   AI = 'AI',
@@ -94,6 +100,7 @@ export {
   WeaponSize,
   WeaponType,
   ItemType,
+  PilotEquipType,
   SystemType,
   RangeType,
   DamageType,
