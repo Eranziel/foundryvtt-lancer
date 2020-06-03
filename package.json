@@ -5,7 +5,8 @@
   "description": "",
   "scripts": {
     "package": "gulp package",
-    "build": "gulp build && gulp link",
+    "build": "gulp build",
+    "link": "gulp link",
     "build:watch": "gulp watch",
     "clean": "gulp clean && gulp link --clean",
     "update": "npm install --save-dev gitlab:foundry-projects/foundry-pc/foundry-pc-types"
