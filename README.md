@@ -1,61 +1,72 @@
 # foundryvtt-lancer
-A Foundry VTT game system for LANCER RPG. 
+A Foundry VTT system for the [Lancer RPG by Massif Press](https://massif-press.itch.io/corebook-pdf-free).
 
-## Setup
-To set up your environment up to test the system or contribute, you have two options: download the latest packaged version, or build from source.
-### Download
-If you don't intend to contribute, this is probably the way for you. Note that until the system is released as an official system in foundry (available from the system browser) there will be no guarantee of quality or compatability--try at your own risk!
+## Foundry Installation
+**WARNING: This system is not yet released! There is no guarantee of quality or compatibility - try at your own risk! Things may not work properly, data may mysteriously vanish, and updates may break your world!**
 
-In Foundry, click "Install System", then paste in the following manifest URL: https://raw.githubusercontent.com/Eranziel/foundryvtt-lancer/master/src/system.json
+If you still wish to install the Lancer system to test, click "Install System" in the Foundry setup menu and enter this URL in the "Manifest URL" box: https://raw.githubusercontent.com/Eranziel/foundryvtt-lancer/master/src/system.json, then click "Install". 
 
-This will import the latest build, hopefully without any issues. Feel free to create a world and try it out with this!
+Once the system is downloaded, create a world which uses it and go exploring!
 
-### Build
-To build the system from source, you'll need to use npm and gulp.
+## Development Setup
+Development prerequisites are `npm` and `gulp`. 
 
-This guide is written with :inux in mind, although I'm sure many steps are similar on Windows.
+This guide is written with Linux in mind, although most steps are similar on Windows.
 
-First, ensure you have npm installed. There are a few ways to do this, [here's a handy guide](https://linuxize.com/post/how-to-install-node-js-on-ubuntu-18.04/).
+First, ensure you have `npm` installed. There are a few ways to do this, [here's a handy guide for Linux](https://linuxize.com/post/how-to-install-node-js-on-ubuntu-18.04/).
 
 Install packages and `gulp`
 
 ```
-npm install
 npm install -g gulp-cli
+npm install
 ```
 
-Then, you have the option to have gulp handle folder linking for you. To do this, add your Foundry environment folder (the one container Config, Data, and Logs) to foundryconfig.json. Then, run "gulp link" to link the folder.
-``` 
+### Link
+In order for the project's build task to update the system files in your Foundry instance, you need to link the project's `dist` directory to your Foundry data directory (the one containing Config, Data, and Logs). This can be done automatically by `gulp`. To do so, edit `foundryconfig.json` with the path to your Foundry data directory, then run the `link` script:
+```
 gulp link
+or
+npm run link
 ```
+#### Linking on Windows 
+Windows seems to think that creating symbolic links is dangerous, so this script must be run using an Administrator command prompt/Powershell.
 
+#### Linking with Docker
 You won't want to do this if you're running Foundry in a docker container--it doesn't handle externally-created links well. Instead, you can manually copy over the folder each time it's built, or link it from inside the container. 
 To link, you'll need to make sure the repository lives somewhere accessible by the container.
 
 Note that the way you build your container can make these commands vary a lot:
-```
+```bash
 docker exec -it {FOUNDRY_CONTAINER} bash
 ln -s {PATH_TO_REPOSITORY}/dist {PATH_TO_FOUNDRY_FOLDER}/Data/systems/foundry
 ```
 
+### Build
 Once you have your import process set up, you're ready to build.
 
-To compile once, use "gulp build"
+To compile once, use the `build` script:
 
 ```
 gulp build
+or
+npm run build
 ```
 
-To compile whenever a file changes,
+To compile whenever a file changes, use the `watch` script:
 
 ```
 gulp watch
+or
+npm run watch
 ```
 
 To see all the tasks, use
 
 ```
 gulp -T
+or
+npm run
 ```
 
-Once a build is completed, files will be placed in the "dist" folder. If you completed the setup above, they'll also be placed in your systems folder, and ready to use in Foundry!
+Once a build is completed, files will be placed in the `dist` folder. If you also completed the `link` task mentioned above, they'll also be placed in your systems folder, and ready to use in Foundry!
