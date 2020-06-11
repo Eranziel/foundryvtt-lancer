@@ -133,7 +133,17 @@ export class LancerPilotSheet extends ActorSheet {
    * This defines how to update the subject of the form when the form is submitted
    * @private
    */
-  _updateObject(event, formData) {
+  _updateObject(event: Event | JQuery.Event, formData: any): Promise<any> {
+    let token: any = this.actor.token;
+    // Set the prototype token image if the prototype token isn't initialized
+    if (!this.actor.token) {
+      this.actor.update({"token.img": formData.img})
+    }
+    // Update token image if it matches the old actor image
+    else if ((this.actor.img == token.img) 
+        && (this.actor.img != formData.img)) {
+      this.actor.update({"token.img": formData.img});
+    }
 
     // TODO: "attributes" aren't used anymore.
     // Handle the free-form attributes list
