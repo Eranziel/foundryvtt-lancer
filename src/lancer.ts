@@ -15,8 +15,10 @@ import { LancerGame } from './module/lancer-game'
 import { LancerNPCSheet } from './module/actor/npc-sheet';
 import { LancerItemSheet } from './module/item/item-sheet';
 
-import * as migrations from "./module/migration.js";
+import * as migrations from './module/migration.js';
 import { convertLancerData } from "./module/compBuilder";
+
+import data from 'lancer-data'
 
 /* ------------------------------------ */
 /* Initialize system				          	*/
