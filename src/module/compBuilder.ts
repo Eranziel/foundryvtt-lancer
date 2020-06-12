@@ -56,25 +56,25 @@ async function findPack(pack_name: string, metaData: object): Promise<Compendium
 	return pack;
 }
 
-async function updateItem(pack: Compendium, data: any, type: string, img: string): Promise<Entity> {
-	let entry: {_id: string; name: string;} = pack.index.find(e => e.name === data.name);
+async function updateItem(pack: Compendium, newData: any, type: string, img: string): Promise<Entity> {
+	let entry: {_id: string; name: string;} = pack.index.find(e => e.name === newData.name);
 	// The item already exists in the pack, update its data.
 	if (entry) {
 		console.log(`LANCER | Updating ${type} ${entry.name} in compendium ${pack.collection}`);
 		let e: Item = (await pack.getEntity(entry._id)) as Item;
 		let d: ItemData = e.data;
-		d.data = data;
+		d.data = newData;
 		d.img = img;
 		return await pack.updateEntity(d, {entity: e});
 	}
 	else {
-		// The skill doesn't exist yet, create it
-		const itemData: LancerSkillEntityData = {
-			name: data.name,
+		// The item doesn't exist yet, create it
+		const itemData: ItemData = {
+			name: newData.name,
 			img: img,
 			type: type,
 			flags: {},
-			data: data
+			data: newData
 		};
 		console.log(`LANCER | Adding ${type} ${itemData.name} to compendium ${pack.collection}`);
 		// Create an Item from the item data
