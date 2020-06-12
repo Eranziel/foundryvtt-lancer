@@ -10,5 +10,6 @@ dist/module
 dist/packs
 dist/templates
 dist/**/*.js
+dist/**/*.js.map
 dist/**/*.json
 dist/**/*.css
