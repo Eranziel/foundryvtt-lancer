@@ -308,6 +308,11 @@ declare interface LancerFrameStatsData {
   sp: number;
 }
 
+declare interface LancerFrameTrait {
+  name: string
+  description: string
+}
+
 declare interface LancerCoreSystemData {
   name: string;
   description: string;
@@ -322,6 +327,7 @@ declare interface LancerCoreSystemData {
 declare interface LancerFrameData extends LancerLicensedItemData {
   mechtype: MechType[];
   stats: LancerFrameStatsData;
+  traits: LancerFrameTrait[];
   mounts: object[]; // TODO: replace with specific type
   core_system: LancerCoreSystemData;
 }
