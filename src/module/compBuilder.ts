@@ -233,8 +233,22 @@ async function buildFrameCompendium() {
 	await pack.getIndex();
 
 	// Iterate through the list of core bonuses and add them each to the Compendium
-	frames.forEach(async (frame: LancerFrameData) => {
+	frames.forEach(async (frameRaw: any) => {
+		// Remove Comp/Con-specific data
+		delete frameRaw.data_type;
+		delete frameRaw.aptitude;
+		delete frameRaw.y_pos;
+		delete frameRaw.other_art;
+		// Re-type and set missing data
+		let frame: LancerFrameData = frameRaw;
+		frame.license = frame.name;
+		frame.license_level = 2;
+		frame.item_type = ItemType.Frame;
+		frame.note = "";
+		frame.flavor_name = frame.name;
+		frame.flavor_description = frame.description;
 		updateItem(pack, frame, "frame", img);
+		// TODO: Add license Item to licenses pack
 	});
 	return Promise.resolve(); 
 }
