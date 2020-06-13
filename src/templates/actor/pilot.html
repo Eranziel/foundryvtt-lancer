@@ -118,9 +118,36 @@
 				</div>
 			</div>
 			<h2 class="lancer-title clipped">SKILL TRIGGERS</h2>
+			<ol class="items-list">
+				{{#each actor.data.pilot.skills as |skill key|}}
+					<li class="skill flexrow" data-skills="{{key}}">
+						<img class="thumbnail" src="{{skill.img}}" data-edit="{{skill.img}}" title="{{skill.name}}" height="50" width="50"/>
+						<h3 class="lancer-sub-title clipped">{{skill.name}}</h3>
+						<a class="stats-control" data-action="delete"><i class="fas fa-trash"></i></a>
+					</li>
+				{{/each}}
+			</ol>
 			<h2 class="lancer-title clipped">TALENTS</h2>
+			<ol class="items-list">
+				{{#each actor.data.pilot.talents as |talent key|}}
+					<li class="talent flexrow" data-talents="{{key}}">
+						<img class="thumbnail" src="{{talent.img}}" data-edit="{{talent.img}}" title="{{talent.name}}" height="50" width="50"/>
+						<h3 class="lancer-sub-title clipped">{{talent.name}}</h3>
+						<a class="stats-control" data-action="delete"><i class="fas fa-trash"></i></a>
+					</li>
+				{{/each}}
+			</ol>
 			<h2 class="lancer-title clipped">LICENSES</h2>
 			<h2 class="lancer-title clipped">CORE BONUSES</h2>
+			<ol class="items-list">
+				{{#each actor.data.pilot.core_bonuses as |core_bonus key|}}
+					<li class="core_bonus flexrow" data-core_bonuss="{{key}}">
+						<img class="thumbnail" src="{{core_bonus.img}}" data-edit="{{core_bonus.img}}" title="{{core_bonus.name}}" height="50" width="50"/>
+						<h3 class="lancer-sub-title clipped">{{core_bonus.name}}</h3>
+						<a class="stats-control" data-action="delete"><i class="fas fa-trash"></i></a>
+					</li>
+				{{/each}}
+			</ol>
 			<h2 class="lancer-title clipped">GEAR</h2>
 			
 			<!-- <header class="stats-header flexrow">

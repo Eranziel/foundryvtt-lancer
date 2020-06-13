@@ -1,5 +1,5 @@
 import { LancerPilot } from './lancer-actor'
-import { LancerPilotSheetData } from '../interfaces';
+import { LancerPilotSheetData, LancerSkillData } from '../interfaces';
 
 const entryPrompt = "//:AWAIT_ENTRY>";
 
@@ -56,7 +56,25 @@ export class LancerPilotSheet extends ActorSheet {
     if (data.data.pilot.background == "") data.data.pilot.background = entryPrompt;
     if (data.data.pilot.history == "")    data.data.pilot.history = entryPrompt;
     if (data.data.pilot.notes == "")      data.data.pilot.notes = entryPrompt;
-    console.log("LANCER | Pilot data: ");
+    
+    // TODO: This logic should move to some sort of _OnDragDrop hook so that the
+    //   Item IDs get appended to the correct array as soon as they're added to the Actor.
+    // TODO: change types so that instead of arrays of duplicate item references
+    //   (since actor.items has all the references already), the arrays store either
+    //   simple IDs or ID:name pairs.
+    data.actor.items.forEach( (item: Item) => {
+      if (item.type == "skill") {
+        data.data.pilot.skills.push(item as any);
+      }
+      else if (item.type == "talent") {
+        data.data.pilot.talents.push(item as any);
+      }
+      else if (item.type == "core_bonus") {
+        data.data.pilot.core_bonuses.push(item as any);
+      }
+    })
+
+    console.log("LANCER | Pilot sheet data: ");
     console.log(data);
     return data;
   }
