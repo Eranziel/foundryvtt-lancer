@@ -49,6 +49,10 @@ select .lancer-stat-input {
   min-height: 100px;
 }
 
+.editor-content {
+  min-height: 5em;
+}
+
 .card {
   background-color: rgba(0,0,0,0.07);
   margin-left: 10px;
