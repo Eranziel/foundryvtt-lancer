@@ -1,16 +1,27 @@
-select {
+select .lancer-stat-input {
   width: min-content;
 }
 
-.small-icon {
+.lancer-invisible-input {
+    background: transparent;
+    border: none;
+}
+
+.small-icon {   
+  flex-grow: 0;
+  min-width: 1em;
   max-height: 1em;
 }
 
 .med-icon {
+  flex-grow: 0;
+  min-width: 2.5em;
   max-height: 2.5em;
 }
 
 .large-icon {
+  flex-grow: 0;
+  min-width: 5em;
   max-height: 5em;
 }
 

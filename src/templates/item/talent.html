@@ -1,6 +1,6 @@
 <form class="{{cssClass}} sheet-bg" autocomplete="off">
-  
-  {{!-- Sheet Header --}}
+
+	{{!-- Sheet Header --}}
 	<header class="sheet-header card clipped-bot">
 		<img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}" height="100" width="100"/>
 		<div class="header-fields">
@@ -8,6 +8,24 @@
 		</div>
 	</header>
 
-  THIS IS A TALENT!
+	{{!-- Sheet Body --}}
+	<div class="flexcol">
+		<div class="card clipped flexcol">
+			<span class="lancer-stat-header major">DESCRIPTION</span>
+			{{editor content=data.description target="data.description" button=true owner=owner editable=editable}}
+		</div>
 
+		{{#each item.data.ranks as |rank lvl|}}
+			<div class="talent-level card clipped-bot flexcol">
+				<div class="lancer-stat-header flexrow">
+					<input class="lancer-invisible-input" type="string" name="data.ranks.{{lvl}}.name" value="{{rank.name}}" data-dtype="String" style="color: white"/>
+					<span class="minor">//RANK {{lvl}}</span>
+				</div>
+				<div class="flexrow" style="background-color: #dbdbdb">
+					<img class="large-icon" style="flex-grow: unset" src="../systems/lancer/assets/icons/chevron_{{lvl}}.svg">
+					<textarea class="lancer-invisible-input" type="string" name="data.ranks.{{lvl}}.description" data-dtype="String" style="width:80%">{{rank.description}}</textarea>
+				</div>
+			</div>
+		{{/each}}
+	</div>
 </form>

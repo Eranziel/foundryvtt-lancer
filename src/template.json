@@ -157,20 +157,20 @@
       "id": "",
       "name": "",
       "description": "",
-      "ranks": [
-        {
+      "ranks": {
+        "1": {
           "name": "",
           "description": ""
         },
-        {
+        "2": {
           "name": "",
           "description": ""
         },
-        {
+        "3": {
           "name": "",
           "description": ""
         }
-      ],
+      },
       "rank": 1
     },
     "core_bonus": {
