@@ -246,7 +246,7 @@
       "damage": [],
       "range": [],
       "mod": null,
-      "custom_damage_type": ""
+      "custom_damage_type": null
     }
   }
 }

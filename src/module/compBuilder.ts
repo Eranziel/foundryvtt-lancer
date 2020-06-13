@@ -20,7 +20,7 @@ import {LancerSkillData,
 	LancerFrameData,
 	LancerMechSystemData,
 	LancerMechWeaponData} from './interfaces'
-import { PilotEquipType, ItemType } from './enums';
+import { PilotEquipType, ItemType, DamageType } from './enums';
 import data from 'lancer-data'
 
 export const convertLancerData = async function(): Promise<any> {
@@ -239,14 +239,15 @@ async function buildFrameCompendium() {
 		delete frameRaw.aptitude;
 		delete frameRaw.y_pos;
 		delete frameRaw.other_art;
+
 		// Re-type and set missing data
 		let frame: LancerFrameData = frameRaw;
 		frame.license = frame.name;
 		frame.license_level = 2;
 		frame.item_type = ItemType.Frame;
 		frame.note = "";
-		frame.flavor_name = frame.name;
-		frame.flavor_description = frame.description;
+		frame.flavor_name = "";
+		frame.flavor_description = "";
 		updateItem(pack, frame, "frame", img);
 		// TODO: Add license Item to licenses pack
 	});
@@ -269,8 +270,31 @@ async function buildMechSystemCompendium() {
 	await pack.getIndex();
 
 	// Iterate through the list of core bonuses and add them each to the Compendium
-	systems.forEach(async (system: LancerMechSystemData) => {
+	systems.forEach(async (systemRaw: any) => {
+		// Remove Comp/Con specific data
+		delete systemRaw.aptitude;
+		systemRaw.system_type = systemRaw.type;
+		delete systemRaw.type;
+
+		// Re-type and set missing data
+		let system: LancerMechSystemData = systemRaw;
+		system.item_type = ItemType.MechSystem;
+		system.note = "";
+		system.flavor_name = "";
+		system.flavor_description = "";
+		system.destroyed = false;
+		system.cascading = false;
+		system.loaded = true;
+		if (!system.sp) system.sp = 0;
+		// Special stats for tags
+		for (const tag of system.tags) {
+			if (tag.id == "tg_limited") {
+				system.uses = tag.val;
+				system.max_uses = tag.val;
+			}
+		}
 		updateItem(pack, system, "mech_system", img);
+		// TODO: Add reference in the license Item
 	});
 	return Promise.resolve(); 
 }
@@ -291,8 +315,39 @@ async function buildMechWeaponCompendium() {
 	await pack.getIndex();
 
 	// Iterate through the list of core bonuses and add them each to the Compendium
-	weapons.forEach(async (weapon: LancerMechWeaponData) => {
+	weapons.forEach(async (weaponRaw: any) => {
+		// Remove Comp/Con specific data
+		delete weaponRaw.aptitude;
+		weaponRaw.weapon_type = weaponRaw.type;
+		delete weaponRaw.type;
+
+		// Re-type and set missing data
+		let weapon: LancerMechWeaponData = weaponRaw;
+		weapon.item_type = ItemType.MechWeapon;
+		weapon.note = "";
+		weapon.flavor_name = "";
+		weapon.flavor_description = "";
+		weapon.destroyed = false;
+		weapon.cascading = false;
+		weapon.loaded = true;
+		weapon.mod = null;
+		weapon.custom_damage_type = null;
+		if (!weapon.sp) weapon.sp = 0;
+		// Special stats for tags
+		for (const tag of weapon.tags) {
+			if (tag.id == "tg_set_max_uses") {
+				weapon.max_use_override = 3;
+			}
+			else if (tag.id == "tg_limited") {
+				weapon.uses = tag.val;
+				weapon.max_uses = tag.val;
+			}
+			else if (tag.id == "tg_set_damage_type") {
+				weapon.custom_damage_type = DamageType.Kinetic;
+			}
+		}
 		updateItem(pack, weapon, "mech_weapon", img);
+		// TODO: Add reference in the license Item
 	});
 	return Promise.resolve(); 
 }

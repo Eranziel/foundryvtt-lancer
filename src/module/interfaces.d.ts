@@ -167,8 +167,8 @@ declare interface LancerLicensedItemData extends LancerCompendiumItemData {
 
 declare interface LancerMechEquipmentData {
   sp: number;
-  uses: number;
-  max_uses: number;
+  uses: number | string;
+  max_uses: number | string;
   max_use_override: number;
   destroyed: boolean;
   cascading: boolean;
