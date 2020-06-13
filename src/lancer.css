@@ -1,3 +1,18 @@
+select {
+  width: min-content;
+}
+
+.small-icon {
+  max-height: 1em;
+}
+
+.med-icon {
+  max-height: 2.5em;
+}
+
+.large-icon {
+  max-height: 5em;
+}
 
 .clipped {
   clip-path: polygon( 10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px );
@@ -60,6 +75,7 @@
   text-align: center;
   color: white;
   background-color: #991e2a;
+  max-height: 1.5em;
 }
 
 .lancer-stat-input {
