@@ -19,7 +19,8 @@ import {LancerSkillData,
 	LancerPilotGearEntityData,
 	LancerFrameData,
 	LancerMechSystemData,
-	LancerMechWeaponData} from './interfaces'
+	LancerMechWeaponData,
+	TagData} from './interfaces'
 import { PilotEquipType, ItemType, DamageType } from './enums';
 import data from 'lancer-data'
 
@@ -58,13 +59,16 @@ async function findPack(pack_name: string, metaData: object): Promise<Compendium
 
 async function updateItem(pack: Compendium, newData: any, type: string, img: string): Promise<Entity> {
 	let entry: {_id: string; name: string;} = pack.index.find(e => e.name === newData.name);
+
+	newData.name = (newData.name as string).toUpperCase();
 	// The item already exists in the pack, update its data.
 	if (entry) {
 		console.log(`LANCER | Updating ${type} ${entry.name} in compendium ${pack.collection}`);
 		let e: Item = (await pack.getEntity(entry._id)) as Item;
 		let d: ItemData = e.data;
-		d.data = newData;
+		d.name = newData.name;
 		d.img = img;
+		d.data = newData;
 		return await pack.updateEntity(d, {entity: e});
 	}
 	else {
@@ -287,12 +291,15 @@ async function buildMechSystemCompendium() {
 		system.loaded = true;
 		if (!system.sp) system.sp = 0;
 		// Special stats for tags
-		for (const tag of system.tags) {
-			if (tag.id == "tg_limited") {
-				system.uses = tag.val;
-				system.max_uses = tag.val;
-			}
+		if (system.tags) {
+			system.tags.forEach( (tag: TagData) => {
+				if (tag.id == "tg_limited") {
+					system.uses = tag.val;
+					system.max_uses = tag.val;
+				}
+			});
 		}
+		else system.tags = [];
 		updateItem(pack, system, "mech_system", img);
 		// TODO: Add reference in the license Item
 	});
@@ -334,18 +341,21 @@ async function buildMechWeaponCompendium() {
 		weapon.custom_damage_type = null;
 		if (!weapon.sp) weapon.sp = 0;
 		// Special stats for tags
-		for (const tag of weapon.tags) {
-			if (tag.id == "tg_set_max_uses") {
-				weapon.max_use_override = 3;
-			}
-			else if (tag.id == "tg_limited") {
-				weapon.uses = tag.val;
-				weapon.max_uses = tag.val;
-			}
-			else if (tag.id == "tg_set_damage_type") {
-				weapon.custom_damage_type = DamageType.Kinetic;
-			}
+		if (weapon.tags) {
+			weapon.tags.forEach( (tag: TagData) => {
+				if (tag.id == "tg_set_max_uses") {
+					weapon.max_use_override = 3;
+				}
+				else if (tag.id == "tg_limited") {
+					weapon.uses = tag.val;
+					weapon.max_uses = tag.val;
+				}
+				else if (tag.id == "tg_set_damage_type") {
+					weapon.custom_damage_type = DamageType.Kinetic;
+				}
+			});
 		}
+		else weapon.tags = [];
 		updateItem(pack, weapon, "mech_weapon", img);
 		// TODO: Add reference in the license Item
 	});
