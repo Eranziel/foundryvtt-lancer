@@ -75,9 +75,9 @@ declare interface LancerPilotStatsData {
 }
 
 declare interface LancerPilotLoadoutData {
-  armor: LancerPilotArmorData;
-  weapons: LancerPilotWeaponData[];
-  gear: LancerPilotGearData[];
+  armor: string;      // ID of armor Item
+  weapons: string[];  // IDs of weapon Items
+  gear: string[];     // IDs of gear Items
 }
 
 declare interface LancerPilotSubData {
@@ -91,11 +91,6 @@ declare interface LancerPilotSubData {
   history: string;
   stats: LancerPilotStatsData;
   loadout: LancerPilotLoadoutData;
-  licenses: LancerLicenseData[];
-  skills: LancerSkillData[];
-  talents: LancerTalentData[];
-  core_bonuses: LancerCoreBonusData[];
-  reserves: Item[]; // TODO: reserve data type
 }
 
 declare interface LancerPilotData extends ActorData {
@@ -116,7 +111,6 @@ declare interface LancerNPCData extends ActorData {
   class: string;
   npc_templates: string[];
   activations: number;
-  features: Item[]; // TODO: NPC feature data type
 }
 
 declare interface LancerNPCSheetData extends ActorSheetData {
