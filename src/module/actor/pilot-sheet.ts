@@ -123,13 +123,6 @@ export class LancerPilotSheet extends ActorSheet {
         li.slideUp(200, () => this.render(false));
       })
   
-    //   // Delete Inventory Item
-    //   html.find('.item-delete').click(ev => {
-    //     const li = $(ev.currentTarget).parents(".item");
-    //     this.actor.deleteOwnedItem(li.data("itemId"));
-    //     li.slideUp(200, () => this.render(false));
-    //   });
-  
     //   // Add or Remove Attribute
     //   html.find(".attributes").on("click", ".attribute-control", this._onClickAttributeControl.bind(this));
     }
