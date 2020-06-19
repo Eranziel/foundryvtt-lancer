@@ -123,6 +123,16 @@ select {
   -webkit-clip-path: polygon( 0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100% );
 }
 
+.clipped-reaction {
+  clip-path: polygon( 0 0, 100% 0, 100% 1px, calc(100% - 9px) 1px, calc(100% - 8px) 2px, 100% 2px, 100% 3px, calc(100% - 7px) 3px, calc(100% - 6px) 4px, 100% 4px, 100% 5px, calc(100% - 5px) 5px, calc(100% - 4px) 6px, 100% 6px, 100% 7px, calc(100% - 3px) 7px, calc(100% - 2px) 8px, 100% 8px, 100% 100%, 0 100% );
+  -webkit-clip-path: polygon( 0 0, 100% 0, 100% 1px, calc(100% - 9px) 1px, calc(100% - 8px) 2px, 100% 2px, 100% 3px, calc(100% - 7px) 3px, calc(100% - 6px) 4px, 100% 4px, 100% 5px, calc(100% - 5px) 5px, calc(100% - 4px) 6px, 100% 6px, 100% 7px, calc(100% - 3px) 7px, calc(100% - 2px) 8px, 100% 8px, 100% 100%, 0 100% );
+}
+
+.clipped-tech {
+  clip-path: polygon( 0 0, calc(100% - 12px) 0, calc(100% - 12px) 7px, calc(100% - 7px) 7px, calc(100% - 7px) 3px, calc(100% - 3px) 3px, calc(100% - 3px) 0, 100% 0, 100% 3px, calc(100% - 3px) 3px, calc(100% - 3px) 7px, calc(100% - 7px) 7px, calc(100% - 7px) 12px, 100% 12px, 100% 100%, 0 100% );
+  -webkit-clip-path: polygon( 0 0, calc(100% - 12px) 0, calc(100% - 12px) 7px, calc(100% - 7px) 7px, calc(100% - 7px) 3px, calc(100% - 3px) 3px, calc(100% - 3px) 0, 100% 0, 100% 3px, calc(100% - 3px) 3px, calc(100% - 3px) 7px, calc(100% - 7px) 7px, calc(100% - 7px) 12px, 100% 12px, 100% 100%, 0 100% );
+}
+
 .sheet-bg {
   background-color: #ccc;
 }
