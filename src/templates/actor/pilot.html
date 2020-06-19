@@ -121,7 +121,7 @@
 				<h2 class="lancer-title clipped-top">SKILL TRIGGERS</h2>
 				<ul>
 					{{#each data.pilot.skills as |skill key|}}
-					<span class="item lancer-tech-header" data-item-id="{{skill._id}}">{{skill.name}}</span>
+					<span class="item clipped lancer-trigger-header" data-item-id="{{skill._id}}">{{skill.name}} (+{{skill.data.rank}})</span>
 					{{/each}}
 				</ul>
 			</div>

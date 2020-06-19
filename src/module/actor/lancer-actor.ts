@@ -1,13 +1,10 @@
 
 import { LancerPilotData, LancerNPCData, LancerDeployableData } from '../interfaces'
 
-class LancerCharacterActor extends Actor {
-}
-
 /**
  * Extend the Actor class for Lancer Pilot-type actors.
  */
- export class LancerPilot extends LancerCharacterActor {
+ export class LancerPilot extends Actor {
    data: LancerPilotData;
 
 
@@ -17,7 +14,7 @@ class LancerCharacterActor extends Actor {
 /**
  * Extend the Actor class for Lancer NPC-type actors.
  */
- export class LancerNPC extends LancerCharacterActor {
+ export class LancerNPC extends Actor {
    data: LancerNPCData;
 
 

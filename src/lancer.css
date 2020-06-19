@@ -169,6 +169,16 @@ select {
   white-space: pre-wrap;
 }
 
+.lancer-trigger-header {
+  color: #991e2a;
+  background-color: white;
+  padding-left: 15px;
+  padding-right: 15px;
+  margin: 3px;
+  display: inline-block;
+  white-space: pre-wrap;
+}
+
 .lancer-protocol-header {
   color: white;
   background-color: #c75a00;
