@@ -68,8 +68,10 @@ export class LancerItemSheet extends ItemSheet {
     // Everything below here is only needed if the sheet is editable
     if (!this.options.editable) return;
 
-    // Add or Remove Attribute
+    // Add or Remove options
+    // Yes, theoretically this could be abstracted out to one function. You do it then.
     html.find(".tags-container").on("click", ".clickable", this._onClickTagControl.bind(this));
+    html.find(".effects-container").on("click", ".clickable", this._onClickEffectControl.bind(this));
   }
 
   /* -------------------------------------------- */
@@ -127,6 +129,35 @@ export class LancerItemSheet extends ItemSheet {
       delete tags[id];
       tags["-=" + id] = null;
       this.object.update({ "data.tags": tags });
+    }
+  }
+
+  async _onClickEffectControl(event) {
+    event.preventDefault();
+    const a = $(event.currentTarget);
+    const action = a.data("action");
+    const effect = duplicate(this.object.data.data.effect);
+
+    console.log("_onClickTraitControl()", action, effect);
+    if (action === "create") {
+      // add tag
+      // I can't figure out a better way to prevent collisions
+      // Feel free to come up with something better
+      const keys = Object.keys(effect);
+      var newIndex = 0;
+      if (keys.length > 0) {
+        newIndex = Math.max.apply(Math, keys) + 1;
+      }
+      effect[newIndex] = null;
+      await this.object.update({ "data.effect": effect });
+      await this._onSubmit(event);
+    } else if (action === "delete") {
+      // delete tag
+      const parent = a.parents(".effect");
+      const id = parent.data("key");
+      delete effect[id];
+      effect["-=" + id] = null;
+      this.object.update({ "data.effect": effect });
     }
   }
 
