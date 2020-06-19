@@ -117,11 +117,46 @@
 					</div>
 				</div>
 			</div>
-			<h2 class="lancer-title clipped">SKILL TRIGGERS</h2>
-			<h2 class="lancer-title clipped">TALENTS</h2>
-			<h2 class="lancer-title clipped">LICENSES</h2>
-			<h2 class="lancer-title clipped">CORE BONUSES</h2>
-			<h2 class="lancer-title clipped">GEAR</h2>
+			<div class="card clipped">
+				<h2 class="lancer-title clipped-top">SKILL TRIGGERS</h2>
+				<ul>
+					{{#each data.pilot.skills as |skill key|}}
+					<span class="item lancer-tech-header" data-item-id="{{skill._id}}">{{skill.name}}</span>
+					{{/each}}
+				</ul>
+			</div>
+			<div class="card clipped">
+				<h2 class="lancer-title clipped-top">TALENTS</h2>
+				<ul>
+					{{#each data.pilot.talents as |talent key|}}
+					<span class="item lancer-talent-header" data-item-id="{{talent._id}}">{{talent.name}}</span>
+					{{/each}}
+				</ul>
+			</div>
+			<div class="card clipped">
+				<h2 class="lancer-title clipped-top">LICENSES</h2>
+				<ul>
+					{{#each data.pilot.licenses as |license key|}}
+					<span class="item lancer-reaction-header" data-item-id="{{license._id}}">{{license.name}}</span>
+					{{/each}}
+				</ul>
+			</div>
+			<div class="card clipped">
+				<h2 class="lancer-title clipped-top">CORE BONUSES</h2>
+				<ul>
+					{{#each data.pilot.core_bonuses as |core_bonus key|}}
+					<span class="item lancer-system-header clipped-top" data-item-id="{{core_bonus._id}}">{{core_bonus.name}}</span>
+					{{/each}}
+				</ul>
+			</div>
+			<div class="card clipped">
+				<h2 class="lancer-title clipped-top">GEAR</h2>
+				<ul>
+					{{#each data.pilot.loadout.gear as |gear key|}}
+					<span class="item lancer-weapon-header" data-item-id="{{gear._id}}">{{gear.name}}</span>
+					{{/each}}
+				</ul>
+			</div>
 			
 			<!-- <header class="stats-header flexrow">
 				<span class="stats-key">Stats Key</span>

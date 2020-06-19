@@ -58,6 +58,21 @@ export class LancerPilotSheet extends ActorSheet {
       if (data.data.pilot.notes == "")      data.data.pilot.notes = entryPrompt;
       console.log("LANCER | Pilot data: ");
       console.log(data);
+
+      // Mirror items into filtered list properties
+      const accumulator = {};
+      for (let item of data.items) {
+        if (accumulator[item.type] === undefined) {
+          accumulator[item.type] = [];
+        }
+        accumulator[item.type].push(item);
+      }
+      data.data.pilot.skills = accumulator['skill'] || [];
+      data.data.pilot.talents = accumulator['talent'] || [];
+      data.data.pilot.licenses = accumulator['license'] || [];
+      data.data.pilot.core_bonuses = accumulator['core_bonus'] || [];
+      data.data.pilot.loadout.gear = accumulator['pilot_gear'] || [];
+
       return data;
     }
   
@@ -80,13 +95,33 @@ export class LancerPilotSheet extends ActorSheet {
   
       // Everything below here is only needed if the sheet is editable
       if (!this.options.editable) return;
+
+      if (this.actor.owner) {
+        // Item Dragging
+        let handler = ev => this._onDragStart(ev);
+        html.find('span[class*="item"]').each((i, item) => {
+          if ( item.classList.contains("inventory-header") ) return;
+          item.setAttribute("draggable", true);
+          item.addEventListener("dragstart", handler, false);
+        });
+      }
   
       // Update Inventory Item
-      // html.find('.item-edit').click(ev => {
-      //   const li = $(ev.currentTarget).parents(".item");
-      //   const item = this.actor.getOwnedItem(li.data("itemId"));
-      //   item.sheet.render(true);
-      // });
+      let items = html.find('.item');
+      items.click(ev => {
+        console.log(ev)
+        const li = $(ev.currentTarget);
+        const item = this.actor.getOwnedItem(li.data("itemId"));
+        if (item) {
+          item.sheet.render(true);
+        }
+      });
+      items.contextmenu(ev => {
+        console.log(ev)
+        const li = $(ev.currentTarget);
+        this.actor.deleteOwnedItem(li.data("itemId"));
+        li.slideUp(200, () => this.render(false));
+      })
   
     //   // Delete Inventory Item
     //   html.find('.item-delete').click(ev => {
@@ -98,6 +133,20 @@ export class LancerPilotSheet extends ActorSheet {
     //   // Add or Remove Attribute
     //   html.find(".attributes").on("click", ".attribute-control", this._onClickAttributeControl.bind(this));
     }
+
+  async _onDrop (event) {
+    event.preventDefault();
+    // Get dropped data
+    let data;
+    try {
+      data = JSON.parse(event.dataTransfer.getData('text/plain'));
+    } catch (err) {
+      return false;
+    }
+
+    // Call parent on drop logic
+    return super._onDrop(event);
+  }
   
     /* -------------------------------------------- */
   
