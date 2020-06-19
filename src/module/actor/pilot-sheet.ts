@@ -62,16 +62,17 @@ export class LancerPilotSheet extends ActorSheet {
       // Mirror items into filtered list properties
       const accumulator = {};
       for (let item of data.items) {
-        if (accumulator[item.type] === undefined) {
+        if (accumulator[item.type] === undefined)
           accumulator[item.type] = [];
-        }
         accumulator[item.type].push(item);
       }
+
       data.data.pilot.skills = accumulator['skill'] || [];
       data.data.pilot.talents = accumulator['talent'] || [];
       data.data.pilot.licenses = accumulator['license'] || [];
       data.data.pilot.core_bonuses = accumulator['core_bonus'] || [];
       data.data.pilot.loadout.gear = accumulator['pilot_gear'] || [];
+      data.data.mech_loadout.systems = accumulator['mech_system'] || [];
 
       return data;
     }

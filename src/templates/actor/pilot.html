@@ -263,8 +263,14 @@
 					</li>
 				{{/each}}
 			</ol> -->
-			<h2 class="lancer-title major clipped">SYSTEMS</h2>
-
+			<div class="card clipped">
+				<h2 class="lancer-title clipped-top">SYSTEMS</h2>
+				<ul>
+					{{#each data.mech_loadout.systems as |system key|}}
+					<span class="item lancer-system-header" data-item-id="{{system._id}}">{{system.name}}</span>
+					{{/each}}
+				</ul>
+			</div>
 			<!-- <header class="stats-header flexrow">
 				<span class="stats-key">Stats Key</span>
 				<span class="stats-value">Value</span>

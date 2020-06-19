@@ -101,7 +101,7 @@ declare interface LancerPilotSubData {
 declare interface LancerPilotData extends ActorData {
   pilot: LancerPilotSubData;
   mech: LancerMechData;
-  loadout: LancerMechLoadoutData;
+  mech_loadout: LancerMechLoadoutData;
 }
 
 declare interface LancerPilotSheetData extends ActorSheetData {
