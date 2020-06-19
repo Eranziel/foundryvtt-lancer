@@ -5,6 +5,11 @@ const chalk = require('chalk');
 const archiver = require('archiver');
 const stringify = require('json-stringify-pretty-compact');
 const typescript = require('typescript');
+const rollup = require('rollup');
+const rollup_ts = require('@rollup/plugin-typescript');
+// const rollup_resolve = require('@rollup/plugin-node-resolve');
+const rollup_cjs = require('@rollup/plugin-commonjs');
+const rollup_json = require('@rollup/plugin-json');
 
 const ts = require('gulp-typescript');
 const less = require('gulp-less');
@@ -133,6 +138,29 @@ const tsConfig = ts.createProject('tsconfig.json', {
 /********************/
 
 /**
+ * Run Rollup
+ */
+async function buildRU() {
+	const bundle = await rollup.rollup({
+		input: 'src/lancer.ts',
+		plugins: [
+			rollup_ts(),
+			rollup_json(),
+			// rollup_resolve(),
+			rollup_cjs({
+				transformMixedEsModules: true
+			})
+		]
+	});
+	return bundle.write({
+		file: 'dist/lancer.js',
+		format: 'es',
+		name: 'library',
+		sourcemap: true
+	});
+}
+
+/**
  * Build TypeScript
  */
 function buildTS() {
@@ -193,7 +221,7 @@ async function copyFiles() {
  * Watch for changes for each build step
  */
 function buildWatch() {
-	gulp.watch('src/**/*.ts', { ignoreInitial: false }, buildTS);
+	gulp.watch('src/**/*.ts', { ignoreInitial: false }, buildRU);
 	gulp.watch('src/**/*.less', { ignoreInitial: false }, buildLess);
 	gulp.watch('src/**/*.scss', { ignoreInitial: false }, buildSASS);
 	gulp.watch(
@@ -482,7 +510,7 @@ function gitTag() {
 
 const execGit = gulp.series(gitAdd, gitCommit, gitTag);
 
-const execBuild = gulp.parallel(buildTS, buildLess, buildSASS, copyFiles);
+const execBuild = gulp.parallel(buildRU, buildLess, buildSASS, copyFiles);
 
 exports.build = gulp.series(clean, execBuild);
 exports.watch = buildWatch;

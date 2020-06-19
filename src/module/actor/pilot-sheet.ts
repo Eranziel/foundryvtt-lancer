@@ -1,5 +1,5 @@
 import { LancerPilot } from './lancer-actor'
-import { LancerPilotSheetData } from '../interfaces';
+import { LancerPilotSheetData, LancerSkillData } from '../interfaces';
 
 const entryPrompt = "//:AWAIT_ENTRY>";
 
@@ -7,46 +7,41 @@ const entryPrompt = "//:AWAIT_ENTRY>";
  * Extend the basic ActorSheet
  */
 export class LancerPilotSheet extends ActorSheet {
-    _sheetTab: string;
+  _sheetTab: string;
 
-    constructor(...args) {
-      super(...args);
-  
-      /**
-       * Keep track of the currently active sheet tab
-       * @type {string}
-       */
-      this._sheetTab = "dossier";
-    }
-  
-    /**
-     * A convenience reference to the Actor entity
-     */
-    // get actor(): LancerPilot {
-    //   return this.actor;
-    // };
+  constructor(...args) {
+    super(...args);
 
-    /* -------------------------------------------- */
-  
     /**
-     * Extend and override the default options used by the Pilot Sheet
-     * @returns {Object}
+     * Keep track of the currently active sheet tab
+     * @type {string}
      */
-    static get defaultOptions() {
-      return mergeObject(super.defaultOptions, {
-        classes: ["lancer", "sheet", "actor"],
-        template: "systems/lancer/templates/actor/pilot.html",
-        width: 600,
-        height: 600
-      });
-    }
-  
-    /* -------------------------------------------- */
-  
-    /**
-     * Prepare data for rendering the Actor sheet
-     * The prepared data object contains both the actor data as well as additional sheet options
-     */
+    this._sheetTab = "dossier";
+  }
+
+  /**
+   * A convenience reference to the Actor entity
+   */
+  // get actor(): LancerPilot {
+  //   return this.actor;
+  // };
+
+  /* -------------------------------------------- */
+
+  /**
+   * Extend and override the default options used by the Pilot Sheet
+   * @returns {Object}
+   */
+  static get defaultOptions() {
+    return mergeObject(super.defaultOptions, {
+      classes: ["lancer", "sheet", "actor"],
+      template: "systems/lancer/templates/actor/pilot.html",
+      width: 600,
+      height: 600
+    });
+  }
+
+<<<<<<< HEAD
     getData() {
       const data: LancerPilotSheetData = super.getData() as LancerPilotSheetData;
       // data.dtypes = ["String", "Number", "Boolean"];
@@ -67,6 +62,9 @@ export class LancerPilotSheet extends ActorSheet {
         accumulator[item.type].push(item);
       }
 
+      // TODO: change types so that instead of arrays of duplicate item references
+      //   (since actor.items has all the references already), the arrays store either
+      //   simple IDs or ID:name pairs.
       data.data.pilot.skills = accumulator['skill'] || [];
       data.data.pilot.talents = accumulator['talent'] || [];
       data.data.pilot.licenses = accumulator['license'] || [];
@@ -167,41 +165,48 @@ export class LancerPilotSheet extends ActorSheet {
     //     li.parentElement.removeChild(li);
     //     await this._onSubmit(event);
     //   }
-    // }
-  
-    /* -------------------------------------------- */
-  
-    /**
-     * Implement the _updateObject method as required by the parent class spec
-     * This defines how to update the subject of the form when the form is submitted
-     * @private
-     */
-    _updateObject(event, formData) {
-  
-      // TODO: "attributes" aren't used anymore.
-      // Handle the free-form attributes list
-      // const formAttrs = formData.data.attributes || {};
-      // const attributes = Object.values(formAttrs).reduce((obj, v) => {
-      //   let k = v["key"].trim();
-      //   if ( /[\s\.]/.test(k) )  return ui.notifications.error("Attribute keys may not contain spaces or periods");
-      //   delete v["key"];
-      //   obj[k] = v;
-      //   return obj;
-      // }, {});
-      
-      // // Remove attributes which are no longer used
-      // for ( let k of Object.keys(this.object.data.data.attributes) ) {
-      //   if ( !attributes.hasOwnProperty(k) ) attributes[`-=${k}`] = null;
-      // }
-  
-      // // Re-combine formData
-      // formData = Object.entries(formData).filter(e => !e[0].startsWith("data.attributes")).reduce((obj, e) => {
-      //   obj[e[0]] = e[1];
-      //   return obj;
-      // }, {_id: this.object._id, "data.attributes": attributes});
-      
-      // Update the Actor
-      return this.object.update(formData);
+
+  /**
+   * Implement the _updateObject method as required by the parent class spec
+   * This defines how to update the subject of the form when the form is submitted
+   * @private
+   */
+  _updateObject(event: Event | JQuery.Event, formData: any): Promise<any> {
+    let token: any = this.actor.token;
+    // Set the prototype token image if the prototype token isn't initialized
+    if (!this.actor.token) {
+      this.actor.update({"token.img": formData.img})
     }
+    // Update token image if it matches the old actor image
+    else if ((this.actor.img == token.img) 
+        && (this.actor.img != formData.img)) {
+      this.actor.update({"token.img": formData.img});
+    }
+
+    // TODO: "attributes" aren't used anymore.
+    // Handle the free-form attributes list
+    // const formAttrs = formData.data.attributes || {};
+    // const attributes = Object.values(formAttrs).reduce((obj, v) => {
+    //   let k = v["key"].trim();
+    //   if ( /[\s\.]/.test(k) )  return ui.notifications.error("Attribute keys may not contain spaces or periods");
+    //   delete v["key"];
+    //   obj[k] = v;
+    //   return obj;
+    // }, {});
+    
+    // // Remove attributes which are no longer used
+    // for ( let k of Object.keys(this.object.data.data.attributes) ) {
+    //   if ( !attributes.hasOwnProperty(k) ) attributes[`-=${k}`] = null;
+    // }
+
+    // // Re-combine formData
+    // formData = Object.entries(formData).filter(e => !e[0].startsWith("data.attributes")).reduce((obj, e) => {
+    //   obj[e[0]] = e[1];
+    //   return obj;
+    // }, {_id: this.object._id, "data.attributes": attributes});
+    
+    // Update the Actor
+    return this.object.update(formData);
   }
+}
   
