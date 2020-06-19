@@ -69,7 +69,7 @@ export class LancerItemSheet extends ItemSheet {
     if (!this.options.editable) return;
 
     // Add or Remove Attribute
-    // html.find(".attributes").on("click", ".attribute-control", this._onClickAttributeControl.bind(this));
+    html.find(".tags-container").on("click", ".clickable", this._onClickTagControl.bind(this));
   }
 
   /* -------------------------------------------- */
@@ -84,24 +84,49 @@ export class LancerItemSheet extends ItemSheet {
     event.preventDefault();
     const a = event.currentTarget;
     const action = a.dataset.action;
-    const attrs = this.object.data.data.attributes;
+    const tags = this.object.data.data.tags;
     const form = this.form;
 
     // Add new attribute
     if ( action === "create" ) {
-      const nk = Object.keys(attrs).length + 1;
-      let newKey = document.createElement("div");
-      newKey.innerHTML = `<input type="text" name="data.attributes.attr${nk}.key" value="attr${nk}"/>`;
-      newKey = newKey.children[0] as HTMLDivElement;
-      form.appendChild(newKey);
+      tags.push()
       await this._onSubmit(event);
     }
 
     // Remove existing attribute
     else if ( action === "delete" ) {
-      const li = a.closest(".attribute");
+      const li = a.closest(".tag");
       li.parentElement.removeChild(li);
       await this._onSubmit(event);
+    }
+  }
+
+  async _onClickTagControl(event) {
+    event.preventDefault();
+    const a = $(event.currentTarget);
+    const action = a.data("action");
+    const tags = duplicate(this.object.data.data.tags);
+
+    console.log("_onClickTraitControl()", action, tags);
+    if (action === "create") {
+      // add tag
+      // I can't figure out a better way to prevent collisions
+      // Feel free to come up with something better
+      const keys = Object.keys(tags);
+      var newIndex = 0;
+      if (keys.length > 0) {
+        newIndex = Math.max.apply(Math, keys) + 1;
+      }
+      tags[newIndex] = null;
+      await this.object.update({ "data.tags": tags });
+      await this._onSubmit(event);
+    } else if (action === "delete") {
+      // delete tag
+      const parent = a.parents(".tag");
+      const id = parent.data("key");
+      delete tags[id];
+      tags["-=" + id] = null;
+      this.object.update({ "data.tags": tags });
     }
   }
 
@@ -111,25 +136,25 @@ export class LancerItemSheet extends ItemSheet {
   _updateObject(event, formData) {
 
     // Handle the free-form attributes list
-    // const formAttrs = expandObject(formData).data.attributes || {};
-    // const attributes = Object.values(formAttrs).reduce((obj, v) => {
-    //   let k = v["key"].trim();
-    //   if ( /[\s\.]/.test(k) )  return ui.notifications.error("Attribute keys may not contain spaces or periods");
-    //   delete v["key"];
-    //   obj[k] = v;
-    //   return obj;
-    // }, {});
+    // const formTags = expandObject(formData).data.tags || {};
+    // const tags = Object.values(formAttrs).reduce((obj, v) => {
+    //  let k = v["key"].trim();
+    //  if ( /[\s\.]/.test(k) )  return ui.notifications.error("ERROR");
+    // delete v["key"];
+    //  obj[k] = v;
+    //  return obj;
+    //}, {});
     
-    // // Remove attributes which are no longer used
-    // for ( let k of Object.keys(this.object.data.data.attributes) ) {
-    //   if ( !attributes.hasOwnProperty(k) ) attributes[`-=${k}`] = null;
-    // }
+    // Remove tags which are no longer used
+    //for ( let k of Object.keys(this.object.data.data.tags) ) {
+    //  if ( !tags.hasOwnProperty(k) ) tags[`-=${k}`] = null;
+    //}
 
-    // // Re-combine formData
-    // formData = Object.entries(formData).filter(e => !e[0].startsWith("data.attributes")).reduce((obj, e) => {
-    //   obj[e[0]] = e[1];
-    //   return obj;
-    // }, {_id: this.object._id, "data.attributes": attributes});
+    // Re-combine formData
+    //formData = Object.entries(formData).filter(e => !e[0].startsWith("data.tags")).reduce((obj, e) => {
+    //  obj[e[0]] = e[1];
+    //  return obj;
+    //}, {_id: this.object._id, "data.tags": tags});
 
     // Update the Item
     return this.object.update(formData);
