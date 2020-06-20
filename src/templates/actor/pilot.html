@@ -117,47 +117,53 @@
 					</div>
 				</div>
 			</div>
-			<div class="card clipped">
-				<h2 class="lancer-title clipped-top">SKILL TRIGGERS</h2>
-				<ul>
-					{{#each data.pilot.skills as |skill key|}}
-					<span class="item clipped lancer-trigger-header" data-item-id="{{skill._id}}"><img class="thumbnail" src="{{skill.img}}" data-edit="{{skill.img}}" title="{{skill.name}}" height="10" width="10"/> {{skill.name}} (+{{skill.data.rank}}) <a class="stats-control" data-action="delete"><i class="fas fa-trash"></i></a></span>
-					{{/each}}
-				</ul>
-			</div>
-			<div class="card clipped">
-				<h2 class="lancer-title clipped-top">TALENTS</h2>
-				<ul>
-					{{#each data.pilot.talents as |talent key|}}
-                    <span class="item clipped lancer-talent-header" data-item-id="{{talent._id}}"><img class="thumbnail" src="{{talent.img}}" data-edit="{{talent.img}}" title="{{talent.name}}" height="10" width="10"/> {{talent.name}} [{{talent.data.rank}}] <a class="stats-control" data-action="delete"><i class="fas fa-trash"></i></a></span>
-					{{/each}}
-				</ul>
-			</div>
-			<div class="card clipped">
-				<h2 class="lancer-title clipped-top">LICENSES</h2>
-				<ul>
-					{{#each data.pilot.licenses as |license key|}}
-					<span class="item lancer-reaction-header" data-item-id="{{license._id}}"><img class="thumbnail" src="{{license.img}}" data-edit="{{license.img}}" title="{{license.name}}" height="10" width="10"/> {{license.name}} <a class="stats-control" data-action="delete"><i class="fas fa-trash"></i></a></span>
-					{{/each}}
-				</ul>
-			</div>
-			<div class="card clipped">
-				<h2 class="lancer-title clipped-top">CORE BONUSES</h2>
-				<ul>
-					{{#each data.pilot.core_bonuses as |core_bonus key|}}
-                    <span class="item clipped lancer-system-header" data-item-id="{{core_bonus._id}}"><img class="thumbnail" src="{{core_bonus.img}}" data-edit="{{core_bonus.img}}" title="{{core_bonus.name}}" height="10" width="10"/> {{core_bonus.name}} <a class="stats-control" data-action="delete"><i class="fas fa-trash"></i></a></span>
-					{{/each}}
-				</ul>
-			</div>
-			<div class="card clipped">
-				<h2 class="lancer-title clipped-top">GEAR</h2>
-				<ul>
-					{{#each data.pilot.loadout.gear as |gear key|}}
-					<span class="item lancer-weapon-header" data-item-id="{{gear._id}}"><img class="thumbnail" src="{{gear.img}}" data-edit="{{gear.img}}" title="{{gear.name}}" height="10" width="10"/> {{gear.name}} <a class="stats-control" data-action="delete"><i class="fas fa-trash"></i></a></span>
-					{{/each}}
-				</ul>
-			</div>
-			
+      <div class="flexrow">
+        <div class="card clipped">
+          <h2 class="lancer-title clipped-top">WEAPONS</h2>
+          {{#each data.pilot.loadout.weapons as |weapon key|}}
+          <span class="item lancer-weapon-header" data-item-id="{{weapon._id}}"><img class="thumbnail" src="{{weapon.img}}" data-edit="{{weapon.img}}" title="{{weapon.name}}" height="10" width="10"/> {{weapon.name}} <a class="stats-control" data-action="delete"><i class="fas fa-trash"></i></a></span>
+          {{/each}}
+        </div>
+        <div class="card clipped">
+          <h2 class="lancer-title clipped-top">ARMOR</h2>
+          {{#each data.pilot.loadout.armor as |armor key|}}
+          <span class="item lancer-weapon-header" data-item-id="{{armor._id}}"><img class="thumbnail" src="{{armor.img}}" data-edit="{{armor.img}}" title="{{armor.name}}" height="10" width="10"/> {{armor.name}} <a class="stats-control" data-action="delete"><i class="fas fa-trash"></i></a></span>
+          {{/each}}
+        </div>
+      </div>
+      <div class="flexcol">
+       <div class="card clipped">
+        <h2 class="lancer-title clipped-top">SKILL TRIGGERS</h2>
+        {{#each data.pilot.skills as |skill key|}}
+        <span class="item clipped lancer-trigger-header" data-item-id="{{skill._id}}"><img class="thumbnail" src="{{skill.img}}" data-edit="{{skill.img}}" title="{{skill.name}}" height="10" width="10"/> {{skill.name}} (+{{skill.data.rank}}) <a class="stats-control" data-action="delete"><i class="fas fa-trash"></i></a></span>
+        {{/each}}
+      </div>
+      <div class="card clipped">
+        <h2 class="lancer-title clipped-top">TALENTS</h2>
+        {{#each data.pilot.talents as |talent key|}}
+        <span class="item clipped lancer-talent-header" data-item-id="{{talent._id}}"><img class="thumbnail" src="{{talent.img}}" data-edit="{{talent.img}}" title="{{talent.name}}" height="10" width="10"/> {{talent.name}} [{{talent.data.rank}}] <a class="stats-control" data-action="delete"><i class="fas fa-trash"></i></a></span>
+        {{/each}}
+      </div>
+      <div class="card clipped">
+        <h2 class="lancer-title clipped-top">LICENSES</h2>
+        {{#each data.pilot.licenses as |license key|}}
+        <span class="item lancer-reaction-header" data-item-id="{{license._id}}"><img class="thumbnail" src="{{license.img}}" data-edit="{{license.img}}" title="{{license.name}}" height="10" width="10"/> {{license.name}} <a class="stats-control" data-action="delete"><i class="fas fa-trash"></i></a></span>
+        {{/each}}
+      </div>
+      <div class="card clipped">
+        <h2 class="lancer-title clipped-top">CORE BONUSES</h2>
+        {{#each data.pilot.core_bonuses as |core_bonus key|}}
+        <span class="item clipped lancer-system-header" data-item-id="{{core_bonus._id}}"><img class="thumbnail" src="{{core_bonus.img}}" data-edit="{{core_bonus.img}}" title="{{core_bonus.name}}" height="10" width="10"/> {{core_bonus.name}} <a class="stats-control" data-action="delete"><i class="fas fa-trash"></i></a></span>
+        {{/each}}
+      </div>
+      <div class="card clipped">
+        <h2 class="lancer-title clipped-top">GEAR</h2>
+        {{#each data.pilot.loadout.gear as |gear key|}}
+        <span class="item lancer-weapon-header" data-item-id="{{gear._id}}"><img class="thumbnail" src="{{gear.img}}" data-edit="{{gear.img}}" title="{{gear.name}}" height="10" width="10"/> {{gear.name}} <a class="stats-control" data-action="delete"><i class="fas fa-trash"></i></a></span>
+        {{/each}}
+      </div>
+    </div>
+
 			<!-- <header class="stats-header flexrow">
 				<span class="stats-key">Stats Key</span>
 				<span class="stats-value">Value</span>
@@ -227,35 +233,35 @@
 						</div>
 					</div>
 				</div>
-				</p>
-				<div class="flexrow">
-					<div class="flexcol card clipped">
-						<span class="lancer-stat-header major clipped-top">ARMOR</span>
-						<input class="lancer-stat-input medium" type="number" name="data.mech.armor" value="{{data.mech.armor}}" data-dtype="Number"/>
-					</div>
-					<div class="flexcol card clipped">
-						<span class="lancer-stat-header major clipped-top">EVASION</span>
-						<input class="lancer-stat-input medium" type="number" name="data.mech.evasion" value="{{data.mech.evasion}}" data-dtype="Number"/>
-					</div>
-					<div class="flexcol card clipped">
-						<span class="lancer-stat-header major clipped-top">E-DEFENSE</span>
-						<input class="lancer-stat-input medium" type="number" name="data.mech.edef" value="{{data.mech.edef}}" data-dtype="Number"/>
-					</div>
-					<div class="flexcol card clipped">
-						<span class="lancer-stat-header major clipped-top">SPEED</span>
-						<input class="lancer-stat-input medium" type="number" name="data.mech.speed" value="{{data.mech.speed}}" data-dtype="Number"/>
-					</div>
-					<div class="flexcol card clipped">
-						<span class="lancer-stat-header major clipped-top">SENSORS</span>
-						<input class="lancer-stat-input medium" type="number" name="data.mech.sensors" value="{{data.mech.sensors}}" data-dtype="Number"/>
-					</div>
-					<div class="flexcol card clipped">
-						<span class="lancer-stat-header major clipped-top">SAVE TARGET</span>
-						<input class="lancer-stat-input medium" type="number" name="data.mech.save" value="{{data.mech.save}}" data-dtype="Number"/>
-					</div>
-				</div>
-			</div>
-			<h2 class="lancer-title major clipped">WEAPONS</h2>
+      </p>
+      <div class="flexrow">
+       <div class="flexcol card clipped">
+        <span class="lancer-stat-header major clipped-top">ARMOR</span>
+        <input class="lancer-stat-input medium" type="number" name="data.mech.armor" value="{{data.mech.armor}}" data-dtype="Number"/>
+      </div>
+      <div class="flexcol card clipped">
+        <span class="lancer-stat-header major clipped-top">EVASION</span>
+        <input class="lancer-stat-input medium" type="number" name="data.mech.evasion" value="{{data.mech.evasion}}" data-dtype="Number"/>
+      </div>
+      <div class="flexcol card clipped">
+        <span class="lancer-stat-header major clipped-top">E-DEFENSE</span>
+        <input class="lancer-stat-input medium" type="number" name="data.mech.edef" value="{{data.mech.edef}}" data-dtype="Number"/>
+      </div>
+      <div class="flexcol card clipped">
+        <span class="lancer-stat-header major clipped-top">SPEED</span>
+        <input class="lancer-stat-input medium" type="number" name="data.mech.speed" value="{{data.mech.speed}}" data-dtype="Number"/>
+      </div>
+      <div class="flexcol card clipped">
+        <span class="lancer-stat-header major clipped-top">SENSORS</span>
+        <input class="lancer-stat-input medium" type="number" name="data.mech.sensors" value="{{data.mech.sensors}}" data-dtype="Number"/>
+      </div>
+      <div class="flexcol card clipped">
+        <span class="lancer-stat-header major clipped-top">SAVE TARGET</span>
+        <input class="lancer-stat-input medium" type="number" name="data.mech.save" value="{{data.mech.save}}" data-dtype="Number"/>
+      </div>
+    </div>
+  </div>
+  <h2 class="lancer-title major clipped">WEAPONS</h2>
 			<!-- <ol>
 				{{#each data.loadout.weapons as |weapon key|}}
 					<li data-stats="{{key}}">
@@ -299,7 +305,7 @@
 					<a class="stats-control" data-action="delete"><i class="fas fa-trash"></i></a>
 				</li>
 			{{/each}}
-			</ol> -->
-		</div>
-	</section>
+   </ol> -->
+ </div>
+</section>
 </form>
