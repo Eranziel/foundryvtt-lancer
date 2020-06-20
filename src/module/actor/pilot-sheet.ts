@@ -1,5 +1,4 @@
-import { LancerPilot } from './lancer-actor'
-import { LancerPilotSheetData, LancerSkillData } from '../interfaces';
+import { LancerPilotSheetData, LancerNPCSheetData } from '../interfaces';
 
 const entryPrompt = "//:AWAIT_ENTRY>";
 
@@ -47,36 +46,126 @@ export class LancerPilotSheet extends ActorSheet {
    * Prepare data for rendering the Actor sheet
    * The prepared data object contains both the actor data as well as additional sheet options
    */
-  getData() {
-    const data: LancerPilotSheetData = super.getData() as LancerPilotSheetData;
+  getData(): LancerPilotSheetData {
+    let data: LancerPilotSheetData = super.getData() as LancerPilotSheetData;
+
+    this._prepareItems(data);
     // data.dtypes = ["String", "Number", "Boolean"];
   //   for ( let attr of Object.values(data.data.attributes) ) {
   //     attr.isCheckbox = attr.dtype === "Boolean";
   //   }
+
+    // Put placeholder prompts in empty fields
     if (data.data.pilot.background == "") data.data.pilot.background = entryPrompt;
     if (data.data.pilot.history == "")    data.data.pilot.history = entryPrompt;
     if (data.data.pilot.notes == "")      data.data.pilot.notes = entryPrompt;
     
-    // TODO: This logic should move to some sort of _OnDragDrop hook so that the
-    //   Item IDs get appended to the correct array as soon as they're added to the Actor.
-    // TODO: change types so that instead of arrays of duplicate item references
-    //   (since actor.items has all the references already), the arrays store either
-    //   simple IDs or ID:name pairs.
-    data.actor.items.forEach( (item: Item) => {
-      if (item.type == "skill") {
-        data.data.pilot.skills.push(item as any);
-      }
-      else if (item.type == "talent") {
-        data.data.pilot.talents.push(item as any);
-      }
-      else if (item.type == "core_bonus") {
-        data.data.pilot.core_bonuses.push(item as any);
-      }
-    })
-
     console.log("LANCER | Pilot sheet data: ");
     console.log(data);
     return data;
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Organize and classify Owned Items for Character sheets
+   * @private
+   */
+  _prepareItems(data: LancerPilotSheetData) {
+    data.skills = [];
+    data.talents = [];
+    data.core_bonuses = [];
+
+    data.items.forEach(item => {
+      if (item.type === "skill") {
+        data.skills.push(item);
+      }
+      else if (item.type === "talent") {
+        data.talents.push(item);
+      }
+      else if (item.type === "core_bonus") {
+        data.core_bonuses.push(item);
+      }
+    });
+    console.log("LANCER | Sheet skills:");
+    console.log(data.skills);
+    // EXAMPLE - from D&D5E
+    //---------------------------------------------------------------------------
+    // // Categorize items as inventory, spellbook, features, and classes
+    // const inventory = {
+    //   skills: { label: "Skill Triggers", items: [], dataset: {type: "skill"} },
+    //   talents: { label: "Talents", items: [], dataset: {type: "talent"} },
+    //   core_bonuses: { label: "Core Bonuses", items: [], dataset: {type: "core_bonus"} },
+    //   licenses: { label: "Licenses", items: [], dataset: {type: "license"} },
+    //   pilot_armor: { label: "Armor", items: [], dataset: {type: "pilot_armor"} },
+    //   pilot_weapon: { label: "Weapons", items: [], dataset: {type: "pilot_weapon"} },
+    //   pilot_gear: { label: "Gear", items: [], dataset: {type: "pilot_gear"} }
+    // };
+
+    // // Partition items by category
+    // let [items, spells, feats, classes] = data.items.reduce((arr, item) => {
+
+    //   // Item details
+    //   item.img = item.img || DEFAULT_TOKEN;
+    //   item.isStack = item.data.quantity ? item.data.quantity > 1 : false;
+
+    //   // Item usage
+    //   item.hasUses = item.data.uses && (item.data.uses.max > 0);
+    //   item.isOnCooldown = item.data.recharge && !!item.data.recharge.value && (item.data.recharge.charged === false);
+    //   item.isDepleted = item.isOnCooldown && (item.data.uses.per && (item.data.uses.value > 0));
+    //   item.hasTarget = !!item.data.target && !(["none",""].includes(item.data.target.type));
+
+    //   // Item toggle state
+    //   this._prepareItemToggleState(item);
+
+    //   // Classify items into types
+    //   if ( item.type === "spell" ) arr[1].push(item);
+    //   else if ( item.type === "feat" ) arr[2].push(item);
+    //   else if ( item.type === "class" ) arr[3].push(item);
+    //   else if ( Object.keys(inventory).includes(item.type ) ) arr[0].push(item);
+    //   return arr;
+    // }, [[], [], [], []]);
+
+    // // Apply active item filters
+    // items = this._filterItems(items, this._filters.inventory);
+    // spells = this._filterItems(spells, this._filters.spellbook);
+    // feats = this._filterItems(feats, this._filters.features);
+
+    // // Organize Spellbook and count the number of prepared spells (excluding always, at will, etc...)
+    // const spellbook = this._prepareSpellbook(data, spells);
+    // const nPrepared = spells.filter(s => {
+    //   return (s.data.level > 0) && (s.data.preparation.mode === "prepared") && s.data.preparation.prepared;
+    // }).length;
+
+    // // Organize Inventory
+    // let totalWeight = 0;
+    // for ( let i of items ) {
+    //   i.data.quantity = i.data.quantity || 0;
+    //   i.data.weight = i.data.weight || 0;
+    //   i.totalWeight = Math.round(i.data.quantity * i.data.weight * 10) / 10;
+    //   inventory[i.type].items.push(i);
+    //   totalWeight += i.totalWeight;
+    // }
+    // data.data.attributes.encumbrance = this._computeEncumbrance(totalWeight, data);
+
+    // // Organize Features
+    // const features = {
+    //   classes: { label: "DND5E.ItemTypeClassPl", items: [], hasActions: false, dataset: {type: "class"}, isClass: true },
+    //   active: { label: "DND5E.FeatureActive", items: [], hasActions: true, dataset: {type: "feat", "activation.type": "action"} },
+    //   passive: { label: "DND5E.FeaturePassive", items: [], hasActions: false, dataset: {type: "feat"} }
+    // };
+    // for ( let f of feats ) {
+    //   if ( f.data.activation.type ) features.active.items.push(f);
+    //   else features.passive.items.push(f);
+    // }
+    // classes.sort((a, b) => b.levels - a.levels);
+    // features.classes.items = classes;
+
+    // // Assign and return
+    // data.inventory = Object.values(inventory);
+    // data.spellbook = spellbook;
+    // data.preparedSpells = nPrepared;
+    // data.features = Object.values(features);
   }
 
   /* -------------------------------------------- */

@@ -75,6 +75,12 @@
   margin: 5px;
 }
 
+.skill-compact {
+  display: grid;
+  grid-template: 1fr 1fr / 30px 1fr 30px;
+  margin-right: 25px;
+}
+
 .lancer-card .title {
   text-align: center;
   font-size: 16px;

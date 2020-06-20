@@ -118,36 +118,37 @@
 				</div>
 			</div>
 			<h2 class="lancer-title clipped">SKILL TRIGGERS</h2>
-			<ol class="items-list">
-				{{#each actor.data.pilot.skills as |skill key|}}
-					<li class="skill flexrow" data-skills="{{key}}">
-						<img class="thumbnail" src="{{skill.img}}" data-edit="{{skill.img}}" title="{{skill.name}}" height="50" width="50"/>
-						<h3 class="lancer-sub-title clipped">{{skill.name}}</h3>
-						<a class="stats-control" data-action="delete"><i class="fas fa-trash"></i></a>
+			<ul class="items-list">
+				{{#each skills as |skill key|}}
+					<li class="card clipped skill-compact" data-skills="{{key}}">
+						<div class="lancer-stat-header medium clipped-top" style="grid-area: 1 / 1 / 2 / 4"><div style="align-self:left">{{skill.name}}</div></div>
+						<div style="grid-area: 2 / 1 / 3 / 2; align-self: center">+{{skill.data.rank}}</div>
+						<div style="grid-area: 2 / 2 / 3 / 3">{{skill.data.description}}</div>
+						<a class="stats-control" style="grid-area: 2 / 3 / 3 / 4; align-self: center" data-action="delete"><i class="fas fa-trash"></i></a>
 					</li>
 				{{/each}}
-			</ol>
+			</ul>
 			<h2 class="lancer-title clipped">TALENTS</h2>
-			<ol class="items-list">
-				{{#each actor.data.pilot.talents as |talent key|}}
+			<ul class="items-list">
+				{{#each talents as |talent key|}}
 					<li class="talent flexrow" data-talents="{{key}}">
 						<img class="thumbnail" src="{{talent.img}}" data-edit="{{talent.img}}" title="{{talent.name}}" height="50" width="50"/>
 						<h3 class="lancer-sub-title clipped">{{talent.name}}</h3>
 						<a class="stats-control" data-action="delete"><i class="fas fa-trash"></i></a>
 					</li>
 				{{/each}}
-			</ol>
+			</ul>
 			<h2 class="lancer-title clipped">LICENSES</h2>
 			<h2 class="lancer-title clipped">CORE BONUSES</h2>
-			<ol class="items-list">
-				{{#each actor.data.pilot.core_bonuses as |core_bonus key|}}
-					<li class="core_bonus flexrow" data-core_bonuss="{{key}}">
-						<img class="thumbnail" src="{{core_bonus.img}}" data-edit="{{core_bonus.img}}" title="{{core_bonus.name}}" height="50" width="50"/>
-						<h3 class="lancer-sub-title clipped">{{core_bonus.name}}</h3>
+			<ul class="items-list">
+				{{#each core_bonuses as |cb key|}}
+					<li class="core_bonus flexrow" data-cbs="{{key}}">
+						<img class="thumbnail" src="{{cb.img}}" data-edit="{{cb.img}}" title="{{cb.name}}" height="50" width="50"/>
+						<h3 class="lancer-sub-title clipped">{{cb.name}}</h3>
 						<a class="stats-control" data-action="delete"><i class="fas fa-trash"></i></a>
 					</li>
 				{{/each}}
-			</ol>
+			</ul>
 			<h2 class="lancer-title clipped">GEAR</h2>
 			
 			<!-- <header class="stats-header flexrow">
