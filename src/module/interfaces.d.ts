@@ -1,6 +1,6 @@
 
 import { LancerPilot, LancerNPC, LancerDeployable } from './actor/lancer-actor'
-import { LancerSkill, LancerTalent, LancerCoreBonus, LancerLicense, LancerFrame } from './item/lancer-item';
+import { LancerSkill, LancerTalent, LancerCoreBonus, LancerLicense, LancerFrame, LancerPilotArmor, LancerPilotWeapon, LancerPilotGear } from './item/lancer-item';
 import { DamageType, RangeType, WeaponSize, WeaponType, SystemType, MechType, ItemType, PilotEquipType } from './enums';
 
 // ------------------------------------------------------
@@ -96,7 +96,7 @@ declare interface LancerPilotSubData {
 declare interface LancerPilotData {
   pilot: LancerPilotSubData;
   mech: LancerMechData;
-  loadout: LancerMechLoadoutData;
+  mech_loadout: LancerMechLoadoutData;
 }
 
 declare interface LancerPilotActorData extends ActorData {
@@ -104,8 +104,11 @@ declare interface LancerPilotActorData extends ActorData {
 }
 
 declare interface LancerPilotSheetData extends ActorSheetData {
-  actor: LancerPilot;
-  data: LancerPilotActorData;
+  actor: LancerPilotActorData;
+  data: LancerPilotData;
+  skills: LancerSkill[];
+  talents: LancerTalent[];
+  core_bonuses: LancerCoreBonus[];
 }
 
 // ------- NPC data ---------------------------------------------
@@ -122,8 +125,8 @@ declare interface LancerNPCActorData extends ActorData {
 }
 
 declare interface LancerNPCSheetData extends ActorSheetData {
-  actor: LancerNPC;
-  data: LancerNPCActorData;
+  actor: LancerNPCActorData;
+  data: LancerNPCData;
 }
 
 // ------- Deployable data --------------------------------------
@@ -142,8 +145,8 @@ declare interface LancerDeployableActorData extends ActorData {
 }
 
 declare interface LancerDeployableSheetData extends ActorSheetData {
-  actor: LancerDeployable;
-  data: LancerDeployableActorData;
+  actor: LancerDeployableActorData;
+  data: LancerDeployableData;
 }
 
 // ------------------------------------------------------
