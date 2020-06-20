@@ -115,12 +115,25 @@ export class LancerPilotSheet extends ActorSheet {
           item.sheet.render(true);
         }
       });
+
+      // Delete Item on Right Click
       items.contextmenu(ev => {
-        console.log(ev)
+        console.log(ev);
         const li = $(ev.currentTarget);
         this.actor.deleteOwnedItem(li.data("itemId"));
         li.slideUp(200, () => this.render(false));
-      })
+      });
+
+      // Delete Item when trash can is clicked
+      items = html.find('.stats-control[data-action*="delete"]');
+      items.click(ev => {
+        ev.stopPropagation();  // Avoids triggering parent event handlers
+        console.log(ev);
+        const li = $(ev.currentTarget).closest('.item');
+        this.actor.deleteOwnedItem(li.data("itemId"));
+        li.slideUp(200, () => this.render(false));
+      });
+
   
     //   // Add or Remove Attribute
     //   html.find(".attributes").on("click", ".attribute-control", this._onClickAttributeControl.bind(this));
