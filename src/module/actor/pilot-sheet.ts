@@ -11,12 +11,6 @@ const entryPrompt = "//:AWAIT_ENTRY>";
 
    constructor(...args) {
      super(...args);
-
-    /**
-     * Keep track of the currently active sheet tab
-     * @type {string}
-     */
-     this._sheetTab = "dossier";
    }
 
   /**
@@ -37,7 +31,11 @@ const entryPrompt = "//:AWAIT_ENTRY>";
        classes: ["lancer", "sheet", "actor"],
        template: "systems/lancer/templates/actor/pilot.html",
        width: 600,
-       height: 600
+       height: 600,
+       tabs: [{
+         navSelector: ".tabs",
+         contentSelector: ".sheet-body",
+         initial: "dossier"}]
      });
    }
 
@@ -75,24 +73,16 @@ const entryPrompt = "//:AWAIT_ENTRY>";
 
        return data;
      }
-     
+
      /* -------------------------------------------- */
-     
+
     /**
      * Activate event listeners using the prepared sheet HTML
      * @param html {HTML}   The prepared HTML object ready to be rendered into the DOM
      */
      activateListeners(html) {
        super.activateListeners(html);
-       
-       // Activate tabs
-       let tabs = html.find('.tabs');
-       let initial = this._sheetTab;
-       new Tabs(tabs, {
-         initial: initial,
-         callback: clicked => this._sheetTab = clicked.data("tab")
-       });
-       
+
        // Everything below here is only needed if the sheet is editable
        if (!this.options.editable) return;
 
@@ -105,7 +95,7 @@ const entryPrompt = "//:AWAIT_ENTRY>";
            item.addEventListener("dragstart", handler, false);
          });
        }
-       
+
        // Update Inventory Item
        let items = html.find('.item');
        items.click(ev => {
@@ -135,7 +125,7 @@ const entryPrompt = "//:AWAIT_ENTRY>";
          li.slideUp(200, () => this.render(false));
        });
 
-       
+
        //   // Add or Remove Attribute
        //   html.find(".attributes").on("click", ".attribute-control", this._onClickAttributeControl.bind(this));
      }
@@ -153,16 +143,16 @@ const entryPrompt = "//:AWAIT_ENTRY>";
        // Call parent on drop logic
        return super._onDrop(event);
      }
-     
+
      /* -------------------------------------------- */
-     
+
      // async _onClickAttributeControl(event) {
        //   event.preventDefault();
        //   const a = event.currentTarget;
        //   const action = a.dataset.action;
        //   const attrs = this.object.data.data.attributes;
        //   const form = this.form;
-       
+
        //   // Add new attribute
        //   if ( action === "create" ) {
          //     const nk = Object.keys(attrs).length + 1;
@@ -172,7 +162,7 @@ const entryPrompt = "//:AWAIT_ENTRY>";
          //     form.appendChild(newKey);
          //     await this._onSubmit(event);
          //   }
-         
+
          //   // Remove existing attribute
          //   else if ( action === "delete" ) {
            //     const li = a.closest(".attribute");
@@ -207,7 +197,7 @@ const entryPrompt = "//:AWAIT_ENTRY>";
    //   obj[k] = v;
    //   return obj;
    // }, {});
-   
+
    // // Remove attributes which are no longer used
    // for ( let k of Object.keys(this.object.data.data.attributes) ) {
    //   if ( !attributes.hasOwnProperty(k) ) attributes[`-=${k}`] = null;
@@ -218,7 +208,7 @@ const entryPrompt = "//:AWAIT_ENTRY>";
    //   obj[e[0]] = e[1];
    //   return obj;
    // }, {_id: this.object._id, "data.attributes": attributes});
-   
+
    // Update the Actor
    return this.object.update(formData);
  }
