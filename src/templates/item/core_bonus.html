@@ -1,6 +1,6 @@
 <form class="{{cssClass}} sheet-bg" autocomplete="off">
-  
-  {{!-- Sheet Header --}}
+
+	{{!-- Sheet Header --}}
 	<header class="sheet-header card clipped-bot">
 		<img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}" height="100" width="100"/>
 		<div class="header-fields">
@@ -8,6 +8,9 @@
 		</div>
 	</header>
 
-  THIS IS A CORE BONUS!
-
+	{{!-- Sheet Body --}}
+	<div class="flexcol">
+		{{editor content=data.tags target="data.effect" button=true owner=owner editable=editable}}
+		<textarea class="lancer-invisible-input clipped-bot major" type="string" name="data.effect_mounted" data-dtype="String" style="background-color: #dbdbdb; margin-left: 1.5em; width: calc(100% - 2em)">{{data.effect_mounted}}</textarea>
+	</div>
 </form>

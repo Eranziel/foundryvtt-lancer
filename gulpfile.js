@@ -225,7 +225,7 @@ function buildWatch() {
 	gulp.watch('src/**/*.less', { ignoreInitial: false }, buildLess);
 	gulp.watch('src/**/*.scss', { ignoreInitial: false }, buildSASS);
 	gulp.watch(
-		['src/fonts', 'src/templates', 'src/*.json'],
+		['src/fonts', 'src/templates', 'src/*.json', 'src/lancer.css'],
 		{ ignoreInitial: false },
 		copyFiles
 	);

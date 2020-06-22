@@ -5,18 +5,12 @@ const entryPrompt = "//:AWAIT_ENTRY>";
 /**
  * Extend the basic ActorSheet
  */
-export class LancerPilotSheet extends ActorSheet {
-  _sheetTab: string;
+ export class LancerPilotSheet extends ActorSheet {
+   _sheetTab: string;
 
-  constructor(...args) {
-    super(...args);
-
-    /**
-     * Keep track of the currently active sheet tab
-     * @type {string}
-     */
-    this._sheetTab = "dossier";
-  }
+   constructor(...args) {
+     super(...args);
+   }
 
   /**
    * A convenience reference to the Actor entity
@@ -31,14 +25,18 @@ export class LancerPilotSheet extends ActorSheet {
    * Extend and override the default options used by the Pilot Sheet
    * @returns {Object}
    */
-  static get defaultOptions() {
-    return mergeObject(super.defaultOptions, {
-      classes: ["lancer", "sheet", "actor"],
-      template: "systems/lancer/templates/actor/pilot.html",
-      width: 600,
-      height: 600
-    });
-  }
+   static get defaultOptions() {
+     return mergeObject(super.defaultOptions, {
+       classes: ["lancer", "sheet", "actor"],
+       template: "systems/lancer/templates/actor/pilot.html",
+       width: 600,
+       height: 600,
+       tabs: [{
+         navSelector: ".tabs",
+         contentSelector: ".sheet-body",
+         initial: "dossier"}]
+     });
+   }
 
   /* -------------------------------------------- */
 
@@ -55,7 +53,27 @@ export class LancerPilotSheet extends ActorSheet {
     if (data.data.pilot.background == "") data.data.pilot.background = entryPrompt;
     if (data.data.pilot.history == "")    data.data.pilot.history = entryPrompt;
     if (data.data.pilot.notes == "")      data.data.pilot.notes = entryPrompt;
-    
+
+       // Mirror items into filtered list properties
+       const accumulator = {};
+       for (let item of data.items) {
+         if (accumulator[item.type] === undefined)
+           accumulator[item.type] = [];
+         accumulator[item.type].push(item);
+       }
+
+       // TODO: change types so that instead of arrays of duplicate item references
+       //   (since actor.items has all the references already), the arrays store either
+       //   simple IDs or ID:name pairs.
+       data.data.pilot.skills = accumulator['skill'] || [];
+       data.data.pilot.talents = accumulator['talent'] || [];
+       data.data.pilot.licenses = accumulator['license'] || [];
+       data.data.pilot.core_bonuses = accumulator['core_bonus'] || [];
+       data.data.pilot.loadout.gear = accumulator['pilot_gear'] || [];
+       data.data.pilot.loadout.weapons = accumulator['pilot_weapon'] || [];
+       data.data.mech_loadout.systems = accumulator['mech_system'] || [];
+       data.data.pilot.loadout.armor = accumulator['pilot_armor'] || [];
+
     console.log("LANCER | Pilot sheet data: ");
     console.log(data);
     return data;
@@ -96,36 +114,68 @@ export class LancerPilotSheet extends ActorSheet {
   activateListeners(html) {
     super.activateListeners(html);
 
-    // Activate tabs
-    let tabs = html.find('.tabs');
-    let initial = this._sheetTab;
-    new Tabs(tabs, {
-      initial: initial,
-      callback: clicked => this._sheetTab = clicked.data("tab")
-    });
+       // Everything below here is only needed if the sheet is editable
+       if (!this.options.editable) return;
 
-    // Everything below here is only needed if the sheet is editable
-    if (!this.options.editable) return;
+       if (this.actor.owner) {
+         // Item Dragging
+         let handler = ev => this._onDragStart(ev);
+         html.find('span[class*="item"]').each((i, item) => {
+           if ( item.classList.contains("inventory-header") ) return;
+           item.setAttribute("draggable", true);
+           item.addEventListener("dragstart", handler, false);
+         });
+       }
 
-    // Update Inventory Item
-    // html.find('.item-edit').click(ev => {
-    //   const li = $(ev.currentTarget).parents(".item");
-    //   const item = this.actor.getOwnedItem(li.data("itemId"));
-    //   item.sheet.render(true);
-    // });
+       // Update Inventory Item
+       let items = html.find('.item');
+       items.click(ev => {
+         console.log(ev)
+         const li = $(ev.currentTarget);
+         const item = this.actor.getOwnedItem(li.data("itemId"));
+         if (item) {
+           item.sheet.render(true);
+         }
+       });
 
-  //   // Delete Inventory Item
-  //   html.find('.item-delete').click(ev => {
-  //     const li = $(ev.currentTarget).parents(".item");
-  //     this.actor.deleteOwnedItem(li.data("itemId"));
-  //     li.slideUp(200, () => this.render(false));
-  //   });
+       // Delete Item on Right Click
+       items.contextmenu(ev => {
+         console.log(ev);
+         const li = $(ev.currentTarget);
+         this.actor.deleteOwnedItem(li.data("itemId"));
+         li.slideUp(200, () => this.render(false));
+       });
+
+       // Delete Item when trash can is clicked
+       items = html.find('.stats-control[data-action*="delete"]');
+       items.click(ev => {
+         ev.stopPropagation();  // Avoids triggering parent event handlers
+         console.log(ev);
+         const li = $(ev.currentTarget).closest('.item');
+         this.actor.deleteOwnedItem(li.data("itemId"));
+         li.slideUp(200, () => this.render(false));
+       });
+
 
   //   // Add or Remove Attribute
   //   html.find(".attributes").on("click", ".attribute-control", this._onClickAttributeControl.bind(this));
   }
 
-  /* -------------------------------------------- */
+     async _onDrop (event) {
+       event.preventDefault();
+       // Get dropped data
+       let data;
+       try {
+         data = JSON.parse(event.dataTransfer.getData('text/plain'));
+       } catch (err) {
+         return false;
+       }
+
+       // Call parent on drop logic
+       return super._onDrop(event);
+     }
+
+     /* -------------------------------------------- */
 
   // async _onClickAttributeControl(event) {
   //   event.preventDefault();
@@ -166,7 +216,7 @@ export class LancerPilotSheet extends ActorSheet {
       this.actor.update({"token.img": formData.img})
     }
     // Update token image if it matches the old actor image
-    else if ((this.actor.img == token.img) 
+    else if ((this.actor.img == token.img)
         && (this.actor.img != formData.img)) {
       this.actor.update({"token.img": formData.img});
     }
@@ -181,7 +231,7 @@ export class LancerPilotSheet extends ActorSheet {
     //   obj[k] = v;
     //   return obj;
     // }, {});
-    
+
     // // Remove attributes which are no longer used
     // for ( let k of Object.keys(this.object.data.data.attributes) ) {
     //   if ( !attributes.hasOwnProperty(k) ) attributes[`-=${k}`] = null;
@@ -192,9 +242,8 @@ export class LancerPilotSheet extends ActorSheet {
     //   obj[e[0]] = e[1];
     //   return obj;
     // }, {_id: this.object._id, "data.attributes": attributes});
-    
+
     // Update the Actor
     return this.object.update(formData);
   }
 }
-  
