@@ -176,36 +176,6 @@
 				{{/each}}
 			</ul>
 			-->
-
-			<!-- <header class="stats-header flexrow">
-				<span class="stats-key">Stats Key</span>
-				<span class="stats-value">Value</span>
-				<span class="stats-label">Label</span>
-				<span class="stats-dtype">Data Type</span>
-				<a class="stats-control" data-action="create"><i class="fas fa-plus"></i></a>
-			</header>
-
-			<ol class="stats-list">
-				{{#each data.pilot as |stat key|}}
-					<li class="stats flexrow" data-stats="{{key}}">
-						<input class="stats-key" type="text" name="data.pilot.{{key}}.key" value="{{key}}"/>
-						{{#if stat.isCheckbox}}
-						<label class="stats-value checkbox"><input type="checkbox" name="data.pilot.{{key}}.value" {{checked stat.value}}/></label>
-						{{else}}
-						<input class="stats-value" type="text" name="data.pilot.{{key}}.value" value="{{stat.value}}" data-dtype="{{stat.dtype}}"/>
-						{{/if}}
-						<input class="stats-label" type="text" name="data.pilot.{{key}}.label" value="{{stat.label}}"/>
-						<select class="stats-dtype" name="data.pilot.{{key}}.dtype">
-							{{#select stat.dtype}}
-							{{#each ../dtypes as |t|}}
-							<option value="{{t}}">{{t}}</option>
-							{{/each}}
-							{{/select}}
-						</select>
-						<a class="stats-control" data-action="delete"><i class="fas fa-trash"></i></a>
-					</li>
-				{{/each}}
-			</ol> -->
 		</div>
 
 		{{!-- Mech Tab --}}
@@ -246,34 +216,34 @@
 						</div>
 					</div>
 				</div>
-      </p>
-      <div class="flexrow">
-       <div class="flexcol card clipped">
-        <span class="lancer-stat-header major clipped-top">ARMOR</span>
-        <input class="lancer-stat-input medium" type="number" name="data.mech.armor" value="{{data.mech.armor}}" data-dtype="Number"/>
-      </div>
-      <div class="flexcol card clipped">
-        <span class="lancer-stat-header major clipped-top">EVASION</span>
-        <input class="lancer-stat-input medium" type="number" name="data.mech.evasion" value="{{data.mech.evasion}}" data-dtype="Number"/>
-      </div>
-      <div class="flexcol card clipped">
-        <span class="lancer-stat-header major clipped-top">E-DEFENSE</span>
-        <input class="lancer-stat-input medium" type="number" name="data.mech.edef" value="{{data.mech.edef}}" data-dtype="Number"/>
-      </div>
-      <div class="flexcol card clipped">
-        <span class="lancer-stat-header major clipped-top">SPEED</span>
-        <input class="lancer-stat-input medium" type="number" name="data.mech.speed" value="{{data.mech.speed}}" data-dtype="Number"/>
-      </div>
-      <div class="flexcol card clipped">
-        <span class="lancer-stat-header major clipped-top">SENSORS</span>
-        <input class="lancer-stat-input medium" type="number" name="data.mech.sensors" value="{{data.mech.sensors}}" data-dtype="Number"/>
-      </div>
-      <div class="flexcol card clipped">
-        <span class="lancer-stat-header major clipped-top">SAVE TARGET</span>
-        <input class="lancer-stat-input medium" type="number" name="data.mech.save" value="{{data.mech.save}}" data-dtype="Number"/>
-      </div>
-    </div>
-  </div>
+				</p>
+				<div class="flexrow">
+					<div class="flexcol card clipped">
+						<span class="lancer-stat-header major clipped-top">ARMOR</span>
+						<input class="lancer-stat-input medium" type="number" name="data.mech.armor" value="{{data.mech.armor}}" data-dtype="Number"/>
+					</div>
+					<div class="flexcol card clipped">
+						<span class="lancer-stat-header major clipped-top">EVASION</span>
+						<input class="lancer-stat-input medium" type="number" name="data.mech.evasion" value="{{data.mech.evasion}}" data-dtype="Number"/>
+					</div>
+					<div class="flexcol card clipped">
+						<span class="lancer-stat-header major clipped-top">E-DEFENSE</span>
+						<input class="lancer-stat-input medium" type="number" name="data.mech.edef" value="{{data.mech.edef}}" data-dtype="Number"/>
+					</div>
+					<div class="flexcol card clipped">
+						<span class="lancer-stat-header major clipped-top">SPEED</span>
+						<input class="lancer-stat-input medium" type="number" name="data.mech.speed" value="{{data.mech.speed}}" data-dtype="Number"/>
+					</div>
+					<div class="flexcol card clipped">
+						<span class="lancer-stat-header major clipped-top">SENSORS</span>
+						<input class="lancer-stat-input medium" type="number" name="data.mech.sensors" value="{{data.mech.sensors}}" data-dtype="Number"/>
+					</div>
+					<div class="flexcol card clipped">
+						<span class="lancer-stat-header major clipped-top">SAVE TARGET</span>
+						<input class="lancer-stat-input medium" type="number" name="data.mech.save" value="{{data.mech.save}}" data-dtype="Number"/>
+					</div>
+				</div>
+			</div>
   <h2 class="lancer-title major clipped">WEAPONS</h2>
 			<!-- <ol>
 				{{#each data.loadout.weapons as |weapon key|}}
@@ -290,35 +260,6 @@
 					{{/each}}
 				</ul>
 			</div>
-			<!-- <header class="stats-header flexrow">
-				<span class="stats-key">Stats Key</span>
-				<span class="stats-value">Value</span>
-				<span class="stats-label">Label</span>
-				<span class="stats-dtype">Data Type</span>
-				<a class="stats-control" data-action="create"><i class="fas fa-plus"></i></a>
-			</header>
-
-			<ol class="stats-list">
-			{{#each data.mech_stats as |stat key|}}
-				<li class="stats flexrow" data-stats="{{key}}">
-					<input class="stats-key" type="text" name="data.mech_stats.{{key}}.key" value="{{key}}"/>
-					{{#if stat.isCheckbox}}
-					<label class="stats-value checkbox"><input type="checkbox" name="data.mech_stats.{{key}}.value" {{checked stat.value}}/></label>
-					{{else}}
-					<input class="stats-value" type="text" name="data.mech_stats.{{key}}.value" value="{{stat.value}}" data-dtype="{{stat.dtype}}"/>
-					{{/if}}
-					<input class="stats-label" type="text" name="data.mech_stats.{{key}}.label" value="{{stat.label}}"/>
-					<select class="stats-dtype" name="data.mech_stats.{{key}}.dtype">
-						{{#select stat.dtype}}
-						{{#each ../dtypes as |t|}}
-						<option value="{{t}}">{{t}}</option>
-						{{/each}}
-						{{/select}}
-					</select>
-					<a class="stats-control" data-action="delete"><i class="fas fa-trash"></i></a>
-				</li>
-			{{/each}}
-   </ol> -->
  </div>
 </section>
 </form>
