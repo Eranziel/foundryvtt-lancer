@@ -1,6 +1,6 @@
 
 import { LancerPilot, LancerNPC, LancerDeployable } from './actor/lancer-actor'
-import { LancerSkill, LancerTalent, LancerCoreBonus, LancerLicense, LancerFrame } from './item/lancer-item';
+import { LancerSkill, LancerTalent, LancerCoreBonus, LancerLicense, LancerFrame, LancerPilotArmor, LancerPilotWeapon, LancerPilotGear } from './item/lancer-item';
 import { DamageType, RangeType, WeaponSize, WeaponType, SystemType, MechType, ItemType, PilotEquipType } from './enums';
 
 // ------------------------------------------------------
@@ -104,8 +104,11 @@ declare interface LancerPilotActorData extends ActorData {
 }
 
 declare interface LancerPilotSheetData extends ActorSheetData {
-  actor: LancerPilot;
-  data: LancerPilotActorData;
+  actor: LancerPilotActorData;
+  data: LancerPilotData;
+  skills: LancerSkill[];
+  talents: LancerTalent[];
+  core_bonuses: LancerCoreBonus[];
 }
 
 // ------- NPC data ---------------------------------------------
@@ -122,8 +125,8 @@ declare interface LancerNPCActorData extends ActorData {
 }
 
 declare interface LancerNPCSheetData extends ActorSheetData {
-  actor: LancerNPC;
-  data: LancerNPCActorData;
+  actor: LancerNPCActorData;
+  data: LancerNPCData;
 }
 
 // ------- Deployable data --------------------------------------
@@ -142,8 +145,8 @@ declare interface LancerDeployableActorData extends ActorData {
 }
 
 declare interface LancerDeployableSheetData extends ActorSheetData {
-  actor: LancerDeployable;
-  data: LancerDeployableActorData;
+  actor: LancerDeployableActorData;
+  data: LancerDeployableData;
 }
 
 // ------------------------------------------------------
@@ -201,7 +204,7 @@ declare interface LancerSkillItemData extends ItemData {
 }
 
 declare interface LancerSkillSheetData extends ItemSheetData {
-  item?: LancerSkill;
+  item?: LancerSkillItemData;
   data?: LancerSkillData;
 }
 
@@ -222,7 +225,7 @@ declare interface LancerTalentItemData extends ItemData {
 }
 
 declare interface LancerTalentSheetData extends ItemSheetData {
-  item?: LancerTalent;
+  item?: LancerTalentItemData;
   data?: LancerTalentData;
 }
 
@@ -240,7 +243,7 @@ declare interface LancerCoreBonusItemData extends ItemData {
 }
 
 declare interface LancerCoreBonusSheetData extends ItemSheetData {
-  item?: LancerCoreBonus;
+  item?: LancerCoreBonusItemData;
   data?: LancerCoreBonusData;
 }
 
@@ -256,7 +259,7 @@ declare interface LancerLicenseItemData extends ItemData {
 }
 
 declare interface LancerLicenseSheetData extends ItemSheetData {
-  item?: LancerLicense;
+  item?: LancerLicenseItemData;
   data?: LancerLicenseData;
 }
 
@@ -340,7 +343,7 @@ declare interface LancerFrameItemData extends ItemData {
 }
 
 declare interface LancerFrameSheetData extends ItemSheetData {
-  item?: LancerFrame;
+  item?: LancerFrameItemData;
   data?: LancerFrameData;
 }
 
