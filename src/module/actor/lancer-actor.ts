@@ -8,7 +8,7 @@ export class LancerPilot extends Actor {
   data: LancerPilotActorData;
 
 
-}
+ }
 
 
 /**
@@ -18,7 +18,7 @@ export class LancerNPC extends Actor {
   data: LancerNPCActorData;
 
 
-}
+ }
 
 /**
  * 
@@ -27,4 +27,4 @@ export class LancerDeployable extends Actor {
   data: LancerDeployableActorData;
 
 
-}
+ }

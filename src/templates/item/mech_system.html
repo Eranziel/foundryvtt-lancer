@@ -1,6 +1,6 @@
 <form class="{{cssClass}} sheet-bg" autocomplete="off">
-  
-  {{!-- Sheet Header --}}
+
+	{{!-- Sheet Header --}}
 	<header class="sheet-header card clipped-bot">
 		<img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}" height="100" width="100"/>
 		<div class="header-fields">
@@ -8,6 +8,84 @@
 		</div>
 	</header>
 
-  THIS IS A MECH SYSTEM!
-
+	<div class=flexcol>
+		<div>
+			<div class="flexcol labeled-input" style="float: left">
+				<span>SP</span>
+				<input class="lancer-stat-input lancer-invisible-input" type="number" name="data.sp" value="{{data.sp}}" data-dtype="Number" style="justify-content: left"/>
+			</div>
+			<!-- TODO: Make this a handlebars partial, a lot of things will need a standardized way to track uses -->
+			<div style="width: calc(100px + 1ch); float: left; margin-left: 1em;" class="labeled-input flexcol">
+				<span>USES</span>
+				<div class="flexrow">
+					<input class="lancer-stat-input lancer-invisible-input" type="number" name="data.uses" value="{{data.uses}}" data-dtype="Number" style="justify-content: left"/>
+					<span>/</span>
+					<input class="lancer-stat-input lancer-invisible-input" type="number" name="data.max_uses" value="{{data.max_uses}}" data-dtype="Number" style="justify-content: left"/>
+				</div>
+			</div>
+			<div class="flexcol" style="float:right">
+				<select name="data.system_type" data-type="String" style="height: 2em" >
+					{{#select data.system_type}}
+					<option value="system">SYSTEM</option>
+					<option value="ai">AI</option>
+					<option value="shield">SHIELD</option>
+					<option value="deployable">DEPLOYABLE</option>
+					<option value="drone">DRONE</option>
+					<option value="tech">TECH</option>
+					<option value="armor">ARMOR</option>
+					<option value="flight_system">FLIGHT SYSTEM</option>
+					<option value="integrated">INTEGRATED</option>
+					<option value="mod">MOD</option>
+					{{/select}}
+				</select>
+				<div class="license-desc">
+					<span>// </span>
+					<input type="String" name="data.license" value="{{data.license}}" data-dtype="String"/>
+					<input type="number" name="data.license_level" value="{{data.license_level}}" data-dtype="Number"/>
+				</div>
+			</div>
+		</div>
+		<div class="flexcol card clipped">
+			<span class="lancer-stat-header major clipped-top">DESCRIPTION</span>
+			{{editor content=data.description target="data.description" button=true owner=owner editable=editable}}
+		</div>
+		<div class="effects-container flexcol">
+			<div>
+				<span class="minor" style="float: left">EFFECTS</span>
+				<a class="add-button clickable" data-action="create" style="float: right; margin-right: 1em">+</a>
+			</div>
+			{{#each item.data.effect as |eff key|}}
+			<div class="flexrow effect" data-key="{{key}}">
+				<div class="flexcol">
+					<div class="remove-wrapper">
+						<input type="String" name="data.effect.{{key}}.name" value="{{eff.name}}" data-dtype="String" class="major lancer-invisible-input"/>
+						<a class="remove-button fa fa-trash clickable" data-action="delete" style="float: right; margin-right: 14px; margin-top: 2px"></a>
+					</div>
+					<textarea class="lancer-invisible-input minor" type="string" name="data.effect.{{key}}.description" data-dtype="String">{{eff.description}}</textarea>
+				</div>
+			</div>
+			{{/each}}
+		</div>
+		<!-- TODO: Bring this out to be a handlebars partial. Will need to pass in context appropriately. -->
+		<div class="tags-container flexcol">
+			<div>
+				<span class="minor" style="float: left">EQUIPMENT TAGS</span>
+				<a class="add-button clickable" data-action="create" style="float: right; margin-right: 1em">+</a>
+			</div>
+			{{#each item.data.tags as |tag key|}}
+			<div class="flexrow tag" data-key="{{key}}">
+				<div class="tag-label">
+					<i class="med-icon fa fa-3x fa-tag" style="margin: 3px"></i>
+				</div>
+				<div class="flexcol">
+					<div class="remove-wrapper">
+						<input type="String" name="data.tags.{{key}}.name" value="{{tag.name}}" data-dtype="String" class="major lancer-invisible-input"/>
+						<a class="remove-button fa fa-trash clickable" data-action="delete" style="float: right; margin-right: 11px; margin-top: 2px"></a>
+					</div>
+					<textarea class="lancer-invisible-input minor" type="string" name="data.tags.{{key}}.description" data-dtype="String">{{tag.description}}</textarea>
+				</div>
+			</div>
+			{{/each}}
+		</div>
+	</div>
 </form>
