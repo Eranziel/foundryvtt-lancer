@@ -1,6 +1,6 @@
 
 import { LancerPilot, LancerNPC, LancerDeployable } from './actor/lancer-actor'
-import { LancerSkill, LancerTalent, LancerCoreBonus, LancerLicense, LancerFrame, LancerPilotArmor, LancerPilotWeapon, LancerPilotGear } from './item/lancer-item';
+import { LancerSkill, LancerTalent, LancerCoreBonus, LancerLicense, LancerFrame, LancerPilotArmor, LancerPilotWeapon, LancerPilotGear, LancerMechWeapon, LancerMechSystem } from './item/lancer-item';
 import { DamageType, RangeType, WeaponSize, WeaponType, SystemType, MechType, ItemType, PilotEquipType } from './enums';
 
 // ------------------------------------------------------
@@ -109,6 +109,17 @@ declare interface LancerPilotSheetData extends ActorSheetData {
   skills: LancerSkill[];
   talents: LancerTalent[];
   core_bonuses: LancerCoreBonus[];
+  licenses: LancerLicense[];
+  pilot_loadout: {
+    armor: LancerPilotArmor[];
+    weapons: LancerPilotWeapon[];
+    gear: LancerPilotGear[];
+  }
+  // TODO: subdivide into mounts
+  mech_loadout: {
+    weapons: LancerMechWeapon[];
+    systems: LancerMechSystem[];
+  }
 }
 
 // ------- NPC data ---------------------------------------------

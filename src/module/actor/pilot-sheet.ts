@@ -1,5 +1,6 @@
 import { LancerPilotSheetData, LancerNPCSheetData } from '../interfaces';
 
+// TODO: should probably move to HTML/CSS
 const entryPrompt = "//:AWAIT_ENTRY>";
 
 /**
@@ -54,26 +55,6 @@ export class LancerPilotSheet extends ActorSheet {
     if (data.data.pilot.history == "")    data.data.pilot.history = entryPrompt;
     if (data.data.pilot.notes == "")      data.data.pilot.notes = entryPrompt;
 
-       // Mirror items into filtered list properties
-       const accumulator = {};
-       for (let item of data.items) {
-         if (accumulator[item.type] === undefined)
-           accumulator[item.type] = [];
-         accumulator[item.type].push(item);
-       }
-
-       // TODO: change types so that instead of arrays of duplicate item references
-       //   (since actor.items has all the references already), the arrays store either
-       //   simple IDs or ID:name pairs.
-       data.data.pilot.skills = accumulator['skill'] || [];
-       data.data.pilot.talents = accumulator['talent'] || [];
-       data.data.pilot.licenses = accumulator['license'] || [];
-       data.data.pilot.core_bonuses = accumulator['core_bonus'] || [];
-       data.data.pilot.loadout.gear = accumulator['pilot_gear'] || [];
-       data.data.pilot.loadout.weapons = accumulator['pilot_weapon'] || [];
-       data.data.mech_loadout.systems = accumulator['mech_system'] || [];
-       data.data.pilot.loadout.armor = accumulator['pilot_armor'] || [];
-
     console.log("LANCER | Pilot sheet data: ");
     console.log(data);
     return data;
@@ -86,21 +67,28 @@ export class LancerPilotSheet extends ActorSheet {
    * @private
    */
   _prepareItems(data: LancerPilotSheetData) {
-    data.skills = [];
-    data.talents = [];
-    data.core_bonuses = [];
 
-    data.items.forEach(item => {
-      if (item.type === "skill") {
-        data.skills.push(item);
-      }
-      else if (item.type === "talent") {
-        data.talents.push(item);
-      }
-      else if (item.type === "core_bonus") {
-        data.core_bonuses.push(item);
-      }
-    });
+    // Mirror items into filtered list properties
+    const accumulator = {};
+    for (let item of data.items) {
+      if (accumulator[item.type] === undefined)
+        accumulator[item.type] = [];
+      accumulator[item.type].push(item);
+    }
+
+    data.skills = accumulator['skill'] || [];
+    data.talents = accumulator['talent'] || [];
+    data.licenses = accumulator['license'] || [];
+    data.core_bonuses = accumulator['core_bonus'] || [];
+    data.pilot_loadout = {
+      gear: accumulator['pilot_gear'] || [],
+      weapons: accumulator['pilot_weapon'] || [],
+      armor: accumulator['pilot_armor'] || []
+    };
+    data.mech_loadout = {
+      weapons: accumulator['mech_weapon'] || [], // TODO: subdivide into mounts
+      systems: accumulator['mech_system'] || []
+    }
   }
 
   /* -------------------------------------------- */
