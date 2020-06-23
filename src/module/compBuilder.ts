@@ -1,26 +1,13 @@
-import {LancerSkill,
-	LancerTalent, 
-	LancerCoreBonus,
-	LancerPilotArmor,
-	LancerPilotWeapon,
-	LancerPilotGear} from './item/lancer-item'
-import {LancerSkillData,
+import { LancerLicense } from './item/lancer-item'
+import { LancerSkillData,
 	LancerTalentData, 
 	LancerCoreBonusData,
 	LancerPilotGearData,
-	LancerPilotEquipmentData,
-	LancerPilotArmorData,
-	LancerSkillEntityData,
-	LancerTalentEntityData,
-	LancerCoreBonusEntityData,
-	LancerPilotArmorEntityData,
-	LancerPilotWeaponData,
-	LancerPilotWeaponEntityData,
-	LancerPilotGearEntityData,
 	LancerFrameData,
 	LancerMechSystemData,
 	LancerMechWeaponData,
-	TagData} from './interfaces'
+	TagData,
+	LancerLicenseData} from './interfaces'
 import { PilotEquipType, ItemType, DamageType } from './enums';
 import data from 'lancer-data'
 
@@ -43,7 +30,7 @@ async function findPack(pack_name: string, metaData: object): Promise<Compendium
 	if (!pack) {
 		// System compendium doesn't exist, attempt to find a world compendium
 		pack = game.packs.get(`world.${pack_name}`);
-		}
+	}
 	if (pack) {
 		console.log(`LANCER | Updating existing compendium: ${pack.collection}.`);
 		pack.locked = false;
@@ -236,6 +223,19 @@ async function buildFrameCompendium() {
 	pack.locked = false;
 	await pack.getIndex();
 
+	const licImg = "systems/lancer/assets/icons/frame.svg";
+	const licMetaData: Object = {
+		name: "licenses",
+		label: "Licenses",
+		system: "lancer",
+		package: "lancer",
+		path: "./packs/licenses.db",
+		entity: "Item"
+	}
+	let licPack: Compendium = await findPack("licenses", licMetaData);
+	licPack.locked = false;
+	await licPack.getIndex();
+
 	// Iterate through the list of core bonuses and add them each to the Compendium
 	frames.forEach(async (frameRaw: any) => {
 		// Remove Comp/Con-specific data
@@ -253,7 +253,17 @@ async function buildFrameCompendium() {
 		frame.flavor_name = "";
 		frame.flavor_description = "";
 		updateItem(pack, frame, "frame", img);
-		// TODO: Add license Item to licenses pack
+
+		// Create license data
+		let license: LancerLicenseData = {
+			name: frame.name,
+			source: frame.source,
+			rank: 1
+		};
+		let lItem: LancerLicense = (await updateItem(licPack, license, "license", licImg)) as LancerLicense;
+		// TODO: If the frame already exists in the license, update it instead of adding another
+		// Add the frame to the license
+		lItem.createEmbeddedEntity(frame.name, frame);
 	});
 	return Promise.resolve(); 
 }
@@ -272,6 +282,17 @@ async function buildMechSystemCompendium() {
 	let pack: Compendium = await findPack("systems", metaData);
 	pack.locked = false;
 	await pack.getIndex();
+
+	// Find the licenses pack
+	let lPack: Compendium = await game.packs.get("lancer.licenses");
+	if (!lPack) {
+		// System compendium doesn't exist, attempt to find a world compendium
+		lPack = await game.packs.get("world.licenses");
+	}
+	// Make sure the index is up-to-date
+	if (lPack) {
+		await lPack.getIndex();
+	}
 
 	// Iterate through the list of core bonuses and add them each to the Compendium
 	systems.forEach(async (systemRaw: any) => {
@@ -301,7 +322,15 @@ async function buildMechSystemCompendium() {
 		}
 		else system.tags = [];
 		updateItem(pack, system, "mech_system", img);
-		// TODO: Add reference in the license Item
+
+		// If the Licenses pack exists, add the system to the relevant license
+		if (lPack) {
+			let entry: {_id: string; name: string;} = pack.index.find(e => e.name === system.license);
+			if (entry) {
+				let license: LancerLicense = (await lPack.getEntity(entry._id)) as LancerLicense;
+				license.createEmbeddedEntity(system.name, system);
+			}
+		}
 	});
 	return Promise.resolve(); 
 }
@@ -320,6 +349,17 @@ async function buildMechWeaponCompendium() {
 	let pack: Compendium = await findPack("weapons", metaData);
 	pack.locked = false;
 	await pack.getIndex();
+
+	// Find the licenses pack
+	let lPack: Compendium = await game.packs.get("lancer.licenses");
+	if (!lPack) {
+		// System compendium doesn't exist, attempt to find a world compendium
+		lPack = await game.packs.get("world.licenses");
+	}
+	// Make sure the index is up-to-date
+	if (lPack) {
+		await lPack.getIndex();
+	}
 
 	// Iterate through the list of core bonuses and add them each to the Compendium
 	weapons.forEach(async (weaponRaw: any) => {
@@ -357,7 +397,15 @@ async function buildMechWeaponCompendium() {
 		}
 		else weapon.tags = [];
 		updateItem(pack, weapon, "mech_weapon", img);
-		// TODO: Add reference in the license Item
+
+		// If the Licenses pack exists, add the system to the relevant license
+		if (lPack) {
+			let entry: {_id: string; name: string;} = pack.index.find(e => e.name === weapon.license);
+			if (entry) {
+				let license: LancerLicense = (await lPack.getEntity(entry._id)) as LancerLicense;
+				license.createEmbeddedEntity(weapon.name, weapon);
+			}
+		}
 	});
 	return Promise.resolve(); 
 }
