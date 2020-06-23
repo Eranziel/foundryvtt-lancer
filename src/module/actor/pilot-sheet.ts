@@ -80,7 +80,7 @@ export class LancerPilotSheet extends ActorSheet {
     data.talents = accumulator['talent'] || [];
     data.licenses = accumulator['license'] || [];
     data.core_bonuses = accumulator['core_bonus'] || [];
-    data.pilot_loadout = {
+    data.data.pilot.loadout = {
       gear: accumulator['pilot_gear'] || [],
       weapons: accumulator['pilot_weapon'] || [],
       armor: accumulator['pilot_armor'] || []
