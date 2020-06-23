@@ -1,51 +1,51 @@
 
-import {  LancerSkillEntityData, 
-          LancerTalentEntityData,
-          LancerCoreBonusEntityData,
-          LancerLicenseEntityData,
-          LancerPilotArmorEntityData,
-          LancerPilotWeaponEntityData,
-          LancerPilotGearEntityData, 
-          LancerFrameEntityData,
-          LancerMechSystemEntityData,
-          LancerMechWeaponEntityData} from '../interfaces'
+import {  LancerSkillItemData, 
+          LancerTalentItemData,
+          LancerCoreBonusItemData,
+          LancerLicenseItemData,
+          LancerPilotArmorItemData,
+          LancerPilotWeaponItemData,
+          LancerPilotGearItemData, 
+          LancerFrameItemData,
+          LancerMechSystemItemData,
+          LancerMechWeaponItemData} from '../interfaces'
 
 export class LancerSkill extends Item {
-  data: LancerSkillEntityData;
+  data: LancerSkillItemData;
 }
 
 export class LancerTalent extends Item {
-  data: LancerTalentEntityData;
+  data: LancerTalentItemData;
 }
 
 export class LancerCoreBonus extends Item {
-  data: LancerCoreBonusEntityData;
+  data: LancerCoreBonusItemData;
 }
 
 export class LancerLicense extends Item {
-  data: LancerLicenseEntityData;
+  data: LancerLicenseItemData;
 }
 
 export class LancerPilotArmor extends Item {
-  data: LancerPilotArmorEntityData;
+  data: LancerPilotArmorItemData;
 }
 
 export class LancerPilotWeapon extends Item {
-  data: LancerPilotWeaponEntityData;
+  data: LancerPilotWeaponItemData;
 }
 
 export class LancerPilotGear extends Item {
-  data: LancerPilotGearEntityData;
+  data: LancerPilotGearItemData;
 }
 
 export class LancerFrame extends Item {
-  data: LancerFrameEntityData;
+  data: LancerFrameItemData;
 }
 
 export class LancerMechSystem extends Item {
-  data: LancerMechSystemEntityData;
+  data: LancerMechSystemItemData;
 }
 
 export class LancerMechWeapon extends Item {
-  data: LancerMechWeaponEntityData;
+  data: LancerMechWeaponItemData;
 }

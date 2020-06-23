@@ -117,41 +117,65 @@
 					</div>
 				</div>
 			</div>
+      <div class="flexrow">
+        <div class="card clipped">
+          <h2 class="lancer-title clipped-top">WEAPONS</h2>
+          {{#each pilot_loadout.weapons as |weapon key|}}
+          <span class="item lancer-weapon-header" data-item-id="{{weapon._id}}"><img class="thumbnail" src="{{weapon.img}}" data-edit="{{weapon.img}}" title="{{weapon.name}}" height="10" width="10"/> {{weapon.name}} <a class="stats-control" data-action="delete"><i class="fas fa-trash"></i></a></span>
+          {{/each}}
+        </div>
+        <div class="card clipped">
+          <h2 class="lancer-title clipped-top">ARMOR</h2>
+          {{#each pilot_loadout.armor as |armor key|}}
+          <span class="item lancer-weapon-header" data-item-id="{{armor._id}}"><img class="thumbnail" src="{{armor.img}}" data-edit="{{armor.img}}" title="{{armor.name}}" height="10" width="10"/> {{armor.name}} <a class="stats-control" data-action="delete"><i class="fas fa-trash"></i></a></span>
+          {{/each}}
+        </div>
+      </div>
+      <div class="flexcol">
+				<div class="card clipped">
+					<h2 class="lancer-title clipped-top">SKILL TRIGGERS</h2>
+					{{#each skills as |skill key|}}
+					<span class="item clipped lancer-trigger-header" data-item-id="{{skill._id}}"><img class="thumbnail" src="{{skill.img}}" data-edit="{{skill.img}}" title="{{skill.name}}" height="10" width="10"/> {{skill.name}} (+{{skill.data.rank}}) <a class="stats-control" data-action="delete"><i class="fas fa-trash"></i></a></span>
+					{{/each}}
+				</div>
+				<div class="card clipped">
+					<h2 class="lancer-title clipped-top">TALENTS</h2>
+					{{#each talents as |talent key|}}
+					<span class="item clipped lancer-talent-header" data-item-id="{{talent._id}}"><img class="thumbnail" src="{{talent.img}}" data-edit="{{talent.img}}" title="{{talent.name}}" height="10" width="10"/> {{talent.name}} [{{talent.data.rank}}] <a class="stats-control" data-action="delete"><i class="fas fa-trash"></i></a></span>
+					{{/each}}
+				</div>
+				<div class="card clipped">
+					<h2 class="lancer-title clipped-top">LICENSES</h2>
+					{{#each licenses as |license key|}}
+					<span class="item lancer-reaction-header" data-item-id="{{license._id}}"><img class="thumbnail" src="{{license.img}}" data-edit="{{license.img}}" title="{{license.name}}" height="10" width="10"/> {{license.name}} <a class="stats-control" data-action="delete"><i class="fas fa-trash"></i></a></span>
+					{{/each}}
+				</div>
+				<div class="card clipped">
+					<h2 class="lancer-title clipped-top">CORE BONUSES</h2>
+					{{#each core_bonuses as |core_bonus key|}}
+					<span class="item clipped lancer-system-header" data-item-id="{{core_bonus._id}}"><img class="thumbnail" src="{{core_bonus.img}}" data-edit="{{core_bonus.img}}" title="{{core_bonus.name}}" height="10" width="10"/> {{core_bonus.name}} <a class="stats-control" data-action="delete"><i class="fas fa-trash"></i></a></span>
+					{{/each}}
+				</div>
+				<div class="card clipped">
+					<h2 class="lancer-title clipped-top">GEAR</h2>
+					{{#each pilot_loadout.gear as |gear key|}}
+					<span class="item lancer-weapon-header" data-item-id="{{gear._id}}"><img class="thumbnail" src="{{gear.img}}" data-edit="{{gear.img}}" title="{{gear.name}}" height="10" width="10"/> {{gear.name}} <a class="stats-control" data-action="delete"><i class="fas fa-trash"></i></a></span>
+					{{/each}}
+				</div>
+			</div>
+			<!-- Eranziel's version
 			<h2 class="lancer-title clipped">SKILL TRIGGERS</h2>
-			<h2 class="lancer-title clipped">TALENTS</h2>
-			<h2 class="lancer-title clipped">LICENSES</h2>
-			<h2 class="lancer-title clipped">CORE BONUSES</h2>
-			<h2 class="lancer-title clipped">GEAR</h2>
-			
-			<!-- <header class="stats-header flexrow">
-				<span class="stats-key">Stats Key</span>
-				<span class="stats-value">Value</span>
-				<span class="stats-label">Label</span>
-				<span class="stats-dtype">Data Type</span>
-				<a class="stats-control" data-action="create"><i class="fas fa-plus"></i></a>
-			</header>
-
-			<ol class="stats-list">
-				{{#each data.pilot as |stat key|}}
-					<li class="stats flexrow" data-stats="{{key}}">
-						<input class="stats-key" type="text" name="data.pilot.{{key}}.key" value="{{key}}"/>
-						{{#if stat.isCheckbox}}
-						<label class="stats-value checkbox"><input type="checkbox" name="data.pilot.{{key}}.value" {{checked stat.value}}/></label>
-						{{else}}
-						<input class="stats-value" type="text" name="data.pilot.{{key}}.value" value="{{stat.value}}" data-dtype="{{stat.dtype}}"/>
-						{{/if}}
-						<input class="stats-label" type="text" name="data.pilot.{{key}}.label" value="{{stat.label}}"/>
-						<select class="stats-dtype" name="data.pilot.{{key}}.dtype">
-							{{#select stat.dtype}}
-							{{#each ../dtypes as |t|}}
-							<option value="{{t}}">{{t}}</option>
-							{{/each}}
-							{{/select}}
-						</select>
-						<a class="stats-control" data-action="delete"><i class="fas fa-trash"></i></a>
+			<ul class="items-list">
+				{{#each skills as |skill key|}}
+					<li class="card clipped skill-compact" data-skills="{{key}}">
+						<div class="lancer-stat-header medium clipped-top" style="grid-area: 1 / 1 / 2 / 4"><div style="align-self:left">{{skill.name}}</div></div>
+						<div style="grid-area: 2 / 1 / 3 / 2; align-self: center">+{{skill.data.rank}}</div>
+						<div style="grid-area: 2 / 2 / 3 / 3">{{skill.data.description}}</div>
+						<a class="stats-control" style="grid-area: 2 / 3 / 3 / 4; align-self: center" data-action="delete"><i class="fas fa-trash"></i></a>
 					</li>
 				{{/each}}
-			</ol> -->
+			</ul>
+			-->
 		</div>
 
 		{{!-- Mech Tab --}}
@@ -220,45 +244,25 @@
 					</div>
 				</div>
 			</div>
-			<h2 class="lancer-title major clipped">WEAPONS</h2>
-			<!-- <ol>
-				{{#each data.loadout.weapons as |weapon key|}}
-					<li data-stats="{{key}}">
+			<div class="card clipped">
+				<h2 class="lancer-title major clipped">WEAPONS</h2>
+				{{!-- TODO: display by mount
+				<ul>
+					{{#each data.mech_loadout.weapons as |weapon key|}}
+						<li data-stats="{{key}}">
 
-					</li>
-				{{/each}}
-			</ol> -->
-			<h2 class="lancer-title major clipped">SYSTEMS</h2>
-
-			<!-- <header class="stats-header flexrow">
-				<span class="stats-key">Stats Key</span>
-				<span class="stats-value">Value</span>
-				<span class="stats-label">Label</span>
-				<span class="stats-dtype">Data Type</span>
-				<a class="stats-control" data-action="create"><i class="fas fa-plus"></i></a>
-			</header>
-
-			<ol class="stats-list">
-			{{#each data.mech_stats as |stat key|}}
-				<li class="stats flexrow" data-stats="{{key}}">
-					<input class="stats-key" type="text" name="data.mech_stats.{{key}}.key" value="{{key}}"/>
-					{{#if stat.isCheckbox}}
-					<label class="stats-value checkbox"><input type="checkbox" name="data.mech_stats.{{key}}.value" {{checked stat.value}}/></label>
-					{{else}}
-					<input class="stats-value" type="text" name="data.mech_stats.{{key}}.value" value="{{stat.value}}" data-dtype="{{stat.dtype}}"/>
-					{{/if}}
-					<input class="stats-label" type="text" name="data.mech_stats.{{key}}.label" value="{{stat.label}}"/>
-					<select class="stats-dtype" name="data.mech_stats.{{key}}.dtype">
-						{{#select stat.dtype}}
-						{{#each ../dtypes as |t|}}
-						<option value="{{t}}">{{t}}</option>
-						{{/each}}
-						{{/select}}
-					</select>
-					<a class="stats-control" data-action="delete"><i class="fas fa-trash"></i></a>
-				</li>
-			{{/each}}
-			</ol> -->
-		</div>
-	</section>
+						</li>
+					{{/each}}
+				</ul> --}}
+			</div>
+			<div class="card clipped">
+				<h2 class="lancer-title clipped-top">SYSTEMS</h2>
+				<ul>
+					{{#each mech_loadout.systems as |system key|}}
+					<span class="item lancer-system-header" data-item-id="{{system._id}}"><img class="thumbnail" src="{{system.img}}" data-edit="{{system.img}}" title="{{system.name}}" height="10" width="10"/> {{system.name}} <a class="stats-control" data-action="delete"><i class="fas fa-trash"></i></a></span>
+					{{/each}}
+				</ul>
+			</div>
+ 	</div>
+</section>
 </form>

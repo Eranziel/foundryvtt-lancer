@@ -67,17 +67,7 @@
           "evasion": 8,
           "edef": 8,
           "speed": 4
-        },
-        "loadout": {
-          "armor": "",
-          "weapons": [],
-          "gear": []
-        },
-        "licenses": [],
-        "skills": [],
-        "talents": [],
-        "core_bonuses": [],
-        "reserves": []
+        }
       }
     },
     "npc": {
@@ -85,8 +75,7 @@
       "type": "mech",
       "class": "",
       "npc_templates": [],
-      "activations": 1,
-      "features": []
+      "activations": 1
     },
     "deployable": {
       "size": 0.5,

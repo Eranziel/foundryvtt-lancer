@@ -9,7 +9,7 @@ If you still wish to install the Lancer system to test, click "Install System" i
 Once the system is downloaded, create a world which uses it and go exploring!
 
 ## Development Setup
-Development prerequisites are `npm` and `gulp`. 
+Development prerequisites are `npm` and `gulp`. Updating to the latest version of Node.js is also recommended.
 
 This guide is written with Linux in mind, although most steps are similar on Windows.
 
@@ -21,6 +21,8 @@ Install packages and `gulp`
 npm install -g gulp-cli
 npm install
 ```
+
+To update Node.js, you can follow [this guide](https://phoenixnap.com/kb/update-node-js-version). Version 10 is the minimum requirement and can be confirmed by using the command `node -v`.
 
 ### Link
 In order for the project's build task to update the system files in your Foundry instance, you need to link the project's `dist` directory to your Foundry data directory (the one containing Config, Data, and Logs). This can be done automatically by `gulp`. To do so, edit `foundryconfig.json` with the path to your Foundry data directory, then run the `link` script:

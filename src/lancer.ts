@@ -56,6 +56,13 @@ Hooks.once('init', async function() {
 			"frame", "mech_system", "mech_weapon"], 
 		makeDefault: true 
 	});
+
+	// Register handlebars helpers
+
+	// inc, for those off-by-one errors
+	Handlebars.registerHelper('inc', function(value, options) {
+		return parseInt(value) + 1;
+	})
 });
 
 /* ------------------------------------ */
