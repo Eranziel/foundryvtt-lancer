@@ -80,7 +80,7 @@ export class LancerPilotSheet extends ActorSheet {
     data.talents = accumulator['talent'] || [];
     data.licenses = accumulator['license'] || [];
     data.core_bonuses = accumulator['core_bonus'] || [];
-    data.data.pilot.loadout = {
+    data.pilot_loadout = {
       gear: accumulator['pilot_gear'] || [],
       weapons: accumulator['pilot_weapon'] || [],
       armor: accumulator['pilot_armor'] || []
@@ -106,7 +106,7 @@ export class LancerPilotSheet extends ActorSheet {
     if (this.actor.owner) {
       // Item Dragging
       let handler = ev => this._onDragStart(ev);
-      html.find('span[class*="item"]').each((i, item) => {
+      html.find('li[class*="item"]').each((i, item) => {
         if ( item.classList.contains("inventory-header") ) return;
         item.setAttribute("draggable", true);
         item.addEventListener("dragstart", handler, false);

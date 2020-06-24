@@ -133,9 +133,10 @@ select {
   color: white;
   padding-left: 15px;
   padding-right: 15px;
-  margin: 3px;
   display: inline-block;
   white-space: pre-wrap;
+  text-align: center;
+  max-height: 1.5em;
 }
 
 .lancer-reaction-header {
