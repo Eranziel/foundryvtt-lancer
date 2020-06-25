@@ -123,6 +123,7 @@ select {
   -webkit-clip-path: polygon( 0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100% );
 }
 
+.lancer-mount-header,
 .lancer-reaction-header,
 .lancer-tech-header,
 .lancer-talent-header,
@@ -131,12 +132,42 @@ select {
 .lancer-protocol-header,
 .lancer-weapon-header {
   color: white;
+  background-color: #991e2a;
   padding-left: 15px;
   padding-right: 15px;
   display: inline-block;
   white-space: pre-wrap;
   text-align: center;
   max-height: 1.5em;
+}
+
+.lancer-mount-container {
+  margin: 3px;
+}
+
+.lancer-mount-header {
+  white-space: nowrap;
+  display: inline;
+  text-align: right;
+}
+
+.lancer-mount-header select {
+  color: white;
+  outline: 0;
+  border: none;
+}
+
+.lancer-mount-header select option {
+  background-color: #991e2a;
+  color: white;
+}
+
+.lancer-mount-body {
+  min-height: 15px;
+  border-style: dashed;
+  border-width: 2px;
+  border-color: #991e2a;
+  border-top-style: none;
 }
 
 .lancer-reaction-header {

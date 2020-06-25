@@ -106,44 +106,84 @@ export class LancerPilotSheet extends ActorSheet {
     if (this.actor.owner) {
       // Item Dragging
       let handler = ev => this._onDragStart(ev);
-      html.find('li[class*="item"]').each((i, item) => {
+      html.find('li[class*="item"]').add('span[class*="item"]').each((i, item) => {
         if ( item.classList.contains("inventory-header") ) return;
         item.setAttribute("draggable", true);
         item.addEventListener("dragstart", handler, false);
       });
+
+      // Update Inventory Item
+      let items = html.find('.item');
+      items.click(ev => {
+        console.log(ev)
+        const li = $(ev.currentTarget);
+        //TODO: Check if in mount and update mount
+        const item = this.actor.getOwnedItem(li.data("itemId"));
+        if (item) {
+          item.sheet.render(true);
+        }
+      });
+
+      // Delete Item on Right Click
+      items.contextmenu(ev => {
+        console.log(ev);
+        const li = $(ev.currentTarget);
+        this.actor.deleteOwnedItem(li.data("itemId"));
+        li.slideUp(200, () => this.render(false));
+      });
+
+      // Delete Item when trash can is clicked
+      items = html.find('.stats-control[data-action*="delete"]');
+      items.click(ev => {
+        ev.stopPropagation();  // Avoids triggering parent event handlers
+        console.log(ev);
+        const li = $(ev.currentTarget).closest('.item');
+        this.actor.deleteOwnedItem(li.data("itemId"));
+        li.slideUp(200, () => this.render(false));
+      });
+
+      // Create Mounts
+      let add_button = html.find('.add-button[data-action*="create"]');
+      add_button.click(ev => {
+        ev.stopPropagation();
+        console.log(ev);
+        let mount = {
+          type: "main",
+          weapons: []
+        };
+
+        let mounts = duplicate(this.actor.data.data.mech_loadout.mounts)
+        mounts.push(mount);
+        this.actor.update({"data.mech_loadout.mounts": mounts});
+        this._onSubmit(ev);
+      });
+
+      // Update Mounts
+      let mount_selector = html.find('select.mounts-control[data-action*="update"]');
+      mount_selector.change(ev => {
+        ev.stopPropagation();
+        console.log(ev);
+        let mounts = duplicate(this.actor.data.data.mech_loadout.mounts);
+        mounts[parseInt($(ev.currentTarget).closest(".lancer-mount-container").data("itemId"))].type = $(ev.currentTarget).children("option:selected").val();
+        console.log(mounts);
+        this.actor.update({"data.mech_loadout.mounts": mounts});
+        this._onSubmit(ev);
+      });
+
+      // Delete Mounts
+      let mount_trash = html.find('a.mounts-control[data-action*="delete"]');
+      mount_trash.click(ev => {
+        ev.stopPropagation();
+        console.log(ev);
+        let mounts = duplicate(this.actor.data.data.mech_loadout.mounts);
+        mounts.splice(parseInt($(ev.currentTarget).closest(".lancer-mount-container").data("itemId")), 1);
+        this.actor.update({"data.mech_loadout.mounts": mounts});
+        this._onSubmit(ev);
+      });
     }
-
-    // Update Inventory Item
-    let items = html.find('.item');
-    items.click(ev => {
-      console.log(ev)
-      const li = $(ev.currentTarget);
-      const item = this.actor.getOwnedItem(li.data("itemId"));
-      if (item) {
-        item.sheet.render(true);
-      }
-    });
-
-    // Delete Item on Right Click
-    items.contextmenu(ev => {
-      console.log(ev);
-      const li = $(ev.currentTarget);
-      this.actor.deleteOwnedItem(li.data("itemId"));
-      li.slideUp(200, () => this.render(false));
-    });
-
-    // Delete Item when trash can is clicked
-    items = html.find('.stats-control[data-action*="delete"]');
-    items.click(ev => {
-      ev.stopPropagation();  // Avoids triggering parent event handlers
-      console.log(ev);
-      const li = $(ev.currentTarget).closest('.item');
-      this.actor.deleteOwnedItem(li.data("itemId"));
-      li.slideUp(200, () => this.render(false));
-    });
   }
 
-  async _onDrop (event) {
+  async _onDrop(event) {
     event.preventDefault();
     // Get dropped data
     let data;
@@ -152,9 +192,23 @@ export class LancerPilotSheet extends ActorSheet {
     } catch (err) {
       return false;
     }
+    console.log(event);
 
-    // Call parent on drop logic
-    return super._onDrop(event);
+    // Add to a mount or call parent on drop logic
+    if (this.actor.owner) {
+      let mount_element = $(event.target.closest(".lancer-mount-container"));
+      console.log(mount_element);
+
+      if (mount_element.length)  {
+        let index = mount_element;
+        let mounts = duplicate(this.actor.data.data.mech_loadout.mounts);
+        mounts[parseInt(mount_element.data("itemId"))].weapons.push(data.data);
+        console.log("Dropping Item Into Mount", mount_element);
+        this.actor.update({"data.mech_loadout.mounts": mounts});
+        this._onSubmit(event);
+      }
+      return super._onDrop(event);
+    }
   }
 
   /* -------------------------------------------- */

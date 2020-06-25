@@ -133,16 +133,18 @@
       </div>
       <div class="flexcol">
         <h2 class="lancer-title clipped">SKILL TRIGGERS</h2>
-        <ul class="items-list">
-          {{#each skills as |skill key|}}
-            <li class="card clipped skill-compact item" data-item-id="{{skill._id}}">
-              <div class="lancer-trigger-header medium clipped-top" style="grid-area: 1 / 1 / 2 / 4"><div style="align-self:left">{{skill.name}}</div></div>
-              <div style="grid-area: 2 / 1 / 2 / 1; align-self: center">+{{skill.data.rank}}</div>
-              <div style="grid-area: 2 / 2 / 2 / 2">{{skill.data.description}}</div>
-              <a class="stats-control" style="grid-area: 2 / 3 / 3 / 4; align-self: center" data-action="delete"><i class="fas fa-trash"></i></a>
-            </li>
-          {{/each}}
-        </ul>
+        {{#if skills}}
+          <ul class="items-list">
+            {{#each skills as |skill key|}}
+              <li class="card clipped skill-compact item" data-item-id="{{skill._id}}">
+                <div class="lancer-trigger-header medium clipped-top" style="grid-area: 1 / 1 / 2 / 4"><div style="align-self:left">{{skill.name}}</div></div>
+                <div style="grid-area: 2 / 1 / 2 / 1; align-self: center">+{{skill.data.rank}}</div>
+                <div style="grid-area: 2 / 2 / 2 / 2">{{skill.data.description}}</div>
+                <a class="stats-control" style="grid-area: 2 / 3 / 3 / 4; align-self: center" data-action="delete"><i class="fas fa-trash"></i></a>
+              </li>
+            {{/each}}
+          </ul>
+        {{/if}}
         <div class="card clipped">
           <h2 class="lancer-title clipped">TALENTS</h2>
           {{#each talents as |talent key|}}
@@ -237,14 +239,32 @@
 				</div>
 			</div>
 			<div class="card clipped">
-				<h2 class="lancer-title major clipped">WEAPONS</h2>
-				{{#each data.mech_loadout.weapons as |weapon key|}}
-        <span class="item lancer-weapon-header" data-item-id="{{system._id}}"><img class="thumbnail" src="{{system.img}}" data-edit="{{system.img}}" title="{{system.name}}" height="10" width="10"/> {{system.name}} <a class="stats-control" data-action="delete"><i class="fas fa-trash"></i></a></span>
+        <h2 class="lancer-title clipped">MOUNTS<a class="add-button" data-action="create" style="float: right; margin-right: 1em; padding-bottom: 1em;">+</a></h2>
+        <div class="flexrow">
+          {{#each data.mech_loadout.mounts as |mount key|}}
+          <div class="flexcol lancer-mount-container" data-item-id="{{key}}">
+            <span class="lancer-mount-header clipped-top">
+              {{{mount-selector mount key}}}
+              <a class="mounts-control" data-action="delete"><i class="fas fa-trash"></i></a>
+            </span>
+            <span class="lancer-mount-body">
+            {{#each mount.weapons as |weapon key|}}
+              <span class="item lancer-weapon-header" data-item-id="{{weapon._id}}"><img class="thumbnail" src="{{weapon.img}}" data-edit="{{weapon.img}}" title="{{weapon.name}}" height="10" width="10"/> {{weapon.name}} <a class="stats-control" data-action="delete"><i class="fas fa-trash"></i></a></span>
+            {{/each}}
+            </span>
+          </div>
+          {{/each}}
+        </div>
+      </div>
+      <div class="card clipped">
+				<h2 class="lancer-title clipped">WEAPONS</h2>
+				{{#each mech_loadout.weapons as |weapon key|}}
+        <span class="item lancer-weapon-header" data-item-id="{{weapon._id}}"><img class="thumbnail" src="{{weapon.img}}" data-edit="{{weapon.img}}" title="{{weapon.name}}" height="10" width="10"/> {{weapon.name}} <a class="stats-control" data-action="delete"><i class="fas fa-trash"></i></a></span>
 				{{/each}}
 			</div>
 			<div class="card clipped">
-				<h2 class="lancer-title clipped-top">SYSTEMS</h2>
-				{{#each data.mech_loadout.systems as |system key|}}
+				<h2 class="lancer-title clipped">SYSTEMS</h2>
+				{{#each mech_loadout.systems as |system key|}}
 				<span class="item lancer-system-header" data-item-id="{{system._id}}"><img class="thumbnail" src="{{system.img}}" data-edit="{{system.img}}" title="{{system.name}}" height="10" width="10"/> {{system.name}} <a class="stats-control" data-action="delete"><i class="fas fa-trash"></i></a></span>
 				{{/each}}
 			</div>
