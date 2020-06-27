@@ -33,7 +33,7 @@ export class LancerPilotSheet extends ActorSheet {
       width: 700,
       height: 800,
       tabs: [{
-        navSelector: ".tabs",
+        navSelector: ".lancer-tabs",
         contentSelector: ".sheet-body",
         initial: "dossier"}]
     });

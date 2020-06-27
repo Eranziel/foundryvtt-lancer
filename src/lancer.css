@@ -161,6 +161,32 @@ select {
   -webkit-clip-path: polygon( 0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100% );
 }
 
+.lancer-tabs {
+  clip-path: polygon( 0 0, 100% 0, calc(100% - 20px) 100%, 0 100% );
+  -webkit-clip-path: polygon( 0 0, 100% 0, calc(100% - 20px) 100%, 0 100% );
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  background-color: #991e2a;
+  color: white;
+  padding: 10px;
+}
+
+.lancer-tab {
+  clip-path: polygon( 10px 0, 100% 0, calc(100% - 10px) 100%, 0 100% );
+  -webkit-clip-path: polygon( 10px 0, 100% 0, calc(100% - 10px) 100%, 0 100% );
+  padding-left: 10px;
+  padding-right: 10px;
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.lancer-tab.active {
+  color: #991e2a;
+  background-color: #f0f0f0;
+}
+
 .lancer-mount-header,
 .lancer-reaction-header,
 .lancer-tech-header,
