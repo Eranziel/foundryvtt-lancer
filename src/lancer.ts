@@ -18,7 +18,7 @@ import { LancerItemSheet } from './module/item/item-sheet';
 import * as migrations from './module/migration.js';
 import { convertLancerData } from "./module/compBuilder";
 
-import data from 'lancer-data'
+import data from 'lancer-data';
 
 /* ------------------------------------ */
 /* Initialize system				          	*/
@@ -64,18 +64,6 @@ Hooks.once('init', async function() {
 		return parseInt(value) + 1;
 	});
 
-	// mount display mount
-	Handlebars.registerHelper('mount-selector', (mount, key) => {
-		let template = `<select id="mount-type" class="mounts-control" data-action="update" data-item-id=${key}>
-	        <option value="main" ${mount.type === 'main' ? 'selected' : ''}>Main Mount</option>
-	        <option value="heavy" ${mount.type === 'heavy' ? 'selected' : ''}>Heavy Mount</option>
-	        <option value="aux-aux" ${mount.type === 'aux-aux' ? 'selected' : ''}>Aux/Aux Mount</option>
-	        <option value="main-aux" ${mount.type === 'main-aux' ? 'selected' : ''}>Main/Aux Mount</option>
-	        <option value="flex" ${mount.type === 'flex' ? 'selected' : ''}>Flexible Mount</option>
-	        <option value="integrated" ${mount.type === 'integrated' ? 'selected' : ''}>Integrated Mount</option>
-        </select>`
-        return template;
-	});
 });
 
 /* ------------------------------------ */
