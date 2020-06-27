@@ -63,6 +63,21 @@ Hooks.once('init', async function() {
 		return parseInt(value) + 1;
 	});
 
+	// double the input
+	Handlebars.registerHelper('double', function(value) {
+		return parseInt(value) * 2;
+	});
+
+	// Greater-than evaluation
+	Handlebars.registerHelper('gt', function(val1, val2) {
+		return val1 > val2;
+	});
+
+	// Less-than evaluation
+	Handlebars.registerHelper('lt', function(val1, val2) {
+		return val1 < val2;
+	});
+
 	// mount display mount
 	Handlebars.registerHelper('mount-selector', (mount, key) => {
 		let template = `<select id="mount-type" class="mounts-control" data-action="update" data-item-id=${key}>
