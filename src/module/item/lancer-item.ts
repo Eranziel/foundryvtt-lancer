@@ -12,6 +12,13 @@ import {  LancerSkillItemData,
 
 export class LancerSkill extends Item {
   data: LancerSkillItemData;
+
+  /**
+   * Return the skill trigger's bonus to rolls
+   */
+  get bonus(): number {
+    return this.data.data.rank * 2;
+  }
 }
 
 export class LancerTalent extends Item {

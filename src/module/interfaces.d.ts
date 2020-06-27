@@ -220,14 +220,16 @@ declare interface LancerSkillSheetData extends ItemSheetData {
 }
 
 // -------- Talent data ------------------------------------------
+declare interface LancerTalentRank {
+  name: string;
+  description: string;
+}
+
 declare interface LancerTalentData {
   id: string;
   name: string;
   description: string;
-  ranks: {
-    name: string; 
-    description: string
-  }[];
+  ranks: LancerTalentRank[];
   rank: number;
 }
 

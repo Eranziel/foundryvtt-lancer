@@ -132,24 +132,50 @@
         </div>
       </div>
       <div class="flexcol">
-        <h2 class="lancer-title clipped">SKILL TRIGGERS</h2>
-        {{#if skills}}
-          <ul class="items-list">
-            {{#each skills as |skill key|}}
-              <li class="card clipped skill-compact item" data-item-id="{{skill._id}}">
-                <div class="lancer-trigger-header medium clipped-top" style="grid-area: 1 / 1 / 2 / 4"><div style="align-self:left">{{skill.name}}</div></div>
-                <div style="grid-area: 2 / 1 / 2 / 1; align-self: center">+{{skill.data.rank}}</div>
-                <div style="grid-area: 2 / 2 / 2 / 2">{{skill.data.description}}</div>
-                <a class="stats-control" style="grid-area: 2 / 3 / 3 / 4; align-self: center" data-action="delete"><i class="fas fa-trash"></i></a>
-              </li>
-            {{/each}}
-          </ul>
-        {{/if}}
+        <div class="card clipped">
+					<h2 class="lancer-title clipped">SKILL TRIGGERS</h2>
+					{{#if skills}}
+						<ul class="items-list">
+							{{#each skills as |skill key|}}
+								<li class="card clipped skill-compact item" data-item-id="{{skill._id}}">
+									<div class="lancer-trigger-header medium clipped-top" style="grid-area: 1/1/2/4">
+										<i class="cci cci-skill icon--m" style="color: black;"> </i>
+										<span class="major">{{skill.name}}</span>
+										<a class="stats-control" style="color: black" data-action="delete"><i class="fas fa-trash"></i></a>
+									</div>
+									<div class="major" style="grid-area: 2/1/3/2; align-self: center">+{{double skill.data.rank}}</div>
+									<div class="desc-text" style="grid-area: 2/2/3/3">{{skill.data.description}}</div>
+								</li>
+							{{/each}}
+						</ul>
+					{{/if}}
+				</div>
         <div class="card clipped">
           <h2 class="lancer-title clipped">TALENTS</h2>
-          {{#each talents as |talent key|}}
-          <span class="item lancer-talent-header" data-item-id="{{talent._id}}"><img class="thumbnail" src="{{talent.img}}" data-edit="{{talent.img}}" title="{{talent.name}}" height="10" width="10"/> {{talent.name}} [{{talent.rank}}]<a class="stats-control" data-action="delete"><i class="fas fa-trash"></i></a></span>
-          {{/each}}
+					{{#if talents}}
+						<ul class="talents-list">
+							{{#each talents as |talent key|}}
+              <li class="card clipped talent-compact item" data-item-id="{{talent._id}}">
+								<div class="lancer-talent-header medium clipped-top" style="grid-area: 1/1/2/4">
+									<i class="cci cci-talent icon--m" style="color: black;"></i>
+									<span class="major">{{talent.name}}</span>
+									<a class="stats-control" style="color: black" data-action="delete"><i class="fas fa-trash"></i></a>
+								</div>
+                <ul style="grid-area: 2/1/3/3">
+									{{#each talent.data.ranks as |rank lvl|}}
+										{{#if (gt ../data.rank lvl)}}
+											<li class="talent-rank-compact card clipped" style="padding: 5px">
+												<i class="cci cci-rank-{{inc lvl}} icon--l" style="color: black; grid-area: 1/1/2/2"></i>
+												<span class="major" style="grid-area: 1/2/2/3">{{rank.name}}</span>
+												<div class="effect-text" style="grid-area: 2/1/3/3">{{{rank.description}}}</div>
+											</li>
+										{{/if}}
+									{{/each}}
+								</ul>
+							</li>
+							{{/each}}
+						</ul>
+					{{/if}}
         </div>
 				<div class="card clipped">
 					<h2 class="lancer-title clipped-top">LICENSES</h2>
@@ -159,9 +185,20 @@
 				</div>
 				<div class="card clipped">
 					<h2 class="lancer-title clipped-top">CORE BONUSES</h2>
-					{{#each core_bonuses as |core_bonus key|}}
-					<span class="item clipped lancer-system-header" data-item-id="{{core_bonus._id}}"><img class="thumbnail" src="{{core_bonus.img}}" data-edit="{{core_bonus.img}}" title="{{core_bonus.name}}" height="10" width="10"/> {{core_bonus.name}} <a class="stats-control" data-action="delete"><i class="fas fa-trash"></i></a></span>
-					{{/each}}
+					{{#if core_bonuses}}
+						<ul class="items-list">
+							{{#each core_bonuses as |core_bonus key|}}
+								<li class="card clipped cb-compact item" data-item-id="{{core_bonus._id}}">
+									<div class="lancer-system-header medium clipped-top" style="grid-area: 1/1/2/2">
+										<i class="cci cci-corebonus icon--m" style="color: black;"> </i>
+										<span class="major">{{core_bonus.name}}</span>
+										<a class="stats-control" style="color: black" data-action="delete"><i class="fas fa-trash"></i></a>
+									</div>
+									<div class="effect-text" style="grid-area: 2/1/3/2">{{core_bonus.data.effect}}</div>
+								</li>
+							{{/each}}
+						</ul>
+					{{/if}}
 				</div>
 				<div class="card clipped">
 					<h2 class="lancer-title clipped-top">GEAR</h2>

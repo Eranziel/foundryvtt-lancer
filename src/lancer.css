@@ -108,6 +108,26 @@ select {
   max-height: 5em;
 }
 
+.icon--xs {
+  font-size: 15px;
+}
+
+.icon--s {
+  font-size: 20px;
+}
+
+.icon--m {
+  font-size: 25px;
+}
+
+.icon--l {
+  font-size: 30px;
+}
+
+.icon--xl {
+  font-size: 40px;
+}
+
 .clipped {
   clip-path: polygon( 10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px );
   -webkit-clip-path: polygon( 10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px );
@@ -138,7 +158,10 @@ select {
   display: inline-block;
   white-space: pre-wrap;
   text-align: center;
-  max-height: 1.5em;
+  max-height: 2.0em;
+  display: grid;
+  grid-template-columns: 40px 1fr 40px;
+  align-items: center;
 }
 
 .lancer-mount-container {
@@ -276,10 +299,35 @@ select {
   margin: 5px;
 }
 
+.desc-text {
+  text-align: left;
+}
+
+.effect-text {
+  text-align: left;
+}
+
 .skill-compact {
   display: grid;
-  grid-template: 1fr 1fr / 30px 1fr 30px;
+  grid-template: 2.0em 1fr / 30px 1fr 30px;
   margin-right: 25px;
+}
+
+.cb-compact {
+  display: grid;
+  grid-template: 2.0em 1fr / 1fr;
+  margin-right: 25px;
+}
+
+.talent-compact {
+  display: grid;
+  grid-template: 2.0em 1fr / 30px 1fr 30px;
+  margin-right: 25px;
+}
+
+.talent-rank-compact {
+  display: grid;
+  grid-template: 2.5em 1fr / 30px 1fr;
 }
 
 .lancer-card .title {
