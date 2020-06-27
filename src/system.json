@@ -8,7 +8,7 @@
   "author": "Eranziel",
   "scripts": [],
   "esmodules": ["lancer.js"],
-  "styles": ["lancer.css"],
+  "styles": ["lancer.css", "glyphs.css"],
   "packs": [
     {
       "name": "skills",

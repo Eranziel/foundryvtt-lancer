@@ -201,6 +201,7 @@ async function copyFiles() {
 		'packs',
 		'templates',
 		'lancer.css', // TODO: Should this be dynamic, or have a different home??
+		'glyphs.css',
 		'module.json',
 		'system.json',
 		'template.json',
