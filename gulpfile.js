@@ -7,9 +7,10 @@ const stringify = require('json-stringify-pretty-compact');
 const typescript = require('typescript');
 const rollup = require('rollup');
 const rollup_ts = require('@rollup/plugin-typescript');
-// const rollup_resolve = require('@rollup/plugin-node-resolve');
+const rollup_resolve = require('@rollup/plugin-node-resolve');
 const rollup_cjs = require('@rollup/plugin-commonjs');
 const rollup_json = require('@rollup/plugin-json');
+const rollup_copy = require('rollup-plugin-copy');
 
 const ts = require('gulp-typescript');
 const less = require('gulp-less');
@@ -146,17 +147,23 @@ async function buildRU() {
 		plugins: [
 			rollup_ts(),
 			rollup_json(),
-			// rollup_resolve(),
+			rollup_resolve(),
 			rollup_cjs({
-				transformMixedEsModules: true
-			})
+				transformMixedEsModules: true,
+			}),
+			// TODO: Copy doesn't seem to be working. Config issue?
+			rollup_copy({
+				targets: [
+					{src: 'node_modules/@mdi/font/**/*', dest: 'dist/fonts/mdi'}
+				]
+			}),
 		]
 	});
 	return bundle.write({
 		file: 'dist/lancer.js',
 		format: 'es',
 		name: 'library',
-		sourcemap: true
+		sourcemap: true,
 	});
 }
 
