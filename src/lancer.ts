@@ -16,6 +16,7 @@ import { LancerNPCSheet } from './module/actor/npc-sheet';
 import { LancerItemSheet } from './module/item/item-sheet';
 
 import * as migrations from './module/migration.js';
+import { convertLancerData } from "./module/compBuilder";
 
 import data from 'lancer-data'
 
@@ -52,7 +53,7 @@ Hooks.once('init', async function() {
 	Items.registerSheet("lancer", LancerItemSheet, { 
 		types: ["skill", "talent", "license", "core_bonus", 
 			"pilot_armor", "pilot_weapon", "pilot_gear", 
-			"mech_system", "mech_weapon"], 
+			"frame", "mech_system", "mech_weapon"], 
 		makeDefault: true 
 	});
 
@@ -81,8 +82,7 @@ Hooks.once('init', async function() {
 /* Setup system			            				*/
 /* ------------------------------------ */
 Hooks.once('setup', function() {
-	// Do anything after initialization but before
-	// ready
+
 });
 
 /* ------------------------------------ */
@@ -106,6 +106,9 @@ Hooks.once('ready', function() {
 		migrations.migrateWorld();
   }
 
+	//=== Code below must be omitted from release ====
+	convertLancerData();
+	//=== End omit from release ======================
 });
 
 // Add any additional hooks if necessary

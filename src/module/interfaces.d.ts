@@ -187,8 +187,8 @@ declare interface LancerLicensedItemData extends LancerCompendiumItemData {
 
 declare interface LancerMechEquipmentData {
   sp: number;
-  uses: number;
-  max_uses: number;
+  uses: number | string;
+  max_uses: number | string;
   max_use_override: number;
   destroyed: boolean;
   cascading: boolean;
@@ -331,6 +331,11 @@ declare interface LancerFrameStatsData {
   sp: number;
 }
 
+declare interface LancerFrameTrait {
+  name: string
+  description: string
+}
+
 declare interface LancerCoreSystemData {
   name: string;
   description: string;
@@ -345,6 +350,7 @@ declare interface LancerCoreSystemData {
 declare interface LancerFrameData extends LancerLicensedItemData {
   mechtype: MechType[];
   stats: LancerFrameStatsData;
+  traits: LancerFrameTrait[];
   mounts: object[]; // TODO: replace with specific type
   core_system: LancerCoreSystemData;
 }
