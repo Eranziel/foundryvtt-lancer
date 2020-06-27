@@ -1,7 +1,7 @@
 {
   "name": "lancer",
   "title": "LANCER",
-  "description": "A WIP Foundry VTT game system for Lancer by Massif Press, a mud-and-lasers tactical mech RPG.",
+  "description": "A WIP Foundry VTT game system for <a href=\"https://massif-press.itch.io/corebook-pdf\">Lancer</a> by <a href=\"https://massif-press.itch.io/\">Massif Press</a>, a mud-and-lasers tactical mech RPG.",
   "version": "0.0.5",
   "minimumCoreVersion": "0.5.0",
   "compatibleCoreVersion": "0.6.0",
