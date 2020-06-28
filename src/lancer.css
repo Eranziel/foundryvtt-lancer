@@ -272,6 +272,18 @@ select {
   background-color: #000000;
 }
 
+.compact-tag {
+  color: white;
+  background-color: #991e2a;
+  max-width: fit-content;
+  align-items: center;
+  border-radius: 5px;
+  padding: 0px 5px;
+  margin: 3px 5px;
+  border: 2px;
+  font-size: 12px;
+}
+
 .pilot-header {
   display: grid;
   grid-template: 1.5fr 1fr 30px / 1fr 1fr 1.5fr 1fr 120px;

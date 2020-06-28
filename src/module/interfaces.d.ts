@@ -14,6 +14,8 @@ declare interface TagData {
   name: string;
   description: string;
   val: number | string;
+  filter_ignore?: boolean;
+  hidden?: boolean;
 }
 
 declare interface RangeData {

@@ -14,6 +14,7 @@ import { LancerPilotSheet } from './module/actor/pilot-sheet'
 import { LancerGame } from './module/lancer-game'
 import { LancerNPCSheet } from './module/actor/npc-sheet';
 import { LancerItemSheet } from './module/item/item-sheet';
+import { renderCompactTag } from './module/item/tags';
 
 import * as migrations from './module/migration.js';
 
@@ -77,6 +78,8 @@ Hooks.once('init', async function() {
 	Handlebars.registerHelper('lt', function(val1, val2) {
 		return val1 < val2;
 	});
+
+	Handlebars.registerHelper('compact-tag', renderCompactTag);
 
 	// mount display mount
 	Handlebars.registerHelper('mount-selector', (mount, key) => {
