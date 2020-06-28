@@ -7,7 +7,7 @@ const stringify = require('json-stringify-pretty-compact');
 const typescript = require('typescript');
 const rollup = require('rollup');
 const rollup_ts = require('@rollup/plugin-typescript');
-const rollup_resolve = require('@rollup/plugin-node-resolve');
+// const rollup_resolve = require('@rollup/plugin-node-resolve');
 const rollup_cjs = require('@rollup/plugin-commonjs');
 const rollup_json = require('@rollup/plugin-json');
 const rollup_copy = require('rollup-plugin-copy');
@@ -147,7 +147,7 @@ async function buildRU() {
 		plugins: [
 			rollup_ts(),
 			rollup_json(),
-			rollup_resolve(),
+			// rollup_resolve(),
 			rollup_cjs({
 				transformMixedEsModules: true,
 			}),
