@@ -35,7 +35,7 @@ export class LancerPilotSheet extends ActorSheet {
       tabs: [{
         navSelector: ".lancer-tabs",
         contentSelector: ".sheet-body",
-        initial: "dossier"}]
+        initial: "pilot"}]
     });
   }
 
@@ -49,6 +49,15 @@ export class LancerPilotSheet extends ActorSheet {
     let data: LancerPilotSheetData = super.getData() as LancerPilotSheetData;
 
     this._prepareItems(data);
+
+    // Populate the callsign if blank (new Actor)
+    if (data.data.pilot.callsign === "") {
+      data.data.pilot.callsign = data.actor.name;
+    }
+    // Populate name if blank (new Actor)
+    if (data.data.pilot.name === "") {
+      data.data.pilot.name = data.actor.name;
+    }
 
     // Put placeholder prompts in empty fields
     if (data.data.pilot.background == "") data.data.pilot.background = entryPrompt;
@@ -109,6 +118,7 @@ export class LancerPilotSheet extends ActorSheet {
       html.find('li[class*="item"]').add('span[class*="item"]').each((i, item) => {
         if ( item.classList.contains("inventory-header") ) return;
         item.setAttribute("draggable", true);
+        // TODO: I think handler needs to be item.*something*._onDragStart(ev).
         item.addEventListener("dragstart", handler, false);
       });
 
@@ -219,6 +229,10 @@ export class LancerPilotSheet extends ActorSheet {
    * @private
    */
   _updateObject(event: Event | JQuery.Event, formData: any): Promise<any> {
+    console.log(formData);
+    // Use the Actor's name for the pilot's callsign
+    formData.name = formData["data.pilot.callsign"];
+
     let token: any = this.actor.token;
     // Set the prototype token image if the prototype token isn't initialized
     if (!this.actor.token) {

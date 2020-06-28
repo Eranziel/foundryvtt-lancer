@@ -91,6 +91,7 @@ declare interface LancerPilotSubData {
   level: number;
   grit: number;
   callsign: string;
+  name: string;
   status: string;
   notes: string;
   quirk: string;
