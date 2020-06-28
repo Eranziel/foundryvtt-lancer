@@ -1,6 +1,6 @@
 
 import data from 'lancer-data'
-import { TagData } from '../interfaces';
+import { TagData, TagDataShort } from '../interfaces';
 
 /**
  * Search for a tag in lancer-data.
@@ -25,19 +25,18 @@ function findTag(id: string): TagData {
  * @param val The tag's value.
  * @returns The html template for the tag.
  */
-export function renderCompactTag(id: string, val?: number): string {
+export function renderCompactTag(tagShort: TagDataShort): string {
   let template: string = "";
-  let tag: TagData = findTag(id);
+  let tag: TagData = findTag(tagShort.id);
   
   if (tag) {
-    console.log(tag);
     // Don't render hidden tags
     if (tag.hidden) return template;
 
     // Put the value in the tag string
     let tagString: string = tag.name
-    if (tag.val) {
-      tagString.replace("{VAL}", String(val));
+    if (tagShort.val) {
+      tagString = tagString.replace("{VAL}", String(tagShort.val));
     }
     // Generate the Handlebars partial
     template = `<div class="compact-tag flexrow">

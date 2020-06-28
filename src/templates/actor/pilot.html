@@ -148,6 +148,11 @@
 								<div class="effect-text" style=" padding: 5px">
 									{{armor.data.description}}
 								</div>
+								<div class="flexrow" style="justify-content: flex-end;">
+									{{#each armor.data.tags as |tag tkey|}}
+										{{{compact-tag tag}}}
+									{{/each}}
+								</div>
 							</div>
 						{{/each}}
 					{{/if}}
@@ -166,25 +171,23 @@
 									<div class="flexrow">
 										{{#each weapon.data.range as |range rkey|}}
 											<div class="flexrow compact-stat" style="max-width: fit-content">
-												<i class="cci cci-{{range.type}} i--s i--dark"></i>
-												<span class="minor">{{range.val}}</span>
+												<i class="cci cci-{{lower-case range.type}} i--m i--dark"></i>
+												<span class="medium">{{range.val}}</span>
 											</div>
 										{{/each}}
 										{{#each weapon.data.damage as |damage dkey|}}
 											<div class="flexrow compact-stat" style="max-width: fit-content">
-												<i class="cci cci-{{damage.type}} i--s damage--{{damage.type}}"></i>
-												<span class="minor">{{damage.val}}</span>
+												<i class="cci cci-{{lower-case damage.type}} i--m damage--{{damage.type}}"></i>
+												<span class="medium">{{damage.val}}</span>
 											</div>
 										{{/each}}
+										<div class="flexrow" style="justify-content: flex-end;">
+											{{#each weapon.data.tags as |tag tkey|}}
+												{{{compact-tag tag}}}
+											{{/each}}
+										</div>
 									</div>
 									<div class="flexrow">
-										{{#each weapon.data.tags as |tag tkey|}}
-											{{#if tag.val}}
-												{{{compact-tag tag.id tag.val}}}
-											{{else}}
-												{{{compact-tag tag.id}}}
-											{{/if}}
-										{{/each}}
 									</div>
 								</div>
 							</div>
@@ -194,11 +197,36 @@
 			</div>
 			<div class="card clipped">
 				<h2 class="lancer-title clipped-top">GEAR</h2>
-				<div class="flexrow">
-					{{#each pilot_loadout.gear as |gear key|}}
-					<span class="item lancer-weapon-header" data-item-id="{{gear._id}}"><img class="thumbnail" src="{{gear.img}}" data-edit="{{gear.img}}" title="{{gear.name}}" height="10" width="10"/> {{gear.name}} <a class="stats-control" data-action="delete"><i class="fas fa-trash"></i></a></span>
-					{{/each}}
-				</div>
+				{{#if pilot_loadout.gear}}
+					<div class="flexrow">
+						{{#each pilot_loadout.gear as |gear key|}}
+							<div class="card clipped pilot-gear-compact item" data-item-id="{{gear._id}}">
+								<div class="lancer-weapon-header clipped-top" style="grid-area: 1/1/2/3">
+									<i class="cci cci-generic-item i--m i--light"> </i>
+									<span class="minor">{{gear.name}}</span>
+									<a class="stats-control i--light" data-action="delete"><i class="fas fa-trash"></i></a>
+								</div>
+								{{#if gear.data.uses}}
+									<div class="flexrow compact-stat">
+										{{!-- <i class="mdi mdi-heart-outline i--m i--dark"></i> --}}
+										<span class="minor" style="max-width: min-content;">USES:</span>
+										<input class="lancer-stat-input minor" type="number" name="{{gear.name}}.data.current_uses" value="{{gear.data.current_uses}}" data-dtype="Number"/>
+										<span class="minor" style="max-width: min-content;" > / </span>
+										<input class="lancer-stat-input minor" type="number" name="{{gear.name}}.data.uses" value="{{gear.data.uses}}" data-dtype="Number"/>
+									</div>
+								{{/if}}
+								<div class="effect-text" style=" padding: 5px">
+									{{{gear.data.description}}}
+								</div>
+								<div class="flexrow" style="justify-content: flex-end;">
+									{{#each gear.data.tags as |tag tkey|}}
+										{{{compact-tag tag}}}
+									{{/each}}
+								</div>
+							</div>
+						{{/each}}
+					</div>
+				{{/if}}
 			</div>
       <div class="flexcol">
         <div class="card clipped">

@@ -79,6 +79,10 @@ Hooks.once('init', async function() {
 		return val1 < val2;
 	});
 
+	Handlebars.registerHelper('lower-case', function(str: string) {
+		return str.toLowerCase();
+	});
+
 	Handlebars.registerHelper('compact-tag', renderCompactTag);
 
 	// mount display mount

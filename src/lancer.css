@@ -241,6 +241,7 @@ select {
   white-space: pre-wrap;
   text-align: center;
   max-height: 2.0em;
+  min-height: 2.0em;
   display: grid;
   grid-template-columns: 40px 1fr 40px;
   align-items: center;
@@ -314,6 +315,7 @@ select {
   color: white;
   background-color: #991e2a;
   max-width: fit-content;
+  min-width: fit-content;
   align-items: center;
   border-radius: 5px;
   padding: 0px 5px;
