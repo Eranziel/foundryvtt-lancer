@@ -112,30 +112,40 @@ select {
   font-size: 15px;
   min-width: 15px;
   max-width: 15px;
+  min-height: 15px;
+  max-height: 15px;
 }
 
 .i--s {
   font-size: 20px;
   min-width: 20px;
   max-width: 20px;
+  min-height: 20px;
+  max-height: 20px;
 }
 
 .i--m {
   font-size: 25px;
   min-width: 25px;
   max-width: 25px;
+  min-height: 25px;
+  max-height: 25px;
 }
 
 .i--l {
   font-size: 30px;
   min-width: 30px;
   max-width: 30px;
+  min-height: 30px;
+  max-height: 30px;
 }
 
 .i--xl {
   font-size: 40px;
   min-width: 40px;
   max-width: 40px;
+  min-height: 40px;
+  max-height: 40px;
 }
 
 .i--dark {
@@ -143,7 +153,35 @@ select {
 }
 
 .i--faded {
-  color: dimgray;
+  color: #696969;
+}
+
+.i--light {
+  color: #ededed;
+}
+
+.damage--kinetic {
+  color: #757575;
+}
+
+.damage--energy {
+  color: #29B6F6;
+}
+
+.damage--explosive {
+  color: #FFA726;
+}
+
+.damage--burn {
+  color: #FFA726;
+}
+
+.damage--heat {
+  color: #FF7043;
+}
+
+.damage--variable {
+  color: #D500F9;
 }
 
 .clipped {
@@ -319,10 +357,15 @@ select {
   align-items: center;
 }
 
-.pilot-stat {
+.compact-stat {
   align-items: center;
   padding-left: 5px;
   padding-right: 5px;
+}
+
+.pilot-loadout {
+  display: grid;
+  grid-template: 1fr 1fr / 1fr 1fr ;
 }
 
 .header-name {
@@ -331,7 +374,7 @@ select {
 }
 
 .lancer-sheet {
-  background-color: #EDEDED;
+  background-color: #ededed;
   font-family: Helvetica;
 }
 
