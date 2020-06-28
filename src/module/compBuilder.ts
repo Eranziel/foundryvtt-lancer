@@ -142,7 +142,7 @@ async function buildCoreBonusCompendium() {
 async function buildPilotEquipmentCompendiums() {
 	console.log("LANCER | Building Pilot Equipment compendiums.");
 	const pilotGear = data.pilot_gear;
-	const armImg = "systems/lancer/assets/icons/role_defender.svg";
+	const armImg = "systems/lancer/assets/icons/shield_outline.svg";
 	const weapImg = "systems/lancer/assets/icons/weapon.svg";
 	const gearImg = "systems/lancer/assets/icons/generic_item.svg";
 	const armorMeta: Object = {
