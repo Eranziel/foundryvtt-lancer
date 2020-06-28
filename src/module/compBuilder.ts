@@ -45,9 +45,9 @@ async function findPack(pack_name: string, metaData: object): Promise<Compendium
 }
 
 async function updateItem(pack: Compendium, newData: any, type: string, img: string): Promise<Entity> {
+	newData.name = (newData.name as string).toUpperCase();
 	let entry: {_id: string; name: string;} = pack.index.find(e => e.name === newData.name);
 
-	newData.name = (newData.name as string).toUpperCase();
 	// The item already exists in the pack, update its data.
 	if (entry) {
 		console.log(`LANCER | Updating ${type} ${entry.name} in compendium ${pack.collection}`);
@@ -75,7 +75,7 @@ async function updateItem(pack: Compendium, newData: any, type: string, img: str
 
 async function buildSkillCompendium() {
 	const skills = data.skills;
-	const img = "systems/lancer/assets/icons/accuracy.svg";
+	const img = "systems/lancer/assets/icons/skill.svg";
 	const metaData: Object = {
 		name: "skills",
 		label: "Skill Triggers",
@@ -97,7 +97,7 @@ async function buildSkillCompendium() {
 
 async function buildTalentCompendium() {
 	const talents = data.talents;
-	const img = "systems/lancer/assets/icons/chevron_3.svg";
+	const img = "systems/lancer/assets/icons/talent.svg";
 	const metaData: Object = {
 		name: "talents",
 		label: "Talents",
@@ -142,9 +142,9 @@ async function buildCoreBonusCompendium() {
 async function buildPilotEquipmentCompendiums() {
 	console.log("LANCER | Building Pilot Equipment compendiums.");
 	const pilotGear = data.pilot_gear;
-	const armImg = "systems/lancer/assets/icons/role_tank.svg";
+	const armImg = "systems/lancer/assets/icons/role_defender.svg";
 	const weapImg = "systems/lancer/assets/icons/weapon.svg";
-	const gearImg = "systems/lancer/assets/icons/trait.svg";
+	const gearImg = "systems/lancer/assets/icons/generic_item.svg";
 	const armorMeta: Object = {
 		name: "pilot_armor",
 		label: "Pilot Armor",
@@ -223,7 +223,7 @@ async function buildFrameCompendium() {
 	pack.locked = false;
 	await pack.getIndex();
 
-	const licImg = "systems/lancer/assets/icons/frame.svg";
+	const licImg = "systems/lancer/assets/icons/license.svg";
 	const licMetaData: Object = {
 		name: "licenses",
 		label: "Licenses",
@@ -263,14 +263,14 @@ async function buildFrameCompendium() {
 		let lItem: LancerLicense = (await updateItem(licPack, license, "license", licImg)) as LancerLicense;
 		// TODO: If the frame already exists in the license, update it instead of adding another
 		// Add the frame to the license
-		lItem.createEmbeddedEntity(frame.name, frame);
+		// lItem.createEmbeddedEntity(frame.name, frame);
 	});
 	return Promise.resolve(); 
 }
 
 async function buildMechSystemCompendium() {
 	const systems = data.systems;
-	const img = "systems/lancer/assets/icons/system.svg";
+	const img = "systems/lancer/assets/icons/mech_system.svg";
 	const metaData: Object = {
 		name: "systems",
 		label: "Systems",
@@ -315,8 +315,8 @@ async function buildMechSystemCompendium() {
 		if (system.tags) {
 			system.tags.forEach( (tag: TagData) => {
 				if (tag.id == "tg_limited") {
-					system.uses = tag.val;
-					system.max_uses = tag.val;
+					system.uses = tag.val as any;
+					system.max_uses = tag.val as any;
 				}
 			});
 		}
@@ -328,7 +328,7 @@ async function buildMechSystemCompendium() {
 			let entry: {_id: string; name: string;} = pack.index.find(e => e.name === system.license);
 			if (entry) {
 				let license: LancerLicense = (await lPack.getEntity(entry._id)) as LancerLicense;
-				license.createEmbeddedEntity(system.name, system);
+				// license.createEmbeddedEntity(system.name, system);
 			}
 		}
 	});
@@ -337,7 +337,7 @@ async function buildMechSystemCompendium() {
 
 async function buildMechWeaponCompendium() {
 	const weapons = data.weapons;
-	const img = "systems/lancer/assets/icons/weapon.svg";
+	const img = "systems/lancer/assets/icons/mech_weapon.svg";
 	const metaData: Object = {
 		name: "weapons",
 		label: "Weapons",
@@ -387,8 +387,8 @@ async function buildMechWeaponCompendium() {
 					weapon.max_use_override = 3;
 				}
 				else if (tag.id == "tg_limited") {
-					weapon.uses = tag.val;
-					weapon.max_uses = tag.val;
+					weapon.uses = tag.val as any;
+					weapon.max_uses = tag.val as any;
 				}
 				else if (tag.id == "tg_set_damage_type") {
 					weapon.custom_damage_type = DamageType.Kinetic;
@@ -403,7 +403,7 @@ async function buildMechWeaponCompendium() {
 			let entry: {_id: string; name: string;} = pack.index.find(e => e.name === weapon.license);
 			if (entry) {
 				let license: LancerLicense = (await lPack.getEntity(entry._id)) as LancerLicense;
-				license.createEmbeddedEntity(weapon.name, weapon);
+				// license.createEmbeddedEntity(weapon.name, weapon);
 			}
 		}
 	});
