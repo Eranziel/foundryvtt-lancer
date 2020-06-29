@@ -1,4 +1,4 @@
-import { LancerPilotSheetData, LancerNPCSheetData } from '../interfaces';
+import { LancerPilotSheetData, LancerFrameData } from '../interfaces';
 
 // TODO: should probably move to HTML/CSS
 const entryPrompt = "//:AWAIT_ENTRY>";
@@ -202,16 +202,58 @@ export class LancerPilotSheet extends ActorSheet {
     let data;
     try {
       data = JSON.parse(event.dataTransfer.getData('text/plain'));
+      if (data.type !== "Item") return;
     } catch (err) {
       return false;
     }
     console.log(event);
 
-    // Add to a mount or call parent on drop logic
-    if (this.actor.owner) {
+    let item: Item;
+    const actor = this.actor;
+    // NOTE: these cases are copied almost verbatim from ActorSheet._onDrop
+    // Case 1 - Item is from a Compendium pack
+    if (data.pack) {
+      item = (await game.packs.get(data.pack).getEntity(data.id)) as Item;
+    }
+    // Case 2 - Item is a World entity
+    else if (!data.data) {
+      item = game.items.get(data.id);
+      if (!item) return;
+    }
+
+    // Add to a mount, swap frames, or call parent on drop logic
+    if (actor.owner) {
+      // Swap mech frame
+      if (item && item.type === "frame") {
+        let frame: LancerFrameData;
+        let oldFrame: LancerFrameData;
+        // Remove old frame
+        actor.items.forEach(async (i: Item) => {
+          if (i.type === "frame") {
+            oldFrame = duplicate(i.data.data);
+            await this.actor.deleteOwnedItem(i._id);
+          }
+        });
+        // Add the new frame from Compendium pack
+        if (data.pack) {
+          frame = actor.importItemFromCollection(data.pack, data.id).data.data;
+        }
+        // Add the new frame from a World entity
+        else {
+          await actor.createEmbeddedEntity("OwnedItem", duplicate(item.data));
+          frame = actor.items.find((i: Item) => i.type === "frame").data.data;
+        }
+        if (frame) {
+          if (!oldFrame) {
+            
+          }
+        }
+      }
+
       let mount_element = $(event.target.closest(".lancer-mount-container"));
       console.log(mount_element);
 
+      // Add weapon to a mount
       if (mount_element.length)  {
         let index = mount_element;
         let mounts = duplicate(this.actor.data.data.mech_loadout.mounts);

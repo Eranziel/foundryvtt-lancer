@@ -310,7 +310,13 @@
 
 		{{!-- Mech Tab --}}
 		<div class="tab mech" data-group="primary" data-tab="mech">
-			<span class="lancer-title major clipped">{{data.mech.frame}}</span>
+			<div class="flexcol card clipped" style="grid-area: 1/1/2/2">
+				<span class="lancer-stat-header major clipped-top">NAME</span>
+				<input class="lancer-text-input major" type="string" name="data.mech.name" value="{{data.mech.name}}" data-dtype="String"/>
+			</div>
+			{{#if frame}}
+				<span class="lancer-stat-header major clipped-bot">{{frame.data.source}} {{frame.data.name}}</span>
+			{{/if}}
 			<div class="card clipped">
 				<div class="flexrow">
 					<div class="flexcol card clipped">
