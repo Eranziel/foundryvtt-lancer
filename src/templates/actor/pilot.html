@@ -376,7 +376,7 @@
 			</div>
 			<div class="card clipped">
         <h2 class="lancer-title clipped">MOUNTS<a class="add-button" data-action="create" style="float: right; margin-right: 1em; padding-bottom: 1em;">+</a></h2>
-        <div class="flexrow">
+        <div class="flexrow" style="justify-content: space-evenly;">
           {{#each data.mech_loadout.mounts as |mount key|}}
           <div class="flexcol lancer-mount-container" data-item-id="{{key}}">
             <span class="lancer-mount-header clipped-top">
@@ -385,7 +385,7 @@
             </span>
             <span class="lancer-mount-body">
             {{#each mount.weapons as |weapon key|}}
-              <span class="item lancer-weapon-header" data-item-id="{{weapon._id}}"><img class="thumbnail" src="{{weapon.img}}" data-edit="{{weapon.img}}" title="{{weapon.name}}" height="10" width="10"/> {{weapon.name}} <a class="stats-control" data-action="delete"><i class="fas fa-trash"></i></a></span>
+            	{{> pilot-weapon-preview weapon=weapon key=key}}
             {{/each}}
             </span>
           </div>
@@ -393,7 +393,7 @@
         </div>
       </div>
       <div class="card clipped">
-				<h2 class="lancer-title clipped">WEAPONS</h2>
+		<h2 class="lancer-title clipped">WEAPONS</h2>
 				{{#each mech_loadout.weapons as |weapon key|}}
         <span class="item lancer-weapon-header" data-item-id="{{weapon._id}}"><img class="thumbnail" src="{{weapon.img}}" data-edit="{{weapon.img}}" title="{{weapon.name}}" height="10" width="10"/> {{weapon.name}} <a class="stats-control" data-action="delete"><i class="fas fa-trash"></i></a></span>
 				{{/each}}

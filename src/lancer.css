@@ -238,8 +238,9 @@ select {
   padding-left: 15px;
   padding-right: 15px;
   display: inline-block;
-  white-space: pre-wrap;
+  white-space: nowrap;
   text-align: center;
+  text-overflow: ellipsis;
   max-height: 2.0em;
   min-height: 2.0em;
   display: grid;
@@ -249,6 +250,11 @@ select {
 
 .lancer-mount-container {
   margin: 3px;
+  flex: 1 0 0;
+  justify-content: space-evenly;
+  align-content: stretch;
+  min-width: 33%;
+  max-width: 66%;
 }
 
 .lancer-mount-header {
@@ -269,11 +275,15 @@ select {
 }
 
 .lancer-mount-body {
+  display: flex;
+  justify-content: flex-start;
+  flex-direction: column;
   min-height: 15px;
   border-style: dashed;
   border-width: 2px;
   border-color: #991e2a;
   border-top-style: none;
+  white-space: pre;
 }
 
 .lancer-reaction-header {
@@ -288,8 +298,28 @@ select {
   background-color: #7d2477;
 }
 
+.lancer-talent-container {
+  margin: 3px;
+}
+
 .lancer-talent-header {
   background-color: #3a81c3;
+}
+
+.lancer-talent-body {
+  min-height: 15px;
+  border-style: dashed;
+  border-width: 2px;
+  border-color: #3a81c3;
+  border-top-style: none;
+  text-align: left;
+  justify-content: left;
+  white-space: pre-wrap;
+  hyphens: auto;
+  word-break: break-word;
+  background-color: #3a81c333;
+  clip-path: polygon( 0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100% );
+  -webkit-clip-path: polygon( 0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100% );
 }
 
 .lancer-system-header {
@@ -309,6 +339,29 @@ select {
 
 .lancer-weapon-header {
   background-color: #000000;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lancer-weapon-body {
+  min-height: 15px;
+  border-style: dashed;
+  border-width: 2px;
+  border-color: #000000;
+  border-top-style: none;
+
+  padding: 3px;
+
+  text-align: center;
+  white-space: pre-wrap;
+  hyphens: auto;
+  word-break: break-word;
+
+  background-color: #00000033;
+
+  clip-path: polygon( 0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100% );
+  -webkit-clip-path: polygon( 0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100% );
 }
 
 .compact-tag {

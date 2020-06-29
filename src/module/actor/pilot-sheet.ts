@@ -148,7 +148,11 @@ export class LancerPilotSheet extends ActorSheet {
         ev.stopPropagation();  // Avoids triggering parent event handlers
         console.log(ev);
         const li = $(ev.currentTarget).closest('.item');
-        this.actor.deleteOwnedItem(li.data("itemId"));
+        if (li.closest(".lancer-mount-container").length) {
+          console.log("Mounted");
+        } else {
+          this.actor.deleteOwnedItem(li.data("itemId"));
+        }
         li.slideUp(200, () => this.render(false));
       });
 
@@ -248,3 +252,31 @@ export class LancerPilotSheet extends ActorSheet {
     return this.object.update(formData);
   }
 }
+
+/* Register Handlebar Helpers for pilot.html UI */
+Hooks.once('init', async function() {
+
+  Handlebars.registerPartial('pilot-weapon-preview', `<div class="flexcol lancer-weapon-container" data-item-id="{{key}}">
+      <span class="item lancer-weapon-header" data-item-id="{{weapon._id}}"><img class="thumbnail" src="{{weapon.img}}" data-edit="{{weapon.img}}" title="{{weapon.name}}" height="10" width="10"/> {{weapon.name}} <a class="stats-control" data-action="delete"><i class="fas fa-trash"></i></a></span>
+      <span class="lancer-weapon-body"><div style="display: grid; grid-template-columns: 1fr / 1fr; grid-template-rows: 1fr / 1fr / 1fr; grid-gap: 10px 10px;">
+        <span style="grid-area: 1 / 1 / 1 / 1; text-align: left;">{{weapon.data.mount}} {{weapon.data.weapon_type}}</span>
+        <span style="grid-area: 1 / 2 / 1 / 2; text-align: right;">{{#each weapon.data.range as |range|}}{{range.type}} {{range.val}}{{#unless @last}} // {{/unless}}{{/each}}\n{{#each weapon.data.damage as |damage|}}{{damage.type}} {{damage.val}}{{#unless @last}} // {{/unless}}{{/each}}</span></span>
+        <span style="grid-area: 2 / 1 / 2 / 3; text-align: left;">{{#with weapon.data.effect as |effect|}}{{#if effect.effect_type}}<h3>{{effect.effect_type}} Effect</h3>{{effect.hit}}{{/if}}{{#unless effect.effect_type}}{{effect}}{{/unless}}{{/with}}</span>
+        <span style="grid-area: 3 / 1 / 3 / 3; text-align: left"><div style="display: flex; flex-direction: row; flex-basis: 0;">{{#each weapon.data.tags as |tag|}}<span style="font-size: 0.1rem; border-radius: 5px; background-color: #991e2a33; color: #991e2a; padding: 2px; margin: 2px; border: 2px solid #991e2a">{{tag.id}} {{tag.val}}</span>{{/each}}</div></span>
+      </div></span>
+    </div>`
+  );
+
+  // mount display mount
+  Handlebars.registerHelper('mount-selector', (mount, key) => {
+    let template = `<select id="mount-type" class="mounts-control" data-action="update" data-item-id=${key}>
+          <option value="main" ${mount.type === 'main' ? 'selected' : ''}>Main Mount</option>
+          <option value="heavy" ${mount.type === 'heavy' ? 'selected' : ''}>Heavy Mount</option>
+          <option value="aux-aux" ${mount.type === 'aux-aux' ? 'selected' : ''}>Aux/Aux Mount</option>
+          <option value="main-aux" ${mount.type === 'main-aux' ? 'selected' : ''}>Main/Aux Mount</option>
+          <option value="flex" ${mount.type === 'flex' ? 'selected' : ''}>Flexible Mount</option>
+          <option value="integrated" ${mount.type === 'integrated' ? 'selected' : ''}>Integrated Mount</option>
+        </select>`
+        return template;
+  });
+});
