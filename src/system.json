@@ -1,7 +1,7 @@
 {
   "name": "lancer",
   "title": "LANCER",
-  "description": "A WIP Foundry VTT game system for <a href=\"https://massif-press.itch.io/corebook-pdf\">Lancer</a> by <a href=\"https://massif-press.itch.io/\">Massif Press</a>, a mud-and-lasers tactical mech RPG.",
+  "description": "<b>WARNING:</b> This system is not officially released, use it at your own risk! A WIP Foundry VTT game system for <a href=\"https://massif-press.itch.io/corebook-pdf\">Lancer</a> by <a href=\"https://massif-press.itch.io/\">Massif Press</a>, a mud-and-lasers tactical mech RPG.",
   "version": "0.0.5",
   "minimumCoreVersion": "0.5.0",
   "compatibleCoreVersion": "0.6.0",
@@ -93,7 +93,7 @@
   "gridUnits": "ft",
   "url": "https://github.com/Eranziel/foundryvtt-lancer",
   "manifest": "https://raw.githubusercontent.com/Eranziel/foundryvtt-lancer/master/src/system.json",
-  "download": "https://github.com/Eranziel/foundryvtt-lancer/raw/master/package/lancer-v0.0.4.zip",
+  "download": "https://github.com/Eranziel/foundryvtt-lancer/raw/master/package/lancer-v0.0.5.zip",
   "license": "GNU GPLv3",
   "readme": "",
   "bugs": "",
