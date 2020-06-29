@@ -58,6 +58,7 @@ declare interface LancerMechData {
   structure: ResourceData;
   heat: ResourceData;
   stress: ResourceData;
+  repairs: ResourceData;
   armor: number;
   speed: number;
   evasion: number;
