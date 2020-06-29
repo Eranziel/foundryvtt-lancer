@@ -1,76 +1,10 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Created with Inkscape (http://www.inkscape.org/) -->
-
-<svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="7.9374962mm"
-   height="7.93751mm"
-   viewBox="0 0 7.9374962 7.93751"
-   version="1.1"
-   id="svg8"
-   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
-   sodipodi:docname="damage_burn.svg">
-  <defs
-     id="defs2" />
-  <sodipodi:namedview
-     id="base"
-     pagecolor="#ffffff"
-     bordercolor="#666666"
-     borderopacity="1.0"
-     inkscape:pageopacity="0.0"
-     inkscape:pageshadow="2"
-     inkscape:zoom="1.4142136"
-     inkscape:cx="-353.25711"
-     inkscape:cy="-39.469425"
-     inkscape:document-units="mm"
-     inkscape:current-layer="layer1"
-     showgrid="false"
-     inkscape:snap-bbox="true"
-     inkscape:snap-bbox-edge-midpoints="false"
-     inkscape:object-paths="false"
-     inkscape:snap-smooth-nodes="true"
-     inkscape:snap-bbox-midpoints="true"
-     inkscape:window-width="1920"
-     inkscape:window-height="1057"
-     inkscape:window-x="-8"
-     inkscape:window-y="-8"
-     inkscape:window-maximized="1"
-     inkscape:bbox-paths="true"
-     inkscape:snap-global="true">
-    <inkscape:grid
-       type="xygrid"
-       id="grid4518"
-       originx="-679.97918"
-       originy="-1516.0624" />
-  </sodipodi:namedview>
-  <metadata
-     id="metadata5">
-    <rdf:RDF>
-      <cc:Work
-         rdf:about="">
-        <dc:format>image/svg+xml</dc:format>
-        <dc:type
-           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
-      </cc:Work>
-    </rdf:RDF>
-  </metadata>
-  <g
-     inkscape:label="icons"
-     inkscape:groupmode="layer"
-     id="layer1"
-     style="display:inline"
-     transform="translate(-93.927084,-144.86458)">
-    <path
-       style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="m 98.160415,145.65829 c 0,0 -1.070369,1.0824 -1.322916,1.5875 -0.264581,0.52917 -0.163269,0.62915 -0.264584,1.05833 -0.181236,0.76773 -0.793747,0.79376 -0.79375,1.85209 0,0.77605 0.546365,1.18634 1.104842,1.39423 -0.184451,-0.16883 -0.311092,-0.37289 -0.311092,-0.60048 0,-0.56472 1.058334,-1.5875 1.058334,-1.5875 0,0 1.65672,0.90217 1.5875,1.5875 -0.01585,0.15702 -0.08621,0.31221 -0.186034,0.45527 0.511683,-0.2627 0.979785,-0.67516 0.979785,-1.24902 0,-1.5875 -0.793751,-2.38125 -0.793751,-2.38125 0,0 0.280524,1.08493 -0.264584,1.05833 -0.263657,-0.0129 -0.37093,-0.47728 -0.529166,-0.79375 -0.264584,-0.52917 -0.529167,-0.52916 -0.529167,-1.05833 0,-0.79375 0.264583,-1.32292 0.264583,-1.32292 z"
-       id="path6011"
-       inkscape:connector-curvature="0" />
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd" >
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" viewBox="0 -64 1024 1024">
+  <g transform="matrix(1 0 0 -1 0 960)">
+   <path fill="currentColor"
+d="M546 858l-22 -23t-51 -55.5t-57 -67.5t-41 -59q-25 -51 -24.5 -73t-9.5 -64q-17 -74 -59.5 -105t-42.5 -134q0 -75 44 -117t98 -63q-17 17 -28.5 36.5t-11.5 41.5q0 27 22 63q21 35 46.5 66.5t47.5 53.5l21 22l33 -20q33 -19 72.5 -49.5t70.5 -66.5q32 -36 29 -69
+q-2 -15 -8.5 -30t-15.5 -29q49 26 87.5 66t38.5 95q0 77 -16 135q-16 57 -35 95.5t-35 57.5l-16 20l9 -70t-43 -67q-26 1 -39.5 36.5t-29.5 65.5q-25 52 -46.5 69t-21.5 68q0 77 17 124l17 47v0z" />
   </g>
+
 </svg>

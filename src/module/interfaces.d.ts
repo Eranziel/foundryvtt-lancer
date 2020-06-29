@@ -9,11 +9,18 @@ import { DamageType, RangeType, WeaponSize, WeaponType, SystemType, MechType, It
 
 // TODO: several of these may be moved to classes later to enable specialized logic
 
+declare interface TagDataShort {
+  id: string;
+  val?: number | string;
+}
+
 declare interface TagData {
   id: string;
   name: string;
   description: string;
-  val: number | string;
+  val?: number | string;
+  filter_ignore?: boolean;
+  hidden?: boolean;
 }
 
 declare interface RangeData {
@@ -84,6 +91,7 @@ declare interface LancerPilotSubData {
   level: number;
   grit: number;
   callsign: string;
+  name: string;
   status: string;
   notes: string;
   quirk: string;
@@ -220,14 +228,16 @@ declare interface LancerSkillSheetData extends ItemSheetData {
 }
 
 // -------- Talent data ------------------------------------------
+declare interface LancerTalentRank {
+  name: string;
+  description: string;
+}
+
 declare interface LancerTalentData {
   id: string;
   name: string;
   description: string;
-  ranks: {
-    name: string; 
-    description: string
-  }[];
+  ranks: LancerTalentRank[];
   rank: number;
 }
 

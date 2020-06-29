@@ -51,6 +51,7 @@
         "level": 0,
         "grit": 0,
         "callsign": "",
+        "name": "",
         "status": "",
         "notes": "",
         "quirk": "",

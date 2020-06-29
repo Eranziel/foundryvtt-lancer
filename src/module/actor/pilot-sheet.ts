@@ -30,12 +30,12 @@ export class LancerPilotSheet extends ActorSheet {
     return mergeObject(super.defaultOptions, {
       classes: ["lancer", "sheet", "actor"],
       template: "systems/lancer/templates/actor/pilot.html",
-      width: 600,
-      height: 600,
+      width: 800,
+      height: 800,
       tabs: [{
-        navSelector: ".tabs",
+        navSelector: ".lancer-tabs",
         contentSelector: ".sheet-body",
-        initial: "dossier"}]
+        initial: "pilot"}]
     });
   }
 
@@ -49,6 +49,15 @@ export class LancerPilotSheet extends ActorSheet {
     let data: LancerPilotSheetData = super.getData() as LancerPilotSheetData;
 
     this._prepareItems(data);
+
+    // Populate the callsign if blank (new Actor)
+    if (data.data.pilot.callsign === "") {
+      data.data.pilot.callsign = data.actor.name;
+    }
+    // Populate name if blank (new Actor)
+    if (data.data.pilot.name === "") {
+      data.data.pilot.name = data.actor.name;
+    }
 
     // Put placeholder prompts in empty fields
     if (data.data.pilot.background == "") data.data.pilot.background = entryPrompt;
@@ -109,6 +118,7 @@ export class LancerPilotSheet extends ActorSheet {
       html.find('li[class*="item"]').add('span[class*="item"]').each((i, item) => {
         if ( item.classList.contains("inventory-header") ) return;
         item.setAttribute("draggable", true);
+        // TODO: I think handler needs to be item.*something*._onDragStart(ev).
         item.addEventListener("dragstart", handler, false);
       });
 
@@ -224,6 +234,10 @@ export class LancerPilotSheet extends ActorSheet {
    * @private
    */
   _updateObject(event: Event | JQuery.Event, formData: any): Promise<any> {
+    console.log(formData);
+    // Use the Actor's name for the pilot's callsign
+    formData.name = formData["data.pilot.callsign"];
+
     let token: any = this.actor.token;
     // Set the prototype token image if the prototype token isn't initialized
     if (!this.actor.token) {
@@ -240,8 +254,11 @@ export class LancerPilotSheet extends ActorSheet {
   }
 }
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> eranziel-master
 /* Register Handlebar Helpers for pilot.html UI */
 Hooks.once('init', async function() {
 
@@ -256,7 +273,11 @@ Hooks.once('init', async function() {
     </div>`
   );
 
+<<<<<<< HEAD
   // Renders the drop-down menu for mech weapon mounts
+=======
+  // mount display mount
+>>>>>>> eranziel-master
   Handlebars.registerHelper('mount-selector', (mount, key) => {
     let template = `<select id="mount-type" class="mounts-control" data-action="update" data-item-id=${key}>
           <option value="main" ${mount.type === 'main' ? 'selected' : ''}>Main Mount</option>
@@ -266,7 +287,12 @@ Hooks.once('init', async function() {
           <option value="flex" ${mount.type === 'flex' ? 'selected' : ''}>Flexible Mount</option>
           <option value="integrated" ${mount.type === 'integrated' ? 'selected' : ''}>Integrated Mount</option>
         </select>`
+<<<<<<< HEAD
     return template;
   });
 
+=======
+        return template;
+  });
+>>>>>>> eranziel-master
 });

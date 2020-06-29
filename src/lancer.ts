@@ -14,6 +14,7 @@ import { LancerPilotSheet } from './module/actor/pilot-sheet'
 import { LancerGame } from './module/lancer-game'
 import { LancerNPCSheet } from './module/actor/npc-sheet';
 import { LancerItemSheet } from './module/item/item-sheet';
+import { renderCompactTag } from './module/item/tags';
 
 import * as migrations from './module/migration.js';
 import { convertLancerData } from "./module/compBuilder";
@@ -64,6 +65,26 @@ Hooks.once('init', async function() {
 		return parseInt(value) + 1;
 	});
 
+	// double the input
+	Handlebars.registerHelper('double', function(value) {
+		return parseInt(value) * 2;
+	});
+
+	// Greater-than evaluation
+	Handlebars.registerHelper('gt', function(val1, val2) {
+		return val1 > val2;
+	});
+
+	// Less-than evaluation
+	Handlebars.registerHelper('lt', function(val1, val2) {
+		return val1 < val2;
+	});
+
+	Handlebars.registerHelper('lower-case', function(str: string) {
+		return str.toLowerCase();
+	});
+
+	Handlebars.registerHelper('compact-tag', renderCompactTag);
 });
 
 /* ------------------------------------ */

@@ -15,8 +15,8 @@
   "license": "",
   "devDependencies": {
     "@rollup/plugin-commonjs": "^12.0.0",
-    "@rollup/plugin-json": "^4.0.3",
-    "@rollup/plugin-node-resolve": "^8.0.0",
+    "@rollup/plugin-json": "^4.1.0",
+    "@rollup/plugin-node-resolve": "^8.1.0",
     "@rollup/plugin-typescript": "^4.1.2",
     "archiver": "^3.1.1",
     "chalk": "^3.0.0",
@@ -28,13 +28,15 @@
     "gulp-sass": "^4.1.0",
     "gulp-typescript": "^6.0.0-alpha.1",
     "json-stringify-pretty-compact": "^2.0.0",
-    "rollup": "^2.13.1",
-    "sass": "^1.26.7",
+    "rollup": "^2.18.1",
+    "rollup-plugin-copy": "^3.3.0",
+    "sass": "^1.26.9",
     "tslib": "^1.13.0",
-    "typescript": "^3.9.3",
+    "typescript": "^3.9.5",
     "yargs": "^15.3.1"
   },
   "dependencies": {
-    "lancer-data": "^2.0.30"
+    "@mdi/font": "^5.3.45",
+    "lancer-data": "^2.0.31"
   }
 }
