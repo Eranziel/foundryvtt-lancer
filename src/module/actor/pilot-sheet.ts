@@ -94,6 +94,9 @@ export class LancerPilotSheet extends ActorSheet {
       weapons: accumulator['pilot_weapon'] || [],
       armor: accumulator['pilot_armor'] || []
     };
+    // Only take one frame
+    if (accumulator['frame']) data.frame = accumulator['frame'][0];
+    else data.frame = undefined;
     data.mech_loadout = {
       weapons: accumulator['mech_weapon'] || [], // TODO: subdivide into mounts
       systems: accumulator['mech_system'] || []

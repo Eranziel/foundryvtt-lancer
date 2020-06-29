@@ -4,7 +4,7 @@
     "templates": {
       "mech": {
         "mech": {
-          "frame": "",
+          "name": "",
           "size": 1,
           "hull": 0,
           "agility": 0,
