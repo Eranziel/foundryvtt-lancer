@@ -1,5 +1,4 @@
 
-import { LancerPilot, LancerNPC, LancerDeployable } from './actor/lancer-actor'
 import { LancerSkill, LancerTalent, LancerCoreBonus, LancerLicense, LancerFrame, LancerPilotArmor, LancerPilotWeapon, LancerPilotGear, LancerMechWeapon, LancerMechSystem } from './item/lancer-item';
 import { DamageType, RangeType, WeaponSize, WeaponType, SystemType, MechType, ItemType, PilotEquipType } from './enums';
 

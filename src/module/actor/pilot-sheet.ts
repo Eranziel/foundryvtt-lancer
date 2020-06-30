@@ -1,4 +1,7 @@
-import { LancerPilotSheetData, LancerFrameData } from '../interfaces';
+import { LancerPilotSheetData, LancerFrameData, LancerFrameStatsData } from '../interfaces';
+import { LancerFrame } from '../item/lancer-item';
+import { MechType } from '../enums';
+import { LancerActor } from './lancer-actor';
 
 // TODO: should probably move to HTML/CSS
 const entryPrompt = "//:AWAIT_ENTRY>";
@@ -209,7 +212,7 @@ export class LancerPilotSheet extends ActorSheet {
     console.log(event);
 
     let item: Item;
-    const actor = this.actor;
+    const actor = this.actor as LancerActor;
     // NOTE: these cases are copied almost verbatim from ActorSheet._onDrop
     // Case 1 - Item is from a Compendium pack
     if (data.pack) {
@@ -225,28 +228,28 @@ export class LancerPilotSheet extends ActorSheet {
     if (actor.owner) {
       // Swap mech frame
       if (item && item.type === "frame") {
-        let frame: LancerFrameData;
-        let oldFrame: LancerFrameData;
+        let newFrameStats: LancerFrameStatsData;
+        let oldFrameStats: LancerFrameStatsData;
         // Remove old frame
         actor.items.forEach(async (i: Item) => {
           if (i.type === "frame") {
-            oldFrame = duplicate(i.data.data);
+            oldFrameStats = duplicate((i as LancerFrame).data.data.stats);
             await this.actor.deleteOwnedItem(i._id);
           }
         });
         // Add the new frame from Compendium pack
         if (data.pack) {
-          frame = actor.importItemFromCollection(data.pack, data.id).data.data;
+          const frame = await actor.importItemFromCollection(data.pack, data.id) as any;
+          console.log(frame);
+          newFrameStats = frame.data.stats;
         }
         // Add the new frame from a World entity
         else {
           await actor.createEmbeddedEntity("OwnedItem", duplicate(item.data));
-          frame = actor.items.find((i: Item) => i.type === "frame").data.data;
+          newFrameStats = (actor.items.find((i: Item) => i.type === "frame") as any).data.stats;
         }
-        if (frame) {
-          if (!oldFrame) {
-            
-          }
+        if (newFrameStats) {
+          actor.swapFrames(newFrameStats, oldFrameStats);
         }
       }
 
