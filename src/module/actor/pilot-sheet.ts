@@ -120,12 +120,10 @@ export class LancerPilotSheet extends ActorSheet {
 
     if (this.actor.owner) {
       // Item Dragging
-      let handler = ev => this._onDragStart(ev);
       html.find('li[class*="item"]').add('span[class*="item"]').each((i, item) => {
         if ( item.classList.contains("inventory-header") ) return;
         item.setAttribute("draggable", true);
-        // TODO: I think handler needs to be item.*something*._onDragStart(ev).
-        item.addEventListener("dragstart", handler, false);
+        item.addEventListener("dragstart", ev => this._onDragStart(ev), false);
       });
 
       // Update Inventory Item
@@ -144,7 +142,11 @@ export class LancerPilotSheet extends ActorSheet {
       items.contextmenu(ev => {
         console.log(ev);
         const li = $(ev.currentTarget);
-        this.actor.deleteOwnedItem(li.data("itemId"));
+        if (li.closest(".lancer-mount-container").length) {
+          console.log("Mounted");
+        } else {
+          this.actor.deleteOwnedItem(li.data("itemId"));
+        }
         li.slideUp(200, () => this.render(false));
       });
 
@@ -164,8 +166,9 @@ export class LancerPilotSheet extends ActorSheet {
         ev.stopPropagation();
         console.log(ev);
         let mount = {
-          type: "main",
-          weapons: []
+          type: "Main",
+          weapons: [],
+          secondary_mount: null
         };
 
         let mounts = duplicate(this.actor.data.data.mech_loadout.mounts)
@@ -201,6 +204,7 @@ export class LancerPilotSheet extends ActorSheet {
 
   async _onDrop(event) {
     event.preventDefault();
+
     // Get dropped data
     let data;
     try {
@@ -214,59 +218,78 @@ export class LancerPilotSheet extends ActorSheet {
     let item: Item;
     const actor = this.actor as LancerActor;
     // NOTE: these cases are copied almost verbatim from ActorSheet._onDrop
+
     // Case 1 - Item is from a Compendium pack
     if (data.pack) {
       item = (await game.packs.get(data.pack).getEntity(data.id)) as Item;
+      console.log("LANCER | Item dropped from compendium: ");
+      console.log(item);
     }
+
     // Case 2 - Item is a World entity
     else if (!data.data) {
       item = game.items.get(data.id);
       if (!item) return;
+      console.log("LANCER | Item dropped from world: ");
+      console.log(item);
     }
 
-    // Add to a mount, swap frames, or call parent on drop logic
-    if (actor.owner) {
-      // Swap mech frame
-      if (item && item.type === "frame") {
-        let newFrameStats: LancerFrameStatsData;
-        let oldFrameStats: LancerFrameStatsData;
-        // Remove old frame
-        actor.items.forEach(async (i: LancerItem) => {
-          if (i.type === "frame") {
-            oldFrameStats = duplicate((i as LancerFrame).data.data.stats);
-            await this.actor.deleteOwnedItem(i._id);
-          }
-        });
-        // Add the new frame from Compendium pack
-        if (data.pack) {
-          const frame = await actor.importItemFromCollection(data.pack, data.id) as any;
-          console.log(frame);
-          newFrameStats = frame.data.stats;
-        }
-        // Add the new frame from a World entity
-        else {
-          await actor.createEmbeddedEntity("OwnedItem", duplicate(item.data));
-          newFrameStats = (actor.items.find((i: Item) => i.type === "frame") as any).data.stats;
-        }
-        if (newFrameStats) {
-          actor.swapFrames(newFrameStats, oldFrameStats);
-        }
-      }
+    // Logic below this line is executed only with owner permission of a sheet
+    // TODO: Determine whether GM should also be allowed.
+    if (!actor.owner) return;
 
-      let mount_element = $(event.target.closest(".lancer-mount-container"));
-      console.log(mount_element);
-
-      // Add weapon to a mount
-      if (mount_element.length)  {
-        let index = mount_element;
-        let mounts = duplicate(this.actor.data.data.mech_loadout.mounts);
-        mounts[parseInt(mount_element.data("itemId"))].weapons.push(data.data);
-        console.log("Dropping Item Into Mount", mount_element);
-        this.actor.update({"data.mech_loadout.mounts": mounts});
-        this._onSubmit(event);
+    // Swap mech frame
+    if (item && item.type === "frame") {
+      let newFrameStats: LancerFrameStatsData;
+      let oldFrameStats: LancerFrameStatsData;
+      // Remove old frame
+      actor.items.forEach(async (i: LancerItem) => {
+        if (i.type === "frame") {
+          oldFrameStats = duplicate((i as LancerFrame).data.data.stats);
+          await this.actor.deleteOwnedItem(i._id);
+        }
+      });
+      // Add the new frame from Compendium pack
+      if (data.pack) {
+        const frame = await actor.importItemFromCollection(data.pack, data.id) as any;
+        console.log(frame);
+        newFrameStats = frame.data.stats;
       }
-      return super._onDrop(event);
+      // Add the new frame from a World entity
+      else {
+        newFrameStats = (actor.items.find((i: Item) => i.type === "frame") as any).data.stats;
+      }
+      if (newFrameStats) {
+        actor.swapFrames(newFrameStats, oldFrameStats);
+      }
     }
+
+
+    // Handling mech-weapon -> mount mapping
+    if (item.type === "mech_weapon") {
+      let mounts = duplicate(this.actor.data.data.mech_loadout.mounts);
+      let valid = mounts.filter(m => {
+        return m.type in ['Flex', 'Integrated']
+      });
+
+      if (!valid.length) ui.notifications.warn('No valid mounts for the item');
+
+      return;
+    }
+
+    /*if (mount_element.length)  {
+      let index = mount_element;
+      let mounts = duplicate(this.actor.data.data.mech_loadout.mounts);
+      mounts[parseInt(mount_element.data("itemId"))].weapons.push(item);
+      console.log("Dropping Item Into Mount", mount_element);
+      this.actor.update({"data.mech_loadout.mounts": mounts});
+      this._onSubmit(event);
+    }*/
+
+    // Finally, fall back to super's behaviour if nothing else "handles" the drop (signalled by returning).
+    console.log('LANCER | Falling back on super._onDrop');
+    await actor.createEmbeddedEntity("OwnedItem", duplicate(item.data));
+    return super._onDrop(event);
   }
 
   /* -------------------------------------------- */
