@@ -10,49 +10,58 @@ import {  LancerSkillItemData,
           LancerMechSystemItemData,
           LancerMechWeaponItemData} from '../interfaces'
 
-export class LancerSkill extends Item {
-  data: LancerSkillItemData;
+export class LancerItem extends Item {
+  data: LancerSkillItemData | LancerTalentItemData | LancerCoreBonusItemData |
+        LancerLicenseItemData | LancerPilotArmorItemData | LancerPilotWeaponItemData |
+        LancerPilotGearItemData | LancerFrameItemData | LancerMechSystemItemData |
+        LancerMechWeaponItemData;
 
   /**
-   * Return the skill trigger's bonus to rolls
+   * Return a skill trigger's bonus to rolls
    */
-  get bonus(): number {
-    return this.data.data.rank * 2;
+  get triggerBonus(): number {
+    // Only works for skills.
+    if (this.data.type !== "skill") return 0;
+    return (this.data as LancerSkillItemData).data.rank * 2;
   }
 }
 
-export class LancerTalent extends Item {
+export class LancerSkill extends LancerItem {
+  data: LancerSkillItemData;
+}
+
+export class LancerTalent extends LancerItem {
   data: LancerTalentItemData;
 }
 
-export class LancerCoreBonus extends Item {
+export class LancerCoreBonus extends LancerItem {
   data: LancerCoreBonusItemData;
 }
 
-export class LancerLicense extends Item {
+export class LancerLicense extends LancerItem {
   data: LancerLicenseItemData;
 }
 
-export class LancerPilotArmor extends Item {
+export class LancerPilotArmor extends LancerItem {
   data: LancerPilotArmorItemData;
 }
 
-export class LancerPilotWeapon extends Item {
+export class LancerPilotWeapon extends LancerItem {
   data: LancerPilotWeaponItemData;
 }
 
-export class LancerPilotGear extends Item {
+export class LancerPilotGear extends LancerItem {
   data: LancerPilotGearItemData;
 }
 
-export class LancerFrame extends Item {
+export class LancerFrame extends LancerItem {
   data: LancerFrameItemData;
 }
 
-export class LancerMechSystem extends Item {
+export class LancerMechSystem extends LancerItem {
   data: LancerMechSystemItemData;
 }
 
-export class LancerMechWeapon extends Item {
+export class LancerMechWeapon extends LancerItem {
   data: LancerMechWeaponItemData;
 }

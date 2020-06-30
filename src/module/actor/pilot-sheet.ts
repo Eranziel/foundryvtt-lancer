@@ -1,5 +1,5 @@
 import { LancerPilotSheetData, LancerFrameData, LancerFrameStatsData } from '../interfaces';
-import { LancerFrame } from '../item/lancer-item';
+import { LancerItem, LancerFrame } from '../item/lancer-item';
 import { MechType } from '../enums';
 import { LancerActor } from './lancer-actor';
 
@@ -231,7 +231,7 @@ export class LancerPilotSheet extends ActorSheet {
         let newFrameStats: LancerFrameStatsData;
         let oldFrameStats: LancerFrameStatsData;
         // Remove old frame
-        actor.items.forEach(async (i: Item) => {
+        actor.items.forEach(async (i: LancerItem) => {
           if (i.type === "frame") {
             oldFrameStats = duplicate((i as LancerFrame).data.data.stats);
             await this.actor.deleteOwnedItem(i._id);

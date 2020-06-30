@@ -10,6 +10,7 @@
 // Import TypeScript modules
 import { LancerGame } from './module/lancer-game'
 import { LancerActor } from './module/actor/lancer-actor'
+import { LancerItem } from './module/item/lancer-item'
 
 // Import applications
 import { LancerPilotSheet } from './module/actor/pilot-sheet'
@@ -47,7 +48,7 @@ Hooks.once('init', async function() {
 		},
 		entities: {
 			LancerActor,
-			// LancerItem,
+			LancerItem,
     },
 		rollAttackMacro: rollAttackMacro,
 		migrations: migrations,
@@ -55,7 +56,7 @@ Hooks.once('init', async function() {
 
 	// Record Configuration Values
 	CONFIG.Actor.entityClass = LancerActor;
-	// CONFIG.Item.entityClass = LancerItem;
+	CONFIG.Item.entityClass = LancerItem;
 
 	// Register custom system settings
 	registerSettings();
