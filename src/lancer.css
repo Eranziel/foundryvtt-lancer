@@ -278,7 +278,7 @@ select {
   display: flex;
   justify-content: flex-start;
   flex-direction: column;
-  min-height: 15px;
+  min-height: 45px;
   border-style: dashed;
   border-width: 2px;
   border-color: #991e2a;

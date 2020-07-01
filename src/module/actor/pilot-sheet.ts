@@ -188,7 +188,7 @@ export class LancerPilotSheet extends ActorSheet {
         let mount = {
           type: "Main",
           weapons: [],
-          secondary_mount: null
+          secondary_mount: "This counts, right?"
         };
 
         let mounts = duplicate(this.actor.data.data.mech_loadout.mounts)
@@ -308,7 +308,7 @@ export class LancerPilotSheet extends ActorSheet {
         let valid = mount_whitelist[item.data.data.mount];
         if (!valid.includes(mount.type)) {
           ui.notifications.error('The weapon you dropped is too large for this weapon mount!');
-        } else if (item.data.data.mount === 'Superheavy' && !mount.secondary) {
+        } else if (item.data.data.mount === 'Superheavy' && !mount.secondary_mount) {
           ui.notifications.error('Assign a secondary mount to this heavy mount in order to equip a superheavy weapon');
         } else {
           mount.weapons.push(item);
