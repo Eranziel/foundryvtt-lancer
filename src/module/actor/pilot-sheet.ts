@@ -288,7 +288,7 @@ export class LancerPilotSheet extends ActorSheet {
     if (item.type === "mech_weapon") {
       let mounts = duplicate(this.actor.data.data.mech_loadout.mounts);
       if (!mounts.length) {
-        ui.notifications.error("A mech weapon was dropped on the page, but there are no weapon mounts installed. Go to the Frame Loadout tab to add some!");\
+        ui.notifications.error("A mech weapon was dropped on the page, but there are no weapon mounts installed. Go to the Frame Loadout tab to add some!");
         return;
       }
 
