@@ -1,4 +1,3 @@
-import { LancerNPC } from './lancer-actor'
 import { LancerNPCSheetData } from '../interfaces';
 
 const entryPrompt = "//:AWAIT_ENTRY>";

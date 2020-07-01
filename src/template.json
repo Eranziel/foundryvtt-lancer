@@ -4,7 +4,7 @@
     "templates": {
       "mech": {
         "mech": {
-          "frame": "",
+          "name": "",
           "size": 1,
           "hull": 0,
           "agility": 0,
@@ -29,6 +29,11 @@
             "value": 1,
             "min": 0,
             "max": 1
+          },
+          "repairs": {
+            "value": 4,
+            "min": 0,
+            "max": 4
           },
           "armor": 0,
           "speed": 4,

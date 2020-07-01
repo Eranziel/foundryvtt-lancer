@@ -1,5 +1,4 @@
 
-import { LancerPilot, LancerNPC, LancerDeployable } from './actor/lancer-actor'
 import { LancerSkill, LancerTalent, LancerCoreBonus, LancerLicense, LancerFrame, LancerPilotArmor, LancerPilotWeapon, LancerPilotGear, LancerMechWeapon, LancerMechSystem } from './item/lancer-item';
 import { DamageType, RangeType, WeaponSize, WeaponType, SystemType, MechType, ItemType, PilotEquipType } from './enums';
 
@@ -48,7 +47,7 @@ declare interface ResourceData {
 }
 
 declare interface LancerMechData {
-  frame: string;
+  name: string;
   size: number;
   hull: number;
   agility: number;
@@ -58,6 +57,7 @@ declare interface LancerMechData {
   structure: ResourceData;
   heat: ResourceData;
   stress: ResourceData;
+  repairs: ResourceData;
   armor: number;
   speed: number;
   evasion: number;
@@ -123,6 +123,7 @@ declare interface LancerPilotSheetData extends ActorSheetData {
     weapons: LancerPilotWeapon[];
     gear: LancerPilotGear[];
   }
+  frame: LancerFrame;
   // TODO: subdivide into mounts
   mech_loadout: {
     weapons: LancerMechWeapon[];

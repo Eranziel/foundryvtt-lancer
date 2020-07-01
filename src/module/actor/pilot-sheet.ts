@@ -1,4 +1,7 @@
-import { LancerPilotSheetData, LancerNPCSheetData } from '../interfaces';
+import { LancerPilotSheetData, LancerFrameData, LancerFrameStatsData } from '../interfaces';
+import { LancerItem, LancerFrame } from '../item/lancer-item';
+import { MechType } from '../enums';
+import { LancerActor } from './lancer-actor';
 
 // TODO: should probably move to HTML/CSS
 const entryPrompt = "//:AWAIT_ENTRY>";
@@ -94,6 +97,9 @@ export class LancerPilotSheet extends ActorSheet {
       weapons: accumulator['pilot_weapon'] || [],
       armor: accumulator['pilot_armor'] || []
     };
+    // Only take one frame
+    if (accumulator['frame']) data.frame = accumulator['frame'][0];
+    else data.frame = undefined;
     data.mech_loadout = {
       weapons: accumulator['mech_weapon'] || [], // TODO: subdivide into mounts
       systems: accumulator['mech_system'] || []
@@ -199,16 +205,58 @@ export class LancerPilotSheet extends ActorSheet {
     let data;
     try {
       data = JSON.parse(event.dataTransfer.getData('text/plain'));
+      if (data.type !== "Item") return;
     } catch (err) {
       return false;
     }
     console.log(event);
 
-    // Add to a mount or call parent on drop logic
-    if (this.actor.owner) {
+    let item: Item;
+    const actor = this.actor as LancerActor;
+    // NOTE: these cases are copied almost verbatim from ActorSheet._onDrop
+    // Case 1 - Item is from a Compendium pack
+    if (data.pack) {
+      item = (await game.packs.get(data.pack).getEntity(data.id)) as Item;
+    }
+    // Case 2 - Item is a World entity
+    else if (!data.data) {
+      item = game.items.get(data.id);
+      if (!item) return;
+    }
+
+    // Add to a mount, swap frames, or call parent on drop logic
+    if (actor.owner) {
+      // Swap mech frame
+      if (item && item.type === "frame") {
+        let newFrameStats: LancerFrameStatsData;
+        let oldFrameStats: LancerFrameStatsData;
+        // Remove old frame
+        actor.items.forEach(async (i: LancerItem) => {
+          if (i.type === "frame") {
+            oldFrameStats = duplicate((i as LancerFrame).data.data.stats);
+            await this.actor.deleteOwnedItem(i._id);
+          }
+        });
+        // Add the new frame from Compendium pack
+        if (data.pack) {
+          const frame = await actor.importItemFromCollection(data.pack, data.id) as any;
+          console.log(frame);
+          newFrameStats = frame.data.stats;
+        }
+        // Add the new frame from a World entity
+        else {
+          await actor.createEmbeddedEntity("OwnedItem", duplicate(item.data));
+          newFrameStats = (actor.items.find((i: Item) => i.type === "frame") as any).data.stats;
+        }
+        if (newFrameStats) {
+          actor.swapFrames(newFrameStats, oldFrameStats);
+        }
+      }
+
       let mount_element = $(event.target.closest(".lancer-mount-container"));
       console.log(mount_element);
 
+      // Add weapon to a mount
       if (mount_element.length)  {
         let index = mount_element;
         let mounts = duplicate(this.actor.data.data.mech_loadout.mounts);

@@ -8,16 +8,22 @@
  */
 
 // Import TypeScript modules
-import { registerSettings } from './module/settings'
-import { preloadTemplates } from './module/preloadTemplates'
-import { LancerPilotSheet } from './module/actor/pilot-sheet'
 import { LancerGame } from './module/lancer-game'
+import { LancerActor } from './module/actor/lancer-actor'
+import { LancerItem } from './module/item/lancer-item'
+
+// Import applications
+import { LancerPilotSheet } from './module/actor/pilot-sheet'
 import { LancerNPCSheet } from './module/actor/npc-sheet';
 import { LancerItemSheet } from './module/item/item-sheet';
-import { renderCompactTag } from './module/item/tags';
 
+// Import helpers
+import { preloadTemplates } from './module/preloadTemplates'
+import { registerSettings } from './module/settings'
+import { renderCompactTag } from './module/item/tags';
 import * as migrations from './module/migration.js';
 
+// Import JSON data
 import data from 'lancer-data'
 
 /* ------------------------------------ */
@@ -35,9 +41,22 @@ Hooks.once('init', async function() {
 	// Assign custom classes and constants here
 	// Create a Lancer namespace within the game global
 	(game as LancerGame).lancer = {
-		rollAttackMacro,
-    migrations: migrations,
+		applications: {
+			LancerPilotSheet,
+			LancerNPCSheet,
+			LancerItemSheet,
+		},
+		entities: {
+			LancerActor,
+			LancerItem,
+    },
+		rollAttackMacro: rollAttackMacro,
+		migrations: migrations,
 	};
+
+	// Record Configuration Values
+	CONFIG.Actor.entityClass = LancerActor;
+	CONFIG.Item.entityClass = LancerItem;
 
 	// Register custom system settings
 	registerSettings();
@@ -53,7 +72,7 @@ Hooks.once('init', async function() {
 	Items.registerSheet("lancer", LancerItemSheet, { 
 		types: ["skill", "talent", "license", "core_bonus", 
 			"pilot_armor", "pilot_weapon", "pilot_gear", 
-			"mech_system", "mech_weapon"], 
+			"frame", "mech_system", "mech_weapon"], 
 		makeDefault: true 
 	});
 
