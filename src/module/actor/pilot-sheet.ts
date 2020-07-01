@@ -129,7 +129,7 @@ export class LancerPilotSheet extends ActorSheet {
       // Update Inventory Item
       let items = html.find('.item');
       items.click(ev => {
-        console.log(ev)
+        console.log(ev);
         const li = $(ev.currentTarget);
         //TODO: Check if in mount and update mount
         const item = this.actor.getOwnedItem(li.data("itemId"));
@@ -141,13 +141,21 @@ export class LancerPilotSheet extends ActorSheet {
       // Delete Item on Right Click
       items.contextmenu(ev => {
         console.log(ev);
-        const li = $(ev.currentTarget);
-        if (li.closest(".lancer-mount-container").length) {
-          console.log("Mounted");
+        const item = $(ev.currentTarget);
+
+        let mount_element = item.closest(".lancer-mount-container");
+        let weapon_element = item.closest(".lancer-weapon-container");
+
+        if (mount_element.length && weapon_element.length) {
+          let mounts = duplicate(this.actor.data.data.mech_loadout.mounts);
+          let weapons = mounts[parseInt(mount_element.data("itemId"))].weapons;
+          weapons.splice(parseInt(weapon_element.data("itemId")), 1);
+          this.actor.update({"data.mech_loadout.mounts": mounts});
+          this._onSubmit(ev);
         } else {
-          this.actor.deleteOwnedItem(li.data("itemId"));
+          this.actor.deleteOwnedItem(item.data("itemId"));
         }
-        li.slideUp(200, () => this.render(false));
+        item.slideUp(200, () => this.render(false));
       });
 
       // Delete Item when trash can is clicked
@@ -155,9 +163,21 @@ export class LancerPilotSheet extends ActorSheet {
       items.click(ev => {
         ev.stopPropagation();  // Avoids triggering parent event handlers
         console.log(ev);
-        const li = $(ev.currentTarget).closest('.item');
-        this.actor.deleteOwnedItem(li.data("itemId"));
-        li.slideUp(200, () => this.render(false));
+        const item = $(ev.currentTarget).closest('.item');
+
+        let mount_element = item.closest(".lancer-mount-container");
+        let weapon_element = item.closest(".lancer-weapon-container");
+
+        if (mount_element.length && weapon_element.length) {
+          let mounts = duplicate(this.actor.data.data.mech_loadout.mounts);
+          let weapons = mounts[parseInt(mount_element.data("itemId"))].weapons;
+          weapons.splice(parseInt(weapon_element.data("itemId")), 1);
+          this.actor.update({"data.mech_loadout.mounts": mounts});
+          this._onSubmit(ev);
+        } else {
+          this.actor.deleteOwnedItem(item.data("itemId"));
+        }
+        item.slideUp(200, () => this.render(false));
       });
 
       // Create Mounts
@@ -266,10 +286,15 @@ export class LancerPilotSheet extends ActorSheet {
 
     // Handling mech-weapon -> mount mapping
     if (item.type === "mech_weapon") {
+      let mounts = duplicate(this.actor.data.data.mech_loadout.mounts);
+      if (!mounts.length) {
+        ui.notifications.error("A mech weapon was dropped on the page, but there are no weapon mounts installed. Go to the Frame Loadout tab to add some!");\
+        return;
+      }
+
       let mount_element = $(event.target.closest(".lancer-mount-container"));
 
       if (mount_element.length) {
-        let mounts = duplicate(this.actor.data.data.mech_loadout.mounts);
 
         let mount_whitelist = {
           'Auxiliary': ['Integrated', 'Aux-Aux', 'Main', 'Flex', 'Main-Aux', 'Heavy'],
@@ -287,13 +312,13 @@ export class LancerPilotSheet extends ActorSheet {
           ui.notifications.error('Assign a secondary mount to this heavy mount in order to equip a superheavy weapon');
         } else {
           mount.weapons.push(item);
-          console.log("LANCER | Inserting Item into Mount");
+          console.log("LANCER | Inserting Mech Weapon into Mount");
           console.log(item);
           this.actor.update({"data.mech_loadout.mounts": mounts});
           this._onSubmit(event);
         }
       } else {
-        ui.notifications.error('You dropped a mech weapon on the page, but not onto a weapon mount. Go to the Frame Loadout tab!')
+        ui.notifications.error('You dropped a mech weapon on the page, but not onto a weapon mount. Go to the Frame Loadout tab to find them!');
       }
 
       return;
