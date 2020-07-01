@@ -80,9 +80,13 @@ enum DamageType {
 }
 
 enum EffectType {
+  Basic = 'Basic',
+  Profile = 'Profile',
   Offensive = 'Offensive',
   Reaction = 'Reaction',
-  Profile = 'Profile'
+  Tech = 'Tech',
+  AI = 'AI',
+  Protocol = 'Protocol'
 }
 
 enum MechType {

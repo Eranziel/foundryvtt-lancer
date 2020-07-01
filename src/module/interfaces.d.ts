@@ -26,7 +26,12 @@ declare interface TagData {
 // Note that this type can be replaced with a descriptive string in some cases.
 declare interface EffectData {
   type: EffectType;
-  effect: EffectDataOffensive | EffectDataProfile | EffectDataReaction;
+  effect: EffectDataBasic | EffectDataOffensive | EffectDataProfile | EffectDataReaction | EffectDataTech | EffectDataAI;
+}
+
+declare interface EffectDataBasic {
+  activation: string;
+  detail: string;
 }
 
 declare interface EffectDataOffensive {
@@ -41,7 +46,7 @@ declare interface EffectDataOffensive {
 
 declare interface EffectDataProfile {
   name: string;
-  range: RangeData[];
+  range?: RangeData[];
   damage: DamageData[];
   detail?: string;
   tags?: TagDataShort[];
@@ -54,6 +59,34 @@ declare interface EffectDataReaction {
   trigger: string;
   detail: string;  // Optional?
 }
+
+// Tech seems to either have detail, or have option_set and options.
+declare interface EffectDataTech {
+  activation: string;
+  detail?: string,
+  option_set?: string;
+  options?: EffectDataTechOption[];
+}
+
+declare interface EffectDataTechOption {
+  name: string;
+  detail: string;
+}
+
+declare interface EffectDataAI {
+  detail: string;
+  abilities: EffectData[];
+}
+
+declare interface EffectDataProtocol {
+  name: string;
+  detail: string;
+  tags?: TagDataShort;
+}
+
+// TODO: EffectDataDeployable (effect_type == "Deployable")
+// TODO: EffectDataDrone (effect_type == "Drone")
+// TODO: EffectDataCharge (effect_type == "Charge")
 
 declare interface RangeData {
   type: RangeType;
