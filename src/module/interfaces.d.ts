@@ -1,6 +1,6 @@
 
 import { LancerSkill, LancerTalent, LancerCoreBonus, LancerLicense, LancerFrame, LancerPilotArmor, LancerPilotWeapon, LancerPilotGear, LancerMechWeapon, LancerMechSystem } from './item/lancer-item';
-import { DamageType, RangeType, WeaponSize, WeaponType, SystemType, MechType, ItemType, PilotEquipType } from './enums';
+import { DamageType, RangeType, WeaponSize, WeaponType, SystemType, MechType, ItemType, PilotEquipType, NPCTier, NPCTag, NPCTemplate} from './enums';
 
 // ------------------------------------------------------
 // |       UTILITY DATA TYPES                           |
@@ -135,8 +135,13 @@ declare interface LancerPilotSheetData extends ActorSheetData {
 declare interface LancerNPCData {
   mech: LancerMechData;
   type: string;
+  name: string;
   class: string;
-  npc_templates: string[];
+  role: string;
+  tier: NPCTier;
+  tag: NPCTag;
+  npc_template: NPCTemplate[];
+  npc_class: [];
   activations: number;
 }
 

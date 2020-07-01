@@ -78,9 +78,15 @@
     },
     "npc": {
       "templates": ["mech"],
-      "type": "mech",
+      "name": "",
       "class": "",
-      "npc_templates": [],
+      "role": "",
+      "tier": "",
+      "tag": "",
+      "flavour": "",
+      "tactics": "",
+      "npc_template":[],
+      "npc_class": [],
       "activations": 1
     },
     "deployable": {
