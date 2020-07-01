@@ -79,6 +79,12 @@ enum DamageType {
   Variable = 'Variable',
 }
 
+enum EffectType {
+  Offensive = 'Offensive',
+  Reaction = 'Reaction',
+  Profile = 'Profile'
+}
+
 enum MechType {
   Balanced = 'Balanced',
   Artillery = 'Artillery',
@@ -104,6 +110,7 @@ export {
   SystemType,
   RangeType,
   DamageType,
+  EffectType,
   HASE,
   MechType,
 }

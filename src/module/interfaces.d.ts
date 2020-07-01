@@ -1,12 +1,13 @@
 
 import { LancerSkill, LancerTalent, LancerCoreBonus, LancerLicense, LancerFrame, LancerPilotArmor, LancerPilotWeapon, LancerPilotGear, LancerMechWeapon, LancerMechSystem } from './item/lancer-item';
-import { DamageType, RangeType, WeaponSize, WeaponType, SystemType, MechType, ItemType, PilotEquipType } from './enums';
+import { DamageType, RangeType, WeaponSize, WeaponType, SystemType, EffectType, MechType, ItemType, PilotEquipType } from './enums';
 
 // ------------------------------------------------------
 // |       UTILITY DATA TYPES                           |
 // ------------------------------------------------------
 
 // TODO: several of these may be moved to classes later to enable specialized logic
+// TODO: Range and Damage are good examples of objects that should be aware of their string representation and html representation
 
 declare interface TagDataShort {
   id: string;
@@ -20,6 +21,38 @@ declare interface TagData {
   val?: number | string;
   filter_ignore?: boolean;
   hidden?: boolean;
+}
+
+// Note that this type can be replaced with a descriptive string in some cases.
+declare interface EffectData {
+  type: EffectType;
+  effect: EffectDataOffensive | EffectDataProfile | EffectDataReaction;
+}
+
+declare interface EffectDataOffensive {
+  detail?: string;
+  attack?: string;
+  hit?: string;
+  critical?: string;
+  range?: RangeData[];
+  damage?: DamageData[];
+  abilities?: EffectData[];
+}
+
+declare interface EffectDataProfile {
+  name: string;
+  range: RangeData[];
+  damage: DamageData[];
+  detail?: string;
+  tags?: TagDataShort[];
+}
+
+// Note that Reactions, like Tech or Protocols, may be more generic than an effect. Yet to be seen.
+declare interface EffectDataReaction {
+  name: string;
+  frequency: string;  // May need a specialized parser and interface for compatibility with About Time by Tim Posney
+  trigger: string;
+  detail: string;  // Optional?
 }
 
 declare interface RangeData {
