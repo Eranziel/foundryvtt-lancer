@@ -184,7 +184,6 @@ export class LancerPilotSheet extends ActorSheet {
         console.log(ev);
         let mounts = duplicate(this.actor.data.data.mech_loadout.mounts);
         mounts[parseInt($(ev.currentTarget).closest(".lancer-mount-container").data("itemId"))].type = $(ev.currentTarget).children("option:selected").val();
-        console.log(mounts);
         this.actor.update({"data.mech_loadout.mounts": mounts});
         this._onSubmit(ev);
       });
@@ -268,11 +267,54 @@ export class LancerPilotSheet extends ActorSheet {
     // Handling mech-weapon -> mount mapping
     if (item.type === "mech_weapon") {
       let mounts = duplicate(this.actor.data.data.mech_loadout.mounts);
-      let valid = mounts.filter(m => {
-        return m.type in ['Flex', 'Integrated']
-      });
+      let mount_whitelist = {
+        'Auxiliary': ['Integrated', 'Aux-Aux', 'Main', 'Flex', 'Main-Aux', 'Heavy'],
+        'Main': ['Integrated', 'Main', 'Flex', 'Main-Aux', 'Heavy'],
+        'Heavy': ['Integrated', 'Heavy'],
+        'Superheavy': ['Integrated', 'Heavy'],
+        'Other': ['Integrated', 'Aux-Aux', 'Main', 'Flex', 'Main-Aux', 'Heavy']
+      }
+      let valid = mounts.filter(m => mount_whitelist[item.data.data.mount].includes(m.type));
 
-      if (!valid.length) ui.notifications.warn('No valid mounts for the item');
+      if (!valid.length) {
+        ui.notifications.error('No valid mounts for the item');
+      } else if (item.data.data.mount === 'Superheavy' && mounts.length <= 1) {
+        ui.notifications.error('Superheavy weapons require a secondary mount');
+      } else {
+        // TODO: Get desired mount(s)
+
+        /*let template = Handlebars.compile(`<h2 class="lancer-title clipped">Choose a Mount for this Item</h2><div class="flexrow">
+          {{#each mounts as |mount key|}}
+          <div class="flexcol lancer-mount-container"">
+            <span class="lancer-mount-header clipped-top">
+              {{{mount-selector mount @index false}}}
+              <a class="mounts-control" data-action="select"><i class="fas fa-check"></i></a>
+            </span>
+            <span class="lancer-mount-body">
+            {{#each mount.weapons as |weapon key|}}
+              {{> pilot-weapon-preview weapon=weapon key=key}}
+            {{/each}}
+            </span>
+          </div>
+          {{/each}}
+          </div></div>`);
+        let doc = template({noEscape: true, mounts: mounts});
+        let d = new Application({
+          options: {
+            baseApplication: 'Application',
+            resizable: true,
+            popOut: true,
+            title: "Alert!",
+            template: doc,
+            width: 600,
+            height: 600
+          }
+        });
+        d.render(true);*/
+        mounts[0].weapons.push(item);
+        this.actor.update({"data.mech_loadout.mounts": mounts});
+        this._onSubmit(event);
+      }
 
       return;
     }

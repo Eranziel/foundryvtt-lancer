@@ -386,7 +386,7 @@
           {{#each data.mech_loadout.mounts as |mount key|}}
           <div class="flexcol lancer-mount-container" data-item-id="{{key}}">
             <span class="lancer-mount-header clipped-top">
-              {{{mount-selector mount=mount key=key}}}
+              {{{mount-selector mount @index}}}
               <a class="mounts-control" data-action="delete"><i class="fas fa-trash"></i></a>
             </span>
             <span class="lancer-mount-body">

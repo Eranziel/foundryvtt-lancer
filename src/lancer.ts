@@ -105,14 +105,14 @@ Hooks.once('init', async function() {
 	Handlebars.registerHelper('compact-tag', renderCompactTag);
 
 	// mount display mount
-	Handlebars.registerHelper('mount-selector', (mount, key) => {
-		let template = `<select id="mount-type" class="mounts-control" data-action="update" data-item-id=${key}>
-	        <option value="Main" ${mount.type === 'Main' ? 'selected' : ''}>Main Mount</option>
-	        <option value="Heavy" ${mount.type === 'Heavy' ? 'selected' : ''}>Heavy Mount</option>
-	        <option value="Aux-Aux" ${mount.type === 'Aux-Aux' ? 'selected' : ''}>Aux/Aux Mount</option>
-	        <option value="Main-Aux" ${mount.type === 'Main-Aux' ? 'selected' : ''}>Main/Aux Mount</option>
-	        <option value="Flex" ${mount.type === 'Flex' ? 'selected' : ''}>Flexible Mount</option>
-	        <option value="Integrated" ${mount.type === 'Integrated' ? 'selected' : ''}>Integrated Mount</option>
+	Handlebars.registerHelper('mount-selector', (mount, key, active=true) => {
+		let template = `<select id="mount-type" class="mounts-control" data-action="update" data-item-id="${key}"${active ? '' : ' disabled'}>
+	        <option value="Main"${mount.type === 'Main' ? ' selected' : ''}>Main Mount</option>
+	        <option value="Heavy"${mount.type === 'Heavy' ? ' selected' : ''}>Heavy Mount</option>
+	        <option value="Aux-Aux"${mount.type === 'Aux-Aux' ? ' selected' : ''}>Aux/Aux Mount</option>
+	        <option value="Main-Aux"${mount.type === 'Main-Aux' ? ' selected' : ''}>Main/Aux Mount</option>
+	        <option value="Flex"${mount.type === 'Flex' ? ' selected' : ''}>Flexible Mount</option>
+	        <option value="Integrated"${mount.type === 'Integrated' ? ' selected' : ''}>Integrated Mount</option>
         </select>`
         return template;
 	});
