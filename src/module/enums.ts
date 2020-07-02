@@ -104,6 +104,35 @@ enum HASE {
   S = 'sys',
   E = 'eng',
 }
+enum NPCTag{
+  Mech = 'Mech',
+  Vehicle = 'Vehicle',
+  Ship = 'Ship',
+  Biological = 'Biological',
+  Squad = 'Squad'
+}
+
+enum NPCTemplate{
+None = '',
+Commander = 'COMMANDER',
+Rpv = 'RPV',
+Elite = 'ELITE',
+Exotic = 'EXOTIC',
+Grunt = 'GRUNT',
+Mercenary = 'MERCENARY',
+Pirate = 'PIRATE',
+Ship = 'SHIP',
+Spacer = 'SPACER',
+Ultra = 'ULTRA',
+Veteran = 'VETERAN',
+Vehicle = 'VEHICLE'
+}
+enum NPCTier{
+TierOne = 'TIER 1',
+TierTwo = 'TIER 2',
+TierThree = 'TIER 3',
+Custom = 'CUSTOM'
+}
 
 export {
   MountType,
@@ -117,4 +146,7 @@ export {
   EffectType,
   HASE,
   MechType,
+  NPCTag,
+  NPCTemplate,
+  NPCTier
 }

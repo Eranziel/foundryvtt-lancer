@@ -1,6 +1,6 @@
 
 import { LancerSkill, LancerTalent, LancerCoreBonus, LancerLicense, LancerFrame, LancerPilotArmor, LancerPilotWeapon, LancerPilotGear, LancerMechWeapon, LancerMechSystem } from './item/lancer-item';
-import { DamageType, RangeType, WeaponSize, WeaponType, SystemType, EffectType, MechType, ItemType, PilotEquipType } from './enums';
+import { DamageType, RangeType, WeaponSize, WeaponType, SystemType, EffectType, MechType, ItemType, PilotEquipType, NPCTier, NPCTag, NPCTemplate} from './enums';
 
 // ------------------------------------------------------
 // |       UTILITY DATA TYPES                           |
@@ -201,8 +201,13 @@ declare interface LancerPilotSheetData extends ActorSheetData {
 declare interface LancerNPCData {
   mech: LancerMechData;
   type: string;
+  name: string;
   class: string;
-  npc_templates: string[];
+  role: string;
+  tier: NPCTier;
+  tag: NPCTag;
+  npc_template: NPCTemplate[];
+  npc_class: [];
   activations: number;
 }
 
@@ -223,7 +228,7 @@ declare interface LancerDeployableData {
   evasion: number;
   edef: number;
   description: string;
-  effect: string;
+  effect: EffectData;
 }
 
 declare interface LancerDeployableActorData extends ActorData {
@@ -269,7 +274,7 @@ declare interface LancerMechEquipmentData {
   cascading: boolean;
   loaded: boolean;
   tags: TagData[];
-  effect: object[]; // TODO: replace with specific type
+  effect: EffectData[]; // TODO: replace with specific type
   integrated: boolean;
   // TODO: not needed? Used in Comp/Con for some of its mech building logic.
   // talent_item: boolean; 
@@ -322,7 +327,7 @@ declare interface LancerCoreBonusData {
   id: string;
   name: string;
   source: string;
-  effect: string;
+  effect: EffectData;
   mounted_effect: string;
 }
 
@@ -374,7 +379,7 @@ declare interface LancerPilotArmorItemData extends ItemData {
 declare interface LancerPilotWeaponData extends LancerCompendiumItemData, LancerPilotEquipmentData {
   range: RangeData[];
   damage: DamageData[];
-  effect: string;
+  effect: EffectData;
   custom_damage_type: DamageType;
 }
 

@@ -119,6 +119,7 @@
 				<a class="add-button clickable"style="float: right; margin-right: 1em">+</a>
 			</div>
 			{{#each item.data.tags as |tag key|}}
+			{{{chunky-tag tag}}}
 			<div class="flexrow tag" data-key="{{key}}">
 				<div class="tag-label">
 					<i class="med-icon fa fa-3x fa-tag" style="margin: 3px"></i>

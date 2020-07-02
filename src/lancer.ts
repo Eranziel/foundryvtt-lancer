@@ -20,7 +20,7 @@ import { LancerItemSheet } from './module/item/item-sheet';
 // Import helpers
 import { preloadTemplates } from './module/preloadTemplates'
 import { registerSettings } from './module/settings'
-import { renderCompactTag } from './module/item/tags';
+import { renderCompactTag, renderChunkyTag } from './module/item/tags';
 import * as migrations from './module/migration.js';
 
 // Import JSON data
@@ -103,6 +103,7 @@ Hooks.once('init', async function() {
 	});
 
 	Handlebars.registerHelper('compact-tag', renderCompactTag);
+	Handlebars.registerHelper('chunky-tag', renderChunkyTag);
 
 	// mount display mount
 	Handlebars.registerHelper('mount-selector', (mount, key, active=true) => {
