@@ -8,23 +8,23 @@
  */
 
 // Import TypeScript modules
-import { LancerGame } from './module/lancer-game'
-import { LancerActor } from './module/actor/lancer-actor'
-import { LancerItem } from './module/item/lancer-item'
+import { LancerGame } from './module/lancer-game';
+import { LancerActor } from './module/actor/lancer-actor';
+import { LancerItem } from './module/item/lancer-item';
 
 // Import applications
-import { LancerPilotSheet } from './module/actor/pilot-sheet'
+import { LancerPilotSheet } from './module/actor/pilot-sheet';
 import { LancerNPCSheet } from './module/actor/npc-sheet';
 import { LancerItemSheet } from './module/item/item-sheet';
 
 // Import helpers
-import { preloadTemplates } from './module/preloadTemplates'
-import { registerSettings } from './module/settings'
+import { preloadTemplates } from './module/preloadTemplates';
+import { registerSettings } from './module/settings';
 import { renderCompactTag } from './module/item/tags';
 import * as migrations from './module/migration.js';
 
 // Import JSON data
-import data from 'lancer-data'
+import data from 'lancer-data';
 
 /* ------------------------------------ */
 /* Initialize system				          	*/
