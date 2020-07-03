@@ -56,19 +56,21 @@ export function renderChunkyTag(tagShort: TagDataShort): string {
     if (tag.hidden) return template;
 
     // Put the value in the tag string
-    let tagString: string = tag.name
+    let tagString: string = tag.name;
+    let tagDescription: string = tag.description;
     if (tagShort.val) {
       tagString = tagString.replace("{VAL}", String(tagShort.val));
+      tagDescription = tagDescription.replace("{VAL}", String(tagShort.val));
     }
     // Generate the Handlebars partial
     template = `<div class="tag flexrow">
       <div class="tag-label">
-        <i class="mdi mdi-label i--s i--light"></i>
+        <i class="med-icon fa fa-3x fa-tag" style="margin: 3px"></i>
       </div>
       <div class="flexcol">
         <div class="remove-wrapper">
           <span class="major" style="margin: 3px;">${tagString}</span>
-          <span>${tag.description}</span>
+          <span>${tagDescription}</span>
         </div>
       </div>
     </div>`;
