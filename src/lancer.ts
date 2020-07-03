@@ -104,6 +104,7 @@ Hooks.once('init', async function() {
 	});
 
 	Handlebars.registerHelper('compact-tag', renderCompactTag);
+  Handlebars.registerHelper('chunky-tag', renderChunkyTag);
 
 	// mount display mount
 	Handlebars.registerHelper('mount-selector', (mount, key) => {

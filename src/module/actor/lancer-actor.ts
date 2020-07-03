@@ -13,6 +13,7 @@ export class LancerActor extends Actor {
   // TODO: Set up prototype token. Pilots default to friendly, all default to
   //       linked to actor, first bar = mech.hp, second bar = mech.heat.
   // Initialize actor data when first created.
+  // This gets called every time client is refreshed. No good. Go back to _onCreate
   _onCreate(data: any, options: object, userId: string) {
     console.log(`LANCER | actor._onCreate by ${userId}`);
     console.log(data);
