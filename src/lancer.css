@@ -225,6 +225,8 @@ select {
   background-color: #f0f0f0;
 }
 
+.lancer-mech-trait-header,
+.lancer-core-sys-header,
 .lancer-mount-header,
 .lancer-reaction-header,
 .lancer-tech-header,
@@ -237,8 +239,6 @@ select {
   background-color: #991e2a;
   padding-left: 15px;
   padding-right: 15px;
-  display: inline-block;
-  white-space: pre-wrap;
   text-align: center;
   max-height: 2.0em;
   min-height: 2.0em;
@@ -249,6 +249,10 @@ select {
 
 .lancer-mount-container {
   margin: 3px;
+}
+
+.lancer-core-sys-header {
+  grid-template-columns: 40px 1fr 100px;
 }
 
 .lancer-mount-header {
@@ -428,10 +432,10 @@ select {
 }
 
 .lancer-stat-header {
-  text-align: center;
+  align-items: center;
   color: white;
   background-color: #991e2a;
-  max-height: 1.5em;
+  max-height: fit-content;
 }
 
 .lancer-stat-input {
@@ -450,10 +454,12 @@ select {
 
 .desc-text {
   text-align: left;
+  padding: 0.5em;
 }
 
 .effect-text {
   text-align: left;
+  padding: 0.5em;
 }
 
 .skill-compact {
@@ -477,6 +483,42 @@ select {
 .talent-rank-compact {
   display: grid;
   grid-template: 2.5em 1fr / 30px 1fr;
+}
+
+.frame-trait-compact {
+  display: grid;
+  grid-template: 2.0em 1fr / 1fr;
+  margin: 10px;
+}
+
+/* .frame-core {
+  display: grid;
+  grid-template: repeat(3, 1fr) / 1fr;
+} */
+
+code {
+  padding: 4px 12px 4px 12px;
+}
+
+code.horus {
+  font-size: 1.1em;
+  background-color: rgba(0, 0, 0, 0.7) !important;
+  box-shadow: none;
+  color: white;
+  font-style: normal;
+  letter-spacing: 0.05em;
+  border-radius: 0;
+}
+
+code.horus:hover {
+  background-color: black !important;
+  animation: distort 0.6s infinite;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+.horus--subtle {
+  animation: distort-subtle 5s infinite;
 }
 
 .lancer-card .title {
