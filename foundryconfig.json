@@ -2,5 +2,5 @@
   "dataPath": "/path/to/local/foundry/data/",
   "systemName": "lancer",
   "repository": "https://github.com/Eranziel/foundryvtt-lancer",
-  "rawURL": "https://github.com/Eranziel/foundryvtt-lancer/raw"
+  "rawURL": "https://raw.githubusercontent.com/Eranziel/foundryvtt-lancer/"
 }
