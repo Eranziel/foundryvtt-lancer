@@ -1,3 +1,28 @@
+
+.theme--main {
+  color: #991e2a;
+}
+
+.theme--gms {
+  background-color: #991e2a;
+}
+
+.theme--ipsn {
+  background-color: #1662b8;
+}
+
+.theme--ssc {
+  background-color: #d1920a;
+}
+
+.theme--horus {
+  background-color: #00a256;
+}
+
+.theme--ha {
+  background-color: #6e4373;
+}
+
 .add-button {
   width: 20px;
   height: 20px;
@@ -125,14 +150,6 @@ select {
 }
 
 .i--m {
-  font-size: 25px;
-  min-width: 25px;
-  max-width: 25px;
-  min-height: 25px;
-  max-height: 25px;
-}
-
-.i--l {
   font-size: 30px;
   min-width: 30px;
   max-width: 30px;
@@ -140,12 +157,20 @@ select {
   max-height: 30px;
 }
 
-.i--xl {
+.i--l {
   font-size: 40px;
   min-width: 40px;
   max-width: 40px;
   min-height: 40px;
   max-height: 40px;
+}
+
+.i--xl {
+  font-size: 60px;
+  min-width: 60px;
+  max-width: 60px;
+  min-height: 60px;
+  max-height: 60px;
 }
 
 .i--dark {
@@ -252,7 +277,7 @@ select {
 }
 
 .lancer-core-sys-header {
-  grid-template-columns: 40px 1fr 100px;
+  grid-template-columns: 40px 1fr 140px;
 }
 
 .lancer-mount-header {
@@ -367,6 +392,14 @@ select {
   align-items: center;
   padding-left: 5px;
   padding-right: 5px;
+}
+
+.size-icon {
+  font-size: 120px;
+  min-width: 120px;
+  max-width: 120px;
+  min-height: 120px;
+  max-height: 120px;
 }
 
 .pilot-loadout {

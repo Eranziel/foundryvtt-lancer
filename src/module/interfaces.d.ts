@@ -64,6 +64,7 @@ declare interface LancerMechData {
   edef: number;
   sensors: number;
   save: number;
+  tech_attack: number;
 }
 
 declare interface LancerMechLoadoutData {
@@ -124,6 +125,7 @@ declare interface LancerPilotSheetData extends ActorSheetData {
     gear: LancerPilotGear[];
   }
   frame: LancerFrame;
+  frame_size: string;
   // TODO: subdivide into mounts
   mech_loadout: {
     weapons: LancerMechWeapon[];

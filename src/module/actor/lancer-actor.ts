@@ -32,6 +32,7 @@ export class LancerActor extends Actor {
         edef: 0,
         sensors: 0,
         save: 0,
+        tech_attack: 0,
       };
 
       if (!data.data) {
@@ -91,6 +92,7 @@ export class LancerActor extends Actor {
     mech.edef = mech.edef - oldFrame.edef + newFrame.edef;
     mech.sensors = mech.sensors - oldFrame.sensor_range + newFrame.sensor_range;
     mech.save = mech.save - oldFrame.save + newFrame.save;
+    mech.tech_attack = mech.tech_attack - oldFrame.tech_attack + newFrame.tech_attack;
 
     // Update the actor
     data.data.mech = mech;
