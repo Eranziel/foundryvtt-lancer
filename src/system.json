@@ -85,6 +85,30 @@
       "package": "world",
       "path": "packs/weapons.db",
       "entity": "Item"
+    },
+    {
+      "name": "npc_classes",
+      "label": "NPC Classes",
+      "system": "lancer",
+      "package": "world",
+      "path": "packs/npc_classes.db",
+      "entity": "Item"
+    },
+    {
+      "name": "npc_templates",
+      "label": "NPC Templates",
+      "system": "lancer",
+      "package": "world",
+      "path": "packs/npc_templates.db",
+      "entity": "Item"
+    },
+    {
+      "name": "npc_features",
+      "label": "NPC Features",
+      "system": "lancer",
+      "package": "world",
+      "path": "packs/npc_features.db",
+      "entity": "Item"
     }
   ],
   "languages": [],

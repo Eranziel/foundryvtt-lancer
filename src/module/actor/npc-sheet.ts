@@ -1,4 +1,5 @@
-import { LancerNPCSheetData } from '../interfaces';
+import { LancerNPCSheetData, LancerNPCClassStatsData, LancerNPCData } from '../interfaces';
+import { LancerItem, LancerNPCClass, LancerNPCTemplate, LancerNPCFeature } from '../item/lancer-item';
 import { MechType, NPCTier } from '../enums';
 import { LancerActor } from './lancer-actor';
 
@@ -55,8 +56,8 @@ export class LancerNPCSheet extends ActorSheet {
    */
   getData() {
     const data: LancerNPCSheetData = super.getData() as LancerNPCSheetData;
-    
-    
+
+
     // Populate name if blank (new Actor)
     if (data.data.name === "") {
       data.data.name = data.actor.name;
@@ -79,7 +80,10 @@ export class LancerNPCSheet extends ActorSheet {
         accumulator[item.type] = [];
       accumulator[item.type].push(item);
     }
-
+    data.data.npc_templates = accumulator['npc_template'] || [];
+    data.data.npc_features = accumulator['npc_feature'] || [];
+    if (accumulator['npc_class']) data.data.npc_class = accumulator['npc_class'][0];
+    else data.data.npc_class = undefined;
     //TODO Templates, Classes and Features
   }
 
@@ -93,33 +97,109 @@ export class LancerNPCSheet extends ActorSheet {
   activateListeners(html) {
     super.activateListeners(html);
 
-    // Activate tabs
-    let tabs = html.find('.tabs');
-    let initial = this._sheetTab;
-    new Tabs(tabs, {
-      initial: initial,
-      callback: clicked => this._sheetTab = clicked.data("tab")
-    });
-
     // Everything below here is only needed if the sheet is editable
     if (!this.options.editable) return;
 
-    // Update Inventory Item
-    // html.find('.item-edit').click(ev => {
-    //   const li = $(ev.currentTarget).parents(".item");
-    //   const item = this.actor.getOwnedItem(li.data("itemId"));
-    //   item.sheet.render(true);
-    // });
+    if (this.actor.owner) {
+      // Item Dragging
+      let handler = ev => this._onDragStart(ev);
+      html.find('li[class*="item"]').add('span[class*="item"]').each((i, item) => {
+        if (item.classList.contains("inventory-header")) return;
+        item.setAttribute("draggable", true);
+        // TODO: I think handler needs to be item.*something*._onDragStart(ev).
+        item.addEventListener("dragstart", handler, false);
+      });
 
-    //   // Delete Inventory Item
-    //   html.find('.item-delete').click(ev => {
-    //     const li = $(ev.currentTarget).parents(".item");
-    //     this.actor.deleteOwnedItem(li.data("itemId"));
-    //     li.slideUp(200, () => this.render(false));
-    //   });
+      // Update Inventory Item
+      let items = html.find('.item');
+      items.click(ev => {
+        console.log(ev)
+        const li = $(ev.currentTarget);
+        //TODO: Check if in mount and update mount
+        const item = this.actor.getOwnedItem(li.data("itemId"));
+        if (item) {
+          item.sheet.render(true);
+        }
+      });
 
-    //   // Add or Remove Attribute
-    //   html.find(".attributes").on("click", ".attribute-control", this._onClickAttributeControl.bind(this));
+      // Delete Item on Right Click
+      items.contextmenu(ev => {
+        console.log(ev);
+        const li = $(ev.currentTarget);
+        this.actor.deleteOwnedItem(li.data("itemId"));
+        li.slideUp(200, () => this.render(false));
+      });
+
+      // Delete Item when trash can is clicked
+      items = html.find('.stats-control[data-action*="delete"]');
+      items.click(ev => {
+        ev.stopPropagation();  // Avoids triggering parent event handlers
+        console.log(ev);
+        const li = $(ev.currentTarget).closest('.item');
+        this.actor.deleteOwnedItem(li.data("itemId"));
+        li.slideUp(200, () => this.render(false));
+      });
+    }
+  }
+
+  async _onDrop(event) {
+    event.preventDefault();
+    // Get dropped data
+    let data;
+    try {
+      data = JSON.parse(event.dataTransfer.getData('text/plain'));
+      if (data.type !== "Item") return;
+    } catch (err) {
+      return false;
+    }
+    console.log(event);
+
+    let item: Item;
+    const actor = this.actor as LancerActor;
+    // NOTE: these cases are copied almost verbatim from ActorSheet._onDrop
+    // Case 1 - Item is from a Compendium pack
+    if (data.pack) {
+      item = (await game.packs.get(data.pack).getEntity(data.id)) as Item;
+    }
+    // Case 2 - Item is a World entity
+    else if (!data.data) {
+      item = game.items.get(data.id);
+      if (!item) return;
+    }
+
+    if (actor.owner) {
+      // Swap mech class
+      if (item && item.type === "npc_class") {
+        let newNPCClassStats: LancerNPCClassStatsData;
+        let oldNPCClassStats: LancerNPCClassStatsData;
+        // Remove old class
+        actor.items.forEach(async (i: LancerItem) => {
+          if (i.type === "npc_class") {
+            oldNPCClassStats = duplicate((i as LancerNPCClass).data.data.stats);
+            await this.actor.deleteOwnedItem(i._id);
+          }
+        });
+        // Add the new class from Compendium pack
+        if (data.pack) {
+          const npcClass = await actor.importItemFromCollection(data.pack, data.id) as any;
+          console.log(npcClass);
+          newNPCClassStats = npcClass.data.stats;
+        }
+        // Add the new Class from a World entity
+        else {
+          await actor.createEmbeddedEntity("OwnedItem", duplicate(item.data));
+          newNPCClassStats = (actor.items.find((i: Item) => i.type === "npc_class") as any).data.stats;
+        }
+        if (newNPCClassStats) {
+          actor.swapNPCClass(newNPCClassStats, oldNPCClassStats);
+        }
+      }
+      //TODO add basic features to NPC
+      //TODO remove basic feature from NPC on Class swap
+      //TODO implement similar logi for Templates
+
+      return super._onDrop(event);
+    }
   }
 
   /* -------------------------------------------- */
@@ -156,29 +236,21 @@ export class LancerNPCSheet extends ActorSheet {
    * This defines how to update the subject of the form when the form is submitted
    * @private
    */
-  _updateObject(event, formData) {
+  _updateObject(event: Event | JQuery.Event, formData: any): Promise<any> {
+    console.log(formData);
+    // Use the Actor's name for the pilot's callsign
+    formData.name = formData["data.npc.name"];
 
-    // TODO: "attributes" aren't used anymore.
-    // Handle the free-form attributes list
-    // const formAttrs = formData.data.attributes || {};
-    // const attributes = Object.values(formAttrs).reduce((obj, v) => {
-    //   let k = v["key"].trim();
-    //   if ( /[\s\.]/.test(k) )  return ui.notifications.error("Attribute keys may not contain spaces or periods");
-    //   delete v["key"];
-    //   obj[k] = v;
-    //   return obj;
-    // }, {});
-
-    // // Remove attributes which are no longer used
-    // for ( let k of Object.keys(this.object.data.data.attributes) ) {
-    //   if ( !attributes.hasOwnProperty(k) ) attributes[`-=${k}`] = null;
-    // }
-
-    // // Re-combine formData
-    // formData = Object.entries(formData).filter(e => !e[0].startsWith("data.attributes")).reduce((obj, e) => {
-    //   obj[e[0]] = e[1];
-    //   return obj;
-    // }, {_id: this.object._id, "data.attributes": attributes});
+    let token: any = this.actor.token;
+    // Set the prototype token image if the prototype token isn't initialized
+    if (!this.actor.token) {
+      this.actor.update({"token.img": formData.img})
+    }
+    // Update token image if it matches the old actor image
+    else if ((this.actor.img == token.img)
+        && (this.actor.img != formData.img)) {
+      this.actor.update({"token.img": formData.img});
+    }
 
     // Update the Actor
     return this.object.update(formData);
