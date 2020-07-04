@@ -310,76 +310,145 @@
 
 		{{!-- Mech Tab --}}
 		<div class="tab mech" data-group="primary" data-tab="mech">
-			<div class="flexcol card clipped" style="grid-area: 1/1/2/2">
-				<span class="lancer-stat-header major clipped-top">NAME</span>
-				<input class="lancer-text-input major" type="string" name="data.mech.name" value="{{data.mech.name}}" data-dtype="String"/>
+			<div class="flexrow" style="grid-area: 1/1/2/2">
+					<span class="lancer-title major clipped-bot" style="padding 1em 1em 2em 1em; float: left;">
+					{{#if frame}}
+						{{frame.data.source}} {{frame.data.name}}
+					{{else}}
+						NO FRAME FOUND // AWAITING YOUR SELECTION, PILOT
+					{{/if}}
+					</span>
+				<input class="lancer-text-input major" style="float: right;" type="string" name="data.mech.name" value="{{data.mech.name}}" data-dtype="String"/>
+			</div>
+			<div class="card clipped mech-stats" style="display: grid; grid-template: 2 / 5;">
+				<div class="flexcol card clipped" style="grid-area: 1/1/2/2">
+					<div class="lancer-stat-header clipped-top flexrow">
+						<i class="cci cci-structure i--m i--light" style="float: left; padding-left: 10px"> </i>
+						<span class="major">STRUCT</span>
+					</div>
+					<div class="flexrow" style="align-self: center;">
+						<input class="lancer-stat-input major" type="number" name="data.mech.structure.value" value="{{data.mech.structure.value}}" data-dtype="Number"/>
+						<span class="medium" style="max-width: min-content;" >/</span>
+						<input class="lancer-stat-input major" type="number" name="data.mech.structure.max" value="{{data.mech.structure.max}}" data-dtype="Number"/>
+					</div>
+				</div>
+				<div class="flexcol card clipped" style="grid-area: 1/2/2/3">
+					<div class="lancer-stat-header clipped-top flexrow">
+						<i class="mdi mdi-heart-outline i--m i--light" style="float: left; padding-left: 10px"> </i>
+						<span class="major">HP</span>
+					</div>
+					<div class="flexrow" style="align-self: center;">
+						<input class="lancer-stat-input major" type="number" name="data.mech.hp.value" value="{{data.mech.hp.value}}" data-dtype="Number"/>
+						<span class="medium" style="max-width: min-content;" >/</span>
+						<input class="lancer-stat-input major" type="number" name="data.mech.hp.max" value="{{data.mech.hp.max}}" data-dtype="Number"/>
+					</div>
+				</div>
+				<div class="flexcol card clipped" style="grid-area: 1/3/2/4">
+					<div class="lancer-stat-header clipped-top flexrow">
+						<i class="cci cci-reactor i--m i--light" style="float: left; padding-left: 10px"> </i>
+						<span class="major">STRESS</span>
+					</div>
+					<div class="flexrow" style="align-self: center;">
+						<input class="lancer-stat-input major" type="number" name="data.mech.stress.value" value="{{data.mech.stress.value}}" data-dtype="Number"/>
+						<span class="medium" style="max-width: min-content;">/</span>
+						<input class="lancer-stat-input major" type="number" name="data.mech.stress.max" value="{{data.mech.stress.max}}" data-dtype="Number"/>
+					</div>
+				</div>
+				<div class="flexcol card clipped" style="grid-area: 1/4/2/5">
+					<div class="lancer-stat-header clipped-top flexrow">
+						<i class="cci cci-heat i--m i--light" style="float: left; padding-left: 10px"> </i>
+						<span class="major">HEAT</span>
+					</div>
+					<div class="flexrow" style="align-self: center;">
+						<input class="lancer-stat-input major" type="number" name="data.mech.heat.value" value="{{data.mech.heat.value}}" data-dtype="Number"/>
+						<span class="medium" style="max-width: min-content;">/</span>
+						<input class="lancer-stat-input major" type="number" name="data.mech.heat.max" value="{{data.mech.heat.max}}" data-dtype="Number"/>
+					</div>
+				</div>
+				<div class="flexcol card clipped" style="grid-area: 1/5/2/6">
+					<div class="lancer-stat-header clipped-top flexrow">
+						<i class="cci cci-save i--m i--light" style="float: left; padding-left: 10px"> </i>
+						<span class="major">SAVE TARG</span>
+					</div>
+					<input class="lancer-stat-input medium" type="number" name="data.mech.save" value="{{data.mech.save}}" data-dtype="Number"/>
+				</div>
+				<div class="flexcol card clipped" style="grid-area: 2/1/3/2">
+					<div class="lancer-stat-header clipped-top flexrow">
+						<i class="mdi mdi-shield-outline i--m i--light" style="float: left; padding-left: 10px"> </i>
+						<span class="major">ARMOR</span>
+					</div>
+					<input class="lancer-stat-input medium" type="number" name="data.mech.armor" value="{{data.mech.armor}}" data-dtype="Number"/>
+				</div>
+				<div class="flexcol card clipped" style="grid-area: 2/2/3/3">
+					<div class="lancer-stat-header clipped-top flexrow">
+						<i class="cci cci-evasion i--m i--light" style="float: left; padding-left: 10px"> </i>
+						<span class="major">EVASION</span>
+					</div>
+					<input class="lancer-stat-input medium" type="number" name="data.mech.evasion" value="{{data.mech.evasion}}" data-dtype="Number"/>
+				</div>
+				<div class="flexcol card clipped" style="grid-area: 2/3/3/4">
+					<div class="lancer-stat-header clipped-top flexrow">
+						<i class="cci cci-edef i--m i--light" style="float: left; padding-left: 10px"> </i>
+						<span class="major">E-DEF</span>
+					</div>
+					<input class="lancer-stat-input medium" type="number" name="data.mech.edef" value="{{data.mech.edef}}" data-dtype="Number"/>
+				</div>
+				<div class="flexcol card clipped" style="grid-area: 2/4/3/5">
+					<div class="lancer-stat-header clipped-top flexrow">
+						<i class="mdi mdi-arrow-right-bold-hexagon-outline i--m i--light" style="float: left; padding-left: 10px"> </i>
+						<span class="major">SPEED</span>
+					</div>
+					<input class="lancer-stat-input medium" type="number" name="data.mech.speed" value="{{data.mech.speed}}" data-dtype="Number"/>
+				</div>
+				<div class="flexcol card clipped" style="grid-area: 2/5/3/6">
+					<div class="lancer-stat-header clipped-top flexrow">
+						<i class="cci cci-sensor i--m i--light" style="float: left; padding-left: 10px"> </i>
+						<span class="major">SENSORS</span>
+					</div>
+					<input class="lancer-stat-input medium" type="number" name="data.mech.sensors" value="{{data.mech.sensors}}" data-dtype="Number"/>
+				</div>
 			</div>
 			{{#if frame}}
-				<span class="lancer-stat-header major clipped-bot">{{frame.data.source}} {{frame.data.name}}</span>
+				<ul>
+				{{#each frame.data.traits as |trait key|}}
+					<li class="card clipped frame-trait-compact">
+						<div class="lancer-mech-trait-header medium clipped-top" style="grid-area: 1/1/2/2">
+							<i class="cci cci-trait i--m i--light"> </i>
+							<span class="major">{{trait.name}}</span>
+						</div>
+						<div class="effect-text" style="grid-area: 2/1/3/2">{{trait.description}}</div>
+					</li>
+				{{/each}}
+				</ul>
+				<div class="card clipped frame-core flexcol">
+					<div class="lancer-core-sys-header medium clipped-top">
+						<i></i>
+						<div class="major">{{frame.data.core_system.name}}</div>
+						<div class="medium i--faded" style="justify-self: right;"> // CORE SYSTEM</div>
+					</div>
+					{{#if frame.data.core_system.description}}
+						<div class="desc-text">{{{frame.data.core_system.description}}}</div>
+					{{/if}}
+					{{#if frame.data.core_system.passive_name}}
+						<div class="card clipped">
+							<div class="lancer-core-sys-header medium clipped-top">
+								<i class="mdi mdi-circle-expand i--m i--light"> </i>
+								<div class="medium">{{frame.data.core_system.passive_name}}</div>
+								<div class="medium i--faded" style="justify-self: right;"> // PASSIVE</div>
+							</div>
+							<div class="effect-text">{{{frame.data.core_system.passive_effect}}}</div>
+						</div>
+					{{/if}}
+					<div class="card clipped">
+						<div class="lancer-core-sys-header medium clipped-top">
+							<i class="cci cci-corebonus i--m i--light"> </i>
+							<div class="medium">{{frame.data.core_system.active_name}}</div>
+							<div class="i--faded" style="justify-self: right;"> // ACTIVE</div>
+						</div>
+						<div class="effect-text">{{{frame.data.core_system.active_effect}}}</div>
+					</div>
+				</div>
 			{{/if}}
-			<div class="card clipped">
-				<div class="flexrow">
-					<div class="flexcol card clipped">
-						<span class="lancer-stat-header major clipped-top">STRUCTURE</span>
-						<div class="flexrow" style="align-self: center;">
-							<input class="lancer-stat-input major" type="number" name="data.mech.structure.value" value="{{data.mech.structure.value}}" data-dtype="Number"/>
-							<span class="medium" style="max-width: min-content;" >/</span>
-							<input class="lancer-stat-input major" type="number" name="data.mech.structure.max" value="{{data.mech.structure.max}}" data-dtype="Number"/>
-						</div>
-					</div>
-					<div class="flexcol card clipped">
-						<span class="lancer-stat-header major clipped-top">HP</span>
-						<div class="flexrow" style="align-self: center;">
-							<input class="lancer-stat-input major" type="number" name="data.mech.hp.value" value="{{data.mech.hp.value}}" data-dtype="Number"/>
-							<span class="medium" style="max-width: min-content;" >/</span>
-							<input class="lancer-stat-input major" type="number" name="data.mech.hp.max" value="{{data.mech.hp.max}}" data-dtype="Number"/>
-						</div>
-					</div>
-					<div class="flexcol card clipped">
-						<span class="lancer-stat-header major clipped-top">STRESS</span>
-						<div class="flexrow" style="align-self: center;">
-							<input class="lancer-stat-input major" type="number" name="data.mech.stress.value" value="{{data.mech.stress.value}}" data-dtype="Number"/>
-							<span class="medium" style="max-width: min-content;">/</span>
-							<input class="lancer-stat-input major" type="number" name="data.mech.stress.max" value="{{data.mech.stress.max}}" data-dtype="Number"/>
-						</div>
-					</div>
-					<div class="flexcol card clipped">
-						<span class="lancer-stat-header major clipped-top">HEAT</span>
-						<div class="flexrow" style="align-self: center;">
-							<input class="lancer-stat-input major" type="number" name="data.mech.heat.value" value="{{data.mech.heat.value}}" data-dtype="Number"/>
-							<span class="medium" style="max-width: min-content;">/</span>
-							<input class="lancer-stat-input major" type="number" name="data.mech.heat.max" value="{{data.mech.heat.max}}" data-dtype="Number"/>
-						</div>
-					</div>
-				</div>
-				</p>
-				<div class="flexrow">
-					<div class="flexcol card clipped">
-						<span class="lancer-stat-header major clipped-top">ARMOR</span>
-						<input class="lancer-stat-input medium" type="number" name="data.mech.armor" value="{{data.mech.armor}}" data-dtype="Number"/>
-					</div>
-					<div class="flexcol card clipped">
-						<span class="lancer-stat-header major clipped-top">EVASION</span>
-						<input class="lancer-stat-input medium" type="number" name="data.mech.evasion" value="{{data.mech.evasion}}" data-dtype="Number"/>
-					</div>
-					<div class="flexcol card clipped">
-						<span class="lancer-stat-header major clipped-top">E-DEFENSE</span>
-						<input class="lancer-stat-input medium" type="number" name="data.mech.edef" value="{{data.mech.edef}}" data-dtype="Number"/>
-					</div>
-					<div class="flexcol card clipped">
-						<span class="lancer-stat-header major clipped-top">SPEED</span>
-						<input class="lancer-stat-input medium" type="number" name="data.mech.speed" value="{{data.mech.speed}}" data-dtype="Number"/>
-					</div>
-					<div class="flexcol card clipped">
-						<span class="lancer-stat-header major clipped-top">SENSORS</span>
-						<input class="lancer-stat-input medium" type="number" name="data.mech.sensors" value="{{data.mech.sensors}}" data-dtype="Number"/>
-					</div>
-					<div class="flexcol card clipped">
-						<span class="lancer-stat-header major clipped-top">SAVE TARGET</span>
-						<input class="lancer-stat-input medium" type="number" name="data.mech.save" value="{{data.mech.save}}" data-dtype="Number"/>
-					</div>
-				</div>
-			</div>
 			<div class="card clipped">
         <h2 class="lancer-title clipped">MOUNTS<a class="add-button" data-action="create" style="float: right; margin-right: 1em; padding-bottom: 1em;">+</a></h2>
         <div class="flexrow">

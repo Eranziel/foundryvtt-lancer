@@ -7,6 +7,45 @@ import { LancerPilotActorData, LancerNPCActorData, LancerDeployableActorData, La
 export class LancerActor extends Actor {
   data: LancerPilotActorData | LancerNPCActorData | LancerDeployableActorData;
 
+  // This gets called every time client is refreshed. No good. Go back to _onCreate
+  _onCreate(data: any, options: object, userId: string) {
+    console.log(`LANCER | actor._onCreate by ${userId}`);
+    console.log(data);
+    console.log(options);
+    if (data.type === "pilot") {
+      console.log("LANCER | pilot._onCreate");
+      const mech = {
+        name: "",
+        size: 1,
+        hull: 0,
+        agility: 0,
+        systems: 0,
+        engingeering: 0,
+        hp: {min: 0, max: 0, value: 0},
+        structure: {min: 0, max: 4, value: 4},
+        heat: {min: 0, max: 0, value: 0},
+        stress: {min: 0, max: 4, value: 4},
+        repairs: {min: 0, max: 0, value: 0},
+        armor: 0,
+        speed: 0,
+        evasion: 0,
+        edef: 0,
+        sensors: 0,
+        save: 0,
+      };
+
+      if (!data.data) {
+        data.data = {
+          mech: mech,
+        };
+      }
+      else {
+        data.data.mech = mech;
+      }
+    }
+    super._onCreate(data, options, userId, {});
+  }
+
   /**
    * Change mech frames for a pilot. Recalculates all mech-related stats on the pilot.
    * @param newFrame Stats object from the new mech frame.
