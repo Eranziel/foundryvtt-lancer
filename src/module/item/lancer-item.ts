@@ -1,24 +1,24 @@
 
-import {  LancerSkillItemData, 
-          LancerTalentItemData,
-          LancerCoreBonusItemData,
-          LancerLicenseItemData,
-          LancerPilotArmorItemData,
-          LancerPilotWeaponItemData,
-          LancerPilotGearItemData, 
-          LancerFrameItemData,
-          LancerMechSystemItemData,
-          LancerMechWeaponItemData,
-          LancerNPCFeatureItemData,
-          LancerNPCTemplateItemData,
-          LancerNPCClassItemData} from '../interfaces'
+import {  LancerSkillData, 
+          LancerTalentData,
+          LancerCoreBonusData,
+          LancerLicenseData,
+          LancerPilotArmorData,
+          LancerPilotWeaponData,
+          LancerPilotGearData, 
+          LancerFrameData,
+          LancerMechSystemData,
+          LancerMechWeaponData,
+          LancerNPCFeatureData,
+          LancerNPCTemplateData,
+          LancerNPCClassData} from '../interfaces'
 
 export class LancerItem extends Item {
-  data: LancerSkillItemData | LancerTalentItemData | LancerCoreBonusItemData |
-        LancerLicenseItemData | LancerPilotArmorItemData | LancerPilotWeaponItemData |
-        LancerPilotGearItemData | LancerFrameItemData | LancerMechSystemItemData |
-        LancerMechWeaponItemData| LancerNPCFeatureItemData | LancerNPCTemplateItemData |
-        LancerNPCClassItemData;
+  data: LancerSkillData | LancerTalentData | LancerCoreBonusData |
+        LancerLicenseData | LancerPilotArmorData | LancerPilotWeaponData |
+        LancerPilotGearData | LancerFrameData | LancerMechSystemData |
+        LancerMechWeaponData| LancerNPCFeatureData | LancerNPCTemplateData |
+        LancerNPCClassData;
 
   /**
    * Return a skill trigger's bonus to rolls
@@ -26,58 +26,58 @@ export class LancerItem extends Item {
   get triggerBonus(): number {
     // Only works for skills.
     if (this.data.type !== "skill") return 0;
-    return (this.data as LancerSkillItemData).data.rank * 2;
+    return (this.data as LancerSkillData).data.rank * 2;
   }
 }
 
 export class LancerSkill extends LancerItem {
-  data: LancerSkillItemData;
+  data: LancerSkillData;
 }
 
 export class LancerTalent extends LancerItem {
-  data: LancerTalentItemData;
+  data: LancerTalentData;
 }
 
 export class LancerCoreBonus extends LancerItem {
-  data: LancerCoreBonusItemData;
+  data: LancerCoreBonusData;
 }
 
 export class LancerLicense extends LancerItem {
-  data: LancerLicenseItemData;
+  data: LancerLicenseData;
 }
 
 export class LancerPilotArmor extends LancerItem {
-  data: LancerPilotArmorItemData;
+  data: LancerPilotArmorData;
 }
 
 export class LancerPilotWeapon extends LancerItem {
-  data: LancerPilotWeaponItemData;
+  data: LancerPilotWeaponData;
 }
 
 export class LancerPilotGear extends LancerItem {
-  data: LancerPilotGearItemData;
+  data: LancerPilotGearData;
 }
 
 export class LancerFrame extends LancerItem {
-  data: LancerFrameItemData;
+  data: LancerFrameData;
 }
 
 export class LancerMechSystem extends LancerItem {
-  data: LancerMechSystemItemData;
+  data: LancerMechSystemData;
 }
 
 export class LancerMechWeapon extends LancerItem {
-  data: LancerMechWeaponItemData;
+  data: LancerMechWeaponData;
 }
 
 export class LancerNPCFeature extends LancerItem {
-  data: LancerNPCFeatureItemData;
+  data: LancerNPCFeatureData;
 }
 
 export class LancerNPCTemplate extends LancerItem{
-  data: LancerNPCTemplateItemData;
+  data: LancerNPCTemplateData;
 }
 
 export class LancerNPCClass extends LancerItem{
-  data: LancerNPCClassItemData;
+  data: LancerNPCClassData;
 }
