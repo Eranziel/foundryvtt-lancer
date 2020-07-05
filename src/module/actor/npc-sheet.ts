@@ -14,11 +14,6 @@ export class LancerNPCSheet extends ActorSheet {
   constructor(...args) {
     super(...args);
 
-    /**
-     * Keep track of the currently active sheet tab
-     * @type {string}
-     */
-    this._sheetTab = "dossier";
   }
 
   /**
@@ -43,7 +38,7 @@ export class LancerNPCSheet extends ActorSheet {
       tabs: [{
         navSelector: ".lancer-tabs",
         contentSelector: ".sheet-body",
-        initial: "dossier"
+        initial: "mech"
       }]
     });
   }
@@ -54,9 +49,10 @@ export class LancerNPCSheet extends ActorSheet {
    * Prepare data for rendering the Actor sheet
    * The prepared data object contains both the actor data as well as additional sheet options
    */
-  getData() {
+  getData() :LancerNPCSheetData {
     const data: LancerNPCSheetData = super.getData() as LancerNPCSheetData;
 
+    this._prepareItems(data);
 
     // Populate name if blank (new Actor)
     if (data.data.name === "") {
@@ -80,10 +76,10 @@ export class LancerNPCSheet extends ActorSheet {
         accumulator[item.type] = [];
       accumulator[item.type].push(item);
     }
-    data.data.npc_templates = accumulator['npc_template'] || [];
-    data.data.npc_features = accumulator['npc_feature'] || [];
-    if (accumulator['npc_class']) data.data.npc_class = accumulator['npc_class'][0];
-    else data.data.npc_class = undefined;
+    data.npc_templates = accumulator['npc_template'] || [];
+    data.npc_features = accumulator['npc_feature'] || [];
+    if (accumulator['npc_class']) data.npc_class = accumulator['npc_class'][0];
+    else data.npc_class = undefined;
     //TODO Templates, Classes and Features
   }
 

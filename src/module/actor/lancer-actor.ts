@@ -12,7 +12,7 @@ export class LancerActor extends Actor {
     console.log(`LANCER | actor._onCreate by ${userId}`);
     console.log(data);
     console.log(options);
-    if (data.type === "pilot") {
+    if (data.type === "pilot" || data.type === "npc") {
       console.log("LANCER | pilot._onCreate");
       const mech = {
         name: "",
@@ -137,10 +137,6 @@ export class LancerActor extends Actor {
     mech.engineering = Math.max(mech.engineering - oldNPCClass.engineering[0] + newNPCClass.engineering[0], 0);
 
     // Resources
-    mech.stress.max = mech.stress.max - oldNPCClass.stress[0] + newNPCClass.stress[0];
-    mech.stress.value = Math.min(mech.stress.value, mech.stress.max);
-    mech.structure.max = mech.structure.max - oldNPCClass.structure[0] + newNPCClass.structure[0];
-    mech.structure.value = Math.min(mech.structure.value, mech.structure.max);
     mech.hp.max = mech.hp.max - oldNPCClass.hp[0] + newNPCClass.hp[0];
     mech.hp.value = Math.min(mech.hp.value, mech.hp.max);
     mech.heat.max = mech.heat.max - oldNPCClass.heatcap[0] + newNPCClass.heatcap[0];

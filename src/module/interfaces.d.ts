@@ -147,9 +147,6 @@ declare interface LancerNPCData {
   name: string;
   tier: NPCTier;
   tag: NPCTag;
-  npc_templates: LancerNPCTemplateData[];
-  npc_class: LancerNPCClassData;
-  npc_features: LancerNPCFeature[];
   activations: number;
 }
 
@@ -160,6 +157,9 @@ declare interface LancerNPCActorData extends ActorData {
 declare interface LancerNPCSheetData extends ActorSheetData {
   actor: LancerNPCActorData;
   data: LancerNPCData;
+  npc_class: LancerNPCClassData;
+  npc_templates: LancerNPCTemplateData[];
+  npc_features: LancerNPCFeature[];
 }
 
 // ------- Deployable data --------------------------------------

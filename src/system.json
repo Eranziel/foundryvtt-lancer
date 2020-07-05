@@ -87,11 +87,11 @@
       "entity": "Item"
     },
     {
-      "name": "npc_classes",
-      "label": "NPC Classes",
+      "name": "npc_class",
+      "label": "NPC Class",
       "system": "lancer",
       "package": "world",
-      "path": "packs/npc_classes.db",
+      "path": "packs/npc_class.db",
       "entity": "Item"
     },
     {
