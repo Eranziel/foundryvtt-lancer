@@ -1,5 +1,5 @@
 
-import { LancerSkill, LancerTalent, LancerCoreBonus, LancerLicense, LancerFrame, LancerPilotArmor, LancerPilotWeapon, LancerPilotGear, LancerMechWeapon, LancerMechSystem, LancerNPCFeature } from './item/lancer-item';
+import { LancerSkill, LancerTalent, LancerCoreBonus, LancerLicense, LancerFrame, LancerPilotArmor, LancerPilotWeapon, LancerPilotGear, LancerMechWeapon, LancerMechSystem, LancerNPCFeature, LancerNPCClass, LancerNPCTemplates} from './item/lancer-item';
 import { DamageType, RangeType, WeaponSize, WeaponType, SystemType, MechType, ItemType, PilotEquipType, NPCTier, NPCTag} from './enums';
 
 // ------------------------------------------------------
@@ -157,9 +157,10 @@ declare interface LancerNPCActorData extends ActorData {
 declare interface LancerNPCSheetData extends ActorSheetData {
   actor: LancerNPCActorData;
   data: LancerNPCData;
-  npc_class: LancerNPCClassData;
+  npc_class: LancerNPCClass;
   npc_templates: LancerNPCTemplateData[];
   npc_features: LancerNPCFeature[];
+  npc_size: string;
 }
 
 // ------- Deployable data --------------------------------------
