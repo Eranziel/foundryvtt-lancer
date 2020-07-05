@@ -40,7 +40,8 @@
           "evasion": 8,
           "edef": 8,
           "sensors": 10,
-          "save": 10
+          "save": 10,
+          "tech_attack": 0
         }
       },
       "mech_loadout": {

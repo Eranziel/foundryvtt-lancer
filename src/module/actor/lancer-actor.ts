@@ -32,6 +32,7 @@ export class LancerActor extends Actor {
         edef: 0,
         sensors: 0,
         save: 0,
+        tech_attack: 0,
       };
 
       if (!data.data) {
