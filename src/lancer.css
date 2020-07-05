@@ -353,6 +353,24 @@ select {
   font-size: 12px;
 }
 
+.npc-header {
+  display: grid;
+  grid-template: 1.5fr 1fr 30px / 1fr 1fr 1.5fr 1fr 120px;
+  background-color: #991e2a;
+  margin: 10px;
+  color: white;
+}
+
+.npc-header-details {
+  font-size: 14px;
+  padding: 10px;
+}
+
+.npc-img {
+  grid-area: 1/5/4/6;
+  margin: 10px;
+}
+
 .pilot-header {
   display: grid;
   grid-template: 1.5fr 1fr 30px / 1fr 1fr 1.5fr 1fr 120px;

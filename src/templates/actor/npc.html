@@ -1,0 +1,211 @@
+<form class="{{cssClass}} lancer-sheet" autocomplete="off">
+
+    {{!-- Sheet Header --}}
+    <header class="npc-header">
+        <div class="flexcol npc-header-details" style="grid-area: 1/1/2/3">
+            NAME
+            <span class="major">{{data.name}}</span>
+        </div>
+        <div class="flexcol npc-header-details" style="grid-area: 1/4/3/4">
+            TIER
+            <span class="major" style="padding-left: 10px; font-size:40px">{{data.tier}}</span>
+        </div>
+        <div class="flexcol npc-header-details" style="grid-area: 2/1/3/2">
+            CLASS
+            <span class="major">{{npc_class.name}}</span>
+        </div>
+        <div class="flexcol npc-header-details" style="grid-area: 2/3/3/3">
+            TAG
+            <span class="medium">{{data.tag}}</span>
+        </div>
+        <img class="npc-img" src="{{actor.img}}" data-edit="img" title="{{actor.name}}" height="100" width="100" />
+    </header>
+
+    {{!-- Sheet Tab Navigation --}}
+    <nav class="lancer-tabs" data-group="primary">
+        <a class="item lancer-tab medium" data-tab="mech">&lt;NPC//LOADOUT&gt;</a>
+    </nav>
+
+    {{!-- Sheet Body --}}
+    <section class="sheet-body" style="height:-webkit-fill-available">
+
+        {{!-- Loadout Tab --}}
+        <div class="tab mech active" data-group="primary" data-tab="mech">
+            <div class="flexrow">
+                <div class="flexcol card clipped">
+                    <span class="lancer-stat-header major clipped-top">NAME</span>
+                    <input class="lancer-text-input major" type="string" name="data.name" value="{{data.name}}"
+                        data-dtype="String" />
+                </div>
+                <div class="flexcol card clipped">
+                    <span class="lancer-stat-header major clipped-top">TAG</span>
+                    <input class="lancer-text-input major" type="string" name="data.tag" value="{{data.tag}}"
+                        data-dtype="String" />
+                </div>
+                <div class="flexcol card clipped">
+
+                    <span class="lancer-stat-header major clipped-top">					
+                    {{#if npc_class}}
+						{{npc_class.name}}
+					{{else}}
+						NO CLASS FOUND
+					{{/if}}</span>
+                </div>
+
+                {{!-- Tier --}}
+
+            </div>
+
+            <div class="flexrow">
+				<div class="flexrow">
+					<div class="flexcol card clipped">
+						<span class="lancer-stat-header major clipped-top">HULL</span>
+						<input class="lancer-stat-input major" type="number" name="data.mech.hull" value="{{data.mech.hull}}" data-dtype="Number"/>
+					</div>
+					<div class="flexcol card clipped">
+						<span class="lancer-stat-header major clipped-top">AGILITY</span>
+						<input class="lancer-stat-input major" type="number" name="data.mech.agility" value="{{data.mech.agility}}" data-dtype="Number"/>
+					</div>
+					<div class="flexcol card clipped">
+						<span class="lancer-stat-header major clipped-top">SYSTEMS</span>
+						<input class="lancer-stat-input major" type="number" name="data.mech.systems" value="{{data.mech.systems}}" data-dtype="Number"/>
+					</div>
+					<div class="flexcol card clipped">
+						<span class="lancer-stat-header major clipped-top">ENGINEERING</span>
+						<input class="lancer-stat-input major" type="number" name="data.mech.engineering" value="{{data.mech.engineering}}" data-dtype="Number"/>
+					</div>
+				</div>
+            </div>
+            <div class="card clipped">
+                <div class="flexrow">
+                    <div class="flexcol card clipped">
+                        <span class="lancer-stat-header major clipped-top">STRUCTURE</span>
+                        <div class="flexrow" style="align-self: center;">
+                            <input class="lancer-stat-input major" type="number" name="data.mech.structure.value"
+                                value="{{data.mech.structure.value}}" data-dtype="Number" />
+                            <span class="medium" style="max-width: min-content;">/</span>
+                            <input class="lancer-stat-input major" type="number" name="data.mech.structure.max"
+                                value="{{data.mech.structure.max}}" data-dtype="Number" />
+                        </div>
+                    </div>
+                    <div class="flexcol card clipped">
+                        <span class="lancer-stat-header major clipped-top">ARMOR</span>
+                        <input class="lancer-stat-input medium" type="number" name="data.mech.armor"
+                            value="{{data.mech.armor}}" data-dtype="Number" />
+                    </div>
+                    <div class="flexcol card clipped">
+                        <span class="lancer-stat-header major clipped-top">HP</span>
+                        <div class="flexrow" style="align-self: center;">
+                            <input class="lancer-stat-input major" type="number" name="data.mech.hp.value"
+                                value="{{data.mech.hp.value}}" data-dtype="Number" />
+                            <span class="medium" style="max-width: min-content;">/</span>
+                            <input class="lancer-stat-input major" type="number" name="data.mech.hp.max"
+                                value="{{data.mech.hp.max}}" data-dtype="Number" />
+                        </div>
+                    </div>
+                    <div class="flexcol card clipped">
+                        <span class="lancer-stat-header major clipped-top">STRESS</span>
+                        <div class="flexrow" style="align-self: center;">
+                            <input class="lancer-stat-input major" type="number" name="data.mech.stress.value"
+                                value="{{data.mech.stress.value}}" data-dtype="Number" />
+                            <span class="medium" style="max-width: min-content;">/</span>
+                            <input class="lancer-stat-input major" type="number" name="data.mech.stress.max"
+                                value="{{data.mech.stress.max}}" data-dtype="Number" />
+                        </div>
+                    </div>
+                    <div class="flexcol card clipped">
+                        <span class="lancer-stat-header major clipped-top">HEAT</span>
+                        <div class="flexrow" style="align-self: center;">
+                            <input class="lancer-stat-input major" type="number" name="data.mech.heat.value"
+                                value="{{data.mech.heat.value}}" data-dtype="Number" />
+                            <span class="medium" style="max-width: min-content;">/</span>
+                            <input class="lancer-stat-input major" type="number" name="data.mech.heat.max"
+                                value="{{data.mech.heat.max}}" data-dtype="Number" />
+                        </div>
+                    </div>
+                </div>
+                </p>
+                <div class="flexrow">
+                    <div class="flexcol card clipped">
+                        <span class="lancer-stat-header major clipped-top">SPEED</span>
+                        <input class="lancer-stat-input medium" type="number" name="data.mech.speed"
+                            value="{{data.mech.speed}}" data-dtype="Number" />
+                    </div>
+                    <div class="flexcol card clipped">
+                        <span class="lancer-stat-header major clipped-top">SAVE</span>
+                        <input class="lancer-stat-input medium" type="number" name="data.mech.save"
+                            value="{{data.mech.save}}" data-dtype="Number" />
+                    </div>
+                    <div class="flexcol card clipped">
+                        <span class="lancer-stat-header major clipped-top">EVASION</span>
+                        <input class="lancer-stat-input medium" type="number" name="data.mech.evasion"
+                            value="{{data.mech.evasion}}" data-dtype="Number" />
+                    </div>
+                    <div class="flexcol card clipped">
+                        <span class="lancer-stat-header major clipped-top">E-DEF</span>
+                        <input class="lancer-stat-input medium" type="number" name="data.mech.edef"
+                            value="{{data.mech.edef}}" data-dtype="Number" />
+                    </div>
+                    <div class="flexcol card clipped">
+                        <span class="lancer-stat-header major clipped-top">SENSORS</span>
+                        <input class="lancer-stat-input medium" type="number" name="data.mech.sensors"
+                            value="{{data.mech.sensors}}" data-dtype="Number" />
+                    </div>
+
+                </div>
+
+            </div>
+			<div class="card clipped">
+				<h2 class="lancer-title clipped-top">TEMPLATES</h2>
+				{{#if npc_templates}}
+					<div class="flexrow">
+						{{#each npc_templates as |npc_templates key|}}
+							<div class="card clipped npc-template-compact item" data-item-id="{{npc_templates._id}}">
+								<div class="lancer-weapon-header clipped-top" style="grid-area: 1/1/2/3">
+									<i class="cci cci-generic-item i--m i--light"> </i>
+									<span class="minor">{{npc_templates.name}}</span>
+									<a class="stats-control i--light" data-action="delete"><i class="fas fa-trash"></i></a>
+								</div>
+								<div class="effect-text" style=" padding: 5px">
+									{{{npc_templates.data.description}}}
+								</div>
+							</div>
+						{{/each}}
+					</div>
+				{{/if}}
+			</div>     
+            <div class="card clipped">
+				<h2 class="lancer-title clipped-top">FEATURES</h2>
+				{{#if data.npc_features}}
+					<div class="flexrow">
+						{{#each data.npc_features as | npc_features key|}}
+							<div class="card clipped npc-feature-compact item" data-item-id="{{data.npc_features._id}}">
+								<div class="lancer-weapon-header clipped-top" style="grid-area: 1/1/2/3">
+									<i class="cci cci-generic-item i--m i--light"> </i>
+									<span class="minor">{{ndata.pc_features.name}}</span>
+									<a class="stats-control i--light" data-action="delete"><i class="fas fa-trash"></i></a>
+								</div>
+								<div class="effect-text" style=" padding: 5px">
+									{{{data.npc_features.data.description}}}
+								</div>
+								<div class="flexrow" style="justify-content: flex-end;">
+									{{#each npc_features.data.tags as |tag tkey|}}
+										{{{compact-tag tag}}}
+									{{/each}}
+								</div>
+							</div>
+						{{/each}}
+					</div>
+				{{/if}}
+			</div>
+                    
+            
+            
+            
+            <div class="flexcol card clipped" style="grid-area: 3/1/4/3">
+                        <span class="lancer-stat-header major clipped-top">Notes</span>
+                        {{editor content=data.notes target="data.notes" button=true owner=owner editable=editable}}
+            </div>
+            </div>
+    </section>
+</form>

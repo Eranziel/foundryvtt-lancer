@@ -8,13 +8,17 @@ import {  LancerSkillItemData,
           LancerPilotGearItemData, 
           LancerFrameItemData,
           LancerMechSystemItemData,
-          LancerMechWeaponItemData} from '../interfaces'
+          LancerMechWeaponItemData,
+          LancerNPCFeatureItemData,
+          LancerNPCTemplateItemData,
+          LancerNPCClassItemData} from '../interfaces'
 
 export class LancerItem extends Item {
   data: LancerSkillItemData | LancerTalentItemData | LancerCoreBonusItemData |
         LancerLicenseItemData | LancerPilotArmorItemData | LancerPilotWeaponItemData |
         LancerPilotGearItemData | LancerFrameItemData | LancerMechSystemItemData |
-        LancerMechWeaponItemData;
+        LancerMechWeaponItemData| LancerNPCFeatureItemData | LancerNPCTemplateItemData |
+        LancerNPCClassItemData;
 
   /**
    * Return a skill trigger's bonus to rolls
@@ -64,4 +68,16 @@ export class LancerMechSystem extends LancerItem {
 
 export class LancerMechWeapon extends LancerItem {
   data: LancerMechWeaponItemData;
+}
+
+export class LancerNPCFeature extends LancerItem {
+  data: LancerNPCFeatureItemData;
+}
+
+export class LancerNPCTemplate extends LancerItem{
+  data: LancerNPCTemplateItemData;
+}
+
+export class LancerNPCClass extends LancerItem{
+  data: LancerNPCClassItemData;
 }

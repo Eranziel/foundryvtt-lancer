@@ -79,9 +79,9 @@
     },
     "npc": {
       "templates": ["mech"],
-      "type": "mech",
-      "class": "",
-      "npc_templates": [],
+      "name": "",
+      "tier": "",
+      "tag": "",
       "activations": 1
     },
     "deployable": {
@@ -109,7 +109,10 @@
       "pilot_gear",
       "frame",
       "mech_system",
-      "mech_weapon"
+      "mech_weapon",
+      "npc_class",
+      "npc_template",
+      "npc_feature"
     ],
     "templates": {
       "compendium_item": {
@@ -243,6 +246,46 @@
       "range": [],
       "mod": null,
       "custom_damage_type": ""
+    },
+    "npc_class":{
+      "templates": ["compendium_item"],
+      "mechtype": [],
+      "stats": {
+        "armor": [],
+        "hp": [],
+        "evasion": [],
+        "edef": [],
+        "heatcap": [],
+        "speed": [],
+        "sensor_range": [],
+        "save": [],
+        "hull": [],
+        "agility": [],
+        "systems": [],
+        "engineering": [],
+        "size": []
+      },
+      "base_features": [],
+      "optional_features":[]
+    },
+    "npc_template":{
+      "templates": ["compendium_item"],
+      "base_features": [],
+      "optional_features":[]
+    },
+    "npc_feature":{
+      "templates": ["compendium_item"],
+      "origin_type": "",
+      "origin_name": "",
+      "origin_base": false,
+      "fature_type": "",
+      "tags": [],
+      "trigger": "",
+      "weapon_type": "",
+      "range": [],
+      "damage": [],
+      "accuracy": [],
+      "onhit": ""
     }
   }
 }
