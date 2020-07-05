@@ -9,9 +9,9 @@ export const preloadTemplates = async function() {
 		"systems/lancer/templates/items/pilot-gear.html",
 		"systems/lancer/templates/items/skill.html",
 		"systems/lancer/templates/items/talent.html",
-		"systems/lancer/templates/items/npc_classes.html",
-		"systems/lancer/templates/items/npc_templates.html",
-		"systems/lancer/templates/items/npc_features.html"
+		"systems/lancer/templates/items/npc_class.html",
+		"systems/lancer/templates/items/npc_template.html",
+		"systems/lancer/templates/items/npc_feature.html"
 	];
 
 	return loadTemplates(templatePaths);

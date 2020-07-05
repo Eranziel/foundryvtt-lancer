@@ -82,9 +82,6 @@
       "name": "",
       "tier": "",
       "tag": "",
-      "npc_class": [],
-      "npc_template":[],
-      "npc_feature":[],
       "activations": 1
     },
     "deployable": {
@@ -254,18 +251,19 @@
       "templates": ["compendium_item"],
       "mechtype": [],
       "stats": {
-        "size": 1,
-        "armor": 0,
-        "hp": 8,
-        "evasion": 8,
-        "edef": 8,
-        "heatcap": 6,
-        "repcap": 4,
-        "sensor_range": 10,
-        "tech_attack": 0,
-        "save": 10,
-        "speed": 4,
-        "sp": 6
+        "armor": [],
+        "hp": [],
+        "evasion": [],
+        "edef": [],
+        "heatcap": [],
+        "speed": [],
+        "sensor_range": [],
+        "save": [],
+        "hull": [],
+        "agility": [],
+        "systems": [],
+        "engineering": [],
+        "size": []
       },
       "base_features": [],
       "optional_features":[]
