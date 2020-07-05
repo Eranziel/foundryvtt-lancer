@@ -7,7 +7,12 @@ import { LancerPilotActorData, LancerNPCActorData, LancerDeployableActorData, La
 export class LancerActor extends Actor {
   data: LancerPilotActorData | LancerNPCActorData | LancerDeployableActorData;
 
-  // This gets called every time client is refreshed. No good. Go back to _onCreate
+  // TODO: doesn't seem to work right. On creation, stats are set as below.
+  //       But after first refresh, any value which wasn't modified takes the
+  //       default defined in template.json.
+  // TODO: Set up prototype token. Pilots default to friendly, all default to
+  //       linked to actor, first bar = mech.hp, second bar = mech.heat.
+  // Initialize actor data when first created.
   _onCreate(data: any, options: object, userId: string) {
     console.log(`LANCER | actor._onCreate by ${userId}`);
     console.log(data);
