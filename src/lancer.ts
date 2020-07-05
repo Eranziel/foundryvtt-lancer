@@ -72,7 +72,8 @@ Hooks.once('init', async function() {
 	Items.registerSheet("lancer", LancerItemSheet, { 
 		types: ["skill", "talent", "license", "core_bonus", 
 			"pilot_armor", "pilot_weapon", "pilot_gear", 
-			"frame", "mech_system", "mech_weapon"], 
+			"frame", "mech_system", "mech_weapon", "npc_class",
+			"npc_template", "npc_feature"], 
 		makeDefault: true 
 	});
 
