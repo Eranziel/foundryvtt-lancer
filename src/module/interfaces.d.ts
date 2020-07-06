@@ -243,9 +243,10 @@ declare interface LancerNPCActorData extends ActorData {
 declare interface LancerNPCSheetData extends ActorSheetData {
   actor: LancerNPCActorData;
   data: LancerNPCData;
-  npc_class: LancerNPCClassData;
+  npc_class: LancerNPCClass;
   npc_templates: LancerNPCTemplateData[];
   npc_features: LancerNPCFeature[];
+  npc_size: string;
 }
 
 // ------- Deployable data --------------------------------------
