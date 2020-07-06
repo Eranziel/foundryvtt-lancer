@@ -448,8 +448,8 @@
 .compact-tag {
   color: white;
   background-color: var(--main-theme-color, fuchsia);
-  max-width: fit-content;
-  min-width: fit-content;
+  max-width: max-content;
+  min-width: max-content;
   align-items: center;
   border-radius: 5px;
   padding: 0px 5px;

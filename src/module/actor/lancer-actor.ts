@@ -1,57 +1,58 @@
 
 import { LancerPilotActorData, LancerNPCActorData, LancerDeployableActorData, LancerFrameStatsData, LancerNPCClassStatsData } from '../interfaces'
 
+export function lancerActorInit(data: any) {
+  console.log(`LANCER | Initializing new ${data.type}`);
+  if (data.type === "pilot" || data.type === "npc") {
+    const mech = {
+      name: "",
+      size: 1,
+      hull: 0,
+      agility: 0,
+      systems: 0,
+      engingeering: 0,
+      hp: {min: 0, max: 0, value: 0},
+      structure: {min: 0, max: 4, value: 4},
+      heat: {min: 0, max: 0, value: 0},
+      stress: {min: 0, max: 4, value: 4},
+      repairs: {min: 0, max: 0, value: 0},
+      armor: 0,
+      speed: 0,
+      evasion: 0,
+      edef: 0,
+      sensors: 0,
+      save: 0,
+      tech_attack: 0,
+    };
+
+    if (data.type === "npc") {
+      mech.structure.value = 1;
+      mech.structure.max = 1;
+      mech.stress.value = 1;
+      mech.stress.max = 1;
+    }
+
+    mergeObject(data, {
+      // Initialize mech stats
+      "data.mech": mech,
+      // Initialize prototype token
+      "token.bar1": {"attribute": "mech.hp"},                 // Default Bar 1 to HP
+      "token.bar2": {"attribute": "mech.heat"},               // Default Bar 2 to Heat
+      "token.displayName": CONST.TOKEN_DISPLAY_MODES.ALWAYS,  // Default display name to be always on
+      "token.displayBars": CONST.TOKEN_DISPLAY_MODES.ALWAYS,  // Default display bars to be always on
+      // Default disposition to friendly for pilots and hostile for NPCs
+      "token.disposition": data.type === "pilot" ? CONST.TOKEN_DISPOSITIONS.FRIENDLY : CONST.TOKEN_DISPOSITIONS.HOSTILE,  
+      "token.name": data.name,                                // Set token name to actor name
+      "token.actorLink": true,                                // Link the token to the Actor
+    });
+  }
+}
+
 /**
  * Extend the Actor class for Lancer Actors.
  */
 export class LancerActor extends Actor {
   data: LancerPilotActorData | LancerNPCActorData | LancerDeployableActorData;
-
-  // TODO: doesn't seem to work right. On creation, stats are set as below.
-  //       But after first refresh, any value which wasn't modified takes the
-  //       default defined in template.json.
-  // TODO: Set up prototype token. Pilots default to friendly, all default to
-  //       linked to actor, first bar = mech.hp, second bar = mech.heat.
-  // Initialize actor data when first created.
-  // This gets called every time client is refreshed. No good. Go back to _onCreate
-  _onCreate(data: any, options: object, userId: string) {
-    console.log(`LANCER | actor._onCreate by ${userId}`);
-    console.log(data);
-    console.log(options);
-    if (data.type === "pilot" || data.type === "npc") {
-      console.log("LANCER | pilot._onCreate");
-      const mech = {
-        name: "",
-        size: 1,
-        hull: 0,
-        agility: 0,
-        systems: 0,
-        engingeering: 0,
-        hp: {min: 0, max: 0, value: 0},
-        structure: {min: 0, max: 4, value: 4},
-        heat: {min: 0, max: 0, value: 0},
-        stress: {min: 0, max: 4, value: 4},
-        repairs: {min: 0, max: 0, value: 0},
-        armor: 0,
-        speed: 0,
-        evasion: 0,
-        edef: 0,
-        sensors: 0,
-        save: 0,
-        tech_attack: 0,
-      };
-
-      if (!data.data) {
-        data.data = {
-          mech: mech,
-        };
-      }
-      else {
-        data.data.mech = mech;
-      }
-    }
-    super._onCreate(data, options, userId, {});
-  }
 
   /**
    * Change mech frames for a pilot. Recalculates all mech-related stats on the pilot.
@@ -162,4 +163,4 @@ export class LancerActor extends Actor {
     data.data.mech = mech;
     return (this.update(data) as Promise<LancerActor>);
   }
- }
+}
