@@ -9,7 +9,7 @@
 
 // Import TypeScript modules
 import { LancerGame } from './module/lancer-game';
-import { LancerActor } from './module/actor/lancer-actor';
+import { LancerActor, lancerActorInit } from './module/actor/lancer-actor';
 import { LancerItem } from './module/item/lancer-item';
 
 // Import applications
@@ -151,7 +151,7 @@ Hooks.once('ready', function() {
 });
 
 // Add any additional hooks if necessary
-
+Hooks.on("preCreateActor", lancerActorInit);
 
 
 async function rollAttackMacro(title:string, grit:number, accuracy:number, damage:string, effect?:string) {
