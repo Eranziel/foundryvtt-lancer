@@ -16,6 +16,7 @@ import { LancerItem } from './module/item/lancer-item';
 import { LancerPilotSheet } from './module/actor/pilot-sheet';
 import { LancerNPCSheet } from './module/actor/npc-sheet';
 import { LancerItemSheet } from './module/item/item-sheet';
+import { LancerFrameSheet } from './module/item/frame-sheet';
 
 // Import helpers
 import { preloadTemplates } from './module/preloadTemplates';
@@ -72,10 +73,11 @@ Hooks.once('init', async function() {
 	Items.registerSheet("lancer", LancerItemSheet, { 
 		types: ["skill", "talent", "license", "core_bonus", 
 			"pilot_armor", "pilot_weapon", "pilot_gear", 
-			"frame", "mech_system", "mech_weapon", "npc_class",
+			"mech_system", "mech_weapon", "npc_class",
 			"npc_template", "npc_feature"], 
 		makeDefault: true 
 	});
+	Items.registerSheet("lancer", LancerFrameSheet, { types: ["frame"], makeDefault: true });
 
 	// Register handlebars helpers
 
@@ -101,6 +103,10 @@ Hooks.once('init', async function() {
 
 	Handlebars.registerHelper('lower-case', function(str: string) {
 		return str.toLowerCase();
+	});
+
+	Handlebars.registerHelper('upper-case', function(str: string) {
+		return str.toUpperCase();
 	});
 
 	Handlebars.registerHelper('compact-tag', renderCompactTag);

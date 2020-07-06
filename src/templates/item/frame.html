@@ -8,6 +8,147 @@
 		</div>
 	</header>
 
-  THIS IS A FRAME!
+  {{!-- Description --}}
+	<div class="flexcol card clipped">
+		<span class="lancer-stat-header major clipped-top">DESCRIPTION</span>
+		{{editor style="align-text: left;" content=data.description target="data.description" button=true owner=owner editable=editable}}
+	</div>
+
+  {{!-- Frame Stats --}}
+	<div class="card clipped mech-stats" style="display: grid; grid-template: repeat(3, 1fr) / repeat(4, 1fr);">
+		<div class="flexcol card clipped" style="grid-area: 1/1/2/2">
+			<div class="lancer-stat-header clipped-top flexrow">
+				<i class="mdi mdi-heart-outline i--m i--light" style="float: left; padding-left: 10px"> </i>
+				<span class="major">HP</span>
+			</div>
+			<input class="lancer-stat-input medium" type="number" name="data.stats.hp" value="{{data.stats.hp}}" data-dtype="Number"/>
+		</div>
+		<div class="flexcol card clipped" style="grid-area: 1/2/2/3">
+			<div class="lancer-stat-header clipped-top flexrow">
+				<i class="mdi mdi-shield-outline i--m i--light" style="float: left; padding-left: 10px"> </i>
+				<span class="major">ARMOR</span>
+			</div>
+			<input class="lancer-stat-input medium" type="number" name="data.stats.armor" value="{{data.stats.armor}}" data-dtype="Number"/>
+		</div>
+		<div class="flexcol card clipped" style="grid-area: 1/3/2/4">
+			<div class="lancer-stat-header clipped-top flexrow">
+				<i class="cci cci-repair i--m i--light" style="float: left; padding-left: 10px"> </i>
+				<span class="major">REPAIRS</span>
+			</div>
+			<input class="lancer-stat-input medium" type="number" name="data.stats.repcap" value="{{data.stats.repcap}}" data-dtype="Number"/>
+		</div>
+		<div class="flexcol card clipped" style="grid-area: 2/1/3/2">
+			<div class="lancer-stat-header clipped-top flexrow">
+				<i class="cci cci-evasion i--m i--light" style="float: left; padding-left: 10px"> </i>
+				<span class="major">EVASION</span>
+			</div>
+			<input class="lancer-stat-input medium" type="number" name="data.stats.evasion" value="{{data.stats.evasion}}" data-dtype="Number"/>
+		</div>
+		<div class="flexcol card clipped" style="grid-area: 2/2/3/3">
+			<div class="lancer-stat-header clipped-top flexrow">
+				<i class="cci cci-edef i--m i--light" style="float: left; padding-left: 10px"> </i>
+				<span class="major">E-DEF</span>
+			</div>
+			<input class="lancer-stat-input medium" type="number" name="data.stats.edef" value="{{data.stats.edef}}" data-dtype="Number"/>
+		</div>
+		<div class="flexcol card clipped" style="grid-area: 2/3/3/4">
+			<div class="lancer-stat-header clipped-top flexrow">
+				<i class="cci cci-heat i--m i--light" style="float: left; padding-left: 10px"> </i>
+				<span class="major">HEAT</span>
+			</div>
+			<input class="lancer-stat-input medium" type="number" name="data.stats.heatcap" value="{{data.stats.heatcap}}" data-dtype="Number"/>
+		</div>
+		<div class="flexcol card clipped" style="grid-area: 2/4/3/5">
+			<div class="lancer-stat-header clipped-top flexrow">
+				<i class="mdi mdi-arrow-right-bold-hexagon-outline i--m i--light" style="float: left; padding-left: 10px"> </i>
+				<span class="major">SPEED</span>
+			</div>
+			<input class="lancer-stat-input medium" type="number" name="data.stats.speed" value="{{data.stats.speed}}" data-dtype="Number"/>
+		</div>
+		<div class="flexcol card clipped" style="grid-area: 3/1/4/2">
+			<div class="lancer-stat-header clipped-top flexrow">
+				<i class="cci cci-tech-full i--m i--light" style="float: left; padding-left: 10px"> </i>
+				<span class="major">TECH ATK</span>
+			</div>
+			<input class="lancer-stat-input medium" type="number" name="data.stats.tech_attack" value="{{data.stats.tech_attack}}" data-dtype="Number"/>
+		</div>
+		<div class="flexcol card clipped" style="grid-area: 3/2/4/3">
+			<div class="lancer-stat-header clipped-top flexrow">
+				<i class="cci cci-sensor i--m i--light" style="float: left; padding-left: 10px"> </i>
+				<span class="major">SENSORS</span>
+			</div>
+			<input class="lancer-stat-input medium" type="number" name="data.stats.sensor_range" value="{{data.stats.sensor_range}}" data-dtype="Number"/>
+		</div>
+		<div class="flexcol card clipped" style="grid-area: 3/3/4/4">
+			<div class="lancer-stat-header clipped-top flexrow">
+				<i class="cci cci-save i--m i--light" style="float: left; padding-left: 10px"> </i>
+				<span class="major">SAVE T.</span>
+			</div>
+			<input class="lancer-stat-input medium" type="number" name="data.stats.save" value="{{data.stats.save}}" data-dtype="Number"/>
+		</div>
+		<div class="flexcol card clipped" style="grid-area: 3/4/4/5">
+			<div class="lancer-stat-header clipped-top flexrow">
+				<i class="cci cci-system i--m i--light" style="float: left; padding-left: 10px"> </i>
+				<span class="major">SYS PTS</span>
+			</div>
+			<input class="lancer-stat-input medium" type="number" name="data.stats.sp" value="{{data.stats.sp}}" data-dtype="Number"/>
+		</div>
+		{{#if frame_size}}
+			<div style="grid-area: 2/5/4/6"><i class="cci cci-{{frame_size}} size-icon theme--main"></i></div>
+		{{/if}}
+	</div>
+
+  {{!-- Mounts --}}
+	<div class="flexrow" style="justify-content: center;">
+	{{#each data.mounts as |mount key|}}
+		<div class="lancer-mount-header major clipped flexrow" 
+				 style="margin: 10px; padding: 5px 10px; text-align: center; max-width: min-content">
+			{{upper-case mount}} MOUNT
+		</div>
+	{{/each}}
+	</div>
+
+  {{!-- Traits --}}
+	<ul>
+	{{#each data.traits as |trait key|}}
+		<li class="card clipped frame-trait-compact">
+			<div class="lancer-mech-trait-header medium clipped-top" style="grid-area: 1/1/2/2">
+				<i class="cci cci-trait i--m i--light"> </i>
+				<span class="major">{{trait.name}}</span>
+			</div>
+			<div class="effect-text" style="grid-area: 2/1/3/2">{{trait.description}}</div>
+		</li>
+	{{/each}}
+	</ul>
+
+  {{!-- Core System --}}
+	<div class="card clipped frame-core flexcol">
+		<div class="lancer-core-sys-header medium clipped-top">
+			<i></i>
+			<div class="major">{{data.core_system.name}}</div>
+			<div class="medium i--faded" style="justify-self: right;"> // CORE SYSTEM</div>
+		</div>
+		{{#if data.core_system.description}}
+			<div class="desc-text">{{{data.core_system.description}}}</div>
+		{{/if}}
+		{{#if data.core_system.passive_name}}
+			<div class="card clipped">
+				<div class="lancer-core-sys-header medium clipped-top">
+					<i class="mdi mdi-circle-expand i--m i--light"> </i>
+					<div class="medium">{{data.core_system.passive_name}}</div>
+					<div class="medium i--faded" style="justify-self: right;"> // PASSIVE</div>
+				</div>
+				<div class="effect-text">{{{data.core_system.passive_effect}}}</div>
+			</div>
+		{{/if}}
+		<div class="card clipped">
+			<div class="lancer-core-sys-header medium clipped-top">
+				<i class="cci cci-corebonus i--m i--light"> </i>
+				<div class="medium">{{data.core_system.active_name}}</div>
+				<div class="i--faded" style="justify-self: right;"> // ACTIVE</div>
+			</div>
+			<div class="effect-text">{{{data.core_system.active_effect}}}</div>
+		</div>
+	</div>
 
 </form>

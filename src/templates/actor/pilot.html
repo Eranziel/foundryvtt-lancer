@@ -116,6 +116,8 @@
 					</div>
 				</div>
 			</div>
+
+			{{!-- Pilot Loadout --}}
       <div class="flexrow">
         <div class="card clipped">
           <h2 class="lancer-stat-header major clipped-top">ARMOR</h2>
@@ -235,6 +237,8 @@
 				{{/if}}
 			</div>
       <div class="flexcol">
+
+				{{!-- Skill Triggers --}}
         <div class="card clipped">
 					<h2 class="lancer-title clipped">SKILL TRIGGERS</h2>
 					{{#if skills}}
@@ -253,6 +257,8 @@
 						</ul>
 					{{/if}}
 				</div>
+
+				{{!-- Talents --}}
         <div class="card clipped">
           <h2 class="lancer-title clipped">TALENTS</h2>
 					{{#if talents}}
@@ -282,12 +288,16 @@
 						</ul>
 					{{/if}}
         </div>
+
+				{{!-- Licenses --}}
 				<div class="card clipped">
 					<h2 class="lancer-title clipped-top">LICENSES</h2>
 					{{#each licenses as |license key|}}
 					<span class="item lancer-reaction-header" data-item-id="{{license._id}}"><img class="thumbnail" src="{{license.img}}" data-edit="{{license.img}}" title="{{license.name}}" height="10" width="10"/> {{license.name}} <a class="stats-control" data-action="delete"><i class="fas fa-trash"></i></a></span>
 					{{/each}}
 				</div>
+
+				{{!-- Core Bonuses --}}
 				<div class="card clipped">
 					<h2 class="lancer-title clipped-top">CORE BONUSES</h2>
 					{{#if core_bonuses}}
@@ -320,6 +330,7 @@
 					</span>
 				<input class="lancer-text-input major" style="float: right;" type="string" name="data.mech.name" value="{{data.mech.name}}" data-dtype="String"/>
 			</div>
+			{{!-- Mech Stats --}}
 			<div class="card clipped mech-stats" style="display: grid; grid-template: repeat(3, 1fr) / repeat(5, 1fr);">
 				<div class="flexcol card clipped" style="grid-area: 1/1/2/2">
 					<div class="lancer-stat-header clipped-top flexrow">
@@ -437,6 +448,8 @@
 				{{/if}}
 			</div>
 			{{#if frame}}
+
+				{{!-- Mech Traits --}}
 				<ul>
 				{{#each frame.data.traits as |trait key|}}
 					<li class="card clipped frame-trait-compact">
@@ -448,6 +461,8 @@
 					</li>
 				{{/each}}
 				</ul>
+
+				{{!-- Core System --}}
 				<div class="card clipped frame-core flexcol">
 					<div class="lancer-core-sys-header medium clipped-top">
 						<i></i>
@@ -477,6 +492,8 @@
 					</div>
 				</div>
 			{{/if}}
+
+			{{!-- Mounts --}}
 			<div class="card clipped">
         <h2 class="lancer-title clipped">MOUNTS<a class="add-button" data-action="create" style="float: right; margin-right: 1em; padding-bottom: 1em;">+</a></h2>
         <div class="flexrow">
@@ -495,12 +512,16 @@
           {{/each}}
         </div>
       </div>
+
+			{{!-- Weapons --}}
       <div class="card clipped">
 				<h2 class="lancer-title clipped">WEAPONS</h2>
 				{{#each mech_loadout.weapons as |weapon key|}}
         <span class="item lancer-weapon-header" data-item-id="{{weapon._id}}"><img class="thumbnail" src="{{weapon.img}}" data-edit="{{weapon.img}}" title="{{weapon.name}}" height="10" width="10"/> {{weapon.name}} <a class="stats-control" data-action="delete"><i class="fas fa-trash"></i></a></span>
 				{{/each}}
 			</div>
+
+			{{!-- Systems --}}
 			<div class="card clipped">
 				<h2 class="lancer-title clipped">SYSTEMS</h2>
 				{{#each mech_loadout.systems as |system key|}}

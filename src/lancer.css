@@ -343,8 +343,8 @@ select {
 .compact-tag {
   color: white;
   background-color: #991e2a;
-  max-width: fit-content;
-  min-width: fit-content;
+  max-width: max-content;
+  min-width: max-content;
   align-items: center;
   border-radius: 5px;
   padding: 0px 5px;
