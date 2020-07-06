@@ -29,118 +29,117 @@
  /* ------------------------------------ */
  /* Initialize system                    */
  /* ------------------------------------ */
- Hooks.once('init', async function() {
-   console.log(`Initializing LANCER RPG System 
-     ╭╮╱╱╭━━━┳━╮╱╭┳━━━┳━━━┳━━━╮ 
-     ┃┃╱╱┃╭━╮┃┃╰╮┃┃╭━╮┃╭━━┫╭━╮┃ 
-     ┃┃╱╱┃┃╱┃┃╭╮╰╯┃┃╱╰┫╰━━┫╰━╯┃ 
-     ┃┃╱╭┫╰━╯┃┃╰╮┃┃┃╱╭┫╭━━┫╭╮╭╯ 
-     ┃╰━╯┃╭━╮┃┃╱┃┃┃╰━╯┃╰━━┫┃┃╰╮ 
-     ╰━━━┻╯╱╰┻╯╱╰━┻━━━┻━━━┻╯╰━╯`); 
+Hooks.once('init', async function() {
+	console.log(`Initializing LANCER RPG System 
+	╭╮╱╱╭━━━┳━╮╱╭┳━━━┳━━━┳━━━╮ 
+	┃┃╱╱┃╭━╮┃┃╰╮┃┃╭━╮┃╭━━┫╭━╮┃ 
+	┃┃╱╱┃┃╱┃┃╭╮╰╯┃┃╱╰┫╰━━┫╰━╯┃ 
+	┃┃╱╭┫╰━╯┃┃╰╮┃┃┃╱╭┫╭━━┫╭╮╭╯ 
+	┃╰━╯┃╭━╮┃┃╱┃┃┃╰━╯┃╰━━┫┃┃╰╮ 
+	╰━━━┻╯╱╰┻╯╱╰━┻━━━┻━━━┻╯╰━╯`); 
 
-   // Assign custom classes and constants here
-   // Create a Lancer namespace within the game global
-   (game as LancerGame).lancer = {
-     applications: {
-       LancerPilotSheet,
-       LancerNPCSheet,
-       LancerItemSheet,
-     },
-     entities: {
-       LancerActor,
-       LancerItem,
-     },
-     rollAttackMacro: rollAttackMacro,
-     migrations: migrations,
-   };
+	// Assign custom classes and constants here
+	// Create a Lancer namespace within the game global
+	(game as LancerGame).lancer = {
+		applications: {
+			LancerPilotSheet,
+			LancerNPCSheet,
+			LancerItemSheet,
+		},
+		entities: {
+			LancerActor,
+			LancerItem,
+    },
+		rollAttackMacro: rollAttackMacro,
+		migrations: migrations,
+	};
 
-   // Record Configuration Values
-   CONFIG.Actor.entityClass = LancerActor;
-   CONFIG.Item.entityClass = LancerItem;
+	// Record Configuration Values
+	CONFIG.Actor.entityClass = LancerActor;
+	CONFIG.Item.entityClass = LancerItem;
 
-   // Register custom system settings
-   registerSettings();
+	// Register custom system settings
+	registerSettings();
 
-   // Preload Handlebars templates
-   await preloadTemplates();
+	// Preload Handlebars templates
+	await preloadTemplates();
 
-   // Register sheet application classes
-   Actors.unregisterSheet("core", ActorSheet);
-   Actors.registerSheet("lancer", LancerPilotSheet, { types: ["pilot"], makeDefault: true });
-   Actors.registerSheet("lancer", LancerNPCSheet, { types: ["npc"], makeDefault: true });
-   Items.unregisterSheet("core", ItemSheet);
-   Items.registerSheet("lancer", LancerItemSheet, { 
-     types: ["skill", "talent", "license", "core_bonus", 
-     "pilot_armor", "pilot_weapon", "pilot_gear", 
-     "frame", "mech_system", "mech_weapon"], 
-     makeDefault: true 
-   });
+	// Register sheet application classes
+	Actors.unregisterSheet("core", ActorSheet);
+	Actors.registerSheet("lancer", LancerPilotSheet, { types: ["pilot"], makeDefault: true });
+	Actors.registerSheet("lancer", LancerNPCSheet, { types: ["npc"], makeDefault: true });
+	Items.unregisterSheet("core", ItemSheet);
+	Items.registerSheet("lancer", LancerItemSheet, { 
+		types: ["skill", "talent", "license", "core_bonus", 
+			"pilot_armor", "pilot_weapon", "pilot_gear", 
+			"frame", "mech_system", "mech_weapon", "npc_class",
+			"npc_template", "npc_feature"], 
+		makeDefault: true 
+	});
 
-   // Register handlebars helpers
+	// Register handlebars helpers
 
-   // inc, for those off-by-one errors
-   Handlebars.registerHelper('inc', function(value, options) {
-     return parseInt(value) + 1;
-   });
+	// inc, for those off-by-one errors
+	Handlebars.registerHelper('inc', function(value, options) {
+		return parseInt(value) + 1;
+	});
 
-   // double the input
-   Handlebars.registerHelper('double', function(value) {
-     return parseInt(value) * 2;
-   });
+	// double the input
+	Handlebars.registerHelper('double', function(value) {
+		return parseInt(value) * 2;
+	});
 
-   // Greater-than evaluation
-   Handlebars.registerHelper('gt', function(val1, val2) {
-     return val1 > val2;
-   });
+	// Greater-than evaluation
+	Handlebars.registerHelper('gt', function(val1, val2) {
+		return val1 > val2;
+	});
 
-   // Less-than evaluation
-   Handlebars.registerHelper('lt', function(val1, val2) {
-     return val1 < val2;
-   });
+	// Less-than evaluation
+	Handlebars.registerHelper('lt', function(val1, val2) {
+		return val1 < val2;
+	});
 
-   Handlebars.registerHelper('lower-case', function(str: string) {
-     return str.toLowerCase();
-   });
+	Handlebars.registerHelper('lower-case', function(str: string) {
+		return str.toLowerCase();
+	});
 
-   Handlebars.registerHelper('compact-tag', renderCompactTag);
-   Handlebars.registerHelper('chunky-tag', renderChunkyTag);
+	Handlebars.registerHelper('compact-tag', renderCompactTag);
 
-   // mount display mount
-   Handlebars.registerHelper('mount-selector', (mount, key, active=true) => {
-     let template = `<select id="mount-type" class="mounts-control" data-action="update" data-item-id="${key}"${active ? '' : ' disabled'}>
-       <option value="Main"${mount.type === 'Main' ? ' selected' : ''}>Main Mount</option>
-       <option value="Heavy"${mount.type === 'Heavy' ? ' selected' : ''}>Heavy Mount</option>
-       <option value="Aux-Aux"${mount.type === 'Aux-Aux' ? ' selected' : ''}>Aux/Aux Mount</option>
-       <option value="Main-Aux"${mount.type === 'Main-Aux' ? ' selected' : ''}>Main/Aux Mount</option>
-       <option value="Flex"${mount.type === 'Flex' ? ' selected' : ''}>Flexible Mount</option>
-       <option value="Integrated"${mount.type === 'Integrated' ? ' selected' : ''}>Integrated Mount</option>
-     </select>`
-     return template;
-   });
+	// mount display mount
+	Handlebars.registerHelper('mount-selector', (mount, key) => {
+		let template = `<select id="mount-type" class="mounts-control" data-action="update" data-item-id=${key}>
+	        <option value="Main" ${mount.type === 'Main' ? 'selected' : ''}>Main Mount</option>
+	        <option value="Heavy" ${mount.type === 'Heavy' ? 'selected' : ''}>Heavy Mount</option>
+	        <option value="Aux-Aux" ${mount.type === 'Aux-Aux' ? 'selected' : ''}>Aux/Aux Mount</option>
+	        <option value="Main-Aux" ${mount.type === 'Main-Aux' ? 'selected' : ''}>Main/Aux Mount</option>
+	        <option value="Flex" ${mount.type === 'Flex' ? 'selected' : ''}>Flexible Mount</option>
+	        <option value="Integrated" ${mount.type === 'Integrated' ? 'selected' : ''}>Integrated Mount</option>
+        </select>`
+        return template;
+	});
 
-   Handlebars.registerPartial('pilot-weapon-preview', `<div class="flexcol clipped lancer-weapon-container" style="max-height: fit-content;" data-item-id="{{key}}">
-     <span class="item lancer-weapon-header" style="padding-top: 5px;" data-item-id="{{weapon._id}}"><img class="thumbnail" src="{{weapon.img}}" data-edit="{{weapon.img}}" title="{{weapon.name}}" height="10" width="10"/> {{weapon.name}} <a class="stats-control" data-action="delete"><i class="fas fa-trash" style="float: right;"></i></a>
+  Handlebars.registerPartial('pilot-weapon-preview', `<div class="flexcol clipped lancer-weapon-container" style="max-height: fit-content;" data-item-id="{{key}}">
+    <span class="item lancer-weapon-header" style="padding-top: 5px;" data-item-id="{{weapon._id}}"><img class="thumbnail" src="{{weapon.img}}" data-edit="{{weapon.img}}" title="{{weapon.name}}" height="10" width="10"/> {{weapon.name}} <a class="stats-control" data-action="delete"><i class="fas fa-trash" style="float: right;"></i></a></span>
+    <span class="lancer-weapon-body">
+     <span class="flexrow" style="grid-area: 1 / 1 / 1 / 1; text-align: left; white-space: nowrap;">{{#each weapon.data.range as |range rkey|}}<i class="cci cci-{{lower-case range.type}} i--m i--dark"></i><span class="medium">{{range.val}}</span>{{/each}}{{#each weapon.data.damage as |damage dkey|}}<i class="cci cci-{{lower-case damage.type}} i--m damage--{{damage.type}}"></i><span class="medium">{{damage.val}}</span>{{/each}}</span>
+     <span style="grid-area: 1 / 2 / 1 / 3; text-align: right;">{{weapon.data.mount}} {{weapon.data.weapon_type}}</span>
+     <span style="grid-area: 2 / 1 / 2 / 3; text-align: left; white-space: wrap">
+     {{#with weapon.data.effect as |effect|}}
+     {{#if effect.effect_type}}
+       <h3>{{effect.effect_type}} Effect</h3>
+       {{effect.hit}}{{/if}}
+     {{#unless effect.effect_type}}{{effect}}{{/unless}}
+     {{/with}}
      </span>
-     <span class="lancer-weapon-body">
-       <span class="flexrow" style="grid-area: 1 / 1 / 1 / 1; text-align: left; white-space: nowrap;">{{#each weapon.data.range as |range rkey|}}<i class="cci cci-{{lower-case range.type}} i--m i--dark"></i><span class="medium">{{range.val}}</span>{{/each}}{{#each weapon.data.damage as |damage dkey|}}<i class="cci cci-{{lower-case damage.type}} i--m damage--{{damage.type}}"></i><span class="medium">{{damage.val}}</span>{{/each}}</span>
-       <span style="grid-area: 1 / 2 / 1 / 3; text-align: right;">{{weapon.data.mount}} {{weapon.data.weapon_type}}</span>
-       <span style="grid-area: 2 / 1 / 2 / 3; text-align: left; white-space: wrap">
-       {{#with weapon.data.effect as |effect|}}
-       {{#if effect.effect_type}}
-         <h3>{{effect.effect_type}} Effect</h3>
-         {{effect.hit}}{{/if}}
-       {{#unless effect.effect_type}}{{effect}}{{/unless}}
-       {{/with}}
-       </span>
-       <span class="flexrow" style="grid-area: 3 / 1 / 3 / 3; text-align: left; justify-content: flex-end;">
-         <span class="flexrow" style="justify-content: flex-end;">{{#each weapon.data.tags as |tag tkey|}}{{{compact-tag tag}}}{{/each}}</span>
-       </span>
-     </div>`
-     );
- });
+     <span class="flexrow" style="grid-area: 3 / 1 / 3 / 3; text-align: left; justify-content: flex-end;">
+       <span class="flexrow" style="justify-content: flex-end;">{{#each weapon.data.tags as |tag tkey|}}{{{compact-tag tag}}}{{/each}}</span>
+     </span>
+    </div>`
+  );
+});
 
 /* ------------------------------------ */
-/* Setup system                         */
+/* Setup system			            				*/
 /* ------------------------------------ */
 Hooks.once('setup', function() {
   // Do anything after initialization but before

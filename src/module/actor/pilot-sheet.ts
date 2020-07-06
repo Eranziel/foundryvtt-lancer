@@ -67,6 +67,20 @@ export class LancerPilotSheet extends ActorSheet {
     if (data.data.pilot.history == "")    data.data.pilot.history = entryPrompt;
     if (data.data.pilot.notes == "")      data.data.pilot.notes = entryPrompt;
 
+    // Generate the size string for the pilot's frame
+    if (data.frame) {
+      const frame: any = data.frame;
+      if (frame.data.stats.size === 0.5) {
+        data.frame_size = "size-half";
+      }
+      else {
+        data.frame_size = `size-${frame.data.stats.size}`;
+      }
+    }
+    else {
+      data.frame_size = undefined;
+    }
+
     console.log("LANCER | Pilot sheet data: ");
     console.log(data);
     return data;
