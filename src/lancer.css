@@ -14,11 +14,15 @@
   --reaction-color: #0a7674;
   --tech-clip-path: polygon( 0 0, calc(100% - 12px) 0, calc(100% - 12px) 7px, calc(100% - 7px) 7px, calc(100% - 7px) 3px, calc(100% - 3px) 3px, calc(100% - 3px) 0, 100% 0, 100% 3px, calc(100% - 3px) 3px, calc(100% - 3px) 7px, calc(100% - 7px) 7px, calc(100% - 7px) 12px, 100% 12px, 100% 100%, 0 100% );
   --tech-color: #7d2477;
+
+  --top-dogear-path: polygon( 10px 0, 100% 0, 100% 100%, 0 100%, 0 10px );
+  --bottom-dogear-path: polygon( 0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100% );
+  --double-dogear-path: polygon( 10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px );
 }
 /* ---------- */
 
 /* Elements Layer */
-.lancer.sheet .window-content *:not(.fas) {
+.lancer.sheet .window-content *:not(.fas, .mdi) {  /* An exception for each icon font */
   font-family: Helvetica;
 }
 
@@ -35,6 +39,10 @@
 .lancer.sheet .mount-header select option {
   background-color: var(--main-theme-color, fuchsia);
   color: white;
+}
+
+.lancer.sheet clipped-card {
+
 }
 /* ---------- */
 
@@ -287,18 +295,18 @@
 }
 
 .clipped {
-  clip-path: polygon( 10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px );
-  -webkit-clip-path: polygon( 10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px );
+  clip-path: var(--double-dogear-path);
+  -webkit-clip-path: var(--double-dogear-path);
 }
 
 .clipped-top {
-  clip-path: polygon( 10px 0, 100% 0, 100% 100%, 0 100%, 0 10px );
-  -webkit-clip-path: polygon( 10px 0, 100% 0, 100% 100%, 0 100%, 0 10px );
+  clip-path: var(--top-dogear-path);
+  -webkit-clip-path: var(--top-dogear-path);
 }
 
 .clipped-bot {
-  clip-path: polygon( 0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100% );
-  -webkit-clip-path: polygon( 0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100% );
+  clip-path: var(--bottom-dogear-path);
+  -webkit-clip-path: var(--bottom-dogear-path);
 }
 
 .lancer-tabs {
@@ -505,16 +513,14 @@
 }
 
 .card {
+  /* Literally just a darkened background and centering children components inside */
   background-color: rgba(0,0,0,0.07);
-  margin-left: 10px;
-  margin-right: 10px;
-  margin-top: 3px;
-  margin-bottom: 3px;
+  margin: 3px 10px;
   text-align: center;
 }
 .card .lancer-title {
-  margin-left: 0px;
-  margin-right: 0px;
+  /* TODO: review if this rule can be simplified */
+  margin: initial 0;
 }
 
 .major {
