@@ -1,5 +1,5 @@
 /* TODO: Maybe multiple stylesheets is a good idea? Check out ITCSS and segment them by their layer */
-/* TODO: Webcomponents. Tags, cards */
+/* TODO: Webcomponents. Tags, cards, compact stat */
 
 /* Settings Layer*/
 :root {
@@ -52,6 +52,8 @@
 }
 
 .lancer.sheet header .details {
+  display: flex;
+  flex-direction: column;
   font-size: 14px;
   padding: 10px;
 }
@@ -469,9 +471,10 @@
 }
 
 .compact-stat {
+  display: flex;
+  flex-direction: row;
   align-items: center;
-  padding-left: 5px;
-  padding-right: 5px;
+  padding: 0 5px;
 }
 
 .size-icon {
