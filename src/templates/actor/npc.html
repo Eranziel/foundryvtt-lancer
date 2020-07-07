@@ -8,15 +8,13 @@
         </div>
         <div class="flexcol npc-header-details" style="grid-area: 1/4/3/4">
             TIER
-            <span class="major" style="padding-left: 10px; font-size:40px">{{data.tier}}</span>
+            {{#if data.tier}}
+            <div ></div><i class="cci cci-{{data.tier}} size-icon theme--npc"></i></div>
+            {{/if}}
         </div>
         <div class="flexcol npc-header-details" style="grid-area: 2/1/3/2">
             CLASS
             <span class="major">{{npc_class.name}}</span>
-        </div>
-        <div class="flexcol npc-header-details" style="grid-area: 2/3/3/3">
-            TAG
-            <span class="medium">{{data.tag}}</span>
         </div>
         <img class="npc-img" src="{{actor.img}}" data-edit="img" title="{{actor.name}}" height="100" width="100" />
     </header>
@@ -37,10 +35,9 @@
                     <input class="lancer-text-input major" type="string" name="data.name" value="{{data.name}}"
                         data-dtype="String" />
                 </div>
-                <div class="flexcol card clipped">
-                    <span class="lancer-stat-header major clipped-top">TAG</span>
-                    <input class="lancer-text-input major" type="string" name="data.tag" value="{{data.tag}}"
-                        data-dtype="String" />
+                <div class="flexcol card clipped" style="grid-area: 2/3/3/3">
+                    <span class="lancer-stat-header major clipped-top">TIER</span>
+                        {{{tier-selector data.tier key}}}
                 </div>
                 <div class="flexcol card clipped">
 

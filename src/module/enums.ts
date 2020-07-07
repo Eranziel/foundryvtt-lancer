@@ -103,12 +103,6 @@ enum NPCTag{
   Squad = 'Squad'
 }
 
-enum NPCTier{
-TierOne = 'TIER 1',
-TierTwo = 'TIER 2',
-TierThree = 'TIER 3',
-Custom = 'CUSTOM'
-}
 
 export {
   MountType,
@@ -121,6 +115,5 @@ export {
   DamageType,
   HASE,
   MechType,
-  NPCTag,
-  NPCTier
+  NPCTag
 }

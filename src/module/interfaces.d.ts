@@ -1,6 +1,6 @@
 
-import { LancerSkill, LancerTalent, LancerCoreBonus, LancerLicense, LancerFrame, LancerPilotArmor, LancerPilotWeapon, LancerPilotGear, LancerMechWeapon, LancerMechSystem, LancerNPCFeature, LancerNPCClass, LancerNPCTemplates} from './item/lancer-item';
-import { DamageType, RangeType, WeaponSize, WeaponType, SystemType, MechType, ItemType, PilotEquipType, NPCTier, NPCTag} from './enums';
+import { LancerSkill, LancerTalent, LancerCoreBonus, LancerLicense, LancerFrame, LancerPilotArmor, LancerPilotWeapon, LancerPilotGear, LancerMechWeapon, LancerMechSystem, LancerNPCFeature, LancerNPCClass, LancerNPCTemplate} from './item/lancer-item';
+import { DamageType, RangeType, WeaponSize, WeaponType, SystemType, MechType, ItemType, PilotEquipType, NPCTag} from './enums';
 
 // ------------------------------------------------------
 // |       UTILITY DATA TYPES                           |
@@ -145,7 +145,7 @@ declare interface LancerNPCData {
   mech: LancerMechData;
   type: string;
   name: string;
-  tier: NPCTier;
+  tier: string; //tier1-3 = 1-3 and custom = 4
   tag: NPCTag;
   activations: number;
 }
