@@ -131,6 +131,9 @@
 		{{#if data.core_system.description}}
 			<div class="desc-text">{{{data.core_system.description}}}</div>
 		{{/if}}
+		{{#if dataa.core_system.integrated}}
+			{{!-- Insert Integrated weapon block here --}}
+		{{/if}}
 		{{#if data.core_system.passive_name}}
 			<div class="card clipped">
 				<div class="lancer-core-sys-header medium clipped-top">
@@ -148,6 +151,15 @@
 				<div class="i--faded" style="justify-self: right;"> // ACTIVE</div>
 			</div>
 			<div class="effect-text">{{{data.core_system.active_effect}}}</div>
+		</div>
+		<div class="flexcol tags-container" style="margin: 10px;">
+			<div class="flexrow lancer-title">
+				<div class="major">TAGS</div>
+				<a class="add-button clickable"style="float: right; margin-right: 1em; max-width: 30px;">+</a>
+			</div>
+			{{#each data.core_system.tags as |tag key|}}
+				{{{full-tag tag}}}
+			{{/each}}
 		</div>
 	</div>
 
