@@ -8,6 +8,92 @@
 		</div>
 	</header>
 
-  THIS IS A FRAME!
+	{{!-- Sheet Body --}}
+	<section class="sheet-body" style="height:-webkit-fill-available">
 
+		<div class="flexcol">
+			<div class="card clipped flexcol">
+				<span class="lancer-stat-header major">DESCRIPTION</span>
+				{{editor content=data.description target="data.description" button=true owner=owner editable=editable}}
+			</div>
+
+
+			<!-- Probably just temporary... right? -->
+			<div class="flexrow">
+				{{#each item.data.stats as |stat key|}}
+				<div class="flexcol labeled-input" style="flex-basis:25%">
+					<span>{{key}}</span>
+					<input class="lancer-stat-input lancer-invisible-input" type="number" name="data.stats.{{key}}" value="{{stat}}" data-dtype="Number" style="justify-content: left"/>
+				</div>
+				{{/each}}
+			</div>
+
+			<div class="arrayed-item-container flexcol">
+				<div>
+					<span class="minor" style="float: left">TRAITS</span>
+					<a class="add-button clickable" data-action="create" data-item="traits" style="float: right; margin-right: 1em">+</a>
+				</div>
+				{{#each item.data.traits as |trait key|}}
+				<div class="flexrow trait arrayed-item" data-key="{{key}}">
+					<div class="flexcol">
+						<div class="remove-wrapper">
+							<input type="String" name="data.traits.{{key}}.name" value="{{trait.name}}" data-dtype="String" class="major lancer-invisible-input"/>
+							<a class="remove-button fa fa-trash clickable" data-action="delete" data-item="traits" style="float: right; margin-right: 11px; margin-top: 2px"></a>
+						</div>
+						<textarea class="lancer-invisible-input minor" type="string" name="data.traits.{{key}}.description" data-dtype="String">{{trait.description}}</textarea>
+					</div>
+				</div>
+				{{/each}}
+			</div>
+			<div class="arrayed-item-container flexcol">
+				<div>
+					<span class="minor" style="float: left">AVAILABLE WEAPON MOUNTS</span>
+					<a class="add-button clickable" data-action="create" data-item="mounts" style="float: right; margin-right: 1em">+</a>
+				</div>
+				<div class="flexrow">
+					{{#each item.data.mounts as |mount key|}}
+					<div class="flexrow mount arrayed-item" data-key="{{key}}">
+						<select class="delete-selector" name="data.mounts.{{key}}" data-type="String" data-item="mounts">
+							{{#select mount}}
+							<option value="None">N/A</option>	
+							<option value="Aux">AUX</option>
+							<option value="Main">MAIN</option>
+							<option value="Heavy">HEAVY</option>
+							<option value="Superheavy">SUPERHEAVY</option>
+							<option value="delete">DELETE</option>
+							{{/select}}
+						</select>
+					</div>
+					{{/each}}
+				</div>
+			</div>
+			<div class="core-system flexcol" style="margin-top: 1em">
+				<span class="minor" style="float: left">CORE SYSTEM</span>
+				<input type="String" name="data.core_system.active_name" value="{{data.core_system.active_name}}" data-dtype="String" class="major lancer-invisible-input"/>
+				<input type="String" name="data.core_system.description" value="{{data.core_system.description}}" data-dtype="String" class="minor lancer-invisible-input"/>
+				<input type="String" name="data.core_system.effect" value="{{data.core_system.effect}}" data-dtype="String" class="minor lancer-invisible-input"/>
+
+				<div class="arrayed-item-container tags-container flexcol">
+					<div>
+						<span class="minor" style="float: left">CORE TAGS</span>
+						<a class="add-button clickable" data-action="create" data-item="core_system.tags" style="float: right; margin-right: 1em">+</a>
+					</div>
+					{{#each item.data.core_system.tags as |tag key|}}
+					<div class="flexrow tag arrayed-item" data-key="{{key}}">
+						<div class="tag-label">
+							<i class="med-icon fa fa-3x fa-tag" style="margin: 3px"></i>
+						</div>
+						<div class="flexcol">
+							<div class="remove-wrapper">
+								<input type="String" name="data.core_system.tags.{{key}}.name" value="{{tag.name}}" data-dtype="String" class="major lancer-invisible-input"/>
+								<a class="remove-button fa fa-trash clickable" data-action="delete" data-item="core_system.tags" style="float: right; margin-right: 11px; margin-top: 2px"></a>
+							</div>
+							<textarea class="lancer-invisible-input minor" type="string" name="data.core_system.tags.{{key}}.description" data-dtype="String">{{tag.description}}</textarea>
+						</div>
+					</div>
+					{{/each}}
+				</div>
+			</div>
+		</div>
+	</section>
 </form>
