@@ -52,6 +52,9 @@
 }
 
 .tag {
+  display: grid;
+  grid-template: 1em 1fr / 50px 1fr 50px;
+  align-items: center;
   border: solid #991e2a;
   border-color: #991e2a;
   border-width: 1px;

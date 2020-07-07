@@ -21,7 +21,7 @@ import { LancerFrameSheet } from './module/item/frame-sheet';
 // Import helpers
 import { preloadTemplates } from './module/preloadTemplates';
 import { registerSettings } from './module/settings';
-import { renderCompactTag } from './module/item/tags';
+import { renderCompactTag, renderFullTag } from './module/item/tags';
 import * as migrations from './module/migration.js';
 
 // Import JSON data
@@ -110,6 +110,8 @@ Hooks.once('init', async function() {
 	});
 
 	Handlebars.registerHelper('compact-tag', renderCompactTag);
+
+	Handlebars.registerHelper('full-tag', renderFullTag);
 
 	// mount display mount
 	Handlebars.registerHelper('mount-selector', (mount, key) => {
