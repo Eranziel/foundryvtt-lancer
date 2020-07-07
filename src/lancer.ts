@@ -9,18 +9,19 @@
 
 // Import TypeScript modules
 import { LancerGame } from './module/lancer-game';
-import { LancerActor } from './module/actor/lancer-actor';
+import { LancerActor, lancerActorInit } from './module/actor/lancer-actor';
 import { LancerItem } from './module/item/lancer-item';
 
 // Import applications
 import { LancerPilotSheet } from './module/actor/pilot-sheet';
 import { LancerNPCSheet } from './module/actor/npc-sheet';
 import { LancerItemSheet } from './module/item/item-sheet';
+import { LancerFrameSheet } from './module/item/frame-sheet';
 
 // Import helpers
 import { preloadTemplates } from './module/preloadTemplates';
 import { registerSettings } from './module/settings';
-import { renderCompactTag } from './module/item/tags';
+import { renderCompactTag, renderFullTag } from './module/item/tags';
 import * as migrations from './module/migration.js';
 
 // Import JSON data
@@ -72,10 +73,11 @@ Hooks.once('init', async function() {
 	Items.registerSheet("lancer", LancerItemSheet, { 
 		types: ["skill", "talent", "license", "core_bonus", 
 			"pilot_armor", "pilot_weapon", "pilot_gear", 
-			"frame", "mech_system", "mech_weapon", "npc_class",
+			"mech_system", "mech_weapon", "npc_class",
 			"npc_template", "npc_feature"], 
 		makeDefault: true 
 	});
+	Items.registerSheet("lancer", LancerFrameSheet, { types: ["frame"], makeDefault: true });
 
 	// Register handlebars helpers
 
@@ -103,6 +105,10 @@ Hooks.once('init', async function() {
 		return str.toLowerCase();
 	});
 
+	Handlebars.registerHelper('upper-case', function(str: string) {
+		return str.toUpperCase();
+	});
+
 	Handlebars.registerHelper('compact-tag', renderCompactTag);
 
 	Handlebars.registerHelper('tier-selector', (tier, key) => {
@@ -115,6 +121,8 @@ Hooks.once('init', async function() {
 	return template;
 	});
 	
+	Handlebars.registerHelper('full-tag', renderFullTag);
+
 	// mount display mount
 	Handlebars.registerHelper('mount-selector', (mount, key) => {
 		let template = `<select id="mount-type" class="mounts-control" data-action="update" data-item-id=${key}>
@@ -161,7 +169,7 @@ Hooks.once('ready', function() {
 });
 
 // Add any additional hooks if necessary
-
+Hooks.on("preCreateActor", lancerActorInit);
 
 
 async function rollAttackMacro(title:string, grit:number, accuracy:number, damage:string, effect?:string) {
