@@ -70,8 +70,6 @@ export class LancerItemSheet extends ItemSheet {
 
     // Add or Remove options
     // Yes, theoretically this could be abstracted out to one function. You do it then.
-    html.find(".tags-container").on("click", ".clickable", this._onClickTagControl.bind(this));
-    html.find(".effects-container").on("click", ".clickable", this._onClickEffectControl.bind(this));
     html.find(".arrayed-item-container").on("click", ".clickable", this._onClickArrayControl.bind(this));
     html.find(".arrayed-item-container").on("change", ".delete-selector", this._onSelectDelete.bind(this));
   }
@@ -79,40 +77,10 @@ export class LancerItemSheet extends ItemSheet {
   /* -------------------------------------------- */
 
   /**
-   * Listen for click events on an attribute control to modify the composition of attributes in the sheet
-   * @param {MouseEvent} event    The originating left click event
+   * Listen for events on a selector to remove the referenced item
+   * @param event    The originating event
    * @private
    */
-  // TODO: unused currently
-  async _onClickArrayControlNA(event) {
-    event.preventDefault();
-    const a = $(event.currentTarget);
-    const action = a.data("action");
-    const itemString = a.data("item");
-    const itemArr = duplicate(this["object"]["data"]["data"][itemString]);
-    const dataRef = "data." + itemString;
-
-    // Add new index
-    if ( action === "create" ) {
-      // I can't figure out a better way to prevent collisions
-      // Feel free to come up with something better
-      const keys = Object.keys(itemArr);
-      var newIndex = 0;
-      if (keys.length > 0) {
-        newIndex = Math.max.apply(Math, keys) + 1;
-      }
-      itemArr[newIndex] = null;
-      await this.object.update({ dataRef: itemArr });
-      await this._onSubmit(event);
-    } else if (action === "delete") {
-      const parent = a.parents(".arrayed-item");
-      const id = parent.data("key");
-      delete itemArr[id];
-      itemArr["-=" + id] = null;
-      this.object.update({ dataRef: itemArr });
-    }
-  }
-
   async _onSelectDelete(event) {
     const s = $(event.currentTarget);
     if(s.val() === "delete") {
@@ -132,6 +100,11 @@ export class LancerItemSheet extends ItemSheet {
 
   }
 
+  /**
+   * Listen for click events on an attribute control to modify the composition of attributes in the sheet
+   * @param {MouseEvent} event    The originating left click event
+   * @private
+   */
   async _onClickArrayControl(event) {
     event.preventDefault();
     const a = $(event.currentTarget);
@@ -169,67 +142,6 @@ export class LancerItemSheet extends ItemSheet {
       }
 
       this.object.update({ [dataRef] : itemArr });
-    }
-  }
-
-  // Yes, abstract it out into a single onClickAddRemove function
-  // You do it then. I'm busy.
-
-  async _onClickTagControl(event) {
-    event.preventDefault();
-    const a = $(event.currentTarget);
-    const action = a.data("action");
-    const tags = duplicate(this.object.data.data.tags);
-
-    console.log("_onClickTraitControl()", action, tags);
-    if (action === "create") {
-      // add tag
-      // I can't figure out a better way to prevent collisions
-      // Feel free to come up with something better
-      const keys = Object.keys(tags);
-      var newIndex = 0;
-      if (keys.length > 0) {
-        newIndex = Math.max.apply(Math, keys) + 1;
-      }
-      tags[newIndex] = null;
-      await this.object.update({ "data.tags": tags });
-      await this._onSubmit(event);
-    } else if (action === "delete") {
-      // delete tag
-      const parent = a.parents(".tag");
-      const id = parent.data("key");
-      delete tags[id];
-      tags["-=" + id] = null;
-      this.object.update({ "data.tags": tags });
-    }
-  }
-
-  async _onClickEffectControl(event) {
-    event.preventDefault();
-    const a = $(event.currentTarget);
-    const action = a.data("action");
-    const effect = duplicate(this.object.data.data.effect);
-
-    console.log("_onClickTraitControl()", action, effect);
-    if (action === "create") {
-      // add tag
-      // I can't figure out a better way to prevent collisions
-      // Feel free to come up with something better
-      const keys = Object.keys(effect);
-      var newIndex = 0;
-      if (keys.length > 0) {
-        newIndex = Math.max.apply(Math, keys) + 1;
-      }
-      effect[newIndex] = {};
-      await this.object.update({ "data.effect": effect });
-      await this._onSubmit(event);
-    } else if (action === "delete") {
-      // delete tag
-      const parent = a.parents(".effect");
-      const id = parent.data("key");
-      delete effect[id];
-      effect["-=" + id] = null;
-      this.object.update({ "data.effect": effect });
     }
   }
 

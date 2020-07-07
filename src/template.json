@@ -182,6 +182,11 @@
     "license": {
       "name": "",
       "source": "",
+      "content": [
+        {},
+        {},
+        {}
+      ],
       "rank": 1
     },
     "pilot_armor": {
