@@ -31,10 +31,10 @@ export class LancerNPCSheet extends ActorSheet {
    */
   static get defaultOptions() {
     return mergeObject(super.defaultOptions, {
-      classes: ["lancer", "sheet", "actor"],
+      classes: ["lancer", "sheet", "actor", "npc"],
       template: "systems/lancer/templates/actor/npc.html",
-      width: 600,
-      height: 600,
+      width: 800,
+      height: 800,
       tabs: [{
         navSelector: ".lancer-tabs",
         contentSelector: ".sheet-body",
@@ -60,6 +60,19 @@ export class LancerNPCSheet extends ActorSheet {
     }
 
 
+    // Generate the size string for the pilot's frame
+    if (data.npc_class) {
+      const npc_class: any = data.npc_class;
+      if (npc_class.data.stats.size[0] === 0.5) {
+        data.npc_size = "size-half";
+      }
+      else {
+        data.npc_size = `size-${npc_class.data.stats.size[0]}`;
+      }
+    }
+    else {
+      data.npc_size = undefined;
+    }
 
     console.log("LANCER | NPC data: ");
     console.log(data);

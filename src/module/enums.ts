@@ -79,6 +79,16 @@ enum DamageType {
   Variable = 'Variable',
 }
 
+enum EffectType {
+  Basic = 'Basic',
+  Profile = 'Profile',
+  Offensive = 'Offensive',
+  Reaction = 'Reaction',
+  Tech = 'Tech',
+  AI = 'AI',
+  Protocol = 'Protocol'
+}
+
 enum MechType {
   Balanced = 'Balanced',
   Artillery = 'Artillery',
@@ -119,6 +129,7 @@ export {
   SystemType,
   RangeType,
   DamageType,
+  EffectType,
   HASE,
   MechType,
   NPCTag,
