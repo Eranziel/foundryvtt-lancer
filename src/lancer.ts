@@ -26,6 +26,7 @@ import * as migrations from './module/migration.js';
 
 // Import JSON data
 import data from 'lancer-data';
+import { convertLancerData } from './module/compBuilder';
 
 /* ------------------------------------ */
 /* Initialize system                    */
@@ -179,6 +180,8 @@ Hooks.once('ready', function() {
       migrations.migrateWorld();
     }
 
+		// Build/update compendiums
+		convertLancerData();
   });
 
 // Add any additional hooks if necessary

@@ -52,7 +52,7 @@ async function updateItem(pack: Compendium, newData: any, type: string, img: str
 	if (entry) {
 		console.log(`LANCER | Updating ${type} ${entry.name} in compendium ${pack.collection}`);
 		let e: Item = (await pack.getEntity(entry._id)) as Item;
-		let d: ItemData = e.data;
+		let d: any = e.data;
 		d.name = newData.name;
 		d.img = img;
 		d.data = newData;
@@ -60,7 +60,7 @@ async function updateItem(pack: Compendium, newData: any, type: string, img: str
 	}
 	else {
 		// The item doesn't exist yet, create it
-		const itemData: ItemData = {
+		const itemData: any = {
 			name: newData.name,
 			img: img,
 			type: type,
@@ -255,12 +255,12 @@ async function buildFrameCompendium() {
 		updateItem(pack, frame, "frame", img);
 
 		// Create license data
-		let license: LancerLicenseData = {
-			name: frame.name,
-			source: frame.source,
-			rank: 1
-		};
-		let lItem: LancerLicense = (await updateItem(licPack, license, "license", licImg)) as LancerLicense;
+		// let license: LancerLicenseData = {
+		// 	name: frame.name,
+		// 	source: frame.source,
+		// 	rank: 1
+		// };
+		// let lItem: LancerLicense = (await updateItem(licPack, license, "license", licImg)) as LancerLicense;
 		// TODO: If the frame already exists in the license, update it instead of adding another
 		// Add the frame to the license
 		// lItem.createEmbeddedEntity(frame.name, frame);
@@ -324,13 +324,13 @@ async function buildMechSystemCompendium() {
 		updateItem(pack, system, "mech_system", img);
 
 		// If the Licenses pack exists, add the system to the relevant license
-		if (lPack) {
-			let entry: {_id: string; name: string;} = pack.index.find(e => e.name === system.license);
-			if (entry) {
-				let license: LancerLicense = (await lPack.getEntity(entry._id)) as LancerLicense;
-				// license.createEmbeddedEntity(system.name, system);
-			}
-		}
+		// if (lPack) {
+		// 	let entry: {_id: string; name: string;} = pack.index.find(e => e.name === system.license);
+		// 	if (entry) {
+		// 		let license: LancerLicense = (await lPack.getEntity(entry._id)) as LancerLicense;
+		// 		// license.createEmbeddedEntity(system.name, system);
+		// 	}
+		// }
 	});
 	return Promise.resolve(); 
 }
@@ -399,13 +399,13 @@ async function buildMechWeaponCompendium() {
 		updateItem(pack, weapon, "mech_weapon", img);
 
 		// If the Licenses pack exists, add the system to the relevant license
-		if (lPack) {
-			let entry: {_id: string; name: string;} = pack.index.find(e => e.name === weapon.license);
-			if (entry) {
-				let license: LancerLicense = (await lPack.getEntity(entry._id)) as LancerLicense;
-				// license.createEmbeddedEntity(weapon.name, weapon);
-			}
-		}
+		// if (lPack) {
+		// 	let entry: {_id: string; name: string;} = pack.index.find(e => e.name === weapon.license);
+		// 	if (entry) {
+		// 		let license: LancerLicense = (await lPack.getEntity(entry._id)) as LancerLicense;
+		// 		// license.createEmbeddedEntity(weapon.name, weapon);
+		// 	}
+		// }
 	});
 	return Promise.resolve(); 
 }
