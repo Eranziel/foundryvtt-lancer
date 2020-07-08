@@ -1,13 +1,127 @@
+/* TODO: Maybe multiple stylesheets is a good idea? Check out ITCSS and segment them by their layer */
+/* TODO: Webcomponents. Tags, cards, compact stat */
+
+/* Settings Layer*/
+:root {
+  --main-theme-color: #991e2a;  /* I've configured calls to this to fall back on fuchsia when things go wrong */
+  --gms-theme-color: #991e2a;
+  --ipsn-theme-color: #1662b8;
+  --ssc-theme-color: #d1920a;
+  --horus-theme-color: #00a256;
+  --ha-theme-color: #6e4373;
+
+  --reaction-clip-path: polygon( 0 0, 100% 0, 100% 1px, calc(100% - 9px) 1px, calc(100% - 8px) 2px, 100% 2px, 100% 3px, calc(100% - 7px) 3px, calc(100% - 6px) 4px, 100% 4px, 100% 5px, calc(100% - 5px) 5px, calc(100% - 4px) 6px, 100% 6px, 100% 7px, calc(100% - 3px) 7px, calc(100% - 2px) 8px, 100% 8px, 100% 100%, 0 100% );
+  --reaction-color: #0a7674;
+  --tech-clip-path: polygon( 0 0, calc(100% - 12px) 0, calc(100% - 12px) 7px, calc(100% - 7px) 7px, calc(100% - 7px) 3px, calc(100% - 3px) 3px, calc(100% - 3px) 0, 100% 0, 100% 3px, calc(100% - 3px) 3px, calc(100% - 3px) 7px, calc(100% - 7px) 7px, calc(100% - 7px) 12px, 100% 12px, 100% 100%, 0 100% );
+  --tech-color: #7d2477;
+
+  --top-dogear-path: polygon( 10px 0, 100% 0, 100% 100%, 0 100%, 0 10px );
+  --bottom-dogear-path: polygon( 0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100% );
+  --double-dogear-path: polygon( 10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px );
+}
+/* ---------- */
+
+/* Elements Layer */
+.lancer.sheet .window-content *:not(.fas, .mdi) {  /* An exception for each icon font */
+  font-family: Helvetica;
+}
+
+.lancer.sheet select {
+  width: min-content;
+}
+
+.lancer.sheet .mount-header select {
+  color: white;
+  outline: 0;
+  border: none;
+}
+
+.lancer.sheet .mount-header select option {
+  background-color: var(--main-theme-color, fuchsia);
+  color: white;
+}
+
+.lancer.sheet clipped-card {
+
+}
+/* ---------- */
+
+/* Components Layer */
+.lancer.sheet .window-content {
+  background: #ededed; /* Overwrite the parchment background */
+}
+
+.lancer.sheet header:not(.window-header) {
+  display: grid;
+  grid-template: 1.5fr 1fr 30px / 1fr 1fr 1.5fr 1fr 120px;
+  background-color: var(--main-theme-color, fuchsia);
+  margin: 10px;
+  color: white;
+}
+
+.lancer.sheet header .details {
+  display: flex;
+  flex-direction: column;
+  font-size: 14px;
+  padding: 10px;
+}
+
+.lancer.sheet header img {
+  grid-area: 1/5/4/6;
+  margin: 10px;
+}
+
+.pilot-callsign {
+  font-size: 34px;
+  font-weight: bold;
+}
+
+.lancer.sheet .reaction,
+.lancer.sheet .tech,
+.lancer.sheet .mount-header {
+  color: white;
+  background-color: var(--main-theme-color, fuchsia);
+  padding: 0 15px;
+  display: inline-block;
+  white-space: nowrap;
+  text-align: center;
+  max-height: 2.0em;
+  min-height: 2.0em;
+  grid-template-columns: 40px 1fr 40px;
+  align-items: center;
+  text-overflow: ellipsis;
+}
+
+.lancer.sheet .reaction {
+  clip-path: var(--reaction-clip-path);
+  -webkit-clip-path: var(--reaction-clip-path);
+  background-color: var(--reaction-color);
+}
+
+.lancer.sheet .tech {
+  clip-path: var(--tech-clip-path);
+  -webkit-clip-path: var(--tech-clip-path);
+  background-color: var(--tech-color);
+}
+
+.lancer.sheet .mount-header {
+  white-space: nowrap;
+  display: inline;
+  text-align: right;
+}
+
+/* ---------- */
+
 .add-button {
   width: 20px;
   height: 20px;
   background: #d7b6b9;
   text-align: center;
-  border: solid #991e2a;
+  border: solid var(--main-theme-color, fuchsia);
   border-width: 1px;
   border-radius: 4px;
   font-weight: bold;
-  color: #991e2a;
+  color: var(--main-theme-color, fuchsia);
 }
 
 .remove-button {
@@ -27,8 +141,11 @@
 }
 
 .tag {
-  border: solid #991e2a;
-  border-color: #991e2a;
+  display: grid;
+  grid-template: 1em 1fr / 50px 1fr 50px;
+  align-items: center;
+  border: solid var(--main-theme-color, fuchsia);
+  border-color: var(--main-theme-color, fuchsia);
   border-width: 1px;
   border-radius: 5px;
   border-left-width: 7px;
@@ -77,12 +194,8 @@
 .labeled-input > span {
   text-align: center;
   color: white;
-  background-color: #991e2a;
+  background-color: var(--main-theme-color, fuchsia);
   max-height: 1.5em;
-}
-
-select {
-  width: min-content;
 }
 
 .lancer-invisible-input {
@@ -108,50 +221,192 @@ select {
   max-height: 5em;
 }
 
+.i--xs {
+  font-size: 15px;
+  min-width: 15px;
+  max-width: 15px;
+  min-height: 15px;
+  max-height: 15px;
+}
+
+.i--s {
+  font-size: 20px;
+  min-width: 20px;
+  max-width: 20px;
+  min-height: 20px;
+  max-height: 20px;
+}
+
+.i--m {
+  font-size: 30px;
+  min-width: 30px;
+  max-width: 30px;
+  min-height: 30px;
+  max-height: 30px;
+}
+
+.i--l {
+  font-size: 40px;
+  min-width: 40px;
+  max-width: 40px;
+  min-height: 40px;
+  max-height: 40px;
+}
+
+.i--xl {
+  font-size: 60px;
+  min-width: 60px;
+  max-width: 60px;
+  min-height: 60px;
+  max-height: 60px;
+}
+
+.i--dark {
+  color: #2e2e2e;
+}
+
+.i--faded {
+  color: #696969;
+}
+
+.i--light {
+  color: #ededed;
+}
+
+.damage--kinetic {
+  color: #757575;
+}
+
+.damage--energy {
+  color: #29B6F6;
+}
+
+.damage--explosive {
+  color: #FFA726;
+}
+
+.damage--burn {
+  color: #FFA726;
+}
+
+.damage--heat {
+  color: #FF7043;
+}
+
+.damage--variable {
+  color: #D500F9;
+}
+
 .clipped {
-  clip-path: polygon( 10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px );
-  -webkit-clip-path: polygon( 10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px );
+  clip-path: var(--double-dogear-path);
+  -webkit-clip-path: var(--double-dogear-path);
 }
 
 .clipped-top {
-  clip-path: polygon( 10px 0, 100% 0, 100% 100%, 0 100%, 0 10px );
-  -webkit-clip-path: polygon( 10px 0, 100% 0, 100% 100%, 0 100%, 0 10px );
+  clip-path: var(--top-dogear-path);
+  -webkit-clip-path: var(--top-dogear-path);
 }
 
 .clipped-bot {
-  clip-path: polygon( 0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100% );
-  -webkit-clip-path: polygon( 0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100% );
+  clip-path: var(--bottom-dogear-path);
+  -webkit-clip-path: var(--bottom-dogear-path);
 }
 
-.lancer-reaction-header,
-.lancer-tech-header,
+.lancer-tabs {
+  clip-path: polygon( 0 0, 100% 0, calc(100% - 20px) 100%, 0 100% );
+  -webkit-clip-path: polygon( 0 0, 100% 0, calc(100% - 20px) 100%, 0 100% );
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  background-color: var(--main-theme-color, fuchsia);
+  color: white;
+  padding: 10px;
+}
+
+.lancer-tab {
+  clip-path: polygon( 10px 0, 100% 0, calc(100% - 10px) 100%, 0 100% );
+  -webkit-clip-path: polygon( 10px 0, 100% 0, calc(100% - 10px) 100%, 0 100% );
+  padding-left: 10px;
+  padding-right: 10px;
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.lancer-tab.active {
+  color: var(--main-theme-color, fuchsia);
+  background-color: #f0f0f0;
+}
+
+/* TODO: Factor out */
+.lancer-mech-trait-header,
+.lancer-core-sys-header,
 .lancer-talent-header,
 .lancer-system-header,
 .lancer-trigger-header,
 .lancer-protocol-header,
 .lancer-weapon-header {
   color: white;
+  background-color: var(--main-theme-color, fuchsia);
   padding-left: 15px;
   padding-right: 15px;
+  display: grid;
+  white-space: nowrap;
+  text-align: center;
+  max-height: 2.0em;
+  min-height: 2.0em;
+  grid-template-columns: 40px 1fr 40px;
+  align-items: center;
+  text-overflow: ellipsis;
+}
+
+.lancer-mount-container {
   margin: 3px;
-  display: inline-block;
-  white-space: pre-wrap;
+  flex: 1 0 0;
+  justify-content: space-evenly;
+  align-content: stretch;
+  min-width: 33%;
+  max-width: 66%;
 }
 
-.lancer-reaction-header {
-  clip-path: polygon( 0 0, 100% 0, 100% 1px, calc(100% - 9px) 1px, calc(100% - 8px) 2px, 100% 2px, 100% 3px, calc(100% - 7px) 3px, calc(100% - 6px) 4px, 100% 4px, 100% 5px, calc(100% - 5px) 5px, calc(100% - 4px) 6px, 100% 6px, 100% 7px, calc(100% - 3px) 7px, calc(100% - 2px) 8px, 100% 8px, 100% 100%, 0 100% );
-  -webkit-clip-path: polygon( 0 0, 100% 0, 100% 1px, calc(100% - 9px) 1px, calc(100% - 8px) 2px, 100% 2px, 100% 3px, calc(100% - 7px) 3px, calc(100% - 6px) 4px, 100% 4px, 100% 5px, calc(100% - 5px) 5px, calc(100% - 4px) 6px, 100% 6px, 100% 7px, calc(100% - 3px) 7px, calc(100% - 2px) 8px, 100% 8px, 100% 100%, 0 100% );
-  background-color: #0a7674;
+.lancer-core-sys-header {
+  grid-template-columns: 40px 1fr 140px;
 }
 
-.lancer-tech-header {
-  clip-path: polygon( 0 0, calc(100% - 12px) 0, calc(100% - 12px) 7px, calc(100% - 7px) 7px, calc(100% - 7px) 3px, calc(100% - 3px) 3px, calc(100% - 3px) 0, 100% 0, 100% 3px, calc(100% - 3px) 3px, calc(100% - 3px) 7px, calc(100% - 7px) 7px, calc(100% - 7px) 12px, 100% 12px, 100% 100%, 0 100% );
-  -webkit-clip-path: polygon( 0 0, calc(100% - 12px) 0, calc(100% - 12px) 7px, calc(100% - 7px) 7px, calc(100% - 7px) 3px, calc(100% - 3px) 3px, calc(100% - 3px) 0, 100% 0, 100% 3px, calc(100% - 3px) 3px, calc(100% - 3px) 7px, calc(100% - 7px) 7px, calc(100% - 7px) 12px, 100% 12px, 100% 100%, 0 100% );
-  background-color: #7d2477;
+.lancer-mount-body {
+  display: flex;
+  justify-content: flex-start;
+  flex-direction: column;
+  min-height: 45px;
+  border-style: dashed;
+  border-width: 2px;
+  border-color: var(--main-theme-color, fuchsia);
+  border-top-style: none;
+  white-space: pre;
+}
+
+.lancer-talent-container {
+  margin: 3px;
 }
 
 .lancer-talent-header {
   background-color: #3a81c3;
+}
+
+.lancer-talent-body {
+  min-height: 15px;
+  border-style: dashed;
+  border-width: 2px;
+  border-color: #3a81c3;
+  border-top-style: none;
+  text-align: left;
+  justify-content: left;
+  white-space: pre-wrap;
+  hyphens: auto;
+  word-break: break-word;
+  background-color: #3a81c333;
+  clip-path: polygon( 0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100% );
+  -webkit-clip-path: polygon( 0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100% );
 }
 
 .lancer-system-header {
@@ -161,7 +416,7 @@ select {
 }
 
 .lancer-trigger-header {
-  color: #991e2a;
+  color: var(--main-theme-color, fuchsia);
   background-color: white;
 }
 
@@ -171,10 +426,84 @@ select {
 
 .lancer-weapon-header {
   background-color: #000000;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.sheet-bg {
-  background-color: #ccc;
+.lancer-weapon-body {
+  min-height: 15px;
+  border-style: dashed;
+  border-width: 2px;
+  border-color: #000000;
+  border-top-style: none;
+
+  padding: 3px;
+
+  text-align: center;
+  white-space: pre-wrap;
+  hyphens: auto;
+  word-break: break-word;
+
+  display: grid;
+  grid-template-columns: auto auto;
+  grid-template-rows: fit-content(0) fit-content(0) fit-content(0);
+
+  background-color: #00000033;
+}
+
+.lancer-weapon-container {
+  margin: 3px;
+}
+
+.compact-tag {
+  color: white;
+  background-color: var(--main-theme-color, fuchsia);
+  max-width: max-content;
+  min-width: max-content;
+  align-items: center;
+  border-radius: 5px;
+  padding: 0px 5px;
+  margin: 3px 5px;
+  border: 2px;
+  font-size: 12px;
+}
+
+.pilot-stats {
+  clip-path: polygon( 0 0, calc(100% - 30px) 0, 100% 100%, 0 100% );
+  -webkit-clip-path: polygon( 0 0, calc(100% - 30px) 0, 100% 100%, 0 100% );
+  background-color: #CCCCCC;
+  grid-area: 3/1/4/5;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  padding-left: 5px;
+  padding-right: 30px;
+  align-items: center;
+}
+
+.compact-stat {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0 5px;
+}
+
+.size-icon {
+  font-size: 120px;
+  min-width: 120px;
+  max-width: 120px;
+  min-height: 120px;
+  max-height: 120px;
+}
+
+.pilot-loadout {
+  display: grid;
+  grid-template: 1fr 1fr / 1fr 1fr ;
+}
+
+.header-name {
+  align-self: center;
+  height: -webkit-fill-available;
 }
 
 .editor {
@@ -187,16 +516,14 @@ select {
 }
 
 .card {
+  /* Literally just a darkened background and centering children components inside */
   background-color: rgba(0,0,0,0.07);
-  margin-left: 10px;
-  margin-right: 10px;
-  margin-top: 3px;
-  margin-bottom: 3px;
+  margin: 3px 10px;
   text-align: center;
 }
 .card .lancer-title {
-  margin-left: 0px;
-  margin-right: 0px;
+  /* TODO: review if this rule can be simplified */
+  margin: initial 0;
 }
 
 .major {
@@ -221,20 +548,21 @@ select {
   margin-top: 3px;
   margin-bottom: 3px;
   color: white;
-  background-color: #991e2a;
+  background-color: var(--main-theme-color, fuchsia);
 }
 
 .lancer-stat-header {
-  text-align: center;
+  align-items: center;
   color: white;
-  background-color: #991e2a;
-  max-height: 1.5em;
+  background-color: var(--main-theme-color, fuchsia);
+  max-height: fit-content;
 }
 
 .lancer-stat-input {
   align-self: center;
   text-align: center;
   max-width: 50px;
+  min-width: 30px;
 }
 
 .lancer-text-input {
@@ -244,10 +572,73 @@ select {
   margin: 5px;
 }
 
+.desc-text {
+  text-align: left;
+  padding: 0.5em;
+}
+
+.effect-text {
+  text-align: left;
+  padding: 0.5em;
+}
+
 .skill-compact {
   display: grid;
-  grid-template: 1fr 1fr / 30px 1fr 30px;
+  grid-template: 2.0em 1fr / 50px 1fr;
   margin-right: 25px;
+}
+
+.cb-compact {
+  display: grid;
+  grid-template: 2.0em 1fr / 1fr;
+  margin-right: 25px;
+}
+
+.talent-compact {
+  display: grid;
+  grid-template: 2.0em 1fr / 30px 1fr 30px;
+  margin-right: 25px;
+}
+
+.talent-rank-compact {
+  display: grid;
+  grid-template: 2.5em 1fr / 30px 1fr;
+}
+
+.frame-trait-compact {
+  display: grid;
+  grid-template: 2.0em 1fr / 1fr;
+  margin: 10px;
+}
+
+/* .frame-core {
+  display: grid;
+  grid-template: repeat(3, 1fr) / 1fr;
+} */
+
+code {
+  padding: 4px 12px 4px 12px;
+}
+
+code.horus {
+  font-size: 1.1em;
+  background-color: rgba(0, 0, 0, 0.7) !important;
+  box-shadow: none;
+  color: white;
+  font-style: normal;
+  letter-spacing: 0.05em;
+  border-radius: 0;
+}
+
+code.horus:hover {
+  background-color: black !important;
+  animation: distort 0.6s infinite;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+.horus--subtle {
+  animation: distort-subtle 5s infinite;
 }
 
 .lancer-card .title {

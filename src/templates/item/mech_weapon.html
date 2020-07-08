@@ -1,4 +1,4 @@
-<form class="{{cssClass}} sheet-bg" autocomplete="off">
+<form class="{{cssClass}} lancer-sheet" autocomplete="off">
 
 	{{!-- Sheet Header --}}
 	<header class="sheet-header card clipped-bot">
@@ -51,11 +51,11 @@
 			<div>
 				<select name="data.mount" data-type="String">
 					{{#select data.mount}}
-					<option value="aux">AUX</option>
-					<option value="main">MAIN</option>
-					<option value="heavy">HEAVY</option>
-					<option value="superheavy">SUPERHEAVY</option>
-					<option value="other">OTHER</option>
+					<option value="Auxiliary">AUX</option>
+					<option value="Main">MAIN</option>
+					<option value="Heavy">HEAVY</option>
+					<option value="Superheavy">SUPERHEAVY</option>
+					<option value="Other">OTHER</option>
 					{{/select}}
 				</select>
 				<select name="data.weapon_type" data-type="String">
@@ -119,18 +119,7 @@
 				<a class="add-button clickable"style="float: right; margin-right: 1em">+</a>
 			</div>
 			{{#each item.data.tags as |tag key|}}
-			<div class="flexrow tag" data-key="{{key}}">
-				<div class="tag-label">
-					<i class="med-icon fa fa-3x fa-tag" style="margin: 3px"></i>
-				</div>
-				<div class="flexcol">
-					<div class="remove-wrapper">
-						<input type="String" name="data.tags.{{key}}.name" value="{{tag.name}}" data-dtype="String" class="major lancer-invisible-input"/>
-						<a class="remove-button fa fa-trash clickable" style="float: right; margin-right: 11px; margin-top: 2px"></a>
-					</div>
-					<textarea class="lancer-invisible-input minor" type="string" name="data.tags.{{key}}.description" data-dtype="String">{{tag.description}}</textarea>
-				</div>
-			</div>
+			{{{full-tag tag}}}
 			{{/each}}
 		</div>
 	</div>

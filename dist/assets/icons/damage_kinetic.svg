@@ -1,76 +1,10 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Created with Inkscape (http://www.inkscape.org/) -->
-
-<svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="7.9375mm"
-   height="7.93751mm"
-   viewBox="0 0 7.9375 7.93751"
-   version="1.1"
-   id="svg8"
-   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
-   sodipodi:docname="damage_kinetic.svg">
-  <defs
-     id="defs2" />
-  <sodipodi:namedview
-     id="base"
-     pagecolor="#ffffff"
-     bordercolor="#666666"
-     borderopacity="1.0"
-     inkscape:pageopacity="0.0"
-     inkscape:pageshadow="2"
-     inkscape:zoom="4.0000001"
-     inkscape:cx="138.25"
-     inkscape:cy="35.267392"
-     inkscape:document-units="mm"
-     inkscape:current-layer="layer1"
-     showgrid="false"
-     inkscape:snap-bbox="true"
-     inkscape:snap-bbox-edge-midpoints="false"
-     inkscape:object-paths="false"
-     inkscape:snap-smooth-nodes="true"
-     inkscape:snap-bbox-midpoints="true"
-     inkscape:window-width="1920"
-     inkscape:window-height="1057"
-     inkscape:window-x="-8"
-     inkscape:window-y="-8"
-     inkscape:window-maximized="1"
-     inkscape:bbox-paths="true"
-     inkscape:snap-global="true">
-    <inkscape:grid
-       type="xygrid"
-       id="grid4518"
-       originx="-359.83333"
-       originy="-939.27078" />
-  </sodipodi:namedview>
-  <metadata
-     id="metadata5">
-    <rdf:RDF>
-      <cc:Work
-         rdf:about="">
-        <dc:format>image/svg+xml</dc:format>
-        <dc:type
-           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
-      </cc:Work>
-    </rdf:RDF>
-  </metadata>
-  <g
-     inkscape:label="icons"
-     inkscape:groupmode="layer"
-     id="layer1"
-     style="display:inline"
-     transform="translate(-56.885417,-144.86458)">
-    <path
-       style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.99999994px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="M 25 5 C 22.928462 6.2947149 20.925933 7.7259299 19.005859 9.2714844 C 17.867794 8.4718258 16.4872 7.9960938 14.998047 7.9960938 C 11.143896 7.9960938 8 11.147818 8 15.001953 C 8 16.490697 8.4716324 17.871276 9.2695312 19.007812 C 7.7246389 20.927236 6.2942306 22.929228 5 25 C 7.0707687 23.705766 9.0727647 22.275362 10.992188 20.730469 C 12.12872 21.52837 13.509311 22 14.998047 22 C 18.852194 22 22.003906 18.856126 22.003906 15.001953 C 22.003906 13.512805 21.528176 12.132203 20.728516 10.994141 C 22.274069 9.0740659 23.705289 7.0715419 25 5 z M 14.998047 9.9980469 C 15.868766 9.9980469 16.673134 10.237334 17.384766 10.625 C 14.970171 12.704385 12.704385 14.97017 10.625 17.384766 C 10.239224 16.674749 10 15.871591 10 15.001953 C 10 12.228687 12.224777 9.9980469 14.998047 9.9980469 z M 19.375 12.615234 C 19.76267 13.326862 20.001953 14.131234 20.001953 15.001953 C 20.001953 17.775219 17.771313 20 14.998047 20 C 14.128408 20 13.325249 19.760779 12.615234 19.375 C 15.02983 17.295615 17.295616 15.02983 19.375 12.615234 z "
-       transform="matrix(0.26458333,0,0,0.26458333,56.885417,144.86458)"
-       id="path6978" />
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd" >
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" viewBox="0 -64 1024 1024">
+  <g transform="matrix(1 0 0 -1 0 960)">
+   <path fill="currentColor"
+d="M751 448q0 -48 -19.5 -93t-50.5 -76t-76 -50.5t-93 -19.5t-93 19.5t-76 50.5t-50.5 76t-19.5 93t19.5 93t50.5 76t76 50.5t93 19.5t93 -19.5t76 -50.5t50.5 -76t19.5 -93zM633 569q-25 24 -54.5 37t-66.5 13t-66.5 -13t-54.5 -37q-24 -25 -37 -54.5t-13 -66.5t13 -66.5
+t37 -54.5q25 -24 54.5 -37t66.5 -13t66.5 13t54.5 37q24 25 37 54.5t13 66.5t-13 66.5t-37 54.5v0zM171 107q102 64 198 140q95 76 181.5 162.5t162.5 181.5q76 96 140 198q-102 -64 -198 -140q-95 -76 -181.5 -162.5t-162.5 -181.5q-76 -96 -140 -198v0z" />
   </g>
+
 </svg>

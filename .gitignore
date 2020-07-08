@@ -14,3 +14,5 @@ dist/**/*.js
 dist/**/*.js.map
 dist/**/*.json
 dist/**/*.css
+dist/fonts/mdi/**
+package-lock.json
