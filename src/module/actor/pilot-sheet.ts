@@ -81,8 +81,7 @@ export class LancerPilotSheet extends ActorSheet {
       data.frame_size = undefined;
     }
 
-    console.log("LANCER | Pilot sheet data: ");
-    console.log(data);
+    console.log("LANCER | Pilot sheet data: ", data);
     return data;
   }
 
@@ -255,16 +254,14 @@ export class LancerPilotSheet extends ActorSheet {
     // Case 1 - Item is from a Compendium pack
     if (data.pack) {
       item = (await game.packs.get(data.pack).getEntity(data.id)) as Item;
-      console.log("LANCER | Item dropped from compendium: ");
-      console.log(item);
+      console.log("LANCER | Item dropped from compendium: ", item);
     }
 
     // Case 2 - Item is a World entity
     else if (!data.data) {
       item = game.items.get(data.id);
       if (!item) return;
-      console.log("LANCER | Item dropped from world: ");
-      console.log(item);
+      console.log("LANCER | Item dropped from world: ", item);
     }
 
     // Logic below this line is executed only with owner permission of a sheet
@@ -285,7 +282,6 @@ export class LancerPilotSheet extends ActorSheet {
       // Add the new frame from Compendium pack
       if (data.pack) {
         const frame = await actor.importItemFromCollection(data.pack, data.id) as any;
-        console.log(frame);
         newFrameStats = frame.data.stats;
       }
       // Add the new frame from a World entity
@@ -326,8 +322,7 @@ export class LancerPilotSheet extends ActorSheet {
           ui.notifications.error('Assign a secondary mount to this heavy mount in order to equip a superheavy weapon');
         } else {
           mount.weapons.push(item);
-          console.log("LANCER | Inserting Mech Weapon into Mount");
-          console.log(item);
+          console.log("LANCER | Inserting Mech Weapon into Mount", item);
           this.actor.update({"data.mech_loadout.mounts": mounts});
           this._onSubmit(event);
         }
@@ -341,7 +336,6 @@ export class LancerPilotSheet extends ActorSheet {
     // Finally, fall back to super's behaviour if nothing else "handles" the drop (signalled by returning).
     // Don't hate the player, hate the imperative paradigm
     console.log('LANCER | Falling back on super._onDrop');
-    await actor.createEmbeddedEntity("OwnedItem", duplicate(item.data));
     return super._onDrop(event);
   }
 
@@ -353,7 +347,7 @@ export class LancerPilotSheet extends ActorSheet {
    * @private
    */
   _updateObject(event: Event | JQuery.Event, formData: any): Promise<any> {
-    console.log(formData);
+    console.log("LANCER | Pilot sheet form data: ", formData);
     // Use the Actor's name for the pilot's callsign
     formData.name = formData["data.pilot.callsign"];
 

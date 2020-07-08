@@ -350,7 +350,7 @@
   background-color: var(--main-theme-color, fuchsia);
   padding-left: 15px;
   padding-right: 15px;
-  display: inline-block;
+  display: grid;
   white-space: nowrap;
   text-align: center;
   max-height: 2.0em;

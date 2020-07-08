@@ -74,6 +74,7 @@ export function renderChunkyTag(tagShort: TagDataShort): string {
       </div>
     </div>`;
   }
+}
   
 /**
  * Handlebars helper to generate verbose tag template.
@@ -84,18 +85,15 @@ export function renderFullTag(tagShort: TagDataShort): string {
   let template: string = "";
   let tag: TagData = findTag(tagShort.id);
 
-  console.log(tag);
   if (tag) {
     // Don't render hidden tags
     if (tag.hidden) return template;
 
     // Put the value in the tag string
     let tagName: string = tag.name;
-    if (tagShort.val) {
-      tagName = tagName.replace("{VAL}", String(tagShort.val));
-    }
     let tagDesc: string = tag.description;
     if (tagShort.val) {
+      tagName = tagName.replace("{VAL}", String(tagShort.val));
       tagDesc = tagDesc.replace("{VAL}", String(tagShort.val));
     }
     // Generate the Handlebars partial
@@ -106,6 +104,5 @@ export function renderFullTag(tagShort: TagDataShort): string {
     <a class="remove-button fa fa-trash clickable" style="grid-area: 2/3/3/4; margin-right: 11px; margin-top: 2px"></a>
     </div>`;
   }
-  console.log(template);
   return template;
 }
