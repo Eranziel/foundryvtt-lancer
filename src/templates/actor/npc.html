@@ -1,31 +1,31 @@
 <form class="{{cssClass}} lancer-sheet" autocomplete="off">
 
     {{!-- Sheet Header --}}
-    <header class="npc-header">
-        <div class="flexcol npc-header-details" style="grid-area: 1/1/2/3">
+    <header">
+        <div class="details" style="grid-area: 1/1/2/3">
             NAME
             <span class="major">{{data.name}}</span>
         </div>
-        <div class="flexcol npc-header-details" style="grid-area: 1/4/3/4">
+        <div class="details" style="grid-area: 1/4/3/4">
             TIER
             {{#if data.tier}}
             <div ></div><i class="cci cci-{{data.tier}} size-icon theme--npc"></i></div>
             {{/if}}
         </div>
-        <div class="flexcol npc-header-details" style="grid-area: 2/1/3/2">
+        <div class="details" style="grid-area: 2/1/3/2">
             CLASS
             <span class="major">{{npc_class.name}}</span>
         </div>
-        <img class="npc-img" src="{{actor.img}}" data-edit="img" title="{{actor.name}}" height="100" width="100" />
+        <img src="{{actor.img}}" data-edit="img" title="{{actor.name}}" height="100" width="100" />
     </header>
 
-    {{!-- Sheet Tab Navigation --}}
-    <nav class="lancer-tabs" data-group="primary">
-        <a class="item lancer-tab medium" data-tab="mech">&lt;NPC//LOADOUT&gt;</a>
-    </nav>
+  {{!-- Sheet Tab Navigation --}}
+  <nav class="lancer-tabs" data-group="primary">
+    <a class="item lancer-tab medium" data-tab="mech">&lt;NPC//LOADOUT&gt;</a>
+  </nav>
 
-    {{!-- Sheet Body --}}
-    <section class="sheet-body" style="height:-webkit-fill-available">
+  {{!-- Sheet Body --}}
+  <section class="sheet-body" style="height:-webkit-fill-available">
 
         {{!-- Loadout Tab --}}
         <div class="tab mech active" data-group="primary" data-tab="mech">

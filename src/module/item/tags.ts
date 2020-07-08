@@ -1,10 +1,10 @@
 
-import data from 'lancer-data'
+import data from 'lancer-data';
 import { TagData, TagDataShort } from '../interfaces';
 
 /**
  * Search for a tag in lancer-data.
- * @param id The tag's laner-data id string.
+ * @param id The tag's lancer-data id string.
  * @returns The full tag data.
  */
 function findTag(id: string): TagData {
@@ -46,6 +46,36 @@ export function renderCompactTag(tagShort: TagDataShort): string {
   return template;
 }
 
+export function renderChunkyTag(tagShort: TagDataShort): string {
+  let template: string = "";
+  let tag: TagData = findTag(tagShort.id);
+  
+  if (tag) {
+    // Don't render hidden tags
+    if (tag.hidden) return template;
+
+    // Put the value in the tag string
+    let tagString: string = tag.name;
+    let tagDescription: string = tag.description;
+    if (tagShort.val) {
+      tagString = tagString.replace("{VAL}", String(tagShort.val));
+      tagDescription = tagDescription.replace("{VAL}", String(tagShort.val));
+    }
+    // Generate the Handlebars partial
+    template = `<div class="tag flexrow">
+      <div class="tag-label">
+        <i class="med-icon fa fa-3x fa-tag" style="margin: 3px"></i>
+      </div>
+      <div class="flexcol">
+        <div class="remove-wrapper">
+          <span class="major" style="margin: 3px;">${tagString}</span>
+          <span>${tagDescription}</span>
+        </div>
+      </div>
+    </div>`;
+  }
+}
+  
 /**
  * Handlebars helper to generate verbose tag template.
  * @param tagShort an object containing the tag's ID and value.
@@ -55,18 +85,15 @@ export function renderFullTag(tagShort: TagDataShort): string {
   let template: string = "";
   let tag: TagData = findTag(tagShort.id);
 
-  console.log(tag);
   if (tag) {
     // Don't render hidden tags
     if (tag.hidden) return template;
 
     // Put the value in the tag string
     let tagName: string = tag.name;
-    if (tagShort.val) {
-      tagName = tagName.replace("{VAL}", String(tagShort.val));
-    }
     let tagDesc: string = tag.description;
     if (tagShort.val) {
+      tagName = tagName.replace("{VAL}", String(tagShort.val));
       tagDesc = tagDesc.replace("{VAL}", String(tagShort.val));
     }
     // Generate the Handlebars partial
@@ -77,6 +104,5 @@ export function renderFullTag(tagShort: TagDataShort): string {
     <a class="remove-button fa fa-trash clickable" style="grid-area: 2/3/3/4; margin-right: 11px; margin-top: 2px"></a>
     </div>`;
   }
-  console.log(template);
   return template;
 }

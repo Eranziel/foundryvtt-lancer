@@ -40,6 +40,7 @@ export class LancerItemSheet extends ItemSheet {
     // for ( let attr of Object.values(data.data.attributes) ) {
     //   attr.isCheckbox = attr.dtype === "Boolean";
     // }
+    console.log('LANCER | Item sheet data: ')
     console.log(data);
     return data;
   }

@@ -16,7 +16,9 @@
 	<div class="flexcol">
 		<div class="card clipped flexcol">
 			<span class="lancer-stat-header major">DESCRIPTION</span>
+			<div style="text-align: left">
 			{{editor content=data.description target="data.description" button=true owner=owner editable=editable}}
+			</div>
 		</div>
 
 		{{#each item.data.ranks as |rank lvl|}}
@@ -25,9 +27,10 @@
 					<input class="lancer-invisible-input" type="string" name="data.ranks.{{lvl}}.name" value="{{rank.name}}" data-dtype="String" style="color: white"/>
 					<span class="minor">//RANK {{inc lvl}}</span>
 				</div>
-				<div class="flexrow" style="background-color: #dbdbdb">
-					<img class="large-icon" style="flex-grow: unset" src="../systems/lancer/assets/icons/chevron_{{inc lvl}}.svg">
-					<textarea class="lancer-invisible-input" type="string" name="data.ranks.{{lvl}}.description" data-dtype="String" style="width:80%">{{rank.description}}</textarea>
+				<div class="flexrow" style="background-color: #dbdbdb; min-height: 15em; text-align: left">
+					<i class="cci cci-rank-{{inc lvl}} i--xl i--dark" style="grid-area: 1/1/2/2"></i>
+					{{editor content=rank.description target="data.ranks.{{lvl}}.description" button=true owner=owner editable=editable}}
+					{{!-- <textarea class="lancer-invisible-input" type="string" name="data.ranks.{{lvl}}.description" data-dtype="String" style="width:80%; min-height: fit-content;">{{rank.description}}</textarea> --}}
 				</div>
 			</div>
 		{{/each}}
