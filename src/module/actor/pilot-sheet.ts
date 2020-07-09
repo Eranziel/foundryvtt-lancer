@@ -2,6 +2,7 @@ import { LancerPilotSheetData, LancerFrameData, LancerFrameStatsData } from '../
 import { LancerItem, LancerFrame } from '../item/lancer-item';
 import { MechType } from '../enums';
 import { LancerActor } from './lancer-actor';
+import { LancerGame } from '../lancer-game';
 
 // TODO: should probably move to HTML/CSS
 const entryPrompt = "//:AWAIT_ENTRY>";
@@ -127,6 +128,35 @@ export class LancerPilotSheet extends ActorSheet {
    */
   activateListeners(html) {
     super.activateListeners(html);
+
+    // Macro triggers
+    if (this.actor.owner) {
+      // Stat rollers
+      let macros = html.find('.stat-macro[data-action*="roll-macro"]');
+      macros.click(ev => {
+        ev.stopPropagation();  // Avoids triggering parent event handlers
+        console.log(ev);
+        const item = $(ev.currentTarget).closest('.stat-container')[0];
+        let statKey: string = "";
+        console.log("LANCER | Stat containter ", item);
+
+        // Find the stat input to get the stat's key to pass to the macro function
+        for (let i = 0; i < item.children.length; i++) {
+          const element = item.children[i] as HTMLElement;
+          for (let j = 0; j < element.classList.length; j++) {
+            if (element.classList[j] === "lancer-stat-input") {
+              statKey = (element as HTMLInputElement).name;
+              break;
+            }
+          }
+          if (statKey !== "") break;
+        }
+        let keySplit = statKey.split('.');
+        let title = keySplit[keySplit.length - 1].toUpperCase();
+        console.log(`LANCER | Fire sheet stat macro: ${title}, key ${statKey}`);
+        game.lancer.rollStatMacro(title, statKey, null, true);
+      });
+    }
 
     // Everything below here is only needed if the sheet is editable
     if (!this.options.editable) return;
