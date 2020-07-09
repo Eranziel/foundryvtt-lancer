@@ -156,6 +156,20 @@ export class LancerPilotSheet extends ActorSheet {
         console.log(`LANCER | Fire sheet stat macro: ${title}, key ${statKey}`);
         game.lancer.rollStatMacro(title, statKey, null, true);
       });
+
+      // Trigger rollers
+      let modifiers = html.find('.roll-modifier');
+      modifiers.click(ev => {
+        ev.stopPropagation();
+        console.log(ev);
+
+        const modifier = parseInt($(ev.currentTarget).text());
+        const title = $(ev.currentTarget).closest('.skill-compact').find('.modifier-name').text();
+        //.find('modifier-name').first().text();
+        console.log(`LANCER | Rolling '${title}' trigger (d20 + ${modifier})`);
+
+        game.lancer.rollTriggerMacro(title, modifier, true);
+      });
     }
 
     // Everything below here is only needed if the sheet is editable

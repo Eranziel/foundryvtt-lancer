@@ -1,12 +1,11 @@
-
 <div class="lancer-card">
-  <div class="title">{{ title }}</div>
+  <div class="title">Check :: {{title}}</div>
   <div class="lancer-dice-roll">
     <div class="lancer-dice-formula flexcol">{{ roll.formula }}</div>
     <h4 class="lancer-dice-total flexcol">{{ roll.total }}</h4>
   </div>
   {{#if effect}}
-    <div class="section-title">// EFFECT \\</div>
+    <header>// EFFECT \\</header>
     {{{ effect }}}
   {{/if}}
 </div>
