@@ -161,6 +161,19 @@
   align-items: center;
 }
 
+.compact-tag {
+  color: white;
+  background-color: var(--main-theme-color, fuchsia);
+  max-width: max-content;
+  min-width: max-content;
+  align-items: center;
+  border-radius: 5px;
+  padding: 0px 5px;
+  margin: 3px 5px;
+  border: 2px;
+  font-size: 12px;
+}
+
 .license-desc {
   display: flex;
 }
@@ -470,19 +483,6 @@
   margin: 3px;
 }
 
-.compact-tag {
-  color: white;
-  background-color: var(--main-theme-color, fuchsia);
-  max-width: max-content;
-  min-width: max-content;
-  align-items: center;
-  border-radius: 5px;
-  padding: 0px 5px;
-  margin: 3px 5px;
-  border: 2px;
-  font-size: 12px;
-}
-
 .pilot-stats {
   clip-path: polygon( 0 0, calc(100% - 30px) 0, 100% 100%, 0 100% );
   -webkit-clip-path: polygon( 0 0, calc(100% - 30px) 0, 100% 100%, 0 100% );
@@ -589,11 +589,13 @@
 .desc-text {
   text-align: left;
   padding: 0.5em;
+  /* font-family: Consolas; */
 }
 
 .effect-text {
   text-align: left;
   padding: 0.5em;
+  /* font-family: Helvetica */
 }
 
 .skill-compact {
@@ -630,6 +632,7 @@
   grid-template: repeat(3, 1fr) / 1fr;
 } */
 
+/* Start of HORUS glitchy styles used in lancer-data */
 code {
   padding: 4px 12px 4px 12px;
 }
@@ -654,6 +657,7 @@ code.horus:hover {
 .horus--subtle {
   animation: distort-subtle 5s infinite;
 }
+/* End of HORUS glitchy styles used in lancer-data */
 
 .lancer-card .title {
   text-align: center;
