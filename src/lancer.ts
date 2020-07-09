@@ -50,7 +50,8 @@ Hooks.once('init', async function() {
 		entities: {
 			LancerActor,
 			LancerItem,
-    },
+		},
+		rollStatMacro: rollStatMacro,
 		rollAttackMacro: rollAttackMacro,
 		migrations: migrations,
 	};
@@ -194,42 +195,109 @@ Hooks.once('ready', function() {
 // Add any additional hooks if necessary
 Hooks.on("preCreateActor", lancerActorInit);
 
+function getMacroSpeaker(): Actor | null {
+	// Determine which Actor to speak as
+	const speaker = ChatMessage.getSpeaker();
+	console.log("LANCER | Macro speaker", speaker);
+	let actor: Actor;
+	console.log(game.actors.tokens);
+	try {
+		if (speaker.token) actor = game.actors.tokens[speaker.token].actor;
+	} catch (TypeError) {
+		// Need anything here?
+	}
+	if (!actor) actor = game.actors.get(speaker.actor, {strict : false}) as Actor;
+	if (!actor) {
+		ui.notifications.notify(`Failed to find Actor for speaker ${speaker.token} or ${speaker.actor}`, "warning");
+		return null;
+	}
+	return actor;
+}
+
+async function renderMacro(actor: Actor, template: string, templateData: any) {
+	const html = await renderTemplate(template, templateData)
+	let chat_data = {
+		user: game.user,
+		type: CONST.CHAT_MESSAGE_TYPES.IC,
+		speaker: {
+			actor: actor
+		},
+		content: html
+	};
+	let cm = await ChatMessage.create(chat_data);
+	cm.render();
+	return Promise.resolve();
+}
+
+async function rollStatMacro(title: string, statKey: string, effect?: string, sheetMacro: boolean = false) {
+	// Determine which Actor to speak as
+	let actor: Actor = getMacroSpeaker();
+	if (actor === null) return;
+	console.log("LANCER | rollStatMacro actor", actor);
+
+	let bonus: any;
+	const statPath = statKey.split(".");
+	// Macros rolled directly from the sheet provide a stat key referenced from actor.data
+	if (sheetMacro) {
+		bonus = actor.data;
+		// bonus = actor[`data.${statKey}`];
+		// console.log("LANCER | actor.data", actor['data']['data']);
+	}
+	else {
+		bonus = actor;
+	}
+	for (let i = 0; i < statPath.length; i++) {
+		const p = statPath[i];
+		bonus = bonus[`${p}`];
+	}
+	console.log("LANCER | rollStatMacro ", statKey, bonus);
+
+	// TODO: get accuracy/difficulty with a prompt
+	let acc: number = 0;
+
+	// Do the roll
+	let acc_str = "";
+  if (acc > 0) acc_str = ` + ${acc}d6kh1`
+	if (acc < 0) acc_str = ` - ${acc}d6kh1`
+	let roll = new Roll(`1d20+${bonus}${acc_str}`).roll();
+
+	const roll_tt = await roll.getTooltip();
+
+	// Construct the template
+	const templateData = {
+		title: title,
+		roll: roll,
+		roll_tooltip: roll_tt,
+		effect: effect ? effect : null
+	};
+	const template = `systems/lancer/templates/chat/stat-roll-card.html`
+	return renderMacro(actor, template, templateData);
+}
 
 async function rollAttackMacro(title:string, grit:number, accuracy:number, damage:string, effect?:string) {
   // Determine which Actor to speak as
-  const speaker = ChatMessage.getSpeaker();
-  let actor: Actor;
-  if (speaker.token) actor = game.actors.tokens[speaker.token].actor;
-  if (!actor) actor = game.actors.get(speaker.actor, {strict : false}) as Actor;
+	let actor: Actor = getMacroSpeaker();
+	if (actor === null) return;
 
   // Do the rolling
   let acc_str = "";
   if (accuracy > 0) acc_str = ` + ${accuracy}d6kh1`
-    if (accuracy < 0) acc_str = ` - ${accuracy}d6kh1`
-      let attack_roll = new Roll(`1d20+${grit}${acc_str}`).roll();
-    let damage_roll = new Roll(damage).roll();
+	if (accuracy < 0) acc_str = ` - ${accuracy}d6kh1`
+	let attack_roll = new Roll(`1d20+${grit}${acc_str}`).roll();
+	let damage_roll = new Roll(damage).roll();
 
-    // Output
-    const attack_tt = await attack_roll.getTooltip();
-    const damage_tt = await damage_roll.getTooltip();
-    const templateData = {
-      title: title,
-      attack: attack_roll,
-      attack_tooltip: attack_tt,
-      damage: damage_roll,
-      damage_tooltip: damage_tt,
-      effect: effect ? effect : null
-    };
-    const template = `systems/lancer/templates/chat/attack-card.html`
-    const html = await renderTemplate(template, templateData)
-    let chat_data = {
-      user: game.user,
-      type: CONST.CHAT_MESSAGE_TYPES.IC,
-      speaker: {
-        actor: actor
-      },
-      content: html
-    };
-    let cm = await ChatMessage.create(chat_data);
-    cm.render();
-  }
+	// Output
+	const attack_tt = await attack_roll.getTooltip();
+	const damage_tt = await damage_roll.getTooltip();
+	const templateData = {
+		title: title,
+		attack: attack_roll,
+		attack_tooltip: attack_tt,
+		damage: damage_roll,
+		damage_tooltip: damage_tt,
+		effect: effect ? effect : null
+	};
+	
+	const template = `systems/lancer/templates/chat/attack-card.html`;
+	return renderMacro(actor, template, templateData);
+}

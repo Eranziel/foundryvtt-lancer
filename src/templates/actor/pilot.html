@@ -73,12 +73,12 @@
           <span class="lancer-stat-header major clipped-top">BACKGROUND</span>
           <input class="lancer-text-input major" type="string" name="data.pilot.background" value="{{data.pilot.background}}" data-dtype="String"/>
         </div>
-        <div class="flexcol card clipped" style="grid-area: 3/1/4/3">
-          <span class="lancer-stat-header major clipped-top">HISTORY</span>
+        <div class="flexcol card clipped" style="grid-area: 3/1/4/3; text-align: left;">
+          <span class="lancer-stat-header major clipped-top" style="text-align: center;">HISTORY</span>
           {{editor content=data.pilot.history target="data.pilot.history" button=true owner=owner editable=editable}}
         </div>
-        <div class="flexcol card clipped" style="grid-area: 4/1/5/3">
-          <span class="lancer-stat-header major clipped-top">NOTES</span>
+        <div class="flexcol card clipped" style="grid-area: 4/1/5/3; text-align: left;">
+          <span class="lancer-stat-header major clipped-top" style="text-align: center;">NOTES</span>
           {{editor content=data.pilot.notes target="data.pilot.notes" button=true owner=owner editable=editable}}
         </div>
       </div>
@@ -94,25 +94,40 @@
           </div>
           <div class="flexcol card clipped">
             <span class="lancer-stat-header major clipped-top">GRIT</span>
-            <input class="lancer-stat-input major" type="number" name="data.pilot.grit" value="{{data.pilot.grit}}" data-dtype="Number"\>
+						<div class="flexrow stat-container" style="align-self: center;">
+							<a class="stat-macro i--dark i--l" data-action="roll-macro"><i class="cci cci-activate"></i></a>
+							<input class="lancer-stat-input major" type="number" name="data.pilot.grit" value="{{data.pilot.grit}}" data-dtype="Number"\>
+						</div>
           </div>
         </div>
         <div class="flexrow">
           <div class="flexcol card clipped">
             <span class="lancer-stat-header major clipped-top">HULL</span>
-            <input class="lancer-stat-input major" type="number" name="data.mech.hull" value="{{data.mech.hull}}" data-dtype="Number"/>
+						<div class="flexrow stat-container" style="align-self: center;">
+							<a class="stat-macro i--dark i--l" data-action="roll-macro"><i class="cci cci-activate"></i></a>
+            	<input class="lancer-stat-input major" type="number" name="data.mech.hull" value="{{data.mech.hull}}" data-dtype="Number"/>
+						</div>
           </div>
           <div class="flexcol card clipped">
             <span class="lancer-stat-header major clipped-top">AGILITY</span>
-            <input class="lancer-stat-input major" type="number" name="data.mech.agility" value="{{data.mech.agility}}" data-dtype="Number"/>
+						<div class="flexrow stat-container" style="align-self: center;">
+							<a class="stat-macro i--dark i--l" data-action="roll-macro"><i class="cci cci-activate"></i></a>
+            	<input class="lancer-stat-input major" type="number" name="data.mech.agility" value="{{data.mech.agility}}" data-dtype="Number"/>
+						</div>
           </div>
           <div class="flexcol card clipped">
             <span class="lancer-stat-header major clipped-top">SYSTEMS</span>
-            <input class="lancer-stat-input major" type="number" name="data.mech.systems" value="{{data.mech.systems}}" data-dtype="Number"/>
+						<div class="flexrow stat-container" style="align-self: center;">
+							<a class="stat-macro i--dark i--l" data-action="roll-macro"><i class="cci cci-activate"></i></a>
+            	<input class="lancer-stat-input major" type="number" name="data.mech.systems" value="{{data.mech.systems}}" data-dtype="Number"/>
+						</div>
           </div>
           <div class="flexcol card clipped">
             <span class="lancer-stat-header major clipped-top">ENGINEERING</span>
-            <input class="lancer-stat-input major" type="number" name="data.mech.engineering" value="{{data.mech.engineering}}" data-dtype="Number"/>
+						<div class="flexrow stat-container" style="align-self: center;">
+							<a class="stat-macro i--dark i--l" data-action="roll-macro"><i class="cci cci-activate"></i></a>
+            	<input class="lancer-stat-input major" type="number" name="data.mech.engineering" value="{{data.mech.engineering}}" data-dtype="Number"/>
+						</div>
           </div>
         </div>
       </div>
