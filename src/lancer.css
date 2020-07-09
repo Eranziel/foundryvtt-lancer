@@ -1,3 +1,4 @@
+
 /* TODO: Maybe multiple stylesheets is a good idea? Check out ITCSS and segment them by their layer */
 /* TODO: Webcomponents. Tags, cards, compact stat */
 
@@ -42,6 +43,7 @@
 }
 
 .lancer.sheet clipped-card {
+
 
 }
 /* ---------- */
@@ -358,6 +360,18 @@
   grid-template-columns: 40px 1fr 40px;
   align-items: center;
   text-overflow: ellipsis;
+}
+
+.tier-control {
+  min-width: 100%;
+  background-color: #991e2a;
+  color: white;
+}
+
+.tier-control option {
+  background-color: #991e2a;
+  color: white;
+
 }
 
 .lancer-mount-container {

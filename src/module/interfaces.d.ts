@@ -18,8 +18,7 @@ import { DamageType,
   SystemType,
   EffectType, 
   MechType, 
-  ItemType, 
-  NPCTier, 
+  ItemType,
   NPCTag } from './enums';
 
 // ------------------------------------------------------
@@ -231,7 +230,7 @@ declare interface LancerNPCData {
   mech: LancerMechData;
   type: string;
   name: string;
-  tier: NPCTier;
+  tier: string; //tier1-3 = 1-3 and custom = 4
   tag: NPCTag;
   activations: number;
 }

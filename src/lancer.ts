@@ -115,6 +115,16 @@ Hooks.once('init', async function() {
     Handlebars.registerHelper('compact-tag', renderCompactTag);
     Handlebars.registerHelper('chunky-tag', renderChunkyTag);
 
+	Handlebars.registerHelper('tier-selector', (tier, key) => {
+		let template = `<select id="tier-type" class="tier-control" data-action="update">
+		<option value="npc-tier-1" ${tier === 'npc-tier-1' ? 'selected' : ''}>TIER 1</option>
+		<option value="npc-tier-2" ${tier === 'npc-tier-2' ? 'selected' : ''}>TIER 2</option>
+		<option value="npc-tier-3" ${tier === 'npc-tier-3' ? 'selected' : ''}>TIER 3</option>
+		<option value="npc-tier-custom" ${tier === 'npc-tier-custom' ? 'selected' : ''}>CUSTOM</option>
+	</select>`
+	return template;
+	});
+	
 	Handlebars.registerHelper('full-tag', renderFullTag);
 
 	// mount display mount
