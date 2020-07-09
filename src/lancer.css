@@ -52,6 +52,9 @@
 }
 
 .tag {
+  display: grid;
+  grid-template: 1em 1fr / 50px 1fr 50px;
+  align-items: center;
   border: solid #991e2a;
   border-color: #991e2a;
   border-width: 1px;
@@ -343,8 +346,8 @@ select {
 .compact-tag {
   color: white;
   background-color: #991e2a;
-  max-width: fit-content;
-  min-width: fit-content;
+  max-width: max-content;
+  min-width: max-content;
   align-items: center;
   border-radius: 5px;
   padding: 0px 5px;

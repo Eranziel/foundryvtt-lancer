@@ -20,9 +20,8 @@ function findTag(id: string): TagData {
 }
 
 /**
- * Handlebars helper to generate tag template.
- * @param id The tag's lancer-data id string.
- * @param val The tag's value.
+ * Handlebars helper to generate compact tag template.
+ * @param tagShort an object containing the tag's ID and value.
  * @returns The html template for the tag.
  */
 export function renderCompactTag(tagShort: TagDataShort): string {
@@ -34,7 +33,7 @@ export function renderCompactTag(tagShort: TagDataShort): string {
     if (tag.hidden) return template;
 
     // Put the value in the tag string
-    let tagString: string = tag.name
+    let tagString: string = tag.name;
     if (tagShort.val) {
       tagString = tagString.replace("{VAL}", String(tagShort.val));
     }
@@ -47,3 +46,37 @@ export function renderCompactTag(tagShort: TagDataShort): string {
   return template;
 }
 
+/**
+ * Handlebars helper to generate verbose tag template.
+ * @param tagShort an object containing the tag's ID and value.
+ * @returns The html template for the tag.
+ */
+export function renderFullTag(tagShort: TagDataShort): string {
+  let template: string = "";
+  let tag: TagData = findTag(tagShort.id);
+
+  console.log(tag);
+  if (tag) {
+    // Don't render hidden tags
+    if (tag.hidden) return template;
+
+    // Put the value in the tag string
+    let tagName: string = tag.name;
+    if (tagShort.val) {
+      tagName = tagName.replace("{VAL}", String(tagShort.val));
+    }
+    let tagDesc: string = tag.description;
+    if (tagShort.val) {
+      tagDesc = tagDesc.replace("{VAL}", String(tagShort.val));
+    }
+    // Generate the Handlebars partial
+    template = `<div class="tag">
+    <i class="mdi mdi-label i--l theme--main" style="grid-area: 1/1/3/2;"></i>
+    <div class="medium theme--main" style="grid-area: 1/2/2/3; text-align:left; padding-left: 0.5em;">${tagName}</div>
+    <div class="effect-text" style="grid-area: 2/2/3/3">${tagDesc}</div>
+    <a class="remove-button fa fa-trash clickable" style="grid-area: 2/3/3/4; margin-right: 11px; margin-top: 2px"></a>
+    </div>`;
+  }
+  console.log(template);
+  return template;
+}

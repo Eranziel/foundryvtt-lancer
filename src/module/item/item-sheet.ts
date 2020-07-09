@@ -8,7 +8,7 @@ export class LancerItemSheet extends ItemSheet {
 
   /**
    * @override
-   * Extend and override the default options used by the Pilot Sheet
+   * Extend and override the default options used by the Item Sheet
    * @returns {Object}
    */
 	static get defaultOptions() {

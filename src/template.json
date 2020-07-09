@@ -11,9 +11,9 @@
           "systems": 0,
           "engineering": 0,
           "hp": {
-            "value": 10,
+            "value": 0,
             "min": 0,
-            "max": 10
+            "max": 0
           },
           "structure": {
             "value": 1,
@@ -23,7 +23,7 @@
           "heat": {
             "value": 0,
             "min": 0,
-            "max": 6
+            "max": 0
           },
           "stress": {
             "value": 1,
@@ -31,16 +31,16 @@
             "max": 1
           },
           "repairs": {
-            "value": 4,
+            "value": 0,
             "min": 0,
-            "max": 4
+            "max": 0
           },
           "armor": 0,
-          "speed": 4,
-          "evasion": 8,
-          "edef": 8,
-          "sensors": 10,
-          "save": 10,
+          "speed": 0,
+          "evasion": 0,
+          "edef": 0,
+          "sensors": 0,
+          "save": 0,
           "tech_attack": 0
         }
       },
