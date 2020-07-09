@@ -53,6 +53,7 @@ Hooks.once('init', async function() {
 		},
 		rollStatMacro: rollStatMacro,
 		rollAttackMacro: rollAttackMacro,
+    rollTriggerMacro: rollTriggerMacro,
 		migrations: migrations,
 	};
 
@@ -227,6 +228,34 @@ async function renderMacro(actor: Actor, template: string, templateData: any) {
 	let cm = await ChatMessage.create(chat_data);
 	cm.render();
 	return Promise.resolve();
+}
+
+async function rollTriggerMacro(title: string, modifier: number, sheetMacro: boolean = false) {
+  let actor: Actor = getMacroSpeaker();
+  if (actor === null) return;
+  console.log("LANCER | rollTriggerMacro actor", actor);
+
+  // TODO: get accuracy/difficulty with a prompt
+  let acc: number = 0;
+
+  // Do the roll
+  let acc_str = "";
+  if (acc > 0) acc_str = ` + ${acc}d6kh1`
+  if (acc < 0) acc_str = ` - ${acc}d6kh1`
+  let roll = new Roll(`1d20+${modifier}${acc_str}`).roll();
+
+  const roll_tt = await roll.getTooltip();
+
+  // Construct the template
+  const templateData = {
+    title: title,
+    roll: roll,
+    roll_tooltip: roll_tt,
+    effect: null
+  };
+
+  const template = `systems/lancer/templates/chat/stat-roll-card.html`
+  return renderMacro(actor, template, templateData);
 }
 
 async function rollStatMacro(title: string, statKey: string, effect?: string, sheetMacro: boolean = false) {
