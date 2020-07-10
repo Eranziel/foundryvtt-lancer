@@ -171,7 +171,7 @@ export class LancerPilotSheet extends ActorSheet {
         if (weaponElement.className.search("pilot") >= 0) {
           let weaponId = weaponElement.getAttribute("data-item-id");
           // TODO: pass weaponId to rollAttackMacro to do the rolling
-          // game.lancer.rollAttackMacro(weaponId);
+          game.lancer.rollAttackMacro(weaponId);
         }
         // Mech weapon
         else {

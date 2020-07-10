@@ -10,7 +10,7 @@
 // Import TypeScript modules
 import { LancerGame } from './module/lancer-game';
 import { LancerActor, lancerActorInit } from './module/actor/lancer-actor';
-import { LancerItem } from './module/item/lancer-item';
+import { LancerItem, LancerNPCFeature, LancerMechWeapon, LancerPilotWeapon } from './module/item/lancer-item';
 
 // Import applications
 import { LancerPilotSheet } from './module/actor/pilot-sheet';
@@ -26,6 +26,7 @@ import * as migrations from './module/migration.js';
 
 // Import JSON data
 import data from 'lancer-data';
+import { DamageData, LancerPilotActorData, LancerNPCActorData } from './module/interfaces';
 
 /* ------------------------------------ */
 /* Initialize system                    */
@@ -209,7 +210,7 @@ function getMacroSpeaker(): Actor | null {
 	}
 	if (!actor) actor = game.actors.get(speaker.actor, {strict : false}) as Actor;
 	if (!actor) {
-		ui.notifications.notify(`Failed to find Actor for speaker ${speaker.token} or ${speaker.actor}`, "warning");
+		ui.notifications.notify(`Failed to find Actor for macro. Do you need to select a token?`, "warning");
 		return null;
 	}
 	return actor;
@@ -301,11 +302,46 @@ async function rollStatMacro(title: string, statKey: string, effect?: string, sh
 	return renderMacro(actor, template, templateData);
 }
 
-// TODO: Make the function take a weapon Item id (or the Item reference directly?)
-async function rollAttackMacro(title:string, grit:number, accuracy:number, damage:string, effect?:string) {
+// TODO: Make the function take a weapon Item id
+async function rollAttackMacro(id:string) {
   // Determine which Actor to speak as
 	let actor: Actor = getMacroSpeaker();
 	if (actor === null) return;
+
+  // Get the item
+  // TODO: item is null - do owned items need to be fetched a different way?
+  const item = await game.items.get(id);
+  if (!item.isOwned) {
+    ui.notifications.notify(`Error rolling attack macro - ${item.name} is not owned by an Actor!`, "error");
+    return Promise.resolve();
+  }
+
+  let title: string = item.name;
+  let grit: number;
+  let damage: DamageData[];
+  let effect: string;
+  if (item.type === "mech_weapon") {
+    const mechWeap = item as LancerMechWeapon;
+    grit = (item.actor.data as LancerPilotActorData).data.pilot.grit;
+    damage = mechWeap.data.damage;
+    // TODO
+    // effect = mechWeap.data.effect;
+  }
+  else if (item.type === "pilot_weapon") {
+    const pilotWeap = item as LancerPilotWeapon;
+    grit = (item.actor.data as LancerPilotActorData).data.pilot.grit;
+    damage = pilotWeap.data.damage;
+    // TODO
+    // effect = pilotWeap.data.effect;
+  }
+  // TODO
+  // else if (item.type === "npc_feature") {
+  //   grit = (item as LancerNPCFeature).data.accuracy[(item.actor.data as LancerNPCActorData).data.tier];
+  // }
+  else {
+    ui.notifications.notify(`Error rolling attack macro - ${item.name} is not a weapon!`, "error");
+    return Promise.resolve();
+  }
 
   // Get accuracy/difficulty with a prompt
   let acc: number = 0;
@@ -313,8 +349,9 @@ async function rollAttackMacro(title:string, grit:number, accuracy:number, damag
 
   // Do the rolling
   let acc_str = acc != 0 ? ` + ${acc}d6kh1` : '';
-	let attack_roll = new Roll(`1d20+${grit}${acc_str}`).roll();
-	let damage_roll = new Roll(damage).roll();
+  let attack_roll = new Roll(`1d20+${grit}${acc_str}`).roll();
+  // TODO: iterate through damage types
+	let damage_roll = new Roll(String(damage[0].val)).roll();
 
 	// Output
 	const attack_tt = await attack_roll.getTooltip();
