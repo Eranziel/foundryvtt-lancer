@@ -132,44 +132,52 @@ export class LancerPilotSheet extends ActorSheet {
     // Macro triggers
     if (this.actor.owner) {
       // Stat rollers
-      let macros = html.find('.stat-macro[data-action*="roll-macro"]');
-      macros.click(ev => {
+      let statMacro = html.find('.stat-macro');
+      statMacro.click(ev => {
         ev.stopPropagation();  // Avoids triggering parent event handlers
         console.log(ev);
-        const item = $(ev.currentTarget).closest('.stat-container')[0];
-        let statKey: string = "";
-        console.log("LANCER | Stat containter ", item);
 
         // Find the stat input to get the stat's key to pass to the macro function
-        for (let i = 0; i < item.children.length; i++) {
-          const element = item.children[i] as HTMLElement;
-          for (let j = 0; j < element.classList.length; j++) {
-            if (element.classList[j] === "lancer-stat-input") {
-              statKey = (element as HTMLInputElement).name;
-              break;
-            }
-          }
-          if (statKey !== "") break;
-        }
+        const statInput = $(ev.currentTarget).closest('.stat-container').find('.lancer-stat-input')[0] as HTMLInputElement;
+        const statKey = statInput.name;
         let keySplit = statKey.split('.');
         let title = keySplit[keySplit.length - 1].toUpperCase();
-        console.log(`LANCER | Fire sheet stat macro: ${title}, key ${statKey}`);
+        console.log(`LANCER | Rolling ${title} check, key ${statKey}`);
         game.lancer.rollStatMacro(title, statKey, null, true);
       });
 
       // Trigger rollers
-      let modifiers = html.find('.roll-modifier');
-      modifiers.click(ev => {
+      let triggerMacro = html.find('.roll-trigger');
+      triggerMacro.click(ev => {
         ev.stopPropagation();
         console.log(ev);
 
-        const modifier = parseInt($(ev.currentTarget).text());
+        const modifier = parseInt($(ev.currentTarget).find('.roll-modifier').text());
         const title = $(ev.currentTarget).closest('.skill-compact').find('.modifier-name').text();
         //.find('modifier-name').first().text();
         console.log(`LANCER | Rolling '${title}' trigger (d20 + ${modifier})`);
 
         game.lancer.rollTriggerMacro(title, modifier, true);
       });
+
+      // Weapon rollers
+      let weaponMacro = html.find('.roll-attack');
+      weaponMacro.click(ev => {
+        ev.stopPropagation();
+        console.log(ev);
+
+        const weaponElement = $(ev.currentTarget).closest('.weapon')[0] as HTMLElement;
+        // Pilot weapon
+        if (weaponElement.className.search("pilot") >= 0) {
+          let weaponId = weaponElement.getAttribute("data-item-id");
+          // TODO: pass weaponId to rollAttackMacro to do the rolling
+          // game.lancer.rollAttackMacro(weaponId);
+        }
+        // Mech weapon
+        else {
+          // Is this actually any different than a pilot weapon?
+        }
+      })
     }
 
     // Everything below here is only needed if the sheet is editable
