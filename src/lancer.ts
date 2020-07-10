@@ -240,7 +240,7 @@ async function rollTriggerMacro(title: string, modifier: number, sheetMacro: boo
   await promptAccDiffModifier().then(resolve => acc = resolve, reject => console.error(reject));
 
   // Do the roll
-  let acc_str = ` + ${acc}d6kh1`;
+  let acc_str = acc != 0 ? ` + ${acc}d6kh1` : '';
   let roll = new Roll(`1d20+${modifier}${acc_str}`).roll();
 
   const roll_tt = await roll.getTooltip();
@@ -285,7 +285,7 @@ async function rollStatMacro(title: string, statKey: string, effect?: string, sh
   await promptAccDiffModifier().then(resolve => acc = resolve, reject => console.error(reject));
 
 	// Do the roll
-	let acc_str = ` + ${acc}d6kh1`;
+	let acc_str = acc != 0 ? ` + ${acc}d6kh1` : '';
 	let roll = new Roll(`1d20+${bonus}${acc_str}`).roll();
 
 	const roll_tt = await roll.getTooltip();
@@ -311,7 +311,7 @@ async function rollAttackMacro(title:string, grit:number, accuracy:number, damag
   await promptAccDiffModifier().then(resolve => acc = resolve, reject => console.error(reject));
 
   // Do the rolling
-  let acc_str = ` + ${acc}d6kh1`;
+  let acc_str = acc != 0 ? ` + ${acc}d6kh1` : '';
 	let attack_roll = new Roll(`1d20+${grit}${acc_str}`).roll();
 	let damage_roll = new Roll(damage).roll();
 
