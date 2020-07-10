@@ -111,6 +111,7 @@ export class LancerItemSheet extends ItemSheet {
     const a = $(event.currentTarget);
     const action = a.data("action");
     const itemString = a.parents(".arrayed-item-container").data("item");
+    console.log(itemString)
     var itemArr = duplicate(getValue(this,("object.data.data." + itemString)));
     const dataRef = "data." + itemString;
 
