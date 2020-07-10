@@ -112,14 +112,14 @@
 			<span class="lancer-stat-header major clipped-top">DESCRIPTION</span>
 			{{editor content=data.description target="data.description" button=true owner=owner editable=editable}}
 		</div>
-		<!-- TODO: Bring this out to be a handlebars partial. Will need to pass in context appropriately. -->
-		<div  class="tags-container flexcol" style="grid-area: 4 / 1 / 5 / 2">
+		<!-- TODO: We can probably even pull this out... -->
+		<div class="arrayed-item-container tags-container flexcol" style="grid-area: 4 / 1 / 5 / 2" data-item="tags">
 			<div>
 				<span class="minor" style="float: left">WEAPON TAGS</span>
-				<a class="add-button clickable"style="float: right; margin-right: 1em">+</a>
+				<a class="add-button clickable" data-action="create" style="float: right; margin-right: 1em">+</a>
 			</div>
 			{{#each item.data.tags as |tag key|}}
-			{{{full-tag tag}}}
+			{{{full-tag tag key}}}
 			{{/each}}
 		</div>
 	</div>
