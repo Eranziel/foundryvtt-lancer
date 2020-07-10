@@ -235,13 +235,12 @@ async function rollTriggerMacro(title: string, modifier: number, sheetMacro: boo
   if (actor === null) return;
   console.log("LANCER | rollTriggerMacro actor", actor);
 
-  // TODO: get accuracy/difficulty with a prompt
+  // Get accuracy/difficulty with a prompt
   let acc: number = 0;
+  await promptAccDiffModifier().then(resolve => acc = resolve, reject => console.error(reject));
 
   // Do the roll
-  let acc_str = "";
-  if (acc > 0) acc_str = ` + ${acc}d6kh1`
-  if (acc < 0) acc_str = ` - ${acc}d6kh1`
+  let acc_str = ` + ${acc}d6kh1`;
   let roll = new Roll(`1d20+${modifier}${acc_str}`).roll();
 
   const roll_tt = await roll.getTooltip();
@@ -281,13 +280,12 @@ async function rollStatMacro(title: string, statKey: string, effect?: string, sh
 	}
 	console.log("LANCER | rollStatMacro ", statKey, bonus);
 
-	// TODO: get accuracy/difficulty with a prompt
-	let acc: number = 0;
+  // Get accuracy/difficulty with a prompt
+  let acc: number = 0;
+  await promptAccDiffModifier().then(resolve => acc = resolve, reject => console.error(reject));
 
 	// Do the roll
-	let acc_str = "";
-  if (acc > 0) acc_str = ` + ${acc}d6kh1`
-	if (acc < 0) acc_str = ` - ${acc}d6kh1`
+	let acc_str = ` + ${acc}d6kh1`;
 	let roll = new Roll(`1d20+${bonus}${acc_str}`).roll();
 
 	const roll_tt = await roll.getTooltip();
@@ -308,10 +306,12 @@ async function rollAttackMacro(title:string, grit:number, accuracy:number, damag
 	let actor: Actor = getMacroSpeaker();
 	if (actor === null) return;
 
+  // Get accuracy/difficulty with a prompt
+  let acc: number = 0;
+  await promptAccDiffModifier().then(resolve => acc = resolve, reject => console.error(reject));
+
   // Do the rolling
-  let acc_str = "";
-  if (accuracy > 0) acc_str = ` + ${accuracy}d6kh1`
-	if (accuracy < 0) acc_str = ` - ${accuracy}d6kh1`
+  let acc_str = ` + ${acc}d6kh1`;
 	let attack_roll = new Roll(`1d20+${grit}${acc_str}`).roll();
 	let damage_roll = new Roll(damage).roll();
 
@@ -329,4 +329,41 @@ async function rollAttackMacro(title:string, grit:number, accuracy:number, damag
 	
 	const template = `systems/lancer/templates/chat/attack-card.html`;
 	return renderMacro(actor, template, templateData);
+}
+
+function promptAccDiffModifier() {
+  let template = `
+<form>
+  <h2>Please enter your modifiers and submit, or close this window:</h2>
+  <div class="flexcol">
+    <label style="max-width: fit-content;">
+      <image src="https://i.imgur.com/rwkVFY8.png" alt="Advantage" width="25px" height="25px" style="vertical-align:middle;border:none"/> Accuracy:
+      <input class="accuracy" type="number" min="0" value="0">
+    </label>
+    <label style="max-width: fit-content;">
+      <image src="https://i.imgur.com/3wPLa4J.png" alt="Disadvantage" width="25px" height="25px" style="vertical-align:middle;border:none" /> Difficulty:
+      <input class="difficulty" type="number" min="0" value="0">
+    </div>
+</form>`
+  return new Promise<number>((resolve, reject) => {
+    new Dialog({
+      title: "Accuracy and Difficulty",
+      content: template,
+      buttons: {
+        submit: {
+          icon: '<i class="fas fa-check"></i>',
+          label: 'Submit',
+          callback: async (dlg) => {
+            let accuracy = <string>$(dlg).find('.accuracy').first().val();
+            let difficulty = <string>$(dlg).find('.difficulty').first().val();
+            let total = parseInt(accuracy) - parseInt(difficulty);
+            console.log(`LANCER | Dialog returned ${accuracy} accuracy and ${difficulty} resulting in a modifier of ${total}d6`);
+            resolve(total);
+          }
+        }
+      },
+      default: "submit",
+      close: () => resolve(0)
+    }).render(true);
+  });
 }
