@@ -301,6 +301,7 @@ async function rollStatMacro(title: string, statKey: string, effect?: string, sh
 	return renderMacro(actor, template, templateData);
 }
 
+// TODO: Make the function take a weapon Item id (or the Item reference directly?)
 async function rollAttackMacro(title:string, grit:number, accuracy:number, damage:string, effect?:string) {
   // Determine which Actor to speak as
 	let actor: Actor = getMacroSpeaker();
@@ -337,11 +338,11 @@ function promptAccDiffModifier() {
   <h2>Please enter your modifiers and submit, or close this window:</h2>
   <div class="flexcol">
     <label style="max-width: fit-content;">
-      <image src="https://i.imgur.com/rwkVFY8.png" alt="Advantage" width="25px" height="25px" style="vertical-align:middle;border:none"/> Accuracy:
+      <i class="cci cci-accuracy i--m i--dark" style="vertical-align:middle;border:none"> </i> Accuracy:
       <input class="accuracy" type="number" min="0" value="0">
     </label>
     <label style="max-width: fit-content;">
-      <image src="https://i.imgur.com/3wPLa4J.png" alt="Disadvantage" width="25px" height="25px" style="vertical-align:middle;border:none" /> Difficulty:
+      <i class="cci cci-difficulty i--m i--dark" style="vertical-align:middle;border:none"> </i> Difficulty:
       <input class="difficulty" type="number" min="0" value="0">
     </div>
 </form>`

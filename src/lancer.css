@@ -640,7 +640,8 @@ button {
 
 .skill-compact {
   display: grid;
-  grid-template: 2.0em 1fr / 50px 1fr;
+  grid-template: 2.0em 1fr / 75px 1fr;
+  align-items: center;
   margin-right: 25px;
 }
 
