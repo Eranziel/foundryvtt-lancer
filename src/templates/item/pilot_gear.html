@@ -1,13 +1,42 @@
 <form class="{{cssClass}} lancer-sheet" autocomplete="off">
   
-  {{!-- Sheet Header --}}
+  	{{!-- Sheet Header --}}
 	<header class="sheet-header card clipped-bot">
 		<img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}" height="100" width="100"/>
 		<div class="header-fields">
 			<h1 class="charname"><input name="name" type="text" value="{{item.name}}" placeholder="Name"/></h1>
 		</div>
 	</header>
+	<div class="flexcol">
+		{{!-- Uses --}}
+		<!-- TODO: Make this a handlebars partial, a lot of things will need a standardized way to track uses -->
+		<div style="width: calc(100px + 1ch); float: left; margin-left: 1em;" class="labeled-input flexcol">
+			<span>USES</span>
+			<div class="flexrow">
+				<input class="lancer-stat-input lancer-invisible-input" type="number" name="data.uses" value="{{data.current_uses}}" data-dtype="Number" style="justify-content: left"/>
+				<span style="max-width:1.5ch">/</span>
+				<input class="lancer-stat-input lancer-invisible-input" type="number" name="data.max_uses" value="{{data.uses}}" data-dtype="Number" style="justify-content: left"/>
+			</div>
+		</div>
 
-  THIS IS PILOT GEAR!
+		{{!-- Compendium --}}
+
+		<div class="flexcol card clipped">
+			<span class="lancer-stat-header major clipped-top">DESCRIPTION</span>
+			{{editor content=data.description target="data.description" button=true owner=owner editable=editable}}
+		</div>
+
+		{{!-- Tags --}}
+
+		<div class="arrayed-item-container tags-container flexcol" data-item="tags">
+			<div>
+				<span class="minor" style="float: left">EQUIPMENT TAGS</span>
+				<a class="add-button clickable" data-action="create" style="float: right; margin-right: 1em">+</a>
+			</div>
+			{{#each item.data.tags as |tag key|}}
+			{{{full-tag tag key}}}
+			{{/each}}
+		</div>
+	</div>
 
 </form>
