@@ -1,4 +1,3 @@
-
 import { LancerSkill, 
   LancerTalent, 
   LancerCoreBonus, 
@@ -8,7 +7,7 @@ import { LancerSkill,
   LancerPilotWeapon, 
   LancerPilotGear, 
   LancerMechWeapon, 
-  LancerMechSystem, 
+  LancerMechSystem,
   LancerNPCFeature, 
   LancerNPCClass, 
   LancerNPCTemplate } from './item/lancer-item';
@@ -16,10 +15,10 @@ import { DamageType,
   RangeType, 
   WeaponSize, 
   WeaponType, 
-  SystemType, 
+  SystemType,
+  EffectType, 
   MechType, 
-  ItemType, 
-  NPCTier, 
+  ItemType,
   NPCTag } from './enums';
 
 // ------------------------------------------------------
@@ -27,6 +26,7 @@ import { DamageType,
 // ------------------------------------------------------
 
 // TODO: several of these may be moved to classes later to enable specialized logic
+// TODO: Range and Damage are good examples of objects that should be aware of their string representation and html representation
 
 declare interface TagDataShort {
   id: string;
@@ -41,6 +41,71 @@ declare interface TagData {
   filter_ignore?: boolean;
   hidden?: boolean;
 }
+
+// Note that this type can be replaced with a descriptive string in some cases.
+declare interface EffectData {
+  type: EffectType;
+  effect: EffectDataBasic | EffectDataOffensive | EffectDataProfile | EffectDataReaction | EffectDataTech | EffectDataAI;
+}
+
+declare interface EffectDataBasic {
+  activation: string;
+  detail: string;
+}
+
+declare interface EffectDataOffensive {
+  detail?: string;
+  attack?: string;
+  hit?: string;
+  critical?: string;
+  range?: RangeData[];
+  damage?: DamageData[];
+  abilities?: EffectData[];
+}
+
+declare interface EffectDataProfile {
+  name: string;
+  range?: RangeData[];
+  damage: DamageData[];
+  detail?: string;
+  tags?: TagDataShort[];
+}
+
+// Note that Reactions, like Tech or Protocols, may be more generic than an effect. Yet to be seen.
+declare interface EffectDataReaction {
+  name: string;
+  frequency: string;  // May need a specialized parser and interface for compatibility with About Time by Tim Posney
+  trigger: string;
+  detail: string;  // Optional?
+}
+
+// Tech seems to either have detail, or have option_set and options.
+declare interface EffectDataTech {
+  activation: string;
+  detail?: string,
+  option_set?: string;
+  options?: EffectDataTechOption[];
+}
+
+declare interface EffectDataTechOption {
+  name: string;
+  detail: string;
+}
+
+declare interface EffectDataAI {
+  detail: string;
+  abilities: EffectData[];
+}
+
+declare interface EffectDataProtocol {
+  name: string;
+  detail: string;
+  tags?: TagDataShort;
+}
+
+// TODO: EffectDataDeployable (effect_type == "Deployable")
+// TODO: EffectDataDrone (effect_type == "Drone")
+// TODO: EffectDataCharge (effect_type == "Charge")
 
 declare interface RangeData {
   type: RangeType;
@@ -165,7 +230,7 @@ declare interface LancerNPCData {
   mech: LancerMechData;
   type: string;
   name: string;
-  tier: NPCTier;
+  tier: string; //tier1-3 = 1-3 and custom = 4
   tag: NPCTag;
   activations: number;
 }
@@ -177,9 +242,10 @@ declare interface LancerNPCActorData extends ActorData {
 declare interface LancerNPCSheetData extends ActorSheetData {
   actor: LancerNPCActorData;
   data: LancerNPCData;
-  npc_class: LancerNPCClassData;
+  npc_class: LancerNPCClass;
   npc_templates: LancerNPCTemplateData[];
   npc_features: LancerNPCFeature[];
+  npc_size: string;
 }
 
 // ------- Deployable data --------------------------------------
@@ -191,7 +257,7 @@ declare interface LancerDeployableData {
   evasion: number;
   edef: number;
   description: string;
-  effect: string;
+  effect: EffectData;
 }
 
 declare interface LancerDeployableActorData extends ActorData {
@@ -237,7 +303,7 @@ declare interface LancerMechEquipmentData {
   cascading: boolean;
   loaded: boolean;
   tags: TagData[];
-  effect: object[]; // TODO: replace with specific type
+  effect: EffectData[]; // TODO: replace with specific type
   integrated: boolean;
   // TODO: not needed? Used in Comp/Con for some of its mech building logic.
   // talent_item: boolean; 
@@ -283,7 +349,7 @@ declare interface LancerCoreBonusData extends BaseEntityData {
   id: string;
   name: string;
   source: string;
-  effect: string;
+  effect: EffectData;
   mounted_effect: string;
 }
 
@@ -328,7 +394,7 @@ declare interface LancerPilotArmorSheetData extends ItemSheetData {
 declare interface LancerPilotWeaponData extends BaseEntityData, LancerCompendiumItemData, LancerPilotEquipmentData {
   range: RangeData[];
   damage: DamageData[];
-  effect: string;
+  effect: EffectData;
   custom_damage_type: DamageType;
 }
 

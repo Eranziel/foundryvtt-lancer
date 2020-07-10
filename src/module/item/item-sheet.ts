@@ -40,6 +40,7 @@ export class LancerItemSheet extends ItemSheet {
     // for ( let attr of Object.values(data.data.attributes) ) {
     //   attr.isCheckbox = attr.dtype === "Boolean";
     // }
+    console.log('LANCER | Item sheet data: ')
     console.log(data);
     return data;
   }
@@ -109,7 +110,7 @@ export class LancerItemSheet extends ItemSheet {
     event.preventDefault();
     const a = $(event.currentTarget);
     const action = a.data("action");
-    const itemString = a.data("item");
+    const itemString = a.parents(".arrayed-item-container").data("item");
     var itemArr = duplicate(getValue(this,("object.data.data." + itemString)));
     const dataRef = "data." + itemString;
 

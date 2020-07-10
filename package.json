@@ -37,6 +37,6 @@
   },
   "dependencies": {
     "@mdi/font": "^5.3.45",
-    "lancer-data": "^2.0.30"
+    "lancer-data": "^2.0.33"
   }
 }

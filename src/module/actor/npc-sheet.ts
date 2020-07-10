@@ -1,6 +1,6 @@
 import { LancerNPCSheetData, LancerNPCClassStatsData, LancerNPCData } from '../interfaces';
 import { LancerItem, LancerNPCClass, LancerNPCTemplate, LancerNPCFeature } from '../item/lancer-item';
-import { MechType, NPCTier } from '../enums';
+import { MechType } from '../enums';
 import { LancerActor } from './lancer-actor';
 
 const entryPrompt = "//:AWAIT_ENTRY>";
@@ -31,10 +31,10 @@ export class LancerNPCSheet extends ActorSheet {
    */
   static get defaultOptions() {
     return mergeObject(super.defaultOptions, {
-      classes: ["lancer", "sheet", "actor"],
+      classes: ["lancer", "sheet", "actor", "npc"],
       template: "systems/lancer/templates/actor/npc.html",
-      width: 600,
-      height: 600,
+      width: 800,
+      height: 800,
       tabs: [{
         navSelector: ".lancer-tabs",
         contentSelector: ".sheet-body",
@@ -49,7 +49,7 @@ export class LancerNPCSheet extends ActorSheet {
    * Prepare data for rendering the Actor sheet
    * The prepared data object contains both the actor data as well as additional sheet options
    */
-  getData() :LancerNPCSheetData {
+  getData(): LancerNPCSheetData {
     const data: LancerNPCSheetData = super.getData() as LancerNPCSheetData;
 
     this._prepareItems(data);
@@ -60,6 +60,19 @@ export class LancerNPCSheet extends ActorSheet {
     }
 
 
+    // Generate the size string for the pilot's frame
+    if (data.npc_class) {
+      const npc_class: any = data.npc_class;
+      if (npc_class.data.stats.size[0] === 0.5) {
+        data.npc_size = "size-half";
+      }
+      else {
+        data.npc_size = `size-${npc_class.data.stats.size[0]}`;
+      }
+    }
+    else {
+      data.npc_size = undefined;
+    }
 
     console.log("LANCER | NPC data: ");
     console.log(data);
@@ -135,6 +148,22 @@ export class LancerNPCSheet extends ActorSheet {
         this.actor.deleteOwnedItem(li.data("itemId"));
         li.slideUp(200, () => this.render(false));
       });
+
+      let tier_selector = html.find('select.tier-control[data-action*="update"]');
+      tier_selector.change(ev => {
+        ev.stopPropagation();
+        console.log(ev);
+        let tier = ev.currentTarget.selectedOptions[0].value;
+        this.actor.update({ "data.tier": tier });
+
+        // Set Values for 
+        let actor = this.actor as LancerActor;
+        let NPCClassStats: LancerNPCClassStatsData;
+        NPCClassStats = (actor.items.find((i: Item) => i.type === "npc_class") as any).data.data.stats;
+        console.log(NPCClassStats);
+        actor.swapNPCClassOrTier(NPCClassStats, false, tier);
+        this._onSubmit(ev);
+      });
     }
   }
 
@@ -167,11 +196,9 @@ export class LancerNPCSheet extends ActorSheet {
       // Swap mech class
       if (item && item.type === "npc_class") {
         let newNPCClassStats: LancerNPCClassStatsData;
-        let oldNPCClassStats: LancerNPCClassStatsData;
         // Remove old class
         actor.items.forEach(async (i: LancerItem) => {
           if (i.type === "npc_class") {
-            oldNPCClassStats = duplicate((i as LancerNPCClass).data.data.stats);
             await this.actor.deleteOwnedItem(i._id);
           }
         });
@@ -185,9 +212,10 @@ export class LancerNPCSheet extends ActorSheet {
         else {
           await actor.createEmbeddedEntity("OwnedItem", duplicate(item.data));
           newNPCClassStats = (actor.items.find((i: Item) => i.type === "npc_class") as any).data.stats;
+          console.log(newNPCClassStats);
         }
         if (newNPCClassStats) {
-          actor.swapNPCClass(newNPCClassStats, oldNPCClassStats);
+          actor.swapNPCClassOrTier(newNPCClassStats, true);
         }
       }
       //TODO add basic features to NPC
@@ -240,12 +268,12 @@ export class LancerNPCSheet extends ActorSheet {
     let token: any = this.actor.token;
     // Set the prototype token image if the prototype token isn't initialized
     if (!this.actor.token) {
-      this.actor.update({"token.img": formData.img})
+      this.actor.update({ "token.img": formData.img })
     }
     // Update token image if it matches the old actor image
     else if ((this.actor.img == token.img)
-        && (this.actor.img != formData.img)) {
-      this.actor.update({"token.img": formData.img});
+      && (this.actor.img != formData.img)) {
+      this.actor.update({ "token.img": formData.img });
     }
 
     // Update the Actor

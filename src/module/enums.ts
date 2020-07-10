@@ -79,6 +79,16 @@ enum DamageType {
   Variable = 'Variable',
 }
 
+enum EffectType {
+  Basic = 'Basic',
+  Profile = 'Profile',
+  Offensive = 'Offensive',
+  Reaction = 'Reaction',
+  Tech = 'Tech',
+  AI = 'AI',
+  Protocol = 'Protocol'
+}
+
 enum MechType {
   Balanced = 'Balanced',
   Artillery = 'Artillery',
@@ -103,12 +113,6 @@ enum NPCTag{
   Squad = 'Squad'
 }
 
-enum NPCTier{
-TierOne = 'TIER 1',
-TierTwo = 'TIER 2',
-TierThree = 'TIER 3',
-Custom = 'CUSTOM'
-}
 
 export {
   MountType,
@@ -119,8 +123,8 @@ export {
   SystemType,
   RangeType,
   DamageType,
+  EffectType,
   HASE,
   MechType,
-  NPCTag,
-  NPCTier
+  NPCTag
 }
