@@ -135,7 +135,7 @@ export class LancerPilotSheet extends ActorSheet {
       let statMacro = html.find('.stat-macro');
       statMacro.click(ev => {
         ev.stopPropagation();  // Avoids triggering parent event handlers
-        console.log(ev);
+        console.log("LANCER | Stat macro button click", ev);
 
         // Find the stat input to get the stat's key to pass to the macro function
         const statInput = $(ev.currentTarget).closest('.stat-container').find('.lancer-stat-input')[0] as HTMLInputElement;
@@ -150,7 +150,7 @@ export class LancerPilotSheet extends ActorSheet {
       let triggerMacro = html.find('.roll-trigger');
       triggerMacro.click(ev => {
         ev.stopPropagation();
-        console.log(ev);
+        console.log("LANCER | Skill macro button click", ev);
 
         const modifier = parseInt($(ev.currentTarget).find('.roll-modifier').text());
         const title = $(ev.currentTarget).closest('.skill-compact').find('.modifier-name').text();
@@ -164,18 +164,26 @@ export class LancerPilotSheet extends ActorSheet {
       let weaponMacro = html.find('.roll-attack');
       weaponMacro.click(ev => {
         ev.stopPropagation();
-        console.log(ev);
+        console.log("LANCER | Weapon macro button click", ev);
 
         const weaponElement = $(ev.currentTarget).closest('.weapon')[0] as HTMLElement;
         // Pilot weapon
         if (weaponElement.className.search("pilot") >= 0) {
           let weaponId = weaponElement.getAttribute("data-item-id");
-          // TODO: pass weaponId to rollAttackMacro to do the rolling
-          game.lancer.rollAttackMacro(weaponId);
+          game.lancer.rollAttackMacro(weaponId, this.actor._id);
         }
         // Mech weapon
         else {
-          // Is this actually any different than a pilot weapon?
+          let weaponMountIndex = weaponElement.getAttribute("data-item-id");
+          const mountElement = $(ev.currentTarget).closest(".lancer-mount-container");
+          if (mountElement.length) {
+            const mounts = this.actor.data.data.mech_loadout.mounts;
+            const weapon = mounts[parseInt(mountElement.data("itemId"))].weapons[weaponMountIndex];
+            game.lancer.rollAttackMacro(weapon._id, this.actor._id);
+          }
+          else {
+            console.log("LANCER | No mount element", weaponMountIndex, mountElement);
+          }
         }
       })
     }

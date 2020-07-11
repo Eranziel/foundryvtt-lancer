@@ -143,9 +143,12 @@ Hooks.once('init', async function() {
         return template;
 	});
 
-  Handlebars.registerPartial('pilot-weapon-preview', `<div class="flexcol clipped lancer-weapon-container" style="max-height: fit-content;" data-item-id="{{key}}">
+  Handlebars.registerPartial('mech-weapon-preview', `<div class="flexcol clipped lancer-weapon-container weapon" style="max-height: fit-content;" data-item-id="{{key}}">
     <span class="item lancer-weapon-header" style="padding-top: 5px;" data-item-id="{{weapon._id}}"><img class="thumbnail" src="{{weapon.img}}" data-edit="{{weapon.img}}" title="{{weapon.name}}" height="10" width="10"/> {{weapon.name}} <a class="stats-control" data-action="delete"><i class="fas fa-trash" style="float: right;"></i></a></span>
     <span class="lancer-weapon-body">
+     <a class="flexrow roll-attack" style="max-width: min-content;">
+      <i class="cci cci-activate i--l i--dark"></i>
+     </a>
      <span class="flexrow" style="grid-area: 1 / 1 / 1 / 1; text-align: left; white-space: nowrap;">{{#each weapon.data.range as |range rkey|}}<i class="cci cci-{{lower-case range.type}} i--m i--dark"></i><span class="medium">{{range.val}}</span>{{/each}}{{#each weapon.data.damage as |damage dkey|}}<i class="cci cci-{{lower-case damage.type}} i--m damage--{{damage.type}}"></i><span class="medium">{{damage.val}}</span>{{/each}}</span>
      <span style="grid-area: 1 / 2 / 1 / 3; text-align: right;">{{weapon.data.mount}} {{weapon.data.weapon_type}}</span>
      <span style="grid-area: 2 / 1 / 2 / 3; text-align: left; white-space: wrap">
@@ -202,7 +205,7 @@ function getMacroSpeaker(): Actor | null {
 	const speaker = ChatMessage.getSpeaker();
 	console.log("LANCER | Macro speaker", speaker);
 	let actor: Actor;
-	console.log(game.actors.tokens);
+	// console.log(game.actors.tokens);
 	try {
 		if (speaker.token) actor = game.actors.tokens[speaker.token].actor;
 	} catch (TypeError) {
@@ -210,7 +213,7 @@ function getMacroSpeaker(): Actor | null {
 	}
 	if (!actor) actor = game.actors.get(speaker.actor, {strict : false}) as Actor;
 	if (!actor) {
-		ui.notifications.notify(`Failed to find Actor for macro. Do you need to select a token?`, "warning");
+		ui.notifications.warn(`Failed to find Actor for macro. Do you need to select a token?`);
 		return null;
 	}
 	return actor;
@@ -303,16 +306,16 @@ async function rollStatMacro(title: string, statKey: string, effect?: string, sh
 }
 
 // TODO: Make the function take a weapon Item id
-async function rollAttackMacro(id:string) {
+async function rollAttackMacro(w: string, a: string) {
   // Determine which Actor to speak as
 	let actor: Actor = getMacroSpeaker();
 	if (actor === null) return;
 
   // Get the item
-  // TODO: item is null - do owned items need to be fetched a different way?
-  const item = await game.items.get(id);
+	const item: Item = game.actors.get(a).getOwnedItem(w);
+	console.log("LANCER | Rolling attack macro", item, w, a);
   if (!item.isOwned) {
-    ui.notifications.notify(`Error rolling attack macro - ${item.name} is not owned by an Actor!`, "error");
+    ui.notifications.error(`Error rolling attack macro - ${item.name} is not owned by an Actor!`);
     return Promise.resolve();
   }
 
@@ -321,16 +324,14 @@ async function rollAttackMacro(id:string) {
   let damage: DamageData[];
   let effect: string;
   if (item.type === "mech_weapon") {
-    const mechWeap = item as LancerMechWeapon;
     grit = (item.actor.data as LancerPilotActorData).data.pilot.grit;
-    damage = mechWeap.data.damage;
+    damage = item.data.data.damage;
     // TODO
     // effect = mechWeap.data.effect;
   }
   else if (item.type === "pilot_weapon") {
-    const pilotWeap = item as LancerPilotWeapon;
     grit = (item.actor.data as LancerPilotActorData).data.pilot.grit;
-    damage = pilotWeap.data.damage;
+    damage = item.data.data.damage;
     // TODO
     // effect = pilotWeap.data.effect;
   }
@@ -339,29 +340,39 @@ async function rollAttackMacro(id:string) {
   //   grit = (item as LancerNPCFeature).data.accuracy[(item.actor.data as LancerNPCActorData).data.tier];
   // }
   else {
-    ui.notifications.notify(`Error rolling attack macro - ${item.name} is not a weapon!`, "error");
+    ui.notifications.error(`Error rolling attack macro - ${item.name} is not a weapon!`);
     return Promise.resolve();
-  }
+	}
+	console.log("LANCER | Attack Macro Item:", item, grit, damage);
 
   // Get accuracy/difficulty with a prompt
   let acc: number = 0;
   await promptAccDiffModifier().then(resolve => acc = resolve, reject => console.error(reject));
 
-  // Do the rolling
+  // Do the attack rolling
   let acc_str = acc != 0 ? ` + ${acc}d6kh1` : '';
   let attack_roll = new Roll(`1d20+${grit}${acc_str}`).roll();
-  // TODO: iterate through damage types
-	let damage_roll = new Roll(String(damage[0].val)).roll();
+	
+	// Iterate through damage types, rolling each
+	let damage_results = [];
+	damage.forEach(async x => {
+		const droll = new Roll(x.val.toString()).roll();
+		const tt = await droll.getTooltip();
+		damage_results.push({
+			roll: droll,
+			tt: tt,
+			dtype: x.type,
+		});
+		return Promise.resolve();
+	});
 
 	// Output
 	const attack_tt = await attack_roll.getTooltip();
-	const damage_tt = await damage_roll.getTooltip();
 	const templateData = {
 		title: title,
 		attack: attack_roll,
 		attack_tooltip: attack_tt,
-		damage: damage_roll,
-		damage_tooltip: damage_tt,
+		damages: damage_results,
 		effect: effect ? effect : null
 	};
 	
