@@ -442,8 +442,8 @@ export class LancerPilotSheet extends ActorSheet {
         return;
       }
       else if (["skill", "talent", "core_bonus", "license",
-                             "pilot_armor", "pilot_weapon", "pilot_gear",
-                             "mech_system"].includes(item.type)) {
+                "pilot_armor", "pilot_weapon", "pilot_gear",
+                "mech_system"].includes(item.type)) {
         if (data.pack) {
           console.log(`LANCER | Copying ${item.name} from ${data.pack} to ${actor.name}.`);
           actor.importItemFromCollection(data.pack, item._id);

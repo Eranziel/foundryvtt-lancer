@@ -376,14 +376,15 @@ button {
   justify-content: flex-start;
   background-color: var(--main-theme-color, fuchsia);
   color: white;
-  padding: 10px;
+  padding: 3px 10px;
+  min-height: max-content;
+  align-items: center;
 }
 
 .lancer-tab {
   clip-path: polygon( 10px 0, 100% 0, calc(100% - 10px) 100%, 0 100% );
   -webkit-clip-path: polygon( 10px 0, 100% 0, calc(100% - 10px) 100%, 0 100% );
-  padding-left: 10px;
-  padding-right: 10px;
+  padding: 10px; 
   margin-left: 10px;
   margin-right: 10px;
 }
@@ -543,6 +544,7 @@ button {
 }
 
 .size-icon {
+  color: var(--main-theme-color, fuchsia);
   font-size: 120px;
   min-width: 120px;
   max-width: 120px;
@@ -704,11 +706,13 @@ code.horus:hover {
   text-align: center;
   font-size: 16px;
 }
+
 .lancer-card .section-title {
   text-align: center; 
   font-size: 14px; 
   font-weight: bold;
 }
+
 .lancer-card .effect-text {
   text-align: right;
   font-size: 12px;
