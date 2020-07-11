@@ -546,19 +546,60 @@
     </div>
 
     {{!-- Weapons --}}
-    <div class="card clipped">
+    {{!-- <div class="card clipped">
       <h2 class="lancer-title clipped">WEAPONS</h2>
       {{#each mech_loadout.weapons as |weapon key|}}
       <span class="item lancer-weapon-header" data-item-id="{{weapon._id}}"><img class="thumbnail" src="{{weapon.img}}" data-edit="{{weapon.img}}" title="{{weapon.name}}" height="10" width="10"/> {{weapon.name}} <a class="stats-control" data-action="delete"><i class="fas fa-trash"></i></a></span>
       {{/each}}
-    </div>
+    </div> --}}
 
     {{!-- Systems --}}
     <div class="card clipped">
       <h2 class="lancer-title clipped">SYSTEMS</h2>
-      {{#each mech_loadout.systems as |system key|}}
-      <span class="item lancer-system-header" data-item-id="{{system._id}}"><img class="thumbnail" src="{{system.img}}" data-edit="{{system.img}}" title="{{system.name}}" height="10" width="10"/> {{system.name}} <a class="stats-control" data-action="delete"><i class="fas fa-trash"></i></a></span>
-      {{/each}}
+      <div class="flexcol">
+        {{#each mech_loadout.systems as |system key|}}
+          <div class="card clipped mech-system-compact item" data-item-id="{{system._id}}">
+            <div class="lancer-system-header clipped-top" style="grid-area: 1/1/2/3">
+              <i class="cci cci-system i--m i--dark"> </i>
+              <span class="minor">{{system.name}}</span>
+              <a class="stats-control i--light" data-action="delete"><i class="fas fa-trash"></i></a>
+            </div>
+            <div class="flexrow">
+              <div style="float: left; align-items: center; display: inherit;">
+                <span class="minor">SP: {{system.data.sp}}</span> <i class="cci cci-system-point i--m i--dark"> </i>
+              </div>
+              {{#if system.data.uses}}
+              <div class="compact-stat">
+                <span class="minor" style="max-width: min-content;">USES: </span>
+                <span class="minor" style="max-width: min-content;">{{system.data.uses}}</span>
+                <span class="minor" style="max-width: min-content;" > / </span>
+                <span class="minor" style="max-width: min-content;">{{system.data.max_uses}}</span>
+              </div>
+              {{/if}}
+            </div>
+            <div class="desc-text" style="padding: 5px">
+              {{{system.data.description}}}
+            </div>
+            {{#with system.data.effect as |effect|}}
+              {{#if effect.effect_type}}
+                <h3>{{effect.effect_type}} Effect</h3>
+                <div class="effect-text" style="padding: 5px">
+                  {{effect.hit}}
+                </div>
+              {{else}}
+                <div class="effect-text" style="padding: 5px">
+                  {{{effect}}}
+                </div>
+              {{/if}}
+            {{/with}}
+            <div class="flexrow" style="justify-content: flex-end;">
+              {{#each system.data.tags as |tag tkey|}}
+              {{{compact-tag tag}}}
+              {{/each}}
+            </div>
+          </div>
+        {{/each}}
+      </div>
     </div>
   </div>
 </section>

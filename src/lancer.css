@@ -481,6 +481,7 @@ button {
   clip-path: polygon( 0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%, 0 100% );
   -webkit-clip-path: polygon( 0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%, 0 100% );
   background-color: #67bc45;
+  grid-template-columns: 40px 1fr 2fr 40px;
 }
 
 .lancer-trigger-header {
@@ -631,13 +632,18 @@ button {
 .desc-text {
   text-align: left;
   padding: 0.5em;
-  /* font-family: Consolas; */
+  font-family: Consolas;
+  
+  border: 1px solid #999;
+  border-radius: 5px;
+  margin: 5px;
+  background: rgba(0, 0, 0, 0.2);
 }
 
 .effect-text {
   text-align: left;
   padding: 0.5em;
-  /* font-family: Helvetica */
+  font-family: Helvetica
 }
 
 .skill-compact {
