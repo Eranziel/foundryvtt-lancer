@@ -714,18 +714,15 @@ code.horus:hover {
   font-size: 12px;
   font-weight: normal;
 }
-.lancer-dice-roll .lancer-dice-total {
-  flex: 0;
-  font-size: 20px;
-  font-weight: bold;
+
+.lancer-dice-roll {
+  padding: 3px;
 }
-.lancer-dice-roll .lancer-dice-formula,
-.lancer-dice-roll .lancer-dice-total {
-  flex:0 0 100%;
-  position: relative;
-  margin: 0px;
-  margin-bottom: 5px;
-  line-height: 24px;
+
+.lancer-dice-formula,
+.lancer-dice-total {
+  margin: 5px;
+  align-items: center;
   text-align: center;
   background: rgba(0, 0, 0, 0.1);
   border: 1px solid #999;
@@ -733,3 +730,6 @@ code.horus:hover {
   box-shadow: 0 0 2px #FFF inset;
 }
 
+.lancer-dice-total {
+  margin: 5px;
+}
