@@ -115,8 +115,9 @@ Hooks.once('init', async function() {
 		return str.toUpperCase();
 	});
 
-    Handlebars.registerHelper('compact-tag', renderCompactTag);
-    Handlebars.registerHelper('chunky-tag', renderChunkyTag);
+  Handlebars.registerHelper('compact-tag', renderCompactTag);
+  Handlebars.registerHelper('chunky-tag', renderChunkyTag);
+	Handlebars.registerHelper('full-tag', renderFullTag);
 
 	Handlebars.registerHelper('tier-selector', (tier, key) => {
 		let template = `<select id="tier-type" class="tier-control" data-action="update">
@@ -128,8 +129,6 @@ Hooks.once('init', async function() {
 	return template;
 	});
 	
-	Handlebars.registerHelper('full-tag', renderFullTag);
-
 	// mount display mount
 	Handlebars.registerHelper('mount-selector', (mount, key) => {
 		let template = `<select id="mount-type" class="mounts-control" data-action="update" data-item-id=${key}>
