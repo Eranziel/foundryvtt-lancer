@@ -207,6 +207,7 @@ export class LancerPilotSheet extends ActorSheet {
       items.contextmenu(ev => {
         console.log(ev);
         const item = $(ev.currentTarget);
+        const itemId = item.data("itemId");
 
         let mount_element = item.closest(".lancer-mount-container");
         let weapon_element = item.closest(".lancer-weapon-container");
@@ -217,9 +218,25 @@ export class LancerPilotSheet extends ActorSheet {
           weapons.splice(parseInt(weapon_element.data("itemId")), 1);
           this.actor.update({"data.mech_loadout.mounts": mounts});
           this._onSubmit(ev);
-        } else {
-          this.actor.deleteOwnedItem(item.data("itemId"));
         }
+        else if (this.actor.getOwnedItem(itemId).data.type === "mech_weapon") {
+          // Search mounts to remove the weapon
+          let mounts = duplicate(this.actor.data.data.mech_loadout.mounts);
+          for (let i = 0; i < mounts.length; i++) {
+            const mount = mounts[i];
+            for (let j = 0; j < mount.weapons.length; j++) {
+              let weapons = mount.weapons;
+              if (weapons[j]._id === itemId) {
+                weapons.splice(j, 1);
+                this.actor.update({"data.mech_loadout.mounts": mounts});
+                this._onSubmit(ev);
+                break;
+              }
+            }
+          }
+        }
+
+        this.actor.deleteOwnedItem(itemId);
         item.slideUp(200, () => this.render(false));
       });
 
@@ -229,6 +246,7 @@ export class LancerPilotSheet extends ActorSheet {
         ev.stopPropagation();  // Avoids triggering parent event handlers
         console.log(ev);
         const item = $(ev.currentTarget).closest('.item');
+        const itemId = item.data("itemId");
 
         let mount_element = item.closest(".lancer-mount-container");
         let weapon_element = item.closest(".lancer-weapon-container");
@@ -239,9 +257,25 @@ export class LancerPilotSheet extends ActorSheet {
           weapons.splice(parseInt(weapon_element.data("itemId")), 1);
           this.actor.update({"data.mech_loadout.mounts": mounts});
           this._onSubmit(ev);
-        } else {
-          this.actor.deleteOwnedItem(item.data("itemId"));
         }
+        else if (this.actor.getOwnedItem(itemId).data.type === "mech_weapon") {
+          // Search mounts to remove the weapon
+          let mounts = duplicate(this.actor.data.data.mech_loadout.mounts);
+          for (let i = 0; i < mounts.length; i++) {
+            const mount = mounts[i];
+            for (let j = 0; j < mount.weapons.length; j++) {
+              let weapons = mount.weapons;
+              if (weapons[j]._id === itemId) {
+                weapons.splice(j, 1);
+                this.actor.update({"data.mech_loadout.mounts": mounts});
+                this._onSubmit(ev);
+                break;
+              }
+            }
+          }
+        }
+
+        this.actor.deleteOwnedItem(itemId);
         item.slideUp(200, () => this.render(false));
       });
 
@@ -279,7 +313,14 @@ export class LancerPilotSheet extends ActorSheet {
         ev.stopPropagation();
         console.log(ev);
         let mounts = duplicate(this.actor.data.data.mech_loadout.mounts);
-        mounts.splice(parseInt($(ev.currentTarget).closest(".lancer-mount-container").data("itemId")), 1);
+        let id = $(ev.currentTarget).closest(".lancer-mount-container").data("itemId");
+        // Delete each weapon in the selected mount from the actor's owned items
+        let weapons = this.actor.data.data.mech_loadout.mounts[id].weapons;
+        for (let i = 0; i < weapons.length; i++) {
+          const weapon = weapons[i];
+          this.actor.deleteOwnedItem(weapon._id);
+        }
+        mounts.splice(parseInt(id), 1);
         this.actor.update({"data.mech_loadout.mounts": mounts});
         this._onSubmit(ev);
       });
@@ -380,7 +421,8 @@ export class LancerPilotSheet extends ActorSheet {
           } else if (item.data.data.mount === 'Superheavy' && !mount.secondary_mount) {
             ui.notifications.error('Assign a secondary mount to this heavy mount in order to equip a superheavy weapon');
           } else {
-            mount.weapons.push(item);
+            let weapon = await actor.createOwnedItem(duplicate(item.data));
+            mount.weapons.push(weapon);
             console.log("LANCER | Inserting Mech Weapon into Mount", item);
             this.actor.update({"data.mech_loadout.mounts": mounts});
             this._onSubmit(event);
