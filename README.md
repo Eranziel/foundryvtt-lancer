@@ -7,11 +7,12 @@ The Lancer universe and all related setting materials belong to Massif Press, us
 This project incorporates several resources and open source software (either in part or in whole). Without these, this project would be much poorer, and might not even exist in the first place. A huge thank you to all those who use their time and skills to enrich the world with their creations!
 * [Comp/Con](https://compcon.app), the incredible companion app for Lancer, created by beeftime. ([Github](https://github.com/massif-press/compcon))
 * Comp/Con icons, created by megane.
+* Some icons are adapted from Font Awesome - see [Icon Attributions](dist/assets/icons/ATTRIBUTION.md).
 * [lancer-data](https://github.com/massif-press/lancer-data), a JSON library of Lancer content.
 * [Foundry Project Creator](https://gitlab.com/foundry-projects/foundry-pc) by NickEast, without which this project would be much the poorer and much delayed!
 * [Material Design Icons](https://materialdesignicons.com/), open source community-led iconography.
 
-Additionally, a big thank you to Aarowaim and Grygon for their help getting the alpha release brought up to speed and out the door!
+Additionally, a huge thank you and shout out to Animu36, Staubz, and Grygon for their help getting the alpha release brought up to speed and out the door!
 
 ## Foundry Installation
 **WARNING: This system is not yet released! There is no guarantee of quality or compatibility - try at your own risk! Things may not work properly, data may mysteriously vanish, and updates may break your world!**

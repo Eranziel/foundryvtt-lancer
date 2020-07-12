@@ -1,13 +1,69 @@
 <form class="{{cssClass}} lancer-sheet" autocomplete="off">
   
-  {{!-- Sheet Header --}}
+  	{{!-- Sheet Header --}}
 	<header class="sheet-header card clipped-bot">
 		<img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}" height="100" width="100"/>
-		<div class="header-fields">
-			<h1 class="charname"><input name="name" type="text" value="{{item.name}}" placeholder="Name"/></h1>
+		<div class="header-fields" style="grid-area: 1/1/2/5;">
+			<h1 class="charname"><input class="header-field" name="name" type="text" value="{{item.name}}" placeholder="Name"/></h1>
 		</div>
 	</header>
 
-  THIS IS PILOT ARMOR!
 
+  	{{!-- Armor Stats --}}
+	<div class="card clipped flexrow">
+		<div class="flexcol card clipped" style="flex-basis: 25%">
+			<div class="lancer-stat-header clipped-top flexrow">
+				<i class="mdi mdi-shield-outline i--m i--light" style="float: left; padding-left: 10px"> </i>
+				<span class="major">ARMOR</span>
+			</div>
+			<input class="lancer-stat-input medium" type="number" name="data.armor" value="{{data.armor}}" data-dtype="Number"/>
+		</div>
+		<div class="flexcol card clipped" style="flex-basis: 25%">
+			<div class="lancer-stat-header clipped-top flexrow">
+				<i class="mdi mdi-heart-outline i--m i--light" style="float: left; padding-left: 10px"> </i>
+				<span class="major">HP BONUS</span>
+			</div>
+			<input class="lancer-stat-input medium" type="number" name="data.hp_bonus" value="{{data.hp_bonus}}" data-dtype="Number"/>
+		</div>
+		<div class="flexcol card clipped" style="flex-basis: 25%">
+			<div class="lancer-stat-header clipped-top flexrow">
+				<i class="cci cci-edef i--m i--light" style="float: left; padding-left: 10px"> </i>
+				<span class="major">E-DEF</span>
+			</div>
+			<input class="lancer-stat-input medium" type="number" name="data.edef" value="{{data.edef}}" data-dtype="Number"/>
+		</div>
+		<div class="flexcol card clipped" style="flex-basis: 25%">
+			<div class="lancer-stat-header clipped-top flexrow">
+				<i class="cci cci-evasion i--m i--light" style="float: left; padding-left: 10px"> </i>
+				<span class="major">EVASION</span>
+			</div>
+			<input class="lancer-stat-input medium" type="number" name="data.evasion" value="{{data.evasion}}" data-dtype="Number"/>
+		</div>
+		<div class="flexcol card clipped" style="flex-basis: 25%">
+			<div class="lancer-stat-header clipped-top flexrow">
+				<i class="mdi mdi-arrow-right-bold-hexagon-outline i--m i--light" style="float: left; padding-left: 10px"> </i>
+				<span class="major">SPEED</span>
+			</div>
+			<input class="lancer-stat-input medium" type="number" name="data.speed" value="{{data.speed}}" data-dtype="Number"/>
+		</div>
+	</div>
+
+	{{!-- Compendium --}}
+
+	<div class="flexcol card clipped">
+		<span class="lancer-stat-header major clipped-top">DESCRIPTION</span>
+		{{editor content=data.description target="data.description" button=true owner=owner editable=editable}}
+	</div>
+
+	{{!-- Tags --}}
+
+	<div class="arrayed-item-container tags-container flexcol" data-item="tags">
+		<div>
+			<span class="minor" style="float: left">EQUIPMENT TAGS</span>
+			<a class="add-button clickable" data-action="create" style="float: right; margin-right: 1em">+</a>
+		</div>
+		{{#each item.data.tags as |tag key|}}
+		{{{full-tag tag key}}}
+		{{/each}}
+	</div>
 </form>

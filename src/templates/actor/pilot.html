@@ -351,6 +351,8 @@
       </span>
       <input class="lancer-text-input major" style="float: right;" type="string" name="data.mech.name" value="{{data.mech.name}}" data-dtype="String"/>
     </div>
+
+    {{!-- Stats --}}
     <div class="card clipped mech-stats" style="display: grid; grid-template: repeat(3, 1fr) / repeat(5, 1fr);">
       <div class="flexcol card clipped" style="grid-area: 1/1/2/2">
         <div class="lancer-stat-header clipped-top flexrow">
@@ -447,7 +449,10 @@
           <i class="cci cci-tech-full i--m i--light" style="float: left; padding-left: 10px"> </i>
           <span class="major">TECH ATK</span>
         </div>
-        <input class="lancer-stat-input medium" type="number" name="data.mech.tech_attack" value="{{data.mech.tech_attack}}" data-dtype="Number"/>
+        <div class="flexrow stat-container" style="align-self: center;">
+          <a class="stat-macro i--dark i--l" data-action="roll-macro"><i class="cci cci-activate"></i></a>
+          <input class="lancer-stat-input medium" type="number" name="data.mech.tech_attack" value="{{data.mech.tech_attack}}" data-dtype="Number"/>
+        </div>
       </div>
       <div class="flexcol card clipped" style="grid-area: 3/3/4/4">
         <div class="lancer-stat-header clipped-top flexrow">
@@ -467,7 +472,10 @@
       <div style="grid-area: 2/5/4/6"><i class="cci cci-{{frame_size}} size-icon theme--main"></i></div>
       {{/if}}
     </div>
+    
+    {{!-- Start of Frame --}}
     {{#if frame}}
+    {{!-- Traits --}}
     <ul>
       {{#each frame.data.traits as |trait key|}}
       <li class="card clipped frame-trait-compact">
@@ -479,6 +487,8 @@
       </li>
       {{/each}}
     </ul>
+
+    {{!-- Core System --}}
     <div class="card clipped frame-core flexcol">
       <div class="lancer-core-sys-header medium clipped-top">
         <i></i>
@@ -508,6 +518,9 @@
       </div>
     </div>
     {{/if}}
+    {{!-- End of Frame --}}
+
+    {{!-- Mounts --}}
     <div class="card clipped">
       <h2 class="lancer-title clipped">MOUNTS<a class="add-button" data-action="create" style="float:right; margin-right: 1em; padding-bottom: 1em;">+</a></h2>
       <div class="flexrow" style="justify-content: space-evenly;">
@@ -523,7 +536,7 @@
             {{/unless}}
             {{#if mount.weapons}}
             {{#each mount.weapons as |weapon key|}}
-            {{> pilot-weapon-preview weapon=weapon key=key}}
+            {{> mech-weapon-preview weapon=weapon key=key}}
             {{/each}}
             {{/if}}
           </span>
@@ -533,17 +546,65 @@
     </div>
 
     {{!-- Weapons --}}
-    <div class="card clipped">
+    {{!-- <div class="card clipped">
       <h2 class="lancer-title clipped">WEAPONS</h2>
       {{#each mech_loadout.weapons as |weapon key|}}
       <span class="item lancer-weapon-header" data-item-id="{{weapon._id}}"><img class="thumbnail" src="{{weapon.img}}" data-edit="{{weapon.img}}" title="{{weapon.name}}" height="10" width="10"/> {{weapon.name}} <a class="stats-control" data-action="delete"><i class="fas fa-trash"></i></a></span>
       {{/each}}
-    </div>
+    </div> --}}
+
+    {{!-- Systems --}}
     <div class="card clipped">
       <h2 class="lancer-title clipped">SYSTEMS</h2>
-      {{#each mech_loadout.systems as |system key|}}
-      <span class="item lancer-system-header" data-item-id="{{system._id}}"><img class="thumbnail" src="{{system.img}}" data-edit="{{system.img}}" title="{{system.name}}" height="10" width="10"/> {{system.name}} <a class="stats-control" data-action="delete"><i class="fas fa-trash"></i></a></span>
-      {{/each}}
+      <div class="flexrow sp-count" style="align-items: center;">
+        <i class="cci cci-system-point i--m i--dark"> </i>
+        <span class="minor" style="max-width: fit-content;">FRAME SP USED :: {{sp_used}} / </span>
+        <input class="lancer-stat-input medium" type="number" name="data.mech.sp" value="{{data.mech.sp}}" data-dtype="Number"/>
+      </div>
+      <div class="flexcol">
+        {{#each mech_loadout.systems as |system key|}}
+          <div class="card clipped mech-system-compact item" data-item-id="{{system._id}}">
+            <div class="lancer-system-header clipped-top" style="grid-area: 1/1/2/3">
+              <i class="cci cci-system i--m i--dark"> </i>
+              <span class="minor">{{system.name}}</span>
+              <a class="stats-control i--light" data-action="delete"><i class="fas fa-trash"></i></a>
+            </div>
+            <div class="flexrow">
+              <div style="float: left; align-items: center; display: inherit;">
+                <span class="minor">SP: {{system.data.sp}}</span> <i class="cci cci-system-point i--m i--dark"> </i>
+              </div>
+              {{#if system.data.uses}}
+              <div class="compact-stat">
+                <span class="minor" style="max-width: min-content;">USES: </span>
+                <span class="minor" style="max-width: min-content;">{{system.data.uses}}</span>
+                <span class="minor" style="max-width: min-content;" > / </span>
+                <span class="minor" style="max-width: min-content;">{{system.data.max_uses}}</span>
+              </div>
+              {{/if}}
+            </div>
+            <div class="desc-text" style="padding: 5px">
+              {{{system.data.description}}}
+            </div>
+            {{#with system.data.effect as |effect|}}
+              {{#if effect.effect_type}}
+                <h3>{{effect.effect_type}} Effect</h3>
+                <div class="effect-text" style="padding: 5px">
+                  {{effect.hit}}
+                </div>
+              {{else}}
+                <div class="effect-text" style="padding: 5px">
+                  {{{effect}}}
+                </div>
+              {{/if}}
+            {{/with}}
+            <div class="flexrow" style="justify-content: flex-end;">
+              {{#each system.data.tags as |tag tkey|}}
+              {{{compact-tag tag}}}
+              {{/each}}
+            </div>
+          </div>
+        {{/each}}
+      </div>
     </div>
   </div>
 </section>

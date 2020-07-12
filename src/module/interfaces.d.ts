@@ -157,6 +157,7 @@ declare interface LancerMechData {
   sensors: number;
   save: number;
   tech_attack: number;
+  sp: number;
 }
 
 declare interface LancerMechLoadoutData {
@@ -223,6 +224,7 @@ declare interface LancerPilotSheetData extends ActorSheetData {
     weapons: LancerMechWeapon[];
     systems: LancerMechSystem[];
   }
+  sp_used: number;
 }
 
 // ------- NPC data ---------------------------------------------
