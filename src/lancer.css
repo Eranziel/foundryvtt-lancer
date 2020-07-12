@@ -566,10 +566,6 @@ button {
   color: white !important;
 }
 
-.header-field .input {
-  color: black;
-}
-
 .editor {
   height: -webkit-fill-available;
   min-height: 100px;
@@ -732,12 +728,12 @@ code.horus:hover {
   font-weight: normal;
 }
 
-.lancer-dice-roll {
+.dice-roll.lancer-dice-roll {
   padding: 3px;
 }
 
-.lancer-dice-formula,
-.lancer-dice-total {
+.dice-formula.lancer-dice-formula,
+.dice-total.lancer-dice-total {
   margin: 5px;
   align-items: center;
   text-align: center;
@@ -747,6 +743,8 @@ code.horus:hover {
   box-shadow: 0 0 2px #FFF inset;
 }
 
-.lancer-dice-total {
+.dice-total.lancer-dice-total {
   margin: 5px;
+  min-width: fit-content;
+  padding: 0px 5px;
 }

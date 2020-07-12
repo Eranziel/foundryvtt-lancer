@@ -387,7 +387,8 @@ async function rollAttackMacro(w: string, a: string) {
   });
 
   // Output
-  const attack_tt = await attack_roll.getTooltip();
+	const attack_tt = await attack_roll.getTooltip();
+	console.log("LANCER | Attack roll tooltip: ", attack_tt);
   const templateData = {
     title: title,
     attack: attack_roll,

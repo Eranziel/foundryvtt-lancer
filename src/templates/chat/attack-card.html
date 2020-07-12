@@ -5,22 +5,32 @@
   </div>
   <div class="card clipped">
     <div class="lancer-stat-header clipped-top">// ATTACK //</div>
-    <div class="lancer-dice-roll">
-      <div class="lancer-dice-formula flexrow">
-        <span style="float: left;">{{ attack.formula }} = </span>
-        <span class="lancer-dice-total major">{{ attack.total }}</span>
-        <i class="cci cci-reticule i--m i--dark"> </i>
+    <div class="dice-roll lancer-dice-roll">
+      <div class="dice-result">
+        <div class="dice-formula lancer-dice-formula flexrow">
+          <span style="text-align: left; margin-left: 5px;">{{ attack.formula }}</span>
+          <span class="dice-total lancer-dice-total major">{{ attack.total }}</span>
+          <i class="cci cci-reticule i--m i--dark"> </i>
+        </div>
+        <div style="text-align: left;">
+          {{{ attack_tooltip }}}
+        </div>
       </div>
     </div>
   </div>
   <div class="card clipped">
     <div class="lancer-stat-header clipped-top">// DAMAGE //</div>
     {{#each damages as |damage key|}}
-      <div class="lancer-dice-roll">
-        <div class="lancer-dice-formula flexrow">
-          <span style="float: left;">{{ damage.roll.formula }} = </span>
-          <span class="lancer-dice-total major">{{ damage.roll.total }}</span>
-          <i class="cci cci-{{lower-case damage.dtype}} i--m damage--{{lower-case damage.dtype}}"> </i>
+      <div class="dice-roll lancer-dice-roll">
+        <div class="dice-result">
+          <div class="dice-formula lancer-dice-formula flexrow">
+            <span style="text-align: left; margin-left: 5px;">{{ damage.roll.formula }}</span>
+            <span class="dice-total lancer-dice-total major">{{ damage.roll.total }}</span>
+            <i class="cci cci-{{lower-case damage.dtype}} i--m damage--{{lower-case damage.dtype}}"> </i>
+          </div>
+          <div style="text-align: left;">
+            {{{ damage.tt }}}
+          </div>
         </div>
       </div>
     {{/each}}
