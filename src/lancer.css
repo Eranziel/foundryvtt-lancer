@@ -481,7 +481,6 @@ button {
   clip-path: polygon( 0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%, 0 100% );
   -webkit-clip-path: polygon( 0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%, 0 100% );
   background-color: #67bc45;
-  grid-template-columns: 40px 1fr 2fr 40px;
 }
 
 .lancer-trigger-header {
@@ -561,6 +560,14 @@ button {
 .header-name {
   align-self: center;
   height: -webkit-fill-available;
+}
+
+.header-field {
+  color: white !important;
+}
+
+.header-field .input {
+  color: black;
 }
 
 .editor {

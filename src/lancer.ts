@@ -11,6 +11,7 @@
 import { LancerGame } from './module/lancer-game';
 import { LancerActor, lancerActorInit } from './module/actor/lancer-actor';
 import { LancerItem, LancerNPCFeature, LancerMechWeapon, LancerPilotWeapon } from './module/item/lancer-item';
+import { DamageData, LancerPilotActorData, LancerNPCActorData, TagDataShort } from './module/interfaces';
 
 // Import applications
 import { LancerPilotSheet } from './module/actor/pilot-sheet';
@@ -26,7 +27,6 @@ import * as migrations from './module/migration.js';
 
 // Import JSON data
 import data from 'lancer-data';
-import { DamageData, LancerPilotActorData, LancerNPCActorData, TagDataShort } from './module/interfaces';
 
 /* ------------------------------------ */
 /* Initialize system                    */

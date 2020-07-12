@@ -40,8 +40,7 @@ export class LancerItemSheet extends ItemSheet {
     // for ( let attr of Object.values(data.data.attributes) ) {
     //   attr.isCheckbox = attr.dtype === "Boolean";
     // }
-    console.log('LANCER | Item sheet data: ')
-    console.log(data);
+    console.log('LANCER | Item sheet data: ', data);
     return data;
   }
 
@@ -151,27 +150,7 @@ export class LancerItemSheet extends ItemSheet {
 
   /** @override */
   _updateObject(event, formData) {
-
-    // Handle the free-form attributes list
-    // const formTags = expandObject(formData).data.tags || {};
-    // const tags = Object.values(formAttrs).reduce((obj, v) => {
-    //  let k = v["key"].trim();
-    //  if ( /[\s\.]/.test(k) )  return ui.notifications.error("ERROR");
-    // delete v["key"];
-    //  obj[k] = v;
-    //  return obj;
-    //}, {});
-    
-    // Remove tags which are no longer used
-    //for ( let k of Object.keys(this.object.data.data.tags) ) {
-    //  if ( !tags.hasOwnProperty(k) ) tags[`-=${k}`] = null;
-    //}
-
-    // Re-combine formData
-    //formData = Object.entries(formData).filter(e => !e[0].startsWith("data.tags")).reduce((obj, e) => {
-    //  obj[e[0]] = e[1];
-    //  return obj;
-    //}, {_id: this.object._id, "data.tags": tags});
+    console.log("LANCER | Item sheet form data: ", formData);
 
     // Update the Item
     return this.object.update(formData);

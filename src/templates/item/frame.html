@@ -3,8 +3,11 @@
   {{!-- Sheet Header --}}
 	<header class="sheet-header card clipped-bot">
 		<img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}" height="100" width="100"/>
-		<div class="header-fields">
-			<h1 class="charname"><input name="name" type="text" value="{{item.name}}" placeholder="Name"/></h1>
+		<div class="header-fields" style="grid-area: 1/1/2/5">
+			<h1 class="frame-name "><input class="header-field" name="name" type="text" value="{{item.name}}" placeholder="Name"/></h1>
+		</div>
+		<div class="header-fields" style="grid-area: 2/1/3/4">
+			<h3 class="mfr-name"><input class="header-field"name="source" type="text" value="{{data.source}}" placeholder="Manufacturer"/></h3>
 		</div>
 	</header>
 
@@ -110,10 +113,12 @@
 				<select class="delete-selector" name="data.mounts.{{key}}" data-type="String" data-item="mounts">
 					{{#select mount}}
 					<option value="None">N/A</option>	
-					<option value="Aux">AUX</option>
+					<option value="Aux/Aux">AUX/AUX</option>
 					<option value="Main">MAIN</option>
+					<option value="Main/Aux">MAIN/AUX</option>
 					<option value="Flex">FLEX</option>
 					<option value="Heavy">HEAVY</option>
+					<option value="Integrated">INTEGRATED</option>
 					<option value="Superheavy">SUPERHEAVY</option>
 					<option value="delete">DELETE</option>
 					{{/select}}
