@@ -133,8 +133,7 @@ export class LancerActor extends Actor {
       case "npc-tier-3":
         i = 2;
     }
-    console.log("SWAP TIER")
-    console.log(i)
+    console.log(`LANCER| Swapping to Tier ${i+1}`)
 
     //HASE
     mech.hull = newNPCClass.hull[i];
@@ -147,16 +146,16 @@ export class LancerActor extends Actor {
     mech.hp.value = mech.hp.max;
     mech.heat.max = newNPCClass.heatcap[i];
     mech.heat.value = mech.heat.max;
-    if(Array.isArray(newNPCClass.structure) && newNPCClass.structure.length) {
-    mech.structure.max = newNPCClass.structure[i];
-    mech.structure.value = mech.structure.max;
+    if(Array.isArray(newNPCClass.structure) && newNPCClass.structure.length[i]) {
+      mech.structure.max = newNPCClass.structure[i];
+      mech.structure.value = mech.structure.max;
     } else{
       mech.structure.max = 1;
       mech.structure.value = 1;
     }
-    if(Array.isArray(newNPCClass.stress) && newNPCClass.stress.length){
-    mech.stress.max = newNPCClass.stress[i];
-    mech.stress.value = mech.stress.max;
+    if(Array.isArray(newNPCClass.stress) && newNPCClass.stress.length[i]){
+      mech.stress.max = newNPCClass.stress[i];
+      mech.stress.value = mech.stress.max;
     } else {
       mech.stress.max = 1;
       mech.stress.value = 1;
@@ -170,14 +169,22 @@ export class LancerActor extends Actor {
     mech.edef = newNPCClass.edef[i];
     mech.sensors = newNPCClass.sensor_range[i];
     mech.save = newNPCClass.save[i];
-    if(Array.isArray(newNPCClass.size) && newNPCClass.size.length) mech.size = newNPCClass.size[i]; else mech.size = 1;
+    if(Array.isArray(newNPCClass.size) && newNPCClass.size.length[i]) {
+      mech.size = newNPCClass.size[i];
+      if (newNPCClass.size[i] === 0.5) {
+        data.data.npc_size = "size-half";
+      }
+      else {
+        data.data.npc_size= `size-${newNPCClass.size[i]}`;
+      } 
+    } else {
+         mech.size = 1;
+         data.data.npc_size = `size-1`;
+    }
     data.data.activations = newNPCClass.activations[i];
 
     // Update the actor
     data.data.mech = mech;
-    console.log("SWAP DATA")
-    console.log(mech)
-    console.log(data.data.mech)
     return (this.update(data) as Promise<LancerActor>);
   }
 }

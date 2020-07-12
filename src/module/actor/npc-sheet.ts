@@ -59,21 +59,6 @@ export class LancerNPCSheet extends ActorSheet {
       data.data.name = data.actor.name;
     }
 
-
-    // Generate the size string for the pilot's frame
-    if (data.npc_class) {
-      const npc_class: any = data.npc_class;
-      if (npc_class.data.stats.size[0] === 0.5) {
-        data.npc_size = "size-half";
-      }
-      else {
-        data.npc_size = `size-${npc_class.data.stats.size[0]}`;
-      }
-    }
-    else {
-      data.npc_size = undefined;
-    }
-
     console.log("LANCER | NPC data: ");
     console.log(data);
     return data;
@@ -232,42 +217,52 @@ export class LancerNPCSheet extends ActorSheet {
     let item: Item;
     const actor = this.actor as LancerActor;
     // NOTE: these cases are copied almost verbatim from ActorSheet._onDrop
+    
     // Case 1 - Item is from a Compendium pack
     if (data.pack) {
       item = (await game.packs.get(data.pack).getEntity(data.id)) as Item;
+      console.log("LANCER | Item dropped from compendium: ", item);
     }
     // Case 2 - Item is a World entity
     else if (!data.data) {
       item = game.items.get(data.id);
-      if (!item) return;
+      // If item isn't from a Compendium or World entity, 
+      // see if super can do something with it.
+      if (!item) super._onDrop(event);
+      console.log("LANCER | Item dropped from world: ", item);
+    }
+    // Logic below this line is executed only with owner or GM permission of a sheet
+    if (!actor.owner && !game.user.isGM) {
+      ui.notifications.warn(`LANCER, you shouldn't try to modify ${actor.name}'s loadout. Access Denied.`);
+      return;
     }
 
-    if (actor.owner) {
+    if (item) {
       // Swap mech class
       if (item && item.type === "npc_class") {
         let newNPCClassStats: LancerNPCClassStatsData;
         // Remove old class
         actor.items.forEach(async (i: LancerItem) => {
           if (i.type === "npc_class") {
+            console.log(`LANCER | Removing ${actor.name}'s old ${i.name} class.`);
             await this.actor.deleteOwnedItem(i._id);
           }
         });
         // Add the new class from Compendium pack
         if (data.pack) {
-          const npcClass = await actor.importItemFromCollection(data.pack, data.id) as any;
-          console.log(npcClass);
+          const npcClass = await actor.importItemFromCollection(data.pack, data.id) as LancerNPCClass;
+          console.log(`LANCER | Added ${npcClass.name} from ${data.pack} to ${actor.name}.`);
           newNPCClassStats = npcClass.data.stats;
         }
         // Add the new Class from a World entity
         else {
           await actor.createEmbeddedEntity("OwnedItem", duplicate(item.data));
-          newNPCClassStats = (actor.items.find((i: Item) => i.type === "npc_class") as any).data.stats;
-          console.log("LANCER | Class Swap World Entity");
-          console.log(newNPCClassStats);
+          const npcClass = await actor.createOwnedItem(duplicate(item.data)) as LancerNPCClass;
+          console.log(`LANCER | Added ${npcClass.name} from ${data.pack} to ${actor.name}.`);
+          newNPCClassStats = npcClass.data.stats;
         }
         if (newNPCClassStats) {
-          console.log("LANCER | Class Swap");
-          console.log(newNPCClassStats);
+          console.log(`LANCER | Swapping Class stats for ${actor.name}`);
           actor.swapNPCClassOrTier(newNPCClassStats, true);
         }
       }
