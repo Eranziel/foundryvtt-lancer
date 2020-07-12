@@ -471,21 +471,20 @@ export class LancerPilotSheet extends ActorSheet {
    * @private
    */
   _updateObject(event: Event | JQuery.Event, formData: any): Promise<any> {
-    console.log("LANCER | Pilot sheet form data: ", formData);
     // Use the Actor's name for the pilot's callsign
-    formData.name = formData["data.pilot.callsign"];
+    formData['name'] = formData["data.pilot.callsign"];
 
-    let token: any = this.actor.token;
+    let token: any = this.actor.data['token'];
     // Set the prototype token image if the prototype token isn't initialized
-    if (!this.actor.token) {
-      this.actor.update({"token.img": formData.img})
+    if (!token) {
+      formData['token.img'] = formData['img'];
     }
     // Update token image if it matches the old actor image
-    else if ((this.actor.img == token.img)
-        && (this.actor.img != formData.img)) {
-      this.actor.update({"token.img": formData.img});
+    else if (this.actor.data.img === token['img'] && this.actor.img !== formData['img']) {
+      formData['token.img'] = formData['img'];
     }
 
+    console.log("LANCER | Pilot sheet form data: ", formData);
     // Update the Actor
     return this.object.update(formData);
   }
