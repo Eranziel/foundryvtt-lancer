@@ -1,8 +1,8 @@
 <form class="{{cssClass}} lancer-sheet" autocomplete="off">
 
     {{!-- Sheet Header --}}
-    <header">
-        <div class="details" style="grid-area: 1/1/2/3">
+    <header>
+        <div class="details" style="grid-area: 1/1/1/3">
             NAME
             <span class="major">{{data.name}}</span>
         </div>
@@ -42,6 +42,9 @@
                 <div class="flexcol card clipped">
 
                     <span class="lancer-stat-header major clipped-top">
+                        CLASS
+                    </span>
+                    <span class="lancer-text-input major">                        
                         {{#if npc_class}}
                         {{npc_class.name}}
                         {{else}}
@@ -49,28 +52,36 @@
                         {{/if}}</span>
                 </div>
             </div>
-                <div class="flexrow">
-                    <div class="flexcol card clipped">
-                        <span class="lancer-stat-header major clipped-top">HULL</span>
-                        <input class="lancer-stat-input major" type="number" name="data.mech.hull"
-                            value="{{data.mech.hull}}" data-dtype="Number" />
-                    </div>
-                    <div class="flexcol card clipped">
-                        <span class="lancer-stat-header major clipped-top">AGILITY</span>
-                        <input class="lancer-stat-input major" type="number" name="data.mech.agility"
-                            value="{{data.mech.agility}}" data-dtype="Number" />
-                    </div>
-                    <div class="flexcol card clipped">
-                        <span class="lancer-stat-header major clipped-top">SYSTEMS</span>
-                        <input class="lancer-stat-input major" type="number" name="data.mech.systems"
-                            value="{{data.mech.systems}}" data-dtype="Number" />
-                    </div>
-                    <div class="flexcol card clipped">
-                        <span class="lancer-stat-header major clipped-top">ENGINEERING</span>
-                        <input class="lancer-stat-input major" type="number" name="data.mech.engineering"
-                            value="{{data.mech.engineering}}" data-dtype="Number" />
-                    </div>
+            <div class="flexrow">
+                <div class="flexcol card clipped">
+                  <span class="lancer-stat-header major clipped-top">HULL</span>
+                              <div class="flexrow stat-container" style="align-self: center;">
+                                  <a class="stat-macro i--dark i--l" data-action="roll-macro"><i class="cci cci-activate"></i></a>
+                      <input class="lancer-stat-input major" type="number" name="data.mech.hull" value="{{data.mech.hull}}" data-dtype="Number"/>
+                              </div>
                 </div>
+                <div class="flexcol card clipped">
+                  <span class="lancer-stat-header major clipped-top">AGILITY</span>
+                              <div class="flexrow stat-container" style="align-self: center;">
+                                  <a class="stat-macro i--dark i--l" data-action="roll-macro"><i class="cci cci-activate"></i></a>
+                      <input class="lancer-stat-input major" type="number" name="data.mech.agility" value="{{data.mech.agility}}" data-dtype="Number"/>
+                              </div>
+                </div>
+                <div class="flexcol card clipped">
+                  <span class="lancer-stat-header major clipped-top">SYSTEMS</span>
+                              <div class="flexrow stat-container" style="align-self: center;">
+                                  <a class="stat-macro i--dark i--l" data-action="roll-macro"><i class="cci cci-activate"></i></a>
+                      <input class="lancer-stat-input major" type="number" name="data.mech.systems" value="{{data.mech.systems}}" data-dtype="Number"/>
+                              </div>
+                </div>
+                <div class="flexcol card clipped">
+                  <span class="lancer-stat-header major clipped-top">ENGINEERING</span>
+                              <div class="flexrow stat-container" style="align-self: center;">
+                                  <a class="stat-macro i--dark i--l" data-action="roll-macro"><i class="cci cci-activate"></i></a>
+                      <input class="lancer-stat-input major" type="number" name="data.mech.engineering" value="{{data.mech.engineering}}" data-dtype="Number"/>
+                              </div>
+                </div>
+              </div>
                 <div class="card clipped mech-stats" style="display: grid; grid-template: repeat(3, 1fr) / repeat(5, 1fr);">
                     <div class="flexcol card clipped" style="grid-area: 1/1/2/2">
                         <div class="lancer-stat-header clipped-top flexrow">

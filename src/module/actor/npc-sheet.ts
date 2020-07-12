@@ -109,6 +109,57 @@ export class LancerNPCSheet extends ActorSheet {
     // Everything below here is only needed if the sheet is editable
     if (!this.options.editable) return;
 
+
+    // Macro triggers
+    if (this.actor.owner) {
+      // Stat rollers
+      let statMacro = html.find('.stat-macro');
+      statMacro.click(ev => {
+        ev.stopPropagation();  // Avoids triggering parent event handlers
+        console.log(ev);
+
+        // Find the stat input to get the stat's key to pass to the macro function
+        const statInput = $(ev.currentTarget).closest('.stat-container').find('.lancer-stat-input')[0] as HTMLInputElement;
+        const statKey = statInput.name;
+        let keySplit = statKey.split('.');
+        let title = keySplit[keySplit.length - 1].toUpperCase();
+        console.log(`LANCER | Rolling ${title} check, key ${statKey}`);
+        game.lancer.rollStatMacro(title, statKey, null, true);
+      });
+
+      // Trigger rollers
+      let triggerMacro = html.find('.roll-trigger');
+      triggerMacro.click(ev => {
+        ev.stopPropagation();
+        console.log(ev);
+
+        const modifier = parseInt($(ev.currentTarget).find('.roll-modifier').text());
+        const title = $(ev.currentTarget).closest('.skill-compact').find('.modifier-name').text();
+        //.find('modifier-name').first().text();
+        console.log(`LANCER | Rolling '${title}' trigger (d20 + ${modifier})`);
+
+        game.lancer.rollTriggerMacro(title, modifier, true);
+      });
+
+      // Weapon rollers
+      let weaponMacro = html.find('.roll-attack');
+      weaponMacro.click(ev => {
+        ev.stopPropagation();
+        console.log(ev);
+
+        const weaponElement = $(ev.currentTarget).closest('.weapon')[0] as HTMLElement;
+        // Pilot weapon
+        if (weaponElement.className.search("pilot") >= 0) {
+          let weaponId = weaponElement.getAttribute("data-item-id");
+          // TODO: pass weaponId to rollAttackMacro to do the rolling
+          game.lancer.rollAttackMacro(weaponId);
+        }
+        // Mech weapon
+        else {
+          // Is this actually any different than a pilot weapon?
+        }
+      })
+    }
     if (this.actor.owner) {
       // Item Dragging
       let handler = ev => this._onDragStart(ev);
@@ -155,14 +206,13 @@ export class LancerNPCSheet extends ActorSheet {
         console.log(ev);
         let tier = ev.currentTarget.selectedOptions[0].value;
         this.actor.update({ "data.tier": tier });
-
         // Set Values for 
         let actor = this.actor as LancerActor;
         let NPCClassStats: LancerNPCClassStatsData;
         NPCClassStats = (actor.items.find((i: Item) => i.type === "npc_class") as any).data.data.stats;
-        console.log(NPCClassStats);
+        console.log("LANCER | TIER Swap");
+        console.log(NPCClassStats, tier);
         actor.swapNPCClassOrTier(NPCClassStats, false, tier);
-        this._onSubmit(ev);
       });
     }
   }
@@ -212,9 +262,12 @@ export class LancerNPCSheet extends ActorSheet {
         else {
           await actor.createEmbeddedEntity("OwnedItem", duplicate(item.data));
           newNPCClassStats = (actor.items.find((i: Item) => i.type === "npc_class") as any).data.stats;
+          console.log("LANCER | Class Swap World Entity");
           console.log(newNPCClassStats);
         }
         if (newNPCClassStats) {
+          console.log("LANCER | Class Swap");
+          console.log(newNPCClassStats);
           actor.swapNPCClassOrTier(newNPCClassStats, true);
         }
       }

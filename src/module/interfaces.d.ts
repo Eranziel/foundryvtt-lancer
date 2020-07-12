@@ -504,8 +504,14 @@ declare interface LancerNPCClassStatsData {
   size: number[];
 }
 
+declare interface LancerNPCInfoData {
+  flavour: string;
+  tactics: string;
+}
+
 declare interface LancerNPCClassData extends BaseEntityData, LancerCompendiumItemData {
   mechtype: MechType;
+  info: LancerNPCInfoData;
   stats: LancerNPCClassStatsData;
   base_features: LancerNPCFeatureData[];
   optional_features: LancerNPCFeatureData[];

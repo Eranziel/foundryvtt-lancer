@@ -249,6 +249,10 @@
     },
     "npc_class":{
       "templates": ["compendium_item"],
+      "info": {
+        "flavour": "",
+        "tactics": ""
+      },
       "mechtype": [],
       "stats": {
         "armor": [],
@@ -280,11 +284,13 @@
       "origin_base": false,
       "fature_type": "",
       "tags": [],
+      "bonus": [],
       "trigger": "",
       "weapon_type": "",
+      "attack_bonus": [],
+      "accuracy": [],
       "range": [],
       "damage": [],
-      "accuracy": [],
       "onhit": ""
     }
   }
