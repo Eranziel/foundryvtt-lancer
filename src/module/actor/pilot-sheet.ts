@@ -93,13 +93,16 @@ export class LancerPilotSheet extends ActorSheet {
    * @private
    */
   _prepareItems(data: LancerPilotSheetData) {
-
+    data.sp_used = 0;
     // Mirror items into filtered list properties
     const accumulator = {};
     for (let item of data.items) {
       if (accumulator[item.type] === undefined)
         accumulator[item.type] = [];
       accumulator[item.type].push(item);
+      if (item.type === 'mech_system') {
+        data.sp_used += (item as any).data.sp;
+      }
     }
 
     data.skills = accumulator['skill'] || [];

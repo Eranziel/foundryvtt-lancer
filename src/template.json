@@ -41,7 +41,8 @@
           "edef": 0,
           "sensors": 0,
           "save": 0,
-          "tech_attack": 0
+          "tech_attack": 0,
+          "sp": 0
         }
       },
       "mech_loadout": {

@@ -556,6 +556,11 @@
     {{!-- Systems --}}
     <div class="card clipped">
       <h2 class="lancer-title clipped">SYSTEMS</h2>
+      <div class="flexrow sp-count" style="align-items: center;">
+        <i class="cci cci-system-point i--m i--dark"> </i>
+        <span class="minor" style="max-width: fit-content;">FRAME SP USED :: {{sp_used}} / </span>
+        <input class="lancer-stat-input medium" type="number" name="data.mech.sp" value="{{data.mech.sp}}" data-dtype="Number"/>
+      </div>
       <div class="flexcol">
         {{#each mech_loadout.systems as |system key|}}
           <div class="card clipped mech-system-compact item" data-item-id="{{system._id}}">
