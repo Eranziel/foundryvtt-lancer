@@ -123,7 +123,6 @@ declare interface DamageData {
 declare interface NPCDamageData {
   type: DamageType;
   val: number[];
-  attack_bonus: number[];
   override?: boolean;
 }
 
@@ -233,6 +232,7 @@ declare interface LancerNPCData {
   type: string;
   name: string;
   tier: string; //tier1-3 = 1-3 and custom = 4
+  tier_num: number;
   tag: NPCTag;
   activations: number;
   npc_size: string;
@@ -542,13 +542,15 @@ declare interface LancerNPCFeatureData extends BaseEntityData, LancerCompendiumI
   origin_name: string;
   origin_base: boolean;
   fature_type: string;
+  effect: string;
   tags: TagData[];
   trigger: string;
   weapon_type: string;
+  attack_bonus: number[];
+  accuracy: number[];
   range: RangeData[];
   damage: NPCDamageData[];
-  accuracy: number[]; //not sure if this is needed, not found weapons with differing accuracy for tier
-  onhit: string;
+  on_hit: string;
 }
 
 declare interface LancerNPCFeatureSheetData extends ItemSheetData {

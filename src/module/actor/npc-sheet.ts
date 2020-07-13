@@ -195,8 +195,7 @@ export class LancerNPCSheet extends ActorSheet {
         let actor = this.actor as LancerActor;
         let NPCClassStats: LancerNPCClassStatsData;
         NPCClassStats = (actor.items.find((i: Item) => i.type === "npc_class") as any).data.data.stats;
-        console.log("LANCER | TIER Swap");
-        console.log(NPCClassStats, tier);
+        console.log(`LANCER | TIER Swap with ${tier} and ${NPCClassStats}`);
         actor.swapNPCClassOrTier(NPCClassStats, false, tier);
       });
     }
