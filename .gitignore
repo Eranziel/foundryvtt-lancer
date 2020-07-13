@@ -3,7 +3,8 @@
 .idea/**
 
 # NPM
-node_modules
+node_modules/**
+package-lock.json
 
 # Build
 foundryconfig.json
@@ -15,4 +16,3 @@ dist/**/*.js.map
 dist/**/*.json
 dist/**/*.css
 dist/fonts/mdi/**
-package-lock.json
