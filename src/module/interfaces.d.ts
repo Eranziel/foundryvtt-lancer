@@ -235,6 +235,7 @@ declare interface LancerNPCData {
   tier: string; //tier1-3 = 1-3 and custom = 4
   tag: NPCTag;
   activations: number;
+  npc_size: string;
 }
 
 declare interface LancerNPCActorData extends ActorData {
@@ -247,7 +248,7 @@ declare interface LancerNPCSheetData extends ActorSheetData {
   npc_class: LancerNPCClass;
   npc_templates: LancerNPCTemplateData[];
   npc_features: LancerNPCFeature[];
-  npc_size: string;
+
 }
 
 // ------- Deployable data --------------------------------------
@@ -506,8 +507,14 @@ declare interface LancerNPCClassStatsData {
   size: number[];
 }
 
+declare interface LancerNPCInfoData {
+  flavour: string;
+  tactics: string;
+}
+
 declare interface LancerNPCClassData extends BaseEntityData, LancerCompendiumItemData {
   mechtype: MechType;
+  info: LancerNPCInfoData;
   stats: LancerNPCClassStatsData;
   base_features: LancerNPCFeatureData[];
   optional_features: LancerNPCFeatureData[];
