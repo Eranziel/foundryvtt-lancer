@@ -124,16 +124,20 @@ export class LancerActor extends Actor {
       tier = "npc-tier-1";
     } 
     let i = 0;
+    data.data.tier_num = 1;
     switch(tier){
       case "npc-tier-custom":
+        data.data.tier_num = 4;
         return (this.update(data) as Promise<LancerActor>);
       case "npc-tier-2":
+        data.data.tier_num = 2;
         i = 1;
         break;
       case "npc-tier-3":
+        data.data.tier_num = 3;
         i = 2;
     }
-    console.log(`LANCER| Swapping to Tier ${i+1}`)
+    console.log(`LANCER| Swapping to Tier ${data.data.tier_num}`)
 
     //HASE
     mech.hull = newNPCClass.hull[i];
@@ -146,14 +150,14 @@ export class LancerActor extends Actor {
     mech.hp.value = mech.hp.max;
     mech.heat.max = newNPCClass.heatcap[i];
     mech.heat.value = mech.heat.max;
-    if(Array.isArray(newNPCClass.structure) && newNPCClass.structure.length[i]) {
+    if(Array.isArray(newNPCClass.structure) && newNPCClass.structure[i]) {
       mech.structure.max = newNPCClass.structure[i];
       mech.structure.value = mech.structure.max;
     } else{
       mech.structure.max = 1;
       mech.structure.value = 1;
     }
-    if(Array.isArray(newNPCClass.stress) && newNPCClass.stress.length[i]){
+    if(Array.isArray(newNPCClass.stress) && newNPCClass.stress[i]){
       mech.stress.max = newNPCClass.stress[i];
       mech.stress.value = mech.stress.max;
     } else {
@@ -169,7 +173,7 @@ export class LancerActor extends Actor {
     mech.edef = newNPCClass.edef[i];
     mech.sensors = newNPCClass.sensor_range[i];
     mech.save = newNPCClass.save[i];
-    if(Array.isArray(newNPCClass.size) && newNPCClass.size.length[i]) {
+    if(Array.isArray(newNPCClass.size) && newNPCClass.size[i]) {
       mech.size = newNPCClass.size[i];
       if (newNPCClass.size[i] === 0.5) {
         data.data.npc_size = "size-half";

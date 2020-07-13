@@ -285,14 +285,15 @@
       "origin_name": "",
       "origin_base": false,
       "fature_type": "",
+      "effect": "",
       "tags": [],
       "bonus": [],
       "trigger": "",
       "weapon_type": "",
       "attack_bonus": [],
       "accuracy": [],
-      "range": [],
       "damage": [],
+      "range": [],
       "onhit": ""
     }
   }
