@@ -1,12 +1,23 @@
 <div class="lancer-card">
   <div class="title">Check :: {{title}}</div>
-  <div class="lancer-dice-roll">
-    <div class="lancer-dice-formula flexcol">{{ roll.formula }}</div>
-    <h4 class="lancer-dice-total flexcol">{{ roll.total }}</h4>
+  <div class="card clipped">
+    <div class="dice-roll lancer-dice-roll">
+      <div class="dice-result">
+        <div class="dice-formula lancer-dice-formula flexrow">
+          <span style="text-align: left; margin-left: 5px;">{{ roll.formula }}</span>
+          <span class="dice-total lancer-dice-total major">{{ roll.total }}</span>
+          {{!-- <div class="dice-formula lancer-dice-formula flexcol">{{ roll.formula }}</div>
+          <h4 class="lancer-dice-total flexcol">{{ roll.total }}</h4> --}}
+        </div>
+        <div style="text-align: left;">
+          {{{ roll_tooltip }}}
+        </div>
+      </div>
+    </div>
+    {{#if effect}}
+      <header>// EFFECT \\</header>
+      {{{ effect }}}
+    {{/if}}
   </div>
-  {{#if effect}}
-    <header>// EFFECT \\</header>
-    {{{ effect }}}
-  {{/if}}
 </div>
 

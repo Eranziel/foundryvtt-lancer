@@ -292,6 +292,14 @@ button {
   max-height: 20px;
 }
 
+.i--sm {
+  font-size: 25px;
+  min-width: 25px;
+  max-width: 25px;
+  min-height: 25px;
+  max-height: 25px;
+}
+
 .i--m {
   font-size: 30px;
   min-width: 30px;
@@ -728,6 +736,11 @@ code.horus:hover {
   font-weight: normal;
 }
 
+.stat-macro, .roll-attack,
+.roll-trigger {
+  margin: 3px;
+}
+
 .dice-roll.lancer-dice-roll {
   padding: 3px;
 }
@@ -745,6 +758,6 @@ code.horus:hover {
 
 .dice-total.lancer-dice-total {
   margin: 5px;
-  min-width: fit-content;
+  min-width: max-content;
   padding: 0px 5px;
 }

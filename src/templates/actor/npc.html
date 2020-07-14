@@ -56,7 +56,7 @@
                 <div class="flexcol card clipped">
                     <span class="lancer-stat-header major clipped-top">HULL</span>
                     <div class="flexrow stat-container" style="align-self: center;">
-                        <a class="stat-macro i--dark i--l" data-action="roll-macro"><i class="cci cci-activate"></i></a>
+                        <a class="stat-macro i--dark i--sm" data-action="roll-macro"><i class="fas fa-dice-d20"></i></a>
                         <input class="lancer-stat-input major" type="number" name="data.mech.hull"
                             value="{{data.mech.hull}}" data-dtype="Number" />
                     </div>
@@ -64,7 +64,7 @@
                 <div class="flexcol card clipped">
                     <span class="lancer-stat-header major clipped-top">AGILITY</span>
                     <div class="flexrow stat-container" style="align-self: center;">
-                        <a class="stat-macro i--dark i--l" data-action="roll-macro"><i class="cci cci-activate"></i></a>
+                        <a class="stat-macro i--dark i--sm" data-action="roll-macro"><i class="fas fa-dice-d20"></i></a>
                         <input class="lancer-stat-input major" type="number" name="data.mech.agility"
                             value="{{data.mech.agility}}" data-dtype="Number" />
                     </div>
@@ -72,7 +72,7 @@
                 <div class="flexcol card clipped">
                     <span class="lancer-stat-header major clipped-top">SYSTEMS</span>
                     <div class="flexrow stat-container" style="align-self: center;">
-                        <a class="stat-macro i--dark i--l" data-action="roll-macro"><i class="cci cci-activate"></i></a>
+                        <a class="stat-macro i--dark i--sm" data-action="roll-macro"><i class="fas fa-dice-d20"></i></a>
                         <input class="lancer-stat-input major" type="number" name="data.mech.systems"
                             value="{{data.mech.systems}}" data-dtype="Number" />
                     </div>
@@ -80,7 +80,7 @@
                 <div class="flexcol card clipped">
                     <span class="lancer-stat-header major clipped-top">ENGINEERING</span>
                     <div class="flexrow stat-container" style="align-self: center;">
-                        <a class="stat-macro i--dark i--l" data-action="roll-macro"><i class="cci cci-activate"></i></a>
+                        <a class="stat-macro i--dark i--sm" data-action="roll-macro"><i class="fas fa-dice-d20"></i></a>
                         <input class="lancer-stat-input major" type="number" name="data.mech.engineering"
                             value="{{data.mech.engineering}}" data-dtype="Number" />
                     </div>
@@ -234,7 +234,7 @@
                                 style="float: right;"></i></a></span>
                     <span class="lancer-weapon-body">
                         <span class="flexrow" style="grid-area: 1 / 1 / 1 / 1; text-align: left; white-space: nowrap;">
-                            <a class="flexrow roll-attack" style="max-width: min-content;"><i class="cci cci-activate i--l i--dark"></i></a>
+                            <a class="flexrow roll-attack" style="max-width: min-content;"><i class="fas fa-dice-d20 i--m i--dark"></i></a>
                                 {{#each npc_feature.data.range as |range rkey|}}
                                 {{#if range.val}}
                                 <i class="cci cci-{{lower-case range.type}} i--m i--dark"></i>
