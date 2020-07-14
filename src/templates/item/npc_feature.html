@@ -10,7 +10,7 @@
 			<h3 class="origin_name"><input class="header-field" name="data.origin_name" type="text" value="{{data.origin_name}}" placeholder="Origin Name"/></h3>
       <h3 class="origin_type"><input class="header-field" name="data.origin_type" type="text" value="{{data.origin_type}}" placeholder="Origin Type"/></h3>
       <h3 class="origin_type"><input class="header-field" name="data.feature_type" type="text" value="{{data.feature_type}}" placeholder="Feature Type"/></h3>
-			<h3 class="origin_base"><input type="checkbox" {{bindAttr checked="data.origin_base"}}></h3>
+			<h3 class="origin_base"><input type="checkbox"  name="data.origin_base" {{checked data.origin_base}}></h3>
 		</div>
 	</header>
 
@@ -20,7 +20,7 @@
 			<div class="flexrow">
         <div class="flexcol card clipped">
           <span class="lancer-stat-header major clipped-top">RANGE 1</span>
-					<select name="data.range.0.type" data-type="String">
+					<select name="data.range.0.type" data-type="String" style="align-self: center;">
 						{{#select data.range.0.type}}
 						<option value="range">RANGE</option>
 						<option value="threat">THREAT</option>
@@ -34,7 +34,7 @@
 				</div>
         <div class="flexcol card clipped">
           <span class="lancer-stat-header major clipped-top">RANGE 2</span>
-					<select name="data.range.1.type" data-type="String">
+					<select name="data.range.1.type" data-type="String" style="align-self: center;">
 						{{#select data.range.1.type}}
 						<option value="range">RANGE</option>
 						<option value="threat">THREAT</option>
@@ -75,7 +75,7 @@
       <div class="flexrow">
       <div class="flexcol card clipped">
         <span class="lancer-stat-header major clipped-top">DAMAGE 1</span>
-				<select name="data.damage.0.type" data-type="String">
+				<select name="data.damage.0.type" data-type="String" style="align-self: center;">
 					{{#select data.damage.0.type}}
 					<option value="kinetic">KINETIC</option>
 					<option value="energy">ENERGY</option>
@@ -89,10 +89,9 @@
         <input class="lancer-stat-input " type="string" name="data.damage.0.val" value="{{data.damage.0.val.[1]}}" data-dtype="String"/>
         <input class="lancer-stat-input " type="string" name="data.damage.0.val" value="{{data.damage.0.val.[2]}}" data-dtype="String"/>
 			</div>
-			<spa class="major"style="float: left">+</span>
       <div class="flexcol card clipped">
         <span class="lancer-stat-header major clipped-top">DAMAGE 2</span>
-				<select name="data.damage.1.type" data-type="String">
+				<select name="data.damage.1.type" data-type="String" style="align-self: center;">
 					{{#select data.damage.1.type}}
 					<option value="kinetic">KINETIC</option>
 					<option value="energy">ENERGY</option>
