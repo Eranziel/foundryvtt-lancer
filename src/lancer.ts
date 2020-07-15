@@ -16,6 +16,7 @@ import { DamageData, LancerPilotActorData, LancerNPCActorData, TagDataShort } fr
 // Import applications
 import { LancerPilotSheet } from './module/actor/pilot-sheet';
 import { LancerNPCSheet } from './module/actor/npc-sheet';
+import { LancerDeployableSheet } from './module/actor/deployable-sheet';
 import { LancerItemSheet } from './module/item/item-sheet';
 import { LancerFrameSheet } from './module/item/frame-sheet';
 
@@ -46,6 +47,7 @@ Hooks.once('init', async function() {
 		applications: {
 			LancerPilotSheet,
 			LancerNPCSheet,
+			LancerDeployableSheet,
 			LancerItemSheet,
 		},
 		entities: {
@@ -75,6 +77,7 @@ Hooks.once('init', async function() {
 	Actors.unregisterSheet("core", ActorSheet);
 	Actors.registerSheet("lancer", LancerPilotSheet, { types: ["pilot"], makeDefault: true });
 	Actors.registerSheet("lancer", LancerNPCSheet, { types: ["npc"], makeDefault: true });
+	Actors.registerSheet("lancer", LancerDeployableSheet, { types: ["deployable"], makeDefault: true });
 	Items.unregisterSheet("core", ItemSheet);
 	Items.registerSheet("lancer", LancerItemSheet, { 
 		types: ["skill", "talent", "license", "core_bonus", 
