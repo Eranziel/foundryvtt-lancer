@@ -86,6 +86,7 @@
       "activations": 1
     },
     "deployable": {
+      "name":"",
       "size": 0.5,
       "hp": {
         "value": 5,

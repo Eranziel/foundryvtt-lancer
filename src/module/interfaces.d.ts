@@ -253,6 +253,7 @@ declare interface LancerNPCSheetData extends ActorSheetData {
 
 // ------- Deployable data --------------------------------------
 declare interface LancerDeployableData {
+  name: string;
   size: number;
   hp: ResourceData;
   heat?: ResourceData;
