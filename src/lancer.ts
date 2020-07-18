@@ -8,6 +8,8 @@
  */
 
 // Import TypeScript modules
+import { LANCER } from './module/config';
+const lp = LANCER.log_prefix;
 import { LancerGame } from './module/lancer-game';
 import { LancerActor, lancerActorInit } from './module/actor/lancer-actor';
 import { LancerItem, LancerNPCFeature, LancerMechWeapon, LancerPilotWeapon } from './module/item/lancer-item';
@@ -33,13 +35,7 @@ import data from 'lancer-data';
 /* Initialize system                    */
 /* ------------------------------------ */
 Hooks.once('init', async function() {
-	console.log(`Initializing LANCER RPG System 
-	╭╮╱╱╭━━━┳━╮╱╭┳━━━┳━━━┳━━━╮ 
-	┃┃╱╱┃╭━╮┃┃╰╮┃┃╭━╮┃╭━━┫╭━╮┃ 
-	┃┃╱╱┃┃╱┃┃╭╮╰╯┃┃╱╰┫╰━━┫╰━╯┃ 
-	┃┃╱╭┫╰━╯┃┃╰╮┃┃┃╱╭┫╭━━┫╭╮╭╯ 
-	┃╰━╯┃╭━╮┃┃╱┃┃┃╰━╯┃╰━━┫┃┃╰╮ 
-	╰━━━┻╯╱╰┻╯╱╰━┻━━━┻━━━┻╯╰━╯`); 
+	console.log(`Initializing LANCER RPG System ${LANCER.ASCII}`); 
 
 	// Assign custom classes and constants here
 	// Create a Lancer namespace within the game global
@@ -226,7 +222,7 @@ Hooks.on("preCreateActor", lancerActorInit);
 function getMacroSpeaker(): Actor | null {
 	// Determine which Actor to speak as
 	const speaker = ChatMessage.getSpeaker();
-	console.log("LANCER | Macro speaker", speaker);
+	console.log(`${lp} Macro speaker`, speaker);
 	let actor: Actor;
 	// console.log(game.actors.tokens);
 	try {
@@ -260,7 +256,7 @@ async function renderMacro(actor: Actor, template: string, templateData: any) {
 async function rollTriggerMacro(title: string, modifier: number, sheetMacro: boolean = false) {
   let actor: Actor = getMacroSpeaker();
   if (actor === null) return;
-  console.log("LANCER | rollTriggerMacro actor", actor);
+  console.log(`${lp} rollTriggerMacro actor`, actor);
 
   // Get accuracy/difficulty with a prompt
   let acc: number = 0;
@@ -288,7 +284,7 @@ async function rollStatMacro(title: string, statKey: string, effect?: string, sh
 	// Determine which Actor to speak as
 	let actor: Actor = getMacroSpeaker();
 	if (actor === null) return;
-	console.log("LANCER | rollStatMacro actor", actor);
+	console.log(`${lp} rollStatMacro actor`, actor);
 
 	let bonus: any;
 	const statPath = statKey.split(".");
@@ -296,7 +292,7 @@ async function rollStatMacro(title: string, statKey: string, effect?: string, sh
 	if (sheetMacro) {
 		bonus = actor.data;
 		// bonus = actor[`data.${statKey}`];
-		// console.log("LANCER | actor.data", actor['data']['data']);
+		// console.log(`${lp} actor.data`, actor['data']['data']);
 	}
 	else {
 		bonus = actor;
@@ -305,7 +301,7 @@ async function rollStatMacro(title: string, statKey: string, effect?: string, sh
 		const p = statPath[i];
 		bonus = bonus[`${p}`];
 	}
-	console.log("LANCER | rollStatMacro ", statKey, bonus);
+	console.log(`${lp} rollStatMacro `, statKey, bonus);
 
   // Get accuracy/difficulty with a prompt
   let acc: number = 0;
@@ -335,7 +331,7 @@ async function rollAttackMacro(w: string, a: string) {
 
   // Get the item
   const item: Item = game.actors.get(a).getOwnedItem(w);
-  console.log("LANCER | Rolling attack macro", item, w, a);
+  console.log(`${lp} Rolling attack macro`, item, w, a);
   if (!item.isOwned) {
     ui.notifications.error(`Error rolling attack macro - ${item.name} is not owned by an Actor!`);
     return Promise.resolve();
@@ -366,7 +362,7 @@ async function rollAttackMacro(w: string, a: string) {
     ui.notifications.error(`Error rolling attack macro - ${item.name} is not a weapon!`);
     return Promise.resolve();
   }
-  console.log("LANCER | Attack Macro Item:", item, grit, damage);
+  console.log(`${lp} Attack Macro Item:`, item, grit, damage);
 
   // Get accuracy/difficulty with a prompt
   let acc: number = 0;
@@ -391,7 +387,7 @@ async function rollAttackMacro(w: string, a: string) {
 
   // Output
 	const attack_tt = await attack_roll.getTooltip();
-	console.log("LANCER | Attack roll tooltip: ", attack_tt);
+	console.log(`${lp} Attack roll tooltip: `, attack_tt);
   const templateData = {
     title: title,
     attack: attack_roll,
@@ -431,7 +427,7 @@ function promptAccDiffModifier() {
             let accuracy = <string>$(dlg).find('.accuracy').first().val();
             let difficulty = <string>$(dlg).find('.difficulty').first().val();
             let total = parseInt(accuracy) - parseInt(difficulty);
-            console.log(`LANCER | Dialog returned ${accuracy} accuracy and ${difficulty} resulting in a modifier of ${total}d6`);
+            console.log(`${lp} Dialog returned ${accuracy} accuracy and ${difficulty} resulting in a modifier of ${total}d6`);
             resolve(total);
           }
         }

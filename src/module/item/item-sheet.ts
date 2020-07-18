@@ -1,4 +1,6 @@
 import { LancerSkillSheetData } from '../interfaces';
+import { LANCER } from '../config';
+const lp = LANCER.log_prefix;
 
 /**
  * Extend the basic ItemSheet with some very simple modifications
@@ -40,7 +42,7 @@ export class LancerItemSheet extends ItemSheet {
     // for ( let attr of Object.values(data.data.attributes) ) {
     //   attr.isCheckbox = attr.dtype === "Boolean";
     // }
-    console.log('LANCER | Item sheet data: ', data);
+    console.log(`${lp} Item sheet data: `, data);
     return data;
   }
 
@@ -150,7 +152,7 @@ export class LancerItemSheet extends ItemSheet {
 
   /** @override */
   _updateObject(event, formData) {
-    console.log("LANCER | Item sheet form data: ", formData);
+    console.log(`${lp} Item sheet form data: `, formData);
 
     // Update the Item
     return this.object.update(formData);

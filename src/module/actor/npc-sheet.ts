@@ -2,6 +2,8 @@ import { LancerNPCSheetData, LancerNPCClassStatsData, LancerNPCData } from '../i
 import { LancerItem, LancerNPCClass, LancerNPCTemplate, LancerNPCFeature } from '../item/lancer-item';
 import { MechType } from '../enums';
 import { LancerActor } from './lancer-actor';
+import { LANCER } from '../config';
+const lp = LANCER.log_prefix;
 
 const entryPrompt = "//:AWAIT_ENTRY>";
 
@@ -59,7 +61,7 @@ export class LancerNPCSheet extends ActorSheet {
       data.data.name = data.actor.name;
     }
 
-    console.log("LANCER | NPC data: ");
+    console.log(`${lp} NPC data: `);
     console.log(data);
     return data;
   }
@@ -108,7 +110,7 @@ export class LancerNPCSheet extends ActorSheet {
         const statKey = statInput.name;
         let keySplit = statKey.split('.');
         let title = keySplit[keySplit.length - 1].toUpperCase();
-        console.log(`LANCER | Rolling ${title} check, key ${statKey}`);
+        console.log(`${lp} Rolling ${title} check, key ${statKey}`);
         game.lancer.rollStatMacro(title, statKey, null, true);
       });
 
@@ -121,7 +123,7 @@ export class LancerNPCSheet extends ActorSheet {
         const modifier = parseInt($(ev.currentTarget).find('.roll-modifier').text());
         const title = $(ev.currentTarget).closest('.skill-compact').find('.modifier-name').text();
         //.find('modifier-name').first().text();
-        console.log(`LANCER | Rolling '${title}' trigger (d20 + ${modifier})`);
+        console.log(`${lp} Rolling '${title}' trigger (d20 + ${modifier})`);
 
         game.lancer.rollTriggerMacro(title, modifier, true);
       });
@@ -195,7 +197,7 @@ export class LancerNPCSheet extends ActorSheet {
         let actor = this.actor as LancerActor;
         let NPCClassStats: LancerNPCClassStatsData;
         NPCClassStats = (actor.items.find((i: Item) => i.type === "npc_class") as any).data.data.stats;
-        console.log(`LANCER | TIER Swap with ${tier} and ${NPCClassStats}`);
+        console.log(`${lp} TIER Swap with ${tier} and ${NPCClassStats}`);
         actor.swapNPCClassOrTier(NPCClassStats, false, tier);
       });
     }
@@ -220,7 +222,7 @@ export class LancerNPCSheet extends ActorSheet {
     // Case 1 - Item is from a Compendium pack
     if (data.pack) {
       item = (await game.packs.get(data.pack).getEntity(data.id)) as Item;
-      console.log("LANCER | Item dropped from compendium: ", item);
+      console.log(`${lp} Item dropped from compendium: `, item);
     }
     // Case 2 - Item is a World entity
     else if (!data.data) {
@@ -228,7 +230,7 @@ export class LancerNPCSheet extends ActorSheet {
       // If item isn't from a Compendium or World entity, 
       // see if super can do something with it.
       if (!item) super._onDrop(event);
-      console.log("LANCER | Item dropped from world: ", item);
+      console.log(`${lp} Item dropped from world: `, item);
     }
     // Logic below this line is executed only with owner or GM permission of a sheet
     if (!actor.owner && !game.user.isGM) {
@@ -243,31 +245,35 @@ export class LancerNPCSheet extends ActorSheet {
         // Remove old class
         actor.items.forEach(async (i: LancerItem) => {
           if (i.type === "npc_class") {
-            console.log(`LANCER | Removing ${actor.name}'s old ${i.name} class.`);
+            console.log(`${lp} Removing ${actor.name}'s old ${i.name} class.`);
             await this.actor.deleteOwnedItem(i._id);
           }
         });
         // Add the new class from Compendium pack
         if (data.pack) {
           const npcClass = await actor.importItemFromCollection(data.pack, data.id) as LancerNPCClass;
-          console.log(`LANCER | Added ${npcClass.name} from ${data.pack} to ${actor.name}.`);
+          console.log(`${lp} Added ${npcClass.name} from ${data.pack} to ${actor.name}.`);
           newNPCClassStats = npcClass.data.stats;
         }
         // Add the new Class from a World entity
         else {
           await actor.createEmbeddedEntity("OwnedItem", duplicate(item.data));
           const npcClass = await actor.createOwnedItem(duplicate(item.data)) as LancerNPCClass;
-          console.log(`LANCER | Added ${npcClass.name} from ${data.pack} to ${actor.name}.`);
+          console.log(`${lp} Added ${npcClass.name} from ${data.pack} to ${actor.name}.`);
           newNPCClassStats = npcClass.data.stats;
         }
         if (newNPCClassStats) {
-          console.log(`LANCER | Swapping Class stats for ${actor.name}`);
+          console.log(`${lp} Swapping Class stats for ${actor.name}`);
           actor.swapNPCClassOrTier(newNPCClassStats, true);
         }
       }
       //TODO add basic features to NPC
       //TODO remove basic feature from NPC on Class swap
       //TODO implement similar logi for Templates
+      else if (LANCER.pilot_items.includes(item.type)) {
+        ui.notifications.error(`Cannot add Item of type "${item.type}" to an NPC.`);
+        return;
+      }
 
       return super._onDrop(event);
     }
