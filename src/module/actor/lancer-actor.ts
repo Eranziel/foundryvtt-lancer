@@ -45,7 +45,16 @@ export function lancerActorInit(data: any) {
       // Default disposition to friendly for pilots and hostile for NPCs
       "token.disposition": data.type === "pilot" ? CONST.TOKEN_DISPOSITIONS.FRIENDLY : CONST.TOKEN_DISPOSITIONS.HOSTILE,  
       "token.name": data.name,                                // Set token name to actor name
-      "token.actorLink": true,                                // Link the token to the Actor
+      "token.actorLink": data.type === "pilot",               // Link the token to the Actor for pilots, but not for NPCs
+    });
+  }
+  else if (data.type === "deployable") {
+    mergeObject(data, {
+      // Initialize prototype token
+      "token.bar1": {"attribute": "hp"},                      // Default Bar 1 to HP
+      "token.displayName": CONST.TOKEN_DISPLAY_MODES.HOVER,   // Default display name to be always on
+      "token.displayBars": CONST.TOKEN_DISPLAY_MODES.HOVER,   // Default display bars to be always on 
+      "token.name": data.name,                                // Set token name to actor name
     });
   }
 }
