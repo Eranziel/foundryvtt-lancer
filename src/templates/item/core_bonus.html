@@ -3,14 +3,19 @@
 	{{!-- Sheet Header --}}
 	<header class="sheet-header card clipped-bot">
 		<img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}" height="100" width="100"/>
-		<div class="header-fields">
-			<h1 class="charname"><input name="name" type="text" value="{{item.name}}" placeholder="Name"/></h1>
+		<div class="header-fields" style="grid-area: 1/1/2/5;">
+			<h1 class="charname"><input class="header-field" name="name" type="text" value="{{item.name}}" placeholder="Name"/></h1>
+		</div>
+		<div class="header-fields" style="grid-area: 2/1/3/4">
+			<h3 class="source"><input class="header-field" name="source" type="text" value="{{data.source}}" placeholder="Source"/></h3>
 		</div>
 	</header>
 
 	{{!-- Sheet Body --}}
 	<div class="flexcol">
-		{{editor content=data.tags target="data.effect" button=true owner=owner editable=editable}}
-		<textarea class="lancer-invisible-input clipped-bot major" type="string" name="data.effect_mounted" data-dtype="String" style="background-color: #dbdbdb; margin-left: 1.5em; width: calc(100% - 2em)">{{data.effect_mounted}}</textarea>
+		<div style="min-height: 15em">
+		{{editor content=data.effect target="data.effect" button=true owner=owner editable=editable}}
+		</div>
+		<textarea class="lancer-invisible-input clipped-bot major" type="string" name="data.mounted_effect" data-dtype="String" style="background-color: #dbdbdb; margin-left: 1.5em; width: calc(100% - 2em)">{{data.mounted_effect}}</textarea>
 	</div>
 </form>

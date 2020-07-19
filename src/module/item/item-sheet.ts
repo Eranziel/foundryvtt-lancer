@@ -1,4 +1,6 @@
 import { LancerSkillSheetData } from '../interfaces';
+import { LANCER } from '../config';
+const lp = LANCER.log_prefix;
 
 /**
  * Extend the basic ItemSheet with some very simple modifications
@@ -8,7 +10,7 @@ export class LancerItemSheet extends ItemSheet {
 
   /**
    * @override
-   * Extend and override the default options used by the Pilot Sheet
+   * Extend and override the default options used by the Item Sheet
    * @returns {Object}
    */
 	static get defaultOptions() {
@@ -40,7 +42,7 @@ export class LancerItemSheet extends ItemSheet {
     // for ( let attr of Object.values(data.data.attributes) ) {
     //   attr.isCheckbox = attr.dtype === "Boolean";
     // }
-    console.log(data);
+    console.log(`${lp} Item sheet data: `, data);
     return data;
   }
 
@@ -70,94 +72,79 @@ export class LancerItemSheet extends ItemSheet {
 
     // Add or Remove options
     // Yes, theoretically this could be abstracted out to one function. You do it then.
-    html.find(".tags-container").on("click", ".clickable", this._onClickTagControl.bind(this));
-    html.find(".effects-container").on("click", ".clickable", this._onClickEffectControl.bind(this));
+    html.find(".arrayed-item-container").on("click", ".clickable", this._onClickArrayControl.bind(this));
+    html.find(".arrayed-item-container").on("change", ".delete-selector", this._onSelectDelete.bind(this));
   }
 
   /* -------------------------------------------- */
+
+  /**
+   * Listen for events on a selector to remove the referenced item
+   * @param event    The originating event
+   * @private
+   */
+  async _onSelectDelete(event) {
+    const s = $(event.currentTarget);
+    if(s.val() === "delete") {
+      event.preventDefault();
+      const itemString = s.data("item");
+      var itemArr = duplicate(this["object"]["data"]["data"][itemString]);
+      const parent = s.parents(".arrayed-item");
+      const id = parent.data("key");
+
+      delete itemArr[id];
+      itemArr["-=" + id] = null;
+      console.log(itemArr);
+      await parent.remove();
+      await this.object.update({ "data.mounts" : itemArr });
+
+    }
+
+  }
 
   /**
    * Listen for click events on an attribute control to modify the composition of attributes in the sheet
    * @param {MouseEvent} event    The originating left click event
    * @private
    */
-  // TODO: unused currently
-  async _onClickAttributeControl(event) {
-    event.preventDefault();
-    const a = event.currentTarget;
-    const action = a.dataset.action;
-    const tags = this.object.data.data.tags;
-    const form = this.form;
-
-    // Add new attribute
-    if ( action === "create" ) {
-      tags.push()
-      await this._onSubmit(event);
-    }
-
-    // Remove existing attribute
-    else if ( action === "delete" ) {
-      const li = a.closest(".tag");
-      li.parentElement.removeChild(li);
-      await this._onSubmit(event);
-    }
-  }
-
-  async _onClickTagControl(event) {
+  async _onClickArrayControl(event) {
     event.preventDefault();
     const a = $(event.currentTarget);
     const action = a.data("action");
-    const tags = duplicate(this.object.data.data.tags);
+    const itemString = a.parents(".arrayed-item-container").data("item");
+    console.log(itemString)
+    var itemArr = duplicate(getValue(this,("object.data.data." + itemString)));
+    const dataRef = "data." + itemString;
 
-    console.log("_onClickTraitControl()", action, tags);
+    console.log("_onClickArrayControl()", action, itemArr, itemString);
     if (action === "create") {
-      // add tag
       // I can't figure out a better way to prevent collisions
       // Feel free to come up with something better
-      const keys = Object.keys(tags);
+      const keys = Object.keys(itemArr);
       var newIndex = 0;
       if (keys.length > 0) {
         newIndex = Math.max.apply(Math, keys) + 1;
       }
-      tags[newIndex] = null;
-      await this.object.update({ "data.tags": tags });
-      await this._onSubmit(event);
+      itemArr[newIndex] = null;
+      await this.object.update({ [dataRef] : itemArr});
     } else if (action === "delete") {
       // delete tag
-      const parent = a.parents(".tag");
+      const parent = a.parents(".arrayed-item");
       const id = parent.data("key");
-      delete tags[id];
-      tags["-=" + id] = null;
-      this.object.update({ "data.tags": tags });
-    }
-  }
+      
+      // Since we're doing weird things with arrays, let's just split as needed
+      if (Array.isArray(itemArr)) {
+        // This is for arrays: 
+        itemArr.splice(id,1);
+      } else {
+        // For dict
+        delete itemArr[id];
+        itemArr["-=" + id] = null;
 
-  async _onClickEffectControl(event) {
-    event.preventDefault();
-    const a = $(event.currentTarget);
-    const action = a.data("action");
-    const effect = duplicate(this.object.data.data.effect);
-
-    console.log("_onClickTraitControl()", action, effect);
-    if (action === "create") {
-      // add tag
-      // I can't figure out a better way to prevent collisions
-      // Feel free to come up with something better
-      const keys = Object.keys(effect);
-      var newIndex = 0;
-      if (keys.length > 0) {
-        newIndex = Math.max.apply(Math, keys) + 1;
+        // So the question now becomes: why do all my arrays become dicts of objects?
       }
-      effect[newIndex] = null;
-      await this.object.update({ "data.effect": effect });
-      await this._onSubmit(event);
-    } else if (action === "delete") {
-      // delete tag
-      const parent = a.parents(".effect");
-      const id = parent.data("key");
-      delete effect[id];
-      effect["-=" + id] = null;
-      this.object.update({ "data.effect": effect });
+
+      this.object.update({ [dataRef] : itemArr });
     }
   }
 
@@ -166,28 +153,52 @@ export class LancerItemSheet extends ItemSheet {
   /** @override */
   _updateObject(event, formData) {
 
-    // Handle the free-form attributes list
-    // const formTags = expandObject(formData).data.tags || {};
-    // const tags = Object.values(formAttrs).reduce((obj, v) => {
-    //  let k = v["key"].trim();
-    //  if ( /[\s\.]/.test(k) )  return ui.notifications.error("ERROR");
-    // delete v["key"];
-    //  obj[k] = v;
-    //  return obj;
-    //}, {});
-    
-    // Remove tags which are no longer used
-    //for ( let k of Object.keys(this.object.data.data.tags) ) {
-    //  if ( !tags.hasOwnProperty(k) ) tags[`-=${k}`] = null;
-    //}
+    if (LANCER.weapon_items.includes(this.item.data.type)) {
+      // Build range and damage arrays
+      let damage = [];
+      let range = [];
+      let d_done = false;
+      let r_done = false;
+      let i = 0;
+      while (!d_done || !r_done && i < 10) {
+        if (formData.hasOwnProperty(`data.damage.${i}.type`)) {
+          damage.push({
+            type: formData[`data.damage.${i}.type`],
+            val: formData[`data.damage.${i}.val`]
+          });
+          delete formData[`data.damage.${i}.type`];
+          delete formData[`data.damage.${i}.val`];
+        }
+        else d_done = true;
 
-    // Re-combine formData
-    //formData = Object.entries(formData).filter(e => !e[0].startsWith("data.tags")).reduce((obj, e) => {
-    //  obj[e[0]] = e[1];
-    //  return obj;
-    //}, {_id: this.object._id, "data.tags": tags});
+        if (formData.hasOwnProperty(`data.range.${i}.type`)) {
+          range.push({
+            type: formData[`data.range.${i}.type`],
+            val: formData[`data.range.${i}.val`]
+          });
+          delete formData[`data.range.${i}.type`];
+          delete formData[`data.range.${i}.val`];
+        }
+        else d_done = true;
+
+        i++;
+      }
+      formData['data.damage'] = damage;
+      formData['data.range'] = range;
+    }
+
+    console.log(`${lp} Item sheet form data: `, formData);
 
     // Update the Item
     return this.object.update(formData);
   }
+}
+
+// Helper function to get arbitrarily deep array references
+function getValue(object, path) {
+    return path.
+        replace(/\[/g, '.').
+        replace(/\]/g, '').
+        split('.').
+        reduce((o, k) => (o || {})[k], object);
 }

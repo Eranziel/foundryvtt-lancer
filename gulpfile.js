@@ -405,12 +405,13 @@ function updateManifest(cb) {
 	const config = getConfig(),
 		manifest = getManifest(),
 		rawURL = config.rawURL,
+		downloadURL = config.downloadURL,
 		repoURL = config.repository,
 		manifestRoot = manifest.root;
 
 	if (!config) cb(Error(chalk.red('foundryconfig.json not found')));
 	if (!manifest) cb(Error(chalk.red('Manifest JSON not found')));
-	if (!rawURL || !repoURL)
+	if (!rawURL || !repoURL || !downloadURL)
 		cb(
 			Error(
 				chalk.red(
@@ -471,7 +472,7 @@ function updateManifest(cb) {
 
 		/* Update URLs */
 
-		const result = `${rawURL}/v${manifest.file.version}/package/${manifest.file.name}-v${manifest.file.version}.zip`;
+		const result = `${downloadURL}/v${manifest.file.version}/package/${manifest.file.name}-v${manifest.file.version}.zip`;
 
 		manifest.file.url = repoURL;
 		manifest.file.manifest = `${rawURL}/master/${manifestRoot}/${manifest.name}`;

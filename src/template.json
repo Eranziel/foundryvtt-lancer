@@ -11,9 +11,9 @@
           "systems": 0,
           "engineering": 0,
           "hp": {
-            "value": 10,
+            "value": 0,
             "min": 0,
-            "max": 10
+            "max": 0
           },
           "structure": {
             "value": 1,
@@ -23,7 +23,7 @@
           "heat": {
             "value": 0,
             "min": 0,
-            "max": 6
+            "max": 0
           },
           "stress": {
             "value": 1,
@@ -31,16 +31,18 @@
             "max": 1
           },
           "repairs": {
-            "value": 4,
+            "value": 0,
             "min": 0,
-            "max": 4
+            "max": 0
           },
           "armor": 0,
-          "speed": 4,
-          "evasion": 8,
-          "edef": 8,
-          "sensors": 10,
-          "save": 10
+          "speed": 0,
+          "evasion": 0,
+          "edef": 0,
+          "sensors": 0,
+          "save": 0,
+          "tech_attack": 0,
+          "sp": 0
         }
       },
       "mech_loadout": {
@@ -78,12 +80,13 @@
     },
     "npc": {
       "templates": ["mech"],
-      "type": "mech",
-      "class": "",
-      "npc_templates": [],
+      "name": "",
+      "tier": "",
+      "tag": "",
       "activations": 1
     },
     "deployable": {
+      "name":"",
       "size": 0.5,
       "hp": {
         "value": 5,
@@ -108,7 +111,10 @@
       "pilot_gear",
       "frame",
       "mech_system",
-      "mech_weapon"
+      "mech_weapon",
+      "npc_class",
+      "npc_template",
+      "npc_feature"
     ],
     "templates": {
       "compendium_item": {
@@ -178,6 +184,7 @@
     "license": {
       "name": "",
       "source": "",
+      "content": "",
       "rank": 1
     },
     "pilot_armor": {
@@ -242,6 +249,53 @@
       "range": [],
       "mod": null,
       "custom_damage_type": ""
+    },
+    "npc_class":{
+      "templates": ["compendium_item"],
+      "info": {
+        "flavour": "",
+        "tactics": ""
+      },
+      "mechtype": [],
+      "stats": {
+        "armor": [],
+        "hp": [],
+        "evasion": [],
+        "edef": [],
+        "heatcap": [],
+        "speed": [],
+        "sensor_range": [],
+        "save": [],
+        "hull": [],
+        "agility": [],
+        "systems": [],
+        "engineering": [],
+        "size": []
+      },
+      "base_features": [],
+      "optional_features":[]
+    },
+    "npc_template":{
+      "templates": ["compendium_item"],
+      "base_features": [],
+      "optional_features":[]
+    },
+    "npc_feature":{
+      "templates": ["compendium_item"],
+      "origin_type": "",
+      "origin_name": "",
+      "origin_base": false,
+      "feature_type": "",
+      "effect": "",
+      "tags": [],
+      "bonus": [],
+      "trigger": "",
+      "weapon_type": "",
+      "attack_bonus": [],
+      "accuracy": [],
+      "damage": [],
+      "range": [],
+      "onhit": ""
     }
   }
 }

@@ -3,11 +3,60 @@
   {{!-- Sheet Header --}}
 	<header class="sheet-header card clipped-bot">
 		<img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}" height="100" width="100"/>
-		<div class="header-fields">
-			<h1 class="charname"><input name="name" type="text" value="{{item.name}}" placeholder="Name"/></h1>
+		<div class="header-fields" style="grid-area: 1/1/2/5;">
+			<h1 class="charname"><input class="header-field" name="name" type="text" value="{{item.name}}" placeholder="Name"/></h1>
 		</div>
 	</header>
+	<div class="flexcol">
+		{{!-- Weapon Stats --}}
+		<div class="flexrow">
+			<div class="flexcol" style="max-width: min-content">
+				<select name="data.range.0.type" data-type="String">
+					{{#select data.range.0.type}}
+					<option value="range">RANGE</option>
+					<option value="threat">THREAT</option>
+					<option value="thrown">THROWN</option>
+					<option value="line">LINE</option>
+					<option value="cone">CONE</option>
+					<option value="blast">BLAST</option>
+					<option value="burst">BURST</option>
+					{{/select}}
+				</select>
+				<input class="lancer-stat-input " type="number" name="data.range.0.val" value="{{data.range.0.val}}" data-dtype="Number"/>
+			</div>
+			<div class="flexcol" style="float: left; max-width: min-content">
+				<select name="data.damage.0.type" data-type="String">
+					{{#select data.damage.0.type}}
+					<option value="kinetic">KINETIC</option>
+					<option value="energy">ENERGY</option>
+					<option value="explosive">EXPLOSIVE</option>
+					<option value="heat">HEAT</option>
+					<option value="burn">BURN</option>
+					<option value="other">OTHER</option>
+					{{/select}}
+				</select>
+				<input class="lancer-stat-input " type="string" name="data.damage.0.val" value="{{data.damage.0.val}}" data-dtype="String"/>
+			</div>
+		</div>
 
-  THIS IS A PILOT WEAPON!
+		{{!-- Compendium --}}
+
+		<div class="flexcol card clipped">
+			<span class="lancer-stat-header major clipped-top">DESCRIPTION</span>
+			{{editor content=data.description target="data.description" button=true owner=owner editable=editable}}
+		</div>
+
+		{{!-- Tags --}}
+
+		<div class="arrayed-item-container tags-container flexcol" data-item="tags">
+			<div>
+				<span class="minor" style="float: left">EQUIPMENT TAGS</span>
+				<a class="add-button clickable" data-action="create" style="float: right; margin-right: 1em">+</a>
+			</div>
+			{{#each item.data.tags as |tag key|}}
+			{{{full-tag tag key}}}
+			{{/each}}
+		</div>
+	</div>
 
 </form>

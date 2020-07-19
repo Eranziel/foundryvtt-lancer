@@ -3,8 +3,13 @@
 	{{!-- Sheet Header --}}
 	<header class="sheet-header card clipped-bot">
 		<img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}" height="100" width="100"/>
-		<div class="header-fields">
-			<h1 class="charname"><input name="name" type="text" value="{{item.name}}" placeholder="Name"/></h1>
+		<div class="header-fields" style="grid-area: 1/1/2/5;">
+			<h1 class="charname"><input class="header-field" name="name" type="text" value="{{item.name}}" placeholder="Name"/></h1>
+		</div>
+		<div class="header-fields flexrow" style="grid-area: 2/1/3/5">
+			<h3 class="source"><input class="header-field" name="data.source" type="text" value="{{data.source}}" placeholder="Source"/></h3>
+			<h3 class="license"><input class="header-field" name="data.license" type="text" value="{{data.license}}" placeholder="License"/></h3>
+			<h3 class="license-level"><input class="header-field lancer-stat-input" style="color: black !important;" name="data.license_level" type="number" value="{{data.license_level}}" data-dtype="Number"/></h3>
 		</div>
 	</header>
 
@@ -38,28 +43,28 @@
 					<option value="mod">MOD</option>
 					{{/select}}
 				</select>
-				<div class="license-desc">
+				{{!-- <div class="license-desc">
 					<span>// </span>
 					<input type="String" name="data.license" value="{{data.license}}" data-dtype="String"/>
 					<input type="number" name="data.license_level" value="{{data.license_level}}" data-dtype="Number"/>
-				</div>
+				</div> --}}
 			</div>
 		</div>
 		<div class="flexcol card clipped">
 			<span class="lancer-stat-header major clipped-top">DESCRIPTION</span>
 			{{editor content=data.description target="data.description" button=true owner=owner editable=editable}}
 		</div>
-		<div class="effects-container flexcol">
+		<div class="arrayed-item-container effects-container flexcol">
 			<div>
 				<span class="minor" style="float: left">EFFECTS</span>
-				<a class="add-button clickable" data-action="create" style="float: right; margin-right: 1em">+</a>
+				<a class="add-button clickable" data-action="create" data-item="effect" style="float: right; margin-right: 1em">+</a>
 			</div>
 			{{#each item.data.effect as |eff key|}}
 			<div class="flexrow effect" data-key="{{key}}">
 				<div class="flexcol">
 					<div class="remove-wrapper">
 						<input type="String" name="data.effect.{{key}}.name" value="{{eff.name}}" data-dtype="String" class="major lancer-invisible-input"/>
-						<a class="remove-button fa fa-trash clickable" data-action="delete" style="float: right; margin-right: 14px; margin-top: 2px"></a>
+						<a class="remove-button fa fa-trash clickable" data-action="delete" data-item="effect" style="float: right; margin-right: 14px; margin-top: 2px"></a>
 					</div>
 					<textarea class="lancer-invisible-input minor" type="string" name="data.effect.{{key}}.description" data-dtype="String">{{eff.description}}</textarea>
 				</div>
@@ -67,24 +72,13 @@
 			{{/each}}
 		</div>
 		<!-- TODO: Bring this out to be a handlebars partial. Will need to pass in context appropriately. -->
-		<div class="tags-container flexcol">
+		<div class="arrayed-item-container tags-container flexcol" data-item="tags">
 			<div>
 				<span class="minor" style="float: left">EQUIPMENT TAGS</span>
 				<a class="add-button clickable" data-action="create" style="float: right; margin-right: 1em">+</a>
 			</div>
 			{{#each item.data.tags as |tag key|}}
-			<div class="flexrow tag" data-key="{{key}}">
-				<div class="tag-label">
-					<i class="med-icon fa fa-3x fa-tag" style="margin: 3px"></i>
-				</div>
-				<div class="flexcol">
-					<div class="remove-wrapper">
-						<input type="String" name="data.tags.{{key}}.name" value="{{tag.name}}" data-dtype="String" class="major lancer-invisible-input"/>
-						<a class="remove-button fa fa-trash clickable" data-action="delete" style="float: right; margin-right: 11px; margin-top: 2px"></a>
-					</div>
-					<textarea class="lancer-invisible-input minor" type="string" name="data.tags.{{key}}.description" data-dtype="String">{{tag.description}}</textarea>
-				</div>
-			</div>
+			{{{full-tag tag key}}}
 			{{/each}}
 		</div>
 	</div>

@@ -1,19 +1,52 @@
-
-<div class="lancer-card">
-  <h3 class="title">WEAPON :: {{ title }}</h3>
-  <h4 class="section-title">// ATTACK \\</h4>
-  <div class="lancer-dice-roll">
-    <div class="lancer-dice-formula flexcol">{{ attack.formula }}</div>
-    <h4 class="lancer-dice-total flexcol">{{ attack.total }}</h4>
+<div class="card clipped-bot" style="margin: 0px;">
+  <div class="lancer-weapon-header medium">
+    <i class="cci cci-weapon i--m i--light"> </i>
+    <span>WEAPON :: {{ title }}</span>
   </div>
-  <h4 class="section-title">// DAMAGE \\</h4>
-  <div class="lancer-dice-roll">
-    <div class="lancer-dice-formula">{{ damage.formula }}</div>
-    <h4 class="lancer-dice-total">{{ damage.total }}</h4>
+  <div class="card clipped">
+    <div class="lancer-stat-header clipped-top">// ATTACK //</div>
+    <div class="dice-roll lancer-dice-roll">
+      <div class="dice-result">
+        <div class="dice-formula lancer-dice-formula flexrow">
+          <span style="text-align: left; margin-left: 5px;">{{ attack.formula }}</span>
+          <span class="dice-total lancer-dice-total major">{{ attack.total }}</span>
+          <i class="cci cci-reticule i--m i--dark"> </i>
+        </div>
+        <div style="text-align: left;">
+          {{{ attack_tooltip }}}
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card clipped">
+    <div class="lancer-stat-header clipped-top">// DAMAGE //</div>
+    {{#each damages as |damage key|}}
+      <div class="dice-roll lancer-dice-roll">
+        <div class="dice-result">
+          <div class="dice-formula lancer-dice-formula flexrow">
+            <span style="text-align: left; margin-left: 5px;">{{ damage.roll.formula }}</span>
+            <span class="dice-total lancer-dice-total major">{{ damage.roll.total }}</span>
+            <i class="cci cci-{{lower-case damage.dtype}} i--m damage--{{lower-case damage.dtype}}"> </i>
+          </div>
+          <div style="text-align: left;">
+            {{{ damage.tt }}}
+          </div>
+        </div>
+      </div>
+    {{/each}}
   </div>
   {{#if effect}}
-  <h4 class="section-title">// EFFECT \\</h4>
-  {{ effect }}
+    <div class="section-title">// EFFECT \\</div>
+    {{#if effect.effect_type}}
+      <h3>{{effect.effect_type}} Effect</h3>
+      {{{effect.hit}}}
+    {{/if}}
+    {{#unless effect.effect_type}}{{{effect}}}{{/unless}}
   {{/if}}
+  <div class="flexrow" style="justify-content: flex-end; flex-wrap: wrap;">
+  {{#each tags as |tag key|}}
+  {{{compact-tag tag}}}
+  {{/each}}
+  </div>
 </div>
 
