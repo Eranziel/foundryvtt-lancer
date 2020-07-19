@@ -123,6 +123,25 @@ export class LancerPilotSheet extends ActorSheet {
       weapons: accumulator['mech_weapon'] || [], // TODO: subdivide into mounts
       systems: accumulator['mech_system'] || []
     }
+
+    // Update mounted weapons to stay in sync with owned items
+    data.data.mech_loadout.mounts.forEach((mount: any) => {
+      if (Array.isArray(mount.weapons) && mount.weapons.length > 0) {
+        console.log(`${lp} weapons:`, mount.weapons);
+        for (let i = 0; i < mount.weapons.length; i++) {
+          const ownedWeapon = this.actor.getOwnedItem(mount.weapons[i]._id);
+          if (ownedWeapon) {
+            console.log(`${lp} owned weapon:`, ownedWeapon);
+            mount.weapons[i] = duplicate(ownedWeapon.data);
+          }
+          // TODO: If the weapon doesn't exist in owned items anymore, remove it
+          else {
+            mount.weapons.splice(i, 1);
+          }
+        }
+      }
+    });
+    console.log(`${lp} mounts:`, data.data.mech_loadout.mounts);
   }
 
   /* -------------------------------------------- */
@@ -438,7 +457,7 @@ export class LancerPilotSheet extends ActorSheet {
           } else {
             let weapon = await actor.createOwnedItem(duplicate(item.data));
             mount.weapons.push(weapon);
-            console.log(`${lp} Inserting Mech Weapon into Mount`, item);
+            console.log(`${lp} Inserted Mech Weapon into Mount`, weapon);
             this.actor.update({"data.mech_loadout.mounts": mounts});
             this._onSubmit(event);
           }
