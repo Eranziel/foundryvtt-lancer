@@ -1,6 +1,8 @@
 import { LancerDeployableSheetData } from '../interfaces';
 import { LancerItem } from '../item/lancer-item';
 import { LancerActor } from './lancer-actor';
+import { LANCER } from '../config'
+const lp = LANCER.log_prefix;
 
 const entryPrompt = "//:AWAIT_ENTRY>";
 
@@ -71,8 +73,7 @@ export class LancerDeployableSheet extends ActorSheet {
       data.data.name = data.actor.name;
     }
 
-    console.log("LANCER | Deployable data: ");
-    console.log(data);
+    console.log(`${lp} Deployable data: `, data);
     return data;
   }
 

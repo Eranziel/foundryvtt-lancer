@@ -12,8 +12,8 @@ import { LANCER } from './module/config';
 const lp = LANCER.log_prefix;
 import { LancerGame } from './module/lancer-game';
 import { LancerActor, lancerActorInit } from './module/actor/lancer-actor';
-import { LancerItem, LancerNPCFeature, LancerMechWeapon, LancerPilotWeapon } from './module/item/lancer-item';
-import { DamageData, LancerPilotActorData, LancerNPCActorData, TagDataShort } from './module/interfaces';
+import { LancerItem } from './module/item/lancer-item';
+import { DamageData, LancerPilotActorData, TagDataShort } from './module/interfaces';
 
 // Import applications
 import { LancerPilotSheet } from './module/actor/pilot-sheet';

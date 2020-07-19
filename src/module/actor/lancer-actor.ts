@@ -1,8 +1,10 @@
 
 import { LancerPilotActorData, LancerNPCActorData, LancerDeployableActorData, LancerFrameStatsData, LancerNPCClassStatsData } from '../interfaces'
+import { LANCER } from '../config'
+const lp = LANCER.log_prefix;
 
 export function lancerActorInit(data: any) {
-  console.log(`LANCER | Initializing new ${data.type}`);
+  console.log(`${lp} Initializing new ${data.type}`);
   if (data.type === "pilot" || data.type === "npc") {
     const mech = {
       name: "",

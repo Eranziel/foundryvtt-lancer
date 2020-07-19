@@ -8,8 +8,7 @@
     "build": "gulp build",
     "link": "gulp link",
     "build:watch": "gulp watch",
-    "clean": "gulp clean && gulp link --clean",
-    "update": "npm install --save-dev gitlab:foundry-projects/foundry-pc/foundry-pc-types"
+    "clean": "gulp clean && gulp link --clean"
   },
   "author": "",
   "license": "",
