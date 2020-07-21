@@ -259,8 +259,10 @@ async function rollTriggerMacro(title: string, modifier: number, sheetMacro: boo
   console.log(`${lp} rollTriggerMacro actor`, actor);
 
   // Get accuracy/difficulty with a prompt
-  let acc: number = 0;
-  await promptAccDiffModifier().then(resolve => acc = resolve, reject => console.error(reject));
+	let acc: number = 0;
+	let abort: boolean = false;
+	await promptAccDiffModifier().then(resolve => acc = resolve, reject => abort = true);
+	if (abort) return;
 
   // Do the roll
   let acc_str = acc != 0 ? ` + ${acc}d6kh1` : '';
@@ -305,7 +307,9 @@ async function rollStatMacro(title: string, statKey: string, effect?: string, sh
 
   // Get accuracy/difficulty with a prompt
   let acc: number = 0;
-  await promptAccDiffModifier().then(resolve => acc = resolve, reject => console.error(reject));
+	let abort: boolean = false;
+	await promptAccDiffModifier().then(resolve => acc = resolve, reject => abort = true);
+	if (abort) return;
 
 	// Do the roll
 	let acc_str = acc != 0 ? ` + ${acc}d6kh1` : '';
@@ -366,7 +370,9 @@ async function rollAttackMacro(w: string, a: string) {
 
   // Get accuracy/difficulty with a prompt
   let acc: number = 0;
-  await promptAccDiffModifier().then(resolve => acc = resolve, reject => console.error(reject));
+	let abort: boolean = false;
+	await promptAccDiffModifier().then(resolve => acc = resolve, reject => abort = true);
+	if (abort) return;
 
   // Do the attack rolling
   let acc_str = acc != 0 ? ` + ${acc}d6kh1` : '';
@@ -429,10 +435,17 @@ function promptAccDiffModifier() {
             console.log(`${lp} Dialog returned ${accuracy} accuracy and ${difficulty} resulting in a modifier of ${total}d6`);
             resolve(total);
           }
-        }
+				},
+				cancel: {
+					icon: '<i class="fas fa-times"></i>',
+					label: 'Cancel',
+					callback: async () => {
+						reject();
+					}
+				}
       },
       default: "submit",
-      close: () => resolve(0)
+      close: () => reject()
     }).render(true);
   });
 }
