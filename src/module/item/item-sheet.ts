@@ -28,7 +28,6 @@ export class LancerItemSheet extends ItemSheet {
     return `${path}/${this.item.data.type}.html`;
   }
 
-
   /* -------------------------------------------- */
 
   /**
