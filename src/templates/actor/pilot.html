@@ -582,18 +582,30 @@
               </div>
               {{/if}}
             </div>
+            {{#if (ne system.data.description "")}}
             <div class="desc-text" style="padding: 5px">
               {{{system.data.description}}}
             </div>
+            {{/if}}
             {{#with system.data.effect as |effect|}}
-              {{#if effect.effect_type}}
                 <h3>{{effect.effect_type}} Effect</h3>
+              {{#if (eq effect.effect_type "Charge")}}
                 <div class="effect-text" style="padding: 5px">
-                  {{effect.hit}}
+                  <span class="minor" style="float: left">Expend a charge for one of the following effects:</span>
+                  <br>
+                  {{#each effect.charges as |charge key|}}
+                  <div class="flexcol">
+                    <div class="flexrow">
+                      <span class="minor">{{charge.name}}</span>
+                      {{#each weapon.data.range as |range rkey|}}<i class="cci cci-{{lower-case range.type}} i--m i--dark"></i><span class="medium">{{range.val}}</span>{{/each}}
+                    </div>
+                    <span>{{charge.detail}}</span>
+                  </div>
+                  {{/each}}
                 </div>
               {{else}}
                 <div class="effect-text" style="padding: 5px">
-                  {{{effect}}}
+                  {{{effect.detail}}}
                 </div>
               {{/if}}
             {{/with}}

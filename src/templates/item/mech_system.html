@@ -54,11 +54,78 @@
 			<span class="lancer-stat-header major clipped-top">DESCRIPTION</span>
 			{{editor content=data.description target="data.description" button=true owner=owner editable=editable}}
 		</div>
-		<div class="arrayed-item-container effects-container flexcol">
+		<div class="effects-container flexcol">
+
 			<div>
-				<span class="minor" style="float: left">EFFECTS</span>
-				<a class="add-button clickable" data-action="create" data-item="effect" style="float: right; margin-right: 1em">+</a>
+				<span class="minor" style="float: left">EFFECT</span>
+
+
+				<select name="data.effect.effect_type" data-type="String" style="height: 2em;float: right" >
+					{{#select data.effect.effect_type}}
+					<option value="Basic">BASIC</option>
+					<option value="Protocol">PROTOCOL</option>
+					<option value="Deployable">DEPLOYABLE</option>
+					<option value="Bonus">BONUS</option>
+					<option value="Charge">CHARGE</option>
+					<option value="Tech">TECH</option>
+					<option value="Ai">AI</option>
+					<option value="Reaction">REACTION</option>
+					<option value="Drone">DRONE</option>
+					{{/select}}
+				</select>
 			</div>
+			{{#if (eq data.effect.effect_type "Charge")}}
+			<div class="arrayed-item-container flexcol" data-item="effect.charges">
+				<div>
+					<span class="minor" style="float: left">Expend a charge for one of the following effects:</span>
+					<a class="add-button clickable" data-action="create" style="float: right; margin-right: 1em">+</a>
+				</div>
+				{{#each data.effect.charges as |charge key|}}
+				<div class="flexrow arrayed-item" data-key="{{key}}">
+					<div class="flexcol" style="max-width:90%">
+						<div class="flexrow">
+							<input type="String" name="data.effect.charges.{{key}}.name" value="{{charge.name}}" data-dtype="String" class="lancer-invisible-input minor" style="background: transparent"/>
+							<div class="flexcol" style="max-width: min-content">
+								<select name="data.effect.charges.{{key}}.range.0.type" data-type="String">
+									{{#select charge.range.0.type}}
+									<option value="Range">RANGE</option>
+									<option value="Threat">THREAT</option>
+									<option value="Thrown">THROWN</option>
+									<option value="Line">LINE</option>
+									<option value="Cone">CONE</option>
+									<option value="Blast">BLAST</option>
+									<option value="Burst">BURST</option>
+									{{/select}}
+								</select>
+								<input class="lancer-stat-input " type="number" name="data.effect.charges.{{key}}.range.0.val" value="{{charge.range.0.val}}" data-dtype="Number"/>
+							</div>
+							<div class="flexcol" style="max-width: min-content">
+								<select name="data.effect.charges.{{key}}.range.1.type" data-type="String">
+									{{#select charge.range.1.type}}
+									<option value="Range">RANGE</option>
+									<option value="Threat">THREAT</option>
+									<option value="Thrown">THROWN</option>
+									<option value="Line">LINE</option>
+									<option value="Cone">CONE</option>
+									<option value="Blast">BLAST</option>
+									<option value="Burst">BURST</option>
+									{{/select}}
+								</select>
+								<input class="lancer-stat-input " type="number" name="data.effect.charges.{{key}}.range.1.val" value="{{charge.range.1.val}}" data-dtype="Number"/>
+							</div>
+						</div>
+						<textarea class="lancer-invisible-input" type="string" name="data.effect.charges.{{key}}.detail" data-dtype="String">{{charge.detail}}</textarea>
+					</div>
+					<a class="remove-button fa fa-trash clickable" data-action="delete" style="float: right; margin-right: 11px; margin-top: 2px; max-width: 3ch"></a>
+				</div>
+				{{/each}}
+			</div>
+			{{else}}
+			{{editor content=data.effect.detail target="data.effect.detail" button=true owner=owner editable=editable}}
+
+			{{/if}}
+
+			<!--
 			{{#each item.data.effect as |eff key|}}
 			<div class="flexrow effect" data-key="{{key}}">
 				<div class="flexcol">
@@ -70,6 +137,7 @@
 				</div>
 			</div>
 			{{/each}}
+		-->
 		</div>
 		<!-- TODO: Bring this out to be a handlebars partial. Will need to pass in context appropriately. -->
 		<div class="arrayed-item-container tags-container flexcol" data-item="tags">
