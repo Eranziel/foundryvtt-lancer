@@ -160,7 +160,7 @@ export class LancerActor extends Actor {
     mech.hp.max = newNPCClass.hp[i];
     mech.hp.value = mech.hp.max;
     mech.heat.max = newNPCClass.heatcap[i];
-    mech.heat.value = mech.heat.max;
+    mech.heat.value = 0;
     if(Array.isArray(newNPCClass.structure) && newNPCClass.structure[i]) {
       mech.structure.max = newNPCClass.structure[i];
       mech.structure.value = mech.structure.max;
