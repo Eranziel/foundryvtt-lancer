@@ -112,7 +112,12 @@ export class LancerItemSheet extends ItemSheet {
     const action = a.data("action");
     const itemString = a.parents(".arrayed-item-container").data("item");
     console.log(itemString)
-    var itemArr = duplicate(getValue(this,("object.data.data." + itemString)));
+    var baseArr = getValue(this,("object.data.data." + itemString))
+    if (baseArr == null) {
+      itemArr = []
+    } else {
+      var itemArr = duplicate(baseArr);
+    }
     const dataRef = "data." + itemString;
 
     console.log("_onClickArrayControl()", action, itemArr, itemString);
