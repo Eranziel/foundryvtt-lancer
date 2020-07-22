@@ -162,8 +162,11 @@ export class LancerPilotSheet extends ActorSheet {
         console.log(`${lp} Stat macro button click`, ev);
 
         // Find the stat input to get the stat's key to pass to the macro function
-        const statInput = $(ev.currentTarget).closest('.stat-container').find('.lancer-stat-input')[0] as HTMLInputElement;
-        const statKey = statInput.name;
+        const statInput: HTMLElement = $(ev.currentTarget).closest('.stat-container').find('.lancer-stat')[0];
+        let statKey: string = (statInput as HTMLInputElement).name;
+        if (!statKey) {
+          statKey = (statInput as HTMLDataElement).value;
+        }
         let keySplit = statKey.split('.');
         let title = keySplit[keySplit.length - 1].toUpperCase();
         console.log(`${lp} Rolling ${title} check, key ${statKey}`);
