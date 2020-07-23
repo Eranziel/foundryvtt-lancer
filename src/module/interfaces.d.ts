@@ -19,7 +19,8 @@ import { DamageType,
   EffectType, 
   MechType, 
   ItemType,
-  NPCTag } from './enums';
+  NPCTag,
+  NPCFeatureType } from './enums';
 
 // ------------------------------------------------------
 // |       UTILITY DATA TYPES                           |
@@ -542,16 +543,15 @@ declare interface LancerNPCFeatureData extends BaseEntityData, LancerCompendiumI
   origin_type: string;
   origin_name: string;
   origin_base: boolean;
-  fature_type: string;
-  effect: string;
+  feature_type: NPCFeatureType;
+  effect?: string;
+  bonus?: object;
+  override?: object;
   tags: TagData[];
-  trigger: string;
-  weapon_type: string;
-  attack_bonus: number[];
-  accuracy: number[];
-  range: RangeData[];
-  damage: NPCDamageData[];
-  on_hit: string;
+  destroyed: boolean;
+  charged: boolean;
+  uses: number;
+  max_uses: number;
 }
 
 declare interface LancerNPCFeatureSheetData extends ItemSheetData {

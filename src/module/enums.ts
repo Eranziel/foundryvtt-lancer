@@ -113,6 +113,14 @@ enum NPCTag{
   Squad = 'Squad'
 }
 
+enum NPCFeatureType {
+  Trait = 'Trait',
+  System = 'System',
+  Reaction = 'Reaction',
+  Weapon = 'Weapon',
+  Tech = 'Tech',
+}
+
 
 export {
   MountType,
@@ -126,5 +134,6 @@ export {
   EffectType,
   HASE,
   MechType,
-  NPCTag
+  NPCTag,
+  NPCFeatureType
 }
