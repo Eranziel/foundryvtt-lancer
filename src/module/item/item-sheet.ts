@@ -1,5 +1,6 @@
 import { LancerSkillSheetData } from '../interfaces';
 import { LANCER } from '../config';
+import { NPCFeatureType } from '../enums';
 const lp = LANCER.log_prefix;
 
 /**
@@ -16,7 +17,7 @@ export class LancerItemSheet extends ItemSheet {
 	static get defaultOptions() {
 	  return mergeObject(super.defaultOptions, {
 			classes: ["lancer", "sheet", "item"],
-			width: 520,
+			width: 700,
 			height: 480,
       tabs: [{navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "description"}]
 		});
@@ -37,11 +38,20 @@ export class LancerItemSheet extends ItemSheet {
    */
   getData() {
     const data: ItemSheetData = super.getData();
-    // data.dtypes = ["String", "Number", "Boolean"];
-    // for ( let attr of Object.values(data.data.attributes) ) {
-    //   attr.isCheckbox = attr.dtype === "Boolean";
-    // }
-    console.log(`${lp} Item sheet data: `, data);
+
+    if (data.item.type === "npc_feature" && data.data.feature_type === NPCFeatureType.Weapon) {
+      if (data.data.weapon_type) {
+        const parts = data.data.weapon_type.split(' ');
+        data.data.weapon_size = parts[0];
+        data.data.weapon_type = parts[1];
+      }
+      else {
+        data.data.weapon_size = 'Main';
+        data.data.weapon_type = 'Rifle';
+      }
+    }
+
+    console.log(`${lp} Item sheet data: `, data, this.item);
     return data;
   }
 
@@ -156,6 +166,12 @@ export class LancerItemSheet extends ItemSheet {
 
   /** @override */
   _updateObject(event, formData) {
+
+    // Re-build NPC Weapon size and type
+    if (this.item.data.type === "npc_feature" && this.item.data.data.feature_type === NPCFeatureType.Weapon) {
+      formData['data.weapon_type'] = `${formData['data.weapon_size']} ${formData['data.weapon_type']}`;
+      delete formData['data.weapon_size'];
+    }
 
     if (LANCER.weapon_items.includes(this.item.data.type)) {
       // Build range and damage arrays

@@ -61,6 +61,12 @@ button {
 .lancer.sheet clipped-card {
 
 }
+
+.flex-center {
+  align-items: center;
+  justify-content: center;
+}
+
 /* ---------- */
 
 /* Components Layer */
