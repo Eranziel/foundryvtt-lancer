@@ -609,6 +609,9 @@ button {
   /* TODO: review if this rule can be simplified */
   margin: initial 0;
 }
+.card .editor-content {
+  text-align: left;
+}
 
 .major {
   font-size: 18px;

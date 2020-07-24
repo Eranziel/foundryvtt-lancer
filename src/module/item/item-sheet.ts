@@ -167,6 +167,8 @@ export class LancerItemSheet extends ItemSheet {
   /** @override */
   _updateObject(event, formData) {
 
+    // TODO: sanitize fields from other feature types
+
     // Re-build NPC Weapon size and type
     if (this.item.data.type === "npc_feature" && this.item.data.data.feature_type === NPCFeatureType.Weapon) {
       formData['data.weapon_type'] = `${formData['data.weapon_size']} ${formData['data.weapon_type']}`;
