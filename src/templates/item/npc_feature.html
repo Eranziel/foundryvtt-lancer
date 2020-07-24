@@ -27,6 +27,14 @@
 	{{!-- Sheet Body --}}
 	<section class="sheet-body" style="height:-webkit-fill-available">
 
+		{{!-- Limited Uses Tracking --}}
+		<div class="flexrow stat-container" style="align-self: center; margin: 5px 30px; max-width: max-content;">
+			<span class="medium" >USES:</span>
+			<input class="lancer-stat-input major" type="number" name="data.uses" value="{{data.uses}}" data-dtype="Number"/>
+			<span class="medium" style="max-width: min-content;" >/</span>
+			<input class="lancer-stat-input major" type="number" name="data.max_uses" value="{{data.max_uses}}" data-dtype="Number"/>
+		</div>
+
 		{{!-- Reaction --}}
 		{{#if (eq data.feature_type "Reaction")}}
 		<div class="flexcol clipped card">
@@ -105,7 +113,7 @@
 		{{!-- Weapon --}}
 		{{#if (eq data.feature_type "Weapon")}}
 		<div style="grid-template: 2em 10em 12em 1fr / repeat(3, 1fr); display: grid;">
-			<div style="grid-area: 1/1/2/4;">
+			<div style="grid-area: 1/1/2/4; margin-left: 30px;">
 				<span class="medium">SIZE</span>
 				<select name="data.weapon_size" data-type="String" style="align-self: center;">
 					{{#select data.weapon_size}}
