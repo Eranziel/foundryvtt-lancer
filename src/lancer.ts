@@ -218,11 +218,116 @@ Hooks.once('ready', function() {
     }
 
 		// Build/update compendiums
-		convertLancerData();
   });
 
 // Add any additional hooks if necessary
 Hooks.on("preCreateActor", lancerActorInit);
+
+
+// Create sidebar button to import LCP
+Hooks.on("renderSidebarTab", async (app, html) => {
+	if (app.options.id == "compendium") {
+		var footer = html[0].lastElementChild;
+		var button = document.createElement("button");
+		button.setAttribute("style","flex-basis: 100%;margin-top: 5px;")
+		button.innerHTML = "<i class='fas fa-file-import'></i> Import LCP";
+		footer.append(button);
+		button.addEventListener("click", (ev:MouseEvent) => {
+			new Dialog({
+				title: "Import LCP File",
+				content:
+				`<div>
+				<label>LCP Path:</label>
+				<div class="form-fields">
+					<button type="button" class="file-picker lcp-file-picker" data-type="imagevideo" data-target="lcp-up" title="Browse Files" tabindex="-1">
+						<i class="fas fa-file-import fa-fw"></i>
+					</button>
+					<input class="image" type="text" name="lcp-up" placeholder="path/pack.lcp">
+				</div>
+				</div>
+				`,
+				buttons: {
+					import: {
+						label: "Import",
+						callback: async (html) => {
+							console.log("You hit the import button");
+							return;
+							let button = <HTMLButtonElement>(document.getElementsByClassName("lcp-file-picker")[0])
+							let source="data"; // TODO: Setting/picker?
+							let path="lcp-upload";
+							let target = button.getAttribute("data-target");
+							let fp = FilePicker.fromButton(button,{})
+							console.log("Should've uploaded by now")
+							this.filepickers.push({
+							  target: target,
+							  app: fp
+							});
+							fp.browse(target);
+							//LCPImport(file, fileName, compendiumName);
+						}
+					},
+					cancel: {
+						label: "Cancel"
+					}
+				},
+				default: "import"
+			}).render(true)
+			let button = <HTMLButtonElement>ev.target
+			let source="data"; // TODO: Setting/picker?
+			let path="lcp-upload";
+			let target = button.getAttribute("data-target");
+			let fp = FilePicker.fromButton(button,{})
+			console.log("Should've uploaded by now")
+			this.filepickers.push({
+			  target: target,
+			  app: fp
+			});
+			fp.browse(target);
+		})
+	}
+})
+
+function uploadLCPDialog(event:MouseEvent) {
+	new Dialog({
+		title: "Import LCP File",
+		content:
+		`<div>
+    	<label>LCP Path:</label>
+    	<div class="form-fields">
+        	<button type="button" class="file-picker" data-type="imagevideo" data-target="lcp-up" title="Browse Files" tabindex="-1">
+    			<i class="fas fa-file-import fa-fw"></i>
+			</button>
+        	<input class="image" type="text" name="lcp-up" placeholder="path/pack.lcp">
+    	</div>
+		</div>
+		`,
+		buttons: {
+			import: {
+				label: "Import",
+				callback: async (html) => {
+					console.log("test");
+					let imp = <HTMLInputElement>(document.getElementsByName("compUpload")[0])
+					let file = imp.files[0];
+					let fileName = imp.files[0].name.split(".")[0];
+					let compendiumName = document.getElementsByName("compName")[0].textContent
+					let source="data"; // TODO: Setting/picker?
+					let path="lcp-upload";
+					console.log("Should've uploaded by now")
+					LCPImport(file, fileName, compendiumName);
+				}
+			},
+			cancel: {
+				label: "Cancel"
+			}
+		},
+		default: "import"
+	}).render(true)
+}
+
+function LCPImport(file, fileName, compendiumName) {
+
+}
+
 
 function getMacroSpeaker(): Actor | null {
 	// Determine which Actor to speak as
