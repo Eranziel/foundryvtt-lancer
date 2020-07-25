@@ -233,18 +233,21 @@ Hooks.on("renderSidebarTab", async (app, html) => {
 		button.innerHTML = "<i class='fas fa-file-import'></i> Import LCP";
 		footer.append(button);
 		button.addEventListener("click", (ev:MouseEvent) => {
-			new Dialog({
+			let dialog = new Dialog({
 				title: "Import LCP File",
 				content:
-				`<div>
+				`
+				<form autocomplete="off">
+				<div>
 				<label>LCP Path:</label>
 				<div class="form-fields">
-					<button type="button" class="file-picker lcp-file-picker" data-type="imagevideo" data-target="lcp-up" title="Browse Files" tabindex="-1">
+					<button type="button" class="lcp-file-picker" data-type="lcp" data-target="lcp-up" title="Browse Files" tabindex="-1">
 						<i class="fas fa-file-import fa-fw"></i>
 					</button>
 					<input class="image" type="text" name="lcp-up" placeholder="path/pack.lcp">
 				</div>
 				</div>
+				</form>
 				`,
 				buttons: {
 					import: {
@@ -272,20 +275,37 @@ Hooks.on("renderSidebarTab", async (app, html) => {
 				},
 				default: "import"
 			}).render(true)
-			let button = <HTMLButtonElement>ev.target
-			let source="data"; // TODO: Setting/picker?
-			let path="lcp-upload";
-			let target = button.getAttribute("data-target");
-			let fp = FilePicker.fromButton(button,{})
-			console.log("Should've uploaded by now")
-			this.filepickers.push({
-			  target: target,
-			  app: fp
-			});
-			fp.browse(target);
 		})
 	}
 })
+
+Hooks.on("renderDialog", async (app:Application,html) => {
+	// Should be able to do something with the html... but not now I guess...
+	
+	if(app.title == "Import LCP File") {
+		document.getElementsByClassName("lcp-file-picker")[0].addEventListener("click", (ev:Event) => {
+			console.log("You clicked the button!")
+			_onFilePickerButtonClick(<MouseEvent>ev);
+		})
+
+	}
+})
+
+function _onFilePickerButtonClick(ev:MouseEvent) {
+	let button = <HTMLButtonElement>document.getElementsByClassName("lcp-file-picker")[0];
+	console.log(document.getElementsByClassName("lcp-file-picker"));
+	let source="data"; // TODO: Setting/picker?
+	let path="lcp-upload";
+	let target = button.getAttribute("data-target");
+	let fp = FilePicker.fromButton(button,{})
+	// @ts-expect-error
+	fp.extensions = ["lcp"];
+	console.log("Should've uploaded by now")
+	
+	fp.browse(target,{extensions:"lcp"});
+}
+
+
 
 function uploadLCPDialog(event:MouseEvent) {
 	new Dialog({
