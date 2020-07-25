@@ -80,13 +80,33 @@ enum DamageType {
 }
 
 enum EffectType {
+  Generic = 'Generic', // Covers old/fallback/simple
   Basic = 'Basic',
-  Profile = 'Profile',
-  Offensive = 'Offensive',
+  Charge = 'Charge',
+  Deployable = 'Deployable',
+  AI = 'AI',
+  Protocol = 'Protocol',
   Reaction = 'Reaction',
   Tech = 'Tech',
-  AI = 'AI',
-  Protocol = 'Protocol'
+  Drone = 'Drone',
+  Bonus = 'Bonus',
+  Offensive = 'Offensive',
+  Profile = 'Profile',
+}
+
+enum ActivationType {
+  None = 'None',
+  Passive = 'Passive',
+  Quick = 'Quick',
+  Full = 'Full',
+  Other = 'Other',
+  Reaction = 'Reaction',
+  Protocol = 'Protocol',
+}
+
+enum ChargeType {
+  Grenade = 'Grenade',
+  Mine = 'Mine'
 }
 
 enum MechType {
@@ -132,6 +152,8 @@ export {
   RangeType,
   DamageType,
   EffectType,
+  ActivationType,
+  ChargeType,
   HASE,
   MechType,
   NPCTag,

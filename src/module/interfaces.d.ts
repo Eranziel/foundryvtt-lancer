@@ -16,11 +16,11 @@ import { DamageType,
   WeaponSize, 
   WeaponType, 
   SystemType,
-  EffectType, 
   MechType, 
   ItemType,
   NPCTag,
   NPCFeatureType } from './enums';
+import { EffectData } from './item/effects'
 
 // ------------------------------------------------------
 // |       UTILITY DATA TYPES                           |
@@ -42,71 +42,6 @@ declare interface TagData {
   filter_ignore?: boolean;
   hidden?: boolean;
 }
-
-// Note that this type can be replaced with a descriptive string in some cases.
-declare interface EffectData {
-  type: EffectType;
-  effect: EffectDataBasic | EffectDataOffensive | EffectDataProfile | EffectDataReaction | EffectDataTech | EffectDataAI;
-}
-
-declare interface EffectDataBasic {
-  activation: string;
-  detail: string;
-}
-
-declare interface EffectDataOffensive {
-  detail?: string;
-  attack?: string;
-  hit?: string;
-  critical?: string;
-  range?: RangeData[];
-  damage?: DamageData[];
-  abilities?: EffectData[];
-}
-
-declare interface EffectDataProfile {
-  name: string;
-  range?: RangeData[];
-  damage: DamageData[];
-  detail?: string;
-  tags?: TagDataShort[];
-}
-
-// Note that Reactions, like Tech or Protocols, may be more generic than an effect. Yet to be seen.
-declare interface EffectDataReaction {
-  name: string;
-  frequency: string;  // May need a specialized parser and interface for compatibility with About Time by Tim Posney
-  trigger: string;
-  detail: string;  // Optional?
-}
-
-// Tech seems to either have detail, or have option_set and options.
-declare interface EffectDataTech {
-  activation: string;
-  detail?: string,
-  option_set?: string;
-  options?: EffectDataTechOption[];
-}
-
-declare interface EffectDataTechOption {
-  name: string;
-  detail: string;
-}
-
-declare interface EffectDataAI {
-  detail: string;
-  abilities: EffectData[];
-}
-
-declare interface EffectDataProtocol {
-  name: string;
-  detail: string;
-  tags?: TagDataShort;
-}
-
-// TODO: EffectDataDeployable (effect_type == "Deployable")
-// TODO: EffectDataDrone (effect_type == "Drone")
-// TODO: EffectDataCharge (effect_type == "Charge")
 
 declare interface RangeData {
   type: RangeType;
