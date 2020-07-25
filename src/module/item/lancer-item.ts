@@ -13,6 +13,7 @@ import {  LancerSkillData,
           LancerNPCTemplateData,
           LancerNPCClassData} from '../interfaces'
 import { LANCER } from '../config'
+import { NPCFeatureType } from '../enums';
 const lp = LANCER.log_prefix;
 
 export function lancerItemInit(data: any) {
@@ -47,6 +48,7 @@ export function lancerItemInit(data: any) {
   }
   else if (data.type === 'mech_system') {
     img += 'system.svg';
+    // TODO: set default system type
   }
   else if (data.type === 'npc_class') {
     img += 'npc_class.svg';
@@ -56,6 +58,10 @@ export function lancerItemInit(data: any) {
   }
   else if (data.type === 'npc_feature') {
     img += 'npc_feature.svg';
+    mergeObject(data, {
+      // Default new NPC features to traits
+      "data.feature_type": NPCFeatureType.Trait
+    })
   }
   else {
     img += 'generic_item.svg';
