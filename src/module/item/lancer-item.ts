@@ -12,6 +12,60 @@ import {  LancerSkillData,
           LancerNPCFeatureData,
           LancerNPCTemplateData,
           LancerNPCClassData} from '../interfaces'
+import { LANCER } from '../config'
+const lp = LANCER.log_prefix;
+
+export function lancerItemInit(data: any) {
+  console.log(`${lp} Initializing new ${data.type}`);
+  let img: string = 'systems/lancer/assets/icons/';
+  if (data.type === 'skill') {
+    img += 'skill.svg';
+  }
+  else if (data.type === 'talent') {
+    img += 'talent.svg';
+  }
+  else if (data.type === 'core_bonus') {
+    img += 'corebonus.svg';
+  }
+  else if (data.type === 'license') {
+    img += 'license.svg';
+  }
+  else if (data.type === 'pilot_armor') {
+    img += 'shield_outline.svg';
+  }
+  else if (data.type === 'pilot_weapon') {
+    img += 'weapon.svg';
+  }
+  else if (data.type === 'pilot_gear') {
+    img += 'generic_item.svg';
+  }
+  else if (data.type === 'frame') {
+    img += 'frame.svg';
+  }
+  else if (data.type === 'mech_weapon') {
+    img += 'weapon.svg';
+  }
+  else if (data.type === 'mech_system') {
+    img += 'system.svg';
+  }
+  else if (data.type === 'npc_class') {
+    img += 'npc_class.svg';
+  }
+  else if (data.type === 'npc_template') {
+    img += 'npc_template.svg';
+  }
+  else if (data.type === 'npc_feature') {
+    img += 'npc_feature.svg';
+  }
+  else {
+    img += 'generic_item.svg';
+  }
+
+  mergeObject(data, {
+    // Initialize image
+    "img": img
+  });
+}
 
 export class LancerItem extends Item {
   data: LancerSkillData | LancerTalentData | LancerCoreBonusData |

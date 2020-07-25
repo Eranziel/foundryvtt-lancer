@@ -50,6 +50,8 @@ export function lancerActorInit(data: any) {
   }
   else if (data.type === "deployable") {
     mergeObject(data, {
+      // Initialize image
+      "img": 'systems/lancer/assets/icons/deployable.svg',
       // Initialize prototype token
       "token.bar1": {"attribute": "hp"},                      // Default Bar 1 to HP
       "token.displayName": CONST.TOKEN_DISPLAY_MODES.HOVER,   // Default display name to be always on

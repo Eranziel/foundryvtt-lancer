@@ -12,7 +12,7 @@ import { LANCER } from './module/config';
 const lp = LANCER.log_prefix;
 import { LancerGame } from './module/lancer-game';
 import { LancerActor, lancerActorInit } from './module/actor/lancer-actor';
-import { LancerItem } from './module/item/lancer-item';
+import { LancerItem, lancerItemInit } from './module/item/lancer-item';
 import { DamageData, LancerPilotActorData, TagDataShort } from './module/interfaces';
 
 // Import applications
@@ -230,6 +230,7 @@ Hooks.once('ready', function() {
 
 // Add any additional hooks if necessary
 Hooks.on("preCreateActor", lancerActorInit);
+Hooks.on("preCreateItem", lancerItemInit);
 
 function getMacroSpeaker(): Actor | null {
 	// Determine which Actor to speak as
