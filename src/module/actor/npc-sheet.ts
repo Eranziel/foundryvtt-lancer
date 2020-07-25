@@ -283,12 +283,20 @@ export class LancerNPCSheet extends ActorSheet {
       else if (LANCER.npc_items.includes(item.type)) {
         if (data.pack) {
           console.log(`${lp} Copying ${item.name} from ${data.pack} to ${actor.name}.`);
-          actor.importItemFromCollection(data.pack, item._id);
+          const dupData = duplicate(item.data);
+          const newItem = await actor.importItemFromCollection(data.pack, item._id);
+          // Make sure the new item includes all of the data from the original.
+          (dupData as any)._id = newItem._id;
+          actor.updateOwnedItem(dupData);
           return;
         }
         else {
           console.log(`${lp} Copying ${item.name} to ${actor.name}.`);
-          actor.createOwnedItem(duplicate(item.data));
+          const dupData = duplicate(item.data);
+          const newItem = await actor.createOwnedItem(dupData);
+          // Make sure the new item includes all of the data from the original.
+          (dupData as any)._id = newItem._id;
+          actor.updateOwnedItem(dupData);
           return;
         }
       }
