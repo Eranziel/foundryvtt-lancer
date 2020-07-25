@@ -1,6 +1,15 @@
 import { LancerNPCFeatureData, RangeData, NPCDamageData } from "../interfaces";
 import { NPCFeatureType } from "../enums";
 
+export const NPCFeatureIconNames = {
+  'Other': 'npc_feature.svg',
+  'Reaction': 'reaction.svg', 
+  'System': 'system.svg', 
+  'Trait': 'trait.svg', 
+  'Weapon': 'weapon.svg', 
+  'Tech': 'tech_quick.svg'
+};
+
 declare interface LancerNPCReactionData extends LancerNPCFeatureData {
   trigger: string;
   feature_type: NPCFeatureType.Reaction;

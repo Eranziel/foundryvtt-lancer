@@ -1,6 +1,7 @@
 import { LancerSkillSheetData } from '../interfaces';
 import { LANCER } from '../config';
 import { NPCFeatureType } from '../enums';
+import { NPCFeatureIconNames } from '../actor/npc-feature';
 const lp = LANCER.log_prefix;
 
 /**
@@ -167,14 +168,23 @@ export class LancerItemSheet extends ItemSheet {
   /** @override */
   _updateObject(event, formData) {
 
-    // TODO: sanitize fields from other feature types
-
-    // Re-build NPC Weapon size and type
-    if (this.item.data.type === "npc_feature" && this.item.data.data.feature_type === NPCFeatureType.Weapon) {
-      formData['data.weapon_type'] = `${formData['data.weapon_size']} ${formData['data.weapon_type']}`;
-      delete formData['data.weapon_size'];
+    if (this.item.data.type === "npc_feature") {
+      // TODO: sanitize fields from other feature types
+  
+      // Change image to match feature type, unless a custom image has been selected
+      const imgPath = 'systems/lancer/assets/icons/';
+      const shortImg = formData['img'].slice(formData['img'].lastIndexOf('/')+1);
+      console.log(`${lp} short image: ${shortImg}`)
+      if (formData['img'].startsWith(imgPath) && Object.values(NPCFeatureIconNames).includes(shortImg)) {
+        formData['img'] = imgPath + NPCFeatureIconNames[formData['data.feature_type']];
+      }
+  
+      // Re-build NPC Weapon size and type
+      if (this.item.data.type === "npc_feature" && this.item.data.data.feature_type === NPCFeatureType.Weapon) {
+        formData['data.weapon_type'] = `${formData['data.weapon_size']} ${formData['data.weapon_type']}`;
+        delete formData['data.weapon_size'];
+      }  
     }
-
     if (LANCER.weapon_items.includes(this.item.data.type)) {
       // Build range and damage arrays
       let damage = [];
