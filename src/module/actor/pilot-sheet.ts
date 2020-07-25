@@ -212,7 +212,7 @@ export class LancerPilotSheet extends ActorSheet {
             console.log(`${lp} No mount element`, weaponMountIndex, mountElement);
           }
         }
-      })
+      });
     }
 
     // Everything below here is only needed if the sheet is editable

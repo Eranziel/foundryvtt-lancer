@@ -66,6 +66,7 @@ export class LancerNPCSheet extends ActorSheet {
     return data;
   }
 
+  /* -------------------------------------------- */
 
   _prepareItems(data: LancerNPCSheetData) {
 
@@ -82,7 +83,6 @@ export class LancerNPCSheet extends ActorSheet {
     else data.npc_class = undefined;
     //TODO Templates, Classes and Features
   }
-
 
   /* -------------------------------------------- */
 
@@ -132,20 +132,31 @@ export class LancerNPCSheet extends ActorSheet {
       let weaponMacro = html.find('.roll-attack');
       weaponMacro.click(ev => {
         ev.stopPropagation();
-        console.log(ev);
+        console.log(`${lp} Weapon macro button click`, ev);
 
         const weaponElement = $(ev.currentTarget).closest('.weapon')[0] as HTMLElement;
+        let weaponId = weaponElement.getAttribute("data-item-id");
+        game.lancer.rollAttackMacro(weaponId, this.actor._id);
+        return;
         // Pilot weapon
         if (weaponElement.className.search("pilot") >= 0) {
           let weaponId = weaponElement.getAttribute("data-item-id");
-          // TODO: pass weaponId to rollAttackMacro to do the rolling
-          game.lancer.rollAttackMacro(weaponId);
+          game.lancer.rollAttackMacro(weaponId, this.actor._id);
         }
         // Mech weapon
         else {
-          // Is this actually any different than a pilot weapon?
+          let weaponMountIndex = weaponElement.getAttribute("data-item-id");
+          const mountElement = $(ev.currentTarget).closest(".lancer-mount-container");
+          if (mountElement.length) {
+            const mounts = this.actor.data.data.mech_loadout.mounts;
+            const weapon = mounts[parseInt(mountElement.data("itemId"))].weapons[weaponMountIndex];
+            game.lancer.rollAttackMacro(weapon._id, this.actor._id);
+          }
+          else {
+            console.log(`${lp} No mount element`, weaponMountIndex, mountElement);
+          }
         }
-      })
+      });
     }
     if (this.actor.owner) {
       // Item Dragging
@@ -202,6 +213,8 @@ export class LancerNPCSheet extends ActorSheet {
       });
     }
   }
+
+  /* -------------------------------------------- */
 
   async _onDrop(event) {
     event.preventDefault();
@@ -278,33 +291,6 @@ export class LancerNPCSheet extends ActorSheet {
       return super._onDrop(event);
     }
   }
-
-  /* -------------------------------------------- */
-
-  // async _onClickAttributeControl(event) {
-  //   event.preventDefault();
-  //   const a = event.currentTarget;
-  //   const action = a.dataset.action;
-  //   const attrs = this.object.data.data.attributes;
-  //   const form = this.form;
-
-  //   // Add new attribute
-  //   if ( action === "create" ) {
-  //     const nk = Object.keys(attrs).length + 1;
-  //     let newKey = document.createElement("div");
-  //     newKey.innerHTML = `<input type="text" name="data.attributes.attr${nk}.key" value="attr${nk}"/>`;
-  //     newKey = newKey.children[0];
-  //     form.appendChild(newKey);
-  //     await this._onSubmit(event);
-  //   }
-
-  //   // Remove existing attribute
-  //   else if ( action === "delete" ) {
-  //     const li = a.closest(".attribute");
-  //     li.parentElement.removeChild(li);
-  //     await this._onSubmit(event);
-  //   }
-  // }
 
   /* -------------------------------------------- */
 

@@ -12,8 +12,8 @@ import { LANCER } from './module/config';
 const lp = LANCER.log_prefix;
 import { LancerGame } from './module/lancer-game';
 import { LancerActor, lancerActorInit } from './module/actor/lancer-actor';
-import { LancerItem, lancerItemInit } from './module/item/lancer-item';
-import { DamageData, LancerPilotActorData, TagDataShort } from './module/interfaces';
+import { LancerItem, lancerItemInit, LancerNPCFeature } from './module/item/lancer-item';
+import { DamageData, LancerPilotActorData, TagDataShort, LancerNPCActorData } from './module/interfaces';
 
 // Import applications
 import { LancerPilotSheet } from './module/actor/pilot-sheet';
@@ -348,48 +348,67 @@ async function rollAttackMacro(w: string, a: string) {
 
   // Get the item
   const item: Item = game.actors.get(a).getOwnedItem(w);
-  console.log(`${lp} Rolling attack macro`, item, w, a);
-  if (!item.isOwned) {
+	console.log(`${lp} Rolling attack macro`, item, w, a);
+	if (!item) {
+    ui.notifications.error(`Error rolling attack macro - could not find Item ${w} owned by Actor ${a}!`);
+    return Promise.resolve();
+	}
+  else if (!item.isOwned) {
     ui.notifications.error(`Error rolling attack macro - ${item.name} is not owned by an Actor!`);
     return Promise.resolve();
   }
 
   let title: string = item.name;
-  let grit: number;
+  let grit: number = 0;
+  let acc: number = 0;
   let damage: DamageData[];
   let effect: string;
   let tags: TagDataShort[];
+	const wData = item.data.data;
   if (item.type === "mech_weapon") {
     grit = (item.actor.data as LancerPilotActorData).data.pilot.grit;
-    damage = item.data.data.damage;
-    tags = item.data.data.tags;
-    effect = item.data.data.effect;
+    damage = wData.damage;
+    tags = wData.tags;
+    effect = wData.effect;
   }
   else if (item.type === "pilot_weapon") {
     grit = (item.actor.data as LancerPilotActorData).data.pilot.grit;
-    damage = item.data.data.damage;
-    tags = item.data.data.tags;
-    effect = item.data.data.effect;
+    damage = wData.damage;
+    tags = wData.tags;
+    effect = wData.effect;
   }
-  // TODO
-  // else if (item.type === "npc_feature") {
-  //   grit = (item as LancerNPCFeature).data.accuracy[(item.actor.data as LancerNPCActorData).data.tier];
-  // }
+  else if (item.type === "npc_feature") {
+		const tier = (item.actor.data as LancerNPCActorData).data.tier_num - 1;
+		if (wData.attack_bonus && wData.attack_bonus[tier]) {
+			grit = parseInt(wData.attack_bonus[tier]);
+		}
+		if (wData.accuracy && wData.accuracy[tier]) {
+			acc = parseInt(wData.accuracy[tier]);
+		}
+		// Reduce damage values to only this tier
+		damage = duplicate(wData.damage);
+		damage.forEach(d => {
+			d.val = d.val[tier];
+		});
+		tags = wData.tags;
+		effect = wData.effect;
+  }
   else {
     ui.notifications.error(`Error rolling attack macro - ${item.name} is not a weapon!`);
     return Promise.resolve();
   }
-  console.log(`${lp} Attack Macro Item:`, item, grit, damage);
+  console.log(`${lp} Attack Macro Item:`, item, grit, acc, damage);
 
   // Get accuracy/difficulty with a prompt
-  let acc: number = 0;
 	let abort: boolean = false;
-	await promptAccDiffModifier().then(resolve => acc = resolve, reject => abort = true);
+	await promptAccDiffModifier(acc).then(resolve => acc = resolve, reject => abort = true);
 	if (abort) return;
 
   // Do the attack rolling
-  let acc_str = acc != 0 ? ` + ${acc}d6kh1` : '';
-  let attack_roll = new Roll(`1d20+${grit}${acc_str}`).roll();
+	let acc_str = acc != 0 ? ` + ${acc}d6kh1` : '';
+	let atk_str = `1d20+${grit}${acc_str}`;
+	console.log(`${lp} Attack roll string: ${atk_str}`)
+  let attack_roll = new Roll(atk_str).roll();
 
   // Iterate through damage types, rolling each
   let damage_results = [];
@@ -419,18 +438,20 @@ async function rollAttackMacro(w: string, a: string) {
   return renderMacro(actor, template, templateData);
 }
 
-function promptAccDiffModifier() {
+function promptAccDiffModifier(acc?: number) {
+	if (!acc) acc = 0;
+	let diff = acc < 0 ? acc : 0;
   let template = `
 <form>
   <h2>Please enter your modifiers and submit, or close this window:</h2>
   <div class="flexcol">
     <label style="max-width: fit-content;">
       <i class="cci cci-accuracy i--m i--dark" style="vertical-align:middle;border:none"> </i> Accuracy:
-      <input class="accuracy" type="number" min="0" value="0">
+      <input class="accuracy" type="number" min="0" value="${acc}">
     </label>
     <label style="max-width: fit-content;">
       <i class="cci cci-difficulty i--m i--dark" style="vertical-align:middle;border:none"> </i> Difficulty:
-      <input class="difficulty" type="number" min="0" value="0">
+      <input class="difficulty" type="number" min="0" value="${diff}">
     </div>
 </form>`
   return new Promise<number>((resolve, reject) => {

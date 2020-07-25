@@ -50,6 +50,8 @@ export class LancerItemSheet extends ItemSheet {
         data.data.weapon_size = 'Main';
         data.data.weapon_type = 'Rifle';
       }
+
+      // TODO: Fill in 0's if attack bonus or accuracy are undefined or "".
     }
 
     console.log(`${lp} Item sheet data: `, data, this.item);
@@ -174,7 +176,6 @@ export class LancerItemSheet extends ItemSheet {
       // Change image to match feature type, unless a custom image has been selected
       const imgPath = 'systems/lancer/assets/icons/';
       const shortImg = formData['img'].slice(formData['img'].lastIndexOf('/')+1);
-      console.log(`${lp} short image: ${shortImg}`)
       if (formData['img'].startsWith(imgPath) && Object.values(NPCFeatureIcons).includes(shortImg)) {
         formData['img'] = imgPath + NPCFeatureIcons[formData['data.feature_type']];
       }
@@ -185,7 +186,12 @@ export class LancerItemSheet extends ItemSheet {
         delete formData['data.weapon_size'];
       }  
     }
+
     if (LANCER.weapon_items.includes(this.item.data.type)) {
+      // Safeguard against non-weapon NPC features
+      if (this.item.data.type === "npc_feature" && this.item.data.data.feature_type !== NPCFeatureType.Weapon) {
+        return;
+      }
       // Build range and damage arrays
       let damage = [];
       let range = [];
