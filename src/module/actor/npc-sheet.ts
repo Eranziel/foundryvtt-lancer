@@ -253,7 +253,7 @@ export class LancerNPCSheet extends ActorSheet {
 
     if (item) {
       // Swap mech class
-      if (item && item.type === "npc_class") {
+      if (item.type === "npc_class") {
         let newNPCClassStats: LancerNPCClassStatsData;
         // Remove old class
         actor.items.forEach(async (i: LancerItem) => {
@@ -278,6 +278,18 @@ export class LancerNPCSheet extends ActorSheet {
         if (newNPCClassStats) {
           console.log(`${lp} Swapping Class stats for ${actor.name}`);
           actor.swapNPCClassOrTier(newNPCClassStats, true);
+        }
+      }
+      else if (LANCER.npc_items.includes(item.type)) {
+        if (data.pack) {
+          console.log(`${lp} Copying ${item.name} from ${data.pack} to ${actor.name}.`);
+          actor.importItemFromCollection(data.pack, item._id);
+          return;
+        }
+        else {
+          console.log(`${lp} Copying ${item.name} to ${actor.name}.`);
+          actor.createOwnedItem(duplicate(item.data));
+          return;
         }
       }
       //TODO add basic features to NPC
