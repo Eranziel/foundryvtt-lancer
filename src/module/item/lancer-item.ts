@@ -57,7 +57,7 @@ export function lancerItemInit(data: any) {
     img += 'npc_template.svg';
   }
   else if (data.type === 'npc_feature') {
-    img += 'npc_feature.svg';
+    img += 'trait.svg';
     mergeObject(data, {
       // Default new NPC features to traits
       "data.feature_type": NPCFeatureType.Trait

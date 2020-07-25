@@ -189,40 +189,40 @@ export class LancerItemSheet extends ItemSheet {
 
     if (LANCER.weapon_items.includes(this.item.data.type)) {
       // Safeguard against non-weapon NPC features
-      if (this.item.data.type === "npc_feature" && this.item.data.data.feature_type !== NPCFeatureType.Weapon) {
-        return;
-      }
-      // Build range and damage arrays
-      let damage = [];
-      let range = [];
-      let d_done = false;
-      let r_done = false;
-      let i = 0;
-      while (!d_done || !r_done && i < 10) {
-        if (formData.hasOwnProperty(`data.damage.${i}.type`)) {
-          damage.push({
-            type: formData[`data.damage.${i}.type`],
-            val: formData[`data.damage.${i}.val`]
-          });
-          delete formData[`data.damage.${i}.type`];
-          delete formData[`data.damage.${i}.val`];
-        }
-        else d_done = true;
+      if ( this.item.data.type !== "npc_feature" ||
+            (this.item.data.type === "npc_feature" && this.item.data.data.feature_type === NPCFeatureType.Weapon)) {
+        // Build range and damage arrays
+        let damage = [];
+        let range = [];
+        let d_done = false;
+        let r_done = false;
+        let i = 0;
+        while (!d_done || !r_done && i < 10) {
+          if (formData.hasOwnProperty(`data.damage.${i}.type`)) {
+            damage.push({
+              type: formData[`data.damage.${i}.type`],
+              val: formData[`data.damage.${i}.val`]
+            });
+            delete formData[`data.damage.${i}.type`];
+            delete formData[`data.damage.${i}.val`];
+          }
+          else d_done = true;
 
-        if (formData.hasOwnProperty(`data.range.${i}.type`)) {
-          range.push({
-            type: formData[`data.range.${i}.type`],
-            val: formData[`data.range.${i}.val`]
-          });
-          delete formData[`data.range.${i}.type`];
-          delete formData[`data.range.${i}.val`];
-        }
-        else d_done = true;
+          if (formData.hasOwnProperty(`data.range.${i}.type`)) {
+            range.push({
+              type: formData[`data.range.${i}.type`],
+              val: formData[`data.range.${i}.val`]
+            });
+            delete formData[`data.range.${i}.type`];
+            delete formData[`data.range.${i}.val`];
+          }
+          else d_done = true;
 
-        i++;
+          i++;
+        }
+        formData['data.damage'] = damage;
+        formData['data.range'] = range;
       }
-      formData['data.damage'] = damage;
-      formData['data.range'] = range;
     }
 
     console.log(`${lp} Item sheet form data: `, formData);
