@@ -1,7 +1,7 @@
 import { LancerSkillSheetData } from '../interfaces';
 import { LANCER } from '../config';
 import { NPCFeatureType } from '../enums';
-import { NPCFeatureIconNames } from '../actor/npc-feature';
+import { NPCFeatureIcons } from './npc-feature';
 const lp = LANCER.log_prefix;
 
 /**
@@ -175,8 +175,8 @@ export class LancerItemSheet extends ItemSheet {
       const imgPath = 'systems/lancer/assets/icons/';
       const shortImg = formData['img'].slice(formData['img'].lastIndexOf('/')+1);
       console.log(`${lp} short image: ${shortImg}`)
-      if (formData['img'].startsWith(imgPath) && Object.values(NPCFeatureIconNames).includes(shortImg)) {
-        formData['img'] = imgPath + NPCFeatureIconNames[formData['data.feature_type']];
+      if (formData['img'].startsWith(imgPath) && Object.values(NPCFeatureIcons).includes(shortImg)) {
+        formData['img'] = imgPath + NPCFeatureIcons[formData['data.feature_type']];
       }
   
       // Re-build NPC Weapon size and type

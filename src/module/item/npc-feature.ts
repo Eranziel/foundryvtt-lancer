@@ -1,7 +1,7 @@
 import { LancerNPCFeatureData, RangeData, NPCDamageData } from "../interfaces";
 import { NPCFeatureType } from "../enums";
 
-export const NPCFeatureIconNames = {
+export const NPCFeatureIcons = {
   'Other': 'npc_feature.svg',
   'Reaction': 'reaction.svg', 
   'System': 'system.svg', 
