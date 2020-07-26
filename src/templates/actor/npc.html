@@ -235,11 +235,11 @@
                     </div>
                     <div class="flexcol" style="margin: 10px;">
                         <span class="medium flexrow">TRIGGER</span>
-                        <div class="effect-text" style="padding: 5px">
+                        <div class="effect-text flexrow" style="padding: 5px">
                             {{{npc_feature.data.trigger}}}
                         </div>
                         <span class="medium flexrow">EFFECT</span>
-                        <div class="effect-text" style="padding: 5px">
+                        <div class="effect-text flexrow" style="padding: 5px">
                             {{{npc_feature.data.effect}}}
                         </div>
                     </div>
@@ -261,7 +261,7 @@
                     </div>
                     <div class="flexcol" style="margin: 10px;">
                         <span class="medium flexrow">EFFECT</span>
-                        <div class="effect-text" style="padding: 5px">
+                        <div class="effect-text flexrow" style="padding: 5px">
                             {{{npc_feature.data.effect}}}
                         </div>
                     </div>
@@ -283,7 +283,7 @@
                     </div>
                     <div class="flexcol" style="margin: 10px;">
                         <span class="medium flexrow">EFFECT</span>
-                        <div class="effect-text" style="padding: 5px">
+                        <div class="effect-text flexrow" style="padding: 5px">
                             {{{npc_feature.data.effect}}}
                         </div>
                     </div>
@@ -302,8 +302,8 @@
                         <i class="cci cci-tech-{{lower-case npc_feature.data.tech_type}} i--m i--light"> </i>
                         <span class="minor">{{npc_feature.name}} // {{upper-case npc_feature.data.tech_type}} TECH</span>
                         <a class="stats-control i--light" data-action="delete"><i class="fas fa-trash"></i></a>
-                    </div> 
-                    <div class="lancer-weapon-body">
+                    </div>
+                    <div class="lancer-tech-body">
                         <a class="roll-tech" style="grid-area: 1/1/3/2;"><i class="fas fa-dice-d20 i--m i--dark"></i></a>
                         <div class="flexrow" style="grid-area: 1/2/2/3; text-align: left; white-space: nowrap;">
                             {{#if npc_feature.data.attack_bonus}}
@@ -336,7 +336,7 @@
                             {{#if npc_feature.data.effect}}
                             <div class="flexcol" style="height: fit-content; margin: 0px 10px;">
                                 <span class="medium flexrow">EFFECT</span>
-                                <div class="effect-text" style="padding: 5px">
+                                <div class="effect-text flexrow" style="padding: 5px">
                                     {{{npc_feature.data.effect}}}
                                 </div>
                             </div>
@@ -353,7 +353,7 @@
 
                 {{!-- Weapon-type feature preview --}}
                 {{#if (eq npc_feature.data.feature_type "Weapon")}}
-                <div class="card clipped npc-feature-compact weapon item" style="max-height: fit-content;" data-item-id="{{npc_feature._id}}">
+                <div class="card clipped npc-feature-compact weapon item" data-item-id="{{npc_feature._id}}">
                     <div class="lancer-weapon-header clipped-top" style="grid-area: 1/1/2/3">
                         <i class="cci cci-weapon i--m i--light"> </i>
                         <span class="minor">{{npc_feature.name}} // {{upper-case npc_feature.data.weapon_type}}</span>
@@ -364,7 +364,7 @@
                         <div class="flexrow" style="grid-area: 1/2/2/3; text-align: left; white-space: nowrap;">
                             {{#each npc_feature.data.range as |range rkey|}}
                                 {{#if range.val}}
-                                {{#if (gtpi rkey "0")}} // {{/if}}
+                                {{#if (gtpi rkey "0")}}<span class="flexrow" style="align-items: center; justify-content: center; max-width: min-content;"> // </span>{{/if}}
                                 <div class="compact-range">
                                     <i class="cci cci-{{lower-case range.type}} i--m i--dark"></i>
                                     <span class="medium">{{range.val}}</span>
@@ -373,7 +373,7 @@
                             {{/each}}
                             <hr class="vsep">
                             {{#each npc_feature.data.damage as |damage dkey|}}
-                                {{#if damage.val}}
+                                {{#if damage.type}}
                                 <div class="compact-damage">
                                     <i class="card clipped cci cci-{{lower-case damage.type}} i--m damage--{{damage.type}}"></i>
                                     <span class="medium">{{idx damage.val (dec ../../data.tier_num)}}</span>
@@ -411,7 +411,7 @@
                             {{#if npc_feature.data.on_hit}}
                             <div class="flexcol" style="height: fit-content; margin: 0px 10px;">
                                 <span class="medium flexrow">ON HIT</span>
-                                <div class="effect-text" style="padding: 5px">
+                                <div class="effect-text flexrow" style="padding: 5px">
                                     {{{npc_feature.data.effect}}}
                                 </div>
                             </div>
@@ -419,7 +419,7 @@
                             {{#if npc_feature.data.effect}}
                             <div class="flexcol" style="height: fit-content; margin: 0px 10px;">
                                 <span class="medium flexrow">EFFECT</span>
-                                <div class="effect-text" style="padding: 5px">
+                                <div class="effect-text flexrow" style="padding: 5px">
                                     {{{npc_feature.data.effect}}}
                                 </div>
                             </div>

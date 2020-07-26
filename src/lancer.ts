@@ -180,24 +180,52 @@ Hooks.once('init', async function() {
 	        <option value="Integrated" ${mount.type === 'Integrated' ? 'selected' : ''}>Integrated Mount</option>
         </select>`
         return template;
-	});
-
-  Handlebars.registerPartial('mech-weapon-preview', `<div class="flexcol clipped lancer-weapon-container weapon" style="max-height: fit-content;" data-item-id="{{key}}">
-    <span class="item lancer-weapon-header" style="padding-top: 5px;" data-item-id="{{weapon._id}}"><img class="thumbnail" src="{{weapon.img}}" data-edit="{{weapon.img}}" title="{{weapon.name}}" height="10" width="10"/> {{weapon.name}} <a class="stats-control" data-action="delete"><i class="fas fa-trash" style="float: right;"></i></a></span>
-    <span class="lancer-weapon-body">
-     <span class="flexrow" style="grid-area: 1 / 1 / 1 / 1; text-align: left; white-space: nowrap;"><a class="flexrow roll-attack" style="max-width: min-content;"><i class="fas fa-dice-d20 i--sm i--dark"></i></a>{{#each weapon.data.range as |range rkey|}}<i class="cci cci-{{lower-case range.type}} i--m i--dark"></i><span class="medium">{{range.val}}</span>{{/each}}{{#each weapon.data.damage as |damage dkey|}}<i class="cci cci-{{lower-case damage.type}} i--m damage--{{damage.type}}"></i><span class="medium">{{damage.val}}</span>{{/each}}</span>
-     <span style="grid-area: 1 / 2 / 1 / 3; text-align: right;">{{weapon.data.mount}} {{weapon.data.weapon_type}}</span>
-     <span style="grid-area: 2 / 1 / 2 / 3; text-align: left; white-space: wrap">
-     {{#with weapon.data.effect as |effect|}}
-     {{#if effect.effect_type}}
-       <h3>{{effect.effect_type}} Effect</h3>
-       {{effect.hit}}{{/if}}
-     {{#unless effect.effect_type}}{{effect}}{{/unless}}
-     {{/with}}
-     </span>
-     <span class="flexrow" style="grid-area: 3 / 1 / 3 / 3; text-align: left; justify-content: flex-end;">
-       <span class="flexrow" style="justify-content: flex-end;">{{#each weapon.data.tags as |tag tkey|}}{{{compact-tag tag}}}{{/each}}</span>
-     </span>
+  });
+  
+  Handlebars.registerPartial('mech-weapon-preview', 
+    `<div class="flexcol clipped lancer-weapon-container weapon" style="max-height: fit-content;" data-item-id="{{key}}">
+      <div class="lancer-weapon-header clipped-top item" style="grid-area: 1/1/2/3" data-item-id="{{weapon._id}}">
+        <i class="cci cci-weapon i--m i--light"> </i>
+        <span class="minor">{{weapon.name}} // {{upper-case weapon.data.mount}} {{upper-case weapon.data.weapon_type}}</span>
+        <a class="stats-control i--light" data-action="delete"><i class="fas fa-trash"></i></a>
+      </div> 
+      <div class="lancer-weapon-body">
+        <a class="roll-attack" style="grid-area: 1/1/2/2;"><i class="fas fa-dice-d20 i--m i--dark"></i></a>
+        <div class="flexrow" style="grid-area: 1/2/2/3; text-align: left; white-space: nowrap;">
+        {{#each weapon.data.range as |range rkey|}}
+            {{#if range.val}}
+            {{#if (gtpi rkey "0")}}<span class="flexrow" style="align-items: center; justify-content: center; max-width: min-content;"> // </span>{{/if}}
+            <div class="compact-range">
+                <i class="cci cci-{{lower-case range.type}} i--m i--dark"></i>
+                <span class="medium">{{range.val}}</span>
+            </div>
+            {{/if}}
+        {{/each}}
+        <hr class="vsep">
+        {{#each weapon.data.damage as |damage dkey|}}
+            {{#if damage.type}}
+            <div class="compact-damage">
+                <i class="card clipped cci cci-{{lower-case damage.type}} i--m damage--{{damage.type}}"></i>
+                <span class="medium">{{damage.val}}</span>
+            </div>
+            {{/if}}
+        {{/each}}
+        </div>
+        {{#with weapon.data.effect as |effect|}}
+        <div class="flexcol" style="grid-area: 2/1/2/3; text-align: left; white-space: wrap">
+          {{#if effect.effect_type}}
+            <h3 class="medium flexrow">{{upper-case effect.effect_type}} EFFECT</h3>
+            <span class="effect-text">{{{effect.hit}}}</span>
+          {{/if}}
+          {{#unless effect.effect_type}}<span class="effect-text">{{{effect}}}</span>{{/unless}}
+          </div>
+        {{/with}}
+        <div class="flexrow" style="justify-content: flex-end; grid-area: 4/1/5/3">
+          {{#each weapon.data.tags as |tag tkey|}}
+          {{{compact-tag tag}}}
+          {{/each}}
+        </div>
+      </div>
     </div>`
   );
   
@@ -469,7 +497,11 @@ async function rollAttackMacro(w: string, a: string) {
 
 function promptAccDiffModifier(acc?: number) {
 	if (!acc) acc = 0;
-	let diff = acc < 0 ? acc : 0;
+  let diff = 0;
+  if (acc < 0) {
+    diff = -acc;
+    acc = 0;
+  }
   let template = `
 <form>
   <h2>Please enter your modifiers and submit, or close this window:</h2>

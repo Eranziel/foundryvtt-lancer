@@ -102,7 +102,7 @@ button {
 }
 
 .lancer.sheet .reaction,
-.lancer.sheet .tech,
+.lancer.sheet .tech-header,
 .lancer.sheet .mount-header {
   color: white;
   background-color: var(--main-theme-color, fuchsia);
@@ -123,7 +123,7 @@ button {
   background-color: var(--reaction-color);
 }
 
-.lancer.sheet .tech {
+.lancer.sheet .tech-header {
   clip-path: var(--tech-clip-path);
   -webkit-clip-path: var(--tech-clip-path);
   background-color: var(--tech-color);
@@ -529,10 +529,9 @@ button {
 }
 
 .lancer-tech-header {
+  clip-path: var(--tech-clip-path);
+  -webkit-clip-path: var(--tech-clip-path);
   background-color: var(--tech-color);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .lancer-weapon-header {
@@ -542,11 +541,11 @@ button {
   white-space: nowrap;
 }
 
-.lancer-weapon-body {
+.lancer-weapon-body,
+.lancer-tech-body {
   min-height: 15px;
   border-style: dashed;
   border-width: 2px;
-  border-color: #000000;
   border-top-style: none;
 
   padding: 3px;
@@ -561,6 +560,14 @@ button {
   grid-template-rows: repeat(3, fit-content(0));
 
   background-color: #00000033;
+}
+
+.lancer-weapon-body {
+  border-color: #000000;
+}
+
+.lancer-tech-body {
+  border-color: var(--tech-color);
 }
 
 .lancer-weapon-container {
@@ -721,9 +728,6 @@ button {
   text-align: left;
   padding: 0.5em;
   font-family: Helvetica;
-  display: flex;
-  flex-direction: row;
-  flex: 1;
 }
 
 .skill-compact {
@@ -810,7 +814,8 @@ code.horus:hover {
   margin: 3px;
 }
 
-.roll-attack {
+.roll-attack,
+.roll-tech {
   display: flex;
   flex-direction: row;
   justify-content: center;

@@ -142,7 +142,7 @@
 					<input class="lancer-invisible-input major i--light" type="String" name="data.traits.{{key}}.name" value="{{trait.name}}" data-dtype="String">
 					<a class="remove-button fa fa-trash clickable" data-action="delete" data-item="traits" style="float: right; margin-right: 11px; margin-top: 2px"></a>
 				</div>
-				<textarea class="lancer-invisible-input effect-text" type="string" name="data.traits.{{key}}.description" data-dtype="String" style="grid-area: 2/1/3/2">{{trait.description}}</textarea>
+				<textarea class="lancer-invisible-input effect-text" type="string" name="data.traits.{{key}}.description" data-dtype="String" style="grid-area: 2/1/3/2">{{{trait.description}}}</textarea>
 			</li>
 		{{/each}}
 		</ul>
