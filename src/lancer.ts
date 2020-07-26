@@ -237,14 +237,14 @@ Hooks.on("renderSidebarTab", async (app, html) => {
 				title: "Import LCP File",
 				content:
 				`
-				<form autocomplete="off">
+				<form autocomplete="off" class="prototype">
 				<div>
 				<label>LCP Path:</label>
 				<div class="form-fields">
-					<button type="button" class="lcp-file-picker" data-type="lcp" data-target="lcp-up" title="Browse Files" tabindex="-1">
+					<button type="button" class="lcp-file-picker" data-target="lcp-up" title="Browse Files" tabindex="-1">
 						<i class="fas fa-file-import fa-fw"></i>
 					</button>
-					<input class="image" type="text" name="lcp-up" placeholder="path/pack.lcp">
+					<input type="text" name="lcp-up" class="lcp-up" value="" placeholder="path/pack.lcp">
 				</div>
 				</div>
 				</form>
@@ -255,17 +255,7 @@ Hooks.on("renderSidebarTab", async (app, html) => {
 						callback: async (html) => {
 							console.log("You hit the import button");
 							return;
-							let button = <HTMLButtonElement>(document.getElementsByClassName("lcp-file-picker")[0])
-							let source="data"; // TODO: Setting/picker?
-							let path="lcp-upload";
-							let target = button.getAttribute("data-target");
-							let fp = FilePicker.fromButton(button,{})
-							console.log("Should've uploaded by now")
-							this.filepickers.push({
-							  target: target,
-							  app: fp
-							});
-							fp.browse(target);
+							
 							//LCPImport(file, fileName, compendiumName);
 						}
 					},
@@ -292,56 +282,14 @@ Hooks.on("renderDialog", async (app:Application,html) => {
 })
 
 function _onFilePickerButtonClick(ev:MouseEvent) {
-	let button = <HTMLButtonElement>document.getElementsByClassName("lcp-file-picker")[0];
-	console.log(document.getElementsByClassName("lcp-file-picker"));
-	let source="data"; // TODO: Setting/picker?
-	let path="lcp-upload";
-	let target = button.getAttribute("data-target");
-	let fp = FilePicker.fromButton(button,{})
+	let button = <HTMLButtonElement>ev.target;
+	let target  = <HTMLElement>button.parentElement.getElementsByClassName(button.getAttribute("data-target"))[0];
+	debugger;
+	let fp = new FilePicker({field: target})
 	// @ts-expect-error
-	fp.extensions = ["lcp"];
-	console.log("Should've uploaded by now")
-	
-	fp.browse(target,{extensions:"lcp"});
-}
-
-
-
-function uploadLCPDialog(event:MouseEvent) {
-	new Dialog({
-		title: "Import LCP File",
-		content:
-		`<div>
-    	<label>LCP Path:</label>
-    	<div class="form-fields">
-        	<button type="button" class="file-picker" data-type="imagevideo" data-target="lcp-up" title="Browse Files" tabindex="-1">
-    			<i class="fas fa-file-import fa-fw"></i>
-			</button>
-        	<input class="image" type="text" name="lcp-up" placeholder="path/pack.lcp">
-    	</div>
-		</div>
-		`,
-		buttons: {
-			import: {
-				label: "Import",
-				callback: async (html) => {
-					console.log("test");
-					let imp = <HTMLInputElement>(document.getElementsByName("compUpload")[0])
-					let file = imp.files[0];
-					let fileName = imp.files[0].name.split(".")[0];
-					let compendiumName = document.getElementsByName("compName")[0].textContent
-					let source="data"; // TODO: Setting/picker?
-					let path="lcp-upload";
-					console.log("Should've uploaded by now")
-					LCPImport(file, fileName, compendiumName);
-				}
-			},
-			cancel: {
-				label: "Cancel"
-			}
-		},
-		default: "import"
-	}).render(true)
+	fp.extensions = [".lcp"]
+	// @ts-expect-error
+	fp.browse();
 }
 
 function LCPImport(file, fileName, compendiumName) {
