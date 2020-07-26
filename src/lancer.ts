@@ -89,8 +89,23 @@ Hooks.once('init', async function() {
 	// Register handlebars helpers
 
 	// inc, for those off-by-one errors
-	Handlebars.registerHelper('inc', function(value, options) {
+	Handlebars.registerHelper('inc', function(value) {
 		return parseInt(value) + 1;
+	});
+
+	// dec, for those off-by-one errors
+	Handlebars.registerHelper('dec', function(value) {
+		return parseInt(value) - 1;
+	});
+
+  // get an index from an array
+  Handlebars.registerHelper('idx', function(array, index) {
+    return array[index];
+  });
+
+	// invert the input
+	Handlebars.registerHelper('neg', function(value) {
+		return parseInt(value) * -1;
 	});
 
 	// double the input
@@ -113,8 +128,22 @@ Hooks.once('init', async function() {
 		return val1 > val2;
 	});
 
+	// Greater-than evaluation after applying parseInt to both values
+	Handlebars.registerHelper('gtpi', function(val1, val2) {
+    val1 = parseInt(val1);
+    val2 = parseInt(val2);
+		return val1 > val2;
+	});
+
 	// Less-than evaluation
 	Handlebars.registerHelper('lt', function(val1, val2) {
+		return val1 < val2;
+	});
+
+	// Greater-than evaluation after applying parseInt to both values
+	Handlebars.registerHelper('ltpi', function(val1, val2) {
+    val1 = parseInt(val1);
+    val2 = parseInt(val2);
 		return val1 < val2;
 	});
 

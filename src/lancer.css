@@ -162,6 +162,15 @@ button {
 
 /* ---------- */
 
+.vsep {
+  border: none;
+  border-left: 1px solid #444444;
+  border-right: 1px solid #444444;
+  max-width: 3px;
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
 .add-button {
   width: 20px;
   height: 20px;
@@ -415,8 +424,11 @@ button {
 .lancer-core-sys-header,
 .lancer-talent-header,
 .lancer-system-header,
+.lancer-trait-header,
 .lancer-trigger-header,
 .lancer-protocol-header,
+.lancer-reaction-header,
+.lancer-tech-header,
 .lancer-weapon-header {
   color: white;
   background-color: var(--main-theme-color, fuchsia);
@@ -499,6 +511,10 @@ button {
   background-color: #67bc45;
 }
 
+.lancer-trait-header {
+  background-color: var(--main-theme-color, fuchsia);
+}
+
 .lancer-trigger-header {
   color: var(--main-theme-color, fuchsia);
   background-color: white;
@@ -506,6 +522,17 @@ button {
 
 .lancer-protocol-header {
   background-color: #c75a00;
+}
+
+.lancer-reaction-header {
+  background-color: #892eb1;
+}
+
+.lancer-tech-header {
+  background-color: var(--tech-color);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .lancer-weapon-header {
@@ -530,14 +557,34 @@ button {
   word-break: break-word;
 
   display: grid;
-  grid-template-columns: auto auto;
-  grid-template-rows: fit-content(0) fit-content(0) fit-content(0);
+  grid-template-columns: 4em 1fr;
+  grid-template-rows: repeat(3, fit-content(0));
 
   background-color: #00000033;
 }
 
 .lancer-weapon-container {
   margin: 3px;
+}
+
+.npc-feature-compact {
+  min-width: 300px;
+}
+
+.npc-feature-compact.tech,
+.npc-feature-compact.weapon {
+  min-width: 600px;
+}
+
+.compact-range,
+.compact-acc,
+.compact-damage {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: nowrap;
+  margin: 5px;
+  max-width: min-content;
 }
 
 .pilot-stats {
@@ -673,7 +720,10 @@ button {
 .effect-text {
   text-align: left;
   padding: 0.5em;
-  font-family: Helvetica
+  font-family: Helvetica;
+  display: flex;
+  flex-direction: row;
+  flex: 1;
 }
 
 .skill-compact {
@@ -758,6 +808,13 @@ code.horus:hover {
 .stat-macro, .roll-attack,
 .roll-trigger {
   margin: 3px;
+}
+
+.roll-attack {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
 }
 
 .dice-roll.lancer-dice-roll {
