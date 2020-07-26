@@ -137,25 +137,17 @@ export class LancerNPCSheet extends ActorSheet {
         const weaponElement = $(ev.currentTarget).closest('.weapon')[0] as HTMLElement;
         let weaponId = weaponElement.getAttribute("data-item-id");
         game.lancer.rollAttackMacro(weaponId, this.actor._id);
-        return;
-        // Pilot weapon
-        if (weaponElement.className.search("pilot") >= 0) {
-          let weaponId = weaponElement.getAttribute("data-item-id");
-          game.lancer.rollAttackMacro(weaponId, this.actor._id);
-        }
-        // Mech weapon
-        else {
-          let weaponMountIndex = weaponElement.getAttribute("data-item-id");
-          const mountElement = $(ev.currentTarget).closest(".lancer-mount-container");
-          if (mountElement.length) {
-            const mounts = this.actor.data.data.mech_loadout.mounts;
-            const weapon = mounts[parseInt(mountElement.data("itemId"))].weapons[weaponMountIndex];
-            game.lancer.rollAttackMacro(weapon._id, this.actor._id);
-          }
-          else {
-            console.log(`${lp} No mount element`, weaponMountIndex, mountElement);
-          }
-        }
+      });
+
+      // Tech rollers
+      let techMacro = html.find('.roll-tech');
+      techMacro.click(ev => {
+        ev.stopPropagation();
+        console.log(`${lp} Tech attack macro button click`, ev);
+
+        const techElement = $(ev.currentTarget).closest('.tech')[0] as HTMLElement;
+        let techId = techElement.getAttribute("data-item-id");
+        game.lancer.rollTechMacro(techId, this.actor._id);
       });
     }
     if (this.actor.owner) {

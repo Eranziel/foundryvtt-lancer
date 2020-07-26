@@ -53,6 +53,7 @@ Hooks.once('init', async function() {
 		},
 		rollStatMacro: rollStatMacro,
 		rollAttackMacro: rollAttackMacro,
+		rollTechMacro: rollTechMacro,
     rollTriggerMacro: rollTriggerMacro,
 		migrations: migrations,
 	};
@@ -492,6 +493,76 @@ async function rollAttackMacro(w: string, a: string) {
   };
 
   const template = `systems/lancer/templates/chat/attack-card.html`;
+  return renderMacro(actor, template, templateData);
+}
+
+async function rollTechMacro(t: string, a: string) {
+  // Determine which Actor to speak as
+  let actor: Actor = getMacroSpeaker();
+  if (actor === null) return;
+
+  // Get the item
+  const item: Item = game.actors.get(a).getOwnedItem(t);
+	console.log(`${lp} Rolling tech attack macro`, item, t, a);
+	if (!item) {
+    ui.notifications.error(`Error rolling tech attack macro - could not find Item ${t} owned by Actor ${a}!`);
+    return Promise.resolve();
+	}
+  else if (!item.isOwned) {
+    ui.notifications.error(`Error rolling tech attack macro - ${item.name} is not owned by an Actor!`);
+    return Promise.resolve();
+  }
+
+  let title: string = item.name;
+  let t_atk: number = 0;
+  let acc: number = 0;
+  let effect: string;
+  let tags: TagDataShort[];
+	const tData = item.data.data;
+  if (item.type === "mech_system") {
+    t_atk = (item.actor.data as LancerPilotActorData).data.mech.tech_attack;
+    tags = tData.tags;
+    effect = tData.effect;
+  }
+  else if (item.type === "npc_feature") {
+		const tier = (item.actor.data as LancerNPCActorData).data.tier_num - 1;
+		if (tData.attack_bonus && tData.attack_bonus[tier]) {
+			t_atk = parseInt(tData.attack_bonus[tier]);
+		}
+		if (tData.accuracy && tData.accuracy[tier]) {
+			acc = parseInt(tData.accuracy[tier]);
+		}
+		tags = tData.tags;
+		effect = tData.effect;
+  }
+  else {
+    ui.notifications.error(`Error rolling tech attack macro - ${item.name} does not a tech attack!`);
+    return Promise.resolve();
+  }
+  console.log(`${lp} Tech Attack Macro Item:`, item, t_atk, acc);
+
+  // Get accuracy/difficulty with a prompt
+	let abort: boolean = false;
+	await promptAccDiffModifier(acc).then(resolve => acc = resolve, reject => abort = true);
+	if (abort) return;
+
+  // Do the attack rolling
+	let acc_str = acc != 0 ? ` + ${acc}d6kh1` : '';
+	let atk_str = `1d20+${t_atk}${acc_str}`;
+	console.log(`${lp} Tech Attack roll string: ${atk_str}`)
+  let attack_roll = new Roll(atk_str).roll();
+
+  // Output
+	const attack_tt = await attack_roll.getTooltip();
+  const templateData = {
+    title: title,
+    attack: attack_roll,
+    attack_tooltip: attack_tt,
+    effect: effect ? effect : null,
+    tags: tags
+  };
+
+  const template = `systems/lancer/templates/chat/tech-attack-card.html`;
   return renderMacro(actor, template, templateData);
 }
 
