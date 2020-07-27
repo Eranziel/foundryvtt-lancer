@@ -1,7 +1,7 @@
 <div class="card clipped-bot" style="margin: 0px;">
-  <div class="lancer-weapon-header medium">
-    <i class="cci cci-weapon i--m i--light"> </i>
-    <span>WEAPON :: {{ title }}</span>
+  <div class="lancer-tech-header medium">
+    <i class="cci cci-tech-quick i--m i--light"> </i>
+    <span>TECH ATK :: {{ title }}</span>
   </div>
   <div class="card clipped">
     <div class="lancer-stat-header clipped-top">// ATTACK //</div>
@@ -17,23 +17,6 @@
         </div>
       </div>
     </div>
-  </div>
-  <div class="card clipped">
-    <div class="lancer-stat-header clipped-top">// DAMAGE //</div>
-    {{#each damages as |damage key|}}
-      <div class="dice-roll lancer-dice-roll">
-        <div class="dice-result">
-          <div class="dice-formula lancer-dice-formula flexrow">
-            <span style="text-align: left; margin-left: 5px;">{{ damage.roll.formula }}</span>
-            <span class="dice-total lancer-dice-total major">{{ damage.roll.total }}</span>
-            <i class="cci cci-{{lower-case damage.dtype}} i--m damage--{{lower-case damage.dtype}}"> </i>
-          </div>
-          <div style="text-align: left;">
-            {{{ damage.tt }}}
-          </div>
-        </div>
-      </div>
-    {{/each}}
   </div>
   {{#if effect}}
   <div class="card clipped">

@@ -224,85 +224,215 @@
             {{#if npc_features}}
             <div class="flexrow">
                 {{#each npc_features as | npc_feature key|}}
-                {{#if npc_feature.data.weapon_type}}
-                <div class="flexcol clipped lancer-weapon-container weapon" style="max-height: fit-content;"
-                    data-item-id="{{key}}">
-                    <span class="item lancer-weapon-header" style="padding-top: 5px;"
-                        data-item-id="{{npc_feature._id}}"><img class="thumbnail" src="{{npc_feature.img}}"
-                            data-edit="{{npc_feature.img}}" title="{{npc_feature.name}}" height="10" width="10" />
-                        {{npc_feature.name}} <a class="stats-control" data-action="delete"><i class="fas fa-trash"
-                                style="float: right;"></i></a></span>
-                    <span class="lancer-weapon-body">
-                        <span class="flexrow" style="grid-area: 1 / 1 / 1 / 1; text-align: left; white-space: nowrap;">
-                            <a class="flexrow roll-attack" style="max-width: min-content;"><i class="fas fa-dice-d20 i--m i--dark"></i></a>
-                                {{#each npc_feature.data.range as |range rkey|}}
-                                {{#if range.val}}
-                                <i class="cci cci-{{lower-case range.type}} i--m i--dark"></i>
-                                <span class="medium">{{range.val}}</span>
-                                {{/if}}
-                                {{/each}}
-                                {{#each npc_feature.data.damage as |damage dkey|}}
-                                {{#if damage.val}}
-                                <i class="cci cci-{{lower-case damage.type}} i--m damage--{{damage.type}}"></i>
-                                <span class="medium">{{damage.val}}</span>
-                                {{/if}}
-                                {{/each}}
-                                {{#if npc_feature.data.attack_bonus}}
-                                <span class="medium">{{npc_feature.data.attack_bonus}}</span>
-                                {{/if}}
-                                {{#if npc_feature.data.accuracy}}
-                                <span class="medium">{{npc_feature.data.accuracy}}</span>
-                                {{/if}}
-                    </span>
-                        <span
-                            style="grid-area: 1 / 2 / 1 / 3; text-align: right;">{{npc_feature.data.weapon_type}}</span>
-                            <span style="grid-area: 2 / 1 / 2 / 3; text-align: left; white-space: wrap">
-                            <h3>Effect</h3>
-                            {{#if npc_feature.data.on_hit}}
-                            <div class="desc-text" style="padding: 5px">
-                                <span class="minor">On Hit:</span> {{npc_feature.data.on_hit}}
-                            </div>
-                            {{/if}}
-                            {{#if npc_feature.data.effect}}
-                            <div class="deasc-text" style="padding: 5px">
-                                {{npc_feature.data.effect}}
-                            </div>
-                            {{/if}}
-                        </span>
-                        <span class="flexrow"
-                            style="grid-area: 3 / 1 / 3 / 3; text-align: left; justify-content: flex-end;">
-                            <span class="flexrow"
-                                style="justify-content: flex-end;">{{#each npc_feature.data.tags as |tag tkey|}}{{{compact-tag tag}}}{{/each}}</span>
-                        </span>
-                </div>
-                {{else}}
-                <div class="card clipped mech-system-compact item" data-item-id="{{npc_feature._id}}">
-                    <div class="lancer-system-header clipped-top" style="grid-area: 1/1/2/3">
-                        <i class="cci cci-system i--m i--dark"> </i>
+                
+                {{!-- Reaction-type feature preview --}}
+                {{#if (eq npc_feature.data.feature_type "Reaction")}}
+                <div class="card clipped npc-feature-compact item" style="min-width: 200px"data-item-id="{{npc_feature._id}}">
+                    <div class="lancer-reaction-header clipped-top" style="grid-area: 1/1/2/3">
+                        <i class="cci cci-reaction i--m i--light"> </i>
                         <span class="minor">{{npc_feature.name}}</span>
                         <a class="stats-control i--light" data-action="delete"><i class="fas fa-trash"></i></a>
                     </div>
-                    {{#if npc_feature.data.trigger}}
-                    <div class="desc-text" style="padding: 5px">
-                        <span class="minor"> Trigger:</span> {{npc_feature.data.trigger}}
-                    </div>
-                    {{/if}}
-                    <div class="desc-text" style="padding: 5px">
-                        {{npc_feature.data.effect}}
+                    <div class="flexcol" style="margin: 10px;">
+                        <span class="medium flexrow">TRIGGER</span>
+                        <div class="effect-text flexrow" style="padding: 5px">
+                            {{{npc_feature.data.trigger}}}
+                        </div>
+                        <span class="medium flexrow">EFFECT</span>
+                        <div class="effect-text flexrow" style="padding: 5px">
+                            {{{npc_feature.data.effect}}}
+                        </div>
                     </div>
                     <div class="flexrow" style="justify-content: flex-end;">
-                        {{#each system.data.tags as |tag tkey|}}
+                        {{#each npc_feature.data.tags as |tag tkey|}}
                         {{{compact-tag tag}}}
                         {{/each}}
                     </div>
                 </div>
-
-
-
-
+                {{/if}}
+                
+                {{!-- System-type feature preview --}}
+                {{#if (eq npc_feature.data.feature_type "System")}}
+                <div class="card clipped npc-feature-compact item" data-item-id="{{npc_feature._id}}">
+                    <div class="lancer-system-header clipped-top" style="grid-area: 1/1/2/3">
+                        <i class="cci cci-system i--m i--light"> </i>
+                        <span class="minor">{{npc_feature.name}}</span>
+                        <a class="stats-control i--light" data-action="delete"><i class="fas fa-trash"></i></a>
+                    </div>
+                    <div class="flexcol" style="margin: 10px;">
+                        <span class="medium flexrow">EFFECT</span>
+                        <div class="effect-text flexrow" style="padding: 5px">
+                            {{{npc_feature.data.effect}}}
+                        </div>
+                    </div>
+                    <div class="flexrow" style="justify-content: flex-end;">
+                        {{#each npc_feature.data.tags as |tag tkey|}}
+                        {{{compact-tag tag}}}
+                        {{/each}}
+                    </div>
+                </div>
+                {{/if}}
+                
+                {{!-- Trait-type feature preview --}}
+                {{#if (eq npc_feature.data.feature_type "Trait")}}
+                <div class="card clipped npc-feature-compact item" data-item-id="{{npc_feature._id}}">
+                    <div class="lancer-trait-header clipped-top" style="grid-area: 1/1/2/3">
+                        <i class="cci cci-trait i--m i--light"> </i>
+                        <span class="minor">{{npc_feature.name}}</span>
+                        <a class="stats-control i--light" data-action="delete"><i class="fas fa-trash"></i></a>
+                    </div>
+                    <div class="flexcol" style="margin: 10px;">
+                        <span class="medium flexrow">EFFECT</span>
+                        <div class="effect-text flexrow" style="padding: 5px">
+                            {{{npc_feature.data.effect}}}
+                        </div>
+                    </div>
+                    <div class="flexrow" style="justify-content: flex-end;">
+                        {{#each npc_feature.data.tags as |tag tkey|}}
+                        {{{compact-tag tag}}}
+                        {{/each}}
+                    </div>
+                </div>
+                {{/if}}
+                
+                {{!-- Tech-type feature preview --}}
+                {{#if (eq npc_feature.data.feature_type "Tech")}}
+                <div class="card clipped npc-feature-compact tech item" style="max-height: fit-content;" data-item-id="{{npc_feature._id}}">
+                    <div class="lancer-tech-header clipped-top" style="grid-area: 1/1/2/3">
+                        <i class="cci cci-tech-{{lower-case npc_feature.data.tech_type}} i--m i--light"> </i>
+                        <span class="minor">{{npc_feature.name}} // {{upper-case npc_feature.data.tech_type}} TECH</span>
+                        <a class="stats-control i--light" data-action="delete"><i class="fas fa-trash"></i></a>
+                    </div>
+                    <div class="lancer-tech-body">
+                        <a class="roll-tech" style="grid-area: 1/1/3/2;"><i class="fas fa-dice-d20 i--m i--dark"></i></a>
+                        <div class="flexrow" style="grid-area: 1/2/2/3; text-align: left; white-space: nowrap;">
+                            {{#if npc_feature.data.attack_bonus}}
+                                {{#with (idx npc_feature.data.attack_bonus (dec ../data.tier_num)) as |atk|}}
+                                    <div class="compact-acc">
+                                    <i class="cci cci-reticule i--m i--dark"></i>
+                                    <span class="medium">{{#if (ltpi atk "0")}}{{else}}+{{/if}}{{atk}} ATTACK BONUS</span>
+                                </div>
+                                {{/with}}
+                            {{/if}}
+                            <hr class="vsep">
+                            {{#if npc_feature.data.accuracy}}
+                                {{#with (idx npc_feature.data.accuracy (dec ../data.tier_num)) as |acc|}}
+                                {{#if (gtpi acc "0")}}
+                                    <div class="compact-acc">
+                                        <i class="cci cci-accuracy i--m i--dark"></i>
+                                        <span class="medium">+{{acc}} ACCURACY</span>
+                                    </div>
+                                {{/if}}
+                                {{#if (ltpi acc "0")}}
+                                    <div class="compact-acc">
+                                        <i class="cci cci-difficulty i--m i--dark"></i>
+                                        <span class="medium">+{{neg acc}} DIFFICULTY</span>
+                                    </div>
+                                {{/if}}
+                                {{/with}}
+                            {{/if}}
+                        </div>
+                        <div class="flexcol" style="grid-area: 3 / 1 / 4 / 3; text-align: left;">
+                            {{#if npc_feature.data.effect}}
+                            <div class="flexcol" style="height: fit-content; margin: 0px 10px;">
+                                <span class="medium flexrow">EFFECT</span>
+                                <div class="effect-text flexrow" style="padding: 5px">
+                                    {{{npc_feature.data.effect}}}
+                                </div>
+                            </div>
+                            {{/if}}
+                        </div>
+                        <div class="flexrow" style="justify-content: flex-end; grid-area: 4/1/5/3">
+                            {{#each npc_feature.data.tags as |tag tkey|}}
+                            {{{compact-tag tag}}}
+                            {{/each}}
+                        </div>
+                    </div>
+                </div>
                 {{/if}}
 
-
+                {{!-- Weapon-type feature preview --}}
+                {{#if (eq npc_feature.data.feature_type "Weapon")}}
+                <div class="card clipped npc-feature-compact weapon item" data-item-id="{{npc_feature._id}}">
+                    <div class="lancer-weapon-header clipped-top" style="grid-area: 1/1/2/3">
+                        <i class="cci cci-weapon i--m i--light"> </i>
+                        <span class="minor">{{npc_feature.name}} // {{upper-case npc_feature.data.weapon_type}}</span>
+                        <a class="stats-control i--light" data-action="delete"><i class="fas fa-trash"></i></a>
+                    </div> 
+                    <div class="lancer-weapon-body">
+                        <a class="roll-attack" style="grid-area: 1/1/3/2;"><i class="fas fa-dice-d20 i--m i--dark"></i></a>
+                        <div class="flexrow" style="grid-area: 1/2/2/3; text-align: left; white-space: nowrap;">
+                            {{#each npc_feature.data.range as |range rkey|}}
+                                {{#if range.val}}
+                                {{#if (gtpi rkey "0")}}<span class="flexrow" style="align-items: center; justify-content: center; max-width: min-content;"> // </span>{{/if}}
+                                <div class="compact-range">
+                                    <i class="cci cci-{{lower-case range.type}} i--m i--dark"></i>
+                                    <span class="medium">{{range.val}}</span>
+                                </div>
+                                {{/if}}
+                            {{/each}}
+                            <hr class="vsep">
+                            {{#each npc_feature.data.damage as |damage dkey|}}
+                                {{#if damage.type}}
+                                <div class="compact-damage">
+                                    <i class="card clipped cci cci-{{lower-case damage.type}} i--m damage--{{damage.type}}"></i>
+                                    <span class="medium">{{idx damage.val (dec ../../data.tier_num)}}</span>
+                                </div>
+                                {{/if}}
+                            {{/each}}
+                            <hr class="vsep">
+                            {{#if npc_feature.data.attack_bonus}}
+                                {{#with (idx npc_feature.data.attack_bonus (dec ../data.tier_num)) as |atk|}}
+                                    <div class="compact-acc">
+                                    <i class="cci cci-reticule i--m i--dark"></i>
+                                    <span class="medium">{{#if (ltpi atk "0")}}{{else}}+{{/if}}{{atk}} ATTACK BONUS</span>
+                                </div>
+                                {{/with}}
+                            {{/if}}
+                            <hr class="vsep">
+                            {{#if npc_feature.data.accuracy}}
+                                {{#with (idx npc_feature.data.accuracy (dec ../data.tier_num)) as |acc|}}
+                                {{#if (gtpi acc "0")}}
+                                    <div class="compact-acc">
+                                        <i class="cci cci-accuracy i--m i--dark"></i>
+                                        <span class="medium">+{{acc}} ACCURACY</span>
+                                    </div>
+                                {{/if}}
+                                {{#if (ltpi acc "0")}}
+                                    <div class="compact-acc">
+                                        <i class="cci cci-difficulty i--m i--dark"></i>
+                                        <span class="medium">+{{neg acc}} DIFFICULTY</span>
+                                    </div>
+                                {{/if}}
+                                {{/with}}
+                            {{/if}}
+                        </div>
+                        <div class="flexcol" style="grid-area: 3 / 1 / 4 / 3; text-align: left;">
+                            {{#if npc_feature.data.on_hit}}
+                            <div class="flexcol" style="height: fit-content; margin: 0px 10px;">
+                                <span class="medium flexrow">ON HIT</span>
+                                <div class="effect-text flexrow" style="padding: 5px">
+                                    {{{npc_feature.data.effect}}}
+                                </div>
+                            </div>
+                            {{/if}}
+                            {{#if npc_feature.data.effect}}
+                            <div class="flexcol" style="height: fit-content; margin: 0px 10px;">
+                                <span class="medium flexrow">EFFECT</span>
+                                <div class="effect-text flexrow" style="padding: 5px">
+                                    {{{npc_feature.data.effect}}}
+                                </div>
+                            </div>
+                            {{/if}}
+                        </div>
+                        <div class="flexrow" style="justify-content: flex-end; grid-area: 4/1/5/3">
+                            {{#each npc_feature.data.tags as |tag tkey|}}
+                            {{{compact-tag tag}}}
+                            {{/each}}
+                        </div>
+                    </div>
+                </div>
+                {{/if}}
                 {{/each}}
             </div>
             {{/if}}

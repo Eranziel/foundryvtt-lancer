@@ -66,6 +66,7 @@ export class LancerNPCSheet extends ActorSheet {
     return data;
   }
 
+  /* -------------------------------------------- */
 
   _prepareItems(data: LancerNPCSheetData) {
 
@@ -82,7 +83,6 @@ export class LancerNPCSheet extends ActorSheet {
     else data.npc_class = undefined;
     //TODO Templates, Classes and Features
   }
-
 
   /* -------------------------------------------- */
 
@@ -132,20 +132,23 @@ export class LancerNPCSheet extends ActorSheet {
       let weaponMacro = html.find('.roll-attack');
       weaponMacro.click(ev => {
         ev.stopPropagation();
-        console.log(ev);
+        console.log(`${lp} Weapon macro button click`, ev);
 
         const weaponElement = $(ev.currentTarget).closest('.weapon')[0] as HTMLElement;
-        // Pilot weapon
-        if (weaponElement.className.search("pilot") >= 0) {
-          let weaponId = weaponElement.getAttribute("data-item-id");
-          // TODO: pass weaponId to rollAttackMacro to do the rolling
-          game.lancer.rollAttackMacro(weaponId);
-        }
-        // Mech weapon
-        else {
-          // Is this actually any different than a pilot weapon?
-        }
-      })
+        let weaponId = weaponElement.getAttribute("data-item-id");
+        game.lancer.rollAttackMacro(weaponId, this.actor._id);
+      });
+
+      // Tech rollers
+      let techMacro = html.find('.roll-tech');
+      techMacro.click(ev => {
+        ev.stopPropagation();
+        console.log(`${lp} Tech attack macro button click`, ev);
+
+        const techElement = $(ev.currentTarget).closest('.tech')[0] as HTMLElement;
+        let techId = techElement.getAttribute("data-item-id");
+        game.lancer.rollTechMacro(techId, this.actor._id);
+      });
     }
     if (this.actor.owner) {
       // Item Dragging
@@ -203,6 +206,8 @@ export class LancerNPCSheet extends ActorSheet {
     }
   }
 
+  /* -------------------------------------------- */
+
   async _onDrop(event) {
     event.preventDefault();
     // Get dropped data
@@ -240,7 +245,7 @@ export class LancerNPCSheet extends ActorSheet {
 
     if (item) {
       // Swap mech class
-      if (item && item.type === "npc_class") {
+      if (item.type === "npc_class") {
         let newNPCClassStats: LancerNPCClassStatsData;
         // Remove old class
         actor.items.forEach(async (i: LancerItem) => {
@@ -267,6 +272,26 @@ export class LancerNPCSheet extends ActorSheet {
           actor.swapNPCClassOrTier(newNPCClassStats, true);
         }
       }
+      else if (LANCER.npc_items.includes(item.type)) {
+        if (data.pack) {
+          console.log(`${lp} Copying ${item.name} from ${data.pack} to ${actor.name}.`);
+          const dupData = duplicate(item.data);
+          const newItem = await actor.importItemFromCollection(data.pack, item._id);
+          // Make sure the new item includes all of the data from the original.
+          (dupData as any)._id = newItem._id;
+          actor.updateOwnedItem(dupData);
+          return;
+        }
+        else {
+          console.log(`${lp} Copying ${item.name} to ${actor.name}.`);
+          const dupData = duplicate(item.data);
+          const newItem = await actor.createOwnedItem(dupData);
+          // Make sure the new item includes all of the data from the original.
+          (dupData as any)._id = newItem._id;
+          actor.updateOwnedItem(dupData);
+          return;
+        }
+      }
       //TODO add basic features to NPC
       //TODO remove basic feature from NPC on Class swap
       //TODO implement similar logi for Templates
@@ -278,33 +303,6 @@ export class LancerNPCSheet extends ActorSheet {
       return super._onDrop(event);
     }
   }
-
-  /* -------------------------------------------- */
-
-  // async _onClickAttributeControl(event) {
-  //   event.preventDefault();
-  //   const a = event.currentTarget;
-  //   const action = a.dataset.action;
-  //   const attrs = this.object.data.data.attributes;
-  //   const form = this.form;
-
-  //   // Add new attribute
-  //   if ( action === "create" ) {
-  //     const nk = Object.keys(attrs).length + 1;
-  //     let newKey = document.createElement("div");
-  //     newKey.innerHTML = `<input type="text" name="data.attributes.attr${nk}.key" value="attr${nk}"/>`;
-  //     newKey = newKey.children[0];
-  //     form.appendChild(newKey);
-  //     await this._onSubmit(event);
-  //   }
-
-  //   // Remove existing attribute
-  //   else if ( action === "delete" ) {
-  //     const li = a.closest(".attribute");
-  //     li.parentElement.removeChild(li);
-  //     await this._onSubmit(event);
-  //   }
-  // }
 
   /* -------------------------------------------- */
 

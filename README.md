@@ -14,10 +14,10 @@ This project incorporates several resources and open source software (either in 
 
 Additionally, a huge thank you and shout out to Animu36, Staubz, and Grygon for their help getting the alpha release brought up to speed and out the door!
 
-## Foundry Installation
+## System Installation
 **NOTE: This system is in Alpha! While technically released, it is not feature complete. There are probably bugs! If you find some, please submit an issue so we can keep track of it.**
 
-If, brave soul that you are, you still wish to install the Lancer system for testing purposes, click "Install System" in the Foundry setup menu and enter this URL in the "Manifest URL" box: https://raw.githubusercontent.com/Eranziel/foundryvtt-lancer/master/src/system.json, then click "Install". 
+To install, click "Install System" in the Foundry setup menu and enter this URL in the "Manifest URL" box: https://raw.githubusercontent.com/Eranziel/foundryvtt-lancer/master/src/system.json, then click "Install". 
 
 Once the system is downloaded, create a world which uses it and go exploring!
 

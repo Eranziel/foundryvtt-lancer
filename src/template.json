@@ -143,7 +143,7 @@
         "cascading": false,
         "loaded": false,
         "tags": [],
-        "effect": [],
+        "effect": {},
         "integrated": false
       }
     },
@@ -286,16 +286,11 @@
       "origin_name": "",
       "origin_base": false,
       "feature_type": "",
-      "effect": "",
       "tags": [],
-      "bonus": [],
-      "trigger": "",
-      "weapon_type": "",
-      "attack_bonus": [],
-      "accuracy": [],
-      "damage": [],
-      "range": [],
-      "onhit": ""
+      "destroyed": false,
+      "charged": false,
+      "uses": 0,
+      "max_uses": 0
     }
   }
 }

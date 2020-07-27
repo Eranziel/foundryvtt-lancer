@@ -1,132 +1,148 @@
 <form class="{{cssClass}} lancer-sheet" autocomplete="off">
 
-	{{!-- Sheet Header --}}
-	<header class="sheet-header card clipped-bot">
-		<img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}" height="100" width="100"/>
-		<div class="header-fields" style="grid-area: 1/1/2/5;">
-			<h1 class="charname"><input class="header-field" name="name" type="text" value="{{item.name}}" placeholder="Name"/></h1>
-		</div>
-		<div class="header-fields flexrow" style="grid-area: 2/1/3/5">
-			<h3 class="source"><input class="header-field" name="data.source" type="text" value="{{data.source}}" placeholder="Source"/></h3>
-			<h3 class="license"><input class="header-field" name="data.license" type="text" value="{{data.license}}" placeholder="License"/></h3>
-			<h3 class="license-level"><input class="header-field lancer-stat-input" style="color: black !important;float: left" name="data.license_level" type="number" value="{{data.license_level}}" data-dtype="Number"/></h3>
-		</div>
-	</header>
+  {{!-- Sheet Header --}}
+  <header class="sheet-header card clipped-bot">
+    <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}" height="100" width="100"/>
+    <div class="header-fields" style="grid-area: 1/1/2/5;">
+      <h1 class="charname"><input class="header-field" name="name" type="text" value="{{item.name}}" placeholder="Name"/></h1>
+    </div>
+    <div class="header-fields flexrow" style="grid-area: 2/1/3/5">
+      <h3 class="source"><input class="header-field" name="data.source" type="text" value="{{data.source}}" placeholder="Source"/></h3>
+      <h3 class="license"><input class="header-field" name="data.license" type="text" value="{{data.license}}" placeholder="License"/></h3>
+      <h3 class="license-level"><input class="header-field lancer-stat-input" style="color: black !important;float: left" name="data.license_level" type="number" value="{{data.license_level}}" data-dtype="Number"/></h3>
+    </div>
+  </header>
 
-	{{!-- Sheet Body --}}
-	<section class="sheet-body" style="height:-webkit-fill-available">
-		<div style="grid-template: 1fr 1fr 2fr 5fr / 1fr; display: grid">
-			<div class="flexrow">
-				<div class="flexcol">
-					<select name="data.range.0.type" data-type="String" style="align-self: center;">
-						{{#select data.range.0.type}}
-						<option value="range">RANGE</option>
-						<option value="threat">THREAT</option>
-						<option value="thrown">THROWN</option>
-						<option value="line">LINE</option>
-						<option value="cone">CONE</option>
-						<option value="blast">BLAST</option>
-						<option value="burst">BURST</option>
-						{{/select}}
-					</select>
-					<input class="lancer-stat-input " type="number" name="data.range.0.val" value="{{data.range.0.val}}" data-dtype="Number"/>
-				</div>
-				<div class="flexcol">
-					<select name="data.range.1.type" data-type="String" style="align-self: center;">
-						{{#select data.range.1.type}}
-						<option value="range">RANGE</option>
-						<option value="threat">THREAT</option>
-						<option value="thrown">THROWN</option>
-						<option value="line">LINE</option>
-						<option value="cone">CONE</option>
-						<option value="blast">BLAST</option>
-						<option value="burst">BURST</option>
-						{{/select}}
-					</select>
-					<input class="lancer-stat-input" type="number" name="data.range.1.val" value="{{data.range.1.val}}" data-dtype="Number"/>
-				</div>
-				<div style="max-width=50%"></div>
-				<!--
-				For a next iteration--would be really nift to set it up to select images rather than text. 
-				But that seems like a non-trivial task...
-				<img class="med-icon" src="../systems/lancer/assets/icons/range.svg">
-				<img class="med-icon" src="../systems/lancer/assets/icons/aoe_blast.svg">
-				<img class="med-icon" src="../systems/lancer/assets/icons/damage_explosive.svg">
-			-->
-			<div>
-				<select name="data.mount" data-type="String" style="align-self: center;">
-					{{#select data.mount}}
-					<option value="Auxiliary">AUX</option>
-					<option value="Main">MAIN</option>
-					<option value="Heavy">HEAVY</option>
-					<option value="Superheavy">SUPERHEAVY</option>
-					<option value="Other">OTHER</option>
-					{{/select}}
-				</select>
-				<select name="data.weapon_type" data-type="String" style="align-self: center;">
-					{{#select data.weapon_type}}
-					<option value="rifle">RIFLE</option>
-					<option value="cannon">CANNON</option>
-					<option value="launcher">LAUNCHER</option>
-					<option value="cqb">CQB</option>
-					<option value="nexus">NEXUS</option>
-					<option value="melee">MELEE</option>
-					<option value="other">OTHER</option>
-					{{/select}}
-				</select>
-			</div>
-		</div>
-		<div style="grid-area: 2 / 1 / 3 / 2;margin-top: 6px">
-			<div class="flexcol" style="float: left">
-				<select name="data.damage.0.type" data-type="String">
-					{{#select data.damage.0.type}}
-					<option value="kinetic">KINETIC</option>
-					<option value="energy">ENERGY</option>
-					<option value="explosive">EXPLOSIVE</option>
-					<option value="heat">HEAT</option>
-					<option value="burn">BURN</option>
-					<option value="other">OTHER</option>
-					{{/select}}
-				</select>
-				<input class="lancer-stat-input " type="string" name="data.damage.0.val" value="{{data.damage.0.val}}" data-dtype="String"/>
-			</div>
-			<span style="float: left">+</span>
-			<div class="flexcol" style="float: left">
-				<select name="data.damage.1.type" data-type="String">
-					{{#select data.damage.1.type}}
-					<option value="kinetic">KINETIC</option>
-					<option value="energy">ENERGY</option>
-					<option value="explosive">EXPLOSIVE</option>
-					<option value="heat">HEAT</option>
-					<option value="burn">BURN</option>
-					<option value="other">OTHER</option>
-					{{/select}}
-				</select>
-				<input class="lancer-stat-input " type="string" name="data.damage.1.val" value="{{data.damage.1.val}}" data-dtype="String"/>
-			</div>
-			<div style="width: calc(100px + 1ch); float: right" class="labeled-input flexcol">
-				<span>USES</span>
-				<div class="flexrow">
-					<input class="lancer-stat-input lancer-invisible-input" type="number" name="data.uses" value="{{data.uses}}" data-dtype="Number" style="justify-content: left"/>
-					<span>/</span>
-					<input class="lancer-stat-input lancer-invisible-input" type="number" name="data.max_uses" value="{{data.max_uses}}" data-dtype="Number" style="justify-content: left"/>
-				</div>
-			</div>
-		</div>
-		<div class="flexcol card clipped" style="grid-area: 3 / 1 / 4 / 2">
-			<span class="lancer-stat-header major clipped-top">DESCRIPTION</span>
-			{{editor content=data.description target="data.description" button=true owner=owner editable=editable}}
-		</div>
-		<!-- TODO: We can probably even pull this out... -->
-		<div class="arrayed-item-container tags-container flexcol" style="grid-area: 4 / 1 / 5 / 2" data-item="tags">
-			<div>
-				<span class="minor" style="float: left">WEAPON TAGS</span>
-				<a class="add-button clickable" data-action="create" style="float: right; margin-right: 1em">+</a>
-			</div>
-			{{#each item.data.tags as |tag key|}}
-			{{{full-tag tag key}}}
-			{{/each}}
-		</div>
-	</div>
+  {{!-- Sheet Body --}}
+  <section class="sheet-body" style="height:-webkit-fill-available">
+    <div style="grid-template: 2em 10em fit-content(0) fit-content(0) 1fr / repeat(3, 1fr); display: grid;">
+
+      {{!-- Size and Type --}}
+      <div style="grid-area: 1/1/2/4; margin-left: 30px;">
+        <span class="medium">SIZE</span>
+        <select name="data.mount" data-type="String" style="align-self: center;">
+          {{#select data.mount}}
+          <option value="Auxiliary">AUX</option>
+          <option value="Main">MAIN</option>
+          <option value="Heavy">HEAVY</option>
+          <option value="Superheavy">SUPERHEAVY</option>
+          <option value="Other">OTHER</option>
+          {{/select}}
+        </select>
+        <span class="medium">TYPE</span>
+        <select name="data.weapon_type" data-type="String" style="align-self: center;">
+          {{#select data.weapon_type}}
+          <option value="Rifle">RIFLE</option>
+          <option value="Cannon">CANNON</option>
+          <option value="Launcher">LAUNCHER</option>
+          <option value="CQB">CQB</option>
+          <option value="Nexus">NEXUS</option>
+          <option value="Melee">MELEE</option>
+          <option value="Other">OTHER</option>
+          {{/select}}
+        </select>
+      </div>
+
+      {{!-- Range --}}
+      <div class="flexcol card clipped" style="grid-area: 2/1/3/2">
+        <span class="lancer-stat-header major clipped-top">RANGE</span>
+        <div class="flexrow flex-center" style="padding: 5px;">
+          {{#if data.range.0.type}}
+          <i class="cci cci-{{lower-case data.range.0.type}} i--m i--dark"></i>
+          {{/if}}
+          <select name="data.range.0.type" data-type="String" style="align-self: center;">
+            {{#select data.range.0.type}}
+            <option value="">NONE</option>
+            <option value="Range">RANGE</option>
+            <option value="Threat">THREAT</option>
+            <option value="Thrown">THROWN</option>
+            <option value="Line">LINE</option>
+            <option value="Cone">CONE</option>
+            <option value="Blast">BLAST</option>
+            <option value="Burst">BURST</option>
+            {{/select}}
+          </select>
+          <input class="lancer-stat-input " type="number" name="data.range.0.val" value="{{data.range.0.val}}" data-dtype="Number"/>
+          {{#if data.range.1.type}}
+          <i class="cci cci-{{lower-case data.range.1.type}} i--m i--dark"></i>
+          {{/if}}
+          <select name="data.range.1.type" data-type="String" style="align-self: center;">
+            {{#select data.range.1.type}}
+            <option value="">NONE</option>
+            <option value="Range">RANGE</option>
+            <option value="Threat">THREAT</option>
+            <option value="Thrown">THROWN</option>
+            <option value="Line">LINE</option>
+            <option value="Cone">CONE</option>
+            <option value="Blast">BLAST</option>
+            <option value="Burst">BURST</option>
+            {{/select}}
+          </select>
+          <input class="lancer-stat-input" type="number" name="data.range.1.val" value="{{data.range.1.val}}" data-dtype="Number"/>
+        </div>
+        {{!--
+        For a next iteration--would be really nift to set it up to select images rather than text. 
+        But that seems like a non-trivial task...
+        <img class="med-icon" src="../systems/lancer/assets/icons/range.svg">
+        <img class="med-icon" src="../systems/lancer/assets/icons/aoe_blast.svg">
+        <img class="med-icon" src="../systems/lancer/assets/icons/damage_explosive.svg">
+        --}}
+      </div>
+
+      {{!-- Damage --}}
+      <div class="flexcol card clipped" style="grid-area: 2/2/3/4;">
+        <span class="lancer-stat-header major clipped-top">DAMAGE</span>
+        <div class="flexrow flex-center" style="padding: 5px;">
+          <i class="cci cci-{{data.damage.0.type}} i--m damage--{{data.damage.0.type}}"></i>
+          <select name="data.damage.0.type" data-type="String" style="align-self: center;">
+            {{#select data.damage.0.type}}
+            <option value="">NONE</option>
+            <option value="kinetic">KINETIC</option>
+            <option value="energy">ENERGY</option>
+            <option value="explosive">EXPLOSIVE</option>
+            <option value="heat">HEAT</option>
+            <option value="burn">BURN</option>
+            <option value="variable">VARIABLE</option>
+            {{/select}}
+          </select>
+          <input class="lancer-stat-input " type="string" name="data.damage.0.val" value="{{data.damage.0.val}}" data-dtype="String"/>
+          <hr class="vsep" style="height: 30px;">
+          <i class="cci cci-{{data.damage.1.type}} i--m damage--{{data.damage.1.type}}"></i>
+          <select name="data.damage.1.type" data-type="String" style="align-self: center;">
+            {{#select data.damage.1.type}}
+            <option value="">NONE</option>
+            <option value="kinetic">KINETIC</option>
+            <option value="energy">ENERGY</option>
+            <option value="explosive">EXPLOSIVE</option>
+            <option value="heat">HEAT</option>
+            <option value="burn">BURN</option>
+            <option value="variable">VARIABLE</option>
+            {{/select}}
+          </select>
+          <input class="lancer-stat-input " type="string" name="data.damage.1.val" value="{{data.damage.1.val}}" data-dtype="String"/>
+        </div>
+      </div>
+
+      {{!-- Description --}}
+      <div class="flexcol card clipped" style="grid-area: 3 / 1 / 4 / 4">
+        <span class="lancer-stat-header major clipped-top">DESCRIPTION</span>
+        {{editor content=data.description target="data.description" button=true owner=owner editable=editable}}
+      </div>
+
+      {{!-- TODO: Item effects --}}
+
+      {{!-- TODO: We can probably even pull this out... --}}
+      {{!-- Tags --}}
+      <div class="arrayed-item-container tags-container flexcol" style="grid-area: 5 / 1 / 6 / 4" data-item="tags">
+        <div>
+          <span class="minor" style="float: left">WEAPON TAGS</span>
+          <a class="add-button clickable" data-action="create" style="float: right; margin-right: 1em">+</a>
+        </div>
+        {{#each item.data.tags as |tag key|}}
+        {{{full-tag tag key "data.tags"}}}
+        {{/each}}
+      </div>
+    </div>
+  </section>
 
 </form>

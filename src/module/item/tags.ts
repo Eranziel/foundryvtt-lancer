@@ -28,7 +28,7 @@ function findTag(id: string): TagData {
  */
 function prepareTag(tag: TagData): TagData {
   // Initialize if we need to
-  if (tag == null) tag = {name: "", description: "", id: ""};
+  if (tag === null) tag = {name: "", description: "", id: ""};
 
   // If we have a pre-defined tag, insert info. Otherwise, leave it as-is.
   if (tag["id"]) {
@@ -97,7 +97,7 @@ export function renderChunkyTag(tag: TagData, key: number): string {
  * @param tagShort an object containing the tag's ID and value.
  * @returns The html template for the tag.
  */
-export function renderFullTag(tag: TagData, key: number): string {
+export function renderFullTag(tag: TagData, key: number, data_prefix: string = "data.tags"): string {
   let template: string = "";
   tag = prepareTag(tag);
 
@@ -107,8 +107,8 @@ export function renderFullTag(tag: TagData, key: number): string {
   // Editable partial
   template = `<div class="tag arrayed-item" data-key="${key}">
   <i class="mdi mdi-label i--l theme--main" style="grid-area: 1/1/3/2;"></i>
-  <input type="String" name="data.tags.${key}.name" value="${tag.name}" data-dtype="String" class="lancer-invisible-input medium theme--main" style="grid-area: 1/2/2/3; text-align:left; padding-left: 0.5em; margin-top: 0.25em;"/>
-  <textarea class="lancer-invisible-input effect-text" type="string" name="data.tags.${key}.description" data-dtype="String" style="grid-area: 2/2/3/3">${tag.description}</textarea>
+  <input type="String" name="${data_prefix}.${key}.name" value="${tag.name}" data-dtype="String" class="lancer-invisible-input medium theme--main" style="grid-area: 1/2/2/3; text-align:left; padding-left: 0.5em; margin-top: 0.25em;"/>
+  <textarea class="lancer-invisible-input effect-text" type="string" name="${data_prefix}.${key}.description" data-dtype="String" style="grid-area: 2/2/3/3">${tag.description}</textarea>
   <a class="remove-button fa fa-trash clickable" data-action="delete" style="grid-area: 2/3/3/4; margin-right: 11px; margin-top: -.8em; justify-self: right; align-self: self-start"></a>
   </div>`;
   return template;

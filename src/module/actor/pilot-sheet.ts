@@ -162,8 +162,11 @@ export class LancerPilotSheet extends ActorSheet {
         console.log(`${lp} Stat macro button click`, ev);
 
         // Find the stat input to get the stat's key to pass to the macro function
-        const statInput = $(ev.currentTarget).closest('.stat-container').find('.lancer-stat-input')[0] as HTMLInputElement;
-        const statKey = statInput.name;
+        const statInput: HTMLElement = $(ev.currentTarget).closest('.stat-container').find('.lancer-stat')[0];
+        let statKey: string = (statInput as HTMLInputElement).name;
+        if (!statKey) {
+          statKey = (statInput as HTMLDataElement).value;
+        }
         let keySplit = statKey.split('.');
         let title = keySplit[keySplit.length - 1].toUpperCase();
         console.log(`${lp} Rolling ${title} check, key ${statKey}`);
@@ -209,7 +212,7 @@ export class LancerPilotSheet extends ActorSheet {
             console.log(`${lp} No mount element`, weaponMountIndex, mountElement);
           }
         }
-      })
+      });
     }
 
     // Everything below here is only needed if the sheet is editable
@@ -470,12 +473,20 @@ export class LancerPilotSheet extends ActorSheet {
       else if (LANCER.pilot_items.includes(item.type)) {
         if (data.pack) {
           console.log(`${lp} Copying ${item.name} from ${data.pack} to ${actor.name}.`);
-          actor.importItemFromCollection(data.pack, item._id);
+          const dupData = duplicate(item.data);
+          const newItem = await actor.importItemFromCollection(data.pack, item._id);
+          // Make sure the new item includes all of the data from the original.
+          (dupData as any)._id = newItem._id;
+          actor.updateOwnedItem(dupData);
           return;
         }
         else {
           console.log(`${lp} Copying ${item.name} to ${actor.name}.`);
-          actor.createOwnedItem(duplicate(item.data));
+          const dupData = duplicate(item.data);
+          const newItem = await actor.createOwnedItem(dupData);
+          // Make sure the new item includes all of the data from the original.
+          (dupData as any)._id = newItem._id;
+          actor.updateOwnedItem(dupData);
           return;
         }
       }

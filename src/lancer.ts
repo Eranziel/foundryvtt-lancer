@@ -12,8 +12,8 @@ import { LANCER } from './module/config';
 const lp = LANCER.log_prefix;
 import { LancerGame } from './module/lancer-game';
 import { LancerActor, lancerActorInit } from './module/actor/lancer-actor';
-import { LancerItem } from './module/item/lancer-item';
-import { DamageData, LancerPilotActorData, TagDataShort } from './module/interfaces';
+import { LancerItem, lancerItemInit, LancerNPCFeature } from './module/item/lancer-item';
+import { DamageData, LancerPilotActorData, TagDataShort, LancerNPCActorData } from './module/interfaces';
 
 // Import applications
 import { LancerPilotSheet } from './module/actor/pilot-sheet';
@@ -21,6 +21,7 @@ import { LancerNPCSheet } from './module/actor/npc-sheet';
 import { LancerDeployableSheet } from './module/actor/deployable-sheet';
 import { LancerItemSheet } from './module/item/item-sheet';
 import { LancerFrameSheet } from './module/item/frame-sheet';
+import { LancerNPCClassSheet } from './module/item/npc-class-sheet';
 
 // Import helpers
 import { preloadTemplates } from './module/preloadTemplates';
@@ -52,6 +53,7 @@ Hooks.once('init', async function() {
 		},
 		rollStatMacro: rollStatMacro,
 		rollAttackMacro: rollAttackMacro,
+		rollTechMacro: rollTechMacro,
     rollTriggerMacro: rollTriggerMacro,
 		migrations: migrations,
 	};
@@ -78,17 +80,33 @@ Hooks.once('init', async function() {
 	Items.registerSheet("lancer", LancerItemSheet, { 
 		types: ["skill", "talent", "license", "core_bonus", 
 			"pilot_armor", "pilot_weapon", "pilot_gear", 
-			"mech_system", "mech_weapon", "npc_class",
+			"mech_system", "mech_weapon",
 			"npc_template", "npc_feature"], 
 		makeDefault: true 
 	});
 	Items.registerSheet("lancer", LancerFrameSheet, { types: ["frame"], makeDefault: true });
+	Items.registerSheet("lancer", LancerNPCClassSheet, { types: ["npc_class"], makeDefault: true });
 
 	// Register handlebars helpers
 
 	// inc, for those off-by-one errors
-	Handlebars.registerHelper('inc', function(value, options) {
+	Handlebars.registerHelper('inc', function(value) {
 		return parseInt(value) + 1;
+	});
+
+	// dec, for those off-by-one errors
+	Handlebars.registerHelper('dec', function(value) {
+		return parseInt(value) - 1;
+	});
+
+  // get an index from an array
+  Handlebars.registerHelper('idx', function(array, index) {
+    return array[index];
+  });
+
+	// invert the input
+	Handlebars.registerHelper('neg', function(value) {
+		return parseInt(value) * -1;
 	});
 
 	// double the input
@@ -96,13 +114,37 @@ Hooks.once('init', async function() {
 		return parseInt(value) * 2;
 	});
 
+	// Equal-to evaluation
+	Handlebars.registerHelper('eq', function(val1, val2) {
+		return val1 === val2;
+	});
+
+	// Equal-to evaluation
+	Handlebars.registerHelper('neq', function(val1, val2) {
+		return val1 !== val2;
+	});
+
 	// Greater-than evaluation
 	Handlebars.registerHelper('gt', function(val1, val2) {
 		return val1 > val2;
 	});
 
+	// Greater-than evaluation after applying parseInt to both values
+	Handlebars.registerHelper('gtpi', function(val1, val2) {
+    val1 = parseInt(val1);
+    val2 = parseInt(val2);
+		return val1 > val2;
+	});
+
 	// Less-than evaluation
 	Handlebars.registerHelper('lt', function(val1, val2) {
+		return val1 < val2;
+	});
+
+	// Greater-than evaluation after applying parseInt to both values
+	Handlebars.registerHelper('ltpi', function(val1, val2) {
+    val1 = parseInt(val1);
+    val2 = parseInt(val2);
 		return val1 < val2;
 	});
 
@@ -139,24 +181,52 @@ Hooks.once('init', async function() {
 	        <option value="Integrated" ${mount.type === 'Integrated' ? 'selected' : ''}>Integrated Mount</option>
         </select>`
         return template;
-	});
-
-  Handlebars.registerPartial('mech-weapon-preview', `<div class="flexcol clipped lancer-weapon-container weapon" style="max-height: fit-content;" data-item-id="{{key}}">
-    <span class="item lancer-weapon-header" style="padding-top: 5px;" data-item-id="{{weapon._id}}"><img class="thumbnail" src="{{weapon.img}}" data-edit="{{weapon.img}}" title="{{weapon.name}}" height="10" width="10"/> {{weapon.name}} <a class="stats-control" data-action="delete"><i class="fas fa-trash" style="float: right;"></i></a></span>
-    <span class="lancer-weapon-body">
-     <span class="flexrow" style="grid-area: 1 / 1 / 1 / 1; text-align: left; white-space: nowrap;"><a class="flexrow roll-attack" style="max-width: min-content;"><i class="fas fa-dice-d20 i--sm i--dark"></i></a>{{#each weapon.data.range as |range rkey|}}<i class="cci cci-{{lower-case range.type}} i--m i--dark"></i><span class="medium">{{range.val}}</span>{{/each}}{{#each weapon.data.damage as |damage dkey|}}<i class="cci cci-{{lower-case damage.type}} i--m damage--{{damage.type}}"></i><span class="medium">{{damage.val}}</span>{{/each}}</span>
-     <span style="grid-area: 1 / 2 / 1 / 3; text-align: right;">{{weapon.data.mount}} {{weapon.data.weapon_type}}</span>
-     <span style="grid-area: 2 / 1 / 2 / 3; text-align: left; white-space: wrap">
-     {{#with weapon.data.effect as |effect|}}
-     {{#if effect.effect_type}}
-       <h3>{{effect.effect_type}} Effect</h3>
-       {{effect.hit}}{{/if}}
-     {{#unless effect.effect_type}}{{effect}}{{/unless}}
-     {{/with}}
-     </span>
-     <span class="flexrow" style="grid-area: 3 / 1 / 3 / 3; text-align: left; justify-content: flex-end;">
-       <span class="flexrow" style="justify-content: flex-end;">{{#each weapon.data.tags as |tag tkey|}}{{{compact-tag tag}}}{{/each}}</span>
-     </span>
+  });
+  
+  Handlebars.registerPartial('mech-weapon-preview', 
+    `<div class="flexcol clipped lancer-weapon-container weapon" style="max-height: fit-content;" data-item-id="{{key}}">
+      <div class="lancer-weapon-header clipped-top item" style="grid-area: 1/1/2/3" data-item-id="{{weapon._id}}">
+        <i class="cci cci-weapon i--m i--light"> </i>
+        <span class="minor">{{weapon.name}} // {{upper-case weapon.data.mount}} {{upper-case weapon.data.weapon_type}}</span>
+        <a class="stats-control i--light" data-action="delete"><i class="fas fa-trash"></i></a>
+      </div> 
+      <div class="lancer-weapon-body">
+        <a class="roll-attack" style="grid-area: 1/1/2/2;"><i class="fas fa-dice-d20 i--m i--dark"></i></a>
+        <div class="flexrow" style="grid-area: 1/2/2/3; text-align: left; white-space: nowrap;">
+        {{#each weapon.data.range as |range rkey|}}
+            {{#if range.val}}
+            {{#if (gtpi rkey "0")}}<span class="flexrow" style="align-items: center; justify-content: center; max-width: min-content;"> // </span>{{/if}}
+            <div class="compact-range">
+                <i class="cci cci-{{lower-case range.type}} i--m i--dark"></i>
+                <span class="medium">{{range.val}}</span>
+            </div>
+            {{/if}}
+        {{/each}}
+        <hr class="vsep">
+        {{#each weapon.data.damage as |damage dkey|}}
+            {{#if damage.type}}
+            <div class="compact-damage">
+                <i class="card clipped cci cci-{{lower-case damage.type}} i--m damage--{{damage.type}}"></i>
+                <span class="medium">{{damage.val}}</span>
+            </div>
+            {{/if}}
+        {{/each}}
+        </div>
+        {{#with weapon.data.effect as |effect|}}
+        <div class="flexcol" style="grid-area: 2/1/2/3; text-align: left; white-space: wrap">
+          {{#if effect.effect_type}}
+            <h3 class="medium flexrow">{{upper-case effect.effect_type}} EFFECT</h3>
+            <span class="effect-text">{{{effect.hit}}}</span>
+          {{/if}}
+          {{#unless effect.effect_type}}<span class="effect-text">{{{effect}}}</span>{{/unless}}
+          </div>
+        {{/with}}
+        <div class="flexrow" style="justify-content: flex-end; grid-area: 4/1/5/3">
+          {{#each weapon.data.tags as |tag tkey|}}
+          {{{compact-tag tag}}}
+          {{/each}}
+        </div>
+      </div>
     </div>`
   );
   
@@ -218,6 +288,7 @@ Hooks.once('ready', function() {
 
 // Add any additional hooks if necessary
 Hooks.on("preCreateActor", lancerActorInit);
+Hooks.on("preCreateItem", lancerItemInit);
 
 function getMacroSpeaker(): Actor | null {
 	// Determine which Actor to speak as
@@ -259,8 +330,10 @@ async function rollTriggerMacro(title: string, modifier: number, sheetMacro: boo
   console.log(`${lp} rollTriggerMacro actor`, actor);
 
   // Get accuracy/difficulty with a prompt
-  let acc: number = 0;
-  await promptAccDiffModifier().then(resolve => acc = resolve, reject => console.error(reject));
+	let acc: number = 0;
+	let abort: boolean = false;
+	await promptAccDiffModifier().then(resolve => acc = resolve, reject => abort = true);
+	if (abort) return;
 
   // Do the roll
   let acc_str = acc != 0 ? ` + ${acc}d6kh1` : '';
@@ -305,7 +378,9 @@ async function rollStatMacro(title: string, statKey: string, effect?: string, sh
 
   // Get accuracy/difficulty with a prompt
   let acc: number = 0;
-  await promptAccDiffModifier().then(resolve => acc = resolve, reject => console.error(reject));
+	let abort: boolean = false;
+	await promptAccDiffModifier().then(resolve => acc = resolve, reject => abort = true);
+	if (abort) return;
 
 	// Do the roll
 	let acc_str = acc != 0 ? ` + ${acc}d6kh1` : '';
@@ -331,46 +406,67 @@ async function rollAttackMacro(w: string, a: string) {
 
   // Get the item
   const item: Item = game.actors.get(a).getOwnedItem(w);
-  console.log(`${lp} Rolling attack macro`, item, w, a);
-  if (!item.isOwned) {
+	console.log(`${lp} Rolling attack macro`, item, w, a);
+	if (!item) {
+    ui.notifications.error(`Error rolling attack macro - could not find Item ${w} owned by Actor ${a}!`);
+    return Promise.resolve();
+	}
+  else if (!item.isOwned) {
     ui.notifications.error(`Error rolling attack macro - ${item.name} is not owned by an Actor!`);
     return Promise.resolve();
   }
 
   let title: string = item.name;
-  let grit: number;
+  let grit: number = 0;
+  let acc: number = 0;
   let damage: DamageData[];
   let effect: string;
   let tags: TagDataShort[];
+	const wData = item.data.data;
   if (item.type === "mech_weapon") {
     grit = (item.actor.data as LancerPilotActorData).data.pilot.grit;
-    damage = item.data.data.damage;
-    tags = item.data.data.tags;
-    effect = item.data.data.effect;
+    damage = wData.damage;
+    tags = wData.tags;
+    effect = wData.effect;
   }
   else if (item.type === "pilot_weapon") {
     grit = (item.actor.data as LancerPilotActorData).data.pilot.grit;
-    damage = item.data.data.damage;
-    tags = item.data.data.tags;
-    effect = item.data.data.effect;
+    damage = wData.damage;
+    tags = wData.tags;
+    effect = wData.effect;
   }
-  // TODO
-  // else if (item.type === "npc_feature") {
-  //   grit = (item as LancerNPCFeature).data.accuracy[(item.actor.data as LancerNPCActorData).data.tier];
-  // }
+  else if (item.type === "npc_feature") {
+		const tier = (item.actor.data as LancerNPCActorData).data.tier_num - 1;
+		if (wData.attack_bonus && wData.attack_bonus[tier]) {
+			grit = parseInt(wData.attack_bonus[tier]);
+		}
+		if (wData.accuracy && wData.accuracy[tier]) {
+			acc = parseInt(wData.accuracy[tier]);
+		}
+		// Reduce damage values to only this tier
+		damage = duplicate(wData.damage);
+		damage.forEach(d => {
+			d.val = d.val[tier];
+		});
+		tags = wData.tags;
+		effect = wData.effect;
+  }
   else {
     ui.notifications.error(`Error rolling attack macro - ${item.name} is not a weapon!`);
     return Promise.resolve();
   }
-  console.log(`${lp} Attack Macro Item:`, item, grit, damage);
+  console.log(`${lp} Attack Macro Item:`, item, grit, acc, damage);
 
   // Get accuracy/difficulty with a prompt
-  let acc: number = 0;
-  await promptAccDiffModifier().then(resolve => acc = resolve, reject => console.error(reject));
+	let abort: boolean = false;
+	await promptAccDiffModifier(acc).then(resolve => acc = resolve, reject => abort = true);
+	if (abort) return;
 
   // Do the attack rolling
-  let acc_str = acc != 0 ? ` + ${acc}d6kh1` : '';
-  let attack_roll = new Roll(`1d20+${grit}${acc_str}`).roll();
+	let acc_str = acc != 0 ? ` + ${acc}d6kh1` : '';
+	let atk_str = `1d20+${grit}${acc_str}`;
+	console.log(`${lp} Attack roll string: ${atk_str}`)
+  let attack_roll = new Roll(atk_str).roll();
 
   // Iterate through damage types, rolling each
   let damage_results = [];
@@ -400,18 +496,94 @@ async function rollAttackMacro(w: string, a: string) {
   return renderMacro(actor, template, templateData);
 }
 
-function promptAccDiffModifier() {
+async function rollTechMacro(t: string, a: string) {
+  // Determine which Actor to speak as
+  let actor: Actor = getMacroSpeaker();
+  if (actor === null) return;
+
+  // Get the item
+  const item: Item = game.actors.get(a).getOwnedItem(t);
+	console.log(`${lp} Rolling tech attack macro`, item, t, a);
+	if (!item) {
+    ui.notifications.error(`Error rolling tech attack macro - could not find Item ${t} owned by Actor ${a}!`);
+    return Promise.resolve();
+	}
+  else if (!item.isOwned) {
+    ui.notifications.error(`Error rolling tech attack macro - ${item.name} is not owned by an Actor!`);
+    return Promise.resolve();
+  }
+
+  let title: string = item.name;
+  let t_atk: number = 0;
+  let acc: number = 0;
+  let effect: string;
+  let tags: TagDataShort[];
+	const tData = item.data.data;
+  if (item.type === "mech_system") {
+    t_atk = (item.actor.data as LancerPilotActorData).data.mech.tech_attack;
+    tags = tData.tags;
+    effect = tData.effect;
+  }
+  else if (item.type === "npc_feature") {
+		const tier = (item.actor.data as LancerNPCActorData).data.tier_num - 1;
+		if (tData.attack_bonus && tData.attack_bonus[tier]) {
+			t_atk = parseInt(tData.attack_bonus[tier]);
+		}
+		if (tData.accuracy && tData.accuracy[tier]) {
+			acc = parseInt(tData.accuracy[tier]);
+		}
+		tags = tData.tags;
+		effect = tData.effect;
+  }
+  else {
+    ui.notifications.error(`Error rolling tech attack macro - ${item.name} does not a tech attack!`);
+    return Promise.resolve();
+  }
+  console.log(`${lp} Tech Attack Macro Item:`, item, t_atk, acc);
+
+  // Get accuracy/difficulty with a prompt
+	let abort: boolean = false;
+	await promptAccDiffModifier(acc).then(resolve => acc = resolve, reject => abort = true);
+	if (abort) return;
+
+  // Do the attack rolling
+	let acc_str = acc != 0 ? ` + ${acc}d6kh1` : '';
+	let atk_str = `1d20+${t_atk}${acc_str}`;
+	console.log(`${lp} Tech Attack roll string: ${atk_str}`)
+  let attack_roll = new Roll(atk_str).roll();
+
+  // Output
+	const attack_tt = await attack_roll.getTooltip();
+  const templateData = {
+    title: title,
+    attack: attack_roll,
+    attack_tooltip: attack_tt,
+    effect: effect ? effect : null,
+    tags: tags
+  };
+
+  const template = `systems/lancer/templates/chat/tech-attack-card.html`;
+  return renderMacro(actor, template, templateData);
+}
+
+function promptAccDiffModifier(acc?: number) {
+	if (!acc) acc = 0;
+  let diff = 0;
+  if (acc < 0) {
+    diff = -acc;
+    acc = 0;
+  }
   let template = `
 <form>
   <h2>Please enter your modifiers and submit, or close this window:</h2>
   <div class="flexcol">
     <label style="max-width: fit-content;">
       <i class="cci cci-accuracy i--m i--dark" style="vertical-align:middle;border:none"> </i> Accuracy:
-      <input class="accuracy" type="number" min="0" value="0">
+      <input class="accuracy" type="number" min="0" value="${acc}">
     </label>
     <label style="max-width: fit-content;">
       <i class="cci cci-difficulty i--m i--dark" style="vertical-align:middle;border:none"> </i> Difficulty:
-      <input class="difficulty" type="number" min="0" value="0">
+      <input class="difficulty" type="number" min="0" value="${diff}">
     </div>
 </form>`
   return new Promise<number>((resolve, reject) => {
@@ -429,10 +601,17 @@ function promptAccDiffModifier() {
             console.log(`${lp} Dialog returned ${accuracy} accuracy and ${difficulty} resulting in a modifier of ${total}d6`);
             resolve(total);
           }
-        }
+				},
+				cancel: {
+					icon: '<i class="fas fa-times"></i>',
+					label: 'Cancel',
+					callback: async () => {
+						reject();
+					}
+				}
       },
       default: "submit",
-      close: () => resolve(0)
+      close: () => reject()
     }).render(true);
   });
 }
