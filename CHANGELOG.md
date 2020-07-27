@@ -1,3 +1,18 @@
+# 0.1.1 (2020-07-26)
+## Bug Fixes
+* **Macros:** Add "Cancel" button to accuracy prompt. Clicking cancel or closing the prompt will abort the roll. Closes #45.
+* **Macros:** Fix NPC weapon macros, closes #47.
+* **Frame sheet:** Fixed adding traits and mounts, closes #44. (Thanks, Grygon!)
+* **NPCs:** New NPCs start at 0 heat, closes #49.
+* **NPCs:** Increase NPC class sheet default width, part of #48.
+
+## Features
+* **Macros:** Add HASE macro buttons to mech tab of pilot sheet, closes #54.
+* **Macros:** Add NPC tech attack macros.
+* **Pilot sheet:** Render charge effects in systems previews, closes #46. (Thanks, Grygon!)
+* **Frame sheet:** Improve core system editability.
+* **NPC Features:** Add support for all feature types to feature sheet and NPC sheet, closes #36. 
+
 # 0.1.0 (2020-07-19)
 ## Alpha release!
 A huge thank you and shout-out to Animu36, Grygon, and Staubz, without whose help this initial release would have taken many more weeks!
