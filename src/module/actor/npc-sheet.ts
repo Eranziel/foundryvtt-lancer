@@ -256,14 +256,14 @@ export class LancerNPCSheet extends ActorSheet {
         });
         // Add the new class from Compendium pack
         if (data.pack) {
-          const npcClass = await actor.importItemFromCollection(data.pack, data.id) as LancerNPCClass;
+          const npcClass = await actor.importItemFromCollection(data.pack, data.id) as any;
           console.log(`${lp} Added ${npcClass.name} from ${data.pack} to ${actor.name}.`);
           newNPCClassStats = npcClass.data.stats;
         }
         // Add the new Class from a World entity
         else {
           await actor.createEmbeddedEntity("OwnedItem", duplicate(item.data));
-          const npcClass = await actor.createOwnedItem(duplicate(item.data)) as LancerNPCClass;
+          const npcClass = await actor.createOwnedItem(duplicate(item.data)) as any;
           console.log(`${lp} Added ${npcClass.name} from ${data.pack} to ${actor.name}.`);
           newNPCClassStats = npcClass.data.stats;
         }

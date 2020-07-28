@@ -1,6 +1,4 @@
 import { LancerDeployableSheetData } from '../interfaces';
-import { LancerItem } from '../item/lancer-item';
-import { LancerActor } from './lancer-actor';
 import { LANCER } from '../config'
 const lp = LANCER.log_prefix;
 

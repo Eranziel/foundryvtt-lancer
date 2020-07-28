@@ -414,13 +414,13 @@ export class LancerPilotSheet extends ActorSheet {
         });
         // Add the new frame from Compendium pack
         if (data.pack) {
-          const frame = await actor.importItemFromCollection(data.pack, data.id) as LancerFrame;
+          const frame = await actor.importItemFromCollection(data.pack, data.id) as any;
           console.log(`${lp} Added ${frame.name} from ${data.pack} to ${actor.name}.`);
           newFrameStats = frame.data.stats;
         }
         // Add the new frame from a World entity
         else {
-          const frame = await actor.createOwnedItem(duplicate(item.data)) as LancerFrame;
+          const frame = await actor.createOwnedItem(duplicate(item.data)) as any;
           console.log(`${lp} Added ${frame.name} to ${actor.name}.`);
           newFrameStats = frame.data.stats;
         }
