@@ -621,13 +621,20 @@ button {
   margin: 0em 1em;
 }
 
-.size-icon {
-  color: var(--main-theme-color, fuchsia);
+.size-icon,
+.tier-icon {
   font-size: 120px;
   min-width: 120px;
   max-width: 120px;
   min-height: 120px;
   max-height: 120px;
+}
+
+.size-icon {
+  color: var(--main-theme-color, fuchsia);
+}
+.tier-icon {
+  color: white;
 }
 
 .pilot-loadout {

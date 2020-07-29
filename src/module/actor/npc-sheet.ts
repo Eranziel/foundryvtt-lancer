@@ -294,7 +294,7 @@ export class LancerNPCSheet extends ActorSheet {
       }
       //TODO add basic features to NPC
       //TODO remove basic feature from NPC on Class swap
-      //TODO implement similar logi for Templates
+      //TODO implement similar logic for Templates
       else if (LANCER.pilot_items.includes(item.type)) {
         ui.notifications.error(`Cannot add Item of type "${item.type}" to an NPC.`);
         return;
@@ -313,8 +313,10 @@ export class LancerNPCSheet extends ActorSheet {
    */
   _updateObject(event: Event | JQuery.Event, formData: any): Promise<any> {
     console.log(formData);
-    // Use the Actor's name for the pilot's callsign
-    formData.name = formData["data.npc.name"];
+    // Copy the NPC name into the Actor data.
+    formData["name"] = formData["data.name"];
+    // Copy the NPC name to the prototype token.
+    formData['token.name'] = formData["data.name"];
 
     let token: any = this.actor.token;
     // Set the prototype token image if the prototype token isn't initialized
