@@ -192,7 +192,7 @@ declare interface LancerDeployableData {
   name: string;
   size: number;
   hp: ResourceData;
-  heat?: ResourceData;
+  heat: ResourceData;
   armor: number;
   evasion: number;
   edef: number;
@@ -243,7 +243,7 @@ declare interface LancerMechEquipmentData {
   cascading: boolean;
   loaded: boolean;
   tags: TagData[];
-  effect: EffectData[]; // TODO: replace with specific type
+  effect: EffectData;
   integrated: boolean;
   // TODO: not needed? Used in Comp/Con for some of its mech building logic.
   // talent_item: boolean; 
@@ -299,9 +299,14 @@ declare interface LancerCoreBonusSheetData extends ItemSheetData {
 }
 
 // -------- License data -----------------------------------------
+declare interface LancerLicenseRank {
+  items: string[];
+}
+
 declare interface LancerLicenseData extends BaseEntityData {
   name: string;
   source: string;
+  ranks: LancerLicenseRank[];
   rank: number;
 }
 
@@ -386,7 +391,7 @@ declare interface LancerCoreSystemData {
   tags: TagData[];
 }
 
-declare interface LancerFrameData extends BaseEntityData, LancerLicensedItemData {
+declare interface LancerFrameData extends BaseEntityData, LancerCompendiumItemData, LancerLicensedItemData {
   mechtype: MechType[];
   stats: LancerFrameStatsData;
   traits: LancerMechTraitData[];
@@ -426,22 +431,22 @@ declare interface LancerMechWeaponSheetData extends ItemSheetData {
 
 // -------- NPC Class data -------------------------------------
 declare interface LancerNPCClassStatsData {
+  hp: number[];
+  heatcap: number[];
+  structure: number[];
+  stress: number[];
+  armor: number[];
+  evasion: number[];
+  edef: number[];
+  speed: number[];
+  sensor_range: number[];
+  save: number[];
+  activations: number[];
+  size: number[];
   hull: number[];
   agility: number[];
   systems: number[];
   engineering: number[];
-  structure: number[];
-  armor: number[];
-  hp: number[];
-  stress: number[];
-  heatcap: number[];
-  speed: number[];
-  save: number[];
-  evasion: number[];
-  edef: number[];
-  sensor_range: number[];
-  activations: number[];
-  size: number[];
 }
 
 declare interface LancerNPCInfoData {
@@ -453,8 +458,8 @@ declare interface LancerNPCClassData extends BaseEntityData, LancerCompendiumIte
   mechtype: MechType;
   info: LancerNPCInfoData;
   stats: LancerNPCClassStatsData;
-  base_features: LancerNPCFeatureData[];
-  optional_features: LancerNPCFeatureData[];
+  base_features: string[];
+  optional_features: string[];
 }
 
 declare interface LancerNPCClassSheetData extends ItemSheetData {
@@ -464,8 +469,8 @@ declare interface LancerNPCClassSheetData extends ItemSheetData {
 
 // -------- NPC Template data -------------------------------------
 declare interface LancerNPCTemplateData extends BaseEntityData, LancerCompendiumItemData{
-  basefeatures: LancerNPCFeatureData[];
-  optional_features: LancerNPCFeatureData[];
+  basefeatures: string[];
+  optional_features: string[];
 }
 
 declare interface LancerNPCTemplateSheetData extends ItemSheetData {
