@@ -512,6 +512,8 @@ export class LancerPilotSheet extends ActorSheet {
   _updateObject(event: Event | JQuery.Event, formData: any): Promise<any> {
     // Use the Actor's name for the pilot's callsign
     formData['name'] = formData["data.pilot.callsign"];
+    // Copy the pilot's callsign to the prototype token
+    formData['token.name'] = formData["data.pilot.callsign"];
 
     let token: any = this.actor.data['token'];
     // Set the prototype token image if the prototype token isn't initialized

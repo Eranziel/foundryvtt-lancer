@@ -81,7 +81,8 @@
     "npc": {
       "templates": ["mech"],
       "name": "",
-      "tier": "",
+      "tier": "npc-tier-1",
+      "tier_num": 1,
       "tag": "",
       "activations": 1
     },
