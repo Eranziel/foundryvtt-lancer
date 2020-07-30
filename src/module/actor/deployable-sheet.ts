@@ -1,6 +1,4 @@
 import { LancerDeployableSheetData } from '../interfaces';
-import { LancerItem } from '../item/lancer-item';
-import { LancerActor } from './lancer-actor';
 import { LANCER } from '../config'
 const lp = LANCER.log_prefix;
 
@@ -84,6 +82,9 @@ export class LancerDeployableSheet extends ActorSheet {
    */
   _updateObject(event: Event | JQuery.Event, formData: any): Promise<any> {
     console.log(formData);
+    
+    // Copy the new name to the prototype token.
+    formData['token.name'] = formData['name'];
 
     let token: any = this.actor.token;
     // Set the prototype token image if the prototype token isn't initialized

@@ -1,16 +1,15 @@
 <form class="{{cssClass}} lancer-sheet" autocomplete="off">
 
     {{!-- Sheet Header --}}
-    <header>
-        <div class="details" style="grid-area: 1/1/1/3">
-            NAME
-            <span class="major">{{data.name}}</span>
-        </div>
-        <div class="details" style="grid-area: 1/4/3/4">
+    <header class="sheet-header card clipped-bot">
+        <div class="header-fields" style="grid-area: 1/1/2/4;">
+			<h1 class="charname"><input class="header-field" name="data.name" type="text" value="{{data.name}}" placeholder="Name"/></h1>
+		</div>
+        <div class="details" style="grid-area: 1/4/4/4">
             TIER
             {{#if data.tier}}
-            <div></div><i class="cci cci-{{data.tier}} size-icon theme--npc"></i></div>
-        {{/if}}
+            <i class="cci cci-{{data.tier}} tier-icon theme--npc"></i>
+            {{/if}}
         </div>
         <div class="details" style="grid-area: 2/1/3/2">
             CLASS
@@ -30,17 +29,11 @@
         {{!-- Loadout Tab --}}
         <div class="tab mech active" data-group="primary" data-tab="mech">
             <div class="flexrow">
-                <div class="flexcol card clipped">
-                    <span class="lancer-stat-header major clipped-top">NAME</span>
-                    <input class="lancer-text-input major" type="string" name="data.name" value="{{data.name}}"
-                        data-dtype="String" />
-                </div>
                 <div class="flexcol card clipped" style="grid-area: 2/3/3/3">
                     <span class="lancer-stat-header major clipped-top">TIER</span>
                     {{{tier-selector data.tier key}}}
                 </div>
                 <div class="flexcol card clipped">
-
                     <span class="lancer-stat-header major clipped-top">
                         CLASS
                     </span>

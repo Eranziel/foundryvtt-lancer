@@ -414,13 +414,13 @@ export class LancerPilotSheet extends ActorSheet {
         });
         // Add the new frame from Compendium pack
         if (data.pack) {
-          const frame = await actor.importItemFromCollection(data.pack, data.id) as LancerFrame;
+          const frame = await actor.importItemFromCollection(data.pack, data.id) as any;
           console.log(`${lp} Added ${frame.name} from ${data.pack} to ${actor.name}.`);
           newFrameStats = frame.data.stats;
         }
         // Add the new frame from a World entity
         else {
-          const frame = await actor.createOwnedItem(duplicate(item.data)) as LancerFrame;
+          const frame = await actor.createOwnedItem(duplicate(item.data)) as any;
           console.log(`${lp} Added ${frame.name} to ${actor.name}.`);
           newFrameStats = frame.data.stats;
         }
@@ -512,6 +512,8 @@ export class LancerPilotSheet extends ActorSheet {
   _updateObject(event: Event | JQuery.Event, formData: any): Promise<any> {
     // Use the Actor's name for the pilot's callsign
     formData['name'] = formData["data.pilot.callsign"];
+    // Copy the pilot's callsign to the prototype token
+    formData['token.name'] = formData["data.pilot.callsign"];
 
     let token: any = this.actor.data['token'];
     // Set the prototype token image if the prototype token isn't initialized
