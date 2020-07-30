@@ -1,3 +1,8 @@
+# 0.1.2 (2020-07-29)
+## Bug Fixes
+* **General:** Fix a bug which could cause Item data to be lost during version migration or duplication.
+* **NPC Sheet:** Editing the name field now renames the Actor and prototype token, closes #55.
+
 # 0.1.1 (2020-07-26)
 ## Bug Fixes
 * **Macros:** Add "Cancel" button to accuracy prompt. Clicking cancel or closing the prompt will abort the roll. Closes #45.
