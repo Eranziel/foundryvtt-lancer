@@ -169,10 +169,10 @@ export class LancerItemSheet extends ItemSheet {
 
   /** @override */
   _updateObject(event, formData) {
+    // Copy the Item name into the system data name property.
+    formData["data.name"] = formData["name"];
 
     if (this.item.data.type === "npc_feature") {
-      // TODO: sanitize fields from other feature types
-  
       // Change image to match feature type, unless a custom image has been selected
       const imgPath = 'systems/lancer/assets/icons/';
       const shortImg = formData['img'].slice(formData['img'].lastIndexOf('/')+1);

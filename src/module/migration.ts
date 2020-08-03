@@ -105,34 +105,7 @@ export const migrateActorData = function(actor: Actor) {
   const updateData: any = {};
   const ad: ActorData = actor.data;
 
-  // Migrate to pilot data model
-  if ( ad.type === "pc" || ad.type === "npc") {
-    console.log(ad);
-    // Mech data'
-    updateData.mech = {};
-    updateData.mech.hull        = ad.data.mech.hull.value;
-    updateData.mech.agility     = ad.data.mech.agility.value;
-    updateData.mech.systems     = ad.data.mech.systems.value;
-    updateData.mech.engineering = ad.data.mech.engineering.value;
-    updateData.mech.armor       = ad.data.mech.armor.value;
-    updateData.mech.speed       = ad.data.mech.speed.value;
-    updateData.mech.evasion     = ad.data.mech.evasion.value;
-    updateData.mech.edef        = ad.data.mech.edef.value;
-    updateData.mech.sensors     = ad.data.mech.sensors.value;
-    updateData.mech.save        = ad.data.mech.save.value;
-  }
-  if ( ad.type === "pc" ) {
-    // Pilot data
-    updateData.pilot = {};
-    updateData.pilot.grit           = ad.data.pilot.grit.value;
-    updateData.pilot.stats = {};
-    updateData.pilot.stats.armor    = ad.data.pilot.stats.armor.value;
-    updateData.pilot.stats.evasion  = ad.data.pilot.stats.evasion.value;
-    updateData.pilot.stats.edef     = ad.data.pilot.stats.edef.value;
-    updateData.pilot.stats.speed    = ad.data.pilot.stats.speed.value;
-    // Migrate type to pilot
-    updateData.type = "pilot";
-  }
+  // Insert code to migrate actor data model here
 
   // Migrate Owned Items
   if ( !actor.items ) return updateData;
@@ -193,8 +166,15 @@ function cleanActorData(actorData: ActorData) {
 export const migrateItemData = function(item: Item) {
   const updateData = {};
 
+  // Unify item.data.name and item.data.data.name
+  if (item.data.name !== item.data.data.name) {
+    updateData['data.name'] = item.data.name;
+  }
+
   // Remove deprecated fields
   _migrateRemoveDeprecated(item, updateData);
+
+  console.log(updateData);
 
   // Return the migrated update data
   return updateData;

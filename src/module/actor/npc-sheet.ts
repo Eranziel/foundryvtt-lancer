@@ -312,7 +312,6 @@ export class LancerNPCSheet extends ActorSheet {
    * @private
    */
   _updateObject(event: Event | JQuery.Event, formData: any): Promise<any> {
-    console.log(formData);
     // Copy the NPC name into the Actor data.
     formData["name"] = formData["data.name"];
     // Copy the NPC name to the prototype token.
@@ -329,6 +328,8 @@ export class LancerNPCSheet extends ActorSheet {
       this.actor.update({ "token.img": formData.img });
     }
 
+    
+    console.log(`${lp} NPC sheet form data: ${formData}`);
     // Update the Actor
     return this.object.update(formData);
   }
