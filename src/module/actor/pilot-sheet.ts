@@ -238,43 +238,6 @@ export class LancerPilotSheet extends ActorSheet {
         }
       });
 
-      // Delete Item on Right Click
-      items.contextmenu(ev => {
-        console.log(ev);
-        const item = $(ev.currentTarget);
-        const itemId = item.data("itemId");
-
-        let mount_element = item.closest(".lancer-mount-container");
-        let weapon_element = item.closest(".lancer-weapon-container");
-
-        if (mount_element.length && weapon_element.length) {
-          let mounts = duplicate(this.actor.data.data.mech_loadout.mounts);
-          let weapons = mounts[parseInt(mount_element.data("itemId"))].weapons;
-          weapons.splice(parseInt(weapon_element.data("itemId")), 1);
-          this.actor.update({"data.mech_loadout.mounts": mounts});
-          this._onSubmit(ev);
-        }
-        else if (this.actor.getOwnedItem(itemId).data.type === "mech_weapon") {
-          // Search mounts to remove the weapon
-          let mounts = duplicate(this.actor.data.data.mech_loadout.mounts);
-          for (let i = 0; i < mounts.length; i++) {
-            const mount = mounts[i];
-            for (let j = 0; j < mount.weapons.length; j++) {
-              let weapons = mount.weapons;
-              if (weapons[j]._id === itemId) {
-                weapons.splice(j, 1);
-                this.actor.update({"data.mech_loadout.mounts": mounts});
-                this._onSubmit(ev);
-                break;
-              }
-            }
-          }
-        }
-
-        this.actor.deleteOwnedItem(itemId);
-        item.slideUp(200, () => this.render(false));
-      });
-
       // Delete Item when trash can is clicked
       items = html.find('.stats-control[data-action*="delete"]');
       items.click(ev => {
