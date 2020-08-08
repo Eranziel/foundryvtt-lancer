@@ -194,26 +194,26 @@
 								<i class="fas fa-dice-d20 i--sm i--dark"></i>
 							</a>
               {{#each weapon.data.range as |range rkey|}}
-              <div class="compact-stat range" style="max-width: min-content">
-                <i class="cci cci-{{lower-case range.type}} i--m i--dark"></i>
-                <span class="medium">{{range.val}}</span>
-              </div>
+                {{> wpn-range range=range rkey=rkey}}
               {{/each}}
+              <hr class="vsep">
               {{#each weapon.data.damage as |damage dkey|}}
-              <div class="compact-stat damage" style="max-width: min-content">
-                <i class="cci cci-{{lower-case damage.type}} i--m damage--{{damage.type}}"></i>
-                <span class="medium">{{damage.val}}</span>
-              </div>
-            </div>
-            <div class="flexrow">
+                {{> wpn-damage damage=damage dkey=dkey dval=damage.val}}
               {{/each}}
+            </div>
+            {{!-- Loading toggle - WIP
+            <div class="flexrow">
+              {{#if (is-loading weapon.data.tags)}}
+                LOADING
+              {{/if}}
+            </div>
+            --}}
+            <div class="flexrow">
               <div class="flexrow" style="justify-content: flex-end;">
                 {{#each weapon.data.tags as |tag tkey|}}
                 {{{compact-tag tag}}}
                 {{/each}}
               </div>
-            </div>
-            <div class="flexrow">
             </div>
           </div>
         </div>
@@ -518,49 +518,13 @@
     <ul>
       {{#each frame.data.traits as |trait key|}}
       <li class="card clipped frame-trait-compact">
-        <div class="lancer-mech-trait-header medium clipped-top" style="grid-area: 1/1/2/2">
-          <i class="cci cci-trait i--m i--light"> </i>
-          <span class="major">{{trait.name}}</span>
-        </div>
-        <div class="effect-text" style="grid-area: 2/1/3/2">{{{trait.description}}}</div>
+        {{> mech-trait trait=trait key=key}}
       </li>
       {{/each}}
     </ul>
 
     {{!-- Core System --}}
-    <div class="card clipped frame-core flexcol">
-      <div class="lancer-core-sys-header medium clipped-top">
-        <i></i>
-        <div class="major">{{frame.data.core_system.name}}</div>
-        <div class="medium" style="justify-self: right;"> // CORE SYSTEM</div>
-      </div>
-      {{#if frame.data.core_system.description}}
-      <div class="desc-text">{{{frame.data.core_system.description}}}</div>
-      {{/if}}
-      {{#if frame.data.core_system.passive_name}}
-      <div class="card clipped">
-        <div class="lancer-core-sys-header medium clipped-top">
-          <i class="mdi mdi-circle-expand i--m i--light"> </i>
-          <div class="medium">{{frame.data.core_system.passive_name}}</div>
-          <div class="medium" style="justify-self: right;"> // PASSIVE</div>
-        </div>
-        <div class="effect-text">{{{frame.data.core_system.passive_effect}}}</div>
-      </div>
-      {{/if}}
-      <div class="card clipped">
-        <div class="lancer-core-sys-header medium clipped-top">
-          <i class="cci cci-corebonus i--m i--light"> </i>
-          <div class="medium">{{frame.data.core_system.active_name}}</div>
-          <div class="medium" style="justify-self: right;"> // ACTIVE</div>
-        </div>
-        <div class="effect-text">{{{frame.data.core_system.active_effect}}}</div>
-        <div class="flexrow">
-        {{#each frame.data.core_system.tags as |tag key|}}
-          {{{compact-tag tag key}}}
-        {{/each}}
-        </div>
-      </div>
-    </div>
+    {{> core-system csys=frame.data.core_system}}
     {{/if}}
     {{!-- End of Frame --}}
 
@@ -569,22 +533,7 @@
       <h2 class="lancer-title clipped">MOUNTS<a class="add-button" data-action="create" style="float:right; margin-right: 1em; padding-bottom: 1em;">+</a></h2>
       <div class="flexrow" style="justify-content: space-evenly;">
         {{#each data.mech_loadout.mounts as |mount key|}}
-        <div class="flexcol lancer-mount-container" data-item-id="{{key}}">
-          <span class="mount-header clipped-top">
-            {{{mount-selector mount @index}}}
-            <a class="mounts-control" data-action="delete"><i class="fas fa-trash"></i></a>
-          </span>
-          <span class="lancer-mount-body">
-            {{#unless mount.weapons}}
-            <span class="major"><br>Drag a Mech Weapon Here</span>
-            {{/unless}}
-            {{#if mount.weapons}}
-            {{#each mount.weapons as |weapon key|}}
-            {{> mech-weapon-preview weapon=weapon key=key}}
-            {{/each}}
-            {{/if}}
-          </span>
-        </div>
+          {{> mount-card mount=mount key=key}}
         {{/each}}
       </div>
     </div>

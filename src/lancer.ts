@@ -11,9 +11,9 @@
 import { LANCER } from './module/config';
 const lp = LANCER.log_prefix;
 import { LancerGame } from './module/lancer-game';
-import { LancerActor, lancerActorInit } from './module/actor/lancer-actor';
-import { LancerItem, lancerItemInit, LancerNPCFeature } from './module/item/lancer-item';
-import { DamageData, LancerPilotActorData, TagDataShort, LancerNPCActorData } from './module/interfaces';
+import { LancerActor, lancerActorInit, mount_type_selector, npc_tier_selector, mount_card } from './module/actor/lancer-actor';
+import { LancerItem, lancerItemInit, LancerNPCFeature, mech_weapon_preview, is_loading, weapon_range_preview, weapon_damage_preview, npc_attack_bonus_preview, npc_accuracy_preview, core_system_preview, mech_trait_preview } from './module/item/lancer-item';
+import { DamageData, LancerPilotActorData, TagDataShort, LancerNPCActorData, TagData } from './module/interfaces';
 
 // Import applications
 import { LancerPilotSheet } from './module/actor/pilot-sheet';
@@ -87,6 +87,7 @@ Hooks.once('init', async function() {
 	Items.registerSheet("lancer", LancerFrameSheet, { types: ["frame"], makeDefault: true });
 	Items.registerSheet("lancer", LancerNPCClassSheet, { types: ["npc_class"], makeDefault: true });
 
+	// *******************************************************************
 	// Register handlebars helpers
 
 	// inc, for those off-by-one errors
@@ -156,79 +157,31 @@ Hooks.once('init', async function() {
 		return str.toUpperCase();
 	});
 
+	// ------------------------------------------------------------------------
+	// Tags
   Handlebars.registerHelper('compact-tag', renderCompactTag);
   Handlebars.registerHelper('chunky-tag', renderChunkyTag);
 	Handlebars.registerHelper('full-tag', renderFullTag);
 
-	Handlebars.registerHelper('tier-selector', (tier, key) => {
-		let template = `<select id="tier-type" class="tier-control" data-action="update">
-		<option value="npc-tier-1" ${tier === 'npc-tier-1' ? 'selected' : ''}>TIER 1</option>
-		<option value="npc-tier-2" ${tier === 'npc-tier-2' ? 'selected' : ''}>TIER 2</option>
-		<option value="npc-tier-3" ${tier === 'npc-tier-3' ? 'selected' : ''}>TIER 3</option>
-		<option value="npc-tier-custom" ${tier === 'npc-tier-custom' ? 'selected' : ''}>CUSTOM</option>
-	</select>`
-	return template;
-	});
+	// ------------------------------------------------------------------------
+	// Weapons
+	Handlebars.registerHelper('is-loading', is_loading);
+	Handlebars.registerPartial('wpn-range', weapon_range_preview);
+	Handlebars.registerPartial('wpn-damage', weapon_damage_preview);
+	Handlebars.registerPartial('npcf-atk', npc_attack_bonus_preview);
+	Handlebars.registerPartial('npcf-acc', npc_accuracy_preview);
+	Handlebars.registerPartial('mech-weapon-preview', mech_weapon_preview);
+	Handlebars.registerPartial('core-system', core_system_preview);
+	Handlebars.registerPartial('mech-trait', mech_trait_preview);
 	
-	// mount display mount
-	Handlebars.registerHelper('mount-selector', (mount, key) => {
-		let template = `<select id="mount-type" class="mounts-control" data-action="update" data-item-id=${key}>
-	        <option value="Main" ${mount.type === 'Main' ? 'selected' : ''}>Main Mount</option>
-	        <option value="Heavy" ${mount.type === 'Heavy' ? 'selected' : ''}>Heavy Mount</option>
-	        <option value="Aux-Aux" ${mount.type === 'Aux-Aux' ? 'selected' : ''}>Aux/Aux Mount</option>
-	        <option value="Main-Aux" ${mount.type === 'Main-Aux' ? 'selected' : ''}>Main/Aux Mount</option>
-	        <option value="Flex" ${mount.type === 'Flex' ? 'selected' : ''}>Flexible Mount</option>
-	        <option value="Integrated" ${mount.type === 'Integrated' ? 'selected' : ''}>Integrated Mount</option>
-        </select>`
-        return template;
-  });
-  
-  Handlebars.registerPartial('mech-weapon-preview', 
-    `<div class="flexcol clipped lancer-weapon-container weapon" style="max-height: fit-content;" data-item-id="{{key}}">
-      <div class="lancer-weapon-header clipped-top item" style="grid-area: 1/1/2/3" data-item-id="{{weapon._id}}">
-        <i class="cci cci-weapon i--m i--light"> </i>
-        <span class="minor">{{weapon.name}} // {{upper-case weapon.data.mount}} {{upper-case weapon.data.weapon_type}}</span>
-        <a class="stats-control i--light" data-action="delete"><i class="fas fa-trash"></i></a>
-      </div> 
-      <div class="lancer-weapon-body">
-        <a class="roll-attack" style="grid-area: 1/1/2/2;"><i class="fas fa-dice-d20 i--m i--dark"></i></a>
-        <div class="flexrow" style="grid-area: 1/2/2/3; text-align: left; white-space: nowrap;">
-        {{#each weapon.data.range as |range rkey|}}
-            {{#if range.val}}
-            {{#if (gtpi rkey "0")}}<span class="flexrow" style="align-items: center; justify-content: center; max-width: min-content;"> // </span>{{/if}}
-            <div class="compact-range">
-                <i class="cci cci-{{lower-case range.type}} i--m i--dark"></i>
-                <span class="medium">{{range.val}}</span>
-            </div>
-            {{/if}}
-        {{/each}}
-        <hr class="vsep">
-        {{#each weapon.data.damage as |damage dkey|}}
-            {{#if damage.type}}
-            <div class="compact-damage">
-                <i class="card clipped cci cci-{{lower-case damage.type}} i--m damage--{{damage.type}}"></i>
-                <span class="medium">{{damage.val}}</span>
-            </div>
-            {{/if}}
-        {{/each}}
-        </div>
-        {{#with weapon.data.effect as |effect|}}
-        <div class="flexcol" style="grid-area: 2/1/2/3; text-align: left; white-space: wrap">
-          {{#if effect.effect_type}}
-            <h3 class="medium flexrow">{{upper-case effect.effect_type}} EFFECT</h3>
-            <span class="effect-text">{{{effect.hit}}}</span>
-          {{/if}}
-          {{#unless effect.effect_type}}<span class="effect-text">{{{effect}}}</span>{{/unless}}
-          </div>
-        {{/with}}
-        <div class="flexrow" style="justify-content: flex-end; grid-area: 4/1/5/3">
-          {{#each weapon.data.tags as |tag tkey|}}
-          {{{compact-tag tag}}}
-          {{/each}}
-        </div>
-      </div>
-    </div>`
-  );
+	// ------------------------------------------------------------------------
+	// Pilot components
+	Handlebars.registerHelper('mount-selector', mount_type_selector);
+	Handlebars.registerPartial('mount-card', mount_card);
+
+	// ------------------------------------------------------------------------
+	// NPC components
+	Handlebars.registerHelper('tier-selector', npc_tier_selector);
   
 	/*
 	* Repeat given markup with given times

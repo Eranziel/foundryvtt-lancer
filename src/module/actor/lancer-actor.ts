@@ -205,3 +205,62 @@ export class LancerActor extends Actor {
     return (this.update(data) as Promise<LancerActor>);
   }
 }
+
+
+/* ------------------------------------ */
+/* Handlebars Helpers                    */
+/* ------------------------------------ */
+
+/**
+ * Handlebars helper for a mount type selector for Pilot sheets
+ * @param mount The mount object tied to the selector
+ * @param key The index of the mount object
+ */
+export function mount_type_selector(mount, key) {
+  let template = 
+  `<select id="mount-type" class="mounts-control" data-action="update" data-item-id=${key}>
+    <option value="Main" ${mount.type === 'Main' ? 'selected' : ''}>Main Mount</option>
+    <option value="Heavy" ${mount.type === 'Heavy' ? 'selected' : ''}>Heavy Mount</option>
+    <option value="Aux-Aux" ${mount.type === 'Aux-Aux' ? 'selected' : ''}>Aux/Aux Mount</option>
+    <option value="Main-Aux" ${mount.type === 'Main-Aux' ? 'selected' : ''}>Main/Aux Mount</option>
+    <option value="Flex" ${mount.type === 'Flex' ? 'selected' : ''}>Flexible Mount</option>
+    <option value="Integrated" ${mount.type === 'Integrated' ? 'selected' : ''}>Integrated Mount</option>
+  </select>`;
+  return template;
+}
+
+/**
+ * Handlebars partial for a Pilot sheet mount card.
+ */
+export const mount_card = 
+`<div class="flexcol lancer-mount-container" data-item-id="{{key}}">
+  <span class="mount-header clipped-top">
+    {{{mount-selector mount @index}}}
+    <a class="mounts-control" data-action="delete"><i class="fas fa-trash"></i></a>
+  </span>
+  <span class="lancer-mount-body">
+    {{#unless mount.weapons}}
+    <span class="major"><br>Drag a Mech Weapon Here</span>
+    {{/unless}}
+    {{#if mount.weapons}}
+    {{#each mount.weapons as |weapon key|}}
+    {{> mech-weapon-preview weapon=weapon key=key}}
+    {{/each}}
+    {{/if}}
+  </span>
+</div>`;
+
+/**
+ * Handlebars helper for an NPC tier selector
+ * @param tier The tier ID string
+ */
+export function npc_tier_selector(tier) {
+  let template = 
+  `<select id="tier-type" class="tier-control" data-action="update">
+    <option value="npc-tier-1" ${tier === 'npc-tier-1' ? 'selected' : ''}>TIER 1</option>
+    <option value="npc-tier-2" ${tier === 'npc-tier-2' ? 'selected' : ''}>TIER 2</option>
+    <option value="npc-tier-3" ${tier === 'npc-tier-3' ? 'selected' : ''}>TIER 3</option>
+    <option value="npc-tier-custom" ${tier === 'npc-tier-custom' ? 'selected' : ''}>CUSTOM</option>
+  </select>`;
+  return template;
+}
