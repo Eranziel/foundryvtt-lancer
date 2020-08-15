@@ -11,9 +11,11 @@ import {  LancerSkillItemData,
           LancerNPCFeatureItemData,
           LancerNPCTemplateItemData,
           LancerNPCClassItemData,
-          TagData} from '../interfaces';
+          TagData,
+          RangeData,
+          DamageData} from '../interfaces';
 import { LANCER } from '../config';
-import { NPCFeatureType } from '../enums';
+import { NPCFeatureType, RangeType, WeaponType, WeaponSize, DamageType } from '../enums';
 const lp = LANCER.log_prefix;
 
 export function lancerItemInit(data: any) {
@@ -148,7 +150,7 @@ export class LancerNPCClass extends LancerItem{
 /* ------------------------------------ */
 
 /**
- * Checks whether a weapon is loading by examining its tags
+ * Handlebars helper which checks whether a weapon is loading by examining its tags
  * @param tags The tags for the weapon
  */
 export function is_loading(tags: TagData[]) {
@@ -169,6 +171,111 @@ export function loading_switch() {
 }
 
 /**
+ * Handlebars partial for weapon size selector
+ */
+export function weapon_size_selector(mount: string, data_target: string) {
+  const html = 
+  `<select name="${data_target}" data-type="String" style="align-self: center;">
+    <option value="${WeaponSize.Aux}" ${mount === WeaponSize.Aux ? 'selected' : ''}>AUX</option>
+    <option value="${WeaponSize.Main}" ${mount === WeaponSize.Main ? 'selected' : ''}>MAIN</option>
+    <option value="${WeaponSize.Heavy}" ${mount === WeaponSize.Heavy ? 'selected' : ''}>HEAVY</option>
+    <option value="${WeaponSize.Superheavy}" ${mount === WeaponSize.Superheavy ? 'selected' : ''}>SUPERHEAVY</option>
+    <option value="Other" ${mount === 'Other' ? 'selected' : ''}>OTHER</option>
+  </select>`;
+  return html;
+}
+
+/**
+ * Handlebars partial for weapon type selector
+ */
+export function weapon_type_selector(w_type: string, data_target: string) {
+  const html =
+  `<select name="${data_target}" data-type="String" style="align-self: center;">
+    <option value="${WeaponType.Rifle}" ${w_type === WeaponType.Rifle ? 'selected' : ''}>RIFLE</option>
+    <option value="${WeaponType.Cannon}" ${w_type === WeaponType.Cannon ? 'selected' : ''}>CANNON</option>
+    <option value="${WeaponType.Launcher}" ${w_type === WeaponType.Launcher ? 'selected' : ''}>LAUNCHER</option>
+    <option value="${WeaponType.CQB}" ${w_type === WeaponType.CQB ? 'selected' : ''}>CQB</option>
+    <option value="${WeaponType.Nexus}" ${w_type === WeaponType.Nexus ? 'selected' : ''}>NEXUS</option>
+    <option value="${WeaponType.Melee}" ${w_type === WeaponType.Melee ? 'selected' : ''}>MELEE</option>
+    <option value="Other" ${w_type === 'Other' ? 'selected' : ''}>OTHER</option>
+  </select>`;
+  return html;
+}
+
+export function weapon_range_selector(rng_arr: RangeData[], key: string, data_target: string) {
+  const rng = rng_arr[key];
+  let html = '<div class="flexrow flex-center" style="padding: 5px;">';
+  if (rng.type) {
+    html += `<i class="cci cci-${rng.type.toLowerCase()} i--m i--dark"></i>`;
+  }
+  /* TODO: For a next iteration--would be really nifty to set it up to select images rather than text. 
+    But that seems like a non-trivial task...
+    <img class="med-icon" src="../systems/lancer/assets/icons/range.svg">
+    <img class="med-icon" src="../systems/lancer/assets/icons/aoe_blast.svg">
+    <img class="med-icon" src="../systems/lancer/assets/icons/damage_explosive.svg">
+  */
+  html += 
+  `<select name="${data_target}.type" data-type="String" style="align-self: center;">
+    <option value="" ${rng.type === '' ? 'selected' : ''}>NONE</option>
+    <option value="${RangeType.Range}" ${rng.type === RangeType.Range ? 'selected' : ''}>RANGE</option>
+    <option value="${RangeType.Threat}" ${rng.type === RangeType.Threat ? 'selected' : ''}>THREAT</option>
+    <option value="${RangeType.Thrown}" ${rng.type === RangeType.Thrown ? 'selected' : ''}>THROWN</option>
+    <option value="${RangeType.Line}" ${rng.type === RangeType.Line ? 'selected' : ''}>LINE</option>
+    <option value="${RangeType.Cone}" ${rng.type === RangeType.Cone ? 'selected' : ''}>CONE</option>
+    <option value="${RangeType.Blast}" ${rng.type === RangeType.Blast ? 'selected' : ''}>BLAST</option>
+    <option value="${RangeType.Burst}" ${rng.type === RangeType.Burst ? 'selected' : ''}>BURST</option>
+  </select>
+  <input class="lancer-stat-input " type="string" name="${data_target}.val" value="${rng.val ? rng.val : ''}" data-dtype="String"/>
+  </div>`;
+  return html;
+}
+
+export function weapon_damage_selector(dmg_arr: DamageData[], key: string, data_target: string) {
+  const dmg = dmg_arr[key];
+  const isNPC = Array.isArray(dmg.val);
+  let html = '<div class="flexrow flex-center" style="padding: 5px; flex-wrap: nowrap;">';
+
+  if (dmg.type) {
+    html += `<i class="cci cci-${dmg.type.toLowerCase()} i--m damage--${dmg.type.toLowerCase()}"></i>`;
+  }
+  html +=
+  `<select name="${data_target}.type" data-type="String" style="align-self: center;">
+    <option value="" ${dmg.type === '' ? 'selected' : ''}>NONE</option>
+    <option value="${DamageType.Kinetic}" ${dmg.type === DamageType.Kinetic ? 'selected' : ''}>KINETIC</option>
+    <option value="${DamageType.Energy}" ${dmg.type === DamageType.Energy ? 'selected' : ''}>ENERGY</option>
+    <option value="${DamageType.Explosive}" ${dmg.type === DamageType.Explosive ? 'selected' : ''}>EXPLOSIVE</option>
+    <option value="${DamageType.Heat}" ${dmg.type === DamageType.Heat ? 'selected' : ''}>HEAT</option>
+    <option value="${DamageType.Burn}" ${dmg.type === DamageType.Burn ? 'selected' : ''}>BURN</option>
+    <option value="${DamageType.Variable}" ${dmg.type === DamageType.Variable ? 'selected' : ''}>VARIABLE</option>
+  </select>`
+
+  // NPC damage, 3 tiers
+  if (isNPC) {
+    html += 
+    `</div>
+    <div class="flexrow flex-center">
+      <i class="cci cci-rank-1 i--m i--dark"></i>
+      <input class="lancer-stat-input " type="string" name="${data_target}.val" value="${dmg.val[0] ? dmg.val[0] : ''}" data-dtype="String"/>
+    </div>
+    <div class="flexrow flex-center">
+      <i class="cci cci-rank-2 i--m i--dark"></i>
+      <input class="lancer-stat-input " type="string" name="${data_target}.val" value="${dmg.val[1] ? dmg.val[1] : ''}" data-dtype="String"/>
+    </div>
+    <div class="flexrow flex-center">
+      <i class="cci cci-rank-3 i--m i--dark"></i>
+      <input class="lancer-stat-input " type="string" name="${data_target}.val" value="${dmg.val[2] ? dmg.val[2] : ''}" data-dtype="String"/>
+    </div>`;
+  }
+  // Player damage, single value
+  else {
+    html += `
+      <input class="lancer-stat-input " type="string" name="${data_target}.val" value="${dmg.val ? dmg.val : ''}" data-dtype="String"/>
+    </div>`;
+  }
+  return html;
+}
+
+/**
  * Handlebars partial for a weapon preview range stat
  */
 export const weapon_range_preview = 
@@ -186,7 +293,7 @@ export const weapon_range_preview =
 export const weapon_damage_preview = 
 `{{#if damage.type}}
 <div class="compact-damage">
-    <i class="card clipped cci cci-{{lower-case damage.type}} i--m damage--{{damage.type}}"></i>
+    <i class="card clipped cci cci-{{lower-case damage.type}} i--m damage--{{lower-case damage.type}}"></i>
     <span class="medium">{{dval}}</span>
 </div>
 {{/if}}`;

@@ -44,7 +44,7 @@ declare interface TagData {
 }
 
 declare interface RangeData {
-  type: RangeType;
+  type: RangeType | string;
   val: number;
   override?: boolean;
   bonus?: number;

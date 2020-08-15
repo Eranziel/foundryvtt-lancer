@@ -11,9 +11,31 @@
 import { LANCER } from './module/config';
 const lp = LANCER.log_prefix;
 import { LancerGame } from './module/lancer-game';
-import { LancerActor, lancerActorInit, mount_type_selector, npc_tier_selector, mount_card } from './module/actor/lancer-actor';
-import { LancerItem, lancerItemInit, LancerNPCFeature, mech_weapon_preview, is_loading, weapon_range_preview, weapon_damage_preview, npc_attack_bonus_preview, npc_accuracy_preview, core_system_preview, mech_trait_preview } from './module/item/lancer-item';
-import { DamageData, LancerPilotActorData, TagDataShort, LancerNPCActorData, TagData } from './module/interfaces';
+import { LancerActor, 
+	lancerActorInit, 
+	mount_type_selector, 
+	npc_tier_selector, 
+	mount_card } from './module/actor/lancer-actor';
+import { LancerItem, 
+	lancerItemInit, 
+	LancerNPCFeature, 
+	mech_weapon_preview, 
+	is_loading, 
+	weapon_size_selector, 
+	weapon_type_selector, 
+	weapon_range_preview, 
+	weapon_damage_preview, 
+	npc_attack_bonus_preview, 
+	npc_accuracy_preview, 
+	core_system_preview, 
+	mech_trait_preview, 
+	weapon_range_selector,
+	weapon_damage_selector} from './module/item/lancer-item';
+import { DamageData, 
+	LancerPilotActorData, 
+	TagDataShort, 
+	LancerNPCActorData, 
+	TagData } from './module/interfaces';
 
 // Import applications
 import { LancerPilotSheet } from './module/actor/pilot-sheet';
@@ -166,6 +188,10 @@ Hooks.once('init', async function() {
 	// ------------------------------------------------------------------------
 	// Weapons
 	Handlebars.registerHelper('is-loading', is_loading);
+	Handlebars.registerHelper('wpn-size-sel', weapon_size_selector);
+	Handlebars.registerHelper('wpn-type-sel', weapon_type_selector);
+	Handlebars.registerHelper('wpn-range-sel', weapon_range_selector);
+	Handlebars.registerHelper('wpn-damage-sel', weapon_damage_selector);
 	Handlebars.registerPartial('wpn-range', weapon_range_preview);
 	Handlebars.registerPartial('wpn-damage', weapon_damage_preview);
 	Handlebars.registerPartial('npcf-atk', npc_attack_bonus_preview);
