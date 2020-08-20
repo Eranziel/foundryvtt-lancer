@@ -1,7 +1,10 @@
-import { LancerSkillSheetData } from '../interfaces';
+import { LancerSkillSheetData, LancerMechSystemData, RangeData, DamageData } from '../interfaces';
 import { LANCER } from '../config';
-import { NPCFeatureType } from '../enums';
+import { NPCFeatureType, EffectType, ChargeType, ActivationType, RangeType, DamageType } from '../enums';
 import { NPCFeatureIcons } from './npc-feature';
+import { 
+  ChargeEffectData,
+  ChargeData } from './effects';
 const lp = LANCER.log_prefix;
 
 /**
@@ -126,10 +129,10 @@ export class LancerItemSheet extends ItemSheet {
     const itemString = a.parents(".arrayed-item-container").data("item");
     console.log(itemString)
     var baseArr = getValue(this,("object.data.data." + itemString))
-    if (baseArr === null) {
-      itemArr = []
-    } else {
+    if (baseArr) {
       var itemArr = duplicate(baseArr);
+    } else {
+      itemArr = [];
     }
     const dataRef = "data." + itemString;
 
@@ -222,6 +225,39 @@ export class LancerItemSheet extends ItemSheet {
         }
         formData['data.damage'] = damage;
         formData['data.range'] = range;
+      }
+    }
+
+    if (this.item.data.type === "mech_system") {
+      const i_data = this.item.data.data as LancerMechSystemData;
+      // If the effect type has changed, initialize the effect structure
+      if (i_data.effect.effect_type !== formData['data.effect.effect_type']){
+        if (formData['data.effect.effect_type'] === EffectType.Charge) {
+          var rdata: RangeData = {
+            type: "None",
+            val: 0,
+          };
+          var ddata: DamageData = {
+            type: DamageType.Explosive,
+            val: "",
+          };
+          var charge: ChargeData = {
+            name: "",
+            charge_type: ChargeType.Grenade,
+            detail: "",
+            range: [duplicate(rdata), duplicate(rdata)],
+            damage: [duplicate(ddata), duplicate(ddata)],
+            tags: []
+          };
+          var effect: ChargeEffectData = {
+            effect_type: formData['data.effect.effect_type'],
+            name: "",
+            charges: [duplicate(charge), duplicate(charge)],
+            activation: ActivationType.None,
+            tags: []
+          };
+          formData['data.effect'] = effect;
+        }
       }
     }
 

@@ -18,7 +18,6 @@ import { LancerActor,
 	mount_card } from './module/actor/lancer-actor';
 import { LancerItem, 
 	lancerItemInit, 
-	LancerNPCFeature, 
 	mech_weapon_preview, 
 	is_loading, 
 	weapon_size_selector, 
@@ -30,12 +29,14 @@ import { LancerItem,
 	core_system_preview, 
 	mech_trait_preview, 
 	weapon_range_selector,
-	weapon_damage_selector} from './module/item/lancer-item';
+	weapon_damage_selector,
+	system_type_selector,
+	effect_type_selector } from './module/item/lancer-item';
+import { charge_type_selector } from './module/item/effects';
 import { DamageData, 
 	LancerPilotActorData, 
 	TagDataShort, 
-	LancerNPCActorData, 
-	TagData } from './module/interfaces';
+	LancerNPCActorData } from './module/interfaces';
 
 // Import applications
 import { LancerPilotSheet } from './module/actor/pilot-sheet';
@@ -197,6 +198,15 @@ Hooks.once('init', async function() {
 	Handlebars.registerPartial('npcf-atk', npc_attack_bonus_preview);
 	Handlebars.registerPartial('npcf-acc', npc_accuracy_preview);
 	Handlebars.registerPartial('mech-weapon-preview', mech_weapon_preview);
+
+	// ------------------------------------------------------------------------
+	// Systems
+	Handlebars.registerHelper('sys-type-sel', system_type_selector);
+	Handlebars.registerHelper('eff-type-sel', effect_type_selector);
+	Handlebars.registerHelper('chg-type-sel', charge_type_selector);
+
+	// ------------------------------------------------------------------------
+	// Frames
 	Handlebars.registerPartial('core-system', core_system_preview);
 	Handlebars.registerPartial('mech-trait', mech_trait_preview);
 	

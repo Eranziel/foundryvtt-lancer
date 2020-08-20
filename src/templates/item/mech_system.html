@@ -13,14 +13,14 @@
 		</div>
 	</header>
 
-	<div class=flexcol>
+	<div class="flexcol">
 		<div>
 			<div class="flexcol labeled-input" style="float: left">
 				<span>SP</span>
 				<input class="lancer-stat-input lancer-invisible-input" type="number" name="data.sp" value="{{data.sp}}" data-dtype="Number" style="justify-content: left"/>
 			</div>
 			<!-- TODO: Make this a handlebars partial, a lot of things will need a standardized way to track uses -->
-			<div style="width: calc(100px + 1ch); float: left; margin-left: 1em;" class="labeled-input flexcol">
+			<div style="float: left; margin-left: 1em;" class="labeled-input flexcol">
 				<span>USES</span>
 				<div class="flexrow">
 					<input class="lancer-stat-input lancer-invisible-input" type="number" name="data.uses" value="{{data.uses}}" data-dtype="Number" style="justify-content: left"/>
@@ -29,20 +29,7 @@
 				</div>
 			</div>
 			<div class="flexcol" style="float:right">
-				<select name="data.system_type" data-type="String" style="height: 2em" >
-					{{#select data.system_type}}
-					<option value="system">SYSTEM</option>
-					<option value="ai">AI</option>
-					<option value="shield">SHIELD</option>
-					<option value="deployable">DEPLOYABLE</option>
-					<option value="drone">DRONE</option>
-					<option value="tech">TECH</option>
-					<option value="armor">ARMOR</option>
-					<option value="flight_system">FLIGHT SYSTEM</option>
-					<option value="integrated">INTEGRATED</option>
-					<option value="mod">MOD</option>
-					{{/select}}
-				</select>
+				{{{sys-type-sel data.system_type "data.system_type"}}}
 				{{!-- <div class="license-desc">
 					<span>// </span>
 					<input type="String" name="data.license" value="{{data.license}}" data-dtype="String"/>
@@ -55,70 +42,62 @@
 			{{editor content=data.description target="data.description" button=true owner=owner editable=editable}}
 		</div>
 		<div class="effects-container flexcol">
-
 			<div>
 				<span class="minor" style="float: left">EFFECT</span>
-
-
-				<select name="data.effect.effect_type" data-type="String" style="height: 2em;float: right" >
-					{{#select data.effect.effect_type}}
-					<option value="Basic">BASIC</option>
-					<option value="Protocol">PROTOCOL</option>
-					<option value="Deployable">DEPLOYABLE</option>
-					<option value="Bonus">BONUS</option>
-					<option value="Charge">CHARGE</option>
-					<option value="Tech">TECH</option>
-					<option value="Ai">AI</option>
-					<option value="Reaction">REACTION</option>
-					<option value="Drone">DRONE</option>
-					{{/select}}
-				</select>
+				{{{eff-type-sel data.effect.effect_type "data.effect.effect_type"}}}
 			</div>
 			{{#if (eq data.effect.effect_type "Charge")}}
 			<div class="arrayed-item-container flexcol" data-item="effect.charges">
 				<div>
 					<span class="minor" style="float: left">Expend a charge for one of the following effects:</span>
-					<a class="add-button clickable" data-action="create" style="float: right; margin-right: 1em">+</a>
+					{{!-- TODO: Make the add button work again, so additional charge effects can be added. --}}
+					{{!-- <a class="add-button clickable" data-action="create" style="float: right; margin-right: 1em">+</a> --}}
 				</div>
-				{{#each data.effect.charges as |charge key|}}
-				<div class="flexrow arrayed-item" data-key="{{key}}">
-					<div class="flexcol" style="max-width:90%">
-						<div class="flexrow">
-							<input type="String" name="data.effect.charges.{{key}}.name" value="{{charge.name}}" data-dtype="String" class="lancer-invisible-input minor" style="background: transparent"/>
-							<div class="flexcol" style="max-width: min-content">
-								<select name="data.effect.charges.{{key}}.range.0.type" data-type="String">
-									{{#select charge.range.0.type}}
-									<option value="Range">RANGE</option>
-									<option value="Threat">THREAT</option>
-									<option value="Thrown">THROWN</option>
-									<option value="Line">LINE</option>
-									<option value="Cone">CONE</option>
-									<option value="Blast">BLAST</option>
-									<option value="Burst">BURST</option>
-									{{/select}}
-								</select>
-								<input class="lancer-stat-input " type="number" name="data.effect.charges.{{key}}.range.0.val" value="{{charge.range.0.val}}" data-dtype="Number"/>
+				<div class="flexcol">
+					<div class="card clipped">
+						<div class="flexcol" style="margin: 5px;">
+							<div class="lancer-stat-header clipped-top flexrow">
+								<span style="margin-left: 10px; max-width: max-content;">CHARGE NAME // </span> 
+								<input style="margin: 3px;" class="header-field medium" type="text" name="data.effect.charges.0.name" value="{{charge.name}}" data-dtype="String"/>
 							</div>
-							<div class="flexcol" style="max-width: min-content">
-								<select name="data.effect.charges.{{key}}.range.1.type" data-type="String">
-									{{#select charge.range.1.type}}
-									<option value="Range">RANGE</option>
-									<option value="Threat">THREAT</option>
-									<option value="Thrown">THROWN</option>
-									<option value="Line">LINE</option>
-									<option value="Cone">CONE</option>
-									<option value="Blast">BLAST</option>
-									<option value="Burst">BURST</option>
-									{{/select}}
-								</select>
-								<input class="lancer-stat-input " type="number" name="data.effect.charges.{{key}}.range.1.val" value="{{charge.range.1.val}}" data-dtype="Number"/>
+							<div style="margin: 3px; float: left;">
+								{{{chg-type-sel data.effect.charges.0.charge_type "data.effect.charges.0.charge_type"}}}
 							</div>
+							<div class="flexrow card clipped" style="margin: 5px;">
+								{{{wpn-range-sel data.effect.charges.0.range "0" "data.effect.charges.0.range.0"}}}
+								{{{wpn-range-sel data.effect.charges.0.range "1" "data.effect.charges.0.range.1"}}}
+							</div>
+							<div class="flexrow card clipped" style="margin: 5px;">
+								{{{wpn-damage-sel data.effect.charges.0.damage "0" "data.effect.charges.0.damage.0"}}}
+								{{{wpn-damage-sel data.effect.charges.0.damage "1" "data.effect.charges.0.damage.1"}}}
+							</div>
+							<span class="medium" style="float: left;"> EFFECT </span>
+							<textarea class="" type="string" name="data.effect.charges.0.detail" data-dtype="String">{{charge.detail}}</textarea>
 						</div>
-						<textarea class="lancer-invisible-input" type="string" name="data.effect.charges.{{key}}.detail" data-dtype="String">{{charge.detail}}</textarea>
 					</div>
-					<a class="remove-button fa fa-trash clickable" data-action="delete" style="float: right; margin-right: 11px; margin-top: 2px; max-width: 3ch"></a>
+					<div class="card clipped">
+						<div class="flexcol" style="margin: 5px;">
+							<div class="lancer-stat-header clipped-top flexrow">
+								<span style="margin-left: 10px; max-width: max-content;">CHARGE NAME // </span> 
+								<input style="margin: 3px;" class="header-field medium" type="text" name="data.effect.charges.1.name" value="{{charge.name}}" data-dtype="String"/>
+							</div>
+							<div style="margin: 3px; float: left;">
+								{{{chg-type-sel data.effect.charges.1.charge_type "data.effect.charges.1.charge_type"}}}
+							</div>
+							<div class="flexrow card clipped" style="margin: 5px;">
+								{{{wpn-range-sel data.effect.charges.1.range "0" "data.effect.charges.1.range.0"}}}
+								{{{wpn-range-sel data.effect.charges.1.range "1" "data.effect.charges.1.range.1"}}}
+							</div>
+							<div class="flexrow card clipped" style="margin: 5px;">
+								{{{wpn-damage-sel data.effect.charges.1.damage "0" "data.effect.charges.1.damage.0"}}}
+								{{{wpn-damage-sel data.effect.charges.1.damage "1" "data.effect.charges.1.damage.1"}}}
+							</div>
+							<span class="medium" style="float: left;"> EFFECT </span>
+							<textarea class="" type="string" name="data.effect.charges.1.detail" data-dtype="String">{{charge.detail}}</textarea>
+						</div>
+					</div>
 				</div>
-				{{/each}}
+
 			</div>
 			{{else}}
 			{{editor content=data.effect.detail target="data.effect.detail" button=true owner=owner editable=editable}}

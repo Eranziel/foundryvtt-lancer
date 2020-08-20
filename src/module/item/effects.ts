@@ -17,7 +17,7 @@ export const EffectIcons = {
 };
 
 // Note that this type can be replaced with a descriptive string in some cases.
-export interface EffectData {
+interface EffectData {
   effect_type: EffectType;
   name?: string;
   activation?: ActivationType;
@@ -119,4 +119,43 @@ declare interface TechEffectData extends EffectData {
   activation: ActivationType;
   options?: InvadeOptionData[];
   options_set?: string;
+}
+
+/* ------------------------------------ */
+/* Handlebars Helpers                   */
+/* ------------------------------------ */
+
+/**
+ * Handlebars helper for charge type selector
+ */
+function charge_type_selector(c_type: string, data_target: string) {
+  const html = 
+  `<select name="${data_target}" data-type="String" style="height: 2em;float: right" >
+    <option value="${ChargeType.Grenade}" ${c_type === ChargeType.Grenade ? 'selected' : ''}>GRENADE</option>
+    <option value="${ChargeType.Mine}" ${c_type === ChargeType.Mine ? 'selected' : ''}>MINE</option>
+  </select>`;
+  return html;
+}
+
+
+const charge_effect_editable = 
+``;
+
+
+export {
+  EffectData,
+  BasicEffectData,
+  AIEffectData,
+  BonusEffectData,
+  ChargeData,
+  ChargeEffectData,
+  DeployableEffectData,
+  DroneEffectData,
+  GenericEffectData,
+  OffensiveEffectData,
+  ProfileEffectData,
+  ProtocolEffectData,
+  ReactionEffectData,
+  TechEffectData,
+  charge_type_selector,
 }

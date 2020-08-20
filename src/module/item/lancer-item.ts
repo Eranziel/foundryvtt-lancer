@@ -15,10 +15,10 @@ import {  LancerSkillItemData,
           RangeData,
           DamageData} from '../interfaces';
 import { LANCER } from '../config';
-import { NPCFeatureType, RangeType, WeaponType, WeaponSize, DamageType } from '../enums';
+import { NPCFeatureType, RangeType, WeaponType, WeaponSize, DamageType, SystemType, EffectType } from '../enums';
 const lp = LANCER.log_prefix;
 
-export function lancerItemInit(data: any) {
+function lancerItemInit(data: any) {
   console.log(`${lp} Initializing new ${data.type}`);
   let img: string = 'systems/lancer/assets/icons/';
   if (data.type === 'skill') {
@@ -75,7 +75,7 @@ export function lancerItemInit(data: any) {
   });
 }
 
-export class LancerItem extends Item {
+class LancerItem extends Item {
   data: LancerSkillItemData | LancerTalentItemData | LancerCoreBonusItemData |
         LancerLicenseItemData | LancerPilotArmorItemData | LancerPilotWeaponItemData |
         LancerPilotGearItemData | LancerFrameItemData | LancerMechSystemItemData |
@@ -92,55 +92,55 @@ export class LancerItem extends Item {
   }
 }
 
-export class LancerSkill extends LancerItem {
+class LancerSkill extends LancerItem {
   data: LancerSkillItemData;
 }
 
-export class LancerTalent extends LancerItem {
+class LancerTalent extends LancerItem {
   data: LancerTalentItemData;
 }
 
-export class LancerCoreBonus extends LancerItem {
+class LancerCoreBonus extends LancerItem {
   data: LancerCoreBonusItemData;
 }
 
-export class LancerLicense extends LancerItem {
+class LancerLicense extends LancerItem {
   data: LancerLicenseItemData;
 }
 
-export class LancerPilotArmor extends LancerItem {
+class LancerPilotArmor extends LancerItem {
   data: LancerPilotArmorItemData;
 }
 
-export class LancerPilotWeapon extends LancerItem {
+class LancerPilotWeapon extends LancerItem {
   data: LancerPilotWeaponItemData;
 }
 
-export class LancerPilotGear extends LancerItem {
+class LancerPilotGear extends LancerItem {
   data: LancerPilotGearItemData;
 }
 
-export class LancerFrame extends LancerItem {
+class LancerFrame extends LancerItem {
   data: LancerFrameItemData;
 }
 
-export class LancerMechSystem extends LancerItem {
+class LancerMechSystem extends LancerItem {
   data: LancerMechSystemItemData;
 }
 
-export class LancerMechWeapon extends LancerItem {
+class LancerMechWeapon extends LancerItem {
   data: LancerMechWeaponItemData;
 }
 
-export class LancerNPCFeature extends LancerItem {
+class LancerNPCFeature extends LancerItem {
   data: LancerNPCFeatureItemData;
 }
 
-export class LancerNPCTemplate extends LancerItem{
+class LancerNPCTemplate extends LancerItem{
   data: LancerNPCTemplateItemData;
 }
 
-export class LancerNPCClass extends LancerItem{
+class LancerNPCClass extends LancerItem{
   data: LancerNPCClassItemData;
 }
 
@@ -153,7 +153,7 @@ export class LancerNPCClass extends LancerItem{
  * Handlebars helper which checks whether a weapon is loading by examining its tags
  * @param tags The tags for the weapon
  */
-export function is_loading(tags: TagData[]) {
+function is_loading(tags: TagData[]) {
   if (!tags || !Array.isArray(tags) || tags.length < 1) return false;
   for (let i = 0; i < tags.length; i++) {
     if (tags[i].id && tags[i].id === "tg_loading") {
@@ -166,14 +166,14 @@ export function is_loading(tags: TagData[]) {
   return false;
 }
 
-export function loading_switch() {
+function loading_switch() {
   
 }
 
 /**
  * Handlebars partial for weapon size selector
  */
-export function weapon_size_selector(mount: string, data_target: string) {
+function weapon_size_selector(mount: string, data_target: string) {
   const html = 
   `<select name="${data_target}" data-type="String" style="align-self: center;">
     <option value="${WeaponSize.Aux}" ${mount === WeaponSize.Aux ? 'selected' : ''}>AUX</option>
@@ -188,7 +188,7 @@ export function weapon_size_selector(mount: string, data_target: string) {
 /**
  * Handlebars partial for weapon type selector
  */
-export function weapon_type_selector(w_type: string, data_target: string) {
+function weapon_type_selector(w_type: string, data_target: string) {
   const html =
   `<select name="${data_target}" data-type="String" style="align-self: center;">
     <option value="${WeaponType.Rifle}" ${w_type === WeaponType.Rifle ? 'selected' : ''}>RIFLE</option>
@@ -202,7 +202,7 @@ export function weapon_type_selector(w_type: string, data_target: string) {
   return html;
 }
 
-export function weapon_range_selector(rng_arr: RangeData[], key: string, data_target: string) {
+function weapon_range_selector(rng_arr: RangeData[], key: string, data_target: string) {
   const rng = rng_arr[key];
   let html = '<div class="flexrow flex-center" style="padding: 5px;">';
   if (rng.type) {
@@ -230,7 +230,7 @@ export function weapon_range_selector(rng_arr: RangeData[], key: string, data_ta
   return html;
 }
 
-export function weapon_damage_selector(dmg_arr: DamageData[], key: string, data_target: string) {
+function weapon_damage_selector(dmg_arr: DamageData[], key: string, data_target: string) {
   const dmg = dmg_arr[key];
   const isNPC = Array.isArray(dmg.val);
   let html = '<div class="flexrow flex-center" style="padding: 5px; flex-wrap: nowrap;">';
@@ -278,7 +278,7 @@ export function weapon_damage_selector(dmg_arr: DamageData[], key: string, data_
 /**
  * Handlebars partial for a weapon preview range stat
  */
-export const weapon_range_preview = 
+const weapon_range_preview = 
 `{{#if range.val}}
 {{#if (gtpi rkey "0")}}<span class="flexrow" style="align-items: center; justify-content: center; max-width: min-content;"> // </span>{{/if}}
 <div class="compact-range">
@@ -290,7 +290,7 @@ export const weapon_range_preview =
 /**
  * Handlebars partial for a weapon preview damage stat
  */
-export const weapon_damage_preview = 
+const weapon_damage_preview = 
 `{{#if damage.type}}
 <div class="compact-damage">
     <i class="card clipped cci cci-{{lower-case damage.type}} i--m damage--{{lower-case damage.type}}"></i>
@@ -301,7 +301,7 @@ export const weapon_damage_preview =
 /**
  * Handlebars partial for an NPC feature preview attack bonus stat
  */
-export const npc_attack_bonus_preview = 
+const npc_attack_bonus_preview = 
 `<div class="compact-acc">
   <i class="cci cci-reticule i--m i--dark"></i>
   <span class="medium">{{#if (ltpi atk "0")}}{{else}}+{{/if}}{{atk}} ATTACK BONUS</span>
@@ -310,7 +310,7 @@ export const npc_attack_bonus_preview =
 /**
  * Handlebars partial for an NPC feature preview accuracy stat
  */
-export const npc_accuracy_preview = 
+const npc_accuracy_preview = 
 `{{#if (gtpi acc "0")}}
 <div class="compact-acc">
     <i class="cci cci-accuracy i--m i--dark"></i>
@@ -327,7 +327,7 @@ export const npc_accuracy_preview =
 /**
  * Handlebars partial for a mech weapon preview card.
  */
-export const mech_weapon_preview = 
+const mech_weapon_preview = 
 `<div class="flexcol clipped lancer-weapon-container weapon" style="max-height: fit-content;" data-item-id="{{key}}">
   <div class="lancer-weapon-header clipped-top item" style="grid-area: 1/1/2/3" data-item-id="{{weapon._id}}">
     <i class="cci cci-weapon i--m i--light"> </i>
@@ -376,9 +376,48 @@ export const mech_weapon_preview =
 </div>`;
 
 /**
+ * Handlebars partial for weapon type selector
+ */
+function system_type_selector(s_type: string, data_target: string) {
+  const html =
+  `<select name="${data_target}" data-type="String" style="height: 2em; align-self: center;" >
+    <option value="${SystemType.System}" ${s_type === SystemType.System ? 'selected' : ''}>SYSTEM</option>
+    <option value="${SystemType.AI}" ${s_type === SystemType.AI ? 'selected' : ''}>AI</option>
+    <option value="${SystemType.Armor}" ${s_type === SystemType.Armor ? 'selected' : ''}>ARMOR</option>
+    <option value="${SystemType.Deployable}" ${s_type === SystemType.Deployable ? 'selected' : ''}>DEPLOYABLE</option>
+    <option value="${SystemType.Drone}" ${s_type === SystemType.Drone ? 'selected' : ''}>DRONE</option>
+    <option value="${SystemType.FlightSystem}" ${s_type === SystemType.FlightSystem ? 'selected' : ''}>FLIGHT SYSTEM</option>
+    <option value="${SystemType.Integrated}" ${s_type === SystemType.Integrated ? 'selected' : ''}>INTEGRATED</option>
+    <option value="${SystemType.Mod}" ${s_type === SystemType.Mod ? 'selected' : ''}>MOD</option>
+    <option value="${SystemType.Shield}" ${s_type === SystemType.Shield ? 'selected' : ''}>SHIELD</option>
+    <option value="${SystemType.Tech}" ${s_type === SystemType.Tech ? 'selected' : ''}>TECH</option>
+  </select>`;
+  return html;
+}
+
+/**
+ * Handlebars partial for effect type selector
+ */
+function effect_type_selector(e_type: string, data_target: string) {
+  const html = 
+  `<select name="${data_target}" data-type="String" style="height: 2em;float: right" >
+    <option value="${EffectType.Basic}" ${e_type === EffectType.Basic ? 'selected' : ''}>BASIC</option>
+    <option value="${EffectType.Protocol}" ${e_type === EffectType.Protocol ? 'selected' : ''}>PROTOCOL</option>
+    <option value="${EffectType.Deployable}" ${e_type === EffectType.Deployable ? 'selected' : ''}>DEPLOYABLE</option>
+    <option value="${EffectType.Bonus}" ${e_type === EffectType.Bonus ? 'selected' : ''}>BONUS</option>
+    <option value="${EffectType.Charge}" ${e_type === EffectType.Charge ? 'selected' : ''}>CHARGE</option>
+    <option value="${EffectType.Tech}" ${e_type === EffectType.Tech ? 'selected' : ''}>TECH</option>
+    <option value="${EffectType.AI}" ${e_type === EffectType.AI ? 'selected' : ''}>AI</option>
+    <option value="${EffectType.Reaction}" ${e_type === EffectType.Reaction ? 'selected' : ''}>REACTION</option>
+    <option value="${EffectType.Drone}" ${e_type === EffectType.Drone ? 'selected' : ''}>DRONE</option>
+  </select>`;
+  return html;
+}
+
+/**
  * Handlebars partial for non-editable Mech Trait
  */
-export const mech_trait_preview = 
+const mech_trait_preview = 
 `<div class="lancer-mech-trait-header medium clipped-top" style="grid-area: 1/1/2/2">
   <i class="cci cci-trait i--m i--light"> </i>
   <span class="major">{{trait.name}}</span>
@@ -388,7 +427,7 @@ export const mech_trait_preview =
 /**
  * Handlebars partial for non-editable Core System
  */
-export const core_system_preview = 
+const core_system_preview = 
 `<div class="card clipped frame-core flexcol">
   <div class="lancer-core-sys-header medium clipped-top">
     <i></i>
@@ -423,3 +462,35 @@ export const core_system_preview =
   </div>
 </div>`;
 
+export {
+  LancerItem,
+  LancerSkill,
+  LancerTalent,
+  LancerCoreBonus,
+  LancerLicense,
+  LancerPilotArmor,
+  LancerPilotWeapon,
+  LancerPilotGear,
+  LancerFrame,
+  LancerMechSystem,
+  LancerMechWeapon,
+  LancerNPCClass,
+  LancerNPCTemplate,
+  LancerNPCFeature,
+  lancerItemInit,
+  is_loading,
+  loading_switch,
+  weapon_size_selector,
+  weapon_type_selector,
+  weapon_range_selector,
+  weapon_damage_selector,
+  weapon_range_preview,
+  weapon_damage_preview,
+  npc_attack_bonus_preview,
+  npc_accuracy_preview,
+  mech_weapon_preview,
+  system_type_selector,
+  effect_type_selector,
+  mech_trait_preview,
+  core_system_preview,
+};
