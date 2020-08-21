@@ -39,86 +39,105 @@
 		</div>
 		<div class="flexcol card clipped">
 			<span class="lancer-stat-header major clipped-top">DESCRIPTION</span>
-			{{editor content=data.description target="data.description" button=true owner=owner editable=editable}}
+			<div style="margin: 5px">
+				{{editor content=data.description target="data.description" button=true owner=owner editable=editable}}
+			</div>
 		</div>
-		<div class="effects-container flexcol">
-			<div>
-				<span class="minor" style="float: left">EFFECT</span>
+		{{!-- EFFECT --}}
+		<div class="effects-container flexcol card clipped">
+			<span class="lancer-stat-header major clipped-top" style="float: left">EFFECT</span>
+			<div class="flexcol" style="padding: 5px">
 				{{{eff-type-sel data.effect.effect_type "data.effect.effect_type"}}}
-			</div>
-			{{#if (eq data.effect.effect_type "Charge")}}
-			<div class="arrayed-item-container flexcol" data-item="effect.charges">
-				<div>
-					<span class="minor" style="float: left">Expend a charge for one of the following effects:</span>
-					{{!-- TODO: Make the add button work again, so additional charge effects can be added. --}}
-					{{!-- <a class="add-button clickable" data-action="create" style="float: right; margin-right: 1em">+</a> --}}
+
+				{{!-- BASIC EFFECT --}}
+				{{#if (eq data.effect.effect_type "Basic")}}
+				<div class="lancer-stat-header clipped-top flexrow" style="margin-top: 5px;">
+					<span style="margin-left: 10px; max-width: max-content;">EFFECT NAME // </span> 
+					<input style="margin: 3px;" class="header-field medium" type="text" name="data.effect.name" value="{{data.effect.name}}" data-dtype="String"/>
 				</div>
-				<div class="flexcol">
-					<div class="card clipped">
-						<div class="flexcol" style="margin: 5px;">
-							<div class="lancer-stat-header clipped-top flexrow">
-								<span style="margin-left: 10px; max-width: max-content;">CHARGE NAME // </span> 
-								<input style="margin: 3px;" class="header-field medium" type="text" name="data.effect.charges.0.name" value="{{charge.name}}" data-dtype="String"/>
+				{{{act-type-sel data.effect.activation "data.effect.activation"}}}
+				<div class="card clipped flexcol">
+					<span class="lancer-stat-header major clipped-top" style="float: left">DETAIL</span>
+					<div style="margin: 5px">
+						{{editor content=data.effect.detail target="data.effect.detail" button=true owner=owner editable=editable}}
+					</div>
+				</div>
+				{{/if}}
+
+				{{!-- CHARGE EFFECT --}}
+				{{#if (eq data.effect.effect_type "Charge")}}
+				<div class="arrayed-item-container flexcol" data-item="effect.charges">
+					<div>
+						<span class="minor" style="float: left">Expend a charge for one of the following effects:</span>
+						{{!-- TODO: Make the add button work again, so additional charge effects can be added. --}}
+						{{!-- <a class="add-button clickable" data-action="create" style="float: right; margin-right: 1em">+</a> --}}
+					</div>
+					<div class="flexcol">
+						<div class="card clipped">
+							<div class="flexcol" style="margin: 5px;">
+								<div class="lancer-stat-header clipped-top flexrow">
+									<span style="margin-left: 10px; max-width: max-content;">CHARGE NAME // </span> 
+									<input style="margin: 3px;" class="header-field medium" type="text" name="data.effect.charges.0.name" value="{{data.effect.charges.0.name}}" data-dtype="String"/>
+								</div>
+								<div style="margin: 3px; float: left;">
+									{{{chg-type-sel data.effect.charges.0.charge_type "data.effect.charges.0.charge_type"}}}
+								</div>
+								<div class="flexrow card clipped" style="margin: 5px;">
+									{{{wpn-range-sel data.effect.charges.0.range "0" "data.effect.charges.0.range.0"}}}
+									{{{wpn-range-sel data.effect.charges.0.range "1" "data.effect.charges.0.range.1"}}}
+								</div>
+								<div class="flexrow card clipped" style="margin: 5px;">
+									{{{wpn-damage-sel data.effect.charges.0.damage "0" "data.effect.charges.0.damage.0"}}}
+									{{{wpn-damage-sel data.effect.charges.0.damage "1" "data.effect.charges.0.damage.1"}}}
+								</div>
+								<span class="medium" style="float: left;"> EFFECT </span>
+								<textarea class="" type="string" name="data.effect.charges.0.detail" data-dtype="String">{{data.effect.charges.0.detail}}</textarea>
 							</div>
-							<div style="margin: 3px; float: left;">
-								{{{chg-type-sel data.effect.charges.0.charge_type "data.effect.charges.0.charge_type"}}}
+						</div>
+						<div class="card clipped">
+							<div class="flexcol" style="margin: 5px;">
+								<div class="lancer-stat-header clipped-top flexrow">
+									<span style="margin-left: 10px; max-width: max-content;">CHARGE NAME // </span> 
+									<input style="margin: 3px;" class="header-field medium" type="text" name="data.effect.charges.1.name" value="{{data.effect.charges.1.name}}" data-dtype="String"/>
+								</div>
+								<div style="margin: 3px; float: left;">
+									{{{chg-type-sel data.effect.charges.1.charge_type "data.effect.charges.1.charge_type"}}}
+								</div>
+								<div class="flexrow card clipped" style="margin: 5px;">
+									{{{wpn-range-sel data.effect.charges.1.range "0" "data.effect.charges.1.range.0"}}}
+									{{{wpn-range-sel data.effect.charges.1.range "1" "data.effect.charges.1.range.1"}}}
+								</div>
+								<div class="flexrow card clipped" style="margin: 5px;">
+									{{{wpn-damage-sel data.effect.charges.1.damage "0" "data.effect.charges.1.damage.0"}}}
+									{{{wpn-damage-sel data.effect.charges.1.damage "1" "data.effect.charges.1.damage.1"}}}
+								</div>
+								<span class="medium" style="float: left;"> EFFECT </span>
+								<textarea class="" type="string" name="data.effect.charges.1.detail" data-dtype="String">{{data.effect.charges.1.detail}}</textarea>
 							</div>
-							<div class="flexrow card clipped" style="margin: 5px;">
-								{{{wpn-range-sel data.effect.charges.0.range "0" "data.effect.charges.0.range.0"}}}
-								{{{wpn-range-sel data.effect.charges.0.range "1" "data.effect.charges.0.range.1"}}}
-							</div>
-							<div class="flexrow card clipped" style="margin: 5px;">
-								{{{wpn-damage-sel data.effect.charges.0.damage "0" "data.effect.charges.0.damage.0"}}}
-								{{{wpn-damage-sel data.effect.charges.0.damage "1" "data.effect.charges.0.damage.1"}}}
-							</div>
-							<span class="medium" style="float: left;"> EFFECT </span>
-							<textarea class="" type="string" name="data.effect.charges.0.detail" data-dtype="String">{{charge.detail}}</textarea>
 						</div>
 					</div>
-					<div class="card clipped">
-						<div class="flexcol" style="margin: 5px;">
-							<div class="lancer-stat-header clipped-top flexrow">
-								<span style="margin-left: 10px; max-width: max-content;">CHARGE NAME // </span> 
-								<input style="margin: 3px;" class="header-field medium" type="text" name="data.effect.charges.1.name" value="{{charge.name}}" data-dtype="String"/>
-							</div>
-							<div style="margin: 3px; float: left;">
-								{{{chg-type-sel data.effect.charges.1.charge_type "data.effect.charges.1.charge_type"}}}
-							</div>
-							<div class="flexrow card clipped" style="margin: 5px;">
-								{{{wpn-range-sel data.effect.charges.1.range "0" "data.effect.charges.1.range.0"}}}
-								{{{wpn-range-sel data.effect.charges.1.range "1" "data.effect.charges.1.range.1"}}}
-							</div>
-							<div class="flexrow card clipped" style="margin: 5px;">
-								{{{wpn-damage-sel data.effect.charges.1.damage "0" "data.effect.charges.1.damage.0"}}}
-								{{{wpn-damage-sel data.effect.charges.1.damage "1" "data.effect.charges.1.damage.1"}}}
-							</div>
-							<span class="medium" style="float: left;"> EFFECT </span>
-							<textarea class="" type="string" name="data.effect.charges.1.detail" data-dtype="String">{{charge.detail}}</textarea>
+
+				</div>
+				{{/if}}
+
+				{{!--
+				{{#each item.data.effect as |eff key|}}
+				<div class="flexrow effect" data-key="{{key}}">
+					<div class="flexcol">
+						<div class="remove-wrapper">
+							<input type="String" name="data.effect.{{key}}.name" value="{{eff.name}}" data-dtype="String" class="major lancer-invisible-input"/>
+							<a class="remove-button fa fa-trash clickable" data-action="delete" data-item="effect" style="float: right; margin-right: 14px; margin-top: 2px"></a>
 						</div>
+						<textarea class="lancer-invisible-input minor" type="string" name="data.effect.{{key}}.description" data-dtype="String">{{eff.description}}</textarea>
 					</div>
 				</div>
-
+				{{/each}}
+				--}}
 			</div>
-			{{else}}
-			{{editor content=data.effect.detail target="data.effect.detail" button=true owner=owner editable=editable}}
-
-			{{/if}}
-
-			<!--
-			{{#each item.data.effect as |eff key|}}
-			<div class="flexrow effect" data-key="{{key}}">
-				<div class="flexcol">
-					<div class="remove-wrapper">
-						<input type="String" name="data.effect.{{key}}.name" value="{{eff.name}}" data-dtype="String" class="major lancer-invisible-input"/>
-						<a class="remove-button fa fa-trash clickable" data-action="delete" data-item="effect" style="float: right; margin-right: 14px; margin-top: 2px"></a>
-					</div>
-					<textarea class="lancer-invisible-input minor" type="string" name="data.effect.{{key}}.description" data-dtype="String">{{eff.description}}</textarea>
-				</div>
-			</div>
-			{{/each}}
-		-->
 		</div>
-		<!-- TODO: Bring this out to be a handlebars partial. Will need to pass in context appropriately. -->
+
+		{{!-- TAGS --}}
+		{{!-- TODO: Bring this out to be a handlebars partial. Will need to pass in context appropriately. --}}
 		<div class="arrayed-item-container tags-container flexcol" data-item="tags">
 			<div>
 				<span class="minor" style="float: left">EQUIPMENT TAGS</span>

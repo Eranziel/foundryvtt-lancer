@@ -4,7 +4,8 @@ import { NPCFeatureType, EffectType, ChargeType, ActivationType, RangeType, Dama
 import { NPCFeatureIcons } from './npc-feature';
 import { 
   ChargeEffectData,
-  ChargeData } from './effects';
+  ChargeData, 
+  BasicEffectData} from './effects';
 const lp = LANCER.log_prefix;
 
 /**
@@ -55,6 +56,17 @@ export class LancerItemSheet extends ItemSheet {
       }
 
       // TODO: Fill in 0's if attack bonus or accuracy are undefined or "".
+    }
+
+    if (data.item.type === "mech_system") {
+      // For effects which are a basic string, construct a BasicEffectData for them.
+      if ((typeof data.data.effect) === "string") {
+        const effect: BasicEffectData = {
+          effect_type: EffectType.Basic,
+          detail: data.data.effect,
+        }
+        data.data.effect = effect;
+      }
     }
 
     console.log(`${lp} Item sheet data: `, data, this.item);
