@@ -148,6 +148,11 @@ Hooks.once('init', async function() {
 		return val1 !== val2;
 	});
 
+	// Logical "or" evaluation
+	Handlebars.registerHelper('or', function(val1, val2) {
+		return val1 || val2;
+	});
+
 	// Greater-than evaluation
 	Handlebars.registerHelper('gt', function(val1, val2) {
 		return val1 > val2;

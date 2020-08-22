@@ -434,14 +434,14 @@ function effect_type_selector(e_type: string, data_target: string) {
   const html = 
   `<select name="${data_target}" data-type="String" style="height: 2em;float: right" >
     <option value="${EffectType.Basic}" ${e === EffectType.Basic.toLowerCase() ? 'selected' : ''}>BASIC</option>
-    <option value="${EffectType.Protocol}" ${e === EffectType.Protocol.toLowerCase() ? 'selected' : ''}>PROTOCOL</option>
-    <option value="${EffectType.Deployable}" ${e === EffectType.Deployable.toLowerCase() ? 'selected' : ''}>DEPLOYABLE</option>
-    <option value="${EffectType.Bonus}" ${e === EffectType.Bonus.toLowerCase() ? 'selected' : ''}>BONUS</option>
-    <option value="${EffectType.Charge}" ${e === EffectType.Charge.toLowerCase() ? 'selected' : ''}>CHARGE</option>
-    <option value="${EffectType.Tech}" ${e === EffectType.Tech.toLowerCase() ? 'selected' : ''}>TECH</option>
     <option value="${EffectType.AI}" ${e === EffectType.AI.toLowerCase() ? 'selected' : ''}>AI</option>
-    <option value="${EffectType.Reaction}" ${e === EffectType.Reaction.toLowerCase() ? 'selected' : ''}>REACTION</option>
+    <option value="${EffectType.Charge}" ${e === EffectType.Charge.toLowerCase() ? 'selected' : ''}>CHARGE</option>
+    <option value="${EffectType.Bonus}" ${e === EffectType.Bonus.toLowerCase() ? 'selected' : ''}>BONUS</option>
+    <option value="${EffectType.Deployable}" ${e === EffectType.Deployable.toLowerCase() ? 'selected' : ''}>DEPLOYABLE</option>
     <option value="${EffectType.Drone}" ${e === EffectType.Drone.toLowerCase() ? 'selected' : ''}>DRONE</option>
+    <option value="${EffectType.Protocol}" ${e === EffectType.Protocol.toLowerCase() ? 'selected' : ''}>PROTOCOL</option>
+    <option value="${EffectType.Reaction}" ${e === EffectType.Reaction.toLowerCase() ? 'selected' : ''}>REACTION</option>
+    <option value="${EffectType.Tech}" ${e === EffectType.Tech.toLowerCase() ? 'selected' : ''}>TECH</option>
   </select>`;
   return html;
 }
