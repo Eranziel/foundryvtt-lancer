@@ -125,13 +125,10 @@ declare interface TechEffectData extends EffectData {
 /* Handlebars Helpers                   */
 /* ------------------------------------ */
 
-/**
- * Handlebars helper for effect action type
- */
-function action_type_selector(a_type: string, data_target: string) {
-  const a = a_type ? a_type.toLowerCase() : ActivationType.None.toLowerCase();
-  let html = '<div class="flexrow flex-center" style="padding: 5px; flex-wrap: nowrap;">';
 
+function action_type_icon(a_type: string) {
+  const a = a_type ? a_type.toLowerCase() : ActivationType.None.toLowerCase();
+  let html = '';
   if (a === ActivationType.Full.toLowerCase()) {
     html += `<i class="cci cci-activation-full i--m"></i>`;
   } else if (a === ActivationType.Quick.toLowerCase()) {
@@ -141,7 +138,16 @@ function action_type_selector(a_type: string, data_target: string) {
   } else if (a === ActivationType.Protocol.toLowerCase()) {
     html += `<i class="cci cci-protocol i--m"></i>`;
   }
+  return html
+}
 
+/**
+ * Handlebars helper for effect action type
+ */
+function action_type_selector(a_type: string, data_target: string) {
+  const a = a_type ? a_type.toLowerCase() : ActivationType.None.toLowerCase();
+  let html = '<div class="flexrow flex-center" style="padding: 5px; flex-wrap: nowrap;">';
+  html += action_type_icon(a_type);
   html +=
   `<select name="${data_target}" data-type="String" style="height: 2em;float: right" >
     <option value="${ActivationType.None}" ${a === ActivationType.None.toLowerCase() ? 'selected' : ''}>NONE</option>
@@ -156,7 +162,6 @@ function action_type_selector(a_type: string, data_target: string) {
   return html;
 }
 
-
 /**
  * Handlebars helper for charge type selector
  */
@@ -169,7 +174,6 @@ function charge_type_selector(c_type: string, data_target: string) {
   </select>`;
   return html;
 }
-
 
 const charge_effect_editable = 
 ``;
@@ -190,6 +194,7 @@ export {
   ProtocolEffectData,
   ReactionEffectData,
   TechEffectData,
+  action_type_icon,
   action_type_selector,
   charge_type_selector,
 }

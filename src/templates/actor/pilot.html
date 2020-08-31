@@ -581,24 +581,43 @@
             </div>
             {{/if}}
             {{#with system.data.effect as |effect|}}
-                <h3>{{effect.effect_type}} Effect</h3>
-              {{#if (eq effect.effect_type "Charge")}}
-                <div class="effect-text" style="padding: 5px">
-                  <span class="minor" style="float: left">Expend a charge for one of the following effects:</span>
-                  <br>
-                  {{#each effect.charges as |charge key|}}
-                  <div class="flexcol">
-                    <div class="flexrow">
-                      <span class="minor">{{charge.name}}</span>
-                      {{#each weapon.data.range as |range rkey|}}<i class="cci cci-{{lower-case range.type}} i--m i--dark"></i><span class="medium">{{range.val}}</span>{{/each}}
-                    </div>
-                    <span>{{charge.detail}}</span>
+              {{#if effect.effect_type}}
+                {{!-- BASIC or GENERIC EFFECT --}}
+                {{#if (or (eq effect.effect_type "Basic") (eq effect.effect_type "Generic"))}}
+                  <h3>EFFECT</h3>
+                  {{#if effect.name}} {{effect.name}} {{/if}}
+                  {{#if effect.detail}}
+                  <div class="flexrow effect-text">
+                    {{{effect.detail}}}
                   </div>
-                  {{/each}}
-                </div>
+                  {{/if}}
+                {{/if}}
+                
+                {{#if (eq effect.effect_type "AI")}}
+
+                {{/if}}
+
+                {{!-- CHARGE EFFECT --}}
+                {{#if (eq effect.effect_type "Charge")}}
+                <h3>{{upper-case effect.effect_type}} EFFECT</h3>
+                  <div class="effect-text" style="padding: 5px">
+                    <span class="minor" style="float: left">Expend a charge for one of the following effects:</span>
+                    <br>
+                    {{#each effect.charges as |charge key|}}
+                    <div class="flexcol">
+                      <div class="flexrow">
+                        <span class="minor">{{charge.name}}</span>
+                        {{#each weapon.data.range as |range rkey|}}<i class="cci cci-{{lower-case range.type}} i--m i--dark"></i><span class="medium">{{range.val}}</span>{{/each}}
+                      </div>
+                      <span>{{charge.detail}}</span>
+                    </div>
+                    {{/each}}
+                  </div>
+                {{/if}}
               {{else}}
+                <h3>EFFECT</h3>
                 <div class="effect-text" style="padding: 5px">
-                  {{{effect.detail}}}
+                  {{{effect}}}
                 </div>
               {{/if}}
             {{/with}}

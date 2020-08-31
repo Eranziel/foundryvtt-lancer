@@ -32,7 +32,9 @@ import { LancerItem,
 	weapon_damage_selector,
 	system_type_selector,
 	effect_type_selector } from './module/item/lancer-item';
-import { charge_type_selector, action_type_selector } from './module/item/effects';
+import { charge_type_selector, 
+	action_type_selector,
+	action_type_icon } from './module/item/effects';
 import { DamageData, 
 	LancerPilotActorData, 
 	TagDataShort, 
@@ -208,6 +210,7 @@ Hooks.once('init', async function() {
 	// Systems
 	Handlebars.registerHelper('sys-type-sel', system_type_selector);
 	Handlebars.registerHelper('eff-type-sel', effect_type_selector);
+	Handlebars.registerHelper('act-icon', action_type_icon);
 	Handlebars.registerHelper('act-type-sel', action_type_selector);
 	Handlebars.registerHelper('chg-type-sel', charge_type_selector);
 
