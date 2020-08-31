@@ -170,7 +170,7 @@ export class LancerPilotSheet extends ActorSheet {
         let keySplit = statKey.split('.');
         let title = keySplit[keySplit.length - 1].toUpperCase();
         console.log(`${lp} Rolling ${title} check, key ${statKey}`);
-        game.lancer.rollStatMacro(title, statKey, null, true);
+        game.lancer.rollStatMacro(this.actor._id, title, statKey, null, true);
       });
 
       // Trigger rollers
@@ -184,7 +184,7 @@ export class LancerPilotSheet extends ActorSheet {
         //.find('modifier-name').first().text();
         console.log(`${lp} Rolling '${title}' trigger (d20 + ${modifier})`);
 
-        game.lancer.rollTriggerMacro(title, modifier, true);
+        game.lancer.rollTriggerMacro(this.actor._id, title, modifier, true);
       });
 
       // Weapon rollers

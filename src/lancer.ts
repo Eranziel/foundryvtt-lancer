@@ -319,9 +319,12 @@ async function renderMacro(actor: Actor, template: string, templateData: any) {
 	return Promise.resolve();
 }
 
-async function rollTriggerMacro(title: string, modifier: number, sheetMacro: boolean = false) {
-  let actor: Actor = getMacroSpeaker();
-  if (actor === null) return;
+async function rollTriggerMacro(a: string, title: string, modifier: number, sheetMacro: boolean = false) {
+	let actor: Actor = game.actors.get(a)
+  if (actor === null) {
+		actor = getMacroSpeaker();
+	}
+	if (actor === null)	return;
   console.log(`${lp} rollTriggerMacro actor`, actor);
 
   // Get accuracy/difficulty with a prompt
@@ -348,10 +351,12 @@ async function rollTriggerMacro(title: string, modifier: number, sheetMacro: boo
   return renderMacro(actor, template, templateData);
 }
 
-async function rollStatMacro(title: string, statKey: string, effect?: string, sheetMacro: boolean = false) {
-	// Determine which Actor to speak as
-	let actor: Actor = getMacroSpeaker();
-	if (actor === null) return;
+async function rollStatMacro(a: string, title: string, statKey: string, effect?: string, sheetMacro: boolean = false) {
+	let actor: Actor = game.actors.get(a)
+	if (actor === null) {
+		actor = getMacroSpeaker();
+	}
+	if (actor === null)	return;
 	console.log(`${lp} rollStatMacro actor`, actor);
 
 	let bonus: any;
@@ -395,12 +400,14 @@ async function rollStatMacro(title: string, statKey: string, effect?: string, sh
 }
 
 async function rollAttackMacro(w: string, a: string) {
-  // Determine which Actor to speak as
-  let actor: Actor = getMacroSpeaker();
-  if (actor === null) return;
+	let actor: Actor = game.actors.get(a)
+  if (actor === null) {
+		actor = getMacroSpeaker();
+	}
+	if (actor === null)	return;
 
   // Get the item
-  const item: Item = game.actors.get(a).getOwnedItem(w);
+  const item: Item = actor.getOwnedItem(w);
 	console.log(`${lp} Rolling attack macro`, item, w, a);
 	if (!item) {
     ui.notifications.error(`Error rolling attack macro - could not find Item ${w} owned by Actor ${a}!`);
@@ -492,12 +499,14 @@ async function rollAttackMacro(w: string, a: string) {
 }
 
 async function rollTechMacro(t: string, a: string) {
-  // Determine which Actor to speak as
-  let actor: Actor = getMacroSpeaker();
-  if (actor === null) return;
+	let actor: Actor = game.actors.get(a)
+  if (actor === null) {
+		actor = getMacroSpeaker();
+	}
+	if (actor === null)	return;
 
   // Get the item
-  const item: Item = game.actors.get(a).getOwnedItem(t);
+  const item: Item = actor.getOwnedItem(t);
 	console.log(`${lp} Rolling tech attack macro`, item, t, a);
 	if (!item) {
     ui.notifications.error(`Error rolling tech attack macro - could not find Item ${t} owned by Actor ${a}!`);
