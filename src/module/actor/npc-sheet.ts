@@ -317,19 +317,18 @@ export class LancerNPCSheet extends ActorSheet {
     // Copy the NPC name to the prototype token.
     formData['token.name'] = formData["data.name"];
 
-    let token: any = this.actor.token;
+    let token: any = this.actor.data['token'];
     // Set the prototype token image if the prototype token isn't initialized
-    if (!this.actor.token) {
-      this.actor.update({ "token.img": formData.img })
+    if (!token) {
+      formData['token.img'] = formData['img'];
     }
     // Update token image if it matches the old actor image
-    else if ((this.actor.img == token.img)
-      && (this.actor.img != formData.img)) {
-      this.actor.update({ "token.img": formData.img });
+    else if (this.actor.data.img === token['img'] && this.actor.img !== formData['img']) {
+      formData['token.img'] = formData['img'];
     }
 
     
-    console.log(`${lp} NPC sheet form data: ${formData}`);
+    console.log(`${lp} NPC sheet form data: `, formData);
     // Update the Actor
     return this.object.update(formData);
   }
