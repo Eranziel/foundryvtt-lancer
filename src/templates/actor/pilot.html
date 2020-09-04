@@ -674,7 +674,7 @@
                   <div class="flexrow" style="max-width: max-content;">
                     <div class="flexrow compact-stat lancer-effect-stat">
                       {{#if effect.size}}
-                        {{#if (eq effect.size "0.5")}}
+                        {{#if (ltpi effect.size "1")}}
                         <i class="cci cci-size-half i--m i--dark"></i>
                         {{else}}
                         <i class="cci cci-size-{{effect.size}} i--m i--dark"></i>
@@ -718,11 +718,53 @@
                 {{#if (eq effect.effect_type "Drone")}}
                   <h3 class="medium effect-title">EFFECT</h3>
                   {{#if effect.name}} {{effect.name}} {{/if}}
+                  <div class="flexrow" style="max-width: max-content;">
+                    <div class="flexrow compact-stat lancer-effect-stat">
+                      {{#if effect.size}}
+                        {{#if (ltpi effect.size "1")}}
+                        <i class="cci cci-size-half i--m i--dark"></i>
+                        {{else}}
+                        <i class="cci cci-size-{{effect.size}} i--m i--dark"></i>
+                        {{/if}}
+                      {{/if}}
+                    </div>
+                    {{#if effect.hp}}
+                      <div class="flexrow compact-stat lancer-effect-stat">
+                        <i class="mdi mdi-heart-outline i--m i--dark"></i>
+                        <span class="minor lancer-stat-input" style="min-width: fit-content;">{{effect.hp}} HP</span>
+                      </div>
+                    {{/if}}
+                    {{#if effect.armor}}
+                      <div class="flexrow compact-stat lancer-effect-stat">
+                        <i class="mdi mdi-shield-outline i--m i--dark"></i>
+                        <span class="minor lancer-stat-input" style="min-width: fit-content;">{{effect.armor}} ARMOR</span>
+                      </div>
+                    {{/if}}
+                    {{#if effect.heat}}
+                      <div class="flexrow compact-stat lancer-effect-stat">
+                        <i class="cci cci-heat i--m i--dark"></i>
+                        <span class="minor lancer-stat-input" style="min-width: fit-content;">{{effect.heat}} HEAT</span>
+                      </div>
+                    {{/if}}
+                    {{#if effect.evasion}}
+                      <div class="flexrow compact-stat lancer-effect-stat">
+                        <i class="cci cci-evasion i--m i--dark"></i>
+                        <span class="minor lancer-stat-input" style="min-width: fit-content;">{{effect.evasion}} EVA</span>
+                      </div>
+                    {{/if}}
+                    {{#if effect.edef}}
+                      <div class="flexrow compact-stat lancer-effect-stat">
+                        <i class="cci cci-edef i--m i--dark"></i>
+                        <span class="minor lancer-stat-input" style="min-width: fit-content;">{{effect.edef}} E-DEF</span>
+                      </div>
+                    {{/if}}
+                  </div>
                   {{#if effect.detail}}
                   <div class="flexrow effect-text">
                     {{{effect.detail}}}
                   </div>
                   {{/if}}
+                  {{!-- Abilities - array of effects --}}
                 {{/if}}
                 
                 {{!-- OFFENSIVE EFFECT --}}
