@@ -584,7 +584,7 @@
               {{#if effect.effect_type}}
                 {{!-- BASIC or GENERIC EFFECT --}}
                 {{#if (or (eq effect.effect_type "Basic") (eq effect.effect_type "Generic"))}}
-                  <h3>EFFECT</h3>
+                  <h3 class="medium effect-title">EFFECT</h3>
                   {{#if effect.name}} {{effect.name}} {{/if}}
                   {{#if effect.detail}}
                   <div class="flexrow effect-text">
@@ -593,13 +593,65 @@
                   {{/if}}
                 {{/if}}
                 
+                {{!-- AI EFFECT --}}
                 {{#if (eq effect.effect_type "AI")}}
+                  <h3  class="medium effect-title">EFFECT</h3>
+                  {{#if effect.name}} {{effect.name}} {{/if}}
+                  {{#if effect.detail}}
+                  <div class="flexrow effect-text">
+                    {{{effect.detail}}}
+                  </div>
+                  {{/if}}
+                  {{!-- Abilities - array of effects --}}
+                {{/if}}
 
+                {{!-- BONUS EFFECT --}}
+                {{#if (eq effect.effect_type "Bonus")}}
+                  <h3 class="medium effect-title">EFFECT</h3>
+                  {{#if effect.name}} {{effect.name}} {{/if}}
+                  {{!-- Render icon and number for each bonus --}}
+                  <div class="flexrow" style="max-width: max-content;">
+                    {{#if effect.size}}
+                      <div class="flexrow compact-stat lancer-effect-stat">
+                        <i class="cci cci-size-1 i--m i--dark"></i>
+                        <span class="minor lancer-stat-input" style="min-width: fit-content;">+{{effect.size}} SIZE</span>
+                      </div>
+                    {{/if}}
+                    {{#if effect.hp}}
+                      <div class="flexrow compact-stat lancer-effect-stat">
+                        <i class="mdi mdi-heart-outline i--m i--dark"></i>
+                        <span class="minor lancer-stat-input" style="min-width: fit-content;">+{{effect.hp}} HP</span>
+                      </div>
+                    {{/if}}
+                    {{#if effect.armor}}
+                      <div class="flexrow compact-stat lancer-effect-stat">
+                        <i class="mdi mdi-shield-outline i--m i--dark"></i>
+                        <span class="minor lancer-stat-input" style="min-width: fit-content;">+{{effect.armor}} ARM</span>
+                      </div>
+                    {{/if}}
+                    {{#if effect.evasion}}
+                      <div class="flexrow compact-stat lancer-effect-stat">
+                        <i class="cci cci-evasion i--m i--dark"></i>
+                        <span class="minor lancer-stat-input" style="min-width: fit-content;">+{{effect.evasion}} EVA</span>
+                      </div>
+                    {{/if}}
+                    {{#if effect.edef}}
+                      <div class="flexrow compact-stat lancer-effect-stat">
+                        <i class="cci cci-edef i--m i--dark"></i>
+                        <span class="minor lancer-stat-input" style="min-width: fit-content;">+{{effect.edef}} E-DEF</span>
+                      </div>
+                    {{/if}}
+                  </div>
+                  {{#if effect.detail}}
+                  <div class="flexrow effect-text">
+                    {{{effect.detail}}}
+                  </div>
+                  {{/if}}
                 {{/if}}
 
                 {{!-- CHARGE EFFECT --}}
                 {{#if (eq effect.effect_type "Charge")}}
-                <h3>{{upper-case effect.effect_type}} EFFECT</h3>
+                <h3 class="medium effect-title">{{upper-case effect.effect_type}} EFFECT</h3>
                   <div class="effect-text" style="padding: 5px">
                     <span class="minor" style="float: left">Expend a charge for one of the following effects:</span>
                     <br>
@@ -613,6 +665,123 @@
                     </div>
                     {{/each}}
                   </div>
+                {{/if}}
+
+                {{!-- DEPLOYABLE EFFECT --}}
+                {{#if (eq effect.effect_type "Deployable")}}
+                  <h3 class="medium effect-title">EFFECT</h3>
+                  {{#if effect.name}} {{effect.name}} {{/if}}
+                  <div class="flexrow" style="max-width: max-content;">
+                    <div class="flexrow compact-stat lancer-effect-stat">
+                      {{#if effect.size}}
+                        {{#if (eq effect.size "0.5")}}
+                        <i class="cci cci-size-half i--m i--dark"></i>
+                        {{else}}
+                        <i class="cci cci-size-{{effect.size}} i--m i--dark"></i>
+                        {{/if}}
+                      {{/if}}
+                      {{#if effect.count}}<span class="minor" style="text-align: center; align-self: center;">x{{effect.count}}</span>{{/if}}
+                    </div>
+                    {{#if effect.hp}}
+                      <div class="flexrow compact-stat lancer-effect-stat">
+                        <i class="mdi mdi-heart-outline i--m i--dark"></i>
+                        <span class="minor lancer-stat-input" style="min-width: fit-content;">{{effect.hp}} HP</span>
+                      </div>
+                    {{/if}}
+                    {{#if effect.heat}}
+                      <div class="flexrow compact-stat lancer-effect-stat">
+                        <i class="cci cci-heat i--m i--dark"></i>
+                        <span class="minor lancer-stat-input" style="min-width: fit-content;">{{effect.heat}} HEAT</span>
+                      </div>
+                    {{/if}}
+                    {{#if effect.evasion}}
+                      <div class="flexrow compact-stat lancer-effect-stat">
+                        <i class="cci cci-evasion i--m i--dark"></i>
+                        <span class="minor lancer-stat-input" style="min-width: fit-content;">{{effect.evasion}} EVA</span>
+                      </div>
+                    {{/if}}
+                    {{#if effect.edef}}
+                      <div class="flexrow compact-stat lancer-effect-stat">
+                        <i class="cci cci-edef i--m i--dark"></i>
+                        <span class="minor lancer-stat-input" style="min-width: fit-content;">{{effect.edef}} E-DEF</span>
+                      </div>
+                    {{/if}}
+                  </div>
+                  {{#if effect.detail}}
+                  <div class="flexrow effect-text">
+                    {{{effect.detail}}}
+                  </div>
+                  {{/if}}
+                {{/if}}
+                
+                {{!-- DRONE EFFECT --}}
+                {{#if (eq effect.effect_type "Drone")}}
+                  <h3 class="medium effect-title">EFFECT</h3>
+                  {{#if effect.name}} {{effect.name}} {{/if}}
+                  {{#if effect.detail}}
+                  <div class="flexrow effect-text">
+                    {{{effect.detail}}}
+                  </div>
+                  {{/if}}
+                {{/if}}
+                
+                {{!-- OFFENSIVE EFFECT --}}
+                {{#if (eq effect.effect_type "Offensive")}}
+                  <h3 class="medium effect-title">EFFECT</h3>
+                  {{#if effect.name}} {{effect.name}} {{/if}}
+                  {{#if effect.detail}}
+                  <div class="flexrow effect-text">
+                    {{{effect.detail}}}
+                  </div>
+                  {{/if}}
+                {{/if}}
+                
+                {{!-- PROFILE EFFECT --}}
+                {{#if (eq effect.effect_type "Profile")}}
+                  <h3 class="medium effect-title">EFFECT</h3>
+                  {{#if effect.name}} {{effect.name}} {{/if}}
+                  {{#if effect.detail}}
+                  <div class="flexrow effect-text">
+                    {{{effect.detail}}}
+                  </div>
+                  {{/if}}
+                {{/if}}
+                
+                {{!-- PROTOCOL EFFECT --}}
+                {{#if (eq effect.effect_type "Protocol")}}
+                  <h3 class="medium effect-title">EFFECT</h3>
+                  {{#if effect.name}} {{effect.name}} {{/if}}
+                  {{#if effect.detail}}
+                  <div class="flexrow effect-text">
+                    {{{effect.detail}}}
+                  </div>
+                  {{/if}}
+                {{/if}}
+                
+                {{!-- REACTION EFFECT --}}
+                {{#if (eq effect.effect_type "Reaction")}}
+                  <h3 class="medium effect-title">EFFECT</h3>
+                  {{#if effect.name}} {{effect.name}} {{/if}}
+                  {{#if effect.detail}}
+                  <div class="flexrow effect-text">
+                    {{{effect.detail}}}
+                  </div>
+                  {{/if}}
+                {{/if}}
+                
+                {{!-- INVADE OPTION EFFECT --}}
+                {{#if (eq effect.effect_type "Invade")}}
+                  <h3 class="medium effect-title">EFFECT</h3>
+                  {{#if effect.name}} {{effect.name}} {{/if}}
+                  {{#if effect.detail}}
+                  <div class="flexrow effect-text">
+                    {{{effect.detail}}}
+                  </div>
+                  {{/if}}
+                {{/if}}
+                
+                {{!-- TECH EFFECT --}}
+                {{#if (eq effect.effect_type "Tech")}}
                 {{/if}}
               {{else}}
                 <h3>EFFECT</h3>

@@ -613,6 +613,20 @@ button {
   padding: 0 5px;
 }
 
+.effect-title {
+  display: flex;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.lancer-effect-stat {
+  align-self: center;
+  text-align: center;
+  max-width: max-content;
+  min-width: max-content;
+  padding: 5px; flex-wrap: nowrap;
+}
+
 .stat-container {
   align-items: center;
 }
