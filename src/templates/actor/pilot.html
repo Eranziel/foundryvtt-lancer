@@ -651,7 +651,7 @@
 
                 {{!-- CHARGE EFFECT --}}
                 {{#if (eq effect.effect_type "Charge")}}
-                <h3 class="medium effect-title">{{upper-case effect.effect_type}} EFFECT</h3>
+                <h3 class="medium effect-title">CHARGE EFFECT</h3>
                   <div class="effect-text" style="padding: 5px">
                     <span class="minor" style="float: left">Expend a charge for one of the following effects:</span>
                     <br>
@@ -669,7 +669,7 @@
 
                 {{!-- DEPLOYABLE EFFECT --}}
                 {{#if (eq effect.effect_type "Deployable")}}
-                  <h3 class="medium effect-title">EFFECT</h3>
+                  <h3 class="medium effect-title">DEPLOYABLE EFFECT</h3>
                   {{#if effect.name}} {{effect.name}} {{/if}}
                   <div class="flexrow" style="max-width: max-content;">
                     <div class="flexrow compact-stat lancer-effect-stat">
@@ -716,7 +716,7 @@
                 
                 {{!-- DRONE EFFECT --}}
                 {{#if (eq effect.effect_type "Drone")}}
-                  <h3 class="medium effect-title">EFFECT</h3>
+                  <h3 class="medium effect-title">DRONE EFFECT</h3>
                   {{#if effect.name}} {{effect.name}} {{/if}}
                   <div class="flexrow" style="max-width: max-content;">
                     <div class="flexrow compact-stat lancer-effect-stat">
@@ -769,18 +769,37 @@
                 
                 {{!-- OFFENSIVE EFFECT --}}
                 {{#if (eq effect.effect_type "Offensive")}}
-                  <h3 class="medium effect-title">EFFECT</h3>
+                  <h3 class="medium effect-title">WEAPON EFFECT</h3>
                   {{#if effect.name}} {{effect.name}} {{/if}}
+                  {{#if effect.attack}}
+                    <div class="flexrow">
+                      <div class="medium">ON ATTACK</div>
+                      <div class="effect-text">{{{effect.attack}}}</div>
+                    </div>
+                  {{/if}}
+                  {{#if effect.hit}}
+                    <div class="flexrow">
+                      <div class="medium">ON HIT</div>
+                      <div class="effect-text">{{{effect.hit}}}</div>
+                    </div>
+                  {{/if}}
+                  {{#if effect.crit}}
+                    <div class="flexrow">
+                      <div class="medium">ON CRIT</div>
+                      <div class="effect-text">{{{effect.crit}}}</div>
+                    </div>
+                  {{/if}}
                   {{#if effect.detail}}
                   <div class="flexrow effect-text">
                     {{{effect.detail}}}
                   </div>
                   {{/if}}
+                  {{!-- Abilities - array of effects --}}
                 {{/if}}
                 
                 {{!-- PROFILE EFFECT --}}
                 {{#if (eq effect.effect_type "Profile")}}
-                  <h3 class="medium effect-title">EFFECT</h3>
+                  <h3 class="medium effect-title">WEAPON PROFILE</h3>
                   {{#if effect.name}} {{effect.name}} {{/if}}
                   {{#if effect.detail}}
                   <div class="flexrow effect-text">
@@ -791,7 +810,7 @@
                 
                 {{!-- PROTOCOL EFFECT --}}
                 {{#if (eq effect.effect_type "Protocol")}}
-                  <h3 class="medium effect-title">EFFECT</h3>
+                  <h3 class="medium effect-title">PROTOCOL</h3>
                   {{#if effect.name}} {{effect.name}} {{/if}}
                   {{#if effect.detail}}
                   <div class="flexrow effect-text">
@@ -802,28 +821,43 @@
                 
                 {{!-- REACTION EFFECT --}}
                 {{#if (eq effect.effect_type "Reaction")}}
-                  <h3 class="medium effect-title">EFFECT</h3>
-                  {{#if effect.name}} {{effect.name}} {{/if}}
-                  {{#if effect.detail}}
-                  <div class="flexrow effect-text">
-                    {{{effect.detail}}}
+                  <h3 class="medium effect-title">REACTION</h3>
+                  <div class="flexcol effect-text">
+                    <div class="medium">{{effect.name}} // {{effect.frequency}}</div>
+                  </div>
+                  {{#if effect.init}}
+                  <div class="flexcol effect-text">
+                    <div class="medium" style="max-width: max-content; min-width: max-content;">INIT</div>
+                    <div class="effect-text">{{{effect.init}}}</div>
                   </div>
                   {{/if}}
+                  <div class="flexcol effect-text">
+                    <div class="medium">TRIGGER</div>
+                    <div class="effect-text">{{{effect.trigger}}}</div>
+                  </div>
+                  <div class="flexcol effect-text">
+                    <div class="medium">EFFECT</div>
+                    <div class="effect-text">{{{effect.detail}}}</div>
+                  </div>
                 {{/if}}
                 
                 {{!-- INVADE OPTION EFFECT --}}
                 {{#if (eq effect.effect_type "Invade")}}
-                  <h3 class="medium effect-title">EFFECT</h3>
-                  {{#if effect.name}} {{effect.name}} {{/if}}
-                  {{#if effect.detail}}
+                  <h3 class="medium effect-title">{{effect.name}} // {{effect.activation}} TECH</h3>
                   <div class="flexrow effect-text">
                     {{{effect.detail}}}
                   </div>
-                  {{/if}}
                 {{/if}}
                 
                 {{!-- TECH EFFECT --}}
                 {{#if (eq effect.effect_type "Tech")}}
+                  <h3 class="medium effect-title">{{effect.name}} // {{effect.activation}} TECH</h3>
+                  {{#if effect.detail}}
+                  <div class="flexrow effect-text">
+                    {{{effect.detail}}}
+                  </div>
+                  {{!-- Abilities - array of effects --}}
+                  {{/if}}
                 {{/if}}
               {{else}}
                 <h3>EFFECT</h3>
