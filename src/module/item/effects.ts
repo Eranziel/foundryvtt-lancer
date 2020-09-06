@@ -69,6 +69,7 @@ declare interface DroneEffectData extends EffectData {
   size: number;
   hp: number;
   armor?: number;
+  heat?: number;
   edef: number;
   evasion: number;
   detail: string;
@@ -306,6 +307,227 @@ function charge_effect_preview(effect: ChargeEffectData) {
   return html;
 }
 
+function deployable_effect_preview(effect: DeployableEffectData) {
+  var html = 
+  `<div class="flexcol effect-text" style="padding: 5px">
+    <div class="medium effect-title">DEPLOYABLE EFFECT`;
+  if (effect.activation) {
+    html += ` // ${effect.activation.toUpperCase()}`;
+  }
+  html += `</div>`;
+  if (effect.name) {
+    html += `<div class="minor effect-text" style="padding: 5px">${effect.name}</div>`;
+  }
+  html += 
+  `<div class="flexrow" style="max-width: max-content;">
+    <div class="flexrow compact-stat lancer-effect-stat">`;
+  if (effect.size) {
+    var size_icon = `<i class="cci cci-size-${effect.size < 1 ? 'half' : effect.size} i--m i--dark"></i>`;
+    if (effect.count) {
+      for (var i = 0; i < effect.count; i++) {
+        html += size_icon;
+      }
+    }
+    else {
+      html += size_icon;
+    }
+  }
+  html += `</div>`;
+  if (effect.hp) {
+    html += 
+    `<div class="flexrow compact-stat lancer-effect-stat">
+      <i class="mdi mdi-heart-outline i--m i--dark"></i>
+      <span class="minor lancer-stat-input" style="min-width: fit-content;">${effect.hp} HP</span>
+    </div>`;
+  }
+  if (effect.heat) {
+    html +=
+    `<div class="flexrow compact-stat lancer-effect-stat">
+      <i class="cci cci-heat i--m i--dark"></i>
+      <span class="minor lancer-stat-input" style="min-width: fit-content;">${effect.heat} HEAT</span>
+    </div>`;
+  }
+  if (effect.evasion) {
+    html +=
+    `<div class="flexrow compact-stat lancer-effect-stat">
+      <i class="cci cci-evasion i--m i--dark"></i>
+      <span class="minor lancer-stat-input" style="min-width: fit-content;">${effect.evasion} EVA</span>
+    </div>`;
+  }
+  if (effect.edef) {
+    html +=
+    `<div class="flexrow compact-stat lancer-effect-stat">
+      <i class="cci cci-edef i--m i--dark"></i>
+      <span class="minor lancer-stat-input" style="min-width: fit-content;">${effect.edef} E-DEF</span>
+    </div>`;
+  }
+  html += `</div><div class="flexrow effect-text">${effect.detail}</div></div>`;
+  return html;
+}
+
+function drone_effect_preview(effect: DroneEffectData) {
+  var html = 
+  `<div class="flexcol effect-text" style="padding: 5px">
+    <div class="medium effect-title">DRONE EFFECT`;
+  if (effect.activation) {
+    html += ` // ${effect.activation.toUpperCase()}`;
+  }
+  html += `</div>`;
+  if (effect.name) {
+    html += `<div class="minor effect-text" style="padding: 5px">${effect.name}</div>`;
+  }
+  html += 
+  `<div class="flexrow" style="max-width: max-content;">`;
+  if (effect.size) {
+    html += 
+    `<div class="flexrow compact-stat lancer-effect-stat">
+      <i class="cci cci-size-${effect.size < 1 ? 'half' : effect.size} i--m i--dark"></i>
+    </div>`;
+  }
+  html += ``;
+  if (effect.hp) {
+    html += 
+    `<div class="flexrow compact-stat lancer-effect-stat">
+      <i class="mdi mdi-heart-outline i--m i--dark"></i>
+      <span class="minor lancer-stat-input" style="min-width: fit-content;">${effect.hp} HP</span>
+    </div>`;
+  }
+  if (effect.armor) {
+    html +=
+    `<div class="flexrow compact-stat lancer-effect-stat">
+      <i class="mdi mdi-shield-outline i--m i--dark"></i>
+      <span class="minor lancer-stat-input" style="min-width: fit-content;">${effect.armor} ARMOR</span>
+    </div>`;
+  }
+  if (effect.heat) {
+    html +=
+    `<div class="flexrow compact-stat lancer-effect-stat">
+      <i class="cci cci-heat i--m i--dark"></i>
+      <span class="minor lancer-stat-input" style="min-width: fit-content;">${effect.heat} HEAT</span>
+    </div>`;
+  }
+  if (effect.evasion) {
+    html +=
+    `<div class="flexrow compact-stat lancer-effect-stat">
+      <i class="cci cci-evasion i--m i--dark"></i>
+      <span class="minor lancer-stat-input" style="min-width: fit-content;">${effect.evasion} EVA</span>
+    </div>`;
+  }
+  if (effect.edef) {
+    html +=
+    `<div class="flexrow compact-stat lancer-effect-stat">
+      <i class="cci cci-edef i--m i--dark"></i>
+      <span class="minor lancer-stat-input" style="min-width: fit-content;">${effect.edef} E-DEF</span>
+    </div>`;
+  }
+  html += `</div><div class="flexrow effect-text">${effect.detail}</div></div>`;
+  return html;
+}
+
+function offensive_effect_preview(effect: OffensiveEffectData) {
+  var html = 
+  `<div class="flexcol effect-text" style="padding: 5px">
+    <div class="medium effect-title">WEAPON EFFECT`;
+  if (effect.activation) {
+    html += ` // ${effect.activation.toUpperCase()}`;
+  }
+  html += `</div>`;
+  if (effect.name) {
+    html += `<div class="minor effect-text" style="padding: 5px">${effect.name}</div>`;
+  }
+  if (effect.attack) {
+    html +=
+    `<div class="flexrow">
+      <div class="medium">ON ATTACK</div>
+      <div class="effect-text">${effect.attack}</div>
+    </div>`;
+  }
+  if (effect.hit) {
+    html +=
+    `<div class="flexrow">
+      <div class="medium">ON HIT</div>
+      <div class="effect-text">${effect.hit}</div>
+    </div>`;
+  }
+  if (effect.critical) {
+    html +=
+    `<div class="flexrow">
+      <div class="medium">ON CRIT</div>
+      <div class="effect-text">${effect.critical}</div>
+    </div>`;
+  }
+  html += `<div class="flexrow effect-text">${effect.detail}</div></div>`;
+  return html;
+}
+
+function profile_effect_preview(effect: ProfileEffectData) {
+  // TODO: Render the profile - range, damage, tags.
+  return standard_effect_preview(effect, 'WEAPON EFFECT');
+}
+
+function protocol_effect_preview(effect: ProtocolEffectData) {
+  return standard_effect_preview(effect, 'PROTOCOL');
+}
+
+function reaction_effect_preview(effect: ReactionEffectData) {
+  var html = 
+  `<div class="flexcol effect-text" style="padding: 5px">
+    <div class="medium effect-title">REACTION`;
+  if (effect.activation) {
+    html += ` // ${effect.activation.toUpperCase()}`;
+  }
+  html += `</div><div class="minor effect-text" style="padding: 5px">`;
+  if (effect.name) {
+    html += `${effect.name}`;
+  }
+  if (effect.frequency) {
+    html += ` // ${effect.frequency}`;
+  }
+  html += `</div>`;
+  if (effect.init) {
+    html +=
+    `<div class="flexcol effect-text">
+      <div class="medium" style="max-width: max-content; min-width: max-content;">INIT</div>
+      <div class="effect-text">${effect.init}</div>
+    </div>`;
+  }
+  if (effect.trigger) {
+    html +=
+    `<div class="flexcol effect-text">
+      <div class="medium">TRIGGER</div>
+      <div class="effect-text">${effect.trigger}</div>
+    </div>`;
+  }
+  html += 
+  `<div class="flexcol effect-text">
+    <div class="medium">EFFECT</div>
+    <div class="flexrow effect-text">${effect.detail}</div>
+  </div></div>`;
+  return html;
+}
+
+function invade_option_preview(effect: InvadeOptionData) {
+  var html = 
+  `<div class="flexcol effect-text" style="padding: 5px">
+    <div class="medium effect-title">${effect.name ? effect.name : ''} TECH</div>`;
+  if (effect.detail) {
+    html += `<div class="flexrow effect-text">${effect.detail}</div>`;
+  }
+  html += `</div>`;
+  return html;
+}
+
+function tech_effect_preview(effect: TechEffectData) {
+  var html = 
+  `<div class="flexcol effect-text" style="padding: 5px">
+    <div class="medium effect-title">${effect.name ? effect.name : ''} // ${effect.activation.toUpperCase()} TECH</div>`;
+  if (effect.detail) {
+    html += `<div class="flexrow effect-text">${effect.detail}</div>`;
+  }
+  html += `</div>`;
+  return html;
+}
+
 export {
   EffectData,
   BasicEffectData,
@@ -330,4 +552,12 @@ export {
   ai_effect_preview,
   bonus_effect_preview,
   charge_effect_preview,
+  deployable_effect_preview,
+  drone_effect_preview,
+  offensive_effect_preview,
+  profile_effect_preview,
+  protocol_effect_preview,
+  reaction_effect_preview,
+  invade_option_preview,
+  tech_effect_preview,
 }

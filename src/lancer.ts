@@ -40,7 +40,15 @@ import { charge_type_selector,
 	basic_effect_preview,
 	ai_effect_preview,
 	bonus_effect_preview,
-	charge_effect_preview} from './module/item/effects';
+	charge_effect_preview,
+	deployable_effect_preview,
+	drone_effect_preview,
+	offensive_effect_preview,
+	profile_effect_preview,
+	protocol_effect_preview,
+	reaction_effect_preview,
+	invade_option_preview,
+	tech_effect_preview} from './module/item/effects';
 import { DamageData, 
 	LancerPilotActorData, 
 	TagDataShort, 
@@ -228,6 +236,14 @@ Hooks.once('init', async function() {
 	Handlebars.registerHelper('ai-eff-preview', ai_effect_preview);
 	Handlebars.registerHelper('bonus-eff-preview', bonus_effect_preview);
 	Handlebars.registerHelper('chg-eff-preview', charge_effect_preview);
+	Handlebars.registerHelper('dep-eff-preview', deployable_effect_preview);
+	Handlebars.registerHelper('drn-eff-preview', drone_effect_preview);
+	Handlebars.registerHelper('off-eff-preview', offensive_effect_preview);
+	Handlebars.registerHelper('prf-eff-preview', profile_effect_preview);
+	Handlebars.registerHelper('prot-eff-preview', protocol_effect_preview);
+	Handlebars.registerHelper('rct-eff-preview', reaction_effect_preview);
+	Handlebars.registerHelper('inv-eff-preview', invade_option_preview);
+	Handlebars.registerHelper('tech-eff-preview', tech_effect_preview);
 
 	// ------------------------------------------------------------------------
 	// Frames
