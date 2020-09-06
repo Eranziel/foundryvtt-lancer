@@ -37,7 +37,10 @@ import { charge_type_selector,
 	action_type_icon, 
 	effect_preview,
 	generic_effect_preview,
-	basic_effect_preview} from './module/item/effects';
+	basic_effect_preview,
+	ai_effect_preview,
+	bonus_effect_preview,
+	charge_effect_preview} from './module/item/effects';
 import { DamageData, 
 	LancerPilotActorData, 
 	TagDataShort, 
@@ -222,6 +225,9 @@ Hooks.once('init', async function() {
 	Handlebars.registerHelper('eff-preview', effect_preview);
 	Handlebars.registerPartial('generic-eff-preview', generic_effect_preview);
 	Handlebars.registerHelper('basic-eff-preview', basic_effect_preview);
+	Handlebars.registerHelper('ai-eff-preview', ai_effect_preview);
+	Handlebars.registerHelper('bonus-eff-preview', bonus_effect_preview);
+	Handlebars.registerHelper('chg-eff-preview', charge_effect_preview);
 
 	// ------------------------------------------------------------------------
 	// Frames

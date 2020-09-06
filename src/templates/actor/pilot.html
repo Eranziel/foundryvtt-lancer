@@ -589,76 +589,18 @@
                 
                 {{!-- AI EFFECT --}}
                 {{#if (eq effect.effect_type "AI")}}
-                  <h3  class="medium effect-title">EFFECT</h3>
-                  {{#if effect.name}} {{effect.name}} {{/if}}
-                  {{#if effect.detail}}
-                  <div class="flexrow effect-text">
-                    {{{effect.detail}}}
-                  </div>
-                  {{/if}}
+                  {{{ai-eff-preview effect}}}
                   {{!-- Abilities - array of effects --}}
                 {{/if}}
 
                 {{!-- BONUS EFFECT --}}
                 {{#if (eq effect.effect_type "Bonus")}}
-                  <h3 class="medium effect-title">EFFECT</h3>
-                  {{#if effect.name}} {{effect.name}} {{/if}}
-                  {{!-- Render icon and number for each bonus --}}
-                  <div class="flexrow" style="max-width: max-content;">
-                    {{#if effect.size}}
-                      <div class="flexrow compact-stat lancer-effect-stat">
-                        <i class="cci cci-size-1 i--m i--dark"></i>
-                        <span class="minor lancer-stat-input" style="min-width: fit-content;">+{{effect.size}} SIZE</span>
-                      </div>
-                    {{/if}}
-                    {{#if effect.hp}}
-                      <div class="flexrow compact-stat lancer-effect-stat">
-                        <i class="mdi mdi-heart-outline i--m i--dark"></i>
-                        <span class="minor lancer-stat-input" style="min-width: fit-content;">+{{effect.hp}} HP</span>
-                      </div>
-                    {{/if}}
-                    {{#if effect.armor}}
-                      <div class="flexrow compact-stat lancer-effect-stat">
-                        <i class="mdi mdi-shield-outline i--m i--dark"></i>
-                        <span class="minor lancer-stat-input" style="min-width: fit-content;">+{{effect.armor}} ARM</span>
-                      </div>
-                    {{/if}}
-                    {{#if effect.evasion}}
-                      <div class="flexrow compact-stat lancer-effect-stat">
-                        <i class="cci cci-evasion i--m i--dark"></i>
-                        <span class="minor lancer-stat-input" style="min-width: fit-content;">+{{effect.evasion}} EVA</span>
-                      </div>
-                    {{/if}}
-                    {{#if effect.edef}}
-                      <div class="flexrow compact-stat lancer-effect-stat">
-                        <i class="cci cci-edef i--m i--dark"></i>
-                        <span class="minor lancer-stat-input" style="min-width: fit-content;">+{{effect.edef}} E-DEF</span>
-                      </div>
-                    {{/if}}
-                  </div>
-                  {{#if effect.detail}}
-                  <div class="flexrow effect-text">
-                    {{{effect.detail}}}
-                  </div>
-                  {{/if}}
+                  {{{bonus-eff-preview effect}}}
                 {{/if}}
 
                 {{!-- CHARGE EFFECT --}}
                 {{#if (eq effect.effect_type "Charge")}}
-                <h3 class="medium effect-title">CHARGE EFFECT</h3>
-                  <div class="effect-text" style="padding: 5px">
-                    <span class="minor" style="float: left">Expend a charge for one of the following effects:</span>
-                    <br>
-                    {{#each effect.charges as |charge key|}}
-                    <div class="flexcol">
-                      <div class="flexrow">
-                        <span class="minor">{{charge.name}}</span>
-                        {{#each weapon.data.range as |range rkey|}}<i class="cci cci-{{lower-case range.type}} i--m i--dark"></i><span class="medium">{{range.val}}</span>{{/each}}
-                      </div>
-                      <span>{{charge.detail}}</span>
-                    </div>
-                    {{/each}}
-                  </div>
+                  {{{chg-eff-preview effect}}}
                 {{/if}}
 
                 {{!-- DEPLOYABLE EFFECT --}}

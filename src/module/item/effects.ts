@@ -190,7 +190,30 @@ const generic_effect_preview =
   <div class="effect-text">{{{effect}}}</div>
 </div>`;
 
+function standard_effect_preview(effect: any, title?: string) {
+  var html = 
+  `<div class="flexcol effect-text" style="padding: 5px">
+    <div class="medium effect-title">${title ? title : 'EFFECT'}`;
+  if (effect.activation) {
+    html += ` // ${effect.activation.toUpperCase()}`;
+  }
+  html += `</div>`;
+  if (effect.name) {
+    html += `<div class="minor effect-text" style="padding: 5px">${effect.name}</div>`;
+  }
+  html += `<div class="flexrow effect-text">${effect.detail}</div></div>`;
+  return html;
+}
+
 function basic_effect_preview(effect: BasicEffectData) {
+  return standard_effect_preview(effect);
+}
+
+function ai_effect_preview(effect: AIEffectData) {
+  return standard_effect_preview(effect);
+}
+
+function bonus_effect_preview(effect: BonusEffectData) {
   var html = 
   `<div class="flexcol effect-text" style="padding: 5px">
     <div class="medium effect-title">EFFECT`;
@@ -201,7 +224,85 @@ function basic_effect_preview(effect: BasicEffectData) {
   if (effect.name) {
     html += `<div class="minor effect-text" style="padding: 5px">${effect.name}</div>`;
   }
-  html += `<div class="flexrow effect-text">${effect.detail}</div></div>`;
+  html += `<div class="flexrow" style="max-width: max-content;">`;
+  // Render icon and number for each bonus
+  if (effect.size) {
+    html += 
+    `<div class="flexrow compact-stat lancer-effect-stat">
+      <i class="cci cci-size-1 i--m i--dark"></i>
+      <span class="minor lancer-stat-input" style="min-width: fit-content;">+${effect.size} SIZE</span>
+    </div>`;
+  }
+  if (effect.hp) {
+    html +=
+    `<div class="flexrow compact-stat lancer-effect-stat">
+      <i class="mdi mdi-heart-outline i--m i--dark"></i>
+      <span class="minor lancer-stat-input" style="min-width: fit-content;">+${effect.hp} HP</span>
+    </div>`;
+  }
+  if (effect.armor) {
+    html +=
+    `<div class="flexrow compact-stat lancer-effect-stat">
+      <i class="mdi mdi-shield-outline i--m i--dark"></i>
+      <span class="minor lancer-stat-input" style="min-width: fit-content;">+${effect.armor} ARM</span>
+    </div>`;
+  }
+  if (effect.evasion) {
+    html +=
+    `<div class="flexrow compact-stat lancer-effect-stat">
+      <i class="cci cci-evasion i--m i--dark"></i>
+      <span class="minor lancer-stat-input" style="min-width: fit-content;">+${effect.evasion} EVA</span>
+    </div>`;
+  }
+  if (effect.edef) {
+    html += 
+    `<div class="flexrow compact-stat lancer-effect-stat">
+      <i class="cci cci-edef i--m i--dark"></i>
+      <span class="minor lancer-stat-input" style="min-width: fit-content;">+${effect.edef} E-DEF</span>
+    </div>`;
+  }
+  html += `</div><div class="flexrow effect-text">${effect.detail}</div></div>`;
+  return html;
+}
+
+function charge_effect_preview(effect: ChargeEffectData) {
+  var html = 
+  `<div class="flexcol effect-text" style="padding: 5px">
+    <div class="medium effect-title">CHARGE EFFECT`;
+  if (effect.activation) {
+    html += ` // ${effect.activation.toUpperCase()}`;
+  }
+  html += `</div>`;
+  if (effect.name) {
+    html += `<div class="minor effect-text" style="padding: 5px">${effect.name}</div>`;
+  }
+  html += 
+  `<div class="effect-text" style="padding: 5px">
+    <span class="minor" style="float: left">Expend a charge for one of the following effects:</span>
+    <br>`;
+  if (effect.charges) {
+    effect.charges.forEach(charge => {
+      html +=
+      `<div class="flexcol">
+        <div class="flexrow">
+          <span class="minor">${charge.name}</span>`;
+      if (charge.range) {
+        charge.range.forEach(rng => {
+          html += `<i class="cci cci-${rng.type.toLowerCase()} i--m i--dark"></i><span class="medium">${rng.val}</span>`;
+        });
+      }
+      if (charge.damage) {
+        charge.damage.forEach(dmg => {
+          html += `<i class="cci cci-${dmg.type.toLowerCase()} i--m i--dark"></i><span class="medium">${dmg.val}</span>`;
+        });
+      }
+      html += 
+      ` </div>
+        <span>${charge.detail}</span>
+      </div>`;
+    });
+  }
+  html += `</div>`;
   return html;
 }
 
@@ -226,4 +327,7 @@ export {
   effect_preview,
   generic_effect_preview,
   basic_effect_preview,
+  ai_effect_preview,
+  bonus_effect_preview,
+  charge_effect_preview,
 }
