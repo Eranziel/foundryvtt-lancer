@@ -178,6 +178,32 @@ function charge_type_selector(c_type: string, data_target: string) {
 const charge_effect_editable = 
 ``;
 
+function effect_preview(effect: EffectData) {
+  const html = 
+  ``;
+  return html;
+}
+
+const generic_effect_preview =
+`<div class="flexcol effect-text" style="padding: 5px">
+  <div class="medium effect-title">EFFECT</div>
+  <div class="effect-text">{{{effect}}}</div>
+</div>`;
+
+function basic_effect_preview(effect: BasicEffectData) {
+  var html = 
+  `<div class="flexcol effect-text" style="padding: 5px">
+    <div class="medium effect-title">EFFECT`;
+  if (effect.activation) {
+    html += ` // ${effect.activation.toUpperCase()}`;
+  }
+  html += `</div>`;
+  if (effect.name) {
+    html += `<div class="minor effect-text" style="padding: 5px">${effect.name}</div>`;
+  }
+  html += `<div class="flexrow effect-text">${effect.detail}</div></div>`;
+  return html;
+}
 
 export {
   EffectData,
@@ -197,4 +223,7 @@ export {
   action_type_icon,
   action_type_selector,
   charge_type_selector,
+  effect_preview,
+  generic_effect_preview,
+  basic_effect_preview,
 }

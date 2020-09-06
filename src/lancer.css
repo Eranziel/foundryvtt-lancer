@@ -615,8 +615,7 @@ button {
 
 .effect-title {
   display: flex;
-  padding-left: 10px;
-  padding-right: 10px;
+  padding: 0px 5px;
 }
 
 .lancer-effect-stat {

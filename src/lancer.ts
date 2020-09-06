@@ -34,7 +34,10 @@ import { LancerItem,
 	effect_type_selector } from './module/item/lancer-item';
 import { charge_type_selector, 
 	action_type_selector,
-	action_type_icon } from './module/item/effects';
+	action_type_icon, 
+	effect_preview,
+	generic_effect_preview,
+	basic_effect_preview} from './module/item/effects';
 import { DamageData, 
 	LancerPilotActorData, 
 	TagDataShort, 
@@ -213,6 +216,12 @@ Hooks.once('init', async function() {
 	Handlebars.registerHelper('act-icon', action_type_icon);
 	Handlebars.registerHelper('act-type-sel', action_type_selector);
 	Handlebars.registerHelper('chg-type-sel', charge_type_selector);
+
+	// ------------------------------------------------------------------------
+	// Effects
+	Handlebars.registerHelper('eff-preview', effect_preview);
+	Handlebars.registerPartial('generic-eff-preview', generic_effect_preview);
+	Handlebars.registerHelper('basic-eff-preview', basic_effect_preview);
 
 	// ------------------------------------------------------------------------
 	// Frames
