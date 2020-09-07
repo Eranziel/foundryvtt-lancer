@@ -338,7 +338,7 @@ function charge_effect_preview(effect: ChargeEffectData) {
   `<div class="effect-text" style="padding: 5px">
     <span class="minor" style="float: left">Expend a charge for one of the following effects:</span>
     <br>`;
-  if (effect.charges) {
+  if (effect.charges && Array.isArray(effect.charges)) {
     effect.charges.forEach(charge => {
       html +=
       `<div class="flexcol sub-effect-box">
