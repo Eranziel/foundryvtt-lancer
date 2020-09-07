@@ -71,6 +71,16 @@ export function renderCompactTag(tag: TagData, key?: number): string {
   return template;
 }
 
+/**
+ * Handlebars partial to generate a list of tags for weapon/system previews.
+ */
+export const compactTagList = 
+`<div class="compact-tag-row"">
+  {{#each tags as |tag tkey|}}
+  {{{compact-tag tag}}}
+  {{/each}}
+</div>`;
+
 export function renderChunkyTag(tag: TagData, key: number): string {
   let template: string = "";
   tag = prepareTag(tag);

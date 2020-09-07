@@ -234,6 +234,18 @@ const generic_effect_preview =
   <div class="effect-text">{{{effect}}}</div>
 </div>`;
 
+function effect_tag_row(effect: any) {
+  var html = ``;
+  if (effect.tags) {
+    html += `<div class="compact-tag-row">`;
+    effect.tags.forEach(tag => {
+      html += renderCompactTag(tag);
+    });
+    html += `</div>`;
+  }
+  return html;
+}
+
 function standard_effect_preview(effect: any, title?: string) {
   var html = 
   `<div class="flexcol effect-text" style="padding: 5px">
@@ -245,7 +257,9 @@ function standard_effect_preview(effect: any, title?: string) {
   if (effect.name) {
     html += `<div class="minor effect-text" style="padding: 5px">${effect.name}</div>`;
   }
-  html += `<div class="flexrow effect-text">${effect.detail}</div></div>`;
+  html += `<div class="flexrow effect-text">${effect.detail}</div>`;
+  html += effect_tag_row(effect);
+  html += `</div>`;
   return html;
 }
 
@@ -358,7 +372,7 @@ function deployable_effect_preview(effect: DeployableEffectData) {
   if (effect.activation) {
     html += ` // ${effect.activation.toUpperCase()}`;
   }
-  html += `</div>`;
+  html += `</div><div class="sub-effect-box">`;
   if (effect.name) {
     html += `<div class="minor effect-text" style="padding: 5px">${effect.name}</div>`;
   }
@@ -405,7 +419,9 @@ function deployable_effect_preview(effect: DeployableEffectData) {
       <span class="minor lancer-stat-input" style="min-width: fit-content;">${effect.edef} E-DEF</span>
     </div>`;
   }
-  html += `</div><div class="flexrow effect-text">${effect.detail}</div></div>`;
+  html += `</div><div class="flexrow effect-text">${effect.detail}</div>`
+  html += effect_tag_row(effect);
+  html += `</div></div>`;
   return html;
 }
 
@@ -416,7 +432,7 @@ function drone_effect_preview(effect: DroneEffectData) {
   if (effect.activation) {
     html += ` // ${effect.activation.toUpperCase()}`;
   }
-  html += `</div>`;
+  html += `</div><div class="sub-effect-box">`;
   if (effect.name) {
     html += `<div class="minor effect-text" style="padding: 5px">${effect.name}</div>`;
   }
@@ -463,7 +479,10 @@ function drone_effect_preview(effect: DroneEffectData) {
       <span class="minor lancer-stat-input" style="min-width: fit-content;">${effect.edef} E-DEF</span>
     </div>`;
   }
-  html += `</div><div class="flexrow effect-text">${effect.detail}</div></div>`;
+  html += `</div>`;
+  html += `<div class="flexrow effect-text">${effect.detail}</div>`;
+  html += effect_tag_row(effect);
+  html += `</div></div>`;
   return html;
 }
 
@@ -480,33 +499,46 @@ function offensive_effect_preview(effect: OffensiveEffectData) {
   }
   if (effect.attack) {
     html +=
-    `<div class="flexrow">
-      <div class="medium">ON ATTACK</div>
+    `<div class="flexcol effect-text">
+      <div class="medium" style="max-width: max-content; min-width: max-content;">ON ATTACK</div>
       <div class="effect-text">${effect.attack}</div>
     </div>`;
   }
   if (effect.hit) {
     html +=
-    `<div class="flexrow">
-      <div class="medium">ON HIT</div>
+    `<div class="flexcol effect-text">
+      <div class="medium" style="max-width: max-content; min-width: max-content;">ON HIT</div>
       <div class="effect-text">${effect.hit}</div>
     </div>`;
   }
   if (effect.critical) {
     html +=
-    `<div class="flexrow">
-      <div class="medium">ON CRIT</div>
+    `<div class="flexcol effect-text">
+      <div class="medium" style="max-width: max-content; min-width: max-content;">ON CRITICAL</div>
       <div class="effect-text">${effect.critical}</div>
     </div>`;
   }
-  html += `<div class="flexrow effect-text">${effect.detail}</div></div>`;
+  if (effect.detail) {
+    html += `<div class="flexrow effect-text">${effect.detail}</div>`;
+  }
+  html += effect_tag_row(effect);
+  html += `</div>`;
   return html;
 }
 
 function profile_effect_preview(effect: ProfileEffectData) {
-  var html = `<div class="flexcol sub-effect-box">`;
-  html += standard_effect_preview(effect, 'WEAPON PROFILE');
-  html += `<div class="flexrow">`;
+  var html = 
+  `<div class="flexcol sub-effect-box">
+    <div class="flexcol effect-text" style="padding: 5px">
+      <div class="medium effect-title">WEAPON PROFILE`;
+  if (effect.activation) {
+    html += ` // ${effect.activation.toUpperCase()}`;
+  }
+  html += `</div>`;
+  if (effect.name) {
+    html += `<div class="minor effect-text" style="padding: 5px">${effect.name}</div>`;
+  }
+  html += `<div class="flexrow" style="align-items: center">`;
   if (effect.range) {
     effect.range.forEach(rng => {
       html += `<div class="compact-range"><i class="cci cci-${rng.type.toLowerCase()} i--m i--dark"></i><span class="medium">${rng.val}</span></div>`;
@@ -519,19 +551,14 @@ function profile_effect_preview(effect: ProfileEffectData) {
     });
   }
   html += `</div>`;
-  if (effect.tags) {
-    html += `<div class="flexrow" style="justify-content: flex-end; margin: 10px;">`;
-    effect.tags.forEach(tag => {
-      html += renderCompactTag(tag);
-    });
-    html += `</div>`;
-  }
+  html += `<div class="flexrow effect-text">${effect.detail}</div></div>`;
+  html += effect_tag_row(effect);
   html += `</div>`;
   return html;
 }
 
 function protocol_effect_preview(effect: ProtocolEffectData) {
-  return standard_effect_preview(effect, 'PROTOCOL');
+  return `<div class="sub-effect-box">${standard_effect_preview(effect, 'PROTOCOL')}</div>`;
 }
 
 function reaction_effect_preview(effect: ReactionEffectData) {
@@ -567,7 +594,9 @@ function reaction_effect_preview(effect: ReactionEffectData) {
   `<div class="flexcol effect-text">
     <div class="medium">EFFECT</div>
     <div class="flexrow effect-text">${effect.detail}</div>
-  </div></div>`;
+  </div>`;
+  html += effect_tag_row(effect);
+  html += `</div>`;
   return html;
 }
 
@@ -609,7 +638,6 @@ function tech_effect_preview(effect: TechEffectData) {
     html += `</div>`;
   }
   html += `</div>`;
-  console.log(html);
   return html;
 }
 

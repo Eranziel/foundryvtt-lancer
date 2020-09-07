@@ -231,6 +231,15 @@ button {
   font-size: 12px;
 }
 
+.compact-tag-row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  flex: 1;
+  margin: 10px;
+}
+
 .license-desc {
   display: flex;
 }
@@ -629,7 +638,7 @@ button {
 
 .sub-effect-box {
   background: rgba(0, 0, 0, 0.1);
-  border: 1px solid #999;
+  border: 1px solid #777;
   border-radius: 5px;
   padding: 5px;
   margin: 5px;

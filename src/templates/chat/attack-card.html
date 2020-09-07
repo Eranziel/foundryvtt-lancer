@@ -39,16 +39,11 @@
   <div class="card clipped">
     <div class="lancer-stat-header clipped-top">// EFFECT //</div>
     {{#if effect.effect_type}}
-      <h3 class="flexrow">{{upper-case effect.effect_type}} EFFECT</h3>
-      <span class="effect-text">{{{effect.hit}}}</span>
+      {{{eff-preview effect}}}
     {{/if}}
     {{#unless effect.effect_type}}<span class="effect-text">{{{effect}}}</span>{{/unless}}
   </div>
   {{/if}}
-  <div class="flexrow" style="justify-content: flex-end; flex-wrap: wrap;">
-  {{#each tags as |tag key|}}
-  {{{compact-tag tag}}}
-  {{/each}}
-  </div>
+  {{> tag-list tags=tags}}
 </div>
 

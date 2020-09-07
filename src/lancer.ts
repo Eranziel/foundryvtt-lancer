@@ -65,7 +65,7 @@ import { LancerNPCClassSheet } from './module/item/npc-class-sheet';
 // Import helpers
 import { preloadTemplates } from './module/preloadTemplates';
 import { registerSettings } from './module/settings';
-import { renderCompactTag, renderChunkyTag, renderFullTag } from './module/item/tags';
+import { renderCompactTag, renderChunkyTag, renderFullTag, compactTagList } from './module/item/tags';
 import * as migrations from './module/migration.js';
 
 // Import JSON data
@@ -203,8 +203,9 @@ Hooks.once('init', async function() {
 
 	// ------------------------------------------------------------------------
 	// Tags
-  Handlebars.registerHelper('compact-tag', renderCompactTag);
-  Handlebars.registerHelper('chunky-tag', renderChunkyTag);
+	Handlebars.registerHelper('compact-tag', renderCompactTag);
+	Handlebars.registerPartial('tag-list', compactTagList);
+	Handlebars.registerHelper('chunky-tag', renderChunkyTag);
 	Handlebars.registerHelper('full-tag', renderFullTag);
 
 	// ------------------------------------------------------------------------

@@ -169,11 +169,7 @@
           <div class="effect-text" style=" padding: 5px">
             {{{armor.data.description}}}
           </div>
-          <div class="flexrow" style="justify-content: flex-end;">
-            {{#each armor.data.tags as |tag tkey|}}
-            {{{compact-tag tag}}}
-            {{/each}}
-          </div>
+          {{> tag-list tags=armor.data.tags}}
         </div>
         {{/each}}
         {{/if}}
@@ -209,11 +205,7 @@
             </div>
             --}}
             <div class="flexrow">
-              <div class="flexrow" style="justify-content: flex-end;">
-                {{#each weapon.data.tags as |tag tkey|}}
-                {{{compact-tag tag}}}
-                {{/each}}
-              </div>
+              {{> tag-list tags=weapon.data.tags}}
             </div>
           </div>
         </div>
@@ -246,11 +238,7 @@
           <div class="effect-text" style=" padding: 5px">
             {{{gear.data.description}}}
           </div>
-          <div class="flexrow" style="justify-content: flex-end;">
-            {{#each gear.data.tags as |tag tkey|}}
-            {{{compact-tag tag}}}
-            {{/each}}
-          </div>
+          {{> tag-list tags=gear.data.tags}}
         </div>
         {{/each}}
       </div>
@@ -587,11 +575,7 @@
                 {{> generic-eff-preview effect=effect}}
               {{/if}}
             {{/with}}
-            <div class="flexrow" style="justify-content: flex-end; margin: 10px;">
-              {{#each system.data.tags as |tag tkey|}}
-              {{{compact-tag tag}}}
-              {{/each}}
-            </div>
+            {{> tag-list tags=system.data.tags}}
           </div>
         {{/each}}
       </div>

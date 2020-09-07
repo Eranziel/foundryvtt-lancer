@@ -389,14 +389,12 @@ const mech_weapon_preview =
 
     </div>
     {{#with weapon.data.effect as |effect|}}
-    <div style="grid-area: 2/1/3/3;">
+    <div style="grid-area: 2/1/3/3; display: inherit;">
       {{{eff-preview effect}}}
     </div>
     {{/with}}
-    <div class="flexrow" style="justify-content: flex-end; grid-area: 4/1/5/3">
-      {{#each weapon.data.tags as |tag tkey|}}
-      {{{compact-tag tag}}}
-      {{/each}}
+    <div style="grid-area: 4/1/5/3; display: inherit;">
+      {{> tag-list tags=weapon.data.tags}}
     </div>
   </div>
 </div>`;
@@ -482,11 +480,7 @@ const core_system_preview =
       <div class="medium" style="justify-self: right;"> // ACTIVE</div>
     </div>
     <div class="effect-text">{{{csys.active_effect}}}</div>
-    <div class="flexrow">
-    {{#each csys.tags as |tag key|}}
-      {{{compact-tag tag key}}}
-    {{/each}}
-    </div>
+    {{> tag-list tags=csys.tags}}
   </div>
 </div>`;
 
