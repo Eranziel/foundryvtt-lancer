@@ -1,5 +1,7 @@
 import { TagData, RangeData, DamageData } from "../interfaces";
 import { EffectType, ActivationType, ChargeType } from "../enums";
+import { effect_type_selector } from "./lancer-item";
+import { renderCompactTag } from "./tags";
 
 export const EffectIcons = {
   'Generic': 'systems/lancer/assets/icons/generic_item.svg',
@@ -206,7 +208,7 @@ function effect_preview(effect: any) {
     html += offensive_effect_preview(effect as OffensiveEffectData);
   }
   else if (effect.effect_type === EffectType.Profile) {
-    html += offensive_effect_preview(effect as ProfileEffectData);
+    html += profile_effect_preview(effect as ProfileEffectData);
   }
   else if (effect.effect_type === EffectType.Protocol) {
     html += protocol_effect_preview(effect as ProtocolEffectData);
@@ -502,8 +504,30 @@ function offensive_effect_preview(effect: OffensiveEffectData) {
 }
 
 function profile_effect_preview(effect: ProfileEffectData) {
-  // TODO: Render the profile - range, damage, tags.
-  return standard_effect_preview(effect, 'WEAPON EFFECT');
+  var html = `<div class="flexcol sub-effect-box">`;
+  html += standard_effect_preview(effect, 'WEAPON PROFILE');
+  html += `<div class="flexrow">`;
+  if (effect.range) {
+    effect.range.forEach(rng => {
+      html += `<div class="compact-range"><i class="cci cci-${rng.type.toLowerCase()} i--m i--dark"></i><span class="medium">${rng.val}</span></div>`;
+    });
+    if (effect.damage) {html += ` // `;}
+  }
+  if (effect.damage) {
+    effect.damage.forEach(dmg => {
+      html += `<div class="compact-damage"><i class="cci cci-${dmg.type.toLowerCase()} i--m damage--${dmg.type.toLowerCase()}"></i><span class="medium">${dmg.val}</span></div>`;
+    });
+  }
+  html += `</div>`;
+  if (effect.tags) {
+    html += `<div class="flexrow" style="justify-content: flex-end; margin: 10px;">`;
+    effect.tags.forEach(tag => {
+      html += renderCompactTag(tag);
+    });
+    html += `</div>`;
+  }
+  html += `</div>`;
+  return html;
 }
 
 function protocol_effect_preview(effect: ProtocolEffectData) {

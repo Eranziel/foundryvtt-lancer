@@ -592,6 +592,7 @@ button {
   flex-wrap: nowrap;
   margin: 5px;
   max-width: min-content;
+  min-width: fit-content;
 }
 
 .pilot-stats {
@@ -636,7 +637,6 @@ button {
 
 .charge-header {
   align-items: center;
-  
 }
 
 .stat-container {

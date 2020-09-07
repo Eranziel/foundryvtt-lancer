@@ -55,7 +55,7 @@ function prepareTag(tag: TagData): TagData {
  * @param tagShort an object containing the tag's ID and value.
  * @returns The html template for the tag.
  */
-export function renderCompactTag(tag: TagData, key: number): string {
+export function renderCompactTag(tag: TagData, key?: number): string {
   let template: string = "";
   tag = prepareTag(tag);
 

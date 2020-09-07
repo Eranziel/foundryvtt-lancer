@@ -389,13 +389,9 @@ const mech_weapon_preview =
 
     </div>
     {{#with weapon.data.effect as |effect|}}
-    <div class="flexcol" style="grid-area: 2/1/2/3; text-align: left; white-space: wrap">
-      {{#if effect.effect_type}}
-        <h3 class="medium flexrow">{{upper-case effect.effect_type}} EFFECT</h3>
-        <span class="effect-text">{{{effect.hit}}}</span>
-      {{/if}}
-      {{#unless effect.effect_type}}<span class="effect-text">{{{effect}}}</span>{{/unless}}
-      </div>
+    <div style="grid-area: 2/1/3/3;">
+      {{{eff-preview effect}}}
+    </div>
     {{/with}}
     <div class="flexrow" style="justify-content: flex-end; grid-area: 4/1/5/3">
       {{#each weapon.data.tags as |tag tkey|}}
