@@ -626,6 +626,19 @@ button {
   padding: 5px; flex-wrap: nowrap;
 }
 
+.sub-effect-box {
+  background: rgba(0, 0, 0, 0.1);
+  border: 1px solid #999;
+  border-radius: 5px;
+  padding: 5px;
+  margin: 5px;
+}
+
+.charge-header {
+  align-items: center;
+  
+}
+
 .stat-container {
   align-items: center;
 }

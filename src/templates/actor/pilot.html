@@ -582,74 +582,12 @@
             {{/if}}
             {{#with system.data.effect as |effect|}}
               {{#if effect.effect_type}}
-                {{!-- BASIC or GENERIC EFFECT --}}
-                {{#if (or (eq effect.effect_type "Basic") (eq effect.effect_type "Generic"))}}
-                  {{{basic-eff-preview effect}}}
-                {{/if}}
-                
-                {{!-- AI EFFECT --}}
-                {{#if (eq effect.effect_type "AI")}}
-                  {{{ai-eff-preview effect}}}
-                  {{!-- Abilities - array of effects --}}
-                {{/if}}
-
-                {{!-- BONUS EFFECT --}}
-                {{#if (eq effect.effect_type "Bonus")}}
-                  {{{bonus-eff-preview effect}}}
-                {{/if}}
-
-                {{!-- CHARGE EFFECT --}}
-                {{#if (eq effect.effect_type "Charge")}}
-                  {{{chg-eff-preview effect}}}
-                {{/if}}
-
-                {{!-- DEPLOYABLE EFFECT --}}
-                {{#if (eq effect.effect_type "Deployable")}}
-                  {{{dep-eff-preview effect}}}
-                {{/if}}
-                
-                {{!-- DRONE EFFECT --}}
-                {{#if (eq effect.effect_type "Drone")}}
-                  {{{drn-eff-preview effect}}}
-                  {{!-- Abilities - array of effects --}}
-                {{/if}}
-                
-                {{!-- OFFENSIVE EFFECT --}}
-                {{#if (eq effect.effect_type "Offensive")}}
-                  {{{off-eff-preview effect}}}
-                  {{!-- Abilities - array of effects --}}
-                {{/if}}
-                
-                {{!-- PROFILE EFFECT --}}
-                {{#if (eq effect.effect_type "Profile")}}
-                  {{{prf-eff-preview effect}}}
-                {{/if}}
-                
-                {{!-- PROTOCOL EFFECT --}}
-                {{#if (eq effect.effect_type "Protocol")}}
-                  {{{prot-eff-preview effect}}}
-                {{/if}}
-                
-                {{!-- REACTION EFFECT --}}
-                {{#if (eq effect.effect_type "Reaction")}}
-                  {{{rct-eff-preview effect}}}
-                {{/if}}
-                
-                {{!-- INVADE OPTION EFFECT --}}
-                {{#if (eq effect.effect_type "Invade")}}
-                  {{{inv-eff-preview effect}}}
-                {{/if}}
-                
-                {{!-- TECH EFFECT --}}
-                {{#if (eq effect.effect_type "Tech")}}
-                  {{{tech-eff-preview effect}}}
-                  {{!-- Abilities - array of effects --}}
-                {{/if}}
+                {{{eff-preview effect}}}
               {{else}}
                 {{> generic-eff-preview effect=effect}}
               {{/if}}
             {{/with}}
-            <div class="flexrow" style="justify-content: flex-end;">
+            <div class="flexrow" style="justify-content: flex-end; margin: 10px;">
               {{#each system.data.tags as |tag tkey|}}
               {{{compact-tag tag}}}
               {{/each}}

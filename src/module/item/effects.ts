@@ -119,7 +119,7 @@ declare interface TechEffectData extends EffectData {
   detail: string;
   activation: ActivationType;
   options?: InvadeOptionData[];
-  options_set?: string;
+  option_set?: string;
 }
 
 /* ------------------------------------ */
@@ -179,9 +179,50 @@ function charge_type_selector(c_type: string, data_target: string) {
 const charge_effect_editable = 
 ``;
 
-function effect_preview(effect: EffectData) {
-  const html = 
-  ``;
+function effect_preview(effect: any) {
+  var html = ``;
+  if (effect.abilities) {
+    html += `<div class="flexcol effect-preview" style="padding: 5px">`;
+  }
+  if (effect.effect_type === EffectType.Basic || effect.effect_type === EffectType.Generic) {
+    html += basic_effect_preview(effect as BasicEffectData);
+  }
+  else if (effect.effect_type === EffectType.AI) {
+    html += ai_effect_preview(effect as AIEffectData);
+  }
+  else if (effect.effect_type === EffectType.Bonus) {
+    html += bonus_effect_preview(effect as BasicEffectData);
+  }
+  else if (effect.effect_type === EffectType.Charge) {
+    html += charge_effect_preview(effect as ChargeEffectData);
+  }
+  else if (effect.effect_type === EffectType.Deployable) {
+    html += deployable_effect_preview(effect as DeployableEffectData);
+  }
+  else if (effect.effect_type === EffectType.Drone) {
+    html += drone_effect_preview(effect as DroneEffectData);
+  }
+  else if (effect.effect_type === EffectType.Offensive) {
+    html += offensive_effect_preview(effect as OffensiveEffectData);
+  }
+  else if (effect.effect_type === EffectType.Profile) {
+    html += offensive_effect_preview(effect as ProfileEffectData);
+  }
+  else if (effect.effect_type === EffectType.Protocol) {
+    html += protocol_effect_preview(effect as ProtocolEffectData);
+  }
+  else if (effect.effect_type === EffectType.Reaction) {
+    html += reaction_effect_preview(effect as ReactionEffectData);
+  }
+  else if (effect.effect_type === EffectType.Tech) {
+    html += tech_effect_preview(effect as TechEffectData);
+  }
+  if (effect.abilities) {
+    effect.abilities.forEach(ability => {
+      html += effect_preview(ability);
+    })
+    html += `</div>`;
+  }
   return html;
 }
 
@@ -284,17 +325,18 @@ function charge_effect_preview(effect: ChargeEffectData) {
   if (effect.charges) {
     effect.charges.forEach(charge => {
       html +=
-      `<div class="flexcol">
-        <div class="flexrow">
-          <span class="minor">${charge.name}</span>`;
+      `<div class="flexcol sub-effect-box">
+        <div class="flexrow charge-header">
+          <span class="minor" style="max-width: max-content; min-width: max-content; margin-right: 30px;">${charge.name}</span>`;
       if (charge.range) {
         charge.range.forEach(rng => {
-          html += `<i class="cci cci-${rng.type.toLowerCase()} i--m i--dark"></i><span class="medium">${rng.val}</span>`;
+          html += `<div class="compact-range"><i class="cci cci-${rng.type.toLowerCase()} i--m i--dark"></i><span class="medium">${rng.val}</span></div>`;
         });
+        if (charge.damage) {html += ` // `;}
       }
       if (charge.damage) {
         charge.damage.forEach(dmg => {
-          html += `<i class="cci cci-${dmg.type.toLowerCase()} i--m i--dark"></i><span class="medium">${dmg.val}</span>`;
+          html += `<div class="compact-damage"><i class="cci cci-${dmg.type.toLowerCase()} i--m damage--${dmg.type.toLowerCase()}"></i><span class="medium">${dmg.val}</span></div>`;
         });
       }
       html += 
@@ -384,7 +426,6 @@ function drone_effect_preview(effect: DroneEffectData) {
       <i class="cci cci-size-${effect.size < 1 ? 'half' : effect.size} i--m i--dark"></i>
     </div>`;
   }
-  html += ``;
   if (effect.hp) {
     html += 
     `<div class="flexrow compact-stat lancer-effect-stat">
@@ -506,10 +547,10 @@ function reaction_effect_preview(effect: ReactionEffectData) {
   return html;
 }
 
-function invade_option_preview(effect: InvadeOptionData) {
+function invade_option_preview(effect: InvadeOptionData, set: string) {
   var html = 
-  `<div class="flexcol effect-text" style="padding: 5px">
-    <div class="medium effect-title">${effect.name ? effect.name : ''} TECH</div>`;
+  `<div class="flexcol sub-effect-box" style="padding: 5px">
+    <div class="medium effect-title">${effect.name} // ${set.toUpperCase()}</div>`;
   if (effect.detail) {
     html += `<div class="flexrow effect-text">${effect.detail}</div>`;
   }
@@ -520,11 +561,31 @@ function invade_option_preview(effect: InvadeOptionData) {
 function tech_effect_preview(effect: TechEffectData) {
   var html = 
   `<div class="flexcol effect-text" style="padding: 5px">
-    <div class="medium effect-title">${effect.name ? effect.name : ''} // ${effect.activation.toUpperCase()} TECH</div>`;
+    <div class="medium effect-title">${effect.option_set ? effect.option_set.toUpperCase() : ''} // ${effect.activation.toUpperCase()} TECH</div>
+    <div class="medium effect-title">${effect.name ? effect.name : ''}</div>`;
   if (effect.detail) {
     html += `<div class="flexrow effect-text">${effect.detail}</div>`;
   }
+  if (effect.options) {
+    html += `<div class="flexcol">`;
+    if (effect.option_set) {
+      if (effect.option_set.toLowerCase() === "invade") {
+        html += `<div class="effect-text">Gain the following Invade options:</div>`;
+      }
+      else if (effect.option_set.toLowerCase() === "quick tech") {
+        html += `<div class="effect-text">Gain the following Quick Tech options:</div>`;
+      }
+      else if (effect.option_set.toLowerCase() === "full tech") {
+        html += `<div class="effect-text">Gain the following Full Tech options:</div>`;
+      }
+    }
+    effect.options.forEach(option => {
+      html += invade_option_preview(option, effect.option_set ? effect.option_set.toUpperCase() : '');
+    });
+    html += `</div>`;
+  }
   html += `</div>`;
+  console.log(html);
   return html;
 }
 
