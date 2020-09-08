@@ -111,7 +111,7 @@ export class LancerNPCSheet extends ActorSheet {
         let keySplit = statKey.split('.');
         let title = keySplit[keySplit.length - 1].toUpperCase();
         console.log(`${lp} Rolling ${title} check, key ${statKey}`);
-        game.lancer.rollStatMacro(title, statKey, null, true);
+        game.lancer.rollStatMacro(this.actor._id, title, statKey, null, true);
       });
 
       // Trigger rollers
@@ -125,7 +125,7 @@ export class LancerNPCSheet extends ActorSheet {
         //.find('modifier-name').first().text();
         console.log(`${lp} Rolling '${title}' trigger (d20 + ${modifier})`);
 
-        game.lancer.rollTriggerMacro(title, modifier, true);
+        game.lancer.rollTriggerMacro(this.actor._id, title, modifier, true);
       });
 
       // Weapon rollers
@@ -312,23 +312,23 @@ export class LancerNPCSheet extends ActorSheet {
    * @private
    */
   _updateObject(event: Event | JQuery.Event, formData: any): Promise<any> {
-    console.log(formData);
     // Copy the NPC name into the Actor data.
     formData["name"] = formData["data.name"];
     // Copy the NPC name to the prototype token.
     formData['token.name'] = formData["data.name"];
 
-    let token: any = this.actor.token;
+    let token: any = this.actor.data['token'];
     // Set the prototype token image if the prototype token isn't initialized
-    if (!this.actor.token) {
-      this.actor.update({ "token.img": formData.img })
+    if (!token) {
+      formData['token.img'] = formData['img'];
     }
     // Update token image if it matches the old actor image
-    else if ((this.actor.img == token.img)
-      && (this.actor.img != formData.img)) {
-      this.actor.update({ "token.img": formData.img });
+    else if (this.actor.data.img === token['img'] && this.actor.img !== formData['img']) {
+      formData['token.img'] = formData['img'];
     }
 
+    
+    console.log(`${lp} NPC sheet form data: `, formData);
     // Update the Actor
     return this.object.update(formData);
   }

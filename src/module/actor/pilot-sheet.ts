@@ -170,7 +170,7 @@ export class LancerPilotSheet extends ActorSheet {
         let keySplit = statKey.split('.');
         let title = keySplit[keySplit.length - 1].toUpperCase();
         console.log(`${lp} Rolling ${title} check, key ${statKey}`);
-        game.lancer.rollStatMacro(title, statKey, null, true);
+        game.lancer.rollStatMacro(this.actor._id, title, statKey, null, true);
       });
 
       // Trigger rollers
@@ -184,7 +184,7 @@ export class LancerPilotSheet extends ActorSheet {
         //.find('modifier-name').first().text();
         console.log(`${lp} Rolling '${title}' trigger (d20 + ${modifier})`);
 
-        game.lancer.rollTriggerMacro(title, modifier, true);
+        game.lancer.rollTriggerMacro(this.actor._id, title, modifier, true);
       });
 
       // Weapon rollers
@@ -236,43 +236,6 @@ export class LancerPilotSheet extends ActorSheet {
         if (item) {
           item.sheet.render(true);
         }
-      });
-
-      // Delete Item on Right Click
-      items.contextmenu(ev => {
-        console.log(ev);
-        const item = $(ev.currentTarget);
-        const itemId = item.data("itemId");
-
-        let mount_element = item.closest(".lancer-mount-container");
-        let weapon_element = item.closest(".lancer-weapon-container");
-
-        if (mount_element.length && weapon_element.length) {
-          let mounts = duplicate(this.actor.data.data.mech_loadout.mounts);
-          let weapons = mounts[parseInt(mount_element.data("itemId"))].weapons;
-          weapons.splice(parseInt(weapon_element.data("itemId")), 1);
-          this.actor.update({"data.mech_loadout.mounts": mounts});
-          this._onSubmit(ev);
-        }
-        else if (this.actor.getOwnedItem(itemId).data.type === "mech_weapon") {
-          // Search mounts to remove the weapon
-          let mounts = duplicate(this.actor.data.data.mech_loadout.mounts);
-          for (let i = 0; i < mounts.length; i++) {
-            const mount = mounts[i];
-            for (let j = 0; j < mount.weapons.length; j++) {
-              let weapons = mount.weapons;
-              if (weapons[j]._id === itemId) {
-                weapons.splice(j, 1);
-                this.actor.update({"data.mech_loadout.mounts": mounts});
-                this._onSubmit(ev);
-                break;
-              }
-            }
-          }
-        }
-
-        this.actor.deleteOwnedItem(itemId);
-        item.slideUp(200, () => this.render(false));
       });
 
       // Delete Item when trash can is clicked
@@ -453,7 +416,7 @@ export class LancerPilotSheet extends ActorSheet {
 
           let mount = mounts[parseInt(mount_element.data("itemId"))];
           let valid = mount_whitelist[item.data.data.mount];
-          if (!valid.includes(mount.type)) {
+          if (mount.type != 'Integrated' && !valid.includes(mount.type)) {
             ui.notifications.error('The weapon you dropped is too large for this weapon mount!');
           } else if (item.data.data.mount === 'Superheavy' && !mount.secondary_mount) {
             ui.notifications.error('Assign a secondary mount to this heavy mount in order to equip a superheavy weapon');

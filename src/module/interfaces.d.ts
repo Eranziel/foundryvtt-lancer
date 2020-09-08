@@ -44,14 +44,14 @@ declare interface TagData {
 }
 
 declare interface RangeData {
-  type: RangeType;
-  val: number;
+  type: RangeType | string;
+  val: number | string;
   override?: boolean;
   bonus?: number;
 }
 
 declare interface DamageData {
-  type: DamageType;
+  type: DamageType | string;
   val: string | number;
   override?: boolean;
 }

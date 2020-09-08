@@ -231,6 +231,15 @@ button {
   font-size: 12px;
 }
 
+.compact-tag-row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  flex: 1;
+  margin: 10px;
+}
+
 .license-desc {
   display: flex;
 }
@@ -592,6 +601,7 @@ button {
   flex-wrap: nowrap;
   margin: 5px;
   max-width: min-content;
+  min-width: fit-content;
 }
 
 .pilot-stats {
@@ -611,6 +621,31 @@ button {
   flex-direction: row;
   align-items: center;
   padding: 0 5px;
+}
+
+.effect-title {
+  display: flex;
+  padding: 0px 5px;
+}
+
+.lancer-effect-stat {
+  align-self: center;
+  text-align: center;
+  max-width: max-content;
+  min-width: max-content;
+  padding: 5px; flex-wrap: nowrap;
+}
+
+.sub-effect-box {
+  background: rgba(0, 0, 0, 0.1);
+  border: 1px solid #777;
+  border-radius: 5px;
+  padding: 5px;
+  margin: 5px;
+}
+
+.charge-header {
+  align-items: center;
 }
 
 .stat-container {

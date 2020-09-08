@@ -115,62 +115,14 @@
 		<div style="grid-template: 2em 10em 12em 1fr / repeat(3, 1fr); display: grid;">
 			<div style="grid-area: 1/1/2/4; margin-left: 30px;">
 				<span class="medium">SIZE</span>
-				<select name="data.weapon_size" data-type="String" style="align-self: center;">
-					{{#select data.weapon_size}}
-					<option value="Auxiliary">AUX</option>
-					<option value="Main">MAIN</option>
-					<option value="Heavy">HEAVY</option>
-					<option value="Superheavy">SUPERHEAVY</option>
-					<option value="Other">OTHER</option>
-					{{/select}}
-				</select>
+				{{{wpn-size-sel data.weapon_size "data.weapon_size"}}}
 				<span class="medium">TYPE</span>
-				<select name="data.weapon_type" data-type="String" style="align-self: center;">
-					{{#select data.weapon_type}}
-					<option value="rifle">RIFLE</option>
-					<option value="cannon">CANNON</option>
-					<option value="launcher">LAUNCHER</option>
-					<option value="cqb">CQB</option>
-					<option value="nexus">NEXUS</option>
-					<option value="melee">MELEE</option>
-					<option value="other">OTHER</option>
-					{{/select}}
-				</select>
+				{{{wpn-type-sel data.weapon_type "data.weapon_type"}}}
 			</div>
 			<div class="flexcol card clipped" style="grid-area: 2/1/3/2;">
 				<span class="lancer-stat-header major clipped-top">RANGE</span>
-				<div class="flexrow flex-center">
-					<i class="cci cci-{{data.range.0.type}} i--m i--dark"></i>
-					<select name="data.range.0.type" data-type="String" style="align-self: center;">
-						{{#select data.range.0.type}}
-						<option value="">NONE</option>
-						<option value="range">RANGE</option>
-						<option value="threat">THREAT</option>
-						<option value="thrown">THROWN</option>
-						<option value="line">LINE</option>
-						<option value="cone">CONE</option>
-						<option value="blast">BLAST</option>
-						<option value="burst">BURST</option>
-						{{/select}}
-					</select>
-					<input class="lancer-stat-input " type="number" name="data.range.0.val" value="{{data.range.0.val}}" data-dtype="Number"/>
-				</div>
-				<div class="flexrow flex-center">
-					<i class="cci cci-{{data.range.1.type}} i--m i--dark"></i>
-					<select name="data.range.1.type" data-type="String" style="align-self: center;">
-						{{#select data.range.1.type}}
-						<option value="">NONE</option>
-						<option value="range">RANGE</option>
-						<option value="threat">THREAT</option>
-						<option value="thrown">THROWN</option>
-						<option value="line">LINE</option>
-						<option value="cone">CONE</option>
-						<option value="blast">BLAST</option>
-						<option value="burst">BURST</option>
-						{{/select}}
-					</select>
-					<input class="lancer-stat-input" type="number" name="data.range.1.val" value="{{data.range.1.val}}" data-dtype="Number"/>
-				</div>
+				{{{wpn-range-sel data.range "0" "data.range.0"}}}
+				{{{wpn-range-sel data.range "1" "data.range.1"}}}
 			</div>
 			<div class="flexcol card clipped" style="grid-area: 2/2/3/3;">
 				<span class="lancer-stat-header major clipped-top"><i class="cci cci-reticule i--s i--light"></i>ATTACK BONUS</span>
@@ -202,71 +154,14 @@
 					<input class="lancer-stat-input" type="number" name="data.accuracy" value="{{data.accuracy.[2]}}" data-dtype="Number"/>
 				</div>
 			</div>
-			{{!--
-			For a next iteration--would be really nift to set it up to select images rather than text. 
-			But that seems like a non-trivial task...
-			<img class="med-icon" src="../systems/lancer/assets/icons/range.svg">
-			<img class="med-icon" src="../systems/lancer/assets/icons/aoe_blast.svg">
-			<img class="med-icon" src="../systems/lancer/assets/icons/damage_explosive.svg">
-			--}}
 			<div class="flexrow" style="grid-area: 3/1/4/4; margin-top: 6px">
 				<div class="flexcol card clipped">
 					<span class="lancer-stat-header major clipped-top">DAMAGE 1</span>
-					<div class="flexrow flex-center">
-						<i class="cci cci-{{data.damage.0.type}} i--m damage--{{data.damage.0.type}}"></i>
-						<select name="data.damage.0.type" data-type="String" style="align-self: center;">
-							{{#select data.damage.0.type}}
-							<option value="">NONE</option>
-							<option value="kinetic">KINETIC</option>
-							<option value="energy">ENERGY</option>
-							<option value="explosive">EXPLOSIVE</option>
-							<option value="heat">HEAT</option>
-							<option value="burn">BURN</option>
-							<option value="variable">VARIABLE</option>
-							{{/select}}
-						</select>
-					</div>
-					<div class="flexrow flex-center">
-						<i class="cci cci-rank-1 i--m i--dark"></i>
-						<input class="lancer-stat-input " type="string" name="data.damage.0.val" value="{{data.damage.0.val.[0]}}" data-dtype="String"/>
-					</div>
-					<div class="flexrow flex-center">
-						<i class="cci cci-rank-2 i--m i--dark"></i>
-						<input class="lancer-stat-input " type="string" name="data.damage.0.val" value="{{data.damage.0.val.[1]}}" data-dtype="String"/>
-					</div>
-					<div class="flexrow flex-center">
-						<i class="cci cci-rank-3 i--m i--dark"></i>
-						<input class="lancer-stat-input " type="string" name="data.damage.0.val" value="{{data.damage.0.val.[2]}}" data-dtype="String"/>
-					</div>
+          {{{wpn-damage-sel data.damage "0" "data.damage.0"}}}
 				</div>
 				<div class="flexcol card clipped">
 					<span class="lancer-stat-header major clipped-top">DAMAGE 2</span>
-					<div class="flexrow flex-center">
-						<i class="cci cci-{{data.damage.1.type}} i--m damage--{{data.damage.1.type}}"></i>
-						<select name="data.damage.1.type" data-type="String" style="align-self: center;">
-							{{#select data.damage.1.type}}
-							<option value="">NONE</option>
-							<option value="kinetic">KINETIC</option>
-							<option value="energy">ENERGY</option>
-							<option value="explosive">EXPLOSIVE</option>
-							<option value="heat">HEAT</option>
-							<option value="burn">BURN</option>
-							<option value="variable">VARIABLE</option>
-							{{/select}}
-						</select>
-					</div>
-					<div class="flexrow flex-center">
-						<i class="cci cci-rank-1 i--m i--dark"></i>
-						<input class="lancer-stat-input " type="string" name="data.damage.1.val" value="{{data.damage.1.val.[0]}}" data-dtype="String"/>
-					</div>
-					<div class="flexrow flex-center">
-						<i class="cci cci-rank-2 i--m i--dark"></i>
-						<input class="lancer-stat-input " type="string" name="data.damage.1.val" value="{{data.damage.1.val.[1]}}" data-dtype="String"/>
-					</div>
-					<div class="flexrow flex-center">
-						<i class="cci cci-rank-3 i--m i--dark"></i>
-						<input class="lancer-stat-input " type="string" name="data.damage.1.val" value="{{data.damage.1.val.[2]}}" data-dtype="String"/>
-					</div>
+          {{{wpn-damage-sel data.damage "1" "data.damage.1"}}}
 				</div>
 			</div>
 			<div class="flexcol card clipped" style="grid-area: 4/1/5/4;">
