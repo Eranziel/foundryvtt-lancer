@@ -1,3 +1,21 @@
+# 0.1.3 (2020-09-07)
+## General
+* Updated Foundry Core compatibility version to 0.6.6.
+* Standardized a lot of sheet components to make appearance and future development better.
+* Changed default grid distance and unit to 1 unitless, instead of 10 feet.
+* Greatly reduced the file size of the faction logos.
+
+## Features
+* **Mech Systems/Weapons:** Added effects rendering for all effect types currently supported in Comp/Con. They are rendered on pilot sheet and in chat when a weapon macro is used. Closes #22.
+* **Mech Systems:** Added editability for Basic, AI, Bonus, and Charge-type effects. 
+* **Frame Sheet:** Improve appearance and editability of Frame sheet. Core system description, passive effect, and active effect can now all be edited even if not currently present on the Frame.
+
+## Bug Fixes
+* **Pilot Sheet:** Fixed custom frames (user-created Item) not showing their name on pilot sheets. Closes #57.
+* **Usability:** Removed functionality which deleted weapons or systems from a Pilot on right-click. Closes #56.
+* **Tokens:** Fixed a bug which caused NPC and Deployable prototype token images to be overwritten when the parent sheet image was changed. Closes #61.
+* **Macros:** Character sheet macro rollers now always use the sheet's Actor as the speaker.
+
 # 0.1.2 (2020-07-29)
 ## Bug Fixes
 * **General:** Fix a bug which could cause Item data to be lost during version migration or duplication.
