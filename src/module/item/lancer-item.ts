@@ -249,7 +249,7 @@ function weapon_range_selector(rng_arr: RangeData[], key: string, data_target: s
 /**
  * Handlebars helper for weapon damage selector
  */
-function weapon_damage_selector(dmg_arr: DamageData[], key: string, data_target: string) {
+function pilot_weapon_damage_selector(dmg_arr: DamageData[], key: string, data_target: string) {
   var dmg: DamageData;
   if (dmg_arr && Array.isArray(dmg_arr)) {
     dmg = dmg_arr[key];
@@ -279,29 +279,59 @@ function weapon_damage_selector(dmg_arr: DamageData[], key: string, data_target:
     <option value="${DamageType.Variable}" ${dtype === DamageType.Variable.toLowerCase() ? 'selected' : ''}>VARIABLE</option>
   </select>`
 
-  // NPC damage, 3 tiers
-  if (isNPC) {
-    html += 
-    `</div>
-    <div class="flexrow flex-center">
-      <i class="cci cci-rank-1 i--m i--dark"></i>
-      <input class="lancer-stat-input " type="string" name="${data_target}.val" value="${dmg.val[0] ? dmg.val[0] : ''}" data-dtype="String"/>
-    </div>
-    <div class="flexrow flex-center">
-      <i class="cci cci-rank-2 i--m i--dark"></i>
-      <input class="lancer-stat-input " type="string" name="${data_target}.val" value="${dmg.val[1] ? dmg.val[1] : ''}" data-dtype="String"/>
-    </div>
-    <div class="flexrow flex-center">
-      <i class="cci cci-rank-3 i--m i--dark"></i>
-      <input class="lancer-stat-input " type="string" name="${data_target}.val" value="${dmg.val[2] ? dmg.val[2] : ''}" data-dtype="String"/>
-    </div>`;
+  html += `
+    <input class="lancer-stat-input " type="string" name="${data_target}.val" value="${dmg.val ? dmg.val : ''}" data-dtype="String"/>
+  </div>`;
+  return html;
+}
+
+/**
+ * Handlebars helper for weapon damage selector
+ */
+function npc_weapon_damage_selector(dmg_arr: DamageData[], key: string, data_target: string) {
+  var dmg: DamageData;
+  if (dmg_arr && Array.isArray(dmg_arr)) {
+    dmg = dmg_arr[key];
   }
-  // Player damage, single value
-  else {
-    html += `
-      <input class="lancer-stat-input " type="string" name="${data_target}.val" value="${dmg.val ? dmg.val : ''}" data-dtype="String"/>
-    </div>`;
+  if (!dmg) {
+    dmg = {type: "", val: ""};
   }
+
+  if (!hasProperty(dmg, "type")) dmg.type = "";
+  if (!hasProperty(dmg, "val")) dmg.val = "";
+
+  const dtype = dmg.type.toLowerCase();
+  const isNPC = Array.isArray(dmg.val);
+  let html = '<div class="flexrow flex-center" style="padding: 5px; flex-wrap: nowrap;">';
+
+  if (dmg.type) {
+    html += `<i class="cci cci-${dtype} i--m damage--${dtype}"></i>`;
+  }
+  html +=
+  `<select name="${data_target}.type" data-type="String" style="align-self: center;">
+    <option value="" ${dmg.type === '' ? 'selected' : ''}>NONE</option>
+    <option value="${DamageType.Kinetic}" ${dtype === DamageType.Kinetic.toLowerCase() ? 'selected' : ''}>KINETIC</option>
+    <option value="${DamageType.Energy}" ${dtype === DamageType.Energy.toLowerCase() ? 'selected' : ''}>ENERGY</option>
+    <option value="${DamageType.Explosive}" ${dtype === DamageType.Explosive.toLowerCase() ? 'selected' : ''}>EXPLOSIVE</option>
+    <option value="${DamageType.Heat}" ${dtype === DamageType.Heat.toLowerCase() ? 'selected' : ''}>HEAT</option>
+    <option value="${DamageType.Burn}" ${dtype === DamageType.Burn.toLowerCase() ? 'selected' : ''}>BURN</option>
+    <option value="${DamageType.Variable}" ${dtype === DamageType.Variable.toLowerCase() ? 'selected' : ''}>VARIABLE</option>
+  </select>`
+
+  html += 
+  `</div>
+  <div class="flexrow flex-center">
+    <i class="cci cci-rank-1 i--m i--dark"></i>
+    <input class="lancer-stat-input " type="string" name="${data_target}.val" value="${dmg.val[0] ? dmg.val[0] : ''}" data-dtype="String"/>
+  </div>
+  <div class="flexrow flex-center">
+    <i class="cci cci-rank-2 i--m i--dark"></i>
+    <input class="lancer-stat-input " type="string" name="${data_target}.val" value="${dmg.val[1] ? dmg.val[1] : ''}" data-dtype="String"/>
+  </div>
+  <div class="flexrow flex-center">
+    <i class="cci cci-rank-3 i--m i--dark"></i>
+    <input class="lancer-stat-input " type="string" name="${data_target}.val" value="${dmg.val[2] ? dmg.val[2] : ''}" data-dtype="String"/>
+  </div>`;
   return html;
 }
 
@@ -505,7 +535,8 @@ export {
   weapon_size_selector,
   weapon_type_selector,
   weapon_range_selector,
-  weapon_damage_selector,
+  pilot_weapon_damage_selector,
+  npc_weapon_damage_selector,
   weapon_range_preview,
   weapon_damage_preview,
   npc_attack_bonus_preview,
