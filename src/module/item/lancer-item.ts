@@ -19,60 +19,65 @@ import { NPCFeatureType, RangeType, WeaponType, WeaponSize, DamageType, SystemTy
 const lp = LANCER.log_prefix;
 
 function lancerItemInit(data: any) {
-  console.log(`${lp} Initializing new ${data.type}`);
-  let img: string = 'systems/lancer/assets/icons/';
-  if (data.type === 'skill') {
-    img += 'skill.svg';
-  }
-  else if (data.type === 'talent') {
-    img += 'talent.svg';
-  }
-  else if (data.type === 'core_bonus') {
-    img += 'corebonus.svg';
-  }
-  else if (data.type === 'license') {
-    img += 'license.svg';
-  }
-  else if (data.type === 'pilot_armor') {
-    img += 'shield_outline.svg';
-  }
-  else if (data.type === 'pilot_weapon') {
-    img += 'weapon.svg';
-  }
-  else if (data.type === 'pilot_gear') {
-    img += 'generic_item.svg';
-  }
-  else if (data.type === 'frame') {
-    img += 'frame.svg';
-  }
-  else if (data.type === 'mech_weapon') {
-    img += 'weapon.svg';
-  }
-  else if (data.type === 'mech_system') {
-    img += 'system.svg';
-    // TODO: set default system type
-  }
-  else if (data.type === 'npc_class') {
-    img += 'npc_class.svg';
-  }
-  else if (data.type === 'npc_template') {
-    img += 'npc_template.svg';
-  }
-  else if (data.type === 'npc_feature') {
-    img += 'trait.svg';
-    mergeObject(data, {
-      // Default new NPC features to traits
-      "data.feature_type": NPCFeatureType.Trait
-    })
-  }
-  else {
-    img += 'generic_item.svg';
-  }
+  console.log(`${lp} Initializing new ${data.type}: `, data);
+  if (!data.img) {
+    let img: string = 'systems/lancer/assets/icons/';
+    if (data.type === 'skill') {
+      // img += 'skill.svg';
+    }
+    else if (data.type === 'talent') {
+      img += 'talent.svg';
+    }
+    else if (data.type === 'core_bonus') {
+      img += 'corebonus.svg';
+    }
+    else if (data.type === 'license') {
+      img += 'license.svg';
+    }
+    else if (data.type === 'pilot_armor') {
+      img += 'shield_outline.svg';
+    }
+    else if (data.type === 'pilot_weapon') {
+      img += 'weapon.svg';
+    }
+    else if (data.type === 'pilot_gear') {
+      img += 'generic_item.svg';
+    }
+    else if (data.type === 'frame') {
+      img += 'frame.svg';
+    }
+    else if (data.type === 'mech_weapon') {
+      img += 'weapon.svg';
+    }
+    else if (data.type === 'mech_system') {
+      img += 'system.svg';
+      // TODO: set default system type
+    }
+    else if (data.type === 'npc_class') {
+      img += 'npc_class.svg';
+    }
+    else if (data.type === 'npc_template') {
+      img += 'npc_template.svg';
+    }
+    else if (data.type === 'npc_feature') {
+      console.log(`${lp} New NPC feature data: `, data);
+      if (!data.feature_type) {
+        img += 'trait.svg';
+        mergeObject(data, {
+          // Default new NPC features to traits
+          "data.feature_type": NPCFeatureType.Trait
+        });
+      }
+    }
+    else {
+      img += 'generic_item.svg';
+    }
 
-  mergeObject(data, {
-    // Initialize image
-    "img": img
-  });
+    mergeObject(data, {
+      // Initialize image
+      "img": img
+    });
+  }
 }
 
 class LancerItem extends Item {
