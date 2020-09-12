@@ -29,7 +29,8 @@ import { LancerItem,
 	core_system_preview, 
 	mech_trait_preview, 
 	weapon_range_selector,
-	weapon_damage_selector,
+	pilot_weapon_damage_selector,
+	npc_weapon_damage_selector,
 	system_type_selector,
 	effect_type_selector } from './module/item/lancer-item';
 import { charge_type_selector, 
@@ -214,7 +215,8 @@ Hooks.once('init', async function() {
 	Handlebars.registerHelper('wpn-size-sel', weapon_size_selector);
 	Handlebars.registerHelper('wpn-type-sel', weapon_type_selector);
 	Handlebars.registerHelper('wpn-range-sel', weapon_range_selector);
-	Handlebars.registerHelper('wpn-damage-sel', weapon_damage_selector);
+	Handlebars.registerHelper('wpn-damage-sel', pilot_weapon_damage_selector);
+	Handlebars.registerHelper('npc-wpn-damage-sel', npc_weapon_damage_selector);
 	Handlebars.registerPartial('wpn-range', weapon_range_preview);
 	Handlebars.registerPartial('wpn-damage', weapon_damage_preview);
 	Handlebars.registerPartial('npcf-atk', npc_attack_bonus_preview);
