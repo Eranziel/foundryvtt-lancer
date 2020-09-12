@@ -16,10 +16,11 @@ import { DamageType,
   WeaponSize, 
   WeaponType, 
   SystemType,
-  EffectType, 
   MechType, 
   ItemType,
-  NPCTag } from './enums';
+  NPCTag,
+  NPCFeatureType } from './enums';
+import { EffectData } from './item/effects'
 
 // ------------------------------------------------------
 // |       UTILITY DATA TYPES                           |
@@ -42,80 +43,15 @@ declare interface TagData {
   hidden?: boolean;
 }
 
-// Note that this type can be replaced with a descriptive string in some cases.
-declare interface EffectData {
-  type: EffectType;
-  effect: EffectDataBasic | EffectDataOffensive | EffectDataProfile | EffectDataReaction | EffectDataTech | EffectDataAI;
-}
-
-declare interface EffectDataBasic {
-  activation: string;
-  detail: string;
-}
-
-declare interface EffectDataOffensive {
-  detail?: string;
-  attack?: string;
-  hit?: string;
-  critical?: string;
-  range?: RangeData[];
-  damage?: DamageData[];
-  abilities?: EffectData[];
-}
-
-declare interface EffectDataProfile {
-  name: string;
-  range?: RangeData[];
-  damage: DamageData[];
-  detail?: string;
-  tags?: TagDataShort[];
-}
-
-// Note that Reactions, like Tech or Protocols, may be more generic than an effect. Yet to be seen.
-declare interface EffectDataReaction {
-  name: string;
-  frequency: string;  // May need a specialized parser and interface for compatibility with About Time by Tim Posney
-  trigger: string;
-  detail: string;  // Optional?
-}
-
-// Tech seems to either have detail, or have option_set and options.
-declare interface EffectDataTech {
-  activation: string;
-  detail?: string,
-  option_set?: string;
-  options?: EffectDataTechOption[];
-}
-
-declare interface EffectDataTechOption {
-  name: string;
-  detail: string;
-}
-
-declare interface EffectDataAI {
-  detail: string;
-  abilities: EffectData[];
-}
-
-declare interface EffectDataProtocol {
-  name: string;
-  detail: string;
-  tags?: TagDataShort;
-}
-
-// TODO: EffectDataDeployable (effect_type == "Deployable")
-// TODO: EffectDataDrone (effect_type == "Drone")
-// TODO: EffectDataCharge (effect_type == "Charge")
-
 declare interface RangeData {
-  type: RangeType;
-  val: number;
+  type: RangeType | string;
+  val: number | string;
   override?: boolean;
   bonus?: number;
 }
 
 declare interface DamageData {
-  type: DamageType;
+  type: DamageType | string;
   val: string | number;
   override?: boolean;
 }
@@ -256,7 +192,7 @@ declare interface LancerDeployableData {
   name: string;
   size: number;
   hp: ResourceData;
-  heat?: ResourceData;
+  heat: ResourceData;
   armor: number;
   evasion: number;
   edef: number;
@@ -307,7 +243,7 @@ declare interface LancerMechEquipmentData {
   cascading: boolean;
   loaded: boolean;
   tags: TagData[];
-  effect: EffectData[]; // TODO: replace with specific type
+  effect: EffectData;
   integrated: boolean;
   // TODO: not needed? Used in Comp/Con for some of its mech building logic.
   // talent_item: boolean; 
@@ -316,7 +252,7 @@ declare interface LancerMechEquipmentData {
 
 
 // -------- Skill Trigger data -----------------------------------
-declare interface LancerSkillData extends BaseEntityData {
+declare interface LancerSkillData {
   id: string;
   name: string;
   description: string;
@@ -324,8 +260,12 @@ declare interface LancerSkillData extends BaseEntityData {
   rank: number;
 }
 
+declare interface LancerSkillItemData extends ItemData {
+  data: LancerSkillData;
+}
+
 declare interface LancerSkillSheetData extends ItemSheetData {
-  item?: LancerSkill;
+  item?: LancerSkillItemData;
   data?: LancerSkillData;
 }
 
@@ -335,7 +275,7 @@ declare interface LancerTalentRank {
   description: string;
 }
 
-declare interface LancerTalentData extends BaseEntityData {
+declare interface LancerTalentData {
   id: string;
   name: string;
   description: string;
@@ -343,13 +283,17 @@ declare interface LancerTalentData extends BaseEntityData {
   rank: number;
 }
 
+declare interface LancerTalentItemData extends ItemData {
+  data: LancerTalentData;
+}
+
 declare interface LancerTalentSheetData extends ItemSheetData {
-  item?: LancerTalent;
+  item?: LancerTalentItemData;
   data?: LancerTalentData;
 }
 
 // -------- Core Bonus data --------------------------------------
-declare interface LancerCoreBonusData extends BaseEntityData {
+declare interface LancerCoreBonusData {
   id: string;
   name: string;
   source: string;
@@ -357,20 +301,33 @@ declare interface LancerCoreBonusData extends BaseEntityData {
   mounted_effect: string;
 }
 
+declare interface LancerCoreBonusItemData extends ItemData {
+  data: LancerCoreBonusData;
+}
+
 declare interface LancerCoreBonusSheetData extends ItemSheetData {
-  item?: LancerCoreBonus;
+  item?: LancerCoreBonusItemData;
   data?: LancerCoreBonusData;
 }
 
 // -------- License data -----------------------------------------
-declare interface LancerLicenseData extends BaseEntityData {
+declare interface LancerLicenseRank {
+  items: string[];
+}
+
+declare interface LancerLicenseData {
   name: string;
   source: string;
+  ranks: LancerLicenseRank[];
   rank: number;
 }
 
+declare interface LancerLicenseItemData extends ItemData {
+  data: LancerLicenseData;
+}
+
 declare interface LancerLicenseSheetData extends ItemSheetData {
-  item?: LancerLicense;
+  item?: LancerLicenseItemData;
   data?: LancerLicenseData;
 }
 
@@ -378,7 +335,7 @@ declare interface LancerLicenseSheetData extends ItemSheetData {
 // TODO: reserve data type
 
 // -------- Pilot Armor data -------------------------------------
-declare interface LancerPilotArmorData extends BaseEntityData, LancerCompendiumItemData, LancerPilotEquipmentData {
+declare interface LancerPilotArmorData extends LancerCompendiumItemData, LancerPilotEquipmentData {
   hp_bonus: number;
   speed: number;
   speed_bonus: number;
@@ -389,32 +346,44 @@ declare interface LancerPilotArmorData extends BaseEntityData, LancerCompendiumI
   evasion_bonus: number;
 }
 
+declare interface LancerPilotArmorItemData extends ItemData {
+  data: LancerPilotArmorData;
+}
+
 declare interface LancerPilotArmorSheetData extends ItemSheetData {
-  item?: LancerPilotArmor;
+  item?: LancerPilotArmorItemData;
   data?: LancerPilotArmorData;
 }
 
 // -------- Pilot Weapon data ------------------------------------
-declare interface LancerPilotWeaponData extends BaseEntityData, LancerCompendiumItemData, LancerPilotEquipmentData {
+declare interface LancerPilotWeaponData extends LancerCompendiumItemData, LancerPilotEquipmentData {
   range: RangeData[];
   damage: DamageData[];
   effect: EffectData;
   custom_damage_type: DamageType;
 }
 
+declare interface LancerPilotWeaponItemData extends ItemData {
+  data: LancerPilotWeaponData;
+}
+
 declare interface LancerPilotWeaponSheetData extends ItemSheetData {
-  item?: LancerPilotWeapon;
+  item?: LancerPilotWeaponItemData;
   data?: LancerPilotWeaponData;
 }
 
 // -------- Pilot Gear data --------------------------------------
-declare interface LancerPilotGearData extends BaseEntityData, LancerCompendiumItemData, LancerPilotEquipmentData {
+declare interface LancerPilotGearData extends LancerCompendiumItemData, LancerPilotEquipmentData {
   uses: number;
   current_uses: number;
 }
 
+declare interface LancerPilotGearItemData extends ItemData {
+  data: LancerPilotGearData;
+}
+
 declare interface LancerPilotGearSheetData extends ItemSheetData {
-  item?: LancerPilotGear;
+  item?: LancerPilotGearItemData;
   data?: LancerPilotGearData;
 }
 
@@ -450,7 +419,7 @@ declare interface LancerCoreSystemData {
   tags: TagData[];
 }
 
-declare interface LancerFrameData extends BaseEntityData, LancerLicensedItemData {
+declare interface LancerFrameData extends LancerCompendiumItemData, LancerLicensedItemData {
   mechtype: MechType[];
   stats: LancerFrameStatsData;
   traits: LancerMechTraitData[];
@@ -458,23 +427,31 @@ declare interface LancerFrameData extends BaseEntityData, LancerLicensedItemData
   core_system: LancerCoreSystemData;
 }
 
+declare interface LancerFrameItemData extends ItemData {
+  data: LancerFrameData;
+}
+
 declare interface LancerFrameSheetData extends ItemSheetData {
-  item?: LancerFrame;
+  item?: LancerFrameItemData;
   data?: LancerFrameData;
 }
 
 // -------- Mech System data -------------------------------------
-declare interface LancerMechSystemData extends BaseEntityData, LancerLicensedItemData, LancerMechEquipmentData {
+declare interface LancerMechSystemData extends LancerLicensedItemData, LancerMechEquipmentData {
   system_type: SystemType;
 }
 
+declare interface LancerMechSystemItemData extends ItemData {
+  data: LancerMechSystemData;
+}
+
 declare interface LancerMechSystemSheetData extends ItemSheetData {
-  item?: LancerMechSystem;
+  item?: LancerMechSystemItemData;
   data?: LancerMechSystemData;
 }
 
 // -------- Mech Weapon data -------------------------------------
-declare interface LancerMechWeaponData extends BaseEntityData, LancerLicensedItemData, LancerMechEquipmentData {
+declare interface LancerMechWeaponData extends LancerLicensedItemData, LancerMechEquipmentData {
   mount: WeaponSize;
   weapon_type: WeaponType;
   damage: DamageData[];
@@ -483,29 +460,33 @@ declare interface LancerMechWeaponData extends BaseEntityData, LancerLicensedIte
   custom_damage_type: DamageType;
 }
 
+declare interface LancerMechWeaponItemData extends ItemData {
+  data: LancerMechWeaponData;
+}
+
 declare interface LancerMechWeaponSheetData extends ItemSheetData {
-  item?: LancerMechWeapon;
+  item?: LancerMechWeaponItemData;
   data?: LancerMechWeaponData;
 }
 
 // -------- NPC Class data -------------------------------------
 declare interface LancerNPCClassStatsData {
+  hp: number[];
+  heatcap: number[];
+  structure: number[];
+  stress: number[];
+  armor: number[];
+  evasion: number[];
+  edef: number[];
+  speed: number[];
+  sensor_range: number[];
+  save: number[];
+  activations: number[];
+  size: number[];
   hull: number[];
   agility: number[];
   systems: number[];
   engineering: number[];
-  structure: number[];
-  armor: number[];
-  hp: number[];
-  stress: number[];
-  heatcap: number[];
-  speed: number[];
-  save: number[];
-  evasion: number[];
-  edef: number[];
-  sensor_range: number[];
-  activations: number[];
-  size: number[];
 }
 
 declare interface LancerNPCInfoData {
@@ -513,48 +494,59 @@ declare interface LancerNPCInfoData {
   tactics: string;
 }
 
-declare interface LancerNPCClassData extends BaseEntityData, LancerCompendiumItemData {
+declare interface LancerNPCClassData extends LancerCompendiumItemData {
   mechtype: MechType;
   info: LancerNPCInfoData;
   stats: LancerNPCClassStatsData;
-  base_features: LancerNPCFeatureData[];
-  optional_features: LancerNPCFeatureData[];
+  base_features: string[];
+  optional_features: string[];
+}
+
+declare interface LancerNPCClassItemData extends ItemData {
+  data: LancerNPCClassData;
 }
 
 declare interface LancerNPCClassSheetData extends ItemSheetData {
-  item?: LancerNPCClass;
+  item?: LancerNPCClassItemData;
   data?: LancerNPCClassData;
 }
 
 // -------- NPC Template data -------------------------------------
-declare interface LancerNPCTemplateData extends BaseEntityData, LancerCompendiumItemData{
-  basefeatures: LancerNPCFeatureData[];
-  optional_features: LancerNPCFeatureData[];
+declare interface LancerNPCTemplateData extends LancerCompendiumItemData{
+  basefeatures: string[];
+  optional_features: string[];
+}
+
+declare interface LancerNPCTemplateItemData extends ItemData {
+  data: LancerNPCTemplateData;
 }
 
 declare interface LancerNPCTemplateSheetData extends ItemSheetData {
-  item?: LancerNPCTemplate;
+  item?: LancerNPCTemplateItemData;
   data?: LancerNPCTemplateData;
 }
 
 // -------- NPC Feature data -------------------------------------
-declare interface LancerNPCFeatureData extends BaseEntityData, LancerCompendiumItemData{
+declare interface LancerNPCFeatureData extends LancerCompendiumItemData{
   origin_type: string;
   origin_name: string;
   origin_base: boolean;
-  fature_type: string;
-  effect: string;
+  feature_type: NPCFeatureType;
+  effect?: string;
+  bonus?: object;
+  override?: object;
   tags: TagData[];
-  trigger: string;
-  weapon_type: string;
-  attack_bonus: number[];
-  accuracy: number[];
-  range: RangeData[];
-  damage: NPCDamageData[];
-  on_hit: string;
+  destroyed: boolean;
+  charged: boolean;
+  uses: number;
+  max_uses: number;
+}
+
+declare interface LancerNPCFeatureItemData extends ItemData {
+  data: LancerNPCFeatureData;
 }
 
 declare interface LancerNPCFeatureSheetData extends ItemSheetData {
-  item?: LancerNPCFeature;
+  item?: LancerNPCFeatureItemData;
   data?: LancerNPCFeatureData;
 }

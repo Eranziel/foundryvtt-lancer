@@ -1,5 +1,11 @@
-import { LancerSkillSheetData } from '../interfaces';
+import { LancerSkillSheetData, LancerMechSystemData, RangeData, DamageData } from '../interfaces';
 import { LANCER } from '../config';
+import { NPCFeatureType, EffectType, ChargeType, ActivationType, RangeType, DamageType } from '../enums';
+import { NPCFeatureIcons } from './npc-feature';
+import { 
+  ChargeEffectData,
+  ChargeData, 
+  BasicEffectData} from './effects';
 const lp = LANCER.log_prefix;
 
 /**
@@ -16,7 +22,7 @@ export class LancerItemSheet extends ItemSheet {
 	static get defaultOptions() {
 	  return mergeObject(super.defaultOptions, {
 			classes: ["lancer", "sheet", "item"],
-			width: 520,
+			width: 700,
 			height: 480,
       tabs: [{navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "description"}]
 		});
@@ -37,11 +43,33 @@ export class LancerItemSheet extends ItemSheet {
    */
   getData() {
     const data: ItemSheetData = super.getData();
-    // data.dtypes = ["String", "Number", "Boolean"];
-    // for ( let attr of Object.values(data.data.attributes) ) {
-    //   attr.isCheckbox = attr.dtype === "Boolean";
-    // }
-    console.log(`${lp} Item sheet data: `, data);
+
+    if (data.item.type === "npc_feature" && data.data.feature_type === NPCFeatureType.Weapon) {
+      if (data.data.weapon_type) {
+        const parts = data.data.weapon_type.split(' ');
+        data.data.weapon_size = parts[0];
+        data.data.weapon_type = parts[1];
+      }
+      else {
+        data.data.weapon_size = 'Main';
+        data.data.weapon_type = 'Rifle';
+      }
+
+      // TODO: Fill in 0's if attack bonus or accuracy are undefined or "".
+    }
+
+    if (data.item.type === "mech_system") {
+      // For effects which are a basic string, construct a BasicEffectData for them.
+      if ((typeof data.data.effect) === "string") {
+        const effect: BasicEffectData = {
+          effect_type: EffectType.Basic,
+          detail: data.data.effect,
+        }
+        data.data.effect = effect;
+      }
+    }
+
+    console.log(`${lp} Item sheet data: `, data, this.item);
     return data;
   }
 
@@ -113,10 +141,10 @@ export class LancerItemSheet extends ItemSheet {
     const itemString = a.parents(".arrayed-item-container").data("item");
     console.log(itemString)
     var baseArr = getValue(this,("object.data.data." + itemString))
-    if (baseArr == null) {
-      itemArr = []
-    } else {
+    if (baseArr) {
       var itemArr = duplicate(baseArr);
+    } else {
+      itemArr = [];
     }
     const dataRef = "data." + itemString;
 
@@ -156,39 +184,93 @@ export class LancerItemSheet extends ItemSheet {
 
   /** @override */
   _updateObject(event, formData) {
+    // Copy the Item name into the system data name property.
+    formData["data.name"] = formData["name"];
+
+    if (this.item.data.type === "npc_feature") {
+      // Change image to match feature type, unless a custom image has been selected
+      const imgPath = 'systems/lancer/assets/icons/';
+      const shortImg = formData['img'].slice(formData['img'].lastIndexOf('/')+1);
+      if (formData['img'].startsWith(imgPath) && Object.values(NPCFeatureIcons).includes(shortImg)) {
+        formData['img'] = imgPath + NPCFeatureIcons[formData['data.feature_type']];
+      }
+  
+      // Re-build NPC Weapon size and type
+      if (this.item.data.type === "npc_feature" && this.item.data.data.feature_type === NPCFeatureType.Weapon) {
+        formData['data.weapon_type'] = `${formData['data.weapon_size']} ${formData['data.weapon_type']}`;
+        delete formData['data.weapon_size'];
+      }  
+    }
 
     if (LANCER.weapon_items.includes(this.item.data.type)) {
-      // Build range and damage arrays
-      let damage = [];
-      let range = [];
-      let d_done = false;
-      let r_done = false;
-      let i = 0;
-      while (!d_done || !r_done && i < 10) {
-        if (formData.hasOwnProperty(`data.damage.${i}.type`)) {
-          damage.push({
-            type: formData[`data.damage.${i}.type`],
-            val: formData[`data.damage.${i}.val`]
-          });
-          delete formData[`data.damage.${i}.type`];
-          delete formData[`data.damage.${i}.val`];
-        }
-        else d_done = true;
+      // Safeguard against non-weapon NPC features
+      if ( this.item.data.type !== "npc_feature" ||
+            (this.item.data.type === "npc_feature" && this.item.data.data.feature_type === NPCFeatureType.Weapon)) {
+        // Build range and damage arrays
+        let damage = [];
+        let range = [];
+        let d_done = false;
+        let r_done = false;
+        let i = 0;
+        while (!d_done || !r_done && i < 10) {
+          if (formData.hasOwnProperty(`data.damage.${i}.type`)) {
+            damage.push({
+              type: formData[`data.damage.${i}.type`],
+              val: formData[`data.damage.${i}.val`]
+            });
+            delete formData[`data.damage.${i}.type`];
+            delete formData[`data.damage.${i}.val`];
+          }
+          else d_done = true;
 
-        if (formData.hasOwnProperty(`data.range.${i}.type`)) {
-          range.push({
-            type: formData[`data.range.${i}.type`],
-            val: formData[`data.range.${i}.val`]
-          });
-          delete formData[`data.range.${i}.type`];
-          delete formData[`data.range.${i}.val`];
-        }
-        else d_done = true;
+          if (formData.hasOwnProperty(`data.range.${i}.type`)) {
+            range.push({
+              type: formData[`data.range.${i}.type`],
+              val: formData[`data.range.${i}.val`]
+            });
+            delete formData[`data.range.${i}.type`];
+            delete formData[`data.range.${i}.val`];
+          }
+          else d_done = true;
 
-        i++;
+          i++;
+        }
+        formData['data.damage'] = damage;
+        formData['data.range'] = range;
       }
-      formData['data.damage'] = damage;
-      formData['data.range'] = range;
+    }
+
+    if (this.item.data.type === "mech_system") {
+      const i_data = this.item.data.data as LancerMechSystemData;
+      // If the effect type has changed, initialize the effect structure
+      if (i_data.effect.effect_type !== formData['data.effect.effect_type']){
+        if (formData['data.effect.effect_type'] === EffectType.Charge) {
+          var rdata: RangeData = {
+            type: "None",
+            val: 0,
+          };
+          var ddata: DamageData = {
+            type: DamageType.Explosive,
+            val: "",
+          };
+          var charge: ChargeData = {
+            name: "",
+            charge_type: ChargeType.Grenade,
+            detail: "",
+            range: [duplicate(rdata), duplicate(rdata)],
+            damage: [duplicate(ddata), duplicate(ddata)],
+            tags: []
+          };
+          var effect: ChargeEffectData = {
+            effect_type: formData['data.effect.effect_type'],
+            name: "",
+            charges: [duplicate(charge), duplicate(charge)],
+            activation: ActivationType.None,
+            tags: []
+          };
+          formData['data.effect'] = effect;
+        }
+      }
     }
 
     console.log(`${lp} Item sheet form data: `, formData);

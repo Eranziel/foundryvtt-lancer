@@ -9,122 +9,179 @@
 		<div class="header-fields flexrow" style="grid-area: 2/1/3/5">
 			<h3 class="origin_name"><input class="header-field" name="data.origin_name" type="text" value="{{data.origin_name}}" placeholder="Origin Name"/></h3>
       <h3 class="origin_type"><input class="header-field" name="data.origin_type" type="text" value="{{data.origin_type}}" placeholder="Origin Type"/></h3>
-      <h3 class="origin_type"><input class="header-field" name="data.feature_type" type="text" value="{{data.feature_type}}" placeholder="Feature Type"/></h3>
-			<h3 class="origin_base"><input type="checkbox"  name="data.origin_base" {{checked data.origin_base}}></h3>
+      <h3 class="origin_type">
+				<select class="header-field" name="data.feature_type" data-type="String">
+					{{#select data.feature_type}}
+					<option class="i--dark" value="Reaction">REACTION</option>
+					<option class="i--dark" value="System">SYSTEM</option>
+					<option class="i--dark" value="Tech">TECH</option>
+					<option class="i--dark" value="Trait">TRAIT</option>
+					<option class="i--dark" value="Weapon">WEAPON</option>
+					{{/select}}
+				</select>
+			</h3>
+			<h3 class="origin_base">BASE:<input type="checkbox" name="data.origin_base" {{checked data.origin_base}}></h3>
 		</div>
 	</header>
 
 	{{!-- Sheet Body --}}
 	<section class="sheet-body" style="height:-webkit-fill-available">
-		<div style="grid-template: 1fr 1fr 2fr 5fr / 1fr; display: grid">
-			<div class="flexrow">
-        <div class="flexcol card clipped">
-          <span class="lancer-stat-header major clipped-top">RANGE 1</span>
-					<select name="data.range.0.type" data-type="String" style="align-self: center;">
-						{{#select data.range.0.type}}
-						<option value="range">RANGE</option>
-						<option value="threat">THREAT</option>
-						<option value="thrown">THROWN</option>
-						<option value="line">LINE</option>
-						<option value="cone">CONE</option>
-						<option value="blast">BLAST</option>
-						<option value="burst">BURST</option>
-						{{/select}}
-					</select> <input class="lancer-stat-input " type="number" name="data.range.0.val" value="{{data.range.0.val}}" data-dtype="Number"/>
-				</div>
-        <div class="flexcol card clipped">
-          <span class="lancer-stat-header major clipped-top">RANGE 2</span>
-					<select name="data.range.1.type" data-type="String" style="align-self: center;">
-						{{#select data.range.1.type}}
-						<option value="range">RANGE</option>
-						<option value="threat">THREAT</option>
-						<option value="thrown">THROWN</option>
-						<option value="line">LINE</option>
-						<option value="cone">CONE</option>
-						<option value="blast">BLAST</option>
-						<option value="burst">BURST</option>
-						{{/select}}
-					</select> <input class="lancer-stat-input" type="number" name="data.range.1.val" value="{{data.range.1.val}}" data-dtype="Number"/>
-        </div>
-        <div class="flexcol card clipped">
-          <span class="lancer-stat-header major clipped-top">ATTACK BONUS</span>
-          <span class="medium">TIER 1:</span><input class="lancer-stat-input" type="number" name="data.attack_bonus" value="{{data.attack_bonus.[0]}}" data-dtype="Number"/>
-          <span class="medium">TIER 2:</span><input class="lancer-stat-input" type="number" name="data.attack_bonus" value="{{data.attack_bonus.[1]}}" data-dtype="Number"/>
-          <span class="medium">TIER 3:</span><input class="lancer-stat-input" type="number" name="data.attack_bonus" value="{{data.attack_bonus.[2]}}" data-dtype="Number"/>
-        </div>
-        <div class="flexcol card clipped">
-          <span class="lancer-stat-header major clipped-top">ACCURACY</span>
-          <span class="medium">TIER 1:</span><input class="lancer-stat-input" type="number" name="data.accuracy" value="{{data.accuracy.[0]}}" data-dtype="Number"/>
-          <span class="medium">TIER 2:</span><input class="lancer-stat-input" type="number" name="data.accuracy" value="{{data.accuracy.[1]}}" data-dtype="Number"/>
-          <span class="medium">TIER 3:</span><input class="lancer-stat-input" type="number" name="data.accuracy" value="{{data.accuracy.[2]}}" data-dtype="Number"/>
-        </div>
-				<div style="max-width:50%"></div>
-				<!--
-				For a next iteration--would be really nift to set it up to select images rather than text. 
-				But that seems like a non-trivial task...
-				<img class="med-icon" src="../systems/lancer/assets/icons/range.svg">
-				<img class="med-icon" src="../systems/lancer/assets/icons/aoe_blast.svg">
-				<img class="med-icon" src="../systems/lancer/assets/icons/damage_explosive.svg">
-			-->
-			<div>
-        <span class="medium">Weapon Type:</span>
-        <input class="header-field" name="data.weapon_type" type="text" value="{{data.weapon_type}}" placeholder="Weapon Type"/></h3>
-			</div>
+
+		{{!-- Limited Uses Tracking --}}
+		<div class="flexrow stat-container" style="align-self: center; margin: 5px 30px; max-width: max-content;">
+			<span class="medium" >USES:</span>
+			<input class="lancer-stat-input major" type="number" name="data.uses" value="{{data.uses}}" data-dtype="Number"/>
+			<span class="medium" style="max-width: min-content;" >/</span>
+			<input class="lancer-stat-input major" type="number" name="data.max_uses" value="{{data.max_uses}}" data-dtype="Number"/>
 		</div>
-    <div style="grid-area: 2 / 1 / 3 / 2; margin-top: 6px">
-      <div class="flexrow">
-      <div class="flexcol card clipped">
-        <span class="lancer-stat-header major clipped-top">DAMAGE 1</span>
-				<select name="data.damage.0.type" data-type="String" style="align-self: center;">
-					{{#select data.damage.0.type}}
-					<option value="kinetic">KINETIC</option>
-					<option value="energy">ENERGY</option>
-					<option value="explosive">EXPLOSIVE</option>
-					<option value="heat">HEAT</option>
-					<option value="burn">BURN</option>
-					<option value="other">OTHER</option>
-					{{/select}}
-				</select>
-        <input class="lancer-stat-input " type="string" name="data.damage.0.val" value="{{data.damage.0.val.[0]}}" data-dtype="String"/>
-        <input class="lancer-stat-input " type="string" name="data.damage.0.val" value="{{data.damage.0.val.[1]}}" data-dtype="String"/>
-        <input class="lancer-stat-input " type="string" name="data.damage.0.val" value="{{data.damage.0.val.[2]}}" data-dtype="String"/>
-			</div>
-      <div class="flexcol card clipped">
-        <span class="lancer-stat-header major clipped-top">DAMAGE 2</span>
-				<select name="data.damage.1.type" data-type="String" style="align-self: center;">
-					{{#select data.damage.1.type}}
-					<option value="kinetic">KINETIC</option>
-					<option value="energy">ENERGY</option>
-					<option value="explosive">EXPLOSIVE</option>
-					<option value="heat">HEAT</option>
-					<option value="burn">BURN</option>
-					<option value="other">OTHER</option>
-					{{/select}}
-				</select>
-        <input class="lancer-stat-input " type="string" name="data.damage.1.val" value="{{data.damage.1.val.[0]}}" data-dtype="String"/>
-        <input class="lancer-stat-input " type="string" name="data.damage.1.val" value="{{data.damage.1.val.[1]}}" data-dtype="String"/>
-        <input class="lancer-stat-input " type="string" name="data.damage.1.val" value="{{data.damage.1.val.[2]}}" data-dtype="String"/>
-      </div>
-    </div>
-		</div>
-		<div class="flexcol card clipped" style="grid-area: 3 / 1 / 4 / 2">
-      <span class="lancer-stat-header major clipped-top">EFFECT</span>
-			{{editor content=data.effect target="data.effect" button=true editable=editable}}
+
+		{{!-- Reaction --}}
+		{{#if (eq data.feature_type "Reaction")}}
+		<div class="flexcol clipped card">
 			<span class="lancer-stat-header major clipped-top">TRIGGER</span>
-      {{editor content=data.trigger target="data.trigger" button=true editable=editable}}
-			<span class="lancer-stat-header major clipped-top">ON HIT EFFECT</span>
-      {{editor content=data.on_hit target="data.on_hit" button=true editable=editable}}
+			{{editor content=data.trigger target="data.trigger" button=true editable=editable}}
+			<span class="lancer-stat-header major clipped-top">EFFECT</span>
+			{{editor content=data.effect target="data.effect" button=true editable=editable}}
 		</div>
-		<!-- TODO: We can probably even pull this out... -->
-		<div class="arrayed-item-container tags-container flexcol" style="grid-area: 4 / 1 / 5 / 2" data-item="tags">
+		{{/if}}
+
+		{{!-- System --}}
+		{{#if (eq data.feature_type "System")}}
+		<div class="flexcol clipped card">
+			<span class="lancer-stat-header major clipped-top">EFFECT</span>
+			{{editor content=data.effect target="data.effect" button=true editable=editable}}
+		</div>
+		{{/if}}
+
+		{{!-- Trait --}}
+		{{#if (eq data.feature_type "Trait")}}
+		<div class="flexcol clipped card">
+			<span class="lancer-stat-header major clipped-top">EFFECT</span>
+			{{editor content=data.effect target="data.effect" button=true editable=editable}}
+		</div>
+		{{/if}}
+
+		{{!-- Tech --}}
+		{{#if (eq data.feature_type "Tech")}}
+		<div style="grid-template: 2em 10em 1fr / 1fr 1fr; display: grid;">
+			<div style="grid-area: 1/1/2/3; margin-left: 30px;">
+				<span class="medium">TECH</span>
+				<select name="data.tech_type" data-type="String" style="align-self: center;">
+					{{#select data.tech_type}}
+					<option value="Quick">QUICK</option>
+					<option value="Full">FULL</option>
+					{{/select}}
+				</select>
+			</div>
+			<div class="flexcol card clipped" style="grid-area: 2/1/3/2;">
+				<span class="lancer-stat-header major clipped-top"><i class="cci cci-reticule i--s i--light"></i>ATTACK BONUS</span>
+				<div class="flexrow flex-center">
+					<i class="cci cci-rank-1 i--m i--dark"></i>
+					<input class="lancer-stat-input" type="number" name="data.attack_bonus" value="{{data.attack_bonus.[0]}}" data-dtype="Number"/>
+				</div>
+				<div class="flexrow flex-center">
+					<i class="cci cci-rank-2 i--m i--dark"></i>
+					<input class="lancer-stat-input" type="number" name="data.attack_bonus" value="{{data.attack_bonus.[1]}}" data-dtype="Number"/>
+				</div>
+				<div class="flexrow flex-center">
+					<i class="cci cci-rank-3 i--m i--dark"></i>
+					<input class="lancer-stat-input" type="number" name="data.attack_bonus" value="{{data.attack_bonus.[2]}}" data-dtype="Number"/>
+				</div>
+			</div>
+			<div class="flexcol card clipped" style="grid-area: 2/2/3/3;">
+				<span class="lancer-stat-header major clipped-top"><i class="cci cci-accuracy i--s i--light"></i>ACCURACY</span>
+				<div class="flexrow flex-center">
+					<i class="cci cci-rank-1 i--m i--dark"></i>
+					<input class="lancer-stat-input" type="number" name="data.accuracy" value="{{data.accuracy.[0]}}" data-dtype="Number"/>
+				</div>
+				<div class="flexrow flex-center">
+					<i class="cci cci-rank-2 i--m i--dark"></i>
+					<input class="lancer-stat-input" type="number" name="data.accuracy" value="{{data.accuracy.[1]}}" data-dtype="Number"/>
+				</div>
+				<div class="flexrow flex-center">
+					<i class="cci cci-rank-3 i--m i--dark"></i>
+					<input class="lancer-stat-input" type="number" name="data.accuracy" value="{{data.accuracy.[2]}}" data-dtype="Number"/>
+				</div>
+			</div>
+			<div class="flexcol card clipped" style="grid-area: 3/1/4/3;">
+				<span class="lancer-stat-header major clipped-top">EFFECT</span>
+				{{editor content=data.effect target="data.effect" button=true editable=editable}}
+			</div>
+		</div>
+		{{/if}}
+
+		{{!-- Weapon --}}
+		{{#if (eq data.feature_type "Weapon")}}
+		<div style="grid-template: 2em 10em 12em 1fr / repeat(3, 1fr); display: grid;">
+			<div style="grid-area: 1/1/2/4; margin-left: 30px;">
+				<span class="medium">SIZE</span>
+				{{{wpn-size-sel data.weapon_size "data.weapon_size"}}}
+				<span class="medium">TYPE</span>
+				{{{wpn-type-sel data.weapon_type "data.weapon_type"}}}
+			</div>
+			<div class="flexcol card clipped" style="grid-area: 2/1/3/2;">
+				<span class="lancer-stat-header major clipped-top">RANGE</span>
+				{{{wpn-range-sel data.range "0" "data.range.0"}}}
+				{{{wpn-range-sel data.range "1" "data.range.1"}}}
+			</div>
+			<div class="flexcol card clipped" style="grid-area: 2/2/3/3;">
+				<span class="lancer-stat-header major clipped-top"><i class="cci cci-reticule i--s i--light"></i>ATTACK BONUS</span>
+				<div class="flexrow flex-center">
+					<i class="cci cci-rank-1 i--m i--dark"></i>
+					<input class="lancer-stat-input" type="number" name="data.attack_bonus" value="{{data.attack_bonus.[0]}}" data-dtype="Number"/>
+				</div>
+				<div class="flexrow flex-center">
+					<i class="cci cci-rank-2 i--m i--dark"></i>
+					<input class="lancer-stat-input" type="number" name="data.attack_bonus" value="{{data.attack_bonus.[1]}}" data-dtype="Number"/>
+				</div>
+				<div class="flexrow flex-center">
+					<i class="cci cci-rank-3 i--m i--dark"></i>
+					<input class="lancer-stat-input" type="number" name="data.attack_bonus" value="{{data.attack_bonus.[2]}}" data-dtype="Number"/>
+				</div>
+			</div>
+			<div class="flexcol card clipped" style="grid-area: 2/3/3/4;">
+				<span class="lancer-stat-header major clipped-top"><i class="cci cci-accuracy i--s i--light"></i>ACCURACY</span>
+				<div class="flexrow flex-center">
+					<i class="cci cci-rank-1 i--m i--dark"></i>
+					<input class="lancer-stat-input" type="number" name="data.accuracy" value="{{data.accuracy.[0]}}" data-dtype="Number"/>
+				</div>
+				<div class="flexrow flex-center">
+					<i class="cci cci-rank-2 i--m i--dark"></i>
+					<input class="lancer-stat-input" type="number" name="data.accuracy" value="{{data.accuracy.[1]}}" data-dtype="Number"/>
+				</div>
+				<div class="flexrow flex-center">
+					<i class="cci cci-rank-3 i--m i--dark"></i>
+					<input class="lancer-stat-input" type="number" name="data.accuracy" value="{{data.accuracy.[2]}}" data-dtype="Number"/>
+				</div>
+			</div>
+			<div class="flexrow" style="grid-area: 3/1/4/4; margin-top: 6px">
+				<div class="flexcol card clipped">
+					<span class="lancer-stat-header major clipped-top">DAMAGE 1</span>
+          {{{npc-wpn-damage-sel data.damage "0" "data.damage.0"}}}
+				</div>
+				<div class="flexcol card clipped">
+					<span class="lancer-stat-header major clipped-top">DAMAGE 2</span>
+          {{{npc-wpn-damage-sel data.damage "1" "data.damage.1"}}}
+				</div>
+			</div>
+			<div class="flexcol card clipped" style="grid-area: 4/1/5/4;">
+				<span class="lancer-stat-header major clipped-top">ON HIT EFFECT</span>
+				{{editor content=data.on_hit target="data.on_hit" button=true editable=editable}}
+				<span class="lancer-stat-header major clipped-top">EFFECT</span>
+				{{editor content=data.effect target="data.effect" button=true editable=editable}}
+			</div>
+		</div>
+		{{/if}}
+		
+		{{!-- Tags - for all feature types --}}
+		<div class="arrayed-item-container tags-container flexcol" style="grid-area: 5/1/6/4;" data-item="tags">
 			<div>
-				<span class="minor" style="float: left">FEATURE TAGS</span>
+				<span class="minor" style="float: left">TAGS</span>
 				<a class="add-button clickable" data-action="create" style="float: right; margin-right: 1em">+</a>
 			</div>
 			{{#each item.data.tags as |tag key|}}
-			{{{full-tag tag key}}}
+			{{{full-tag tag key "data.tags"}}}
 			{{/each}}
 		</div>
-	</div>
-
+	</section>
 </form>

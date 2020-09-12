@@ -81,7 +81,8 @@
     "npc": {
       "templates": ["mech"],
       "name": "",
-      "tier": "",
+      "tier": "npc-tier-1",
+      "tier_num": 1,
       "tag": "",
       "activations": 1
     },
@@ -92,6 +93,11 @@
         "value": 5,
         "min": 0,
         "max": 5
+      },
+      "heat": {
+        "value": 0,
+        "min": 0,
+        "max": 0
       },
       "armor": 0,
       "evasion": 10,
@@ -184,7 +190,7 @@
     "license": {
       "name": "",
       "source": "",
-      "content": "",
+      "ranks": [],
       "rank": 1
     },
     "pilot_armor": {
@@ -258,19 +264,22 @@
       },
       "mechtype": [],
       "stats": {
-        "armor": [],
         "hp": [],
+        "heatcap": [],
+        "structure": [],
+        "stress": [],
+        "armor": [],
         "evasion": [],
         "edef": [],
-        "heatcap": [],
         "speed": [],
         "sensor_range": [],
         "save": [],
+        "activations": [],
+        "size": [],
         "hull": [],
         "agility": [],
         "systems": [],
-        "engineering": [],
-        "size": []
+        "engineering": []
       },
       "base_features": [],
       "optional_features":[]
@@ -287,15 +296,21 @@
       "origin_base": false,
       "feature_type": "",
       "effect": "",
+      "bonus": {},
+      "override": {},
       "tags": [],
-      "bonus": [],
+      "destroyed": false,
+      "charged": false,
+      "uses": 0,
+      "max_uses": 0,
       "trigger": "",
-      "weapon_type": "",
+      "tech_type": "",
       "attack_bonus": [],
       "accuracy": [],
-      "damage": [],
+      "weapon_type": "",
       "range": [],
-      "onhit": ""
+      "damage": [],
+      "on_hit": ""
     }
   }
 }

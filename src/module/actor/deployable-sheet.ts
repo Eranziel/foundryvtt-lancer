@@ -1,6 +1,4 @@
 import { LancerDeployableSheetData } from '../interfaces';
-import { LancerItem } from '../item/lancer-item';
-import { LancerActor } from './lancer-actor';
 import { LANCER } from '../config'
 const lp = LANCER.log_prefix;
 
@@ -83,19 +81,20 @@ export class LancerDeployableSheet extends ActorSheet {
    * @private
    */
   _updateObject(event: Event | JQuery.Event, formData: any): Promise<any> {
-    console.log(formData);
+    // Copy the new name to the prototype token.
+    formData['token.name'] = formData['name'];
 
-    let token: any = this.actor.token;
+    let token: any = this.actor.data['token'];
     // Set the prototype token image if the prototype token isn't initialized
-    if (!this.actor.token) {
-      this.actor.update({ "token.img": formData.img })
+    if (!token) {
+      formData['token.img'] = formData['img'];
     }
     // Update token image if it matches the old actor image
-    else if ((this.actor.img == token.img)
-      && (this.actor.img != formData.img)) {
-      this.actor.update({ "token.img": formData.img });
+    else if (this.actor.data.img === token['img'] && this.actor.img !== formData['img']) {
+      formData['token.img'] = formData['img'];
     }
 
+    console.log(formData);
     // Update the Actor
     return this.object.update(formData);
   }

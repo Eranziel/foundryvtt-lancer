@@ -36,17 +36,14 @@
     {{/each}}
   </div>
   {{#if effect}}
-    <div class="section-title">// EFFECT \\</div>
+  <div class="card clipped">
+    <div class="lancer-stat-header clipped-top">// EFFECT //</div>
     {{#if effect.effect_type}}
-      <h3>{{effect.effect_type}} Effect</h3>
-      {{{effect.hit}}}
+      {{{eff-preview effect}}}
     {{/if}}
-    {{#unless effect.effect_type}}{{{effect}}}{{/unless}}
-  {{/if}}
-  <div class="flexrow" style="justify-content: flex-end; flex-wrap: wrap;">
-  {{#each tags as |tag key|}}
-  {{{compact-tag tag}}}
-  {{/each}}
+    {{#unless effect.effect_type}}<span class="effect-text">{{{effect}}}</span>{{/unless}}
   </div>
+  {{/if}}
+  {{> tag-list tags=tags}}
 </div>
 

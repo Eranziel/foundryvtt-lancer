@@ -61,6 +61,12 @@ button {
 .lancer.sheet clipped-card {
 
 }
+
+.flex-center {
+  align-items: center;
+  justify-content: center;
+}
+
 /* ---------- */
 
 /* Components Layer */
@@ -86,6 +92,8 @@ button {
 .lancer.sheet header img {
   grid-area: 1/5/4/6;
   margin: 10px;
+  height: 100px;
+  width: 100px;
 }
 
 .pilot-callsign {
@@ -94,7 +102,7 @@ button {
 }
 
 .lancer.sheet .reaction,
-.lancer.sheet .tech,
+.lancer.sheet .tech-header,
 .lancer.sheet .mount-header {
   color: white;
   background-color: var(--main-theme-color, fuchsia);
@@ -115,7 +123,7 @@ button {
   background-color: var(--reaction-color);
 }
 
-.lancer.sheet .tech {
+.lancer.sheet .tech-header {
   clip-path: var(--tech-clip-path);
   -webkit-clip-path: var(--tech-clip-path);
   background-color: var(--tech-color);
@@ -153,6 +161,15 @@ button {
 }
 
 /* ---------- */
+
+.vsep {
+  border: none;
+  border-left: 1px solid #444444;
+  border-right: 1px solid #444444;
+  max-width: 3px;
+  margin-left: 10px;
+  margin-right: 10px;
+}
 
 .add-button {
   width: 20px;
@@ -212,6 +229,15 @@ button {
   margin: 3px 5px;
   border: 2px;
   font-size: 12px;
+}
+
+.compact-tag-row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  flex: 1;
+  margin: 10px;
 }
 
 .license-desc {
@@ -407,8 +433,11 @@ button {
 .lancer-core-sys-header,
 .lancer-talent-header,
 .lancer-system-header,
+.lancer-trait-header,
 .lancer-trigger-header,
 .lancer-protocol-header,
+.lancer-reaction-header,
+.lancer-tech-header,
 .lancer-weapon-header {
   color: white;
   background-color: var(--main-theme-color, fuchsia);
@@ -491,6 +520,10 @@ button {
   background-color: #67bc45;
 }
 
+.lancer-trait-header {
+  background-color: var(--main-theme-color, fuchsia);
+}
+
 .lancer-trigger-header {
   color: var(--main-theme-color, fuchsia);
   background-color: white;
@@ -500,6 +533,16 @@ button {
   background-color: #c75a00;
 }
 
+.lancer-reaction-header {
+  background-color: #892eb1;
+}
+
+.lancer-tech-header {
+  clip-path: var(--tech-clip-path);
+  -webkit-clip-path: var(--tech-clip-path);
+  background-color: var(--tech-color);
+}
+
 .lancer-weapon-header {
   background-color: #000000;
   overflow: hidden;
@@ -507,11 +550,11 @@ button {
   white-space: nowrap;
 }
 
-.lancer-weapon-body {
+.lancer-weapon-body,
+.lancer-tech-body {
   min-height: 15px;
   border-style: dashed;
   border-width: 2px;
-  border-color: #000000;
   border-top-style: none;
 
   padding: 3px;
@@ -522,14 +565,43 @@ button {
   word-break: break-word;
 
   display: grid;
-  grid-template-columns: auto auto;
-  grid-template-rows: fit-content(0) fit-content(0) fit-content(0);
+  grid-template-columns: 4em 1fr;
+  grid-template-rows: repeat(3, fit-content(0));
 
   background-color: #00000033;
 }
 
+.lancer-weapon-body {
+  border-color: #000000;
+}
+
+.lancer-tech-body {
+  border-color: var(--tech-color);
+}
+
 .lancer-weapon-container {
   margin: 3px;
+}
+
+.npc-feature-compact {
+  min-width: 300px;
+}
+
+.npc-feature-compact.tech,
+.npc-feature-compact.weapon {
+  min-width: 600px;
+}
+
+.compact-range,
+.compact-acc,
+.compact-damage {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: nowrap;
+  margin: 5px;
+  max-width: min-content;
+  min-width: fit-content;
 }
 
 .pilot-stats {
@@ -551,13 +623,53 @@ button {
   padding: 0 5px;
 }
 
-.size-icon {
-  color: var(--main-theme-color, fuchsia);
+.effect-title {
+  display: flex;
+  padding: 0px 5px;
+}
+
+.lancer-effect-stat {
+  align-self: center;
+  text-align: center;
+  max-width: max-content;
+  min-width: max-content;
+  padding: 5px; flex-wrap: nowrap;
+}
+
+.sub-effect-box {
+  background: rgba(0, 0, 0, 0.1);
+  border: 1px solid #777;
+  border-radius: 5px;
+  padding: 5px;
+  margin: 5px;
+}
+
+.charge-header {
+  align-items: center;
+}
+
+.stat-container {
+  align-items: center;
+}
+
+.lancer-stat {
+  margin: 0em 1em;
+}
+
+.size-icon,
+.tier-icon {
   font-size: 120px;
   min-width: 120px;
   max-width: 120px;
   min-height: 120px;
   max-height: 120px;
+}
+
+.size-icon {
+  color: var(--main-theme-color, fuchsia);
+}
+.tier-icon {
+  color: white;
 }
 
 .pilot-loadout {
@@ -592,6 +704,9 @@ button {
 .card .lancer-title {
   /* TODO: review if this rule can be simplified */
   margin: initial 0;
+}
+.card .editor-content {
+  text-align: left;
 }
 
 .major {
@@ -654,7 +769,7 @@ button {
 .effect-text {
   text-align: left;
   padding: 0.5em;
-  font-family: Helvetica
+  font-family: Helvetica;
 }
 
 .skill-compact {
@@ -739,6 +854,14 @@ code.horus:hover {
 .stat-macro, .roll-attack,
 .roll-trigger {
   margin: 3px;
+}
+
+.roll-attack,
+.roll-tech {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
 }
 
 .dice-roll.lancer-dice-roll {

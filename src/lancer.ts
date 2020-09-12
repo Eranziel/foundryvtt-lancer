@@ -11,9 +11,49 @@
 import { LANCER } from './module/config';
 const lp = LANCER.log_prefix;
 import { LancerGame } from './module/lancer-game';
-import { LancerActor, lancerActorInit } from './module/actor/lancer-actor';
-import { LancerItem } from './module/item/lancer-item';
-import { DamageData, LancerPilotActorData, TagDataShort } from './module/interfaces';
+import { LancerActor, 
+	lancerActorInit, 
+	mount_type_selector, 
+	npc_tier_selector, 
+	mount_card } from './module/actor/lancer-actor';
+import { LancerItem, 
+	lancerItemInit, 
+	mech_weapon_preview, 
+	is_loading, 
+	weapon_size_selector, 
+	weapon_type_selector, 
+	weapon_range_preview, 
+	weapon_damage_preview, 
+	npc_attack_bonus_preview, 
+	npc_accuracy_preview, 
+	core_system_preview, 
+	mech_trait_preview, 
+	weapon_range_selector,
+	pilot_weapon_damage_selector,
+	npc_weapon_damage_selector,
+	system_type_selector,
+	effect_type_selector } from './module/item/lancer-item';
+import { charge_type_selector, 
+	action_type_selector,
+	action_type_icon, 
+	effect_preview,
+	generic_effect_preview,
+	basic_effect_preview,
+	ai_effect_preview,
+	bonus_effect_preview,
+	charge_effect_preview,
+	deployable_effect_preview,
+	drone_effect_preview,
+	offensive_effect_preview,
+	profile_effect_preview,
+	protocol_effect_preview,
+	reaction_effect_preview,
+	invade_option_preview,
+	tech_effect_preview} from './module/item/effects';
+import { DamageData, 
+	LancerPilotActorData, 
+	TagDataShort, 
+	LancerNPCActorData } from './module/interfaces';
 
 // Import applications
 import { LancerPilotSheet } from './module/actor/pilot-sheet';
@@ -26,7 +66,7 @@ import { LancerNPCClassSheet } from './module/item/npc-class-sheet';
 // Import helpers
 import { preloadTemplates } from './module/preloadTemplates';
 import { registerSettings } from './module/settings';
-import { renderCompactTag, renderChunkyTag, renderFullTag } from './module/item/tags';
+import { renderCompactTag, renderChunkyTag, renderFullTag, compactTagList } from './module/item/tags';
 import * as migrations from './module/migration.js';
 
 // Import JSON data
@@ -54,6 +94,7 @@ Hooks.once('init', async function() {
 		},
 		rollStatMacro: rollStatMacro,
 		rollAttackMacro: rollAttackMacro,
+		rollTechMacro: rollTechMacro,
     rollTriggerMacro: rollTriggerMacro,
 		migrations: migrations,
 	};
@@ -87,11 +128,27 @@ Hooks.once('init', async function() {
 	Items.registerSheet("lancer", LancerFrameSheet, { types: ["frame"], makeDefault: true });
 	Items.registerSheet("lancer", LancerNPCClassSheet, { types: ["npc_class"], makeDefault: true });
 
+	// *******************************************************************
 	// Register handlebars helpers
 
 	// inc, for those off-by-one errors
-	Handlebars.registerHelper('inc', function(value, options) {
+	Handlebars.registerHelper('inc', function(value) {
 		return parseInt(value) + 1;
+	});
+
+	// dec, for those off-by-one errors
+	Handlebars.registerHelper('dec', function(value) {
+		return parseInt(value) - 1;
+	});
+
+  // get an index from an array
+  Handlebars.registerHelper('idx', function(array, index) {
+    return array[index];
+  });
+
+	// invert the input
+	Handlebars.registerHelper('neg', function(value) {
+		return parseInt(value) * -1;
 	});
 
 	// double the input
@@ -99,13 +156,42 @@ Hooks.once('init', async function() {
 		return parseInt(value) * 2;
 	});
 
+	// Equal-to evaluation
+	Handlebars.registerHelper('eq', function(val1, val2) {
+		return val1 === val2;
+	});
+
+	// Equal-to evaluation
+	Handlebars.registerHelper('neq', function(val1, val2) {
+		return val1 !== val2;
+	});
+
+	// Logical "or" evaluation
+	Handlebars.registerHelper('or', function(val1, val2) {
+		return val1 || val2;
+	});
+
 	// Greater-than evaluation
 	Handlebars.registerHelper('gt', function(val1, val2) {
 		return val1 > val2;
 	});
 
+	// Greater-than evaluation after applying parseInt to both values
+	Handlebars.registerHelper('gtpi', function(val1, val2) {
+    val1 = parseInt(val1);
+    val2 = parseInt(val2);
+		return val1 > val2;
+	});
+
 	// Less-than evaluation
 	Handlebars.registerHelper('lt', function(val1, val2) {
+		return val1 < val2;
+	});
+
+	// Greater-than evaluation after applying parseInt to both values
+	Handlebars.registerHelper('ltpi', function(val1, val2) {
+    val1 = parseInt(val1);
+    val2 = parseInt(val2);
 		return val1 < val2;
 	});
 
@@ -117,51 +203,65 @@ Hooks.once('init', async function() {
 		return str.toUpperCase();
 	});
 
-  Handlebars.registerHelper('compact-tag', renderCompactTag);
-  Handlebars.registerHelper('chunky-tag', renderChunkyTag);
+	// ------------------------------------------------------------------------
+	// Tags
+	Handlebars.registerHelper('compact-tag', renderCompactTag);
+	Handlebars.registerPartial('tag-list', compactTagList);
+	Handlebars.registerHelper('chunky-tag', renderChunkyTag);
 	Handlebars.registerHelper('full-tag', renderFullTag);
 
-	Handlebars.registerHelper('tier-selector', (tier, key) => {
-		let template = `<select id="tier-type" class="tier-control" data-action="update">
-		<option value="npc-tier-1" ${tier === 'npc-tier-1' ? 'selected' : ''}>TIER 1</option>
-		<option value="npc-tier-2" ${tier === 'npc-tier-2' ? 'selected' : ''}>TIER 2</option>
-		<option value="npc-tier-3" ${tier === 'npc-tier-3' ? 'selected' : ''}>TIER 3</option>
-		<option value="npc-tier-custom" ${tier === 'npc-tier-custom' ? 'selected' : ''}>CUSTOM</option>
-	</select>`
-	return template;
-	});
-	
-	// mount display mount
-	Handlebars.registerHelper('mount-selector', (mount, key) => {
-		let template = `<select id="mount-type" class="mounts-control" data-action="update" data-item-id=${key}>
-	        <option value="Main" ${mount.type === 'Main' ? 'selected' : ''}>Main Mount</option>
-	        <option value="Heavy" ${mount.type === 'Heavy' ? 'selected' : ''}>Heavy Mount</option>
-	        <option value="Aux-Aux" ${mount.type === 'Aux-Aux' ? 'selected' : ''}>Aux/Aux Mount</option>
-	        <option value="Main-Aux" ${mount.type === 'Main-Aux' ? 'selected' : ''}>Main/Aux Mount</option>
-	        <option value="Flex" ${mount.type === 'Flex' ? 'selected' : ''}>Flexible Mount</option>
-	        <option value="Integrated" ${mount.type === 'Integrated' ? 'selected' : ''}>Integrated Mount</option>
-        </select>`
-        return template;
-	});
+	// ------------------------------------------------------------------------
+	// Weapons
+	Handlebars.registerHelper('is-loading', is_loading);
+	Handlebars.registerHelper('wpn-size-sel', weapon_size_selector);
+	Handlebars.registerHelper('wpn-type-sel', weapon_type_selector);
+	Handlebars.registerHelper('wpn-range-sel', weapon_range_selector);
+	Handlebars.registerHelper('wpn-damage-sel', pilot_weapon_damage_selector);
+	Handlebars.registerHelper('npc-wpn-damage-sel', npc_weapon_damage_selector);
+	Handlebars.registerPartial('wpn-range', weapon_range_preview);
+	Handlebars.registerPartial('wpn-damage', weapon_damage_preview);
+	Handlebars.registerPartial('npcf-atk', npc_attack_bonus_preview);
+	Handlebars.registerPartial('npcf-acc', npc_accuracy_preview);
+	Handlebars.registerPartial('mech-weapon-preview', mech_weapon_preview);
 
-  Handlebars.registerPartial('mech-weapon-preview', `<div class="flexcol clipped lancer-weapon-container weapon" style="max-height: fit-content;" data-item-id="{{key}}">
-    <span class="item lancer-weapon-header" style="padding-top: 5px;" data-item-id="{{weapon._id}}"><img class="thumbnail" src="{{weapon.img}}" data-edit="{{weapon.img}}" title="{{weapon.name}}" height="10" width="10"/> {{weapon.name}} <a class="stats-control" data-action="delete"><i class="fas fa-trash" style="float: right;"></i></a></span>
-    <span class="lancer-weapon-body">
-     <span class="flexrow" style="grid-area: 1 / 1 / 1 / 1; text-align: left; white-space: nowrap;"><a class="flexrow roll-attack" style="max-width: min-content;"><i class="fas fa-dice-d20 i--sm i--dark"></i></a>{{#each weapon.data.range as |range rkey|}}<i class="cci cci-{{lower-case range.type}} i--m i--dark"></i><span class="medium">{{range.val}}</span>{{/each}}{{#each weapon.data.damage as |damage dkey|}}<i class="cci cci-{{lower-case damage.type}} i--m damage--{{damage.type}}"></i><span class="medium">{{damage.val}}</span>{{/each}}</span>
-     <span style="grid-area: 1 / 2 / 1 / 3; text-align: right;">{{weapon.data.mount}} {{weapon.data.weapon_type}}</span>
-     <span style="grid-area: 2 / 1 / 2 / 3; text-align: left; white-space: wrap">
-     {{#with weapon.data.effect as |effect|}}
-     {{#if effect.effect_type}}
-       <h3>{{effect.effect_type}} Effect</h3>
-       {{effect.hit}}{{/if}}
-     {{#unless effect.effect_type}}{{effect}}{{/unless}}
-     {{/with}}
-     </span>
-     <span class="flexrow" style="grid-area: 3 / 1 / 3 / 3; text-align: left; justify-content: flex-end;">
-       <span class="flexrow" style="justify-content: flex-end;">{{#each weapon.data.tags as |tag tkey|}}{{{compact-tag tag}}}{{/each}}</span>
-     </span>
-    </div>`
-  );
+	// ------------------------------------------------------------------------
+	// Systems
+	Handlebars.registerHelper('sys-type-sel', system_type_selector);
+	Handlebars.registerHelper('eff-type-sel', effect_type_selector);
+	Handlebars.registerHelper('act-icon', action_type_icon);
+	Handlebars.registerHelper('act-type-sel', action_type_selector);
+	Handlebars.registerHelper('chg-type-sel', charge_type_selector);
+
+	// ------------------------------------------------------------------------
+	// Effects
+	Handlebars.registerHelper('eff-preview', effect_preview);
+	Handlebars.registerPartial('generic-eff-preview', generic_effect_preview);
+	Handlebars.registerHelper('basic-eff-preview', basic_effect_preview);
+	Handlebars.registerHelper('ai-eff-preview', ai_effect_preview);
+	Handlebars.registerHelper('bonus-eff-preview', bonus_effect_preview);
+	Handlebars.registerHelper('chg-eff-preview', charge_effect_preview);
+	Handlebars.registerHelper('dep-eff-preview', deployable_effect_preview);
+	Handlebars.registerHelper('drn-eff-preview', drone_effect_preview);
+	Handlebars.registerHelper('off-eff-preview', offensive_effect_preview);
+	Handlebars.registerHelper('prf-eff-preview', profile_effect_preview);
+	Handlebars.registerHelper('prot-eff-preview', protocol_effect_preview);
+	Handlebars.registerHelper('rct-eff-preview', reaction_effect_preview);
+	Handlebars.registerHelper('inv-eff-preview', invade_option_preview);
+	Handlebars.registerHelper('tech-eff-preview', tech_effect_preview);
+
+	// ------------------------------------------------------------------------
+	// Frames
+	Handlebars.registerPartial('core-system', core_system_preview);
+	Handlebars.registerPartial('mech-trait', mech_trait_preview);
+	
+	// ------------------------------------------------------------------------
+	// Pilot components
+	Handlebars.registerHelper('mount-selector', mount_type_selector);
+	Handlebars.registerPartial('mount-card', mount_card);
+
+	// ------------------------------------------------------------------------
+	// NPC components
+	Handlebars.registerHelper('tier-selector', npc_tier_selector);
   
 	/*
 	* Repeat given markup with given times
@@ -222,6 +322,7 @@ Hooks.once('ready', function() {
 
 // Add any additional hooks if necessary
 Hooks.on("preCreateActor", lancerActorInit);
+Hooks.on("preCreateItem", lancerItemInit);
 
 
 // Create sidebar button to import LCP
@@ -331,9 +432,12 @@ async function renderMacro(actor: Actor, template: string, templateData: any) {
 	return Promise.resolve();
 }
 
-async function rollTriggerMacro(title: string, modifier: number, sheetMacro: boolean = false) {
-  let actor: Actor = getMacroSpeaker();
-  if (actor === null) return;
+async function rollTriggerMacro(a: string, title: string, modifier: number, sheetMacro: boolean = false) {
+	let actor: Actor = game.actors.get(a)
+  if (actor === null) {
+		actor = getMacroSpeaker();
+	}
+	if (actor === null)	return;
   console.log(`${lp} rollTriggerMacro actor`, actor);
 
   // Get accuracy/difficulty with a prompt
@@ -360,10 +464,12 @@ async function rollTriggerMacro(title: string, modifier: number, sheetMacro: boo
   return renderMacro(actor, template, templateData);
 }
 
-async function rollStatMacro(title: string, statKey: string, effect?: string, sheetMacro: boolean = false) {
-	// Determine which Actor to speak as
-	let actor: Actor = getMacroSpeaker();
-	if (actor === null) return;
+async function rollStatMacro(a: string, title: string, statKey: string, effect?: string, sheetMacro: boolean = false) {
+	let actor: Actor = game.actors.get(a)
+	if (actor === null) {
+		actor = getMacroSpeaker();
+	}
+	if (actor === null)	return;
 	console.log(`${lp} rollStatMacro actor`, actor);
 
 	let bonus: any;
@@ -407,54 +513,75 @@ async function rollStatMacro(title: string, statKey: string, effect?: string, sh
 }
 
 async function rollAttackMacro(w: string, a: string) {
-  // Determine which Actor to speak as
-  let actor: Actor = getMacroSpeaker();
-  if (actor === null) return;
+	let actor: Actor = game.actors.get(a)
+  if (actor === null) {
+		actor = getMacroSpeaker();
+	}
+	if (actor === null)	return;
 
   // Get the item
-  const item: Item = game.actors.get(a).getOwnedItem(w);
-  console.log(`${lp} Rolling attack macro`, item, w, a);
-  if (!item.isOwned) {
+  const item: Item = actor.getOwnedItem(w);
+	console.log(`${lp} Rolling attack macro`, item, w, a);
+	if (!item) {
+    ui.notifications.error(`Error rolling attack macro - could not find Item ${w} owned by Actor ${a}!`);
+    return Promise.resolve();
+	}
+  else if (!item.isOwned) {
     ui.notifications.error(`Error rolling attack macro - ${item.name} is not owned by an Actor!`);
     return Promise.resolve();
   }
 
   let title: string = item.name;
-  let grit: number;
+  let grit: number = 0;
+  let acc: number = 0;
   let damage: DamageData[];
   let effect: string;
   let tags: TagDataShort[];
+	const wData = item.data.data;
   if (item.type === "mech_weapon") {
     grit = (item.actor.data as LancerPilotActorData).data.pilot.grit;
-    damage = item.data.data.damage;
-    tags = item.data.data.tags;
-    effect = item.data.data.effect;
+    damage = wData.damage;
+    tags = wData.tags;
+    effect = wData.effect;
   }
   else if (item.type === "pilot_weapon") {
     grit = (item.actor.data as LancerPilotActorData).data.pilot.grit;
-    damage = item.data.data.damage;
-    tags = item.data.data.tags;
-    effect = item.data.data.effect;
+    damage = wData.damage;
+    tags = wData.tags;
+    effect = wData.effect;
   }
-  // TODO
-  // else if (item.type === "npc_feature") {
-  //   grit = (item as LancerNPCFeature).data.accuracy[(item.actor.data as LancerNPCActorData).data.tier];
-  // }
+  else if (item.type === "npc_feature") {
+		const tier = (item.actor.data as LancerNPCActorData).data.tier_num - 1;
+		if (wData.attack_bonus && wData.attack_bonus[tier]) {
+			grit = parseInt(wData.attack_bonus[tier]);
+		}
+		if (wData.accuracy && wData.accuracy[tier]) {
+			acc = parseInt(wData.accuracy[tier]);
+		}
+		// Reduce damage values to only this tier
+		damage = duplicate(wData.damage);
+		damage.forEach(d => {
+			d.val = d.val[tier];
+		});
+		tags = wData.tags;
+		effect = wData.effect;
+  }
   else {
     ui.notifications.error(`Error rolling attack macro - ${item.name} is not a weapon!`);
     return Promise.resolve();
   }
-  console.log(`${lp} Attack Macro Item:`, item, grit, damage);
+  console.log(`${lp} Attack Macro Item:`, item, grit, acc, damage);
 
   // Get accuracy/difficulty with a prompt
-  let acc: number = 0;
 	let abort: boolean = false;
-	await promptAccDiffModifier().then(resolve => acc = resolve, reject => abort = true);
+	await promptAccDiffModifier(acc).then(resolve => acc = resolve, reject => abort = true);
 	if (abort) return;
 
   // Do the attack rolling
-  let acc_str = acc != 0 ? ` + ${acc}d6kh1` : '';
-  let attack_roll = new Roll(`1d20+${grit}${acc_str}`).roll();
+	let acc_str = acc != 0 ? ` + ${acc}d6kh1` : '';
+	let atk_str = `1d20+${grit}${acc_str}`;
+	console.log(`${lp} Attack roll string: ${atk_str}`)
+  let attack_roll = new Roll(atk_str).roll();
 
   // Iterate through damage types, rolling each
   let damage_results = [];
@@ -484,18 +611,96 @@ async function rollAttackMacro(w: string, a: string) {
   return renderMacro(actor, template, templateData);
 }
 
-function promptAccDiffModifier() {
+async function rollTechMacro(t: string, a: string) {
+	let actor: Actor = game.actors.get(a)
+  if (actor === null) {
+		actor = getMacroSpeaker();
+	}
+	if (actor === null)	return;
+
+  // Get the item
+  const item: Item = actor.getOwnedItem(t);
+	console.log(`${lp} Rolling tech attack macro`, item, t, a);
+	if (!item) {
+    ui.notifications.error(`Error rolling tech attack macro - could not find Item ${t} owned by Actor ${a}!`);
+    return Promise.resolve();
+	}
+  else if (!item.isOwned) {
+    ui.notifications.error(`Error rolling tech attack macro - ${item.name} is not owned by an Actor!`);
+    return Promise.resolve();
+  }
+
+  let title: string = item.name;
+  let t_atk: number = 0;
+  let acc: number = 0;
+  let effect: string;
+  let tags: TagDataShort[];
+	const tData = item.data.data;
+  if (item.type === "mech_system") {
+    t_atk = (item.actor.data as LancerPilotActorData).data.mech.tech_attack;
+    tags = tData.tags;
+    effect = tData.effect;
+  }
+  else if (item.type === "npc_feature") {
+		const tier = (item.actor.data as LancerNPCActorData).data.tier_num - 1;
+		if (tData.attack_bonus && tData.attack_bonus[tier]) {
+			t_atk = parseInt(tData.attack_bonus[tier]);
+		}
+		if (tData.accuracy && tData.accuracy[tier]) {
+			acc = parseInt(tData.accuracy[tier]);
+		}
+		tags = tData.tags;
+		effect = tData.effect;
+  }
+  else {
+    ui.notifications.error(`Error rolling tech attack macro - ${item.name} does not a tech attack!`);
+    return Promise.resolve();
+  }
+  console.log(`${lp} Tech Attack Macro Item:`, item, t_atk, acc);
+
+  // Get accuracy/difficulty with a prompt
+	let abort: boolean = false;
+	await promptAccDiffModifier(acc).then(resolve => acc = resolve, reject => abort = true);
+	if (abort) return;
+
+  // Do the attack rolling
+	let acc_str = acc != 0 ? ` + ${acc}d6kh1` : '';
+	let atk_str = `1d20+${t_atk}${acc_str}`;
+	console.log(`${lp} Tech Attack roll string: ${atk_str}`)
+  let attack_roll = new Roll(atk_str).roll();
+
+  // Output
+	const attack_tt = await attack_roll.getTooltip();
+  const templateData = {
+    title: title,
+    attack: attack_roll,
+    attack_tooltip: attack_tt,
+    effect: effect ? effect : null,
+    tags: tags
+  };
+
+  const template = `systems/lancer/templates/chat/tech-attack-card.html`;
+  return renderMacro(actor, template, templateData);
+}
+
+function promptAccDiffModifier(acc?: number) {
+	if (!acc) acc = 0;
+  let diff = 0;
+  if (acc < 0) {
+    diff = -acc;
+    acc = 0;
+  }
   let template = `
 <form>
   <h2>Please enter your modifiers and submit, or close this window:</h2>
   <div class="flexcol">
     <label style="max-width: fit-content;">
       <i class="cci cci-accuracy i--m i--dark" style="vertical-align:middle;border:none"> </i> Accuracy:
-      <input class="accuracy" type="number" min="0" value="0">
+      <input class="accuracy" type="number" min="0" value="${acc}">
     </label>
     <label style="max-width: fit-content;">
       <i class="cci cci-difficulty i--m i--dark" style="vertical-align:middle;border:none"> </i> Difficulty:
-      <input class="difficulty" type="number" min="0" value="0">
+      <input class="difficulty" type="number" min="0" value="${diff}">
     </div>
 </form>`
   return new Promise<number>((resolve, reject) => {

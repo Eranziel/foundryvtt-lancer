@@ -14,7 +14,7 @@
   {{!-- Description --}}
 	<div class="flexcol card clipped" style="text-align: left;">
 		<span class="lancer-stat-header major clipped-top" style="text-align: center;">DESCRIPTION</span>
-		{{editor content=data.description target="data.description" button=true owner=owner editable=editable}}
+		<div class="desc-text">{{editor content=data.description target="data.description" button=true owner=owner editable=editable}}</div>
 	</div>
 
   {{!-- Frame Stats --}}
@@ -139,10 +139,10 @@
 			<li class="card clipped frame-trait-compact arrayed-item" data-key="{{key}}">
 				<div class="lancer-mech-trait-header medium clipped-top" style="grid-area: 1/1/2/2">
 					<i class="cci cci-trait i--m i--light"> </i>
-					<input type="String" name="data.traits.{{key}}.name" value="{{trait.name}}" data-dtype="String" class="lancer-invisible-input major">
+					<input class="lancer-invisible-input major i--light" type="String" name="data.traits.{{key}}.name" value="{{trait.name}}" data-dtype="String">
 					<a class="remove-button fa fa-trash clickable" data-action="delete" data-item="traits" style="float: right; margin-right: 11px; margin-top: 2px"></a>
 				</div>
-				<textarea class="lancer-invisible-input effect-text" type="string" name="data.traits.{{key}}.description" data-dtype="String" style="grid-area: 2/1/3/2">{{trait.description}}</textarea>
+				<textarea class="lancer-invisible-input effect-text" type="string" name="data.traits.{{key}}.description" data-dtype="String" style="grid-area: 2/1/3/2">{{{trait.description}}}</textarea>
 			</li>
 		{{/each}}
 		</ul>
@@ -152,39 +152,36 @@
 	<div class="card clipped frame-core flexcol">
 		<div class="lancer-core-sys-header medium clipped-top">
 			<i></i>
-			<div class="major">{{data.core_system.name}}</div>
+			<input class="lancer-invisible-input major i--light" type="String" name="data.core_system.name" value="{{data.core_system.name}}" data-dtype="String">
 			<div class="medium i--faded" style="justify-self: right;"> // CORE SYSTEM</div>
 		</div>
-		{{#if data.core_system.description}}
-			<div class="desc-text">{{{data.core_system.description}}}</div>
-		{{/if}}
+		<div class="desc-text">{{editor content=data.core_system.description target="data.core_system.description" button=true owner=owner editable=editable}}</div>
 		{{#if data.core_system.integrated}}
 			{{!-- Insert Integrated weapon block here --}}
 		{{/if}}
-		{{#if data.core_system.passive_name}}
-			<div class="card clipped">
-				<div class="lancer-core-sys-header medium clipped-top">
-					<i class="mdi mdi-circle-expand i--m i--light"> </i>
-					<div class="medium">{{data.core_system.passive_name}}</div>
-					<div class="medium i--faded" style="justify-self: right;"> // PASSIVE</div>
-				</div>
-				<div class="effect-text">{{{data.core_system.passive_effect}}}</div>
+		<div class="card clipped">
+			<div class="lancer-core-sys-header medium clipped-top">
+				<i class="mdi mdi-circle-expand i--m i--light"> </i>
+				<input class="lancer-invisible-input medium i--light" type="String" name="data.core_system.passive_name" value="{{data.core_system.passive_name}}" data-dtype="String">
+				<div class="medium i--faded" style="justify-self: right;"> // PASSIVE</div>
 			</div>
-		{{/if}}
+			<div class="effect-text">{{editor content=data.core_system.passive_effect target="data.core_system.passive_effect" button=true owner=owner editable=editable}}</div>
+		</div>
 		<div class="card clipped">
 			<div class="lancer-core-sys-header medium clipped-top">
 				<i class="cci cci-corebonus i--m i--light"> </i>
-				<input type="String" name="data.core_system.active_name" value="{{data.core_system.active_name}}" data-dtype="String" class="lancer-invisible-input medium">
+				<input class="lancer-invisible-input medium i--light" type="String" name="data.core_system.active_name" value="{{data.core_system.active_name}}" data-dtype="String">
 				<div class="i--faded" style="justify-self: right;"> // ACTIVE</div>
 			</div>
-		{{editor content=data.core_system.active_effect target="data.core_system.active_effect" button=true owner=owner editable=editable}}		</div>
+			<div class="effect-text">{{editor content=data.core_system.active_effect target="data.core_system.active_effect" button=true owner=owner editable=editable}}</div>
+		</div>
 		<div class="flexcol arrayed-item-container tags-container" style="margin: 10px;" data-item="core_system.tags">
 			<div class="flexrow lancer-title">
 				<div class="major">TAGS</div>
 				<a class="add-button clickable" data-action="create" style="float: right; margin-right: 1em; max-width: 30px;">+</a>
 			</div>
 			{{#each data.core_system.tags as |tag key|}}
-				{{{full-tag tag}}}
+				{{{full-tag tag key "data.core_system.tags"}}}
 			{{/each}}
 		</div>
 	</div>
