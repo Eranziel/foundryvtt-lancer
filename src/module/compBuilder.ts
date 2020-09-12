@@ -11,7 +11,11 @@ import { LancerSkillData,
 import { PilotEquipType, ItemType, DamageType } from './enums';
 import data from 'lancer-data'
 
-export const convertLancerData = async function(): Promise<any> {
+function lcpImport(file, fileName, compendiumName) {
+
+}
+
+const convertLancerData = async function(): Promise<any> {
 	await buildSkillCompendium();
 	await buildTalentCompendium();
 	await buildCoreBonusCompendium();
@@ -409,3 +413,7 @@ async function buildMechWeaponCompendium() {
 	});
 	return Promise.resolve(); 
 }
+
+export {
+	lcpImport,
+};

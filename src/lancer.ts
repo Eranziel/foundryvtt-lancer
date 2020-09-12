@@ -67,11 +67,8 @@ import { LancerNPCClassSheet } from './module/item/npc-class-sheet';
 import { preloadTemplates } from './module/preloadTemplates';
 import { registerSettings } from './module/settings';
 import { renderCompactTag, renderChunkyTag, renderFullTag, compactTagList } from './module/item/tags';
-import * as migrations from './module/migration.js';
-
-// Import JSON data
-import data from 'lancer-data';
-import { convertLancerData } from './module/compBuilder';
+import * as migrations from './module/migration';
+import { addLCPManager } from './module/apps/lcpManager';
 
 /* ------------------------------------ */
 /* Initialize system                    */
@@ -324,79 +321,14 @@ Hooks.once('ready', function() {
 Hooks.on("preCreateActor", lancerActorInit);
 Hooks.on("preCreateItem", lancerItemInit);
 
-
 // Create sidebar button to import LCP
 Hooks.on("renderSidebarTab", async (app, html) => {
-	if (app.options.id == "compendium") {
-		var footer = html[0].lastElementChild;
-		var button = document.createElement("button");
-		button.setAttribute("style","flex-basis: 100%;margin-top: 5px;")
-		button.innerHTML = "<i class='fas fa-file-import'></i> Import LCP";
-		footer.append(button);
-		button.addEventListener("click", (ev:MouseEvent) => {
-			let dialog = new Dialog({
-				title: "Import LCP File",
-				content:
-				`
-				<form autocomplete="off" class="prototype">
-				<div>
-				<label>LCP Path:</label>
-				<div class="form-fields">
-					<button type="button" class="lcp-file-picker" data-target="lcp-up" title="Browse Files" tabindex="-1">
-						<i class="fas fa-file-import fa-fw"></i>
-					</button>
-					<input type="text" name="lcp-up" class="lcp-up" value="" placeholder="path/pack.lcp">
-				</div>
-				</div>
-				</form>
-				`,
-				buttons: {
-					import: {
-						label: "Import",
-						callback: async (html) => {
-							console.log("You hit the import button");
-							return;
-							
-							//LCPImport(file, fileName, compendiumName);
-						}
-					},
-					cancel: {
-						label: "Cancel"
-					}
-				},
-				default: "import"
-			}).render(true)
-		})
-	}
+	addLCPManager(app, html);
 })
 
-Hooks.on("renderDialog", async (app:Application,html) => {
-	// Should be able to do something with the html... but not now I guess...
-	
-	if(app.title == "Import LCP File") {
-		document.getElementsByClassName("lcp-file-picker")[0].addEventListener("click", (ev:Event) => {
-			console.log("You clicked the button!")
-			_onFilePickerButtonClick(<MouseEvent>ev);
-		})
-
-	}
-})
-
-function _onFilePickerButtonClick(ev:MouseEvent) {
-	let button = <HTMLButtonElement>ev.target;
-	let target  = <HTMLElement>button.parentElement.getElementsByClassName(button.getAttribute("data-target"))[0];
-	debugger;
-	let fp = new FilePicker({field: target})
-	// @ts-expect-error
-	fp.extensions = [".lcp"]
-	// @ts-expect-error
-	fp.browse();
-}
-
-function LCPImport(file, fileName, compendiumName) {
-
-}
-
+// Hooks.on("renderDialog", async (app:Application,html) => {
+// 	dialogCallbacksLCPManager(app, html);
+// })
 
 function getMacroSpeaker(): Actor | null {
 	// Determine which Actor to speak as
