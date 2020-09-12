@@ -1,3 +1,8 @@
+# 0.1.4 (2020-09-12)
+## Bug Fixes
+* **NPC Feature Sheet:** Fix bug where new NPC weapons only show 1 damage field. Closes #64.
+* **Item Import/Duplication:** Fix issue where duplicated/imported items had properties overwritten. Closes #65.
+
 # 0.1.3 (2020-09-07)
 ## General
 * Updated Foundry Core compatibility version to 0.6.6.

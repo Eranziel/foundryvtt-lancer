@@ -60,7 +60,6 @@ function lancerItemInit(data: any) {
       img += 'npc_template.svg';
     }
     else if (data.type === 'npc_feature') {
-      console.log(`${lp} New NPC feature data: `, data);
       if (!data.feature_type) {
         img += 'trait.svg';
         mergeObject(data, {
