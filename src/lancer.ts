@@ -345,7 +345,8 @@ async function renderMacro(actor: Actor, template: string, templateData: any) {
 	const html = await renderTemplate(template, templateData)
 	let chat_data = {
 		user: game.user,
-		type: CONST.CHAT_MESSAGE_TYPES.IC,
+		type: CONST.CHAT_MESSAGE_TYPES.ROLL,
+		roll: templateData.roll || templateData.attack,
 		speaker: {
 			actor: actor
 		},
