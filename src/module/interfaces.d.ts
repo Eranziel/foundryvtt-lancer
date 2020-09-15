@@ -550,3 +550,23 @@ declare interface LancerNPCFeatureSheetData extends ItemSheetData {
   item?: LancerNPCFeatureItemData;
   data?: LancerNPCFeatureData;
 }
+
+declare interface IContentPackManifest {
+  name: string;
+  author: string;
+  version: string;
+  description?: string;
+  website?: string;
+  image_url?: string;
+}
+
+declare interface IContentPack {
+  id: string;
+  manifest: IContentPackManifest;
+}
+
+declare interface LCPManagerData {
+  packs: IContentPack[];
+  core_version: string;
+  core_update?: string;
+}

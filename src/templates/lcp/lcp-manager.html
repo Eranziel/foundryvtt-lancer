@@ -1,0 +1,40 @@
+<form autocomplete="off" class="prototype">
+  <div class="flexcol">
+    {{!-- List content currently added to compendiums --}}
+    <div class="flexcol">
+      <div class="flexrow">
+        LANCER Core Data: {{core_data}}
+      </div>
+      {{#each packs as |pack key|}}
+        {{!-- TODO: List imported packs and version numbers --}}
+      {{/each}}
+    </div>
+
+    {{!-- Update core data --}}
+    {{#if core_update}}
+    <div class="form fields flexrow" style="align-items: center">
+      LANCER Core Data Update Available
+      <button type="button" class="lcp-core-update" title="Update Core Data" tabindex="-1">
+        <i class="cci cci-content-manager"></i>
+        Update to v{{core_update}}
+      </button>
+    </div>
+    {{/if}}
+
+    {{!-- Import New LCP --}}
+    <div class="flexcol" style="">
+      <label>LCP Path:</label>
+      <div class="form-fields flexrow" style="align-items: center">
+        <input type="text" name="lcp-up" class="lcp-up" value="" placeholder="path/pack.lcp">
+        <button type="button" class="lcp-file-picker" data-target="lcp-up" title="Browse Files" tabindex="-1" style="max-width: 100px">
+          Browse
+          <i class="fas fa-file-import fa-fw"></i>
+        </button>
+      </div>
+      <button type="button" class="lcp-import" title="Import LCP" tabindex="-1">
+        Import LCP
+        <i class="cci cci-content-manager"></i>
+      </button>
+    </div>
+  </div>
+</form>

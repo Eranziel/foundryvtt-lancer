@@ -8,57 +8,38 @@ function addLCPManager(app:Application, html:HTMLElement) {
     button.innerHTML = "<i class='fas fa-file-import'></i> LANCER Compendium Manager";
     footer.append(button);
     button.addEventListener("click", (ev:MouseEvent) => {
-      let dialog = new LCPImportDialog().render(true)
+      let mgr = new LCPManager().render(true)
     })
   }
 }
 
 class LCPManager extends Application {
-  
-}
+  constructor(...args) {
+    super(...args);
+  }
 
-class LCPImportDialog extends Dialog {
-  constructor(dialogData?, ...args) {
-    if (!dialogData) { dialogData = {} }
-    super(mergeObject(dialogData, {
-      title: "Import LCP File",
-      content:
-      `
-      <form autocomplete="off" class="prototype">
-      <div>
-      <label>LCP Path:</label>
-      <div class="form-fields flexrow" style="align-items: center">
-        <input type="text" name="lcp-up" class="lcp-up" value="" placeholder="path/pack.lcp">
-        <button type="button" class="lcp-file-picker" data-target="lcp-up" title="Browse Files" tabindex="-1" style="max-width: 100px">
-          Browse
-          <i class="fas fa-file-import fa-fw"></i>
-        </button>
-      </div>
-      </div>
-      </form>
-      `,
-      buttons: {
-        import: {
-          label: "Import",
-          callback: async (html) => {
-            console.log("You hit the import button");
-            return;
-            
-            //LCPImport(file, fileName, compendiumName);
-          }
-        },
-        cancel: {
-          label: "Cancel"
-        }
-      },
-      default: "import"
-    }, ...args));
+  static get defaultOptions() {
+    return mergeObject(super.defaultOptions, {
+      template: "systems/lancer/templates/lcp/lcp-manager.html",
+      title: "LANCER Compendium Manager",
+      width: 800,
+      height: 800,
+    });
+  }
+
+  getData() {
+    let data = super.getData();
+
+    return data;
   }
 
   activateListeners(html) {
     super.activateListeners(html);
     document.getElementsByClassName("lcp-file-picker")[0].addEventListener("click", (ev:Event) => {
 			this._onFilePickerButtonClick(<MouseEvent>ev);
+    });
+    document.getElementsByClassName("lcp-import")[0].addEventListener("click", (ev:Event) => {
+			this._onImportButtonClick(<MouseEvent>ev);
     });
   }
   
@@ -76,10 +57,6 @@ class LCPImportDialog extends Dialog {
     let target = $(ev.currentTarget).closest('.lcp-up')[0]
     console.log(`You hit the import button`, target);
   }
-}
-
-function renderLCPManager() {
-	
 }
 
 export {
