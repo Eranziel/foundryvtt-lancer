@@ -462,16 +462,23 @@ async function rollAttackMacro(w: string, a: string) {
   let damage: DamageData[];
   let effect: string;
   let tags: TagDataShort[];
+	let typeMissing: boolean = false;
 	const wData = item.data.data;
   if (item.type === "mech_weapon") {
     grit = (item.actor.data as LancerPilotActorData).data.pilot.grit;
     damage = wData.damage;
+		damage.forEach(d => {
+			if (d.type === '' && d.val != '' && d.val != 0) typeMissing = true;
+		});
     tags = wData.tags;
     effect = wData.effect;
   }
   else if (item.type === "pilot_weapon") {
     grit = (item.actor.data as LancerPilotActorData).data.pilot.grit;
     damage = wData.damage;
+		damage.forEach(d => {
+			if (d.type === '' && d.val != '' && d.val != 0) typeMissing = true;
+		});
     tags = wData.tags;
     effect = wData.effect;
   }
@@ -485,15 +492,10 @@ async function rollAttackMacro(w: string, a: string) {
 		}
 		// Reduce damage values to only this tier
 		damage = duplicate(wData.damage);
-		let typeMissing = false;
 		damage.forEach(d => {
 			d.val = d.val[tier];
 			if (d.type === '' && d.val != '' && d.val != 0) typeMissing = true;
 		});
-		// Warn about missing damage type if the value is non-zero
-		if (typeMissing) {
-			ui.notifications.warn(`Warning: ${item.name} has a damage value without type!`);
-		}
 		tags = wData.tags;
 		effect = wData.effect;
   }
@@ -501,6 +503,10 @@ async function rollAttackMacro(w: string, a: string) {
     ui.notifications.error(`Error rolling attack macro - ${item.name} is not a weapon!`);
     return Promise.resolve();
   }
+	// Warn about missing damage type if the value is non-zero
+	if (typeMissing) {
+		ui.notifications.warn(`Warning: ${item.name} has a damage value without type!`);
+	}
   console.log(`${lp} Attack Macro Item:`, item, grit, acc, damage);
 
   // Get accuracy/difficulty with a prompt
