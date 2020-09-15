@@ -653,7 +653,7 @@ function promptAccDiffModifier(acc?: number) {
             let accuracy = <string>$(dlg).find('.accuracy').first().val();
             let difficulty = <string>$(dlg).find('.difficulty').first().val();
             let total = parseInt(accuracy) - parseInt(difficulty);
-            console.log(`${lp} Dialog returned ${accuracy} accuracy and ${difficulty} resulting in a modifier of ${total}d6`);
+            console.log(`${lp} Dialog returned ${accuracy} accuracy and ${difficulty} difficulty resulting in a modifier of ${total}d6`);
             resolve(total);
           }
 				},
