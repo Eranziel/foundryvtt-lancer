@@ -345,7 +345,8 @@ async function renderMacro(actor: Actor, template: string, templateData: any) {
 	const html = await renderTemplate(template, templateData)
 	let chat_data = {
 		user: game.user,
-		type: CONST.CHAT_MESSAGE_TYPES.IC,
+		type: CONST.CHAT_MESSAGE_TYPES.ROLL,
+		roll: templateData.roll || templateData.attack,
 		speaker: {
 			actor: actor
 		},
@@ -484,9 +485,15 @@ async function rollAttackMacro(w: string, a: string) {
 		}
 		// Reduce damage values to only this tier
 		damage = duplicate(wData.damage);
+		let typeMissing = false;
 		damage.forEach(d => {
 			d.val = d.val[tier];
+			if (d.type === '' && d.val != '' && d.val != 0) typeMissing = true;
 		});
+		// Warn about missing damage type if the value is non-zero
+		if (typeMissing) {
+			ui.notifications.warn(`Warning: ${item.name} has a damage value without type!`);
+		}
 		tags = wData.tags;
 		effect = wData.effect;
   }
@@ -510,6 +517,7 @@ async function rollAttackMacro(w: string, a: string) {
   // Iterate through damage types, rolling each
   let damage_results = [];
   damage.forEach(async x => {
+    if (x.type === '' || x.val === '' || x.val == 0) return Promise.resolve(); // Skip undefined and zero damage
     const droll = new Roll(x.val.toString()).roll();
     const tt = await droll.getTooltip();
     damage_results.push({
