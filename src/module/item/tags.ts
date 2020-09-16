@@ -1,15 +1,15 @@
-import data from "lancer-data";
+import { tags, Tag } from "machine-mind";
 import { TagData, TagDataShort } from "../interfaces";
+import { CORE_BREW_ID } from "machine-mind/dist/classes/CompendiumItem";
 
 /**
  * Search for a tag in lancer-data.
  * @param id The tag's lancer-data id string.
  * @returns The full tag data.
  */
-function findTag(id: string): TagData {
+function findTag(id: string): TagData | null {
   // Only check if we actually got something.
   if (id) {
-    const tags = data.tags;
     // Find the tag id in lancer-data
     for (let i = 0; i < tags.length; i++) {
       const t = tags[i];
@@ -25,25 +25,33 @@ function findTag(id: string): TagData {
  * Prepares a tag's name, description, and value.
  * @param tag The tag to prepare.
  */
-function prepareTag(tag: TagData): TagData {
+function prepareTag(tag: TagData | null): TagData {
   // Initialize if we need to
-  if (tag === null) tag = { name: "", description: "", id: "" };
+  const default_tag = { name: "", description: "", id: "", brew: "n/a", counters: [] };
+  tag = tag || default_tag;
 
   // If we have a pre-defined tag, insert info. Otherwise, leave it as-is.
   if (tag["id"]) {
     // Look up values
     const tagdata = findTag(tag["id"]);
-    tag["name"] = tagdata["name"];
-    tag["description"] = tagdata["description"];
+    if (tagdata) {
+      tag["name"] = tagdata["name"];
+      tag["description"] = tagdata["description"];
 
-    let val: string | number = 0;
-    if (tag.val) val = tag.val;
-    else if (tagdata.val) val = tagdata.val;
-    // If the tag has a value, insert it into the text.
-    if (val !== 0) {
-      tag["val"] = val;
-      tag["name"] = tag["name"].replace("{VAL}", String(tag["val"]));
-      tag["description"] = tag["description"].replace("{VAL}", String(tag["val"]));
+      let val: string | number = 0;
+      if (tag.val) {
+        val = tag.val;
+      } else if (tagdata.val) {
+        val = tagdata.val;
+      }
+      // If the tag has a value, insert it into the text.
+      if (val !== 0) {
+        tag["val"] = val;
+        tag["name"] = tag["name"].replace("{VAL}", String(tag["val"]));
+        tag["description"] = tag["description"].replace("{VAL}", String(tag["val"]));
+      }
+    } else {
+      tag = default_tag;
     }
   }
   return tag;
@@ -54,7 +62,7 @@ function prepareTag(tag: TagData): TagData {
  * @param tagShort an object containing the tag's ID and value.
  * @returns The html template for the tag.
  */
-export function renderCompactTag(tag: TagData, key?: number): string {
+export function renderCompactTag(tag: TagData | null): string {
   let template: string = "";
   tag = prepareTag(tag);
 
@@ -79,7 +87,7 @@ export const compactTagList = `<div class="compact-tag-row"">
   {{/each}}
 </div>`;
 
-export function renderChunkyTag(tag: TagData, key: number): string {
+export function renderChunkyTag(tag: TagData | null, key: number): string {
   let template: string = "";
   tag = prepareTag(tag);
 
@@ -106,7 +114,7 @@ export function renderChunkyTag(tag: TagData, key: number): string {
  * @returns The html template for the tag.
  */
 export function renderFullTag(
-  tag: TagData,
+  tag: TagData | null,
   key: number,
   data_prefix: string = "data.tags"
 ): string {

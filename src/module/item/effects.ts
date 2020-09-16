@@ -1,6 +1,5 @@
 import { TagData, RangeData, DamageData } from "../interfaces";
 import { EffectType, ActivationType, ChargeType } from "../enums";
-import { effect_type_selector } from "./lancer-item";
 import { renderCompactTag } from "./tags";
 
 export const EffectIcons = {
@@ -19,23 +18,25 @@ export const EffectIcons = {
 };
 
 // Note that this type can be replaced with a descriptive string in some cases.
-interface EffectData {
+export interface EffectData {
   effect_type: EffectType;
   name?: string;
   activation?: ActivationType;
   tags?: TagData[];
 }
 
-declare interface BasicEffectData extends EffectData {
+ // export type AnyEffect = BasicEffectData | AIEffectData | BonusEffectData | ChargeData | ChargeEffectData | DeployableEffectData | DroneEffectData | GenericEffectData | OffensiveEffectData | ProfileEffectData | ProtocolEffectData | GenericEffectData | TechEffectData | ReactionEffectData | InvadeOptionData;
+
+export interface BasicEffectData extends EffectData {
   detail: string;
 }
 
-declare interface AIEffectData extends EffectData {
+export interface AIEffectData extends EffectData {
   detail: string;
   abilities: EffectData[];
 }
 
-declare interface BonusEffectData extends EffectData {
+export interface BonusEffectData extends EffectData {
   detail: string;
   size?: number;
   hp?: number;
@@ -44,7 +45,7 @@ declare interface BonusEffectData extends EffectData {
   edef?: number;
 }
 
-declare interface ChargeData {
+export interface ChargeData {
   name: string;
   charge_type: ChargeType;
   detail: string;
@@ -53,11 +54,11 @@ declare interface ChargeData {
   tags?: TagData[];
 }
 
-declare interface ChargeEffectData extends EffectData {
+export interface ChargeEffectData extends EffectData {
   charges: ChargeData[];
 }
 
-declare interface DeployableEffectData extends EffectData {
+export interface DeployableEffectData extends EffectData {
   count?: number;
   size?: number;
   hp?: number;
@@ -67,22 +68,22 @@ declare interface DeployableEffectData extends EffectData {
   detail: string;
 }
 
-declare interface DroneEffectData extends EffectData {
+export interface DroneEffectData extends EffectData {
   size: number;
   hp: number;
   armor?: number;
-  heat?: number;
   edef: number;
   evasion: number;
   detail: string;
+  heat?: number
   abilities?: EffectData[];
 }
 
-declare interface GenericEffectData extends EffectData {
+export interface GenericEffectData extends EffectData {
   detail: string;
 }
 
-declare interface OffensiveEffectData extends EffectData {
+export interface OffensiveEffectData extends EffectData {
   detail?: string;
   attack?: string;
   hit?: string;
@@ -90,19 +91,19 @@ declare interface OffensiveEffectData extends EffectData {
   abilities?: EffectData[];
 }
 
-declare interface ProfileEffectData extends EffectData {
+export interface ProfileEffectData extends EffectData {
   name: string;
   range?: RangeData[];
   damage?: DamageData[];
   detail?: string;
 }
 
-declare interface ProtocolEffectData extends EffectData {
+export interface ProtocolEffectData extends EffectData {
   detail: string;
 }
 
 // Note that Reactions, like Tech or Protocols, may be more generic than an effect. Yet to be seen.
-declare interface ReactionEffectData extends EffectData {
+export interface ReactionEffectData extends EffectData {
   name: string;
   detail: string;
   frequency: string; // May need a specialized parser and interface for compatibility with About Time by Tim Posney
@@ -110,25 +111,26 @@ declare interface ReactionEffectData extends EffectData {
   init?: string;
 }
 
-declare interface InvadeOptionData {
+export interface InvadeOptionData {
   name: string;
   detail: string;
   activation?: ActivationType;
 }
 
 // Tech seems to either have detail, or have option_set and options.
-declare interface TechEffectData extends EffectData {
+export interface TechEffectData extends EffectData {
   detail: string;
   activation: ActivationType;
   options?: InvadeOptionData[];
   option_set?: string;
 }
 
+
 /* ------------------------------------ */
 /* Handlebars Helpers                   */
 /* ------------------------------------ */
 
-function action_type_icon(a_type: string) {
+export function action_type_icon(a_type: string) {
   const a = a_type ? a_type.toLowerCase() : ActivationType.None.toLowerCase();
   let html = "";
   if (a === ActivationType.Full.toLowerCase()) {
@@ -146,7 +148,7 @@ function action_type_icon(a_type: string) {
 /**
  * Handlebars helper for effect action type
  */
-function action_type_selector(a_type: string, data_target: string) {
+export function action_type_selector(a_type: string, data_target: string) {
   const a = a_type ? a_type.toLowerCase() : ActivationType.None.toLowerCase();
   let html = '<div class="flexrow flex-center" style="padding: 5px; flex-wrap: nowrap;">';
   html += action_type_icon(a_type);
@@ -180,7 +182,7 @@ function action_type_selector(a_type: string, data_target: string) {
 /**
  * Handlebars helper for charge type selector
  */
-function charge_type_selector(c_type: string, data_target: string) {
+export function charge_type_selector(c_type: string, data_target: string) {
   const c = c_type ? c_type.toLowerCase() : ChargeType.Grenade.toLowerCase();
   const html = `<select name="${data_target}" data-type="String" style="height: 2em;float: right" >
     <option value="${ChargeType.Grenade}" ${
@@ -193,11 +195,12 @@ function charge_type_selector(c_type: string, data_target: string) {
   return html;
 }
 
-const charge_effect_editable = ``;
+export const charge_effect_editable = ``;
 
-function effect_preview(effect: any) {
+export function effect_preview(effect: EffectData) {
+  let _effect = effect as any
   var html = ``;
-  if (effect.abilities) {
+  if (_effect.abilities) {
     html += `<div class="flexcol effect-preview" style="padding: 5px">`;
   }
   if (effect.effect_type === EffectType.Basic || effect.effect_type === EffectType.Generic) {
@@ -223,8 +226,8 @@ function effect_preview(effect: any) {
   } else if (effect.effect_type === EffectType.Tech) {
     html += tech_effect_preview(effect as TechEffectData);
   }
-  if (effect.abilities) {
-    effect.abilities.forEach(ability => {
+  if (_effect.abilities) {
+    _effect.abilities.forEach((ability: EffectData) => {
       html += effect_preview(ability);
     });
     html += `</div>`;
@@ -232,12 +235,12 @@ function effect_preview(effect: any) {
   return html;
 }
 
-const generic_effect_preview = `<div class="flexcol effect-text" style="padding: 5px">
+export const generic_effect_preview = `<div class="flexcol effect-text" style="padding: 5px">
   <div class="medium effect-title">EFFECT</div>
   <div class="effect-text">{{{effect}}}</div>
 </div>`;
 
-function effect_tag_row(effect: any) {
+export function effect_tag_row(effect: EffectData) {
   var html = ``;
   if (effect.tags) {
     html += `<div class="compact-tag-row">`;
@@ -249,7 +252,8 @@ function effect_tag_row(effect: any) {
   return html;
 }
 
-function standard_effect_preview(effect: any, title?: string) {
+export function standard_effect_preview(effect: EffectData, title?: string) {
+  let _effect = effect as any;
   var html = `<div class="flexcol effect-text" style="padding: 5px">
     <div class="medium effect-title">${title ? title : "EFFECT"}`;
   if (effect.activation) {
@@ -259,21 +263,23 @@ function standard_effect_preview(effect: any, title?: string) {
   if (effect.name) {
     html += `<div class="minor effect-text" style="padding: 5px">${effect.name}</div>`;
   }
-  html += `<div class="flexrow effect-text">${effect.detail}</div>`;
+  if (_effect.detail) { // not on all types
+    html += `<div class="flexrow effect-text">${_effect.detail}</div>`;
+  }
   html += effect_tag_row(effect);
   html += `</div>`;
   return html;
 }
 
-function basic_effect_preview(effect: BasicEffectData) {
+export function basic_effect_preview(effect: BasicEffectData) {
   return standard_effect_preview(effect);
 }
 
-function ai_effect_preview(effect: AIEffectData) {
+export function ai_effect_preview(effect: AIEffectData) {
   return standard_effect_preview(effect);
 }
 
-function bonus_effect_preview(effect: BonusEffectData) {
+export function bonus_effect_preview(effect: BonusEffectData) {
   var html = `<div class="flexcol effect-text" style="padding: 5px">
     <div class="medium effect-title">EFFECT`;
   if (effect.activation) {
@@ -319,7 +325,7 @@ function bonus_effect_preview(effect: BonusEffectData) {
   return html;
 }
 
-function charge_effect_preview(effect: ChargeEffectData) {
+export function charge_effect_preview(effect: ChargeEffectData) {
   var html = `<div class="flexcol effect-text" style="padding: 5px">
     <div class="medium effect-title">CHARGE EFFECT`;
   if (effect.activation) {
@@ -363,7 +369,7 @@ function charge_effect_preview(effect: ChargeEffectData) {
   return html;
 }
 
-function deployable_effect_preview(effect: DeployableEffectData) {
+export function deployable_effect_preview(effect: DeployableEffectData) {
   var html = `<div class="flexcol effect-text" style="padding: 5px">
     <div class="medium effect-title">DEPLOYABLE EFFECT`;
   if (effect.activation) {
@@ -418,7 +424,7 @@ function deployable_effect_preview(effect: DeployableEffectData) {
   return html;
 }
 
-function drone_effect_preview(effect: DroneEffectData) {
+export function drone_effect_preview(effect: DroneEffectData) {
   var html = `<div class="flexcol effect-text" style="padding: 5px">
     <div class="medium effect-title">DRONE EFFECT`;
   if (effect.activation) {
@@ -471,7 +477,7 @@ function drone_effect_preview(effect: DroneEffectData) {
   return html;
 }
 
-function offensive_effect_preview(effect: OffensiveEffectData) {
+export function offensive_effect_preview(effect: OffensiveEffectData) {
   var html = `<div class="flexcol effect-text" style="padding: 5px">
     <div class="medium effect-title">WEAPON EFFECT`;
   if (effect.activation) {
@@ -507,7 +513,7 @@ function offensive_effect_preview(effect: OffensiveEffectData) {
   return html;
 }
 
-function profile_effect_preview(effect: ProfileEffectData) {
+export function profile_effect_preview(effect: ProfileEffectData) {
   var html = `<div class="flexcol sub-effect-box">
     <div class="flexcol effect-text" style="padding: 5px">
       <div class="medium effect-title">WEAPON PROFILE`;
@@ -543,11 +549,11 @@ function profile_effect_preview(effect: ProfileEffectData) {
   return html;
 }
 
-function protocol_effect_preview(effect: ProtocolEffectData) {
+export function protocol_effect_preview(effect: ProtocolEffectData) {
   return `<div class="sub-effect-box">${standard_effect_preview(effect, "PROTOCOL")}</div>`;
 }
 
-function reaction_effect_preview(effect: ReactionEffectData) {
+export function reaction_effect_preview(effect: ReactionEffectData) {
   var html = `<div class="flexcol effect-text" style="padding: 5px">
     <div class="medium effect-title">REACTION`;
   if (effect.activation) {
@@ -582,7 +588,7 @@ function reaction_effect_preview(effect: ReactionEffectData) {
   return html;
 }
 
-function invade_option_preview(effect: InvadeOptionData, set: string) {
+export function invade_option_preview(effect: InvadeOptionData, set: string) {
   var html = `<div class="flexcol sub-effect-box" style="padding: 5px">
     <div class="medium effect-title">${effect.name} // ${set.toUpperCase()}</div>`;
   if (effect.detail) {
@@ -592,7 +598,7 @@ function invade_option_preview(effect: InvadeOptionData, set: string) {
   return html;
 }
 
-function tech_effect_preview(effect: TechEffectData) {
+export function tech_effect_preview(effect: TechEffectData) {
   var html = `<div class="flexcol effect-text" style="padding: 5px">
     <div class="medium effect-title">${
       effect.option_set ? effect.option_set.toUpperCase() : ""
@@ -624,36 +630,3 @@ function tech_effect_preview(effect: TechEffectData) {
   return html;
 }
 
-export {
-  EffectData,
-  BasicEffectData,
-  AIEffectData,
-  BonusEffectData,
-  ChargeData,
-  ChargeEffectData,
-  DeployableEffectData,
-  DroneEffectData,
-  GenericEffectData,
-  OffensiveEffectData,
-  ProfileEffectData,
-  ProtocolEffectData,
-  ReactionEffectData,
-  TechEffectData,
-  action_type_icon,
-  action_type_selector,
-  charge_type_selector,
-  effect_preview,
-  generic_effect_preview,
-  basic_effect_preview,
-  ai_effect_preview,
-  bonus_effect_preview,
-  charge_effect_preview,
-  deployable_effect_preview,
-  drone_effect_preview,
-  offensive_effect_preview,
-  profile_effect_preview,
-  protocol_effect_preview,
-  reaction_effect_preview,
-  invade_option_preview,
-  tech_effect_preview,
-};

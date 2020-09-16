@@ -8,11 +8,7 @@ const entryPrompt = "//:AWAIT_ENTRY>";
  * Extend the basic ActorSheet
  */
 export class LancerDeployableSheet extends ActorSheet {
-  _sheetTab: string;
-
-  constructor(...args) {
-    super(...args);
-  }
+  _sheetTab: string = "";
 
   /**
    * A convenience reference to the Actor entity
@@ -43,7 +39,7 @@ export class LancerDeployableSheet extends ActorSheet {
    * Activate event listeners using the prepared sheet HTML
    * @param html {HTML}   The prepared HTML object ready to be rendered into the DOM
    */
-  activateListeners(html) {
+  activateListeners(html: any) {
     super.activateListeners(html);
 
     // Everything below here is only needed if the sheet is editable
@@ -90,7 +86,6 @@ export class LancerDeployableSheet extends ActorSheet {
       formData["token.img"] = formData["img"];
     }
 
-    console.log(formData);
     // Update the Actor
     return this.object.update(formData);
   }

@@ -3,34 +3,38 @@ import {
   LancerNPCActorData,
   LancerDeployableActorData,
   LancerFrameStatsData,
-  LancerNPCClassStatsData,
+  LancerNPCClassStatsData, LancerNPCData, LancerMountData
 } from "../interfaces";
 import { LANCER } from "../config";
+import { MountType } from "machine-mind";
 const lp = LANCER.log_prefix;
 
+export const DEFAULT_MECH = {
+  name: "",
+  size: 1,
+  hull: 0,
+  agility: 0,
+  systems: 0,
+  engineering: 0,
+  hp: { min: 0, max: 0, value: 0 },
+  structure: { min: 0, max: 4, value: 4 },
+  heat: { min: 0, max: 0, value: 0 },
+  stress: { min: 0, max: 4, value: 4 },
+  repairs: { min: 0, max: 0, value: 0 },
+  armor: 0,
+  speed: 0,
+  evasion: 0,
+  edef: 0,
+  sensors: 0,
+  save: 0,
+  tech_attack: 0,
+};
+
 export function lancerActorInit(data: any) {
+  // Some subtype of ActorData
   console.log(`${lp} Initializing new ${data.type}`);
   if (data.type === "pilot" || data.type === "npc") {
-    const mech = {
-      name: "",
-      size: 1,
-      hull: 0,
-      agility: 0,
-      systems: 0,
-      engineering: 0,
-      hp: { min: 0, max: 0, value: 0 },
-      structure: { min: 0, max: 4, value: 4 },
-      heat: { min: 0, max: 0, value: 0 },
-      stress: { min: 0, max: 4, value: 4 },
-      repairs: { min: 0, max: 0, value: 0 },
-      armor: 0,
-      speed: 0,
-      evasion: 0,
-      edef: 0,
-      sensors: 0,
-      save: 0,
-      tech_attack: 0,
-    };
+    const mech = { ...DEFAULT_MECH };
 
     if (data.type === "npc") {
       mech.structure.value = 1;
@@ -72,17 +76,14 @@ export function lancerActorInit(data: any) {
  * Extend the Actor class for Lancer Actors.
  */
 export class LancerActor extends Actor {
-  data: LancerPilotActorData | LancerNPCActorData | LancerDeployableActorData;
+  data!: LancerPilotActorData | LancerNPCActorData | LancerDeployableActorData;
 
   /**
    * Change mech frames for a pilot. Recalculates all mech-related stats on the pilot.
    * @param newFrame Stats object from the new mech frame.
    * @param oldFrame Stats object from the old mech frame, optional.
    */
-  swapFrames(
-    newFrame: LancerFrameStatsData,
-    oldFrame?: LancerFrameStatsData
-  ): Promise<LancerActor> {
+  async swapFrames(newFrame: LancerFrameStatsData, oldFrame?: LancerFrameStatsData): Promise<void> {
     // Function is only applicable to pilots.
     if (this.data.type !== "pilot") return;
 
@@ -126,18 +127,18 @@ export class LancerActor extends Actor {
 
     // Update the actor
     data.data.mech = mech;
-    return this.update(data) as Promise<LancerActor>;
+    await this.update(data);
   }
 
   /**
    * Change Class or Tier on a NPC. Recalculates all stats on the NPC.
    * @param newNPCClass Stats object from the new Class.
    */
-  swapNPCClassOrTier(
+  async swapNPCClassOrTier(
     newNPCClass: LancerNPCClassStatsData,
     ClassSwap: boolean,
     tier?: string
-  ): Promise<LancerActor> {
+  ): Promise<void> {
     // Function is only applicable to NPCs.
     if (this.data.type !== "npc") return;
 
@@ -153,7 +154,8 @@ export class LancerActor extends Actor {
     switch (tier) {
       case "npc-tier-custom":
         data.data.tier_num = 4;
-        return this.update(data) as Promise<LancerActor>;
+        await this.update(data);
+        return;
       case "npc-tier-2":
         data.data.tier_num = 2;
         i = 1;
@@ -213,7 +215,7 @@ export class LancerActor extends Actor {
 
     // Update the actor
     data.data.mech = mech;
-    return this.update(data) as Promise<LancerActor>;
+    await this.update(data);
   }
 }
 
@@ -226,13 +228,13 @@ export class LancerActor extends Actor {
  * @param mount The mount object tied to the selector
  * @param key The index of the mount object
  */
-export function mount_type_selector(mount, key) {
+export function mount_type_selector(mount: LancerMountData, key: string | number) {
   let template = `<select id="mount-type" class="mounts-control" data-action="update" data-item-id=${key}>
-    <option value="Main" ${mount.type === "Main" ? "selected" : ""}>Main Mount</option>
-    <option value="Heavy" ${mount.type === "Heavy" ? "selected" : ""}>Heavy Mount</option>
-    <option value="Aux-Aux" ${mount.type === "Aux-Aux" ? "selected" : ""}>Aux/Aux Mount</option>
-    <option value="Main-Aux" ${mount.type === "Main-Aux" ? "selected" : ""}>Main/Aux Mount</option>
-    <option value="Flex" ${mount.type === "Flex" ? "selected" : ""}>Flexible Mount</option>
+    <option value="Main" ${mount.type === MountType.Main ? "selected" : ""}>Main Mount</option>
+    <option value="Heavy" ${mount.type === MountType.Heavy ? "selected" : ""}>Heavy Mount</option>
+    <option value="Aux-Aux" ${mount.type === MountType.AuxAux ? "selected" : ""}>Aux/Aux Mount</option>
+    <option value="Main-Aux" ${mount.type === MountType.MainAux ? "selected" : ""}>Main/Aux Mount</option>
+    <option value="Flex" ${mount.type === MountType.Flex ? "selected" : ""}>Flexible Mount</option>
     <option value="Integrated" ${
       mount.type === "Integrated" ? "selected" : ""
     }>Integrated Mount</option>
@@ -264,7 +266,7 @@ export const mount_card = `<div class="flexcol lancer-mount-container" data-item
  * Handlebars helper for an NPC tier selector
  * @param tier The tier ID string
  */
-export function npc_tier_selector(tier) {
+export function npc_tier_selector(tier: LancerNPCData["tier"]) {
   let template = `<select id="tier-type" class="tier-control" data-action="update">
     <option value="npc-tier-1" ${tier === "npc-tier-1" ? "selected" : ""}>TIER 1</option>
     <option value="npc-tier-2" ${tier === "npc-tier-2" ? "selected" : ""}>TIER 2</option>

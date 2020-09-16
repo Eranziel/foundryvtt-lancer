@@ -1,5 +1,4 @@
 import { LancerItemSheet } from "./item-sheet";
-import { LancerFrame } from "./lancer-item";
 
 /**
  * Extend the generic Lancer item sheet
@@ -23,7 +22,7 @@ export class LancerFrameSheet extends LancerItemSheet {
    * Tag controls event handler
    * @param event The click event
    */
-  async _onClickTagControl(event) {
+  async _onClickTagControl(event: any) {
     event.preventDefault();
     const a = $(event.currentTarget);
     const action = a.data("action");
@@ -66,8 +65,6 @@ export class LancerFrameSheet extends LancerItemSheet {
     // TODO: frame size
 
     // TODO: find integrated weapon
-
-    console.log(data);
     return data;
   }
 }

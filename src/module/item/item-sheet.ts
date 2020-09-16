@@ -1,15 +1,8 @@
-import { LancerSkillSheetData, LancerMechSystemData, RangeData, DamageData } from "../interfaces";
+import { LancerSkillSheetData, LancerNPCFeatureSheetData, DamageData, LancerMechSystemData, RangeData } from "../interfaces";
 import { LANCER } from "../config";
-import {
-  NPCFeatureType,
-  EffectType,
-  ChargeType,
-  ActivationType,
-  RangeType,
-  DamageType,
-} from "../enums";
 import { NPCFeatureIcons } from "./npc-feature";
-import { ChargeEffectData, ChargeData, BasicEffectData } from "./effects";
+import { NpcFeatureType, Npc, ActivationType, ChargeType, DamageType, EffectType } from "machine-mind";
+import { BasicEffectData, ChargeData, ChargeEffectData } from "./effects";
 const lp = LANCER.log_prefix;
 
 /**
@@ -28,7 +21,11 @@ export class LancerItemSheet extends ItemSheet {
       width: 700,
       height: 480,
       tabs: [
-        { navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "description" },
+        {
+          navSelector: ".sheet-tabs",
+          contentSelector: ".sheet-body",
+          initial: "description",
+        },
       ],
     });
   }
@@ -46,10 +43,15 @@ export class LancerItemSheet extends ItemSheet {
    * Prepare data for rendering the Item sheet
    * The prepared data object contains both the item data as well as additional sheet options
    */
-  getData() {
+  getData(): ItemSheetData {
     const data: ItemSheetData = super.getData();
 
-    if (data.item.type === "npc_feature" && data.data.feature_type === NPCFeatureType.Weapon) {
+    if (!data.item) {
+      // Just junk it
+      return {};
+    }
+
+    if (data.item.type === "npc_feature" && data.data.feature_type === NpcFeatureType.Weapon) {
       if (data.data.weapon_type) {
         const parts = data.data.weapon_type.split(" ");
         data.data.weapon_size = parts[0];
@@ -95,7 +97,7 @@ export class LancerItemSheet extends ItemSheet {
    * Activate event listeners using the prepared sheet HTML
    * @param html {HTML}   The prepared HTML object ready to be rendered into the DOM
    */
-  activateListeners(html) {
+  activateListeners(html: any) {
     super.activateListeners(html);
 
     // Everything below here is only needed if the sheet is editable
@@ -118,7 +120,7 @@ export class LancerItemSheet extends ItemSheet {
    * @param event    The originating event
    * @private
    */
-  async _onSelectDelete(event) {
+  async _onSelectDelete(event: any) {
     const s = $(event.currentTarget);
     if (s.val() === "delete") {
       event.preventDefault();
@@ -140,17 +142,17 @@ export class LancerItemSheet extends ItemSheet {
    * @param {MouseEvent} event    The originating left click event
    * @private
    */
-  async _onClickArrayControl(event) {
+  async _onClickArrayControl(event: any) {
     event.preventDefault();
     const a = $(event.currentTarget);
     const action = a.data("action");
     const itemString = a.parents(".arrayed-item-container").data("item");
     console.log(itemString);
     var baseArr = getValue(this, "object.data.data." + itemString);
-    if (baseArr) {
-      var itemArr = duplicate(baseArr);
-    } else {
+    if (!baseArr) {
       itemArr = [];
+    } else {
+      var itemArr = duplicate(baseArr);
     }
     const dataRef = "data." + itemString;
 
@@ -161,6 +163,7 @@ export class LancerItemSheet extends ItemSheet {
       const keys = Object.keys(itemArr);
       var newIndex = 0;
       if (keys.length > 0) {
+        // @ts-ignore
         newIndex = Math.max.apply(Math, keys) + 1;
       }
       itemArr[newIndex] = null;
@@ -189,10 +192,7 @@ export class LancerItemSheet extends ItemSheet {
   /* -------------------------------------------- */
 
   /** @override */
-  _updateObject(event, formData) {
-    // Copy the Item name into the system data name property.
-    formData["data.name"] = formData["name"];
-
+  _updateObject(event: any, formData: any) {
     if (this.item.data.type === "npc_feature") {
       // Change image to match feature type, unless a custom image has been selected
       const imgPath = "systems/lancer/assets/icons/";
@@ -201,13 +201,14 @@ export class LancerItemSheet extends ItemSheet {
         formData["img"].startsWith(imgPath) &&
         Object.values(NPCFeatureIcons).includes(shortImg)
       ) {
-        formData["img"] = imgPath + NPCFeatureIcons[formData["data.feature_type"]];
+        formData["img"] =
+          imgPath + NPCFeatureIcons[formData["data.feature_type"] as NpcFeatureType];
       }
 
       // Re-build NPC Weapon size and type
       if (
         this.item.data.type === "npc_feature" &&
-        this.item.data.data.feature_type === NPCFeatureType.Weapon
+        this.item.data.data.feature_type === NpcFeatureType.Weapon
       ) {
         formData[
           "data.weapon_type"
@@ -221,7 +222,7 @@ export class LancerItemSheet extends ItemSheet {
       if (
         this.item.data.type !== "npc_feature" ||
         (this.item.data.type === "npc_feature" &&
-          this.item.data.data.feature_type === NPCFeatureType.Weapon)
+          this.item.data.data.feature_type === NpcFeatureType.Weapon)
       ) {
         // Build range and damage arrays
         let damage = [];
@@ -255,7 +256,7 @@ export class LancerItemSheet extends ItemSheet {
       }
     }
 
-    if (this.item.data.type === "mech_system") {
+   if (this.item.data.type === "mech_system") {
       const i_data = this.item.data.data as LancerMechSystemData;
       // If the effect type has changed, initialize the effect structure
       if (i_data.effect.effect_type !== formData["data.effect.effect_type"]) {
@@ -296,7 +297,7 @@ export class LancerItemSheet extends ItemSheet {
 }
 
 // Helper function to get arbitrarily deep array references
-function getValue(object, path) {
+function getValue(object: any, path: string) {
   return path
     .replace(/\[/g, ".")
     .replace(/\]/g, "")
