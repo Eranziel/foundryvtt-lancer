@@ -5,12 +5,15 @@ const chalk = require('chalk');
 const archiver = require('archiver');
 const stringify = require('json-stringify-pretty-compact');
 const typescript = require('typescript');
-const rollup = require('rollup');
-const rollup_ts = require('@rollup/plugin-typescript');
+// const rollup = require('rollup');
+// const rollup_ts = require('@rollup/plugin-typescript');
 // const rollup_resolve = require('@rollup/plugin-node-resolve');
-const rollup_cjs = require('@rollup/plugin-commonjs');
-const rollup_json = require('@rollup/plugin-json');
-const rollup_copy = require('rollup-plugin-copy');
+// const rollup_cjs = require('@rollup/plugin-commonjs');
+// const rollup_json = require('@rollup/plugin-json');
+// const rollup_copy = require('rollup-plugin-copy');
+// const rollup_node = require('rollup-plugin-node-polyfills');
+// const rollup_replace = require('@rollup/plugin-replace');
+const webpack = require('webpack-stream');
 
 const ts = require('gulp-typescript');
 const less = require('gulp-less');
@@ -141,30 +144,71 @@ const tsConfig = ts.createProject('tsconfig.json', {
 /**
  * Run Rollup
  */
-async function buildRU() {
-	const bundle = await rollup.rollup({
-		input: 'src/lancer.ts',
-		plugins: [
-			rollup_ts(),
-			rollup_json(),
-			// rollup_resolve(),
-			rollup_cjs({
-				transformMixedEsModules: true,
-			}),
-			// TODO: Copy doesn't seem to be working. Config issue?
-			rollup_copy({
-				targets: [
-					{src: 'node_modules/@mdi/font/**/*', dest: 'dist/fonts/mdi'}
-				]
-			}),
-		]
-	});
-	return bundle.write({
-		file: 'dist/lancer.js',
-		format: 'es',
-		name: 'library',
-		sourcemap: true,
-	});
+// async function buildRU() {
+// 	const bundle = await rollup.rollup({
+// 		input: 'src/lancer.ts',
+// 		plugins: [
+// 			rollup_ts(),
+// 			rollup_json(),
+// 			rollup_resolve.nodeResolve({
+// 				browser: true,
+// 				preferBuiltins: true,
+// 				mainFields: ["browser"]
+// 			}),
+// 			rollup_cjs({
+// 				transformMixedEsModules: true,
+// 			}),
+// 			// TODO: Copy doesn't seem to be working. Config issue?
+// 			rollup_copy({
+// 				targets: [
+// 					{src: 'node_modules/@mdi/font/**/*', dest: 'dist/fonts/mdi'}
+// 				]
+// 			}),
+// 			rollup_node(),
+// 			// Haackish but unfortunately rollup doesn't properly handle browser tags in package.json
+// 			rollup_replace({
+// 				"process.stderr.fd": 3,
+// 				"lib/rng": "lib/rng-browser"
+// 			})
+// 		]
+// 	});
+// 	return bundle.write({
+// 		file: 'dist/lancer.js',
+// 		format: 'es',
+// 		name: 'library',
+// 		sourcemap: true,
+// 	});
+// }
+
+async function buildWebpack() {
+	return gulp
+    .src("src/lancer.ts")
+    .pipe(
+      webpack({
+        entry: "./src/lancer.ts",
+        devtool: "inline-source-map",
+        optimization: {
+          minimize: false,
+        },
+        module: {
+          rules: [
+            {
+              test: /\.tsx?$/,
+              use: "ts-loader",
+              exclude: /node_modules/,
+            },
+          ],
+        },
+        resolve: {
+          extensions: [".ts", ".tsx", ".js"],
+        },
+        output: {
+          filename: "lancer.js",
+          path: path.resolve(__dirname, "dist"),
+        },
+      })
+    )
+	.pipe(gulp.dest("dist/"));
 }
 
 /**
@@ -229,7 +273,7 @@ async function copyFiles() {
  * Watch for changes for each build step
  */
 function buildWatch() {
-	gulp.watch('src/**/*.ts', { ignoreInitial: false }, buildRU);
+	gulp.watch('src/**/*.ts', { ignoreInitial: false }, buildWebpack);
 	gulp.watch('src/**/*.less', { ignoreInitial: false }, buildLess);
 	gulp.watch('src/**/*.scss', { ignoreInitial: false }, buildSASS);
 	gulp.watch(
@@ -519,7 +563,7 @@ function gitTag() {
 
 const execGit = gulp.series(gitAdd, gitCommit, gitTag);
 
-const execBuild = gulp.parallel(buildRU, buildLess, buildSASS, copyFiles);
+const execBuild = gulp.parallel(buildWebpack, buildLess, buildSASS, copyFiles);
 
 exports.build = gulp.series(clean, execBuild);
 exports.watch = buildWatch;

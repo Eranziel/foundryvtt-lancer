@@ -1,11 +1,17 @@
 {
 	"compilerOptions": {
 		"target": "ES2017",
+		"experimentalDecorators": true,
+		"outDir": "./dist/",
+		"module": "commonjs",
+		"sourceMap": true,
 		"lib": [
 			"DOM",
 			"ES6",
 			"ES2017"
 		],
-		"types": ["foundry-pc-types"]
+		"types": ["foundry-pc-types"],
+		"strict": true,
+		"skipLibCheck": true,
 	}
 }
