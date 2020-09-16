@@ -1,6 +1,5 @@
-
-import data from 'lancer-data';
-import { TagData, TagDataShort } from '../interfaces';
+import data from "lancer-data";
+import { TagData, TagDataShort } from "../interfaces";
 
 /**
  * Search for a tag in lancer-data.
@@ -9,10 +8,10 @@ import { TagData, TagDataShort } from '../interfaces';
  */
 function findTag(id: string): TagData {
   // Only check if we actually got something.
-  if(id) {
+  if (id) {
     const tags = data.tags;
-  	// Find the tag id in lancer-data
-    for(let i = 0; i < tags.length; i++) {
+    // Find the tag id in lancer-data
+    for (let i = 0; i < tags.length; i++) {
       const t = tags[i];
       if (t.id === id) {
         return t;
@@ -28,7 +27,7 @@ function findTag(id: string): TagData {
  */
 function prepareTag(tag: TagData): TagData {
   // Initialize if we need to
-  if (tag === null) tag = {name: "", description: "", id: ""};
+  if (tag === null) tag = { name: "", description: "", id: "" };
 
   // If we have a pre-defined tag, insert info. Otherwise, leave it as-is.
   if (tag["id"]) {
@@ -46,7 +45,7 @@ function prepareTag(tag: TagData): TagData {
       tag["name"] = tag["name"].replace("{VAL}", String(tag["val"]));
       tag["description"] = tag["description"].replace("{VAL}", String(tag["val"]));
     }
-  } 
+  }
   return tag;
 }
 
@@ -74,8 +73,7 @@ export function renderCompactTag(tag: TagData, key?: number): string {
 /**
  * Handlebars partial to generate a list of tags for weapon/system previews.
  */
-export const compactTagList = 
-`<div class="compact-tag-row"">
+export const compactTagList = `<div class="compact-tag-row"">
   {{#each tags as |tag tkey|}}
   {{{compact-tag tag}}}
   {{/each}}
@@ -101,13 +99,17 @@ export function renderChunkyTag(tag: TagData, key: number): string {
   </div>`;
   return template;
 }
-  
+
 /**
  * Handlebars helper to generate verbose tag template.
  * @param tagShort an object containing the tag's ID and value.
  * @returns The html template for the tag.
  */
-export function renderFullTag(tag: TagData, key: number, data_prefix: string = "data.tags"): string {
+export function renderFullTag(
+  tag: TagData,
+  key: number,
+  data_prefix: string = "data.tags"
+): string {
   let template: string = "";
   tag = prepareTag(tag);
 

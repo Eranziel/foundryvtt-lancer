@@ -1,5 +1,5 @@
-import { LancerDeployableSheetData } from '../interfaces';
-import { LANCER } from '../config'
+import { LancerDeployableSheetData } from "../interfaces";
+import { LANCER } from "../config";
 const lp = LANCER.log_prefix;
 
 const entryPrompt = "//:AWAIT_ENTRY>";
@@ -12,7 +12,6 @@ export class LancerDeployableSheet extends ActorSheet {
 
   constructor(...args) {
     super(...args);
-
   }
 
   /**
@@ -33,12 +32,11 @@ export class LancerDeployableSheet extends ActorSheet {
       classes: ["lancer", "sheet", "actor", "npc"],
       template: "systems/lancer/templates/actor/deployable.html",
       width: 800,
-      height: 800
+      height: 800,
     });
   }
 
   /* -------------------------------------------- */
-
 
   /**
    * @override
@@ -57,14 +55,12 @@ export class LancerDeployableSheet extends ActorSheet {
 
   /* -------------------------------------------- */
 
-
   /**
    * Prepare data for rendering the Actor sheet
    * The prepared data object contains both the actor data as well as additional sheet options
    */
   getData(): LancerDeployableSheetData {
     const data: LancerDeployableSheetData = super.getData() as LancerDeployableSheetData;
-
 
     // Populate name if blank (new Actor)
     if (data.data.name === "") {
@@ -82,16 +78,16 @@ export class LancerDeployableSheet extends ActorSheet {
    */
   _updateObject(event: Event | JQuery.Event, formData: any): Promise<any> {
     // Copy the new name to the prototype token.
-    formData['token.name'] = formData['name'];
+    formData["token.name"] = formData["name"];
 
-    let token: any = this.actor.data['token'];
+    let token: any = this.actor.data["token"];
     // Set the prototype token image if the prototype token isn't initialized
     if (!token) {
-      formData['token.img'] = formData['img'];
+      formData["token.img"] = formData["img"];
     }
     // Update token image if it matches the old actor image
-    else if (this.actor.data.img === token['img'] && this.actor.img !== formData['img']) {
-      formData['token.img'] = formData['img'];
+    else if (this.actor.data.img === token["img"] && this.actor.img !== formData["img"]) {
+      formData["token.img"] = formData["img"];
     }
 
     console.log(formData);
@@ -99,4 +95,3 @@ export class LancerDeployableSheet extends ActorSheet {
     return this.object.update(formData);
   }
 }
-

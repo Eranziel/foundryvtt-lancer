@@ -6,17 +6,16 @@ import { LancerFrame } from "./lancer-item";
  * @extends {LancerItemSheet}
  */
 export class LancerFrameSheet extends LancerItemSheet {
-
   /**
    * @override
    * Extend and override the default options used by the generic Lancer item sheet
    * @returns {Object}
    */
-	static get defaultOptions() {
-	  return mergeObject(super.defaultOptions, {
-			width: 700,
-			height: 750,
-		});
+  static get defaultOptions() {
+    return mergeObject(super.defaultOptions, {
+      width: 700,
+      height: 750,
+    });
   }
 
   /**
@@ -43,7 +42,7 @@ export class LancerFrameSheet extends LancerItemSheet {
       // }
       // tags[newIndex] = null;
       // Default new tags to quick action... is there a better solution?
-      tags.push({id: "tg_quick_action"});
+      tags.push({ id: "tg_quick_action" });
       await this.object.update({ "data.core_system.tags": tags }, {});
       await this._onSubmit(event);
     } else if (action === "delete") {
@@ -63,7 +62,7 @@ export class LancerFrameSheet extends LancerItemSheet {
    */
   getData() {
     const data: ItemSheetData = super.getData();
-    
+
     // TODO: frame size
 
     // TODO: find integrated weapon
@@ -71,5 +70,4 @@ export class LancerFrameSheet extends LancerItemSheet {
     console.log(data);
     return data;
   }
-
 }

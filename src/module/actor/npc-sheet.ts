@@ -1,8 +1,13 @@
-import { LancerNPCSheetData, LancerNPCClassStatsData, LancerNPCData } from '../interfaces';
-import { LancerItem, LancerNPCClass, LancerNPCTemplate, LancerNPCFeature } from '../item/lancer-item';
-import { MechType } from '../enums';
-import { LancerActor } from './lancer-actor';
-import { LANCER } from '../config';
+import { LancerNPCSheetData, LancerNPCClassStatsData, LancerNPCData } from "../interfaces";
+import {
+  LancerItem,
+  LancerNPCClass,
+  LancerNPCTemplate,
+  LancerNPCFeature,
+} from "../item/lancer-item";
+import { MechType } from "../enums";
+import { LancerActor } from "./lancer-actor";
+import { LANCER } from "../config";
 const lp = LANCER.log_prefix;
 
 const entryPrompt = "//:AWAIT_ENTRY>";
@@ -15,7 +20,6 @@ export class LancerNPCSheet extends ActorSheet {
 
   constructor(...args) {
     super(...args);
-
   }
 
   /**
@@ -37,11 +41,13 @@ export class LancerNPCSheet extends ActorSheet {
       template: "systems/lancer/templates/actor/npc.html",
       width: 800,
       height: 800,
-      tabs: [{
-        navSelector: ".lancer-tabs",
-        contentSelector: ".sheet-body",
-        initial: "mech"
-      }]
+      tabs: [
+        {
+          navSelector: ".lancer-tabs",
+          contentSelector: ".sheet-body",
+          initial: "mech",
+        },
+      ],
     });
   }
 
@@ -69,17 +75,15 @@ export class LancerNPCSheet extends ActorSheet {
   /* -------------------------------------------- */
 
   _prepareItems(data: LancerNPCSheetData) {
-
     // Mirror items into filtered list properties
     const accumulator = {};
     for (let item of data.items) {
-      if (accumulator[item.type] === undefined)
-        accumulator[item.type] = [];
+      if (accumulator[item.type] === undefined) accumulator[item.type] = [];
       accumulator[item.type].push(item);
     }
-    data.npc_templates = accumulator['npc_template'] || [];
-    data.npc_features = accumulator['npc_feature'] || [];
-    if (accumulator['npc_class']) data.npc_class = accumulator['npc_class'][0];
+    data.npc_templates = accumulator["npc_template"] || [];
+    data.npc_features = accumulator["npc_feature"] || [];
+    if (accumulator["npc_class"]) data.npc_class = accumulator["npc_class"][0];
     else data.npc_class = undefined;
     //TODO Templates, Classes and Features
   }
@@ -96,32 +100,33 @@ export class LancerNPCSheet extends ActorSheet {
     // Everything below here is only needed if the sheet is editable
     if (!this.options.editable) return;
 
-
     // Macro triggers
     if (this.actor.owner) {
       // Stat rollers
-      let statMacro = html.find('.stat-macro');
+      let statMacro = html.find(".stat-macro");
       statMacro.click(ev => {
-        ev.stopPropagation();  // Avoids triggering parent event handlers
+        ev.stopPropagation(); // Avoids triggering parent event handlers
         console.log(ev);
 
         // Find the stat input to get the stat's key to pass to the macro function
-        const statInput = $(ev.currentTarget).closest('.stat-container').find('.lancer-stat-input')[0] as HTMLInputElement;
+        const statInput = $(ev.currentTarget)
+          .closest(".stat-container")
+          .find(".lancer-stat-input")[0] as HTMLInputElement;
         const statKey = statInput.name;
-        let keySplit = statKey.split('.');
+        let keySplit = statKey.split(".");
         let title = keySplit[keySplit.length - 1].toUpperCase();
         console.log(`${lp} Rolling ${title} check, key ${statKey}`);
         game.lancer.rollStatMacro(this.actor._id, title, statKey, null, true);
       });
 
       // Trigger rollers
-      let triggerMacro = html.find('.roll-trigger');
+      let triggerMacro = html.find(".roll-trigger");
       triggerMacro.click(ev => {
         ev.stopPropagation();
         console.log(ev);
 
-        const modifier = parseInt($(ev.currentTarget).find('.roll-modifier').text());
-        const title = $(ev.currentTarget).closest('.skill-compact').find('.modifier-name').text();
+        const modifier = parseInt($(ev.currentTarget).find(".roll-modifier").text());
+        const title = $(ev.currentTarget).closest(".skill-compact").find(".modifier-name").text();
         //.find('modifier-name').first().text();
         console.log(`${lp} Rolling '${title}' trigger (d20 + ${modifier})`);
 
@@ -129,23 +134,23 @@ export class LancerNPCSheet extends ActorSheet {
       });
 
       // Weapon rollers
-      let weaponMacro = html.find('.roll-attack');
+      let weaponMacro = html.find(".roll-attack");
       weaponMacro.click(ev => {
         ev.stopPropagation();
         console.log(`${lp} Weapon macro button click`, ev);
 
-        const weaponElement = $(ev.currentTarget).closest('.weapon')[0] as HTMLElement;
+        const weaponElement = $(ev.currentTarget).closest(".weapon")[0] as HTMLElement;
         let weaponId = weaponElement.getAttribute("data-item-id");
         game.lancer.rollAttackMacro(weaponId, this.actor._id);
       });
 
       // Tech rollers
-      let techMacro = html.find('.roll-tech');
+      let techMacro = html.find(".roll-tech");
       techMacro.click(ev => {
         ev.stopPropagation();
         console.log(`${lp} Tech attack macro button click`, ev);
 
-        const techElement = $(ev.currentTarget).closest('.tech')[0] as HTMLElement;
+        const techElement = $(ev.currentTarget).closest(".tech")[0] as HTMLElement;
         let techId = techElement.getAttribute("data-item-id");
         game.lancer.rollTechMacro(techId, this.actor._id);
       });
@@ -153,17 +158,20 @@ export class LancerNPCSheet extends ActorSheet {
     if (this.actor.owner) {
       // Item Dragging
       let handler = ev => this._onDragStart(ev);
-      html.find('li[class*="item"]').add('span[class*="item"]').each((i, item) => {
-        if (item.classList.contains("inventory-header")) return;
-        item.setAttribute("draggable", true);
-        // TODO: I think handler needs to be item.*something*._onDragStart(ev).
-        item.addEventListener("dragstart", handler, false);
-      });
+      html
+        .find('li[class*="item"]')
+        .add('span[class*="item"]')
+        .each((i, item) => {
+          if (item.classList.contains("inventory-header")) return;
+          item.setAttribute("draggable", true);
+          // TODO: I think handler needs to be item.*something*._onDragStart(ev).
+          item.addEventListener("dragstart", handler, false);
+        });
 
       // Update Inventory Item
-      let items = html.find('.item');
+      let items = html.find(".item");
       items.click(ev => {
-        console.log(ev)
+        console.log(ev);
         const li = $(ev.currentTarget);
         //TODO: Check if in mount and update mount
         const item = this.actor.getOwnedItem(li.data("itemId"));
@@ -183,9 +191,9 @@ export class LancerNPCSheet extends ActorSheet {
       // Delete Item when trash can is clicked
       items = html.find('.stats-control[data-action*="delete"]');
       items.click(ev => {
-        ev.stopPropagation();  // Avoids triggering parent event handlers
+        ev.stopPropagation(); // Avoids triggering parent event handlers
         console.log(ev);
-        const li = $(ev.currentTarget).closest('.item');
+        const li = $(ev.currentTarget).closest(".item");
         this.actor.deleteOwnedItem(li.data("itemId"));
         li.slideUp(200, () => this.render(false));
       });
@@ -196,10 +204,11 @@ export class LancerNPCSheet extends ActorSheet {
         console.log(ev);
         let tier = ev.currentTarget.selectedOptions[0].value;
         this.actor.update({ "data.tier": tier });
-        // Set Values for 
+        // Set Values for
         let actor = this.actor as LancerActor;
         let NPCClassStats: LancerNPCClassStatsData;
-        NPCClassStats = (actor.items.find((i: Item) => i.type === "npc_class") as any).data.data.stats;
+        NPCClassStats = (actor.items.find((i: Item) => i.type === "npc_class") as any).data.data
+          .stats;
         console.log(`${lp} TIER Swap with ${tier} and ${NPCClassStats}`);
         actor.swapNPCClassOrTier(NPCClassStats, false, tier);
       });
@@ -213,7 +222,7 @@ export class LancerNPCSheet extends ActorSheet {
     // Get dropped data
     let data;
     try {
-      data = JSON.parse(event.dataTransfer.getData('text/plain'));
+      data = JSON.parse(event.dataTransfer.getData("text/plain"));
       if (data.type !== "Item") return;
     } catch (err) {
       return false;
@@ -223,7 +232,7 @@ export class LancerNPCSheet extends ActorSheet {
     let item: Item;
     const actor = this.actor as LancerActor;
     // NOTE: these cases are copied almost verbatim from ActorSheet._onDrop
-    
+
     // Case 1 - Item is from a Compendium pack
     if (data.pack) {
       item = (await game.packs.get(data.pack).getEntity(data.id)) as Item;
@@ -232,14 +241,16 @@ export class LancerNPCSheet extends ActorSheet {
     // Case 2 - Item is a World entity
     else if (!data.data) {
       item = game.items.get(data.id);
-      // If item isn't from a Compendium or World entity, 
+      // If item isn't from a Compendium or World entity,
       // see if super can do something with it.
       if (!item) super._onDrop(event);
       console.log(`${lp} Item dropped from world: `, item);
     }
     // Logic below this line is executed only with owner or GM permission of a sheet
     if (!actor.owner && !game.user.isGM) {
-      ui.notifications.warn(`LANCER, you shouldn't try to modify ${actor.name}'s loadout. Access Denied.`);
+      ui.notifications.warn(
+        `LANCER, you shouldn't try to modify ${actor.name}'s loadout. Access Denied.`
+      );
       return;
     }
 
@@ -256,14 +267,14 @@ export class LancerNPCSheet extends ActorSheet {
         });
         // Add the new class from Compendium pack
         if (data.pack) {
-          const npcClass = await actor.importItemFromCollection(data.pack, data.id) as any;
+          const npcClass = (await actor.importItemFromCollection(data.pack, data.id)) as any;
           console.log(`${lp} Added ${npcClass.name} from ${data.pack} to ${actor.name}.`);
           newNPCClassStats = npcClass.data.stats;
         }
         // Add the new Class from a World entity
         else {
           await actor.createEmbeddedEntity("OwnedItem", duplicate(item.data));
-          const npcClass = await actor.createOwnedItem(duplicate(item.data)) as any;
+          const npcClass = (await actor.createOwnedItem(duplicate(item.data))) as any;
           console.log(`${lp} Added ${npcClass.name} from ${data.pack} to ${actor.name}.`);
           newNPCClassStats = npcClass.data.stats;
         }
@@ -271,8 +282,7 @@ export class LancerNPCSheet extends ActorSheet {
           console.log(`${lp} Swapping Class stats for ${actor.name}`);
           actor.swapNPCClassOrTier(newNPCClassStats, true);
         }
-      }
-      else if (LANCER.npc_items.includes(item.type)) {
+      } else if (LANCER.npc_items.includes(item.type)) {
         if (data.pack) {
           console.log(`${lp} Copying ${item.name} from ${data.pack} to ${actor.name}.`);
           const dupData = duplicate(item.data);
@@ -281,8 +291,7 @@ export class LancerNPCSheet extends ActorSheet {
           (dupData as any)._id = newItem._id;
           actor.updateOwnedItem(dupData);
           return;
-        }
-        else {
+        } else {
           console.log(`${lp} Copying ${item.name} to ${actor.name}.`);
           const dupData = duplicate(item.data);
           const newItem = await actor.createOwnedItem(dupData);
@@ -315,19 +324,18 @@ export class LancerNPCSheet extends ActorSheet {
     // Copy the NPC name into the Actor data.
     formData["name"] = formData["data.name"];
     // Copy the NPC name to the prototype token.
-    formData['token.name'] = formData["data.name"];
+    formData["token.name"] = formData["data.name"];
 
-    let token: any = this.actor.data['token'];
+    let token: any = this.actor.data["token"];
     // Set the prototype token image if the prototype token isn't initialized
     if (!token) {
-      formData['token.img'] = formData['img'];
+      formData["token.img"] = formData["img"];
     }
     // Update token image if it matches the old actor image
-    else if (this.actor.data.img === token['img'] && this.actor.img !== formData['img']) {
-      formData['token.img'] = formData['img'];
+    else if (this.actor.data.img === token["img"] && this.actor.img !== formData["img"]) {
+      formData["token.img"] = formData["img"];
     }
 
-    
     console.log(`${lp} NPC sheet form data: `, formData);
     // Update the Actor
     return this.object.update(formData);

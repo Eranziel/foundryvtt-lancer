@@ -1,26 +1,30 @@
-import { LancerSkill, 
-  LancerTalent, 
-  LancerCoreBonus, 
-  LancerLicense, 
-  LancerFrame, 
-  LancerPilotArmor, 
-  LancerPilotWeapon, 
-  LancerPilotGear, 
-  LancerMechWeapon, 
+import {
+  LancerSkill,
+  LancerTalent,
+  LancerCoreBonus,
+  LancerLicense,
+  LancerFrame,
+  LancerPilotArmor,
+  LancerPilotWeapon,
+  LancerPilotGear,
+  LancerMechWeapon,
   LancerMechSystem,
-  LancerNPCFeature, 
-  LancerNPCClass, 
-  LancerNPCTemplate } from './item/lancer-item';
-import { DamageType, 
-  RangeType, 
-  WeaponSize, 
-  WeaponType, 
+  LancerNPCFeature,
+  LancerNPCClass,
+  LancerNPCTemplate,
+} from "./item/lancer-item";
+import {
+  DamageType,
+  RangeType,
+  WeaponSize,
+  WeaponType,
   SystemType,
-  MechType, 
+  MechType,
   ItemType,
   NPCTag,
-  NPCFeatureType } from './enums';
-import { EffectData } from './item/effects'
+  NPCFeatureType,
+} from "./enums";
+import { EffectData } from "./item/effects";
 
 // ------------------------------------------------------
 // |       UTILITY DATA TYPES                           |
@@ -111,9 +115,9 @@ declare interface LancerPilotStatsData {
 }
 
 declare interface LancerPilotLoadoutData {
-  armor: string;      // ID of armor Item
-  weapons: string[];  // IDs of weapon Items
-  gear: string[];     // IDs of gear Items
+  armor: string; // ID of armor Item
+  weapons: string[]; // IDs of weapon Items
+  gear: string[]; // IDs of gear Items
 }
 
 declare interface LancerPilotSubData {
@@ -151,14 +155,14 @@ declare interface LancerPilotSheetData extends ActorSheetData {
     armor: LancerPilotArmor[];
     weapons: LancerPilotWeapon[];
     gear: LancerPilotGear[];
-  }
+  };
   frame: LancerFrame;
   frame_size: string;
   // TODO: subdivide into mounts
   mech_loadout: {
     weapons: LancerMechWeapon[];
     systems: LancerMechSystem[];
-  }
+  };
   sp_used: number;
 }
 
@@ -184,7 +188,6 @@ declare interface LancerNPCSheetData extends ActorSheetData {
   npc_class: LancerNPCClass;
   npc_templates: LancerNPCTemplateData[];
   npc_features: LancerNPCFeature[];
-
 }
 
 // ------- Deployable data --------------------------------------
@@ -246,10 +249,9 @@ declare interface LancerMechEquipmentData {
   effect: EffectData;
   integrated: boolean;
   // TODO: not needed? Used in Comp/Con for some of its mech building logic.
-  // talent_item: boolean; 
+  // talent_item: boolean;
   // frame_id: boolean;
 }
-
 
 // -------- Skill Trigger data -----------------------------------
 declare interface LancerSkillData {
@@ -411,9 +413,9 @@ declare interface LancerMechTraitData {
 declare interface LancerCoreSystemData {
   name: string;
   description: string;
-  integrated?: { id: string }
-  passive_name?: string
-  passive_effect?: string
+  integrated?: { id: string };
+  passive_name?: string;
+  passive_effect?: string;
   active_name: string;
   active_effect: string;
   tags: TagData[];
@@ -512,7 +514,7 @@ declare interface LancerNPCClassSheetData extends ItemSheetData {
 }
 
 // -------- NPC Template data -------------------------------------
-declare interface LancerNPCTemplateData extends LancerCompendiumItemData{
+declare interface LancerNPCTemplateData extends LancerCompendiumItemData {
   basefeatures: string[];
   optional_features: string[];
 }
@@ -527,7 +529,7 @@ declare interface LancerNPCTemplateSheetData extends ItemSheetData {
 }
 
 // -------- NPC Feature data -------------------------------------
-declare interface LancerNPCFeatureData extends LancerCompendiumItemData{
+declare interface LancerNPCFeatureData extends LancerCompendiumItemData {
   origin_type: string;
   origin_name: string;
   origin_base: boolean;

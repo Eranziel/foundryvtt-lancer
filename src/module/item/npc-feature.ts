@@ -2,12 +2,12 @@ import { LancerNPCFeatureData, RangeData, NPCDamageData } from "../interfaces";
 import { NPCFeatureType } from "../enums";
 
 export const NPCFeatureIcons = {
-  'Other': 'npc_feature.svg',
-  'Reaction': 'reaction.svg', 
-  'System': 'system.svg', 
-  'Trait': 'trait.svg', 
-  'Weapon': 'weapon.svg', 
-  'Tech': 'tech_quick.svg'
+  Other: "npc_feature.svg",
+  Reaction: "reaction.svg",
+  System: "system.svg",
+  Trait: "trait.svg",
+  Weapon: "weapon.svg",
+  Tech: "tech_quick.svg",
 };
 
 declare interface LancerNPCReactionData extends LancerNPCFeatureData {
@@ -37,5 +37,3 @@ declare interface LancerNPCWeaponData extends LancerNPCFeatureData {
   on_hit: string;
   feature_type: NPCFeatureType.Weapon;
 }
-
-

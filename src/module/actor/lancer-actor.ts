@@ -1,6 +1,11 @@
-
-import { LancerPilotActorData, LancerNPCActorData, LancerDeployableActorData, LancerFrameStatsData, LancerNPCClassStatsData } from '../interfaces'
-import { LANCER } from '../config'
+import {
+  LancerPilotActorData,
+  LancerNPCActorData,
+  LancerDeployableActorData,
+  LancerFrameStatsData,
+  LancerNPCClassStatsData,
+} from "../interfaces";
+import { LANCER } from "../config";
 const lp = LANCER.log_prefix;
 
 export function lancerActorInit(data: any) {
@@ -13,11 +18,11 @@ export function lancerActorInit(data: any) {
       agility: 0,
       systems: 0,
       engineering: 0,
-      hp: {min: 0, max: 0, value: 0},
-      structure: {min: 0, max: 4, value: 4},
-      heat: {min: 0, max: 0, value: 0},
-      stress: {min: 0, max: 4, value: 4},
-      repairs: {min: 0, max: 0, value: 0},
+      hp: { min: 0, max: 0, value: 0 },
+      structure: { min: 0, max: 4, value: 4 },
+      heat: { min: 0, max: 0, value: 0 },
+      stress: { min: 0, max: 4, value: 4 },
+      repairs: { min: 0, max: 0, value: 0 },
       armor: 0,
       speed: 0,
       evasion: 0,
@@ -38,25 +43,27 @@ export function lancerActorInit(data: any) {
       // Initialize mech stats
       "data.mech": mech,
       // Initialize prototype token
-      "token.bar1": {"attribute": "mech.hp"},                 // Default Bar 1 to HP
-      "token.bar2": {"attribute": "mech.heat"},               // Default Bar 2 to Heat
-      "token.displayName": CONST.TOKEN_DISPLAY_MODES.ALWAYS,  // Default display name to be always on
-      "token.displayBars": CONST.TOKEN_DISPLAY_MODES.ALWAYS,  // Default display bars to be always on
+      "token.bar1": { attribute: "mech.hp" }, // Default Bar 1 to HP
+      "token.bar2": { attribute: "mech.heat" }, // Default Bar 2 to Heat
+      "token.displayName": CONST.TOKEN_DISPLAY_MODES.ALWAYS, // Default display name to be always on
+      "token.displayBars": CONST.TOKEN_DISPLAY_MODES.ALWAYS, // Default display bars to be always on
       // Default disposition to friendly for pilots and hostile for NPCs
-      "token.disposition": data.type === "pilot" ? CONST.TOKEN_DISPOSITIONS.FRIENDLY : CONST.TOKEN_DISPOSITIONS.HOSTILE,  
-      "token.name": data.name,                                // Set token name to actor name
-      "token.actorLink": data.type === "pilot",               // Link the token to the Actor for pilots, but not for NPCs
+      "token.disposition":
+        data.type === "pilot"
+          ? CONST.TOKEN_DISPOSITIONS.FRIENDLY
+          : CONST.TOKEN_DISPOSITIONS.HOSTILE,
+      "token.name": data.name, // Set token name to actor name
+      "token.actorLink": data.type === "pilot", // Link the token to the Actor for pilots, but not for NPCs
     });
-  }
-  else if (data.type === "deployable") {
+  } else if (data.type === "deployable") {
     mergeObject(data, {
       // Initialize image
-      "img": 'systems/lancer/assets/icons/deployable.svg',
+      img: "systems/lancer/assets/icons/deployable.svg",
       // Initialize prototype token
-      "token.bar1": {"attribute": "hp"},                      // Default Bar 1 to HP
-      "token.displayName": CONST.TOKEN_DISPLAY_MODES.HOVER,   // Default display name to be always on
-      "token.displayBars": CONST.TOKEN_DISPLAY_MODES.HOVER,   // Default display bars to be always on 
-      "token.name": data.name,                                // Set token name to actor name
+      "token.bar1": { attribute: "hp" }, // Default Bar 1 to HP
+      "token.displayName": CONST.TOKEN_DISPLAY_MODES.HOVER, // Default display name to be always on
+      "token.displayBars": CONST.TOKEN_DISPLAY_MODES.HOVER, // Default display bars to be always on
+      "token.name": data.name, // Set token name to actor name
     });
   }
 }
@@ -72,7 +79,10 @@ export class LancerActor extends Actor {
    * @param newFrame Stats object from the new mech frame.
    * @param oldFrame Stats object from the old mech frame, optional.
    */
-  swapFrames(newFrame: LancerFrameStatsData, oldFrame?: LancerFrameStatsData): Promise<LancerActor> {
+  swapFrames(
+    newFrame: LancerFrameStatsData,
+    oldFrame?: LancerFrameStatsData
+  ): Promise<LancerActor> {
     // Function is only applicable to pilots.
     if (this.data.type !== "pilot") return;
 
@@ -93,7 +103,7 @@ export class LancerActor extends Actor {
         save: 0,
         speed: 0,
         sp: 0,
-      }
+      };
     }
     // Resources
     mech.hp.max = mech.hp.max - oldFrame.hp + newFrame.hp;
@@ -116,32 +126,34 @@ export class LancerActor extends Actor {
 
     // Update the actor
     data.data.mech = mech;
-    return (this.update(data) as Promise<LancerActor>);
+    return this.update(data) as Promise<LancerActor>;
   }
 
   /**
-  * Change Class or Tier on a NPC. Recalculates all stats on the NPC.
-  * @param newNPCClass Stats object from the new Class.
-  */
-  swapNPCClassOrTier(newNPCClass: LancerNPCClassStatsData, ClassSwap: boolean, tier?: string): Promise<LancerActor> {
-
+   * Change Class or Tier on a NPC. Recalculates all stats on the NPC.
+   * @param newNPCClass Stats object from the new Class.
+   */
+  swapNPCClassOrTier(
+    newNPCClass: LancerNPCClassStatsData,
+    ClassSwap: boolean,
+    tier?: string
+  ): Promise<LancerActor> {
     // Function is only applicable to NPCs.
     if (this.data.type !== "npc") return;
 
     let data = duplicate(this.data) as LancerNPCActorData;
     const mech = duplicate((this.data as LancerNPCActorData).data.mech);
 
-    
-    if (ClassSwap){
+    if (ClassSwap) {
       data.data.tier = "npc-tier-1";
       tier = "npc-tier-1";
-    } 
+    }
     let i = 0;
     data.data.tier_num = 1;
-    switch(tier){
+    switch (tier) {
       case "npc-tier-custom":
         data.data.tier_num = 4;
-        return (this.update(data) as Promise<LancerActor>);
+        return this.update(data) as Promise<LancerActor>;
       case "npc-tier-2":
         data.data.tier_num = 2;
         i = 1;
@@ -150,7 +162,7 @@ export class LancerActor extends Actor {
         data.data.tier_num = 3;
         i = 2;
     }
-    console.log(`LANCER| Swapping to Tier ${data.data.tier_num}`)
+    console.log(`LANCER| Swapping to Tier ${data.data.tier_num}`);
 
     //HASE
     mech.hull = newNPCClass.hull[i];
@@ -163,14 +175,14 @@ export class LancerActor extends Actor {
     mech.hp.value = mech.hp.max;
     mech.heat.max = newNPCClass.heatcap[i];
     mech.heat.value = 0;
-    if(Array.isArray(newNPCClass.structure) && newNPCClass.structure[i]) {
+    if (Array.isArray(newNPCClass.structure) && newNPCClass.structure[i]) {
       mech.structure.max = newNPCClass.structure[i];
       mech.structure.value = mech.structure.max;
-    } else{
+    } else {
       mech.structure.max = 1;
       mech.structure.value = 1;
     }
-    if(Array.isArray(newNPCClass.stress) && newNPCClass.stress[i]){
+    if (Array.isArray(newNPCClass.stress) && newNPCClass.stress[i]) {
       mech.stress.max = newNPCClass.stress[i];
       mech.stress.value = mech.stress.max;
     } else {
@@ -186,26 +198,24 @@ export class LancerActor extends Actor {
     mech.edef = newNPCClass.edef[i];
     mech.sensors = newNPCClass.sensor_range[i];
     mech.save = newNPCClass.save[i];
-    if(Array.isArray(newNPCClass.size) && newNPCClass.size[i]) {
+    if (Array.isArray(newNPCClass.size) && newNPCClass.size[i]) {
       mech.size = newNPCClass.size[i];
       if (newNPCClass.size[i] === 0.5) {
         data.data.npc_size = "size-half";
+      } else {
+        data.data.npc_size = `size-${newNPCClass.size[i]}`;
       }
-      else {
-        data.data.npc_size= `size-${newNPCClass.size[i]}`;
-      } 
     } else {
-         mech.size = 1;
-         data.data.npc_size = `size-1`;
+      mech.size = 1;
+      data.data.npc_size = `size-1`;
     }
     data.data.activations = newNPCClass.activations[i];
 
     // Update the actor
     data.data.mech = mech;
-    return (this.update(data) as Promise<LancerActor>);
+    return this.update(data) as Promise<LancerActor>;
   }
 }
-
 
 /* ------------------------------------ */
 /* Handlebars Helpers                    */
@@ -217,14 +227,15 @@ export class LancerActor extends Actor {
  * @param key The index of the mount object
  */
 export function mount_type_selector(mount, key) {
-  let template = 
-  `<select id="mount-type" class="mounts-control" data-action="update" data-item-id=${key}>
-    <option value="Main" ${mount.type === 'Main' ? 'selected' : ''}>Main Mount</option>
-    <option value="Heavy" ${mount.type === 'Heavy' ? 'selected' : ''}>Heavy Mount</option>
-    <option value="Aux-Aux" ${mount.type === 'Aux-Aux' ? 'selected' : ''}>Aux/Aux Mount</option>
-    <option value="Main-Aux" ${mount.type === 'Main-Aux' ? 'selected' : ''}>Main/Aux Mount</option>
-    <option value="Flex" ${mount.type === 'Flex' ? 'selected' : ''}>Flexible Mount</option>
-    <option value="Integrated" ${mount.type === 'Integrated' ? 'selected' : ''}>Integrated Mount</option>
+  let template = `<select id="mount-type" class="mounts-control" data-action="update" data-item-id=${key}>
+    <option value="Main" ${mount.type === "Main" ? "selected" : ""}>Main Mount</option>
+    <option value="Heavy" ${mount.type === "Heavy" ? "selected" : ""}>Heavy Mount</option>
+    <option value="Aux-Aux" ${mount.type === "Aux-Aux" ? "selected" : ""}>Aux/Aux Mount</option>
+    <option value="Main-Aux" ${mount.type === "Main-Aux" ? "selected" : ""}>Main/Aux Mount</option>
+    <option value="Flex" ${mount.type === "Flex" ? "selected" : ""}>Flexible Mount</option>
+    <option value="Integrated" ${
+      mount.type === "Integrated" ? "selected" : ""
+    }>Integrated Mount</option>
   </select>`;
   return template;
 }
@@ -232,8 +243,7 @@ export function mount_type_selector(mount, key) {
 /**
  * Handlebars partial for a Pilot sheet mount card.
  */
-export const mount_card = 
-`<div class="flexcol lancer-mount-container" data-item-id="{{key}}">
+export const mount_card = `<div class="flexcol lancer-mount-container" data-item-id="{{key}}">
   <span class="mount-header clipped-top">
     {{{mount-selector mount @index}}}
     <a class="mounts-control" data-action="delete"><i class="fas fa-trash"></i></a>
@@ -255,12 +265,11 @@ export const mount_card =
  * @param tier The tier ID string
  */
 export function npc_tier_selector(tier) {
-  let template = 
-  `<select id="tier-type" class="tier-control" data-action="update">
-    <option value="npc-tier-1" ${tier === 'npc-tier-1' ? 'selected' : ''}>TIER 1</option>
-    <option value="npc-tier-2" ${tier === 'npc-tier-2' ? 'selected' : ''}>TIER 2</option>
-    <option value="npc-tier-3" ${tier === 'npc-tier-3' ? 'selected' : ''}>TIER 3</option>
-    <option value="npc-tier-custom" ${tier === 'npc-tier-custom' ? 'selected' : ''}>CUSTOM</option>
+  let template = `<select id="tier-type" class="tier-control" data-action="update">
+    <option value="npc-tier-1" ${tier === "npc-tier-1" ? "selected" : ""}>TIER 1</option>
+    <option value="npc-tier-2" ${tier === "npc-tier-2" ? "selected" : ""}>TIER 2</option>
+    <option value="npc-tier-3" ${tier === "npc-tier-3" ? "selected" : ""}>TIER 3</option>
+    <option value="npc-tier-custom" ${tier === "npc-tier-custom" ? "selected" : ""}>CUSTOM</option>
   </select>`;
   return template;
 }
