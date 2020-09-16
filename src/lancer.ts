@@ -54,7 +54,8 @@ import {
   protocol_effect_preview,
   reaction_effect_preview,
   invade_option_preview,
-  tech_effect_preview, EffectData
+  tech_effect_preview,
+  EffectData,
 } from "./module/item/effects";
 import {
   DamageData,
@@ -76,7 +77,12 @@ import { LancerNPCClassSheet } from "./module/item/npc-class-sheet";
 // Import helpers
 import { preloadTemplates } from "./module/preloadTemplates";
 import { registerSettings } from "./module/settings";
-import { renderCompactTag, renderChunkyTag, renderFullTag, compactTagList } from "./module/item/tags";
+import {
+  renderCompactTag,
+  renderChunkyTag,
+  renderFullTag,
+  compactTagList,
+} from "./module/item/tags";
 import * as migrations from "./module/migration";
 
 // Import JSON data
@@ -439,8 +445,8 @@ async function rollStatMacro(
   sheetMacro: boolean = false
 ) {
   // Determine which Actor to speak as
-  let actor: Actor | null= game.actors.get(a) || getMacroSpeaker();
-  if(!actor) {
+  let actor: Actor | null = game.actors.get(a) || getMacroSpeaker();
+  if (!actor) {
     return;
   }
   console.log(`${lp} rollStatMacro actor`, actor);

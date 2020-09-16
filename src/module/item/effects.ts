@@ -25,7 +25,7 @@ export interface EffectData {
   tags?: TagData[];
 }
 
- // export type AnyEffect = BasicEffectData | AIEffectData | BonusEffectData | ChargeData | ChargeEffectData | DeployableEffectData | DroneEffectData | GenericEffectData | OffensiveEffectData | ProfileEffectData | ProtocolEffectData | GenericEffectData | TechEffectData | ReactionEffectData | InvadeOptionData;
+// export type AnyEffect = BasicEffectData | AIEffectData | BonusEffectData | ChargeData | ChargeEffectData | DeployableEffectData | DroneEffectData | GenericEffectData | OffensiveEffectData | ProfileEffectData | ProtocolEffectData | GenericEffectData | TechEffectData | ReactionEffectData | InvadeOptionData;
 
 export interface BasicEffectData extends EffectData {
   detail: string;
@@ -75,7 +75,7 @@ export interface DroneEffectData extends EffectData {
   edef: number;
   evasion: number;
   detail: string;
-  heat?: number
+  heat?: number;
   abilities?: EffectData[];
 }
 
@@ -124,7 +124,6 @@ export interface TechEffectData extends EffectData {
   options?: InvadeOptionData[];
   option_set?: string;
 }
-
 
 /* ------------------------------------ */
 /* Handlebars Helpers                   */
@@ -198,7 +197,7 @@ export function charge_type_selector(c_type: string, data_target: string) {
 export const charge_effect_editable = ``;
 
 export function effect_preview(effect: EffectData) {
-  let _effect = effect as any
+  let _effect = effect as any;
   var html = ``;
   if (_effect.abilities) {
     html += `<div class="flexcol effect-preview" style="padding: 5px">`;
@@ -263,7 +262,8 @@ export function standard_effect_preview(effect: EffectData, title?: string) {
   if (effect.name) {
     html += `<div class="minor effect-text" style="padding: 5px">${effect.name}</div>`;
   }
-  if (_effect.detail) { // not on all types
+  if (_effect.detail) {
+    // not on all types
     html += `<div class="flexrow effect-text">${_effect.detail}</div>`;
   }
   html += effect_tag_row(effect);
@@ -629,4 +629,3 @@ export function tech_effect_preview(effect: TechEffectData) {
   html += `</div>`;
   return html;
 }
-

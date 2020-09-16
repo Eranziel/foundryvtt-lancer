@@ -57,10 +57,12 @@ declare interface RangeData {
   override?: boolean;
   bonus?: number;
 }*/
-declare type RangeData = mm.IRangeData | {
-  type: "None",
-  val: 0  
-};
+declare type RangeData =
+  | mm.IRangeData
+  | {
+      type: "None";
+      val: 0;
+    };
 
 // Alias
 /*
@@ -139,9 +141,9 @@ declare interface LancerPilotStatsData {
 
 // Stripped down version of IPilotLoadoutData, that instead uses IDs. Honestly, probably better done this way
 declare interface LancerPilotLoadoutData {
- armor: string;      // ID of armor Item
- weapons: string[];  // IDs of weapon Items
- gear: string[];     // IDs of gear Items
+  armor: string; // ID of armor Item
+  weapons: string[]; // IDs of weapon Items
+  gear: string[]; // IDs of gear Items
 }
 
 // Kind of like IPilotData. Lots of loss here, but dunno how much we care about

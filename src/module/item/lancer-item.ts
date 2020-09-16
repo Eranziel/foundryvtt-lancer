@@ -11,10 +11,22 @@ import {
   LancerMechWeaponItemData,
   LancerNPCFeatureItemData,
   LancerNPCTemplateItemData,
-  LancerNPCClassItemData, DamageData, RangeData, TagData, NPCDamageData
+  LancerNPCClassItemData,
+  DamageData,
+  RangeData,
+  TagData,
+  NPCDamageData,
 } from "../interfaces";
 import { LANCER } from "../config";
-import { DamageType, EffectType, NpcFeatureType, RangeType, SystemType, WeaponSize, WeaponType } from "machine-mind";
+import {
+  DamageType,
+  EffectType,
+  NpcFeatureType,
+  RangeType,
+  SystemType,
+  WeaponSize,
+  WeaponType,
+} from "machine-mind";
 const lp = LANCER.log_prefix;
 
 export type LancerItemType =
@@ -241,11 +253,17 @@ export function weapon_type_selector(w_type: string, data_target: string) {
 /**
  * Handlebars helper for weapon range selector
  */
-export function weapon_range_selector(rng_arr: Partial<RangeData>[], key: string | number, data_target: string) {
-  if(typeof key == "string") { key = Number.parseInt(key); }
+export function weapon_range_selector(
+  rng_arr: Partial<RangeData>[],
+  key: string | number,
+  data_target: string
+) {
+  if (typeof key == "string") {
+    key = Number.parseInt(key);
+  }
   var rng = {
     type: "None",
-    val: 0
+    val: 0,
   } as Partial<RangeData>;
   if (rng_arr && Array.isArray(rng_arr)) {
     Object.assign(rng, rng_arr[key]);
@@ -297,8 +315,12 @@ export function weapon_range_selector(rng_arr: Partial<RangeData>[], key: string
  * Handlebars helper for weapon damage selector
  */
 // TODO: Fixup the NONE selected option to be in place
-export function pilot_weapon_damage_selector(dmg_arr: Partial<DamageData>[], key: number | string, data_target: string) {
-  if(typeof key == 'string') key = Number.parseInt(key);
+export function pilot_weapon_damage_selector(
+  dmg_arr: Partial<DamageData>[],
+  key: number | string,
+  data_target: string
+) {
+  if (typeof key == "string") key = Number.parseInt(key);
   var dmg: Partial<DamageData> = {};
   if (dmg_arr && Array.isArray(dmg_arr)) {
     dmg = dmg_arr[key];
@@ -307,8 +329,8 @@ export function pilot_weapon_damage_selector(dmg_arr: Partial<DamageData>[], key
   dmg = {
     type: DamageType.Kinetic,
     val: "",
-  ...dmg
-};
+    ...dmg,
+  };
 
   const dtype = dmg.type!.toLowerCase();
   const isNPC = Array.isArray(dmg.val);
@@ -318,7 +340,7 @@ export function pilot_weapon_damage_selector(dmg_arr: Partial<DamageData>[], key
     html += `<i class="cci cci-${dtype} i--m damage--${dtype}"></i>`;
   }
   html += `<select name="${data_target}.type" data-type="String" style="align-self: center;">
-    <option value="" ${!dmg.type  ? "selected" : ""}>NONE</option>
+    <option value="" ${!dmg.type ? "selected" : ""}>NONE</option>
     <option value="${DamageType.Kinetic}" ${
     dtype === DamageType.Kinetic.toLowerCase() ? "selected" : ""
   }>KINETIC</option>
@@ -350,8 +372,12 @@ export function pilot_weapon_damage_selector(dmg_arr: Partial<DamageData>[], key
 /**
  * Handlebars helper for weapon damage selector
  */
-export function npc_weapon_damage_selector(dmg_arr: NPCDamageData[], key: number | string, data_target: string) {
-  if(typeof key == 'string') key = Number.parseInt(key);
+export function npc_weapon_damage_selector(
+  dmg_arr: NPCDamageData[],
+  key: number | string,
+  data_target: string
+) {
+  if (typeof key == "string") key = Number.parseInt(key);
   var dmg: Partial<NPCDamageData> = {};
   if (dmg_arr && Array.isArray(dmg_arr)) {
     dmg = dmg_arr[key];
@@ -359,9 +385,9 @@ export function npc_weapon_damage_selector(dmg_arr: NPCDamageData[], key: number
   // Default in
   dmg = {
     type: DamageType.Kinetic,
-    val: [0,0,0],
-  ...dmg
-};
+    val: [0, 0, 0],
+    ...dmg,
+  };
 
   const dtype = dmg.type!.toLowerCase();
   const isNPC = Array.isArray(dmg.val);
@@ -621,4 +647,3 @@ export const core_system_preview = `<div class="card clipped frame-core flexcol"
     {{> tag-list tags=csys.tags}}
   </div>
 </div>`;
-

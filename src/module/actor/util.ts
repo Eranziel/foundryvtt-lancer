@@ -1,8 +1,17 @@
 import * as mm from "machine-mind";
 import { LancerActor, lancerActorInit } from "./lancer-actor";
 import { CompendiumCategory, store, CompendiumItem, Mount, MechWeapon } from "machine-mind";
-import { LancerPilotData, LancerPilotActorData, LancerMountData, LancerMechWeaponData } from "../interfaces";
-import { MachineMind_pilot_to_VTT_items_compendium_lookup, ItemManifest, ItemDataManifest } from "../item/util";
+import {
+  LancerPilotData,
+  LancerPilotActorData,
+  LancerMountData,
+  LancerMechWeaponData,
+} from "../interfaces";
+import {
+  MachineMind_pilot_to_VTT_items_compendium_lookup,
+  ItemManifest,
+  ItemDataManifest,
+} from "../item/util";
 import { LancerItem, LancerItemData } from "../item/lancer-item";
 
 export async function import_pilot_by_code(code: string): Promise<mm.Pilot> {
@@ -39,21 +48,20 @@ export async function update_pilot(pilot: LancerActor, cc_pilot: mm.Pilot): Prom
     pilot.deleteOwnedItem(item._id);
   }
 
-
   // Do some pre-editing before owning
   let item_data = items.items.map(i => duplicate(i.data));
   let item_data_sorted = new ItemDataManifest().add_items(item_data);
 
-  for(let talent of item_data_sorted.talents) {
+  for (let talent of item_data_sorted.talents) {
     let corr_talent_rank = cc_pilot.getTalentRank(talent.data.id);
     talent.data.rank = corr_talent_rank;
   }
 
-  for(let skill of item_data_sorted.skills) {
+  for (let skill of item_data_sorted.skills) {
     let corr_skill_rank = cc_pilot.getSkillRank(skill.data.id);
     skill.data.rank = corr_skill_rank;
   }
-  
+
   // Copy them all
   for (let i of item_data) {
     await pilot.createOwnedItem(i);
@@ -164,7 +172,6 @@ export async function update_pilot(pilot: LancerActor, cc_pilot: mm.Pilot): Prom
   }
 
   pilot.update(pad);
-
 
   // Fixup actor name -- this might not work
   // pilot.token.update({name: cc_pilot.Name});

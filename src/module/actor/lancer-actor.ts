@@ -3,7 +3,9 @@ import {
   LancerNPCActorData,
   LancerDeployableActorData,
   LancerFrameStatsData,
-  LancerNPCClassStatsData, LancerNPCData, LancerMountData
+  LancerNPCClassStatsData,
+  LancerNPCData,
+  LancerMountData,
 } from "../interfaces";
 import { LANCER } from "../config";
 import { MountType } from "machine-mind";
@@ -232,8 +234,12 @@ export function mount_type_selector(mount: LancerMountData, key: string | number
   let template = `<select id="mount-type" class="mounts-control" data-action="update" data-item-id=${key}>
     <option value="Main" ${mount.type === MountType.Main ? "selected" : ""}>Main Mount</option>
     <option value="Heavy" ${mount.type === MountType.Heavy ? "selected" : ""}>Heavy Mount</option>
-    <option value="Aux-Aux" ${mount.type === MountType.AuxAux ? "selected" : ""}>Aux/Aux Mount</option>
-    <option value="Main-Aux" ${mount.type === MountType.MainAux ? "selected" : ""}>Main/Aux Mount</option>
+    <option value="Aux-Aux" ${
+      mount.type === MountType.AuxAux ? "selected" : ""
+    }>Aux/Aux Mount</option>
+    <option value="Main-Aux" ${
+      mount.type === MountType.MainAux ? "selected" : ""
+    }>Main/Aux Mount</option>
     <option value="Flex" ${mount.type === MountType.Flex ? "selected" : ""}>Flexible Mount</option>
     <option value="Integrated" ${
       mount.type === "Integrated" ? "selected" : ""

@@ -1,7 +1,20 @@
-import { LancerSkillSheetData, LancerNPCFeatureSheetData, DamageData, LancerMechSystemData, RangeData } from "../interfaces";
+import {
+  LancerSkillSheetData,
+  LancerNPCFeatureSheetData,
+  DamageData,
+  LancerMechSystemData,
+  RangeData,
+} from "../interfaces";
 import { LANCER } from "../config";
 import { NPCFeatureIcons } from "./npc-feature";
-import { NpcFeatureType, Npc, ActivationType, ChargeType, DamageType, EffectType } from "machine-mind";
+import {
+  NpcFeatureType,
+  Npc,
+  ActivationType,
+  ChargeType,
+  DamageType,
+  EffectType,
+} from "machine-mind";
 import { BasicEffectData, ChargeData, ChargeEffectData } from "./effects";
 const lp = LANCER.log_prefix;
 
@@ -256,7 +269,7 @@ export class LancerItemSheet extends ItemSheet {
       }
     }
 
-   if (this.item.data.type === "mech_system") {
+    if (this.item.data.type === "mech_system") {
       const i_data = this.item.data.data as LancerMechSystemData;
       // If the effect type has changed, initialize the effect structure
       if (i_data.effect.effect_type !== formData["data.effect.effect_type"]) {

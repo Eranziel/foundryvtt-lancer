@@ -63,4 +63,3 @@ export enum NPCTag {
   Biological = "Biological",
   Squad = "Squad",
 }
-

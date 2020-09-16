@@ -15,7 +15,9 @@ import {
   LancerPilotArmorData,
   LancerNPCFeatureData,
   LancerNPCClassStatsData,
-  LancerMountData, RangeData, LancerMechWeaponData
+  LancerMountData,
+  RangeData,
+  LancerMechWeaponData,
 } from "./interfaces";
 
 // const x: LancerPilotData;
@@ -44,7 +46,8 @@ import {
   MountType,
   MechSystem,
   IDamageData,
-  IRangeData, IMechWeaponData
+  IRangeData,
+  IMechWeaponData,
 } from "machine-mind";
 import { INpcClassStats } from "machine-mind/dist/classes/npc/NpcClassStats";
 // import { Compendium } from "machine-mind/dist/store/compendium";
@@ -259,7 +262,7 @@ export class Converter {
       brew: this.brew,
       counters: [],
       type: "weapon",
-      range: t.range.map(this.RangeData_to_IRangeData).filter(x => x) as IRangeData[]
+      range: t.range.map(this.RangeData_to_IRangeData).filter(x => x) as IRangeData[],
     };
   }
 
@@ -284,12 +287,12 @@ export class Converter {
 
   // Ranges
   RangeData_to_IRangeData(t: RangeData): IRangeData | null {
-    if(t.type == "None") {
+    if (t.type == "None") {
       return null;
     } else {
       return {
-        ...t 
-      }
+        ...t,
+      };
     }
   }
 
