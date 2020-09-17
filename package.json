@@ -42,6 +42,6 @@
   "dependencies": {
     "@mdi/font": "^5.3.45",
     "lancer-data": "^2.0.33",
-    "machine-mind": "0.1.1-beta.13"
+    "machine-mind": "0.1.1-beta.14"
   }
 }
