@@ -363,6 +363,7 @@ export class LancerPilotSheet extends ActorSheet {
             ui.notifications.info("Successfully loaded pilot state from cloud");
           })
           .catch(e => {
+            console.warn(e);
             ui.notifications.warn(
               "Failed to update pilot, likely due to missing LCP data: " + e.message
             );
