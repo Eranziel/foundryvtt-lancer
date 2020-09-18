@@ -53,6 +53,7 @@
     <a class="item lancer-tab medium" data-tab="dossier">&lt;PILOT//DOSSIER&gt;</a>
     <a class="item lancer-tab medium" data-tab="pilot">&lt;PILOT//TACTICAL&gt;</a>
     <a class="item lancer-tab medium" data-tab="mech">&lt;FRAME//LOADOUT&gt;</a>
+    <a class="item lancer-tab medium" data-tab="cloud">&lt;CLOUD//SYNC&gt;</a>
   </nav>
 
   {{!-- Sheet Body --}}
@@ -581,5 +582,32 @@
       </div>
     </div>
   </div>
+  
+  
+  {{!-- Cloud Management Tab --}}
+        <div class="tab manage" data-group="primary" data-tab="cloud">
+            <div style="display: grid; grid-template: 1fr / 2fr 1fr 1fr;">
+                <div class="flexcol card clipped" style="grid-area: 1/1/2/2;">
+                    <span class="lancer-stat-header major clipped-top">CLOUD CODE</span>
+                    <input
+                        class="lancer-text-input major"
+                        type="string"
+                        name="data.pilot.cloud_code"
+                        value="{{data.pilot.cloud_code}}"
+                        data-dtype="String"
+                    />
+                </div>
+
+                <div class="flexcol card clipped" style="grid-area: 1/2/2/3;">
+                    <span class="lancer-stat-header major clipped-top">DOWNLOAD</span>
+                    <a class="cloud-control i--dark i--sm" data-action="download"><i class="fas fa-dice-d20"></i></a>
+                </div>
+
+                <div class="flexcol card clipped" style="grid-area: 1/3/2/4;">
+                    <span class="lancer-stat-header major clipped-top">UPDATE</span>
+                    <span> TODO</span>
+                </div>
+            </div>
+        </div>
 </section>
 </form>
