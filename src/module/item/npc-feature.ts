@@ -1,41 +1,39 @@
 import { LancerNPCFeatureData, RangeData, NPCDamageData } from "../interfaces";
-import { NPCFeatureType } from "../enums";
+import { NpcFeatureType } from "machine-mind";
 
 export const NPCFeatureIcons = {
-  'Other': 'npc_feature.svg',
-  'Reaction': 'reaction.svg', 
-  'System': 'system.svg', 
-  'Trait': 'trait.svg', 
-  'Weapon': 'weapon.svg', 
-  'Tech': 'tech_quick.svg'
+  Other: "npc_feature.svg",
+  Reaction: "reaction.svg",
+  System: "system.svg",
+  Trait: "trait.svg",
+  Weapon: "weapon.svg",
+  Tech: "tech_quick.svg",
 };
 
-declare interface LancerNPCReactionData extends LancerNPCFeatureData {
+export interface LancerNPCReactionData extends LancerNPCFeatureData {
   trigger: string;
-  feature_type: NPCFeatureType.Reaction;
+  feature_type: NpcFeatureType.Reaction;
 }
 
-declare interface LancerNPCSystemData extends LancerNPCFeatureData {
-  feature_type: NPCFeatureType.System;
+export interface LancerNPCSystemData extends LancerNPCFeatureData {
+  feature_type: NpcFeatureType.System;
 }
 
-declare interface LancerNPCTechData extends LancerNPCFeatureData {
+export interface LancerNPCTechData extends LancerNPCFeatureData {
   tech_type: string;
   accuracy?: number[];
   attack_bonus?: number[];
-  feature_type: NPCFeatureType.Tech;
+  feature_type: NpcFeatureType.Tech;
 }
 
 // -------- NPC WEAPONS -------------------------------------
 
-declare interface LancerNPCWeaponData extends LancerNPCFeatureData {
+export interface LancerNPCWeaponData extends LancerNPCFeatureData {
   weapon_type: string;
   attack_bonus: number[];
   accuracy: number[];
   range: RangeData[];
   damage: NPCDamageData[];
   on_hit: string;
-  feature_type: NPCFeatureType.Weapon;
+  feature_type: NpcFeatureType.Weapon;
 }
-
-

@@ -8,15 +8,12 @@
     "build": "gulp build",
     "link": "gulp link",
     "build:watch": "gulp watch",
+    "format": "prettier --write --config .prettierrc.json 'src/**/*.ts'",
     "clean": "gulp clean && gulp link --clean"
   },
   "author": "",
   "license": "",
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^12.0.0",
-    "@rollup/plugin-json": "^4.0.3",
-    "@rollup/plugin-node-resolve": "^8.0.0",
-    "@rollup/plugin-typescript": "^4.1.2",
     "archiver": "^3.1.1",
     "chalk": "^3.0.0",
     "foundry-pc-types": "gitlab:Eranziel/foundry-pc-types",
@@ -27,15 +24,17 @@
     "gulp-sass": "^4.1.0",
     "gulp-typescript": "^6.0.0-alpha.1",
     "json-stringify-pretty-compact": "^2.0.0",
-    "rollup": "^2.13.1",
-    "rollup-plugin-copy": "^3.3.0",
+    "prettier": "2.0.5",
     "sass": "^1.26.7",
+    "ts-loader": "^8.0.2",
     "tslib": "^1.13.0",
-    "typescript": "^3.9.3",
+    "typescript": "^3.9.7",
+    "webpack-stream": "^5.2.1",
     "yargs": "^15.3.1"
   },
   "dependencies": {
     "@mdi/font": "^5.3.45",
-    "lancer-data": "^2.0.33"
+    "lancer-data": "^2.0.35",
+    "machine-mind": "0.1.1-beta.17"
   }
 }

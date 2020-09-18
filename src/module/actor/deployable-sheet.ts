@@ -1,5 +1,5 @@
-import { LancerDeployableSheetData } from '../interfaces';
-import { LANCER } from '../config'
+import { LancerDeployableSheetData } from "../interfaces";
+import { LANCER } from "../config";
 const lp = LANCER.log_prefix;
 
 const entryPrompt = "//:AWAIT_ENTRY>";
@@ -8,12 +8,7 @@ const entryPrompt = "//:AWAIT_ENTRY>";
  * Extend the basic ActorSheet
  */
 export class LancerDeployableSheet extends ActorSheet {
-  _sheetTab: string;
-
-  constructor(...args) {
-    super(...args);
-
-  }
+  _sheetTab: string = "";
 
   /**
    * A convenience reference to the Actor entity
@@ -33,19 +28,18 @@ export class LancerDeployableSheet extends ActorSheet {
       classes: ["lancer", "sheet", "actor", "npc"],
       template: "systems/lancer/templates/actor/deployable.html",
       width: 800,
-      height: 800
+      height: 800,
     });
   }
 
   /* -------------------------------------------- */
-
 
   /**
    * @override
    * Activate event listeners using the prepared sheet HTML
    * @param html {HTML}   The prepared HTML object ready to be rendered into the DOM
    */
-  activateListeners(html) {
+  activateListeners(html: any) {
     super.activateListeners(html);
 
     // Everything below here is only needed if the sheet is editable
@@ -57,14 +51,12 @@ export class LancerDeployableSheet extends ActorSheet {
 
   /* -------------------------------------------- */
 
-
   /**
    * Prepare data for rendering the Actor sheet
    * The prepared data object contains both the actor data as well as additional sheet options
    */
   getData(): LancerDeployableSheetData {
     const data: LancerDeployableSheetData = super.getData() as LancerDeployableSheetData;
-
 
     // Populate name if blank (new Actor)
     if (data.data.name === "") {
@@ -82,21 +74,19 @@ export class LancerDeployableSheet extends ActorSheet {
    */
   _updateObject(event: Event | JQuery.Event, formData: any): Promise<any> {
     // Copy the new name to the prototype token.
-    formData['token.name'] = formData['name'];
+    formData["token.name"] = formData["name"];
 
-    let token: any = this.actor.data['token'];
+    let token: any = this.actor.data["token"];
     // Set the prototype token image if the prototype token isn't initialized
     if (!token) {
-      formData['token.img'] = formData['img'];
+      formData["token.img"] = formData["img"];
     }
     // Update token image if it matches the old actor image
-    else if (this.actor.data.img === token['img'] && this.actor.img !== formData['img']) {
-      formData['token.img'] = formData['img'];
+    else if (this.actor.data.img === token["img"] && this.actor.img !== formData["img"]) {
+      formData["token.img"] = formData["img"];
     }
 
-    console.log(formData);
     // Update the Actor
     return this.object.update(formData);
   }
 }
-
