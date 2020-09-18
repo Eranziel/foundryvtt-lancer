@@ -359,17 +359,15 @@ Hooks.once("ready", function () {
     // }
     migrations.migrateWorld();
   }
+  // Build/update compendiums
 });
-
-		// Build/update compendiums
-  });
 
 // Add any additional hooks if necessary
 Hooks.on("preCreateActor", lancerActorInit);
 Hooks.on("preCreateItem", lancerItemInit);
 
 // Create sidebar button to import LCP
-Hooks.on("renderSidebarTab", async (app, html) => {
+Hooks.on("renderSidebarTab", async (app: Application, html: HTMLElement) => {
 	addLCPManager(app, html);
 })
 
