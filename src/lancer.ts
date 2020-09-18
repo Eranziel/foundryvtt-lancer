@@ -64,6 +64,7 @@ import {
   LancerNPCActorData,
   LancerMechWeaponData,
   LancerPilotWeaponData,
+  LancerNPCData,
 } from "./module/interfaces";
 
 // Import applications
@@ -133,7 +134,10 @@ Hooks.once("init", async function () {
   await preloadTemplates();
 
   // Do some CC magic
-  let store = new CCDataStore(new FauxPersistor(), { disable_core_data: true, shim_fallback_items: true });
+  let store = new CCDataStore(new FauxPersistor(), {
+    disable_core_data: true,
+    shim_fallback_items: true,
+  });
   setup_store(store);
   await store.load_all(f => f(store));
   await reload_store();
@@ -384,19 +388,19 @@ function getMacroSpeaker(): Actor | null {
 }
 
 async function renderMacro(actor: Actor, template: string, templateData: any) {
-	const html = await renderTemplate(template, templateData)
-	let chat_data = {
-		user: game.user,
-		type: CONST.CHAT_MESSAGE_TYPES.ROLL,
-		roll: templateData.roll || templateData.attack,
-		speaker: {
-			actor: actor
-		},
-		content: html
-	};
-	let cm = await ChatMessage.create(chat_data);
-	cm.render();
-	return Promise.resolve();
+  const html = await renderTemplate(template, templateData);
+  let chat_data = {
+    user: game.user,
+    type: CONST.CHAT_MESSAGE_TYPES.ROLL,
+    roll: templateData.roll || templateData.attack,
+    speaker: {
+      actor: actor,
+    },
+    content: html,
+  };
+  let cm = await ChatMessage.create(chat_data);
+  cm.render();
+  return Promise.resolve();
 }
 
 async function rollTriggerMacro(
@@ -518,52 +522,55 @@ async function rollAttackMacro(w: string, a: string) {
   let damage: DamageData[];
   let effect: EffectData | string;
   let tags: TagDataShort[];
-	let typeMissing: boolean = false;
-	const wData = item.data.data;
+  let typeMissing: boolean = false;
+  const wData = item.data.data;
   if (item.type === "mech_weapon") {
     let wData = item.data.data as LancerMechWeaponData;
     grit = (item.actor!.data as LancerPilotActorData).data.pilot.grit;
     damage = wData.damage;
-		damage.forEach(d => {
-			if (d.type === '' && d.val != '' && d.val != 0) typeMissing = true;
-		});
+    damage.forEach((d: any) => {
+      if (d.type === "" && d.val != "" && d.val != 0) typeMissing = true;
+    });
     tags = wData.tags;
     effect = wData.effect;
   } else if (item.type === "pilot_weapon") {
     let wData = item.data.data as LancerPilotWeaponData;
     grit = (item.actor!.data as LancerPilotActorData).data.pilot.grit;
     damage = wData.damage;
-		damage.forEach(d => {
-			if (d.type === '' && d.val != '' && d.val != 0) typeMissing = true;
-		});
+    damage.forEach((d: any) => {
+      if (d.type === "" && d.val != "" && d.val != 0) typeMissing = true;
+    });
     tags = wData.tags;
     effect = wData.effect;
-  }
-  else if (item.type === "npc_feature") {
-		const tier = (item.actor.data as LancerNPCActorData).data.tier_num - 1;
-		if (wData.attack_bonus && wData.attack_bonus[tier]) {
-			grit = parseInt(wData.attack_bonus[tier]);
-		}
-		if (wData.accuracy && wData.accuracy[tier]) {
-			acc = parseInt(wData.accuracy[tier]);
-		}
-		// Reduce damage values to only this tier
-		damage = duplicate(wData.damage);
-		damage.forEach(d => {
-			d.val = d.val[tier];
-			if (d.type === '' && d.val != '' && d.val != 0) typeMissing = true;
-		});
-		tags = wData.tags;
-		effect = wData.effect;
-  }
-  else {
+  } else if (item.type === "npc_feature") {
+    var tier: number;
+    if (item.actor === null) {
+      tier = actor.data.data.tier_num;
+    } else {
+      tier = (item.actor.data.data as LancerNPCData).tier_num - 1;
+    }
+    if (wData.attack_bonus && wData.attack_bonus[tier]) {
+      grit = parseInt(wData.attack_bonus[tier]);
+    }
+    if (wData.accuracy && wData.accuracy[tier]) {
+      acc = parseInt(wData.accuracy[tier]);
+    }
+    // Reduce damage values to only this tier
+    damage = duplicate(wData.damage);
+    damage.forEach((d: any) => {
+      d.val = d.val[tier];
+      if (d.type === "" && d.val != "" && d.val != 0) typeMissing = true;
+    });
+    tags = wData.tags;
+    effect = wData.effect;
+  } else {
     ui.notifications.error(`Error rolling attack macro - ${item.name} is not a weapon!`);
     return Promise.resolve();
   }
-	// Warn about missing damage type if the value is non-zero
-	if (typeMissing) {
-		ui.notifications.warn(`Warning: ${item.name} has a damage value without type!`);
-	}
+  // Warn about missing damage type if the value is non-zero
+  if (typeMissing) {
+    ui.notifications.warn(`Warning: ${item.name} has a damage value without type!`);
+  }
   console.log(`${lp} Attack Macro Item:`, item, grit, acc, damage);
 
   // Get accuracy/difficulty with a prompt
@@ -586,8 +593,8 @@ async function rollAttackMacro(w: string, a: string) {
     tt: HTMLElement | JQuery<HTMLElement>;
     dtype: DamageType;
   }> = [];
-  damage.forEach(async x => {
-    if (x.type === '' || x.val === '' || x.val == 0) return Promise.resolve(); // Skip undefined and zero damage
+  damage.forEach(async (x: any) => {
+    if (x.type === "" || x.val === "" || x.val == 0) return Promise.resolve(); // Skip undefined and zero damage
     const droll = new Roll(x.val.toString()).roll();
     const tt = await droll.getTooltip();
     damage_results.push({
@@ -721,7 +728,9 @@ function promptAccDiffModifier(acc?: number) {
             let accuracy = <string>$(dlg).find(".accuracy").first().val();
             let difficulty = <string>$(dlg).find(".difficulty").first().val();
             let total = parseInt(accuracy) - parseInt(difficulty);
-            console.log(`${lp} Dialog returned ${accuracy} accuracy and ${difficulty} difficulty resulting in a modifier of ${total}d6`);
+            console.log(
+              `${lp} Dialog returned ${accuracy} accuracy and ${difficulty} difficulty resulting in a modifier of ${total}d6`
+            );
             resolve(total);
           },
         },
