@@ -354,7 +354,7 @@
                             <a class="roll-attack" style="grid-area: 1/1/3/2;"><i class="fas fa-dice-d20 i--m i--dark"></i></a>
                             <div class="flexrow" style="grid-area: 1/2/2/3; text-align: left; white-space: nowrap;">
                                 {{#each npc_feature.data.range as |range rkey|}}
-                                    {{> wpn-range range=rage rkey=rkey}}
+                                    {{> wpn-range range=range rkey=rkey}}
                                 {{/each}}
                                 <hr class="vsep">
                                 {{#each npc_feature.data.damage as |damage dkey|}}
