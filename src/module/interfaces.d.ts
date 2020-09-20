@@ -461,9 +461,9 @@ declare interface LancerMechTraitData {
 declare interface LancerCoreSystemData {
   name: string;
   description: string;
-  integrated?: { id: string };
-  passive_name?: string;
-  passive_effect?: string;
+  integrated?: { id: string } | null;
+  passive_name?: string | null;
+  passive_effect?: string | null;
   active_name: string;
   active_effect: string;
   tags: TagData[];
@@ -509,7 +509,7 @@ declare interface LancerMechWeaponData extends LancerLicensedItemData, LancerMec
   damage: DamageData[];
   range: RangeData[];
   mod: object | null; // TODO: weapon mod type
-  custom_damage_type: mm.DamageType;
+  custom_damage_type: mm.DamageType | null;
 }
 
 declare interface LancerMechWeaponItemData extends LancerItemData {

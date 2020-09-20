@@ -18,6 +18,8 @@ import {
   LancerMountData,
   RangeData,
   LancerMechWeaponData,
+  LancerCoreSystemData,
+  TagData,
 } from "./interfaces";
 
 // const x: LancerPilotData;
@@ -48,6 +50,13 @@ import {
   IDamageData,
   IRangeData,
   IMechWeaponData,
+  Talent,
+  Skill,
+  CoreBonus,
+  Frame,
+  ItemType,
+  CoreSystem,
+  Tag,
 } from "machine-mind";
 import { INpcClassStats } from "machine-mind/dist/classes/npc/NpcClassStats";
 // import { Compendium } from "machine-mind/dist/store/compendium";
@@ -101,6 +110,17 @@ export class Converter {
     return data;
   }
 
+  Talent_to_LancerTalentData(t: Talent): LancerTalentData {
+    let data: LancerTalentData = {
+      id: t.ID,
+      name: t.Name,
+      description: t.Description,
+      ranks: t.Ranks,
+      rank: 1,
+    };
+    return data;
+  }
+
   // SKILLS
   LancerSkillData_to_IRankedData(t: LancerSkillData): IRankedData {
     return {
@@ -125,6 +145,18 @@ export class Converter {
     let data: LancerSkillData = {
       ...sd,
       rank: rd ? rd.rank : 1,
+    };
+    return data;
+  }
+
+  Skill_to_LancerSkillData(t: Skill): LancerSkillData {
+    let data: LancerSkillData = {
+      id: t.ID,
+      name: t.Name,
+      description: t.Description,
+      detail: t.Detail,
+      family: t.Family,
+      rank: 1,
     };
     return data;
   }
@@ -158,6 +190,29 @@ export class Converter {
     return data;
   }
 
+  CoreBonus_to_LancerCoreBonusData(t: CoreBonus): LancerCoreBonusData {
+    let data: LancerCoreBonusData = {
+      id: t.ID,
+      name: t.Name,
+      source: t.Source,
+      effect: t.Effect,
+      mounted_effect: t.MountedEffect,
+    };
+    return data;
+  }
+
+  // TAGS
+  Tag_to_TagData(t: Tag): TagData {
+    return {
+      id: t.ID,
+      name: t.Name,
+      description: t.Description,
+      val: t.Value ? t.Value : undefined,
+      brew: t.Brew,
+      counters: null,
+    };
+  }
+
   // LICENSES
   // Note that this just handles the rank - we will need to do a conversion of the full license elsewhere
   LancerLicenseData_to_IRankedData(t: LancerLicenseData): IRankedData {
@@ -176,6 +231,58 @@ export class Converter {
       counters: [],
       ...t,
     };
+  }
+
+  CoreSystem_to_LancerCoreSystemData(t: CoreSystem): LancerCoreSystemData {
+    let data: LancerCoreSystemData = {
+      name: t.Name,
+      description: t.Description,
+      tags: t.Tags.map(
+        (v: Tag): TagData => {
+          return this.Tag_to_TagData(v);
+        }
+      ),
+      active_name: t.ActiveName,
+      active_effect: t.ActiveEffect,
+      passive_name: t.PassiveName,
+      passive_effect: t.PassiveEffect,
+      integrated: t.Integrated ? { id: t.Integrated.ID } : null,
+    };
+    return data;
+  }
+
+  Frame_to_LancerFrameData(t: Frame): LancerFrameData {
+    let data: LancerFrameData = {
+      id: t.ID,
+      name: t.Name,
+      description: t.Description,
+      flavor_name: t.FlavorName,
+      flavor_description: "",
+      license: t.License,
+      license_level: t.LicenseLevel,
+      source: t.Source,
+      mechtype: t.Mechtype,
+      note: t.Note,
+      mounts: t.Mounts,
+      traits: t.Traits,
+      core_system: this.CoreSystem_to_LancerCoreSystemData(t.CoreSystem),
+      stats: {
+        armor: t.Armor,
+        edef: t.EDefense,
+        evasion: t.Evasion,
+        heatcap: t.HeatCap,
+        hp: t.HP,
+        repcap: t.RepCap,
+        save: t.SaveTarget,
+        sensor_range: t.SensorRange,
+        size: t.Size,
+        sp: t.SP,
+        speed: t.Speed,
+        tech_attack: t.TechAttack,
+      },
+      item_type: ItemType.Frame,
+    };
+    return data;
   }
 
   // MODS
