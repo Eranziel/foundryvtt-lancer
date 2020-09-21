@@ -17,7 +17,7 @@ export const registerSettings = function () {
   game.settings.register(LANCER.sys_name, LANCER.setting_core_data, {
     name: "Lancer Data Version",
     scope: "system",
-    config: true,
+    config: false,
     type: String,
     default: ""
   });
@@ -25,7 +25,7 @@ export const registerSettings = function () {
   game.settings.register(LANCER.sys_name, LANCER.setting_lcps, {
     name: "Installed LCPs",
     scope: "system",
-    config: true,
+    config: false,
     type: Array,
     default: []
   });

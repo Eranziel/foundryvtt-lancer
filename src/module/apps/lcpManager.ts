@@ -2,6 +2,7 @@ import { LANCER } from "../config";
 const lp = LANCER.log_prefix;
 import { buildCompendiums } from "../compBuilder";
 import * as mm from "machine-mind";
+import { IContentPackManifest } from "machine-mind";
 
 function addLCPManager(app: Application, html: any) {
   if (app.options.id == "compendium") {
@@ -27,15 +28,16 @@ class LCPManager extends Application {
   lcpFile: File | null;
   coreVersion: string;
   coreUpdate: string | null;
+  lcpIndex: IContentPackManifest[];
 
   constructor(...args: any[]) {
     super(...args);
     this.lcpFile = null;
-    // TODO: current core version to be stored in a Foundry system setting
     this.coreVersion = game.settings.get(LANCER.sys_name, LANCER.setting_core_data);
     // TODO: pull available core version from machine-mind
     this.coreUpdate = "2.0.35";
     console.log(`${lp} Lancer Data version:`, this.coreVersion);
+    this.lcpIndex = game.settings.get(LANCER.sys_name, LANCER.setting_lcps);
   }
 
   static get defaultOptions() {
@@ -72,6 +74,10 @@ class LCPManager extends Application {
   }
 
   _onCoreUpdateButtonClick(ev: MouseEvent) {
+    if (!game.user.isGM) {
+      ui.notifications.warn(`Only GM can modify the Compendiums.`);
+      return;
+    }
     if (!ev.currentTarget) return;
     console.log(`${lp} Updating Lancer Core data to v${this.coreUpdate}`);
     buildCompendiums(mm.getBaseContentPack());
@@ -79,6 +85,10 @@ class LCPManager extends Application {
   }
 
   _onImportButtonClick(ev: MouseEvent) {
+    if (!game.user.isGM) {
+      ui.notifications.warn(`Only GM can modify the Compendiums.`);
+      return;
+    }
     if (!this.lcpFile) {
       ui.notifications.error(`Import error: no file selected.`);
       return;
@@ -98,12 +108,13 @@ class LCPManager extends Application {
     console.log(`${lp} Starting import of ${cp.Name} v${cp.Version}.`);
     console.log(`${lp} Parsed content pack:`, cp);
 
-    let lcpIndex = game.settings.get(LANCER.sys_name, LANCER.setting_lcps);
-    console.log(lcpIndex);
+    console.log(this.lcpIndex);
     await buildCompendiums(cp);
     ui.notifications.info(`Import of ${cp.Name} v${cp.Version} complete.`);
     console.log(`${lp} Import of ${cp.Name} v${cp.Version} complete.`);
-    // TODO: add manifest of installed LCP to setting
+    
+    this.lcpIndex.push(icp.manifest);
+    game.settings.set(LANCER.sys_name, LANCER.setting_lcps, this.lcpIndex);
   }
 }
 
