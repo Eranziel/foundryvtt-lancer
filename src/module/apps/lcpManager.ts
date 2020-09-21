@@ -1,6 +1,7 @@
 import { LANCER } from "../config";
 const lp = LANCER.log_prefix;
-import { convertLancerData } from "../compBuilder";
+import { buildCompendiums } from "../compBuilder";
+import * as mm from "machine-mind";
 
 function addLCPManager(app: Application, html: any) {
   if (app.options.id == "compendium") {
@@ -23,8 +24,17 @@ function addLCPManager(app: Application, html: any) {
 }
 
 class LCPManager extends Application {
+  lcpFile: File | null;
+  coreVersion: string;
+  coreUpdate: string | null;
+
   constructor(...args: any[]) {
     super(...args);
+    this.lcpFile = null;
+    // TODO: current core version to be stored in a Foundry system setting
+    this.coreVersion = "1.0.0";
+    // TODO: pull available core version from machine-mind
+    this.coreUpdate = "1.0.1";
   }
 
   static get defaultOptions() {
@@ -38,49 +48,56 @@ class LCPManager extends Application {
 
   getData() {
     let data = super.getData();
-    data.core_update = "abc";
+    data.core_update = this.coreUpdate;
     return data;
   }
 
   activateListeners(html: HTMLElement | JQuery<HTMLElement>) {
     super.activateListeners(html);
-    document.getElementsByClassName("lcp-file-picker")[0].addEventListener("click", (ev: Event) => {
-      this._onFilePickerButtonClick(<MouseEvent>ev);
-    });
     document.getElementsByClassName("lcp-core-update")[0].addEventListener("click", (ev: Event) => {
       this._onCoreUpdateButtonClick(<MouseEvent>ev);
     });
+    let fileInput = document.getElementById("lcp-file");
+    if (fileInput) {
+      fileInput.onchange = (ev: Event) => {
+        let files = (ev.target as HTMLInputElement).files;
+        if (files) this.lcpFile = files[0];
+        console.log(`${lp} Selected file changed`, this.lcpFile);
+      };
+    }
     document.getElementsByClassName("lcp-import")[0].addEventListener("click", (ev: Event) => {
       this._onImportButtonClick(<MouseEvent>ev);
     });
   }
 
-  _onFilePickerButtonClick(ev: MouseEvent) {
-    let button = <HTMLButtonElement>ev.target;
-    let parent = <HTMLElement>button.parentElement;
-    let dataTarget = button.getAttribute("data-target");
-    if (!parent || !dataTarget) {
-      console.log(`${lp} Failed to open file picker.`, parent, dataTarget);
-      return;
-    }
-    let target = parent.getElementsByClassName(dataTarget)[0];
-    let fp = new FilePicker({ field: target });
-    // @ts-expect-error
-    fp.extensions = [".lcp"];
-    // @ts-expect-error
-    fp.browse();
-  }
-
   _onCoreUpdateButtonClick(ev: MouseEvent) {
     if (!ev.currentTarget) return;
-    console.log(`You hit the core update button`);
-    convertLancerData();
+    console.log(`${lp} Updating Lancer Core data to v`);
+    buildCompendiums(mm.getBaseContentPack());
   }
 
   _onImportButtonClick(ev: MouseEvent) {
-    if (!ev.currentTarget) return;
-    let target = $(ev.currentTarget).closest(".lcp-up")[0];
-    console.log(`You hit the import button`, target);
+    if (!this.lcpFile) {
+      ui.notifications.error(`Import error: no file selected.`);
+      return;
+    }
+    ui.notifications.info(`Starting import of "${this.lcpFile.name}". Please wait.`);
+    console.log(`${lp} Starting import of "${this.lcpFile.name}"`);
+
+    const fr = new FileReader();
+    fr.readAsBinaryString(this.lcpFile);
+    fr.addEventListener("load", (ev: ProgressEvent) => {
+      console.log(ev);
+      this._importLCP((ev.target as FileReader).result as string);
+    });
+  }
+
+  async _importLCP(fileData: string | null) {
+    if (!fileData) return;
+    const icp = await mm.parseContentPack(fileData);
+    const cp = new mm.ContentPack(icp);
+    console.log(`${lp} Parsed content pack:`, cp);
+    buildCompendiums(cp);
   }
 }
 
