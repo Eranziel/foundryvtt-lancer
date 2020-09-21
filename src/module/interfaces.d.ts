@@ -408,7 +408,7 @@ declare interface LancerPilotWeaponData extends LancerCompendiumItemData, Lancer
   range: RangeData[];
   damage: DamageData[];
   effect: string;
-  custom_damage_type: mm.DamageType;
+  custom_damage_type: mm.DamageType | string | null;
 }
 
 declare interface LancerPilotWeaponItemData extends LancerItemData {
@@ -423,8 +423,8 @@ declare interface LancerPilotWeaponSheetData extends ItemSheetData {
 
 // -------- Pilot Gear data --------------------------------------
 declare interface LancerPilotGearData extends LancerCompendiumItemData, LancerPilotEquipmentData {
-  uses: number;
-  current_uses: number;
+  uses: number | null;
+  current_uses: number | null;
 }
 
 declare interface LancerPilotGearItemData extends LancerItemData {
@@ -567,7 +567,7 @@ declare interface LancerNPCClassSheetData extends ItemSheetData {
 
 // -------- NPC Template data -------------------------------------
 declare interface LancerNPCTemplateData extends LancerCompendiumItemData {
-  basefeatures: string[];
+  base_features: string[];
   optional_features: string[];
 }
 

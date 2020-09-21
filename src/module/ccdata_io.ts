@@ -1,3 +1,5 @@
+import { LANCER } from "./config";
+const lp = LANCER.log_prefix;
 import {
   LancerPilotSheetData,
   LancerMechData,
@@ -20,6 +22,7 @@ import {
   LancerMechWeaponData,
   LancerCoreSystemData,
   TagData,
+  DamageData,
 } from "./interfaces";
 
 // const x: LancerPilotData;
@@ -57,8 +60,53 @@ import {
   ItemType,
   CoreSystem,
   Tag,
+  WeaponMod,
+  NpcClass,
+  NpcTemplate,
+  NpcFeature,
+  MechType,
+  PilotArmor,
+  PilotWeapon,
+  PilotGear,
+  Range,
+  Damage,
+  MechWeapon,
+  DamageType,
+  ItemEffect,
+  AIEffect,
+  BasicEffect,
+  BonusEffect,
+  ChargeEffect,
+  Charge,
+  DeployableEffect,
+  DroneEffect,
+  GenericEffect,
+  OffensiveEffect,
+  ProfileEffect,
+  ProtocolEffect,
+  ReactionEffect,
+  TechEffect,
 } from "machine-mind";
-import { INpcClassStats } from "machine-mind/dist/classes/npc/NpcClassStats";
+import { INpcClassStats, NpcClassStats } from "machine-mind/dist/classes/npc/NpcClassStats";
+import {
+  AIEffectData,
+  BasicEffectData,
+  BonusEffectData,
+  ChargeData,
+  ChargeEffectData,
+  DeployableEffectData,
+  DroneEffectData,
+  EffectData,
+  GenericEffectData,
+  InvadeOptionData,
+  OffensiveEffectData,
+  ProfileEffectData,
+  ProtocolEffectData,
+  ReactionEffectData,
+  TechEffectData,
+} from "./item/effects";
+import { ActivationType, EffectType } from "./enums";
+import { InvadeOption } from "machine-mind/dist/classes/effects/TechEffect";
 // import { Compendium } from "machine-mind/dist/store/compendium";
 
 // Temporary placeholders for while we work
@@ -213,6 +261,12 @@ export class Converter {
     };
   }
 
+  Multi_Tag_to_TagData(t: Tag[]): TagData[] {
+    return t.map((v: Tag) => {
+      return this.Tag_to_TagData(v);
+    });
+  }
+
   // LICENSES
   // Note that this just handles the rank - we will need to do a conversion of the full license elsewhere
   LancerLicenseData_to_IRankedData(t: LancerLicenseData): IRankedData {
@@ -237,11 +291,7 @@ export class Converter {
     let data: LancerCoreSystemData = {
       name: t.Name,
       description: t.Description,
-      tags: t.Tags.map(
-        (v: Tag): TagData => {
-          return this.Tag_to_TagData(v);
-        }
-      ),
+      tags: this.Multi_Tag_to_TagData(t.Tags),
       active_name: t.ActiveName,
       active_effect: t.ActiveEffect,
       passive_name: t.PassiveName,
@@ -294,6 +344,14 @@ export class Converter {
     // }
   }
 
+  // TODO
+  // WeaponMod_to_LancerModData(t: WeaponMod): LancerMechSystemData {
+  //   let data: LancerMechSystemData = {
+
+  //   };
+  //   return data;
+  // }
+
   // NPCs
   LancerNPCClassStatsData_to_INpcClassStatsData(t: LancerNPCClassStatsData): INpcClassStats {
     return {
@@ -344,13 +402,143 @@ export class Converter {
   LancerNPCTemplateData_to_INpcTemplateData(t: LancerNPCTemplateData): INpcTemplateData {
     return {
       brew: this.brew,
-      base_features: t.basefeatures,
+      base_features: t.base_features,
       description: t.description,
       id: t.id,
       name: t.name,
       optional_features: t.optional_features,
       power: 0, // NOT_APPLICABLE
     };
+  }
+
+  NpcRole(t: string): MechType {
+    if (t === MechType.Artillery) return MechType.Artillery;
+    if (t === MechType.Controller) return MechType.Controller;
+    if (t === MechType.Defender) return MechType.Defender;
+    if (t === MechType.Striker) return MechType.Striker;
+    if (t === MechType.Support) return MechType.Support;
+    return MechType.Balanced;
+  }
+
+  NpcClassStats_to_LancerNPCClassStatsData(t: NpcClassStats): LancerNPCClassStatsData {
+    let tiers = [1, 2, 3];
+    let data: LancerNPCClassStatsData = {
+      activations: tiers.map((v: number) => {
+        return t.Activations(v);
+      }),
+      agility: tiers.map((v: number) => {
+        return t.Agility(v);
+      }),
+      armor: tiers.map((v: number) => {
+        return t.Armor(v);
+      }),
+      edef: tiers.map((v: number) => {
+        return t.EDefense(v);
+      }),
+      engineering: tiers.map((v: number) => {
+        return t.Engineering(v);
+      }),
+      evasion: tiers.map((v: number) => {
+        return t.Evade(v);
+      }),
+      heatcap: tiers.map((v: number) => {
+        return t.HeatCapacity(v);
+      }),
+      hp: tiers.map((v: number) => {
+        return t.HP(v);
+      }),
+      hull: tiers.map((v: number) => {
+        return t.Hull(v);
+      }),
+      save: tiers.map((v: number) => {
+        return t.Save(v);
+      }),
+      sensor_range: tiers.map((v: number) => {
+        return t.Sensor(v);
+      }),
+      size: tiers.map((v: number) => {
+        return t.Sizes(v)[0];
+      }),
+      speed: tiers.map((v: number) => {
+        return t.Speed(v);
+      }),
+      stress: tiers.map((v: number) => {
+        return t.Stress(v);
+      }),
+      structure: tiers.map((v: number) => {
+        return t.Structure(v);
+      }),
+      systems: tiers.map((v: number) => {
+        return t.Systems(v);
+      }),
+    };
+    return data;
+  }
+
+  NpcClass_to_LancerNPCClassData(t: NpcClass): LancerNPCClassData {
+    let data: LancerNPCClassData = {
+      id: t.ID,
+      name: t.Name,
+      note: "",
+      info: { flavour: t.Flavor, tactics: t.Tactics },
+      description: "",
+      flavor_name: "",
+      flavor_description: "",
+      mechtype: this.NpcRole(t.Role),
+      stats: this.NpcClassStats_to_LancerNPCClassStatsData(t.Stats),
+      base_features: t.BaseFeatures.map((f: NpcFeature) => {
+        return f.ID;
+      }),
+      optional_features: t.OptionalFeatures.map((f: NpcFeature) => {
+        return f.ID;
+      }),
+      item_type: ItemType.None,
+    };
+    return data;
+  }
+
+  NpcTemplate_to_LancerNPCTemplateData(t: NpcTemplate): LancerNPCTemplateData {
+    let data: LancerNPCTemplateData = {
+      id: t.ID,
+      name: t.Name,
+      description: t.Description,
+      flavor_name: "",
+      flavor_description: "",
+      note: "",
+      base_features: t.BaseFeatures.map((f: NpcFeature) => {
+        return f.ID;
+      }),
+      optional_features: t.OptionalFeatures.map((f: NpcFeature) => {
+        return f.ID;
+      }),
+      item_type: ItemType.None,
+    };
+    return data;
+  }
+
+  NpcFeature_to_LancerNPCFeatureData(t: NpcFeature): LancerNPCFeatureData {
+    let data: LancerNPCFeatureData = {
+      id: t.ID,
+      name: t.Name,
+      description: "",
+      note: "",
+      flavor_name: "",
+      flavor_description: "",
+      charged: true,
+      destroyed: false,
+      feature_type: t.FeatureType,
+      item_type: ItemType.NpcFeature,
+      max_uses: 0,
+      uses: 0,
+      origin_base: t.IsBase,
+      origin_name: t.OriginClass,
+      origin_type: t.OriginSet,
+      tags: this.Multi_Tag_to_TagData(t.Tags),
+      bonus: t.Bonus,
+      effect: t.Effect,
+      override: t.Override,
+    };
+    return data;
   }
 
   // Pilot equipment
@@ -382,6 +570,62 @@ export class Converter {
     };
   }
 
+  PilotArmor_to_LancerPilotArmorData(t: PilotArmor): LancerPilotArmorData {
+    let data: LancerPilotArmorData = {
+      id: t.ID,
+      name: t.Name,
+      description: t.Description,
+      flavor_name: t.FlavorName,
+      flavor_description: "",
+      note: t.Note,
+      armor: t.Armor,
+      edef: t.EDefense,
+      edef_bonus: t.EDefenseBonus,
+      evasion: t.Evasion,
+      evasion_bonus: t.EvasionBonus,
+      hp_bonus: t.HPBonus,
+      speed: t.Speed,
+      speed_bonus: t.SpeedBonus,
+      item_type: t.ItemType,
+      tags: this.Multi_Tag_to_TagData(t.Tags),
+    };
+    return data;
+  }
+
+  PilotWeapon_to_LancerPilotWeaponData(t: PilotWeapon): LancerPilotWeaponData {
+    let data: LancerPilotWeaponData = {
+      id: t.ID,
+      name: t.Name,
+      description: t.Description,
+      flavor_name: t.FlavorName,
+      flavor_description: "",
+      note: t.Note,
+      tags: this.Multi_Tag_to_TagData(t.Tags),
+      range: this.Multi_Range_to_RangeData(t.Range),
+      damage: this.Multi_Damage_to_DamageData(t.Damage),
+      effect: t.Effect,
+      custom_damage_type: t.DamageTypeOverride ? t.DamageTypeOverride : null,
+      item_type: t.ItemType,
+    };
+    return data;
+  }
+
+  PilotGear_to_LancerPilotGearData(t: PilotGear): LancerPilotGearData {
+    let data: LancerPilotGearData = {
+      id: t.ID,
+      name: t.Name,
+      description: t.Description,
+      flavor_name: t.FlavorName,
+      flavor_description: "",
+      note: t.Note,
+      uses: t.MaxUses,
+      current_uses: t.Uses ? t.Uses : t.MaxUses,
+      item_type: t.ItemType,
+      tags: this.Multi_Tag_to_TagData(t.Tags),
+    };
+    return data;
+  }
+
   // SYSTEMS
   LancerMechSystemData_to_IMechSystemData(t: LancerMechSystemData): IMechSystemData {
     return {
@@ -390,6 +634,228 @@ export class Converter {
       counters: [],
       type: t.system_type,
     };
+  }
+
+  Charge_to_ChargeData(t: Charge): ChargeData {
+    let data: ChargeData = {
+      name: t.Name ? t.Name : "",
+      detail: t.Detail,
+      charge_type: t.ChargeType,
+      range: this.Multi_Range_to_RangeData(t.Range),
+      damage: this.Multi_Damage_to_DamageData(t.Damage),
+      tags: this.Multi_Tag_to_TagData(t.Tags),
+    };
+    return data;
+  }
+
+  Multi_Charge_to_ChargeData(t: Charge[]): ChargeData[] {
+    return t.map((v: Charge) => {
+      return this.Charge_to_ChargeData(v);
+    });
+  }
+
+  InvadeOption_to_InvadeOptionsData(t: InvadeOption): InvadeOptionData {
+    let data: InvadeOptionData = {
+      name: t.Name,
+      detail: t.Detail,
+      activation: t.Activation,
+    };
+    return data;
+  }
+
+  Multi_InvadeOption_to_InvadeOptionsData(t: InvadeOption[]): InvadeOptionData[] {
+    return t.map((v: InvadeOption) => {
+      return this.InvadeOption_to_InvadeOptionsData(v);
+    });
+  }
+
+  ItemEffect_to_EffectData(t: ItemEffect): any {
+    if (t.EffectType === EffectType.AI) {
+      const td = t as AIEffect;
+      let data: AIEffectData = {
+        name: td.Name ? td.Name : undefined,
+        effect_type: td.EffectType ? td.EffectType : EffectType.Generic,
+        detail: td.Detail,
+        activation: td.Activation ? td.Activation : undefined,
+        tags: this.Multi_Tag_to_TagData(td.Tags),
+        abilities: this.Multi_ItemEffect_to_EffectData(td.Abilities),
+      };
+      return data;
+    } else if (t.EffectType === EffectType.Basic) {
+      const td = t as BasicEffect;
+      let data: BasicEffectData = {
+        name: td.Name ? td.Name : undefined,
+        effect_type: td.EffectType ? td.EffectType : EffectType.Generic,
+        detail: td.Detail,
+        activation: td.Activation ? td.Activation : undefined,
+        tags: this.Multi_Tag_to_TagData(td.Tags),
+      };
+      return data;
+    } else if (t.EffectType === EffectType.Bonus) {
+      const td = t as BonusEffect;
+      let data: BonusEffectData = {
+        name: td.Name ? td.Name : undefined,
+        effect_type: td.EffectType ? td.EffectType : EffectType.Generic,
+        detail: td.Detail,
+        activation: td.Activation ? td.Activation : undefined,
+        tags: this.Multi_Tag_to_TagData(td.Tags),
+        armor: td.Armor ? td.Armor : undefined,
+        edef: td.EDef ? td.EDef : undefined,
+        evasion: td.Evasion ? td.Evasion : undefined,
+        hp: td.HP ? td.HP : undefined,
+        size: td.Size ? td.Size : undefined,
+      };
+      return data;
+    } else if (t.EffectType === EffectType.Charge) {
+      const td = t as ChargeEffect;
+      let data: ChargeEffectData = {
+        name: td.Name ? td.Name : undefined,
+        effect_type: td.EffectType ? td.EffectType : EffectType.Generic,
+        charges: this.Multi_Charge_to_ChargeData(td.Charges),
+        activation: td.Activation ? td.Activation : undefined,
+        tags: this.Multi_Tag_to_TagData(td.Tags),
+      };
+      return data;
+    } else if (t.EffectType === EffectType.Deployable) {
+      const td = t as DeployableEffect;
+      let data: DeployableEffectData = {
+        name: td.Name ? td.Name : undefined,
+        effect_type: td.EffectType ? td.EffectType : EffectType.Generic,
+        detail: td.Detail ? td.Detail : "",
+        activation: td.Activation ? td.Activation : undefined,
+        tags: this.Multi_Tag_to_TagData(td.Tags),
+        count: td.Count ? td.Count : undefined,
+        hp: td.HP ? td.HP : undefined,
+        edef: td.EDef ? td.EDef : undefined,
+        evasion: td.Evasion ? td.Evasion : undefined,
+        // TODO: Comp/Con doesn't support heat on deployables yet
+        // heat: td.Heat ? td.Heat : undefined,
+        size: td.Size ? td.Size : undefined,
+      };
+      return data;
+    } else if (t.EffectType === EffectType.Drone) {
+      const td = t as DroneEffect;
+      let data: DroneEffectData = {
+        name: td.Name ? td.Name : undefined,
+        effect_type: td.EffectType ? td.EffectType : EffectType.Generic,
+        detail: td.Detail,
+        activation: td.Activation ? td.Activation : undefined,
+        tags: this.Multi_Tag_to_TagData(td.Tags),
+        edef: td.EDef,
+        evasion: td.Evasion,
+        hp: td.HP,
+        size: td.Size,
+        armor: td.Armor,
+        // TODO: Comp/Con doesn't support heat on drones yet
+        // heat: td.Heat ? td.Heat : undefined,
+        abilities: this.Multi_ItemEffect_to_EffectData(td.Abilities),
+      };
+      return data;
+    } else if (t.EffectType === EffectType.Generic) {
+      const td = t as GenericEffect;
+      let data: GenericEffectData = {
+        effect_type: td.EffectType ? td.EffectType : EffectType.Generic,
+        detail: td.Detail,
+        activation: td.Activation ? td.Activation : undefined,
+        tags: this.Multi_Tag_to_TagData(td.Tags),
+      };
+      return data;
+    } else if (t.EffectType === EffectType.Offensive) {
+      const td = t as OffensiveEffect;
+      let data: OffensiveEffectData = {
+        name: td.Name ? td.Name : undefined,
+        effect_type: td.EffectType ? td.EffectType : EffectType.Generic,
+        detail: td.Detail ? td.Detail : undefined,
+        activation: td.Activation ? td.Activation : undefined,
+        tags: this.Multi_Tag_to_TagData(td.Tags),
+        attack: td.OnAttack ? td.OnAttack : undefined,
+        hit: td.OnHit ? td.OnHit : undefined,
+        critical: td.OnCrit ? td.OnCrit : undefined,
+        abilities: td.Abilities ? this.Multi_ItemEffect_to_EffectData(td.Abilities) : undefined,
+      };
+      return data;
+    } else if (t.EffectType === EffectType.Profile) {
+      const td = t as ProfileEffect;
+      let data: ProfileEffectData = {
+        name: td.Name ? td.Name : "",
+        effect_type: td.EffectType ? td.EffectType : EffectType.Generic,
+        detail: td.Detail ? td.Detail : undefined,
+        activation: td.Activation ? td.Activation : undefined,
+        tags: this.Multi_Tag_to_TagData(td.Tags),
+        range: this.Multi_Range_to_RangeData(td.Range),
+        damage: this.Multi_Damage_to_DamageData(td.Damage),
+      };
+      return data;
+    } else if (t.EffectType === EffectType.Protocol) {
+      const td = t as ProtocolEffect;
+      let data: ProtocolEffectData = {
+        name: td.Name ? td.Name : undefined,
+        effect_type: td.EffectType ? td.EffectType : EffectType.Generic,
+        detail: td.Detail,
+        activation: td.Activation ? td.Activation : undefined,
+        tags: this.Multi_Tag_to_TagData(td.Tags),
+      };
+      return data;
+    } else if (t.EffectType === EffectType.Reaction) {
+      const td = t as ReactionEffect;
+      let data: ReactionEffectData = {
+        name: td.Name,
+        effect_type: td.EffectType ? td.EffectType : EffectType.Generic,
+        detail: td.Detail,
+        activation: td.Activation ? td.Activation : undefined,
+        tags: this.Multi_Tag_to_TagData(td.Tags),
+        init: td.Init ? td.Init : undefined,
+        trigger: td.Trigger,
+        frequency: td.Frequency,
+      };
+      return data;
+    } else if (t.EffectType === EffectType.Tech) {
+      const td = t as TechEffect;
+      let data: TechEffectData = {
+        name: td.Name ? td.Name : undefined,
+        effect_type: td.EffectType ? td.EffectType : EffectType.Generic,
+        detail: td.Detail,
+        activation: td.Activation ? td.Activation : ActivationType.None,
+        tags: this.Multi_Tag_to_TagData(td.Tags),
+        option_set: td.OptionSet,
+        options: td.Options ? this.Multi_InvadeOption_to_InvadeOptionsData(td.Options) : undefined,
+      };
+      return data;
+    }
+  }
+
+  Multi_ItemEffect_to_EffectData(t: ItemEffect[]): EffectData[] {
+    return t.map((x: ItemEffect) => {
+      return this.ItemEffect_to_EffectData(x);
+    });
+  }
+
+  MechSystem_to_LancerMechSystemData(t: MechSystem): LancerMechSystemData {
+    if (t.Effect.length > 1) console.log(`${lp} multi-effect item: `, t);
+    let data: LancerMechSystemData = {
+      id: t.ID,
+      name: t.Name,
+      description: t.Description,
+      flavor_name: t.FlavorName,
+      flavor_description: "",
+      note: t.Note,
+      source: t.Source,
+      license: t.License,
+      license_level: t.LicenseLevel,
+      item_type: t.ItemType,
+      cascading: t.IsCascading,
+      destroyed: t.Destroyed,
+      integrated: t.IsIntegrated,
+      loaded: t.Loaded,
+      max_uses: t.MaxUses,
+      max_use_override: t.MaxUses,
+      uses: t.Uses,
+      effect: this.ItemEffect_to_EffectData(t.Effect[0]),
+      sp: t.SP,
+      system_type: t.Type,
+      tags: this.Multi_Tag_to_TagData(t.Tags),
+    };
+    return data;
   }
 
   // Ranges
@@ -403,6 +869,47 @@ export class Converter {
     }
   }
 
+  // TODO - RangeData.val needs to be able to take a string
+  Range_to_RangeData(t: Range): RangeData {
+    let data: RangeData = {
+      type: t.Type,
+      val: (t.Value as unknown) as number, // This is a dirty hack - it's definitely a string sometimes
+      override: t.Override,
+    };
+    return data;
+  }
+
+  Multi_Range_to_RangeData(t: Range[]): RangeData[] {
+    return t.map((v: Range) => {
+      return this.Range_to_RangeData(v);
+    });
+  }
+
+  // Damages
+  Damage(t: string): DamageType {
+    if (t === DamageType.Burn) return DamageType.Burn;
+    if (t === DamageType.Energy) return DamageType.Energy;
+    if (t === DamageType.Explosive) return DamageType.Explosive;
+    if (t === DamageType.Heat) return DamageType.Heat;
+    if (t === DamageType.Kinetic) return DamageType.Kinetic;
+    return DamageType.Variable;
+  }
+
+  Damage_to_DamageData(t: Damage): DamageData {
+    let data: DamageData = {
+      type: t.Type,
+      val: t.Value,
+      override: t.Override,
+    };
+    return data;
+  }
+
+  Multi_Damage_to_DamageData(t: Damage[]): DamageData[] {
+    return t.map((v: Damage) => {
+      return this.Damage_to_DamageData(v);
+    });
+  }
+
   // WEAPONS
   LancerMechWeaponData_to_IMechWeaponData(t: LancerMechWeaponData): IMechWeaponData {
     return {
@@ -412,6 +919,38 @@ export class Converter {
       ...t,
       range: t.range.map(r => this.RangeData_to_IRangeData(r)).filter(x => x) as IRangeData[],
     };
+  }
+
+  MechWeapon_to_LancerMechWeaponData(t: MechWeapon): LancerMechWeaponData {
+    let data: LancerMechWeaponData = {
+      id: t.ID,
+      name: t.Name,
+      description: t.Description,
+      note: t.Note,
+      flavor_name: t.FlavorName,
+      flavor_description: "",
+      source: t.Source,
+      license: t.License,
+      license_level: t.LicenseLevel,
+      integrated: t.IsIntegrated,
+      weapon_type: t.Type,
+      mount: t.Size,
+      cascading: t.IsCascading,
+      destroyed: t.Destroyed,
+      loaded: t.Loaded,
+      item_type: t.ItemType,
+      max_uses: t.MaxUses,
+      max_use_override: t.MaxUseOverride,
+      uses: t.Uses,
+      custom_damage_type: t.DamageTypeOverride !== "" ? this.Damage(t.DamageTypeOverride) : null,
+      mod: t.Mod,
+      sp: t.SP,
+      range: this.Multi_Range_to_RangeData(t.Range),
+      damage: this.Multi_Damage_to_DamageData(t.Damage),
+      effect: this.ItemEffect_to_EffectData(t.Effect[0]),
+      tags: this.Multi_Tag_to_TagData(t.Tags),
+    };
+    return data;
   }
 
   /*

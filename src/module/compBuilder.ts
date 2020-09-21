@@ -1,10 +1,5 @@
 import { LancerLicense } from "./item/lancer-item";
 import {
-  LancerSkillData,
-  LancerTalentData,
-  LancerCoreBonusData,
-  LancerPilotGearData,
-  LancerFrameData,
   LancerMechSystemData,
   LancerMechWeaponData,
   TagData,
@@ -13,23 +8,23 @@ import {
 import { PilotEquipType } from "./enums";
 import * as mm from "machine-mind";
 import { Converter } from "./ccdata_io";
-import { Frame, PilotGear } from "machine-mind";
+import { ContentPack, Frame, PilotArmor, PilotGear, PilotWeapon } from "machine-mind";
 // import data from 'lancer-data'
 
 // function lcpImport(file, fileName, compendiumName) {
 
 // }
 
-export const convertLancerData = async function (): Promise<any> {
-  await buildSkillCompendium();
-  await buildTalentCompendium();
-  await buildCoreBonusCompendium();
-  // await buildPilotEquipmentCompendiums();
-  await buildFrameCompendium();
-  // await buildMechSystemCompendium();
-  // await buildMechWeaponCompendium();
+export async function buildCompendiums(cp: ContentPack): Promise<void> {
+  await buildSkillCompendium(cp);
+  await buildTalentCompendium(cp);
+  await buildCoreBonusCompendium(cp);
+  await buildPilotEquipmentCompendiums(cp);
+  await buildFrameCompendium(cp);
+  // await buildMechSystemCompendium(cp);
+  // await buildMechWeaponCompendium(cp);
   return Promise.resolve();
-};
+}
 
 async function findPack(pack_name: string, metaData: object): Promise<Compendium> {
   let pack: Compendium | undefined;
@@ -87,8 +82,8 @@ async function updateItem(
   }
 }
 
-async function buildSkillCompendium() {
-  const skills = mm.getBaseContentPack().Skills;
+async function buildSkillCompendium(cp: ContentPack) {
+  const skills = cp.Skills;
   const img = "systems/lancer/assets/icons/skill.svg";
   const metaData: Object = {
     name: "skills",
@@ -110,8 +105,8 @@ async function buildSkillCompendium() {
   return Promise.resolve();
 }
 
-async function buildTalentCompendium() {
-  const talents = mm.getBaseContentPack().Talents;
+async function buildTalentCompendium(cp: ContentPack) {
+  const talents = cp.Talents;
   const img = "systems/lancer/assets/icons/talent.svg";
   const metaData: Object = {
     name: "talents",
@@ -133,8 +128,8 @@ async function buildTalentCompendium() {
   return Promise.resolve();
 }
 
-async function buildCoreBonusCompendium() {
-  const coreBonus = mm.getBaseContentPack().CoreBonuses;
+async function buildCoreBonusCompendium(cp: ContentPack) {
+  const coreBonus = cp.CoreBonuses;
   const img = "systems/lancer/assets/icons/corebonus.svg";
   const metaData: Object = {
     name: "core_bonuses",
@@ -156,11 +151,11 @@ async function buildCoreBonusCompendium() {
   return Promise.resolve();
 }
 
-async function buildPilotEquipmentCompendiums() {
+async function buildPilotEquipmentCompendiums(cp: ContentPack) {
   console.log("LANCER | Building Pilot Equipment compendiums.");
-  const pilotArmor = mm.getBaseContentPack().PilotArmor;
-  const pilotWeapon = mm.getBaseContentPack().PilotWeapons;
-  const pilotGear = mm.getBaseContentPack().PilotGear;
+  const pilotArmor = cp.PilotArmor;
+  const pilotWeapon = cp.PilotWeapons;
+  const pilotGear = cp.PilotGear;
   const armImg = "systems/lancer/assets/icons/shield_outline.svg";
   const weapImg = "systems/lancer/assets/icons/weapon.svg";
   const gearImg = "systems/lancer/assets/icons/generic_item.svg";
@@ -200,34 +195,20 @@ async function buildPilotEquipmentCompendiums() {
   let conv: Converter = new Converter("");
 
   // Iterate through the lists of pilot equipment and add them each to the Compendium
-  // pilotGear.forEach(async (gear: PilotGear) => {
-  //   updateItem(pgPack, conv.CoreBonus_to_LancerCoreBonusData(gear), "core_bonus", img);
-  //   if (gear.type === PilotEquipType.PilotArmor) {
-  //     delete gear.type;
-  //     gear.item_type = mm.ItemType.PilotArmor;
-  //     updateItem(paPack, gear, "pilot_armor", armImg);
-  //   } else if (gear.type === PilotEquipType.PilotWeapon) {
-  //     delete gear.type;
-  //     gear.item_type = mm.ItemType.PilotWeapon;
-  //     updateItem(pwPack, gear, "pilot_weapon", weapImg);
-  //   } else if (gear.type === PilotEquipType.PilotGear) {
-  //     delete gear.type;
-  //     let gear: LancerPilotGearData = gear;
-  //     gear.item_type = mm.ItemType.PilotGear;
-  //     if (gear.uses) {
-  //       gear.current_uses = gear.uses;
-  //     }
-  //     updateItem(pgPack, gear, "pilot_gear", gearImg);
-  //   } else {
-  //     // Error - unknown type!
-  //     throw TypeError(`Unknown pilot equipment type: ${gear.type}.`);
-  //   }
-  // });
+  pilotArmor.forEach(async (arm: PilotArmor) => {
+    updateItem(paPack, conv.PilotArmor_to_LancerPilotArmorData(arm), "pilot_armor", armImg);
+  });
+  pilotWeapon.forEach(async (weap: PilotWeapon) => {
+    updateItem(pwPack, conv.PilotWeapon_to_LancerPilotWeaponData(weap), "pilot_weapon", weapImg);
+  });
+  pilotGear.forEach(async (gear: PilotGear) => {
+    updateItem(pgPack, conv.PilotGear_to_LancerPilotGearData(gear), "pilot_gear", gearImg);
+  });
   return Promise.resolve();
 }
 
-async function buildFrameCompendium() {
-  const frames = mm.getBaseContentPack().Frames;
+async function buildFrameCompendium(cp: ContentPack) {
+  const frames = cp.Frames;
   const img = "systems/lancer/assets/icons/frame.svg";
   const metaData: Object = {
     name: "frames",
@@ -262,8 +243,8 @@ async function buildFrameCompendium() {
   return Promise.resolve();
 }
 
-async function buildMechSystemCompendium() {
-  const systems = mm.getBaseContentPack().MechSystems;
+async function buildMechSystemCompendium(cp: ContentPack) {
+  const systems = cp.MechSystems;
   const img = "systems/lancer/assets/icons/mech_system.svg";
   const metaData: Object = {
     name: "systems",
@@ -329,8 +310,8 @@ async function buildMechSystemCompendium() {
   return Promise.resolve();
 }
 
-async function buildMechWeaponCompendium() {
-  const weapons = mm.getBaseContentPack().MechWeapons;
+async function buildMechWeaponCompendium(cp: ContentPack) {
+  const weapons = cp.MechWeapons;
   const img = "systems/lancer/assets/icons/mech_weapon.svg";
   const metaData: Object = {
     name: "weapons",
