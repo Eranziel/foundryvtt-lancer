@@ -670,6 +670,7 @@ export class Converter {
   }
 
   ItemEffect_to_EffectData(t: ItemEffect): any {
+    if (!t) return null;
     if (t.EffectType === EffectType.AI) {
       const td = t as AIEffect;
       let data: AIEffectData = {
@@ -922,6 +923,7 @@ export class Converter {
   }
 
   MechWeapon_to_LancerMechWeaponData(t: MechWeapon): LancerMechWeaponData {
+    if (t.Effect.length > 1) console.log(`${lp} multi-effect item: `, t);
     let data: LancerMechWeaponData = {
       id: t.ID,
       name: t.Name,

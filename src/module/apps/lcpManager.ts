@@ -32,9 +32,10 @@ class LCPManager extends Application {
     super(...args);
     this.lcpFile = null;
     // TODO: current core version to be stored in a Foundry system setting
-    this.coreVersion = "1.0.0";
+    this.coreVersion = game.settings.get(LANCER.sys_name, LANCER.setting_core_data);
     // TODO: pull available core version from machine-mind
-    this.coreUpdate = "1.0.1";
+    this.coreUpdate = "2.0.35";
+    console.log(`${lp} Lancer Data version:`, this.coreVersion);
   }
 
   static get defaultOptions() {
@@ -72,8 +73,9 @@ class LCPManager extends Application {
 
   _onCoreUpdateButtonClick(ev: MouseEvent) {
     if (!ev.currentTarget) return;
-    console.log(`${lp} Updating Lancer Core data to v`);
+    console.log(`${lp} Updating Lancer Core data to v${this.coreUpdate}`);
     buildCompendiums(mm.getBaseContentPack());
+    game.settings.set(LANCER.sys_name, LANCER.setting_core_data, this.coreUpdate);
   }
 
   _onImportButtonClick(ev: MouseEvent) {
@@ -81,13 +83,9 @@ class LCPManager extends Application {
       ui.notifications.error(`Import error: no file selected.`);
       return;
     }
-    ui.notifications.info(`Starting import of "${this.lcpFile.name}". Please wait.`);
-    console.log(`${lp} Starting import of "${this.lcpFile.name}"`);
-
     const fr = new FileReader();
     fr.readAsBinaryString(this.lcpFile);
     fr.addEventListener("load", (ev: ProgressEvent) => {
-      console.log(ev);
       this._importLCP((ev.target as FileReader).result as string);
     });
   }
@@ -96,8 +94,16 @@ class LCPManager extends Application {
     if (!fileData) return;
     const icp = await mm.parseContentPack(fileData);
     const cp = new mm.ContentPack(icp);
+    ui.notifications.info(`Starting import of ${cp.Name} v${cp.Version}. Please wait.`);
+    console.log(`${lp} Starting import of ${cp.Name} v${cp.Version}.`);
     console.log(`${lp} Parsed content pack:`, cp);
-    buildCompendiums(cp);
+
+    let lcpIndex = game.settings.get(LANCER.sys_name, LANCER.setting_lcps);
+    console.log(lcpIndex);
+    await buildCompendiums(cp);
+    ui.notifications.info(`Import of ${cp.Name} v${cp.Version} complete.`);
+    console.log(`${lp} Import of ${cp.Name} v${cp.Version} complete.`);
+    // TODO: add manifest of installed LCP to setting
   }
 }
 

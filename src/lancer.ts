@@ -142,7 +142,7 @@ Hooks.once("init", async function () {
   setup_store(store);
   await store.load_all(f => f(store));
   await reload_store();
-  console.log("Initialized store!!!");
+  console.log(`${lp} Comp/Con data store initialized.`);
 
   // Register sheet application classes
   Actors.unregisterSheet("core", ActorSheet);
