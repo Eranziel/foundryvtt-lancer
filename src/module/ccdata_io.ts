@@ -23,6 +23,7 @@ import {
   LancerCoreSystemData,
   TagData,
   DamageData,
+  NPCDamageData,
 } from "./interfaces";
 
 // const x: LancerPilotData;
@@ -86,6 +87,11 @@ import {
   ProtocolEffect,
   ReactionEffect,
   TechEffect,
+  NpcFeatureType,
+  NpcReaction,
+  NpcTech,
+  NpcWeapon,
+  WeaponType,
 } from "machine-mind";
 import { INpcClassStats, NpcClassStats } from "machine-mind/dist/classes/npc/NpcClassStats";
 import {
@@ -107,6 +113,7 @@ import {
 } from "./item/effects";
 import { ActivationType, EffectType } from "./enums";
 import { InvadeOption } from "machine-mind/dist/classes/effects/TechEffect";
+import { LancerNPCReactionData, LancerNPCTechData, LancerNPCWeaponData } from "./item/npc-feature";
 // import { Compendium } from "machine-mind/dist/store/compendium";
 
 // Temporary placeholders for while we work
@@ -421,7 +428,7 @@ export class Converter {
   }
 
   NpcClassStats_to_LancerNPCClassStatsData(t: NpcClassStats): LancerNPCClassStatsData {
-    let tiers = [1, 2, 3];
+    const tiers = [1, 2, 3];
     let data: LancerNPCClassStatsData = {
       activations: tiers.map((v: number) => {
         return t.Activations(v);
@@ -517,6 +524,7 @@ export class Converter {
   }
 
   NpcFeature_to_LancerNPCFeatureData(t: NpcFeature): LancerNPCFeatureData {
+    const tiers = [1, 2, 3];
     let data: LancerNPCFeatureData = {
       id: t.ID,
       name: t.Name,
@@ -538,6 +546,36 @@ export class Converter {
       effect: t.Effect,
       override: t.Override,
     };
+
+    if (data.feature_type === NpcFeatureType.Reaction) {
+      const td: NpcReaction = t as NpcReaction;
+      (data as LancerNPCReactionData) = {
+        ...data,
+        trigger: td.Trigger,
+        feature_type: NpcFeatureType.Reaction
+      }
+    } else if (data.feature_type === NpcFeatureType.Tech) {
+      const td: NpcTech = t as NpcTech;
+      (data as LancerNPCTechData) = {
+        ...data,
+        tech_type: td.TechType,
+        accuracy: tiers.map((x: number) => { return td.Accuracy(x) }),
+        attack_bonus: tiers.map((x: number) => { return td.AttackBonus(x) }),
+        feature_type: NpcFeatureType.Tech
+      }
+    } else if (data.feature_type === NpcFeatureType.Weapon) {
+      const td: NpcWeapon = t as NpcWeapon;
+      (data as LancerNPCWeaponData) = {
+        ...data,
+        accuracy: tiers.map((x: number) => { return td.Accuracy(x) }),
+        attack_bonus: tiers.map((x: number) => { return td.AttackBonus(x) }),
+        damage: this.DamageArr_to_NPCDamageData(tiers.map((x: number) => { return td.Damage(x) })),
+        range: this.Multi_Range_to_RangeData(td.Range),
+        weapon_type: td.WeaponType,
+        on_hit: td.OnHit,
+        feature_type: NpcFeatureType.Weapon
+      }
+    }
     return data;
   }
 
@@ -911,6 +949,40 @@ export class Converter {
     });
   }
 
+  /**
+   * Converts a 2D array of Comp/Con Damage objects to an array of NPCDamageData objects.
+   * @param t Damage[][] - first index is tier, second index is Damage objects for each type on the weapon.
+   */
+  DamageArr_to_NPCDamageData(t: Damage[][]): NPCDamageData[] {
+    const tiers = [0, 1, 2];
+    let data: NPCDamageData[] = [];
+    if (Array.isArray(t)) {
+      // Iterate through the tiers
+      for (var i = 0; i < t.length; i++) {
+        const dtier = t[i]; // Damage array for this tier
+        if (Array.isArray(dtier)) {
+          for (var j = 0; j < dtier.length; j++) {
+            const dtype = dtier[j];
+            // If there is no NPCDamageData for this damage type yet, create it
+            if (!data[j]) {
+              let sub_data: NPCDamageData = {
+                type: dtype.Type,
+                override: dtype.Override ? dtype.Override : undefined,
+                val: [dtype.Value]
+              };
+              data.push(sub_data);
+            } else {
+              // Otherwise, add the tier value for this type
+              data[j].val.push(dtype.Value);
+            }
+          }
+        }
+      }
+    }
+    console.log(t, data);
+    return data;
+  }
+
   // WEAPONS
   LancerMechWeaponData_to_IMechWeaponData(t: LancerMechWeaponData): IMechWeaponData {
     return {
@@ -1180,7 +1252,7 @@ export class Converter {
 // function init_compendium_from_items()
 // Stores/retrieves. For now does nothing. Might eventually hook into entity ids, perhaps?
 export class FauxPersistor extends PersistentStore {
-  async set_item(key: string, val: any): Promise<void> {}
+  async set_item(key: string, val: any): Promise<void> { }
   async get_item<T>(key: string): Promise<T> {
     return (null as unknown) as T;
   }

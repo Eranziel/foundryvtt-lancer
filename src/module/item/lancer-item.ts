@@ -385,7 +385,7 @@ export function npc_weapon_damage_selector(
   // Default in
   dmg = {
     type: DamageType.Kinetic,
-    val: [0, 0, 0],
+    val: ["0", "0", "0"],
     ...dmg,
   };
 

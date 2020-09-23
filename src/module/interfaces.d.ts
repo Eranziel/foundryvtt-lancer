@@ -60,9 +60,9 @@ declare interface RangeData {
 declare type RangeData =
   | mm.IRangeData
   | {
-      type: "None";
-      val: 0;
-    };
+    type: "None";
+    val: 0;
+  };
 
 // Alias
 /*
@@ -78,7 +78,7 @@ declare type DamageData = mm.IDamageData;
 // declare type NPCDamageData = mm.INpcDamageData;
 declare interface NPCDamageData {
   type: mm.DamageType;
-  val: number[];
+  val: string[];
   override?: boolean;
 }
 

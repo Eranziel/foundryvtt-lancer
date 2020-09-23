@@ -16,6 +16,9 @@ import {
   PilotArmor,
   PilotGear,
   PilotWeapon,
+  NpcClass,
+  NpcTemplate,
+  NpcFeature,
 } from "machine-mind";
 import { LANCER } from "./config";
 // import data from 'lancer-data'
@@ -35,9 +38,9 @@ export async function buildCompendiums(cp: ContentPack): Promise<void> {
   await buildMechWeaponCompendium(conv, cp);
   // TODO: weapon 
   // TODO: licenses
-  // TODO: NPC classes
-  // TODO: NPC templates
-  // TODO: NPC features
+  await buildNPCClassCompendium(conv, cp);
+  await buildNPCTemplateCompendium(conv, cp);
+  await buildNPCFeatureCompendium(conv, cp);
   return Promise.resolve();
 }
 
@@ -355,6 +358,96 @@ async function buildMechWeaponCompendium(conv: Converter, cp: ContentPack) {
   return Promise.resolve();
 }
 
-// export {
-// 	lcpImport,
-// };
+// TODO: Weapon mods
+
+// TODO: Licenses
+
+async function buildNPCClassCompendium(conv: Converter, cp: ContentPack) {
+  const npcc = cp.NpcClasses;
+  const img = "systems/lancer/assets/icons/npc_class.svg";
+  const metaData: Object = {
+    name: "npc_classes",
+    label: "NPC Classes",
+    system: "lancer",
+    package: "lancer",
+    path: "./packs/npc_classes.db",
+    entity: "Item",
+  };
+  let pack: Compendium = await findPack("npc_classes", metaData);
+  pack.locked = false;
+  await pack.getIndex();
+
+  // Iterate through the list of core bonuses and add them each to the Compendium
+  let promises: Promise<Entity>[] = [];
+  npcc.forEach(async (cls: NpcClass) => {
+    if (pack.locked) pack.locked = false;
+    promises.push(
+      updateItem(pack, conv.NpcClass_to_LancerNPCClassData(cls), "npc_class", img)
+    );
+  });
+  for await (const x of promises) {
+    continue;
+  }
+  pack.locked = true;
+  return Promise.resolve();
+}
+
+async function buildNPCTemplateCompendium(conv: Converter, cp: ContentPack) {
+  const npct = cp.NpcTemplates;
+  const img = "systems/lancer/assets/icons/npc_template.svg";
+  const metaData: Object = {
+    name: "npc_templates",
+    label: "NPC Templates",
+    system: "lancer",
+    package: "lancer",
+    path: "./packs/npc_templates.db",
+    entity: "Item",
+  };
+  let pack: Compendium = await findPack("npc_templates", metaData);
+  pack.locked = false;
+  await pack.getIndex();
+
+  // Iterate through the list of core bonuses and add them each to the Compendium
+  let promises: Promise<Entity>[] = [];
+  npct.forEach(async (template: NpcTemplate) => {
+    if (pack.locked) pack.locked = false;
+    promises.push(
+      updateItem(pack, conv.NpcTemplate_to_LancerNPCTemplateData(template), "npc_template", img)
+    );
+  });
+  for await (const x of promises) {
+    continue;
+  }
+  pack.locked = true;
+  return Promise.resolve();
+}
+
+async function buildNPCFeatureCompendium(conv: Converter, cp: ContentPack) {
+  const npcf = cp.NpcFeatures;
+  const img = "systems/lancer/assets/icons/npc_feature.svg";
+  const metaData: Object = {
+    name: "npc_features",
+    label: "NPC Features",
+    system: "lancer",
+    package: "lancer",
+    path: "./packs/npc_features.db",
+    entity: "Item",
+  };
+  let pack: Compendium = await findPack("npc_features", metaData);
+  pack.locked = false;
+  await pack.getIndex();
+
+  // Iterate through the list of core bonuses and add them each to the Compendium
+  let promises: Promise<Entity>[] = [];
+  npcf.forEach(async (feature: NpcFeature) => {
+    if (pack.locked) pack.locked = false;
+    promises.push(
+      updateItem(pack, conv.NpcFeature_to_LancerNPCFeatureData(feature), "npc_feature", img)
+    );
+  });
+  for await (const x of promises) {
+    continue;
+  }
+  pack.locked = true;
+  return Promise.resolve();
+}
