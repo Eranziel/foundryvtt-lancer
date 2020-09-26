@@ -36,7 +36,7 @@ export async function buildCompendiums(cp: ContentPack): Promise<void> {
   await buildFrameCompendium(conv, cp);
   await buildMechSystemCompendium(conv, cp);
   await buildMechWeaponCompendium(conv, cp);
-  // TODO: weapon 
+  // TODO: weapon mods
   // TODO: licenses
   await buildNPCClassCompendium(conv, cp);
   await buildNPCTemplateCompendium(conv, cp);

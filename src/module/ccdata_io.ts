@@ -17,7 +17,6 @@ import {
   LancerPilotArmorData,
   LancerNPCFeatureData,
   LancerNPCClassStatsData,
-  LancerMountData,
   RangeData,
   LancerMechWeaponData,
   LancerCoreSystemData,
@@ -51,7 +50,6 @@ import {
   EquippableMount,
   MountType,
   MechSystem,
-  IDamageData,
   IRangeData,
   IMechWeaponData,
   Talent,
@@ -61,7 +59,6 @@ import {
   ItemType,
   CoreSystem,
   Tag,
-  WeaponMod,
   NpcClass,
   NpcTemplate,
   NpcFeature,
@@ -90,8 +87,7 @@ import {
   NpcFeatureType,
   NpcReaction,
   NpcTech,
-  NpcWeapon,
-  WeaponType,
+  NpcWeapon, INpcReactionData, INpcTechData, INpcWeaponData, INpcDamageData
 } from "machine-mind";
 import { INpcClassStats, NpcClassStats } from "machine-mind/dist/classes/npc/NpcClassStats";
 import {
@@ -386,8 +382,9 @@ export class Converter {
     };
   }
 
-  LancerNPCFeatureData_to_INpcFeatureData(t: LancerNPCFeatureData): INpcFeatureData {
-    return {
+  LancerNPCFeatureData_to_INpcFeatureData(t: LancerNPCFeatureData | LancerNPCReactionData | LancerNPCTechData | LancerNPCWeaponData): INpcFeatureData | INpcReactionData | INpcTechData | INpcWeaponData {
+    let data: INpcFeatureData;
+    data = {
       brew: this.brew,
       hide_active: false,
       id: t.id,
@@ -404,6 +401,39 @@ export class Converter {
       effect: t.effect,
       override: t.override,
     };
+    if (t.feature_type === NpcFeatureType.Reaction) {
+      let td: LancerNPCReactionData = t as LancerNPCReactionData;
+      let data2: INpcReactionData = {
+        ...data,
+        trigger: td.trigger,
+        type: NpcFeatureType.Reaction
+      };
+      return data2;
+    } else if (t.feature_type === NpcFeatureType.Tech) {
+      let td: LancerNPCTechData = t as LancerNPCTechData;
+      let data2: INpcTechData = {
+        ...data,
+        tech_type: td.tech_type,
+        accuracy: td.accuracy,
+        attack_bonus: td.attack_bonus,
+        type: NpcFeatureType.Tech
+      };
+      return data2;
+    } else if (t.feature_type === NpcFeatureType.Weapon) {
+      let td: LancerNPCWeaponData = t as LancerNPCWeaponData;
+      let data2: INpcWeaponData = {
+        ...data,
+        accuracy: td.accuracy,
+        attack_bonus: td.attack_bonus,
+        damage: this.Multi_NPCDamageData_to_INpcDamageData(td.damage),
+        range: this.Multi_RangeData_to_IRangeData(td.range),
+        on_hit: td.on_hit,
+        weapon_type: td.weapon_type,
+        type: NpcFeatureType.Weapon
+      };
+      return data2;
+    }
+    return data;
   }
 
   LancerNPCTemplateData_to_INpcTemplateData(t: LancerNPCTemplateData): INpcTemplateData {
@@ -569,12 +599,13 @@ export class Converter {
         ...data,
         accuracy: tiers.map((x: number) => { return td.Accuracy(x) }),
         attack_bonus: tiers.map((x: number) => { return td.AttackBonus(x) }),
-        damage: this.DamageArr_to_NPCDamageData(tiers.map((x: number) => { return td.Damage(x) })),
+        damage: this.Multi_Damage_to_NPCDamageData(tiers.map((x: number) => { return td.Damage(x) })),
         range: this.Multi_Range_to_RangeData(td.Range),
         weapon_type: td.WeaponType,
         on_hit: td.OnHit,
         feature_type: NpcFeatureType.Weapon
       }
+      console.log(`${lp} NPC Weapon:`, data);
     }
     return data;
   }
@@ -908,6 +939,15 @@ export class Converter {
     }
   }
 
+  Multi_RangeData_to_IRangeData(t: RangeData[]): IRangeData[] {
+    let ranges = t.map((r: RangeData) => {
+      return this.RangeData_to_IRangeData(r);
+    });
+    return (ranges.filter(r => {
+      return r !== null;
+    }) as IRangeData[]);
+  }
+
   // TODO - RangeData.val needs to be able to take a string
   Range_to_RangeData(t: Range): RangeData {
     let data: RangeData = {
@@ -953,8 +993,7 @@ export class Converter {
    * Converts a 2D array of Comp/Con Damage objects to an array of NPCDamageData objects.
    * @param t Damage[][] - first index is tier, second index is Damage objects for each type on the weapon.
    */
-  DamageArr_to_NPCDamageData(t: Damage[][]): NPCDamageData[] {
-    const tiers = [0, 1, 2];
+  Multi_Damage_to_NPCDamageData(t: Damage[][]): NPCDamageData[] {
     let data: NPCDamageData[] = [];
     if (Array.isArray(t)) {
       // Iterate through the tiers
@@ -979,7 +1018,20 @@ export class Converter {
         }
       }
     }
-    console.log(t, data);
+    return data;
+  }
+
+  Multi_NPCDamageData_to_INpcDamageData(t: NPCDamageData[]): INpcDamageData[] {
+    let data: INpcDamageData[] = [];
+    if (Array.isArray(t) && t.length > 0) {
+      data = t.map((d: NPCDamageData) => {
+        let sub_data: INpcDamageData = {
+          damage: d.val.map((v: string) => { return Number(v) }),
+          type: d.type
+        };
+        return sub_data;
+      });
+    }
     return data;
   }
 

@@ -1,6 +1,7 @@
 import { LANCER } from "./config";
 import * as mm from "machine-mind";
 import { IContentPackManifest } from "machine-mind";
+import { LCPIndex } from "./apps/lcpManager";
 
 export const registerSettings = function () {
   /**
@@ -26,7 +27,6 @@ export const registerSettings = function () {
     name: "Installed LCPs",
     scope: "system",
     config: false,
-    type: Array,
-    default: []
+    type: Object,
   });
 };
