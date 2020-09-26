@@ -62,6 +62,7 @@ class LCPManager extends Application {
   coreVersion: string;
   coreUpdate: string | null;
   lcpIndex: LCPIndex;
+  systemCompendiums: boolean;
 
   constructor(...args: any[]) {
     super(...args);
@@ -73,6 +74,7 @@ class LCPManager extends Application {
     this.coreUpdate = "2.0.35";
     console.log(`${lp} Lancer Data version:`, this.coreVersion);
     this.lcpIndex = new LCPIndex(game.settings.get(LANCER.sys_name, LANCER.setting_lcps).index);
+    this.systemCompendiums = game.settings.get(LANCER.sys_name, LANCER.setting_comp_loc);
   }
 
   static get defaultOptions() {
@@ -157,7 +159,7 @@ class LCPManager extends Application {
       frames: this.cp.Frames.length,
       systems: this.cp.MechSystems.length,
       weapons: this.cp.MechWeapons.length,
-      mods: this.cp.WeaponMods.length,
+      // mods: this.cp.WeaponMods.length,
       npc_classes: this.cp.NpcClasses.length,
       npc_templates: this.cp.NpcTemplates.length,
       npc_features: this.cp.NpcFeatures.length
@@ -183,7 +185,7 @@ class LCPManager extends Application {
     ui.notifications.info(`Starting import of ${cp.Name} v${cp.Version}. Please wait.`);
     console.log(`${lp} Starting import of ${cp.Name} v${cp.Version}.`);
     console.log(`${lp} Parsed content pack:`, cp);
-    await buildCompendiums(cp);
+    await buildCompendiums(cp, this.systemCompendiums);
     ui.notifications.info(`Import of ${cp.Name} v${cp.Version} complete.`);
     console.log(`${lp} Import of ${cp.Name} v${cp.Version} complete.`);
 

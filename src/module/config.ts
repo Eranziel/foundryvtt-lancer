@@ -15,6 +15,7 @@ export const LANCER = {
   setting_migration: "systemMigrationVersion",
   setting_core_data: "coreDataVersion",
   setting_lcps: "installedLCPs",
+  setting_comp_loc: "compendiumLocation",
   pilot_items: [
     "frame",
     "skill",

@@ -27,31 +27,31 @@ import { LANCER } from "./config";
 
 // }
 
-export async function buildCompendiums(cp: ContentPack): Promise<void> {
+export async function buildCompendiums(cp: ContentPack, sysComps: boolean): Promise<void> {
   const conv = new Converter(cp.ID);
-  await buildSkillCompendium(conv, cp);
-  await buildTalentCompendium(conv, cp);
-  await buildCoreBonusCompendium(conv, cp);
-  await buildPilotEquipmentCompendiums(conv, cp);
-  await buildFrameCompendium(conv, cp);
-  await buildMechSystemCompendium(conv, cp);
-  await buildMechWeaponCompendium(conv, cp);
+  await buildSkillCompendium(conv, cp, sysComps);
+  await buildTalentCompendium(conv, cp, sysComps);
+  await buildCoreBonusCompendium(conv, cp, sysComps);
+  await buildPilotEquipmentCompendiums(conv, cp, sysComps);
+  await buildFrameCompendium(conv, cp, sysComps);
+  await buildMechSystemCompendium(conv, cp, sysComps);
+  await buildMechWeaponCompendium(conv, cp, sysComps);
   // TODO: weapon mods
   // TODO: licenses
-  await buildNPCClassCompendium(conv, cp);
-  await buildNPCTemplateCompendium(conv, cp);
-  await buildNPCFeatureCompendium(conv, cp);
+  await buildNPCClassCompendium(conv, cp, sysComps);
+  await buildNPCTemplateCompendium(conv, cp, sysComps);
+  await buildNPCFeatureCompendium(conv, cp, sysComps);
   return Promise.resolve();
 }
 
 async function findPack(pack_name: string, metaData: object): Promise<Compendium> {
   let pack: Compendium | undefined;
 
-  // Find existing system compendium
-  pack = game.packs.get(`lancer.${pack_name}`);
+  // Find existing world compendium
+  pack = game.packs.get(`world.${pack_name}`);
   if (!pack) {
-    // System compendium doesn't exist, attempt to find a world compendium
-    pack = game.packs.get(`world.${pack_name}`);
+    // World compendium doesn't exist, attempt to find a system compendium
+    pack = game.packs.get(`lancer.${pack_name}`);
   }
   if (pack) {
     console.log(`LANCER | Updating existing compendium: ${pack.collection}.`);
@@ -100,14 +100,14 @@ async function updateItem(
   }
 }
 
-async function buildSkillCompendium(conv: Converter, cp: ContentPack) {
+async function buildSkillCompendium(conv: Converter, cp: ContentPack, sysComps: boolean) {
   const skills = cp.Skills;
   const img = "systems/lancer/assets/icons/skill.svg";
   const metaData: Object = {
     name: "skills",
     label: "Skill Triggers",
     system: "lancer",
-    package: "lancer",
+    package: sysComps ? "lancer" : "world",
     path: "./packs/skills.db",
     entity: "Item",
   };
@@ -128,14 +128,14 @@ async function buildSkillCompendium(conv: Converter, cp: ContentPack) {
   return Promise.resolve();
 }
 
-async function buildTalentCompendium(conv: Converter, cp: ContentPack) {
+async function buildTalentCompendium(conv: Converter, cp: ContentPack, sysComps: boolean) {
   const talents = cp.Talents;
   const img = "systems/lancer/assets/icons/talent.svg";
   const metaData: Object = {
     name: "talents",
     label: "Talents",
     system: "lancer",
-    package: "lancer",
+    package: sysComps ? "lancer" : "world",
     path: "./packs/talents.db",
     entity: "Item",
   };
@@ -156,14 +156,14 @@ async function buildTalentCompendium(conv: Converter, cp: ContentPack) {
   return Promise.resolve();
 }
 
-async function buildCoreBonusCompendium(conv: Converter, cp: ContentPack) {
+async function buildCoreBonusCompendium(conv: Converter, cp: ContentPack, sysComps: boolean) {
   const coreBonus = cp.CoreBonuses;
   const img = "systems/lancer/assets/icons/corebonus.svg";
   const metaData: Object = {
     name: "core_bonuses",
     label: "Core Bonuses",
     system: "lancer",
-    package: "lancer",
+    package: sysComps ? "lancer" : "world",
     path: "./packs/core_bonuses.db",
     entity: "Item",
   };
@@ -186,7 +186,7 @@ async function buildCoreBonusCompendium(conv: Converter, cp: ContentPack) {
   return Promise.resolve();
 }
 
-async function buildPilotEquipmentCompendiums(conv: Converter, cp: ContentPack) {
+async function buildPilotEquipmentCompendiums(conv: Converter, cp: ContentPack, sysComps: boolean) {
   console.log("LANCER | Building Pilot Equipment compendiums.");
   const pilotArmor = cp.PilotArmor;
   const pilotWeapon = cp.PilotWeapons;
@@ -198,7 +198,7 @@ async function buildPilotEquipmentCompendiums(conv: Converter, cp: ContentPack) 
     name: "pilot_armor",
     label: "Pilot Armor",
     system: "lancer",
-    package: "lancer",
+    package: sysComps ? "lancer" : "world",
     path: "./packs/pilot_armor.db",
     entity: "Item",
   };
@@ -207,7 +207,7 @@ async function buildPilotEquipmentCompendiums(conv: Converter, cp: ContentPack) 
     name: "pilot_weapons",
     label: "Pilot Weapons",
     system: "lancer",
-    package: "lancer",
+    package: sysComps ? "lancer" : "world",
     path: "./packs/pilot_weapons.db",
     entity: "Item",
   };
@@ -216,7 +216,7 @@ async function buildPilotEquipmentCompendiums(conv: Converter, cp: ContentPack) 
     name: "pilot_gear",
     label: "Pilot Gear",
     system: "lancer",
-    package: "lancer",
+    package: sysComps ? "lancer" : "world",
     path: "./packs/pilot_gear.db",
     entity: "Item",
   };
@@ -257,14 +257,14 @@ async function buildPilotEquipmentCompendiums(conv: Converter, cp: ContentPack) 
   return Promise.resolve();
 }
 
-async function buildFrameCompendium(conv: Converter, cp: ContentPack) {
+async function buildFrameCompendium(conv: Converter, cp: ContentPack, sysComps: boolean) {
   const frames = cp.Frames;
   const img = "systems/lancer/assets/icons/frame.svg";
   const metaData: Object = {
     name: "frames",
     label: "Frames",
     system: "lancer",
-    package: "lancer",
+    package: sysComps ? "lancer" : "world",
     path: "./packs/frames.db",
     entity: "Item",
   };
@@ -298,14 +298,14 @@ async function buildFrameCompendium(conv: Converter, cp: ContentPack) {
   return Promise.resolve();
 }
 
-async function buildMechSystemCompendium(conv: Converter, cp: ContentPack) {
+async function buildMechSystemCompendium(conv: Converter, cp: ContentPack, sysComps: boolean) {
   const systems = cp.MechSystems;
   const img = "systems/lancer/assets/icons/mech_system.svg";
   const metaData: Object = {
     name: "systems",
     label: "Systems",
     system: "lancer",
-    package: "lancer",
+    package: sysComps ? "lancer" : "world",
     path: "./packs/systems.db",
     entity: "Item",
   };
@@ -328,14 +328,14 @@ async function buildMechSystemCompendium(conv: Converter, cp: ContentPack) {
   return Promise.resolve();
 }
 
-async function buildMechWeaponCompendium(conv: Converter, cp: ContentPack) {
+async function buildMechWeaponCompendium(conv: Converter, cp: ContentPack, sysComps: boolean) {
   const weapons = cp.MechWeapons;
   const img = "systems/lancer/assets/icons/mech_weapon.svg";
   const metaData: Object = {
     name: "weapons",
     label: "Weapons",
     system: "lancer",
-    package: "lancer",
+    package: sysComps ? "lancer" : "world",
     path: "./packs/weapons.db",
     entity: "Item",
   };
@@ -362,14 +362,14 @@ async function buildMechWeaponCompendium(conv: Converter, cp: ContentPack) {
 
 // TODO: Licenses
 
-async function buildNPCClassCompendium(conv: Converter, cp: ContentPack) {
+async function buildNPCClassCompendium(conv: Converter, cp: ContentPack, sysComps: boolean) {
   const npcc = cp.NpcClasses;
   const img = "systems/lancer/assets/icons/npc_class.svg";
   const metaData: Object = {
     name: "npc_classes",
     label: "NPC Classes",
     system: "lancer",
-    package: "lancer",
+    package: sysComps ? "lancer" : "world",
     path: "./packs/npc_classes.db",
     entity: "Item",
   };
@@ -392,14 +392,14 @@ async function buildNPCClassCompendium(conv: Converter, cp: ContentPack) {
   return Promise.resolve();
 }
 
-async function buildNPCTemplateCompendium(conv: Converter, cp: ContentPack) {
+async function buildNPCTemplateCompendium(conv: Converter, cp: ContentPack, sysComps: boolean) {
   const npct = cp.NpcTemplates;
   const img = "systems/lancer/assets/icons/npc_template.svg";
   const metaData: Object = {
     name: "npc_templates",
     label: "NPC Templates",
     system: "lancer",
-    package: "lancer",
+    package: sysComps ? "lancer" : "world",
     path: "./packs/npc_templates.db",
     entity: "Item",
   };
@@ -422,14 +422,14 @@ async function buildNPCTemplateCompendium(conv: Converter, cp: ContentPack) {
   return Promise.resolve();
 }
 
-async function buildNPCFeatureCompendium(conv: Converter, cp: ContentPack) {
+async function buildNPCFeatureCompendium(conv: Converter, cp: ContentPack, sysComps: boolean) {
   const npcf = cp.NpcFeatures;
   const img = "systems/lancer/assets/icons/npc_feature.svg";
   const metaData: Object = {
     name: "npc_features",
     label: "NPC Features",
     system: "lancer",
-    package: "lancer",
+    package: sysComps ? "lancer" : "world",
     path: "./packs/npc_features.db",
     entity: "Item",
   };

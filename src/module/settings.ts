@@ -17,7 +17,7 @@ export const registerSettings = function () {
 
   game.settings.register(LANCER.sys_name, LANCER.setting_core_data, {
     name: "Lancer Data Version",
-    scope: "system",
+    scope: "world",
     config: false,
     type: String,
     default: ""
@@ -25,8 +25,16 @@ export const registerSettings = function () {
 
   game.settings.register(LANCER.sys_name, LANCER.setting_lcps, {
     name: "Installed LCPs",
-    scope: "system",
+    scope: "world",
     config: false,
     type: Object,
+  });
+
+  game.settings.register(LANCER.sys_name, LANCER.setting_comp_loc, {
+    name: "System-wide Compendiums",
+    hint: "Enable this setting to make Compendiums created using the LCP Manager available to all LANCER worlds on this server.",
+    scope: "system",
+    config: true,
+    default: false
   });
 };
