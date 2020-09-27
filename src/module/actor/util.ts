@@ -83,6 +83,8 @@ export async function update_pilot(pilot: LancerActor, cc_pilot: mm.Pilot): Prom
   pd.pilot.status = cc_pilot.Status;
   pd.pilot.cloud_code = cc_pilot.CloudID;
   pd.pilot.cloud_owner_code = cc_pilot.CloudOwnerID;
+  let dt = new Date();
+  pd.pilot.cloud_time = `${dt.toDateString()}, ${dt.toTimeString()}`;
 
   // Stats
   pd.pilot.stats.armor = cc_pilot.Armor;
