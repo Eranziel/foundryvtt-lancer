@@ -1,3 +1,12 @@
+# 0.1.6 (2020-09-27)
+## General
+* **Pilot Sheet**: Move the cloud sync tab to leftmost, rename to "RM-4://SYNC" to mirror Comp/Con UI.
+* **Pilot Sheet**: Record and display the last time the pilot was downloaded from cloud save.
+
+## Bug Fixes
+* **Pilot Sheet**: Fix bug where charge effects' HTML wasn't closed properly, resulting in the cloud import UI elements not showing on affected pilot sheets. Closes #72.
+* **Comp/Con Cloud Save Import**: Fix bug where pilots with custom skills would not import. Closes #71.
+
 # 0.1.5 (2020-09-27)
 ## Features
 * **LCP Import**: It's finally here! The Lancer Compendium Manager is your new friend for building/updating Compendiums with Lancer core data and LCPs. Closes #15.

@@ -17,7 +17,7 @@ Additionally, a huge thank you and shout out to Animu36, Staubz, and Grygon for 
 ## Feature Demos
 ### Lancer Compendium Manager (aka LCP Importer)
 The Lancer Compendium Manager is used to create and update Compendiums of Lancer items. It is used both to update the core data and to import additional items from Comp/Con data packs (.lcp files). After core data or an LCP is converted to Compendiums the first time, updating or re-importing will update the matching items in the Compendiums. The item types which can currently be imported are:
-* Pilot skill triggers
+* Pilot skill triggers (including custom skills)
 * Talents
 * Core bonuses
 * Pilot equipment (armor, weapons, gear)
@@ -37,9 +37,9 @@ The Import/Update LCP area can be used to select an LCP file and import it. Once
 ![LCP Import](https://i.imgur.com/ibFhiIw.png)
 
 ### Comp/Con Cloud Save Importing
-Pilot sheets now have a fourth tab - <CLOUD//SYNC> - where new pilots can enter a Comp/Con cloud share code and click the download button to import your Comp/Con pilot into Foundry! Mech mounts and weapons are not yet imported and will need to be manually added as before.
+Pilot sheets now have a fourth tab - <RM-4://SYNC> - where new pilots can enter a Comp/Con cloud share code and click the download button to import your Comp/Con pilot into Foundry! Mech mounts and weapons are not yet imported and will need to be manually added as before.
 
-![Comp/Con Import](https://i.imgur.com/EtFNMTd.gif)
+![Comp/Con Import](https://i.imgur.com/Nm0mMIB.gif)
 
 ## System Installation
 **NOTE: This system is in Alpha! While technically released, it is not feature complete. There are probably bugs! If you find some, please submit an issue so we can keep track of it.**
