@@ -1,3 +1,6 @@
+# 0.1.7 (2020-09-27)
+Hotfix to correct new issue with pilot sheet not loading. 
+
 # 0.1.6 (2020-09-27)
 ## General
 * **Pilot Sheet**: Move the cloud sync tab to leftmost, rename to "RM-4://SYNC" to mirror Comp/Con UI.
