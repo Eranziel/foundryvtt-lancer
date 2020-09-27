@@ -1,3 +1,11 @@
+# 0.1.5 (2020-09-27)
+## Features
+* **LCP Import**: It's finally here! The Lancer Compendium Manager is your new friend for building/updating Compendiums with Lancer core data and LCPs. Closes #15.
+* **Comp/Con Cloud Save Import**: Pilots can now pull data from a Comp/Con cloud share code, automatically building the pilot and their mech (except for weapons) and calculating stats. Partial work for #23.
+
+## Bug Fixes
+* **NPC Sheet**: Fix bug where ranges weren't shown on NPC weapon previews. Closes #68.
+
 # 0.1.4 (2020-09-12)
 ## Bug Fixes
 * **NPC Feature Sheet:** Fix bug where new NPC weapons only show 1 damage field. Closes #64.
