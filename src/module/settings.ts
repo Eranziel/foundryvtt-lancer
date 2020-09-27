@@ -20,7 +20,7 @@ export const registerSettings = function () {
     scope: "world",
     config: false,
     type: String,
-    default: ""
+    default: "0.0.0"
   });
 
   game.settings.register(LANCER.sys_name, LANCER.setting_lcps, {
@@ -35,6 +35,16 @@ export const registerSettings = function () {
     hint: "Enable this setting to make Compendiums created using the LCP Manager available to all LANCER worlds on this server.",
     scope: "system",
     config: true,
+    type: Boolean,
     default: false
   });
+
+  game.settings.register(LANCER.sys_name, LANCER.setting_welcome, {
+    name: "Hide Welcome Message",
+    hint: "Hide the welcome message for the latest update to the Lancer system.",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: false
+  })
 };

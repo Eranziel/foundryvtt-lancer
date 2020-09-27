@@ -1,65 +1,79 @@
 <form autocomplete="off" class="prototype">
   <div class="flexcol">
-    {{!-- List content currently added to compendiums --}}
-    <div class="flexcol">
-      <div class="flexrow">
-        LANCER Core Data: {{core_data}}
-      </div>
-      {{#each packs as |pack key|}}
-        {{!-- TODO: List imported packs and version numbers --}}
-      {{/each}}
-    </div>
-
     {{!-- Update core data --}}
     {{#if core_update}}
-    <div class="form fields flexrow" style="align-items: center">
-      LANCER Core Data Update Available
-      <button type="button" class="lcp-core-update" title="Update Core Data" tabindex="-1">
-        <i class="cci cci-content-manager"></i>
-        Update to v{{core_update}}
-      </button>
+    <div class="lcp-core-update card clipped flexcol">
+      <div class="lancer-stat-header major">LANCER Core Data</div>
+      <div class="form fields flexrow" style="align-items: center">
+        <span class="medium" style="margin: 5px 10px">Core Data is at v{{core_version}}</span>
+        {{#if (ne core_version core_update)}}
+        <button type="button" class="lcp-core-update" title="Update Core Data" tabindex="-1" style="margin: 5px 10px">
+          <i class="cci cci-content-manager i--m"></i>
+          Update to v{{core_update}}
+        </button>
+        {{/if}}
+      </div>
     </div>
     {{/if}}
 
     {{!-- Import New LCP --}}
-    <div class="flexcol" style="">
-      <label>Select LCP:</label>
-      <input id="lcp-file" type="file" name="lcp-up" class="lcp-up" value="" placeholder="path/pack.lcp">
+    <div class="lcp-importer card clipped">
+      <div class="lancer-stat-header major" style="grid-area: 1/1/2/3;">Import/Update LCP</div>
+      <input id="lcp-file" type="file" name="lcp-up" class="lcp-up" accept=".lcp">
+      <button type="button" class="lcp-import" title="Import LCP" tabindex="-1">
+        <i class="cci cci-content-manager i--m"></i>
+        <label>Import LCP</label>
+      </button>
       {{!-- New LCP Manifest --}}
       {{#if manifest}}
-        <div class="card clipped flexcol">
+        <div class="card clipped flexcol" style="grid-column: 1/3;">
           <div class="lancer-stat-header major clipped-top">{{manifest.name}} v{{manifest.version}}</div>
-          <div class="minor">by {{manifest.author}}</div>
+          <div class="major" style="margin: 10px;">by {{manifest.author}}</div>
           {{#if manifest.website}}
-          <a href="{{manifest.website}}" class="minor">Website</a>
+          <a href="{{manifest.website}}" class="medium" style="margin: 5px;">Website</a>
           {{/if}}
-          <div class="flexrow">
+          <div class="flexrow" style="margin: 5px;">
             {{#if manifest.description}}
             <div class="minor desc-text">{{{manifest.description}}}</div>
             {{/if}}
             {{#if manifest.image_url}}
-            <img src="{{manifest.image_url}}" title="{{manifest.name}}" style="max-width: fit-content; max-height: fit-content;"/>
+            <img src="{{manifest.image_url}}" title="{{manifest.name}}" style="max-width: 400px; max-height: 400px;"/>
             {{/if}}
           </div>
         </div>
       {{/if}}
-      <button type="button" class="lcp-import" title="Import LCP" tabindex="-1">
-        Import LCP
-        <i class="cci cci-content-manager"></i>
-      </button>
     </div>
 
     {{!-- List installed LCPs --}}
-    <div class="flexcol lcp-index">
-      {{#if lcps}}
-      {{#each lcps.index as |lcp key|}}
-        {{#if lcp.name}}
-        <div class="flexrow lcp-listing" data-id="{{key}}">
-          {{lcp.name}} v{{lcp.version}} {{lcp.author}}
-        </div>
-        {{/if}}
-      {{/each}}
-      {{/if}}
+    <div class="card clipped-top">
+      <div class="lancer-stat-header major">Imported LCPs</div>
+      <div class="flexrow">
+        <table class="lcp-index">
+          <tr class="lcp-index-header">
+            <th class="lcp-index">Name</th>
+            <th class="lcp-index">Author</th>
+            <th class="lcp-index">Version</th>
+          </tr>
+          {{#if lcps}}
+          {{#each lcps.index as |lcp key|}}
+            {{#if lcp.name}}
+            <tr data-id="{{key}}">
+              <td class="lcp-index">{{lcp.name}}</td>
+              <td class="lcp-index">{{lcp.author}}</td>
+              <td class="lcp-index">{{lcp.version}}</td>
+            </tr>
+            {{/if}}
+          {{/each}}
+          {{/if}}
+        </table>
+      </div>
+    </div>
+
+    <div class="flexrow medium">
+      <button type="button" class="lcp-clear-all" title="Clear Compendiums" tabindex="-1" style="margin: 5px 10px">
+        <i class="cci cci-content-manager i--m"></i>
+        Clear LANCER Compendium Data
+      </button>
     </div>
   </div>
 </form>

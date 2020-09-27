@@ -16,6 +16,7 @@ export const LANCER = {
   setting_core_data: "coreDataVersion",
   setting_lcps: "installedLCPs",
   setting_comp_loc: "compendiumLocation",
+  setting_welcome: "hideWelcome",
   pilot_items: [
     "frame",
     "skill",

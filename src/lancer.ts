@@ -127,7 +127,7 @@ Hooks.once("init", async function () {
   registerSettings();
 
   // Register Web Components
-  customElements.define("card-clipped", class LancerClippedCard extends HTMLDivElement {}, {
+  customElements.define("card-clipped", class LancerClippedCard extends HTMLDivElement { }, {
     extends: "div",
   });
 
@@ -345,7 +345,7 @@ Hooks.once("setup", function () {
 /* ------------------------------------ */
 Hooks.once("ready", function () {
   // Determine whether a system migration is required and feasible
-  const currentVersion = game.settings.get("lancer", "systemMigrationVersion");
+  const currentVersion = game.settings.get(LANCER.sys_name, LANCER.setting_migration);
   // TODO: implement/import version comparison for semantic version numbers
   // const NEEDS_MIGRATION_VERSION = "0.0.4";
   // const COMPATIBLE_MIGRATION_VERSION = "0.0.4";
@@ -354,12 +354,38 @@ Hooks.once("ready", function () {
   // Perform the migration
   // TODO: replace game.system.version with needMigration once version number checking is implemented
   if (currentVersion != game.system.data.version && game.user.isGM) {
+    // Un-hide the welcome message
+    game.settings.set(LANCER.sys_name, LANCER.setting_welcome, false);
     // if ( currentVersion && (currentVersion < COMPATIBLE_MIGRATION_VERSION) ) {
     //   ui.notifications.error(`Your LANCER system data is from too old a Foundry version and cannot be reliably migrated to the latest version. The process will be attempted, but errors may occur.`, {permanent: true});
     // }
     migrations.migrateWorld();
   }
-  // Build/update compendiums
+
+  // Show welcome message if not hidden.
+  if (!game.settings.get(LANCER.sys_name, LANCER.setting_welcome)) {
+    new Dialog({
+      title: `Welcome to LANCER v${game.system.data.version}`,
+      content: 
+      `<div style="margin: 10px 5px">This is a big one! There are two big feature additions to this version: the LANCER Compendium Manager (aka LCP Importer) and Comp/Con cloud save importing!<br>
+      <a href="https://github.com/Eranziel/foundryvtt-lancer/blob/master/README.md">Click here for full details.</a>
+      <p>The short version is that, yes, the system Compendiums are gone, <b>but</b> do not fear! They are only about 3 clicks away!<br>
+      In the Compendium tab click the new "Lancer Compendium Manager" button, then click "Update Core Data".</div>
+      `,
+      buttons: {
+        dont_show: {
+          label: "Do Not Show Again",
+          callback: async (html) => {
+            game.settings.set(LANCER.sys_name, LANCER.setting_welcome, true);
+          }
+        },
+        close: {
+          label: "Close"
+        }
+      },
+      default: "Close"
+    }).render(true);
+  }
 });
 
 // Add any additional hooks if necessary
@@ -368,7 +394,7 @@ Hooks.on("preCreateItem", lancerItemInit);
 
 // Create sidebar button to import LCP
 Hooks.on("renderSidebarTab", async (app: Application, html: HTMLElement) => {
-	addLCPManager(app, html);
+  addLCPManager(app, html);
 })
 
 // Hooks.on("renderDialog", async (app:Application,html) => {

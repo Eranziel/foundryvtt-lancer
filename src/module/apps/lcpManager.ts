@@ -1,6 +1,6 @@
 import { LANCER } from "../config";
 const lp = LANCER.log_prefix;
-import { buildCompendiums } from "../compBuilder";
+import { buildCompendiums, clearCompendiums } from "../compBuilder";
 import * as mm from "machine-mind";
 import { ContentPack, IContentPackManifest } from "machine-mind";
 
@@ -88,6 +88,7 @@ class LCPManager extends Application {
 
   getData() {
     let data = super.getData();
+    data.core_version = this.coreVersion;
     data.core_update = this.coreUpdate;
     data.manifest = this.manifest;
     data.lcps = this.lcpIndex;
@@ -99,6 +100,18 @@ class LCPManager extends Application {
     this.lcpIndex.updateManifest(manifest);
     game.settings.set(LANCER.sys_name, LANCER.setting_lcps, this.lcpIndex);
     this.render();
+  }
+
+  async clearCompendiums() {
+    ui.notifications.info(`Clearing all LANCER Compendium data. Please wait.`);
+    console.log(`${lp} Clearing all LANCER Compendium data.`);
+    game.settings.set(LANCER.sys_name, LANCER.setting_core_data, "0.0.0");
+    game.settings.set(LANCER.sys_name, LANCER.setting_lcps, new LCPIndex(null));
+    await clearCompendiums();
+    ui.notifications.info(`LANCER Compendiums cleared.`);
+    this.coreVersion = game.settings.get(LANCER.sys_name, LANCER.setting_core_data);
+    this.lcpIndex = game.settings.get(LANCER.sys_name, LANCER.setting_lcps);
+    this.render(true);
   }
 
   activateListeners(html: HTMLElement | JQuery<HTMLElement>) {
@@ -115,17 +128,42 @@ class LCPManager extends Application {
     document.getElementsByClassName("lcp-import")[0].addEventListener("click", (ev: Event) => {
       this._onImportButtonClick(<MouseEvent>ev);
     });
+    document.getElementsByClassName("lcp-clear-all")[0].addEventListener("click", (ev: Event) => {
+      this._onClearAllButtonClick(<MouseEvent>ev);
+    });
   }
 
-  _onCoreUpdateButtonClick(ev: MouseEvent) {
-    if (!game.user.isGM) {
-      ui.notifications.warn(`Only GM can modify the Compendiums.`);
-      return;
-    }
-    if (!ev.currentTarget) return;
+  async _onCoreUpdateButtonClick(ev: MouseEvent) {
+    if (!game.user.isGM) return ui.notifications.warn(`Only GM can modify the Compendiums.`);
+    if (!ev.currentTarget || !this.coreUpdate) return;
+    ui.notifications.info(`Updating Lancer Core data to v${this.coreUpdate}. Please wait.`);
     console.log(`${lp} Updating Lancer Core data to v${this.coreUpdate}`);
-    buildCompendiums(mm.getBaseContentPack());
+    await buildCompendiums(mm.getBaseContentPack(), this.systemCompendiums);
+    ui.notifications.info(`Lancer Core data update complete.`);
     game.settings.set(LANCER.sys_name, LANCER.setting_core_data, this.coreUpdate);
+    this.coreVersion = this.coreUpdate;
+    this.render();
+  }
+
+  _onClearAllButtonClick(ev: MouseEvent) {
+    if (!game.user.isGM) return ui.notifications.warn(`Only GM can modify the Compendiums.`);
+    if (!ev.currentTarget) return;
+    let dialog = new Dialog({
+      title: "Confirm Clearing LANCER Compendiums",
+      content: `Are you sure you want to delete ALL data from the Compendiums created by the LCP Manager?`,
+      buttons: {
+        confirm: {
+          label: "Confirm",
+          callback: async (html) => {
+            this.clearCompendiums();
+          }
+        },
+        cancel: {
+          label: "Cancel"
+        }
+      },
+      default: "Cancel"
+    }).render(true);
   }
 
   _onLcpPicked(ev: Event) {
