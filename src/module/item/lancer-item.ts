@@ -422,7 +422,7 @@ export const weapon_range_preview = `{{#if range.val}}
  */
 export const weapon_damage_preview = `{{#if damage.type}}
 <div class="compact-damage">
-    <i class="card clipped cci cci-{{lower-case damage.type}} i--m damage--{{lower-case damage.type}}"></i>
+    <i class="cci cci-{{lower-case damage.type}} i--m damage--{{lower-case damage.type}}"></i>
     <span class="medium">{{dval}}</span>
 </div>
 {{/if}}`;
@@ -552,6 +552,44 @@ export function effect_type_selector(e_type: string, data_target: string) {
   </select>`;
   return html;
 }
+
+/**
+ * Handlebars partial for a mech system preview card.
+ */
+export const mech_system_preview =
+  `<div class="card clipped mech-system-compact item" data-item-id="{{system._id}}">
+<div class="lancer-system-header clipped-top" style="grid-area: 1/1/2/3">
+  <i class="cci cci-system i--m i--dark"> </i>
+  <span class="minor">{{system.name}}</span>
+  <a class="stats-control i--light" data-action="delete"><i class="fas fa-trash"></i></a>
+</div>
+<div class="flexrow">
+  <div style="float: left; align-items: center; display: inherit;">
+    <i class="cci cci-system-point i--m i--dark"> </i><span class="medium" style="padding: 5px;">{{system.data.sp}} SP</span>
+  </div>
+  {{#if system.data.uses}}
+  <div class="compact-stat">
+    <span class="minor" style="max-width: min-content;">USES: </span>
+    <span class="minor" style="max-width: min-content;">{{system.data.uses}}</span>
+    <span class="minor" style="max-width: min-content;" > / </span>
+    <span class="minor" style="max-width: min-content;">{{system.data.max_uses}}</span>
+  </div>
+  {{/if}}
+</div>
+{{#if (ne system.data.description "")}}
+<div class="desc-text" style="padding: 5px">
+  {{{system.data.description}}}
+</div>
+{{/if}}
+{{#with system.data.effect as |effect|}}
+  {{#if effect.effect_type}}
+    {{{eff-preview effect}}}
+  {{else}}
+    {{> generic-eff-preview effect=effect}}
+  {{/if}}
+{{/with}}
+{{> tag-list tags=system.data.tags}}
+</div>`;
 
 /**
  * Handlebars partial for non-editable Mech Trait
