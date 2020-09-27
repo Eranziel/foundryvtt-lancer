@@ -523,6 +523,8 @@ exports.watch = buildWatch;
 exports.clean = clean;
 exports.link = linkUserData;
 exports.package = packageBuild;
+exports.manifest = updateManifest;
+exports.git = execGit;
 exports.publish = gulp.series(
 	clean,
 	updateManifest,
