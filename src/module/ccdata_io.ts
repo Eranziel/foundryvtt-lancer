@@ -87,7 +87,7 @@ import {
   NpcFeatureType,
   NpcReaction,
   NpcTech,
-  NpcWeapon, INpcReactionData, INpcTechData, INpcWeaponData, INpcDamageData
+  NpcWeapon, INpcReactionData, INpcTechData, INpcWeaponData, INpcDamageData, CustomSkill
 } from "machine-mind";
 import { INpcClassStats, NpcClassStats } from "machine-mind/dist/classes/npc/NpcClassStats";
 import {
@@ -208,6 +208,18 @@ export class Converter {
       detail: t.Detail,
       family: t.Family,
       rank: 1,
+    };
+    return data;
+  }
+
+  CustomSkill_to_LancerSkillData(t: CustomSkill): LancerSkillData {
+    let data: LancerSkillData = {
+      id: t.ID,
+      name: t.Name,
+      description: t.Description,
+      detail: t.Detail,
+      family: t.Family,
+      rank: 1
     };
     return data;
   }
