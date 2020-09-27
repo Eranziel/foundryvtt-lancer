@@ -58,9 +58,9 @@ button {
   color: white;
 }
 
-.lancer.sheet clipped-card {
+/* .lancer.sheet clipped-card {
 
-}
+} */
 
 .flex-center {
   align-items: center;
@@ -399,6 +399,42 @@ button {
 .clipped-bot {
   clip-path: var(--bottom-dogear-path);
   -webkit-clip-path: var(--bottom-dogear-path);
+}
+
+.lcp-importer {
+  display: grid;
+  grid-template: 1fr / 1fr 1fr;
+}
+
+.lcp-up {
+  margin: 10px;
+  align-self: center;
+}
+
+.lcp-core-update,
+.lcp-import,
+.lcp-clear-all {
+  margin: 10px;
+  width: auto;
+}
+
+table.lcp-index {
+  margin: 10px;
+  width: auto;
+}
+
+th.lcp-index,
+td.lcp-index {
+  text-align: left;
+  padding: 0em 1em;
+  font-size: 16px;
+  height: 2em;
+}
+
+tr.lcp-index-header {
+  height: 2em;
+  background-color: rgba(0, 0, 0, 0.1);
+  /* border: 1px solid #7a7971; */
 }
 
 .lancer-tabs {

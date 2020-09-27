@@ -60,9 +60,9 @@ declare interface RangeData {
 declare type RangeData =
   | mm.IRangeData
   | {
-      type: "None";
-      val: 0;
-    };
+    type: "None";
+    val: 0;
+  };
 
 // Alias
 /*
@@ -78,7 +78,7 @@ declare type DamageData = mm.IDamageData;
 // declare type NPCDamageData = mm.INpcDamageData;
 declare interface NPCDamageData {
   type: mm.DamageType;
-  val: number[];
+  val: string[];
   override?: boolean;
 }
 
@@ -408,7 +408,7 @@ declare interface LancerPilotWeaponData extends LancerCompendiumItemData, Lancer
   range: RangeData[];
   damage: DamageData[];
   effect: string;
-  custom_damage_type: mm.DamageType;
+  custom_damage_type: mm.DamageType | string | null;
 }
 
 declare interface LancerPilotWeaponItemData extends LancerItemData {
@@ -423,8 +423,8 @@ declare interface LancerPilotWeaponSheetData extends ItemSheetData {
 
 // -------- Pilot Gear data --------------------------------------
 declare interface LancerPilotGearData extends LancerCompendiumItemData, LancerPilotEquipmentData {
-  uses: number;
-  current_uses: number;
+  uses: number | null;
+  current_uses: number | null;
 }
 
 declare interface LancerPilotGearItemData extends LancerItemData {
@@ -461,9 +461,9 @@ declare interface LancerMechTraitData {
 declare interface LancerCoreSystemData {
   name: string;
   description: string;
-  integrated?: { id: string };
-  passive_name?: string;
-  passive_effect?: string;
+  integrated?: { id: string } | null;
+  passive_name?: string | null;
+  passive_effect?: string | null;
   active_name: string;
   active_effect: string;
   tags: TagData[];
@@ -509,7 +509,7 @@ declare interface LancerMechWeaponData extends LancerLicensedItemData, LancerMec
   damage: DamageData[];
   range: RangeData[];
   mod: object | null; // TODO: weapon mod type
-  custom_damage_type: mm.DamageType;
+  custom_damage_type: mm.DamageType | null;
 }
 
 declare interface LancerMechWeaponItemData extends LancerItemData {
@@ -567,7 +567,7 @@ declare interface LancerNPCClassSheetData extends ItemSheetData {
 
 // -------- NPC Template data -------------------------------------
 declare interface LancerNPCTemplateData extends LancerCompendiumItemData {
-  basefeatures: string[];
+  base_features: string[];
   optional_features: string[];
 }
 
@@ -605,4 +605,24 @@ declare interface LancerNPCFeatureItemData extends LancerItemData {
 declare interface LancerNPCFeatureSheetData extends ItemSheetData {
   item?: LancerNPCFeatureItemData;
   data?: LancerNPCFeatureData;
+}
+
+declare interface IContentPackManifest {
+  name: string;
+  author: string;
+  version: string;
+  description?: string;
+  website?: string;
+  image_url?: string;
+}
+
+declare interface IContentPack {
+  id: string;
+  manifest: IContentPackManifest;
+}
+
+declare interface LCPManagerData {
+  packs: IContentPack[];
+  core_version: string;
+  core_update?: string;
 }

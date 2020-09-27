@@ -10,8 +10,13 @@ const ASCII = `
 
 export const LANCER = {
   ASCII,
-
   log_prefix: "LANCER |",
+  sys_name: "lancer",
+  setting_migration: "systemMigrationVersion",
+  setting_core_data: "coreDataVersion",
+  setting_lcps: "installedLCPs",
+  setting_comp_loc: "compendiumLocation",
+  setting_welcome: "hideWelcome",
   pilot_items: [
     "frame",
     "skill",

@@ -196,7 +196,7 @@ export function is_loading(tags: TagData[]) {
   return false;
 }
 
-function loading_switch() {}
+function loading_switch() { }
 
 /**
  * Handlebars helper for weapon size selector
@@ -204,18 +204,14 @@ function loading_switch() {}
 export function weapon_size_selector(mount: string, data_target: string) {
   const m = mount ? mount.toLowerCase() : WeaponSize.Main.toLowerCase();
   const html = `<select name="${data_target}" data-type="String" style="align-self: center;">
-    <option value="${WeaponSize.Aux}" ${
-    m === WeaponSize.Aux.toLowerCase() ? "selected" : ""
-  }>AUX</option>
-    <option value="${WeaponSize.Main}" ${
-    m === WeaponSize.Main.toLowerCase() ? "selected" : ""
-  }>MAIN</option>
-    <option value="${WeaponSize.Heavy}" ${
-    m === WeaponSize.Heavy.toLowerCase() ? "selected" : ""
-  }>HEAVY</option>
-    <option value="${WeaponSize.Superheavy}" ${
-    m === WeaponSize.Superheavy.toLowerCase() ? "selected" : ""
-  }>SUPERHEAVY</option>
+    <option value="${WeaponSize.Aux}" ${m === WeaponSize.Aux.toLowerCase() ? "selected" : ""
+    }>AUX</option>
+    <option value="${WeaponSize.Main}" ${m === WeaponSize.Main.toLowerCase() ? "selected" : ""
+    }>MAIN</option>
+    <option value="${WeaponSize.Heavy}" ${m === WeaponSize.Heavy.toLowerCase() ? "selected" : ""
+    }>HEAVY</option>
+    <option value="${WeaponSize.Superheavy}" ${m === WeaponSize.Superheavy.toLowerCase() ? "selected" : ""
+    }>SUPERHEAVY</option>
     <option value="Other" ${m === "other" ? "selected" : ""}>OTHER</option>
   </select>`;
   return html;
@@ -227,24 +223,18 @@ export function weapon_size_selector(mount: string, data_target: string) {
 export function weapon_type_selector(w_type: string, data_target: string) {
   const w = w_type ? w_type.toLowerCase() : "other";
   const html = `<select name="${data_target}" data-type="String" style="align-self: center;">
-    <option value="${WeaponType.Rifle}" ${
-    w === WeaponType.Rifle.toLowerCase() ? "selected" : ""
-  }>RIFLE</option>
-    <option value="${WeaponType.Cannon}" ${
-    w === WeaponType.Cannon.toLowerCase() ? "selected" : ""
-  }>CANNON</option>
-    <option value="${WeaponType.Launcher}" ${
-    w === WeaponType.Launcher.toLowerCase() ? "selected" : ""
-  }>LAUNCHER</option>
-    <option value="${WeaponType.CQB}" ${
-    w === WeaponType.CQB.toLowerCase() ? "selected" : ""
-  }>CQB</option>
-    <option value="${WeaponType.Nexus}" ${
-    w === WeaponType.Nexus.toLowerCase() ? "selected" : ""
-  }>NEXUS</option>
-    <option value="${WeaponType.Melee}" ${
-    w === WeaponType.Melee.toLowerCase() ? "selected" : ""
-  }>MELEE</option>
+    <option value="${WeaponType.Rifle}" ${w === WeaponType.Rifle.toLowerCase() ? "selected" : ""
+    }>RIFLE</option>
+    <option value="${WeaponType.Cannon}" ${w === WeaponType.Cannon.toLowerCase() ? "selected" : ""
+    }>CANNON</option>
+    <option value="${WeaponType.Launcher}" ${w === WeaponType.Launcher.toLowerCase() ? "selected" : ""
+    }>LAUNCHER</option>
+    <option value="${WeaponType.CQB}" ${w === WeaponType.CQB.toLowerCase() ? "selected" : ""
+    }>CQB</option>
+    <option value="${WeaponType.Nexus}" ${w === WeaponType.Nexus.toLowerCase() ? "selected" : ""
+    }>NEXUS</option>
+    <option value="${WeaponType.Melee}" ${w === WeaponType.Melee.toLowerCase() ? "selected" : ""
+    }>MELEE</option>
     <option value="Other" ${w === "other" ? "selected" : ""}>OTHER</option>
   </select>`;
   return html;
@@ -282,31 +272,23 @@ export function weapon_range_selector(
   */
   html += `<select name="${data_target}.type" data-type="String" style="align-self: center;">
     <option value="" ${!rng.type ? "selected" : ""}>NONE</option>
-    <option value="${RangeType.Range}" ${
-    rtype === RangeType.Range.toLowerCase() ? "selected" : ""
-  }>RANGE</option>
-    <option value="${RangeType.Threat}" ${
-    rtype === RangeType.Threat.toLowerCase() ? "selected" : ""
-  }>THREAT</option>
-    <option value="${RangeType.Thrown}" ${
-    rtype === RangeType.Thrown.toLowerCase() ? "selected" : ""
-  }>THROWN</option>
-    <option value="${RangeType.Line}" ${
-    rtype === RangeType.Line.toLowerCase() ? "selected" : ""
-  }>LINE</option>
-    <option value="${RangeType.Cone}" ${
-    rtype === RangeType.Cone.toLowerCase() ? "selected" : ""
-  }>CONE</option>
-    <option value="${RangeType.Blast}" ${
-    rtype === RangeType.Blast.toLowerCase() ? "selected" : ""
-  }>BLAST</option>
-    <option value="${RangeType.Burst}" ${
-    rtype === RangeType.Burst.toLowerCase() ? "selected" : ""
-  }>BURST</option>
+    <option value="${RangeType.Range}" ${rtype === RangeType.Range.toLowerCase() ? "selected" : ""
+    }>RANGE</option>
+    <option value="${RangeType.Threat}" ${rtype === RangeType.Threat.toLowerCase() ? "selected" : ""
+    }>THREAT</option>
+    <option value="${RangeType.Thrown}" ${rtype === RangeType.Thrown.toLowerCase() ? "selected" : ""
+    }>THROWN</option>
+    <option value="${RangeType.Line}" ${rtype === RangeType.Line.toLowerCase() ? "selected" : ""
+    }>LINE</option>
+    <option value="${RangeType.Cone}" ${rtype === RangeType.Cone.toLowerCase() ? "selected" : ""
+    }>CONE</option>
+    <option value="${RangeType.Blast}" ${rtype === RangeType.Blast.toLowerCase() ? "selected" : ""
+    }>BLAST</option>
+    <option value="${RangeType.Burst}" ${rtype === RangeType.Burst.toLowerCase() ? "selected" : ""
+    }>BURST</option>
   </select>
-  <input class="lancer-stat-input " type="string" name="${data_target}.val" value="${
-    rng.val ? rng.val : ""
-  }" data-dtype="String"/>
+  <input class="lancer-stat-input " type="string" name="${data_target}.val" value="${rng.val ? rng.val : ""
+    }" data-dtype="String"/>
   </div>`;
   return html;
 }
@@ -341,30 +323,23 @@ export function pilot_weapon_damage_selector(
   }
   html += `<select name="${data_target}.type" data-type="String" style="align-self: center;">
     <option value="" ${!dmg.type ? "selected" : ""}>NONE</option>
-    <option value="${DamageType.Kinetic}" ${
-    dtype === DamageType.Kinetic.toLowerCase() ? "selected" : ""
-  }>KINETIC</option>
-    <option value="${DamageType.Energy}" ${
-    dtype === DamageType.Energy.toLowerCase() ? "selected" : ""
-  }>ENERGY</option>
-    <option value="${DamageType.Explosive}" ${
-    dtype === DamageType.Explosive.toLowerCase() ? "selected" : ""
-  }>EXPLOSIVE</option>
-    <option value="${DamageType.Heat}" ${
-    dtype === DamageType.Heat.toLowerCase() ? "selected" : ""
-  }>HEAT</option>
-    <option value="${DamageType.Burn}" ${
-    dtype === DamageType.Burn.toLowerCase() ? "selected" : ""
-  }>BURN</option>
-    <option value="${DamageType.Variable}" ${
-    dtype === DamageType.Variable.toLowerCase() ? "selected" : ""
-  }>VARIABLE</option>
+    <option value="${DamageType.Kinetic}" ${dtype === DamageType.Kinetic.toLowerCase() ? "selected" : ""
+    }>KINETIC</option>
+    <option value="${DamageType.Energy}" ${dtype === DamageType.Energy.toLowerCase() ? "selected" : ""
+    }>ENERGY</option>
+    <option value="${DamageType.Explosive}" ${dtype === DamageType.Explosive.toLowerCase() ? "selected" : ""
+    }>EXPLOSIVE</option>
+    <option value="${DamageType.Heat}" ${dtype === DamageType.Heat.toLowerCase() ? "selected" : ""
+    }>HEAT</option>
+    <option value="${DamageType.Burn}" ${dtype === DamageType.Burn.toLowerCase() ? "selected" : ""
+    }>BURN</option>
+    <option value="${DamageType.Variable}" ${dtype === DamageType.Variable.toLowerCase() ? "selected" : ""
+    }>VARIABLE</option>
   </select>`;
 
   html += `
-    <input class="lancer-stat-input " type="string" name="${data_target}.val" value="${
-    dmg.val ? dmg.val : ""
-  }" data-dtype="String"/>
+    <input class="lancer-stat-input " type="string" name="${data_target}.val" value="${dmg.val ? dmg.val : ""
+    }" data-dtype="String"/>
   </div>`;
   return html;
 }
@@ -385,7 +360,7 @@ export function npc_weapon_damage_selector(
   // Default in
   dmg = {
     type: DamageType.Kinetic,
-    val: [0, 0, 0],
+    val: ["0", "0", "0"],
     ...dmg,
   };
 
@@ -398,44 +373,35 @@ export function npc_weapon_damage_selector(
   }
   html += `<select name="${data_target}.type" data-type="String" style="align-self: center;">
     <option value="" ${!dmg.type ? "selected" : ""}>NONE</option>
-    <option value="${DamageType.Kinetic}" ${
-    dtype === DamageType.Kinetic.toLowerCase() ? "selected" : ""
-  }>KINETIC</option>
-    <option value="${DamageType.Energy}" ${
-    dtype === DamageType.Energy.toLowerCase() ? "selected" : ""
-  }>ENERGY</option>
-    <option value="${DamageType.Explosive}" ${
-    dtype === DamageType.Explosive.toLowerCase() ? "selected" : ""
-  }>EXPLOSIVE</option>
-    <option value="${DamageType.Heat}" ${
-    dtype === DamageType.Heat.toLowerCase() ? "selected" : ""
-  }>HEAT</option>
-    <option value="${DamageType.Burn}" ${
-    dtype === DamageType.Burn.toLowerCase() ? "selected" : ""
-  }>BURN</option>
-    <option value="${DamageType.Variable}" ${
-    dtype === DamageType.Variable.toLowerCase() ? "selected" : ""
-  }>VARIABLE</option>
+    <option value="${DamageType.Kinetic}" ${dtype === DamageType.Kinetic.toLowerCase() ? "selected" : ""
+    }>KINETIC</option>
+    <option value="${DamageType.Energy}" ${dtype === DamageType.Energy.toLowerCase() ? "selected" : ""
+    }>ENERGY</option>
+    <option value="${DamageType.Explosive}" ${dtype === DamageType.Explosive.toLowerCase() ? "selected" : ""
+    }>EXPLOSIVE</option>
+    <option value="${DamageType.Heat}" ${dtype === DamageType.Heat.toLowerCase() ? "selected" : ""
+    }>HEAT</option>
+    <option value="${DamageType.Burn}" ${dtype === DamageType.Burn.toLowerCase() ? "selected" : ""
+    }>BURN</option>
+    <option value="${DamageType.Variable}" ${dtype === DamageType.Variable.toLowerCase() ? "selected" : ""
+    }>VARIABLE</option>
   </select>`;
 
   html += `</div>
   <div class="flexrow flex-center">
     <i class="cci cci-rank-1 i--m i--dark"></i>
-    <input class="lancer-stat-input " type="string" name="${data_target}.val" value="${
-    dmg.val![0] ? dmg.val![0] : ""
-  }" data-dtype="String"/>
+    <input class="lancer-stat-input " type="string" name="${data_target}.val" value="${dmg.val![0] ? dmg.val![0] : ""
+    }" data-dtype="String"/>
   </div>
   <div class="flexrow flex-center">
     <i class="cci cci-rank-2 i--m i--dark"></i>
-    <input class="lancer-stat-input " type="string" name="${data_target}.val" value="${
-    dmg.val![1] ? dmg.val![1] : ""
-  }" data-dtype="String"/>
+    <input class="lancer-stat-input " type="string" name="${data_target}.val" value="${dmg.val![1] ? dmg.val![1] : ""
+    }" data-dtype="String"/>
   </div>
   <div class="flexrow flex-center">
     <i class="cci cci-rank-3 i--m i--dark"></i>
-    <input class="lancer-stat-input " type="string" name="${data_target}.val" value="${
-    dmg.val![2] ? dmg.val![2] : ""
-  }" data-dtype="String"/>
+    <input class="lancer-stat-input " type="string" name="${data_target}.val" value="${dmg.val![2] ? dmg.val![2] : ""
+    }" data-dtype="String"/>
   </div>`;
   return html;
 }
@@ -535,36 +501,26 @@ export const mech_weapon_preview = `<div class="flexcol clipped lancer-weapon-co
 export function system_type_selector(s_type: string, data_target: string) {
   const s = s_type ? s_type.toLowerCase() : SystemType.System.toLowerCase();
   const html = `<select name="${data_target}" data-type="String" style="height: 2em; align-self: center;" >
-    <option value="${SystemType.System}" ${
-    s === SystemType.System.toLowerCase() ? "selected" : ""
-  }>SYSTEM</option>
-    <option value="${SystemType.AI}" ${
-    s === SystemType.AI.toLowerCase() ? "selected" : ""
-  }>AI</option>
-    <option value="${SystemType.Armor}" ${
-    s === SystemType.Armor.toLowerCase() ? "selected" : ""
-  }>ARMOR</option>
-    <option value="${SystemType.Deployable}" ${
-    s === SystemType.Deployable.toLowerCase() ? "selected" : ""
-  }>DEPLOYABLE</option>
-    <option value="${SystemType.Drone}" ${
-    s === SystemType.Drone.toLowerCase() ? "selected" : ""
-  }>DRONE</option>
-    <option value="${SystemType.FlightSystem}" ${
-    s === SystemType.FlightSystem.toLowerCase() ? "selected" : ""
-  }>FLIGHT SYSTEM</option>
-    <option value="${SystemType.Integrated}" ${
-    s === SystemType.Integrated.toLowerCase() ? "selected" : ""
-  }>INTEGRATED</option>
-    <option value="${SystemType.Mod}" ${
-    s === SystemType.Mod.toLowerCase() ? "selected" : ""
-  }>MOD</option>
-    <option value="${SystemType.Shield}" ${
-    s === SystemType.Shield.toLowerCase() ? "selected" : ""
-  }>SHIELD</option>
-    <option value="${SystemType.Tech}" ${
-    s === SystemType.Tech.toLowerCase() ? "selected" : ""
-  }>TECH</option>
+    <option value="${SystemType.System}" ${s === SystemType.System.toLowerCase() ? "selected" : ""
+    }>SYSTEM</option>
+    <option value="${SystemType.AI}" ${s === SystemType.AI.toLowerCase() ? "selected" : ""
+    }>AI</option>
+    <option value="${SystemType.Armor}" ${s === SystemType.Armor.toLowerCase() ? "selected" : ""
+    }>ARMOR</option>
+    <option value="${SystemType.Deployable}" ${s === SystemType.Deployable.toLowerCase() ? "selected" : ""
+    }>DEPLOYABLE</option>
+    <option value="${SystemType.Drone}" ${s === SystemType.Drone.toLowerCase() ? "selected" : ""
+    }>DRONE</option>
+    <option value="${SystemType.FlightSystem}" ${s === SystemType.FlightSystem.toLowerCase() ? "selected" : ""
+    }>FLIGHT SYSTEM</option>
+    <option value="${SystemType.Integrated}" ${s === SystemType.Integrated.toLowerCase() ? "selected" : ""
+    }>INTEGRATED</option>
+    <option value="${SystemType.Mod}" ${s === SystemType.Mod.toLowerCase() ? "selected" : ""
+    }>MOD</option>
+    <option value="${SystemType.Shield}" ${s === SystemType.Shield.toLowerCase() ? "selected" : ""
+    }>SHIELD</option>
+    <option value="${SystemType.Tech}" ${s === SystemType.Tech.toLowerCase() ? "selected" : ""
+    }>TECH</option>
   </select>`;
   return html;
 }
@@ -575,33 +531,24 @@ export function system_type_selector(s_type: string, data_target: string) {
 export function effect_type_selector(e_type: string, data_target: string) {
   const e = e_type ? e_type.toLowerCase() : EffectType.Basic.toLowerCase();
   const html = `<select name="${data_target}" data-type="String" style="height: 2em;float: right" >
-    <option value="${EffectType.Basic}" ${
-    e === EffectType.Basic.toLowerCase() ? "selected" : ""
-  }>BASIC</option>
-    <option value="${EffectType.AI}" ${
-    e === EffectType.AI.toLowerCase() ? "selected" : ""
-  }>AI</option>
-    <option value="${EffectType.Charge}" ${
-    e === EffectType.Charge.toLowerCase() ? "selected" : ""
-  }>CHARGE</option>
-    <option value="${EffectType.Bonus}" ${
-    e === EffectType.Bonus.toLowerCase() ? "selected" : ""
-  }>BONUS</option>
-    <option value="${EffectType.Deployable}" ${
-    e === EffectType.Deployable.toLowerCase() ? "selected" : ""
-  }>DEPLOYABLE</option>
-    <option value="${EffectType.Drone}" ${
-    e === EffectType.Drone.toLowerCase() ? "selected" : ""
-  }>DRONE</option>
-    <option value="${EffectType.Protocol}" ${
-    e === EffectType.Protocol.toLowerCase() ? "selected" : ""
-  }>PROTOCOL</option>
-    <option value="${EffectType.Reaction}" ${
-    e === EffectType.Reaction.toLowerCase() ? "selected" : ""
-  }>REACTION</option>
-    <option value="${EffectType.Tech}" ${
-    e === EffectType.Tech.toLowerCase() ? "selected" : ""
-  }>TECH</option>
+    <option value="${EffectType.Basic}" ${e === EffectType.Basic.toLowerCase() ? "selected" : ""
+    }>BASIC</option>
+    <option value="${EffectType.AI}" ${e === EffectType.AI.toLowerCase() ? "selected" : ""
+    }>AI</option>
+    <option value="${EffectType.Charge}" ${e === EffectType.Charge.toLowerCase() ? "selected" : ""
+    }>CHARGE</option>
+    <option value="${EffectType.Bonus}" ${e === EffectType.Bonus.toLowerCase() ? "selected" : ""
+    }>BONUS</option>
+    <option value="${EffectType.Deployable}" ${e === EffectType.Deployable.toLowerCase() ? "selected" : ""
+    }>DEPLOYABLE</option>
+    <option value="${EffectType.Drone}" ${e === EffectType.Drone.toLowerCase() ? "selected" : ""
+    }>DRONE</option>
+    <option value="${EffectType.Protocol}" ${e === EffectType.Protocol.toLowerCase() ? "selected" : ""
+    }>PROTOCOL</option>
+    <option value="${EffectType.Reaction}" ${e === EffectType.Reaction.toLowerCase() ? "selected" : ""
+    }>REACTION</option>
+    <option value="${EffectType.Tech}" ${e === EffectType.Tech.toLowerCase() ? "selected" : ""
+    }>TECH</option>
   </select>`;
   return html;
 }

@@ -66,6 +66,7 @@ import {
   LancerLicenseItemData,
 } from "../interfaces";
 import { IContentPackData } from "machine-mind/dist/classes/ContentPack";
+import { LANCER } from "../config";
 
 export type SupportedCompconEntity =
   | Skill
@@ -83,26 +84,42 @@ export type SupportedCompconEntity =
   | NpcFeature;
 
 // Useful constants
-export const SKILLS_PACK = "lancer.skills";
-export const TALENTS_PACK = "lancer.talents";
-export const CORE_BONUS_PACK = "lancer.core_bonuses";
-export const PILOT_ARMOR_PACK = "lancer.pilot_armor";
-export const PILOT_WEAPON_PACK = "lancer.pilot_weapons";
-export const PILOT_GEAR_PACK = "lancer.pilot_gear";
-export const FRAME_PACK = "lancer.frames";
-export const MECH_SYSTEM_PACK = "lancer.systems";
-export const MECH_WEAPON_PACK = "lancer.weapons";
-export const NPC_CLASS_PACK = "lancer.npc_classes";
-export const NPC_TEMPLATE_PACK = "lancer.npc_templates";
-export const NPC_FEATURE_PACK = "lancer.npc_features";
+export const SKILLS_PACK = "skills";
+export const TALENTS_PACK = "talents";
+export const CORE_BONUS_PACK = "core_bonuses";
+export const PILOT_ARMOR_PACK = "pilot_armor";
+export const PILOT_WEAPON_PACK = "pilot_weapons";
+export const PILOT_GEAR_PACK = "pilot_gear";
+export const FRAME_PACK = "frames";
+export const MECH_SYSTEM_PACK = "systems";
+export const MECH_WEAPON_PACK = "weapons";
+export const NPC_CLASS_PACK = "npc_classes";
+export const NPC_TEMPLATE_PACK = "npc_templates";
+export const NPC_FEATURE_PACK = "npc_features";
+export const PACKS = [
+  SKILLS_PACK,
+  TALENTS_PACK,
+  CORE_BONUS_PACK,
+  PILOT_ARMOR_PACK,
+  PILOT_WEAPON_PACK,
+  PILOT_GEAR_PACK,
+  FRAME_PACK,
+  MECH_SYSTEM_PACK,
+  MECH_WEAPON_PACK,
+  NPC_CLASS_PACK,
+  NPC_TEMPLATE_PACK,
+  NPC_FEATURE_PACK
+];
 
 // Quick helper
 async function get_pack<T>(pack_name: string): Promise<T[]> {
-  let pack = game.packs.get(pack_name);
+  let sysComps: boolean = game.settings.get(LANCER.sys_name, LANCER.setting_comp_loc);
+  let full_pack_name = `${sysComps ? "lancer" : "world"}.${pack_name}`;
+  let pack = game.packs.get(full_pack_name);
   if (pack) {
     return pack.getContent().then(g => g.map(v => v.data)) as Promise<T[]>;
   } else {
-    console.warn("No such pack: ", pack_name);
+    console.warn("No such pack: ", full_pack_name);
     return [];
   }
 }
@@ -150,9 +167,11 @@ async function pack_lookup<T extends LancerItem>(
   pack_name: string,
   compcon_id: string
 ): Promise<T | null> {
-  let pack = game.packs.get(pack_name);
+  let sysComps: boolean = game.settings.get(LANCER.sys_name, LANCER.setting_comp_loc);
+  let full_pack_name = `${sysComps ? "lancer" : "world"}.${pack_name}`;
+  let pack = game.packs.get(full_pack_name);
   if (!pack) {
-    console.warn("No such pack: ", pack_name);
+    console.warn("No such pack: ", full_pack_name);
     return null;
   }
 
