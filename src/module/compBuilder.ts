@@ -15,7 +15,7 @@ import {
   NpcFeature,
 } from "machine-mind";
 import { LCPIndex } from "./apps/lcpManager";
-import { CORE_BONUS_PACK, FRAME_PACK, MECH_SYSTEM_PACK, MECH_WEAPON_PACK, NPC_CLASS_PACK, NPC_FEATURE_PACK, NPC_TEMPLATE_PACK, PACKS, PILOT_ARMOR_PACK, PILOT_WEAPON_PACK, SKILLS_PACK, TALENTS_PACK } from "./item/util";
+import { CORE_BONUS_PACK, FRAME_PACK, MECH_SYSTEM_PACK, MECH_WEAPON_PACK, NPC_CLASS_PACK, NPC_FEATURE_PACK, NPC_TEMPLATE_PACK, PACKS, PILOT_ARMOR_PACK, PILOT_GEAR_PACK, PILOT_WEAPON_PACK, SKILLS_PACK, TALENTS_PACK } from "./item/util";
 
 export async function buildCompendiums(cp: ContentPack, sysComps: boolean): Promise<void> {
   const conv = new Converter(cp.ID);
@@ -210,7 +210,7 @@ async function buildPilotEquipmentCompendiums(conv: Converter, cp: ContentPack, 
   const pilotGear = cp.PilotGear;
   const paName = PILOT_ARMOR_PACK;
   const pwName = PILOT_WEAPON_PACK;
-  const pgName = PILOT_WEAPON_PACK;
+  const pgName = PILOT_GEAR_PACK;
   const armImg = "systems/lancer/assets/icons/shield_outline.svg";
   const weapImg = "systems/lancer/assets/icons/weapon.svg";
   const gearImg = "systems/lancer/assets/icons/generic_item.svg";
