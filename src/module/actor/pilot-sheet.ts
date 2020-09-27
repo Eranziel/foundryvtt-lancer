@@ -1,9 +1,7 @@
 import {
   LancerPilotSheetData,
-  LancerFrameData,
   LancerFrameStatsData,
   LancerMountData,
-  LancerPilotActorData,
   LancerPilotData,
 } from "../interfaces";
 import {
@@ -20,12 +18,10 @@ import {
   LancerPilotArmor,
   LancerMechSystem,
 } from "../item/lancer-item";
-import { MechType } from "../enums";
 import { LancerActor } from "./lancer-actor";
-import { LancerGame } from "../lancer-game";
 import { LANCER } from "../config";
-import { ItemDataManifest, ItemManifest } from "../item/util";
-import { MountType, CoreBonus } from "machine-mind";
+import { ItemDataManifest } from "../item/util";
+import { MountType } from "machine-mind";
 import { import_pilot_by_code, update_pilot } from "./util";
 const lp = LANCER.log_prefix;
 
@@ -88,9 +84,9 @@ export class LancerPilotSheet extends ActorSheet {
     }
 
     // Put placeholder prompts in empty fields
-    if (data.data.pilot.background == "") data.data.pilot.background = entryPrompt;
-    if (data.data.pilot.history == "") data.data.pilot.history = entryPrompt;
-    if (data.data.pilot.notes == "") data.data.pilot.notes = entryPrompt;
+    if (data.data.pilot.background === "") data.data.pilot.background = entryPrompt;
+    if (data.data.pilot.history === "") data.data.pilot.history = entryPrompt;
+    if (data.data.pilot.notes === "") data.data.pilot.notes = entryPrompt;
 
     // Generate the size string for the pilot's frame
     if (data.frame) {
