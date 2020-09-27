@@ -39,18 +39,6 @@ import {
 
 import { Converter } from "../ccdata_io";
 import {
-  LancerSkillData,
-  LancerTalentData,
-  LancerCoreBonusData,
-  LancerPilotArmorData,
-  LancerPilotWeaponData,
-  LancerPilotGearData,
-  LancerFrameData,
-  LancerMechSystemData,
-  LancerMechWeaponData,
-  LancerNPCTemplateData,
-  LancerNPCClassData,
-  LancerNPCFeatureData,
   LancerSkillItemData,
   LancerTalentItemData,
   LancerCoreBonusItemData,
@@ -63,7 +51,7 @@ import {
   LancerNPCClassItemData,
   LancerNPCTemplateItemData,
   LancerNPCFeatureItemData,
-  LancerLicenseItemData,
+  LancerLicenseItemData, LancerSkillData
 } from "../interfaces";
 import { IContentPackData } from "machine-mind/dist/classes/ContentPack";
 import { LANCER } from "../config";
@@ -169,6 +157,7 @@ async function pack_lookup<T extends LancerItem>(
 ): Promise<T | null> {
   let sysComps: boolean = game.settings.get(LANCER.sys_name, LANCER.setting_comp_loc);
   let full_pack_name = `${sysComps ? "lancer" : "world"}.${pack_name}`;
+
   let pack = game.packs.get(full_pack_name);
   if (!pack) {
     console.warn("No such pack: ", full_pack_name);
@@ -442,7 +431,22 @@ export async function MachineMind_pilot_to_VTT_items_compendium_lookup(
   }
 
   for (let x of p.Skills) {
-    await push_helper(r, e, SKILLS_PACK, x.Skill);
+    if (x.IsCustom) {
+      let conv = new Converter("");
+      let sd: LancerSkillData = conv.CustomSkill_to_LancerSkillData(x.Skill as CustomSkill);
+      sd.rank = x.Rank;
+      let sid: LancerSkillItemData = {
+        name: sd.name,
+        type: "skill",
+        img: "systems/lancer/assets/icons/skill.svg",
+        flags: {},
+        data: sd
+      }
+      let customSkill = new LancerSkill(sid, {});
+      r.push(customSkill);
+    } else {
+      await push_helper(r, e, SKILLS_PACK, x.Skill);
+    }
   }
 
   for (let x of p.Talents) {

@@ -36,6 +36,7 @@ import {
   npc_weapon_damage_selector,
   system_type_selector,
   effect_type_selector,
+  mech_system_preview
 } from "./module/item/lancer-item";
 import {
   charge_type_selector,
@@ -275,6 +276,7 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("act-icon", action_type_icon);
   Handlebars.registerHelper("act-type-sel", action_type_selector);
   Handlebars.registerHelper("chg-type-sel", charge_type_selector);
+  Handlebars.registerPartial("mech-system-preview", mech_system_preview);
 
   // ------------------------------------------------------------------------
   // Effects
@@ -307,29 +309,6 @@ Hooks.once("init", async function () {
   // NPC components
   Handlebars.registerHelper("tier-selector", npc_tier_selector);
 
-  /*
-   * Repeat given markup with given times
-   * provides @index for the repeated iteraction
-   *
-   * TODO: Figure out how to not require ts-ignores
-   */
-  Handlebars.registerHelper("repeat", function (times: number, opts: any) {
-    var out = "";
-    var i;
-
-    if (times) {
-      for (i = 0; i < times; i += 1) {
-        let data = { index: i };
-        // @ts-ignore
-        out += opts.fn(this as any, { data });
-      }
-    } else {
-      // @ts-ignore
-      out = opts.inverse(this as any);
-    }
-
-    return out;
-  });
 });
 
 /* ------------------------------------ */
@@ -366,8 +345,8 @@ Hooks.once("ready", function () {
   if (!game.settings.get(LANCER.sys_name, LANCER.setting_welcome)) {
     new Dialog({
       title: `Welcome to LANCER v${game.system.data.version}`,
-      content: 
-      `<div style="margin: 10px 5px">This is a big one! There are two big feature additions to this version: the LANCER Compendium Manager (aka LCP Importer) and Comp/Con cloud save importing!<br>
+      content:
+        `<div style="margin: 10px 5px">This is a big one! There are two big feature additions to this version: the LANCER Compendium Manager (aka LCP Importer) and Comp/Con cloud save importing!<br>
       <a href="https://github.com/Eranziel/foundryvtt-lancer/blob/master/README.md">Click here for full details.</a>
       <p>The short version is that, yes, the system Compendiums are gone, <b>but</b> do not fear! They are only about 3 clicks away!<br>
       In the Compendium tab click the new "Lancer Compendium Manager" button, then click "Update Core Data".</div>

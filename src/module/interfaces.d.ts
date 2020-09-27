@@ -160,6 +160,7 @@ declare interface LancerPilotSubData {
   stats: LancerPilotStatsData;
   cloud_code: string;
   cloud_owner_code: string;
+  cloud_time: string;
   loadout: LancerPilotLoadoutData;
 }
 

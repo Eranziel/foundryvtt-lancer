@@ -14,7 +14,6 @@ import {
   NpcTemplate,
   NpcFeature,
 } from "machine-mind";
-import { LCPIndex } from "./apps/lcpManager";
 import { CORE_BONUS_PACK, FRAME_PACK, MECH_SYSTEM_PACK, MECH_WEAPON_PACK, NPC_CLASS_PACK, NPC_FEATURE_PACK, NPC_TEMPLATE_PACK, PACKS, PILOT_ARMOR_PACK, PILOT_GEAR_PACK, PILOT_WEAPON_PACK, SKILLS_PACK, TALENTS_PACK } from "./item/util";
 
 export async function buildCompendiums(cp: ContentPack, sysComps: boolean): Promise<void> {

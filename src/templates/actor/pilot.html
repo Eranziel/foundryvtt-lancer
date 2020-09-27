@@ -50,14 +50,42 @@
 
   {{!-- Sheet Tab Navigation --}}
   <nav class="lancer-tabs" data-group="primary">
+    <a class="item lancer-tab medium" data-tab="cloud">&lt;RM-4://SYNC&gt;</a>
     <a class="item lancer-tab medium" data-tab="dossier">&lt;PILOT//DOSSIER&gt;</a>
     <a class="item lancer-tab medium" data-tab="pilot">&lt;PILOT//TACTICAL&gt;</a>
     <a class="item lancer-tab medium" data-tab="mech">&lt;FRAME//LOADOUT&gt;</a>
-    <a class="item lancer-tab medium" data-tab="cloud">&lt;CLOUD//SYNC&gt;</a>
   </nav>
 
   {{!-- Sheet Body --}}
   <section class="sheet-body" style="height:-webkit-fill-available">
+
+    {{!-- Cloud Management Tab --}}
+    <div class="tab manage" data-group="primary" data-tab="cloud">
+      <div style="display: grid; grid-template: auto / 1fr 1fr;">
+        <div class="flexcol card clipped" style="grid-area: 1/1/2/3;">
+          <span class="lancer-stat-header major clipped-top">RM-4://(OMNINET UPLINK ID)</span>
+          <input
+            class="lancer-text-input major"
+            style="text-align: center;"
+            type="string"
+            name="data.pilot.cloud_code"
+            value="{{data.pilot.cloud_code}}"
+            data-dtype="String"
+          />
+        </div>
+
+        <div class="flexcol card clipped" style="grid-area: 2/1/3/2;">
+          <span class="lancer-stat-header major clipped-top">DOWNLOAD</span>
+          <a class="cloud-control i--dark i--l" style="align-self: center;" data-action="download"><i class="cci cci-tech-quick"></i></a>
+          <span class="minor desc-text" style="text-align: center;">Last synced: {{data.pilot.cloud_time}}</span>
+        </div>
+
+        <div class="flexcol card clipped" style="grid-area: 2/2/3/3;">
+          <span class="lancer-stat-header major clipped-top">UPLOAD</span>
+          <span>FEATURE IN PROGRESS</span>
+        </div>
+      </div>
+    </div>
 
     {{!-- Dossier Tab --}}
     <div class="tab dossier active" data-group="primary" data-tab="dossier">
@@ -262,7 +290,7 @@
               <i class="fas fa-dice-d20 i--sm i--dark"></i>
               <div class="major roll-modifier" style="align-self: center">+{{double skill.data.rank}}</div>
             </a>
-            <div class="desc-text" style="grid-area: 2/2/3/3">{{skill.data.description}}</div>
+            <div class="desc-text" style="grid-area: 2/2/3/3">{{{skill.data.description}}}</div>
           </li>
           {{/each}}
         </ul>
@@ -527,14 +555,6 @@
         </div>
       </div>
 
-      {{!-- Weapons --}}
-      {{!-- <div class="card clipped">
-        <h2 class="lancer-title clipped">WEAPONS</h2>
-        {{#each mech_loadout.weapons as |weapon key|}}
-        <span class="item lancer-weapon-header" data-item-id="{{weapon._id}}"><img class="thumbnail" src="{{weapon.img}}" data-edit="{{weapon.img}}" title="{{weapon.name}}" height="10" width="10"/> {{weapon.name}} <a class="stats-control" data-action="delete"><i class="fas fa-trash"></i></a></span>
-        {{/each}}
-      </div> --}}
-
       {{!-- Systems --}}
       <div class="card clipped">
         <h2 class="lancer-title clipped">SYSTEMS</h2>
@@ -545,66 +565,8 @@
             <input class="lancer-stat-input medium" type="number" name="data.mech.sp" value="{{data.mech.sp}}" data-dtype="Number"/>
           </div>
           {{#each mech_loadout.systems as |system key|}}
-            <div class="card clipped mech-system-compact item" data-item-id="{{system._id}}">
-              <div class="lancer-system-header clipped-top" style="grid-area: 1/1/2/3">
-                <i class="cci cci-system i--m i--dark"> </i>
-                <span class="minor">{{system.name}}</span>
-                <a class="stats-control i--light" data-action="delete"><i class="fas fa-trash"></i></a>
-              </div>
-              <div class="flexrow">
-                <div style="float: left; align-items: center; display: inherit;">
-                  <span class="minor" style="padding: 5px;">SP: {{system.data.sp}}</span> <i class="cci cci-system-point i--m i--dark"> </i>
-                </div>
-                {{#if system.data.uses}}
-                <div class="compact-stat">
-                  <span class="minor" style="max-width: min-content;">USES: </span>
-                  <span class="minor" style="max-width: min-content;">{{system.data.uses}}</span>
-                  <span class="minor" style="max-width: min-content;" > / </span>
-                  <span class="minor" style="max-width: min-content;">{{system.data.max_uses}}</span>
-                </div>
-                {{/if}}
-              </div>
-              {{#if (ne system.data.description "")}}
-              <div class="desc-text" style="padding: 5px">
-                {{{system.data.description}}}
-              </div>
-              {{/if}}
-              {{#with system.data.effect as |effect|}}
-                {{#if effect.effect_type}}
-                  {{{eff-preview effect}}}
-                {{else}}
-                  {{> generic-eff-preview effect=effect}}
-                {{/if}}
-              {{/with}}
-              {{> tag-list tags=system.data.tags}}
-            </div>
+            {{> mech-system-preview system=system key=key}}
           {{/each}}
-        </div>
-      </div>
-    </div>
-    
-    {{!-- Cloud Management Tab --}}
-    <div class="tab manage" data-group="primary" data-tab="cloud">
-      <div style="display: grid; grid-template: 1fr / 2fr 1fr 1fr;">
-        <div class="flexcol card clipped" style="grid-area: 1/1/2/2;">
-          <span class="lancer-stat-header major clipped-top">CLOUD CODE</span>
-          <input
-            class="lancer-text-input major"
-            type="string"
-            name="data.pilot.cloud_code"
-            value="{{data.pilot.cloud_code}}"
-            data-dtype="String"
-          />
-        </div>
-
-        <div class="flexcol card clipped" style="grid-area: 1/2/2/3;">
-          <span class="lancer-stat-header major clipped-top">DOWNLOAD</span>
-          <a class="cloud-control i--dark i--l" style="align-self: center;" data-action="download"><i class="cci cci-tech-quick"></i></a>
-        </div>
-
-        <div class="flexcol card clipped" style="grid-area: 1/3/2/4;">
-          <span class="lancer-stat-header major clipped-top">UPDATE</span>
-          <span>FEATURE IN PROGRESS</span>
         </div>
       </div>
     </div>
