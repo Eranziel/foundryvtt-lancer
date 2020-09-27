@@ -349,7 +349,7 @@ export function charge_effect_preview(effect: ChargeEffectData) {
             rng.val
           }</span></div>`;
         });
-        if (charge.damage) {
+        if (charge.damage && charge.damage.length > 0) {
           html += ` // `;
         }
       }
@@ -365,7 +365,7 @@ export function charge_effect_preview(effect: ChargeEffectData) {
       </div>`;
     });
   }
-  html += `</div>`;
+  html += `</div></div>`;
   return html;
 }
 
