@@ -18,6 +18,7 @@
       </div>
     </div>
   </div>
+  {{#if damages}}
   <div class="card clipped">
     <div class="lancer-stat-header clipped-top">// DAMAGE //</div>
     {{#each damages as |damage key|}}
@@ -35,6 +36,7 @@
       </div>
     {{/each}}
   </div>
+  {{/if}}
   {{#if effect}}
   <div class="card clipped">
     <div class="lancer-stat-header clipped-top">// EFFECT //</div>

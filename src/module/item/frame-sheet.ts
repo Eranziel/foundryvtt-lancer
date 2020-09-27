@@ -1,22 +1,20 @@
 import { LancerItemSheet } from "./item-sheet";
-import { LancerFrame } from "./lancer-item";
 
 /**
  * Extend the generic Lancer item sheet
  * @extends {LancerItemSheet}
  */
 export class LancerFrameSheet extends LancerItemSheet {
-
   /**
    * @override
    * Extend and override the default options used by the generic Lancer item sheet
    * @returns {Object}
    */
-	static get defaultOptions() {
-	  return mergeObject(super.defaultOptions, {
-			width: 700,
-			height: 750,
-		});
+  static get defaultOptions() {
+    return mergeObject(super.defaultOptions, {
+      width: 700,
+      height: 750,
+    });
   }
 
   /**
@@ -24,7 +22,7 @@ export class LancerFrameSheet extends LancerItemSheet {
    * Tag controls event handler
    * @param event The click event
    */
-  async _onClickTagControl(event) {
+  async _onClickTagControl(event: any) {
     event.preventDefault();
     const a = $(event.currentTarget);
     const action = a.data("action");
@@ -43,7 +41,7 @@ export class LancerFrameSheet extends LancerItemSheet {
       // }
       // tags[newIndex] = null;
       // Default new tags to quick action... is there a better solution?
-      tags.push({id: "tg_quick_action"});
+      tags.push({ id: "tg_quick_action" });
       await this.object.update({ "data.core_system.tags": tags }, {});
       await this._onSubmit(event);
     } else if (action === "delete") {
@@ -63,13 +61,10 @@ export class LancerFrameSheet extends LancerItemSheet {
    */
   getData() {
     const data: ItemSheetData = super.getData();
-    
+
     // TODO: frame size
 
     // TODO: find integrated weapon
-
-    console.log(data);
     return data;
   }
-
 }

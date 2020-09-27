@@ -64,6 +64,8 @@
         "quirk": "",
         "background": "",
         "history": "",
+        "cloud_code": "",
+        "cloud_owner_code": "",
         "stats": {
           "size": 0.5,
           "hp": {
