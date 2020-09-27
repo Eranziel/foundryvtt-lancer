@@ -167,9 +167,11 @@ async function pack_lookup<T extends LancerItem>(
   pack_name: string,
   compcon_id: string
 ): Promise<T | null> {
-  let pack = game.packs.get(pack_name);
+  let sysComps: boolean = game.settings.get(LANCER.sys_name, LANCER.setting_comp_loc);
+  let full_pack_name = `${sysComps ? "lancer" : "world"}.${pack_name}`;
+  let pack = game.packs.get(full_pack_name);
   if (!pack) {
-    console.warn("No such pack: ", pack_name);
+    console.warn("No such pack: ", full_pack_name);
     return null;
   }
 
