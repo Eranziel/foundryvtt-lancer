@@ -30,6 +30,7 @@ export const DEFAULT_MECH = {
   sensors: 0,
   save: 0,
   tech_attack: 0,
+  current_core_energy: 1
 };
 
 export function lancerActorInit(data: any) {

@@ -947,3 +947,27 @@ input.no-arrows::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
+
+input.core-power-toggle {
+  display: block;
+  width: 30px;
+  height: 30px;
+  -webkit-appearance: none;
+  outline: 0;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: contain;
+  font: normal normal normal 24px/1 "Material Design Icons";
+  -webkit-filter: none !important;
+}
+
+input.core-power-toggle:checked::before
+{
+  content: "\F0079";
+  color: green;
+}
+input.core-power-toggle:not(:checked)::before
+{
+  content: "\F007A";
+  color: grey;
+}

@@ -527,6 +527,17 @@
             <data class="lancer-stat medium" value="data.mech.engineering">{{data.mech.engineering}}</data>
           </div>
         </div>
+        <div class="flexcol card clipped" style="grid-area: 4/5/5/6">
+          <div class="lancer-stat-header clipped-top flexrow">
+            <span class="major">CORE</span>
+          </div>
+          <div class="flexrow stat-container" style="align-self: center;">
+            <label class="core-power-toggle">
+              <input name="data.mech.current_core_energy" class="core-power-toggle" type="checkbox" data-dtype="Boolean" {{checked data.mech.current_core_energy}}/><label></label> 
+            </label>
+          </div>
+        </div>
+
       </div>
       
       {{!-- Start of Frame --}}

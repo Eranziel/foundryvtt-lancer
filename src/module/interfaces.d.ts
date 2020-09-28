@@ -114,6 +114,7 @@ declare interface LancerMechData {
   save: number;
   tech_attack: number;
   sp: number;
+  current_core_energy: number;
 }
 
 // Seems like it should eventually mirror IMechLoadoutData
