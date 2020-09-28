@@ -345,8 +345,8 @@ Hooks.once("ready", function () {
   if (!game.settings.get(LANCER.sys_name, LANCER.setting_welcome)) {
     new Dialog({
       title: `Welcome to LANCER v${game.system.data.version}`,
-      content:
-        `<div style="margin: 10px 5px">This is a big one! There are two big feature additions to this version: the LANCER Compendium Manager (aka LCP Importer) and Comp/Con cloud save importing!<br>
+      content: 
+      `<div style="margin: 10px 5px">This is a big one! There are two big feature additions to this version: the LANCER Compendium Manager (aka LCP Importer) and Comp/Con cloud save importing!<br>
       <a href="https://github.com/Eranziel/foundryvtt-lancer/blob/master/README.md">Click here for full details.</a>
       <p>The short version is that, yes, the system Compendiums are gone, <b>but</b> do not fear! They are only about 3 clicks away!<br>
       In the Compendium tab click the new "Lancer Compendium Manager" button, then click "Update Core Data".</div>
@@ -712,28 +712,17 @@ async function rollTechMacro(t: string, a: string) {
   return renderMacro(actor, template, templateData);
 }
 
-function promptAccDiffModifier(acc?: number) {
+async function promptAccDiffModifier(acc?: number) {
   if (!acc) acc = 0;
   let diff = 0;
   if (acc < 0) {
     diff = -acc;
     acc = 0;
   }
-  let template = `
-<form>
-  <h2>Please enter your modifiers and submit, or close this window:</h2>
-  <div class="flexcol">
-    <label style="max-width: fit-content;">
-      <i class="cci cci-accuracy i--m i--dark" style="vertical-align:middle;border:none"> </i> Accuracy:
-      <input class="accuracy" type="number" min="0" value="${acc}">
-    </label>
-    <label style="max-width: fit-content;">
-      <i class="cci cci-difficulty i--m i--dark" style="vertical-align:middle;border:none"> </i> Difficulty:
-      <input class="difficulty" type="number" min="0" value="${diff}">
-    </div>
-</form>`;
+
+  let template = await renderTemplate(`systems/lancer/templates/window/promptAccDiffModifier.html`,{acc:acc, diff:diff})
   return new Promise<number>((resolve, reject) => {
-    new Dialog({
+    let d = new Dialog({
       title: "Accuracy and Difficulty",
       content: template,
       buttons: {

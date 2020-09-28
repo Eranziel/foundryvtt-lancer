@@ -920,3 +920,30 @@ code.horus:hover {
   min-width: max-content;
   padding: 0px 5px;
 }
+
+.mod-plus-button {
+  clip-path: polygon(75% 0%, 100% 50%, 75% 100%, 0% 100%, 20% 50%, 0% 0%);
+}
+
+.mod-minus-button {
+  clip-path: polygon(100% 0%, 80% 50%, 100% 100%, 25% 100%, 0% 50%, 25% 0%);
+}
+
+.mod-minus-button, .mod-plus-button {
+  width: 2em;
+  background-color: #828282;
+  color: #bebebe;
+  border:none;
+  /* Don't ask me why, but this aligns it vertically nicely */
+  line-height: 1px;
+}
+
+input[type=number].no-arrows {
+  -moz-appearance: textfield;
+}
+
+input.no-arrows::-webkit-outer-spin-button,
+input.no-arrows::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
