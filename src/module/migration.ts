@@ -73,6 +73,9 @@ export const migrateWorld = async function () {
  * @return {Promise}
  */
 export const migrateCompendium = async function (pack: Compendium) {
+  const wasLocked = pack.locked;
+  pack.locked = false;
+  if (pack.locked) return ui.notifications.error(`Could not migrate ${pack.collection} as it is locked.`);
   const entity = pack.metadata.entity;
   if (!["Actor", "Item", "Scene"].includes(entity)) return;
 
@@ -97,6 +100,7 @@ export const migrateCompendium = async function (pack: Compendium) {
       console.error(err);
     }
   }
+  pack.locked = wasLocked;
   console.log(`Migrated all ${entity} entities from Compendium ${pack.collection}`);
 };
 
