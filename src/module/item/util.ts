@@ -101,8 +101,7 @@ export const PACKS = [
 
 // Quick helper
 async function get_pack<T>(pack_name: string): Promise<T[]> {
-  let sysComps: boolean = game.settings.get(LANCER.sys_name, LANCER.setting_comp_loc);
-  let full_pack_name = `${sysComps ? "lancer" : "world"}.${pack_name}`;
+  let full_pack_name = `world.${pack_name}`;
   let pack = game.packs.get(full_pack_name);
   if (pack) {
     return pack.getContent().then(g => g.map(v => v.data)) as Promise<T[]>;
@@ -155,8 +154,7 @@ async function pack_lookup<T extends LancerItem>(
   pack_name: string,
   compcon_id: string
 ): Promise<T | null> {
-  let sysComps: boolean = game.settings.get(LANCER.sys_name, LANCER.setting_comp_loc);
-  let full_pack_name = `${sysComps ? "lancer" : "world"}.${pack_name}`;
+  let full_pack_name = `world.${pack_name}`;
 
   let pack = game.packs.get(full_pack_name);
   if (!pack) {
