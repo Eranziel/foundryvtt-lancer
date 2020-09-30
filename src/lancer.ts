@@ -748,7 +748,7 @@ async function promptAccDiffModifier(acc?: number) {
     acc = 0;
   }
 
-  let template = await renderTemplate(`systems/lancer/templates/window/promptAccDiffModifier.html`,{acc:acc, diff:diff})
+  let template = await renderTemplate(`systems/lancer/templates/window/promptAccDiffModifier.html`, { acc: acc, diff: diff })
   return new Promise<number>((resolve, reject) => {
     let d = new Dialog({
       title: "Accuracy and Difficulty",

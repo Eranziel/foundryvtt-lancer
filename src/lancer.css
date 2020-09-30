@@ -959,6 +959,7 @@ input.core-power-toggle {
   background-size: contain;
   font: normal normal normal 24px/1 "Material Design Icons";
   -webkit-filter: none !important;
+  filter: none !important;
 }
 
 input.core-power-toggle:checked::before
