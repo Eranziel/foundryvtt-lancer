@@ -66,6 +66,7 @@ import {
   LancerMechWeaponData,
   LancerPilotWeaponData,
   LancerNPCData,
+  NPCDamageData
 } from "./module/interfaces";
 
 // Import applications
@@ -345,8 +346,8 @@ Hooks.once("ready", function () {
   if (!game.settings.get(LANCER.sys_name, LANCER.setting_welcome)) {
     new Dialog({
       title: `Welcome to LANCER v${game.system.data.version}`,
-      content: 
-      `<div style="margin: 10px 5px">This is a big one! There are two big feature additions to this version: the LANCER Compendium Manager (aka LCP Importer) and Comp/Con cloud save importing!<br>
+      content:
+        `<div style="margin: 10px 5px">This is a big one! There are two big feature additions to this version: the LANCER Compendium Manager (aka LCP Importer) and Comp/Con cloud save importing!<br>
       <a href="https://github.com/Eranziel/foundryvtt-lancer/blob/master/README.md">Click here for full details.</a>
       <p>The short version is that, yes, the system Compendiums are gone, <b>but</b> do not fear! They are only about 3 clicks away!<br>
       In the Compendium tab click the new "Lancer Compendium Manager" button, then click "Update Core Data".</div>
@@ -520,7 +521,7 @@ async function rollAttackMacro(w: string, a: string) {
   if (!actor) return;
 
   // Get the item
-  const item: Item | null = actor.getOwnedItem(w);
+  const item: LancerItem | null = (actor.getOwnedItem(w) as LancerItem | null);
   console.log(`${lp} Rolling attack macro`, item, w, a);
   if (!item) {
     ui.notifications.error(
@@ -536,13 +537,14 @@ async function rollAttackMacro(w: string, a: string) {
   let grit: number = 0;
   let acc: number = 0;
   let damage: DamageData[];
+  let overkill: boolean = item.isOverkill;
   let effect: EffectData | string;
   let tags: TagDataShort[];
   let typeMissing: boolean = false;
-  const wData = item.data.data;
   if (item.type === "mech_weapon") {
     let wData = item.data.data as LancerMechWeaponData;
     grit = (item.actor!.data as LancerPilotActorData).data.pilot.grit;
+    acc = item.accuracy;
     damage = wData.damage;
     damage.forEach((d: any) => {
       if (d.type === "" && d.val != "" && d.val != 0) typeMissing = true;
@@ -552,6 +554,7 @@ async function rollAttackMacro(w: string, a: string) {
   } else if (item.type === "pilot_weapon") {
     let wData = item.data.data as LancerPilotWeaponData;
     grit = (item.actor!.data as LancerPilotActorData).data.pilot.grit;
+    acc = item.accuracy;
     damage = wData.damage;
     damage.forEach((d: any) => {
       if (d.type === "" && d.val != "" && d.val != 0) typeMissing = true;
@@ -559,6 +562,7 @@ async function rollAttackMacro(w: string, a: string) {
     tags = wData.tags;
     effect = wData.effect;
   } else if (item.type === "npc_feature") {
+    let wData = item.data.data as LancerNPCWeaponData;
     var tier: number;
     if (item.actor === null) {
       tier = actor.data.data.tier_num;
@@ -566,19 +570,20 @@ async function rollAttackMacro(w: string, a: string) {
       tier = (item.actor.data.data as LancerNPCData).tier_num - 1;
     }
     if (wData.attack_bonus && wData.attack_bonus[tier]) {
-      grit = parseInt(wData.attack_bonus[tier]);
+      grit = wData.attack_bonus[tier];
     }
     if (wData.accuracy && wData.accuracy[tier]) {
-      acc = parseInt(wData.accuracy[tier]);
+      acc = wData.accuracy[tier];
     }
     // Reduce damage values to only this tier
-    damage = duplicate(wData.damage);
+    damage = wData.damage.map((d: NPCDamageData) => {
+      return { type: d.type, overrid: d.override, val: d.val[tier] }
+    });
     damage.forEach((d: any) => {
-      d.val = d.val[tier];
       if (d.type === "" && d.val != "" && d.val != 0) typeMissing = true;
     });
     tags = wData.tags;
-    effect = wData.effect;
+    effect = wData.effect ? wData.effect : "";
   } else {
     ui.notifications.error(`Error rolling attack macro - ${item.name} is not a weapon!`);
     return Promise.resolve();
@@ -600,7 +605,7 @@ async function rollAttackMacro(w: string, a: string) {
   // Do the attack rolling
   let acc_str = acc != 0 ? ` + ${acc}d6kh1` : "";
   let atk_str = `1d20+${grit}${acc_str}`;
-  console.log(`${lp} Attack roll string: ${atk_str}`);
+  // console.log(`${lp} Attack roll string: ${atk_str}`);
   let attack_roll = new Roll(atk_str).roll();
 
   // Iterate through damage types, rolling each
@@ -609,14 +614,37 @@ async function rollAttackMacro(w: string, a: string) {
     tt: HTMLElement | JQuery<HTMLElement>;
     dtype: DamageType;
   }> = [];
+  let overkill_heat: number = 0;
   damage.forEach(async (x: any) => {
     if (x.type === "" || x.val === "" || x.val == 0) return Promise.resolve(); // Skip undefined and zero damage
-    const droll = new Roll(x.val.toString()).roll();
+    let dFormula: string = x.val.toString();
+    // If the damage formula involves dice and is overkill, add "r1" to reroll all 1's.
+    if (dFormula.includes("d") && overkill) {
+      let dind = dFormula.indexOf("d");
+      let pind = dFormula.indexOf("+");
+      if (dind >= 0) {
+        if (pind > dind) dFormula = dFormula.substring(0, pind) + "r1" + dFormula.substring(pind);
+        else dFormula += "r1";
+      }
+    }
+    const droll = new Roll(dFormula).roll();
     const tt = await droll.getTooltip();
+    if (overkill) {
+      // Count overkill heat
+      droll.parts.forEach(p => {
+        if (p.rolls && Array.isArray(p.rolls)) {
+          p.rolls.forEach((r: any) => {
+            if (r.roll && r.roll === 1 && r.rerolled) {
+              overkill_heat += 1;
+            }
+          });
+        }
+      });
+    }
     damage_results.push({
       roll: droll,
       tt: tt,
-      dtype: x.type,
+      dtype: x.type
     });
     return Promise.resolve();
   });
@@ -628,10 +656,10 @@ async function rollAttackMacro(w: string, a: string) {
     attack: attack_roll,
     attack_tooltip: attack_tt,
     damages: damage_results,
+    overkill_heat: overkill_heat,
     effect: effect ? effect : null,
     tags: tags,
   };
-
   const template = `systems/lancer/templates/chat/attack-card.html`;
   return renderMacro(actor, template, templateData);
 }
