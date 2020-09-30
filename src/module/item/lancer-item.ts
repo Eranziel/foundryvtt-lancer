@@ -21,12 +21,14 @@ import { LANCER } from "../config";
 import {
   DamageType,
   EffectType,
+  ItemType,
   NpcFeatureType,
   RangeType,
   SystemType,
   WeaponSize,
   WeaponType,
 } from "machine-mind";
+import { LancerNPCWeaponData } from "./npc-feature";
 const lp = LANCER.log_prefix;
 
 export type LancerItemType =
@@ -108,6 +110,10 @@ export class LancerItem extends Item {
     | LancerNPCTemplateItemData
     | LancerNPCClassItemData;
 
+  // ============================================================
+  //          SKILLS
+  // ============================================================
+
   /**
    * Return a skill trigger's bonus to rolls
    */
@@ -115,6 +121,118 @@ export class LancerItem extends Item {
     // Only works for skills.
     if (this.data.type !== "skill") return 0;
     return (this.data as LancerSkillItemData).data.rank * 2;
+  }
+
+  // ============================================================
+  //          WEAPONS
+  // ============================================================
+
+  /**
+   * Return whether a weapon has the smart tag
+   */
+  get isLoading(): boolean {
+    if (this.data.type === "pilot_weapon" || this.data.type === "mech_weapon" || this.data.type === "npc_feature") {
+      return this.searchTags("tg_loading", "LOADING");
+    } else {
+      return false;
+    }
+  }
+
+  /**
+   * Return whether a weapon has the smart tag
+   */
+  get isOrdnance(): boolean {
+    if (this.data.type === "pilot_weapon" || this.data.type === "mech_weapon" || this.data.type === "npc_feature") {
+      return this.searchTags("tg_ordnance", "ORDNANCE");
+    } else {
+      return false;
+    }
+  }
+
+  /**
+   * Return a weapon's innate accuracy/difficulty based on its tags.
+   */
+  get accuracy(): number {
+    if (this.data.type === "pilot_weapon" || this.data.type === "mech_weapon") {
+      let acc = 0;
+      if (this.searchTags("tg_accurate", "ACCURATE")) acc += 1;
+      if (this.searchTags("tg_inaccurate", "INACCURATE")) acc -= 1;
+      return acc;
+    } else {
+      return 0;
+    }
+  }
+
+  /**
+   * Return whether a weapon has the smart tag
+   */
+  get isSmart(): boolean {
+    if (this.data.type === "pilot_weapon" || this.data.type === "mech_weapon" || this.data.type === "npc_feature") {
+      return this.searchTags("tg_smart", "SMART");
+    } else {
+      return false;
+    }
+  }
+
+  /**
+   * Return whether a weapon has the overkill tag
+   */
+  get isOverkill(): boolean {
+    if (this.data.type === "pilot_weapon" || this.data.type === "mech_weapon" || this.data.type === "npc_feature") {
+      return this.searchTags("tg_overkill", "OVERKILL");
+    } else {
+      return false;
+    }
+  }
+
+  /**
+   * Return whether a weapon has the smart tag
+   */
+  get isAp(): boolean {
+    if (this.data.type === "pilot_weapon" || this.data.type === "mech_weapon" || this.data.type === "npc_feature") {
+      return this.searchTags("tg_ap", "ARMOR-PIERCING (AP)");
+    } else {
+      return false;
+    }
+  }
+
+  /**
+   * Return a weapon's innate accuracy/difficulty based on its tags.
+   */
+  get reliable(): number | string {
+    if (this.data.type === "pilot_weapon" || this.data.type === "mech_weapon") {
+      let rel: number | string = 0;
+      const data = this.data.data as any;
+      if (!data.tags || !Array.isArray(data.tags)) return rel;
+      data.tags.forEach((t: TagData) => {
+        if (t.id.toLowerCase() === "tg_reliable" || t.name.toUpperCase() === "RELIABLE") {
+          rel = t.val ? t.val : rel;
+        }
+      });
+      return rel;
+    } else {
+      return 0;
+    }
+  }
+
+  // ============================================================
+  //          GENERAL
+  // ============================================================
+
+  /**
+   * Search the Item's tags to see if any have the given ID or name.
+   * @param id Tag ID to search for.
+   * @param name Tag name to search for.
+   * @returns true if the tag was found, false otherwise.
+   */
+  searchTags(id: string, name: string): boolean {
+    const data = this.data.data as any;
+    if (!data.tags || !Array.isArray(data.tags)) return false;
+    let result = false;
+    data.tags.forEach((t: TagData) => {
+      if (t.id.toLowerCase() === id || t.name.toUpperCase() === name) result = true;
+    });
+    return result;
   }
 }
 
