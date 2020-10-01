@@ -169,7 +169,7 @@ export class LancerPilotSheet extends ActorSheet {
    * Activate event listeners using the prepared sheet HTML
    * @param html {HTML}   The prepared HTML object ready to be rendered into the DOM
    */
-  activateListeners(html: any) {
+  activateListeners(html: JQuery) {
     super.activateListeners(html);
 
     // Macro triggers
@@ -234,6 +234,15 @@ export class LancerPilotSheet extends ActorSheet {
         }
       });
     }
+
+
+    // Macro-able Dragging
+    const macroableHandler = (e: Event) => this._onDragMacroableStart(e);
+    html.find('.macroable').each((i, li) => {
+        li.setAttribute('draggable', "true");
+        li.addEventListener('dragstart', macroableHandler, false);
+      });
+
 
     // Everything below here is only needed if the sheet is editable
     if (!this.options.editable) return;
@@ -367,6 +376,26 @@ export class LancerPilotSheet extends ActorSheet {
       });
     }
   }
+
+
+  _onDragMacroableStart(event: any): boolean {
+    const title = event.currentTarget.getAttribute('data-title');
+    const dataPath = event.currentTarget.getAttribute('data-dataPath');
+
+    if (title && dataPath) {
+        event.dataTransfer.setData('text/plain', JSON.stringify({
+            type: 'genericActor',
+            title: title,
+            dataPath: dataPath,
+            actorId: this.actor._id
+        }));
+
+        return true;
+    }
+    return false;
+}
+
+
 
   async _onDrop(event: any) {
     event.preventDefault();

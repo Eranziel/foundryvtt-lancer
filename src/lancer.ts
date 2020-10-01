@@ -380,6 +380,43 @@ Hooks.on("renderSidebarTab", async (app: Application, html: HTMLElement) => {
 // 	dialogCallbacksLCPManager(app, html);
 // })
 
+
+Hooks.on('hotbarDrop', (_bar: any, data: any, slot: number) => {
+  if (data.type === 'genericActor') {
+    // Full list of data expected from a generic actor macro:
+    // A title      - to name it
+    // A dataPath   - to access dynamic data from the actor
+    // An actorId   - to reference the actor
+    createActorMacro(data.title, data.dataPath, data.actorId, slot);
+  } 
+});
+
+
+async function createActorMacro(title: string, dataPath: string, actorId: string, slot: number) {
+  const command = `
+const a = game.actors.get('${actorId}');
+if (a) {
+  const mod = a.data.${dataPath}
+  game.lancer.rollTriggerMacro(a, '${title}', mod, true);
+} else {
+  ui.notifications.error("Error rolling macro");
+}`;
+// Until we properly register commands as something macros can have...
+// @ts-ignore
+  let macro = game.macros.entities.find((m: Macro) => (m.name === title) && (m.data as Object).command === command);
+  if (!macro) {
+    macro = await Macro.create({
+      command,
+      name: title,
+      type: 'script',
+      img: 'icons/svg/d20-grey.svg',
+    }, { displaySheet: false }) as Macro;
+
+    game.user.assignHotbarMacro(macro, slot);
+  }
+}
+
+
 function getMacroSpeaker(): Actor | null {
   // Determine which Actor to speak as
   const speaker = ChatMessage.getSpeaker();
