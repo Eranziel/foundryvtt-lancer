@@ -171,15 +171,13 @@ export class LancerNPCSheet extends ActorSheet {
     }
     if (this.actor.owner) {
       // Item Dragging
-      let handler = (ev: any) => this._onDragStart(ev);
       html
         .find('li[class*="item"]')
         .add('span[class*="item"]')
         .each((i: number, item: any) => {
           if (item.classList.contains("inventory-header")) return;
           item.setAttribute("draggable", true);
-          // TODO: I think handler needs to be item.*something*._onDragStart(ev).
-          item.addEventListener("dragstart", handler, false);
+          item.addEventListener("dragstart", (ev: any) => this._onDragStart(ev), false);
         });
 
       // Update Inventory Item
@@ -187,19 +185,10 @@ export class LancerNPCSheet extends ActorSheet {
       items.click((ev: any) => {
         console.log(ev);
         const li = $(ev.currentTarget);
-        //TODO: Check if in mount and update mount
         const item = this.actor.getOwnedItem(li.data("itemId"));
         if (item) {
           item.sheet.render(true);
         }
-      });
-
-      // Delete Item on Right Click
-      items.contextmenu((ev: any) => {
-        console.log(ev);
-        const li = $(ev.currentTarget);
-        this.actor.deleteOwnedItem(li.data("itemId"));
-        li.slideUp(200, () => this.render(false));
       });
 
       // Delete Item when trash can is clicked
@@ -212,6 +201,7 @@ export class LancerNPCSheet extends ActorSheet {
         li.slideUp(200, () => this.render(false));
       });
 
+      // Change tier
       let tier_selector = html.find('select.tier-control[data-action*="update"]');
       tier_selector.change((ev: any) => {
         ev.stopPropagation();

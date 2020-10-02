@@ -197,28 +197,28 @@
             <div class="card clipped">
                 <h2 class="lancer-title clipped-top">TEMPLATES</h2>
                 {{#if npc_templates}}
-                <div class="flexrow">
+                <ul class="items-list flexrow">
                     {{#each npc_templates as |npc_templates key|}}
-                    <div class="card clipped npc-template-compact item" data-item-id="{{npc_templates._id}}">
+                    <li class="card clipped npc-template-compact item" data-item-id="{{npc_templates._id}}">
                         <div class="lancer-weapon-header clipped-top" style="grid-area: 1/1/2/3">
                             <i class="cci cci-generic-item i--m i--light"> </i>
                             <span class="minor">{{npc_templates.name}}</span>
                             <a class="stats-control i--light" data-action="delete"><i class="fas fa-trash"></i></a>
                         </div>
-                    </div>
+                    </li>
                     {{/each}}
-                </div>
+                </ul>
                 {{/if}}
             </div>
             <div class="card clipped">
                 <h2 class="lancer-title clipped-top">FEATURES</h2>
                 {{#if npc_features}}
-                <div class="flexrow">
-                    {{#each npc_features as | npc_feature key|}}
+                <ul class="items-list">
+                    {{#each npc_features as |npc_feature key|}}
                     
                     {{!-- Reaction-type feature preview --}}
                     {{#if (eq npc_feature.data.feature_type "Reaction")}}
-                    <div class="card clipped npc-feature-compact item" style="min-width: 200px"data-item-id="{{npc_feature._id}}">
+                    <li class="card clipped npc-feature-compact item" style="min-width: 200px" data-item-id="{{npc_feature._id}}">
                         <div class="lancer-reaction-header clipped-top" style="grid-area: 1/1/2/3">
                             <i class="cci cci-reaction i--m i--light"> </i>
                             <span class="minor">{{npc_feature.name}}</span>
@@ -239,12 +239,12 @@
                             {{{compact-tag tag}}}
                             {{/each}}
                         </div>
-                    </div>
+                    </li>
                     {{/if}}
                     
                     {{!-- System-type feature preview --}}
                     {{#if (eq npc_feature.data.feature_type "System")}}
-                    <div class="card clipped npc-feature-compact item" data-item-id="{{npc_feature._id}}">
+                    <li class="card clipped npc-feature-compact item" data-item-id="{{npc_feature._id}}">
                         <div class="lancer-system-header clipped-top" style="grid-area: 1/1/2/3">
                             <i class="cci cci-system i--m i--light"> </i>
                             <span class="minor">{{npc_feature.name}}</span>
@@ -261,12 +261,12 @@
                             {{{compact-tag tag}}}
                             {{/each}}
                         </div>
-                    </div>
+                    </li>
                     {{/if}}
                     
                     {{!-- Trait-type feature preview --}}
                     {{#if (eq npc_feature.data.feature_type "Trait")}}
-                    <div class="card clipped npc-feature-compact item" data-item-id="{{npc_feature._id}}">
+                    <li class="card clipped npc-feature-compact item" data-item-id="{{npc_feature._id}}">
                         <div class="lancer-trait-header clipped-top" style="grid-area: 1/1/2/3">
                             <i class="cci cci-trait i--m i--light"> </i>
                             <span class="minor">{{npc_feature.name}}</span>
@@ -283,12 +283,12 @@
                             {{{compact-tag tag}}}
                             {{/each}}
                         </div>
-                    </div>
+                    </li>
                     {{/if}}
                     
                     {{!-- Tech-type feature preview --}}
                     {{#if (eq npc_feature.data.feature_type "Tech")}}
-                    <div class="card clipped npc-feature-compact tech item" style="max-height: fit-content;" data-item-id="{{npc_feature._id}}">
+                    <li class="card clipped npc-feature-compact tech item" style="max-height: fit-content;" data-item-id="{{npc_feature._id}}">
                         <div class="lancer-tech-header clipped-top" style="grid-area: 1/1/2/3">
                             <i class="cci cci-tech-{{lower-case npc_feature.data.tech_type}} i--m i--light"> </i>
                             <span class="minor">{{npc_feature.name}} // {{upper-case npc_feature.data.tech_type}} TECH</span>
@@ -339,12 +339,12 @@
                                 {{/each}}
                             </div>
                         </div>
-                    </div>
+                    </li>
                     {{/if}}
 
                     {{!-- Weapon-type feature preview --}}
                     {{#if (eq npc_feature.data.feature_type "Weapon")}}
-                    <div class="card clipped npc-feature-compact weapon item" data-item-id="{{npc_feature._id}}">
+                    <li class="card clipped npc-feature-compact weapon item" data-item-id="{{npc_feature._id}}">
                         <div class="lancer-weapon-header clipped-top" style="grid-area: 1/1/2/3">
                             <i class="cci cci-weapon i--m i--light"> </i>
                             <span class="minor">{{npc_feature.name}} // {{upper-case npc_feature.data.weapon_type}}</span>
@@ -399,10 +399,10 @@
                                 {{/each}}
                             </div>
                         </div>
-                    </div>
+                    </li>
                     {{/if}}
                     {{/each}}
-                </div>
+                </ul>
                 {{/if}}
             </div>
             <div class="flexcol card clipped" style="grid-area: 3/1/4/3">

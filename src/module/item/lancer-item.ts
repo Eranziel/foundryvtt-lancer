@@ -675,7 +675,7 @@ export function effect_type_selector(e_type: string, data_target: string) {
  * Handlebars partial for a mech system preview card.
  */
 export const mech_system_preview =
-  `<div class="card clipped mech-system-compact item" data-item-id="{{system._id}}">
+  `<li class="card clipped mech-system-compact item" data-item-id="{{system._id}}">
 <div class="lancer-system-header clipped-top" style="grid-area: 1/1/2/3">
   <i class="cci cci-system i--m i--dark"> </i>
   <span class="minor">{{system.name}}</span>
@@ -707,7 +707,7 @@ export const mech_system_preview =
   {{/if}}
 {{/with}}
 {{> tag-list tags=system.data.tags}}
-</div>`;
+</li>`;
 
 /**
  * Handlebars partial for non-editable Mech Trait
