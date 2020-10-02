@@ -572,8 +572,8 @@ export const npc_accuracy_preview = `{{#if (gtpi acc "0")}}
 /**
  * Handlebars partial for a mech weapon preview card.
  */
-export const mech_weapon_preview = `<div class="flexcol clipped lancer-weapon-container weapon" style="max-height: fit-content;" data-item-id="{{key}}">
-  <div class="lancer-weapon-header clipped-top item" style="grid-area: 1/1/2/3" data-item-id="{{weapon._id}}">
+export const mech_weapon_preview = `<div class="flexcol clipped lancer-weapon-container weapon" style="max-height: fit-content;" data-item-id="{{weapon._id}}" data-item-key="{{key}}">
+  <div class="lancer-weapon-header clipped-top item" style="grid-area: 1/1/2/3">
     <i class="cci cci-weapon i--m i--light"> </i>
     <span class="minor">{{weapon.name}} // {{upper-case weapon.data.mount}} {{upper-case weapon.data.weapon_type}}</span>
     <a class="stats-control i--light" data-action="delete"><i class="fas fa-trash"></i></a>

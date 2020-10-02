@@ -125,7 +125,7 @@
             <span class="lancer-stat-header major clipped-top">GRIT</span>
             <div class="flexrow stat-container" style="align-self: center;">
               <a class="stat-macro i--dark i--sm" data-action="roll-macro"><i class="fas fa-dice-d20"></i></a>
-              <input class="lancer-stat lancer-stat-input major" type="number" name="data.pilot.grit" value="{{data.pilot.grit}}" data-dtype="Number"\>
+              <input class="lancer-stat major" type="number" name="data.pilot.grit" id="data.pilot.grit" value="{{data.pilot.grit}}" data-dtype="Number"\>
             </div>
           </div>
         </div>
@@ -134,28 +134,28 @@
             <span class="lancer-stat-header major clipped-top">HULL</span>
             <div class="flexrow stat-container" style="align-self: center;">
               <a class="stat-macro i--dark i--sm" data-action="roll-macro"><i class="fas fa-dice-d20"></i></a>
-              <input class="lancer-stat lancer-stat-input major" type="number" name="data.mech.hull" value="{{data.mech.hull}}" data-dtype="Number"/>
+              <input class="lancer-stat major" type="number" name="data.mech.hull" id="data.mech.hull" value="{{data.mech.hull}}" data-dtype="Number"/>
             </div>
           </div>
           <div class="flexcol card clipped">
             <span class="lancer-stat-header major clipped-top">AGILITY</span>
             <div class="flexrow stat-container" style="align-self: center;">
               <a class="stat-macro i--dark i--sm" data-action="roll-macro"><i class="fas fa-dice-d20"></i></a>
-              <input class="lancer-stat lancer-stat-input major" type="number" name="data.mech.agility" value="{{data.mech.agility}}" data-dtype="Number"/>
+              <input class="lancer-stat major" type="number" name="data.mech.agility" id="data.mech.agility" value="{{data.mech.agility}}" data-dtype="Number"/>
             </div>
           </div>
           <div class="flexcol card clipped">
             <span class="lancer-stat-header major clipped-top">SYSTEMS</span>
             <div class="flexrow stat-container" style="align-self: center;">
               <a class="stat-macro i--dark i--sm" data-action="roll-macro"><i class="fas fa-dice-d20"></i></a>
-              <input class="lancer-stat lancer-stat-input major" type="number" name="data.mech.systems" value="{{data.mech.systems}}" data-dtype="Number"/>
+              <input class="lancer-stat major" type="number" name="data.mech.systems" id="data.mech.systems" value="{{data.mech.systems}}" data-dtype="Number"/>
             </div>
           </div>
           <div class="flexcol card clipped">
             <span class="lancer-stat-header major clipped-top">ENGINEERING</span>
             <div class="flexrow stat-container" style="align-self: center;">
               <a class="stat-macro i--dark i--sm" data-action="roll-macro"><i class="fas fa-dice-d20"></i></a>
-              <input class="lancer-stat lancer-stat-input major" type="number" name="data.mech.engineering" value="{{data.mech.engineering}}" data-dtype="Number"/>
+              <input class="lancer-stat major" type="number" name="data.mech.engineering" id="data.mech.engineering" value="{{data.mech.engineering}}" data-dtype="Number"/>
             </div>
           </div>
         </div>
@@ -206,39 +206,41 @@
         <div class="card clipped">
           <h2 class="lancer-stat-header major clipped-top">WEAPONS</h2>
           {{#if pilot_loadout.weapons}}
-          {{#each pilot_loadout.weapons as |weapon key|}}
-          <div class="card clipped pilot-weapon-compact item weapon" data-item-id="{{weapon._id}}">
-            <div class="lancer-weapon-header clipped-top" style="grid-area: 1/1/2/3">
-              <i class="cci cci-weapon i--m i--light"> </i>
-              <span class="minor">{{weapon.name}}</span>
-              <a class="stats-control i--light" data-action="delete"><i class="fas fa-trash"></i></a>
-            </div>
-            <div class="flexcol">
-              <div class="flexrow">
-                <a class="flexrow roll-attack" style="max-width: min-content;">
-                  <i class="fas fa-dice-d20 i--sm i--dark"></i>
-                </a>
-                {{#each weapon.data.range as |range rkey|}}
-                  {{> wpn-range range=range rkey=rkey}}
-                {{/each}}
-                <hr class="vsep">
-                {{#each weapon.data.damage as |damage dkey|}}
-                  {{> wpn-damage damage=damage dkey=dkey dval=damage.val}}
-                {{/each}}
+          <ul class="items-list">
+            {{#each pilot_loadout.weapons as |weapon key|}}
+            <li class="card clipped pilot-weapon-compact item weapon" data-item-id="{{weapon._id}}">
+              <div class="lancer-weapon-header clipped-top" style="grid-area: 1/1/2/3">
+                <i class="cci cci-weapon i--m i--light"> </i>
+                <span class="minor">{{weapon.name}}</span>
+                <a class="stats-control i--light" data-action="delete"><i class="fas fa-trash"></i></a>
               </div>
-              {{!-- Loading toggle - WIP
-              <div class="flexrow">
-                {{#if (is-loading weapon.data.tags)}}
-                  LOADING
-                {{/if}}
+              <div class="flexcol">
+                <div class="flexrow">
+                  <a class="flexrow roll-attack" style="max-width: min-content;">
+                    <i class="fas fa-dice-d20 i--sm i--dark"></i>
+                  </a>
+                  {{#each weapon.data.range as |range rkey|}}
+                    {{> wpn-range range=range rkey=rkey}}
+                  {{/each}}
+                  <hr class="vsep">
+                  {{#each weapon.data.damage as |damage dkey|}}
+                    {{> wpn-damage damage=damage dkey=dkey dval=damage.val}}
+                  {{/each}}
+                </div>
+                {{!-- Loading toggle - WIP
+                <div class="flexrow">
+                  {{#if (is-loading weapon.data.tags)}}
+                    LOADING
+                  {{/if}}
+                </div>
+                --}}
+                <div class="flexrow">
+                  {{> tag-list tags=weapon.data.tags}}
+                </div>
               </div>
-              --}}
-              <div class="flexrow">
-                {{> tag-list tags=weapon.data.tags}}
-              </div>
-            </div>
-          </div>
-          {{/each}}
+            </li>
+            {{/each}}
+          </ul>
           {{/if}}
         </div>
       </div>
@@ -461,7 +463,7 @@
           </div>
           <div class="flexrow stat-container" style="align-self: center;">
             <a class="stat-macro i--dark i--sm" data-action="roll-macro"><i class="fas fa-dice-d20"></i></a>
-            <data class="lancer-stat medium" value="data.pilot.grit">{{data.pilot.grit}}</data>
+            <data class="lancer-stat medium" id="data.pilot.grit" value="{{data.pilot.grit}}">{{data.pilot.grit}}</data>
           </div>
         </div>
         <div class="flexcol card clipped" style="grid-area: 3/2/4/3">
@@ -471,7 +473,7 @@
           </div>
           <div class="flexrow stat-container" style="align-self: center;">
             <a class="stat-macro i--dark i--sm" data-action="roll-macro"><i class="fas fa-dice-d20"></i></a>
-            <input class="lancer-stat lancer-stat-input medium" type="number" name="data.mech.tech_attack" value="{{data.mech.tech_attack}}" data-dtype="Number"/>
+            <input class="lancer-stat medium" type="number" name="data.mech.tech_attack" id="data.mech.tech_attack" value="{{data.mech.tech_attack}}" data-dtype="Number"/>
           </div>
         </div>
         <div class="flexcol card clipped" style="grid-area: 3/3/4/4">
@@ -497,7 +499,7 @@
           </div>
           <div class="flexrow stat-container" style="align-self: center;">
             <a class="stat-macro i--dark i--sm" data-action="roll-macro"><i class="fas fa-dice-d20"></i></a>
-            <data class="lancer-stat medium" value="data.mech.hull">{{data.mech.hull}}</data>
+            <data class="lancer-stat medium" id="data.mech.hull" value="{{data.mech.hull}}">{{data.mech.hull}}</data>
           </div>
         </div>
         <div class="flexcol card clipped" style="grid-area: 4/2/5/3">
@@ -506,7 +508,7 @@
           </div>
           <div class="flexrow stat-container" style="align-self: center;">
             <a class="stat-macro i--dark i--sm" data-action="roll-macro"><i class="fas fa-dice-d20"></i></a>
-            <data class="lancer-stat medium" value="data.mech.agility">{{data.mech.agility}}</data>
+            <data class="lancer-stat medium" id="data.mech.agility" value="{{data.mech.agility}}">{{data.mech.agility}}</data>
           </div>
         </div>
         <div class="flexcol card clipped" style="grid-area: 4/3/5/4">
@@ -515,7 +517,7 @@
           </div>
           <div class="flexrow stat-container" style="align-self: center;">
             <a class="stat-macro i--dark i--sm" data-action="roll-macro"><i class="fas fa-dice-d20"></i></a>
-            <data class="lancer-stat medium" value="data.mech.systems">{{data.mech.systems}}</data>
+            <data class="lancer-stat medium" id="data.mech.systems" value="{{data.mech.systems}}">{{data.mech.systems}}</data>
           </div>
         </div>
         <div class="flexcol card clipped" style="grid-area: 4/4/5/5">
@@ -524,7 +526,7 @@
           </div>
           <div class="flexrow stat-container" style="align-self: center;">
             <a class="stat-macro i--dark i--sm" data-action="roll-macro"><i class="fas fa-dice-d20"></i></a>
-            <data class="lancer-stat medium" value="data.mech.engineering">{{data.mech.engineering}}</data>
+            <data class="lancer-stat medium" id="data.mech.engineering" value="{{data.mech.engineering}}">{{data.mech.engineering}}</data>
           </div>
         </div>
         <div class="flexcol card clipped" style="grid-area: 4/5/5/6">

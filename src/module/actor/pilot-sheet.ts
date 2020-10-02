@@ -2,7 +2,7 @@ import {
   LancerPilotSheetData,
   LancerFrameStatsData,
   LancerMountData,
-  LancerPilotData,
+  LancerPilotData, LancerStatMacroData, LancerAttackMacroData, LancerPilotWeaponData
 } from "../interfaces";
 import {
   LancerItem,
@@ -178,59 +178,78 @@ export class LancerPilotSheet extends ActorSheet {
       let statMacro = html.find(".stat-macro");
       statMacro.click((ev: any) => {
         ev.stopPropagation(); // Avoids triggering parent event handlers
-        console.log(`${lp} Stat macro button click`, ev);
 
         // Find the stat input to get the stat's key to pass to the macro function
-        const statInput: HTMLElement = $(ev.currentTarget)
+        const statInput: HTMLInputElement | HTMLDataElement = ($(ev.currentTarget)
           .closest(".stat-container")
-          .find(".lancer-stat")[0];
-        let statKey: string = (statInput as HTMLInputElement).name;
-        if (!statKey) {
-          statKey = (statInput as HTMLDataElement).value;
-        }
-        let keySplit = statKey.split(".");
-        let title = keySplit[keySplit.length - 1].toUpperCase();
-        console.log(`${lp} Rolling ${title} check, key ${statKey}`);
-        game.lancer.rollStatMacro(this.actor._id, title, statKey, null, true);
+          .find(".lancer-stat")[0] as HTMLInputElement | HTMLDataElement);
+        let tSplit = statInput.id.split(".");
+        let mData: LancerStatMacroData = {
+          title: tSplit[tSplit.length - 1].toUpperCase(),
+          bonus: statInput.value
+        };
+
+        console.log(`${lp} Rolling ${mData.title} check, bonus: ${mData.bonus}`);
+        game.lancer.rollStatMacro(this.actor, mData);
       });
 
       // Trigger rollers
       let triggerMacro = html.find(".roll-trigger");
       triggerMacro.click((ev: any) => {
-        ev.stopPropagation();
-        console.log(`${lp} Skill macro button click`, ev);
+        ev.stopPropagation(); // Avoids triggering parent event handlers
 
-        const modifier = parseInt($(ev.currentTarget).find(".roll-modifier").text());
-        const title = $(ev.currentTarget).closest(".skill-compact").find(".modifier-name").text();
-        //.find('modifier-name').first().text();
-        console.log(`${lp} Rolling '${title}' trigger (d20 + ${modifier})`);
+        let mData: LancerStatMacroData = {
+          title: $(ev.currentTarget).closest(".skill-compact").find(".modifier-name").text(),
+          bonus: parseInt($(ev.currentTarget).find(".roll-modifier").text())
+        };
 
-        game.lancer.rollTriggerMacro(this.actor._id, title, modifier, true);
+        console.log(`${lp} Rolling '${mData.title}' trigger (d20 + ${mData.bonus})`);
+        game.lancer.rollTriggerMacro(this.actor, mData);
       });
 
       // Weapon rollers
       let weaponMacro = html.find(".roll-attack");
       weaponMacro.click((ev: any) => {
         ev.stopPropagation();
-        console.log(`${lp} Weapon macro button click`, ev);
-
+        console.log(ev);
         const weaponElement = $(ev.currentTarget).closest(".weapon")[0] as HTMLElement;
+        console.log(weaponElement);
+        const weaponId = weaponElement.getAttribute("data-item-id");
+        if (!weaponId) return ui.notifications.warn(`Error rolling macro: No weapon ID!`);
+        const item = this.actor.getOwnedItem(weaponId);
+        if (!item) return ui.notifications.warn(`Error rolling macro: Couldn't find weapon with ID ${weaponId}.`);
+       
         // Pilot weapon
         if (weaponElement.className.search("pilot") >= 0) {
-          let weaponId = weaponElement.getAttribute("data-item-id");
-          game.lancer.rollAttackMacro(weaponId, this.actor._id);
+          const weapon = item as LancerPilotWeapon;
+          let mData: LancerAttackMacroData = {
+            title: weapon.name,
+            grit: (this.actor.data.data as LancerPilotData).pilot.grit,
+            tags: weapon.data.data.tags,
+            acc: weapon.accuracy,
+            damage: weapon.data.data.damage,
+            overkill: weapon.isOverkill,
+            effect: weapon.data.data.effect
+          }
+
+          console.log(`${lp} Rolling Pilot attack macro with data:`, mData);
+          game.lancer.rollAttackMacro(this.actor, mData);
         }
         // Mech weapon
         else {
-          let weaponMountIndex = weaponElement.getAttribute("data-item-id") || 0;
-          const mountElement = $(ev.currentTarget).closest(".lancer-mount-container");
-          if (mountElement.length) {
-            const mounts = this.actor.data.data.mech_loadout.mounts;
-            const weapon = mounts[parseInt(mountElement.data("itemId"))].weapons[weaponMountIndex];
-            game.lancer.rollAttackMacro(weapon._id, this.actor._id);
-          } else {
-            console.log(`${lp} No mount element`, weaponMountIndex, mountElement);
+          const weapon = item as LancerMechWeapon;
+          let mData: LancerAttackMacroData = {
+            title: weapon.name,
+            grit: (this.actor.data.data as LancerPilotData).pilot.grit,
+            tags: weapon.data.data.tags,
+            acc: weapon.accuracy,
+            damage: weapon.data.data.damage,
+            overkill: weapon.isOverkill,
+            effect: weapon.data.data.effect
           }
+          
+          console.log(`${lp} Rolling Mech attack macro with data:`, mData);
+          game.lancer.rollAttackMacro(this.actor, mData);
         }
       });
     }
