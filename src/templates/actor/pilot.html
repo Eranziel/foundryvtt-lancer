@@ -245,9 +245,9 @@
       <div class="card clipped">
         <h2 class="lancer-title clipped-top">GEAR</h2>
         {{#if pilot_loadout.gear}}
-        <div class="flexrow">
+        <ul class="items-list flexrow">
           {{#each pilot_loadout.gear as |gear key|}}
-          <div class="card clipped pilot-gear-compact item" data-item-id="{{gear._id}}">
+          <li class="card clipped pilot-gear-compact item" data-item-id="{{gear._id}}">
             <div class="lancer-system-header clipped-top" style="grid-area: 1/1/2/3">
               <i class="cci cci-generic-item i--m i--light"> </i>
               <span class="minor">{{gear.name}}</span>
@@ -268,9 +268,9 @@
               {{{gear.data.description}}}
             </div>
             {{> tag-list tags=gear.data.tags}}
-          </div>
+          </li>
           {{/each}}
-        </div>
+        </ul>
         {{/if}}
       </div>
 
@@ -569,7 +569,7 @@
       {{!-- Systems --}}
       <div class="card clipped">
         <h2 class="lancer-title clipped">SYSTEMS</h2>
-        <div class="flexcol">
+        <ul class="items-list">
           <div class="flexrow sp-count" style="align-items: center; justify-content: flex-end; margin: 0px 20px;">
             <i class="cci cci-system-point i--m i--dark"> </i>
             <span class="minor" style="max-width: max-content;">FRAME SP USED :: {{sp_used}} / </span>
@@ -578,7 +578,7 @@
           {{#each mech_loadout.systems as |system key|}}
             {{> mech-system-preview system=system key=key}}
           {{/each}}
-        </div>
+        </ul>
       </div>
     </div>
   </section>
