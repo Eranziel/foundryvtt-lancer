@@ -609,22 +609,31 @@ declare interface LancerNPCFeatureSheetData extends ItemSheetData {
   data?: LancerNPCFeatureData;
 }
 
-declare interface IContentPackManifest {
-  name: string;
-  author: string;
-  version: string;
-  description?: string;
-  website?: string;
-  image_url?: string;
+declare interface LancerStatMacroData {
+  title: string;
+  bonus: string | number;
+  effect?: EffectData | string;
 }
 
-declare interface IContentPack {
-  id: string;
-  manifest: IContentPackManifest;
+declare interface LancerAttackMacroData {
+  title: string;
+  grit: number;
+  acc: number;
+  damage: DamageData[];
+  overkill: boolean;
+  effect: EffectData | string;
+  tags: TagDataShort[];
 }
 
-declare interface LCPManagerData {
-  packs: IContentPack[];
-  core_version: string;
-  core_update?: string;
+declare interface LancerTechMacroData {
+  title: string;
+  t_atk: number;
+  acc: number;
+  effect: string;
+  tags: TagDataShort[];
+}
+
+declare interface LancerGenericMacroData {
+  title: string;
+  effect: EffectData | string;
 }

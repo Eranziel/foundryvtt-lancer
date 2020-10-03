@@ -1,4 +1,4 @@
-import { LancerNPCSheetData, LancerNPCClassStatsData, LancerNPCData } from "../interfaces";
+import { LancerNPCSheetData, LancerNPCClassStatsData, LancerNPCData, LancerStatMacroData, LancerAttackMacroData } from "../interfaces";
 import {
   LancerItem,
   LancerNPCClass,
@@ -10,6 +10,7 @@ import { MechType } from "../enums";
 import { LancerActor } from "./lancer-actor";
 import { LANCER } from "../config";
 import { ItemManifest, ItemDataManifest } from "../item/util";
+import { LancerNPCWeaponData } from "../item/npc-feature";
 const lp = LANCER.log_prefix;
 
 const entryPrompt = "//:AWAIT_ENTRY>";
@@ -102,42 +103,59 @@ export class LancerNPCSheet extends ActorSheet {
       let statMacro = html.find(".stat-macro");
       statMacro.click((ev: any) => {
         ev.stopPropagation(); // Avoids triggering parent event handlers
-        console.log(ev);
 
         // Find the stat input to get the stat's key to pass to the macro function
-        const statInput = $(ev.currentTarget)
+        const statInput: HTMLInputElement = ($(ev.currentTarget)
           .closest(".stat-container")
-          .find(".lancer-stat-input")[0] as HTMLInputElement;
-        const statKey = statInput.name;
-        let keySplit = statKey.split(".");
-        let title = keySplit[keySplit.length - 1].toUpperCase();
-        console.log(`${lp} Rolling ${title} check, key ${statKey}`);
-        game.lancer.rollStatMacro(this.actor._id, title, statKey, null, true);
+          .find(".lancer-stat")[0] as HTMLInputElement);
+        let tSplit = statInput.name.split(".");
+        let mData: LancerStatMacroData = {
+          title: tSplit[tSplit.length - 1].toUpperCase(),
+          bonus: statInput.value
+        };
+
+        console.log(`${lp} Rolling ${mData.title} check, bonus: ${mData.bonus}`);
+        game.lancer.rollStatMacro(this.actor, mData);
       });
 
       // Trigger rollers
       let triggerMacro = html.find(".roll-trigger");
       triggerMacro.click((ev: any) => {
-        ev.stopPropagation();
-        console.log(ev);
+        ev.stopPropagation(); // Avoids triggering parent event handlers
 
-        const modifier = parseInt($(ev.currentTarget).find(".roll-modifier").text());
-        const title = $(ev.currentTarget).closest(".skill-compact").find(".modifier-name").text();
-        //.find('modifier-name').first().text();
-        console.log(`${lp} Rolling '${title}' trigger (d20 + ${modifier})`);
+        let mData: LancerStatMacroData = {
+          title: $(ev.currentTarget).closest(".skill-compact").find(".modifier-name").text(),
+          bonus: parseInt($(ev.currentTarget).find(".roll-modifier").text())
+        };
 
-        game.lancer.rollTriggerMacro(this.actor._id, title, modifier, true);
+        console.log(`${lp} Rolling '${mData.title}' trigger (d20 + ${mData.bonus})`);
+        game.lancer.rollTriggerMacro(this.actor, mData);
       });
 
       // Weapon rollers
       let weaponMacro = html.find(".roll-attack");
       weaponMacro.click((ev: any) => {
-        ev.stopPropagation();
-        console.log(`${lp} Weapon macro button click`, ev);
-
+        ev.stopPropagation(); // Avoids triggering parent event handlers
+        
         const weaponElement = $(ev.currentTarget).closest(".weapon")[0] as HTMLElement;
-        let weaponId = weaponElement.getAttribute("data-item-id");
-        game.lancer.rollAttackMacro(weaponId, this.actor._id);
+        const weaponId = weaponElement.getAttribute("data-item-id");
+        if (!weaponId) return ui.notifications.warn(`Error rolling macro: No weapon ID!`);
+        const weapon = this.actor.getOwnedItem(weaponId) as LancerNPCFeature;
+        if (!weapon) return ui.notifications.warn(`Error rolling macro: Couldn't find weapon with ID ${weaponId}.`);
+        const wData = weapon.data.data as LancerNPCWeaponData;
+        const tier = (this.actor.data.data as LancerNPCData).tier_num - 1;
+        let mData: LancerAttackMacroData = {
+          title: weapon.name,
+          grit: wData.attack_bonus[tier],
+          acc: wData.accuracy[tier],
+          tags: wData.tags,
+          damage: wData.damage.map(d => {return {type: d.type, val: d.val[tier]};}),
+          overkill: weapon.isOverkill,
+          effect: wData.effect ? wData.effect : ""
+        };
+
+        console.log(`${lp} Rolling NPC attack macro with data:`, mData);
+        game.lancer.rollAttackMacro(this.actor, mData);
       });
 
       // Tech rollers
@@ -153,15 +171,13 @@ export class LancerNPCSheet extends ActorSheet {
     }
     if (this.actor.owner) {
       // Item Dragging
-      let handler = (ev: any) => this._onDragStart(ev);
       html
         .find('li[class*="item"]')
         .add('span[class*="item"]')
         .each((i: number, item: any) => {
           if (item.classList.contains("inventory-header")) return;
           item.setAttribute("draggable", true);
-          // TODO: I think handler needs to be item.*something*._onDragStart(ev).
-          item.addEventListener("dragstart", handler, false);
+          item.addEventListener("dragstart", (ev: any) => this._onDragStart(ev), false);
         });
 
       // Update Inventory Item
@@ -169,19 +185,10 @@ export class LancerNPCSheet extends ActorSheet {
       items.click((ev: any) => {
         console.log(ev);
         const li = $(ev.currentTarget);
-        //TODO: Check if in mount and update mount
         const item = this.actor.getOwnedItem(li.data("itemId"));
         if (item) {
           item.sheet.render(true);
         }
-      });
-
-      // Delete Item on Right Click
-      items.contextmenu((ev: any) => {
-        console.log(ev);
-        const li = $(ev.currentTarget);
-        this.actor.deleteOwnedItem(li.data("itemId"));
-        li.slideUp(200, () => this.render(false));
       });
 
       // Delete Item when trash can is clicked
@@ -194,6 +201,7 @@ export class LancerNPCSheet extends ActorSheet {
         li.slideUp(200, () => this.render(false));
       });
 
+      // Change tier
       let tier_selector = html.find('select.tier-control[data-action*="update"]');
       tier_selector.change((ev: any) => {
         ev.stopPropagation();

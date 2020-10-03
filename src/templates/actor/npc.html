@@ -37,7 +37,7 @@
                     <span class="lancer-stat-header major clipped-top">
                         CLASS
                     </span>
-                    <span class="lancer-text-input major">
+                    <span class="lancer-text-field major">
                         {{#if npc_class}}
                         {{npc_class.name}}
                         {{else}}
@@ -50,32 +50,32 @@
                     <span class="lancer-stat-header major clipped-top">HULL</span>
                     <div class="flexrow stat-container" style="align-self: center;">
                         <a class="stat-macro i--dark i--sm" data-action="roll-macro"><i class="fas fa-dice-d20"></i></a>
-                        <input class="lancer-stat-input major" type="number" name="data.mech.hull"
-                            value="{{data.mech.hull}}" data-dtype="Number" />
+                        <input class="lancer-stat lancer-stat major" type="number" name="data.mech.hull"
+                            id="data.mech.hull" value="{{data.mech.hull}}" data-dtype="Number" />
                     </div>
                 </div>
                 <div class="flexcol card clipped">
                     <span class="lancer-stat-header major clipped-top">AGILITY</span>
                     <div class="flexrow stat-container" style="align-self: center;">
                         <a class="stat-macro i--dark i--sm" data-action="roll-macro"><i class="fas fa-dice-d20"></i></a>
-                        <input class="lancer-stat-input major" type="number" name="data.mech.agility"
-                            value="{{data.mech.agility}}" data-dtype="Number" />
+                        <input class="lancer-stat major" type="number" name="data.mech.agility"
+                            id="data.mech.agility" value="{{data.mech.agility}}" data-dtype="Number" />
                     </div>
                 </div>
                 <div class="flexcol card clipped">
                     <span class="lancer-stat-header major clipped-top">SYSTEMS</span>
                     <div class="flexrow stat-container" style="align-self: center;">
                         <a class="stat-macro i--dark i--sm" data-action="roll-macro"><i class="fas fa-dice-d20"></i></a>
-                        <input class="lancer-stat-input major" type="number" name="data.mech.systems"
-                            value="{{data.mech.systems}}" data-dtype="Number" />
+                        <input class="lancer-stat major" type="number" name="data.mech.systems"
+                            id="data.mech.systems" value="{{data.mech.systems}}" data-dtype="Number" />
                     </div>
                 </div>
                 <div class="flexcol card clipped">
                     <span class="lancer-stat-header major clipped-top">ENGINEERING</span>
                     <div class="flexrow stat-container" style="align-self: center;">
                         <a class="stat-macro i--dark i--sm" data-action="roll-macro"><i class="fas fa-dice-d20"></i></a>
-                        <input class="lancer-stat-input major" type="number" name="data.mech.engineering"
-                            value="{{data.mech.engineering}}" data-dtype="Number" />
+                        <input class="lancer-stat major" type="number" name="data.mech.engineering"
+                            id="data.mech.engineering" value="{{data.mech.engineering}}" data-dtype="Number" />
                     </div>
                 </div>
             </div>
@@ -86,10 +86,10 @@
                         <span class="major">STRUCT</span>
                     </div>
                     <div class="flexrow" style="align-self: center;">
-                        <input class="lancer-stat-input major" type="number" name="data.mech.structure.value"
+                        <input class="lancer-stat major" type="number" name="data.mech.structure.value"
                             value="{{data.mech.structure.value}}" data-dtype="Number" />
                         <span class="medium" style="max-width: min-content;">/</span>
-                        <input class="lancer-stat-input major" type="number" name="data.mech.structure.max"
+                        <input class="lancer-stat major" type="number" name="data.mech.structure.max"
                             value="{{data.mech.structure.max}}" data-dtype="Number" />
                     </div>
                 </div>
@@ -99,7 +99,7 @@
                         </i>
                         <span class="major">ARMOR</span>
                     </div>
-                    <input class="lancer-stat-input medium" type="number" name="data.mech.armor"
+                    <input class="lancer-stat medium" type="number" name="data.mech.armor"
                         value="{{data.mech.armor}}" data-dtype="Number" />
                 </div>
                 <div class="flexcol card clipped" style="grid-area: 1/3/2/4">
@@ -108,10 +108,10 @@
                         <span class="major">HP</span>
                     </div>
                     <div class="flexrow" style="align-self: center;">
-                        <input class="lancer-stat-input major" type="number" name="data.mech.hp.value"
+                        <input class="lancer-stat major" type="number" name="data.mech.hp.value"
                             value="{{data.mech.hp.value}}" data-dtype="Number" />
                         <span class="medium" style="max-width: min-content;">/</span>
-                        <input class="lancer-stat-input major" type="number" name="data.mech.hp.max"
+                        <input class="lancer-stat major" type="number" name="data.mech.hp.max"
                             value="{{data.mech.hp.max}}" data-dtype="Number" />
                     </div>
                 </div>
@@ -121,10 +121,10 @@
                         <span class="major">STRESS</span>
                     </div>
                     <div class="flexrow" style="align-self: center;">
-                        <input class="lancer-stat-input major" type="number" name="data.mech.stress.value"
+                        <input class="lancer-stat major" type="number" name="data.mech.stress.value"
                             value="{{data.mech.stress.value}}" data-dtype="Number" />
                         <span class="medium" style="max-width: min-content;">/</span>
-                        <input class="lancer-stat-input major" type="number" name="data.mech.stress.max"
+                        <input class="lancer-stat major" type="number" name="data.mech.stress.max"
                             value="{{data.mech.stress.max}}" data-dtype="Number" />
                     </div>
                 </div>
@@ -134,10 +134,10 @@
                         <span class="major">HEAT</span>
                     </div>
                     <div class="flexrow" style="align-self: center;">
-                        <input class="lancer-stat-input major" type="number" name="data.mech.heat.value"
+                        <input class="lancer-stat major" type="number" name="data.mech.heat.value"
                             value="{{data.mech.heat.value}}" data-dtype="Number" />
                         <span class="medium" style="max-width: min-content;">/</span>
-                        <input class="lancer-stat-input major" type="number" name="data.mech.heat.max"
+                        <input class="lancer-stat major" type="number" name="data.mech.heat.max"
                             value="{{data.mech.heat.max}}" data-dtype="Number" />
                     </div>
                 </div>
@@ -147,7 +147,7 @@
                             style="float: left; padding-left: 10px"> </i>
                         <span class="major">SPEED</span>
                     </div>
-                    <input class="lancer-stat-input medium" type="number" name="data.mech.speed"
+                    <input class="lancer-stat medium" type="number" name="data.mech.speed"
                         value="{{data.mech.speed}}" data-dtype="Number" />
                 </div>
                 <div class="flexcol card clipped" style="grid-area: 2/2/3/3">
@@ -155,7 +155,7 @@
                         <i class="cci cci-evasion i--m i--light" style="float: left; padding-left: 10px"> </i>
                         <span class="major">EVASION</span>
                     </div>
-                    <input class="lancer-stat-input medium" type="number" name="data.mech.evasion"
+                    <input class="lancer-stat medium" type="number" name="data.mech.evasion"
                         value="{{data.mech.evasion}}" data-dtype="Number" />
                 </div>
                 <div class="flexcol card clipped" style="grid-area: 2/3/3/4">
@@ -163,7 +163,7 @@
                         <i class="cci cci-activation-full i--m i--light" style="float: left; padding-left: 10px"> </i>
                         <span class="major">ACTI</span>
                     </div>
-                    <input class="lancer-stat-input medium" type="number" name="data.activations"
+                    <input class="lancer-stat medium" type="number" name="data.activations"
                         value="{{data.activations}}" data-dtype="Number" />
                 </div>
                 <div class="flexcol card clipped" style="grid-area: 3/1/4/2">
@@ -171,7 +171,7 @@
                         <i class="cci cci-sensor i--m i--light" style="float: left; padding-left: 10px"> </i>
                         <span class="major">SENSORS</span>
                     </div>
-                    <input class="lancer-stat-input medium" type="number" name="data.mech.sensors"
+                    <input class="lancer-stat medium" type="number" name="data.mech.sensors"
                         value="{{data.mech.sensors}}" data-dtype="Number" />
                 </div>
                 <div class="flexcol card clipped" style="grid-area: 3/2/4/3">
@@ -179,7 +179,7 @@
                         <i class="cci cci-edef i--m i--light" style="float: left; padding-left: 10px"> </i>
                         <span class="major">E-DEF</span>
                     </div>
-                    <input class="lancer-stat-input medium" type="number" name="data.mech.edef"
+                    <input class="lancer-stat medium" type="number" name="data.mech.edef"
                         value="{{data.mech.edef}}" data-dtype="Number" />
                 </div>
                 <div class="flexcol card clipped" style="grid-area: 3/3/4/4">
@@ -187,7 +187,7 @@
                         <i class="cci cci-save i--m i--light" style="float: left; padding-left: 10px"> </i>
                         <span class="major">SAVE T.</span>
                     </div>
-                    <input class="lancer-stat-input medium" type="number" name="data.mech.save"
+                    <input class="lancer-stat medium" type="number" name="data.mech.save"
                         value="{{data.mech.save}}" data-dtype="Number" />
                 </div>
                 {{#if data.npc_size}}
@@ -197,28 +197,28 @@
             <div class="card clipped">
                 <h2 class="lancer-title clipped-top">TEMPLATES</h2>
                 {{#if npc_templates}}
-                <div class="flexrow">
+                <ul class="items-list flexrow">
                     {{#each npc_templates as |npc_templates key|}}
-                    <div class="card clipped npc-template-compact item" data-item-id="{{npc_templates._id}}">
+                    <li class="card clipped npc-template-compact item" data-item-id="{{npc_templates._id}}">
                         <div class="lancer-weapon-header clipped-top" style="grid-area: 1/1/2/3">
                             <i class="cci cci-generic-item i--m i--light"> </i>
                             <span class="minor">{{npc_templates.name}}</span>
                             <a class="stats-control i--light" data-action="delete"><i class="fas fa-trash"></i></a>
                         </div>
-                    </div>
+                    </li>
                     {{/each}}
-                </div>
+                </ul>
                 {{/if}}
             </div>
             <div class="card clipped">
                 <h2 class="lancer-title clipped-top">FEATURES</h2>
                 {{#if npc_features}}
-                <div class="flexrow">
-                    {{#each npc_features as | npc_feature key|}}
+                <ul class="items-list">
+                    {{#each npc_features as |npc_feature key|}}
                     
                     {{!-- Reaction-type feature preview --}}
                     {{#if (eq npc_feature.data.feature_type "Reaction")}}
-                    <div class="card clipped npc-feature-compact item" style="min-width: 200px"data-item-id="{{npc_feature._id}}">
+                    <li class="card clipped npc-feature-compact item" style="min-width: 200px" data-item-id="{{npc_feature._id}}">
                         <div class="lancer-reaction-header clipped-top" style="grid-area: 1/1/2/3">
                             <i class="cci cci-reaction i--m i--light"> </i>
                             <span class="minor">{{npc_feature.name}}</span>
@@ -239,12 +239,12 @@
                             {{{compact-tag tag}}}
                             {{/each}}
                         </div>
-                    </div>
+                    </li>
                     {{/if}}
                     
                     {{!-- System-type feature preview --}}
                     {{#if (eq npc_feature.data.feature_type "System")}}
-                    <div class="card clipped npc-feature-compact item" data-item-id="{{npc_feature._id}}">
+                    <li class="card clipped npc-feature-compact item" data-item-id="{{npc_feature._id}}">
                         <div class="lancer-system-header clipped-top" style="grid-area: 1/1/2/3">
                             <i class="cci cci-system i--m i--light"> </i>
                             <span class="minor">{{npc_feature.name}}</span>
@@ -261,12 +261,12 @@
                             {{{compact-tag tag}}}
                             {{/each}}
                         </div>
-                    </div>
+                    </li>
                     {{/if}}
                     
                     {{!-- Trait-type feature preview --}}
                     {{#if (eq npc_feature.data.feature_type "Trait")}}
-                    <div class="card clipped npc-feature-compact item" data-item-id="{{npc_feature._id}}">
+                    <li class="card clipped npc-feature-compact item" data-item-id="{{npc_feature._id}}">
                         <div class="lancer-trait-header clipped-top" style="grid-area: 1/1/2/3">
                             <i class="cci cci-trait i--m i--light"> </i>
                             <span class="minor">{{npc_feature.name}}</span>
@@ -283,12 +283,12 @@
                             {{{compact-tag tag}}}
                             {{/each}}
                         </div>
-                    </div>
+                    </li>
                     {{/if}}
                     
                     {{!-- Tech-type feature preview --}}
                     {{#if (eq npc_feature.data.feature_type "Tech")}}
-                    <div class="card clipped npc-feature-compact tech item" style="max-height: fit-content;" data-item-id="{{npc_feature._id}}">
+                    <li class="card clipped npc-feature-compact tech item" style="max-height: fit-content;" data-item-id="{{npc_feature._id}}">
                         <div class="lancer-tech-header clipped-top" style="grid-area: 1/1/2/3">
                             <i class="cci cci-tech-{{lower-case npc_feature.data.tech_type}} i--m i--light"> </i>
                             <span class="minor">{{npc_feature.name}} // {{upper-case npc_feature.data.tech_type}} TECH</span>
@@ -339,12 +339,12 @@
                                 {{/each}}
                             </div>
                         </div>
-                    </div>
+                    </li>
                     {{/if}}
 
                     {{!-- Weapon-type feature preview --}}
                     {{#if (eq npc_feature.data.feature_type "Weapon")}}
-                    <div class="card clipped npc-feature-compact weapon item" data-item-id="{{npc_feature._id}}">
+                    <li class="card clipped npc-feature-compact weapon item" data-item-id="{{npc_feature._id}}">
                         <div class="lancer-weapon-header clipped-top" style="grid-area: 1/1/2/3">
                             <i class="cci cci-weapon i--m i--light"> </i>
                             <span class="minor">{{npc_feature.name}} // {{upper-case npc_feature.data.weapon_type}}</span>
@@ -399,10 +399,10 @@
                                 {{/each}}
                             </div>
                         </div>
-                    </div>
+                    </li>
                     {{/if}}
                     {{/each}}
-                </div>
+                </ul>
                 {{/if}}
             </div>
             <div class="flexcol card clipped" style="grid-area: 3/1/4/3">
