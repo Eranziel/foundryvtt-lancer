@@ -26,6 +26,7 @@ function addLCPManager(app: Application, html: any) {
 
 class LCPIndex {
   index: IContentPackManifest[]
+
   constructor(index: IContentPackManifest[] | null) {
     if (index) {
       this.index = index;
@@ -95,7 +96,8 @@ class LCPManager extends Application {
   }
 
   updateLcpIndex(manifest: IContentPackManifest) {
-    this.lcpIndex.updateManifest(manifest);
+    if (!this.lcpIndex) this.lcpIndex = new LCPIndex(game.settings.get(LANCER.sys_name, LANCER.setting_lcps).index);
+    else this.lcpIndex.updateManifest(manifest);
     game.settings.set(LANCER.sys_name, LANCER.setting_lcps, this.lcpIndex);
     this.render();
   }
@@ -108,7 +110,7 @@ class LCPManager extends Application {
     await clearCompendiums();
     ui.notifications.info(`LANCER Compendiums cleared.`);
     this.coreVersion = game.settings.get(LANCER.sys_name, LANCER.setting_core_data);
-    this.lcpIndex = game.settings.get(LANCER.sys_name, LANCER.setting_lcps);
+    this.lcpIndex = new LCPIndex(game.settings.get(LANCER.sys_name, LANCER.setting_lcps).index);
     this.render(true);
   }
 
