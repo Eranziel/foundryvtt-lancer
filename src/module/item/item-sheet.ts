@@ -4,6 +4,7 @@ import {
   DamageData,
   LancerMechSystemData,
   RangeData,
+  TagDataShort
 } from "../interfaces";
 import { LANCER } from "../config";
 import { NPCFeatureIcons } from "./npc-feature";
@@ -206,6 +207,10 @@ export class LancerItemSheet extends ItemSheet {
 
   /** @override */
   _updateObject(event: any, formData: any) {
+    formData = arrayifyTags(formData, "data.tags");
+    formData = arrayifyTags(formData, "data.core_system.tags");
+    formData = arrayifyTags(formData, "data.traits");
+
     if (this.item.data.type === "npc_feature") {
       // Change image to match feature type, unless a custom image has been selected
       const imgPath = "systems/lancer/assets/icons/";
@@ -307,6 +312,24 @@ export class LancerItemSheet extends ItemSheet {
     // Update the Item
     return this.object.update(formData);
   }
+}
+
+function arrayifyTags(data: any, prefix: string) {
+  if (data.hasOwnProperty(`${prefix}.0.name`)) {
+    let tags = [];
+    let i = 0;
+    while (data.hasOwnProperty(`${prefix}.${i}.name`)) {
+      tags.push({
+        name: data[`${prefix}.${i}.name`],
+        description: data[`${prefix}.${i}.description`]
+      });
+      delete data[`${prefix}.${i}.name`];
+      delete data[`${prefix}.${i}.description`];
+      i++;
+    }
+    data[`${prefix}`] = tags;
+  }
+  return data;
 }
 
 // Helper function to get arbitrarily deep array references
