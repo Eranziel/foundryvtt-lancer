@@ -250,6 +250,18 @@ Hooks.once("init", async function () {
   });
 
   // ------------------------------------------------------------------------
+  // Generic components
+  Handlebars.registerHelper("l-num-input", function (target: string, value: string) {
+    let html =
+    `<div class="flexrow arrow-input-container">
+      <button class="mod-minus-button" type="button">-</button>
+      <input class="lancer-stat major" type="number" name="${target}" value="${value}" data-dtype="Number"\>
+      <button class="mod-plus-button" type="button">+</button>
+    </div>`;
+    return html;
+  });
+
+  // ------------------------------------------------------------------------
   // Tags
   Handlebars.registerHelper("compact-tag", renderCompactTag);
   Handlebars.registerPartial("tag-list", compactTagList);
@@ -435,7 +447,7 @@ async function rollTriggerMacro(
   // Get accuracy/difficulty with a prompt
   let acc: number = 0;
   let abort: boolean = false;
-  await promptAccDiffModifier().then(
+  await promptAccDiffModifier(acc, title).then(
     resolve => (acc = resolve),
     reject => (abort = true)
   );
@@ -492,7 +504,7 @@ async function rollStatMacro(
   // Get accuracy/difficulty with a prompt
   let acc: number = 0;
   let abort: boolean = false;
-  await promptAccDiffModifier().then(
+  await promptAccDiffModifier(acc, title).then(
     resolve => (acc = resolve),
     reject => (abort = true)
   );
@@ -596,7 +608,7 @@ async function rollAttackMacro(w: string, a: string) {
 
   // Get accuracy/difficulty with a prompt
   let abort: boolean = false;
-  await promptAccDiffModifier(acc).then(
+  await promptAccDiffModifier(acc, title).then(
     resolve => (acc = resolve),
     reject => (abort = true)
   );
@@ -623,7 +635,7 @@ async function rollAttackMacro(w: string, a: string) {
       let dind = dFormula.indexOf("d");
       let pind = dFormula.indexOf("+");
       if (dind >= 0) {
-        if (pind > dind) dFormula = dFormula.substring(0, pind) + "r1" + dFormula.substring(pind);
+        if (pind > dind) dFormula = dFormula.substring(0, pind) + "rr1" + dFormula.substring(pind);
         else dFormula += "r1";
       }
     }
@@ -714,7 +726,7 @@ async function rollTechMacro(t: string, a: string) {
 
   // Get accuracy/difficulty with a prompt
   let abort: boolean = false;
-  await promptAccDiffModifier(acc).then(
+  await promptAccDiffModifier(acc, title).then(
     resolve => (acc = resolve),
     reject => (abort = true)
   );
@@ -740,7 +752,7 @@ async function rollTechMacro(t: string, a: string) {
   return renderMacro(actor, template, templateData);
 }
 
-async function promptAccDiffModifier(acc?: number) {
+async function promptAccDiffModifier(acc?: number, title?: string) {
   if (!acc) acc = 0;
   let diff = 0;
   if (acc < 0) {
@@ -751,7 +763,7 @@ async function promptAccDiffModifier(acc?: number) {
   let template = await renderTemplate(`systems/lancer/templates/window/promptAccDiffModifier.html`, { acc: acc, diff: diff })
   return new Promise<number>((resolve, reject) => {
     let d = new Dialog({
-      title: "Accuracy and Difficulty",
+      title: title ? `${title} - Accuracy and Difficulty` : "Accuracy and Difficulty",
       content: template,
       buttons: {
         submit: {

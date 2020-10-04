@@ -264,7 +264,7 @@ export function standard_effect_preview(effect: EffectData, title?: string) {
   }
   if (_effect.detail) {
     // not on all types
-    html += `<div class="flexrow effect-text">${_effect.detail}</div>`;
+    html += `<div class="effect-text">${_effect.detail}</div>`;
   }
   html += effect_tag_row(effect);
   html += `</div>`;
@@ -294,34 +294,34 @@ export function bonus_effect_preview(effect: BonusEffectData) {
   if (effect.size) {
     html += `<div class="flexrow compact-stat lancer-effect-stat">
       <i class="cci cci-size-1 i--m i--dark"></i>
-      <span class="minor lancer-stat-input" style="min-width: fit-content;">+${effect.size} SIZE</span>
+      <span class="minor effect-stat" style="min-width: fit-content;">+${effect.size} SIZE</span>
     </div>`;
   }
   if (effect.hp) {
     html += `<div class="flexrow compact-stat lancer-effect-stat">
       <i class="mdi mdi-heart-outline i--m i--dark"></i>
-      <span class="minor lancer-stat-input" style="min-width: fit-content;">+${effect.hp} HP</span>
+      <span class="minor effect-stat" style="min-width: fit-content;">+${effect.hp} HP</span>
     </div>`;
   }
   if (effect.armor) {
     html += `<div class="flexrow compact-stat lancer-effect-stat">
       <i class="mdi mdi-shield-outline i--m i--dark"></i>
-      <span class="minor lancer-stat-input" style="min-width: fit-content;">+${effect.armor} ARM</span>
+      <span class="minor effect-stat" style="min-width: fit-content;">+${effect.armor} ARM</span>
     </div>`;
   }
   if (effect.evasion) {
     html += `<div class="flexrow compact-stat lancer-effect-stat">
       <i class="cci cci-evasion i--m i--dark"></i>
-      <span class="minor lancer-stat-input" style="min-width: fit-content;">+${effect.evasion} EVA</span>
+      <span class="minor effect-stat" style="min-width: fit-content;">+${effect.evasion} EVA</span>
     </div>`;
   }
   if (effect.edef) {
     html += `<div class="flexrow compact-stat lancer-effect-stat">
       <i class="cci cci-edef i--m i--dark"></i>
-      <span class="minor lancer-stat-input" style="min-width: fit-content;">+${effect.edef} E-DEF</span>
+      <span class="minor effect-stat" style="min-width: fit-content;">+${effect.edef} E-DEF</span>
     </div>`;
   }
-  html += `</div><div class="flexrow effect-text">${effect.detail}</div></div>`;
+  html += `</div><div class="effect-text">${effect.detail}</div></div>`;
   return html;
 }
 
@@ -397,28 +397,28 @@ export function deployable_effect_preview(effect: DeployableEffectData) {
   if (effect.hp) {
     html += `<div class="flexrow compact-stat lancer-effect-stat">
       <i class="mdi mdi-heart-outline i--m i--dark"></i>
-      <span class="minor lancer-stat-input" style="min-width: fit-content;">${effect.hp} HP</span>
+      <span class="minor effect-stat" style="min-width: fit-content;">${effect.hp} HP</span>
     </div>`;
   }
   if (effect.heat) {
     html += `<div class="flexrow compact-stat lancer-effect-stat">
       <i class="cci cci-heat i--m i--dark"></i>
-      <span class="minor lancer-stat-input" style="min-width: fit-content;">${effect.heat} HEAT</span>
+      <span class="minor effect-stat" style="min-width: fit-content;">${effect.heat} HEAT</span>
     </div>`;
   }
   if (effect.evasion) {
     html += `<div class="flexrow compact-stat lancer-effect-stat">
       <i class="cci cci-evasion i--m i--dark"></i>
-      <span class="minor lancer-stat-input" style="min-width: fit-content;">${effect.evasion} EVA</span>
+      <span class="minor effect-stat" style="min-width: fit-content;">${effect.evasion} EVA</span>
     </div>`;
   }
   if (effect.edef) {
     html += `<div class="flexrow compact-stat lancer-effect-stat">
       <i class="cci cci-edef i--m i--dark"></i>
-      <span class="minor lancer-stat-input" style="min-width: fit-content;">${effect.edef} E-DEF</span>
+      <span class="minor effect-stat" style="min-width: fit-content;">${effect.edef} E-DEF</span>
     </div>`;
   }
-  html += `</div><div class="flexrow effect-text">${effect.detail}</div>`;
+  html += `</div><div class="effect-text">${effect.detail}</div>`;
   html += effect_tag_row(effect);
   html += `</div></div>`;
   return html;
@@ -443,35 +443,35 @@ export function drone_effect_preview(effect: DroneEffectData) {
   if (effect.hp) {
     html += `<div class="flexrow compact-stat lancer-effect-stat">
       <i class="mdi mdi-heart-outline i--m i--dark"></i>
-      <span class="minor lancer-stat-input" style="min-width: fit-content;">${effect.hp} HP</span>
+      <span class="minor effect-stat" style="min-width: fit-content;">${effect.hp} HP</span>
     </div>`;
   }
   if (effect.armor) {
     html += `<div class="flexrow compact-stat lancer-effect-stat">
       <i class="mdi mdi-shield-outline i--m i--dark"></i>
-      <span class="minor lancer-stat-input" style="min-width: fit-content;">${effect.armor} ARMOR</span>
+      <span class="minor effect-stat" style="min-width: fit-content;">${effect.armor} ARMOR</span>
     </div>`;
   }
   if (effect.heat) {
     html += `<div class="flexrow compact-stat lancer-effect-stat">
       <i class="cci cci-heat i--m i--dark"></i>
-      <span class="minor lancer-stat-input" style="min-width: fit-content;">${effect.heat} HEAT</span>
+      <span class="minor effect-stat" style="min-width: fit-content;">${effect.heat} HEAT</span>
     </div>`;
   }
   if (effect.evasion) {
     html += `<div class="flexrow compact-stat lancer-effect-stat">
       <i class="cci cci-evasion i--m i--dark"></i>
-      <span class="minor lancer-stat-input" style="min-width: fit-content;">${effect.evasion} EVA</span>
+      <span class="minor effect-stat" style="min-width: fit-content;">${effect.evasion} EVA</span>
     </div>`;
   }
   if (effect.edef) {
     html += `<div class="flexrow compact-stat lancer-effect-stat">
       <i class="cci cci-edef i--m i--dark"></i>
-      <span class="minor lancer-stat-input" style="min-width: fit-content;">${effect.edef} E-DEF</span>
+      <span class="minor effect-stat" style="min-width: fit-content;">${effect.edef} E-DEF</span>
     </div>`;
   }
   html += `</div>`;
-  html += `<div class="flexrow effect-text">${effect.detail}</div>`;
+  html += `<div class="effect-text">${effect.detail}</div>`;
   html += effect_tag_row(effect);
   html += `</div></div>`;
   return html;
@@ -506,7 +506,7 @@ export function offensive_effect_preview(effect: OffensiveEffectData) {
     </div>`;
   }
   if (effect.detail) {
-    html += `<div class="flexrow effect-text">${effect.detail}</div>`;
+    html += `<div class="effect-text">${effect.detail}</div>`;
   }
   html += effect_tag_row(effect);
   html += `</div>`;
@@ -543,7 +543,7 @@ export function profile_effect_preview(effect: ProfileEffectData) {
     });
   }
   html += `</div>`;
-  html += `<div class="flexrow effect-text">${effect.detail}</div></div>`;
+  html += `<div class="effect-text">${effect.detail}</div></div>`;
   html += effect_tag_row(effect);
   html += `</div>`;
   return html;
@@ -592,7 +592,7 @@ export function invade_option_preview(effect: InvadeOptionData, set: string) {
   var html = `<div class="flexcol sub-effect-box" style="padding: 5px">
     <div class="medium effect-title">${effect.name} // ${set.toUpperCase()}</div>`;
   if (effect.detail) {
-    html += `<div class="flexrow effect-text">${effect.detail}</div>`;
+    html += `<div class="effect-text">${effect.detail}</div>`;
   }
   html += `</div>`;
   return html;
@@ -601,11 +601,11 @@ export function invade_option_preview(effect: InvadeOptionData, set: string) {
 export function tech_effect_preview(effect: TechEffectData) {
   var html = `<div class="flexcol effect-text" style="padding: 5px">
     <div class="medium effect-title">${
-      effect.option_set ? effect.option_set.toUpperCase() : ""
+      effect.option_set ? effect.option_set.toUpperCase() : "TECH EFFECT"
     } // ${effect.activation.toUpperCase()} TECH</div>
     <div class="medium effect-title">${effect.name ? effect.name : ""}</div>`;
   if (effect.detail) {
-    html += `<div class="flexrow effect-text">${effect.detail}</div>`;
+    html += `<div class="effect-text">${effect.detail}</div>`;
   }
   if (effect.options) {
     html += `<div class="flexcol">`;

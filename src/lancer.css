@@ -688,8 +688,31 @@ tr.lcp-index-header {
   align-items: center;
 }
 
+.lancer-stat-header {
+  align-items: center;
+  color: white;
+  background-color: var(--main-theme-color, fuchsia);
+  max-height: fit-content;
+}
+
 .lancer-stat {
-  margin: 0em 1em;
+  margin: 0em 0.2em;
+}
+
+.effect-stat,
+input[type=number].lancer-stat {
+  align-self: center;
+  text-align: center;
+  max-width: 50px;
+  min-width: 30px;
+}
+
+.lancer-text-field
+input[type=string].lancer-input {
+  align-self: center;
+  text-align: left;
+  width: calc(100% - 20px);
+  margin: 5px;
 }
 
 .size-icon,
@@ -770,27 +793,6 @@ tr.lcp-index-header {
   background-color: var(--main-theme-color, fuchsia);
 }
 
-.lancer-stat-header {
-  align-items: center;
-  color: white;
-  background-color: var(--main-theme-color, fuchsia);
-  max-height: fit-content;
-}
-
-.lancer-stat-input {
-  align-self: center;
-  text-align: center;
-  max-width: 50px;
-  min-width: 30px;
-}
-
-.lancer-text-input {
-  align-self: center;
-  text-align: left;
-  width: calc(100% - 20px);
-  margin: 5px;
-}
-
 .desc-text {
   text-align: left;
   padding: 0.5em;
@@ -810,7 +812,7 @@ tr.lcp-index-header {
 
 .skill-compact {
   display: grid;
-  grid-template: 2.0em 1fr / 75px 1fr;
+  grid-template: 2.0em 1fr / 100px 1fr;
   align-items: center;
   margin-right: 25px;
 }
@@ -887,9 +889,9 @@ code.horus:hover {
   font-weight: normal;
 }
 
-.stat-macro, .roll-attack,
+.roll-stat, .roll-attack,
 .roll-trigger {
-  margin: 3px;
+  margin: 3px 15px;
 }
 
 .roll-attack,
@@ -921,6 +923,11 @@ code.horus:hover {
   padding: 0px 5px;
 }
 
+.arrow-input-container {
+  align-self: center;
+  max-width: fit-content;
+}
+
 .mod-plus-button {
   clip-path: polygon(75% 0%, 100% 50%, 75% 100%, 0% 100%, 20% 50%, 0% 0%);
 }
@@ -931,6 +938,7 @@ code.horus:hover {
 
 .mod-minus-button, .mod-plus-button {
   width: 2em;
+  max-width: 2em;
   background-color: #828282;
   color: #bebebe;
   border:none;
@@ -938,12 +946,12 @@ code.horus:hover {
   line-height: 1px;
 }
 
-input[type=number].no-arrows {
+input[type=number] {
   -moz-appearance: textfield;
 }
 
-input.no-arrows::-webkit-outer-spin-button,
-input.no-arrows::-webkit-inner-spin-button {
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }

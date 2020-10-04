@@ -14,9 +14,57 @@ import {
   NpcTemplate,
   NpcFeature,
 } from "machine-mind";
-import { CORE_BONUS_PACK, FRAME_PACK, MECH_SYSTEM_PACK, MECH_WEAPON_PACK, NPC_CLASS_PACK, NPC_FEATURE_PACK, NPC_TEMPLATE_PACK, PACKS, PILOT_ARMOR_PACK, PILOT_GEAR_PACK, PILOT_WEAPON_PACK, SKILLS_PACK, TALENTS_PACK } from "./item/util";
+import {
+  CORE_BONUS_PACK,
+  FRAME_PACK,
+  MECH_SYSTEM_PACK,
+  MECH_WEAPON_PACK,
+  NPC_CLASS_PACK,
+  NPC_FEATURE_PACK,
+  NPC_TEMPLATE_PACK,
+  PACKS,
+  PILOT_ARMOR_PACK,
+  PILOT_GEAR_PACK,
+  PILOT_WEAPON_PACK,
+  SKILLS_PACK,
+  TALENTS_PACK
+} from "./item/util";
+
+async function unlockAllPacks() {
+  // Unlock all the packs
+  //@ts-ignore
+  const config = game.settings.get("core", Compendium.CONFIG_SETTING);
+  console.log(`${lp} Pre-unlock config:`, config);
+  PACKS.forEach(async p => {
+    const key = `world.${p}`;
+    if (!config[key]) {
+      config[key] = { private: false, locked: false };
+    } else {
+      config[key] = mergeObject(config[key], { locked: false });
+    }
+  });
+  //@ts-ignore
+  await game.settings.set("core", Compendium.CONFIG_SETTING, config);
+}
+
+async function lockAllPacks() {
+  // Lock all the packs
+  //@ts-ignore
+  const config = game.settings.get("core", Compendium.CONFIG_SETTING);
+  console.log(`${lp} Pre-lock config:`, config);
+  PACKS.forEach(async p => {
+    const key = `world.${p}`;
+    if (!config[key]) {
+      config[key] = { private: false, locked: true };
+    }
+    config[key] = mergeObject(config[key], { locked: true });
+  });
+  //@ts-ignore
+  await game.settings.set("core", Compendium.CONFIG_SETTING, config);
+}
 
 export async function buildCompendiums(cp: ContentPack): Promise<void> {
+  await unlockAllPacks();
   const conv = new Converter(cp.ID);
   await buildSkillCompendium(conv, cp);
   await buildTalentCompendium(conv, cp);
@@ -30,23 +78,25 @@ export async function buildCompendiums(cp: ContentPack): Promise<void> {
   await buildNPCClassCompendium(conv, cp);
   await buildNPCTemplateCompendium(conv, cp);
   await buildNPCFeatureCompendium(conv, cp);
+  await lockAllPacks();
   return Promise.resolve();
 }
 
 export async function clearCompendiums(): Promise<void> {
+  await unlockAllPacks();
   PACKS.forEach(async (p: string) => {
     let pack: Compendium | undefined;
     pack = game.packs.get(`world.${p}`);
 
     if (pack) {
-      pack.locked = false;
       // Delete every item in the pack
       let index: { _id: string; name: string }[] = await pack.getIndex();
-      index.forEach(async i => {
+      index.forEach(i => {
         pack?.deleteEntity(i._id);
       });
     }
   });
+  await lockAllPacks();
 
   return Promise.resolve();
 }
@@ -62,7 +112,6 @@ async function findPack(pack_name: string, metaData: object): Promise<Compendium
   }
   if (pack) {
     console.log(`${lp} Updating existing compendium: ${pack.collection}.`);
-    pack.locked = false;
   } else {
     // Compendium doesn't exist yet. Create a new one.
     pack = await Compendium.create(metaData);
@@ -120,19 +169,16 @@ async function buildSkillCompendium(conv: Converter, cp: ContentPack) {
     entity: "Item",
   };
   let pack: Compendium = await findPack(pname, metaData);
-  pack.locked = false;
   await pack.getIndex();
 
   // Iterate through the list of skills and add them each to the Compendium
   let promises: Promise<Entity>[] = [];
   skills.forEach(async (skill: mm.Skill) => {
-    if (pack.locked) pack.locked = false;
     promises.push(updateItem(pack, conv.Skill_to_LancerSkillData(skill), "skill", img));
   });
   for await (const x of promises) {
     continue;
   }
-  pack.locked = true;
   return Promise.resolve();
 }
 
@@ -149,19 +195,16 @@ async function buildTalentCompendium(conv: Converter, cp: ContentPack) {
     entity: "Item",
   };
   let pack: Compendium = await findPack(pname, metaData);
-  pack.locked = false;
   await pack.getIndex();
 
   // Iterate through the list of talents and add them each to the Compendium
   let promises: Promise<Entity>[] = [];
   talents.forEach(async (talent: mm.Talent) => {
-    if (pack.locked) pack.locked = false;
     promises.push(updateItem(pack, conv.Talent_to_LancerTalentData(talent), "talent", img));
   });
   for await (const x of promises) {
     continue;
   }
-  pack.locked = true;
   return Promise.resolve();
 }
 
@@ -178,13 +221,11 @@ async function buildCoreBonusCompendium(conv: Converter, cp: ContentPack) {
     entity: "Item",
   };
   let pack: Compendium = await findPack(pname, metaData);
-  pack.locked = false;
   await pack.getIndex();
 
   // Iterate through the list of core bonuses and add them each to the Compendium
   let promises: Promise<Entity>[] = [];
   coreBonus.forEach(async (cbonus: mm.CoreBonus) => {
-    if (pack.locked) pack.locked = false;
     promises.push(
       updateItem(pack, conv.CoreBonus_to_LancerCoreBonusData(cbonus), "core_bonus", img)
     );
@@ -192,7 +233,6 @@ async function buildCoreBonusCompendium(conv: Converter, cp: ContentPack) {
   for await (const x of promises) {
     continue;
   }
-  pack.locked = true;
   return Promise.resolve();
 }
 
@@ -234,9 +274,6 @@ async function buildPilotEquipmentCompendiums(conv: Converter, cp: ContentPack) 
     entity: "Item",
   };
   let pgPack: Compendium = await findPack(pgName, gearMeta);
-  paPack.locked = false;
-  pwPack.locked = false;
-  pgPack.locked = false;
   await paPack.getIndex();
   await pwPack.getIndex();
   await pgPack.getIndex();
@@ -264,9 +301,6 @@ async function buildPilotEquipmentCompendiums(conv: Converter, cp: ContentPack) 
   for await (const x of promises) {
     continue;
   }
-  paPack.locked = true;
-  pwPack.locked = true;
-  pgPack.locked = true;
   return Promise.resolve();
 }
 
@@ -283,7 +317,6 @@ async function buildFrameCompendium(conv: Converter, cp: ContentPack) {
     entity: "Item",
   };
   let pack: Compendium = await findPack(pname, metaData);
-  pack.locked = false;
   await pack.getIndex();
 
   // const licImg = "systems/lancer/assets/icons/license.svg";
@@ -302,13 +335,11 @@ async function buildFrameCompendium(conv: Converter, cp: ContentPack) {
   // Iterate through the list of frames and add them each to the Compendium
   let promises: Promise<Entity>[] = [];
   frames.forEach(async (frame: Frame) => {
-    if (pack.locked) pack.locked = false;
     promises.push(updateItem(pack, conv.Frame_to_LancerFrameData(frame), "frame", img));
   });
   for await (const x of promises) {
     continue;
   }
-  pack.locked = true;
   return Promise.resolve();
 }
 
@@ -325,13 +356,11 @@ async function buildMechSystemCompendium(conv: Converter, cp: ContentPack) {
     entity: "Item",
   };
   let pack: Compendium = await findPack(pname, metaData);
-  pack.locked = false;
   await pack.getIndex();
 
   // Iterate through the list of core bonuses and add them each to the Compendium
   let promises: Promise<Entity>[] = [];
   systems.forEach(async (system: MechSystem) => {
-    if (pack.locked) pack.locked = false;
     promises.push(
       updateItem(pack, conv.MechSystem_to_LancerMechSystemData(system), "mech_system", img)
     );
@@ -339,7 +368,6 @@ async function buildMechSystemCompendium(conv: Converter, cp: ContentPack) {
   for await (const x of promises) {
     continue;
   }
-  pack.locked = true;
   return Promise.resolve();
 }
 
@@ -356,13 +384,11 @@ async function buildMechWeaponCompendium(conv: Converter, cp: ContentPack) {
     entity: "Item",
   };
   let pack: Compendium = await findPack(pname, metaData);
-  pack.locked = false;
   await pack.getIndex();
 
   // Iterate through the list of core bonuses and add them each to the Compendium
   let promises: Promise<Entity>[] = [];
   weapons.forEach(async (weapon: MechWeapon) => {
-    if (pack.locked) pack.locked = false;
     promises.push(
       updateItem(pack, conv.MechWeapon_to_LancerMechWeaponData(weapon), "mech_weapon", img)
     );
@@ -370,7 +396,6 @@ async function buildMechWeaponCompendium(conv: Converter, cp: ContentPack) {
   for await (const x of promises) {
     continue;
   }
-  pack.locked = true;
   return Promise.resolve();
 }
 
@@ -391,13 +416,11 @@ async function buildNPCClassCompendium(conv: Converter, cp: ContentPack) {
     entity: "Item",
   };
   let pack: Compendium = await findPack(pname, metaData);
-  pack.locked = false;
   await pack.getIndex();
 
   // Iterate through the list of core bonuses and add them each to the Compendium
   let promises: Promise<Entity>[] = [];
   npcc.forEach(async (cls: NpcClass) => {
-    if (pack.locked) pack.locked = false;
     promises.push(
       updateItem(pack, conv.NpcClass_to_LancerNPCClassData(cls), "npc_class", img)
     );
@@ -405,7 +428,6 @@ async function buildNPCClassCompendium(conv: Converter, cp: ContentPack) {
   for await (const x of promises) {
     continue;
   }
-  pack.locked = true;
   return Promise.resolve();
 }
 
@@ -422,13 +444,11 @@ async function buildNPCTemplateCompendium(conv: Converter, cp: ContentPack) {
     entity: "Item",
   };
   let pack: Compendium = await findPack(pname, metaData);
-  pack.locked = false;
   await pack.getIndex();
 
   // Iterate through the list of core bonuses and add them each to the Compendium
   let promises: Promise<Entity>[] = [];
   npct.forEach(async (template: NpcTemplate) => {
-    if (pack.locked) pack.locked = false;
     promises.push(
       updateItem(pack, conv.NpcTemplate_to_LancerNPCTemplateData(template), "npc_template", img)
     );
@@ -436,7 +456,6 @@ async function buildNPCTemplateCompendium(conv: Converter, cp: ContentPack) {
   for await (const x of promises) {
     continue;
   }
-  pack.locked = true;
   return Promise.resolve();
 }
 
@@ -453,13 +472,11 @@ async function buildNPCFeatureCompendium(conv: Converter, cp: ContentPack) {
     entity: "Item",
   };
   let pack: Compendium = await findPack(pname, metaData);
-  pack.locked = false;
   await pack.getIndex();
 
   // Iterate through the list of core bonuses and add them each to the Compendium
   let promises: Promise<Entity>[] = [];
   npcf.forEach(async (feature: NpcFeature) => {
-    if (pack.locked) pack.locked = false;
     promises.push(
       updateItem(pack, conv.NpcFeature_to_LancerNPCFeatureData(feature), "npc_feature", img)
     );
@@ -467,6 +484,5 @@ async function buildNPCFeatureCompendium(conv: Converter, cp: ContentPack) {
   for await (const x of promises) {
     continue;
   }
-  pack.locked = true;
   return Promise.resolve();
 }
