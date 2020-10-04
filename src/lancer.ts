@@ -255,7 +255,7 @@ Hooks.once("init", async function () {
     let html =
     `<div class="flexrow arrow-input-container">
       <button class="mod-minus-button" type="button">-</button>
-      <input class="lancer-stat major no-arrows" type="number" name="${target}" value="${value}" data-dtype="Number"\>
+      <input class="lancer-stat major" type="number" name="${target}" value="${value}" data-dtype="Number"\>
       <button class="mod-plus-button" type="button">+</button>
     </div>`;
     return html;
