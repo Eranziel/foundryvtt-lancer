@@ -383,7 +383,7 @@ Hooks.on("renderSidebarTab", async (app: Application, html: HTMLElement) => {
 
 
 Hooks.on('hotbarDrop', (_bar: any, data: any, slot: number) => {
-  if (data.type === 'genericActor') {
+  if (data.type === 'mData') {
     // Full list of data expected from a generic actor macro:
     // A title      - to name it
     // A dataPath   - to access dynamic data from the actor
@@ -397,8 +397,11 @@ async function createActorMacro(title: string, dataPath: string, actorId: string
   const command = `
 const a = game.actors.get('${actorId}');
 if (a) {
-  const mod = a.data.${dataPath}
-  game.lancer.rollTriggerMacro(a, '${title}', mod, true);
+  let mData = {
+    title: "${title}",
+    bonus: a.data.${dataPath}
+  } 
+  game.lancer.rollTriggerMacro(a, mData);
 } else {
   ui.notifications.error("Error rolling macro");
 }`;
