@@ -387,7 +387,7 @@ Hooks.on("preCreateItem", lancerItemInit);
 // Create sidebar button to import LCP
 Hooks.on("renderSidebarTab", async (app: Application, html: HTMLElement) => {
   addLCPManager(app, html);
-})
+});
 
 // Hooks.on("renderDialog", async (app:Application,html) => {
 // 	dialogCallbacksLCPManager(app, html);
@@ -396,7 +396,7 @@ Hooks.on("renderSidebarTab", async (app: Application, html: HTMLElement) => {
 function getMacroSpeaker(): Actor | null {
   // Determine which Actor to speak as
   const speaker = ChatMessage.getSpeaker();
-  console.log(`${lp} Macro speaker`, speaker);
+  // console.log(`${lp} Macro speaker`, speaker);
   let actor: Actor | null = null;
   // console.log(game.actors.tokens);
   try {
@@ -630,13 +630,13 @@ async function rollAttackMacro(w: string, a: string) {
   damage.forEach(async (x: any) => {
     if (x.type === "" || x.val === "" || x.val == 0) return Promise.resolve(); // Skip undefined and zero damage
     let dFormula: string = x.val.toString();
-    // If the damage formula involves dice and is overkill, add "r1" to reroll all 1's.
+    // If the damage formula involves dice and is overkill, add "rr1" to reroll all 1's.
     if (dFormula.includes("d") && overkill) {
       let dind = dFormula.indexOf("d");
       let pind = dFormula.indexOf("+");
       if (dind >= 0) {
         if (pind > dind) dFormula = dFormula.substring(0, pind) + "rr1" + dFormula.substring(pind);
-        else dFormula += "r1";
+        else dFormula += "rr1";
       }
     }
     const droll = new Roll(dFormula).roll();

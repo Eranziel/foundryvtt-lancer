@@ -363,23 +363,23 @@ button {
 }
 
 .damage--kinetic {
-  color: #757575;
+  color: #616161;
 }
 
 .damage--energy {
-  color: #29B6F6;
+  color: #2195ca;
 }
 
 .damage--explosive {
-  color: #FFA726;
+  color: #fca017;
 }
 
 .damage--burn {
-  color: #FFA726;
+  color: #ce871e;
 }
 
 .damage--heat {
-  color: #FF7043;
+  color: #e74210;
 }
 
 .damage--variable {
@@ -759,6 +759,7 @@ input[type=string].lancer-input {
   background-color: rgba(0,0,0,0.07);
   margin: 3px 10px;
   text-align: center;
+  padding-bottom: 1px;
 }
 .card .lancer-title {
   /* TODO: review if this rule can be simplified */
@@ -902,12 +903,12 @@ code.horus:hover {
   align-items: center;
 }
 
-.dice-roll.lancer-dice-roll {
+.lancer-dice-roll {
   padding: 3px;
 }
 
-.dice-formula.lancer-dice-formula,
-.dice-total.lancer-dice-total {
+.lancer-dice-formula,
+.lancer-dice-total {
   margin: 5px;
   align-items: center;
   text-align: center;
@@ -917,7 +918,7 @@ code.horus:hover {
   box-shadow: 0 0 2px #FFF inset;
 }
 
-.dice-total.lancer-dice-total {
+.lancer-dice-total {
   margin: 5px;
   min-width: max-content;
   padding: 0px 5px;
