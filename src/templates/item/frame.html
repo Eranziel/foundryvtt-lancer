@@ -24,77 +24,77 @@
         <i class="mdi mdi-heart-outline i--m i--light" style="float: left; padding-left: 10px"> </i>
         <span class="major">HP</span>
       </div>
-      <input class="lancer-stat medium" type="number" name="data.stats.hp" value="{{data.stats.hp}}" data-dtype="Number"/>
+      {{{l-num-input "data.stats.hp" data.stats.hp}}}
     </div>
     <div class="flexcol card clipped" style="grid-area: 1/2/2/3">
       <div class="lancer-stat-header clipped-top flexrow">
         <i class="mdi mdi-shield-outline i--m i--light" style="float: left; padding-left: 10px"> </i>
         <span class="major">ARMOR</span>
       </div>
-      <input class="lancer-stat medium" type="number" name="data.stats.armor" value="{{data.stats.armor}}" data-dtype="Number"/>
+      {{{l-num-input "data.stats.armor" data.stats.armor}}}
     </div>
     <div class="flexcol card clipped" style="grid-area: 1/3/2/4">
       <div class="lancer-stat-header clipped-top flexrow">
         <i class="cci cci-repair i--m i--light" style="float: left; padding-left: 10px"> </i>
         <span class="major">REPAIRS</span>
       </div>
-      <input class="lancer-stat medium" type="number" name="data.stats.repcap" value="{{data.stats.repcap}}" data-dtype="Number"/>
+      {{{l-num-input "data.stats.repcap" data.stats.repcap}}}
     </div>
     <div class="flexcol card clipped" style="grid-area: 2/1/3/2">
       <div class="lancer-stat-header clipped-top flexrow">
         <i class="cci cci-evasion i--m i--light" style="float: left; padding-left: 10px"> </i>
         <span class="major">EVASION</span>
       </div>
-      <input class="lancer-stat medium" type="number" name="data.stats.evasion" value="{{data.stats.evasion}}" data-dtype="Number"/>
+      {{{l-num-input "data.stats.evasion" data.stats.evasion}}}
     </div>
     <div class="flexcol card clipped" style="grid-area: 2/2/3/3">
       <div class="lancer-stat-header clipped-top flexrow">
         <i class="cci cci-edef i--m i--light" style="float: left; padding-left: 10px"> </i>
         <span class="major">E-DEF</span>
       </div>
-      <input class="lancer-stat medium" type="number" name="data.stats.edef" value="{{data.stats.edef}}" data-dtype="Number"/>
+      {{{l-num-input "data.stats.edef" data.stats.edef}}}
     </div>
     <div class="flexcol card clipped" style="grid-area: 2/3/3/4">
       <div class="lancer-stat-header clipped-top flexrow">
         <i class="cci cci-heat i--m i--light" style="float: left; padding-left: 10px"> </i>
         <span class="major">HEAT</span>
       </div>
-      <input class="lancer-stat medium" type="number" name="data.stats.heatcap" value="{{data.stats.heatcap}}" data-dtype="Number"/>
+      {{{l-num-input "data.stats.heatcap" data.stats.heatcap}}}
     </div>
     <div class="flexcol card clipped" style="grid-area: 2/4/3/5">
       <div class="lancer-stat-header clipped-top flexrow">
         <i class="mdi mdi-arrow-right-bold-hexagon-outline i--m i--light" style="float: left; padding-left: 10px"> </i>
         <span class="major">SPEED</span>
       </div>
-      <input class="lancer-stat medium" type="number" name="data.stats.speed" value="{{data.stats.speed}}" data-dtype="Number"/>
+      {{{l-num-input "data.stats.speed" data.stats.speed}}}
     </div>
     <div class="flexcol card clipped" style="grid-area: 3/1/4/2">
       <div class="lancer-stat-header clipped-top flexrow">
         <i class="cci cci-tech-full i--m i--light" style="float: left; padding-left: 10px"> </i>
         <span class="major">TECH ATK</span>
       </div>
-      <input class="lancer-stat medium" type="number" name="data.stats.tech_attack" value="{{data.stats.tech_attack}}" data-dtype="Number"/>
+      {{{l-num-input "data.stats.tech_attack" data.stats.tech_attack}}}
     </div>
     <div class="flexcol card clipped" style="grid-area: 3/2/4/3">
       <div class="lancer-stat-header clipped-top flexrow">
         <i class="cci cci-sensor i--m i--light" style="float: left; padding-left: 10px"> </i>
         <span class="major">SENSORS</span>
       </div>
-      <input class="lancer-stat medium" type="number" name="data.stats.sensor_range" value="{{data.stats.sensor_range}}" data-dtype="Number"/>
+      {{{l-num-input "data.stats.sensor_range" data.stats.sensor_range}}}
     </div>
     <div class="flexcol card clipped" style="grid-area: 3/3/4/4">
       <div class="lancer-stat-header clipped-top flexrow">
         <i class="cci cci-save i--m i--light" style="float: left; padding-left: 10px"> </i>
         <span class="major">SAVE T.</span>
       </div>
-      <input class="lancer-stat medium" type="number" name="data.stats.save" value="{{data.stats.save}}" data-dtype="Number"/>
+      {{{l-num-input "data.stats.save" data.stats.save}}}
     </div>
     <div class="flexcol card clipped" style="grid-area: 3/4/4/5">
       <div class="lancer-stat-header clipped-top flexrow">
         <i class="cci cci-system i--m i--light" style="float: left; padding-left: 10px"> </i>
         <span class="major">SYS PTS</span>
       </div>
-      <input class="lancer-stat medium" type="number" name="data.stats.sp" value="{{data.stats.sp}}" data-dtype="Number"/>
+      {{{l-num-input "data.stats.sp" data.stats.sp}}}
     </div>
     {{#if frame_size}}
       <div style="grid-area: 2/5/4/6"><i class="cci cci-{{frame_size}} size-icon theme--main"></i></div>

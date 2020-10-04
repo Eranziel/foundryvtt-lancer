@@ -406,7 +406,7 @@ export function weapon_range_selector(
     }>BURST</option>
   </select>
   <input class="lancer-stat" type="string" name="${data_target}.val" value="${rng.val ? rng.val : ""
-    }" data-dtype="String"/>
+    }" data-dtype="String" style="max-width: 80%;"/>
   </div>`;
   return html;
 }
@@ -457,7 +457,7 @@ export function pilot_weapon_damage_selector(
 
   html += `
     <input class="lancer-stat" type="string" name="${data_target}.val" value="${dmg.val ? dmg.val : ""
-    }" data-dtype="String"/>
+    }" data-dtype="String" style="max-width: 80%;"/>
   </div>`;
   return html;
 }
@@ -507,19 +507,19 @@ export function npc_weapon_damage_selector(
 
   html += `</div>
   <div class="flexrow flex-center">
-    <i class="cci cci-rank-1 i--m i--dark"></i>
+    <i class="cci cci-npc-tier-1 i--m i--dark"></i>
     <input class="lancer-stat" type="string" name="${data_target}.val" value="${dmg.val![0] ? dmg.val![0] : ""
-    }" data-dtype="String"/>
+    }" data-dtype="String" style="max-width: 80%;"/>
   </div>
   <div class="flexrow flex-center">
-    <i class="cci cci-rank-2 i--m i--dark"></i>
+  <i class="cci cci-npc-tier-2 i--m i--dark"></i>
     <input class="lancer-stat" type="string" name="${data_target}.val" value="${dmg.val![1] ? dmg.val![1] : ""
-    }" data-dtype="String"/>
+    }" data-dtype="String" style="max-width: 80%;"/>
   </div>
   <div class="flexrow flex-center">
-    <i class="cci cci-rank-3 i--m i--dark"></i>
+  <i class="cci cci-npc-tier-3 i--m i--dark"></i>
     <input class="lancer-stat" type="string" name="${data_target}.val" value="${dmg.val![2] ? dmg.val![2] : ""
-    }" data-dtype="String"/>
+    }" data-dtype="String" style="max-width: 80%;"/>
   </div>`;
   return html;
 }

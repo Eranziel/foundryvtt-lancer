@@ -812,7 +812,7 @@ input[type=string].lancer-input {
 
 .skill-compact {
   display: grid;
-  grid-template: 2.0em 1fr / 75px 1fr;
+  grid-template: 2.0em 1fr / 100px 1fr;
   align-items: center;
   margin-right: 25px;
 }
@@ -889,9 +889,9 @@ code.horus:hover {
   font-weight: normal;
 }
 
-.stat-macro, .roll-attack,
+.roll-stat, .roll-attack,
 .roll-trigger {
-  margin: 3px;
+  margin: 3px 15px;
 }
 
 .roll-attack,
@@ -923,6 +923,11 @@ code.horus:hover {
   padding: 0px 5px;
 }
 
+.arrow-input-container {
+  align-self: center;
+  max-width: fit-content;
+}
+
 .mod-plus-button {
   clip-path: polygon(75% 0%, 100% 50%, 75% 100%, 0% 100%, 20% 50%, 0% 0%);
 }
@@ -933,6 +938,7 @@ code.horus:hover {
 
 .mod-minus-button, .mod-plus-button {
   width: 2em;
+  max-width: 2em;
   background-color: #828282;
   color: #bebebe;
   border:none;

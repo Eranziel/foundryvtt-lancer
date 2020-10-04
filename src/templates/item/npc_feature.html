@@ -30,9 +30,9 @@
     {{!-- Limited Uses Tracking --}}
     <div class="flexrow stat-container" style="align-self: center; margin: 5px 30px; max-width: max-content;">
       <span class="medium" >USES:</span>
-      <input class="lancer-stat major" type="number" name="data.uses" value="{{data.uses}}" data-dtype="Number"/>
+      <input class="lancer-stat major no-arrows" type="number" name="data.uses" value="{{data.uses}}" data-dtype="Number"/>
       <span class="medium" style="max-width: min-content;" >/</span>
-      <input class="lancer-stat major" type="number" name="data.max_uses" value="{{data.max_uses}}" data-dtype="Number"/>
+      <input class="lancer-stat major no-arrows" type="number" name="data.max_uses" value="{{data.max_uses}}" data-dtype="Number"/>
     </div>
 
     {{!-- Reaction --}}
@@ -76,31 +76,31 @@
       <div class="flexcol card clipped" style="grid-area: 2/1/3/2;">
         <span class="lancer-stat-header major clipped-top"><i class="cci cci-reticule i--s i--light"></i>ATTACK BONUS</span>
         <div class="flexrow flex-center">
-          <i class="cci cci-rank-1 i--m i--dark"></i>
-          <input class="lancer-stat" type="number" name="data.attack_bonus" value="{{data.attack_bonus.[0]}}" data-dtype="Number"/>
+          <i class="cci cci-npc-tier-1 i--m i--dark"></i>
+          {{{l-num-input "data.attack_bonus" data.attack_bonus.[0]}}}
         </div>
         <div class="flexrow flex-center">
-          <i class="cci cci-rank-2 i--m i--dark"></i>
-          <input class="lancer-stat" type="number" name="data.attack_bonus" value="{{data.attack_bonus.[1]}}" data-dtype="Number"/>
+          <i class="cci cci-npc-tier-2 i--m i--dark"></i>
+          {{{l-num-input "data.attack_bonus" data.attack_bonus.[1]}}}
         </div>
         <div class="flexrow flex-center">
-          <i class="cci cci-rank-3 i--m i--dark"></i>
-          <input class="lancer-stat" type="number" name="data.attack_bonus" value="{{data.attack_bonus.[2]}}" data-dtype="Number"/>
+          <i class="cci cci-npc-tier-3 i--m i--dark"></i>
+          {{{l-num-input "data.attack_bonus" data.attack_bonus.[2]}}}
         </div>
       </div>
       <div class="flexcol card clipped" style="grid-area: 2/2/3/3;">
         <span class="lancer-stat-header major clipped-top"><i class="cci cci-accuracy i--s i--light"></i>ACCURACY</span>
         <div class="flexrow flex-center">
-          <i class="cci cci-rank-1 i--m i--dark"></i>
-          <input class="lancer-stat" type="number" name="data.accuracy" value="{{data.accuracy.[0]}}" data-dtype="Number"/>
+          <i class="cci cci-npc-tier-1 i--m i--dark"></i>
+          {{{l-num-input "data.accuracy" data.accuracy.[0]}}}
         </div>
         <div class="flexrow flex-center">
-          <i class="cci cci-rank-2 i--m i--dark"></i>
-          <input class="lancer-stat" type="number" name="data.accuracy" value="{{data.accuracy.[1]}}" data-dtype="Number"/>
+          <i class="cci cci-npc-tier-2 i--m i--dark"></i>
+          {{{l-num-input "data.accuracy" data.accuracy.[1]}}}
         </div>
         <div class="flexrow flex-center">
-          <i class="cci cci-rank-3 i--m i--dark"></i>
-          <input class="lancer-stat" type="number" name="data.accuracy" value="{{data.accuracy.[2]}}" data-dtype="Number"/>
+          <i class="cci cci-npc-tier-3 i--m i--dark"></i>
+          {{{l-num-input "data.accuracy" data.accuracy.[2]}}}
         </div>
       </div>
       <div class="flexcol card clipped" style="grid-area: 3/1/4/3;">
@@ -127,31 +127,31 @@
       <div class="flexcol card clipped" style="grid-area: 2/2/3/3;">
         <span class="lancer-stat-header major clipped-top"><i class="cci cci-reticule i--s i--light"></i>ATTACK BONUS</span>
         <div class="flexrow flex-center">
-          <i class="cci cci-rank-1 i--m i--dark"></i>
-          <input class="lancer-stat" type="number" name="data.attack_bonus" value="{{data.attack_bonus.[0]}}" data-dtype="Number"/>
+          <i class="cci cci-npc-tier-1 i--m i--dark"></i>
+          {{{l-num-input "data.attack_bonus" data.attack_bonus.[0]}}}
         </div>
         <div class="flexrow flex-center">
-          <i class="cci cci-rank-2 i--m i--dark"></i>
-          <input class="lancer-stat" type="number" name="data.attack_bonus" value="{{data.attack_bonus.[1]}}" data-dtype="Number"/>
+          <i class="cci cci-npc-tier-2 i--m i--dark"></i>
+          {{{l-num-input "data.attack_bonus" data.attack_bonus.[1]}}}
         </div>
         <div class="flexrow flex-center">
-          <i class="cci cci-rank-3 i--m i--dark"></i>
-          <input class="lancer-stat" type="number" name="data.attack_bonus" value="{{data.attack_bonus.[2]}}" data-dtype="Number"/>
+          <i class="cci cci-npc-tier-3 i--m i--dark"></i>
+          {{{l-num-input "data.attack_bonus" data.attack_bonus.[2]}}}
         </div>
       </div>
       <div class="flexcol card clipped" style="grid-area: 2/3/3/4;">
         <span class="lancer-stat-header major clipped-top"><i class="cci cci-accuracy i--s i--light"></i>ACCURACY</span>
         <div class="flexrow flex-center">
-          <i class="cci cci-rank-1 i--m i--dark"></i>
-          <input class="lancer-stat" type="number" name="data.accuracy" value="{{data.accuracy.[0]}}" data-dtype="Number"/>
+          <i class="cci cci-npc-tier-1 i--m i--dark"></i>
+          {{{l-num-input "data.accuracy" data.accuracy.[0]}}}
         </div>
         <div class="flexrow flex-center">
-          <i class="cci cci-rank-2 i--m i--dark"></i>
-          <input class="lancer-stat" type="number" name="data.accuracy" value="{{data.accuracy.[1]}}" data-dtype="Number"/>
+          <i class="cci cci-npc-tier-2 i--m i--dark"></i>
+          {{{l-num-input "data.accuracy" data.accuracy.[1]}}}
         </div>
         <div class="flexrow flex-center">
-          <i class="cci cci-rank-3 i--m i--dark"></i>
-          <input class="lancer-stat" type="number" name="data.accuracy" value="{{data.accuracy.[2]}}" data-dtype="Number"/>
+          <i class="cci cci-npc-tier-3 i--m i--dark"></i>
+          {{{l-num-input "data.accuracy" data.accuracy.[2]}}}
         </div>
       </div>
       <div class="flexrow" style="grid-area: 3/1/4/4; margin-top: 6px">

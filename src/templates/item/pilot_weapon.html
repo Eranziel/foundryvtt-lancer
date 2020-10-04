@@ -10,33 +10,8 @@
   <div class="flexcol">
     {{!-- Weapon Stats --}}
     <div class="flexrow">
-      <div class="flexcol" style="max-width: min-content">
-        <select name="data.range.0.type" data-type="String">
-          {{#select data.range.0.type}}
-          <option value="range">RANGE</option>
-          <option value="threat">THREAT</option>
-          <option value="thrown">THROWN</option>
-          <option value="line">LINE</option>
-          <option value="cone">CONE</option>
-          <option value="blast">BLAST</option>
-          <option value="burst">BURST</option>
-          {{/select}}
-        </select>
-        <input class="lancer-stat" type="number" name="data.range.0.val" value="{{data.range.0.val}}" data-dtype="Number"/>
-      </div>
-      <div class="flexcol" style="float: left; max-width: min-content">
-        <select name="data.damage.0.type" data-type="String">
-          {{#select data.damage.0.type}}
-          <option value="kinetic">KINETIC</option>
-          <option value="energy">ENERGY</option>
-          <option value="explosive">EXPLOSIVE</option>
-          <option value="heat">HEAT</option>
-          <option value="burn">BURN</option>
-          <option value="other">OTHER</option>
-          {{/select}}
-        </select>
-        <input class="lancer-stat" type="string" name="data.damage.0.val" value="{{data.damage.0.val}}" data-dtype="String"/>
-      </div>
+      {{{wpn-range-sel data.range "0" "data.range.0"}}}
+      {{{wpn-damage-sel data.damage "0" "data.damage.0"}}}
     </div>
 
     {{!-- Compendium --}}
