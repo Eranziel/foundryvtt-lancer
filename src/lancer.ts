@@ -447,7 +447,7 @@ async function rollTriggerMacro(
   // Get accuracy/difficulty with a prompt
   let acc: number = 0;
   let abort: boolean = false;
-  await promptAccDiffModifier().then(
+  await promptAccDiffModifier(acc, title).then(
     resolve => (acc = resolve),
     reject => (abort = true)
   );
@@ -504,7 +504,7 @@ async function rollStatMacro(
   // Get accuracy/difficulty with a prompt
   let acc: number = 0;
   let abort: boolean = false;
-  await promptAccDiffModifier().then(
+  await promptAccDiffModifier(acc, title).then(
     resolve => (acc = resolve),
     reject => (abort = true)
   );
@@ -608,7 +608,7 @@ async function rollAttackMacro(w: string, a: string) {
 
   // Get accuracy/difficulty with a prompt
   let abort: boolean = false;
-  await promptAccDiffModifier(acc).then(
+  await promptAccDiffModifier(acc, title).then(
     resolve => (acc = resolve),
     reject => (abort = true)
   );
@@ -726,7 +726,7 @@ async function rollTechMacro(t: string, a: string) {
 
   // Get accuracy/difficulty with a prompt
   let abort: boolean = false;
-  await promptAccDiffModifier(acc).then(
+  await promptAccDiffModifier(acc, title).then(
     resolve => (acc = resolve),
     reject => (abort = true)
   );
@@ -752,7 +752,7 @@ async function rollTechMacro(t: string, a: string) {
   return renderMacro(actor, template, templateData);
 }
 
-async function promptAccDiffModifier(acc?: number) {
+async function promptAccDiffModifier(acc?: number, title?: string) {
   if (!acc) acc = 0;
   let diff = 0;
   if (acc < 0) {
@@ -763,7 +763,7 @@ async function promptAccDiffModifier(acc?: number) {
   let template = await renderTemplate(`systems/lancer/templates/window/promptAccDiffModifier.html`, { acc: acc, diff: diff })
   return new Promise<number>((resolve, reject) => {
     let d = new Dialog({
-      title: "Accuracy and Difficulty",
+      title: title ? `${title} - Accuracy and Difficulty` : "Accuracy and Difficulty",
       content: template,
       buttons: {
         submit: {

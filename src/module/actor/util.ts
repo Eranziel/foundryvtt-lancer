@@ -72,6 +72,7 @@ export async function update_pilot(pilot: LancerActor, cc_pilot: mm.Pilot): Prom
   let pd = pad.data;
 
   // Basics
+  pad.name = cc_pilot.Callsign;
   pd.pilot.background = cc_pilot.Background;
   pd.pilot.callsign = cc_pilot.Callsign;
   pd.pilot.grit = cc_pilot.Grit;
