@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "foundryvtt-lancer",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "",
   "scripts": {
     "package": "gulp package",
@@ -25,15 +25,15 @@
     "gulp-typescript": "^6.0.0-alpha.1",
     "json-stringify-pretty-compact": "^2.0.0",
     "prettier": "2.0.5",
-    "sass": "^1.26.7",
+    "sass": "^1.26.11",
     "ts-loader": "^8.0.2",
     "tslib": "^1.13.0",
     "typescript": "^3.9.7",
     "webpack-stream": "^5.2.1",
-    "yargs": "^15.3.1"
+    "yargs": "^15.4.1"
   },
   "dependencies": {
-    "@mdi/font": "^5.3.45",
+    "@mdi/font": "^5.6.55",
     "lancer-data": "^2.0.35",
     "machine-mind": "^0.1.1-beta.18"
   }
