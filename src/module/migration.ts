@@ -41,7 +41,7 @@ export const migrateWorld = async function () {
   for (let s of game.scenes.entities) {
     try {
       const updateData = migrateSceneData(s);
-      if (!isObjectEmpty(updateData)) {
+      if (updateData && !isObjectEmpty(updateData)) {
         console.log(`Migrating Scene entity ${s.name}`);
         await s.update(updateData, { enforceTypes: false });
       }
@@ -73,6 +73,9 @@ export const migrateWorld = async function () {
  * @return {Promise}
  */
 export const migrateCompendium = async function (pack: Compendium) {
+  const wasLocked = pack.locked;
+  pack.locked = false;
+  if (pack.locked) return ui.notifications.error(`Could not migrate ${pack.collection} as it is locked.`);
   const entity = pack.metadata.entity;
   if (!["Actor", "Item", "Scene"].includes(entity)) return;
 
@@ -97,6 +100,7 @@ export const migrateCompendium = async function (pack: Compendium) {
       console.error(err);
     }
   }
+  pack.locked = wasLocked;
   console.log(`Migrated all ${entity} entities from Compendium ${pack.collection}`);
 };
 
@@ -187,6 +191,7 @@ export const migrateItemData = function (item: Item) {
  * @return {Object}       The updateData to apply
  */
 export const migrateSceneData = function (scene) {
+  if (!scene.tokens) return;
   const tokens = duplicate(scene.tokens);
   return {
     tokens: tokens.map(t => {

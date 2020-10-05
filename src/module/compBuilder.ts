@@ -14,45 +14,89 @@ import {
   NpcTemplate,
   NpcFeature,
 } from "machine-mind";
-import { CORE_BONUS_PACK, FRAME_PACK, MECH_SYSTEM_PACK, MECH_WEAPON_PACK, NPC_CLASS_PACK, NPC_FEATURE_PACK, NPC_TEMPLATE_PACK, PACKS, PILOT_ARMOR_PACK, PILOT_GEAR_PACK, PILOT_WEAPON_PACK, SKILLS_PACK, TALENTS_PACK } from "./item/util";
+import {
+  CORE_BONUS_PACK,
+  FRAME_PACK,
+  MECH_SYSTEM_PACK,
+  MECH_WEAPON_PACK,
+  NPC_CLASS_PACK,
+  NPC_FEATURE_PACK,
+  NPC_TEMPLATE_PACK,
+  PACKS,
+  PILOT_ARMOR_PACK,
+  PILOT_GEAR_PACK,
+  PILOT_WEAPON_PACK,
+  SKILLS_PACK,
+  TALENTS_PACK
+} from "./item/util";
 
-export async function buildCompendiums(cp: ContentPack, sysComps: boolean): Promise<void> {
+async function unlockAllPacks() {
+  // Unlock all the packs
+  //@ts-ignore
+  const config = game.settings.get("core", Compendium.CONFIG_SETTING);
+  console.log(`${lp} Pre-unlock config:`, config);
+  PACKS.forEach(async p => {
+    const key = `world.${p}`;
+    if (!config[key]) {
+      config[key] = { private: false, locked: false };
+    } else {
+      config[key] = mergeObject(config[key], { locked: false });
+    }
+  });
+  //@ts-ignore
+  await game.settings.set("core", Compendium.CONFIG_SETTING, config);
+}
+
+async function lockAllPacks() {
+  // Lock all the packs
+  //@ts-ignore
+  const config = game.settings.get("core", Compendium.CONFIG_SETTING);
+  console.log(`${lp} Pre-lock config:`, config);
+  PACKS.forEach(async p => {
+    const key = `world.${p}`;
+    if (!config[key]) {
+      config[key] = { private: false, locked: true };
+    }
+    config[key] = mergeObject(config[key], { locked: true });
+  });
+  //@ts-ignore
+  await game.settings.set("core", Compendium.CONFIG_SETTING, config);
+}
+
+export async function buildCompendiums(cp: ContentPack): Promise<void> {
+  await unlockAllPacks();
   const conv = new Converter(cp.ID);
-  await buildSkillCompendium(conv, cp, sysComps);
-  await buildTalentCompendium(conv, cp, sysComps);
-  await buildCoreBonusCompendium(conv, cp, sysComps);
-  await buildPilotEquipmentCompendiums(conv, cp, sysComps);
-  await buildFrameCompendium(conv, cp, sysComps);
-  await buildMechSystemCompendium(conv, cp, sysComps);
-  await buildMechWeaponCompendium(conv, cp, sysComps);
+  await buildSkillCompendium(conv, cp);
+  await buildTalentCompendium(conv, cp);
+  await buildCoreBonusCompendium(conv, cp);
+  await buildPilotEquipmentCompendiums(conv, cp);
+  await buildFrameCompendium(conv, cp);
+  await buildMechSystemCompendium(conv, cp);
+  await buildMechWeaponCompendium(conv, cp);
   // TODO: weapon mods
   // TODO: licenses
-  await buildNPCClassCompendium(conv, cp, sysComps);
-  await buildNPCTemplateCompendium(conv, cp, sysComps);
-  await buildNPCFeatureCompendium(conv, cp, sysComps);
+  await buildNPCClassCompendium(conv, cp);
+  await buildNPCTemplateCompendium(conv, cp);
+  await buildNPCFeatureCompendium(conv, cp);
+  await lockAllPacks();
   return Promise.resolve();
 }
 
 export async function clearCompendiums(): Promise<void> {
-  let sysComps: boolean = game.settings.get(LANCER.sys_name, LANCER.setting_comp_loc);
-
+  await unlockAllPacks();
   PACKS.forEach(async (p: string) => {
     let pack: Compendium | undefined;
-    if (sysComps) {
-      pack = game.packs.get(`lancer.${p}`);
-    } else {
-      pack = game.packs.get(`world.${p}`);
-    }
+    pack = game.packs.get(`world.${p}`);
 
     if (pack) {
-      pack.locked = false;
       // Delete every item in the pack
       let index: { _id: string; name: string }[] = await pack.getIndex();
-      index.forEach(async i => {
+      index.forEach(i => {
         pack?.deleteEntity(i._id);
       });
     }
   });
+  await lockAllPacks();
 
   return Promise.resolve();
 }
@@ -68,7 +112,6 @@ async function findPack(pack_name: string, metaData: object): Promise<Compendium
   }
   if (pack) {
     console.log(`${lp} Updating existing compendium: ${pack.collection}.`);
-    pack.locked = false;
   } else {
     // Compendium doesn't exist yet. Create a new one.
     pack = await Compendium.create(metaData);
@@ -113,7 +156,7 @@ async function updateItem(
   }
 }
 
-async function buildSkillCompendium(conv: Converter, cp: ContentPack, sysComps: boolean) {
+async function buildSkillCompendium(conv: Converter, cp: ContentPack) {
   const skills = cp.Skills;
   const pname = SKILLS_PACK;
   const img = "systems/lancer/assets/icons/skill.svg";
@@ -121,28 +164,25 @@ async function buildSkillCompendium(conv: Converter, cp: ContentPack, sysComps: 
     name: pname,
     label: "Skill Triggers",
     system: "lancer",
-    package: sysComps ? "lancer" : "world",
+    package: "world",
     path: "./packs/skills.db",
     entity: "Item",
   };
   let pack: Compendium = await findPack(pname, metaData);
-  pack.locked = false;
   await pack.getIndex();
 
   // Iterate through the list of skills and add them each to the Compendium
   let promises: Promise<Entity>[] = [];
   skills.forEach(async (skill: mm.Skill) => {
-    if (pack.locked) pack.locked = false;
     promises.push(updateItem(pack, conv.Skill_to_LancerSkillData(skill), "skill", img));
   });
   for await (const x of promises) {
     continue;
   }
-  pack.locked = true;
   return Promise.resolve();
 }
 
-async function buildTalentCompendium(conv: Converter, cp: ContentPack, sysComps: boolean) {
+async function buildTalentCompendium(conv: Converter, cp: ContentPack) {
   const talents = cp.Talents;
   const pname = TALENTS_PACK;
   const img = "systems/lancer/assets/icons/talent.svg";
@@ -150,28 +190,25 @@ async function buildTalentCompendium(conv: Converter, cp: ContentPack, sysComps:
     name: pname,
     label: "Talents",
     system: "lancer",
-    package: sysComps ? "lancer" : "world",
+    package: "world",
     path: "./packs/talents.db",
     entity: "Item",
   };
   let pack: Compendium = await findPack(pname, metaData);
-  pack.locked = false;
   await pack.getIndex();
 
   // Iterate through the list of talents and add them each to the Compendium
   let promises: Promise<Entity>[] = [];
   talents.forEach(async (talent: mm.Talent) => {
-    if (pack.locked) pack.locked = false;
     promises.push(updateItem(pack, conv.Talent_to_LancerTalentData(talent), "talent", img));
   });
   for await (const x of promises) {
     continue;
   }
-  pack.locked = true;
   return Promise.resolve();
 }
 
-async function buildCoreBonusCompendium(conv: Converter, cp: ContentPack, sysComps: boolean) {
+async function buildCoreBonusCompendium(conv: Converter, cp: ContentPack) {
   const coreBonus = cp.CoreBonuses;
   const pname = CORE_BONUS_PACK;
   const img = "systems/lancer/assets/icons/corebonus.svg";
@@ -179,18 +216,16 @@ async function buildCoreBonusCompendium(conv: Converter, cp: ContentPack, sysCom
     name: pname,
     label: "Core Bonuses",
     system: "lancer",
-    package: sysComps ? "lancer" : "world",
+    package: "world",
     path: "./packs/core_bonuses.db",
     entity: "Item",
   };
   let pack: Compendium = await findPack(pname, metaData);
-  pack.locked = false;
   await pack.getIndex();
 
   // Iterate through the list of core bonuses and add them each to the Compendium
   let promises: Promise<Entity>[] = [];
   coreBonus.forEach(async (cbonus: mm.CoreBonus) => {
-    if (pack.locked) pack.locked = false;
     promises.push(
       updateItem(pack, conv.CoreBonus_to_LancerCoreBonusData(cbonus), "core_bonus", img)
     );
@@ -198,11 +233,10 @@ async function buildCoreBonusCompendium(conv: Converter, cp: ContentPack, sysCom
   for await (const x of promises) {
     continue;
   }
-  pack.locked = true;
   return Promise.resolve();
 }
 
-async function buildPilotEquipmentCompendiums(conv: Converter, cp: ContentPack, sysComps: boolean) {
+async function buildPilotEquipmentCompendiums(conv: Converter, cp: ContentPack) {
   console.log("LANCER | Building Pilot Equipment compendiums.");
   const pilotArmor = cp.PilotArmor;
   const pilotWeapon = cp.PilotWeapons;
@@ -217,7 +251,7 @@ async function buildPilotEquipmentCompendiums(conv: Converter, cp: ContentPack, 
     name: paName,
     label: "Pilot Armor",
     system: "lancer",
-    package: sysComps ? "lancer" : "world",
+    package: "world",
     path: "./packs/pilot_armor.db",
     entity: "Item",
   };
@@ -226,7 +260,7 @@ async function buildPilotEquipmentCompendiums(conv: Converter, cp: ContentPack, 
     name: pwName,
     label: "Pilot Weapons",
     system: "lancer",
-    package: sysComps ? "lancer" : "world",
+    package: "world",
     path: "./packs/pilot_weapons.db",
     entity: "Item",
   };
@@ -235,14 +269,11 @@ async function buildPilotEquipmentCompendiums(conv: Converter, cp: ContentPack, 
     name: pgName,
     label: "Pilot Gear",
     system: "lancer",
-    package: sysComps ? "lancer" : "world",
+    package: "world",
     path: "./packs/pilot_gear.db",
     entity: "Item",
   };
   let pgPack: Compendium = await findPack(pgName, gearMeta);
-  paPack.locked = false;
-  pwPack.locked = false;
-  pgPack.locked = false;
   await paPack.getIndex();
   await pwPack.getIndex();
   await pgPack.getIndex();
@@ -270,13 +301,10 @@ async function buildPilotEquipmentCompendiums(conv: Converter, cp: ContentPack, 
   for await (const x of promises) {
     continue;
   }
-  paPack.locked = true;
-  pwPack.locked = true;
-  pgPack.locked = true;
   return Promise.resolve();
 }
 
-async function buildFrameCompendium(conv: Converter, cp: ContentPack, sysComps: boolean) {
+async function buildFrameCompendium(conv: Converter, cp: ContentPack) {
   const frames = cp.Frames;
   const pname = FRAME_PACK;
   const img = "systems/lancer/assets/icons/frame.svg";
@@ -284,12 +312,11 @@ async function buildFrameCompendium(conv: Converter, cp: ContentPack, sysComps: 
     name: pname,
     label: "Frames",
     system: "lancer",
-    package: sysComps ? "lancer" : "world",
+    package: "world",
     path: "./packs/frames.db",
     entity: "Item",
   };
   let pack: Compendium = await findPack(pname, metaData);
-  pack.locked = false;
   await pack.getIndex();
 
   // const licImg = "systems/lancer/assets/icons/license.svg";
@@ -308,17 +335,15 @@ async function buildFrameCompendium(conv: Converter, cp: ContentPack, sysComps: 
   // Iterate through the list of frames and add them each to the Compendium
   let promises: Promise<Entity>[] = [];
   frames.forEach(async (frame: Frame) => {
-    if (pack.locked) pack.locked = false;
     promises.push(updateItem(pack, conv.Frame_to_LancerFrameData(frame), "frame", img));
   });
   for await (const x of promises) {
     continue;
   }
-  pack.locked = true;
   return Promise.resolve();
 }
 
-async function buildMechSystemCompendium(conv: Converter, cp: ContentPack, sysComps: boolean) {
+async function buildMechSystemCompendium(conv: Converter, cp: ContentPack) {
   const systems = cp.MechSystems;
   const pname = MECH_SYSTEM_PACK;
   const img = "systems/lancer/assets/icons/mech_system.svg";
@@ -326,18 +351,16 @@ async function buildMechSystemCompendium(conv: Converter, cp: ContentPack, sysCo
     name: pname,
     label: "Systems",
     system: "lancer",
-    package: sysComps ? "lancer" : "world",
+    package: "world",
     path: "./packs/systems.db",
     entity: "Item",
   };
   let pack: Compendium = await findPack(pname, metaData);
-  pack.locked = false;
   await pack.getIndex();
 
   // Iterate through the list of core bonuses and add them each to the Compendium
   let promises: Promise<Entity>[] = [];
   systems.forEach(async (system: MechSystem) => {
-    if (pack.locked) pack.locked = false;
     promises.push(
       updateItem(pack, conv.MechSystem_to_LancerMechSystemData(system), "mech_system", img)
     );
@@ -345,11 +368,10 @@ async function buildMechSystemCompendium(conv: Converter, cp: ContentPack, sysCo
   for await (const x of promises) {
     continue;
   }
-  pack.locked = true;
   return Promise.resolve();
 }
 
-async function buildMechWeaponCompendium(conv: Converter, cp: ContentPack, sysComps: boolean) {
+async function buildMechWeaponCompendium(conv: Converter, cp: ContentPack) {
   const weapons = cp.MechWeapons;
   const pname = MECH_WEAPON_PACK;
   const img = "systems/lancer/assets/icons/mech_weapon.svg";
@@ -357,18 +379,16 @@ async function buildMechWeaponCompendium(conv: Converter, cp: ContentPack, sysCo
     name: pname,
     label: "Weapons",
     system: "lancer",
-    package: sysComps ? "lancer" : "world",
+    package: "world",
     path: "./packs/weapons.db",
     entity: "Item",
   };
   let pack: Compendium = await findPack(pname, metaData);
-  pack.locked = false;
   await pack.getIndex();
 
   // Iterate through the list of core bonuses and add them each to the Compendium
   let promises: Promise<Entity>[] = [];
   weapons.forEach(async (weapon: MechWeapon) => {
-    if (pack.locked) pack.locked = false;
     promises.push(
       updateItem(pack, conv.MechWeapon_to_LancerMechWeaponData(weapon), "mech_weapon", img)
     );
@@ -376,7 +396,6 @@ async function buildMechWeaponCompendium(conv: Converter, cp: ContentPack, sysCo
   for await (const x of promises) {
     continue;
   }
-  pack.locked = true;
   return Promise.resolve();
 }
 
@@ -384,7 +403,7 @@ async function buildMechWeaponCompendium(conv: Converter, cp: ContentPack, sysCo
 
 // TODO: Licenses
 
-async function buildNPCClassCompendium(conv: Converter, cp: ContentPack, sysComps: boolean) {
+async function buildNPCClassCompendium(conv: Converter, cp: ContentPack) {
   const npcc = cp.NpcClasses;
   const pname = NPC_CLASS_PACK;
   const img = "systems/lancer/assets/icons/npc_class.svg";
@@ -392,18 +411,16 @@ async function buildNPCClassCompendium(conv: Converter, cp: ContentPack, sysComp
     name: pname,
     label: "NPC Classes",
     system: "lancer",
-    package: sysComps ? "lancer" : "world",
+    package: "world",
     path: "./packs/npc_classes.db",
     entity: "Item",
   };
   let pack: Compendium = await findPack(pname, metaData);
-  pack.locked = false;
   await pack.getIndex();
 
   // Iterate through the list of core bonuses and add them each to the Compendium
   let promises: Promise<Entity>[] = [];
   npcc.forEach(async (cls: NpcClass) => {
-    if (pack.locked) pack.locked = false;
     promises.push(
       updateItem(pack, conv.NpcClass_to_LancerNPCClassData(cls), "npc_class", img)
     );
@@ -411,11 +428,10 @@ async function buildNPCClassCompendium(conv: Converter, cp: ContentPack, sysComp
   for await (const x of promises) {
     continue;
   }
-  pack.locked = true;
   return Promise.resolve();
 }
 
-async function buildNPCTemplateCompendium(conv: Converter, cp: ContentPack, sysComps: boolean) {
+async function buildNPCTemplateCompendium(conv: Converter, cp: ContentPack) {
   const npct = cp.NpcTemplates;
   const pname = NPC_TEMPLATE_PACK;
   const img = "systems/lancer/assets/icons/npc_template.svg";
@@ -423,18 +439,16 @@ async function buildNPCTemplateCompendium(conv: Converter, cp: ContentPack, sysC
     name: pname,
     label: "NPC Templates",
     system: "lancer",
-    package: sysComps ? "lancer" : "world",
+    package: "world",
     path: "./packs/npc_templates.db",
     entity: "Item",
   };
   let pack: Compendium = await findPack(pname, metaData);
-  pack.locked = false;
   await pack.getIndex();
 
   // Iterate through the list of core bonuses and add them each to the Compendium
   let promises: Promise<Entity>[] = [];
   npct.forEach(async (template: NpcTemplate) => {
-    if (pack.locked) pack.locked = false;
     promises.push(
       updateItem(pack, conv.NpcTemplate_to_LancerNPCTemplateData(template), "npc_template", img)
     );
@@ -442,11 +456,10 @@ async function buildNPCTemplateCompendium(conv: Converter, cp: ContentPack, sysC
   for await (const x of promises) {
     continue;
   }
-  pack.locked = true;
   return Promise.resolve();
 }
 
-async function buildNPCFeatureCompendium(conv: Converter, cp: ContentPack, sysComps: boolean) {
+async function buildNPCFeatureCompendium(conv: Converter, cp: ContentPack) {
   const npcf = cp.NpcFeatures;
   const pname = NPC_FEATURE_PACK;
   const img = "systems/lancer/assets/icons/npc_feature.svg";
@@ -454,18 +467,16 @@ async function buildNPCFeatureCompendium(conv: Converter, cp: ContentPack, sysCo
     name: pname,
     label: "NPC Features",
     system: "lancer",
-    package: sysComps ? "lancer" : "world",
+    package: "world",
     path: "./packs/npc_features.db",
     entity: "Item",
   };
   let pack: Compendium = await findPack(pname, metaData);
-  pack.locked = false;
   await pack.getIndex();
 
   // Iterate through the list of core bonuses and add them each to the Compendium
   let promises: Promise<Entity>[] = [];
   npcf.forEach(async (feature: NpcFeature) => {
-    if (pack.locked) pack.locked = false;
     promises.push(
       updateItem(pack, conv.NpcFeature_to_LancerNPCFeatureData(feature), "npc_feature", img)
     );
@@ -473,6 +484,5 @@ async function buildNPCFeatureCompendium(conv: Converter, cp: ContentPack, sysCo
   for await (const x of promises) {
     continue;
   }
-  pack.locked = true;
   return Promise.resolve();
 }

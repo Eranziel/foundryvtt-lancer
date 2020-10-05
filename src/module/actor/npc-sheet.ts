@@ -99,7 +99,7 @@ export class LancerNPCSheet extends ActorSheet {
     // Macro triggers
     if (this.actor.owner) {
       // Stat rollers
-      let statMacro = html.find(".stat-macro");
+      let statMacro = html.find(".roll-stat");
       statMacro.click((ev: any) => {
         ev.stopPropagation(); // Avoids triggering parent event handlers
         console.log(ev);
@@ -112,7 +112,7 @@ export class LancerNPCSheet extends ActorSheet {
         let keySplit = statKey.split(".");
         let title = keySplit[keySplit.length - 1].toUpperCase();
         console.log(`${lp} Rolling ${title} check, key ${statKey}`);
-        game.lancer.rollStatMacro(title, statKey, null, true);
+        game.lancer.rollStatMacro(this.actor._id, title, statKey, null, true);
       });
 
       // Trigger rollers
@@ -126,7 +126,7 @@ export class LancerNPCSheet extends ActorSheet {
         //.find('modifier-name').first().text();
         console.log(`${lp} Rolling '${title}' trigger (d20 + ${modifier})`);
 
-        game.lancer.rollTriggerMacro(title, modifier, true);
+        game.lancer.rollTriggerMacro(this.actor._id, title, modifier, true);
       });
 
       // Weapon rollers
@@ -153,15 +153,13 @@ export class LancerNPCSheet extends ActorSheet {
     }
     if (this.actor.owner) {
       // Item Dragging
-      let handler = (ev: any) => this._onDragStart(ev);
       html
         .find('li[class*="item"]')
         .add('span[class*="item"]')
         .each((i: number, item: any) => {
           if (item.classList.contains("inventory-header")) return;
           item.setAttribute("draggable", true);
-          // TODO: I think handler needs to be item.*something*._onDragStart(ev).
-          item.addEventListener("dragstart", handler, false);
+          item.addEventListener("dragstart", (ev: any) => this._onDragStart(ev), false);
         });
 
       // Update Inventory Item
@@ -169,19 +167,10 @@ export class LancerNPCSheet extends ActorSheet {
       items.click((ev: any) => {
         console.log(ev);
         const li = $(ev.currentTarget);
-        //TODO: Check if in mount and update mount
         const item = this.actor.getOwnedItem(li.data("itemId"));
         if (item) {
           item.sheet.render(true);
         }
-      });
-
-      // Delete Item on Right Click
-      items.contextmenu((ev: any) => {
-        console.log(ev);
-        const li = $(ev.currentTarget);
-        this.actor.deleteOwnedItem(li.data("itemId"));
-        li.slideUp(200, () => this.render(false));
       });
 
       // Delete Item when trash can is clicked
@@ -194,6 +183,7 @@ export class LancerNPCSheet extends ActorSheet {
         li.slideUp(200, () => this.render(false));
       });
 
+      // Change tier
       let tier_selector = html.find('select.tier-control[data-action*="update"]');
       tier_selector.change((ev: any) => {
         ev.stopPropagation();

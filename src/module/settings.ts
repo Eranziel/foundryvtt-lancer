@@ -30,10 +30,9 @@ export const registerSettings = function () {
     type: Object,
   });
 
-  game.settings.register(LANCER.sys_name, LANCER.setting_comp_loc, {
-    name: "System-wide Compendiums",
-    hint: "Enable this setting to make Compendiums created using the LCP Manager available to all LANCER worlds on this server.",
-    scope: "system",
+  game.settings.register(LANCER.sys_name, LANCER.setting_stock_icons, {
+    name: "Keep Stock Icons",
+    scope: "world",
     config: true,
     type: Boolean,
     default: false

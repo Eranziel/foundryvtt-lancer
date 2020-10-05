@@ -363,23 +363,23 @@ button {
 }
 
 .damage--kinetic {
-  color: #757575;
+  color: #616161;
 }
 
 .damage--energy {
-  color: #29B6F6;
+  color: #2195ca;
 }
 
 .damage--explosive {
-  color: #FFA726;
+  color: #fca017;
 }
 
 .damage--burn {
-  color: #FFA726;
+  color: #ce871e;
 }
 
 .damage--heat {
-  color: #FF7043;
+  color: #e74210;
 }
 
 .damage--variable {
@@ -688,8 +688,31 @@ tr.lcp-index-header {
   align-items: center;
 }
 
+.lancer-stat-header {
+  align-items: center;
+  color: white;
+  background-color: var(--main-theme-color, fuchsia);
+  max-height: fit-content;
+}
+
 .lancer-stat {
-  margin: 0em 1em;
+  margin: 0em 0.2em;
+}
+
+.effect-stat,
+input[type=number].lancer-stat {
+  align-self: center;
+  text-align: center;
+  max-width: 50px;
+  min-width: 30px;
+}
+
+.lancer-text-field
+input[type=string].lancer-input {
+  align-self: center;
+  text-align: left;
+  width: calc(100% - 20px);
+  margin: 5px;
 }
 
 .size-icon,
@@ -736,6 +759,7 @@ tr.lcp-index-header {
   background-color: rgba(0,0,0,0.07);
   margin: 3px 10px;
   text-align: center;
+  padding-bottom: 1px;
 }
 .card .lancer-title {
   /* TODO: review if this rule can be simplified */
@@ -770,27 +794,6 @@ tr.lcp-index-header {
   background-color: var(--main-theme-color, fuchsia);
 }
 
-.lancer-stat-header {
-  align-items: center;
-  color: white;
-  background-color: var(--main-theme-color, fuchsia);
-  max-height: fit-content;
-}
-
-.lancer-stat-input {
-  align-self: center;
-  text-align: center;
-  max-width: 50px;
-  min-width: 30px;
-}
-
-.lancer-text-input {
-  align-self: center;
-  text-align: left;
-  width: calc(100% - 20px);
-  margin: 5px;
-}
-
 .desc-text {
   text-align: left;
   padding: 0.5em;
@@ -810,7 +813,7 @@ tr.lcp-index-header {
 
 .skill-compact {
   display: grid;
-  grid-template: 2.0em 1fr / 75px 1fr;
+  grid-template: 2.0em 1fr / 100px 1fr;
   align-items: center;
   margin-right: 25px;
 }
@@ -887,9 +890,9 @@ code.horus:hover {
   font-weight: normal;
 }
 
-.stat-macro, .roll-attack,
+.roll-stat, .roll-attack,
 .roll-trigger {
-  margin: 3px;
+  margin: 3px 15px;
 }
 
 .roll-attack,
@@ -900,12 +903,12 @@ code.horus:hover {
   align-items: center;
 }
 
-.dice-roll.lancer-dice-roll {
+.lancer-dice-roll {
   padding: 3px;
 }
 
-.dice-formula.lancer-dice-formula,
-.dice-total.lancer-dice-total {
+.lancer-dice-formula,
+.lancer-dice-total {
   margin: 5px;
   align-items: center;
   text-align: center;
@@ -915,8 +918,75 @@ code.horus:hover {
   box-shadow: 0 0 2px #FFF inset;
 }
 
-.dice-total.lancer-dice-total {
+.lancer-dice-total {
   margin: 5px;
   min-width: max-content;
   padding: 0px 5px;
+}
+
+button.overkill-reroll {
+  margin: 5px;
+  padding: 1px 10px;
+  max-width: fit-content;
+  background: #e46742;
+  border: 1px solid #e74210;
+  font-weight: bold;
+}
+
+.arrow-input-container {
+  align-self: center;
+  max-width: fit-content;
+}
+
+.mod-plus-button {
+  clip-path: polygon(75% 0%, 100% 50%, 75% 100%, 0% 100%, 20% 50%, 0% 0%);
+}
+
+.mod-minus-button {
+  clip-path: polygon(100% 0%, 80% 50%, 100% 100%, 25% 100%, 0% 50%, 25% 0%);
+}
+
+.mod-minus-button, .mod-plus-button {
+  width: 2em;
+  max-width: 2em;
+  background-color: #828282;
+  color: #bebebe;
+  border:none;
+  /* Don't ask me why, but this aligns it vertically nicely */
+  line-height: 1px;
+}
+
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input.core-power-toggle {
+  display: block;
+  width: 30px;
+  height: 30px;
+  -webkit-appearance: none;
+  outline: 0;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: contain;
+  font: normal normal normal 24px/1 "Material Design Icons";
+  -webkit-filter: none !important;
+  filter: none !important;
+}
+
+input.core-power-toggle:checked::before
+{
+  content: "\F0079";
+  color: green;
+}
+input.core-power-toggle:not(:checked)::before
+{
+  content: "\F007A";
+  color: grey;
 }

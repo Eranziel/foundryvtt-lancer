@@ -21,12 +21,14 @@ import { LANCER } from "../config";
 import {
   DamageType,
   EffectType,
+  ItemType,
   NpcFeatureType,
   RangeType,
   SystemType,
   WeaponSize,
   WeaponType,
 } from "machine-mind";
+import { LancerNPCWeaponData } from "./npc-feature";
 const lp = LANCER.log_prefix;
 
 export type LancerItemType =
@@ -108,6 +110,10 @@ export class LancerItem extends Item {
     | LancerNPCTemplateItemData
     | LancerNPCClassItemData;
 
+  // ============================================================
+  //          SKILLS
+  // ============================================================
+
   /**
    * Return a skill trigger's bonus to rolls
    */
@@ -115,6 +121,118 @@ export class LancerItem extends Item {
     // Only works for skills.
     if (this.data.type !== "skill") return 0;
     return (this.data as LancerSkillItemData).data.rank * 2;
+  }
+
+  // ============================================================
+  //          WEAPONS
+  // ============================================================
+
+  /**
+   * Return whether a weapon has the smart tag
+   */
+  get isLoading(): boolean {
+    if (this.data.type === "pilot_weapon" || this.data.type === "mech_weapon" || this.data.type === "npc_feature") {
+      return this.searchTags("tg_loading", "LOADING");
+    } else {
+      return false;
+    }
+  }
+
+  /**
+   * Return whether a weapon has the smart tag
+   */
+  get isOrdnance(): boolean {
+    if (this.data.type === "pilot_weapon" || this.data.type === "mech_weapon" || this.data.type === "npc_feature") {
+      return this.searchTags("tg_ordnance", "ORDNANCE");
+    } else {
+      return false;
+    }
+  }
+
+  /**
+   * Return a weapon's innate accuracy/difficulty based on its tags.
+   */
+  get accuracy(): number {
+    if (this.data.type === "pilot_weapon" || this.data.type === "mech_weapon") {
+      let acc = 0;
+      if (this.searchTags("tg_accurate", "ACCURATE")) acc += 1;
+      if (this.searchTags("tg_inaccurate", "INACCURATE")) acc -= 1;
+      return acc;
+    } else {
+      return 0;
+    }
+  }
+
+  /**
+   * Return whether a weapon has the smart tag
+   */
+  get isSmart(): boolean {
+    if (this.data.type === "pilot_weapon" || this.data.type === "mech_weapon" || this.data.type === "npc_feature") {
+      return this.searchTags("tg_smart", "SMART");
+    } else {
+      return false;
+    }
+  }
+
+  /**
+   * Return whether a weapon has the overkill tag
+   */
+  get isOverkill(): boolean {
+    if (this.data.type === "pilot_weapon" || this.data.type === "mech_weapon" || this.data.type === "npc_feature") {
+      return this.searchTags("tg_overkill", "OVERKILL");
+    } else {
+      return false;
+    }
+  }
+
+  /**
+   * Return whether a weapon has the smart tag
+   */
+  get isAp(): boolean {
+    if (this.data.type === "pilot_weapon" || this.data.type === "mech_weapon" || this.data.type === "npc_feature") {
+      return this.searchTags("tg_ap", "ARMOR-PIERCING (AP)");
+    } else {
+      return false;
+    }
+  }
+
+  /**
+   * Return a weapon's innate accuracy/difficulty based on its tags.
+   */
+  get reliable(): number | string {
+    if (this.data.type === "pilot_weapon" || this.data.type === "mech_weapon") {
+      let rel: number | string = 0;
+      const data = this.data.data as any;
+      if (!data.tags || !Array.isArray(data.tags)) return rel;
+      data.tags.forEach((t: TagData) => {
+        if (t.id.toLowerCase() === "tg_reliable" || t.name.toUpperCase() === "RELIABLE") {
+          rel = t.val ? t.val : rel;
+        }
+      });
+      return rel;
+    } else {
+      return 0;
+    }
+  }
+
+  // ============================================================
+  //          GENERAL
+  // ============================================================
+
+  /**
+   * Search the Item's tags to see if any have the given ID or name.
+   * @param id Tag ID to search for.
+   * @param name Tag name to search for.
+   * @returns true if the tag was found, false otherwise.
+   */
+  searchTags(id: string, name: string): boolean {
+    const data = this.data.data as any;
+    if (!data.tags || !Array.isArray(data.tags)) return false;
+    let result = false;
+    data.tags.forEach((t: TagData) => {
+      if (t.id.toLowerCase() === id || t.name.toUpperCase() === name) result = true;
+    });
+    return result;
   }
 }
 
@@ -287,8 +405,8 @@ export function weapon_range_selector(
     <option value="${RangeType.Burst}" ${rtype === RangeType.Burst.toLowerCase() ? "selected" : ""
     }>BURST</option>
   </select>
-  <input class="lancer-stat-input " type="string" name="${data_target}.val" value="${rng.val ? rng.val : ""
-    }" data-dtype="String"/>
+  <input class="lancer-stat" type="string" name="${data_target}.val" value="${rng.val ? rng.val : ""
+    }" data-dtype="String" style="max-width: 80%;"/>
   </div>`;
   return html;
 }
@@ -338,8 +456,8 @@ export function pilot_weapon_damage_selector(
   </select>`;
 
   html += `
-    <input class="lancer-stat-input " type="string" name="${data_target}.val" value="${dmg.val ? dmg.val : ""
-    }" data-dtype="String"/>
+    <input class="lancer-stat" type="string" name="${data_target}.val" value="${dmg.val ? dmg.val : ""
+    }" data-dtype="String" style="max-width: 80%;"/>
   </div>`;
   return html;
 }
@@ -389,19 +507,19 @@ export function npc_weapon_damage_selector(
 
   html += `</div>
   <div class="flexrow flex-center">
-    <i class="cci cci-rank-1 i--m i--dark"></i>
-    <input class="lancer-stat-input " type="string" name="${data_target}.val" value="${dmg.val![0] ? dmg.val![0] : ""
-    }" data-dtype="String"/>
+    <i class="cci cci-npc-tier-1 i--m i--dark"></i>
+    <input class="lancer-stat" type="string" name="${data_target}.val" value="${dmg.val![0] ? dmg.val![0] : ""
+    }" data-dtype="String" style="max-width: 80%;"/>
   </div>
   <div class="flexrow flex-center">
-    <i class="cci cci-rank-2 i--m i--dark"></i>
-    <input class="lancer-stat-input " type="string" name="${data_target}.val" value="${dmg.val![1] ? dmg.val![1] : ""
-    }" data-dtype="String"/>
+  <i class="cci cci-npc-tier-2 i--m i--dark"></i>
+    <input class="lancer-stat" type="string" name="${data_target}.val" value="${dmg.val![1] ? dmg.val![1] : ""
+    }" data-dtype="String" style="max-width: 80%;"/>
   </div>
   <div class="flexrow flex-center">
-    <i class="cci cci-rank-3 i--m i--dark"></i>
-    <input class="lancer-stat-input " type="string" name="${data_target}.val" value="${dmg.val![2] ? dmg.val![2] : ""
-    }" data-dtype="String"/>
+  <i class="cci cci-npc-tier-3 i--m i--dark"></i>
+    <input class="lancer-stat" type="string" name="${data_target}.val" value="${dmg.val![2] ? dmg.val![2] : ""
+    }" data-dtype="String" style="max-width: 80%;"/>
   </div>`;
   return html;
 }
@@ -557,7 +675,7 @@ export function effect_type_selector(e_type: string, data_target: string) {
  * Handlebars partial for a mech system preview card.
  */
 export const mech_system_preview =
-  `<div class="card clipped mech-system-compact item" data-item-id="{{system._id}}">
+  `<li class="card clipped mech-system-compact item" data-item-id="{{system._id}}">
 <div class="lancer-system-header clipped-top" style="grid-area: 1/1/2/3">
   <i class="cci cci-system i--m i--dark"> </i>
   <span class="minor">{{system.name}}</span>
@@ -589,7 +707,7 @@ export const mech_system_preview =
   {{/if}}
 {{/with}}
 {{> tag-list tags=system.data.tags}}
-</div>`;
+</li>`;
 
 /**
  * Handlebars partial for non-editable Mech Trait

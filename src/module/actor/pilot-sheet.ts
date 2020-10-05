@@ -70,7 +70,7 @@ export class LancerPilotSheet extends ActorSheet {
    * The prepared data object contains both the actor data as well as additional sheet options
    */
   getData(): LancerPilotSheetData {
-    let data: LancerPilotSheetData = super.getData() as LancerPilotSheetData;
+    const data: LancerPilotSheetData = super.getData() as LancerPilotSheetData;
 
     this._prepareItems(data);
 
@@ -175,7 +175,7 @@ export class LancerPilotSheet extends ActorSheet {
     // Macro triggers
     if (this.actor.owner) {
       // Stat rollers
-      let statMacro = html.find(".stat-macro");
+      let statMacro = html.find(".roll-stat");
       statMacro.click((ev: any) => {
         ev.stopPropagation(); // Avoids triggering parent event handlers
         console.log(`${lp} Stat macro button click`, ev);
@@ -239,6 +239,20 @@ export class LancerPilotSheet extends ActorSheet {
     if (!this.options.editable) return;
 
     if (this.actor.owner) {
+      // Customized increment/decrement arrows
+      let decr = html.find('button[class*="mod-minus-button"]');
+      decr.click((ev: any) => {
+        const but = $(ev.currentTarget);
+        but.next()[0].value = but.next()[0].valueAsNumber - 1;
+        this.submit({});
+      });
+      let incr = html.find('button[class*="mod-plus-button"]');
+      incr.click((ev: any) => {
+        const but = $(ev.currentTarget);
+        but.prev()[0].value = but.prev()[0].valueAsNumber + 1;
+        this.submit({});
+      });
+
       // Item Dragging
       html
         .find('li[class*="item"]')
@@ -347,7 +361,7 @@ export class LancerPilotSheet extends ActorSheet {
         this._onSubmit(ev);
       });
 
-      // Cloud upload
+      // Cloud download
       let download = html.find('.cloud-control[data-action*="download"]');
       download.click((ev: any) => {
         ev.stopPropagation();

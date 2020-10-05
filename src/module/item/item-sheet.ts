@@ -4,6 +4,7 @@ import {
   DamageData,
   LancerMechSystemData,
   RangeData,
+  TagDataShort
 } from "../interfaces";
 import { LANCER } from "../config";
 import { NPCFeatureIcons } from "./npc-feature";
@@ -88,7 +89,7 @@ export class LancerItemSheet extends ItemSheet {
       }
     }
 
-    console.log(`${lp} Item sheet data: `, data, this.item);
+    console.log(`${lp} Item sheet data: `, data);
     return data;
   }
 
@@ -115,6 +116,20 @@ export class LancerItemSheet extends ItemSheet {
 
     // Everything below here is only needed if the sheet is editable
     if (!this.options.editable) return;
+
+    // Customized increment/decrement arrows
+    let decr = html.find('button[class*="mod-minus-button"]');
+    decr.click((ev: any) => {
+      const but = $(ev.currentTarget);
+      but.next()[0].value = but.next()[0].valueAsNumber - 1;
+      this.submit({});
+    });
+    let incr = html.find('button[class*="mod-plus-button"]');
+    incr.click((ev: any) => {
+      const but = $(ev.currentTarget);
+      but.prev()[0].value = but.prev()[0].valueAsNumber + 1;
+      this.submit({});
+    });
 
     // Add or Remove options
     // Yes, theoretically this could be abstracted out to one function. You do it then.
@@ -206,6 +221,10 @@ export class LancerItemSheet extends ItemSheet {
 
   /** @override */
   _updateObject(event: any, formData: any) {
+    formData = LancerItemSheet.arrayifyTags(formData, "data.tags");
+    formData = LancerItemSheet.arrayifyTags(formData, "data.core_system.tags");
+    formData = LancerItemSheet.arrayifyTags(formData, "data.traits");
+
     if (this.item.data.type === "npc_feature") {
       // Change image to match feature type, unless a custom image has been selected
       const imgPath = "systems/lancer/assets/icons/";
@@ -306,6 +325,24 @@ export class LancerItemSheet extends ItemSheet {
 
     // Update the Item
     return this.object.update(formData);
+  }
+
+  static arrayifyTags(data: any, prefix: string) {
+    if (data.hasOwnProperty(`${prefix}.0.name`)) {
+      let tags = [];
+      let i = 0;
+      while (data.hasOwnProperty(`${prefix}.${i}.name`)) {
+        tags.push({
+          name: data[`${prefix}.${i}.name`],
+          description: data[`${prefix}.${i}.description`]
+        });
+        delete data[`${prefix}.${i}.name`];
+        delete data[`${prefix}.${i}.description`];
+        i++;
+      }
+      data[`${prefix}`] = tags;
+    }
+    return data;
   }
 }
 

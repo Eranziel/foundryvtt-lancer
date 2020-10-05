@@ -8,7 +8,7 @@
  */
 
 // Import TypeScript modules
-import { LANCER } from "./module/config";
+import { ICONS, LANCER, WELCOME } from "./module/config";
 const lp = LANCER.log_prefix;
 import { LancerGame } from "./module/lancer-game";
 import {
@@ -66,6 +66,7 @@ import {
   LancerMechWeaponData,
   LancerPilotWeaponData,
   LancerNPCData,
+  NPCDamageData
 } from "./module/interfaces";
 
 // Import applications
@@ -126,6 +127,13 @@ Hooks.once("init", async function () {
 
   // Register custom system settings
   registerSettings();
+
+  // Set up system status icons
+  const keepStock = game.settings.get(LANCER.sys_name, LANCER.setting_stock_icons);
+  let icons: string[] = [];
+  if (keepStock) icons = icons.concat(CONFIG.statusEffects);
+  icons = icons.concat(ICONS);
+  CONFIG.statusEffects = icons;
 
   // Register Web Components
   customElements.define("card-clipped", class LancerClippedCard extends HTMLDivElement { }, {
@@ -249,6 +257,18 @@ Hooks.once("init", async function () {
   });
 
   // ------------------------------------------------------------------------
+  // Generic components
+  Handlebars.registerHelper("l-num-input", function (target: string, value: string) {
+    let html =
+    `<div class="flexrow arrow-input-container">
+      <button class="mod-minus-button" type="button">-</button>
+      <input class="lancer-stat major" type="number" name="${target}" value="${value}" data-dtype="Number"\>
+      <button class="mod-plus-button" type="button">+</button>
+    </div>`;
+    return html;
+  });
+
+  // ------------------------------------------------------------------------
   // Tags
   Handlebars.registerHelper("compact-tag", renderCompactTag);
   Handlebars.registerPartial("tag-list", compactTagList);
@@ -322,7 +342,7 @@ Hooks.once("setup", function () {
 /* ------------------------------------ */
 /* When ready                           */
 /* ------------------------------------ */
-Hooks.once("ready", function () {
+Hooks.once("ready", async function () {
   // Determine whether a system migration is required and feasible
   const currentVersion = game.settings.get(LANCER.sys_name, LANCER.setting_migration);
   // TODO: implement/import version comparison for semantic version numbers
@@ -334,7 +354,7 @@ Hooks.once("ready", function () {
   // TODO: replace game.system.version with needMigration once version number checking is implemented
   if (currentVersion != game.system.data.version && game.user.isGM) {
     // Un-hide the welcome message
-    game.settings.set(LANCER.sys_name, LANCER.setting_welcome, false);
+    await game.settings.set(LANCER.sys_name, LANCER.setting_welcome, false);
     // if ( currentVersion && (currentVersion < COMPATIBLE_MIGRATION_VERSION) ) {
     //   ui.notifications.error(`Your LANCER system data is from too old a Foundry version and cannot be reliably migrated to the latest version. The process will be attempted, but errors may occur.`, {permanent: true});
     // }
@@ -345,12 +365,7 @@ Hooks.once("ready", function () {
   if (!game.settings.get(LANCER.sys_name, LANCER.setting_welcome)) {
     new Dialog({
       title: `Welcome to LANCER v${game.system.data.version}`,
-      content:
-        `<div style="margin: 10px 5px">This is a big one! There are two big feature additions to this version: the LANCER Compendium Manager (aka LCP Importer) and Comp/Con cloud save importing!<br>
-      <a href="https://github.com/Eranziel/foundryvtt-lancer/blob/master/README.md">Click here for full details.</a>
-      <p>The short version is that, yes, the system Compendiums are gone, <b>but</b> do not fear! They are only about 3 clicks away!<br>
-      In the Compendium tab click the new "Lancer Compendium Manager" button, then click "Update Core Data".</div>
-      `,
+      content: WELCOME,
       buttons: {
         dont_show: {
           label: "Do Not Show Again",
@@ -374,16 +389,40 @@ Hooks.on("preCreateItem", lancerItemInit);
 // Create sidebar button to import LCP
 Hooks.on("renderSidebarTab", async (app: Application, html: HTMLElement) => {
   addLCPManager(app, html);
-})
+});
 
-// Hooks.on("renderDialog", async (app:Application,html) => {
-// 	dialogCallbacksLCPManager(app, html);
-// })
+// Attack function to overkill reroll button
+Hooks.on("renderChatMessage", async (cm: ChatMessage, html: any, data: any) => {
+  const overkill = html[0].getElementsByClassName("overkill-reroll");
+  for (let i = 0; i < overkill.length; i++) {
+    if (cm.isAuthor) {
+      overkill[i].addEventListener("click", async function() {
+        // console.log(data);
+        const roll = new Roll("1d6").roll();
+        const templateData = {
+          roll: roll,
+          roll_tooltip: await roll.getTooltip()
+        }
+        const html = await renderTemplate("systems/lancer/templates/chat/overkill-reroll.html", templateData);
+        let chat_data = {
+          user: game.user,
+          type: CONST.CHAT_MESSAGE_TYPES.ROLL,
+          roll: templateData.roll,
+          speaker: data.message.speaker,
+          content: html,
+        };
+        let cm = await ChatMessage.create(chat_data);
+        cm.render();
+        return Promise.resolve();
+      });
+    }
+  }
+});
 
 function getMacroSpeaker(): Actor | null {
   // Determine which Actor to speak as
   const speaker = ChatMessage.getSpeaker();
-  console.log(`${lp} Macro speaker`, speaker);
+  // console.log(`${lp} Macro speaker`, speaker);
   let actor: Actor | null = null;
   // console.log(game.actors.tokens);
   try {
@@ -434,7 +473,7 @@ async function rollTriggerMacro(
   // Get accuracy/difficulty with a prompt
   let acc: number = 0;
   let abort: boolean = false;
-  await promptAccDiffModifier().then(
+  await promptAccDiffModifier(acc, title).then(
     resolve => (acc = resolve),
     reject => (abort = true)
   );
@@ -491,7 +530,7 @@ async function rollStatMacro(
   // Get accuracy/difficulty with a prompt
   let acc: number = 0;
   let abort: boolean = false;
-  await promptAccDiffModifier().then(
+  await promptAccDiffModifier(acc, title).then(
     resolve => (acc = resolve),
     reject => (abort = true)
   );
@@ -520,7 +559,7 @@ async function rollAttackMacro(w: string, a: string) {
   if (!actor) return;
 
   // Get the item
-  const item: Item | null = actor.getOwnedItem(w);
+  const item: LancerItem | null = (actor.getOwnedItem(w) as LancerItem | null);
   console.log(`${lp} Rolling attack macro`, item, w, a);
   if (!item) {
     ui.notifications.error(
@@ -536,13 +575,14 @@ async function rollAttackMacro(w: string, a: string) {
   let grit: number = 0;
   let acc: number = 0;
   let damage: DamageData[];
+  let overkill: boolean = item.isOverkill;
   let effect: EffectData | string;
   let tags: TagDataShort[];
   let typeMissing: boolean = false;
-  const wData = item.data.data;
   if (item.type === "mech_weapon") {
     let wData = item.data.data as LancerMechWeaponData;
     grit = (item.actor!.data as LancerPilotActorData).data.pilot.grit;
+    acc = item.accuracy;
     damage = wData.damage;
     damage.forEach((d: any) => {
       if (d.type === "" && d.val != "" && d.val != 0) typeMissing = true;
@@ -552,6 +592,7 @@ async function rollAttackMacro(w: string, a: string) {
   } else if (item.type === "pilot_weapon") {
     let wData = item.data.data as LancerPilotWeaponData;
     grit = (item.actor!.data as LancerPilotActorData).data.pilot.grit;
+    acc = item.accuracy;
     damage = wData.damage;
     damage.forEach((d: any) => {
       if (d.type === "" && d.val != "" && d.val != 0) typeMissing = true;
@@ -559,6 +600,7 @@ async function rollAttackMacro(w: string, a: string) {
     tags = wData.tags;
     effect = wData.effect;
   } else if (item.type === "npc_feature") {
+    let wData = item.data.data as LancerNPCWeaponData;
     var tier: number;
     if (item.actor === null) {
       tier = actor.data.data.tier_num;
@@ -566,19 +608,20 @@ async function rollAttackMacro(w: string, a: string) {
       tier = (item.actor.data.data as LancerNPCData).tier_num - 1;
     }
     if (wData.attack_bonus && wData.attack_bonus[tier]) {
-      grit = parseInt(wData.attack_bonus[tier]);
+      grit = wData.attack_bonus[tier];
     }
     if (wData.accuracy && wData.accuracy[tier]) {
-      acc = parseInt(wData.accuracy[tier]);
+      acc = wData.accuracy[tier];
     }
     // Reduce damage values to only this tier
-    damage = duplicate(wData.damage);
+    damage = wData.damage.map((d: NPCDamageData) => {
+      return { type: d.type, overrid: d.override, val: d.val[tier] }
+    });
     damage.forEach((d: any) => {
-      d.val = d.val[tier];
       if (d.type === "" && d.val != "" && d.val != 0) typeMissing = true;
     });
     tags = wData.tags;
-    effect = wData.effect;
+    effect = wData.effect ? wData.effect : "";
   } else {
     ui.notifications.error(`Error rolling attack macro - ${item.name} is not a weapon!`);
     return Promise.resolve();
@@ -591,7 +634,7 @@ async function rollAttackMacro(w: string, a: string) {
 
   // Get accuracy/difficulty with a prompt
   let abort: boolean = false;
-  await promptAccDiffModifier(acc).then(
+  await promptAccDiffModifier(acc, title).then(
     resolve => (acc = resolve),
     reject => (abort = true)
   );
@@ -600,7 +643,7 @@ async function rollAttackMacro(w: string, a: string) {
   // Do the attack rolling
   let acc_str = acc != 0 ? ` + ${acc}d6kh1` : "";
   let atk_str = `1d20+${grit}${acc_str}`;
-  console.log(`${lp} Attack roll string: ${atk_str}`);
+  // console.log(`${lp} Attack roll string: ${atk_str}`);
   let attack_roll = new Roll(atk_str).roll();
 
   // Iterate through damage types, rolling each
@@ -609,14 +652,37 @@ async function rollAttackMacro(w: string, a: string) {
     tt: HTMLElement | JQuery<HTMLElement>;
     dtype: DamageType;
   }> = [];
+  let overkill_heat: number = 0;
   damage.forEach(async (x: any) => {
     if (x.type === "" || x.val === "" || x.val == 0) return Promise.resolve(); // Skip undefined and zero damage
-    const droll = new Roll(x.val.toString()).roll();
+    let dFormula: string = x.val.toString();
+    // If the damage formula involves dice and is overkill, add "rr1" to reroll all 1's.
+    if (dFormula.includes("d") && overkill) {
+      let dind = dFormula.indexOf("d");
+      let pind = dFormula.indexOf("+");
+      if (dind >= 0) {
+        if (pind > dind) dFormula = dFormula.substring(0, pind) + "rr1" + dFormula.substring(pind);
+        else dFormula += "rr1";
+      }
+    }
+    const droll = new Roll(dFormula).roll();
     const tt = await droll.getTooltip();
+    if (overkill) {
+      // Count overkill heat
+      droll.parts.forEach(p => {
+        if (p.rolls && Array.isArray(p.rolls)) {
+          p.rolls.forEach((r: any) => {
+            if (r.roll && r.roll === 1 && r.rerolled) {
+              overkill_heat += 1;
+            }
+          });
+        }
+      });
+    }
     damage_results.push({
       roll: droll,
       tt: tt,
-      dtype: x.type,
+      dtype: x.type
     });
     return Promise.resolve();
   });
@@ -628,10 +694,10 @@ async function rollAttackMacro(w: string, a: string) {
     attack: attack_roll,
     attack_tooltip: attack_tt,
     damages: damage_results,
+    overkill_heat: overkill_heat,
     effect: effect ? effect : null,
     tags: tags,
   };
-
   const template = `systems/lancer/templates/chat/attack-card.html`;
   return renderMacro(actor, template, templateData);
 }
@@ -686,7 +752,7 @@ async function rollTechMacro(t: string, a: string) {
 
   // Get accuracy/difficulty with a prompt
   let abort: boolean = false;
-  await promptAccDiffModifier(acc).then(
+  await promptAccDiffModifier(acc, title).then(
     resolve => (acc = resolve),
     reject => (abort = true)
   );
@@ -712,29 +778,18 @@ async function rollTechMacro(t: string, a: string) {
   return renderMacro(actor, template, templateData);
 }
 
-function promptAccDiffModifier(acc?: number) {
+async function promptAccDiffModifier(acc?: number, title?: string) {
   if (!acc) acc = 0;
   let diff = 0;
   if (acc < 0) {
     diff = -acc;
     acc = 0;
   }
-  let template = `
-<form>
-  <h2>Please enter your modifiers and submit, or close this window:</h2>
-  <div class="flexcol">
-    <label style="max-width: fit-content;">
-      <i class="cci cci-accuracy i--m i--dark" style="vertical-align:middle;border:none"> </i> Accuracy:
-      <input class="accuracy" type="number" min="0" value="${acc}">
-    </label>
-    <label style="max-width: fit-content;">
-      <i class="cci cci-difficulty i--m i--dark" style="vertical-align:middle;border:none"> </i> Difficulty:
-      <input class="difficulty" type="number" min="0" value="${diff}">
-    </div>
-</form>`;
+
+  let template = await renderTemplate(`systems/lancer/templates/window/promptAccDiffModifier.html`, { acc: acc, diff: diff })
   return new Promise<number>((resolve, reject) => {
-    new Dialog({
-      title: "Accuracy and Difficulty",
+    let d = new Dialog({
+      title: title ? `${title} - Accuracy and Difficulty` : "Accuracy and Difficulty",
       content: template,
       buttons: {
         submit: {

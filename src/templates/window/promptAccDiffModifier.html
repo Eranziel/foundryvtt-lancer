@@ -1,0 +1,16 @@
+<form>
+  <h2>Please enter your modifiers and submit, or close this window:</h2>
+  <div style="display: grid;grid-template-rows:2em 2em;grid-template-columns: 35px 65px 2em 2em 2em;">
+    <i class="cci cci-accuracy i--m i--dark" style="vertical-align:middle;border:none"> </i> 
+    <label style="max-width: fit-content;line-height: 2em;height: 2em;" class="flexrow" style="align-items: center;">Accuracy:</label>
+    <button class="mod-minus-button acc-set" type="button" onclick="this.nextElementSibling.value = this.nextElementSibling.valueAsNumber - 1">-</button>
+    <input class="accuracy lancer-invisible-input acc-set" style="max-width: 2em;text-align: center;font-size: 1.2em;" type="number" min="0" value="{{#if acc}}{{acc}}{{else}}0{{/if}}" name="acc-input">
+    <button class="mod-plus-button acc-set" type="button" onclick="this.previousElementSibling.value = this.previousElementSibling.valueAsNumber + 1">+</button>
+    
+    <i class="cci cci-difficulty i--m i--dark" style="vertical-align:middle;border:none"> </i> 
+    <label style="max-width: fit-content;line-height: 2em;height: 2em;" class="flexrow">Difficulty:</label>    
+    <button class="mod-minus-button dec-set" type="button" onclick="this.nextElementSibling.value = this.nextElementSibling.valueAsNumber - 1">-</button>
+    <input class="difficulty lancer-invisible-input dec-set" style="max-width: 2em;text-align: center;font-size: 1.2em" type="number" min="0" value="{{#if diff}}{{diff}}{{else}}0{{/if}}">
+    <button class="mod-plus-button dec-set" type="button" onclick="this.previousElementSibling.value = this.previousElementSibling.valueAsNumber + 1">+</button>
+  </div>
+</form>

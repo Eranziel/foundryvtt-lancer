@@ -30,6 +30,7 @@ export const DEFAULT_MECH = {
   sensors: 0,
   save: 0,
   tech_attack: 0,
+  current_core_energy: 1
 };
 
 export function lancerActorInit(data: any) {
@@ -231,13 +232,13 @@ export class LancerActor extends Actor {
  * @param key The index of the mount object
  */
 export function mount_type_selector(mount: LancerMountData, key: string | number) {
-  let template = `<select id="mount-type" class="mounts-control" data-action="update" data-item-id=${key}>
+  let template = `<select class="mounts-control" data-action="update" data-item-id=${key}>
     <option value="Main" ${mount.type === MountType.Main ? "selected" : ""}>Main Mount</option>
     <option value="Heavy" ${mount.type === MountType.Heavy ? "selected" : ""}>Heavy Mount</option>
-    <option value="Aux-Aux" ${
+    <option value="Aux/Aux" ${
       mount.type === MountType.AuxAux ? "selected" : ""
     }>Aux/Aux Mount</option>
-    <option value="Main-Aux" ${
+    <option value="Main/Aux" ${
       mount.type === MountType.MainAux ? "selected" : ""
     }>Main/Aux Mount</option>
     <option value="Flex" ${mount.type === MountType.Flex ? "selected" : ""}>Flexible Mount</option>
