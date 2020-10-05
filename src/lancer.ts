@@ -8,7 +8,7 @@
  */
 
 // Import TypeScript modules
-import { LANCER } from "./module/config";
+import { ICONS, LANCER, WELCOME } from "./module/config";
 const lp = LANCER.log_prefix;
 import { LancerGame } from "./module/lancer-game";
 import {
@@ -127,6 +127,13 @@ Hooks.once("init", async function () {
 
   // Register custom system settings
   registerSettings();
+
+  // Set up system status icons
+  const keepStock = game.settings.get(LANCER.sys_name, LANCER.setting_stock_icons);
+  let icons: string[] = [];
+  if (keepStock) icons = icons.concat(CONFIG.statusEffects);
+  icons = icons.concat(ICONS);
+  CONFIG.statusEffects = icons;
 
   // Register Web Components
   customElements.define("card-clipped", class LancerClippedCard extends HTMLDivElement { }, {
