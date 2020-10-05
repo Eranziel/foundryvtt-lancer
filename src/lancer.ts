@@ -389,9 +389,33 @@ Hooks.on("renderSidebarTab", async (app: Application, html: HTMLElement) => {
   addLCPManager(app, html);
 });
 
-// Hooks.on("renderDialog", async (app:Application,html) => {
-// 	dialogCallbacksLCPManager(app, html);
-// })
+// Attack function to overkill reroll button
+Hooks.on("renderChatMessage", async (cm: ChatMessage, html: any, data: any) => {
+  const overkill = html[0].getElementsByClassName("overkill-reroll");
+  for (let i = 0; i < overkill.length; i++) {
+    if (cm.isAuthor) {
+      overkill[i].addEventListener("click", async function() {
+        // console.log(data);
+        const roll = new Roll("1d6").roll();
+        const templateData = {
+          roll: roll,
+          roll_tooltip: await roll.getTooltip()
+        }
+        const html = await renderTemplate("systems/lancer/templates/chat/overkill-reroll.html", templateData);
+        let chat_data = {
+          user: game.user,
+          type: CONST.CHAT_MESSAGE_TYPES.ROLL,
+          roll: templateData.roll,
+          speaker: data.message.speaker,
+          content: html,
+        };
+        let cm = await ChatMessage.create(chat_data);
+        cm.render();
+        return Promise.resolve();
+      });
+    }
+  }
+});
 
 function getMacroSpeaker(): Actor | null {
   // Determine which Actor to speak as

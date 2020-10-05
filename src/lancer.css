@@ -924,6 +924,15 @@ code.horus:hover {
   padding: 0px 5px;
 }
 
+button.overkill-reroll {
+  margin: 5px;
+  padding: 1px 10px;
+  max-width: fit-content;
+  background: #e46742;
+  border: 1px solid #e74210;
+  font-weight: bold;
+}
+
 .arrow-input-container {
   align-self: center;
   max-width: fit-content;
