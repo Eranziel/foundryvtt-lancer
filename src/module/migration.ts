@@ -41,7 +41,7 @@ export const migrateWorld = async function () {
   for (let s of game.scenes.entities) {
     try {
       const updateData = migrateSceneData(s);
-      if (!isObjectEmpty(updateData)) {
+      if (updateData && !isObjectEmpty(updateData)) {
         console.log(`Migrating Scene entity ${s.name}`);
         await s.update(updateData, { enforceTypes: false });
       }
@@ -191,6 +191,7 @@ export const migrateItemData = function (item: Item) {
  * @return {Object}       The updateData to apply
  */
 export const migrateSceneData = function (scene) {
+  if (!scene.tokens) return;
   const tokens = duplicate(scene.tokens);
   return {
     tokens: tokens.map(t => {

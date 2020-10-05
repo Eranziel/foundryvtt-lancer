@@ -342,7 +342,7 @@ Hooks.once("setup", function () {
 /* ------------------------------------ */
 /* When ready                           */
 /* ------------------------------------ */
-Hooks.once("ready", function () {
+Hooks.once("ready", async function () {
   // Determine whether a system migration is required and feasible
   const currentVersion = game.settings.get(LANCER.sys_name, LANCER.setting_migration);
   // TODO: implement/import version comparison for semantic version numbers
@@ -354,7 +354,7 @@ Hooks.once("ready", function () {
   // TODO: replace game.system.version with needMigration once version number checking is implemented
   if (currentVersion != game.system.data.version && game.user.isGM) {
     // Un-hide the welcome message
-    game.settings.set(LANCER.sys_name, LANCER.setting_welcome, false);
+    await game.settings.set(LANCER.sys_name, LANCER.setting_welcome, false);
     // if ( currentVersion && (currentVersion < COMPATIBLE_MIGRATION_VERSION) ) {
     //   ui.notifications.error(`Your LANCER system data is from too old a Foundry version and cannot be reliably migrated to the latest version. The process will be attempted, but errors may occur.`, {permanent: true});
     // }
