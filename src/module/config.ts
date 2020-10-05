@@ -50,3 +50,17 @@ export const ICONS = [
   "systems/lancer/assets/icons/status_prone.svg",
   "systems/lancer/assets/icons/status_shutdown.svg"
 ];
+
+export const WELCOME = `<div style="margin: 10px 5px">
+<p>A couple changes in this update you should be aware of. First, the "System-wide Compendiums" option has been removed,
+since it created some unintuitive bugs. Building the Compendiums will need to be done on each Lancer world individually.</p>
+
+<p>Second, the Lancer system now includes the status icons from Comp/Con! There is a system setting for keeping or hiding the stock Foundry
+status icons. If you also use the Lancer Conditions module, you'll need to turn on its "Keep Stock Icons" setting to see
+the new icons.</p>
+
+<p>If you haven't updated in a while, <a href="https://github.com/Eranziel/foundryvtt-lancer/blob/master/README.md">see here for how to build the Lancer Compendiums.</a></p>
+
+<p><a href="https://github.com/Eranziel/foundryvtt-lancer/blob/master/CHANGELOG.md">Click here for the full changelog.</a></p>
+</div>
+`;

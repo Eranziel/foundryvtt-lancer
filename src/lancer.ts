@@ -365,12 +365,7 @@ Hooks.once("ready", function () {
   if (!game.settings.get(LANCER.sys_name, LANCER.setting_welcome)) {
     new Dialog({
       title: `Welcome to LANCER v${game.system.data.version}`,
-      content:
-        `<div style="margin: 10px 5px">This is a big one! There are two big feature additions to this version: the LANCER Compendium Manager (aka LCP Importer) and Comp/Con cloud save importing!<br>
-      <a href="https://github.com/Eranziel/foundryvtt-lancer/blob/master/README.md">Click here for full details.</a>
-      <p>The short version is that, yes, the system Compendiums are gone, <b>but</b> do not fear! They are only about 3 clicks away!<br>
-      In the Compendium tab click the new "Lancer Compendium Manager" button, then click "Update Core Data".</div>
-      `,
+      content: WELCOME,
       buttons: {
         dont_show: {
           label: "Do Not Show Again",
