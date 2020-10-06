@@ -442,6 +442,9 @@ Hooks.on('hotbarDrop', (_bar: any, data: any, slot: number) => {
         title = data.data.name;
         break;
       case 'talent':
+        command = `game.lancer.prepareTalentMacro("${data.actorId}", "${data.itemId}", "${data.rank}");`
+        title = data.title;
+        break;
 
     }
 

@@ -248,16 +248,20 @@ export class LancerPilotSheet extends ActorSheet {
     if (this.actor.owner) {
       // Item/Macroable Dragging
       const statMacroHandler = (e: Event) => this._onDragMacroableStart(e);
+      const talentMacroHandler = (e: DragEvent) => this._onDragTalentMacroableStart(e);
       html
       .find('li[class*="item"]')
       .add('span[class*="item"]')
       .add('[class*="macroable"]')
       .each((i: number, item: any) => {
         if (item.classList.contains("inventory-header")) return;
-        if (item.classList.contains("stat-macro")) item.addEventListener('dragstart', statMacroHandler, false);;
+        if (item.classList.contains("stat-macro")) item.addEventListener('dragstart', statMacroHandler, false);
+        if (item.classList.contains("talent-macro")) item.addEventListener('dragstart', talentMacroHandler, false);
         item.setAttribute("draggable", true);
         item.addEventListener("dragstart", (ev: any) => this._onDragStart(ev), false);
       });
+
+      
 
       
       // Update Inventory Item
@@ -382,25 +386,40 @@ export class LancerPilotSheet extends ActorSheet {
     
     _onDragMacroableStart(event: any) {
       
-      
       // For stat-macros
-      // Temporary if(true) because will non stat-macros be handled here?
-      if(true) {
-        event.stopPropagation(); // Avoids triggering parent event handlers
-        let statInput = getStatInput(event)
-        
-        let tSplit = statInput.id.split(".");
-        let data = {
-          title: tSplit[tSplit.length - 1].toUpperCase(),
-          dataPath: statInput.id,
-          type: "actor",
-          actorId: this.actor._id
-        };
-        
-        event.dataTransfer.setData('text/plain', JSON.stringify(data));
-      }
+      event.stopPropagation(); // Avoids triggering parent event handlers
+      let statInput = getStatInput(event)
+      
+      let tSplit = statInput.id.split(".");
+      let data = {
+        title: tSplit[tSplit.length - 1].toUpperCase(),
+        dataPath: statInput.id,
+        type: "actor",
+        actorId: this.actor._id
+      };
+      
+      event.dataTransfer.setData('text/plain', JSON.stringify(data));
     }
     
+    _onDragTalentMacroableStart(event: DragEvent) {
+      // For talent macros
+      event.stopPropagation(); // Avoids triggering parent event handlers
+
+      let target = <HTMLElement>event.currentTarget;
+
+      let data = {
+        itemId: target.closest(".item")?.getAttribute("data-item-id"),
+        actorId: this.actor._id,
+        type: "Item",
+        title: target.nextElementSibling?.textContent,
+        rank: target.getAttribute("data-rank"),
+        data: {
+          type: "talent"
+        }
+      };
+      
+      event.dataTransfer?.setData('text/plain', JSON.stringify(data));
+    }
     
     async _onDrop(event: any) {
       event.preventDefault();
