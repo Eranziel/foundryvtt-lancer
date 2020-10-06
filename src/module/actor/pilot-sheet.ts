@@ -486,11 +486,11 @@ export class LancerPilotSheet extends ActorSheet {
 
         if (mount_element.length) {
           let mount_whitelist = {
-            Auxiliary: ["Integrated", "Aux-Aux", "Main", "Flex", "Main-Aux", "Heavy"],
-            Main: ["Integrated", "Main", "Flex", "Main-Aux", "Heavy"],
-            Heavy: ["Integrated", "Heavy"],
-            Superheavy: ["Integrated", "Heavy"],
-            Other: ["Integrated", "Aux-Aux", "Main", "Flex", "Main-Aux", "Heavy"],
+            Auxiliary: [MountType.Integrated, MountType.Aux, MountType.AuxAux, MountType.MainAux, MountType.Flex, MountType.Main, MountType.Heavy],
+            Main: [MountType.Integrated, MountType.Main, MountType.Flex, MountType.MainAux, MountType.Heavy],
+            Heavy: [MountType.Integrated, MountType.Heavy],
+            Superheavy: [MountType.Integrated, MountType.Heavy],
+            Other: [MountType.Integrated, MountType.Aux, MountType.AuxAux, MountType.MainAux, MountType.Flex, MountType.Main, MountType.Heavy]
           };
 
           let mount = mounts[parseInt(mount_element.data("itemId"))];
