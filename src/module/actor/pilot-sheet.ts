@@ -200,6 +200,16 @@ export class LancerPilotSheet extends ActorSheet {
         
         game.lancer.prepareSystemMacro(this.actor._id, sysElement.getAttribute("data-item-id"));
       });
+
+      // Talent rollers
+      let talentMacro = html.find(".talent-macro");
+      talentMacro.on("click", (ev: any) => {
+        ev.stopPropagation(); // Avoids triggering parent event handlers
+
+        const sysElement = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
+        
+        game.lancer.prepareTalentMacro(this.actor._id, sysElement.getAttribute("data-item-id"), ev.currentTarget.getAttribute("data-rank"));
+      });
       
       // Trigger rollers
       let triggerMacro = html.find(".roll-trigger");

@@ -609,6 +609,8 @@ declare interface LancerNPCFeatureSheetData extends ItemSheetData {
   data?: LancerNPCFeatureData;
 }
 
+
+// -------- Macro data -------------------------------------
 declare interface LancerStatMacroData {
   title: string;
   bonus: string | number;
@@ -633,12 +635,12 @@ declare interface LancerTechMacroData {
   tags: TagDataShort[];
 }
 
-declare interface LancerGenericMacroData {
-  title: string;
-  effect: EffectData | string;
+declare interface LancerTalentMacroData {
+  talent: LancerTalentData;
+  rank: number;
 }
 
-declare interface LancerSystemMacroData {
+declare interface LancerGenericMacroData {
   title: string;
   effect: EffectData | string;
 }

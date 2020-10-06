@@ -79,7 +79,13 @@ import {
   LancerMechWeaponData,
   LancerPilotWeaponData,
   LancerNPCData,
-  NPCDamageData, LancerAttackMacroData, LancerStatMacroData, LancerTechMacroData, LancerSkillItemData, LancerSystemMacroData
+  NPCDamageData, 
+  LancerAttackMacroData, 
+  LancerStatMacroData, 
+  LancerTechMacroData, 
+  LancerSkillItemData, 
+  LancerGenericMacroData, 
+  LancerTalentMacroData, LancerTalentItemData
 } from "./module/interfaces";
 
 // Import applications
@@ -134,7 +140,10 @@ Hooks.once("init", async function () {
     rollTechMacro: rollTechMacro,
     prepareTriggerMacro: prepareTriggerMacro,
     rollTriggerMacro: rollTriggerMacro,
-    prepareSystemMacro: prepareSystemMacro,
+    prepareGenericMacro: prepareGenericMacro,
+    rollGenericMacro: rollGenericMacro,
+    prepareTalentMacro: prepareTalentMacro,
+    rollTalentMacro: rollTalentMacro,
     migrations: migrations,
   };
 
@@ -429,9 +438,11 @@ Hooks.on('hotbarDrop', (_bar: any, data: any, slot: number) => {
         title = data.data.name;
         break;
       case 'mech_system':
-        command = `game.lancer.prepareSystemMacro("${data.actorId}", "${data.data._id}");`
+        command = `game.lancer.prepareGenericMacro("${data.actorId}", "${data.data._id}");`
         title = data.data.name;
         break;
+      case 'talent':
+
     }
 
     if(!command || !title) {
@@ -627,7 +638,7 @@ async function rollStatMacro(actor: Actor, data: LancerStatMacroData) {
   return renderMacro(actor, template, templateData);
 }
 
-function prepareSystemMacro(a: string, i: string) {
+function prepareGenericMacro(a: string, i: string) {
   // Determine which Actor to speak as
   let actor: Actor | null = game.actors.get(a) || getMacroSpeaker();
   if (!actor) {
@@ -642,15 +653,15 @@ function prepareSystemMacro(a: string, i: string) {
     return null;
   }
 
-  let mData: LancerSystemMacroData = {
+  let mData: LancerGenericMacroData = {
     title: item.name,
     effect: item.data.data.effect
   };
 
-  rollSystemMacro(actor, mData);
+  rollGenericMacro(actor, mData);
 }
 
-async function rollSystemMacro(actor: Actor, data: LancerSystemMacroData) {
+async function rollGenericMacro(actor: Actor, data: LancerGenericMacroData) {
   if (!actor) return Promise.resolve();
 
   // Construct the template
@@ -659,6 +670,43 @@ async function rollSystemMacro(actor: Actor, data: LancerSystemMacroData) {
     effect: data.effect ? data.effect : null,
   };
   const template = `systems/lancer/templates/chat/system-card.html`;
+  return renderMacro(actor, template, templateData);
+}
+
+function prepareTalentMacro(a: string, i: string, rank: number) {
+  // Determine which Actor to speak as
+  let actor: Actor | null = game.actors.get(a) || getMacroSpeaker();
+  if (!actor) {
+    ui.notifications.warn(`Failed to find Actor for macro. Do you need to select a token?`);
+    return null;
+  }
+  
+  // Get the item
+  const item: LancerTalent | null = (actor.getOwnedItem(i) as LancerTalent | null);
+  if (!item) {
+    ui.notifications.warn(`Failed to find Item for macro.`);
+    return null;
+  }
+
+
+  let mData: LancerTalentMacroData = {
+    talent: item.data.data,
+    rank: rank
+  };
+
+  rollTalentMacro(actor, mData);
+}
+
+async function rollTalentMacro(actor: Actor, data: LancerTalentMacroData) {
+  if (!actor) return Promise.resolve();
+
+  // Construct the template
+  const templateData = {
+    title: data.talent.name,
+    rank: data.talent.ranks[data.rank],
+    lvl: data.rank
+  };
+  const template = `systems/lancer/templates/chat/talent-card.html`;
   return renderMacro(actor, template, templateData);
 }
 

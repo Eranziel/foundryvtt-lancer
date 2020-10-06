@@ -315,7 +315,7 @@
               {{#each talent.data.ranks as |rank lvl|}}
               {{#if (gt ../data.rank lvl)}}
               <li class="talent-rank-compact card clipped" style="padding: 5px">
-                <i class="cci cci-rank-{{inc lvl}} i--l i--dark" style="grid-area: 1/1/2/2"></i>
+                <a class="cci cci-rank-{{inc lvl}} i--l i--dark talent-macro" data-rank="{{lvl}}" style="grid-area: 1/1/2/2"></a>
                 <span class="major" style="grid-area: 1/2/2/3">{{rank.name}}</span>
                 <div class="effect-text" style="grid-area: 2/1/3/3">
                   {{{rank.description}}}
