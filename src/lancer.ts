@@ -79,7 +79,7 @@ import {
   LancerMechWeaponData,
   LancerPilotWeaponData,
   LancerNPCData,
-  NPCDamageData, LancerAttackMacroData, LancerStatMacroData, LancerTechMacroData
+  NPCDamageData, LancerAttackMacroData, LancerStatMacroData, LancerTechMacroData, LancerSkillItemData
 } from "./module/interfaces";
 
 // Import applications
@@ -128,9 +128,11 @@ Hooks.once("init", async function () {
       LancerItem,
     },
     rollStatMacro: rollStatMacro,
+    prepareStatMacro: prepareStatMacro,
     rollAttackMacro: rollAttackMacro,
     prepareAttackMacro: prepareAttackMacro,
     rollTechMacro: rollTechMacro,
+    prepareTriggerMacro: prepareTriggerMacro,
     rollTriggerMacro: rollTriggerMacro,
     migrations: migrations,
   };
@@ -410,14 +412,15 @@ Hooks.on('hotbarDrop', (_bar: any, data: any, slot: number) => {
     switch(data.data.type) {
       // Skills
       case 'skill':
-        return
+        command = `game.lancer.prepareTriggerMacro("${data.actorId}", "${data.data._id}");`
+        title= data.data.name;
+        break;
       // Pilot OR Mech weapon
       case 'pilot_weapon':
       case 'mech_weapon':
-        command = `
-          game.lancer.prepareAttackMacro("${data.actorId}", "${data.data._id}");
-          `
+        command = `game.lancer.prepareAttackMacro("${data.actorId}", "${data.data._id}");`
         title = data.data.name;
+        break;
     }
 
     if(!command || !title) {
@@ -511,15 +514,26 @@ async function renderMacro(actor: Actor, template: string, templateData: any) {
   return Promise.resolve();
 }
 
-function prepareTriggerMacro(a: string, title: string, modifier: number) {
-  let actor: Actor = game.actors.get(a) || getMacroSpeaker();
-  if (!actor) return;
+function prepareTriggerMacro(a: string, i: string) {
+  // Determine which Actor to speak as
+  let actor: Actor | null = game.actors.get(a) || getMacroSpeaker();
+  if (!actor) {
+    ui.notifications.warn(`Failed to find Actor for macro. Do you need to select a token?`);
+    return null;
+  }
+  
+  // Get the item
+  const item: Item | null = (actor.getOwnedItem(i) as Item | null);
+  if (!item) {
+    ui.notifications.warn(`Failed to find Item for macro.`);
+    return null;
+  }
 
   let mData: LancerStatMacroData = {
-    title: title,
-    bonus: modifier
+    title: item.name,
+    bonus: (item.data.data.rank * 2)
   };
-  rollStatMacro(actor, mData);
+  rollTriggerMacro(actor, mData);
 }
 
 async function rollTriggerMacro(actor: Actor, data: LancerStatMacroData) {
