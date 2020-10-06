@@ -79,7 +79,7 @@ import {
   LancerMechWeaponData,
   LancerPilotWeaponData,
   LancerNPCData,
-  NPCDamageData, LancerAttackMacroData, LancerStatMacroData, LancerTechMacroData, LancerSkillItemData
+  NPCDamageData, LancerAttackMacroData, LancerStatMacroData, LancerTechMacroData, LancerSkillItemData, LancerSystemMacroData
 } from "./module/interfaces";
 
 // Import applications
@@ -134,6 +134,7 @@ Hooks.once("init", async function () {
     rollTechMacro: rollTechMacro,
     prepareTriggerMacro: prepareTriggerMacro,
     rollTriggerMacro: rollTriggerMacro,
+    prepareSystemMacro: prepareSystemMacro,
     migrations: migrations,
   };
 
@@ -152,15 +153,21 @@ Hooks.once("init", async function () {
   // Preload Handlebars templates
   await preloadTemplates();
 
-  // Do some CC magic
-  let store = new CCDataStore(new FauxPersistor(), {
-    disable_core_data: true,
-    shim_fallback_items: true,
-  });
-  setup_store(store);
-  await store.load_all(f => f(store));
-  await reload_store();
-  console.log(`${lp} Comp/Con data store initialized.`);
+  try {
+    // Do some CC magic
+    let store = new CCDataStore(new FauxPersistor(), {
+      disable_core_data: true,
+      shim_fallback_items: true,
+    });
+    setup_store(store);
+    await store.load_all(f => f(store));
+    await reload_store();
+    console.log(`${lp} Comp/Con data store initialized.`);
+  } catch (error) {
+    console.log(`Fatal error loading COMP/CON`);
+    console.log(error);
+    ui.notifications.error(`Warning: COMP/CON has failed to load. You may experience severe data integrity failure`);
+  }
 
   // Register sheet application classes
   Actors.unregisterSheet("core", ActorSheet);
@@ -421,9 +428,14 @@ Hooks.on('hotbarDrop', (_bar: any, data: any, slot: number) => {
         command = `game.lancer.prepareAttackMacro("${data.actorId}", "${data.data._id}");`
         title = data.data.name;
         break;
+      case 'mech_system':
+        command = `game.lancer.prepareSystemMacro("${data.actorId}", "${data.data._id}");`
+        title = data.data.name;
+        break;
     }
 
     if(!command || !title) {
+      console.log("Error creating macro");
       return ui.notifications.error(
         `Error creating macro`
       );
@@ -513,6 +525,7 @@ async function renderMacro(actor: Actor, template: string, templateData: any) {
   cm.render();
   return Promise.resolve();
 }
+
 
 function prepareTriggerMacro(a: string, i: string) {
   // Determine which Actor to speak as
@@ -611,6 +624,41 @@ async function rollStatMacro(actor: Actor, data: LancerStatMacroData) {
     effect: data.effect ? data.effect : null,
   };
   const template = `systems/lancer/templates/chat/stat-roll-card.html`;
+  return renderMacro(actor, template, templateData);
+}
+
+function prepareSystemMacro(a: string, i: string) {
+  // Determine which Actor to speak as
+  let actor: Actor | null = game.actors.get(a) || getMacroSpeaker();
+  if (!actor) {
+    ui.notifications.warn(`Failed to find Actor for macro. Do you need to select a token?`);
+    return null;
+  }
+  
+  // Get the item
+  const item: Item | null = (actor.getOwnedItem(i) as Item | null);
+  if (!item) {
+    ui.notifications.warn(`Failed to find Item for macro.`);
+    return null;
+  }
+
+  let mData: LancerSystemMacroData = {
+    title: item.name,
+    effect: item.data.data.effect
+  };
+
+  rollSystemMacro(actor, mData);
+}
+
+async function rollSystemMacro(actor: Actor, data: LancerSystemMacroData) {
+  if (!actor) return Promise.resolve();
+
+  // Construct the template
+  const templateData = {
+    title: data.title,
+    effect: data.effect ? data.effect : null,
+  };
+  const template = `systems/lancer/templates/chat/system-card.html`;
   return renderMacro(actor, template, templateData);
 }
 

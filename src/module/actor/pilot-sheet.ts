@@ -190,6 +190,16 @@ export class LancerPilotSheet extends ActorSheet {
         console.log(`${lp} Rolling ${mData.title} check, bonus: ${mData.bonus}`);
         game.lancer.rollStatMacro(this.actor, mData);
       });
+
+      // System rollers
+      let sysMacro = html.find(".system-macro");
+      sysMacro.on("click", (ev: any) => {
+        ev.stopPropagation(); // Avoids triggering parent event handlers
+
+        const sysElement = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
+        
+        game.lancer.prepareSystemMacro(this.actor._id, sysElement.getAttribute("data-item-id"));
+      });
       
       // Trigger rollers
       let triggerMacro = html.find(".roll-trigger");

@@ -637,3 +637,8 @@ declare interface LancerGenericMacroData {
   title: string;
   effect: EffectData | string;
 }
+
+declare interface LancerSystemMacroData {
+  title: string;
+  effect: EffectData | string;
+}

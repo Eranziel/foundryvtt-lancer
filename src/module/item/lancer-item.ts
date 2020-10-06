@@ -683,7 +683,8 @@ export const mech_system_preview =
 </div>
 <div class="flexrow">
   <div style="float: left; align-items: center; display: inherit;">
-    <i class="cci cci-system-point i--m i--dark"> </i><span class="medium" style="padding: 5px;">{{system.data.sp}} SP</span>
+    <a class="cci cci-system-point i--m i--dark system-macro macroable"> </a>
+    <span class="medium" style="padding: 5px;">{{system.data.sp}} SP</span>
   </div>
   {{#if system.data.uses}}
   <div class="compact-stat">
