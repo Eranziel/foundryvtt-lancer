@@ -940,6 +940,7 @@ button.overkill-reroll {
 .arrow-input-container {
   align-self: center;
   max-width: fit-content;
+  flex-wrap: nowrap;
 }
 
 .mod-plus-button {

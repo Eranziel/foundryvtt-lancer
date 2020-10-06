@@ -35,9 +35,21 @@ import {
   pilot_weapon_damage_selector,
   npc_weapon_damage_selector,
   system_type_selector,
+  LancerFrame,
+  LancerMechWeapon,
+  LancerItemData,
+  LancerSkill,
+  LancerTalent,
+  LancerLicense,
+  LancerCoreBonus,
+  LancerPilotGear,
+  LancerPilotWeapon,
+  LancerPilotArmor,
+  LancerMechSystem,
   effect_type_selector,
   mech_system_preview
 } from "./module/item/lancer-item";
+
 import {
   charge_type_selector,
   action_type_selector,
@@ -61,12 +73,19 @@ import {
 import {
   DamageData,
   LancerPilotActorData,
+  LancerPilotData,
   TagDataShort,
   LancerNPCActorData,
   LancerMechWeaponData,
   LancerPilotWeaponData,
   LancerNPCData,
-  NPCDamageData, LancerAttackMacroData, LancerStatMacroData, LancerTechMacroData
+  NPCDamageData, 
+  LancerAttackMacroData, 
+  LancerStatMacroData, 
+  LancerTechMacroData, 
+  LancerSkillItemData, 
+  LancerGenericMacroData, 
+  LancerTalentMacroData, LancerTalentItemData
 } from "./module/interfaces";
 
 // Import applications
@@ -115,9 +134,16 @@ Hooks.once("init", async function () {
       LancerItem,
     },
     rollStatMacro: rollStatMacro,
+    prepareStatMacro: prepareStatMacro,
     rollAttackMacro: rollAttackMacro,
+    prepareAttackMacro: prepareAttackMacro,
     rollTechMacro: rollTechMacro,
+    prepareTriggerMacro: prepareTriggerMacro,
     rollTriggerMacro: rollTriggerMacro,
+    prepareGenericMacro: prepareGenericMacro,
+    rollGenericMacro: rollGenericMacro,
+    prepareTalentMacro: prepareTalentMacro,
+    rollTalentMacro: rollTalentMacro,
     migrations: migrations,
   };
 
@@ -143,15 +169,21 @@ Hooks.once("init", async function () {
   // Preload Handlebars templates
   await preloadTemplates();
 
-  // Do some CC magic
-  let store = new CCDataStore(new FauxPersistor(), {
-    disable_core_data: true,
-    shim_fallback_items: true,
-  });
-  setup_store(store);
-  await store.load_all(f => f(store));
-  await reload_store();
-  console.log(`${lp} Comp/Con data store initialized.`);
+  try {
+    // Do some CC magic
+    let store = new CCDataStore(new FauxPersistor(), {
+      disable_core_data: true,
+      shim_fallback_items: true,
+    });
+    setup_store(store);
+    await store.load_all(f => f(store));
+    await reload_store();
+    console.log(`${lp} Comp/Con data store initialized.`);
+  } catch (error) {
+    console.log(`Fatal error loading COMP/CON`);
+    console.log(error);
+    ui.notifications.error(`Warning: COMP/CON has failed to load. You may experience severe data integrity failure`);
+  }
 
   // Register sheet application classes
   Actors.unregisterSheet("core", ActorSheet);
@@ -419,6 +451,99 @@ Hooks.on("renderChatMessage", async (cm: ChatMessage, html: any, data: any) => {
   }
 });
 
+
+Hooks.on('hotbarDrop', (_bar: any, data: any, slot: number) => {
+  if (data.type === 'actor') {
+    // Full list of data expected from a generic actor macro:
+    // A title      - to name it
+    // A dataPath   - to access dynamic data from the actor
+    // An actorId   - to reference the actor
+    createActorMacro(data.title, data.dataPath, data.actorId, slot);
+  } else if (data.type === 'Item') {
+    let command = '';
+    let title = '';
+    // Handled options for items:
+    switch(data.data.type) {
+      // Skills
+      case 'skill':
+        command = `game.lancer.prepareTriggerMacro("${data.actorId}", "${data.data._id}");`
+        title= data.data.name;
+        break;
+      // Pilot OR Mech weapon
+      case 'pilot_weapon':
+      case 'mech_weapon':
+        command = `game.lancer.prepareAttackMacro("${data.actorId}", "${data.data._id}");`
+        title = data.data.name;
+        break;
+      case 'mech_system':
+        command = `game.lancer.prepareGenericMacro("${data.actorId}", "${data.data._id}");`
+        title = data.data.name;
+        break;
+      case 'talent':
+        command = `game.lancer.prepareTalentMacro("${data.actorId}", "${data.itemId}", "${data.rank}");`
+        title = data.title;
+        break;
+      case 'npc_feature':
+        if(data.data.data.feature_type === 'Weapon') {
+          command = `game.lancer.prepareAttackMacro("${data.actorId}", "${data.data._id}");`
+          title = data.data.name;
+          break;
+        }
+    }
+
+    if(!command || !title) {
+      console.log("Error creating macro: no command or title. Are you sure what you dragged in can be macroed?");
+      return ui.notifications.error(
+        `Error creating macro`
+      );
+    }
+
+    // Until we properly register commands as something macros can have...
+    // @ts-ignore
+      let macro = game.macros.entities.find((m: Macro) => (m.name === title) && (m.data as Object).command === command);
+      if (!macro) {
+        (Macro.create({
+          command,
+          name: title,
+          type: 'script',
+          img: 'systems/lancer/assets/icons/d20-framed.svg',
+        }, { displaySheet: false })).then(macro => game.user.assignHotbarMacro((macro as Macro), slot));
+      } else {
+        game.user.assignHotbarMacro(macro, slot)
+      }
+    
+
+  }
+});
+
+async function createActorMacro(title: string, dataPath: string, actorId: string, slot: number) {
+  const command = `
+const a = game.actors.get('${actorId}');
+if (a) {
+  let mData = {
+    title: "${title}",
+    bonus: a.data.${dataPath}
+  } 
+  game.lancer.rollTriggerMacro(a, mData);
+} else {
+  ui.notifications.error("Error rolling macro");
+}`;
+// Until we properly register commands as something macros can have...
+// @ts-ignore
+  let macro = game.macros.entities.find((m: Macro) => (m.name === title) && (m.data as Object).command === command);
+  if (!macro) {
+    macro = await Macro.create({
+      command,
+      name: title,
+      type: 'script',
+      img: 'systems/lancer/assets/icons/d20-framed.svg',
+    }, { displaySheet: false }) as Macro;
+  }
+
+  game.user.assignHotbarMacro(macro, slot);
+}
+
+
 function getMacroSpeaker(): Actor | null {
   // Determine which Actor to speak as
   const speaker = ChatMessage.getSpeaker();
@@ -458,15 +583,27 @@ async function renderMacro(actor: Actor, template: string, templateData: any) {
   return Promise.resolve();
 }
 
-function prepareTriggerMacro(a: string, title: string, modifier: number) {
-  let actor: Actor = game.actors.get(a) || getMacroSpeaker();
-  if (!actor) return;
+
+function prepareTriggerMacro(a: string, i: string) {
+  // Determine which Actor to speak as
+  let actor: Actor | null = game.actors.get(a) || getMacroSpeaker();
+  if (!actor) {
+    ui.notifications.warn(`Failed to find Actor for macro. Do you need to select a token?`);
+    return null;
+  }
+  
+  // Get the item
+  const item: Item | null = (actor.getOwnedItem(i) as Item | null);
+  if (!item) {
+    ui.notifications.warn(`Failed to find Item for macro.`);
+    return null;
+  }
 
   let mData: LancerStatMacroData = {
-    title: title,
-    bonus: modifier
+    title: item.name,
+    bonus: (item.data.data.rank * 2)
   };
-  rollStatMacro(actor, mData);
+  rollTriggerMacro(actor, mData);
 }
 
 async function rollTriggerMacro(actor: Actor, data: LancerStatMacroData) {
@@ -547,77 +684,149 @@ async function rollStatMacro(actor: Actor, data: LancerStatMacroData) {
   return renderMacro(actor, template, templateData);
 }
 
+function prepareGenericMacro(a: string, i: string) {
+  // Determine which Actor to speak as
+  let actor: Actor | null = game.actors.get(a) || getMacroSpeaker();
+  if (!actor) {
+    ui.notifications.warn(`Failed to find Actor for macro. Do you need to select a token?`);
+    return null;
+  }
+  
+  // Get the item
+  const item: Item | null = (actor.getOwnedItem(i) as Item | null);
+  if (!item) {
+    ui.notifications.warn(`Failed to find Item for macro.`);
+    return null;
+  }
+
+  let mData: LancerGenericMacroData = {
+    title: item.name,
+    effect: item.data.data.effect
+  };
+
+  rollGenericMacro(actor, mData);
+}
+
+async function rollGenericMacro(actor: Actor, data: LancerGenericMacroData) {
+  if (!actor) return Promise.resolve();
+
+  // Construct the template
+  const templateData = {
+    title: data.title,
+    effect: data.effect ? data.effect : null,
+  };
+  const template = `systems/lancer/templates/chat/system-card.html`;
+  return renderMacro(actor, template, templateData);
+}
+
+function prepareTalentMacro(a: string, i: string, rank: number) {
+  // Determine which Actor to speak as
+  let actor: Actor | null = game.actors.get(a) || getMacroSpeaker();
+  if (!actor) {
+    ui.notifications.warn(`Failed to find Actor for macro. Do you need to select a token?`);
+    return null;
+  }
+  
+  // Get the item
+  const item: LancerTalent | null = (actor.getOwnedItem(i) as LancerTalent | null);
+  if (!item) {
+    ui.notifications.warn(`Failed to find Item for macro.`);
+    return null;
+  }
+
+
+  let mData: LancerTalentMacroData = {
+    talent: item.data.data,
+    rank: rank
+  };
+
+  rollTalentMacro(actor, mData);
+}
+
+async function rollTalentMacro(actor: Actor, data: LancerTalentMacroData) {
+  if (!actor) return Promise.resolve();
+
+  // Construct the template
+  const templateData = {
+    title: data.talent.name,
+    rank: data.talent.ranks[data.rank],
+    lvl: data.rank
+  };
+  const template = `systems/lancer/templates/chat/talent-card.html`;
+  return renderMacro(actor, template, templateData);
+}
+
 function prepareAttackMacro(a: string, w: string) {
   // Determine which Actor to speak as
   let actor: Actor | null = game.actors.get(a) || getMacroSpeaker();
   if (!actor) return;
-
+  
   // Get the item
   const item: LancerItem | null = (actor.getOwnedItem(w) as LancerItem | null);
   if (!item) {
     return ui.notifications.error(
       `Error preparing attack macro: could not find Item ${w} owned by Actor ${a}!`
-    );
-  } else if (!item.isOwned) {
-    return ui.notifications.error(`Error preparing attack macro: ${item.name} is not owned by an Actor!`);
-  }
-
-  let mData: LancerAttackMacroData = {
-    title: item.name,
-    grit: 0,
-    acc: 0,
-    damage: [],
-    tags: [],
-    overkill: item.isOverkill,
-    effect: ""
-  };
-  let typeMissing: boolean = false;
-  if (item.type === "mech_weapon") {
-    const wData = item.data.data as LancerMechWeaponData;
-    mData.grit = (item.actor!.data as LancerPilotActorData).data.pilot.grit;
-    mData.acc = item.accuracy;
-    mData.damage = wData.damage;
-    mData.tags = wData.tags;
-    mData.effect = wData.effect;
-  } else if (item.type === "pilot_weapon") {
-    const wData = item.data.data as LancerPilotWeaponData;
-    mData.grit = (item.actor!.data as LancerPilotActorData).data.pilot.grit;
-    mData.acc = item.accuracy;
-    mData.damage = wData.damage;
-    mData.tags = wData.tags;
-    mData.effect = wData.effect;
-  } else if (item.type === "npc_feature") {
-    const wData = item.data.data as LancerNPCWeaponData;
-    let tier: number;
-    if (item.actor === null) {
-      tier = actor.data.data.tier_num;
-    } else {
-      tier = (item.actor.data.data as LancerNPCData).tier_num - 1;
+      );
+    } else if (!item.isOwned) {
+      return ui.notifications.error(`Error preparing attack macro: ${item.name} is not owned by an Actor!`);
     }
-
-    mData.grit = wData.attack_bonus[tier];
-    mData.acc = wData.accuracy[tier];
-    // Reduce damage values to only this tier
-    mData.damage = wData.damage.map((d: NPCDamageData) => {
-      return { type: d.type, override: d.override, val: d.val[tier] }
+    
+    let mData: LancerAttackMacroData = {
+      title: item.name,
+      grit: 0,
+      acc: 0,
+      damage: [],
+      tags: [],
+      overkill: item.isOverkill,
+      effect: ""
+    };
+    let typeMissing: boolean = false;
+    if (item.type === "mech_weapon") {
+      const wData = item.data.data as LancerMechWeaponData;
+      mData.grit = (item.actor!.data as LancerPilotActorData).data.pilot.grit;
+      mData.acc = item.accuracy;
+      mData.damage = wData.damage;
+      mData.tags = wData.tags;
+      mData.effect = wData.effect;
+    } else if (item.type === "pilot_weapon") {
+      const wData = item.data.data as LancerPilotWeaponData;
+      mData.grit = (item.actor!.data as LancerPilotActorData).data.pilot.grit;
+      mData.acc = item.accuracy;
+      mData.damage = wData.damage;
+      mData.tags = wData.tags;
+      mData.effect = wData.effect;
+    } else if (item.type === "npc_feature") {
+      const wData = item.data.data as LancerNPCWeaponData;
+      let tier: number;
+      if (item.actor === null) {
+        tier = actor.data.data.tier_num;
+      } else {
+        tier = (item.actor.data.data as LancerNPCData).tier_num - 1;
+      }
+      
+      mData.grit = wData.attack_bonus[tier];
+      mData.acc = wData.accuracy[tier];
+      // Reduce damage values to only this tier
+      mData.damage = wData.damage.map((d: NPCDamageData) => {
+        return { type: d.type, override: d.override, val: d.val[tier] }
+      });
+      mData.tags = wData.tags;
+      mData.effect = wData.effect ? wData.effect : "";
+    } else {
+      ui.notifications.error(`Error preparing attack macro - ${item.name} is not a weapon!`);
+      return Promise.resolve();
+    }
+    
+    // Check for damages that are missing type
+    mData.damage.forEach((d: any) => {
+      if (d.type === "" && d.val != "" && d.val != 0) typeMissing = true;
     });
-    mData.tags = wData.tags;
-    mData.effect = wData.effect ? wData.effect : "";
-  } else {
-    ui.notifications.error(`Error preparing attack macro - ${item.name} is not a weapon!`);
-    return Promise.resolve();
-  }
-
-  // Check for damages that are missing type
-  mData.damage.forEach((d: any) => {
-    if (d.type === "" && d.val != "" && d.val != 0) typeMissing = true;
-  });
-  // Warn about missing damage type if the value is non-zero
-  if (typeMissing) {
-    ui.notifications.warn(`Warning: ${item.name} has a damage value without type!`);
-  }
-
-  rollAttackMacro(actor, mData);
+    // Warn about missing damage type if the value is non-zero
+    if (typeMissing) {
+      ui.notifications.warn(`Warning: ${item.name} has a damage value without type!`);
+    }
+    
+    rollAttackMacro(actor, mData);
 }
 
 async function rollAttackMacro(actor: Actor, data: LancerAttackMacroData) {

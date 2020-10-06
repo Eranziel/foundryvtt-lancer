@@ -170,15 +170,18 @@ export class LancerNPCSheet extends ActorSheet {
       });
     }
     if (this.actor.owner) {
-      // Item Dragging
+      // Item/Macroable Dragging
+      const haseMacroHandler = (e: Event) => this._onDragMacroableStart(e);
       html
-        .find('li[class*="item"]')
-        .add('span[class*="item"]')
-        .each((i: number, item: any) => {
-          if (item.classList.contains("inventory-header")) return;
-          item.setAttribute("draggable", true);
-          item.addEventListener("dragstart", (ev: any) => this._onDragStart(ev), false);
-        });
+      .find('li[class*="item"]')
+      .add('span[class*="item"]')
+      .add('[class*="macroable"]')
+      .each((i: number, item: any) => {
+        if (item.classList.contains("inventory-header")) return;
+        if (item.classList.contains("stat-macro")) item.addEventListener('dragstart', haseMacroHandler, false);
+        item.setAttribute("draggable", true);
+        item.addEventListener("dragstart", (ev: any) => this._onDragStart(ev), false);
+      });
 
       // Update Inventory Item
       let items = html.find(".item");
@@ -217,6 +220,23 @@ export class LancerNPCSheet extends ActorSheet {
         actor.swapNPCClassOrTier(NPCClassStats, false, tier);
       });
     }
+  }
+
+  _onDragMacroableStart(event: any) {
+    
+    // For stat-macros
+    event.stopPropagation(); // Avoids triggering parent event handlers
+    let statInput = getStatInput(event)
+    
+    let tSplit = statInput.id.split(".");
+    let data = {
+      title: tSplit[tSplit.length - 1].toUpperCase(),
+      dataPath: statInput.id,
+      type: "actor",
+      actorId: this.actor._id
+    };
+    
+    event.dataTransfer.setData('text/plain', JSON.stringify(data));
   }
 
   /* -------------------------------------------- */
@@ -344,4 +364,11 @@ export class LancerNPCSheet extends ActorSheet {
     // Update the Actor
     return this.object.update(formData);
   }
+}
+
+function getStatInput(event: any): HTMLInputElement | HTMLDataElement {
+  // Find the stat input to get the stat's key to pass to the macro function
+  return ($(event.currentTarget)
+  .closest(".stat-container")
+  .find(".lancer-stat")[0] as HTMLInputElement | HTMLDataElement);
 }
