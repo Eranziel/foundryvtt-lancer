@@ -100,7 +100,7 @@ export class LancerNPCSheet extends ActorSheet {
     // Macro triggers
     if (this.actor.owner) {
       // Stat rollers
-      let statMacro = html.find(".stat-macro");
+      let statMacro = html.find(".roll-stat");
       statMacro.click((ev: any) => {
         ev.stopPropagation(); // Avoids triggering parent event handlers
 

@@ -1,3 +1,18 @@
+# 0.1.8 (2020-10-04)
+## Features
+* **Everywhere**: Hide default increment/decrement arrows on number inputs, which were causing issues. Some number inputs now use new, larger increment/decrement buttons. Partial fix for #48.
+* **Pilot Sheet**: Add a core power toggle. Closes #52.
+* **Attack Macros**: Add single-depth Overkill rerolling, and a button to roll another d6 if needed.
+* **Status Icons**: Add status and condition icons from Comp/Con icon set. Closes #24.
+
+## Bug Fixes
+* **Pilot Sheet**: Fixed an issue preventing Aux/Aux and Main/Aux mounts from being created. Closes #73.
+* **Pilot Sheet**: Cloud import now properly sets the Actor name. Closes #79.
+* **Pilot Sheet**: Fix drag-and-drop item sorting.
+* **NPC Sheet**: Fixed a bug preventing NPC HASE macros from rolling. Closes #76.
+* **Compendiums**: Fixed a bug causing modified items in the Lancer compendiums to prevent the system from loading properly. Closes #78.
+* **Compendium Manager**: Removed the setting to create system-wide compendiums, which caused issues with pilot imports. Closes #80.
+
 # 0.1.7 (2020-09-27)
 Hotfix to correct new issue with pilot sheet not loading. 
 
