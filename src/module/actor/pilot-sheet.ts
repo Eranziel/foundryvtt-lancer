@@ -216,64 +216,29 @@ export class LancerPilotSheet extends ActorSheet {
         if (!weaponId) return ui.notifications.warn(`Error rolling macro: No weapon ID!`);
         const item = this.actor.getOwnedItem(weaponId);
         if (!item) return ui.notifications.warn(`Error rolling macro: Couldn't find weapon with ID ${weaponId}.`);
-        
-        // Pilot weapon
-        if (weaponElement.className.search("pilot") >= 0) {
-          const weapon = item as LancerPilotWeapon;
-          let mData: LancerAttackMacroData = {
-            title: weapon.name,
-            grit: (this.actor.data.data as LancerPilotData).pilot.grit,
-            tags: weapon.data.data.tags,
-            acc: weapon.accuracy,
-            damage: weapon.data.data.damage,
-            overkill: weapon.isOverkill,
-            effect: weapon.data.data.effect
-          }
-          
-          console.log(`${lp} Rolling Pilot attack macro with data:`, mData);
-          game.lancer.rollAttackMacro(this.actor, mData);
-        }
-        // Mech weapon
-        else {
-          const weapon = item as LancerMechWeapon;
-          let mData: LancerAttackMacroData = {
-            title: weapon.name,
-            grit: (this.actor.data.data as LancerPilotData).pilot.grit,
-            tags: weapon.data.data.tags,
-            acc: weapon.accuracy,
-            damage: weapon.data.data.damage,
-            overkill: weapon.isOverkill,
-            effect: weapon.data.data.effect
-          }
-          
-          console.log(`${lp} Rolling Mech attack macro with data:`, mData);
-          game.lancer.rollAttackMacro(this.actor, mData);
-        }
+
+        const weapon = item as LancerPilotWeapon | LancerMechWeapon;
+        game.lancer.prepareAttackMacro(this.actor._id, weapon._id);
       });
     }
-    
-    
-    // Macro-able Dragging
-    const macroableHandler = (e: Event) => this._onDragMacroableStart(e);
-    html.find('.stat-macro').each((i, el) => {
-      el.setAttribute('draggable', "true");
-      el.addEventListener('dragstart', macroableHandler, false);
-    });
-    
     
     // Everything below here is only needed if the sheet is editable
     if (!this.options.editable) return;
     
     if (this.actor.owner) {
-      // Item Dragging
+      // Item/Macroable Dragging
+      const statMacroHandler = (e: Event) => this._onDragMacroableStart(e);
       html
       .find('li[class*="item"]')
       .add('span[class*="item"]')
+      .add('[class*="macroable"]')
       .each((i: number, item: any) => {
         if (item.classList.contains("inventory-header")) return;
+        if (item.classList.contains("stat-macro")) item.addEventListener('dragstart', statMacroHandler, false);;
         item.setAttribute("draggable", true);
         item.addEventListener("dragstart", (ev: any) => this._onDragStart(ev), false);
       });
+
       
       // Update Inventory Item
       let items = html.find(".item");
@@ -399,8 +364,7 @@ export class LancerPilotSheet extends ActorSheet {
       
       
       // For stat-macros
-      // Might want to change up the logic at some point to have it be single-point-of-entry
-      // Temporary if(true) because only doing stat-macros for now
+      // Temporary if(true) because will non stat-macros be handled here?
       if(true) {
         event.stopPropagation(); // Avoids triggering parent event handlers
         let statInput = getStatInput(event)
@@ -409,7 +373,7 @@ export class LancerPilotSheet extends ActorSheet {
         let data = {
           title: tSplit[tSplit.length - 1].toUpperCase(),
           dataPath: statInput.id,
-          type: "mData",
+          type: "actor",
           actorId: this.actor._id
         };
         

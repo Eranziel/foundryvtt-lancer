@@ -124,7 +124,7 @@
           <div class="flexcol card clipped">
             <span class="lancer-stat-header major clipped-top">GRIT</span>
             <div class="flexrow stat-container" style="align-self: center;">
-              <a class="stat-macro i--dark i--sm" data-action="roll-macro"><i class="fas fa-dice-d20"></i></a>
+              <a class="stat-macro macroable i--dark i--sm" data-action="roll-macro"><i class="fas fa-dice-d20"></i></a>
               <input class="lancer-stat major" type="number" name="data.pilot.grit" id="data.pilot.grit" value="{{data.pilot.grit}}" data-dtype="Number"\>
             </div>
           </div>
@@ -133,28 +133,28 @@
           <div class="flexcol card clipped">
             <span class="lancer-stat-header major clipped-top">HULL</span>
             <div class="flexrow stat-container" style="align-self: center;">
-              <a class="stat-macro i--dark i--sm" data-action="roll-macro"><i class="fas fa-dice-d20"></i></a>
+              <a class="stat-macro macroable i--dark i--sm" data-action="roll-macro"><i class="fas fa-dice-d20"></i></a>
               <input class="lancer-stat major" type="number" name="data.mech.hull" id="data.mech.hull" value="{{data.mech.hull}}" data-dtype="Number"/>
             </div>
           </div>
           <div class="flexcol card clipped">
             <span class="lancer-stat-header major clipped-top">AGILITY</span>
             <div class="flexrow stat-container" style="align-self: center;">
-              <a class="stat-macro i--dark i--sm" data-action="roll-macro"><i class="fas fa-dice-d20"></i></a>
+              <a class="stat-macro macroable i--dark i--sm" data-action="roll-macro"><i class="fas fa-dice-d20"></i></a>
               <input class="lancer-stat major" type="number" name="data.mech.agility" id="data.mech.agility" value="{{data.mech.agility}}" data-dtype="Number"/>
             </div>
           </div>
           <div class="flexcol card clipped">
             <span class="lancer-stat-header major clipped-top">SYSTEMS</span>
             <div class="flexrow stat-container" style="align-self: center;">
-              <a class="stat-macro i--dark i--sm" data-action="roll-macro"><i class="fas fa-dice-d20"></i></a>
+              <a class="stat-macro macroable i--dark i--sm" data-action="roll-macro"><i class="fas fa-dice-d20"></i></a>
               <input class="lancer-stat major" type="number" name="data.mech.systems" id="data.mech.systems" value="{{data.mech.systems}}" data-dtype="Number"/>
             </div>
           </div>
           <div class="flexcol card clipped">
             <span class="lancer-stat-header major clipped-top">ENGINEERING</span>
             <div class="flexrow stat-container" style="align-self: center;">
-              <a class="stat-macro i--dark i--sm" data-action="roll-macro"><i class="fas fa-dice-d20"></i></a>
+              <a class="stat-macro macroable i--dark i--sm" data-action="roll-macro"><i class="fas fa-dice-d20"></i></a>
               <input class="lancer-stat major" type="number" name="data.mech.engineering" id="data.mech.engineering" value="{{data.mech.engineering}}" data-dtype="Number"/>
             </div>
           </div>
@@ -208,7 +208,7 @@
           {{#if pilot_loadout.weapons}}
           <ul class="items-list">
             {{#each pilot_loadout.weapons as |weapon key|}}
-            <li class="card clipped pilot-weapon-compact item weapon" data-item-id="{{weapon._id}}">
+            <li class="card clipped pilot-weapon-compact item weapon macroable" data-item-id="{{weapon._id}}">
               <div class="lancer-weapon-header clipped-top" style="grid-area: 1/1/2/3">
                 <i class="cci cci-weapon i--m i--light"> </i>
                 <span class="minor">{{weapon.name}}</span>
@@ -462,7 +462,7 @@
             <span class="major">GRIT</span>
           </div>
           <div class="flexrow stat-container" style="align-self: center;">
-            <a class="stat-macro i--dark i--sm" data-action="roll-macro"><i class="fas fa-dice-d20"></i></a>
+            <a class="stat-macro macroable i--dark i--sm" data-action="roll-macro"><i class="fas fa-dice-d20"></i></a>
             <data class="lancer-stat medium" id="data.pilot.grit" value="{{data.pilot.grit}}">{{data.pilot.grit}}</data>
           </div>
         </div>
@@ -472,7 +472,7 @@
             <span class="major">TECH ATK</span>
           </div>
           <div class="flexrow stat-container" style="align-self: center;">
-            <a class="stat-macro i--dark i--sm" data-action="roll-macro"><i class="fas fa-dice-d20"></i></a>
+            <a class="stat-macro macroable i--dark i--sm" data-action="roll-macro"><i class="fas fa-dice-d20"></i></a>
             <input class="lancer-stat medium" type="number" name="data.mech.tech_attack" id="data.mech.tech_attack" value="{{data.mech.tech_attack}}" data-dtype="Number"/>
           </div>
         </div>
@@ -498,7 +498,7 @@
             <span class="major">HULL</span>
           </div>
           <div class="flexrow stat-container" style="align-self: center;">
-            <a class="stat-macro i--dark i--sm" data-action="roll-macro"><i class="fas fa-dice-d20"></i></a>
+            <a class="stat-macro macroable i--dark i--sm" data-action="roll-macro"><i class="fas fa-dice-d20"></i></a>
             <data class="lancer-stat medium" id="data.mech.hull" value="{{data.mech.hull}}">{{data.mech.hull}}</data>
           </div>
         </div>
@@ -507,7 +507,7 @@
             <span class="major">AGILITY</span>
           </div>
           <div class="flexrow stat-container" style="align-self: center;">
-            <a class="stat-macro i--dark i--sm" data-action="roll-macro"><i class="fas fa-dice-d20"></i></a>
+            <a class="stat-macro macroable i--dark i--sm" data-action="roll-macro"><i class="fas fa-dice-d20"></i></a>
             <data class="lancer-stat medium" id="data.mech.agility" value="{{data.mech.agility}}">{{data.mech.agility}}</data>
           </div>
         </div>
@@ -516,7 +516,7 @@
             <span class="major">SYSTEMS</span>
           </div>
           <div class="flexrow stat-container" style="align-self: center;">
-            <a class="stat-macro i--dark i--sm" data-action="roll-macro"><i class="fas fa-dice-d20"></i></a>
+            <a class="stat-macro macroable i--dark i--sm" data-action="roll-macro"><i class="fas fa-dice-d20"></i></a>
             <data class="lancer-stat medium" id="data.mech.systems" value="{{data.mech.systems}}">{{data.mech.systems}}</data>
           </div>
         </div>
@@ -525,7 +525,7 @@
             <span class="major">ENGINEERING</span>
           </div>
           <div class="flexrow stat-container" style="align-self: center;">
-            <a class="stat-macro i--dark i--sm" data-action="roll-macro"><i class="fas fa-dice-d20"></i></a>
+            <a class="stat-macro macroable i--dark i--sm" data-action="roll-macro"><i class="fas fa-dice-d20"></i></a>
             <data class="lancer-stat medium" id="data.mech.engineering" value="{{data.mech.engineering}}">{{data.mech.engineering}}</data>
           </div>
         </div>

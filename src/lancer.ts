@@ -35,9 +35,21 @@ import {
   pilot_weapon_damage_selector,
   npc_weapon_damage_selector,
   system_type_selector,
+  LancerFrame,
+  LancerMechWeapon,
+  LancerItemData,
+  LancerSkill,
+  LancerTalent,
+  LancerLicense,
+  LancerCoreBonus,
+  LancerPilotGear,
+  LancerPilotWeapon,
+  LancerPilotArmor,
+  LancerMechSystem,
   effect_type_selector,
   mech_system_preview
 } from "./module/item/lancer-item";
+
 import {
   charge_type_selector,
   action_type_selector,
@@ -61,6 +73,7 @@ import {
 import {
   DamageData,
   LancerPilotActorData,
+  LancerPilotData,
   TagDataShort,
   LancerNPCActorData,
   LancerMechWeaponData,
@@ -116,6 +129,7 @@ Hooks.once("init", async function () {
     },
     rollStatMacro: rollStatMacro,
     rollAttackMacro: rollAttackMacro,
+    prepareAttackMacro: prepareAttackMacro,
     rollTechMacro: rollTechMacro,
     rollTriggerMacro: rollTriggerMacro,
     migrations: migrations,
@@ -383,15 +397,52 @@ Hooks.on("renderSidebarTab", async (app: Application, html: HTMLElement) => {
 
 
 Hooks.on('hotbarDrop', (_bar: any, data: any, slot: number) => {
-  if (data.type === 'mData') {
+  if (data.type === 'actor') {
     // Full list of data expected from a generic actor macro:
     // A title      - to name it
     // A dataPath   - to access dynamic data from the actor
     // An actorId   - to reference the actor
     createActorMacro(data.title, data.dataPath, data.actorId, slot);
-  } 
-});
+  } else if (data.type === 'Item') {
+    let command = '';
+    let title = '';
+    // Handled options for items:
+    switch(data.data.type) {
+      // Skills
+      case 'skill':
+        return
+      // Pilot OR Mech weapon
+      case 'pilot_weapon':
+      case 'mech_weapon':
+        command = `
+          game.lancer.prepareAttackMacro("${data.actorId}", "${data.data._id}");
+          `
+        title = data.data.name;
+    }
 
+    if(!command || !title) {
+      return ui.notifications.error(
+        `Error creating macro`
+      );
+    }
+
+    // Until we properly register commands as something macros can have...
+    // @ts-ignore
+      let macro = game.macros.entities.find((m: Macro) => (m.name === title) && (m.data as Object).command === command);
+      if (!macro) {
+        (Macro.create({
+          command,
+          name: title,
+          type: 'script',
+          img: 'systems/lancer/assets/icons/d20-framed.svg',
+        }, { displaySheet: false })).then(macro => game.user.assignHotbarMacro((macro as Macro), slot));
+      } else {
+        game.user.assignHotbarMacro(macro, slot)
+      }
+    
+
+  }
+});
 
 async function createActorMacro(title: string, dataPath: string, actorId: string, slot: number) {
   const command = `
@@ -413,11 +464,11 @@ if (a) {
       command,
       name: title,
       type: 'script',
-      img: 'icons/svg/d20-grey.svg',
+      img: 'systems/lancer/assets/icons/d20-framed.svg',
     }, { displaySheet: false }) as Macro;
-
-    game.user.assignHotbarMacro(macro, slot);
   }
+
+  game.user.assignHotbarMacro(macro, slot);
 }
 
 
@@ -553,73 +604,73 @@ function prepareAttackMacro(a: string, w: string) {
   // Determine which Actor to speak as
   let actor: Actor | null = game.actors.get(a) || getMacroSpeaker();
   if (!actor) return;
-
+  
   // Get the item
   const item: LancerItem | null = (actor.getOwnedItem(w) as LancerItem | null);
   if (!item) {
     return ui.notifications.error(
       `Error preparing attack macro: could not find Item ${w} owned by Actor ${a}!`
-    );
-  } else if (!item.isOwned) {
-    return ui.notifications.error(`Error preparing attack macro: ${item.name} is not owned by an Actor!`);
-  }
-
-  let mData: LancerAttackMacroData = {
-    title: item.name,
-    grit: 0,
-    acc: 0,
-    damage: [],
-    tags: [],
-    overkill: item.isOverkill,
-    effect: ""
-  };
-  let typeMissing: boolean = false;
-  if (item.type === "mech_weapon") {
-    const wData = item.data.data as LancerMechWeaponData;
-    mData.grit = (item.actor!.data as LancerPilotActorData).data.pilot.grit;
-    mData.acc = item.accuracy;
-    mData.damage = wData.damage;
-    mData.tags = wData.tags;
-    mData.effect = wData.effect;
-  } else if (item.type === "pilot_weapon") {
-    const wData = item.data.data as LancerPilotWeaponData;
-    mData.grit = (item.actor!.data as LancerPilotActorData).data.pilot.grit;
-    mData.acc = item.accuracy;
-    mData.damage = wData.damage;
-    mData.tags = wData.tags;
-    mData.effect = wData.effect;
-  } else if (item.type === "npc_feature") {
-    const wData = item.data.data as LancerNPCWeaponData;
-    let tier: number;
-    if (item.actor === null) {
-      tier = actor.data.data.tier_num;
-    } else {
-      tier = (item.actor.data.data as LancerNPCData).tier_num - 1;
+      );
+    } else if (!item.isOwned) {
+      return ui.notifications.error(`Error preparing attack macro: ${item.name} is not owned by an Actor!`);
     }
-
-    mData.grit = wData.attack_bonus[tier];
-    mData.acc = wData.accuracy[tier];
-    // Reduce damage values to only this tier
-    mData.damage = wData.damage.map((d: NPCDamageData) => {
-      return { type: d.type, override: d.override, val: d.val[tier] }
+    
+    let mData: LancerAttackMacroData = {
+      title: item.name,
+      grit: 0,
+      acc: 0,
+      damage: [],
+      tags: [],
+      overkill: item.isOverkill,
+      effect: ""
+    };
+    let typeMissing: boolean = false;
+    if (item.type === "mech_weapon") {
+      const wData = item.data.data as LancerMechWeaponData;
+      mData.grit = (item.actor!.data as LancerPilotActorData).data.pilot.grit;
+      mData.acc = item.accuracy;
+      mData.damage = wData.damage;
+      mData.tags = wData.tags;
+      mData.effect = wData.effect;
+    } else if (item.type === "pilot_weapon") {
+      const wData = item.data.data as LancerPilotWeaponData;
+      mData.grit = (item.actor!.data as LancerPilotActorData).data.pilot.grit;
+      mData.acc = item.accuracy;
+      mData.damage = wData.damage;
+      mData.tags = wData.tags;
+      mData.effect = wData.effect;
+    } else if (item.type === "npc_feature") {
+      const wData = item.data.data as LancerNPCWeaponData;
+      let tier: number;
+      if (item.actor === null) {
+        tier = actor.data.data.tier_num;
+      } else {
+        tier = (item.actor.data.data as LancerNPCData).tier_num - 1;
+      }
+      
+      mData.grit = wData.attack_bonus[tier];
+      mData.acc = wData.accuracy[tier];
+      // Reduce damage values to only this tier
+      mData.damage = wData.damage.map((d: NPCDamageData) => {
+        return { type: d.type, override: d.override, val: d.val[tier] }
+      });
+      mData.tags = wData.tags;
+      mData.effect = wData.effect ? wData.effect : "";
+    } else {
+      ui.notifications.error(`Error preparing attack macro - ${item.name} is not a weapon!`);
+      return Promise.resolve();
+    }
+    
+    // Check for damages that are missing type
+    mData.damage.forEach((d: any) => {
+      if (d.type === "" && d.val != "" && d.val != 0) typeMissing = true;
     });
-    mData.tags = wData.tags;
-    mData.effect = wData.effect ? wData.effect : "";
-  } else {
-    ui.notifications.error(`Error preparing attack macro - ${item.name} is not a weapon!`);
-    return Promise.resolve();
-  }
-
-  // Check for damages that are missing type
-  mData.damage.forEach((d: any) => {
-    if (d.type === "" && d.val != "" && d.val != 0) typeMissing = true;
-  });
-  // Warn about missing damage type if the value is non-zero
-  if (typeMissing) {
-    ui.notifications.warn(`Warning: ${item.name} has a damage value without type!`);
-  }
-
-  rollAttackMacro(actor, mData);
+    // Warn about missing damage type if the value is non-zero
+    if (typeMissing) {
+      ui.notifications.warn(`Warning: ${item.name} has a damage value without type!`);
+    }
+    
+    rollAttackMacro(actor, mData);
 }
 
 async function rollAttackMacro(actor: Actor, data: LancerAttackMacroData) {
