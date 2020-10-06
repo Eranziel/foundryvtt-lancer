@@ -454,7 +454,7 @@ Hooks.on('hotbarDrop', (_bar: any, data: any, slot: number) => {
     }
 
     if(!command || !title) {
-      console.log("Error creating macro");
+      console.log("Error creating macro: no command or title. Are you sure what you dragged in can be macroed?");
       return ui.notifications.error(
         `Error creating macro`
       );

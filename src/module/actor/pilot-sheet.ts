@@ -198,7 +198,7 @@ export class LancerPilotSheet extends ActorSheet {
 
         const sysElement = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
         
-        game.lancer.prepareSystemMacro(this.actor._id, sysElement.getAttribute("data-item-id"));
+        game.lancer.prepareGenericMacro(this.actor._id, sysElement.getAttribute("data-item-id"));
       });
 
       // Talent rollers
