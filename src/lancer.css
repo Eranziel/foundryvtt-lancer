@@ -284,6 +284,10 @@ button {
   border: none;
 }
 
+ul.items-list {
+  padding: 0;
+}
+
 .small-icon {   
   flex-grow: 0;
   min-width: 1em;

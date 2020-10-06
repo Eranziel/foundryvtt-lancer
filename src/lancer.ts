@@ -475,7 +475,7 @@ async function rollTriggerMacro(actor: Actor, data: LancerStatMacroData) {
   // Get accuracy/difficulty with a prompt
   let acc: number = 0;
   let abort: boolean = false;
-  await promptAccDiffModifier(acc, title).then(
+  await promptAccDiffModifier(acc, data.title).then(
     resolve => (acc = resolve),
     reject => (abort = true)
   );
@@ -524,7 +524,7 @@ async function rollStatMacro(actor: Actor, data: LancerStatMacroData) {
   // Get accuracy/difficulty with a prompt
   let acc: number = 0;
   let abort: boolean = false;
-  await promptAccDiffModifier(acc, title).then(
+  await promptAccDiffModifier(acc, data.title).then(
     resolve => (acc = resolve),
     reject => (abort = true)
   );
@@ -624,7 +624,7 @@ async function rollAttackMacro(actor: Actor, data: LancerAttackMacroData) {
 
   // Get accuracy/difficulty with a prompt
   let abort: boolean = false;
-  await promptAccDiffModifier(data.acc, title).then(
+  await promptAccDiffModifier(data.acc, data.title).then(
     resolve => (data.acc = resolve),
     reject => (abort = true)
   );
