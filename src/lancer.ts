@@ -445,7 +445,12 @@ Hooks.on('hotbarDrop', (_bar: any, data: any, slot: number) => {
         command = `game.lancer.prepareTalentMacro("${data.actorId}", "${data.itemId}", "${data.rank}");`
         title = data.title;
         break;
-
+      case 'npc_feature':
+        if(data.data.data.feature_type === 'Weapon') {
+          command = `game.lancer.prepareAttackMacro("${data.actorId}", "${data.data._id}");`
+          title = data.data.name;
+          break;
+        }
     }
 
     if(!command || !title) {
