@@ -264,7 +264,7 @@ export function standard_effect_preview(effect: EffectData, title?: string) {
   }
   if (_effect.detail) {
     // not on all types
-    html += `<div class="flexrow effect-text">${_effect.detail}</div>`;
+    html += `<div class="effect-text">${_effect.detail}</div>`;
   }
   html += effect_tag_row(effect);
   html += `</div>`;
@@ -321,7 +321,7 @@ export function bonus_effect_preview(effect: BonusEffectData) {
       <span class="minor effect-stat" style="min-width: fit-content;">+${effect.edef} E-DEF</span>
     </div>`;
   }
-  html += `</div><div class="flexrow effect-text">${effect.detail}</div></div>`;
+  html += `</div><div class="effect-text">${effect.detail}</div></div>`;
   return html;
 }
 
@@ -418,7 +418,7 @@ export function deployable_effect_preview(effect: DeployableEffectData) {
       <span class="minor effect-stat" style="min-width: fit-content;">${effect.edef} E-DEF</span>
     </div>`;
   }
-  html += `</div><div class="flexrow effect-text">${effect.detail}</div>`;
+  html += `</div><div class="effect-text">${effect.detail}</div>`;
   html += effect_tag_row(effect);
   html += `</div></div>`;
   return html;
@@ -471,7 +471,7 @@ export function drone_effect_preview(effect: DroneEffectData) {
     </div>`;
   }
   html += `</div>`;
-  html += `<div class="flexrow effect-text">${effect.detail}</div>`;
+  html += `<div class="effect-text">${effect.detail}</div>`;
   html += effect_tag_row(effect);
   html += `</div></div>`;
   return html;
@@ -506,7 +506,7 @@ export function offensive_effect_preview(effect: OffensiveEffectData) {
     </div>`;
   }
   if (effect.detail) {
-    html += `<div class="flexrow effect-text">${effect.detail}</div>`;
+    html += `<div class="effect-text">${effect.detail}</div>`;
   }
   html += effect_tag_row(effect);
   html += `</div>`;
@@ -543,7 +543,7 @@ export function profile_effect_preview(effect: ProfileEffectData) {
     });
   }
   html += `</div>`;
-  html += `<div class="flexrow effect-text">${effect.detail}</div></div>`;
+  html += `<div class="effect-text">${effect.detail}</div></div>`;
   html += effect_tag_row(effect);
   html += `</div>`;
   return html;
@@ -592,7 +592,7 @@ export function invade_option_preview(effect: InvadeOptionData, set: string) {
   var html = `<div class="flexcol sub-effect-box" style="padding: 5px">
     <div class="medium effect-title">${effect.name} // ${set.toUpperCase()}</div>`;
   if (effect.detail) {
-    html += `<div class="flexrow effect-text">${effect.detail}</div>`;
+    html += `<div class="effect-text">${effect.detail}</div>`;
   }
   html += `</div>`;
   return html;
@@ -601,11 +601,11 @@ export function invade_option_preview(effect: InvadeOptionData, set: string) {
 export function tech_effect_preview(effect: TechEffectData) {
   var html = `<div class="flexcol effect-text" style="padding: 5px">
     <div class="medium effect-title">${
-      effect.option_set ? effect.option_set.toUpperCase() : ""
+      effect.option_set ? effect.option_set.toUpperCase() : "TECH EFFECT"
     } // ${effect.activation.toUpperCase()} TECH</div>
     <div class="medium effect-title">${effect.name ? effect.name : ""}</div>`;
   if (effect.detail) {
-    html += `<div class="flexrow effect-text">${effect.detail}</div>`;
+    html += `<div class="effect-text">${effect.detail}</div>`;
   }
   if (effect.options) {
     html += `<div class="flexcol">`;

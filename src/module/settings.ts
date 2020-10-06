@@ -30,6 +30,14 @@ export const registerSettings = function () {
     type: Object,
   });
 
+  game.settings.register(LANCER.sys_name, LANCER.setting_stock_icons, {
+    name: "Keep Stock Icons",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: false
+  });
+
   game.settings.register(LANCER.sys_name, LANCER.setting_welcome, {
     name: "Hide Welcome Message",
     hint: "Hide the welcome message for the latest update to the Lancer system.",

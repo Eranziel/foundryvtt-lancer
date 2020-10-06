@@ -8,7 +8,7 @@
  */
 
 // Import TypeScript modules
-import { LANCER } from "./module/config";
+import { ICONS, LANCER, WELCOME } from "./module/config";
 const lp = LANCER.log_prefix;
 import { LancerGame } from "./module/lancer-game";
 import {
@@ -127,6 +127,13 @@ Hooks.once("init", async function () {
 
   // Register custom system settings
   registerSettings();
+
+  // Set up system status icons
+  const keepStock = game.settings.get(LANCER.sys_name, LANCER.setting_stock_icons);
+  let icons: string[] = [];
+  if (keepStock) icons = icons.concat(CONFIG.statusEffects);
+  icons = icons.concat(ICONS);
+  CONFIG.statusEffects = icons;
 
   // Register Web Components
   customElements.define("card-clipped", class LancerClippedCard extends HTMLDivElement { }, {
@@ -250,6 +257,18 @@ Hooks.once("init", async function () {
   });
 
   // ------------------------------------------------------------------------
+  // Generic components
+  Handlebars.registerHelper("l-num-input", function (target: string, value: string) {
+    let html =
+    `<div class="flexrow arrow-input-container">
+      <button class="mod-minus-button" type="button">-</button>
+      <input class="lancer-stat major" type="number" name="${target}" value="${value}" data-dtype="Number"\>
+      <button class="mod-plus-button" type="button">+</button>
+    </div>`;
+    return html;
+  });
+
+  // ------------------------------------------------------------------------
   // Tags
   Handlebars.registerHelper("compact-tag", renderCompactTag);
   Handlebars.registerPartial("tag-list", compactTagList);
@@ -323,7 +342,7 @@ Hooks.once("setup", function () {
 /* ------------------------------------ */
 /* When ready                           */
 /* ------------------------------------ */
-Hooks.once("ready", function () {
+Hooks.once("ready", async function () {
   // Determine whether a system migration is required and feasible
   const currentVersion = game.settings.get(LANCER.sys_name, LANCER.setting_migration);
   // TODO: implement/import version comparison for semantic version numbers
@@ -335,7 +354,7 @@ Hooks.once("ready", function () {
   // TODO: replace game.system.version with needMigration once version number checking is implemented
   if (currentVersion != game.system.data.version && game.user.isGM) {
     // Un-hide the welcome message
-    game.settings.set(LANCER.sys_name, LANCER.setting_welcome, false);
+    await game.settings.set(LANCER.sys_name, LANCER.setting_welcome, false);
     // if ( currentVersion && (currentVersion < COMPATIBLE_MIGRATION_VERSION) ) {
     //   ui.notifications.error(`Your LANCER system data is from too old a Foundry version and cannot be reliably migrated to the latest version. The process will be attempted, but errors may occur.`, {permanent: true});
     // }
@@ -346,12 +365,7 @@ Hooks.once("ready", function () {
   if (!game.settings.get(LANCER.sys_name, LANCER.setting_welcome)) {
     new Dialog({
       title: `Welcome to LANCER v${game.system.data.version}`,
-      content:
-        `<div style="margin: 10px 5px">This is a big one! There are two big feature additions to this version: the LANCER Compendium Manager (aka LCP Importer) and Comp/Con cloud save importing!<br>
-      <a href="https://github.com/Eranziel/foundryvtt-lancer/blob/master/README.md">Click here for full details.</a>
-      <p>The short version is that, yes, the system Compendiums are gone, <b>but</b> do not fear! They are only about 3 clicks away!<br>
-      In the Compendium tab click the new "Lancer Compendium Manager" button, then click "Update Core Data".</div>
-      `,
+      content: WELCOME,
       buttons: {
         dont_show: {
           label: "Do Not Show Again",
@@ -375,16 +389,40 @@ Hooks.on("preCreateItem", lancerItemInit);
 // Create sidebar button to import LCP
 Hooks.on("renderSidebarTab", async (app: Application, html: HTMLElement) => {
   addLCPManager(app, html);
-})
+});
 
-// Hooks.on("renderDialog", async (app:Application,html) => {
-// 	dialogCallbacksLCPManager(app, html);
-// })
+// Attack function to overkill reroll button
+Hooks.on("renderChatMessage", async (cm: ChatMessage, html: any, data: any) => {
+  const overkill = html[0].getElementsByClassName("overkill-reroll");
+  for (let i = 0; i < overkill.length; i++) {
+    if (cm.isAuthor) {
+      overkill[i].addEventListener("click", async function() {
+        // console.log(data);
+        const roll = new Roll("1d6").roll();
+        const templateData = {
+          roll: roll,
+          roll_tooltip: await roll.getTooltip()
+        }
+        const html = await renderTemplate("systems/lancer/templates/chat/overkill-reroll.html", templateData);
+        let chat_data = {
+          user: game.user,
+          type: CONST.CHAT_MESSAGE_TYPES.ROLL,
+          roll: templateData.roll,
+          speaker: data.message.speaker,
+          content: html,
+        };
+        let cm = await ChatMessage.create(chat_data);
+        cm.render();
+        return Promise.resolve();
+      });
+    }
+  }
+});
 
 function getMacroSpeaker(): Actor | null {
   // Determine which Actor to speak as
   const speaker = ChatMessage.getSpeaker();
-  console.log(`${lp} Macro speaker`, speaker);
+  // console.log(`${lp} Macro speaker`, speaker);
   let actor: Actor | null = null;
   // console.log(game.actors.tokens);
   try {
@@ -437,7 +475,7 @@ async function rollTriggerMacro(actor: Actor, data: LancerStatMacroData) {
   // Get accuracy/difficulty with a prompt
   let acc: number = 0;
   let abort: boolean = false;
-  await promptAccDiffModifier().then(
+  await promptAccDiffModifier(acc, title).then(
     resolve => (acc = resolve),
     reject => (abort = true)
   );
@@ -486,7 +524,7 @@ async function rollStatMacro(actor: Actor, data: LancerStatMacroData) {
   // Get accuracy/difficulty with a prompt
   let acc: number = 0;
   let abort: boolean = false;
-  await promptAccDiffModifier().then(
+  await promptAccDiffModifier(acc, title).then(
     resolve => (acc = resolve),
     reject => (abort = true)
   );
@@ -583,10 +621,10 @@ function prepareAttackMacro(a: string, w: string) {
 }
 
 async function rollAttackMacro(actor: Actor, data: LancerAttackMacroData) {
-  
+
   // Get accuracy/difficulty with a prompt
   let abort: boolean = false;
-  await promptAccDiffModifier(data.acc).then(
+  await promptAccDiffModifier(data.acc, title).then(
     resolve => (data.acc = resolve),
     reject => (abort = true)
   );
@@ -608,13 +646,13 @@ async function rollAttackMacro(actor: Actor, data: LancerAttackMacroData) {
   data.damage.forEach(async (x: any) => {
     if (x.type === "" || x.val === "" || x.val == 0) return Promise.resolve(); // Skip undefined and zero damage
     let dFormula: string = x.val.toString();
-    // If the damage formula involves dice and is overkill, add "r1" to reroll all 1's.
+    // If the damage formula involves dice and is overkill, add "rr1" to reroll all 1's.
     if (dFormula.includes("d") && data.overkill) {
       let dind = dFormula.indexOf("d");
       let pind = dFormula.indexOf("+");
       if (dind >= 0) {
         if (pind > dind) dFormula = dFormula.substring(0, pind) + "rr1" + dFormula.substring(pind);
-        else dFormula += "r1";
+        else dFormula += "rr1";
       }
     }
     const droll = new Roll(dFormula).roll();
@@ -704,7 +742,7 @@ async function rollTechMacro(data: LancerTechMacroData, t: string, a: string) {
 
   // Get accuracy/difficulty with a prompt
   let abort: boolean = false;
-  await promptAccDiffModifier(acc).then(
+  await promptAccDiffModifier(acc, title).then(
     resolve => (acc = resolve),
     reject => (abort = true)
   );
@@ -730,7 +768,7 @@ async function rollTechMacro(data: LancerTechMacroData, t: string, a: string) {
   return renderMacro(actor, template, templateData);
 }
 
-async function promptAccDiffModifier(acc?: number) {
+async function promptAccDiffModifier(acc?: number, title?: string) {
   if (!acc) acc = 0;
   let diff = 0;
   if (acc < 0) {
@@ -741,7 +779,7 @@ async function promptAccDiffModifier(acc?: number) {
   let template = await renderTemplate(`systems/lancer/templates/window/promptAccDiffModifier.html`, { acc: acc, diff: diff })
   return new Promise<number>((resolve, reject) => {
     let d = new Dialog({
-      title: "Accuracy and Difficulty",
+      title: title ? `${title} - Accuracy and Difficulty` : "Accuracy and Difficulty",
       content: template,
       buttons: {
         submit: {

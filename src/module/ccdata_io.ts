@@ -617,7 +617,6 @@ export class Converter {
         on_hit: td.OnHit,
         feature_type: NpcFeatureType.Weapon
       }
-      console.log(`${lp} NPC Weapon:`, data);
     }
     return data;
   }
