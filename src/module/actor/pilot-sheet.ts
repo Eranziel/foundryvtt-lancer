@@ -402,12 +402,13 @@ export class LancerPilotSheet extends ActorSheet {
       
       // For stat-macros
       event.stopPropagation(); // Avoids triggering parent event handlers
-      let statInput = getStatInput(event)
-      
-      let tSplit = statInput.id.split(".");
+      // It's an input so it'll always be an InputElement, right?
+      let statInput = <HTMLInputElement>getStatInput(event)
+
+      let tSplit = statInput.name.split(".");
       let data = {
         title: tSplit[tSplit.length - 1].toUpperCase(),
-        dataPath: statInput.id,
+        dataPath: statInput.name,
         type: "actor",
         actorId: this.actor._id
       };
