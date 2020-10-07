@@ -233,15 +233,15 @@ export class LancerActor extends Actor {
  */
 export function mount_type_selector(mount: LancerMountData, key: string | number) {
   let template = `<select class="mounts-control" data-action="update" data-item-id=${key}>
-    <option value="${MountType.Main}" ${mount.type === MountType.Main ? "selected" : ""}>Main Mount</option>
-    <option value="${MountType.Heavy}" ${mount.type === MountType.Heavy ? "selected" : ""}>Heavy Mount</option>
     <option value="${MountType.AuxAux}" ${
       mount.type === MountType.AuxAux ? "selected" : ""
     }>Aux/Aux Mount</option>
+    <option value="${MountType.Flex}" ${mount.type === MountType.Flex ? "selected" : ""}>Flexible Mount</option>
+    <option value="${MountType.Main}" ${mount.type === MountType.Main ? "selected" : ""}>Main Mount</option>
     <option value="${MountType.MainAux}" ${
       mount.type === MountType.MainAux ? "selected" : ""
     }>Main/Aux Mount</option>
-    <option value="${MountType.Flex}" ${mount.type === MountType.Flex ? "selected" : ""}>Flexible Mount</option>
+    <option value="${MountType.Heavy}" ${mount.type === MountType.Heavy ? "selected" : ""}>Heavy Mount</option>
     <option value="${MountType.Integrated}" ${
       mount.type === MountType.Integrated ? "selected" : ""
     }>Integrated Mount</option>
