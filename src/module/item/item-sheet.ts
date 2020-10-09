@@ -334,9 +334,11 @@ export class LancerItemSheet extends ItemSheet {
       while (data.hasOwnProperty(`${prefix}.${i}.name`)) {
         tags.push({
           name: data[`${prefix}.${i}.name`],
+          id: data[`${prefix}.${i}.id`],
           description: data[`${prefix}.${i}.description`]
         });
         delete data[`${prefix}.${i}.name`];
+        delete data[`${prefix}.${i}.id`];
         delete data[`${prefix}.${i}.description`];
         i++;
       }
