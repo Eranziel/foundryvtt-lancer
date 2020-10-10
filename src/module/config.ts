@@ -34,21 +34,21 @@ export const LANCER = {
 };
 
 export const ICONS = [
-  "systems/lancer/assets/icons/condition_immobilized.svg",
-  "systems/lancer/assets/icons/condition_impaired.svg",
-  "systems/lancer/assets/icons/condition_jammed.svg",
-  "systems/lancer/assets/icons/condition_lockon.svg",
-  "systems/lancer/assets/icons/condition_shredded.svg",
-  "systems/lancer/assets/icons/condition_slow.svg",
-  "systems/lancer/assets/icons/condition_stunned.svg",
-  "systems/lancer/assets/icons/status_dangerzone.svg",
-  "systems/lancer/assets/icons/status_downandout.svg",
-  "systems/lancer/assets/icons/status_engaged.svg",
-  "systems/lancer/assets/icons/status_exposed.svg",
-  "systems/lancer/assets/icons/status_hidden.svg",
-  "systems/lancer/assets/icons/status_invisible.svg",
-  "systems/lancer/assets/icons/status_prone.svg",
-  "systems/lancer/assets/icons/status_shutdown.svg"
+  "systems/lancer/assets/icons/white/condition_immobilized.svg",
+  "systems/lancer/assets/icons/white/condition_impaired.svg",
+  "systems/lancer/assets/icons/white/condition_jammed.svg",
+  "systems/lancer/assets/icons/white/condition_lockon.svg",
+  "systems/lancer/assets/icons/white/condition_shredded.svg",
+  "systems/lancer/assets/icons/white/condition_slow.svg",
+  "systems/lancer/assets/icons/white/condition_stunned.svg",
+  "systems/lancer/assets/icons/white/status_dangerzone.svg",
+  "systems/lancer/assets/icons/white/status_downandout.svg",
+  "systems/lancer/assets/icons/white/status_engaged.svg",
+  "systems/lancer/assets/icons/white/status_exposed.svg",
+  "systems/lancer/assets/icons/white/status_hidden.svg",
+  "systems/lancer/assets/icons/white/status_invisible.svg",
+  "systems/lancer/assets/icons/white/status_prone.svg",
+  "systems/lancer/assets/icons/white/status_shutdown.svg"
 ];
 
 export const WELCOME = `<div style="margin: 10px 5px">
