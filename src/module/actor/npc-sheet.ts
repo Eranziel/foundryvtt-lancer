@@ -91,7 +91,7 @@ export class LancerNPCSheet extends ActorSheet {
    * Activate event listeners using the prepared sheet HTML
    * @param html {HTML}   The prepared HTML object ready to be rendered into the DOM
    */
-  activateListeners(html: any) {
+  activateListeners(html: JQuery) {
     super.activateListeners(html);
 
     // Everything below here is only needed if the sheet is editable
@@ -101,7 +101,7 @@ export class LancerNPCSheet extends ActorSheet {
     if (this.actor.owner) {
       // Stat rollers
       let statMacro = html.find(".roll-stat");
-      statMacro.click((ev: any) => {
+      statMacro.on("click", (ev: any) => {
         ev.stopPropagation(); // Avoids triggering parent event handlers
 
         // Find the stat input to get the stat's key to pass to the macro function
@@ -120,7 +120,7 @@ export class LancerNPCSheet extends ActorSheet {
 
       // Trigger rollers
       let triggerMacro = html.find(".roll-trigger");
-      triggerMacro.click((ev: any) => {
+      triggerMacro.on("click", (ev: any) => {
         ev.stopPropagation(); // Avoids triggering parent event handlers
 
         let mData: LancerStatMacroData = {
@@ -134,7 +134,7 @@ export class LancerNPCSheet extends ActorSheet {
 
       // Weapon rollers
       let weaponMacro = html.find(".roll-attack");
-      weaponMacro.click((ev: any) => {
+      weaponMacro.on("click", (ev: any) => {
         ev.stopPropagation(); // Avoids triggering parent event handlers
         
         const weaponElement = $(ev.currentTarget).closest(".weapon")[0] as HTMLElement;
@@ -160,7 +160,7 @@ export class LancerNPCSheet extends ActorSheet {
 
       // Tech rollers
       let techMacro = html.find(".roll-tech");
-      techMacro.click((ev: any) => {
+      techMacro.on("click", (ev: any) => {
         ev.stopPropagation();
         console.log(`${lp} Tech attack macro button click`, ev);
 
@@ -185,7 +185,7 @@ export class LancerNPCSheet extends ActorSheet {
 
       // Update Inventory Item
       let items = html.find(".item");
-      items.click((ev: any) => {
+      items.on("click", (ev: any) => {
         console.log(ev);
         const li = $(ev.currentTarget);
         const item = this.actor.getOwnedItem(li.data("itemId"));
@@ -196,7 +196,7 @@ export class LancerNPCSheet extends ActorSheet {
 
       // Delete Item when trash can is clicked
       items = html.find('.stats-control[data-action*="delete"]');
-      items.click((ev: any) => {
+      items.on("click", (ev: any) => {
         ev.stopPropagation(); // Avoids triggering parent event handlers
         console.log(ev);
         const li = $(ev.currentTarget).closest(".item");
@@ -206,7 +206,7 @@ export class LancerNPCSheet extends ActorSheet {
 
       // Change tier
       let tier_selector = html.find('select.tier-control[data-action*="update"]');
-      tier_selector.change((ev: any) => {
+      tier_selector.on("change", (ev: any) => {
         ev.stopPropagation();
         console.log(ev);
         let tier = ev.currentTarget.selectedOptions[0].value;
