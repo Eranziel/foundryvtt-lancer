@@ -252,7 +252,7 @@ export function mount_type_selector(mount: LancerMountData, key: string | number
 /**
  * Handlebars partial for a Pilot sheet mount card.
  */
-export const mount_card = `<div class="flexcol lancer-mount-container" data-item-id="{{key}}">
+export const mount_card = `<div class="flexcol lancer-mount-container" data-item-key="{{key}}">
   <span class="mount-header clipped-top">
     {{{mount-selector mount @index}}}
     <a class="mounts-control" data-action="delete"><i class="fas fa-trash"></i></a>
