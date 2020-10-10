@@ -111,7 +111,7 @@ export class LancerItemSheet extends ItemSheet {
    * Activate event listeners using the prepared sheet HTML
    * @param html {HTML}   The prepared HTML object ready to be rendered into the DOM
    */
-  activateListeners(html: any) {
+  activateListeners(html: JQuery) {
     super.activateListeners(html);
 
     // Everything below here is only needed if the sheet is editable
@@ -119,13 +119,13 @@ export class LancerItemSheet extends ItemSheet {
 
     // Customized increment/decrement arrows
     let decr = html.find('button[class*="mod-minus-button"]');
-    decr.click((ev: any) => {
+    decr.on("click", (ev: any) => {
       const but = $(ev.currentTarget);
       but.next()[0].value = but.next()[0].valueAsNumber - 1;
       this.submit({});
     });
     let incr = html.find('button[class*="mod-plus-button"]');
-    incr.click((ev: any) => {
+    incr.on("click", (ev: any) => {
       const but = $(ev.currentTarget);
       but.prev()[0].value = but.prev()[0].valueAsNumber + 1;
       this.submit({});
