@@ -2,7 +2,7 @@ import {
   LancerPilotSheetData,
   LancerFrameStatsData,
   LancerMountData,
-  LancerPilotData,
+  LancerPilotData, LancerStatMacroData, LancerAttackMacroData, LancerPilotWeaponData
 } from "../interfaces";
 import {
   LancerItem,
@@ -29,14 +29,14 @@ const lp = LANCER.log_prefix;
 const entryPrompt = "//:AWAIT_ENTRY>";
 
 /**
- * Extend the basic ActorSheet
- */
+* Extend the basic ActorSheet
+*/
 export class LancerPilotSheet extends ActorSheet {
   _sheetTab: string = ""; // What is this
 
   /**
-   * A convenience reference to the Actor entity
-   */
+  * A convenience reference to the Actor entity
+  */
   // get actor(): LancerPilot {
   //   return this.actor;
   // };
@@ -44,10 +44,10 @@ export class LancerPilotSheet extends ActorSheet {
   /* -------------------------------------------- */
 
   /**
-   * Extend and override the default options used by the Pilot Sheet
-   * @returns {Object}
-   */
-  static get defaultOptions() {
+  * Extend and override the default options used by the Pilot Sheet
+  * @returns {Object}
+  */
+  static get defaultOptions(): object {
     return mergeObject(super.defaultOptions, {
       classes: ["lancer", "sheet", "actor", "pilot"],
       template: "systems/lancer/templates/actor/pilot.html",
@@ -66,9 +66,9 @@ export class LancerPilotSheet extends ActorSheet {
   /* -------------------------------------------- */
 
   /**
-   * Prepare data for rendering the Actor sheet
-   * The prepared data object contains both the actor data as well as additional sheet options
-   */
+  * Prepare data for rendering the Actor sheet
+  * The prepared data object contains both the actor data as well as additional sheet options
+  */
   getData(): LancerPilotSheetData {
     const data: LancerPilotSheetData = super.getData() as LancerPilotSheetData;
 
@@ -107,9 +107,9 @@ export class LancerPilotSheet extends ActorSheet {
   /* -------------------------------------------- */
 
   /**
-   * Organize and classify Owned Items for Character sheets
-   * @private
-   */
+  * Organize and classify Owned Items for Character sheets
+  * @private
+  */
   _prepareItems(data: LancerPilotSheetData) {
     data.sp_used = 0;
 
@@ -146,11 +146,11 @@ export class LancerPilotSheet extends ActorSheet {
     // Update mounted weapons to stay in sync with owned items
     data.data.mech_loadout.mounts.forEach((mount: any) => {
       if (Array.isArray(mount.weapons) && mount.weapons.length > 0) {
-        console.log(`${lp} weapons:`, mount.weapons);
+        // console.log(`${lp} weapons:`, mount.weapons);
         for (let i = 0; i < mount.weapons.length; i++) {
           const ownedWeapon = this.actor.getOwnedItem(mount.weapons[i]._id);
           if (ownedWeapon) {
-            console.log(`${lp} owned weapon:`, ownedWeapon);
+            // console.log(`${lp} owned weapon:`, ownedWeapon);
             mount.weapons[i] = duplicate(ownedWeapon.data);
           }
           // TODO: If the weapon doesn't exist in owned items anymore, remove it
@@ -166,72 +166,66 @@ export class LancerPilotSheet extends ActorSheet {
   /* -------------------------------------------- */
 
   /**
-   * Activate event listeners using the prepared sheet HTML
-   * @param html {HTML}   The prepared HTML object ready to be rendered into the DOM
-   */
-  activateListeners(html: any) {
+  * Activate event listeners using the prepared sheet HTML
+  * @param html {HTML}   The prepared HTML object ready to be rendered into the DOM
+  */
+  activateListeners(html: JQuery) {
     super.activateListeners(html);
 
     // Macro triggers
     if (this.actor.owner) {
       // Stat rollers
       let statMacro = html.find(".roll-stat");
-      statMacro.click((ev: any) => {
+      statMacro.on("click", (ev: Event) => {
         ev.stopPropagation(); // Avoids triggering parent event handlers
-        console.log(`${lp} Stat macro button click`, ev);
+        game.lancer.prepareStatMacro(this.actor, getStatPath(ev));
+      });
 
-        // Find the stat input to get the stat's key to pass to the macro function
-        const statInput: HTMLElement = $(ev.currentTarget)
-          .closest(".stat-container")
-          .find(".lancer-stat")[0];
-        let statKey: string = (statInput as HTMLInputElement).name;
-        if (!statKey) {
-          statKey = (statInput as HTMLDataElement).value;
-        }
-        let keySplit = statKey.split(".");
-        let title = keySplit[keySplit.length - 1].toUpperCase();
-        console.log(`${lp} Rolling ${title} check, key ${statKey}`);
-        game.lancer.rollStatMacro(this.actor._id, title, statKey, null, true);
+      // System rollers
+      let sysMacro = html.find(".system-macro");
+      sysMacro.on("click", (ev: Event) => {
+        if (!ev.currentTarget) return; // No target, let other handlers take care of it.
+        ev.stopPropagation(); // Avoids triggering parent event handlers
+        const sysElement = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
+        game.lancer.prepareGenericMacro(this.actor._id, sysElement.getAttribute("data-item-id"));
+      });
+
+      // Talent rollers
+      let talentMacro = html.find(".talent-macro");
+      talentMacro.on("click", (ev: Event) => {
+        if (!ev.currentTarget) return; // No target, let other handlers take care of it.
+        ev.stopPropagation(); // Avoids triggering parent event handlers
+        const sysElement = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
+        game.lancer.prepareTalentMacro(this.actor._id, sysElement.getAttribute("data-item-id"), (ev.currentTarget as HTMLElement).getAttribute("data-rank"));
       });
 
       // Trigger rollers
       let triggerMacro = html.find(".roll-trigger");
-      triggerMacro.click((ev: any) => {
-        ev.stopPropagation();
-        console.log(`${lp} Skill macro button click`, ev);
-
-        const modifier = parseInt($(ev.currentTarget).find(".roll-modifier").text());
-        const title = $(ev.currentTarget).closest(".skill-compact").find(".modifier-name").text();
-        //.find('modifier-name').first().text();
-        console.log(`${lp} Rolling '${title}' trigger (d20 + ${modifier})`);
-
-        game.lancer.rollTriggerMacro(this.actor._id, title, modifier, true);
+      triggerMacro.on("click", (ev: Event) => {
+        if (!ev.currentTarget) return; // No target, let other handlers take care of it.
+        ev.stopPropagation(); // Avoids triggering parent event handlers
+        let mData: LancerStatMacroData = {
+          title: $(ev.currentTarget).closest(".skill-compact").find(".modifier-name").text(),
+          bonus: parseInt($(ev.currentTarget).find(".roll-modifier").text())
+        };
+        console.log(`${lp} Rolling '${mData.title}' trigger (d20 + ${mData.bonus})`);
+        game.lancer.rollTriggerMacro(this.actor, mData);
       });
 
       // Weapon rollers
       let weaponMacro = html.find(".roll-attack");
-      weaponMacro.click((ev: any) => {
+      weaponMacro.on("click", (ev: Event) => {
+        if (!ev.currentTarget) return; // No target, let other handlers take care of it.
         ev.stopPropagation();
-        console.log(`${lp} Weapon macro button click`, ev);
 
         const weaponElement = $(ev.currentTarget).closest(".weapon")[0] as HTMLElement;
-        // Pilot weapon
-        if (weaponElement.className.search("pilot") >= 0) {
-          let weaponId = weaponElement.getAttribute("data-item-id");
-          game.lancer.rollAttackMacro(weaponId, this.actor._id);
-        }
-        // Mech weapon
-        else {
-          let weaponMountIndex = weaponElement.getAttribute("data-item-id") || 0;
-          const mountElement = $(ev.currentTarget).closest(".lancer-mount-container");
-          if (mountElement.length) {
-            const mounts = this.actor.data.data.mech_loadout.mounts;
-            const weapon = mounts[parseInt(mountElement.data("itemId"))].weapons[weaponMountIndex];
-            game.lancer.rollAttackMacro(weapon._id, this.actor._id);
-          } else {
-            console.log(`${lp} No mount element`, weaponMountIndex, mountElement);
-          }
-        }
+        const weaponId = weaponElement.getAttribute("data-item-id");
+        if (!weaponId) return ui.notifications.warn(`Error rolling macro: No weapon ID!`);
+        const item = this.actor.getOwnedItem(weaponId);
+        if (!item) return ui.notifications.warn(`Error rolling macro: Couldn't find weapon with ID ${weaponId}.`);
+
+        const weapon = item as LancerPilotWeapon | LancerMechWeapon;
+        game.lancer.prepareAttackMacro(this.actor._id, weapon._id);
       });
     }
 
@@ -241,32 +235,39 @@ export class LancerPilotSheet extends ActorSheet {
     if (this.actor.owner) {
       // Customized increment/decrement arrows
       let decr = html.find('button[class*="mod-minus-button"]');
-      decr.click((ev: any) => {
-        const but = $(ev.currentTarget);
-        but.next()[0].value = but.next()[0].valueAsNumber - 1;
+      decr.on("click", (ev: Event) => {
+        if (!ev.currentTarget) return; // No target, let other handlers take care of it.
+        const but = $(ev.currentTarget as HTMLElement);
+        (but.next()[0] as HTMLInputElement).value = ((but.next()[0] as HTMLInputElement).valueAsNumber - 1).toString();
         this.submit({});
       });
       let incr = html.find('button[class*="mod-plus-button"]');
-      incr.click((ev: any) => {
-        const but = $(ev.currentTarget);
-        but.prev()[0].value = but.prev()[0].valueAsNumber + 1;
+      incr.on("click", (ev: Event) => {
+        if (!ev.currentTarget) return; // No target, let other handlers take care of it.
+        const but = $(ev.currentTarget as HTMLElement);
+        (but.prev()[0] as HTMLInputElement).value = ((but.prev()[0] as HTMLInputElement).valueAsNumber + 1).toString();
         this.submit({});
       });
 
-      // Item Dragging
+      // Item/Macroable Dragging
+      const statMacroHandler = (e: DragEvent) => this._onDragMacroableStart(e);
+      const talentMacroHandler = (e: DragEvent) => this._onDragTalentMacroableStart(e);
       html
         .find('li[class*="item"]')
         .add('span[class*="item"]')
-        .each((i: number, item: any) => {
+        .add('[class*="macroable"]')
+        .each((i: number, item: HTMLElement) => {
           if (item.classList.contains("inventory-header")) return;
-          item.setAttribute("draggable", true);
-          item.addEventListener("dragstart", (ev: any) => this._onDragStart(ev), false);
+          if (item.classList.contains("roll-stat")) item.addEventListener('dragstart', statMacroHandler, false);
+          if (item.classList.contains("talent-macro")) item.addEventListener('dragstart', talentMacroHandler, false);
+          item.setAttribute("draggable", "true");
+          item.addEventListener("dragstart", (ev: DragEvent) => this._onDragStart(ev), false);
         });
 
       // Update Inventory Item
       let items = html.find(".item");
-      items.click((ev: any) => {
-        console.log(ev);
+      items.on("click", (ev: Event) => {
+        if (!ev.currentTarget) return;
         const li = $(ev.currentTarget);
         //TODO: Check if in mount and update mount
         const item = this.actor.getOwnedItem(li.data("itemId"));
@@ -277,7 +278,8 @@ export class LancerPilotSheet extends ActorSheet {
 
       // Delete Item when trash can is clicked
       items = html.find('.stats-control[data-action*="delete"]');
-      items.click((ev: any) => {
+      items.on("click", (ev: Event) => {
+        if (!ev.currentTarget) return; // No target, let other handlers take care of it.
         ev.stopPropagation(); // Avoids triggering parent event handlers
         console.log(ev);
         const item = $(ev.currentTarget).closest(".item");
@@ -287,9 +289,10 @@ export class LancerPilotSheet extends ActorSheet {
         let weapon_element = item.closest(".lancer-weapon-container");
 
         if (mount_element.length && weapon_element.length) {
-          let mounts = duplicate(this.actor.data.data.mech_loadout.mounts);
-          let weapons = mounts[parseInt(mount_element.data("itemId"))].weapons;
-          weapons.splice(parseInt(weapon_element.data("itemId")), 1);
+          let mounts = duplicate((this.actor.data.data as LancerPilotData).mech_loadout.mounts);
+          let weapons = mounts[parseInt(mount_element.data("itemKey"))].weapons;
+
+          weapons.splice(parseInt(weapon_element.data("itemKey")), 1);
           this.actor.update({ "data.mech_loadout.mounts": mounts });
           this._onSubmit(ev);
         } else if (this.actor.getOwnedItem(itemId)!.data.type === "mech_weapon") {
@@ -315,13 +318,12 @@ export class LancerPilotSheet extends ActorSheet {
 
       // Create Mounts
       let add_button = html.find('.add-button[data-action*="create"]');
-      add_button.click((ev: any) => {
+      add_button.on("click", (ev: Event) => {
         ev.stopPropagation();
-        console.log(ev);
         let mount: LancerMountData = {
           type: MountType.Main,
           weapons: [],
-          secondary_mount: "This counts, right?",
+          secondary_mount: "",
         };
 
         let mounts = duplicate(this.actor.data.data.mech_loadout.mounts);
@@ -332,12 +334,11 @@ export class LancerPilotSheet extends ActorSheet {
 
       // Update Mounts
       let mount_selector = html.find('select.mounts-control[data-action*="update"]');
-      mount_selector.change((ev: any) => {
+      mount_selector.on("change", (ev: JQuery.ChangeEvent) => {
         ev.stopPropagation();
-        console.log(ev);
         let mounts = duplicate(this.actor.data.data.mech_loadout.mounts);
         mounts[
-          parseInt($(ev.currentTarget).closest(".lancer-mount-container").data("itemId"))
+          parseInt($(ev.currentTarget).closest(".lancer-mount-container").data("itemKey"))
         ].type = $(ev.currentTarget).children("option:selected").val();
         this.actor.update({ "data.mech_loadout.mounts": mounts });
         this._onSubmit(ev);
@@ -345,16 +346,16 @@ export class LancerPilotSheet extends ActorSheet {
 
       // Delete Mounts
       let mount_trash = html.find('a.mounts-control[data-action*="delete"]');
-      mount_trash.click((ev: any) => {
+      mount_trash.on("click", (ev: Event) => {
+        if (!ev.currentTarget) return; // No target, let other handlers take care of it.
         ev.stopPropagation();
-        console.log(ev);
         let mounts = duplicate(this.actor.data.data.mech_loadout.mounts);
-        let id = $(ev.currentTarget).closest(".lancer-mount-container").data("itemId");
+        let id = $(ev.currentTarget).closest(".lancer-mount-container").data("itemKey");
         // Delete each weapon in the selected mount from the actor's owned items
-        let weapons = this.actor.data.data.mech_loadout.mounts[id].weapons;
+        let weapons = (this.actor.data.data as LancerPilotData).mech_loadout.mounts[id].weapons;
         for (let i = 0; i < weapons.length; i++) {
           const weapon = weapons[i];
-          this.actor.deleteOwnedItem(weapon._id);
+          if (weapon._id) this.actor.deleteOwnedItem(weapon._id);
         }
         mounts.splice(parseInt(id), 1);
         this.actor.update({ "data.mech_loadout.mounts": mounts });
@@ -363,7 +364,7 @@ export class LancerPilotSheet extends ActorSheet {
 
       // Cloud download
       let download = html.find('.cloud-control[data-action*="download"]');
-      download.click((ev: any) => {
+      download.on("click", (ev: Event) => {
         ev.stopPropagation();
         // Get the data
         ui.notifications.info("Importing character...");
@@ -380,6 +381,44 @@ export class LancerPilotSheet extends ActorSheet {
           });
       });
     }
+  }
+
+
+  _onDragMacroableStart(event: DragEvent) {
+    // For roll-stat macros
+    event.stopPropagation(); // Avoids triggering parent event handlers
+    // It's an input so it'll always be an InputElement, right?
+    let path = getStatPath(event);
+    if (!path) return ui.notifications.error("Error finding stat for macro.");
+
+    let tSplit = path.split(".");
+    let data = {
+      title: tSplit[tSplit.length - 1].toUpperCase(),
+      dataPath: path,
+      type: "actor",
+      actorId: this.actor._id
+    };
+    event.dataTransfer?.setData('text/plain', JSON.stringify(data));
+  }
+
+  _onDragTalentMacroableStart(event: DragEvent) {
+    // For talent macros
+    event.stopPropagation(); // Avoids triggering parent event handlers
+
+    let target = <HTMLElement>event.currentTarget;
+
+    let data = {
+      itemId: target.closest(".item")?.getAttribute("data-item-id"),
+      actorId: this.actor._id,
+      type: "Item",
+      title: target.nextElementSibling?.textContent,
+      rank: target.getAttribute("data-rank"),
+      data: {
+        type: "talent"
+      }
+    };
+
+    event.dataTransfer?.setData('text/plain', JSON.stringify(data));
   }
 
   async _onDrop(event: any) {
@@ -467,14 +506,14 @@ export class LancerPilotSheet extends ActorSheet {
 
         if (mount_element.length) {
           let mount_whitelist = {
-            Auxiliary: ["Integrated", "Aux-Aux", "Main", "Flex", "Main-Aux", "Heavy"],
-            Main: ["Integrated", "Main", "Flex", "Main-Aux", "Heavy"],
-            Heavy: ["Integrated", "Heavy"],
-            Superheavy: ["Integrated", "Heavy"],
-            Other: ["Integrated", "Aux-Aux", "Main", "Flex", "Main-Aux", "Heavy"],
+            Auxiliary: [MountType.Integrated, MountType.Aux, MountType.AuxAux, MountType.MainAux, MountType.Flex, MountType.Main, MountType.Heavy],
+            Main: [MountType.Integrated, MountType.Main, MountType.Flex, MountType.MainAux, MountType.Heavy],
+            Heavy: [MountType.Integrated, MountType.Heavy],
+            Superheavy: [MountType.Integrated, MountType.Heavy],
+            Other: [MountType.Integrated, MountType.Aux, MountType.AuxAux, MountType.MainAux, MountType.Flex, MountType.Main, MountType.Heavy]
           };
 
-          let mount = mounts[parseInt(mount_element.data("itemId"))];
+          let mount = mounts[parseInt(mount_element.data("itemKey"))];
           let valid = mount_whitelist[(item as LancerMechWeapon).data.data.mount];
           if (!valid.includes(mount.type)) {
             ui.notifications.error("The weapon you dropped is too large for this weapon mount!");
@@ -529,10 +568,10 @@ export class LancerPilotSheet extends ActorSheet {
   /* -------------------------------------------- */
 
   /**
-   * Implement the _updateObject method as required by the parent class spec
-   * This defines how to update the subject of the form when the form is submitted
-   * @private
-   */
+  * Implement the _updateObject method as required by the parent class spec
+  * This defines how to update the subject of the form when the form is submitted
+  * @private
+  */
   _updateObject(event: Event | JQuery.Event, formData: any): Promise<any> {
     // Use the Actor's name for the pilot's callsign
     formData["name"] = formData["data.pilot.callsign"];
@@ -552,5 +591,22 @@ export class LancerPilotSheet extends ActorSheet {
     console.log(`${lp} Pilot sheet form data: `, formData);
     // Update the Actor
     return this.object.update(formData);
+  }
+}
+
+
+function getStatPath(event: any): string | null {
+  if (!event.currentTarget) return null;
+  // Find the stat input to get the stat's key to pass to the macro function
+  let el = ($(event.currentTarget)
+    .closest(".stat-container")
+    .find(".lancer-stat")[0] as HTMLElement);
+
+  if (el.nodeName === "INPUT") {
+    return (<HTMLInputElement>el).name;
+  } else if (el.nodeName === "DATA") {
+    return (<HTMLDataElement>el).id;
+  } else {
+    throw "Error - stat macro was not run on an input or data element";
   }
 }

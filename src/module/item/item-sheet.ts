@@ -111,7 +111,7 @@ export class LancerItemSheet extends ItemSheet {
    * Activate event listeners using the prepared sheet HTML
    * @param html {HTML}   The prepared HTML object ready to be rendered into the DOM
    */
-  activateListeners(html: any) {
+  activateListeners(html: JQuery) {
     super.activateListeners(html);
 
     // Everything below here is only needed if the sheet is editable
@@ -119,15 +119,17 @@ export class LancerItemSheet extends ItemSheet {
 
     // Customized increment/decrement arrows
     let decr = html.find('button[class*="mod-minus-button"]');
-    decr.click((ev: any) => {
-      const but = $(ev.currentTarget);
-      but.next()[0].value = but.next()[0].valueAsNumber - 1;
+    decr.on("click", (ev: Event) => {
+      if (!ev.currentTarget) return; // No target, let other handlers take care of it.
+      const but = $(ev.currentTarget as HTMLElement);
+      (but.next()[0] as HTMLInputElement).value = ((but.next()[0] as HTMLInputElement).valueAsNumber - 1).toString();
       this.submit({});
     });
     let incr = html.find('button[class*="mod-plus-button"]');
-    incr.click((ev: any) => {
-      const but = $(ev.currentTarget);
-      but.prev()[0].value = but.prev()[0].valueAsNumber + 1;
+    incr.on("click", (ev: Event) => {
+      if (!ev.currentTarget) return; // No target, let other handlers take care of it.
+      const but = $(ev.currentTarget as HTMLElement);
+      (but.prev()[0] as HTMLInputElement).value = ((but.prev()[0] as HTMLInputElement).valueAsNumber + 1).toString();
       this.submit({});
     });
 
@@ -334,9 +336,11 @@ export class LancerItemSheet extends ItemSheet {
       while (data.hasOwnProperty(`${prefix}.${i}.name`)) {
         tags.push({
           name: data[`${prefix}.${i}.name`],
+          id: data[`${prefix}.${i}.id`],
           description: data[`${prefix}.${i}.description`]
         });
         delete data[`${prefix}.${i}.name`];
+        delete data[`${prefix}.${i}.id`];
         delete data[`${prefix}.${i}.description`];
         i++;
       }

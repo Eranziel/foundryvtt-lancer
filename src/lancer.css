@@ -284,6 +284,10 @@ button {
   border: none;
 }
 
+ul.items-list {
+  padding: 0;
+}
+
 .small-icon {   
   flex-grow: 0;
   min-width: 1em;
@@ -707,7 +711,7 @@ input[type=number].lancer-stat {
   min-width: 30px;
 }
 
-.lancer-text-field
+.lancer-text-field,
 input[type=string].lancer-input {
   align-self: center;
   text-align: left;
@@ -853,7 +857,7 @@ code {
 
 code.horus {
   font-size: 1.1em;
-  background-color: rgba(0, 0, 0, 0.7) !important;
+  background-color: black !important;
   box-shadow: none;
   color: white;
   font-style: normal;
@@ -868,9 +872,78 @@ code.horus:hover {
   font-weight: bold;
 }
 
+@keyframes distort {
+  0% {
+    text-shadow: 2px 1px #ff00ff, -2px -3px #00ffff;
+    transform: translate(-1px, 1px) translate3D(-30px, 0px, 0) rotate(-0.1deg);
+    cursor: crosshair;
+  }
+  25% {
+    text-shadow: -2px -3px #ff00ff, 2px 1px #00ffff;
+    transform: translate(2px, 1px) translate3D(-30px, 0px, 0) rotate(-0.1deg);
+    cursor: cell;
+  }
+  50% {
+    text-shadow: 2px -1px #ff00ff, -4px 1px #00ffff;
+    transform: translate(-2px, 1px) translate3D(-30px, 0px, 0) rotate(-0.1deg);
+    cursor: col-resize;
+  }
+  75% {
+    text-shadow: -4px -1px #ff00ff, -2px -1px #00ffff;
+    transform: translate(3px, 1px) translate3D(-30px, 0px, 0) rotate(-0.1deg);
+    cursor: move;
+  }
+  100% {
+    text-shadow: -2px 0 #ff00ff, 2px -1px #00ffff;
+    transform: translate(-2px, 0) translate3D(-30px, 0px, 0) rotate(-0.1deg);
+    cursor: all-scroll;
+  }
+}
+
 .horus--subtle {
   animation: distort-subtle 5s infinite;
 }
+
+@keyframes distort-subtle {
+  25% {
+    text-shadow: none;
+  }
+  26% {
+    text-shadow: 2px -1px #ff0000, -2px 3px #00ffff;
+  }
+  27% {
+    text-shadow: -2px -3px #ff0000, 2px 1px #00ffff;
+  }
+  28% {
+    text-shadow: 2px 1px #ff0000, -4px 1px #00ffff;
+  }
+  29% {
+    text-shadow: -4px 1px #ff0000, -2px -1px #00ffff;
+  }
+  30% {
+    text-shadow: none;
+  }
+  75% {
+    text-shadow: none;
+  }
+  76% {
+    text-shadow: -4px 1px #ff0000, -2px -1px #00ffff;
+  }
+  77% {
+    text-shadow: -2px -3px #ff0000, 2px 1px #00ffff;
+  }
+  78% {
+    text-shadow: 2px -1px #ff0000, -2px 3px #00ffff;
+  }
+  79% {
+    text-shadow: 2px 1px #ff0000, -4px 1px #00ffff;
+  }
+  80% {
+    text-shadow: none;
+  }
+}
+
+
 /* End of HORUS glitchy styles used in lancer-data */
 
 .lancer-card .title {
@@ -891,16 +964,20 @@ code.horus:hover {
 }
 
 .roll-stat, .roll-attack,
-.roll-trigger {
-  margin: 3px 15px;
+.roll-trigger, .system-macro {
+  margin: 3px 10px;
 }
 
-.roll-attack,
-.roll-tech {
+.roll-attack, .roll-tech,
+.system-macro {
   display: flex;
   flex-direction: row;
   justify-content: center;
   align-items: center;
+}
+
+.system-macro {
+  max-width: min-content;
 }
 
 .lancer-dice-roll {
@@ -936,6 +1013,7 @@ button.overkill-reroll {
 .arrow-input-container {
   align-self: center;
   max-width: fit-content;
+  flex-wrap: nowrap;
 }
 
 .mod-plus-button {

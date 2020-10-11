@@ -234,10 +234,13 @@ export class LancerItem extends Item {
     });
     return result;
   }
+
+  
 }
 
 // Narrow down our types
 export interface LancerItemData extends ItemData {
+  _id?: string;
   type: LancerItemType;
 }
 
@@ -512,12 +515,12 @@ export function npc_weapon_damage_selector(
     }" data-dtype="String" style="max-width: 80%;"/>
   </div>
   <div class="flexrow flex-center">
-  <i class="cci cci-npc-tier-2 i--m i--dark"></i>
+    <i class="cci cci-npc-tier-2 i--m i--dark"></i>
     <input class="lancer-stat" type="string" name="${data_target}.val" value="${dmg.val![1] ? dmg.val![1] : ""
     }" data-dtype="String" style="max-width: 80%;"/>
   </div>
   <div class="flexrow flex-center">
-  <i class="cci cci-npc-tier-3 i--m i--dark"></i>
+    <i class="cci cci-npc-tier-3 i--m i--dark"></i>
     <input class="lancer-stat" type="string" name="${data_target}.val" value="${dmg.val![2] ? dmg.val![2] : ""
     }" data-dtype="String" style="max-width: 80%;"/>
   </div>`;
@@ -572,8 +575,8 @@ export const npc_accuracy_preview = `{{#if (gtpi acc "0")}}
 /**
  * Handlebars partial for a mech weapon preview card.
  */
-export const mech_weapon_preview = `<div class="flexcol clipped lancer-weapon-container weapon" style="max-height: fit-content;" data-item-id="{{key}}">
-  <div class="lancer-weapon-header clipped-top item" style="grid-area: 1/1/2/3" data-item-id="{{weapon._id}}">
+export const mech_weapon_preview = `<div class="flexcol clipped lancer-weapon-container weapon macroable item" style="max-height: fit-content;" data-item-id="{{weapon._id}}" data-item-key="{{key}}">
+  <div class="lancer-weapon-header clipped-top" style="grid-area: 1/1/2/3">
     <i class="cci cci-weapon i--m i--light"> </i>
     <span class="minor">{{weapon.name}} // {{upper-case weapon.data.mount}} {{upper-case weapon.data.weapon_type}}</span>
     <a class="stats-control i--light" data-action="delete"><i class="fas fa-trash"></i></a>
@@ -682,8 +685,10 @@ export const mech_system_preview =
   <a class="stats-control i--light" data-action="delete"><i class="fas fa-trash"></i></a>
 </div>
 <div class="flexrow">
+  <a class="system-macro macroable"><i class="fas fa-dice-d20 i--m i--dark"></i></a>
   <div style="float: left; align-items: center; display: inherit;">
-    <i class="cci cci-system-point i--m i--dark"> </i><span class="medium" style="padding: 5px;">{{system.data.sp}} SP</span>
+    <i class="cci cci-system-point i--m i--dark"> </i>
+    <span class="medium" style="padding: 5px;">{{system.data.sp}} SP</span>
   </div>
   {{#if system.data.uses}}
   <div class="compact-stat">

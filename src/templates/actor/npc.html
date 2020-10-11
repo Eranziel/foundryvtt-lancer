@@ -47,37 +47,37 @@
       </div>
       <div class="flexrow">
         <div class="flexcol card clipped">
-          <span class="lancer-stat-header major clipped-top">HULL</span>
-          <div class="flexrow stat-container" style="align-self: center;">
-            <a class="roll-stat i--dark i--sm" data-action="roll-macro"><i class="fas fa-dice-d20"></i></a>
-            <input class="lancer-stat lancer-stat-input major" type="number" name="data.mech.hull"
-              value="{{data.mech.hull}}" data-dtype="Number" />
-          </div>
+            <span class="lancer-stat-header major clipped-top">HULL</span>
+            <div class="flexrow stat-container" style="align-self: center;">
+                <a class="roll-stat macroable i--dark i--sm" data-action="roll-macro"><i class="fas fa-dice-d20"></i></a>
+                <input class="lancer-stat lancer-stat major" type="number" name="data.mech.hull"
+                    id="data.mech.hull" value="{{data.mech.hull}}" data-dtype="Number" />
+            </div>
         </div>
         <div class="flexcol card clipped">
-          <span class="lancer-stat-header major clipped-top">AGILITY</span>
-          <div class="flexrow stat-container" style="align-self: center;">
-            <a class="roll-stat i--dark i--sm" data-action="roll-macro"><i class="fas fa-dice-d20"></i></a>
-            <input class="lancer-stat lancer-stat-input major" type="number" name="data.mech.agility"
-              value="{{data.mech.agility}}" data-dtype="Number" />
-          </div>
+            <span class="lancer-stat-header major clipped-top">AGILITY</span>
+            <div class="flexrow stat-container" style="align-self: center;">
+                <a class="roll-stat macroable i--dark i--sm" data-action="roll-macro"><i class="fas fa-dice-d20"></i></a>
+                <input class="lancer-stat major" type="number" name="data.mech.agility"
+                    id="data.mech.agility" value="{{data.mech.agility}}" data-dtype="Number" />
+            </div>
         </div>
         <div class="flexcol card clipped">
-          <span class="lancer-stat-header major clipped-top">SYSTEMS</span>
-          <div class="flexrow stat-container" style="align-self: center;">
-            <a class="roll-stat i--dark i--sm" data-action="roll-macro"><i class="fas fa-dice-d20"></i></a>
-            <input class="lancer-stat lancer-stat-input major" type="number" name="data.mech.systems"
-              value="{{data.mech.systems}}" data-dtype="Number" />
-          </div>
+            <span class="lancer-stat-header major clipped-top">SYSTEMS</span>
+            <div class="flexrow stat-container" style="align-self: center;">
+                <a class="roll-stat macroable i--dark i--sm" data-action="roll-macro"><i class="fas fa-dice-d20"></i></a>
+                <input class="lancer-stat major" type="number" name="data.mech.systems"
+                    id="data.mech.systems" value="{{data.mech.systems}}" data-dtype="Number" />
+            </div>
         </div>
         <div class="flexcol card clipped">
-          <span class="lancer-stat-header major clipped-top">ENGINEERING</span>
-          <div class="flexrow stat-container" style="align-self: center;">
-            <a class="roll-stat i--dark i--sm" data-action="roll-macro"><i class="fas fa-dice-d20"></i></a>
-            <input class="lancer-stat lancer-stat-input major" type="number" name="data.mech.engineering"
-              value="{{data.mech.engineering}}" data-dtype="Number" />
-          </div>
+            <span class="lancer-stat-header major clipped-top">ENGINEERING</span>
+            <div class="flexrow stat-container" style="align-self: center;">
+                <a class="roll-stat macroable i--dark i--sm" data-action="roll-macro"><i class="fas fa-dice-d20"></i></a>
+                <input class="lancer-stat major" type="number" name="data.mech.engineering"
+                    id="data.mech.engineering" value="{{data.mech.engineering}}" data-dtype="Number" />
         </div>
+      </div>
       </div>
       <div class="card clipped mech-stats" style="display: grid; grid-template: repeat(3, 1fr) / repeat(5, 1fr);">
         <div class="flexcol card clipped" style="grid-area: 1/1/2/2">
@@ -219,7 +219,7 @@
         {{#if npc_features}}
         <ul class="items-list">
           {{#each npc_features as |npc_feature key|}}
-          
+
           {{!-- Reaction-type feature preview --}}
           {{#if (eq npc_feature.data.feature_type "Reaction")}}
           <li class="card clipped npc-feature-compact item" style="min-width: 200px" data-item-id="{{npc_feature._id}}">
@@ -230,13 +230,9 @@
             </div>
             <div class="flexcol" style="margin: 10px;">
               <span class="medium flexrow">TRIGGER</span>
-              <div class="effect-text flexrow" style="padding: 5px">
-                {{{npc_feature.data.trigger}}}
-              </div>
+              <div class="effect-text flexrow" style="padding: 5px">{{{npc_feature.data.trigger}}}</div>
               <span class="medium flexrow">EFFECT</span>
-              <div class="effect-text flexrow" style="padding: 5px">
-                {{{npc_feature.data.effect}}}
-              </div>
+              <div class="effect-text flexrow" style="padding: 5px">{{{npc_feature.data.effect}}}</div>
             </div>
             <div class="flexrow" style="justify-content: flex-end;">
               {{#each npc_feature.data.tags as |tag tkey|}}
@@ -245,7 +241,7 @@
             </div>
           </li>
           {{/if}}
-          
+
           {{!-- System-type feature preview --}}
           {{#if (eq npc_feature.data.feature_type "System")}}
           <li class="card clipped npc-feature-compact item" data-item-id="{{npc_feature._id}}">
@@ -256,9 +252,7 @@
             </div>
             <div class="flexcol" style="margin: 10px;">
               <span class="medium flexrow">EFFECT</span>
-              <div class="effect-text flexrow" style="padding: 5px">
-                {{{npc_feature.data.effect}}}
-              </div>
+              <div class="effect-text flexrow" style="padding: 5px">{{{npc_feature.data.effect}}}</div>
             </div>
             <div class="flexrow" style="justify-content: flex-end;">
               {{#each npc_feature.data.tags as |tag tkey|}}
@@ -267,7 +261,7 @@
             </div>
           </li>
           {{/if}}
-          
+
           {{!-- Trait-type feature preview --}}
           {{#if (eq npc_feature.data.feature_type "Trait")}}
           <li class="card clipped npc-feature-compact item" data-item-id="{{npc_feature._id}}">
@@ -278,9 +272,7 @@
             </div>
             <div class="flexcol" style="margin: 10px;">
               <span class="medium flexrow">EFFECT</span>
-              <div class="effect-text flexrow" style="padding: 5px">
-                {{{npc_feature.data.effect}}}
-              </div>
+              <div class="effect-text flexrow" style="padding: 5px">{{{npc_feature.data.effect}}}</div>
             </div>
             <div class="flexrow" style="justify-content: flex-end;">
               {{#each npc_feature.data.tags as |tag tkey|}}
@@ -289,7 +281,7 @@
             </div>
           </li>
           {{/if}}
-          
+
           {{!-- Tech-type feature preview --}}
           {{#if (eq npc_feature.data.feature_type "Tech")}}
           <li class="card clipped npc-feature-compact tech item" style="max-height: fit-content;" data-item-id="{{npc_feature._id}}">
@@ -331,9 +323,7 @@
                 {{#if npc_feature.data.effect}}
                 <div class="flexcol" style="height: fit-content; margin: 0px 10px;">
                   <span class="medium flexrow">EFFECT</span>
-                  <div class="effect-text flexrow" style="padding: 5px">
-                    {{{npc_feature.data.effect}}}
-                  </div>
+                  <div class="effect-text flexrow" style="padding: 5px">{{{npc_feature.data.effect}}}</div>
                 </div>
                 {{/if}}
               </div>
@@ -353,7 +343,7 @@
               <i class="cci cci-weapon i--m i--light"> </i>
               <span class="minor">{{npc_feature.name}} // {{upper-case npc_feature.data.weapon_type}}</span>
               <a class="stats-control i--light" data-action="delete"><i class="fas fa-trash"></i></a>
-            </div> 
+            </div>
             <div class="lancer-weapon-body">
               <a class="roll-attack" style="grid-area: 1/1/3/2;"><i class="fas fa-dice-d20 i--m i--dark"></i></a>
               <div class="flexrow" style="grid-area: 1/2/2/3; text-align: left; white-space: nowrap;">
@@ -383,17 +373,13 @@
                 {{#if npc_feature.data.on_hit}}
                 <div class="flexcol" style="height: fit-content; margin: 0px 10px;">
                   <span class="medium flexrow">ON HIT</span>
-                  <div class="effect-text flexrow" style="padding: 5px">
-                    {{{npc_feature.data.on_hit}}}
-                  </div>
+                  <div class="effect-text flexrow" style="padding: 5px">{{{npc_feature.data.on_hit}}}</div>
                 </div>
                 {{/if}}
                 {{#if npc_feature.data.effect}}
                 <div class="flexcol" style="height: fit-content; margin: 0px 10px;">
                   <span class="medium flexrow">EFFECT</span>
-                  <div class="effect-text flexrow" style="padding: 5px">
-                    {{{npc_feature.data.effect}}}
-                  </div>
+                  <div class="effect-text flexrow" style="padding: 5px">{{{npc_feature.data.effect}}}</div>
                 </div>
                 {{/if}}
               </div>

@@ -233,17 +233,17 @@ export class LancerActor extends Actor {
  */
 export function mount_type_selector(mount: LancerMountData, key: string | number) {
   let template = `<select class="mounts-control" data-action="update" data-item-id=${key}>
-    <option value="Main" ${mount.type === MountType.Main ? "selected" : ""}>Main Mount</option>
-    <option value="Heavy" ${mount.type === MountType.Heavy ? "selected" : ""}>Heavy Mount</option>
-    <option value="Aux/Aux" ${
+    <option value="${MountType.AuxAux}" ${
       mount.type === MountType.AuxAux ? "selected" : ""
     }>Aux/Aux Mount</option>
-    <option value="Main/Aux" ${
+    <option value="${MountType.Flex}" ${mount.type === MountType.Flex ? "selected" : ""}>Flexible Mount</option>
+    <option value="${MountType.Main}" ${mount.type === MountType.Main ? "selected" : ""}>Main Mount</option>
+    <option value="${MountType.MainAux}" ${
       mount.type === MountType.MainAux ? "selected" : ""
     }>Main/Aux Mount</option>
-    <option value="Flex" ${mount.type === MountType.Flex ? "selected" : ""}>Flexible Mount</option>
-    <option value="Integrated" ${
-      mount.type === "Integrated" ? "selected" : ""
+    <option value="${MountType.Heavy}" ${mount.type === MountType.Heavy ? "selected" : ""}>Heavy Mount</option>
+    <option value="${MountType.Integrated}" ${
+      mount.type === MountType.Integrated ? "selected" : ""
     }>Integrated Mount</option>
   </select>`;
   return template;
@@ -252,7 +252,7 @@ export function mount_type_selector(mount: LancerMountData, key: string | number
 /**
  * Handlebars partial for a Pilot sheet mount card.
  */
-export const mount_card = `<div class="flexcol lancer-mount-container" data-item-id="{{key}}">
+export const mount_card = `<div class="flexcol lancer-mount-container" data-item-key="{{key}}">
   <span class="mount-header clipped-top">
     {{{mount-selector mount @index}}}
     <a class="mounts-control" data-action="delete"><i class="fas fa-trash"></i></a>
