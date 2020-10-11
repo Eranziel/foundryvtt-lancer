@@ -182,38 +182,26 @@ export class LancerPilotSheet extends ActorSheet {
         game.lancer.prepareStatMacro(this.actor, getStatPath(ev));
       });
 
-      // System rollers
-      let sysMacro = html.find(".system-macro");
-      sysMacro.on("click", (ev: any) => {
-        ev.stopPropagation(); // Avoids triggering parent event handlers
-
-        const sysElement = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
-        
-        game.lancer.prepareGenericMacro(this.actor._id, sysElement.getAttribute("data-item-id"));
-      });
-
       // Talent rollers
       let talentMacro = html.find(".talent-macro");
       talentMacro.on("click", (ev: any) => {
         ev.stopPropagation(); // Avoids triggering parent event handlers
 
-        const sysElement = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
+        const el = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
         
-        game.lancer.prepareTalentMacro(this.actor._id, sysElement.getAttribute("data-item-id"), ev.currentTarget.getAttribute("data-rank"));
+        game.lancer.prepareItemMacro(this.actor._id, el.getAttribute("data-item-id"), {rank: ev.currentTarget.getAttribute("data-rank")});
       });
       
       // Trigger rollers
-      let triggerMacro = html.find(".roll-trigger");
-      triggerMacro.on("click", (ev: any) => {
+      let itemMacros = html.find(".skill-macro")
+      // System rollers
+      .add(html.find(".system-macro"));
+      itemMacros.on("click", (ev: any) => {
         ev.stopPropagation(); // Avoids triggering parent event handlers
         
-        let mData: LancerStatMacroData = {
-          title: $(ev.currentTarget).closest(".skill-compact").find(".modifier-name").text(),
-          bonus: parseInt($(ev.currentTarget).find(".roll-modifier").text())
-        };
+        const el = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
         
-        console.log(`${lp} Rolling '${mData.title}' trigger (d20 + ${mData.bonus})`);
-        game.lancer.rollTriggerMacro(this.actor, mData);
+        game.lancer.prepareItemMacro(this.actor, el.getAttribute("data-item-id"));
       });
       
       // Weapon rollers
@@ -229,7 +217,7 @@ export class LancerPilotSheet extends ActorSheet {
         if (!item) return ui.notifications.warn(`Error rolling macro: Couldn't find weapon with ID ${weaponId}.`);
 
         const weapon = item as LancerPilotWeapon | LancerMechWeapon;
-        game.lancer.prepareAttackMacro(this.actor._id, weapon._id);
+        game.lancer.prepareItemMacro(this.actor._id, weapon._id);
       });
     }
     

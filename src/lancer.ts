@@ -135,17 +135,8 @@ Hooks.once("init", async function () {
       LancerActor,
       LancerItem,
     },
-    rollStatMacro: macros.rollStatMacro,
+    prepareItemMacro: macros.prepareItemMacro,
     prepareStatMacro: macros.prepareStatMacro,
-    rollAttackMacro: macros.rollAttackMacro,
-    prepareAttackMacro: macros.prepareAttackMacro,
-    rollTechMacro: macros.rollTechMacro,
-    prepareTriggerMacro: macros.prepareTriggerMacro,
-    rollTriggerMacro: macros.rollTriggerMacro,
-    prepareGenericMacro: macros.prepareGenericMacro,
-    rollGenericMacro: macros.rollGenericMacro,
-    prepareTalentMacro: macros.prepareTalentMacro,
-    rollTalentMacro: macros.rollTalentMacro,
     migrations: migrations,
   };
 
@@ -455,65 +446,43 @@ Hooks.on("renderChatMessage", async (cm: ChatMessage, html: any, data: any) => {
 
 
 Hooks.on('hotbarDrop', (_bar: any, data: any, slot: number) => {
+  let command = ""
+  let title = ""
+
   if (data.type === 'actor') {
-    // Full list of data expected from a generic actor macro:
-    // A title      - to name it
-    // A dataPath   - to access dynamic data from the actor
-    // An actorId   - to reference the actor
-    macros.createActorMacro(data.title, data.dataPath, data.actorId, slot);
-  } else if (data.type === 'Item') {
-    let command = '';
-    let title = '';
-    // Handled options for items:
-    switch(data.data.type) {
-      // Skills
-      case 'skill':
-        command = `game.lancer.prepareTriggerMacro("${data.actorId}", "${data.data._id}");`
-        title= data.data.name;
-        break;
-      // Pilot OR Mech weapon
-      case 'pilot_weapon':
-      case 'mech_weapon':
-        command = `game.lancer.prepareAttackMacro("${data.actorId}", "${data.data._id}");`
-        title = data.data.name;
-        break;
-      case 'mech_system':
-        command = `game.lancer.prepareGenericMacro("${data.actorId}", "${data.data._id}");`
-        title = data.data.name;
-        break;
-      case 'talent':
-        command = `game.lancer.prepareTalentMacro("${data.actorId}", "${data.itemId}", "${data.rank}");`
-        title = data.title;
-        break;
-      case 'npc_feature':
-        if(data.data.data.feature_type === 'Weapon') {
-          command = `game.lancer.prepareAttackMacro("${data.actorId}", "${data.data._id}");`
-          title = data.data.name;
-          break;
-        }
-    }
-
-    if(!command || !title) {
-      console.log("Error creating macro: no command or title. Are you sure what you dragged in can be macroed?");
-      return ui.notifications.error(
-        `Error creating macro`
-      );
-    }
-
-    // Until we properly register commands as something macros can have...
-    // @ts-ignore
-      let macro = game.macros.entities.find((m: Macro) => (m.name === title) && (m.data as Object).command === command);
-      if (!macro) {
-        (Macro.create({
-          command,
-          name: title,
-          type: 'script',
-          img: 'systems/lancer/assets/icons/d20-framed.svg',
-        }, { displaySheet: false })).then(macro => game.user.assignHotbarMacro((macro as Macro), slot));
+    command = `
+      const a = game.actors.get('${data.actorId}');
+      if (a) {
+        game.lancer.prepareStatMacro(a, "${data.dataPath}");
       } else {
-        game.user.assignHotbarMacro(macro, slot)
-      }
-    
+        ui.notifications.error("Error rolling macro");
+      }`;
+    title = data.title;
+  } else if (data.type === 'Item') {
+    command = `game.lancer.prepareItemMacro("${data.actorId}", "${data.data._id}");`;
+    // Talent are the only ones (I think??) that we need to name specially
+    if(data.data.type === 'talent') {
+      command = `game.lancer.prepareItemMacro("${data.actorId}", "${data.itemId}", {rank: ${data.rank}});`
+      title = data.title;
+    } else {
+      title = data.data.name;
+    }
+  } else {
+    // Let's not error or anything, since it's possible to accidentally drop stuff pretty easily
+    return;
+  }
 
+  // Until we properly register commands as something macros can have...
+  // @ts-ignore
+  let macro = game.macros.entities.find((m: Macro) => (m.name === title) && (m.data as Object).command === command);
+  if (!macro) {
+    (Macro.create({
+      command,
+      name: title,
+      type: 'script',
+      img: 'systems/lancer/assets/icons/d20-framed.svg',
+    }, { displaySheet: false })).then(macro => game.user.assignHotbarMacro((macro as Macro), slot));
+  } else {
+    game.user.assignHotbarMacro(macro, slot)
   }
 });
