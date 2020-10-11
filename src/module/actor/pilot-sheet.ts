@@ -175,20 +175,11 @@ export class LancerPilotSheet extends ActorSheet {
     // Macro triggers
     if (this.actor.owner) {
       // Stat rollers
-      let statMacro = html.find(".roll-stat");
+      let statMacro = html.find(".stat-macro");
       statMacro.on("click", (ev: any) => {
         ev.stopPropagation(); // Avoids triggering parent event handlers
         
-        // Find the stat input to get the stat's key to pass to the macro function
-        let statInput = getStatInput(event);
-        let tSplit = statInput.id.split(".");
-        let mData: LancerStatMacroData = {
-          title: tSplit[tSplit.length - 1].toUpperCase(),
-          bonus: statInput.value
-        };
-        
-        console.log(`${lp} Rolling ${mData.title} check, bonus: ${mData.bonus}`);
-        game.lancer.rollStatMacro(this.actor, mData);
+        game.lancer.prepareStatMacro(this.actor, getStatPath(ev));
       });
 
       // System rollers
@@ -401,12 +392,12 @@ export class LancerPilotSheet extends ActorSheet {
       // For stat-macros
       event.stopPropagation(); // Avoids triggering parent event handlers
       // It's an input so it'll always be an InputElement, right?
-      let statInput = <HTMLInputElement>getStatInput(event)
+      let path = getStatPath(event);
 
-      let tSplit = statInput.name.split(".");
+      let tSplit = path.split(".");
       let data = {
         title: tSplit[tSplit.length - 1].toUpperCase(),
-        dataPath: statInput.name,
+        dataPath: path,
         type: "actor",
         actorId: this.actor._id
       };
@@ -608,9 +599,17 @@ export class LancerPilotSheet extends ActorSheet {
           }
 
     
-function getStatInput(event: any): HTMLInputElement | HTMLDataElement {
+function getStatPath(event: any): string {
   // Find the stat input to get the stat's key to pass to the macro function
-  return ($(event.currentTarget)
+  let el = ($(event.currentTarget)
   .closest(".stat-container")
-  .find(".lancer-stat")[0] as HTMLInputElement | HTMLDataElement);
+  .find(".lancer-stat")[0] as HTMLElement);
+
+  if(el.nodeName === "INPUT"){
+    return (<HTMLInputElement>el).name;
+  } else if (el.nodeName === "DATA") {
+    return (<HTMLDataElement>el).id;
+  } else {
+    throw "Error - stat macro was not run on an input or data element";
+  }
 }
