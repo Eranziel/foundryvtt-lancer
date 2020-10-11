@@ -294,7 +294,7 @@ Hooks.once("init", async function () {
     let html =
     `<div class="flexrow arrow-input-container">
       <button class="mod-minus-button" type="button">-</button>
-      <input class="lancer-stat major" type="number" name="${target}" value="${value}" data-dtype="Number"\>
+      <input class="lancer-stat major" type="number" name="${target}" id="${target}" value="${value}" data-dtype="Number"\>
       <button class="mod-plus-button" type="button">+</button>
     </div>`;
     return html;
@@ -462,57 +462,66 @@ Hooks.on('hotbarDrop', (_bar: any, data: any, slot: number) => {
   } else if (data.type === 'Item') {
     let command = '';
     let title = '';
+    let img = 'systems/lancer/assets/icons/macro-icons/d20-framed.svg';
     // Handled options for items:
     switch(data.data.type) {
       // Skills
       case 'skill':
         command = `game.lancer.prepareTriggerMacro("${data.actorId}", "${data.data._id}");`
         title= data.data.name;
+        img = `systems/lancer/assets/icons/macro-icons/skill.svg`;
         break;
       // Pilot OR Mech weapon
       case 'pilot_weapon':
       case 'mech_weapon':
         command = `game.lancer.prepareAttackMacro("${data.actorId}", "${data.data._id}");`
         title = data.data.name;
+        img = `systems/lancer/assets/icons/macro-icons/mech_weapon.svg`;
         break;
       case 'mech_system':
         command = `game.lancer.prepareGenericMacro("${data.actorId}", "${data.data._id}");`
         title = data.data.name;
+        img = `systems/lancer/assets/icons/macro-icons/mech_system.svg`;
         break;
       case 'talent':
         command = `game.lancer.prepareTalentMacro("${data.actorId}", "${data.itemId}", "${data.rank}");`
         title = data.title;
+        img = `systems/lancer/assets/icons/macro-icons/talent.svg`;
+        if (!command || !title) {
+          return ui.notifications.warn(`Error creating talent macro. Only invidual ranks are macroable.`);
+        }
         break;
       case 'npc_feature':
         if(data.data.data.feature_type === 'Weapon') {
           command = `game.lancer.prepareAttackMacro("${data.actorId}", "${data.data._id}");`
           title = data.data.name;
+          img = `systems/lancer/assets/icons/macro-icons/npc_feature.svg`;
           break;
         }
+      case 'core_bonus':
+        return ui.notifications.warn(`Core Bonuses are not macroable.`);
     }
 
     if(!command || !title) {
       console.log("Error creating macro: no command or title. Are you sure what you dragged in can be macroed?");
       return ui.notifications.error(
-        `Error creating macro`
+        `Error creating macro. Are you sure what you dragged in can be macroed?`
       );
     }
 
     // Until we properly register commands as something macros can have...
     // @ts-ignore
-      let macro = game.macros.entities.find((m: Macro) => (m.name === title) && (m.data as Object).command === command);
-      if (!macro) {
-        (Macro.create({
-          command,
-          name: title,
-          type: 'script',
-          img: 'systems/lancer/assets/icons/d20-framed.svg',
-        }, { displaySheet: false })).then(macro => game.user.assignHotbarMacro((macro as Macro), slot));
-      } else {
-        game.user.assignHotbarMacro(macro, slot)
-      }
-    
-
+    let macro = game.macros.entities.find((m: Macro) => (m.name === title) && (m.data as Object).command === command);
+    if (!macro) {
+      (Macro.create({
+        command,
+        name: title,
+        type: 'script',
+        img: img,
+      }, { displaySheet: false })).then(macro => game.user.assignHotbarMacro((macro as Macro), slot));
+    } else {
+      game.user.assignHotbarMacro(macro, slot)
+    }
   }
 });
 
@@ -536,7 +545,7 @@ if (a) {
       command,
       name: title,
       type: 'script',
-      img: 'systems/lancer/assets/icons/d20-framed.svg',
+      img: 'systems/lancer/assets/icons/macro-icons/d20-framed.svg',
     }, { displaySheet: false }) as Macro;
   }
 
@@ -569,10 +578,11 @@ function getMacroSpeaker(): Actor | null {
 
 async function renderMacro(actor: Actor, template: string, templateData: any) {
   const html = await renderTemplate(template, templateData);
+  let roll = templateData.roll || templateData.attack;
   let chat_data = {
     user: game.user,
-    type: CONST.CHAT_MESSAGE_TYPES.ROLL,
-    roll: templateData.roll || templateData.attack,
+    roll: roll,
+    type: roll ? CONST.CHAT_MESSAGE_TYPES.ROLL : CONST.CHAT_MESSAGE_TYPES.IC,
     speaker: {
       actor: actor,
     },

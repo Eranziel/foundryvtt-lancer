@@ -178,7 +178,7 @@ export class LancerNPCSheet extends ActorSheet {
       .add('[class*="macroable"]')
       .each((i: number, item: any) => {
         if (item.classList.contains("inventory-header")) return;
-        if (item.classList.contains("stat-macro")) item.addEventListener('dragstart', haseMacroHandler, false);
+        if (item.classList.contains("roll-stat")) item.addEventListener('dragstart', haseMacroHandler, false);
         item.setAttribute("draggable", true);
         item.addEventListener("dragstart", (ev: any) => this._onDragStart(ev), false);
       });
@@ -224,7 +224,7 @@ export class LancerNPCSheet extends ActorSheet {
 
   _onDragMacroableStart(event: any) {
     
-    // For stat-macros
+    // For roll-stat macros
     event.stopPropagation(); // Avoids triggering parent event handlers
     let statInput = getStatInput(event)
     

@@ -175,7 +175,7 @@ export class LancerPilotSheet extends ActorSheet {
     // Macro triggers
     if (this.actor.owner) {
       // Stat rollers
-      let statMacro = html.find(".stat-macro");
+      let statMacro = html.find(".roll-stat");
       statMacro.on("click", (ev: any) => {
         ev.stopPropagation(); // Avoids triggering parent event handlers
         
@@ -260,7 +260,7 @@ export class LancerPilotSheet extends ActorSheet {
       .add('[class*="macroable"]')
       .each((i: number, item: any) => {
         if (item.classList.contains("inventory-header")) return;
-        if (item.classList.contains("stat-macro")) item.addEventListener('dragstart', statMacroHandler, false);
+        if (item.classList.contains("roll-stat")) item.addEventListener('dragstart', statMacroHandler, false);
         if (item.classList.contains("talent-macro")) item.addEventListener('dragstart', talentMacroHandler, false);
         item.setAttribute("draggable", true);
         item.addEventListener("dragstart", (ev: any) => this._onDragStart(ev), false);
@@ -388,8 +388,7 @@ export class LancerPilotSheet extends ActorSheet {
     
     
     _onDragMacroableStart(event: any) {
-      
-      // For stat-macros
+      // For roll-stat macros
       event.stopPropagation(); // Avoids triggering parent event handlers
       // It's an input so it'll always be an InputElement, right?
       let path = getStatPath(event);

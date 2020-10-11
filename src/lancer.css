@@ -711,7 +711,7 @@ input[type=number].lancer-stat {
   min-width: 30px;
 }
 
-.lancer-text-field
+.lancer-text-field,
 input[type=string].lancer-input {
   align-self: center;
   text-align: left;
@@ -965,7 +965,7 @@ code.horus:hover {
 
 .roll-stat, .roll-attack,
 .roll-trigger {
-  margin: 3px 15px;
+  margin: 3px 10px;
 }
 
 .roll-attack,
