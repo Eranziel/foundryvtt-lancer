@@ -685,8 +685,9 @@ export const mech_system_preview =
   <a class="stats-control i--light" data-action="delete"><i class="fas fa-trash"></i></a>
 </div>
 <div class="flexrow">
+  <a class="system-macro macroable"><i class="fas fa-dice-d20 i--m i--dark"></i></a>
   <div style="float: left; align-items: center; display: inherit;">
-    <a class="cci cci-system-point i--m i--dark system-macro macroable"> </a>
+    <i class="cci cci-system-point i--m i--dark"> </i>
     <span class="medium" style="padding: 5px;">{{system.data.sp}} SP</span>
   </div>
   {{#if system.data.uses}}

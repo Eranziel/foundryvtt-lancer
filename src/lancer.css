@@ -964,16 +964,20 @@ code.horus:hover {
 }
 
 .roll-stat, .roll-attack,
-.roll-trigger {
+.roll-trigger, .system-macro {
   margin: 3px 10px;
 }
 
-.roll-attack,
-.roll-tech {
+.roll-attack, .roll-tech,
+.system-macro {
   display: flex;
   flex-direction: row;
   justify-content: center;
   align-items: center;
+}
+
+.system-macro {
+  max-width: min-content;
 }
 
 .lancer-dice-roll {
