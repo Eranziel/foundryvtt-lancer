@@ -139,7 +139,7 @@ export class LancerNPCSheet extends ActorSheet {
       weaponMacro.on("click", (ev: Event) => {
         if (!ev.currentTarget) return; // No target, let other handlers take care of it.
         ev.stopPropagation(); // Avoids triggering parent event handlers
-        
+
         const weaponElement = $(ev.currentTarget).closest(".weapon")[0] as HTMLElement;
         const weaponId = weaponElement.getAttribute("data-item-id");
         if (!weaponId) return ui.notifications.warn(`Error rolling macro: No weapon ID!`);
@@ -152,7 +152,7 @@ export class LancerNPCSheet extends ActorSheet {
           grit: wData.attack_bonus[tier],
           acc: wData.accuracy[tier],
           tags: wData.tags,
-          damage: wData.damage.map(d => {return {type: d.type, val: d.val[tier]};}),
+          damage: wData.damage.map(d => { return { type: d.type, val: d.val[tier] }; }),
           overkill: weapon.isOverkill,
           effect: wData.effect ? wData.effect : ""
         };
@@ -187,15 +187,15 @@ export class LancerNPCSheet extends ActorSheet {
       // Item/Macroable Dragging
       const haseMacroHandler = (e: DragEvent) => this._onDragMacroableStart(e);
       html
-      .find('li[class*="item"]')
-      .add('span[class*="item"]')
-      .add('[class*="macroable"]')
-      .each((i: number, item: any) => {
-        if (item.classList.contains("inventory-header")) return;
-        if (item.classList.contains("roll-stat")) item.addEventListener('dragstart', haseMacroHandler, false);
-        item.setAttribute("draggable", true);
-        item.addEventListener("dragstart", (ev: DragEvent) => this._onDragStart(ev), false);
-      });
+        .find('li[class*="item"]')
+        .add('span[class*="item"]')
+        .add('[class*="macroable"]')
+        .each((i: number, item: any) => {
+          if (item.classList.contains("inventory-header")) return;
+          if (item.classList.contains("roll-stat")) item.addEventListener('dragstart', haseMacroHandler, false);
+          item.setAttribute("draggable", true);
+          item.addEventListener("dragstart", (ev: DragEvent) => this._onDragStart(ev), false);
+        });
 
       // Update Inventory Item
       let items = html.find(".item");
@@ -237,12 +237,12 @@ export class LancerNPCSheet extends ActorSheet {
   }
 
   _onDragMacroableStart(event: DragEvent) {
-    
+
     // For roll-stat macros
     event.stopPropagation(); // Avoids triggering parent event handlers
     let statInput = getStatInput(event);
     if (!statInput) return ui.notifications.error("Error finding stat input for macro.");
-    
+
     let tSplit = statInput.id.split(".");
     let data = {
       title: tSplit[tSplit.length - 1].toUpperCase(),
@@ -250,7 +250,7 @@ export class LancerNPCSheet extends ActorSheet {
       type: "actor",
       actorId: this.actor._id
     };
-    
+
     event.dataTransfer?.setData('text/plain', JSON.stringify(data));
   }
 
@@ -385,6 +385,6 @@ function getStatInput(event: Event): HTMLInputElement | HTMLDataElement | null {
   if (!event.currentTarget) return null;
   // Find the stat input to get the stat's key to pass to the macro function
   return ($(event.currentTarget)
-  .closest(".stat-container")
-  .find(".lancer-stat")[0] as HTMLInputElement | HTMLDataElement);
+    .closest(".stat-container")
+    .find(".lancer-stat")[0] as HTMLInputElement | HTMLDataElement);
 }
