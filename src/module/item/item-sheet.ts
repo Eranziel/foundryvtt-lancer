@@ -119,15 +119,17 @@ export class LancerItemSheet extends ItemSheet {
 
     // Customized increment/decrement arrows
     let decr = html.find('button[class*="mod-minus-button"]');
-    decr.on("click", (ev: any) => {
-      const but = $(ev.currentTarget);
-      but.next()[0].value = but.next()[0].valueAsNumber - 1;
+    decr.on("click", (ev: Event) => {
+      if (!ev.currentTarget) return; // No target, let other handlers take care of it.
+      const but = $(ev.currentTarget as HTMLElement);
+      (but.next()[0] as HTMLInputElement).value = ((but.next()[0] as HTMLInputElement).valueAsNumber - 1).toString();
       this.submit({});
     });
     let incr = html.find('button[class*="mod-plus-button"]');
-    incr.on("click", (ev: any) => {
-      const but = $(ev.currentTarget);
-      but.prev()[0].value = but.prev()[0].valueAsNumber + 1;
+    incr.on("click", (ev: Event) => {
+      if (!ev.currentTarget) return; // No target, let other handlers take care of it.
+      const but = $(ev.currentTarget as HTMLElement);
+      (but.prev()[0] as HTMLInputElement).value = ((but.prev()[0] as HTMLInputElement).valueAsNumber + 1).toString();
       this.submit({});
     });
 

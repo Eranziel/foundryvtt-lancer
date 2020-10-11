@@ -101,7 +101,8 @@ export class LancerNPCSheet extends ActorSheet {
     if (this.actor.owner) {
       // Stat rollers
       let statMacro = html.find(".roll-stat");
-      statMacro.on("click", (ev: any) => {
+      statMacro.on("click", (ev: Event) => {
+        if (!ev.currentTarget) return; // No target, let other handlers take care of it.
         ev.stopPropagation(); // Avoids triggering parent event handlers
 
         // Find the stat input to get the stat's key to pass to the macro function
@@ -120,7 +121,8 @@ export class LancerNPCSheet extends ActorSheet {
 
       // Trigger rollers
       let triggerMacro = html.find(".roll-trigger");
-      triggerMacro.on("click", (ev: any) => {
+      triggerMacro.on("click", (ev: Event) => {
+        if (!ev.currentTarget) return; // No target, let other handlers take care of it.
         ev.stopPropagation(); // Avoids triggering parent event handlers
 
         let mData: LancerStatMacroData = {
@@ -134,7 +136,8 @@ export class LancerNPCSheet extends ActorSheet {
 
       // Weapon rollers
       let weaponMacro = html.find(".roll-attack");
-      weaponMacro.on("click", (ev: any) => {
+      weaponMacro.on("click", (ev: Event) => {
+        if (!ev.currentTarget) return; // No target, let other handlers take care of it.
         ev.stopPropagation(); // Avoids triggering parent event handlers
         
         const weaponElement = $(ev.currentTarget).closest(".weapon")[0] as HTMLElement;
@@ -160,7 +163,8 @@ export class LancerNPCSheet extends ActorSheet {
 
       // Tech rollers
       let techMacro = html.find(".roll-tech");
-      techMacro.on("click", (ev: any) => {
+      techMacro.on("click", (ev: Event) => {
+        if (!ev.currentTarget) return; // No target, let other handlers take care of it.
         ev.stopPropagation();
         const techElement = $(ev.currentTarget).closest(".tech")[0] as HTMLElement;
         const techId = techElement.getAttribute("data-item-id");
@@ -181,7 +185,7 @@ export class LancerNPCSheet extends ActorSheet {
     }
     if (this.actor.owner) {
       // Item/Macroable Dragging
-      const haseMacroHandler = (e: Event) => this._onDragMacroableStart(e);
+      const haseMacroHandler = (e: DragEvent) => this._onDragMacroableStart(e);
       html
       .find('li[class*="item"]')
       .add('span[class*="item"]')
@@ -190,13 +194,13 @@ export class LancerNPCSheet extends ActorSheet {
         if (item.classList.contains("inventory-header")) return;
         if (item.classList.contains("roll-stat")) item.addEventListener('dragstart', haseMacroHandler, false);
         item.setAttribute("draggable", true);
-        item.addEventListener("dragstart", (ev: any) => this._onDragStart(ev), false);
+        item.addEventListener("dragstart", (ev: DragEvent) => this._onDragStart(ev), false);
       });
 
       // Update Inventory Item
       let items = html.find(".item");
-      items.on("click", (ev: any) => {
-        console.log(ev);
+      items.on("click", (ev: Event) => {
+        if (!ev.currentTarget) return; // No target, let other handlers take care of it.
         const li = $(ev.currentTarget);
         const item = this.actor.getOwnedItem(li.data("itemId"));
         if (item) {
@@ -206,9 +210,9 @@ export class LancerNPCSheet extends ActorSheet {
 
       // Delete Item when trash can is clicked
       items = html.find('.stats-control[data-action*="delete"]');
-      items.on("click", (ev: any) => {
+      items.on("click", (ev: Event) => {
+        if (!ev.currentTarget) return; // No target, let other handlers take care of it.
         ev.stopPropagation(); // Avoids triggering parent event handlers
-        console.log(ev);
         const li = $(ev.currentTarget).closest(".item");
         this.actor.deleteOwnedItem(li.data("itemId"));
         li.slideUp(200, () => this.render(false));
@@ -216,10 +220,10 @@ export class LancerNPCSheet extends ActorSheet {
 
       // Change tier
       let tier_selector = html.find('select.tier-control[data-action*="update"]');
-      tier_selector.on("change", (ev: any) => {
+      tier_selector.on("change", (ev: Event) => {
+        if (!ev.currentTarget) return; // No target, let other handlers take care of it.
         ev.stopPropagation();
-        console.log(ev);
-        let tier = ev.currentTarget.selectedOptions[0].value;
+        let tier = (ev.currentTarget as HTMLSelectElement).selectedOptions[0].value;
         this.actor.update({ "data.tier": tier });
         // Set Values for
         let actor = this.actor as LancerActor;
@@ -232,11 +236,12 @@ export class LancerNPCSheet extends ActorSheet {
     }
   }
 
-  _onDragMacroableStart(event: any) {
+  _onDragMacroableStart(event: DragEvent) {
     
     // For roll-stat macros
     event.stopPropagation(); // Avoids triggering parent event handlers
-    let statInput = getStatInput(event)
+    let statInput = getStatInput(event);
+    if (!statInput) return ui.notifications.error("Error finding stat input for macro.");
     
     let tSplit = statInput.id.split(".");
     let data = {
@@ -246,7 +251,7 @@ export class LancerNPCSheet extends ActorSheet {
       actorId: this.actor._id
     };
     
-    event.dataTransfer.setData('text/plain', JSON.stringify(data));
+    event.dataTransfer?.setData('text/plain', JSON.stringify(data));
   }
 
   /* -------------------------------------------- */
@@ -376,7 +381,8 @@ export class LancerNPCSheet extends ActorSheet {
   }
 }
 
-function getStatInput(event: any): HTMLInputElement | HTMLDataElement {
+function getStatInput(event: Event): HTMLInputElement | HTMLDataElement | null {
+  if (!event.currentTarget) return null;
   // Find the stat input to get the stat's key to pass to the macro function
   return ($(event.currentTarget)
   .closest(".stat-container")
