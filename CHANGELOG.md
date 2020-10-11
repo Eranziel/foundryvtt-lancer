@@ -1,3 +1,15 @@
+# 0.1.9 (2020-10-11)
+## Features
+* **Pilot Sheet**: Added macros for sending Talents and Mech Systems to chat. Starts #10.
+* **Hotbar**: Add drag-to-hotbar macro creation for several items on Pilot and NPC sheets. Closes #53.
+
+## Bug Fixes
+* **Pilot Sheet**: Fix bug preventing weapons from being added to Aux/Aux and Main/Aux mounts. Closes #83.
+* **Pilot Sheet**: Fix bug causing weapons to become un-rollable after editing. Closes #86.
+* **Pilot Sheet**: Fix bug causing History and Notes sections to flicker when hovering over edit button. Closes #87.
+* **Status Icons**: Added white versions of status/condition icons for use on tokens.
+* **Status Icons**: Fix an issue preventing status icons from being shown on Firefox.
+
 # 0.1.8 (2020-10-04)
 ## Features
 * **Everywhere**: Hide default increment/decrement arrows on number inputs, which were causing issues. Some number inputs now use new, larger increment/decrement buttons. Partial fix for #48.
