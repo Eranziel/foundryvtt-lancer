@@ -178,7 +178,7 @@ export class LancerPilotSheet extends ActorSheet {
       let statMacro = html.find(".roll-stat");
       statMacro.on("click", (ev: any) => {
         ev.stopPropagation(); // Avoids triggering parent event handlers
-        
+        console.log(ev);
         game.lancer.prepareStatMacro(this.actor, getStatPath(ev));
       });
 
@@ -220,9 +220,7 @@ export class LancerPilotSheet extends ActorSheet {
       let weaponMacro = html.find(".roll-attack");
       weaponMacro.on("click", (ev: any) => {
         ev.stopPropagation();
-        console.log(ev);
         const weaponElement = $(ev.currentTarget).closest(".weapon")[0] as HTMLElement;
-        console.log(weaponElement);
         const weaponId = weaponElement.getAttribute("data-item-id");
         if (!weaponId) return ui.notifications.warn(`Error rolling macro: No weapon ID!`);
         const item = this.actor.getOwnedItem(weaponId);

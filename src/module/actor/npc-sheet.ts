@@ -1,4 +1,4 @@
-import { LancerNPCSheetData, LancerNPCClassStatsData, LancerNPCData, LancerStatMacroData, LancerAttackMacroData } from "../interfaces";
+import { LancerNPCSheetData, LancerNPCClassStatsData, LancerNPCData, LancerStatMacroData, LancerAttackMacroData, LancerTechMacroData } from "../interfaces";
 import {
   LancerItem,
   LancerNPCClass,
@@ -10,7 +10,7 @@ import { MechType } from "../enums";
 import { LancerActor } from "./lancer-actor";
 import { LANCER } from "../config";
 import { ItemManifest, ItemDataManifest } from "../item/util";
-import { LancerNPCWeaponData } from "../item/npc-feature";
+import { LancerNPCTechData, LancerNPCWeaponData } from "../item/npc-feature";
 const lp = LANCER.log_prefix;
 
 const entryPrompt = "//:AWAIT_ENTRY>";
@@ -162,11 +162,21 @@ export class LancerNPCSheet extends ActorSheet {
       let techMacro = html.find(".roll-tech");
       techMacro.on("click", (ev: any) => {
         ev.stopPropagation();
-        console.log(`${lp} Tech attack macro button click`, ev);
-
         const techElement = $(ev.currentTarget).closest(".tech")[0] as HTMLElement;
-        let techId = techElement.getAttribute("data-item-id");
-        game.lancer.rollTechMacro(techId, this.actor._id);
+        const techId = techElement.getAttribute("data-item-id");
+        if (!techId) return ui.notifications.warn(`Error rolling macro: No tech feature ID!`);
+        const tech = this.actor.getOwnedItem(techId) as LancerNPCFeature;
+        if (!tech) return ui.notifications.warn(`Error rolling macro: Couldn't find tech system with ID ${techId}.`);
+        const tData = tech.data.data as LancerNPCTechData;
+        const tier = (this.actor.data.data as LancerNPCData).tier_num - 1;
+        let mData: LancerTechMacroData = {
+          title: tData.name,
+          acc: tData.accuracy ? tData.accuracy[tier] : 0,
+          t_atk: tData.attack_bonus ? tData.attack_bonus[tier] : 0,
+          effect: tData.effect ? tData.effect : "",
+          tags: tData.tags
+        }
+        game.lancer.rollTechMacro(this.actor, mData);
       });
     }
     if (this.actor.owner) {

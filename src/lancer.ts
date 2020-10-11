@@ -85,7 +85,7 @@ import {
   LancerTechMacroData, 
   LancerSkillItemData, 
   LancerGenericMacroData, 
-  LancerTalentMacroData, LancerTalentItemData
+  LancerTalentMacroData, LancerTalentItemData, LancerNPCFeatureData, LancerMechSystemData
 } from "./module/interfaces";
 
 // Import applications
@@ -109,10 +109,10 @@ import * as migrations from "./module/migration";
 import { addLCPManager } from './module/apps/lcpManager';
 
 // Import JSON data
-import { CCDataStore, setup_store, CompendiumItem, DamageType } from "machine-mind";
+import { CCDataStore, setup_store, CompendiumItem, DamageType, NpcFeatureType } from "machine-mind";
 import { FauxPersistor } from "./module/ccdata_io";
 import { reload_store } from "./module/item/util";
-import { LancerNPCWeaponData } from "./module/item/npc-feature";
+import { LancerNPCTechData, LancerNPCWeaponData } from "./module/item/npc-feature";
 
 /* ------------------------------------ */
 /* Initialize system                    */
@@ -133,10 +133,11 @@ Hooks.once("init", async function () {
       LancerActor,
       LancerItem,
     },
-    rollStatMacro: rollStatMacro,
     prepareStatMacro: prepareStatMacro,
-    rollAttackMacro: rollAttackMacro,
+    rollStatMacro: rollStatMacro,
     prepareAttackMacro: prepareAttackMacro,
+    rollAttackMacro: rollAttackMacro,
+    prepareTechMacro: prepareTechMacro,
     rollTechMacro: rollTechMacro,
     prepareTriggerMacro: prepareTriggerMacro,
     rollTriggerMacro: rollTriggerMacro,
@@ -467,24 +468,24 @@ Hooks.on('hotbarDrop', (_bar: any, data: any, slot: number) => {
     switch(data.data.type) {
       // Skills
       case 'skill':
-        command = `game.lancer.prepareTriggerMacro("${data.actorId}", "${data.data._id}");`
+        command = `game.lancer.prepareTriggerMacro("${data.actorId}", "${data.data._id}");`;
         title= data.data.name;
         img = `systems/lancer/assets/icons/macro-icons/skill.svg`;
         break;
       // Pilot OR Mech weapon
       case 'pilot_weapon':
       case 'mech_weapon':
-        command = `game.lancer.prepareAttackMacro("${data.actorId}", "${data.data._id}");`
+        command = `game.lancer.prepareAttackMacro("${data.actorId}", "${data.data._id}");`;
         title = data.data.name;
         img = `systems/lancer/assets/icons/macro-icons/mech_weapon.svg`;
         break;
       case 'mech_system':
-        command = `game.lancer.prepareGenericMacro("${data.actorId}", "${data.data._id}");`
+        command = `game.lancer.prepareGenericMacro("${data.actorId}", "${data.data._id}");`;
         title = data.data.name;
         img = `systems/lancer/assets/icons/macro-icons/mech_system.svg`;
         break;
       case 'talent':
-        command = `game.lancer.prepareTalentMacro("${data.actorId}", "${data.itemId}", "${data.rank}");`
+        command = `game.lancer.prepareTalentMacro("${data.actorId}", "${data.itemId}", "${data.rank}");`;
         title = data.title;
         img = `systems/lancer/assets/icons/macro-icons/talent.svg`;
         if (!command || !title) {
@@ -492,12 +493,19 @@ Hooks.on('hotbarDrop', (_bar: any, data: any, slot: number) => {
         }
         break;
       case 'npc_feature':
-        if(data.data.data.feature_type === 'Weapon') {
-          command = `game.lancer.prepareAttackMacro("${data.actorId}", "${data.data._id}");`
+        console.log(data.data.data);
+        if(data.data.data.feature_type === NpcFeatureType.Weapon) {
+          command = `game.lancer.prepareAttackMacro("${data.actorId}", "${data.data._id}");`;
           title = data.data.name;
-          img = `systems/lancer/assets/icons/macro-icons/npc_feature.svg`;
+          img = `systems/lancer/assets/icons/macro-icons/mech_weapon.svg`;
+          break;
+        } else if (data.data.data.feature_type === NpcFeatureType.Tech) {
+          command = `game.lancer.prepareTechMacro("${data.actorId}", "${data.data._id}");`;
+          title = data.data.name;
+          img = `systems/lancer/assets/icons/macro-icons/tech_quick.svg`;
           break;
         }
+        return ui.notifications.warn(`Non-weapon NPC Features are not macroable.`);
       case 'core_bonus':
         return ui.notifications.warn(`Core Bonuses are not macroable.`);
     }
@@ -911,76 +919,79 @@ async function rollAttackMacro(actor: Actor, data: LancerAttackMacroData) {
   return renderMacro(actor, template, templateData);
 }
 
-async function rollTechMacro(data: LancerTechMacroData, t: string, a: string) {
+async function prepareTechMacro(a: string, t: string) {
   // Determine which Actor to speak as
   let actor: Actor | null = game.actors.get(a) || getMacroSpeaker();
   if (!actor) return;
 
   // Get the item
-  const item: Item | null = game.actors.get(a).getOwnedItem(t);
-  console.log(`${lp} Rolling tech attack macro`, item, t, a);
+  const item: LancerItem | null = actor.getOwnedItem(t) as LancerItem | null;
   if (!item) {
-    ui.notifications.error(
-      `Error rolling tech attack macro - could not find Item ${t} owned by Actor ${a}!`
+    return ui.notifications.error(
+      `Error preparing tech attack macro - could not find Item ${t} owned by Actor ${a}! Did you add the Item to the token, instead of the source Actor?`
     );
-    return Promise.resolve();
   } else if (!item.isOwned) {
-    ui.notifications.error(
-      `Error rolling tech attack macro - ${item.name} is not owned by an Actor!`
-    );
-    return Promise.resolve();
+    return ui.notifications.error(`Error rolling tech attack macro - ${item.name} is not owned by an Actor!`);
   }
 
-  let title: string = item.name;
-  let t_atk: number = 0;
-  let acc: number = 0;
-  let effect: string;
-  let tags: TagDataShort[];
-  const tData = item.data.data;
+  let mData: LancerTechMacroData = {
+    title: item.name,
+    t_atk: 0,
+    acc: 0,
+    effect: "",
+    tags: []
+  };
   if (item.type === "mech_system") {
-    t_atk = (item.actor!.data as LancerPilotActorData).data.mech.tech_attack;
-    tags = tData.tags;
-    effect = tData.effect;
+    const tData = item.data.data as LancerMechSystemData;
+    mData.t_atk = (item.actor!.data as LancerPilotActorData).data.mech.tech_attack;
+    mData.tags = tData.tags;
+    mData.effect = ""; // TODO
   } else if (item.type === "npc_feature") {
-    const tier = (item.actor!.data as LancerNPCActorData).data.tier_num - 1;
-    if (tData.attack_bonus && tData.attack_bonus[tier]) {
-      t_atk = parseInt(tData.attack_bonus[tier]);
+    const tData = item.data.data as LancerNPCTechData;
+    let tier: number;
+    if (item.actor === null) {
+      tier = actor.data.data.tier_num;
+    } else {
+      tier = (item.actor.data.data as LancerNPCData).tier_num - 1;
     }
-    if (tData.accuracy && tData.accuracy[tier]) {
-      acc = parseInt(tData.accuracy[tier]);
-    }
-    tags = tData.tags;
-    effect = tData.effect;
+    mData.t_atk = tData.attack_bonus && tData.attack_bonus.length > tier ? tData.attack_bonus[tier] : 0;
+    mData.acc = tData.accuracy && tData.accuracy.length > tier ? tData.accuracy[tier] : 0;
+    mData.tags = tData.tags;
+    mData.effect = tData.effect ? tData.effect : "";
   } else {
     ui.notifications.error(
       `Error rolling tech attack macro - ${item.name} does not a tech attack!`
     );
     return Promise.resolve();
   }
-  console.log(`${lp} Tech Attack Macro Item:`, item, t_atk, acc);
+  console.log(`${lp} Tech Attack Macro Item:`, item, mData);
 
+  rollTechMacro(actor, mData);
+}
+
+async function rollTechMacro(actor: Actor, data: LancerTechMacroData) {
   // Get accuracy/difficulty with a prompt
   let abort: boolean = false;
-  await promptAccDiffModifier(acc, title).then(
-    resolve => (acc = resolve),
+  await promptAccDiffModifier(data.acc, data.title).then(
+    resolve => (data.acc = resolve),
     reject => (abort = true)
   );
   if (abort) return;
 
   // Do the attack rolling
-  let acc_str = acc != 0 ? ` + ${acc}d6kh1` : "";
-  let atk_str = `1d20+${t_atk}${acc_str}`;
+  let acc_str = data.acc != 0 ? ` + ${data.acc}d6kh1` : "";
+  let atk_str = `1d20+${data.t_atk}${acc_str}`;
   console.log(`${lp} Tech Attack roll string: ${atk_str}`);
   let attack_roll = new Roll(atk_str).roll();
 
   // Output
   const attack_tt = await attack_roll.getTooltip();
   const templateData = {
-    title: title,
+    title: data.title,
     attack: attack_roll,
     attack_tooltip: attack_tt,
-    effect: effect ? effect : null,
-    tags: tags,
+    effect: data.effect ? data.effect : null,
+    tags: data.tags,
   };
 
   const template = `systems/lancer/templates/chat/tech-attack-card.html`;
