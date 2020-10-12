@@ -517,10 +517,11 @@ export class LancerPilotSheet extends ActorSheet {
           let valid = mount_whitelist[(item as LancerMechWeapon).data.data.mount];
           if (!valid.includes(mount.type)) {
             ui.notifications.error("The weapon you dropped is too large for this weapon mount!");
-          } else if (item.data.data.mount === "Superheavy" && !mount.secondary_mount) {
-            ui.notifications.error(
-              "Assign a secondary mount to this heavy mount in order to equip a superheavy weapon"
-            );
+          // TODO: superheavy secondary mounts
+          // } else if (item.data.data.mount === "Superheavy" && !mount.secondary_mount) {
+          //   ui.notifications.error(
+          //     "Assign a secondary mount to this heavy mount in order to equip a superheavy weapon"
+          //   );
           } else {
             let weapon = await actor.createOwnedItem(duplicate(item.data));
             mount.weapons.push(weapon);
