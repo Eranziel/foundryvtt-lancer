@@ -1,3 +1,7 @@
+# 0.1.10 (2020-10-11)
+## Bug Fixes
+* **Pilot Sheet**: Fix bug preventing superheavy weapons from being added to mounts. Closes #88.
+
 # 0.1.9 (2020-10-11)
 ## Features
 * **Pilot Sheet**: Added macros for sending Talents and Mech Systems to chat. Starts #10.
