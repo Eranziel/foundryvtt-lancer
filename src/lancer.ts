@@ -114,6 +114,8 @@ import { FauxPersistor } from "./module/ccdata_io";
 import { reload_store } from "./module/item/util";
 import { LancerNPCTechData, LancerNPCWeaponData } from "./module/item/npc-feature";
 
+import * as macros from "./module/macros";
+
 /* ------------------------------------ */
 /* Initialize system                    */
 /* ------------------------------------ */
@@ -133,18 +135,18 @@ Hooks.once("init", async function () {
       LancerActor,
       LancerItem,
     },
-    prepareStatMacro: prepareStatMacro,
-    rollStatMacro: rollStatMacro,
-    prepareAttackMacro: prepareAttackMacro,
-    rollAttackMacro: rollAttackMacro,
-    prepareTechMacro: prepareTechMacro,
-    rollTechMacro: rollTechMacro,
-    prepareTriggerMacro: prepareTriggerMacro,
-    rollTriggerMacro: rollTriggerMacro,
-    prepareGenericMacro: prepareGenericMacro,
-    rollGenericMacro: rollGenericMacro,
-    prepareTalentMacro: prepareTalentMacro,
-    rollTalentMacro: rollTalentMacro,
+    prepareStatMacro: macros.prepareStatMacro,
+    rollStatMacro: macros.rollStatMacro,
+    prepareAttackMacro: macros.prepareAttackMacro,
+    rollAttackMacro: macros.rollAttackMacro,
+    prepareTechMacro: macros.prepareTechMacro,
+    rollTechMacro: macros.rollTechMacro,
+    prepareTriggerMacro: macros.prepareTriggerMacro,
+    rollTriggerMacro: macros.rollTriggerMacro,
+    prepareGenericMacro: macros.prepareGenericMacro,
+    rollGenericMacro: macros.rollGenericMacro,
+    prepareTalentMacro: macros.prepareTalentMacro,
+    rollTalentMacro: macros.rollTalentMacro,
     migrations: migrations,
   };
 
@@ -459,7 +461,7 @@ Hooks.on('hotbarDrop', (_bar: any, data: any, slot: number) => {
     // A title      - to name it
     // A dataPath   - to access dynamic data from the actor
     // An actorId   - to reference the actor
-    createActorMacro(data.title, data.dataPath, data.actorId, slot);
+    macros.createActorMacro(data.title, data.dataPath, data.actorId, slot);
   } else if (data.type === 'Item') {
     let command = '';
     let title = '';
