@@ -6,18 +6,18 @@ import { ContentPack, IContentPackManifest } from "machine-mind";
 
 function addLCPManager(app: Application, html: any) {
   if (app.options.id == "compendium") {
-    var footer = html[0].lastElementChild;
-    if (!footer) {
-      ui.notifications.error("Unable to add LCP Manager button - Compendium Tab not found!", {
+    var buttons = $(html).find(".header-actions");
+    if (!buttons) {
+      ui.notifications.error("Unable to add LCP Manager button - Compendium Tab buttons not found!", {
         permanent: true,
       });
-      console.log(`${lp} Unable to add LCP Manager button - Compendium Tab not found!`, footer);
+      console.log(`${lp} Unable to add LCP Manager button - Compendium Tab buttons not found!`, buttons);
       return;
     }
     var button = document.createElement("button");
     button.setAttribute("style", "flex-basis: 100%;margin-top: 5px;");
-    button.innerHTML = "<i class='fas fa-file-import'></i> LANCER Compendium Manager";
-    footer.append(button);
+    button.innerHTML = "<i class='cci cci-content-manager i--s'></i> LANCER Compendium Manager";
+    buttons.append(button);
     button.addEventListener("click", (ev: MouseEvent) => {
       let mgr = new LCPManager().render(true);
     });
