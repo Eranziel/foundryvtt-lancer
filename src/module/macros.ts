@@ -366,13 +366,13 @@ export async function rollAttackMacro(actor: Actor, data: LancerAttackMacroData)
   data.damage.forEach(async (x: any) => {
     if (x.type === "" || x.val === "" || x.val == 0) return Promise.resolve(); // Skip undefined and zero damage
     let dFormula: string = x.val.toString();
-    // If the damage formula involves dice and is overkill, add "rr1" to reroll all 1's.
+    // If the damage formula involves dice and is overkill, add "r1" to reroll all 1's.
     if (dFormula.includes("d") && data.overkill) {
       let dind = dFormula.indexOf("d");
       let pind = dFormula.indexOf("+");
       if (dind >= 0) {
-        if (pind > dind) dFormula = dFormula.substring(0, pind) + "rr1" + dFormula.substring(pind);
-        else dFormula += "rr1";
+        if (pind > dind) dFormula = dFormula.substring(0, pind) + "r1" + dFormula.substring(pind);
+        else dFormula += "r1";
       }
     }
     const droll = new Roll(dFormula).roll();
