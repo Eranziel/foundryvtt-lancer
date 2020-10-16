@@ -146,13 +146,13 @@ button {
   overflow: hidden;
 }
 
-#chat-log .message header {
+#chat-log .message-header {
   overflow: hidden;
   background-color: var(--main-theme-color, fuchsia);
   padding: 5px 10px;
 }
 
-#chat-log .message header * {
+#chat-log .message-header * {
   color: white;
 }
 
