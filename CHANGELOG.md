@@ -1,3 +1,6 @@
+# 0.1.11 (2020-10-21)
+* **Foundry Core Support**: This update moves the supported Foundry core version to the 0.7 series.
+
 # 0.1.10 (2020-10-11)
 ## Bug Fixes
 * **Pilot Sheet**: Fix bug preventing superheavy weapons from being added to mounts. Closes #88.
