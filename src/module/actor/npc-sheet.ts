@@ -1,15 +1,20 @@
-import { LancerNPCSheetData, LancerNPCClassStatsData, LancerNPCData, LancerStatMacroData, LancerAttackMacroData, LancerTechMacroData } from "../interfaces";
+import {
+  LancerNPCSheetData,
+  LancerNPCClassStatsData,
+  LancerNPCData,
+  LancerStatMacroData,
+  LancerAttackMacroData,
+  LancerTechMacroData,
+} from "../interfaces";
 import {
   LancerItem,
   LancerNPCClass,
-  LancerNPCTemplate,
   LancerNPCFeature,
   LancerItemData,
 } from "../item/lancer-item";
-import { MechType } from "../enums";
 import { LancerActor } from "./lancer-actor";
 import { LANCER } from "../config";
-import { ItemManifest, ItemDataManifest } from "../item/util";
+import { ItemDataManifest } from "../item/util";
 import { LancerNPCTechData, LancerNPCWeaponData } from "../item/npc-feature";
 const lp = LANCER.log_prefix;
 
@@ -66,8 +71,7 @@ export class LancerNPCSheet extends ActorSheet {
       data.data.name = data.actor.name;
     }
 
-    console.log(`${lp} NPC data: `);
-    console.log(data);
+    console.log(`${lp} NPC data: `, data);
     return data;
   }
 
@@ -106,13 +110,13 @@ export class LancerNPCSheet extends ActorSheet {
         ev.stopPropagation(); // Avoids triggering parent event handlers
 
         // Find the stat input to get the stat's key to pass to the macro function
-        const statInput: HTMLInputElement = ($(ev.currentTarget)
+        const statInput: HTMLInputElement = $(ev.currentTarget)
           .closest(".stat-container")
-          .find(".lancer-stat")[0] as HTMLInputElement);
+          .find(".lancer-stat")[0] as HTMLInputElement;
         let tSplit = statInput.name.split(".");
         let mData: LancerStatMacroData = {
           title: tSplit[tSplit.length - 1].toUpperCase(),
-          bonus: statInput.value
+          bonus: statInput.value,
         };
 
         console.log(`${lp} Rolling ${mData.title} check, bonus: ${mData.bonus}`);
@@ -127,7 +131,7 @@ export class LancerNPCSheet extends ActorSheet {
 
         let mData: LancerStatMacroData = {
           title: $(ev.currentTarget).closest(".skill-compact").find(".modifier-name").text(),
-          bonus: parseInt($(ev.currentTarget).find(".roll-modifier").text())
+          bonus: parseInt($(ev.currentTarget).find(".roll-modifier").text()),
         };
 
         console.log(`${lp} Rolling '${mData.title}' trigger (d20 + ${mData.bonus})`);
@@ -144,7 +148,10 @@ export class LancerNPCSheet extends ActorSheet {
         const weaponId = weaponElement.getAttribute("data-item-id");
         if (!weaponId) return ui.notifications.warn(`Error rolling macro: No weapon ID!`);
         const weapon = this.actor.getOwnedItem(weaponId) as LancerNPCFeature;
-        if (!weapon) return ui.notifications.warn(`Error rolling macro: Couldn't find weapon with ID ${weaponId}.`);
+        if (!weapon)
+          return ui.notifications.warn(
+            `Error rolling macro: Couldn't find weapon with ID ${weaponId}.`
+          );
         const wData = weapon.data.data as LancerNPCWeaponData;
         const tier = (this.actor.data.data as LancerNPCData).tier_num - 1;
         let mData: LancerAttackMacroData = {
@@ -152,9 +159,11 @@ export class LancerNPCSheet extends ActorSheet {
           grit: wData.attack_bonus[tier],
           acc: wData.accuracy[tier],
           tags: wData.tags,
-          damage: wData.damage.map(d => { return { type: d.type, val: d.val[tier] }; }),
+          damage: wData.damage.map(d => {
+            return { type: d.type, val: d.val[tier] };
+          }),
           overkill: weapon.isOverkill,
-          effect: wData.effect ? wData.effect : ""
+          effect: wData.effect ? wData.effect : "",
         };
 
         console.log(`${lp} Rolling NPC attack macro with data:`, mData);
@@ -170,7 +179,10 @@ export class LancerNPCSheet extends ActorSheet {
         const techId = techElement.getAttribute("data-item-id");
         if (!techId) return ui.notifications.warn(`Error rolling macro: No tech feature ID!`);
         const tech = this.actor.getOwnedItem(techId) as LancerNPCFeature;
-        if (!tech) return ui.notifications.warn(`Error rolling macro: Couldn't find tech system with ID ${techId}.`);
+        if (!tech)
+          return ui.notifications.warn(
+            `Error rolling macro: Couldn't find tech system with ID ${techId}.`
+          );
         const tData = tech.data.data as LancerNPCTechData;
         const tier = (this.actor.data.data as LancerNPCData).tier_num - 1;
         let mData: LancerTechMacroData = {
@@ -178,8 +190,8 @@ export class LancerNPCSheet extends ActorSheet {
           acc: tData.accuracy ? tData.accuracy[tier] : 0,
           t_atk: tData.attack_bonus ? tData.attack_bonus[tier] : 0,
           effect: tData.effect ? tData.effect : "",
-          tags: tData.tags
-        }
+          tags: tData.tags,
+        };
         game.lancer.rollTechMacro(this.actor, mData);
       });
     }
@@ -192,7 +204,8 @@ export class LancerNPCSheet extends ActorSheet {
         .add('[class*="macroable"]')
         .each((i: number, item: any) => {
           if (item.classList.contains("inventory-header")) return;
-          if (item.classList.contains("roll-stat")) item.addEventListener('dragstart', haseMacroHandler, false);
+          if (item.classList.contains("roll-stat"))
+            item.addEventListener("dragstart", haseMacroHandler, false);
           item.setAttribute("draggable", true);
           item.addEventListener("dragstart", (ev: DragEvent) => this._onDragStart(ev), false);
         });
@@ -237,7 +250,6 @@ export class LancerNPCSheet extends ActorSheet {
   }
 
   _onDragMacroableStart(event: DragEvent) {
-
     // For roll-stat macros
     event.stopPropagation(); // Avoids triggering parent event handlers
     let statInput = getStatInput(event);
@@ -248,10 +260,10 @@ export class LancerNPCSheet extends ActorSheet {
       title: tSplit[tSplit.length - 1].toUpperCase(),
       dataPath: statInput.id,
       type: "actor",
-      actorId: this.actor._id
+      actorId: this.actor._id,
     };
 
-    event.dataTransfer?.setData('text/plain', JSON.stringify(data));
+    event.dataTransfer?.setData("text/plain", JSON.stringify(data));
   }
 
   /* -------------------------------------------- */
@@ -262,9 +274,9 @@ export class LancerNPCSheet extends ActorSheet {
     let data;
     try {
       data = JSON.parse(event.dataTransfer.getData("text/plain"));
-      if (data.type !== "Item") return;
+      if (data.type !== "Item") return Promise.resolve(false);
     } catch (err) {
-      return false;
+      return Promise.resolve(false);
     }
     console.log(event);
 
@@ -290,7 +302,7 @@ export class LancerNPCSheet extends ActorSheet {
       ui.notifications.warn(
         `LANCER, you shouldn't try to modify ${actor.name}'s loadout. Access Denied.`
       );
-      return;
+      return Promise.resolve(false);
     }
 
     if (item) {
@@ -304,48 +316,33 @@ export class LancerNPCSheet extends ActorSheet {
             await this.actor.deleteOwnedItem(i._id);
           }
         });
-        // Add the new class from Compendium pack
-        if (data.pack) {
-          const npcClass = (await actor.importItemFromCollection(data.pack, data.id)) as any;
-          console.log(`${lp} Added ${npcClass.name} from ${data.pack} to ${actor.name}.`);
-          newNPCClassStats = npcClass.data.stats;
-        }
-        // Add the new Class from a World entity
-        else {
-          await actor.createEmbeddedEntity("OwnedItem", duplicate(item.data));
-          const npcClass = (await actor.createOwnedItem(duplicate(item.data))) as any;
-          console.log(`${lp} Added ${npcClass.name} from ${data.pack} to ${actor.name}.`);
-          newNPCClassStats = npcClass.data.stats;
-        }
+        const npcClass = (await actor.createOwnedItem(duplicate(item.data))) as any;
+        console.log(
+          `${lp} Added ${npcClass.name} ${data.pack ? `from ${data.pack} ` : ""}to ${actor.name}.`
+        );
+        newNPCClassStats = npcClass.data.stats;
         if (newNPCClassStats) {
           console.log(`${lp} Swapping Class stats for ${actor.name}`);
           actor.swapNPCClassOrTier(newNPCClassStats, true);
         }
+        return Promise.resolve(true);
       } else if (LANCER.npc_items.includes(item.type)) {
-        if (data.pack) {
-          console.log(`${lp} Copying ${item.name} from ${data.pack} to ${actor.name}.`);
-          const dupData = duplicate(item.data);
-          const newItem = await actor.importItemFromCollection(data.pack, item._id);
-          // Make sure the new item includes all of the data from the original.
-          (dupData as any)._id = newItem._id;
-          actor.updateOwnedItem(dupData);
-          return;
-        } else {
-          console.log(`${lp} Copying ${item.name} to ${actor.name}.`);
-          const dupData = duplicate(item.data);
-          const newItem = await actor.createOwnedItem(dupData);
-          // Make sure the new item includes all of the data from the original.
-          (dupData as any)._id = newItem._id;
-          actor.updateOwnedItem(dupData);
-          return;
-        }
+        console.log(
+          `${lp} Copying ${item.name} ${data.pack ? `from ${data.pack} ` : ""}to ${actor.name}.`
+        );
+        const dupData = duplicate(item.data);
+        const newItem = await actor.createOwnedItem(dupData);
+        // Make sure the new item includes all of the data from the original.
+        (dupData as any)._id = newItem._id;
+        actor.updateOwnedItem(dupData);
+        return Promise.resolve(true);
       }
       //TODO add basic features to NPC
       //TODO remove basic feature from NPC on Class swap
       //TODO implement similar logic for Templates
       else if (LANCER.pilot_items.includes(item.type)) {
         ui.notifications.error(`Cannot add Item of type "${item.type}" to an NPC.`);
-        return;
+        return Promise.resolve(false);
       }
 
       return super._onDrop(event);
@@ -384,7 +381,7 @@ export class LancerNPCSheet extends ActorSheet {
 function getStatInput(event: Event): HTMLInputElement | HTMLDataElement | null {
   if (!event.currentTarget) return null;
   // Find the stat input to get the stat's key to pass to the macro function
-  return ($(event.currentTarget)
-    .closest(".stat-container")
-    .find(".lancer-stat")[0] as HTMLInputElement | HTMLDataElement);
+  return $(event.currentTarget).closest(".stat-container").find(".lancer-stat")[0] as
+    | HTMLInputElement
+    | HTMLDataElement;
 }
