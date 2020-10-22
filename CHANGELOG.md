@@ -1,3 +1,7 @@
+# 0.1.12 (2020-10-21)
+## Bug Fixes
+* **General**: Fix a bug where some parts of the system tried to load too soon and failed fatally.
+
 # 0.1.11 (2020-10-21)
 * **Foundry Core Support**: This update moves the supported Foundry core version to the 0.7 series.
 
