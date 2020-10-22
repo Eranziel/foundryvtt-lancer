@@ -9,53 +9,52 @@
 
 // Import TypeScript modules
 import { ICONS, LANCER, WELCOME } from "./module/config";
-const lp = LANCER.log_prefix;
 import { LancerGame } from "./module/lancer-game";
 import {
   LancerActor,
   lancerActorInit,
+  mount_card,
   mount_type_selector,
   npc_tier_selector,
-  mount_card,
 } from "./module/actor/lancer-actor";
 import {
+  core_system_preview,
+  effect_type_selector,
+  is_loading,
   LancerItem,
   lancerItemInit,
+  mech_system_preview,
+  mech_trait_preview,
   mech_weapon_preview,
-  is_loading,
+  npc_accuracy_preview,
+  npc_attack_bonus_preview,
+  npc_weapon_damage_selector,
+  pilot_weapon_damage_selector,
+  system_type_selector,
+  weapon_damage_preview,
+  weapon_range_preview,
+  weapon_range_selector,
   weapon_size_selector,
   weapon_type_selector,
-  weapon_range_preview,
-  weapon_damage_preview,
-  npc_attack_bonus_preview,
-  npc_accuracy_preview,
-  core_system_preview,
-  mech_trait_preview,
-  weapon_range_selector,
-  pilot_weapon_damage_selector,
-  npc_weapon_damage_selector,
-  system_type_selector,
-  effect_type_selector,
-  mech_system_preview
 } from "./module/item/lancer-item";
 
 import {
-  charge_type_selector,
-  action_type_selector,
   action_type_icon,
-  effect_preview,
-  generic_effect_preview,
-  basic_effect_preview,
+  action_type_selector,
   ai_effect_preview,
+  basic_effect_preview,
   bonus_effect_preview,
   charge_effect_preview,
+  charge_type_selector,
   deployable_effect_preview,
   drone_effect_preview,
+  effect_preview,
+  generic_effect_preview,
+  invade_option_preview,
   offensive_effect_preview,
   profile_effect_preview,
   protocol_effect_preview,
   reaction_effect_preview,
-  invade_option_preview,
   tech_effect_preview,
 } from "./module/item/effects";
 
@@ -71,21 +70,22 @@ import { LancerNPCClassSheet } from "./module/item/npc-class-sheet";
 import { preloadTemplates } from "./module/preloadTemplates";
 import { registerSettings } from "./module/settings";
 import {
-  renderCompactTag,
-  renderChunkyTag,
-  renderFullTag,
   compactTagList,
+  renderChunkyTag,
+  renderCompactTag,
+  renderFullTag,
 } from "./module/item/tags";
 import * as migrations from "./module/migration";
-import { addLCPManager } from './module/apps/lcpManager';
+import { addLCPManager } from "./module/apps/lcpManager";
 
 // Import JSON data
-import { CCDataStore, setup_store, CompendiumItem, DamageType, NpcFeatureType } from "machine-mind";
+import { CCDataStore, NpcFeatureType, setup_store } from "machine-mind";
 import { FauxPersistor } from "./module/ccdata_io";
 import { reload_store } from "./module/item/util";
-import { LancerNPCTechData, LancerNPCWeaponData } from "./module/item/npc-feature";
 
 import * as macros from "./module/macros";
+
+const lp = LANCER.log_prefix;
 
 /* ------------------------------------ */
 /* Initialize system                    */
@@ -136,28 +136,12 @@ Hooks.once("init", async function () {
   CONFIG.statusEffects = icons;
 
   // Register Web Components
-  customElements.define("card-clipped", class LancerClippedCard extends HTMLDivElement { }, {
+  customElements.define("card-clipped", class LancerClippedCard extends HTMLDivElement {}, {
     extends: "div",
   });
 
   // Preload Handlebars templates
   await preloadTemplates();
-
-  try {
-    // Do some CC magic
-    let store = new CCDataStore(new FauxPersistor(), {
-      disable_core_data: true,
-      shim_fallback_items: true,
-    });
-    setup_store(store);
-    await store.load_all(f => f(store));
-    await reload_store();
-    console.log(`${lp} Comp/Con data store initialized.`);
-  } catch (error) {
-    console.log(`Fatal error loading COMP/CON`);
-    console.log(error);
-    ui.notifications.error(`Warning: COMP/CON has failed to load. You may experience severe data integrity failure`);
-  }
 
   // Register sheet application classes
   Actors.unregisterSheet("core", ActorSheet);
@@ -265,13 +249,11 @@ Hooks.once("init", async function () {
   // ------------------------------------------------------------------------
   // Generic components
   Handlebars.registerHelper("l-num-input", function (target: string, value: string) {
-    let html =
-      `<div class="flexrow arrow-input-container">
+    return `<div class="flexrow arrow-input-container">
       <button class="mod-minus-button" type="button">-</button>
       <input class="lancer-stat major" type="number" name="${target}" id="${target}" value="${value}" data-dtype="Number"\>
       <button class="mod-plus-button" type="button">+</button>
     </div>`;
-    return html;
   });
 
   // ------------------------------------------------------------------------
@@ -334,15 +316,32 @@ Hooks.once("init", async function () {
   // ------------------------------------------------------------------------
   // NPC components
   Handlebars.registerHelper("tier-selector", npc_tier_selector);
-
 });
 
 /* ------------------------------------ */
 /* Setup system			            				*/
 /* ------------------------------------ */
-Hooks.once("setup", function () {
-  // Do anything after initialization but before
-  // ready
+Hooks.once("setup", async function () {
+  // Do anything after initialization but before ready.
+
+  // Create the faux Comp/Con store.
+  try {
+    // Do some CC magic
+    let store = new CCDataStore(new FauxPersistor(), {
+      disable_core_data: true,
+      shim_fallback_items: true,
+    });
+    setup_store(store);
+    await store.load_all(f => f(store));
+    await reload_store();
+    console.log(`${lp} Comp/Con data store initialized.`);
+  } catch (error) {
+    console.log(`Fatal error loading COMP/CON`);
+    console.log(error);
+    ui.notifications.error(
+      `Warning: COMP/CON has failed to load. You may experience severe data integrity failure`
+    );
+  }
 });
 
 /* ------------------------------------ */
@@ -364,7 +363,7 @@ Hooks.once("ready", async function () {
     // if ( currentVersion && (currentVersion < COMPATIBLE_MIGRATION_VERSION) ) {
     //   ui.notifications.error(`Your LANCER system data is from too old a Foundry version and cannot be reliably migrated to the latest version. The process will be attempted, but errors may occur.`, {permanent: true});
     // }
-    migrations.migrateWorld();
+    await migrations.migrateWorld();
   }
 
   // Show welcome message if not hidden.
@@ -375,15 +374,15 @@ Hooks.once("ready", async function () {
       buttons: {
         dont_show: {
           label: "Do Not Show Again",
-          callback: async (html) => {
-            game.settings.set(LANCER.sys_name, LANCER.setting_welcome, true);
-          }
+          callback: async () => {
+            await game.settings.set(LANCER.sys_name, LANCER.setting_welcome, true);
+          },
         },
         close: {
-          label: "Close"
-        }
+          label: "Close",
+        },
       },
-      default: "Close"
+      default: "Close",
     }).render(true);
   }
 });
@@ -407,9 +406,12 @@ Hooks.on("renderChatMessage", async (cm: ChatMessage, html: any, data: any) => {
         const roll = new Roll("1d6").roll();
         const templateData = {
           roll: roll,
-          roll_tooltip: await roll.getTooltip()
-        }
-        const html = await renderTemplate("systems/lancer/templates/chat/overkill-reroll.html", templateData);
+          roll_tooltip: await roll.getTooltip(),
+        };
+        const html = await renderTemplate(
+          "systems/lancer/templates/chat/overkill-reroll.html",
+          templateData
+        );
         let chat_data = {
           user: game.user,
           type: CONST.CHAT_MESSAGE_TYPES.ROLL,
@@ -425,47 +427,48 @@ Hooks.on("renderChatMessage", async (cm: ChatMessage, html: any, data: any) => {
   }
 });
 
-
-Hooks.on('hotbarDrop', (_bar: any, data: any, slot: number) => {
-  if (data.type === 'actor') {
+Hooks.on("hotbarDrop", async (_bar: any, data: any, slot: number) => {
+  if (data.type === "actor") {
     // Full list of data expected from a generic actor macro:
     // A title      - to name it
     // A dataPath   - to access dynamic data from the actor
     // An actorId   - to reference the actor
-    macros.createActorMacro(data.title, data.dataPath, data.actorId, slot);
-  } else if (data.type === 'Item') {
-    let command = '';
-    let title = '';
-    let img = 'systems/lancer/assets/icons/macro-icons/d20-framed.svg';
+    await macros.createActorMacro(data.title, data.dataPath, data.actorId, slot);
+  } else if (data.type === "Item") {
+    let command = "";
+    let title = "";
+    let img = "systems/lancer/assets/icons/macro-icons/d20-framed.svg";
     // Handled options for items:
     switch (data.data.type) {
       // Skills
-      case 'skill':
+      case "skill":
         command = `game.lancer.prepareTriggerMacro("${data.actorId}", "${data.data._id}");`;
         title = data.data.name;
         img = `systems/lancer/assets/icons/macro-icons/skill.svg`;
         break;
       // Pilot OR Mech weapon
-      case 'pilot_weapon':
-      case 'mech_weapon':
+      case "pilot_weapon":
+      case "mech_weapon":
         command = `game.lancer.prepareAttackMacro("${data.actorId}", "${data.data._id}");`;
         title = data.data.name;
         img = `systems/lancer/assets/icons/macro-icons/mech_weapon.svg`;
         break;
-      case 'mech_system':
+      case "mech_system":
         command = `game.lancer.prepareGenericMacro("${data.actorId}", "${data.data._id}");`;
         title = data.data.name;
         img = `systems/lancer/assets/icons/macro-icons/mech_system.svg`;
         break;
-      case 'talent':
+      case "talent":
         command = `game.lancer.prepareTalentMacro("${data.actorId}", "${data.itemId}", "${data.rank}");`;
         title = data.title;
         img = `systems/lancer/assets/icons/macro-icons/talent.svg`;
         if (!command || !title) {
-          return ui.notifications.warn(`Error creating talent macro. Only invidual ranks are macroable.`);
+          return ui.notifications.warn(
+            `Error creating talent macro. Only invidual ranks are macroable.`
+          );
         }
         break;
-      case 'npc_feature':
+      case "npc_feature":
         console.log(data.data.data);
         if (data.data.data.feature_type === NpcFeatureType.Weapon) {
           command = `game.lancer.prepareAttackMacro("${data.actorId}", "${data.data._id}");`;
@@ -479,12 +482,14 @@ Hooks.on('hotbarDrop', (_bar: any, data: any, slot: number) => {
           break;
         }
         return ui.notifications.warn(`Non-weapon NPC Features are not macroable.`);
-      case 'core_bonus':
+      case "core_bonus":
         return ui.notifications.warn(`Core Bonuses are not macroable.`);
     }
 
     if (!command || !title) {
-      console.log("Error creating macro: no command or title. Are you sure what you dragged in can be macroed?");
+      console.log(
+        "Error creating macro: no command or title. Are you sure what you dragged in can be macroed?"
+      );
       return ui.notifications.error(
         `Error creating macro. Are you sure what you dragged in can be macroed?`
       );
@@ -492,16 +497,21 @@ Hooks.on('hotbarDrop', (_bar: any, data: any, slot: number) => {
 
     // Until we properly register commands as something macros can have...
     // @ts-ignore
-    let macro = game.macros.entities.find((m: Macro) => (m.name === title) && (m.data as Object).command === command);
+    let macro = game.macros.entities.find(
+      (m: Macro) => m.name === title && (m.data as any).command === command
+    );
     if (!macro) {
-      (Macro.create({
-        command,
-        name: title,
-        type: 'script',
-        img: img,
-      }, { displaySheet: false })).then(macro => game.user.assignHotbarMacro((macro as Macro), slot));
+      Macro.create(
+        {
+          command,
+          name: title,
+          type: "script",
+          img: img,
+        },
+        { displaySheet: false }
+      ).then(macro => game.user.assignHotbarMacro(macro as Macro, slot));
     } else {
-      game.user.assignHotbarMacro(macro, slot)
+      await game.user.assignHotbarMacro(macro, slot);
     }
   }
 });
