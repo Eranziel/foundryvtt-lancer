@@ -16,3 +16,4 @@ dist/**/*.js.map
 dist/**/*.json
 dist/**/*.css
 dist/fonts/mdi/**
+debug.log
