@@ -5,7 +5,6 @@ import {
   LancerStatMacroData,
   LancerAttackMacroData,
   LancerTechMacroData,
-  LancerNPCClassItemData,
 } from "../interfaces";
 import {
   LancerItem,
@@ -15,9 +14,8 @@ import {
 } from "../item/lancer-item";
 import { LancerActor } from "./lancer-actor";
 import { LANCER } from "../config";
-import { get_NpcFeatures_pack, ItemDataManifest, ItemManifest, NPC_FEATURE_PACK } from "../item/util";
+import { get_NpcFeatures_pack, ItemDataManifest } from "../item/util";
 import { LancerNPCTechData, LancerNPCWeaponData } from "../item/npc-feature";
-import { NpcFeature, npc_features } from "machine-mind";
 const lp = LANCER.log_prefix;
 
 const entryPrompt = "//:AWAIT_ENTRY>";
