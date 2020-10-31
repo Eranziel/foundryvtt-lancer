@@ -1,29 +1,30 @@
 import {
-  LancerPilotSheetData,
   LancerFrameStatsData,
   LancerMountData,
   LancerPilotData,
-  LancerStatMacroData,
+  LancerPilotSheetData,
 } from "../interfaces";
 import {
-  LancerItem,
-  LancerFrame,
-  LancerMechWeapon,
-  LancerItemData,
-  LancerSkill,
-  LancerTalent,
-  LancerLicense,
   LancerCoreBonus,
+  LancerFrame,
+  LancerItem,
+  LancerItemData,
+  LancerLicense,
+  LancerMechSystem,
+  LancerMechWeapon,
+  LancerPilotArmor,
   LancerPilotGear,
   LancerPilotWeapon,
-  LancerPilotArmor,
-  LancerMechSystem,
+  LancerSkill,
+  LancerTalent,
 } from "../item/lancer-item";
 import { LancerActor } from "./lancer-actor";
 import { LANCER } from "../config";
 import { ItemDataManifest } from "../item/util";
 import { MountType } from "machine-mind";
 import { import_pilot_by_code, update_pilot } from "./util";
+import { LancerActorSheet } from "./lancer-actor-sheet";
+
 const lp = LANCER.log_prefix;
 
 // TODO: should probably move to HTML/CSS
@@ -32,9 +33,7 @@ const entryPrompt = "//:AWAIT_ENTRY>";
 /**
  * Extend the basic ActorSheet
  */
-export class LancerPilotSheet extends ActorSheet {
-  _sheetTab: string = ""; // What is this
-
+export class LancerPilotSheet extends LancerActorSheet {
   /**
    * A convenience reference to the Actor entity
    */
@@ -115,13 +114,10 @@ export class LancerPilotSheet extends ActorSheet {
     data.sp_used = 0;
 
     // Mirror items into filtered list properties
-    // let pilot_items = this.actor.items as Collection<LancerItem>;
     let item_data = (data.items as unknown) as LancerItemData[]; // This is a "True" casting. The typing of data.items is just busted
-    // let sorted = new ItemManifest().add_items(pilot_items.values());
     let sorted = new ItemDataManifest().add_items(item_data.values());
-    let sp_count = sorted.count_sp();
+    data.sp_used = sorted.count_sp();
 
-    data.sp_used = sp_count;
     // This is all so wrong but necessary for the time being. Really, both sides of this are just ItemData but the LancerPilotSheetData types are messed up
     data.skills = (sorted.skills as unknown) as LancerSkill[];
     data.talents = (sorted.talents as unknown) as LancerTalent[];
@@ -140,18 +136,17 @@ export class LancerPilotSheet extends ActorSheet {
 
     // Equip mech garbo
     data.mech_loadout = {
-      weapons: (sorted.mech_weapons as unknown) as LancerMechWeapon[], // TODO: Handle mounts
+      // TODO: Handle mounts
+      weapons: (sorted.mech_weapons as unknown) as LancerMechWeapon[],
       systems: (sorted.mech_systems as unknown) as LancerMechSystem[],
     };
 
     // Update mounted weapons to stay in sync with owned items
     data.data.mech_loadout.mounts.forEach((mount: any) => {
       if (Array.isArray(mount.weapons) && mount.weapons.length > 0) {
-        // console.log(`${lp} weapons:`, mount.weapons);
         for (let i = 0; i < mount.weapons.length; i++) {
           const ownedWeapon = this.actor.getOwnedItem(mount.weapons[i]._id);
           if (ownedWeapon) {
-            // console.log(`${lp} owned weapon:`, ownedWeapon);
             mount.weapons[i] = duplicate(ownedWeapon.data);
           }
           // TODO: If the weapon doesn't exist in owned items anymore, remove it
@@ -161,14 +156,13 @@ export class LancerPilotSheet extends ActorSheet {
         }
       }
     });
-    console.log(`${lp} mounts:`, data.data.mech_loadout.mounts);
   }
 
   /* -------------------------------------------- */
 
   /**
    * Activate event listeners using the prepared sheet HTML
-   * @param html {HTML}   The prepared HTML object ready to be rendered into the DOM
+   * @param html {JQuery}   The prepared HTML object ready to be rendered into the DOM
    */
   activateListeners(html: JQuery) {
     super.activateListeners(html);
@@ -179,7 +173,7 @@ export class LancerPilotSheet extends ActorSheet {
       let statMacro = html.find(".roll-stat");
       statMacro.on("click", (ev: Event) => {
         ev.stopPropagation(); // Avoids triggering parent event handlers
-        game.lancer.prepareStatMacro(this.actor, getStatPath(ev));
+        game.lancer.prepareStatMacro(this.actor, getStatPath(ev)!);
       });
 
       // System rollers
@@ -188,7 +182,7 @@ export class LancerPilotSheet extends ActorSheet {
         if (!ev.currentTarget) return; // No target, let other handlers take care of it.
         ev.stopPropagation(); // Avoids triggering parent event handlers
         const sysElement = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
-        game.lancer.prepareGenericMacro(this.actor._id, sysElement.getAttribute("data-item-id"));
+        game.lancer.prepareGenericMacro(this.actor._id, sysElement.getAttribute("data-item-id")!);
       });
 
       // Talent rollers
@@ -199,23 +193,13 @@ export class LancerPilotSheet extends ActorSheet {
         const sysElement = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
         game.lancer.prepareTalentMacro(
           this.actor._id,
-          sysElement.getAttribute("data-item-id"),
+          sysElement.getAttribute("data-item-id")!,
           (ev.currentTarget as HTMLElement).getAttribute("data-rank")
         );
       });
 
       // Trigger rollers
-      let triggerMacro = html.find(".roll-trigger");
-      triggerMacro.on("click", (ev: Event) => {
-        if (!ev.currentTarget) return; // No target, let other handlers take care of it.
-        ev.stopPropagation(); // Avoids triggering parent event handlers
-        let mData: LancerStatMacroData = {
-          title: $(ev.currentTarget).closest(".skill-compact").find(".modifier-name").text(),
-          bonus: parseInt($(ev.currentTarget).find(".roll-modifier").text()),
-        };
-        console.log(`${lp} Rolling '${mData.title}' trigger (d20 + ${mData.bonus})`);
-        game.lancer.rollTriggerMacro(this.actor, mData);
-      });
+      this.activateTriggerListeners(html);
 
       // Weapon rollers
       let weaponMacro = html.find(".roll-attack");
@@ -279,19 +263,10 @@ export class LancerPilotSheet extends ActorSheet {
         });
 
       // Update Inventory Item
-      let items = html.find(".item");
-      items.on("click", (ev: Event) => {
-        if (!ev.currentTarget) return;
-        const li = $(ev.currentTarget);
-        //TODO: Check if in mount and update mount
-        const item = this.actor.getOwnedItem(li.data("itemId"));
-        if (item) {
-          item.sheet.render(true);
-        }
-      });
+      this.activateOpenItemListeners(html);
 
       // Delete Item when trash can is clicked
-      items = html.find('.stats-control[data-action*="delete"]');
+      let items = html.find('.stats-control[data-action*="delete"]');
       items.on("click", (ev: Event) => {
         if (!ev.currentTarget) return; // No target, let other handlers take care of it.
         ev.stopPropagation(); // Avoids triggering parent event handlers
@@ -308,11 +283,11 @@ export class LancerPilotSheet extends ActorSheet {
           let weapons = mounts[parseInt(mount_element.data("itemKey"))].weapons;
 
           weapons.splice(parseInt(weapon_element.data("itemKey")), 1);
-          this.actor.update({ "data.mech_loadout.mounts": mounts });
+          this.actor.update({ "data.mech_loadout.mounts": mounts }).then();
         }
 
         // Delete the item from the actor.
-        this.actor.deleteOwnedItem(itemId);
+        this.actor.deleteOwnedItem(itemId).then();
         item.slideUp(200, () => this.render(true));
       });
 
@@ -328,8 +303,8 @@ export class LancerPilotSheet extends ActorSheet {
 
         let mounts = duplicate(this.actor.data.data.mech_loadout.mounts);
         mounts.push(mount);
-        this.actor.update({ "data.mech_loadout.mounts": mounts });
-        this._onSubmit(ev);
+        this.actor.update({ "data.mech_loadout.mounts": mounts }).then();
+        this._onSubmit(ev).then();
       });
 
       // Update Mounts
@@ -340,8 +315,8 @@ export class LancerPilotSheet extends ActorSheet {
         mounts[
           parseInt($(ev.currentTarget).closest(".lancer-mount-container").data("itemKey"))
         ].type = $(ev.currentTarget).children("option:selected").val();
-        this.actor.update({ "data.mech_loadout.mounts": mounts });
-        this._onSubmit(ev);
+        this.actor.update({ "data.mech_loadout.mounts": mounts }).then();
+        this._onSubmit(ev).then();
       });
 
       // Delete Mounts
@@ -355,11 +330,11 @@ export class LancerPilotSheet extends ActorSheet {
         let weapons = (this.actor.data.data as LancerPilotData).mech_loadout.mounts[id].weapons;
         for (let i = 0; i < weapons.length; i++) {
           const weapon = weapons[i];
-          if (weapon._id) this.actor.deleteOwnedItem(weapon._id);
+          if (weapon._id) this.actor.deleteOwnedItem(weapon._id).then();
         }
         mounts.splice(parseInt(id), 1);
-        this.actor.update({ "data.mech_loadout.mounts": mounts });
-        this._onSubmit(ev);
+        this.actor.update({ "data.mech_loadout.mounts": mounts }).then();
+        this._onSubmit(ev).then();
       });
 
       // Cloud download
@@ -420,62 +395,26 @@ export class LancerPilotSheet extends ActorSheet {
     event.dataTransfer?.setData("text/plain", JSON.stringify(data));
   }
 
-  async _onDrop(event: any) {
-    event.stopPropagation();
+  async _onDrop(event: any): Promise<boolean> {
+    let item: Item | null = await super._onDrop(event);
 
-    // Get dropped data
-    let data;
-    try {
-      data = JSON.parse(event.dataTransfer.getData("text/plain"));
-      if (data.type !== "Item") return Promise.resolve(false);
-    } catch (err) {
-      return Promise.resolve(false);
-    }
-    console.log(event);
-
-    let item: Item | null = null;
     const actor = this.actor as LancerActor;
-    // NOTE: these cases are copied almost verbatim from ActorSheet._onDrop
-
-    // Case 1 - Item is from a Compendium pack
-    if (data.pack) {
-      item = (await game.packs.get(data.pack)!.getEntity(data.id)) as Item;
-      console.log(`${lp} Item dropped from compendium: `, item);
-    }
-    // Case 2 - Item is a World entity
-    else if (!data.data) {
-      item = game.items.get(data.id);
-      // If item isn't from a Compendium or World entity,
-      // see if super can do something with it.
-      if (!item) super._onDrop(event);
-      console.log(`${lp} Item dropped from world: `, item);
-    }
-
-    // Logic below this line is executed only with owner or GM permission of a sheet
-    if (!actor.owner && !game.user.isGM) {
-      ui.notifications.warn(
-        `LANCER, you shouldn't try to modify ${actor.name}'s loadout. Access Denied.`
-      );
-      return Promise.resolve(false);
-    }
-
     if (item) {
       // Swap mech frame
       if (item.type === "frame") {
         let newFrameStats: LancerFrameStatsData;
         let oldFrameStats: LancerFrameStatsData | undefined = undefined;
         // Remove old frame
-        actor.items.forEach(async (i: LancerItem) => {
+        for (let item of actor.items) {
+          const i = (item as unknown) as LancerItem;
           if (i.type === "frame") {
             console.log(`${lp} Removing ${actor.name}'s old ${i.name} frame.`);
             oldFrameStats = duplicate((i as LancerFrame).data.data.stats);
             await this.actor.deleteOwnedItem(i._id);
           }
-        });
+        }
         const frame = (await actor.createOwnedItem(duplicate(item.data))) as any;
-        console.log(
-          `${lp} Added ${frame.name} ${data.pack ? `from ${data.pack} ` : ""}to ${actor.name}.`
-        );
+        console.log(`${lp} Added ${frame.name} to ${actor.name}.`);
         newFrameStats = frame.data.stats;
 
         if (newFrameStats) {
@@ -546,20 +485,13 @@ export class LancerPilotSheet extends ActorSheet {
             let weapon = await actor.createOwnedItem(duplicate(item.data));
             mount.weapons.push(weapon);
             console.log(`${lp} Inserted Mech Weapon into Mount`, weapon);
-            this.actor.update({ "data.mech_loadout.mounts": mounts });
+            await this.actor.update({ "data.mech_loadout.mounts": mounts });
           }
         }
 
         return Promise.resolve(true);
       } else if (LANCER.pilot_items.includes(item.type)) {
-        console.log(
-          `${lp} Copying ${item.name} ${data.pack ? `from ${data.pack} ` : ""}to ${actor.name}.`
-        );
-        const dupData = duplicate(item.data);
-        const newItem = await actor.createOwnedItem(dupData);
-        // Make sure the new item includes all of the data from the original.
-        (dupData as any)._id = newItem._id;
-        actor.updateOwnedItem(dupData);
+        await this._addOwnedItem(item);
         return Promise.resolve(true);
       } else if (LANCER.npc_items.includes(item.type)) {
         ui.notifications.error(`Cannot add Item of type "${item.type}" to a Pilot.`);
@@ -586,15 +518,7 @@ export class LancerPilotSheet extends ActorSheet {
     // Copy the pilot's callsign to the prototype token
     formData["token.name"] = formData["data.pilot.callsign"];
 
-    let token: any = this.actor.data["token"];
-    // Set the prototype token image if the prototype token isn't initialized
-    if (!token) {
-      formData["token.img"] = formData["img"];
-    }
-    // Update token image if it matches the old actor image
-    else if (this.actor.data.img === token["img"] && this.actor.img !== formData["img"]) {
-      formData["token.img"] = formData["img"];
-    }
+    formData = this._updateTokenImage(formData);
 
     console.log(`${lp} Pilot sheet form data: `, formData);
     // Update the Actor
