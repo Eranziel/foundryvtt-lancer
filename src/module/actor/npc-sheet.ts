@@ -11,6 +11,7 @@ import {
   LancerNPCClass,
   LancerNPCFeature,
   LancerItemData,
+  LancerNPCTemplate,
 } from "../item/lancer-item";
 import { LancerActor } from "./lancer-actor";
 import { LANCER } from "../config";
@@ -84,7 +85,7 @@ export class LancerNPCSheet extends ActorSheet {
     let npc_item_data = (data.items as unknown) as LancerItemData[];
     let sorted = new ItemDataManifest().add_items(npc_item_data.values());
 
-    data.npc_templates = sorted.npc_templates.map(x => x.data); // Why does this work. Like someone fixed exactly one, lol???
+    data.npc_templates = (sorted.npc_templates as unknown) as LancerNPCTemplate[]; // Why does this work. Like someone fixed exactly one, lol???
     data.npc_features = (sorted.npc_features as unknown) as LancerNPCFeature[];
     data.npc_class = (sorted.npc_classes[0] as unknown) as LancerNPCClass;
     //TODO Templates, Classes and Features
