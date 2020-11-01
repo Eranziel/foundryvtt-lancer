@@ -1,60 +1,60 @@
 import {
-  LancerSkill,
   LancerCoreBonus,
-  LancerTalent,
-  LancerLicense,
-  LancerPilotArmor,
-  LancerPilotWeapon,
-  LancerPilotGear,
   LancerFrame,
-  LancerMechWeapon,
-  LancerMechSystem,
-  LancerNPCClass,
-  LancerNPCTemplate,
-  LancerNPCFeature,
   LancerItem,
   LancerItemData,
+  LancerLicense,
+  LancerMechSystem,
+  LancerMechWeapon,
+  LancerNPCClass,
+  LancerNPCFeature,
+  LancerNPCTemplate,
+  LancerPilotArmor,
+  LancerPilotGear,
+  LancerPilotWeapon,
+  LancerSkill,
+  LancerTalent,
 } from "./lancer-item";
 import {
-  NpcFeature,
+  CompendiumItem,
+  ContentPack,
+  CoreBonus,
+  CustomSkill,
+  Frame,
+  IContentPack,
+  License,
   MechSystem,
   MechWeapon,
   NpcClass,
+  NpcFeature,
   NpcTemplate,
-  CompendiumItem,
-  Skill,
-  Talent,
-  Frame,
-  CoreBonus,
-  License,
-  PilotArmor,
-  PilotWeapon,
-  PilotGear,
   Pilot,
-  IContentPack,
+  PilotArmor,
+  PilotGear,
+  PilotWeapon,
+  Skill,
   store,
-  ContentPack,
-  CustomSkill,
+  Talent,
 } from "machine-mind";
 
 import { Converter } from "../ccdata_io";
 import {
-  LancerSkillItemData,
-  LancerTalentItemData,
   LancerCoreBonusItemData,
-  LancerPilotArmorItemData,
-  LancerPilotWeaponItemData,
-  LancerPilotGearItemData,
   LancerFrameItemData,
+  LancerLicenseItemData,
   LancerMechSystemItemData,
   LancerMechWeaponItemData,
   LancerNPCClassItemData,
-  LancerNPCTemplateItemData,
   LancerNPCFeatureItemData,
-  LancerLicenseItemData, LancerSkillData
+  LancerNPCTemplateItemData,
+  LancerPilotArmorItemData,
+  LancerPilotGearItemData,
+  LancerPilotWeaponItemData,
+  LancerSkillData,
+  LancerSkillItemData,
+  LancerTalentItemData,
 } from "../interfaces";
 import { IContentPackData } from "machine-mind/dist/classes/ContentPack";
-import { LANCER } from "../config";
 
 export type SupportedCompconEntity =
   | Skill
@@ -96,7 +96,7 @@ export const PACKS = [
   MECH_WEAPON_PACK,
   NPC_CLASS_PACK,
   NPC_TEMPLATE_PACK,
-  NPC_FEATURE_PACK
+  NPC_FEATURE_PACK,
 ];
 
 // Quick helper
@@ -392,8 +392,6 @@ export async function MachineMind_pilot_to_VTT_items_compendium_lookup(
   let r: LancerItem[] = [];
   let e: string[] = [];
 
-  let x = pilot.Weapons;
-  let v = [...pilot.Weapons];
   for (let x of [...pilot.Weapons, ...pilot.ExtendedWeapons]) {
     if (x) await push_helper(r, e, PILOT_WEAPON_PACK, x);
   }
@@ -438,8 +436,8 @@ export async function MachineMind_pilot_to_VTT_items_compendium_lookup(
         type: "skill",
         img: "systems/lancer/assets/icons/skill.svg",
         flags: {},
-        data: sd
-      }
+        data: sd,
+      };
       let customSkill = new LancerSkill(sid, {});
       r.push(customSkill);
     } else {
@@ -516,7 +514,7 @@ export async function CompendiumData_as_ContentPack(): Promise<IContentPack> {
     manufacturers: [],
   };
 
-  let icp: IContentPack = {
+  return {
     active: true,
     data: res,
     id: "vtt_cc",
@@ -527,8 +525,6 @@ export async function CompendiumData_as_ContentPack(): Promise<IContentPack> {
       version: "0.0.0",
     },
   };
-
-  return icp;
 }
 
 // Populates the machine-mind store with all compendium items, as well as maybe player items (in the future - we'll see)
