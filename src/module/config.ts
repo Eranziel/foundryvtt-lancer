@@ -37,78 +37,78 @@ export const STATUSES = [
   {
     id: "immobilized",
     label: "Immobilized",
-    icon: "systems/lancer/assets/icons/condition_immobilized.svg"
+    icon: "systems/lancer/assets/icons/white/condition_immobilized.svg",
   },
   {
     id: "impaired",
     label: "Impaired",
-    icon: "systems/lancer/assets/icons/condition_impaired.svg"
+    icon: "systems/lancer/assets/icons/white/condition_impaired.svg",
   },
   {
     id: "jammed",
     label: "Jammed",
-    icon: "systems/lancer/assets/icons/condition_jammed.svg"
+    icon: "systems/lancer/assets/icons/white/condition_jammed.svg",
   },
   {
     id: "lockon",
     label: "Lockon",
-    icon: "systems/lancer/assets/icons/condition_lockon.svg"
+    icon: "systems/lancer/assets/icons/white/condition_lockon.svg",
   },
   {
     id: "shredded",
     label: "Shredded",
-    icon: "systems/lancer/assets/icons/condition_shredded.svg"
+    icon: "systems/lancer/assets/icons/white/condition_shredded.svg",
   },
   {
     id: "slow",
     label: "Slow",
-    icon: "systems/lancer/assets/icons/condition_slow.svg"
+    icon: "systems/lancer/assets/icons/white/condition_slow.svg",
   },
   {
     id: "stunned",
     label: "Stunned",
-    icon: "systems/lancer/assets/icons/condition_stunned.svg"
+    icon: "systems/lancer/assets/icons/white/condition_stunned.svg",
   },
   {
     id: "dangerzone",
     label: "Danger Zone",
-    icon: "systems/lancer/assets/icons/status_dangerzone.svg"
+    icon: "systems/lancer/assets/icons/white/status_dangerzone.svg",
   },
   {
     id: "downandout",
     label: "Down and Out",
-    icon: "systems/lancer/assets/icons/status_downandout.svg"
+    icon: "systems/lancer/assets/icons/white/status_downandout.svg",
   },
   {
     id: "engaged",
     label: "Engaged",
-    icon: "systems/lancer/assets/icons/status_engaged.svg"
+    icon: "systems/lancer/assets/icons/white/status_engaged.svg",
   },
   {
     id: "exposed",
     label: "Exposed",
-    icon: "systems/lancer/assets/icons/status_exposed.svg"
+    icon: "systems/lancer/assets/icons/white/status_exposed.svg",
   },
   {
     id: "hidden",
     label: "Hidden",
-    icon: "systems/lancer/assets/icons/status_hidden.svg"
+    icon: "systems/lancer/assets/icons/white/status_hidden.svg",
   },
   {
     id: "invisible",
     label: "Invisible",
-    icon: "systems/lancer/assets/icons/status_invisible.svg"
+    icon: "systems/lancer/assets/icons/white/status_invisible.svg",
   },
   {
     id: "prone",
     label: "Prone",
-    icon: "systems/lancer/assets/icons/status_prone.svg"
+    icon: "systems/lancer/assets/icons/white/status_prone.svg",
   },
   {
     id: "shutdown",
     label: "Shutdown",
-    icon: "systems/lancer/assets/icons/status_shutdown.svg"
-  }
+    icon: "systems/lancer/assets/icons/white/status_shutdown.svg",
+  },
 ];
 
 export const WELCOME = `<div style="margin: 10px 5px">

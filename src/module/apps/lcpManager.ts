@@ -6,26 +6,32 @@ import { ContentPack, IContentPackManifest } from "machine-mind";
 
 function addLCPManager(app: Application, html: any) {
   if (app.options.id == "compendium") {
-    var buttons = $(html).find(".header-actions");
+    const buttons = $(html).find(".header-actions");
     if (!buttons) {
-      ui.notifications.error("Unable to add LCP Manager button - Compendium Tab buttons not found!", {
-        permanent: true,
-      });
-      console.log(`${lp} Unable to add LCP Manager button - Compendium Tab buttons not found!`, buttons);
+      ui.notifications.error(
+        "Unable to add LCP Manager button - Compendium Tab buttons not found!",
+        {
+          permanent: true,
+        }
+      );
+      console.log(
+        `${lp} Unable to add LCP Manager button - Compendium Tab buttons not found!`,
+        buttons
+      );
       return;
     }
-    var button = document.createElement("button");
+    const button = document.createElement("button");
     button.setAttribute("style", "flex-basis: 100%;margin-top: 5px;");
     button.innerHTML = "<i class='cci cci-content-manager i--s'></i> LANCER Compendium Manager";
     buttons.append(button);
-    button.addEventListener("click", (ev: MouseEvent) => {
-      let mgr = new LCPManager().render(true);
+    button.addEventListener("click", () => {
+      new LCPManager().render(true);
     });
   }
 }
 
 class LCPIndex {
-  index: IContentPackManifest[]
+  index: IContentPackManifest[];
 
   constructor(index: IContentPackManifest[] | null) {
     if (index) {
@@ -41,7 +47,7 @@ class LCPIndex {
 
   updateManifest(manifest: IContentPackManifest) {
     let existing: boolean = false;
-    for (var i = 0; i < this.index.length; i++) {
+    for (let i = 0; i < this.index.length; i++) {
       const m = this.index[i];
       // if (Array.isArray(m) && m.length === 0) {
       //   this.index.splice(i, 1);
@@ -52,7 +58,7 @@ class LCPIndex {
         break;
       }
     }
-    this.index.push(manifest);
+    this.addManifest(manifest);
   }
 }
 
@@ -96,17 +102,19 @@ class LCPManager extends Application {
   }
 
   updateLcpIndex(manifest: IContentPackManifest) {
-    if (!this.lcpIndex) this.lcpIndex = new LCPIndex(game.settings.get(LANCER.sys_name, LANCER.setting_lcps).index);
+    if (!this.lcpIndex)
+      this.lcpIndex = new LCPIndex(game.settings.get(LANCER.sys_name, LANCER.setting_lcps).index);
     else this.lcpIndex.updateManifest(manifest);
-    game.settings.set(LANCER.sys_name, LANCER.setting_lcps, this.lcpIndex);
-    this.render();
+    game.settings
+      .set(LANCER.sys_name, LANCER.setting_lcps, this.lcpIndex)
+      .then(() => this.render());
   }
 
   async clearCompendiums() {
     ui.notifications.info(`Clearing all LANCER Compendium data. Please wait.`);
     console.log(`${lp} Clearing all LANCER Compendium data.`);
-    game.settings.set(LANCER.sys_name, LANCER.setting_core_data, "0.0.0");
-    game.settings.set(LANCER.sys_name, LANCER.setting_lcps, new LCPIndex(null));
+    await game.settings.set(LANCER.sys_name, LANCER.setting_core_data, "0.0.0");
+    await game.settings.set(LANCER.sys_name, LANCER.setting_lcps, new LCPIndex(null));
     await clearCompendiums();
     ui.notifications.info(`LANCER Compendiums cleared.`);
     this.coreVersion = game.settings.get(LANCER.sys_name, LANCER.setting_core_data);
@@ -114,10 +122,10 @@ class LCPManager extends Application {
     this.render(true);
   }
 
-  activateListeners(html: HTMLElement | JQuery<HTMLElement>) {
+  activateListeners(html: HTMLElement | JQuery) {
     super.activateListeners(html);
     document.getElementsByClassName("lcp-core-update")[0].addEventListener("click", (ev: Event) => {
-      this._onCoreUpdateButtonClick(<MouseEvent>ev);
+      this._onCoreUpdateButtonClick(<MouseEvent>ev).then();
     });
     let fileInput = document.getElementById("lcp-file");
     if (fileInput) {
@@ -125,8 +133,8 @@ class LCPManager extends Application {
         this._onLcpPicked(ev);
       };
     }
-    document.getElementsByClassName("lcp-import")[0].addEventListener("click", (ev: Event) => {
-      this._onImportButtonClick(<MouseEvent>ev);
+    document.getElementsByClassName("lcp-import")[0].addEventListener("click", () => {
+      this._onImportButtonClick().then();
     });
     document.getElementsByClassName("lcp-clear-all")[0].addEventListener("click", (ev: Event) => {
       this._onClearAllButtonClick(<MouseEvent>ev);
@@ -140,7 +148,7 @@ class LCPManager extends Application {
     console.log(`${lp} Updating Lancer Core data to v${this.coreUpdate}`);
     await buildCompendiums(mm.getBaseContentPack());
     ui.notifications.info(`Lancer Core data update complete.`);
-    game.settings.set(LANCER.sys_name, LANCER.setting_core_data, this.coreUpdate);
+    await game.settings.set(LANCER.sys_name, LANCER.setting_core_data, this.coreUpdate);
     this.coreVersion = this.coreUpdate;
     this.render();
   }
@@ -148,21 +156,21 @@ class LCPManager extends Application {
   _onClearAllButtonClick(ev: MouseEvent) {
     if (!game.user.isGM) return ui.notifications.warn(`Only GM can modify the Compendiums.`);
     if (!ev.currentTarget) return;
-    let dialog = new Dialog({
+    new Dialog({
       title: "Confirm Clearing LANCER Compendiums",
       content: `Are you sure you want to delete ALL data from the Compendiums created by the LCP Manager?`,
       buttons: {
         confirm: {
           label: "Confirm",
-          callback: async (html) => {
-            this.clearCompendiums();
-          }
+          callback: async () => {
+            await this.clearCompendiums();
+          },
         },
         cancel: {
-          label: "Cancel"
-        }
+          label: "Cancel",
+        },
       },
-      default: "Cancel"
+      default: "Cancel",
     }).render(true);
   }
 
@@ -175,7 +183,7 @@ class LCPManager extends Application {
     const fr = new FileReader();
     fr.readAsBinaryString(this.lcpFile);
     fr.addEventListener("load", (ev: ProgressEvent) => {
-      this._onLcpParsed((ev.target as FileReader).result as string);
+      this._onLcpParsed((ev.target as FileReader).result as string).then();
     });
   }
 
@@ -200,13 +208,13 @@ class LCPManager extends Application {
       // mods: this.cp.WeaponMods.length,
       npc_classes: this.cp.NpcClasses.length,
       npc_templates: this.cp.NpcTemplates.length,
-      npc_features: this.cp.NpcFeatures.length
-    }
+      npc_features: this.cp.NpcFeatures.length,
+    };
     console.log(`${lp} Manifest of selected LCP:`, this.manifest);
     this.render();
   }
 
-  async _onImportButtonClick(ev: MouseEvent) {
+  async _onImportButtonClick() {
     if (!game.user.isGM) {
       ui.notifications.warn(`Only GM can modify the Compendiums.`);
       return;
@@ -216,8 +224,8 @@ class LCPManager extends Application {
       return;
     }
 
-    const cp = this.cp
-    const manifest = this.manifest
+    const cp = this.cp;
+    const manifest = this.manifest;
     if (!cp || !manifest) return;
 
     ui.notifications.info(`Starting import of ${cp.Name} v${cp.Version}. Please wait.`);

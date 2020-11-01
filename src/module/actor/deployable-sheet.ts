@@ -1,15 +1,12 @@
 import { LancerDeployableSheetData } from "../interfaces";
 import { LANCER } from "../config";
+import { LancerActorSheet } from "./lancer-actor-sheet";
 const lp = LANCER.log_prefix;
-
-const entryPrompt = "//:AWAIT_ENTRY>";
 
 /**
  * Extend the basic ActorSheet
  */
-export class LancerDeployableSheet extends ActorSheet {
-  _sheetTab: string = "";
-
+export class LancerDeployableSheet extends LancerActorSheet {
   /**
    * A convenience reference to the Actor entity
    */
@@ -37,7 +34,7 @@ export class LancerDeployableSheet extends ActorSheet {
   /**
    * @override
    * Activate event listeners using the prepared sheet HTML
-   * @param html {HTML}   The prepared HTML object ready to be rendered into the DOM
+   * @param html {HTMLElement}   The prepared HTML object ready to be rendered into the DOM
    */
   activateListeners(html: any) {
     super.activateListeners(html);
@@ -76,15 +73,7 @@ export class LancerDeployableSheet extends ActorSheet {
     // Copy the new name to the prototype token.
     formData["token.name"] = formData["name"];
 
-    let token: any = this.actor.data["token"];
-    // Set the prototype token image if the prototype token isn't initialized
-    if (!token) {
-      formData["token.img"] = formData["img"];
-    }
-    // Update token image if it matches the old actor image
-    else if (this.actor.data.img === token["img"] && this.actor.img !== formData["img"]) {
-      formData["token.img"] = formData["img"];
-    }
+    formData = this._updateTokenImage(formData);
 
     // Update the Actor
     return this.object.update(formData);
