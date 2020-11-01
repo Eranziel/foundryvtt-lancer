@@ -77,13 +77,15 @@ import {
 } from "./module/item/tags";
 import * as migrations from "./module/migration";
 import { addLCPManager } from "./module/apps/lcpManager";
+import * as macros from "./module/macros";
 
-// Import JSON data
+// Import Machine Mind and helpers
 import { CCDataStore, NpcFeatureType, setup_store } from "machine-mind";
 import { FauxPersistor } from "./module/ccdata_io";
 import { reload_store } from "./module/item/util";
 
-import * as macros from "./module/macros";
+// Import node modules
+import compareVersions = require("compare-versions");
 
 const lp = LANCER.log_prefix;
 
@@ -349,20 +351,26 @@ Hooks.once("setup", async function () {
 Hooks.once("ready", async function () {
   // Determine whether a system migration is required and feasible
   const currentVersion = game.settings.get(LANCER.sys_name, LANCER.setting_migration);
-  // TODO: implement/import version comparison for semantic version numbers
-  // const NEEDS_MIGRATION_VERSION = "0.0.4";
-  // const COMPATIBLE_MIGRATION_VERSION = "0.0.4";
-  // let needMigration = (currentVersion < NEEDS_MIGRATION_VERSION) || (currentVersion === null);
+  // Modify these constants to set which Lancer version numbers need and permit migration.
+  const NEEDS_MIGRATION_VERSION = "0.1.7";
+  const COMPATIBLE_MIGRATION_VERSION = "0.1.6";
+  let needMigration = currentVersion ? compareVersions(currentVersion, NEEDS_MIGRATION_VERSION) : 1;
 
-  // Perform the migration
-  // TODO: replace game.system.version with needMigration once version number checking is implemented
+  // Check whether system has been updated since last run.
   if (currentVersion != game.system.data.version && game.user.isGM) {
     // Un-hide the welcome message
     await game.settings.set(LANCER.sys_name, LANCER.setting_welcome, false);
-    // if ( currentVersion && (currentVersion < COMPATIBLE_MIGRATION_VERSION) ) {
-    //   ui.notifications.error(`Your LANCER system data is from too old a Foundry version and cannot be reliably migrated to the latest version. The process will be attempted, but errors may occur.`, {permanent: true});
-    // }
-    await migrations.migrateWorld();
+
+    if (currentVersion && compareVersions(currentVersion, COMPATIBLE_MIGRATION_VERSION) < 0) {
+      // System version is too old for migration
+      ui.notifications.error(
+        `Your LANCER system data is from too old a version and cannot be reliably migrated to the latest version. The process will be attempted, but errors may occur.`,
+        { permanent: true }
+      );
+    } else if (needMigration <= 0) {
+      // Perform the migration
+      await migrations.migrateWorld();
+    }
   }
 
   // Show welcome message if not hidden.
