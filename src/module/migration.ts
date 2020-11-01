@@ -60,7 +60,7 @@ export const migrateWorld = async function () {
   }
 
   // Set the migration as complete
-  await game.settings.set(LANCER.sys_name, LANCER.setting_migration, game.system.data.version);
+  // await game.settings.set(LANCER.sys_name, LANCER.setting_migration, game.system.data.version);
   ui.notifications.info(
     `LANCER System Migration to version ${game.system.data.version} completed!`,
     { permanent: true }

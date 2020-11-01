@@ -131,7 +131,7 @@ Hooks.once("init", async function () {
 
   // Set up system status icons
   const keepStock = game.settings.get(LANCER.sys_name, LANCER.setting_stock_icons);
-  let statuses: { id: string; label: string; icon: string; }[] = [];
+  let statuses: { id: string; label: string; icon: string }[] = [];
   // The type for statusEffects is wrong
   //@ts-ignore
   if (keepStock) statuses = statuses.concat(CONFIG.statusEffects);
@@ -361,20 +361,23 @@ Hooks.once("ready", async function () {
   let needMigration = currentVersion ? compareVersions(currentVersion, NEEDS_MIGRATION_VERSION) : 1;
 
   // Check whether system has been updated since last run.
-  if (currentVersion != game.system.data.version && game.user.isGM) {
+  if (compareVersions(currentVersion, game.system.data.version) != 0 && game.user.isGM) {
     // Un-hide the welcome message
     await game.settings.set(LANCER.sys_name, LANCER.setting_welcome, false);
 
-    if (currentVersion && compareVersions(currentVersion, COMPATIBLE_MIGRATION_VERSION) < 0) {
-      // System version is too old for migration
-      ui.notifications.error(
-        `Your LANCER system data is from too old a version and cannot be reliably migrated to the latest version. The process will be attempted, but errors may occur.`,
-        { permanent: true }
-      );
-    } else if (needMigration <= 0) {
+    if (needMigration <= 0) {
+      if (currentVersion && compareVersions(currentVersion, COMPATIBLE_MIGRATION_VERSION) < 0) {
+        // System version is too old for migration
+        ui.notifications.error(
+          `Your LANCER system data is from too old a version and cannot be reliably migrated to the latest version. The process will be attempted, but errors may occur.`,
+          { permanent: true }
+        );
+      }
       // Perform the migration
       await migrations.migrateWorld();
     }
+    // Set the version for future migration and welcome message checking
+    await game.settings.set(LANCER.sys_name, LANCER.setting_migration, game.system.data.version);
   }
 
   // Show welcome message if not hidden.
