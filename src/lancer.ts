@@ -113,7 +113,6 @@ Hooks.once("init", async function () {
     prepareTechMacro: macros.prepareTechMacro,
     rollTechMacro: macros.rollTechMacro,
     prepareTriggerMacro: macros.prepareTriggerMacro,
-    rollTriggerMacro: macros.rollTriggerMacro,
     prepareGenericMacro: macros.prepareGenericMacro,
     rollGenericMacro: macros.rollGenericMacro,
     prepareTalentMacro: macros.prepareTalentMacro,

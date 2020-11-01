@@ -97,7 +97,7 @@ export class LancerActorSheet extends ActorSheet {
       };
 
       console.log(`${lp} Rolling '${mData.title}' trigger (d20 + ${mData.bonus})`);
-      game.lancer.rollTriggerMacro(this.actor, mData);
+      game.lancer.rollStatMacro(this.actor, mData);
     });
   }
 

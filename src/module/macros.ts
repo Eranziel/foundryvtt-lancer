@@ -99,56 +99,52 @@ export async function renderMacro(actor: Actor, template: string, templateData: 
   return Promise.resolve();
 }
 
-export function prepareTriggerMacro(a: string, i: string) {
-  // Determine which Actor to speak as
-  let actor: Actor | null = game.actors.get(a) || getMacroSpeaker();
-  if (!actor) {
+function getMacroActorItem(a: string, i: string): { actor: Actor | null; item: Item | null } {
+  let result = { actor: null, item: null } as { actor: Actor | null; item: Item | null };
+  // Find the Actor for a macro to speak as
+  result.actor = game.actors.get(a) || getMacroSpeaker();
+  if (!result.actor) {
     ui.notifications.warn(`Failed to find Actor for macro. Do you need to select a token?`);
-    return null;
+    return result;
   }
 
-  // Get the item
-  const item: Item | null = actor.getOwnedItem(i) as Item | null;
-  if (!item) {
+  // Find the item
+  result.item = result.actor.getOwnedItem(i) as Item | null;
+  if (!result.item) {
     ui.notifications.warn(`Failed to find Item for macro.`);
-    return null;
+    return result;
   }
+  return result;
+}
+
+async function buildAttackRollString(
+  title: string,
+  acc: number,
+  bonus: number
+): Promise<string | null> {
+  let abort: boolean = false;
+  await promptAccDiffModifier(acc, title).then(
+    resolve => (acc = resolve),
+    reject => (abort = reject)
+  );
+  if (abort) return null;
+
+  // Do the attack rolling
+  let acc_str = acc != 0 ? ` + ${acc}d6kh1` : "";
+  return `1d20+${bonus}${acc_str}`;
+}
+
+export function prepareTriggerMacro(a: string, i: string) {
+  const a_i = getMacroActorItem(a, i);
+  const actor = a_i.actor;
+  const item = a_i.item;
+  if (!actor || !item) return null;
 
   let mData: LancerStatMacroData = {
     title: item.name,
     bonus: item.data.data.rank * 2,
   };
-  rollTriggerMacro(actor, mData).then();
-}
-
-export async function rollTriggerMacro(actor: Actor, data: LancerStatMacroData) {
-  if (!actor) return Promise.resolve();
-
-  // Get accuracy/difficulty with a prompt
-  let acc: number = 0;
-  let abort: boolean = false;
-  await promptAccDiffModifier(acc, data.title).then(
-    resolve => (acc = resolve),
-    reject => (abort = reject)
-  );
-  if (abort) return Promise.resolve();
-
-  // Do the roll
-  let acc_str = acc != 0 ? ` + ${acc}d6kh1` : "";
-  let roll = new Roll(`1d20+${data.bonus}${acc_str}`).roll();
-
-  const roll_tt = await roll.getTooltip();
-
-  // Construct the template
-  const templateData = {
-    title: data.title,
-    roll: roll,
-    roll_tooltip: roll_tt,
-    effect: null,
-  };
-
-  const template = `systems/lancer/templates/chat/stat-roll-card.html`;
-  return renderMacro(actor, template, templateData);
+  rollStatMacro(actor, mData).then();
 }
 
 export function prepareStatMacro(a: string, statKey: string) {
@@ -178,7 +174,7 @@ export async function rollStatMacro(actor: Actor, data: LancerStatMacroData) {
   let abort: boolean = false;
   await promptAccDiffModifier(acc, data.title).then(
     resolve => (acc = resolve),
-    reject => (abort = true)
+    reject => (abort = reject)
   );
   if (abort) return Promise.resolve();
 
@@ -200,19 +196,10 @@ export async function rollStatMacro(actor: Actor, data: LancerStatMacroData) {
 }
 
 export function prepareGenericMacro(a: string, i: string) {
-  // Determine which Actor to speak as
-  let actor: Actor | null = game.actors.get(a) || getMacroSpeaker();
-  if (!actor) {
-    ui.notifications.warn(`Failed to find Actor for macro. Do you need to select a token?`);
-    return null;
-  }
-
-  // Get the item
-  const item: Item | null = actor.getOwnedItem(i) as Item | null;
-  if (!item) {
-    ui.notifications.warn(`Failed to find Item for macro.`);
-    return null;
-  }
+  const a_i = getMacroActorItem(a, i);
+  const actor = a_i.actor;
+  const item = a_i.item;
+  if (!actor || !item) return null;
 
   let mData: LancerGenericMacroData = {
     title: item.name,
@@ -339,19 +326,10 @@ export function prepareAttackMacro(a: string, w: string) {
 }
 
 export async function rollAttackMacro(actor: Actor, data: LancerAttackMacroData) {
-  // Get accuracy/difficulty with a prompt
-  let abort: boolean = false;
-  await promptAccDiffModifier(data.acc, data.title).then(
-    resolve => (data.acc = resolve),
-    reject => (abort = reject)
-  );
-  if (abort) return;
-
-  // Do the attack rolling
-  let acc_str = data.acc != 0 ? ` + ${data.acc}d6kh1` : "";
-  let atk_str = `1d20+${data.grit}${acc_str}`;
-  // console.log(`${lp} Attack roll string: ${atk_str}`);
+  let atk_str = await buildAttackRollString(data.title, data.acc, data.grit);
+  if (!atk_str) return;
   let attack_roll = new Roll(atk_str).roll();
+  const attack_tt = await attack_roll.getTooltip();
 
   // Iterate through damage types, rolling each
   let damage_results: Array<{
@@ -395,7 +373,6 @@ export async function rollAttackMacro(actor: Actor, data: LancerAttackMacroData)
   }
 
   // Output
-  const attack_tt = await attack_roll.getTooltip();
   const templateData = {
     title: data.title,
     attack: attack_roll,
@@ -406,7 +383,7 @@ export async function rollAttackMacro(actor: Actor, data: LancerAttackMacroData)
     tags: data.tags,
   };
   const template = `systems/lancer/templates/chat/attack-card.html`;
-  return renderMacro(actor, template, templateData);
+  return await renderMacro(actor, template, templateData);
 }
 
 export async function prepareTechMacro(a: string, t: string) {
@@ -463,22 +440,12 @@ export async function prepareTechMacro(a: string, t: string) {
 }
 
 export async function rollTechMacro(actor: Actor, data: LancerTechMacroData) {
-  // Get accuracy/difficulty with a prompt
-  let abort: boolean = false;
-  await promptAccDiffModifier(data.acc, data.title).then(
-    resolve => (data.acc = resolve),
-    reject => (abort = reject)
-  );
-  if (abort) return;
-
-  // Do the attack rolling
-  let acc_str = data.acc != 0 ? ` + ${data.acc}d6kh1` : "";
-  let atk_str = `1d20+${data.t_atk}${acc_str}`;
-  console.log(`${lp} Tech Attack roll string: ${atk_str}`);
+  let atk_str = await buildAttackRollString(data.title, data.acc, data.t_atk);
+  if (!atk_str) return;
   let attack_roll = new Roll(atk_str).roll();
+  const attack_tt = await attack_roll.getTooltip();
 
   // Output
-  const attack_tt = await attack_roll.getTooltip();
   const templateData = {
     title: data.title,
     attack: attack_roll,
@@ -488,7 +455,7 @@ export async function rollTechMacro(actor: Actor, data: LancerTechMacroData) {
   };
 
   const template = `systems/lancer/templates/chat/tech-attack-card.html`;
-  return renderMacro(actor, template, templateData);
+  return await renderMacro(actor, template, templateData);
 }
 
 async function promptAccDiffModifier(acc?: number, title?: string) {
@@ -530,7 +497,7 @@ async function promptAccDiffModifier(acc?: number, title?: string) {
         },
       },
       default: "submit",
-      close: () => reject(),
+      close: () => reject(true),
     }).render(true);
   });
 }
