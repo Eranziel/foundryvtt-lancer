@@ -1,5 +1,5 @@
-import { TagData, RangeData, DamageData } from "../interfaces";
-import { EffectType, ActivationType, ChargeType } from "../enums";
+import { DamageData, RangeData, TagData } from "../interfaces";
+import { ActivationType, ChargeType, EffectType } from "../enums";
 import { renderCompactTag } from "./tags";
 
 export const EffectIcons = {
@@ -183,7 +183,7 @@ export function action_type_selector(a_type: string, data_target: string) {
  */
 export function charge_type_selector(c_type: string, data_target: string) {
   const c = c_type ? c_type.toLowerCase() : ChargeType.Grenade.toLowerCase();
-  const html = `<select name="${data_target}" data-type="String" style="height: 2em;float: right" >
+  return `<select name="${data_target}" data-type="String" style="height: 2em;float: right" >
     <option value="${ChargeType.Grenade}" ${
     c === ChargeType.Grenade.toLowerCase() ? "selected" : ""
   }>GRENADE</option>
@@ -191,14 +191,13 @@ export function charge_type_selector(c_type: string, data_target: string) {
     c === ChargeType.Mine.toLowerCase() ? "selected" : ""
   }>MINE</option>
   </select>`;
-  return html;
 }
 
-export const charge_effect_editable = ``;
+// export const charge_effect_editable = ``;
 
 export function effect_preview(effect: EffectData) {
   let _effect = effect as any;
-  var html = ``;
+  let html = ``;
   if (_effect.abilities) {
     html += `<div class="flexcol effect-preview" style="padding: 5px">`;
   }
@@ -240,7 +239,7 @@ export const generic_effect_preview = `<div class="flexcol effect-text" style="p
 </div>`;
 
 export function effect_tag_row(effect: EffectData) {
-  var html = ``;
+  let html = ``;
   if (effect.tags) {
     html += `<div class="compact-tag-row">`;
     effect.tags.forEach(tag => {
@@ -253,7 +252,7 @@ export function effect_tag_row(effect: EffectData) {
 
 export function standard_effect_preview(effect: EffectData, title?: string) {
   let _effect = effect as any;
-  var html = `<div class="flexcol effect-text" style="padding: 5px">
+  let html = `<div class="flexcol effect-text" style="padding: 5px">
     <div class="medium effect-title">${title ? title : "EFFECT"}`;
   if (effect.activation) {
     html += ` // ${effect.activation.toUpperCase()}`;
@@ -280,7 +279,7 @@ export function ai_effect_preview(effect: AIEffectData) {
 }
 
 export function bonus_effect_preview(effect: BonusEffectData) {
-  var html = `<div class="flexcol effect-text" style="padding: 5px">
+  let html = `<div class="flexcol effect-text" style="padding: 5px">
     <div class="medium effect-title">EFFECT`;
   if (effect.activation) {
     html += ` // ${effect.activation.toUpperCase()}`;
@@ -326,7 +325,7 @@ export function bonus_effect_preview(effect: BonusEffectData) {
 }
 
 export function charge_effect_preview(effect: ChargeEffectData) {
-  var html = `<div class="flexcol effect-text" style="padding: 5px">
+  let html = `<div class="flexcol effect-text" style="padding: 5px">
     <div class="medium effect-title">CHARGE EFFECT`;
   if (effect.activation) {
     html += ` // ${effect.activation.toUpperCase()}`;
@@ -370,7 +369,7 @@ export function charge_effect_preview(effect: ChargeEffectData) {
 }
 
 export function deployable_effect_preview(effect: DeployableEffectData) {
-  var html = `<div class="flexcol effect-text" style="padding: 5px">
+  let html = `<div class="flexcol effect-text" style="padding: 5px">
     <div class="medium effect-title">DEPLOYABLE EFFECT`;
   if (effect.activation) {
     html += ` // ${effect.activation.toUpperCase()}`;
@@ -382,11 +381,11 @@ export function deployable_effect_preview(effect: DeployableEffectData) {
   html += `<div class="flexrow" style="max-width: max-content;">
     <div class="flexrow compact-stat lancer-effect-stat">`;
   if (effect.size) {
-    var size_icon = `<i class="cci cci-size-${
+    const size_icon = `<i class="cci cci-size-${
       effect.size < 1 ? "half" : effect.size
     } i--m i--dark"></i>`;
     if (effect.count) {
-      for (var i = 0; i < effect.count; i++) {
+      for (let i = 0; i < effect.count; i++) {
         html += size_icon;
       }
     } else {
@@ -425,7 +424,7 @@ export function deployable_effect_preview(effect: DeployableEffectData) {
 }
 
 export function drone_effect_preview(effect: DroneEffectData) {
-  var html = `<div class="flexcol effect-text" style="padding: 5px">
+  let html = `<div class="flexcol effect-text" style="padding: 5px">
     <div class="medium effect-title">DRONE EFFECT`;
   if (effect.activation) {
     html += ` // ${effect.activation.toUpperCase()}`;
@@ -478,7 +477,7 @@ export function drone_effect_preview(effect: DroneEffectData) {
 }
 
 export function offensive_effect_preview(effect: OffensiveEffectData) {
-  var html = `<div class="flexcol effect-text" style="padding: 5px">
+  let html = `<div class="flexcol effect-text" style="padding: 5px">
     <div class="medium effect-title">WEAPON EFFECT`;
   if (effect.activation) {
     html += ` // ${effect.activation.toUpperCase()}`;
@@ -514,7 +513,7 @@ export function offensive_effect_preview(effect: OffensiveEffectData) {
 }
 
 export function profile_effect_preview(effect: ProfileEffectData) {
-  var html = `<div class="flexcol sub-effect-box">
+  let html = `<div class="flexcol sub-effect-box">
     <div class="flexcol effect-text" style="padding: 5px">
       <div class="medium effect-title">WEAPON PROFILE`;
   if (effect.activation) {
@@ -554,7 +553,7 @@ export function protocol_effect_preview(effect: ProtocolEffectData) {
 }
 
 export function reaction_effect_preview(effect: ReactionEffectData) {
-  var html = `<div class="flexcol effect-text" style="padding: 5px">
+  let html = `<div class="flexcol effect-text" style="padding: 5px">
     <div class="medium effect-title">REACTION`;
   if (effect.activation) {
     html += ` // ${effect.activation.toUpperCase()}`;
@@ -589,7 +588,7 @@ export function reaction_effect_preview(effect: ReactionEffectData) {
 }
 
 export function invade_option_preview(effect: InvadeOptionData, set: string) {
-  var html = `<div class="flexcol sub-effect-box" style="padding: 5px">
+  let html = `<div class="flexcol sub-effect-box" style="padding: 5px">
     <div class="medium effect-title">${effect.name} // ${set.toUpperCase()}</div>`;
   if (effect.detail) {
     html += `<div class="effect-text">${effect.detail}</div>`;
@@ -599,7 +598,7 @@ export function invade_option_preview(effect: InvadeOptionData, set: string) {
 }
 
 export function tech_effect_preview(effect: TechEffectData) {
-  var html = `<div class="flexcol effect-text" style="padding: 5px">
+  let html = `<div class="flexcol effect-text" style="padding: 5px">
     <div class="medium effect-title">${
       effect.option_set ? effect.option_set.toUpperCase() : "TECH EFFECT"
     } // ${effect.activation.toUpperCase()} TECH</div>

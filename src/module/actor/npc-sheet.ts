@@ -6,26 +6,18 @@ import {
   LancerAttackMacroData,
   LancerTechMacroData,
 } from "../interfaces";
-import {
-  LancerItem,
-  LancerNPCClass,
-  LancerNPCFeature,
-  LancerItemData,
-} from "../item/lancer-item";
+import { LancerItem, LancerNPCClass, LancerNPCFeature, LancerItemData } from "../item/lancer-item";
 import { LancerActor } from "./lancer-actor";
 import { LANCER } from "../config";
 import { ItemDataManifest } from "../item/util";
 import { LancerNPCTechData, LancerNPCWeaponData } from "../item/npc-feature";
+import { LancerActorSheet } from "./lancer-actor-sheet";
 const lp = LANCER.log_prefix;
-
-const entryPrompt = "//:AWAIT_ENTRY>";
 
 /**
  * Extend the basic ActorSheet
  */
-export class LancerNPCSheet extends ActorSheet {
-  _sheetTab: string = ""; // Unused?
-
+export class LancerNPCSheet extends LancerActorSheet {
   /**
    * A convenience reference to the Actor entity
    */
@@ -93,7 +85,7 @@ export class LancerNPCSheet extends ActorSheet {
 
   /**
    * Activate event listeners using the prepared sheet HTML
-   * @param html {HTML}   The prepared HTML object ready to be rendered into the DOM
+   * @param html {HTMLElement}   The prepared HTML object ready to be rendered into the DOM
    */
   activateListeners(html: JQuery) {
     super.activateListeners(html);
@@ -124,19 +116,7 @@ export class LancerNPCSheet extends ActorSheet {
       });
 
       // Trigger rollers
-      let triggerMacro = html.find(".roll-trigger");
-      triggerMacro.on("click", (ev: Event) => {
-        if (!ev.currentTarget) return; // No target, let other handlers take care of it.
-        ev.stopPropagation(); // Avoids triggering parent event handlers
-
-        let mData: LancerStatMacroData = {
-          title: $(ev.currentTarget).closest(".skill-compact").find(".modifier-name").text(),
-          bonus: parseInt($(ev.currentTarget).find(".roll-modifier").text()),
-        };
-
-        console.log(`${lp} Rolling '${mData.title}' trigger (d20 + ${mData.bonus})`);
-        game.lancer.rollTriggerMacro(this.actor, mData);
-      });
+      this.activateTriggerListeners(html);
 
       // Weapon rollers
       let weaponMacro = html.find(".roll-attack");
@@ -206,45 +186,37 @@ export class LancerNPCSheet extends ActorSheet {
           if (item.classList.contains("inventory-header")) return;
           if (item.classList.contains("roll-stat"))
             item.addEventListener("dragstart", haseMacroHandler, false);
-          item.setAttribute("draggable", true);
+          item.setAttribute("draggable", "true");
           item.addEventListener("dragstart", (ev: DragEvent) => this._onDragStart(ev), false);
         });
 
       // Update Inventory Item
-      let items = html.find(".item");
-      items.on("click", (ev: Event) => {
-        if (!ev.currentTarget) return; // No target, let other handlers take care of it.
-        const li = $(ev.currentTarget);
-        const item = this.actor.getOwnedItem(li.data("itemId"));
-        if (item) {
-          item.sheet.render(true);
-        }
-      });
+      this.activateOpenItemListeners(html);
 
       // Delete Item when trash can is clicked
-      items = html.find('.stats-control[data-action*="delete"]');
-      items.on("click", (ev: Event) => {
+      let items = html.find('.stats-control[data-action*="delete"]');
+      items.on("click", async (ev: Event) => {
         if (!ev.currentTarget) return; // No target, let other handlers take care of it.
         ev.stopPropagation(); // Avoids triggering parent event handlers
         const li = $(ev.currentTarget).closest(".item");
-        this.actor.deleteOwnedItem(li.data("itemId"));
+        await this.actor.deleteOwnedItem(li.data("itemId"));
         li.slideUp(200, () => this.render(false));
       });
 
       // Change tier
       let tier_selector = html.find('select.tier-control[data-action*="update"]');
-      tier_selector.on("change", (ev: Event) => {
+      tier_selector.on("change", async (ev: Event) => {
         if (!ev.currentTarget) return; // No target, let other handlers take care of it.
         ev.stopPropagation();
         let tier = (ev.currentTarget as HTMLSelectElement).selectedOptions[0].value;
-        this.actor.update({ "data.tier": tier });
+        await this.actor.update({ "data.tier": tier });
         // Set Values for
         let actor = this.actor as LancerActor;
         let NPCClassStats: LancerNPCClassStatsData;
         NPCClassStats = (actor.items.find((i: Item) => i.type === "npc_class") as any).data.data
           .stats;
         console.log(`${lp} TIER Swap with ${tier} and ${NPCClassStats}`);
-        actor.swapNPCClassOrTier(NPCClassStats, false, tier);
+        await actor.swapNPCClassOrTier(NPCClassStats, false, tier);
       });
     }
   }
@@ -268,73 +240,32 @@ export class LancerNPCSheet extends ActorSheet {
 
   /* -------------------------------------------- */
 
-  async _onDrop(event: any) {
-    event.preventDefault();
-    // Get dropped data
-    let data;
-    try {
-      data = JSON.parse(event.dataTransfer.getData("text/plain"));
-      if (data.type !== "Item") return Promise.resolve(false);
-    } catch (err) {
-      return Promise.resolve(false);
-    }
-    console.log(event);
+  async _onDrop(event: any): Promise<boolean> {
+    let item: Item | null = await super._onDrop(event);
 
-    let item: Item | null = null;
     const actor = this.actor as LancerActor;
-    // NOTE: these cases are copied almost verbatim from ActorSheet._onDrop
-
-    // Case 1 - Item is from a Compendium pack
-    if (data.pack) {
-      item = (await game.packs.get(data.pack)!.getEntity(data.id)) as Item;
-      console.log(`${lp} Item dropped from compendium: `, item);
-    }
-    // Case 2 - Item is a World entity
-    else if (!data.data) {
-      item = game.items.get(data.id);
-      // If item isn't from a Compendium or World entity,
-      // see if super can do something with it.
-      if (!item) super._onDrop(event);
-      console.log(`${lp} Item dropped from world: `, item);
-    }
-    // Logic below this line is executed only with owner or GM permission of a sheet
-    if (!actor.owner && !game.user.isGM) {
-      ui.notifications.warn(
-        `LANCER, you shouldn't try to modify ${actor.name}'s loadout. Access Denied.`
-      );
-      return Promise.resolve(false);
-    }
-
     if (item) {
       // Swap mech class
       if (item.type === "npc_class") {
         let newNPCClassStats: LancerNPCClassStatsData;
         // Remove old class
-        actor.items.forEach(async (i: LancerItem) => {
+        for (let item of actor.items) {
+          const i = (item as unknown) as LancerItem;
           if (i.type === "npc_class") {
             console.log(`${lp} Removing ${actor.name}'s old ${i.name} class.`);
             await this.actor.deleteOwnedItem(i._id);
           }
-        });
+        }
         const npcClass = (await actor.createOwnedItem(duplicate(item.data))) as any;
-        console.log(
-          `${lp} Added ${npcClass.name} ${data.pack ? `from ${data.pack} ` : ""}to ${actor.name}.`
-        );
+        console.log(`${lp} Copying ${item.name} to ${actor.name}.`);
         newNPCClassStats = npcClass.data.stats;
         if (newNPCClassStats) {
           console.log(`${lp} Swapping Class stats for ${actor.name}`);
-          actor.swapNPCClassOrTier(newNPCClassStats, true);
+          await actor.swapNPCClassOrTier(newNPCClassStats, true);
         }
         return Promise.resolve(true);
       } else if (LANCER.npc_items.includes(item.type)) {
-        console.log(
-          `${lp} Copying ${item.name} ${data.pack ? `from ${data.pack} ` : ""}to ${actor.name}.`
-        );
-        const dupData = duplicate(item.data);
-        const newItem = await actor.createOwnedItem(dupData);
-        // Make sure the new item includes all of the data from the original.
-        (dupData as any)._id = newItem._id;
-        actor.updateOwnedItem(dupData);
+        await this._addOwnedItem(item);
         return Promise.resolve(true);
       }
       //TODO add basic features to NPC
@@ -344,9 +275,8 @@ export class LancerNPCSheet extends ActorSheet {
         ui.notifications.error(`Cannot add Item of type "${item.type}" to an NPC.`);
         return Promise.resolve(false);
       }
-
-      return super._onDrop(event);
     }
+    return Promise.resolve(false);
   }
 
   /* -------------------------------------------- */
@@ -362,15 +292,7 @@ export class LancerNPCSheet extends ActorSheet {
     // Copy the NPC name to the prototype token.
     formData["token.name"] = formData["data.name"];
 
-    let token: any = this.actor.data["token"];
-    // Set the prototype token image if the prototype token isn't initialized
-    if (!token) {
-      formData["token.img"] = formData["img"];
-    }
-    // Update token image if it matches the old actor image
-    else if (this.actor.data.img === token["img"] && this.actor.img !== formData["img"]) {
-      formData["token.img"] = formData["img"];
-    }
+    formData = this._updateTokenImage(formData);
 
     console.log(`${lp} NPC sheet form data: `, formData);
     // Update the Actor

@@ -1,23 +1,12 @@
 import * as mm from "machine-mind";
-import { LancerActor, lancerActorInit } from "./lancer-actor";
-import { CompendiumCategory, store, CompendiumItem, Mount, MechWeapon } from "machine-mind";
-import {
-  LancerPilotData,
-  LancerPilotActorData,
-  LancerMountData,
-  LancerMechWeaponData,
-} from "../interfaces";
-import {
-  MachineMind_pilot_to_VTT_items_compendium_lookup,
-  ItemManifest,
-  ItemDataManifest,
-} from "../item/util";
-import { LancerItem, LancerItemData } from "../item/lancer-item";
+import { CompendiumCategory, CompendiumItem, store } from "machine-mind";
+import { LancerActor } from "./lancer-actor";
+import { LancerPilotActorData } from "../interfaces";
+import { ItemDataManifest, MachineMind_pilot_to_VTT_items_compendium_lookup } from "../item/util";
 
 export async function import_pilot_by_code(code: string): Promise<mm.Pilot> {
   let data = await mm.loadPilot(code);
-  let pilot = mm.Pilot.Deserialize(data);
-  return pilot;
+  return mm.Pilot.Deserialize(data);
 }
 
 // Make the specified actor be the specified pilot
@@ -45,7 +34,7 @@ export async function update_pilot(pilot: LancerActor, cc_pilot: mm.Pilot): Prom
 
   // Wipe old items
   for (let item of pilot.items.values()) {
-    pilot.deleteOwnedItem(item._id);
+    await pilot.deleteOwnedItem(item._id);
   }
 
   // Do some pre-editing before owning
@@ -53,13 +42,11 @@ export async function update_pilot(pilot: LancerActor, cc_pilot: mm.Pilot): Prom
   let item_data_sorted = new ItemDataManifest().add_items(item_data);
 
   for (let talent of item_data_sorted.talents) {
-    let corr_talent_rank = cc_pilot.getTalentRank(talent.data.id);
-    talent.data.rank = corr_talent_rank;
+    talent.data.rank = cc_pilot.getTalentRank(talent.data.id);
   }
 
   for (let skill of item_data_sorted.skills) {
-    let corr_skill_rank = cc_pilot.getSkillRank(skill.data.id);
-    skill.data.rank = corr_skill_rank;
+    skill.data.rank = cc_pilot.getSkillRank(skill.data.id);
   }
 
   // Copy them all
@@ -174,7 +161,7 @@ export async function update_pilot(pilot: LancerActor, cc_pilot: mm.Pilot): Prom
     */
   }
 
-  pilot.update(pad);
+  await pilot.update(pad);
 
   // Fixup actor name -- this might not work
   // pilot.token.update({name: cc_pilot.Name});
