@@ -24,7 +24,7 @@
   </nav>
 
   {{!-- Sheet Body --}}
-  <section class="sheet-body" style="height:-webkit-fill-available">
+  <section class="sheet-body" style="height: 100%">
 
     {{!-- Loadout Tab --}}
     <div class="tab mech active" data-group="primary" data-tab="mech">
@@ -230,9 +230,9 @@
             </div>
             <div class="flexcol" style="margin: 10px;">
               <span class="medium flexrow">TRIGGER</span>
-              <div class="effect-text flexrow" style="padding: 5px">{{{npc_feature.data.trigger}}}</div>
+              <div class="effect-text" style="padding: 5px">{{{npc_feature.data.trigger}}}</div>
               <span class="medium flexrow">EFFECT</span>
-              <div class="effect-text flexrow" style="padding: 5px">{{{npc_feature.data.effect}}}</div>
+              <div class="effect-text" style="padding: 5px">{{{npc_feature.data.effect}}}</div>
             </div>
             <div class="flexrow" style="justify-content: flex-end;">
               {{#each npc_feature.data.tags as |tag tkey|}}
@@ -252,7 +252,7 @@
             </div>
             <div class="flexcol" style="margin: 10px;">
               <span class="medium flexrow">EFFECT</span>
-              <div class="effect-text flexrow" style="padding: 5px">{{{npc_feature.data.effect}}}</div>
+              <div class="effect-text" style="padding: 5px">{{{npc_feature.data.effect}}}</div>
             </div>
             <div class="flexrow" style="justify-content: flex-end;">
               {{#each npc_feature.data.tags as |tag tkey|}}
@@ -272,7 +272,7 @@
             </div>
             <div class="flexcol" style="margin: 10px;">
               <span class="medium flexrow">EFFECT</span>
-              <div class="effect-text flexrow" style="padding: 5px">{{{npc_feature.data.effect}}}</div>
+              <div class="effect-text" style="padding: 5px">{{{npc_feature.data.effect}}}</div>
             </div>
             <div class="flexrow" style="justify-content: flex-end;">
               {{#each npc_feature.data.tags as |tag tkey|}}
@@ -323,7 +323,7 @@
                 {{#if npc_feature.data.effect}}
                 <div class="flexcol" style="height: fit-content; margin: 0px 10px;">
                   <span class="medium flexrow">EFFECT</span>
-                  <div class="effect-text flexrow" style="padding: 5px">{{{npc_feature.data.effect}}}</div>
+                  <div class="effect-text" style="padding: 5px">{{{npc_feature.data.effect}}}</div>
                 </div>
                 {{/if}}
               </div>
@@ -373,13 +373,13 @@
                 {{#if npc_feature.data.on_hit}}
                 <div class="flexcol" style="height: fit-content; margin: 0px 10px;">
                   <span class="medium flexrow">ON HIT</span>
-                  <div class="effect-text flexrow" style="padding: 5px">{{{npc_feature.data.on_hit}}}</div>
+                  <div class="effect-text" style="padding: 5px">{{{npc_feature.data.on_hit}}}</div>
                 </div>
                 {{/if}}
                 {{#if npc_feature.data.effect}}
                 <div class="flexcol" style="height: fit-content; margin: 0px 10px;">
                   <span class="medium flexrow">EFFECT</span>
-                  <div class="effect-text flexrow" style="padding: 5px">{{{npc_feature.data.effect}}}</div>
+                  <div class="effect-text" style="padding: 5px">{{{npc_feature.data.effect}}}</div>
                 </div>
                 {{/if}}
               </div>
