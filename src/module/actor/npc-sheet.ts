@@ -9,9 +9,10 @@ import {
 import { LancerItem, LancerNPCClass, LancerNPCFeature, LancerItemData } from "../item/lancer-item";
 import { LancerActor } from "./lancer-actor";
 import { LANCER } from "../config";
-import { ItemDataManifest } from "../item/util";
+import { get_NpcFeatures_pack, ItemDataManifest } from "../item/util";
 import { LancerNPCTechData, LancerNPCWeaponData } from "../item/npc-feature";
 import { LancerActorSheet } from "./lancer-actor-sheet";
+import { npc_features } from "machine-mind";
 const lp = LANCER.log_prefix;
 
 /**
@@ -247,22 +248,15 @@ export class LancerNPCSheet extends LancerActorSheet {
     if (item) {
       // Swap mech class
       if (item.type === "npc_class") {
-        let newNPCClassStats: LancerNPCClassStatsData;
         // Remove old class
         for (let item of actor.items) {
           const i = (item as unknown) as LancerItem;
           if (i.type === "npc_class") {
-            console.log(`${lp} Removing ${actor.name}'s old ${i.name} class.`);
-            await this.actor.deleteOwnedItem(i._id);
+            await this.removeClass(actor, i);
           }
         }
-        const npcClass = (await actor.createOwnedItem(duplicate(item.data))) as any;
-        console.log(`${lp} Copying ${item.name} to ${actor.name}.`);
-        newNPCClassStats = npcClass.data.stats;
-        if (newNPCClassStats) {
-          console.log(`${lp} Swapping Class stats for ${actor.name}`);
-          await actor.swapNPCClassOrTier(newNPCClassStats, true);
-        }
+        //Add new class
+        await this.addClass(actor, item)
         return Promise.resolve(true);
       } else if (LANCER.npc_items.includes(item.type)) {
         await this._addOwnedItem(item);
@@ -277,6 +271,53 @@ export class LancerNPCSheet extends LancerActorSheet {
       }
     }
     return Promise.resolve(false);
+  }
+
+  /* -------------------------------------------- */
+
+  async addClass(actor: LancerActor, item: Item) {
+    if (item.type === "npc_class") {
+
+      //Add new class
+      let newNPCClassStats: LancerNPCClassStatsData
+      const npcClass = (await actor.createOwnedItem(duplicate(item.data))) as any;
+      console.log(
+        `${lp} Added ${npcClass.name} to ${actor.name}.`
+      );
+      newNPCClassStats = npcClass.data.stats;
+      if (newNPCClassStats) {
+        console.log(`${lp} Swapping Class stats for ${actor.name}`);
+        await actor.swapNPCClassOrTier(newNPCClassStats, true);
+      }
+
+      // Get all features and match them up with the IDs, then add them to the actor
+      let allFeatures = await get_NpcFeatures_pack();
+      let features: Array<String> = npcClass.data.base_features;
+      let featureList = allFeatures.filter(feature => features.includes(feature.data.id));
+
+      for (let feature of featureList) {
+        const newFeature = (await actor.createOwnedItem(duplicate(feature))) as any;
+        console.log(`${lp} Added ${newFeature.data.name} to ${actor.name}.`);
+      }
+    }
+  }
+
+  async removeClass(actor: LancerActor, item: any) {
+    if (item.type === "npc_class") {
+      const npcClass = item.data
+
+      //Get all features from the actor and remove all the ones that fit the class base features
+      for (let i of actor.items.values()) {
+        if (i.data.type === "npc_feature" && npcClass.data.base_features.includes(i.data.data.id)) {
+          await this.actor.deleteOwnedItem(i._id)
+          console.log(`${lp} Removed ${i.data.name} from ${actor.name}.`);
+        }
+      }
+
+      //Remove the class
+      console.log(`${lp} Removing ${actor.name}'s old ${item.name} class.`);
+      await this.actor.deleteOwnedItem(item._id);
+    }
   }
 
   /* -------------------------------------------- */
