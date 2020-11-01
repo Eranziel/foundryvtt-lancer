@@ -5,6 +5,8 @@ import {
   LancerStatMacroData,
   LancerAttackMacroData,
   LancerTechMacroData,
+  LancerNPCTemplateData,
+  LancerNPCTemplateItemData,
 } from "../interfaces";
 import {
   LancerItem,
@@ -206,7 +208,11 @@ export class LancerNPCSheet extends LancerActorSheet {
         if (!ev.currentTarget) return; // No target, let other handlers take care of it.
         ev.stopPropagation(); // Avoids triggering parent event handlers
         const li = $(ev.currentTarget).closest(".item");
-        await this.actor.deleteOwnedItem(li.data("itemId"));
+        const deletedItem = await this.actor.deleteOwnedItem(li.data("itemId"));
+        if (deletedItem.type === "npc_template") {
+          const actor = this.actor as LancerActor;
+          this.removeTemplate(actor, deletedItem);
+        }
         li.slideUp(200, () => this.render(false));
       });
 
@@ -264,7 +270,14 @@ export class LancerNPCSheet extends LancerActorSheet {
         //Add new class
         await this.addClass(actor, item)
         return Promise.resolve(true);
-      } else if (LANCER.npc_items.includes(item.type)) {
+      }
+      //Add new template
+      else if (item.type === "npc_template") {
+        await this.addTemplate(actor, item);
+        return Promise.resolve(true);
+      }
+      
+      else if (LANCER.npc_items.includes(item.type)) {
         await this._addOwnedItem(item);
         return Promise.resolve(true);
       }
@@ -280,6 +293,10 @@ export class LancerNPCSheet extends LancerActorSheet {
   }
 
   /* -------------------------------------------- */
+
+  /*
+    Class logic
+  */
 
   async addClass(actor: LancerActor, item: Item) {
     if (item.type === "npc_class") {
@@ -325,6 +342,50 @@ export class LancerNPCSheet extends LancerActorSheet {
       await this.actor.deleteOwnedItem(item._id);
     }
   }
+
+  /*
+    Template logic
+  */
+
+  async addTemplate(actor: LancerActor, templateItem: Item) {
+    if (templateItem.type === "npc_template") {
+
+      //Add new template
+      const npcTemplate = (await actor.createOwnedItem(duplicate(templateItem.data))) as any;
+      console.log(
+        `${lp} Added ${npcTemplate.name} to ${actor.name}.`
+      );
+
+      // Get all features and match them up with the IDs, then add them to the actor
+      let allFeatures = await get_NpcFeatures_pack();
+      let features: Array<String> = npcTemplate.data.base_features;
+      let featureList = allFeatures.filter(feature => features.includes(feature.data.id));
+
+      for (let feature of featureList) {
+        const newFeature = (await actor.createOwnedItem(duplicate(feature))) as any;
+        console.log(`${lp} Added ${newFeature.data.name} to ${actor.name}.`);
+      }
+    }
+  }
+
+  async removeTemplate(actor: LancerActor, templateItem: Item) {
+    if (templateItem.type === "npc_template") {
+      const npcTemplate = (templateItem.data as unknown) as LancerNPCTemplateData
+
+      //Get all features from the actor and remove all the ones that fit the template base features
+      for (let i of actor.items.values()) {
+        if (i.data.type === "npc_feature" && npcTemplate.base_features.includes(i.data.data.id)) {
+          await this.actor.deleteOwnedItem(i._id);
+          console.log(`${lp} Removed ${i.data.name} from ${actor.name}.`);
+        }
+      }
+
+      //Remove the template
+      console.log(`${lp} Removing ${actor.name}'s old ${npcTemplate.name} class.`);
+      await this.actor.deleteOwnedItem(templateItem._id);
+    }
+  }
+
 
   /* -------------------------------------------- */
 
