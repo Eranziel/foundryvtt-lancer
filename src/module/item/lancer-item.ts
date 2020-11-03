@@ -21,12 +21,14 @@ import { LANCER } from "../config";
 import {
   DamageType,
   EffectType,
+  NpcClass,
   NpcFeatureType,
   RangeType,
   SystemType,
   WeaponSize,
   WeaponType,
 } from "machine-mind";
+import { get_NpcFeatures_pack, NPC_FEATURE_PACK } from "./util";
 
 const lp = LANCER.log_prefix;
 
@@ -231,6 +233,36 @@ export class LancerItem extends Item {
       return rel;
     } else {
       return 0;
+    }
+  }
+
+  // ============================================================
+  //          NPC FEATURES
+  // ============================================================
+
+  get base_feature_items(): Promise<LancerNPCFeatureItemData[]> {
+    const itemData = this.data.data;
+    if ("base_features" in itemData) {
+      return get_NpcFeatures_pack().then(async allFeatures => {
+        let featureList = allFeatures.filter(feature => itemData.base_features.includes(feature.data.id));
+        return featureList;
+      });
+    }
+    else {
+      return Promise.resolve([]);
+    }
+  }
+
+  get optional_feature_items(): Promise<LancerNPCFeatureItemData[]> {
+    const itemData = this.data.data;
+    if ("optional_features" in itemData) {
+      return get_NpcFeatures_pack().then(async allFeatures => {
+        let featureList = allFeatures.filter(feature => itemData.optional_features.includes(feature.data.id));
+        return featureList;
+      });
+    }
+    else {
+      return Promise.resolve([]);
     }
   }
 
