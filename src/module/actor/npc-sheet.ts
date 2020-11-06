@@ -16,9 +16,10 @@ import {
 } from "../item/lancer-item";
 import { LancerActor } from "./lancer-actor";
 import { LANCER } from "../config";
-import { get_NpcFeatures_pack, ItemDataManifest } from "../item/util";
+import { get_NpcFeatures_pack, ItemManifest, ItemDataManifest } from "../item/util";
 import { LancerNPCTechData, LancerNPCWeaponData } from "../item/npc-feature";
 import { LancerActorSheet } from "./lancer-actor-sheet";
+import { prepareItemMacro } from "../macros"
 const lp = LANCER.log_prefix;
 
 /**
@@ -82,7 +83,9 @@ export class LancerNPCSheet extends LancerActorSheet {
     let npc_item_data = (data.items as unknown) as LancerItemData[];
     let sorted = new ItemDataManifest().add_items(npc_item_data.values());
 
+    //@ts-ignore
     data.npc_templates = (sorted.npc_templates as unknown) as LancerNPCTemplate[]; // Why does this work. Like someone fixed exactly one, lol???
+                                                                                   // Doesn't work now, adding a ts-ignore though.... -Grygon
     data.npc_features = (sorted.npc_features as unknown) as LancerNPCFeature[];
     data.npc_class = (sorted.npc_classes[0] as unknown) as LancerNPCClass;
     //TODO Templates, Classes and Features
@@ -102,6 +105,16 @@ export class LancerNPCSheet extends LancerActorSheet {
 
     // Macro triggers
     if (this.actor.owner) {
+      // Macros that can be handled via the generic item interface
+      let itemMacros = html.find(".item-macro");
+      itemMacros.on("click", (ev: any) => {
+        ev.stopPropagation(); // Avoids triggering parent event handlers
+        
+        const el = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
+        
+        prepareItemMacro(this.actor._id, <string>el.getAttribute("data-item-id"));
+      });
+
       // Stat rollers
       let statMacro = html.find(".roll-stat");
       statMacro.on("click", (ev: Event) => {
@@ -132,29 +145,14 @@ export class LancerNPCSheet extends LancerActorSheet {
         ev.stopPropagation(); // Avoids triggering parent event handlers
 
         const weaponElement = $(ev.currentTarget).closest(".weapon")[0] as HTMLElement;
+        console.log(weaponElement);
         const weaponId = weaponElement.getAttribute("data-item-id");
         if (!weaponId) return ui.notifications.warn(`Error rolling macro: No weapon ID!`);
-        const weapon = this.actor.getOwnedItem(weaponId) as LancerNPCFeature;
-        if (!weapon)
-          return ui.notifications.warn(
-            `Error rolling macro: Couldn't find weapon with ID ${weaponId}.`
-          );
-        const wData = weapon.data.data as LancerNPCWeaponData;
-        const tier = (this.actor.data.data as LancerNPCData).tier_num - 1;
-        let mData: LancerAttackMacroData = {
-          title: weapon.name,
-          grit: wData.attack_bonus[tier],
-          acc: wData.accuracy[tier],
-          tags: wData.tags,
-          damage: wData.damage.map(d => {
-            return { type: d.type, val: d.val[tier] };
-          }),
-          overkill: weapon.isOverkill,
-          effect: wData.effect ? wData.effect : "",
-        };
+        const item = this.actor.getOwnedItem(weaponId);
+        if (!item) return ui.notifications.warn(`Error rolling macro: Couldn't find weapon with ID ${weaponId}.`);
 
-        console.log(`${lp} Rolling NPC attack macro with data:`, mData);
-        game.lancer.rollAttackMacro(this.actor, mData);
+        const weapon = item as LancerNPCFeature;
+        game.lancer.prepareItemMacro(this.actor._id, weapon._id);
       });
 
       // Tech rollers
@@ -163,23 +161,8 @@ export class LancerNPCSheet extends LancerActorSheet {
         if (!ev.currentTarget) return; // No target, let other handlers take care of it.
         ev.stopPropagation();
         const techElement = $(ev.currentTarget).closest(".tech")[0] as HTMLElement;
-        const techId = techElement.getAttribute("data-item-id");
-        if (!techId) return ui.notifications.warn(`Error rolling macro: No tech feature ID!`);
-        const tech = this.actor.getOwnedItem(techId) as LancerNPCFeature;
-        if (!tech)
-          return ui.notifications.warn(
-            `Error rolling macro: Couldn't find tech system with ID ${techId}.`
-          );
-        const tData = tech.data.data as LancerNPCTechData;
-        const tier = (this.actor.data.data as LancerNPCData).tier_num - 1;
-        let mData: LancerTechMacroData = {
-          title: tData.name,
-          acc: tData.accuracy ? tData.accuracy[tier] : 0,
-          t_atk: tData.attack_bonus ? tData.attack_bonus[tier] : 0,
-          effect: tData.effect ? tData.effect : "",
-          tags: tData.tags,
-        };
-        game.lancer.rollTechMacro(this.actor, mData);
+        let techId = techElement.getAttribute("data-item-id");
+        game.lancer.prepareItemMacro(this.actor._id, techId);
       });
     }
     if (this.actor.owner) {

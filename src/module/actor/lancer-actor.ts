@@ -3,12 +3,15 @@ import {
   LancerNPCActorData,
   LancerDeployableActorData,
   LancerFrameStatsData,
+  LancerFrameItemData,
   LancerNPCClassStatsData,
   LancerNPCData,
   LancerMountData,
 } from "../interfaces";
 import { LANCER } from "../config";
 import { MountType } from "machine-mind";
+import { LancerFrame, LancerItemData } from "../item/lancer-item";
+import { ItemDataManifest } from "../item/util";
 const lp = LANCER.log_prefix;
 
 export const DEFAULT_MECH = {
@@ -131,6 +134,26 @@ export class LancerActor extends Actor {
     // Update the actor
     data.data.mech = mech;
     await this.update(data);
+  }
+
+  /**
+   * Returns the current frame used by the actor as an item
+   * Only applicable for pilots
+   */
+  getCurrentFrame(): LancerFrameItemData | null {
+    // Function is only applicable to pilots.
+    if (this.data.type !== "pilot") return null;
+
+
+    let item_data = (this.items as unknown) as LancerItemData[]; 
+    let sorted = new ItemDataManifest().add_items(item_data.values());
+
+    // Only take one frame
+    if (sorted.frames.length) {
+      return (sorted.frames[0].data as unknown) as LancerFrameItemData;
+    } else {
+      return null
+    }
   }
 
   /**

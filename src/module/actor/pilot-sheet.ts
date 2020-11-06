@@ -25,6 +25,7 @@ import { MountType } from "machine-mind";
 import { import_pilot_by_code, update_pilot } from "./util";
 import { LancerActorSheet } from "./lancer-actor-sheet";
 
+import { prepareCoreActiveMacro, prepareCorePassiveMacro } from "../macros";
 const lp = LANCER.log_prefix;
 
 // TODO: should probably move to HTML/CSS
@@ -73,8 +74,8 @@ export class LancerPilotSheet extends LancerActorSheet {
     const data: LancerPilotSheetData = super.getData() as LancerPilotSheetData;
 
     this._prepareItems(data);
-
-    // Populate the callsign if blank (new Actor)
+    
+    // Populate the callsign if blank (new Actor)   
     if (data.data.pilot.callsign === "") {
       data.data.pilot.callsign = data.actor.name;
     }
@@ -90,11 +91,11 @@ export class LancerPilotSheet extends LancerActorSheet {
 
     // Generate the size string for the pilot's frame
     if (data.frame) {
-      const frame: any = data.frame;
-      if (frame.data.stats.size === 0.5) {
+      const frame: LancerFrame = data.frame;
+      if (frame.data.data.stats.size === 0.5) {
         data.frame_size = "size-half";
       } else {
-        data.frame_size = `size-${frame.data.stats.size}`;
+        data.frame_size = `size-${frame.data.data.stats.size}`;
       }
     } else {
       data.frame_size = "N/A";
@@ -128,12 +129,15 @@ export class LancerPilotSheet extends LancerActorSheet {
       weapons: (sorted.pilot_weapons as unknown) as LancerPilotWeapon[],
       armor: (sorted.pilot_armor as unknown) as LancerPilotArmor[],
     };
-
-    // Only take one frame
-    if (sorted.frames.length) {
-      data.frame = (sorted.frames[0] as unknown) as LancerFrame;
-    } // The else case simple leaves the data in its default init state
-
+    
+    let frame = (<LancerActor>this.actor).getCurrentFrame();
+    if (frame) {
+      // I'm pretty sure this is very cursed
+      // But items are getting reworked. FIX THIS ON ITEM REWORK since it's not worth reworking all our type assumptions here
+      data.frame = <LancerFrame>{};
+      data.frame.data = frame;
+    }
+    
     // Equip mech garbo
     data.mech_loadout = {
       // TODO: Handle mounts
@@ -176,31 +180,53 @@ export class LancerPilotSheet extends LancerActorSheet {
         game.lancer.prepareStatMacro(this.actor, getStatPath(ev)!);
       });
 
-      // System rollers
-      let sysMacro = html.find(".system-macro");
-      sysMacro.on("click", (ev: Event) => {
-        if (!ev.currentTarget) return; // No target, let other handlers take care of it.
-        ev.stopPropagation(); // Avoids triggering parent event handlers
-        const sysElement = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
-        game.lancer.prepareGenericMacro(this.actor._id, sysElement.getAttribute("data-item-id")!);
-      });
-
       // Talent rollers
       let talentMacro = html.find(".talent-macro");
       talentMacro.on("click", (ev: Event) => {
         if (!ev.currentTarget) return; // No target, let other handlers take care of it.
         ev.stopPropagation(); // Avoids triggering parent event handlers
-        const sysElement = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
-        game.lancer.prepareTalentMacro(
-          this.actor._id,
-          sysElement.getAttribute("data-item-id")!,
-          (ev.currentTarget as HTMLElement).getAttribute("data-rank")
-        );
+
+        const el = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
+        
+        game.lancer.prepareItemMacro(this.actor._id, el.getAttribute("data-item-id"), {rank: (<HTMLDataElement>ev.currentTarget).getAttribute("data-rank")});
+      });
+      
+      // TODO: This should really just be a single item-macro class
+      // Trigger rollers
+      let itemMacros = html.find(".skill-macro")
+      // System rollers
+      .add(html.find(".system-macro"))
+      // Gear rollers
+      .add(html.find(".gear-macro"))
+      // Core bonus
+      .add(html.find(".cb-macro"));
+      itemMacros.on("click", (ev: any) => {
+        ev.stopPropagation(); // Avoids triggering parent event handlers
+        
+        const el = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
+        
+        game.lancer.prepareItemMacro(this.actor, el.getAttribute("data-item-id"));
       });
 
-      // Trigger rollers
-      this.activateTriggerListeners(html);
+      // Core active & passive text rollers
+      let CAMacro = html.find(".core-active-macro");
+      CAMacro.on("click", (ev: any) => {
+        ev.stopPropagation(); // Avoids triggering parent event handlers
 
+        let target = <HTMLElement>ev.currentTarget;
+        
+        prepareCoreActiveMacro(this.actor._id);
+      });
+
+      let CPMacro = html.find(".core-passive-macro");
+      CPMacro.on("click", (ev: any) => {
+        ev.stopPropagation(); // Avoids triggering parent event handlers
+
+        let target = <HTMLElement>ev.currentTarget;
+        
+        prepareCorePassiveMacro(this.actor._id);
+      });
+      
       // Weapon rollers
       let weaponMacro = html.find(".roll-attack");
       weaponMacro.on("click", (ev: Event) => {
@@ -217,7 +243,7 @@ export class LancerPilotSheet extends LancerActorSheet {
           );
 
         const weapon = item as LancerPilotWeapon | LancerMechWeapon;
-        game.lancer.prepareAttackMacro(this.actor._id, weapon._id);
+        game.lancer.prepareItemMacro(this.actor._id, weapon._id);
       });
     }
 
@@ -248,19 +274,23 @@ export class LancerPilotSheet extends LancerActorSheet {
       // Item/Macroable Dragging
       const statMacroHandler = (e: DragEvent) => this._onDragMacroableStart(e);
       const talentMacroHandler = (e: DragEvent) => this._onDragTalentMacroableStart(e);
+      const textMacroHandler = (e: DragEvent) => this._onDragTextMacroableStart(e);
+      const CAMacroHandler = (e: DragEvent) => this._onDragCoreActiveStart(e);
+      const CPMacroHandler = (e: DragEvent) => this._onDragCorePassiveStart(e);
       html
-        .find('li[class*="item"]')
-        .add('span[class*="item"]')
-        .add('[class*="macroable"]')
-        .each((i: number, item: HTMLElement) => {
-          if (item.classList.contains("inventory-header")) return;
-          if (item.classList.contains("roll-stat"))
-            item.addEventListener("dragstart", statMacroHandler, false);
-          if (item.classList.contains("talent-macro"))
-            item.addEventListener("dragstart", talentMacroHandler, false);
-          item.setAttribute("draggable", "true");
-          item.addEventListener("dragstart", (ev: DragEvent) => this._onDragStart(ev), false);
-        });
+      .find('li[class*="item"]')
+      .add('span[class*="item"]')
+      .add('[class*="macroable"]')
+      .each((i: number, item: any) => {
+        if (item.classList.contains("inventory-header")) return;
+        if (item.classList.contains("stat-macro")) item.addEventListener('dragstart', statMacroHandler, false);
+        if (item.classList.contains("talent-macro")) item.addEventListener('dragstart', talentMacroHandler, false);
+        if (item.classList.contains("text-macro")) item.addEventListener('dragstart', textMacroHandler, false);
+        if (item.classList.contains("core-active-macro")) item.addEventListener('dragstart', CAMacroHandler, false);
+        if (item.classList.contains("core-passive-macro")) item.addEventListener('dragstart', CPMacroHandler, false);
+        item.setAttribute("draggable", true);
+        item.addEventListener("dragstart", (ev: any) => this._onDragStart(ev), false);
+      });
 
       // Update Inventory Item
       this.activateOpenItemListeners(html);
@@ -422,7 +452,7 @@ export class LancerPilotSheet extends LancerActorSheet {
           await actor.swapFrames(newFrameStats, oldFrameStats);
         }
         return Promise.resolve(true);
-      }
+      }      
       // Handling mech-weapon -> mount mapping
       else if (item.type === "mech_weapon") {
         let mounts = duplicate(this.actor.data.data.mech_loadout.mounts);
@@ -497,13 +527,83 @@ export class LancerPilotSheet extends LancerActorSheet {
         ui.notifications.error(`Cannot add Item of type "${item.type}" to a Pilot.`);
         return Promise.resolve(false);
       }
+      
+      // Get dropped data
+      let data;
+      try {
+        data = JSON.parse(event.dataTransfer.getData("text/plain"));
+      } catch (err) {
+        return false;
+      }
+      event.dataTransfer?.setData('text/plain', JSON.stringify(data));
     }
+
 
     // Finally, fall back to super's behaviour if nothing else "handles" the drop (signalled by returning).
     // Don't hate the player, hate the imperative paradigm
     console.log(`${lp} Falling back on super._onDrop`);
     return super._onDrop(event);
   }
+
+  
+    /**
+     * For macros which simple expect a title & description, no fancy handling.
+     * Assumes data-path-title & data-path-description defined
+     * @param event   The associated DragEvent
+     */
+    _onDragTextMacroableStart(event: DragEvent) {
+      event.stopPropagation(); // Avoids triggering parent event handlers
+
+      let target = <HTMLElement>event.currentTarget;
+
+      let data = {
+        title: target.getAttribute("data-path-title"),
+        description: target.getAttribute("data-path-description"),
+        actorId: this.actor._id,
+        type: "Text"
+      };
+      
+      event.dataTransfer?.setData('text/plain', JSON.stringify(data));
+    }
+
+    /**
+     * For dragging the core active to the hotbar
+     * @param event   The associated DragEvent
+     */
+    _onDragCoreActiveStart(event: DragEvent) {
+      event.stopPropagation(); // Avoids triggering parent event handlers
+
+      let target = <HTMLElement>event.currentTarget;
+
+      let data = {
+        actorId: this.actor._id,
+        // Title will simply be CORE ACTIVE since we want to keep the macro dynamic
+        title: "CORE ACTIVE",
+        type: "Core-Active"
+      };
+      
+      event.dataTransfer?.setData('text/plain', JSON.stringify(data));
+    }
+
+    /**
+     * For dragging the core passive to the hotbar
+     * @param event   The associated DragEvent
+     */
+    _onDragCorePassiveStart(event: DragEvent) {
+      event.stopPropagation(); // Avoids triggering parent event handlers
+
+      let target = <HTMLElement>event.currentTarget;
+
+      let data = {
+        actorId: this.actor._id,
+        // Title will simply be CORE PASSIVE since we want to keep the macro dynamic
+        title: "CORE PASSIVE",
+        type: "Core-Passive"
+      };
+      
+      event.dataTransfer?.setData('text/plain', JSON.stringify(data));
+    }
+    
 
   /* -------------------------------------------- */
 

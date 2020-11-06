@@ -77,7 +77,6 @@ import {
 } from "./module/item/tags";
 import * as migrations from "./module/migration";
 import { addLCPManager } from "./module/apps/lcpManager";
-import * as macros from "./module/macros";
 
 // Import Machine Mind and helpers
 import { CCDataStore, NpcFeatureType, setup_store } from "machine-mind";
@@ -88,6 +87,8 @@ import { reload_store } from "./module/item/util";
 import compareVersions = require("compare-versions");
 
 const lp = LANCER.log_prefix;
+
+import * as macros from "./module/macros";
 
 /* ------------------------------------ */
 /* Initialize system                    */
@@ -108,17 +109,11 @@ Hooks.once("init", async function () {
       LancerActor,
       LancerItem,
     },
+    prepareItemMacro: macros.prepareItemMacro,
     prepareStatMacro: macros.prepareStatMacro,
-    rollStatMacro: macros.rollStatMacro,
-    prepareAttackMacro: macros.prepareAttackMacro,
-    rollAttackMacro: macros.rollAttackMacro,
-    prepareTechMacro: macros.prepareTechMacro,
-    rollTechMacro: macros.rollTechMacro,
-    prepareTriggerMacro: macros.prepareTriggerMacro,
-    prepareGenericMacro: macros.prepareGenericMacro,
-    rollGenericMacro: macros.rollGenericMacro,
-    prepareTalentMacro: macros.prepareTalentMacro,
-    rollTalentMacro: macros.rollTalentMacro,
+    prepareTextMacro: macros.prepareTextMacro,
+    prepareCoreActiveMacro: macros.prepareCoreActiveMacro,
+    prepareCorePassiveMacro: macros.prepareCorePassiveMacro,
     migrations: migrations,
   };
 
@@ -254,13 +249,20 @@ Hooks.once("init", async function () {
   // ------------------------------------------------------------------------
   // Generic components
   Handlebars.registerHelper("l-num-input", function (target: string, value: string) {
-    return `<div class="flexrow arrow-input-container">
+    // Init value to 0 if it doesn't exist
+    // So the arrows work properly
+    if(!value){
+      value = "0"
+    }
+    
+    let html =
+    `<div class="flexrow arrow-input-container">
       <button class="mod-minus-button" type="button">-</button>
-      <input class="lancer-stat major" type="number" name="${target}" id="${target}" value="${value}" data-dtype="Number"\>
+      <input class="lancer-stat major" type="number" name="${target}" value="${value}" data-dtype="Number"\>
       <button class="mod-plus-button" type="button">+</button>
     </div>`;
+    return html;
   });
-
   // ------------------------------------------------------------------------
   // Tags
   Handlebars.registerHelper("compact-tag", renderCompactTag);
@@ -441,91 +443,72 @@ Hooks.on("renderChatMessage", async (cm: ChatMessage, html: any, data: any) => {
   }
 });
 
-Hooks.on("hotbarDrop", async (_bar: any, data: any, slot: number) => {
-  if (data.type === "actor") {
-    // Full list of data expected from a generic actor macro:
-    // A title      - to name it
-    // A dataPath   - to access dynamic data from the actor
-    // An actorId   - to reference the actor
-    await macros.createActorMacro(data.title, data.dataPath, data.actorId, slot);
-  } else if (data.type === "Item") {
-    let command = "";
-    let title = "";
-    let img = "systems/lancer/assets/icons/macro-icons/d20-framed.svg";
-    // Handled options for items:
-    switch (data.data.type) {
-      // Skills
-      case "skill":
-        command = `game.lancer.prepareTriggerMacro("${data.actorId}", "${data.data._id}");`;
-        title = data.data.name;
-        img = `systems/lancer/assets/icons/macro-icons/skill.svg`;
-        break;
-      // Pilot OR Mech weapon
-      case "pilot_weapon":
-      case "mech_weapon":
-        command = `game.lancer.prepareAttackMacro("${data.actorId}", "${data.data._id}");`;
-        title = data.data.name;
-        img = `systems/lancer/assets/icons/macro-icons/mech_weapon.svg`;
-        break;
-      case "mech_system":
-        command = `game.lancer.prepareGenericMacro("${data.actorId}", "${data.data._id}");`;
-        title = data.data.name;
-        img = `systems/lancer/assets/icons/macro-icons/mech_system.svg`;
-        break;
-      case "talent":
-        command = `game.lancer.prepareTalentMacro("${data.actorId}", "${data.itemId}", "${data.rank}");`;
-        title = data.title;
-        img = `systems/lancer/assets/icons/macro-icons/talent.svg`;
-        if (!command || !title) {
-          return ui.notifications.warn(
-            `Error creating talent macro. Only invidual ranks are macroable.`
-          );
-        }
-        break;
-      case "npc_feature":
-        console.log(data.data.data);
-        if (data.data.data.feature_type === NpcFeatureType.Weapon) {
-          command = `game.lancer.prepareAttackMacro("${data.actorId}", "${data.data._id}");`;
-          title = data.data.name;
-          img = `systems/lancer/assets/icons/macro-icons/mech_weapon.svg`;
-          break;
-        } else if (data.data.data.feature_type === NpcFeatureType.Tech) {
-          command = `game.lancer.prepareTechMacro("${data.actorId}", "${data.data._id}");`;
-          title = data.data.name;
-          img = `systems/lancer/assets/icons/macro-icons/tech_quick.svg`;
-          break;
-        }
-        return ui.notifications.warn(`Non-weapon NPC Features are not macroable.`);
-      case "core_bonus":
-        return ui.notifications.warn(`Core Bonuses are not macroable.`);
-    }
+Hooks.on('hotbarDrop', (_bar: any, data: any, slot: number) => {
 
-    if (!command || !title) {
-      console.log(
-        "Error creating macro: no command or title. Are you sure what you dragged in can be macroed?"
-      );
-      return ui.notifications.error(
-        `Error creating macro. Are you sure what you dragged in can be macroed?`
-      );
-    }
+  // We set an associated command & title based off the type
+  // Everything else gets handled elsewhere
 
-    // Until we properly register commands as something macros can have...
-    // @ts-ignore
-    let macro = game.macros.entities.find(
-      (m: Macro) => m.name === title && (m.data as any).command === command
-    );
-    if (!macro) {
-      Macro.create(
-        {
-          command,
-          name: title,
-          type: "script",
-          img: img,
-        },
-        { displaySheet: false }
-      ).then(macro => game.user.assignHotbarMacro(macro as Macro, slot));
+  let command = ""
+  let title = ""
+
+  // TODO: Figure out if I am really going down this route and, if so, switch to a switch
+  if (data.type === 'actor') {
+    command = `
+      const a = game.actors.get('${data.actorId}');
+      if (a) {
+        game.lancer.prepareStatMacro(a, "${data.dataPath}");
+      } else {
+        ui.notifications.error("Error rolling macro");
+      }`;
+    title = data.title;
+  } else if (data.type === 'Item') {
+    command = `game.lancer.prepareItemMacro("${data.actorId}", "${data.data._id}");`;
+    // Talent are the only ones (I think??) that we need to name specially
+    if(data.data.type === 'talent') {
+      command = `game.lancer.prepareItemMacro("${data.actorId}", "${data.itemId}", {rank: ${data.rank}});`
+      title = data.title;
     } else {
-      await game.user.assignHotbarMacro(macro, slot);
+      title = data.data.name;
     }
+  } else if (data.type === 'Text') {
+    title = data.title;
+    command = `game.lancer.prepareTextMacro("${data.actorId}", "${data.title}", {rank: ${data.description}})`
+  } else if (data.type === 'Core-Active') {
+    title = data.title;
+    command = `game.lancer.prepareCoreActiveMacro("${data.actorId}")`
+  } else if (data.type === 'Core-Passive') {
+    title = data.title;
+    command = `game.lancer.prepareCorePassiveMacro("${data.actorId}")`
+  } else {
+    // Let's not error or anything, since it's possible to accidentally drop stuff pretty easily
+    return;
+  }
+
+  // Until we properly register commands as something macros can have...
+  // @ts-ignore
+  let macro = game.macros.entities.find((m: Macro) => (m.name === title) && (m.data as Object).command === command);
+  if (!macro) {
+    (Macro.create({
+      command,
+      name: title,
+      type: 'script',
+      img: 'systems/lancer/assets/icons/d20-framed.svg',
+    }, { displaySheet: false })).then(macro => game.user.assignHotbarMacro((macro as Macro), slot));
+  } else {
+    game.user.assignHotbarMacro(macro, slot)
+  }
+  //register commands as something macros can have...
+  // @ts-ignore
+  let macro = game.macros.entities.find((m: Macro) => (m.name === title) && (m.data as Object).command === command);
+  if (!macro) {
+    (Macro.create({
+      command,
+      name: title,
+      type: 'script',
+      img: 'systems/lancer/assets/icons/d20-framed.svg',
+    }, { displaySheet: false })).then(macro => game.user.assignHotbarMacro((macro as Macro), slot));
+  } else {
+    game.user.assignHotbarMacro(macro, slot)
   }
 });
+
