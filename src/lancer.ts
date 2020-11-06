@@ -497,18 +497,5 @@ Hooks.on('hotbarDrop', (_bar: any, data: any, slot: number) => {
   } else {
     game.user.assignHotbarMacro(macro, slot)
   }
-  //register commands as something macros can have...
-  // @ts-ignore
-  let macro = game.macros.entities.find((m: Macro) => (m.name === title) && (m.data as Object).command === command);
-  if (!macro) {
-    (Macro.create({
-      command,
-      name: title,
-      type: 'script',
-      img: 'systems/lancer/assets/icons/d20-framed.svg',
-    }, { displaySheet: false })).then(macro => game.user.assignHotbarMacro((macro as Macro), slot));
-  } else {
-    game.user.assignHotbarMacro(macro, slot)
-  }
 });
 
