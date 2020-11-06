@@ -6,6 +6,7 @@ const lp = LANCER.log_prefix;
 import {
   LancerItem,
   LancerPilotGear,
+  LancerCoreBonus,
   LancerTalent} from "./item/lancer-item";
 
 import {LancerActor} from "./actor/lancer-actor";
@@ -96,13 +97,22 @@ export function prepareItemMacro(a: string, i: string, options: any) {
       break;
     // Gear
     case 'pilot_gear':
-      let data: LancerTextMacroData = {
+      let gearData: LancerTextMacroData = {
         title: item.name,
         description: (<LancerPilotGear>item).data.data.description,
         tags: (<LancerPilotGear>item).data.data.tags
       };
     
-      rollTextMacro(actor, data);
+      rollTextMacro(actor, gearData);
+      break;
+    // Core bonuses can just be text, right?
+    case 'core_bonus':
+      let CBdata: LancerTextMacroData = {
+        title: item.name,
+        description: (<LancerCoreBonus>item).data.data.effect
+      };
+    
+      rollTextMacro(actor, CBdata);
       break;
     case 'npc_feature':
       if(item.data.data.feature_type === 'Weapon') {
