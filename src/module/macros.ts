@@ -24,7 +24,8 @@ import {
   LancerStatMacroData, 
   LancerGenericMacroData, 
   LancerTalentMacroData,
-  LancerTextMacroData} from "./interfaces";
+  LancerTextMacroData,
+  LancerReactionMacroData} from "./interfaces";
 
 // Import JSON data
 import { DamageType, Tag, WeaponType } from "machine-mind";
@@ -116,6 +117,7 @@ export function prepareItemMacro(a: string, i: string, options?: any) {
       rollTextMacro(actor, CBdata);
       break;
     case 'npc_feature':
+      // This should probably be a switch too...
       if(item.data.data.feature_type === 'Weapon') {
         prepareAttackMacro(actor,item);
         break;
@@ -130,6 +132,18 @@ export function prepareItemMacro(a: string, i: string, options?: any) {
         };
       
         rollTextMacro(actor, sysData);
+        break;
+      } else if (item.data.data.feature_type === 'Reaction') {
+        let reactData: LancerReactionMacroData = {
+          title: item.name,
+          // Screw it, I'm not messing with all our item definitions just for this.
+          //@ts-ignore
+          trigger: <string>item.data.data.trigger,
+          effect: <string>item.data.data.effect,
+          tags: item.data.data.tags
+        };
+
+        rollReactionMacro(actor,reactData);
         break;
       }
     default:
@@ -425,6 +439,19 @@ async function rollAttackMacro(actor: Actor, data: LancerAttackMacroData) {
     return renderMacro(actor, template, templateData);
   }
 
+/**
+ * Rolls an NPC reaction macro when given the proper data
+ * @param a     String of the actor ID to roll the macro as 
+ * @param title Data path to title of the macro
+ * @param text  Data path to text to be displayed by the macro
+ * @param tags  Can optionally pass through an array of tags to be rendered
+ */
+export function rollReactionMacro(actor: Actor, data: LancerReactionMacroData) {
+  if (!actor) return Promise.resolve();
+
+  const template = `systems/lancer/templates/chat/reaction-card.html`;
+  return renderMacro(actor, template, data);
+}
 
 /**
  * Prepares a macro to present core active information for
