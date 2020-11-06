@@ -7,9 +7,12 @@ import {
   LancerItem,
   LancerTalent} from "./item/lancer-item";
 
+import {LancerActor} from "./actor/lancer-actor";
+
 import {
   LancerPilotActorData,
   TagDataShort,
+  LancerFrameItemData,
   LancerNPCActorData,
   LancerMechWeaponData,
   LancerPilotWeaponData,
@@ -18,10 +21,11 @@ import {
   LancerAttackMacroData, 
   LancerStatMacroData, 
   LancerGenericMacroData, 
-  LancerTalentMacroData} from "./interfaces";
+  LancerTalentMacroData,
+  LancerTextMacroData} from "./interfaces";
 
 // Import JSON data
-import { DamageType, WeaponType } from "machine-mind";
+import { DamageType, Tag, WeaponType } from "machine-mind";
 import { LancerNPCWeaponData } from "./item/npc-feature";
   
   
@@ -72,7 +76,7 @@ export function prepareItemMacro(a: string, i: string, options: any) {
         effect: item.data.data.effect
       };
     
-      rollGenericMacro(actor, sysData);
+      rollSystemMacro(actor, sysData);
       break;
     // Talents
     case 'talent':
@@ -102,8 +106,9 @@ export function prepareItemMacro(a: string, i: string, options: any) {
   }
 }
 
+
   
-export function getMacroSpeaker(): Actor | null {
+export function getMacroSpeaker(): LancerActor | null {
     // Determine which Actor to speak as
     const speaker = ChatMessage.getSpeaker();
     // console.log(`${lp} Macro speaker`, speaker);
@@ -123,7 +128,7 @@ export function getMacroSpeaker(): Actor | null {
       ui.notifications.warn(`Failed to find Actor for macro. Do you need to select a token?`);
       return null;
     }
-    return actor;
+    return <LancerActor>actor;
   }
   
 export async function renderMacro(actor: Actor, template: string, templateData: any) {
@@ -224,7 +229,7 @@ async function rollStatMacro(actor: Actor, data: LancerStatMacroData) {
   }
   
   
-async function rollGenericMacro(actor: Actor, data: LancerGenericMacroData) {
+async function rollSystemMacro(actor: Actor, data: LancerGenericMacroData) {
     if (!actor) return Promise.resolve();
   
     // Construct the template
@@ -385,6 +390,69 @@ async function rollAttackMacro(actor: Actor, data: LancerAttackMacroData) {
     const template = `systems/lancer/templates/chat/attack-card.html`;
     return renderMacro(actor, template, templateData);
   }
+
+
+/**
+ * Prepares a macro to present core active information for
+ * @param a     String of the actor ID to roll the macro as, and who we're getting core info for
+ */
+export function prepareCoreActiveMacro(a: string) {
+  // Determine which Actor to speak as
+  let actor: LancerActor | null = <LancerActor>(game.actors.get(a) || getMacroSpeaker());
+  if (!actor) return;
+
+  let frame: LancerFrameItemData | null = actor.getCurrentFrame();
+
+  if(!frame) {
+    // Could probably handle this better eventually
+    return;
+  }
+
+  let mData: LancerTextMacroData = {
+    title: frame.data.core_system.active_name,
+    description: frame.data.core_system.active_effect,
+    tags: frame.data.core_system.tags
+  }
+
+  rollTextMacro(actor, mData);
+}
+
+
+/**
+ * Given basic information, prepares a generic text-only macro to display descriptions etc
+ * @param a     String of the actor ID to roll the macro as 
+ * @param title Data path to title of the macro
+ * @param text  Data path to text to be displayed by the macro
+ * @param tags  Can optionally pass through an array of tags to be rendered
+ */
+export function prepareTextMacro(a: string, title: string, text: string, tags?: TagDataShort[]) {
+  // Determine which Actor to speak as
+  let actor: Actor | null = game.actors.get(a) || getMacroSpeaker();
+  if (!actor) return;
+
+  // Note to self--use this in the future if I need string -> var lookup: var.split('.').reduce((o,i)=>o[i], game.data)
+  let mData: LancerTextMacroData = {
+    title: title,
+    description: text,
+    tags: tags
+  };
+
+  rollTextMacro(actor, mData);
+}
+
+/**
+ * Given prepared data, handles rolling of a generic text-only macro to display descriptions etc
+ * @param a     Actor rolling the macro
+ * @param data  Prepared macro data
+ */
+async function rollTextMacro(actor: Actor, data: LancerTextMacroData) {
+  if (!actor) return Promise.resolve();
+
+  const template = `systems/lancer/templates/chat/generic-card.html`;
+  return renderMacro(actor, template, data);
+}
+
+
   
 async function rollTechMacro(t: string, a: string) {
     // Determine which Actor to speak as

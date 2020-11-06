@@ -737,7 +737,7 @@ export const core_system_preview = `<div class="card clipped frame-core flexcol"
   {{#if csys.passive_name}}
   <div class="card clipped">
     <div class="lancer-core-sys-header medium clipped-top">
-      <i class="mdi mdi-circle-expand i--m i--light"> </i>
+      <a class="mdi mdi-circle-expand i--m i--light core-passive-macro macroable"> </a>
       <div class="medium">{{csys.passive_name}}</div>
       <div class="medium" style="justify-self: right;"> // PASSIVE</div>
     </div>
@@ -746,7 +746,7 @@ export const core_system_preview = `<div class="card clipped frame-core flexcol"
   {{/if}}
   <div class="card clipped">
     <div class="lancer-core-sys-header medium clipped-top">
-      <i class="cci cci-corebonus i--m i--light"> </i>
+      <a class="cci cci-corebonus i--m i--light core-active-macro macroable" > </a>
       <div class="medium">{{csys.active_name}}</div>
       <div class="medium" style="justify-self: right;"> // ACTIVE</div>
     </div>

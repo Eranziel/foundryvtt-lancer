@@ -137,6 +137,8 @@ Hooks.once("init", async function () {
     },
     prepareItemMacro: macros.prepareItemMacro,
     prepareStatMacro: macros.prepareStatMacro,
+    prepareTextMacro: macros.prepareTextMacro,
+    prepareCoreActiveMacro: macros.prepareCoreActiveMacro,
     migrations: migrations,
   };
 
@@ -284,6 +286,12 @@ Hooks.once("init", async function () {
   // ------------------------------------------------------------------------
   // Generic components
   Handlebars.registerHelper("l-num-input", function (target: string, value: string) {
+    // Init value to 0 if it doesn't exist
+    // So the arrows work properly
+    if(!value){
+      value = "0"
+    }
+    
     let html =
     `<div class="flexrow arrow-input-container">
       <button class="mod-minus-button" type="button">-</button>
@@ -446,6 +454,10 @@ Hooks.on("renderChatMessage", async (cm: ChatMessage, html: any, data: any) => {
 
 
 Hooks.on('hotbarDrop', (_bar: any, data: any, slot: number) => {
+
+  // We set an associated command & title based off the type
+  // Everything else gets handled elsewhere
+
   let command = ""
   let title = ""
 
@@ -467,6 +479,12 @@ Hooks.on('hotbarDrop', (_bar: any, data: any, slot: number) => {
     } else {
       title = data.data.name;
     }
+  } else if (data.type === 'Text') {
+    title = data.title;
+    command = `game.lancer.prepareTextMacro("${data.actorId}", "${data.title}", {rank: ${data.description}})`
+  } else if (data.type === 'Core-Active') {
+    title = data.title;
+    command = `game.lancer.prepareCoreActiveMacro("${data.actorId}")`
   } else {
     // Let's not error or anything, since it's possible to accidentally drop stuff pretty easily
     return;

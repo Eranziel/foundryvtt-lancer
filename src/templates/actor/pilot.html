@@ -546,7 +546,7 @@
       {{#if frame}}
       {{!-- Traits --}}
       <ul>
-        {{#each frame.data.traits as |trait key|}}
+        {{#each frame.data.data.traits as |trait key|}}
         <li class="card clipped frame-trait-compact">
           {{> mech-trait trait=trait key=key}}
         </li>
@@ -554,7 +554,7 @@
       </ul>
 
       {{!-- Core System --}}
-      {{> core-system csys=frame.data.core_system}}
+      {{> core-system csys=frame.data.data.core_system}}
       {{/if}}
       {{!-- End of Frame --}}
 

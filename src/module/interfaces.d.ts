@@ -644,3 +644,9 @@ declare interface LancerGenericMacroData {
   title: string;
   effect: EffectData | string;
 }
+
+declare interface LancerTextMacroData {
+  title: string;
+  description: string;
+  tags?: TagDataShort[];
+}
