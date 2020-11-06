@@ -39,7 +39,7 @@ import { LancerNPCWeaponData } from "./item/npc-feature";
  * @param options Ability to pass through various options to the item.
  *      Talents can use rank: value.
  */
-export function prepareItemMacro(a: string, i: string, options: any) {
+export function prepareItemMacro(a: string, i: string, options?: any) {
   // Determine which Actor to speak as
   let actor: Actor | null = game.actors.get(a) || getMacroSpeaker();
   if (!actor) {
@@ -118,11 +118,14 @@ export function prepareItemMacro(a: string, i: string, options: any) {
       if(item.data.data.feature_type === 'Weapon') {
         prepareAttackMacro(actor,item);
         break;
+      } else if (item.data.data.feature_type === 'Tech') {
+        rollTechMacro(item._id,actor._id);
+        break;
       }
     default:
       console.log("No macro exists for that item type");
       return ui.notifications.error(
-        `Error - No macro exist for that item type`
+        `Error - No macro exists for that item type`
       );
   }
 }

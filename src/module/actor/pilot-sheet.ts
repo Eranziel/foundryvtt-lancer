@@ -196,6 +196,7 @@ export class LancerPilotSheet extends ActorSheet {
         game.lancer.prepareItemMacro(this.actor._id, el.getAttribute("data-item-id"), {rank: ev.currentTarget.getAttribute("data-rank")});
       });
       
+      // TODO: This should really just be a single item-macro class
       // Trigger rollers
       let itemMacros = html.find(".skill-macro")
       // System rollers

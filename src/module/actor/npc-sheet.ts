@@ -4,13 +4,14 @@ import {
   LancerNPCClass,
   LancerNPCTemplate,
   LancerNPCFeature,
-  LancerItemData,
+  LancerItemData
 } from "../item/lancer-item";
 import { MechType } from "../enums";
 import { LancerActor } from "./lancer-actor";
 import { LANCER } from "../config";
 import { ItemManifest, ItemDataManifest } from "../item/util";
 import { LancerNPCWeaponData } from "../item/npc-feature";
+import { prepareItemMacro } from "../macros"
 const lp = LANCER.log_prefix;
 
 const entryPrompt = "//:AWAIT_ENTRY>";
@@ -99,6 +100,16 @@ export class LancerNPCSheet extends ActorSheet {
 
     // Macro triggers
     if (this.actor.owner) {
+      // Macros that can be handled via the generic item interface
+      let itemMacros = html.find(".item-macro");
+      itemMacros.on("click", (ev: any) => {
+        ev.stopPropagation(); // Avoids triggering parent event handlers
+        
+        const el = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
+        
+        prepareItemMacro(this.actor._id, <string>el.getAttribute("data-item-id"));
+      });
+
       // Stat rollers
       let statMacro = html.find(".roll-stat");
       statMacro.on("click", (ev: any) => {
@@ -135,27 +146,17 @@ export class LancerNPCSheet extends ActorSheet {
       // Weapon rollers
       let weaponMacro = html.find(".roll-attack");
       weaponMacro.on("click", (ev: any) => {
-        ev.stopPropagation(); // Avoids triggering parent event handlers
-        
+        ev.stopPropagation();
+        console.log(ev);
         const weaponElement = $(ev.currentTarget).closest(".weapon")[0] as HTMLElement;
+        console.log(weaponElement);
         const weaponId = weaponElement.getAttribute("data-item-id");
         if (!weaponId) return ui.notifications.warn(`Error rolling macro: No weapon ID!`);
-        const weapon = this.actor.getOwnedItem(weaponId) as LancerNPCFeature;
-        if (!weapon) return ui.notifications.warn(`Error rolling macro: Couldn't find weapon with ID ${weaponId}.`);
-        const wData = weapon.data.data as LancerNPCWeaponData;
-        const tier = (this.actor.data.data as LancerNPCData).tier_num - 1;
-        let mData: LancerAttackMacroData = {
-          title: weapon.name,
-          grit: wData.attack_bonus[tier],
-          acc: wData.accuracy[tier],
-          tags: wData.tags,
-          damage: wData.damage.map(d => {return {type: d.type, val: d.val[tier]};}),
-          overkill: weapon.isOverkill,
-          effect: wData.effect ? wData.effect : ""
-        };
+        const item = this.actor.getOwnedItem(weaponId);
+        if (!item) return ui.notifications.warn(`Error rolling macro: Couldn't find weapon with ID ${weaponId}.`);
 
-        console.log(`${lp} Rolling NPC attack macro with data:`, mData);
-        game.lancer.rollAttackMacro(this.actor, mData);
+        const weapon = item as LancerNPCFeature;
+        game.lancer.prepareItemMacro(this.actor._id, weapon._id);
       });
 
       // Tech rollers
@@ -166,7 +167,7 @@ export class LancerNPCSheet extends ActorSheet {
 
         const techElement = $(ev.currentTarget).closest(".tech")[0] as HTMLElement;
         let techId = techElement.getAttribute("data-item-id");
-        game.lancer.rollTechMacro(techId, this.actor._id);
+        game.lancer.prepareItemMacro(this.actor._id, techId);
       });
     }
     if (this.actor.owner) {
