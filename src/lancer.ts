@@ -139,6 +139,7 @@ Hooks.once("init", async function () {
     prepareStatMacro: macros.prepareStatMacro,
     prepareTextMacro: macros.prepareTextMacro,
     prepareCoreActiveMacro: macros.prepareCoreActiveMacro,
+    prepareCorePassiveMacro: macros.prepareCorePassiveMacro,
     migrations: migrations,
   };
 
@@ -461,6 +462,7 @@ Hooks.on('hotbarDrop', (_bar: any, data: any, slot: number) => {
   let command = ""
   let title = ""
 
+  // TODO: Figure out if I am really going down this route and, if so, switch to a switch
   if (data.type === 'actor') {
     command = `
       const a = game.actors.get('${data.actorId}');
@@ -485,6 +487,9 @@ Hooks.on('hotbarDrop', (_bar: any, data: any, slot: number) => {
   } else if (data.type === 'Core-Active') {
     title = data.title;
     command = `game.lancer.prepareCoreActiveMacro("${data.actorId}")`
+  } else if (data.type === 'Core-Passive') {
+    title = data.title;
+    command = `game.lancer.prepareCorePassiveMacro("${data.actorId}")`
   } else {
     // Let's not error or anything, since it's possible to accidentally drop stuff pretty easily
     return;

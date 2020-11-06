@@ -417,6 +417,32 @@ export function prepareCoreActiveMacro(a: string) {
   rollTextMacro(actor, mData);
 }
 
+/**
+ * Prepares a macro to present core passive information for
+ * Checks whether they have a passive since that could get removed on swap
+ * @param a     String of the actor ID to roll the macro as, and who we're getting core info for
+ */
+export function prepareCorePassiveMacro(a: string) {
+  // Determine which Actor to speak as
+  let actor: LancerActor | null = <LancerActor>(game.actors.get(a) || getMacroSpeaker());
+  if (!actor) return;
+
+  let frame: LancerFrameItemData | null = actor.getCurrentFrame();
+
+  if(!frame || !(frame.data.core_system.passive_name) || !(frame.data.core_system.passive_effect)) {
+    // Could probably handle this better eventually
+    return;
+  }
+
+  let mData: LancerTextMacroData = {
+    title: frame.data.core_system.passive_name,
+    description: frame.data.core_system.passive_effect,
+    tags: frame.data.core_system.tags
+  }
+
+  rollTextMacro(actor, mData);
+}
+
 
 /**
  * Given basic information, prepares a generic text-only macro to display descriptions etc

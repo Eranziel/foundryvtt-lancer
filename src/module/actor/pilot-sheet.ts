@@ -23,7 +23,7 @@ import { LANCER } from "../config";
 import { ItemDataManifest } from "../item/util";
 import { MountType } from "machine-mind";
 import { import_pilot_by_code, update_pilot } from "./util";
-import { prepareCoreActiveMacro } from "../macros";
+import { prepareCoreActiveMacro, prepareCorePassiveMacro } from "../macros";
 const lp = LANCER.log_prefix;
 
 // TODO: should probably move to HTML/CSS
@@ -224,7 +224,7 @@ export class LancerPilotSheet extends ActorSheet {
 
         let target = <HTMLElement>ev.currentTarget;
         
-        //prepareCoreActiveMacro(this.actor._id);
+        prepareCorePassiveMacro(this.actor._id);
       });
       
       // Weapon rollers
@@ -267,6 +267,7 @@ export class LancerPilotSheet extends ActorSheet {
       const talentMacroHandler = (e: DragEvent) => this._onDragTalentMacroableStart(e);
       const textMacroHandler = (e: DragEvent) => this._onDragTextMacroableStart(e);
       const CAMacroHandler = (e: DragEvent) => this._onDragCoreActiveStart(e);
+      const CPMacroHandler = (e: DragEvent) => this._onDragCorePassiveStart(e);
       html
       .find('li[class*="item"]')
       .add('span[class*="item"]')
@@ -277,6 +278,7 @@ export class LancerPilotSheet extends ActorSheet {
         if (item.classList.contains("talent-macro")) item.addEventListener('dragstart', talentMacroHandler, false);
         if (item.classList.contains("text-macro")) item.addEventListener('dragstart', textMacroHandler, false);
         if (item.classList.contains("core-active-macro")) item.addEventListener('dragstart', CAMacroHandler, false);
+        if (item.classList.contains("core-passive-macro")) item.addEventListener('dragstart', CPMacroHandler, false);
         item.setAttribute("draggable", true);
         item.addEventListener("dragstart", (ev: any) => this._onDragStart(ev), false);
       });
@@ -474,6 +476,25 @@ export class LancerPilotSheet extends ActorSheet {
         // Title will simply be CORE ACTIVE since we want to keep the macro dynamic
         title: "CORE ACTIVE",
         type: "Core-Active"
+      };
+      
+      event.dataTransfer?.setData('text/plain', JSON.stringify(data));
+    }
+
+    /**
+     * For dragging the core passive to the hotbar
+     * @param event   The associated DragEvent
+     */
+    _onDragCorePassiveStart(event: DragEvent) {
+      event.stopPropagation(); // Avoids triggering parent event handlers
+
+      let target = <HTMLElement>event.currentTarget;
+
+      let data = {
+        actorId: this.actor._id,
+        // Title will simply be CORE PASSIVE since we want to keep the macro dynamic
+        title: "CORE PASSIVE",
+        type: "Core-Passive"
       };
       
       event.dataTransfer?.setData('text/plain', JSON.stringify(data));
