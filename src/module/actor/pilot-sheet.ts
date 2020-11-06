@@ -199,7 +199,9 @@ export class LancerPilotSheet extends ActorSheet {
       // Trigger rollers
       let itemMacros = html.find(".skill-macro")
       // System rollers
-      .add(html.find(".system-macro"));
+      .add(html.find(".system-macro"))
+      // Gear rollers
+      .add(html.find(".gear-macro"));
       itemMacros.on("click", (ev: any) => {
         ev.stopPropagation(); // Avoids triggering parent event handlers
         
