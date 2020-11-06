@@ -73,6 +73,7 @@ export function prepareItemMacro(a: string, i: string, options?: any) {
       break;
     // Systems
     case 'mech_system':
+      // TODO--this can probably be a textMacro
       let sysData: LancerGenericMacroData = {
         title: item.name,
         effect: item.data.data.effect
@@ -120,6 +121,15 @@ export function prepareItemMacro(a: string, i: string, options?: any) {
         break;
       } else if (item.data.data.feature_type === 'Tech') {
         rollTechMacro(item._id,actor._id);
+        break;
+      } else if (item.data.data.feature_type === 'System') {
+        let sysData: LancerTextMacroData = {
+          title: item.name,
+          description: <string>item.data.data.effect,
+          tags: item.data.data.tags
+        };
+      
+        rollTextMacro(actor, sysData);
         break;
       }
     default:
