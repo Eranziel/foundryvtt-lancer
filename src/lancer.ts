@@ -71,6 +71,7 @@ import { LancerDeployableSheet } from "./module/actor/deployable-sheet";
 import { LancerItemSheet } from "./module/item/item-sheet";
 import { LancerFrameSheet } from "./module/item/frame-sheet";
 import { LancerNPCClassSheet } from "./module/item/npc-class-sheet";
+import { LancerNPCTemplateSheet } from "./module/item/npc-template-sheets";
 
 // Import helpers
 import { preloadTemplates } from "./module/preloadTemplates";
@@ -168,13 +169,13 @@ Hooks.once("init", async function () {
       "pilot_gear",
       "mech_system",
       "mech_weapon",
-      "npc_template",
       "npc_feature",
     ],
     makeDefault: true,
   });
   Items.registerSheet("lancer", LancerFrameSheet, { types: ["frame"], makeDefault: true });
   Items.registerSheet("lancer", LancerNPCClassSheet, { types: ["npc_class"], makeDefault: true });
+  Items.registerSheet("lancer", LancerNPCTemplateSheet, { types: ["npc_template"], makeDefault: true});
 
   // *******************************************************************
   // Register handlebars helpers
