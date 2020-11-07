@@ -19,6 +19,10 @@ export interface LancerNPCSystemData extends LancerNPCFeatureData {
   feature_type: NpcFeatureType.System;
 }
 
+export interface LancerNPCTraitData extends LancerNPCFeatureData {
+  feature_type: NpcFeatureType.Trait;
+}
+
 export interface LancerNPCTechData extends LancerNPCFeatureData {
   tech_type: string;
   accuracy?: number[];

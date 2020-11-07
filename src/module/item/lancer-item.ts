@@ -555,49 +555,78 @@ export function npc_weapon_damage_selector(
 }
 
 /**
- * Handlebars partial for a weapon preview range stat
+ * Handlebars helper for a weapon preview range stat
+ * @param range {RangeData} The range stat to render.
+ * @param key {number} The range's index.
  */
-export const weapon_range_preview = `{{#if range.val}}
-{{#if (gtpi rkey "0")}}<span class="flexrow" style="align-items: center; justify-content: center; max-width: min-content;"> // </span>{{/if}}
-<div class="compact-range">
-    <i class="cci cci-{{lower-case range.type}} i--m i--dark"></i>
-    <span class="medium">{{range.val}}</span>
-</div>
-{{/if}}`;
+export function weapon_range_preview(range: RangeData, key: number) {
+  let html = ``;
+  if (range.val) {
+    if (key > 0) {
+      html += `<span class="flexrow" style="align-items: center; justify-content: center; max-width: min-content;"> // </span>`;
+    }
+    html += `
+    <div class="compact-range">
+      <i class="cci cci-${range.type.toLowerCase()} i--m i--dark"></i>
+      <span class="medium">${range.val}</span>
+    </div>`;
+  }
+  return html;
+}
 
 /**
- * Handlebars partial for a weapon preview damage stat
+ * Handlebars helper for a weapon preview damage stat
+ * @param damage {DamageData | NPCDamageData} The damage stat to render.
+ * @param tier {number} The tier number of the NPC, not applicable to pilot-type weapons.
  */
-export const weapon_damage_preview = `{{#if damage.type}}
-<div class="compact-damage">
-    <i class="cci cci-{{lower-case damage.type}} i--m damage--{{lower-case damage.type}}"></i>
-    <span class="medium">{{dval}}</span>
-</div>
-{{/if}}`;
+export function weapon_damage_preview(damage: DamageData | NPCDamageData, tier?: number) {
+  console.log(damage, tier);
+  let html = ``;
+  let val: number | string;
+  if (tier != undefined && Array.isArray(damage.val)) {
+    val = (damage as NPCDamageData).val[tier];
+  } else {
+    val = (damage as DamageData).val;
+  }
+  if (damage && damage.type) {
+    html += `<div class="compact-damage">
+      <i class="cci cci-${damage.type.toLowerCase()} i--m damage--${damage.type.toLowerCase()}"></i>
+      <span class="medium">${val}</span>
+    </div>`;
+  }
+  return html;
+}
 
 /**
- * Handlebars partial for an NPC feature preview attack bonus stat
+ * Handlebars helper for an NPC feature preview attack bonus stat
+ * @param atk {number} Attack bonus to render
  */
-export const npc_attack_bonus_preview = `<div class="compact-acc">
-  <i class="cci cci-reticule i--m i--dark"></i>
-  <span class="medium">{{#if (ltpi atk "0")}}{{else}}+{{/if}}{{atk}} ATTACK BONUS</span>
-</div>`;
+export function npc_attack_bonus_preview(atk: number) {
+  return `<div class="compact-acc">
+    <i class="cci cci-reticule i--m i--dark"></i>
+    <span class="medium"> ${atk < 0 ? "-" : "+"}${atk} ATTACK BONUS</span>
+  </div>`;
+}
 
 /**
- * Handlebars partial for an NPC feature preview accuracy stat
+ * Handlebars helper for an NPC feature preview accuracy stat
+ * @param acc {number} Accuracy bonus to render
  */
-export const npc_accuracy_preview = `{{#if (gtpi acc "0")}}
-<div class="compact-acc">
-    <i class="cci cci-accuracy i--m i--dark"></i>
-    <span class="medium">+{{acc}} ACCURACY</span>
-</div>
-{{/if}}
-{{#if (ltpi acc "0")}}
-<div class="compact-acc">
-    <i class="cci cci-difficulty i--m i--dark"></i>
-    <span class="medium">+{{neg acc}} DIFFICULTY</span>
-</div>
-{{/if}}`;
+export function npc_accuracy_preview(acc: number) {
+  let html = ``;
+  if (acc > 0) {
+    html += `<div class="compact-acc">
+      <i class="cci cci-accuracy i--m i--dark"></i>
+      <span class="medium"> +${acc} ACCURACY</span>
+    </div>`;
+  } else if (acc < 0) {
+    html += `<div class="compact-acc">
+      <i class="cci cci-difficulty i--m i--dark"></i>
+      <span class="medium"> +${-acc} DIFFICULTY</span>
+    </div>`;
+  }
+  return html;
+}
 
 /**
  * Handlebars partial for a mech weapon preview card.
@@ -612,11 +641,11 @@ export const mech_weapon_preview = `<div class="flexcol clipped lancer-weapon-co
     <a class="roll-attack" style="grid-area: 1/1/2/2;"><i class="fas fa-dice-d20 i--m i--dark"></i></a>
     <div class="flexrow" style="grid-area: 1/2/2/3; text-align: left; white-space: nowrap;">
       {{#each weapon.data.range as |range rkey|}}
-        {{> wpn-range range=range rkey=rkey}}
+        {{{wpn-range range rkey}}}
       {{/each}}
       <hr class="vsep">
       {{#each weapon.data.damage as |damage dkey|}}
-        {{> wpn-damage damage=damage dkey=dkey dval=damage.val}}
+        {{{wpn-damage damage}}}
       {{/each}}
 
       {{!-- Loading toggle - WIP, needs a way to link to related weapon. Maybe needs to be a callback instead of input.

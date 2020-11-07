@@ -220,11 +220,11 @@
                     <i class="fas fa-dice-d20 i--sm i--dark"></i>
                   </a>
                   {{#each weapon.data.range as |range rkey|}}
-                    {{> wpn-range range=range rkey=rkey}}
+                    {{{wpn-range range rkey}}}
                   {{/each}}
                   <hr class="vsep">
                   {{#each weapon.data.damage as |damage dkey|}}
-                    {{> wpn-damage damage=damage dkey=dkey dval=damage.val}}
+                    {{{wpn-damage damage}}}
                   {{/each}}
                 </div>
                 {{!-- Loading toggle - WIP

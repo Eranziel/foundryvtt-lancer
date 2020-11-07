@@ -51,6 +51,11 @@ import {
   effect_preview,
   generic_effect_preview,
   invade_option_preview,
+  npc_reaction_effect_preview,
+  npc_system_effect_preview,
+  npc_tech_effect_preview,
+  npc_trait_effect_preview,
+  npc_weapon_effect_preview,
   offensive_effect_preview,
   profile_effect_preview,
   protocol_effect_preview,
@@ -278,10 +283,10 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("wpn-range-sel", weapon_range_selector);
   Handlebars.registerHelper("wpn-damage-sel", pilot_weapon_damage_selector);
   Handlebars.registerHelper("npc-wpn-damage-sel", npc_weapon_damage_selector);
-  Handlebars.registerPartial("wpn-range", weapon_range_preview);
-  Handlebars.registerPartial("wpn-damage", weapon_damage_preview);
-  Handlebars.registerPartial("npcf-atk", npc_attack_bonus_preview);
-  Handlebars.registerPartial("npcf-acc", npc_accuracy_preview);
+  Handlebars.registerHelper("wpn-range", weapon_range_preview);
+  Handlebars.registerHelper("wpn-damage", weapon_damage_preview);
+  Handlebars.registerHelper("npcf-atk", npc_attack_bonus_preview);
+  Handlebars.registerHelper("npcf-acc", npc_accuracy_preview);
   Handlebars.registerPartial("mech-weapon-preview", mech_weapon_preview);
 
   // ------------------------------------------------------------------------
@@ -309,6 +314,14 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("rct-eff-preview", reaction_effect_preview);
   Handlebars.registerHelper("inv-eff-preview", invade_option_preview);
   Handlebars.registerHelper("tech-eff-preview", tech_effect_preview);
+
+  // ------------------------------------------------------------------------
+  // NPC Effects
+  Handlebars.registerHelper("npc-rct-preview", npc_reaction_effect_preview);
+  Handlebars.registerHelper("npc-sys-preview", npc_system_effect_preview);
+  Handlebars.registerHelper("npc-trait-preview", npc_trait_effect_preview);
+  Handlebars.registerHelper("npc-tech-preview", npc_tech_effect_preview);
+  Handlebars.registerHelper("npc-wpn-preview", npc_weapon_effect_preview);
 
   // ------------------------------------------------------------------------
   // Frames

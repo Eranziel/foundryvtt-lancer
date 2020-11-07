@@ -1,6 +1,19 @@
 import { DamageData, RangeData, TagData } from "../interfaces";
 import { ActivationType, ChargeType, EffectType } from "../enums";
 import { renderCompactTag } from "./tags";
+import {
+  LancerNPCReactionData,
+  LancerNPCSystemData,
+  LancerNPCTechData,
+  LancerNPCTraitData,
+  LancerNPCWeaponData,
+} from "./npc-feature";
+import {
+  npc_accuracy_preview,
+  npc_attack_bonus_preview,
+  weapon_damage_preview,
+  weapon_range_preview,
+} from "./lancer-item";
 
 export const EffectIcons = {
   Generic: "systems/lancer/assets/icons/generic_item.svg",
@@ -238,11 +251,11 @@ export const generic_effect_preview = `<div class="flexcol effect-text" style="p
   <div class="effect-text">{{{effect}}}</div>
 </div>`;
 
-export function effect_tag_row(effect: EffectData) {
+export function effect_tag_row(tags: TagData[] | undefined) {
   let html = ``;
-  if (effect.tags) {
+  if (tags && Array.isArray(tags)) {
     html += `<div class="compact-tag-row">`;
-    effect.tags.forEach(tag => {
+    tags.forEach(tag => {
       html += renderCompactTag(tag);
     });
     html += `</div>`;
@@ -265,7 +278,7 @@ export function standard_effect_preview(effect: EffectData, title?: string) {
     // not on all types
     html += `<div class="effect-text">${_effect.detail}</div>`;
   }
-  html += effect_tag_row(effect);
+  html += effect_tag_row(effect.tags);
   html += `</div>`;
   return html;
 }
@@ -418,7 +431,7 @@ export function deployable_effect_preview(effect: DeployableEffectData) {
     </div>`;
   }
   html += `</div><div class="effect-text">${effect.detail}</div>`;
-  html += effect_tag_row(effect);
+  html += effect_tag_row(effect.tags);
   html += `</div></div>`;
   return html;
 }
@@ -471,7 +484,7 @@ export function drone_effect_preview(effect: DroneEffectData) {
   }
   html += `</div>`;
   html += `<div class="effect-text">${effect.detail}</div>`;
-  html += effect_tag_row(effect);
+  html += effect_tag_row(effect.tags);
   html += `</div></div>`;
   return html;
 }
@@ -507,7 +520,7 @@ export function offensive_effect_preview(effect: OffensiveEffectData) {
   if (effect.detail) {
     html += `<div class="effect-text">${effect.detail}</div>`;
   }
-  html += effect_tag_row(effect);
+  html += effect_tag_row(effect.tags);
   html += `</div>`;
   return html;
 }
@@ -543,7 +556,7 @@ export function profile_effect_preview(effect: ProfileEffectData) {
   }
   html += `</div>`;
   html += `<div class="effect-text">${effect.detail}</div></div>`;
-  html += effect_tag_row(effect);
+  html += effect_tag_row(effect.tags);
   html += `</div>`;
   return html;
 }
@@ -582,7 +595,7 @@ export function reaction_effect_preview(effect: ReactionEffectData) {
     <div class="medium">EFFECT</div>
     <div class="flexrow effect-text">${effect.detail}</div>
   </div>`;
-  html += effect_tag_row(effect);
+  html += effect_tag_row(effect.tags);
   html += `</div>`;
   return html;
 }
@@ -625,6 +638,136 @@ export function tech_effect_preview(effect: TechEffectData) {
     });
     html += `</div>`;
   }
+  html += `</div>`;
+  return html;
+}
+
+export function npc_reaction_effect_preview(npc_feature: LancerNPCReactionData) {
+  let html = `<div class="lancer-reaction-header clipped-top" style="grid-area: 1/1/2/3">
+    <i class="cci cci-reaction i--m i--light"> </i>
+    <span class="minor">${npc_feature.name}</span>
+    <a class="stats-control i--light" data-action="delete"><i class="fas fa-trash"></i></a>
+  </div>
+  <div class="flexcol" style="margin: 10px;">
+    <span class="medium flexrow">TRIGGER</span>
+    <div class="effect-text" style="padding: 5px">${npc_feature.trigger}</div>
+    <span class="medium flexrow">EFFECT</span>
+    <div class="effect-text" style="padding: 5px">${npc_feature.effect}</div>
+  </div>
+  <div class="flexrow" style="justify-content: flex-end;">`;
+  html += effect_tag_row(npc_feature.tags);
+  return html;
+}
+
+function npc_system_trait_effect_preview(npc_feature: LancerNPCSystemData | LancerNPCTraitData) {
+  let html = `<div class="lancer-system-header clipped-top" style="grid-area: 1/1/2/3">
+  <a class="cci cci-system i--m i--light macroable item-macro"> </a>
+    <span class="minor">${npc_feature.name}</span>
+  <a class="stats-control i--light" data-action="delete"><i class="fas fa-trash"></i></a>
+  </div>
+  <div class="flexcol" style="margin: 10px;">
+  <span class="medium flexrow">EFFECT</span>
+    <div class="effect-text" style="padding: 5px">${npc_feature.effect}</div>
+  </div>`;
+  html += effect_tag_row(npc_feature.tags);
+  return html;
+}
+
+export function npc_system_effect_preview(npc_feature: LancerNPCSystemData) {
+  return npc_system_trait_effect_preview(npc_feature);
+}
+
+export function npc_trait_effect_preview(npc_feature: LancerNPCTraitData) {
+  return npc_system_trait_effect_preview(npc_feature);
+}
+
+export function npc_tech_effect_preview(npc_feature: LancerNPCTechData, tier: number) {
+  let html = `<div class="lancer-tech-header clipped-top" style="grid-area: 1/1/2/3">
+  <i class="cci cci-tech-${npc_feature.tech_type.toLowerCase()} i--m i--light"> </i>
+    <span class="minor">${npc_feature.name} // ${npc_feature.tech_type.toUpperCase()} TECH</span>
+  <a class="stats-control i--light" data-action="delete"><i class="fas fa-trash"></i></a>
+  </div>
+  <div class="lancer-tech-body">
+  <a class="roll-tech" style="grid-area: 1/1/2/2;"><i class="fas fa-dice-d20 i--m i--dark"></i></a>
+  <div class="flexrow" style="grid-area: 1/2/2/3; text-align: left; white-space: nowrap;">`;
+  if (npc_feature.attack_bonus) {
+    const atk = npc_feature.attack_bonus[tier];
+    html += `<div class="compact-acc">
+    <i class="cci cci-reticule i--m i--dark"></i>
+      <span class="medium">${atk < 0 ? "-" : "+"}${atk} ATTACK BONUS</span>
+    </div>`;
+  }
+  html += `<hr class="vsep">`;
+  if (npc_feature.accuracy) {
+    const acc = npc_feature.accuracy[tier];
+    if (acc > 0) {
+      html += `<div class="compact-acc">
+        <i class="cci cci-accuracy i--m i--dark"></i>
+        <span class="medium">+${acc} ACCURACY</span>
+      </div>`;
+    } else if (acc < 0) {
+      html += `<div class="compact-acc">
+        <i class="cci cci-difficulty i--m i--dark"></i>
+        <span class="medium">+${-acc} DIFFICULTY</span>
+      </div>`;
+    }
+  }
+  html += `</div><div class="flexcol" style="grid-area: 2/1/3/3; text-align: left;">`;
+  if (npc_feature.effect) {
+    html += `<div class="flexcol" style="height: fit-content; margin: 0 10px;">
+      <span class="medium flexrow">EFFECT</span>
+      <div class="effect-text" style="padding: 5px">${npc_feature.effect}</div>
+    </div>`;
+  }
+  html += `</div><div style="grid-area: 3/1/4/3;"`;
+  html += effect_tag_row(npc_feature.tags);
+  html += `</div>`;
+  return html;
+}
+
+export function npc_weapon_effect_preview(npc_feature: LancerNPCWeaponData, tier: number) {
+  let html = `<div class="lancer-weapon-header clipped-top" style="grid-area: 1/1/2/3">
+    <i class="cci cci-weapon i--m i--light"> </i>
+    <span class="minor">${npc_feature.name} // ${npc_feature.weapon_type.toUpperCase()}</span>
+    <a class="stats-control i--light" data-action="delete"><i class="fas fa-trash"></i></a>
+  </div>
+  <div class="lancer-weapon-body">
+    <a class="roll-attack" style="grid-area: 1/1/2/2;"><i class="fas fa-dice-d20 i--m i--dark"></i></a>
+    <div class="flexrow" style="grid-area: 1/2/2/3; text-align: left; white-space: nowrap;">`;
+  for (let i = 0; i < npc_feature.range.length; i++) {
+    html += weapon_range_preview(npc_feature.range[i], i);
+  }
+  html += `<hr class="vsep">`;
+  for (let i = 0; i < npc_feature.damage.length; i++) {
+    html += weapon_damage_preview(npc_feature.damage[i], tier);
+  }
+  html += `<hr class="vsep">`;
+  if (npc_feature.attack_bonus) {
+    const atk = npc_feature.attack_bonus[tier];
+    html += npc_attack_bonus_preview(atk);
+  }
+  html += `<hr class="vsep">`;
+  if (npc_feature.accuracy) {
+    const acc = npc_feature.accuracy[tier];
+    html += npc_accuracy_preview(acc);
+  }
+  html += `</div><div class="flexcol" style="grid-area: 2/1/3/3; text-align: left;">`;
+  if (npc_feature.on_hit) {
+    html += `
+    <div class="flexcol" style="height: fit-content; margin: 0 10px;">
+      <span class="medium flexrow">ON HIT</span>
+      <div class="effect-text" style="padding: 5px">${npc_feature.on_hit}</div>
+    </div>`;
+  }
+  if (npc_feature.effect) {
+    html += `
+    <div class="flexcol" style="height: fit-content; margin: 0 10px;">
+      <span class="medium flexrow">EFFECT</span>
+      <div class="effect-text" style="padding: 5px">${npc_feature.effect}</div>
+    </div>`;
+  }
+  html += `</div><div class="flexrow" style="justify-content: flex-end; grid-area: 3/1/4/3">`;
+  html += effect_tag_row(npc_feature.tags);
   html += `</div>`;
   return html;
 }
