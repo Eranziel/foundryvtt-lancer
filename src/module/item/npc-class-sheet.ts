@@ -19,7 +19,7 @@ export class LancerNPCClassSheet extends LancerItemSheet {
     return mergeObject(super.defaultOptions, {
       width: 900,
       height: 750,
-      dragDrop: [{dragSelector: ".item"}],
+      dragDrop: [{ dragSelector: ".item" }],
     });
   }
 
@@ -29,26 +29,44 @@ export class LancerNPCClassSheet extends LancerItemSheet {
   /** @override */
   _updateObject(event: any, formData: any) {
     formData["data.stats.hp"] = LancerNPCClassSheet.arrayifyStats(formData["data.stats.hp"]);
-    formData["data.stats.heatcap"] = LancerNPCClassSheet.arrayifyStats(formData["data.stats.heatcap"]);
-    formData["data.stats.structure"] = LancerNPCClassSheet.arrayifyStats(formData["data.stats.structure"]);
-    formData["data.stats.stress"] = LancerNPCClassSheet.arrayifyStats(formData["data.stats.stress"]);
+    formData["data.stats.heatcap"] = LancerNPCClassSheet.arrayifyStats(
+      formData["data.stats.heatcap"]
+    );
+    formData["data.stats.structure"] = LancerNPCClassSheet.arrayifyStats(
+      formData["data.stats.structure"]
+    );
+    formData["data.stats.stress"] = LancerNPCClassSheet.arrayifyStats(
+      formData["data.stats.stress"]
+    );
     formData["data.stats.armor"] = LancerNPCClassSheet.arrayifyStats(formData["data.stats.armor"]);
-    formData["data.stats.evasion"] = LancerNPCClassSheet.arrayifyStats(formData["data.stats.evasion"]);
+    formData["data.stats.evasion"] = LancerNPCClassSheet.arrayifyStats(
+      formData["data.stats.evasion"]
+    );
     formData["data.stats.edef"] = LancerNPCClassSheet.arrayifyStats(formData["data.stats.edef"]);
     formData["data.stats.speed"] = LancerNPCClassSheet.arrayifyStats(formData["data.stats.speed"]);
-    formData["data.stats.sensor_range"] = LancerNPCClassSheet.arrayifyStats(formData["data.stats.sensor_range"]);
+    formData["data.stats.sensor_range"] = LancerNPCClassSheet.arrayifyStats(
+      formData["data.stats.sensor_range"]
+    );
     formData["data.stats.save"] = LancerNPCClassSheet.arrayifyStats(formData["data.stats.save"]);
-    formData["data.stats.activations"] = LancerNPCClassSheet.arrayifyStats(formData["data.stats.activations"]);
+    formData["data.stats.activations"] = LancerNPCClassSheet.arrayifyStats(
+      formData["data.stats.activations"]
+    );
     formData["data.stats.size"] = LancerNPCClassSheet.arrayifyStats(formData["data.stats.size"]);
     formData["data.stats.hull"] = LancerNPCClassSheet.arrayifyStats(formData["data.stats.hull"]);
-    formData["data.stats.agility"] = LancerNPCClassSheet.arrayifyStats(formData["data.stats.agility"]);
-    formData["data.stats.systems"] = LancerNPCClassSheet.arrayifyStats(formData["data.stats.systems"]);
-    formData["data.stats.engineering"] = LancerNPCClassSheet.arrayifyStats(formData["data.stats.engineering"]);
+    formData["data.stats.agility"] = LancerNPCClassSheet.arrayifyStats(
+      formData["data.stats.agility"]
+    );
+    formData["data.stats.systems"] = LancerNPCClassSheet.arrayifyStats(
+      formData["data.stats.systems"]
+    );
+    formData["data.stats.engineering"] = LancerNPCClassSheet.arrayifyStats(
+      formData["data.stats.engineering"]
+    );
 
     formData["data.stats.size"] = (formData["data.stats.size"] as number[]).map(x => {
       if (x < 0.5) return 0.5;
       else if (x !== 0.5 && x % 1 < 1) return Math.floor(x);
-      else return x; 
+      else return x;
     });
 
     console.log(`${lp} Item sheet form data: `, formData);
@@ -63,8 +81,8 @@ export class LancerNPCClassSheet extends LancerItemSheet {
   getData(): ItemSheetData {
     let item = this.item as LancerItem;
     //Fetching local copies for use in drag-and-drop flow
-    item.base_feature_items.then(features => this.base_feature_items = features);
-    item.optional_feature_items.then(features => this.optional_feature_items = features);
+    item.base_feature_items.then(features => (this.base_feature_items = features));
+    item.optional_feature_items.then(features => (this.optional_feature_items = features));
 
     return super.getData();
   }
@@ -73,11 +91,15 @@ export class LancerNPCClassSheet extends LancerItemSheet {
     super.activateListeners(html);
 
     const item = this.item as LancerItem;
-    
+
     //These have to be refetched here despite also being fetched in getData because getData isn't allowed to be async in ItemSheets, thanks Foundry
     //So even if this looks like it's wrong, it's not
-    item.base_feature_items.then(base_features => this._displayFeatures(base_features, html.find("#base_feature_items")));
-    item.optional_feature_items.then(optional_features => this._displayFeatures(optional_features, html.find("#optional_feature_items")));
+    item.base_feature_items.then(base_features =>
+      this._displayFeatures(base_features, html.find("#base_feature_items"))
+    );
+    item.optional_feature_items.then(optional_features =>
+      this._displayFeatures(optional_features, html.find("#optional_feature_items"))
+    );
   }
 
   /** @override */
@@ -85,48 +107,53 @@ export class LancerNPCClassSheet extends LancerItemSheet {
     const li = event.currentTarget as HTMLElement;
     const features = this.base_feature_items.concat(this.optional_feature_items);
 
-    const selectedFeature = features.find( feature => feature._id === li.dataset["itemId"]);
+    const selectedFeature = features.find(feature => feature._id === li.dataset["itemId"]);
     if (selectedFeature) {
       const dragData = {
         type: "Item",
-        data: selectedFeature
-      }
-      
+        data: selectedFeature,
+      };
+
       if (event.dataTransfer) {
         event.dataTransfer.setData("text/plain", JSON.stringify(dragData));
       }
     }
   }
 
-  private _displayFeatures(features: LancerNPCFeatureItemData[], elementToReplace: JQuery<Element>) {
-    let featureItems = features.map( feature => {
-      switch (feature.data.feature_type) {
-        case "Reaction":
-          return this.reactionFeatureTemplate(feature);
-        case "System":
-          return this.systemFeatureTemplate(feature);
-        case "Trait":
-          return this.traitFeatureTemplate(feature);
-        case "Tech":
-          return this.techFeatureTemplate(feature);
-        case "Weapon":
-          return this.weaponFeatureTemplate(feature);
-      }
-    }).map( featureItem => {
-      if (featureItem) {
-        var element = jQuery(featureItem)
-        element.each((i: number, item: any) => {
-          item.setAttribute("draggable", "true");
-          item.addEventListener("dragstart", (ev: DragEvent) => this._onDragStart(ev), false);
-        })
-        return element;
-      }
-      return jQuery("")
-    }).map(element => element[0]);
+  private _displayFeatures(
+    features: LancerNPCFeatureItemData[],
+    elementToReplace: JQuery<Element>
+  ) {
+    let featureItems = features
+      .map(feature => {
+        switch (feature.data.feature_type) {
+          case "Reaction":
+            return this.reactionFeatureTemplate(feature);
+          case "System":
+            return this.systemFeatureTemplate(feature);
+          case "Trait":
+            return this.traitFeatureTemplate(feature);
+          case "Tech":
+            return this.techFeatureTemplate(feature);
+          case "Weapon":
+            return this.weaponFeatureTemplate(feature);
+        }
+      })
+      .map(featureItem => {
+        if (featureItem) {
+          var element = jQuery(featureItem);
+          element.each((i: number, item: any) => {
+            item.setAttribute("draggable", "true");
+            item.addEventListener("dragstart", (ev: DragEvent) => this._onDragStart(ev), false);
+          });
+          return element;
+        }
+        return jQuery("");
+      })
+      .map(element => element[0]);
 
     elementToReplace.replaceWith(featureItems);
   }
-
 
   /*
   ===========================================================
@@ -138,8 +165,8 @@ export class LancerNPCClassSheet extends LancerItemSheet {
   // Can't use the selectors and stuff because that would be massively too big.
 
   reactionFeatureTemplate(npc_feature: LancerNPCFeatureItemData): string {
-      let template = Handlebars.compile(
-        `<li class="card clipped npc-feature-compact item" style="min-width: 200px" data-item-id="{{_id}}">
+    let template = Handlebars.compile(
+      `<li class="card clipped npc-feature-compact item" style="min-width: 200px" data-item-id="{{_id}}">
         <div class="lancer-reaction-header clipped-top" style="grid-area: 1/1/2/3">
           <i class="cci cci-reaction i--m i--light"> </i>
           <span class="minor">{{name}}</span>
@@ -156,13 +183,13 @@ export class LancerNPCClassSheet extends LancerItemSheet {
           {{/each}}
         </div>
         </li>`
-      )
-      return template(npc_feature);
+    );
+    return template(npc_feature);
   }
 
   systemFeatureTemplate(npc_feature: LancerNPCFeatureItemData) {
     let template = Handlebars.compile(
-          `<li class="card clipped npc-feature-compact item" data-item-id="{{_id}}">
+      `<li class="card clipped npc-feature-compact item" data-item-id="{{_id}}">
             <div class="lancer-system-header clipped-top" style="grid-area: 1/1/2/3">
               <i class="cci cci-system i--m i--light"> </i>
               <span class="minor">{{name}}</span>
@@ -177,7 +204,7 @@ export class LancerNPCClassSheet extends LancerItemSheet {
               {{/each}}
             </div>
           </li>`
-    )
+    );
     return template(npc_feature);
   }
 
@@ -198,7 +225,7 @@ export class LancerNPCClassSheet extends LancerItemSheet {
         {{/each}}
       </div>
       </li>`
-    )
+    );
     return template(npc_feature);
   }
 
@@ -252,13 +279,13 @@ export class LancerNPCClassSheet extends LancerItemSheet {
         </div>
       </div>
     </li>`
-    )
+    );
     return template(npc_feature);
   }
 
   weaponFeatureTemplate(npc_feature: LancerNPCFeatureItemData) {
     let template = Handlebars.compile(
-          `<li class="card clipped npc-feature-compact weapon item" data-item-id="{{_id}}">
+      `<li class="card clipped npc-feature-compact weapon item" data-item-id="{{_id}}">
           <div class="lancer-weapon-header clipped-top" style="grid-area: 1/1/2/3">
             <i class="cci cci-weapon i--m i--light"> </i>
             <span class="minor">{{name}} // {{upper-case data.weapon_type}}</span>
@@ -308,8 +335,7 @@ export class LancerNPCClassSheet extends LancerItemSheet {
             </div>
           </div>
         </li>`
-    )
+    );
     return template(npc_feature);
   }
 }
-
