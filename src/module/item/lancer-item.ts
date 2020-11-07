@@ -580,7 +580,6 @@ export function weapon_range_preview(range: RangeData, key: number) {
  * @param tier {number} The tier number of the NPC, not applicable to pilot-type weapons.
  */
 export function weapon_damage_preview(damage: DamageData | NPCDamageData, tier?: number) {
-  console.log(damage, tier);
   let html = ``;
   let val: number | string;
   if (tier != undefined && Array.isArray(damage.val)) {
