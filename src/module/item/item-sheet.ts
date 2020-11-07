@@ -327,10 +327,12 @@ export class LancerItemSheet extends ItemSheet {
           name: data[`${prefix}.${i}.name`],
           id: data[`${prefix}.${i}.id`],
           description: data[`${prefix}.${i}.description`],
+          val: data[`${prefix}.${i}.val`]
         });
         delete data[`${prefix}.${i}.name`];
         delete data[`${prefix}.${i}.id`];
         delete data[`${prefix}.${i}.description`];
+        delete data[`${prefix}.${i}.val`]
         i++;
       }
       data[`${prefix}`] = tags;
