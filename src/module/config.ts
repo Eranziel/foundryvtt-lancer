@@ -51,7 +51,7 @@ export const STATUSES = [
   },
   {
     id: "lockon",
-    label: "Lockon",
+    label: "Lock On",
     icon: "systems/lancer/assets/icons/white/condition_lockon.svg",
   },
   {
@@ -106,7 +106,7 @@ export const STATUSES = [
   },
   {
     id: "shutdown",
-    label: "Shutdown",
+    label: "Shut Down",
     icon: "systems/lancer/assets/icons/white/status_shutdown.svg",
   },
 ];
