@@ -29,6 +29,20 @@ import {
   WeaponType,
 } from "machine-mind";
 import { get_NpcFeatures_pack, NPC_FEATURE_PACK } from "./util";
+import {
+  npc_reaction_effect_preview,
+  npc_system_effect_preview,
+  npc_tech_effect_preview,
+  npc_trait_effect_preview,
+  npc_weapon_effect_preview,
+} from "./effects";
+import {
+  LancerNPCReactionData,
+  LancerNPCSystemData,
+  LancerNPCTechData,
+  LancerNPCTraitData,
+  LancerNPCWeaponData,
+} from "./npc-feature";
 
 const lp = LANCER.log_prefix;
 
@@ -244,11 +258,12 @@ export class LancerItem extends Item {
     const itemData = this.data.data;
     if ("base_features" in itemData) {
       return get_NpcFeatures_pack().then(async allFeatures => {
-        let featureList = allFeatures.filter(feature => itemData.base_features.includes(feature.data.id));
+        let featureList = allFeatures.filter(feature =>
+          itemData.base_features.includes(feature.data.id)
+        );
         return featureList;
       });
-    }
-    else {
+    } else {
       return Promise.resolve([]);
     }
   }
@@ -257,11 +272,12 @@ export class LancerItem extends Item {
     const itemData = this.data.data;
     if ("optional_features" in itemData) {
       return get_NpcFeatures_pack().then(async allFeatures => {
-        let featureList = allFeatures.filter(feature => itemData.optional_features.includes(feature.data.id));
+        let featureList = allFeatures.filter(feature =>
+          itemData.optional_features.includes(feature.data.id)
+        );
         return featureList;
       });
-    }
-    else {
+    } else {
       return Promise.resolve([]);
     }
   }
@@ -858,3 +874,26 @@ export const core_system_preview = `<div class="card clipped frame-core flexcol"
     {{> tag-list tags=csys.tags}}
   </div>
 </div>`;
+
+export function npc_feature_preview(npc_feature: LancerNPCFeatureItemData, tier: number) {
+  let html = `<li class="card clipped npc-feature-compact item" data-item-id="${npc_feature._id}">`;
+  switch (npc_feature.data.feature_type) {
+    case "Reaction":
+      html += npc_reaction_effect_preview(npc_feature.data as LancerNPCReactionData);
+      break;
+    case "System":
+      html += npc_system_effect_preview(npc_feature.data as LancerNPCSystemData);
+      break;
+    case "Trait":
+      html += npc_trait_effect_preview(npc_feature.data as LancerNPCTraitData);
+      break;
+    case "Tech":
+      html += npc_tech_effect_preview(npc_feature.data as LancerNPCTechData, tier);
+      break;
+    case "Weapon":
+      html += npc_weapon_effect_preview(npc_feature.data as LancerNPCWeaponData, tier);
+      break;
+  }
+  html += `</li>`;
+  return html;
+}

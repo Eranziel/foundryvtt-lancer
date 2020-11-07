@@ -219,41 +219,7 @@
         {{#if npc_features}}
         <ul class="items-list">
           {{#each npc_features as |npc_feature key|}}
-
-          {{!-- Reaction-type feature preview --}}
-          {{#if (eq npc_feature.data.feature_type "Reaction")}}
-          <li class="card clipped npc-feature-compact item" style="min-width: 200px" data-item-id="{{npc_feature._id}}">
-            {{{npc-rct-preview npc_feature.data}}}
-          </li>
-          {{/if}}
-
-          {{!-- System-type feature preview --}}
-          {{#if (eq npc_feature.data.feature_type "System")}}
-          <li class="card clipped npc-feature-compact item" data-item-id="{{npc_feature._id}}">
-            {{{npc-sys-preview npc_feature.data}}}
-          </li>
-          {{/if}}
-
-          {{!-- Trait-type feature preview --}}
-          {{#if (eq npc_feature.data.feature_type "Trait")}}
-          <li class="card clipped npc-feature-compact item" data-item-id="{{npc_feature._id}}">
-            {{{npc-trait-preview npc_feature.data}}}
-          </li>
-          {{/if}}
-
-          {{!-- Tech-type feature preview --}}
-          {{#if (eq npc_feature.data.feature_type "Tech")}}
-          <li class="card clipped npc-feature-compact tech item" style="max-height: fit-content;" data-item-id="{{npc_feature._id}}">
-            {{{npc-tech-preview npc_feature.data (dec ../data.tier_num)}}}
-          </li>
-          {{/if}}
-
-          {{!-- Weapon-type feature preview --}}
-          {{#if (eq npc_feature.data.feature_type "Weapon")}}
-          <li class="card clipped npc-feature-compact weapon item" data-item-id="{{npc_feature._id}}">
-            {{{npc-wpn-preview npc_feature.data (dec ../data.tier_num)}}}
-          </li>
-          {{/if}}
+            {{{npc-feat-preview npc_feature (dec ../data.tier_num)}}}
           {{/each}}
         </ul>
         {{/if}}

@@ -28,6 +28,7 @@ import {
   mech_weapon_preview,
   npc_accuracy_preview,
   npc_attack_bonus_preview,
+  npc_feature_preview,
   npc_weapon_damage_selector,
   pilot_weapon_damage_selector,
   system_type_selector,
@@ -314,6 +315,7 @@ Hooks.once("init", async function () {
 
   // ------------------------------------------------------------------------
   // NPC Effects
+  Handlebars.registerHelper("npc-feat-preview", npc_feature_preview);
   Handlebars.registerHelper("npc-rct-preview", npc_reaction_effect_preview);
   Handlebars.registerHelper("npc-sys-preview", npc_system_effect_preview);
   Handlebars.registerHelper("npc-trait-preview", npc_trait_effect_preview);
