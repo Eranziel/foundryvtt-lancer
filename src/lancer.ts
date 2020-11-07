@@ -8,7 +8,7 @@
  */
 
 // Import TypeScript modules
-import { STATUSES, LANCER, WELCOME } from "./module/config";
+import { LANCER, STATUSES, WELCOME } from "./module/config";
 import { LancerGame } from "./module/lancer-game";
 import {
   LancerActor,
@@ -84,16 +84,15 @@ import * as migrations from "./module/migration";
 import { addLCPManager } from "./module/apps/lcpManager";
 
 // Import Machine Mind and helpers
-import { CCDataStore, NpcFeatureType, setup_store } from "machine-mind";
+import { CCDataStore, setup_store } from "machine-mind";
 import { FauxPersistor } from "./module/ccdata_io";
 import { reload_store } from "./module/item/util";
+import * as macros from "./module/macros";
 
 // Import node modules
 import compareVersions = require("compare-versions");
 
 const lp = LANCER.log_prefix;
-
-import * as macros from "./module/macros";
 
 /* ------------------------------------ */
 /* Initialize system                    */
@@ -256,17 +255,15 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("l-num-input", function (target: string, value: string) {
     // Init value to 0 if it doesn't exist
     // So the arrows work properly
-    if(!value){
-      value = "0"
+    if (!value) {
+      value = "0";
     }
-    
-    let html =
-    `<div class="flexrow arrow-input-container">
+
+    return `<div class="flexrow arrow-input-container">
       <button class="mod-minus-button" type="button">-</button>
       <input class="lancer-stat major" type="number" name="${target}" value="${value}" data-dtype="Number"\>
       <button class="mod-plus-button" type="button">+</button>
     </div>`;
-    return html;
   });
   // ------------------------------------------------------------------------
   // Tags
@@ -456,16 +453,15 @@ Hooks.on("renderChatMessage", async (cm: ChatMessage, html: any, data: any) => {
   }
 });
 
-Hooks.on('hotbarDrop', (_bar: any, data: any, slot: number) => {
-
+Hooks.on("hotbarDrop", (_bar: any, data: any, slot: number) => {
   // We set an associated command & title based off the type
   // Everything else gets handled elsewhere
 
-  let command = ""
-  let title = ""
+  let command = "";
+  let title = "";
 
   // TODO: Figure out if I am really going down this route and, if so, switch to a switch
-  if (data.type === 'actor') {
+  if (data.type === "actor") {
     command = `
       const a = game.actors.get('${data.actorId}');
       if (a) {
@@ -474,24 +470,24 @@ Hooks.on('hotbarDrop', (_bar: any, data: any, slot: number) => {
         ui.notifications.error("Error rolling macro");
       }`;
     title = data.title;
-  } else if (data.type === 'Item') {
+  } else if (data.type === "Item") {
     command = `game.lancer.prepareItemMacro("${data.actorId}", "${data.data._id}");`;
     // Talent are the only ones (I think??) that we need to name specially
-    if(data.data.type === 'talent') {
-      command = `game.lancer.prepareItemMacro("${data.actorId}", "${data.itemId}", {rank: ${data.rank}});`
+    if (data.data.type === "talent") {
+      command = `game.lancer.prepareItemMacro("${data.actorId}", "${data.itemId}", {rank: ${data.rank}});`;
       title = data.title;
     } else {
       title = data.data.name;
     }
-  } else if (data.type === 'Text') {
+  } else if (data.type === "Text") {
     title = data.title;
-    command = `game.lancer.prepareTextMacro("${data.actorId}", "${data.title}", {rank: ${data.description}})`
-  } else if (data.type === 'Core-Active') {
+    command = `game.lancer.prepareTextMacro("${data.actorId}", "${data.title}", {rank: ${data.description}})`;
+  } else if (data.type === "Core-Active") {
     title = data.title;
-    command = `game.lancer.prepareCoreActiveMacro("${data.actorId}")`
-  } else if (data.type === 'Core-Passive') {
+    command = `game.lancer.prepareCoreActiveMacro("${data.actorId}")`;
+  } else if (data.type === "Core-Passive") {
     title = data.title;
-    command = `game.lancer.prepareCorePassiveMacro("${data.actorId}")`
+    command = `game.lancer.prepareCorePassiveMacro("${data.actorId}")`;
   } else {
     // Let's not error or anything, since it's possible to accidentally drop stuff pretty easily
     return;
@@ -499,16 +495,20 @@ Hooks.on('hotbarDrop', (_bar: any, data: any, slot: number) => {
 
   // Until we properly register commands as something macros can have...
   // @ts-ignore
-  let macro = game.macros.entities.find((m: Macro) => (m.name === title) && (m.data as Object).command === command);
+  let macro = game.macros.entities.find(
+    (m: Macro) => m.name === title && (m.data as any).command === command
+  );
   if (!macro) {
-    (Macro.create({
-      command,
-      name: title,
-      type: 'script',
-      img: 'systems/lancer/assets/icons/d20-framed.svg',
-    }, { displaySheet: false })).then(macro => game.user.assignHotbarMacro((macro as Macro), slot));
+    Macro.create(
+      {
+        command,
+        name: title,
+        type: "script",
+        img: "systems/lancer/assets/icons/d20-framed.svg",
+      },
+      { displaySheet: false }
+    ).then(macro => game.user.assignHotbarMacro(macro as Macro, slot));
   } else {
-    game.user.assignHotbarMacro(macro, slot)
+    game.user.assignHotbarMacro(macro, slot).then();
   }
 });
-
