@@ -101,6 +101,11 @@ export class LancerPilotSheet extends LancerActorSheet {
       data.frame_size = "N/A";
     }
 
+    // Newly-added value, overcharge_level, should be set if it doesn't exist
+    if (typeof this.actor.data.data.mech.overcharge_level == 'undefined') {
+      this.actor.data.data.mech.overcharge_level = 0;
+    }
+
     console.log(`${lp} Pilot sheet data: `, data);
     return data;
   }
@@ -171,8 +176,15 @@ export class LancerPilotSheet extends LancerActorSheet {
   activateListeners(html: JQuery) {
     super.activateListeners(html);
 
-    // Macro triggers
     if (this.actor.owner) {
+      // Overcharge
+      let overcharge = html.find(".overcharge-button");
+
+      overcharge.on("click", (ev: Event) => {
+        this._onClickOvercharge(<MouseEvent>ev)
+      })
+
+      // Macro triggers
       // Stat rollers
       let statMacro = html.find(".roll-stat");
       statMacro.on("click", (ev: Event) => {
@@ -288,8 +300,8 @@ export class LancerPilotSheet extends LancerActorSheet {
         if (item.classList.contains("text-macro")) item.addEventListener('dragstart', textMacroHandler, false);
         if (item.classList.contains("core-active-macro")) item.addEventListener('dragstart', CAMacroHandler, false);
         if (item.classList.contains("core-passive-macro")) item.addEventListener('dragstart', CPMacroHandler, false);
+        if (item.classList.contains("item")) item.addEventListener("dragstart", (ev: any) => this._onDragStart(ev), false);
         item.setAttribute("draggable", true);
-        item.addEventListener("dragstart", (ev: any) => this._onDragStart(ev), false);
       });
 
       // Update Inventory Item
@@ -546,63 +558,75 @@ export class LancerPilotSheet extends LancerActorSheet {
   }
 
   
-    /**
-     * For macros which simple expect a title & description, no fancy handling.
-     * Assumes data-path-title & data-path-description defined
-     * @param event   The associated DragEvent
-     */
-    _onDragTextMacroableStart(event: DragEvent) {
-      event.stopPropagation(); // Avoids triggering parent event handlers
+  /**
+   * For macros which simple expect a title & description, no fancy handling.
+   * Assumes data-path-title & data-path-description defined
+   * @param event   The associated DragEvent
+   */
+  _onDragTextMacroableStart(event: DragEvent) {
+    event.stopPropagation(); // Avoids triggering parent event handlers
 
-      let target = <HTMLElement>event.currentTarget;
+    let target = <HTMLElement>event.currentTarget;
 
-      let data = {
-        title: target.getAttribute("data-path-title"),
-        description: target.getAttribute("data-path-description"),
-        actorId: this.actor._id,
-        type: "Text"
-      };
-      
-      event.dataTransfer?.setData('text/plain', JSON.stringify(data));
-    }
+    let data = {
+      title: target.getAttribute("data-path-title"),
+      description: target.getAttribute("data-path-description"),
+      actorId: this.actor._id,
+      type: "Text"
+    };
+    
+    event.dataTransfer?.setData('text/plain', JSON.stringify(data));
+  }
 
-    /**
-     * For dragging the core active to the hotbar
-     * @param event   The associated DragEvent
-     */
-    _onDragCoreActiveStart(event: DragEvent) {
-      event.stopPropagation(); // Avoids triggering parent event handlers
+  /**
+   * For dragging the core active to the hotbar
+   * @param event   The associated DragEvent
+   */
+  _onDragCoreActiveStart(event: DragEvent) {
+    event.stopPropagation(); // Avoids triggering parent event handlers
 
-      let target = <HTMLElement>event.currentTarget;
+    let target = <HTMLElement>event.currentTarget;
 
-      let data = {
-        actorId: this.actor._id,
-        // Title will simply be CORE ACTIVE since we want to keep the macro dynamic
-        title: "CORE ACTIVE",
-        type: "Core-Active"
-      };
-      
-      event.dataTransfer?.setData('text/plain', JSON.stringify(data));
-    }
+    let data = {
+      actorId: this.actor._id,
+      // Title will simply be CORE ACTIVE since we want to keep the macro dynamic
+      title: "CORE ACTIVE",
+      type: "Core-Active"
+    };
+    
+    event.dataTransfer?.setData('text/plain', JSON.stringify(data));
+  }
 
-    /**
-     * For dragging the core passive to the hotbar
-     * @param event   The associated DragEvent
-     */
-    _onDragCorePassiveStart(event: DragEvent) {
-      event.stopPropagation(); // Avoids triggering parent event handlers
+  /**
+   * For dragging the core passive to the hotbar
+   * @param event   The associated DragEvent
+   */
+  _onDragCorePassiveStart(event: DragEvent) {
+    event.stopPropagation(); // Avoids triggering parent event handlers
 
-      let target = <HTMLElement>event.currentTarget;
+    let target = <HTMLElement>event.currentTarget;
 
-      let data = {
-        actorId: this.actor._id,
-        // Title will simply be CORE PASSIVE since we want to keep the macro dynamic
-        title: "CORE PASSIVE",
-        type: "Core-Passive"
-      };
-      
-      event.dataTransfer?.setData('text/plain', JSON.stringify(data));
-    }
+    let data = {
+      actorId: this.actor._id,
+      // Title will simply be CORE PASSIVE since we want to keep the macro dynamic
+      title: "CORE PASSIVE",
+      type: "Core-Passive"
+    };
+    
+    event.dataTransfer?.setData('text/plain', JSON.stringify(data));
+  }
+
+  /**
+   * Handles the overcharge button being clicked
+   */
+  _onClickOvercharge(event: MouseEvent) {
+    let newLevel = (this.actor.data.data.mech.overcharge_level + 1) % 4;
+    let target = <HTMLElement>event.currentTarget;
+    let inputField = <HTMLInputElement>target.nextElementSibling;
+
+    inputField.value = String(newLevel);
+    this._onSubmit(event);
+  }
     
 
   /* -------------------------------------------- */
@@ -638,4 +662,26 @@ function getStatPath(event: any): string | null {
   } else {
     throw "Error - stat macro was not run on an input or data element";
   }
+}
+
+/**
+ * Handlebars helper for an overcharge button
+ * Currently this is overkill, but eventually we want to support custom overcharge values 
+ * @param level Level of overcharge, between 0 (1) and 3 (1d6+4) by default
+ */
+export function overcharge_button(level: number) {
+  let rollVal = "ERROR"
+  switch (level) {
+    case 1: rollVal = "1d3"; break;
+    case 2: rollVal = "1d6"; break;
+    case 3: rollVal = "1d6<br>+4"; break;
+    default: rollVal = "1";
+  }
+  let template = 
+   `<div class="overcharge-container">
+      <button class="overcharge-button" style="width:${90 - (10 * level)}%;height:${90 - (10 * level)}%">${rollVal}</button>
+      <input style="display:none;border:none" type="number" name="data.mech.overcharge_level" value="${level}" data-dtype="Number"/>
+      </input>
+    </div>`;
+  return template;
 }

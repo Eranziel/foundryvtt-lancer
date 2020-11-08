@@ -65,7 +65,7 @@ import {
 } from "./module/item/effects";
 
 // Import applications
-import { LancerPilotSheet } from "./module/actor/pilot-sheet";
+import { LancerPilotSheet, overcharge_button } from "./module/actor/pilot-sheet";
 import { LancerNPCSheet } from "./module/actor/npc-sheet";
 import { LancerDeployableSheet } from "./module/actor/deployable-sheet";
 import { LancerItemSheet } from "./module/item/item-sheet";
@@ -249,7 +249,7 @@ Hooks.once("init", async function () {
 
   Handlebars.registerHelper("upper-case", function (str: string) {
     return str.toUpperCase();
-  });
+  }); 
 
   // ------------------------------------------------------------------------
   // Generic components
@@ -331,6 +331,7 @@ Hooks.once("init", async function () {
   // Pilot components
   Handlebars.registerHelper("mount-selector", mount_type_selector);
   Handlebars.registerPartial("mount-card", mount_card);
+  Handlebars.registerHelper("overcharge-button", overcharge_button);
 
   // ------------------------------------------------------------------------
   // NPC components

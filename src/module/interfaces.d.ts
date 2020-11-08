@@ -115,6 +115,7 @@ declare interface LancerMechData {
   tech_attack: number;
   sp: number;
   current_core_energy: number;
+  overcharge_level: number;
 }
 
 // Seems like it should eventually mirror IMechLoadoutData
