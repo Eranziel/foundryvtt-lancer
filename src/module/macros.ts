@@ -37,7 +37,7 @@ import { LancerNPCTechData, LancerNPCWeaponData } from "./item/npc-feature";
  * @param options Ability to pass through various options to the item.
  *      Talents can use rank: value.
  */
-export function prepareItemMacro(a: string, i: string, options?: any) {
+export async function prepareItemMacro(a: string, i: string, options?: any) {
   // Determine which Actor to speak as
   let actor: Actor | null = game.actors.get(a) || getMacroSpeaker();
   if (!actor) {
@@ -49,10 +49,10 @@ export function prepareItemMacro(a: string, i: string, options?: any) {
   const item: LancerItem | null = actor.getOwnedItem(i) as LancerItem | null;
   if (!item) {
     return ui.notifications.error(
-      `Error preparing macro: could not find Item ${i} owned by Actor ${a}!`
+      `Error preparing macro: could not find Item ${i} owned by Actor ${a}.`
     );
   } else if (!item.isOwned) {
-    return ui.notifications.error(`Error preparing macro: ${item.name} is not owned by an Actor!`);
+    return ui.notifications.error(`Error preparing macro: ${item.name} is not owned by an Actor.`);
   }
 
   switch (item.data.type) {
@@ -62,12 +62,12 @@ export function prepareItemMacro(a: string, i: string, options?: any) {
         title: item.name,
         bonus: item.data.data.rank * 2,
       };
-      rollTriggerMacro(actor, skillData);
+      await rollTriggerMacro(actor, skillData);
       break;
     // Pilot OR Mech weapon
     case "pilot_weapon":
     case "mech_weapon":
-      prepareAttackMacro(actor, item);
+      await prepareAttackMacro(actor, item);
       break;
     // Systems
     case "mech_system":
@@ -77,22 +77,19 @@ export function prepareItemMacro(a: string, i: string, options?: any) {
         effect: item.data.data.effect,
       };
 
-      rollSystemMacro(actor, sysData);
+      await rollSystemMacro(actor, sysData);
       break;
     // Talents
     case "talent":
       // If we aren't passed a rank, default to 0
-      let rank = 0;
-      if (options.rank) {
-        rank = options.rank;
-      }
+      let rank = options.rank ? options.rank : 0;
 
       let talData: LancerTalentMacroData = {
         talent: item.data.data,
         rank: rank,
       };
 
-      rollTalentMacro(actor, talData);
+      await rollTalentMacro(actor, talData);
       break;
     // Gear
     case "pilot_gear":
@@ -102,7 +99,7 @@ export function prepareItemMacro(a: string, i: string, options?: any) {
         tags: (<LancerPilotGear>item).data.data.tags,
       };
 
-      rollTextMacro(actor, gearData);
+      await rollTextMacro(actor, gearData);
       break;
     // Core bonuses can just be text, right?
     case "core_bonus":
@@ -111,7 +108,7 @@ export function prepareItemMacro(a: string, i: string, options?: any) {
         description: (<LancerCoreBonus>item).data.data.effect,
       };
 
-      rollTextMacro(actor, CBdata);
+      await rollTextMacro(actor, CBdata);
       break;
     case "npc_feature":
       // This should probably be a switch too...
@@ -244,39 +241,13 @@ export function prepareStatMacro(a: string, statKey: string) {
     title: statPath[statPath.length - 1].toUpperCase(),
     bonus: bonus,
   };
-  rollStatMacro(actor, mData);
+  rollStatMacro(actor, mData).then();
 }
 
 // Rollers
 
 async function rollTriggerMacro(actor: Actor, data: LancerStatMacroData) {
-  if (!actor) return Promise.resolve();
-
-  // Get accuracy/difficulty with a prompt
-  let acc: number = 0;
-  let abort: boolean = false;
-  await promptAccDiffModifier(acc).then(
-    resolve => (acc = resolve),
-    () => (abort = true)
-  );
-  if (abort) return Promise.resolve();
-
-  // Do the roll
-  let acc_str = acc != 0 ? ` + ${acc}d6kh1` : "";
-  let roll = new Roll(`1d20+${data.bonus}${acc_str}`).roll();
-
-  const roll_tt = await roll.getTooltip();
-
-  // Construct the template
-  const templateData = {
-    title: data.title,
-    roll: roll,
-    roll_tooltip: roll_tt,
-    effect: null,
-  };
-
-  const template = `systems/lancer/templates/chat/stat-roll-card.html`;
-  return await renderMacro(actor, template, templateData);
+  return await rollStatMacro(actor, data);
 }
 
 async function rollStatMacro(actor: Actor, data: LancerStatMacroData) {
@@ -335,8 +306,8 @@ async function rollTalentMacro(actor: Actor, data: LancerTalentMacroData) {
 
 /**
  * Standalone prepare function for attacks, since they're complex.
- * @param a Actor to roll as. Assumes properly prepared
- * @param w Weapon to attack with. Assumes ownership from actor
+ * @param actor {Actor} Actor to roll as. Assumes properly prepared item.
+ * @param item {LancerItem} Weapon to attack with. Assumes ownership from actor.
  */
 function prepareAttackMacro(actor: Actor, item: LancerItem) {
   let mData: LancerAttackMacroData = {
@@ -349,15 +320,8 @@ function prepareAttackMacro(actor: Actor, item: LancerItem) {
     effect: "",
   };
   let typeMissing: boolean = false;
-  if (item.type === "mech_weapon") {
-    const wData = item.data.data as LancerMechWeaponData;
-    mData.grit = (item.actor!.data as LancerPilotActorData).data.pilot.grit;
-    mData.acc = item.accuracy;
-    mData.damage = wData.damage;
-    mData.tags = wData.tags;
-    mData.effect = wData.effect;
-  } else if (item.type === "pilot_weapon") {
-    const wData = item.data.data as LancerPilotWeaponData;
+  if (item.type === "mech_weapon" || item.type === "pilot_weapon") {
+    const wData = item.data.data as LancerMechWeaponData | LancerPilotWeaponData;
     mData.grit = (item.actor!.data as LancerPilotActorData).data.pilot.grit;
     mData.acc = item.accuracy;
     mData.damage = wData.damage;
@@ -379,6 +343,7 @@ function prepareAttackMacro(actor: Actor, item: LancerItem) {
       return { type: d.type, override: d.override, val: d.val[tier] };
     });
     mData.tags = wData.tags;
+    mData.on_hit = wData.on_hit ? wData.on_hit : undefined;
     mData.effect = wData.effect ? wData.effect : "";
   } else {
     ui.notifications.error(`Error preparing attack macro - ${item.name} is not a weapon!`);
@@ -394,7 +359,7 @@ function prepareAttackMacro(actor: Actor, item: LancerItem) {
     ui.notifications.warn(`Warning: ${item.name} has a damage value without type!`);
   }
 
-  rollAttackMacro(actor, mData);
+  rollAttackMacro(actor, mData).then();
 }
 
 async function rollAttackMacro(actor: Actor, data: LancerAttackMacroData) {
@@ -460,10 +425,8 @@ async function rollAttackMacro(actor: Actor, data: LancerAttackMacroData) {
 
 /**
  * Rolls an NPC reaction macro when given the proper data
- * @param a     String of the actor ID to roll the macro as
- * @param title Data path to title of the macro
- * @param text  Data path to text to be displayed by the macro
- * @param tags  Can optionally pass through an array of tags to be rendered
+ * @param actor {Actor} Actor to roll as. Assumes properly prepared item.
+ * @param data {LancerReactionMacroData} Reaction macro data to render.
  */
 export function rollReactionMacro(actor: Actor, data: LancerReactionMacroData) {
   if (!actor) return Promise.resolve();
@@ -494,7 +457,7 @@ export function prepareCoreActiveMacro(a: string) {
     tags: frame.data.core_system.tags,
   };
 
-  rollTextMacro(actor, mData);
+  rollTextMacro(actor, mData).then();
 }
 
 /**
@@ -520,7 +483,7 @@ export function prepareCorePassiveMacro(a: string) {
     tags: frame.data.core_system.tags,
   };
 
-  rollTextMacro(actor, mData);
+  rollTextMacro(actor, mData).then();
 }
 
 /**
@@ -542,13 +505,13 @@ export function prepareTextMacro(a: string, title: string, text: string, tags?: 
     tags: tags,
   };
 
-  rollTextMacro(actor, mData);
+  rollTextMacro(actor, mData).then();
 }
 
 /**
- * Given prepared data, handles rolling of a generic text-only macro to display descriptions etc
- * @param a     Actor rolling the macro
- * @param data  Prepared macro data
+ * Given prepared data, handles rolling of a generic text-only macro to display descriptions etc.
+ * @param actor {Actor} Actor rolling the macro.
+ * @param data {LancerTextMacroData} Prepared macro data.
  */
 async function rollTextMacro(actor: Actor, data: LancerTextMacroData) {
   if (!actor) return Promise.resolve();

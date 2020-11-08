@@ -258,10 +258,7 @@ export class LancerItem extends Item {
     const itemData = this.data.data;
     if ("base_features" in itemData) {
       return get_NpcFeatures_pack().then(async allFeatures => {
-        let featureList = allFeatures.filter(feature =>
-          itemData.base_features.includes(feature.data.id)
-        );
-        return featureList;
+        return allFeatures.filter(feature => itemData.base_features.includes(feature.data.id));
       });
     } else {
       return Promise.resolve([]);
@@ -272,10 +269,7 @@ export class LancerItem extends Item {
     const itemData = this.data.data;
     if ("optional_features" in itemData) {
       return get_NpcFeatures_pack().then(async allFeatures => {
-        let featureList = allFeatures.filter(feature =>
-          itemData.optional_features.includes(feature.data.id)
-        );
-        return featureList;
+        return allFeatures.filter(feature => itemData.optional_features.includes(feature.data.id));
       });
     } else {
       return Promise.resolve([]);

@@ -249,7 +249,7 @@ Hooks.once("init", async function () {
 
   Handlebars.registerHelper("upper-case", function (str: string) {
     return str.toUpperCase();
-  }); 
+  });
 
   // ------------------------------------------------------------------------
   // Generic components

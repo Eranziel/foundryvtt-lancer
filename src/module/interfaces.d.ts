@@ -60,9 +60,9 @@ declare interface RangeData {
 declare type RangeData =
   | mm.IRangeData
   | {
-    type: "None";
-    val: 0;
-  };
+      type: "None";
+      val: 0;
+    };
 
 // Alias
 /*
@@ -609,7 +609,6 @@ declare interface LancerNPCFeatureSheetData extends ItemSheetData {
   item?: LancerNPCFeatureItemData;
   data?: LancerNPCFeatureData;
 }
-
 
 // -------- Macro data -------------------------------------
 declare interface LancerStatMacroData {

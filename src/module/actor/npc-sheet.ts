@@ -19,7 +19,7 @@ import { LANCER } from "../config";
 import { get_NpcFeatures_pack, ItemManifest, ItemDataManifest } from "../item/util";
 import { LancerNPCTechData, LancerNPCWeaponData } from "../item/npc-feature";
 import { LancerActorSheet } from "./lancer-actor-sheet";
-import { prepareItemMacro } from "../macros"
+import { prepareItemMacro } from "../macros";
 const lp = LANCER.log_prefix;
 
 /**
@@ -83,9 +83,8 @@ export class LancerNPCSheet extends LancerActorSheet {
     let npc_item_data = (data.items as unknown) as LancerItemData[];
     let sorted = new ItemDataManifest().add_items(npc_item_data.values());
 
-    //@ts-ignore
+    //@ts-ignore                Doesn't work now, adding a ts-ignore though.... -Grygon
     data.npc_templates = (sorted.npc_templates as unknown) as LancerNPCTemplate[]; // Why does this work. Like someone fixed exactly one, lol???
-                                                                                   // Doesn't work now, adding a ts-ignore though.... -Grygon
     data.npc_features = (sorted.npc_features as unknown) as LancerNPCFeature[];
     data.npc_class = (sorted.npc_classes[0] as unknown) as LancerNPCClass;
     //TODO Templates, Classes and Features
@@ -109,10 +108,10 @@ export class LancerNPCSheet extends LancerActorSheet {
       let itemMacros = html.find(".item-macro");
       itemMacros.on("click", (ev: any) => {
         ev.stopPropagation(); // Avoids triggering parent event handlers
-        
+
         const el = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
-        
-        prepareItemMacro(this.actor._id, <string>el.getAttribute("data-item-id"));
+
+        prepareItemMacro(this.actor._id, <string>el.getAttribute("data-item-id")).then();
       });
 
       // Stat rollers
@@ -149,7 +148,10 @@ export class LancerNPCSheet extends LancerActorSheet {
         const weaponId = weaponElement.getAttribute("data-item-id");
         if (!weaponId) return ui.notifications.warn(`Error rolling macro: No weapon ID!`);
         const item = this.actor.getOwnedItem(weaponId);
-        if (!item) return ui.notifications.warn(`Error rolling macro: Couldn't find weapon with ID ${weaponId}.`);
+        if (!item)
+          return ui.notifications.warn(
+            `Error rolling macro: Couldn't find weapon with ID ${weaponId}.`
+          );
 
         const weapon = item as LancerNPCFeature;
         game.lancer.prepareItemMacro(this.actor._id, weapon._id);
@@ -162,7 +164,7 @@ export class LancerNPCSheet extends LancerActorSheet {
         ev.stopPropagation();
         const techElement = $(ev.currentTarget).closest(".tech")[0] as HTMLElement;
         let techId = techElement.getAttribute("data-item-id");
-        game.lancer.prepareItemMacro(this.actor._id, techId);
+        game.lancer.prepareItemMacro(this.actor._id, techId!);
       });
     }
     if (this.actor.owner) {
