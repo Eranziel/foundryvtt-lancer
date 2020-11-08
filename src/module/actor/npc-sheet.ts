@@ -176,8 +176,9 @@ export class LancerNPCSheet extends LancerActorSheet {
           if (item.classList.contains("inventory-header")) return;
           if (item.classList.contains("roll-stat"))
             item.addEventListener("dragstart", haseMacroHandler, false);
+          if (item.classList.contains("item"))
+            item.addEventListener("dragstart", (ev: DragEvent) => this._onDragStart(ev), false);
           item.setAttribute("draggable", "true");
-          item.addEventListener("dragstart", (ev: DragEvent) => this._onDragStart(ev), false);
         });
 
       // Update Inventory Item

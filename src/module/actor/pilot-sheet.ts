@@ -300,8 +300,8 @@ export class LancerPilotSheet extends LancerActorSheet {
         if (item.classList.contains("text-macro")) item.addEventListener('dragstart', textMacroHandler, false);
         if (item.classList.contains("core-active-macro")) item.addEventListener('dragstart', CAMacroHandler, false);
         if (item.classList.contains("core-passive-macro")) item.addEventListener('dragstart', CPMacroHandler, false);
+        if (item.classList.contains("item")) item.addEventListener("dragstart", (ev: any) => this._onDragStart(ev), false);
         item.setAttribute("draggable", true);
-        item.addEventListener("dragstart", (ev: any) => this._onDragStart(ev), false);
       });
 
       // Update Inventory Item
