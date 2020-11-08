@@ -21,14 +21,13 @@ import { LANCER } from "../config";
 import {
   DamageType,
   EffectType,
-  NpcClass,
   NpcFeatureType,
   RangeType,
   SystemType,
   WeaponSize,
   WeaponType,
 } from "machine-mind";
-import { get_NpcFeatures_pack, NPC_FEATURE_PACK } from "./util";
+import { get_NpcFeatures_pack } from "./util";
 import {
   npc_reaction_effect_preview,
   npc_system_effect_preview,
@@ -793,10 +792,10 @@ export function effect_type_selector(e_type: string, data_target: string) {
  */
 export const mech_system_preview = `<li class="card clipped mech-system-compact item" data-item-id="{{system._id}}">
 <div class="lancer-system-header clipped-top" style="grid-area: 1/1/2/3; display: flex">
-  <i class="cci cci-system i--m i--dark"> </i>
+  <i class="cci cci-system i--m"> </i>
   <a class="system-macro macroable"><i class="mdi mdi-message"></i></a>
   <span class="minor" style="flex-grow: 1">{{system.name}}</span>
-  <a class="stats-control i--light" data-action="delete"><i class="fas fa-trash"></i></a>
+  <a class="stats-control" data-action="delete"><i class="fas fa-trash"></i></a>
 </div>
 <div class="flexrow">
   <div style="float: left; align-items: center; display: inherit;">

@@ -251,10 +251,10 @@
           {{#each pilot_loadout.gear as |gear key|}}
           <li class="card clipped pilot-gear-compact item" data-item-id="{{gear._id}}">
             <div class="lancer-system-header clipped-top" style="grid-area: 1/1/2/3;display:flex">
-              <i class="cci cci-generic-item i--m i--dark"> </i>
-              <a class="gear-macro macroable"><i class="mdi mdi-message i--dark"></i></a>
-              <span class="minor i--dark" style="flex-grow: 1;">{{gear.name}}</span>
-              <a class="stats-control i--dark" data-action="delete"><i class="fas fa-trash"></i></a>
+              <i class="cci cci-generic-item i--m"> </i>
+              <a class="gear-macro macroable"><i class="mdi mdi-message"></i></a>
+              <span class="minor" style="flex-grow: 1;">{{gear.name}}</span>
+              <a class="stats-control" data-action="delete"><i class="fas fa-trash"></i></a>
             </div>
             {{#if gear.data.uses}}
             <div class="compact-stat">
@@ -308,9 +308,9 @@
           {{#each talents as |talent key|}}
           <li class="card clipped talent-compact item" data-item-id="{{talent._id}}">
             <div class="lancer-talent-header medium clipped-top" style="grid-area: 1/1/2/4">
-              <i class="cci cci-talent i--m i--dark"></i>
+              <i class="cci cci-talent i--m"></i>
               <span class="major">{{talent.name}}</span>
-              <a class="stats-control i--dark" data-action="delete"><i class="fas fa-trash"></i></a>
+              <a class="stats-control" data-action="delete"><i class="fas fa-trash"></i></a>
             </div>
             <ul style="grid-area: 2/1/3/3">
               {{#each talent.data.ranks as |rank lvl|}}
@@ -347,10 +347,10 @@
           {{#each core_bonuses as |core_bonus key|}}
           <li class="card clipped cb-compact item" data-item-id="{{core_bonus._id}}">
             <div class="lancer-system-header medium clipped-top" style="grid-area: 1/1/2/2; display:flex">
-              <i class="cci cci-corebonus i--m i--dark "> </i>
-              <a class="macroable cb-macro"><i class="mdi mdi-message i--dark"></i></a>
-              <span class="major i--dark" style="flex-grow: 1;">{{core_bonus.name}}</span>
-              <a class="stats-control i--dark" data-action="delete"><i class="fas fa-trash"></i></a>
+              <i class="cci cci-corebonus i--m "> </i>
+              <a class="macroable cb-macro"><i class="mdi mdi-message"></i></a>
+              <span class="major" style="flex-grow: 1;">{{core_bonus.name}}</span>
+              <a class="stats-control" data-action="delete"><i class="fas fa-trash"></i></a>
             </div>
             <div class="effect-text" style="grid-area: 2/1/3/2">{{{core_bonus.data.effect}}}</div>
           </li>
