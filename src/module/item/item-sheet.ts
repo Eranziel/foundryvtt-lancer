@@ -1,22 +1,9 @@
-import {
-  LancerSkillSheetData,
-  LancerNPCFeatureSheetData,
-  DamageData,
-  LancerMechSystemData,
-  RangeData,
-  TagDataShort
-} from "../interfaces";
+import { DamageData, LancerMechSystemData, RangeData } from "../interfaces";
 import { LANCER } from "../config";
 import { NPCFeatureIcons } from "./npc-feature";
-import {
-  NpcFeatureType,
-  Npc,
-  ActivationType,
-  ChargeType,
-  DamageType,
-  EffectType,
-} from "machine-mind";
-import { BasicEffectData, ChargeData, ChargeEffectData } from "./effects";
+import { ActivationType, ChargeType, DamageType, EffectType, NpcFeatureType } from "machine-mind";
+import { ChargeData, ChargeEffectData } from "./effects";
+
 const lp = LANCER.log_prefix;
 
 /**
@@ -81,11 +68,10 @@ export class LancerItemSheet extends ItemSheet {
     if (data.item.type === "mech_system") {
       // For effects which are a basic string, construct a BasicEffectData for them.
       if (typeof data.data.effect === "string") {
-        const effect: BasicEffectData = {
+        data.data.effect = {
           effect_type: EffectType.Basic,
           detail: data.data.effect,
         };
-        data.data.effect = effect;
       }
     }
 
@@ -97,11 +83,10 @@ export class LancerItemSheet extends ItemSheet {
 
   /** @override */
   setPosition(options = {}) {
-    const position = super.setPosition(options);
     // const sheetBody = (this.element as HTMLDivElement).find(".sheet-body");
     // const bodyHeight = position.height - 192;
     // sheetBody.css("height", bodyHeight);
-    return position;
+    return super.setPosition(options);
   }
 
   /* -------------------------------------------- */
@@ -109,7 +94,7 @@ export class LancerItemSheet extends ItemSheet {
   /**
    * @override
    * Activate event listeners using the prepared sheet HTML
-   * @param html {HTML}   The prepared HTML object ready to be rendered into the DOM
+   * @param html {JQuery}   The prepared HTML object ready to be rendered into the DOM
    */
   activateListeners(html: JQuery) {
     super.activateListeners(html);
@@ -122,14 +107,18 @@ export class LancerItemSheet extends ItemSheet {
     decr.on("click", (ev: Event) => {
       if (!ev.currentTarget) return; // No target, let other handlers take care of it.
       const but = $(ev.currentTarget as HTMLElement);
-      (but.next()[0] as HTMLInputElement).value = ((but.next()[0] as HTMLInputElement).valueAsNumber - 1).toString();
+      (but.next()[0] as HTMLInputElement).value = (
+        (but.next()[0] as HTMLInputElement).valueAsNumber - 1
+      ).toString();
       this.submit({});
     });
     let incr = html.find('button[class*="mod-plus-button"]');
     incr.on("click", (ev: Event) => {
       if (!ev.currentTarget) return; // No target, let other handlers take care of it.
       const but = $(ev.currentTarget as HTMLElement);
-      (but.prev()[0] as HTMLInputElement).value = ((but.prev()[0] as HTMLInputElement).valueAsNumber + 1).toString();
+      (but.prev()[0] as HTMLInputElement).value = (
+        (but.prev()[0] as HTMLInputElement).valueAsNumber + 1
+      ).toString();
       this.submit({});
     });
 
@@ -155,7 +144,7 @@ export class LancerItemSheet extends ItemSheet {
     if (s.val() === "delete") {
       event.preventDefault();
       const itemString = s.data("item");
-      var itemArr = duplicate(this["object"]["data"]["data"][itemString]);
+      const itemArr = duplicate(this["object"]["data"]["data"][itemString]);
       const parent = s.parents(".arrayed-item");
       const id = parent.data("key");
 
@@ -173,16 +162,17 @@ export class LancerItemSheet extends ItemSheet {
    * @private
    */
   async _onClickArrayControl(event: any) {
+    let itemArr;
     event.preventDefault();
     const a = $(event.currentTarget);
     const action = a.data("action");
     const itemString = a.parents(".arrayed-item-container").data("item");
     console.log(itemString);
-    var baseArr = getValue(this, "object.data.data." + itemString);
+    const baseArr = getValue(this, "object.data.data." + itemString);
     if (!baseArr) {
       itemArr = [];
     } else {
-      var itemArr = duplicate(baseArr);
+      itemArr = duplicate(baseArr);
     }
     const dataRef = "data." + itemString;
 
@@ -191,7 +181,7 @@ export class LancerItemSheet extends ItemSheet {
       // I can't figure out a better way to prevent collisions
       // Feel free to come up with something better
       const keys = Object.keys(itemArr);
-      var newIndex = 0;
+      let newIndex = 0;
       if (keys.length > 0) {
         // @ts-ignore
         newIndex = Math.max.apply(Math, keys) + 1;
@@ -295,15 +285,15 @@ export class LancerItemSheet extends ItemSheet {
       // If the effect type has changed, initialize the effect structure
       if (i_data.effect.effect_type !== formData["data.effect.effect_type"]) {
         if (formData["data.effect.effect_type"] === EffectType.Charge) {
-          var rdata: RangeData = {
+          const rdata: RangeData = {
             type: "None",
             val: 0,
           };
-          var ddata: DamageData = {
+          const ddata: DamageData = {
             type: DamageType.Explosive,
             val: "",
           };
-          var charge: ChargeData = {
+          const charge: ChargeData = {
             name: "",
             charge_type: ChargeType.Grenade,
             detail: "",
@@ -311,14 +301,13 @@ export class LancerItemSheet extends ItemSheet {
             damage: [duplicate(ddata), duplicate(ddata)],
             tags: [],
           };
-          var effect: ChargeEffectData = {
+          formData["data.effect"] = {
             effect_type: formData["data.effect.effect_type"],
             name: "",
             charges: [duplicate(charge), duplicate(charge)],
             activation: ActivationType.None,
             tags: [],
           };
-          formData["data.effect"] = effect;
         }
       }
     }
@@ -337,11 +326,13 @@ export class LancerItemSheet extends ItemSheet {
         tags.push({
           name: data[`${prefix}.${i}.name`],
           id: data[`${prefix}.${i}.id`],
-          description: data[`${prefix}.${i}.description`]
+          description: data[`${prefix}.${i}.description`],
+          val: data[`${prefix}.${i}.val`]
         });
         delete data[`${prefix}.${i}.name`];
         delete data[`${prefix}.${i}.id`];
         delete data[`${prefix}.${i}.description`];
+        delete data[`${prefix}.${i}.val`]
         i++;
       }
       data[`${prefix}`] = tags;
@@ -354,7 +345,7 @@ export class LancerItemSheet extends ItemSheet {
 function getValue(object: any, path: string) {
   return path
     .replace(/\[/g, ".")
-    .replace(/\]/g, "")
+    .replace(/]/g, "")
     .split(".")
     .reduce((o, k) => (o || {})[k], object);
 }

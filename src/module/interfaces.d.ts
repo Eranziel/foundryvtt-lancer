@@ -60,9 +60,9 @@ declare interface RangeData {
 declare type RangeData =
   | mm.IRangeData
   | {
-    type: "None";
-    val: 0;
-  };
+      type: "None";
+      val: 0;
+    };
 
 // Alias
 /*
@@ -115,6 +115,7 @@ declare interface LancerMechData {
   tech_attack: number;
   sp: number;
   current_core_energy: number;
+  overcharge_level: number;
 }
 
 // Seems like it should eventually mirror IMechLoadoutData
@@ -223,7 +224,7 @@ declare interface LancerNPCSheetData extends ActorSheetData {
   actor: LancerNPCActorData;
   data: LancerNPCData;
   npc_class: LancerNPCClass;
-  npc_templates: LancerNPCTemplateData[];
+  npc_templates: LancerNPCTemplate[];
   npc_features: LancerNPCFeature[];
 }
 
@@ -609,7 +610,6 @@ declare interface LancerNPCFeatureSheetData extends ItemSheetData {
   data?: LancerNPCFeatureData;
 }
 
-
 // -------- Macro data -------------------------------------
 declare interface LancerStatMacroData {
   title: string;
@@ -624,6 +624,7 @@ declare interface LancerAttackMacroData {
   damage: DamageData[];
   overkill: boolean;
   effect: EffectData | string;
+  on_hit?: string; // For NPC weapons - to be removed once they use EffectData
   tags: TagDataShort[];
 }
 
@@ -643,4 +644,17 @@ declare interface LancerTalentMacroData {
 declare interface LancerGenericMacroData {
   title: string;
   effect: EffectData | string;
+}
+
+declare interface LancerReactionMacroData {
+  title: string;
+  trigger: string;
+  effect: string;
+  tags?: TagDataShort[];
+}
+
+declare interface LancerTextMacroData {
+  title: string;
+  description: string;
+  tags?: TagDataShort[];
 }

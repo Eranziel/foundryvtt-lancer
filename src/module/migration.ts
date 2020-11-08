@@ -1,6 +1,8 @@
 // @ts-nocheck
 // We do not care about this file being super rigorous
 
+import { LANCER } from "./config";
+
 /**
  * Perform a system migration for the entire World, applying migrations for Actors, Items, and Compendium packs
  * @return {Promise}      A Promise which resolves once the migration is completed
@@ -51,14 +53,14 @@ export const migrateWorld = async function () {
   }
 
   // Migrate World Compendium Packs
-  game.packs.forEach(async p => {
+  for (let p of game.packs) {
     if (p.metadata.package === "world" && ["Actor", "Item", "Scene"].includes(p.metadata.entity)) {
       await migrateCompendium(p);
     }
-  });
+  }
 
   // Set the migration as complete
-  game.settings.set("lancer", "systemMigrationVersion", game.system.data.version);
+  // await game.settings.set(LANCER.sys_name, LANCER.setting_migration, game.system.data.version);
   ui.notifications.info(
     `LANCER System Migration to version ${game.system.data.version} completed!`,
     { permanent: true }
@@ -75,7 +77,8 @@ export const migrateWorld = async function () {
 export const migrateCompendium = async function (pack: Compendium) {
   const wasLocked = pack.locked;
   pack.locked = false;
-  if (pack.locked) return ui.notifications.error(`Could not migrate ${pack.collection} as it is locked.`);
+  if (pack.locked)
+    return ui.notifications.error(`Could not migrate ${pack.collection} as it is locked.`);
   const entity = pack.metadata.entity;
   if (!["Actor", "Item", "Scene"].includes(entity)) return;
 

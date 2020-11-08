@@ -964,7 +964,9 @@ code.horus:hover {
 }
 
 .roll-stat, .roll-attack,
-.roll-trigger, .system-macro {
+.roll-trigger, .system-macro,
+.gear-macro, .cb-macro, .item-macro,
+.core-passive-macro, .core-active-macro {
   margin: 3px 10px;
 }
 
@@ -1067,4 +1069,25 @@ input.core-power-toggle:not(:checked)::before
 {
   content: "\F007A";
   color: grey;
+}
+
+.overcharge-container {
+  clip-path: circle();
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--main-theme-color, fuchsia);
+}
+
+.overcharge-button {
+  background-color: white;
+  clip-path: circle();
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  line-height: .8em;
+  font-weight: bold;
+  font-size: 16pt;
+  color: var(--main-theme-color, fuchsia);
+  border: none;
 }

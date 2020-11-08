@@ -1,6 +1,5 @@
-import { tags, Tag } from "machine-mind";
-import { TagData, TagDataShort } from "../interfaces";
-import { CORE_BREW_ID } from "machine-mind/dist/classes/CompendiumItem";
+import { tags } from "machine-mind";
+import { TagData } from "../interfaces";
 
 /**
  * Search for a tag in lancer-data.
@@ -59,8 +58,8 @@ function prepareTag(tag: TagData | null): TagData {
 
 /**
  * Handlebars helper to generate compact read-only tag template.
- * @param tagShort an object containing the tag's ID and value.
- * @returns The html template for the tag.
+ * @param tag {TagData | null} an object containing the tag's ID and value.
+ * @returns {string} The html template for the tag.
  */
 export function renderCompactTag(tag: TagData | null): string {
   let template: string = "";
@@ -101,7 +100,7 @@ export function renderChunkyTag(tag: TagData | null, key: number): string {
     </div>
     <div class="flexcol">
       <input type="String" name="data.tags.${key}.name" value="${tag.name}" data-dtype="String" class="lancer-invisible-input medium theme--main" style="grid-area: 1/2/2/3; text-align:left; padding-left: 0.5em; margin-top: 0.25em;"/>
-      <textarea class="lancer-invisible-input effect-text" type="string" name="data.tags.${key}.description" data-dtype="String" style="grid-area: 2/2/3/3">${tag.description}</textarea>
+      <textarea class="lancer-invisible-input effect-text" name="data.tags.${key}.description" data-dtype="String" style="grid-area: 2/2/3/3">${tag.description}</textarea>
       <a class="remove-button fa fa-trash clickable" data-action="delete" style="grid-area: 2/3/3/4; margin-right: 11px; margin-top: -.8em; justify-self: right; align-self: self-start"></a>
     </div>
   </div>`;
@@ -110,8 +109,11 @@ export function renderChunkyTag(tag: TagData | null, key: number): string {
 
 /**
  * Handlebars helper to generate verbose tag template.
- * @param tagShort an object containing the tag's ID and value.
  * @returns The html template for the tag.
+ * @param tag {TagData | null} The tag's data.
+ * @param key {number} The value of the tag's data-key in the DOM.
+ * @param data_prefix {string} The path to the tag's data in the data model.
+ * @returns {string} The html template for the tag.
  */
 export function renderFullTag(
   tag: TagData | null,
@@ -128,8 +130,9 @@ export function renderFullTag(
   template = `<div class="tag arrayed-item" data-key="${key}">
   <i class="mdi mdi-label i--l theme--main" style="grid-area: 1/1/3/2;"></i>
   <input type="String" name="${data_prefix}.${key}.id" value="${tag.id}" data-dtype="String" style="display:none"/>
+  <input type="String" name="${data_prefix}.${key}.val" value="${tag.val}" data-dtype="String" style="display:none"/>
   <input type="String" name="${data_prefix}.${key}.name" value="${tag.name}" data-dtype="String" class="lancer-invisible-input medium theme--main" style="grid-area: 1/2/2/3; text-align:left; padding-left: 0.5em; margin-top: 0.25em;"/>
-  <textarea class="lancer-invisible-input effect-text" type="string" name="${data_prefix}.${key}.description" data-dtype="String" style="grid-area: 2/2/3/3">${tag.description}</textarea>
+  <textarea class="lancer-invisible-input effect-text" name="${data_prefix}.${key}.description" data-dtype="String" style="grid-area: 2/2/3/3">${tag.description}</textarea>
   <a class="remove-button fa fa-trash clickable" data-action="delete" style="grid-area: 2/3/3/4; margin-right: 11px; margin-top: -.8em; justify-self: right; align-self: self-start"></a>
   </div>`;
   return template;

@@ -1,7 +1,4 @@
 import { LANCER } from "./config";
-import * as mm from "machine-mind";
-import { IContentPackManifest } from "machine-mind";
-import { LCPIndex } from "./apps/lcpManager";
 
 export const registerSettings = function () {
   /**
@@ -20,7 +17,7 @@ export const registerSettings = function () {
     scope: "world",
     config: false,
     type: String,
-    default: "0.0.0"
+    default: "0.0.0",
   });
 
   game.settings.register(LANCER.sys_name, LANCER.setting_lcps, {
@@ -35,7 +32,7 @@ export const registerSettings = function () {
     scope: "world",
     config: true,
     type: Boolean,
-    default: false
+    default: false,
   });
 
   game.settings.register(LANCER.sys_name, LANCER.setting_welcome, {
@@ -44,6 +41,6 @@ export const registerSettings = function () {
     scope: "world",
     config: true,
     type: Boolean,
-    default: false
-  })
+    default: false,
+  });
 };

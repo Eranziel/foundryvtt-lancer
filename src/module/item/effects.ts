@@ -1,6 +1,19 @@
-import { TagData, RangeData, DamageData } from "../interfaces";
-import { EffectType, ActivationType, ChargeType } from "../enums";
+import { DamageData, RangeData, TagData } from "../interfaces";
+import { ActivationType, ChargeType, EffectType } from "../enums";
 import { renderCompactTag } from "./tags";
+import {
+  LancerNPCReactionData,
+  LancerNPCSystemData,
+  LancerNPCTechData,
+  LancerNPCTraitData,
+  LancerNPCWeaponData,
+} from "./npc-feature";
+import {
+  npc_accuracy_preview,
+  npc_attack_bonus_preview,
+  weapon_damage_preview,
+  weapon_range_preview,
+} from "./lancer-item";
 
 export const EffectIcons = {
   Generic: "systems/lancer/assets/icons/generic_item.svg",
@@ -183,7 +196,7 @@ export function action_type_selector(a_type: string, data_target: string) {
  */
 export function charge_type_selector(c_type: string, data_target: string) {
   const c = c_type ? c_type.toLowerCase() : ChargeType.Grenade.toLowerCase();
-  const html = `<select name="${data_target}" data-type="String" style="height: 2em;float: right" >
+  return `<select name="${data_target}" data-type="String" style="height: 2em;float: right" >
     <option value="${ChargeType.Grenade}" ${
     c === ChargeType.Grenade.toLowerCase() ? "selected" : ""
   }>GRENADE</option>
@@ -191,14 +204,13 @@ export function charge_type_selector(c_type: string, data_target: string) {
     c === ChargeType.Mine.toLowerCase() ? "selected" : ""
   }>MINE</option>
   </select>`;
-  return html;
 }
 
-export const charge_effect_editable = ``;
+// export const charge_effect_editable = ``;
 
 export function effect_preview(effect: EffectData) {
   let _effect = effect as any;
-  var html = ``;
+  let html = ``;
   if (_effect.abilities) {
     html += `<div class="flexcol effect-preview" style="padding: 5px">`;
   }
@@ -239,11 +251,11 @@ export const generic_effect_preview = `<div class="flexcol effect-text" style="p
   <div class="effect-text">{{{effect}}}</div>
 </div>`;
 
-export function effect_tag_row(effect: EffectData) {
-  var html = ``;
-  if (effect.tags) {
+export function effect_tag_row(tags: TagData[] | undefined) {
+  let html = ``;
+  if (tags && Array.isArray(tags)) {
     html += `<div class="compact-tag-row">`;
-    effect.tags.forEach(tag => {
+    tags.forEach(tag => {
       html += renderCompactTag(tag);
     });
     html += `</div>`;
@@ -253,7 +265,7 @@ export function effect_tag_row(effect: EffectData) {
 
 export function standard_effect_preview(effect: EffectData, title?: string) {
   let _effect = effect as any;
-  var html = `<div class="flexcol effect-text" style="padding: 5px">
+  let html = `<div class="flexcol effect-text" style="padding: 5px">
     <div class="medium effect-title">${title ? title : "EFFECT"}`;
   if (effect.activation) {
     html += ` // ${effect.activation.toUpperCase()}`;
@@ -266,7 +278,7 @@ export function standard_effect_preview(effect: EffectData, title?: string) {
     // not on all types
     html += `<div class="effect-text">${_effect.detail}</div>`;
   }
-  html += effect_tag_row(effect);
+  html += effect_tag_row(effect.tags);
   html += `</div>`;
   return html;
 }
@@ -280,7 +292,7 @@ export function ai_effect_preview(effect: AIEffectData) {
 }
 
 export function bonus_effect_preview(effect: BonusEffectData) {
-  var html = `<div class="flexcol effect-text" style="padding: 5px">
+  let html = `<div class="flexcol effect-text" style="padding: 5px">
     <div class="medium effect-title">EFFECT`;
   if (effect.activation) {
     html += ` // ${effect.activation.toUpperCase()}`;
@@ -326,7 +338,7 @@ export function bonus_effect_preview(effect: BonusEffectData) {
 }
 
 export function charge_effect_preview(effect: ChargeEffectData) {
-  var html = `<div class="flexcol effect-text" style="padding: 5px">
+  let html = `<div class="flexcol effect-text" style="padding: 5px">
     <div class="medium effect-title">CHARGE EFFECT`;
   if (effect.activation) {
     html += ` // ${effect.activation.toUpperCase()}`;
@@ -370,7 +382,7 @@ export function charge_effect_preview(effect: ChargeEffectData) {
 }
 
 export function deployable_effect_preview(effect: DeployableEffectData) {
-  var html = `<div class="flexcol effect-text" style="padding: 5px">
+  let html = `<div class="flexcol effect-text" style="padding: 5px">
     <div class="medium effect-title">DEPLOYABLE EFFECT`;
   if (effect.activation) {
     html += ` // ${effect.activation.toUpperCase()}`;
@@ -382,11 +394,11 @@ export function deployable_effect_preview(effect: DeployableEffectData) {
   html += `<div class="flexrow" style="max-width: max-content;">
     <div class="flexrow compact-stat lancer-effect-stat">`;
   if (effect.size) {
-    var size_icon = `<i class="cci cci-size-${
+    const size_icon = `<i class="cci cci-size-${
       effect.size < 1 ? "half" : effect.size
     } i--m i--dark"></i>`;
     if (effect.count) {
-      for (var i = 0; i < effect.count; i++) {
+      for (let i = 0; i < effect.count; i++) {
         html += size_icon;
       }
     } else {
@@ -419,13 +431,13 @@ export function deployable_effect_preview(effect: DeployableEffectData) {
     </div>`;
   }
   html += `</div><div class="effect-text">${effect.detail}</div>`;
-  html += effect_tag_row(effect);
+  html += effect_tag_row(effect.tags);
   html += `</div></div>`;
   return html;
 }
 
 export function drone_effect_preview(effect: DroneEffectData) {
-  var html = `<div class="flexcol effect-text" style="padding: 5px">
+  let html = `<div class="flexcol effect-text" style="padding: 5px">
     <div class="medium effect-title">DRONE EFFECT`;
   if (effect.activation) {
     html += ` // ${effect.activation.toUpperCase()}`;
@@ -472,13 +484,13 @@ export function drone_effect_preview(effect: DroneEffectData) {
   }
   html += `</div>`;
   html += `<div class="effect-text">${effect.detail}</div>`;
-  html += effect_tag_row(effect);
+  html += effect_tag_row(effect.tags);
   html += `</div></div>`;
   return html;
 }
 
 export function offensive_effect_preview(effect: OffensiveEffectData) {
-  var html = `<div class="flexcol effect-text" style="padding: 5px">
+  let html = `<div class="flexcol effect-text" style="padding: 5px">
     <div class="medium effect-title">WEAPON EFFECT`;
   if (effect.activation) {
     html += ` // ${effect.activation.toUpperCase()}`;
@@ -508,13 +520,13 @@ export function offensive_effect_preview(effect: OffensiveEffectData) {
   if (effect.detail) {
     html += `<div class="effect-text">${effect.detail}</div>`;
   }
-  html += effect_tag_row(effect);
+  html += effect_tag_row(effect.tags);
   html += `</div>`;
   return html;
 }
 
 export function profile_effect_preview(effect: ProfileEffectData) {
-  var html = `<div class="flexcol sub-effect-box">
+  let html = `<div class="flexcol sub-effect-box">
     <div class="flexcol effect-text" style="padding: 5px">
       <div class="medium effect-title">WEAPON PROFILE`;
   if (effect.activation) {
@@ -544,7 +556,7 @@ export function profile_effect_preview(effect: ProfileEffectData) {
   }
   html += `</div>`;
   html += `<div class="effect-text">${effect.detail}</div></div>`;
-  html += effect_tag_row(effect);
+  html += effect_tag_row(effect.tags);
   html += `</div>`;
   return html;
 }
@@ -554,7 +566,7 @@ export function protocol_effect_preview(effect: ProtocolEffectData) {
 }
 
 export function reaction_effect_preview(effect: ReactionEffectData) {
-  var html = `<div class="flexcol effect-text" style="padding: 5px">
+  let html = `<div class="flexcol effect-text" style="padding: 5px">
     <div class="medium effect-title">REACTION`;
   if (effect.activation) {
     html += ` // ${effect.activation.toUpperCase()}`;
@@ -583,13 +595,13 @@ export function reaction_effect_preview(effect: ReactionEffectData) {
     <div class="medium">EFFECT</div>
     <div class="flexrow effect-text">${effect.detail}</div>
   </div>`;
-  html += effect_tag_row(effect);
+  html += effect_tag_row(effect.tags);
   html += `</div>`;
   return html;
 }
 
 export function invade_option_preview(effect: InvadeOptionData, set: string) {
-  var html = `<div class="flexcol sub-effect-box" style="padding: 5px">
+  let html = `<div class="flexcol sub-effect-box" style="padding: 5px">
     <div class="medium effect-title">${effect.name} // ${set.toUpperCase()}</div>`;
   if (effect.detail) {
     html += `<div class="effect-text">${effect.detail}</div>`;
@@ -599,7 +611,7 @@ export function invade_option_preview(effect: InvadeOptionData, set: string) {
 }
 
 export function tech_effect_preview(effect: TechEffectData) {
-  var html = `<div class="flexcol effect-text" style="padding: 5px">
+  let html = `<div class="flexcol effect-text" style="padding: 5px">
     <div class="medium effect-title">${
       effect.option_set ? effect.option_set.toUpperCase() : "TECH EFFECT"
     } // ${effect.activation.toUpperCase()} TECH</div>
@@ -626,6 +638,138 @@ export function tech_effect_preview(effect: TechEffectData) {
     });
     html += `</div>`;
   }
+  html += `</div>`;
+  return html;
+}
+
+export function npc_reaction_effect_preview(npc_feature: LancerNPCReactionData) {
+  let html = `<div class="lancer-reaction-header clipped-top" style="grid-area: 1/1/2/3;display:flex;">
+    <i class="cci cci-reaction i--m i--light"> </i>
+    <a class="macroable item-macro"><i class="mdi mdi-message"></i></a>
+    <span class="minor" style="flex-grow:1">${npc_feature.name}</span>
+    <a class="stats-control i--light" data-action="delete"><i class="fas fa-trash"></i></a>
+  </div>
+  <div class="flexcol" style="margin: 10px;">
+    <span class="medium flexrow">TRIGGER</span>
+    <div class="effect-text" style="padding: 5px">${npc_feature.trigger}</div>
+    <span class="medium flexrow">EFFECT</span>
+    <div class="effect-text" style="padding: 5px">${npc_feature.effect}</div>
+  </div>
+  <div class="flexrow" style="justify-content: flex-end;">`;
+  html += effect_tag_row(npc_feature.tags);
+  return html;
+}
+
+function npc_system_trait_effect_preview(npc_feature: LancerNPCSystemData | LancerNPCTraitData) {
+  let html = `<div class="lancer-${npc_feature.feature_type.toLowerCase()}-header clipped-top" style="grid-area: 1/1/2/3;display:flex">
+  <i class="cci cci-${npc_feature.feature_type.toLowerCase()} i--m i--light"> </i>
+  <a class="macroable item-macro"><i class="mdi mdi-message"></i></a>
+    <span class="minor" style="flex-grow:1">${npc_feature.name}</span>
+  <a class="stats-control i--light" data-action="delete"><i class="fas fa-trash"></i></a>
+  </div>
+  <div class="flexcol" style="margin: 10px;">
+  <span class="medium flexrow">EFFECT</span>
+    <div class="effect-text" style="padding: 5px">${npc_feature.effect}</div>
+  </div>`;
+  html += effect_tag_row(npc_feature.tags);
+  return html;
+}
+
+export function npc_system_effect_preview(npc_feature: LancerNPCSystemData) {
+  return npc_system_trait_effect_preview(npc_feature);
+}
+
+export function npc_trait_effect_preview(npc_feature: LancerNPCTraitData) {
+  return npc_system_trait_effect_preview(npc_feature);
+}
+
+export function npc_tech_effect_preview(npc_feature: LancerNPCTechData, tier: number) {
+  let html = `<div class="lancer-tech-header clipped-top" style="grid-area: 1/1/2/3">
+  <i class="cci cci-tech-${npc_feature.tech_type.toLowerCase()} i--m i--light"> </i>
+    <span class="minor">${npc_feature.name} // ${npc_feature.tech_type.toUpperCase()} TECH</span>
+  <a class="stats-control i--light" data-action="delete"><i class="fas fa-trash"></i></a>
+  </div>
+  <div class="lancer-tech-body">
+  <a class="roll-tech" style="grid-area: 1/1/2/2;"><i class="fas fa-dice-d20 i--m i--dark"></i></a>
+  <div class="flexrow" style="grid-area: 1/2/2/3; text-align: left; white-space: nowrap;">`;
+  if (npc_feature.attack_bonus) {
+    const atk = npc_feature.attack_bonus[tier];
+    html += `<div class="compact-acc">
+    <i class="cci cci-reticule i--m i--dark"></i>
+      <span class="medium">${atk < 0 ? "-" : "+"}${atk} ATTACK BONUS</span>
+    </div>`;
+  }
+  html += `<hr class="vsep">`;
+  if (npc_feature.accuracy) {
+    const acc = npc_feature.accuracy[tier];
+    if (acc > 0) {
+      html += `<div class="compact-acc">
+        <i class="cci cci-accuracy i--m i--dark"></i>
+        <span class="medium">+${acc} ACCURACY</span>
+      </div>`;
+    } else if (acc < 0) {
+      html += `<div class="compact-acc">
+        <i class="cci cci-difficulty i--m i--dark"></i>
+        <span class="medium">+${-acc} DIFFICULTY</span>
+      </div>`;
+    }
+  }
+  html += `</div><div class="flexcol" style="grid-area: 2/1/3/3; text-align: left;">`;
+  if (npc_feature.effect) {
+    html += `<div class="flexcol" style="height: fit-content; margin: 0 10px;">
+      <span class="medium flexrow">EFFECT</span>
+      <div class="effect-text" style="padding: 5px">${npc_feature.effect}</div>
+    </div>`;
+  }
+  html += `</div><div style="grid-area: 3/1/4/3;"`;
+  html += effect_tag_row(npc_feature.tags);
+  html += `</div>`;
+  return html;
+}
+
+export function npc_weapon_effect_preview(npc_feature: LancerNPCWeaponData, tier: number) {
+  let html = `<div class="lancer-weapon-header clipped-top" style="grid-area: 1/1/2/3">
+    <i class="cci cci-weapon i--m i--light"> </i>
+    <span class="minor">${npc_feature.name} // ${npc_feature.weapon_type.toUpperCase()}</span>
+    <a class="stats-control i--light" data-action="delete"><i class="fas fa-trash"></i></a>
+  </div>
+  <div class="lancer-weapon-body">
+    <a class="roll-attack" style="grid-area: 1/1/2/2;"><i class="fas fa-dice-d20 i--m i--dark"></i></a>
+    <div class="flexrow" style="grid-area: 1/2/2/3; text-align: left; white-space: nowrap;">`;
+  for (let i = 0; i < npc_feature.range.length; i++) {
+    html += weapon_range_preview(npc_feature.range[i], i);
+  }
+  html += `<hr class="vsep">`;
+  for (let i = 0; i < npc_feature.damage.length; i++) {
+    html += weapon_damage_preview(npc_feature.damage[i], tier);
+  }
+  html += `<hr class="vsep">`;
+  if (npc_feature.attack_bonus) {
+    const atk = npc_feature.attack_bonus[tier];
+    html += npc_attack_bonus_preview(atk);
+  }
+  html += `<hr class="vsep">`;
+  if (npc_feature.accuracy) {
+    const acc = npc_feature.accuracy[tier];
+    html += npc_accuracy_preview(acc);
+  }
+  html += `</div><div class="flexcol" style="grid-area: 2/1/3/3; text-align: left;">`;
+  if (npc_feature.on_hit) {
+    html += `
+    <div class="flexcol" style="height: fit-content; margin: 0 10px;">
+      <span class="medium flexrow">ON HIT</span>
+      <div class="effect-text" style="padding: 5px">${npc_feature.on_hit}</div>
+    </div>`;
+  }
+  if (npc_feature.effect) {
+    html += `
+    <div class="flexcol" style="height: fit-content; margin: 0 10px;">
+      <span class="medium flexrow">EFFECT</span>
+      <div class="effect-text" style="padding: 5px">${npc_feature.effect}</div>
+    </div>`;
+  }
+  html += `</div><div class="flexrow" style="justify-content: flex-end; grid-area: 3/1/4/3">`;
+  html += effect_tag_row(npc_feature.tags);
   html += `</div>`;
   return html;
 }
