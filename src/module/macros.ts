@@ -1,33 +1,29 @@
 // Import TypeScript modules
 import { LANCER } from "./config";
-const lp = LANCER.log_prefix;
-
-import { LancerItem, LancerPilotGear, LancerCoreBonus, LancerTalent } from "./item/lancer-item";
-
+import { LancerCoreBonus, LancerItem, LancerPilotGear } from "./item/lancer-item";
 import { LancerActor } from "./actor/lancer-actor";
-
 import {
-  LancerPilotActorData,
-  TagDataShort,
-  LancerFrameItemData,
-  LancerNPCActorData,
-  LancerMechWeaponData,
-  LancerPilotWeaponData,
-  LancerNPCData,
-  NPCDamageData,
   LancerAttackMacroData,
-  LancerStatMacroData,
+  LancerFrameItemData,
   LancerGenericMacroData,
-  LancerTalentMacroData,
-  LancerTextMacroData,
-  LancerTechMacroData,
-  LancerReactionMacroData,
   LancerMechSystemData,
+  LancerMechWeaponData,
+  LancerNPCData,
+  LancerPilotActorData,
+  LancerPilotWeaponData,
+  LancerReactionMacroData,
+  LancerStatMacroData,
+  LancerTalentMacroData,
+  LancerTechMacroData,
+  LancerTextMacroData,
+  NPCDamageData,
+  TagDataShort,
 } from "./interfaces";
-
 // Import JSON data
-import { DamageType, Tag, WeaponType } from "machine-mind";
+import { DamageType, NpcFeatureType } from "machine-mind";
 import { LancerNPCTechData, LancerNPCWeaponData } from "./item/npc-feature";
+
+const lp = LANCER.log_prefix;
 
 /**
  * Generic macro preparer for any item.
@@ -111,39 +107,37 @@ export async function prepareItemMacro(a: string, i: string, options?: any) {
       await rollTextMacro(actor, CBdata);
       break;
     case "npc_feature":
-      // This should probably be a switch too...
-      if (item.data.data.feature_type === "Weapon") {
-        prepareAttackMacro(actor, item);
-        break;
-      } else if (item.data.data.feature_type === "Tech") {
-        prepareTechMacro(actor._id, item._id);
-        break;
-      } else if (
-        item.data.data.feature_type === "System" ||
-        item.data.data.feature_type === "Trait"
-      ) {
-        let sysData: LancerTextMacroData = {
-          title: item.name,
-          description: <string>item.data.data.effect,
-          tags: item.data.data.tags,
-        };
+      switch (item.data.data.feature_type) {
+        case NpcFeatureType.Weapon:
+          await prepareAttackMacro(actor, item);
+          break;
+        case NpcFeatureType.Tech:
+          await prepareTechMacro(actor._id, item._id);
+          break;
+        case NpcFeatureType.System:
+        case NpcFeatureType.Trait:
+          let sysData: LancerTextMacroData = {
+            title: item.name,
+            description: <string>item.data.data.effect,
+            tags: item.data.data.tags,
+          };
 
-        rollTextMacro(actor, sysData);
-        break;
-      } else if (item.data.data.feature_type === "Reaction") {
-        let reactData: LancerReactionMacroData = {
-          title: item.name,
-          // Screw it, I'm not messing with all our item definitions just for this.
-          //@ts-ignore
-          trigger: <string>item.data.data.trigger,
-          effect: <string>item.data.data.effect,
-          tags: item.data.data.tags,
-        };
+          await rollTextMacro(actor, sysData);
+          break;
+        case NpcFeatureType.Reaction:
+          let reactData: LancerReactionMacroData = {
+            title: item.name,
+            // Screw it, I'm not messing with all our item definitions just for this.
+            //@ts-ignore
+            trigger: <string>item.data.data.trigger,
+            effect: <string>item.data.data.effect,
+            tags: item.data.data.tags,
+          };
 
-        rollReactionMacro(actor, reactData);
-        break;
+          await rollReactionMacro(actor, reactData);
+          break;
       }
-
+      break;
     default:
       console.log("No macro exists for that item type");
       return ui.notifications.error(`Error - No macro exists for that item type`);
