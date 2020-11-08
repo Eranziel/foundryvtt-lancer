@@ -624,6 +624,7 @@ declare interface LancerAttackMacroData {
   damage: DamageData[];
   overkill: boolean;
   effect: EffectData | string;
+  on_hit?: string; // For NPC weapons - to be removed once they use EffectData
   tags: TagDataShort[];
 }
 

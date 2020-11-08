@@ -45,14 +45,20 @@
     {{/if}}
   </div>
   {{/if}}
+  {{#if on_hit}}
+    <div class="card clipped">
+      <div class="lancer-stat-header clipped-top">// ON HIT //</div>
+      <span class="effect-text">{{{on_hit}}}</span>
+    </div>
+  {{/if}}
   {{#if effect}}
-  <div class="card clipped">
-    <div class="lancer-stat-header clipped-top">// EFFECT //</div>
-    {{#if effect.effect_type}}
-      {{{eff-preview effect}}}
-    {{/if}}
-    {{#unless effect.effect_type}}<span class="effect-text">{{{effect}}}</span>{{/unless}}
-  </div>
+    <div class="card clipped">
+      <div class="lancer-stat-header clipped-top">// EFFECT //</div>
+      {{#if effect.effect_type}}
+        {{{eff-preview effect}}}
+      {{/if}}
+      {{#unless effect.effect_type}}<span class="effect-text">{{{effect}}}</span>{{/unless}}
+    </div>
   {{/if}}
   {{> tag-list tags=tags}}
 </div>

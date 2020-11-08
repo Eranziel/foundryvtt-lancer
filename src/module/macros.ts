@@ -411,6 +411,7 @@ async function rollAttackMacro(actor: Actor, data: LancerAttackMacroData) {
     damages: damage_results,
     overkill_heat: overkill_heat,
     effect: data.effect ? data.effect : null,
+    on_hit: data.on_hit ? data.on_hit : null,
     tags: data.tags,
   };
   const template = `systems/lancer/templates/chat/attack-card.html`;
