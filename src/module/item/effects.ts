@@ -661,8 +661,8 @@ export function npc_reaction_effect_preview(npc_feature: LancerNPCReactionData) 
 }
 
 function npc_system_trait_effect_preview(npc_feature: LancerNPCSystemData | LancerNPCTraitData) {
-  let html = `<div class="lancer-system-header clipped-top" style="grid-area: 1/1/2/3;display:flex">
-  <i class="cci cci-system i--m i--light"> </i>
+  let html = `<div class="lancer-${npc_feature.feature_type.toLowerCase()}-header clipped-top" style="grid-area: 1/1/2/3;display:flex">
+  <i class="cci cci-${npc_feature.feature_type.toLowerCase()} i--m i--light"> </i>
   <a class="macroable item-macro"><i class="mdi mdi-message"></i></a>
     <span class="minor" style="flex-grow:1">${npc_feature.name}</span>
   <a class="stats-control i--light" data-action="delete"><i class="fas fa-trash"></i></a>

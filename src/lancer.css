@@ -964,7 +964,9 @@ code.horus:hover {
 }
 
 .roll-stat, .roll-attack,
-.roll-trigger, .system-macro {
+.roll-trigger, .system-macro,
+.gear-macro, .cb-macro, .item-macro,
+.core-passive-macro, .core-active-macro {
   margin: 3px 10px;
 }
 
