@@ -872,24 +872,29 @@ export const core_system_preview = `<div class="card clipped frame-core flexcol"
 </div>`;
 
 export function npc_feature_preview(npc_feature: LancerNPCFeatureItemData, tier: number) {
-  let html = `<li class="card clipped npc-feature-compact item" data-item-id="${npc_feature._id}">`;
+  let body = ``;
+  let type_class = `item`;
   switch (npc_feature.data.feature_type) {
     case "Reaction":
-      html += npc_reaction_effect_preview(npc_feature.data as LancerNPCReactionData);
+      body += npc_reaction_effect_preview(npc_feature.data as LancerNPCReactionData);
       break;
     case "System":
-      html += npc_system_effect_preview(npc_feature.data as LancerNPCSystemData);
+      body += npc_system_effect_preview(npc_feature.data as LancerNPCSystemData);
       break;
     case "Trait":
-      html += npc_trait_effect_preview(npc_feature.data as LancerNPCTraitData);
+      body += npc_trait_effect_preview(npc_feature.data as LancerNPCTraitData);
       break;
     case "Tech":
-      html += npc_tech_effect_preview(npc_feature.data as LancerNPCTechData, tier);
+      body += npc_tech_effect_preview(npc_feature.data as LancerNPCTechData, tier);
+      type_class += ` tech`;
       break;
     case "Weapon":
-      html += npc_weapon_effect_preview(npc_feature.data as LancerNPCWeaponData, tier);
+      body += npc_weapon_effect_preview(npc_feature.data as LancerNPCWeaponData, tier);
+      type_class += ` weapon`;
       break;
   }
+  let html = `<li class="card clipped npc-feature-compact ${type_class}" data-item-id="${npc_feature._id}">`;
+  html += body;
   html += `</li>`;
   return html;
 }
