@@ -39,7 +39,10 @@
           </span>
           <span class="lancer-text-field major">
             {{#if npc_class}}
-            {{npc_class.name}}
+              {{npc_class.name}}
+              <a class="item i--m" data-item-id="{{npc_class._id}}" style="float: right;">
+                <i class="cci cci-npc-class" ></i>
+              </a>
             {{else}}
             NO CLASS FOUND
             {{/if}}</span>
