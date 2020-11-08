@@ -382,9 +382,16 @@ async function rollAttackMacro(actor: Actor, data: LancerAttackMacroData) {
         else d_formula += "r1";
       }
     }
-    const droll = new Roll(d_formula).roll();
-    const tt = await droll.getTooltip();
-    if (data.overkill) {
+    let droll: Roll | null;
+    let tt: HTMLElement | JQuery | null;
+    try {
+      droll = new Roll(d_formula).roll();
+      tt = await droll.getTooltip();
+    } catch {
+      droll = null;
+      tt = null;
+    }
+    if (data.overkill && droll) {
       // Count overkill heat
       droll.parts.forEach(p => {
         if (p.rolls && Array.isArray(p.rolls)) {
@@ -396,11 +403,13 @@ async function rollAttackMacro(actor: Actor, data: LancerAttackMacroData) {
         }
       });
     }
-    damage_results.push({
-      roll: droll,
-      tt: tt,
-      d_type: x.type,
-    });
+    if (droll && tt) {
+      damage_results.push({
+        roll: droll,
+        tt: tt,
+        d_type: x.type,
+      });
+    }
   }
 
   // Output
