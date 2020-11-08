@@ -1,3 +1,19 @@
+# 0.1.13 (2020-11-08)
+## Features
+* **Pilot Sheet**: Added macros for pilot gear, core bonuses, core actives, and core passives. Closes #10.
+* **Pilot Sheet**: Added basic Overcharge tracking. Partial solution for #101.
+* **NPC Sheet**: Added macros for systems, traits, and reactions. Closes #10.
+* **NPC Sheet**: Added a link beside the class name to open the NPC's class item.
+* **NPC Class Sheet**: The Base and Optional Feature sections are now populated with previews of the features. The previews can be dragged onto NPC sheets to add the items to the NPC, without opening any Compendiums. Closes #106.
+* **NPC Template Sheet**: Likewise populates the Base and Optional Feature sections with draggable feature previews. Closes #106.
+* **Migration**: Migration logic is now more intelligent, avoiding unnecessary migrations each version update.
+
+## Bug Fixes
+* **Macros**: NPC Weapon "On Hit" effects now show in chat. Closes #95.
+* **NPC Sheet**: Fix a issue causing NPC Templates to be un-deletable. Closes #97.
+* **Status Icons**: Improved status icons to include tooltips in the token HUD. Closes #93.
+* **General**: Fix an issue causing the system to fail to load on Foundry 0.7.6. Closes #107.
+
 # 0.1.12 (2020-10-21)
 ## Bug Fixes
 * **General**: Fix a bug where some parts of the system tried to load too soon and failed fatally.
