@@ -374,7 +374,7 @@
       </div>
 
       {{!-- Stats --}}
-      <div class="card clipped mech-stats" style="display: grid; grid-template: repeat(4, 1fr) / repeat(5, 1fr);">
+      <div class="card clipped mech-stats" style="display: grid; grid-template: repeat(5, 1fr) / repeat(5, 1fr);">
         <div class="flexcol card clipped" style="grid-area: 1/1/2/2">
           <div class="lancer-stat-header clipped-top flexrow">
             <i class="cci cci-structure i--m i--light" style="float: left; padding-left: 10px"> </i>
@@ -531,7 +531,7 @@
             <data class="lancer-stat medium" id="data.mech.engineering" value="data.mech.engineering">{{data.mech.engineering}}</data>
           </div>
         </div>
-        <div class="flexcol card clipped" style="grid-area: 4/5/5/6">
+        <div class="flexcol card clipped" style="grid-area: 5/1/6/2">
           <div class="lancer-stat-header clipped-top flexrow">
             <span class="major">CORE</span>
           </div>
@@ -540,6 +540,12 @@
               <input name="data.mech.current_core_energy" class="core-power-toggle" type="checkbox" data-dtype="Boolean" {{checked data.mech.current_core_energy}}/><label></label> 
             </label>
           </div>
+        </div>
+        <div class="flexcol card clipped" style="grid-area: 4/5/6/6">
+          <div class="lancer-stat-header clipped-top flexrow" style="flex-basis: 24%;flex-grow: unset;">
+            <span class="major">OVERCHARGE</span>
+          </div>
+          {{{overcharge-button data.mech.overcharge_level}}}
         </div>
 
       </div>

@@ -43,7 +43,8 @@
           "save": 0,
           "tech_attack": 0,
           "sp": 0,
-          "current_core_energy":1
+          "current_core_energy":1,
+          "overcharge_level":0
         }
       },
       "mech_loadout": {

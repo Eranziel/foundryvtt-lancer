@@ -33,7 +33,8 @@ export const DEFAULT_MECH = {
   sensors: 0,
   save: 0,
   tech_attack: 0,
-  current_core_energy: 1
+  current_core_energy: 1,
+  overcharge_level: 0
 };
 
 export function lancerActorInit(data: any) {
@@ -303,5 +304,20 @@ export function npc_tier_selector(tier: LancerNPCData["tier"]) {
     <option value="npc-tier-3" ${tier === "npc-tier-3" ? "selected" : ""}>TIER 3</option>
     <option value="npc-tier-custom" ${tier === "npc-tier-custom" ? "selected" : ""}>CUSTOM</option>
   </select>`;
+  return template;
+}
+
+/**
+ * Handlebars helper for an overcharge button
+ * Currently this is overkill, but eventually we want to support custom overcharge values 
+ * @param level Level of overcharge, between 0 (1) and 3 (1d6+4)
+ */
+export function overcharge_button(level: number) {
+  let template = 
+   `<div class="overcharge-container">
+      <a class="overcharge-button" style="width:90%;height:90%">
+        1
+      </a>
+    </div>`;
   return template;
 }
