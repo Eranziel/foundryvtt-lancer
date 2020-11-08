@@ -80,6 +80,22 @@ export class LancerActorSheet extends ActorSheet {
   //   return this.object.update(formData);
   // }
 
+  getStatPath(event: any): string | null {
+    if (!event.currentTarget) return null;
+    // Find the stat input to get the stat's key to pass to the macro function
+    let el = $(event.currentTarget)
+      .closest(".stat-container")
+      .find(".lancer-stat")[0] as HTMLElement;
+
+    if (el.nodeName === "INPUT") {
+      return (<HTMLInputElement>el).name;
+    } else if (el.nodeName === "DATA") {
+      return (<HTMLDataElement>el).id;
+    } else {
+      throw "Error - stat macro was not run on an input or data element";
+    }
+  }
+
   /**
    * Activate event listeners for trigger macros using the prepared sheet HTML
    * @param html {JQuery}   The prepared HTML object ready to be rendered into the DOM

@@ -131,7 +131,7 @@ export class LancerNPCSheet extends LancerActorSheet {
         };
 
         console.log(`${lp} Rolling ${mData.title} check, bonus: ${mData.bonus}`);
-        game.lancer.rollStatMacro(this.actor, mData);
+        game.lancer.prepareStatMacro(this.actor, this.getStatPath(ev)!);
       });
 
       // Trigger rollers
@@ -144,7 +144,7 @@ export class LancerNPCSheet extends LancerActorSheet {
         ev.stopPropagation(); // Avoids triggering parent event handlers
 
         const weaponElement = $(ev.currentTarget).closest(".weapon")[0] as HTMLElement;
-        console.log(weaponElement);
+        // console.log(weaponElement);
         const weaponId = weaponElement.getAttribute("data-item-id");
         if (!weaponId) return ui.notifications.warn(`Error rolling macro: No weapon ID!`);
         const item = this.actor.getOwnedItem(weaponId);

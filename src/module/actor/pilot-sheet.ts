@@ -189,7 +189,7 @@ export class LancerPilotSheet extends LancerActorSheet {
       let statMacro = html.find(".roll-stat");
       statMacro.on("click", (ev: Event) => {
         ev.stopPropagation(); // Avoids triggering parent event handlers
-        game.lancer.prepareStatMacro(this.actor, getStatPath(ev)!);
+        game.lancer.prepareStatMacro(this.actor, this.getStatPath(ev)!);
       });
 
       // Talent rollers
@@ -413,7 +413,7 @@ export class LancerPilotSheet extends LancerActorSheet {
     // For roll-stat macros
     event.stopPropagation(); // Avoids triggering parent event handlers
     // It's an input so it'll always be an InputElement, right?
-    let path = getStatPath(event);
+    let path = this.getStatPath(event);
     if (!path) return ui.notifications.error("Error finding stat for macro.");
 
     let tSplit = path.split(".");
@@ -656,23 +656,9 @@ export class LancerPilotSheet extends LancerActorSheet {
   }
 }
 
-function getStatPath(event: any): string | null {
-  if (!event.currentTarget) return null;
-  // Find the stat input to get the stat's key to pass to the macro function
-  let el = $(event.currentTarget).closest(".stat-container").find(".lancer-stat")[0] as HTMLElement;
-
-  if (el.nodeName === "INPUT") {
-    return (<HTMLInputElement>el).name;
-  } else if (el.nodeName === "DATA") {
-    return (<HTMLDataElement>el).id;
-  } else {
-    throw "Error - stat macro was not run on an input or data element";
-  }
-}
-
 /**
  * Handlebars helper for an overcharge button
- * Currently this is overkill, but eventually we want to support custom overcharge values 
+ * Currently this is overkill, but eventually we want to support custom overcharge values
  * @param level Level of overcharge, between 0 (1) and 3 (1d6+4) by default
  */
 export function overcharge_button(level: number) {
