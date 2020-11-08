@@ -85,7 +85,7 @@ import * as migrations from "./module/migration";
 import { addLCPManager } from "./module/apps/lcpManager";
 
 // Import Machine Mind and helpers
-import { CCDataStore, setup_store } from "machine-mind";
+import { CCDataStore, NpcFeatureType, setup_store } from "machine-mind";
 import { FauxPersistor } from "./module/ccdata_io";
 import { reload_store } from "./module/item/util";
 import * as macros from "./module/macros";
@@ -462,6 +462,9 @@ Hooks.on("hotbarDrop", (_bar: any, data: any, slot: number) => {
 
   let command = "";
   let title = "";
+  let img = "systems/lancer/assets/icons/macro-icons/d20-framed.svg";
+
+  console.log(`${lp} Data dropped on hotbar:`, data);
 
   // TODO: Figure out if I am really going down this route and, if so, switch to a switch
   if (data.type === "actor") {
@@ -479,8 +482,50 @@ Hooks.on("hotbarDrop", (_bar: any, data: any, slot: number) => {
     if (data.data.type === "talent") {
       command = `game.lancer.prepareItemMacro("${data.actorId}", "${data.itemId}", {rank: ${data.rank}});`;
       title = data.title;
+      img = `systems/lancer/assets/icons/macro-icons/talent.svg`;
     } else {
       title = data.data.name;
+    }
+    // Pick the image for the hotbar
+    switch (data.data.type) {
+      case "skill":
+        img = `systems/lancer/assets/icons/macro-icons/skill.svg`;
+        break;
+      case "talent":
+        img = `systems/lancer/assets/icons/macro-icons/talent.svg`;
+        break;
+      case "core_bonus":
+        img = `systems/lancer/assets/icons/macro-icons/corebonus.svg`;
+        break;
+      case "pilot_gear":
+        img = `systems/lancer/assets/icons/macro-icons/generic_item.svg`;
+        break;
+      case "pilot_weapon":
+      case "mech_weapon":
+        img = `systems/lancer/assets/icons/macro-icons/mech_weapon.svg`;
+        break;
+      case "mech_system":
+        img = `systems/lancer/assets/icons/macro-icons/mech_system.svg`;
+        break;
+      case "npc_feature":
+        switch (data.data.data.feature_type) {
+          case NpcFeatureType.Reaction:
+            img = `systems/lancer/assets/icons/macro-icons/reaction.svg`;
+            break;
+          case NpcFeatureType.System:
+            img = `systems/lancer/assets/icons/macro-icons/mech_system.svg`;
+            break;
+          case NpcFeatureType.Trait:
+            img = `systems/lancer/assets/icons/macro-icons/trait.svg`;
+            break;
+          case NpcFeatureType.Tech:
+            img = `systems/lancer/assets/icons/macro-icons/tech_quick.svg`;
+            break;
+          case NpcFeatureType.Weapon:
+            img = `systems/lancer/assets/icons/macro-icons/mech_weapon.svg`;
+            break;
+        }
+        break;
     }
   } else if (data.type === "Text") {
     title = data.title;
@@ -488,9 +533,11 @@ Hooks.on("hotbarDrop", (_bar: any, data: any, slot: number) => {
   } else if (data.type === "Core-Active") {
     title = data.title;
     command = `game.lancer.prepareCoreActiveMacro("${data.actorId}")`;
+    img = `systems/lancer/assets/icons/macro-icons/corebonus.svg`;
   } else if (data.type === "Core-Passive") {
     title = data.title;
     command = `game.lancer.prepareCorePassiveMacro("${data.actorId}")`;
+    img = `systems/lancer/assets/icons/macro-icons/corebonus.svg`;
   } else {
     // Let's not error or anything, since it's possible to accidentally drop stuff pretty easily
     return;
@@ -507,7 +554,7 @@ Hooks.on("hotbarDrop", (_bar: any, data: any, slot: number) => {
         command,
         name: title,
         type: "script",
-        img: "systems/lancer/assets/icons/d20-framed.svg",
+        img: img,
       },
       { displaySheet: false }
     ).then(macro => game.user.assignHotbarMacro(macro as Macro, slot));
