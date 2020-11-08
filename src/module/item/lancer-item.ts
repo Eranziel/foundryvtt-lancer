@@ -798,13 +798,13 @@ export function effect_type_selector(e_type: string, data_target: string) {
  * Handlebars partial for a mech system preview card.
  */
 export const mech_system_preview = `<li class="card clipped mech-system-compact item" data-item-id="{{system._id}}">
-<div class="lancer-system-header clipped-top" style="grid-area: 1/1/2/3">
+<div class="lancer-system-header clipped-top" style="grid-area: 1/1/2/3; display: flex">
   <i class="cci cci-system i--m i--dark"> </i>
-  <span class="minor">{{system.name}}</span>
+  <a class="system-macro macroable"><i class="mdi mdi-message"></i></a>
+  <span class="minor" style="flex-grow: 1">{{system.name}}</span>
   <a class="stats-control i--light" data-action="delete"><i class="fas fa-trash"></i></a>
 </div>
 <div class="flexrow">
-  <a class="system-macro macroable"><i class="fas fa-dice-d20 i--m i--dark"></i></a>
   <div style="float: left; align-items: center; display: inherit;">
     <i class="cci cci-system-point i--m i--dark"> </i>
     <span class="medium" style="padding: 5px;">{{system.data.sp}} SP</span>
@@ -856,18 +856,20 @@ export const core_system_preview = `<div class="card clipped frame-core flexcol"
   {{/if}}
   {{#if csys.passive_name}}
   <div class="card clipped">
-    <div class="lancer-core-sys-header medium clipped-top">
-      <a class="mdi mdi-circle-expand i--m i--light core-passive-macro macroable"> </a>
-      <div class="medium">{{csys.passive_name}}</div>
+    <div class="lancer-core-sys-header medium clipped-top" style="display:flex">
+      <i class="mdi mdi-circle-expand i--m i--light "> </i>
+      <a class="core-passive-macro macroable"><i class="mdi mdi-message"></i></a>
+      <div class="medium" style="flex-grow: 1">{{csys.passive_name}}</div>
       <div class="medium" style="justify-self: right;"> // PASSIVE</div>
     </div>
     <div class="effect-text">{{{csys.passive_effect}}}</div>
   </div>
   {{/if}}
   <div class="card clipped">
-    <div class="lancer-core-sys-header medium clipped-top">
-      <a class="cci cci-corebonus i--m i--light core-active-macro macroable" > </a>
-      <div class="medium">{{csys.active_name}}</div>
+    <div class="lancer-core-sys-header medium clipped-top" style="display:flex">
+      <i class="cci cci-corebonus i--m i--light" > </i>
+      <a class="core-active-macro macroable"><i class="mdi mdi-message"></i></a>
+      <div class="medium" style="flex-grow: 1">{{csys.active_name}}</div>
       <div class="medium" style="justify-self: right;"> // ACTIVE</div>
     </div>
     <div class="effect-text">{{{csys.active_effect}}}</div>
