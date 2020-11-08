@@ -168,13 +168,12 @@ Hooks.once("init", async function () {
       "pilot_gear",
       "mech_system",
       "mech_weapon",
-      "npc_template",
       "npc_feature",
     ],
     makeDefault: true,
   });
   Items.registerSheet("lancer", LancerFrameSheet, { types: ["frame"], makeDefault: true });
-  Items.registerSheet("lancer", LancerNPCClassSheet, { types: ["npc_class"], makeDefault: true });
+  Items.registerSheet("lancer", LancerNPCClassSheet, { types: ["npc_class", "npc_template"], makeDefault: true });
 
   // *******************************************************************
   // Register handlebars helpers
