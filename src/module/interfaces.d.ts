@@ -365,6 +365,7 @@ declare interface LancerLicenseRank {
 }
 
 declare interface LancerLicenseData {
+  id: string;
   name: string;
   source: string;
   ranks: LancerLicenseRank[];

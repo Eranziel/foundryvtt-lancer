@@ -1,5 +1,4 @@
 import { LANCER } from "./config";
-const lp = LANCER.log_prefix;
 import { Converter } from "./ccdata_io";
 import { ContentPack } from "machine-mind";
 import {
@@ -17,6 +16,23 @@ import {
   SKILLS_PACK,
   TALENTS_PACK,
 } from "./item/util";
+import { LancerItem } from "./item/lancer-item";
+import {
+  LancerCoreBonusData,
+  LancerFrameData,
+  LancerLicenseData,
+  LancerMechSystemData,
+  LancerMechWeaponData,
+  LancerNPCClassData,
+  LancerNPCFeatureData,
+  LancerNPCTemplateData,
+  LancerPilotArmorData,
+  LancerPilotGearData,
+  LancerPilotWeaponData,
+  LancerSkillData,
+  LancerTalentData,
+} from "./interfaces";
+const lp = LANCER.log_prefix;
 
 async function unlockAllPacks() {
   // Unlock all the packs
@@ -111,24 +127,34 @@ async function findPack(pack_name: string, metaData: object): Promise<Compendium
 
 async function updateItem(
   pack: Compendium,
-  newData: any,
+  content: LancerItem[],
+  newData:
+    | LancerSkillData
+    | LancerTalentData
+    | LancerCoreBonusData
+    | LancerLicenseData
+    | LancerPilotArmorData
+    | LancerPilotWeaponData
+    | LancerPilotGearData
+    | LancerFrameData
+    | LancerMechSystemData
+    | LancerMechWeaponData
+    | LancerNPCFeatureData
+    | LancerNPCTemplateData
+    | LancerNPCClassData,
   type: string,
   img: string
 ): Promise<Entity> {
-  newData.name = (newData.name as string).toUpperCase();
-  let entry: { _id: string; name: string } | undefined = pack.index.find(
-    e => e.name === newData.name
-  );
+  let item = content.find(e => e.data.data.id === newData.id);
 
   // The item already exists in the pack, update its data.
-  if (entry) {
-    console.log(`LANCER | Updating ${type} ${entry.name} in compendium ${pack.collection}`);
-    let e: Item = (await pack.getEntity(entry._id)) as Item;
-    let d: any = e.data;
+  if (item) {
+    console.log(`LANCER | Updating ${type} ${item.name} in compendium ${pack.collection}`);
+    let d: any = item.data;
     d.name = newData.name;
     d.img = img;
     d.data = newData;
-    return await pack.updateEntity(d, { entity: e });
+    return await pack.updateEntity(d, { entity: item });
   } else {
     // The item doesn't exist yet, create it
     const itemData: any = {
@@ -157,11 +183,11 @@ async function buildSkillCompendium(conv: Converter, cp: ContentPack) {
     entity: "Item",
   };
   let pack: Compendium = await findPack(p_name, metaData);
-  await pack.getIndex();
+  let content = (await pack.getContent()) as LancerItem[];
 
   // Iterate through the list of skills and add them each to the Compendium
   for (let skill of skills) {
-    await updateItem(pack, conv.Skill_to_LancerSkillData(skill), "skill", img);
+    await updateItem(pack, content, conv.Skill_to_LancerSkillData(skill), "skill", img);
   }
   return Promise.resolve();
 }
@@ -179,11 +205,11 @@ async function buildTalentCompendium(conv: Converter, cp: ContentPack) {
     entity: "Item",
   };
   let pack: Compendium = await findPack(p_name, metaData);
-  await pack.getIndex();
+  let content = (await pack.getContent()) as LancerItem[];
 
   // Iterate through the list of talents and add them each to the Compendium
   for (let talent of talents) {
-    await updateItem(pack, conv.Talent_to_LancerTalentData(talent), "talent", img);
+    await updateItem(pack, content, conv.Talent_to_LancerTalentData(talent), "talent", img);
   }
   return Promise.resolve();
 }
@@ -201,11 +227,11 @@ async function buildCoreBonusCompendium(conv: Converter, cp: ContentPack) {
     entity: "Item",
   };
   let pack: Compendium = await findPack(p_name, metaData);
-  await pack.getIndex();
+  let content = (await pack.getContent()) as LancerItem[];
 
   // Iterate through the list of core bonuses and add them each to the Compendium
   for (let cb of coreBonus) {
-    await updateItem(pack, conv.CoreBonus_to_LancerCoreBonusData(cb), "core_bonus", img);
+    await updateItem(pack, content, conv.CoreBonus_to_LancerCoreBonusData(cb), "core_bonus", img);
   }
   return Promise.resolve();
 }
@@ -248,24 +274,37 @@ async function buildPilotEquipmentCompendiums(conv: Converter, cp: ContentPack) 
     entity: "Item",
   };
   let pgPack: Compendium = await findPack(pgName, gearMeta);
-  await paPack.getIndex();
-  await pwPack.getIndex();
-  await pgPack.getIndex();
+  let paContent = (await paPack.getContent()) as LancerItem[];
+  let pwContent = (await pwPack.getContent()) as LancerItem[];
+  let pgContent = (await pgPack.getContent()) as LancerItem[];
 
   // Iterate through the lists of pilot equipment and add them each to the Compendium
   for (let arm of pilotArmor) {
-    await updateItem(paPack, conv.PilotArmor_to_LancerPilotArmorData(arm), "pilot_armor", armorImg);
+    await updateItem(
+      paPack,
+      paContent,
+      conv.PilotArmor_to_LancerPilotArmorData(arm),
+      "pilot_armor",
+      armorImg
+    );
   }
   for (let weapon of pilotWeapon) {
     await updateItem(
       pwPack,
+      pwContent,
       conv.PilotWeapon_to_LancerPilotWeaponData(weapon),
       "pilot_weapon",
       weaponImg
     );
   }
   for (let gear of pilotGear) {
-    await updateItem(pgPack, conv.PilotGear_to_LancerPilotGearData(gear), "pilot_gear", gearImg);
+    await updateItem(
+      pgPack,
+      pgContent,
+      conv.PilotGear_to_LancerPilotGearData(gear),
+      "pilot_gear",
+      gearImg
+    );
   }
   return Promise.resolve();
 }
@@ -283,7 +322,7 @@ async function buildFrameCompendium(conv: Converter, cp: ContentPack) {
     entity: "Item",
   };
   let pack: Compendium = await findPack(p_name, metaData);
-  await pack.getIndex();
+  let content = (await pack.getContent()) as LancerItem[];
 
   // const licImg = "systems/lancer/assets/icons/license.svg";
   // const licMetaData: Object = {
@@ -300,7 +339,7 @@ async function buildFrameCompendium(conv: Converter, cp: ContentPack) {
 
   // Iterate through the list of frames and add them each to the Compendium
   for (let frame of frames) {
-    await updateItem(pack, conv.Frame_to_LancerFrameData(frame), "frame", img);
+    await updateItem(pack, content, conv.Frame_to_LancerFrameData(frame), "frame", img);
   }
   return Promise.resolve();
 }
@@ -318,11 +357,17 @@ async function buildMechSystemCompendium(conv: Converter, cp: ContentPack) {
     entity: "Item",
   };
   let pack: Compendium = await findPack(p_name, metaData);
-  await pack.getIndex();
+  let content = (await pack.getContent()) as LancerItem[];
 
   // Iterate through the list of core bonuses and add them each to the Compendium
   for (let system of systems) {
-    await updateItem(pack, conv.MechSystem_to_LancerMechSystemData(system), "mech_system", img);
+    await updateItem(
+      pack,
+      content,
+      conv.MechSystem_to_LancerMechSystemData(system),
+      "mech_system",
+      img
+    );
   }
   return Promise.resolve();
 }
@@ -340,11 +385,17 @@ async function buildMechWeaponCompendium(conv: Converter, cp: ContentPack) {
     entity: "Item",
   };
   let pack: Compendium = await findPack(p_name, metaData);
-  await pack.getIndex();
+  let content = (await pack.getContent()) as LancerItem[];
 
   // Iterate through the list of core bonuses and add them each to the Compendium
   for (let weapon of weapons) {
-    await updateItem(pack, conv.MechWeapon_to_LancerMechWeaponData(weapon), "mech_weapon", img);
+    await updateItem(
+      pack,
+      content,
+      conv.MechWeapon_to_LancerMechWeaponData(weapon),
+      "mech_weapon",
+      img
+    );
   }
   return Promise.resolve();
 }
@@ -366,11 +417,11 @@ async function buildNPCClassCompendium(conv: Converter, cp: ContentPack) {
     entity: "Item",
   };
   let pack: Compendium = await findPack(p_name, metaData);
-  await pack.getIndex();
+  let content = (await pack.getContent()) as LancerItem[];
 
   // Iterate through the list of core bonuses and add them each to the Compendium
   for (let cls of npcClasses) {
-    await updateItem(pack, conv.NpcClass_to_LancerNPCClassData(cls), "npc_class", img);
+    await updateItem(pack, content, conv.NpcClass_to_LancerNPCClassData(cls), "npc_class", img);
   }
   return Promise.resolve();
 }
@@ -388,12 +439,13 @@ async function buildNPCTemplateCompendium(conv: Converter, cp: ContentPack) {
     entity: "Item",
   };
   let pack: Compendium = await findPack(p_name, metaData);
-  await pack.getIndex();
+  let content = (await pack.getContent()) as LancerItem[];
 
   // Iterate through the list of core bonuses and add them each to the Compendium
   for (let template of npcTemplates) {
     await updateItem(
       pack,
+      content,
       conv.NpcTemplate_to_LancerNPCTemplateData(template),
       "npc_template",
       img
@@ -415,11 +467,17 @@ async function buildNPCFeatureCompendium(conv: Converter, cp: ContentPack) {
     entity: "Item",
   };
   let pack: Compendium = await findPack(p_name, metaData);
-  await pack.getIndex();
+  let content = (await pack.getContent()) as LancerItem[];
 
   // Iterate through the list of core bonuses and add them each to the Compendium
   for (let feature of npcFeatures) {
-    await updateItem(pack, conv.NpcFeature_to_LancerNPCFeatureData(feature), "npc_feature", img);
+    await updateItem(
+      pack,
+      content,
+      conv.NpcFeature_to_LancerNPCFeatureData(feature),
+      "npc_feature",
+      img
+    );
   }
   return Promise.resolve();
 }
