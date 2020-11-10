@@ -306,18 +306,3 @@ export function npc_tier_selector(tier: LancerNPCData["tier"]) {
   </select>`;
   return template;
 }
-
-/**
- * Handlebars helper for an overcharge button
- * Currently this is overkill, but eventually we want to support custom overcharge values 
- * @param level Level of overcharge, between 0 (1) and 3 (1d6+4)
- */
-export function overcharge_button(level: number) {
-  let template = 
-   `<div class="overcharge-container">
-      <a class="overcharge-button" style="width:90%;height:90%">
-        1
-      </a>
-    </div>`;
-  return template;
-}

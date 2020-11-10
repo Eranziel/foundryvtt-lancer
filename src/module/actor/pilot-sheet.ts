@@ -177,10 +177,24 @@ export class LancerPilotSheet extends LancerActorSheet {
     super.activateListeners(html);
 
     if (this.actor.owner) {
-      // Overcharge
-      let overcharge = html.find(".overcharge-button");
+      // Overcharge text
+      let overchargeText = html.find(".overcharge-text");
 
-      overcharge.on("click", (ev: Event) => {
+      overchargeText.on("click", (ev: Event) => {
+        this._setOverchargeLevel(<MouseEvent>ev,Math.min(this.actor.data.data.mech.overcharge_level + 1,3));
+      });
+
+      // Overcharge reset
+      let overchargeReset = html.find(".overcharge-reset");
+
+      overchargeReset.on("click", (ev: Event) => {
+        this._setOverchargeLevel(<MouseEvent>ev,0);
+      });
+
+      // Overcharge macro
+      let overchargeMacro = html.find(".overcharge-macro");
+
+      overchargeText.on("click", (ev: Event) => {
         this._onClickOvercharge(<MouseEvent>ev);
       });
 
@@ -624,15 +638,24 @@ export class LancerPilotSheet extends LancerActorSheet {
   }
 
   /**
-   * Handles the overcharge button being clicked
+   * Sets the overcharge level for this actor
+   * @param event An event, used by a proper overcharge section in the sheet, to get the overcharge field
+   * @param level Level to set overcharge to
+   */
+  _setOverchargeLevel(event: MouseEvent, level: number) {
+    let target = <HTMLElement>event.currentTarget;
+    let inputField = $(target).siblings('[name="data.mech.overcharge_level"]');
+
+    inputField.val(String(level));
+    this._onSubmit(event);    
+  }
+
+  /**
+   * Performs the overcharge macro
+   * @param event An event, used by a proper overcharge section in the sheet, to get the overcharge field
    */
   _onClickOvercharge(event: MouseEvent) {
-    let newLevel = (this.actor.data.data.mech.overcharge_level + 1) % 4;
-    let target = <HTMLElement>event.currentTarget;
-    let inputField = <HTMLInputElement>target.nextElementSibling;
-
-    inputField.value = String(newLevel);
-    this._onSubmit(event);
+    let a = 1;
   }
 
   /* -------------------------------------------- */
@@ -677,10 +700,11 @@ export function overcharge_button(level: number) {
       rollVal = "1";
   }
   return `<div class="overcharge-container">
-      <button class="overcharge-button" style="width:${90 - 10 * level}%;height:${
-    90 - 10 * level
-  }%">${rollVal}</button>
+    
+      <a class="overcharge-macro macroable i--dark i--sm" data-action="roll-macro"><i class="fas fa-dice-d20"></i></a>
+      <a class="overcharge-text">${rollVal}</a>
       <input style="display:none;border:none" type="number" name="data.mech.overcharge_level" value="${level}" data-dtype="Number"/>
       </input>
+      <a class="overcharge-reset mdi mdi-restore"></a>
     </div>`;
 }

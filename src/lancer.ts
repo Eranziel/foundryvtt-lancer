@@ -250,6 +250,14 @@ Hooks.once("init", async function () {
     return str.toUpperCase();
   });
 
+  // For loops in Handlebars (but times because it's simple)
+  Handlebars.registerHelper('for', function(n, block) {
+    var accum = '';
+    for(var i = 0; i < n; ++i)
+        accum += block.fn(i);
+    return accum;
+  });
+
   // ------------------------------------------------------------------------
   // Generic components
   Handlebars.registerHelper("l-num-input", function (target: string, value: string) {
