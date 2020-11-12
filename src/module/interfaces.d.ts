@@ -659,3 +659,8 @@ declare interface LancerTextMacroData {
   description: string;
   tags?: TagDataShort[];
 }
+
+declare interface LancerOverchargeMacroData {
+  level: number;
+  roll: Roll;
+}

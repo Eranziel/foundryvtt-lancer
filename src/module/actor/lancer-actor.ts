@@ -158,6 +158,29 @@ export class LancerActor extends Actor {
   }
 
   /**
+   * Returns the current overcharge roll/text
+   * Only applicable for pilots
+   * Overkill for now but there are situations where we'll want this to be configurable
+   */
+  getOverchargeRoll(): string | null {
+    // Function is only applicable to pilots.
+    if (this.data.type !== "pilot") return null;
+
+    const data = this.data as LancerPilotActorData;
+
+    switch (data.data.mech.overcharge_level) {
+      case 1:
+        return "1d3";
+      case 2:
+        return "1d6";
+      case 3:
+        return "1d6+4";
+      default:
+        return "1";
+    }
+  }
+
+  /**
    * Change Class or Tier on a NPC. Recalculates all stats on the NPC.
    * @param newNPCClass Stats object from the new Class.
    */

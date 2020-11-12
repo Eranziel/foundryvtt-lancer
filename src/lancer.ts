@@ -65,7 +65,7 @@ import {
 } from "./module/item/effects";
 
 // Import applications
-import { LancerPilotSheet, overcharge_button } from "./module/actor/pilot-sheet";
+import { LancerPilotSheet, overchargeButton } from "./module/actor/pilot-sheet";
 import { LancerNPCSheet } from "./module/actor/npc-sheet";
 import { LancerDeployableSheet } from "./module/actor/deployable-sheet";
 import { LancerItemSheet } from "./module/item/item-sheet";
@@ -119,6 +119,7 @@ Hooks.once("init", async function () {
     prepareTextMacro: macros.prepareTextMacro,
     prepareCoreActiveMacro: macros.prepareCoreActiveMacro,
     prepareCorePassiveMacro: macros.prepareCorePassiveMacro,
+    prepareOverchargeMacro: macros.prepareOverchargeMacro,
     migrations: migrations,
   };
 
@@ -250,7 +251,7 @@ Hooks.once("init", async function () {
     return str.toUpperCase();
   });
 
-  // For loops in Handlebars (but times because it's simple)
+  // For loops in Handlebars
   Handlebars.registerHelper('for', function(n, block) {
     var accum = '';
     for(var i = 0; i < n; ++i)
@@ -338,7 +339,7 @@ Hooks.once("init", async function () {
   // Pilot components
   Handlebars.registerHelper("mount-selector", mount_type_selector);
   Handlebars.registerPartial("mount-card", mount_card);
-  Handlebars.registerHelper("overcharge-button", overcharge_button);
+  Handlebars.registerHelper("overcharge-button", overchargeButton);
 
   // ------------------------------------------------------------------------
   // NPC components
@@ -545,6 +546,10 @@ Hooks.on("hotbarDrop", (_bar: any, data: any, slot: number) => {
     title = data.title;
     command = `game.lancer.prepareCorePassiveMacro("${data.actorId}")`;
     img = `systems/lancer/assets/icons/macro-icons/corebonus.svg`;
+  } else if (data.type === "overcharge") {
+    title = data.title;
+    command = `game.lancer.prepareOverchargeMacro("${data.actorId}")`;
+    img = `systems/lancer/assets/icons/macro-icons/overcharge.svg`;
   } else {
     // Let's not error or anything, since it's possible to accidentally drop stuff pretty easily
     return;

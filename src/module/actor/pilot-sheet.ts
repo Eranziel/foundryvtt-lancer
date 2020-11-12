@@ -194,8 +194,8 @@ export class LancerPilotSheet extends LancerActorSheet {
       // Overcharge macro
       let overchargeMacro = html.find(".overcharge-macro");
 
-      overchargeText.on("click", (ev: Event) => {
-        this._onClickOvercharge(<MouseEvent>ev);
+      overchargeMacro.on("click", (ev: Event) => {
+        game.lancer.prepareOverchargeMacro(this.actor);
       });
 
       // Macro triggers
@@ -306,6 +306,7 @@ export class LancerPilotSheet extends LancerActorSheet {
       const textMacroHandler = (e: DragEvent) => this._onDragTextMacroableStart(e);
       const CAMacroHandler = (e: DragEvent) => this._onDragCoreActiveStart(e);
       const CPMacroHandler = (e: DragEvent) => this._onDragCorePassiveStart(e);
+      const overchargeMacroHandler = (e: DragEvent) => this._onDragOverchargeStart(e);
       html
         .find('li[class*="item"]')
         .add('span[class*="item"]')
@@ -322,6 +323,8 @@ export class LancerPilotSheet extends LancerActorSheet {
             item.addEventListener("dragstart", CAMacroHandler, false);
           if (item.classList.contains("core-passive-macro"))
             item.addEventListener("dragstart", CPMacroHandler, false);
+          if (item.classList.contains("overcharge-macro"))
+            item.addEventListener("dragstart", overchargeMacroHandler, false);
           if (item.classList.contains("item"))
             item.addEventListener("dragstart", (ev: any) => this._onDragStart(ev), false);
           item.setAttribute("draggable", true);
@@ -638,6 +641,25 @@ export class LancerPilotSheet extends LancerActorSheet {
   }
 
   /**
+   * For dragging overcharge to the hotbar
+   * @param event   The associated DragEvent
+   */
+  _onDragOverchargeStart(event: DragEvent) {
+    event.stopPropagation(); // Avoids triggering parent event handlers
+
+    // let target = <HTMLElement>event.currentTarget;
+
+    let data = {
+      actorId: this.actor._id,
+      // Title will simply be CORE PASSIVE since we want to keep the macro dynamic
+      title: "OVERCHARGE",
+      type: "overcharge",
+    };
+
+    event.dataTransfer?.setData("text/plain", JSON.stringify(data));
+  }
+
+  /**
    * Sets the overcharge level for this actor
    * @param event An event, used by a proper overcharge section in the sheet, to get the overcharge field
    * @param level Level to set overcharge to
@@ -655,7 +677,7 @@ export class LancerPilotSheet extends LancerActorSheet {
    * @param event An event, used by a proper overcharge section in the sheet, to get the overcharge field
    */
   _onClickOvercharge(event: MouseEvent) {
-    let a = 1;
+    game.lancer.prepareOverchargeMacro();
   }
 
   /* -------------------------------------------- */
@@ -682,23 +704,30 @@ export class LancerPilotSheet extends LancerActorSheet {
 /**
  * Handlebars helper for an overcharge button
  * Currently this is overkill, but eventually we want to support custom overcharge values
+ * Also I can't think of a better way to handle actor-specific data like this here... ideally move to within the sheet eventually
  * @param level Level of overcharge, between 0 (1) and 3 (1d6+4) by default
  */
-export function overcharge_button(level: number) {
-  let rollVal = "ERROR";
-  switch (level) {
-    case 1:
-      rollVal = "1d3";
-      break;
-    case 2:
-      rollVal = "1d6";
-      break;
-    case 3:
-      rollVal = "1d6<br>+4";
-      break;
-    default:
-      rollVal = "1";
+export function overchargeButton(level: number) {
+
+  // This seems like a very inefficient way to do this...
+  // I don't think there's a good way to get an actor via handlebars helpers though besides this
+  // Might just need to not use helpers for this?
+  //@ts-ignore
+  let actor: LancerActor = game.actors.get(this.actor._id)
+
+  let rollVal = actor.getOverchargeRoll();
+
+  if (!rollVal) {
+    rollVal = "ERROR";
   }
+
+  // Add a line break if it contains a plus to prevent it being too long
+  let plusIndex = rollVal.indexOf("+");
+  if(plusIndex > 0) {
+    rollVal = rollVal.slice(0,plusIndex) + "<br>" + rollVal.slice(plusIndex);
+  }
+
+  
   return `<div class="overcharge-container">
     
       <a class="overcharge-macro macroable i--dark i--sm" data-action="roll-macro"><i class="fas fa-dice-d20"></i></a>

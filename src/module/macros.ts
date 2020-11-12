@@ -2,6 +2,7 @@
 import { LANCER } from "./config";
 import { LancerCoreBonus, LancerItem, LancerPilotGear } from "./item/lancer-item";
 import { LancerActor } from "./actor/lancer-actor";
+import { LancerPilotSheet } from "./actor/pilot-sheet";
 import {
   LancerAttackMacroData,
   LancerFrameItemData,
@@ -10,12 +11,14 @@ import {
   LancerMechWeaponData,
   LancerNPCData,
   LancerPilotActorData,
+  LancerPilotData,
   LancerPilotWeaponData,
   LancerReactionMacroData,
   LancerStatMacroData,
   LancerTalentMacroData,
   LancerTechMacroData,
   LancerTextMacroData,
+  LancerOverchargeMacroData,
   NPCDamageData,
   TagDataShort,
 } from "./interfaces";
@@ -638,4 +641,65 @@ export async function promptAccDiffModifier(acc?: number, title?: string) {
       close: () => reject(true),
     }).render(true);
   });
+}
+
+export async function prepareOverchargeMacro(a: string) {
+  // Determine which Actor to speak as
+  let actor: LancerActor | null = <LancerActor>game.actors.get(a) || getMacroSpeaker();
+  if (!actor) {
+    ui.notifications.warn(`Failed to find Actor for macro. Do you need to select a token?`);
+    return null;
+  }
+  
+  // Validate that we're overcharging a pilot
+  if(actor.data.type !== "pilot") {
+    ui.notifications.warn(`Only pilots can overcharge!`);
+    return null;    
+  }
+
+  // We're now certain it will be a pilot
+  //@ts-ignore
+  let data: LancerPilotActorData = actor.data;
+
+  // And here too... we should probably revisit our type definitions...
+  let rollText = actor.getOverchargeRoll();
+  if(!rollText) {
+    ui.notifications.warn(`Error in getting overcharge roll...`);
+    return null;
+  }
+
+
+  // Prep data
+  let roll = new Roll(rollText);
+
+  let mData: LancerOverchargeMacroData = {
+    level: data.data.mech.overcharge_level,
+    roll: roll
+  }
+
+  // Assume we can always increment overcharge here...
+  data.data.mech.overcharge_level = Math.min(data.data.mech.overcharge_level + 1,3);
+  await actor.update(data);
+
+  return rollOverchargeMacro(actor,mData);
+
+}
+
+async function rollOverchargeMacro(actor: Actor, data: LancerOverchargeMacroData) {
+  if (!actor) return Promise.resolve();
+
+  // Do the roll
+  let roll = data.roll.roll();
+
+  const roll_tt = await roll.getTooltip();
+
+  // Construct the template
+  const templateData = {
+    actorName: actor.name,
+    roll: roll,
+    level: data.level,
+    roll_tooltip: roll_tt
+  };
+  const template = `systems/lancer/templates/chat/overcharge-card.html`;
+  return renderMacro(actor, template, templateData);
 }
