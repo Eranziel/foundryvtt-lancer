@@ -650,11 +650,11 @@ export async function prepareOverchargeMacro(a: string) {
     ui.notifications.warn(`Failed to find Actor for macro. Do you need to select a token?`);
     return null;
   }
-  
+
   // Validate that we're overcharging a pilot
-  if(actor.data.type !== "pilot") {
+  if (actor.data.type !== "pilot") {
     ui.notifications.warn(`Only pilots can overcharge!`);
-    return null;    
+    return null;
   }
 
   // We're now certain it will be a pilot
@@ -663,42 +663,39 @@ export async function prepareOverchargeMacro(a: string) {
 
   // And here too... we should probably revisit our type definitions...
   let rollText = actor.getOverchargeRoll();
-  if(!rollText) {
+  if (!rollText) {
     ui.notifications.warn(`Error in getting overcharge roll...`);
     return null;
   }
 
-
   // Prep data
-  let roll = new Roll(rollText);
+  let roll = new Roll(rollText).roll();
 
   let mData: LancerOverchargeMacroData = {
     level: data.data.mech.overcharge_level,
-    roll: roll
-  }
+    roll: roll,
+  };
 
   // Assume we can always increment overcharge here...
-  data.data.mech.overcharge_level = Math.min(data.data.mech.overcharge_level + 1,3);
+  data.data.mech.overcharge_level = Math.min(data.data.mech.overcharge_level + 1, 3);
+  data.data.mech.heat.value = data.data.mech.heat.value + roll.total;
+  console.log(roll, data);
   await actor.update(data);
 
-  return rollOverchargeMacro(actor,mData);
-
+  return rollOverchargeMacro(actor, mData);
 }
 
 async function rollOverchargeMacro(actor: Actor, data: LancerOverchargeMacroData) {
   if (!actor) return Promise.resolve();
 
-  // Do the roll
-  let roll = data.roll.roll();
-
-  const roll_tt = await roll.getTooltip();
+  const roll_tt = await data.roll.getTooltip();
 
   // Construct the template
   const templateData = {
     actorName: actor.name,
-    roll: roll,
+    roll: data.roll,
     level: data.level,
-    roll_tooltip: roll_tt
+    roll_tooltip: roll_tt,
   };
   const template = `systems/lancer/templates/chat/overcharge-card.html`;
   return renderMacro(actor, template, templateData);
