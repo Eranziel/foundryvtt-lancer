@@ -17,6 +17,7 @@ export const LANCER = {
   setting_lcps: "installedLCPs",
   setting_stock_icons: "keepStockIcons",
   setting_welcome: "hideWelcome",
+  setting_pilot_oc_heat: "autoOCHeat",
   pilot_items: [
     "frame",
     "skill",
