@@ -107,8 +107,8 @@ export async function update_pilot(pilot: LancerActor, cc_pilot: mm.Pilot): Prom
     pd.mech.structure.value = am.CurrentStructure;
     pd.mech.structure.max = am.MaxStructure;
     pd.mech.tech_attack = am.TechAttack;
-    pd.mech.repairs.max = am.CurrentRepairs;
-    pd.mech.repairs.value = am.RepairCapacity;
+    pd.mech.repairs.value = am.CurrentRepairs;
+    pd.mech.repairs.max = am.RepairCapacity;
     pd.mech.sensors = am.SensorRange;
     pd.mech.size = am.Size;
     pd.mech.speed = am.Speed;
