@@ -1,5 +1,5 @@
 import * as mm from "machine-mind";
-import { CompendiumCategory, CompendiumItem, store } from "machine-mind";
+import { CompendiumCategory, CompendiumItem, ItemType, store } from "machine-mind";
 import { LancerActor } from "./lancer-actor";
 import { LancerPilotActorData } from "../interfaces";
 import { ItemDataManifest, MachineMind_pilot_to_VTT_items_compendium_lookup } from "../item/util";
@@ -51,7 +51,9 @@ export async function update_pilot(pilot: LancerActor, cc_pilot: mm.Pilot): Prom
 
   // Copy them all
   for (let i of item_data) {
-    await pilot.createOwnedItem(i);
+    if (i.type !== "mech_weapon") {
+      await pilot.createOwnedItem(i);
+    }
   }
 
   // Get actor data for modification. pd is just a shorthand
@@ -105,8 +107,8 @@ export async function update_pilot(pilot: LancerActor, cc_pilot: mm.Pilot): Prom
     pd.mech.structure.value = am.CurrentStructure;
     pd.mech.structure.max = am.MaxStructure;
     pd.mech.tech_attack = am.TechAttack;
-    pd.mech.repairs.max = am.CurrentRepairs;
-    pd.mech.repairs.value = am.RepairCapacity;
+    pd.mech.repairs.value = am.CurrentRepairs;
+    pd.mech.repairs.max = am.RepairCapacity;
     pd.mech.sensors = am.SensorRange;
     pd.mech.size = am.Size;
     pd.mech.speed = am.Speed;

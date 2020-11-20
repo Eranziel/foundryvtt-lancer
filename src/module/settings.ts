@@ -43,4 +43,13 @@ export const registerSettings = function () {
     type: Boolean,
     default: false,
   });
+
+  game.settings.register(LANCER.sys_name, LANCER.setting_pilot_oc_heat, {
+    name: "Auto-Apply Overcharge Heat",
+    hint: "When a mech rolls an overcharge, should it automatically apply heat?",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: true,
+  });
 };

@@ -1071,6 +1071,7 @@ input.core-power-toggle:not(:checked)::before
   color: grey;
 }
 
+/*
 .overcharge-container {
   clip-path: circle();
   display: flex;
@@ -1080,7 +1081,7 @@ input.core-power-toggle:not(:checked)::before
 }
 
 .overcharge-button {
-  background-color: white;
+  background-color: rgb(204 204 204);
   clip-path: circle();
   display: flex;
   justify-content: center;
@@ -1090,4 +1091,28 @@ input.core-power-toggle:not(:checked)::before
   font-size: 16pt;
   color: var(--main-theme-color, fuchsia);
   border: none;
+}
+*/
+
+.overcharge-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  align-items: center;
+}
+
+.overcharge-text {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  line-height: .8em;
+}
+
+.overcharge-macro {
+  justify-self: center;
+}
+
+.overcharge-heat {
+  color:#fc3e0f; 
+  flex-grow: unset;
+  width: 1.5em;
 }

@@ -17,6 +17,7 @@ export const LANCER = {
   setting_lcps: "installedLCPs",
   setting_stock_icons: "keepStockIcons",
   setting_welcome: "hideWelcome",
+  setting_pilot_oc_heat: "autoOCHeat",
   pilot_items: [
     "frame",
     "skill",
@@ -108,6 +109,21 @@ export const STATUSES = [
     id: "shutdown",
     label: "Shut Down",
     icon: "systems/lancer/assets/icons/white/status_shutdown.svg",
+  },
+  {
+    id: "npc_tier_1",
+    label: "Tier 1",
+    icon: "systems/lancer/assets/icons/white/npc_tier_1.svg",
+  },
+  {
+    id: "npc_tier_2",
+    label: "Tier 2",
+    icon: "systems/lancer/assets/icons/white/npc_tier_2.svg",
+  },
+  {
+    id: "npc_tier_3",
+    label: "Tier 3",
+    icon: "systems/lancer/assets/icons/white/npc_tier_3.svg",
   },
 ];
 
