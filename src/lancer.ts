@@ -65,7 +65,7 @@ import {
 } from "./module/item/effects";
 
 // Import applications
-import { LancerPilotSheet, overcharge_button } from "./module/actor/pilot-sheet";
+import { LancerPilotSheet, overchargeButton } from "./module/actor/pilot-sheet";
 import { LancerNPCSheet } from "./module/actor/npc-sheet";
 import { LancerDeployableSheet } from "./module/actor/deployable-sheet";
 import { LancerItemSheet } from "./module/item/item-sheet";
@@ -119,6 +119,7 @@ Hooks.once("init", async function () {
     prepareTextMacro: macros.prepareTextMacro,
     prepareCoreActiveMacro: macros.prepareCoreActiveMacro,
     prepareCorePassiveMacro: macros.prepareCorePassiveMacro,
+    prepareOverchargeMacro: macros.prepareOverchargeMacro,
     migrations: migrations,
   };
 
@@ -250,6 +251,14 @@ Hooks.once("init", async function () {
     return str.toUpperCase();
   });
 
+  // For loops in Handlebars
+  Handlebars.registerHelper('for', function(n, block) {
+    var accum = '';
+    for(var i = 0; i < n; ++i)
+        accum += block.fn(i);
+    return accum;
+  });
+
   // ------------------------------------------------------------------------
   // Generic components
   Handlebars.registerHelper("l-num-input", function (target: string, value: string) {
@@ -330,7 +339,7 @@ Hooks.once("init", async function () {
   // Pilot components
   Handlebars.registerHelper("mount-selector", mount_type_selector);
   Handlebars.registerPartial("mount-card", mount_card);
-  Handlebars.registerHelper("overcharge-button", overcharge_button);
+  Handlebars.registerHelper("overcharge-button", overchargeButton);
 
   // ------------------------------------------------------------------------
   // NPC components
@@ -361,38 +370,15 @@ Hooks.once("setup", async function () {
       `Warning: COMP/CON has failed to load. You may experience severe data integrity failure`
     );
   }
+
+  
 });
 
 /* ------------------------------------ */
 /* When ready                           */
 /* ------------------------------------ */
 Hooks.once("ready", async function () {
-  // Determine whether a system migration is required and feasible
-  const currentVersion = game.settings.get(LANCER.sys_name, LANCER.setting_migration);
-  // Modify these constants to set which Lancer version numbers need and permit migration.
-  const NEEDS_MIGRATION_VERSION = "0.1.7";
-  const COMPATIBLE_MIGRATION_VERSION = "0.1.6";
-  let needMigration = currentVersion ? compareVersions(currentVersion, NEEDS_MIGRATION_VERSION) : 1;
-
-  // Check whether system has been updated since last run.
-  if (compareVersions(currentVersion, game.system.data.version) != 0 && game.user.isGM) {
-    // Un-hide the welcome message
-    await game.settings.set(LANCER.sys_name, LANCER.setting_welcome, false);
-
-    if (needMigration <= 0) {
-      if (currentVersion && compareVersions(currentVersion, COMPATIBLE_MIGRATION_VERSION) < 0) {
-        // System version is too old for migration
-        ui.notifications.error(
-          `Your LANCER system data is from too old a version and cannot be reliably migrated to the latest version. The process will be attempted, but errors may occur.`,
-          { permanent: true }
-        );
-      }
-      // Perform the migration
-      await migrations.migrateWorld();
-    }
-    // Set the version for future migration and welcome message checking
-    await game.settings.set(LANCER.sys_name, LANCER.setting_migration, game.system.data.version);
-  }
+  await versionCheck();
 
   // Show welcome message if not hidden.
   if (!game.settings.get(LANCER.sys_name, LANCER.setting_welcome)) {
@@ -537,6 +523,10 @@ Hooks.on("hotbarDrop", (_bar: any, data: any, slot: number) => {
     title = data.title;
     command = `game.lancer.prepareCorePassiveMacro("${data.actorId}")`;
     img = `systems/lancer/assets/icons/macro-icons/corebonus.svg`;
+  } else if (data.type === "overcharge") {
+    title = data.title;
+    command = `game.lancer.prepareOverchargeMacro("${data.actorId}")`;
+    img = `systems/lancer/assets/icons/macro-icons/overcharge.svg`;
   } else {
     // Let's not error or anything, since it's possible to accidentally drop stuff pretty easily
     return;
@@ -561,3 +551,63 @@ Hooks.on("hotbarDrop", (_bar: any, data: any, slot: number) => {
     game.user.assignHotbarMacro(macro, slot).then();
   }
 });
+
+/**
+ * Performs our version validation
+ * Uses window.FEATURES to check theoretical Foundry compatibility with our features
+ * Also performs system version checks
+ */
+async function versionCheck() {
+  // Determine whether a system migration is required and feasible
+  const currentVersion = game.settings.get(LANCER.sys_name, LANCER.setting_migration);
+  // Modify these constants to set which Lancer version numbers need and permit migration.
+  const NEEDS_MIGRATION_VERSION = "0.1.7";
+  const COMPATIBLE_MIGRATION_VERSION = "0.1.6";
+  let needMigration = currentVersion ? compareVersions(currentVersion, NEEDS_MIGRATION_VERSION) : 1;
+
+  // Check whether system has been updated since last run.
+  if (compareVersions(currentVersion, game.system.data.version) != 0 && game.user.isGM) {
+    // Un-hide the welcome message
+    await game.settings.set(LANCER.sys_name, LANCER.setting_welcome, false);
+
+    if (needMigration <= 0) {
+      if (currentVersion && compareVersions(currentVersion, COMPATIBLE_MIGRATION_VERSION) < 0) {
+        // System version is too old for migration
+        ui.notifications.error(
+          `Your LANCER system data is from too old a version and cannot be reliably migrated to the latest version. The process will be attempted, but errors may occur.`,
+          { permanent: true }
+        );
+      }
+      // Perform the migration
+      await migrations.migrateWorld();
+    }
+    // Set the version for future migration and welcome message checking
+    await game.settings.set(LANCER.sys_name, LANCER.setting_migration, game.system.data.version);
+  }
+
+
+  // Use the new FEATURES dict to see if we can assume that there will be issues
+  // I think this is up to date with all currently in use, but we'll need to keep it updated
+  // https://gitlab.com/foundrynet/foundryvtt/-/issues/3959#note_441254976
+  let supportedFeatures = {
+    ACTORS:2,
+    CHAT:2,
+    COMPENDIUM:2,
+    ENTITIES:4,
+    ITEMS:2,
+    MACROS:1,
+    SETTINGS:2,
+    TOKENS:3
+  };
+
+  for(const k in supportedFeatures){
+    // This is fine so...
+    //@ts-ignore
+    if (supportedFeatures[k] !== window.FEATURES[k]) {
+      console.log(`Major version error for feature ${k}`);
+      ui.notifications.error(
+        `Warning: A major version incompatibility has been detected. You may experience issues, please return to a supported version.`
+      );
+    }
+  }
+}

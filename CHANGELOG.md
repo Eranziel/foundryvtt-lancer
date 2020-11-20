@@ -1,3 +1,14 @@
+# 0.1.14 (2020-11-19)
+## Features
+* **Pilot Sheet**: Added Overcharge macro. Closes #101.
+* **Status Icons**: Added NPC tier icons. Partial work for #92.
+
+## Bug Fixes
+* **Compendium Manager**: Fix bug where item name was used instead of item ID when finding items to update from an LCP. Closes #108.
+* **Pilot Sheet**: Don't add mech weapons when syncing a Comp/Con pilot.
+* **Pilot Sheet**: Fix reversed current and max repairs when syncing a Comp/Con pilot. Closes #109.
+* **Item Sheets**: Save new item name into system data so that item previews show the updated name. Closes #111.
+
 # 0.1.13 (2020-11-08)
 ## Features
 * **Pilot Sheet**: Added macros for pilot gear, core bonuses, core actives, and core passives. Closes #10.

@@ -217,6 +217,9 @@ export class LancerItemSheet extends ItemSheet {
     formData = LancerItemSheet.arrayifyTags(formData, "data.core_system.tags");
     formData = LancerItemSheet.arrayifyTags(formData, "data.traits");
 
+    // Update the Lancer-data name to match the item name.
+    formData["data.name"] = formData["name"];
+
     if (this.item.data.type === "npc_feature") {
       // Change image to match feature type, unless a custom image has been selected
       const imgPath = "systems/lancer/assets/icons/";
@@ -327,12 +330,12 @@ export class LancerItemSheet extends ItemSheet {
           name: data[`${prefix}.${i}.name`],
           id: data[`${prefix}.${i}.id`],
           description: data[`${prefix}.${i}.description`],
-          val: data[`${prefix}.${i}.val`]
+          val: data[`${prefix}.${i}.val`],
         });
         delete data[`${prefix}.${i}.name`];
         delete data[`${prefix}.${i}.id`];
         delete data[`${prefix}.${i}.description`];
-        delete data[`${prefix}.${i}.val`]
+        delete data[`${prefix}.${i}.val`];
         i++;
       }
       data[`${prefix}`] = tags;

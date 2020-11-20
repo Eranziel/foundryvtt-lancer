@@ -365,6 +365,7 @@ declare interface LancerLicenseRank {
 }
 
 declare interface LancerLicenseData {
+  id: string;
   name: string;
   source: string;
   ranks: LancerLicenseRank[];
@@ -657,4 +658,9 @@ declare interface LancerTextMacroData {
   title: string;
   description: string;
   tags?: TagDataShort[];
+}
+
+declare interface LancerOverchargeMacroData {
+  level: number;
+  roll: Roll;
 }
