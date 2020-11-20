@@ -470,7 +470,7 @@ Hooks.on("hotbarDrop", (_bar: any, data: any, slot: number) => {
     command = `
       const a = game.actors.get('${data.actorId}');
       if (a) {
-        game.lancer.prepareStatMacro(a, "${data.dataPath}");
+        game.lancer.prepareStatMacro('${data.actorId}', "${data.dataPath}");
       } else {
         ui.notifications.error("Error rolling macro");
       }`;
