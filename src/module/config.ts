@@ -130,23 +130,8 @@ export const STATUSES = [
 export const WELCOME = `<div style="margin: 10px 5px">
 <p><b>Recent changes:</b>
 <ul>
-<li>Talent ranks can be sent to chat by clicking the rank icon, and systems can be sent to chat 
-by clicking the die icon.</li>
-<li>We have hotbar macros now! You can drag the following from a pilot sheet:<ul>
-  <li>Grit, tech attack, and HASE</li>
-  <li>Skill triggers</li>
-  <li>Talent ranks</li>
-  <li>Weapon attacks</li>
-  <li>Mech systems</li></ul></li>
-<li>And the following from an NPC sheet:<ul>
-  <li>HASE</li>
-  <li>Weapon attacks</li>
-  <li>Tech attacks</li></ul></li>
-<li>The "System-wide Compendiums" option has been removed, since it created some unintuitive bugs. 
-Building the Compendiums will need to be done on each Lancer world individually.</li>
-<li>The system now includes the status icons from Comp/Con! There is a system setting for keeping or hiding the stock Foundry
-status icons. If you also use the Lancer Conditions module, you'll need to turn on its "Keep Stock Icons" setting to see
-the new icons.</li>
+<li>Overcharge macro added to pilot sheet, and a setting for whether to automatically add overcharge heat when the macro is rolled.</li>
+<li>NPC class and template sheets now include previews of their base and optional features, which can be dragged to an NPC actor to add them.</li>
 </ul></p>
 
 <p>If you haven't updated in a while, <a href="https://github.com/Eranziel/foundryvtt-lancer/blob/master/README.md">see here for how to build the Lancer Compendiums.</a></p>
