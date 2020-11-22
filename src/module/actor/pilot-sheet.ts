@@ -203,7 +203,7 @@ export class LancerPilotSheet extends LancerActorSheet {
       let statMacro = html.find(".roll-stat");
       statMacro.on("click", (ev: Event) => {
         ev.stopPropagation(); // Avoids triggering parent event handlers
-        game.lancer.prepareStatMacro(this.actor, this.getStatPath(ev)!);
+        game.lancer.prepareStatMacro(this.actor._id, this.getStatPath(ev)!);
       });
 
       // Talent rollers
