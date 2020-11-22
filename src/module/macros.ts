@@ -37,8 +37,9 @@ const lp = LANCER.log_prefix;
  *      Talents can use rank: value.
  */
 export async function prepareItemMacro(a: string, i: string, options?: any) {
+
   // Determine which Actor to speak as
-  let actor: Actor | null = game.actors.get(a) || getMacroSpeaker();
+  let actor: Actor | null = getMacroSpeaker() || game.actors.get(a);
   if (!actor) {
     ui.notifications.warn(`Failed to find Actor for macro. Do you need to select a token?`);
     return null;
@@ -155,7 +156,7 @@ export function getMacroSpeaker(): LancerActor | null {
   // console.log(game.actors.tokens);
   try {
     if (speaker.token) {
-      actor = game.actors.tokens[speaker.token].actor;
+      actor = game.actors.tokens[speaker.token] as unknown as Actor;
     }
   } catch (TypeError) {
     // Need anything here?
@@ -179,7 +180,9 @@ export async function renderMacro(actor: Actor, template: string, templateData: 
     roll: roll,
     speaker: {
       actor: actor,
-    },
+      token: actor.token,
+      alias: actor.token ? actor.token.name : null ,
+    } ,
     content: html,
   };
   let cm = await ChatMessage.create(chat_data);
@@ -190,7 +193,7 @@ export async function renderMacro(actor: Actor, template: string, templateData: 
 function getMacroActorItem(a: string, i: string): { actor: Actor | null; item: Item | null } {
   let result = { actor: null, item: null } as { actor: Actor | null; item: Item | null };
   // Find the Actor for a macro to speak as
-  result.actor = game.actors.get(a) || getMacroSpeaker();
+  result.actor = getMacroSpeaker() || game.actors.get(a);
   if (!result.actor) {
     ui.notifications.warn(`Failed to find Actor for macro. Do you need to select a token?`);
     return result;
@@ -224,7 +227,7 @@ async function buildAttackRollString(
 
 export function prepareStatMacro(a: string, statKey: string) {
   // Determine which Actor to speak as
-  let actor: Actor | null = game.actors.get(a) || getMacroSpeaker();
+  let actor: Actor | null = getMacroSpeaker() || game.actors.get(a);
   if (!actor) return;
 
   let bonus: any = actor.data;
@@ -448,7 +451,7 @@ export function rollReactionMacro(actor: Actor, data: LancerReactionMacroData) {
  */
 export function prepareCoreActiveMacro(a: string) {
   // Determine which Actor to speak as
-  let actor: LancerActor | null = <LancerActor>(game.actors.get(a) || getMacroSpeaker());
+  let actor: LancerActor | null = <LancerActor>(getMacroSpeaker() || game.actors.get(a));
   if (!actor) return;
 
   let frame: LancerFrameItemData | null = actor.getCurrentFrame();
@@ -474,7 +477,7 @@ export function prepareCoreActiveMacro(a: string) {
  */
 export function prepareCorePassiveMacro(a: string) {
   // Determine which Actor to speak as
-  let actor: LancerActor | null = <LancerActor>(game.actors.get(a) || getMacroSpeaker());
+  let actor: LancerActor | null = <LancerActor>(getMacroSpeaker() || game.actors.get(a));
   if (!actor) return;
 
   let frame: LancerFrameItemData | null = actor.getCurrentFrame();
@@ -502,7 +505,7 @@ export function prepareCorePassiveMacro(a: string) {
  */
 export function prepareTextMacro(a: string, title: string, text: string, tags?: TagDataShort[]) {
   // Determine which Actor to speak as
-  let actor: Actor | null = game.actors.get(a) || getMacroSpeaker();
+  let actor: Actor | null = getMacroSpeaker() || game.actors.get(a);
   if (!actor) return;
 
   // Note to self--use this in the future if I need string -> var lookup: var.split('.').reduce((o,i)=>o[i], game.data)
@@ -529,7 +532,7 @@ async function rollTextMacro(actor: Actor, data: LancerTextMacroData) {
 
 export async function prepareTechMacro(a: string, t: string) {
   // Determine which Actor to speak as
-  let actor: Actor | null = game.actors.get(a) || getMacroSpeaker();
+  let actor: Actor | null = getMacroSpeaker() || game.actors.get(a);
   if (!actor) return;
 
   // Get the item
@@ -645,7 +648,7 @@ export async function promptAccDiffModifier(acc?: number, title?: string) {
 
 export async function prepareOverchargeMacro(a: string) {
   // Determine which Actor to speak as
-  let actor: LancerActor | null = <LancerActor>game.actors.get(a) || getMacroSpeaker();
+  let actor: LancerActor | null = <LancerActor>getMacroSpeaker() || game.actors.get(a);
   if (!actor) {
     ui.notifications.warn(`Failed to find Actor for macro. Do you need to select a token?`);
     return null;
