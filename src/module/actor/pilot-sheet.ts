@@ -183,14 +183,17 @@ export class LancerPilotSheet extends LancerActorSheet {
       let overchargeText = html.find(".overcharge-text");
 
       overchargeText.on("click", (ev: Event) => {
-        this._setOverchargeLevel(<MouseEvent>ev,Math.min(this.actor.data.data.mech.overcharge_level + 1,3));
+        this._setOverchargeLevel(
+          <MouseEvent>ev,
+          Math.min(this.actor.data.data.mech.overcharge_level + 1, 3)
+        );
       });
 
       // Overcharge reset
       let overchargeReset = html.find(".overcharge-reset");
 
       overchargeReset.on("click", (ev: Event) => {
-        this._setOverchargeLevel(<MouseEvent>ev,0);
+        this._setOverchargeLevel(<MouseEvent>ev, 0);
       });
 
       // Overcharge macro
@@ -329,7 +332,7 @@ export class LancerPilotSheet extends LancerActorSheet {
             item.addEventListener("dragstart", overchargeMacroHandler, false);
           if (item.classList.contains("item"))
             item.addEventListener("dragstart", (ev: any) => this._onDragStart(ev), false);
-          item.setAttribute("draggable", true);
+          item.setAttribute("draggable", "true");
         });
 
       // Update Inventory Item
@@ -671,7 +674,7 @@ export class LancerPilotSheet extends LancerActorSheet {
     let inputField = $(target).siblings('[name="data.mech.overcharge_level"]');
 
     inputField.val(String(level));
-    this._onSubmit(event);    
+    this._onSubmit(event).then();
   }
 
   /**
@@ -710,12 +713,11 @@ export class LancerPilotSheet extends LancerActorSheet {
  * @param level Level of overcharge, between 0 (1) and 3 (1d6+4) by default
  */
 export function overchargeButton(level: number) {
-
   // This seems like a very inefficient way to do this...
   // I don't think there's a good way to get an actor via handlebars helpers though besides this
   // Might just need to not use helpers for this?
   //@ts-ignore
-  let actor: LancerActor = game.actors.get(this.actor._id)
+  let actor: LancerActor = game.actors.get(this.actor._id);
 
   let rollVal = actor.getOverchargeRoll();
 
@@ -725,11 +727,10 @@ export function overchargeButton(level: number) {
 
   // Add a line break if it contains a plus to prevent it being too long
   let plusIndex = rollVal.indexOf("+");
-  if(plusIndex > 0) {
-    rollVal = rollVal.slice(0,plusIndex) + "<br>" + rollVal.slice(plusIndex);
+  if (plusIndex > 0) {
+    rollVal = rollVal.slice(0, plusIndex) + "<br>" + rollVal.slice(plusIndex);
   }
 
-  
   return `<div class="overcharge-container">
     
       <a class="overcharge-macro macroable i--dark i--sm" data-action="roll-macro"><i class="fas fa-dice-d20"></i></a>
