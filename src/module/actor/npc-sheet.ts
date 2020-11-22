@@ -131,7 +131,7 @@ export class LancerNPCSheet extends LancerActorSheet {
         };
 
         console.log(`${lp} Rolling ${mData.title} check, bonus: ${mData.bonus}`);
-        game.lancer.prepareStatMacro(this.actor, this.getStatPath(ev)!);
+        game.lancer.prepareStatMacro(this.actor._id, this.getStatPath(ev)!);
       });
 
       // Trigger rollers
