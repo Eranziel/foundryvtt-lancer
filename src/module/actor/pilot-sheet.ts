@@ -154,14 +154,16 @@ export class LancerPilotSheet extends LancerActorSheet {
     data.data.mech_loadout.mounts.forEach((mount: any) => {
       if (Array.isArray(mount.weapons) && mount.weapons.length > 0) {
         for (let i = 0; i < mount.weapons.length; i++) {
-          const ownedWeapon = this.actor.getOwnedItem(mount.weapons[i]._id);
-          if (ownedWeapon) {
-            mount.weapons[i] = duplicate(ownedWeapon.data);
+          const mountWeapon = mount.weapons[i];
+          if (mountWeapon && mountWeapon._id) {
+            const ownedWeapon = this.actor.getOwnedItem(mount.weapons[i]._id);
+            if (ownedWeapon) {
+              mount.weapons[i] = duplicate(ownedWeapon.data);
+              continue;
+            }
           }
           // TODO: If the weapon doesn't exist in owned items anymore, remove it
-          else {
-            mount.weapons.splice(i, 1);
-          }
+          mount.weapons.splice(i, 1);
         }
       }
     });
