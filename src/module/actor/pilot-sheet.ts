@@ -196,8 +196,8 @@ export class LancerPilotSheet extends LancerActorSheet {
       // Overcharge macro
       let overchargeMacro = html.find(".overcharge-macro");
 
-      overchargeMacro.on("click", (ev: Event) => {
-        game.lancer.prepareOverchargeMacro(this.actor);
+      overchargeMacro.on("click", () => {
+        game.lancer.prepareOverchargeMacro(this.actor._id);
       });
 
       // Macro triggers
@@ -236,7 +236,7 @@ export class LancerPilotSheet extends LancerActorSheet {
 
         const el = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
 
-        game.lancer.prepareItemMacro(this.actor, el.getAttribute("data-item-id")!);
+        game.lancer.prepareItemMacro(this.actor._id, el.getAttribute("data-item-id")!);
       });
 
       // Core active & passive text rollers
@@ -679,7 +679,7 @@ export class LancerPilotSheet extends LancerActorSheet {
    * @param event An event, used by a proper overcharge section in the sheet, to get the overcharge field
    */
   _onClickOvercharge(event: MouseEvent) {
-    game.lancer.prepareOverchargeMacro();
+    game.lancer.prepareOverchargeMacro(this.actor._id);
   }
 
   /* -------------------------------------------- */
