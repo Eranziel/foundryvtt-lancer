@@ -1,3 +1,11 @@
+# 0.1.15 (2020-11-22)
+## Features
+* **Pilot Sheet**: Syncing Comp/Con cloud saves now sets up mounts and adds weapons to them. Closes #75.
+
+## Bug Fixes
+* **Pilot Sheet**: Syncing Comp/Con cloud saves no longer fails with a 401 error. Closes #113.
+* **Macros**: Using a macro from the hotbar no longer fails if no token is selected.
+
 # 0.1.14 (2020-11-19)
 ## Features
 * **Pilot Sheet**: Added Overcharge macro. Closes #101.

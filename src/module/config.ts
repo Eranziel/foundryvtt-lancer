@@ -130,6 +130,8 @@ export const STATUSES = [
 export const WELCOME = `<div style="margin: 10px 5px">
 <p><b>Recent changes:</b>
 <ul>
+<li>Syncing with Comp/Con cloud saves is fixed - no more 401 errors!</li>
+<li>Syncing with Comp/Con cloud saves now builds mounts and populates them with weapons.</li>
 <li>Overcharge macro added to pilot sheet, and a setting for whether to automatically add overcharge heat when the macro is rolled.</li>
 <li>NPC class and template sheets now include previews of their base and optional features, which can be dragged to an NPC actor to add them.</li>
 </ul></p>
