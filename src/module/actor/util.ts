@@ -1,8 +1,9 @@
 import * as mm from "machine-mind";
-import { CompendiumCategory, CompendiumItem, ItemType, store } from "machine-mind";
+import { CompendiumCategory, CompendiumItem, ItemType, MountType, store } from "machine-mind";
 import { LancerActor } from "./lancer-actor";
-import { LancerPilotActorData } from "../interfaces";
-import { ItemDataManifest, MachineMind_pilot_to_VTT_items_compendium_lookup } from "../item/util";
+import { LancerMechWeaponData, LancerMechWeaponItemData, LancerMountData, LancerPilotActorData } from "../interfaces";
+import { ItemDataManifest, MachineMind_pilot_to_VTT_items_compendium_lookup, MachineMind_to_VTT_data } from "../item/util";
+import { LancerItem, LancerMechWeapon } from "../item/lancer-item";
 
 export async function import_pilot_by_code(code: string): Promise<mm.Pilot> {
   let data = await mm.loadPilot(code);
@@ -51,9 +52,7 @@ export async function update_pilot(pilot: LancerActor, cc_pilot: mm.Pilot): Prom
 
   // Copy them all
   for (let i of item_data) {
-    if (i.type !== "mech_weapon") {
-      await pilot.createOwnedItem(i);
-    }
+    await pilot.createOwnedItem(i);
   }
 
   // Get actor data for modification. pd is just a shorthand
@@ -115,11 +114,11 @@ export async function update_pilot(pilot: LancerActor, cc_pilot: mm.Pilot): Prom
     pd.mech.hp.value = am.CurrentHP;
     pd.mech.hp.max = am.MaxHP;
 
+
     // pd.mech_loadout.mounts
-    /*
+    
     if(am.ActiveLoadout) {
       let aml = am.ActiveLoadout;
-      let raw_mounts: Mount[] = [];
 
       // Check the core bonuses
       let int = store.compendium.getReferenceByIDCareful("CoreBonuses", "cb_integrated_weapon")
@@ -127,40 +126,55 @@ export async function update_pilot(pilot: LancerActor, cc_pilot: mm.Pilot): Prom
       let ia = store.compendium.getReferenceByID("CoreBonuses", "cb_improved_armament");
       let has_ia = ia ? cc_pilot.has(ia) : false;
 
-      // Build out our list
-      raw_mounts.push(...aml.IntegratedMounts);
-      if(has_int) {
-        raw_mounts.push(aml.IntegratedWeaponMount);
-      }
-      if(has_ia && aml.EquippableMounts.length < 3) {
-        raw_mounts.push(aml.ImprovedArmamentMount);
-      }
-      raw_mounts.push(...aml.EquippableMounts);
+      let mr = store.compendium.getReferenceByID("CoreBonuses", "cb_mount_retrofitting");
 
+      // Fetch integrated and equippable mounts separately as they are different data types, save trouble later.
+      let cc_equippableMounts = aml.AllEquippableMounts(has_ia, has_int)
+      let cc_integratedMounts = aml.IntegratedMounts
       // Convert to foundry
+
+      let weaponData = pilot.items.filter((item: LancerItem) => item.type === "mech_weapon")
+
       let mounts: LancerMountData[] = [];
-      for(let raw of raw_mounts) {
-        let weapons = raw.Weapons.map(wep => {
-          let result: LancerMechWeaponData = {
+      let equippableMounts = cc_equippableMounts.map( cc_mount => {
+        let is_mr = cc_mount.Bonuses.includes(mr)
+        let mountWeapons = cc_mount.Weapons.map(cc_weapon => {
+          return weaponData.find(weapon => {
+            return cc_weapon.ID === weapon.data.data.id
+          })
+        }) as LancerMechWeaponItemData[] 
 
+        let mount: LancerMountData = {
+          secondary_mount: "",
+          type: is_mr ? MountType.MainAux : cc_mount.Type, //Handle Mount Retrofitting core bonus
+          weapons: mountWeapons,
+        }
 
-          }
-        });
+        return mount
+      })
 
+      let integratedMounts = cc_integratedMounts.map( cc_mount => {
+        let mountWeapons = cc_mount.Weapons.map(cc_weapon => {
+          return weaponData.find(weapon => {
+            return cc_weapon.ID === weapon.data.data.id
+          })
+        }) as LancerMechWeaponItemData[] 
 
-        mounts.push({
-          secondary_mount: "I don't think this does anything",
-          type: r.Type,
-          weapons
-        })j
-      }
+        let mount: LancerMountData = {
+          secondary_mount: "",
+          type: cc_mount.Type,
+          weapons: mountWeapons,
+        }
 
-      for(let m of [...aml.AllMounts])
-      console.log("henlo");
-      console.log(pd.mech_loadout);
-      console.log(am.ActiveLoadout);
+        return mount
+      })
+      
+      mounts = integratedMounts.concat(equippableMounts)
+
+      pd.mech_loadout.mounts = mounts
+      
     }
-    */
+    
   }
 
   await pilot.update(pad);
