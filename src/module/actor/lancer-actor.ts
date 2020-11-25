@@ -2,17 +2,13 @@ import {
   LancerPilotActorData,
   LancerNPCActorData,
   LancerDeployableActorData,
-  LancerFrameStatsData,
-  LancerFrameItemData,
-  LancerNPCClassStatsData,
   LancerNPCData,
   LancerMountData,
 } from "../interfaces";
 import { LANCER } from "../config";
-import { MountType } from "machine-mind";
-import { LancerFrame, LancerItemData } from "../item/lancer-item";
-import { ItemDataManifest } from "../item/util";
+import { EntryType, MountType, funcs } from "machine-mind";
 const lp = LANCER.log_prefix;
+
 
 export const DEFAULT_MECH = {
   name: "",
@@ -40,43 +36,45 @@ export const DEFAULT_MECH = {
 export function lancerActorInit(data: any) {
   // Some subtype of ActorData
   console.log(`${lp} Initializing new ${data.type}`);
-  if (data.type === "pilot" || data.type === "npc") {
-    const mech = { ...DEFAULT_MECH };
 
-    if (data.type === "npc") {
-      mech.structure.value = 1;
-      mech.structure.max = 1;
-      mech.stress.value = 1;
-      mech.stress.max = 1;
-    }
-
-    mergeObject(data, {
-      // Initialize mech stats
-      "data.mech": mech,
-      // Initialize prototype token
-      "token.bar1": { attribute: "mech.hp" }, // Default Bar 1 to HP
-      "token.bar2": { attribute: "mech.heat" }, // Default Bar 2 to Heat
-      "token.displayName": CONST.TOKEN_DISPLAY_MODES.ALWAYS, // Default display name to be always on
-      "token.displayBars": CONST.TOKEN_DISPLAY_MODES.ALWAYS, // Default display bars to be always on
-      // Default disposition to friendly for pilots and hostile for NPCs
-      "token.disposition":
-        data.type === "pilot"
-          ? CONST.TOKEN_DISPOSITIONS.FRIENDLY
-          : CONST.TOKEN_DISPOSITIONS.HOSTILE,
-      "token.name": data.name, // Set token name to actor name
-      "token.actorLink": data.type === "pilot", // Link the token to the Actor for pilots, but not for NPCs
-    });
-  } else if (data.type === "deployable") {
-    mergeObject(data, {
-      // Initialize image
-      img: "systems/lancer/assets/icons/deployable.svg",
-      // Initialize prototype token
-      "token.bar1": { attribute: "hp" }, // Default Bar 1 to HP
-      "token.displayName": CONST.TOKEN_DISPLAY_MODES.HOVER, // Default display name to be always on
-      "token.displayBars": CONST.TOKEN_DISPLAY_MODES.HOVER, // Default display bars to be always on
-      "token.name": data.name, // Set token name to actor name
-    });
+  // Produce our default data
+  let default_data: any = {};
+  let display_mode: number = CONST.TOKEN_DISPLAY_MODES.ALWAYS;
+  let disposition: number = CONST.TOKEN_DISPOSITIONS.FRIENDLY;
+  switch(data.type) {
+    case EntryType.NPC:
+      default_data = funcs.defaults.NPC();
+      disposition = CONST.TOKEN_DISPOSITIONS.HOSTILE;
+      break;
+    case EntryType.PILOT:
+      default_data = funcs.defaults.PILOT();
+      break;
+    case EntryType.DEPLOYABLE:
+      default_data = funcs.defaults.DEPLOYABLE();
+      display_mode = CONST.TOKEN_DISPLAY_MODES.HOVER;
+      disposition = CONST.TOKEN_DISPOSITIONS.NEUTRAL;
+      break;
+    case EntryType.MECH:
+    default: // Idk, just in case
+      default_data = funcs.defaults.MECH();
+      break;
   }
+
+  // Put in the basics
+  mergeObject(data, {
+    data: default_data,
+    "img": `systems/lancer/assets/icons/${data.type}.svg`,
+    "token.bar1": { attribute: "current_hp" }, // Default Bar 1 to HP
+    "token.bar2": { attribute: "current_heat" }, // Default Bar 2 to Heat
+    "token.displayName": display_mode, 
+    "token.displayBars": display_mode, 
+    "token.disposition": disposition,
+    "name": default_data.name, // Set name to match internal
+    "token.name": default_data.name, // Set token name to match internal
+    "token.actorLink": [EntryType.PILOT, EntryType.MECH].includes(data.type), // Link the token to the Actor for pilots and mechs, but not for NPCs or deployables
+  });
+
+  console.log(data);
 }
 
 /**
@@ -90,7 +88,9 @@ export class LancerActor extends Actor {
    * @param newFrame Stats object from the new mech frame.
    * @param oldFrame Stats object from the old mech frame, optional.
    */
-  async swapFrames(newFrame: LancerFrameStatsData, oldFrame?: LancerFrameStatsData): Promise<void> {
+  async swapFrames(/*newFrame: LancerFrameStatsData, oldFrame?: LancerFrameStatsData*/): Promise<void> {
+    console.log("Disabled");
+    /*
     // Function is only applicable to pilots.
     if (this.data.type !== "pilot") return;
 
@@ -135,12 +135,14 @@ export class LancerActor extends Actor {
     // Update the actor
     data.data.mech = mech;
     await this.update(data);
+    */
   }
 
   /**
    * Returns the current frame used by the actor as an item
    * Only applicable for pilots
    */
+    /*
   getCurrentFrame(): LancerFrameItemData | null {
     // Function is only applicable to pilots.
     if (this.data.type !== "pilot") return null;
@@ -156,11 +158,13 @@ export class LancerActor extends Actor {
       return null
     }
   }
+    */
 
   /**
    * Change Class or Tier on a NPC. Recalculates all stats on the NPC.
    * @param newNPCClass Stats object from the new Class.
    */
+    /*
   async swapNPCClassOrTier(
     newNPCClass: LancerNPCClassStatsData,
     ClassSwap: boolean,
@@ -244,6 +248,7 @@ export class LancerActor extends Actor {
     data.data.mech = mech;
     await this.update(data);
   }
+  */
 }
 
 /* ------------------------------------ */
@@ -297,12 +302,12 @@ export const mount_card = `<div class="flexcol lancer-mount-container" data-item
  * Handlebars helper for an NPC tier selector
  * @param tier The tier ID string
  */
-export function npc_tier_selector(tier: LancerNPCData["tier"]) {
+export function npc_tier_selector(tier: number) {
   let template = `<select id="tier-type" class="tier-control" data-action="update">
-    <option value="npc-tier-1" ${tier === "npc-tier-1" ? "selected" : ""}>TIER 1</option>
-    <option value="npc-tier-2" ${tier === "npc-tier-2" ? "selected" : ""}>TIER 2</option>
-    <option value="npc-tier-3" ${tier === "npc-tier-3" ? "selected" : ""}>TIER 3</option>
-    <option value="npc-tier-custom" ${tier === "npc-tier-custom" ? "selected" : ""}>CUSTOM</option>
+    <option value="npc-tier-1" ${tier === 1 ? "selected" : ""}>TIER 1</option>
+    <option value="npc-tier-2" ${tier === 2 ? "selected" : ""}>TIER 2</option>
+    <option value="npc-tier-3" ${tier === 3 ? "selected" : ""}>TIER 3</option>
+    <option value="npc-tier-custom" ${(tier != 1 && tier != 2 && tier != 3)  ? "selected" : ""}>CUSTOM</option>
   </select>`;
   return template;
 }

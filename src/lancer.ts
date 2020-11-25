@@ -68,6 +68,7 @@ import {
 import { LancerPilotSheet, overcharge_button } from "./module/actor/pilot-sheet";
 import { LancerNPCSheet } from "./module/actor/npc-sheet";
 import { LancerDeployableSheet } from "./module/actor/deployable-sheet";
+import { LancerMechSheet } from "./module/actor/mech-sheet";
 import { LancerItemSheet } from "./module/item/item-sheet";
 import { LancerFrameSheet } from "./module/item/frame-sheet";
 import { LancerNPCClassSheet } from "./module/item/npc-class-sheet";
@@ -85,13 +86,11 @@ import * as migrations from "./module/migration";
 import { addLCPManager } from "./module/apps/lcpManager";
 
 // Import Machine Mind and helpers
-import { CCDataStore, NpcFeatureType, setup_store } from "machine-mind";
-import { FauxPersistor } from "./module/ccdata_io";
-import { reload_store } from "./module/item/util";
 import * as macros from "./module/macros";
 
 // Import node modules
 import compareVersions = require("compare-versions");
+import { NpcFeatureType, EntryType } from "machine-mind";
 
 const lp = LANCER.log_prefix;
 
@@ -120,6 +119,14 @@ Hooks.once("init", async function () {
     prepareCoreActiveMacro: macros.prepareCoreActiveMacro,
     prepareCorePassiveMacro: macros.prepareCorePassiveMacro,
     migrations: migrations,
+
+
+    // For whitespines testing /('o')/
+    tmp: {
+
+
+
+    }
   };
 
   // Record Configuration Values
@@ -150,30 +157,32 @@ Hooks.once("init", async function () {
 
   // Register sheet application classes
   Actors.unregisterSheet("core", ActorSheet);
-  Actors.registerSheet("lancer", LancerPilotSheet, { types: ["pilot"], makeDefault: true });
-  Actors.registerSheet("lancer", LancerNPCSheet, { types: ["npc"], makeDefault: true });
-  Actors.registerSheet("lancer", LancerDeployableSheet, {
-    types: ["deployable"],
-    makeDefault: true,
-  });
+  Actors.registerSheet("lancer", LancerPilotSheet, { types: [EntryType.PILOT], makeDefault: true });
+  Actors.registerSheet("lancer", LancerMechSheet, { types: [EntryType.MECH], makeDefault: true });
+  Actors.registerSheet("lancer", LancerNPCSheet, { types: [EntryType.NPC], makeDefault: true });
+  Actors.registerSheet("lancer", LancerDeployableSheet, { types: [EntryType.DEPLOYABLE], makeDefault: true, });
   Items.unregisterSheet("core", ItemSheet);
   Items.registerSheet("lancer", LancerItemSheet, {
     types: [
-      "skill",
-      "talent",
-      "license",
-      "core_bonus",
-      "pilot_armor",
-      "pilot_weapon",
-      "pilot_gear",
-      "mech_system",
-      "mech_weapon",
-      "npc_feature",
+      EntryType.SKILL,
+      EntryType.TALENT,
+      EntryType.LICENSE,
+      EntryType.CORE_BONUS,
+      EntryType.PILOT_ARMOR,
+      EntryType.PILOT_WEAPON,
+      EntryType.PILOT_GEAR,
+      EntryType.MECH_SYSTEM,
+      EntryType.MECH_WEAPON,
+      EntryType.WEAPON_MOD,
+      EntryType.NPC_FEATURE,
+
+      EntryType.CORE_SYSTEM,
+      EntryType.FRAME_TRAIT,
     ],
     makeDefault: true,
   });
-  Items.registerSheet("lancer", LancerFrameSheet, { types: ["frame"], makeDefault: true });
-  Items.registerSheet("lancer", LancerNPCClassSheet, { types: ["npc_class", "npc_template"], makeDefault: true });
+  Items.registerSheet("lancer", LancerFrameSheet, { types: [EntryType.FRAME], makeDefault: true });
+  Items.registerSheet("lancer", LancerNPCClassSheet, { types: [EntryType.NPC_CLASS, EntryType.NPC_TEMPLATE], makeDefault: true });
 
   // *******************************************************************
   // Register handlebars helpers
@@ -340,6 +349,7 @@ Hooks.once("init", async function () {
 /* ------------------------------------ */
 /* Setup system			            				*/
 /* ------------------------------------ */
+/*
 Hooks.once("setup", async function () {
   // Do anything after initialization but before ready.
 
@@ -362,6 +372,7 @@ Hooks.once("setup", async function () {
     );
   }
 });
+*/
 
 /* ------------------------------------ */
 /* When ready                           */
@@ -478,7 +489,7 @@ Hooks.on("hotbarDrop", (_bar: any, data: any, slot: number) => {
   } else if (data.type === "Item") {
     command = `game.lancer.prepareItemMacro("${data.actorId}", "${data.data._id}");`;
     // Talent are the only ones (I think??) that we need to name specially
-    if (data.data.type === "talent") {
+    if (data.data.type === EntryType.TALENT) {
       command = `game.lancer.prepareItemMacro("${data.actorId}", "${data.itemId}", {rank: ${data.rank}});`;
       title = data.title;
       img = `systems/lancer/assets/icons/macro-icons/talent.svg`;
@@ -487,26 +498,26 @@ Hooks.on("hotbarDrop", (_bar: any, data: any, slot: number) => {
     }
     // Pick the image for the hotbar
     switch (data.data.type) {
-      case "skill":
+      case EntryType.SKILL:
         img = `systems/lancer/assets/icons/macro-icons/skill.svg`;
         break;
-      case "talent":
+      case EntryType.TALENT:
         img = `systems/lancer/assets/icons/macro-icons/talent.svg`;
         break;
-      case "core_bonus":
+      case EntryType.CORE_BONUS:
         img = `systems/lancer/assets/icons/macro-icons/corebonus.svg`;
         break;
-      case "pilot_gear":
+      case EntryType.PILOT_GEAR:
         img = `systems/lancer/assets/icons/macro-icons/generic_item.svg`;
         break;
-      case "pilot_weapon":
-      case "mech_weapon":
+      case EntryType.PILOT_WEAPON:
+      case EntryType.MECH_WEAPON:
         img = `systems/lancer/assets/icons/macro-icons/mech_weapon.svg`;
         break;
-      case "mech_system":
+      case EntryType.MECH_SYSTEM:
         img = `systems/lancer/assets/icons/macro-icons/mech_system.svg`;
         break;
-      case "npc_feature":
+      case EntryType.NPC_FEATURE:
         switch (data.data.data.feature_type) {
           case NpcFeatureType.Reaction:
             img = `systems/lancer/assets/icons/macro-icons/reaction.svg`;

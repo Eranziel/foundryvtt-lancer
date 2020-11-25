@@ -4,13 +4,7 @@ import { LancerCoreBonus, LancerItem, LancerPilotGear } from "./item/lancer-item
 import { LancerActor } from "./actor/lancer-actor";
 import {
   LancerAttackMacroData,
-  LancerFrameItemData,
   LancerGenericMacroData,
-  LancerMechSystemData,
-  LancerMechWeaponData,
-  LancerNPCData,
-  LancerPilotActorData,
-  LancerPilotWeaponData,
   LancerReactionMacroData,
   LancerStatMacroData,
   LancerTalentMacroData,
@@ -20,8 +14,9 @@ import {
   TagDataShort,
 } from "./interfaces";
 // Import JSON data
-import { DamageType, NpcFeatureType } from "machine-mind";
+import { DamageType, EntryType, NpcFeatureType } from "machine-mind";
 import { LancerNPCTechData, LancerNPCWeaponData } from "./item/npc-feature";
+import { FoundryRegItem, FoundryRegItemData } from "./mm-util/foundry-reg";
 
 const lp = LANCER.log_prefix;
 
@@ -42,7 +37,7 @@ export async function prepareItemMacro(a: string, i: string, options?: any) {
   }
 
   // Get the item
-  const item: LancerItem | null = actor.getOwnedItem(i) as LancerItem | null;
+  const item = actor.getOwnedItem(i) as LancerItem<any> | null;
   if (!item) {
     return ui.notifications.error(
       `Error preparing macro: could not find Item ${i} owned by Actor ${a}.`
@@ -51,32 +46,33 @@ export async function prepareItemMacro(a: string, i: string, options?: any) {
     return ui.notifications.error(`Error preparing macro: ${item.name} is not owned by an Actor.`);
   }
 
+  // Make a macro depending on the type
   switch (item.data.type) {
     // Skills
-    case "skill":
+    case EntryType.SKILL:
       let skillData: LancerStatMacroData = {
         title: item.name,
-        bonus: item.data.data.rank * 2,
+        bonus: (item as FoundryRegItem<EntryType.SKILL>).data.data.rank * 2,
       };
       await rollTriggerMacro(actor, skillData);
       break;
     // Pilot OR Mech weapon
-    case "pilot_weapon":
-    case "mech_weapon":
-      await prepareAttackMacro(actor, item);
+    case EntryType.PILOT_WEAPON:
+    case EntryType.MECH_WEAPON:
+      prepareAttackMacro(actor, item);
       break;
     // Systems
-    case "mech_system":
+    case EntryType.MECH_SYSTEM:
       // TODO--this can probably be a textMacro
       let sysData: LancerGenericMacroData = {
         title: item.name,
-        effect: item.data.data.effect,
+        effect: (item as FoundryRegItem<EntryType.MECH_SYSTEM>).data.data.effect,
       };
 
       await rollSystemMacro(actor, sysData);
       break;
     // Talents
-    case "talent":
+    case EntryType.TALENT:
       // If we aren't passed a rank, default to 0
       let rank = options.rank ? options.rank : 0;
 
@@ -88,7 +84,7 @@ export async function prepareItemMacro(a: string, i: string, options?: any) {
       await rollTalentMacro(actor, talData);
       break;
     // Gear
-    case "pilot_gear":
+    case EntryType.PILOT_GEAR:
       let gearData: LancerTextMacroData = {
         title: item.name,
         description: (<LancerPilotGear>item).data.data.description,
@@ -98,7 +94,7 @@ export async function prepareItemMacro(a: string, i: string, options?: any) {
       await rollTextMacro(actor, gearData);
       break;
     // Core bonuses can just be text, right?
-    case "core_bonus":
+    case EntryType.CORE_BONUS:
       let CBdata: LancerTextMacroData = {
         title: item.name,
         description: (<LancerCoreBonus>item).data.data.effect,
@@ -106,8 +102,9 @@ export async function prepareItemMacro(a: string, i: string, options?: any) {
 
       await rollTextMacro(actor, CBdata);
       break;
-    case "npc_feature":
-      switch (item.data.data.feature_type) {
+    case EntryType.NPC_FEATURE:
+      let titem = item as FoundryRegItem<EntryType.NPC_FEATURE>;
+      switch (titem.data.data.type) {
         case NpcFeatureType.Weapon:
           await prepareAttackMacro(actor, item);
           break;
@@ -118,8 +115,8 @@ export async function prepareItemMacro(a: string, i: string, options?: any) {
         case NpcFeatureType.Trait:
           let sysData: LancerTextMacroData = {
             title: item.name,
-            description: <string>item.data.data.effect,
-            tags: item.data.data.tags,
+            description: <string>titem.data.data.effect,
+            tags: titem.data.data.tags,
           };
 
           await rollTextMacro(actor, sysData);
@@ -129,9 +126,9 @@ export async function prepareItemMacro(a: string, i: string, options?: any) {
             title: item.name,
             // Screw it, I'm not messing with all our item definitions just for this.
             //@ts-ignore
-            trigger: <string>item.data.data.trigger,
-            effect: <string>item.data.data.effect,
-            tags: item.data.data.tags,
+            trigger: titem.data.data.trigger as string,
+            effect: titem.data.data.effect as string,
+            tags: titem.data.data.tags,
           };
 
           await rollReactionMacro(actor, reactData);
@@ -303,7 +300,10 @@ async function rollTalentMacro(actor: Actor, data: LancerTalentMacroData) {
  * @param actor {Actor} Actor to roll as. Assumes properly prepared item.
  * @param item {LancerItem} Weapon to attack with. Assumes ownership from actor.
  */
-function prepareAttackMacro(actor: Actor, item: LancerItem) {
+function prepareAttackMacro(actor: Actor, item: LancerItem<any>) {
+  console.log("DISABLED");
+  return;
+  /*
   let mData: LancerAttackMacroData = {
     title: item.name,
     grit: 0,
@@ -314,14 +314,14 @@ function prepareAttackMacro(actor: Actor, item: LancerItem) {
     effect: "",
   };
   let typeMissing: boolean = false;
-  if (item.type === "mech_weapon" || item.type === "pilot_weapon") {
+  if (item.type === EntryType.MECH_WEAPON || item.type === EntryType.PILOT_WEAPON) {
     const wData = item.data.data as LancerMechWeaponData | LancerPilotWeaponData;
     mData.grit = (item.actor!.data as LancerPilotActorData).data.pilot.grit;
     mData.acc = item.accuracy;
     mData.damage = wData.damage;
     mData.tags = wData.tags;
     mData.effect = wData.effect;
-  } else if (item.type === "npc_feature") {
+  } else if (item.type === EntryType.NPC_FEATURE) {
     const wData = item.data.data as LancerNPCWeaponData;
     let tier: number;
     if (item.actor === null) {
@@ -354,6 +354,7 @@ function prepareAttackMacro(actor: Actor, item: LancerItem) {
   }
 
   rollAttackMacro(actor, mData).then();
+  */
 }
 
 async function rollAttackMacro(actor: Actor, data: LancerAttackMacroData) {
@@ -444,6 +445,10 @@ export function rollReactionMacro(actor: Actor, data: LancerReactionMacroData) {
  * @param a     String of the actor ID to roll the macro as, and who we're getting core info for
  */
 export function prepareCoreActiveMacro(a: string) {
+  console.log("DISABLED");
+  return;
+
+  /*
   // Determine which Actor to speak as
   let actor: LancerActor | null = <LancerActor>(game.actors.get(a) || getMacroSpeaker());
   if (!actor) return;
@@ -462,6 +467,7 @@ export function prepareCoreActiveMacro(a: string) {
   };
 
   rollTextMacro(actor, mData).then();
+  */
 }
 
 /**
@@ -470,6 +476,9 @@ export function prepareCoreActiveMacro(a: string) {
  * @param a     String of the actor ID to roll the macro as, and who we're getting core info for
  */
 export function prepareCorePassiveMacro(a: string) {
+  console.log("DISABLED");
+  return;
+  /*
   // Determine which Actor to speak as
   let actor: LancerActor | null = <LancerActor>(game.actors.get(a) || getMacroSpeaker());
   if (!actor) return;
@@ -488,6 +497,7 @@ export function prepareCorePassiveMacro(a: string) {
   };
 
   rollTextMacro(actor, mData).then();
+  */
 }
 
 /**
@@ -498,7 +508,10 @@ export function prepareCorePassiveMacro(a: string) {
  * @param tags  Can optionally pass through an array of tags to be rendered
  */
 export function prepareTextMacro(a: string, title: string, text: string, tags?: TagDataShort[]) {
+  console.log("DISABLED");
+  return;
   // Determine which Actor to speak as
+  /*
   let actor: Actor | null = game.actors.get(a) || getMacroSpeaker();
   if (!actor) return;
 
@@ -510,6 +523,7 @@ export function prepareTextMacro(a: string, title: string, text: string, tags?: 
   };
 
   rollTextMacro(actor, mData).then();
+  */
 }
 
 /**
@@ -518,13 +532,20 @@ export function prepareTextMacro(a: string, title: string, text: string, tags?: 
  * @param data {LancerTextMacroData} Prepared macro data.
  */
 async function rollTextMacro(actor: Actor, data: LancerTextMacroData) {
+  console.log("DISABLED");
+  return;
+  /*
   if (!actor) return Promise.resolve();
 
   const template = `systems/lancer/templates/chat/generic-card.html`;
   return renderMacro(actor, template, data);
+  */
 }
 
 export async function prepareTechMacro(a: string, t: string) {
+  console.log("DISABLED");
+  return;
+  /*
   // Determine which Actor to speak as
   let actor: Actor | null = game.actors.get(a) || getMacroSpeaker();
   if (!actor) return;
@@ -548,12 +569,12 @@ export async function prepareTechMacro(a: string, t: string) {
     effect: "",
     tags: [],
   };
-  if (item.type === "mech_system") {
+  if (item.type === EntryType.MECH_SYSTEM) {
     const tData = item.data.data as LancerMechSystemData;
     mData.t_atk = (item.actor!.data as LancerPilotActorData).data.mech.tech_attack;
     mData.tags = tData.tags;
     mData.effect = ""; // TODO
-  } else if (item.type === "npc_feature") {
+  } else if (item.type === EntryType.NPC_FEATURE) {
     const tData = item.data.data as LancerNPCTechData;
     let tier: number;
     if (item.actor === null) {
@@ -575,9 +596,13 @@ export async function prepareTechMacro(a: string, t: string) {
   console.log(`${lp} Tech Attack Macro Item:`, item, mData);
 
   await rollTechMacro(actor, mData);
+  */
 }
 
 async function rollTechMacro(actor: Actor, data: LancerTechMacroData) {
+  console.log("DISABLED");
+  return;
+  /*
   let atk_str = await buildAttackRollString(data.title, data.acc, data.t_atk);
   if (!atk_str) return;
   let attack_roll = new Roll(atk_str).roll();
@@ -594,6 +619,7 @@ async function rollTechMacro(actor: Actor, data: LancerTechMacroData) {
 
   const template = `systems/lancer/templates/chat/tech-attack-card.html`;
   return await renderMacro(actor, template, templateData);
+  */
 }
 
 export async function promptAccDiffModifier(acc?: number, title?: string) {
@@ -638,4 +664,5 @@ export async function promptAccDiffModifier(acc?: number, title?: string) {
       close: () => reject(true),
     }).render(true);
   });
+
 }

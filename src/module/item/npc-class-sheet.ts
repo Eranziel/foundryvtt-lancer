@@ -1,7 +1,6 @@
 import { LANCER } from "../config";
-import { LancerNPCFeatureItemData } from "../interfaces";
 import { LancerItemSheet } from "./item-sheet";
-import { LancerItem, npc_feature_preview } from "./lancer-item";
+import { LancerItem, LancerNPCClass, LancerNPCFeatureItemData, npc_feature_preview } from "./lancer-item";
 const lp = LANCER.log_prefix;
 
 /**
@@ -78,10 +77,10 @@ export class LancerNPCClassSheet extends LancerItemSheet {
   }
 
   getData(): ItemSheetData {
-    let item = this.item as LancerItem;
+    let item = this.item as LancerNPCClass;
     //Fetching local copies for use in drag-and-drop flow
-    item.base_feature_items.then(features => (this.base_feature_items = features));
-    item.optional_feature_items.then(features => (this.optional_feature_items = features));
+    // item.base_feature_items.then(features => (this.base_feature_items = features));
+    // item.optional_feature_items.then(features => (this.optional_feature_items = features));
 
     return super.getData();
   }
@@ -89,16 +88,16 @@ export class LancerNPCClassSheet extends LancerItemSheet {
   activateListeners(html: JQuery) {
     super.activateListeners(html);
 
-    const item = this.item as LancerItem;
+    let item = this.item as LancerNPCClass;
 
     //These have to be refetched here despite also being fetched in getData because getData isn't allowed to be async in ItemSheets, thanks Foundry
     //So even if this looks like it's wrong, it's not
-    item.base_feature_items.then(base_features =>
-      this._displayFeatures(base_features, html.find("#base_feature_items"))
-    );
-    item.optional_feature_items.then(optional_features =>
-      this._displayFeatures(optional_features, html.find("#optional_feature_items"))
-    );
+    // item.base_feature_items.then(base_features =>
+      // this._displayFeatures(base_features, html.find("#base_feature_items"))
+    // );
+    // item.optional_feature_items.then(optional_features =>
+      // this._displayFeatures(optional_features, html.find("#optional_feature_items"))
+    // );
   }
 
   /** @override */

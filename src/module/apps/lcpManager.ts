@@ -2,7 +2,7 @@ import { LANCER } from "../config";
 const lp = LANCER.log_prefix;
 import { buildCompendiums, clearCompendiums } from "../compBuilder";
 import * as mm from "machine-mind";
-import { ContentPack, IContentPackManifest } from "machine-mind";
+import { IContentPack, IContentPackManifest } from "machine-mind";
 
 function addLCPManager(app: Application, html: any) {
   if (app.options.id == "compendium") {
@@ -64,7 +64,7 @@ class LCPIndex {
 
 class LCPManager extends Application {
   lcpFile: File | null;
-  cp: ContentPack | null;
+  cp: IContentPack | null;
   manifest: any;
   coreVersion: string;
   coreUpdate: string | null;
@@ -146,7 +146,7 @@ class LCPManager extends Application {
     if (!ev.currentTarget || !this.coreUpdate) return;
     ui.notifications.info(`Updating Lancer Core data to v${this.coreUpdate}. Please wait.`);
     console.log(`${lp} Updating Lancer Core data to v${this.coreUpdate}`);
-    await buildCompendiums(mm.getBaseContentPack());
+    await buildCompendiums(mm.funcs.get_base_content_pack());
     ui.notifications.info(`Lancer Core data update complete.`);
     await game.settings.set(LANCER.sys_name, LANCER.setting_core_data, this.coreUpdate);
     this.coreVersion = this.coreUpdate;
@@ -189,26 +189,20 @@ class LCPManager extends Application {
 
   async _onLcpParsed(fileData: string | null) {
     if (!fileData) return;
-    const icp = await mm.parseContentPack(fileData);
-    this.cp = new mm.ContentPack(icp);
+    this.cp = await mm.funcs.parseContentPack(fileData);
     this.manifest = {
-      name: this.cp.Name,
-      author: this.cp.Author,
+      ...this.cp.manifest,
       item_prefix: "",
-      version: this.cp.Version,
-      description: this.cp.Description,
-      image_url: this.cp.ImageURL,
-      website: this.cp.Website,
-      skills: this.cp.Skills.length,
-      talents: this.cp.Talents.length,
-      gear: this.cp.PilotEquipment.length,
-      frames: this.cp.Frames.length,
-      systems: this.cp.MechSystems.length,
-      weapons: this.cp.MechWeapons.length,
+      skills: this.cp.data.skills?.length ?? 0,
+      talents: this.cp.data.talents.length ?? 0,
+      gear: this.cp.data.pilotGear.length ?? 0,
+      frames: this.cp.data.frames.length,
+      systems: this.cp.data.systems.length,
+      weapons: this.cp.data.weapons.length,
       // mods: this.cp.WeaponMods.length,
-      npc_classes: this.cp.NpcClasses.length,
-      npc_templates: this.cp.NpcTemplates.length,
-      npc_features: this.cp.NpcFeatures.length,
+      npc_classes: this.cp.data.npcClasses.length,
+      npc_templates: this.cp.data.npcTemplates.length,
+      npc_features: this.cp.data.npcFeatures.length,
     };
     console.log(`${lp} Manifest of selected LCP:`, this.manifest);
     this.render();
@@ -228,12 +222,12 @@ class LCPManager extends Application {
     const manifest = this.manifest;
     if (!cp || !manifest) return;
 
-    ui.notifications.info(`Starting import of ${cp.Name} v${cp.Version}. Please wait.`);
-    console.log(`${lp} Starting import of ${cp.Name} v${cp.Version}.`);
+    ui.notifications.info(`Starting import of ${cp.manifest.name} v${cp.manifest.version}. Please wait.`);
+    console.log(`${lp} Starting import of ${cp.manifest.name} v${cp.manifest.version}.`);
     console.log(`${lp} Parsed content pack:`, cp);
     await buildCompendiums(cp);
-    ui.notifications.info(`Import of ${cp.Name} v${cp.Version} complete.`);
-    console.log(`${lp} Import of ${cp.Name} v${cp.Version} complete.`);
+    ui.notifications.info(`Import of ${cp.manifest.name} v${cp.manifest.version} complete.`);
+    console.log(`Import of ${cp.manifest.name} v${cp.manifest.version} complete.`);
 
     this.updateLcpIndex(manifest);
   }

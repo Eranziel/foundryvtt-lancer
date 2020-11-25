@@ -1,5 +1,6 @@
 import { LANCER } from "../config";
 import { LancerStatMacroData } from "../interfaces";
+import { LancerItem } from "../item/lancer-item";
 import { LancerActor } from "./lancer-actor";
 const lp = LANCER.log_prefix;
 
@@ -172,6 +173,7 @@ export class LancerActorSheet extends ActorSheet {
       item = game.items.get(data.id);
       console.log(`${lp} Item dropped from world: `, item);
     }
+
     // If item isn't from a Compendium or World entity,
     // see if super can do something with it.
     if (!item) {
@@ -180,6 +182,7 @@ export class LancerActorSheet extends ActorSheet {
     }
 
     const actor = this.actor as LancerActor;
+
     // Only return the Item if user is owner or GM.
     if (!actor.owner && !game.user.isGM) {
       ui.notifications.warn(

@@ -1,5 +1,5 @@
-import { LancerNPCFeatureData, RangeData, NPCDamageData } from "../interfaces";
-import { NpcFeatureType } from "machine-mind";
+import { RangeData, NPCDamageData, TagData } from "../interfaces";
+import { NpcFeatureType, RegNpcFeatureData, RegTagInstanceData } from "machine-mind";
 
 export const NPCFeatureIcons = {
   Other: "npc_feature.svg",
@@ -10,20 +10,37 @@ export const NPCFeatureIcons = {
   Tech: "tech_quick.svg",
 };
 
-export interface LancerNPCReactionData extends LancerNPCFeatureData {
+
+// This type doesn't really exist, I just put it here to make tsc shut up for a bit. Something akin to it must eventually be implemented
+export interface TempNpcFeatureData {
+    id: string;
+    name: string;
+    origin:  {
+      type: "Class" | "Template";
+      name: string;
+      base: boolean;
+  }
+    effect?: string;
+    bonus?: object;
+    override?: object;
+    type: NpcFeatureType;
+    tags: TagData[];
+}
+
+export interface LancerNPCReactionData extends TempNpcFeatureData {
   trigger: string;
   feature_type: NpcFeatureType.Reaction;
 }
 
-export interface LancerNPCSystemData extends LancerNPCFeatureData {
+export interface LancerNPCSystemData extends TempNpcFeatureData {
   feature_type: NpcFeatureType.System;
 }
 
-export interface LancerNPCTraitData extends LancerNPCFeatureData {
+export interface LancerNPCTraitData extends TempNpcFeatureData {
   feature_type: NpcFeatureType.Trait;
 }
 
-export interface LancerNPCTechData extends LancerNPCFeatureData {
+export interface LancerNPCTechData extends TempNpcFeatureData {
   tech_type: string;
   accuracy?: number[];
   attack_bonus?: number[];
@@ -32,7 +49,7 @@ export interface LancerNPCTechData extends LancerNPCFeatureData {
 
 // -------- NPC WEAPONS -------------------------------------
 
-export interface LancerNPCWeaponData extends LancerNPCFeatureData {
+export interface LancerNPCWeaponData extends TempNpcFeatureData {
   weapon_type: string;
   attack_bonus: number[];
   accuracy: number[];

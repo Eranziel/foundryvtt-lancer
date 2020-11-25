@@ -1,8 +1,10 @@
-import { tags } from "machine-mind";
+import { typed_lancer_data } from "machine-mind";
 import { TagData } from "../interfaces";
 
+const TAGS = typed_lancer_data.tags;
+
 /**
- * Search for a tag in lancer-data.
+ * Search for a tag template in lancer-data.
  * @param id The tag's lancer-data id string.
  * @returns The full tag data.
  */
@@ -10,8 +12,8 @@ function findTag(id: string): TagData | null {
   // Only check if we actually got something.
   if (id) {
     // Find the tag id in lancer-data
-    for (let i = 0; i < tags.length; i++) {
-      const t = tags[i];
+    for (let i = 0; i < TAGS.length; i++) {
+      const t = TAGS[i];
       if (t.id === id) {
         return t;
       }

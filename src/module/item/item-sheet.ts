@@ -1,7 +1,7 @@
-import { DamageData, LancerMechSystemData, RangeData } from "../interfaces";
+import { DamageData, RangeData } from "../interfaces";
 import { LANCER } from "../config";
 import { NPCFeatureIcons } from "./npc-feature";
-import { ActivationType, ChargeType, DamageType, EffectType, NpcFeatureType } from "machine-mind";
+import { ActivationType,  DamageType, NpcFeatureType } from "machine-mind";
 import { ChargeData, ChargeEffectData } from "./effects";
 
 const lp = LANCER.log_prefix;
@@ -47,12 +47,13 @@ export class LancerItemSheet extends ItemSheet {
   getData(): ItemSheetData {
     const data: ItemSheetData = super.getData();
 
+    /*
     if (!data.item) {
       // Just junk it
       return {};
     }
 
-    if (data.item.type === "npc_feature" && data.data.feature_type === NpcFeatureType.Weapon) {
+    if (data.item.type === EntryType.NPC_FEATURE && data.data.feature_type === NpcFeatureType.Weapon) {
       if (data.data.weapon_type) {
         const parts = data.data.weapon_type.split(" ");
         data.data.weapon_size = parts[0];
@@ -65,7 +66,7 @@ export class LancerItemSheet extends ItemSheet {
       // TODO: Fill in 0's if attack bonus or accuracy are undefined or "".
     }
 
-    if (data.item.type === "mech_system") {
+    if (data.item.type === EntryType.MECH_SYSTEM) {
       // For effects which are a basic string, construct a BasicEffectData for them.
       if (typeof data.data.effect === "string") {
         data.data.effect = {
@@ -74,6 +75,7 @@ export class LancerItemSheet extends ItemSheet {
         };
       }
     }
+    */
 
     console.log(`${lp} Item sheet data: `, data);
     return data;
@@ -212,12 +214,15 @@ export class LancerItemSheet extends ItemSheet {
   /* -------------------------------------------- */
 
   /** @override */
-  _updateObject(event: any, formData: any) {
+  async _updateObject(event: any, formData: any) {
+    console.log("DISABLED");
+    return;
+    /*
     formData = LancerItemSheet.arrayifyTags(formData, "data.tags");
     formData = LancerItemSheet.arrayifyTags(formData, "data.core_system.tags");
     formData = LancerItemSheet.arrayifyTags(formData, "data.traits");
 
-    if (this.item.data.type === "npc_feature") {
+    if (this.item.data.type === EntryType.NPC_FEATURE) {
       // Change image to match feature type, unless a custom image has been selected
       const imgPath = "systems/lancer/assets/icons/";
       const shortImg = formData["img"].slice(formData["img"].lastIndexOf("/") + 1);
@@ -231,7 +236,7 @@ export class LancerItemSheet extends ItemSheet {
 
       // Re-build NPC Weapon size and type
       if (
-        this.item.data.type === "npc_feature" &&
+        this.item.data.type === EntryType.NPC_FEATURE &&
         this.item.data.data.feature_type === NpcFeatureType.Weapon
       ) {
         formData[
@@ -244,8 +249,8 @@ export class LancerItemSheet extends ItemSheet {
     if (LANCER.weapon_items.includes(this.item.data.type)) {
       // Safeguard against non-weapon NPC features
       if (
-        this.item.data.type !== "npc_feature" ||
-        (this.item.data.type === "npc_feature" &&
+        this.item.data.type !== EntryType.NPC_FEATURE ||
+        (this.item.data.type === EntryType.NPC_FEATURE &&
           this.item.data.data.feature_type === NpcFeatureType.Weapon)
       ) {
         // Build range and damage arrays
@@ -280,7 +285,7 @@ export class LancerItemSheet extends ItemSheet {
       }
     }
 
-    if (this.item.data.type === "mech_system") {
+    if (this.item.data.type === EntryType.MECH_SYSTEM) {
       const i_data = this.item.data.data as LancerMechSystemData;
       // If the effect type has changed, initialize the effect structure
       if (i_data.effect.effect_type !== formData["data.effect.effect_type"]) {
@@ -316,6 +321,7 @@ export class LancerItemSheet extends ItemSheet {
 
     // Update the Item
     return this.object.update(formData);
+    */
   }
 
   static arrayifyTags(data: any, prefix: string) {

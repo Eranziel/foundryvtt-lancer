@@ -1,0 +1,70 @@
+<form class="{{cssClass}} lancer-sheet" autocomplete="off">
+
+  {{!-- Sheet Header --}}
+  <header class="sheet-header card clipped-bot">
+    <img class="profile-img" src="{{actor.img}}" data-edit="img" title="{{actor.name}}" height="100" width="100"/>
+    <div class="header-fields" style="grid-area: 1/1/2/5;">
+      <h1 class="charname"><input class="header-field" name="name" type="text" value="{{actor.name}}" placeholder="Name"/></h1>
+    </div>
+  </header>
+
+  <div class="deployable-stats" style="display:flex; justify-content: center">
+    <div class="flexcol card clipped" style="width: 20%">
+      <div class="lancer-stat-header clipped-top flexrow">
+        <i class="mdi mdi-heart-outline i--m i--light" style="float: left; padding-left: 10px"> </i>
+        <span class="major">HP</span>
+      </div>
+      <div class="flexrow" style="align-self: center;">
+        <input class="lancer-stat major" type="number" name="data.hp.value" value="{{data.CurrentHP}}" data-dtype="Number"/>
+        <span class="medium" style="max-width: min-content;" >/</span>
+        <span class="lancer-stat major"  value="{{data.MaxHP}}"/>
+      </div>
+    </div>
+    <div class="flexcol card clipped" style="width: 20%">
+      <div class="lancer-stat-header clipped-top flexrow">
+        <i class="cci cci-heat i--m i--light" style="float: left; padding-left: 10px"> </i>
+        <span class="major">HEAT</span>
+      </div>
+      <div class="flexrow" style="align-self: center;">
+        <input class="lancer-stat major" type="number" name="data.mech.heat.value" value="{{data.CurrentHeat}}" data-dtype="Number"/>
+        <span class="medium" style="max-width: min-content;">/</span>
+        <span class="lancer-stat major">{{data.MaxHeat}}</span>
+      </div>
+    </div>
+    <div class="flexcol card clipped" style="width: 20%">
+      <div class="lancer-stat-header clipped-top flexrow">
+        <i class="mdi mdi-shield-outline i--m i--light" style="float: left; padding-left: 10px"> </i>
+        <span class="major">ARMOR</span>
+      </div>
+      <span class="lancer-stat medium">{{data.Armor}}</span>
+    </div>
+
+
+    <div class="flexcol card clipped" style="width: 20%">
+      <div class="lancer-stat-header clipped-top flexrow">
+        <i class="cci cci-evasion i--m i--light" style="float: left; padding-left: 10px"> </i>
+        <span class="major">EVASION</span>
+      </div>
+      <span class="lancer-stat medium">{{data.Evasion}}</span>
+    </div>
+
+
+    <div class="flexcol card clipped" style="width: 20%">
+      <div class="lancer-stat-header clipped-top flexrow">
+        <i class="cci cci-edef i--m i--light" style="float: left; padding-left: 10px"> </i>
+        <span class="major">E-DEF</span>
+      </div>
+        <span class="lancer-stat medium"  >{{data.EDefense}}</span>
+    </div>
+  </div>
+
+  <div class="flexcol card clipped">
+    <span class="lancer-stat-header major clipped-top">EFFECT</span>
+    {{editor content=data.effect target="data.effect" button=true owner=owner editable=editable}}
+  </div>
+
+  <div class="flexcol card clipped">
+    <span class="lancer-stat-header major clipped-top">DESCRIPTION</span>
+    {{editor content=data.description target="data.description" button=true owner=owner editable=editable}}
+  </div>
+</form>

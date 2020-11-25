@@ -1,5 +1,4 @@
 import {
-  LancerFrameStatsData,
   LancerMountData,
   LancerPilotData,
   LancerPilotSheetData,
@@ -8,7 +7,6 @@ import {
   LancerCoreBonus,
   LancerFrame,
   LancerItem,
-  LancerItemData,
   LancerLicense,
   LancerMechSystem,
   LancerMechWeapon,
@@ -21,10 +19,11 @@ import {
 import { LancerActor } from "./lancer-actor";
 import { LANCER } from "../config";
 import { ItemDataManifest } from "../item/util";
-import { MountType } from "machine-mind";
-import { import_pilot_by_code, update_pilot } from "./util";
+import { import_pilot_by_code, update_pilot_by_code } from "./util";
 import { LancerActorSheet } from "./lancer-actor-sheet";
 import { prepareCoreActiveMacro, prepareCorePassiveMacro } from "../macros";
+import { EntryType, MountType, OpCtx } from "machine-mind";
+import { FoundryReg } from "../mm-util/foundry-reg";
 
 const lp = LANCER.log_prefix;
 
@@ -70,10 +69,28 @@ export class LancerPilotSheet extends LancerActorSheet {
    * Prepare data for rendering the Actor sheet
    * The prepared data object contains both the actor data as well as additional sheet options
    */
-  getData(): LancerPilotSheetData {
-    const data: LancerPilotSheetData = super.getData() as LancerPilotSheetData;
+  //@ts-ignore
+  async getData(): Promise<LancerPilotSheetData> {
+    const base_data = super.getData();
 
-    this._prepareItems(data);
+    // Spool up state
+    let reg = new FoundryReg();
+    let ctx = new OpCtx();
+
+    // Load pilot
+    let pilot = await reg.get_cat(EntryType.PILOT).get_live(ctx, this.actor._id);
+    if(!pilot) {
+      throw new Error("Registry failure");
+    }
+    const data: LancerPilotSheetData = {
+      ...base_data,
+      ctx,
+      reg,
+      data: pilot
+    }
+
+    // this._prepareItems(data);
+    /*
 
     // Populate the callsign if blank (new Actor)
     if (data.data.pilot.callsign === "") {
@@ -105,7 +122,7 @@ export class LancerPilotSheet extends LancerActorSheet {
     if (typeof this.actor.data.data.mech.overcharge_level === "undefined") {
       this.actor.data.data.mech.overcharge_level = 0;
     }
-
+    */
     console.log(`${lp} Pilot sheet data: `, data);
     return data;
   }
@@ -117,6 +134,7 @@ export class LancerPilotSheet extends LancerActorSheet {
    * @private
    */
   _prepareItems(data: LancerPilotSheetData) {
+  /*
     data.sp_used = 0;
 
     // Mirror items into filtered list properties
@@ -165,6 +183,7 @@ export class LancerPilotSheet extends LancerActorSheet {
         }
       }
     });
+  */
   }
 
   /* -------------------------------------------- */
@@ -173,6 +192,7 @@ export class LancerPilotSheet extends LancerActorSheet {
    * Activate event listeners using the prepared sheet HTML
    * @param html {JQuery}   The prepared HTML object ready to be rendered into the DOM
    */
+  /*
   activateListeners(html: JQuery) {
     super.activateListeners(html);
 
@@ -395,7 +415,7 @@ export class LancerPilotSheet extends LancerActorSheet {
         // Get the data
         ui.notifications.info("Importing character...");
         import_pilot_by_code((this.actor.data.data as LancerPilotData).pilot.cloud_code)
-          .then(cc_pilot => update_pilot(this.actor as LancerActor, cc_pilot))
+          .then(cc_pilot => update_pilot_by_code(this.actor as LancerActor, cc_pilot))
           .then(() => {
             ui.notifications.info("Successfully loaded pilot state from cloud");
           })
@@ -408,6 +428,7 @@ export class LancerPilotSheet extends LancerActorSheet {
       });
     }
   }
+  */
 
   _onDragMacroableStart(event: DragEvent) {
     // For roll-stat macros
@@ -439,7 +460,7 @@ export class LancerPilotSheet extends LancerActorSheet {
       title: target.nextElementSibling?.textContent,
       rank: target.getAttribute("data-rank"),
       data: {
-        type: "talent",
+        type: EntryType.TALENT,
       },
     };
 
@@ -447,101 +468,12 @@ export class LancerPilotSheet extends LancerActorSheet {
   }
 
   async _onDrop(event: any): Promise<boolean> {
-    let item: Item | null = await super._onDrop(event);
+    let item: LancerItem<any> | null = await super._onDrop(event);
 
     const actor = this.actor as LancerActor;
     if (item) {
       // Swap mech frame
-      if (item.type === "frame") {
-        let newFrameStats: LancerFrameStatsData;
-        let oldFrameStats: LancerFrameStatsData | undefined = undefined;
-        // Remove old frame
-        for (let item of actor.items) {
-          const i = (item as unknown) as LancerItem;
-          if (i.type === "frame") {
-            console.log(`${lp} Removing ${actor.name}'s old ${i.name} frame.`);
-            oldFrameStats = duplicate((i as LancerFrame).data.data.stats);
-            await this.actor.deleteOwnedItem(i._id);
-          }
-        }
-        const frame = (await actor.createOwnedItem(duplicate(item.data))) as any;
-        console.log(`${lp} Added ${frame.name} to ${actor.name}.`);
-        newFrameStats = frame.data.stats;
-
-        if (newFrameStats) {
-          console.log(`${lp} Swapping Frame stats for ${actor.name}`);
-          await actor.swapFrames(newFrameStats, oldFrameStats);
-        }
-        return Promise.resolve(true);
-      }
-      // Handling mech-weapon -> mount mapping
-      else if (item.type === "mech_weapon") {
-        let mounts = duplicate(this.actor.data.data.mech_loadout.mounts);
-        if (!mounts.length) {
-          ui.notifications.error(
-            "A mech weapon was dropped on the page, but there are no weapon mounts installed. Go to the Frame Loadout tab to add some!"
-          );
-          return Promise.resolve(false);
-        }
-
-        let mount_element = $(event.target.closest(".lancer-mount-container"));
-
-        if (!mount_element.length) {
-          ui.notifications.error(
-            "You dropped a mech weapon on the page, but not onto a weapon mount. Go to the Frame Loadout tab to find them!"
-          );
-          return Promise.resolve(false);
-        } else {
-          let mount_whitelist = {
-            Auxiliary: [
-              MountType.Integrated,
-              MountType.Aux,
-              MountType.AuxAux,
-              MountType.MainAux,
-              MountType.Flex,
-              MountType.Main,
-              MountType.Heavy,
-            ],
-            Main: [
-              MountType.Integrated,
-              MountType.Main,
-              MountType.Flex,
-              MountType.MainAux,
-              MountType.Heavy,
-            ],
-            Heavy: [MountType.Integrated, MountType.Heavy],
-            Superheavy: [MountType.Integrated, MountType.Heavy],
-            Other: [
-              MountType.Integrated,
-              MountType.Aux,
-              MountType.AuxAux,
-              MountType.MainAux,
-              MountType.Flex,
-              MountType.Main,
-              MountType.Heavy,
-            ],
-          };
-
-          let mount = mounts[parseInt(mount_element.data("itemKey"))];
-          let valid = mount_whitelist[(item as LancerMechWeapon).data.data.mount];
-          if (!valid.includes(mount.type)) {
-            ui.notifications.error("The weapon you dropped is too large for this weapon mount!");
-            return Promise.resolve(false);
-            // TODO: superheavy secondary mounts
-            // } else if (item.data.data.mount === "Superheavy" && !mount.secondary_mount) {
-            //   ui.notifications.error(
-            //     "Assign a secondary mount to this heavy mount in order to equip a superheavy weapon"
-            //   );
-          } else {
-            let weapon = await actor.createOwnedItem(duplicate(item.data));
-            mount.weapons.push(weapon);
-            console.log(`${lp} Inserted Mech Weapon into Mount`, weapon);
-            await this.actor.update({ "data.mech_loadout.mounts": mounts });
-          }
-        }
-
-        return Promise.resolve(true);
-      } else if (LANCER.pilot_items.includes(item.type)) {
+      if (LANCER.pilot_items.includes(item.type)) {
         await this._addOwnedItem(item);
         return Promise.resolve(true);
       } else if (LANCER.npc_items.includes(item.type)) {
@@ -556,7 +488,7 @@ export class LancerPilotSheet extends LancerActorSheet {
       } catch (err) {
         return false;
       }
-      event.dataTransfer?.setData("text/plain", JSON.stringify(data));
+      event.dataTransfer?.setData("text/plain", JSON.stringify(data)); // This doesn't seem to do anything? Why is it here?
     }
 
     // Finally, fall back to super's behaviour if nothing else "handles" the drop (signalled by returning).

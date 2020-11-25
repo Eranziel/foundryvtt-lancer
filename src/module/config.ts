@@ -1,5 +1,7 @@
 // Namespace configuration Values
 
+import { EntryType } from "machine-mind";
+
 const ASCII = `
 ╭╮╱╱╭━━━┳━╮╱╭┳━━━┳━━━┳━━━╮ 
 ┃┃╱╱┃╭━╮┃┃╰╮┃┃╭━╮┃╭━━┫╭━╮┃ 
@@ -18,19 +20,22 @@ export const LANCER = {
   setting_stock_icons: "keepStockIcons",
   setting_welcome: "hideWelcome",
   pilot_items: [
-    "frame",
-    "skill",
-    "talent",
-    "core_bonus",
-    "license",
-    "pilot_armor",
-    "pilot_weapon",
-    "pilot_gear",
-    "mech_weapon",
-    "mech_system",
+    EntryType.SKILL,
+    EntryType.TALENT,
+    EntryType.CORE_BONUS,
+    EntryType.LICENSE,
+    EntryType.PILOT_ARMOR,
+    EntryType.PILOT_WEAPON,
+    EntryType.PILOT_GEAR,
+    EntryType.FACTION,
+    EntryType.QUIRK,
+    EntryType.RESERVE,
+    EntryType.ORGANIZATION
   ],
-  npc_items: ["npc_class", "npc_template", "npc_feature"],
-  weapon_items: ["mech_weapon", "pilot_weapon", "npc_feature"],
+  mech_items: [EntryType.WEAPON_MOD, EntryType.FRAME, EntryType.FRAME_TRAIT, EntryType.MECH_WEAPON, EntryType.MECH_SYSTEM, EntryType.CORE_SYSTEM],
+  npc_items: [EntryType.NPC_CLASS, EntryType.NPC_FEATURE, EntryType.NPC_TEMPLATE], 
+  actor_types: [EntryType.NPC, EntryType.DEPLOYABLE, EntryType.MECH, EntryType.PILOT],
+  weapon_items: [EntryType.MECH_WEAPON, EntryType.PILOT_WEAPON, EntryType.NPC_FEATURE],
 };
 
 export const STATUSES = [
