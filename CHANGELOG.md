@@ -1,3 +1,9 @@
+# 0.1.16 (2020-11-25)
+## Bug Fixes
+* **Pilot Sheet**: Syncing Comp/Con cloud saves no longer fails with a 401 error. Closes #113. Again.
+* **Pilot Sheet**: Fix an issue where some synced pilots caused the pilot sheet to not render after syncing. Closes #115.
+* **Macros**: Pilot skill trigger and overcharge macros rolled from the sheet no longer fail if no token is selected.
+
 # 0.1.15 (2020-11-22)
 ## Features
 * **Pilot Sheet**: Syncing Comp/Con cloud saves now sets up mounts and adds weapons to them. Closes #75.
