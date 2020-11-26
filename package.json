@@ -36,6 +36,6 @@
     "@mdi/font": "^5.7.55",
     "compare-versions": "^3.6.0",
     "lancer-data": "^2.0.35",
-    "machine-mind": "^0.1.2"
+    "machine-mind": "^0.1.3"
   }
 }
