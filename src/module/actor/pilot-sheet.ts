@@ -1,8 +1,4 @@
-import {
-  LancerMountData,
-  LancerPilotData,
-  LancerPilotSheetData,
-} from "../interfaces";
+import { LancerMountData, LancerPilotData, LancerPilotSheetData } from "../interfaces";
 import {
   LancerCoreBonus,
   LancerFrame,
@@ -79,15 +75,15 @@ export class LancerPilotSheet extends LancerActorSheet {
 
     // Load pilot
     let pilot = await reg.get_cat(EntryType.PILOT).get_live(ctx, this.actor._id);
-    if(!pilot) {
+    if (!pilot) {
       throw new Error("Registry failure");
     }
     const data: LancerPilotSheetData = {
       ...base_data,
       ctx,
       reg,
-      data: pilot
-    }
+      data: pilot,
+    };
 
     // this._prepareItems(data);
     /*
@@ -134,7 +130,7 @@ export class LancerPilotSheet extends LancerActorSheet {
    * @private
    */
   _prepareItems(data: LancerPilotSheetData) {
-  /*
+    /*
     data.sp_used = 0;
 
     // Mirror items into filtered list properties

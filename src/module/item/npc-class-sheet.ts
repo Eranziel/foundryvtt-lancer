@@ -1,6 +1,11 @@
 import { LANCER } from "../config";
 import { LancerItemSheet } from "./item-sheet";
-import { LancerItem, LancerNPCClass, LancerNPCFeatureItemData, npc_feature_preview } from "./lancer-item";
+import {
+  LancerItem,
+  LancerNpcClass,
+  LancerNpcFeatureData,
+  npc_feature_preview,
+} from "./lancer-item";
 const lp = LANCER.log_prefix;
 
 /**
@@ -21,8 +26,8 @@ export class LancerNPCClassSheet extends LancerItemSheet {
     });
   }
 
-  base_feature_items!: LancerNPCFeatureItemData[];
-  optional_feature_items!: LancerNPCFeatureItemData[];
+  base_feature_items!: LancerNpcFeatureData[];
+  optional_feature_items!: LancerNpcFeatureData[];
 
   /** @override */
   _updateObject(event: any, formData: any) {
@@ -77,7 +82,7 @@ export class LancerNPCClassSheet extends LancerItemSheet {
   }
 
   getData(): ItemSheetData {
-    let item = this.item as LancerNPCClass;
+    let item = this.item as LancerNpcClass;
     //Fetching local copies for use in drag-and-drop flow
     // item.base_feature_items.then(features => (this.base_feature_items = features));
     // item.optional_feature_items.then(features => (this.optional_feature_items = features));
@@ -88,15 +93,15 @@ export class LancerNPCClassSheet extends LancerItemSheet {
   activateListeners(html: JQuery) {
     super.activateListeners(html);
 
-    let item = this.item as LancerNPCClass;
+    let item = this.item as LancerNpcClass;
 
     //These have to be refetched here despite also being fetched in getData because getData isn't allowed to be async in ItemSheets, thanks Foundry
     //So even if this looks like it's wrong, it's not
     // item.base_feature_items.then(base_features =>
-      // this._displayFeatures(base_features, html.find("#base_feature_items"))
+    // this._displayFeatures(base_features, html.find("#base_feature_items"))
     // );
     // item.optional_feature_items.then(optional_features =>
-      // this._displayFeatures(optional_features, html.find("#optional_feature_items"))
+    // this._displayFeatures(optional_features, html.find("#optional_feature_items"))
     // );
   }
 
@@ -119,7 +124,7 @@ export class LancerNPCClassSheet extends LancerItemSheet {
   }
 
   private _displayFeatures(
-    features: LancerNPCFeatureItemData[],
+    features: LancerNpcFeatureData[],
     elementToReplace: JQuery<Element>
   ) {
     let featureItems = features

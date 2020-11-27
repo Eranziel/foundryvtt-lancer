@@ -15,9 +15,9 @@
         <span class="major">HP</span>
       </div>
       <div class="flexrow" style="align-self: center;">
-        <input class="lancer-stat major" type="number" name="data.hp.value" value="{{data.CurrentHP}}" data-dtype="Number"/>
+        <input class="lancer-stat major" type="number" name="mm.ent.CurrentHP" value="{{mm.ent.CurrentHP}}" data-dtype="Number"/>
         <span class="medium" style="max-width: min-content;" >/</span>
-        <span class="lancer-stat major"  value="{{data.MaxHP}}"/>
+        <span class="lancer-stat major">{{mm.ent.MaxHP}}</span>
       </div>
     </div>
     <div class="flexcol card clipped" style="width: 20%">
@@ -26,9 +26,9 @@
         <span class="major">HEAT</span>
       </div>
       <div class="flexrow" style="align-self: center;">
-        <input class="lancer-stat major" type="number" name="data.mech.heat.value" value="{{data.CurrentHeat}}" data-dtype="Number"/>
+        <input class="lancer-stat major" type="number" name="mm.ent.CurrentHeat" value="{{mm.ent.CurrentHeat}}" data-dtype="Number"/>
         <span class="medium" style="max-width: min-content;">/</span>
-        <span class="lancer-stat major">{{data.MaxHeat}}</span>
+        <span class="lancer-stat major">{{mm.ent.HeatCapacity}}</span>
       </div>
     </div>
     <div class="flexcol card clipped" style="width: 20%">
@@ -36,7 +36,7 @@
         <i class="mdi mdi-shield-outline i--m i--light" style="float: left; padding-left: 10px"> </i>
         <span class="major">ARMOR</span>
       </div>
-      <span class="lancer-stat medium">{{data.Armor}}</span>
+      <span class="lancer-stat major">{{mm.ent.Armor}}</span>
     </div>
 
 
@@ -45,7 +45,7 @@
         <i class="cci cci-evasion i--m i--light" style="float: left; padding-left: 10px"> </i>
         <span class="major">EVASION</span>
       </div>
-      <span class="lancer-stat medium">{{data.Evasion}}</span>
+      <span class="lancer-stat medium">{{mm.ent.Evasion}}</span>
     </div>
 
 
@@ -54,7 +54,7 @@
         <i class="cci cci-edef i--m i--light" style="float: left; padding-left: 10px"> </i>
         <span class="major">E-DEF</span>
       </div>
-        <span class="lancer-stat medium"  >{{data.EDefense}}</span>
+        <span class="lancer-stat medium"  >{{mm.ent.EDefense}}</span>
     </div>
   </div>
 
@@ -67,4 +67,29 @@
     <span class="lancer-stat-header major clipped-top">DESCRIPTION</span>
     {{editor content=data.description target="data.description" button=true owner=owner editable=editable}}
   </div>
+
+
+  {{#each ent.mm.OwnedWeapons as |weapon|}}
+  <li class="card clipped item macroable" data-item-id="{{weapon.RegistryID}}">
+    <div class="lancer-weapon-header clipped-top" style="grid-area: 1/1/2/3">
+      <i class="cci cci-weapon i--m i--light"> </i>
+      <span class="minor">{{weapon.Name}}</span>
+      <a class="stats-control i--light" data-action="delete"><i class="fas fa-trash"></i></a>
+    </div>
+    <div class="flexcol">
+      <div class="flexrow">
+        <a class="flexrow roll-attack" style="max-width: min-content;">
+          <i class="fas fa-dice-d20 i--sm i--dark"></i>
+        </a>
+        {{#each weapon.SelectedProfile.BaseRange as |range rkey|}}
+          {{{wpn-range range rkey}}}
+        {{/each}}
+        <hr class="vsep">
+        {{#each weapon.SelectedProfile.BaseDamage as |damage dkey|}}
+          {{{wpn-damage damage dkey}}}
+        {{/each}}
+      </div>
+    </div>
+  </li>
+  {{/each}}
 </form>

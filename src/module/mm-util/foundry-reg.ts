@@ -37,13 +37,24 @@ import {
   Talent,
   StaticReg,
   RegEnv,
-  CovetousReg,
   NpcFeature,
   PilotWeapon,
+  NpcTemplate,
+  InsinuationRecord,
+  InventoriedRegEntry,
 } from "machine-mind";
-import { NpcTemplate } from "machine-mind/dist/classes/npc/NpcTemplate";
-import { intake_pack } from "machine-mind/dist/funcs";
+import { LancerActor } from "../actor/lancer-actor";
+import { LANCER, LancerActorType, LancerItemType } from "../config";
 import { LancerItem } from "../item/lancer-item";
+import {
+  EntityCollectionWrapper,
+  CompendiumWrapper,
+  WorldActorsWrapper,
+  ActorInventoryWrapper,
+  WorldItemsWrapper,
+  EntFor,
+  GetResult,
+} from "./db_abstractions";
 
 // Pluck
 const defaults = funcs.defaults;
@@ -88,59 +99,111 @@ export interface FoundryRegItemData<T extends EntryType> {
   name: string;
 }
 
-// This is what items for machine-mind compatible items look like in foundry.
-export interface FoundryRegItem<T extends EntryType> {
-  data: FoundryRegItemData<T>;
-  options: any;
-  labels?: any;
-  effects?: Map<string, any>;
-  compendium: Compendium | null;
-  apps: any;
-
-  delete(): Promise<any>; // Deletes it
-  update(data: Partial<FoundryRegItemData<T>>, options?: any): Promise<any>; // Deletes it
-}
-
 // Ditto for actors
 export interface FoundryRegActorData<T extends EntryType> extends FoundryRegItemData<T> {
   effects: any[];
   token: Token;
 }
 
-// This is what items for machine-mind compatible items look like in foundry.
-export interface FoundryRegActor<T extends EntryType> extends FoundryRegItem<T> {
-  data: FoundryRegActorData<T>;
-  items: Map<string, LancerItem<any>>;
-  token: Token | null; // Seems to be the instance token (if unlinked), whereas within ActorData is the prototype/linked?
-  overrides: any; // no idea lol
+export interface FlagData<T extends EntryType> {
+  orig_entity: EntFor<T>;
 }
 
 ///////////////////////////////// REGISTRY IMPLEMENTATION ///////////////////////////////////////
+/**
+ * Formats:
+ * comp                     // The general compendium registry
+ * comp_actor:{{actor_id}}  // The inventory of an actor in the compendium
+ * world                    // The general world registry
+ * world_actor:{{actor_id}} // The inventory of an actor in the world
+ */
 export class FoundryReg extends Registry {
-  get_inventory(for_actor_type: EntryType, for_actor_id: string): Registry | null {
-    if (!this.for_compendium) {
-      let actor = game.actors.get(for_actor_id);
-      if (actor) {
-        return new FoundryReg({ for_actor: actor });
+  // This reduces the number of new registries we must create. Caches both RegEntry lookups and string lookups
+  private cached_regs = new Map<any, FoundryReg>();
+
+  // Give a registry for the provided inventoried item
+  switch_reg_inv(for_inv_item: InventoriedRegEntry<EntryType>): Registry {
+    // Check cache
+    if(this.cached_regs.has(for_inv_item)) {
+      return this.cached_regs.get(for_inv_item)!;
+    }
+
+    // Base our decision on for_inv_item's registry
+    let fii_regname = for_inv_item.Registry.name();
+
+    // Behaviour changes if original was compendium - if so, need a compendium + actor reg
+    let reg: FoundryReg;
+    if(fii_regname.substr(0,4) == "comp") {
+      console.warn("Compendium actor inventories not yet properly supported");
+      reg = new FoundryReg({/*for_actor: actor*/ for_compendium: true});
+    } else {
+      let actor = game.actors.get(for_inv_item.RegistryID) as LancerActor<LancerActorType>;
+      reg = new FoundryReg({for_actor: actor});
+    }
+
+    // Set cache and return
+    this.cached_regs.set(for_inv_item, reg);
+    return reg;
+  }
+
+  // Get a name descriptor of what region/set of items/whatever this registry represents/ provides access to
+  name(): string {
+    // Depends on our actor and compendium flags
+    if(this.for_compendium) {
+      if(this.actor) {
+        return `comp_actor:${this.actor._id}`;
       } else {
-        return null;
+        return "comp";
       }
     } else {
-      // Get the pack for it
-      let pack_name = `world.${for_actor_type}`;
-      let pack = game.packs.get(pack_name);
-      if (!pack) {
-        return null; // We can't handle this
+      if(this.actor) {
+        return `world_actor:${this.actor._id}`;
+      } else {
+        return "world";
       }
-
-      // Get the actor within the pack
-      let fa = pack.getEntity(for_actor_id) as Promise<Actor | null>;
-      return new FoundryReg({ for_actor: fa });
     }
   }
 
+  switch_reg(inventory_id: string): Registry | null {
+    // Check cache
+    if(this.cached_regs.has(inventory_id)) {
+      return this.cached_regs.get(inventory_id)!;
+    }
+
+    // Get subtype
+    let [subtype, id] = inventory_id.split(":");
+    id = id ?? "";
+    let reg: FoundryReg;
+    switch(subtype) {
+      case "comp":
+        reg = new FoundryReg({for_compendium: true});
+        break;
+      case "world":
+        reg = new FoundryReg();
+        break;
+      case "world_actor":
+        // return an actor-compendium with actor fetched v. simply
+        let actor = game.actors.get(id);
+        if (actor) {
+          reg = new FoundryReg({ for_actor: actor });
+          break;
+        } else {
+          return null;
+        }
+      case "comp_actor":
+        console.warn("Compendium actor item refs not yet supported");
+        return null;
+      default: 
+        return null;
+    }
+
+    // Set cache and return
+    this.cached_regs.set(inventory_id, reg);
+    return reg;
+  }
+
   // The associated actor, if any
-  public actor: Promise<Actor | null>;
+  public actor: Actor | null;
   for_compendium: boolean;
 
   // By default world scope. Can specify either that this is in a compendium, or is in an actor
@@ -148,14 +211,14 @@ export class FoundryReg extends Registry {
     {
       for_compendium,
       for_actor,
-    }: { for_compendium?: boolean; for_actor?: Actor | Promise<Actor | null> | null } = {
+    }: { for_compendium?: boolean; for_actor?: Actor | null } = {
       for_compendium: false,
     }
   ) {
     super();
     this.for_compendium = for_compendium ?? false;
 
-    this.actor = Promise.resolve(for_actor ?? null).catch(_ => null);
+    this.actor = for_actor ?? null;
     let _actor = this.actor;
     if (for_actor && for_compendium) {
       console.warn(
@@ -170,11 +233,14 @@ export class FoundryReg extends Registry {
       } else if (
         [EntryType.MECH, EntryType.PILOT, EntryType.DEPLOYABLE, EntryType.NPC].includes(for_type)
       ) {
-        return new GlobalActorWrapper(for_type);
+        //@ts-ignore
+        return new WorldActorsWrapper(for_type);
       } else if (for_actor) {
-        return new ActorItemWrapper(for_type, _actor);
+        //@ts-ignore
+        return new ActorInventoryWrapper(for_type, _actor);
       } else {
-        return new GlobalItemWrapper(for_type);
+        //@ts-ignore
+        return new WorldItemsWrapper(for_type);
       }
     }
 
@@ -250,367 +316,27 @@ export class FoundryReg extends Registry {
     do_cat(EntryType.WEAPON_MOD, WeaponMod, defaults.WEAPON_MOD);
     this.init_finalize();
   }
-}
 
-// This can wrap an actors inventory, the global actor/item inventory, or a compendium
-abstract class EntityCollectionWrapper<T extends EntryType> {
-  // Create an item and return a reference to it
-  abstract create(item: RegEntryTypes<T>): Promise<RegRef<T>>; // Return id
-  // Update the specified item of type T
-  abstract update(id: string, item: RegEntryTypes<T>): Promise<void>;
-  // Retrieve the specified item of type T, or yield null if it does not exist
-  abstract get(id: string): Promise<RegEntryTypes<T> | null>;
-  // Delete the specified item
-  abstract destroy(id: string): Promise<RegEntryTypes<T> | null>;
-  // List items, including id for reference
-  abstract enumerate(): Promise<
-    Array<{
-      id: string;
-      item: RegEntryTypes<T>;
-    }>
-  >;
-}
-
-// Handles accesses to the global item set
-class GlobalItemWrapper<T extends EntryType> extends EntityCollectionWrapper<T> {
-  // Need this to filter results by type
-  type: T;
-  constructor(type: T) {
-    super();
-    this.type = type;
-  }
-
-  // Handles type checking
-  private subget(id: string): FoundryRegItem<T> | null {
-    let fi = game.items.get(id);
-    if (fi && fi.type == this.type) {
-      return (fi as unknown) as FoundryRegItem<T>;
-    } else {
-      return null;
-    }
-  }
-
-  async create(item: RegEntryTypes<T>): Promise<RegRef<T>> {
-    // Create the item
-    item = duplicate(item);
-    let name = item.name; // Luckily (IE by design), all reg item types have a name
-    let res = await Item.create({ type: this.type, name, data: item });
-
-    // TODO: Remove this, as it should be unnecessary once we have proper template.json
-    //@ts-ignore
-    await res.update({ data: item });
-
-    // Return the reference
-    return {
-      id: res._id,
-      is_unresolved_mmid: false,
-      type: this.type,
-    };
-  }
-
-  async update(id: string, item: RegEntryTypes<T>): Promise<void> {
-    let fi = this.subget(id);
-    if (fi) {
-      await fi.update({ data: item }, {});
-    } else {
-      console.error(`Failed to update item ${id} of type ${this.type} - item not found`);
-    }
-  }
-
-  async get(id: string): Promise<RegEntryTypes<T> | null> {
-    let fi = this.subget(id);
-    if (fi) {
-      return fi.data.data as RegEntryTypes<T>;
-    } else {
-      return null;
-    }
-  }
-
-  async destroy(id: string): Promise<RegEntryTypes<T> | null> {
-    let subgot = this.subget(id);
-    if (subgot) {
-      await subgot.delete();
-      return subgot.data.data;
-    } else {
-      return null;
-    }
-  }
-
-  async enumerate(): Promise<
-    Array<{
-      id: string;
-      item: RegEntryTypes<T>;
-    }>
-  > {
-    return game.items.entities.map(e => ({
-      id: (e.data as any)._id,
-      item: e.data.data as RegEntryTypes<T>,
-    }));
-  }
-}
-
-// Handles accesses to the global actor set
-class GlobalActorWrapper<T extends EntryType> extends EntityCollectionWrapper<T> {
-  // Need this to filter results by type
-  type: T;
-  constructor(type: T) {
-    super();
-    this.type = type;
-  }
-
-  // Handles type checking
-  private subget(id: string): Actor | null {
-    let fi = game.actors.get(id);
-    if (fi && fi.data.type == this.type) {
-      return fi;
-    } else {
-      return null;
-    }
-  }
-
-  async create(item: RegEntryTypes<T>): Promise<RegRef<T>> {
-    // Create the item
-    item = duplicate(item);
-    let name = item.name;
-    let res = await Actor.create({ type: this.type, name, data: item });
-
-    // TODO: Remove this, as it should be unnecessary once we have proper template.json
-    //@ts-ignore
-    await res.update({ data: item });
-
-    // Return the reference
-    return {
-      id: res._id,
-      is_unresolved_mmid: false,
-      type: this.type,
-    };
-  }
-
-  async update(id: string, item: RegEntryTypes<T>): Promise<void> {
-    let fi = this.subget(id);
-    if (fi) {
-      await fi.update({ data: item }, {});
-    } else {
-      console.error(`Failed to update actor ${id} of type ${this.type} - actor not found`);
-    }
-  }
-
-  async get(id: string): Promise<RegEntryTypes<T> | null> {
-    let fi = this.subget(id);
-    if (fi) {
-      return fi.data.data as RegEntryTypes<T>;
-    } else {
-      return null;
-    }
-  }
-
-  async destroy(id: string): Promise<RegEntryTypes<T> | null> {
-    let subgot = this.subget(id);
-    if (subgot) {
-      await subgot.delete();
-      return subgot.data.data;
-    } else {
-      return null;
-    }
-  }
-
-  async enumerate(): Promise<
-    Array<{
-      id: string;
-      item: RegEntryTypes<T>;
-    }>
-  > {
-    return game.actors.entities.map(e => ({
-      id: (e.data as any)._id,
-      item: e.data.data as RegEntryTypes<T>,
-    }));
-  }
-}
-
-class ActorItemWrapper<T extends EntryType> extends EntityCollectionWrapper<T> {
-  // Need this to filter results by type
-  type: T;
-
-  // Where we get the items from. Has to remain as a promise due to some annoying sync/async api issues that are totally my fault but that aren't worth changing
-  actor: Promise<Actor | null>;
-  constructor(type: T, actor: Promise<Actor | null>) {
-    super();
-    this.type = type;
-    this.actor = actor;
-    actor.then(a => {
-      if (!a) {
-        console.warn("Failed to resolve actor. All operations in this :(");
+  // Hook - carries over additional data when insinuating from an item
+  async hook_post_insinuate<T extends EntryType>(record: InsinuationRecord<T>) {
+    // Check if we have an original entity
+    let orig = record.new_item.flags?.orig_entity;
+    if(record.new_item.flags?.orig_entity) {
+      if(LANCER.actor_types.includes(orig.type)){
+        // 'tis an actor
+        let orig_entity = record.new_item.flags.orig_entity as LancerActor<T & LancerActorType>;
+        let img = orig_entity.data?.img;
+        let name = orig_entity.data?.name;
+        let token = orig_entity.data?.token;
+        await orig_entity.update({img, name, token});
+      } else {
+        // 'tis an item
+        let orig_entity = record.new_item.flags.orig_entity as LancerItem<T & LancerItemType>;
+        let img = orig_entity.data?.img;
+        let name = orig_entity.data?.name;
+        await orig_entity.update({img, name}, {});
       }
-    });
-  }
-
-  // There is no sensible way to handle our actor resolving as null
-  async real_actor(): Promise<Actor> {
-    let a = await this.actor;
-    if (!a) {
-      throw new Error("Failed to resolve actor. This registry is thus invalid");
     }
-    return a;
-  }
-
-  // Handles type checking
-  private async subget(id: string): Promise<FoundryRegItem<T> | null> {
-    let fi = (await this.real_actor()).items.get(id);
-    if (fi && fi.type == this.type) {
-      return (fi as unknown) as FoundryRegItem<T>;
-    } else {
-      return null;
-    }
-  }
-
-  async create(item: RegEntryTypes<T>): Promise<RegRef<T>> {
-    // Create the item
-    item = duplicate(item); // better safe than sorry
-    let name = item.name;
-    let res = await this.real_actor().then(a =>
-      a.createOwnedItem({ type: this.type, name, data: item })
-    );
-
-    // TODO: Remove this, as it should be unnecessary once we have proper template.json
-    // @ts-ignore
-    // await res.update({data: item});
-
-    // Return the ref
-    return {
-      id: res._id,
-      is_unresolved_mmid: false,
-      type: this.type,
-    };
-  }
-
-  async update(id: string, item: RegEntryTypes<T>): Promise<void> {
-    let fi = await this.subget(id);
-    if (fi) {
-      await fi.update({ data: item }, {});
-      return;
-    } else {
-      console.error(
-        `Failed to update item ${id} of type ${this.type} in actor. Actor or item not found`,
-        this.actor
-      );
-    }
-  }
-
-  async get(id: string): Promise<RegEntryTypes<T> | null> {
-    let fi = await this.subget(id);
-    if (fi) {
-      return fi.data.data as RegEntryTypes<T>;
-    } else {
-      return null;
-    }
-  }
-
-  async destroy(id: string): Promise<RegEntryTypes<T> | null> {
-    let subgot = await this.subget(id);
-    if (subgot) {
-      await subgot.delete();
-      return subgot.data.data;
-    } else {
-      return null;
-    }
-  }
-
-  async enumerate(): Promise<
-    Array<{
-      id: string;
-      item: RegEntryTypes<T>;
-    }>
-  > {
-    let actor = await this.real_actor();
-    return ((actor.items.entries as unknown) as Array<FoundryRegItem<T>>).map(e => ({
-      id: e.data._id,
-      item: e.data.data,
-    }));
-  }
-}
-
-class CompendiumWrapper<T extends EntryType> extends EntityCollectionWrapper<T> {
-  // Need this to filter results by type
-  type: T;
-  constructor(type: T) {
-    super();
-    this.type = type;
-  }
-
-  private get pack(): Compendium {
-    let pack = game.packs.get(`world.${this.type}`);
-    if (!pack) {
-      throw new Error(`no such pack: world.${this.type}`);
-    }
-    return pack;
-  }
-
-  // Handles type checking and stuff
-  private async subget(id: string): Promise<FoundryRegItem<T> | null> {
-    let fi = ((await this.pack.getEntity(id)) as unknown) as FoundryRegItem<T> | null;
-    if (fi && fi.data.type == this.type) {
-      return fi;
-    } else {
-      return null;
-    }
-  }
-
-  async create(data: RegEntryTypes<T>): Promise<RegRef<T>> {
-    let name = data.name; // Luckily (IE by design), all reg item types have a name
-    data = duplicate(data); // better safe than sorry
-    let intaken = ((await this.pack.createEntity({
-      type: this.type,
-      name,
-      data,
-    })) as unknown) as FoundryRegItem<T>;
-
-    // TODO: Remove this, as it should be unnecessary once we have proper template.json
-    await intaken.update({ data: data });
-    return {
-      id: intaken.data._id,
-      is_unresolved_mmid: false,
-      type: this.type,
-    };
-  }
-
-  async update(id: string, item: RegEntryTypes<T>): Promise<void> {
-    let fi = await this.subget(id);
-    if (fi) {
-      await fi.update({ data: item }, {});
-    } else {
-      console.error(`Failed to update item ${id} of type ${this.type} - item not found`);
-    }
-  }
-
-  async get(id: string): Promise<RegEntryTypes<T> | null> {
-    let fi = await this.subget(id);
-    if (fi) {
-      return fi.data.data as RegEntryTypes<T>;
-    } else {
-      return null;
-    }
-  }
-
-  async destroy(id: string): Promise<RegEntryTypes<T> | null> {
-    let subgot = await this.subget(id);
-    if (subgot) {
-      await subgot.delete();
-      return subgot.data.data;
-    } else {
-      return null;
-    }
-  }
-
-  async enumerate(): Promise<
-    Array<{
-      id: string;
-      item: RegEntryTypes<T>;
-    }>
-  > {
-    return game.items.entities.map(e => ({
-      id: (e.data as any)._id,
-      item: e.data.data as RegEntryTypes<T>,
-    }));
   }
 }
 
@@ -618,6 +344,7 @@ class CompendiumWrapper<T extends EntryType> extends EntityCollectionWrapper<T> 
 export class FoundryRegCat<T extends EntryType> extends RegCat<T> {
   private defaulter: () => RegEntryTypes<T>;
   private handler: EntityCollectionWrapper<T>;
+
 
   // Pretty much just delegates to root
   constructor(
@@ -646,7 +373,8 @@ export class FoundryRegCat<T extends EntryType> extends RegCat<T> {
 
   // User entry '.get'
   async get_raw(id: string): Promise<RegEntryTypes<T> | null> {
-    return this.handler.get(id) ?? null;
+    let gotten = await this.handler.get(id);
+    return gotten?.item ?? null;
   }
 
   // Return the 'entries' array
@@ -654,32 +382,41 @@ export class FoundryRegCat<T extends EntryType> extends RegCat<T> {
     return (await this.handler.enumerate()).map(d => d.item);
   }
 
-  // Just call revive on the '.get' result
+  // Converts a getresult into an appropriately flagged live item
+  private async revive_and_flag(g: GetResult<T>, ctx: OpCtx): Promise<LiveEntryTypes<T>> {
+    let result = await this.revive_func(this.parent, ctx, g.id, g.item);
+    let flags: FlagData<T> = {
+      orig_entity: g.entity,
+    };
+    result.flags = flags;
+    return result;
+  }
+
+  // Just call revive on the '.get' result, then set flag to orig item
   async get_live(ctx: OpCtx, id: string): Promise<LiveEntryTypes<T> | null> {
-    let raw = await this.handler.get(id);
-    if (!raw) {
+    let retrieved = await this.handler.get(id);
+    if (!retrieved) {
       return null;
     }
-    return this.revive_func(this.parent, ctx, id, raw);
+    return this.revive_and_flag(retrieved, ctx);
   }
 
   // Just call revive on each of the 'entries'
   async list_live(ctx: OpCtx): Promise<LiveEntryTypes<T>[]> {
     let sub_pending: Promise<LiveEntryTypes<T>>[] = [];
     for (let e of await this.handler.enumerate()) {
-      let live = this.revive_func(this.parent, ctx, e.id, e.item);
+      let live = this.revive_and_flag(e, ctx);
       sub_pending.push(live);
     }
     return Promise.all(sub_pending);
   }
 
   // Use our update function
-  async update(...items: LiveEntryTypes<T>[]): Promise<void> {
+  async update_many_raw(items: Array<{id: string, data: RegEntryTypes<T>}>): Promise<void> {
     // Actor.update({_id: exp._id, name:" Help"})
     let pending: Promise<any>[] = [];
     for (let i of items) {
-      let saved = (await i.save()) as RegEntryTypes<T>;
-      pending.push(this.handler.update(i.RegistryID, saved));
+      pending.push(this.handler.update(i.id, i.data));
     }
     await Promise.all(pending);
   }
@@ -696,7 +433,7 @@ export class FoundryRegCat<T extends EntryType> extends RegCat<T> {
     // Set and revive all
     for (let raw of vals) {
       let created = this.handler.create(raw);
-      let viv = created.then(c => this.revive_func(this.parent, ctx, c.id, raw));
+      let viv = created.then(c => this.revive_and_flag(c, ctx));
       revived.push(viv);
     }
 
@@ -705,14 +442,21 @@ export class FoundryRegCat<T extends EntryType> extends RegCat<T> {
 
   // Just create
   async create_many_raw(...vals: RegEntryTypes<T>[]): Promise<RegRef<T>[]> {
-    let created: Promise<RegRef<T>>[] = [];
+    let created: Promise<GetResult<T>>[] = [];
 
     // Set and revive all
     for (let raw of vals) {
       created.push(this.handler.create(raw));
     }
 
-    return Promise.all(created);
+    return Promise.all(created).then(created_results => {
+      return created_results.map(g => ({
+        id: g.id,
+        type: g.type,
+        is_unresolved_mmid: false,
+        reg_name: this.parent.name()
+      }));
+    });
   }
 
   // Just delegate above
@@ -720,22 +464,3 @@ export class FoundryRegCat<T extends EntryType> extends RegCat<T> {
     return this.create_many_live(ctx, this.defaulter()).then(a => a[0]);
   }
 }
-
-// Helper functions for oft-needed special registries
-const env = new RegEnv();
-const reg = new StaticReg(env);
-funcs.intake_pack(funcs.get_base_content_pack(), reg);
-
-// Create a registry backed by all item compendiums
-export function create_compendium_reg(): Registry {
-  // Todo: use foundry compendiums. This should probably maybe work as a shim in the meantime
-  return reg;
-}
-
-// Make a covetous reg backing the specified reg.
-// export function compendium_back_reg(reg: Registry): CovetousReg {
-// if(reg instanceof CovetousReg) {
-// throw new Error("Reconsider your approach. Stacking covetous regs very quickly gets confusing");
-// }
-// return new CovetousReg(reg, [create_compendium_reg()]);
-// }

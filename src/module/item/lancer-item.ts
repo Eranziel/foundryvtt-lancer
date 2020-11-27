@@ -1,10 +1,5 @@
-import {
-  DamageData,
-  NPCDamageData,
-  RangeData,
-  TagData,
-} from "../interfaces";
-import { LANCER, LancerItemType } from "../config";
+import { DamageData, NPCDamageData, RangeData, TagData } from "../interfaces";
+import { LANCER, LancerItemType, TypeIcon } from "../config";
 import {
   DamageType,
   EntryType,
@@ -13,6 +8,8 @@ import {
   SystemType,
   WeaponSize,
   WeaponType,
+  Range,
+  Damage
 } from "machine-mind";
 import {
   npc_reaction_effect_preview,
@@ -32,47 +29,27 @@ import { FoundryRegItemData } from "../mm-util/foundry-reg";
 
 const lp = LANCER.log_prefix;
 
-
 export function lancerItemInit(data: any) {
   console.log(`${lp} Initializing new ${data.type}`);
-  let img: string = "systems/lancer/assets/icons/";
 
-  let type = data.type as LancerItemType;
-  if (type == EntryType.SKILL) {
-    img += "skill.svg";
-  } else if (type === EntryType.TALENT) {
-    img += "talent.svg";
-  } else if (type === EntryType.CORE_BONUS) {
-    img += "corebonus.svg";
-  } else if (type === "license") {
-    img += "license.svg";
-  } else if (type === EntryType.PILOT_ARMOR) {
-    img += "shield_outline.svg";
-  } else if (type === EntryType.PILOT_WEAPON) {
-    img += "weapon.svg";
-  } else if (type === EntryType.PILOT_GEAR) {
-    img += "generic_item.svg";
-  } else if (type === EntryType.FRAME) {
-    img += "frame.svg";
-  } else if (type === EntryType.MECH_WEAPON) {
-    img += "weapon.svg";
-  } else if (type === EntryType.MECH_SYSTEM) {
-    img += "system.svg";
-    // TODO: set default system type
-  } else if (type === EntryType.NPC_CLASS) {
-    img += "npc_class.svg";
-  } else if (type === EntryType.NPC_TEMPLATE) {
-    img += "npc_template.svg";
-  } else if (type === EntryType.NPC_FEATURE) {
-    if (!data.feature_type) {
-      img += "trait.svg";
-      mergeObject(data, {
-        // Default new NPC features to traits
-        "data.feature_type": NpcFeatureType.Trait,
-      });
+  // Select default image
+  let img = TypeIcon(data.type as LancerItemType);
+
+  // Try to be more specific with npc features
+  if (data.type === EntryType.NPC_FEATURE && data.feature_type) {
+    let trait_type = data.feature_type as NpcFeatureType;
+
+    switch(trait_type) {
+      default:
+      case NpcFeatureType.Trait:
+        img += "trait.svg";
+
     }
-  } else {
-    img += "generic_item.svg";
+    trait_type
+    mergeObject(data, {
+      // Default new NPC features to traits
+      "data.feature_type": NpcFeatureType.Trait,
+    });
   }
 
   mergeObject(data, {
@@ -88,6 +65,17 @@ export class LancerItem<T extends LancerItemType> extends Item {
   get type(): T {
     return super.type as T;
   }
+
+
+    /** Force name down to item */
+    prepareData() {
+      super.prepareData();
+      // Push down name
+      this.data.data.name = this.data.name;
+      if (!this.data.img) this.data.img = CONST.DEFAULT_TOKEN;
+    }
+
+
   // ============================================================
   //          SKILLS
   // ============================================================
@@ -221,7 +209,7 @@ export class LancerItem<T extends LancerItemType> extends Item {
   get base_feature_items(): Promise<FoundryRegItemData<EntryType.NPC_FEATURE>[]> {
     const itemData = this.data.data;
     if ("base_features" in itemData) {
-      return get_pack(EntryType.NPC_FEATURE).then(async allFeatures => {
+      return get_pack_content(EntryType.NPC_FEATURE).then(async allFeatures => {
         return allFeatures.filter(feature => itemData.base_features.includes(feature.data.id));
       });
     } else {
@@ -263,45 +251,53 @@ export class LancerItem<T extends LancerItemType> extends Item {
 }
 
 // Provide some convenient shorthands
-export type LancerSkillItemData = FoundryRegItemData<EntryType.SKILL>;
-export type LancerSkill = LancerItem<EntryType.SKILL>;
-
-export type LancerTalentItemData = FoundryRegItemData<EntryType.TALENT>;
-export type LancerTalent = LancerItem<EntryType.TALENT>;
-
-export type LancerCoreBonusItemData = FoundryRegItemData<EntryType.CORE_BONUS>;
+export type LancerCoreBonusData = FoundryRegItemData<EntryType.CORE_BONUS>;
 export type LancerCoreBonus = LancerItem<EntryType.CORE_BONUS>;
 
-export type LancerLicenseItemData = FoundryRegItemData<EntryType.LICENSE>;
-export type LancerLicense = LancerItem<EntryType.LICENSE>;
+export type LancerCoreSystemData = FoundryRegItemData<EntryType.CORE_SYSTEM>;
+export type LancerCoreSystem = LancerItem<EntryType.CORE_SYSTEM>;
 
-export type LancerPilotArmorItemData = FoundryRegItemData<EntryType.PILOT_ARMOR>;
-export type LancerPilotArmor = LancerItem<EntryType.PILOT_ARMOR>;
-
-export type LancerPilotWeaponItemData = FoundryRegItemData<EntryType.PILOT_WEAPON>;
-export type LancerPilotWeapon = LancerItem<EntryType.PILOT_WEAPON>;
-
-export type LancerPilotGearItemData = FoundryRegItemData<EntryType.PILOT_GEAR>;
-export type LancerPilotGear = LancerItem<EntryType.PILOT_GEAR>;
-
-export type LancerFrameItemData = FoundryRegItemData<EntryType.FRAME>;
+export type LancerFrameData = FoundryRegItemData<EntryType.FRAME>;
 export type LancerFrame = LancerItem<EntryType.FRAME>;
 
-export type LancerMechSystemItemData = FoundryRegItemData<EntryType.MECH_SYSTEM>;
+export type LancerFrameTraitData = FoundryRegItemData<EntryType.FRAME_TRAIT>;
+export type LancerFrameTrait = LancerItem<EntryType.FRAME_TRAIT>;
+
+export type LancerLicenseData = FoundryRegItemData<EntryType.LICENSE>;
+export type LancerLicense = LancerItem<EntryType.LICENSE>;
+
+export type LancerPilotArmorData = FoundryRegItemData<EntryType.PILOT_ARMOR>;
+export type LancerPilotArmor = LancerItem<EntryType.PILOT_ARMOR>;
+
+export type LancerPilotWeaponData = FoundryRegItemData<EntryType.PILOT_WEAPON>;
+export type LancerPilotWeapon = LancerItem<EntryType.PILOT_WEAPON>;
+
+export type LancerPilotGearData = FoundryRegItemData<EntryType.PILOT_GEAR>;
+export type LancerPilotGear = LancerItem<EntryType.PILOT_GEAR>;
+
+export type LancerMechSystemData = FoundryRegItemData<EntryType.MECH_SYSTEM>;
 export type LancerMechSystem = LancerItem<EntryType.MECH_SYSTEM>;
 
-export type LancerMechWeaponItemData = FoundryRegItemData<EntryType.MECH_WEAPON>;
+export type LancerMechWeaponData = FoundryRegItemData<EntryType.MECH_WEAPON>;
 export type LancerMechWeapon = LancerItem<EntryType.MECH_WEAPON>;
 
-export type LancerNPCFeatureItemData = FoundryRegItemData<EntryType.NPC_FEATURE>;
-export type LancerNPCFeature = LancerItem<EntryType.NPC_FEATURE>;
+export type LancerNpcFeatureData = FoundryRegItemData<EntryType.NPC_FEATURE>;
+export type LancerNpcFeature = LancerItem<EntryType.NPC_FEATURE>;
 
-export type LancerNPCTemplateItemData = FoundryRegItemData<EntryType.NPC_TEMPLATE>;
-export type LancerNPCTemplate = LancerItem<EntryType.NPC_TEMPLATE>;
+export type LancerNpcTemplateData = FoundryRegItemData<EntryType.NPC_TEMPLATE>;
+export type LancerNpcTemplate = LancerItem<EntryType.NPC_TEMPLATE>;
 
-export type LancerNPCClassItemData = FoundryRegItemData<EntryType.NPC_CLASS>;
-export type LancerNPCClass = LancerItem<EntryType.NPC_CLASS>;
+export type LancerNpcClassData = FoundryRegItemData<EntryType.NPC_CLASS>;
+export type LancerNpcClass = LancerItem<EntryType.NPC_CLASS>;
 
+export type LancerSkillData = FoundryRegItemData<EntryType.SKILL>;
+export type LancerSkill = LancerItem<EntryType.SKILL>;
+
+export type LancerTalentData = FoundryRegItemData<EntryType.TALENT>;
+export type LancerTalent = LancerItem<EntryType.TALENT>;
+
+export type LancerWeaponModData = FoundryRegItemData<EntryType.WEAPON_MOD>;
+export type LancerWeaponMod = LancerItem<EntryType.WEAPON_MOD>;
 
 /* ------------------------------------ */
 /* Handlebars Helpers                    */
@@ -549,16 +545,16 @@ export function npc_weapon_damage_selector(
  * @param range {RangeData} The range stat to render.
  * @param key {number} The range's index.
  */
-export function weapon_range_preview(range: RangeData, key: number) {
+export function weapon_range_preview(range: Range, key: number) {
   let html = ``;
-  if (range.val) {
+  if (range.Value) {
     if (key > 0) {
       html += `<span class="flexrow" style="align-items: center; justify-content: center; max-width: min-content;"> // </span>`;
     }
     html += `
     <div class="compact-range">
-      <i class="cci cci-${range.type.toLowerCase()} i--m i--dark"></i>
-      <span class="medium">${range.val}</span>
+      <i class="cci cci-${range.RangeType.toLowerCase()} i--m i--dark"></i>
+      <span class="medium">${range.Value}</span>
     </div>`;
   }
   return html;
@@ -569,17 +565,18 @@ export function weapon_range_preview(range: RangeData, key: number) {
  * @param damage {DamageData | NPCDamageData} The damage stat to render.
  * @param tier {number} The tier number of the NPC, not applicable to pilot-type weapons.
  */
-export function weapon_damage_preview(damage: DamageData | NPCDamageData, tier?: number) {
+export function weapon_damage_preview(damage: Damage /* | NPCDamageData */, tier?: number) {
   let html = ``;
   let val: number | string;
-  if (tier != undefined && Array.isArray(damage.val)) {
-    val = (damage as NPCDamageData).val[tier];
+  if (tier != undefined && Array.isArray((damage as any).val)) {
+    // val = (damage as NPCDamageData).val[tier];
+    val = "npcs not yet reimp";
   } else {
-    val = (damage as DamageData).val;
+    val = damage.Value;
   }
-  if (damage && damage.type) {
+  if (damage && damage.DamageType) {
     html += `<div class="compact-damage">
-      <i class="cci cci-${damage.type.toLowerCase()} i--m damage--${damage.type.toLowerCase()}"></i>
+      <i class="cci cci-${damage.DamageType.toLowerCase()} i--m damage--${damage.DamageType.toLowerCase()}"></i>
       <span class="medium">${val}</span>
     </div>`;
   }
@@ -736,7 +733,7 @@ export function effect_type_selector(e_type: string, data_target: string) {
   }>TECH</option>
   </select>`;
   */
- return "<span>effects are deprecated</span>";
+  return "<span>effects are deprecated</span>";
 }
 
 /**
@@ -822,7 +819,7 @@ export const core_system_preview = `<div class="card clipped frame-core flexcol"
   </div>
 </div>`;
 
-export function npc_feature_preview(npc_feature: LancerNPCFeatureItemData, tier: number) {
+export function npc_feature_preview(npc_feature: LancerNpcFeatureData, tier: number) {
   let body = ``;
   let type_class = `item`;
   console.warn("NPC feature types WIP");

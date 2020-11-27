@@ -120,13 +120,8 @@ Hooks.once("init", async function () {
     prepareCorePassiveMacro: macros.prepareCorePassiveMacro,
     migrations: migrations,
 
-
     // For whitespines testing /('o')/
-    tmp: {
-
-
-
-    }
+    tmp: {},
   };
 
   // Record Configuration Values
@@ -160,7 +155,10 @@ Hooks.once("init", async function () {
   Actors.registerSheet("lancer", LancerPilotSheet, { types: [EntryType.PILOT], makeDefault: true });
   Actors.registerSheet("lancer", LancerMechSheet, { types: [EntryType.MECH], makeDefault: true });
   Actors.registerSheet("lancer", LancerNPCSheet, { types: [EntryType.NPC], makeDefault: true });
-  Actors.registerSheet("lancer", LancerDeployableSheet, { types: [EntryType.DEPLOYABLE], makeDefault: true, });
+  Actors.registerSheet("lancer", LancerDeployableSheet, {
+    types: [EntryType.DEPLOYABLE],
+    makeDefault: true,
+  });
   Items.unregisterSheet("core", ItemSheet);
   Items.registerSheet("lancer", LancerItemSheet, {
     types: [
@@ -182,7 +180,10 @@ Hooks.once("init", async function () {
     makeDefault: true,
   });
   Items.registerSheet("lancer", LancerFrameSheet, { types: [EntryType.FRAME], makeDefault: true });
-  Items.registerSheet("lancer", LancerNPCClassSheet, { types: [EntryType.NPC_CLASS, EntryType.NPC_TEMPLATE], makeDefault: true });
+  Items.registerSheet("lancer", LancerNPCClassSheet, {
+    types: [EntryType.NPC_CLASS, EntryType.NPC_TEMPLATE],
+    makeDefault: true,
+  });
 
   // *******************************************************************
   // Register handlebars helpers
@@ -274,6 +275,19 @@ Hooks.once("init", async function () {
       <button class="mod-plus-button" type="button">+</button>
     </div>`;
   });
+
+  // For debugging
+  Handlebars.registerHelper('debug_each', function(it, block) {
+    // if(typeof a == 'function')
+        // a = a.call(this);
+    console.log(it);
+    var s = '';
+    for(let x of it)
+        s += block(x);
+    return s;
+  });
+
+
   // ------------------------------------------------------------------------
   // Tags
   Handlebars.registerHelper("compact-tag", renderCompactTag);

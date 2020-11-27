@@ -1,6 +1,6 @@
 import { LANCER } from "../config";
 const lp = LANCER.log_prefix;
-import { buildCompendiums, clearCompendiums } from "../compBuilder";
+import { import_cp, clear_all } from "../compBuilder";
 import * as mm from "machine-mind";
 import { IContentPack, IContentPackManifest } from "machine-mind";
 
@@ -115,7 +115,7 @@ class LCPManager extends Application {
     console.log(`${lp} Clearing all LANCER Compendium data.`);
     await game.settings.set(LANCER.sys_name, LANCER.setting_core_data, "0.0.0");
     await game.settings.set(LANCER.sys_name, LANCER.setting_lcps, new LCPIndex(null));
-    await clearCompendiums();
+    await clear_all();
     ui.notifications.info(`LANCER Compendiums cleared.`);
     this.coreVersion = game.settings.get(LANCER.sys_name, LANCER.setting_core_data);
     this.lcpIndex = new LCPIndex(game.settings.get(LANCER.sys_name, LANCER.setting_lcps).index);
@@ -146,7 +146,7 @@ class LCPManager extends Application {
     if (!ev.currentTarget || !this.coreUpdate) return;
     ui.notifications.info(`Updating Lancer Core data to v${this.coreUpdate}. Please wait.`);
     console.log(`${lp} Updating Lancer Core data to v${this.coreUpdate}`);
-    await buildCompendiums(mm.funcs.get_base_content_pack());
+    await import_cp(mm.funcs.get_base_content_pack());
     ui.notifications.info(`Lancer Core data update complete.`);
     await game.settings.set(LANCER.sys_name, LANCER.setting_core_data, this.coreUpdate);
     this.coreVersion = this.coreUpdate;
@@ -222,10 +222,12 @@ class LCPManager extends Application {
     const manifest = this.manifest;
     if (!cp || !manifest) return;
 
-    ui.notifications.info(`Starting import of ${cp.manifest.name} v${cp.manifest.version}. Please wait.`);
+    ui.notifications.info(
+      `Starting import of ${cp.manifest.name} v${cp.manifest.version}. Please wait.`
+    );
     console.log(`${lp} Starting import of ${cp.manifest.name} v${cp.manifest.version}.`);
     console.log(`${lp} Parsed content pack:`, cp);
-    await buildCompendiums(cp);
+    await import_cp(cp);
     ui.notifications.info(`Import of ${cp.manifest.name} v${cp.manifest.version} complete.`);
     console.log(`Import of ${cp.manifest.name} v${cp.manifest.version} complete.`);
 

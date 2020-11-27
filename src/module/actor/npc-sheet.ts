@@ -1,8 +1,4 @@
-import {
-  LancerNPCData,
-  LancerNPCSheetData,
-  LancerStatMacroData,
-} from "../interfaces";
+import { LancerNPCData, LancerNPCSheetData, LancerStatMacroData } from "../interfaces";
 import { LancerActor, LancerNpc } from "./lancer-actor";
 import { LANCER, LancerActorType } from "../config";
 import { LancerNPCTechData, LancerNPCWeaponData } from "../item/npc-feature";
@@ -10,7 +6,13 @@ import { LancerActorSheet } from "./lancer-actor-sheet";
 import { prepareItemMacro } from "../macros";
 import { FoundryRegItemData } from "../mm-util/foundry-reg";
 import { EntryType } from "machine-mind";
-import { LancerItem, LancerNPCClass, LancerNPCFeature, LancerNPCTemplate, LancerNPCTemplateItemData } from "../item/lancer-item";
+import {
+  LancerItem,
+  LancerNpcClass,
+  LancerNpcFeature,
+  LancerNpcTemplate,
+  LancerNpcTemplateData,
+} from "../item/lancer-item";
 import { ItemDataManifest } from "../item/util";
 const lp = LANCER.log_prefix;
 
@@ -23,7 +25,7 @@ export class LancerNPCSheet extends LancerActorSheet {
    */
   get actor(): LancerNpc {
     return this.actor;
-  };
+  }
 
   /* -------------------------------------------- */
 
@@ -76,9 +78,9 @@ export class LancerNPCSheet extends LancerActorSheet {
     let sorted = new ItemDataManifest().add_items(npc_item_data.values());
 
     //@ts-ignore                Doesn't work now, adding a ts-ignore though.... -Grygon
-    data.npc_templates = (sorted.npc_templates as unknown) as LancerNPCTemplate[]; // Why does this work. Like someone fixed exactly one, lol???
-    data.npc_features = (sorted.npc_feature as unknown) as LancerNPCFeature[];
-    data.npc_class = (sorted.npc_class[0] as unknown) as LancerNPCClass;
+    data.npc_templates = (sorted.npc_templates as unknown) as LancerNpcTemplate[]; // Why does this work. Like someone fixed exactly one, lol???
+    data.npc_features = (sorted.npc_feature as unknown) as LancerNpcFeature[];
+    data.npc_class = (sorted.npc_class[0] as unknown) as LancerNpcClass;
     //TODO Templates, Classes and Features
   }
 
@@ -145,7 +147,7 @@ export class LancerNPCSheet extends LancerActorSheet {
             `Error rolling macro: Couldn't find weapon with ID ${weaponId}.`
           );
 
-        const weapon = item as LancerNPCFeature;
+        const weapon = item as LancerNpcFeature;
         game.lancer.prepareItemMacro(this.actor._id, weapon._id);
       });
 
@@ -187,7 +189,10 @@ export class LancerNPCSheet extends LancerActorSheet {
         const deletedItem = await this.actor.deleteOwnedItem(li.data("itemId"));
         if (deletedItem.type === EntryType.NPC_TEMPLATE) {
           const actor = this.actor;
-          await this.removeTemplate(actor, (deletedItem as unknown as FoundryRegItemData<EntryType.NPC_TEMPLATE>))
+          await this.removeTemplate(
+            actor,
+            (deletedItem as unknown) as FoundryRegItemData<EntryType.NPC_TEMPLATE>
+          );
         }
         li.slideUp(200, () => this.render(false));
       });
@@ -202,8 +207,8 @@ export class LancerNPCSheet extends LancerActorSheet {
         // Set Values for
         let actor = this.actor;
         let NPCClassStats: any;
-        NPCClassStats = (actor.items.find((i: Item) => i.type === EntryType.NPC_CLASS) as any).data.data
-          .stats;
+        NPCClassStats = (actor.items.find((i: Item) => i.type === EntryType.NPC_CLASS) as any).data
+          .data.stats;
         console.log(`${lp} TIER Swap with ${tier} and ${NPCClassStats}`);
         console.log(`disabled!!!`);
         // await actor.swapNPCClassOrTier(NPCClassStats, false, tier);
@@ -239,18 +244,18 @@ export class LancerNPCSheet extends LancerActorSheet {
       if (item.type === EntryType.NPC_CLASS) {
         // Remove old class
         for (let item of actor.items) {
-          const i = (item as unknown) as LancerNPCClass;
+          const i = (item as unknown) as LancerNpcClass;
           if (i.type === EntryType.NPC_CLASS) {
             await this.removeClass(actor, i);
           }
         }
         //Add new class
-        await this.addClass(actor, item as LancerNPCClass);
+        await this.addClass(actor, item as LancerNpcClass);
         return Promise.resolve(true);
       }
       //Add new template
       else if (item.type === EntryType.NPC_TEMPLATE) {
-        await this.addTemplate(actor, item as LancerNPCTemplate);
+        await this.addTemplate(actor, item as LancerNpcTemplate);
         return Promise.resolve(true);
       }
       // Add other NPC item
@@ -307,7 +312,7 @@ export class LancerNPCSheet extends LancerActorSheet {
     Class logic
   */
 
-  async addClass(actor: LancerNpc, item: LancerNPCClass) {
+  async addClass(actor: LancerNpc, item: LancerNpcClass) {
     console.log("DISABLED");
     /*
     if (item.type === EntryType.NPC_CLASS) {
@@ -328,7 +333,7 @@ export class LancerNPCSheet extends LancerActorSheet {
     */
   }
 
-  async removeClass(actor: LancerNpc, item: LancerNPCClass) {
+  async removeClass(actor: LancerNpc, item: LancerNpcClass) {
     console.log("DISABLED");
     /*
     if (item.type === EntryType.NPC_CLASS) {
@@ -345,7 +350,7 @@ export class LancerNPCSheet extends LancerActorSheet {
     Template logic
   */
 
-  async addTemplate(actor: LancerNpc, templateItem: LancerNPCTemplate) {
+  async addTemplate(actor: LancerNpc, templateItem: LancerNpcTemplate) {
     console.log("DISABLED");
     /*
     if (templateItem.type === EntryType.NPC_TEMPLATE) {
@@ -359,7 +364,7 @@ export class LancerNPCSheet extends LancerActorSheet {
     */
   }
 
-  async removeTemplate(actor: LancerNpc, templateItem: LancerNPCTemplateItemData) {
+  async removeTemplate(actor: LancerNpc, templateItem: LancerNpcTemplateData) {
     console.log("DISABLED");
     /*
     if (templateItem.type === EntryType.NPC_TEMPLATE) {

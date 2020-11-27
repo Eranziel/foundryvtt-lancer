@@ -1,9 +1,19 @@
 import {
-  LancerCoreBonusItemData,
-  LancerFrameItemData,
-  LancerItem, LancerLicenseItemData, LancerMechSystemItemData, LancerMechWeaponItemData, LancerNPCClassItemData, LancerNPCFeatureItemData, LancerNPCTemplateItemData, LancerPilotArmorItemData, LancerPilotGearItemData, LancerPilotWeaponItemData, LancerSkillItemData, LancerTalentItemData,
+  LancerCoreBonusData,
+  LancerFrameData,
+  LancerItem,
+  LancerLicenseData,
+  LancerMechSystemData,
+  LancerMechWeaponData,
+  LancerNpcClassData,
+  LancerNpcFeatureData,
+  LancerNpcTemplateData,
+  LancerPilotArmorData,
+  LancerPilotGearData,
+  LancerPilotWeaponData,
+  LancerSkillData,
+  LancerTalentData,
 } from "./lancer-item";
-
 
 import { IContentPackData } from "machine-mind/dist/classes/ContentPack";
 import { EntryType, LiveEntryTypes, RegEntryTypes } from "machine-mind";
@@ -41,7 +51,7 @@ export const NPC_TEMPLATE_PACK = "npc_templates";
 export const NPC_FEATURE_PACK = "npc_features";
 
 // Get compendium for the specified entry type
-export async function get_pack<T extends EntryType>(type: T): Promise<FoundryRegItemData<T>[]> {
+async function get_pack_content<T extends EntryType>(type: T): Promise<FoundryRegItemData<T>[]> {
   let full_pack_name = `world.${type}`;
   let pack = game.packs.get(full_pack_name);
   if (pack) {
@@ -157,49 +167,49 @@ export class ItemManifest {
 
 // Caches a filtered list of these thingies
 export class ItemDataManifest {
-  [EntryType.SKILL]: LancerSkillItemData[] = [];
-  [EntryType.TALENT]: LancerTalentItemData[] = [];
-  [EntryType.CORE_BONUS]: LancerCoreBonusItemData[] = [];
-  [EntryType.LICENSE]: LancerLicenseItemData[] = [];
-  [EntryType.PILOT_ARMOR]: LancerPilotArmorItemData[] = [];
-  [EntryType.PILOT_WEAPON]: LancerPilotWeaponItemData[] = [];
-  [EntryType.PILOT_GEAR]: LancerPilotGearItemData[] = [];
-  [EntryType.FRAME]: LancerFrameItemData[] = [];
-  [EntryType.MECH_WEAPON]: LancerMechWeaponItemData[] = [];
-  [EntryType.MECH_SYSTEM]: LancerMechSystemItemData[] = [];
-  [EntryType.NPC_CLASS]: LancerNPCClassItemData[] = [];
-  [EntryType.NPC_TEMPLATE]: LancerNPCTemplateItemData[] = [];
-  [EntryType.NPC_FEATURE]: LancerNPCFeatureItemData[] = [];
+  [EntryType.SKILL]: LancerSkillData[] = [];
+  [EntryType.TALENT]: LancerTalentData[] = [];
+  [EntryType.CORE_BONUS]: LancerCoreBonusData[] = [];
+  [EntryType.LICENSE]: LancerLicenseData[] = [];
+  [EntryType.PILOT_ARMOR]: LancerPilotArmorData[] = [];
+  [EntryType.PILOT_WEAPON]: LancerPilotWeaponData[] = [];
+  [EntryType.PILOT_GEAR]: LancerPilotGearData[] = [];
+  [EntryType.FRAME]: LancerFrameData[] = [];
+  [EntryType.MECH_WEAPON]: LancerMechWeaponData[] = [];
+  [EntryType.MECH_SYSTEM]: LancerMechSystemData[] = [];
+  [EntryType.NPC_CLASS]: LancerNpcClassData[] = [];
+  [EntryType.NPC_TEMPLATE]: LancerNpcTemplateData[] = [];
+  [EntryType.NPC_FEATURE]: LancerNpcFeatureData[] = [];
 
   // Add an item to the accumulator. Returns self
   add_item(item: FoundryRegItemData<any>): ItemDataManifest {
     // Ugly as sin, but there's little to be done about that
     if (item.type === EntryType.SKILL) {
-      this.skill.push(item as LancerSkillItemData);
+      this.skill.push(item as LancerSkillData);
     } else if (item.type === EntryType.TALENT) {
-      this.talent.push(item as LancerTalentItemData);
+      this.talent.push(item as LancerTalentData);
     } else if (item.type === EntryType.CORE_BONUS) {
-      this.core_bonus.push(item as LancerCoreBonusItemData);
+      this.core_bonus.push(item as LancerCoreBonusData);
     } else if (item.type === "license") {
-      this.license.push(item as LancerLicenseItemData);
+      this.license.push(item as LancerLicenseData);
     } else if (item.type === EntryType.PILOT_ARMOR) {
-      this.pilot_armor.push(item as LancerPilotArmorItemData);
+      this.pilot_armor.push(item as LancerPilotArmorData);
     } else if (item.type === EntryType.PILOT_WEAPON) {
-      this.pilot_weapon.push(item as LancerPilotWeaponItemData);
+      this.pilot_weapon.push(item as LancerPilotWeaponData);
     } else if (item.type === EntryType.PILOT_GEAR) {
-      this.pilot_gear.push(item as LancerPilotGearItemData);
+      this.pilot_gear.push(item as LancerPilotGearData);
     } else if (item.type === EntryType.FRAME) {
-      this.frame.push(item as LancerFrameItemData);
+      this.frame.push(item as LancerFrameData);
     } else if (item.type === EntryType.MECH_WEAPON) {
-      this.mech_weapon.push(item as LancerMechWeaponItemData);
+      this.mech_weapon.push(item as LancerMechWeaponData);
     } else if (item.type === EntryType.MECH_SYSTEM) {
-      this.mech_system.push(item as LancerMechSystemItemData);
+      this.mech_system.push(item as LancerMechSystemData);
     } else if (item.type === EntryType.NPC_CLASS) {
-      this.npc_class.push(item as LancerNPCClassItemData);
+      this.npc_class.push(item as LancerNpcClassData);
     } else if (item.type === EntryType.NPC_TEMPLATE) {
-      this.npc_template.push(item as LancerNPCTemplateItemData);
+      this.npc_template.push(item as LancerNpcTemplateData);
     } else if (item.type === EntryType.NPC_FEATURE) {
-      this.npc_feature.push(item as LancerNPCFeatureItemData);
+      this.npc_feature.push(item as LancerNpcFeatureData);
     }
 
     return this;

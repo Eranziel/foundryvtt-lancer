@@ -10,21 +10,20 @@ export const NPCFeatureIcons = {
   Tech: "tech_quick.svg",
 };
 
-
 // TODO: This type doesn't really exist, I just put it here to make tsc shut up for a bit. Something akin to it must eventually be implemented
 export interface TempNpcFeatureData {
-    id: string;
+  id: string;
+  name: string;
+  origin: {
+    type: "Class" | "Template";
     name: string;
-    origin:  {
-      type: "Class" | "Template";
-      name: string;
-      base: boolean;
-  }
-    effect?: string;
-    bonus?: object;
-    override?: object;
-    type: NpcFeatureType;
-    tags: TagData[];
+    base: boolean;
+  };
+  effect?: string;
+  bonus?: object;
+  override?: object;
+  type: NpcFeatureType;
+  tags: TagData[];
 }
 
 export interface LancerNPCReactionData extends TempNpcFeatureData {

@@ -2,7 +2,7 @@ import { LancerMechActorData, LancerMechSheetData } from "../interfaces";
 import { LANCER } from "../config";
 import { LancerActorSheet } from "./lancer-actor-sheet";
 import { FoundryReg } from "../mm-util/foundry-reg";
-import { EntryType, OpCtx, quick_mm_ref } from "machine-mind";
+import { EntryType, OpCtx } from "machine-mind";
 import { LancerActor, LancerMech } from "./lancer-actor";
 import { LancerItem } from "../item/lancer-item";
 import { MMEntityContext, mm_wrap_actor, mm_wrap_item } from "../mm-util/helpers";
@@ -61,62 +61,64 @@ export class LancerMechSheet extends LancerActorSheet {
   async getData(): Promise<LancerMechSheetData> {
     const data = super.getData() as LancerMechSheetData; // Not fully populated yet!
 
-    // Load pilot
+    // Load mech meta stuff
     data.mm = await mm_wrap_actor(this.actor as LancerMech);
     console.log(`${lp} Mech ctx: `, data.mm);
     this._currData = data;
     return data;
   }
 
+  // Cache
   private _currData: LancerMechSheetData | null = null;
   private async getDataLazy(): Promise<LancerMechSheetData> {
     return this._currData ?? (await this.getData());
   }
-
-
 
   /**
    * Implement the _updateObject method as required by the parent class spec
    * This defines how to update the subject of the form when the form is submitted
    * @private
    */
-  _updateObject(event: Event | JQuery.Event, formData: any): Promise<any> {
+  async _updateObject(event: Event | JQuery.Event, formData: any): Promise<any> {
     // Copy the new name to the prototype token.
     formData["token.name"] = formData["name"];
 
     formData = this._updateTokenImage(formData);
 
     // Update the Actor
-    return this.object.update(formData);
+    console.log("Writing back...");
+    mergeObject(this._currData, formData, {inplace: true});
+    console.log(formData);
+    console.log(this._currData);
+    return this._currData?.mm.ent.writeback();
   }
-
 
   // Let people add stuff to the mech
   async _onDrop(event: any): Promise<any> {
     let item: LancerItem<any> | null = await super._onDrop(event);
-    if(!item) {
+    if (!item) {
       return null; // Bail. Wouldn't want any children to deal with this either.
     }
 
     const sheet_data = await this.getDataLazy();
-    const this_mm = sheet_data.mm
+    const this_mm = sheet_data.mm;
 
     // Behaviour differs based on if we get this as a machine-mind item or not
     if (LANCER.mm_compat_item_types.includes(item.type)) {
       // Check if we can even do anything with it first
-      if(!LANCER.mech_items.includes(item.type)) {
+      if (!LANCER.mech_items.includes(item.type)) {
         ui.notifications.error(`Cannot add Item of type "${item.type}" to a Mech.`);
-        return Promise.resolve(false);
+        return null;
       }
 
       // Make the context for the item
       const item_mm: MMEntityContext<EntryType> = await mm_wrap_item(item);
 
-      // Always (?) add the item to the mech. (counterpoint - should we check for duplicates first??). 
+      // Always (?) add the item to the mech. (counterpoint - should we check for duplicates first??).
       // Make a new ctx to hold the item and a post-item-add copy of our mech
       let new_ctx = new OpCtx();
-      let new_live_item = await item_mm.live_item.insinuate(this_mm.reg, new_ctx);
-      let new_live_this = (await this_mm.live_item.refreshed(new_ctx))!;
+      let new_live_item = await item_mm.ent.insinuate(this_mm.reg, new_ctx);
+      let new_live_this = (await this_mm.ent.refreshed(new_ctx))!;
 
       // Now, do sensible things with it
       if (new_live_item.Type === EntryType.FRAME) {
@@ -141,5 +143,4 @@ export class LancerMechSheet extends LancerActorSheet {
     // Always return the item if we haven't failed for some reason
     return item;
   }
-
 }

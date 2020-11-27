@@ -9,15 +9,26 @@ import {
   LancerPilotGear,
   LancerMechWeapon,
   LancerMechSystem,
-  LancerNPCFeature,
-  LancerNPCClass,
-  LancerNPCTemplate,
+  LancerNpcFeature,
+  LancerNpcClass,
+  LancerNpcTemplate,
   LancerItemData,
 } from "./item/lancer-item";
 import { RangeType, NPCTag } from "./enums";
 import { EffectData } from "./item/effects";
 import * as mm from "machine-mind";
-import { EntryType, ITagTemplateData, MountType, OpCtx, Pilot, RegEntryTypes, Registry, RegNpcData, RegPilotData, RegSkillData } from "machine-mind";
+import {
+  EntryType,
+  ITagTemplateData,
+  MountType,
+  OpCtx,
+  Pilot,
+  RegEntryTypes,
+  Registry,
+  RegNpcData,
+  RegPilotData,
+  RegSkillData,
+} from "machine-mind";
 import { FoundryRegItemData } from "./mm-util/foundry-reg";
 import { MMEntityContext, abracadabra } from "./mm-util/helpers";
 
@@ -190,15 +201,14 @@ declare interface LancerPilotSheetData extends ActorSheetData {
   ctx: OpCtx;
 }
 
-declare interface LancerMechData extends RegMechData {
-}
+declare interface LancerMechData extends RegMechData {}
 
 // Utility interface that basically just asserts the type of an actors data
 declare interface LancerMechActorData extends ActorData {
   data: LancerMechData;
 }
 
-// Derived/consolidated data for an actor, used by handlebars template.
+// Derived/consolidated data for a mech actor, used by handlebars template.
 declare interface LancerMechSheetData extends ActorSheetData {
   actor: LancerMechActorData;
   items: Item[];
@@ -210,16 +220,16 @@ declare interface LancerMechSheetData extends ActorSheetData {
 
 // ------- NPC data ---------------------------------------------
 // Similar to mech and pilot, not currently easily converted
- declare interface LancerNPCData extends RegNpcData {
-// mech: LancerMechData;
-// type: string;
-// name: string;
-// tier: "npc-tier-1" | "npc-tier-2" | "npc-tier-3" | "npc-tier-custom"; //tier1-3 = 1-3 and custom = 4
-// tier_num: number;
-// tag: NPCTag;
-// activations: number;
-// npc_size: string;
- }
+declare interface LancerNPCData extends RegNpcData {
+  // mech: LancerMechData;
+  // type: string;
+  // name: string;
+  // tier: "npc-tier-1" | "npc-tier-2" | "npc-tier-3" | "npc-tier-custom"; //tier1-3 = 1-3 and custom = 4
+  // tier_num: number;
+  // tag: NPCTag;
+  // activations: number;
+  // npc_size: string;
+}
 
 // Utility interface that basically just asserts the type of an actors data
 declare interface LancerNPCActorData extends ActorData {
@@ -230,9 +240,9 @@ declare interface LancerNPCActorData extends ActorData {
 declare interface LancerNPCSheetData extends ActorSheetData {
   actor: LancerNPCActorData;
   data: LancerNPCData;
-  npc_class: LancerNPCClass;
-  npc_templates: LancerNPCTemplate[];
-  npc_features: LancerNPCFeature[];
+  npc_class: LancerNpcClass;
+  npc_templates: LancerNpcTemplate[];
+  npc_features: LancerNpcFeature[];
 }
 
 // ------- Deployable data --------------------------------------
@@ -306,9 +316,12 @@ declare interface LancerMechEquipmentData {
 
 // This single generic type should cover all other use cases
 export type LancerItemSheetData<T extends EntryType> = {
-  item?: FoundryRegItemData<T>; 
-  data?: RegEntryTypes<T>;
-}
+  item: FoundryRegItemData<T>;
+  data: RegEntryTypes<T>;
+
+  // reg ctx
+  mm: MMEntityContext<T>;
+};
 
 // -------- Macro data -------------------------------------
 declare interface LancerStatMacroData {

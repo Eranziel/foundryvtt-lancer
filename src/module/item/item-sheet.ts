@@ -1,7 +1,7 @@
 import { DamageData, RangeData } from "../interfaces";
 import { LANCER } from "../config";
 import { NPCFeatureIcons } from "./npc-feature";
-import { ActivationType,  DamageType, NpcFeatureType } from "machine-mind";
+import { ActivationType, DamageType, NpcFeatureType } from "machine-mind";
 import { ChargeData, ChargeEffectData } from "./effects";
 
 const lp = LANCER.log_prefix;
@@ -333,12 +333,12 @@ export class LancerItemSheet extends ItemSheet {
           name: data[`${prefix}.${i}.name`],
           id: data[`${prefix}.${i}.id`],
           description: data[`${prefix}.${i}.description`],
-          val: data[`${prefix}.${i}.val`]
+          val: data[`${prefix}.${i}.val`],
         });
         delete data[`${prefix}.${i}.name`];
         delete data[`${prefix}.${i}.id`];
         delete data[`${prefix}.${i}.description`];
-        delete data[`${prefix}.${i}.val`]
+        delete data[`${prefix}.${i}.val`];
         i++;
       }
       data[`${prefix}`] = tags;

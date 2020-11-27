@@ -1,4 +1,8 @@
+import { EntryType } from "machine-mind";
+import { LancerItemSheetData } from "../interfaces";
+import { mm_wrap_item } from "../mm-util/helpers";
 import { LancerItemSheet } from "./item-sheet";
+import { LancerFrame, LancerItem } from "./lancer-item";
 
 /**
  * Extend the generic Lancer item sheet
@@ -22,49 +26,71 @@ export class LancerFrameSheet extends LancerItemSheet {
    * Tag controls event handler
    * @param event The click event
    */
-  async _onClickTagControl(event: any) {
+  async _onCreateFrameTrait(event: any) {
     event.preventDefault();
-    const a = $(event.currentTarget);
-    const action = a.data("action");
-    console.log(this);
-    const tags = duplicate(this.object.data.data.core_system.tags);
 
-    console.log("_onClickTagControl()", action, tags);
-    if (action === "create") {
-      // add tag
-      // I can't figure out a better way to prevent collisions
-      // Feel free to come up with something better
-      // const keys = Object.keys(tags);
-      // var newIndex = 0;
-      // if (keys.length > 0) {
-      //   newIndex = Math.max.apply(Math, keys) + 1;
-      // }
-      // tags[newIndex] = null;
-      // Default new tags to quick action... is there a better solution?
-      tags.push({ id: "tg_quick_action" });
-      await this.object.update({ "data.core_system.tags": tags }, {});
-      await this._onSubmit(event);
-    } else if (action === "delete") {
-      // delete tag
-      const parent = a.parents(".tag");
-      const id = parent.data("key");
-      delete tags[id];
-      tags["-=" + id] = null;
-      this.object.update({ "data.core_system.tags": tags }, {});
-    }
+    console.log("Self in onCreate: ", this);
+
+    // Pretty simple, sis
+    let data = await this.getDataLazy();
+    // Make it
+    let new_trait = await data.mm.reg.create_live(EntryType.FRAME_TRAIT, data.mm.ctx);
+    // Add it
+    data.mm.ent.Traits.push(new_trait);
+    // Write it
+    await data.mm.ent.writeback();
   }
 
   /**
    * @override
-   * Prepare data for rendering the Item sheet
-   * The prepared data object contains both the item data as well as additional sheet options
+   * Activate event listeners using the prepared sheet HTML
+   * @param html {JQuery}   The prepared HTML object ready to be rendered into the DOM
    */
-  getData() {
-    const data: ItemSheetData = super.getData();
+  activateListeners(html: JQuery) {
+    super.activateListeners(html);
 
-    // TODO: frame size
+    // Everything below here is only needed if the sheet is editable
+    if (!this.options.editable) return;
 
-    // TODO: find integrated weapon
+    // Add a frame trait, when they ask to
+    let add_trait = html.find("#add_trait");
+    add_trait.on("click", (e) => this._onCreateFrameTrait(e));
+  }
+
+  /**
+   * Implement the _updateObject method as required by the parent class spec
+   * This defines how to update the subject of the form when the form is submitted
+   * @private
+   */
+  async _updateObject(event: Event | JQuery.Event, formData: any): Promise<any> {
+    // Update the item
+    console.log("Writing back...");
+    mergeObject(this._currData, formData, {inplace: true});
+    console.log(formData);
+    console.log(this._currData);
+    return this._currData?.mm.ent.writeback();
+  }
+
+
+
+  /**
+   * Prepare data for rendering the frame sheet
+   * The prepared data object contains both the actor data as well as additional sheet options
+   */
+  //@ts-ignore
+  async getData(): Promise<LancerItemSheetData<EntryType.FRAME>> {
+    const data = super.getData() as LancerItemSheetData<EntryType.FRAME>; // Not fully populated yet!
+
+    // Load pilot
+    data.mm = await mm_wrap_item(this.item as LancerFrame);
+    console.log(`Mech ctx: `, data.mm);
+    this._currData = data;
     return data;
+  }
+
+  // Cached getdata
+  private _currData: LancerItemSheetData<EntryType.FRAME> | null = null;
+  private async getDataLazy(): Promise<LancerItemSheetData<EntryType.FRAME>> {
+    return this._currData ?? (await this.getData());
   }
 }

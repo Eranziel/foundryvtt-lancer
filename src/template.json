@@ -223,7 +223,6 @@
     "npc_feature": {},
     "weapon_mod": {},
     "mech_system": {
-
         "cascading": false,
         "counters": [],
         "deployables": [],
@@ -256,24 +255,7 @@
         "source": null,
         "sp": 0,
         "uses": 0,
-        "profiles": [
-            {
-                "actions": [],
-                "bonuses": [],
-                "synergies": [],
-                "description": "",
-                "type": "",
-                "counters": [],
-                "damage": [],
-                "effect": "",
-                "name": "",
-                "on_attack": "",
-                "on_crit": "",
-                "on_hit": "",
-                "range": [],
-                "tags": []
-            }
-        ],
+        "profiles": [],
         "loaded": false,
         "selected_profile": 0,
         "size": ""

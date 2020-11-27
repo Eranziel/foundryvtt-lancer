@@ -1005,7 +1005,7 @@ export class Converter {
    * Converts a 2D array of Comp/Con Damage objects to an array of NPCDamageData objects.
    * @param t Damage[][] - first index is tier, second index is Damage objects for each type on the weapon.
    */
-  /*
+/*
   Multi_Damage_to_NPCDamageData(t: Damage[][]): NPCDamageData[] {
     let data: NPCDamageData[] = [];
     if (Array.isArray(t)) {
@@ -1140,7 +1140,7 @@ export class Converter {
   }
   */
 
-  /*
+/*
   Mount_to_LancerMountData(m: Mount): LancerMountData {
     // Get the weapon(s)
     let weapons: LancerMechWeaponData[] = m.Weapons.map(w => {
@@ -1152,8 +1152,8 @@ export class Converter {
   }
   */
 
-  // Converts the active state of a system to equip data. Note: still need to do compendium loading
-  /*
+// Converts the active state of a system to equip data. Note: still need to do compendium loading
+/*
   LancerMechSystemData_to_IEquipmentData(s: LancerMechSystemData): IEquipmentData {
     return {
       cascading: s.cascading,

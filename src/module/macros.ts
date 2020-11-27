@@ -1,6 +1,6 @@
 // Import TypeScript modules
 import { LANCER } from "./config";
-import { LancerCoreBonus, LancerItem, LancerPilotGear } from "./item/lancer-item";
+import { LancerCoreBonus, LancerItem, LancerMechSystem, LancerNpcFeature, LancerPilotGear, LancerSkill } from "./item/lancer-item";
 import { LancerActor } from "./actor/lancer-actor";
 import {
   LancerAttackMacroData,
@@ -16,7 +16,7 @@ import {
 // Import JSON data
 import { DamageType, EntryType, NpcFeatureType } from "machine-mind";
 import { LancerNPCTechData, LancerNPCWeaponData } from "./item/npc-feature";
-import { FoundryRegItem, FoundryRegItemData } from "./mm-util/foundry-reg";
+import { FoundryRegItemData } from "./mm-util/foundry-reg";
 
 const lp = LANCER.log_prefix;
 
@@ -52,7 +52,7 @@ export async function prepareItemMacro(a: string, i: string, options?: any) {
     case EntryType.SKILL:
       let skillData: LancerStatMacroData = {
         title: item.name,
-        bonus: (item as FoundryRegItem<EntryType.SKILL>).data.data.rank * 2,
+        bonus: (item as LancerSkill).data.data.rank * 2,
       };
       await rollTriggerMacro(actor, skillData);
       break;
@@ -66,7 +66,7 @@ export async function prepareItemMacro(a: string, i: string, options?: any) {
       // TODO--this can probably be a textMacro
       let sysData: LancerGenericMacroData = {
         title: item.name,
-        effect: (item as FoundryRegItem<EntryType.MECH_SYSTEM>).data.data.effect,
+        effect: (item as LancerMechSystem).data.data.effect,
       };
 
       await rollSystemMacro(actor, sysData);
@@ -103,7 +103,7 @@ export async function prepareItemMacro(a: string, i: string, options?: any) {
       await rollTextMacro(actor, CBdata);
       break;
     case EntryType.NPC_FEATURE:
-      let titem = item as FoundryRegItem<EntryType.NPC_FEATURE>;
+      let titem = item as LancerNpcFeature;
       switch (titem.data.data.type) {
         case NpcFeatureType.Weapon:
           await prepareAttackMacro(actor, item);
@@ -664,5 +664,4 @@ export async function promptAccDiffModifier(acc?: number, title?: string) {
       close: () => reject(true),
     }).render(true);
   });
-
 }

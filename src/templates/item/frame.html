@@ -7,14 +7,14 @@
       <h1 class="frame-name "><input class="header-field" name="name" type="text" value="{{item.name}}" placeholder="Name"/></h1>
     </div>
     <div class="header-fields" style="grid-area: 2/1/3/4">
-      <h3 class="mfr-name"><input class="header-field" name="data.source" type="text" value="{{data.source}}" placeholder="Manufacturer"/></h3>
+      <h3 class="mfr-name">{{mm.ent.Source.Name}}</h3>
     </div>
   </header>
 
   {{!-- Description --}}
   <div class="flexcol card clipped" style="text-align: left;">
     <span class="lancer-stat-header major clipped-top" style="text-align: center;">DESCRIPTION</span>
-    <div class="desc-text">{{editor content=data.description target="data.description" button=true owner=owner editable=editable}}</div>
+    <div class="desc-text">{{editor content=mm.ent.Description target="mm.ent.Description" button=true owner=owner editable=editable}}</div>
   </div>
 
   {{!-- Frame Stats --}}
@@ -24,77 +24,77 @@
         <i class="mdi mdi-heart-outline i--m i--light" style="float: left; padding-left: 10px"> </i>
         <span class="major">HP</span>
       </div>
-      {{{l-num-input "data.stats.hp" data.stats.hp}}}
+      {{{l-num-input "mm.ent.Stats.hp" mm.ent.Stats.hp}}}
     </div>
     <div class="flexcol card clipped" style="grid-area: 1/2/2/3">
       <div class="lancer-stat-header clipped-top flexrow">
         <i class="mdi mdi-shield-outline i--m i--light" style="float: left; padding-left: 10px"> </i>
         <span class="major">ARMOR</span>
       </div>
-      {{{l-num-input "data.stats.armor" data.stats.armor}}}
+      {{{l-num-input "mm.ent.Stats.armor" mm.ent.Stats.armor}}}
     </div>
     <div class="flexcol card clipped" style="grid-area: 1/3/2/4">
       <div class="lancer-stat-header clipped-top flexrow">
         <i class="cci cci-repair i--m i--light" style="float: left; padding-left: 10px"> </i>
         <span class="major">REPAIRS</span>
       </div>
-      {{{l-num-input "data.stats.repcap" data.stats.repcap}}}
+      {{{l-num-input "mm.ent.Stats.repcap" mm.ent.Stats.repcap}}}
     </div>
     <div class="flexcol card clipped" style="grid-area: 2/1/3/2">
       <div class="lancer-stat-header clipped-top flexrow">
         <i class="cci cci-evasion i--m i--light" style="float: left; padding-left: 10px"> </i>
         <span class="major">EVASION</span>
       </div>
-      {{{l-num-input "data.stats.evasion" data.stats.evasion}}}
+      {{{l-num-input "mm.ent.Stats.evasion" mm.ent.Stats.evasion}}}
     </div>
     <div class="flexcol card clipped" style="grid-area: 2/2/3/3">
       <div class="lancer-stat-header clipped-top flexrow">
         <i class="cci cci-edef i--m i--light" style="float: left; padding-left: 10px"> </i>
         <span class="major">E-DEF</span>
       </div>
-      {{{l-num-input "data.stats.edef" data.stats.edef}}}
+      {{{l-num-input "mm.ent.Stats.edef" mm.ent.Stats.edef}}}
     </div>
     <div class="flexcol card clipped" style="grid-area: 2/3/3/4">
       <div class="lancer-stat-header clipped-top flexrow">
         <i class="cci cci-heat i--m i--light" style="float: left; padding-left: 10px"> </i>
         <span class="major">HEAT</span>
       </div>
-      {{{l-num-input "data.stats.heatcap" data.stats.heatcap}}}
+      {{{l-num-input "mm.ent.Stats.heatcap" mm.ent.Stats.heatcap}}}
     </div>
     <div class="flexcol card clipped" style="grid-area: 2/4/3/5">
       <div class="lancer-stat-header clipped-top flexrow">
         <i class="mdi mdi-arrow-right-bold-hexagon-outline i--m i--light" style="float: left; padding-left: 10px"> </i>
         <span class="major">SPEED</span>
       </div>
-      {{{l-num-input "data.stats.speed" data.stats.speed}}}
+      {{{l-num-input "mm.ent.Stats.speed" mm.ent.Stats.speed}}}
     </div>
     <div class="flexcol card clipped" style="grid-area: 3/1/4/2">
       <div class="lancer-stat-header clipped-top flexrow">
         <i class="cci cci-tech-full i--m i--light" style="float: left; padding-left: 10px"> </i>
         <span class="major">TECH ATK</span>
       </div>
-      {{{l-num-input "data.stats.tech_attack" data.stats.tech_attack}}}
+      {{{l-num-input "mm.ent.Stats.tech_attack" mm.ent.Stats.tech_attack}}}
     </div>
     <div class="flexcol card clipped" style="grid-area: 3/2/4/3">
       <div class="lancer-stat-header clipped-top flexrow">
         <i class="cci cci-sensor i--m i--light" style="float: left; padding-left: 10px"> </i>
         <span class="major">SENSORS</span>
       </div>
-      {{{l-num-input "data.stats.sensor_range" data.stats.sensor_range}}}
+      {{{l-num-input "mm.ent.Stats.sensor_range" mm.ent.Stats.sensor_range}}}
     </div>
     <div class="flexcol card clipped" style="grid-area: 3/3/4/4">
       <div class="lancer-stat-header clipped-top flexrow">
         <i class="cci cci-save i--m i--light" style="float: left; padding-left: 10px"> </i>
         <span class="major">SAVE T.</span>
       </div>
-      {{{l-num-input "data.stats.save" data.stats.save}}}
+      {{{l-num-input "mm.ent.Stats.save" mm.ent.Stats.save}}}
     </div>
     <div class="flexcol card clipped" style="grid-area: 3/4/4/5">
       <div class="lancer-stat-header clipped-top flexrow">
         <i class="cci cci-system i--m i--light" style="float: left; padding-left: 10px"> </i>
         <span class="major">SYS PTS</span>
       </div>
-      {{{l-num-input "data.stats.sp" data.stats.sp}}}
+      {{{l-num-input "mm.ent.Stats.sp" mm.ent.Stats.sp}}}
     </div>
     {{#if frame_size}}
       <div style="grid-area: 2/5/4/6"><i class="cci cci-{{frame_size}} size-icon theme--main"></i></div>
@@ -108,7 +108,7 @@
       <a class="add-button clickable" data-action="create" data-item="mounts" style="float: right; margin-right: 1em">+</a>
     </div>
     <div class="flexrow">
-      {{#each item.data.mounts as |mount key|}}
+      {{#each mm.ent.Mounts as |mount key|}}
       <div class="flexrow mount arrayed-item" data-key="{{key}}">
         <select class="delete-selector" name="data.mounts.{{key}}" data-type="String" data-item="mounts">
           {{#select mount}}
@@ -135,7 +135,7 @@
       <a class="add-button clickable" data-action="create" style="float: right; margin-right: 1em">+</a>
     </div>
     <ul>
-    {{#each data.traits as |trait key|}}
+    {{#debug_each mm.ent.Traits as |trait key|}}
       <li class="card clipped frame-trait-compact arrayed-item" data-key="{{key}}">
         <div class="lancer-mech-trait-header medium clipped-top" style="grid-area: 1/1/2/2">
           <i class="cci cci-trait i--m i--light"> </i>
@@ -144,7 +144,7 @@
         </div>
         <textarea class="lancer-invisible-input effect-text" type="string" name="data.traits.{{key}}.description" data-dtype="String" style="grid-area: 2/1/3/2">{{{trait.description}}}</textarea>
       </li>
-    {{/each}}
+    {{/debug_each}}
     </ul>
   </div>
 

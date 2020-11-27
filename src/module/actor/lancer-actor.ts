@@ -10,7 +10,6 @@ import { EntryType, MountType, funcs, RegEntryTypes } from "machine-mind";
 import { FoundryRegActorData, FoundryRegItemData } from "../mm-util/foundry-reg";
 const lp = LANCER.log_prefix;
 
-
 export const DEFAULT_MECH = {
   name: "",
   size: 1,
@@ -31,7 +30,7 @@ export const DEFAULT_MECH = {
   save: 0,
   tech_attack: 0,
   current_core_energy: 1,
-  overcharge_level: 0
+  overcharge_level: 0,
 };
 
 export function lancerActorInit(data: any) {
@@ -42,7 +41,7 @@ export function lancerActorInit(data: any) {
   let default_data: any = {};
   let display_mode: number = CONST.TOKEN_DISPLAY_MODES.ALWAYS;
   let disposition: number = CONST.TOKEN_DISPOSITIONS.FRIENDLY;
-  switch(data.type) {
+  switch (data.type) {
     case EntryType.NPC:
       default_data = funcs.defaults.NPC();
       disposition = CONST.TOKEN_DISPOSITIONS.HOSTILE;
@@ -56,7 +55,8 @@ export function lancerActorInit(data: any) {
       disposition = CONST.TOKEN_DISPOSITIONS.NEUTRAL;
       break;
     case EntryType.MECH:
-    default: // Idk, just in case
+    default:
+      // Idk, just in case
       default_data = funcs.defaults.MECH();
       break;
   }
@@ -64,13 +64,13 @@ export function lancerActorInit(data: any) {
   // Put in the basics
   mergeObject(data, {
     data: default_data,
-    "img": `systems/lancer/assets/icons/${data.type}.svg`,
+    img: `systems/lancer/assets/icons/${data.type}.svg`,
     "token.bar1": { attribute: "current_hp" }, // Default Bar 1 to HP
     "token.bar2": { attribute: "current_heat" }, // Default Bar 2 to Heat
-    "token.displayName": display_mode, 
-    "token.displayBars": display_mode, 
+    "token.displayName": display_mode,
+    "token.displayBars": display_mode,
     "token.disposition": disposition,
-    "name": data.name ?? default_data.name, // Set name to match internal
+    name: data.name ?? default_data.name, // Set name to match internal
     "token.name": data.name ?? default_data.name, // Set token name to match internal
     "token.actorLink": [EntryType.PILOT, EntryType.MECH].includes(data.type), // Link the token to the Actor for pilots and mechs, but not for NPCs or deployables
   });
@@ -89,7 +89,9 @@ export class LancerActor<T extends LancerActorType> extends Actor {
    * @param newFrame Stats object from the new mech frame.
    * @param oldFrame Stats object from the old mech frame, optional.
    */
-  async swapFrames(/*newFrame: LancerFrameStatsData, oldFrame?: LancerFrameStatsData*/): Promise<void> {
+  async swapFrames(/*newFrame: LancerFrameStatsData, oldFrame?: LancerFrameStatsData*/): Promise<
+    void
+  > {
     console.log("Disabled");
   }
 
@@ -97,7 +99,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
    * Returns the current frame used by the actor as an item
    * Only applicable for pilots
    */
-    /*
+  /*
   getCurrentFrame(): LancerFrameItemData | null {
     // Function is only applicable to pilots.
     if (this.data.type !== "pilot") return null;
@@ -119,7 +121,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
    * Change Class or Tier on a NPC. Recalculates all stats on the NPC.
    * @param newNPCClass Stats object from the new Class.
    */
-    /*
+  /*
   async swapNPCClassOrTier(
     newNPCClass: LancerNPCClassStatsData,
     ClassSwap: boolean,
@@ -228,17 +230,23 @@ export type LancerDeployableData = FoundryRegActorData<EntryType.DEPLOYABLE>;
 export function mount_type_selector(mount: LancerMountData, key: string | number) {
   let template = `<select class="mounts-control" data-action="update" data-item-id=${key}>
     <option value="${MountType.AuxAux}" ${
-      mount.type === MountType.AuxAux ? "selected" : ""
-    }>Aux/Aux Mount</option>
-    <option value="${MountType.Flex}" ${mount.type === MountType.Flex ? "selected" : ""}>Flexible Mount</option>
-    <option value="${MountType.Main}" ${mount.type === MountType.Main ? "selected" : ""}>Main Mount</option>
+    mount.type === MountType.AuxAux ? "selected" : ""
+  }>Aux/Aux Mount</option>
+    <option value="${MountType.Flex}" ${
+    mount.type === MountType.Flex ? "selected" : ""
+  }>Flexible Mount</option>
+    <option value="${MountType.Main}" ${
+    mount.type === MountType.Main ? "selected" : ""
+  }>Main Mount</option>
     <option value="${MountType.MainAux}" ${
-      mount.type === MountType.MainAux ? "selected" : ""
-    }>Main/Aux Mount</option>
-    <option value="${MountType.Heavy}" ${mount.type === MountType.Heavy ? "selected" : ""}>Heavy Mount</option>
+    mount.type === MountType.MainAux ? "selected" : ""
+  }>Main/Aux Mount</option>
+    <option value="${MountType.Heavy}" ${
+    mount.type === MountType.Heavy ? "selected" : ""
+  }>Heavy Mount</option>
     <option value="${MountType.Integrated}" ${
-      mount.type === MountType.Integrated ? "selected" : ""
-    }>Integrated Mount</option>
+    mount.type === MountType.Integrated ? "selected" : ""
+  }>Integrated Mount</option>
   </select>`;
   return template;
 }
@@ -272,19 +280,20 @@ export function npc_tier_selector(tier: number) {
     <option value="npc-tier-1" ${tier === 1 ? "selected" : ""}>TIER 1</option>
     <option value="npc-tier-2" ${tier === 2 ? "selected" : ""}>TIER 2</option>
     <option value="npc-tier-3" ${tier === 3 ? "selected" : ""}>TIER 3</option>
-    <option value="npc-tier-custom" ${(tier != 1 && tier != 2 && tier != 3)  ? "selected" : ""}>CUSTOM</option>
+    <option value="npc-tier-custom" ${
+      tier != 1 && tier != 2 && tier != 3 ? "selected" : ""
+    }>CUSTOM</option>
   </select>`;
   return template;
 }
 
 /**
  * Handlebars helper for an overcharge button
- * Currently this is overkill, but eventually we want to support custom overcharge values 
+ * Currently this is overkill, but eventually we want to support custom overcharge values
  * @param level Level of overcharge, between 0 (1) and 3 (1d6+4)
  */
 export function overcharge_button(level: number) {
-  let template = 
-   `<div class="overcharge-container">
+  let template = `<div class="overcharge-container">
       <a class="overcharge-button" style="width:90%;height:90%">
         1
       </a>

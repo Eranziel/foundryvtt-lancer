@@ -737,11 +737,11 @@ export function npc_weapon_effect_preview(npc_feature: LancerNPCWeaponData, tier
     <a class="roll-attack" style="grid-area: 1/1/2/2;"><i class="fas fa-dice-d20 i--m i--dark"></i></a>
     <div class="flexrow" style="grid-area: 1/2/2/3; text-align: left; white-space: nowrap;">`;
   for (let i = 0; i < npc_feature.range.length; i++) {
-    html += weapon_range_preview(npc_feature.range[i], i);
+    // html += weapon_range_preview(npc_feature.range[i], i);
   }
   html += `<hr class="vsep">`;
   for (let i = 0; i < npc_feature.damage.length; i++) {
-    html += weapon_damage_preview(npc_feature.damage[i], tier);
+    // html += weapon_damage_preview(npc_feature.damage[i], tier);
   }
   html += `<hr class="vsep">`;
   if (npc_feature.attack_bonus) {
