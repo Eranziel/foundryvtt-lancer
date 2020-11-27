@@ -4,7 +4,7 @@ import {
   RangeData,
   TagData,
 } from "../interfaces";
-import { LANCER } from "../config";
+import { LANCER, LancerItemType } from "../config";
 import {
   DamageType,
   EntryType,
@@ -28,31 +28,16 @@ import {
   LancerNPCTraitData,
   LancerNPCWeaponData,
 } from "./npc-feature";
-import { get_pack } from "./util";
 import { FoundryRegItemData } from "../mm-util/foundry-reg";
 
 const lp = LANCER.log_prefix;
 
-export type LancerItemType =
-  | EntryType.SKILL
-  | EntryType.TALENT
-  | EntryType.CORE_BONUS
-  | "license"
-  | EntryType.PILOT_ARMOR
-  | EntryType.PILOT_WEAPON
-  | EntryType.PILOT_GEAR
-  | EntryType.FRAME
-  | EntryType.MECH_WEAPON
-  | EntryType.MECH_SYSTEM
-  | EntryType.NPC_CLASS
-  | EntryType.NPC_TEMPLATE
-  | EntryType.NPC_FEATURE;
 
 export function lancerItemInit(data: any) {
   console.log(`${lp} Initializing new ${data.type}`);
   let img: string = "systems/lancer/assets/icons/";
 
-  let type = data.type as LancerItemType | "_doesnotmatter_justhelpstypecheck";
+  let type = data.type as LancerItemType;
   if (type == EntryType.SKILL) {
     img += "skill.svg";
   } else if (type === EntryType.TALENT) {
@@ -96,12 +81,12 @@ export function lancerItemInit(data: any) {
   });
 }
 
-export class LancerItem<T extends EntryType> extends Item {
+export class LancerItem<T extends LancerItemType> extends Item {
   data!: FoundryRegItemData<T>;
 
-  // We know its gotta be one of these (make this T???)
-  get type(): EntryType {
-    return super.type as EntryType;
+  // We can narrow the type significantly (make this T???)
+  get type(): T {
+    return super.type as T;
   }
   // ============================================================
   //          SKILLS

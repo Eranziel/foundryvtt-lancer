@@ -19,6 +19,7 @@ import { EffectData } from "./item/effects";
 import * as mm from "machine-mind";
 import { EntryType, ITagTemplateData, MountType, OpCtx, Pilot, RegEntryTypes, Registry, RegNpcData, RegPilotData, RegSkillData } from "machine-mind";
 import { FoundryRegItemData } from "./mm-util/foundry-reg";
+import { MMEntityContext, abracadabra } from "./mm-util/helpers";
 
 // ------------------------------------------------------
 // |       UTILITY DATA TYPES                           |
@@ -201,11 +202,10 @@ declare interface LancerMechActorData extends ActorData {
 declare interface LancerMechSheetData extends ActorSheetData {
   actor: LancerMechActorData;
   items: Item[];
-  data: Mech;
+  data: LancerMechData;
 
   // reg ctx
-  reg: Registry;
-  ctx: OpCtx;
+  mm: MMEntityContext<EntryType.MECH>;
 }
 
 // ------- NPC data ---------------------------------------------

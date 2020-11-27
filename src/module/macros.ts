@@ -141,7 +141,7 @@ export async function prepareItemMacro(a: string, i: string, options?: any) {
   }
 }
 
-export function getMacroSpeaker(): LancerActor | null {
+export function getMacroSpeaker(): LancerActor<any> | null {
   // Determine which Actor to speak as
   const speaker = ChatMessage.getSpeaker();
   // console.log(`${lp} Macro speaker`, speaker);
@@ -161,7 +161,7 @@ export function getMacroSpeaker(): LancerActor | null {
     ui.notifications.warn(`Failed to find Actor for macro. Do you need to select a token?`);
     return null;
   }
-  return <LancerActor>actor;
+  return actor as LancerActor<any>;
 }
 
 export async function renderMacro(actor: Actor, template: string, templateData: any) {

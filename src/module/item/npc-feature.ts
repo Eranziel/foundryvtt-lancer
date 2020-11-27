@@ -11,7 +11,7 @@ export const NPCFeatureIcons = {
 };
 
 
-// This type doesn't really exist, I just put it here to make tsc shut up for a bit. Something akin to it must eventually be implemented
+// TODO: This type doesn't really exist, I just put it here to make tsc shut up for a bit. Something akin to it must eventually be implemented
 export interface TempNpcFeatureData {
     id: string;
     name: string;

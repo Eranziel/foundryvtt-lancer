@@ -5,8 +5,9 @@ import {
   LancerNPCData,
   LancerMountData,
 } from "../interfaces";
-import { LANCER } from "../config";
-import { EntryType, MountType, funcs } from "machine-mind";
+import { LANCER, LancerActorType } from "../config";
+import { EntryType, MountType, funcs, RegEntryTypes } from "machine-mind";
+import { FoundryRegActorData, FoundryRegItemData } from "../mm-util/foundry-reg";
 const lp = LANCER.log_prefix;
 
 
@@ -69,8 +70,8 @@ export function lancerActorInit(data: any) {
     "token.displayName": display_mode, 
     "token.displayBars": display_mode, 
     "token.disposition": disposition,
-    "name": default_data.name, // Set name to match internal
-    "token.name": default_data.name, // Set token name to match internal
+    "name": data.name ?? default_data.name, // Set name to match internal
+    "token.name": data.name ?? default_data.name, // Set token name to match internal
     "token.actorLink": [EntryType.PILOT, EntryType.MECH].includes(data.type), // Link the token to the Actor for pilots and mechs, but not for NPCs or deployables
   });
 
@@ -80,8 +81,8 @@ export function lancerActorInit(data: any) {
 /**
  * Extend the Actor class for Lancer Actors.
  */
-export class LancerActor extends Actor {
-  data!: LancerPilotActorData | LancerNPCActorData | LancerDeployableActorData;
+export class LancerActor<T extends LancerActorType> extends Actor {
+  data!: FoundryRegActorData<T>;
 
   /**
    * Change mech frames for a pilot. Recalculates all mech-related stats on the pilot.
@@ -90,52 +91,6 @@ export class LancerActor extends Actor {
    */
   async swapFrames(/*newFrame: LancerFrameStatsData, oldFrame?: LancerFrameStatsData*/): Promise<void> {
     console.log("Disabled");
-    /*
-    // Function is only applicable to pilots.
-    if (this.data.type !== "pilot") return;
-
-    const data = duplicate(this.data) as LancerPilotActorData;
-    const mech = duplicate((this.data as LancerPilotActorData).data.mech);
-
-    if (!oldFrame) {
-      oldFrame = {
-        size: 0,
-        armor: 0,
-        hp: 0,
-        evasion: 0,
-        edef: 0,
-        heatcap: 0,
-        repcap: 0,
-        sensor_range: 0,
-        tech_attack: 0,
-        save: 0,
-        speed: 0,
-        sp: 0,
-      };
-    }
-    // Resources
-    mech.hp.max = mech.hp.max - oldFrame.hp + newFrame.hp;
-    mech.hp.value = Math.min(mech.hp.value, mech.hp.max);
-    mech.heat.max = mech.heat.max - oldFrame.heatcap + newFrame.heatcap;
-    mech.heat.value = Math.min(mech.heat.value, mech.heat.max);
-    mech.repairs.max = mech.repairs.max - oldFrame.repcap + newFrame.repcap;
-    mech.repairs.value = Math.min(mech.repairs.value, mech.repairs.max);
-
-    // Stats
-    mech.size = mech.size - oldFrame.size + newFrame.size;
-    mech.armor = Math.max(mech.armor - oldFrame.armor + newFrame.armor, 0);
-    mech.speed = mech.speed - oldFrame.speed + newFrame.speed;
-    mech.evasion = mech.evasion - oldFrame.evasion + newFrame.evasion;
-    mech.edef = mech.edef - oldFrame.edef + newFrame.edef;
-    mech.sensors = mech.sensors - oldFrame.sensor_range + newFrame.sensor_range;
-    mech.save = mech.save - oldFrame.save + newFrame.save;
-    mech.tech_attack = mech.tech_attack - oldFrame.tech_attack + newFrame.tech_attack;
-    mech.sp = mech.sp - oldFrame.sp + newFrame.sp;
-
-    // Update the actor
-    data.data.mech = mech;
-    await this.update(data);
-    */
   }
 
   /**
@@ -250,6 +205,16 @@ export class LancerActor extends Actor {
   }
   */
 }
+
+// Discrete types for all of our possible generic values
+export type LancerMech = LancerActor<EntryType.MECH>;
+export type LancerMechData = FoundryRegActorData<EntryType.MECH>;
+export type LancerNpc = LancerActor<EntryType.NPC>;
+export type LancerNpcData = FoundryRegActorData<EntryType.NPC>;
+export type LancerPilot = LancerActor<EntryType.PILOT>;
+export type LancerPilotData = FoundryRegActorData<EntryType.PILOT>;
+export type LancerDeployable = LancerActor<EntryType.DEPLOYABLE>;
+export type LancerDeployableData = FoundryRegActorData<EntryType.DEPLOYABLE>;
 
 /* ------------------------------------ */
 /* Handlebars Helpers                    */

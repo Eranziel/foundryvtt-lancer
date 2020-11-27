@@ -2,9 +2,10 @@ import { LancerMechActorData, LancerMechSheetData } from "../interfaces";
 import { LANCER } from "../config";
 import { LancerActorSheet } from "./lancer-actor-sheet";
 import { FoundryReg } from "../mm-util/foundry-reg";
-import { EntryType, OpCtx } from "machine-mind";
-import { LancerActor } from "./lancer-actor";
+import { EntryType, OpCtx, quick_mm_ref } from "machine-mind";
+import { LancerActor, LancerMech } from "./lancer-actor";
 import { LancerItem } from "../item/lancer-item";
+import { MMEntityContext, mm_wrap_actor, mm_wrap_item } from "../mm-util/helpers";
 const lp = LANCER.log_prefix;
 
 /**
@@ -58,26 +59,11 @@ export class LancerMechSheet extends LancerActorSheet {
    */
   //@ts-ignore
   async getData(): Promise<LancerMechSheetData> {
-    const base_data = super.getData();
-
-    // Spool up state
-    let reg = new FoundryReg();
-    let ctx = new OpCtx();
+    const data = super.getData() as LancerMechSheetData; // Not fully populated yet!
 
     // Load pilot
-    let mech = await reg.get_cat(EntryType.MECH).get_live(ctx, this.actor._id);
-    console.log("Got mech");
-    console.log(mech);
-    if(!mech) {
-      throw new Error("Registry failure");
-    }
-    const data: LancerMechSheetData = {
-      ...base_data,
-      ctx,
-      reg,
-      data: mech
-    }
-    console.log(`${lp} Mech data: `, data);
+    data.mm = await mm_wrap_actor(this.actor as LancerMech);
+    console.log(`${lp} Mech ctx: `, data.mm);
     this._currData = data;
     return data;
   }
@@ -106,47 +92,54 @@ export class LancerMechSheet extends LancerActorSheet {
 
 
   // Let people add stuff to the mech
-  async _onDrop(event: any): Promise<boolean> {
+  async _onDrop(event: any): Promise<any> {
     let item: LancerItem<any> | null = await super._onDrop(event);
+    if(!item) {
+      return null; // Bail. Wouldn't want any children to deal with this either.
+    }
 
-    //TODO Make this better
-    console.log(this);
     const sheet_data = await this.getDataLazy();
+    const this_mm = sheet_data.mm
 
-    if (item) {
-      if(LANCER.mech_items.includes(item.type as EntryType)){
-        // Insinuate it hither
-        // let weapon = await this.actor.createOwnedItem(duplicate(item.data));
-
-        // Swap mech frame
-        if (item.type === EntryType.FRAME) {
-          // Remove old frame(s)
-          /*
-          for (let item of actor.items) {
-            const i = (item as unknown) as LancerItem;
-            if (i.type === EntryType.FRAME) {
-              console.log(`${lp} Removing ${actor.name}'s old ${i.name} frame.`);
-              await this.actor.deleteOwnedItem(i._id);
-            }
-          }
-          */
-
-        }
-        // Handling mech-weapon -> mount mapping
-        else if (item.type === EntryType.MECH_WEAPON) {
-        }
-
-        // TODO: handle all sorts of mech items
-      }  else {
+    // Behaviour differs based on if we get this as a machine-mind item or not
+    if (LANCER.mm_compat_item_types.includes(item.type)) {
+      // Check if we can even do anything with it first
+      if(!LANCER.mech_items.includes(item.type)) {
         ui.notifications.error(`Cannot add Item of type "${item.type}" to a Mech.`);
         return Promise.resolve(false);
       }
+
+      // Make the context for the item
+      const item_mm: MMEntityContext<EntryType> = await mm_wrap_item(item);
+
+      // Always (?) add the item to the mech. (counterpoint - should we check for duplicates first??). 
+      // Make a new ctx to hold the item and a post-item-add copy of our mech
+      let new_ctx = new OpCtx();
+      let new_live_item = await item_mm.live_item.insinuate(this_mm.reg, new_ctx);
+      let new_live_this = (await this_mm.live_item.refreshed(new_ctx))!;
+
+      // Now, do sensible things with it
+      if (new_live_item.Type === EntryType.FRAME) {
+        // If frame, auto swap with prior frame
+        new_live_this.Loadout.Frame = new_live_item;
+      } else if (new_live_item.Type === EntryType.MECH_WEAPON) {
+        // If frame, weapon, put it in an available slot
+        new_live_this.Loadout.equip_weapon(new_live_item);
+      } else if (new_live_item.Type === EntryType.MECH_SYSTEM) {
+        new_live_this.Loadout.equip_system(new_live_item);
+      }
+      // Most other things (frame traits, core systems, weapon mods) aren't directly equipped to the mech and should be handled in their own sheet / their own subcomponents
+
+      // Writeback when done. Even if nothing explicitly changed, probably good to trigger a redraw (unless this is double-tapping? idk)
+      await new_live_this.writeback();
+
+      // TODO: handle all sorts of mech items
+    } else {
+      console.error("We don't yet handle non MM items. MaybeTODO???");
     }
 
-    // Finally, fall back to super's behaviour if nothing else "handles" the drop (signalled by returning).
-    // Don't hate the player, hate the imperative paradigm
-    console.log(`${lp} Falling back on super._onDrop`);
-    return super._onDrop(event);
+    // Always return the item if we haven't failed for some reason
+    return item;
   }
 
 }

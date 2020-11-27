@@ -1,4 +1,4 @@
-import { LANCER } from "./config";
+import { LANCER, LancerActorType } from "./config";
 const lp = LANCER.log_prefix;
 import { EntryType, IContentPack, LiveEntryTypes, RegCat, RegEntryTypes, RegEnv, Registry, StaticReg } from "machine-mind";
 import {
@@ -127,6 +127,8 @@ async function updateEntity<T extends EntryType>(
   type: EntryType,
   img: string
 ): Promise<void> {
+  //TODO: Simply use machine mind insinuation 
+
   // default the name to an all-caps
   newData.name = newData.name.toUpperCase();
 
@@ -147,17 +149,13 @@ async function updateEntity<T extends EntryType>(
     img: img,
     type: type,
     flags: {},
-    data: {
-      data: newData,
-    }
+    data: newData
   };
   let entity: Entity;
-  if(LANCER.actor_types.includes(type)) {
-  //@ts-ignore
-    entity = new Actor(entityData);
+  if(LANCER.actor_types.includes(type as LancerActorType)) {
+    entity = new Actor(entityData, {});
   } else {
-    //@ts-ignore
-    entity = new Item(entityData);
+    entity = new Item(entityData, {});
   }
 
   console.log(`LANCER | Adding ${type} ${entityData.name} to compendium ${pack.collection}`);

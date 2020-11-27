@@ -16,7 +16,7 @@ import {
   LancerSkill,
   LancerTalent,
 } from "../item/lancer-item";
-import { LancerActor } from "./lancer-actor";
+import { LancerActor, LancerPilot } from "./lancer-actor";
 import { LANCER } from "../config";
 import { ItemDataManifest } from "../item/util";
 import { import_pilot_by_code, update_pilot_by_code } from "./util";
@@ -470,7 +470,7 @@ export class LancerPilotSheet extends LancerActorSheet {
   async _onDrop(event: any): Promise<boolean> {
     let item: LancerItem<any> | null = await super._onDrop(event);
 
-    const actor = this.actor as LancerActor;
+    const actor = this.actor as LancerPilot;
     if (item) {
       // Swap mech frame
       if (LANCER.pilot_items.includes(item.type)) {

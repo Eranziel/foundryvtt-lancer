@@ -181,7 +181,7 @@ export class LancerActorSheet extends ActorSheet {
       return Promise.resolve(null);
     }
 
-    const actor = this.actor as LancerActor;
+    const actor = this.actor as LancerActor<any>;
 
     // Only return the Item if user is owner or GM.
     if (!actor.owner && !game.user.isGM) {
@@ -194,7 +194,7 @@ export class LancerActorSheet extends ActorSheet {
   }
 
   async _addOwnedItem(item: Item) {
-    const actor = this.actor as LancerActor;
+    const actor = this.actor as LancerActor<any>;
     console.log(`${lp} Copying ${item.name} to ${actor.name}.`);
     const dupData = duplicate(item.data);
     const newItem = await actor.createOwnedItem(dupData);
