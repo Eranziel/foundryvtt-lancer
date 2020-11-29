@@ -397,10 +397,12 @@ async function rollAttackMacro(actor: Actor, data: LancerAttackMacroData) {
     }
     if (data.overkill && droll) {
       // Count overkill heat
-      droll.parts.forEach(p => {
-        if (p.rolls && Array.isArray(p.rolls)) {
-          p.rolls.forEach((r: any) => {
-            if (r.roll && r.roll === 1 && r.rerolled) {
+      // @ts-ignore
+      droll.terms.forEach(p => {
+        console.log(p);
+        if (p.results && Array.isArray(p.results)) {
+          p.results.forEach((r: any) => {
+            if (r.result && r.result === 1 && r.rerolled) {
               overkill_heat += 1;
             }
           });
