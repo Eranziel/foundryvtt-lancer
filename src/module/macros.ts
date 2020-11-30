@@ -382,8 +382,8 @@ async function rollAttackMacro(actor: Actor, data: LancerAttackMacroData) {
       let p_ind = d_formula.indexOf("+");
       if (d_ind >= 0) {
         let d_count = "1";
-        let d_expr: RegExp = /\d+(?=d)/
-        if (d_ind != 0){
+        let d_expr: RegExp = /\d+(?=d)/;
+        if (d_ind != 0) {
           let match = d_expr.exec(d_formula);
           //console.log(`${lp} Formula ${d_expr} matched ${match} in ${d_formula}`);
           if (match != null) {
@@ -392,8 +392,7 @@ async function rollAttackMacro(actor: Actor, data: LancerAttackMacroData) {
         }
         if (p_ind > d_ind) {
           d_formula = d_formula.substring(0, p_ind) + "x1kh" + d_count + d_formula.substring(p_ind);
-        }
-        else d_formula += ("x1kh" + d_count);
+        } else d_formula += "x1kh" + d_count;
       }
     }
     let droll: Roll | null;
@@ -425,6 +424,14 @@ async function rollAttackMacro(actor: Actor, data: LancerAttackMacroData) {
         d_type: x.type,
       });
     }
+  }
+
+  if (game.settings.get(LANCER.sys_name, LANCER.setting_overkill_heat)) {
+    const a_data: LancerPilotActorData = duplicate(actor.data);
+    if (a_data.type === "pilot") {
+      a_data.data.mech.heat.value += overkill_heat;
+    }
+    await actor.update(a_data);
   }
 
   // Output
