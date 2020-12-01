@@ -40,7 +40,8 @@ export const DEFAULT_MECH = {
 export function lancerActorInit(data: any) {
   // Some subtype of ActorData
   console.log(`${lp} Initializing new ${data.type}`);
-  if (data.type === "pilot" || data.type === "npc") {
+  // If it has an ID it's a duplicate, so we don't want to override values
+  if (!data._id && (data.type === "pilot" || data.type === "npc")) {
     const mech = { ...DEFAULT_MECH };
 
     if (data.type === "npc") {
