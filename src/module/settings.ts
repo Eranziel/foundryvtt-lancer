@@ -52,4 +52,13 @@ export const registerSettings = function () {
     type: Boolean,
     default: true,
   });
+
+  game.settings.register(LANCER.sys_name, LANCER.setting_overkill_heat, {
+    name: "Auto-Apply Overkill Heat",
+    hint: "When an overkill weapon triggers overkill rerolls, should it automatically apply heat?",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: true,
+  });
 };

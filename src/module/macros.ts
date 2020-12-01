@@ -381,9 +381,18 @@ async function rollAttackMacro(actor: Actor, data: LancerAttackMacroData) {
       let d_ind = d_formula.indexOf("d");
       let p_ind = d_formula.indexOf("+");
       if (d_ind >= 0) {
-        if (p_ind > d_ind)
-          d_formula = d_formula.substring(0, p_ind) + "r1" + d_formula.substring(p_ind);
-        else d_formula += "r1";
+        let d_count = "1";
+        let d_expr: RegExp = /\d+(?=d)/;
+        if (d_ind != 0) {
+          let match = d_expr.exec(d_formula);
+          //console.log(`${lp} Formula ${d_expr} matched ${match} in ${d_formula}`);
+          if (match != null) {
+            d_count = match[0];
+          }
+        }
+        if (p_ind > d_ind) {
+          d_formula = d_formula.substring(0, p_ind) + "x1kh" + d_count + d_formula.substring(p_ind);
+        } else d_formula += "x1kh" + d_count;
       }
     }
     let droll: Roll | null;
@@ -397,10 +406,11 @@ async function rollAttackMacro(actor: Actor, data: LancerAttackMacroData) {
     }
     if (data.overkill && droll) {
       // Count overkill heat
-      droll.parts.forEach(p => {
-        if (p.rolls && Array.isArray(p.rolls)) {
-          p.rolls.forEach((r: any) => {
-            if (r.roll && r.roll === 1 && r.rerolled) {
+      // @ts-ignore
+      droll.terms.forEach(p => {
+        if (p.results && Array.isArray(p.results)) {
+          p.results.forEach((r: any) => {
+            if (r.exploded) {
               overkill_heat += 1;
             }
           });
@@ -414,6 +424,14 @@ async function rollAttackMacro(actor: Actor, data: LancerAttackMacroData) {
         d_type: x.type,
       });
     }
+  }
+
+  if (game.settings.get(LANCER.sys_name, LANCER.setting_overkill_heat)) {
+    const a_data: LancerPilotActorData = duplicate(actor.data);
+    if (a_data.type === "pilot") {
+      a_data.data.mech.heat.value += overkill_heat;
+    }
+    await actor.update(a_data);
   }
 
   // Output
