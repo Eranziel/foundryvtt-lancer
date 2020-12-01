@@ -242,6 +242,11 @@ export class LancerItemSheet extends ItemSheet {
         ] = `${formData["data.weapon_size"]} ${formData["data.weapon_type"]}`;
         delete formData["data.weapon_size"];
       }
+
+      // Give it a custom fake ID if it doesn't have one
+      if(!(this.item.data.data.id)) {
+        this.item.update({"data.id":"custom_npcf_" + this.item.id},{});
+      }
     }
 
     if (LANCER.weapon_items.includes(this.item.data.type)) {
