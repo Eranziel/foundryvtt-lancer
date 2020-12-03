@@ -71,6 +71,7 @@ import { LancerDeployableSheet } from "./module/actor/deployable-sheet";
 import { LancerItemSheet } from "./module/item/item-sheet";
 import { LancerFrameSheet } from "./module/item/frame-sheet";
 import { LancerNPCClassSheet } from "./module/item/npc-class-sheet";
+import { WeaponRangeTemplate } from "./module/pixi/weapon-range-template";
 
 // Import helpers
 import { preloadTemplates } from "./module/preloadTemplates";
@@ -113,6 +114,7 @@ Hooks.once("init", async function () {
     entities: {
       LancerActor,
       LancerItem,
+      WeaponRangeTemplate,
     },
     prepareItemMacro: macros.prepareItemMacro,
     prepareStatMacro: macros.prepareStatMacro,
