@@ -19,6 +19,9 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
             case 'Cone':
                 shape = 'cone';
                 break;
+            case 'Line':
+                shape = 'ray';
+                break;
             case 'Blast':
             case 'Burst':
                 shape = 'circle';
@@ -32,6 +35,7 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
             t: shape,
             user: game.user._id,
             distance: (range.val + 0.1) * scale,
+            width: scale,
             direction: 0,
             x: 0,
             y: 0,
