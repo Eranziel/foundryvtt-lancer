@@ -27,8 +27,7 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
                 return null;
         }
 
-        // TODO: Only scale on hex grids
-        const scale = Math.sqrt(3)/2;
+        const scale = canvas.grid.type >= 2 ? Math.sqrt(3)/2 : 1;
         const templateData = {
             t: shape,
             user: game.user._id,
