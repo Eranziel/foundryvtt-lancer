@@ -58,10 +58,11 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
             let now = Date.now(); // Apply a 20ms throttle
             if ( now - moveTime <= 20 ) return;
             const center = event.data.getLocalPosition(this.layer);
-            // TODO: New snapping logic for hexes
-            const snapped = canvas.grid.getSnappedPosition(center.x, center.y, 2);
-            this.data.x = snapped.x;
-            this.data.y = snapped.y;
+            // TODO: New snapping logic for even size based bursts.
+            //const snapped = canvas.grid.getSnappedPosition(center.x, center.y, 2);
+            const snapped = canvas.grid.getCenter(center.x, center.y);
+            this.data.x = snapped[0];
+            this.data.y = snapped[1];
             this.refresh();
             moveTime = now;
         };
@@ -81,15 +82,15 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
             handlers.rc(event);
 
             // Confirm final snapped position
-            const destination = canvas.grid.getSnappedPosition(this.x, this.y, 2);
-            this.data.x = destination.x;
-            this.data.y = destination.y;
+            //const destination = canvas.grid.getSnappedPosition(this.x, this.y, 2);
+            //this.data.x = destination.x;
+            //this.data.y = destination.y;
 
             // Create the template
             canvas.scene.createEmbeddedEntity("MeasuredTemplate", this.data);
         };
 
-             // Rotate the template by 3 degree increments (mouse-wheel)
+        // Rotate the template by 3 degree increments (mouse-wheel)
         handlers.mw = (event: any) => {
             if ( event.ctrlKey ) event.preventDefault(); // Avoid zooming the browser window
             event.stopPropagation();
