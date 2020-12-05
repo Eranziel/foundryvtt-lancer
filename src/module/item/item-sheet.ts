@@ -45,7 +45,7 @@ export class LancerItemSheet extends ItemSheet {
    * The prepared data object contains both the item data as well as additional sheet options
    */
   getData(): ItemSheetData {
-    const data: ItemSheetData = super.getData();
+    const data: ItemSheetData = super.getData() as ItemSheetData;
 
     if (!data.item) {
       // Just junk it
