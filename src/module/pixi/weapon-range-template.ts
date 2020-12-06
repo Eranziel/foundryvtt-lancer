@@ -7,40 +7,56 @@
  * MeasuredTemplate sublcass to create a placeable template on weapon attacks
  */
 export class WeaponRangeTemplate extends MeasuredTemplate {
+    isBurst: boolean;
+
+    constructor(params: any) {
+        super(params)
+        this.isBurst = params.isBurst;
+    }
 
     /**
      * Creates a new WeaponRangeTemplate from a provided range
      */
-    static fromRange(range: any): WeaponRangeTemplate | null {
-        // TODO: Burst for size > 1
+    static fromRange({type, val, size = 1, position = {x: 0, y: 0}}: {type: string, val: number, size: number, position: any}): WeaponRangeTemplate | null {
+        let hex: boolean = canvas.grid.type >= 2;
 
         let shape: string;
-        switch (range.type) {
+        switch (type) {
             case 'Cone':
                 shape = 'cone';
                 break;
             case 'Line':
                 shape = 'ray';
                 break;
-            case 'Blast':
             case 'Burst':
+                if(hex) {
+                    if (size === 2) val += 0.7 - (val > 2 ? 0.1 : 0);
+                    if (size === 3) val += 1.2;
+                    if (size === 4) val += 1.5;
+                } else {
+                    if (size === 2) val += .9;
+                    if (size === 3) val += 1.4;
+                    if (size === 4) val += 1.9;
+                }
+            case 'Blast':
                 shape = 'circle';
                 break;
             default:
                 return null;
         }
 
-        const scale = canvas.grid.type >= 2 ? Math.sqrt(3)/2 : 1;
+        const scale = hex ? Math.sqrt(3)/2 : 1;
         const templateData = {
             t: shape,
             user: game.user._id,
-            distance: (range.val + 0.1) * scale,
+            distance: (val + 0.1) * scale,
             width: scale,
             direction: 0,
-            x: 0,
-            y: 0,
+            x: position.x,
+            y: position.y,
             angle: 58,
             fillColor: game.user.color,
+            isBurst: type === 'Burst',
         }
         return new this(templateData);
     }
@@ -62,11 +78,9 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
             let now = Date.now(); // Apply a 20ms throttle
             if ( now - moveTime <= 20 ) return;
             const center = event.data.getLocalPosition(this.layer);
-            // TODO: New snapping logic for even size based bursts.
-            //const snapped = canvas.grid.getSnappedPosition(center.x, center.y, 2);
-            const snapped = canvas.grid.getCenter(center.x, center.y);
-            this.data.x = snapped[0];
-            this.data.y = snapped[1];
+            const snapped = this.snapToCenter(center);
+            this.data.x = snapped.x;
+            this.data.y = snapped.y;
             this.refresh();
             moveTime = now;
         };
@@ -85,11 +99,6 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
         handlers.lc = (event: any) => {
             handlers.rc(event);
 
-            // Confirm final snapped position
-            //const destination = canvas.grid.getSnappedPosition(this.x, this.y, 2);
-            //this.data.x = destination.x;
-            //this.data.y = destination.y;
-
             // Create the template
             canvas.scene.createEmbeddedEntity("MeasuredTemplate", this.data);
         };
@@ -105,9 +114,14 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
         };
 
         // Activate listeners
-        canvas.stage.on("mousemove", handlers.mm);
+        if (!this.isBurst) canvas.stage.on("mousemove", handlers.mm);
         canvas.stage.on("mousedown", handlers.lc);
         canvas.app.view.oncontextmenu = handlers.rc;
         canvas.app.view.onwheel = handlers.mw;
+    }
+
+    snapToCenter({x, y}: {x: number, y: number}): {x: number, y: number} {
+        const snapped = canvas.grid.getCenter(x, y);
+        return {x: snapped[0], y: snapped[1]};
     }
 }

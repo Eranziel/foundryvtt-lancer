@@ -114,6 +114,8 @@ Hooks.once("init", async function () {
     entities: {
       LancerActor,
       LancerItem,
+    },
+    canvas: {
       WeaponRangeTemplate,
     },
     prepareItemMacro: macros.prepareItemMacro,
