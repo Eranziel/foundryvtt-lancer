@@ -13,7 +13,16 @@
     "fonts/compcon/glyphs.css",
     "fonts/mdi/css/materialdesignicons.css"
   ],
-  "packs": [],
+  "packs": [
+    {
+      "name": "aoe-templates",
+      "label": "AoE Templates",
+      "system": "lancer",
+      "module": "lancer",
+      "path": "packs/aoe-templates.db",
+      "entity": "Macro"
+    }
+  ],
   "languages": [],
   "socket": true,
   "gridDistance": 1,
