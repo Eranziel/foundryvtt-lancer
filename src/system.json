@@ -21,8 +21,15 @@
       "module": "lancer",
       "path": "packs/aoe-templates.db",
       "entity": "Macro"
+    },
+    {
+      "name": "base_macros",
+      "label": "Included Macros",
+      "system": "lancer",
+      "path": "./packs/base_macros.db",
+      "entity": "Macro"
     }
-  ],
+],
   "languages": [],
   "socket": true,
   "gridDistance": 1,
