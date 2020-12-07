@@ -13,7 +13,15 @@
     "fonts/compcon/glyphs.css",
     "fonts/mdi/css/materialdesignicons.css"
   ],
-  "packs": [],
+  "packs": [
+    {
+      "name": "base_macros",
+      "label": "Included Macros",
+      "system": "lancer",
+      "path": "./packs/base_macros.db",
+      "entity": "Macro"
+    }
+],
   "languages": [],
   "socket": true,
   "gridDistance": 1,
