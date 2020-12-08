@@ -86,6 +86,14 @@ export function lancerActorInit(data: any) {
 export class LancerActor extends Actor {
   data!: LancerPilotActorData | LancerNPCActorData | LancerDeployableActorData;
 
+  // Some TypeGuards...
+  isPilot = (data: LancerPilotActorData | LancerNPCActorData | LancerDeployableActorData): data is LancerPilotActorData =>
+    (data.type === "Pilot");
+  isNPC = (data: LancerPilotActorData | LancerNPCActorData | LancerDeployableActorData): data is LancerNPCActorData =>
+    (data.type === "NPC");
+  isDep = (data: LancerPilotActorData | LancerNPCActorData | LancerDeployableActorData): data is LancerDeployableActorData =>
+    (data.type === "deployable");
+
   /**
    * Change mech frames for a pilot. Recalculates all mech-related stats on the pilot.
    * @param newFrame Stats object from the new mech frame.
@@ -267,6 +275,253 @@ export class LancerActor extends Actor {
     // Update the actor
     data.data.mech = mech;
     await this.update(data);
+  }
+
+
+
+/**
+ * Performs overheat on the mech
+ * For now, just rolls on table. Eventually we can include configuration to do automation
+ */
+async overheatMech() {
+
+  // Assert that we aren't on a deployable somehow
+  if(this.isDep(this.data)) {
+    return;
+  }
+
+  // Table of descriptions
+  function stressTableD(roll: number) {
+    switch(roll) {
+      // Used for multiple ones
+      case 0: 
+      return "The reactor goes critical – your mech suffers a reactor meltdown at the end of your next turn.";
+      case 1:
+      switch (remStress) {
+        case 2:
+        // Choosing not to auto-roll the checks to keep the suspense up
+        return "Roll an ENGINEERING check. On a success, your mech is EXPOSED; on a failure, it suffers a reactor meltdown after 1d6 of your turns (rolled by the GM). A reactor meltdown can be prevented by retrying the ENGINEERING check as a free action.";
+        case 1:
+        return "Your mech suffers a reactor meltdown at the end of your next turn.";
+        default:
+        return "Your mech becomes Exposed.";
+      }
+      case 2:
+      case 3:
+      case 4:
+      return "The power plant becomes unstable, beginning to eject jets of plasma. Your mech becomes EXPOSED, taking double kinetic, explosive and electric damage until the status is cleared.";
+      case 5:
+      case 6:
+      return "Your mech’s cooling systems manage to contain the increasing heat; however, your mech becomes IMPAIRED until the end of your next turn.";
+    }
+  }
+
+  // Table of titles
+  let stressTableT = [
+    "Irreversible Meltdown", 
+    "Meltdown",
+    "Destabilized Power Plant",
+    "Destabilized Power Plant",
+    "Destabilized Power Plant",
+    "Emergency Shunt",
+    "Emergency Shunt"
+  ]
+
+  this.data.data.mech.stress.value -= 1;
+  let remStress = this.data.data.mech.stress.value;
+
+  // If we're already at 0 just kill em
+  if(remStress > 0) {
+    let damage = this.data.data.mech.stress.max - this.data.data.mech.stress.value;
+    
+    let roll = new Roll(`${damage}d6kl1`).roll();
+    let result = roll.total;
+    
+    let tt = await roll.getTooltip();
+    let title = stressTableT[result];
+    let text = stressTableD(result);
+    
+    // Crushing hits
+    // This is fine
+    //@ts-ignore
+    let one_count = roll.terms[0].results.reduce((a, v) => {
+      return v.result === 1 ? a + 1 : a;
+    }, 0);
+    if (one_count > 1) {
+      text = stressTableD(result);
+      title = stressTableT[0];
+    }
+    let card = `
+    <div class="card clipped-bot" style="margin: 0px;">
+    <div class="lancer-stat-header clipped-top">// OVERHEATING //</div>
+    <div class="dice-roll lancer-dice-roll">
+    <div class="dice-result">
+    <div class="dice-formula lancer-dice-formula flexrow">
+    <span class="dice-total lancer-dice-total major">${title}</span>
+    </div>
+    <div style="text-align: left;">
+    ${tt}
+    </div>
+    </div>
+    </div>
+    ${text}
+    </div>
+    `
+    ChatMessage.create(
+      {
+        roll: roll,
+        speaker: ChatMessage.getSpeaker(),
+        content: card
+      }
+      );
+    } else {
+      // You ded
+      let title = stressTableT[0];
+      let text = stressTableD(0);
+      let card = `
+      <div class="card clipped-bot" style="margin: 0px;">
+      <div class="lancer-stat-header clipped-top">// OVERHEATING //</div>
+      <div class="dice-roll lancer-dice-roll">
+      <div class="dice-result">
+      <div class="dice-formula lancer-dice-formula flexrow">
+      <span class="dice-total lancer-dice-total major">${title}</span>
+      </div>
+      </div>
+      </div>
+      ${text}
+      </div>
+      `
+      ChatMessage.create(
+        {
+          speaker: ChatMessage.getSpeaker(),
+          content: card
+        }
+      );
+    }
+  }
+  
+/**
+ * Performs structure on the mech
+ * For now, just rolls on table. Eventually we can include configuration to do automation
+ */
+async structureMech() {
+
+  // Assert that we aren't on a deployable somehow
+  if(this.isDep(this.data)) {
+    return;
+  }
+  
+  // Table of descriptions
+  function structTableD(roll: number) {
+    switch(roll) {
+      // Used for multiple ones
+      case 0: 
+      return "Your mech is damaged beyond repair – it is destroyed. You may still exit it as normal.";
+      case 1:
+      switch (remStruct) {
+        case 2:
+        // Choosing not to auto-roll the checks to keep the suspense up
+        return "Roll a HULL check. On a success, your mech is STUNNED until the end of your next turn. On a failure, your mech is destroyed.";
+        case 1:
+        return "Your mech is destroyed.";
+        default:
+        return "Your mech is STUNNED until the end of your next turn.";
+      }
+      case 2:
+      case 3:
+      case 4:
+      // Idk, should this auto-roll?
+      return "Parts of your mech are torn off by the damage. Roll 1d6. On a 1–3, all weapons on one mount of your choice are destroyed; on a 4–6, a system of your choice is destroyed. LIMITED systems and weapons that are out of charges are not valid choices. If there are no valid choices remaining, it becomes the other result. If there are no valid systems or weapons remaining, this result becomes a DIRECT HIT instead.";
+      case 5:
+      case 6:
+      return "Emergency systems kick in and stabilize your mech, but it’s IMPAIRED until the end of your next turn.";
+    }
+  }
+  
+  // Table of titles
+  let structTableT = [
+    "Crushing Hit", 
+    "Direct Hit",
+    "System Trauma",
+    "System Trauma",
+    "System Trauma",
+    "Glancing Blow",
+    "Glancing Blow"
+  ]
+  
+  
+  this.data.data.mech.structure.value -= 1;
+  let remStruct = this.data.data.mech.structure.value;
+  
+  // If we're already at 0 just kill em
+  if(remStruct > 0) {
+    let damage = this.data.data.mech.structure.max
+    - this.data.data.mech.structure.value;
+    
+    let roll = new Roll(`${damage}d6kl1`).roll();
+    let result = roll.total;
+    
+    let tt = await roll.getTooltip();
+    let title = structTableT[result];
+    let text = structTableD(result);
+    
+    // Crushing hits
+    // This is fine
+    //@ts-ignore
+    let one_count = roll.terms[0].results.reduce((a, v) => {
+      return v.result === 1 ? a + 1 : a;
+    }, 0);
+    if (one_count > 1) {
+      text = structTableD(result);
+      title = structTableT[0];
+    }
+    let card = `
+    <div class="card clipped-bot" style="margin: 0px;">
+    <div class="lancer-stat-header clipped-top">// STRUCTURING //</div>
+    <div class="dice-roll lancer-dice-roll">
+    <div class="dice-result">
+    <div class="dice-formula lancer-dice-formula flexrow">
+    <span class="dice-total lancer-dice-total major">${title}</span>
+    </div>
+    <div style="text-align: left;">
+    ${tt}
+    </div>
+    </div>
+    </div>
+    ${text}
+    </div>
+    `
+    ChatMessage.create(
+      {
+        roll: roll,
+        speaker: ChatMessage.getSpeaker(),
+        content: card
+      }
+    );
+  } else {
+    // You ded
+    let title = structTableT[0];
+    let text = structTableD(0);
+    let card = `
+    <div class="card clipped-bot" style="margin: 0px;">
+    <div class="lancer-stat-header clipped-top">// STRUCTURING //</div>
+    <div class="dice-roll lancer-dice-roll">
+    <div class="dice-result">
+    <div class="dice-formula lancer-dice-formula flexrow">
+    <span class="dice-total lancer-dice-total major">${title}</span>
+    </div>
+    </div>
+    </div>
+    ${text}
+    </div>
+    `
+    ChatMessage.create(
+      {
+        speaker: ChatMessage.getSpeaker(),
+        content: card
+      }
+      );
+    }
   }
 }
 

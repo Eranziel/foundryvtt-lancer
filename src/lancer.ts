@@ -120,6 +120,8 @@ Hooks.once("init", async function () {
     prepareCoreActiveMacro: macros.prepareCoreActiveMacro,
     prepareCorePassiveMacro: macros.prepareCorePassiveMacro,
     prepareOverchargeMacro: macros.prepareOverchargeMacro,
+    prepareOverheatMacro: macros.prepareOverheatMacro,
+    prepareStructureMacro: macros.prepareStructureMacro,
     migrations: migrations,
   };
 

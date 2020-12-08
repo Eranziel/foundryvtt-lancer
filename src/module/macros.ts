@@ -724,3 +724,45 @@ async function rollOverchargeMacro(actor: Actor, data: LancerOverchargeMacroData
   const template = `systems/lancer/templates/chat/overcharge-card.html`;
   return renderMacro(actor, template, templateData);
 }
+
+/**
+ * Performs a roll on the overheat table for the given actor
+ * @param a ID of actor to overheat
+ */
+export async function prepareOverheatMacro(a: string) {
+  // Determine which Actor to speak as
+  let actor: LancerActor | null = getMacroSpeaker(a);
+  if (!actor) {
+    ui.notifications.warn(`Failed to find Actor for macro. Do you need to select a token?`);
+    return null;
+  }
+
+  if (!("mech" in actor.data.data)) {
+    ui.notifications.error("Selected token is not a mech");
+    return;
+  }
+  
+  // Hand it off to the actor to overheat
+  await actor.overheatMech();
+}
+
+/**
+ * Performs a roll on the structure table for the given actor
+ * @param a ID of actor to structure
+ */
+export async function prepareStructureMacro(a: string) {
+  // Determine which Actor to speak as
+  let actor: LancerActor | null = getMacroSpeaker(a);
+  if (!actor) {
+    ui.notifications.warn(`Failed to find Actor for macro. Do you need to select a token?`);
+    return null;
+  }
+
+  if (!("mech" in actor.data.data)) {
+    ui.notifications.error("Selected token is not a mech");
+    return;
+  }
+  
+  // Hand it off to the actor to overheat
+  await actor.structureMech();
+}
