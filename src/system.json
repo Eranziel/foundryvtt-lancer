@@ -15,10 +15,10 @@
   ],
   "packs": [
     {
-      "name": "base_macros",
-      "label": "Included Macros",
+      "name": "core_macros",
+      "label": "LANCER Macros",
       "system": "lancer",
-      "path": "./packs/base_macros.db",
+      "path": "./packs/core_macros.db",
       "entity": "Macro"
     }
 ],
