@@ -694,13 +694,12 @@ export class LancerPilotSheet extends LancerActorSheet {
    */
   _updateObject(event: Event | JQuery.Event, formData: any): Promise<any> {
     // Do these only if the callsign updated
-    if(this.actor.data.data.pilot.callsign !== formData["data.pilot.callsign"]) {
+    if (this.actor.data.data.pilot.callsign !== formData["data.pilot.callsign"]) {
       // Use the Actor's name for the pilot's callsign
       formData["name"] = formData["data.pilot.callsign"];
       // Copy the pilot's callsign to the prototype token
       formData["token.name"] = formData["data.pilot.callsign"];
     }
-    
 
     formData = this._updateTokenImage(formData);
 

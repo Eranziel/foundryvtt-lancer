@@ -176,7 +176,10 @@ Hooks.once("init", async function () {
     makeDefault: true,
   });
   Items.registerSheet("lancer", LancerFrameSheet, { types: ["frame"], makeDefault: true });
-  Items.registerSheet("lancer", LancerNPCClassSheet, { types: ["npc_class", "npc_template"], makeDefault: true });
+  Items.registerSheet("lancer", LancerNPCClassSheet, {
+    types: ["npc_class", "npc_template"],
+    makeDefault: true,
+  });
 
   // *******************************************************************
   // Register handlebars helpers
@@ -254,10 +257,9 @@ Hooks.once("init", async function () {
   });
 
   // For loops in Handlebars
-  Handlebars.registerHelper('for', function(n, block) {
-    var accum = '';
-    for(var i = 0; i < n; ++i)
-        accum += block.fn(i);
+  Handlebars.registerHelper("for", function (n, block) {
+    var accum = "";
+    for (var i = 0; i < n; ++i) accum += block.fn(i);
     return accum;
   });
 
@@ -372,8 +374,6 @@ Hooks.once("setup", async function () {
       `Warning: COMP/CON has failed to load. You may experience severe data integrity failure`
     );
   }
-
-  
 });
 
 /* ------------------------------------ */
@@ -587,22 +587,21 @@ async function versionCheck() {
     await game.settings.set(LANCER.sys_name, LANCER.setting_migration, game.system.data.version);
   }
 
-
   // Use the new FEATURES dict to see if we can assume that there will be issues
   // I think this is up to date with all currently in use, but we'll need to keep it updated
   // https://gitlab.com/foundrynet/foundryvtt/-/issues/3959#note_441254976
   let supportedFeatures = {
-    ACTORS:2,
-    CHAT:2,
-    COMPENDIUM:2,
-    ENTITIES:4,
-    ITEMS:2,
-    MACROS:1,
-    SETTINGS:2,
-    TOKENS:3
+    ACTORS: 2,
+    CHAT: 2,
+    COMPENDIUM: 2,
+    ENTITIES: 4,
+    ITEMS: 2,
+    MACROS: 1,
+    SETTINGS: 2,
+    TOKENS: 3,
   };
 
-  for(const k in supportedFeatures){
+  for (const k in supportedFeatures) {
     // This is fine so...
     //@ts-ignore
     if (supportedFeatures[k] !== window.FEATURES[k]) {

@@ -741,7 +741,7 @@ export async function prepareOverheatMacro(a: string) {
     ui.notifications.error("Selected token is not a mech");
     return;
   }
-  
+
   // Hand it off to the actor to overheat
   await actor.overheatMech();
 }
@@ -762,7 +762,7 @@ export async function prepareStructureMacro(a: string) {
     ui.notifications.error("Selected token is not a mech");
     return;
   }
-  
+
   // Hand it off to the actor to overheat
   await actor.structureMech();
 }
