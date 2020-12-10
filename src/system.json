@@ -15,6 +15,14 @@
   ],
   "packs": [
     {
+      "name": "aoe-templates",
+      "label": "AoE Templates",
+      "system": "lancer",
+      "module": "lancer",
+      "path": "packs/aoe-templates.db",
+      "entity": "Macro"
+    },
+    {
       "name": "core_macros",
       "label": "LANCER Macros",
       "system": "lancer",
