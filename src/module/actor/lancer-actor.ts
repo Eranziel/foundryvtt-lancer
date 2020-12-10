@@ -12,6 +12,7 @@ import { LANCER } from "../config";
 import { MountType } from "machine-mind";
 import { LancerFrame, LancerItemData } from "../item/lancer-item";
 import { ItemDataManifest } from "../item/util";
+import { renderMacro } from "../macros";
 const lp = LANCER.log_prefix;
 
 export const DEFAULT_MECH = {
@@ -327,7 +328,9 @@ export class LancerActor extends Actor {
     ];
 
     this.data.data.mech.stress.value -= 1;
+    await this.update(this.data);
     let remStress = this.data.data.mech.stress.value;
+    let templateData = {};
 
     // If we're already at 0 just kill em
     if (remStress > 0) {
@@ -350,49 +353,28 @@ export class LancerActor extends Actor {
         text = stressTableD(result);
         title = stressTableT[0];
       }
-      let card = `
-    <div class="card clipped-bot" style="margin: 0px;">
-    <div class="lancer-stat-header clipped-top">// OVERHEATING //</div>
-    <div class="dice-roll lancer-dice-roll">
-    <div class="dice-result">
-    <div class="dice-formula lancer-dice-formula flexrow">
-    <span class="dice-total lancer-dice-total major">${title}</span>
-    </div>
-    <div style="text-align: left;">
-    ${tt}
-    </div>
-    </div>
-    </div>
-    ${text}
-    </div>
-    `;
-      ChatMessage.create({
+      templateData = {
+        val: this.data.data.mech.stress.value,
+        max: this.data.data.mech.stress.max,
+        tt: tt,
+        title: title,
+        text: text,
         roll: roll,
-        speaker: ChatMessage.getSpeaker(),
-        content: card,
-      });
+      };
     } else {
       // You ded
       let title = stressTableT[0];
       let text = stressTableD(0);
-      let card = `
-      <div class="card clipped-bot" style="margin: 0px;">
-      <div class="lancer-stat-header clipped-top">// OVERHEATING //</div>
-      <div class="dice-roll lancer-dice-roll">
-      <div class="dice-result">
-      <div class="dice-formula lancer-dice-formula flexrow">
-      <span class="dice-total lancer-dice-total major">${title}</span>
-      </div>
-      </div>
-      </div>
-      ${text}
-      </div>
-      `;
-      ChatMessage.create({
-        speaker: ChatMessage.getSpeaker(),
-        content: card,
-      });
+      templateData = {
+        val: this.data.data.mech.stress.value,
+        max: this.data.data.mech.stress.max,
+        title: title,
+        text: text,
+      };
     }
+    const template = `systems/lancer/templates/chat/overheat-card.html`;
+    const actor: Actor = game.actors.get(ChatMessage.getSpeaker().actor);
+    return renderMacro(actor, template, templateData);
   }
 
   /**
@@ -444,8 +426,9 @@ export class LancerActor extends Actor {
     ];
 
     this.data.data.mech.structure.value -= 1;
+    await this.update(this.data);
     let remStruct = this.data.data.mech.structure.value;
-
+    let templateData = {};
     // If we're already at 0 just kill em
     if (remStruct > 0) {
       let damage = this.data.data.mech.structure.max - this.data.data.mech.structure.value;
@@ -467,49 +450,28 @@ export class LancerActor extends Actor {
         text = structTableD(result);
         title = structTableT[0];
       }
-      let card = `
-    <div class="card clipped-bot" style="margin: 0px;">
-    <div class="lancer-stat-header clipped-top">// STRUCTURING //</div>
-    <div class="dice-roll lancer-dice-roll">
-    <div class="dice-result">
-    <div class="dice-formula lancer-dice-formula flexrow">
-    <span class="dice-total lancer-dice-total major">${title}</span>
-    </div>
-    <div style="text-align: left;">
-    ${tt}
-    </div>
-    </div>
-    </div>
-    ${text}
-    </div>
-    `;
-      ChatMessage.create({
+      templateData = {
+        val: this.data.data.mech.structure.value,
+        max: this.data.data.mech.structure.max,
+        tt: tt,
+        title: title,
+        text: text,
         roll: roll,
-        speaker: ChatMessage.getSpeaker(),
-        content: card,
-      });
+      };
     } else {
       // You ded
       let title = structTableT[0];
       let text = structTableD(0);
-      let card = `
-    <div class="card clipped-bot" style="margin: 0px;">
-    <div class="lancer-stat-header clipped-top">// STRUCTURING //</div>
-    <div class="dice-roll lancer-dice-roll">
-    <div class="dice-result">
-    <div class="dice-formula lancer-dice-formula flexrow">
-    <span class="dice-total lancer-dice-total major">${title}</span>
-    </div>
-    </div>
-    </div>
-    ${text}
-    </div>
-    `;
-      ChatMessage.create({
-        speaker: ChatMessage.getSpeaker(),
-        content: card,
-      });
+      templateData = {
+        val: this.data.data.mech.structure.value,
+        max: this.data.data.mech.structure.max,
+        title: title,
+        text: text,
+      };
     }
+    const template = `systems/lancer/templates/chat/structure-card.html`;
+    const actor: Actor = game.actors.get(ChatMessage.getSpeaker().actor);
+    return renderMacro(actor, template, templateData);
   }
 }
 
