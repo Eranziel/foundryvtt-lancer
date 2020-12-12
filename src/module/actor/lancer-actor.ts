@@ -342,6 +342,7 @@ export class LancerActor extends Actor {
       let tt = await roll.getTooltip();
       let title = stressTableT[result];
       let text = stressTableD(result);
+      let total = roll.total.toString();
 
       // Crushing hits
       // This is fine
@@ -352,12 +353,14 @@ export class LancerActor extends Actor {
       if (one_count > 1) {
         text = stressTableD(result);
         title = stressTableT[0];
+        total = "Multiple Ones";
       }
       templateData = {
         val: this.data.data.mech.stress.value,
         max: this.data.data.mech.stress.max,
         tt: tt,
         title: title,
+        total: total,
         text: text,
         roll: roll,
       };
@@ -439,6 +442,7 @@ export class LancerActor extends Actor {
       let tt = await roll.getTooltip();
       let title = structTableT[result];
       let text = structTableD(result);
+      let total = roll.total.toString();
 
       // Crushing hits
       // This is fine
@@ -449,12 +453,14 @@ export class LancerActor extends Actor {
       if (one_count > 1) {
         text = structTableD(result);
         title = structTableT[0];
+        total = "Multiple Ones";
       }
       templateData = {
         val: this.data.data.mech.structure.value,
         max: this.data.data.mech.structure.max,
         tt: tt,
         title: title,
+        total: total,
         text: text,
         roll: roll,
       };
