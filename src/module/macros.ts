@@ -1,6 +1,13 @@
 // Import TypeScript modules
 import { LANCER } from "./config";
-import { LancerCoreBonus, LancerItem, LancerMechSystem, LancerNpcFeature, LancerPilotGear, LancerSkill } from "./item/lancer-item";
+import {
+  LancerCoreBonus,
+  LancerItem,
+  LancerMechSystem,
+  LancerNpcFeature,
+  LancerPilotGear,
+  LancerSkill,
+} from "./item/lancer-item";
 import { LancerActor } from "./actor/lancer-actor";
 import {
   LancerAttackMacroData,

@@ -87,7 +87,7 @@ export class LancerMechSheet extends LancerActorSheet {
 
     // Update the Actor
     console.log("Writing back...");
-    mergeObject(this._currData, formData, {inplace: true});
+    mergeObject(this._currData, formData, { inplace: true });
     console.log(formData);
     console.log(this._currData);
     return this._currData?.mm.ent.writeback();

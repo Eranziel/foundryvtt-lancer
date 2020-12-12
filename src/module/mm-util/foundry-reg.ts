@@ -124,7 +124,7 @@ export class FoundryReg extends Registry {
   // Give a registry for the provided inventoried item
   switch_reg_inv(for_inv_item: InventoriedRegEntry<EntryType>): Registry {
     // Check cache
-    if(this.cached_regs.has(for_inv_item)) {
+    if (this.cached_regs.has(for_inv_item)) {
       return this.cached_regs.get(for_inv_item)!;
     }
 
@@ -133,12 +133,12 @@ export class FoundryReg extends Registry {
 
     // Behaviour changes if original was compendium - if so, need a compendium + actor reg
     let reg: FoundryReg;
-    if(fii_regname.substr(0,4) == "comp") {
+    if (fii_regname.substr(0, 4) == "comp") {
       console.warn("Compendium actor inventories not yet properly supported");
-      reg = new FoundryReg({/*for_actor: actor*/ for_compendium: true});
+      reg = new FoundryReg({ /*for_actor: actor*/ for_compendium: true });
     } else {
       let actor = game.actors.get(for_inv_item.RegistryID) as LancerActor<LancerActorType>;
-      reg = new FoundryReg({for_actor: actor});
+      reg = new FoundryReg({ for_actor: actor });
     }
 
     // Set cache and return
@@ -149,14 +149,14 @@ export class FoundryReg extends Registry {
   // Get a name descriptor of what region/set of items/whatever this registry represents/ provides access to
   name(): string {
     // Depends on our actor and compendium flags
-    if(this.for_compendium) {
-      if(this.actor) {
+    if (this.for_compendium) {
+      if (this.actor) {
         return `comp_actor:${this.actor._id}`;
       } else {
         return "comp";
       }
     } else {
-      if(this.actor) {
+      if (this.actor) {
         return `world_actor:${this.actor._id}`;
       } else {
         return "world";
@@ -166,7 +166,7 @@ export class FoundryReg extends Registry {
 
   switch_reg(inventory_id: string): Registry | null {
     // Check cache
-    if(this.cached_regs.has(inventory_id)) {
+    if (this.cached_regs.has(inventory_id)) {
       return this.cached_regs.get(inventory_id)!;
     }
 
@@ -174,9 +174,9 @@ export class FoundryReg extends Registry {
     let [subtype, id] = inventory_id.split(":");
     id = id ?? "";
     let reg: FoundryReg;
-    switch(subtype) {
+    switch (subtype) {
       case "comp":
-        reg = new FoundryReg({for_compendium: true});
+        reg = new FoundryReg({ for_compendium: true });
         break;
       case "world":
         reg = new FoundryReg();
@@ -193,7 +193,7 @@ export class FoundryReg extends Registry {
       case "comp_actor":
         console.warn("Compendium actor item refs not yet supported");
         return null;
-      default: 
+      default:
         return null;
     }
 
@@ -208,10 +208,7 @@ export class FoundryReg extends Registry {
 
   // By default world scope. Can specify either that this is in a compendium, or is in an actor
   constructor(
-    {
-      for_compendium,
-      for_actor,
-    }: { for_compendium?: boolean; for_actor?: Actor | null } = {
+    { for_compendium, for_actor }: { for_compendium?: boolean; for_actor?: Actor | null } = {
       for_compendium: false,
     }
   ) {
@@ -286,12 +283,10 @@ export class FoundryReg extends Registry {
 
     // Aand now we do it
     do_cat(EntryType.CORE_BONUS, CoreBonus, defaults.CORE_BONUS);
-    do_cat(EntryType.CORE_SYSTEM, CoreSystem, defaults.CORE_SYSTEM);
     do_cat(EntryType.DEPLOYABLE, Deployable, defaults.DEPLOYABLE);
     do_cat(EntryType.ENVIRONMENT, Environment, defaults.ENVIRONMENT);
     do_cat(EntryType.FACTION, Faction, defaults.FACTION);
     do_cat(EntryType.FRAME, Frame, defaults.FRAME);
-    do_cat(EntryType.FRAME_TRAIT, FrameTrait, defaults.FRAME_TRAIT);
     do_cat(EntryType.LICENSE, License, defaults.LICENSE);
     do_cat(EntryType.MANUFACTURER, Manufacturer, defaults.MANUFACTURER);
     do_cat(EntryType.MECH, Mech, defaults.MECH);
@@ -321,20 +316,20 @@ export class FoundryReg extends Registry {
   async hook_post_insinuate<T extends EntryType>(record: InsinuationRecord<T>) {
     // Check if we have an original entity
     let orig = record.new_item.flags?.orig_entity;
-    if(record.new_item.flags?.orig_entity) {
-      if(LANCER.actor_types.includes(orig.type)){
+    if (record.new_item.flags?.orig_entity) {
+      if (LANCER.actor_types.includes(orig.type)) {
         // 'tis an actor
         let orig_entity = record.new_item.flags.orig_entity as LancerActor<T & LancerActorType>;
         let img = orig_entity.data?.img;
         let name = orig_entity.data?.name;
         let token = orig_entity.data?.token;
-        await orig_entity.update({img, name, token});
+        await orig_entity.update({ img, name, token });
       } else {
         // 'tis an item
         let orig_entity = record.new_item.flags.orig_entity as LancerItem<T & LancerItemType>;
         let img = orig_entity.data?.img;
         let name = orig_entity.data?.name;
-        await orig_entity.update({img, name}, {});
+        await orig_entity.update({ img, name }, {});
       }
     }
   }
@@ -344,7 +339,6 @@ export class FoundryReg extends Registry {
 export class FoundryRegCat<T extends EntryType> extends RegCat<T> {
   private defaulter: () => RegEntryTypes<T>;
   private handler: EntityCollectionWrapper<T>;
-
 
   // Pretty much just delegates to root
   constructor(
@@ -412,7 +406,7 @@ export class FoundryRegCat<T extends EntryType> extends RegCat<T> {
   }
 
   // Use our update function
-  async update_many_raw(items: Array<{id: string, data: RegEntryTypes<T>}>): Promise<void> {
+  async update_many_raw(items: Array<{ id: string; data: RegEntryTypes<T> }>): Promise<void> {
     // Actor.update({_id: exp._id, name:" Help"})
     let pending: Promise<any>[] = [];
     for (let i of items) {
@@ -454,7 +448,7 @@ export class FoundryRegCat<T extends EntryType> extends RegCat<T> {
         id: g.id,
         type: g.type,
         is_unresolved_mmid: false,
-        reg_name: this.parent.name()
+        reg_name: this.parent.name(),
       }));
     });
   }

@@ -9,7 +9,9 @@ import {
   WeaponSize,
   WeaponType,
   Range,
-  Damage
+  Damage,
+  RegEntry,
+  LiveEntryTypes,
 } from "machine-mind";
 import {
   npc_reaction_effect_preview,
@@ -39,13 +41,12 @@ export function lancerItemInit(data: any) {
   if (data.type === EntryType.NPC_FEATURE && data.feature_type) {
     let trait_type = data.feature_type as NpcFeatureType;
 
-    switch(trait_type) {
+    switch (trait_type) {
       default:
       case NpcFeatureType.Trait:
         img += "trait.svg";
-
     }
-    trait_type
+    trait_type;
     mergeObject(data, {
       // Default new NPC features to traits
       "data.feature_type": NpcFeatureType.Trait,
@@ -66,15 +67,13 @@ export class LancerItem<T extends LancerItemType> extends Item {
     return super.type as T;
   }
 
-
-    /** Force name down to item */
-    prepareData() {
-      super.prepareData();
-      // Push down name
-      this.data.data.name = this.data.name;
-      if (!this.data.img) this.data.img = CONST.DEFAULT_TOKEN;
-    }
-
+  /** Force name down to item */
+  prepareData() {
+    super.prepareData();
+    // Push down name
+    this.data.data.name = this.data.name;
+    if (!this.data.img) this.data.img = CONST.DEFAULT_TOKEN;
+  }
 
   // ============================================================
   //          SKILLS
@@ -254,14 +253,8 @@ export class LancerItem<T extends LancerItemType> extends Item {
 export type LancerCoreBonusData = FoundryRegItemData<EntryType.CORE_BONUS>;
 export type LancerCoreBonus = LancerItem<EntryType.CORE_BONUS>;
 
-export type LancerCoreSystemData = FoundryRegItemData<EntryType.CORE_SYSTEM>;
-export type LancerCoreSystem = LancerItem<EntryType.CORE_SYSTEM>;
-
 export type LancerFrameData = FoundryRegItemData<EntryType.FRAME>;
 export type LancerFrame = LancerItem<EntryType.FRAME>;
-
-export type LancerFrameTraitData = FoundryRegItemData<EntryType.FRAME_TRAIT>;
-export type LancerFrameTrait = LancerItem<EntryType.FRAME_TRAIT>;
 
 export type LancerLicenseData = FoundryRegItemData<EntryType.LICENSE>;
 export type LancerLicense = LancerItem<EntryType.LICENSE>;
@@ -612,6 +605,50 @@ export function npc_accuracy_preview(acc: number) {
     </div>`;
   }
   return html;
+}
+
+// Previews an item posessed by a mech
+export function item_preview(item: LiveEntryTypes<LancerItemType>) {
+  /*
+  event.preventDefault();
+    const  a = event.currentTarget;
+    let entity = null;
+
+    // Target 1 - Compendium Link
+    if ( a.dataset.pack ) {
+      const pack = game.packs.get(a.dataset.pack);
+      let id = a.dataset.id;
+      if ( a.dataset.lookup ) {
+        if ( !pack.index.length ) await pack.getIndex();
+        const entry = pack.index.find(i => (i._id === a.dataset.lookup) || (i.name === a.dataset.lookup));
+        id = entry._id;
+      }
+      entity = id ? await pack.getEntity(id) : null;
+    }
+
+    // Target 2 - World Entity Link
+    else {
+      const cls = CONFIG[a.dataset.entity].entityClass;
+      entity = cls.collection.get(a.dataset.id);
+      if ( entity.entity === "Scene" && entity.journal ) entity = entity.journal;
+      if ( !entity.hasPerm(game.user, "LIMITED") ) {
+        return ui.notifications.warn(`You do not have permission to view this ${entity.entity} sheet.`);
+      }
+    }
+    if ( !entity ) return;
+
+    // Action 1 - Execute an Action
+    if ( entity.entity === "Macro" ) {
+      if ( !entity.hasPerm(game.user, "LIMITED") ) {
+        return ui.notifications.warn(`You do not have permission to use this ${entity.entity}.`);
+      }
+      return entity.execute();
+    }
+
+    // Action 2 - Render the Entity sheet
+    return entity.sheet.render(true);
+    */
+  return `<span>${item.Name}</span>`;
 }
 
 /**

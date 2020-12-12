@@ -31,20 +31,10 @@ import { FoundryReg } from "./mm-util/foundry-reg";
 
 // Some useful subgroupings
 type MechItemEntryType =
-  | EntryType.CORE_SYSTEM
   | EntryType.FRAME
-  | EntryType.FRAME_TRAIT
   | EntryType.MECH_WEAPON
   | EntryType.MECH_SYSTEM
   | EntryType.WEAPON_MOD;
-const MechItemEntryTypes = [
-  EntryType.CORE_SYSTEM,
-  EntryType.FRAME,
-  EntryType.FRAME_TRAIT,
-  EntryType.MECH_WEAPON,
-  EntryType.MECH_SYSTEM,
-  EntryType.WEAPON_MOD,
-];
 type PilotItemEntryType =
   | EntryType.CORE_BONUS
   | EntryType.TALENT
@@ -56,18 +46,7 @@ type PilotItemEntryType =
   | EntryType.PILOT_ARMOR
   | EntryType.PILOT_WEAPON
   | EntryType.PILOT_GEAR /* | EntryType.LICENSE */;
-const PilotItemEntryTypes = [
-  EntryType.CORE_BONUS,
-  EntryType.TALENT,
-  EntryType.SKILL,
-  EntryType.QUIRK,
-  EntryType.RESERVE,
-  EntryType.FACTION,
-  EntryType.ORGANIZATION,
-  EntryType.PILOT_ARMOR,
-  EntryType.PILOT_WEAPON,
-  EntryType.PILOT_GEAR /* , EntryType.LICENSE */,
-];
+
 type ItemEntryType = MechItemEntryType | PilotItemEntryType;
 
 interface PackMetadata {
@@ -222,35 +201,23 @@ export async function import_cp(cp: IContentPack): Promise<void> {
       let name: string = item.Name.toUpperCase();
 
       // Duck typing baybeeee
-      item.flags = {...item.flags, data: { name } };
+      item.flags = { ...item.flags, data: { name } };
     }
   }
 
   // Step 2: Make NPC features and frame traits have unique, frame/class specific prefixes. Helps with name collisions
-  let frames = cp_reg.get_cat(EntryType.FRAME);
-  for(let f of await frames.list_live(ctx)) {
-    for(let trait of f.Traits) {
-      trait.flags.data.name = `[${f.Name}] ${trait.Name}`;
-    }
-    if(f.CoreSystem) {
-      f.CoreSystem.flags.data.name = `[${f.Name}] ${f.CoreSystem.Name}`;
-    }
-  }
+  // ...
 
   // Step 3: Insinuate data to the actual foundry reg
-  // We only want to do "top level features" - so no deployables, traits, etc that would be included in a frame/weapon/whatever (as they will be insinuated naturally)
+  // We only want to do "top level features" - so no deployables, etc that would be included in a frame/weapon/whatever (as they will be insinuated naturally)
   // Easier to do what we _don't_ want
   let comp_reg = new FoundryReg({ for_compendium: true });
   // await unlock_all(); // TODO: re-enable i guess?
-  let sub_types: EntryType[] = [
-    EntryType.FRAME_TRAIT,
-    EntryType.CORE_SYSTEM,
-    EntryType.DEPLOYABLE
-  ];
+  let sub_types: EntryType[] = [EntryType.DEPLOYABLE];
 
   for (let type of Object.values(EntryType)) {
     // Skip if subtype
-    if(sub_types.includes(type)) {
+    if (sub_types.includes(type)) {
       continue;
     }
 
@@ -268,7 +235,6 @@ export async function import_cp(cp: IContentPack): Promise<void> {
   await cp_reg.execute_order_66();
 
   // await lock_all();
-
 }
 
 // This handles name-uniqueness
@@ -286,9 +252,8 @@ class MurderousStaticReg extends StaticReg {
 
   constructor(env: RegEnv, index: KillIndexEntry[]) {
     super(env);
-    this.kill_index = index; 
+    this.kill_index = index;
   }
-
 
   async hook_post_insinuate<T extends EntryType>(record: InsinuationRecord<T>) {
     // Save the name
@@ -298,14 +263,15 @@ class MurderousStaticReg extends StaticReg {
   async execute_order_66() {
     // Quick convert to map
     let mp = new Map<string, KillIndexEntry>();
-    for(let item of this.kill_index) {
+    for (let item of this.kill_index) {
       mp.set(item.name, item);
     }
 
     // Then go hunting
-    for(let name of this.marked_for_death) {
+    for (let name of this.marked_for_death) {
       let index_item = mp.get(name);
-      if(index_item) { // This check is very necessary. It will only resolve to true when we are replacing items
+      if (index_item) {
+        // This check is very necessary. It will only resolve to true when we are replacing items
         let pack = await get_pack(index_item.type);
         await pack.deleteEntity(index_item.id);
       }
@@ -314,16 +280,16 @@ class MurderousStaticReg extends StaticReg {
 
   static async gen_kill_index(): Promise<KillIndexEntry[]> {
     let result: KillIndexEntry[] = [];
-    for(let type of Object.values(EntryType)) {
+    for (let type of Object.values(EntryType)) {
       let pack = await get_pack(type);
       let index = await pack.getIndex();
-        
+
       // Add an entry for each item in the index
-      for(let i of index) {
+      for (let i of index) {
         result.push({
           type,
           id: i.id,
-          name: i.name
+          name: i.name,
         });
       }
     }

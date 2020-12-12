@@ -123,10 +123,7 @@ export class LancerNPCClassSheet extends LancerItemSheet {
     }
   }
 
-  private _displayFeatures(
-    features: LancerNpcFeatureData[],
-    elementToReplace: JQuery<Element>
-  ) {
+  private _displayFeatures(features: LancerNpcFeatureData[], elementToReplace: JQuery<Element>) {
     let featureItems = features
       .map(feature => {
         return npc_feature_preview(feature, 0);

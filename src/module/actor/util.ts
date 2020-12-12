@@ -12,7 +12,7 @@ export async function import_pilot_by_code(code: string): Promise<mm.Pilot> {
   let pilot = await foundry_reg.create_live(EntryType.PILOT, import_ctx);
 
   // Then delegate to cloud sync
-  let comp_reg = new FoundryReg({for_compendium: true});
+  let comp_reg = new FoundryReg({ for_compendium: true });
   await cloud_sync(data, pilot, [comp_reg]);
 
   // Return our new pilot
@@ -24,6 +24,6 @@ export async function update_pilot_by_code(pilot: Pilot, code: string) {
   let data = await mm.funcs.gist_io.download_pilot(code);
 
   // Delegate to cloud sync
-  let comp_reg = new FoundryReg({for_compendium: true});
+  let comp_reg = new FoundryReg({ for_compendium: true });
   await cloud_sync(data, pilot, [comp_reg]);
 }

@@ -1,4 +1,5 @@
-import { EntryType } from "machine-mind";
+import { EntryType, FrameTrait } from "machine-mind";
+import { defaults } from "machine-mind/dist/funcs";
 import { LancerItemSheetData } from "../interfaces";
 import { mm_wrap_item } from "../mm-util/helpers";
 import { LancerItemSheet } from "./item-sheet";
@@ -21,23 +22,30 @@ export class LancerFrameSheet extends LancerItemSheet {
     });
   }
 
-  /**
-   * @override
-   * Tag controls event handler
-   * @param event The click event
-   */
   async _onCreateFrameTrait(event: any) {
     event.preventDefault();
 
-    console.log("Self in onCreate: ", this);
-
     // Pretty simple, sis
     let data = await this.getDataLazy();
-    // Make it
-    let new_trait = await data.mm.reg.create_live(EntryType.FRAME_TRAIT, data.mm.ctx);
-    // Add it
-    data.mm.ent.Traits.push(new_trait);
-    // Write it
+    let mm = data.mm;
+    let trait = await new FrameTrait(mm.reg, mm.ctx, defaults.FRAME_TRAIT()).ready();
+    mm.ent.Traits.push(trait);
+    await mm.ent.writeback();
+  }
+
+  async _onDeleteFrameTrait(event: any) {
+    event.preventDefault();
+
+    // Get the index
+    const elt = $(event.currentTarget);
+    const index = elt.prop("index");
+
+    let data = await this.getDataLazy();
+    // Splice it out
+    let traits = [...data.mm.ent.Traits];
+    traits.splice(index, 1);
+    data.mm.ent.Traits = traits;
+
     await data.mm.ent.writeback();
   }
 
@@ -52,9 +60,10 @@ export class LancerFrameSheet extends LancerItemSheet {
     // Everything below here is only needed if the sheet is editable
     if (!this.options.editable) return;
 
-    // Add a frame trait, when they ask to
-    let add_trait = html.find("#add_trait");
-    add_trait.on("click", (e) => this._onCreateFrameTrait(e));
+    // Frame trait controls
+    let traits = html.find("#frame-traits");
+    traits.find(".add-button").on("click", e => this._onCreateFrameTrait(e));
+    traits.find(".remove-button").on("click", e => this._onDeleteFrameTrait(e));
   }
 
   /**
@@ -65,13 +74,11 @@ export class LancerFrameSheet extends LancerItemSheet {
   async _updateObject(event: Event | JQuery.Event, formData: any): Promise<any> {
     // Update the item
     console.log("Writing back...");
-    mergeObject(this._currData, formData, {inplace: true});
+    mergeObject(this._currData, formData, { inplace: true });
     console.log(formData);
     console.log(this._currData);
-    return this._currData?.mm.ent.writeback();
+    // return this._currData?.mm.ent.writeback();
   }
-
-
 
   /**
    * Prepare data for rendering the frame sheet
@@ -83,7 +90,6 @@ export class LancerFrameSheet extends LancerItemSheet {
 
     // Load pilot
     data.mm = await mm_wrap_item(this.item as LancerFrame);
-    console.log(`Mech ctx: `, data.mm);
     this._currData = data;
     return data;
   }

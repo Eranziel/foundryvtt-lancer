@@ -49,9 +49,7 @@ export async function mm_wrap_actor<T extends EntryType & LancerActorType>(
   let ctx = new OpCtx();
 
   // Load up the item. This _should_ always work barring exceptional race conditions (like, deleting the actor while opening the sheet)
-  let ent = (await reg.get_cat(actor.data.type).get_live(ctx, actor._id)) as LiveEntryTypes<
-    T
-  >;
+  let ent = (await reg.get_cat(actor.data.type).get_live(ctx, actor._id)) as LiveEntryTypes<T>;
   if (!ent) {
     throw new Error("Something went wrong while trying to contextualize an actor...");
   }

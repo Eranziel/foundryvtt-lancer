@@ -23,6 +23,7 @@ import {
   is_loading,
   LancerItem,
   lancerItemInit,
+  item_preview,
   mech_system_preview,
   mech_trait_preview,
   mech_weapon_preview,
@@ -173,9 +174,8 @@ Hooks.once("init", async function () {
       EntryType.MECH_WEAPON,
       EntryType.WEAPON_MOD,
       EntryType.NPC_FEATURE,
-
-      EntryType.CORE_SYSTEM,
-      EntryType.FRAME_TRAIT,
+      EntryType.MANUFACTURER,
+      EntryType.QUIRK,
     ],
     makeDefault: true,
   });
@@ -262,6 +262,10 @@ Hooks.once("init", async function () {
 
   // ------------------------------------------------------------------------
   // Generic components
+  Handlebars.registerHelper("icon", function(icon_name: string) {
+    return `<i class="cci cci-${icon_name} i--m i--light"> </i>`;
+  });
+
   Handlebars.registerHelper("l-num-input", function (target: string, value: string) {
     // Init value to 0 if it doesn't exist
     // So the arrows work properly
@@ -277,16 +281,17 @@ Hooks.once("init", async function () {
   });
 
   // For debugging
-  Handlebars.registerHelper('debug_each', function(it, block) {
+  Handlebars.registerHelper("debug_each", function (it, block) {
     // if(typeof a == 'function')
-        // a = a.call(this);
+    // a = a.call(this);
     console.log(it);
-    var s = '';
-    for(let x of it)
-        s += block(x);
+    var s = "";
+    for (let x of it) s += block(x);
     return s;
   });
 
+  // Shows a little link-preview of an item
+  Handlebars.registerHelper("ref-item", item_preview);
 
   // ------------------------------------------------------------------------
   // Tags

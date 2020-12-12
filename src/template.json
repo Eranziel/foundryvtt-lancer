@@ -101,11 +101,9 @@
   "Item": {
     "types": [
       "core_bonus",
-      "core_system",
       "environment",
       "faction",
       "frame",
-      "frame_trait",
       "license",
       "manufacturer",
       "npc_class",
@@ -123,7 +121,6 @@
       "status",
       "talent",
       "quirk",
-
       "skill",
       "tag"
     ],
@@ -135,44 +132,23 @@
       "deployables": [],
       "description": "",
       "integrated": [],
-      "name": "",
+      "name": "New Core Bonus",
       "effect": "",
       "id": "",
       "mounted_effect": "",
       "source": null
     },
-    "core_system": {        
-      "name": "",
-      "description": "",
-      "use": "",
-      "activation": "",
-      "active_name": "",
-      "active_effect": "",
-      "active_actions": [],
-      "active_bonuses": [],
-      "active_synergies": [],
-      "deactivation": "",
-      "counters": [],
-      "deployables": [],
-      "integrated": [],
-      "passive_actions": [],
-      "passive_effect": "",
-      "passive_name": "",
-      "passive_bonuses": [],
-      "passive_synergies": [],
-      "tags": []
-    },
     "environment": {
       "description": "",
       "id": "",
-      "name": ""
+      "name": "New Environment"
     },
     "faction": {
       "color": "",
       "description": "",
       "id": "",
       "logo": "",
-      "name": "",
+      "name": "New Faction",
       "logo_url": ""
     },
     "frame": {
@@ -201,27 +177,72 @@
         },
         "traits": [],
         "y_pos": 0,
-        "core_system": null,
+        "core_system": {
+          "name": "",
+          "description": "",
+          "use": "",
+          "activation": "",
+          "active_name": "",
+          "active_effect": "",
+          "active_actions": [],
+          "active_bonuses": [],
+          "active_synergies": [],
+          "deactivation": "",
+          "counters": [],
+          "deployables": [],
+          "integrated": [],
+          "passive_actions": [],
+          "passive_effect": "",
+          "passive_name": "",
+          "passive_bonuses": [],
+          "passive_synergies": [],
+          "tags": []
+        },
         "image_url": "",
         "other_art": []
     },
-    "frame_trait": {
-      "actions": [],
-        "bonuses": [],
-        "counters": [],
-        "synergies": [],
-        "deployables": [],
-        "integrated": [],
-        "description": "",
-        "name": "",
-        "use": ""
-      },
-    "license": {},
-    "manufacturer": {},
+    "license": {
+      "name": "New License",
+      "manufacturer": null,
+      "unlocks": [],
+      "rank": 0
+    },
+    "manufacturer": {
+      "id": "",
+      "name": "New Manufacturer",
+      "logo": "",
+      "light": "",
+      "description": "",
+      "dark": "",
+      "quote": ""
+    },
     "npc_class": {},
     "npc_template": {},
     "npc_feature": {},
-    "weapon_mod": {},
+    "weapon_mod": {
+        "added_tags": [],
+        "added_damage": [],
+        "cascading": false,
+        "counters": [],
+        "deployables": [],
+        "destroyed": false,
+        "effect": "",
+        "id": "",
+        "integrated": [],
+        "license": "",
+        "license_level": 0,
+        "name": "New Weapon Mod",
+        "source": null,
+        "tags": [],
+        "sp": 0,
+        "uses": 0,
+        "allowed_sizes": [],
+        "allowed_types": [],
+        "actions": [],
+        "added_range": [],
+        "bonuses": [],
+        "synergies": []
+    },
     "mech_system": {
         "cascading": false,
         "counters": [],
@@ -232,7 +253,7 @@
         "integrated": [],
         "license": "",
         "license_level": 0,
-        "name": "",
+        "name": "New Mech System",
         "source": null,
         "tags": [],
         "sp": 0,
@@ -251,7 +272,7 @@
         "integrated": [],
         "license": "",
         "license_level": 0,
-        "name": "",
+        "name": "New Mech Weapon",
         "source": null,
         "sp": 0,
         "uses": 0,
@@ -260,17 +281,117 @@
         "selected_profile": 0,
         "size": ""
     },
-    "organization": {},
-    "pilot_armor": {},
-    "pilot_gear": {},
-    "pilot_weapon": {},
-    "reserve": {},
-    "sitrep": {},
-    "status": {},
-    "talent": {},
-    "quirk": {},
+    "organization": {
+      "actions": "",
+      "description": "",
+      "efficiency": 0,
+      "influence": 0,
+      "name": "New Organization",
+      "purpose": "Academic"
 
-    "skill": {},
-    "tag": {}
+    },
+    "pilot_armor": {
+      "actions": [],
+      "bonuses": [],
+      "deployables": [],
+      "description": "",
+      "id": "",
+      "name": "New Pilot Armor",
+      "synergies": [],
+      "tags": []
+    },
+    "pilot_gear": {
+      "actions": [],
+      "bonuses": [],
+      "deployables": [],
+      "description": "",
+      "id": "",
+      "name": "New Pilot Gear",
+      "synergies": [],
+      "tags": []
+    },
+    "pilot_weapon": {
+      "actions": [],
+      "bonuses": [],
+      "deployables": [],
+      "description": "",
+      "id": "",
+      "name": "New Pilot Weapon",
+      "synergies": [],
+      "tags": [],
+      "range": [],
+      "damage": [],
+      "effect": ""
+    },
+    "reserve": {
+      "name": "New Reserve",
+      "consumable": true,
+      "counters": [],
+      "integrated": [],
+      "label": "",
+      "resource_name": "",
+      "resource_note": "",
+      "resource_cost": "",
+      "type": "Resources",
+      "used": false,
+      "actions": [],
+      "bonuses": [],
+      "deployables": [],
+      "description": "",
+      "id": "",
+      "synergies": []
+    },
+    "sitrep": {
+      "description": "",
+      "enemyVictory": "The enemy wins when ___",
+      "id": "",
+      "name": "New Sitrep",
+      "pcVictory": "The PCs win when ___",
+      "controlZone": "",
+      "deployment": "",
+      "extraction": "",
+      "noVictory": "",
+      "objective": ""
+    },
+    "status": {
+      "effects": [],
+      "icon": "",
+      "name": "New Status/Condition",
+      "type": "Status"
+    },
+    "talent": {
+      "curr_rank": 1,
+      "description": "",
+      "icon": "",
+      "id": "",
+      "name": "New Talent",
+      "ranks": [],
+      "terse": ""
+    },
+    "quirk": {
+      "actions": [],
+      "bonuses": [],
+      "counters": [],
+      "deployables": [],
+      "description": "",
+      "integrated": [],
+      "name": "New Quirk",
+      "synergies": []
+    },
+    "skill": {
+      "id": "",
+      "description": "",
+      "detail": "",
+      "family": "cha",
+      "name": "New Skill",
+      "rank": 1
+    },
+    "tag": {
+        "description": "",
+        "id": "",
+        "name": "New Tag",
+        "hidden": false,
+        "filter_ignore": false
+    }
   }
 }

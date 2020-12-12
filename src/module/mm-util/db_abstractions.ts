@@ -2,7 +2,7 @@ import { EntryType, RegEntryTypes, RegRef } from "machine-mind";
 import { LancerActor } from "../actor/lancer-actor";
 import { get_pack } from "../compBuilder";
 import { LancerActorType, LancerItemType } from "../config";
-import { LancerItem, LancerCoreBonus, LancerCoreSystem } from "../item/lancer-item";
+import { LancerItem, LancerCoreBonus } from "../item/lancer-item";
 
 // The associated entity to a given entity type. Type's a lil complex, but we need it to get things correct between abstracters that take items vs actors
 export type EntFor<
@@ -15,9 +15,6 @@ export interface GetResult<T extends LancerItemType | LancerActorType> {
   id: string; // only truly necessary on enums, but still convenient
   type: T; // same
 }
-
-let x: GetResult<LancerItemType> = {} as any;
-x.entity = {} as LancerCoreSystem;
 
 // This can wrap an actors inventory, the global actor/item inventory, or a compendium
 export abstract class EntityCollectionWrapper<T extends EntryType> {
@@ -57,7 +54,7 @@ export class WorldItemsWrapper<T extends LancerItemType> extends EntityCollectio
     // Create the item
     data = duplicate(data);
     let name = data.name || "unknown";
-    let new_item = await Item.create({ type: this.type, name, data: data }) as EntFor<T>;
+    let new_item = (await Item.create({ type: this.type, name, data: data })) as EntFor<T>;
 
     // TODO: Remove this, as it should be unnecessary once we have proper template.json
     //@ts-ignore
@@ -68,7 +65,7 @@ export class WorldItemsWrapper<T extends LancerItemType> extends EntityCollectio
       id: new_item.data._id,
       entity: new_item,
       type: this.type,
-      item: data
+      item: data,
     };
   }
 
@@ -110,12 +107,14 @@ export class WorldItemsWrapper<T extends LancerItemType> extends EntityCollectio
 
   // Just pull from game.items.entities
   async enumerate(): Promise<GetResult<T>[]> {
-    return game.items.entities.filter(e => e.data.type == this.type).map(e => ({
-      id: (e.data as any)._id,
-      item: e.data.data as RegEntryTypes<T>,
-      entity: e as EntFor<T>,
-      type: this.type,
-    }));
+    return game.items.entities
+      .filter(e => e.data.type == this.type)
+      .map(e => ({
+        id: (e.data as any)._id,
+        item: e.data.data as RegEntryTypes<T>,
+        entity: e as EntFor<T>,
+        type: this.type,
+      }));
   }
 }
 
@@ -142,7 +141,7 @@ export class WorldActorsWrapper<T extends LancerActorType> extends EntityCollect
     // Create the item
     data = duplicate(data);
     let name = data.name || "unknown";
-    let new_item = await Actor.create({ type: this.type, name, data }) as EntFor<T>;
+    let new_item = (await Actor.create({ type: this.type, name, data })) as EntFor<T>;
 
     // TODO: Remove this, as it should be unnecessary once we have proper template.json
     //@ts-ignore
@@ -153,7 +152,7 @@ export class WorldActorsWrapper<T extends LancerActorType> extends EntityCollect
       id: new_item.data._id,
       entity: new_item,
       type: this.type,
-      item: data
+      item: data,
     };
   }
 
@@ -191,12 +190,14 @@ export class WorldActorsWrapper<T extends LancerActorType> extends EntityCollect
   }
 
   async enumerate(): Promise<GetResult<T>[]> {
-    return game.actors.entities.filter(e => e.data.type == this.type).map(e => ({
-      id: (e.data as any)._id,
-      item: e.data.data as RegEntryTypes<T>,
-      entity: e as EntFor<T>,
-      type: this.type,
-    }));
+    return game.actors.entities
+      .filter(e => e.data.type == this.type)
+      .map(e => ({
+        id: (e.data as any)._id,
+        item: e.data.data as RegEntryTypes<T>,
+        entity: e as EntFor<T>,
+        type: this.type,
+      }));
   }
 }
 
@@ -238,7 +239,7 @@ export class ActorInventoryWrapper<T extends LancerItemType> extends EntityColle
       id: new_item._id,
       entity: new_item,
       type: this.type,
-      item: data
+      item: data,
     };
   }
 
@@ -280,13 +281,15 @@ export class ActorInventoryWrapper<T extends LancerItemType> extends EntityColle
   }
 
   async enumerate(): Promise<GetResult<T>[]> {
-    let items = this.actor.items.entries as unknown as LancerItem<T>[]; // Typings are wrong here. Entities and entries appear to have swapped type decls
-    return items.filter(e => e.data.type == this.type).map(e => ({
-      id: e.data._id,
-      item: e.data.data,
-      entity: e as EntFor<T>,
-      type: this.type,
-    }));
+    let items = (this.actor.items.entries as unknown) as LancerItem<T>[]; // Typings are wrong here. Entities and entries appear to have swapped type decls
+    return items
+      .filter(e => e.data.type == this.type)
+      .map(e => ({
+        id: e.data._id,
+        item: e.data.data,
+        entity: e as EntFor<T>,
+        type: this.type,
+      }));
   }
 }
 
@@ -298,10 +301,10 @@ export class CompendiumWrapper<T extends EntryType> extends EntityCollectionWrap
     this.type = type;
   }
 
-  private cached_pack: any = null
+  private cached_pack: any = null;
   private cached_content: Map<string, any> | null = null;
   private async pack(): Promise<Compendium> {
-    if(!this.cached_pack) {
+    if (!this.cached_pack) {
       this.cached_pack = get_pack(this.type);
     }
     return this.cached_pack;
@@ -310,10 +313,10 @@ export class CompendiumWrapper<T extends EntryType> extends EntityCollectionWrap
   // We cache all content here. Helps with performance, hopefully
   private async content(): Promise<Map<string, EntFor<T>>> {
     let pack = await this.pack();
-    if(!this.cached_content) {
+    if (!this.cached_content) {
       this.cached_content = new Map();
       let content = await pack.getContent();
-      for(let i of content) {
+      for (let i of content) {
         this.cached_content.set(i.id, i);
       }
     }
@@ -324,7 +327,7 @@ export class CompendiumWrapper<T extends EntryType> extends EntityCollectionWrap
   // Handles type checking and stuff
   private async subget(id: string): Promise<EntFor<T> | null> {
     // Look within all content. Crude, but caching ends up saving us some time based on early tests
-    let cont = await this.content(); 
+    let cont = await this.content();
     let fi = cont.get(id);
 
     if (fi && fi.data.type == this.type) {
@@ -353,7 +356,7 @@ export class CompendiumWrapper<T extends EntryType> extends EntityCollectionWrap
       id: new_item.data._id,
       entity: new_item,
       type: this.type,
-      item: data
+      item: data,
     };
   }
 
@@ -397,11 +400,13 @@ export class CompendiumWrapper<T extends EntryType> extends EntityCollectionWrap
   async enumerate(): Promise<GetResult<T>[]> {
     let pack = await this.pack();
     let content = await pack.getContent();
-    return content.filter(e => e.data.type == this.type).map( e => ({
-      id: (e.data as any)._id,
-      item: e.data.data as RegEntryTypes<T>,
-      entity: e as EntFor<T>,
-      type: this.type,
-    }));
+    return content
+      .filter(e => e.data.type == this.type)
+      .map(e => ({
+        id: (e.data as any)._id,
+        item: e.data.data as RegEntryTypes<T>,
+        entity: e as EntFor<T>,
+        type: this.type,
+      }));
   }
 }
