@@ -291,7 +291,7 @@ export class LancerActor extends Actor {
     }
 
     // Table of descriptions
-    function stressTableD(roll: number) {
+    function stressTableD(roll: number, remStress: number) {
       switch (roll) {
         // Used for multiple ones
         case 0:
@@ -327,7 +327,12 @@ export class LancerActor extends Actor {
       "Emergency Shunt",
     ];
 
-    this.data.data.mech.stress.value -= 1;
+    if (
+      game.settings.get(LANCER.sys_name, LANCER.setting_automation) &&
+      game.settings.get(LANCER.sys_name, LANCER.setting_auto_structure)
+    ) {
+      this.data.data.mech.stress.value -= 1;
+    }
     await this.update(this.data);
     let remStress = this.data.data.mech.stress.value;
     let templateData = {};
@@ -341,7 +346,7 @@ export class LancerActor extends Actor {
 
       let tt = await roll.getTooltip();
       let title = stressTableT[result];
-      let text = stressTableD(result);
+      let text = stressTableD(result, remStress);
       let total = roll.total.toString();
 
       // Crushing hits
@@ -351,7 +356,7 @@ export class LancerActor extends Actor {
         return v.result === 1 ? a + 1 : a;
       }, 0);
       if (one_count > 1) {
-        text = stressTableD(result);
+        text = stressTableD(result, remStress);
         title = stressTableT[0];
         total = "Multiple Ones";
       }
@@ -367,7 +372,7 @@ export class LancerActor extends Actor {
     } else {
       // You ded
       let title = stressTableT[0];
-      let text = stressTableD(0);
+      let text = stressTableD(0, 0);
       templateData = {
         val: this.data.data.mech.stress.value,
         max: this.data.data.mech.stress.max,
@@ -391,7 +396,7 @@ export class LancerActor extends Actor {
     }
 
     // Table of descriptions
-    function structTableD(roll: number) {
+    function structTableD(roll: number, remStruct: number) {
       switch (roll) {
         // Used for multiple ones
         case 0:
@@ -428,7 +433,12 @@ export class LancerActor extends Actor {
       "Glancing Blow",
     ];
 
-    this.data.data.mech.structure.value -= 1;
+    if (
+      game.settings.get(LANCER.sys_name, LANCER.setting_automation) &&
+      game.settings.get(LANCER.sys_name, LANCER.setting_auto_structure)
+    ) {
+      this.data.data.mech.structure.value -= 1;
+    }
     await this.update(this.data);
     let remStruct = this.data.data.mech.structure.value;
     let templateData = {};
@@ -441,7 +451,7 @@ export class LancerActor extends Actor {
 
       let tt = await roll.getTooltip();
       let title = structTableT[result];
-      let text = structTableD(result);
+      let text = structTableD(result, remStruct);
       let total = roll.total.toString();
 
       // Crushing hits
@@ -451,7 +461,7 @@ export class LancerActor extends Actor {
         return v.result === 1 ? a + 1 : a;
       }, 0);
       if (one_count > 1) {
-        text = structTableD(result);
+        text = structTableD(result, remStruct);
         title = structTableT[0];
         total = "Multiple Ones";
       }
@@ -467,7 +477,7 @@ export class LancerActor extends Actor {
     } else {
       // You ded
       let title = structTableT[0];
-      let text = structTableD(0);
+      let text = structTableD(0, 0);
       templateData = {
         val: this.data.data.mech.structure.value,
         max: this.data.data.mech.structure.max,

@@ -17,8 +17,10 @@ export const LANCER = {
   setting_lcps: "installedLCPs",
   setting_stock_icons: "keepStockIcons",
   setting_welcome: "hideWelcome",
+  setting_automation: "automationSwitch",
   setting_pilot_oc_heat: "autoOCHeat",
   setting_overkill_heat: "autoOKillHeat",
+  setting_auto_structure: "autoCalcStructure",
   pilot_items: [
     "frame",
     "skill",

@@ -426,7 +426,10 @@ async function rollAttackMacro(actor: Actor, data: LancerAttackMacroData) {
     }
   }
 
-  if (game.settings.get(LANCER.sys_name, LANCER.setting_overkill_heat)) {
+  if (
+    game.settings.get(LANCER.sys_name, LANCER.setting_automation) &&
+    game.settings.get(LANCER.sys_name, LANCER.setting_overkill_heat)
+  ) {
     const a_data: LancerPilotActorData = duplicate(actor.data);
     if (a_data.type === "pilot") {
       a_data.data.mech.heat.value += overkill_heat;
@@ -699,7 +702,10 @@ export async function prepareOverchargeMacro(a: string) {
   data.data.mech.overcharge_level = Math.min(data.data.mech.overcharge_level + 1, 3);
 
   // Only increase heat if we haven't disabled it
-  if (game.settings.get(LANCER.sys_name, LANCER.setting_pilot_oc_heat)) {
+  if (
+    game.settings.get(LANCER.sys_name, LANCER.setting_automation) &&
+    game.settings.get(LANCER.sys_name, LANCER.setting_pilot_oc_heat)
+  ) {
     data.data.mech.heat.value = data.data.mech.heat.value + roll.total;
   }
 
