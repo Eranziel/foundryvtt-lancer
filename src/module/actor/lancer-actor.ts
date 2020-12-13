@@ -99,6 +99,31 @@ export class LancerActor extends Actor {
   ): data is LancerDeployableActorData => data.type === "deployable";
 
   /**
+   * @override
+   * Handle how changes to a Token attribute bar are applied to the Actor.
+   * @param {string} attribute    The attribute path
+   * @param {number} value        The target attribute value
+   * @param {boolean} isDelta     Whether the number represents a relative change (true) or an absolute change (false)
+   * @param {boolean} isBar       Whether the new value is part of an attribute bar, or just a direct value
+   * @return {Promise<Actor>}     The updated Actor entity
+   */
+  async modifyTokenAttribute(
+    attribute: any,
+    value: number,
+    isDelta: boolean = false,
+    isBar: boolean = true
+  ) {
+    const current = getProperty(this.data.data, attribute);
+    if (isBar) {
+      if (isDelta) value = Number(current.value) + value;
+      return this.update({ [`data.${attribute}.value`]: value });
+    } else {
+      if (isDelta) value = Number(current) + value;
+      return this.update({ [`data.${attribute}`]: value });
+    }
+  }
+
+  /**
    * Change mech frames for a pilot. Recalculates all mech-related stats on the pilot.
    * @param newFrame Stats object from the new mech frame.
    * @param oldFrame Stats object from the old mech frame, optional.
@@ -327,19 +352,23 @@ export class LancerActor extends Actor {
       "Emergency Shunt",
     ];
 
+    const mech = this.data.data.mech;
     if (
       game.settings.get(LANCER.sys_name, LANCER.setting_automation) &&
       game.settings.get(LANCER.sys_name, LANCER.setting_auto_structure)
     ) {
-      this.data.data.mech.stress.value -= 1;
+      if (mech.heat.value > mech.heat.max) {
+        mech.heat.value -= mech.heat.max;
+        mech.stress.value -= 1;
+      }
     }
     await this.update(this.data);
-    let remStress = this.data.data.mech.stress.value;
+    let remStress = mech.stress.value;
     let templateData = {};
 
     // If we're already at 0 just kill em
     if (remStress > 0) {
-      let damage = this.data.data.mech.stress.max - this.data.data.mech.stress.value;
+      let damage = mech.stress.max - mech.stress.value;
 
       let roll = new Roll(`${damage}d6kl1`).roll();
       let result = roll.total;
@@ -361,8 +390,8 @@ export class LancerActor extends Actor {
         total = "Multiple Ones";
       }
       templateData = {
-        val: this.data.data.mech.stress.value,
-        max: this.data.data.mech.stress.max,
+        val: mech.stress.value,
+        max: mech.stress.max,
         tt: tt,
         title: title,
         total: total,
@@ -374,8 +403,8 @@ export class LancerActor extends Actor {
       let title = stressTableT[0];
       let text = stressTableD(0, 0);
       templateData = {
-        val: this.data.data.mech.stress.value,
-        max: this.data.data.mech.stress.max,
+        val: mech.stress.value,
+        max: mech.stress.max,
         title: title,
         text: text,
       };
@@ -433,18 +462,22 @@ export class LancerActor extends Actor {
       "Glancing Blow",
     ];
 
+    const mech = this.data.data.mech;
     if (
       game.settings.get(LANCER.sys_name, LANCER.setting_automation) &&
       game.settings.get(LANCER.sys_name, LANCER.setting_auto_structure)
     ) {
-      this.data.data.mech.structure.value -= 1;
+      if (mech.hp.value <= 0) {
+        mech.hp.value += mech.hp.max;
+        mech.structure.value -= 1;
+      }
     }
     await this.update(this.data);
-    let remStruct = this.data.data.mech.structure.value;
+    let remStruct = mech.structure.value;
     let templateData = {};
     // If we're already at 0 just kill em
     if (remStruct > 0) {
-      let damage = this.data.data.mech.structure.max - this.data.data.mech.structure.value;
+      let damage = mech.structure.max - mech.structure.value;
 
       let roll = new Roll(`${damage}d6kl1`).roll();
       let result = roll.total;
@@ -466,8 +499,8 @@ export class LancerActor extends Actor {
         total = "Multiple Ones";
       }
       templateData = {
-        val: this.data.data.mech.structure.value,
-        max: this.data.data.mech.structure.max,
+        val: mech.structure.value,
+        max: mech.structure.max,
         tt: tt,
         title: title,
         total: total,
@@ -479,8 +512,8 @@ export class LancerActor extends Actor {
       let title = structTableT[0];
       let text = structTableD(0, 0);
       templateData = {
-        val: this.data.data.mech.structure.value,
-        max: this.data.data.mech.structure.max,
+        val: mech.structure.value,
+        max: mech.structure.max,
         title: title,
         text: text,
       };
