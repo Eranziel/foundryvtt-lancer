@@ -23,7 +23,7 @@ import {
   TagDataShort,
 } from "./interfaces";
 // Import JSON data
-import { DamageType, NpcFeatureType } from "machine-mind";
+import { DamageType, IDamageData, NpcFeatureType } from "machine-mind";
 import { LancerNPCTechData, LancerNPCWeaponData } from "./item/npc-feature";
 
 const lp = LANCER.log_prefix;
@@ -35,6 +35,7 @@ const lp = LANCER.log_prefix;
  * @param i The item id that is being rolled
  * @param options Ability to pass through various options to the item.
  *      Talents can use rank: value.
+ *      Weapons can use accBonus or damBonus
  */
 export async function prepareItemMacro(a: string, i: string, options?: any) {
   // Determine which Actor to speak as
@@ -66,7 +67,7 @@ export async function prepareItemMacro(a: string, i: string, options?: any) {
     // Pilot OR Mech weapon
     case "pilot_weapon":
     case "mech_weapon":
-      await prepareAttackMacro(actor, item);
+      await prepareAttackMacro({ actor, item, options });
       break;
     // Systems
     case "mech_system":
@@ -112,7 +113,7 @@ export async function prepareItemMacro(a: string, i: string, options?: any) {
     case "npc_feature":
       switch (item.data.data.feature_type) {
         case NpcFeatureType.Weapon:
-          await prepareAttackMacro(actor, item);
+          await prepareAttackMacro({ actor, item, options });
           break;
         case NpcFeatureType.Tech:
           await prepareTechMacro(actor._id, item._id);
@@ -304,10 +305,19 @@ async function rollTalentMacro(actor: Actor, data: LancerTalentMacroData) {
 
 /**
  * Standalone prepare function for attacks, since they're complex.
- * @param actor {Actor} Actor to roll as. Assumes properly prepared item.
- * @param item {LancerItem} Weapon to attack with. Assumes ownership from actor.
+ * @param actor   {Actor}       Actor to roll as. Assumes properly prepared item.
+ * @param item    {LancerItem}  Weapon to attack with. Assumes ownership from actor.
+ * @param options {Object}      Options that can be passed through. Current options:
+ *            - accBonus        Flat bonus to accuracy
+ *            - damBonus        Object of form {type: val} to apply flat damage bonus of given type. 
+ *                              The "Bonus" type is recommended but not required
  */
-function prepareAttackMacro(actor: Actor, item: LancerItem) {
+async function prepareAttackMacro({ actor, item, options }: 
+    { actor: Actor;
+      item: LancerItem; 
+      options?: { 
+        accBonus: number; 
+        damBonus: { type: DamageType; val: number; }; }; }) {
   let mData: LancerAttackMacroData = {
     title: item.name,
     grit: 0,
@@ -322,7 +332,7 @@ function prepareAttackMacro(actor: Actor, item: LancerItem) {
     const wData = item.data.data as LancerMechWeaponData | LancerPilotWeaponData;
     mData.grit = (item.actor!.data as LancerPilotActorData).data.pilot.grit;
     mData.acc = item.accuracy;
-    mData.damage = wData.damage;
+    mData.damage = [...wData.damage];
     mData.tags = wData.tags;
     mData.effect = wData.effect;
   } else if (item.type === "npc_feature") {
@@ -334,7 +344,8 @@ function prepareAttackMacro(actor: Actor, item: LancerItem) {
       tier = (item.actor.data.data as LancerNPCData).tier_num - 1;
     }
 
-    mData.grit = wData.attack_bonus[tier];
+    // This can be a string... but can also be a number...
+    mData.grit = Number(wData.attack_bonus[tier]);
     mData.acc = wData.accuracy[tier];
     // Reduce damage values to only this tier
     mData.damage = wData.damage.map((d: NPCDamageData) => {
@@ -357,7 +368,29 @@ function prepareAttackMacro(actor: Actor, item: LancerItem) {
     ui.notifications.warn(`Warning: ${item.name} has a damage value without type!`);
   }
 
-  rollAttackMacro(actor, mData).then();
+  // Options processing
+  if(options) {
+    if(options.accBonus) {
+      mData.grit += options.accBonus;
+    }
+    if(options.damBonus) {
+      let i = mData.damage.findIndex((dam: IDamageData) => {return dam.type === options.damBonus.type});
+      if(i >= 0) {
+        // We need to clone so it doesn't go all the way back up to the weapon
+        let damClone = {...mData.damage[i]};
+        if(damClone.val > 0) {
+          damClone.val = `${damClone.val}+${options.damBonus.val}`;
+        } else {
+          damClone.val = options.damBonus.val
+        }
+        mData.damage[i] = damClone;
+      } else {
+        mData.damage.push(options.damBonus);
+      }
+    }
+  }
+
+  await rollAttackMacro(actor, mData).then();
 }
 
 async function rollAttackMacro(actor: Actor, data: LancerAttackMacroData) {
