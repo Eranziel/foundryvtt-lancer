@@ -362,6 +362,10 @@ export class LancerActor extends Actor {
         mech.stress.value -= 1;
       }
     }
+    if (mech.stress.value === mech.stress.max) {
+      ui.notifications.info("The mech is at full Stress, no overheating check to roll.");
+      return;
+    }
     await this.update(this.data);
     let remStress = mech.stress.value;
     let templateData = {};
@@ -471,6 +475,10 @@ export class LancerActor extends Actor {
         mech.hp.value += mech.hp.max;
         mech.structure.value -= 1;
       }
+    }
+    if (mech.structure.value === mech.structure.max) {
+      ui.notifications.info("The mech is at full Structure, no structure check to roll.");
+      return;
     }
     await this.update(this.data);
     let remStruct = mech.structure.value;
