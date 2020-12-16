@@ -145,6 +145,12 @@ Ourobor (even if you don't use hexes - seriously) and
 <a href="https://github.com/Eranziel/foundryvtt-lancer/issues">https://github.com/Eranziel/foundryvtt-lancer/issues</a></p>
 
 <p><h1>Change Log:</h1>
+<h2>0.1.18 (2020-12-15)</h2>
+<h3>Bug Fixes</h3>
+<ul>
+<li><b>Macros</b>: Fix a bug with the structure/overheat macros that decide to declare your mech destroyed if structure/stress are full.</li>
+</ul>
+
 <h2>0.1.17 (2020-12-15)</h2>
 <h3>Features</h3>
 <ul>

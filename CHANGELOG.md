@@ -1,3 +1,7 @@
+# 0.1.18 (2020-12-15)
+## Bug Fixes
+* **Macros**: Fix a bug with the structure/overheat macros that decide to declare your mech destroyed if structure/stress are full.
+
 # 0.1.17 (2020-12-15)
 ## Features
 * **Macros**: Structure and Overheat macros have been added. They can be found in the "LANCER Macros" Compendium, and their functionality can be customized using the system settings. Closes #91.
