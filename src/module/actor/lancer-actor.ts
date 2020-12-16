@@ -12,6 +12,7 @@ import { LANCER } from "../config";
 import { MountType } from "machine-mind";
 import { LancerFrame, LancerItemData } from "../item/lancer-item";
 import { ItemDataManifest } from "../item/util";
+import { renderMacro } from "../macros";
 const lp = LANCER.log_prefix;
 
 export const DEFAULT_MECH = {
@@ -34,13 +35,14 @@ export const DEFAULT_MECH = {
   save: 0,
   tech_attack: 0,
   current_core_energy: 1,
-  overcharge_level: 0
+  overcharge_level: 0,
 };
 
 export function lancerActorInit(data: any) {
   // Some subtype of ActorData
   console.log(`${lp} Initializing new ${data.type}`);
-  if (data.type === "pilot" || data.type === "npc") {
+  // If it has an ID it's a duplicate, so we don't want to override values
+  if (!data._id && (data.type === "pilot" || data.type === "npc")) {
     const mech = { ...DEFAULT_MECH };
 
     if (data.type === "npc") {
@@ -84,6 +86,42 @@ export function lancerActorInit(data: any) {
  */
 export class LancerActor extends Actor {
   data!: LancerPilotActorData | LancerNPCActorData | LancerDeployableActorData;
+
+  // Some TypeGuards...
+  isPilot = (
+    data: LancerPilotActorData | LancerNPCActorData | LancerDeployableActorData
+  ): data is LancerPilotActorData => data.type === "Pilot";
+  isNPC = (
+    data: LancerPilotActorData | LancerNPCActorData | LancerDeployableActorData
+  ): data is LancerNPCActorData => data.type === "NPC";
+  isDep = (
+    data: LancerPilotActorData | LancerNPCActorData | LancerDeployableActorData
+  ): data is LancerDeployableActorData => data.type === "deployable";
+
+  /**
+   * @override
+   * Handle how changes to a Token attribute bar are applied to the Actor.
+   * @param {string} attribute    The attribute path
+   * @param {number} value        The target attribute value
+   * @param {boolean} isDelta     Whether the number represents a relative change (true) or an absolute change (false)
+   * @param {boolean} isBar       Whether the new value is part of an attribute bar, or just a direct value
+   * @return {Promise<Actor>}     The updated Actor entity
+   */
+  async modifyTokenAttribute(
+    attribute: any,
+    value: number,
+    isDelta: boolean = false,
+    isBar: boolean = true
+  ) {
+    const current = getProperty(this.data.data, attribute);
+    if (isBar) {
+      if (isDelta) value = Number(current.value) + value;
+      return this.update({ [`data.${attribute}.value`]: value });
+    } else {
+      if (isDelta) value = Number(current) + value;
+      return this.update({ [`data.${attribute}`]: value });
+    }
+  }
 
   /**
    * Change mech frames for a pilot. Recalculates all mech-related stats on the pilot.
@@ -145,15 +183,14 @@ export class LancerActor extends Actor {
     // Function is only applicable to pilots.
     if (this.data.type !== "pilot") return null;
 
-
-    let item_data = (this.items as unknown) as LancerItemData[]; 
+    let item_data = (this.items as unknown) as LancerItemData[];
     let sorted = new ItemDataManifest().add_items(item_data.values());
 
     // Only take one frame
     if (sorted.frames.length) {
       return (sorted.frames[0].data as unknown) as LancerFrameItemData;
     } else {
-      return null
+      return null;
     }
   }
 
@@ -267,6 +304,224 @@ export class LancerActor extends Actor {
     data.data.mech = mech;
     await this.update(data);
   }
+
+  /**
+   * Performs overheat on the mech
+   * For now, just rolls on table. Eventually we can include configuration to do automation
+   */
+  async overheatMech() {
+    // Assert that we aren't on a deployable somehow
+    if (this.isDep(this.data)) {
+      return;
+    }
+
+    // Table of descriptions
+    function stressTableD(roll: number, remStress: number) {
+      switch (roll) {
+        // Used for multiple ones
+        case 0:
+          return "The reactor goes critical – your mech suffers a reactor meltdown at the end of your next turn.";
+        case 1:
+          switch (remStress) {
+            case 2:
+              // Choosing not to auto-roll the checks to keep the suspense up
+              return "Roll an ENGINEERING check. On a success, your mech is EXPOSED; on a failure, it suffers a reactor meltdown after 1d6 of your turns (rolled by the GM). A reactor meltdown can be prevented by retrying the ENGINEERING check as a free action.";
+            case 1:
+              return "Your mech suffers a reactor meltdown at the end of your next turn.";
+            default:
+              return "Your mech becomes Exposed.";
+          }
+        case 2:
+        case 3:
+        case 4:
+          return "The power plant becomes unstable, beginning to eject jets of plasma. Your mech becomes EXPOSED, taking double kinetic, explosive and electric damage until the status is cleared.";
+        case 5:
+        case 6:
+          return "Your mech’s cooling systems manage to contain the increasing heat; however, your mech becomes IMPAIRED until the end of your next turn.";
+      }
+    }
+
+    // Table of titles
+    let stressTableT = [
+      "Irreversible Meltdown",
+      "Meltdown",
+      "Destabilized Power Plant",
+      "Destabilized Power Plant",
+      "Destabilized Power Plant",
+      "Emergency Shunt",
+      "Emergency Shunt",
+    ];
+
+    const mech = this.data.data.mech;
+    if (
+      game.settings.get(LANCER.sys_name, LANCER.setting_automation) &&
+      game.settings.get(LANCER.sys_name, LANCER.setting_auto_structure)
+    ) {
+      if (mech.heat.value > mech.heat.max) {
+        mech.heat.value -= mech.heat.max;
+        mech.stress.value -= 1;
+      }
+    }
+    await this.update(this.data);
+    let remStress = mech.stress.value;
+    let templateData = {};
+
+    // If we're already at 0 just kill em
+    if (remStress > 0) {
+      let damage = mech.stress.max - mech.stress.value;
+
+      let roll = new Roll(`${damage}d6kl1`).roll();
+      let result = roll.total;
+
+      let tt = await roll.getTooltip();
+      let title = stressTableT[result];
+      let text = stressTableD(result, remStress);
+      let total = roll.total.toString();
+
+      // Crushing hits
+      // This is fine
+      //@ts-ignore
+      let one_count = roll.terms[0].results.reduce((a, v) => {
+        return v.result === 1 ? a + 1 : a;
+      }, 0);
+      if (one_count > 1) {
+        text = stressTableD(result, remStress);
+        title = stressTableT[0];
+        total = "Multiple Ones";
+      }
+      templateData = {
+        val: mech.stress.value,
+        max: mech.stress.max,
+        tt: tt,
+        title: title,
+        total: total,
+        text: text,
+        roll: roll,
+      };
+    } else {
+      // You ded
+      let title = stressTableT[0];
+      let text = stressTableD(0, 0);
+      templateData = {
+        val: mech.stress.value,
+        max: mech.stress.max,
+        title: title,
+        text: text,
+      };
+    }
+    const template = `systems/lancer/templates/chat/overheat-card.html`;
+    const actor: Actor = game.actors.get(ChatMessage.getSpeaker().actor);
+    return renderMacro(actor, template, templateData);
+  }
+
+  /**
+   * Performs structure on the mech
+   * For now, just rolls on table. Eventually we can include configuration to do automation
+   */
+  async structureMech() {
+    // Assert that we aren't on a deployable somehow
+    if (this.isDep(this.data)) {
+      return;
+    }
+
+    // Table of descriptions
+    function structTableD(roll: number, remStruct: number) {
+      switch (roll) {
+        // Used for multiple ones
+        case 0:
+          return "Your mech is damaged beyond repair – it is destroyed. You may still exit it as normal.";
+        case 1:
+          switch (remStruct) {
+            case 2:
+              // Choosing not to auto-roll the checks to keep the suspense up
+              return "Roll a HULL check. On a success, your mech is STUNNED until the end of your next turn. On a failure, your mech is destroyed.";
+            case 1:
+              return "Your mech is destroyed.";
+            default:
+              return "Your mech is STUNNED until the end of your next turn.";
+          }
+        case 2:
+        case 3:
+        case 4:
+          // Idk, should this auto-roll?
+          return "Parts of your mech are torn off by the damage. Roll 1d6. On a 1–3, all weapons on one mount of your choice are destroyed; on a 4–6, a system of your choice is destroyed. LIMITED systems and weapons that are out of charges are not valid choices. If there are no valid choices remaining, it becomes the other result. If there are no valid systems or weapons remaining, this result becomes a DIRECT HIT instead.";
+        case 5:
+        case 6:
+          return "Emergency systems kick in and stabilize your mech, but it’s IMPAIRED until the end of your next turn.";
+      }
+    }
+
+    // Table of titles
+    let structTableT = [
+      "Crushing Hit",
+      "Direct Hit",
+      "System Trauma",
+      "System Trauma",
+      "System Trauma",
+      "Glancing Blow",
+      "Glancing Blow",
+    ];
+
+    const mech = this.data.data.mech;
+    if (
+      game.settings.get(LANCER.sys_name, LANCER.setting_automation) &&
+      game.settings.get(LANCER.sys_name, LANCER.setting_auto_structure)
+    ) {
+      if (mech.hp.value <= 0) {
+        mech.hp.value += mech.hp.max;
+        mech.structure.value -= 1;
+      }
+    }
+    await this.update(this.data);
+    let remStruct = mech.structure.value;
+    let templateData = {};
+    // If we're already at 0 just kill em
+    if (remStruct > 0) {
+      let damage = mech.structure.max - mech.structure.value;
+
+      let roll = new Roll(`${damage}d6kl1`).roll();
+      let result = roll.total;
+
+      let tt = await roll.getTooltip();
+      let title = structTableT[result];
+      let text = structTableD(result, remStruct);
+      let total = roll.total.toString();
+
+      // Crushing hits
+      // This is fine
+      //@ts-ignore
+      let one_count = roll.terms[0].results.reduce((a, v) => {
+        return v.result === 1 ? a + 1 : a;
+      }, 0);
+      if (one_count > 1) {
+        text = structTableD(result, remStruct);
+        title = structTableT[0];
+        total = "Multiple Ones";
+      }
+      templateData = {
+        val: mech.structure.value,
+        max: mech.structure.max,
+        tt: tt,
+        title: title,
+        total: total,
+        text: text,
+        roll: roll,
+      };
+    } else {
+      // You ded
+      let title = structTableT[0];
+      let text = structTableD(0, 0);
+      templateData = {
+        val: mech.structure.value,
+        max: mech.structure.max,
+        title: title,
+        text: text,
+      };
+    }
+    const template = `systems/lancer/templates/chat/structure-card.html`;
+    const actor: Actor = game.actors.get(ChatMessage.getSpeaker().actor);
+    return renderMacro(actor, template, templateData);
+  }
 }
 
 /* ------------------------------------ */
@@ -281,17 +536,23 @@ export class LancerActor extends Actor {
 export function mount_type_selector(mount: LancerMountData, key: string | number) {
   let template = `<select class="mounts-control" data-action="update" data-item-id=${key}>
     <option value="${MountType.AuxAux}" ${
-      mount.type === MountType.AuxAux ? "selected" : ""
-    }>Aux/Aux Mount</option>
-    <option value="${MountType.Flex}" ${mount.type === MountType.Flex ? "selected" : ""}>Flexible Mount</option>
-    <option value="${MountType.Main}" ${mount.type === MountType.Main ? "selected" : ""}>Main Mount</option>
+    mount.type === MountType.AuxAux ? "selected" : ""
+  }>Aux/Aux Mount</option>
+    <option value="${MountType.Flex}" ${
+    mount.type === MountType.Flex ? "selected" : ""
+  }>Flexible Mount</option>
+    <option value="${MountType.Main}" ${
+    mount.type === MountType.Main ? "selected" : ""
+  }>Main Mount</option>
     <option value="${MountType.MainAux}" ${
-      mount.type === MountType.MainAux ? "selected" : ""
-    }>Main/Aux Mount</option>
-    <option value="${MountType.Heavy}" ${mount.type === MountType.Heavy ? "selected" : ""}>Heavy Mount</option>
+    mount.type === MountType.MainAux ? "selected" : ""
+  }>Main/Aux Mount</option>
+    <option value="${MountType.Heavy}" ${
+    mount.type === MountType.Heavy ? "selected" : ""
+  }>Heavy Mount</option>
     <option value="${MountType.Integrated}" ${
-      mount.type === MountType.Integrated ? "selected" : ""
-    }>Integrated Mount</option>
+    mount.type === MountType.Integrated ? "selected" : ""
+  }>Integrated Mount</option>
   </select>`;
   return template;
 }

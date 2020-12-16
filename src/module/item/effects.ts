@@ -647,7 +647,7 @@ export function npc_reaction_effect_preview(npc_feature: LancerNPCReactionData) 
     <i class="cci cci-reaction i--m i--light"> </i>
     <a class="macroable item-macro"><i class="mdi mdi-message"></i></a>
     <span class="minor" style="flex-grow:1">${npc_feature.name}</span>
-    <a class="stats-control i--light" data-action="delete"><i class="fas fa-trash"></i></a>
+    <a class="arr-control i--light" data-action="delete"><i class="fas fa-trash"></i></a>
   </div>
   <div class="flexcol" style="margin: 10px;">
     <span class="medium flexrow">TRIGGER</span>
@@ -665,7 +665,7 @@ function npc_system_trait_effect_preview(npc_feature: LancerNPCSystemData | Lanc
   <i class="cci cci-${npc_feature.feature_type.toLowerCase()} i--m i--light"> </i>
   <a class="macroable item-macro"><i class="mdi mdi-message"></i></a>
     <span class="minor" style="flex-grow:1">${npc_feature.name}</span>
-  <a class="stats-control i--light" data-action="delete"><i class="fas fa-trash"></i></a>
+  <a class="arr-control i--light" data-action="delete"><i class="fas fa-trash"></i></a>
   </div>
   <div class="flexcol" style="margin: 10px;">
   <span class="medium flexrow">EFFECT</span>
@@ -687,7 +687,7 @@ export function npc_tech_effect_preview(npc_feature: LancerNPCTechData, tier: nu
   let html = `<div class="lancer-tech-header clipped-top" style="grid-area: 1/1/2/3">
   <i class="cci cci-tech-${npc_feature.tech_type.toLowerCase()} i--m i--light"> </i>
     <span class="minor">${npc_feature.name} // ${npc_feature.tech_type.toUpperCase()} TECH</span>
-  <a class="stats-control i--light" data-action="delete"><i class="fas fa-trash"></i></a>
+  <a class="arr-control i--light" data-action="delete"><i class="fas fa-trash"></i></a>
   </div>
   <div class="lancer-tech-body">
   <a class="roll-tech" style="grid-area: 1/1/2/2;"><i class="fas fa-dice-d20 i--m i--dark"></i></a>
@@ -731,7 +731,7 @@ export function npc_weapon_effect_preview(npc_feature: LancerNPCWeaponData, tier
   let html = `<div class="lancer-weapon-header clipped-top" style="grid-area: 1/1/2/3">
     <i class="cci cci-weapon i--m i--light"> </i>
     <span class="minor">${npc_feature.name} // ${npc_feature.weapon_type.toUpperCase()}</span>
-    <a class="stats-control i--light" data-action="delete"><i class="fas fa-trash"></i></a>
+    <a class="arr-control i--light" data-action="delete"><i class="fas fa-trash"></i></a>
   </div>
   <div class="lancer-weapon-body">
     <a class="roll-attack" style="grid-area: 1/1/2/2;"><i class="fas fa-dice-d20 i--m i--dark"></i></a>

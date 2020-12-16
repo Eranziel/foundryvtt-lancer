@@ -17,7 +17,10 @@ export const LANCER = {
   setting_lcps: "installedLCPs",
   setting_stock_icons: "keepStockIcons",
   setting_welcome: "hideWelcome",
+  setting_automation: "automationSwitch",
   setting_pilot_oc_heat: "autoOCHeat",
+  setting_overkill_heat: "autoOKillHeat",
+  setting_auto_structure: "autoCalcStructure",
   pilot_items: [
     "frame",
     "skill",
@@ -128,15 +131,41 @@ export const STATUSES = [
 ];
 
 export const WELCOME = `<div style="margin: 10px 5px">
-<p><b>Recent changes:</b>
-<ul>
-<li>Syncing with Comp/Con cloud saves is fixed - no more 401 errors!</li>
-<li>Syncing with Comp/Con cloud saves now builds mounts and populates them with weapons.</li>
-<li>Overcharge macro added to pilot sheet, and a setting for whether to automatically add overcharge heat when the macro is rolled.</li>
-<li>NPC class and template sheets now include previews of their base and optional features, which can be dragged to an NPC actor to add them.</li>
-</ul></p>
+<p>Welcome to Lancer on Foundry! If you haven't already, check out the project wiki for 
+<a href="https://github.com/Eranziel/foundryvtt-lancer/wiki/FAQ">FAQ</a>
+and a list of <a href="https://github.com/Eranziel/foundryvtt-lancer/wiki/Resources">recommended modules</a>, as well
+as other information about how to use the system.</p>
 
-<p>If you haven't updated in a while, <a href="https://github.com/Eranziel/foundryvtt-lancer/blob/master/README.md">see here for how to build the Lancer Compendiums.</a></p>
+<p>In particular, if you aren't using them already we <i>strongly</i> recommend the modules
+<a href="https://foundryvtt.com/packages/hex-size-support/">"Hex Token Size Support"</a> by
+Ourobor (even if you don't use hexes - seriously) and 
+<a href="https://foundryvtt.com/packages/lancer-initiative/">"Lancer Initiative"</a> by Bolts.</p>
+
+<p>You can report issues on GitHub here: 
+<a href="https://github.com/Eranziel/foundryvtt-lancer/issues">https://github.com/Eranziel/foundryvtt-lancer/issues</a></p>
+
+<p><h1>Change Log:</h1>
+<h2>0.1.17 (2020-12-15)</h2>
+<h3>Features</h3>
+<ul>
+<li><b>Macros</b>: Structure and Overheat macros have been added. They can be found in the "LANCER Macros" Compendium, and their functionality can be customized using the system settings. Closes #91.</li>
+<li><b>Macros</b>: Macros for placing common AOE templates have been added. They can be found in the "AoE Templates" Compendium.</li>
+<li><b>NPC Classes</b>: Add functionality to NPC Class sheet allowing features from Compendium to be added. Partial for #110.</li>
+</ul>
+<h3>Bug Fixes</h3>
+<ul>
+<li><b>NPCs</b>: Don't override NPC stat values when duplicating NPCs. Closes #94.</li>
+<li><b>Pilot/NPC Sheet</b>: Fix a bug which overwrites prototype token name even if the Actor's name was not edited. Closes #116.</li>
+<li><b>Item Sheets</b>: Fix some inconsistencies in how range and damage selectors were handled, which caused charge-type systems in particular to lose data when saved. Closes #116.</li>
+<li><b>Macros</b>: Fix and improve Overkill handling for attack macros.</li> 
+</ul>
+<h2>0.1.16 (2020-11-25)</h2>
+<h3>Bug Fixes</h3>
+<ul>
+<li><b>Pilot Sheet</b>: Syncing Comp/Con cloud saves no longer fails with a 401 error. Closes #113. Again.</li>
+<li><b>Pilot Sheet</b>: Fix an issue where some synced pilots caused the pilot sheet to not render after syncing. Closes #115.</li>
+<li><b>Macros</b>: Pilot skill trigger and overcharge macros rolled from the sheet no longer fail if no token is selected.</li>
+</ul>
 
 <p><a href="https://github.com/Eranziel/foundryvtt-lancer/blob/master/CHANGELOG.md">Click here for the full changelog.</a></p>
 </div>

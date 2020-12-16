@@ -44,9 +44,37 @@ export const registerSettings = function () {
     default: false,
   });
 
+  game.settings.register(LANCER.sys_name, LANCER.setting_automation, {
+    name: "System Automation",
+    hint: "Master enable switch for system automation. Turn this off to do everything manually.",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: true,
+  });
+
+  game.settings.register(LANCER.sys_name, LANCER.setting_auto_structure, {
+    name: "Automatic Structure/Stress",
+    hint:
+      "When a mech rolls a structure/overheat macro, should it automatically decrease structure/stress?",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: true,
+  });
+
   game.settings.register(LANCER.sys_name, LANCER.setting_pilot_oc_heat, {
     name: "Auto-Apply Overcharge Heat",
     hint: "When a mech rolls an overcharge, should it automatically apply heat?",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: true,
+  });
+
+  game.settings.register(LANCER.sys_name, LANCER.setting_overkill_heat, {
+    name: "Auto-Apply Overkill Heat",
+    hint: "When an overkill weapon triggers overkill rerolls, should it automatically apply heat?",
     scope: "world",
     config: true,
     type: Boolean,

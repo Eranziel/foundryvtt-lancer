@@ -4,7 +4,7 @@
   "description": "A Foundry VTT game system for <a href=\"https://massif-press.itch.io/corebook-pdf\">Lancer</a> by <a href=\"https://massif-press.itch.io/\">Massif Press</a>, a mud-and-lasers tactical mech RPG.",
   "version": "0.1.16",
   "minimumCoreVersion": "0.7.0",
-  "compatibleCoreVersion": "0.7.7",
+  "compatibleCoreVersion": "0.7.8",
   "author": "Eranziel",
   "scripts": [],
   "esmodules": ["lancer.js"],
@@ -13,7 +13,23 @@
     "fonts/compcon/glyphs.css",
     "fonts/mdi/css/materialdesignicons.css"
   ],
-  "packs": [],
+  "packs": [
+    {
+      "name": "aoe-templates",
+      "label": "AoE Templates",
+      "system": "lancer",
+      "module": "lancer",
+      "path": "packs/aoe-templates.db",
+      "entity": "Macro"
+    },
+    {
+      "name": "core_macros",
+      "label": "LANCER Macros",
+      "system": "lancer",
+      "path": "./packs/core_macros.db",
+      "entity": "Macro"
+    }
+],
   "languages": [],
   "socket": true,
   "gridDistance": 1,

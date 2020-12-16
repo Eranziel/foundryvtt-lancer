@@ -381,9 +381,18 @@ async function rollAttackMacro(actor: Actor, data: LancerAttackMacroData) {
       let d_ind = d_formula.indexOf("d");
       let p_ind = d_formula.indexOf("+");
       if (d_ind >= 0) {
-        if (p_ind > d_ind)
-          d_formula = d_formula.substring(0, p_ind) + "r1" + d_formula.substring(p_ind);
-        else d_formula += "r1";
+        let d_count = "1";
+        let d_expr: RegExp = /\d+(?=d)/;
+        if (d_ind != 0) {
+          let match = d_expr.exec(d_formula);
+          //console.log(`${lp} Formula ${d_expr} matched ${match} in ${d_formula}`);
+          if (match != null) {
+            d_count = match[0];
+          }
+        }
+        if (p_ind > d_ind) {
+          d_formula = d_formula.substring(0, p_ind) + "x1kh" + d_count + d_formula.substring(p_ind);
+        } else d_formula += "x1kh" + d_count;
       }
     }
     let droll: Roll | null;
@@ -397,10 +406,11 @@ async function rollAttackMacro(actor: Actor, data: LancerAttackMacroData) {
     }
     if (data.overkill && droll) {
       // Count overkill heat
-      droll.parts.forEach(p => {
-        if (p.rolls && Array.isArray(p.rolls)) {
-          p.rolls.forEach((r: any) => {
-            if (r.roll && r.roll === 1 && r.rerolled) {
+      // @ts-ignore
+      droll.terms.forEach(p => {
+        if (p.results && Array.isArray(p.results)) {
+          p.results.forEach((r: any) => {
+            if (r.exploded) {
               overkill_heat += 1;
             }
           });
@@ -414,6 +424,17 @@ async function rollAttackMacro(actor: Actor, data: LancerAttackMacroData) {
         d_type: x.type,
       });
     }
+  }
+
+  if (
+    game.settings.get(LANCER.sys_name, LANCER.setting_automation) &&
+    game.settings.get(LANCER.sys_name, LANCER.setting_overkill_heat)
+  ) {
+    const a_data: LancerPilotActorData = duplicate(actor.data);
+    if (a_data.type === "pilot") {
+      a_data.data.mech.heat.value += overkill_heat;
+    }
+    await actor.update(a_data);
   }
 
   // Output
@@ -681,7 +702,10 @@ export async function prepareOverchargeMacro(a: string) {
   data.data.mech.overcharge_level = Math.min(data.data.mech.overcharge_level + 1, 3);
 
   // Only increase heat if we haven't disabled it
-  if (game.settings.get(LANCER.sys_name, LANCER.setting_pilot_oc_heat)) {
+  if (
+    game.settings.get(LANCER.sys_name, LANCER.setting_automation) &&
+    game.settings.get(LANCER.sys_name, LANCER.setting_pilot_oc_heat)
+  ) {
     data.data.mech.heat.value = data.data.mech.heat.value + roll.total;
   }
 
@@ -705,4 +729,46 @@ async function rollOverchargeMacro(actor: Actor, data: LancerOverchargeMacroData
   };
   const template = `systems/lancer/templates/chat/overcharge-card.html`;
   return renderMacro(actor, template, templateData);
+}
+
+/**
+ * Performs a roll on the overheat table for the given actor
+ * @param a ID of actor to overheat
+ */
+export async function prepareOverheatMacro(a: string) {
+  // Determine which Actor to speak as
+  let actor: LancerActor | null = getMacroSpeaker(a);
+  if (!actor) {
+    ui.notifications.warn(`Failed to find Actor for macro. Do you need to select a token?`);
+    return null;
+  }
+
+  if (!("mech" in actor.data.data)) {
+    ui.notifications.error("Selected token is not a mech");
+    return;
+  }
+
+  // Hand it off to the actor to overheat
+  await actor.overheatMech();
+}
+
+/**
+ * Performs a roll on the structure table for the given actor
+ * @param a ID of actor to structure
+ */
+export async function prepareStructureMacro(a: string) {
+  // Determine which Actor to speak as
+  let actor: LancerActor | null = getMacroSpeaker(a);
+  if (!actor) {
+    ui.notifications.warn(`Failed to find Actor for macro. Do you need to select a token?`);
+    return null;
+  }
+
+  if (!("mech" in actor.data.data)) {
+    ui.notifications.error("Selected token is not a mech");
+    return;
+  }
+
+  // Hand it off to the actor to overheat
+  await actor.structureMech();
 }

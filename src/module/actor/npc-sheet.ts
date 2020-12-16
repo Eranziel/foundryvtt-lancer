@@ -371,10 +371,13 @@ export class LancerNPCSheet extends LancerActorSheet {
    * @private
    */
   _updateObject(event: Event | JQuery.Event, formData: any): Promise<any> {
-    // Copy the NPC name into the Actor data.
-    formData["name"] = formData["data.name"];
-    // Copy the NPC name to the prototype token.
-    formData["token.name"] = formData["data.name"];
+    // Do these only if the name updated
+    if (this.actor.data.data.name !== formData["data.name"]) {
+      // Copy the NPC name into the Actor data.
+      formData["name"] = formData["data.name"];
+      // Copy the NPC name to the prototype token.
+      formData["token.name"] = formData["data.name"];
+    }
 
     formData = this._updateTokenImage(formData);
 

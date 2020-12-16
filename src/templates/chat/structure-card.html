@@ -1,0 +1,21 @@
+<div class="card clipped-bot" style="margin: 0px;">
+  <div class="lancer-stat-header clipped-top">// STRUCTURE DAMAGE //</div>
+  <div style="align-self: center">{{val}} / {{max}} REMAINING</div>
+  {{#if roll}}
+    <div class="dice-roll lancer-dice-roll">
+      <div class="dice-result">
+        <div class="dice-formula lancer-dice-formula flexrow">
+          <span style="text-align: left; margin-left: 5px;">{{ roll.formula }}</span>
+          <span class="dice-total lancer-dice-total major">{{ total }}</span>
+        </div>
+        {{#if tt}}
+          <div style="text-align: left;">
+            {{{tt}}}
+          </div>
+        {{/if}}
+      </div>
+    </div>
+  {{/if}}
+  <div class="lancer-stat-header clipped-top">{{title}}</div>
+  <div class="effect-text">{{{text}}}</div>
+</div>

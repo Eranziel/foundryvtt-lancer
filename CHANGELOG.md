@@ -1,3 +1,15 @@
+# 0.1.17 (2020-12-15)
+## Features
+* **Macros**: Structure and Overheat macros have been added. They can be found in the "LANCER Macros" Compendium, and their functionality can be customized using the system settings. Closes #91.
+* **Macros**: Macros for placing common AOE templates have been added. They can be found in the "AoE Templates" Compendium.
+* **NPC Classes**: Add functionality to NPC Class sheet allowing features from Compendium to be added. Partial for #110.
+
+## Bug Fixes
+* **NPCs**: Don't override NPC stat values when duplicating NPCs. Closes #94.
+* **Pilot/NPC Sheet**: Fix a bug which overwrites prototype token name even if the Actor's name was not edited. Closes #116.
+* **Item Sheets**: Fix some inconsistencies in how range and damage selectors were handled, which caused charge-type systems in particular to lose data when saved. Closes #116.
+* **Macros**: Fix and improve Overkill handling for attack macros. 
+
 # 0.1.16 (2020-11-25)
 ## Bug Fixes
 * **Pilot Sheet**: Syncing Comp/Con cloud saves no longer fails with a 401 error. Closes #113. Again.

@@ -96,7 +96,10 @@ export function lancerItemInit(data: any) {
       mergeObject(data, {
         // Default new NPC features to traits
         "data.feature_type": NpcFeatureType.Trait,
+        // Give them a custom fake id
+        "data.id":"custom_npcf_" + data._id,
       });
+      
     }
   } else {
     img += "generic_item.svg";
@@ -892,7 +895,7 @@ export function npc_feature_preview(npc_feature: LancerNPCFeatureItemData, tier:
       type_class += ` weapon`;
       break;
   }
-  let html = `<li class="card clipped npc-feature-compact ${type_class}" data-item-id="${npc_feature._id}">`;
+  let html = `<li class="card clipped npc-feature-compact ${type_class}" data-item-fakeid="${npc_feature.data.id}" data-item-id="${npc_feature._id}">`;
   html += body;
   html += `</li>`;
   return html;

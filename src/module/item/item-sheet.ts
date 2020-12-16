@@ -45,7 +45,7 @@ export class LancerItemSheet extends ItemSheet {
    * The prepared data object contains both the item data as well as additional sheet options
    */
   getData(): ItemSheetData {
-    const data: ItemSheetData = super.getData();
+    const data: ItemSheetData = super.getData() as ItemSheetData;
 
     if (!data.item) {
       // Just junk it
@@ -242,75 +242,82 @@ export class LancerItemSheet extends ItemSheet {
         ] = `${formData["data.weapon_size"]} ${formData["data.weapon_type"]}`;
         delete formData["data.weapon_size"];
       }
+
+      // Give it a custom fake ID if it doesn't have one
+      if(!(this.item.data.data.id)) {
+        this.item.update({"data.id":"custom_npcf_" + this.item.id},{});
+      }
     }
 
-    if (LANCER.weapon_items.includes(this.item.data.type)) {
+    // Weapons & systems can have ranges, consolidating into one place w/ better matching
+    if (LANCER.weapon_items.includes(this.item.data.type) || this.item.data.type === 'mech_system') {
       // Safeguard against non-weapon NPC features
       if (
         this.item.data.type !== "npc_feature" ||
         (this.item.data.type === "npc_feature" &&
           this.item.data.data.feature_type === NpcFeatureType.Weapon)
       ) {
-        // Build range and damage arrays
-        let damage = [];
-        let range = [];
-        let d_done = false;
-        let r_done = false;
-        let i = 0;
-        while (!d_done || (!r_done && i < 10)) {
-          if (formData.hasOwnProperty(`data.damage.${i}.type`)) {
-            damage.push({
-              type: formData[`data.damage.${i}.type`],
-              val: formData[`data.damage.${i}.val`],
-            });
-            delete formData[`data.damage.${i}.type`];
-            delete formData[`data.damage.${i}.val`];
-          } else d_done = true;
 
-          if (formData.hasOwnProperty(`data.range.${i}.type`)) {
-            range.push({
-              type: formData[`data.range.${i}.type`],
-              val: formData[`data.range.${i}.val`],
-            });
-            delete formData[`data.range.${i}.type`];
-            delete formData[`data.range.${i}.val`];
-          } else d_done = true;
-
-          i++;
+        // Uses Regex to dynamically find ranges/damages for better forward extensibility
+        var damKeys = [];
+        var rangeKeys = [];
+        var damFilter = /(\.damage)\.\d\.(type|val)/;
+        var rangeFilter = /(\.range)\.\d\.(type|val)/;
+        var key = "";
+        for (key in formData) {
+          if (formData.hasOwnProperty(key) && damFilter.test(key)) {
+            damKeys.push(key);
+          }
+          if (formData.hasOwnProperty(key) && rangeFilter.test(key)) {
+            rangeKeys.push(key);
+          }
         }
-        formData["data.damage"] = damage;
-        formData["data.range"] = range;
-      }
-    }
 
-    if (this.item.data.type === "mech_system") {
-      const i_data = this.item.data.data as LancerMechSystemData;
-      // If the effect type has changed, initialize the effect structure
-      if (i_data.effect.effect_type !== formData["data.effect.effect_type"]) {
-        if (formData["data.effect.effect_type"] === EffectType.Charge) {
-          const rdata: RangeData = {
-            type: "None",
-            val: 0,
-          };
-          const ddata: DamageData = {
-            type: DamageType.Explosive,
-            val: "",
-          };
-          const charge: ChargeData = {
-            name: "",
-            charge_type: ChargeType.Grenade,
-            detail: "",
-            range: [duplicate(rdata), duplicate(rdata)],
-            damage: [duplicate(ddata), duplicate(ddata)],
-            tags: [],
-          };
-          formData["data.effect"] = {
-            effect_type: formData["data.effect.effect_type"],
-            name: "",
-            charges: [duplicate(charge), duplicate(charge)],
-            activation: ActivationType.None,
-            tags: [],
-          };
+        // Sanity check to make sure it's all paired
+        if(rangeKeys.length % 2 || damKeys.length % 2) {
+          console.log("Error updating range/damage");
+          ui.notifications.error(
+            `Warning: Error updating item range/damage. Please report this`
+          );
+          return;
+        }
+
+        var newDamage: {[index:string]:Array<object>} = {};
+        let newRange: {[index:string]:Array<object>} = {};
+        var split = [];
+
+
+        // We're going to process both at once because we're fancy like that
+        var newCombined: Array<{[index:string]:Array<object>}> = [newDamage, newRange];
+        var combinedKeys: Array<Array<string>> = [damKeys, rangeKeys];
+        var combinedFilters: Array<RegExp> = [damFilter, rangeFilter];
+
+        // Remember to use standard for loops if it's arrays...
+        for(var i = 0; i < newCombined.length; i++) {
+          for (var j = 0; j  < combinedKeys[i].length; j += 2 ) {
+            // Grab our pre-damage/range path
+            split = combinedKeys[i][j].split(combinedFilters[i]);
+  
+            // Initialize if it hasn't already
+            if(!newCombined[i][split[0] + split[1]]) {
+              newCombined[i][split[0] + split[1]] = []
+            }
+  
+            // For now... assume type first (which should always be the case)
+            newCombined[i][split[0] + split[1]].push({
+              type: formData[combinedKeys[i][j]],
+              val: formData[combinedKeys[i][j+1]]
+            });
+
+            // Remove the old data
+            delete formData[combinedKeys[i][j]];
+            delete formData[combinedKeys[i][j+1]];
+          }
+
+          // Put back in the real data
+          for (key in newCombined[i]){
+            formData[key] = newCombined[i][key];
+          }
         }
       }
     }
