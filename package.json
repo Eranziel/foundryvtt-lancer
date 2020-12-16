@@ -25,15 +25,15 @@
     "gulp-typescript": "^6.0.0-alpha.1",
     "json-stringify-pretty-compact": "^2.0.0",
     "prettier": "2.0.5",
-    "sass": "^1.28.0",
-    "ts-loader": "^8.0.5",
+    "sass": "^1.30.0",
+    "ts-loader": "^8.0.12",
     "tslib": "^1.14.1",
     "typescript": "^3.9.7",
     "webpack-stream": "^5.2.1",
     "yargs": "^15.4.1"
   },
   "dependencies": {
-    "@mdi/font": "^5.7.55",
+    "@mdi/font": "^5.8.55",
     "compare-versions": "^3.6.0",
     "lancer-data": "^2.0.35",
     "machine-mind": "^0.1.3"
