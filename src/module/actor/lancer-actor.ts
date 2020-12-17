@@ -389,7 +389,7 @@ export class LancerActor extends Actor {
         return v.result === 1 ? a + 1 : a;
       }, 0);
       if (one_count > 1) {
-        text = stressTableD(result, remStress);
+        text = stressTableD(result, 1);
         title = stressTableT[0];
         total = "Multiple Ones";
       }
@@ -502,7 +502,7 @@ export class LancerActor extends Actor {
         return v.result === 1 ? a + 1 : a;
       }, 0);
       if (one_count > 1) {
-        text = structTableD(result, remStruct);
+        text = structTableD(result, 1);
         title = structTableT[0];
         total = "Multiple Ones";
       }
