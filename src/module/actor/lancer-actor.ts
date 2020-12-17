@@ -358,7 +358,8 @@ export class LancerActor extends Actor {
       game.settings.get(LANCER.sys_name, LANCER.setting_auto_structure)
     ) {
       if (mech.heat.value > mech.heat.max) {
-        mech.heat.value -= mech.heat.max;
+        // https://discord.com/channels/426286410496999425/760966283545673730/789259457581416509
+        mech.heat.value -= (mech.heat.max + 1);
         mech.stress.value -= 1;
       }
     }
@@ -382,7 +383,7 @@ export class LancerActor extends Actor {
       let text = stressTableD(result, remStress);
       let total = roll.total.toString();
 
-      // Crushing hits
+      // Critical
       // This is fine
       //@ts-ignore
       let one_count = roll.terms[0].results.reduce((a, v) => {
