@@ -187,7 +187,7 @@ export class LancerNPCSheet extends LancerActorSheet {
       this.activateOpenItemListeners(html);
 
       // Delete Item when trash can is clicked
-      let items = html.find('.stats-control[data-action*="delete"]');
+      let items = html.find('.arr-control[data-action*="delete"]');
       items.on("click", async (ev: Event) => {
         if (!ev.currentTarget) return; // No target, let other handlers take care of it.
         ev.stopPropagation(); // Avoids triggering parent event handlers
