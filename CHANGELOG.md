@@ -1,3 +1,11 @@
+# 0.1.19 (2020-12-17)
+## Features
+* **Macros**: Add options object for attack macros to specify static attack bonus and bonus damage. Partial for #117.
+
+## Bug Fixes
+* **Macros**: Fix a bug with structure/overheat macros that displayed the wrong result when multiple 1's are rolled.
+* **NPC Sheet**: Fix a bug preventing NPC features from being deleted. Closes #123.
+
 # 0.1.18 (2020-12-15)
 ## Bug Fixes
 * **Macros**: Fix a bug with the structure/overheat macros that decide to declare your mech destroyed if structure/stress are full.
