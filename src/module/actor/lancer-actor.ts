@@ -358,8 +358,8 @@ export class LancerActor extends Actor {
       game.settings.get(LANCER.sys_name, LANCER.setting_auto_structure)
     ) {
       if (mech.heat.value > mech.heat.max) {
-        // https://discord.com/channels/426286410496999425/760966283545673730/789259457581416509
-        mech.heat.value -= (mech.heat.max + 1);
+        // https://discord.com/channels/426286410496999425/760966283545673730/789297842228297748
+        mech.heat.value -= (mech.heat.max);
         mech.stress.value -= 1;
       }
     }
