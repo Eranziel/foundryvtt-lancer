@@ -319,6 +319,7 @@ async function prepareAttackMacro({ actor, item, options }:
         accBonus: number; 
         damBonus: { type: DamageType; val: number; }; }; }) {
   let mData: LancerAttackMacroData = {
+    item_id: item.data._id,
     title: item.name,
     grit: 0,
     acc: 0,
@@ -472,6 +473,8 @@ async function rollAttackMacro(actor: Actor, data: LancerAttackMacroData) {
 
   // Output
   const templateData = {
+    actor_id: actor._id,
+    item_id: data.item_id,
     title: data.title,
     attack: attack_roll,
     attack_tooltip: attack_tt,
