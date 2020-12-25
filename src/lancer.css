@@ -1116,3 +1116,14 @@ input.core-power-toggle:not(:checked)::before
   flex-grow: unset;
   width: 1.5em;
 }
+
+.dossier-image[src$=".svg"] {
+  width: 15em;
+  height: 15em;
+}
+
+.dossier-image {
+  grid-area: 1/2/5/3;
+  margin:auto;
+  max-height:minmax(30em,100%);
+}
