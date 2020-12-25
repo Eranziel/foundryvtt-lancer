@@ -8,12 +8,7 @@ import {
   LancerNPCTraitData,
   LancerNPCWeaponData,
 } from "./npc-feature";
-import {
-  npc_accuracy_preview,
-  npc_attack_bonus_preview,
-  weapon_damage_preview,
-  weapon_range_preview,
-} from "./lancer-item";
+import { npc_attack_bonus_preview, npc_accuracy_preview } from "../helpers/item";
 
 export const EffectIcons = {
   Generic: "systems/lancer/assets/icons/generic_item.svg",

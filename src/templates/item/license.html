@@ -19,7 +19,7 @@
         {{#each this as |licenced key|}}
         <div class="flexrow arrayed-item" data-key="{{key}}">
           <div class="remove-wrapper">
-            <input type="String" name="data.content.{{rank}}.{{key}}.text" value="{{this.text}}" data-dtype="String" class="major" style="background: transparent; max-width: 10ch"/>
+            <input name="data.content.{{rank}}.{{key}}.text" value="{{this.text}}" data-dtype="String" class="major" style="background: transparent; max-width: 10ch"/>
 
             <a class="remove-button fa fa-trash clickable" data-action="delete" style="float: right; margin-right: 11px; margin-top: 2px"></a>
           </div>

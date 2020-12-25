@@ -32,7 +32,7 @@
         {{{sys-type-sel data.system_type "data.system_type"}}}
         {{!-- <div class="license-desc">
           <span>// </span>
-          <input type="String" name="data.license" value="{{data.license}}" data-dtype="String"/>
+          <input name="data.license" value="{{data.license}}" data-dtype="String"/>
           <input type="number" name="data.license_level" value="{{data.license_level}}" data-dtype="Number"/>
         </div> --}}
       </div>
@@ -225,10 +225,10 @@
         <div class="flexrow effect" data-key="{{key}}">
           <div class="flexcol">
             <div class="remove-wrapper">
-              <input type="String" name="data.effect.{{key}}.name" value="{{eff.name}}" data-dtype="String" class="major lancer-invisible-input"/>
+              <input name="data.effect.{{key}}.name" value="{{eff.name}}" data-dtype="String" class="major lancer-invisible-input"/>
               <a class="remove-button fa fa-trash clickable" data-action="delete" data-item="effect" style="float: right; margin-right: 14px; margin-top: 2px"></a>
             </div>
-            <textarea class="lancer-invisible-input minor" type="string" name="data.effect.{{key}}.description" data-dtype="String">{{eff.description}}</textarea>
+            <textarea class="lancer-invisible-input minor" name="data.effect.{{key}}.description" data-dtype="String">{{eff.description}}</textarea>
           </div>
         </div>
         {{/each}}

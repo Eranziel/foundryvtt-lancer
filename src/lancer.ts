@@ -18,26 +18,8 @@ import {
   npc_tier_selector,
 } from "./module/actor/lancer-actor";
 import {
-  core_system_preview,
-  effect_type_selector,
-  is_loading,
   LancerItem,
   lancerItemInit,
-  item_preview,
-  mech_system_preview,
-  mech_trait_preview,
-  mech_weapon_preview,
-  npc_accuracy_preview,
-  npc_attack_bonus_preview,
-  npc_feature_preview,
-  npc_weapon_damage_selector,
-  pilot_weapon_damage_selector,
-  system_type_selector,
-  weapon_damage_preview,
-  weapon_range_preview,
-  weapon_range_selector,
-  weapon_size_selector,
-  weapon_type_selector,
 } from "./module/item/lancer-item";
 
 import {
@@ -91,7 +73,10 @@ import * as macros from "./module/macros";
 
 // Import node modules
 import compareVersions = require("compare-versions");
-import { NpcFeatureType, EntryType } from "machine-mind";
+import { NpcFeatureType, EntryType, Manufacturer } from "machine-mind";
+import { bonus_array, manufacturer_ref as ref_manufacturer, render_icon, simple_mm_ref } from "./module/helpers/commons";
+import { is_loading } from "machine-mind/dist/classes/mech/EquipUtil";
+import { item_preview, weapon_size_selector, weapon_type_selector, range_editor, pilot_weapon_damage_selector, npc_weapon_damage_selector, weapon_range_preview, weapon_damage_preview, npc_attack_bonus_preview, npc_accuracy_preview, mech_weapon_preview, system_type_selector, effect_type_selector, mech_system_preview, npc_feature_preview, core_system_preview, mech_trait_preview } from "./module/helpers/item";
 
 const lp = LANCER.log_prefix;
 
@@ -196,6 +181,11 @@ Hooks.once("init", async function () {
   // dec, for those off-by-one errors
   Handlebars.registerHelper("dec", function (value) {
     return parseInt(value) - 1;
+  });  
+  
+  // cons, to concatenate strs. Can take any number of args. Last is omitted (as it is just a handlebars ref object)
+  Handlebars.registerHelper("concat", function (...values) {
+    return values.slice(0, values.length - 1).join("");
   });
 
   // get an index from an array
@@ -262,9 +252,7 @@ Hooks.once("init", async function () {
 
   // ------------------------------------------------------------------------
   // Generic components
-  Handlebars.registerHelper("icon", function(icon_name: string) {
-    return `<i class="cci cci-${icon_name} i--m i--light"> </i>`;
-  });
+  Handlebars.registerHelper("icon", render_icon);
 
   Handlebars.registerHelper("l-num-input", function (target: string, value: string) {
     // Init value to 0 if it doesn't exist
@@ -291,7 +279,7 @@ Hooks.once("init", async function () {
   });
 
   // Shows a little link-preview of an item
-  Handlebars.registerHelper("ref-item", item_preview);
+  Handlebars.registerHelper("ref-mm", simple_mm_ref);
 
   // ------------------------------------------------------------------------
   // Tags
@@ -301,11 +289,19 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("full-tag", renderFullTag);
 
   // ------------------------------------------------------------------------
+  // License data
+  Handlebars.registerHelper("ref-manufacturer", ref_manufacturer);
+
+  // ------------------------------------------------------------------------
+  // Bonuses
+  Handlebars.registerHelper("bonuses-editor", bonus_array);
+
+  // ------------------------------------------------------------------------
   // Weapons
   Handlebars.registerHelper("is-loading", is_loading);
   Handlebars.registerHelper("wpn-size-sel", weapon_size_selector);
   Handlebars.registerHelper("wpn-type-sel", weapon_type_selector);
-  Handlebars.registerHelper("wpn-range-sel", weapon_range_selector);
+  Handlebars.registerHelper("wpn-range-sel", range_editor);
   Handlebars.registerHelper("wpn-damage-sel", pilot_weapon_damage_selector);
   Handlebars.registerHelper("npc-wpn-damage-sel", npc_weapon_damage_selector);
   Handlebars.registerHelper("wpn-range", weapon_range_preview);

@@ -7,58 +7,61 @@
       <h1 class="charname"><input class="header-field" name="name" type="text" value="{{item.name}}" placeholder="Name"/></h1>
     </div>
     <div class="header-fields flexrow" style="grid-area: 2/1/3/5">
-      <h3 class="source"><input class="header-field" name="data.source" type="text" value="{{data.source}}" placeholder="Source"/></h3>
-      <h3 class="license"><input class="header-field" name="data.license" type="text" value="{{data.license}}" placeholder="License"/></h3>
-      <h3 class="license-level"><input class="header-field effect-stat" style="color: black !important;float: left" name="data.license_level" type="number" value="{{data.license_level}}" data-dtype="Number"/></h3>
+      {{{ref-manufacturer mm.ent.Source}}}
+      <h3 class="license"><input class="header/data-field" name="mm.ent.License" type="text" value="{{mm.ent.License}}" placeholder="License"/></h3>
+      <h3 class="license-level"><input class="header-field effect-stat" style="color: black !important;float: left" name="mm.ent.LicenseLevel" type="number" value="{{mm.ent.LicenseLevel}}" data-dtype="Number"/></h3>
     </div>
   </header>
 
   {{!-- Sheet Body --}}
   <section class="sheet-body" style="height: 100%">
     <div style="grid-template: 2em 10em fit-content(0) fit-content(0) 1fr / repeat(3, 1fr); display: grid;">
+      <span class="medium">SIZE</span>
+      {{{wpn-size-sel mm.ent "mm.ent"}}}
 
-      {{!-- Size and Type --}}
-      <div style="grid-area: 1/1/2/4; margin-left: 30px;">
-        <span class="medium">SIZE</span>
-        {{{wpn-size-sel data.mount "data.mount"}}}
-        <span class="medium">TYPE</span>
-        {{{wpn-type-sel data.weapon_type "data.weapon_type"}}}
-      </div>
-
-      {{!-- Range --}}
-      <div class="flexcol card clipped" style="grid-area: 2/1/3/2">
-        <span class="lancer-stat-header major clipped-top">RANGE</span>
-        {{{wpn-range-sel data.range "0" "data.range.0"}}}
-        {{{wpn-range-sel data.range "1" "data.range.1"}}}
-      </div>
-
-      {{!-- Damage --}}
-      <div class="flexcol card clipped" style="grid-area: 2/2/3/4;">
-        <span class="lancer-stat-header major clipped-top">DAMAGE</span>
-        <div class="flexrow flex-center" style="padding: 5px;">
-          {{{wpn-damage-sel data.damage "0" "data.damage.0"}}}
-          <hr class="vsep" style="height: 30px;">
-          {{{wpn-damage-sel data.damage "1" "data.damage.1"}}}
+      {{#each mm.ent.Profiles as |profile prof_index|}}
+        {{!-- Size and Type --}}
+        <div style="grid-area: 1/1/2/4; margin-left: 30px;">
+          <span class="medium">TYPE</span>
+          {{{wpn-type-sel profile (concat "mm.ent.Profiles." prof_index) }}}
         </div>
-      </div>
+        <i>todo: Profile selection</i>
 
-      {{!-- Description --}}
-      <div class="flexcol card clipped" style="grid-area: 3 / 1 / 4 / 4">
-        <span class="lancer-stat-header major clipped-top">DESCRIPTION</span>
-        {{editor content=data.description target="data.description" button=true owner=owner editable=editable}}
-      </div>
-
-      {{!-- TODO: Item effects --}}
-
-      {{!-- TODO: We can probably even pull this out... --}}
-      {{!-- Tags --}}
-      <div class="arrayed-item-container tags-container flexcol" style="grid-area: 5 / 1 / 6 / 4" data-item="tags">
-        <div>
-          <span class="minor" style="float: left">WEAPON TAGS</span>
-          <a class="add-button clickable" data-action="create" style="float: right; margin-right: 1em">+</a>
+        {{!-- Range --}}
+        <div class="flexcol card clipped" style="grid-area: 2/1/3/2">
+          <span class="lancer-stat-header major clipped-top">RANGE</span>
+          {{#each profile.BaseRange as |range range_index|}}
+              {{{wpn-range-sel range (concat "mm.ent.Profiles" prof_index ".BaseRange." range_index) }}}
+          {{/each}}
         </div>
-        {{#each item.data.tags as |tag key|}}
-        {{{full-tag tag key "data.tags"}}}
+        <i>todo: Iterate ranges selection</i>
+
+        {{!-- Damage --}}
+        <div class="flexcol card clipped" style="grid-area: 2/2/3/4;">
+          <span class="lancer-stat-header major clipped-top">DAMAGE</span>
+          {{#each profile.BaseDamage as |damage damage_index|}}
+              {{{wpn-damage-sel damage (concat "mm.ent.Profiles" prof_index ".BaseDamage." damage_index) }}}
+          {{/each}}
+        </div>
+
+        {{!-- Description --}}
+        <div class="flexcol card clipped" style="grid-area: 3 / 1 / 4 / 4">
+          <span class="lancer-stat-header major clipped-top">DESCRIPTION</span>
+          {{editor content=profile.Description target=(concat "mm.ent.Profiles" prof_index "Description") button=true owner=owner editable=editable}}
+        </div>
+
+        {{!-- TODO: Item effects --}}
+
+        {{!-- TODO: We can probably even pull this out... --}}
+        {{!-- Tags --}}
+        <div class="arrayed-item-container tags-container flexcol" style="grid-area: 5 / 1 / 6 / 4" data-item="tags">
+          <div>
+            <span class="minor" style="float: left">WEAPON TAGS</span>
+            <a class="add-button clickable" data-action="create" style="float: right; margin-right: 1em">+</a>
+          </div>
+          {{#each item.data.tags as |tag key|}}
+            {{{full-tag tag key "data.tags"}}}
+          {{/each}}
         {{/each}}
       </div>
     </div>

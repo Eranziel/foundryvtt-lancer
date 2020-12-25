@@ -6,21 +6,13 @@ import { EntryType, OpCtx } from "machine-mind";
 import { LancerActor, LancerMech } from "./lancer-actor";
 import { LancerItem } from "../item/lancer-item";
 import { MMEntityContext, mm_wrap_actor, mm_wrap_item } from "../mm-util/helpers";
+import { gentle_merge, HANDLER_onClickRef } from "../helpers/commons";
 const lp = LANCER.log_prefix;
 
 /**
  * Extend the basic ActorSheet
  */
 export class LancerMechSheet extends LancerActorSheet {
-  /**
-   * A convenience reference to the Actor entity
-   */
-  // get actor(): LancerPilot {
-  //   return this.actor;
-  // };
-
-  /* -------------------------------------------- */
-
   /**
    * Extend and override the default options used by the NPC Sheet
    * @returns {Object}
@@ -46,9 +38,6 @@ export class LancerMechSheet extends LancerActorSheet {
 
     // Everything below here is only needed if the sheet is editable
     if (!this.options.editable) return;
-
-    // Add or Remove options
-    // Yes, theoretically this could be abstracted out to one function. You do it then.
   }
 
   /* -------------------------------------------- */
@@ -80,17 +69,23 @@ export class LancerMechSheet extends LancerActorSheet {
    * @private
    */
   async _updateObject(event: Event | JQuery.Event, formData: any): Promise<any> {
-    // Copy the new name to the prototype token.
-    formData["token.name"] = formData["name"];
+    // Fetch the curr data
+    let ct = await this.getDataLazy();
 
-    formData = this._updateTokenImage(formData);
+    // Automatically propagate fields that should be set to multiple places
+    this._propagateMMData(formData);
 
-    // Update the Actor
-    console.log("Writing back...");
-    mergeObject(this._currData, formData, { inplace: true });
-    console.log(formData);
-    console.log(this._currData);
-    return this._currData?.mm.ent.writeback();
+    // console.log("Pre merge traits:", ct.mm.ent.Traits);
+    // console.log("Form data", formData);
+    gentle_merge(ct, formData);
+    // console.log("Post merge:", ct.mm.ent);
+    // console.log("Post merge traits:", ct.mm.ent.Traits);
+
+    // Update top level. Handles name + token changes, etc
+    this.actor.update(ct.actor);
+
+    // And then do a mm level writeback
+    return ct.mm.ent.writeback();
   }
 
   // Let people add stuff to the mech
@@ -114,10 +109,12 @@ export class LancerMechSheet extends LancerActorSheet {
       // Make the context for the item
       const item_mm: MMEntityContext<EntryType> = await mm_wrap_item(item);
 
-      // Always (?) add the item to the mech. (counterpoint - should we check for duplicates first??).
+      // Always add the item to the mech, now that we know it is a valid mech posession
       // Make a new ctx to hold the item and a post-item-add copy of our mech
       let new_ctx = new OpCtx();
       let new_live_item = await item_mm.ent.insinuate(this_mm.reg, new_ctx);
+
+      // Update this, to re-populate arrays etc to reflect new item
       let new_live_this = (await this_mm.ent.refreshed(new_ctx))!;
 
       // Now, do sensible things with it
@@ -130,12 +127,10 @@ export class LancerMechSheet extends LancerActorSheet {
       } else if (new_live_item.Type === EntryType.MECH_SYSTEM) {
         new_live_this.Loadout.equip_system(new_live_item);
       }
-      // Most other things (frame traits, core systems, weapon mods) aren't directly equipped to the mech and should be handled in their own sheet / their own subcomponents
+      // Most other things (weapon mods) aren't directly equipped to the mech and should be handled in their own sheet / their own subcomponents. We've already taken posession, and do nothing more
 
       // Writeback when done. Even if nothing explicitly changed, probably good to trigger a redraw (unless this is double-tapping? idk)
       await new_live_this.writeback();
-
-      // TODO: handle all sorts of mech items
     } else {
       console.error("We don't yet handle non MM items. MaybeTODO???");
     }

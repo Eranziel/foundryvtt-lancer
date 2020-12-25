@@ -143,7 +143,7 @@ export class WorldActorsWrapper<T extends LancerActorType> extends EntityCollect
     let name = data.name || "unknown";
     let new_item = (await Actor.create({ type: this.type, name, data })) as EntFor<T>;
 
-    // TODO: Remove this, as it should be unnecessary once we have proper template.json
+    // TODO: Remove this, as it should (theoretically) be unnecessary once we have proper template.json
     //@ts-ignore
     await res.update({ data: item });
 

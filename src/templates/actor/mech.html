@@ -2,9 +2,9 @@
 
   {{!-- Sheet Header --}}
   <header class="sheet-header card clipped-bot">
-    <img class="profile-img" src="{{actor.img}}" data-edit="img" title="{{actor.name}}" height="100" width="100"/>
+    <img class="profile-img" src="{{actor.img}}" data-edit="actor.img" title="{{actor.name}}" height="100" width="100"/>
     <div class="header-fields" style="grid-area: 1/1/2/5;">
-      <h1 class="charname"><input class="header-field" name="name" type="text" value="{{actor.name}}" placeholder="Name"/></h1>
+      <h1 class="charname"><input class="header-field" name="actor.name" type="text" value="{{actor.name}}" placeholder="Name"/></h1>
     </div>
   </header>
 
@@ -59,37 +59,30 @@
   </div>
 
   <div class="flexcol card clipped">
-    <span class="lancer-stat-header major clipped-top">EFFECT</span>
-    {{editor content=data.effect target="data.effect" button=true owner=owner editable=editable}}
+    <span class="lancer-stat-header major clipped-top">FRAMES</span>
+    {{#each mm.ent.OwnedFrames as |frame|}}
+      {{{ref-mm frame}}}
+    {{/each}}
   </div>
 
   <div class="flexcol card clipped">
-    <span class="lancer-stat-header major clipped-top">DESCRIPTION</span>
-    {{editor content=data.description target="data.description" button=true owner=owner editable=editable}}
+    <span class="lancer-stat-header major clipped-top">WEAPONS</span>
+    {{#each mm.ent.OwnedWeapons as |weapon|}}
+      {{{ref-mm weapon}}}
+    {{/each}}
+  </div> 
+  
+  <div class="flexcol card clipped">
+    <span class="lancer-stat-header major clipped-top">SYSTEMS</span>
+    {{#each mm.ent.OwnedSystems as |system|}}
+      {{{ref-mm system}}}
+    {{/each}}
   </div>
 
-
-  {{#each ent.mm.OwnedWeapons as |weapon|}}
-  <li class="card clipped item macroable" data-item-id="{{weapon.RegistryID}}">
-    <div class="lancer-weapon-header clipped-top" style="grid-area: 1/1/2/3">
-      <i class="cci cci-weapon i--m i--light"> </i>
-      <span class="minor">{{weapon.Name}}</span>
-      <a class="stats-control i--light" data-action="delete"><i class="fas fa-trash"></i></a>
-    </div>
-    <div class="flexcol">
-      <div class="flexrow">
-        <a class="flexrow roll-attack" style="max-width: min-content;">
-          <i class="fas fa-dice-d20 i--sm i--dark"></i>
-        </a>
-        {{#each weapon.SelectedProfile.BaseRange as |range rkey|}}
-          {{{wpn-range range rkey}}}
-        {{/each}}
-        <hr class="vsep">
-        {{#each weapon.SelectedProfile.BaseDamage as |damage dkey|}}
-          {{{wpn-damage damage dkey}}}
-        {{/each}}
-      </div>
-    </div>
-  </li>
-  {{/each}}
+  <div class="flexcol card clipped">
+    <span class="lancer-stat-header major clipped-top">MODS</span>
+    {{#each mm.ent.OwnedWeaponMods as |mod|}}
+      {{{ref-mm mod}}}
+    {{/each}}
+  </div>
 </form>

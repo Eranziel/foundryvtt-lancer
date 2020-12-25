@@ -92,15 +92,15 @@
       <div style="display:grid; grid-template: 5em 5em auto auto / 1fr 1fr">
         <div class="flexcol card clipped" style="grid-area: 1/1/2/2">
           <span class="lancer-stat-header major clipped-top">CALLSIGN</span>
-          <input class="lancer-input major" type="string" name="data.pilot.callsign" value="{{data.pilot.callsign}}" data-dtype="String"/>
+          <input class="lancer-input major" name="data.pilot.callsign" value="{{data.pilot.callsign}}" data-dtype="String"/>
         </div>
         <div class="flexcol card clipped" style="grid-area: 1/2/2/3">
           <span class="lancer-stat-header major clipped-top">NAME</span>
-          <input class="lancer-input major" type="string" name="data.pilot.name" value="{{data.pilot.name}}" data-dtype="String"/>
+          <input class="lancer-input major" name="data.pilot.name" value="{{data.pilot.name}}" data-dtype="String"/>
         </div>
         <div class="flexcol card clipped" style="grid-area: 2/1/3/3">
           <span class="lancer-stat-header major clipped-top">BACKGROUND</span>
-          <input class="lancer-input major" type="string" name="data.pilot.background" value="{{data.pilot.background}}" data-dtype="String"/>
+          <input class="lancer-input major" name="data.pilot.background" value="{{data.pilot.background}}" data-dtype="String"/>
         </div>
         <div class="flexcol card clipped" style="grid-area: 3/1/4/3; text-align: left;">
           <span class="lancer-stat-header major clipped-top" style="text-align: center; max-height: 1.25em; min-height: 1.25em;">HISTORY</span>
@@ -370,7 +370,7 @@
           NO FRAME FOUND // AWAITING YOUR SELECTION, PILOT
           {{/if}}
         </span>
-        <input class="lancer-input major" style="float: right; margin: 3px 10px;" type="string" name="data.mech.name" value="{{data.mech.name}}" data-dtype="String"/>
+        <input class="lancer-input major" style="float: right; margin: 3px 10px;"  name="data.mech.name" value="{{data.mech.name}}" data-dtype="String"/>
       </div>
 
       {{!-- Stats --}}

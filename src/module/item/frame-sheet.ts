@@ -1,6 +1,7 @@
 import { EntryType, FrameTrait } from "machine-mind";
 import { defaults } from "machine-mind/dist/funcs";
 import { LancerItemSheetData } from "../interfaces";
+import { gentle_merge } from "../helpers/commons";
 import { mm_wrap_item } from "../mm-util/helpers";
 import { LancerItemSheet } from "./item-sheet";
 import { LancerFrame, LancerItem } from "./lancer-item";
@@ -9,7 +10,7 @@ import { LancerFrame, LancerItem } from "./lancer-item";
  * Extend the generic Lancer item sheet
  * @extends {LancerItemSheet}
  */
-export class LancerFrameSheet extends LancerItemSheet {
+export class LancerFrameSheet extends LancerItemSheet<EntryType.FRAME> {
   /**
    * @override
    * Extend and override the default options used by the generic Lancer item sheet
@@ -22,6 +23,7 @@ export class LancerFrameSheet extends LancerItemSheet {
     });
   }
 
+  // Make a frame trait when the button is pressed
   async _onCreateFrameTrait(event: any) {
     event.preventDefault();
 
@@ -33,12 +35,13 @@ export class LancerFrameSheet extends LancerItemSheet {
     await mm.ent.writeback();
   }
 
+  // Delete a frame trait when the trashcan is pressed
   async _onDeleteFrameTrait(event: any) {
     event.preventDefault();
 
     // Get the index
-    const elt = $(event.currentTarget);
-    const index = elt.prop("index");
+    const elt = event.currentTarget;
+    const index = elt.dataset.index;
 
     let data = await this.getDataLazy();
     // Splice it out
@@ -47,6 +50,31 @@ export class LancerFrameSheet extends LancerItemSheet {
     data.mm.ent.Traits = traits;
 
     await data.mm.ent.writeback();
+  }
+
+  // Handle the "delete" option of the mounts
+  async _onChangeMount(event: any) {
+    event.preventDefault();
+
+    // Get the index
+    const elt = $(event.currentTarget);
+    const index = elt.prop("index");
+    const value = elt.prop("value");
+    if(value == "delete") {
+      // If delete, then delete
+      let data = await this.getDataLazy();
+
+      // Splice it out
+      let mounts = [...data.mm.ent.Mounts];
+      mounts.splice(index, 1);
+      data.mm.ent.Mounts = mounts;
+
+      // Save it
+      await data.mm.ent.writeback();
+
+      // No need to submit
+      event.stopPropagation();
+    }
   }
 
   /**
@@ -64,39 +92,10 @@ export class LancerFrameSheet extends LancerItemSheet {
     let traits = html.find("#frame-traits");
     traits.find(".add-button").on("click", e => this._onCreateFrameTrait(e));
     traits.find(".remove-button").on("click", e => this._onDeleteFrameTrait(e));
-  }
 
-  /**
-   * Implement the _updateObject method as required by the parent class spec
-   * This defines how to update the subject of the form when the form is submitted
-   * @private
-   */
-  async _updateObject(event: Event | JQuery.Event, formData: any): Promise<any> {
-    // Update the item
-    console.log("Writing back...");
-    mergeObject(this._currData, formData, { inplace: true });
-    console.log(formData);
-    console.log(this._currData);
-    // return this._currData?.mm.ent.writeback();
+    let mounts = html.find("#mounts");
+    mounts.find("select").on("change", e => this._onChangeMount(e));
   }
+  
 
-  /**
-   * Prepare data for rendering the frame sheet
-   * The prepared data object contains both the actor data as well as additional sheet options
-   */
-  //@ts-ignore
-  async getData(): Promise<LancerItemSheetData<EntryType.FRAME>> {
-    const data = super.getData() as LancerItemSheetData<EntryType.FRAME>; // Not fully populated yet!
-
-    // Load pilot
-    data.mm = await mm_wrap_item(this.item as LancerFrame);
-    this._currData = data;
-    return data;
-  }
-
-  // Cached getdata
-  private _currData: LancerItemSheetData<EntryType.FRAME> | null = null;
-  private async getDataLazy(): Promise<LancerItemSheetData<EntryType.FRAME>> {
-    return this._currData ?? (await this.getData());
-  }
 }

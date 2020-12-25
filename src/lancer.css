@@ -644,6 +644,20 @@ tr.lcp-index-header {
   min-width: fit-content;
 }
 
+.ref {
+  border: 2px solid black;
+  margin: 5px;
+  display: flex; 
+  align-items: center;
+  cursor: pointer;
+}
+
+.ref-icon {
+  width: 50px;
+  height: 50px;
+  margin: 5px;
+}
+
 .pilot-stats {
   clip-path: polygon( 0 0, calc(100% - 30px) 0, 100% 100%, 0 100% );
   -webkit-clip-path: polygon( 0 0, calc(100% - 30px) 0, 100% 100%, 0 100% );

@@ -1,6 +1,6 @@
 import { LANCER } from "../config";
+import { HANDLER_onClickRef } from "../helpers/commons";
 import { LancerStatMacroData } from "../interfaces";
-import { LancerItem } from "../item/lancer-item";
 import { LancerActor } from "./lancer-actor";
 const lp = LANCER.log_prefix;
 
@@ -33,15 +33,19 @@ export class LancerActorSheet extends ActorSheet {
    * Activate event listeners using the prepared sheet HTML
    * @param html {HTMLElement}   The prepared HTML object ready to be rendered into the DOM
    */
-  // activateListeners(html: any) {
-  //   super.activateListeners(html);
-  //
-  //   // Everything below here is only needed if the sheet is editable
-  //   if (!this.options.editable) return;
-  //
-  //   // Add or Remove options
-  //   // Yes, theoretically this could be abstracted out to one function. You do it then.
-  // }
+  activateListeners(html: any) {
+    super.activateListeners(html);
+
+    // Make refs clickable
+    $(html).find(".ref.clickable").on("click", HANDLER_onClickRef);
+
+  
+     // Everything below here is only needed if the sheet is editable
+     // if (!this.options.editable) return;
+  
+     // Add or Remove options
+     // Yes, theoretically this could be abstracted out to one function. You do it then.
+   }
   /* -------------------------------------------- */
   /**
    * Prepare data for rendering the Actor sheet
@@ -214,6 +218,26 @@ export class LancerActorSheet extends ActorSheet {
     else if (this.actor.data.img === token["img"] && this.actor.img !== formData["img"]) {
       formData["token.img"] = formData["img"];
     }
+    return formData;
+  }
+
+  _propagateMMData(formData: any) {
+    // Pushes relevant field data down from the "actor" data block to the "mm.ent" data block
+    // Also meant to encapsulate all of the behavior of _updateTokenImage
+    let token: any = this.actor.data["token"];
+
+    // Set the prototype token image if the prototype token isn't initialized
+    if (!token) {
+      formData["actor.token.img"] = formData["actor.img"];
+    }
+
+    // Update token image if it matches the old actor image
+    else if (this.actor.data.img === token["img"] && this.actor.img !== formData["actor.img"]) {
+      formData["actor.token.img"] = formData["actor.img"];
+    } // Otherwise don't update image
+
+    // Do push down name changes
+    formData["mm.ent.Name"] = formData["actor.name"];
     return formData;
   }
 }

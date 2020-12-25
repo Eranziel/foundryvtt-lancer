@@ -101,7 +101,7 @@ export function renderChunkyTag(tag: TagData | null, key: number): string {
       <i class="med-icon fa fa-3x fa-tag" style="margin: 3px"></i>
     </div>
     <div class="flexcol">
-      <input type="String" name="data.tags.${key}.name" value="${tag.name}" data-dtype="String" class="lancer-invisible-input medium theme--main" style="grid-area: 1/2/2/3; text-align:left; padding-left: 0.5em; margin-top: 0.25em;"/>
+      <input name="data.tags.${key}.name" value="${tag.name}" data-dtype="String" class="lancer-invisible-input medium theme--main" style="grid-area: 1/2/2/3; text-align:left; padding-left: 0.5em; margin-top: 0.25em;"/>
       <textarea class="lancer-invisible-input effect-text" name="data.tags.${key}.description" data-dtype="String" style="grid-area: 2/2/3/3">${tag.description}</textarea>
       <a class="remove-button fa fa-trash clickable" data-action="delete" style="grid-area: 2/3/3/4; margin-right: 11px; margin-top: -.8em; justify-self: right; align-self: self-start"></a>
     </div>
@@ -131,9 +131,9 @@ export function renderFullTag(
   // Editable partial
   template = `<div class="tag arrayed-item" data-key="${key}">
   <i class="mdi mdi-label i--l theme--main" style="grid-area: 1/1/3/2;"></i>
-  <input type="String" name="${data_prefix}.${key}.id" value="${tag.id}" data-dtype="String" style="display:none"/>
-  <input type="String" name="${data_prefix}.${key}.val" value="${tag.val}" data-dtype="String" style="display:none"/>
-  <input type="String" name="${data_prefix}.${key}.name" value="${tag.name}" data-dtype="String" class="lancer-invisible-input medium theme--main" style="grid-area: 1/2/2/3; text-align:left; padding-left: 0.5em; margin-top: 0.25em;"/>
+  <input name="${data_prefix}.${key}.id" value="${tag.id}" data-dtype="String" style="display:none"/>
+  <input name="${data_prefix}.${key}.val" value="${tag.val}" data-dtype="String" style="display:none"/>
+  <input name="${data_prefix}.${key}.name" value="${tag.name}" data-dtype="String" class="lancer-invisible-input medium theme--main" style="grid-area: 1/2/2/3; text-align:left; padding-left: 0.5em; margin-top: 0.25em;"/>
   <textarea class="lancer-invisible-input effect-text" name="${data_prefix}.${key}.description" data-dtype="String" style="grid-area: 2/2/3/3">${tag.description}</textarea>
   <a class="remove-button fa fa-trash clickable" data-action="delete" style="grid-area: 2/3/3/4; margin-right: 11px; margin-top: -.8em; justify-self: right; align-self: self-start"></a>
   </div>`;

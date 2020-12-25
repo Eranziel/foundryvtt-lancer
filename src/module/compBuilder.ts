@@ -12,20 +12,6 @@ import {
   Registry,
   StaticReg,
 } from "machine-mind";
-import {
-  CORE_BONUS_PACK,
-  FRAME_PACK,
-  MECH_SYSTEM_PACK,
-  MECH_WEAPON_PACK,
-  NPC_CLASS_PACK,
-  NPC_FEATURE_PACK,
-  NPC_TEMPLATE_PACK,
-  PILOT_ARMOR_PACK,
-  PILOT_GEAR_PACK,
-  PILOT_WEAPON_PACK,
-  SKILLS_PACK,
-  TALENTS_PACK,
-} from "./item/util";
 import { defaults, intake_pack } from "machine-mind/dist/funcs";
 import { FoundryReg } from "./mm-util/foundry-reg";
 
@@ -227,7 +213,7 @@ export async function import_cp(cp: IContentPack): Promise<void> {
     for (let item of await cat.list_live(dest_ctx)) {
       // Do the deed
       console.log(`Import | Adding ${type} ${item.Name}`);
-      await item.insinuate(comp_reg);
+      await item.insinuate(comp_reg); // TODO: Some sort of bulk mechanism? Foundry obviously allows you to build many things at once. Maybe have a buffer in compendium db_abstraction
     }
   }
 

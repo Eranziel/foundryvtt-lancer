@@ -2747,10 +2747,10 @@ kind-of@^6.0.0, kind-of@^6.0.2:
   resolved "https://registry.yarnpkg.com/kind-of/-/kind-of-6.0.3.tgz#07c05034a6c349fa06e24fa35aa76db4580ce4dd"
   integrity sha512-dcS1ul+9tmeD95T+x28/ehLgd9mENa3LsvDTtzm3vyBEO7RPptvAD+t44WVXaUjTBRcrpFeFlC8WCruUR456hw==
 
-lancer-data@^3.0.4:
-  version "3.0.4"
-  resolved "https://registry.yarnpkg.com/lancer-data/-/lancer-data-3.0.4.tgz#f28d3c26d27a584a42bbed582460f62f12ac42b6"
-  integrity sha512-RoVy7dzkt7nMn80kFlvCo8bJU2AT6PqISg/nVJPYCl2l6GKAEaH7L1r1JE9YeG3rm7+ddc3QnvWB07r74WU3iQ==
+lancer-data@^3.0.14:
+  version "3.0.17"
+  resolved "https://registry.yarnpkg.com/lancer-data/-/lancer-data-3.0.17.tgz#ef62ea055980c3af0501687d3aff4a2ed5901efa"
+  integrity sha512-eudHeBlktf606HO+gMerLvdq15/vzOr7Ca+f4v2NgAhdkREbiD8eQZd/w9EDOjGhA8GCr4/3FdUeTyxOMR/EkQ==
 
 last-run@^1.1.0:
   version "1.1.1"
@@ -2970,15 +2970,15 @@ lru-cache@^5.1.1:
   dependencies:
     yallist "^3.0.2"
 
-machine-mind@^0.2.0-beta.19:
-  version "0.2.0-beta.19"
-  resolved "https://registry.yarnpkg.com/machine-mind/-/machine-mind-0.2.0-beta.19.tgz#daece1be39c8ae22092b870260d82bda2150d815"
-  integrity sha512-3uppU4zoZWk2jXSlBOgTjIKkGhyPk4ZDRRb2RNtM+4f7x/N4beUGDwpwyGAvPlDBy7+jDXmNQC37EekwlDbEZA==
+machine-mind@^0.2.0-beta.27:
+  version "0.2.0-beta.27"
+  resolved "https://registry.yarnpkg.com/machine-mind/-/machine-mind-0.2.0-beta.27.tgz#3f07fb5fe6e479e954a0cddadfa2185a3b0dbb6f"
+  integrity sha512-oKoy7riFPn37KRQGX8tfYHqBs3/Hm5XlkEYQ3lAxX9Iv6R4N950KvM8TAn05S88r/wVBexdRdWKP5oQ6RYJqlA==
   dependencies:
     axios "^0.19.2"
     filtrex "^2.1.0"
     jszip "^3.5.0"
-    lancer-data "^3.0.4"
+    lancer-data "^3.0.14"
     nanoid "^3.1.12"
     tslib "^2.0.0"
 

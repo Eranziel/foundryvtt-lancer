@@ -1,18 +1,15 @@
+import { EntryType } from "machine-mind";
 import { LANCER } from "../config";
+import { npc_feature_preview } from "../helpers/item";
 import { LancerItemSheet } from "./item-sheet";
-import {
-  LancerItem,
-  LancerNpcClass,
-  LancerNpcFeatureData,
-  npc_feature_preview,
-} from "./lancer-item";
+import { LancerItem, LancerNpcClass, LancerNpcFeatureData } from "./lancer-item";
 const lp = LANCER.log_prefix;
 
 /**
  * Extend the generic Lancer item sheet
  * @extends {LancerItemSheet}
  */
-export class LancerNPCClassSheet extends LancerItemSheet {
+export class LancerNPCClassSheet extends LancerItemSheet<EntryType.NPC_CLASS> {
   /**
    * @override
    * Extend and override the default options used by the generic Lancer item sheet
@@ -79,15 +76,6 @@ export class LancerNPCClassSheet extends LancerItemSheet {
 
   static arrayifyStats(data: string[]) {
     return data.map(x => parseFloat(x));
-  }
-
-  getData(): ItemSheetData {
-    let item = this.item as LancerNpcClass;
-    //Fetching local copies for use in drag-and-drop flow
-    // item.base_feature_items.then(features => (this.base_feature_items = features));
-    // item.optional_feature_items.then(features => (this.optional_feature_items = features));
-
-    return super.getData();
   }
 
   activateListeners(html: JQuery) {
