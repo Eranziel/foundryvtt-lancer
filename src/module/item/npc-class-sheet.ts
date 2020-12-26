@@ -1,7 +1,8 @@
+import { LancerActor } from "../actor/lancer-actor";
 import { LANCER } from "../config";
 import { LancerNPCFeatureItemData } from "../interfaces";
 import { LancerItemSheet } from "./item-sheet";
-import { LancerItem, npc_feature_preview } from "./lancer-item";
+import { LancerItem, LancerNPCClass, npc_feature_preview } from "./lancer-item";
 const lp = LANCER.log_prefix;
 
 /**
@@ -69,6 +70,12 @@ export class LancerNPCClassSheet extends LancerItemSheet {
     });
 
     console.log(`${lp} Item sheet form data: `, formData);
+
+    // Propogate to owner
+    if(this.item.isOwned) {
+      (<LancerActor>this.item.actor).swapNPCClassOrTier((<LancerNPCClass>this.item).data.data.stats,false);
+    }
+
     // Update the Item
     return this.object.update(formData);
   }
