@@ -19,7 +19,7 @@ const lp = LANCER.log_prefix;
 /**
  * Extend the basic ActorSheet
  */
-export class LancerNPCSheet extends LancerActorSheet {
+export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
   /**
    * A convenience reference to the Actor entity
    */
@@ -55,8 +55,9 @@ export class LancerNPCSheet extends LancerActorSheet {
    * Prepare data for rendering the Actor sheet
    * The prepared data object contains both the actor data as well as additional sheet options
    */
+  //@ts-ignore
   getData(): LancerNPCSheetData {
-    const data: LancerNPCSheetData = super.getData() as LancerNPCSheetData;
+    const data: LancerNPCSheetData = super.getData() as any as LancerNPCSheetData;
 
     this._prepareItems(data);
 

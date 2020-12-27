@@ -29,7 +29,7 @@ const entryPrompt = "//:AWAIT_ENTRY>";
 /**
  * Extend the basic ActorSheet
  */
-export class LancerPilotSheet extends LancerActorSheet {
+export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
   /**
    * A convenience reference to the Actor entity
    */
@@ -67,7 +67,7 @@ export class LancerPilotSheet extends LancerActorSheet {
    */
   //@ts-ignore
   async getData(): Promise<LancerPilotSheetData> {
-    const base_data = super.getData();
+    const base_data = await super.getData();
 
     // Spool up state
     let reg = new FoundryReg();

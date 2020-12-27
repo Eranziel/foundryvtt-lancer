@@ -10,29 +10,6 @@ import { EntryType, MountType, funcs, RegEntryTypes } from "machine-mind";
 import { FoundryRegActorData, FoundryRegItemData } from "../mm-util/foundry-reg";
 const lp = LANCER.log_prefix;
 
-export const DEFAULT_MECH = {
-  name: "",
-  size: 1,
-  hull: 0,
-  agility: 0,
-  systems: 0,
-  engineering: 0,
-  hp: { min: 0, max: 0, value: 0 },
-  structure: { min: 0, max: 4, value: 4 },
-  heat: { min: 0, max: 0, value: 0 },
-  stress: { min: 0, max: 4, value: 4 },
-  repairs: { min: 0, max: 0, value: 0 },
-  armor: 0,
-  speed: 0,
-  evasion: 0,
-  edef: 0,
-  sensors: 0,
-  save: 0,
-  tech_attack: 0,
-  current_core_energy: 1,
-  overcharge_level: 0,
-};
-
 export function lancerActorInit(data: any) {
   // Some subtype of ActorData
   console.log(`${lp} Initializing new ${data.type}`);
@@ -83,39 +60,6 @@ export function lancerActorInit(data: any) {
  */
 export class LancerActor<T extends LancerActorType> extends Actor {
   data!: FoundryRegActorData<T>;
-
-  /**
-   * Change mech frames for a pilot. Recalculates all mech-related stats on the pilot.
-   * @param newFrame Stats object from the new mech frame.
-   * @param oldFrame Stats object from the old mech frame, optional.
-   */
-  async swapFrames(/*newFrame: LancerFrameStatsData, oldFrame?: LancerFrameStatsData*/): Promise<
-    void
-  > {
-    console.log("Disabled");
-  }
-
-  /**
-   * Returns the current frame used by the actor as an item
-   * Only applicable for pilots
-   */
-  /*
-  getCurrentFrame(): LancerFrameItemData | null {
-    // Function is only applicable to pilots.
-    if (this.data.type !== "pilot") return null;
-
-
-    let item_data = (this.items as unknown) as LancerItemData[]; 
-    let sorted = new ItemDataManifest().add_items(item_data.values());
-
-    // Only take one frame
-    if (sorted.frames.length) {
-      return (sorted.frames[0].data as unknown) as LancerFrameItemData;
-    } else {
-      return null
-    }
-  }
-    */
 
   /**
    * Change Class or Tier on a NPC. Recalculates all stats on the NPC.

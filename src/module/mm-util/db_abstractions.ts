@@ -145,7 +145,7 @@ export class WorldActorsWrapper<T extends LancerActorType> extends EntityCollect
 
     // TODO: Remove this, as it should (theoretically) be unnecessary once we have proper template.json
     //@ts-ignore
-    await res.update({ data: item });
+    await new_item.update({ data });
 
     // Return the reference
     return {

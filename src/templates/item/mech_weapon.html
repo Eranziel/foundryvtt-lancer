@@ -2,9 +2,9 @@
 
   {{!-- Sheet Header --}}
   <header class="sheet-header card clipped-bot">
-    <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}" height="100" width="100"/>
+    <img class="profile-img" src="{{item.img}}" data-edit="item.img" title="{{item.name}}" height="100" width="100"/>
     <div class="header-fields" style="grid-area: 1/1/2/5;">
-      <h1 class="charname"><input class="header-field" name="name" type="text" value="{{item.name}}" placeholder="Name"/></h1>
+      <h1 class="charname"><input class="header-field" name="item.name" type="text" value="{{item.name}}" placeholder="Name"/></h1>
     </div>
     <div class="header-fields flexrow" style="grid-area: 2/1/3/5">
       {{{ref-manufacturer mm.ent.Source}}}
@@ -31,7 +31,7 @@
         <div class="flexcol card clipped" style="grid-area: 2/1/3/2">
           <span class="lancer-stat-header major clipped-top">RANGE</span>
           {{#each profile.BaseRange as |range range_index|}}
-              {{{wpn-range-sel range (concat "mm.ent.Profiles" prof_index ".BaseRange." range_index) }}}
+              {{{wpn-range-sel range (concat "mm.ent.Profiles." prof_index ".BaseRange." range_index) }}}
           {{/each}}
         </div>
         <i>todo: Iterate ranges selection</i>
@@ -40,14 +40,14 @@
         <div class="flexcol card clipped" style="grid-area: 2/2/3/4;">
           <span class="lancer-stat-header major clipped-top">DAMAGE</span>
           {{#each profile.BaseDamage as |damage damage_index|}}
-              {{{wpn-damage-sel damage (concat "mm.ent.Profiles" prof_index ".BaseDamage." damage_index) }}}
+              {{{wpn-damage-sel damage (concat "mm.ent.Profiles." prof_index ".BaseDamage." damage_index) }}}
           {{/each}}
         </div>
 
         {{!-- Description --}}
         <div class="flexcol card clipped" style="grid-area: 3 / 1 / 4 / 4">
           <span class="lancer-stat-header major clipped-top">DESCRIPTION</span>
-          {{editor content=profile.Description target=(concat "mm.ent.Profiles" prof_index "Description") button=true owner=owner editable=editable}}
+          {{editor content=profile.Description target=(concat "mm.ent.Profiles." prof_index ".Description") button=true owner=owner editable=editable}}
         </div>
 
         {{!-- TODO: Item effects --}}

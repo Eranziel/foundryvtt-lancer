@@ -76,7 +76,8 @@ import compareVersions = require("compare-versions");
 import { NpcFeatureType, EntryType, Manufacturer } from "machine-mind";
 import { bonus_array, manufacturer_ref as ref_manufacturer, render_icon, simple_mm_ref } from "./module/helpers/commons";
 import { is_loading } from "machine-mind/dist/classes/mech/EquipUtil";
-import { item_preview, weapon_size_selector, weapon_type_selector, range_editor, pilot_weapon_damage_selector, npc_weapon_damage_selector, weapon_range_preview, weapon_damage_preview, npc_attack_bonus_preview, npc_accuracy_preview, mech_weapon_preview, system_type_selector, effect_type_selector, mech_system_preview, npc_feature_preview, core_system_preview, mech_trait_preview } from "./module/helpers/item";
+import { item_preview, weapon_size_selector, weapon_type_selector, range_editor, npc_weapon_damage_selector, weapon_range_preview, weapon_damage_preview, npc_attack_bonus_preview, npc_accuracy_preview, mech_weapon_preview, system_type_selector, effect_type_selector, mech_system_preview, npc_feature_preview, core_system_preview, mech_trait_preview, damage_editor } from "./module/helpers/item";
+import { mech_loadout } from "./module/helpers/actor";
 
 const lp = LANCER.log_prefix;
 
@@ -302,7 +303,7 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("wpn-size-sel", weapon_size_selector);
   Handlebars.registerHelper("wpn-type-sel", weapon_type_selector);
   Handlebars.registerHelper("wpn-range-sel", range_editor);
-  Handlebars.registerHelper("wpn-damage-sel", pilot_weapon_damage_selector);
+  Handlebars.registerHelper("wpn-damage-sel", damage_editor);
   Handlebars.registerHelper("npc-wpn-damage-sel", npc_weapon_damage_selector);
   Handlebars.registerHelper("wpn-range", weapon_range_preview);
   Handlebars.registerHelper("wpn-damage", weapon_damage_preview);
@@ -357,37 +358,13 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("overcharge-button", overcharge_button);
 
   // ------------------------------------------------------------------------
+  // Mech components
+  Handlebars.registerHelper("mech-loadout", mech_loadout);
+
+  // ------------------------------------------------------------------------
   // NPC components
   Handlebars.registerHelper("tier-selector", npc_tier_selector);
 });
-
-/* ------------------------------------ */
-/* Setup system			            				*/
-/* ------------------------------------ */
-/*
-Hooks.once("setup", async function () {
-  // Do anything after initialization but before ready.
-
-  // Create the faux Comp/Con store.
-  try {
-    // Do some CC magic
-    let store = new CCDataStore(new FauxPersistor(), {
-      disable_core_data: true,
-      shim_fallback_items: true,
-    });
-    setup_store(store);
-    await store.load_all(f => f(store));
-    await reload_store();
-    console.log(`${lp} Comp/Con data store initialized.`);
-  } catch (error) {
-    console.log(`Fatal error loading COMP/CON`);
-    console.log(error);
-    ui.notifications.error(
-      `Warning: COMP/CON has failed to load. You may experience severe data integrity failure`
-    );
-  }
-});
-*/
 
 /* ------------------------------------ */
 /* When ready                           */

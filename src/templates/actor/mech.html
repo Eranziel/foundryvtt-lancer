@@ -59,6 +59,11 @@
   </div>
 
   <div class="flexcol card clipped">
+    <span class="lancer-stat-header major clipped-top">LOADOUT</span>
+    {{{mech-loadout mm.ent.Loadout "mm.ent.Loadout"}}}
+  </div>
+
+  <div class="flexcol card clipped">
     <span class="lancer-stat-header major clipped-top">FRAMES</span>
     {{#each mm.ent.OwnedFrames as |frame|}}
       {{{ref-mm frame}}}

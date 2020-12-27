@@ -50,7 +50,7 @@ export function weapon_size_selector(weapon: MechWeapon, data_target_prefix: str
 }
 
 /**
- * Handlebars helper for weapon type selector. First parameter is the existing selection. Data target is path to where this form item writes to on the weapon
+ * Handlebars helper for weapon type selector. First parameter is the existing selection. 
  */
 export function weapon_type_selector(profile: MechWeaponProfile, data_target_prefix: string) {
   const data_target = `${data_target_prefix}.WepType`;
@@ -68,7 +68,7 @@ export function weapon_type_selector(profile: MechWeaponProfile, data_target_pre
 }
 
 /**
- * Handlebars helper for weapon range selector
+ * Handlebars helper for range type/value editing 
  */
 export function range_editor(
   range: Range,
@@ -87,7 +87,7 @@ export function range_editor(
   let rangetype_options: string[] = [];
   for(let type of Object.values(RangeType)) {
     let is_selected = range.RangeType.toLowerCase() == type.toLowerCase(); // Case tolerant selected
-    rangetype_options.push(`<option value="${RangeType.Range}" ${selected(is_selected)}>${type.toUpperCase()}</option>`);
+    rangetype_options.push(`<option value="${type}" ${selected(is_selected)}>${type.toUpperCase()}</option>`);
 
     // to do icon, would use the following
     let _type_icon = Range.icon_for(type);
@@ -109,70 +109,37 @@ export function range_editor(
   `;
 }
 
-function damage_selector(dmg_type: DamageType, key: number | string, data_target: string) {
-  const dtype = dmg_type!.toLowerCase();
-  let html = '<div class="flexrow flex-center" style="padding: 5px; flex-wrap: nowrap;">';
-
-  if (dmg_type) {
-    html += `<i class="cci cci-${dtype} i--m damage--${dtype}"></i>`;
-  }
-  html += `<select name="${data_target}.type" data-type="String" style="align-self: center;">
-    <option value="" ${!dmg_type ? "selected" : ""}>NONE</option>
-    <option value="${DamageType.Kinetic}" ${
-    dtype === DamageType.Kinetic.toLowerCase() ? "selected" : ""
-  }>KINETIC</option>
-    <option value="${DamageType.Energy}" ${
-    dtype === DamageType.Energy.toLowerCase() ? "selected" : ""
-  }>ENERGY</option>
-    <option value="${DamageType.Explosive}" ${
-    dtype === DamageType.Explosive.toLowerCase() ? "selected" : ""
-  }>EXPLOSIVE</option>
-    <option value="${DamageType.Heat}" ${
-    dtype === DamageType.Heat.toLowerCase() ? "selected" : ""
-  }>HEAT</option>
-    <option value="${DamageType.Burn}" ${
-    dtype === DamageType.Burn.toLowerCase() ? "selected" : ""
-  }>BURN</option>
-    <option value="${DamageType.Variable}" ${
-    dtype === DamageType.Variable.toLowerCase() ? "selected" : ""
-  }>VARIABLE</option>
-  </select>`;
-  return html;
-}
-
 /**
- * Handlebars helper for weapon damage selector
+ * Handlebars helper for weapon damage type/value editing 
  */
-// TODO: Fixup the NONE selected option to be in place
-export function pilot_weapon_damage_selector(
-  dmg_arr: Partial<DamageData>[],
-  key: number | string,
-  data_target: string
-) {
-  if (typeof key == "string") key = Number.parseInt(key);
-  let dmg: Partial<DamageData> = {};
-  if (dmg_arr && Array.isArray(dmg_arr)) {
-    dmg = dmg_arr[key];
+export function damage_editor(damage: Damage, data_target_prefix: string) {
+  let icon_html = `<i class="cci ${damage.Icon} i--m i--dark"></i>`;
+
+  // Build our options
+  let damagetype_options: string[] = [];
+  for(let type of Object.values(DamageType)) {
+    let is_selected = damage.DamageType.toLowerCase() == type.toLowerCase(); // Case tolerant selected
+    damagetype_options.push(`<option value="${type}" ${selected(is_selected)}>${type.toUpperCase()}</option>`);
   }
-  // Default in
-  dmg = {
-    type: DamageType.Kinetic,
-    val: "",
-    ...dmg,
-  };
 
-  let html = damage_selector(dmg.type!, key, data_target);
+  let select_html = `<select name="${data_target_prefix}.DamageType" data-type="String" style="align-self: center;"> 
+    ${damagetype_options.join("\n")} 
+  </select>`;
 
-  html += `
-    <input class="lancer-stat"  name="${data_target}.val" value="${
-    dmg.val ? dmg.val : ""
-  }" data-dtype="String" style="max-width: 80%;"/>
-  </div>`;
-  return html;
+  let input_html = `<input class="lancer-stat" type="string" name="${data_target_prefix}.Value" value="${damage.Value}"
+  data-dtype="String" style="max-width: 80%;"/>`
+
+  return `<div class="flexrow flex-center" style="padding: 5px;">
+    ${icon_html}
+    ${select_html}
+    ${input_html}
+  </div>
+  `;
+  
 }
 
 /**
- * Handlebars helper for weapon damage selector
+ * Handlebars helper for npc weapon damage selector, across all 3 tiers
  */
 export function npc_weapon_damage_selector(
   dmg_arr: NPCDamageData[],
@@ -190,6 +157,37 @@ export function npc_weapon_damage_selector(
     val: ["0", "0", "0"],
     ...dmg,
   };
+
+  function damage_selector(dmg_type: DamageType, key: number | string, data_target: string) {
+    const dtype = dmg_type!.toLowerCase();
+    let html = '<div class="flexrow flex-center" style="padding: 5px; flex-wrap: nowrap;">';
+
+    if (dmg_type) {
+      html += `<i class="cci cci-${dtype} i--m damage--${dtype}"></i>`;
+    }
+    html += `<select name="${data_target}.type" data-type="String" style="align-self: center;">
+      <option value="" ${!dmg_type ? "selected" : ""}>NONE</option>
+      <option value="${DamageType.Kinetic}" ${
+      dtype === DamageType.Kinetic.toLowerCase() ? "selected" : ""
+    }>KINETIC</option>
+      <option value="${DamageType.Energy}" ${
+      dtype === DamageType.Energy.toLowerCase() ? "selected" : ""
+    }>ENERGY</option>
+      <option value="${DamageType.Explosive}" ${
+      dtype === DamageType.Explosive.toLowerCase() ? "selected" : ""
+    }>EXPLOSIVE</option>
+      <option value="${DamageType.Heat}" ${
+      dtype === DamageType.Heat.toLowerCase() ? "selected" : ""
+    }>HEAT</option>
+      <option value="${DamageType.Burn}" ${
+      dtype === DamageType.Burn.toLowerCase() ? "selected" : ""
+    }>BURN</option>
+      <option value="${DamageType.Variable}" ${
+      dtype === DamageType.Variable.toLowerCase() ? "selected" : ""
+    }>VARIABLE</option>
+    </select>`;
+    return html;
+  }
 
   let html = damage_selector(dmg.type!, key, data_target);
 

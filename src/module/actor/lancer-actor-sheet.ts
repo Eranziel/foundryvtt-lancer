@@ -1,13 +1,14 @@
-import { LANCER } from "../config";
-import { HANDLER_onClickRef } from "../helpers/commons";
-import { LancerStatMacroData } from "../interfaces";
+import { LANCER, LancerActorType } from "../config";
+import { gentle_merge, HANDLER_onClickRef } from "../helpers/commons";
+import { LancerActorSheetData, LancerMechSheetData, LancerStatMacroData } from "../interfaces";
+import { mm_wrap_actor } from "../mm-util/helpers";
 import { LancerActor } from "./lancer-actor";
 const lp = LANCER.log_prefix;
 
 /**
  * Extend the basic ActorSheet
  */
-export class LancerActorSheet extends ActorSheet {
+export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
   /**
    * A convenience reference to the Actor entity
    */
@@ -37,7 +38,7 @@ export class LancerActorSheet extends ActorSheet {
     super.activateListeners(html);
 
     // Make refs clickable
-    $(html).find(".ref.clickable").on("click", HANDLER_onClickRef);
+    $(html).find(".ref.valid").on("click", HANDLER_onClickRef);
 
   
      // Everything below here is only needed if the sheet is editable
@@ -221,23 +222,78 @@ export class LancerActorSheet extends ActorSheet {
     return formData;
   }
 
-  _propagateMMData(formData: any) {
+  _propagateMMData(formData: any): boolean {
     // Pushes relevant field data down from the "actor" data block to the "mm.ent" data block
     // Also meant to encapsulate all of the behavior of _updateTokenImage
+    // Returns true if any of these top level fields require updating (i.e. do we need to .update({img: ___, token: __, etc}))
     let token: any = this.actor.data["token"];
+    let needs_update = false;
 
     // Set the prototype token image if the prototype token isn't initialized
     if (!token) {
       formData["actor.token.img"] = formData["actor.img"];
+      needs_update = true;
     }
 
     // Update token image if it matches the old actor image
     else if (this.actor.data.img === token["img"] && this.actor.img !== formData["actor.img"]) {
       formData["actor.token.img"] = formData["actor.img"];
+      needs_update = true;
     } // Otherwise don't update image
+
+    // Need to update if name changed
+    if(this.actor.name != formData["actor.name"]) {
+      needs_update = true;
+    }
 
     // Do push down name changes
     formData["mm.ent.Name"] = formData["actor.name"];
-    return formData;
+    return needs_update;
   }
+
+  /**
+   * Implement the _updateObject method as required by the parent class spec
+   * This defines how to update the subject of the form when the form is submitted
+   * @private
+   */
+  async _updateObject(event: Event | JQuery.Event, formData: any): Promise<any> {
+    // Fetch the curr data
+    let ct = await this.getDataLazy();
+
+    // Automatically propagate fields that should be set to multiple places
+    let should_top_update = this._propagateMMData(formData);
+
+    // Locally update our working data
+    gentle_merge(ct, formData);
+
+    // Update top level. Handles name + token changes, etc
+    if(should_top_update) {
+      await this.actor.update(ct.actor);
+    }
+
+    // And then do a mm level writeback, always
+    return ct.mm.ent.writeback();
+  }
+
+  /**
+   * Prepare data for rendering the Actor sheet
+   * The prepared data object contains both the actor data as well as additional sheet options
+   */
+  //@ts-ignore
+  async getData(): Promise<LancerActorSheetData<T>> {
+    const data = (await super.getData()) as LancerActorSheetData<T>; // Not fully populated yet!
+
+    // Load mech meta stuff
+    data.mm = await mm_wrap_actor(this.actor as LancerActor<T>);
+    console.log(`${lp} Actor ctx: `, data.mm);
+    this._currData = data;
+    return data;
+  }
+
+  // Cached getdata
+  private _currData: LancerActorSheetData<T> | null = null;
+  async getDataLazy(): Promise<LancerActorSheetData<T>> {
+    return this._currData ?? (await this.getData());
+  }
+
 }

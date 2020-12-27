@@ -61,7 +61,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
     super.activateListeners(html);
 
     // Make refs clickable
-    $(html).find(".ref.clickable").on("click", HANDLER_onClickRef);
+    $(html).find(".ref.valid").on("click", HANDLER_onClickRef);
 
     // Everything below here is only needed if the sheet is editable
     if (!this.options.editable) return;
@@ -309,8 +309,10 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
   // Helper function for making fields effectively target multiple attributes
   _propagateMMData(formData: any) {
     // Pushes relevant field data down from the "item" data block to the "mm.ent" data block
+    // Returns true if any of these top level fields require updating (i.e. do we need to .update({img: ___, name: __, etc}))
     formData["mm.ent.Name"] = formData["item.name"];
-    return formData;
+
+    return this.item.img != formData["item.img"] || this.item.name != formData["item.name"];
   }
 
   /**
@@ -321,7 +323,13 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
   async _updateObject(event: Event | JQuery.Event, formData: any): Promise<any> {
     // Fetch data, modify, and writeback
     let ct = await this.getDataLazy();
+
+    let need_top_update = this._propagateMMData(formData);
     gentle_merge(ct, formData);
+
+    if(need_top_update) {
+      await this.item.update(ct.item, undefined);
+    }
     return ct.mm.ent.writeback();
   }
 

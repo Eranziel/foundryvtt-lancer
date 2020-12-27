@@ -33,6 +33,7 @@ export class LancerFrameSheet extends LancerItemSheet<EntryType.FRAME> {
     let trait = await new FrameTrait(mm.reg, mm.ctx, defaults.FRAME_TRAIT()).ready();
     mm.ent.Traits.push(trait);
     await mm.ent.writeback();
+    this.render();
   }
 
   // Delete a frame trait when the trashcan is pressed
@@ -50,6 +51,7 @@ export class LancerFrameSheet extends LancerItemSheet<EntryType.FRAME> {
     data.mm.ent.Traits = traits;
 
     await data.mm.ent.writeback();
+    this.render();
   }
 
   // Handle the "delete" option of the mounts

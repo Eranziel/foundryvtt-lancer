@@ -29,7 +29,7 @@ import {
   RegPilotData,
   RegSkillData,
 } from "machine-mind";
-import { FoundryRegItemData } from "./mm-util/foundry-reg";
+import { FoundryRegActorData, FoundryRegItemData } from "./mm-util/foundry-reg";
 import { MMEntityContext, abracadabra } from "./mm-util/helpers";
 
 // ------------------------------------------------------
@@ -211,8 +211,8 @@ declare interface LancerMechActorData extends ActorData {
 // Derived/consolidated data for a mech actor, used by handlebars template.
 declare interface LancerMechSheetData extends ActorSheetData {
   actor: LancerMechActorData;
-  items: Item[];
   data: LancerMechData;
+  items: Item[];
 
   // reg ctx
   mm: MMEntityContext<EntryType.MECH>;
@@ -314,10 +314,19 @@ declare interface LancerMechEquipmentData {
   // frame_id: boolean;
 }
 
-// This single generic type should cover all other use cases
+// These single generic type should cover all basic sheet use cases
 export type LancerItemSheetData<T extends EntryType> = {
   item: FoundryRegItemData<T>;
   data: RegEntryTypes<T>;
+
+  // reg ctx
+  mm: MMEntityContext<T>;
+};
+
+export type LancerActorSheetData<T extends EntryType> = {
+  actor: FoundryRegActorData<T>;
+  data: RegEntryTypes<T>;
+  items: Item[];
 
   // reg ctx
   mm: MMEntityContext<T>;

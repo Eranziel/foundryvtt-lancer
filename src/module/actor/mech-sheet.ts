@@ -6,13 +6,13 @@ import { EntryType, OpCtx } from "machine-mind";
 import { LancerActor, LancerMech } from "./lancer-actor";
 import { LancerItem } from "../item/lancer-item";
 import { MMEntityContext, mm_wrap_actor, mm_wrap_item } from "../mm-util/helpers";
-import { gentle_merge, HANDLER_onClickRef } from "../helpers/commons";
+import { enable_dragging, enable_dropping, gentle_merge, HANDLER_onClickRef, recreate_ref_element_ref } from "../helpers/commons";
 const lp = LANCER.log_prefix;
 
 /**
  * Extend the basic ActorSheet
  */
-export class LancerMechSheet extends LancerActorSheet {
+export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
   /**
    * Extend and override the default options used by the NPC Sheet
    * @returns {Object}
@@ -22,7 +22,7 @@ export class LancerMechSheet extends LancerActorSheet {
       classes: ["lancer", "sheet", "actor", "npc"],
       template: "systems/lancer/templates/actor/mech.html",
       width: 800,
-      height: 800,
+      height: 800
     });
   }
 
@@ -38,58 +38,46 @@ export class LancerMechSheet extends LancerActorSheet {
 
     // Everything below here is only needed if the sheet is editable
     if (!this.options.editable) return;
-  }
 
+    /* ---------- Drag items from inventory to inv slots TODO: GENERALIZE??? Mostly alreaady generic.... ----- */
+    enable_dragging(html.find(".ref"), (drag_src) => {
+      // Drag a JSON ref
+      let ref = recreate_ref_element_ref(drag_src[0]);
+      console.log("Dragging ref:", ref);
+      return JSON.stringify(ref);
+    });
+
+
+    enable_dropping(html.find(".refdrop"), async (ref_json, src, dest, evt) => {
+      let recon_ref = JSON.parse(ref_json);
+      console.log("Dropping ref:", recon_ref);
+      
+      // Resolve!
+      let path = dest[0].dataset.path!;
+
+      // Spawn an event to write and save
+      let data = await this.getDataLazy();
+      let ctx = data.mm.ctx; // Re-use ctx, for efficiency's sake
+      let resolved = await (new FoundryReg()).resolve(ctx, recon_ref);
+
+      // Set and save. Use gentle merge for data path resolution
+      gentle_merge(data, {[path]: resolved});
+      await data.mm.ent.writeback();
+    }, 
+    (orig, dest) => {
+      let src_type = orig[0].dataset.type;
+      let dest_type = orig[0].dataset.type;
+      console.log(`src: ${src_type}, dest: ${dest_type}`);
+      return orig[0].dataset.type == dest[0].dataset.type; // Simply confirm same type
+    });
+    /* -------------------------------------------------------- */
+    
+  }
   /* -------------------------------------------- */
-
-  /**
-   * Prepare data for rendering the Actor sheet
-   * The prepared data object contains both the actor data as well as additional sheet options
-   */
-  //@ts-ignore
-  async getData(): Promise<LancerMechSheetData> {
-    const data = super.getData() as LancerMechSheetData; // Not fully populated yet!
-
-    // Load mech meta stuff
-    data.mm = await mm_wrap_actor(this.actor as LancerMech);
-    console.log(`${lp} Mech ctx: `, data.mm);
-    this._currData = data;
-    return data;
-  }
-
-  // Cache
-  private _currData: LancerMechSheetData | null = null;
-  private async getDataLazy(): Promise<LancerMechSheetData> {
-    return this._currData ?? (await this.getData());
-  }
-
-  /**
-   * Implement the _updateObject method as required by the parent class spec
-   * This defines how to update the subject of the form when the form is submitted
-   * @private
-   */
-  async _updateObject(event: Event | JQuery.Event, formData: any): Promise<any> {
-    // Fetch the curr data
-    let ct = await this.getDataLazy();
-
-    // Automatically propagate fields that should be set to multiple places
-    this._propagateMMData(formData);
-
-    // console.log("Pre merge traits:", ct.mm.ent.Traits);
-    // console.log("Form data", formData);
-    gentle_merge(ct, formData);
-    // console.log("Post merge:", ct.mm.ent);
-    // console.log("Post merge traits:", ct.mm.ent.Traits);
-
-    // Update top level. Handles name + token changes, etc
-    this.actor.update(ct.actor);
-
-    // And then do a mm level writeback
-    return ct.mm.ent.writeback();
-  }
 
   // Let people add stuff to the mech
   async _onDrop(event: any): Promise<any> {
+    console.log("Old on drop");
     let item: LancerItem<any> | null = await super._onDrop(event);
     if (!item) {
       return null; // Bail. Wouldn't want any children to deal with this either.
