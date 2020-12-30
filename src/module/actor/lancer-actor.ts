@@ -157,6 +157,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
    * Prepare any derived data which is actor-specific and does not depend on Items or Active Effects
    */
   prepareBaseData() {
+    console.log("Prepare base", this.data.name, this.data);
     // switch ( this.data.type ) {
       // case EntryType.PILOT:
         // break;
@@ -171,7 +172,6 @@ export class LancerActor<T extends LancerActorType> extends Actor {
 
   /** @override */
   prepareDerivedData() {
-
   }
 }
 
@@ -251,19 +251,5 @@ export function npc_tier_selector(tier: number) {
       tier != 1 && tier != 2 && tier != 3 ? "selected" : ""
     }>CUSTOM</option>
   </select>`;
-  return template;
-}
-
-/**
- * Handlebars helper for an overcharge button
- * Currently this is overkill, but eventually we want to support custom overcharge values
- * @param level Level of overcharge, between 0 (1) and 3 (1d6+4)
- */
-export function overcharge_button(level: number) {
-  let template = `<div class="overcharge-container">
-      <a class="overcharge-button" style="width:90%;height:90%">
-        1
-      </a>
-    </div>`;
   return template;
 }
