@@ -1106,28 +1106,64 @@ input.core-power-toggle:not(:checked)::before
   border: none;
 }
 
+/* Some flex helpers */
 .wraprow {
   display: flex;
   flex-wrap: wrap;
 }
 
-/* Some flex helpers */
-.quad-item {
-  flex: 1 0 calc(25% - 20px); /* the px here is 2x the margin. adjust accordingly */
-  margin: 10px;
+/* Three items per row */
+.wraprow.trip > * {
+  flex: 1 0 calc(33% - 14px); /* the px here is 2x the margin. adjust accordingly */
+  margin: 7px;
 }
 
-.dub-quad-item {
-  flex: 1 0 calc(50% - 20px); /* the px here is 2x the margin. adjust accordingly */
-  margin: 10px;
+/* Takes up 2/3 row slots */
+.wraprow.trip > .double {
+  flex: 1 0 calc(66% - 14px); 
+  margin: 7px;
 }
 
-.quint-item {
-  flex: 1 0 calc(20% - 16px); 
-  margin: 8px;
+/* 3/3. However, we generalize */
+.wraprow > .full {
+  flex: 1 0 calc(100% - 14px); 
+  margin: 7px;
 }
 
-.dub-quint-item {
-  flex: 1 0 calc(50% - 20px); /* the px here is 2x the margin. adjust accordingly */
-  margin: 10px;
+/* Four items per row */
+.wraprow.quad > * {
+  flex: 1 0 calc(25% - 14px); 
+  margin: 7px;
+}
+
+/* Doublewidth quad item */
+.wraprow.quad > .double {
+  flex: 1 0 calc(50% - 14px); 
+  margin: 7px;
+}
+
+/* Triplewidth quad item */
+.wraprow.quad > .triple {
+  flex: 1 0 calc(50% - 14px);
+  margin: 7px;
+}
+
+.wraprow.quint > * {
+  flex: 1 0 calc(20% - 14px); 
+  margin: 7px;
+}
+
+.wraprow.quint > .double {
+  flex: 1 0 calc(40% - 14px); 
+  margin: 7px;
+}
+
+.wraprow.quint > .triple {
+  flex: 1 0 calc(60% - 14px); 
+  margin: 7px;
+}
+
+.wraprow.quint > .quadruple {
+  flex: 1 0 calc(80% - 14px); 
+  margin: 7px;
 }
