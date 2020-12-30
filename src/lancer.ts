@@ -72,7 +72,6 @@ import * as macros from "./module/macros";
 import compareVersions = require("compare-versions");
 import { NpcFeatureType, EntryType, Manufacturer } from "machine-mind";
 import {
-  bonus_array,
   manufacturer_ref as ref_manufacturer,
   render_icon,
   resolve_dotpath,
@@ -97,6 +96,7 @@ import {
   core_system_preview,
   mech_trait_preview,
   damage_editor,
+  bonus_array,
 } from "./module/helpers/item";
 import { actor_slot, clicker_num_input, clicker_stat_card, compact_stat_edit, compact_stat_view, mech_loadout, overcharge_button, stat_edit_card, stat_edit_card_max, stat_view_card } from "./module/helpers/actor";
 import { HelperOptions } from "handlebars";
@@ -214,6 +214,12 @@ Hooks.once("init", async function () {
   // rp, to resolve path values strs. Helps use effectively half as many arguments for many helpers/partials
   Handlebars.registerHelper("rp", function(path: string, options: HelperOptions) {
     return resolve_dotpath(options.data?.root, path);
+  });
+
+  // get-set, to resolve situations wherein we read and write to the same path via "value" and "name" element properties
+  Handlebars.registerHelper("getset", function(path: string, options: HelperOptions) {
+    let value = resolve_dotpath(options.data?.root, path);
+    return ` name="${path}" value="${value}" `;
   });
 
   // get an index from an array
