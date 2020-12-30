@@ -1105,3 +1105,13 @@ input.core-power-toggle:not(:checked)::before
   color: var(--main-theme-color, fuchsia);
   border: none;
 }
+
+.quadrow {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.quaditem {
+  flex: 1 0 calc(25% - 20px); /* the 10px is 2x the margin. adjust accordingly */
+  margin: 10px;
+}
