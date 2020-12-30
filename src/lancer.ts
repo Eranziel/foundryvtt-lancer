@@ -72,10 +72,10 @@ import * as macros from "./module/macros";
 import compareVersions = require("compare-versions");
 import { NpcFeatureType, EntryType, Manufacturer } from "machine-mind";
 import {
-  actor_slot,
   bonus_array,
   manufacturer_ref as ref_manufacturer,
   render_icon,
+  resolve_dotpath,
   simple_mm_ref,
 } from "./module/helpers/commons";
 import { is_loading } from "machine-mind/dist/classes/mech/EquipUtil";
@@ -98,7 +98,8 @@ import {
   mech_trait_preview,
   damage_editor,
 } from "./module/helpers/item";
-import { mech_loadout } from "./module/helpers/actor";
+import { actor_slot, mech_loadout } from "./module/helpers/actor";
+import { HelperOptions } from "handlebars";
 
 const lp = LANCER.log_prefix;
 
@@ -210,6 +211,11 @@ Hooks.once("init", async function () {
     return values.slice(0, values.length - 1).join("");
   });
 
+  // rp, to resolve path values strs. Helps use effectively half as many arguments for many helpers/partials
+  Handlebars.registerHelper("rp", function(path: string, options: HelperOptions) {
+    return resolve_dotpath(options.data?.root, path);
+  });
+
   // get an index from an array
   Handlebars.registerHelper("idx", function (array, index) {
     return array[index];
@@ -274,7 +280,7 @@ Hooks.once("init", async function () {
 
   // ------------------------------------------------------------------------
   // Generic components
-  Handlebars.registerHelper("icon", render_icon);
+  Handlebars.registerHelper("light-icon", render_icon);
 
   Handlebars.registerHelper("l-num-input", function (target: string, value: string) {
     // Init value to 0 if it doesn't exist

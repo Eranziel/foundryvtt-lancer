@@ -20,37 +20,36 @@
 
   {{!-- Frame Stats --}}
   {{#*inline "stat-edit"}}
-    <div class="flexcol card clipped quaditem">
+    <div class="flexcol card clipped quad-item">
       <div class="lancer-stat-header clipped-top flexrow">
-        <i class="{{icon}} i--m i--light" style="float: left; padding-left: 10px"> </i>
+        <i class="{{icon}} i--m i--light" styles="float: left; padding-left: 10px"> </i>
         <span class="major">{{title}}</span>
       </div>
-      {{{l-num-input path value}}}
+      {{{l-num-input path (rp path)}}}
     </div>
   {{/inline}}
 
-  <div class="card clipped mech-stats quadrow" style="display: flex; flex-wrap: wrap;">
-    {{> stat-edit title="HP"          icon="mdi mdi-heart-outline" value=mm.ent.Stats.hp path="mm.ent.Stats.hp" }}
-    {{> stat-edit title="ARMOR"       icon="mdi mdi-shield-outline" value=mm.ent.Stats.armor path="mm.ent.Stats.armor" }}
-    {{> stat-edit title="REPAIRS"     icon="cci cci-repair" value=mm.ent.Stats.repcap path="mm.ent.Stats.repcap" }}
-    {{> stat-edit title="EVASION"     icon="cci cci-evasion" value=mm.ent.Stats.evasion path="mm.ent.Stats.evasion" }}
-    {{> stat-edit title="E-DEF"       icon="cci cci-edef" value=mm.ent.Stats.edef path="mm.ent.Stats.edef" }}
-    {{> stat-edit title="HEAT CAP"    icon="cci cci-heatcap" value=mm.ent.Stats.heatcap path="mm.ent.Stats.heatcap" }}
-    {{> stat-edit title="SPEED"       icon="mdi mdi-arrow-right-bold-hexagon-outline" value=mm.ent.Stats.speed path="mm.ent.Stats.speed" }}
-    {{> stat-edit title="TECH ATK"    icon="cci cci-tech-full" value=mm.ent.Stats.tech_attack path="mm.ent.Stats.tech_attack" }}
-    {{> stat-edit title="SENSORS"     icon="cc-sensor" value=mm.ent.Stats.sensor_range path="mm.ent.Stats.sensor_range" }}
-    {{> stat-edit title="SAVE"        icon="cci cci-save" value=mm.ent.Stats.save path="mm.ent.Stats.save" }}
-    {{> stat-edit title="SYS POINTS"  icon="cci cci-system" value=mm.ent.Stats.sp path="mm.ent.Stats.sp" }}
-    {{#if frame_size}}
-      <div style="grid-area: 2/5/4/6"><i class="cci cci-{{frame_size}} size-icon theme--main"></i></div>
-    {{/if}}
+  <div class="card clipped mech-stats wraprow" style="display: flex; flex-wrap: wrap;">
+    {{> stat-edit title="HP"          icon="mdi mdi-heart-outline" path="mm.ent.Stats.hp" }}
+    {{> stat-edit title="ARMOR"       icon="mdi mdi-shield-outline" path="mm.ent.Stats.armor" }}
+    {{> stat-edit title="REPAIRS"     icon="cci cci-repair" path="mm.ent.Stats.repcap" }}
+    {{> stat-edit title="EVASION"     icon="cci cci-evasion" path="mm.ent.Stats.evasion" }}
+    {{> stat-edit title="E-DEF"       icon="cci cci-edef" path="mm.ent.Stats.edef" }}
+    {{> stat-edit title="HEAT CAP"    icon="cci cci-heatcap" path="mm.ent.Stats.heatcap" }}
+    {{> stat-edit title="SPEED"       icon="mdi mdi-arrow-right-bold-hexagon-outline" path="mm.ent.Stats.speed" }}
+    {{> stat-edit title="TECH ATK"    icon="cci cci-tech-full" path="mm.ent.Stats.tech_attack" }}
+    {{> stat-edit title="SENSORS"     icon="cci cci-sensor" path="mm.ent.Stats.sensor_range" }}
+    {{> stat-edit title="SAVE"        icon="cci cci-save" path="mm.ent.Stats.save" }}
+    {{> stat-edit title="SYS POINTS"  icon="cci cci-system" path="mm.ent.Stats.sp" }}
+    {{!-- {{> stat-edit title="SIZE"  icon=(concat "cci cci-" mm.ent.Stats.size " size-icon theme--main") path="mm.ent.Stats.size" }} --}}
+    {{> stat-edit title="SIZE"        icon="cci cci-hexagon" path="mm.ent.Stats.size" }}
   </div>
 
   {{!-- Mounts --}}
-  <div class="arrayed-item-container flexcol">
+  <div class="flexcol">
     <div>
       <span class="minor" style="float: left">AVAILABLE WEAPON MOUNTS</span>
-      <a id="add-mount-button" class="add-button clickable" style="float: right; margin-right: 1em">+</a>
+      <a id="add-mount-button" class="add-button" style="float: right; margin-right: 1em">+</a>
     </div>
     <div class="flexrow">
       {{#each mm.ent.Mounts as |mount key|}}
@@ -82,9 +81,11 @@
     {{#each mm.ent.Traits as |trait key|}}
       <li class="card clipped frame-trait-compact" data-key="{{key}}">
         <div class="lancer-mech-trait-header medium clipped-top" style="grid-area: 1/1/2/2">
-          {{{icon "cci-trait"}}}
+          <i class="cci cci-trait i--m i--light" styles="float: left; padding-left: 10px"> </i>
           <input class="lancer-invisible-input major i--light" name="mm.ent.Traits.{{key}}.Name" value="{{trait.Name}}" data-dtype="String" />
-          <a class="remove-button fa fa-trash" data-index="{{key}}" style="float: right; margin-right: 11px; margin-top: 2px;"></a>
+          <a class="remove-button" data-index="{{key}}" style="float: right; margin-right: 11px; margin-top: 2px;">
+            <i class="fas fa-trash"></i>
+          </a>
         </div>
         <textarea class="lancer-invisible-input effect-text" name="mm.ent.Traits.{{key}}.Description" data-dtype="String" style="grid-area: 2/1/3/2">{{trait.Description}}</textarea>
         {{{bonuses-editor (concat "mm.ent.Traits." key ".Bonuses") trait.Bonuses}}}

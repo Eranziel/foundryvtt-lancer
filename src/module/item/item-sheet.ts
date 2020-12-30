@@ -5,7 +5,7 @@ import { ActivationType, DamageType, NpcFeatureType } from "machine-mind";
 import { ChargeData, ChargeEffectData } from "./effects";
 import { mm_wrap_item } from "../mm-util/helpers";
 import { LancerItem } from "./lancer-item";
-import { gentle_merge, HANDLER_onClickRef } from "../helpers/commons";
+import { gentle_merge, HANDLER_onClickRef, resolve_dotpath } from "../helpers/commons";
 
 const lp = LANCER.log_prefix;
 
@@ -130,7 +130,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
     const action = a.data("action");
     const itemString = a.parents(".arrayed-item-container").data("item");
     console.log(itemString);
-    const baseArr = getValue(this, "object.data.data." + itemString);
+    const baseArr = resolve_dotpath(this, "object.data.data." + itemString);
     if (!baseArr) {
       itemArr = [];
     } else {
@@ -354,11 +354,3 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
   }
 }
 
-// Helper function to get arbitrarily deep array references
-function getValue(object: any, path: string) {
-  return path
-    .replace(/\[/g, ".")
-    .replace(/]/g, "")
-    .split(".")
-    .reduce((o, k) => (o || {})[k], object);
-}

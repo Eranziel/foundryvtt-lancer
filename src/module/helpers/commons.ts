@@ -446,12 +446,6 @@ export function ref_drop_box(inner: string, data_path: string, accepts_type: Ent
 // return ref_drop_box(inner, data_path, accepts_type);
 // }
 
-// Create a div with flags for dropping native dragged refs (IE foundry behavior, drag from actor list, etc)
-export function actor_slot<T extends LancerActorType>(existing: LiveEntryTypes<T>, data_path: string, accepts_type: T): string {
-  return `<div class="native-refdrop" data-path="${data_path}" data-type="${accepts_type}">${simple_mm_ref(existing)}</div>`;
-}
-
-
 ///////////////////// MISC ////////////////////////////
 
 // JSON parses a string, returning null instead of an exception on a failed parse
@@ -579,4 +573,13 @@ export async function resolve_native_drop(event_data: string): Promise<ResolvedN
 
     // All else fails
     return null;
+}
+
+// Helper function to get arbitrarily deep array references
+export function resolve_dotpath(object: any, path: string) {
+  return path
+    .replace(/\[/g, ".")
+    .replace(/]/g, "")
+    .split(".")
+    .reduce((o, k) => o?.[k], object);
 }

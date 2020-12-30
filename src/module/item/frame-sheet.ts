@@ -1,4 +1,4 @@
-import { EntryType, FrameTrait } from "machine-mind";
+import { EntryType, FrameTrait, MountType } from "machine-mind";
 import { defaults } from "machine-mind/dist/funcs";
 import { LancerItemSheetData } from "../interfaces";
 import { gentle_merge } from "../helpers/commons";
@@ -38,8 +38,6 @@ export class LancerFrameSheet extends LancerItemSheet<EntryType.FRAME> {
 
   // Delete a frame trait when the trashcan is pressed
   async _onDeleteFrameTrait(event: any) {
-    event.preventDefault();
-
     // Get the index
     const elt = event.currentTarget;
     const index = elt.dataset.index;
@@ -54,10 +52,16 @@ export class LancerFrameSheet extends LancerItemSheet<EntryType.FRAME> {
     this.render();
   }
 
+  // Make a mount trait when the button is pressed
+  async _onCreateMount(event: any) {
+    // Just push on a main
+    let data = await this.getDataLazy();
+    data.mm.ent.Mounts.push(MountType.Main);
+    return data.mm.ent.writeback();
+  }
+
   // Handle the "delete" option of the mounts
   async _onChangeMount(event: any) {
-    event.preventDefault();
-
     // Get the index
     const elt = $(event.currentTarget);
     const index = elt.prop("index");
@@ -76,6 +80,9 @@ export class LancerFrameSheet extends LancerItemSheet<EntryType.FRAME> {
 
       // No need to submit
       event.stopPropagation();
+
+      // But do need to refresh
+      this.render();
     }
   }
 
@@ -95,7 +102,7 @@ export class LancerFrameSheet extends LancerItemSheet<EntryType.FRAME> {
     traits.find(".add-button").on("click", e => this._onCreateFrameTrait(e));
     traits.find(".remove-button").on("click", e => this._onDeleteFrameTrait(e));
 
-    let mounts = html.find("#mounts");
-    mounts.find("select").on("change", e => this._onChangeMount(e));
+    html.find(".mount-selector").on("change", e => this._onChangeMount(e));
+    html.find("#add-mount-button").on("click", e => this._onCreateMount(e));
   }
 }

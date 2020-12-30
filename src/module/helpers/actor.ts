@@ -1,6 +1,7 @@
+import { HelperOptions } from "handlebars";
 import { EntryType, LiveEntryTypes, Mech, MechLoadout } from "machine-mind";
 import { LancerActorType } from "../config";
-import { ref_drop_box, simple_mm_ref } from "./commons";
+import { ref_drop_box, resolve_dotpath, simple_mm_ref } from "./commons";
 
 // A drag-drop slot for a frame.
 export function frame_slot(loadout: MechLoadout, loadout_path: string): string {
@@ -58,7 +59,10 @@ export function mech_loadout(loadout: MechLoadout, loadout_path: string): string
     </span>`;
 }
 
-/**
- * Create a drop box for the pilot, as dragged from the actor list
- */
-export function mech_pilot_slot(mech: Mech, mech_path: string) {}
+// Create a div with flags for dropping native dragged refs (IE foundry behavior, drag from actor list, etc)
+export function actor_slot<T extends LancerActorType>(data_path: string, accepts_type: T, options: HelperOptions): string {
+  // get the existing
+  let existing = resolve_dotpath(options.data?.root, data_path);
+  return `<div class="native-refdrop" data-path="${data_path}" data-type="${accepts_type}">${simple_mm_ref(existing)}</div>`;
+}
+

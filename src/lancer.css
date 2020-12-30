@@ -1106,12 +1106,28 @@ input.core-power-toggle:not(:checked)::before
   border: none;
 }
 
-.quadrow {
+.wraprow {
   display: flex;
   flex-wrap: wrap;
 }
 
-.quaditem {
-  flex: 1 0 calc(25% - 20px); /* the 10px is 2x the margin. adjust accordingly */
+/* Some flex helpers */
+.quad-item {
+  flex: 1 0 calc(25% - 20px); /* the px here is 2x the margin. adjust accordingly */
+  margin: 10px;
+}
+
+.dub-quad-item {
+  flex: 1 0 calc(50% - 20px); /* the px here is 2x the margin. adjust accordingly */
+  margin: 10px;
+}
+
+.quint-item {
+  flex: 1 0 calc(20% - 16px); 
+  margin: 8px;
+}
+
+.dub-quint-item {
+  flex: 1 0 calc(50% - 20px); /* the px here is 2x the margin. adjust accordingly */
   margin: 10px;
 }
