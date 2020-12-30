@@ -95,7 +95,14 @@
       "pilot": null,
       "portrait": "",
       "reactions": [],
-      "resistances": []
+      "resistances": {
+        "Kinetic": false,
+        "Energy": false,
+        "Explosive": false,
+        "Heat": false,
+        "Burn": false,
+        "Variable": false
+      }
     }
   },
   "Item": {
