@@ -19,30 +19,19 @@
   </div>
 
   {{!-- Frame Stats --}}
-  {{#*inline "stat-edit"}}
-    <div class="flexcol card clipped quad-item">
-      <div class="lancer-stat-header clipped-top flexrow">
-        <i class="{{icon}} i--m i--light" styles="float: left; padding-left: 10px"> </i>
-        <span class="major">{{title}}</span>
-      </div>
-      {{{l-num-input path (rp path)}}}
-    </div>
-  {{/inline}}
-
-  <div class="card clipped mech-stats wraprow" style="display: flex; flex-wrap: wrap;">
-    {{> stat-edit title="HP"          icon="mdi mdi-heart-outline" path="mm.ent.Stats.hp" }}
-    {{> stat-edit title="ARMOR"       icon="mdi mdi-shield-outline" path="mm.ent.Stats.armor" }}
-    {{> stat-edit title="REPAIRS"     icon="cci cci-repair" path="mm.ent.Stats.repcap" }}
-    {{> stat-edit title="EVASION"     icon="cci cci-evasion" path="mm.ent.Stats.evasion" }}
-    {{> stat-edit title="E-DEF"       icon="cci cci-edef" path="mm.ent.Stats.edef" }}
-    {{> stat-edit title="HEAT CAP"    icon="cci cci-heatcap" path="mm.ent.Stats.heatcap" }}
-    {{> stat-edit title="SPEED"       icon="mdi mdi-arrow-right-bold-hexagon-outline" path="mm.ent.Stats.speed" }}
-    {{> stat-edit title="TECH ATK"    icon="cci cci-tech-full" path="mm.ent.Stats.tech_attack" }}
-    {{> stat-edit title="SENSORS"     icon="cci cci-sensor" path="mm.ent.Stats.sensor_range" }}
-    {{> stat-edit title="SAVE"        icon="cci cci-save" path="mm.ent.Stats.save" }}
-    {{> stat-edit title="SYS POINTS"  icon="cci cci-system" path="mm.ent.Stats.sp" }}
-    {{!-- {{> stat-edit title="SIZE"  icon=(concat "cci cci-" mm.ent.Stats.size " size-icon theme--main") path="mm.ent.Stats.size" }} --}}
-    {{> stat-edit title="SIZE"        icon="cci cci-hexagon" path="mm.ent.Stats.size" }}
+  <div class="card clipped mech-stats wraprow quad">
+    {{{clicker-stat-card "HP"          "mdi mdi-heart-outline"     "mm.ent.Stats.hp" }}}
+    {{{clicker-stat-card "ARMOR"       "mdi mdi-shield-outline"    "mm.ent.Stats.armor" }}}
+    {{{clicker-stat-card "REPAIRS"     "cci cci-repair"            "mm.ent.Stats.repcap" }}}
+    {{{clicker-stat-card "EVASION"     "cci cci-evasion"           "mm.ent.Stats.evasion" }}}
+    {{{clicker-stat-card "E-DEF"       "cci cci-edef"              "mm.ent.Stats.edef" }}}
+    {{{clicker-stat-card "HEAT CAP"    "cci cci-heatcap"           "mm.ent.Stats.heatcap" }}}
+    {{{clicker-stat-card "SPEED"       "mdi mdi-arrow-right-bold-hexagon-outline" "mm.ent.Stats.speed" }}}
+    {{{clicker-stat-card "TECH ATK"    "cci cci-tech-full"         "mm.ent.Stats.tech_attack" }}}
+    {{{clicker-stat-card "SENSORS"     "cci cci-sensor"            "mm.ent.Stats.sensor_range" }}}
+    {{{clicker-stat-card "SAVE"        "cci cci-save"              "mm.ent.Stats.save" }}}
+    {{{clicker-stat-card "SYS POINTS"  "cci cci-system"            "mm.ent.Stats.sp" }}}
+    {{{clicker-stat-card "SIZE"        "cci cci-hexagon"           "mm.ent.Stats.size" }}}
   </div>
 
   {{!-- Mounts --}}

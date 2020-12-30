@@ -1,6 +1,6 @@
 import { LANCER } from "../config";
 import { LancerActorSheet } from "./lancer-actor-sheet";
-import { EntryType, OpCtx, RegRef } from "machine-mind";
+import { EntryType, funcs, OpCtx, RegRef } from "machine-mind";
 import { LancerItem } from "../item/lancer-item";
 import { MMEntityContext, mm_wrap_actor, mm_wrap_item } from "../mm-util/helpers";
 
@@ -33,6 +33,14 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
 
     // Everything below here is only needed if the sheet is editable
     if (!this.options.editable) return;
+
+
+    // Overcharge
+    html.find("#overcharge-button").on("click", (ev: JQuery.ClickEvent) => {
+      this._onClickOvercharge(ev);
+    });
+
+
   }
   /* -------------------------------------------- */
 
@@ -86,5 +94,19 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
 
     // Always return the item if we haven't failed for some reason
     return item;
+  }  
+  
+  /**
+   * Handles the overcharge button being clicked
+   */
+  async _onClickOvercharge(event: JQuery.ClickEvent) {
+    let data = await this.getDataLazy();
+    let old = data.mm.ent.CurrentOvercharge;
+
+    // TODO: Actually do overcharge heat rolls
+    console.log("Overcharge", old+1);
+    data.mm.ent.CurrentOvercharge = old + 1;
+    await data.mm.ent.writeback();
+    this.render();
   }
 }

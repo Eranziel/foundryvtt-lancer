@@ -45,7 +45,7 @@ import {
 } from "./module/item/effects";
 
 // Import applications
-import { LancerPilotSheet, overcharge_button } from "./module/actor/pilot-sheet";
+import { LancerPilotSheet } from "./module/actor/pilot-sheet";
 import { LancerNPCSheet } from "./module/actor/npc-sheet";
 import { LancerDeployableSheet } from "./module/actor/deployable-sheet";
 import { LancerMechSheet } from "./module/actor/mech-sheet";
@@ -98,7 +98,7 @@ import {
   mech_trait_preview,
   damage_editor,
 } from "./module/helpers/item";
-import { actor_slot, mech_loadout } from "./module/helpers/actor";
+import { actor_slot, clicker_num_input, clicker_stat_card, compact_stat_edit, compact_stat_view, mech_loadout, overcharge_button, stat_edit_card, stat_edit_card_max, stat_view_card } from "./module/helpers/actor";
 import { HelperOptions } from "handlebars";
 
 const lp = LANCER.log_prefix;
@@ -282,19 +282,7 @@ Hooks.once("init", async function () {
   // Generic components
   Handlebars.registerHelper("light-icon", render_icon);
 
-  Handlebars.registerHelper("l-num-input", function (target: string, value: string) {
-    // Init value to 0 if it doesn't exist
-    // So the arrows work properly
-    if (!value) {
-      value = "0";
-    }
-
-    return `<div class="flexrow arrow-input-container">
-      <button class="mod-minus-button" type="button">-</button>
-      <input class="lancer-stat major" type="number" name="${target}" value="${value}" data-dtype="Number"\>
-      <button class="mod-plus-button" type="button">+</button>
-    </div>`;
-  });
+  Handlebars.registerHelper("l-num-input", clicker_num_input);
 
   // For debugging
   Handlebars.registerHelper("debug_each", function (it, block) {
@@ -305,6 +293,17 @@ Hooks.once("init", async function () {
     for (let x of it) s += block(x);
     return s;
   });
+
+
+  // ------------------------------------------------------------------------
+  // Stat helpers
+  Handlebars.registerHelper("compact-stat-edit", compact_stat_edit);
+  Handlebars.registerHelper("compact-stat-view", compact_stat_view);
+  Handlebars.registerHelper("stat-view-card", stat_view_card);
+  Handlebars.registerHelper("stat-edit-card", stat_edit_card);
+  Handlebars.registerHelper("stat-edit-max-card", stat_edit_card_max);
+  Handlebars.registerHelper("clicker-stat-card", clicker_stat_card);
+  
 
   // ------------------------------------------------------------------------
   // Refs

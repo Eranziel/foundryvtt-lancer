@@ -15,6 +15,7 @@ import {
   EntryType,
   RegRef,
   OpCtx,
+  Bonus,
 } from "machine-mind";
 import { MechWeapon, MechWeaponProfile } from "machine-mind";
 import { LancerActor } from "../actor/lancer-actor";
@@ -22,7 +23,7 @@ import { LANCER, LancerActorType, LancerItemType } from "../config";
 import { DamageData, NPCDamageData, RangeData, TagData } from "../interfaces";
 import { LancerItem, LancerNpcFeatureData } from "../item/lancer-item";
 import { FlagData, FoundryReg } from "../mm-util/foundry-reg";
-import { selected } from "./commons";
+import { checked, render_icon, selected } from "./commons";
 
 /**
  * Handlebars helper which checks whether a weapon is loading by examining its tags
@@ -577,4 +578,93 @@ export function npc_feature_preview(npc_feature: LancerNpcFeatureData, tier: num
   html += body;
   html += `</li>`;
   return html;
+}
+
+/** Expected arguments:
+ * - bonus_path=<string path to the individual bonus item>,  ex: ="ent.mm.Bonuses.3"
+ * - bonus=<bonus object to pre-populate with>
+ */
+export function bonus_editor(bonus_path: string, bonus: Bonus) {
+  // Our main two inputs
+  let id_input = `<label>ID: <input name="${bonus_path}.ID" value="${bonus.ID}" data-dtype="String" /> </label>`;
+  let val_input = `<label>Value: <input name="${bonus_path}.Value" value="${bonus.Value}" data-dtype="String" /> </label>`;
+
+  // Our type options
+  let damage_checkboxes: string[] = [];
+  for (let dt of Object.values(DamageType)) {
+    damage_checkboxes.push(
+      `<label>${render_icon(
+        Damage.icon_for(dt)
+      )} <input type="checkbox" name="${bonus_path}.DamageTypes.${dt}" ${checked(
+        bonus.DamageTypes[dt]
+      )} /> </label>`
+    );
+  }
+
+  let range_checkboxes: string[] = [];
+  for (let rt of Object.values(RangeType)) {
+    range_checkboxes.push(
+      `<label>
+        ${render_icon(Range.icon_for(rt))} 
+        <input type="checkbox" 
+          name="${bonus_path}.RangeTypes.${rt}"  
+          ${checked(bonus.RangeTypes[rt])} 
+          /> 
+        </label>`
+    );
+  }
+
+  let type_checkboxes: string[] = [];
+  for (let tt of Object.values(WeaponType)) {
+    type_checkboxes.push(
+      `<label> ${tt} 
+        <input type="checkbox" 
+          name="${bonus_path}.WeaponTypes.${tt}" 
+          ${checked(bonus.WeaponTypes[tt])} 
+          /> 
+      </label>`
+    );
+  }
+
+  let size_checkboxes: string[] = [];
+  for (let st of Object.values(WeaponSize)) {
+    size_checkboxes.push(
+      `<label> ${st} 
+        <input type="checkbox" 
+          name="${bonus_path}.WeaponSizes.${st}" 
+          ${checked(bonus.WeaponSizes[st])}
+          /> 
+      </label>`
+    );
+  }
+
+  // Consolidate them into rows
+  return `<div class="card clipped">
+      ${id_input} <br>
+      ${val_input} <br>
+      <div class="d-flex">
+        ${damage_checkboxes.join(" ")}
+      </div>
+      <div class="d-flex">
+        ${range_checkboxes.join(" ")}
+      </div>
+      <div class="d-flex">
+        ${type_checkboxes.join(" ")}
+      </div>
+      <div class="d-flex">
+        ${size_checkboxes.join(" ")}
+      </div>
+    </div>`;
+}
+
+/** Expected arguments:
+ * - bonuses_path=<string path to the bonuses array>,  ex: ="ent.mm.Bonuses"
+ * - bonuses=<bonus array to pre-populate with>.
+ */
+export function bonus_array(bonuses_path: string, bonuses_array: Bonus[]) {
+  let rows = bonuses_array.map((bonus, index) => bonus_editor(`${bonuses_path}.${index}`, bonus));
+  rows = rows.map(r => `<li> ${r} </li>`);
+  return `<ul>
+        ${rows.join("\n")}
+    </ul>`;
 }
