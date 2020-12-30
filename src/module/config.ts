@@ -130,6 +130,43 @@ export const STATUSES = [
   },
 ];
 
+export const FRAMES = [
+  'mf_atlas',
+  'mf_balor',
+  'mf_barbarossa',
+  'mf_black_witch',
+  'mf_blackbeard',
+  'mf_deaths_head',
+  'mf_drake',
+  'mf_dusk_wing',
+  'mf_genghis',
+  'mf_goblin',
+  'mf_gorgon',
+  'mf_hydra',
+  'mf_iskander',
+  'mf_kobold',
+  'mf_lancaster',
+  'mf_lich',
+  'mf_manticore',
+  'mf_metalmark',
+  'mf_minotaur',
+  'mf_monarch',
+  'mf_mourning_cloak',
+  'mf_napoleon',
+  'mf_nelson',
+  'mf_pegasus',
+  'mf_raleigh',
+  'mf_saladin',
+  'mf_sherman',
+  'mf_standard_pattern_i_everest',
+  'mf_sunzi',
+  'mf_swallowtail',
+  'mf_tokugawa',
+  'mf_tortuga',
+  'mf_vlad',
+  'mf_zheng',
+];
+
 export const WELCOME = `<div style="margin: 10px 5px">
 <p>Welcome to Lancer on Foundry! If you haven't already, check out the project wiki for 
 <a href="https://github.com/Eranziel/foundryvtt-lancer/wiki/FAQ">FAQ</a>

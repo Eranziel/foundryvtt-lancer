@@ -1,3 +1,4 @@
+import { FRAMES } from "../config";
 import * as mm from "machine-mind";
 import { CompendiumCategory, CompendiumItem, ItemType, MountType, store } from "machine-mind";
 import { LancerActor } from "./lancer-actor";
@@ -191,7 +192,11 @@ export async function update_pilot(pilot: LancerActor, cc_pilot: mm.Pilot): Prom
 }
 
 function get_mech_art(id: string): string {
-  return `systems/lancer/assets/frames/${id}.png`;
+  if (FRAMES.includes(id)) {
+    return `systems/lancer/assets/frames/${id}.png`;
+  } else {
+    return `systems/lancer/assets/frames/nodata.png`;
+  }
 }
 
 export async function give_pilot_compendium_item(
