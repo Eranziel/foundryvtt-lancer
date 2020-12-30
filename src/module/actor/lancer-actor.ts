@@ -150,6 +150,29 @@ export class LancerActor<T extends LancerActorType> extends Actor {
     await this.update(data);
   }
   */
+
+  /* -------------------------------------------- */
+
+  /** @override 
+   * Prepare any derived data which is actor-specific and does not depend on Items or Active Effects
+   */
+  prepareBaseData() {
+    // switch ( this.data.type ) {
+      // case EntryType.PILOT:
+        // break;
+      // case "npc":
+        // break;
+      // case "vehicle":
+        // break;
+    // }
+  }
+
+  /* -------------------------------------------- */
+
+  /** @override */
+  prepareDerivedData() {
+
+  }
 }
 
 // Discrete types for all of our possible generic values
