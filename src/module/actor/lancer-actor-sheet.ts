@@ -115,16 +115,12 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
           return;
         }
 
-        console.log("mm-wrapped", item);
-        console.log("dest-type", dest[0].dataset.type);
         // Now, as far as whether it should really have any effect, that depends on the type
         if(item.ent.Type == dest[0].dataset.type) {
           // We're golden. Make the assignment
-          console.log("Performing native drop ref assignment");
           let path = dest[0].dataset.path!;
           let data = await this.getDataLazy();
           gentle_merge(data, { [path]: item.ent });
-          console.log("data", data);
           await data.mm.ent.writeback();
         }
       },
@@ -133,7 +129,6 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
         // as doing so tends to require type resolution (an async op that we can't really afford to do here). 
         // But, so long as we have an ID and type, we should be able to resolve
         let pdata = safe_json_parse(data) as NativeDrop;
-        console.log("Checking native drop", pdata);
         if(pdata?.id !== undefined && pdata?.type !== undefined) {
           return true;
         }
@@ -313,7 +308,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
    * This defines how to update the subject of the form when the form is submitted
    * @private
    */
-  async _updateObject(event: Event | JQuery.Event, formData: any): Promise<any> {
+  async _updateObject(event: Event | JQuery.Event, formData: any, postpone_writeback: boolean = false): Promise<any> {
     // Fetch the curr data
     let ct = await this.getDataLazy();
 
@@ -329,7 +324,12 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     }
 
     // And then do a mm level writeback, always
-    return ct.mm.ent.writeback();
+    if(!postpone_writeback) {
+      await ct.mm.ent.writeback();
+    }
+
+    // Return form data with any modifications
+    return formData;
   }
 
   /**
