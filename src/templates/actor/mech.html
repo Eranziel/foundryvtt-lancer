@@ -8,7 +8,8 @@
     </div>
   </header>
 
-  <div class="deployable-stats" style="display:flex; justify-content: center">
+  <div style="display:flex; justify-content: center">
+    <!-- Editable hp -->
     <div class="flexcol card clipped" style="width: 20%">
       <div class="lancer-stat-header clipped-top flexrow">
         <i class="mdi mdi-heart-outline i--m i--light" style="float: left; padding-left: 10px"> </i>
@@ -20,6 +21,8 @@
         <span class="lancer-stat major">{{mm.ent.MaxHP}}</span>
       </div>
     </div>
+
+    <!-- Editable heat -->
     <div class="flexcol card clipped" style="width: 20%">
       <div class="lancer-stat-header clipped-top flexrow">
         <i class="cci cci-heat i--m i--light" style="float: left; padding-left: 10px"> </i>
@@ -31,6 +34,8 @@
         <span class="lancer-stat major">{{mm.ent.HeatCapacity}}</span>
       </div>
     </div>
+
+    <!-- Fixed armor -->
     <div class="flexcol card clipped" style="width: 20%">
       <div class="lancer-stat-header clipped-top flexrow">
         <i class="mdi mdi-shield-outline i--m i--light" style="float: left; padding-left: 10px"> </i>
@@ -39,23 +44,60 @@
       <span class="lancer-stat major">{{mm.ent.Armor}}</span>
     </div>
 
-
+    <!-- Fixed evasion -->
     <div class="flexcol card clipped" style="width: 20%">
       <div class="lancer-stat-header clipped-top flexrow">
         <i class="cci cci-evasion i--m i--light" style="float: left; padding-left: 10px"> </i>
         <span class="major">EVASION</span>
       </div>
-      <span class="lancer-stat medium">{{mm.ent.Evasion}}</span>
+      <span class="lancer-stat major">{{mm.ent.Evasion}}</span>
     </div>
 
 
+    <!-- Fixed e-def -->
     <div class="flexcol card clipped" style="width: 20%">
       <div class="lancer-stat-header clipped-top flexrow">
         <i class="cci cci-edef i--m i--light" style="float: left; padding-left: 10px"> </i>
         <span class="major">E-DEF</span>
       </div>
-        <span class="lancer-stat medium"  >{{mm.ent.EDefense}}</span>
+        <span class="lancer-stat major"  >{{mm.ent.EDefense}}</span>
     </div>
+  </div>
+
+  <!-- Row 2: Pilot drop box -->
+  <div style="display:flex; justify-content: center">
+    <div class="flexcol card clipped" style="width: 60%">
+      <div class="lancer-stat-header clipped-top flexrow">
+        <i class="cci cci-pilot i--m i--light" style="float: left; padding-left: 10px"> </i>
+        <span class="major">PILOT</span>
+      </div>
+      <div class="actor-ref-drop">
+        {{{actor-slot mm.ent.Pilot "mm.ent.Pilot" "pilot"}}}
+      </div>
+    </div>
+    
+    <!-- Fixed speed -->
+    <div class="flexcol card clipped" style="width: 20%">
+      <div class="lancer-stat-header clipped-top flexrow">
+        <i class="cci cci-edef i--m i--light" style="float: left; padding-left: 10px"> </i>
+        <span class="major">SPEED</span>
+      </div>
+        <span class="lancer-stat major"  >{{mm.ent.Speed}}</span>
+    </div>
+
+    <!-- Editable repairs speed -->
+    <div class="flexcol card clipped" style="width: 20%">
+      <div class="lancer-stat-header clipped-top flexrow">
+        <i class="cci cci-edef i--m i--light" style="float: left; padding-left: 10px"> </i>
+        <span class="major">Repairs</span>
+      </div>
+      <div class="flexrow" style="align-self: center;">
+        <input class="lancer-stat major" type="number" name="mm.ent.CurrentRepairs" value="{{mm.ent.CurrentRepairs}}" data-dtype="Number"/>
+        <span class="medium" style="max-width: min-content;">/</span>
+        <span class="lancer-stat major">{{mm.ent.RepairCapacity}}</span>
+      </div>
+    </div>
+
   </div>
 
   <div class="flexcol card clipped">
