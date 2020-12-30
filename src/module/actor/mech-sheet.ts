@@ -2,11 +2,18 @@ import { LancerMechActorData, LancerMechSheetData } from "../interfaces";
 import { LANCER } from "../config";
 import { LancerActorSheet } from "./lancer-actor-sheet";
 import { FoundryReg } from "../mm-util/foundry-reg";
-import { EntryType, OpCtx } from "machine-mind";
+import { EntryType, OpCtx, RegRef } from "machine-mind";
 import { LancerActor, LancerMech } from "./lancer-actor";
 import { LancerItem } from "../item/lancer-item";
 import { MMEntityContext, mm_wrap_actor, mm_wrap_item } from "../mm-util/helpers";
-import { enable_dragging, enable_dropping, gentle_merge, HANDLER_onClickRef, recreate_ref_element_ref } from "../helpers/commons";
+import {
+  enable_dragging,
+  enable_dropping,
+  gentle_merge,
+  HANDLER_onClickRef,
+  recreate_ref_element_ref,
+  safe_json_parse,
+} from "../helpers/commons";
 const lp = LANCER.log_prefix;
 
 /**
@@ -22,7 +29,7 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
       classes: ["lancer", "sheet", "actor", "npc"],
       template: "systems/lancer/templates/actor/mech.html",
       width: 800,
-      height: 800
+      height: 800,
     });
   }
 
@@ -38,44 +45,10 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
 
     // Everything below here is only needed if the sheet is editable
     if (!this.options.editable) return;
-
-    /* ---------- Drag items from inventory to inv slots TODO: GENERALIZE??? Mostly alreaady generic.... ----- */
-    enable_dragging(html.find(".ref"), (drag_src) => {
-      // Drag a JSON ref
-      let ref = recreate_ref_element_ref(drag_src[0]);
-      console.log("Dragging ref:", ref);
-      return JSON.stringify(ref);
-    });
-
-
-    enable_dropping(html.find(".refdrop"), async (ref_json, src, dest, evt) => {
-      let recon_ref = JSON.parse(ref_json);
-      console.log("Dropping ref:", recon_ref);
-      
-      // Resolve!
-      let path = dest[0].dataset.path!;
-
-      // Spawn an event to write and save
-      let data = await this.getDataLazy();
-      let ctx = data.mm.ctx; // Re-use ctx, for efficiency's sake
-      let resolved = await (new FoundryReg()).resolve(ctx, recon_ref);
-
-      // Set and save. Use gentle merge for data path resolution
-      gentle_merge(data, {[path]: resolved});
-      await data.mm.ent.writeback();
-    }, 
-    (orig, dest) => {
-      let src_type = orig[0].dataset.type;
-      let dest_type = orig[0].dataset.type;
-      console.log(`src: ${src_type}, dest: ${dest_type}`);
-      return orig[0].dataset.type == dest[0].dataset.type; // Simply confirm same type
-    });
-    /* -------------------------------------------------------- */
-    
   }
   /* -------------------------------------------- */
 
-  // Let people add stuff to the mech
+  // Baseline drop behavior. Let people add stuff to the mech
   async _onDrop(event: any): Promise<any> {
     console.log("Old on drop");
     let item: LancerItem<any> | null = await super._onDrop(event);

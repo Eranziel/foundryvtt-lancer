@@ -17,10 +17,7 @@ import {
   mount_type_selector,
   npc_tier_selector,
 } from "./module/actor/lancer-actor";
-import {
-  LancerItem,
-  lancerItemInit,
-} from "./module/item/lancer-item";
+import { LancerItem, lancerItemInit } from "./module/item/lancer-item";
 
 import {
   action_type_icon,
@@ -74,9 +71,33 @@ import * as macros from "./module/macros";
 // Import node modules
 import compareVersions = require("compare-versions");
 import { NpcFeatureType, EntryType, Manufacturer } from "machine-mind";
-import { bonus_array, manufacturer_ref as ref_manufacturer, render_icon, simple_mm_ref } from "./module/helpers/commons";
+import {
+  actor_slot,
+  bonus_array,
+  manufacturer_ref as ref_manufacturer,
+  render_icon,
+  simple_mm_ref,
+} from "./module/helpers/commons";
 import { is_loading } from "machine-mind/dist/classes/mech/EquipUtil";
-import { item_preview, weapon_size_selector, weapon_type_selector, range_editor, npc_weapon_damage_selector, weapon_range_preview, weapon_damage_preview, npc_attack_bonus_preview, npc_accuracy_preview, mech_weapon_preview, system_type_selector, effect_type_selector, mech_system_preview, npc_feature_preview, core_system_preview, mech_trait_preview, damage_editor } from "./module/helpers/item";
+import {
+  item_preview,
+  weapon_size_selector,
+  weapon_type_selector,
+  range_editor,
+  npc_weapon_damage_selector,
+  weapon_range_preview,
+  weapon_damage_preview,
+  npc_attack_bonus_preview,
+  npc_accuracy_preview,
+  mech_weapon_preview,
+  system_type_selector,
+  effect_type_selector,
+  mech_system_preview,
+  npc_feature_preview,
+  core_system_preview,
+  mech_trait_preview,
+  damage_editor,
+} from "./module/helpers/item";
 import { mech_loadout } from "./module/helpers/actor";
 
 const lp = LANCER.log_prefix;
@@ -182,8 +203,8 @@ Hooks.once("init", async function () {
   // dec, for those off-by-one errors
   Handlebars.registerHelper("dec", function (value) {
     return parseInt(value) - 1;
-  });  
-  
+  });
+
   // cons, to concatenate strs. Can take any number of args. Last is omitted (as it is just a handlebars ref object)
   Handlebars.registerHelper("concat", function (...values) {
     return values.slice(0, values.length - 1).join("");
@@ -279,8 +300,10 @@ Hooks.once("init", async function () {
     return s;
   });
 
-  // Shows a little link-preview of an item
+  // ------------------------------------------------------------------------
+  // Refs
   Handlebars.registerHelper("ref-mm", simple_mm_ref);
+  Handlebars.registerHelper("actor-slot", actor_slot);
 
   // ------------------------------------------------------------------------
   // Tags
