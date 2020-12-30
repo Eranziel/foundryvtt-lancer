@@ -116,7 +116,7 @@ export async function update_pilot(pilot: LancerActor, cc_pilot: mm.Pilot): Prom
 
 
     // pd.mech_loadout.mounts
-    
+
     if(am.ActiveLoadout) {
       let aml = am.ActiveLoadout;
 
@@ -142,7 +142,7 @@ export async function update_pilot(pilot: LancerActor, cc_pilot: mm.Pilot): Prom
           return weaponData.find(weapon => {
             return cc_weapon.ID === weapon.data.data.id
           })
-        }) as LancerMechWeaponItemData[] 
+        }) as LancerMechWeaponItemData[]
 
         let mount: LancerMountData = {
           secondary_mount: "",
@@ -158,7 +158,7 @@ export async function update_pilot(pilot: LancerActor, cc_pilot: mm.Pilot): Prom
           return weaponData.find(weapon => {
             return cc_weapon.ID === weapon.data.data.id
           })
-        }) as LancerMechWeaponItemData[] 
+        }) as LancerMechWeaponItemData[]
 
         let mount: LancerMountData = {
           secondary_mount: "",
@@ -168,19 +168,30 @@ export async function update_pilot(pilot: LancerActor, cc_pilot: mm.Pilot): Prom
 
         return mount
       })
-      
+
       mounts = integratedMounts.concat(equippableMounts)
 
       pd.mech_loadout.mounts = mounts
-      
+
     }
-    
+
+    // Setup token
+    let mech_image = am.CloudImage || get_mech_art(am.Frame.ID) || pilot.data.img;
+    // FIXME: Setting type as any to allow editing the token attributes
+    let ptoken = duplicate(pilot.data.token) as any;
+
+    pad.img = mech_image;
+    ptoken.name = cc_pilot.Callsign;
+    ptoken.img = mech_image;
+
+    pad.token = ptoken;
   }
 
   await pilot.update(pad);
+}
 
-  // Fixup actor name -- this might not work
-  // pilot.token.update({name: cc_pilot.Name});
+function get_mech_art(id: string): string {
+  return `systems/lancer/assets/frames/${id}.png`;
 }
 
 export async function give_pilot_compendium_item(
