@@ -55,7 +55,7 @@ export class LancerDeployableSheet extends LancerActorSheet<EntryType.DEPLOYABLE
    */
   //@ts-ignore
   getData(): LancerDeployableSheetData {
-    const data: LancerDeployableSheetData = super.getData() as any as LancerDeployableSheetData;
+    const data: LancerDeployableSheetData = (super.getData() as any) as LancerDeployableSheetData;
 
     // Populate name if blank (new Actor)
     if (data.data.name === "") {

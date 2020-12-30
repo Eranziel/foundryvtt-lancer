@@ -62,7 +62,7 @@ export class LancerFrameSheet extends LancerItemSheet<EntryType.FRAME> {
     const elt = $(event.currentTarget);
     const index = elt.prop("index");
     const value = elt.prop("value");
-    if(value == "delete") {
+    if (value == "delete") {
       // If delete, then delete
       let data = await this.getDataLazy();
 
@@ -98,6 +98,4 @@ export class LancerFrameSheet extends LancerItemSheet<EntryType.FRAME> {
     let mounts = html.find("#mounts");
     mounts.find("select").on("change", e => this._onChangeMount(e));
   }
-  
-
 }

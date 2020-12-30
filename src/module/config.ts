@@ -12,12 +12,7 @@ const ASCII = `
 
 let ET = EntryType;
 // These are general categories that items fall under, useful for the purpose of knowing when moving that item is allowed
-const mech_items: LancerItemType[] = [
-  ET.WEAPON_MOD,
-  ET.FRAME,
-  ET.MECH_WEAPON,
-  ET.MECH_SYSTEM,
-];
+const mech_items: LancerItemType[] = [ET.WEAPON_MOD, ET.FRAME, ET.MECH_WEAPON, ET.MECH_SYSTEM];
 const pilot_items: LancerItemType[] = [
   ET.SKILL,
   ET.TALENT,

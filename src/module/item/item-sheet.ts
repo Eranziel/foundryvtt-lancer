@@ -67,16 +67,16 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
     if (!this.options.editable) return;
 
     // Customized increment/decrement arrows
-    const mod_handler = (delta: number) => ((ev: Event) => {
+    const mod_handler = (delta: number) => (ev: Event) => {
       if (!ev.currentTarget) return; // No target, let other handlers take care of it.
       const button = $(ev.currentTarget as HTMLElement);
       const input = button.siblings("input");
       const curr = Number.parseInt(input.prop("value"));
-      if(!isNaN(curr)) {
+      if (!isNaN(curr)) {
         input.prop("value", curr + delta);
       }
       this.submit({});
-    });
+    };
 
     // Behavior is identical, just +1 or -1 depending on button
     let decr = html.find('button[class*="mod-minus-button"]');
@@ -174,7 +174,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
   /* -------------------------------------------- */
 
   /** @override */
-    /*
+  /*
   async _updateObject(event: any, formData: any) {
     console.log("DISABLED");
     return;
@@ -305,7 +305,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
     }
     return data;
   }
-  
+
   // Helper function for making fields effectively target multiple attributes
   _propagateMMData(formData: any) {
     // Pushes relevant field data down from the "item" data block to the "mm.ent" data block
@@ -327,7 +327,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
     let need_top_update = this._propagateMMData(formData);
     gentle_merge(ct, formData);
 
-    if(need_top_update) {
+    if (need_top_update) {
       await this.item.update(ct.item, undefined);
     }
     return ct.mm.ent.writeback();

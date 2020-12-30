@@ -1,5 +1,6 @@
-import { EntryType, MechLoadout } from "machine-mind";
-import { ref_drop_box, ref_drop_box_helper, simple_mm_ref } from "./commons";
+import { EntryType, LiveEntryTypes, Mech, MechLoadout } from "machine-mind";
+import { LancerActorType } from "../config";
+import { ref_drop_box, simple_mm_ref } from "./commons";
 
 // A drag-drop slot for a frame.
 export function frame_slot(loadout: MechLoadout, loadout_path: string): string {
@@ -9,12 +10,20 @@ export function frame_slot(loadout: MechLoadout, loadout_path: string): string {
 }
 
 // A drag-drop slot for a system mount. TODO: delete button, clear button
-export function system_mount(loadout: MechLoadout, loadout_path: string, slot_index: number): string {
-  return ""
+export function system_mount(
+  loadout: MechLoadout,
+  loadout_path: string,
+  slot_index: number
+): string {
+  return "";
 }
 
 // A drag-drop slot for a weapon mount. TODO: delete button, clear button
-export function weapon_mount(loadout: MechLoadout, loadout_path: string, slot_index: number): string {
+export function weapon_mount(
+  loadout: MechLoadout,
+  loadout_path: string,
+  slot_index: number
+): string {
   return "";
 }
 
@@ -34,12 +43,12 @@ export function weapon_slot() {
  * - Ref validation (you shouldn't be able to equip another mechs items, etc)
  */
 export function mech_loadout(loadout: MechLoadout, loadout_path: string): string {
-    const frame = frame_slot(loadout, loadout_path);
-    // const weapon_slots = loadout.WepMounts.map((wep, index) => simple_mm_ref(wep.Slots[0]?.Weapon ?? null)); // TODO: Tidy this up
-    const weapon_slots = ["todo"];
-    // const system_slots = loadout.SysMounts.map((sys, index) => simple_mm_ref(sys));
-    const system_slots = ["todo"];
-    return `
+  const frame = frame_slot(loadout, loadout_path);
+  // const weapon_slots = loadout.WepMounts.map((wep, index) => simple_mm_ref(wep.Slots[0]?.Weapon ?? null)); // TODO: Tidy this up
+  const weapon_slots = ["todo"];
+  // const system_slots = loadout.SysMounts.map((sys, index) => simple_mm_ref(sys));
+  const system_slots = ["todo"];
+  return `
         <span> Equipped frame: </span>
         ${frame}
         <span> Equipped weapons: </span>
@@ -49,4 +58,7 @@ export function mech_loadout(loadout: MechLoadout, loadout_path: string): string
     </span>`;
 }
 
-
+/**
+ * Create a drop box for the pilot, as dragged from the actor list
+ */
+export function mech_pilot_slot(mech: Mech, mech_path: string) {}

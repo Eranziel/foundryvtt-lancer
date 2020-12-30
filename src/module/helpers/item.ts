@@ -2,7 +2,20 @@
 /* Handlebars Helpers                    */
 /* ------------------------------------ */
 
-import { WeaponSize, WeaponType, RangeType, DamageType, Damage, LiveEntryTypes, SystemType, Range, RegEntry, EntryType, RegRef, OpCtx } from "machine-mind";
+import {
+  WeaponSize,
+  WeaponType,
+  RangeType,
+  DamageType,
+  Damage,
+  LiveEntryTypes,
+  SystemType,
+  Range,
+  RegEntry,
+  EntryType,
+  RegRef,
+  OpCtx,
+} from "machine-mind";
 import { MechWeapon, MechWeaponProfile } from "machine-mind";
 import { LancerActor } from "../actor/lancer-actor";
 import { LANCER, LancerActorType, LancerItemType } from "../config";
@@ -39,7 +52,7 @@ export function weapon_size_selector(weapon: MechWeapon, data_target_prefix: str
   let options: string[] = [];
 
   // Build our options
-  for(let size of Object.values(WeaponSize)) {
+  for (let size of Object.values(WeaponSize)) {
     let is_selected = weapon.Size.toLowerCase() == size.toLowerCase(); // Case tolerant selected
     options.push(`<option value="${size}" ${selected(is_selected)}>${size.toUpperCase()}</option>`);
   }
@@ -50,14 +63,14 @@ export function weapon_size_selector(weapon: MechWeapon, data_target_prefix: str
 }
 
 /**
- * Handlebars helper for weapon type selector. First parameter is the existing selection. 
+ * Handlebars helper for weapon type selector. First parameter is the existing selection.
  */
 export function weapon_type_selector(profile: MechWeaponProfile, data_target_prefix: string) {
   const data_target = `${data_target_prefix}.WepType`;
   let options: string[] = [];
 
   // Build our options
-  for(let type of Object.values(WeaponType)) {
+  for (let type of Object.values(WeaponType)) {
     let is_selected = profile.WepType.toLowerCase() == type.toLowerCase(); // Case tolerant selected
     options.push(`<option value="${type}" ${selected(is_selected)}>${type.toUpperCase()}</option>`);
   }
@@ -68,13 +81,9 @@ export function weapon_type_selector(profile: MechWeaponProfile, data_target_pre
 }
 
 /**
- * Handlebars helper for range type/value editing 
+ * Handlebars helper for range type/value editing
  */
-export function range_editor(
-  range: Range,
-  data_target_prefix: string
-) {
-
+export function range_editor(range: Range, data_target_prefix: string) {
   let icon_html = `<i class="cci ${range.Icon} i--m i--dark"></i>`;
   /* TODO: For a next iteration--would be really nifty to set it up to select images rather than text. 
     But that seems like a non-trivial task...
@@ -85,9 +94,11 @@ export function range_editor(
 
   // Build our options
   let rangetype_options: string[] = [];
-  for(let type of Object.values(RangeType)) {
+  for (let type of Object.values(RangeType)) {
     let is_selected = range.RangeType.toLowerCase() == type.toLowerCase(); // Case tolerant selected
-    rangetype_options.push(`<option value="${type}" ${selected(is_selected)}>${type.toUpperCase()}</option>`);
+    rangetype_options.push(
+      `<option value="${type}" ${selected(is_selected)}>${type.toUpperCase()}</option>`
+    );
 
     // to do icon, would use the following
     let _type_icon = Range.icon_for(type);
@@ -99,7 +110,7 @@ export function range_editor(
   </select>`;
 
   let input_html = `<input class="lancer-stat" type="string" name="${data_target_prefix}.Value" value="${range.Value}"
-  data-dtype="Number" style="max-width: 80%;"/>`
+  data-dtype="Number" style="max-width: 80%;"/>`;
 
   return `<div class="flexrow flex-center" style="padding: 5px;">
     ${icon_html}
@@ -110,16 +121,18 @@ export function range_editor(
 }
 
 /**
- * Handlebars helper for weapon damage type/value editing 
+ * Handlebars helper for weapon damage type/value editing
  */
 export function damage_editor(damage: Damage, data_target_prefix: string) {
   let icon_html = `<i class="cci ${damage.Icon} i--m i--dark"></i>`;
 
   // Build our options
   let damagetype_options: string[] = [];
-  for(let type of Object.values(DamageType)) {
+  for (let type of Object.values(DamageType)) {
     let is_selected = damage.DamageType.toLowerCase() == type.toLowerCase(); // Case tolerant selected
-    damagetype_options.push(`<option value="${type}" ${selected(is_selected)}>${type.toUpperCase()}</option>`);
+    damagetype_options.push(
+      `<option value="${type}" ${selected(is_selected)}>${type.toUpperCase()}</option>`
+    );
   }
 
   let select_html = `<select name="${data_target_prefix}.DamageType" data-type="String" style="align-self: center;"> 
@@ -127,7 +140,7 @@ export function damage_editor(damage: Damage, data_target_prefix: string) {
   </select>`;
 
   let input_html = `<input class="lancer-stat" type="string" name="${data_target_prefix}.Value" value="${damage.Value}"
-  data-dtype="String" style="max-width: 80%;"/>`
+  data-dtype="String" style="max-width: 80%;"/>`;
 
   return `<div class="flexrow flex-center" style="padding: 5px;">
     ${icon_html}
@@ -135,7 +148,6 @@ export function damage_editor(damage: Damage, data_target_prefix: string) {
     ${input_html}
   </div>
   `;
-  
 }
 
 /**
@@ -566,4 +578,3 @@ export function npc_feature_preview(npc_feature: LancerNpcFeatureData, tier: num
   html += `</li>`;
   return html;
 }
-
