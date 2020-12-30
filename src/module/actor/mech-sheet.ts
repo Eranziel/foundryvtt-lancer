@@ -1,20 +1,8 @@
-import { LancerMechActorData, LancerMechSheetData } from "../interfaces";
 import { LANCER } from "../config";
 import { LancerActorSheet } from "./lancer-actor-sheet";
-import { FoundryReg } from "../mm-util/foundry-reg";
 import { EntryType, OpCtx, RegRef } from "machine-mind";
-import { LancerActor, LancerMech } from "./lancer-actor";
 import { LancerItem } from "../item/lancer-item";
 import { MMEntityContext, mm_wrap_actor, mm_wrap_item } from "../mm-util/helpers";
-import {
-  enable_dragging,
-  enable_dropping,
-  gentle_merge,
-  HANDLER_onClickRef,
-  recreate_ref_element_ref,
-  safe_json_parse,
-} from "../helpers/commons";
-const lp = LANCER.log_prefix;
 
 /**
  * Extend the basic ActorSheet
