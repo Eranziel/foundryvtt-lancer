@@ -66,7 +66,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
     // Everything below here is only needed if the sheet is editable
     if (!this.options.editable) return;
 
-    // Customized increment/decrement arrows
+    // Customized increment/decrement arrows. Same as in actor. TODO: Standardize??
     const mod_handler = (delta: number) => (ev: Event) => {
       if (!ev.currentTarget) return; // No target, let other handlers take care of it.
       const button = $(ev.currentTarget as HTMLElement);

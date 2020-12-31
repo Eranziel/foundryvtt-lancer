@@ -14,6 +14,7 @@ import {
   LancerNpcTemplateData,
 } from "../item/lancer-item";
 import { ItemDataManifest } from "../item/util";
+import { ResolvedNativeDrop } from "../helpers/commons";
 const lp = LANCER.log_prefix;
 
 /**
@@ -236,8 +237,17 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
 
   /* -------------------------------------------- */
 
-  async _onDrop(event: any): Promise<boolean> {
-    let item: LancerItem<any> | null = await super._onDrop(event);
+  async _onDrop(event: any): Promise<any> {
+    let drop: ResolvedNativeDrop | null = await super._onDrop(event);
+    if (drop?.type != "Item") {
+      return null; // Bail. 
+    }
+
+    const sheet_data = await this.getDataLazy();
+    const this_mm = sheet_data.mm;
+    const item = drop.item;
+
+
 
     const actor = this.actor;
     if (item) {

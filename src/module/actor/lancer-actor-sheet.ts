@@ -1,6 +1,6 @@
 import { EntryType, RegRef } from "machine-mind";
 import { LANCER, LancerActorType, LancerItemType } from "../config";
-import { enable_dragging, enable_dropping, gentle_merge, HANDLER_onClickRef, is_ref, NativeDrop, recreate_ref_element_ref, resolve_native_drop, resolve_ref_element, safe_json_parse } from "../helpers/commons";
+import { enable_dragging, enable_dropping, gentle_merge, HANDLER_onClickRef, is_ref, NativeDrop, recreate_ref_element_ref, ResolvedNativeDrop, resolve_native_drop, resolve_ref_element, safe_json_parse } from "../helpers/commons";
 import { LancerActorSheetData, LancerItemSheetData, LancerMechSheetData, LancerStatMacroData } from "../interfaces";
 import { FoundryReg, FoundryRegActorData, FoundryRegItemData } from "../mm-util/foundry-reg";
 import { MMEntityContext, mm_wrap_actor, mm_wrap_item } from "../mm-util/helpers";
@@ -42,11 +42,36 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     // Make refs clickable to open the item
     $(html).find(".ref.valid").on("click", HANDLER_onClickRef);
 
+    // Make +/- buttons work
+    this._activatePlusMinusButtons(html);
+
     // Enable ref dragging
     this._activateRefDragging(html);
 
     // Enable native ref drag handlers
     this._activateNativeRefDrops(html);
+  }
+
+
+
+  _activatePlusMinusButtons(html: any) {
+    // Customized increment/decrement arrows. Same as in actor
+    const mod_handler = (delta: number) => (ev: Event) => {
+      if (!ev.currentTarget) return; // No target, let other handlers take care of it.
+      const button = $(ev.currentTarget as HTMLElement);
+      const input = button.siblings("input");
+      const curr = Number.parseInt(input.prop("value"));
+      if (!isNaN(curr)) {
+        input.prop("value", curr + delta);
+      }
+      this.submit({});
+    };
+
+    // Behavior is identical, just +1 or -1 depending on button
+    let decr = html.find('button[class*="mod-minus-button"]');
+    decr.on("click", mod_handler(-1));
+    let incr = html.find('button[class*="mod-plus-button"]');
+    incr.on("click", mod_handler(+1));
   }
 
   // Enables dragging of ref items to slot
@@ -63,8 +88,15 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     enable_dropping(
       html.find(".refdrop"),
       async (ref_json, dest, evt) => {
+        let recon_ref: any = safe_json_parse(ref_json);
+
+        // If it isn't a ref, we don't handle
+        if(!is_ref(recon_ref)) {
+          return;
+        } 
+
+        // It is a ref, so we assert dominance by not letting anyone else look at it
         evt.stopPropagation();
-        let recon_ref: RegRef<any> = JSON.parse(ref_json);
 
         // Resolve!
         let path = dest[0].dataset.path!;
@@ -192,63 +224,32 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
   }
 
   /**
-   * Converts the data from a DragEvent event into an Item to add to the Actor.
-   * If the data does not exist or is not an Item, fall back on super._onDrop.
+   * Converts the data from a DragEvent event into an Item (or actor/journal/whatever) to add to the Actor.
    * This method does not modify the actor. Sub-classes must override _onDrop to
-   * call super._onDrop and handle the resulting Item.
+   * call super._onDrop and handle the resulting resolved drop
    * @param event {any}  The DragEvent.
    * @return The Item or null. Sub-classes must handle adding the Item to the Actor,
    *   and any other associated work.
    */
-  async _onDrop(event: any): Promise<any> {
+  async _onDrop(event: any): Promise<ResolvedNativeDrop> {
     event.preventDefault();
-    console.log(event);
-    // Get dropped data
-    let data: any;
-    let item: Item | null = null;
-    try {
-      data = JSON.parse(event.dataTransfer.getData("text/plain"));
-      if (data.type !== "Item") {
-        // Fall back on super if the data is not present or is not parsable.
-        await super._onDrop(event);
-        return null;
-      }
-    } catch (err) {
-      // Fall back on super if the data is not present or is not parsable.
-      await super._onDrop(event);
+
+    // Only proceed if user is owner or GM.
+    if (!this.actor.owner && !game.user.isGM) {
+      ui.notifications.warn(
+        `LANCER, you shouldn't try to modify ${this.actor.name}'s loadout. Access Denied.`
+      );
       return null;
     }
 
-    // NOTE: these cases are copied almost verbatim from ActorSheet._onDrop
-    // Case 1 - Item is from a Compendium pack
-    if (data.pack) {
-      item = (await game.packs.get(data.pack)!.getEntity(data.id)) as Item;
-      console.log(`${lp} Item dropped from compendium: `, item);
-    }
-    // Case 2 - Item is a World entity
-    else if (!data.data) {
-      item = game.items.get(data.id);
-      console.log(`${lp} Item dropped from world: `, item);
-    }
-
-    // If item isn't from a Compendium or World entity,
-    // see if super can do something with it.
-    if (!item) {
-      await super._onDrop(event);
-      return Promise.resolve(null);
-    }
-
-    const actor = this.actor as LancerActor<any>;
-
-    // Only return the Item if user is owner or GM.
-    if (!actor.owner && !game.user.isGM) {
-      ui.notifications.warn(
-        `LANCER, you shouldn't try to modify ${actor.name}'s loadout. Access Denied.`
-      );
-      return Promise.resolve(null);
-    }
-    return Promise.resolve(item);
+    // Resolve the drop and delegate to children
+    let raw_drop_data = event.dataTransfer.getData("text/plain") ?? "";
+    let native_drop = await resolve_native_drop(raw_drop_data);
+    return native_drop;
   }
+
+
+
 
   async _addOwnedItem(item: Item) {
     const actor = this.actor as LancerActor<any>;
@@ -308,7 +309,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
    * This defines how to update the subject of the form when the form is submitted
    * @private
    */
-  async _updateObject(event: Event | JQuery.Event, formData: any, postpone_writeback: boolean = false): Promise<any> {
+  async _updateObject(event: Event | JQuery.Event, formData: any): Promise<any> {
     // Fetch the curr data
     let ct = await this.getDataLazy();
 
@@ -324,9 +325,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     }
 
     // And then do a mm level writeback, always
-    if(!postpone_writeback) {
-      await ct.mm.ent.writeback();
-    }
+    await ct.mm.ent.writeback();
 
     // Return form data with any modifications
     return formData;
@@ -342,7 +341,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
 
     // Load mech meta stuff
     data.mm = await mm_wrap_actor(this.actor as LancerActor<T>);
-    console.log(`${lp} Actor ctx: `, data.mm);
+    console.log(`${lp} Actor ctx: `, data);
     this._currData = data;
     return data;
   }

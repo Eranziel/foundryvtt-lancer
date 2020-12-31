@@ -1,8 +1,8 @@
 import { LANCER } from "../config";
 import { LancerActorSheet } from "./lancer-actor-sheet";
 import { EntryType, funcs, OpCtx, RegRef } from "machine-mind";
-import { LancerItem } from "../item/lancer-item";
 import { MMEntityContext, mm_wrap_actor, mm_wrap_item } from "../mm-util/helpers";
+import { ResolvedNativeDrop } from "../helpers/commons";
 
 /**
  * Extend the basic ActorSheet
@@ -46,12 +46,13 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
 
   // Baseline drop behavior. Let people add stuff to the mech
   async _onDrop(event: any): Promise<any> {
-    console.log("Old on drop");
-    let item: LancerItem<any> | null = await super._onDrop(event);
-    if (!item) {
-      return null; // Bail. Wouldn't want any children to deal with this either.
+    let drop: ResolvedNativeDrop | null = await super._onDrop(event);
+    if (drop?.type != "Item") {
+      return null; // Bail. 
     }
 
+    // Prep data
+    let item = drop.item;
     const sheet_data = await this.getDataLazy();
     const this_mm = sheet_data.mm;
 

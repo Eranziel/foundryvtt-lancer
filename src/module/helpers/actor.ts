@@ -176,11 +176,11 @@ export function clicker_stat_card(title: string, icon: string, data_path: string
  * Currently this is overkill, but eventually we want to support custom overcharge values
  * @param overcharge_path Path to current overcharge level, from 0 to 3
  */
-export function overcharge_button(overcharge_path: string, options: HelperOptions) {
+export function overcharge_button(overcharge_path: string, options: HelperOptions): string {
   const overcharge_sequence = ["1", "1d3", "1d6", "1d6 + 4"];
 
   let index = resolve_dotpath(options.data?.root, overcharge_path) as number;
-  index = funcs.bound_int(index + 1, 0, overcharge_sequence.length)
+  index = funcs.bound_int(index, 0, overcharge_sequence.length - 1)
   let over_val = overcharge_sequence[index];
   return `
     <div class="card clipped flexcol">
@@ -188,8 +188,8 @@ export function overcharge_button(overcharge_path: string, options: HelperOption
         <span class="major">OVERCHARGE</span>
       </div>
       <div class=flexrow>
-        <a class="i--dark i--sm" id="overcharge-button">
-          <i class="fas fa-dice-d20"> </i>
+        <a id="overcharge-button">
+          <i class="cci cci-overcharge i--dark i--sm"> </i>
         </a>
         <span>${over_val}</span>
       </div>
