@@ -1,8 +1,9 @@
-import { EntryType, RegEntryTypes, RegRef } from "machine-mind";
+import { EntryType, RegEntryTypes } from "machine-mind";
 import { LancerActor } from "../actor/lancer-actor";
-import { get_pack } from "../compBuilder";
-import { LancerActorType, LancerItemType } from "../config";
-import { LancerItem, LancerCoreBonus } from "../item/lancer-item";
+import { FriendlyTypeName, LANCER, LancerActorType, LancerItemType } from "../config";
+import { LancerItem } from "../item/lancer-item";
+
+const lp = LANCER.log_prefix;
 
 // The associated entity to a given entity type. Type's a lil complex, but we need it to get things correct between abstracters that take items vs actors
 export type EntFor<
@@ -293,6 +294,7 @@ export class ActorInventoryWrapper<T extends LancerItemType> extends EntityColle
   }
 }
 
+// Handles accesses to top level items/actors in compendiums
 export class CompendiumWrapper<T extends EntryType> extends EntityCollectionWrapper<T> {
   // Need this to filter results by type
   type: T;
@@ -338,7 +340,7 @@ export class CompendiumWrapper<T extends EntryType> extends EntityCollectionWrap
   }
 
   async create(data: RegEntryTypes<T>): Promise<GetResult<T>> {
-    let name = data.name || "unknown";
+    let name = (data.name || "unknown").toUpperCase();
     data = duplicate(data); // better safe than sorry
     let p = await this.pack();
     let new_item = (await p.createEntity({
@@ -410,3 +412,43 @@ export class CompendiumWrapper<T extends EntryType> extends EntityCollectionWrap
       }));
   }
 }
+
+
+// Information about a pack
+interface PackMetadata {
+  name: string;
+  label: string;
+  system: "lancer";
+  package: "world";
+  path: string; // "./packs/skills.db",
+  entity: "Item" | "Actor";
+}
+
+// Retrieve a pack, or create it as necessary
+export async function get_pack(type: LancerItemType | LancerActorType): Promise<Compendium> {
+  let pack: Compendium | undefined;
+
+  // Find existing world compendium
+  pack = game.packs.get(`world.${type}`) ?? game.packs.get(`lancer.${type}`);
+  if (pack) {
+    console.log(`${lp} Fetching existing compendium: ${pack.collection}.`);
+    return pack;
+  } else {
+    // Compendium doesn't exist yet. Create a new one.
+    console.log(`${lp} Creating new compendium: ${type}.`);
+
+    // Create our metadata
+    const entity_type = LANCER.actor_types.includes(type as LancerActorType) ? "Actor" : "Item";
+    const metadata: PackMetadata = {
+      name: type,
+      entity: entity_type,
+      label: FriendlyTypeName(type),
+      system: "lancer",
+      package: "world",
+      path: `./packs/${type}.db`,
+    };
+
+    return Compendium.create(metadata);
+  }
+}
+
