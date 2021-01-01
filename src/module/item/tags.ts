@@ -89,14 +89,14 @@ export const compactTagList = `<div class="compact-tag-row">
 </div>`;
 
 // An MM version of the above partial
-export function compact_tag_list(tags: TagInstance[]) {
+export function compact_tag_list(tags: TagInstance[]): string {
   let processed_tags = tags.map(t => `
     <div class="compact-tag flexrow">
       <i class="mdi mdi-label i--s i--light"></i>
       <span style="margin: 3px;">${t.Tag.Name} ${t.Value}</span>
     </div>`);
 
-  `<div class="compact-tag-row">
+  return `<div class="compact-tag-row">
     ${processed_tags.join("")}
   </div>`;
 }

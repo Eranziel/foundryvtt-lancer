@@ -644,12 +644,13 @@ tr.lcp-index-header {
   min-width: fit-content;
 }
 
-.ref {
+.ref-card {
   border: 2px solid black;
   margin: 5px;
   display: flex; 
   align-items: center;
   cursor: pointer;
+  text-align: center;
 }
 
 .ref-icon {

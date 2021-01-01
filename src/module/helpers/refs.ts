@@ -7,14 +7,14 @@ import {
   LiveEntryTypes,
 } from "machine-mind";
 import { LancerActor } from "../actor/lancer-actor";
-import { LANCER } from "../config";
+import { LANCER, TypeIcon } from "../config";
 import { LancerItem } from "../item/lancer-item";
 import { FlagData, FoundryReg } from "../mm-util/foundry-reg";
 
 const UNDEFINED_REF_ICON = "systems/lancer/assets/icons/difficulty.svg";
 
 // We use these for virtually every ref function
-function ref_commons<T extends EntryType>(item: RegEntry<T> | null): null | ({
+export function ref_commons<T extends EntryType>(item: RegEntry<T> | null): null | ({
   img: string,
   name: string, 
   ref: RegRef<T>
@@ -75,15 +75,15 @@ export function simple_mm_ref<T extends EntryType>(
 
   if (!cd) {
     // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
-    return `<div class="ref card ${path_class_snippet} ${type}" 
+    return `<div class="ref ref-card ${path_class_snippet} ${type}" 
                         data-path="${slot_path}" 
                         data-type="${type}">
-          <img class="ref-icon" src="${UNDEFINED_REF_ICON}"></img>
+          <img class="ref-icon" src="${TypeIcon(type)}"></img>
           <span class="major">${fallback}</span>
       </div>`;
   }
 
-  return `<div class="valid ${cd.ref.type} ref card ${path_class_snippet}" 
+  return `<div class="valid ${cd.ref.type} ref ref-card ${path_class_snippet}" 
                 data-id="${cd.ref.id}" 
                 data-ref-type="${cd.ref.type}" 
                 data-reg-name="${cd.ref.reg_name}" 
@@ -174,13 +174,13 @@ export function manufacturer_ref(source: Manufacturer | null): string {
   let cd = ref_commons(source);
   // TODO? maybe do a little bit more here, aesthetically speaking
   if (cd) {
-    return `<div class="valid ${EntryType.MANUFACTURER} ref card" data-id="${cd.ref.id}" data-ref-type="${cd.ref.type}" data-reg-name="${cd.ref.reg_name}"> 
+    return `<div class="valid ${EntryType.MANUFACTURER} ref ref-card" data-id="${cd.ref.id}" data-ref-type="${cd.ref.type}" data-reg-name="${cd.ref.reg_name}"> 
               <h3 class="mfr-name" style="color: ${source!.GetColor(false)};">${source!.Name}</h3>
               <i>${source!.Quote}</i>
             </div>
         `;
   } else {
-    return `<div class="ref card">
+    return `<div class="ref ref-card">
               <h3 class="mfr-name">No source specified</h3>
             </div>
         `;

@@ -56,6 +56,7 @@ import { preloadTemplates } from "./module/preloadTemplates";
 import { registerSettings } from "./module/settings";
 import {
   compactTagList,
+  compact_tag_list,
   renderChunkyTag,
   renderCompactTag,
   renderFullTag,
@@ -93,6 +94,7 @@ import {
   mech_trait_preview,
   damage_editor,
   bonus_array,
+  pilot_armor_slot,
 } from "./module/helpers/item";
 import { editable_mm_ref_list_item as editable_mm_ref_list_item, clicker_num_input, clicker_stat_card, compact_stat_edit, compact_stat_view, mech_loadout, overcharge_button, stat_edit_card, stat_edit_card_max, stat_view_card, pilot_slot } from "./module/helpers/actor";
 import { HelperOptions } from "handlebars";
@@ -318,9 +320,14 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("pilot-slot", pilot_slot);
 
   // ------------------------------------------------------------------------
+  // Pilot stuff
+  Handlebars.registerHelper("armor-slot", pilot_armor_slot);
+
+  // ------------------------------------------------------------------------
   // Tags
   Handlebars.registerHelper("compact-tag", renderCompactTag);
   Handlebars.registerPartial("tag-list", compactTagList);
+  Handlebars.registerPartial("mm-tag-list", compact_tag_list);
   Handlebars.registerHelper("chunky-tag", renderChunkyTag);
   Handlebars.registerHelper("full-tag", renderFullTag);
 

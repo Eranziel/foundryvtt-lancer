@@ -17,15 +17,16 @@ import {
   RegRef,
   OpCtx,
   Bonus,
+  PilotArmor,
 } from "machine-mind";
 import { MechWeapon, MechWeaponProfile } from "machine-mind";
-import { LancerItemType } from "../config";
+import { LANCER, LancerItemType, TypeIcon } from "../config";
 import { NPCDamageData, RangeData, TagData } from "../interfaces";
 import { LancerNpcFeatureData } from "../item/lancer-item";
 import { compact_tag_list } from "../item/tags";
 import { FlagData } from "../mm-util/foundry-reg";
 import { checked, render_icon, resolve_dotpath, selected } from "./commons";
-import { simple_mm_ref } from "./refs";
+import { ref_commons, simple_mm_ref } from "./refs";
 
 /**
  * Handlebars helper which checks whether a weapon is loading by examining its tags
@@ -721,4 +722,78 @@ export function weapon_preview(weapon_path: string, helper: HelperOptions): stri
   } else {
     return simple_mm_ref(EntryType.MECH_WEAPON, null, weapon_path);
   }
+}
+
+
+// Helper for showing a piece of armor, or a slot to hold it (if path is provided)
+export function pilot_armor_slot(armor_path: string, slot_path: string = "", helper: HelperOptions): string {
+  // Fetch the item
+  let armor_: PilotArmor | null = resolve_dotpath(helper.data?.root, armor_path);
+
+  // Generate commons
+  let cd = ref_commons(armor_);
+
+  // Generate path snippet
+  let path_class_snippet = "";
+  if(slot_path) {
+    path_class_snippet = ` drop-target `;
+  }
+
+  if (!cd) {
+    // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
+    return `<div class="armor ref ${path_class_snippet} card clipped pilot-armor-compact-item" 
+                        data-path="${slot_path}" 
+                        data-type="${EntryType.PILOT_ARMOR}">
+          <img class="ref-icon" src="${TypeIcon(EntryType.PILOT_ARMOR)}"></img>
+          <span class="major">Equip armor</span>
+      </div>`;
+  }
+
+  let armor = armor_!;
+
+  // Need to look in bonuses to find what we need
+  let armor_val = armor.Bonuses.find(b => b.ID == "pilot_armor")?.Value ?? "0";
+  let speed_val = armor.Bonuses.find(b => b.ID == "pilot_speed")?.Value ?? "0";
+  let edef_val = armor.Bonuses.find(b => b.ID == "pilot_edef")?.Value ?? "0";
+  let eva_val = armor.Bonuses.find(b => b.ID == "pilot_evasion")?.Value ?? "0";
+  let hp_val = armor.Bonuses.find(b => b.ID == "pilot_hp")?.Value ?? "0";
+
+  return `<div class="valid ${cd.ref.type} ref ${path_class_snippet} card clipped pilot-armor-compact item" 
+                data-id="${cd.ref.id}" 
+                data-ref-type="${cd.ref.type}" 
+                data-reg-name="${cd.ref.reg_name}" 
+                data-path="${slot_path}"
+                data-type="${EntryType.PILOT_ARMOR}">
+            <div class="lancer-trait-header clipped-top" style="grid-area: 1/1/2/3">
+              <i class="mdi mdi-shield-outline i--m i--light"> </i>
+              <span class="minor">${armor!.Name}}</span>
+              <a class="stats-control i--light" data-action="delete"><i class="fas fa-trash"></i></a>
+            </div>
+            <div class="flexrow" style="align-items: center; padding: 5px">
+              <div class="compact-stat">
+                <i class="mdi mdi-shield-outline i--s i--dark"></i>
+                <span class="minor">${armor_val}}</span>
+              </div>
+              <div class="compact-stat">
+                <i class="mdi mdi-heart i--s i--dark"></i>
+                <span class="minor">+${hp_val}}</span>
+              </div>
+              <div class="compact-stat">
+                <i class="cci cci-edef i--s i--dark"></i>
+                <span class="minor">${edef_val}}</span>
+              </div>
+              <div class="compact-stat">
+                <i class="cci cci-evasion i--s i--dark"></i>
+                <span class="minor">${eva_val}}</span>
+              </div>
+              <div class="compact-stat">
+                <i class="mdi mdi-arrow-right-bold-hexagon-outline i--s i--dark"></i>
+                <span class="minor">${speed_val}}</span>
+              </div>
+            </div>
+            <div class="effect-text" style=" padding: 5px">
+              ${armor.Description}}}
+            </div>
+            ${compact_tag_list(armor.Tags)}
+          </div>`;
 }
