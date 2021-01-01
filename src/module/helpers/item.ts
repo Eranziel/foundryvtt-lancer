@@ -18,6 +18,8 @@ import {
   OpCtx,
   Bonus,
   PilotArmor,
+  PilotWeapon,
+  PilotGear,
 } from "machine-mind";
 import { MechWeapon, MechWeaponProfile } from "machine-mind";
 import { LANCER, LancerItemType, TypeIcon } from "../config";
@@ -152,6 +154,30 @@ export function damage_editor(damage: Damage, data_target_prefix: string) {
     ${input_html}
   </div>
   `;
+}
+
+/**
+ * Handlebars helper for showing damage values
+ */
+export function show_damage_array(damages: Damage[]): string {
+  let results: string[] = [];
+  for(let damage of damages) {
+    let damage_item = `<span><i class="cci ${damage.Icon} i--m i--dark"></i>${damage.Value}</span>`;
+    results.push(damage_item);
+  }
+  return `<div class="flexrow>${results.join(" // ")}</div>`
+}
+
+/**
+ * Handlebars helper for showing range values
+ */
+export function show_range_array(ranges: Range[]): string {
+  let results: string[] = [];
+  for(let range of ranges) {
+    let range_item = `<span><i class="cci ${range.Icon} i--m i--dark"></i>${range.Value}</span>`;
+    results.push(range_item);
+  }
+  return `<div class="flexrow>${results.join(" // ")}</div>`
 }
 
 /**
@@ -709,7 +735,7 @@ export function weapon_preview(weapon_path: string, helper: HelperOptions): stri
         <hr class="vsep">
         ${damages.join("")}
 
-        {{!-- Loading toggle - WIP, needs a way to link to related weapon. Maybe needs to be a callback instead of input. --}}
+        <!-- Loading toggle - WIP, needs a way to link to related weapon. Maybe needs to be a callback instead of input. -->
         <hr class="vsep">
         ${loaded_section}
       </div>
@@ -726,23 +752,19 @@ export function weapon_preview(weapon_path: string, helper: HelperOptions): stri
 
 
 // Helper for showing a piece of armor, or a slot to hold it (if path is provided)
-export function pilot_armor_slot(armor_path: string, slot_path: string = "", helper: HelperOptions): string {
+export function pilot_armor_slot(armor_path: string, helper: HelperOptions): string {
+  console.log("Armor", armor_path);
   // Fetch the item
   let armor_: PilotArmor | null = resolve_dotpath(helper.data?.root, armor_path);
 
   // Generate commons
   let cd = ref_commons(armor_);
 
-  // Generate path snippet
-  let path_class_snippet = "";
-  if(slot_path) {
-    path_class_snippet = ` drop-target `;
-  }
 
   if (!cd) {
     // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
-    return `<div class="armor ref ${path_class_snippet} card clipped pilot-armor-compact-item" 
-                        data-path="${slot_path}" 
+    return `<div class="${EntryType.PILOT_ARMOR} ref drop-target card clipped pilot-armor-compact-item" 
+                        data-path="${armor_path}" 
                         data-type="${EntryType.PILOT_ARMOR}">
           <img class="ref-icon" src="${TypeIcon(EntryType.PILOT_ARMOR)}"></img>
           <span class="major">Equip armor</span>
@@ -750,6 +772,7 @@ export function pilot_armor_slot(armor_path: string, slot_path: string = "", hel
   }
 
   let armor = armor_!;
+  console.log("Armorrrr", armor);
 
   // Need to look in bonuses to find what we need
   let armor_val = armor.Bonuses.find(b => b.ID == "pilot_armor")?.Value ?? "0";
@@ -758,42 +781,166 @@ export function pilot_armor_slot(armor_path: string, slot_path: string = "", hel
   let eva_val = armor.Bonuses.find(b => b.ID == "pilot_evasion")?.Value ?? "0";
   let hp_val = armor.Bonuses.find(b => b.ID == "pilot_hp")?.Value ?? "0";
 
-  return `<div class="valid ${cd.ref.type} ref ${path_class_snippet} card clipped pilot-armor-compact item" 
+  return `<div class="valid ${cd.ref.type} ref drop-target card clipped pilot-armor-compact item" 
                 data-id="${cd.ref.id}" 
                 data-ref-type="${cd.ref.type}" 
                 data-reg-name="${cd.ref.reg_name}" 
-                data-path="${slot_path}"
+                data-path="${armor_path}"
                 data-type="${EntryType.PILOT_ARMOR}">
             <div class="lancer-trait-header clipped-top" style="grid-area: 1/1/2/3">
               <i class="mdi mdi-shield-outline i--m i--light"> </i>
-              <span class="minor">${armor!.Name}}</span>
-              <a class="stats-control i--light" data-action="delete"><i class="fas fa-trash"></i></a>
+              <span class="minor">${armor!.Name}</span>
+              <a class="gen-control i--light" data-action="null" data-path="${armor_path}"><i class="fas fa-trash"></i></a>
             </div>
             <div class="flexrow" style="align-items: center; padding: 5px">
               <div class="compact-stat">
                 <i class="mdi mdi-shield-outline i--s i--dark"></i>
-                <span class="minor">${armor_val}}</span>
+                <span class="minor">${armor_val}</span>
               </div>
               <div class="compact-stat">
                 <i class="mdi mdi-heart i--s i--dark"></i>
-                <span class="minor">+${hp_val}}</span>
+                <span class="minor">+${hp_val}</span>
               </div>
               <div class="compact-stat">
                 <i class="cci cci-edef i--s i--dark"></i>
-                <span class="minor">${edef_val}}</span>
+                <span class="minor">${edef_val}</span>
               </div>
               <div class="compact-stat">
                 <i class="cci cci-evasion i--s i--dark"></i>
-                <span class="minor">${eva_val}}</span>
+                <span class="minor">${eva_val}</span>
               </div>
               <div class="compact-stat">
                 <i class="mdi mdi-arrow-right-bold-hexagon-outline i--s i--dark"></i>
-                <span class="minor">${speed_val}}</span>
+                <span class="minor">${speed_val}</span>
               </div>
             </div>
             <div class="effect-text" style=" padding: 5px">
-              ${armor.Description}}}
+              ${armor.Description}
             </div>
             ${compact_tag_list(armor.Tags)}
           </div>`;
+}
+
+
+
+// Helper for showing a pilot weapon, or a slot to hold it (if path is provided)
+export function pilot_weapon_slot(weapon_path: string, helper: HelperOptions): string {
+  // Fetch the item
+  let weapon_: PilotWeapon | null = resolve_dotpath(helper.data?.root, weapon_path);
+
+  // Generate commons
+  let cd = ref_commons(weapon_);
+
+  if (!cd) {
+    // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
+    return `<div class="${EntryType.PILOT_WEAPON} ref drop-target card clipped pilot-weapon-compact item" 
+                        data-path="${weapon_path}" 
+                        data-type="${EntryType.PILOT_WEAPON}">
+          <img class="ref-icon" src="${TypeIcon(EntryType.PILOT_WEAPON)}"></img>
+          <span class="major">Equip weapon</span>
+      </div>`;
+  }
+
+  let weapon = weapon_!;
+  return `<div class="valid ${EntryType.PILOT_WEAPON} ref drop-target card clipped pilot-weapon-compact item macroable"
+                data-id="${cd.ref.id}" 
+                data-ref-type="${cd.ref.type}" 
+                data-reg-name="${cd.ref.reg_name}" 
+                data-path="${weapon_path}"
+                data-type="${EntryType.PILOT_ARMOR}">
+    <div class="lancer-weapon-header clipped-top">
+      <i class="cci cci-weapon i--m i--light"> </i>
+      <span class="minor">${weapon.Name}</span>
+      <a class="gen-control i--light" data-action="null" data-path="${weapon_path}"><i class="fas fa-trash"></i></a>
+    </div>
+    <div class="flexcol">
+      <div class="flexrow">
+        <a class="flexrow roll-attack" style="max-width: min-content;">
+          <i class="fas fa-dice-d20 i--sm i--dark"></i>
+        </a>
+        ${show_range_array(weapon.Range)}
+        <hr class="vsep">
+        ${show_damage_array(weapon.Damage)}
+      </div>
+
+      <!-- Loading toggle - WIP
+      <div class="flexrow">
+        {{#if (is-loading weapon.data.tags)}}
+          LOADING
+        {{/if}}
+      </div>
+      -->
+
+      <div class="flexrow">
+        ${compact_tag_list(weapon.Tags)}
+      </div>
+    </div>
+  </div>`;
+}
+
+// Helper for showing a pilot gear, or a slot to hold it (if path is provided)
+export function pilot_gear_slot(gear_path: string, helper: HelperOptions): string {
+  // Fetch the item
+  let gear_: PilotGear | null = resolve_dotpath(helper.data?.root, gear_path);
+
+  // Generate commons
+  let cd = ref_commons(gear_);
+
+  if (!cd) {
+    // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
+    return `<div class="${EntryType.PILOT_GEAR} ref drop-target card clipped pilot-gear-compact item" 
+                        data-path="${gear_path}" 
+                        data-type="${EntryType.PILOT_GEAR}">
+          <img class="ref-icon" src="${TypeIcon(EntryType.PILOT_GEAR)}"></img>
+          <span class="major">Equip gear</span>
+      </div>`;
+  }
+
+  let gear = gear_!;
+
+  // Conditionally show uses
+  let uses = "";
+  let limited = gear.Tags.find(t => t.Tag.IsLimited);
+  if(limited) {
+    uses = `
+      <div class="compact-stat">
+        <span class="minor" style="max-width: min-content;">USES: </span>
+        <span class="minor" style="max-width: min-content;">todo</span>
+        <span class="minor" style="max-width: min-content;" > / </span>
+        <span class="minor" style="max-width: min-content;">${limited.Value}</span>
+      </div>
+    `
+  }
+
+  return `<div class="valid ${EntryType.PILOT_GEAR} ref drop-target card clipped pilot-gear-compact item macroable"
+                data-id="${cd.ref.id}" 
+                data-ref-type="${cd.ref.type}" 
+                data-reg-name="${cd.ref.reg_name}" 
+                data-path="${gear_path}"
+                data-type="${EntryType.PILOT_ARMOR}">
+    <div class="lancer-gear-header clipped-top">
+      <i class="cci cci-generic-item i--m"> </i>
+      <a class="gear-macro macroable"><i class="mdi mdi-message"></i></a>
+      <span class="minor">${gear.Name}</span>
+      <a class="gen-control i--light" data-action="null" data-path="${gear_path}"><i class="fas fa-trash"></i></a>
+    </div>
+    <div class="flexcol">
+      ${uses}
+
+      <!-- Loading toggle - WIP
+      <div class="flexrow">
+        {{#if (is-loading gear.data.tags)}}
+          LOADING
+        {{/if}}
+      </div>
+      -->
+      <div class="effect-text" style=" padding: 5px">
+        ${gear.Description}
+      </div>
+
+      <div class="flexrow">
+        ${compact_tag_list(gear.Tags)}
+      </div>
+    </div>
+  </div>`;
 }

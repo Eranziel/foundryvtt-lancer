@@ -95,6 +95,8 @@ import {
   damage_editor,
   bonus_array,
   pilot_armor_slot,
+  pilot_weapon_slot,
+  pilot_gear_slot,
 } from "./module/helpers/item";
 import { editable_mm_ref_list_item as editable_mm_ref_list_item, clicker_num_input, clicker_stat_card, compact_stat_edit, compact_stat_view, mech_loadout, overcharge_button, stat_edit_card, stat_edit_card_max, stat_view_card, pilot_slot } from "./module/helpers/actor";
 import { HelperOptions } from "handlebars";
@@ -321,7 +323,9 @@ Hooks.once("init", async function () {
 
   // ------------------------------------------------------------------------
   // Pilot stuff
-  Handlebars.registerHelper("armor-slot", pilot_armor_slot);
+  Handlebars.registerHelper("pilot-armor-slot", pilot_armor_slot);
+  Handlebars.registerHelper("pilot-weapon-slot", pilot_weapon_slot);
+  Handlebars.registerHelper("pilot-gear-slot", pilot_gear_slot);
 
   // ------------------------------------------------------------------------
   // Tags
