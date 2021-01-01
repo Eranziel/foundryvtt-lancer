@@ -114,7 +114,7 @@ export function resolve_dotpath(object: any, path: string) {
  * 
  * The data getter and commit func are used to retrieve the target data, and to save it back (respectively)
  */
-export function activate_general_gen_controls<T>(
+export function activate_general_controls<T>(
     html: JQuery, 
     // Retrieves the data that we will operate on
     data_getter: (() => (Promise<T> | T)),
@@ -122,6 +122,7 @@ export function activate_general_gen_controls<T>(
 
     html.on("click", async (event: any) => { 
      // Get the id/action
+      event.stopPropagation();
       const elt = event.currentTarget;
       const path = elt.dataset.path;
       const action = elt.dataset.action;
