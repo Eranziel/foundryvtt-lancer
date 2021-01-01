@@ -1,5 +1,5 @@
 import { LANCER, LancerActorType } from "../config";
-import { activate_general_gen_controls, del_arr_key,  gentle_merge, is_ref, resolve_dotpath, safe_json_parse } from "../helpers/commons";
+import { activate_general_controls, del_arr_key,  gentle_merge, is_ref, resolve_dotpath, safe_json_parse } from "../helpers/commons";
 import { enable_native_dropping_mm_wrap, enable_simple_ref_dragging, enable_simple_ref_dropping, NativeDrop, ResolvedNativeDrop, resolve_native_drop } from "../helpers/dragdrop";
 import { HANDLER_openRefOnClick } from "../helpers/refs";
 import { LancerActorSheetData, LancerStatMacroData } from "../interfaces";
@@ -52,7 +52,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     this._activateNativeRefDropBoxes(html);
 
     // Enable general controls, so items can be deleted and such
-    activate_general_gen_controls(html.find(".gen-control"), () => this.getDataLazy(), (_) => this._commitCurrMM());
+    activate_general_controls(html.find(".gen-control"), () => this.getDataLazy(), (_) => this._commitCurrMM());
   }
 
   _activatePlusMinusButtons(html: any) {

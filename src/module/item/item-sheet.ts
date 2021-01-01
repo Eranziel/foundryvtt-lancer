@@ -2,7 +2,7 @@ import { DamageData, LancerItemSheetData, RangeData } from "../interfaces";
 import { LANCER, LancerItemType } from "../config";
 import { mm_wrap_item } from "../mm-util/helpers";
 import { LancerItem } from "./lancer-item";
-import { activate_general_gen_controls, gentle_merge, resolve_dotpath } from "../helpers/commons";
+import { activate_general_controls, gentle_merge, resolve_dotpath } from "../helpers/commons";
 import { HANDLER_openRefOnClick } from "../helpers/refs";
 
 const lp = LANCER.log_prefix;
@@ -62,7 +62,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
     $(html).find(".ref.valid").on("click", HANDLER_openRefOnClick);
 
     // Enable general controls, so items can be deleted and such
-    activate_general_gen_controls(html.find(".gen-control"), () => this.getDataLazy(), (_) => this._commitCurrMM());
+    activate_general_controls(html.find(".gen-control"), () => this.getDataLazy(), (_) => this._commitCurrMM());
 
     // Everything below here is only needed if the sheet is editable
     if (!this.options.editable) return;
