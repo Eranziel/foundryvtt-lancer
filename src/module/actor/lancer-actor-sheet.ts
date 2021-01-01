@@ -1,9 +1,9 @@
-import { EntryType, RegRef } from "machine-mind";
-import { LANCER, LancerActorType, LancerItemType } from "../config";
-import { enable_dragging, enable_dropping, gentle_merge, HANDLER_onClickRef, is_ref, NativeDrop, recreate_ref_element_ref, ResolvedNativeDrop, resolve_native_drop, resolve_ref_element, safe_json_parse } from "../helpers/commons";
-import { LancerActorSheetData, LancerItemSheetData, LancerMechSheetData, LancerStatMacroData } from "../interfaces";
-import { FoundryReg, FoundryRegActorData, FoundryRegItemData } from "../mm-util/foundry-reg";
-import { MMEntityContext, mm_wrap_actor, mm_wrap_item } from "../mm-util/helpers";
+import { LANCER, LancerActorType } from "../config";
+import { activate_general_gen_controls, del_arr_key,  gentle_merge, is_ref, resolve_dotpath, safe_json_parse } from "../helpers/commons";
+import { enable_native_dropping_mm_wrap, enable_simple_ref_dragging, enable_simple_ref_dropping, NativeDrop, ResolvedNativeDrop, resolve_native_drop } from "../helpers/dragdrop";
+import { HANDLER_openRefOnClick } from "../helpers/refs";
+import { LancerActorSheetData, LancerStatMacroData } from "../interfaces";
+import { mm_wrap_actor } from "../mm-util/helpers";
 import { LancerActor } from "./lancer-actor";
 const lp = LANCER.log_prefix;
 
@@ -36,11 +36,11 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
    * Activate event listeners using the prepared sheet HTML
    * @param html {HTMLElement}   The prepared HTML object ready to be rendered into the DOM
    */
-  activateListeners(html: any) {
+  activateListeners(html: JQuery) {
     super.activateListeners(html);
 
     // Make refs clickable to open the item
-    $(html).find(".ref.valid").on("click", HANDLER_onClickRef);
+    $(html).find(".ref.valid").on("click", HANDLER_openRefOnClick);
 
     // Make +/- buttons work
     this._activatePlusMinusButtons(html);
@@ -49,10 +49,11 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     this._activateRefDragging(html);
 
     // Enable native ref drag handlers
-    this._activateNativeRefDrops(html);
+    this._activateNativeRefDropBoxes(html);
+
+    // Enable general controls, so items can be deleted and such
+    activate_general_gen_controls(html.find(".gen-control"), () => this.getDataLazy(), (_) => this._commitCurrMM());
   }
-
-
 
   _activatePlusMinusButtons(html: any) {
     // Customized increment/decrement arrows. Same as in actor
@@ -75,87 +76,39 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
   }
 
   // Enables dragging of ref items to slot
-  _activateRefDragging(html: any) {
-    // Allow every ".ref" to be dragged, with a payload of a JSON RegRef
-    enable_dragging(html.find(".ref"), drag_src => {
-      // Drag a JSON ref
-      let ref = recreate_ref_element_ref(drag_src[0]);
-      console.log("Dragging ref:", ref);
-      return JSON.stringify(ref);
-    });
+  _activateRefDragging(html: JQuery) {
+    // Allow refs to be dragged arbitrarily
+    enable_simple_ref_dragging(html.find(".ref")); 
 
-    // Allow every ".refdrop" to have RegRefs dropped on it. Must be dragged from a .ref, and must match type
-    enable_dropping(
-      html.find(".refdrop"),
-      async (ref_json, dest, evt) => {
-        let recon_ref: any = safe_json_parse(ref_json);
-
-        // If it isn't a ref, we don't handle
-        if(!is_ref(recon_ref)) {
-          return;
-        } 
-
-        // It is a ref, so we assert dominance by not letting anyone else look at it
-        evt.stopPropagation();
-
-        // Resolve!
-        let path = dest[0].dataset.path!;
-
-        // Spawn an event to write and save
+    // Allow every ".ref" spot to be dropped onto, with a payload of a JSON RegRef
+    enable_simple_ref_dropping(
+      html.find(".ref.drop-target"), 
+      async (entry, evt) => {
         let data = await this.getDataLazy();
-        let ctx = data.mm.ctx; // Re-use ctx, for efficiency's sake
-        let resolved = await new FoundryReg().resolve(ctx, recon_ref);
-
-        // Set and save. Use gentle merge for data path resolution
-        gentle_merge(data, { [path]: resolved });
-        await data.mm.ent.writeback();
-      },
-      (data, dest) => {
-        // Parse our drag data as a ref
-        let recon_ref = safe_json_parse(data);
-        if(is_ref(recon_ref)) {
-          let dest_type = dest[0].dataset.type;
-          return recon_ref.type == dest[0].dataset.type; // Simply confirm same type. 
+        let path = evt[0].dataset.path;
+        if(path) {
+          // Set the item at the data path
+          gentle_merge(data, {[path]: entry});
+          this._commitCurrMM();
         }
-        return false;
-      }
-    );
+      });
   }
 
   // Enables functionality for converting native foundry drags to be handled by ref drop slots
   // This is primarily useful for dropping actors onto sheets
-  _activateNativeRefDrops(html: any) {
-    enable_dropping(
+  _activateNativeRefDropBoxes(html: JQuery) {
+    enable_native_dropping_mm_wrap(
       html.find(".native-refdrop"),
-      async (drop_json, dest, evt) => {
-        evt.stopPropagation();
-        // We resolve it as a real item
-        let resolved = await resolve_native_drop(drop_json);
-
-        // If it doesn't exist, well, darn
-        if(!resolved) {
-          return;
-        }
-
-        // From here, depends slightly on tye
-        let item: MMEntityContext<EntryType>;
-        if(resolved.type == "Actor") {
-          item = await mm_wrap_actor(resolved.actor);
-        } else if(resolved.type == "Item") {
-          item = await mm_wrap_item(resolved.item);
-        } else {
-          return;
-        }
-
+      async (item, dest, evt) => {
         // Now, as far as whether it should really have any effect, that depends on the type
-        if(item.ent.Type == dest[0].dataset.type) {
-          // We're golden. Make the assignment
-          let path = dest[0].dataset.path!;
+        let path = dest[0].dataset.path!;
+        if(path) {
           let data = await this.getDataLazy();
           gentle_merge(data, { [path]: item.ent });
-          await data.mm.ent.writeback();
+          await this._commitCurrMM();
         }
       },
+      [], // We only accept if data-type set
       (data, dest) => {
         // We have no idea if we should truly be able to drop here,
         // as doing so tends to require type resolution (an async op that we can't really afford to do here). 
@@ -165,7 +118,6 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
           return true;
         }
         return false;
-
       }
     );
   }
@@ -248,9 +200,6 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     return native_drop;
   }
 
-
-
-
   async _addOwnedItem(item: Item) {
     const actor = this.actor as LancerActor<any>;
     console.log(`${lp} Copying ${item.name} to ${actor.name}.`);
@@ -325,7 +274,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     }
 
     // And then do a mm level writeback, always
-    await ct.mm.ent.writeback();
+    await this._commitCurrMM(false); // will be done by update, regardless
 
     // Return form data with any modifications
     return formData;
@@ -337,7 +286,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
    */
   //@ts-ignore
   async getData(): Promise<LancerActorSheetData<T>> {
-    const data = (await super.getData()) as LancerActorSheetData<T>; // Not fully populated yet!
+    const data = super.getData() as LancerActorSheetData<T>; // Not fully populated yet!
 
     // Load mech meta stuff
     data.mm = await mm_wrap_actor(this.actor as LancerActor<T>);
@@ -350,5 +299,15 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
   private _currData: LancerActorSheetData<T> | null = null;
   async getDataLazy(): Promise<LancerActorSheetData<T>> {
     return this._currData ?? (await this.getData());
+  }
+
+  // Write back our currently cached _currData, then refresh this sheet
+  // Useful for when we want to do non form-based alterations
+  async _commitCurrMM(render: boolean = true) {
+    await this._currData?.mm.ent.writeback();
+    this._currData = null; // Reset
+    if(render) {
+      this.render();
+    }
   }
 }

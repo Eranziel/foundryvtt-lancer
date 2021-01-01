@@ -14,7 +14,7 @@ import {
   LancerNpcTemplateData,
 } from "../item/lancer-item";
 import { ItemDataManifest } from "../item/util";
-import { ResolvedNativeDrop } from "../helpers/commons";
+import { ResolvedNativeDrop } from "../helpers/dragdrop";
 const lp = LANCER.log_prefix;
 
 /**
@@ -245,7 +245,7 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
 
     const sheet_data = await this.getDataLazy();
     const this_mm = sheet_data.mm;
-    const item = drop.item;
+    const item = drop.entity;
 
 
 

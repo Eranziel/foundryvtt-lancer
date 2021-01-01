@@ -1,10 +1,6 @@
 import { EntryType, FrameTrait, MountType } from "machine-mind";
-import { defaults } from "machine-mind/dist/funcs";
-import { LancerItemSheetData } from "../interfaces";
-import { gentle_merge } from "../helpers/commons";
-import { mm_wrap_item } from "../mm-util/helpers";
+import { funcs } from "machine-mind";
 import { LancerItemSheet } from "./item-sheet";
-import { LancerFrame, LancerItem } from "./lancer-item";
 
 /**
  * Extend the generic Lancer item sheet
@@ -30,7 +26,7 @@ export class LancerFrameSheet extends LancerItemSheet<EntryType.FRAME> {
     // Pretty simple, sis
     let data = await this.getDataLazy();
     let mm = data.mm;
-    let trait = await new FrameTrait(mm.reg, mm.ctx, defaults.FRAME_TRAIT()).ready();
+    let trait = await new FrameTrait(mm.reg, mm.ctx, funcs.defaults.FRAME_TRAIT()).ready();
     mm.ent.Traits.push(trait);
     await mm.ent.writeback();
     this.render();
@@ -97,12 +93,11 @@ export class LancerFrameSheet extends LancerItemSheet<EntryType.FRAME> {
     // Everything below here is only needed if the sheet is editable
     if (!this.options.editable) return;
 
-    // Frame trait controls
-    let traits = html.find("#frame-traits");
-    traits.find(".add-button").on("click", e => this._onCreateFrameTrait(e));
-    traits.find(".remove-button").on("click", e => this._onDeleteFrameTrait(e));
-
-    html.find(".mount-selector").on("change", e => this._onChangeMount(e));
+    // Add controls
+    html.find("#add-trait-button").on("click", e => this._onCreateFrameTrait(e));
     html.find("#add-mount-button").on("click", e => this._onCreateMount(e));
+
+    // Watch for select delete on mount
+    html.find(".mount-selector").on("change", e => this._onChangeMount(e));
   }
 }

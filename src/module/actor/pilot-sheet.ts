@@ -23,7 +23,8 @@ import { FoundryReg } from "../mm-util/foundry-reg";
 import { MMEntityContext, mm_wrap_item } from "../mm-util/helpers";
 import { funcs } from "machine-mind";
 import { HelperOptions } from "handlebars";
-import { ResolvedNativeDrop, resolve_dotpath } from "../helpers/commons";
+import { resolve_dotpath } from "../helpers/commons";
+import { ResolvedNativeDrop } from "../helpers/dragdrop";
 
 const lp = LANCER.log_prefix;
 
@@ -350,7 +351,7 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
 
     const sheet_data = await this.getDataLazy();
     const this_mm = sheet_data.mm;
-    const item = drop.item;
+    const item = drop.entity;
 
     // Behaviour differs based on if we get this as a machine-mind item or not
     if (LANCER.mm_compat_item_types.includes(item.type)) {

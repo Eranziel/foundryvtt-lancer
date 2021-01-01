@@ -8,11 +8,11 @@
     </div>
   </header>
 
-  <div class="wraprow quad">
+  <div class="wraprow quadruple">
     {{{stat-edit-max-card  "HP"          "mdi mdi-heart-outline"    "mm.ent.CurrentHP"      "mm.ent.MaxHP" }}}
     {{{stat-edit-max-card  "HEAT"        "cci cci-heat"             "mm.ent.CurrentHeat"    "mm.ent.HeatCapacity" }}}
     {{{stat-view-card      "ARMOR"       "cci cci-armor"            "mm.ent.Armor" }}}
-    {{{stat-edit-card      "OVERSHIELD"  "cci cci-heat"             "mm.ent.CurrentOvercharge" }}}
+    {{{stat-edit-card      "OVERSHIELD"  "cci cci-heat"             "mm.ent.CurrentOvershield" }}}
     {{{stat-edit-max-card  "REPAIRS"     "cci cci-repair"           "mm.ent.CurrentRepairs" "mm.ent.RepairCapacity" }}}
     {{{stat-view-card      "SIZE"        (concat "mdi " mm.ent.SizeIcon)   "mm.ent.Size" }}}
 
@@ -35,7 +35,7 @@
         <span class="major">PILOT</span>
       </div>
       <div class="actor-ref-drop">
-        {{{actor-slot "mm.ent.Pilot" "pilot"}}}
+        {{{pilot-slot "mm.ent.Pilot" }}}
       </div>
     </div>
   </div>
@@ -47,29 +47,29 @@
 
   <div class="flexcol card clipped">
     <span class="lancer-stat-header major clipped-top">FRAMES</span>
-    {{#each mm.ent.OwnedFrames as |frame|}}
-      {{{ref-mm frame}}}
+    {{#each mm.ent.OwnedFrames as |frame index|}}
+      {{{ref-mm-list-item (concat "mm.ent.OwnedFrames." index) "delete" }}}
     {{/each}}
   </div>
 
   <div class="flexcol card clipped">
     <span class="lancer-stat-header major clipped-top">WEAPONS</span>
-    {{#each mm.ent.OwnedWeapons as |weapon|}}
-      {{{ref-mm weapon}}}
+    {{#each mm.ent.OwnedWeapons as |weapon index|}}
+      {{{ref-mm-list-item (concat "mm.ent.OwnedWeapons." index) "delete" }}}
     {{/each}}
   </div> 
   
   <div class="flexcol card clipped">
     <span class="lancer-stat-header major clipped-top">SYSTEMS</span>
-    {{#each mm.ent.OwnedSystems as |system|}}
-      {{{ref-mm system}}}
+    {{#each mm.ent.OwnedSystems as |system index|}}
+      {{{ref-mm-list-item (concat "mm.ent.OwnedSystems." index) "delete" }}}
     {{/each}}
   </div>
 
   <div class="flexcol card clipped">
     <span class="lancer-stat-header major clipped-top">MODS</span>
-    {{#each mm.ent.OwnedWeaponMods as |mod|}}
-      {{{ref-mm mod}}}
+    {{#each mm.ent.OwnedWeaponMods as |mod index|}}
+      {{{ref-mm-list-item (concat "mm.ent.OwnedWeaponMods." index) "delete" }}}
     {{/each}}
   </div>
 </form>

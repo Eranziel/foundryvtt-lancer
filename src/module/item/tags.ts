@@ -1,4 +1,4 @@
-import { typed_lancer_data } from "machine-mind";
+import { TagInstance, typed_lancer_data } from "machine-mind";
 import { TagData } from "../interfaces";
 
 const TAGS = typed_lancer_data.tags;
@@ -87,6 +87,19 @@ export const compactTagList = `<div class="compact-tag-row">
   {{{compact-tag tag}}}
   {{/each}}
 </div>`;
+
+// An MM version of the above partial
+export function compact_tag_list(tags: TagInstance[]) {
+  let processed_tags = tags.map(t => `
+    <div class="compact-tag flexrow">
+      <i class="mdi mdi-label i--s i--light"></i>
+      <span style="margin: 3px;">${t.Tag.Name} ${t.Value}</span>
+    </div>`);
+
+  `<div class="compact-tag-row">
+    ${processed_tags.join("")}
+  </div>`;
+}
 
 export function renderChunkyTag(tag: TagData | null, key: number): string {
   let template: string = "";

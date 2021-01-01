@@ -19,7 +19,7 @@
   </div>
 
   {{!-- Frame Stats --}}
-  <div class="card clipped mech-stats wraprow quad">
+  <div class="card clipped mech-stats wraprow quadruple">
     {{{clicker-stat-card "HP"          "mdi mdi-heart-outline"     "mm.ent.Stats.hp" }}}
     {{{clicker-stat-card "ARMOR"       "mdi mdi-shield-outline"    "mm.ent.Stats.armor" }}}
     {{{clicker-stat-card "REPAIRS"     "cci cci-repair"            "mm.ent.Stats.repcap" }}}
@@ -38,7 +38,7 @@
   <div class="flexcol">
     <div>
       <span class="minor" style="float: left">AVAILABLE WEAPON MOUNTS</span>
-      <a id="add-mount-button" class="add-button" style="float: right; margin-right: 1em">+</a>
+      <a id="add-mount-button" style="float: right; margin-right: 1em">+</a>
     </div>
     <div class="flexrow">
       {{#each mm.ent.Mounts as |mount key|}}
@@ -64,7 +64,7 @@
   <div id="frame-traits" class="flexcol">
     <div>
       <span class="minor" style="float: left">TRAITS</span>
-      <a class="add-button clickable" style="float: right">+</a>
+      <a id="add-trait-button" style="float: right">+</a>
     </div>
     <ul>
     {{#each mm.ent.Traits as |trait key|}}
@@ -72,7 +72,7 @@
         <div class="lancer-mech-trait-header medium clipped-top" style="grid-area: 1/1/2/2">
           <i class="cci cci-trait i--m i--light" styles="float: left; padding-left: 10px"> </i>
           <input class="lancer-invisible-input major i--light" name="mm.ent.Traits.{{key}}.Name" value="{{trait.Name}}" data-dtype="String" />
-          <a class="remove-button" data-index="{{key}}" style="float: right; margin-right: 11px; margin-top: 2px;">
+          <a class="gen-control" data-action="splice" data-path="mm.ent.Traits.{{key}}" style="float: right; margin-right: 11px; margin-top: 2px;">
             <i class="fas fa-trash"></i>
           </a>
         </div>
@@ -93,11 +93,11 @@
     <div class="desc-text">{{editor content=mm.ent.CoreSystem.Description target="mm.ent.CoreSystem.Description" button=true owner=owner editable=editable}}</div>
 
     {{!-- Want to make these show jumpable little items --}}
-    {{#each mm.ent.CoreSystem.Integrated as |integrated key|}}
-      {{{ref-item integrated}}}
+    {{#each mm.ent.CoreSystem.Integrated as |integrated index|}}
+      {{{ref-mm-list-item (concat "mm.ent.CoreSystem.Integrated." index) "splice" }}}
     {{/each}}
-    {{#each mm.ent.CoreSystem.Deployables as |deployable key|}}
-      {{{ref-item deployable}}}
+    {{#each mm.ent.CoreSystem.Deployables as |deployable index|}}
+      {{{ref-mm-list-item (concat "mm.ent.CoreSystem.Deployables." index) "splice" }}}
     {{/each}}
 
     <div class="card clipped">

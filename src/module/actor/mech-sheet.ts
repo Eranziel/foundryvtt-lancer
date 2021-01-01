@@ -1,8 +1,8 @@
 import { LANCER } from "../config";
 import { LancerActorSheet } from "./lancer-actor-sheet";
-import { EntryType, funcs, OpCtx, RegRef } from "machine-mind";
+import { EntryType, funcs, MountType, OpCtx, RegRef } from "machine-mind";
 import { MMEntityContext, mm_wrap_actor, mm_wrap_item } from "../mm-util/helpers";
-import { ResolvedNativeDrop } from "../helpers/commons";
+import { ResolvedNativeDrop } from "../helpers/dragdrop";
 
 /**
  * Extend the basic ActorSheet
@@ -34,14 +34,10 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
     // Everything below here is only needed if the sheet is editable
     if (!this.options.editable) return;
 
-
-    // Overcharge
-    html.find("#overcharge-button").on("click", (ev: JQuery.ClickEvent) => {
-      this._onClickOvercharge(ev);
-    });
-
-
+    this._activateOverchargeControls(html);
+    this._activateLoadoutControls(html);
   }
+
   /* -------------------------------------------- */
 
   // Baseline drop behavior. Let people add stuff to the mech
@@ -52,7 +48,7 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
     }
 
     // Prep data
-    let item = drop.item;
+    let item = drop.entity;
     const sheet_data = await this.getDataLazy();
     const this_mm = sheet_data.mm;
 
@@ -98,16 +94,71 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
   }  
   
   /**
-   * Handles the overcharge button being clicked
+   * Handles actions in the overcharge panel 
    */
-  async _onClickOvercharge(event: JQuery.ClickEvent) {
-    let data = await this.getDataLazy();
-    let old = data.mm.ent.CurrentOvercharge;
+  _activateOverchargeControls(html: any) {
+    let button = html.find("#overcharge-button");
 
-    // TODO: Actually do overcharge heat rolls
-    console.log("Overcharge", old+1);
-    data.mm.ent.CurrentOvercharge = old + 1;
-    await data.mm.ent.writeback();
-    this.render();
+    // Increment on click
+    button.on("click", async (evt: JQuery.ClickEvent) => {
+      this._event_handler("overcharge", evt);
+    });
+
+    // Decrement on right click
+    button.on("contextmenu", async (evt: JQuery.ClickEvent) => {
+      evt.preventDefault();
+      this._event_handler("overcharge-rollback", evt);
+    });
   }
+
+  /**
+   * Handles more niche controls in the loadout in the overcharge panel 
+   */
+  _activateLoadoutControls(html: any) {
+    html.find("#reset-weapon-mount-button").on("click", async (evt: JQuery.ClickEvent) => {
+      this._event_handler("reset-wep", evt);
+    });
+
+    html.find("#add-weapon-mount-button").on("click", async (evt: JQuery.ClickEvent) => {
+      this._event_handler("add-wep", evt);
+    });
+
+    html.find("#reset-system-mount-button").on("click", async (evt: JQuery.ClickEvent) => {
+      this._event_handler("reset-sys", evt);
+    });
+
+    html.find("#add-system-mount-button").on("click", async (evt: JQuery.ClickEvent) => {
+      this._event_handler("add-sys", evt);
+    });
+  }
+
+  // Save ourselves repeat work by handling most events clicks actual operations here
+  async _event_handler(mode: "reset-wep" | "reset-sys" | "add-wep" | "add-sys" | "overcharge" | "overcharge-rollback", evt: JQuery.ClickEvent) {
+    evt.stopPropagation();
+    let data = await this.getDataLazy();
+    let ent = data.mm.ent;
+
+    switch(mode) {
+      case "add-sys":
+        await ent.Loadout.AddEmptySystemMount();
+        break;
+      case "add-wep":
+        await ent.Loadout.AddEmptyWeaponMount(MountType.Main);
+        break;
+      case "reset-sys":
+        ent.Loadout.SysMounts = [];
+        break;
+      case "reset-wep":
+        await ent.Loadout.reset_weapon_mounts();
+        break;
+      case "overcharge":
+        ent.CurrentOvercharge++;
+        break;
+      case "overcharge-rollback":
+        ent.CurrentOvercharge--;
+        break;
+    }
+
+    await this._commitCurrMM();
+  };
 }

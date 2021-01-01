@@ -658,6 +658,12 @@ tr.lcp-index-header {
   margin: 5px;
 }
 
+.ref-list-controls {
+  width: 50px;
+  margin: 5px;
+  border: 2px solid black;
+}
+
 .pilot-stats {
   clip-path: polygon( 0 0, calc(100% - 30px) 0, 100% 100%, 0 100% );
   -webkit-clip-path: polygon( 0 0, calc(100% - 30px) 0, 100% 100%, 0 100% );
@@ -1112,14 +1118,25 @@ input.core-power-toggle:not(:checked)::before
   flex-wrap: wrap;
 }
 
+/* Two items per row */
+.wraprow.double > * {
+  flex: 1 0 calc(50% - 14px); /* the px here is 2x the margin. adjust accordingly */
+  margin: 7px;
+}
+
+.wraprow.double > .double {
+  flex: 1 0 calc(100% - 14px); 
+  margin: 7px;
+}
+
 /* Three items per row */
-.wraprow.trip > * {
-  flex: 1 0 calc(33% - 14px); /* the px here is 2x the margin. adjust accordingly */
+.wraprow.triple > * {
+  flex: 1 0 calc(33% - 14px);
   margin: 7px;
 }
 
 /* Takes up 2/3 row slots */
-.wraprow.trip > .double {
+.wraprow.triple > .double {
   flex: 1 0 calc(66% - 14px); 
   margin: 7px;
 }
@@ -1131,39 +1148,39 @@ input.core-power-toggle:not(:checked)::before
 }
 
 /* Four items per row */
-.wraprow.quad > * {
+.wraprow.quadruple > * {
   flex: 1 0 calc(25% - 14px); 
   margin: 7px;
 }
 
-/* Doublewidth quad item */
-.wraprow.quad > .double {
+/* Doublewidth.quadruple item */
+.wraprow.quadruple > .double {
   flex: 1 0 calc(50% - 14px); 
   margin: 7px;
 }
 
-/* Triplewidth quad item */
-.wraprow.quad > .triple {
+/* Triplewidth.quadruple item */
+.wraprow.quadruple > .triple {
   flex: 1 0 calc(50% - 14px);
   margin: 7px;
 }
 
-.wraprow.quint > * {
+.wraprow.quintuple > * {
   flex: 1 0 calc(20% - 14px); 
   margin: 7px;
 }
 
-.wraprow.quint > .double {
+.wraprow.quintuple > .double {
   flex: 1 0 calc(40% - 14px); 
   margin: 7px;
 }
 
-.wraprow.quint > .triple {
+.wraprow.quintuple > .triple {
   flex: 1 0 calc(60% - 14px); 
   margin: 7px;
 }
 
-.wraprow.quint > .quadruple {
+.wraprow.quintuple > .quadruple {
   flex: 1 0 calc(80% - 14px); 
   margin: 7px;
 }

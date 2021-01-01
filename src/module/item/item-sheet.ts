@@ -5,7 +5,8 @@ import { ActivationType, DamageType, NpcFeatureType } from "machine-mind";
 import { ChargeData, ChargeEffectData } from "./effects";
 import { mm_wrap_item } from "../mm-util/helpers";
 import { LancerItem } from "./lancer-item";
-import { gentle_merge, HANDLER_onClickRef, resolve_dotpath } from "../helpers/commons";
+import { activate_general_gen_controls, gentle_merge, resolve_dotpath } from "../helpers/commons";
+import { HANDLER_openRefOnClick } from "../helpers/refs";
 
 const lp = LANCER.log_prefix;
 
@@ -61,7 +62,10 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
     super.activateListeners(html);
 
     // Make refs clickable
-    $(html).find(".ref.valid").on("click", HANDLER_onClickRef);
+    $(html).find(".ref.valid").on("click", HANDLER_openRefOnClick);
+
+    // Enable general controls, so items can be deleted and such
+    activate_general_gen_controls(html.find(".gen-control"), () => this.getDataLazy(), (_) => this._commitCurrMM());
 
     // Everything below here is only needed if the sheet is editable
     if (!this.options.editable) return;
@@ -284,28 +288,6 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
   }
   */
 
-  static arrayifyTags(data: any, prefix: string) {
-    if (data.hasOwnProperty(`${prefix}.0.name`)) {
-      let tags = [];
-      let i = 0;
-      while (data.hasOwnProperty(`${prefix}.${i}.name`)) {
-        tags.push({
-          name: data[`${prefix}.${i}.name`],
-          id: data[`${prefix}.${i}.id`],
-          description: data[`${prefix}.${i}.description`],
-          val: data[`${prefix}.${i}.val`],
-        });
-        delete data[`${prefix}.${i}.name`];
-        delete data[`${prefix}.${i}.id`];
-        delete data[`${prefix}.${i}.description`];
-        delete data[`${prefix}.${i}.val`];
-        i++;
-      }
-      data[`${prefix}`] = tags;
-    }
-    return data;
-  }
-
   // Helper function for making fields effectively target multiple attributes
   _propagateMMData(formData: any) {
     // Pushes relevant field data down from the "item" data block to the "mm.ent" data block
@@ -321,6 +303,9 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
    * @private
    */
   async _updateObject(event: Event | JQuery.Event, formData: any): Promise<any> {
+    // hmm
+    console.log("UPDATE OBJECT CALLED");
+
     // Fetch data, modify, and writeback
     let ct = await this.getDataLazy();
 
@@ -343,6 +328,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
 
     // Load item, mm-wrapped
     data.mm = await mm_wrap_item(this.item as LancerItem<T>);
+    console.log(`${lp} Item ctx: `, data);
     this._currData = data;
     return data;
   }
@@ -351,6 +337,16 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
   private _currData: LancerItemSheetData<T> | null = null;
   async getDataLazy(): Promise<LancerItemSheetData<T>> {
     return this._currData ?? (await this.getData());
+  }
+  
+  // Write back our currently cached _currData, then refresh this sheet
+  // Useful for when we want to do non form-based alterations
+  async _commitCurrMM(render: boolean = true) {
+    await this._currData?.mm.ent.writeback();
+    this._currData = null; // Reset
+    if(render) {
+      this.render();
+    }
   }
 }
 

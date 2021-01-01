@@ -15,7 +15,6 @@ import {
   LancerTalentData,
 } from "./lancer-item";
 
-import { IContentPackData } from "machine-mind/dist/classes/ContentPack";
 import { EntryType, LiveEntryTypes, RegEntryTypes } from "machine-mind";
 import { FoundryRegItemData } from "../mm-util/foundry-reg";
 

@@ -13,8 +13,6 @@ import { LancerGame } from "./module/lancer-game";
 import {
   LancerActor,
   lancerActorInit,
-  mount_card,
-  mount_type_selector,
   npc_tier_selector,
 } from "./module/actor/lancer-actor";
 import { LancerItem, lancerItemInit } from "./module/item/lancer-item";
@@ -72,10 +70,8 @@ import * as macros from "./module/macros";
 import compareVersions = require("compare-versions");
 import { NpcFeatureType, EntryType, Manufacturer } from "machine-mind";
 import {
-  manufacturer_ref as ref_manufacturer,
   render_icon,
   resolve_dotpath,
-  simple_mm_ref,
 } from "./module/helpers/commons";
 import { is_loading } from "machine-mind/dist/classes/mech/EquipUtil";
 import {
@@ -98,8 +94,9 @@ import {
   damage_editor,
   bonus_array,
 } from "./module/helpers/item";
-import { actor_slot, clicker_num_input, clicker_stat_card, compact_stat_edit, compact_stat_view, mech_loadout, overcharge_button, stat_edit_card, stat_edit_card_max, stat_view_card } from "./module/helpers/actor";
+import { editable_mm_ref_list_item as editable_mm_ref_list_item, clicker_num_input, clicker_stat_card, compact_stat_edit, compact_stat_view, mech_loadout, overcharge_button, stat_edit_card, stat_edit_card_max, stat_view_card, pilot_slot } from "./module/helpers/actor";
 import { HelperOptions } from "handlebars";
+import { manufacturer_ref, simple_mm_ref } from "./module/helpers/refs";
 
 const lp = LANCER.log_prefix;
 
@@ -313,8 +310,9 @@ Hooks.once("init", async function () {
 
   // ------------------------------------------------------------------------
   // Refs
-  Handlebars.registerHelper("ref-mm", simple_mm_ref);
-  Handlebars.registerHelper("actor-slot", actor_slot);
+  Handlebars.registerHelper("simple-ref", simple_mm_ref);
+  Handlebars.registerHelper("ref-mm-list-item", editable_mm_ref_list_item);
+  Handlebars.registerHelper("pilot-slot", pilot_slot);
 
   // ------------------------------------------------------------------------
   // Tags
@@ -325,7 +323,7 @@ Hooks.once("init", async function () {
 
   // ------------------------------------------------------------------------
   // License data
-  Handlebars.registerHelper("ref-manufacturer", ref_manufacturer);
+  Handlebars.registerHelper("ref-manufacturer", manufacturer_ref);
 
   // ------------------------------------------------------------------------
   // Bonuses
@@ -387,8 +385,6 @@ Hooks.once("init", async function () {
 
   // ------------------------------------------------------------------------
   // Pilot components
-  Handlebars.registerHelper("mount-selector", mount_type_selector);
-  Handlebars.registerPartial("mount-card", mount_card);
   Handlebars.registerHelper("overcharge-button", overcharge_button);
 
   // ------------------------------------------------------------------------

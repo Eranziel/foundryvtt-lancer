@@ -2,6 +2,7 @@
 /* Handlebars Helpers                    */
 /* ------------------------------------ */
 
+import { HelperOptions } from "handlebars";
 import {
   WeaponSize,
   WeaponType,
@@ -18,12 +19,13 @@ import {
   Bonus,
 } from "machine-mind";
 import { MechWeapon, MechWeaponProfile } from "machine-mind";
-import { LancerActor } from "../actor/lancer-actor";
-import { LANCER, LancerActorType, LancerItemType } from "../config";
-import { DamageData, NPCDamageData, RangeData, TagData } from "../interfaces";
-import { LancerItem, LancerNpcFeatureData } from "../item/lancer-item";
-import { FlagData, FoundryReg } from "../mm-util/foundry-reg";
-import { checked, render_icon, selected } from "./commons";
+import { LancerItemType } from "../config";
+import { NPCDamageData, RangeData, TagData } from "../interfaces";
+import { LancerNpcFeatureData } from "../item/lancer-item";
+import { compact_tag_list } from "../item/tags";
+import { FlagData } from "../mm-util/foundry-reg";
+import { checked, render_icon, resolve_dotpath, selected } from "./commons";
+import { simple_mm_ref } from "./refs";
 
 /**
  * Handlebars helper which checks whether a weapon is loading by examining its tags
@@ -111,7 +113,7 @@ export function range_editor(range: Range, data_target_prefix: string) {
   </select>`;
 
   let input_html = `<input class="lancer-stat" type="string" name="${data_target_prefix}.Value" value="${range.Value}"
-  data-dtype="Number" style="max-width: 80%;"/>`;
+  data-dtype="String" style="max-width: 80%;"/>`;
 
   return `<div class="flexrow flex-center" style="padding: 5px;">
     ${icon_html}
@@ -667,4 +669,56 @@ export function bonus_array(bonuses_path: string, bonuses_array: Bonus[]) {
   return `<ul>
         ${rows.join("\n")}
     </ul>`;
+}
+
+// A specific MM ref display focused on displaying weapon info.
+export function weapon_preview(weapon_path: string, helper: HelperOptions): string {
+  let weapon: MechWeapon | null = resolve_dotpath(helper.data?.root, weapon_path);
+
+  // TODO? maybe do a little bit more here, aesthetically speaking
+  if (weapon) {
+    let orig_ent = (weapon.flags as FlagData<EntryType.MECH_WEAPON>).orig_entity;
+    let ref = weapon.as_ref();
+
+    let ranges = weapon.SelectedProfile.BaseRange.map((r, i) => weapon_range_preview(r, i)); // TODO: Show Bonuses
+    let damages = weapon.SelectedProfile.BaseDamage.map((r, i) => weapon_damage_preview(r, i));  // TODO: Show Bonuses
+    let loaded_section = "";
+    if(weapon.IsLoading) {
+      loaded_section = `
+          <div class="flexrow" style="align-items: center;">
+            LOADED: <label class="switch">
+              <input type="checkbox" name="${weapon_path}.Loaded" ${checked(weapon.Loaded)}>
+              <span class="slider round"></span>
+            </label>
+          </div>
+      ` ;
+    }
+
+    return `
+  <div class="flexcol clipped lancer-weapon-container weapon macroable item" style="max-height: fit-content;" data-item-id="${weapon.RegistryID}">
+    <div class="lancer-weapon-header clipped-top" style="grid-area: 1/1/2/3">
+      <i class="cci cci-weapon i--m i--light"> </i>
+      <span class="minor">${weapon.Name} // ${weapon.Size.toUpperCase()} ${weapon.Type.toUpperCase()}</span>
+      <a class="gen-control i--light" data-action="clear"><i class="fas fa-trash"></i></a>
+    </div> 
+    <div class="lancer-weapon-body">
+      <a class="roll-attack" style="grid-area: 1/1/2/2;"><i class="fas fa-dice-d20 i--m i--dark"></i></a>
+      <div class="flexrow" style="grid-area: 1/2/2/3; text-align: left; white-space: nowrap;">
+        ${ranges.join("")}
+        <hr class="vsep">
+        ${damages.join("")}
+
+        {{!-- Loading toggle - WIP, needs a way to link to related weapon. Maybe needs to be a callback instead of input. --}}
+        <hr class="vsep">
+        ${loaded_section}
+      </div>
+
+      <div style="grid-area: 4/1/5/3; display: inherit;">
+        ${compact_tag_list(weapon.SelectedProfile.Tags)}
+      </div>
+    </div>
+  </div>`;
+  } else {
+    return simple_mm_ref(EntryType.MECH_WEAPON, null, weapon_path);
+  }
 }
