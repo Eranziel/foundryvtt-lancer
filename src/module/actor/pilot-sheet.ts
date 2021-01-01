@@ -19,11 +19,9 @@ import { import_pilot_by_code, update_pilot_by_code } from "./util";
 import { LancerActorSheet } from "./lancer-actor-sheet";
 import { prepareCoreActiveMacro, prepareCorePassiveMacro } from "../macros";
 import { EntryType, MountType, OpCtx } from "machine-mind";
-import { FoundryReg } from "../mm-util/foundry-reg";
+import { FlagData, FoundryReg } from "../mm-util/foundry-reg";
 import { MMEntityContext, mm_wrap_item } from "../mm-util/helpers";
 import { funcs } from "machine-mind";
-import { HelperOptions } from "handlebars";
-import { resolve_dotpath } from "../helpers/commons";
 import { ResolvedNativeDrop } from "../helpers/dragdrop";
 
 const lp = LANCER.log_prefix;
@@ -286,21 +284,43 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
       download.on("click", async (ev) => {
         ev.stopPropagation();
         // Get the data
-        ui.notifications.info("Importing character...");
-        let self = await this.getDataLazy();
-        let raw_pilot_data = await funcs.gist_io.download_pilot(self.mm.ent.CloudID);
+        try {
+          ui.notifications.info("Importing character...");
+          let self = await this.getDataLazy();
+          let raw_pilot_data = await funcs.gist_io.download_pilot(self.mm.ent.CloudID);
 
-        // Pull the trigger
-        let pseudo_compendium = new FoundryReg({for_compendium: true});
-        funcs.cloud_sync(raw_pilot_data, self.mm.ent, [pseudo_compendium]).then(() => {
-            ui.notifications.info("Successfully loaded pilot state from cloud");
-          })
-          .catch(e => {
-            console.warn(e);
-            ui.notifications.warn(
-              "Failed to update pilot, likely due to missing LCP data: " + e.message
-            );
+          // Pull the trigger
+          let pseudo_compendium = new FoundryReg({for_compendium: true});
+          let synced_data = await funcs.cloud_sync(raw_pilot_data, self.mm.ent, [pseudo_compendium]);
+          if(!synced_data) {
+            throw new Error("Pilot was somehow destroyed by the sync");
+          }
+
+          // Back-populate names and images
+          await this.actor.update({
+            name: synced_data.pilot.Name || this.actor.name,
+            img: synced_data.pilot.CloudPortrait || this.actor.img,
           });
+
+          for(let mech of synced_data.pilot_mechs) {
+            let mech_actor = (mech.flags as FlagData<EntryType.MECH>).orig_entity;
+            await mech_actor.update({
+              name: mech.Name || mech_actor.name,
+              img: mech.CloudPortrait || mech_actor.img
+            });
+            mech_actor.render();
+          }
+
+          // Reset curr data and render all
+          this._currData = null;
+          this.actor.render();
+          ui.notifications.info("Successfully loaded pilot state from cloud");
+        } catch (e) {
+          console.warn(e);
+          ui.notifications.warn(
+            "Failed to update pilot, likely due to missing LCP data: " + e.message
+          );
+        }
       });
     }
   }
