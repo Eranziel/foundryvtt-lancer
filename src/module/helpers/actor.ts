@@ -1,6 +1,7 @@
 import { HelperOptions } from "handlebars";
 import { EntryType, Frame, funcs, LiveEntryTypes, Mech, MechLoadout, RegEntry, WeaponMod  } from "machine-mind";
 import { WeaponMount, WeaponSlot } from "machine-mind";
+import { SystemMount } from "machine-mind/dist/class";
 import { LancerActorType, LancerItemType } from "../config";
 import { resolve_dotpath } from "./commons";
 import { simple_mm_ref } from "./refs";
@@ -15,11 +16,22 @@ export function frame_slot(loadout: MechLoadout, loadout_path: string): string {
 
 // A drag-drop slot for a system mount. TODO: delete button, clear button
 function system_mount(
-  loadout: MechLoadout,
-  loadout_path: string,
-  slot_index: number
+  mount: SystemMount,
+  mount_path: string
 ): string {
-  return "";
+  let slot = simple_mm_ref(EntryType.MECH_SYSTEM, mount.System, "No System", `${mount_path}.System`);
+
+  return ` 
+    <div class="lancer-mount-container">
+      <span class="mount-header clipped-top">
+        System Mount
+        <a class="gen-control" data-action="splice" data-path="${mount_path}"><i class="fas fa-trash"></i></a>
+        <a class="reset-system-mount-button" data-path="${mount_path}"><i class="fas fa-redo"></i></a>
+      </span>
+      <span class="lancer-mount-body">
+        ${slot}
+      </span>
+    </div>`;
 }
 
 // A drag-drop slot for a weapon mount. TODO: delete button, clear button
@@ -32,9 +44,9 @@ function weapon_mount(
   return ` 
     <div class="lancer-mount-container">
       <span class="mount-header clipped-top">
-        ${mount.MountType}
+        ${mount.MountType} Weapon Mount
         <a class="gen-control" data-action="splice" data-path="${mount_path}"><i class="fas fa-trash"></i></a>
-        <a class="reset-mount-button" data-path="${mount_path}"><i class="fas fa-redo"></i></a>
+        <a class="reset-weapon-mount-button" data-path="${mount_path}"><i class="fas fa-redo"></i></a>
       </span>
       <span class="lancer-mount-body">
         ${slots.join("")}
@@ -49,22 +61,34 @@ function weapon_slot(slot: WeaponSlot, slot_path: string) {
 
 // Display all weapon mounts
 function all_weapon_mount_view(loadout: MechLoadout, loadout_path: string) {
-  const weapon_slots = loadout.WepMounts.map((wep, index) => weapon_mount(wep, `${loadout_path}.WepMounts.${index}`));
+  const weapon_mounts = loadout.WepMounts.map((wep, index) => weapon_mount(wep, `${loadout_path}.WepMounts.${index}`));
 
   return `
     <span class="lancer-stat-header major">
         WEAPONS
-        <a id="add-weapon-mount-button" data-path="${loadout}.WepMounts">+</a>
+        <a id="add-weapon-mount-button">+</a>
+        <a id="reset-all-weapon-mounts-button"><i class="fas fa-redo"></i></a>
     </span>
     <div class="flexrow">
-      ${weapon_slots.join("")}
+      ${weapon_mounts.join("")}
     </div>
     `;
 }
 
 // Display all system mounts
 function all_system_mount_view(loadout: MechLoadout, loadout_path: string) {
+  const system_slots = loadout.SysMounts.map((sys, index) => system_mount(sys, `${loadout_path}.SysMounts.${index}`));
 
+  return `
+    <span class="lancer-stat-header major">
+        SYSTEMS
+        <a id="add-system-mount-button">+</a>
+        <a id="reset-all-system-mounts-button"><i class="fas fa-redo"></i></a>
+    </span>
+    <div class="flexrow">
+      ${system_slots.join("")}
+    </div>
+    `;
   return `
     <span class="lancer-stat-header major">SYSTEMS</span>
 

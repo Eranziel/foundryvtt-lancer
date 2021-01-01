@@ -93,7 +93,6 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     enable_simple_ref_dropping(
       html.find(".ref.drop-target"), 
       async (entry, evt) => {
-        console.log("drop");
         let data = await this.getDataLazy();
         let path = evt[0].dataset.path;
         if(path) {
