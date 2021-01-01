@@ -10,7 +10,10 @@ import { simple_mm_ref } from "./refs";
 export function frame_slot(loadout: MechLoadout, loadout_path: string): string {
   let frame = loadout.Frame;
   let frame_path = `${loadout_path}.Frame`;
-  return simple_mm_ref(EntryType.FRAME, frame, "No Frame", frame_path);
+  return `<span class="lancer-loadout-header major">
+            CURRENT FRAME 
+          </span>
+          ${simple_mm_ref(EntryType.FRAME, frame, "No Frame", frame_path)}`;
 }
 
 
@@ -64,8 +67,8 @@ function all_weapon_mount_view(loadout: MechLoadout, loadout_path: string) {
   const weapon_mounts = loadout.WepMounts.map((wep, index) => weapon_mount(wep, `${loadout_path}.WepMounts.${index}`));
 
   return `
-    <span class="lancer-stat-header major">
-        WEAPONS
+    <span class="lancer-loadout-header major">
+        MOUNTED WEAPONS
         <a class="add-weapon-mount-button">+</a>
         <a class="reset-all-weapon-mounts-button"><i class="fas fa-redo"></i></a>
     </span>
@@ -80,18 +83,14 @@ function all_system_mount_view(loadout: MechLoadout, loadout_path: string) {
   const system_slots = loadout.SysMounts.map((sys, index) => system_mount(sys, `${loadout_path}.SysMounts.${index}`));
 
   return `
-    <span class="lancer-stat-header major">
-        SYSTEMS
+    <span class="lancer-loadout-header major">
+        MOUNTED SYSTEMS
         <a class="add-system-mount-button">+</a>
         <a class="reset-all-system-mounts-button"><i class="fas fa-redo"></i></a>
     </span>
     <div class="flexrow">
       ${system_slots.join("")}
     </div>
-    `;
-  return `
-    <span class="lancer-stat-header major">SYSTEMS</span>
-
     `;
 }
 
@@ -114,10 +113,9 @@ export function mech_loadout(loadout_path: string, options: HelperOptions): stri
   const system_slots = ["todo"];
   return `
     <div class="flexcol">
-        <span> Equipped frame: </span>
-        ${frame_slot(loadout, loadout_path)}
-        ${all_weapon_mount_view(loadout, loadout_path)}
-        ${all_system_mount_view(loadout, loadout_path)}
+      ${frame_slot(loadout, loadout_path)}
+      ${all_weapon_mount_view(loadout, loadout_path)}
+      ${all_system_mount_view(loadout, loadout_path)}
     </div>`;
 }
 
