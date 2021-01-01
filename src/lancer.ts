@@ -172,6 +172,9 @@ Hooks.once("init", async function () {
       EntryType.TALENT,
       EntryType.LICENSE,
       EntryType.CORE_BONUS,
+      EntryType.RESERVE,
+      EntryType.STATUS,
+      EntryType.TAG,
       EntryType.PILOT_ARMOR,
       EntryType.PILOT_WEAPON,
       EntryType.PILOT_GEAR,
@@ -180,7 +183,7 @@ Hooks.once("init", async function () {
       EntryType.WEAPON_MOD,
       EntryType.NPC_FEATURE,
       EntryType.MANUFACTURER,
-      EntryType.QUIRK,
+      EntryType.QUIRK
     ],
     makeDefault: true,
   });
