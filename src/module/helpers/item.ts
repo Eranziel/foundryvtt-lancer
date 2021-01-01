@@ -160,24 +160,26 @@ export function damage_editor(damage: Damage, data_target_prefix: string) {
  * Handlebars helper for showing damage values
  */
 export function show_damage_array(damages: Damage[]): string {
+  console.log("Damages", damages);
   let results: string[] = [];
   for(let damage of damages) {
-    let damage_item = `<span><i class="cci ${damage.Icon} i--m i--dark"></i>${damage.Value}</span>`;
+    let damage_item = `<span class="compact-damage"><i class="cci ${damage.Icon} i--m i--dark"></i>${damage.Value}</span>`;
     results.push(damage_item);
   }
-  return `<div class="flexrow>${results.join(" // ")}</div>`
+  return `<div class="flexrow">${results.join(" // ")}</div>`
 }
 
 /**
  * Handlebars helper for showing range values
  */
 export function show_range_array(ranges: Range[]): string {
+  console.log("Ranges", ranges);
   let results: string[] = [];
   for(let range of ranges) {
-    let range_item = `<span><i class="cci ${range.Icon} i--m i--dark"></i>${range.Value}</span>`;
+    let range_item = `<span class="compact-range"><i class="cci ${range.Icon} i--m i--dark"></i>${range.Value}</span>`;
     results.push(range_item);
   }
-  return `<div class="flexrow>${results.join(" // ")}</div>`
+  return `<div class="flexrow">${results.join(" // ")}</div>`
 }
 
 /**
@@ -753,7 +755,6 @@ export function weapon_preview(weapon_path: string, helper: HelperOptions): stri
 
 // Helper for showing a piece of armor, or a slot to hold it (if path is provided)
 export function pilot_armor_slot(armor_path: string, helper: HelperOptions): string {
-  console.log("Armor", armor_path);
   // Fetch the item
   let armor_: PilotArmor | null = resolve_dotpath(helper.data?.root, armor_path);
 
@@ -772,7 +773,6 @@ export function pilot_armor_slot(armor_path: string, helper: HelperOptions): str
   }
 
   let armor = armor_!;
-  console.log("Armorrrr", armor);
 
   // Need to look in bonuses to find what we need
   let armor_val = armor.Bonuses.find(b => b.ID == "pilot_armor")?.Value ?? "0";

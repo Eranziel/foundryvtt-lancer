@@ -90,7 +90,8 @@ export const compactTagList = `<div class="compact-tag-row">
 
 // An MM version of the above partial
 export function compact_tag_list(tags: TagInstance[]): string {
-  let processed_tags = tags.map(t => `
+  let filtered_tags = tags.filter(t => !t.Tag.IsHidden);
+  let processed_tags = filtered_tags.map(t => `
     <div class="compact-tag flexrow">
       <i class="mdi mdi-label i--s i--light"></i>
       <span style="margin: 3px;">${t.Tag.Name} ${t.Value}</span>
