@@ -305,7 +305,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
   }
 
   // Cached getdata
-  private _currData: LancerActorSheetData<T> | null = null;
+  protected _currData: LancerActorSheetData<T> | null = null;
   async getDataLazy(): Promise<LancerActorSheetData<T>> {
     return this._currData ?? (await this.getData());
   }

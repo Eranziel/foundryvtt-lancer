@@ -101,7 +101,7 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
    * Handles actions in the overcharge panel 
    */
   _activateOverchargeControls(html: any) {
-    let button = html.find("#overcharge-button");
+    let button = html.find(".overcharge-button");
 
     // Increment on click
     button.on("click", async (evt: JQuery.ClickEvent) => {
@@ -119,11 +119,11 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
    * Handles more niche controls in the loadout in the overcharge panel 
    */
   _activateLoadoutControls(html: any) {
-    html.find("#reset-all-weapon-mounts-button").on("click", async (evt: JQuery.ClickEvent) => {
+    html.find(".reset-all-weapon-mounts-button").on("click", async (evt: JQuery.ClickEvent) => {
       this._event_handler("reset-all-weapon-mounts", evt);
     });
 
-    html.find("#reset-all-system-mounts-button").on("click", async (evt: JQuery.ClickEvent) => {
+    html.find(".reset-all-system-mounts-button").on("click", async (evt: JQuery.ClickEvent) => {
       this._event_handler("reset-all-system-mounts", evt);
     });
 
@@ -131,7 +131,7 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
       this._event_handler("reset-wep", evt);
     });
 
-    html.find("#add-weapon-mount-button").on("click", async (evt: JQuery.ClickEvent) => {
+    html.find(".add-weapon-mount-button").on("click", async (evt: JQuery.ClickEvent) => {
       this._event_handler("add-wep", evt);
     });
 
@@ -139,7 +139,7 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
       this._event_handler("reset-sys", evt);
     });
 
-    html.find("#add-system-mount-button").on("click", async (evt: JQuery.ClickEvent) => {
+    html.find(".add-system-mount-button").on("click", async (evt: JQuery.ClickEvent) => {
       this._event_handler("add-sys", evt);
     });
   }

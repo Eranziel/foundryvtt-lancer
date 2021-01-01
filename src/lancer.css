@@ -659,9 +659,13 @@ tr.lcp-index-header {
 }
 
 .ref-list-controls {
-  width: 50px;
+  max-width: 50px;
   margin: 5px;
   border: 2px solid black;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  flex-wrap: nowrap;
 }
 
 .pilot-stats {

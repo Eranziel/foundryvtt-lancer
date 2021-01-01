@@ -94,8 +94,8 @@ export class LancerFrameSheet extends LancerItemSheet<EntryType.FRAME> {
     if (!this.options.editable) return;
 
     // Add controls
-    html.find("#add-trait-button").on("click", e => this._onCreateFrameTrait(e));
-    html.find("#add-mount-button").on("click", e => this._onCreateMount(e));
+    html.find(".add-trait-button").on("click", e => this._onCreateFrameTrait(e));
+    html.find(".add-mount-button").on("click", e => this._onCreateMount(e));
 
     // Watch for select delete on mount
     html.find(".mount-selector").on("change", e => this._onChangeMount(e));

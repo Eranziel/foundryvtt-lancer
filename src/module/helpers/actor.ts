@@ -66,8 +66,8 @@ function all_weapon_mount_view(loadout: MechLoadout, loadout_path: string) {
   return `
     <span class="lancer-stat-header major">
         WEAPONS
-        <a id="add-weapon-mount-button">+</a>
-        <a id="reset-all-weapon-mounts-button"><i class="fas fa-redo"></i></a>
+        <a class="add-weapon-mount-button">+</a>
+        <a class="reset-all-weapon-mounts-button"><i class="fas fa-redo"></i></a>
     </span>
     <div class="flexrow">
       ${weapon_mounts.join("")}
@@ -82,8 +82,8 @@ function all_system_mount_view(loadout: MechLoadout, loadout_path: string) {
   return `
     <span class="lancer-stat-header major">
         SYSTEMS
-        <a id="add-system-mount-button">+</a>
-        <a id="reset-all-system-mounts-button"><i class="fas fa-redo"></i></a>
+        <a class="add-system-mount-button">+</a>
+        <a class="reset-all-system-mounts-button"><i class="fas fa-redo"></i></a>
     </span>
     <div class="flexrow">
       ${system_slots.join("")}
@@ -273,7 +273,7 @@ export function overcharge_button(overcharge_path: string, options: HelperOption
         <span class="major">OVERCHARGE</span>
       </div>
       <div class=flexrow>
-        <a id="overcharge-button">
+        <a class="overcharge-button">
           <i class="cci cci-overcharge i--dark i--sm"> </i>
         </a>
         <span>${over_val}</span>

@@ -38,7 +38,7 @@
   <div class="flexcol">
     <div>
       <span class="minor" style="float: left">AVAILABLE WEAPON MOUNTS</span>
-      <a id="add-mount-button" style="float: right; margin-right: 1em">+</a>
+      <a class="add-mount-button" style="float: right; margin-right: 1em">+</a>
     </div>
     <div class="flexrow">
       {{#each mm.ent.Mounts as |mount key|}}
@@ -61,10 +61,10 @@
   </div>
 
   {{!-- Traits --}}
-  <div id="frame-traits" class="flexcol">
+  <div class="frame-traits" class="flexcol">
     <div>
       <span class="minor" style="float: left">TRAITS</span>
-      <a id="add-trait-button" style="float: right">+</a>
+      <a class="add-trait-button" style="float: right">+</a>
     </div>
     <ul>
     {{#each mm.ent.Traits as |trait key|}}
