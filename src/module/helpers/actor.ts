@@ -27,7 +27,7 @@ function weapon_mount(
   mount: WeaponMount,
   mount_path: string,
 ): string {
-  let slots = mount.Slots.map((slot, index) => weapon_slot(slot, `${mount_path}.${index}`));
+  let slots = mount.Slots.map((slot, index) => weapon_slot(slot, `${mount_path}.Slots.${index}`));
 
   return ` 
     <div class="lancer-mount-container">

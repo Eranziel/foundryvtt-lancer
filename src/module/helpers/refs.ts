@@ -75,7 +75,9 @@ export function simple_mm_ref<T extends EntryType>(
 
   if (!cd) {
     // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
-    return `<div class="ref card ${path_class_snippet}" data-path="${type}">
+    return `<div class="ref card ${path_class_snippet} ${type}" 
+                        data-path="${slot_path}" 
+                        data-type="${type}">
           <img class="ref-icon" src="${UNDEFINED_REF_ICON}"></img>
           <span class="major">${fallback}</span>
       </div>`;
@@ -85,7 +87,8 @@ export function simple_mm_ref<T extends EntryType>(
                 data-id="${cd.ref.id}" 
                 data-ref-type="${cd.ref.type}" 
                 data-reg-name="${cd.ref.reg_name}" 
-                data-path="${slot_path}">
+                data-path="${slot_path}"
+                data-type="${type}">
          <img class="ref-icon" src="${cd.img}"></img>
          <span class="major">${cd.name}</span>
      </div>`;
@@ -153,7 +156,6 @@ export async function resolve_ref_element<T extends EntryType>(
 ): Promise<LiveEntryTypes<T> | null> {
   // We reconstruct the ref
   let ref = recreate_ref_from_element(element) as RegRef<T>;
-  console.log("Resolving ref ", ref);
 
   // Then we resolve it
   let ctx = new OpCtx();

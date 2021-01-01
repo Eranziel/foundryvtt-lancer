@@ -78,12 +78,22 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
   // Enables dragging of ref items to slot
   _activateRefDragging(html: JQuery) {
     // Allow refs to be dragged arbitrarily
-    enable_simple_ref_dragging(html.find(".ref")); 
+    enable_simple_ref_dragging(html.find(".ref.valid"), (start_stop, src, evt) => {
+      // Highlight valid drop points
+      let target_selector = `.ref.drop-target.${src[0].dataset.type}`;
+
+      if(start_stop == "start") {
+        html.find(target_selector).addClass("highlight-can-drop");
+      } else {
+        html.find(target_selector).removeClass("highlight-can-drop");
+      }
+    }); 
 
     // Allow every ".ref" spot to be dropped onto, with a payload of a JSON RegRef
     enable_simple_ref_dropping(
       html.find(".ref.drop-target"), 
       async (entry, evt) => {
+        console.log("drop");
         let data = await this.getDataLazy();
         let path = evt[0].dataset.path;
         if(path) {

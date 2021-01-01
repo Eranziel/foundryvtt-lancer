@@ -1,8 +1,5 @@
 import { DamageData, LancerItemSheetData, RangeData } from "../interfaces";
 import { LANCER, LancerItemType } from "../config";
-import { NPCFeatureIcons } from "./npc-feature";
-import { ActivationType, DamageType, NpcFeatureType } from "machine-mind";
-import { ChargeData, ChargeEffectData } from "./effects";
 import { mm_wrap_item } from "../mm-util/helpers";
 import { LancerItem } from "./lancer-item";
 import { activate_general_gen_controls, gentle_merge, resolve_dotpath } from "../helpers/commons";
