@@ -145,8 +145,10 @@ class LCPManager extends Application {
     if (!game.user.isGM) return ui.notifications.warn(`Only GM can modify the Compendiums.`);
     if (!ev.currentTarget || !this.coreUpdate) return;
     ui.notifications.info(`Updating Lancer Core data to v${this.coreUpdate}. Please wait.`);
+
     console.log(`${lp} Updating Lancer Core data to v${this.coreUpdate}`);
-    await import_cp(mm.funcs.get_base_content_pack());
+    await import_cp(mm.funcs.get_base_content_pack(), (x, y) => this.update_progress_bar(x, y));
+
     ui.notifications.info(`Lancer Core data update complete.`);
     await game.settings.set(LANCER.sys_name, LANCER.setting_core_data, this.coreUpdate);
     this.coreVersion = this.coreUpdate;
@@ -227,11 +229,16 @@ class LCPManager extends Application {
     );
     console.log(`${lp} Starting import of ${cp.manifest.name} v${cp.manifest.version}.`);
     console.log(`${lp} Parsed content pack:`, cp);
-    await import_cp(cp);
+    await import_cp(cp, (x, y) => this.update_progress_bar(x, y));
     ui.notifications.info(`Import of ${cp.manifest.name} v${cp.manifest.version} complete.`);
     console.log(`Import of ${cp.manifest.name} v${cp.manifest.version} complete.`);
 
     this.updateLcpIndex(manifest);
+  }
+
+  update_progress_bar(done: number, out_of: number) {
+    $(this.element).find(".lcp-progress").prop("value", done);
+    $(this.element).find(".lcp-progress").prop("max", out_of);
   }
 }
 

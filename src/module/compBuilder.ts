@@ -135,23 +135,42 @@ async function update_entity<T extends EntryType>(
 }
 */
 
-async function transfer_cat<T extends EntryType>(type: T, from: Registry, to: Registry, ctx: OpCtx): Promise<void> {
-    // Insinuate each item in the cat. The flags should handle names
+// Transfers a category. Returns a list of all the insinuated items
+async function transfer_cat<T extends EntryType>(type: T, from: Registry, to: Registry, ctx: OpCtx): Promise<RegEntry<T>[]> {
+    // Insinuate each item in the cat
     let from_cat = from.get_cat(type);
+    let promises: Array<Promise<RegEntry<T>>> = [];
+
     for (let item of await from_cat.list_live(ctx)) {
       // Do the deed
-      console.log(`Import | Adding ${type} ${item.Name}`);
-      let new_created = await item.insinuate(to); // TODO: Some sort of bulk mechanism? Foundry obviously allows you to build many things at once. Maybe have a buffer in compendium db_abstraction
+      let prom = (item.insinuate(to) as Promise<any>).then(insinuated => {
+        console.log(`Import | Added ${type} ${item.Name}`);
+        return insinuated;
+      });
+      promises.push(prom);
     }
+    return Promise.all(promises);
 }
 
-export async function import_cp(cp: IContentPack): Promise<void> {
+export async function import_cp(cp: IContentPack, progress_callback?: (done: number, out_of: number) => void): Promise<void> {
   // await unlock_all(); // TODO: re-enable i guess?
+
+  // Stub in a progress callback so we don't have to null check it all the time
+  if(!progress_callback) {
+    progress_callback = (a, b) => {};
+  }
 
   // Make a static reg, and load in the reg for pre-processing
   let env = new RegEnv();
   let tmp_lcp_reg = new StaticReg(env);
   await funcs.intake_pack(cp, tmp_lcp_reg);
+
+  // Count the total items in the reg
+  let total_items = 0;
+  for(let type of Object.values(EntryType)) {
+    let cat = tmp_lcp_reg.get_cat(type);
+    total_items += (await cat.list_raw()).length;
+  }
 
   // Insinuate data to the actual foundry reg
   // We want to do globals first
@@ -160,9 +179,13 @@ export async function import_cp(cp: IContentPack): Promise<void> {
   await comp_reg.init();
   let dest_ctx = new OpCtx();
 
+  let transmit_count = 0;
+
   // Do globals
-  await transfer_cat(EntryType.MANUFACTURER,  tmp_lcp_reg, comp_reg, dest_ctx);
-  await transfer_cat(EntryType.TAG,  tmp_lcp_reg, comp_reg, dest_ctx);
+  transmit_count += await transfer_cat(EntryType.MANUFACTURER,  tmp_lcp_reg, comp_reg, dest_ctx).then(l => l.length);
+  progress_callback(transmit_count, total_items + comp_reg.to_kill_count());
+  transmit_count += await transfer_cat(EntryType.TAG,  tmp_lcp_reg, comp_reg, dest_ctx).then(l => l.length);
+  progress_callback(transmit_count, total_items + comp_reg.to_kill_count());
   
   let errata: EntryType[] = [EntryType.DEPLOYABLE, EntryType.TAG, EntryType.MANUFACTURER];
 
@@ -170,12 +193,14 @@ export async function import_cp(cp: IContentPack): Promise<void> {
   for (let type of Object.values(EntryType)) {
     // Skip if subtype
     if (!errata.includes(type)) {
-      await transfer_cat(type, tmp_lcp_reg, comp_reg, dest_ctx);
+      transmit_count += await transfer_cat(type, tmp_lcp_reg, comp_reg, dest_ctx).then(l => l.length);
+      progress_callback(transmit_count, total_items + comp_reg.to_kill_count());
     }
   }
 
   // Step 4: Kill the old gods
   await comp_reg.execute_order_66();
+  progress_callback(transmit_count, total_items + comp_reg.to_kill_count());
 
   // await lock_all();
 }
@@ -210,7 +235,7 @@ class ImportUtilityReg extends FoundryReg {
       let existing = await this.get_cat(type).list_live(ctx);
       let type_map = new Map<string, RegEntry<any>>();
       for(let e of existing) {
-        type_map.set(e.RegistryID, e);
+        type_map.set(e.Name, e);
       }
       this.orig_item_lookup.set(type, type_map);
 
@@ -254,7 +279,7 @@ class ImportUtilityReg extends FoundryReg {
     // A typeless shorthand
     let rp = record.pending as any;
 
-    // Hot-wire our manufacturer
+    // Hot-wire our manufacturer/source
     let man = rp.Manufacturer ?? rp.Source;
     if(man) { 
       // Because these aren't insinuated as children, this is a leftover ref from the static reg that is about to go out of scope)
@@ -270,14 +295,11 @@ class ImportUtilityReg extends FoundryReg {
       }
     }
 
-    // Hot-wire our source. 
-
     // Hot-wire our tags
     for(let in_tag of [...(rp.Tags ?? []), ...(rp.AddedTags ?? [])] as TagInstance[]) {
       // Same shebang
       let existing_tag = this.replacement_tag_templates.get(in_tag.Tag.ID);
 
-      console.log("tag patch", rp, in_tag, existing_tag);
       if(existing_tag) {
         in_tag.Tag = existing_tag;
       }
@@ -293,6 +315,18 @@ class ImportUtilityReg extends FoundryReg {
       for(let td of to_delete) {
         td.destroy_entry();
       }
+
+      // clear
+      this.deletion_targets.set(type, []);
     }
+  }
+
+  // Used for progress bar. Total of things we need to delete
+  to_kill_count(): number {
+    let total = 0;
+    for(let v of this.deletion_targets.values()) {
+      total += v.length;
+    }
+    return total;
   }
 }

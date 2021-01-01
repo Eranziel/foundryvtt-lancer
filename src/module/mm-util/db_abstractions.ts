@@ -368,10 +368,10 @@ export class CompendiumWrapper<T extends EntryType> extends EntityCollectionWrap
   }
 
   async destroy(id: string): Promise<RegEntryTypes<T> | null> {
+    let pack = await this.pack();
     let subgot = await this.subget(id);
     if (subgot) {
-      await subgot.delete();
-
+      await pack.deleteEntity(id);
       return subgot.data.data as RegEntryTypes<T>;
     } else {
       return null;
