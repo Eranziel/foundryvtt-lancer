@@ -303,8 +303,8 @@ export class CompendiumWrapper<T extends EntryType> extends EntityCollectionWrap
     this.type = type;
   }
 
+  // We cache the pack. This probably isn't a huge performance boon, but anything helps when it comes to this compendium shit
   private cached_pack: any = null;
-  private cached_content: Map<string, any> | null = null;
   private async pack(): Promise<Compendium> {
     if (!this.cached_pack) {
       this.cached_pack = get_pack(this.type);
@@ -312,28 +312,13 @@ export class CompendiumWrapper<T extends EntryType> extends EntityCollectionWrap
     return this.cached_pack;
   }
 
-  // We cache all content here. Helps with performance, hopefully
-  private async content(): Promise<Map<string, EntFor<T>>> {
-    let pack = await this.pack();
-    if (!this.cached_content) {
-      this.cached_content = new Map();
-      let content = await pack.getContent();
-      for (let i of content) {
-        this.cached_content.set(i.id, i);
-      }
-    }
-
-    return this.cached_content;
-  }
-
   // Handles type checking and stuff
   private async subget(id: string): Promise<EntFor<T> | null> {
-    // Look within all content. Crude, but caching ends up saving us some time based on early tests
-    let cont = await this.content();
-    let fi = cont.get(id);
+    let pack = await this.pack();
+    let retrieved = await pack.getEntity(id);
 
-    if (fi && fi.data.type == this.type) {
-      return fi;
+    if (retrieved && retrieved.data.type == this.type) {
+      return retrieved as EntFor<T>;
     } else {
       return null;
     }
@@ -348,9 +333,6 @@ export class CompendiumWrapper<T extends EntryType> extends EntityCollectionWrap
       name,
       data,
     })) as EntFor<T>;
-
-    // Manually add this to our cache
-    this.cached_content?.set(new_item.data._id, new_item);
 
     // TODO: Remove this, as it should be unnecessary once we have proper template.json
     await new_item.update({ data: data }, {});
@@ -389,9 +371,6 @@ export class CompendiumWrapper<T extends EntryType> extends EntityCollectionWrap
     let subgot = await this.subget(id);
     if (subgot) {
       await subgot.delete();
-
-      // Destroy in cache
-      this.cached_content?.delete(id);
 
       return subgot.data.data as RegEntryTypes<T>;
     } else {
