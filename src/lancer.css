@@ -7,11 +7,13 @@
   --main-font-family: Helvetica, Arial, sans-serif;
 
   --main-theme-color: #991e2a;  /* I've configured calls to this to fall back on fuchsia when things go wrong */
+  --loadout-color: #4f4e52;  /* TODO: Change based on theme */
   --gms-theme-color: #991e2a;
   --ipsn-theme-color: #1662b8;
   --ssc-theme-color: #d1920a;
   --horus-theme-color: #00a256;
   --ha-theme-color: #6e4373;
+  /* Shouldn't there be some sort of "--current-theme"??? */
 
   --reaction-clip-path: polygon( 0 0, 100% 0, 100% 1px, calc(100% - 9px) 1px, calc(100% - 8px) 2px, 100% 2px, 100% 3px, calc(100% - 7px) 3px, calc(100% - 6px) 4px, 100% 4px, 100% 5px, calc(100% - 5px) 5px, calc(100% - 4px) 6px, 100% 6px, 100% 7px, calc(100% - 3px) 7px, calc(100% - 2px) 8px, 100% 8px, 100% 100%, 0 100% );
   --reaction-color: #0a7674;
@@ -721,6 +723,13 @@ tr.lcp-index-header {
   align-items: center;
   color: white;
   background-color: var(--main-theme-color, fuchsia);
+  max-height: fit-content;
+}
+
+.lancer-loadout-header {
+  align-items: center;
+  color: white;
+  background-color: var(--loadout-color, fuchsia);
   max-height: fit-content;
 }
 
