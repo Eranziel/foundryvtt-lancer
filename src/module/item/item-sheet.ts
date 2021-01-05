@@ -146,7 +146,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
       const keys = Object.keys(itemArr);
       let newIndex = 0;
       if (keys.length > 0) {
-        // @ts-ignore
+        // @ts-ignore ??? Some old array shenaniganry 
         newIndex = Math.max.apply(Math, keys) + 1;
       }
       itemArr[newIndex] = null;
@@ -319,7 +319,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
    * Prepare data for rendering the frame sheet
    * The prepared data object contains both the actor data as well as additional sheet options
    */
-  //@ts-ignore
+  //@ts-ignore Foundry-pc-types does not properly acknowledge that sheet `getData` functions can be/are asynchronous
   async getData(): Promise<LancerItemSheetData<T>> {
     const data = super.getData() as LancerItemSheetData<T>; // Not fully populated yet!
 

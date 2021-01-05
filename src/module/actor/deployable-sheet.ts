@@ -53,7 +53,7 @@ export class LancerDeployableSheet extends LancerActorSheet<EntryType.DEPLOYABLE
    * Prepare data for rendering the Actor sheet
    * The prepared data object contains both the actor data as well as additional sheet options
    */
-  //@ts-ignore
+  // @ts-ignore Temporary ignore. This method needs an overhaul to just re-use lancer-actor-sheet functionality (see mech/pilot for reference)
   getData(): LancerDeployableSheetData {
     const data: LancerDeployableSheetData = (super.getData() as any) as LancerDeployableSheetData;
 

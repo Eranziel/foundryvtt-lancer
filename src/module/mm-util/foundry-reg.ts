@@ -226,13 +226,16 @@ export class FoundryReg extends Registry {
       } else if (
         [EntryType.MECH, EntryType.PILOT, EntryType.DEPLOYABLE, EntryType.NPC].includes(for_type)
       ) {
-        //@ts-ignore
+        // Make a wrapper to handle actors, pulling from game.actors
+        // @ts-ignore This is a case of typescripts enum discrimination not holding up in more complex cases.
         return new WorldActorsWrapper(for_type);
       } else if (for_actor) {
-        //@ts-ignore
+        // Make a wrapper to handle an individual actor's inventory items
+        // @ts-ignore This is a case of typescripts enum discrimination not holding up in more complex cases.
         return new ActorInventoryWrapper(for_type, _actor);
       } else {
-        //@ts-ignore
+        // Make a wrapper to handle items, pulling from game.items
+        // @ts-ignore This is a case of typescripts enum discrimination not holding up in more complex cases.
         return new WorldItemsWrapper(for_type);
       }
     }

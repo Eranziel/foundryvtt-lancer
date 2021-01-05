@@ -144,12 +144,10 @@ Hooks.once("init", async function () {
   // Set up system status icons
   const keepStock = game.settings.get(LANCER.sys_name, LANCER.setting_stock_icons);
   let statuses: { id: string; label: string; icon: string }[] = [];
-  // The type for statusEffects is wrong
-  //@ts-ignore
+  // @ts-ignore The type for statusEffects is wrong. Currently string[], should be the above type
   if (keepStock) statuses = statuses.concat(CONFIG.statusEffects);
   statuses = statuses.concat(STATUSES);
-  // The type for statusEffects is wrong
-  //@ts-ignore
+  //@ts-ignore See previous ignore
   CONFIG.statusEffects = statuses;
 
   // Register Web Components

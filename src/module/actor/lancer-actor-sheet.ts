@@ -293,7 +293,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
    * Prepare data for rendering the Actor sheet
    * The prepared data object contains both the actor data as well as additional sheet options
    */
-  //@ts-ignore
+  // @ts-ignore Foundry-pc-types does not properly acknowledge that sheet `getData` functions can be/are asynchronous
   async getData(): Promise<LancerActorSheetData<T>> {
     const data = super.getData() as LancerActorSheetData<T>; // Not fully populated yet!
 

@@ -56,7 +56,7 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
    * Prepare data for rendering the Actor sheet
    * The prepared data object contains both the actor data as well as additional sheet options
    */
-  //@ts-ignore
+  // @ts-ignore Foundry-pc-types does not properly acknowledge that sheet `getData` functions can be/are asynchronous
   getData(): LancerNPCSheetData {
     const data: LancerNPCSheetData = super.getData() as any as LancerNPCSheetData;
 
@@ -79,7 +79,7 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
     let npc_item_data = (data.items as unknown) as FoundryRegItemData<any>[];
     let sorted = new ItemDataManifest().add_items(npc_item_data.values());
 
-    //@ts-ignore                Doesn't work now, adding a ts-ignore though.... -Grygon
+    //@ts-ignore             Doesn't work now, adding a ts-ignore though.... -Grygon
     data.npc_templates = (sorted.npc_templates as unknown) as LancerNpcTemplate[]; // Why does this work. Like someone fixed exactly one, lol???
     data.npc_features = (sorted.npc_feature as unknown) as LancerNpcFeature[];
     data.npc_class = (sorted.npc_class[0] as unknown) as LancerNpcClass;

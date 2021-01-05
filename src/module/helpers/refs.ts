@@ -111,9 +111,9 @@ export async function HANDLER_openRefOnClick<T extends EntryType>(event: any) {
 
   // If the sheet is already rendered:
   if (sheet.rendered) {
-    //@ts-ignore
+    //@ts-ignore foundry-pc-types has a spelling error here
     sheet.maximize(); // typings say "maximise", are incorrect
-    //@ts-ignore
+    //@ts-ignore and it is entirely missing this function
     sheet.bringToTop();
   }
 

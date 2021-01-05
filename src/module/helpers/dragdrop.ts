@@ -170,15 +170,6 @@ export function enable_dragging(
   });
 }
 
-// export function ref_drop_box_helper(data_path: string, accepts_type: EntryType, options: HelperOptions): string {
-// This line require JS style "this" semantics, which TS tends to not enjoy
-//@ts-ignore
-// let inner = options.fn(this);
-// return ref_drop_box(inner, data_path, accepts_type);
-// }
-
-
-
 // "Everything" that foundry will natively drop. Scenes are not yet implemented
 export type NativeDrop = {
   type: "Item",

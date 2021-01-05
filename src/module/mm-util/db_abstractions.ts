@@ -57,9 +57,8 @@ export class WorldItemsWrapper<T extends LancerItemType> extends EntityCollectio
     let name = data.name || "unknown";
     let new_item = (await Item.create({ type: this.type, name, data: data })) as EntFor<T>;
 
-    // TODO: Remove this, as it should be unnecessary once we have proper template.json
-    //@ts-ignore
-    await new_item.update({ data });
+    // TODO: Try to remove this, as it should be unnecessary once we have proper template.json
+    await new_item.update({ data }, {});
 
     // Return the reference
     return {
@@ -145,7 +144,6 @@ export class WorldActorsWrapper<T extends LancerActorType> extends EntityCollect
     let new_item = (await Actor.create({ type: this.type, name, data })) as EntFor<T>;
 
     // TODO: Remove this, as it should (theoretically) be unnecessary once we have proper template.json
-    //@ts-ignore
     await new_item.update({ data });
 
     // Return the reference
@@ -231,9 +229,8 @@ export class ActorInventoryWrapper<T extends LancerItemType> extends EntityColle
     let name = data.name || "unknown";
     let new_item = (await this.actor.createOwnedItem({ type: this.type, name, data })) as EntFor<T>;
 
-    // TODO: Remove this, as it should be unnecessary once we have proper template.json
-    // @ts-ignore
-    // await res.update({data: item});
+    // TODO: Try to remove this, as it should be unnecessary once we have proper template.json
+    await new_item.update({data}, {});
 
     // Return the ref
     return {
@@ -334,8 +331,9 @@ export class CompendiumWrapper<T extends EntryType> extends EntityCollectionWrap
       data,
     })) as EntFor<T>;
 
-    // TODO: Remove this, as it should be unnecessary once we have proper template.json
-    await new_item.update({ data: data }, {});
+    // TODO: Try to remove this, as it should be unnecessary once we have proper template.json
+    await new_item.update({ data }, {});
+
     return {
       id: new_item.data._id,
       entity: new_item,
