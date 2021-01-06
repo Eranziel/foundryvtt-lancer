@@ -422,7 +422,7 @@ async function rollAttackMacro(actor: Actor, data: LancerAttackMacroData) {
         // add die explosion on 1 and keep the highest of the original number of die
         if(data.overkill) droll.dice[die].modifiers.push("x1");
         // for both sections above, we want to keep the highest of the die count
-        droll.dice[die].modifiers.push(`kh${die_count}`);
+        if(attack_roll.total >= 20 || data.overkill) droll.dice[die].modifiers.push(`kh${die_count}`);
       }
       
       droll = droll.roll();
