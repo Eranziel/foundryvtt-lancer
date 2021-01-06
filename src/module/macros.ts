@@ -408,19 +408,20 @@ async function rollAttackMacro(actor: Actor, data: LancerAttackMacroData) {
   let overkill_heat: number = 0;
   for (const x of data.damage) {
     if (x.val === "" || x.val == 0) continue; // Skip undefined and zero damage
-    let d_roll = new Roll(x.val.toString());
-    
-    for (var die in d_roll.dice) {
-      // double the number of dice rolled on critical
-      if(attack_roll.total >= 20) d_roll.dice[die].alter(2, 0);
-      // add die explosion on 1 and keep the highest of the original number of die
-      if(data.overkill) d_roll.dice[die].modifiers.push("x1","kh{die.number}");
-    }
-    
+
     let droll: Roll | null;
     let tt: HTMLElement | JQuery | null;
     try {
-      droll = d_roll.roll();
+      droll = new Roll(x.val.toString());
+      
+      for (var die in droll.dice) {
+        // double the number of dice rolled on critical
+        if(attack_roll.total >= 20) droll.dice[die].alter(2, 0);
+        // add die explosion on 1 and keep the highest of the original number of die
+        if(data.overkill) droll.dice[die].modifiers.push("x1","kh{die.number}");
+      }
+      
+      droll = droll.roll();
       tt = await droll.getTooltip();
     } catch {
       droll = null;
