@@ -408,30 +408,19 @@ async function rollAttackMacro(actor: Actor, data: LancerAttackMacroData) {
   let overkill_heat: number = 0;
   for (const x of data.damage) {
     if (x.val === "" || x.val == 0) continue; // Skip undefined and zero damage
-    let d_formula: string = x.val.toString();
-    // If the damage formula involves dice and is overkill, add "r1" to reroll all 1's.
-    if (d_formula.includes("d") && data.overkill) {
-      let d_ind = d_formula.indexOf("d");
-      let p_ind = d_formula.indexOf("+");
-      if (d_ind >= 0) {
-        let d_count = "1";
-        let d_expr: RegExp = /\d+(?=d)/;
-        if (d_ind != 0) {
-          let match = d_expr.exec(d_formula);
-          //console.log(`${lp} Formula ${d_expr} matched ${match} in ${d_formula}`);
-          if (match != null) {
-            d_count = match[0];
-          }
-        }
-        if (p_ind > d_ind) {
-          d_formula = d_formula.substring(0, p_ind) + "x1kh" + d_count + d_formula.substring(p_ind);
-        } else d_formula += "x1kh" + d_count;
-      }
+    let d_roll = new Roll(x.val.toString());
+    
+    for (var die in d_roll.dice) {
+      // double the number of dice rolled on critical
+      if(attack_roll.total >= 20) d_roll.dice[die].alter(2, 0);
+      // add die explosion on 1 and keep the highest of the original number of die
+      if(data.overkill) d_roll.dice[die].modifiers.push("x1","kh{die.number}");
     }
+    
     let droll: Roll | null;
     let tt: HTMLElement | JQuery | null;
     try {
-      droll = new Roll(d_formula).roll();
+      droll = d_roll.roll();
       tt = await droll.getTooltip();
     } catch {
       droll = null;
