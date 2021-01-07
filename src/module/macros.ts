@@ -414,15 +414,16 @@ async function rollAttackMacro(actor: Actor, data: LancerAttackMacroData) {
     try {
       droll = new Roll(x.val.toString());
       
-      for (var die in droll.dice) {
+      for (let die of droll.dice) {
+        if(!die instanceof DiceTerm) continue;
         // set an original die count
         var die_count = die.number;
         // double the number of dice rolled on critical
-        if(attack_roll.total >= 20) droll.dice[die].alter(2, 0);
+        if(attack_roll.total >= 20) die.number *= 2;
         // add die explosion on 1 and keep the highest of the original number of die
-        if(data.overkill) droll.dice[die].modifiers.push("x1");
+        if(data.overkill) die.modifiers.push("x1");
         // for both sections above, we want to keep the highest of the die count
-        if(attack_roll.total >= 20 || data.overkill) droll.dice[die].modifiers.push(`kh${die_count}`);
+        if(attack_roll.total >= 20 || data.overkill) die.modifiers.push(`kh${die_count}`);
       }
       
       droll = droll.roll();
