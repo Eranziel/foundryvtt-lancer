@@ -6,8 +6,9 @@ import {
   LancerMountData,
 } from "../interfaces";
 import { LANCER, LancerActorType } from "../config";
-import { EntryType, MountType, funcs, RegEntryTypes } from "machine-mind";
+import { EntryType, MountType, funcs, RegEntryTypes, RegMechData } from "machine-mind";
 import { FoundryRegActorData, FoundryRegItemData } from "../mm-util/foundry-reg";
+import { LancerHooks, LancerSubscription } from "../helpers/hooks";
 const lp = LANCER.log_prefix;
 
 export function lancerActorInit(data: any) {
@@ -170,8 +171,31 @@ export class LancerActor<T extends LancerActorType> extends Actor {
 
   /* -------------------------------------------- */
 
+  subscriptions = new Array<LancerSubscription>()
+
   /** @override */
   prepareDerivedData() {
+    this.subscriptions?.forEach( subscription => {
+      subscription.unsubscribe()
+    })
+    this.subscriptions = []
+    this.setupLancerHooks()
+  }
+
+  /** @override */
+  _onUpdate(data: object, options: object, userId: string, context: object) {
+    super._onUpdate(data, options, userId, context)
+    LancerHooks.call(this)
+  }
+
+  setupLancerHooks() {
+    let mechData = this.data.data as RegMechData
+    if (mechData.pilot) {
+      let sub = LancerHooks.on(mechData.pilot, (async (pilot: LancerActor<EntryType.PILOT>) => {
+        this.update(this.data)
+      }).bind(this))
+      this.subscriptions.push(sub)
+    }
   }
 }
 
