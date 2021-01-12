@@ -73,6 +73,7 @@ import { NpcFeatureType, EntryType, Manufacturer } from "machine-mind";
 import {
   render_icon,
   resolve_dotpath,
+  resolve_helper_dotpath,
 } from "./module/helpers/commons";
 import { is_loading } from "machine-mind/dist/classes/mech/EquipUtil";
 import {
@@ -85,7 +86,7 @@ import {
   weapon_damage_preview,
   npc_attack_bonus_preview,
   npc_accuracy_preview,
-  mech_weapon_preview,
+  mech_weapon_refview,
   system_type_selector,
   effect_type_selector,
   mech_system_preview,
@@ -93,14 +94,15 @@ import {
   core_system_preview,
   mech_trait_preview,
   damage_editor,
-  bonus_array,
+  bonus_array_editor,
   pilot_armor_slot,
-  pilot_weapon_slot,
-  pilot_gear_slot,
+  pilot_weapon_refview,
+  pilot_gear_refview,
 } from "./module/helpers/item";
-import { editable_mm_ref_list_item as editable_mm_ref_list_item, clicker_num_input, clicker_stat_card, compact_stat_edit, compact_stat_view, mech_loadout, overcharge_button, stat_edit_card, stat_edit_card_max, stat_view_card, pilot_slot } from "./module/helpers/actor";
+import { editable_mm_ref_list_item as editable_mm_ref_list_item, clicker_num_input, clicker_stat_card, compact_stat_edit, compact_stat_view, overcharge_button, stat_edit_card, stat_edit_card_max, stat_view_card, } from "./module/helpers/actor";
 import { HelperOptions } from "handlebars";
 import { manufacturer_ref, simple_mm_ref } from "./module/helpers/refs";
+import { mech_loadout, pilot_slot } from "./module/helpers/loadout";
 
 const lp = LANCER.log_prefix;
 
@@ -214,13 +216,14 @@ Hooks.once("init", async function () {
   });
 
   // rp, to resolve path values strs. Helps use effectively half as many arguments for many helpers/partials
+  // Using this, {{{rp path}}} {{path}} would show the value at path, and path, respectively. No need to pass both!
   Handlebars.registerHelper("rp", function(path: string, options: HelperOptions) {
-    return resolve_dotpath(options.data?.root, path);
+    return resolve_helper_dotpath(options, path);
   });
 
   // get-set, to resolve situations wherein we read and write to the same path via "value" and "name" element properties
   Handlebars.registerHelper("getset", function(path: string, options: HelperOptions) {
-    let value = resolve_dotpath(options.data?.root, path);
+    let value = resolve_helper_dotpath(options, path);
     return ` name="${path}" value="${value}" `;
   });
 
@@ -322,8 +325,8 @@ Hooks.once("init", async function () {
   // ------------------------------------------------------------------------
   // Pilot stuff
   Handlebars.registerHelper("pilot-armor-slot", pilot_armor_slot);
-  Handlebars.registerHelper("pilot-weapon-slot", pilot_weapon_slot);
-  Handlebars.registerHelper("pilot-gear-slot", pilot_gear_slot);
+  Handlebars.registerHelper("pilot-weapon-slot", pilot_weapon_refview);
+  Handlebars.registerHelper("pilot-gear-slot", pilot_gear_refview);
 
   // ------------------------------------------------------------------------
   // Tags
@@ -339,7 +342,7 @@ Hooks.once("init", async function () {
 
   // ------------------------------------------------------------------------
   // Bonuses
-  Handlebars.registerHelper("bonuses-editor", bonus_array);
+  Handlebars.registerHelper("bonuses-editor", bonus_array_editor);
 
   // ------------------------------------------------------------------------
   // Weapons
@@ -353,7 +356,7 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("wpn-damage", weapon_damage_preview);
   Handlebars.registerHelper("npcf-atk", npc_attack_bonus_preview);
   Handlebars.registerHelper("npcf-acc", npc_accuracy_preview);
-  Handlebars.registerPartial("mech-weapon-preview", mech_weapon_preview);
+  Handlebars.registerHelper("mech-weapon-preview", mech_weapon_refview);
 
   // ------------------------------------------------------------------------
   // Systems

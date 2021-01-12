@@ -6,6 +6,8 @@ import {
   IContentPack,
   InsinuationRecord,
   Manufacturer,
+  MechWeapon,
+  MechWeaponProfile,
   MidInsinuationRecord,
   OpCtx,
   RegEntry,
@@ -296,7 +298,7 @@ class ImportUtilityReg extends FoundryReg {
     }
 
     // Hot-wire our tags
-    for(let in_tag of [...(rp.Tags ?? []), ...(rp.AddedTags ?? [])] as TagInstance[]) {
+    for(let in_tag of [...(rp.Tags ?? []), ...(rp.AddedTags ?? []), ...(rp.Profiles?.flatMap((p: MechWeaponProfile) => p.Tags) ?? [])] as TagInstance[]) {
       // Same shebang
       let existing_tag = this.replacement_tag_templates.get(in_tag.Tag.ID);
 

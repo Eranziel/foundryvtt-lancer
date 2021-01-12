@@ -94,7 +94,7 @@ export function compact_tag_list(tags: TagInstance[]): string {
   let processed_tags = filtered_tags.map(t => `
     <div class="compact-tag flexrow">
       <i class="mdi mdi-label i--s i--light"></i>
-      <span style="margin: 3px;">${t.Tag.Name} ${t.Value}</span>
+      <span style="margin: 3px;">${t.Tag.Name.replace("{VAL}", (""+t.Value ?? "?"))}</span>
     </div>`);
 
   return `<div class="compact-tag-row">

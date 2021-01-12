@@ -166,12 +166,12 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
         break;
       case "reset-sys":
         if(!path) return;
-        let sys_mount = resolve_dotpath(ent, path) as SystemMount;
+        let sys_mount = resolve_dotpath(data, path) as SystemMount;
         sys_mount.System = null;
         break;
       case "reset-wep":
         if(!path) return;
-        let wep_mount = resolve_dotpath(ent, path) as WeaponMount;
+        let wep_mount = resolve_dotpath(data, path) as WeaponMount;
         wep_mount?.reset();
         break;
       case "overcharge":
@@ -180,6 +180,8 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
       case "overcharge-rollback":
         ent.CurrentOvercharge--;
         break;
+      default:
+        return; // no-op
     }
 
     await this._commitCurrMM();

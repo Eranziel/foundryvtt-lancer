@@ -8,7 +8,7 @@
     </div>
   </header>
 
-  <div class="wraprow quadruple">
+  <div class="wraprow quintuple">
     {{{stat-edit-max-card  "HP"          "mdi mdi-heart-outline"    "mm.ent.CurrentHP"      "mm.ent.MaxHP" }}}
     {{{stat-edit-max-card  "HEAT"        "cci cci-heat"             "mm.ent.CurrentHeat"    "mm.ent.HeatCapacity" }}}
     {{{stat-view-card      "ARMOR"       "cci cci-armor"            "mm.ent.Armor" }}}
@@ -30,7 +30,7 @@
     </div>
 
 
-    <div class="card clipped triple">
+    <div class="card clipped double">
       <div class="lancer-stat-header clipped-top flexrow">
         <i class="cci cci-pilot i--m i--light" style="float: left; padding-left: 10px"> </i>
         <span class="major">PILOT</span>
@@ -43,12 +43,12 @@
 
   <div class="flexcol card clipped">
     <span class="lancer-stat-header major clipped-top">LOADOUT [SP: {{mm.ent.Loadout.TotalSP}} / {{mm.ent.MaxSP}}]</span>
-    {{{mech-loadout "mm.ent.Loadout"}}}
+    {{{mech-loadout "mm.ent"}}}
   </div>
 
   <div class="flexcol card clipped">
     <span class="lancer-stat-header major clipped-top">FRAMES</span>
-    <div class="wraprow">
+    <div class="wraprow triple">
       {{#each mm.ent.OwnedFrames as |frame index|}}
         {{{ref-mm-list-item (concat "mm.ent.OwnedFrames." index) "delete" }}}
       {{/each}}
@@ -57,7 +57,7 @@
 
   <div class="flexcol card clipped">
     <span class="lancer-stat-header major clipped-top">WEAPONS</span>
-    <div class="wraprow">
+    <div class="wraprow quadruple">
       {{#each mm.ent.OwnedWeapons as |weapon index|}}
         {{{ref-mm-list-item (concat "mm.ent.OwnedWeapons." index) "delete" }}}
       {{/each}}
@@ -66,15 +66,19 @@
   
   <div class="flexcol card clipped">
     <span class="lancer-stat-header major clipped-top">SYSTEMS</span>
-    {{#each mm.ent.OwnedSystems as |system index|}}
-      {{{ref-mm-list-item (concat "mm.ent.OwnedSystems." index) "delete" }}}
-    {{/each}}
+    <div class="wraprow quadruple">
+      {{#each mm.ent.OwnedSystems as |system index|}}
+        {{{ref-mm-list-item (concat "mm.ent.OwnedSystems." index) "delete" }}}
+      {{/each}}
+    </div>
   </div>
 
   <div class="flexcol card clipped">
     <span class="lancer-stat-header major clipped-top">MODS</span>
-    {{#each mm.ent.OwnedWeaponMods as |mod index|}}
-      {{{ref-mm-list-item (concat "mm.ent.OwnedWeaponMods." index) "delete" }}}
-    {{/each}}
+    <div class="wraprow quadruple">
+      {{#each mm.ent.OwnedWeaponMods as |mod index|}}
+        {{{ref-mm-list-item (concat "mm.ent.OwnedWeaponMods." index) "delete" }}}
+      {{/each}}
+    </div>
   </div>
 </form>

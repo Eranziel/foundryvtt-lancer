@@ -20,15 +20,25 @@ import {
   PilotArmor,
   PilotWeapon,
   PilotGear,
+  Mech,
 } from "machine-mind";
 import { MechWeapon, MechWeaponProfile } from "machine-mind";
 import { LANCER, LancerItemType, TypeIcon } from "../config";
 import { NPCDamageData, RangeData, TagData } from "../interfaces";
 import { LancerNpcFeatureData } from "../item/lancer-item";
 import { compact_tag_list } from "../item/tags";
-import { FlagData } from "../mm-util/foundry-reg";
-import { checked, render_icon, resolve_dotpath, selected } from "./commons";
+import { checked, render_icon, resolve_dotpath, resolve_helper_dotpath, selected } from "./commons";
 import { ref_commons, simple_mm_ref } from "./refs";
+
+
+// Helper to handle formatting for on hit, crit, etc effects
+export function effect_helper(header: string, body: string): string { 
+  return `
+  <div class="flexcol effect-text" style="padding: 5px">
+    <div class="medium effect-title">EFFECT</div>
+    <div class="effect-text">${body}</div>
+  </div>`;
+}
 
 /**
  * Handlebars helper which checks whether a weapon is loading by examining its tags
@@ -160,7 +170,6 @@ export function damage_editor(damage: Damage, data_target_prefix: string) {
  * Handlebars helper for showing damage values
  */
 export function show_damage_array(damages: Damage[]): string {
-  console.log("Damages", damages);
   let results: string[] = [];
   for(let damage of damages) {
     let damage_item = `<span class="compact-damage"><i class="cci ${damage.Icon} i--m i--dark"></i>${damage.Value}</span>`;
@@ -173,13 +182,13 @@ export function show_damage_array(damages: Damage[]): string {
  * Handlebars helper for showing range values
  */
 export function show_range_array(ranges: Range[]): string {
-  console.log("Ranges", ranges);
   let results: string[] = [];
   for(let range of ranges) {
     let range_item = `<span class="compact-range"><i class="cci ${range.Icon} i--m i--dark"></i>${range.Value}</span>`;
     results.push(range_item);
   }
-  return `<div class="flexrow">${results.join(" // ")}</div>`
+  const sep = ` <span class="i--m"> // </span> `;
+  return `<div class="flexrow compact-range">${results.join(sep)}</div>`
 }
 
 /**
@@ -375,49 +384,7 @@ export function item_preview(item: LiveEntryTypes<LancerItemType>) {
   return `<span>${item.Name}</span>`;
 }
 
-/**
- * Handlebars partial for a mech weapon preview card.
- */
-export const mech_weapon_preview = `<div class="flexcol clipped lancer-weapon-container weapon macroable item" style="max-height: fit-content;" data-item-id="{{weapon._id}}" data-item-key="{{key}}">
-  <div class="lancer-weapon-header clipped-top" style="grid-area: 1/1/2/3">
-    <i class="cci cci-weapon i--m i--light"> </i>
-    <span class="minor">{{weapon.name}} // {{upper-case weapon.data.mount}} {{upper-case weapon.data.weapon_type}}</span>
-    <a class="stats-control i--light" data-action="delete"><i class="fas fa-trash"></i></a>
-  </div> 
-  <div class="lancer-weapon-body">
-    <a class="roll-attack" style="grid-area: 1/1/2/2;"><i class="fas fa-dice-d20 i--m i--dark"></i></a>
-    <div class="flexrow" style="grid-area: 1/2/2/3; text-align: left; white-space: nowrap;">
-      {{#each weapon.data.range as |range rkey|}}
-        {{{wpn-range range rkey}}}
-      {{/each}}
-      <hr class="vsep">
-      {{#each weapon.data.damage as |damage dkey|}}
-        {{{wpn-damage damage}}}
-      {{/each}}
 
-      {{!-- Loading toggle - WIP, needs a way to link to related weapon. Maybe needs to be a callback instead of input.
-      <hr class="vsep">
-      {{#if (is-loading weapon.data.tags)}}
-        <div class="flexrow" style="align-items: center;">
-          LOADED: <label class="switch">
-            <input type="checkbox" name="weapon.data.loaded" {{checked weapon.data.loaded}}>
-            <span class="slider round"></span>
-          </label>
-        </div>
-      {{/if}}
-      --}}
-
-    </div>
-    {{#with weapon.data.effect as |effect|}}
-    <div style="grid-area: 2/1/3/3; display: inherit;">
-      {{{eff-preview effect}}}
-    </div>
-    {{/with}}
-    <div style="grid-area: 4/1/5/3; display: inherit;">
-      {{> tag-list tags=weapon.data.tags}}
-    </div>
-  </div>
-</div>`;
 
 /**
  * Handlebars partial for weapon type selector
@@ -692,7 +659,7 @@ export function bonus_editor(bonus_path: string, bonus: Bonus) {
  * - bonuses_path=<string path to the bonuses array>,  ex: ="ent.mm.Bonuses"
  * - bonuses=<bonus array to pre-populate with>.
  */
-export function bonus_array(bonuses_path: string, bonuses_array: Bonus[]) {
+export function bonus_array_editor(bonuses_path: string, bonuses_array: Bonus[]) {
   let rows = bonuses_array.map((bonus, index) => bonus_editor(`${bonuses_path}.${index}`, bonus));
   rows = rows.map(r => `<li> ${r} </li>`);
   return `<ul>
@@ -700,63 +667,10 @@ export function bonus_array(bonuses_path: string, bonuses_array: Bonus[]) {
     </ul>`;
 }
 
-// A specific MM ref display focused on displaying weapon info.
-export function weapon_preview(weapon_path: string, helper: HelperOptions): string {
-  let weapon: MechWeapon | null = resolve_dotpath(helper.data?.root, weapon_path);
-
-  // TODO? maybe do a little bit more here, aesthetically speaking
-  if (weapon) {
-    let orig_ent = (weapon.flags as FlagData<EntryType.MECH_WEAPON>).orig_entity;
-    let ref = weapon.as_ref();
-
-    let ranges = weapon.SelectedProfile.BaseRange.map((r, i) => weapon_range_preview(r, i)); // TODO: Show Bonuses
-    let damages = weapon.SelectedProfile.BaseDamage.map((r, i) => weapon_damage_preview(r, i));  // TODO: Show Bonuses
-    let loaded_section = "";
-    if(weapon.IsLoading) {
-      loaded_section = `
-          <div class="flexrow" style="align-items: center;">
-            LOADED: <label class="switch">
-              <input type="checkbox" name="${weapon_path}.Loaded" ${checked(weapon.Loaded)}>
-              <span class="slider round"></span>
-            </label>
-          </div>
-      ` ;
-    }
-
-    return `
-  <div class="flexcol clipped lancer-weapon-container weapon macroable item" style="max-height: fit-content;" data-item-id="${weapon.RegistryID}">
-    <div class="lancer-weapon-header clipped-top" style="grid-area: 1/1/2/3">
-      <i class="cci cci-weapon i--m i--light"> </i>
-      <span class="minor">${weapon.Name} // ${weapon.Size.toUpperCase()} ${weapon.Type.toUpperCase()}</span>
-      <a class="gen-control i--light" data-action="clear"><i class="fas fa-trash"></i></a>
-    </div> 
-    <div class="lancer-weapon-body">
-      <a class="roll-attack" style="grid-area: 1/1/2/2;"><i class="fas fa-dice-d20 i--m i--dark"></i></a>
-      <div class="flexrow" style="grid-area: 1/2/2/3; text-align: left; white-space: nowrap;">
-        ${ranges.join("")}
-        <hr class="vsep">
-        ${damages.join("")}
-
-        <!-- Loading toggle - WIP, needs a way to link to related weapon. Maybe needs to be a callback instead of input. -->
-        <hr class="vsep">
-        ${loaded_section}
-      </div>
-
-      <div style="grid-area: 4/1/5/3; display: inherit;">
-        ${compact_tag_list(weapon.SelectedProfile.Tags)}
-      </div>
-    </div>
-  </div>`;
-  } else {
-    return simple_mm_ref(EntryType.MECH_WEAPON, null, weapon_path);
-  }
-}
-
-
 // Helper for showing a piece of armor, or a slot to hold it (if path is provided)
 export function pilot_armor_slot(armor_path: string, helper: HelperOptions): string {
   // Fetch the item
-  let armor_: PilotArmor | null = resolve_dotpath(helper.data?.root, armor_path);
+  let armor_: PilotArmor | null = resolve_helper_dotpath(helper, armor_path);
 
   // Generate commons
   let cd = ref_commons(armor_);
@@ -824,9 +738,9 @@ export function pilot_armor_slot(armor_path: string, helper: HelperOptions): str
 
 
 // Helper for showing a pilot weapon, or a slot to hold it (if path is provided)
-export function pilot_weapon_slot(weapon_path: string, helper: HelperOptions): string {
+export function pilot_weapon_refview(weapon_path: string, helper: HelperOptions): string {
   // Fetch the item
-  let weapon_: PilotWeapon | null = resolve_dotpath(helper.data?.root, weapon_path);
+  let weapon_: PilotWeapon | null = resolve_helper_dotpath(helper, weapon_path);
 
   // Generate commons
   let cd = ref_commons(weapon_);
@@ -847,7 +761,7 @@ export function pilot_weapon_slot(weapon_path: string, helper: HelperOptions): s
                 data-ref-type="${cd.ref.type}" 
                 data-reg-name="${cd.ref.reg_name}" 
                 data-path="${weapon_path}"
-                data-type="${EntryType.PILOT_ARMOR}">
+                data-type="${EntryType.PILOT_WEAPON}">
     <div class="lancer-weapon-header clipped-top">
       <i class="cci cci-weapon i--m i--light"> </i>
       <span class="minor">${weapon.Name}</span>
@@ -879,7 +793,7 @@ export function pilot_weapon_slot(weapon_path: string, helper: HelperOptions): s
 }
 
 // Helper for showing a pilot gear, or a slot to hold it (if path is provided)
-export function pilot_gear_slot(gear_path: string, helper: HelperOptions): string {
+export function pilot_gear_refview(gear_path: string, helper: HelperOptions): string {
   // Fetch the item
   let gear_: PilotGear | null = resolve_dotpath(helper.data?.root, gear_path);
 
@@ -917,7 +831,7 @@ export function pilot_gear_slot(gear_path: string, helper: HelperOptions): strin
                 data-ref-type="${cd.ref.type}" 
                 data-reg-name="${cd.ref.reg_name}" 
                 data-path="${gear_path}"
-                data-type="${EntryType.PILOT_ARMOR}">
+                data-type="${EntryType.PILOT_GEAR}">
     <div class="lancer-gear-header clipped-top">
       <i class="cci cci-generic-item i--m"> </i>
       <a class="gear-macro macroable"><i class="mdi mdi-message"></i></a>
@@ -944,3 +858,90 @@ export function pilot_gear_slot(gear_path: string, helper: HelperOptions): strin
     </div>
   </div>`;
 }
+
+/**
+ * Handlebars helper for a mech weapon preview card. Doubles as a slot. Mech path needed for bonuses
+ */
+export function mech_weapon_refview(weapon_path: string, mech_path: string | "", helper: HelperOptions): string { 
+  // Fetch the item(s)
+  let weapon_: MechWeapon | null = resolve_helper_dotpath(helper, weapon_path);
+  let mech_: Mech | null = resolve_helper_dotpath(helper, mech_path);
+
+  // Generate commons
+  let cd = ref_commons(weapon_);
+
+  if (!cd) {
+    // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
+    return `
+      <div class="${EntryType.MECH_WEAPON} ref drop-target card clipped pilot-gear-compact item" 
+                        data-path="${weapon_path}" 
+                        data-type="${EntryType.MECH_WEAPON}">
+        <img class="ref-icon" src="${TypeIcon(EntryType.MECH_WEAPON)}"></img>
+        <span class="major">Add weapon</span>
+      </div>`;
+  }
+
+  // Assert not null
+  let weapon = weapon_!;
+
+  // What profile are we using?
+  let profile = weapon.SelectedProfile;
+
+  // Augment ranges
+  let ranges = profile.BaseRange;
+  if(mech_) {
+    ranges = Range.calc_range_with_bonuses(weapon, profile, mech_);
+  }
+
+  // Generate loading segment as needed
+  let loading = "";
+  if(weapon.IsLoading) {
+    let loading_icon = `mdi mdi-hexagon-slice-${weapon.Loaded ? 6 : 0}`;
+    loading = `<span> 
+                LOADED: 
+                <a class="gen-control" data-action="set" data-set-value="(bool)${!weapon.Loaded}" data-path="${weapon_path}.Loaded"><i class="${loading_icon}"></i></a>
+                </span>`;
+  }
+
+  // Generate effects
+  let effect = profile.Effect ? effect_helper("Effect", profile.Effect) : "";
+  let on_attack = profile.OnAttack ? effect_helper("On Attack", profile.OnAttack) : "";
+  let on_hit = profile.OnHit ? effect_helper("On Hit", profile.OnHit) : "";
+  let on_crit = profile.OnCrit ? effect_helper("On Crit", profile.OnCrit) : "";
+
+  return `
+  <div class="valid ${EntryType.MECH_WEAPON} ref drop-target flexcol clipped lancer-weapon-container macroable item"
+                data-id="${cd.ref.id}" 
+                data-ref-type="${cd.ref.type}" 
+                data-reg-name="${cd.ref.reg_name}" 
+                data-path="${weapon_path}"
+                data-type="${EntryType.MECH_WEAPON}"
+                style="max-height: fit-content;">
+    <div class="lancer-weapon-header clipped-top" style="grid-area: 1/1/2/3">
+      <i class="cci cci-weapon i--m i--light"> </i>
+      <span class="minor">${weapon.Name} // ${weapon.Size.toUpperCase()} ${weapon.Type.toUpperCase()}</span>
+      <a class="gen-control i--light" data-action="null" data-path="${weapon_path}"><i class="fas fa-trash"></i></a>
+    </div> 
+    <div class="lancer-weapon-body">
+      <a class="roll-attack" style="grid-area: 1/1/2/2;"><i class="fas fa-dice-d20 i--m i--dark"></i></a>
+      <div class="flexrow" style="grid-area: 1/2/2/3; text-align: left; white-space: nowrap;">
+        ${show_range_array(ranges)}
+        <hr class="vsep">
+        ${show_damage_array(weapon.SelectedProfile.BaseDamage)}
+
+        <!-- Loading toggle, if we are loading-->
+        <hr class="vsep">
+        ${loading}
+      </div>
+      
+      <div class="flexcol" style="grid-area: 2/1/3/3;">
+        <span>${weapon.SelectedProfile.Description}</span>
+        ${effect}
+        ${on_attack}
+        ${on_hit}
+        ${on_crit}
+        ${compact_tag_list(profile.Tags)}
+      </div>
+    </div>
+  </div>`
+};

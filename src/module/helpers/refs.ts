@@ -11,8 +11,6 @@ import { LANCER, TypeIcon } from "../config";
 import { LancerItem } from "../item/lancer-item";
 import { FlagData, FoundryReg } from "../mm-util/foundry-reg";
 
-const UNDEFINED_REF_ICON = "systems/lancer/assets/icons/difficulty.svg";
-
 // We use these for virtually every ref function
 export function ref_commons<T extends EntryType>(item: RegEntry<T> | null): null | ({
   img: string,

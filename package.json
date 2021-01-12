@@ -35,6 +35,6 @@
   "dependencies": {
     "@mdi/font": "^5.7.55",
     "compare-versions": "^3.6.0",
-    "machine-mind": "0.2.0-beta.36"
+    "machine-mind": "0.2.0-beta.37"
   }
 }

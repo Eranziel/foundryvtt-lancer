@@ -20,6 +20,9 @@
   --tech-clip-path: polygon( 0 0, calc(100% - 12px) 0, calc(100% - 12px) 7px, calc(100% - 7px) 7px, calc(100% - 7px) 3px, calc(100% - 3px) 3px, calc(100% - 3px) 0, 100% 0, 100% 3px, calc(100% - 3px) 3px, calc(100% - 3px) 7px, calc(100% - 7px) 7px, calc(100% - 7px) 12px, 100% 12px, 100% 100%, 0 100% );
   --tech-color: #7d2477;
 
+  /* Darkens tone by a small increment. For some themes should probably lighten instead, somehow? */
+  --darken-1: #00000016;
+
   --top-dogear-path: polygon( 10px 0, 100% 0, 100% 100%, 0 100%, 0 10px );
   --bottom-dogear-path: polygon( 0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100% );
   --double-dogear-path: polygon( 10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px );
@@ -512,8 +515,6 @@ tr.lcp-index-header {
   flex: 1 0 0;
   justify-content: space-evenly;
   align-content: stretch;
-  min-width: 33%;
-  max-width: 66%;
 }
 
 .lancer-core-sys-header {
@@ -525,11 +526,12 @@ tr.lcp-index-header {
   justify-content: flex-start;
   flex-direction: column;
   min-height: 45px;
-  border-style: dashed;
+  border-style: solid;
   border-width: 2px;
   border-color: var(--main-theme-color, fuchsia);
   border-top-style: none;
   white-space: pre;
+  background-color: var(--darken-1);
 }
 
 .lancer-talent-container {
@@ -610,7 +612,7 @@ tr.lcp-index-header {
   grid-template-columns: 4em 1fr;
   grid-template-rows: repeat(3, fit-content(0));
 
-  background-color: #00000033;
+  background-color: var(--darken-1)
 }
 
 .lancer-weapon-body {
@@ -662,13 +664,9 @@ tr.lcp-index-header {
 }
 
 .ref-list-controls {
-  max-width: 50px;
   margin: 5px;
-  border: 2px solid black;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  flex-wrap: nowrap;
+  margin-left: auto;
+  max-width: 40px;
 }
 
 .pilot-stats {
@@ -1132,6 +1130,7 @@ input.core-power-toggle:not(:checked)::before
   flex-wrap: wrap;
 }
 
+
 /* Two items per row */
 .wraprow.double > * {
   flex: 1 0 calc(50% - 14px); /* the px here is 2x the margin. adjust accordingly */
@@ -1198,7 +1197,6 @@ input.core-power-toggle:not(:checked)::before
   flex: 1 0 calc(80% - 14px); 
   margin: 7px;
 }
-
 
 /* Glow effect courtesy of https://codepen.io/jackrugile/pen/ABeIi */
 .highlight-can-drop {

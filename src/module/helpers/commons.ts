@@ -1,4 +1,7 @@
+import { HelperOptions } from "handlebars";
 import {
+  EntryType,
+  LiveEntryTypes,
   RegEntry,
   RegRef
 } from "machine-mind";
@@ -106,10 +109,19 @@ export function resolve_dotpath(object: any, path: string) {
     .reduce((o, k) => o?.[k], object) ?? null;
 }
 
+// Helper function to get arbitrarily deep array references, specifically in a helperoptions, and with better types for that matter
+export function resolve_helper_dotpath(helper: HelperOptions, path: string): any {
+  let resolved = resolve_dotpath(helper.data?.root, path);
+  return resolved;
+}
+
 /** Enables controls that can:
- * - delete the specified item id on the actor
- * - set the specified path on the actor to be null
- * - splice out the specified index on the actor
+ * - "delete": delete() the item located at data-path
+ * - "null": set as null the value at the specified path
+ * - "splice": remove the array item at the specified path
+ * - "set": set as `data-action-value` the item at the specified path. Defaults to string. 
+ *    - if prefixed with (int), will parse as int
+ *    - if prefixed with (bool), will parse as boolean
  * all using a similar api: a `path` to the item, and an `action` to perform on that item. In some cases, a `val` will be used
  * 
  * The data getter and commit func are used to retrieve the target data, and to save it back (respectively)
@@ -154,8 +166,16 @@ export function activate_general_controls<T>(
           break;
         case "set":
           // Null out the target space
-          let val = elt.dataset.val;
-          gentle_merge(data, {[path]: val});
+          let raw_val: string = elt.dataset.actionValue ?? "";
+          let real_val: string | number | boolean;
+          if(raw_val.slice(0, 5) == "(int)") {
+            real_val = Number.parseInt(raw_val.slice(5));
+          } else if(raw_val.slice(0, 6) == "(bool)") {
+            real_val = (raw_val.slice(6) === "true");
+          } else {
+            real_val = raw_val;
+          }
+          gentle_merge(data, {[path]: real_val});
           break;
       }
 
