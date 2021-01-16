@@ -166,7 +166,7 @@ export function getMacroSpeaker(a_id?: string): LancerActor<any> | null {
   if (!actor || (a_id && actor.id !== a_id)) {
     actor = game.actors.get(a_id!);
   }
-  return actor ? actor as LancerActor<any> : null;
+  return actor ? (actor as LancerActor<any>) : null;
 }
 
 export async function renderMacro(actor: Actor, template: string, templateData: any) {
@@ -311,12 +311,18 @@ async function rollTalentMacro(actor: Actor, data: LancerTalentMacroData) {
  *            - damBonus        Object of form {type: val} to apply flat damage bonus of given type.
  *                              The "Bonus" type is recommended but not required
  */
-async function prepareAttackMacro({ actor, item, options }:
-    { actor: Actor;
-      item: LancerItem<any>;
-      options?: {
-        accBonus: number;
-        damBonus: { type: DamageType; val: number; }; }; }) {
+async function prepareAttackMacro({
+  actor,
+  item,
+  options,
+}: {
+  actor: Actor;
+  item: LancerItem<any>;
+  options?: {
+    accBonus: number;
+    damBonus: { type: DamageType; val: number };
+  };
+}) {
   console.log("DISABLED");
   return;
   /*

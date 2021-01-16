@@ -161,7 +161,7 @@ export class LancerNPCClassSheet extends LancerItemSheet<EntryType.NPC_CLASS> {
       console.log(`Dropped feature ${dropData.id} on class sheet ${this.id}`);
 
       this.addFeature(dropData.id, dropData?.pack);
-    })
+    });
   }
 
   // TODO:
@@ -172,9 +172,9 @@ export class LancerNPCClassSheet extends LancerItemSheet<EntryType.NPC_CLASS> {
    * @param featID      String ID of the feature to add
    * @param compendium  Optionally, the compendium path to find the item at
    */
-   private async addFeature(featID: string, compendium?: string) {
+  private async addFeature(featID: string, compendium?: string) {
     let itemString = "";
-    if(compendium) {
+    if (compendium) {
       itemString = "Compendium." + compendium + "." + featID;
     } else {
       itemString = "Item." + featID;
@@ -182,12 +182,12 @@ export class LancerNPCClassSheet extends LancerItemSheet<EntryType.NPC_CLASS> {
     // Yes, this exists
     //@ts-ignore
     let foundFeat: LancerNPCFeature | null = await fromUuid(itemString);
-    if(!foundFeat) {
+    if (!foundFeat) {
       console.log("That item doesn't exist!");
       return;
     }
 
-    if(!(foundFeat.type === "npc_feature")) {
+    if (!(foundFeat.type === "npc_feature")) {
       console.log("You didn't drop a feature!");
       return;
     }
@@ -202,20 +202,20 @@ export class LancerNPCClassSheet extends LancerItemSheet<EntryType.NPC_CLASS> {
     // Apparently this will only work for features that exist in the feature compendium
     // Because our feature renderer grabs data from there
     // WHY!?!?!?
-    if(isBase){
+    if (isBase) {
       let baseFeats = [...this.object.data.data.base_features];
       if (baseFeats.includes(fakeId)) {
         return;
       }
       baseFeats.push(fakeId);
-      await this.object.update({data: {base_features: baseFeats}});
+      await this.object.update({ data: { base_features: baseFeats } });
     } else {
       let optFeats = [...this.object.data.data.optional_features];
       if (optFeats.includes(fakeId)) {
         return;
       }
       optFeats.push(fakeId);
-      await this.object.update({data: {optional_features: optFeats}});
+      await this.object.update({ data: { optional_features: optFeats } });
     }
     this.render();
   }

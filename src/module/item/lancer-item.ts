@@ -1,32 +1,6 @@
-import { DamageData, NPCDamageData, RangeData, TagData } from "../interfaces";
+import { TagData } from "../interfaces";
 import { LANCER, LancerItemType, TypeIcon } from "../config";
-import {
-  DamageType,
-  EntryType,
-  NpcFeatureType,
-  RangeType,
-  SystemType,
-  WeaponSize,
-  WeaponType,
-  Range,
-  Damage,
-  RegEntry,
-  LiveEntryTypes,
-} from "machine-mind";
-import {
-  npc_reaction_effect_preview,
-  npc_system_effect_preview,
-  npc_tech_effect_preview,
-  npc_trait_effect_preview,
-  npc_weapon_effect_preview,
-} from "./effects";
-import {
-  LancerNPCReactionData,
-  LancerNPCSystemData,
-  LancerNPCTechData,
-  LancerNPCTraitData,
-  LancerNPCWeaponData,
-} from "./npc-feature";
+import { EntryType, NpcFeatureType } from "machine-mind";
 import { FoundryRegItemData } from "../mm-util/foundry-reg";
 
 const lp = LANCER.log_prefix;

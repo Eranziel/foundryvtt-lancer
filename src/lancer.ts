@@ -10,11 +10,7 @@
 // Import TypeScript modules
 import { LANCER, STATUSES, WELCOME } from "./module/config";
 import { LancerGame } from "./module/lancer-game";
-import {
-  LancerActor,
-  lancerActorInit,
-  npc_tier_selector,
-} from "./module/actor/lancer-actor";
+import { LancerActor, lancerActorInit, npc_tier_selector } from "./module/actor/lancer-actor";
 import { LancerItem, lancerItemInit } from "./module/item/lancer-item";
 
 import {
@@ -71,13 +67,9 @@ import * as macros from "./module/macros";
 // Import node modules
 import compareVersions = require("compare-versions");
 import { NpcFeatureType, EntryType } from "machine-mind";
-import {
-  render_icon,
-  resolve_dotpath,
-} from "./module/helpers/commons";
+import { render_icon, resolve_dotpath } from "./module/helpers/commons";
 import { is_loading } from "machine-mind/dist/classes/mech/EquipUtil";
 import {
-  item_preview,
   weapon_size_selector,
   weapon_type_selector,
   range_editor,
@@ -99,7 +91,19 @@ import {
   pilot_weapon_slot,
   pilot_gear_slot,
 } from "./module/helpers/item";
-import { editable_mm_ref_list_item as editable_mm_ref_list_item, clicker_num_input, clicker_stat_card, compact_stat_edit, compact_stat_view, mech_loadout, overcharge_button, stat_edit_card, stat_edit_card_max, stat_view_card, pilot_slot } from "./module/helpers/actor";
+import {
+  editable_mm_ref_list_item,
+  clicker_num_input,
+  clicker_stat_card,
+  compact_stat_edit,
+  compact_stat_view,
+  mech_loadout,
+  overcharge_button,
+  stat_edit_card,
+  stat_edit_card_max,
+  stat_view_card,
+  pilot_slot,
+} from "./module/helpers/actor";
 import { HelperOptions } from "handlebars";
 import { manufacturer_ref, simple_mm_ref } from "./module/helpers/refs";
 
@@ -192,7 +196,7 @@ Hooks.once("init", async function () {
       EntryType.WEAPON_MOD,
       EntryType.NPC_FEATURE,
       EntryType.MANUFACTURER,
-      EntryType.QUIRK
+      EntryType.QUIRK,
     ],
     makeDefault: true,
   });
@@ -221,12 +225,12 @@ Hooks.once("init", async function () {
   });
 
   // rp, to resolve path values strs. Helps use effectively half as many arguments for many helpers/partials
-  Handlebars.registerHelper("rp", function(path: string, options: HelperOptions) {
+  Handlebars.registerHelper("rp", function (path: string, options: HelperOptions) {
     return resolve_dotpath(options.data?.root, path);
   });
 
   // get-set, to resolve situations wherein we read and write to the same path via "value" and "name" element properties
-  Handlebars.registerHelper("getset", function(path: string, options: HelperOptions) {
+  Handlebars.registerHelper("getset", function (path: string, options: HelperOptions) {
     let value = resolve_dotpath(options.data?.root, path);
     return ` name="${path}" value="${value}" `;
   });
@@ -316,7 +320,6 @@ Hooks.once("init", async function () {
     return s;
   });
 
-
   // ------------------------------------------------------------------------
   // Stat helpers
   Handlebars.registerHelper("compact-stat-edit", compact_stat_edit);
@@ -325,7 +328,6 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("stat-edit-card", stat_edit_card);
   Handlebars.registerHelper("stat-edit-max-card", stat_edit_card_max);
   Handlebars.registerHelper("clicker-stat-card", clicker_stat_card);
-
 
   // ------------------------------------------------------------------------
   // Refs

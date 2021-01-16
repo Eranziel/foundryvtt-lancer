@@ -63,7 +63,7 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
   }
 
   /* -------------------------------------------- */
-    /* // Populate the callsign if blank (new Actor)
+  /* // Populate the callsign if blank (new Actor)
     if (data.data.pilot.callsign === "") {
       data.data.pilot.callsign = data.actor.name;
     }
@@ -135,14 +135,14 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
       // Macro triggers
       // Stat rollers
       let statMacro = html.find(".roll-stat");
-      statMacro.on("click", (ev) => {
+      statMacro.on("click", ev => {
         ev.stopPropagation(); // Avoids triggering parent event handlers
         game.lancer.prepareStatMacro(this.actor._id, this.getStatPath(ev)!);
       });
 
       // Talent rollers
       let talentMacro = html.find(".talent-macro");
-      talentMacro.on("click", (ev) => {
+      talentMacro.on("click", ev => {
         if (!ev.currentTarget) return; // No target, let other handlers take care of it.
         ev.stopPropagation(); // Avoids triggering parent event handlers
 
@@ -192,7 +192,7 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
 
       // Weapon rollers
       let weaponMacro = html.find(".roll-attack");
-      weaponMacro.on("click", (ev) => {
+      weaponMacro.on("click", ev => {
         if (!ev.currentTarget) return; // No target, let other handlers take care of it.
         ev.stopPropagation();
 
@@ -251,7 +251,7 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
 
       // Delete Item when trash can is clicked
       let items = html.find('.stats-control[data-action*="delete"]');
-      items.on("click", (ev) => {
+      items.on("click", ev => {
         if (!ev.currentTarget) return; // No target, let other handlers take care of it.
         ev.stopPropagation(); // Avoids triggering parent event handlers
         console.log(ev);
@@ -313,7 +313,7 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
 
       // Cloud download
       let download = html.find('.cloud-control[data-action*="download"]');
-      download.on("click", async (ev) => {
+      download.on("click", async ev => {
         ev.stopPropagation();
         // Get the data
         try {
@@ -322,9 +322,11 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
           let raw_pilot_data = await funcs.gist_io.download_pilot(self.mm.ent.CloudID);
 
           // Pull the trigger
-          let pseudo_compendium = new FoundryReg({for_compendium: true});
-          let synced_data = await funcs.cloud_sync(raw_pilot_data, self.mm.ent, [pseudo_compendium]);
-          if(!synced_data) {
+          let pseudo_compendium = new FoundryReg({ for_compendium: true });
+          let synced_data = await funcs.cloud_sync(raw_pilot_data, self.mm.ent, [
+            pseudo_compendium,
+          ]);
+          if (!synced_data) {
             throw new Error("Pilot was somehow destroyed by the sync");
           }
 
@@ -334,11 +336,11 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
             img: synced_data.pilot.CloudPortrait || this.actor.img,
           });
 
-          for(let mech of synced_data.pilot_mechs) {
+          for (let mech of synced_data.pilot_mechs) {
             let mech_actor = (mech.flags as FlagData<EntryType.MECH>).orig_entity;
             await mech_actor.update({
               name: mech.Name || mech_actor.name,
-              img: mech.CloudPortrait || mech_actor.img
+              img: mech.CloudPortrait || mech_actor.img,
             });
             mech_actor.render();
           }
@@ -428,24 +430,24 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
       let loadout = new_live_this.Loadout;
       if (new_live_item.Type === EntryType.PILOT_WEAPON) {
         // If weapon, try to equip to first empty slot
-        for(let i = 0; i < loadout.Weapons.length; i++) {
-          if(!loadout.Weapons[i]) {
+        for (let i = 0; i < loadout.Weapons.length; i++) {
+          if (!loadout.Weapons[i]) {
             loadout.Weapons[i] = new_live_item;
             break;
           }
         }
       } else if (new_live_item.Type === EntryType.PILOT_GEAR) {
         // If gear, try to equip to first empty slot
-        for(let i = 0; i < loadout.Gear.length; i++) {
-          if(!loadout.Gear[i]) {
+        for (let i = 0; i < loadout.Gear.length; i++) {
+          if (!loadout.Gear[i]) {
             loadout.Gear[i] = new_live_item;
             break;
           }
         }
       } else if (new_live_item.Type === EntryType.PILOT_ARMOR) {
         // If armor, try to equip to first empty slot
-        for(let i = 0; i < loadout.Armor.length; i++) {
-          if(!loadout.Gear[i]) {
+        for (let i = 0; i < loadout.Armor.length; i++) {
+          if (!loadout.Gear[i]) {
             loadout.Armor[i] = new_live_item;
             break;
           }

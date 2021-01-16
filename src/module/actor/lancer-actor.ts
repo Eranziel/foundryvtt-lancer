@@ -476,20 +476,19 @@ export class LancerActor<T extends LancerActorType> extends Actor {
   prepareBaseData() {
     // console.log("Prepare base", this.data.name, this.data);
     // switch ( this.data.type ) {
-      // case EntryType.PILOT:
-        // break;
-      // case "npc":
-        // break;
-      // case "vehicle":
-        // break;
+    // case EntryType.PILOT:
+    // break;
+    // case "npc":
+    // break;
+    // case "vehicle":
+    // break;
     // }
   }
 
   /* -------------------------------------------- */
 
   /** @override */
-  prepareDerivedData() {
-  }
+  prepareDerivedData() {}
 }
 
 // Discrete types for all of our possible generic values
@@ -505,7 +504,6 @@ export type LancerDeployableData = FoundryRegActorData<EntryType.DEPLOYABLE>;
 /* ------------------------------------ */
 /* Handlebars Helpers                    */
 /* ------------------------------------ */
-
 
 /**
  * Handlebars helper for an NPC tier selector

@@ -1,6 +1,20 @@
 import { LANCER, LancerActorType } from "../config";
-import { activate_general_controls, del_arr_key,  gentle_merge, is_ref, resolve_dotpath, safe_json_parse } from "../helpers/commons";
-import { enable_native_dropping_mm_wrap, enable_simple_ref_dragging, enable_simple_ref_dropping, NativeDrop, ResolvedNativeDrop, resolve_native_drop } from "../helpers/dragdrop";
+import {
+  activate_general_controls,
+  del_arr_key,
+  gentle_merge,
+  is_ref,
+  resolve_dotpath,
+  safe_json_parse,
+} from "../helpers/commons";
+import {
+  enable_native_dropping_mm_wrap,
+  enable_simple_ref_dragging,
+  enable_simple_ref_dropping,
+  NativeDrop,
+  ResolvedNativeDrop,
+  resolve_native_drop,
+} from "../helpers/dragdrop";
 import { HANDLER_openRefOnClick } from "../helpers/refs";
 import { LancerActorSheetData, LancerStatMacroData } from "../interfaces";
 import { mm_wrap_actor } from "../mm-util/helpers";
@@ -52,7 +66,11 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     this._activateNativeRefDropBoxes(html);
 
     // Enable general controls, so items can be deleted and such
-    activate_general_controls(html.find(".gen-control"), () => this.getDataLazy(), (_) => this._commitCurrMM());
+    activate_general_controls(
+      html.find(".gen-control"),
+      () => this.getDataLazy(),
+      _ => this._commitCurrMM()
+    );
   }
 
   _activatePlusMinusButtons(html: any) {
@@ -82,25 +100,23 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
       // Highlight valid drop points
       let target_selector = `.ref.drop-target.${src[0].dataset.type}`;
 
-      if(start_stop == "start") {
+      if (start_stop == "start") {
         html.find(target_selector).addClass("highlight-can-drop");
       } else {
         html.find(target_selector).removeClass("highlight-can-drop");
       }
-    }); 
+    });
 
     // Allow every ".ref" spot to be dropped onto, with a payload of a JSON RegRef
-    enable_simple_ref_dropping(
-      html.find(".ref.drop-target"), 
-      async (entry, evt) => {
-        let data = await this.getDataLazy();
-        let path = evt[0].dataset.path;
-        if(path) {
-          // Set the item at the data path
-          gentle_merge(data, {[path]: entry});
-          this._commitCurrMM();
-        }
-      });
+    enable_simple_ref_dropping(html.find(".ref.drop-target"), async (entry, evt) => {
+      let data = await this.getDataLazy();
+      let path = evt[0].dataset.path;
+      if (path) {
+        // Set the item at the data path
+        gentle_merge(data, { [path]: entry });
+        this._commitCurrMM();
+      }
+    });
   }
 
   // Enables functionality for converting native foundry drags to be handled by ref drop slots
@@ -111,7 +127,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
       async (item, dest, evt) => {
         // Now, as far as whether it should really have any effect, that depends on the type
         let path = dest[0].dataset.path!;
-        if(path) {
+        if (path) {
           let data = await this.getDataLazy();
           gentle_merge(data, { [path]: item.ent });
           await this._commitCurrMM();
@@ -120,10 +136,10 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
       [], // We only accept if data-type set
       (data, dest) => {
         // We have no idea if we should truly be able to drop here,
-        // as doing so tends to require type resolution (an async op that we can't really afford to do here). 
+        // as doing so tends to require type resolution (an async op that we can't really afford to do here).
         // But, so long as we have an ID and type, we should be able to resolve
         let pdata = safe_json_parse(data) as NativeDrop;
-        if(pdata?.id !== undefined && pdata?.type !== undefined) {
+        if (pdata?.id !== undefined && pdata?.type !== undefined) {
           return true;
         }
         return false;
@@ -317,7 +333,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
   async _commitCurrMM(render: boolean = true) {
     await this._currData?.mm.ent.writeback();
     this._currData = null; // Reset
-    if(render) {
+    if (render) {
       this.render();
     }
   }
