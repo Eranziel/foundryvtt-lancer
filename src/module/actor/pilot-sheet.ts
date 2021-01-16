@@ -220,7 +220,8 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
       const textMacroHandler = (e: DragEvent) => this._onDragTextMacroableStart(e);
       const CAMacroHandler = (e: DragEvent) => this._onDragCoreActiveStart(e);
       const CPMacroHandler = (e: DragEvent) => this._onDragCorePassiveStart(e);
-      const overchargeMacroHandler = (e: DragEvent) => this._onDragOverchargeStart(e);
+      // TODO: migrate to mech
+      // const overchargeMacroHandler = (e: DragEvent) => this._onDragOverchargeStart(e);
       html
         .find('li[class*="item"]')
         .add('span[class*="item"]')
@@ -237,8 +238,9 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
             item.addEventListener("dragstart", CAMacroHandler, false);
           if (item.classList.contains("core-passive-macro"))
             item.addEventListener("dragstart", CPMacroHandler, false);
-          if (item.classList.contains("overcharge-macro"))
-            item.addEventListener("dragstart", overchargeMacroHandler, false);
+          // TODO: migrate to mech
+          // if (item.classList.contains("overcharge-macro"))
+          //   item.addEventListener("dragstart", overchargeMacroHandler, false);
           if (item.classList.contains("item"))
             item.addEventListener("dragstart", (ev: any) => this._onDragStart(ev), false);
           item.setAttribute("draggable", "true");

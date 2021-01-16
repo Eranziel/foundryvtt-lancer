@@ -295,6 +295,8 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
    */
   // @ts-ignore Foundry-pc-types does not properly acknowledge that sheet `getData` functions can be/are asynchronous
   async getData(): Promise<LancerActorSheetData<T>> {
+    //@ts-ignore Conversion of type 'ActorSheetData | Promise<ActorSheetData>' to type 'LancerActorSheetData<T>' may be
+    // a mistake because neither type sufficiently overlaps with the other.
     const data = super.getData() as LancerActorSheetData<T>; // Not fully populated yet!
 
     // Load mech meta stuff

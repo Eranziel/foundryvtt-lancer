@@ -90,9 +90,11 @@ export class LancerNPCClassSheet extends LancerItemSheet<EntryType.NPC_CLASS> {
 
     let item = this.item as LancerNpcClass;
 
+    // TODO: update or revert
     //These have to be refetched here despite also being fetched in getData because getData isn't allowed to be async in ItemSheets, thanks Foundry
     //So even if this looks like it's wrong, it's not
     // This nesting is necessary to listen properly
+    /*
     item.base_feature_items.then(base_features => {
       this._displayFeatures(base_features, html.find("#base_feature_items"))
       item.optional_feature_items.then(optional_features => {
@@ -128,6 +130,7 @@ export class LancerNPCClassSheet extends LancerItemSheet<EntryType.NPC_CLASS> {
         });
       });
     });
+    */
   }
 
   /** @override */

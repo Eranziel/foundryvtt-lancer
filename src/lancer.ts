@@ -43,7 +43,7 @@ import {
 } from "./module/item/effects";
 
 // Import applications
-import { LancerPilotSheet, overchargeButton } from "./module/actor/pilot-sheet";
+import { LancerPilotSheet } from "./module/actor/pilot-sheet";
 import { LancerNPCSheet } from "./module/actor/npc-sheet";
 import { LancerDeployableSheet } from "./module/actor/deployable-sheet";
 import { LancerMechSheet } from "./module/actor/mech-sheet";
@@ -70,7 +70,7 @@ import * as macros from "./module/macros";
 
 // Import node modules
 import compareVersions = require("compare-versions");
-import { NpcFeatureType, EntryType, Manufacturer } from "machine-mind";
+import { NpcFeatureType, EntryType } from "machine-mind";
 import {
   render_icon,
   resolve_dotpath,

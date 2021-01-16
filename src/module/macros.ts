@@ -9,29 +9,19 @@ import {
   LancerSkill,
 } from "./item/lancer-item";
 import { LancerActor } from "./actor/lancer-actor";
-import { LancerPilotSheet } from "./actor/pilot-sheet";
 import {
   LancerAttackMacroData,
   LancerGenericMacroData,
-  LancerMechSystemData,
-  LancerMechWeaponData,
-  LancerNPCData,
-  LancerPilotActorData,
-  LancerPilotData,
-  LancerPilotWeaponData,
   LancerReactionMacroData,
   LancerStatMacroData,
   LancerTalentMacroData,
   LancerTechMacroData,
   LancerTextMacroData,
   LancerOverchargeMacroData,
-  NPCDamageData,
   TagDataShort,
 } from "./interfaces";
 // Import JSON data
 import { DamageType, EntryType, NpcFeatureType } from "machine-mind";
-import { LancerNPCTechData, LancerNPCWeaponData } from "./item/npc-feature";
-import { FoundryRegItemData } from "./mm-util/foundry-reg";
 
 const lp = LANCER.log_prefix;
 

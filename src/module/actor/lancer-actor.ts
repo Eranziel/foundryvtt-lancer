@@ -16,46 +16,46 @@ export function lancerActorInit(data: any) {
   console.log(`${lp} Initializing new ${data.type}`);
   // If it has an ID it's a duplicate, so we don't want to override values
   if (!data._id && (data.type === "pilot" || data.type === "npc")) {
+    // Produce our default data
+    let default_data: any = {};
+    let display_mode: number = CONST.TOKEN_DISPLAY_MODES.ALWAYS;
+    let disposition: number = CONST.TOKEN_DISPOSITIONS.FRIENDLY;
+    switch (data.type) {
+      case EntryType.NPC:
+        default_data = funcs.defaults.NPC();
+        disposition = CONST.TOKEN_DISPOSITIONS.HOSTILE;
+        break;
+      case EntryType.PILOT:
+        default_data = funcs.defaults.PILOT();
+        break;
+      case EntryType.DEPLOYABLE:
+        default_data = funcs.defaults.DEPLOYABLE();
+        display_mode = CONST.TOKEN_DISPLAY_MODES.HOVER;
+        disposition = CONST.TOKEN_DISPOSITIONS.NEUTRAL;
+        break;
+      case EntryType.MECH:
+      default:
+        // Idk, just in case
+        default_data = funcs.defaults.MECH();
+        break;
+    }
+    // Put in the basics
+    mergeObject(data, {
+      data: default_data,
+      img: `systems/lancer/assets/icons/${data.type}.svg`,
+      // TODO: NPCs still need to use mech.hp and mech.heat
+      "token.bar1": { attribute: "hp" }, // Default Bar 1 to HP
+      "token.bar2": { attribute: "heat" }, // Default Bar 2 to Heat
+      "token.displayName": display_mode,
+      "token.displayBars": display_mode,
+      "token.disposition": disposition,
+      name: data.name ?? default_data.name, // Set name to match internal
+      "token.name": data.name ?? default_data.name, // Set token name to match internal
+      "token.actorLink": [EntryType.PILOT, EntryType.MECH].includes(data.type), // Link the token to the Actor for pilots and mechs, but not for NPCs or deployables
+    });
 
-  // Produce our default data
-  let default_data: any = {};
-  let display_mode: number = CONST.TOKEN_DISPLAY_MODES.ALWAYS;
-  let disposition: number = CONST.TOKEN_DISPOSITIONS.FRIENDLY;
-  switch (data.type) {
-    case EntryType.NPC:
-      default_data = funcs.defaults.NPC();
-      disposition = CONST.TOKEN_DISPOSITIONS.HOSTILE;
-      break;
-    case EntryType.PILOT:
-      default_data = funcs.defaults.PILOT();
-      break;
-    case EntryType.DEPLOYABLE:
-      default_data = funcs.defaults.DEPLOYABLE();
-      display_mode = CONST.TOKEN_DISPLAY_MODES.HOVER;
-      disposition = CONST.TOKEN_DISPOSITIONS.NEUTRAL;
-      break;
-    case EntryType.MECH:
-    default:
-      // Idk, just in case
-      default_data = funcs.defaults.MECH();
-      break;
+    console.log(data);
   }
-  // Put in the basics
-  mergeObject(data, {
-    data: default_data,
-    img: `systems/lancer/assets/icons/${data.type}.svg`,
-    // TODO: NPCs still need to use mech.hp and mech.heat
-    "token.bar1": { attribute: "hp" }, // Default Bar 1 to HP
-    "token.bar2": { attribute: "heat" }, // Default Bar 2 to Heat
-    "token.displayName": display_mode,
-    "token.displayBars": display_mode,
-    "token.disposition": disposition,
-    name: data.name ?? default_data.name, // Set name to match internal
-    "token.name": data.name ?? default_data.name, // Set token name to match internal
-    "token.actorLink": [EntryType.PILOT, EntryType.MECH].includes(data.type), // Link the token to the Actor for pilots and mechs, but not for NPCs or deployables
-  });
-
-  console.log(data);
 }
 
 /**
@@ -104,20 +104,21 @@ export class LancerActor<T extends LancerActorType> extends Actor {
    * Returns the current frame used by the actor as an item
    * Only applicable for pilots
    */
-  getCurrentFrame(): LancerFrameItemData | null {
-    // Function is only applicable to pilots.
-    if (this.data.type !== "pilot") return null;
-
-    let item_data = (this.items as unknown) as LancerItemData[];
-    let sorted = new ItemDataManifest().add_items(item_data.values());
-
-    // Only take one frame
-    if (sorted.frames.length) {
-      return (sorted.frames[0].data as unknown) as LancerFrameItemData;
-    } else {
-      return null;
-    }
-  }
+  // TODO: update or remove
+  // getCurrentFrame(): LancerFrameItemData | null {
+  //   // Function is only applicable to pilots.
+  //   if (this.data.type !== "pilot") return null;
+  //
+  //   let item_data = (this.items as unknown) as LancerItemData[];
+  //   let sorted = new ItemDataManifest().add_items(item_data.values());
+  //
+  //   // Only take one frame
+  //   if (sorted.frames.length) {
+  //     return (sorted.frames[0].data as unknown) as LancerFrameItemData;
+  //   } else {
+  //     return null;
+  //   }
+  // }
 
   /**
    * Returns the current overcharge roll/text
@@ -130,16 +131,18 @@ export class LancerActor<T extends LancerActorType> extends Actor {
 
     const data = this.data as LancerPilotActorData;
 
-    switch (data.data.mech.overcharge_level) {
-      case 1:
-        return "1d3";
-      case 2:
-        return "1d6";
-      case 3:
-        return "1d6+4";
-      default:
-        return "1";
-    }
+    // TODO: update to new paradigm
+    // switch (data.data.mech.overcharge_level) {
+    //   case 1:
+    //     return "1d3";
+    //   case 2:
+    //     return "1d6";
+    //   case 3:
+    //     return "1d6+4";
+    //   default:
+    //     return "1";
+    // }
+    return "1";
   }
 
   /**
@@ -236,6 +239,8 @@ export class LancerActor<T extends LancerActorType> extends Actor {
    * Performs overheat on the mech
    * For now, just rolls on table. Eventually we can include configuration to do automation
    */
+  // TODO: migrate to mech
+  /*
   async overheatMech() {
     // Assert that we aren't on a deployable somehow
     if (this.isDep(this.data)) {
@@ -345,11 +350,14 @@ export class LancerActor<T extends LancerActorType> extends Actor {
     const actor: Actor = game.actors.get(ChatMessage.getSpeaker().actor);
     return renderMacro(actor, template, templateData);
   }
+   */
 
+  // TODO: migrate to mech
   /**
    * Performs structure on the mech
    * For now, just rolls on table. Eventually we can include configuration to do automation
    */
+  /*
   async structureMech() {
     // Assert that we aren't on a deployable somehow
     if (this.isDep(this.data)) {
