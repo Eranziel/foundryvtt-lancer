@@ -1,12 +1,13 @@
 import { LancerDeployableSheetData } from "../interfaces";
 import { LANCER } from "../config";
 import { LancerActorSheet } from "./lancer-actor-sheet";
+import { EntryType } from "machine-mind";
 const lp = LANCER.log_prefix;
 
 /**
  * Extend the basic ActorSheet
  */
-export class LancerDeployableSheet extends LancerActorSheet {
+export class LancerDeployableSheet extends LancerActorSheet<EntryType.DEPLOYABLE> {
   /**
    * A convenience reference to the Actor entity
    */
@@ -52,8 +53,9 @@ export class LancerDeployableSheet extends LancerActorSheet {
    * Prepare data for rendering the Actor sheet
    * The prepared data object contains both the actor data as well as additional sheet options
    */
+  // @ts-ignore Temporary ignore. This method needs an overhaul to just re-use lancer-actor-sheet functionality (see mech/pilot for reference)
   getData(): LancerDeployableSheetData {
-    const data: LancerDeployableSheetData = super.getData() as LancerDeployableSheetData;
+    const data: LancerDeployableSheetData = (super.getData() as any) as LancerDeployableSheetData;
 
     // Populate name if blank (new Actor)
     if (data.data.name === "") {

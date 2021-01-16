@@ -1,45 +1,49 @@
 import { LANCER } from "./config";
-import { Converter } from "./ccdata_io";
-import { ContentPack } from "machine-mind";
-import {
-  CORE_BONUS_PACK,
-  FRAME_PACK,
-  MECH_SYSTEM_PACK,
-  MECH_WEAPON_PACK,
-  NPC_CLASS_PACK,
-  NPC_FEATURE_PACK,
-  NPC_TEMPLATE_PACK,
-  PACKS,
-  PILOT_ARMOR_PACK,
-  PILOT_GEAR_PACK,
-  PILOT_WEAPON_PACK,
-  SKILLS_PACK,
-  TALENTS_PACK,
-} from "./item/util";
-import { LancerItem } from "./item/lancer-item";
-import {
-  LancerCoreBonusData,
-  LancerFrameData,
-  LancerLicenseData,
-  LancerMechSystemData,
-  LancerMechWeaponData,
-  LancerNPCClassData,
-  LancerNPCFeatureData,
-  LancerNPCTemplateData,
-  LancerPilotArmorData,
-  LancerPilotGearData,
-  LancerPilotWeaponData,
-  LancerSkillData,
-  LancerTalentData,
-} from "./interfaces";
 const lp = LANCER.log_prefix;
+import {
+  EntryType,
+  funcs,
+  IContentPack,
+  InsinuationRecord,
+  Manufacturer,
+  MidInsinuationRecord,
+  OpCtx,
+  RegEntry,
+  RegEnv,
+  Registry,
+  StaticReg,
+  TagInstance,
+  TagTemplate,
+} from "machine-mind";
+import { FoundryReg } from "./mm-util/foundry-reg";
 
-async function unlockAllPacks() {
+// Some useful subgroupings
+type MechItemEntryType =
+  | EntryType.FRAME
+  | EntryType.MECH_WEAPON
+  | EntryType.MECH_SYSTEM
+  | EntryType.WEAPON_MOD;
+type PilotItemEntryType =
+  | EntryType.CORE_BONUS
+  | EntryType.TALENT
+  | EntryType.SKILL
+  | EntryType.QUIRK
+  | EntryType.RESERVE
+  | EntryType.FACTION
+  | EntryType.ORGANIZATION
+  | EntryType.PILOT_ARMOR
+  | EntryType.PILOT_WEAPON
+  | EntryType.PILOT_GEAR /* | EntryType.LICENSE */;
+
+type ItemEntryType = MechItemEntryType | PilotItemEntryType;
+
+// Unlock all packs
+async function unlock_all() {
   // Unlock all the packs
-  //@ts-ignore
+  // @ts-ignore We ignore here because foundry-pc-types does not have the Compendium static var "CONFIG_SETTING"
   const config = game.settings.get("core", Compendium.CONFIG_SETTING);
   console.log(`${lp} Pre-unlock config:`, config);
-  for (let p of PACKS) {
+  for (let p of Object.values(EntryType)) {
     const key = `world.${p}`;
     if (!config[key]) {
       config[key] = { private: false, locked: false };
@@ -47,16 +51,17 @@ async function unlockAllPacks() {
       config[key] = mergeObject(config[key], { locked: false });
     }
   }
-  //@ts-ignore
+  // @ts-ignore We ignore here because foundry-pc-types does not have the Compendium static var "CONFIG_SETTING"
   await game.settings.set("core", Compendium.CONFIG_SETTING, config);
 }
 
-async function lockAllPacks() {
+// Lock all packs
+async function lock_all() {
   // Lock all the packs
-  //@ts-ignore
+  // @ts-ignore We ignore here because foundry-pc-types does not have the Compendium static var "CONFIG_SETTING"
   const config = game.settings.get("core", Compendium.CONFIG_SETTING);
   console.log(`${lp} Pre-lock config:`, config);
-  for (let p of PACKS) {
+  for (let p of Object.values(EntryType)) {
     const key = `world.${p}`;
     if (!config[key]) {
       config[key] = { private: false, locked: true };
@@ -67,28 +72,11 @@ async function lockAllPacks() {
   await game.settings.set("core", Compendium.CONFIG_SETTING, config);
 }
 
-export async function buildCompendiums(cp: ContentPack): Promise<void> {
-  await unlockAllPacks();
-  const conv = new Converter(cp.ID);
-  await buildSkillCompendium(conv, cp);
-  await buildTalentCompendium(conv, cp);
-  await buildCoreBonusCompendium(conv, cp);
-  await buildPilotEquipmentCompendiums(conv, cp);
-  await buildFrameCompendium(conv, cp);
-  await buildMechSystemCompendium(conv, cp);
-  await buildMechWeaponCompendium(conv, cp);
-  // TODO: weapon mods
-  // TODO: licenses
-  await buildNPCClassCompendium(conv, cp);
-  await buildNPCTemplateCompendium(conv, cp);
-  await buildNPCFeatureCompendium(conv, cp);
-  await lockAllPacks();
-  return Promise.resolve();
-}
-
-export async function clearCompendiums(): Promise<void> {
-  await unlockAllPacks();
-  for (let p of PACKS) {
+// Clear all packs
+export async function clear_all(): Promise<void> {
+  // TODO - unlock and lock compendiums
+  // await unlock_all();
+  for (let p of Object.values(EntryType)) {
     let pack: Compendium | undefined;
     pack = game.packs.get(`world.${p}`);
 
@@ -100,384 +88,247 @@ export async function clearCompendiums(): Promise<void> {
       });
     }
   }
-  await lockAllPacks();
+  // await lock_all();
 
   return Promise.resolve();
 }
 
-async function findPack(pack_name: string, metaData: object): Promise<Compendium> {
-  let pack: Compendium | undefined;
-
-  // Find existing world compendium
-  pack = game.packs.get(`world.${pack_name}`);
-  if (!pack) {
-    // World compendium doesn't exist, attempt to find a system compendium
-    pack = game.packs.get(`lancer.${pack_name}`);
-  }
-  if (pack) {
-    console.log(`${lp} Updating existing compendium: ${pack.collection}.`);
-  } else {
-    // Compendium doesn't exist yet. Create a new one.
-    pack = await Compendium.create(metaData);
-    console.log(`${lp} Building new compendium: ${pack.collection}.`);
-  }
-
-  return pack;
-}
-
-async function updateItem(
+/*
+// Create or update an item/actor
+async function update_entity<T extends EntryType>(
   pack: Compendium,
-  content: LancerItem[],
-  newData:
-    | LancerSkillData
-    | LancerTalentData
-    | LancerCoreBonusData
-    | LancerLicenseData
-    | LancerPilotArmorData
-    | LancerPilotWeaponData
-    | LancerPilotGearData
-    | LancerFrameData
-    | LancerMechSystemData
-    | LancerMechWeaponData
-    | LancerNPCFeatureData
-    | LancerNPCTemplateData
-    | LancerNPCClassData,
-  type: string,
-  img: string
-): Promise<Entity> {
-  let item = content.find(e => e.data.data.id === newData.id);
+  new_data: RegEntryTypes<T>,
+  compendium_name: string, // How it should show in the compendium
+  type: EntryType
+): Promise<void> {
+  // Find existing
+  let entry: { _id: string; name: string } | undefined = pack.index.find(
+    e => e.name === compendium_name
+  );
 
-  // The item already exists in the pack, update its data.
-  if (item) {
-    console.log(`LANCER | Updating ${type} ${item.name} in compendium ${pack.collection}`);
-    let d: any = item.data;
-    d.name = newData.name;
-    d.img = img;
-    d.data = newData;
-    return await pack.updateEntity(d, { entity: item });
+  // The item already exists in the pack, delete it
+  if (entry) {
+    await pack.deleteEntity(entry._id);
+    console.log(`LANCER | Replacing ${type} ${entry.name} in compendium ${pack.collection}`);
+  }
+
+  // Setup the actual entity data structure
+  const entityData: any = {
+    name: compendium_name,
+    img: TypeIcon(type), // TODO: figure out a better method of transferring extra fields, flags, etc. An "orig" will only half cut it, as some of our fields (name, img, token) are parent to the reg_entry
+    type: type,
+    flags: {},
+    data: new_data,
+  };
+
+  // TODO - pack.createEntity instead of pack.importEntity
+  // Construct it depending on
+  let entity: Entity;
+  if (LANCER.actor_types.includes(type as LancerActorType)) {
+    entity = new Actor(entityData, {});
   } else {
-    // The item doesn't exist yet, create it
-    const itemData: any = {
-      name: newData.name,
-      img: img,
-      type: type,
-      flags: {},
-      data: newData,
-    };
-    console.log(`LANCER | Adding ${type} ${itemData.name} to compendium ${pack.collection}`);
-    // Create an Item from the item data
-    return await pack.createEntity(itemData);
+    entity = new Item(entityData, {});
   }
+
+  console.log(`LANCER | Adding ${type} ${entityData.name} to compendium ${pack.collection}`);
+  console.log(entityData);
+  await pack.importEntity(entity);
+  // await pack_item.update({data: newData}); // For some reason it isn't sticking otherwise???
+}
+*/
+
+// Transfers a category. Returns a list of all the insinuated items
+async function transfer_cat<T extends EntryType>(type: T, from: Registry, to: Registry, ctx: OpCtx): Promise<RegEntry<T>[]> {
+    // Insinuate each item in the cat
+    let from_cat = from.get_cat(type);
+    let promises: Array<Promise<RegEntry<T>>> = [];
+
+    for (let item of await from_cat.list_live(ctx)) {
+      // Do the deed
+      let prom = (item.insinuate(to) as Promise<any>).then(insinuated => {
+        console.log(`Import | Added ${type} ${item.Name}`);
+        return insinuated;
+      });
+      promises.push(prom);
+    }
+    return Promise.all(promises);
 }
 
-async function buildSkillCompendium(conv: Converter, cp: ContentPack) {
-  const skills = cp.Skills;
-  const p_name = SKILLS_PACK;
-  const img = "systems/lancer/assets/icons/skill.svg";
-  const metaData: Object = {
-    name: p_name,
-    label: "Skill Triggers",
-    system: "lancer",
-    package: "world",
-    path: "./packs/skills.db",
-    entity: "Item",
-  };
-  let pack: Compendium = await findPack(p_name, metaData);
-  let content = (await pack.getContent()) as LancerItem[];
+export async function import_cp(cp: IContentPack, progress_callback?: (done: number, out_of: number) => void): Promise<void> {
+  // await unlock_all(); // TODO: re-enable i guess?
 
-  // Iterate through the list of skills and add them each to the Compendium
-  for (let skill of skills) {
-    await updateItem(pack, content, conv.Skill_to_LancerSkillData(skill), "skill", img);
+  // Stub in a progress callback so we don't have to null check it all the time
+  if(!progress_callback) {
+    progress_callback = (a, b) => {};
   }
-  return Promise.resolve();
+
+  // Make a static reg, and load in the reg for pre-processing
+  let env = new RegEnv();
+  let tmp_lcp_reg = new StaticReg(env);
+  await funcs.intake_pack(cp, tmp_lcp_reg);
+
+  // Count the total items in the reg
+  let total_items = 0;
+  for(let type of Object.values(EntryType)) {
+    let cat = tmp_lcp_reg.get_cat(type);
+    total_items += (await cat.list_raw()).length;
+  }
+
+  // Insinuate data to the actual foundry reg
+  // We want to do globals first
+  // We only want to do "top level features" - so no deployables, etc that would be included in a frame/weapon/whatever (as they will be insinuated naturally)
+  let comp_reg = new ImportUtilityReg();
+  await comp_reg.init();
+  let dest_ctx = new OpCtx();
+
+  let transmit_count = 0;
+
+  // Do globals
+  transmit_count += await transfer_cat(EntryType.MANUFACTURER,  tmp_lcp_reg, comp_reg, dest_ctx).then(l => l.length);
+  progress_callback(transmit_count, total_items + comp_reg.to_kill_count());
+  transmit_count += await transfer_cat(EntryType.TAG,  tmp_lcp_reg, comp_reg, dest_ctx).then(l => l.length);
+  progress_callback(transmit_count, total_items + comp_reg.to_kill_count());
+
+  let errata: EntryType[] = [EntryType.DEPLOYABLE, EntryType.TAG, EntryType.MANUFACTURER];
+
+  // Do the rest
+  for (let type of Object.values(EntryType)) {
+    // Skip if subtype
+    if (!errata.includes(type)) {
+      transmit_count += await transfer_cat(type, tmp_lcp_reg, comp_reg, dest_ctx).then(l => l.length);
+      progress_callback(transmit_count, total_items + comp_reg.to_kill_count());
+    }
+  }
+
+  // Step 4: Kill the old gods
+  await comp_reg.execute_order_66();
+  progress_callback(transmit_count, total_items + comp_reg.to_kill_count());
+
+  // await lock_all();
 }
 
-async function buildTalentCompendium(conv: Converter, cp: ContentPack) {
-  const talents = cp.Talents;
-  const p_name = TALENTS_PACK;
-  const img = "systems/lancer/assets/icons/talent.svg";
-  const metaData: Object = {
-    name: p_name,
-    label: "Talents",
-    system: "lancer",
-    package: "world",
-    path: "./packs/talents.db",
-    entity: "Item",
-  };
-  let pack: Compendium = await findPack(p_name, metaData);
-  let content = (await pack.getContent()) as LancerItem[];
+// This handles name-uniqueness, and destroys and existing entries with unique names
+// It also handles migration of Manufacturers
 
-  // Iterate through the list of talents and add them each to the Compendium
-  for (let talent of talents) {
-    await updateItem(pack, content, conv.Talent_to_LancerTalentData(talent), "talent", img);
+// This is accomplished by tracking all items by name at the start of our import operations
+// If any duplicates are encountered, those entries are marked for death, and deleted at the end of the process
+class ImportUtilityReg extends FoundryReg {
+  // All items in all compendiums at time of import start
+  orig_item_lookup: Map<EntryType, Map<string, RegEntry<any>>> = new Map(); // Maps EntryType => name => entry
+
+  // A mapping of types to lists of entries that we have replaced
+  deletion_targets: Map<EntryType, RegEntry<any>[]> = new Map();
+
+  // A list of manufacturers that we have imported, used for ref patching. We prefer to use these over whatever might get insinuated
+  replacement_manufacturers: Map<string, Manufacturer> = new Map(); // Maps MMID -> Manufacturer
+  replacement_tag_templates: Map<string, TagTemplate> = new Map(); // Maps MMID -> Template
+
+  constructor() {
+    super({for_compendium: true});
   }
-  return Promise.resolve();
-}
 
-async function buildCoreBonusCompendium(conv: Converter, cp: ContentPack) {
-  const coreBonus = cp.CoreBonuses;
-  const p_name = CORE_BONUS_PACK;
-  const img = "systems/lancer/assets/icons/corebonus.svg";
-  const metaData: Object = {
-    name: p_name,
-    label: "Core Bonuses",
-    system: "lancer",
-    package: "world",
-    path: "./packs/core_bonuses.db",
-    entity: "Item",
-  };
-  let pack: Compendium = await findPack(p_name, metaData);
-  let content = (await pack.getContent()) as LancerItem[];
+  // Initialize our indexes
+  async init() {
+    let ctx = new OpCtx();
 
-  // Iterate through the list of core bonuses and add them each to the Compendium
-  for (let cb of coreBonus) {
-    await updateItem(pack, content, conv.CoreBonus_to_LancerCoreBonusData(cb), "core_bonus", img);
+    // Go through each pack, build up our map
+    for (let type of Object.values(EntryType)) {
+      // Build our orig object map
+      let existing = await this.get_cat(type).list_live(ctx);
+      let type_map = new Map<string, RegEntry<any>>();
+      for(let e of existing) {
+        type_map.set(e.Name, e);
+      }
+      this.orig_item_lookup.set(type, type_map);
+
+      // Init deletion target list
+      this.deletion_targets.set(type, []);
+
+      // Save manufacturers and templates separately. Need these for patching later
+      if(type == EntryType.MANUFACTURER) {
+        for(let m of existing as Manufacturer[]) {
+          this.replacement_manufacturers.set(m.ID, m);
+        }
+      } else if(type == EntryType.TAG) {
+        for(let t of existing as TagTemplate[]) {
+          this.replacement_tag_templates.set(t.ID, t);
+        }
+      }
+    }
   }
-  return Promise.resolve();
-}
 
-async function buildPilotEquipmentCompendiums(conv: Converter, cp: ContentPack) {
-  console.log("LANCER | Building Pilot Equipment compendiums.");
-  const pilotArmor = cp.PilotArmor;
-  const pilotWeapon = cp.PilotWeapons;
-  const pilotGear = cp.PilotGear;
-  const paName = PILOT_ARMOR_PACK;
-  const pwName = PILOT_WEAPON_PACK;
-  const pgName = PILOT_GEAR_PACK;
-  const armorImg = "systems/lancer/assets/icons/shield_outline.svg";
-  const weaponImg = "systems/lancer/assets/icons/weapon.svg";
-  const gearImg = "systems/lancer/assets/icons/generic_item.svg";
-  const armorMeta: Object = {
-    name: paName,
-    label: "Pilot Armor",
-    system: "lancer",
-    package: "world",
-    path: "./packs/pilot_armor.db",
-    entity: "Item",
-  };
-  let paPack: Compendium = await findPack(paName, armorMeta);
-  const weaponMeta: Object = {
-    name: pwName,
-    label: "Pilot Weapons",
-    system: "lancer",
-    package: "world",
-    path: "./packs/pilot_weapons.db",
-    entity: "Item",
-  };
-  let pwPack: Compendium = await findPack(pwName, weaponMeta);
-  const gearMeta: Object = {
-    name: pgName,
-    label: "Pilot Gear",
-    system: "lancer",
-    package: "world",
-    path: "./packs/pilot_gear.db",
-    entity: "Item",
-  };
-  let pgPack: Compendium = await findPack(pgName, gearMeta);
-  let paContent = (await paPack.getContent()) as LancerItem[];
-  let pwContent = (await pwPack.getContent()) as LancerItem[];
-  let pgContent = (await pgPack.getContent()) as LancerItem[];
 
-  // Iterate through the lists of pilot equipment and add them each to the Compendium
-  for (let arm of pilotArmor) {
-    await updateItem(
-      paPack,
-      paContent,
-      conv.PilotArmor_to_LancerPilotArmorData(arm),
-      "pilot_armor",
-      armorImg
-    );
+  // We use a hook to keep track of the imported names, as well as new tags/manufacturers
+  async hook_post_insinuate<T extends EntryType>(record: InsinuationRecord<T>) {
+    // Check if we need to kill anyone
+    let orig = this.orig_item_lookup.get(record.type)?.get(record.new_item.Name);
+    if(orig) {
+      this.deletion_targets.get(record.type)?.push(orig);
+    }
+
+    // Track newly added manufacturers/tags
+    if(record.new_item.Type === EntryType.MANUFACTURER) {
+      let man = record.new_item as Manufacturer;
+      this.replacement_manufacturers.set(man.ID, man);
+    } else if(record.new_item.Type === EntryType.TAG) {
+      let tag = record.new_item as TagTemplate;
+      this.replacement_tag_templates.set(tag.ID, tag);
+    }
   }
-  for (let weapon of pilotWeapon) {
-    await updateItem(
-      pwPack,
-      pwContent,
-      conv.PilotWeapon_to_LancerPilotWeaponData(weapon),
-      "pilot_weapon",
-      weaponImg
-    );
+
+  // We use a hook to correct "globals" like tags and manufacturers to instead use existing values in the compendium
+  async hook_insinuate_pre_final_write<T extends EntryType>(record: MidInsinuationRecord<T>) {
+    // A typeless shorthand
+    let rp = record.pending as any;
+
+    // Hot-wire our manufacturer/source
+    let man = rp.Manufacturer ?? rp.Source;
+    if(man) {
+      // Because these aren't insinuated as children, this is a leftover ref from the static reg that is about to go out of scope)
+      // So, in this hook, we slot them in with existing/better data!
+
+      // Find a better replacement. Get yourself a new man
+      let existing_man = this.replacement_manufacturers.get(man.ID);
+      if(existing_man && rp.Manufacturer) {
+        rp.Manufacturer = existing_man;
+      }
+      if(existing_man && rp.Source) {
+        rp.Source = existing_man;
+      }
+    }
+
+    // Hot-wire our tags
+    for(let in_tag of [...(rp.Tags ?? []), ...(rp.AddedTags ?? [])] as TagInstance[]) {
+      // Same shebang
+      let existing_tag = this.replacement_tag_templates.get(in_tag.Tag.ID);
+
+      if(existing_tag) {
+        in_tag.Tag = existing_tag;
+      }
+    }
   }
-  for (let gear of pilotGear) {
-    await updateItem(
-      pgPack,
-      pgContent,
-      conv.PilotGear_to_LancerPilotGearData(gear),
-      "pilot_gear",
-      gearImg
-    );
+
+  // Kill all things which we have just name-duplicated. Keep the new stuff over old stuff
+  async execute_order_66() {
+    for(let type of Object.values(EntryType)) {
+      let to_delete = this.deletion_targets.get(type)!;
+
+      // TODO: bulk operations
+      for(let td of to_delete) {
+        td.destroy_entry();
+      }
+
+      // clear
+      this.deletion_targets.set(type, []);
+    }
   }
-  return Promise.resolve();
-}
 
-async function buildFrameCompendium(conv: Converter, cp: ContentPack) {
-  const frames = cp.Frames;
-  const p_name = FRAME_PACK;
-  const img = "systems/lancer/assets/icons/frame.svg";
-  const metaData: Object = {
-    name: p_name,
-    label: "Frames",
-    system: "lancer",
-    package: "world",
-    path: "./packs/frames.db",
-    entity: "Item",
-  };
-  let pack: Compendium = await findPack(p_name, metaData);
-  let content = (await pack.getContent()) as LancerItem[];
-
-  // const licImg = "systems/lancer/assets/icons/license.svg";
-  // const licMetaData: Object = {
-  //   name: "licenses",
-  //   label: "Licenses",
-  //   system: "lancer",
-  //   package: "lancer",
-  //   path: "./packs/licenses.db",
-  //   entity: "Item",
-  // };
-  // let licPack: Compendium = await findPack("licenses", licMetaData);
-  // licPack.locked = false;
-  // await licPack.getIndex();
-
-  // Iterate through the list of frames and add them each to the Compendium
-  for (let frame of frames) {
-    await updateItem(pack, content, conv.Frame_to_LancerFrameData(frame), "frame", img);
+  // Used for progress bar. Total of things we need to delete
+  to_kill_count(): number {
+    let total = 0;
+    for(let v of this.deletion_targets.values()) {
+      total += v.length;
+    }
+    return total;
   }
-  return Promise.resolve();
-}
-
-async function buildMechSystemCompendium(conv: Converter, cp: ContentPack) {
-  const systems = cp.MechSystems;
-  const p_name = MECH_SYSTEM_PACK;
-  const img = "systems/lancer/assets/icons/mech_system.svg";
-  const metaData: Object = {
-    name: p_name,
-    label: "Systems",
-    system: "lancer",
-    package: "world",
-    path: "./packs/systems.db",
-    entity: "Item",
-  };
-  let pack: Compendium = await findPack(p_name, metaData);
-  let content = (await pack.getContent()) as LancerItem[];
-
-  // Iterate through the list of core bonuses and add them each to the Compendium
-  for (let system of systems) {
-    await updateItem(
-      pack,
-      content,
-      conv.MechSystem_to_LancerMechSystemData(system),
-      "mech_system",
-      img
-    );
-  }
-  return Promise.resolve();
-}
-
-async function buildMechWeaponCompendium(conv: Converter, cp: ContentPack) {
-  const weapons = cp.MechWeapons;
-  const p_name = MECH_WEAPON_PACK;
-  const img = "systems/lancer/assets/icons/mech_weapon.svg";
-  const metaData: Object = {
-    name: p_name,
-    label: "Weapons",
-    system: "lancer",
-    package: "world",
-    path: "./packs/weapons.db",
-    entity: "Item",
-  };
-  let pack: Compendium = await findPack(p_name, metaData);
-  let content = (await pack.getContent()) as LancerItem[];
-
-  // Iterate through the list of core bonuses and add them each to the Compendium
-  for (let weapon of weapons) {
-    await updateItem(
-      pack,
-      content,
-      conv.MechWeapon_to_LancerMechWeaponData(weapon),
-      "mech_weapon",
-      img
-    );
-  }
-  return Promise.resolve();
-}
-
-// TODO: Weapon mods
-
-// TODO: Licenses
-
-async function buildNPCClassCompendium(conv: Converter, cp: ContentPack) {
-  const npcClasses = cp.NpcClasses;
-  const p_name = NPC_CLASS_PACK;
-  const img = "systems/lancer/assets/icons/npc_class.svg";
-  const metaData: Object = {
-    name: p_name,
-    label: "NPC Classes",
-    system: "lancer",
-    package: "world",
-    path: "./packs/npc_classes.db",
-    entity: "Item",
-  };
-  let pack: Compendium = await findPack(p_name, metaData);
-  let content = (await pack.getContent()) as LancerItem[];
-
-  // Iterate through the list of core bonuses and add them each to the Compendium
-  for (let cls of npcClasses) {
-    await updateItem(pack, content, conv.NpcClass_to_LancerNPCClassData(cls), "npc_class", img);
-  }
-  return Promise.resolve();
-}
-
-async function buildNPCTemplateCompendium(conv: Converter, cp: ContentPack) {
-  const npcTemplates = cp.NpcTemplates;
-  const p_name = NPC_TEMPLATE_PACK;
-  const img = "systems/lancer/assets/icons/npc_template.svg";
-  const metaData: Object = {
-    name: p_name,
-    label: "NPC Templates",
-    system: "lancer",
-    package: "world",
-    path: "./packs/npc_templates.db",
-    entity: "Item",
-  };
-  let pack: Compendium = await findPack(p_name, metaData);
-  let content = (await pack.getContent()) as LancerItem[];
-
-  // Iterate through the list of core bonuses and add them each to the Compendium
-  for (let template of npcTemplates) {
-    await updateItem(
-      pack,
-      content,
-      conv.NpcTemplate_to_LancerNPCTemplateData(template),
-      "npc_template",
-      img
-    );
-  }
-  return Promise.resolve();
-}
-
-async function buildNPCFeatureCompendium(conv: Converter, cp: ContentPack) {
-  const npcFeatures = cp.NpcFeatures;
-  const p_name = NPC_FEATURE_PACK;
-  const img = "systems/lancer/assets/icons/npc_feature.svg";
-  const metaData: Object = {
-    name: p_name,
-    label: "NPC Features",
-    system: "lancer",
-    package: "world",
-    path: "./packs/npc_features.db",
-    entity: "Item",
-  };
-  let pack: Compendium = await findPack(p_name, metaData);
-  let content = (await pack.getContent()) as LancerItem[];
-
-  // Iterate through the list of core bonuses and add them each to the Compendium
-  for (let feature of npcFeatures) {
-    await updateItem(
-      pack,
-      content,
-      conv.NpcFeature_to_LancerNPCFeatureData(feature),
-      "npc_feature",
-      img
-    );
-  }
-  return Promise.resolve();
 }

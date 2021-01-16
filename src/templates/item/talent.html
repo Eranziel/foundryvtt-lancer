@@ -24,7 +24,7 @@
     {{#each data.ranks as |rank lvl|}}
       <div class="talent-level card clipped-bot flexcol">
         <div class="lancer-stat-header flexrow">
-          <input class="lancer-invisible-input" type="string" name="data.ranks.{{lvl}}.name" value="{{rank.name}}" data-dtype="String" style="color: white"/>
+          <input class="lancer-invisible-input" name="data.ranks.{{lvl}}.name" value="{{rank.name}}" data-dtype="String" style="color: white"/>
           <span class="minor">// RANK {{inc lvl}}</span>
         </div>
         <div class="flexrow" style="background-color: #dbdbdb; min-height: 15em; text-align: left">
@@ -32,7 +32,7 @@
           {{!-- {{editor content=data.effect target="data.effect" button=true owner=owner editable=editable}} --}}
           {{!-- <div style="min-height: 15em;"> --}}
             {{!-- {{editor content=rank.description target="data.ranks.{{lvl}}.description" button=true owner=owner editable=editable}} --}}
-            <textarea style="min-height: 15em;" class="lancer-invisible-input" type="string" name="data.ranks.{{lvl}}.description" data-dtype="String" style="width:80%; min-height: fit-content;">{{rank.description}}</textarea>
+            <textarea style="min-height: 15em;" class="lancer-invisible-input" name="data.ranks.{{lvl}}.description" data-dtype="String" style="width:80%; min-height: fit-content;">{{rank.description}}</textarea>
           {{!-- </div> --}}
         </div>
       </div>

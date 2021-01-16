@@ -1,8 +1,10 @@
-import { tags } from "machine-mind";
+import { TagInstance, typed_lancer_data } from "machine-mind";
 import { TagData } from "../interfaces";
 
+const TAGS = typed_lancer_data.tags;
+
 /**
- * Search for a tag in lancer-data.
+ * Search for a tag template in lancer-data.
  * @param id The tag's lancer-data id string.
  * @returns The full tag data.
  */
@@ -10,8 +12,8 @@ function findTag(id: string): TagData | null {
   // Only check if we actually got something.
   if (id) {
     // Find the tag id in lancer-data
-    for (let i = 0; i < tags.length; i++) {
-      const t = tags[i];
+    for (let i = 0; i < TAGS.length; i++) {
+      const t = TAGS[i];
       if (t.id === id) {
         return t;
       }
@@ -86,6 +88,20 @@ export const compactTagList = `<div class="compact-tag-row">
   {{/each}}
 </div>`;
 
+// An MM version of the above partial
+export function compact_tag_list(tags: TagInstance[]): string {
+  let filtered_tags = tags.filter(t => !t.Tag.IsHidden);
+  let processed_tags = filtered_tags.map(t => `
+    <div class="compact-tag flexrow">
+      <i class="mdi mdi-label i--s i--light"></i>
+      <span style="margin: 3px;">${t.Tag.Name} ${t.Value}</span>
+    </div>`);
+
+  return `<div class="compact-tag-row">
+    ${processed_tags.join("")}
+  </div>`;
+}
+
 export function renderChunkyTag(tag: TagData | null, key: number): string {
   let template: string = "";
   tag = prepareTag(tag);
@@ -99,7 +115,7 @@ export function renderChunkyTag(tag: TagData | null, key: number): string {
       <i class="med-icon fa fa-3x fa-tag" style="margin: 3px"></i>
     </div>
     <div class="flexcol">
-      <input type="String" name="data.tags.${key}.name" value="${tag.name}" data-dtype="String" class="lancer-invisible-input medium theme--main" style="grid-area: 1/2/2/3; text-align:left; padding-left: 0.5em; margin-top: 0.25em;"/>
+      <input name="data.tags.${key}.name" value="${tag.name}" data-dtype="String" class="lancer-invisible-input medium theme--main" style="grid-area: 1/2/2/3; text-align:left; padding-left: 0.5em; margin-top: 0.25em;"/>
       <textarea class="lancer-invisible-input effect-text" name="data.tags.${key}.description" data-dtype="String" style="grid-area: 2/2/3/3">${tag.description}</textarea>
       <a class="remove-button fa fa-trash clickable" data-action="delete" style="grid-area: 2/3/3/4; margin-right: 11px; margin-top: -.8em; justify-self: right; align-self: self-start"></a>
     </div>
@@ -129,9 +145,9 @@ export function renderFullTag(
   // Editable partial
   template = `<div class="tag arrayed-item" data-key="${key}">
   <i class="mdi mdi-label i--l theme--main" style="grid-area: 1/1/3/2;"></i>
-  <input type="String" name="${data_prefix}.${key}.id" value="${tag.id}" data-dtype="String" style="display:none"/>
-  <input type="String" name="${data_prefix}.${key}.val" value="${tag.val}" data-dtype="String" style="display:none"/>
-  <input type="String" name="${data_prefix}.${key}.name" value="${tag.name}" data-dtype="String" class="lancer-invisible-input medium theme--main" style="grid-area: 1/2/2/3; text-align:left; padding-left: 0.5em; margin-top: 0.25em;"/>
+  <input name="${data_prefix}.${key}.id" value="${tag.id}" data-dtype="String" style="display:none"/>
+  <input name="${data_prefix}.${key}.val" value="${tag.val}" data-dtype="String" style="display:none"/>
+  <input name="${data_prefix}.${key}.name" value="${tag.name}" data-dtype="String" class="lancer-invisible-input medium theme--main" style="grid-area: 1/2/2/3; text-align:left; padding-left: 0.5em; margin-top: 0.25em;"/>
   <textarea class="lancer-invisible-input effect-text" name="${data_prefix}.${key}.description" data-dtype="String" style="grid-area: 2/2/3/3">${tag.description}</textarea>
   <a class="remove-button fa fa-trash clickable" data-action="delete" style="grid-area: 2/3/3/4; margin-right: 11px; margin-top: -.8em; justify-self: right; align-self: self-start"></a>
   </div>`;

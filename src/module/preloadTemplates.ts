@@ -17,7 +17,7 @@ export const preloadTemplates = async function () {
     "systems/lancer/templates/item/pilot_gear.html",
     "systems/lancer/templates/item/pilot_weapon.html",
     "systems/lancer/templates/item/skill.html",
-    "systems/lancer/templates/item/talent.html"
+    "systems/lancer/templates/item/talent.html",
   ];
 
   return loadTemplates(templatePaths);

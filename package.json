@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "foundryvtt-lancer",
-  "version": "0.1.19",
+  "version": "0.2.0",
   "description": "",
   "scripts": {
     "package": "gulp package",
@@ -35,7 +35,6 @@
   "dependencies": {
     "@mdi/font": "^5.8.55",
     "compare-versions": "^3.6.0",
-    "lancer-data": "^2.0.35",
-    "machine-mind": "^0.1.3"
+    "machine-mind": "0.2.0-beta.36"
   }
 }

@@ -17,3 +17,4 @@ dist/**/*.json
 dist/**/*.css
 dist/fonts/mdi/**
 debug.log
+foundry.js

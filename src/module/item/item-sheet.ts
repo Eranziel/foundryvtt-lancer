@@ -1,8 +1,9 @@
-import { DamageData, LancerMechSystemData, RangeData } from "../interfaces";
-import { LANCER } from "../config";
-import { NPCFeatureIcons } from "./npc-feature";
-import { ActivationType, ChargeType, DamageType, EffectType, NpcFeatureType } from "machine-mind";
-import { ChargeData, ChargeEffectData } from "./effects";
+import { DamageData, LancerItemSheetData, RangeData } from "../interfaces";
+import { LANCER, LancerItemType } from "../config";
+import { mm_wrap_item } from "../mm-util/helpers";
+import { LancerItem } from "./lancer-item";
+import { activate_general_controls, gentle_merge, resolve_dotpath } from "../helpers/commons";
+import { HANDLER_openRefOnClick } from "../helpers/refs";
 
 const lp = LANCER.log_prefix;
 
@@ -10,7 +11,7 @@ const lp = LANCER.log_prefix;
  * Extend the basic ItemSheet with some very simple modifications
  * @extends {ItemSheet}
  */
-export class LancerItemSheet extends ItemSheet {
+export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
   /**
    * @override
    * Extend and override the default options used by the Item Sheet
@@ -39,48 +40,6 @@ export class LancerItemSheet extends ItemSheet {
 
   /* -------------------------------------------- */
 
-  /**
-   * @override
-   * Prepare data for rendering the Item sheet
-   * The prepared data object contains both the item data as well as additional sheet options
-   */
-  getData(): ItemSheetData {
-    const data: ItemSheetData = super.getData() as ItemSheetData;
-
-    if (!data.item) {
-      // Just junk it
-      return {};
-    }
-
-    if (data.item.type === "npc_feature" && data.data.feature_type === NpcFeatureType.Weapon) {
-      if (data.data.weapon_type) {
-        const parts = data.data.weapon_type.split(" ");
-        data.data.weapon_size = parts[0];
-        data.data.weapon_type = parts[1];
-      } else {
-        data.data.weapon_size = "Main";
-        data.data.weapon_type = "Rifle";
-      }
-
-      // TODO: Fill in 0's if attack bonus or accuracy are undefined or "".
-    }
-
-    if (data.item.type === "mech_system") {
-      // For effects which are a basic string, construct a BasicEffectData for them.
-      if (typeof data.data.effect === "string") {
-        data.data.effect = {
-          effect_type: EffectType.Basic,
-          detail: data.data.effect,
-        };
-      }
-    }
-
-    console.log(`${lp} Item sheet data: `, data);
-    return data;
-  }
-
-  /* -------------------------------------------- */
-
   /** @override */
   setPosition(options = {}) {
     // const sheetBody = (this.element as HTMLDivElement).find(".sheet-body");
@@ -99,28 +58,32 @@ export class LancerItemSheet extends ItemSheet {
   activateListeners(html: JQuery) {
     super.activateListeners(html);
 
+    // Make refs clickable
+    $(html).find(".ref.valid").on("click", HANDLER_openRefOnClick);
+
+    // Enable general controls, so items can be deleted and such
+    activate_general_controls(html.find(".gen-control"), () => this.getDataLazy(), (_) => this._commitCurrMM());
+
     // Everything below here is only needed if the sheet is editable
     if (!this.options.editable) return;
 
-    // Customized increment/decrement arrows
+    // Customized increment/decrement arrows. Same as in actor. TODO: Standardize??
+    const mod_handler = (delta: number) => (ev: Event) => {
+      if (!ev.currentTarget) return; // No target, let other handlers take care of it.
+      const button = $(ev.currentTarget as HTMLElement);
+      const input = button.siblings("input");
+      const curr = Number.parseInt(input.prop("value"));
+      if (!isNaN(curr)) {
+        input.prop("value", curr + delta);
+      }
+      this.submit({});
+    };
+
+    // Behavior is identical, just +1 or -1 depending on button
     let decr = html.find('button[class*="mod-minus-button"]');
-    decr.on("click", (ev: Event) => {
-      if (!ev.currentTarget) return; // No target, let other handlers take care of it.
-      const but = $(ev.currentTarget as HTMLElement);
-      (but.next()[0] as HTMLInputElement).value = (
-        (but.next()[0] as HTMLInputElement).valueAsNumber - 1
-      ).toString();
-      this.submit({});
-    });
+    decr.on("click", mod_handler(-1));
     let incr = html.find('button[class*="mod-plus-button"]');
-    incr.on("click", (ev: Event) => {
-      if (!ev.currentTarget) return; // No target, let other handlers take care of it.
-      const but = $(ev.currentTarget as HTMLElement);
-      (but.prev()[0] as HTMLInputElement).value = (
-        (but.prev()[0] as HTMLInputElement).valueAsNumber + 1
-      ).toString();
-      this.submit({});
-    });
+    incr.on("click", mod_handler(+1));
 
     // Add or Remove options
     // Yes, theoretically this could be abstracted out to one function. You do it then.
@@ -168,7 +131,7 @@ export class LancerItemSheet extends ItemSheet {
     const action = a.data("action");
     const itemString = a.parents(".arrayed-item-container").data("item");
     console.log(itemString);
-    const baseArr = getValue(this, "object.data.data." + itemString);
+    const baseArr = resolve_dotpath(this, "object.data.data." + itemString);
     if (!baseArr) {
       itemArr = [];
     } else {
@@ -183,7 +146,7 @@ export class LancerItemSheet extends ItemSheet {
       const keys = Object.keys(itemArr);
       let newIndex = 0;
       if (keys.length > 0) {
-        // @ts-ignore
+        // @ts-ignore ??? Some old array shenaniganry
         newIndex = Math.max.apply(Math, keys) + 1;
       }
       itemArr[newIndex] = null;
@@ -212,7 +175,10 @@ export class LancerItemSheet extends ItemSheet {
   /* -------------------------------------------- */
 
   /** @override */
-  _updateObject(event: any, formData: any) {
+  /*
+  async _updateObject(event: any, formData: any) {
+    console.log("DISABLED");
+    return;
     formData = LancerItemSheet.arrayifyTags(formData, "data.tags");
     formData = LancerItemSheet.arrayifyTags(formData, "data.core_system.tags");
     formData = LancerItemSheet.arrayifyTags(formData, "data.traits");
@@ -220,7 +186,7 @@ export class LancerItemSheet extends ItemSheet {
     // Update the Lancer-data name to match the item name.
     formData["data.name"] = formData["name"];
 
-    if (this.item.data.type === "npc_feature") {
+    if (this.item.data.type === EntryType.NPC_FEATURE) {
       // Change image to match feature type, unless a custom image has been selected
       const imgPath = "systems/lancer/assets/icons/";
       const shortImg = formData["img"].slice(formData["img"].lastIndexOf("/") + 1);
@@ -234,7 +200,7 @@ export class LancerItemSheet extends ItemSheet {
 
       // Re-build NPC Weapon size and type
       if (
-        this.item.data.type === "npc_feature" &&
+        this.item.data.type === EntryType.NPC_FEATURE &&
         this.item.data.data.feature_type === NpcFeatureType.Weapon
       ) {
         formData[
@@ -253,8 +219,8 @@ export class LancerItemSheet extends ItemSheet {
     if (LANCER.weapon_items.includes(this.item.data.type) || this.item.data.type === 'mech_system') {
       // Safeguard against non-weapon NPC features
       if (
-        this.item.data.type !== "npc_feature" ||
-        (this.item.data.type === "npc_feature" &&
+        this.item.data.type !== EntryType.NPC_FEATURE ||
+        (this.item.data.type === EntryType.NPC_FEATURE &&
           this.item.data.data.feature_type === NpcFeatureType.Weapon)
       ) {
 
@@ -297,12 +263,12 @@ export class LancerItemSheet extends ItemSheet {
           for (var j = 0; j  < combinedKeys[i].length; j += 2 ) {
             // Grab our pre-damage/range path
             split = combinedKeys[i][j].split(combinedFilters[i]);
-  
+
             // Initialize if it hasn't already
             if(!newCombined[i][split[0] + split[1]]) {
               newCombined[i][split[0] + split[1]] = []
             }
-  
+
             // For now... assume type first (which should always be the case)
             newCombined[i][split[0] + split[1]].push({
               type: formData[combinedKeys[i][j]],
@@ -327,6 +293,52 @@ export class LancerItemSheet extends ItemSheet {
     // Update the Item
     return this.object.update(formData);
   }
+  */
+
+  // Helper function for making fields effectively target multiple attributes
+  _propagateMMData(formData: any) {
+    // Pushes relevant field data down from the "item" data block to the "mm.ent" data block
+    // Returns true if any of these top level fields require updating (i.e. do we need to .update({img: ___, name: __, etc}))
+    formData["mm.ent.Name"] = formData["item.name"];
+
+    return this.item.img != formData["item.img"] || this.item.name != formData["item.name"];
+  }
+
+  /**
+   * Implement the _updateObject method as required by the parent class spec
+   * This defines how to update the subject of the form when the form is submitted
+   * @private
+   */
+  async _updateObject(event: Event | JQuery.Event, formData: any): Promise<any> {
+    // hmm
+    console.log("UPDATE OBJECT CALLED");
+
+    // Fetch data, modify, and writeback
+    let ct = await this.getDataLazy();
+
+    let need_top_update = this._propagateMMData(formData);
+    gentle_merge(ct, formData);
+
+    if (need_top_update) {
+      await this.item.update(ct.item, undefined);
+    }
+    return ct.mm.ent.writeback();
+  }
+
+  /**
+   * Prepare data for rendering the frame sheet
+   * The prepared data object contains both the actor data as well as additional sheet options
+   */
+  //@ts-ignore Foundry-pc-types does not properly acknowledge that sheet `getData` functions can be/are asynchronous
+  async getData(): Promise<LancerItemSheetData<T>> {
+    const data = super.getData() as LancerItemSheetData<T>; // Not fully populated yet!
+
+    // Load item, mm-wrapped
+    data.mm = await mm_wrap_item(this.item as LancerItem<T>);
+    console.log(`${lp} Item ctx: `, data);
+    this._currData = data;
+    return data;
+  }
 
   static arrayifyTags(data: any, prefix: string) {
     if (data.hasOwnProperty(`${prefix}.0.name`)) {
@@ -349,13 +361,21 @@ export class LancerItemSheet extends ItemSheet {
     }
     return data;
   }
+
+  // Cached getdata
+  private _currData: LancerItemSheetData<T> | null = null;
+  async getDataLazy(): Promise<LancerItemSheetData<T>> {
+    return this._currData ?? (await this.getData());
+  }
+
+  // Write back our currently cached _currData, then refresh this sheet
+  // Useful for when we want to do non form-based alterations
+  async _commitCurrMM(render: boolean = true) {
+    await this._currData?.mm.ent.writeback();
+    this._currData = null; // Reset
+    if(render) {
+      this.render();
+    }
+  }
 }
 
-// Helper function to get arbitrarily deep array references
-function getValue(object: any, path: string) {
-  return path
-    .replace(/\[/g, ".")
-    .replace(/]/g, "")
-    .split(".")
-    .reduce((o, k) => (o || {})[k], object);
-}

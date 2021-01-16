@@ -2,90 +2,67 @@ import {
   LancerPilotActorData,
   LancerNPCActorData,
   LancerDeployableActorData,
-  LancerFrameStatsData,
-  LancerFrameItemData,
-  LancerNPCClassStatsData,
   LancerNPCData,
   LancerMountData,
 } from "../interfaces";
-import { LANCER } from "../config";
-import { MountType } from "machine-mind";
-import { LancerFrame, LancerItemData } from "../item/lancer-item";
-import { ItemDataManifest } from "../item/util";
+import { LANCER, LancerActorType } from "../config";
+import { EntryType, MountType, funcs, RegEntryTypes } from "machine-mind";
+import { FoundryRegActorData, FoundryRegItemData } from "../mm-util/foundry-reg";
 import { renderMacro } from "../macros";
 const lp = LANCER.log_prefix;
-
-export const DEFAULT_MECH = {
-  name: "",
-  size: 1,
-  hull: 0,
-  agility: 0,
-  systems: 0,
-  engineering: 0,
-  hp: { min: 0, max: 0, value: 0 },
-  structure: { min: 0, max: 4, value: 4 },
-  heat: { min: 0, max: 0, value: 0 },
-  stress: { min: 0, max: 4, value: 4 },
-  repairs: { min: 0, max: 0, value: 0 },
-  armor: 0,
-  speed: 0,
-  evasion: 0,
-  edef: 0,
-  sensors: 0,
-  save: 0,
-  tech_attack: 0,
-  current_core_energy: 1,
-  overcharge_level: 0,
-};
 
 export function lancerActorInit(data: any) {
   // Some subtype of ActorData
   console.log(`${lp} Initializing new ${data.type}`);
   // If it has an ID it's a duplicate, so we don't want to override values
   if (!data._id && (data.type === "pilot" || data.type === "npc")) {
-    const mech = { ...DEFAULT_MECH };
 
-    if (data.type === "npc") {
-      mech.structure.value = 1;
-      mech.structure.max = 1;
-      mech.stress.value = 1;
-      mech.stress.max = 1;
-    }
-
-    mergeObject(data, {
-      // Initialize mech stats
-      "data.mech": mech,
-      // Initialize prototype token
-      "token.bar1": { attribute: "mech.hp" }, // Default Bar 1 to HP
-      "token.bar2": { attribute: "mech.heat" }, // Default Bar 2 to Heat
-      "token.displayName": CONST.TOKEN_DISPLAY_MODES.ALWAYS, // Default display name to be always on
-      "token.displayBars": CONST.TOKEN_DISPLAY_MODES.ALWAYS, // Default display bars to be always on
-      // Default disposition to friendly for pilots and hostile for NPCs
-      "token.disposition":
-        data.type === "pilot"
-          ? CONST.TOKEN_DISPOSITIONS.FRIENDLY
-          : CONST.TOKEN_DISPOSITIONS.HOSTILE,
-      "token.name": data.name, // Set token name to actor name
-      "token.actorLink": data.type === "pilot", // Link the token to the Actor for pilots, but not for NPCs
-    });
-  } else if (data.type === "deployable") {
-    mergeObject(data, {
-      // Initialize image
-      img: "systems/lancer/assets/icons/deployable.svg",
-      // Initialize prototype token
-      "token.bar1": { attribute: "hp" }, // Default Bar 1 to HP
-      "token.displayName": CONST.TOKEN_DISPLAY_MODES.HOVER, // Default display name to be always on
-      "token.displayBars": CONST.TOKEN_DISPLAY_MODES.HOVER, // Default display bars to be always on
-      "token.name": data.name, // Set token name to actor name
-    });
+  // Produce our default data
+  let default_data: any = {};
+  let display_mode: number = CONST.TOKEN_DISPLAY_MODES.ALWAYS;
+  let disposition: number = CONST.TOKEN_DISPOSITIONS.FRIENDLY;
+  switch (data.type) {
+    case EntryType.NPC:
+      default_data = funcs.defaults.NPC();
+      disposition = CONST.TOKEN_DISPOSITIONS.HOSTILE;
+      break;
+    case EntryType.PILOT:
+      default_data = funcs.defaults.PILOT();
+      break;
+    case EntryType.DEPLOYABLE:
+      default_data = funcs.defaults.DEPLOYABLE();
+      display_mode = CONST.TOKEN_DISPLAY_MODES.HOVER;
+      disposition = CONST.TOKEN_DISPOSITIONS.NEUTRAL;
+      break;
+    case EntryType.MECH:
+    default:
+      // Idk, just in case
+      default_data = funcs.defaults.MECH();
+      break;
   }
+  // Put in the basics
+  mergeObject(data, {
+    data: default_data,
+    img: `systems/lancer/assets/icons/${data.type}.svg`,
+    // TODO: NPCs still need to use mech.hp and mech.heat
+    "token.bar1": { attribute: "hp" }, // Default Bar 1 to HP
+    "token.bar2": { attribute: "heat" }, // Default Bar 2 to Heat
+    "token.displayName": display_mode,
+    "token.displayBars": display_mode,
+    "token.disposition": disposition,
+    name: data.name ?? default_data.name, // Set name to match internal
+    "token.name": data.name ?? default_data.name, // Set token name to match internal
+    "token.actorLink": [EntryType.PILOT, EntryType.MECH].includes(data.type), // Link the token to the Actor for pilots and mechs, but not for NPCs or deployables
+  });
+
+  console.log(data);
 }
 
 /**
  * Extend the Actor class for Lancer Actors.
  */
-export class LancerActor extends Actor {
-  data!: LancerPilotActorData | LancerNPCActorData | LancerDeployableActorData;
+export class LancerActor<T extends LancerActorType> extends Actor {
+  data!: FoundryRegActorData<T>;
 
   // Some TypeGuards...
   isPilot = (
@@ -121,58 +98,6 @@ export class LancerActor extends Actor {
       if (isDelta) value = Number(current) + value;
       return this.update({ [`data.${attribute}`]: value });
     }
-  }
-
-  /**
-   * Change mech frames for a pilot. Recalculates all mech-related stats on the pilot.
-   * @param newFrame Stats object from the new mech frame.
-   * @param oldFrame Stats object from the old mech frame, optional.
-   */
-  async swapFrames(newFrame: LancerFrameStatsData, oldFrame?: LancerFrameStatsData): Promise<void> {
-    // Function is only applicable to pilots.
-    if (this.data.type !== "pilot") return;
-
-    const data = duplicate(this.data) as LancerPilotActorData;
-    const mech = duplicate((this.data as LancerPilotActorData).data.mech);
-
-    if (!oldFrame) {
-      oldFrame = {
-        size: 0,
-        armor: 0,
-        hp: 0,
-        evasion: 0,
-        edef: 0,
-        heatcap: 0,
-        repcap: 0,
-        sensor_range: 0,
-        tech_attack: 0,
-        save: 0,
-        speed: 0,
-        sp: 0,
-      };
-    }
-    // Resources
-    mech.hp.max = mech.hp.max - oldFrame.hp + newFrame.hp;
-    mech.hp.value = Math.min(mech.hp.value, mech.hp.max);
-    mech.heat.max = mech.heat.max - oldFrame.heatcap + newFrame.heatcap;
-    mech.heat.value = Math.min(mech.heat.value, mech.heat.max);
-    mech.repairs.max = mech.repairs.max - oldFrame.repcap + newFrame.repcap;
-    mech.repairs.value = Math.min(mech.repairs.value, mech.repairs.max);
-
-    // Stats
-    mech.size = mech.size - oldFrame.size + newFrame.size;
-    mech.armor = Math.max(mech.armor - oldFrame.armor + newFrame.armor, 0);
-    mech.speed = mech.speed - oldFrame.speed + newFrame.speed;
-    mech.evasion = mech.evasion - oldFrame.evasion + newFrame.evasion;
-    mech.edef = mech.edef - oldFrame.edef + newFrame.edef;
-    mech.sensors = mech.sensors - oldFrame.sensor_range + newFrame.sensor_range;
-    mech.save = mech.save - oldFrame.save + newFrame.save;
-    mech.tech_attack = mech.tech_attack - oldFrame.tech_attack + newFrame.tech_attack;
-    mech.sp = mech.sp - oldFrame.sp + newFrame.sp;
-
-    // Update the actor
-    data.data.mech = mech;
-    await this.update(data);
   }
 
   /**
@@ -221,6 +146,7 @@ export class LancerActor extends Actor {
    * Change Class or Tier on a NPC. Recalculates all stats on the NPC.
    * @param newNPCClass Stats object from the new Class.
    */
+  /*
   async swapNPCClassOrTier(
     newNPCClass: LancerNPCClassStatsData,
     ClassSwap: boolean,
@@ -304,6 +230,7 @@ export class LancerActor extends Actor {
     data.data.mech = mech;
     await this.update(data);
   }
+  */
 
   /**
    * Performs overheat on the mech
@@ -531,71 +458,59 @@ export class LancerActor extends Actor {
     const actor: Actor = game.actors.get(ChatMessage.getSpeaker().actor);
     return renderMacro(actor, template, templateData);
   }
+  */
+
+  /* -------------------------------------------- */
+
+  /** @override
+   * Prepare any derived data which is actor-specific and does not depend on Items or Active Effects
+   */
+  prepareBaseData() {
+    // console.log("Prepare base", this.data.name, this.data);
+    // switch ( this.data.type ) {
+      // case EntryType.PILOT:
+        // break;
+      // case "npc":
+        // break;
+      // case "vehicle":
+        // break;
+    // }
+  }
+
+  /* -------------------------------------------- */
+
+  /** @override */
+  prepareDerivedData() {
+  }
 }
+
+// Discrete types for all of our possible generic values
+export type LancerMech = LancerActor<EntryType.MECH>;
+export type LancerMechData = FoundryRegActorData<EntryType.MECH>;
+export type LancerNpc = LancerActor<EntryType.NPC>;
+export type LancerNpcData = FoundryRegActorData<EntryType.NPC>;
+export type LancerPilot = LancerActor<EntryType.PILOT>;
+export type LancerPilotData = FoundryRegActorData<EntryType.PILOT>;
+export type LancerDeployable = LancerActor<EntryType.DEPLOYABLE>;
+export type LancerDeployableData = FoundryRegActorData<EntryType.DEPLOYABLE>;
 
 /* ------------------------------------ */
 /* Handlebars Helpers                    */
 /* ------------------------------------ */
 
-/**
- * Handlebars helper for a mount type selector for Pilot sheets
- * @param mount The mount object tied to the selector
- * @param key The index of the mount object
- */
-export function mount_type_selector(mount: LancerMountData, key: string | number) {
-  let template = `<select class="mounts-control" data-action="update" data-item-id=${key}>
-    <option value="${MountType.AuxAux}" ${
-    mount.type === MountType.AuxAux ? "selected" : ""
-  }>Aux/Aux Mount</option>
-    <option value="${MountType.Flex}" ${
-    mount.type === MountType.Flex ? "selected" : ""
-  }>Flexible Mount</option>
-    <option value="${MountType.Main}" ${
-    mount.type === MountType.Main ? "selected" : ""
-  }>Main Mount</option>
-    <option value="${MountType.MainAux}" ${
-    mount.type === MountType.MainAux ? "selected" : ""
-  }>Main/Aux Mount</option>
-    <option value="${MountType.Heavy}" ${
-    mount.type === MountType.Heavy ? "selected" : ""
-  }>Heavy Mount</option>
-    <option value="${MountType.Integrated}" ${
-    mount.type === MountType.Integrated ? "selected" : ""
-  }>Integrated Mount</option>
-  </select>`;
-  return template;
-}
-
-/**
- * Handlebars partial for a Pilot sheet mount card.
- */
-export const mount_card = `<div class="flexcol lancer-mount-container" data-item-key="{{key}}">
-  <span class="mount-header clipped-top">
-    {{{mount-selector mount @index}}}
-    <a class="mounts-control" data-action="delete"><i class="fas fa-trash"></i></a>
-  </span>
-  <span class="lancer-mount-body">
-    {{#unless mount.weapons}}
-    <span class="major"><br>Drag a Mech Weapon Here</span>
-    {{/unless}}
-    {{#if mount.weapons}}
-    {{#each mount.weapons as |weapon key|}}
-    {{> mech-weapon-preview weapon=weapon key=key}}
-    {{/each}}
-    {{/if}}
-  </span>
-</div>`;
 
 /**
  * Handlebars helper for an NPC tier selector
  * @param tier The tier ID string
  */
-export function npc_tier_selector(tier: LancerNPCData["tier"]) {
+export function npc_tier_selector(tier: number) {
   let template = `<select id="tier-type" class="tier-control" data-action="update">
-    <option value="npc-tier-1" ${tier === "npc-tier-1" ? "selected" : ""}>TIER 1</option>
-    <option value="npc-tier-2" ${tier === "npc-tier-2" ? "selected" : ""}>TIER 2</option>
-    <option value="npc-tier-3" ${tier === "npc-tier-3" ? "selected" : ""}>TIER 3</option>
-    <option value="npc-tier-custom" ${tier === "npc-tier-custom" ? "selected" : ""}>CUSTOM</option>
+    <option value="npc-tier-1" ${tier === 1 ? "selected" : ""}>TIER 1</option>
+    <option value="npc-tier-2" ${tier === 2 ? "selected" : ""}>TIER 2</option>
+    <option value="npc-tier-3" ${tier === 3 ? "selected" : ""}>TIER 3</option>
+    <option value="npc-tier-custom" ${
+      tier != 1 && tier != 2 && tier != 3 ? "selected" : ""
+    }>CUSTOM</option>
   </select>`;
   return template;
 }

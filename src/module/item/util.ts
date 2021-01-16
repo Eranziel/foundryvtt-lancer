@@ -1,61 +1,24 @@
 import {
-  LancerCoreBonus,
-  LancerFrame,
+  LancerCoreBonusData,
+  LancerFrameData,
   LancerItem,
-  LancerItemData,
-  LancerLicense,
-  LancerMechSystem,
-  LancerMechWeapon,
-  LancerNPCClass,
-  LancerNPCFeature,
-  LancerNPCTemplate,
-  LancerPilotArmor,
-  LancerPilotGear,
-  LancerPilotWeapon,
-  LancerSkill,
-  LancerTalent,
-} from "./lancer-item";
-import {
-  CompendiumItem,
-  ContentPack,
-  CoreBonus,
-  CustomSkill,
-  Frame,
-  IContentPack,
-  License,
-  MechSystem,
-  MechWeapon,
-  NpcClass,
-  NpcFeature,
-  NpcTemplate,
-  Pilot,
-  PilotArmor,
-  PilotGear,
-  PilotWeapon,
-  Skill,
-  store,
-  Talent,
-} from "machine-mind";
-
-import { Converter } from "../ccdata_io";
-import {
-  LancerCoreBonusItemData,
-  LancerFrameItemData,
-  LancerLicenseItemData,
-  LancerMechSystemItemData,
-  LancerMechWeaponItemData,
-  LancerNPCClassItemData,
-  LancerNPCFeatureItemData,
-  LancerNPCTemplateItemData,
-  LancerPilotArmorItemData,
-  LancerPilotGearItemData,
-  LancerPilotWeaponItemData,
+  LancerLicenseData,
+  LancerMechSystemData,
+  LancerMechWeaponData,
+  LancerNpcClassData,
+  LancerNpcFeatureData,
+  LancerNpcTemplateData,
+  LancerPilotArmorData,
+  LancerPilotGearData,
+  LancerPilotWeaponData,
   LancerSkillData,
-  LancerSkillItemData,
-  LancerTalentItemData,
-} from "../interfaces";
-import { IContentPackData } from "machine-mind/dist/classes/ContentPack";
+  LancerTalentData,
+} from "./lancer-item";
 
+import { EntryType, LiveEntryTypes, RegEntryTypes } from "machine-mind";
+import { FoundryRegItemData } from "../mm-util/foundry-reg";
+
+/*
 export type SupportedCompconEntity =
   | Skill
   | Talent
@@ -70,87 +33,36 @@ export type SupportedCompconEntity =
   | NpcClass
   | NpcTemplate
   | NpcFeature;
+  */
 
 // Useful constants
 export const SKILLS_PACK = "skills";
 export const TALENTS_PACK = "talents";
 export const CORE_BONUS_PACK = "core_bonuses";
-export const PILOT_ARMOR_PACK = "pilot_armor";
+export const PILOT_ARMOR_PACK = EntryType.PILOT_ARMOR;
 export const PILOT_WEAPON_PACK = "pilot_weapons";
-export const PILOT_GEAR_PACK = "pilot_gear";
+export const PILOT_GEAR_PACK = EntryType.PILOT_GEAR;
 export const FRAME_PACK = "frames";
 export const MECH_SYSTEM_PACK = "systems";
 export const MECH_WEAPON_PACK = "weapons";
 export const NPC_CLASS_PACK = "npc_classes";
 export const NPC_TEMPLATE_PACK = "npc_templates";
 export const NPC_FEATURE_PACK = "npc_features";
-export const PACKS = [
-  SKILLS_PACK,
-  TALENTS_PACK,
-  CORE_BONUS_PACK,
-  PILOT_ARMOR_PACK,
-  PILOT_WEAPON_PACK,
-  PILOT_GEAR_PACK,
-  FRAME_PACK,
-  MECH_SYSTEM_PACK,
-  MECH_WEAPON_PACK,
-  NPC_CLASS_PACK,
-  NPC_TEMPLATE_PACK,
-  NPC_FEATURE_PACK,
-];
 
-// Quick helper
-async function get_pack<T>(pack_name: string): Promise<T[]> {
-  let full_pack_name = `world.${pack_name}`;
+// Get compendium for the specified entry type
+async function get_pack_content<T extends EntryType>(type: T): Promise<FoundryRegItemData<T>[]> {
+  let full_pack_name = `world.${type}`;
   let pack = game.packs.get(full_pack_name);
   if (pack) {
-    return pack.getContent().then(g => g.map(v => v.data)) as Promise<T[]>;
+    return pack.getContent().then(g => g.map(v => v.data)) as Promise<FoundryRegItemData<T>[]>;
   } else {
     console.warn("No such pack: ", full_pack_name);
     return [];
   }
 }
 
-// Quick accessors to entire arrays of rhe descript items
-export async function get_Skills_pack(): Promise<LancerSkillItemData[]> {
-  return get_pack(SKILLS_PACK);
-}
-export async function get_Talents_pack(): Promise<LancerTalentItemData[]> {
-  return get_pack(TALENTS_PACK);
-}
-export async function get_CoreBonuses_pack(): Promise<LancerCoreBonusItemData[]> {
-  return get_pack(CORE_BONUS_PACK);
-}
-export async function get_PilotArmor_pack(): Promise<LancerPilotArmorItemData[]> {
-  return get_pack(PILOT_ARMOR_PACK);
-}
-export async function get_PilotWeapons_pack(): Promise<LancerPilotWeaponItemData[]> {
-  return get_pack(PILOT_WEAPON_PACK);
-}
-export async function get_PilotGear_pack(): Promise<LancerPilotGearItemData[]> {
-  return get_pack(PILOT_GEAR_PACK);
-}
-export async function get_Frames_pack(): Promise<LancerFrameItemData[]> {
-  return get_pack(FRAME_PACK);
-}
-export async function get_MechSystems_pack(): Promise<LancerMechSystemItemData[]> {
-  return get_pack(MECH_SYSTEM_PACK);
-}
-export async function get_MechWeapons_pack(): Promise<LancerMechWeaponItemData[]> {
-  return get_pack(MECH_WEAPON_PACK);
-}
-export async function get_NpcClassses_pack(): Promise<LancerNPCClassItemData[]> {
-  return get_pack(NPC_CLASS_PACK);
-}
-export async function get_NpcTemplates_pack(): Promise<LancerNPCTemplateItemData[]> {
-  return get_pack(NPC_TEMPLATE_PACK);
-}
-export async function get_NpcFeatures_pack(): Promise<LancerNPCFeatureItemData[]> {
-  return get_pack(NPC_FEATURE_PACK);
-}
-
 // Lookups. Currently a bit inefficient as it just looks in literally every item in the pack. But oh well
-async function pack_lookup<T extends LancerItem>(
+async function pack_lookup<T extends LancerItem<any>>(
   pack_name: string,
   compcon_id: string
 ): Promise<T | null> {
@@ -174,6 +86,7 @@ async function pack_lookup<T extends LancerItem>(
 }
 
 // These two accumulator classes accomplish mostly the same thing, except one tracks items vs the other data.
+/*
 export class ItemManifest {
   skills: LancerSkill[] = [];
   talents: LancerTalent[] = [];
@@ -192,31 +105,31 @@ export class ItemManifest {
   // Add an item to the accumulator
   add_item(item: LancerItem): ItemManifest {
     // Ugly as sin, but there's little to be done about that
-    if (item.type === "skill") {
+    if (item.type === EntryType.SKILL) {
       this.skills.push(item as LancerSkill);
-    } else if (item.type === "talent") {
+    } else if (item.type === EntryType.TALENT) {
       this.talents.push(item as LancerTalent);
-    } else if (item.type === "core_bonus") {
+    } else if (item.type === EntryType.CORE_BONUS) {
       this.core_bonuses.push(item as LancerCoreBonus);
     } else if (item.type === "license") {
       this.licenses.push(item as LancerLicense);
-    } else if (item.type === "pilot_armor") {
+    } else if (item.type === EntryType.PILOT_ARMOR) {
       this.pilot_armor.push(item as LancerPilotArmor);
-    } else if (item.type === "pilot_weapon") {
+    } else if (item.type === EntryType.PILOT_WEAPON) {
       this.pilot_weapons.push(item as LancerPilotWeapon);
-    } else if (item.type === "pilot_gear") {
+    } else if (item.type === EntryType.PILOT_GEAR) {
       this.pilot_gear.push(item as LancerPilotGear);
-    } else if (item.type === "frame") {
+    } else if (item.type === EntryType.FRAME) {
       this.frames.push(item as LancerFrame);
-    } else if (item.type === "mech_weapon") {
+    } else if (item.type === EntryType.MECH_WEAPON) {
       this.mech_weapons.push(item as LancerMechWeapon);
-    } else if (item.type === "mech_system") {
+    } else if (item.type === EntryType.MECH_SYSTEM) {
       this.mech_systems.push(item as LancerMechSystem);
-    } else if (item.type === "npc_class") {
+    } else if (item.type === EntryType.NPC_CLASS) {
       this.npc_classes.push(item as LancerNPCClass);
-    } else if (item.type === "npc_template") {
+    } else if (item.type === EntryType.NPC_TEMPLATE) {
       this.npc_templates.push(item as LancerNPCTemplate);
-    } else if (item.type === "npc_feature") {
+    } else if (item.type === EntryType.NPC_FEATURE) {
       this.npc_features.push(item as LancerNPCFeature);
     }
     return this;
@@ -249,80 +162,82 @@ export class ItemManifest {
     return r;
   }
 }
+*/
 
+// Caches a filtered list of these thingies
 export class ItemDataManifest {
-  skills: LancerSkillItemData[] = [];
-  talents: LancerTalentItemData[] = [];
-  core_bonuses: LancerCoreBonusItemData[] = [];
-  licenses: LancerLicenseItemData[] = [];
-  pilot_armor: LancerPilotArmorItemData[] = [];
-  pilot_weapons: LancerPilotWeaponItemData[] = [];
-  pilot_gear: LancerPilotGearItemData[] = [];
-  frames: LancerFrameItemData[] = [];
-  mech_weapons: LancerMechWeaponItemData[] = [];
-  mech_systems: LancerMechSystemItemData[] = [];
-  npc_classes: LancerNPCClassItemData[] = [];
-  npc_templates: LancerNPCTemplateItemData[] = [];
-  npc_features: LancerNPCFeatureItemData[] = [];
+  [EntryType.SKILL]: LancerSkillData[] = [];
+  [EntryType.TALENT]: LancerTalentData[] = [];
+  [EntryType.CORE_BONUS]: LancerCoreBonusData[] = [];
+  [EntryType.LICENSE]: LancerLicenseData[] = [];
+  [EntryType.PILOT_ARMOR]: LancerPilotArmorData[] = [];
+  [EntryType.PILOT_WEAPON]: LancerPilotWeaponData[] = [];
+  [EntryType.PILOT_GEAR]: LancerPilotGearData[] = [];
+  [EntryType.FRAME]: LancerFrameData[] = [];
+  [EntryType.MECH_WEAPON]: LancerMechWeaponData[] = [];
+  [EntryType.MECH_SYSTEM]: LancerMechSystemData[] = [];
+  [EntryType.NPC_CLASS]: LancerNpcClassData[] = [];
+  [EntryType.NPC_TEMPLATE]: LancerNpcTemplateData[] = [];
+  [EntryType.NPC_FEATURE]: LancerNpcFeatureData[] = [];
 
   // Add an item to the accumulator. Returns self
-  add_item(item: LancerItemData): ItemDataManifest {
+  add_item(item: FoundryRegItemData<any>): ItemDataManifest {
     // Ugly as sin, but there's little to be done about that
-    if (item.type === "skill") {
-      this.skills.push(item as LancerSkillItemData);
-    } else if (item.type === "talent") {
-      this.talents.push(item as LancerTalentItemData);
-    } else if (item.type === "core_bonus") {
-      this.core_bonuses.push(item as LancerCoreBonusItemData);
+    if (item.type === EntryType.SKILL) {
+      this.skill.push(item as LancerSkillData);
+    } else if (item.type === EntryType.TALENT) {
+      this.talent.push(item as LancerTalentData);
+    } else if (item.type === EntryType.CORE_BONUS) {
+      this.core_bonus.push(item as LancerCoreBonusData);
     } else if (item.type === "license") {
-      this.licenses.push(item as LancerLicenseItemData);
-    } else if (item.type === "pilot_armor") {
-      this.pilot_armor.push(item as LancerPilotArmorItemData);
-    } else if (item.type === "pilot_weapon") {
-      this.pilot_weapons.push(item as LancerPilotWeaponItemData);
-    } else if (item.type === "pilot_gear") {
-      this.pilot_gear.push(item as LancerPilotGearItemData);
-    } else if (item.type === "frame") {
-      this.frames.push(item as LancerFrameItemData);
-    } else if (item.type === "mech_weapon") {
-      this.mech_weapons.push(item as LancerMechWeaponItemData);
-    } else if (item.type === "mech_system") {
-      this.mech_systems.push(item as LancerMechSystemItemData);
-    } else if (item.type === "npc_class") {
-      this.npc_classes.push(item as LancerNPCClassItemData);
-    } else if (item.type === "npc_template") {
-      this.npc_templates.push(item as LancerNPCTemplateItemData);
-    } else if (item.type === "npc_feature") {
-      this.npc_features.push(item as LancerNPCFeatureItemData);
+      this.license.push(item as LancerLicenseData);
+    } else if (item.type === EntryType.PILOT_ARMOR) {
+      this.pilot_armor.push(item as LancerPilotArmorData);
+    } else if (item.type === EntryType.PILOT_WEAPON) {
+      this.pilot_weapon.push(item as LancerPilotWeaponData);
+    } else if (item.type === EntryType.PILOT_GEAR) {
+      this.pilot_gear.push(item as LancerPilotGearData);
+    } else if (item.type === EntryType.FRAME) {
+      this.frame.push(item as LancerFrameData);
+    } else if (item.type === EntryType.MECH_WEAPON) {
+      this.mech_weapon.push(item as LancerMechWeaponData);
+    } else if (item.type === EntryType.MECH_SYSTEM) {
+      this.mech_system.push(item as LancerMechSystemData);
+    } else if (item.type === EntryType.NPC_CLASS) {
+      this.npc_class.push(item as LancerNpcClassData);
+    } else if (item.type === EntryType.NPC_TEMPLATE) {
+      this.npc_template.push(item as LancerNpcTemplateData);
+    } else if (item.type === EntryType.NPC_FEATURE) {
+      this.npc_feature.push(item as LancerNpcFeatureData);
     }
 
     return this;
   }
 
   // Add several items. Returns this
-  add_items(items: Iterable<LancerItemData>): ItemDataManifest {
+  add_items(items: Iterable<FoundryRegItemData<any>>): ItemDataManifest {
     for (let i of items) {
       this.add_item(i);
     }
     return this;
   }
 
-  // I forget why I made this - its kind of useless when you think about it....
-  flatten(): LancerItemData[] {
+  // I forget why I made this - its kind of useless generally, since typically you can just use the o.g. source that was used to make the manifest. Whatever
+  flatten(): FoundryRegItemData<any>[] {
     return [
-      ...this.core_bonuses,
-      ...this.frames,
-      ...this.licenses,
-      ...this.mech_systems,
-      ...this.mech_weapons,
+      ...this.core_bonus,
+      ...this.frame,
+      ...this.license,
+      ...this.mech_system,
+      ...this.mech_weapon,
       ...this.pilot_armor,
       ...this.pilot_gear,
-      ...this.pilot_weapons,
-      ...this.skills,
-      ...this.talents,
-      ...this.npc_classes,
-      ...this.npc_features,
-      ...this.npc_templates,
+      ...this.pilot_weapon,
+      ...this.skill,
+      ...this.talent,
+      ...this.npc_class,
+      ...this.npc_feature,
+      ...this.npc_template,
     ];
   }
 
@@ -330,7 +245,7 @@ export class ItemDataManifest {
   count_sp(): number {
     let acc = 0;
     // Systems
-    for (let sys of this.mech_systems) {
+    for (let sys of this.mech_system) {
       acc += sys.data.sp;
     }
 
@@ -338,7 +253,7 @@ export class ItemDataManifest {
     //for(let mod of items.mo
 
     // Weapons
-    for (let wep of this.mech_weapons) {
+    for (let wep of this.mech_weapon) {
       acc += wep.data.sp;
     }
 
@@ -346,6 +261,7 @@ export class ItemDataManifest {
   }
 }
 
+/*
 export async function MachineMind_to_VTT_create_items(
   x: SupportedCompconEntity[]
 ): Promise<LancerItem[]> {
@@ -433,7 +349,7 @@ export async function MachineMind_pilot_to_VTT_items_compendium_lookup(
       sd.rank = x.Rank;
       let sid: LancerSkillItemData = {
         name: sd.name,
-        type: "skill",
+        type: EntryType.SKILL,
         img: "systems/lancer/assets/icons/skill.svg",
         flags: {},
         data: sd,
@@ -542,3 +458,5 @@ export async function reload_store(): Promise<void> {
   store.compendium.addContentPack(replacement);
   store.compendium.populate();
 }
+
+*/

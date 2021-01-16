@@ -1,15 +1,15 @@
-import { LancerActor } from "../actor/lancer-actor";
+import { EntryType } from "machine-mind";
 import { LANCER } from "../config";
-import { LancerNPCFeatureItemData } from "../interfaces";
+import { npc_feature_preview } from "../helpers/item";
 import { LancerItemSheet } from "./item-sheet";
-import { LancerItem, LancerNPCClass, npc_feature_preview } from "./lancer-item";
+import { LancerItem, LancerNpcClass, LancerNpcFeatureData } from "./lancer-item";
 const lp = LANCER.log_prefix;
 
 /**
  * Extend the generic Lancer item sheet
  * @extends {LancerItemSheet}
  */
-export class LancerNPCClassSheet extends LancerItemSheet {
+export class LancerNPCClassSheet extends LancerItemSheet<EntryType.NPC_CLASS> {
   /**
    * @override
    * Extend and override the default options used by the generic Lancer item sheet
@@ -23,8 +23,8 @@ export class LancerNPCClassSheet extends LancerItemSheet {
     });
   }
 
-  base_feature_items!: LancerNPCFeatureItemData[];
-  optional_feature_items!: LancerNPCFeatureItemData[];
+  base_feature_items!: LancerNpcFeatureData[];
+  optional_feature_items!: LancerNpcFeatureData[];
 
   /** @override */
   _updateObject(event: any, formData: any) {
@@ -72,9 +72,10 @@ export class LancerNPCClassSheet extends LancerItemSheet {
     console.log(`${lp} Item sheet form data: `, formData);
 
     // Propogate to owner
-    if(this.item.isOwned) {
-      (<LancerActor>this.item.actor).swapNPCClassOrTier((<LancerNPCClass>this.item).data.data.stats,false);
-    }
+    // TODO: still needed with new MM?
+    // if(this.item.isOwned) {
+    //   (<LancerActor>this.item.actor).swapNPCClassOrTier((<LancerNPCClass>this.item).data.data.stats,false);
+    // }
 
     // Update the Item
     return this.object.update(formData);
@@ -84,19 +85,10 @@ export class LancerNPCClassSheet extends LancerItemSheet {
     return data.map(x => parseFloat(x));
   }
 
-  getData(): ItemSheetData {
-    let item = this.item as LancerItem;
-    //Fetching local copies for use in drag-and-drop flow
-    item.base_feature_items.then(features => (this.base_feature_items = features));
-    item.optional_feature_items.then(features => (this.optional_feature_items = features));
-
-    return super.getData();
-  }
-
   activateListeners(html: JQuery) {
     super.activateListeners(html);
 
-    const item = this.item as LancerItem;
+    let item = this.item as LancerNpcClass;
 
     //These have to be refetched here despite also being fetched in getData because getData isn't allowed to be async in ItemSheets, thanks Foundry
     //So even if this looks like it's wrong, it's not
@@ -157,7 +149,7 @@ export class LancerNPCClassSheet extends LancerItemSheet {
   }
 
   /** @override */
-  _onDrop(event: DragEvent) {  
+  _onDrop(event: DragEvent) {
     // I promise this works
     // At least for now
     //@ts-ignore
@@ -186,12 +178,12 @@ export class LancerNPCClassSheet extends LancerItemSheet {
     }
     // Yes, this exists
     //@ts-ignore
-    let foundFeat: LancerNPCFeature | null = await fromUuid(itemString);    
+    let foundFeat: LancerNPCFeature | null = await fromUuid(itemString);
     if(!foundFeat) {
       console.log("That item doesn't exist!");
       return;
     }
-    
+
     if(!(foundFeat.type === "npc_feature")) {
       console.log("You didn't drop a feature!");
       return;
@@ -225,10 +217,7 @@ export class LancerNPCClassSheet extends LancerItemSheet {
     this.render();
   }
 
-  private _displayFeatures(
-    features: LancerNPCFeatureItemData[],
-    elementToReplace: JQuery<Element>
-  ) {
+  private _displayFeatures(features: LancerNpcFeatureData[], elementToReplace: JQuery<Element>) {
     let featureItems = features
       .map(feature => {
         return npc_feature_preview(feature, 0);
