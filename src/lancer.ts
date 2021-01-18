@@ -93,6 +93,7 @@ import * as macros from "./module/macros";
 
 // Import node modules
 import compareVersions = require("compare-versions");
+import marked = require("marked");
 
 const lp = LANCER.log_prefix;
 
@@ -388,22 +389,40 @@ Hooks.once("ready", async function () {
 
   // Show welcome message if not hidden.
   if (!game.settings.get(LANCER.sys_name, LANCER.setting_welcome)) {
-    new Dialog({
-      title: `Welcome to LANCER v${game.system.data.version}`,
-      content: WELCOME,
-      buttons: {
-        dont_show: {
-          label: "Do Not Show Again",
-          callback: async () => {
-            await game.settings.set(LANCER.sys_name, LANCER.setting_welcome, true);
+    // Get an automatic changelog
+    $.get(
+      "https://raw.githubusercontent.com/Eranziel/foundryvtt-lancer/master/CHANGELOG.md",
+      (data, status) => {
+
+        // Regex magic to only grab the first 20 lines
+        let r = /(?:[^\n]*\n){15}/;
+        let trimmedChangelog = data.match(r) + "\n\n...";
+
+        let changelog = marked(trimmedChangelog);
+
+        new Dialog(
+          {
+            title: `Welcome to LANCER v${game.system.data.version}`,
+            content: WELCOME(changelog),
+            buttons: {
+              dont_show: {
+                label: "Do Not Show Again",
+                callback: async () => {
+                  await game.settings.set(LANCER.sys_name, LANCER.setting_welcome, true);
+                },
+              },
+              close: {
+                label: "Close",
+              },
+            },
+            default: "Close",
           },
-        },
-        close: {
-          label: "Close",
-        },
-      },
-      default: "Close",
-    }).render(true);
+          {
+            width: 700,
+          }
+        ).render(true);
+      }
+    );
   }
 });
 
@@ -566,6 +585,13 @@ Hooks.on("hotbarDrop", (_bar: any, data: any, slot: number) => {
 async function versionCheck() {
   // Determine whether a system migration is required and feasible
   const currentVersion = game.settings.get(LANCER.sys_name, LANCER.setting_migration);
+
+  // If it's 0 then it's a fresh install
+  if (currentVersion === "0") {
+    await game.settings.set(LANCER.sys_name, LANCER.setting_migration, game.system.data.version);
+    return;
+  }
+
   // Modify these constants to set which Lancer version numbers need and permit migration.
   const NEEDS_MIGRATION_VERSION = "0.1.7";
   const COMPATIBLE_MIGRATION_VERSION = "0.1.6";
