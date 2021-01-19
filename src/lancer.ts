@@ -390,7 +390,7 @@ Hooks.once("ready", async function () {
 
   // v0.1.20 Warning for v0.2
   // TODO: Remove for v0.2
-  // Get the published warning
+  // Get the published warning from https://github.com/Eranziel/foundryvtt-lancer/wiki/v0.1.20-Announcement
   if (game.settings.get(LANCER.sys_name, LANCER.setting_120)) {
     function warningDialog(text: string) {new Dialog(
       {
