@@ -386,43 +386,47 @@ Hooks.once("setup", async function () {
 /* ------------------------------------ */
 Hooks.once("ready", async function () {
   await versionCheck();
+  await showChangelog();
 
-  // Show welcome message if not hidden.
-  if (!game.settings.get(LANCER.sys_name, LANCER.setting_welcome)) {
-    // Get an automatic changelog
-    $.get(
-      "https://raw.githubusercontent.com/Eranziel/foundryvtt-lancer/master/CHANGELOG.md",
-      (data, status) => {
-
-        // Regex magic to only grab the first 20 lines
-        let r = /(?:[^\n]*\n){15}/;
-        let trimmedChangelog = data.match(r) + "\n\n...";
-
-        let changelog = marked(trimmedChangelog);
-
-        new Dialog(
-          {
-            title: `Welcome to LANCER v${game.system.data.version}`,
-            content: WELCOME(changelog),
-            buttons: {
-              dont_show: {
-                label: "Do Not Show Again",
-                callback: async () => {
-                  await game.settings.set(LANCER.sys_name, LANCER.setting_welcome, true);
-                },
-              },
-              close: {
-                label: "Close",
-              },
+  // v0.1.20 Warning for v0.2
+  // TODO: Remove for v0.2
+  // Get the published warning
+  if (game.settings.get(LANCER.sys_name, LANCER.setting_120)) {
+    function warningDialog(text: string) {new Dialog(
+      {
+        title: `Warning for next update`,
+        content: text,
+        buttons: {
+          dont_show: {
+            label: "Acknowledged",
+            callback: async () => {
+              await game.settings.set(LANCER.sys_name, LANCER.setting_120, false);
             },
-            default: "Close",
           },
-          {
-            width: 700,
-          }
-        ).render(true);
+          close: {
+            label: "Remind Later",
+          },
+        },
+        default: "Remind Later",
+      },
+      {
+        width: 800,
       }
+    ).render(true);
+  }
+
+    let req = $.get(
+      `https://raw.githubusercontent.com/wiki/Eranziel/foundryvtt-lancer/v0.1.20-Announcement.md`
     );
+    req.done((data, status) => {
+      warningDialog(marked(data));
+    });
+      
+    req.fail((data, status) => {
+      let errorText = `<h2>Warning: Next version will include major changes</h2></br><a href="https://raw.githubusercontent.com/wiki/Eranziel/foundryvtt-lancer/v0.1.20-Announcement.md">Click Here For More Information</a>`;
+
+      warningDialog(errorText);
+    });
   }
 });
 
@@ -640,5 +644,61 @@ async function versionCheck() {
         `Warning: A major version incompatibility has been detected. You may experience issues, please return to a supported version.`
       );
     }
+  }
+}
+
+async function showChangelog() {
+  // Show welcome message if not hidden.
+  if (!game.settings.get(LANCER.sys_name, LANCER.setting_welcome)) {
+    let renderChangelog = (changelog: string) => {
+      new Dialog(
+        {
+          title: `Welcome to LANCER v${game.system.data.version}`,
+          content: WELCOME(changelog),
+          buttons: {
+            dont_show: {
+              label: "Do Not Show Again",
+              callback: async () => {
+                await game.settings.set(LANCER.sys_name, LANCER.setting_welcome, true);
+              },
+            },
+            close: {
+              label: "Close",
+            },
+          },
+          default: "Close",
+        },
+        {
+          width: 700,
+        }
+      ).render(true);
+    };
+
+    // Get an automatic changelog for our version
+    let req = $.get(
+      `https://raw.githubusercontent.com/Eranziel/foundryvtt-lancer/v${game.system.data.version}/CHANGELOG.md`
+    );
+    req.done((data, status) => {
+      // Regex magic to only grab the first 25 lines
+      let r = /(?:[^\n]*\n){25}/;
+      let trimmedChangelog = data.match(r)[0];
+
+      // Grab the position of the last H1 and trim to that to ensure we split along version lines
+      // But also set a min so we're keeping at least one version
+      let lastH1Pos = trimmedChangelog.lastIndexOf("\n# ");
+      if (lastH1Pos < 20) lastH1Pos = trimmedChangelog.length;
+
+      trimmedChangelog = trimmedChangelog.substring(0, lastH1Pos);
+
+      let changelog = marked(trimmedChangelog);
+
+      renderChangelog(changelog);
+    });
+
+    req.fail((data, status) => {
+      let errorText = `<h2>Error retrieving changelog</h2>`;
+
+      renderChangelog(errorText);
+    });
   }
 }

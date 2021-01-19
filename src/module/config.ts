@@ -21,6 +21,7 @@ export const LANCER = {
   setting_pilot_oc_heat: "autoOCHeat",
   setting_overkill_heat: "autoOKillHeat",
   setting_auto_structure: "autoCalcStructure",
+  setting_120: "warningFor120",
   pilot_items: [
     "frame",
     "skill",
