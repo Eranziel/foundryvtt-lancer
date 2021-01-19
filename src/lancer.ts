@@ -439,6 +439,11 @@ Hooks.on("renderSidebarTab", async (app: Application, html: HTMLElement) => {
   addLCPManager(app, html);
 });
 
+// For the settings tab
+Hooks.on("renderSettings", async (app: Application, html: HTMLElement) => {
+  addSettingsButtons(app, html);
+});
+
 // Attack function to overkill reroll button
 Hooks.on("renderChatMessage", async (cm: ChatMessage, html: any, data: any) => {
   const overkill = html[0].getElementsByClassName("overkill-reroll");
@@ -701,4 +706,32 @@ async function showChangelog() {
       renderChangelog(errorText);
     });
   }
+}
+
+function addSettingsButtons(app: Application, html: HTMLElement) {
+  const faqButton = $(`<button id="triggler-form" data-action="triggler">
+            <i class="fas fa-robot"></i>LANCER Help
+        </button>`);
+
+  $(html).find("#settings-documentation").append(faqButton);
+    
+  faqButton.click(async ev => {
+    let helpContent = await renderTemplate("systems/lancer/templates/window/lancerHelp.html",{});
+
+    new Dialog(
+      {
+        title: `LANCER Help`,
+        content: helpContent,
+        buttons: {
+          close: {
+            label: "Close",
+          },
+        },
+        default: "Close",
+      },
+      {
+        width: 600,
+      }
+    ).render(true);
+  })
 }
