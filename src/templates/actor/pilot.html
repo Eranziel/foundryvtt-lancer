@@ -45,7 +45,7 @@
       </div>
 
     </div>
-    <img src="{{actor.img}}" data-edit="img" title="{{actor.name}}" height="100" width="100"/>
+    <img src="{{actor.img}}" title="{{actor.name}}" height="100" width="100"/>
   </header>
 
   {{!-- Sheet Tab Navigation --}}
@@ -78,6 +78,7 @@
           <span class="lancer-stat-header major clipped-top">DOWNLOAD</span>
           <a class="cloud-control i--dark i--l" style="align-self: center;" data-action="download"><i class="cci cci-tech-quick"></i></a>
           <span class="minor desc-text" style="text-align: center;">Last synced: {{data.pilot.cloud_time}}</span>
+          <span class="minor desc-text" style="text-align: center;">Warning: If you experience issues, use COMP/CON old.</span>
         </div>
 
         <div class="flexcol card clipped" style="grid-area: 2/2/3/3;">
@@ -89,24 +90,25 @@
 
     {{!-- Dossier Tab --}}
     <div class="tab dossier active" data-group="primary" data-tab="dossier">
-      <div style="display:grid; grid-template: 5em 5em auto auto / 1fr 1fr">
+      <div style="display:grid; grid-template: 5em 5em 5em minmax(0,auto) auto auto / 1fr 1fr">
         <div class="flexcol card clipped" style="grid-area: 1/1/2/2">
           <span class="lancer-stat-header major clipped-top">CALLSIGN</span>
           <input class="lancer-input major" type="string" name="data.pilot.callsign" value="{{data.pilot.callsign}}" data-dtype="String"/>
         </div>
-        <div class="flexcol card clipped" style="grid-area: 1/2/2/3">
+        <div class="flexcol card clipped" style="grid-area: 2/1/3/2">
           <span class="lancer-stat-header major clipped-top">NAME</span>
           <input class="lancer-input major" type="string" name="data.pilot.name" value="{{data.pilot.name}}" data-dtype="String"/>
         </div>
-        <div class="flexcol card clipped" style="grid-area: 2/1/3/3">
+        <div class="flexcol card clipped" style="grid-area: 3/1/4/2">
           <span class="lancer-stat-header major clipped-top">BACKGROUND</span>
           <input class="lancer-input major" type="string" name="data.pilot.background" value="{{data.pilot.background}}" data-dtype="String"/>
         </div>
-        <div class="flexcol card clipped" style="grid-area: 3/1/4/3; text-align: left;">
+        <img src="{{actor.img}}" class="dossier-image" data-edit="img" title="{{actor.name}}"/>
+        <div class="flexcol card clipped" style="grid-area: 5/1/6/3; text-align: left;">
           <span class="lancer-stat-header major clipped-top" style="text-align: center; max-height: 1.25em; min-height: 1.25em;">HISTORY</span>
           {{editor content=data.pilot.history target="data.pilot.history" button=true owner=owner editable=editable}}
         </div>
-        <div class="flexcol card clipped" style="grid-area: 4/1/5/3; text-align: left;">
+        <div class="flexcol card clipped" style="grid-area: 6/1/7/3; text-align: left;">
           <span class="lancer-stat-header major clipped-top" style="text-align: center; max-height: 1.25em; min-height: 1.25em;">NOTES</span>
           {{editor content=data.pilot.notes target="data.pilot.notes" button=true owner=owner editable=editable}}
         </div>

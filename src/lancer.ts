@@ -93,6 +93,7 @@ import * as macros from "./module/macros";
 
 // Import node modules
 import compareVersions = require("compare-versions");
+import marked = require("marked");
 
 const lp = LANCER.log_prefix;
 
@@ -385,25 +386,47 @@ Hooks.once("setup", async function () {
 /* ------------------------------------ */
 Hooks.once("ready", async function () {
   await versionCheck();
+  await showChangelog();
 
-  // Show welcome message if not hidden.
-  if (!game.settings.get(LANCER.sys_name, LANCER.setting_welcome)) {
-    new Dialog({
-      title: `Welcome to LANCER v${game.system.data.version}`,
-      content: WELCOME,
-      buttons: {
-        dont_show: {
-          label: "Do Not Show Again",
-          callback: async () => {
-            await game.settings.set(LANCER.sys_name, LANCER.setting_welcome, true);
+  // v0.1.20 Warning for v0.2
+  // TODO: Remove for v0.2
+  // Get the published warning from https://github.com/Eranziel/foundryvtt-lancer/wiki/v0.1.20-Announcement
+  if (game.settings.get(LANCER.sys_name, LANCER.setting_120)) {
+    function warningDialog(text: string) {new Dialog(
+      {
+        title: `Warning for next update`,
+        content: text,
+        buttons: {
+          dont_show: {
+            label: "Acknowledged",
+            callback: async () => {
+              await game.settings.set(LANCER.sys_name, LANCER.setting_120, false);
+            },
+          },
+          close: {
+            label: "Remind Later",
           },
         },
-        close: {
-          label: "Close",
-        },
+        default: "Remind Later",
       },
-      default: "Close",
-    }).render(true);
+      {
+        width: 800,
+      }
+    ).render(true);
+  }
+
+    let req = $.get(
+      `https://raw.githubusercontent.com/wiki/Eranziel/foundryvtt-lancer/v0.1.20-Announcement.md`
+    );
+    req.done((data, status) => {
+      warningDialog(marked(data));
+    });
+      
+    req.fail((data, status) => {
+      let errorText = `<h2>Warning: Next version will include major changes</h2></br><a href="https://raw.githubusercontent.com/wiki/Eranziel/foundryvtt-lancer/v0.1.20-Announcement.md">Click Here For More Information</a>`;
+
+      warningDialog(errorText);
+    });
   }
 });
 
@@ -414,6 +437,11 @@ Hooks.on("preCreateItem", lancerItemInit);
 // Create sidebar button to import LCP
 Hooks.on("renderSidebarTab", async (app: Application, html: HTMLElement) => {
   addLCPManager(app, html);
+});
+
+// For the settings tab
+Hooks.on("renderSettings", async (app: Application, html: HTMLElement) => {
+  addSettingsButtons(app, html);
 });
 
 // Attack function to overkill reroll button
@@ -566,6 +594,13 @@ Hooks.on("hotbarDrop", (_bar: any, data: any, slot: number) => {
 async function versionCheck() {
   // Determine whether a system migration is required and feasible
   const currentVersion = game.settings.get(LANCER.sys_name, LANCER.setting_migration);
+
+  // If it's 0 then it's a fresh install
+  if (currentVersion === "0") {
+    await game.settings.set(LANCER.sys_name, LANCER.setting_migration, game.system.data.version);
+    return;
+  }
+
   // Modify these constants to set which Lancer version numbers need and permit migration.
   const NEEDS_MIGRATION_VERSION = "0.1.7";
   const COMPATIBLE_MIGRATION_VERSION = "0.1.6";
@@ -615,4 +650,88 @@ async function versionCheck() {
       );
     }
   }
+}
+
+async function showChangelog() {
+  // Show welcome message if not hidden.
+  if (!game.settings.get(LANCER.sys_name, LANCER.setting_welcome)) {
+    let renderChangelog = (changelog: string) => {
+      new Dialog(
+        {
+          title: `Welcome to LANCER v${game.system.data.version}`,
+          content: WELCOME(changelog),
+          buttons: {
+            dont_show: {
+              label: "Do Not Show Again",
+              callback: async () => {
+                await game.settings.set(LANCER.sys_name, LANCER.setting_welcome, true);
+              },
+            },
+            close: {
+              label: "Close",
+            },
+          },
+          default: "Close",
+        },
+        {
+          width: 700,
+        }
+      ).render(true);
+    };
+
+    // Get an automatic changelog for our version
+    let req = $.get(
+      `https://raw.githubusercontent.com/Eranziel/foundryvtt-lancer/v${game.system.data.version}/CHANGELOG.md`
+    );
+    req.done((data, status) => {
+      // Regex magic to only grab the first 25 lines
+      let r = /(?:[^\n]*\n){25}/;
+      let trimmedChangelog = data.match(r)[0];
+
+      // Grab the position of the last H1 and trim to that to ensure we split along version lines
+      // But also set a min so we're keeping at least one version
+      let lastH1Pos = trimmedChangelog.lastIndexOf("\n# ");
+      if (lastH1Pos < 20) lastH1Pos = trimmedChangelog.length;
+
+      trimmedChangelog = trimmedChangelog.substring(0, lastH1Pos);
+
+      let changelog = marked(trimmedChangelog);
+
+      renderChangelog(changelog);
+    });
+
+    req.fail((data, status) => {
+      let errorText = `<h2>Error retrieving changelog</h2>`;
+
+      renderChangelog(errorText);
+    });
+  }
+}
+
+function addSettingsButtons(app: Application, html: HTMLElement) {
+  const faqButton = $(`<button id="triggler-form" data-action="triggler">
+            <i class="fas fa-robot"></i>LANCER Help
+        </button>`);
+
+  $(html).find("#settings-documentation").append(faqButton);
+    
+  faqButton.click(async ev => {
+    let helpContent = await renderTemplate("systems/lancer/templates/window/lancerHelp.html",{});
+
+    new Dialog(
+      {
+        title: `LANCER Help`,
+        content: helpContent,
+        buttons: {
+          close: {
+            label: "Close",
+          },
+        },
+        default: "Close",
+      },
+      {
+        width: 600,
+      }
+    ).render(true);
+  })
 }
