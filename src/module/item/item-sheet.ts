@@ -4,6 +4,7 @@ import { mm_wrap_item } from "../mm-util/helpers";
 import { LancerItem, LancerItemType } from "./lancer-item";
 import { activate_general_controls, gentle_merge, resolve_dotpath } from "../helpers/commons";
 import { HANDLER_openRefOnClick } from "../helpers/refs";
+import { FoundryRegItemData } from "../mm-util/foundry-reg";
 
 const lp = LANCER.log_prefix;
 
@@ -323,8 +324,10 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
   async getData(): Promise<LancerItemSheetData<T>> {
     const data = super.getData() as LancerItemSheetData<T>; // Not fully populated yet!
 
-    // Load item, mm-wrapped
-    data.mm = await mm_wrap_item(this.item as LancerItem<T>);
+    // Wait for preparations to complete
+    // data.mm = await this.item.data.derived.mmec_promise;
+    data.mm = await (this.item.data as FoundryRegItemData<T>).data.derived.mmec_promise;
+
     console.log(`${lp} Item ctx: `, data);
     this._currData = data;
     return data;

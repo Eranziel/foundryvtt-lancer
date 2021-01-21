@@ -3,6 +3,8 @@ import { LANCER, TypeIcon } from "../config";
 import { EntryType, NpcFeatureType } from "machine-mind";
 import { FoundryRegItemData } from "../mm-util/foundry-reg";
 import { LancerActorType } from "../actor/lancer-actor";
+import { system_ready } from "../../lancer";
+import { mm_wrap_item } from "../mm-util/helpers";
 
 const lp = LANCER.log_prefix;
 
@@ -35,20 +37,83 @@ export function lancerItemInit(data: any) {
 }
 
 export class LancerItem<T extends LancerItemType> extends Item {
-  data!: FoundryRegItemData<T>;
+  data!: FoundryRegItemData<T> & {
+    data: {
+      // Include additional derived info
+      derived: {
+        /* ... such as?? lmao */
+      };
+    };
+  };
 
   // We can narrow the type significantly (make this T???)
   get type(): T {
     return super.type as T;
   }
 
-  /** Force name down to item */
+  /** Force name down to item,
+   * And more importantly, perform MM workflow
+   */
   prepareData() {
     super.prepareData();
     // Push down name
     this.data.data.name = this.data.name;
     if (!this.data.img) this.data.img = CONST.DEFAULT_TOKEN;
+
+    let dr: this["data"]["data"]["derived"];
+
+    // Init our derived data if necessary
+    if (!this.data.data.derived) {
+      // Prepare our derived stat data by first initializing an empty obj
+      dr = {
+        mmec: null as any, // We will set this shortly
+        mmec_promise: null as any // We will set this shortly
+      }
+
+      // We set it normally.
+      this.data.data.derived = dr;
+    } else {
+      // That done/guaranteed make a shorthand
+      dr = this.data.data.derived;
+    }
+
+    let mmec_promise = system_ready
+        .then(() => mm_wrap_item(this))
+        .then(mmec => {
+          // Always save the context
+          // Save the context via defineProperty so it does not show up in JSON stringifies. Also, no point in having it writeable
+          Object.defineProperty(dr, "mmec", {
+            value: mmec,
+            configurable: true,
+            enumerable: false
+          });
+
+          console.log("Derived item");
+
+          // Depending on type, setup fields more precisely as able
+          return mmec;
+        });
+
+      // Also assign the promise via defineProperty, similarly to prevent enumerability
+      Object.defineProperty(dr, "mmec_promise", {
+        value: mmec_promise,
+        configurable: true,
+        enumerable: false
+      });
+    }
+  
+
+  /** @override 
+   * Want to destroy derived data before passing it to an update
+  */
+  async update(data: any, options={}) {
+    if(data?.data?.derived) {
+      delete data.data.derived;
+    }
+    return super.update(data, options);
   }
+
+
 
   // ============================================================
   //          WEAPONS

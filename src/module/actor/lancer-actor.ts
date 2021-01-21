@@ -186,23 +186,6 @@ export class LancerActor<T extends LancerActorType> extends Actor {
 
   /* -------------------------------------------- */
 
-  /** @override
-   * Prepare any derived data which is actor-specific and does not depend on Items or Active Effects
-   */
-  prepareBaseData() {
-    // console.log("Prepare base", this.data.name, this.data);
-    // switch ( this.data.type ) {
-    // case EntryType.PILOT:
-    // break;
-    // case "npc":
-    // break;
-    // case "vehicle":
-    // break;
-    // }
-  }
-
-  /* -------------------------------------------- */
-
   subscriptions = new Array<LancerSubscription>();
 
   /** @override
@@ -217,40 +200,37 @@ export class LancerActor<T extends LancerActorType> extends Actor {
     this.subscriptions = [];
     this.setupLancerHooks();
 
-    console.log("Deriving data for:", this);
-
-    // Init our derived data if necessary
+    // That done/guaranteed make a shorthand
+    let dr: this["data"]["data"]["derived"];
     if (!this.data.data.derived) {
-      // Prepare our derived stat data by first initializing an empty obj
-      let new_dr: this["data"]["data"]["derived"] = {} as any;
-
       // Default in fields
       let default_bounded = () => ({
         min: 0,
         max: 0,
         value: 0,
       });
-      new_dr.edef = 0;
-      new_dr.evasion = 0;
-      new_dr.save_target = 0;
-      new_dr.current_heat = default_bounded();
-      new_dr.current_hp = default_bounded();
-      new_dr.overshield = default_bounded();
-      new_dr.current_structure = default_bounded();
-      new_dr.current_stress = default_bounded();
-      new_dr.current_repairs = default_bounded();
 
-      // We set it normally.
-      this.data.data.derived = new_dr;
+      // Prepare our derived stat data by first initializing an empty obj
+      dr = {
+        edef: 0,
+        evasion: 0,
+        save_target: 0,
+        current_heat: default_bounded(),
+        current_hp: default_bounded(),
+        overshield: default_bounded(),
+        current_structure: default_bounded(),
+        current_stress: default_bounded(),
+        current_repairs: default_bounded(),
+        mmec: null as any, // we will set these momentarily
+        mmec_promise: null as any // we will set these momentarily
+      }
+
+      // We set it normally. Was tempted to use defineProperty to prevent it being duplicated, but we just do that in update
+      this.data.data.derived = dr;
+    } else {
+      dr = this.data.data.derived;
     }
 
-    // That done/guaranteed make a shorthand
-    let dr = this.data.data.derived;
-
-    Object.defineProperty(this.data.data, "derived", {
-      value: dr,
-      configurable: true, // So we can overwrite it!
-    });
 
     // Begin the task of wrapping our actor. When done, it will setup our derived fields - namely, our max values
     // Need to wait for system ready to avoid having this break if prepareData called during init step (spoiler alert - it is)
@@ -262,6 +242,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         Object.defineProperty(dr, "mmec", {
           value: mmec,
           configurable: true,
+          enumerable: false
         });
 
         // Depending on type, setup fields more precisely as able
@@ -327,8 +308,20 @@ export class LancerActor<T extends LancerActorType> extends Actor {
     Object.defineProperty(dr, "mmec_promise", {
       value: mmec_promise,
       configurable: true,
+      enumerable: false
     });
   }
+
+  /** @override 
+   * Want to destroy derived data before passing it to an update
+  */
+  async update(data: any, options={}) {
+    if(data?.data?.derived) {
+      delete data.data.derived;
+    }
+    return super.update(data, options);
+  }
+
 
   /** @override */
   _onUpdate(data: object, options: object, userId: string, context: object) {
