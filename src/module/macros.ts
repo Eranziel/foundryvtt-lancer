@@ -309,15 +309,21 @@ async function rollTalentMacro(actor: Actor, data: LancerTalentMacroData) {
  * @param item    {LancerItem}  Weapon to attack with. Assumes ownership from actor.
  * @param options {Object}      Options that can be passed through. Current options:
  *            - accBonus        Flat bonus to accuracy
- *            - damBonus        Object of form {type: val} to apply flat damage bonus of given type. 
+ *            - damBonus        Object of form {type: val} to apply flat damage bonus of given type.
  *                              The "Bonus" type is recommended but not required
  */
-async function prepareAttackMacro({ actor, item, options }: 
-    { actor: Actor;
-      item: LancerItem; 
-      options?: { 
-        accBonus: number; 
-        damBonus: { type: DamageType; val: number; }; }; }) {
+async function prepareAttackMacro({
+  actor,
+  item,
+  options,
+}: {
+  actor: Actor;
+  item: LancerItem;
+  options?: {
+    accBonus: number;
+    damBonus: { type: DamageType; val: number };
+  };
+}) {
   let mData: LancerAttackMacroData = {
     item_id: item.data._id,
     title: item.name,
@@ -370,19 +376,21 @@ async function prepareAttackMacro({ actor, item, options }:
   }
 
   // Options processing
-  if(options) {
-    if(options.accBonus) {
+  if (options) {
+    if (options.accBonus) {
       mData.grit += options.accBonus;
     }
-    if(options.damBonus) {
-      let i = mData.damage.findIndex((dam: IDamageData) => {return dam.type === options.damBonus.type});
-      if(i >= 0) {
+    if (options.damBonus) {
+      let i = mData.damage.findIndex((dam: IDamageData) => {
+        return dam.type === options.damBonus.type;
+      });
+      if (i >= 0) {
         // We need to clone so it doesn't go all the way back up to the weapon
-        let damClone = {...mData.damage[i]};
-        if(damClone.val > 0) {
+        let damClone = { ...mData.damage[i] };
+        if (damClone.val > 0) {
           damClone.val = `${damClone.val}+${options.damBonus.val}`;
         } else {
-          damClone.val = options.damBonus.val
+          damClone.val = options.damBonus.val;
         }
         mData.damage[i] = damClone;
       } else {
@@ -414,19 +422,20 @@ async function rollAttackMacro(actor: Actor, data: LancerAttackMacroData) {
     let tt: HTMLElement | JQuery | null;
     try {
       droll = new Roll(x.val.toString());
-      
+
       for (let die of droll.dice) {
-        if(!die instanceof DiceTerm) continue;
+        // @ts-ignore TS is having trouble finding DiceTerm for some reason...
+        if (!die instanceof DiceTerm) continue;
         // set an original die count
         var die_count = die.number;
         // double the number of dice rolled on critical
-        if(attack_roll.total >= 20) die.number *= 2;
+        if (attack_roll.total >= 20) die.number *= 2;
         // add die explosion on 1 and keep the highest of the original number of die
-        if(data.overkill) die.modifiers.push("x1");
+        if (data.overkill) die.modifiers.push("x1");
         // for both sections above, we want to keep the highest of the die count
-        if(attack_roll.total >= 20 || data.overkill) die.modifiers.push(`kh${die_count}`);
+        if (attack_roll.total >= 20 || data.overkill) die.modifiers.push(`kh${die_count}`);
       }
-      
+
       droll = droll.roll();
       tt = await droll.getTooltip();
     } catch {
