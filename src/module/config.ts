@@ -140,7 +140,7 @@ export function WELCOME(changelog: string): string {
   
   <p>In particular, if you aren't using them already we <i>strongly</i> recommend the modules
   <a href="https://foundryvtt.com/packages/hex-size-support/">"Hex Token Size Support"</a> by
-  Ourobor (even if you don't use hexes - seriously) and 
+  Ourobor (even if you don't use hexes it is very useful for tweaking token art size and placement) and 
   <a href="https://foundryvtt.com/packages/lancer-initiative/">"Lancer Initiative"</a> by Bolts.</p>
   
   <p>You can report issues on GitHub here: 
@@ -152,5 +152,4 @@ export function WELCOME(changelog: string): string {
   <p><a href="https://github.com/Eranziel/foundryvtt-lancer/blob/master/CHANGELOG.md">Click here for the full changelog.</a></p>
   </div>
   `;
-
 }
