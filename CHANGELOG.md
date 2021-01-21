@@ -1,3 +1,11 @@
+# 0.1.20 (2021-01-20)
+## Features
+* **Macros**: Add automatic crit damage handling. Thanks, descention!
+* **Macros**: Add item and actor IDs to attack cards to increase module support. Thanks, kreisl!
+
+## Bug Fixes
+* **NPC Sheet**: Updating an NPC's embedded class also updates the NPC's stats. Closes #127.
+
 # 0.1.19 (2020-12-17)
 ## Features
 * **Macros**: Add options object for attack macros to specify static attack bonus and bonus damage. Partial for #117.
