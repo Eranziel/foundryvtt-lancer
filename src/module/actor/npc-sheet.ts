@@ -1,6 +1,6 @@
 import { LancerNPCData, LancerNPCSheetData, LancerStatMacroData } from "../interfaces";
 import { LancerActor, LancerNpc } from "./lancer-actor";
-import { LANCER, LancerActorType } from "../config";
+import { LANCER } from "../config";
 import { LancerNPCTechData, LancerNPCWeaponData } from "../item/npc-feature";
 import { LancerActorSheet } from "./lancer-actor-sheet";
 import { prepareItemMacro } from "../macros";

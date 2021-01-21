@@ -1,6 +1,6 @@
 import { HelperOptions } from "handlebars";
 import { EntryType,funcs, RegEntry  } from "machine-mind";
-import { LancerItemType } from "../config";
+import { LancerItemType } from "../item/lancer-item";
 import { resolve_helper_dotpath } from "./commons";
 import { ref_commons } from "./refs";
 

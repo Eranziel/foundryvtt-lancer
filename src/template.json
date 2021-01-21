@@ -31,6 +31,7 @@
       "mechSkills": [0, 0, 0, 0],
       "mounted": false,
       "notes": "",
+      "overshield": 0,
       "player_name": "",
       "portrait": "",
       "sort_index": 0,

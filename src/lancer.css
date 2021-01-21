@@ -650,7 +650,7 @@ tr.lcp-index-header {
 
 .ref-card {
   border: 2px solid black;
-  margin: 5px;
+  margin: 3px;
   display: flex; 
   align-items: center;
   cursor: pointer;
@@ -658,9 +658,14 @@ tr.lcp-index-header {
 }
 
 .ref-icon {
-  width: 50px;
-  height: 50px;
-  margin: 5px;
+  width: 35px;
+  height: 35px;
+  margin: 0px;
+}
+
+.ref-card .ref-icon {
+  border-width: 0;
+  border-right-width: 2px;
 }
 
 .ref-list-controls {
@@ -1133,69 +1138,69 @@ input.core-power-toggle:not(:checked)::before
 
 /* Two items per row */
 .wraprow.double > * {
-  flex: 1 0 calc(50% - 14px); /* the px here is 2x the margin. adjust accordingly */
-  margin: 7px;
+  flex: 1 0 calc(50% - 6px); /* the px here is 2x the margin. adjust accordingly */
+  margin: 3px;
 }
 
 .wraprow.double > .double {
-  flex: 1 0 calc(100% - 14px); 
-  margin: 7px;
+  flex: 1 0 calc(100% - 6px); 
+  margin: 3px;
 }
 
 /* Three items per row */
 .wraprow.triple > * {
-  flex: 1 0 calc(33% - 14px);
-  margin: 7px;
+  flex: 1 0 calc(33% - 6px);
+  margin: 3px;
 }
 
 /* Takes up 2/3 row slots */
 .wraprow.triple > .double {
-  flex: 1 0 calc(66% - 14px); 
-  margin: 7px;
+  flex: 1 0 calc(66% - 6px); 
+  margin: 3px;
 }
 
 /* 3/3. However, we generalize */
 .wraprow > .full {
-  flex: 1 0 calc(100% - 14px); 
-  margin: 7px;
+  flex: 1 0 calc(100% - 6px); 
+  margin: 3px;
 }
 
 /* Four items per row */
 .wraprow.quadruple > * {
-  flex: 1 0 calc(25% - 14px); 
-  margin: 7px;
+  flex: 1 0 calc(25% - 6px); 
+  margin: 3px;
 }
 
 /* Doublewidth.quadruple item */
 .wraprow.quadruple > .double {
-  flex: 1 0 calc(50% - 14px); 
-  margin: 7px;
+  flex: 1 0 calc(50% - 6px); 
+  margin: 3px;
 }
 
 /* Triplewidth.quadruple item */
 .wraprow.quadruple > .triple {
-  flex: 1 0 calc(50% - 14px);
-  margin: 7px;
+  flex: 1 0 calc(50% - 6px);
+  margin: 3px;
 }
 
 .wraprow.quintuple > * {
-  flex: 1 0 calc(20% - 14px); 
-  margin: 7px;
+  flex: 1 0 calc(20% - 6px); 
+  margin: 3px;
 }
 
 .wraprow.quintuple > .double {
-  flex: 1 0 calc(40% - 14px); 
-  margin: 7px;
+  flex: 1 0 calc(40% - 6px); 
+  margin: 3px;
 }
 
 .wraprow.quintuple > .triple {
-  flex: 1 0 calc(60% - 14px); 
-  margin: 7px;
+  flex: 1 0 calc(60% - 6px); 
+  margin: 3px;
 }
 
 .wraprow.quintuple > .quadruple {
-  flex: 1 0 calc(80% - 14px); 
-  margin: 7px;
+  flex: 1 0 calc(80% - 6px); 
+  margin: 3px;
 }
 
 /* Glow effect courtesy of https://codepen.io/jackrugile/pen/ABeIi */

@@ -23,9 +23,9 @@ import {
   Mech,
 } from "machine-mind";
 import { MechWeapon, MechWeaponProfile } from "machine-mind";
-import { LANCER, LancerItemType, TypeIcon } from "../config";
+import { LANCER, TypeIcon } from "../config";
 import { NPCDamageData, RangeData, TagData } from "../interfaces";
-import { LancerNpcFeatureData } from "../item/lancer-item";
+import { LancerItemType, LancerNpcFeatureData } from "../item/lancer-item";
 import { compact_tag_list } from "../item/tags";
 import { checked, render_icon, resolve_dotpath, resolve_helper_dotpath, selected } from "./commons";
 import { ref_commons, simple_mm_ref } from "./refs";

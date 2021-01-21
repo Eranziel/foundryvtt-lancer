@@ -1,7 +1,7 @@
 import { DamageData, LancerItemSheetData, RangeData } from "../interfaces";
-import { LANCER, LancerItemType } from "../config";
+import { LANCER } from "../config";
 import { mm_wrap_item } from "../mm-util/helpers";
-import { LancerItem } from "./lancer-item";
+import { LancerItem, LancerItemType } from "./lancer-item";
 import { activate_general_controls, gentle_merge, resolve_dotpath } from "../helpers/commons";
 import { HANDLER_openRefOnClick } from "../helpers/refs";
 
@@ -301,7 +301,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
    */
   async _updateObject(event: Event | JQuery.Event, formData: any): Promise<any> {
     // hmm
-    console.log("UPDATE OBJECT CALLED");
+    console.log("UPDATE OBJECT CALLED FROM ITEM SHEET");
 
     // Fetch data, modify, and writeback
     let ct = await this.getDataLazy();

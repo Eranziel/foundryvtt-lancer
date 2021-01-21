@@ -1,5 +1,5 @@
 import { RangeData, NPCDamageData, TagData } from "../interfaces";
-import { NpcFeatureType, RegNpcFeatureData, RegTagInstanceData } from "machine-mind";
+import { NpcFeatureType, AnyRegNpcFeatureData, RegTagInstanceData } from "machine-mind";
 
 export const NPCFeatureIcons = {
   Other: "npc_feature.svg",

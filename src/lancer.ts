@@ -106,6 +106,7 @@ import { mech_loadout, pilot_slot } from "./module/helpers/loadout";
 
 const lp = LANCER.log_prefix;
 
+
 /* ------------------------------------ */
 /* Initialize system                    */
 /* ------------------------------------ */
@@ -414,53 +415,59 @@ Hooks.once("init", async function () {
 /* ------------------------------------ */
 /* When ready                           */
 /* ------------------------------------ */
-Hooks.once("ready", async function () {
-  // Determine whether a system migration is required and feasible
-  const currentVersion = game.settings.get(LANCER.sys_name, LANCER.setting_migration);
-  // Modify these constants to set which Lancer version numbers need and permit migration.
-  const NEEDS_MIGRATION_VERSION = "0.1.7";
-  const COMPATIBLE_MIGRATION_VERSION = "0.1.6";
-  let needMigration = currentVersion ? compareVersions(currentVersion, NEEDS_MIGRATION_VERSION) : 1;
+// Make an awaitable for when this shit is done
+export const system_ready: Promise<void> = new Promise((success) => {
+  Hooks.once("ready", async function () {
+    // Determine whether a system migration is required and feasible
+    const currentVersion = game.settings.get(LANCER.sys_name, LANCER.setting_migration);
+    // Modify these constants to set which Lancer version numbers need and permit migration.
+    const NEEDS_MIGRATION_VERSION = "0.1.7";
+    const COMPATIBLE_MIGRATION_VERSION = "0.1.6";
+    let needMigration = currentVersion ? compareVersions(currentVersion, NEEDS_MIGRATION_VERSION) : 1;
 
-  // Check whether system has been updated since last run.
-  if (compareVersions(currentVersion, game.system.data.version) != 0 && game.user.isGM) {
-    // Un-hide the welcome message
-    await game.settings.set(LANCER.sys_name, LANCER.setting_welcome, false);
+    // Check whether system has been updated since last run.
+    if (compareVersions(currentVersion, game.system.data.version) != 0 && game.user.isGM) {
+      // Un-hide the welcome message
+      await game.settings.set(LANCER.sys_name, LANCER.setting_welcome, false);
 
-    if (needMigration <= 0) {
-      if (currentVersion && compareVersions(currentVersion, COMPATIBLE_MIGRATION_VERSION) < 0) {
-        // System version is too old for migration
-        ui.notifications.error(
-          `Your LANCER system data is from too old a version and cannot be reliably migrated to the latest version. The process will be attempted, but errors may occur.`,
-          { permanent: true }
-        );
+      if (needMigration <= 0) {
+        if (currentVersion && compareVersions(currentVersion, COMPATIBLE_MIGRATION_VERSION) < 0) {
+          // System version is too old for migration
+          ui.notifications.error(
+            `Your LANCER system data is from too old a version and cannot be reliably migrated to the latest version. The process will be attempted, but errors may occur.`,
+            { permanent: true }
+          );
+        }
+        // Perform the migration
+        await migrations.migrateWorld();
       }
-      // Perform the migration
-      await migrations.migrateWorld();
+      // Set the version for future migration and welcome message checking
+      await game.settings.set(LANCER.sys_name, LANCER.setting_migration, game.system.data.version);
     }
-    // Set the version for future migration and welcome message checking
-    await game.settings.set(LANCER.sys_name, LANCER.setting_migration, game.system.data.version);
-  }
 
-  // Show welcome message if not hidden.
-  if (!game.settings.get(LANCER.sys_name, LANCER.setting_welcome)) {
-    new Dialog({
-      title: `Welcome to LANCER v${game.system.data.version}`,
-      content: WELCOME,
-      buttons: {
-        dont_show: {
-          label: "Do Not Show Again",
-          callback: async () => {
-            await game.settings.set(LANCER.sys_name, LANCER.setting_welcome, true);
+    // Show welcome message if not hidden.
+    if (!game.settings.get(LANCER.sys_name, LANCER.setting_welcome)) {
+      new Dialog({
+        title: `Welcome to LANCER v${game.system.data.version}`,
+        content: WELCOME,
+        buttons: {
+          dont_show: {
+            label: "Do Not Show Again",
+            callback: async () => {
+              await game.settings.set(LANCER.sys_name, LANCER.setting_welcome, true);
+            },
+          },
+          close: {
+            label: "Close",
           },
         },
-        close: {
-          label: "Close",
-        },
-      },
-      default: "Close",
-    }).render(true);
-  }
+        default: "Close",
+      }).render(true);
+    }
+
+    // We're ready, freddy
+    success();
+  });
 });
 
 // Add any additional hooks if necessary
@@ -609,3 +616,18 @@ Hooks.on("hotbarDrop", (_bar: any, data: any, slot: number) => {
     game.user.assignHotbarMacro(macro, slot).then();
   }
 });
+
+// Make derived fields properly update their intended origin target
+Hooks.on("modifyTokenAttribute", (_: any, data: any) => {
+  for(let key of Object.keys(data)) {
+    // If starts with "data.derived", replace with just "data"
+    if(key.includes("data.derived.")) {
+      // Cut the .derived, and also remove any trailing .value to resolve pseudo-bars
+      let new_key = key.replace(/^data\.derived\./, "data.");
+      new_key = new_key.replace(/\.value$/, "");
+      data[new_key] = data[key];
+
+      console.log(`Overrode assignment from ${key} to ${new_key}`);
+    }
+  }
+})

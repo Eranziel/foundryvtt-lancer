@@ -110,7 +110,7 @@ export function mech_loadout(mech_path: string, helper: HelperOptions): string {
 export function pilot_slot(data_path: string, options: HelperOptions): string {
   // get the existing
   let existing = resolve_helper_dotpath(options, data_path);
-  return simple_mm_ref(EntryType.PILOT, existing, "No Pilot", data_path);
+  return simple_mm_ref(EntryType.PILOT, existing, "No Pilot", data_path, true);
 }
 
 // A drag-drop slot for a frame. TODO: fancify, giving basic stats or something???

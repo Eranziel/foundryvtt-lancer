@@ -3,9 +3,8 @@ import {
     OpCtx,
   RegEntry,
 } from "machine-mind";
-import { LancerActor } from "../actor/lancer-actor";
-import { LancerActorType, LancerItemType } from "../config";
-import { LancerItem } from "../item/lancer-item";
+import { LancerActor, LancerActorType } from "../actor/lancer-actor";
+import { LancerItem, LancerItemType } from "../item/lancer-item";
 import { FoundryReg } from "../mm-util/foundry-reg";
 import { MMEntityContext, mm_wrap_actor, mm_wrap_item } from "../mm-util/helpers";
 import { gentle_merge, is_ref, safe_json_parse } from "./commons";

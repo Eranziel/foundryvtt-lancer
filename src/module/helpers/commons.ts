@@ -91,7 +91,7 @@ export function safe_json_parse(str: string): any | null {
 
 // Check that a parsed result is probably a ref
 export function is_ref(v: any): v is RegRef<any> {
-  return (v as RegRef<any> | null)?.is_unresolved_mmid !== undefined;
+  return (v as RegRef<any> | null)?.fallback_mmid !== undefined;
 }
 
 // Check that a parsed result is probably an item

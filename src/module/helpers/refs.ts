@@ -6,9 +6,9 @@ import {
   Manufacturer,
   LiveEntryTypes,
 } from "machine-mind";
-import { LancerActor } from "../actor/lancer-actor";
+import { is_actor_type, LancerActor } from "../actor/lancer-actor";
 import { LANCER, TypeIcon } from "../config";
-import { LancerItem } from "../item/lancer-item";
+import { is_item_type, LancerItem } from "../item/lancer-item";
 import { FlagData, FoundryReg } from "../mm-util/foundry-reg";
 
 // We use these for virtually every ref function
@@ -31,12 +31,12 @@ export function ref_commons<T extends EntryType>(item: RegEntry<T> | null): null
   let name: string;
 
   // best to know what we are working with
-  if (LANCER.mm_compat_actor_types.includes(item.Type as any)) {
+  if (is_actor_type(item.Type)) {
     // 'tis an actor, sire
     let actor = flags.orig_entity as LancerActor<any>;
     img = actor.img;
     name = actor.name;
-  } else if (LANCER.mm_compat_item_types.includes(item.Type as any)) {
+  } else if (is_item_type(item.Type)) {
     // 'tis an item, m'lord
     let item = flags.orig_entity as LancerItem<any>;
     img = item.img;
@@ -60,7 +60,8 @@ export function simple_mm_ref<T extends EntryType>(
   type: T,
   item: RegEntry<T> | null,
   fallback: string = "Empty",
-  slot_path: string = ""
+  slot_path: string = "",
+  native: boolean = false
 ) {
   // Generate commons
   let cd = ref_commons(item);
@@ -71,9 +72,12 @@ export function simple_mm_ref<T extends EntryType>(
     path_class_snippet = ` drop-target `;
   }
 
+  // Generate native drop snippet if we want one
+  let native_drop_snippet = native ? " native-refdrop " : "";
+
   if (!cd) {
     // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
-    return `<div class="ref ref-card ${path_class_snippet} ${type}" 
+    return `<div class="ref ref-card ${native_drop_snippet} ${path_class_snippet} ${type}" 
                         data-path="${slot_path}" 
                         data-type="${type}">
           <img class="ref-icon" src="${TypeIcon(type)}"></img>
@@ -81,7 +85,7 @@ export function simple_mm_ref<T extends EntryType>(
       </div>`;
   }
 
-  return `<div class="valid ${cd.ref.type} ref ref-card ${path_class_snippet}" 
+  return `<div class="valid ${cd.ref.type} ref ref-card ${native_drop_snippet} ${path_class_snippet}" 
                 data-id="${cd.ref.id}" 
                 data-ref-type="${cd.ref.type}" 
                 data-reg-name="${cd.ref.reg_name}" 
@@ -124,7 +128,7 @@ export function recreate_ref_from_element<T extends EntryType>(element: HTMLElem
     let id = element.dataset.id;
     let type = element.dataset.refType as T | undefined;
     let reg_name = element.dataset.regName;
-    let is_unresolved_mmid = false;
+    let fallback_mmid = "";
 
     // Check existence
     if(!id) {
@@ -142,7 +146,7 @@ export function recreate_ref_from_element<T extends EntryType>(element: HTMLElem
     id,
     type,
     reg_name,
-    is_unresolved_mmid,
+    fallback_mmid,
   };
 
   return ref;
