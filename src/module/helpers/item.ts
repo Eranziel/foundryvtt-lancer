@@ -21,6 +21,8 @@ import {
   PilotWeapon,
   PilotGear,
   Mech,
+  Manufacturer,
+  License,
 } from "machine-mind";
 import { MechWeapon, MechWeaponProfile } from "machine-mind";
 import { LANCER, TypeIcon } from "../config";
@@ -28,7 +30,7 @@ import { NPCDamageData, RangeData, TagData } from "../interfaces";
 import { LancerItemType, LancerNpcFeatureData } from "../item/lancer-item";
 import { compact_tag_list } from "../item/tags";
 import { checked, render_icon, resolve_dotpath, resolve_helper_dotpath, selected } from "./commons";
-import { ref_commons, simple_mm_ref } from "./refs";
+import { ref_commons, ref_params, simple_mm_ref } from "./refs";
 
 
 // Helper to handle formatting for on hit, crit, etc effects
@@ -678,7 +680,7 @@ export function pilot_armor_slot(armor_path: string, helper: HelperOptions): str
 
   if (!cd) {
     // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
-    return `<div class="${EntryType.PILOT_ARMOR} ref drop-target card clipped pilot-armor-compact-item" 
+    return `<div class="${EntryType.PILOT_ARMOR} ref drop-settable card clipped pilot-armor-compact-item" 
                         data-path="${armor_path}" 
                         data-type="${EntryType.PILOT_ARMOR}">
           <img class="ref-icon" src="${TypeIcon(EntryType.PILOT_ARMOR)}"></img>
@@ -695,12 +697,9 @@ export function pilot_armor_slot(armor_path: string, helper: HelperOptions): str
   let eva_val = armor.Bonuses.find(b => b.ID == "pilot_evasion")?.Value ?? "0";
   let hp_val = armor.Bonuses.find(b => b.ID == "pilot_hp")?.Value ?? "0";
 
-  return `<div class="valid ${cd.ref.type} ref drop-target card clipped pilot-armor-compact item" 
-                data-id="${cd.ref.id}" 
-                data-ref-type="${cd.ref.type}" 
-                data-reg-name="${cd.ref.reg_name}" 
-                data-path="${armor_path}"
-                data-type="${EntryType.PILOT_ARMOR}">
+  return `<div class="valid ${cd.ref.type} ref drop-settable card clipped pilot-armor-compact item" 
+                ${ref_params(cd.ref)}
+                data-path="${armor_path}">
             <div class="lancer-trait-header clipped-top" style="grid-area: 1/1/2/3">
               <i class="mdi mdi-shield-outline i--m i--light"> </i>
               <span class="minor">${armor!.Name}</span>
@@ -747,7 +746,7 @@ export function pilot_weapon_refview(weapon_path: string, helper: HelperOptions)
 
   if (!cd) {
     // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
-    return `<div class="${EntryType.PILOT_WEAPON} ref drop-target card clipped pilot-weapon-compact item" 
+    return `<div class="${EntryType.PILOT_WEAPON} ref drop-settable card clipped pilot-weapon-compact item" 
                         data-path="${weapon_path}" 
                         data-type="${EntryType.PILOT_WEAPON}">
           <img class="ref-icon" src="${TypeIcon(EntryType.PILOT_WEAPON)}"></img>
@@ -756,12 +755,9 @@ export function pilot_weapon_refview(weapon_path: string, helper: HelperOptions)
   }
 
   let weapon = weapon_!;
-  return `<div class="valid ${EntryType.PILOT_WEAPON} ref drop-target card clipped pilot-weapon-compact item macroable"
-                data-id="${cd.ref.id}" 
-                data-ref-type="${cd.ref.type}" 
-                data-reg-name="${cd.ref.reg_name}" 
-                data-path="${weapon_path}"
-                data-type="${EntryType.PILOT_WEAPON}">
+  return `<div class="valid ${EntryType.PILOT_WEAPON} ref drop-settable card clipped pilot-weapon-compact item macroable"
+                ${ref_params(cd.ref)}
+                data-path="${weapon_path}" >
     <div class="lancer-weapon-header clipped-top">
       <i class="cci cci-weapon i--m i--light"> </i>
       <span class="minor">${weapon.Name}</span>
@@ -802,7 +798,7 @@ export function pilot_gear_refview(gear_path: string, helper: HelperOptions): st
 
   if (!cd) {
     // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
-    return `<div class="${EntryType.PILOT_GEAR} ref drop-target card clipped pilot-gear-compact item" 
+    return `<div class="${EntryType.PILOT_GEAR} ref drop-settable card clipped pilot-gear-compact item" 
                         data-path="${gear_path}" 
                         data-type="${EntryType.PILOT_GEAR}">
           <img class="ref-icon" src="${TypeIcon(EntryType.PILOT_GEAR)}"></img>
@@ -826,12 +822,9 @@ export function pilot_gear_refview(gear_path: string, helper: HelperOptions): st
     `
   }
 
-  return `<div class="valid ${EntryType.PILOT_GEAR} ref drop-target card clipped pilot-gear-compact item macroable"
-                data-id="${cd.ref.id}" 
-                data-ref-type="${cd.ref.type}" 
-                data-reg-name="${cd.ref.reg_name}" 
-                data-path="${gear_path}"
-                data-type="${EntryType.PILOT_GEAR}">
+  return `<div class="valid ${EntryType.PILOT_GEAR} ref drop-settable card clipped pilot-gear-compact item macroable"
+                ${ref_params(cd.ref)}
+                data-path="${gear_path}" >
     <div class="lancer-gear-header clipped-top">
       <i class="cci cci-generic-item i--m"> </i>
       <a class="gear-macro macroable"><i class="mdi mdi-message"></i></a>
@@ -873,7 +866,7 @@ export function mech_weapon_refview(weapon_path: string, mech_path: string | "",
   if (!cd) {
     // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
     return `
-      <div class="${EntryType.MECH_WEAPON} ref drop-target card clipped pilot-gear-compact item" 
+      <div class="${EntryType.MECH_WEAPON} ref drop-settable card clipped pilot-gear-compact item" 
                         data-path="${weapon_path}" 
                         data-type="${EntryType.MECH_WEAPON}">
         <img class="ref-icon" src="${TypeIcon(EntryType.MECH_WEAPON)}"></img>
@@ -910,12 +903,9 @@ export function mech_weapon_refview(weapon_path: string, mech_path: string | "",
   let on_crit = profile.OnCrit ? effect_helper("On Crit", profile.OnCrit) : "";
 
   return `
-  <div class="valid ${EntryType.MECH_WEAPON} ref drop-target flexcol clipped lancer-weapon-container macroable item"
-                data-id="${cd.ref.id}" 
-                data-ref-type="${cd.ref.type}" 
-                data-reg-name="${cd.ref.reg_name}" 
+  <div class="valid ${EntryType.MECH_WEAPON} ref drop-settable flexcol clipped lancer-weapon-container macroable item"
+                ${ref_params(cd.ref)}
                 data-path="${weapon_path}"
-                data-type="${EntryType.MECH_WEAPON}"
                 style="max-height: fit-content;">
     <div class="lancer-weapon-header clipped-top" style="grid-area: 1/1/2/3">
       <i class="cci cci-weapon i--m i--light"> </i>
@@ -945,3 +935,39 @@ export function mech_weapon_refview(weapon_path: string, mech_path: string | "",
     </div>
   </div>`
 };
+
+// A specific MM ref helper focused on displaying manufacturer info.
+export function manufacturer_ref(source: Manufacturer | null): string {
+  let cd = ref_commons(source);
+  // TODO? maybe do a little bit more here, aesthetically speaking
+  if (cd) {
+    return `<div class="valid ${EntryType.MANUFACTURER} ref ref-card" ${ref_params(cd.ref)}> 
+              <h3 class="mfr-name" style="color: ${source!.GetColor(false)};">${source!.Name}</h3>
+              <i>${source!.Quote}</i>
+            </div>
+        `;
+  } else {
+    return `<div class="ref ref-card">
+              <h3 class="mfr-name">No source specified</h3>
+            </div>
+        `;
+  }
+}
+
+// A specific MM ref helper focused on displaying license info.
+// This if for display purposes and does not provide editable fields
+export function license_ref(license: License | null, level: number): string {
+  let cd = ref_commons(license);
+  // TODO? maybe do a little bit more here, aesthetically speaking
+  if (cd) {
+    return `<div class="valid ${EntryType.LICENSE} ref ref-card" ${ref_params(cd.ref)}> 
+              <h3 class="license-name">${license!.Name} ${level}</h3>
+            </div>
+        `;
+  } else {
+    return `<div class="ref ref-card">
+              <h3 class="license-name">No license specified</h3>
+            </div>
+        `;
+  }
+}

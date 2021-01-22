@@ -1,10 +1,10 @@
 import { DamageData, NPCDamageData, RangeData, TagData } from "../interfaces";
 import { LANCER, TypeIcon } from "../config";
-import { EntryType, NpcFeatureType } from "machine-mind";
-import { FoundryRegItemData } from "../mm-util/foundry-reg";
-import { LancerActorType } from "../actor/lancer-actor";
+import { EntryType, License, NpcFeatureType, RegRef } from "machine-mind";
+import { FoundryRegActorData, FoundryRegItemData } from "../mm-util/foundry-reg";
+import { LancerActor, LancerActorType } from "../actor/lancer-actor";
 import { system_ready } from "../../lancer";
-import { mm_wrap_item } from "../mm-util/helpers";
+import { find_license_for, MMEntityContext, mm_wrap_item } from "../mm-util/helpers";
 
 const lp = LANCER.log_prefix;
 
@@ -41,7 +41,7 @@ export class LancerItem<T extends LancerItemType> extends Item {
     data: {
       // Include additional derived info
       derived: {
-        /* ... such as?? lmao */
+        license: RegRef<EntryType.LICENSE> | null // The license granting this item, if one could be found
       };
     };
   };
@@ -66,6 +66,7 @@ export class LancerItem<T extends LancerItemType> extends Item {
     if (!this.data.data.derived) {
       // Prepare our derived stat data by first initializing an empty obj
       dr = {
+        license: null,
         mmec: null as any, // We will set this shortly
         mmec_promise: null as any // We will set this shortly
       }
@@ -77,9 +78,10 @@ export class LancerItem<T extends LancerItemType> extends Item {
       dr = this.data.data.derived;
     }
 
+    // Spool up our Machine Mind wrapping process
     let mmec_promise = system_ready
         .then(() => mm_wrap_item(this))
-        .then(mmec => {
+        .then(async mmec => {
           // Always save the context
           // Save the context via defineProperty so it does not show up in JSON stringifies. Also, no point in having it writeable
           Object.defineProperty(dr, "mmec", {
@@ -88,7 +90,16 @@ export class LancerItem<T extends LancerItemType> extends Item {
             enumerable: false
           });
 
-          console.log("Derived item");
+          // Additionally we would like to find a matching license. Re-use ctx, try both a world and global reg, actor as well if it exists
+          let found_license: RegRef<EntryType.LICENSE> | null;
+          if(this.actor?.data.type == EntryType.PILOT || this.actor?.data.type == EntryType.MECH) {
+             found_license = await find_license_for(mmec, this.actor! as LancerActor<EntryType.MECH | EntryType.PILOT>);
+           } else {
+             found_license = await find_license_for(mmec);
+           }
+
+           // Store the found license
+           dr.license = found_license;
 
           // Depending on type, setup fields more precisely as able
           return mmec;
@@ -122,6 +133,7 @@ export class LancerItem<T extends LancerItemType> extends Item {
   /**
    * Return whether a weapon has the smart tag
    */
+  /*
   get isLoading(): boolean {
     if (
       this.data.type === EntryType.PILOT_WEAPON ||
@@ -133,10 +145,12 @@ export class LancerItem<T extends LancerItemType> extends Item {
       return false;
     }
   }
+  */
 
   /**
    * Return whether a weapon has the smart tag
    */
+  /*
   get isOrdnance(): boolean {
     if (
       this.data.type === EntryType.PILOT_WEAPON ||
@@ -148,6 +162,7 @@ export class LancerItem<T extends LancerItemType> extends Item {
       return false;
     }
   }
+  */
 
   /**
    * Return a weapon's innate accuracy/difficulty based on its tags.
@@ -166,6 +181,7 @@ export class LancerItem<T extends LancerItemType> extends Item {
   /**
    * Return whether a weapon has the smart tag
    */
+  /*
   get isSmart(): boolean {
     if (
       this.data.type === EntryType.PILOT_WEAPON ||
@@ -177,10 +193,12 @@ export class LancerItem<T extends LancerItemType> extends Item {
       return false;
     }
   }
+  */
 
   /**
    * Return whether a weapon has the overkill tag
    */
+  /*
   get isOverkill(): boolean {
     if (
       this.data.type === EntryType.PILOT_WEAPON ||
@@ -192,10 +210,12 @@ export class LancerItem<T extends LancerItemType> extends Item {
       return false;
     }
   }
+  */
 
   /**
    * Return whether a weapon has the smart tag
    */
+  /*
   get isAp(): boolean {
     if (
       this.data.type === EntryType.PILOT_WEAPON ||
@@ -207,6 +227,7 @@ export class LancerItem<T extends LancerItemType> extends Item {
       return false;
     }
   }
+  */
 
   /**
    * Return a weapon's innate accuracy/difficulty based on its tags.

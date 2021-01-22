@@ -7,7 +7,8 @@
   --main-font-family: Helvetica, Arial, sans-serif;
 
   --main-theme-color: #991e2a;  /* I've configured calls to this to fall back on fuchsia when things go wrong */
-  --loadout-color: #4f4e52;  /* TODO: Change based on theme */
+  --loadout-color: #4f4e52;  
+  --ref-color: #ffe9df;  
   --gms-theme-color: #991e2a;
   --ipsn-theme-color: #1662b8;
   --ssc-theme-color: #d1920a;
@@ -648,6 +649,12 @@ tr.lcp-index-header {
   min-width: fit-content;
 }
 
+/* Put on any ref or reffable location */
+/*.ref {
+
+}*/
+
+/* Put specifically on the rectangular card style of ref */
 .ref-card {
   border: 2px solid black;
   margin: 3px;
@@ -655,6 +662,12 @@ tr.lcp-index-header {
   align-items: center;
   cursor: pointer;
   text-align: center;
+}
+
+/* Valid, as a prefix, indicates that a ref is satisfied. It has ${ref_params()} */
+.valid.ref.ref-card {
+  background-color: var(--ref-color);
+  color: black;
 }
 
 .ref-icon {
@@ -668,10 +681,21 @@ tr.lcp-index-header {
   border-right-width: 2px;
 }
 
+/* Control box in the right side of a ref card. Delete button, etc */
 .ref-list-controls {
   margin: 5px;
   margin-left: auto;
   max-width: 40px;
+}
+
+/* Empty box at end of item lists where you can drop things. By default we don't want it to be visible */
+.ref-list-append {
+  visibility: hidden;
+}
+
+/* But if they are a valid drop target, we do! */
+.ref-list-append.highlight-can-drop {
+  visibility: visible;
 }
 
 .pilot-stats {

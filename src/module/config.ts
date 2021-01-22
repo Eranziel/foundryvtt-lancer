@@ -225,6 +225,7 @@ export function FriendlyTypeName(type: LancerItemType | LancerActorType, count?:
 }
 
 // Icons for each entity
+export const GENERIC_ITEM_ICON = "systems/lancer/assets/icons/generic_item.svg";
 const ENTITY_ICONS = {
   [EntryType.CORE_BONUS]: "systems/lancer/assets/icons/core_bonus.svg",
   [EntryType.DEPLOYABLE]: "systems/lancer/assets/icons/deployable.svg",
@@ -253,7 +254,7 @@ const ENTITY_ICONS = {
   [EntryType.TAG]: "systems/lancer/assets/icons/tag.svg",
   [EntryType.TALENT]: "systems/lancer/assets/icons/talent.svg",
   [EntryType.WEAPON_MOD]: "systems/lancer/assets/icons/weapon_mod.svg",
-  generic: "systems/lancer/assets/icons/generic_item.svg",
+  generic: GENERIC_ITEM_ICON
 };
 
 // TODO: const MACRO_ICONS

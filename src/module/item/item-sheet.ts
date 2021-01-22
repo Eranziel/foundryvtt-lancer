@@ -1,10 +1,8 @@
 import { DamageData, LancerItemSheetData, RangeData } from "../interfaces";
 import { LANCER } from "../config";
-import { mm_wrap_item } from "../mm-util/helpers";
 import { LancerItem, LancerItemType } from "./lancer-item";
-import { activate_general_controls, gentle_merge, resolve_dotpath } from "../helpers/commons";
-import { HANDLER_openRefOnClick } from "../helpers/refs";
-import { FoundryRegItemData } from "../mm-util/foundry-reg";
+import { HANDLER_activate_general_controls, gentle_merge, resolve_dotpath } from "../helpers/commons";
+import { HANDLER_activate_ref_dragging, HANDLER_add_ref_to_list_on_drop, HANDLER_openRefOnClick } from "../helpers/refs";
 
 const lp = LANCER.log_prefix;
 
@@ -63,7 +61,10 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
     $(html).find(".ref.valid").on("click", HANDLER_openRefOnClick);
 
     // Enable general controls, so items can be deleted and such
-    activate_general_controls(html.find(".gen-control"), () => this.getDataLazy(), (_) => this._commitCurrMM());
+    HANDLER_activate_general_controls(html.find(".gen-control"), () => this.getDataLazy(), (_) => this._commitCurrMM());
+
+    // Enable ref dragging
+    HANDLER_activate_ref_dragging(html);
 
     // Everything below here is only needed if the sheet is editable
     if (!this.options.editable) return;
@@ -86,205 +87,11 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
     let incr = html.find('button[class*="mod-plus-button"]');
     incr.on("click", mod_handler(+1));
 
-    // Add or Remove options
-    // Yes, theoretically this could be abstracted out to one function. You do it then.
-    html
-      .find(".arrayed-item-container")
-      .on("click", ".clickable", this._onClickArrayControl.bind(this));
-    html
-      .find(".arrayed-item-container")
-      .on("change", ".delete-selector", this._onSelectDelete.bind(this));
+    // Allow dragging items into lists
+    HANDLER_add_ref_to_list_on_drop(html, () => this.getDataLazy(), (_) => this._commitCurrMM());
   }
 
   /* -------------------------------------------- */
-
-  /**
-   * Listen for events on a selector to remove the referenced item
-   * @param event    The originating event
-   * @private
-   */
-  async _onSelectDelete(event: any) {
-    const s = $(event.currentTarget);
-    if (s.val() === "delete") {
-      event.preventDefault();
-      const itemString = s.data("item");
-      const itemArr = duplicate(this["object"]["data"]["data"][itemString]);
-      const parent = s.parents(".arrayed-item");
-      const id = parent.data("key");
-
-      delete itemArr[id];
-      itemArr["-=" + id] = null;
-      console.log(itemArr);
-      await parent.remove();
-      await this.object.update({ "data.mounts": itemArr });
-    }
-  }
-
-  /**
-   * Listen for click events on an attribute control to modify the composition of attributes in the sheet
-   * @param {MouseEvent} event    The originating left click event
-   * @private
-   */
-  async _onClickArrayControl(event: any) {
-    let itemArr;
-    event.preventDefault();
-    const a = $(event.currentTarget);
-    const action = a.data("action");
-    const itemString = a.parents(".arrayed-item-container").data("item");
-    console.log(itemString);
-    const baseArr = resolve_dotpath(this, "object.data.data." + itemString);
-    if (!baseArr) {
-      itemArr = [];
-    } else {
-      itemArr = duplicate(baseArr);
-    }
-    const dataRef = "data." + itemString;
-
-    console.log("_onClickArrayControl()", action, itemArr, itemString);
-    if (action === "create") {
-      // I can't figure out a better way to prevent collisions
-      // Feel free to come up with something better
-      const keys = Object.keys(itemArr);
-      let newIndex = 0;
-      if (keys.length > 0) {
-        // @ts-ignore ??? Some old array shenaniganry 
-        newIndex = Math.max.apply(Math, keys) + 1;
-      }
-      itemArr[newIndex] = null;
-      await this.object.update({ [dataRef]: itemArr });
-    } else if (action === "delete") {
-      // delete tag
-      const parent = a.parents(".arrayed-item");
-      const id = parent.data("key");
-
-      // Since we're doing weird things with arrays, let's just split as needed
-      if (Array.isArray(itemArr)) {
-        // This is for arrays:
-        itemArr.splice(id, 1);
-      } else {
-        // For dict
-        delete itemArr[id];
-        itemArr["-=" + id] = null;
-
-        // So the question now becomes: why do all my arrays become dicts of objects?
-      }
-
-      this.object.update({ [dataRef]: itemArr });
-    }
-  }
-
-  /* -------------------------------------------- */
-
-  /** @override */
-  /*
-  async _updateObject(event: any, formData: any) {
-    console.log("DISABLED");
-    return;
-    formData = LancerItemSheet.arrayifyTags(formData, "data.tags");
-    formData = LancerItemSheet.arrayifyTags(formData, "data.core_system.tags");
-    formData = LancerItemSheet.arrayifyTags(formData, "data.traits");
-
-    if (this.item.data.type === EntryType.NPC_FEATURE) {
-      // Change image to match feature type, unless a custom image has been selected
-      const imgPath = "systems/lancer/assets/icons/";
-      const shortImg = formData["img"].slice(formData["img"].lastIndexOf("/") + 1);
-      if (
-        formData["img"].startsWith(imgPath) &&
-        Object.values(NPCFeatureIcons).includes(shortImg)
-      ) {
-        formData["img"] =
-          imgPath + NPCFeatureIcons[formData["data.feature_type"] as NpcFeatureType];
-      }
-
-      // Re-build NPC Weapon size and type
-      if (
-        this.item.data.type === EntryType.NPC_FEATURE &&
-        this.item.data.data.feature_type === NpcFeatureType.Weapon
-      ) {
-        formData[
-          "data.weapon_type"
-        ] = `${formData["data.weapon_size"]} ${formData["data.weapon_type"]}`;
-        delete formData["data.weapon_size"];
-      }
-    }
-
-    if (LANCER.weapon_items.includes(this.item.data.type)) {
-      // Safeguard against non-weapon NPC features
-      if (
-        this.item.data.type !== EntryType.NPC_FEATURE ||
-        (this.item.data.type === EntryType.NPC_FEATURE &&
-          this.item.data.data.feature_type === NpcFeatureType.Weapon)
-      ) {
-        // Build range and damage arrays
-        let damage = [];
-        let range = [];
-        let d_done = false;
-        let r_done = false;
-        let i = 0;
-        while (!d_done || (!r_done && i < 10)) {
-          if (formData.hasOwnProperty(`data.damage.${i}.type`)) {
-            damage.push({
-              type: formData[`data.damage.${i}.type`],
-              val: formData[`data.damage.${i}.val`],
-            });
-            delete formData[`data.damage.${i}.type`];
-            delete formData[`data.damage.${i}.val`];
-          } else d_done = true;
-
-          if (formData.hasOwnProperty(`data.range.${i}.type`)) {
-            range.push({
-              type: formData[`data.range.${i}.type`],
-              val: formData[`data.range.${i}.val`],
-            });
-            delete formData[`data.range.${i}.type`];
-            delete formData[`data.range.${i}.val`];
-          } else d_done = true;
-
-          i++;
-        }
-        formData["data.damage"] = damage;
-        formData["data.range"] = range;
-      }
-    }
-
-    if (this.item.data.type === EntryType.MECH_SYSTEM) {
-      const i_data = this.item.data.data as LancerMechSystemData;
-      // If the effect type has changed, initialize the effect structure
-      if (i_data.effect.effect_type !== formData["data.effect.effect_type"]) {
-        if (formData["data.effect.effect_type"] === EffectType.Charge) {
-          const rdata: RangeData = {
-            type: "None",
-            val: 0,
-          };
-          const ddata: DamageData = {
-            type: DamageType.Explosive,
-            val: "",
-          };
-          const charge: ChargeData = {
-            name: "",
-            charge_type: ChargeType.Grenade,
-            detail: "",
-            range: [duplicate(rdata), duplicate(rdata)],
-            damage: [duplicate(ddata), duplicate(ddata)],
-            tags: [],
-          };
-          formData["data.effect"] = {
-            effect_type: formData["data.effect.effect_type"],
-            name: "",
-            charges: [duplicate(charge), duplicate(charge)],
-            activation: ActivationType.None,
-            tags: [],
-          };
-        }
-      }
-    }
-
-    console.log(`${lp} Item sheet form data: `, formData);
-
-    // Update the Item
-    return this.object.update(formData);
-  }
-  */
 
   // Helper function for making fields effectively target multiple attributes
   _propagateMMData(formData: any) {
@@ -295,15 +102,14 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
     return this.item.img != formData["item.img"] || this.item.name != formData["item.name"];
   }
 
+
+
   /**
    * Implement the _updateObject method as required by the parent class spec
    * This defines how to update the subject of the form when the form is submitted
    * @private
    */
   async _updateObject(event: Event | JQuery.Event, formData: any): Promise<any> {
-    // hmm
-    console.log("UPDATE OBJECT CALLED FROM ITEM SHEET");
-
     // Fetch data, modify, and writeback
     let ct = await this.getDataLazy();
 
@@ -325,10 +131,12 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
     const data = super.getData() as LancerItemSheetData<T>; // Not fully populated yet!
 
     // Wait for preparations to complete
-    // data.mm = await this.item.data.derived.mmec_promise;
-    data.mm = await (this.item.data as FoundryRegItemData<T>).data.derived.mmec_promise;
+    let tmp_dat = this.item.data as LancerItem<T>["data"]; // For typing convenience
+    data.mm = await tmp_dat.data.derived.mmec_promise;
+    let lic_ref = tmp_dat.data.derived.license;
+    data.license = lic_ref ? (await data.mm.reg.resolve(data.mm.ctx, lic_ref)) : null;
 
-    console.log(`${lp} Item ctx: `, data);
+    console.log(`${lp} Rendering with following item ctx: `, data);
     this._currData = data;
     return data;
   }
@@ -341,10 +149,13 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
   
   // Write back our currently cached _currData, then refresh this sheet
   // Useful for when we want to do non form-based alterations
-  async _commitCurrMM(render: boolean = true) {
-    await this._currData?.mm.ent.writeback();
-    this._currData = null; // Reset
-    if(render) {
+  async _commitCurrMM() {
+    let cd = this._currData;
+    this._currData = null;
+    await cd?.mm.ent.writeback() ?? null;
+
+    // Compendium entries don't re-draw appropriately
+    if(this.item.compendium) {
       this.render();
     }
   }

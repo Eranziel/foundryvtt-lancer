@@ -1,7 +1,7 @@
 import { LANCER } from "../config";
-import { activate_general_controls, del_arr_key,  gentle_merge, is_ref, resolve_dotpath, safe_json_parse } from "../helpers/commons";
+import { HANDLER_activate_general_controls, del_arr_key,  gentle_merge, is_ref, resolve_dotpath, safe_json_parse } from "../helpers/commons";
 import { enable_native_dropping_mm_wrap, enable_simple_ref_dragging, enable_simple_ref_dropping, NativeDrop, ResolvedNativeDrop, resolve_native_drop } from "../helpers/dragdrop";
-import { HANDLER_openRefOnClick } from "../helpers/refs";
+import { HANDLER_activate_ref_dragging, HANDLER_openRefOnClick } from "../helpers/refs";
 import { LancerActorSheetData, LancerStatMacroData } from "../interfaces";
 import { FoundryRegActorData } from "../mm-util/foundry-reg";
 import { mm_wrap_actor } from "../mm-util/helpers";
@@ -43,17 +43,23 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     // Make refs clickable to open the item
     $(html).find(".ref.valid").on("click", HANDLER_openRefOnClick);
 
+    // Enable ref dragging
+    HANDLER_activate_ref_dragging(html);
+
+    // Everything below here is only needed if the sheet is editable
+    if (!this.options.editable) return;
+
     // Make +/- buttons work
     this._activatePlusMinusButtons(html);
 
-    // Enable ref dragging
-    this._activateRefDragging(html);
+    // Make refs droppable
+    this._activateRefDropping(html);
 
     // Enable native ref drag handlers
     this._activateNativeRefDropBoxes(html);
 
     // Enable general controls, so items can be deleted and such
-    activate_general_controls(html.find(".gen-control"), () => this.getDataLazy(), (_) => this._commitCurrMM());
+    HANDLER_activate_general_controls(html.find(".gen-control"), () => this.getDataLazy(), (_) => this._commitCurrMM());
   }
 
   _activatePlusMinusButtons(html: any) {
@@ -76,23 +82,10 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     incr.on("click", mod_handler(+1));
   }
 
-  // Enables dragging of ref items to slot
-  _activateRefDragging(html: JQuery) {
-    // Allow refs to be dragged arbitrarily
-    enable_simple_ref_dragging(html.find(".ref.valid"), (start_stop, src, evt) => {
-      // Highlight valid drop points
-      let target_selector = `.ref.drop-target.${src[0].dataset.type}`;
-
-      if(start_stop == "start") {
-        html.find(target_selector).addClass("highlight-can-drop");
-      } else {
-        html.find(target_selector).removeClass("highlight-can-drop");
-      }
-    }); 
-
-    // Allow every ".ref" spot to be dropped onto, with a payload of a JSON RegRef
+  _activateRefDropping(html: JQuery) {
+    // Allow every ".ref.drop-settable.set" spot to be dropped onto, with a payload of a JSON RegRef
     enable_simple_ref_dropping(
-      html.find(".ref.drop-target"), 
+      html.find(".ref.drop-settable"), 
       async (entry, evt) => {
         let data = await this.getDataLazy();
         let path = evt[0].dataset.path;
@@ -286,7 +279,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     }
 
     // And then do a mm level writeback, always
-    await this._commitCurrMM(false); // will be done by update, regardless
+    await this._commitCurrMM();
 
     // Return form data with any modifications
     return formData;
@@ -301,8 +294,8 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     const data = super.getData() as LancerActorSheetData<T>; // Not fully populated yet!
 
     // Drag up the mm context (when ready) to a top level entry in the sheet data
-    data.mm = await (this.actor.data as FoundryRegActorData<T>).data.derived.mmec_promise;
-    console.log(`${lp} Rendering(?) with following actor ctx: `, data);
+    data.mm = await (this.actor.data as LancerActor<T>["data"]).data.derived.mmec_promise;
+    console.log(`${lp} Rendering with following actor ctx: `, data);
     this._currData = data;
     return data;
   }
@@ -315,11 +308,9 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
 
   // Write back our currently cached _currData, then refresh this sheet
   // Useful for when we want to do non form-based alterations
-  async _commitCurrMM(render: boolean = true) {
-    await this._currData?.mm.ent.writeback();
-    this._currData = null; // Reset
-    if(render) {
-      this.render();
-    }
+  async _commitCurrMM() {
+    let cd = this._currData;
+    this._currData = null;
+    await cd?.mm.ent.writeback();
   }
 }

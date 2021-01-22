@@ -82,11 +82,13 @@ export function renderCompactTag(tag: TagData | null): string {
 /**
  * Handlebars partial to generate a list of tags for weapon/system previews.
  */
+/*
 export const compactTagList = `<div class="compact-tag-row">
   {{#each tags as |tag tkey|}}
   {{{compact-tag tag}}}
   {{/each}}
 </div>`;
+*/
 
 // An MM version of the above partial
 export function compact_tag_list(tags: TagInstance[]): string {

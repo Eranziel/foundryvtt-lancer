@@ -174,7 +174,7 @@ export async function import_cp(cp: IContentPack, progress_callback?: (done: num
   let total_items = 0;
   for(let type of Object.values(EntryType)) {
     let cat = tmp_lcp_reg.get_cat(type);
-    total_items += (await cat.list_raw()).length;
+    total_items += (await cat.raw_map()).size;
   }
 
   // Insinuate data to the actual foundry reg

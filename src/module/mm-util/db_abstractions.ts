@@ -445,8 +445,11 @@ export class CompendiumWrapper<T extends EntryType> extends EntityCollectionWrap
   async update(id: string, item: RegEntryTypes<T>): Promise<void> {
     let fi = await this.subget(id);
     if (fi) {
-      await fi.update({ data: item }, {}); 
-      // No need to flush cache - item was updated in place
+      await fi.update({ data: item }, {render: false});
+
+      // No need to flush entire cache - but we do need to re-fetch that item
+      let updated_entry = await this.pack().then(p => p.getEntity(id));
+      PackContentMapCache.soft_fetch(this.type)?.set(id, updated_entry);
     } else {
       console.error(`Failed to update item ${id} of type ${this.type} - item not found`);
     }
@@ -532,10 +535,10 @@ export async function get_pack(type: LancerItemType | LancerActorType): Promise<
 }
 
 /********* COMPENDIUM CACHING **********/
-const COMPENDIUM_CACHE_TIMEOUT = 4 * 1000;
+const COMPENDIUM_CACHE_TIMEOUT = 20 * 1000; // 20 seconds
 
 // Simple mechanism for caching fetchable values for a certain length of time
-class FetcherCache<A, T> {
+export class FetcherCache<A, T> {
   // The currently cached value
   private cached_values: Map<A, Promise<T>> = new Map();
   private cached_resolved_values: Map<A, T> = new Map();
@@ -604,7 +607,6 @@ class FetcherCache<A, T> {
 
 // Caches getContent() _as a map_ (wowee!). Idk if generating these maps are expensive but why tempt fate, lmao
 const PackContentMapCache = new FetcherCache(COMPENDIUM_CACHE_TIMEOUT, async (type: LancerItemType | LancerActorType) => {
-  console.log(`Generating timed cache for ${type} compendium entries`);
   let pack = await get_pack(type);
   let data = await pack.getContent();
   let map = new Map();

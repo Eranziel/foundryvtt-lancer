@@ -447,7 +447,8 @@ export class FoundryRegCat<T extends EntryType> extends RegCat<T> {
     for (let wrapper of await this.handler.enumerate()) {
       let reg_mmid = (wrapper.item as any).id;
       if (reg_mmid == mmid) {
-        return this.revive_func(this.parent, ctx, wrapper.id, wrapper.item);
+        // return this.revive_func(this.parent, ctx, wrapper.id, wrapper.item);
+        return this.revive_and_flag(wrapper, ctx);
       }
     }
     return null;
@@ -460,8 +461,12 @@ export class FoundryRegCat<T extends EntryType> extends RegCat<T> {
   }
 
   // Return the 'entries' array
-  async list_raw(): Promise<RegEntryTypes<T>[]> {
-    return (await this.handler.enumerate()).map(d => d.item);
+  async raw_map(): Promise<Map<string, RegEntryTypes<T>>> {
+    let map = new Map<string, RegEntryTypes<T>>();
+    for(let gr of await this.handler.enumerate()) {
+      map.set(gr.id, gr.item);
+    }
+    return map;
   }
 
   // Converts a getresult into an appropriately flagged live item

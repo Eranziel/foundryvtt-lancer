@@ -20,6 +20,7 @@ import * as mm from "machine-mind";
 import {
   EntryType,
   ITagTemplateData,
+  License,
   MountType,
   OpCtx,
   Pilot,
@@ -321,6 +322,9 @@ export type LancerItemSheetData<T extends EntryType> = {
 
   // reg ctx
   mm: MMEntityContext<T>;
+
+  // The license, if it could be recovered
+  license: License | null;
 };
 
 export type LancerActorSheetData<T extends EntryType> = {

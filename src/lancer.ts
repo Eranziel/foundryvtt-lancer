@@ -55,7 +55,6 @@ import { LancerNPCClassSheet } from "./module/item/npc-class-sheet";
 import { preloadTemplates } from "./module/preloadTemplates";
 import { registerSettings } from "./module/settings";
 import {
-  compactTagList,
   compact_tag_list,
   renderChunkyTag,
   renderCompactTag,
@@ -98,10 +97,12 @@ import {
   pilot_armor_slot,
   pilot_weapon_refview,
   pilot_gear_refview,
+  license_ref,
+  manufacturer_ref,
 } from "./module/helpers/item";
-import { editable_mm_ref_list_item as editable_mm_ref_list_item, clicker_num_input, clicker_stat_card, compact_stat_edit, compact_stat_view, overcharge_button, stat_edit_card, stat_edit_card_max, stat_view_card, } from "./module/helpers/actor";
+import { clicker_num_input, clicker_stat_card, compact_stat_edit, compact_stat_view, overcharge_button, stat_edit_card, stat_edit_card_max, stat_view_card, } from "./module/helpers/actor";
 import { HelperOptions } from "handlebars";
-import { manufacturer_ref, simple_mm_ref } from "./module/helpers/refs";
+import { editable_mm_ref_list_item, simple_mm_ref, mm_ref_portrait, mm_ref_list_append_slot } from "./module/helpers/refs";
 import { mech_loadout, pilot_slot } from "./module/helpers/loadout";
 
 const lp = LANCER.log_prefix;
@@ -321,7 +322,9 @@ Hooks.once("init", async function () {
   // Refs
   Handlebars.registerHelper("simple-ref", simple_mm_ref);
   Handlebars.registerHelper("ref-mm-list-item", editable_mm_ref_list_item);
+  Handlebars.registerHelper("ref-mm-list-item-append", mm_ref_list_append_slot);
   Handlebars.registerHelper("pilot-slot", pilot_slot);
+  Handlebars.registerHelper("ref-portrait-img", mm_ref_portrait);
 
   // ------------------------------------------------------------------------
   // Pilot stuff
@@ -331,15 +334,16 @@ Hooks.once("init", async function () {
 
   // ------------------------------------------------------------------------
   // Tags
-  Handlebars.registerHelper("compact-tag", renderCompactTag);
-  Handlebars.registerPartial("tag-list", compactTagList);
-  Handlebars.registerPartial("mm-tag-list", compact_tag_list);
-  Handlebars.registerHelper("chunky-tag", renderChunkyTag);
-  Handlebars.registerHelper("full-tag", renderFullTag);
+  // Handlebars.registerHelper("compact-tag", renderCompactTag);
+  // Handlebars.registerPartial("tag-list", compactTagList);
+  Handlebars.registerHelper("mm-tag-list", compact_tag_list);
+  // Handlebars.registerHelper("chunky-tag", renderChunkyTag);
+  // Handlebars.registerHelper("full-tag", renderFullTag);
 
   // ------------------------------------------------------------------------
   // License data
   Handlebars.registerHelper("ref-manufacturer", manufacturer_ref);
+  Handlebars.registerHelper("ref-license", license_ref);
 
   // ------------------------------------------------------------------------
   // Bonuses

@@ -2,7 +2,7 @@
 
   {{!-- Sheet Header --}}
   <header class="sheet-header card clipped-bot">
-    <img class="profile-img" src="{{actor.img}}" data-edit="actor.img" title="{{actor.name}}" height="100" width="100"/>
+    {{{ ref-portrait-img "actor.img" mm.ent }}}
     <div class="header-fields" style="grid-area: 1/1/2/5;">
       <h1 class="charname"><input class="header-field" name="actor.name" type="text" value="{{actor.name}}" placeholder="Name"/></h1>
     </div>

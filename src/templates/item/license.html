@@ -9,22 +9,17 @@
   </header>
 
   <div class="flexrow" style="flex-wrap: nowrap;">
-    {{#each item.data.content as |content rank|}}
+    {{#each mm.ent.Unlocks as |unlock_array rank|}}
     <div class="talent-level card clipped-bot flexcol" style="max-width: 33%; flex-shrink: 1">
-      <div class="arrayed-item-container licensed-container flexcol" style="background-color: #dbdbdb; justify-content: flex-start; flex-grow: unset;" data-item="content.{{rank}}">
+      <div class="licensed-container flexcol" style="background-color: #dbdbdb; justify-content: flex-start; flex-grow: unset;">
         <div>
           <span class="minor" style="align-content: center;">//RANK {{rank}}</span>
-          <a class="add-button clickable" data-action="create"  style="float: right; margin-right: 1em">+</a>
+          <!--<a class="add-button clickable" data-action="create"  style="float: right; margin-right: 1em">+</a>-->
         </div>
-        {{#each this as |licenced key|}}
-        <div class="flexrow arrayed-item" data-key="{{key}}">
-          <div class="remove-wrapper">
-            <input name="data.content.{{rank}}.{{key}}.text" value="{{this.text}}" data-dtype="String" class="major" style="background: transparent; max-width: 10ch"/>
-
-            <a class="remove-button fa fa-trash clickable" data-action="delete" style="float: right; margin-right: 11px; margin-top: 2px"></a>
-          </div>
-        </div>
+        {{#each unlock_array as |unlock unlock_index|}}
+            {{{ref-mm-list-item (concat "mm.ent.Unlocks." rank "." unlock_index) "splice" }}}
         {{/each}}
+        {{{ref-mm-list-item-append (concat "mm.ent.Unlocks." rank) "splice" }}}
       </div>
     </div>
     {{/each}}

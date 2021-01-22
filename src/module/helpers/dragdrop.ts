@@ -309,7 +309,7 @@ export function enable_simple_ref_dropping(
         let recon_ref = safe_json_parse(data);
         if(is_ref(recon_ref)) {
           let dest_type = dest[0].dataset.type;
-          return recon_ref.type == dest_type // Simply confirm same type. 
+          return (dest_type || "").includes(recon_ref.type) // Simply confirm same type. Using includes allows for multiple types
         }
         return false;
       },

@@ -25,7 +25,7 @@
       {{{compact-stat-view "cci cci-edef"                              "mm.ent.EDefense"  }}}
       {{{compact-stat-view "mdi mdi-arrow-right-bold-hexagon-outline"  "mm.ent.Speed"  }}}
     </div>
-    <img src="{{actor.img}}" data-edit="actor.img" title="{{actor.name}}" height="100" width="100"/>
+    {{{ ref-portrait-img "actor.img" mm.ent }}}
   </header>
 
   {{!-- Sheet Tab Navigation --}}
@@ -94,7 +94,7 @@
     </div>
 
     {{!-- Pilot Tactical Tab --}}
-    <div class="tab pilot" data-group="primary" data-tab="pilot">
+    <div class="tab pilot flexcol" data-group="primary" data-tab="pilot">
       <div class="card clipped">
         <div class="flexrow">
           {{{clicker-stat-card "LEVEL"       "mdi mdi-shield-outline"    "mm.ent.Level" }}}
@@ -108,8 +108,9 @@
         </div>
       </div>
 
-      {{!-- Pilot Loadout --}}
+      {{!-- Armor + Weapons --}}
       <div class="flexrow">
+        {{!-- Armor --}}
         <div class="flexcol card clipped">
           <h2 class="lancer-stat-header major clipped-top">ARMOR</h2>
           {{#each mm.ent.Loadout.Armor as |armor key|}}
@@ -117,6 +118,7 @@
           {{/each}}
         </div>
 
+        {{!-- Weapons --}}
         <div class="flexcol card clipped">
           <h2 class="lancer-stat-header major clipped-top">WEAPONS</h2>
           {{#each mm.ent.Loadout.Weapons as |weapon key|}}
@@ -124,16 +126,28 @@
           {{/each}}
         </div>
       </div>
-      <div class="card clipped">
-        <h2 class="lancer-title clipped-top">GEAR</h2>
-        {{#each mm.ent.Loadout.Gear as |gear key|}}
-          {{{pilot-gear-slot (concat "mm.ent.Loadout.Gear." key)}}}
-        {{/each}}
+
+      {{!-- Gear + Skills --}}
+      <div class="flexrow">
+        {{!-- Gear --}}
+        <div class="card clipped">
+          <h2 class="lancer-title clipped-top">GEAR</h2>
+          {{#each mm.ent.Loadout.Gear as |gear key|}}
+            {{{pilot-gear-slot (concat "mm.ent.Loadout.Gear." key)}}}
+          {{/each}}
+        </div>
+
+        {{!-- Skill Triggers --}}
+        <div class="card clipped">
+          <h2 class="lancer-title clipped">SKILL TRIGGERS</h2>
+          {{#each mm.ent.Skills as |skill index|}}
+            {{{ref-mm-list-item (concat "mm.ent.Skills." index) "delete" }}}
+          {{/each}}
+        </div>
       </div>
 
-      {{!-- Skill Triggers --}}
-      <div class="card clipped">
-        <h2 class="lancer-title clipped">SKILL TRIGGERS</h2>
+
+      <!--
         {{#if skills}}
         <ul class="items-list">
           {{#each skills as |skill key|}}
@@ -153,10 +167,35 @@
         </ul>
         {{/if}}
       </div>
+    -->
 
-      {{!-- Talents --}}
-      <div class="card clipped">
-        <h2 class="lancer-title clipped">TALENTS</h2>
+      {{!-- Talents + Core Bonuses + Licenses --}}
+      <div class="flexrow">
+        {{!-- Talents --}}
+        <div class="card clipped">
+          <h2 class="lancer-title clipped">TALENTS</h2>
+          {{#each mm.ent.Talents as |skill index|}}
+            {{{ref-mm-list-item (concat "mm.ent.Talents." index) "delete" }}}
+          {{/each}}
+        </div>
+
+        {{!-- Licenses --}}
+        <div class="card clipped">
+          <h2 class="lancer-title clipped-top">LICENSES</h2>
+          {{#each mm.ent.Licenses as |license index|}}
+            {{{ref-mm-list-item (concat "mm.ent.Licenses." index) "delete" }}}
+          {{/each}}
+        </div>
+
+        {{!-- Core Bonuses --}}
+        <div class="card clipped">
+          <h2 class="lancer-title clipped-top">CORE BONUSES</h2>
+          {{#each mm.ent.CoreBonuses as |core_bonus index|}}
+            {{{ref-mm-list-item (concat "mm.ent.CoreBonuses." index) "delete" }}}
+          {{/each}}
+        </div>
+      </div>
+      <!--
         {{#if talents}}
         <ul class="talents-list">
           {{#each talents as |talent key|}}
@@ -184,18 +223,16 @@
         </ul>
         {{/if}}
       </div>
+    -->
 
-      {{!-- Licenses --}}
-      <div class="card clipped">
-        <h2 class="lancer-title clipped-top">LICENSES</h2>
+        <!--
         {{#each licenses as |license key|}}
         <span class="item reaction" data-item-id="{{license._id}}"><img class="thumbnail" src="{{license.img}}" data-edit="{{license.img}}" title="{{license.name}}" height="10" width="10"/> {{license.name}} <a class="stats-control" data-action="delete"><i class="fas fa-trash"></i></a></span>
         {{/each}}
-      </div>
+        -->
 
-      {{!-- Core Bonuses --}}
-      <div class="card clipped">
-        <h2 class="lancer-title clipped-top">CORE BONUSES</h2>
+
+        <!--
         {{#if core_bonuses}}
         <ul class="items-list">
           {{#each core_bonuses as |core_bonus key|}}
@@ -212,7 +249,7 @@
         </ul>
         {{/if}}
       </div>
-    </div>
+    -->
 
     <!--
     {{!-- Mech Tab --}}

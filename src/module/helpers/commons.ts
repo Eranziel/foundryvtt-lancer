@@ -126,7 +126,7 @@ export function resolve_helper_dotpath(helper: HelperOptions, path: string): any
  * 
  * The data getter and commit func are used to retrieve the target data, and to save it back (respectively)
  */
-export function activate_general_controls<T>(
+export function HANDLER_activate_general_controls<T>(
     html: JQuery, 
     // Retrieves the data that we will operate on
     data_getter: (() => (Promise<T> | T)),
