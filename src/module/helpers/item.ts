@@ -194,124 +194,6 @@ export function show_range_array(ranges: Range[]): string {
 }
 
 /**
- * Handlebars helper for npc weapon damage selector, across all 3 tiers
- */
-export function npc_weapon_damage_selector(
-  dmg_arr: NPCDamageData[],
-  key: number | string,
-  data_target: string
-) {
-  if (typeof key == "string") key = Number.parseInt(key);
-  let dmg: Partial<NPCDamageData> = {};
-  if (dmg_arr && Array.isArray(dmg_arr)) {
-    dmg = dmg_arr[key];
-  }
-  // Default in
-  dmg = {
-    type: DamageType.Kinetic,
-    val: ["0", "0", "0"],
-    ...dmg,
-  };
-
-  function damage_selector(dmg_type: DamageType, key: number | string, data_target: string) {
-    const dtype = dmg_type!.toLowerCase();
-    let html = '<div class="flexrow flex-center" style="padding: 5px; flex-wrap: nowrap;">';
-
-    if (dmg_type) {
-      html += `<i class="cci cci-${dtype} i--m damage--${dtype}"></i>`;
-    }
-    html += `<select name="${data_target}.type" data-type="String" style="align-self: center;">
-      <option value="" ${!dmg_type ? "selected" : ""}>NONE</option>
-      <option value="${DamageType.Kinetic}" ${
-      dtype === DamageType.Kinetic.toLowerCase() ? "selected" : ""
-    }>KINETIC</option>
-      <option value="${DamageType.Energy}" ${
-      dtype === DamageType.Energy.toLowerCase() ? "selected" : ""
-    }>ENERGY</option>
-      <option value="${DamageType.Explosive}" ${
-      dtype === DamageType.Explosive.toLowerCase() ? "selected" : ""
-    }>EXPLOSIVE</option>
-      <option value="${DamageType.Heat}" ${
-      dtype === DamageType.Heat.toLowerCase() ? "selected" : ""
-    }>HEAT</option>
-      <option value="${DamageType.Burn}" ${
-      dtype === DamageType.Burn.toLowerCase() ? "selected" : ""
-    }>BURN</option>
-      <option value="${DamageType.Variable}" ${
-      dtype === DamageType.Variable.toLowerCase() ? "selected" : ""
-    }>VARIABLE</option>
-    </select>`;
-    return html;
-  }
-
-  let html = damage_selector(dmg.type!, key, data_target);
-
-  html += `</div>
-  <div class="flexrow flex-center">
-    <i class="cci cci-npc-tier-1 i--m i--dark"></i>
-    <input class="lancer-stat" name="${data_target}.val" value="${
-    dmg.val![0] ? dmg.val![0] : ""
-  }" data-dtype="String" style="max-width: 80%;"/>
-  </div>
-  <div class="flexrow flex-center">
-    <i class="cci cci-npc-tier-2 i--m i--dark"></i>
-    <input class="lancer-stat" name="${data_target}.val" value="${
-    dmg.val![1] ? dmg.val![1] : ""
-  }" data-dtype="String" style="max-width: 80%;"/>
-  </div>
-  <div class="flexrow flex-center">
-    <i class="cci cci-npc-tier-3 i--m i--dark"></i>
-    <input class="lancer-stat" name="${data_target}.val" value="${
-    dmg.val![2] ? dmg.val![2] : ""
-  }" data-dtype="String" style="max-width: 80%;"/>
-  </div>`;
-  return html;
-}
-
-/**
- * Handlebars helper for a weapon preview range stat
- * @param range {RangeData} The range stat to render.
- * @param key {number} The range's index.
- */
-export function weapon_range_preview(range: Range, key: number) {
-  let html = ``;
-  if (range.Value) {
-    if (key > 0) {
-      html += `<span class="flexrow" style="align-items: center; justify-content: center; max-width: min-content;"> // </span>`;
-    }
-    html += `
-    <div class="compact-range">
-      <i class="cci cci-${range.RangeType.toLowerCase()} i--m i--dark"></i>
-      <span class="medium">${range.Value}</span>
-    </div>`;
-  }
-  return html;
-}
-
-/**
- * Handlebars helper for a weapon preview damage stat
- * @param damage {DamageData | NPCDamageData} The damage stat to render.
- * @param tier {number} The tier number of the NPC, not applicable to pilot-type weapons.
- */
-export function weapon_damage_preview(damage: Damage /* | NPCDamageData */, tier?: number) {
-  let html = ``;
-  let val: number | string;
-  if (tier != undefined && Array.isArray((damage as any).val)) {
-    // val = (damage as NPCDamageData).val[tier];
-    val = "npcs not yet reimp";
-  } else {
-    val = damage.Value;
-  }
-  if (damage && damage.DamageType) {
-    html += `<div class="compact-damage">
-      <i class="cci cci-${damage.DamageType.toLowerCase()} i--m damage--${damage.DamageType.toLowerCase()}"></i>
-      <span class="medium">${val}</span>
-    </div>`;
-  }
-  return html;
-}
-
-/**
  * Handlebars helper for an NPC feature preview attack bonus stat
  * @param atk {number} Attack bonus to render
  */
@@ -341,51 +223,6 @@ export function npc_accuracy_preview(acc: number) {
   }
   return html;
 }
-
-// Previews an item posessed by a mech
-export function item_preview(item: LiveEntryTypes<LancerItemType>) {
-  /*
-  event.preventDefault();
-    const  a = event.currentTarget;
-    let entity = null;
-
-    // Target 1 - Compendium Link
-    if ( a.dataset.pack ) {
-      const pack = game.packs.get(a.dataset.pack);
-      let id = a.dataset.id;
-      if ( a.dataset.lookup ) {
-        if ( !pack.index.length ) await pack.getIndex();
-        const entry = pack.index.find(i => (i._id === a.dataset.lookup) || (i.name === a.dataset.lookup));
-        id = entry._id;
-      }
-      entity = id ? await pack.getEntity(id) : null;
-    }
-
-    // Target 2 - World Entity Link
-    else {
-      const cls = CONFIG[a.dataset.entity].entityClass;
-      entity = cls.collection.get(a.dataset.id);
-      if ( entity.entity === "Scene" && entity.journal ) entity = entity.journal;
-      if ( !entity.hasPerm(game.user, "LIMITED") ) {
-        return ui.notifications.warn(`You do not have permission to view this ${entity.entity} sheet.`);
-      }
-    }
-    if ( !entity ) return;
-
-    // Action 1 - Execute an Action
-    if ( entity.entity === "Macro" ) {
-      if ( !entity.hasPerm(game.user, "LIMITED") ) {
-        return ui.notifications.warn(`You do not have permission to use this ${entity.entity}.`);
-      }
-      return entity.execute();
-    }
-
-    // Action 2 - Render the Entity sheet
-    return entity.sheet.render(true);
-    */
-  return `<span>${item.Name}</span>`;
-}
-
 
 
 /**
@@ -428,45 +265,6 @@ export function system_type_selector(s_type: string, data_target: string) {
 }
 
 /**
- * Handlebars partial for effect type selector
- */
-export function effect_type_selector(e_type: string, data_target: string) {
-  /*
-  const e = e_type ? e_type.toLowerCase() : EffectType.Basic.toLowerCase();
-  return `<select name="${data_target}" data-type="String" style="height: 2em;float: right" >
-    <option value="${EffectType.Basic}" ${
-    e === EffectType.Basic.toLowerCase() ? "selected" : ""
-  }>BASIC</option>
-    <option value="${EffectType.AI}" ${
-    e === EffectType.AI.toLowerCase() ? "selected" : ""
-  }>AI</option>
-    <option value="${EffectType.Charge}" ${
-    e === EffectType.Charge.toLowerCase() ? "selected" : ""
-  }>CHARGE</option>
-    <option value="${EffectType.Bonus}" ${
-    e === EffectType.Bonus.toLowerCase() ? "selected" : ""
-  }>BONUS</option>
-    <option value="${EffectType.Deployable}" ${
-    e === EffectType.Deployable.toLowerCase() ? "selected" : ""
-  }>DEPLOYABLE</option>
-    <option value="${EffectType.Drone}" ${
-    e === EffectType.Drone.toLowerCase() ? "selected" : ""
-  }>DRONE</option>
-    <option value="${EffectType.Protocol}" ${
-    e === EffectType.Protocol.toLowerCase() ? "selected" : ""
-  }>PROTOCOL</option>
-    <option value="${EffectType.Reaction}" ${
-    e === EffectType.Reaction.toLowerCase() ? "selected" : ""
-  }>REACTION</option>
-    <option value="${EffectType.Tech}" ${
-    e === EffectType.Tech.toLowerCase() ? "selected" : ""
-  }>TECH</option>
-  </select>`;
-  */
-  return "<span>effects are deprecated</span>";
-}
-
-/**
  * Handlebars partial for a mech system preview card.
  */
 export const mech_system_preview = `<li class="card clipped mech-system-compact item" data-item-id="{{system._id}}">
@@ -504,50 +302,6 @@ export const mech_system_preview = `<li class="card clipped mech-system-compact 
 {{/with}}
 {{> tag-list tags=system.data.tags}}
 </li>`;
-
-/**
- * Handlebars partial for non-editable Mech Trait
- */
-export const mech_trait_preview = `<div class="lancer-mech-trait-header medium clipped-top" style="grid-area: 1/1/2/2">
-  <i class="cci cci-trait i--m i--light"> </i>
-  <span class="major">{{trait.name}}</span>
-</div>
-<div class="effect-text" style="grid-area: 2/1/3/2">{{{trait.description}}}</div>`;
-
-/**
- * Handlebars partial for non-editable Core System
- */
-export const core_system_preview = `<div class="card clipped frame-core flexcol">
-  <div class="lancer-core-sys-header medium clipped-top">
-    <i></i>
-    <div class="major">{{csys.name}}</div>
-    <div class="medium" style="justify-self: right;"> // CORE SYSTEM</div>
-  </div>
-  {{#if csys.description}}
-  <div class="desc-text">{{{csys.description}}}</div>
-  {{/if}}
-  {{#if csys.passive_name}}
-  <div class="card clipped">
-    <div class="lancer-core-sys-header medium clipped-top" style="display:flex">
-      <i class="mdi mdi-circle-expand i--m i--light "> </i>
-      <a class="core-passive-macro macroable"><i class="mdi mdi-message"></i></a>
-      <div class="medium" style="flex-grow: 1">{{csys.passive_name}}</div>
-      <div class="medium" style="justify-self: right;"> // PASSIVE</div>
-    </div>
-    <div class="effect-text">{{{csys.passive_effect}}}</div>
-  </div>
-  {{/if}}
-  <div class="card clipped">
-    <div class="lancer-core-sys-header medium clipped-top" style="display:flex">
-      <i class="cci cci-corebonus i--m i--light" > </i>
-      <a class="core-active-macro macroable"><i class="mdi mdi-message"></i></a>
-      <div class="medium" style="flex-grow: 1">{{csys.active_name}}</div>
-      <div class="medium" style="justify-self: right;"> // ACTIVE</div>
-    </div>
-    <div class="effect-text">{{{csys.active_effect}}}</div>
-    {{> tag-list tags=csys.tags}}
-  </div>
-</div>`;
 
 export function npc_feature_preview(npc_feature: LancerNpcFeatureData, tier: number) {
   let body = ``;

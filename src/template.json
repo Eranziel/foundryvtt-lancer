@@ -223,9 +223,70 @@
       "dark": "",
       "quote": ""
     },
-    "npc_class": {},
-    "npc_template": {},
-    "npc_feature": {},
+    "npc_class": {
+      "id": "",
+      "name": "",
+      "role": "",
+      "info": {
+        "flavor": "",
+        "tactics": ""
+      },
+      "power": 100,
+
+      "base_features": [],
+      "optional_features": [],
+      "stats": {
+        "activations": [1, 1, 1],
+        "armor": [1, 1, 1],
+        "hp": [10, 10, 10],
+        "evade": [10, 10, 10],
+        "edef": [10, 10, 10],
+        "heatcap": [5, 5, 5],
+        "speed": [5, 5, 5],
+        "sensor": [10, 10, 10],
+        "save": [10, 10, 10],
+        "hull": [0, 0, 0],
+        "agility": [0, 0, 0],
+        "systems": [0, 0, 0],
+        "engineering": [0, 0, 0],
+        "size": [[1], [1], [1]],
+        "structure": [1, 1, 1],
+        "stress": [1, 1, 1]
+      }
+    },
+    "npc_template": {
+      "name": "",
+      "description": "",
+      "power": 100,
+
+      "base_features": [],
+      "optional_features": []
+    },
+    "npc_feature": {
+      "id": "",
+      "name": "",
+      "origin": {
+        "type": "Class",
+        "name": "Some Class",
+        "base": true
+      },
+      "effect": "",
+      "bonus": null,
+      "override": null,
+      "tags": [],
+      "type": "Trait",
+      "charged": true,
+      "uses": 0,
+
+      "weapon_type": "",
+      "damage": [[], [], []],
+      "range": [],
+      "on_hit": "",
+      "accuracy": [0, 0, 0],
+      "attack_bonus": [0, 0, 0],
+      "trigger": "",
+      "tech_type": "Quick"
+    },
     "weapon_mod": {
         "added_tags": [],
         "added_damage": [],

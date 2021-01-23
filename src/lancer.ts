@@ -76,22 +76,15 @@ import {
 } from "./module/helpers/commons";
 import { is_loading } from "machine-mind/dist/classes/mech/EquipUtil";
 import {
-  item_preview,
   weapon_size_selector,
   weapon_type_selector,
   range_editor,
-  npc_weapon_damage_selector,
-  weapon_range_preview,
-  weapon_damage_preview,
   npc_attack_bonus_preview,
   npc_accuracy_preview,
   mech_weapon_refview,
   system_type_selector,
-  effect_type_selector,
   mech_system_preview,
   npc_feature_preview,
-  core_system_preview,
-  mech_trait_preview,
   damage_editor,
   bonus_array_editor,
   pilot_armor_slot,
@@ -358,9 +351,6 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("wpn-type-sel", weapon_type_selector);
   Handlebars.registerHelper("wpn-range-sel", range_editor);
   Handlebars.registerHelper("wpn-damage-sel", damage_editor);
-  Handlebars.registerHelper("npc-wpn-damage-sel", npc_weapon_damage_selector);
-  Handlebars.registerHelper("wpn-range", weapon_range_preview);
-  Handlebars.registerHelper("wpn-damage", weapon_damage_preview);
   Handlebars.registerHelper("npcf-atk", npc_attack_bonus_preview);
   Handlebars.registerHelper("npcf-acc", npc_accuracy_preview);
   Handlebars.registerHelper("mech-weapon-preview", mech_weapon_refview);
@@ -368,7 +358,6 @@ Hooks.once("init", async function () {
   // ------------------------------------------------------------------------
   // Systems
   Handlebars.registerHelper("sys-type-sel", system_type_selector);
-  Handlebars.registerHelper("eff-type-sel", effect_type_selector);
   Handlebars.registerHelper("act-icon", action_type_icon);
   Handlebars.registerHelper("act-type-sel", action_type_selector);
   Handlebars.registerHelper("chg-type-sel", charge_type_selector);
@@ -402,8 +391,7 @@ Hooks.once("init", async function () {
 
   // ------------------------------------------------------------------------
   // Frames
-  Handlebars.registerPartial("core-system", core_system_preview);
-  Handlebars.registerPartial("mech-trait", mech_trait_preview);
+  // Handlebars.registerPartial("core-system", core_system_preview);
 
   // ------------------------------------------------------------------------
   // Pilot components
