@@ -2,9 +2,10 @@ import {
   EntryType,
     OpCtx,
   RegEntry,
+  RegRef,
 } from "machine-mind";
-import { LancerActor, LancerActorType } from "../actor/lancer-actor";
-import { LancerItem, LancerItemType } from "../item/lancer-item";
+import { is_actor_type, LancerActor, LancerActorType } from "../actor/lancer-actor";
+import { is_item_type, LancerItem, LancerItemType } from "../item/lancer-item";
 import { FoundryReg } from "../mm-util/foundry-reg";
 import { MMEntityContext, mm_wrap_actor, mm_wrap_item } from "../mm-util/helpers";
 import { gentle_merge, is_ref, safe_json_parse } from "./commons";
@@ -271,6 +272,43 @@ export async function resolve_native_drop(event_data: string): Promise<ResolvedN
 
     // All else fails
     return null;
+}
+
+// Turns a regref into a native drop, if possible
+export function convert_ref_to_native<T extends EntryType>(ref: RegRef<T>): NativeDrop | null {
+  if(!ref.type || is_item_type(ref.type)) {
+    let src = ref.reg_name.split("|")[0];
+    if(src == "world") {
+      return {
+        type: "Item",
+        id: ref.id,
+      }
+    } else if(ref.type) { // It's a typed compendium ref
+      return {
+        type: "Item",
+        id: ref.id,
+        pack: "world." + ref.type
+      }
+    } else {
+      return null; // Couldn't make an explicit native item ref
+    }
+  } else if(is_actor_type(ref.type)) {
+    let src = ref.reg_name.split("|")[1];
+    if(src == "world") {
+      return {
+        type: "Actor",
+        id: ref.id,
+      }
+    } else { // It's a typed compendium ref
+      return {
+        type: "Actor",
+        id: ref.id,
+        pack: "world." + ref.type
+      }
+    } 
+  } else {
+    return null;
+  }
 }
 
 // Wraps a call to enable_dropping to specifically handle RegRef drops.

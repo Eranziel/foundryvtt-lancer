@@ -1,8 +1,8 @@
 <form class="{{cssClass}} lancer-sheet" autocomplete="off">
   {{!-- Sheet Header --}}
   <header class="sheet-header card clipped-bot">
-    <div flexgrow">
-      <h1 class="charname"><input class="header-field" name="actor.name" type="text" value="{{actor.name}}" placeholder="Name"/></h1>
+    <div grow">
+      <h1 class="charname"><input class="header-field" name="name" type="text" value="{{actor.name}}" placeholder="Name"/></h1>
     </div>
     {{{ ref-portrait-img actor.img "img" mm.ent }}}
   </header>

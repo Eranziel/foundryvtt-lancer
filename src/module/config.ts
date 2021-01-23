@@ -237,7 +237,7 @@ const ENTITY_ICONS = {
   [EntryType.MECH]: "systems/lancer/assets/icons/mech.svg",
   [EntryType.MECH_SYSTEM]: "systems/lancer/assets/icons/mech_system.svg",
   [EntryType.MECH_WEAPON]: "systems/lancer/assets/icons/mech_weapon.svg",
-  [EntryType.NPC]: "systems/lancer/assets/icons/npc.svg",
+  [EntryType.NPC]: "systems/lancer/assets/icons/npc_class.svg",
   [EntryType.NPC_CLASS]: "systems/lancer/assets/icons/npc_class.svg",
   [EntryType.NPC_FEATURE]: "systems/lancer/assets/icons/npc_feature.svg",
   [EntryType.NPC_TEMPLATE]: "systems/lancer/assets/icons/npc_template.svg",

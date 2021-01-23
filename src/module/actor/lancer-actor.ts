@@ -15,6 +15,8 @@ import { LancerHooks, LancerSubscription } from "../helpers/hooks";
 import { mm_wrap_actor } from "../mm-util/helpers";
 import { system_ready } from "../../lancer";
 import { LancerItemType } from "../item/lancer-item";
+import { resolve_helper_dotpath, selected } from "../helpers/commons";
+import { HelperOptions } from "handlebars";
 const lp = LANCER.log_prefix;
 
 export function lancerActorInit(data: any) {
@@ -359,24 +361,4 @@ export const LancerActorTypes: LancerActorType[] = [EntryType.MECH, EntryType.DE
 
 export function is_actor_type(type: LancerActorType | LancerItemType): type is LancerActorType {
   return LancerActorTypes.includes(type as LancerActorType);
-}
-
-/* ------------------------------------ */
-/* Handlebars Helpers                    */
-/* ------------------------------------ */
-
-/**
- * Handlebars helper for an NPC tier selector
- * @param tier The tier ID string
- */
-export function npc_tier_selector(tier: number) {
-  let template = `<select id="tier-type" class="tier-control" data-action="update">
-    <option value="npc-tier-1" ${tier === 1 ? "selected" : ""}>TIER 1</option>
-    <option value="npc-tier-2" ${tier === 2 ? "selected" : ""}>TIER 2</option>
-    <option value="npc-tier-3" ${tier === 3 ? "selected" : ""}>TIER 3</option>
-    <option value="npc-tier-custom" ${
-      tier != 1 && tier != 2 && tier != 3 ? "selected" : ""
-    }>CUSTOM</option>
-  </select>`;
-  return template;
 }

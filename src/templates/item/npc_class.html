@@ -1,7 +1,7 @@
 <form class="{{cssClass}} lancer-sheet" autocomplete="off">
   {{!-- Sheet Header --}}
   <header class="sheet-header card clipped-bot">
-    <div class="flexcol flexgrow">
+    <div class="flexcol grow">
       <h1 class="charname"><input class="header-field" name="name" type="text" value="{{item.name}}" placeholder="Name"/></h1>
     </div>
     {{{ ref-portrait-img item.img "img" mm.ent }}}
@@ -41,7 +41,7 @@
     </div>
 
     {{#each mm.ent.BaseFeatures as |feature feature_index|}}
-        {{{ref-mm-controllable-item (concat "mm.ent.BaseFeatures." feature_index) "splice" }}}
+        {{{ref-mm-controllable-item-native (concat "mm.ent.BaseFeatures." feature_index) "splice" }}}
     {{/each}}
     {{{ref-mm-list-item-append "mm.ent.BaseFeatures" "npc_feature"}}}
   </div>
@@ -52,7 +52,7 @@
     </div>
 
     {{#each mm.ent.OptionalFeatures as |feature feature_index|}}
-        {{{ref-mm-controllable-item (concat "mm.ent.OptionalFeatures." feature_index) "splice" }}}
+        {{{ref-mm-controllable-item-native (concat "mm.ent.OptionalFeatures." feature_index) "splice" }}}
     {{/each}}
     {{{ref-mm-list-item-append "mm.ent.OptionalFeatures" "npc_feature"}}}
   </div>

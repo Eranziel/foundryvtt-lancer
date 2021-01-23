@@ -60,9 +60,9 @@ function all_weapon_mount_view(mech_path: string, loadout_path: string, helper: 
     <span class="lancer-loadout-header major">
         MOUNTED WEAPONS
         <a class="gen-control" data-action="append" data-path="${loadout_path}.WepMounts" data-action-value="(struct)wep_mount" style="float: right">+</a>
-        <a class="gen-control" data-action="set" data-path="${loadout_path}.WepMounts" data-action-value="(struct)empty_array" style="float: right"><i class="fas fa-redo"></i></a>
+        <a class="reset-all-weapon-mounts-button" data-path="${loadout_path}.WepMounts" style="float: right"><i class="fas fa-redo"></i></a>
     </span>
-    <div class="wraprow triple">
+    <div class="wraprow double">
       ${weapon_mounts.join("")}
     </div>
     `;

@@ -227,19 +227,24 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
       needs_update = true;
     }
 
-    // Update token image if it matches the old actor image
-    else if (this.actor.data.img === token["img"] && this.actor.img !== formData["actor.img"]) {
-      formData["actor.token.img"] = formData["actor.img"];
+    // Update token image if it matches the old actor image - keep in sync
+    else if (this.actor.data.img === token["img"] && this.actor.img !== formData["img"]) {
+      formData["actor.token.img"] = formData["img"];
       needs_update = true;
     } // Otherwise don't update image
 
     // Need to update if name changed
-    if (this.actor.name != formData["actor.name"]) {
+    if (this.actor.name != formData["name"]) {
       needs_update = true;
     }
 
+    // Numeric selects are annoying
+    if("npctier" in formData) {
+      formData["mm.ent.Tier"] = Number.parseInt(formData["npctier"]) || 1;
+    }
+
     // Do push down name changes
-    formData["mm.ent.Name"] = formData["actor.name"];
+    formData["mm.ent.Name"] = formData["name"];
     return needs_update;
   }
 
@@ -252,22 +257,23 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     // Fetch the curr data
     let ct = await this.getDataLazy();
 
-    // Automatically propagate fields that should be set to multiple places
-    let should_top_update = this._propagateMMData(formData);
+    // Automatically propagate fields that should be set to multiple places, and determine if we need to update anything besides mm ent
+    let need_top_update = this._propagateMMData(formData);
 
-    // Locally update our working data
-    gentle_merge(ct, formData);
-
-    // Update top level. Handles name + token changes, etc
-    if (should_top_update) {
-      await this.actor.update(ct.actor);
-    }
-
-    // And then do a mm level writeback, always
-    await this._commitCurrMM();
-
-    // Return form data with any modifications
-    return formData;
+    // Do a separate update depending on mm data
+    if (need_top_update) {
+      let top_update = {} as any;
+      for(let key of Object.keys(formData)) {
+        if(!key.includes("mm.ent")) {
+          top_update[key] = formData[key];
+        }
+      }
+      // await this.actor.update(top_update, {});
+      await this.actor.update(top_update, {render: false});
+    }//  else {
+      gentle_merge(ct, formData);
+      await this._commitCurrMM();
+    // }
   }
 
   /**
@@ -294,8 +300,14 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
   // Write back our currently cached _currData, then refresh this sheet
   // Useful for when we want to do non form-based alterations
   async _commitCurrMM() {
+    console.log("Committing ", this._currData);
     let cd = this._currData;
     this._currData = null;
-    await cd?.mm.ent.writeback();
+    await cd?.mm.ent.writeback() ?? null;
+
+    // Compendium entries don't re-draw appropriately
+    if(this.actor.compendium) {
+      this.render();
+    }
   }
 }

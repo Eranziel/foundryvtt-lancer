@@ -2,7 +2,7 @@
   
   {{!-- Sheet Header --}}
   <header class="sheet-header card clipped-bot">
-    <h1 class="charname flexgrow"><input class="header-field" name="name" type="text" value="{{item.name}}" placeholder="Name"/></h1>
+    <h1 class="charname grow"><input class="header-field" name="name" type="text" value="{{item.name}}" placeholder="Name"/></h1>
     {{{ ref-portrait-img item.img "img" mm.ent }}}
   </header>
 
@@ -17,7 +17,7 @@
             <span class="minor" style="align-content: center;">//RANK {{rank}}</span>
           </div>
           {{#each unlock_array as |unlock unlock_index|}}
-              {{{ref-mm-controllable-item (concat "mm.ent.Unlocks." rank "." unlock_index) "splice" }}}
+              {{{ref-mm-controllable-item-native (concat "mm.ent.Unlocks." rank "." unlock_index) "splice" }}}
           {{/each}}
           {{{ref-mm-list-item-append (concat "mm.ent.Unlocks." rank)  "frame mech_system mech_weapon weapon_mod"}}}
         </div>

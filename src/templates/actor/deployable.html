@@ -2,10 +2,10 @@
 
   {{!-- Sheet Header --}}
   <header class="sheet-header card clipped-bot">
-    <img class="profile-img" src="{{actor.img}}" data-edit="img" title="{{actor.name}}" height="100" width="100"/>
-    <div class="header-fields" style="grid-area: 1/1/2/5;">
+    <div class="header-fields">
       <h1 class="charname"><input class="header-field" name="name" type="text" value="{{actor.name}}" placeholder="Name"/></h1>
     </div>
+    {{{ ref-portrait-img actor.img "img" mm.ent }}}
   </header>
 
   <div class="deployable-stats" style="display:flex; justify-content: center">
@@ -15,9 +15,9 @@
         <span class="major">HP</span>
       </div>
       <div class="flexrow" style="align-self: center;">
-        <input class="lancer-stat major" type="number" name="data.hp.value" value="{{data.hp.value}}" data-dtype="Number"/>
+        <input class="lancer-stat major" type="number" name="mm.ent.CurrentHP" value="{{mm.ent.CurrentHP}}" data-dtype="Number"/>
         <span class="medium" style="max-width: min-content;" >/</span>
-        <input class="lancer-stat major" type="number" name="data.hp.max" value="{{data.hp.max}}" data-dtype="Number"/>
+        <input class="lancer-stat major" type="number" name="mm.ent.MaxHP" value="{{mm.ent.MaxHP}}" data-dtype="Number"/>
       </div>
     </div>
     <!--

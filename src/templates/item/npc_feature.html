@@ -65,8 +65,8 @@
 
     {{!-- Tech --}}
     {{#if (eq mm.ent.FeatureType "Tech")}}
-    <div style="grid-template: 2em 10em 1fr / 1fr 1fr; display: grid;">
-      <div style="grid-area: 1/1/2/3; margin-left: 30px;">
+    <div class="wraprow triple">
+      <div>
         <span class="medium">TECH</span>
         <select name="mm.ent.TechType" data-type="String" style="align-self: center;">
           {{#select mm.ent.TechType}}
@@ -75,13 +75,11 @@
           {{/select}}
         </select>
       </div>
-      <div class="flexrow card clipped" style="grid-area: 2/1/3/2;">
-        {{{npc-clicker-stat-card "ATTACK BONUS" "mm.ent.AttackBonus"}}}
-        {{{npc-clicker-stat-card "ACCURACY" "mm.ent.Accuracy"}}}
-        <div class="flexcol card clipped" style="grid-area: 3/1/4/3;">
-          <span class="lancer-stat-header major clipped-top">EFFECT</span>
-          {{editor content=mm.ent.Effect target="mm.ent.Effect" button=true editable=editable}}
-        </div>
+      {{{npc-clicker-stat-card "ATTACK BONUS" "mm.ent.AttackBonus"}}}
+      {{{npc-clicker-stat-card "ACCURACY" "mm.ent.Accuracy"}}}
+      <div class="flexcol card clipped full">
+        <span class="lancer-stat-header major clipped-top">EFFECT</span>
+        {{editor content=mm.ent.Effect target="mm.ent.Effect" button=true editable=editable}}
       </div>
     </div>
     {{/if}}
@@ -95,7 +93,7 @@
         <input name="mm.ent.WepType" type="text" value="{{mm.ent.WepType}}" placeholder="Weapon Type"/>
       </div>
 
-      <div class="double" />
+      <div class="double"> </div>
 
       {{!-- Range --}}
       <div class="flexcol card clipped">
@@ -109,14 +107,10 @@
       </div>
 
       {{!-- Attack Bonus --}}
-      <div class="flexcol card clipped">
-        {{{npc-clicker-stat-card "ATTACK BONUS" "mm.ent.AttackBonus"}}}
-      </div>
+      {{{npc-clicker-stat-card "ATTACK BONUS" "mm.ent.AttackBonus"}}}
 
       {{!-- Accuracy --}}
-      <div class="flexcol card clipped">
-        {{{npc-clicker-stat-card "ACCURACY" "mm.ent.Accuracy"}}}
-      </div>
+      {{{npc-clicker-stat-card "ACCURACY" "mm.ent.Accuracy"}}}
 
       {{!-- All Damages --}}
       {{#each mm.ent.Damage as |tier_damage_array tier_index|}}

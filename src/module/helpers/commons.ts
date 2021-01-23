@@ -32,7 +32,7 @@ export function selected(truthytest: any): string {
   return truthytest ? "selected" : "";
 }
 
-/** Performs a similar behavior to the foundry inplace mergeObject, but is more forgiving for arrays, is universally non-destructive, and doesn't create new fields.
+/** Performs a similar behavior to the foundry inplace mergeObject, but is more forgiving for arrays, is universally non-destructive, and doesn't create new fields (but will create new indices).
  * Expects flattened data. Does not go recursive
  */
 export function gentle_merge(dest: any, flat_data: any) {
@@ -49,8 +49,9 @@ export function gentle_merge(dest: any, flat_data: any) {
 
     // Drill down to reach tail, if we can
     for (let p of leading) {
-      if (curr === undefined) break;
-      curr = curr[p];
+      let next = curr[p];
+
+      curr = next;
     }
 
     // If curr still exists and is an array or object, attempt the assignment
@@ -271,6 +272,8 @@ async function control_structs(key: string, ctx: MMEntityContext<any>): Promise<
   switch(key) {
     case "empty_array":
       return [true, []];
+    case "npc_stat_array":
+      return [true, [0, 0, 0]];
     case "frame_trait":
       let trait = new FrameTrait(ctx.reg, ctx.ctx, funcs.defaults.FRAME_TRAIT());
       return [true, await trait.ready()];

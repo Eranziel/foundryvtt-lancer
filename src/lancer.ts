@@ -13,52 +13,26 @@ import { LancerGame } from "./module/lancer-game";
 import {
   LancerActor,
   lancerActorInit,
-  npc_tier_selector,
 } from "./module/actor/lancer-actor";
 import { LancerItem, lancerItemInit } from "./module/item/lancer-item";
 
 import {
   action_type_icon,
   action_type_selector,
-  ai_effect_preview,
-  basic_effect_preview,
-  bonus_effect_preview,
-  charge_effect_preview,
-  charge_type_selector,
-  deployable_effect_preview,
-  drone_effect_preview,
-  effect_preview,
-  generic_effect_preview,
-  invade_option_preview,
-  npc_reaction_effect_preview,
-  npc_system_effect_preview,
-  npc_tech_effect_preview,
-  npc_trait_effect_preview,
-  npc_weapon_effect_preview,
-  offensive_effect_preview,
-  profile_effect_preview,
-  protocol_effect_preview,
-  reaction_effect_preview,
-  tech_effect_preview,
 } from "./module/item/effects";
 
 // Import applications
 import { LancerPilotSheet } from "./module/actor/pilot-sheet";
-import { LancerNPCSheet } from "./module/actor/npc-sheet";
 import { LancerDeployableSheet } from "./module/actor/deployable-sheet";
 import { LancerMechSheet } from "./module/actor/mech-sheet";
 import { LancerItemSheet } from "./module/item/item-sheet";
 import { LancerFrameSheet } from "./module/item/frame-sheet";
-import { LancerNPCClassSheet } from "./module/item/npc-class-sheet";
 
 // Import helpers
 import { preloadTemplates } from "./module/preloadTemplates";
 import { registerSettings } from "./module/settings";
 import {
-  compact_tag_list,
-  renderChunkyTag,
-  renderCompactTag,
-  renderFullTag,
+  compact_tag_list
 } from "./module/item/tags";
 import * as migrations from "./module/migration";
 import { addLCPManager } from "./module/apps/lcpManager";
@@ -93,10 +67,11 @@ import {
   license_ref,
   manufacturer_ref,
 } from "./module/helpers/item";
-import { clicker_num_input, clicker_stat_card, compact_stat_edit, compact_stat_view, npc_clicker_stat_card, overcharge_button, stat_edit_card, stat_edit_card_max, stat_view_card, } from "./module/helpers/actor";
+import { clicker_num_input, clicker_stat_card, compact_stat_edit, compact_stat_view, npc_clicker_stat_card, npc_tier_selector, overcharge_button, stat_edit_card, stat_edit_card_max, stat_view_card, } from "./module/helpers/actor";
 import { HelperOptions } from "handlebars";
-import { editable_mm_ref_list_item, simple_mm_ref, mm_ref_portrait, mm_ref_list_append_slot } from "./module/helpers/refs";
+import { editable_mm_ref_list_item, simple_mm_ref, mm_ref_portrait, mm_ref_list_append_slot, editable_mm_ref_list_item_native } from "./module/helpers/refs";
 import { mech_loadout, pilot_slot } from "./module/helpers/loadout";
+import { LancerNPCSheet } from "./module/actor/npc-sheet";
 
 const lp = LANCER.log_prefix;
 
@@ -112,7 +87,6 @@ Hooks.once("init", async function () {
   (game as LancerGame).lancer = {
     applications: {
       LancerPilotSheet,
-      LancerNPCSheet,
       LancerDeployableSheet,
       LancerItemSheet,
     },
@@ -317,6 +291,7 @@ Hooks.once("init", async function () {
   // Refs
   Handlebars.registerHelper("simple-ref", simple_mm_ref);
   Handlebars.registerHelper("ref-mm-controllable-item", editable_mm_ref_list_item);
+  Handlebars.registerHelper("ref-mm-controllable-item-native", editable_mm_ref_list_item_native);
   Handlebars.registerHelper("ref-mm-list-item-append", mm_ref_list_append_slot);
   Handlebars.registerHelper("pilot-slot", pilot_slot);
   Handlebars.registerHelper("ref-portrait-img", mm_ref_portrait);
@@ -360,11 +335,11 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("sys-type-sel", system_type_selector);
   Handlebars.registerHelper("act-icon", action_type_icon);
   Handlebars.registerHelper("act-type-sel", action_type_selector);
-  Handlebars.registerHelper("chg-type-sel", charge_type_selector);
   Handlebars.registerPartial("mech-system-preview", mech_system_preview);
 
   // ------------------------------------------------------------------------
   // Effects
+  /*
   Handlebars.registerHelper("eff-preview", effect_preview);
   Handlebars.registerPartial("generic-eff-preview", generic_effect_preview);
   Handlebars.registerHelper("basic-eff-preview", basic_effect_preview);
@@ -388,6 +363,7 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("npc-trait-preview", npc_trait_effect_preview);
   Handlebars.registerHelper("npc-tech-preview", npc_tech_effect_preview);
   Handlebars.registerHelper("npc-wpn-preview", npc_weapon_effect_preview);
+  */
 
   // ------------------------------------------------------------------------
   // Frames
@@ -404,6 +380,7 @@ Hooks.once("init", async function () {
   // ------------------------------------------------------------------------
   // NPC components
   Handlebars.registerHelper("tier-selector", npc_tier_selector);
+  Handlebars.registerHelper("npc-feat-preview", npc_feature_preview);
 });
 
 /* ------------------------------------ */

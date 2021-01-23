@@ -23,10 +23,12 @@ import {
   Mech,
   Manufacturer,
   License,
+  NpcFeature,
 } from "machine-mind";
 import { MechWeapon, MechWeaponProfile } from "machine-mind";
 import { LANCER, TypeIcon } from "../config";
 import { NPCDamageData, RangeData, TagData } from "../interfaces";
+import { npc_reaction_effect_preview, npc_system_effect_preview, npc_tech_effect_preview, npc_trait_effect_preview, npc_weapon_effect_preview } from "../item/effects";
 import { LancerItemType, LancerNpcFeatureData } from "../item/lancer-item";
 import { compact_tag_list } from "../item/tags";
 import { checked, render_icon, resolve_dotpath, resolve_helper_dotpath, selected } from "./commons";
@@ -230,38 +232,14 @@ export function npc_accuracy_preview(acc: number) {
  */
 export function system_type_selector(s_type: string, data_target: string) {
   const s = s_type ? s_type.toLowerCase() : SystemType.System.toLowerCase();
+  let options: string[] = [];
+  for(let type of Object.values(SystemType)) {
+    options.push(`<option value="${type}" ${selected(s === type.toLowerCase())}}>${type.toUpperCase()}</option>`);
+  }
+
   return `<select name="${data_target}" data-type="String" style="height: 2em; align-self: center;" >
-    <option value="${SystemType.System}" ${
-    s === SystemType.System.toLowerCase() ? "selected" : ""
-  }>SYSTEM</option>
-    <option value="${SystemType.AI}" ${
-    s === SystemType.AI.toLowerCase() ? "selected" : ""
-  }>AI</option>
-    <option value="${SystemType.Armor}" ${
-    s === SystemType.Armor.toLowerCase() ? "selected" : ""
-  }>ARMOR</option>
-    <option value="${SystemType.Deployable}" ${
-    s === SystemType.Deployable.toLowerCase() ? "selected" : ""
-  }>DEPLOYABLE</option>
-    <option value="${SystemType.Drone}" ${
-    s === SystemType.Drone.toLowerCase() ? "selected" : ""
-  }>DRONE</option>
-    <option value="${SystemType.FlightSystem}" ${
-    s === SystemType.FlightSystem.toLowerCase() ? "selected" : ""
-  }>FLIGHT SYSTEM</option>
-    <option value="${SystemType.Integrated}" ${
-    s === SystemType.Integrated.toLowerCase() ? "selected" : ""
-  }>INTEGRATED</option>
-    <option value="${SystemType.Mod}" ${
-    s === SystemType.Mod.toLowerCase() ? "selected" : ""
-  }>MOD</option>
-    <option value="${SystemType.Shield}" ${
-    s === SystemType.Shield.toLowerCase() ? "selected" : ""
-  }>SHIELD</option>
-    <option value="${SystemType.Tech}" ${
-    s === SystemType.Tech.toLowerCase() ? "selected" : ""
-  }>TECH</option>
-  </select>`;
+      ${options.join("")}
+    </select>`;
 }
 
 /**
@@ -303,35 +281,24 @@ export const mech_system_preview = `<li class="card clipped mech-system-compact 
 {{> tag-list tags=system.data.tags}}
 </li>`;
 
-export function npc_feature_preview(npc_feature: LancerNpcFeatureData, tier: number) {
-  let body = ``;
-  let type_class = `item`;
-  console.warn("NPC feature types WIP");
-  /*
-  switch (npc_feature.data.type) {
+export function npc_feature_preview(npc_feature_path: string, tier: number, helper: HelperOptions) {
+  let feature: NpcFeature = resolve_helper_dotpath(helper, npc_feature_path);
+  let delete_button = `<a class="gen-control" data-action="delete" data-path="${npc_feature_path}"><i class="fas fa-trash"></i></a>`
+
+  switch (feature.FeatureType) {
     case "Reaction":
-      body += npc_reaction_effect_preview(npc_feature.data as LancerNPCReactionData);
-      break;
+      return npc_reaction_effect_preview(feature, delete_button);
     case "System":
-      body += npc_system_effect_preview(npc_feature.data as LancerNPCSystemData);
-      break;
+      return npc_system_effect_preview(feature, delete_button);
     case "Trait":
-      body += npc_trait_effect_preview(npc_feature.data as LancerNPCTraitData);
-      break;
+      return npc_trait_effect_preview(feature, delete_button);
     case "Tech":
-      body += npc_tech_effect_preview(npc_feature.data as LancerNPCTechData, tier);
-      type_class += ` tech`;
-      break;
+      return npc_tech_effect_preview(feature, tier, delete_button);
     case "Weapon":
-      body += npc_weapon_effect_preview(npc_feature.data as LancerNPCWeaponData, tier);
-      type_class += ` weapon`;
-      break;
+      return npc_weapon_effect_preview(feature, tier, delete_button);
+    default:
+      return "bad feature";
   }
-  */
-  let html = `<li class="card clipped npc-feature-compact ${type_class}" data-item-id="${npc_feature._id}">`;
-  html += body;
-  html += `</li>`;
-  return html;
 }
 
 /** Expected arguments:
@@ -661,14 +628,15 @@ export function mech_weapon_refview(weapon_path: string, mech_path: string | "",
                 ${ref_params(cd.ref)}
                 data-path="${weapon_path}"
                 style="max-height: fit-content;">
-    <div class="lancer-weapon-header clipped-top" style="grid-area: 1/1/2/3">
+    <div class="lancer-weapon-header clipped-top flexrow">
       <i class="cci cci-weapon i--m i--light"> </i>
       <span class="minor">${weapon.Name} // ${weapon.Size.toUpperCase()} ${weapon.Type.toUpperCase()}</span>
       <a class="gen-control i--light" data-action="null" data-path="${weapon_path}"><i class="fas fa-trash"></i></a>
     </div> 
     <div class="lancer-weapon-body">
-      <a class="roll-attack" style="grid-area: 1/1/2/2;"><i class="fas fa-dice-d20 i--m i--dark"></i></a>
-      <div class="flexrow" style="grid-area: 1/2/2/3; text-align: left; white-space: nowrap;">
+      <div class="flexrow" style="text-align: left; white-space: nowrap;">
+        <a class="roll-attack"><i class="fas fa-dice-d20 i--m i--dark"></i></a>
+        <hr class="vsep">
         ${show_range_array(ranges)}
         <hr class="vsep">
         ${show_damage_array(weapon.SelectedProfile.BaseDamage)}
@@ -678,7 +646,7 @@ export function mech_weapon_refview(weapon_path: string, mech_path: string | "",
         ${loading}
       </div>
       
-      <div class="flexcol" style="grid-area: 2/1/3/3;">
+      <div class="flexcol">
         <span>${weapon.SelectedProfile.Description}</span>
         ${effect}
         ${on_attack}

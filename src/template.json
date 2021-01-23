@@ -38,7 +38,27 @@
       "status": "",
       "text_appearance": ""
      },
-    "npc": {},
+    "npc": {
+      "id": "",
+      "name": "",
+      "subtitle": "",
+      "campaign": "",
+      "labels": "",
+      "tag": "",
+      "note": "",
+      "side": "",
+      "cloudImage": "",
+      "localImage": "",
+      "burn": 0,
+      "overshield": 0,
+      "destroyed": false,
+      "defeat": "",
+      "resistances": [],
+      "tier": 1,
+      "custom_counters": [],
+      "current_hp": 0,
+      "current_heat": 0
+    },
     "deployable": {
       "actions": [],
       "bonuses": [],

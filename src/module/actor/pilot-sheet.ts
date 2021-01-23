@@ -21,15 +21,6 @@ const entryPrompt = "//:AWAIT_ENTRY>";
  */
 export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
   /**
-   * A convenience reference to the Actor entity
-   */
-  // get actor(): LancerPilot {
-  //   return this.actor;
-  // };
-
-  /* -------------------------------------------- */
-
-  /**
    * Extend and override the default options used by the Pilot Sheet
    * @returns {Object}
    */
@@ -48,39 +39,6 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
       ],
     });
   }
-
-  /* -------------------------------------------- */
-    /* // Populate the callsign if blank (new Actor)
-    if (data.data.pilot.callsign === "") {
-      data.data.pilot.callsign = data.actor.name;
-    }
-    // Populate name if blank (new Actor)
-    if (data.data.pilot.name === "") {
-      data.data.pilot.name = data.actor.name;
-    }
-
-    // Put placeholder prompts in empty fields
-    if (data.data.pilot.background === "") data.data.pilot.background = entryPrompt;
-    if (data.data.pilot.history === "") data.data.pilot.history = entryPrompt;
-    if (data.data.pilot.notes === "") data.data.pilot.notes = entryPrompt;
-
-    // Generate the size string for the pilot's frame
-    if (data.frame) {
-      const frame: LancerFrame = data.frame;
-      if (frame.data.data.stats.size === 0.5) {
-        data.frame_size = "size-half";
-      } else {
-        data.frame_size = `size-${frame.data.data.stats.size}`;
-      }
-    } else {
-      data.frame_size = "N/A";
-    }
-
-    // Newly-added value, overcharge_level, should be set if it doesn't exist
-    if (typeof this.actor.data.data.mech.overcharge_level === "undefined") {
-      this.actor.data.data.mech.overcharge_level = 0;
-    }
-    */
 
   /* -------------------------------------------- */
 
@@ -217,54 +175,6 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
         this.actor.deleteOwnedItem(itemId).then();
         item.slideUp(200, () => this.render(true));
       });
-
-      /*
-      // Create Mounts
-      let add_button = html.find('.add-button[data-action*="create"]');
-      add_button.on("click", (ev) => {
-        ev.stopPropagation();
-        let mount: LancerMountData = {
-          type: MountType.Main,
-          weapons: [],
-          secondary_mount: "",
-        };
-
-        let mounts = duplicate(this.actor.data.data.mech_loadout.mounts);
-        mounts.push(mount);
-        this.actor.update({ "data.mech_loadout.mounts": mounts }).then();
-        this._onSubmit(ev).then();
-      });
-
-      // Update Mounts
-      let mount_selector = html.find('select.mounts-control[data-action*="update"]');
-      mount_selector.on("change", (ev: JQuery.ChangeEvent) => {
-        ev.stopPropagation();
-        let mounts = duplicate(this.actor.data.data.mech_loadout.mounts);
-        mounts[
-          parseInt($(ev.currentTarget).closest(".lancer-mount-container").data("itemKey"))
-        ].type = $(ev.currentTarget).children("option:selected").val();
-        this.actor.update({ "data.mech_loadout.mounts": mounts }).then();
-        this._onSubmit(ev).then();
-      });
-
-      // Delete Mounts
-      let mount_trash = html.find('a.mounts-control[data-action*="delete"]');
-      mount_trash.on("click", (ev: Event) => {
-        if (!ev.currentTarget) return; // No target, let other handlers take care of it.
-        ev.stopPropagation();
-        let mounts = duplicate(this.actor.data.data.mech_loadout.mounts);
-        let id = $(ev.currentTarget).closest(".lancer-mount-container").data("itemKey");
-        // Delete each weapon in the selected mount from the actor's owned items
-        let weapons = (this.actor.data.data as LancerPilotData).mech_loadout.mounts[id].weapons;
-        for (let i = 0; i < weapons.length; i++) {
-          const weapon = weapons[i];
-          if (weapon._id) this.actor.deleteOwnedItem(weapon._id).then();
-        }
-        mounts.splice(parseInt(id), 1);
-        this.actor.update({ "data.mech_loadout.mounts": mounts }).then();
-        this._onSubmit(ev).then();
-      });
-      */
 
       // Cloud download
       let download = html.find('.cloud-control[data-action*="download"]');

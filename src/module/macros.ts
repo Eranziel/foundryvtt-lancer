@@ -22,8 +22,6 @@ import {
 } from "./interfaces";
 // Import JSON data
 import { DamageType, EntryType, NpcFeatureType } from "machine-mind";
-import { LancerNPCTechData, LancerNPCWeaponData } from "./item/npc-feature";
-import { FoundryRegItemData } from "./mm-util/foundry-reg";
 
 const lp = LANCER.log_prefix;
 

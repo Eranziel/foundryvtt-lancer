@@ -1,7 +1,7 @@
 import { HelperOptions } from "handlebars";
 import { EntryType,funcs, RegEntry  } from "machine-mind";
 import { LancerItemType } from "../item/lancer-item";
-import { resolve_helper_dotpath } from "./commons";
+import { resolve_helper_dotpath, selected } from "./commons";
 import { ref_commons } from "./refs";
 // ---------------------------------------
 // Some simple stat editing thingies
@@ -111,6 +111,8 @@ export function npc_clicker_stat_card(title: string, data_path: string, options:
   let tier_clickers: string[] = [];
   let tier = 1;
 
+  // Reset button
+
   // Make a clicker for every tier
   for(let val of data_val_arr) {
     tier_clickers.push(`
@@ -122,7 +124,10 @@ export function npc_clicker_stat_card(title: string, data_path: string, options:
   }
   return `
     <div class="flexcol card clipped">
-      <span class="lancer-stat-header major clipped-top">${title}</span>
+      <div class="flexrow lancer-stat-header major clipped-top>
+        <span class="lancer-stat-header major clipped-top">${title}</span>
+        <a class="gen-control" data-path="${data_path}" data-action="set" data-action-value="(struct)npc_stat_array"><i class="fas fa-redo"></i></a>
+      </div>
       ${tier_clickers.join("")}
     </div>`;
 }
@@ -150,4 +155,20 @@ export function overcharge_button(overcharge_path: string, options: HelperOption
         <span>${over_val}</span>
       </div>
     </div>`;
+}
+
+
+/**
+ * Handlebars helper for an NPC tier selector
+ * @param tier The tier ID string
+ */
+export function npc_tier_selector(tier_path: string, helper: HelperOptions) {
+  let tier: number = resolve_helper_dotpath(helper, tier_path) ?? 1;
+  let tiers: string[] = [1, 2, 3].map(tier_option => `
+    <option value="${tier_option}" ${selected(tier_option === tier)}>TIER ${tier_option}</option>
+  `);
+  let template = `<select class="tier-control" name="npctier">
+    ${tiers.join("")}
+  </select>`;
+  return template;
 }

@@ -118,6 +118,10 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
       this._event_handler("reset-wep", evt);
     });
 
+    html.find(".reset-ll-weapon-mounts-button").on("click", async (evt: JQuery.ClickEvent) => {
+      this._event_handler("reset-all-weapon-mounts", evt);
+    });
+
     html.find(".reset-system-mount-button").on("click", async (evt: JQuery.ClickEvent) => {
       this._event_handler("reset-sys", evt);
     });
@@ -125,13 +129,16 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
   }
 
   // Save ourselves repeat work by handling most events clicks actual operations here
-  async _event_handler(mode: "reset-wep" | "reset-sys" | "overcharge" | "overcharge-rollback", evt: JQuery.ClickEvent) {
+  async _event_handler(mode: "reset-wep" | "reset-all-weapon-mounts" | "reset-sys" | "overcharge" | "overcharge-rollback", evt: JQuery.ClickEvent) {
     evt.stopPropagation();
     let data = await this.getDataLazy();
     let ent = data.mm.ent;
     let path = evt.currentTarget?.dataset?.path;
 
     switch(mode) {
+      case "reset-all-weapon-mounts":
+        await ent.Loadout.reset_weapon_mounts();
+        break;
       case "reset-sys":
         if(!path) return;
         let sys_mount = resolve_dotpath(data, path) as SystemMount;

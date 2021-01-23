@@ -20,7 +20,7 @@
     </div>
 
     {{#each mm.ent.BaseFeatures as |feature feature_index|}}
-        {{{ref-mm-controllable-item (concat "mm.ent.BaseFeatures." feature_index) "splice" }}}
+        {{{ref-mm-controllable-item-native (concat "mm.ent.BaseFeatures." feature_index) "splice" }}}
     {{/each}}
     {{{ref-mm-list-item-append "mm.ent.BaseFeatures" "npc_feature"}}}
   </div>
@@ -31,7 +31,7 @@
     </div>
 
     {{#each mm.ent.OptionalFeatures as |feature feature_index|}}
-        {{{ref-mm-controllable-item (concat "mm.ent.OptionalFeatures." feature_index) "splice" }}}
+        {{{ref-mm-controllable-item-native (concat "mm.ent.OptionalFeatures." feature_index) "splice" }}}
     {{/each}}
     {{{ref-mm-list-item-append "mm.ent.OptionalFeatures" "npc_feature"}}}
   </div>

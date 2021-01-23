@@ -2,7 +2,7 @@ import { DamageData, LancerItemSheetData, RangeData } from "../interfaces";
 import { LANCER } from "../config";
 import { LancerItem, LancerItemType } from "./lancer-item";
 import { HANDLER_activate_general_controls, gentle_merge, resolve_dotpath } from "../helpers/commons";
-import { HANDLER_activate_ref_dragging, HANDLER_activate_ref_drop_setting, HANDLER_add_ref_to_list_on_drop, HANDLER_openRefOnClick } from "../helpers/refs";
+import { HANDLER_activate_native_ref_dragging, HANDLER_activate_ref_dragging, HANDLER_activate_ref_drop_setting, HANDLER_add_ref_to_list_on_drop, HANDLER_openRefOnClick } from "../helpers/refs";
 import { EntryType } from "machine-mind";
 import { get_pack } from "../mm-util/db_abstractions";
 
@@ -76,6 +76,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
 
     // Enable ref dragging
     HANDLER_activate_ref_dragging(html);
+    HANDLER_activate_native_ref_dragging(html);
 
     // Everything below here is only needed if the sheet is editable
     if (!this.options.editable) {
@@ -116,6 +117,7 @@ return;
     // Returns true if any of these top level fields require updating (i.e. do we need to .update({img: ___, name: __, etc}))
     formData["mm.ent.Name"] = formData["name"];
 
+
     return this.item.img != formData["img"] || this.item.name != formData["name"];
   }
 
@@ -143,7 +145,7 @@ return;
       await this.item.update(top_update, {});
     } else {
       gentle_merge(ct, formData);
-      await ct.mm.ent.writeback();
+      await this._commitCurrMM();
     }
   }
 

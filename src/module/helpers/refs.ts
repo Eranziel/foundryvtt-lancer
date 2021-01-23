@@ -13,7 +13,7 @@ import { GENERIC_ITEM_ICON, LANCER, TypeIcon } from "../config";
 import { is_item_type, LancerItem, LancerItemType } from "../item/lancer-item";
 import { FlagData, FoundryReg } from "../mm-util/foundry-reg";
 import { gentle_merge, resolve_dotpath, resolve_helper_dotpath } from "./commons";
-import { enable_simple_ref_dragging, enable_simple_ref_dropping } from "./dragdrop";
+import { convert_ref_to_native, enable_dragging, enable_simple_ref_dragging, enable_simple_ref_dropping } from "./dragdrop";
 
 // We use these for virtually every ref function
 export function ref_commons<T extends EntryType>(
@@ -220,7 +220,7 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
   if (!cd) {
     // This probably shouldn't be happening
     console.error(`Unable to resolve ${item_path}`);
-    return "ERR: Devs, don't try and show null things in a list. this ain't a slot";
+    return "ERR: Devs, don't try and show null things in a list. this ain't a slot (but it could be if you did some magic)";
   }
 
   let item = item_!; // cd truthiness implies item truthiness
@@ -236,6 +236,11 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
         <a class="gen-control i--dark" data-action="${trash_action}" data-path="${item_path}"><i class="fas fa-trash"></i></a>
       </div>
     </div>`;
+}
+
+// Exactly as above, but drags as a native when appropriate handlers called
+export function editable_mm_ref_list_item_native<T extends LancerItemType>(item_path: string, trash_action: "delete" | "splice" | "null", helper: HelperOptions) {
+  return editable_mm_ref_list_item(item_path, trash_action, helper).replace("ref ref-card", "ref ref-card native-drag");
 }
 
 // Put this at the end of ref lists to have a place to drop things. Supports both native and non-native drops
@@ -282,7 +287,7 @@ export function HANDLER_add_ref_to_list_on_drop<T>(
 // This doesn't handle natives
 export function HANDLER_activate_ref_dragging(html: JQuery) {
   // Allow refs to be dragged arbitrarily
-  enable_simple_ref_dragging(html.find(".ref.valid"), (start_stop, src, evt) => {
+  enable_simple_ref_dragging(html.find(".ref.valid:not(.native-drag)"), (start_stop, src, evt) => {
     // Highlight valid drop points
     let drop_set_target_selector = `.ref.drop-settable.${src[0].dataset.type}`;
     let drop_append_target_selector = `.ref.ref-list-append.${src[0].dataset.type}`;
@@ -294,6 +299,21 @@ export function HANDLER_activate_ref_dragging(html: JQuery) {
       $(target_selector).removeClass("highlight-can-drop");
     }
   });
+}
+
+// Enables dragging of ref cards (or anything with .ref.valid and the appropriate fields) marked with ".native-drag", converting the dragged item to a native foundry ref
+export function HANDLER_activate_native_ref_dragging(html: JQuery) {
+  // Allow refs to be dragged arbitrarily
+  enable_dragging(html.find(".ref.valid.native-drag"), drag_src => {
+      // Drag a JSON ref
+      let ref = recreate_ref_from_element(drag_src[0]);
+      let native = ref ? convert_ref_to_native(ref) : null;
+      if(native) {
+        return JSON.stringify(native);
+      } else {
+        return "";
+      }
+    });
 }
 
 // Allow every ".ref.drop-settable" spot to be dropped onto, with a payload of a JSON RegRef

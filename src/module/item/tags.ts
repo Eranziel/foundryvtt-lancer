@@ -1,4 +1,6 @@
+import { HelperOptions } from "handlebars";
 import { TagInstance, typed_lancer_data } from "machine-mind";
+import { resolve_helper_dotpath } from "../helpers/commons";
 import { TagData } from "../interfaces";
 
 const TAGS = typed_lancer_data.tags;
@@ -8,6 +10,7 @@ const TAGS = typed_lancer_data.tags;
  * @param id The tag's lancer-data id string.
  * @returns The full tag data.
  */
+/*
 function findTag(id: string): TagData | null {
   // Only check if we actually got something.
   if (id) {
@@ -26,6 +29,7 @@ function findTag(id: string): TagData | null {
  * Prepares a tag's name, description, and value.
  * @param tag The tag to prepare.
  */
+/*
 function prepareTag(tag: TagData | null): TagData {
   // Initialize if we need to
   const default_tag = { name: "", description: "", id: "", brew: "n/a", counters: [] };
@@ -63,6 +67,7 @@ function prepareTag(tag: TagData | null): TagData {
  * @param tag {TagData | null} an object containing the tag's ID and value.
  * @returns {string} The html template for the tag.
  */
+/*
 export function renderCompactTag(tag: TagData | null): string {
   let template: string = "";
   tag = prepareTag(tag);
@@ -78,6 +83,7 @@ export function renderCompactTag(tag: TagData | null): string {
 
   return template;
 }
+*/
 
 /**
  * Handlebars partial to generate a list of tags for weapon/system previews.
@@ -90,39 +96,41 @@ export const compactTagList = `<div class="compact-tag-row">
 </div>`;
 */
 
-// An MM version of the above partial
-export function compact_tag_list(tags: TagInstance[]): string {
-  let filtered_tags = tags.filter(t => !t.Tag.IsHidden);
-  let processed_tags = filtered_tags.map(t => `
-    <div class="compact-tag flexrow">
+// A small tag display containing just the label and value
+export function compact_tag(tag: TagInstance): string {
+  return `<div class="compact-tag flexrow">
       <i class="mdi mdi-label i--s i--light"></i>
-      <span style="margin: 3px;">${t.Tag.Name.replace("{VAL}", (""+t.Value ?? "?"))}</span>
-    </div>`);
-
-  return `<div class="compact-tag-row">
-    ${processed_tags.join("")}
-  </div>`;
+      <span style="margin: 3px;">${tag.Tag.Name.replace("{VAL}", (""+tag.Value ?? "?"))}</span>
+    </div>`;
 }
 
-export function renderChunkyTag(tag: TagData | null, key: number): string {
-  let template: string = "";
-  tag = prepareTag(tag);
+// The above, but on an array, filtering out hidden as appropriate
+export function compact_tag_list(tags: TagInstance[]): string {
+  let filtered_tags = tags.filter(t => !t.Tag.IsHidden);
+  let processed_tags = filtered_tags.map(compact_tag);
 
-  // Don't render hidden tags
-  if (tag["hidden"]) return template;
+  if(processed_tags.length) {
+    return `<div class="compact-tag-row">
+      ${processed_tags.join("")}
+    </div>`;
+  } else {
+    return "";
+  }
+}
 
-  // Editable partial
-  template = `<div class="tag flexrow arrayed-item" data-key="${key}">
+// Renders a tag, with description and a delete button. Takes by path so it can properly splice the tag instance out
+export function chunky_tag(tag_path: string, helper: HelperOptions): string {
+  let tag_instance = resolve_helper_dotpath(helper, tag_path) as TagInstance;
+  return `<div class="tag flexrow">
     <div class="tag-label">
       <i class="med-icon fa fa-3x fa-tag" style="margin: 3px"></i>
     </div>
     <div class="flexcol">
-      <input name="data.tags.${key}.name" value="${tag.name}" data-dtype="String" class="lancer-invisible-input medium theme--main" style="grid-area: 1/2/2/3; text-align:left; padding-left: 0.5em; margin-top: 0.25em;"/>
-      <textarea class="lancer-invisible-input effect-text" name="data.tags.${key}.description" data-dtype="String" style="grid-area: 2/2/3/3">${tag.description}</textarea>
-      <a class="remove-button fa fa-trash clickable" data-action="delete" style="grid-area: 2/3/3/4; margin-right: 11px; margin-top: -.8em; justify-self: right; align-self: self-start"></a>
+      <span class="medium theme--main" style="grid-area: 1/2/2/3; text-align:left; padding-left: 0.5em; margin-top: 0.25em;"> ${tag_instance.Tag.Name} </span>
+      <span class="effect-text" style="grid-area: 2/2/3/3">${tag_instance.Tag.Description}</textarea>
+      <a class="fa fa-trash gen-control" data-action="splice" data-path="tag_path" style="grid-area: 2/3/3/4; margin-right: 11px; margin-top: -.8em; justify-self: right; align-self: self-start"></a>
     </div>
   </div>`;
-  return template;
 }
 
 /**
@@ -133,6 +141,7 @@ export function renderChunkyTag(tag: TagData | null, key: number): string {
  * @param data_prefix {string} The path to the tag's data in the data model.
  * @returns {string} The html template for the tag.
  */
+/*
 export function renderFullTag(
   tag: TagData | null,
   key: number,
@@ -155,3 +164,4 @@ export function renderFullTag(
   </div>`;
   return template;
 }
+*/

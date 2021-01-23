@@ -1,14 +1,12 @@
-import { DamageData, RangeData, TagData } from "../interfaces";
-import { ActivationType, ChargeType, EffectType } from "../enums";
-import { renderCompactTag } from "./tags";
+import { NpcFeature } from "machine-mind";
+import { ActivationType } from "../enums";
 import {
-  LancerNPCReactionData,
-  LancerNPCSystemData,
-  LancerNPCTechData,
-  LancerNPCTraitData,
-  LancerNPCWeaponData,
-} from "./npc-feature";
-import { npc_attack_bonus_preview, npc_accuracy_preview } from "../helpers/item";
+  npc_attack_bonus_preview,
+  npc_accuracy_preview,
+  show_damage_array,
+  show_range_array,
+} from "../helpers/item";
+import { compact_tag, compact_tag_list } from "./tags";
 
 export const EffectIcons = {
   Generic: "systems/lancer/assets/icons/generic_item.svg",
@@ -24,114 +22,6 @@ export const EffectIcons = {
   Offensive: "systems/lancer/assets/icons/sword_array.svg",
   Profile: "systems/lancer/assets/icons/weapon_profile.svg",
 };
-
-// Note that this type can be replaced with a descriptive string in some cases.
-export interface EffectData {
-  effect_type: EffectType;
-  name?: string;
-  activation?: ActivationType;
-  tags?: TagData[];
-}
-
-// export type AnyEffect = BasicEffectData | AIEffectData | BonusEffectData | ChargeData | ChargeEffectData | DeployableEffectData | DroneEffectData | GenericEffectData | OffensiveEffectData | ProfileEffectData | ProtocolEffectData | GenericEffectData | TechEffectData | ReactionEffectData | InvadeOptionData;
-
-export interface BasicEffectData extends EffectData {
-  detail: string;
-}
-
-export interface AIEffectData extends EffectData {
-  detail: string;
-  abilities: EffectData[];
-}
-
-export interface BonusEffectData extends EffectData {
-  detail: string;
-  size?: number;
-  hp?: number;
-  armor?: number;
-  evasion?: number;
-  edef?: number;
-}
-
-export interface ChargeData {
-  name: string;
-  charge_type: ChargeType;
-  detail: string;
-  range?: RangeData[];
-  damage?: DamageData[];
-  tags?: TagData[];
-}
-
-export interface ChargeEffectData extends EffectData {
-  charges: ChargeData[];
-}
-
-export interface DeployableEffectData extends EffectData {
-  count?: number;
-  size?: number;
-  hp?: number;
-  heat?: number;
-  evasion?: number;
-  edef?: number;
-  detail: string;
-}
-
-export interface DroneEffectData extends EffectData {
-  size: number;
-  hp: number;
-  armor?: number;
-  edef: number;
-  evasion: number;
-  detail: string;
-  heat?: number;
-  abilities?: EffectData[];
-}
-
-export interface GenericEffectData extends EffectData {
-  detail: string;
-}
-
-export interface OffensiveEffectData extends EffectData {
-  detail?: string;
-  attack?: string;
-  hit?: string;
-  critical?: string;
-  abilities?: EffectData[];
-}
-
-export interface ProfileEffectData extends EffectData {
-  name: string;
-  range?: RangeData[];
-  damage?: DamageData[];
-  detail?: string;
-}
-
-export interface ProtocolEffectData extends EffectData {
-  detail: string;
-}
-
-// Note that Reactions, like Tech or Protocols, may be more generic than an effect. Yet to be seen.
-export interface ReactionEffectData extends EffectData {
-  name: string;
-  detail: string;
-  frequency: string; // May need a specialized parser and interface for compatibility with About Time by Tim Posney
-  trigger: string;
-  init?: string;
-}
-
-export interface InvadeOptionData {
-  name: string;
-  detail: string;
-  activation?: ActivationType;
-}
-
-// Tech seems to either have detail, or have option_set and options.
-export interface TechEffectData extends EffectData {
-  detail: string;
-  activation: ActivationType;
-  options?: InvadeOptionData[];
-  option_set?: string;
-}
 
 /* ------------------------------------ */
 /* Handlebars Helpers                   */
@@ -189,6 +79,7 @@ export function action_type_selector(a_type: string, data_target: string) {
 /**
  * Handlebars helper for charge type selector
  */
+/*
 export function charge_type_selector(c_type: string, data_target: string) {
   const c = c_type ? c_type.toLowerCase() : ChargeType.Grenade.toLowerCase();
   return `<select name="${data_target}" data-type="String" style="height: 2em;float: right" >
@@ -636,135 +527,132 @@ export function tech_effect_preview(effect: TechEffectData) {
   html += `</div>`;
   return html;
 }
+*/
 
-export function npc_reaction_effect_preview(npc_feature: LancerNPCReactionData) {
-  let html = `<div class="lancer-reaction-header clipped-top" style="grid-area: 1/1/2/3;display:flex;">
-    <i class="cci cci-reaction i--m i--light"> </i>
-    <a class="macroable item-macro"><i class="mdi mdi-message"></i></a>
-    <span class="minor" style="flex-grow:1">${npc_feature.name}</span>
-    <a class="stats-control i--light" data-action="delete"><i class="fas fa-trash"></i></a>
-  </div>
-  <div class="flexcol" style="margin: 10px;">
-    <span class="medium flexrow">TRIGGER</span>
-    <div class="effect-text" style="padding: 5px">${npc_feature.trigger}</div>
-    <span class="medium flexrow">EFFECT</span>
-    <div class="effect-text" style="padding: 5px">${npc_feature.effect}</div>
-  </div>
-  <div class="flexrow" style="justify-content: flex-end;">`;
-  html += effect_tag_row(npc_feature.tags);
-  return html;
+// Common to all feature previews. Auto-omits on empty body
+function npc_feature_effect_box(title: string, text: string): string {
+  if (text) {
+    return `
+      <span class="medium flexrow">${title}</span>
+      <div class="effect-text" style="padding: 5px">${text}</div>
+      `;
+  } else {
+    return "";
+  }
 }
 
-function npc_system_trait_effect_preview(npc_feature: LancerNPCSystemData | LancerNPCTraitData) {
-  let html = `<div class="lancer-${npc_feature.feature_type.toLowerCase()}-header clipped-top" style="grid-area: 1/1/2/3;display:flex">
-  <i class="cci cci-${npc_feature.feature_type.toLowerCase()} i--m i--light"> </i>
-  <a class="macroable item-macro"><i class="mdi mdi-message"></i></a>
-    <span class="minor" style="flex-grow:1">${npc_feature.name}</span>
-  <a class="stats-control i--light" data-action="delete"><i class="fas fa-trash"></i></a>
-  </div>
-  <div class="flexcol" style="margin: 10px;">
-  <span class="medium flexrow">EFFECT</span>
-    <div class="effect-text" style="padding: 5px">${npc_feature.effect}</div>
+function npc_feature_scaffold(npc_feature: NpcFeature, body: string, delete_button: string) {
+  return `
+  <div class="flexcol">
+    <div class="flexrow lancer-${npc_feature.FeatureType.toLowerCase()}-header  clipped-top">
+      <i class="cci cci-reaction i--m i--light"> </i>
+      <a class="macroable item-macro"><i class="mdi mdi-message"></i></a>
+      <span class="minor grow">${npc_feature.Name}</span>
+      ${delete_button}
+    </div>
+    ${body}
   </div>`;
-  html += effect_tag_row(npc_feature.tags);
-  return html;
 }
 
-export function npc_system_effect_preview(npc_feature: LancerNPCSystemData) {
-  return npc_system_trait_effect_preview(npc_feature);
+export function npc_reaction_effect_preview(npc_feature: NpcFeature, delete_button: string) {
+  return npc_feature_scaffold(
+    npc_feature,
+    `<div class="flexcol" style="margin: 10px;">
+      ${npc_feature_effect_box("TRIGGER", npc_feature.Trigger)}
+      ${npc_feature_effect_box("EFFECT", npc_feature.Effect)}
+      ${compact_tag_list(npc_feature.Tags)}
+    </div>`,
+    delete_button
+  );
 }
 
-export function npc_trait_effect_preview(npc_feature: LancerNPCTraitData) {
-  return npc_system_trait_effect_preview(npc_feature);
+function npc_system_trait_effect_preview(npc_feature: NpcFeature, delete_button: string) {
+  return npc_feature_scaffold(
+    npc_feature,
+    `<div class="flexcol" style="margin: 10px;">
+      ${npc_feature_effect_box("EFFECT", npc_feature.Effect)}
+      ${compact_tag_list(npc_feature.Tags)}
+    </div>`,
+    delete_button
+  );
 }
 
-export function npc_tech_effect_preview(npc_feature: LancerNPCTechData, tier: number) {
-  let html = `<div class="lancer-tech-header clipped-top" style="grid-area: 1/1/2/3">
-  <i class="cci cci-tech-${npc_feature.tech_type.toLowerCase()} i--m i--light"> </i>
-    <span class="minor">${npc_feature.name} // ${npc_feature.tech_type.toUpperCase()} TECH</span>
-  <a class="stats-control i--light" data-action="delete"><i class="fas fa-trash"></i></a>
-  </div>
-  <div class="lancer-tech-body">
-  <a class="roll-tech" style="grid-area: 1/1/2/2;"><i class="fas fa-dice-d20 i--m i--dark"></i></a>
-  <div class="flexrow" style="grid-area: 1/2/2/3; text-align: left; white-space: nowrap;">`;
-  if (npc_feature.attack_bonus) {
-    const atk = npc_feature.attack_bonus[tier];
-    html += `<div class="compact-acc">
-    <i class="cci cci-reticule i--m i--dark"></i>
-      <span class="medium">${atk < 0 ? "-" : "+"}${atk} ATTACK BONUS</span>
-    </div>`;
-  }
-  html += `<hr class="vsep">`;
-  if (npc_feature.accuracy) {
-    const acc = npc_feature.accuracy[tier];
-    if (acc > 0) {
-      html += `<div class="compact-acc">
-        <i class="cci cci-accuracy i--m i--dark"></i>
-        <span class="medium">+${acc} ACCURACY</span>
-      </div>`;
-    } else if (acc < 0) {
-      html += `<div class="compact-acc">
-        <i class="cci cci-difficulty i--m i--dark"></i>
-        <span class="medium">+${-acc} DIFFICULTY</span>
-      </div>`;
-    }
-  }
-  html += `</div><div class="flexcol" style="grid-area: 2/1/3/3; text-align: left;">`;
-  if (npc_feature.effect) {
-    html += `<div class="flexcol" style="height: fit-content; margin: 0 10px;">
-      <span class="medium flexrow">EFFECT</span>
-      <div class="effect-text" style="padding: 5px">${npc_feature.effect}</div>
-    </div>`;
-  }
-  html += `</div><div style="grid-area: 3/1/4/3;"`;
-  html += effect_tag_row(npc_feature.tags);
-  html += `</div>`;
-  return html;
+export function npc_system_effect_preview(npc_feature: NpcFeature, delete_button: string = "") {
+  return npc_system_trait_effect_preview(npc_feature, delete_button);
 }
 
-export function npc_weapon_effect_preview(npc_feature: LancerNPCWeaponData, tier: number) {
-  let html = `<div class="lancer-weapon-header clipped-top" style="grid-area: 1/1/2/3">
-    <i class="cci cci-weapon i--m i--light"> </i>
-    <span class="minor">${npc_feature.name} // ${npc_feature.weapon_type.toUpperCase()}</span>
-    <a class="stats-control i--light" data-action="delete"><i class="fas fa-trash"></i></a>
-  </div>
-  <div class="lancer-weapon-body">
-    <a class="roll-attack" style="grid-area: 1/1/2/2;"><i class="fas fa-dice-d20 i--m i--dark"></i></a>
-    <div class="flexrow" style="grid-area: 1/2/2/3; text-align: left; white-space: nowrap;">`;
-  for (let i = 0; i < npc_feature.range.length; i++) {
-    // html += weapon_range_preview(npc_feature.range[i], i);
+export function npc_trait_effect_preview(npc_feature: NpcFeature, delete_button: string = "") {
+  return npc_system_trait_effect_preview(npc_feature, delete_button);
+}
+
+export function npc_tech_effect_preview(
+  npc_feature: NpcFeature,
+  tier: number,
+  delete_button: string = ""
+) {
+  let sep = `<hr class="vsep">`;
+  let subheader_items = [`<a class="roll-tech"><i class="fas fa-dice-d20 i--m i--dark"></i></a>`];
+
+  if (npc_feature.AttackBonus[tier]) {
+    subheader_items.push(npc_attack_bonus_preview(npc_feature.AttackBonus[tier]));
   }
-  html += `<hr class="vsep">`;
-  for (let i = 0; i < npc_feature.damage.length; i++) {
-    // html += weapon_damage_preview(npc_feature.damage[i], tier);
+  if (npc_feature.Accuracy[tier]) {
+    subheader_items.push(npc_accuracy_preview(npc_feature.Accuracy[tier]));
   }
-  html += `<hr class="vsep">`;
-  if (npc_feature.attack_bonus) {
-    const atk = npc_feature.attack_bonus[tier];
-    html += npc_attack_bonus_preview(atk);
+
+  return npc_feature_scaffold(
+    npc_feature,
+    `
+    <div class="lancer-tech-body flex-col">
+      <div class="flexrow">
+        ${subheader_items.join(sep)}
+      </div>
+      <div class="flexcol" style="padding: 0 10px;">
+        ${npc_feature_effect_box("EFFECT", npc_feature.Effect)}
+        ${compact_tag_list(npc_feature.Tags)}
+      </div>
+    </div>
+    `,
+    delete_button
+  );
+}
+
+export function npc_weapon_effect_preview(
+  npc_feature: NpcFeature,
+  tier: number,
+  delete_button: string = ""
+) {
+  let sep = `<hr class="vsep">`;
+  let subheader_items = [`<a class="roll-attack"><i class="fas fa-dice-d20 i--m i--dark"></i></a>`];
+
+  // Topline stuff
+  if (npc_feature.AttackBonus[tier]) {
+    subheader_items.push(npc_attack_bonus_preview(npc_feature.AttackBonus[tier]));
   }
-  html += `<hr class="vsep">`;
-  if (npc_feature.accuracy) {
-    const acc = npc_feature.accuracy[tier];
-    html += npc_accuracy_preview(acc);
+  if (npc_feature.Accuracy[tier]) {
+    subheader_items.push(npc_accuracy_preview(npc_feature.Accuracy[tier]));
   }
-  html += `</div><div class="flexcol" style="grid-area: 2/1/3/3; text-align: left;">`;
-  if (npc_feature.on_hit) {
-    html += `
-    <div class="flexcol" style="height: fit-content; margin: 0 10px;">
-      <span class="medium flexrow">ON HIT</span>
-      <div class="effect-text" style="padding: 5px">${npc_feature.on_hit}</div>
-    </div>`;
+
+  // Get the mid-body stuff. Real meat and potatos of a weapon
+  if (npc_feature.Range.length) {
+    subheader_items.push(show_range_array(npc_feature.Range));
   }
-  if (npc_feature.effect) {
-    html += `
-    <div class="flexcol" style="height: fit-content; margin: 0 10px;">
-      <span class="medium flexrow">EFFECT</span>
-      <div class="effect-text" style="padding: 5px">${npc_feature.effect}</div>
-    </div>`;
+  if (npc_feature.Damage[tier] && npc_feature.Damage[tier].length) {
+    subheader_items.push(show_damage_array(npc_feature.Damage[tier]));
   }
-  html += `</div><div class="flexrow" style="justify-content: flex-end; grid-area: 3/1/4/3">`;
-  html += effect_tag_row(npc_feature.tags);
-  html += `</div>`;
-  return html;
+
+  return npc_feature_scaffold(
+    npc_feature,
+    `
+    <div class="lancer-weapon-body flex-col">
+      <div class="flexrow">
+        ${subheader_items.join(sep)}
+      </div>
+      ${npc_feature_effect_box("ON HIT", npc_feature.OnHit)}
+      ${npc_feature_effect_box("EFFECT", npc_feature.Effect)}
+      ${compact_tag_list(npc_feature.Tags)}
+    </div>
+    `,
+    delete_button
+  );
 }

@@ -116,12 +116,11 @@ button {
   color: white;
   background-color: var(--main-theme-color, fuchsia);
   padding: 0 15px;
-  display: inline-block;
   white-space: nowrap;
   text-align: center;
   max-height: 2.0em;
   min-height: 2.0em;
-  grid-template-columns: 40px 1fr 40px;
+  /* grid-template-columns: 40px 1fr 40px; */
   align-items: center;
   text-overflow: ellipsis;
 }
@@ -140,8 +139,6 @@ button {
 
 .lancer.sheet .mount-header {
   white-space: nowrap;
-  display: inline;
-  text-align: right;
 }
 
 /* ---------- */
@@ -508,12 +505,12 @@ tr.lcp-index-header {
   background-color: var(--main-theme-color, fuchsia);
   padding-left: 15px;
   padding-right: 15px;
-  display: grid;
+  /* display: grid; */
   white-space: nowrap;
   text-align: center;
   max-height: 2.0em;
   min-height: 2.0em;
-  grid-template-columns: 40px 1fr 40px;
+  /* grid-template-columns: 40px 1fr 40px; */
   align-items: center;
   text-overflow: ellipsis;
 }
@@ -550,7 +547,7 @@ tr.lcp-index-header {
   border-width: 2px;
   border-color: var(--main-theme-color, fuchsia);
   border-top-style: none;
-  white-space: pre;
+  /* white-space: pre; */
   background-color: var(--darken-1);
 }
 
@@ -570,7 +567,7 @@ tr.lcp-index-header {
   border-top-style: none;
   text-align: left;
   justify-content: left;
-  white-space: pre-wrap;
+  /* white-space: pre-wrap; */
   hyphens: auto;
   word-break: break-word;
   background-color: #3a81c333;
@@ -624,13 +621,15 @@ tr.lcp-index-header {
   padding: 3px;
 
   text-align: center;
-  white-space: pre-wrap;
+  /* white-space: pre-wrap; */
   hyphens: auto;
   word-break: break-word;
 
+  /*
   display: grid;
   grid-template-columns: 4em 1fr;
   grid-template-rows: repeat(3, fit-content(0));
+  */
 
   background-color: var(--darken-1)
 }
@@ -771,8 +770,6 @@ tr.lcp-index-header {
   align-items: center;
   color: white;
   background-color: var(--main-theme-color, fuchsia);
-  max-height: fit-content;
-  padding: 5px;
 }
 
 .lancer-loadout-header {
@@ -816,11 +813,6 @@ input[type=string].lancer-input {
 }
 .tier-icon {
   color: white;
-}
-
-.pilot-loadout {
-  display: grid;
-  grid-template: 1fr 1fr / 1fr 1fr ;
 }
 
 .header-name {
@@ -1279,8 +1271,12 @@ input.core-power-toggle:not(:checked)::before
   margin: 3px;
 }
 
-.flexgrow {
+.grow {
   flex-grow: 1; 
+}
+
+.no-grow {
+  flex-grow: 1 !important;
 }
 
 /* Glow effect courtesy of https://codepen.io/jackrugile/pen/ABeIi */
