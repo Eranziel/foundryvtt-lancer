@@ -1,7 +1,7 @@
 import { LANCER } from "../config";
-import { HANDLER_activate_general_controls, del_arr_key,  gentle_merge, is_ref, resolve_dotpath, safe_json_parse } from "../helpers/commons";
+import { HANDLER_activate_general_controls,  gentle_merge, is_ref, resolve_dotpath, safe_json_parse } from "../helpers/commons";
 import { enable_native_dropping_mm_wrap, enable_simple_ref_dragging, enable_simple_ref_dropping, NativeDrop, ResolvedNativeDrop, resolve_native_drop } from "../helpers/dragdrop";
-import { HANDLER_activate_ref_dragging, HANDLER_openRefOnClick } from "../helpers/refs";
+import { HANDLER_activate_ref_dragging, HANDLER_activate_ref_drop_setting, HANDLER_openRefOnClick } from "../helpers/refs";
 import { LancerActorSheetData, LancerStatMacroData } from "../interfaces";
 import { FoundryRegActorData } from "../mm-util/foundry-reg";
 import { mm_wrap_actor } from "../mm-util/helpers";
@@ -53,7 +53,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     this._activatePlusMinusButtons(html);
 
     // Make refs droppable
-    this._activateRefDropping(html);
+    HANDLER_activate_ref_drop_setting(html, () => this.getDataLazy(), (_) => this._commitCurrMM());
 
     // Enable native ref drag handlers
     this._activateNativeRefDropBoxes(html);
@@ -80,21 +80,6 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     decr.on("click", mod_handler(-1));
     let incr = html.find('button[class*="mod-plus-button"]');
     incr.on("click", mod_handler(+1));
-  }
-
-  _activateRefDropping(html: JQuery) {
-    // Allow every ".ref.drop-settable.set" spot to be dropped onto, with a payload of a JSON RegRef
-    enable_simple_ref_dropping(
-      html.find(".ref.drop-settable"), 
-      async (entry, evt) => {
-        let data = await this.getDataLazy();
-        let path = evt[0].dataset.path;
-        if(path) {
-          // Set the item at the data path
-          gentle_merge(data, {[path]: entry});
-          this._commitCurrMM();
-        }
-      });
   }
 
   // Enables functionality for converting native foundry drags to be handled by ref drop slots

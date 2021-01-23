@@ -65,17 +65,17 @@ export function is_loading(tags: TagData[]) {
 /**
  * Handlebars helper for weapon size selector
  */
-export function weapon_size_selector(weapon: MechWeapon, data_target_prefix: string) {
-  const data_target = `${data_target_prefix}.Size`;
+export function weapon_size_selector(size_path: string, helper: HelperOptions) {
+  let curr_size: WeaponSize = resolve_helper_dotpath(helper, size_path);
   let options: string[] = [];
 
   // Build our options
   for (let size of Object.values(WeaponSize)) {
-    let is_selected = weapon.Size.toLowerCase() == size.toLowerCase(); // Case tolerant selected
+    let is_selected = curr_size.toLowerCase() == size.toLowerCase(); // Case tolerant selected
     options.push(`<option value="${size}" ${selected(is_selected)}>${size.toUpperCase()}</option>`);
   }
 
-  return `<select name="${data_target}" data-type="String" style="align-self: center;"> 
+  return `<select name="${size_path}" data-type="String"> 
     ${options.join("\n")} 
   </select>`;
 }
@@ -83,17 +83,17 @@ export function weapon_size_selector(weapon: MechWeapon, data_target_prefix: str
 /**
  * Handlebars helper for weapon type selector. First parameter is the existing selection.
  */
-export function weapon_type_selector(profile: MechWeaponProfile, data_target_prefix: string) {
-  const data_target = `${data_target_prefix}.WepType`;
+export function weapon_type_selector(type_path: string, helper: HelperOptions) {
+  let curr_type: WeaponSize = resolve_helper_dotpath(helper, type_path);
   let options: string[] = [];
 
   // Build our options
   for (let type of Object.values(WeaponType)) {
-    let is_selected = profile.WepType.toLowerCase() == type.toLowerCase(); // Case tolerant selected
+    let is_selected = curr_type.toLowerCase() == type.toLowerCase(); // Case tolerant selected
     options.push(`<option value="${type}" ${selected(is_selected)}>${type.toUpperCase()}</option>`);
   }
 
-  return `<select name="${data_target}" data-type="String" style="align-self: center;"> 
+  return `<select name="${type_path}" data-type="String"> 
     ${options.join("\n")} 
   </select>`;
 }
@@ -937,17 +937,19 @@ export function mech_weapon_refview(weapon_path: string, mech_path: string | "",
 };
 
 // A specific MM ref helper focused on displaying manufacturer info.
-export function manufacturer_ref(source: Manufacturer | null): string {
-  let cd = ref_commons(source);
+export function manufacturer_ref(source_path: string, helper: HelperOptions): string {
+  let source_: Manufacturer | null = resolve_helper_dotpath(helper, source_path);
+  let cd = ref_commons(source_);
   // TODO? maybe do a little bit more here, aesthetically speaking
   if (cd) {
-    return `<div class="valid ${EntryType.MANUFACTURER} ref ref-card" ${ref_params(cd.ref)}> 
+    let source = source_!;
+    return `<div class="valid ${EntryType.MANUFACTURER} ref ref-card drop-settable" ${ref_params(cd.ref, source_path)}> 
               <h3 class="mfr-name" style="color: ${source!.GetColor(false)};">${source!.Name}</h3>
               <i>${source!.Quote}</i>
             </div>
         `;
   } else {
-    return `<div class="ref ref-card">
+    return `<div class="ref ref-card drop-settable ${EntryType.MANUFACTURER}">
               <h3 class="mfr-name">No source specified</h3>
             </div>
         `;

@@ -288,9 +288,14 @@ export function enable_simple_ref_dropping(
         let dest_type = dest[0].dataset.type;
 
         // If it isn't a ref, we don't handle
-        if(!is_ref(recon_ref) || recon_ref.type != dest_type) {
+        if(!is_ref(recon_ref)) {
           return;
         } 
+
+        // If it doesn't match type, we also don't handle
+        if(dest_type && !dest_type.includes(recon_ref.type)) {
+          return;
+        }
 
         // It is a ref, so we stop anyone else from handling the drop
         // (immediate props are fine)
@@ -300,6 +305,8 @@ export function enable_simple_ref_dropping(
         let resolved = await new FoundryReg().resolve(new OpCtx(), recon_ref);
         if(resolved) {
             on_drop(resolved, dest, evt);
+        } else {
+          console.error("Failed to resolve ref", recon_ref);
         }
       },
 
@@ -358,11 +365,10 @@ export function enable_native_dropping(
         }
 
         // Get our actual allowed types, as it can be overriden by data-type
-        let dest_type = dest[0].dataset.type;
-        let dest_allowed_types = dest_type ? [dest_type] : (allowed_types ?? null);
+        let dest_type = dest[0].dataset.type ?? (allowed_types ?? []).join(" ");
 
         // Now, as far as whether it should really have any effect, that depends on the type
-        if(!dest_allowed_types || dest_allowed_types.includes(type)) {
+        if(!dest_type || dest_type.includes(type)) {
           // We're golden. Call the callback
           on_drop(resolved.entity, dest, evt);
         }

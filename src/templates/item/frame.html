@@ -1,15 +1,14 @@
 <form class="{{cssClass}} lancer-sheet" autocomplete="off">
-  
   {{!-- Sheet Header --}}
   <header class="sheet-header card clipped-bot">
-    {{{ ref-portrait-img "item.img" mm.ent }}}
-    <div class="header-fields" style="grid-area: 1/1/2/5">
-      <h1 class="frame-name "><input class="header-field" name="item.name" type="text" value="{{item.name}}" placeholder="Name"/></h1>
+    <div class="flexcol flexgrow">
+      <h1 class="charname"><input class="header-field" name="name" type="text" value="{{item.name}}" placeholder="Name"/></h1>
+      <div class="flexrow">
+        {{{ ref-manufacturer "mm.ent.Source" }}}
+        {{{ ref-license license mm.ent.LicenseLevel }}}
+      </div>
     </div>
-    <div class="header-fields" style="grid-area: 2/1/3/4">
-      {{{ ref-manufacturer mm.ent.Source }}}
-      {{{ ref-license license mm.ent.LicenseLevel }}}
-    </div>
+    {{{ ref-portrait-img item.img "img" mm.ent }}}
   </header>
 
   {{!-- Description --}}
@@ -38,7 +37,7 @@
   <div class="flexcol">
     <div>
       <span class="minor" style="float: left">AVAILABLE WEAPON MOUNTS</span>
-      <a class="add-mount-button" style="float: right; margin-right: 1em">+</a>
+      <a class="gen-control" data-action="append" data-path="mm.ent.Mounts" data-action-value="(struct)mount_type" style="float: right">+</a>
     </div>
     <div class="flexrow">
       {{#each mm.ent.Mounts as |mount key|}}
@@ -64,7 +63,7 @@
   <div class="frame-traits" class="flexcol">
     <div>
       <span class="minor" style="float: left">TRAITS</span>
-      <a class="add-trait-button" style="float: right">+</a>
+      <a class="gen-control" data-action="append" data-path="mm.ent.Traits" data-action-value="(struct)frame_trait" style="float: right">+</a>
     </div>
     <ul>
     {{#each mm.ent.Traits as |trait key|}}
@@ -94,10 +93,10 @@
 
     {{!-- Want to make these show jumpable little items --}}
     {{#each mm.ent.CoreSystem.Integrated as |integrated index|}}
-      {{{ref-mm-list-item (concat "mm.ent.CoreSystem.Integrated." index) "splice" }}}
+      {{{ref-mm-controllable-item (concat "mm.ent.CoreSystem.Integrated." index) "splice" }}}
     {{/each}}
     {{#each mm.ent.CoreSystem.Deployables as |deployable index|}}
-      {{{ref-mm-list-item (concat "mm.ent.CoreSystem.Deployables." index) "splice" }}}
+      {{{ref-mm-controllable-item (concat "mm.ent.CoreSystem.Deployables." index) "splice" }}}
     {{/each}}
 
     <div class="card clipped">
@@ -116,7 +115,7 @@
       </div>
       <div class="effect-text">{{editor content=mm.ent.CoreSystem.ActiveEffect target="mm.ent.CoreSystem.ActiveEffect" button=true owner=owner editable=editable}}</div>
     </div>
-    <div class="flexcol tags-container" style="margin: 10px;" data-item="core_system.tags">
+    <div class="tags-container" style="margin: 10px;">
       <div class="flexcol lancer-title">
         <span class="major">TAGS</span>
         {{{mm-tag-list mm.ent.CoreSystem.Tags}}}

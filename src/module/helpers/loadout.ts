@@ -59,8 +59,8 @@ function all_weapon_mount_view(mech_path: string, loadout_path: string, helper: 
   return `
     <span class="lancer-loadout-header major">
         MOUNTED WEAPONS
-        <a class="add-weapon-mount-button">+</a>
-        <a class="reset-all-weapon-mounts-button"><i class="fas fa-redo"></i></a>
+        <a class="gen-control" data-action="append" data-path="${loadout_path}.WepMounts" data-action-value="(struct)wep_mount" style="float: right">+</a>
+        <a class="gen-control" data-action="set" data-path="${loadout_path}.WepMounts" data-action-value="(struct)empty_array" style="float: right"><i class="fas fa-redo"></i></a>
     </span>
     <div class="wraprow triple">
       ${weapon_mounts.join("")}
@@ -76,8 +76,8 @@ function all_system_mount_view(mech_path: string, loadout_path: string, helper: 
   return `
     <span class="lancer-loadout-header major">
         MOUNTED SYSTEMS
-        <a class="add-system-mount-button">+</a>
-        <a class="reset-all-system-mounts-button"><i class="fas fa-redo"></i></a>
+        <a class="gen-control" data-action="append" data-path="${loadout_path}.SysMounts" data-action-value="(struct)sys_mount" style="float: right">+</a>
+        <a class="gen-control" data-action="set" data-path="${loadout_path}.SysMounts" data-action-value="(struct)empty_array" style="float: right"><i class="fas fa-redo"></i></a>
     </span>
     <div class="wraprow quadruple">
       ${system_slots.join("")}

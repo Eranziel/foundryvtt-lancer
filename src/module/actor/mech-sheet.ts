@@ -114,51 +114,24 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
    * Handles more niche controls in the loadout in the overcharge panel 
    */
   _activateLoadoutControls(html: any) {
-    html.find(".reset-all-weapon-mounts-button").on("click", async (evt: JQuery.ClickEvent) => {
-      this._event_handler("reset-all-weapon-mounts", evt);
-    });
-
-    html.find(".reset-all-system-mounts-button").on("click", async (evt: JQuery.ClickEvent) => {
-      this._event_handler("reset-all-system-mounts", evt);
-    });
-
     html.find(".reset-weapon-mount-button").on("click", async (evt: JQuery.ClickEvent) => {
       this._event_handler("reset-wep", evt);
-    });
-
-    html.find(".add-weapon-mount-button").on("click", async (evt: JQuery.ClickEvent) => {
-      this._event_handler("add-wep", evt);
     });
 
     html.find(".reset-system-mount-button").on("click", async (evt: JQuery.ClickEvent) => {
       this._event_handler("reset-sys", evt);
     });
 
-    html.find(".add-system-mount-button").on("click", async (evt: JQuery.ClickEvent) => {
-      this._event_handler("add-sys", evt);
-    });
   }
 
   // Save ourselves repeat work by handling most events clicks actual operations here
-  async _event_handler(mode: "reset-all-weapon-mounts" | "reset-all-system-mounts" | "reset-wep" | "reset-sys" | "add-wep" | "add-sys" | "overcharge" | "overcharge-rollback", evt: JQuery.ClickEvent) {
+  async _event_handler(mode: "reset-wep" | "reset-sys" | "overcharge" | "overcharge-rollback", evt: JQuery.ClickEvent) {
     evt.stopPropagation();
     let data = await this.getDataLazy();
     let ent = data.mm.ent;
     let path = evt.currentTarget?.dataset?.path;
 
     switch(mode) {
-      case "reset-all-weapon-mounts":
-        await ent.Loadout.reset_weapon_mounts();
-        break;
-      case "reset-all-system-mounts":
-        ent.Loadout.SysMounts = [];
-        break;
-      case "add-sys":
-        await ent.Loadout.AddEmptySystemMount();
-        break;
-      case "add-wep":
-        await ent.Loadout.AddEmptyWeaponMount(MountType.Main);
-        break;
       case "reset-sys":
         if(!path) return;
         let sys_mount = resolve_dotpath(data, path) as SystemMount;

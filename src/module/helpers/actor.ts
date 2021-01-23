@@ -106,6 +106,26 @@ export function clicker_stat_card(title: string, icon: string, data_path: string
   `;
 }
 
+export function npc_clicker_stat_card(title: string, data_path: string, options: HelperOptions): string {
+  let data_val_arr = resolve_helper_dotpath(options, data_path) ?? [];
+  let tier_clickers: string[] = [];
+  let tier = 1;
+
+  // Make a clicker for every tier
+  for(let val of data_val_arr) {
+    tier_clickers.push(`
+      <div class="flexrow stat-container" style="align-self: center;">
+        <i class="cci cci-npc-tier-${tier} i--m i--dark"></i>
+        ${clicker_num_input(`${data_path}.${tier-1}`, val)}
+      </div>`);
+      tier++;
+  }
+  return `
+    <div class="flexcol card clipped">
+      <span class="lancer-stat-header major clipped-top">${title}</span>
+      ${tier_clickers.join("")}
+    </div>`;
+}
 
 /**
  * Handlebars helper for an overcharge button

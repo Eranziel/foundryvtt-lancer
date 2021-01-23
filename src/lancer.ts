@@ -100,7 +100,7 @@ import {
   license_ref,
   manufacturer_ref,
 } from "./module/helpers/item";
-import { clicker_num_input, clicker_stat_card, compact_stat_edit, compact_stat_view, overcharge_button, stat_edit_card, stat_edit_card_max, stat_view_card, } from "./module/helpers/actor";
+import { clicker_num_input, clicker_stat_card, compact_stat_edit, compact_stat_view, npc_clicker_stat_card, overcharge_button, stat_edit_card, stat_edit_card_max, stat_view_card, } from "./module/helpers/actor";
 import { HelperOptions } from "handlebars";
 import { editable_mm_ref_list_item, simple_mm_ref, mm_ref_portrait, mm_ref_list_append_slot } from "./module/helpers/refs";
 import { mech_loadout, pilot_slot } from "./module/helpers/loadout";
@@ -194,7 +194,8 @@ Hooks.once("init", async function () {
     makeDefault: true,
   });
   Items.registerSheet("lancer", LancerFrameSheet, { types: [EntryType.FRAME], makeDefault: true });
-  Items.registerSheet("lancer", LancerNPCClassSheet, {
+  // Items.registerSheet("lancer", LancerNPCClassSheet, {
+  Items.registerSheet("lancer", LancerItemSheet, {
     types: [EntryType.NPC_CLASS, EntryType.NPC_TEMPLATE],
     makeDefault: true,
   });
@@ -316,12 +317,13 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("stat-edit-card", stat_edit_card);
   Handlebars.registerHelper("stat-edit-max-card", stat_edit_card_max);
   Handlebars.registerHelper("clicker-stat-card", clicker_stat_card);
+  Handlebars.registerHelper("npc-clicker-stat-card", npc_clicker_stat_card);
   
 
   // ------------------------------------------------------------------------
   // Refs
   Handlebars.registerHelper("simple-ref", simple_mm_ref);
-  Handlebars.registerHelper("ref-mm-list-item", editable_mm_ref_list_item);
+  Handlebars.registerHelper("ref-mm-controllable-item", editable_mm_ref_list_item);
   Handlebars.registerHelper("ref-mm-list-item-append", mm_ref_list_append_slot);
   Handlebars.registerHelper("pilot-slot", pilot_slot);
   Handlebars.registerHelper("ref-portrait-img", mm_ref_portrait);

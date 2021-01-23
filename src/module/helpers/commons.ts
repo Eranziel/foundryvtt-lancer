@@ -3,8 +3,24 @@ import {
   EntryType,
   LiveEntryTypes,
   RegEntry,
-  RegRef
+  Range,
+  Damage,
+  RegRef,
+  funcs,
+  MountType,
+  RangeType,
+  DamageType,
+  SystemMount,
+  WeaponMount,
+  WeaponSize,
+  FittingSize,
+  MechWeaponProfile,
+  FrameTrait,
+  Bonus
 } from "machine-mind";
+import { LancerActorSheet } from "../actor/lancer-actor-sheet";
+import { LancerActorSheetData, LancerItemSheetData } from "../interfaces";
+import { MMEntityContext } from "../mm-util/helpers";
 
 // Simple helper to simplify mapping truthy values to "checked"
 export function checked(truthytest: any): string {
@@ -47,30 +63,43 @@ export function gentle_merge(dest: any, flat_data: any) {
   }
 }
 
-/** Delete an array item specified by a dot pathspec, in place
- * Has no effect if index does not exist, or if target is not an array
+/** Insert an array item specified by a dot pathspec, in place
+ * Inserted BEFORE that element. If specified index is beyond the length of the array, will simply be appended. If "delete" specified, deletes instead
+ * Has no effect if target is not an array.
 */
-export function del_arr_key(dest: any, flat_path: string) {
+export function array_path_edit(target: any, flat_path: string, value: any, mode: "insert" | "delete") {
   // Break it up
-  let leading = flat_path.split(".");
-  let tail = leading.splice(leading.length - 1)[0];
+  flat_path = format_dotpath(flat_path);
+  let split = flat_path.split(".");
+  let tail = split.splice(split.length - 1)[0];
+  let lead = split.join(".");
 
-  // Drill down to reach tail, if we can
-  let curr = dest;
-  for (let p of leading) {
-    curr = curr[p];
-    if (curr === undefined) {
-      console.error(`Unable to delete array item "${flat_path}": ${p} resulted in undefined`);
-      return;
+  let index = parseInt(tail);
+  let array = resolve_dotpath(target, lead);
+  if(Array.isArray(array) && !Number.isNaN(index)) {
+    // Bound our index
+    if(index > array.length) {
+      index = array.length;
     }
-  }
+    if(index < 0) {
+      // For negative indexes, count back from end, python style.
+      // With the caveat that this also shifts behavior to insert AFTER. So, -1 to append to end, -2 to 1 before end, etc.
+      index = array.length + index + 1;
 
-  // Now we just have the tail
-  let tail_parsed = Number.parseInt(tail);
-  if(Array.isArray(curr) && !Number.isNaN(tail_parsed)) {
-    curr.splice(tail_parsed, 1);
+      // If still negative, then we've gone backwards past start of list, and so we bound to zero
+      if(index < 0) {
+        index = 0;
+      }
+    }
+
+    // Different behavior depending on mode
+    if(mode == "delete") {
+      array.splice(index, 1);
+    } else if(mode == "insert") {
+      array.splice(index, 0, value);
+    }
   } else {
-    console.error(`Unable to delete array item "${flat_path}[${tail}]": not an array (or not a valid index)`);
+    console.error(`Unable to insert array item "${flat_path}[${tail}]": not an array (or not a valid index)`);
   }
 }
 
@@ -99,12 +128,16 @@ export function is_ref(v: any): v is RegRef<any> {
   // let vt = v as LancerItem<LancerItemType> | null; // Better type
   // return vt?._id !== undefined && vt?.type !== undefined && LancerItemTypes
 // }
+// Helper function to format a dotpath to not have any square brackets, instead using pure dot notation
+export function format_dotpath(path: string): string {
+  return path
+    .replace(/\[/g, ".")
+    .replace(/]/g, "");
+}
 
 // Helper function to get arbitrarily deep array references
 export function resolve_dotpath(object: any, path: string) {
-  return path
-    .replace(/\[/g, ".")
-    .replace(/]/g, "")
+  return format_dotpath(path)
     .split(".")
     .reduce((o, k) => o?.[k], object) ?? null;
 }
@@ -119,14 +152,19 @@ export function resolve_helper_dotpath(helper: HelperOptions, path: string): any
  * - "delete": delete() the item located at data-path
  * - "null": set as null the value at the specified path
  * - "splice": remove the array item at the specified path
- * - "set": set as `data-action-value` the item at the specified path. Defaults to string. 
+ * - "set": set as `data-action-value` the item at the specified path.
+ *    - if prefixed with (string), will use rest of val as plain string
  *    - if prefixed with (int), will parse as int
+ *    - if prefixed with (float), will parse as float
  *    - if prefixed with (bool), will parse as boolean
+ *    - if prefixed with (struct), will refer to the LANCER.control_structs above, generating whatever value matches the key
+ * - "append": append the item to array at the specified path, using same semantics as data-action-value
+ * - "insert": insert the item to array at the specified path, using same semantics as data-action-value. Resolves path in same way as "splice". Inserts before.
  * all using a similar api: a `path` to the item, and an `action` to perform on that item. In some cases, a `val` will be used
  * 
  * The data getter and commit func are used to retrieve the target data, and to save it back (respectively)
  */
-export function HANDLER_activate_general_controls<T>(
+export function HANDLER_activate_general_controls<T extends LancerActorSheetData<any> | LancerItemSheetData<any>>(
     html: JQuery, 
     // Retrieves the data that we will operate on
     data_getter: (() => (Promise<T> | T)),
@@ -139,6 +177,7 @@ export function HANDLER_activate_general_controls<T>(
       const path = elt.dataset.path;
       const action = elt.dataset.action;
       const data = await data_getter();
+      const raw_val: string = elt.dataset.actionValue ?? "";
 
       if(!path || !data) {
           console.error("Gen control failed: missing path");
@@ -148,38 +187,118 @@ export function HANDLER_activate_general_controls<T>(
         console.error("Gen control failed: data could not be retrieved");
       }
 
-      switch(action) {
-        default: 
-          return; // No-op
-        case "delete":
+      if(action == "delete") {
           // Find and delete the item at that path
           let item = resolve_dotpath(data, path) as RegEntry<any>;
           return item.destroy_entry();
-
-        case "splice":
+      } else if(action == "splice") {
           // Splice out the value at path dest, then writeback
-          del_arr_key(data, path);
-          break;
-        case "null":
+          array_path_edit(data, path, null, "delete");
+      } else if(action == "null") {
           // Null out the target space
           gentle_merge(data, {[path]: null});
-          break;
-        case "set":
-          // Null out the target space
-          let raw_val: string = elt.dataset.actionValue ?? "";
-          let real_val: string | number | boolean;
-          if(raw_val.slice(0, 5) == "(int)") {
-            real_val = Number.parseInt(raw_val.slice(5));
-          } else if(raw_val.slice(0, 6) == "(bool)") {
-            real_val = (raw_val.slice(6) === "true");
-          } else {
-            real_val = raw_val;
+      } else if(["set", "append", "insert"].includes(action)) {
+          let result = await parse_control_val(raw_val, data.mm);
+          let success = result[0];
+          let value = result[1];
+          if(!success) {
+            console.warn(`Bad data-action-value: ${value}`);
+            return; // Bad arg - no effect
           }
-          gentle_merge(data, {[path]: real_val});
-          break;
+
+          // Multiplex with our parsed actions
+          switch(action) {
+            case "set":
+              gentle_merge(data, {[path]: value});
+              break;
+            case "append":
+              array_path_edit(data, path + "[-1]", value, "insert");
+              break;
+            case "insert":
+              array_path_edit(data, path, value, "insert");
+              break;
+          }
       }
 
       // Handle writing back our changes
       await commit_func(data);
     });
+}
+
+// Used by above to figure out how to handle "set"/"append" args
+// Returns [success: boolean, val: any]
+async function parse_control_val(raw_val: string, ctx: MMEntityContext<any>): Promise<[boolean, any]> {
+  // Declare
+  let real_val: string | number | boolean | any;
+
+  // Determine what we're working with
+  let match = raw_val.match(/\((.*?)\)(.*)/)
+  if(match) {
+    let type = match[1];
+    let val = match[2];
+    switch(type) {
+      case "int":
+        let parsed_int = parseInt(val);
+        if(!Number.isNaN(parsed_int)) {
+          return [true, parsed_int];
+        } 
+        break;
+      case "float":
+        let parsed_float = parseFloat(val);
+        if(!Number.isNaN(parsed_float)) {
+          return [true, parsed_float];
+        }
+        break;
+      case "bool":
+        if(val == "true") {
+          return [true, true];
+        } else if(val == "false") {
+          return [true, false];
+        }
+      case "struct":
+        return control_structs(val, ctx);
+    }
+  }
+
+  // No success
+  return [false, null];
+}
+
+// Used by above to insert/set more advanced items. Expand as needed
+// Returns [success: boolean, val: any]
+async function control_structs(key: string, ctx: MMEntityContext<any>): Promise<[boolean, any]> {
+  // Look for a matching result
+  switch(key) {
+    case "empty_array":
+      return [true, []];
+    case "frame_trait":
+      let trait = new FrameTrait(ctx.reg, ctx.ctx, funcs.defaults.FRAME_TRAIT());
+      return [true, await trait.ready()];
+    case "bonus":
+      return [true, new Bonus(funcs.defaults.BONUS())];
+    case "mount_type":
+      return [true, MountType.Main];
+    case "range":
+      return [true, new Range({
+        type: RangeType.Range,
+        val: "5"
+      })];
+    case "damage":
+      return [true, new Damage({
+        type: DamageType.Kinetic,
+        val: "1d6"
+      })];
+    case "sys_mount":
+      let sys_mount = new SystemMount(ctx.reg, ctx.ctx, {system: null});
+      return [true, await sys_mount.ready()];
+    case "wep_mount":
+      let wep_mount = new WeaponMount(ctx.reg, ctx.ctx, funcs.defaults.WEAPON_MOUNT_DATA()); 
+      return [true, await wep_mount.ready()];
+    case "weapon_profile": 
+      let profile = new MechWeaponProfile(ctx.reg, ctx.ctx, funcs.defaults.WEAPON_PROFILE());
+      return [true, await profile.ready()];
+  }
+
+  // Didn't find a match
+  return [false, null];
 }

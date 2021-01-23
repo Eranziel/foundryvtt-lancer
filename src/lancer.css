@@ -81,8 +81,10 @@ button {
 }
 
 .lancer.sheet header:not(.window-header) {
-  display: grid;
-  grid-template: 1.5fr 1fr 30px / 1fr 1fr 1.5fr 1fr 120px;
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
   background-color: var(--main-theme-color, fuchsia);
   margin: 10px;
   color: white;
@@ -90,9 +92,10 @@ button {
 
 .lancer.sheet header .details {
   display: flex;
-  flex-direction: column;
+  /* flex-direction: column; */
   font-size: 14px;
   padding: 10px;
+  align-items: flex-start;
 }
 
 .lancer.sheet header img {
@@ -223,6 +226,22 @@ button {
   justify-content: center;
   align-items: center;
 }
+
+
+.simple-button {
+  color: white;
+  background-color: var(--main-theme-color, fuchsia);
+  max-width: max-content;
+  min-width: max-content;
+  align-items: center;
+  border-radius: 5px;
+  padding: 0px 5px;
+  margin: 3px 5px;
+  border: 2px;
+  font-size: 12px;
+}
+
+
 
 .compact-tag {
   color: white;
@@ -702,12 +721,14 @@ tr.lcp-index-header {
   clip-path: polygon( 0 0, calc(100% - 30px) 0, 100% 100%, 0 100% );
   -webkit-clip-path: polygon( 0 0, calc(100% - 30px) 0, 100% 100%, 0 100% );
   background-color: #CCCCCC;
+  /*
   grid-area: 3/1/4/5;
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(5, 1fr); */
   padding-left: 5px;
-  padding-right: 30px;
-  align-items: center;
+  padding-right: 5px;
+  align-items: flex-start;
+  color: black;
 }
 
 .compact-stat {
@@ -751,6 +772,7 @@ tr.lcp-index-header {
   color: white;
   background-color: var(--main-theme-color, fuchsia);
   max-height: fit-content;
+  padding: 5px;
 }
 
 .lancer-loadout-header {
@@ -1183,11 +1205,7 @@ input.core-power-toggle:not(:checked)::before
   margin: 3px;
 }
 
-/* 3/3. However, we generalize */
-.wraprow > .full {
-  flex: 1 0 calc(100% - 6px); 
-  margin: 3px;
-}
+
 
 /* Four items per row */
 .wraprow.quadruple > * {
@@ -1225,6 +1243,44 @@ input.core-power-toggle:not(:checked)::before
 .wraprow.quintuple > .quadruple {
   flex: 1 0 calc(80% - 6px); 
   margin: 3px;
+}
+
+.wraprow.hextuple > * {
+  flex: 1 0 calc(16% - 6px); 
+  margin: 3px;
+}
+
+.wraprow.hextuple > .double {
+  flex: 1 0 calc(33% - 6px); 
+  margin: 3px;
+}
+
+.wraprow.hextuple > .triple {
+  flex: 1 0 calc(49% - 6px); 
+  margin: 3px;
+}
+
+.wraprow.hextuple > .quadruple {
+  flex: 1 0 calc(66% - 6px); 
+  margin: 3px;
+}
+
+.wraprow.hextuple > .quintuple {
+  flex: 1 0 calc(82% - 6px); 
+  margin: 3px;
+}
+/* 3/3. However, we generalize */
+.wraprow.double > .full,
+.wraprow.triple > .full,
+.wraprow.quadruple > .full,
+.wraprow.quintuple > .full,
+.wraprow.hextuple > .full { 
+  flex: 1 0 calc(100% - 6px); 
+  margin: 3px;
+}
+
+.flexgrow {
+  flex-grow: 1; 
 }
 
 /* Glow effect courtesy of https://codepen.io/jackrugile/pen/ABeIi */

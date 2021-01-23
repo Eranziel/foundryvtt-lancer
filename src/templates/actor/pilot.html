@@ -2,30 +2,38 @@
 
   {{!-- Sheet Header --}}
   <header>
-    <div class="details" style="grid-area: 1/1/2/3">
-      CALLSIGN
-      <span class="pilot-callsign">{{mm.ent.Callsign}}</span>
+    <div class="flexcol">
+      <div class="flexrow">
+        <div class="details">
+          <span>LICENSE LEVEL:</span>
+          <span class="pilot-callsign">{{mm.ent.Level}}</span>
+        </div>
+
+        <div class="details flexcol">
+          <span>CALLSIGN:</span>
+          <span class="pilot-callsign">{{mm.ent.Callsign}}</span>
+        </div>
+
+        <div class="details flexcol">
+          <span>NAME:</span>
+          <span class="medium">{{actor.name}}</span>
+        </div>
+
+        <div class="details flexcol">
+          <span>BACKGROUND:</span>
+          <span class="medium">{{mm.ent.Background}}</span>
+        </div>
+      </div>
+      <div class="flexrow pilot-stats">
+        {{{compact-stat-edit "mdi mdi-heart-outline"                     "mm.ent.CurrentHP"  "mm.ent.MaxHP" }}}
+        {{{compact-stat-edit "mdi mdi-heart-outline"                     "mm.ent.Overshield"  "mm.ent.MaxHP" }}}
+        {{{compact-stat-view "mdi mdi-shield-outline"                    "mm.ent.Armor"  }}}
+        {{{compact-stat-view "cci cci-evasion"                           "mm.ent.Evasion"  }}}
+        {{{compact-stat-view "cci cci-edef"                              "mm.ent.EDefense"  }}}
+        {{{compact-stat-view "mdi mdi-arrow-right-bold-hexagon-outline"  "mm.ent.Speed"  }}}
+      </div>
     </div>
-    <div class="details" style="grid-area: 1/4/3/5">
-      LICENSE LEVEL
-      <span class="pilot-callsign" style="padding-left: 10px; font-size:40px">{{mm.ent.Level}}</span>
-    </div>
-    <div class="details" style="grid-area: 2/1/3/3">
-      NAME
-      <span class="medium">{{actor.name}}</span>
-    </div>
-    <div class="details" style="grid-area: 2/3/3/4">
-      BACKGROUND
-      <span class="medium">{{mm.ent.Background}}</span>
-    </div>
-    <div class="pilot-stats">
-      {{{compact-stat-edit "mdi mdi-heart-outline"                     "mm.ent.CurrentHP"  "mm.ent.MaxHP" }}}
-      {{{compact-stat-view "mdi mdi-shield-outline"                    "mm.ent.Armor"  }}}
-      {{{compact-stat-view "cci cci-evasion"                           "mm.ent.Evasion"  }}}
-      {{{compact-stat-view "cci cci-edef"                              "mm.ent.EDefense"  }}}
-      {{{compact-stat-view "mdi mdi-arrow-right-bold-hexagon-outline"  "mm.ent.Speed"  }}}
-    </div>
-    {{{ ref-portrait-img "actor.img" mm.ent }}}
+    {{{ ref-portrait-img actor.img "img" mm.ent }}}
   </header>
 
   {{!-- Sheet Tab Navigation --}}
@@ -37,7 +45,7 @@
   </nav>
 
   {{!-- Sheet Body --}}
-  <section class="sheet-body" style="height: 100%">
+  <section class="sheet-body">
 
     {{!-- Cloud Management Tab --}}
     <div class="tab manage" data-group="primary" data-tab="cloud">
@@ -141,7 +149,7 @@
         <div class="card clipped">
           <h2 class="lancer-title clipped">SKILL TRIGGERS</h2>
           {{#each mm.ent.Skills as |skill index|}}
-            {{{ref-mm-list-item (concat "mm.ent.Skills." index) "delete" }}}
+            {{{ref-mm-controllable-item (concat "mm.ent.Skills." index) "delete" }}}
           {{/each}}
         </div>
       </div>
@@ -175,7 +183,7 @@
         <div class="card clipped">
           <h2 class="lancer-title clipped">TALENTS</h2>
           {{#each mm.ent.Talents as |skill index|}}
-            {{{ref-mm-list-item (concat "mm.ent.Talents." index) "delete" }}}
+            {{{ref-mm-controllable-item (concat "mm.ent.Talents." index) "delete" }}}
           {{/each}}
         </div>
 
@@ -183,7 +191,7 @@
         <div class="card clipped">
           <h2 class="lancer-title clipped-top">LICENSES</h2>
           {{#each mm.ent.Licenses as |license index|}}
-            {{{ref-mm-list-item (concat "mm.ent.Licenses." index) "delete" }}}
+            {{{ref-mm-controllable-item (concat "mm.ent.Licenses." index) "delete" }}}
           {{/each}}
         </div>
 
@@ -191,7 +199,7 @@
         <div class="card clipped">
           <h2 class="lancer-title clipped-top">CORE BONUSES</h2>
           {{#each mm.ent.CoreBonuses as |core_bonus index|}}
-            {{{ref-mm-list-item (concat "mm.ent.CoreBonuses." index) "delete" }}}
+            {{{ref-mm-controllable-item (concat "mm.ent.CoreBonuses." index) "delete" }}}
           {{/each}}
         </div>
       </div>

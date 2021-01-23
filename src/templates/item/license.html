@@ -2,27 +2,28 @@
   
   {{!-- Sheet Header --}}
   <header class="sheet-header card clipped-bot">
-    <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}" height="100" width="100"/>
-    <div class="header-fields">
-      <h1 class="charname"><input name="name" type="text" value="{{item.name}}" placeholder="Name"/></h1>
-    </div>
+    <h1 class="charname flexgrow"><input class="header-field" name="name" type="text" value="{{item.name}}" placeholder="Name"/></h1>
+    {{{ ref-portrait-img item.img "img" mm.ent }}}
   </header>
 
-  <div class="flexrow" style="flex-wrap: nowrap;">
-    {{#each mm.ent.Unlocks as |unlock_array rank|}}
-    <div class="talent-level card clipped-bot flexcol" style="max-width: 33%; flex-shrink: 1">
-      <div class="licensed-container flexcol" style="background-color: #dbdbdb; justify-content: flex-start; flex-grow: unset;">
-        <div>
-          <span class="minor" style="align-content: center;">//RANK {{rank}}</span>
-          <!--<a class="add-button clickable" data-action="create"  style="float: right; margin-right: 1em">+</a>-->
+  <div class="flexcol">
+    <a class="gen-control simple-button" data-action="append" data-action-value="(struct)empty_array" data-path="mm.ent.Unlocks"  style="float: right; margin-right: 1em">Add Rank</a>
+
+    <div class="flexrow" style="flex-wrap: nowrap;">
+      {{#each mm.ent.Unlocks as |unlock_array rank|}}
+      <div class="talent-level card clipped-bot flexcol" style="max-width: 33%; flex-shrink: 1">
+        <div class="licensed-container flexcol" style="background-color: #dbdbdb; justify-content: flex-start; flex-grow: unset;">
+          <div>
+            <span class="minor" style="align-content: center;">//RANK {{rank}}</span>
+          </div>
+          {{#each unlock_array as |unlock unlock_index|}}
+              {{{ref-mm-controllable-item (concat "mm.ent.Unlocks." rank "." unlock_index) "splice" }}}
+          {{/each}}
+          {{{ref-mm-list-item-append (concat "mm.ent.Unlocks." rank)  "frame mech_system mech_weapon weapon_mod"}}}
         </div>
-        {{#each unlock_array as |unlock unlock_index|}}
-            {{{ref-mm-list-item (concat "mm.ent.Unlocks." rank "." unlock_index) "splice" }}}
-        {{/each}}
-        {{{ref-mm-list-item-append (concat "mm.ent.Unlocks." rank) "splice" }}}
       </div>
+      {{/each}}
     </div>
-    {{/each}}
   </div>
 
 </form>
