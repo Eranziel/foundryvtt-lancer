@@ -7,7 +7,8 @@
   --main-font-family: Helvetica, Arial, sans-serif;
 
   --main-theme-color: #991e2a;  /* I've configured calls to this to fall back on fuchsia when things go wrong */
-  --loadout-color: #4f4e52;  
+  --secondary-theme-color: #505050;  
+  --loadout-color: #628ed1;  
   --ref-color: #ffe9df;  
   --gms-theme-color: #991e2a;
   --ipsn-theme-color: #1662b8;
@@ -769,9 +770,16 @@ tr.lcp-index-header {
 }
 
 .lancer-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
   align-items: center;
   color: white;
   background-color: var(--main-theme-color, fuchsia);
+}
+
+.lancer-header.alt {
+  background-color: var(--secondary-theme-color, fuchsia);
 }
 
 .big-editor {
