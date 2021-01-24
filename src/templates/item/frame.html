@@ -13,7 +13,7 @@
 
   {{!-- Description --}}
   <div class="flexcol card clipped" style="text-align: left;">
-    <span class="lancer-header major clipped-top" style="text-align: center;">DESCRIPTION</span>
+    <span class="lancer-header major " style="text-align: center;">DESCRIPTION</span>
     <div class="desc-text">{{editor content=mm.ent.Description target="mm.ent.Description" button=true owner=owner editable=editable}}</div>
   </div>
 
@@ -67,7 +67,7 @@
     </div>
     {{#each mm.ent.Traits as |trait key|}}
       <div class="card clipped frame-trait-compact">
-        <div class="lancer-mech-trait-header medium clipped-top flexrow">
+        <div class="lancer-header trait medium">
           <i class="cci cci-trait i--m i--light header-icon"> </i>
           <input class="lancer-invisible-input major i--light" name="mm.ent.Traits.{{key}}.Name" value="{{trait.Name}}" data-dtype="String" />
           <a class="gen-control" data-action="splice" data-path="mm.ent.Traits.{{key}}" style="float: right; margin-right: 11px; margin-top: 2px;">
@@ -82,7 +82,7 @@
 
   {{!-- Core System --}}
   <div class="card clipped frame-core flexcol">
-    <div class="lancer-core-sys-header medium clipped-top flexrow">
+    <div class="lancer-header core-sys medium">
       <i></i>
       <input class="lancer-invisible-input major i--light" name="mm.ent.CoreSystem.Name" value="{{mm.ent.CoreSystem.Name}}" data-dtype="String" />
       <div class="medium i--faded" style="justify-self: right;"> // CORE SYSTEM</div>
@@ -98,7 +98,7 @@
     {{/each}}
 
     <div class="card clipped">
-      <div class="lancer-core-sys-header medium clipped-top flexrow">
+      <div class="lancer-header core-sys medium">
         <i class="mdi mdi-circle-expand i--m i--light"> </i>
         <input class="lancer-invisible-input medium i--light" name="mm.ent.CoreSystem.PassiveName" value="{{mm.ent.CoreSystem.PassiveName}}" data-dtype="String" />
         <div class="medium i--faded" style="justify-self: right;"> // PASSIVE</div>
@@ -106,7 +106,7 @@
       <div class="effect-text">{{editor content=mm.ent.CoreSystem.PassiveEffect target="mm.ent.CoreSystem.PassiveEffect" button=true owner=owner editable=editable}}</div>
     </div>
     <div class="card clipped">
-      <div class="lancer-core-sys-header medium clipped-top flexrow">
+      <div class="lancer-header core-sys medium">
         <i class="cci cci-corebonus i--m i--light"> </i>
         <input class="lancer-invisible-input medium i--light" name="mm.ent.CoreSystem.ActiveName" value="{{mm.ent.CoreSystem.ActiveName}}" data-dtype="String" />
         <div class="i--faded" style="justify-self: right;"> // ACTIVE</div>

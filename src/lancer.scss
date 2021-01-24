@@ -8,7 +8,7 @@
 
   --main-theme-color: #991e2a;  /* I've configured calls to this to fall back on fuchsia when things go wrong */
   --secondary-theme-color: #505050;  
-  --loadout-color: #628ed1;  
+  --loadout-color: #65788a;  
   --ref-color: #ffe9df;  
   --gms-theme-color: #991e2a;
   --ipsn-theme-color: #1662b8;
@@ -18,9 +18,13 @@
   /* Shouldn't there be some sort of "--current-theme"??? */
 
   --reaction-clip-path: polygon( 0 0, 100% 0, 100% 1px, calc(100% - 9px) 1px, calc(100% - 8px) 2px, 100% 2px, 100% 3px, calc(100% - 7px) 3px, calc(100% - 6px) 4px, 100% 4px, 100% 5px, calc(100% - 5px) 5px, calc(100% - 4px) 6px, 100% 6px, 100% 7px, calc(100% - 3px) 7px, calc(100% - 2px) 8px, 100% 8px, 100% 100%, 0 100% );
-  --reaction-color: #0a7674;
+  --trait-color: #0a7674;
+  --system-color: #67bc45;
   --tech-clip-path: polygon( 0 0, calc(100% - 12px) 0, calc(100% - 12px) 7px, calc(100% - 7px) 7px, calc(100% - 7px) 3px, calc(100% - 3px) 3px, calc(100% - 3px) 0, 100% 0, 100% 3px, calc(100% - 3px) 3px, calc(100% - 3px) 7px, calc(100% - 7px) 7px, calc(100% - 7px) 12px, 100% 12px, 100% 100%, 0 100% );
   --tech-color: #7d2477;
+  --weapon-color: #111111;
+  --reaction-color: #892eb1;
+  --protocol-color: #c75a00;
 
   /* Darkens tone by a small increment. For some themes should probably lighten instead, somehow? */
   --darken-1: #00000016;
@@ -327,52 +331,36 @@ ul.items-list {
   max-height: 5em;
 }
 
+@mixin icon-size($pixels) {
+  font-size: $pixels;
+  min-width: $pixels;
+  max-width: $pixels;
+  min-height: $pixels;
+  max-height: $pixels;
+}
+
 .i--xs {
-  font-size: 15px;
-  min-width: 15px;
-  max-width: 15px;
-  min-height: 15px;
-  max-height: 15px;
+  @include icon-size(15px);
 }
 
 .i--s {
-  font-size: 20px;
-  min-width: 20px;
-  max-width: 20px;
-  min-height: 20px;
-  max-height: 20px;
+  @include icon-size(20px);
 }
 
 .i--sm {
-  font-size: 25px;
-  min-width: 25px;
-  max-width: 25px;
-  min-height: 25px;
-  max-height: 25px;
+  @include icon-size(25px);
 }
 
 .i--m {
-  font-size: 30px;
-  min-width: 30px;
-  max-width: 30px;
-  min-height: 30px;
-  max-height: 30px;
+  @include icon-size(30px);
 }
 
 .i--l {
-  font-size: 40px;
-  min-width: 40px;
-  max-width: 40px;
-  min-height: 40px;
-  max-height: 40px;
+  @include icon-size(40px);
 }
 
 .i--xl {
-  font-size: 60px;
-  min-width: 60px;
-  max-width: 60px;
-  min-height: 60px;
-  max-height: 60px;
+  @include icon-size(60px);
 }
 
 .i--dark {
@@ -578,41 +566,6 @@ tr.lcp-index-header {
   -webkit-clip-path: polygon( 0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100% );
 }
 
-.lancer-system-header {
-  clip-path: polygon( 0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%, 0 100% );
-  -webkit-clip-path: polygon( 0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%, 0 100% );
-  background-color: #67bc45;
-}
-
-.lancer-trait-header {
-  background-color: var(--main-theme-color, fuchsia);
-}
-
-.lancer-trigger-header {
-  color: var(--main-theme-color, fuchsia);
-  background-color: white;
-}
-
-.lancer-protocol-header {
-  background-color: #c75a00;
-}
-
-.lancer-reaction-header {
-  background-color: #892eb1;
-}
-
-.lancer-tech-header {
-  clip-path: var(--tech-clip-path);
-  -webkit-clip-path: var(--tech-clip-path);
-  background-color: var(--tech-color);
-}
-
-.lancer-weapon-header {
-  background-color: #000000;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
 
 .lancer-weapon-body,
 .lancer-tech-body {
@@ -723,10 +676,6 @@ tr.lcp-index-header {
   clip-path: polygon( 0 0, calc(100% - 30px) 0, 100% 100%, 0 100% );
   -webkit-clip-path: polygon( 0 0, calc(100% - 30px) 0, 100% 100%, 0 100% );
   background-color: #CCCCCC;
-  /*
-  grid-area: 3/1/4/5;
-  display: grid;
-  grid-template-columns: repeat(5, 1fr); */
   padding-left: 5px;
   padding-right: 5px;
   align-items: flex-start;
@@ -769,28 +718,107 @@ tr.lcp-index-header {
   align-items: center;
 }
 
+/* Consolidate all of our stat stuff */
+
 .lancer-header {
+  /* flex: 0 0 2.0em;
+  min-height: 2.0em;
+  max-height: 2.0em; */
+  flex-grow: 0;
+
+  text-overflow: ellipsis;
+  overflow: hidden;
+  font-weight: bold;
+
   display: flex;
   flex-direction: row;
   justify-content: space-around;
   align-items: center;
+
   color: white;
   background-color: var(--main-theme-color, fuchsia);
-}
 
-.lancer-header.alt {
-  background-color: var(--secondary-theme-color, fuchsia);
+  /* For buttons/icons, we want them to not grow but also not just get squashed into nothing 
+  * If this unbalances things, add an equal # of balancers to the other side
+  */ 
+  a, i {
+    flex: 0 0 40px;
+  }
+
+  div.balancer {
+    visibility: hidden;
+    flex: 0 0 40px;
+  }
+
+  /* Spans are the main bodies of headers. We want them to grow! */
+  span {
+    flex-grow: 1;
+  }
+
+
+  /* Like main just an off color */
+  &.alt {
+    background-color: var(--secondary-theme-color, fuchsia);
+  }
+
+  /* If our parent item is clipped, we should be as well (? might not be necessary) */
+  .clipped > &,
+  .clipped-top > & {
+    padding-left: 10px;
+    clip-path: var(--top-dogear-path);
+    -webkit-clip-path: var(--top-dogear-path);
+  }
+
+  /* Category specific coloration */
+  &.loadout {
+    background-color: var(--loadout-color, fuchsia);
+  }
+
+  &.system {
+    /* clip-path: polygon( 0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%, 0 100% );
+    -webkit-clip-path: polygon( 0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%, 0 100% ); */
+    background-color: var(--system-color); 
+  }
+
+  &.trait {
+    background-color: var(--main-theme-color, fuchsia);
+  }
+
+  &.trigger {
+    color: var(--main-theme-color, fuchsia);
+    background-color: white;
+  }
+
+  &.protocol {
+    background-color: var(--protocol-color);
+  }
+
+  &.reaction {
+    background-color: var(--reaction-color);
+  }
+
+  &.tech {
+    /* clip-path: var(--tech-clip-path);
+    -webkit-clip-path: var(--tech-clip-path); */
+    background-color: var(--tech-color);
+  }
+
+  &.weapon {
+    background-color: var(--weapon-color);
+  }
+
+  /* General font sizing options */
+  &.major {
+    font-size: 18px;
+  }
+
+  &.minor {
+    font-size: 12px;
+  }
 }
 
 .big-editor {
   background-color: #dbdbdb; min-height: 15em; text-align: left
-}
-
-.lancer-loadout-header {
-  align-items: center;
-  color: white;
-  background-color: var(--loadout-color, fuchsia);
-  max-height: fit-content;
 }
 
 .lancer-stat {
@@ -834,7 +862,8 @@ input[type=string].lancer-input {
   height: -webkit-fill-available;
 }
 
-.header-field {
+.header-field,
+.header-fields > * {
   color: white !important;
 }
 
@@ -854,28 +883,11 @@ input[type=string].lancer-input {
   text-align: center;
   padding-bottom: 1px;
 }
-.card .lancer-title {
-  /* TODO: review if this rule can be simplified */
-  margin: initial 0;
-}
+
 .card .editor-content {
   text-align: left;
 }
 
-.major {
-  font-size: 18px;
-  font-weight: bold;
-}
-
-.medium {
-  font-size: 14px;
-  font-weight: bold;
-}
-
-.minor {
-  font-size: 12px;
-  font-weight: bold;
-}
 
 .lancer-title {
   text-align: center;
@@ -903,41 +915,6 @@ input[type=string].lancer-input {
   padding: 0.5em;
   font-family: Helvetica;
 }
-
-.skill-compact {
-  display: grid;
-  grid-template: 2.0em 1fr / 100px 1fr;
-  align-items: center;
-  margin-right: 25px;
-}
-
-.cb-compact {
-  display: grid;
-  grid-template: 2.0em 1fr / 1fr;
-  margin-right: 25px;
-}
-
-.talent-compact {
-  display: grid;
-  grid-template: 2.0em 1fr / 30px 1fr 30px;
-  margin-right: 25px;
-}
-
-.talent-rank-compact {
-  display: grid;
-  grid-template: 2.5em 1fr / 30px 1fr;
-}
-
-.frame-trait-compact {
-  display: grid;
-  grid-template: 2.0em 1fr / 1fr;
-  margin: 10px;
-}
-
-/* .frame-core {
-  display: grid;
-  grid-template: repeat(3, 1fr) / 1fr;
-} */
 
 /* Start of HORUS glitchy styles used in lancer-data */
 code {
@@ -1034,23 +1011,6 @@ code.horus:hover {
 
 
 /* End of HORUS glitchy styles used in lancer-data */
-
-.lancer-card .title {
-  text-align: center;
-  font-size: 16px;
-}
-
-.lancer-card .section-title {
-  text-align: center; 
-  font-size: 14px; 
-  font-weight: bold;
-}
-
-.lancer-card .effect-text {
-  text-align: right;
-  font-size: 12px;
-  font-weight: normal;
-}
 
 .roll-stat, .roll-attack,
 .roll-trigger, .system-macro,
@@ -1182,107 +1142,52 @@ input.core-power-toggle:not(:checked)::before
 }
 
 /* Some flex helpers */
+@mixin wr-item($prefix, $percent, $margin) {
+  &.#{$prefix} > * {
+    flex: 1 0 calc(#{$percent} - #{$margin * 2}); 
+    margin: 3px;
+  }
+
+  &.#{$prefix} > .double {
+    flex: 1 0 calc(#{$percent * 2} - #{$margin * 2}); 
+  }
+
+  &.#{$prefix} > .triple {
+    flex: 1 0 calc(#{$percent * 3} - #{$margin * 2}); 
+  }
+
+  &.#{$prefix} > .quadruple {
+    flex: 1 0 calc(#{$percent * 4} - #{$margin * 2}); 
+  }
+
+  &.#{$prefix} > .quintuple {
+    flex: 1 0 calc(#{$percent * 5} - #{$margin * 2}); 
+  }
+
+  &.#{$prefix} > .hextuple {
+    flex: 1 0 calc(#{$percent * 6} - #{$margin * 2}); 
+  }
+}
+
 .wraprow {
   display: flex;
   flex-wrap: wrap;
-}
 
-
-/* Two items per row */
-.wraprow.double > * {
-  flex: 1 0 calc(50% - 6px); /* the px here is 2x the margin. adjust accordingly */
-  margin: 3px;
-}
-
-.wraprow.double > .double {
-  flex: 1 0 calc(100% - 6px); 
-  margin: 3px;
-}
-
-/* Three items per row */
-.wraprow.triple > * {
-  flex: 1 0 calc(33% - 6px);
-  margin: 3px;
-}
-
-/* Takes up 2/3 row slots */
-.wraprow.triple > .double {
-  flex: 1 0 calc(66% - 6px); 
-  margin: 3px;
-}
-
-
-
-/* Four items per row */
-.wraprow.quadruple > * {
-  flex: 1 0 calc(25% - 6px); 
-  margin: 3px;
-}
-
-/* Doublewidth.quadruple item */
-.wraprow.quadruple > .double {
-  flex: 1 0 calc(50% - 6px); 
-  margin: 3px;
-}
-
-/* Triplewidth.quadruple item */
-.wraprow.quadruple > .triple {
-  flex: 1 0 calc(50% - 6px);
-  margin: 3px;
-}
-
-.wraprow.quintuple > * {
-  flex: 1 0 calc(20% - 6px); 
-  margin: 3px;
-}
-
-.wraprow.quintuple > .double {
-  flex: 1 0 calc(40% - 6px); 
-  margin: 3px;
-}
-
-.wraprow.quintuple > .triple {
-  flex: 1 0 calc(60% - 6px); 
-  margin: 3px;
-}
-
-.wraprow.quintuple > .quadruple {
-  flex: 1 0 calc(80% - 6px); 
-  margin: 3px;
-}
-
-.wraprow.hextuple > * {
-  flex: 1 0 calc(16% - 6px); 
-  margin: 3px;
-}
-
-.wraprow.hextuple > .double {
-  flex: 1 0 calc(33% - 6px); 
-  margin: 3px;
-}
-
-.wraprow.hextuple > .triple {
-  flex: 1 0 calc(49% - 6px); 
-  margin: 3px;
-}
-
-.wraprow.hextuple > .quadruple {
-  flex: 1 0 calc(66% - 6px); 
-  margin: 3px;
-}
-
-.wraprow.hextuple > .quintuple {
-  flex: 1 0 calc(82% - 6px); 
-  margin: 3px;
-}
-/* 3/3. However, we generalize */
-.wraprow.double > .full,
-.wraprow.triple > .full,
-.wraprow.quadruple > .full,
-.wraprow.quintuple > .full,
-.wraprow.hextuple > .full { 
-  flex: 1 0 calc(100% - 6px); 
-  margin: 3px;
+  @include wr-item("double", 50%, 3px);
+  @include wr-item("triple", 33.33%, 3px);
+  @include wr-item("quadruple", 25%, 3px);
+  @include wr-item("quintuple", 20%, 3px);
+  @include wr-item("hextuple", 16.66%, 3px);
+    
+  /* 3/3. However, we generalize */
+  &.double > .full,
+  &.triple > .full,
+  &.quadruple > .full,
+  &.quintuple > .full,
+  &.hextuple > .full { 
+    flex: 1 0 calc(100% - 6px); 
+    margin: 3px;
+  }
 }
 
 .grow {

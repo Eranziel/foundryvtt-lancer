@@ -27,13 +27,13 @@
     <div class="wraprow double">
       {{!-- Size --}}
       <div class="flexcol card clipped" style="padding: 10px;">
-        <span class="lancer-header major clipped-top">SIZE</span>
+        <span class="lancer-header major ">SIZE</span>
         {{{wpn-size-sel "mm.ent.Size"}}}
       </div>
 
       {{!-- Status --}}
       <div class="flexcol card clipped" style="padding: 10px;">
-        <span class="lancer-header major clipped-top">STATUS</span>
+        <span class="lancer-header major ">STATUS</span>
         <div class="flexrow">
           <span>LOADED:</span>
           <span><i>todo</i></span>
@@ -50,13 +50,13 @@
 
           {{!-- Type --}}
           <div class="flexcol card clipped">
-            <span class="lancer-header major clipped-top">TYPE</span>
+            <span class="lancer-header major ">TYPE</span>
             {{{wpn-type-sel (concat "mm.ent.Profiles." prof_index ".WepType") }}}
           </div>
 
           {{!-- Range --}}
           <div class="flexcol card clipped double">
-            <span class="lancer-header major clipped-top">
+            <span class="lancer-header major ">
               RANGE
               <a class="gen-control" data-action="append" data-path="mm.ent.Profiles.{{prof_index}}.BaseRange" data-action-value="(struct)range" style="float: right">+</a>
             </span>
@@ -67,7 +67,7 @@
 
           {{!-- Damage --}}
           <div class="flexcol card clipped double">
-            <span class="lancer-header major clipped-top">
+            <span class="lancer-header major ">
               DAMAGE
               <a class="gen-control" data-action="append" data-path="mm.ent.Profiles.{{prof_index}}.BaseDamage" data-action-value="(struct)damage" style="float: right">+</a>
             </span>
@@ -78,13 +78,13 @@
 
           {{!-- Description --}}
           <div class="flexcol card clipped full">
-            <span class="lancer-header major clipped-top">DESCRIPTION</span>
+            <span class="lancer-header major ">DESCRIPTION</span>
             {{editor content=profile.Description target=(concat "mm.ent.Profiles." prof_index ".Description") button=true owner=owner editable=editable}}
           </div>
 
           {{!-- Tags --}}
           <div class="flexcol card clipped full">
-            <span class="lancer-header major clipped-top">TAGS</span>
+            <span class="lancer-header major ">TAGS</span>
             {{{mm-tag-list profile.Tags}}}
           </div>
         </div>

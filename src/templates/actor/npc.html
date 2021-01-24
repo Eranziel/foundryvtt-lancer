@@ -52,7 +52,7 @@
 
       {{!-- Equipment et all --}}
       <div class="flexcol card clipped">
-        <span class="lancer-header major clipped-top">CLASSES (LIMIT 1)</span>
+        <span class="lancer-header major ">CLASSES (LIMIT 1)</span>
         <div class="flexcol">
           {{#each mm.ent.Classes as |class index|}}
             {{{ref-mm-controllable-item (concat "mm.ent.Classes." index) "delete" }}}
@@ -61,7 +61,7 @@
       </div>
 
       <div class="flexcol card clipped">
-        <span class="lancer-header major clipped-top">TEMPLATES</span>
+        <span class="lancer-header major ">TEMPLATES</span>
         <div class="wraprow double">
           {{#each mm.ent.Templates as |template index|}}
             {{{ref-mm-controllable-item (concat "mm.ent.Templates." index) "delete" }}}
@@ -70,7 +70,7 @@
       </div> 
       
       <div class="flexcol card clipped">
-        <span class="lancer-header major clipped-top">FEATURES</span>
+        <span class="lancer-header major ">FEATURES</span>
         <div class="wraprow double">
           {{#each mm.ent.Features as |feature index|}}
             {{{npc-feat-preview (concat "mm.ent.Features." index) mm.ent.Tier }}}
@@ -80,7 +80,7 @@
 
     
       <div class="flexcol card clipped">
-        <span class="lancer-header major clipped-top">Notes</span>
+        <span class="lancer-header major ">Notes</span>
         {{editor content=data.notes target="data.notes" button=true owner=owner editable=editable}}
       </div>
     </div>

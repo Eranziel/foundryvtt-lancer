@@ -36,7 +36,7 @@
       </div>
     </div>
     <div class="flexcol card clipped">
-      <span class="lancer-header major clipped-top">DESCRIPTION</span>
+      <span class="lancer-header major ">DESCRIPTION</span>
       <div style="margin: 5px">
         {{editor content=mm.ent.Description target="mm.ent.Description" button=true owner=owner editable=editable}}
       </div>
@@ -45,19 +45,19 @@
     {{!-- EFFECT --}}
     <!--
     <div class="effects-container flexcol card clipped">
-      <span class="lancer-header major clipped-top" style="float: left">EFFECT</span>
+      <span class="lancer-header major " style="float: left">EFFECT</span>
       <div class="flexcol" style="padding: 5px">
         {{{eff-type-sel data.effect.effect_type "data.effect.effect_type"}}}
 
         {{!-- BASIC or GENERIC EFFECT --}}
         {{#if (or (eq data.effect.effect_type "Basic") (eq data.effect.effect_type "Generic"))}}
-        <div class="lancer-header clipped-top flexrow" style="margin-top: 5px;">
+        <div class="lancer-header " style="margin-top: 5px;">
           <span style="margin-left: 10px; max-width: max-content;">EFFECT NAME // </span>
           <input style="margin: 3px;" class="header-field medium" type="text" name="data.effect.name" value="{{data.effect.name}}" placeholder="Optional" data-dtype="String"/>
         </div>
         {{{act-type-sel data.effect.activation "data.effect.activation"}}}
         <div class="card clipped flexcol">
-          <span class="lancer-header major clipped-top" style="float: left">DETAIL</span>
+          <span class="lancer-header major " style="float: left">DETAIL</span>
           <div style="margin: 5px">
             {{editor content=data.effect.detail target="data.effect.detail" button=true owner=owner editable=editable}}
           </div>
@@ -66,7 +66,7 @@
 
         {{!-- AI EFFECT --}}
         {{#if (eq data.effect.effect_type "AI")}}
-        <div class="lancer-header clipped-top flexrow" style="margin-top: 5px;">
+        <div class="lancer-header " style="margin-top: 5px;">
           <span style="margin-left: 10px; max-width: max-content;">EFFECT NAME // </span>
           <input style="margin: 3px;" class="header-field medium" type="text" name="data.effect.name" value="{{data.effect.name}}" placeholder="Optional" data-dtype="String"/>
         </div>
@@ -79,42 +79,42 @@
 
         {{!-- BONUS EFFECT --}}
         {{#if (eq data.effect.effect_type "Bonus")}}
-        <div class="lancer-header clipped-top flexrow" style="margin-top: 5px;">
+        <div class="lancer-header " style="margin-top: 5px;">
           <span style="margin-left: 10px; max-width: max-content;">EFFECT NAME // </span>
           <input style="margin: 3px;" class="header-field medium" type="text" name="data.effect.name" value="{{data.effect.name}}" placeholder="Optional" data-dtype="String"/>
         </div>
         <div class="card clipped flexcol">
           <div style="display: grid; grid-template: 3 / 2;">
             <div class="flexcol card clipped" style="grid-area: 1/1/2/2">
-              <div class="lancer-header clipped-top flexrow">
+              <div class="lancer-header ">
                 <i class="cci cci-size-1 i--m i--light header-icon"> </i>
                 <span class="major">SIZE</span>
               </div>
               <input class="lancer-stat medium" type="number" name="data.effect.size" value="{{data.effect.size}}" data-dtype="Number"/>
             </div>
             <div class="flexcol card clipped" style="grid-area: 1/2/2/3">
-              <div class="lancer-header clipped-top flexrow">
+              <div class="lancer-header ">
                 <i class="mdi mdi-heart-outline i--m i--light header-icon"> </i>
                 <span class="major">HP</span>
               </div>
               <input class="lancer-stat medium" type="number" name="data.effect.hp" value="{{data.effect.hp}}" data-dtype="Number"/>
             </div>
             <div class="flexcol card clipped" style="grid-area: 2/1/3/2">
-              <div class="lancer-header clipped-top flexrow">
+              <div class="lancer-header ">
                 <i class="mdi mdi-shield-outline i--m i--light header-icon"> </i>
                 <span class="major">ARMOR</span>
               </div>
               <input class="lancer-stat medium" type="number" name="data.effect.armor" value="{{data.effect.armor}}" data-dtype="Number"/>
             </div>
             <div class="flexcol card clipped" style="grid-area: 2/2/3/3">
-              <div class="lancer-header clipped-top flexrow">
+              <div class="lancer-header ">
                 <i class="cci cci-evasion i--m i--light header-icon"> </i>
                 <span class="major">EVASION</span>
               </div>
               <input class="lancer-stat medium" type="number" name="data.effect.evasion" value="{{data.effect.evasion}}" data-dtype="Number"/>
             </div>
             <div class="flexcol card clipped" style="grid-area: 3/1/4/2">
-              <div class="lancer-header clipped-top flexrow">
+              <div class="lancer-header ">
                 <i class="cci cci-edef i--m i--light header-icon"> </i>
                 <span class="major">E-DEF</span>
               </div>
@@ -122,7 +122,7 @@
             </div>
           </div>
 
-          <span class="lancer-header major clipped-top" style="float: left">DETAIL</span>
+          <span class="lancer-header major " style="float: left">DETAIL</span>
           <div style="margin: 5px">
             {{editor content=data.effect.detail target="data.effect.detail" button=true owner=owner editable=editable}}
           </div>
@@ -140,7 +140,7 @@
           <div class="flexcol">
             <div class="card clipped">
               <div class="flexcol" style="margin: 5px;">
-                <div class="lancer-header clipped-top flexrow">
+                <div class="lancer-header ">
                   <span style="margin-left: 10px; max-width: max-content;">CHARGE NAME // </span>
                   <input style="margin: 3px;" class="header-field medium" type="text" name="data.effect.charges.0.name" value="{{data.effect.charges.0.name}}" data-dtype="String"/>
                 </div>
@@ -161,7 +161,7 @@
             </div>
             <div class="card clipped">
               <div class="flexcol" style="margin: 5px;">
-                <div class="lancer-header clipped-top flexrow">
+                <div class="lancer-header ">
                   <span style="margin-left: 10px; max-width: max-content;">CHARGE NAME // </span>
                   <input style="margin: 3px;" class="header-field medium" type="text" name="data.effect.charges.1.name" value="{{data.effect.charges.1.name}}" data-dtype="String"/>
                 </div>

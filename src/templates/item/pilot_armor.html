@@ -12,35 +12,35 @@
     {{!-- Armor Stats --}}
   <div class="card clipped flexrow">
     <div class="flexcol card clipped" style="flex-basis: 25%">
-      <div class="lancer-header clipped-top flexrow">
+      <div class="lancer-header ">
         <i class="mdi mdi-shield-outline i--m i--light header-icon"> </i>
         <span class="major">ARMOR</span>
       </div>
       {{{l-num-input "data.armor" data.armor}}}
     </div>
     <div class="flexcol card clipped" style="flex-basis: 25%">
-      <div class="lancer-header clipped-top flexrow">
+      <div class="lancer-header ">
         <i class="mdi mdi-heart-outline i--m i--light header-icon"> </i>
         <span class="major">HP BONUS</span>
       </div>
       {{{l-num-input "data.hp_bonus" data.hp_bonus}}}
     </div>
     <div class="flexcol card clipped" style="flex-basis: 25%">
-      <div class="lancer-header clipped-top flexrow">
+      <div class="lancer-header ">
         <i class="cci cci-edef i--m i--light header-icon"> </i>
         <span class="major">E-DEF</span>
       </div>
       {{{l-num-input "data.edef" data.edef}}}
     </div>
     <div class="flexcol card clipped" style="flex-basis: 25%">
-      <div class="lancer-header clipped-top flexrow">
+      <div class="lancer-header ">
         <i class="cci cci-evasion i--m i--light header-icon"> </i>
         <span class="major">EVASION</span>
       </div>
       {{{l-num-input "data.evasion" data.evasion}}}
     </div>
     <div class="flexcol card clipped" style="flex-basis: 25%">
-      <div class="lancer-header clipped-top flexrow">
+      <div class="lancer-header ">
         <i class="mdi mdi-arrow-right-bold-hexagon-outline i--m i--light header-icon"> </i>
         <span class="major">SPEED</span>
       </div>
@@ -51,7 +51,7 @@
   {{!-- Compendium --}}
 
   <div class="flexcol card clipped">
-    <span class="lancer-header major clipped-top">DESCRIPTION</span>
+    <span class="lancer-header major ">DESCRIPTION</span>
     {{editor content=data.description target="data.description" button=true owner=owner editable=editable}}
   </div>
 

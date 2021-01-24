@@ -51,7 +51,7 @@
     <div class="tab manage" data-group="primary" data-tab="cloud">
       <div style="display: grid; grid-template: auto / 1fr 1fr;">
         <div class="flexcol card clipped" style="grid-area: 1/1/2/3;">
-          <span class="lancer-header major clipped-top">RM-4://(OMNINET UPLINK ID)</span>
+          <span class="lancer-header major ">RM-4://(OMNINET UPLINK ID)</span>
           <input
             class="lancer-input major"
             style="text-align: center;"
@@ -63,13 +63,13 @@
         </div>
 
         <div class="flexcol card clipped" style="grid-area: 2/1/3/2;">
-          <span class="lancer-header major clipped-top">DOWNLOAD</span>
+          <span class="lancer-header major ">DOWNLOAD</span>
           <a class="cloud-control i--dark i--l" style="align-self: center;" data-action="download"><i class="cci cci-tech-quick"></i></a>
           <span class="minor desc-text" style="text-align: center;">Last synced: {{mm.ent.LastCloudUpdate}}</span>
         </div>
 
         <div class="flexcol card clipped" style="grid-area: 2/2/3/3;">
-          <span class="lancer-header major clipped-top">UPLOAD</span>
+          <span class="lancer-header major ">UPLOAD</span>
           <span>FEATURE IN PROGRESS</span>
         </div>
       </div>
@@ -79,23 +79,23 @@
     <div class="tab dossier active" data-group="primary" data-tab="dossier">
       <div style="display:grid; grid-template: 5em 5em auto auto / 1fr 1fr">
         <div class="flexcol card clipped" style="grid-area: 1/1/2/2">
-          <span class="lancer-header major clipped-top">CALLSIGN</span>
+          <span class="lancer-header major ">CALLSIGN</span>
           <input class="lancer-input major" {{{getset "mm.ent.Callsign" }}} data-dtype="String"/>
         </div>
         <div class="flexcol card clipped" style="grid-area: 1/2/2/3">
-          <span class="lancer-header major clipped-top">NAME</span>
+          <span class="lancer-header major ">NAME</span>
           <input class="lancer-input major" {{{getset "actor.name" }}}  data-dtype="String"/>
         </div>
         <div class="flexcol card clipped" style="grid-area: 2/1/3/3">
-          <span class="lancer-header major clipped-top">BACKGROUND</span>
+          <span class="lancer-header major ">BACKGROUND</span>
           <input class="lancer-input major" {{{getset "mm.ent.Background" }}}  data-dtype="String"/>
         </div>
         <div class="flexcol card clipped" style="grid-area: 3/1/4/3; text-align: left;">
-          <span class="lancer-header major clipped-top" style="text-align: center; max-height: 1.25em; min-height: 1.25em;">HISTORY</span>
+          <span class="lancer-header major " style="text-align: center; max-height: 1.25em; min-height: 1.25em;">HISTORY</span>
           {{editor content=mm.ent.History target="mm.ent.History" button=true owner=owner editable=editable}}
         </div>
         <div class="flexcol card clipped" style="grid-area: 4/1/5/3; text-align: left;">
-          <span class="lancer-header major clipped-top" style="text-align: center; max-height: 1.25em; min-height: 1.25em;">NOTES</span>
+          <span class="lancer-header major " style="text-align: center; max-height: 1.25em; min-height: 1.25em;">NOTES</span>
           {{editor content=mm.ent.Notes target="mm.ent.Notes" button=true owner=owner editable=editable}}
         </div>
       </div>
@@ -120,7 +120,7 @@
       <div class="flexrow">
         {{!-- Armor --}}
         <div class="flexcol card clipped">
-          <h2 class="lancer-header major clipped-top">ARMOR</h2>
+          <h2 class="lancer-header major ">ARMOR</h2>
           {{#each mm.ent.Loadout.Armor as |armor key|}}
             {{{pilot-armor-slot (concat "mm.ent.Loadout.Armor." key)}}}
           {{/each}}
@@ -128,7 +128,7 @@
 
         {{!-- Weapons --}}
         <div class="flexcol card clipped">
-          <h2 class="lancer-header major clipped-top">WEAPONS</h2>
+          <h2 class="lancer-header major ">WEAPONS</h2>
           {{#each mm.ent.Loadout.Weapons as |weapon key|}}
             {{{pilot-weapon-slot (concat "mm.ent.Loadout.Weapons." key)}}}
           {{/each}}

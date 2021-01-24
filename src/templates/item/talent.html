@@ -23,7 +23,7 @@
 
     {{#each mm.ent.Ranks as |rank index|}}
       <div class="talent-level card clipped-bot flexcol">
-        <div class="lancer-header flexrow">
+        <div class="lancer-header">
           <i class="cci cci-rank-{{inc index}} i--xl i--dark"></i>
           <input class="lancer-invisible-input" name="mm.ent.Ranks.{{index}}.Name" value="{{rank.Name}}" data-dtype="String" style="color: white"/>
           <span class="minor">// RANK {{inc index}}</span>

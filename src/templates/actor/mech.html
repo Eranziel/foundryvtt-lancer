@@ -29,7 +29,7 @@
     </div>
 
     <div class="card clipped double">
-      <div class="lancer-header clipped-top flexrow">
+      <div class="lancer-header ">
         <i class="cci cci-pilot i--m i--light header-icon"> </i>
         <span class="major">PILOT</span>
       </div>
@@ -38,12 +38,12 @@
   </div>
 
   <div class="flexcol card clipped">
-    <span class="lancer-header major clipped-top">LOADOUT [SP: {{mm.ent.Loadout.TotalSP}} / {{mm.ent.MaxSP}}]</span>
+    <span class="lancer-header major ">LOADOUT [SP: {{mm.ent.Loadout.TotalSP}} / {{mm.ent.MaxSP}}]</span>
     {{{mech-loadout "mm.ent"}}}
   </div>
 
   <div class="flexcol card clipped">
-    <span class="lancer-header major clipped-top">FRAMES</span>
+    <span class="lancer-header major ">FRAMES</span>
     <div class="wraprow triple">
       {{#each mm.ent.OwnedFrames as |frame index|}}
         {{{ref-mm-controllable-item (concat "mm.ent.OwnedFrames." index) "delete" }}}
@@ -52,7 +52,7 @@
   </div>
 
   <div class="flexcol card clipped">
-    <span class="lancer-header major clipped-top">WEAPONS</span>
+    <span class="lancer-header major ">WEAPONS</span>
     <div class="wraprow quadruple">
       {{#each mm.ent.OwnedWeapons as |weapon index|}}
         {{{ref-mm-controllable-item (concat "mm.ent.OwnedWeapons." index) "delete" }}}
@@ -61,7 +61,7 @@
   </div> 
   
   <div class="flexcol card clipped">
-    <span class="lancer-header major clipped-top">SYSTEMS</span>
+    <span class="lancer-header major ">SYSTEMS</span>
     <div class="wraprow quadruple">
       {{#each mm.ent.OwnedSystems as |system index|}}
         {{{ref-mm-controllable-item (concat "mm.ent.OwnedSystems." index) "delete" }}}
@@ -70,7 +70,7 @@
   </div>
 
   <div class="flexcol card clipped">
-    <span class="lancer-header major clipped-top">MODS</span>
+    <span class="lancer-header major ">MODS</span>
     <div class="wraprow quadruple">
       {{#each mm.ent.OwnedWeaponMods as |mod index|}}
         {{{ref-mm-controllable-item (concat "mm.ent.OwnedWeaponMods." index) "delete" }}}
