@@ -57,7 +57,9 @@
       "tier": 1,
       "custom_counters": [],
       "current_hp": 0,
-      "current_heat": 0
+      "current_heat": 0,
+      "current_stress": 0,
+      "current_structure": 0
     },
     "deployable": {
       "actions": [],
@@ -68,7 +70,10 @@
       "activation": "",
       "armor": 0,
       "cost": 1,
+      "instances": 1,
       "current_hp": 0,
+      "current_heat": 0,
+      "burn": 0,
       "deactivation": "",
       "detail": "",
       "edef": 0,
@@ -85,7 +90,10 @@
       "size": 0,
       "speed": 0,
       "tech_attack": 0,
-      "type": ""
+      "type": "",
+      "avail_mounted": true,
+      "avail_unmounted": false,
+      "deployer": null
     },
     "mech": {
       "activations": 1,
