@@ -8,7 +8,7 @@
 
   --main-theme-color: #991e2a;  /* I've configured calls to this to fall back on fuchsia when things go wrong */
   --secondary-theme-color: #505050;  
-  --loadout-color: #65788a;  
+  --loadout-color: #777f86;  
   --ref-color: #ffe9df;  
   --gms-theme-color: #991e2a;
   --ipsn-theme-color: #1662b8;
@@ -363,6 +363,11 @@ ul.items-list {
   @include icon-size(60px);
 }
 
+.size-icon,
+.tier-icon {
+  @include icon-size(120px);
+}
+
 .i--dark {
   color: #2e2e2e;
 }
@@ -477,31 +482,6 @@ tr.lcp-index-header {
   background-color: #f0f0f0;
 }
 
-/* TODO: Factor out */
-.lancer-mech-trait-header,
-.lancer-core-sys-header,
-.lancer-talent-header,
-.lancer-system-header,
-.lancer-trait-header,
-.lancer-trigger-header,
-.lancer-protocol-header,
-.lancer-reaction-header,
-.lancer-tech-header,
-.lancer-weapon-header {
-  color: white;
-  background-color: var(--main-theme-color, fuchsia);
-  padding-left: 15px;
-  padding-right: 15px;
-  /* display: grid; */
-  white-space: nowrap;
-  text-align: center;
-  max-height: 2.0em;
-  min-height: 2.0em;
-  /* grid-template-columns: 40px 1fr 40px; */
-  align-items: center;
-  text-overflow: ellipsis;
-}
-
 .tier-control {
   min-width: 100%;
   background-color: #991e2a;
@@ -514,29 +494,6 @@ tr.lcp-index-header {
 
 }
 
-.lancer-mount-container {
-  margin: 3px;
-  flex: 1 0 0;
-  justify-content: space-evenly;
-  align-content: stretch;
-}
-
-.lancer-core-sys-header {
-  grid-template-columns: 40px 1fr 140px;
-}
-
-.lancer-mount-body {
-  display: flex;
-  justify-content: flex-start;
-  flex-direction: column;
-  min-height: 45px;
-  border-style: solid;
-  border-width: 2px;
-  border-color: var(--main-theme-color, fuchsia);
-  border-top-style: none;
-  /* white-space: pre; */
-  background-color: var(--darken-1);
-}
 
 .lancer-talent-container {
   margin: 3px;
@@ -550,65 +507,47 @@ tr.lcp-index-header {
   background-color: #dbdbdb; min-height: 15em; text-align: left
 }
 
-.lancer-talent-body {
+/* The dashed-line border aesthetic found around certain items */
+.lancer-body {
   min-height: 15px;
-  border-style: dashed;
-  border-width: 2px;
-  border-color: #3a81c3;
-  border-top-style: none;
-  text-align: left;
-  justify-content: left;
-  /* white-space: pre-wrap; */
-  hyphens: auto;
-  word-break: break-word;
-  background-color: #3a81c333;
-  clip-path: polygon( 0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100% );
-  -webkit-clip-path: polygon( 0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100% );
-}
-
-
-.lancer-weapon-body,
-.lancer-tech-body {
-  min-height: 15px;
-  border-style: dashed;
-  border-width: 2px;
-  border-top-style: none;
-
   padding: 3px;
+  flex: 1 0;
 
-  text-align: center;
-  /* white-space: pre-wrap; */
+  text-align: left;
+  justify-content: flex-start;
+  display: flex;
+  flex-direction: column;
+
   hyphens: auto;
   word-break: break-word;
 
-  /*
-  display: grid;
-  grid-template-columns: 4em 1fr;
-  grid-template-rows: repeat(3, fit-content(0));
-  */
+  border-width: 2px;
+  border-style: solid;
+  border-top-style: none;
+  border-color: var(--main-theme-color, fuchsia);
 
-  background-color: var(--darken-1)
-}
+  background-color: var(--darken-1);
 
-.lancer-weapon-body {
-  border-color: #000000;
-}
+  .talent > & {
+    border-color: #3a81c3;
+    background-color: #3a81c333;
+    clip-path: polygon( 0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100% );
+    -webkit-clip-path: polygon( 0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100% );
+  }
 
-.lancer-tech-body {
-  border-color: var(--tech-color);
-}
+  .weapon > & {
+    border-color: #000000;
+    border-style: dashed;
+  }
 
-.lancer-weapon-container {
-  margin: 3px;
-}
+  .tech > & {
+    border-color: var(--tech-color);
+    border-style: dashed;
+  }
 
-.npc-feature-compact {
-  min-width: 300px;
-}
-
-.npc-feature-compact.tech,
-.npc-feature-compact.weapon {
-  min-width: 600px;
+  .mount > & {
+    min-height: 45px;
+  }
 }
 
 .compact-range,
@@ -767,42 +706,57 @@ tr.lcp-index-header {
   }
 
   /* Category specific coloration */
-  &.loadout {
-    background-color: var(--loadout-color, fuchsia);
-  }
-
-  &.system {
-    /* clip-path: polygon( 0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%, 0 100% );
-    -webkit-clip-path: polygon( 0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%, 0 100% ); */
-    background-color: var(--system-color); 
-  }
-
-  &.trait {
+  .frame_trait & {
     background-color: var(--main-theme-color, fuchsia);
   }
 
-  &.trigger {
+  .wep-mount &,
+  .sys-mount &,
+  .mount & {
+    background-color: var(--main-theme-color, fuchsia);
+  }  
+
+  .trigger & {
     color: var(--main-theme-color, fuchsia);
     background-color: white;
   }
 
-  &.protocol {
+  .protocol & {
     background-color: var(--protocol-color);
   }
 
-  &.reaction {
+  .reaction & {
     background-color: var(--reaction-color);
   }
 
-  &.tech {
+  .tech & {
     /* clip-path: var(--tech-clip-path);
     -webkit-clip-path: var(--tech-clip-path); */
     background-color: var(--tech-color);
   }
 
-  &.weapon {
+  .mech_system & {
+    background-color: var(--system-color);
+  }
+
+  .mech_weapon &,
+  .pilot_weapon & {
     background-color: var(--weapon-color);
   }
+
+  .pilot_gear & {
+    background-color: var(--system-color);
+  }
+
+  .pilot_armor & {
+    background-color: var(--main-theme-color);
+  }
+
+  /* Less a card header, more just another thing */
+  &.loadout-category {
+    background-color: var(--loadout-color, fuchsia);
+  }
+
 
   /* General font sizing options */
   &.major {
@@ -838,14 +792,6 @@ input[type=string].lancer-input {
   margin: 5px;
 }
 
-.size-icon,
-.tier-icon {
-  font-size: 120px;
-  min-width: 120px;
-  max-width: 120px;
-  min-height: 120px;
-  max-height: 120px;
-}
 
 .size-icon {
   color: var(--main-theme-color, fuchsia);
@@ -874,11 +820,12 @@ input[type=string].lancer-input {
 }
 
 .card {
-  /* Literally just a darkened background and centering children components inside */
   background-color: rgba(0,0,0,0.07);
   margin: 3px 10px;
   text-align: center;
   padding-bottom: 1px;
+  display: flex;
+  flex-direction: column;
 }
 
 .card .editor-content {

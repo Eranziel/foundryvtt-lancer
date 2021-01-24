@@ -35,7 +35,7 @@
         {{{stat-view-card      "SAVE"        "cci cci-save"             "mm.ent.SaveTarget" }}}
 
         <div class="card clipped double">
-          <div class="lancer-header  major">
+          <div class="lancer-header major">
             DEPLOYER
           </div>
           {{{deployer-slot "mm.ent.Deployer" }}}
@@ -53,29 +53,31 @@
     {{!-- Config Tab --}}
     <div class="tab manage flexcol" data-group="primary" data-tab="config">
       {{!-- Description --}}
-      <div class="flexcol card clipped" style="text-align: left;">
+      <div class="card clipped" style="text-align: left;">
         <span class="lancer-header major " style="text-align: center;">DETAIL</span>
         <div class="desc-text">{{editor content=mm.ent.Detail target="mm.ent.Detail" button=true owner=owner editable=editable}}</div>
       </div>
 
       {{!-- Frame Stats --}}
-      <div class="flexcol card clipped" style="text-align: left;">
+      <div class="card clipped" style="text-align: left;">
         <span class="lancer-header major " style="text-align: center;">BASE STATS</span>
-        <div class="card clipped mech-stats wraprow quadruple">
-          {{{clicker-stat-card "MAX HP"          "mdi mdi-heart-outline"     "mm.ent.BaseMaxHP" }}}
-          {{{clicker-stat-card "ARMOR"       "mdi mdi-shield-outline"    "mm.ent.BaseArmor" }}}
-          {{{clicker-stat-card "REPAIRS"     "cci cci-repair"            "mm.ent.BaseRepairCap" }}}
-          {{{clicker-stat-card "EVASION"     "cci cci-evasion"           "mm.ent.BaseEvasion" }}}
+        <div class="card clipped wraprow quadruple">
+          <div class="wraprow quadruple">
+            {{{clicker-stat-card "MAX HP"      "mdi mdi-heart-outline"     "mm.ent.BaseMaxHP" }}}
+            {{{clicker-stat-card "ARMOR"       "mdi mdi-shield-outline"    "mm.ent.BaseArmor" }}}
+            {{{clicker-stat-card "REPAIRS"     "cci cci-repair"            "mm.ent.BaseRepairCap" }}}
+            {{{clicker-stat-card "EVASION"     "cci cci-evasion"           "mm.ent.BaseEvasion" }}}
 
-          {{{clicker-stat-card "E-DEF"       "cci cci-edef"              "mm.ent.BaseEDefense" }}}
-          {{{clicker-stat-card "HEAT CAP"    "cci cci-heatcap"           "mm.ent.BaseHeatCap" }}}
-          {{{clicker-stat-card "SPEED"       "mdi mdi-arrow-right-bold-hexagon-outline" "mm.ent.BaseSpeed" }}}
-          {{{clicker-stat-card "TECH ATK"    "cci cci-tech-full"         "mm.ent.Stats.BaseTechAttack" }}}
+            {{{clicker-stat-card "E-DEF"       "cci cci-edef"              "mm.ent.BaseEDefense" }}}
+            {{{clicker-stat-card "HEAT CAP"    "cci cci-heatcap"           "mm.ent.BaseHeatCap" }}}
+            {{{clicker-stat-card "SPEED"       "mdi mdi-arrow-right-bold-hexagon-outline" "mm.ent.BaseSpeed" }}}
+            {{{clicker-stat-card "TECH ATK"    "cci cci-tech-full"         "mm.ent.Stats.BaseTechAttack" }}}
 
-          {{{clicker-stat-card "SENSORS"     "cci cci-sensor"            "mm.ent.BaseSensorRange" }}}
-          {{{clicker-stat-card "SAVE"        "cci cci-save"              "mm.ent.BaseSave" }}}
-          {{{clicker-stat-card "SIZE"        "cci cci-hexagon"           "mm.ent.BaseSize" }}}
-          {{{clicker-stat-card "COST"        "cci cci-hexagon"           "mm.ent.Cost" }}}
+            {{{clicker-stat-card "SENSORS"     "cci cci-sensor"            "mm.ent.BaseSensorRange" }}}
+            {{{clicker-stat-card "SAVE"        "cci cci-save"              "mm.ent.BaseSave" }}}
+            {{{clicker-stat-card "SIZE"        "cci cci-hexagon"           "mm.ent.BaseSize" }}}
+            {{{clicker-stat-card "COST"        "cci cci-hexagon"           "mm.ent.Cost" }}}
+          </div>
         </div>
       </div>
     </div>

@@ -8,7 +8,7 @@
   </header>
 
   {{!-- Description --}}
-  <div class="flexcol card clipped" style="text-align: left;">
+  <div class="card clipped" style="text-align: left;">
     <span class="lancer-header major " style="text-align: center;">DESCRIPTION</span>
     {{editor content=mm.ent.Info.flavor target="mm.ent.Info.flavor" button=true owner=owner editable=editable}}
     <span class="lancer-header major " style="text-align: center;">TACTICS</span>
@@ -16,23 +16,25 @@
   </div>
 
   {{!-- Frame Stats --}}
-  <div class="card clipped mech-stats wraprow quadruple">
-    {{{npc-clicker-stat-card "HULL" "mm.ent.Stats.hull"}}}
-    {{{npc-clicker-stat-card "AGILITY" "mm.ent.Stats.agility"}}}
-    {{{npc-clicker-stat-card "SYSTEMS" "mm.ent.Stats.systems"}}}
-    {{{npc-clicker-stat-card "ENGINEERING" "mm.ent.Stats.engineering"}}}
-    {{{npc-clicker-stat-card "ARMOR" "mm.ent.Stats.armor"}}}
-    {{{npc-clicker-stat-card "HP" "mm.ent.Stats.hp"}}}
-    {{{npc-clicker-stat-card "STRUCTURE" "mm.ent.Stats.structure"}}}
-    {{{npc-clicker-stat-card "STRESS" "mm.ent.Stats.stress"}}}
-    {{{npc-clicker-stat-card "EVASION" "mm.ent.Stats.evade"}}}
-    {{{npc-clicker-stat-card "E-DEFENSE" "mm.ent.Stats.edef"}}}
-    {{{npc-clicker-stat-card "HEAT" "mm.ent.Stats.heatcap"}}}
-    {{{npc-clicker-stat-card "SPEED" "mm.ent.Stats.speed"}}}
-    {{{npc-clicker-stat-card "ACTIVATIONS" "mm.ent.Stats.activations"}}}
-    {{{npc-clicker-stat-card "SENSORS" "mm.ent.Stats.sensor"}}}
-    {{{npc-clicker-stat-card "SAVE" "mm.ent.Stats.save"}}}
-    {{{npc-clicker-stat-card "SIZE" "mm.ent.Stats.size"}}}
+  <div class="card clipped wraprow quadruple">
+    <div class="wraprow quadruple">
+      {{{npc-clicker-stat-card "HULL" "mm.ent.Stats.hull"}}}
+      {{{npc-clicker-stat-card "AGILITY" "mm.ent.Stats.agility"}}}
+      {{{npc-clicker-stat-card "SYSTEMS" "mm.ent.Stats.systems"}}}
+      {{{npc-clicker-stat-card "ENGINEERING" "mm.ent.Stats.engineering"}}}
+      {{{npc-clicker-stat-card "ARMOR" "mm.ent.Stats.armor"}}}
+      {{{npc-clicker-stat-card "HP" "mm.ent.Stats.hp"}}}
+      {{{npc-clicker-stat-card "STRUCTURE" "mm.ent.Stats.structure"}}}
+      {{{npc-clicker-stat-card "STRESS" "mm.ent.Stats.stress"}}}
+      {{{npc-clicker-stat-card "EVASION" "mm.ent.Stats.evade"}}}
+      {{{npc-clicker-stat-card "E-DEFENSE" "mm.ent.Stats.edef"}}}
+      {{{npc-clicker-stat-card "HEAT" "mm.ent.Stats.heatcap"}}}
+      {{{npc-clicker-stat-card "SPEED" "mm.ent.Stats.speed"}}}
+      {{{npc-clicker-stat-card "ACTIVATIONS" "mm.ent.Stats.activations"}}}
+      {{{npc-clicker-stat-card "SENSORS" "mm.ent.Stats.sensor"}}}
+      {{{npc-clicker-stat-card "SAVE" "mm.ent.Stats.save"}}}
+      {{{npc-clicker-stat-card "SIZE" "mm.ent.Stats.size"}}}
+    </div>
   </div>
 
   <div class="flexcol tags-container" style="margin: 10px;">

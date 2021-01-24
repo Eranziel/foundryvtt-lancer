@@ -12,25 +12,27 @@
   </header>
 
   {{!-- Description --}}
-  <div class="flexcol card clipped" style="text-align: left;">
+  <div class="card clipped" style="text-align: left;">
     <span class="lancer-header major " style="text-align: center;">DESCRIPTION</span>
     <div class="desc-text">{{editor content=mm.ent.Description target="mm.ent.Description" button=true owner=owner editable=editable}}</div>
   </div>
 
   {{!-- Frame Stats --}}
-  <div class="card clipped mech-stats wraprow quadruple">
-    {{{clicker-stat-card "HP"          "mdi mdi-heart-outline"     "mm.ent.Stats.hp" }}}
-    {{{clicker-stat-card "ARMOR"       "mdi mdi-shield-outline"    "mm.ent.Stats.armor" }}}
-    {{{clicker-stat-card "REPAIRS"     "cci cci-repair"            "mm.ent.Stats.repcap" }}}
-    {{{clicker-stat-card "EVASION"     "cci cci-evasion"           "mm.ent.Stats.evasion" }}}
-    {{{clicker-stat-card "E-DEF"       "cci cci-edef"              "mm.ent.Stats.edef" }}}
-    {{{clicker-stat-card "HEAT CAP"    "cci cci-heatcap"           "mm.ent.Stats.heatcap" }}}
-    {{{clicker-stat-card "SPEED"       "mdi mdi-arrow-right-bold-hexagon-outline" "mm.ent.Stats.speed" }}}
-    {{{clicker-stat-card "TECH ATK"    "cci cci-tech-full"         "mm.ent.Stats.tech_attack" }}}
-    {{{clicker-stat-card "SENSORS"     "cci cci-sensor"            "mm.ent.Stats.sensor_range" }}}
-    {{{clicker-stat-card "SAVE"        "cci cci-save"              "mm.ent.Stats.save" }}}
-    {{{clicker-stat-card "SYS POINTS"  "cci cci-system"            "mm.ent.Stats.sp" }}}
-    {{{clicker-stat-card "SIZE"        "cci cci-hexagon"           "mm.ent.Stats.size" }}}
+  <div class="card clipped wraprow quadruple">
+    <div class="wraprow quadruple">
+      {{{clicker-stat-card "HP"          "mdi mdi-heart-outline"     "mm.ent.Stats.hp" }}}
+      {{{clicker-stat-card "ARMOR"       "mdi mdi-shield-outline"    "mm.ent.Stats.armor" }}}
+      {{{clicker-stat-card "REPAIRS"     "cci cci-repair"            "mm.ent.Stats.repcap" }}}
+      {{{clicker-stat-card "EVASION"     "cci cci-evasion"           "mm.ent.Stats.evasion" }}}
+      {{{clicker-stat-card "E-DEF"       "cci cci-edef"              "mm.ent.Stats.edef" }}}
+      {{{clicker-stat-card "HEAT CAP"    "cci cci-heatcap"           "mm.ent.Stats.heatcap" }}}
+      {{{clicker-stat-card "SPEED"       "mdi mdi-arrow-right-bold-hexagon-outline" "mm.ent.Stats.speed" }}}
+      {{{clicker-stat-card "TECH ATK"    "cci cci-tech-full"         "mm.ent.Stats.tech_attack" }}}
+      {{{clicker-stat-card "SENSORS"     "cci cci-sensor"            "mm.ent.Stats.sensor_range" }}}
+      {{{clicker-stat-card "SAVE"        "cci cci-save"              "mm.ent.Stats.save" }}}
+      {{{clicker-stat-card "SYS POINTS"  "cci cci-system"            "mm.ent.Stats.sp" }}}
+      {{{clicker-stat-card "SIZE"        "cci cci-hexagon"           "mm.ent.Stats.size" }}}
+    </div>
   </div>
 
   {{!-- Mounts --}}
@@ -66,8 +68,8 @@
       <a class="gen-control" data-action="append" data-path="mm.ent.Traits" data-action-value="(struct)frame_trait" style="float: right">+</a>
     </div>
     {{#each mm.ent.Traits as |trait key|}}
-      <div class="card clipped frame-trait-compact">
-        <div class="lancer-header trait medium">
+      <div class="card clipped frame_trait">
+        <div class="lancer-header">
           <i class="cci cci-trait i--m i--light header-icon"> </i>
           <input class="lancer-invisible-input major i--light" name="mm.ent.Traits.{{key}}.Name" value="{{trait.Name}}" data-dtype="String" />
           <a class="gen-control" data-action="splice" data-path="mm.ent.Traits.{{key}}" style="float: right; margin-right: 11px; margin-top: 2px;">
@@ -81,8 +83,8 @@
   </div>
 
   {{!-- Core System --}}
-  <div class="card clipped frame-core flexcol">
-    <div class="lancer-header core-sys medium">
+  <div class="card clipped frame-core">
+    <div class="lancer-header frame_core medium">
       <i></i>
       <input class="lancer-invisible-input major i--light" name="mm.ent.CoreSystem.Name" value="{{mm.ent.CoreSystem.Name}}" data-dtype="String" />
       <div class="medium i--faded" style="justify-self: right;"> // CORE SYSTEM</div>
@@ -97,16 +99,16 @@
       {{{ref-mm-controllable-item (concat "mm.ent.CoreSystem.Deployables." index) "splice" }}}
     {{/each}}
 
-    <div class="card clipped">
-      <div class="lancer-header core-sys medium">
+    <div class="card clipped frame_core">
+      <div class="lancer-header">
         <i class="mdi mdi-circle-expand i--m i--light"> </i>
         <input class="lancer-invisible-input medium i--light" name="mm.ent.CoreSystem.PassiveName" value="{{mm.ent.CoreSystem.PassiveName}}" data-dtype="String" />
         <div class="medium i--faded" style="justify-self: right;"> // PASSIVE</div>
       </div>
       <div class="effect-text">{{editor content=mm.ent.CoreSystem.PassiveEffect target="mm.ent.CoreSystem.PassiveEffect" button=true owner=owner editable=editable}}</div>
     </div>
-    <div class="card clipped">
-      <div class="lancer-header core-sys medium">
+    <div class="card clipped frame_core">
+      <div class="lancer-header">
         <i class="cci cci-corebonus i--m i--light"> </i>
         <input class="lancer-invisible-input medium i--light" name="mm.ent.CoreSystem.ActiveName" value="{{mm.ent.CoreSystem.ActiveName}}" data-dtype="String" />
         <div class="i--faded" style="justify-self: right;"> // ACTIVE</div>

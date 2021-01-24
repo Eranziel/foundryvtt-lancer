@@ -51,7 +51,7 @@
       </div>
 
       {{!-- Equipment et all --}}
-      <div class="flexcol card clipped">
+      <div class="card clipped">
         <span class="lancer-header major ">CLASSES (LIMIT 1)</span>
         <div class="flexcol">
           {{#each mm.ent.Classes as |class index|}}
@@ -60,7 +60,7 @@
         </div>
       </div>
 
-      <div class="flexcol card clipped">
+      <div class="card clipped">
         <span class="lancer-header major ">TEMPLATES</span>
         <div class="wraprow double">
           {{#each mm.ent.Templates as |template index|}}
@@ -69,7 +69,7 @@
         </div>
       </div> 
       
-      <div class="flexcol card clipped">
+      <div class="card clipped">
         <span class="lancer-header major ">FEATURES</span>
         <div class="wraprow double">
           {{#each mm.ent.Features as |feature index|}}
@@ -79,7 +79,7 @@
       </div>
 
     
-      <div class="flexcol card clipped">
+      <div class="card clipped">
         <span class="lancer-header major ">Notes</span>
         {{editor content=data.notes target="data.notes" button=true owner=owner editable=editable}}
       </div>
