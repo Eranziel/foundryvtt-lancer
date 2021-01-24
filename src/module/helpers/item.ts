@@ -246,7 +246,7 @@ export function system_type_selector(s_type: string, data_target: string) {
  * Handlebars partial for a mech system preview card.
  */
 export const mech_system_preview = `<li class="card clipped mech-system-compact item" data-item-id="{{system._id}}">
-<div class="lancer-system-header clipped-top" style="grid-area: 1/1/2/3; display: flex">
+<div class="lancer-header system" style="grid-area: 1/1/2/3; display: flex">
   <i class="cci cci-system i--m"> </i>
   <a class="system-macro macroable"><i class="mdi mdi-message"></i></a>
   <span class="minor" style="flex-grow: 1">{{system.name}}</span>
@@ -421,7 +421,7 @@ export function pilot_armor_slot(armor_path: string, helper: HelperOptions): str
   return `<div class="valid ${cd.ref.type} ref drop-settable card clipped pilot-armor-compact item" 
                 ${ref_params(cd.ref)}
                 data-path="${armor_path}">
-            <div class="lancer-trait-header clipped-top" style="grid-area: 1/1/2/3">
+            <div class="lancer-header armor" style="grid-area: 1/1/2/3">
               <i class="mdi mdi-shield-outline i--m i--light"> </i>
               <span class="minor">${armor!.Name}</span>
               <a class="gen-control i--light" data-action="null" data-path="${armor_path}"><i class="fas fa-trash"></i></a>
@@ -479,7 +479,7 @@ export function pilot_weapon_refview(weapon_path: string, helper: HelperOptions)
   return `<div class="valid ${EntryType.PILOT_WEAPON} ref drop-settable card clipped pilot-weapon-compact item macroable"
                 ${ref_params(cd.ref)}
                 data-path="${weapon_path}" >
-    <div class="lancer-weapon-header clipped-top">
+    <div class="lancer-header weapon">
       <i class="cci cci-weapon i--m i--light"> </i>
       <span class="minor">${weapon.Name}</span>
       <a class="gen-control i--light" data-action="null" data-path="${weapon_path}"><i class="fas fa-trash"></i></a>
@@ -546,7 +546,7 @@ export function pilot_gear_refview(gear_path: string, helper: HelperOptions): st
   return `<div class="valid ${EntryType.PILOT_GEAR} ref drop-settable card clipped pilot-gear-compact item macroable"
                 ${ref_params(cd.ref)}
                 data-path="${gear_path}" >
-    <div class="lancer-gear-header clipped-top">
+    <div class="lancer-header gear">
       <i class="cci cci-generic-item i--m"> </i>
       <a class="gear-macro macroable"><i class="mdi mdi-message"></i></a>
       <span class="minor">${gear.Name}</span>
@@ -628,7 +628,7 @@ export function mech_weapon_refview(weapon_path: string, mech_path: string | "",
                 ${ref_params(cd.ref)}
                 data-path="${weapon_path}"
                 style="max-height: fit-content;">
-    <div class="lancer-weapon-header clipped-top flexrow">
+    <div class="lancer-header weapon">
       <i class="cci cci-weapon i--m i--light"> </i>
       <span class="minor">${weapon.Name} // ${weapon.Size.toUpperCase()} ${weapon.Type.toUpperCase()}</span>
       <a class="gen-control i--light" data-action="null" data-path="${weapon_path}"><i class="fas fa-trash"></i></a>

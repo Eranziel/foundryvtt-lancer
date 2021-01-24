@@ -18,7 +18,7 @@ function system_mount(
   return ` 
     <div class="lancer-mount-container flexcol">
       <span class="mount-header clipped-top">
-        System Mount
+        <span>System Mount</span>
         <a class="gen-control" data-action="splice" data-path="${mount_path}"><i class="fas fa-trash"></i></a>
         <a class="reset-system-mount-button" data-path="${mount_path}"><i class="fas fa-redo"></i></a>
       </span>
@@ -41,7 +41,7 @@ function weapon_mount(
   return ` 
     <div class="lancer-mount-container flexcol">
       <span class="mount-header clipped-top">
-        ${mount.MountType} Weapon Mount
+        <span>${mount.MountType} Weapon Mount</span>
         <a class="gen-control" data-action="splice" data-path="${mount_path}"><i class="fas fa-trash"></i></a>
         <a class="reset-weapon-mount-button" data-path="${mount_path}"><i class="fas fa-redo"></i></a>
       </span>
@@ -57,8 +57,8 @@ function all_weapon_mount_view(mech_path: string, loadout_path: string, helper: 
   const weapon_mounts = loadout.WepMounts.map((wep, index) => weapon_mount(mech_path, `${loadout_path}.WepMounts.${index}`, helper));
 
   return `
-    <span class="lancer-loadout-header major">
-        MOUNTED WEAPONS
+    <span class="lancer-header loadout major">
+        <span>MOUNTED WEAPONS</span>
         <a class="gen-control" data-action="append" data-path="${loadout_path}.WepMounts" data-action-value="(struct)wep_mount" style="float: right">+</a>
         <a class="reset-all-weapon-mounts-button" data-path="${loadout_path}.WepMounts" style="float: right"><i class="fas fa-redo"></i></a>
     </span>
@@ -74,8 +74,8 @@ function all_system_mount_view(mech_path: string, loadout_path: string, helper: 
   const system_slots = loadout.SysMounts.map((sys, index) => system_mount(mech_path, `${loadout_path}.SysMounts.${index}`, helper));
 
   return `
-    <span class="lancer-loadout-header major">
-        MOUNTED SYSTEMS
+    <span class="lancer-header loadout major">
+        <span>MOUNTED SYSTEMS</span>
         <a class="gen-control" data-action="append" data-path="${loadout_path}.SysMounts" data-action-value="(struct)sys_mount" style="float: right">+</a>
         <a class="gen-control" data-action="set" data-path="${loadout_path}.SysMounts" data-action-value="(struct)empty_array" style="float: right"><i class="fas fa-redo"></i></a>
     </span>
@@ -106,7 +106,7 @@ export function mech_loadout(mech_path: string, helper: HelperOptions): string {
     </div>`;
 }
 
-// Create a div with flags for dropping native dragged refs (IE foundry behavior, drag from actor list, etc)
+// Create a div with flags for dropping native pilots
 export function pilot_slot(data_path: string, options: HelperOptions): string {
   // get the existing
   let existing = resolve_helper_dotpath(options, data_path);
@@ -116,8 +116,9 @@ export function pilot_slot(data_path: string, options: HelperOptions): string {
 // A drag-drop slot for a frame. TODO: fancify, giving basic stats or something???
 export function frame_refview(frame_path: string, helper: HelperOptions): string {
   let frame = resolve_helper_dotpath(helper, frame_path);
-  return `<span class="lancer-loadout-header major">
-            CURRENT FRAME 
-          </span>
-          ${simple_mm_ref(EntryType.FRAME, frame, "No Frame", frame_path)}`;
+  return `<div class="lancer-header loadout major">
+            <span>CURRENT FRAME</span>
+          </div>
+          ${simple_mm_ref(EntryType.FRAME, frame, "No Frame", frame_path)}
+          `;
 }

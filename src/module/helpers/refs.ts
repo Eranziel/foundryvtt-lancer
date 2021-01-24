@@ -72,12 +72,18 @@ export function ref_params(ref: RegRef<any>, path?: string) {
 // A multiplexer-helper on machine-mind objects, to create actor/item ref items
 // If a slot_path is provided, then this will additionally be a valid drop-settable location for items of this type
 export function simple_mm_ref<T extends EntryType>(
-  type: T,
+  types: T | T[],
   item: RegEntry<T> | null,
   fallback: string = "Empty",
   slot_path: string = "",
   native: boolean = false
 ) {
+  // Flatten types
+  if(!Array.isArray(types)) {
+    types = [types];
+  }
+  let flat_types = types.join(" ");
+
   // Generate commons
   let cd = ref_commons(item);
 
@@ -91,11 +97,14 @@ export function simple_mm_ref<T extends EntryType>(
   let native_drop_snippet = native ? " native-refdrop " : "";
 
   if (!cd) {
+    // Show an icon for each potential type
+    let icons = types.map(t => `<img class="ref-icon" src="${TypeIcon(t)}"></img>`);
+
     // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
-    return `<div class="ref ref-card ${native_drop_snippet} ${settable_snippet} ${type}" 
+    return `<div class="ref ref-card ${native_drop_snippet} ${settable_snippet} ${flat_types}" 
                         data-path="${slot_path}" 
-                        data-type="${type}">
-          <img class="ref-icon" src="${TypeIcon(type)}"></img>
+                        data-type="${flat_types}">
+          ${icons.join(" ")}
           <span class="major">${fallback}</span>
       </div>`;
   }

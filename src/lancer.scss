@@ -721,10 +721,7 @@ tr.lcp-index-header {
 /* Consolidate all of our stat stuff */
 
 .lancer-header {
-  /* flex: 0 0 2.0em;
-  min-height: 2.0em;
-  max-height: 2.0em; */
-  flex-grow: 0;
+  flex: 0 0 2.0em;
 
   text-overflow: ellipsis;
   overflow: hidden;

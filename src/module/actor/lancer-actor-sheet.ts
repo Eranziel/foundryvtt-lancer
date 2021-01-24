@@ -201,19 +201,6 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     return Promise.resolve(true);
   }
 
-  _updateTokenImage(formData: any) {
-    let token: any = this.actor.data["token"];
-    // Set the prototype token image if the prototype token isn't initialized
-    if (!token) {
-      formData["token.img"] = formData["img"];
-    }
-    // Update token image if it matches the old actor image
-    else if (this.actor.data.img === token["img"] && this.actor.img !== formData["img"]) {
-      formData["token.img"] = formData["img"];
-    }
-    return formData;
-  }
-
   _propagateMMData(formData: any): boolean {
     // Pushes relevant field data down from the "actor" data block to the "mm.ent" data block
     // Also meant to encapsulate all of the behavior of _updateTokenImage
