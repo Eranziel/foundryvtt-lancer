@@ -98,11 +98,9 @@ button {
   align-items: flex-start;
 }
 
-.lancer.sheet header img {
-  grid-area: 1/5/4/6;
-  margin: 10px;
-  height: 100px;
-  width: 100px;
+.header-icon {
+  float: left;
+  padding-left: 10px;
 }
 
 .pilot-callsign {
@@ -559,6 +557,10 @@ tr.lcp-index-header {
   background-color: #3a81c3;
 }
 
+.big-editor {
+  background-color: #dbdbdb; min-height: 15em; text-align: left
+}
+
 .lancer-talent-body {
   min-height: 15px;
   border-style: dashed;
@@ -766,10 +768,14 @@ tr.lcp-index-header {
   align-items: center;
 }
 
-.lancer-stat-header {
+.lancer-header {
   align-items: center;
   color: white;
   background-color: var(--main-theme-color, fuchsia);
+}
+
+.big-editor {
+  background-color: #dbdbdb; min-height: 15em; text-align: left
 }
 
 .lancer-loadout-header {

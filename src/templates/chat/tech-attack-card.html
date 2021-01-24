@@ -4,7 +4,7 @@
     <span>TECH ATK :: {{ title }}</span>
   </div>
   <div class="card clipped">
-    <div class="lancer-stat-header clipped-top">// ATTACK //</div>
+    <div class="lancer-header clipped-top">// ATTACK //</div>
     <div class="dice-roll lancer-dice-roll">
       <div class="dice-result">
         <div class="dice-formula lancer-dice-formula flexrow">
@@ -20,7 +20,7 @@
   </div>
   {{#if effect}}
   <div class="card clipped">
-    <div class="lancer-stat-header clipped-top">// EFFECT //</div>
+    <div class="lancer-header clipped-top">// EFFECT //</div>
     {{#if effect.effect_type}}
       <h3 class="flexrow">{{upper-case effect.effect_type}} EFFECT</h3>
       <span class="effect-text">{{{effect.hit}}}</span>

@@ -4,7 +4,7 @@
     <span>WEAPON :: {{ title }}</span>
   </div>
   <div class="card clipped">
-    <div class="lancer-stat-header clipped-top">// ATTACK //</div>
+    <div class="lancer-header clipped-top">// ATTACK //</div>
     <div class="dice-roll lancer-dice-roll">
       <div class="dice-result">
         <div class="dice-formula lancer-dice-formula flexrow">
@@ -20,7 +20,7 @@
   </div>
   {{#if damages}}
   <div class="card clipped">
-    <div class="lancer-stat-header clipped-top">// DAMAGE //</div>
+    <div class="lancer-header clipped-top">// DAMAGE //</div>
     {{#each damages as |damage key|}}
       <div class="dice-roll lancer-dice-roll">
         <div class="dice-result">
@@ -47,13 +47,13 @@
   {{/if}}
   {{#if on_hit}}
     <div class="card clipped">
-      <div class="lancer-stat-header clipped-top">// ON HIT //</div>
+      <div class="lancer-header clipped-top">// ON HIT //</div>
       <span class="effect-text">{{{on_hit}}}</span>
     </div>
   {{/if}}
   {{#if effect}}
     <div class="card clipped">
-      <div class="lancer-stat-header clipped-top">// EFFECT //</div>
+      <div class="lancer-header clipped-top">// EFFECT //</div>
       {{#if effect.effect_type}}
         {{{eff-preview effect}}}
       {{/if}}

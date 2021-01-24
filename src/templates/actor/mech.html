@@ -10,7 +10,7 @@
   <div class="wraprow quintuple">
     {{{stat-edit-max-card  "HP"          "mdi mdi-heart-outline"    "mm.ent.CurrentHP"      "mm.ent.MaxHP" }}}
     {{{stat-edit-max-card  "HEAT"        "cci cci-heat"             "mm.ent.CurrentHeat"    "mm.ent.HeatCapacity" }}}
-    {{{stat-view-card      "ARMOR"       "cci cci-armor"            "mm.ent.Armor" }}}
+    {{{stat-edit-card      "BURN"        "cci cci-burn"             "mm.ent.Burn" }}}
     {{{stat-edit-card      "OVERSHIELD"  "cci cci-heat"             "mm.ent.Overshield" }}}
     {{{stat-edit-max-card  "REPAIRS"     "cci cci-repair"           "mm.ent.CurrentRepairs" "mm.ent.RepairCapacity" }}}
     {{{stat-view-card      "SIZE"        (concat "mdi " mm.ent.SizeIcon)   "mm.ent.Size" }}}
@@ -28,25 +28,22 @@
       {{{overcharge-button "mm.ent.CurrentOvercharge" }}}
     </div>
 
-
     <div class="card clipped double">
-      <div class="lancer-stat-header clipped-top flexrow">
-        <i class="cci cci-pilot i--m i--light" style="float: left; padding-left: 10px"> </i>
+      <div class="lancer-header clipped-top flexrow">
+        <i class="cci cci-pilot i--m i--light header-icon"> </i>
         <span class="major">PILOT</span>
       </div>
-      <div class="actor-ref-drop">
-        {{{pilot-slot "mm.ent.Pilot" }}}
-      </div>
+      {{{pilot-slot "mm.ent.Pilot" }}}
     </div>
   </div>
 
   <div class="flexcol card clipped">
-    <span class="lancer-stat-header major clipped-top">LOADOUT [SP: {{mm.ent.Loadout.TotalSP}} / {{mm.ent.MaxSP}}]</span>
+    <span class="lancer-header major clipped-top">LOADOUT [SP: {{mm.ent.Loadout.TotalSP}} / {{mm.ent.MaxSP}}]</span>
     {{{mech-loadout "mm.ent"}}}
   </div>
 
   <div class="flexcol card clipped">
-    <span class="lancer-stat-header major clipped-top">FRAMES</span>
+    <span class="lancer-header major clipped-top">FRAMES</span>
     <div class="wraprow triple">
       {{#each mm.ent.OwnedFrames as |frame index|}}
         {{{ref-mm-controllable-item (concat "mm.ent.OwnedFrames." index) "delete" }}}
@@ -55,7 +52,7 @@
   </div>
 
   <div class="flexcol card clipped">
-    <span class="lancer-stat-header major clipped-top">WEAPONS</span>
+    <span class="lancer-header major clipped-top">WEAPONS</span>
     <div class="wraprow quadruple">
       {{#each mm.ent.OwnedWeapons as |weapon index|}}
         {{{ref-mm-controllable-item (concat "mm.ent.OwnedWeapons." index) "delete" }}}
@@ -64,7 +61,7 @@
   </div> 
   
   <div class="flexcol card clipped">
-    <span class="lancer-stat-header major clipped-top">SYSTEMS</span>
+    <span class="lancer-header major clipped-top">SYSTEMS</span>
     <div class="wraprow quadruple">
       {{#each mm.ent.OwnedSystems as |system index|}}
         {{{ref-mm-controllable-item (concat "mm.ent.OwnedSystems." index) "delete" }}}
@@ -73,7 +70,7 @@
   </div>
 
   <div class="flexcol card clipped">
-    <span class="lancer-stat-header major clipped-top">MODS</span>
+    <span class="lancer-header major clipped-top">MODS</span>
     <div class="wraprow quadruple">
       {{#each mm.ent.OwnedWeaponMods as |mod index|}}
         {{{ref-mm-controllable-item (concat "mm.ent.OwnedWeaponMods." index) "delete" }}}

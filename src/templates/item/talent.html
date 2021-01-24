@@ -2,38 +2,34 @@
 
   {{!-- Sheet Header --}}
   <header class="sheet-header card clipped-bot">
-    <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}" height="100" width="100"/>
-    <div class="header-fields" style="grid-area: 1/1/2/5;">
+    <div class="flexcol grow">
       <h1 class="charname"><input class="header-field" name="name" type="text" value="{{item.name}}" placeholder="Name"/></h1>
+      <div class="flexrow">
+        <span>RANK:</span>
+        {{{l-num-input "mm.ent.CurrentRank" mm.ent.CurrentRank}}}
+      </div>
     </div>
-    <div class="flexcol" style="grid-area: 2/2/3/3; float: right; max-width: fit-content;">
-      RANK:
-      {{{l-num-input "data.rank" data.rank}}}
-    </div>
+    {{{ ref-portrait-img item.img "img" mm.ent }}}
   </header>
 
   {{!-- Sheet Body --}}
   <div class="flexcol">
     <div class="card clipped flexcol">
-      <span class="lancer-stat-header major">DESCRIPTION</span>
+      <span class="lancer-header major">DESCRIPTION</span>
       <div style="text-align: left">
-      {{editor content=data.description target="data.description" button=true owner=owner editable=editable}}
+      {{editor content=mm.ent.Description target="mm.ent.Description" button=true owner=owner editable=editable}}
       </div>
     </div>
 
-    {{#each data.ranks as |rank lvl|}}
+    {{#each mm.ent.Ranks as |rank index|}}
       <div class="talent-level card clipped-bot flexcol">
-        <div class="lancer-stat-header flexrow">
-          <input class="lancer-invisible-input" name="data.ranks.{{lvl}}.name" value="{{rank.name}}" data-dtype="String" style="color: white"/>
-          <span class="minor">// RANK {{inc lvl}}</span>
+        <div class="lancer-header flexrow">
+          <i class="cci cci-rank-{{inc index}} i--xl i--dark"></i>
+          <input class="lancer-invisible-input" name="mm.ent.Ranks.{{index}}.Name" value="{{rank.Name}}" data-dtype="String" style="color: white"/>
+          <span class="minor">// RANK {{inc index}}</span>
         </div>
-        <div class="flexrow" style="background-color: #dbdbdb; min-height: 15em; text-align: left">
-          <i class="cci cci-rank-{{inc lvl}} i--xl i--dark" style="grid-area: 1/1/2/2"></i>
-          {{!-- {{editor content=data.effect target="data.effect" button=true owner=owner editable=editable}} --}}
-          {{!-- <div style="min-height: 15em;"> --}}
-            {{!-- {{editor content=rank.description target="data.ranks.{{lvl}}.description" button=true owner=owner editable=editable}} --}}
-            <textarea style="min-height: 15em;" class="lancer-invisible-input" name="data.ranks.{{lvl}}.description" data-dtype="String" style="width:80%; min-height: fit-content;">{{rank.description}}</textarea>
-          {{!-- </div> --}}
+        <div class="flexrow big-editor">
+          {{editor content=rank.Description target=(concat "mm.ent.Ranks." index ".Description") button=true owner=owner editable=editable}}
         </div>
       </div>
     {{/each}}

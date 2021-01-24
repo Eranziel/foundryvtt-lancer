@@ -40,9 +40,9 @@
     {{!-- Reaction --}}
     {{#if (eq mm.ent.FeatureType "Reaction")}}
     <div class="flexcol clipped card">
-      <span class="lancer-stat-header major clipped-top">TRIGGER</span>
+      <span class="lancer-header major clipped-top">TRIGGER</span>
       {{editor content=mm.ent.Trigger target="mm.ent.Trigger" button=true editable=editable}}
-      <span class="lancer-stat-header major clipped-top">EFFECT</span>
+      <span class="lancer-header major clipped-top">EFFECT</span>
       {{editor content=mm.ent.Effect target="mm.ent.Effect" button=true editable=editable}}
     </div>
     {{/if}}
@@ -50,7 +50,7 @@
     {{!-- System --}}
     {{#if (eq mm.ent.FeatureType "System")}}
     <div class="flexcol clipped card">
-      <span class="lancer-stat-header major clipped-top">EFFECT</span>
+      <span class="lancer-header major clipped-top">EFFECT</span>
       {{editor content=mm.ent.Effect target="mm.ent.Effect" button=true editable=editable}}
     </div>
     {{/if}}
@@ -58,7 +58,7 @@
     {{!-- Trait --}}
     {{#if (eq mm.ent.FeatureType "Trait")}}
     <div class="flexcol clipped card">
-      <span class="lancer-stat-header major clipped-top">EFFECT</span>
+      <span class="lancer-header major clipped-top">EFFECT</span>
       {{editor content=mm.ent.Effect target="mm.ent.Effect" button=true editable=editable}}
     </div>
     {{/if}}
@@ -78,7 +78,7 @@
       {{{npc-clicker-stat-card "ATTACK BONUS" "mm.ent.AttackBonus"}}}
       {{{npc-clicker-stat-card "ACCURACY" "mm.ent.Accuracy"}}}
       <div class="flexcol card clipped full">
-        <span class="lancer-stat-header major clipped-top">EFFECT</span>
+        <span class="lancer-header major clipped-top">EFFECT</span>
         {{editor content=mm.ent.Effect target="mm.ent.Effect" button=true editable=editable}}
       </div>
     </div>
@@ -89,7 +89,7 @@
     <div class="wraprow triple">
       {{!-- Type --}}
       <div class="flexcol card clipped">
-        <span class="lancer-stat-header major clipped-top"> TYPE </span>
+        <span class="lancer-header major clipped-top"> TYPE </span>
         <input name="mm.ent.WepType" type="text" value="{{mm.ent.WepType}}" placeholder="Weapon Type"/>
       </div>
 
@@ -97,7 +97,7 @@
 
       {{!-- Range --}}
       <div class="flexcol card clipped">
-        <span class="lancer-stat-header major clipped-top">
+        <span class="lancer-header major clipped-top">
           RANGE
           <a class="gen-control" data-action="append" data-path="mm.ent.Range" data-action-value="(struct)range" style="float: right">+</a>
         </span>
@@ -115,7 +115,7 @@
       {{!-- All Damages --}}
       {{#each mm.ent.Damage as |tier_damage_array tier_index|}}
       <div class="flexcol card clipped">
-        <span class="lancer-stat-header major clipped-top">
+        <span class="lancer-header major clipped-top">
           <i class="cci cci-npc-tier-{{inc tier_index}} i--m i--dark"></i>
           T{{inc tier_index}} DAMAGE
           <a class="gen-control" data-action="append" data-path="mm.ent.Damage.{{tier_index}}" data-action-value="(struct)damage" style="float: right">+</a>
@@ -128,9 +128,9 @@
 
       {{!-- Effects --}}
       <div class="flexcol card clipped full">
-        <span class="lancer-stat-header major clipped-top">ON HIT EFFECT</span>
+        <span class="lancer-header major clipped-top">ON HIT EFFECT</span>
         {{editor content=mm.ent.OnHit target="mm.ent.OnHit" button=true editable=editable}}
-        <span class="lancer-stat-header major clipped-top">EFFECT</span>
+        <span class="lancer-header major clipped-top">EFFECT</span>
         {{editor content=mm.ent.Effect target="mm.ent.Effect" button=true editable=editable}}
       </div>
     </div>
@@ -138,7 +138,7 @@
 
     {{!-- Tags --}}
     <div class="flexcol card clipped full">
-      <span class="lancer-stat-header major clipped-top">TAGS</span>
+      <span class="lancer-header major clipped-top">TAGS</span>
       {{{mm-tag-list mm.ent.Tags}}}
     </div>
   </section>
