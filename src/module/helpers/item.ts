@@ -25,14 +25,13 @@ import {
   License,
   NpcFeature,
 } from "machine-mind";
-import { MechWeapon, MechWeaponProfile } from "machine-mind";
-import { LANCER, TypeIcon } from "../config";
-import { NPCDamageData, RangeData, TagData } from "../interfaces";
+import { MechWeapon } from "machine-mind";
+import { TypeIcon } from "../config";
+import { TagData } from "../interfaces";
 import { npc_reaction_effect_preview, npc_system_effect_preview, npc_tech_effect_preview, npc_trait_effect_preview, npc_weapon_effect_preview } from "../item/effects";
-import { LancerItemType, LancerNpcFeatureData } from "../item/lancer-item";
 import { compact_tag_list } from "../item/tags";
 import { checked, render_icon, resolve_dotpath, resolve_helper_dotpath, selected } from "./commons";
-import { ref_commons, ref_params, simple_mm_ref } from "./refs";
+import { ref_commons, ref_params  } from "./refs";
 
 
 // Helper to handle formatting for on hit, crit, etc effects
@@ -246,7 +245,7 @@ export function system_type_selector(s_type: string, data_target: string) {
  * Handlebars partial for a mech system preview card.
  */
 export const mech_system_preview = `<li class="card clipped mech-system-compact item" data-item-id="{{system._id}}">
-<div class="lancer-header system" style="grid-area: 1/1/2/3; display: flex">
+<div class="lancer-header" style="grid-area: 1/1/2/3; display: flex">
   <i class="cci cci-system i--m"> </i>
   <a class="system-macro macroable"><i class="mdi mdi-message"></i></a>
   <span class="minor" style="flex-grow: 1">{{system.name}}</span>
@@ -401,7 +400,7 @@ export function pilot_armor_slot(armor_path: string, helper: HelperOptions): str
 
   if (!cd) {
     // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
-    return `<div class="${EntryType.PILOT_ARMOR} ref drop-settable card clipped pilot-armor-compact-item" 
+    return `<div class="${EntryType.PILOT_ARMOR} ref drop-settable card" 
                         data-path="${armor_path}" 
                         data-type="${EntryType.PILOT_ARMOR}">
           <img class="ref-icon" src="${TypeIcon(EntryType.PILOT_ARMOR)}"></img>
@@ -419,9 +418,8 @@ export function pilot_armor_slot(armor_path: string, helper: HelperOptions): str
   let hp_val = armor.Bonuses.find(b => b.ID == "pilot_hp")?.Value ?? "0";
 
   return `<div class="valid ${cd.ref.type} ref drop-settable card clipped pilot-armor-compact item" 
-                ${ref_params(cd.ref)}
-                data-path="${armor_path}">
-            <div class="lancer-header armor" style="grid-area: 1/1/2/3">
+                ${ref_params(cd.ref, armor_path)} >
+            <div class="lancer-header" style="grid-area: 1/1/2/3">
               <i class="mdi mdi-shield-outline i--m i--light"> </i>
               <span class="minor">${armor!.Name}</span>
               <a class="gen-control i--light" data-action="null" data-path="${armor_path}"><i class="fas fa-trash"></i></a>
@@ -467,7 +465,7 @@ export function pilot_weapon_refview(weapon_path: string, helper: HelperOptions)
 
   if (!cd) {
     // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
-    return `<div class="${EntryType.PILOT_WEAPON} ref drop-settable card clipped pilot-weapon-compact item" 
+    return `<div class="${EntryType.PILOT_WEAPON} ref drop-settable card pilot-weapon-compact item" 
                         data-path="${weapon_path}" 
                         data-type="${EntryType.PILOT_WEAPON}">
           <img class="ref-icon" src="${TypeIcon(EntryType.PILOT_WEAPON)}"></img>
@@ -477,9 +475,8 @@ export function pilot_weapon_refview(weapon_path: string, helper: HelperOptions)
 
   let weapon = weapon_!;
   return `<div class="valid ${EntryType.PILOT_WEAPON} ref drop-settable card clipped pilot-weapon-compact item macroable"
-                ${ref_params(cd.ref)}
-                data-path="${weapon_path}" >
-    <div class="lancer-header weapon">
+                ${ref_params(cd.ref, weapon_path)} >
+    <div class="lancer-header">
       <i class="cci cci-weapon i--m i--light"> </i>
       <span class="minor">${weapon.Name}</span>
       <a class="gen-control i--light" data-action="null" data-path="${weapon_path}"><i class="fas fa-trash"></i></a>
@@ -519,7 +516,7 @@ export function pilot_gear_refview(gear_path: string, helper: HelperOptions): st
 
   if (!cd) {
     // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
-    return `<div class="${EntryType.PILOT_GEAR} ref drop-settable card clipped pilot-gear-compact item" 
+    return `<div class="${EntryType.PILOT_GEAR} ref drop-settable card item" 
                         data-path="${gear_path}" 
                         data-type="${EntryType.PILOT_GEAR}">
           <img class="ref-icon" src="${TypeIcon(EntryType.PILOT_GEAR)}"></img>
@@ -543,10 +540,9 @@ export function pilot_gear_refview(gear_path: string, helper: HelperOptions): st
     `
   }
 
-  return `<div class="valid ${EntryType.PILOT_GEAR} ref drop-settable card clipped pilot-gear-compact item macroable"
-                ${ref_params(cd.ref)}
-                data-path="${gear_path}" >
-    <div class="lancer-header gear">
+  return `<div class="valid ${EntryType.PILOT_GEAR} ref drop-settable card clipped item macroable"
+                ${ref_params(cd.ref, gear_path)} >
+    <div class="lancer-header">
       <i class="cci cci-generic-item i--m"> </i>
       <a class="gear-macro macroable"><i class="mdi mdi-message"></i></a>
       <span class="minor">${gear.Name}</span>
@@ -587,7 +583,7 @@ export function mech_weapon_refview(weapon_path: string, mech_path: string | "",
   if (!cd) {
     // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
     return `
-      <div class="${EntryType.MECH_WEAPON} ref drop-settable card clipped pilot-gear-compact item" 
+      <div class="${EntryType.MECH_WEAPON} ref drop-settable card item" 
                         data-path="${weapon_path}" 
                         data-type="${EntryType.MECH_WEAPON}">
         <img class="ref-icon" src="${TypeIcon(EntryType.MECH_WEAPON)}"></img>
@@ -625,15 +621,14 @@ export function mech_weapon_refview(weapon_path: string, mech_path: string | "",
 
   return `
   <div class="valid ${EntryType.MECH_WEAPON} ref drop-settable flexcol clipped lancer-weapon-container macroable item"
-                ${ref_params(cd.ref)}
-                data-path="${weapon_path}"
+                ${ref_params(cd.ref, weapon_path)}
                 style="max-height: fit-content;">
-    <div class="lancer-header weapon">
+    <div class="lancer-header">
       <i class="cci cci-weapon i--m i--light"> </i>
       <span class="minor">${weapon.Name} // ${weapon.Size.toUpperCase()} ${weapon.Type.toUpperCase()}</span>
       <a class="gen-control i--light" data-action="null" data-path="${weapon_path}"><i class="fas fa-trash"></i></a>
     </div> 
-    <div class="lancer-weapon-body">
+    <div class="lancer-body">
       <div class="flexrow" style="text-align: left; white-space: nowrap;">
         <a class="roll-attack"><i class="fas fa-dice-d20 i--m i--dark"></i></a>
         <hr class="vsep">

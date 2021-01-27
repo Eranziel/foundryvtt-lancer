@@ -603,7 +603,7 @@ export function npc_tech_effect_preview(
   return npc_feature_scaffold(
     npc_feature,
     `
-    <div class="lancer-tech-body flex-col">
+    <div class="lancer-body flex-col">
       <div class="flexrow">
         ${subheader_items.join(sep)}
       </div>
@@ -644,7 +644,7 @@ export function npc_weapon_effect_preview(
   return npc_feature_scaffold(
     npc_feature,
     `
-    <div class="lancer-weapon-body flex-col">
+    <div class="lancer-body flex-col">
       <div class="flexrow">
         ${subheader_items.join(sep)}
       </div>

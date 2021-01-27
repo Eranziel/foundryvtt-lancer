@@ -335,11 +335,29 @@ export function HANDLER_activate_ref_drop_setting<T>(
   enable_simple_ref_dropping(html.find(".ref.drop-settable"), async (entry, evt) => {
     let data = await data_getter();
     let path = evt[0].dataset.path;
-    console.log("Trying to set ", path, entry);
     if (path) {
       // Set the item at the data path
       gentle_merge(data, { [path]: entry });
-      commit_func(data);
+      await commit_func(data);
     }
   });
 }
+// Allow every ".ref.drop-settable" spot to be right-click cleared
+// Uses same getter/commit func scheme as other callbacks
+export function HANDLER_activate_ref_drop_clearing<T>(
+  html: JQuery,
+  data_getter: () => Promise<T> | T,
+  commit_func: (data: T) => void | Promise<void>
+) {
+  html.find(".ref.drop-settable").on("contextmenu", async (event) => {
+    let data = await data_getter();
+    let path = event.target.dataset.path;
+    if(path) {
+      // Check there's anything there before doing anything
+      if(!resolve_dotpath(data, path)) return;
+      gentle_merge(data, { [path]: null });
+      await commit_func(data);
+    }
+  });
+}
+

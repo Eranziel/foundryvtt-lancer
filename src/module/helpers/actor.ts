@@ -11,7 +11,7 @@ export function stat_edit_card_max(title: string, icon: string, data_path: strin
   let data_val = resolve_helper_dotpath(options, data_path);
   let max_val = resolve_helper_dotpath(options, max_path);
   return `
-    <div class="flexcol card clipped">
+    <div class="card clipped">
       <div class="lancer-header ">
         <i class="${icon} i--m i--light header-icon"> </i>
         <span class="major">${title}</span>
@@ -29,7 +29,7 @@ export function stat_edit_card_max(title: string, icon: string, data_path: strin
 export function stat_edit_card(title: string, icon: string, data_path: string, options: HelperOptions): string {
   let data_val = resolve_helper_dotpath(options, data_path);
   return `
-    <div class="flexcol card clipped">
+    <div class="card clipped">
       <div class="lancer-header ">
         <i class="${icon} i--m i--light header-icon"> </i>
         <span class="major">${title}</span>
@@ -43,7 +43,7 @@ export function stat_edit_card(title: string, icon: string, data_path: string, o
 export function stat_view_card(title: string, icon: string, data_path: string, options: HelperOptions): string {
   let data_val = resolve_helper_dotpath(options, data_path);
   return `
-    <div class="flexcol card clipped">
+    <div class="card clipped">
       <div class="lancer-header ">
         <i class="${icon} i--m i--light header-icon"> </i>
         <span class="major">${title}</span>
@@ -96,7 +96,7 @@ export function clicker_num_input(target: string, value: string) {
 // The above, in card form
 export function clicker_stat_card(title: string, icon: string, data_path: string, options: HelperOptions): string {
   let data_val = resolve_helper_dotpath(options, data_path);
-  return `<div class="flexcol card clipped">
+  return `<div class="card clipped">
       <div class="lancer-header ">
         <i class="${icon} i--m i--light header-icon"> </i>
         <span class="major">${title}</span>
@@ -123,7 +123,7 @@ export function npc_clicker_stat_card(title: string, data_path: string, options:
       tier++;
   }
   return `
-    <div class="flexcol card clipped">
+    <div class="card clipped">
       <div class="flexrow lancer-header major >
         <span class="lancer-header major ">${title}</span>
         <a class="gen-control" data-path="${data_path}" data-action="set" data-action-value="(struct)npc_stat_array"><i class="fas fa-redo"></i></a>

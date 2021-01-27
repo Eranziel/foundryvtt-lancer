@@ -1,7 +1,7 @@
 import { LANCER } from "../config";
 import { HANDLER_activate_general_controls,  gentle_merge, is_ref, resolve_dotpath, safe_json_parse } from "../helpers/commons";
 import { enable_native_dropping_mm_wrap, enable_simple_ref_dragging, enable_simple_ref_dropping, NativeDrop, ResolvedNativeDrop, resolve_native_drop } from "../helpers/dragdrop";
-import { HANDLER_activate_ref_dragging, HANDLER_activate_ref_drop_setting, HANDLER_openRefOnClick } from "../helpers/refs";
+import { HANDLER_activate_ref_dragging, HANDLER_activate_ref_drop_clearing, HANDLER_activate_ref_drop_setting, HANDLER_openRefOnClick } from "../helpers/refs";
 import { LancerActorSheetData, LancerStatMacroData } from "../interfaces";
 import { FoundryRegActorData } from "../mm-util/foundry-reg";
 import { mm_wrap_actor } from "../mm-util/helpers";
@@ -54,6 +54,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
 
     // Make refs droppable
     HANDLER_activate_ref_drop_setting(html, () => this.getDataLazy(), (_) => this._commitCurrMM());
+    HANDLER_activate_ref_drop_clearing(html, () => this.getDataLazy(), (_) => this._commitCurrMM());
 
     // Enable native ref drag handlers
     this._activateNativeRefDropBoxes(html);
@@ -257,10 +258,10 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
       }
       // await this.actor.update(top_update, {});
       await this.actor.update(top_update, {render: false});
-    }//  else {
+    } else {
       gentle_merge(ct, formData);
       await this._commitCurrMM();
-    // }
+    }
   }
 
   /**
