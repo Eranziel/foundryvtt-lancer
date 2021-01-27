@@ -5,7 +5,8 @@ import { LancerItem, LancerItemType } from "../item/lancer-item";
 
 const lp = LANCER.log_prefix;
 
-// The associated entity to a given entity type. Type's a lil complex, but we need it to get things correct between abstracters that take items vs actors
+// The associated entity to a given entry type. Type's a lil complex, but we need it to get things correct between abstracters that take items vs actors
+// tl;dr maps entrytype to LancerItem or LancerActor
 export type EntFor<
   T extends EntryType & (LancerItemType | LancerActorType)
 > = T extends LancerItemType ? LancerItem<T> : T extends LancerActorType ? LancerActor<T> : never;
