@@ -2747,10 +2747,10 @@ kind-of@^6.0.0, kind-of@^6.0.2:
   resolved "https://registry.yarnpkg.com/kind-of/-/kind-of-6.0.3.tgz#07c05034a6c349fa06e24fa35aa76db4580ce4dd"
   integrity sha512-dcS1ul+9tmeD95T+x28/ehLgd9mENa3LsvDTtzm3vyBEO7RPptvAD+t44WVXaUjTBRcrpFeFlC8WCruUR456hw==
 
-lancer-data@^3.0.19:
-  version "3.0.20"
-  resolved "https://registry.yarnpkg.com/lancer-data/-/lancer-data-3.0.20.tgz#d95374084b270e80542f5f2b3f0f44e569817f41"
-  integrity sha512-QWAf037Uu8C+0qti3DQBSWt3D7p4V4Sj60R26VzBJz34RvOwv6oYJShw7yoRY9J6xDsXl9/tyrHpH/6EPrHBdg==
+lancer-data@^3.0.21:
+  version "3.0.21"
+  resolved "https://registry.yarnpkg.com/lancer-data/-/lancer-data-3.0.21.tgz#02c8a06f03b9a38587ddb832e1e7a155dc1b83cf"
+  integrity sha512-jjUnPk/tnlrx2vqZSWwt9x3CackTyJTNrmEDZ5K8iXl5HjWFJzIUZsjI0RNgKPDHkKi3V0ecd7DpN/T0CRpYQg==
 
 last-run@^1.1.0:
   version "1.1.1"
@@ -2970,17 +2970,17 @@ lru-cache@^5.1.1:
   dependencies:
     yallist "^3.0.2"
 
-machine-mind@0.2.0-beta.50:
-  version "0.2.0-beta.50"
-  resolved "https://registry.yarnpkg.com/machine-mind/-/machine-mind-0.2.0-beta.50.tgz#f95453b9914d0e32971bddc23feab5d9dc6b9de5"
-  integrity sha512-mLrp72jkhMYp2AgI7ThM9FDWK6px9oUVEL0jl3gwuklTAdB88YAZgryUlnggahqbiM17SCvUgcb09nP+c4Raww==
+machine-mind@0.2.0-beta.51:
+  version "0.2.0-beta.51"
+  resolved "https://registry.yarnpkg.com/machine-mind/-/machine-mind-0.2.0-beta.51.tgz#77047bdafc2ed3e9e8c416bbde9bf6cfde86a08e"
+  integrity sha512-70+3oIbgGLHcarKC6yZLfvPYyNlXrd6UTkIYIe5uDd9uRMTVUh1KCqU54qU+GX280714kw3nwpJtyu83HFYF7g==
   dependencies:
     axios "^0.19.2"
     filtrex "^2.1.0"
     jszip "^3.5.0"
-    lancer-data "^3.0.19"
+    lancer-data "^3.0.21"
     nanoid "^3.1.12"
-    tslib "^2.0.0"
+    tslib "^2.1.0"
 
 make-dir@^2.0.0, make-dir@^2.1.0:
   version "2.1.0"
@@ -4682,10 +4682,10 @@ tslib@^1.10.0, tslib@^1.14.1, tslib@^1.9.0:
   resolved "https://registry.yarnpkg.com/tslib/-/tslib-1.14.1.tgz#cf2d38bdc34a134bcaf1091c41f6619e2f672d00"
   integrity sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==
 
-tslib@^2.0.0:
-  version "2.0.3"
-  resolved "https://registry.yarnpkg.com/tslib/-/tslib-2.0.3.tgz#8e0741ac45fc0c226e58a17bfc3e64b9bc6ca61c"
-  integrity sha512-uZtkfKblCEQtZKBF6EBXVZeQNl82yqtDQdv+eck8u7tdPxjLu2/lp5/uPW+um2tpuxINHWy3GhiccY7QgEaVHQ==
+tslib@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/tslib/-/tslib-2.1.0.tgz#da60860f1c2ecaa5703ab7d39bc05b6bf988b97a"
+  integrity sha512-hcVC3wYEziELGGmEEXue7D75zbwIIVUMWAVbHItGPx0ziyXxrOMQx4rQEVEV45Ut/1IotuEvwqPopzIOkDMf0A==
 
 tty-browserify@0.0.0:
   version "0.0.0"

@@ -99,10 +99,10 @@ export class LancerActor<T extends LancerActorType> extends Actor {
 
   /* -------------------------------------------- */
   // Tracks data propagation
-  subscriptions = new Array<LancerSubscription>();
+  subscriptions: LancerSubscription[] = [];
 
   // Kept for comparing previous to next values
-  prior_derived: this["data"]["data"]["derived"] | null = null;
+  prior_max_hp = -1;
 
   /** @override
    * We need to both:
@@ -110,45 +110,35 @@ export class LancerActor<T extends LancerActorType> extends Actor {
    *  - Re-initialize our MM context
    */
   prepareDerivedData() {
-    this.subscriptions?.forEach(subscription => {
-      subscription.unsubscribe();
-    });
-    this.subscriptions = [];
+    // Reset subscriptions for new data
     this.setupLancerHooks();
 
-    // That done/guaranteed make a shorthand
+    // Declare our derived data with a shorthand "dr" - we will be using it a lot
     let dr: this["data"]["data"]["derived"];
-    if (!this.prior_derived) {
-      // Default in fields
-      let default_bounded = () => ({
-        min: 0,
-        max: 0,
-        value: 0,
-      });
 
-      // Prepare our derived stat data by first initializing an empty obj
-      dr = {
-        edef: 0,
-        evasion: 0,
-        save_target: 0,
-        current_heat: default_bounded(),
-        current_hp: default_bounded(),
-        overshield: default_bounded(),
-        current_structure: default_bounded(),
-        current_stress: default_bounded(),
-        current_repairs: default_bounded(),
-        mmec: null as any, // we will set these momentarily
-        mmec_promise: null as any // we will set these momentarily
-      }
+    // Default in fields
+    let default_bounded = () => ({
+      min: 0,
+      max: 0,
+      value: 0,
+    });
 
-      // We set it normally. Was tempted to use defineProperty to prevent it being duplicated, but we just do that in update
-      this.prior_derived = dr;
-    } else {
-      // Reuse the old one
-      dr = this.prior_derived;
-    }
+    // Prepare our derived stat data by first initializing an empty obj
+    dr = {
+      edef: 0,
+      evasion: 0,
+      save_target: 0,
+      current_heat: default_bounded(),
+      current_hp: default_bounded(),
+      overshield: default_bounded(),
+      current_structure: default_bounded(),
+      current_stress: default_bounded(),
+      current_repairs: default_bounded(),
+      mmec: null as any, // we will set these momentarily
+      mmec_promise: null as any, // we will set these momentarily
+    };
 
-    // Re-set into our wip data structure
+    // Add into our wip data structure
     this.data.data.derived = dr;
 
     // Begin the task of wrapping our actor. When done, it will setup our derived fields - namely, our max values
@@ -161,7 +151,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         Object.defineProperty(dr, "mmec", {
           value: mmec,
           configurable: true,
-          enumerable: false
+          enumerable: false,
         });
 
         // Changes in max-hp should heal the actor. But certain requirements must be met
@@ -170,110 +160,68 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         // - New HP must be valid. If 0, do nothing
         // If above two are true, then set HP = HP - OldMaxHP + NewMaxHP. This should never drop the ent below 1 hp
         const hp_change_corrector = (curr_hp: number, old_max: number, new_max: number) => {
-          console.log(`HP CHANGE CALC ${this.name} ${curr_hp} ${old_max} ${new_max}`);
-          if(curr_hp <= 0) return curr_hp;
-          if(old_max <= 0) return curr_hp;
-          if(new_max <= 0) return curr_hp;
+          if (curr_hp <= 0) return curr_hp;
+          if (old_max <= 0) return curr_hp;
+          if (new_max <= 0) return curr_hp;
           let new_hp = curr_hp - old_max + new_max;
-          if(new_hp < 1) new_hp = 1;
-          console.log(`HP CHANGE SUCCEEDED ${new_hp}`);
+          if (new_hp < 1) new_hp = 1;
+
+          // Return so it can also be set to the MM item
           return new_hp;
+        };
+
+        // If our max hp changed, do somethin'
+        let curr_hp = mmec.ent.CurrentHP;
+        let corrected_hp = hp_change_corrector(curr_hp, this.prior_max_hp, mmec.ent.MaxHP);
+        if (curr_hp != corrected_hp) {
+          // Cancel christmas. We gotta update ourselves to reflect the new HP change >:(
+          console.warn(
+            "TODO: figure out a more elegant way to update hp based on max hp than calling update in prepareData. Maybe only choice."
+          );
         }
 
+        // Set the general props. ALl actors have at least these
+        dr.edef = mmec.ent.EDefense;
+        dr.evasion = mmec.ent.Evasion;
+
+        dr.current_hp.value = mmec.ent.CurrentHP;
+        dr.current_hp.max = mmec.ent.MaxHP;
+
+        dr.overshield.value = mmec.ent.Overshield;
+        dr.overshield.max = mmec.ent.MaxHP; // as good a number as any I guess
 
         // Depending on type, setup derived fields more precisely as able
-        if (mmec.ent.Type == EntryType.MECH) {
-          let mech = mmec.ent as Mech;
+        if (mmec.ent.Type != EntryType.PILOT) {
+          let robot = mmec.ent as Mech | Npc | Deployable;
 
-          // Correct hp based on change in max
-          mech.CurrentHP = hp_change_corrector(mech.CurrentHP, dr.current_hp.max, mech.MaxHP);
+          // All "wow, cool robot" type units have these
+          dr.save_target = robot.SaveTarget;
+          dr.current_heat.max = robot.HeatCapacity;
+          dr.current_heat.value = robot.CurrentHeat;
 
-          dr.edef = mech.EDefense;
-          dr.evasion = mech.Evasion;
-          dr.save_target = mech.SaveTarget;
+          if (robot.Type != EntryType.DEPLOYABLE) {
+            // Deployables don't have stress/struct
+            dr.current_structure.max = robot.MaxStructure;
+            dr.current_structure.value = robot.CurrentStructure;
 
-          dr.current_heat.max = mech.HeatCapacity;
-          dr.current_heat.value = mech.CurrentHeat;
-
-          dr.current_hp.max = mech.MaxHP;
-          dr.current_hp.value = mech.CurrentHP;
-
-          dr.overshield.max = mech.MaxHP; // As good a number as any i guess.
-          dr.overshield.value = mech.Overshield;
-
-          dr.current_structure.max = mech.MaxStructure;
-          dr.current_structure.value = mech.CurrentStructure;
-
-          dr.current_stress.max = mech.MaxStress;
-          dr.current_stress.value = mech.CurrentStress;
-
-          dr.current_repairs.max = mech.RepairCapacity;
-          dr.current_repairs.value = mech.CurrentRepairs;
-        } else if (mmec.ent.Type == EntryType.PILOT) {
-          // Pilots only really have base stats + hp + overshield
-          let pilot = mmec.ent as Pilot;
-
-          // Correct hp based on change in max
-          pilot.CurrentHP = hp_change_corrector(pilot.CurrentHP, dr.current_hp.max, pilot.MaxHP);
-
-          dr.edef = pilot.EDefense;
-          dr.evasion = pilot.Evasion;
-
-          dr.current_hp.max = pilot.MaxHP;
-          dr.current_hp.value = pilot.CurrentHP;
-
-          dr.overshield.max = pilot.MaxHP; // As good a number as any i guess.
-          dr.overshield.value = pilot.Overshield;
-        } else if (mmec.ent.Type == EntryType.DEPLOYABLE) {
-          let dep = mmec.ent as Deployable;
-
-          // Correct hp based on change in max
-          dep.CurrentHP = hp_change_corrector(dep.CurrentHP, dr.current_hp.max, dep.MaxHP);
-
-          dr.edef = dep.EDefense;
-          dr.evasion = dep.Evasion;
-          dr.save_target = dep.Save;
-
-          dr.current_hp.value = dep.CurrentHP;
-          dr.current_hp.max = dep.MaxHP;
-
-          dr.overshield.value = dep.Overshield;
-          dr.overshield.max = dep.MaxHP;
-
-          dr.current_heat.value = dep.CurrentHeat;
-          dr.current_heat.max = dep.HeatCapacity;
-          // we ignore stress and structure for now, as I don't think they really make any sense
-        } else if (mmec.ent.Type == EntryType.NPC) {
-          let npc = mmec.ent as Npc;
-
-          // Correct hp based on change in max
-          npc.CurrentHP = hp_change_corrector(npc.CurrentHP, dr.current_hp.max, npc.MaxHP);
-
-          dr.edef = npc.EDefense;
-          dr.evasion = npc.Evasion;
-          dr.save_target = npc.SaveTarget;
-
-          dr.current_heat.max = npc.HeatCapacity;
-          dr.current_heat.value = npc.CurrentHeat;
-
-          dr.current_hp.max = npc.MaxHP;
-          dr.current_hp.value = npc.CurrentHP;
-
-          dr.overshield.max = npc.MaxHP; 
-          dr.overshield.value = npc.Overshield;
-
-          dr.current_structure.max = npc.MaxStructure;
-          dr.current_structure.value = npc.CurrentStructure;
-
-          dr.current_stress.max = npc.MaxStress;
-          dr.current_stress.value = npc.CurrentStress;
+            dr.current_stress.max = robot.MaxStress;
+            dr.current_stress.value = robot.CurrentStress;
+          }
+          if (robot.Type != EntryType.NPC) {
+            // Npcs don't have repairs
+            dr.current_repairs.max = robot.RepairCapacity;
+            dr.current_repairs.value = robot.CurrentRepairs;
+          }
         }
 
+        // Update prior max hp val
+        this.prior_max_hp = dr.current_hp.max;
+
         // Now that data is set properly, force token to draw its bars
-        if(this.token) {
+        if (this.token) {
           (this.token as any).drawBars();
         } else {
-          for(let token of this.getActiveTokens()) {
+          for (let token of this.getActiveTokens()) {
             (token as any).drawBars();
           }
         }
@@ -285,59 +233,91 @@ export class LancerActor<T extends LancerActorType> extends Actor {
     Object.defineProperty(dr, "mmec_promise", {
       value: mmec_promise,
       configurable: true,
-      enumerable: false
+      enumerable: false,
     });
   }
 
-  /** @override 
+  /** @override
    * Want to destroy derived data before passing it to an update
-  */
-  async update(data: any, options={}) {
-    if(data?.data?.derived) {
+   */
+  async update(data: any, options: any = undefined) {
+    // Never submit derived data. Typically won't show up here regardless
+    if (data?.derived) {
       delete data.data.derived;
     }
+
+    /*
+    // Foundry doesn't do diffs well (in fact, it does them horribly), so we do it for them.
+    // Unless explicitly disabled, of course. This considerably cuts down on the amount of data transfer and can in many cases entirely eliminate unnecessary updates
+    if (options?.["diff"] !== false) {
+      let objectified = expandObject(data);
+      let adv_diff = detailedDiff(this.data, objectified) as any;
+      let new_data = mergeObject(adv_diff.added, adv_diff.updated);
+      console.log("Alto diff: ", new_data, data);
+      data = new_data;
+    }
+    */
     return super.update(data, options);
   }
 
-
-  /** @override */
+  /** @override
+   * On the result of an update, we want to cascade derived data.
+   */
   _onUpdate(data: object, options: object, userId: string, context: object) {
+    // Upon ourselves being updated, trigger any listener hooks
     super._onUpdate(data, options, userId, context);
     LancerHooks.call(this);
   }
 
   setupLancerHooks() {
-    let depends: RegRef<LancerActorType>[] = [];
+    // If we're a compendium entity, don't actually do anything
+    if (this.compendium) {
+      return;
+    }
+
+    // Clear old subs
+    this.subscriptions?.forEach(subscription => {
+      subscription.unsubscribe();
+    });
+    this.subscriptions = [];
+
+    let dependency: RegRef<LancerActorType> | null = null;
     // If we are a mech, we need to subscribe to our pilot (if it exists)
-    if(this.data.type == EntryType.MECH) {
-      let mech_data = (this.data.data as unknown) as RegMechData; 
+    if (this.data.type == EntryType.MECH) {
+      let mech_data = (this.data.data as unknown) as RegMechData;
       if (mech_data.pilot) {
-        depends.push(mech_data.pilot)
+        dependency = mech_data.pilot;
       }
-    } else if(this.data.type == EntryType.DEPLOYABLE) { 
+    } else if (this.data.type == EntryType.DEPLOYABLE) {
       // If deployable, same deal
-      let dep_data = (this.data.data as unknown) as RegDeployableData; 
+      let dep_data = (this.data.data as unknown) as RegDeployableData;
       if (dep_data.deployer) {
-        depends.push(dep_data.deployer)
+        dependency = dep_data.deployer;
       }
     }
 
     // Make a subscription for each
-    for(let depend of depends) {
-        let sub = LancerHooks.on(
-          depend,
-          (async (_: any) => {
-            console.log("Triggering subscription-based update");
-            this.update(this.data);
-            // this.prepareDerivedData();
-            // this.data.data.derived.mmec_promise.then(() => this.render());
-          }).bind(this)
-        );
-        this.subscriptions.push(sub);
+    if (dependency) {
+      let sub = LancerHooks.on(dependency, async (_: any) => {
+        console.log("Triggering subscription-based update on " + this.name);
+        // We typically don't need to actually .update() ourselves when a dependency updates
+        // Each client will individually prepareDerivedData in response to the update, and so there is no need for DB communication
+        // Only exception is for cases like changes in max hp changing current HP - a tangible change in what data should be stored on this.
+        // Said updates will be fied off in prepareData if necessary.
+        this.prepareDerivedData();
+
+        // Wait for it to be done
+        await this.data.data.derived.mmec_promise;
+
+        // Trigger a render. Sheets may need to show something different now
+        this.render();
+
+        // Also, let any listeners on us know!
+        LancerHooks.call(this);
+      });
+      this.subscriptions.push(sub);
     }
   }
-
-  // If we are a deployable, we need to subscribe to our deployer
 }
 
 // Discrete types for all of our possible generic values
@@ -351,8 +331,17 @@ export type LancerDeployable = LancerActor<EntryType.DEPLOYABLE>;
 export type LancerDeployableData = FoundryRegActorData<EntryType.DEPLOYABLE>;
 
 export type AnyLancerActor = LancerActor<LancerActorType>;
-export type LancerActorType = EntryType.MECH | EntryType.DEPLOYABLE | EntryType.NPC | EntryType.PILOT;
-export const LancerActorTypes: LancerActorType[] = [EntryType.MECH, EntryType.DEPLOYABLE, EntryType.NPC, EntryType.PILOT];
+export type LancerActorType =
+  | EntryType.MECH
+  | EntryType.DEPLOYABLE
+  | EntryType.NPC
+  | EntryType.PILOT;
+export const LancerActorTypes: LancerActorType[] = [
+  EntryType.MECH,
+  EntryType.DEPLOYABLE,
+  EntryType.NPC,
+  EntryType.PILOT,
+];
 
 export function is_actor_type(type: LancerActorType | LancerItemType): type is LancerActorType {
   return LancerActorTypes.includes(type as LancerActorType);
