@@ -280,8 +280,9 @@ export class LancerActor<T extends LancerActorType> extends Actor {
   }
 
   // ditto cascade
-  _onDeleteEmbeddedEntity(args: any) {
-    super._onDeleteEmbeddedEntity(args);
+  _onDeleteEmbeddedEntity(...args: any) {
+    //@ts-ignore Incorrect typings
+    super._onDeleteEmbeddedEntity(...args);
     LancerHooks.call(this);
   }
 
