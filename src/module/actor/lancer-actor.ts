@@ -246,26 +246,42 @@ export class LancerActor<T extends LancerActorType> extends Actor {
       delete data.data.derived;
     }
 
-    /*
-    // Foundry doesn't do diffs well (in fact, it does them horribly), so we do it for them.
-    // Unless explicitly disabled, of course. This considerably cuts down on the amount of data transfer and can in many cases entirely eliminate unnecessary updates
-    if (options?.["diff"] !== false) {
-      let objectified = expandObject(data);
-      let adv_diff = detailedDiff(this.data, objectified) as any;
-      let new_data = mergeObject(adv_diff.added, adv_diff.updated);
-      console.log("Alto diff: ", new_data, data);
-      data = new_data;
-    }
-    */
     return super.update(data, options);
   }
 
   /** @override
    * On the result of an update, we want to cascade derived data.
    */
-  _onUpdate(data: object, options: object, userId: string, context: object) {
+  _onUpdate(...args: any) {
     // Upon ourselves being updated, trigger any listener hooks
-    super._onUpdate(data, options, userId, context);
+    super._onUpdate(args[0], args[1], args[2], args[3]);
+    LancerHooks.call(this);
+  }
+
+  // ditto cascade
+  _onCreateEmbeddedEntity(...args: any) {
+    //@ts-ignore Incorrect typings
+    super._onCreateEmbeddedEntity(...args);
+    LancerHooks.call(this);
+  }
+
+  // ditto cascade
+  _onModifyEmbeddedEntity(...args: any) {
+    //@ts-ignore Incorrect typings
+    super._onModifyEmbeddedEntity(...args);
+    LancerHooks.call(this);
+  }
+
+  // ditto cascade
+  _onUpdateEmbeddedEntity(...args: any) {
+    //@ts-ignore Incorrect typings
+    super._onUpdateEmbeddedEntity(...args);
+    LancerHooks.call(this);
+  }
+
+  // ditto cascade
+  _onDeleteEmbeddedEntity(args: any) {
+    super._onDeleteEmbeddedEntity(args);
     LancerHooks.call(this);
   }
 
