@@ -2,35 +2,35 @@
   
   {{!-- Sheet Header --}}
   <header class="sheet-header card clipped-bot">
-    <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}" height="100" width="100"/>
-    <div class="header-fields" style="grid-area: 1/1/2/5;">
-      <h1 class="charname"><input class="header-field" name="name" type="text" value="{{item.name}}" placeholder="Name"/></h1>
+    <div class="flexrow">
+      <div class="header-fields">
+        <h1 class="charname"><input class="header-field" name="name" type="text" value="{{item.name}}" placeholder="Name"/></h1>
+      </div>
+      {{{ ref-portrait-img item.img "img" mm.ent }}}
     </div>
   </header>
   <div class="flexcol">
     {{!-- Weapon Stats --}}
     <div class="flexrow">
-      {{{wpn-range-sel data.range "0" "data.range.0"}}}
-      {{{wpn-damage-sel data.damage "0" "data.damage.0"}}}
+      {{#each mm.ent.Range as |range range_index| }}
+        {{{wpn-range-sel range (concat "mm.ent.Range." range_index) }}}
+      {{/each}}
+      {{#each mm.ent.Damage as |damage damage_index| }}
+        {{{wpn-damage-sel damage (concat "mm.ent.Damage." damage_index) }}}
+      {{/each}}
     </div>
 
     {{!-- Compendium --}}
 
     <div class="card clipped">
       <span class="lancer-header major ">DESCRIPTION</span>
-      {{editor content=data.description target="data.description" button=true owner=owner editable=editable}}
+      {{editor content=mm.ent.Description target="mm.ent.Description" button=true owner=owner editable=editable}}
     </div>
 
     {{!-- Tags --}}
-
-    <div class="arrayed-item-container tags-container flexcol" data-item="tags">
-      <div>
-        <span class="minor" style="float: left">EQUIPMENT TAGS</span>
-        <a class="add-button clickable" data-action="create" style="float: right; margin-right: 1em">+</a>
-      </div>
-      {{#each item.data.tags as |tag key|}}
-        {{{full-tag tag key "data.tags"}}}
-      {{/each}}
+    <div class="card clipped full">
+      <span class="lancer-header major">TAGS</span>
+      {{{mm-tag-list mm.ent.Tags}}}
     </div>
   </div>
 
