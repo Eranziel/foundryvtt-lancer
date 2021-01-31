@@ -66,6 +66,7 @@ import {
   pilot_gear_refview,
   license_ref,
   manufacturer_ref,
+  uses_control,
 } from "./module/helpers/item";
 import { clicker_num_input, clicker_stat_card, compact_stat_edit, compact_stat_view, deployer_slot, npc_clicker_stat_card, npc_tier_selector, overcharge_button, stat_edit_card, stat_edit_card_max, stat_view_card, } from "./module/helpers/actor";
 import { HelperOptions } from "handlebars";
@@ -334,6 +335,7 @@ Hooks.once("init", async function () {
   // ------------------------------------------------------------------------
   // Systems
   Handlebars.registerHelper("sys-type-sel", system_type_selector);
+  Handlebars.registerHelper("uses-ctrl", uses_control);
   Handlebars.registerHelper("act-icon", action_type_icon);
   Handlebars.registerHelper("act-type-sel", action_type_selector);
   Handlebars.registerPartial("mech-system-preview", mech_system_preview);

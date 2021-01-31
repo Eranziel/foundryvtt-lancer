@@ -229,16 +229,30 @@ export function npc_accuracy_preview(acc: number) {
 /**
  * Handlebars partial for weapon type selector
  */
-export function system_type_selector(s_type: string, data_target: string) {
+export function system_type_selector(s_type: SystemType, data_target: string) {
   const s = s_type ? s_type.toLowerCase() : SystemType.System.toLowerCase();
   let options: string[] = [];
   for(let type of Object.values(SystemType)) {
-    options.push(`<option value="${type}" ${selected(s === type.toLowerCase())}}>${type.toUpperCase()}</option>`);
+    options.push(`<option value="${type}" ${selected(s === type.toLowerCase())}>${type.toUpperCase()}</option>`);
   }
 
   return `<select name="${data_target}" data-type="String" style="height: 2em; align-self: center;" >
       ${options.join("")}
     </select>`;
+}
+
+/**
+ * Handlebars partial for limited uses remaining
+ */
+export function uses_control(uses_path: string, max_uses: number, helper: HelperOptions) {
+  const curr_uses = resolve_helper_dotpath(helper, uses_path) ?? 0;
+  // TODO: Remove this "justify-content" stuff, that should really be accomplished via a class
+  return ` <div class="flexrow">
+              <span>USES</span>
+              <input class="lancer-stat lancer-invisible-input" type="number" name="${uses_path}" value="${curr_uses}" data-dtype="Number" style="justify-content: left"/>
+              <span>/</span>
+              <span class="lancer-stat" style="justify-content: left"> ${max_uses}</span>
+            </div>`;
 }
 
 /**
@@ -248,7 +262,7 @@ export const mech_system_preview = `<li class="card clipped mech-system-compact 
 <div class="lancer-header" style="grid-area: 1/1/2/3; display: flex">
   <i class="cci cci-system i--m"> </i>
   <a class="system-macro macroable"><i class="mdi mdi-message"></i></a>
-  <span class="minor" style="flex-grow: 1">{{system.name}}</span>
+  <span class="minor grow">{{system.name}}</span>
   <a class="stats-control" data-action="delete"><i class="fas fa-trash"></i></a>
 </div>
 <div class="flexrow">

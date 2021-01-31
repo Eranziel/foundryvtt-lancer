@@ -662,6 +662,11 @@ tr.lcp-index-header {
 .lancer-header {
   flex: 0 0 2.0em;
 
+  /* Generally uglier, inconsistent. Use when header needs other stuff in it, like with talents large icons etc */
+  &.stretch {
+    flex: 0 0 100%;
+  }
+
   text-overflow: ellipsis;
   overflow: hidden;
   font-weight: bold;
