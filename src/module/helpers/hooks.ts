@@ -4,14 +4,16 @@ import { EntryType, LiveEntryTypes, RegEntry, Registry, RegRef } from "machine-m
 import { LancerActor, LancerActorType } from "../actor/lancer-actor";
 import { LancerItem, LancerItemType } from "../item/lancer-item";
 
+export const DEBOUNCE_TIMEOUT = 500; // An update propagation hook will fire at most once every this many MS. 
+// Triggers on falling edge (meaning will wait for updates to stop pouring in before firing
 type RegEntity<T extends EntryType> = Entity | RegEntry<T> | RegRef<T>;
 
 export class LancerHooks {
     
     static call(entity: Entity) {
         var id: string = entity.id
-        console.log(`${lp} Publishing ${id}`)       
-        return Hooks.call(id, entity)
+        // return Hooks.call(id, entity)
+        debounce_trigger(id, entity);
     }
 
     static on<E extends Entity>(entity: E, callback: (arg: E) => any): LancerSubscription
@@ -74,4 +76,21 @@ export class LancerSubscription {
         //@ts-ignore Pending Bolts' code merger, hooks types are incorrect
         Hooks.off(this.name, this.id)
     }
+}
+
+// Given the number of things that can trigger a hook, we debounce to make sure we're only really sending out one signal per set of updates (including user mashing + on a sheet, etc)
+const debounce_timings = new Map<string, number>();
+function debounce_trigger(hook_id: string, entity: Entity) {
+    // Check for pending. Cancel if one exists
+    let pending = debounce_timings.get(hook_id);
+    if(pending) {
+        clearTimeout(pending);
+    }
+
+    // Setup a new pending timeout and let it rip
+    let new_pending = window.setTimeout(() => {
+        console.log(`${lp} Publishing ${hook_id}`)       
+        Hooks.call(hook_id, entity)
+    }, DEBOUNCE_TIMEOUT);
+    debounce_timings.set(hook_id, new_pending);
 }
