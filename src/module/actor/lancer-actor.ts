@@ -258,31 +258,10 @@ export class LancerActor<T extends LancerActorType> extends Actor {
     LancerHooks.call(this);
   }
 
-  // ditto cascade
-  _onCreateEmbeddedEntity(...args: any) {
-    //@ts-ignore Incorrect typings
-    super._onCreateEmbeddedEntity(...args);
-    LancerHooks.call(this);
-  }
-
-  // ditto cascade
+  // Ditto - items alter stats quite often
   _onModifyEmbeddedEntity(...args: any) {
     //@ts-ignore Incorrect typings
     super._onModifyEmbeddedEntity(...args);
-    LancerHooks.call(this);
-  }
-
-  // ditto cascade
-  _onUpdateEmbeddedEntity(...args: any) {
-    //@ts-ignore Incorrect typings
-    super._onUpdateEmbeddedEntity(...args);
-    LancerHooks.call(this);
-  }
-
-  // ditto cascade
-  _onDeleteEmbeddedEntity(...args: any) {
-    //@ts-ignore Incorrect typings
-    super._onDeleteEmbeddedEntity(...args);
     LancerHooks.call(this);
   }
 
