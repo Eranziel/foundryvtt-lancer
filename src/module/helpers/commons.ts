@@ -18,9 +18,13 @@ import {
   FrameTrait,
   Bonus
 } from "machine-mind";
-import { LancerActorSheet } from "../actor/lancer-actor-sheet";
 import { LancerActorSheetData, LancerItemSheetData } from "../interfaces";
 import { MMEntityContext } from "../mm-util/helpers";
+
+// A shorthand for only including the first string if the second value is truthy
+export function inc_if(val: string, test: any) {
+  return test ? val : "";
+}
 
 // Simple helper to simplify mapping truthy values to "checked"
 export function checked(truthytest: any): string {
@@ -52,6 +56,7 @@ export function gentle_merge(dest: any, flat_data: any) {
       let next = curr[p];
 
       curr = next;
+      if(!curr) break;
     }
 
     // If curr still exists and is an array or object, attempt the assignment
@@ -105,7 +110,7 @@ export function array_path_edit(target: any, flat_path: string, value: any, mode
 }
 
 /** Makes an icon */
-export function render_icon(icon_name: string): string {
+export function render_light_icon(icon_name: string): string {
   return `<i class="cci ${icon_name} i--m i--light"> </i>`;
 }
 

@@ -5,6 +5,7 @@ import { HANDLER_activate_general_controls, gentle_merge, resolve_dotpath } from
 import { HANDLER_activate_native_ref_dragging, HANDLER_activate_ref_dragging, HANDLER_activate_ref_drop_clearing, HANDLER_activate_ref_drop_setting, HANDLER_add_ref_to_list_on_drop, HANDLER_openRefOnClick } from "../helpers/refs";
 import { EntryType } from "machine-mind";
 import { get_pack } from "../mm-util/db_abstractions";
+import { HANDLER_activate_edit_bonus } from "../helpers/item";
 
 const lp = LANCER.log_prefix;
 
@@ -108,6 +109,9 @@ return;
     // Allow set things by drop. Mostly we use this for manufacturer/license dragging
     HANDLER_activate_ref_drop_setting(html, () => this.getDataLazy(), (_) => this._commitCurrMM());
     HANDLER_activate_ref_drop_clearing(html, () => this.getDataLazy(), (_) => this._commitCurrMM());
+
+    // Enable bonus editors
+    HANDLER_activate_edit_bonus(html, () => this.getDataLazy(), (_) => this._commitCurrMM());
   }
 
   /* -------------------------------------------- */

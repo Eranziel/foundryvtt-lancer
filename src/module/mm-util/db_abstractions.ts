@@ -514,12 +514,9 @@ export async function get_pack(type: LancerItemType | LancerActorType): Promise<
   // Find existing world compendium
   pack = game.packs.get(`world.${type}`) ?? game.packs.get(`lancer.${type}`);
   if (pack) {
-    console.log(`${lp} Fetching existing compendium: ${pack.collection}.`);
     return pack;
   } else {
     // Compendium doesn't exist yet. Create a new one.
-    console.log(`${lp} Creating new compendium: ${type}.`);
-
     // Create our metadata
     const entity_type = is_actor_type(type) ? "Actor" : "Item";
     const metadata: PackMetadata = {

@@ -42,9 +42,9 @@ import * as macros from "./module/macros";
 
 // Import node modules
 import compareVersions = require("compare-versions");
-import { NpcFeatureType, EntryType, Manufacturer } from "machine-mind";
+import { NpcFeatureType, EntryType, Manufacturer, Bonus } from "machine-mind";
 import {
-  render_icon,
+  render_light_icon,
   resolve_dotpath,
   resolve_helper_dotpath,
 } from "./module/helpers/commons";
@@ -60,13 +60,14 @@ import {
   mech_system_preview,
   npc_feature_preview,
   damage_editor,
-  bonus_array_editor,
+  bonuses_display,
   pilot_armor_slot,
   pilot_weapon_refview,
   pilot_gear_refview,
   license_ref,
   manufacturer_ref,
   uses_control,
+  single_bonus_editor,
 } from "./module/helpers/item";
 import { clicker_num_input, clicker_stat_card, compact_stat_edit, compact_stat_view, deployer_slot, npc_clicker_stat_card, npc_tier_selector, overcharge_button, stat_edit_card, stat_edit_card_max, stat_view_card, } from "./module/helpers/actor";
 import { HelperOptions } from "handlebars";
@@ -262,7 +263,7 @@ Hooks.once("init", async function () {
 
   // ------------------------------------------------------------------------
   // Generic components
-  Handlebars.registerHelper("light-icon", render_icon);
+  Handlebars.registerHelper("light-icon", render_light_icon);
 
   Handlebars.registerHelper("l-num-input", clicker_num_input);
 
@@ -319,7 +320,10 @@ Hooks.once("init", async function () {
 
   // ------------------------------------------------------------------------
   // Bonuses
-  Handlebars.registerHelper("bonuses-editor", bonus_array_editor);
+  Handlebars.registerHelper("edit-bonuses-view", (bonuses_path: string, bonuses_array: Bonus[]) => bonuses_display(bonuses_path, bonuses_array, true));
+  Handlebars.registerHelper("read-bonuses-view", (bonuses_path: string, bonuses_array: Bonus[]) => bonuses_display(bonuses_path, bonuses_array, false));
+  Handlebars.registerHelper("bonuses-view", bonuses_display); // Takes a third arg
+  Handlebars.registerHelper("edit-bonus", single_bonus_editor);
 
   // ------------------------------------------------------------------------
   // Weapons

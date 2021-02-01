@@ -28,7 +28,6 @@ export class LancerHooks {
         else {
             id = entity.id
         }
-        console.log(`${lp} Subscribing to ${id}`)
         let subId = Hooks.on(id, callback)
         return new LancerSubscription(id, subId)
     }
@@ -52,7 +51,6 @@ export class LancerHooks {
             id = entityOrSub.id
         }
         if (callback) {
-            console.log(`${lp} Unsubscribing from ${id}`)
             //@ts-ignore Pending Bolts' code merger, hooks types are incorrect
             return Hooks.off(id, callback)
         }
@@ -89,7 +87,6 @@ function debounce_trigger(hook_id: string, entity: Entity) {
 
     // Setup a new pending timeout and let it rip
     let new_pending = window.setTimeout(() => {
-        console.log(`${lp} Publishing ${hook_id}`)       
         Hooks.call(hook_id, entity)
     }, DEBOUNCE_TIMEOUT);
     debounce_timings.set(hook_id, new_pending);

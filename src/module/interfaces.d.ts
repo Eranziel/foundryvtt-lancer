@@ -320,6 +320,9 @@ export type LancerItemSheetData<T extends EntryType> = {
   item: FoundryRegItemData<T>;
   data: RegEntryTypes<T>;
 
+  // Can we edit? 
+  editable: boolean;
+
   // reg ctx
   mm: MMEntityContext<T>;
 
@@ -331,6 +334,9 @@ export type LancerActorSheetData<T extends EntryType> = {
   actor: FoundryRegActorData<T>;
   data: RegEntryTypes<T>;
   items: Item[];
+
+  // Can we edit? 
+  editable: boolean;
 
   // reg ctx
   mm: MMEntityContext<T>;

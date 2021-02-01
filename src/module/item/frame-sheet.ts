@@ -19,30 +19,6 @@ export class LancerFrameSheet extends LancerItemSheet<EntryType.FRAME> {
     });
   }
 
-  // Delete a frame trait when the trashcan is pressed
-  async _onDeleteFrameTrait(event: any) {
-    // Get the index
-    const elt = event.currentTarget;
-    const index = elt.dataset.index;
-
-    let data = await this.getDataLazy();
-    // Splice it out
-    let traits = [...data.mm.ent.Traits];
-    traits.splice(index, 1);
-    data.mm.ent.Traits = traits;
-
-    await data.mm.ent.writeback();
-    this.render();
-  }
-
-  // Make a mount trait when the button is pressed
-  async _onCreateMount(event: any) {
-    // Just push on a main
-    let data = await this.getDataLazy();
-    data.mm.ent.Mounts.push(MountType.Main);
-    return data.mm.ent.writeback();
-  }
-
   // Handle the "delete" option of the mounts
   async _onChangeMount(event: any) {
     // Get the index

@@ -62,22 +62,22 @@
   </div>
 
   {{!-- Traits --}}
-  <div class="frame-traits flexcol">
-    <div>
-      <span class="minor" style="float: left">TRAITS</span>
+  <div class="card">
+    <div class="lancer-header">
+      <span class="major left">TRAITS</span>
       <a class="gen-control" data-action="append" data-path="mm.ent.Traits" data-action-value="(struct)frame_trait" style="float: right">+</a>
     </div>
-    {{#each mm.ent.Traits as |trait key|}}
+    {{#each mm.ent.Traits as |trait trait_index|}}
       <div class="card clipped frame_trait">
-        <div class="lancer-header">
+        <div class="lancer-header major">
           <i class="cci cci-trait i--m i--light header-icon"> </i>
-          <input class="lancer-invisible-input major i--light" name="mm.ent.Traits.{{key}}.Name" value="{{trait.Name}}" data-dtype="String" />
-          <a class="gen-control" data-action="splice" data-path="mm.ent.Traits.{{key}}" style="float: right; margin-right: 11px; margin-top: 2px;">
+          <input class="lancer-invisible-input i--light" name="mm.ent.Traits.{{trait_index}}.Name" value="{{trait.Name}}" data-dtype="String" />
+          <a class="gen-control" data-action="splice" data-path="mm.ent.Traits.{{trait_index}}" style="float: right; margin-right: 11px; margin-top: 2px;">
             <i class="fas fa-trash"></i>
           </a>
         </div>
-        <textarea class="lancer-invisible-input effect-text" name="mm.ent.Traits.{{key}}.Description" data-dtype="String">{{trait.Description}}</textarea>
-        {{{bonuses-editor (concat "mm.ent.Traits." key ".Bonuses") trait.Bonuses}}}
+        <textarea class="lancer-invisible-input effect-text" name="mm.ent.Traits.{{trait_index}}.Description" data-dtype="String">{{trait.Description}}</textarea>
+        {{{bonuses-view (concat "mm.ent.Traits." trait_index ".Bonuses") trait.Bonuses ../editable}}}
       </div>
     {{/each}}
   </div>

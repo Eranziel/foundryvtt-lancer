@@ -26,11 +26,12 @@ import {
   NpcFeature,
 } from "machine-mind";
 import { MechWeapon } from "machine-mind";
+import { BonusEditDialog } from "../apps/bonus-editor";
 import { TypeIcon } from "../config";
 import { TagData } from "../interfaces";
 import { npc_reaction_effect_preview, npc_system_effect_preview, npc_tech_effect_preview, npc_trait_effect_preview, npc_weapon_effect_preview } from "../item/effects";
 import { compact_tag_list } from "../item/tags";
-import { checked, render_icon, resolve_dotpath, resolve_helper_dotpath, selected } from "./commons";
+import { checked, inc_if, render_light_icon, resolve_dotpath, resolve_helper_dotpath, selected } from "./commons";
 import { ref_commons, ref_params  } from "./refs";
 
 
@@ -318,7 +319,7 @@ export function npc_feature_preview(npc_feature_path: string, tier: number, help
  * - bonus_path=<string path to the individual bonus item>,  ex: ="ent.mm.Bonuses.3"
  * - bonus=<bonus object to pre-populate with>
  */
-export function bonus_editor(bonus_path: string, bonus: Bonus) {
+export function single_bonus_editor(bonus_path: string, bonus: Bonus) {
   // Our main two inputs
   let id_input = `<label>ID: <input name="${bonus_path}.ID" value="${bonus.ID}" data-dtype="String" /> </label>`;
   let val_input = `<label>Value: <input name="${bonus_path}.Value" value="${bonus.Value}" data-dtype="String" /> </label>`;
@@ -327,11 +328,12 @@ export function bonus_editor(bonus_path: string, bonus: Bonus) {
   let damage_checkboxes: string[] = [];
   for (let dt of Object.values(DamageType)) {
     damage_checkboxes.push(
-      `<label>${render_icon(
-        Damage.icon_for(dt)
-      )} <input type="checkbox" name="${bonus_path}.DamageTypes.${dt}" ${checked(
-        bonus.DamageTypes[dt]
-      )} /> </label>`
+      `<label>
+        ${render_light_icon(Damage.icon_for(dt))} 
+        <input type="checkbox" 
+            name="${bonus_path}.DamageTypes.${dt}" 
+            ${checked(bonus.DamageTypes[dt])} /> 
+      </label>`
     );
   }
 
@@ -339,12 +341,11 @@ export function bonus_editor(bonus_path: string, bonus: Bonus) {
   for (let rt of Object.values(RangeType)) {
     range_checkboxes.push(
       `<label>
-        ${render_icon(Range.icon_for(rt))} 
+        ${render_light_icon(Range.icon_for(rt))} 
         <input type="checkbox" 
-          name="${bonus_path}.RangeTypes.${rt}"  
-          ${checked(bonus.RangeTypes[rt])} 
-          /> 
-        </label>`
+            name="${bonus_path}.RangeTypes.${rt}"  
+            ${checked(bonus.RangeTypes[rt])} /> 
+      </label>`
     );
   }
 
@@ -354,8 +355,7 @@ export function bonus_editor(bonus_path: string, bonus: Bonus) {
       `<label> ${tt} 
         <input type="checkbox" 
           name="${bonus_path}.WeaponTypes.${tt}" 
-          ${checked(bonus.WeaponTypes[tt])} 
-          /> 
+          ${checked(bonus.WeaponTypes[tt])} /> 
       </label>`
     );
   }
@@ -366,26 +366,25 @@ export function bonus_editor(bonus_path: string, bonus: Bonus) {
       `<label> ${st} 
         <input type="checkbox" 
           name="${bonus_path}.WeaponSizes.${st}" 
-          ${checked(bonus.WeaponSizes[st])}
-          /> 
+          ${checked(bonus.WeaponSizes[st])} /> 
       </label>`
     );
   }
 
   // Consolidate them into rows
-  return `<div class="card clipped">
-      ${id_input} <br>
-      ${val_input} <br>
-      <div class="d-flex">
+  return `<div class="card clipped" style="align-content: flex-start">
+      ${id_input}
+      ${val_input}
+      <div class="flexrow">
         ${damage_checkboxes.join(" ")}
       </div>
-      <div class="d-flex">
+      <div class="flexrow">
         ${range_checkboxes.join(" ")}
       </div>
-      <div class="d-flex">
+      <div class="flexrow">
         ${type_checkboxes.join(" ")}
       </div>
-      <div class="d-flex">
+      <div class="flexrow">
         ${size_checkboxes.join(" ")}
       </div>
     </div>`;
@@ -394,13 +393,46 @@ export function bonus_editor(bonus_path: string, bonus: Bonus) {
 /** Expected arguments:
  * - bonuses_path=<string path to the bonuses array>,  ex: ="ent.mm.Bonuses"
  * - bonuses=<bonus array to pre-populate with>.
+ * Displays a list of bonuses, with buttons to add/delete (if edit true)
  */
-export function bonus_array_editor(bonuses_path: string, bonuses_array: Bonus[]) {
-  let rows = bonuses_array.map((bonus, index) => bonus_editor(`${bonuses_path}.${index}`, bonus));
-  rows = rows.map(r => `<li> ${r} </li>`);
-  return `<ul>
-        ${rows.join("\n")}
-    </ul>`;
+export function bonuses_display(bonuses_path: string, bonuses_array: Bonus[], edit: boolean) {
+  let items: string[] = [];
+  for(let i=0; i<bonuses_array.length; i++) {
+    let bonus = bonuses_array[i];
+    items.push(`
+      <div class="${inc_if("editable", edit)} bonus card clipped" data-path="${bonuses_path}.${i}">
+        <div class="lancer-header" title="${bonus.ID}">
+          <span class="grow">${bonus.Title}</span> 
+          ${inc_if(`<a class="gen-control" data-action="splice" data-path="${bonuses_path}.${i}"><i class="fas fa-trash"></i></a>`, edit)}
+        </div>
+        <span>${bonus.Detail}</span>
+      </div>
+    `);
+  }
+
+  return `
+    <div class="nested card">
+      <div class="lancer-header">
+        <span>BONUSES</span>
+        ${inc_if(`<a class="gen-control" data-action="append" data-path="${bonuses_path}" data-action-value="(struct)bonus">+</a>`, edit)}
+      </div>
+      ${items.join("\n")}
+    </div>
+    `;
+}
+export function HANDLER_activate_edit_bonus<T>(
+  html: JQuery,
+  data_getter: () => Promise<T> | T,
+  commit_func: (data: T) => void | Promise<void>
+) {
+  let bonuses = html.find(".editable.bonus.card");
+  bonuses.on("click", async (event) => {
+    // Find the bonus
+    let bonus_path = event.currentTarget.dataset.path;
+    if(!bonus_path) return;
+    let data = await data_getter();
+    return BonusEditDialog.edit_bonus(data, bonus_path, commit_func).catch(e => console.error("Dialog failed", e));
+  });
 }
 
 // Helper for showing a piece of armor, or a slot to hold it (if path is provided)

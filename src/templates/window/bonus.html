@@ -1,13 +1,70 @@
-<form id="bonus-editor" class="dialog-content" onsubmit="event.preventDefault();">
-   <p>Edit a bonus.</p>
+<form class="{{cssClass}} lancer-sheet" onsubmit="event.preventDefault();">
+    <div class="card" style="align-items: flex-start">
+        <span class="lancer-header">INFO</span>
+        <label >
+            ID: 
+            <input name="{{path}}.ID" value="{{bonus.ID}}" data-dtype="String" />
+        </label>
+        <label >
+            Value:  {{bonus.Value}}
+            <input name="{{path}}.Value" value="{{bonus._value}}" data-dtype="String" /> 
+        </label>
 
-   bonus go here :)
-    <div class="dialog-buttons">
-        {{#each buttons as |button id|}}
-        <button class="dialog-button" data-button="{{id}}">
-            {{{button.icon}}}
-            {{{button.label}}}
-        </button>
-        {{/each}}
+        <span class="lancer-header">DAMAGE TYPES</span>
+        <div class="flexrow">
+            {{#each damage_types as |dt dt_index|}}
+            <label title="{{dt}}">
+                <i class="i--m cci cci-{{lower-case dt}}"></i>
+                <input type="checkbox" 
+                    name="{{../path}}.DamageTypes.{{dt}}" 
+                    {{{checked (lookup ../bonus.DamageTypes @dt) }}} /> 
+            </label>
+            {{/each}}
+        </div>
+
+        <span class="lancer-header">RANGE TYPES</span>
+        <div class="flexrow">
+            {{#each range_types as |rt rt_index|}}
+            <label title="{{rt}}">
+                <i class="i--m cci cci-{{lower-case rt}}"></i>
+                <input type="checkbox" 
+                    name="{{../path}}.RangeTypes.{{rt}}"  
+                    {{{checked (lookup ../bonus.RangeTypes @rt) }}} /> 
+            </label>
+            {{/each}}
+        </div>
+
+        <span class="lancer-header">WEAPON TYPES</span>
+        <div class="flexrow">
+            {{#each weapon_types as |wt wt_index|}}
+            <label title="{{wt}}">
+                <i class="i--m cci cci-{{lower-case wt}}"></i>
+                <input type="checkbox" 
+                    name="{{../path}}.WeaponTypes.{{wt}}"  
+                    {{{checked (lookup ../bonus.WeaponTypes @wt) }}} /> 
+            </label>
+            {{/each}}
+        </div>
+
+        <span class="lancer-header">WEAPON SIZES</span>
+        <div class="flexrow">
+            {{#each weapon_sizes as |ws ws_index|}}
+            <label title="{{ws}}">
+                <i class="i--m cci cci-{{lower-case ws}}"></i>
+                <input type="checkbox" 
+                    name="{{../path}}.WeaponSizes.{{ws}}"  
+                    {{{checked (lookup ../bonus.WeaponSizes @ws) }}} /> 
+            </label>
+            {{/each}}
+        </div>
+
+        <div class="dialog-buttons flexrow">
+            {{#each buttons as |button id|}}
+            <button class="dialog-button" data-button="{{id}}">
+                {{{button.icon}}}
+                {{{button.label}}}
+            </button>
+            {{/each}}
+        </div>
     </div>
 </form>
