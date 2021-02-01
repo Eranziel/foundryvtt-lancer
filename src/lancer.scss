@@ -23,6 +23,7 @@
   --system-color: #67bc45;
   --tech-clip-path: polygon( 0 0, calc(100% - 12px) 0, calc(100% - 12px) 7px, calc(100% - 7px) 7px, calc(100% - 7px) 3px, calc(100% - 3px) 3px, calc(100% - 3px) 0, 100% 0, 100% 3px, calc(100% - 3px) 3px, calc(100% - 3px) 7px, calc(100% - 7px) 7px, calc(100% - 7px) 12px, 100% 12px, 100% 100%, 0 100% );
   --tech-color: #7d2477;
+  --talent-color: #3a81c3;
   --weapon-color: #111111;
   --reaction-color: #892eb1;
   --protocol-color: #c75a00;
@@ -113,38 +114,6 @@ button {
   font-size: 34px;
   font-weight: bold;
 }
-
-.lancer.sheet .reaction,
-.lancer.sheet .tech-header,
-.lancer.sheet .mount-header {
-  color: white;
-  background-color: var(--main-theme-color, fuchsia);
-  padding: 0 15px;
-  white-space: nowrap;
-  text-align: center;
-  max-height: 2.0em;
-  min-height: 2.0em;
-  /* grid-template-columns: 40px 1fr 40px; */
-  align-items: center;
-  text-overflow: ellipsis;
-}
-
-.lancer.sheet .reaction {
-  clip-path: var(--reaction-clip-path);
-  -webkit-clip-path: var(--reaction-clip-path);
-  background-color: var(--reaction-color);
-}
-
-.lancer.sheet .tech-header {
-  clip-path: var(--tech-clip-path);
-  -webkit-clip-path: var(--tech-clip-path);
-  background-color: var(--tech-color);
-}
-
-.lancer.sheet .mount-header {
-  white-space: nowrap;
-}
-
 /* ---------- */
 
 /* Chat Styles */
@@ -492,23 +461,15 @@ tr.lcp-index-header {
 .tier-control option {
   background-color: #991e2a;
   color: white;
-
-}
-
-
-.lancer-talent-container {
-  margin: 3px;
-}
-
-.lancer-talent-header {
-  background-color: #3a81c3;
 }
 
 .big-editor {
   background-color: #dbdbdb; min-height: 15em; text-align: left
 }
 
-/* The dashed-line border aesthetic found around certain items */
+/* The dashed-line border aesthetic found around certain items.
+ * Should be used on an inner div of a card
+ */
 .lancer-body {
   min-height: 15px;
   padding: 3px;
@@ -576,6 +537,7 @@ tr.lcp-index-header {
   align-items: center;
   cursor: pointer;
   text-align: center;
+  max-height: 40px;
 }
 
 /* Valid, as a prefix, indicates that a ref is satisfied. It has ${ref_params()} */
@@ -588,6 +550,7 @@ tr.lcp-index-header {
   width: 35px;
   height: 35px;
   margin: 0px;
+  flex-grow: 0;
 }
 
 .ref-card .ref-icon {
@@ -629,37 +592,12 @@ tr.lcp-index-header {
   padding: 0 5px;
 }
 
-.effect-title {
-  display: flex;
-  padding: 0px 5px;
-}
-
-.lancer-effect-stat {
-  align-self: center;
-  text-align: center;
-  max-width: max-content;
-  min-width: max-content;
-  padding: 5px; flex-wrap: nowrap;
-}
-
-.sub-effect-box {
-  background: rgba(0, 0, 0, 0.1);
-  border: 1px solid #777;
-  border-radius: 5px;
-  padding: 5px;
-  margin: 5px;
-}
-
-.charge-header {
-  align-items: center;
-}
-
-.stat-container {
-  align-items: center;
+/** Fixes CSS priority on flexrows within cards */
+.card.flexrow {
+  flex-direction: row;
 }
 
 /* Consolidate all of our stat stuff */
-
 .lancer-header {
   flex: 0 0 2.0em;
 
@@ -683,13 +621,16 @@ tr.lcp-index-header {
   /* For buttons/icons, we want them to not grow but also not just get squashed into nothing 
   * If this unbalances things, add an equal # of balancers to the other side
   */ 
-  a, i {
-    flex: 0 0 40px;
+  a, i, img {
+    flex: 0 0 auto;
+    padding-left: 5px;
+    padding-right: 5px;
   }
 
   div.balancer {
-    visibility: hidden;
-    flex: 0 0 40px;
+    flex: 0 0 auto;
+    padding-left: 5px;
+    padding-right: 5px;
   }
 
   /* Spans are the main bodies of headers. We want them to grow! 
@@ -700,12 +641,10 @@ tr.lcp-index-header {
     text-align: center;
   }
 
-  /* Sometimes want left align */
+  /* Sometimes want left align, using the "left" class */
   span.left, input.left {
     text-align: left;
   }
-
-
 
   /* Like main just an off color */
   &.alt {

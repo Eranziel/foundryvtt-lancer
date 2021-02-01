@@ -23,7 +23,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
     return mergeObject(super.defaultOptions, {
       classes: ["lancer", "sheet", "item"],
       width: 700,
-      height: 480,
+      height: "auto",
       tabs: [
         {
           navSelector: ".lancer-tabs",

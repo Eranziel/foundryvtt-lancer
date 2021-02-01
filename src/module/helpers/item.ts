@@ -511,7 +511,7 @@ export function pilot_weapon_refview(weapon_path: string, helper: HelperOptions)
 
   if (!cd) {
     // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
-    return `<div class="${EntryType.PILOT_WEAPON} ref drop-settable card pilot-weapon-compact item" 
+    return `<div class="${EntryType.PILOT_WEAPON} ref drop-settable card flexrow" 
                         data-path="${weapon_path}" 
                         data-type="${EntryType.PILOT_WEAPON}">
           <img class="ref-icon" src="${TypeIcon(EntryType.PILOT_WEAPON)}"></img>
@@ -562,7 +562,7 @@ export function pilot_gear_refview(gear_path: string, helper: HelperOptions): st
 
   if (!cd) {
     // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
-    return `<div class="${EntryType.PILOT_GEAR} ref drop-settable card item" 
+    return `<div class="${EntryType.PILOT_GEAR} ref drop-settable card flexrow" 
                         data-path="${gear_path}" 
                         data-type="${EntryType.PILOT_GEAR}">
           <img class="ref-icon" src="${TypeIcon(EntryType.PILOT_GEAR)}"></img>
@@ -586,7 +586,7 @@ export function pilot_gear_refview(gear_path: string, helper: HelperOptions): st
     `
   }
 
-  return `<div class="valid ${EntryType.PILOT_GEAR} ref drop-settable card clipped item macroable"
+  return `<div class="valid ${EntryType.PILOT_GEAR} ref drop-settable card clipped macroable"
                 ${ref_params(cd.ref, gear_path)} >
     <div class="lancer-header">
       <i class="cci cci-generic-item i--m"> </i>
@@ -629,7 +629,7 @@ export function mech_weapon_refview(weapon_path: string, mech_path: string | "",
   if (!cd) {
     // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
     return `
-      <div class="${EntryType.MECH_WEAPON} ref drop-settable card item" 
+      <div class="${EntryType.MECH_WEAPON} ref drop-settable card flexrow" 
                         data-path="${weapon_path}" 
                         data-type="${EntryType.MECH_WEAPON}">
         <img class="ref-icon" src="${TypeIcon(EntryType.MECH_WEAPON)}"></img>

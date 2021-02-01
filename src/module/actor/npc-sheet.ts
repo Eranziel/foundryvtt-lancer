@@ -133,9 +133,6 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
           item.setAttribute("draggable", "true");
         });
 
-      // Update Inventory Item
-      this.activateOpenItemListeners(html);
-
       // Change tier
       /*
       let tier_selector = html.find('select.tier-control[data-action*="update"]');

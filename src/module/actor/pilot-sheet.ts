@@ -159,23 +159,6 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
           item.setAttribute("draggable", true);
         });
 
-      // Update Inventory Item
-      this.activateOpenItemListeners(html);
-
-      // Delete Item when trash can is clicked
-      let items = html.find('.stats-control[data-action*="delete"]');
-      items.on("click", (ev) => {
-        if (!ev.currentTarget) return; // No target, let other handlers take care of it.
-        ev.stopPropagation(); // Avoids triggering parent event handlers
-        console.log(ev);
-        const item = $(ev.currentTarget).closest(".item");
-        const itemId = item.data("itemId");
-
-        // Delete the item from the actor.
-        this.actor.deleteOwnedItem(itemId).then();
-        item.slideUp(200, () => this.render(true));
-      });
-
       // Cloud download
       let download = html.find('.cloud-control[data-action*="download"]');
       download.on("click", async (ev) => {

@@ -151,22 +151,6 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
   }
 
   /**
-   * Activate event listeners for editing owned items using the prepared sheet HTML
-   * @param html {JQuery}   The prepared HTML object ready to be rendered into the DOM
-   */
-  activateOpenItemListeners(html: JQuery) {
-    let items = html.find(".item");
-    items.on("click", (ev: Event) => {
-      if (!ev.currentTarget) return; // No target, let other handlers take care of it.
-      const li = $(ev.currentTarget);
-      const item = this.actor.getOwnedItem(li.data("itemId"));
-      if (item) {
-        item.sheet.render(true);
-      }
-    });
-  }
-
-  /**
    * Converts the data from a DragEvent event into an Item (or actor/journal/whatever) to add to the Actor.
    * This method does not modify the actor. Sub-classes must override _onDrop to
    * call super._onDrop and handle the resulting resolved drop
@@ -211,15 +195,23 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
 
     // Set the prototype token image if the prototype token isn't initialized
     if (!token) {
-      formData["actor.token.img"] = formData["actor.img"];
+      formData["token.img"] = formData["img"];
+      formData["token.name"] = formData["name"];
       needs_update = true;
     }
 
     // Update token image if it matches the old actor image - keep in sync
-    else if (this.actor.data.img === token["img"] && this.actor.img !== formData["img"]) {
-      formData["actor.token.img"] = formData["img"];
-      needs_update = true;
-    } // Otherwise don't update image
+    // Ditto for name
+    else {
+      if (this.actor.data.img === token["img"] && this.actor.img !== formData["img"]) {
+        formData["token.img"] = formData["img"];
+        needs_update = true;
+      } // Otherwise don't update token
+      if (this.actor.data.name === token["name"] && this.actor.name !== formData["name"]) {
+        formData["token.name"] = formData["name"];
+        needs_update = true;
+      }
+    }
 
     // Need to update if name changed
     if (this.actor.name != formData["name"]) {
@@ -257,7 +249,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
         }
       }
       // await this.actor.update(top_update, {});
-      await this.actor.update(top_update, {render: false});
+      await this.actor.update(top_update);
     } else {
       gentle_merge(ct, formData);
       await this._commitCurrMM();
