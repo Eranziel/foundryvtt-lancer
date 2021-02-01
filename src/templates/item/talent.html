@@ -28,9 +28,12 @@
           <input class="lancer-invisible-input" name="mm.ent.Ranks.{{index}}.Name" value="{{rank.Name}}" data-dtype="String" style="color: white"/>
           <span class="minor">// RANK {{inc index}}</span>
         </div>
-        <div class="flexrow big-editor">
+        <div class="big-editor">
           {{editor content=rank.Description target=(concat "mm.ent.Ranks." index ".Description") button=true owner=owner editable=editable}}
         </div>
+
+        {{!-- Bonuses --}}
+        {{{bonuses-view (concat "mm.ent.Ranks." index ".Bonuses") rank.Bonuses  ../editable}}}
       </div>
     {{/each}}
   </div>

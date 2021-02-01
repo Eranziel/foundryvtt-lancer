@@ -411,7 +411,7 @@ export function bonuses_display(bonuses_path: string, bonuses_array: Bonus[], ed
   }
 
   return `
-    <div class="nested card">
+    <div class="card clipped">
       <div class="lancer-header">
         <span>BONUSES</span>
         ${inc_if(`<a class="gen-control" data-action="append" data-path="${bonuses_path}" data-action-value="(struct)bonus">+</a>`, edit)}

@@ -106,6 +106,7 @@
         <div class="medium i--faded" style="justify-self: right;"> // PASSIVE</div>
       </div>
       <div class="effect-text">{{editor content=mm.ent.CoreSystem.PassiveEffect target="mm.ent.CoreSystem.PassiveEffect" button=true owner=owner editable=editable}}</div>
+      {{{bonuses-view "mm.ent.CoreSystem.PassiveBonuses" mm.ent.CoreSystem.PassiveBonuses editable}}}
     </div>
     <div class="card clipped frame_core">
       <div class="lancer-header">
@@ -114,6 +115,7 @@
         <div class="i--faded" style="justify-self: right;"> // ACTIVE</div>
       </div>
       <div class="effect-text">{{editor content=mm.ent.CoreSystem.ActiveEffect target="mm.ent.CoreSystem.ActiveEffect" button=true owner=owner editable=editable}}</div>
+      {{{bonuses-view "mm.ent.CoreSystem.ActiveBonuses" mm.ent.CoreSystem.ActiveBonuses editable}}}
     </div>
     <div class="tags-container" style="margin: 10px;">
       <div class="flexcol lancer-title">

@@ -1,25 +1,28 @@
 <form class="{{cssClass}} lancer-sheet" autocomplete="off">
-  
-  {{!-- Sheet Header --}}
+    {{!-- Sheet Header --}}
   <header class="sheet-header card clipped-bot">
-    <img class="profile-img" src="{{item.img}}" data-edit="item.img" title="{{item.name}}" height="100" width="100"/>
-    <div class="header-fields" style="grid-area: 1/1/2/5;">
+    <div class="flexcol grow">
       <h1 class="charname"><input class="header-field" name="name" type="text" value="{{item.name}}" placeholder="Name"/></h1>
+      <div class="flexrow">
+        <span>RANK:</span>
+        {{{l-num-input "mm.ent.CurrentRank" mm.ent.CurrentRank}}}
+      </div>
     </div>
-    <div class="flexcol" style="grid-area: 2/2/3/3; float: right; max-width: fit-content;">
-      RANK:
-      {{{l-num-input "data.rank" data.rank}}}
-    </div>
+    {{{ ref-portrait-img item.img "img" mm.ent }}}
   </header>
+
   {{!-- Sheet Body --}}
-  <div style="display:grid; grid-template: auto auto / 1fr">
-    <div class="card clipped" style="grid-area: 1/1/2/2; text-align: left;">
-      <span class="lancer-header major " style="text-align: center;">DESCRIPTION</span>
-      {{editor content=data.description target="data.description" button=true owner=owner editable=editable}}
+  <div class="card clipped flexcol">
+    <span class="lancer-header major">DESCRIPTION</span>
+    <div style="text-align: left">
+      {{editor content=mm.ent.Description target="mm.ent.Description" button=true owner=owner editable=editable}}
     </div>
-    <div class="card clipped" style="grid-area: 2/1/3/2; text-align: left;">
-      <span class="lancer-header major " style="text-align: center;">DETAIL</span>
-      {{editor content=data.detail target="data.detail" button=true owner=owner editable=editable}}
+  </div>
+
+  <div class="card clipped flexcol">
+    <span class="lancer-header major">DETAILS</span>
+    <div style="text-align: left">
+      {{editor content=mm.ent.Detail target="mm.ent.Detail" button=true owner=owner editable=editable}}
     </div>
   </div>
 </form>
