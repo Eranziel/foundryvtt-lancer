@@ -1,9 +1,9 @@
 import { LANCER } from "../config";
 import { LancerActorSheet } from "./lancer-actor-sheet";
-import { EntryType, funcs, MountType, OpCtx, RegRef, SystemMount, WeaponMount } from "machine-mind";
+import { EntryType, funcs, MountType, OpCtx, RegRef, SystemMount, WeaponMount, WeaponSlot } from "machine-mind";
 import { MMEntityContext, mm_wrap_item } from "../mm-util/helpers";
 import { ResolvedNativeDrop } from "../helpers/dragdrop";
-import { resolve_dotpath } from "../helpers/commons";
+import { gentle_merge, resolve_dotpath } from "../helpers/commons";
 
 /**
  * Extend the basic ActorSheet
@@ -37,6 +37,7 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
 
     this._activateOverchargeControls(html);
     this._activateLoadoutControls(html);
+    this._activateMountContextMenus(html);
   }
 
   /* -------------------------------------------- */
@@ -127,6 +128,40 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
     });
 
   }
+
+  // Allows user to change mount size via right click ctx
+  _activateMountContextMenus(html: any) {
+    let mount_options: any[] = [];
+    for(let mount_type of Object.values(MountType)) {
+      mount_options.push({
+        name: mount_type,
+        icon: '',
+        // condition: game.user.isGM,
+        callback: async (html: JQuery) => {
+          let cd = await this.getDataLazy();
+          let mount_path = html[0].dataset.path ?? "";
+
+          // Get the current mount
+          let mount: WeaponMount = resolve_dotpath(cd, mount_path);
+          if(!mount) {
+            console.error("Bad mountpath:", mount_path);
+          }
+
+          // Edit it. Someday we'll want to have a way to resize without nuking. that day is not today
+          mount.MountType = mount_type;
+          mount.reset();
+
+          // Write back
+          await this._commitCurrMM();
+        }
+      });
+    }
+
+    console.log("Mounting it, baybee");
+    new ContextMenu(html, ".mount-type-ctx-root", mount_options);
+  }
+
+
 
   // Save ourselves repeat work by handling most events clicks actual operations here
   async _event_handler(mode: "reset-wep" | "reset-all-weapon-mounts" | "reset-sys" | "overcharge" | "overcharge-rollback", evt: JQuery.ClickEvent) {

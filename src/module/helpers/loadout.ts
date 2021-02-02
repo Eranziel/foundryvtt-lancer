@@ -16,7 +16,7 @@ function system_mount(
   let slot = simple_mm_ref(EntryType.MECH_SYSTEM, mount.System, "No System", `${mount_path}.System`);
 
   return ` 
-    <div class="mount card clipped-top">
+    <div class="mount card">
       <span class="lancer-header">
         <span>System Mount</span>
         <a class="gen-control" data-action="splice" data-path="${mount_path}"><i class="fas fa-trash"></i></a>
@@ -39,7 +39,7 @@ function weapon_mount(
   let slots = mount.Slots.map((slot, index) => mech_weapon_refview(`${mount_path}.Slots.${index}.Weapon`, mech_path, helper));
 
   return ` 
-    <div class="mount card clipped-top">
+    <div class="mount card mount-type-ctx-root" data-path="${mount_path}">
       <span class="lancer-header">
         <span>${mount.MountType} Weapon Mount</span>
         <a class="gen-control" data-action="splice" data-path="${mount_path}"><i class="fas fa-trash"></i></a>
