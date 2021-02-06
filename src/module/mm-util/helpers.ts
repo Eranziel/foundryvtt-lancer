@@ -15,7 +15,8 @@ export interface MMEntityContext<T extends EntryType> {
 }
 
 export async function mm_wrap_item<T extends EntryType & LancerItemType>(
-  item: LancerItem<T>
+  item: LancerItem<T>,
+  use_existing_ctx?: OpCtx
 ): Promise<MMEntityContext<T>> {
   // Figure out what our context ought to be
   let is_compendium = item.compendium != null; // If compendium is set, we use that
@@ -49,7 +50,7 @@ export async function mm_wrap_item<T extends EntryType & LancerItemType>(
       item_source: ["world", null]
     });
   }
-  let ctx = new OpCtx();
+  let ctx = use_existing_ctx || new OpCtx();
 
   // Load up the item. This _should_ always work
   let ent = (await reg.get_cat(item.type).get_live(ctx, item._id)) as LiveEntryTypes<T>;
@@ -65,7 +66,8 @@ export async function mm_wrap_item<T extends EntryType & LancerItemType>(
 }
 
 export async function mm_wrap_actor<T extends EntryType & LancerActorType>(
-  actor: LancerActor<T>
+  actor: LancerActor<T>,
+  use_existing_ctx?: OpCtx
 ): Promise<MMEntityContext<T>> {
   // Get our reg
   let reg: FoundryReg;
@@ -89,7 +91,7 @@ export async function mm_wrap_actor<T extends EntryType & LancerActorType>(
     });
     id = actor.id;
   }
-  let ctx = new OpCtx();
+  let ctx = use_existing_ctx || new OpCtx();
 
   // Load up the item. This _should_ always work barring exceptional race conditions (like, deleting the actor while opening the sheet)
   let ent = (await reg.get_cat(actor.data.type).get_live(ctx, id)) as LiveEntryTypes<T>;

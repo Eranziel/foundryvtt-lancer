@@ -313,7 +313,8 @@
       "accuracy": [0, 0, 0],
       "attack_bonus": [0, 0, 0],
       "trigger": "",
-      "tech_type": "Quick"
+      "tech_type": "Quick",
+      "tier_override": 0
     },
     "weapon_mod": {
         "added_tags": [],
@@ -375,7 +376,13 @@
         "profiles": [],
         "loaded": false,
         "selected_profile": 0,
-        "size": ""
+        "size": "",
+
+        "no_core_bonuses": false,
+        "no_mods": false,
+        "no_bonuses": false,
+        "no_synergies": false,
+        "no_attack": false
     },
     "organization": {
       "actions": "",

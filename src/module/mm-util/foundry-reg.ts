@@ -190,6 +190,11 @@ export class FoundryReg extends Registry {
   }
 
   async switch_reg(reg_id: string): Promise<Registry | null> {
+    // Generally handles data that just hasn't got what we need
+    if(!reg_id || !reg_id.includes("|")) {
+      return null;
+    }
+
     // Check cache. Use cached entry if available
     if (cached_regs.has(reg_id)) {
       return cached_regs.get(reg_id)!;

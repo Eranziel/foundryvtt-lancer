@@ -1,17 +1,14 @@
 import { LANCER } from "../config";
 import {
   EntryType,
-  MountType,
   funcs,
-  RegEntryTypes,
   RegMechData,
-  OpCtx,
   Mech,
-  Pilot,
   Deployable,
   Npc,
   RegRef,
   RegDeployableData,
+  OpCtx,
 } from "machine-mind";
 import { FoundryRegActorData, FoundryRegItemData } from "../mm-util/foundry-reg";
 import { LancerHooks, LancerSubscription } from "../helpers/hooks";
@@ -104,6 +101,18 @@ export class LancerActor<T extends LancerActorType> extends Actor {
   // Kept for comparing previous to next values
   prior_max_hp = -1;
 
+  // Kept separately so it can be used by items. Same as in our .data.data.derived.mmec_promise
+  _actor_ctx!: OpCtx;
+
+  /** @override
+   * We want to reset our ctx before this. It is used by our items, such that they all can share 
+   * the same ctx space.
+   */
+  prepareEmbeddedEntities() {
+    this._actor_ctx = new OpCtx();
+    super.prepareEmbeddedEntities();
+  }
+
   /** @override
    * We need to both:
    *  - Re-generate all of our subscriptions
@@ -144,7 +153,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
     // Begin the task of wrapping our actor. When done, it will setup our derived fields - namely, our max values
     // Need to wait for system ready to avoid having this break if prepareData called during init step (spoiler alert - it is)
     let mmec_promise = system_ready
-      .then(() => mm_wrap_actor(this))
+      .then(() => mm_wrap_actor(this, this._actor_ctx))
       .then(mmec => {
         // Always save the context
         // Save the context via defineProperty so it does not show up in JSON stringifies. Also, no point in having it writeable

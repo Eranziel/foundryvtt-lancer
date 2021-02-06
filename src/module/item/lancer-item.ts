@@ -1,6 +1,6 @@
 import { DamageData, NPCDamageData, RangeData, TagData } from "../interfaces";
 import { LANCER, TypeIcon } from "../config";
-import { EntryType, License, NpcFeatureType, RegRef } from "machine-mind";
+import { EntryType, License, NpcFeatureType, OpCtx, RegRef } from "machine-mind";
 import { FoundryRegActorData, FoundryRegItemData } from "../mm-util/foundry-reg";
 import { LancerActor, LancerActorType } from "../actor/lancer-actor";
 import { system_ready } from "../../lancer";
@@ -78,9 +78,12 @@ export class LancerItem<T extends LancerItemType> extends Item {
       dr = this.data.data.derived;
     }
 
+    // Do we already have a ctx from our actor?
+    let actor_ctx: OpCtx | undefined = (this.actor as LancerActor<any> | undefined)?._actor_ctx;
+
     // Spool up our Machine Mind wrapping process
     let mmec_promise = system_ready
-        .then(() => mm_wrap_item(this))
+        .then(() => mm_wrap_item(this, actor_ctx))
         .then(async mmec => {
           // Always save the context
           // Save the context via defineProperty so it does not show up in JSON stringifies. Also, no point in having it writeable
