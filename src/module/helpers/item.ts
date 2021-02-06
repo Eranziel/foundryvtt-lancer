@@ -31,7 +31,7 @@ import { BonusEditDialog } from "../apps/bonus-editor";
 import { TypeIcon } from "../config";
 import { TagData } from "../interfaces";
 import { npc_reaction_effect_preview, npc_system_effect_preview, npc_tech_effect_preview, npc_trait_effect_preview, npc_weapon_effect_preview } from "../item/effects";
-import { compact_tag_list } from "../item/tags";
+import { compact_tag_list } from "./tags";
 import { checked, inc_if, render_light_icon, resolve_dotpath, resolve_helper_dotpath, selected } from "./commons";
 import { ref_commons, ref_params  } from "./refs";
 

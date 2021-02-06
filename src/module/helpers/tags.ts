@@ -1,6 +1,6 @@
 import { HelperOptions } from "handlebars";
 import { TagInstance, typed_lancer_data } from "machine-mind";
-import { resolve_helper_dotpath } from "../helpers/commons";
+import { resolve_helper_dotpath } from "./commons";
 import { TagData } from "../interfaces";
 
 const TAGS = typed_lancer_data.tags;

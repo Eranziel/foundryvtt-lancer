@@ -1,17 +1,11 @@
-import { LancerNPCSheetData, LancerStatMacroData } from "../interfaces";
-import { LancerNpc } from "./lancer-actor";
+import { LancerStatMacroData } from "../interfaces";
 import { LANCER } from "../config";
 import { LancerActorSheet } from "./lancer-actor-sheet";
 import { prepareItemMacro } from "../macros";
-import { FoundryRegItemData } from "../mm-util/foundry-reg";
 import { EntryType, OpCtx } from "machine-mind";
 import {
-  LancerNpcClass,
   LancerNpcFeature,
-  LancerNpcTemplate,
-  LancerNpcTemplateData,
 } from "../item/lancer-item";
-import { ItemDataManifest } from "../item/util";
 import { ResolvedNativeDrop } from "../helpers/dragdrop";
 import { MMEntityContext, mm_wrap_item } from "../mm-util/helpers";
 const lp = LANCER.log_prefix;

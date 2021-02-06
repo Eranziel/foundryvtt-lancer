@@ -33,7 +33,7 @@ import { preloadTemplates } from "./module/preloadTemplates";
 import { registerSettings } from "./module/settings";
 import {
   compact_tag_list
-} from "./module/item/tags";
+} from "./module/helpers/tags";
 import * as migrations from "./module/migration";
 import { addLCPManager } from "./module/apps/lcpManager";
 

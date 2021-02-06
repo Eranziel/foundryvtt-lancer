@@ -6,7 +6,7 @@ import {
   show_damage_array,
   show_range_array,
 } from "../helpers/item";
-import { compact_tag, compact_tag_list } from "./tags";
+import { compact_tag, compact_tag_list } from "../helpers/tags";
 
 export const EffectIcons = {
   Generic: "systems/lancer/assets/icons/generic_item.svg",
