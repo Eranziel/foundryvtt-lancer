@@ -619,6 +619,7 @@ declare interface LancerStatMacroData {
 }
 
 declare interface LancerAttackMacroData {
+  item_id: string | undefined;
   title: string;
   grit: number;
   acc: number;
