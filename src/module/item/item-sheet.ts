@@ -6,6 +6,7 @@ import { HANDLER_activate_native_ref_dragging, HANDLER_activate_ref_dragging, HA
 import { EntryType } from "machine-mind";
 import { get_pack } from "../mm-util/db_abstractions";
 import { HANDLER_activate_edit_bonus } from "../helpers/item";
+import { HANDLER_activate_tag_context_menus } from "../helpers/tags";
 
 const lp = LANCER.log_prefix;
 
@@ -112,6 +113,9 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
 
     // Enable bonus editors
     HANDLER_activate_edit_bonus(html, () => this.getDataLazy(), (_) => this._commitCurrMM());
+
+    // Enable tag editing
+    HANDLER_activate_tag_context_menus(html, () => this.getDataLazy(), (_) => this._commitCurrMM());
   }
 
   /* -------------------------------------------- */

@@ -302,15 +302,15 @@ export function npc_feature_preview(npc_feature_path: string, tier: number, help
 
   switch (feature.FeatureType) {
     case "Reaction":
-      return npc_reaction_effect_preview(feature, delete_button);
+      return npc_reaction_effect_preview(npc_feature_path, feature, delete_button);
     case "System":
-      return npc_system_effect_preview(feature, delete_button);
+      return npc_system_effect_preview(npc_feature_path, feature, delete_button);
     case "Trait":
-      return npc_trait_effect_preview(feature, delete_button);
+      return npc_trait_effect_preview(npc_feature_path, feature, delete_button);
     case "Tech":
-      return npc_tech_effect_preview(feature, tier, delete_button);
+      return npc_tech_effect_preview(npc_feature_path, feature, tier, delete_button);
     case "Weapon":
-      return npc_weapon_effect_preview(feature, tier, delete_button);
+      return npc_weapon_effect_preview(npc_feature_path, feature, tier, delete_button);
     default:
       return "bad feature";
   }
@@ -444,7 +444,6 @@ export function pilot_armor_slot(armor_path: string, helper: HelperOptions): str
   // Generate commons
   let cd = ref_commons(armor_);
 
-
   if (!cd) {
     // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
     return `<div class="${EntryType.PILOT_ARMOR} ref drop-settable card" 
@@ -466,7 +465,7 @@ export function pilot_armor_slot(armor_path: string, helper: HelperOptions): str
 
   return `<div class="valid ${cd.ref.type} ref drop-settable card clipped pilot-armor-compact item" 
                 ${ref_params(cd.ref, armor_path)} >
-            <div class="lancer-header" style="grid-area: 1/1/2/3">
+            <div class="lancer-header">
               <i class="mdi mdi-shield-outline i--m i--light"> </i>
               <span class="minor">${armor!.Name}</span>
               <a class="gen-control i--light" data-action="null" data-path="${armor_path}"><i class="fas fa-trash"></i></a>
@@ -496,7 +495,7 @@ export function pilot_armor_slot(armor_path: string, helper: HelperOptions): str
             <div class="effect-text" style=" padding: 5px">
               ${armor.Description}
             </div>
-            ${compact_tag_list(armor.Tags)}
+            ${compact_tag_list(armor_path + ".Tags", armor.Tags)}
           </div>`;
 }
 
@@ -546,9 +545,7 @@ export function pilot_weapon_refview(weapon_path: string, helper: HelperOptions)
       </div>
       -->
 
-      <div class="flexrow">
-        ${compact_tag_list(weapon.Tags)}
-      </div>
+      ${compact_tag_list(weapon_path + ".Tags", weapon.Tags)}
     </div>
   </div>`;
 }
@@ -598,20 +595,11 @@ export function pilot_gear_refview(gear_path: string, helper: HelperOptions): st
     <div class="flexcol">
       ${uses}
 
-      <!-- Loading toggle - WIP
-      <div class="flexrow">
-        {{#if (is-loading gear.data.tags)}}
-          LOADING
-        {{/if}}
-      </div>
-      -->
       <div class="effect-text" style=" padding: 5px">
         ${gear.Description}
       </div>
 
-      <div class="flexrow">
-        ${compact_tag_list(gear.Tags)}
-      </div>
+      ${compact_tag_list(gear_path + ".Tags", gear.Tags)}
     </div>
   </div>`;
 }
@@ -643,6 +631,7 @@ export function mech_weapon_refview(weapon_path: string, mech_path: string | "",
 
   // What profile are we using?
   let profile = weapon.SelectedProfile;
+  let profile_path = `${weapon_path}.Profiles.${weapon.SelectedProfileIndex}`;
 
   // Augment ranges
   let ranges = profile.BaseRange;
@@ -694,7 +683,7 @@ export function mech_weapon_refview(weapon_path: string, mech_path: string | "",
         ${on_attack}
         ${on_hit}
         ${on_crit}
-        ${compact_tag_list(profile.Tags)}
+        ${compact_tag_list(profile_path + ".Tags", profile.Tags)}
       </div>
     </div>
   </div>`

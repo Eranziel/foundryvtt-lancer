@@ -83,9 +83,9 @@
           </div>
 
           {{!-- Tags --}}
-          <div class="card clipped full">
+          <div class="card full">
             <span class="lancer-header major">TAGS</span>
-            {{{mm-tag-list profile.Tags}}}
+            {{{mm-tag-list (concat "mm.ent.Profiles." prof_index ".Tags") profile.Tags}}}
           </div>
         </div>
       </div>

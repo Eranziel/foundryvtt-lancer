@@ -40,8 +40,8 @@ function weapon_mount(
   let err = mount.validate() ?? "";
 
   return ` 
-    <div class="mount card mount-type-ctx-root" data-path="${mount_path}">
-      <span class="lancer-header">
+    <div class="mount card" >
+      <span class="lancer-header mount-type-ctx-root" data-path="${mount_path}">
         <span>${mount.MountType} Weapon Mount</span>
         <a class="gen-control" data-action="splice" data-path="${mount_path}"><i class="fas fa-trash"></i></a>
         <a class="reset-weapon-mount-button" data-path="${mount_path}"><i class="fas fa-redo"></i></a>

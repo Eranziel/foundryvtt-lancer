@@ -554,38 +554,39 @@ function npc_feature_scaffold(npc_feature: NpcFeature, body: string, delete_butt
   </div>`;
 }
 
-export function npc_reaction_effect_preview(npc_feature: NpcFeature, delete_button: string) {
+export function npc_reaction_effect_preview(npc_feature_path: string, npc_feature: NpcFeature, delete_button: string) {
   return npc_feature_scaffold(
     npc_feature,
     `<div class="flexcol" style="margin: 10px;">
       ${npc_feature_effect_box("TRIGGER", npc_feature.Trigger)}
       ${npc_feature_effect_box("EFFECT", npc_feature.Effect)}
-      ${compact_tag_list(npc_feature.Tags)}
+      ${compact_tag_list(npc_feature_path + ".Tags", npc_feature.Tags)}
     </div>`,
     delete_button
   );
 }
 
-function npc_system_trait_effect_preview(npc_feature: NpcFeature, delete_button: string) {
+function npc_system_trait_effect_preview(npc_feature_path: string, npc_feature: NpcFeature, delete_button: string) {
   return npc_feature_scaffold(
     npc_feature,
     `<div class="flexcol" style="margin: 10px;">
       ${npc_feature_effect_box("EFFECT", npc_feature.Effect)}
-      ${compact_tag_list(npc_feature.Tags)}
+      ${compact_tag_list(npc_feature_path + ".Tags", npc_feature.Tags)}
     </div>`,
     delete_button
   );
 }
 
-export function npc_system_effect_preview(npc_feature: NpcFeature, delete_button: string = "") {
-  return npc_system_trait_effect_preview(npc_feature, delete_button);
+export function npc_system_effect_preview(npc_feature_path: string, npc_feature: NpcFeature, delete_button: string = "") {
+  return npc_system_trait_effect_preview(npc_feature_path, npc_feature, delete_button);
 }
 
-export function npc_trait_effect_preview(npc_feature: NpcFeature, delete_button: string = "") {
-  return npc_system_trait_effect_preview(npc_feature, delete_button);
+export function npc_trait_effect_preview(npc_feature_path: string, npc_feature: NpcFeature, delete_button: string = "") {
+  return npc_system_trait_effect_preview(npc_feature_path, npc_feature, delete_button);
 }
 
 export function npc_tech_effect_preview(
+  npc_feature_path: string,
   npc_feature: NpcFeature,
   tier: number,
   delete_button: string = ""
@@ -609,7 +610,7 @@ export function npc_tech_effect_preview(
       </div>
       <div class="flexcol" style="padding: 0 10px;">
         ${npc_feature_effect_box("EFFECT", npc_feature.Effect)}
-        ${compact_tag_list(npc_feature.Tags)}
+        ${compact_tag_list(npc_feature_path + ".Tags", npc_feature.Tags)}
       </div>
     </div>
     `,
@@ -618,6 +619,7 @@ export function npc_tech_effect_preview(
 }
 
 export function npc_weapon_effect_preview(
+  npc_feature_path: string,
   npc_feature: NpcFeature,
   tier: number,
   delete_button: string = ""
@@ -650,7 +652,7 @@ export function npc_weapon_effect_preview(
       </div>
       ${npc_feature_effect_box("ON HIT", npc_feature.OnHit)}
       ${npc_feature_effect_box("EFFECT", npc_feature.Effect)}
-      ${compact_tag_list(npc_feature.Tags)}
+      ${compact_tag_list(npc_feature_path + ".Tags", npc_feature.Tags)}
     </div>
     `,
     delete_button

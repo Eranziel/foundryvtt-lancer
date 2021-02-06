@@ -70,7 +70,8 @@ export function gentle_merge(dest: any, flat_data: any) {
 }
 
 /** Insert an array item specified by a dot pathspec, in place
- * Inserted BEFORE that element. If specified index is beyond the length of the array, will simply be appended. If "delete" specified, deletes instead
+ * Inserted BEFORE that element. If specified index is beyond the length of the array, will simply be appended. 
+ * If "delete" specified, deletes (splices) instead. Value is unused
  * Has no effect if target is not an array.
 */
 export function array_path_edit(target: any, flat_path: string, value: any, mode: "insert" | "delete") {
