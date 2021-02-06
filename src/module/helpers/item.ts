@@ -24,6 +24,7 @@ import {
   Manufacturer,
   License,
   NpcFeature,
+  FittingSize,
 } from "machine-mind";
 import { MechWeapon } from "machine-mind";
 import { BonusEditDialog } from "../apps/bonus-editor";
@@ -618,7 +619,7 @@ export function pilot_gear_refview(gear_path: string, helper: HelperOptions): st
 /**
  * Handlebars helper for a mech weapon preview card. Doubles as a slot. Mech path needed for bonuses
  */
-export function mech_weapon_refview(weapon_path: string, mech_path: string | "", helper: HelperOptions): string { 
+export function mech_weapon_refview(weapon_path: string, mech_path: string | "", helper: HelperOptions, size?: FittingSize): string { 
   // Fetch the item(s)
   let weapon_: MechWeapon | null = resolve_helper_dotpath(helper, weapon_path);
   let mech_: Mech | null = resolve_helper_dotpath(helper, mech_path);
@@ -633,7 +634,7 @@ export function mech_weapon_refview(weapon_path: string, mech_path: string | "",
                         data-path="${weapon_path}" 
                         data-type="${EntryType.MECH_WEAPON}">
         <img class="ref-icon" src="${TypeIcon(EntryType.MECH_WEAPON)}"></img>
-        <span class="major">Add weapon</span>
+        <span class="major">Insert ${size ? size : "any"} weapon</span>
       </div>`;
   }
 
@@ -707,8 +708,11 @@ export function manufacturer_ref(source_path: string, helper: HelperOptions): st
   if (cd) {
     let source = source_!;
     return `<div class="valid ${EntryType.MANUFACTURER} ref ref-card drop-settable" ${ref_params(cd.ref, source_path)}> 
-              <h3 class="mfr-name" style="color: ${source!.GetColor(false)};">${source!.Name}</h3>
-              <i>${source!.Quote}</i>
+              <h3 class="mfr-name" style="color: ${source!.GetColor(false)};">
+                <i class="i--m cci ${source.Logo}"></i>
+                ${source!.ID}
+              </h3>
+                
             </div>
         `;
   } else {

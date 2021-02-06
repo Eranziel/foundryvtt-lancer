@@ -157,7 +157,6 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
       });
     }
 
-    console.log("Mounting it, baybee");
     new ContextMenu(html, ".mount-type-ctx-root", mount_options);
   }
 

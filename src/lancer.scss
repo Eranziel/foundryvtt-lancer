@@ -20,7 +20,8 @@
   --reaction-clip-path: polygon( 0 0, 100% 0, 100% 1px, calc(100% - 9px) 1px, calc(100% - 8px) 2px, 100% 2px, 100% 3px, calc(100% - 7px) 3px, calc(100% - 6px) 4px, 100% 4px, 100% 5px, calc(100% - 5px) 5px, calc(100% - 4px) 6px, 100% 6px, 100% 7px, calc(100% - 3px) 7px, calc(100% - 2px) 8px, 100% 8px, 100% 100%, 0 100% );
   --trait-color: #0a7674;
   --bonus-color: #5d8673;
-  --system-color: #67bc45;
+  --system-color: #9ad882;
+  --error-color: #b4800e;
   --tech-clip-path: polygon( 0 0, calc(100% - 12px) 0, calc(100% - 12px) 7px, calc(100% - 7px) 7px, calc(100% - 7px) 3px, calc(100% - 3px) 3px, calc(100% - 3px) 0, 100% 0, 100% 3px, calc(100% - 3px) 3px, calc(100% - 3px) 7px, calc(100% - 7px) 7px, calc(100% - 7px) 12px, 100% 12px, 100% 100%, 0 100% );
   --tech-color: #7d2477;
   --talent-color: #3a81c3;
@@ -715,6 +716,11 @@ tr.lcp-index-header {
   &.loadout-category {
     background-color: var(--loadout-color, fuchsia);
   }
+
+  &.error {
+    background-color: var(--error-color);
+  }
+
 
 
   /* General font sizing options */

@@ -2,7 +2,7 @@ import { HelperOptions } from "handlebars";
 import { EntryType, Mech, MechLoadout  } from "machine-mind";
 import { WeaponMount } from "machine-mind";
 import { SystemMount } from "machine-mind/dist/class";
-import { resolve_helper_dotpath } from "./commons";
+import { inc_if, resolve_helper_dotpath } from "./commons";
 import { mech_weapon_refview } from "./item";
 import { simple_mm_ref } from "./refs";
 
@@ -36,7 +36,8 @@ function weapon_mount(
 ): string {
   let mount = resolve_helper_dotpath(helper, mount_path) as WeaponMount
   // let mech = resolve_helper_dotpath(helper, mech_path, EntryType.MECH);
-  let slots = mount.Slots.map((slot, index) => mech_weapon_refview(`${mount_path}.Slots.${index}.Weapon`, mech_path, helper));
+  let slots = mount.Slots.map((slot, index) => mech_weapon_refview(`${mount_path}.Slots.${index}.Weapon`, mech_path, helper, slot.Size));
+  let err = mount.validate() ?? "";
 
   return ` 
     <div class="mount card mount-type-ctx-root" data-path="${mount_path}">
@@ -45,6 +46,9 @@ function weapon_mount(
         <a class="gen-control" data-action="splice" data-path="${mount_path}"><i class="fas fa-trash"></i></a>
         <a class="reset-weapon-mount-button" data-path="${mount_path}"><i class="fas fa-redo"></i></a>
       </span>
+      ${inc_if(`
+        <span class="lancer-header error">${err.toUpperCase()}</span>`, 
+        err)}
       <div class="lancer-body">
         ${slots.join("")}
       </div>
@@ -87,11 +91,8 @@ function all_system_mount_view(mech_path: string, loadout_path: string, helper: 
 
 /** Suuuuuper work in progress helper. The loadout view for a mech (tech here can mostly be reused for pilot)
  * TODO:
- * - Select mount type
  * - Weapon mods
  * - .... system mods :)
- * - Set pilot button/drag interface
- * - Diagnostic messages (invalid mount, over/under sp, etc)
  * - Ref validation (you shouldn't be able to equip another mechs items, etc)
  */
 export function mech_loadout(mech_path: string, helper: HelperOptions): string {
