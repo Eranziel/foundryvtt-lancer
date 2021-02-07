@@ -29,7 +29,6 @@ import {
 import { MechWeapon } from "machine-mind";
 import { BonusEditDialog } from "../apps/bonus-editor";
 import { TypeIcon } from "../config";
-import { TagData } from "../interfaces";
 import { npc_reaction_effect_preview, npc_system_effect_preview, npc_tech_effect_preview, npc_trait_effect_preview, npc_weapon_effect_preview } from "../item/effects";
 import { compact_tag_list } from "./tags";
 import { checked, inc_if, render_light_icon, resolve_dotpath, resolve_helper_dotpath, selected } from "./commons";
@@ -43,23 +42,6 @@ export function effect_helper(header: string, body: string): string {
     <div class="medium effect-title">EFFECT</div>
     <div class="effect-text">${body}</div>
   </div>`;
-}
-
-/**
- * Handlebars helper which checks whether a weapon is loading by examining its tags
- * @param tags The tags for the weapon
- */
-export function is_loading(tags: TagData[]) {
-  if (!tags || !Array.isArray(tags) || tags.length < 1) return false;
-  for (let i = 0; i < tags.length; i++) {
-    if (tags[i].id && tags[i].id === "tg_loading") {
-      return true;
-    }
-    if (tags[i].name && tags[i].name.toUpperCase() === "LOADING") {
-      return true;
-    }
-  }
-  return false;
 }
 
 // TODO
@@ -249,7 +231,7 @@ export function system_type_selector(s_type: SystemType, data_target: string) {
 export function uses_control(uses_path: string, max_uses: number, helper: HelperOptions) {
   const curr_uses = resolve_helper_dotpath(helper, uses_path) ?? 0;
   // TODO: Remove this "justify-content" stuff, that should really be accomplished via a class
-  return ` <div class="flexrow">
+  return ` <div class="flexrow flex-center">
               <span>USES</span>
               <input class="lancer-stat lancer-invisible-input" type="number" name="${uses_path}" value="${curr_uses}" data-dtype="Number" style="justify-content: left"/>
               <span>/</span>

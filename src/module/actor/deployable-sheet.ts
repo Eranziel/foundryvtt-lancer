@@ -1,4 +1,3 @@
-import { LancerDeployableSheetData } from "../interfaces";
 import { LANCER } from "../config";
 import { LancerActorSheet } from "./lancer-actor-sheet";
 import { EntryType } from "machine-mind";

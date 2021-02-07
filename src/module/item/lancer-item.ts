@@ -1,4 +1,3 @@
-import { DamageData, NPCDamageData, RangeData, TagData } from "../interfaces";
 import { LANCER, TypeIcon } from "../config";
 import { EntryType, License, NpcFeatureType, OpCtx, RegRef } from "machine-mind";
 import { FoundryRegActorData, FoundryRegItemData } from "../mm-util/foundry-reg";
@@ -41,7 +40,8 @@ export class LancerItem<T extends LancerItemType> extends Item {
     data: {
       // Include additional derived info
       derived: {
-        license: RegRef<EntryType.LICENSE> | null // The license granting this item, if one could be found
+        license: RegRef<EntryType.LICENSE> | null, // The license granting this item, if one could be found
+        max_uses: number // The max uses, augmented to also include any actor bonuses
       };
     };
   };
@@ -67,6 +67,7 @@ export class LancerItem<T extends LancerItemType> extends Item {
       // Prepare our derived stat data by first initializing an empty obj
       dr = {
         license: null,
+        max_uses: 0,
         mmec: null as any, // We will set this shortly
         mmec_promise: null as any // We will set this shortly
       }
@@ -101,10 +102,27 @@ export class LancerItem<T extends LancerItemType> extends Item {
              found_license = await find_license_for(mmec);
            }
 
-           // Store the found license
-           dr.license = found_license;
+          // Store the found license
+          dr.license = found_license;
 
-          // Depending on type, setup fields more precisely as able
+          // Also, compute max uses if needed
+          let base_limit = (mmec.ent as any).BaseLimit;
+          if(base_limit)  {
+            console.log("Setting max uses");
+            dr.max_uses = base_limit; // A decent baseline - start with the limited tag
+
+            // If we have an actor, then try to get limited bonuses
+            if(this.actor) {
+              console.log("Including actor bonuses:");
+              let actor_mmec: MMEntityContext<LancerActorType> = await this.actor.data.data.derived.mmec_promise;
+              if(actor_mmec.ent.Type == EntryType.MECH || actor_mmec.ent.Type == EntryType.PILOT) {
+                // Add pilot/mech lim bonus
+                console.log("Got actor bonus of ", actor_mmec.ent.LimitedBonus);
+                dr.max_uses += actor_mmec.ent.LimitedBonus;
+              }
+            }
+          }
+
           return mmec;
         });
 
@@ -170,6 +188,7 @@ export class LancerItem<T extends LancerItemType> extends Item {
   /**
    * Return a weapon's innate accuracy/difficulty based on its tags.
    */
+  /*
   get accuracy(): number {
     if (this.data.type === EntryType.PILOT_WEAPON || this.data.type === EntryType.MECH_WEAPON) {
       let acc = 0;
@@ -180,6 +199,7 @@ export class LancerItem<T extends LancerItemType> extends Item {
       return 0;
     }
   }
+  */
 
   /**
    * Return whether a weapon has the smart tag
@@ -235,6 +255,7 @@ export class LancerItem<T extends LancerItemType> extends Item {
   /**
    * Return a weapon's innate accuracy/difficulty based on its tags.
    */
+  /*
   get reliable(): number | string {
     if (this.data.type === EntryType.PILOT_WEAPON || this.data.type === EntryType.MECH_WEAPON) {
       let rel: number | string = 0;
@@ -250,6 +271,7 @@ export class LancerItem<T extends LancerItemType> extends Item {
       return 0;
     }
   }
+  */
 
   // ============================================================
   //          GENERAL
@@ -261,6 +283,7 @@ export class LancerItem<T extends LancerItemType> extends Item {
    * @param name Tag name to search for.
    * @returns true if the tag was found, false otherwise.
    */
+  /*
   searchTags(id: string, name: string): boolean {
     const data = this.data.data as any;
     if (!data.tags || !Array.isArray(data.tags)) return false;
@@ -270,6 +293,7 @@ export class LancerItem<T extends LancerItemType> extends Item {
     });
     return result;
   }
+  */
 }
 
 // Provide some convenient shorthands

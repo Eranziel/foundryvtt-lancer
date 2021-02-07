@@ -276,9 +276,10 @@ button {
   max-height: 1.5em;
 }
 
-.lancer-invisible-input {
+.lancer .lancer-invisible-input {
   background: transparent;
   border: none;
+  color: inherit;
 }
 
 ul.items-list {

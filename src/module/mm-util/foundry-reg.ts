@@ -344,6 +344,7 @@ export class FoundryReg extends Registry {
         // First check for existing item in ctx
         let pre = ctx.get(id);
         if (pre) {
+          await pre.ready();
           return pre as LiveEntryTypes<T>;
         }
 

@@ -1,4 +1,4 @@
-import { DamageData, LancerItemSheetData, RangeData } from "../interfaces";
+import {  LancerItemSheetData, } from "../interfaces";
 import { LANCER } from "../config";
 import { LancerItem, LancerItemType } from "./lancer-item";
 import { HANDLER_activate_general_controls, gentle_merge, resolve_dotpath } from "../helpers/commons";
