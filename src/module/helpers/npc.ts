@@ -1,12 +1,14 @@
 import { NpcFeature } from "machine-mind";
 import { ActivationType } from "../enums";
+import { effect_box } from "./commons";
 import {
   npc_attack_bonus_preview,
   npc_accuracy_preview,
   show_damage_array,
   show_range_array,
-} from "../helpers/item";
-import { compact_tag, compact_tag_list } from "../helpers/tags";
+} from "./item";
+import { ref_params } from "./refs";
+import { compact_tag, compact_tag_list } from "./tags";
 
 export const EffectIcons = {
   Generic: "systems/lancer/assets/icons/generic_item.svg",
@@ -529,23 +531,12 @@ export function tech_effect_preview(effect: TechEffectData) {
 }
 */
 
-// Common to all feature previews. Auto-omits on empty body
-function npc_feature_effect_box(title: string, text: string): string {
-  if (text) {
-    return `
-      <span class="medium flexrow">${title}</span>
-      <div class="effect-text" style="padding: 5px">${text}</div>
-      `;
-  } else {
-    return "";
-  }
-}
 
 function npc_feature_scaffold(npc_feature: NpcFeature, body: string, delete_button: string) {
   return `
-  <div class="flexcol">
-    <div class="flexrow lancer-${npc_feature.FeatureType.toLowerCase()}-header  clipped-top">
-      <i class="cci cci-reaction i--m i--light"> </i>
+  <div class="card npc-${npc_feature.FeatureType.toLowerCase()} ${ref_params(npc_feature.as_ref())}">
+    <div class="flexrow lancer-header clipped-top">
+      <i class="cci cci-${npc_feature.FeatureType.toLowerCase()} i--m i--light"> </i>
       <a class="macroable item-macro"><i class="mdi mdi-message"></i></a>
       <span class="minor grow">${npc_feature.Name}</span>
       ${delete_button}
@@ -557,9 +548,9 @@ function npc_feature_scaffold(npc_feature: NpcFeature, body: string, delete_butt
 export function npc_reaction_effect_preview(npc_feature_path: string, npc_feature: NpcFeature, delete_button: string) {
   return npc_feature_scaffold(
     npc_feature,
-    `<div class="flexcol" style="margin: 10px;">
-      ${npc_feature_effect_box("TRIGGER", npc_feature.Trigger)}
-      ${npc_feature_effect_box("EFFECT", npc_feature.Effect)}
+    `<div class="flexcol lancer-body">
+      ${effect_box("TRIGGER", npc_feature.Trigger)}
+      ${effect_box("EFFECT", npc_feature.Effect)}
       ${compact_tag_list(npc_feature_path + ".Tags", npc_feature.Tags)}
     </div>`,
     delete_button
@@ -569,8 +560,8 @@ export function npc_reaction_effect_preview(npc_feature_path: string, npc_featur
 function npc_system_trait_effect_preview(npc_feature_path: string, npc_feature: NpcFeature, delete_button: string) {
   return npc_feature_scaffold(
     npc_feature,
-    `<div class="flexcol" style="margin: 10px;">
-      ${npc_feature_effect_box("EFFECT", npc_feature.Effect)}
+    `<div class="flexcol lancer-body">
+      ${effect_box("EFFECT", npc_feature.Effect)}
       ${compact_tag_list(npc_feature_path + ".Tags", npc_feature.Tags)}
     </div>`,
     delete_button
@@ -609,7 +600,7 @@ export function npc_tech_effect_preview(
         ${subheader_items.join(sep)}
       </div>
       <div class="flexcol" style="padding: 0 10px;">
-        ${npc_feature_effect_box("EFFECT", npc_feature.Effect)}
+        ${effect_box("EFFECT", npc_feature.Effect)}
         ${compact_tag_list(npc_feature_path + ".Tags", npc_feature.Tags)}
       </div>
     </div>
@@ -625,7 +616,9 @@ export function npc_weapon_effect_preview(
   delete_button: string = ""
 ) {
   let sep = `<hr class="vsep">`;
-  let subheader_items = [`<a class="roll-attack"><i class="fas fa-dice-d20 i--m i--dark"></i></a>`];
+  let subheader_items = [`<a class="roll-attack no-grow"><i class="fas fa-dice-d20 i--m i--dark"></i></a>`];
+
+  // Weapon info
 
   // Topline stuff
   if (npc_feature.AttackBonus[tier]) {
@@ -639,19 +632,23 @@ export function npc_weapon_effect_preview(
   if (npc_feature.Range.length) {
     subheader_items.push(show_range_array(npc_feature.Range));
   }
-  if (npc_feature.Damage[tier] && npc_feature.Damage[tier].length) {
-    subheader_items.push(show_damage_array(npc_feature.Damage[tier]));
+  console.log(npc_feature.Damage);
+  if (npc_feature.Damage[tier - 1] && npc_feature.Damage[tier - 1].length) {
+    subheader_items.push(show_damage_array(npc_feature.Damage[tier - 1]));
   }
 
   return npc_feature_scaffold(
     npc_feature,
     `
     <div class="lancer-body flex-col">
-      <div class="flexrow">
+      <div class="flexrow no-wrap">
         ${subheader_items.join(sep)}
       </div>
-      ${npc_feature_effect_box("ON HIT", npc_feature.OnHit)}
-      ${npc_feature_effect_box("EFFECT", npc_feature.Effect)}
+      <div>
+        <span>${npc_feature.WepType ?? "Weapon"} // ${npc_feature.Origin.name} ${npc_feature.Origin.type} Feature</span>
+      </div>
+      ${effect_box("ON HIT", npc_feature.OnHit)}
+      ${effect_box("EFFECT", npc_feature.Effect)}
       ${compact_tag_list(npc_feature_path + ".Tags", npc_feature.Tags)}
     </div>
     `,

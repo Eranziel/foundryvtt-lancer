@@ -159,6 +159,7 @@ export function HANDLER_activate_tag_context_menus<
   let set_value = {
     name: "Edit Value",
     icon: '<i class="fas fa-edit"></i>',
+    classes: "lancer dialog",
     // condition: game.user.isGM,
     callback: async (html: JQuery) => {
       let cd = await data_getter();

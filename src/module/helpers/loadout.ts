@@ -19,8 +19,8 @@ function system_mount(
     <div class="mount card">
       <span class="lancer-header">
         <span>System Mount</span>
-        <a class="gen-control" data-action="splice" data-path="${mount_path}"><i class="fas fa-trash"></i></a>
-        <a class="reset-system-mount-button" data-path="${mount_path}"><i class="fas fa-redo"></i></a>
+        <a class="gen-control fas fa-trash" data-action="splice" data-path="${mount_path}"></a>
+        <a class="reset-system-mount-button fas fa-redo" data-path="${mount_path}"></a>
       </span>
       <div class="lancer-body">
         ${slot}
@@ -38,14 +38,15 @@ function weapon_mount(
   // let mech = resolve_helper_dotpath(helper, mech_path, EntryType.MECH);
   let slots = mount.Slots.map((slot, index) => mech_weapon_refview(`${mount_path}.Slots.${index}.Weapon`, mech_path, helper, slot.Size));
   let err = mount.validate() ?? "";
+      // <div class="lancer-header mount-type-ctx-root" data-path="${mount_path}">
 
   return ` 
     <div class="mount card" >
-      <span class="lancer-header mount-type-ctx-root" data-path="${mount_path}">
-        <span>${mount.MountType} Weapon Mount</span>
-        <a class="gen-control" data-action="splice" data-path="${mount_path}"><i class="fas fa-trash"></i></a>
-        <a class="reset-weapon-mount-button" data-path="${mount_path}"><i class="fas fa-redo"></i></a>
-      </span>
+      <div class="lancer-header" data-path="${mount_path}">
+        <span class="mount-type-ctx-root" data-path="${mount_path}">${mount.MountType} Weapon Mount</span>
+        <a class="gen-control fas fa-trash" data-action="splice" data-path="${mount_path}"></a>
+        <a class="reset-weapon-mount-button fas fa-redo" data-path="${mount_path}"></a>
+      </div>
       ${inc_if(`
         <span class="lancer-header error">${err.toUpperCase()}</span>`, 
         err)}
@@ -63,8 +64,8 @@ function all_weapon_mount_view(mech_path: string, loadout_path: string, helper: 
   return `
     <span class="lancer-header loadout-category submajor">
         <span>MOUNTED WEAPONS</span>
-        <a class="gen-control" data-action="append" data-path="${loadout_path}.WepMounts" data-action-value="(struct)wep_mount">+</a>
-        <a class="reset-all-weapon-mounts-button" data-path="${loadout_path}.WepMounts"><i class="fas fa-redo"></i></a>
+        <a class="gen-control fas fa-plus" data-action="append" data-path="${loadout_path}.WepMounts" data-action-value="(struct)wep_mount"></a>
+        <a class="reset-all-weapon-mounts-button fas fa-redo" data-path="${loadout_path}.WepMounts"></a>
     </span>
     <div class="wraprow double">
       ${weapon_mounts.join("")}
@@ -80,8 +81,8 @@ function all_system_mount_view(mech_path: string, loadout_path: string, helper: 
   return `
     <span class="lancer-header loadout-category submajor">
         <span>MOUNTED SYSTEMS</span>
-        <a class="gen-control" data-action="append" data-path="${loadout_path}.SysMounts" data-action-value="(struct)sys_mount">+</a>
-        <a class="gen-control" data-action="set" data-path="${loadout_path}.SysMounts" data-action-value="(struct)empty_array"><i class="fas fa-redo"></i></a>
+        <a class="gen-control fas fa-plus" data-action="append" data-path="${loadout_path}.SysMounts" data-action-value="(struct)sys_mount"></a>
+        <a class="gen-control fas fa-trash" data-action="set" data-path="${loadout_path}.SysMounts" data-action-value="(struct)empty_array"></a>
     </span>
     <div class="wraprow quadruple">
       ${system_slots.join("")}

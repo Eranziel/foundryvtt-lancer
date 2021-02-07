@@ -54,12 +54,7 @@
   --}}
 
   {{!-- Description --}}
-  <div class="card clipped">
-    <span class="lancer-header major">DESCRIPTION</span>
-    <div class="big-editor">
-      {{editor content=mm.ent.Description target="mm.ent.Description" button=true owner=owner editable=editable}}
-    </div>
-  </div>
+  {{{textarea-card "DESCRIPTION" "mm.ent.Description"}}}
 
   {{!-- Tags --}}
   <div class="card">

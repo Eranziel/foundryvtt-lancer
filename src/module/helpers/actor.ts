@@ -1,7 +1,7 @@
 import { HelperOptions } from "handlebars";
 import { EntryType,funcs, RegEntry  } from "machine-mind";
 import { LancerItemType } from "../item/lancer-item";
-import { resolve_helper_dotpath, selected } from "./commons";
+import { resolve_helper_dotpath, selected, std_num_input, std_x_of_y } from "./commons";
 import { ref_commons, simple_mm_ref } from "./refs";
 // ---------------------------------------
 // Some simple stat editing thingies
@@ -13,14 +13,10 @@ export function stat_edit_card_max(title: string, icon: string, data_path: strin
   return `
     <div class="card clipped">
       <div class="lancer-header ">
-        <i class="${icon} i--m i--light header-icon"> </i>
+        <i class="${icon} i--m header-icon"> </i>
         <span class="major">${title}</span>
       </div>
-      <div class="flexrow" style="align-items: center">
-        <input class="lancer-stat major" type="number" name="${data_path}" value="${data_val}" data-dtype="Number"/>
-        <span class="medium" style="max-width: min-content;">/</span>
-        <span class="lancer-stat major">${max_val}</span>
-      </div>
+      ${std_x_of_y(data_path, data_val, max_val, "lancer-stat")}
     </div>
     `;
 }
@@ -31,10 +27,10 @@ export function stat_edit_card(title: string, icon: string, data_path: string, o
   return `
     <div class="card clipped">
       <div class="lancer-header ">
-        <i class="${icon} i--m i--light header-icon"> </i>
+        <i class="${icon} i--m header-icon"> </i>
         <span class="major">${title}</span>
       </div>
-      <input class="lancer-stat major" type="number" name="${data_path}" value="${data_val}" data-dtype="Number"/>
+      ${std_num_input(data_path, "", data_val, "lancer-stat lancer-invisible-input")}
     </div>
     `;
 }
@@ -71,7 +67,7 @@ export function compact_stat_edit(icon: string, data_path: string, max_path: str
   return `        
         <div class="compact-stat">
           <i class="${icon} i--m i--dark"></i>
-          <input class="lancer-stat minor" type="number" name="${data_path}" value="${data_val}" data-dtype="Number"/>
+          ${std_num_input(data_path, "", data_val, "lancer-stat minor")}
           <span class="minor" style="max-width: min-content;" > / </span>
           <span class="lancer-stat minor">${max_val}</span>
         </div>
@@ -79,16 +75,16 @@ export function compact_stat_edit(icon: string, data_path: string, max_path: str
 }
 
 // An editable field with +/- buttons
-export function clicker_num_input(target: string, value: string) {
+export function clicker_num_input(data_path: string, data_val: number) {
     // Init value to 0 if it doesn't exist
     // So the arrows work properly
-    if (!value) {
-      value = "0";
+    if (!data_val) {
+      data_val = 0;
     }
 
     return `<div class="flexrow arrow-input-container">
       <button class="mod-minus-button" type="button">-</button>
-      <input class="lancer-stat major" type="number" name="${target}" value="${value}" data-dtype="Number"\>
+      ${std_num_input(data_path, "", data_val, "lancer-stat minor")}
       <button class="mod-plus-button" type="button">+</button>
     </div>`;
 }
@@ -124,7 +120,7 @@ export function npc_clicker_stat_card(title: string, data_path: string, options:
   }
   return `
     <div class="card clipped">
-      <div class="flexrow lancer-header major >
+      <div class="flexrow lancer-header major">
         <span class="lancer-header major ">${title}</span>
         <a class="gen-control" data-path="${data_path}" data-action="set" data-action-value="(struct)npc_stat_array"><i class="fas fa-redo"></i></a>
       </div>

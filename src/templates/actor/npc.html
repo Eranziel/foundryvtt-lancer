@@ -2,13 +2,13 @@
 
   {{!-- Sheet Header --}}
   <header class="sheet-header card clipped-bot">
-    <div class="header-fields" style="grid-area: 1/1/2/4;">
+    <div class="header-fields">
       <h1 class="charname"><input class="header-field" name="name" type="text" value="{{actor.name}}" placeholder="Name"/></h1>
     </div>
     <div class="details flexcol" style="grid-area: 1/4/4/4">
       <span>TIER</span>
       {{#if mm.ent.Tier}}
-      <i class="cci cci-{{mm.ent.Tier}} tier-icon theme--npc"></i>
+      <i class="cci cci-npc-tier-{{mm.ent.Tier}} tier-icon theme--npc"></i>
       {{/if}}
     </div>
 
@@ -37,7 +37,7 @@
         {{{stat-edit-card      "OVERSHIELD"  "cci cci-heat"             "mm.ent.Overshield" }}}
         {{{stat-edit-card      "BURN"        "cci cci-burn"             "mm.ent.Burn" }}}
 
-        {{{stat-view-card      "SIZE"        (concat "mdi " mm.ent.SizeIcon)   "mm.ent.Size" }}}
+        {{{stat-view-card      "SIZE"        (concat "cci cci-size-" mm.ent.Size)   "mm.ent.Size" }}}
         {{{stat-view-card      "ARMOR"       "mdi mdi-shield-outline"   "mm.ent.Armor" }}}
         {{{stat-view-card      "EVASION"     "cci cci-evasion"          "mm.ent.Evasion" }}}
         {{{stat-view-card      "E-DEF"       "cci cci-edef"             "mm.ent.EDefense" }}}
@@ -45,14 +45,13 @@
 
         {{{stat-view-card      "SENSORS"     "cci cci-sensor"           "mm.ent.SensorRange" }}}
         {{{stat-view-card      "SAVE"        "cci cci-save"             "mm.ent.SaveTarget" }}}
-        {{{stat-view-card      "ATTACK"      "cci cci-heart"            "mm.ent.AttackBonus" }}}
         {{{stat-view-card      "ACTIVATIONS" "cci cci-heart"            "mm.ent.Activations" }}}
         {{{tier-selector       "mm.ent.Tier"}}}
       </div>
 
       {{!-- Equipment et all --}}
       <div class="card clipped">
-        <span class="lancer-header major ">CLASSES (LIMIT 1)</span>
+        <span class="lancer-header submajor ">CLASSES (LIMIT 1)</span>
         <div class="flexcol">
           {{#each mm.ent.Classes as |class index|}}
             {{{ref-mm-controllable-item (concat "mm.ent.Classes." index) "delete" }}}
@@ -61,7 +60,7 @@
       </div>
 
       <div class="card clipped">
-        <span class="lancer-header major ">TEMPLATES</span>
+        <span class="lancer-header submajor ">TEMPLATES</span>
         <div class="wraprow double">
           {{#each mm.ent.Templates as |template index|}}
             {{{ref-mm-controllable-item (concat "mm.ent.Templates." index) "delete" }}}
@@ -70,19 +69,15 @@
       </div> 
       
       <div class="card clipped">
-        <span class="lancer-header major ">FEATURES</span>
+        <span class="lancer-header submajor ">FEATURES</span>
         <div class="wraprow double">
           {{#each mm.ent.Features as |feature index|}}
-            {{{npc-feat-preview (concat "mm.ent.Features." index) mm.ent.Tier }}}
+            {{{npc-feat-preview (concat "mm.ent.Features." index) ../mm.ent.Tier }}}
           {{/each}}
         </div>
       </div>
 
-    
-      <div class="card clipped">
-        <span class="lancer-header major ">Notes</span>
-        {{editor content=mm.ent.Notes target="mm.ent.Notes" button=true owner=owner editable=editable}}
-      </div>
+      {{{textarea-card "NOTES" "mm.ent.Notes"}}}
     </div>
   </section>
 </form>

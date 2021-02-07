@@ -19,7 +19,7 @@ import { LancerItem, lancerItemInit } from "./module/item/lancer-item";
 import {
   action_type_icon,
   action_type_selector,
-} from "./module/item/effects";
+} from "./module/helpers/npc";
 
 // Import applications
 import { LancerPilotSheet } from "./module/actor/pilot-sheet";
@@ -44,9 +44,11 @@ import * as macros from "./module/macros";
 import compareVersions = require("compare-versions");
 import { NpcFeatureType, EntryType, Manufacturer, Bonus } from "machine-mind";
 import {
-  render_light_icon,
   resolve_dotpath,
   resolve_helper_dotpath,
+  popout_editor_button,
+  safe_html_helper,
+  large_textbox_card,
 } from "./module/helpers/commons";
 import { is_loading } from "machine-mind/dist/classes/mech/EquipUtil";
 import {
@@ -57,7 +59,6 @@ import {
   npc_accuracy_preview,
   mech_weapon_refview,
   system_type_selector,
-  mech_system_preview,
   npc_feature_preview,
   damage_editor,
   bonuses_display,
@@ -261,10 +262,11 @@ Hooks.once("init", async function () {
     return str.toUpperCase();
   });
 
+  Handlebars.registerHelper("safe-html", safe_html_helper);
+
+
   // ------------------------------------------------------------------------
   // Generic components
-  Handlebars.registerHelper("light-icon", render_light_icon);
-
   Handlebars.registerHelper("l-num-input", clicker_num_input);
 
   // For debugging
@@ -276,6 +278,8 @@ Hooks.once("init", async function () {
     for (let x of it) s += block(x);
     return s;
   });
+
+  Handlebars.registerHelper("textarea-card", large_textbox_card);
 
 
   // ------------------------------------------------------------------------
@@ -324,6 +328,7 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("read-bonuses-view", (bonuses_path: string, bonuses_array: Bonus[]) => bonuses_display(bonuses_path, bonuses_array, false));
   Handlebars.registerHelper("bonuses-view", bonuses_display); // Takes a third arg
   Handlebars.registerHelper("edit-bonus", single_bonus_editor);
+  Handlebars.registerHelper("popout-editor-button", popout_editor_button);
 
   // ------------------------------------------------------------------------
   // Weapons
@@ -342,7 +347,6 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("uses-ctrl", uses_control);
   Handlebars.registerHelper("act-icon", action_type_icon);
   Handlebars.registerHelper("act-type-sel", action_type_selector);
-  Handlebars.registerPartial("mech-system-preview", mech_system_preview);
 
   // ------------------------------------------------------------------------
   // Effects

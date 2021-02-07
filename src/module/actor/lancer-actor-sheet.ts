@@ -1,10 +1,8 @@
 import { LANCER } from "../config";
-import { HANDLER_activate_general_controls,  gentle_merge, is_ref, resolve_dotpath, safe_json_parse } from "../helpers/commons";
+import { HANDLER_activate_general_controls,  gentle_merge, is_ref, resolve_dotpath, safe_json_parse, HANDLER_activate_popout_text_editor } from "../helpers/commons";
 import { enable_native_dropping_mm_wrap, enable_simple_ref_dragging, enable_simple_ref_dropping, NativeDrop, ResolvedNativeDrop, resolve_native_drop } from "../helpers/dragdrop";
 import { HANDLER_activate_ref_dragging, HANDLER_activate_ref_drop_clearing, HANDLER_activate_ref_drop_setting, HANDLER_openRefOnClick } from "../helpers/refs";
 import { LancerActorSheetData, LancerStatMacroData } from "../interfaces";
-import { FoundryRegActorData } from "../mm-util/foundry-reg";
-import { mm_wrap_actor } from "../mm-util/helpers";
 import { LancerActor, LancerActorType } from "./lancer-actor";
 const lp = LANCER.log_prefix;
 
@@ -12,25 +10,7 @@ const lp = LANCER.log_prefix;
  * Extend the basic ActorSheet
  */
 export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
-  /**
-   * A convenience reference to the Actor entity
-   */
-  // get actor(): LancerPilot {
-  //   return this.actor;
-  // };
-  /* -------------------------------------------- */
-  /**
-   * Extend and override the default options used by the NPC Sheet
-   * @returns {Object}
-   */
-  // static get defaultOptions() {
-  //   return mergeObject(super.defaultOptions, {
-  //     classes: ["lancer", "sheet", "actor", "npc"],
-  //     template: "systems/lancer/templates/actor/deployable.html",
-  //     width: 800,
-  //     height: 800,
-  //   });
-  // }
+
   /* -------------------------------------------- */
   /**
    * @override
@@ -52,15 +32,21 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     // Make +/- buttons work
     this._activatePlusMinusButtons(html);
 
+    let getfunc = () => this.getDataLazy();
+    let commitfunc = (_: any) => this._commitCurrMM();
+
     // Make refs droppable
-    HANDLER_activate_ref_drop_setting(html, () => this.getDataLazy(), (_) => this._commitCurrMM());
-    HANDLER_activate_ref_drop_clearing(html, () => this.getDataLazy(), (_) => this._commitCurrMM());
+    HANDLER_activate_ref_drop_setting(html, getfunc, commitfunc);
+    HANDLER_activate_ref_drop_clearing(html, getfunc, commitfunc);
 
     // Enable native ref drag handlers
     this._activateNativeRefDropBoxes(html);
 
     // Enable general controls, so items can be deleted and such
-    HANDLER_activate_general_controls(html.find(".gen-control"), () => this.getDataLazy(), (_) => this._commitCurrMM());
+    HANDLER_activate_general_controls(html, getfunc, commitfunc);
+
+    // Enable popout editors
+    HANDLER_activate_popout_text_editor(html, getfunc, commitfunc);
   }
 
   _activatePlusMinusButtons(html: any) {

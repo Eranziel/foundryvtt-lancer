@@ -1,7 +1,7 @@
 import {  LancerItemSheetData, } from "../interfaces";
 import { LANCER } from "../config";
 import { LancerItem, LancerItemType } from "./lancer-item";
-import { HANDLER_activate_general_controls, gentle_merge, resolve_dotpath } from "../helpers/commons";
+import { HANDLER_activate_general_controls, gentle_merge, resolve_dotpath, HANDLER_activate_popout_text_editor } from "../helpers/commons";
 import { HANDLER_activate_native_ref_dragging, HANDLER_activate_ref_dragging, HANDLER_activate_ref_drop_clearing, HANDLER_activate_ref_drop_setting, HANDLER_add_ref_to_list_on_drop, HANDLER_openRefOnClick } from "../helpers/refs";
 import { EntryType } from "machine-mind";
 import { get_pack } from "../mm-util/db_abstractions";
@@ -24,7 +24,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
     return mergeObject(super.defaultOptions, {
       classes: ["lancer", "sheet", "item"],
       width: 700,
-      height: "auto",
+      height: 700,
       tabs: [
         {
           navSelector: ".lancer-tabs",
@@ -40,8 +40,6 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
     if(this.item.type == EntryType.MECH_WEAPON) {
       this.options.initial = `profile${this.item.data.data.selected_profile || 0}`;
     }
-    // 
-
   }
 
   /** @override */
@@ -53,12 +51,12 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
   /* -------------------------------------------- */
 
   /** @override */
-  setPosition(options = {}) {
+  // setPosition(options = {}) {
     // const sheetBody = (this.element as HTMLDivElement).find(".sheet-body");
     // const bodyHeight = position.height - 192;
     // sheetBody.css("height", bodyHeight);
-    return super.setPosition(options);
-  }
+    // return super.setPosition(options);
+  // }
 
   /* -------------------------------------------- */
 
@@ -72,9 +70,6 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
 
     // Make refs clickable
     $(html).find(".ref.valid").on("click", HANDLER_openRefOnClick);
-
-    // Enable general controls, so items can be deleted and such
-    HANDLER_activate_general_controls(html.find(".gen-control"), () => this.getDataLazy(), (_) => this._commitCurrMM());
 
     // Enable ref dragging
     HANDLER_activate_ref_dragging(html);
@@ -104,18 +99,26 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
     let incr = html.find('button[class*="mod-plus-button"]');
     incr.on("click", mod_handler(+1));
 
+    let getfunc = () => this.getDataLazy();
+    let commitfunc = (_: any) => this._commitCurrMM();
     // Allow dragging items into lists
-    HANDLER_add_ref_to_list_on_drop(html, () => this.getDataLazy(), (_) => this._commitCurrMM());
+    HANDLER_add_ref_to_list_on_drop(html, getfunc, commitfunc);
 
     // Allow set things by drop. Mostly we use this for manufacturer/license dragging
-    HANDLER_activate_ref_drop_setting(html, () => this.getDataLazy(), (_) => this._commitCurrMM());
-    HANDLER_activate_ref_drop_clearing(html, () => this.getDataLazy(), (_) => this._commitCurrMM());
+    HANDLER_activate_ref_drop_setting(html, getfunc, commitfunc);
+    HANDLER_activate_ref_drop_clearing(html, getfunc, commitfunc);
 
     // Enable bonus editors
-    HANDLER_activate_edit_bonus(html, () => this.getDataLazy(), (_) => this._commitCurrMM());
+    HANDLER_activate_edit_bonus(html, getfunc, commitfunc);
 
     // Enable tag editing
-    HANDLER_activate_tag_context_menus(html, () => this.getDataLazy(), (_) => this._commitCurrMM());
+    HANDLER_activate_tag_context_menus(html, getfunc, commitfunc);
+
+    // Enable popout editors
+    HANDLER_activate_popout_text_editor(html, getfunc, commitfunc);
+
+    // Enable general controls, so items can be deleted and such
+    HANDLER_activate_general_controls(html, getfunc, commitfunc);
   }
 
   /* -------------------------------------------- */

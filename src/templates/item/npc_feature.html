@@ -39,28 +39,18 @@
 
     {{!-- Reaction --}}
     {{#if (eq mm.ent.FeatureType "Reaction")}}
-    <div class="clipped card">
-      <span class="lancer-header major ">TRIGGER</span>
-      {{editor content=mm.ent.Trigger target="mm.ent.Trigger" button=true editable=editable}}
-      <span class="lancer-header major ">EFFECT</span>
-      {{editor content=mm.ent.Effect target="mm.ent.Effect" button=true editable=editable}}
-    </div>
+      {{{textarea-card "TRIGGER" "mm.ent.Trigger"}}}
+      {{{textarea-card "EFFECT" "mm.ent.Effect"}}}
     {{/if}}
 
     {{!-- System --}}
     {{#if (eq mm.ent.FeatureType "System")}}
-    <div class="clipped card">
-      <span class="lancer-header major ">EFFECT</span>
-      {{editor content=mm.ent.Effect target="mm.ent.Effect" button=true editable=editable}}
-    </div>
+      {{{textarea-card "EFFECT" "mm.ent.Effect"}}}
     {{/if}}
 
     {{!-- Trait --}}
     {{#if (eq mm.ent.FeatureType "Trait")}}
-    <div class="clipped card">
-      <span class="lancer-header major ">EFFECT</span>
-      {{editor content=mm.ent.Effect target="mm.ent.Effect" button=true editable=editable}}
-    </div>
+      {{{textarea-card "EFFECT" "mm.ent.Effect"}}}
     {{/if}}
 
     {{!-- Tech --}}
@@ -77,10 +67,7 @@
       </div>
       {{{npc-clicker-stat-card "ATTACK BONUS" "mm.ent.AttackBonus"}}}
       {{{npc-clicker-stat-card "ACCURACY" "mm.ent.Accuracy"}}}
-      <div class="card clipped full">
-        <span class="lancer-header major ">EFFECT</span>
-        {{editor content=mm.ent.Effect target="mm.ent.Effect" button=true editable=editable}}
-      </div>
+      {{{textarea-card "EFFECT" "mm.ent.Effect"}}}
     </div>
     {{/if}}
 
@@ -127,12 +114,8 @@
       {{/each}}
 
       {{!-- Effects --}}
-      <div class="card clipped full">
-        <span class="lancer-header major ">ON HIT EFFECT</span>
-        {{editor content=mm.ent.OnHit target="mm.ent.OnHit" button=true editable=editable}}
-        <span class="lancer-header major ">EFFECT</span>
-        {{editor content=mm.ent.Effect target="mm.ent.Effect" button=true editable=editable}}
-      </div>
+      {{{textarea-card "ON HIT EFFECT" "mm.ent.OnHit"}}}
+      {{{textarea-card "EFFECT" "mm.ent.Effect"}}}
     </div>
     {{/if}}
 

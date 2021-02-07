@@ -9,21 +9,20 @@
   <div class="flexcol">
     <a class="gen-control simple-button" data-action="append" data-action-value="(struct)empty_array" data-path="mm.ent.Unlocks"  style="float: right; margin-right: 1em">Add Rank</a>
 
-    <div class="flexrow" style="flex-wrap: nowrap;">
-      {{#each mm.ent.Unlocks as |unlock_array rank|}}
-      <div class="talent-level card clipped-bot flexcol" style="max-width: 33%; flex-shrink: 1">
-        <div class="licensed-container flexcol" style="background-color: #dbdbdb; justify-content: flex-start; flex-grow: unset;">
-          <div>
-            <span class="minor" style="align-content: center;">//RANK {{rank}}</span>
-          </div>
-          {{#each unlock_array as |unlock unlock_index|}}
-              {{{ref-mm-controllable-item-native (concat "mm.ent.Unlocks." rank "." unlock_index) "splice" }}}
-          {{/each}}
-          {{{ref-mm-list-item-append (concat "mm.ent.Unlocks." rank)  "frame mech_system mech_weapon weapon_mod"}}}
-        </div>
+    {{#each mm.ent.Unlocks as |unlock_array rank|}}
+    <div class="card">
+      <div class="lancer-header">
+          <span class="left">//RANK {{rank}}</span>
+          <a class="gen-control" data-action="splice" data-path="mm.ent.Unlocks.{{rank}}">
+            <i class="fas fa-trash"></i>
+          </a>
       </div>
+      {{#each unlock_array as |unlock unlock_index|}}
+          {{{ref-mm-controllable-item-native (concat "mm.ent.Unlocks." rank "." unlock_index) "splice" }}}
       {{/each}}
+      {{{ref-mm-list-item-append (concat "mm.ent.Unlocks." rank)  "frame mech_system mech_weapon weapon_mod"}}}
     </div>
+    {{/each}}
   </div>
 
 </form>

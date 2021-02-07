@@ -108,16 +108,13 @@ export class LancerItem<T extends LancerItemType> extends Item {
           // Also, compute max uses if needed
           let base_limit = (mmec.ent as any).BaseLimit;
           if(base_limit)  {
-            console.log("Setting max uses");
             dr.max_uses = base_limit; // A decent baseline - start with the limited tag
 
             // If we have an actor, then try to get limited bonuses
             if(this.actor) {
-              console.log("Including actor bonuses:");
               let actor_mmec: MMEntityContext<LancerActorType> = await this.actor.data.data.derived.mmec_promise;
               if(actor_mmec.ent.Type == EntryType.MECH || actor_mmec.ent.Type == EntryType.PILOT) {
                 // Add pilot/mech lim bonus
-                console.log("Got actor bonus of ", actor_mmec.ent.LimitedBonus);
                 dr.max_uses += actor_mmec.ent.LimitedBonus;
               }
             }

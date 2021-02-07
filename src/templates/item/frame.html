@@ -11,11 +11,7 @@
     {{{ ref-portrait-img item.img "img" mm.ent }}}
   </header>
 
-  {{!-- Description --}}
-  <div class="card clipped" style="text-align: left;">
-    <span class="lancer-header major " style="text-align: center;">DESCRIPTION</span>
-    <div class="desc-text">{{editor content=mm.ent.Description target="mm.ent.Description" button=true owner=owner editable=editable}}</div>
-  </div>
+  {{{textarea-card "DESCRIPTION" "mm.ent.Description"}}}
 
   {{!-- Frame Stats --}}
   <div class="card clipped wraprow quadruple">
@@ -72,11 +68,12 @@
         <div class="lancer-header major">
           <i class="cci cci-trait i--m i--light header-icon"> </i>
           <input class="lancer-invisible-input i--light" name="mm.ent.Traits.{{trait_index}}.Name" value="{{trait.Name}}" data-dtype="String" />
-          <a class="gen-control" data-action="splice" data-path="mm.ent.Traits.{{trait_index}}" style="float: right; margin-right: 11px; margin-top: 2px;">
+          {{{popout-editor-button (concat "mm.ent.Traits." trait_index ".Description") }}}
+          <a class="gen-control" data-action="splice" data-path="mm.ent.Traits.{{trait_index}}">
             <i class="fas fa-trash"></i>
           </a>
         </div>
-        <textarea class="lancer-invisible-input effect-text" name="mm.ent.Traits.{{trait_index}}.Description" data-dtype="String">{{trait.Description}}</textarea>
+        <div class="desc-text">{{{safe-html trait.Description }}}</div>
         {{{bonuses-view (concat "mm.ent.Traits." trait_index ".Bonuses") trait.Bonuses ../editable}}}
       </div>
     {{/each}}
@@ -84,14 +81,16 @@
 
   {{!-- Core System --}}
   <div class="card clipped frame-core">
+    {{!-- General Description --}}
     <div class="lancer-header frame_core medium">
       <i></i>
       <input class="lancer-invisible-input major i--light" name="mm.ent.CoreSystem.Name" value="{{mm.ent.CoreSystem.Name}}" data-dtype="String" />
       <div class="medium i--faded" style="justify-self: right;"> // CORE SYSTEM</div>
+      {{{popout-editor-button "mm.ent.CoreSystem.Description" }}}
     </div>
-    <div class="desc-text">{{editor content=mm.ent.CoreSystem.Description target="mm.ent.CoreSystem.Description" button=true owner=owner editable=editable}}</div>
+    <div class="desc-text">{{{safe-html mm.ent.CoreSystem.Description }}}</div>
 
-    {{!-- Want to make these show jumpable little items --}}
+    {{!-- Integrated --}}
     {{#each mm.ent.CoreSystem.Integrated as |integrated index|}}
       {{{ref-mm-controllable-item (concat "mm.ent.CoreSystem.Integrated." index) "splice" }}}
     {{/each}}
@@ -99,22 +98,27 @@
       {{{ref-mm-controllable-item (concat "mm.ent.CoreSystem.Deployables." index) "splice" }}}
     {{/each}}
 
+    {{!-- Passive Description + Bonuses --}}
     <div class="card clipped frame_core">
       <div class="lancer-header">
         <i class="mdi mdi-circle-expand i--m i--light"> </i>
         <input class="lancer-invisible-input medium i--light" name="mm.ent.CoreSystem.PassiveName" value="{{mm.ent.CoreSystem.PassiveName}}" data-dtype="String" />
         <div class="medium i--faded" style="justify-self: right;"> // PASSIVE</div>
+        {{{popout-editor-button "mm.ent.CoreSystem.PassiveEffect" }}}
       </div>
-      <div class="effect-text">{{editor content=mm.ent.CoreSystem.PassiveEffect target="mm.ent.CoreSystem.PassiveEffect" button=true owner=owner editable=editable}}</div>
+      <div class="desc-text">{{{safe-html mm.ent.CoreSystem.PassiveEffect }}}</div>
       {{{bonuses-view "mm.ent.CoreSystem.PassiveBonuses" mm.ent.CoreSystem.PassiveBonuses editable}}}
     </div>
+
+    {{!-- Active Description + Bonuses --}}
     <div class="card clipped frame_core">
       <div class="lancer-header">
         <i class="cci cci-corebonus i--m i--light"> </i>
         <input class="lancer-invisible-input medium i--light" name="mm.ent.CoreSystem.ActiveName" value="{{mm.ent.CoreSystem.ActiveName}}" data-dtype="String" />
         <div class="i--faded" style="justify-self: right;"> // ACTIVE</div>
+        {{{popout-editor-button "mm.ent.CoreSystem.ActiveEffect" }}}
       </div>
-      <div class="effect-text">{{editor content=mm.ent.CoreSystem.ActiveEffect target="mm.ent.CoreSystem.ActiveEffect" button=true owner=owner editable=editable}}</div>
+      <div class="desc-text">{{{safe-html mm.ent.CoreSystem.ActiveEffect }}}</div>
       {{{bonuses-view "mm.ent.CoreSystem.ActiveBonuses" mm.ent.CoreSystem.ActiveBonuses editable}}}
     </div>
     <div class="tags-container" style="margin: 10px;">

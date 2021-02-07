@@ -15,13 +15,7 @@
         {{{uses-ctrl "mm.ent.Uses" mm.ent.MaxUses}}}
     </div>
 
-    {{!-- Description --}}
-    <div class="card clipped">
-      <span class="lancer-header major ">DESCRIPTION</span>
-      <div class="big-editor">
-        {{editor content=mm.ent.description target="mm.ent.description" button=true owner=owner editable=editable}}
-      </div>
-    </div>
+    {{{textarea-card "DESCRIPTION" "mm.ent.Description"}}}
 
     {{!-- Tags --}}
     <div class="card">
