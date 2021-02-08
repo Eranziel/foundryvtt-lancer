@@ -32,29 +32,37 @@ import { BonusEditDialog } from "../apps/bonus-editor";
 import { TypeIcon } from "../config";
 import { npc_reaction_effect_preview, npc_system_effect_preview, npc_tech_effect_preview, npc_trait_effect_preview, npc_weapon_effect_preview } from "./npc";
 import { compact_tag_list } from "./tags";
-import { effect_box, IconFactory, inc_if, resolve_dotpath, resolve_helper_dotpath, selected, std_checkbox, std_enum_select, std_num_input, std_string_input, std_x_of_y } from "./commons";
+import { effect_box, ext_helper_hash, IconFactory, inc_if, resolve_dotpath, resolve_helper_dotpath, selected, std_checkbox, std_enum_select, std_num_input, std_string_input, std_x_of_y } from "./commons";
 import { ref_commons, ref_params  } from "./refs";
 
 /**
  * Handlebars helper for weapon size selector
  */
-export function weapon_size_selector(size_path: string, helper: HelperOptions) {
-  let curr_size: WeaponSize = resolve_helper_dotpath(helper, size_path);
-  return std_enum_select(size_path, WeaponSize, curr_size, WeaponSize.Main);
+export function weapon_size_selector(path: string, helper: HelperOptions) {
+  if(!helper.hash["default"]) {
+    helper.hash["default"] = WeaponSize.Main;
+  }
+  return std_enum_select(path, WeaponSize, helper);
 }
 
 /**
  * Handlebars helper for weapon type selector. First parameter is the existing selection.
  */
-export function weapon_type_selector(type_path: string, helper: HelperOptions) {
-  let curr_type: WeaponType = resolve_helper_dotpath(helper, type_path);
-  return std_enum_select(type_path, WeaponType, curr_type, WeaponType.Rifle);
+export function weapon_type_selector(path: string, helper: HelperOptions) {
+  if(!helper.hash["default"]) {
+    helper.hash["default"] = WeaponType.Rifle;
+  }
+  return std_enum_select(path, WeaponType, helper);
 }
 
 /**
  * Handlebars helper for range type/value editing
+ * Supply with path to Range, and any args that you'd like passed down to the standard input editors, as well as
  */
-export function range_editor(range: Range, data_target_prefix: string) {
+export function range_editor(path: string, options: HelperOptions) {
+  // Lookup the range so we can draw icon. 
+  let range: Range = resolve_helper_dotpath(options, path);
+
   let icon_html = `<i class="cci ${range.Icon} i--m i--dark"></i>`;
   /* TODO: For a next iteration--would be really nifty to set it up to select images rather than text. 
     But that seems like a non-trivial task...
@@ -62,9 +70,13 @@ export function range_editor(range: Range, data_target_prefix: string) {
     <img class="med-icon" src="../systems/lancer/assets/icons/aoe_blast.svg">
     <img class="med-icon" src="../systems/lancer/assets/icons/damage_explosive.svg">
   */
-  let range_type_selector = std_enum_select(data_target_prefix + ".RangeType", RangeType, range.RangeType, RangeType.Range);
 
-  let value_input = std_string_input(data_target_prefix + ".Value", "", range.Value);
+  // Extend the options to not have to repeat lookup
+  let type_options = ext_helper_hash(options, {"value": range.RangeType}, {"default": RangeType.Range});
+  let range_type_selector = std_enum_select(path + ".RangeType", RangeType, type_options);
+
+  let value_options = ext_helper_hash(options, {"value": range.Value});
+  let value_input = std_string_input(path + ".Value", value_options);
 
   return `<div class="flexrow flex-center" style="padding: 5px;">
     ${icon_html}
@@ -75,14 +87,20 @@ export function range_editor(range: Range, data_target_prefix: string) {
 }
 
 /**
- * Handlebars helper for weapon damage type/value editing
+ * Handlebars helper for weapon damage type/value editing.
+ * Supply with path to Damage, and any args that you'd like passed down to the standard input editors
  */
-export function damage_editor(damage: Damage, data_target_prefix: string) {
-  let icon_html = `<i class="cci ${damage.Icon} i--m i--dark"></i>`;
+export function damage_editor(path: string, options: HelperOptions) {
+  // Lookup the damage so we can draw icon. 
+  let damage: Damage = resolve_helper_dotpath(options, path);
 
-  let damage_type_selector = std_enum_select(data_target_prefix + ".DamageType", DamageType, damage.DamageType, DamageType.Kinetic);
+  let icon_html = `<i class="cci ${damage.Icon} i--m"></i>`;
 
-  let value_input = std_string_input(data_target_prefix + ".Value", "", damage.Value);
+  let type_options = ext_helper_hash(options, {"value": damage.DamageType}, {"default": DamageType.Kinetic});
+  let damage_type_selector = std_enum_select(path + ".DamageType", DamageType, type_options);
+
+  let value_options = ext_helper_hash(options, {"value": damage.Value});
+  let value_input = std_string_input(path + ".Value", value_options);
 
   return `<div class="flexrow flex-center" style="padding: 5px;">
     ${icon_html}
@@ -93,27 +111,35 @@ export function damage_editor(damage: Damage, data_target_prefix: string) {
 }
 
 /**
- * Handlebars helper for showing damage values
+ * Handlebars helper for showing damage values.
+ * Supply with the array of Damage[], as well as:
+ * - classes: Any additional classes to put on the div holding them
  */
-export function show_damage_array(damages: Damage[]): string {
+export function show_damage_array(damages: Damage[], options: HelperOptions): string {
+  // Get the classes
+  let classes = options.hash["classes"] || "";
   let results: string[] = [];
   for(let damage of damages) {
     let damage_item = `<span class="compact-damage"><i class="cci ${damage.Icon} i--m i--dark"></i>${damage.Value}</span>`;
     results.push(damage_item);
   }
-  return `<div class="flexrow no-grow">${results.join(" ")}</div>`
+  return `<div class="flexrow no-grow ${classes}">${results.join(" ")}</div>`
 }
 
 /**
  * Handlebars helper for showing range values
  */
-export function show_range_array(ranges: Range[]): string {
+export function show_range_array(ranges: Range[], options: HelperOptions): string {
+  // Get the classes
+  let classes = options.hash["classes"] || "";
+
+  // Build out results
   let results: string[] = [];
   for(let range of ranges) {
     let range_item = `<span class="compact-range"><i class="cci ${range.Icon} i--m i--dark"></i>${range.Value}</span>`;
     results.push(range_item);
   }
-  return `<div class="flexrow compact-range">${results.join(" ")}</div>`
+  return `<div class="flexrow no-grow compact-range ${classes}">${results.join(" ")}</div>`
 }
 
 /**
@@ -151,8 +177,8 @@ export function npc_accuracy_preview(acc: number) {
 /**
  * Handlebars partial for weapon type selector
  */
-export function system_type_selector(s_type: SystemType, data_target: string) {
-  return std_enum_select(data_target, SystemType, s_type, SystemType.System);
+export function system_type_selector(path: string, options: HelperOptions) {
+  return std_enum_select(path, SystemType, ext_helper_hash(options, {}, {default: SystemType.System}));
 }
 
 /**
@@ -210,22 +236,20 @@ export const mech_system_preview = `<li class="card clipped mech-system-compact 
 </li>`;
 */
 
-export function npc_feature_preview(npc_feature_path: string, tier: number, helper: HelperOptions) {
-  console.log("Tier:" , tier);
+export function npc_feature_preview(npc_feature_path: string, helper: HelperOptions) {
   let feature: NpcFeature = resolve_helper_dotpath(helper, npc_feature_path);
-  let delete_button = `<a class="gen-control" data-action="delete" data-path="${npc_feature_path}"><i class="fas fa-trash"></i></a>`
 
   switch (feature.FeatureType) {
     case "Reaction":
-      return npc_reaction_effect_preview(npc_feature_path, feature, delete_button);
+      return npc_reaction_effect_preview(npc_feature_path, helper);
     case "System":
-      return npc_system_effect_preview(npc_feature_path, feature, delete_button);
+      return npc_system_effect_preview(npc_feature_path, helper);
     case "Trait":
-      return npc_trait_effect_preview(npc_feature_path, feature, delete_button);
+      return npc_trait_effect_preview(npc_feature_path, helper);
     case "Tech":
-      return npc_tech_effect_preview(npc_feature_path, feature, tier, delete_button);
+      return npc_tech_effect_preview(npc_feature_path, helper);
     case "Weapon":
-      return npc_weapon_effect_preview(npc_feature_path, feature, tier, delete_button);
+      return npc_weapon_effect_preview(npc_feature_path, helper);
     default:
       return "bad feature";
   }
@@ -235,10 +259,10 @@ export function npc_feature_preview(npc_feature_path: string, tier: number, help
  * - bonus_path=<string path to the individual bonus item>,  ex: ="ent.mm.Bonuses.3"
  * - bonus=<bonus object to pre-populate with>
  */
-export function single_bonus_editor(bonus_path: string, bonus: Bonus) {
+export function single_bonus_editor(bonus_path: string, bonus: Bonus, options: HelperOptions) {
   // Our main two inputs
-  let id_input = std_string_input(`${bonus_path}.ID`, "ID", bonus.ID);
-  let val_input = std_string_input(`${bonus_path}.Value`, "Value", bonus.Value);
+  let id_input = std_string_input(`${bonus_path}.ID`, ext_helper_hash(options, {label: "ID"}));
+  let val_input = std_string_input(`${bonus_path}.Value`, ext_helper_hash(options, {label: "Value"}));
 
   // Icon factory
   let iconer = new IconFactory({
@@ -248,22 +272,22 @@ export function single_bonus_editor(bonus_path: string, bonus: Bonus) {
   // Our type options
   let damage_checkboxes: string[] = [];
   for (let dt of Object.values(DamageType)) {
-    damage_checkboxes.push(std_checkbox(`${bonus_path}.DamageTypes.${dt}`, iconer.r(Damage.icon_for(dt)), !!bonus.DamageTypes[dt]));
+    damage_checkboxes.push(std_checkbox(`${bonus_path}.DamageTypes.${dt}`, ext_helper_hash(options, {label: iconer.r(Damage.icon_for(dt))})));
   }
 
   let range_checkboxes: string[] = [];
   for (let rt of Object.values(RangeType)) {
-    range_checkboxes.push(std_checkbox(`${bonus_path}.RangeTypes.${rt}`, iconer.r(Range.icon_for(rt)), !!bonus.RangeTypes[rt]));
+    range_checkboxes.push(std_checkbox(`${bonus_path}.RangeTypes.${rt}`, ext_helper_hash(options, {label: iconer.r(Range.icon_for(rt))})));
   }
 
   let type_checkboxes: string[] = [];
   for (let wt of Object.values(WeaponType)) {
-    type_checkboxes.push(std_checkbox(`${bonus_path}.WeaponTypes.${wt}`, wt, !!bonus.WeaponTypes[wt]));
+    type_checkboxes.push(std_checkbox(`${bonus_path}.WeaponTypes.${wt}`, ext_helper_hash(options, {label: wt})));
   }
 
   let size_checkboxes: string[] = [];
   for (let st of Object.values(WeaponSize)) {
-    size_checkboxes.push(std_checkbox(`${bonus_path}.WeaponSizes.${st}`, st, !!bonus.WeaponSizes[st]));
+    size_checkboxes.push(std_checkbox(`${bonus_path}.WeaponSizes.${st}`, ext_helper_hash(options, {label: st})));
   }
 
   // Consolidate them into rows
@@ -359,10 +383,10 @@ export function HANDLER_activate_edit_bonus<T>(
  * - bonus_path=<string path to the individual bonus item>,  ex: ="ent.mm.Bonuses.3"
  * - bonus=<bonus object to pre-populate with>
  */
-export function single_action_editor(action_path: string, action: Action) {
+export function single_action_editor(path: string, options: HelperOptions) {
   // Make inputs for each important field
-  let id_input = std_string_input(`${action_path}.ID`, "ID", action.ID ?? "");
-  let name_input = std_string_input(`${action_path}.Name`, "Name", action.Name);
+  let id_input = std_string_input(`${path}.ID`, ext_helper_hash(options, {label: "ID"}));
+  let name_input = std_string_input(`${path}.Name`, ext_helper_hash(options, {label: "Name"}));
 
 
   // Consolidate them into rows
@@ -432,7 +456,7 @@ export function pilot_armor_slot(armor_path: string, helper: HelperOptions): str
             <div class="effect-text" style=" padding: 5px">
               ${armor.Description}
             </div>
-            ${compact_tag_list(armor_path + ".Tags", armor.Tags)}
+            ${compact_tag_list(armor_path + ".Tags", armor.Tags, false)}
           </div>`;
 }
 
@@ -469,12 +493,12 @@ export function pilot_weapon_refview(weapon_path: string, helper: HelperOptions)
         <a class="flexrow roll-attack" style="max-width: min-content;">
           <i class="fas fa-dice-d20 i--sm i--dark"></i>
         </a>
-        ${show_range_array(weapon.Range)}
+        ${show_range_array(weapon.Range, helper)}
         <hr class="vsep">
-        ${show_damage_array(weapon.Damage)}
+        ${show_damage_array(weapon.Damage, helper)}
       </div>
 
-      ${compact_tag_list(weapon_path + ".Tags", weapon.Tags)}
+      ${compact_tag_list(weapon_path + ".Tags", weapon.Tags, false)}
     </div>
   </div>`;
 }
@@ -528,7 +552,7 @@ export function pilot_gear_refview(gear_path: string, helper: HelperOptions): st
         ${gear.Description}
       </div>
 
-      ${compact_tag_list(gear_path + ".Tags", gear.Tags)}
+      ${compact_tag_list(gear_path + ".Tags", gear.Tags, false)}
     </div>
   </div>`;
 }
@@ -536,10 +560,10 @@ export function pilot_gear_refview(gear_path: string, helper: HelperOptions): st
 /**
  * Handlebars helper for a mech weapon preview card. Doubles as a slot. Mech path needed for bonuses
  */
-export function mech_weapon_refview(weapon_path: string, mech_path: string | "", helper: HelperOptions, size?: FittingSize): string { 
+export function mech_weapon_refview(weapon_path: string, mech_path: string | "", options: HelperOptions, size?: FittingSize): string { 
   // Fetch the item(s)
-  let weapon_: MechWeapon | null = resolve_helper_dotpath(helper, weapon_path);
-  let mech_: Mech | null = resolve_helper_dotpath(helper, mech_path);
+  let weapon_: MechWeapon | null = resolve_helper_dotpath(options, weapon_path);
+  let mech_: Mech | null = resolve_helper_dotpath(options, mech_path);
 
   // Generate commons
   let cd = ref_commons(weapon_);
@@ -597,9 +621,9 @@ export function mech_weapon_refview(weapon_path: string, mech_path: string | "",
       <div class="flexrow" style="text-align: left; white-space: nowrap;">
         <a class="roll-attack"><i class="fas fa-dice-d20 i--m i--dark"></i></a>
         <hr class="vsep">
-        ${show_range_array(ranges)}
+        ${show_range_array(ranges, options)}
         <hr class="vsep">
-        ${show_damage_array(weapon.SelectedProfile.BaseDamage)}
+        ${show_damage_array(weapon.SelectedProfile.BaseDamage, options)}
 
         <!-- Loading toggle, if we are loading-->
         ${inc_if(`<hr class="vsep"> ${loading}`, loading)}
@@ -611,7 +635,7 @@ export function mech_weapon_refview(weapon_path: string, mech_path: string | "",
         ${on_attack}
         ${on_hit}
         ${on_crit}
-        ${compact_tag_list(profile_path + ".Tags", profile.Tags)}
+        ${compact_tag_list(profile_path + ".Tags", profile.Tags, false)}
       </div>
     </div>
   </div>`

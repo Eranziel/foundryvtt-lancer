@@ -6,7 +6,7 @@ import { HANDLER_activate_native_ref_dragging, HANDLER_activate_ref_dragging, HA
 import { EntryType } from "machine-mind";
 import { get_pack } from "../mm-util/db_abstractions";
 import { HANDLER_activate_edit_bonus } from "../helpers/item";
-import { HANDLER_activate_tag_context_menus } from "../helpers/tags";
+import { HANDLER_activate_tag_context_menus, HANDLER_activate_tag_dropping } from "../helpers/tags";
 
 const lp = LANCER.log_prefix;
 
@@ -119,6 +119,9 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
 
     // Enable general controls, so items can be deleted and such
     HANDLER_activate_general_controls(html, getfunc, commitfunc);
+
+    // Enable tag dropping
+    HANDLER_activate_tag_dropping(html, getfunc, commitfunc);
   }
 
   /* -------------------------------------------- */

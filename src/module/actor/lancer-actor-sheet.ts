@@ -75,27 +75,15 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     enable_native_dropping_mm_wrap(
       html.find(".native-refdrop"),
       async (item, dest, evt) => {
-        // Now, as far as whether it should really have any effect, that depends on the type
+        // We trust that our outer handlers did all data validation.
         let path = dest[0].dataset.path!;
-        console.log("Native drop box handling");
         if(path) {
           let data = await this.getDataLazy();
           gentle_merge(data, { [path]: item.ent });
           await this._commitCurrMM();
         }
       },
-      [], // We only accept if data-type set
-      (data, dest) => {
-        // We have no idea if we should truly be able to drop here,
-        // as doing so tends to require type resolution (an async op that we can't really afford to do here). 
-        // But, so long as we have an ID and type, we should be able to resolve
-        let pdata = safe_json_parse(data) as NativeDrop;
-        console.log("Native drop hovering");
-        if(pdata?.id !== undefined && pdata?.type !== undefined) {
-          return true;
-        }
-        return false;
-      }
+      [] // We only accept if data-type set
     );
   }
 

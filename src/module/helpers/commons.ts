@@ -213,6 +213,24 @@ export function resolve_helper_dotpath(helper: HelperOptions, path: string): any
   return resolved;
 }
 
+/**
+ * Use this when invoking a helper from another helper, and you want to augment the hash args in some way
+ * @argument defaults These properties will be inserted iff the hash doesn't already have that value.
+ * @argument overrides These properties will be inserted regardless of pre-existing value
+*/
+export function ext_helper_hash(orig_helper: HelperOptions, overrides: HelperOptions["hash"], defaults: HelperOptions["hash"] = {}): HelperOptions {
+  return {
+    fn: orig_helper.fn,
+    inverse: orig_helper.inverse,
+    hash: {
+      ...defaults,
+      ...orig_helper.hash,
+      ...overrides
+    },
+    data: orig_helper.data
+  }
+}
+
 /** Enables controls that can:
  * - "delete": delete() the item located at data-path
  * - "null": set as null the value at the specified path
@@ -373,14 +391,34 @@ async function control_structs(key: string, ctx: MMEntityContext<any>): Promise<
 // Our standardized functions for making simple key-value input pair
 // Todo - these could on the whole be a bit fancier, yeah?
 
-function std_input(path: string, label: string, val: string, additional_classes: string, type: string) {
-  if(typeof additional_classes != "string") additional_classes = ""; // Helper go away >:(
+/**
+ * Our standardized string/number inputs.
+ * By default, just invoked with a path expression which is resolved into a value.
+ * However, can supply the following
+ * - `label`: Prefix the input with a label
+ * - `value`: Override the initial value with one resolved from elsewhere. Useful if get/set don't go to same place
+ * - `classes`: Additional classes to put on the input.
+ * - `label_classes`: Additional classes to put on the label, if one exists.
+ * - `default`: If resolved value is undefined, use this
+ */
+function std_input(path: string, type: string, options: HelperOptions) {
+  // Get other info
+  let input_classes: string = options.hash["classes"] || "";
+  let label: string = options.hash["label"] || "";
+  let label_classes: string = options.hash["label_classes"] || "";
+  let default_val: string = "" + (options.hash["default"] ?? ""); // May sometimes get zero. Handle that
 
-  let input = `<input class="grow ${additional_classes}" name="${path}" value="${val}" type="${type.toLowerCase()}" data-dtype="${type}" />`;
-  // let input = `<span class="input ${additional_classes}" role="textbox" contenteditable name="${path}" data-dtype="${type}">${val}</span>`;
+  let value: string | undefined = options.hash["value"];
+  if(value == undefined) {
+    // Resolve
+    value = resolve_helper_dotpath(options, path) ?? default_val;
+  }
+
+  let input = `<input class="grow ${input_classes}" name="${path}" value="${value}" type="${type.toLowerCase()}" data-dtype="${type}" />`;
+
   if(label) {
     return `
-    <label class="flexrow no-wrap">
+    <label class="flexrow no-wrap ${label_classes}">
       <span class="no-grow" style="padding: 2px 5px;">${label}</span> 
       ${input}
     </label>`;
@@ -389,14 +427,12 @@ function std_input(path: string, label: string, val: string, additional_classes:
   }
 }
 
-export function std_string_input(path: string, label: string, val: string, additional_classes: string = "") {
-  if(typeof additional_classes != "string") additional_classes = ""; // Helper go away >:(
-  return std_input(path, label, val, additional_classes, "String");
+export function std_string_input(path: string, options: HelperOptions) {
+  return std_input(path, "String", options);
 }
 
-export function std_num_input(path: string, label: string, val: number, additional_classes: string = "") {
-  if(typeof additional_classes != "string") additional_classes = ""; // Helper go away >:(
-  return std_input(path, label, `${val}`, additional_classes, "Number");
+export function std_num_input(path: string, options: HelperOptions) {
+  return std_input(path, "Number", options);
 }
 
 // Shows a [X] / Y display, where X is an editable value and Y is some total (e.x. max hp)
@@ -408,27 +444,80 @@ export function std_x_of_y(x_path: string, x: number, y: number, add_classes: st
             </div>`;
 }
 
-export function std_checkbox(path: string, label: string, val: boolean) {
+/**
+ * Our standardized checkbox
+ * By default, just invoked with a path expression which is resolved into a value, which is used as the initial selection true/false
+ * However, can supply the following
+ * - `value`: Override the initial value with one resolved from elsewhere. Useful if get/set don't go to same place
+ * - `label`: Label to use, if any
+ * - `classes`: Additional classes to put on the checkbox itself.
+ * - `label_classes`: Additional classes to put on the label, if it exists
+ * - `default`: Change the default value if resolution fails. Otherwise, we just use the first one in the enum.
+ */
+export function std_checkbox(path: string, options: HelperOptions) {
+  // Get hash args
+  let input_classes: string = options.hash["classes"] || "";
+  let label: string = options.hash["label"] || "";
+  let label_classes: string = options.hash["label_classes"] || "";
+  let default_val: boolean = !!options.hash["default"]; 
+
+  // Get the value, either by supplied arg, path resolution, or default
+  let value: boolean | undefined = options.hash["value"];
+  if(value == undefined) {
+    // Resolve
+    value = resolve_helper_dotpath(options, path) ?? default_val;
+  }
+
+
+
+  let input = `<input class="${input_classes} name="${path}" ${inc_if("checked", value)} type="checkbox" />`;
+  if(label) {
   return `
-    <label class="flexrow flex-center">
+    <label class="flexrow flex-center ${label_classes}">
       <span>${label}:</span>
-      <input name="${path}" ${inc_if("checked", val)} type="checkbox" /> 
+      ${input}
     </label>`;
+  } else {
+    return input; // Nothing else needed
+  }
 }
 
-// Allows picking a choice from an enum of options
-export function std_enum_select<T extends string>(path: string, enum_: {[key: string]: T}, val: T, default_val: T) {
-  let selected = SerUtil.restrict_enum(enum_, default_val, val);
-  console.log(`Provided ${val}, corrected to ${selected} (since given default was ${default_val}`);
+/**
+ * Our standardized select, which allows picking of a choice from an enum of options
+ * By default, just invoked with a path expression which is resolved into a value, which is used as the initial selection
+ * However, can supply the following
+ * - `value`: Override the initial value with one resolved from elsewhere. Useful if get/set don't go to same place
+ * - `classes`: Additional classes to put on the select.
+ * - `default`: Change the default value if resolution fails. Otherwise, we just use the first one in the enum.
+ */
+export function std_enum_select<T extends string>(path: string, enum_: {[key: string]: T}, options: HelperOptions) {
+  // Get the classes to add
+  let select_classes: string = options.hash["classes"] || "";
 
-  let options: string[] = [];
+  // Get the default. If undefined, use first found.
+  let default_val: string | undefined = options.hash["default"];
+  if(default_val == undefined) {
+    default_val = Object.values(enum_)[0];
+  }
+
+  // Get the value
+  let value: T | undefined = options.hash["value"];
+  if(value == undefined) {
+    // Resolve
+    value = resolve_helper_dotpath(options, path) ?? "";
+  }
+
+  // Restrict value to the enum
+  let selected = SerUtil.restrict_enum(enum_, default_val, value!);
+
+  let choices: string[] = [];
   for(let choice of Object.values(enum_)) {
-    options.push(`<option value="${choice}" ${inc_if("selected", choice === selected)}>${choice.toUpperCase()}</option>`);
+    choices.push(`<option value="${choice}" ${inc_if("selected", choice === selected)}>${choice.toUpperCase()}</option>`);
   }
 
   let select = `
-      <select name="${path}" data-type="String" style="height: 2em; align-self: center;" >
-        ${options.join("")}
+      <select name="${path}" class="${select_classes}" data-type="String" style="height: 2em; align-self: center;" >
+        ${choices.join("")}
       </select>`;
   return select;
 }

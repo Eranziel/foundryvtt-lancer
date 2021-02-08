@@ -89,7 +89,7 @@
           <a class="gen-control" data-action="append" data-path="mm.ent.Range" data-action-value="(struct)range" style="float: right">+</a>
         </span>
         {{#each mm.ent.Range as |range range_index|}}
-            {{{wpn-range-sel range (concat "mm.ent.Range." prof_index) }}}
+            {{{wpn-range-sel (concat "mm.ent.Range." prof_index) }}}
         {{/each}}
       </div>
 
@@ -108,7 +108,7 @@
           <a class="gen-control" data-action="append" data-path="mm.ent.Damage.{{tier_index}}" data-action-value="(struct)damage" style="float: right">+</a>
         </span>
         {{#each tier_damage_array as |damage damage_index|}}
-          {{{wpn-damage-sel damage (concat "mm.ent.Damage." tier_index "." damage_index) }}}
+          {{{wpn-damage-sel (concat "mm.ent.Damage." tier_index "." damage_index) }}}
         {{/each}}
       </div>
       {{/each}}
@@ -122,7 +122,7 @@
     {{!-- Tags --}}
     <div class="card full">
       <span class="lancer-header major ">TAGS</span>
-      {{{mm-tag-list "mm.ent.Tags" mm.ent.Tags}}}
+      {{{mm-tag-list "mm.ent.Tags" mm.ent.Tags editable}}}
     </div>
   </section>
 </form>

@@ -13,10 +13,10 @@
     {{!-- Weapon Stats --}}
     <div class="flexrow">
       {{#each mm.ent.Range as |range range_index| }}
-        {{{wpn-range-sel range (concat "mm.ent.Range." range_index) }}}
+        {{{wpn-range-sel (concat "mm.ent.Range." range_index) }}}
       {{/each}}
       {{#each mm.ent.Damage as |damage damage_index| }}
-        {{{wpn-damage-sel damage (concat "mm.ent.Damage." damage_index) }}}
+        {{{wpn-damage-sel (concat "mm.ent.Damage." damage_index) }}}
       {{/each}}
     </div>
 
@@ -25,7 +25,7 @@
     {{!-- Tags --}}
     <div class="card full">
       <span class="lancer-header major">TAGS</span>
-      {{{mm-tag-list "mm.ent.Tags" mm.ent.Tags}}}
+      {{{mm-tag-list "mm.ent.Tags" mm.ent.Tags editable}}}
     </div>
 
     {{!-- Bonuses --}}

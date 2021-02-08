@@ -39,11 +39,13 @@ function weapon_mount(
   let slots = mount.Slots.map((slot, index) => mech_weapon_refview(`${mount_path}.Slots.${index}.Weapon`, mech_path, helper, slot.Size));
   let err = mount.validate() ?? "";
       // <div class="lancer-header mount-type-ctx-root" data-path="${mount_path}">
+        // <span class="mount-type-ctx-root" data-path="${mount_path}">${mount.MountType} Weapon Mount</span>
+    // <div class="mount card" >
 
   return ` 
-    <div class="mount card" >
-      <div class="lancer-header" data-path="${mount_path}">
-        <span class="mount-type-ctx-root" data-path="${mount_path}">${mount.MountType} Weapon Mount</span>
+    <div class="mount card mount-type-ctx-root" data-path="${mount_path}" >
+      <div class="lancer-header">
+        <span>${mount.MountType} Weapon Mount</span>
         <a class="gen-control fas fa-trash" data-action="splice" data-path="${mount_path}"></a>
         <a class="reset-weapon-mount-button fas fa-redo" data-path="${mount_path}"></a>
       </div>

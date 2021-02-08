@@ -49,6 +49,9 @@ import {
   popout_editor_button,
   safe_html_helper,
   large_textbox_card,
+  std_string_input,
+  std_num_input,
+  std_checkbox,
 } from "./module/helpers/commons";
 import { is_loading } from "machine-mind/dist/classes/mech/EquipUtil";
 import {
@@ -291,6 +294,9 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("stat-edit-max-card", stat_edit_card_max);
   Handlebars.registerHelper("clicker-stat-card", clicker_stat_card);
   Handlebars.registerHelper("npc-clicker-stat-card", npc_clicker_stat_card);
+  Handlebars.registerHelper("std-string-input", std_string_input);
+  Handlebars.registerHelper("std-num-input", std_num_input);
+  Handlebars.registerHelper("std-checkbox", std_checkbox);
   
 
   // ------------------------------------------------------------------------

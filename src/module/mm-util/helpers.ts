@@ -55,6 +55,7 @@ export async function mm_wrap_item<T extends EntryType & LancerItemType>(
   // Load up the item. This _should_ always work
   let ent = (await reg.get_cat(item.type).get_live(ctx, item._id)) as LiveEntryTypes<T>;
   if (!ent) {
+    console.error(item);
     throw new Error("Something went wrong while trying to contextualize an item...");
   }
 

@@ -72,7 +72,7 @@
         <span class="lancer-header submajor ">FEATURES</span>
         <div class="wraprow double">
           {{#each mm.ent.Features as |feature index|}}
-            {{{npc-feat-preview (concat "mm.ent.Features." index) ../mm.ent.Tier }}}
+            {{{npc-feat-preview (concat "mm.ent.Features." index) tier=../mm.ent.Tier }}}
           {{/each}}
         </div>
       </div>

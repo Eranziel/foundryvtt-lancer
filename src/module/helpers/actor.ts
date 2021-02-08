@@ -1,7 +1,7 @@
 import { HelperOptions } from "handlebars";
 import { EntryType,funcs, RegEntry  } from "machine-mind";
 import { LancerItemType } from "../item/lancer-item";
-import { resolve_helper_dotpath, selected, std_num_input, std_x_of_y } from "./commons";
+import { ext_helper_hash, resolve_helper_dotpath, selected, std_num_input, std_x_of_y } from "./commons";
 import { ref_commons, simple_mm_ref } from "./refs";
 // ---------------------------------------
 // Some simple stat editing thingies
@@ -23,14 +23,13 @@ export function stat_edit_card_max(title: string, icon: string, data_path: strin
 
 // Shows an X clipped card
 export function stat_edit_card(title: string, icon: string, data_path: string, options: HelperOptions): string {
-  let data_val = resolve_helper_dotpath(options, data_path);
   return `
     <div class="card clipped">
       <div class="lancer-header ">
         <i class="${icon} i--m header-icon"> </i>
         <span class="major">${title}</span>
       </div>
-      ${std_num_input(data_path, "", data_val, "lancer-stat lancer-invisible-input")}
+      ${std_num_input(data_path, ext_helper_hash(options, {classes: "lancer-stat lancer-invisible-input"}))}
     </div>
     `;
 }
@@ -67,7 +66,7 @@ export function compact_stat_edit(icon: string, data_path: string, max_path: str
   return `        
         <div class="compact-stat">
           <i class="${icon} i--m i--dark"></i>
-          ${std_num_input(data_path, "", data_val, "lancer-stat minor")}
+          ${std_num_input(data_path, ext_helper_hash(options, {classes: "lancer-stat minor"}))}
           <span class="minor" style="max-width: min-content;" > / </span>
           <span class="lancer-stat minor">${max_val}</span>
         </div>
@@ -75,29 +74,22 @@ export function compact_stat_edit(icon: string, data_path: string, max_path: str
 }
 
 // An editable field with +/- buttons
-export function clicker_num_input(data_path: string, data_val: number) {
-    // Init value to 0 if it doesn't exist
-    // So the arrows work properly
-    if (!data_val) {
-      data_val = 0;
-    }
-
+export function clicker_num_input(data_path: string, options: HelperOptions) {
     return `<div class="flexrow arrow-input-container">
       <button class="mod-minus-button" type="button">-</button>
-      ${std_num_input(data_path, "", data_val, "lancer-stat minor")}
+      ${std_num_input(data_path, ext_helper_hash(options, {classes: "lancer-stat minor", default: 0}))}
       <button class="mod-plus-button" type="button">+</button>
     </div>`;
 }
 
 // The above, in card form
 export function clicker_stat_card(title: string, icon: string, data_path: string, options: HelperOptions): string {
-  let data_val = resolve_helper_dotpath(options, data_path);
   return `<div class="card clipped">
       <div class="lancer-header ">
         <i class="${icon} i--m i--light header-icon"> </i>
         <span class="major">${title}</span>
       </div>
-      ${clicker_num_input(data_path, data_val)}
+      ${clicker_num_input(data_path, options)}
     </div>
   `;
 }

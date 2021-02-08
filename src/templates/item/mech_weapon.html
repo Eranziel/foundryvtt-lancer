@@ -61,7 +61,7 @@
               <a class="gen-control fas fa-plus" data-action="append" data-path="mm.ent.Profiles.{{prof_index}}.BaseRange" data-action-value="(struct)range"></a>
             </span>
             {{#each profile.BaseRange as |range range_index|}}
-                {{{wpn-range-sel range (concat "mm.ent.Profiles." prof_index ".BaseRange." range_index) }}}
+                {{{wpn-range-sel (concat "mm.ent.Profiles." prof_index ".BaseRange." range_index) }}}
             {{/each}}
           </div>
 
@@ -72,7 +72,7 @@
               <a class="gen-control fas fa-plus" data-action="append" data-path="mm.ent.Profiles.{{prof_index}}.BaseDamage" data-action-value="(struct)damage"></a>
             </span>
             {{#each profile.BaseDamage as |damage damage_index|}}
-                {{{wpn-damage-sel damage (concat "mm.ent.Profiles." prof_index ".BaseDamage." damage_index) }}}
+                {{{wpn-damage-sel (concat "mm.ent.Profiles." prof_index ".BaseDamage." damage_index) }}}
             {{/each}}
           </div>
 
@@ -82,7 +82,7 @@
           {{!-- Tags --}}
           <div class="card full">
             <span class="lancer-header submajor">TAGS</span>
-            {{{mm-tag-list (concat "mm.ent.Profiles." prof_index ".Tags") profile.Tags}}}
+            {{{mm-tag-list (concat "mm.ent.Profiles." prof_index ".Tags") profile.Tags ../editable}}}
           </div>
         </div>
       </div>
