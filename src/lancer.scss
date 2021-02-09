@@ -476,20 +476,6 @@ tr.lcp-index-header {
   color: white;
 }
 
-.big-editor {
-  background-color: #dbdbdb; 
-  text-align: left;
-
-
-  .editor {
-    height: -webkit-fill-available;
-    min-height: 100px;
-  }
-
-  .editor-content {
-    min-height: 5em;
-  }
-}
 
 /* The dashed-line border aesthetic found around certain items.
  * Should be used on an inner div of a card
@@ -840,13 +826,9 @@ input[type=string].lancer-input {
   color: white !important;
 }
 
-.editor {
+.editor, .editor-content {
   height: -webkit-fill-available;
-  min-height: 100px;
-}
-
-.editor-content {
-  min-height: 5em;
+  min-height: 30em;
 }
 
 .card {
