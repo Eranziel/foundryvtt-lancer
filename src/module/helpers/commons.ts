@@ -19,6 +19,7 @@ import {
   Bonus,
   SerUtil
 } from "machine-mind";
+import { defaults } from "machine-mind/dist/funcs";
 import { HTMLEditDialog } from "../apps/text-editor";
 import { LancerActorSheetData, LancerItemSheetData } from "../interfaces";
 import { MMEntityContext } from "../mm-util/helpers";
@@ -65,8 +66,8 @@ export function gentle_merge(dest: any, flat_data: any) {
     if (curr instanceof Object && curr[tail] !== undefined) {
       // Implicitly hits array as well
       curr[tail] = v;
-    } else {
-      console.log(`Gentlemerge skipped key "${k}" while merging `, dest, flat_data);
+    } else  {
+      // console.log(`Gentlemerge skipped key "${k}" while merging `, dest, flat_data);
     }
   }
 }
@@ -165,7 +166,7 @@ export function effect_box(title: string, text: string, add_classes:string = "")
     return `
       <div class="effect-box ${add_classes}">
         <span class="effect-title">${title}</span>
-        <span class="effect-text" style="padding: 5px">${text}</span>
+        <span class="effect-text" style="padding: 0 5px ">${text}</span>
       </div>
       `;
   } else {
@@ -201,16 +202,37 @@ export function format_dotpath(path: string): string {
 }
 
 // Helper function to get arbitrarily deep array references
-export function resolve_dotpath(object: any, path: string) {
+export function resolve_dotpath(object: any, path: string, default_: any = null) {
   return format_dotpath(path)
     .split(".")
-    .reduce((o, k) => o?.[k], object) ?? null;
+    .reduce((o, k) => o?.[k], object) ?? default_;
 }
 
 // Helper function to get arbitrarily deep array references, specifically in a helperoptions, and with better types for that matter
-export function resolve_helper_dotpath(helper: HelperOptions, path: string): any {
-  let resolved = resolve_dotpath(helper.data?.root, path);
-  return resolved;
+export function resolve_helper_dotpath<T>(helper: HelperOptions, path: string): T
+export function resolve_helper_dotpath<T>(helper: HelperOptions, path: string, default_: T): T
+export function resolve_helper_dotpath<T>(helper: HelperOptions, path: string, default_: T, try_parent: boolean): T
+export function resolve_helper_dotpath(helper: HelperOptions, path: string, default_: any = null, try_parent: boolean = false): any {
+  if(try_parent) {
+    const false_fail = "MaybeWecanTryagian"; // A temporary default value. Distinguish this from like, a "real" null/default/whatever
+    let data = helper.data;
+
+    // Loop until no _parent
+    while(data) {
+      let resolved = resolve_dotpath(data?.root, path, false_fail);
+      if(resolved != false_fail) {
+        // Looks like we found something!
+        return resolved;
+      }
+      data = data._parent;
+    }
+
+    // We've found nothing. Sad
+    return default_;
+  } else {
+    // Trivial wrapper.
+    return resolve_dotpath(helper.data?.root, path, default_);
+  }
 }
 
 /**
@@ -470,11 +492,11 @@ export function std_checkbox(path: string, options: HelperOptions) {
 
 
 
-  let input = `<input class="${input_classes} name="${path}" ${inc_if("checked", value)} type="checkbox" />`;
+  let input = `<input class="${input_classes}" name="${path}" ${inc_if("checked", value)} type="checkbox" />`;
   if(label) {
   return `
     <label class="flexrow flex-center ${label_classes}">
-      <span>${label}:</span>
+      <span class="no-grow" style="padding: 2px 5px;">${label}</span>
       ${input}
     </label>`;
   } else {
@@ -495,7 +517,7 @@ export function std_enum_select<T extends string>(path: string, enum_: {[key: st
   let select_classes: string = options.hash["classes"] || "";
 
   // Get the default. If undefined, use first found.
-  let default_val: string | undefined = options.hash["default"];
+  let default_val: T | undefined = options.hash["default"];
   if(default_val == undefined) {
     default_val = Object.values(enum_)[0];
   }
@@ -504,7 +526,7 @@ export function std_enum_select<T extends string>(path: string, enum_: {[key: st
   let value: T | undefined = options.hash["value"];
   if(value == undefined) {
     // Resolve
-    value = resolve_helper_dotpath(options, path) ?? "";
+    value = resolve_helper_dotpath(options, path, default_val);
   }
 
   // Restrict value to the enum
@@ -560,7 +582,7 @@ export function safe_html_helper(orig: string) {
 
 // These typically are the exact same so we made a helper for 'em
 export function large_textbox_card(title: string, text_path: string, helper: HelperOptions) {
-  let resolved = resolve_helper_dotpath(helper, text_path) || "";
+  let resolved = resolve_helper_dotpath(helper, text_path, "");
   return `
   <div class="card full clipped">
     <div class="lancer-header">

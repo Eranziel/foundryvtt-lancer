@@ -1,7 +1,7 @@
 import { LANCER } from "../config";
 import { HANDLER_activate_general_controls,  gentle_merge, is_ref, resolve_dotpath, safe_json_parse, HANDLER_activate_popout_text_editor } from "../helpers/commons";
 import { enable_native_dropping_mm_wrap, enable_simple_ref_dragging, enable_simple_ref_dropping, NativeDrop, ResolvedNativeDrop, resolve_native_drop } from "../helpers/dragdrop";
-import { HANDLER_activate_ref_dragging, HANDLER_activate_ref_drop_clearing, HANDLER_activate_ref_drop_setting, HANDLER_openRefOnClick } from "../helpers/refs";
+import { HANDLER_activate_ref_dragging, HANDLER_activate_ref_drop_clearing, HANDLER_activate_ref_drop_setting, HANDLER_openRefOnClick as HANDLER_activate_ref_clicking } from "../helpers/refs";
 import { LancerActorSheetData, LancerStatMacroData } from "../interfaces";
 import { LancerActor, LancerActorType } from "./lancer-actor";
 const lp = LANCER.log_prefix;
@@ -21,7 +21,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     super.activateListeners(html);
 
     // Make refs clickable to open the item
-    $(html).find(".ref.valid").on("click", HANDLER_openRefOnClick);
+    $(html).find(".ref.valid").on("click", HANDLER_activate_ref_clicking);
 
     // Enable ref dragging
     HANDLER_activate_ref_dragging(html);

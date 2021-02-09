@@ -89,7 +89,7 @@
           <a class="gen-control" data-action="append" data-path="mm.ent.Range" data-action-value="(struct)range" style="float: right">+</a>
         </span>
         {{#each mm.ent.Range as |range range_index|}}
-            {{{wpn-range-sel (concat "mm.ent.Range." prof_index) }}}
+            {{{wpn-range-sel (concat "mm.ent.Range." range_index) }}}
         {{/each}}
       </div>
 

@@ -83,6 +83,12 @@ button {
   justify-content: center;
 }
 
+
+/* For if you just want a single item left */
+.self-left {
+  align-self: flex-start;
+}
+
 /* ---------- */
 
 /* Components Layer */
@@ -149,8 +155,8 @@ button {
   border-left: 1px solid #444444;
   border-right: 1px solid #444444;
   max-width: 3px;
-  margin-left: 10px;
-  margin-right: 10px;
+  margin-left: 6px;
+  margin-right: 6px;
 }
 
 .add-button {
@@ -219,13 +225,11 @@ button {
 .compact-tag {
   color: white;
   background-color: var(--main-theme-color, fuchsia);
-  max-width: max-content;
-  min-width: max-content;
+  max-height: 20px;
   align-items: center;
   border-radius: 5px;
   padding: 0px 5px;
   margin: 3px 5px;
-  border: 2px;
   font-size: 12px;
 }
 
@@ -235,7 +239,7 @@ button {
   flex-wrap: wrap;
   justify-content: flex-end;
   flex: 1;
-  margin: 10px;
+  margin: 3px;
 }
 
 .license-desc {
@@ -639,7 +643,7 @@ tr.lcp-index-header {
   flex-direction: row;
 }
 
-/* Consolidate all of our stat stuff */
+/* Consolidate all of our card header stuff stuff */
 .lancer-header {
   flex: 0 0 2.0em;
 
@@ -649,13 +653,14 @@ tr.lcp-index-header {
   }
 
   text-overflow: ellipsis;
-  overflow: hidden;
+  /* overflow: hidden; */ /* Disabled this to get context menus working */
   font-weight: normal;
 
   display: flex;
   flex-direction: row;
   justify-content: space-around;
   align-items: center;
+  align-self: stretch;
 
   color: white;
   background-color: var(--main-theme-color, fuchsia);
@@ -1022,6 +1027,8 @@ code.horus:hover {
   flex-direction: row;
   justify-content: center;
   align-items: center;
+  flex-grow: 0;
+  margin: 3px 10px;
 }
 
 .system-macro {

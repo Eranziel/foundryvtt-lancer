@@ -310,8 +310,8 @@
       "damage": [[], [], []],
       "range": [],
       "on_hit": "",
-      "accuracy": [0, 0, 0],
-      "attack_bonus": [0, 0, 0],
+      "accuracy": [],
+      "attack_bonus": [],
       "trigger": "",
       "tech_type": "Quick",
       "tier_override": 0

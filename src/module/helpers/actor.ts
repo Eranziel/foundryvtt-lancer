@@ -1,15 +1,15 @@
 import { HelperOptions } from "handlebars";
-import { EntryType,funcs, RegEntry  } from "machine-mind";
+import { EntryType,funcs, Mech, Npc, Pilot, RegEntry  } from "machine-mind";
 import { LancerItemType } from "../item/lancer-item";
-import { ext_helper_hash, resolve_helper_dotpath, selected, std_num_input, std_x_of_y } from "./commons";
+import { ext_helper_hash, inc_if, resolve_helper_dotpath, selected, std_num_input, std_x_of_y } from "./commons";
 import { ref_commons, simple_mm_ref } from "./refs";
 // ---------------------------------------
 // Some simple stat editing thingies
 
 // Shows an X / MAX clipped card
 export function stat_edit_card_max(title: string, icon: string, data_path: string, max_path: string, options: HelperOptions): string {
-  let data_val = resolve_helper_dotpath(options, data_path);
-  let max_val = resolve_helper_dotpath(options, max_path);
+  let data_val = resolve_helper_dotpath(options, data_path, 0);
+  let max_val = resolve_helper_dotpath(options, max_path, 0);
   return `
     <div class="card clipped">
       <div class="lancer-header ">
@@ -40,7 +40,7 @@ export function stat_view_card(title: string, icon: string, data_path: string, o
   return `
     <div class="card clipped">
       <div class="lancer-header ">
-        <i class="${icon} i--m i--light header-icon"> </i>
+        ${inc_if(`<i class="${icon} i--m i--light header-icon"> </i>`, icon)}
         <span class="major">${title}</span>
       </div>
       <span class="lancer-stat major">${data_val}</span>
@@ -95,7 +95,7 @@ export function clicker_stat_card(title: string, icon: string, data_path: string
 }
 
 export function npc_clicker_stat_card(title: string, data_path: string, options: HelperOptions): string {
-  let data_val_arr = resolve_helper_dotpath(options, data_path) ?? [];
+  let data_val_arr: number[] = resolve_helper_dotpath(options, data_path) ?? [];
   let tier_clickers: string[] = [];
   let tier = 1;
 
@@ -106,7 +106,7 @@ export function npc_clicker_stat_card(title: string, data_path: string, options:
     tier_clickers.push(`
       <div class="flexrow stat-container" style="align-self: center;">
         <i class="cci cci-npc-tier-${tier} i--m i--dark"></i>
-        ${clicker_num_input(`${data_path}.${tier-1}`, val)}
+        ${clicker_num_input(`${data_path}.${tier-1}`, options)}
       </div>`);
       tier++;
   }
@@ -164,7 +164,7 @@ export function npc_tier_selector(tier_path: string, helper: HelperOptions) {
 // Create a div with flags for dropping native pilots/mechs/npcs
 export function deployer_slot(data_path: string, options: HelperOptions): string {
   // get the existing
-  let existing = resolve_helper_dotpath(options, data_path);
+  let existing = resolve_helper_dotpath<Pilot | Mech | Npc | null>(options, data_path, null);
   return simple_mm_ref([EntryType.PILOT, EntryType.MECH, EntryType.NPC], existing, "No Deployer", data_path, true);
 }
 

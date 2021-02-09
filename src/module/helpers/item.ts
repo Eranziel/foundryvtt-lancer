@@ -146,10 +146,10 @@ export function show_range_array(ranges: Range[], options: HelperOptions): strin
  * Handlebars helper for an NPC feature preview attack bonus stat
  * @param atk {number} Attack bonus to render
  */
-export function npc_attack_bonus_preview(atk: number) {
+export function npc_attack_bonus_preview(atk: number, txt: string = "ATTACK") {
   return `<div class="compact-acc">
-    <i class="cci cci-reticule i--m i--dark"></i>
-    <span class="medium"> ${atk < 0 ? "-" : "+"}${atk} ATTACK BONUS</span>
+    <i style="margin-right: 5px;" class="cci cci-reticule i--m"></i>
+    <span class="medium"> ${atk < 0 ? "-" : "+"}${atk} ${txt}</span>
   </div>`;
 }
 
@@ -158,19 +158,22 @@ export function npc_attack_bonus_preview(atk: number) {
  * @param acc {number} Accuracy bonus to render
  */
 export function npc_accuracy_preview(acc: number) {
-  let html = ``;
+  let icon: string;
+  let text: string;
   if (acc > 0) {
-    html += `<div class="compact-acc">
-      <i class="cci cci-accuracy i--m i--dark"></i>
-      <span class="medium"> +${acc} ACCURACY</span>
-    </div>`;
-  } else if (acc < 0) {
-    html += `<div class="compact-acc">
-      <i class="cci cci-difficulty i--m i--dark"></i>
-      <span class="medium"> +${-acc} DIFFICULTY</span>
-    </div>`;
+    icon = "accuracy";
+    text = `+${acc} ACCURACY`;
+  } else if(acc < 0) {
+    icon = "difficulty";
+    text = `-${acc} DIFFICULTY`;
+  } else {
+    return "";
   }
-  return html;
+  
+  return `<div class="compact-acc">
+      <i style="margin-right: 5px" class="cci cci-${icon} i--m"></i>
+      <span class="medium">${text}</span>
+    </div>`;
 }
 
 
@@ -186,7 +189,7 @@ export function system_type_selector(path: string, options: HelperOptions) {
  * TODO: make look more like compcon
  */
 export function uses_control(uses_path: string, max_uses: number, helper: HelperOptions) {
-  const curr_uses = resolve_helper_dotpath(helper, uses_path) ?? 0;
+  const curr_uses = resolve_helper_dotpath(helper, uses_path, 0);
   return `
     <div class="card clipped">
       <span class="lancer-header"> USES </span>
@@ -331,25 +334,14 @@ export function bonuses_display(bonuses_path: string, bonuses_array: Bonus[], ed
   // Render each bonus
   for(let i=0; i<bonuses_array.length; i++) {
     let bonus = bonuses_array[i];
-    /*
-    items.push(`
-      <div class="${inc_if("editable", edit)} bonus" data-path="${bonuses_path}.${i}">
-        <div class="lancer-header minor" title="${bonus.ID}">
-          <span class="grow">${bonus.Title}</span> 
-          ${inc_if(`<a class="gen-control" data-action="splice" data-path="${bonuses_path}.${i}"><i class="fas fa-trash"></i></a>`, edit)}
-        </div>
-        <span>${bonus.Detail}</span>
+    let delete_button = `<a class="gen-control" data-action="splice" data-path="${bonuses_path}.${i}"><i class="fas fa-trash"></i></a>`;
+    let title = `<span class="grow">${bonus.Title}</span> ${inc_if(delete_button, edit)}`;
+    let boxed = `
+      <div class="bonus ${inc_if("editable", edit)}" data-path="${bonuses_path}.${i}">
+        ${effect_box(title, ""+bonus.Detail)}
       </div>
-    `);
-    */
-   let delete_button = `<a class="gen-control" data-action="splice" data-path="${bonuses_path}.${i}"><i class="fas fa-trash"></i></a>`;
-   let title = `<span class="grow">${bonus.Title}</span> ${inc_if(delete_button, edit)}`;
-   let boxed = `
-    <div class="bonus ${inc_if("editable", edit)}" data-path="${bonuses_path}.${i}">
-      ${effect_box(title, ""+bonus.Detail)}
-    </div>
-   `;
-   items.push(boxed); 
+    `;
+    items.push(boxed); 
   }
 
   return `

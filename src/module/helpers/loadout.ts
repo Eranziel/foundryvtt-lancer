@@ -1,7 +1,6 @@
 import { HelperOptions } from "handlebars";
-import { EntryType, Mech, MechLoadout  } from "machine-mind";
+import { EntryType, Mech, MechLoadout, SystemMount, Pilot, Frame  } from "machine-mind";
 import { WeaponMount } from "machine-mind";
-import { SystemMount } from "machine-mind/dist/class";
 import { inc_if, resolve_helper_dotpath } from "./commons";
 import { mech_weapon_refview } from "./item";
 import { simple_mm_ref } from "./refs";
@@ -38,13 +37,10 @@ function weapon_mount(
   // let mech = resolve_helper_dotpath(helper, mech_path, EntryType.MECH);
   let slots = mount.Slots.map((slot, index) => mech_weapon_refview(`${mount_path}.Slots.${index}.Weapon`, mech_path, helper, slot.Size));
   let err = mount.validate() ?? "";
-      // <div class="lancer-header mount-type-ctx-root" data-path="${mount_path}">
-        // <span class="mount-type-ctx-root" data-path="${mount_path}">${mount.MountType} Weapon Mount</span>
-    // <div class="mount card" >
 
   return ` 
-    <div class="mount card mount-type-ctx-root" data-path="${mount_path}" >
-      <div class="lancer-header">
+    <div class="mount card" >
+      <div class="lancer-header mount-type-ctx-root" data-path="${mount_path}">
         <span>${mount.MountType} Weapon Mount</span>
         <a class="gen-control fas fa-trash" data-action="splice" data-path="${mount_path}"></a>
         <a class="reset-weapon-mount-button fas fa-redo" data-path="${mount_path}"></a>
@@ -113,13 +109,13 @@ export function mech_loadout(mech_path: string, helper: HelperOptions): string {
 // Create a div with flags for dropping native pilots
 export function pilot_slot(data_path: string, options: HelperOptions): string {
   // get the existing
-  let existing = resolve_helper_dotpath(options, data_path);
+  let existing = resolve_helper_dotpath<Pilot | null>(options, data_path, null);
   return simple_mm_ref(EntryType.PILOT, existing, "No Pilot", data_path, true);
 }
 
 // A drag-drop slot for a frame. TODO: fancify, giving basic stats or something???
 export function frame_refview(frame_path: string, helper: HelperOptions): string {
-  let frame = resolve_helper_dotpath(helper, frame_path);
+  let frame = resolve_helper_dotpath<Frame | null>(helper, frame_path, null);
   return `<div class="lancer-header loadout-category submajor">
             <span>CURRENT FRAME</span>
           </div>

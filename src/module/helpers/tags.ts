@@ -3,6 +3,7 @@ import { EntryType, TagInstance, typed_lancer_data } from "machine-mind";
 import { array_path_edit, resolve_dotpath, resolve_helper_dotpath } from "./commons";
 import { LancerActorSheetData, LancerItemSheetData } from "../interfaces";
 import { enable_native_dropping, enable_native_dropping_mm_wrap, enable_simple_ref_dropping } from "./dragdrop";
+import { ref_params } from "./refs";
 
 const TAGS = typed_lancer_data.tags;
 
@@ -101,7 +102,7 @@ export const compactTagList = `<div class="compact-tag-row">
 export function compact_tag(tag_path: string, tag: TagInstance): string {
   // Format the {VAL} out of the name
   let formatted_name = tag.Tag.Name.replace("{VAL}", `${tag.Value ?? "?"}`);
-  return `<div class="editable-tag-instance compact-tag flexrow" data-path="${tag_path}">
+  return `<div class="editable-tag-instance valid ref compact-tag flexrow" data-path="${tag_path}" ${ref_params(tag.Tag.as_ref())}>
       <i class="mdi mdi-label i--s i--light"></i>
       <span style="margin: 3px;" >${formatted_name}</span>
     </div>`;
@@ -113,7 +114,7 @@ export function compact_tag_list(tag_array_path: string, tags: TagInstance[], al
   let processed_tags: string[] = [];
   for (let i = 0; i < tags.length; i++) {
     let tag = tags[i];
-    if (!tag.Tag.IsHidden) {
+    if (!tag.Tag.Hidden) {
       // We want to show it!
       let affixed_path = `${tag_array_path}.${i}`;
       processed_tags.push(compact_tag(affixed_path, tag));

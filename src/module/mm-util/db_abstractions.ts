@@ -619,3 +619,8 @@ const PackContentMapCache = new FetcherCache(COMPENDIUM_CACHE_TIMEOUT, async (ty
 export async function cached_get_pack_map<T extends LancerItemType | LancerActorType>(type: T): Promise<Map<string, T extends LancerItemType ? LancerItem<T> : T extends LancerActorType ? LancerActor<T> : never>> {
   return PackContentMapCache.fetch(type);
 }
+
+// Use this for incoming compendium updates, as we cannot really watch for them otherwise
+export function invalidate_cached_pack_map<T extends EntryType>(type: T) {
+  PackContentMapCache.flush(type);
+}
