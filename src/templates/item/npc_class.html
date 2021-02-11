@@ -1,318 +1,62 @@
 <form class="{{cssClass}} lancer-sheet" autocomplete="off">
-
   {{!-- Sheet Header --}}
   <header class="sheet-header card clipped-bot">
-    <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}" height="100" width="100" />
-    <div class="header-fields" style="grid-area: 1/1/2/5">
+    <div class="flexcol grow">
       <h1 class="charname"><input class="header-field" name="name" type="text" value="{{item.name}}" placeholder="Name"/></h1>
     </div>
+    {{{ ref-portrait-img item.img "img" mm.ent }}}
   </header>
 
   {{!-- Description --}}
-  <div class="flexcol card clipped" style="text-align: left;">
-    <span class="lancer-stat-header major clipped-top" style="text-align: center;">DESCRIPTION</span>
-    {{editor content=data.info.flavour target="data.info.flavour" button=true owner=owner editable=editable}}
-    <span class="lancer-stat-header major clipped-top" style="text-align: center;">TACTICS</span>
-    {{editor content=data.info.tactics target="data.info.tactics" button=true owner=owner editable=editable}}
+  <div class="card clipped" style="text-align: left;">
+    <span class="lancer-header major " style="text-align: center;">DESCRIPTION</span>
+    {{editor content=mm.ent.Info.flavor target="mm.ent.Info.flavor" button=true owner=owner editable=editable}}
+    <span class="lancer-header major " style="text-align: center;">TACTICS</span>
+    {{editor content=mm.ent.Info.tactics target="mm.ent.Info.tactics" button=true owner=owner editable=editable}}
   </div>
 
   {{!-- Frame Stats --}}
-  <div class="card clipped mech-stats" style="display: grid; grid-template: repeat(3, 1fr) / repeat(4, 1fr);">
-    <div class="flexcol card clipped" style="grid-area: 1/1/2/2">
-      <span class="lancer-stat-header major clipped-top">HULL</span>
-      <div class="flexrow stat-container" style="align-self: center;">
-        <i class="cci cci-npc-tier-1 i--m i--dark"></i>
-        {{{l-num-input "data.stats.hull" data.stats.hull.[0]}}}
-      </div>
-      <div class="flexrow stat-container" style="align-self: center;">
-        <i class="cci cci-npc-tier-2 i--m i--dark"></i>
-        {{{l-num-input "data.stats.hull" data.stats.hull.[1]}}}
-      </div>
-      <div class="flexrow stat-container" style="align-self: center;">
-        <i class="cci cci-npc-tier-3 i--m i--dark"></i>
-        {{{l-num-input "data.stats.hull" data.stats.hull.[2]}}}
-      </div>
-    </div>
-    <div class="flexcol card clipped" style="grid-area: 1/2/2/3">
-      <span class="lancer-stat-header major clipped-top">AGILITY</span>
-      <div class="flexrow stat-container" style="align-self: center;">
-        <i class="cci cci-npc-tier-1 i--m i--dark"></i>
-        {{{l-num-input "data.stats.agility" data.stats.agility.[0]}}}
-      </div>
-      <div class="flexrow stat-container" style="align-self: center;">
-        <i class="cci cci-npc-tier-2 i--m i--dark"></i>
-        {{{l-num-input "data.stats.agility" data.stats.agility.[1]}}}
-      </div>
-      <div class="flexrow stat-container" style="align-self: center;">
-        <i class="cci cci-npc-tier-3 i--m i--dark"></i>
-        {{{l-num-input "data.stats.agility" data.stats.agility.[2]}}}
-      </div>
-    </div>
-    <div class="flexcol card clipped" style="grid-area: 1/3/2/4">
-      <span class="lancer-stat-header major clipped-top">SYSTEMS</span>
-      <div class="flexrow stat-container" style="align-self: center;">
-        <i class="cci cci-npc-tier-1 i--m i--dark"></i>
-        {{{l-num-input "data.stats.systems" data.stats.systems.[0]}}}
-      </div>
-      <div class="flexrow stat-container" style="align-self: center;">
-        <i class="cci cci-npc-tier-2 i--m i--dark"></i>
-        {{{l-num-input "data.stats.systems" data.stats.systems.[1]}}}
-      </div>
-      <div class="flexrow stat-container" style="align-self: center;">
-        <i class="cci cci-npc-tier-3 i--m i--dark"></i>
-        {{{l-num-input "data.stats.systems" data.stats.systems.[2]}}}
-      </div>
-    </div>
-    <div class="flexcol card clipped" style="grid-area: 1/4/2/5">
-      <span class="lancer-stat-header major clipped-top">ENGINEERING</span>
-      <div class="flexrow stat-container" style="align-self: center;">
-        <i class="cci cci-npc-tier-1 i--m i--dark"></i>
-        {{{l-num-input "data.stats.engineering" data.stats.engineering.[0]}}}
-      </div>
-      <div class="flexrow stat-container" style="align-self: center;">
-        <i class="cci cci-npc-tier-2 i--m i--dark"></i>
-        {{{l-num-input "data.stats.engineering" data.stats.engineering.[1]}}}
-      </div>
-      <div class="flexrow stat-container" style="align-self: center;">
-        <i class="cci cci-npc-tier-3 i--m i--dark"></i>
-        {{{l-num-input "data.stats.engineering" data.stats.engineering.[2]}}}
-      </div>
-    </div>
-    <div class="flexcol card clipped" style="grid-area: 2/1/2/2">
-      <div class="lancer-stat-header clipped-top flexrow">
-        <i class="mdi mdi-shield-outline i--m i--light" style="float: left; padding-left: 10px"> </i>
-        <span class="major">ARMOR</span>
-      </div>
-      <div class="flexrow stat-container" style="align-self: center;">
-        <i class="cci cci-npc-tier-1 i--m i--dark"></i>
-        {{{l-num-input "data.stats.armor" data.stats.armor.[0]}}}
-      </div>
-      <div class="flexrow stat-container" style="align-self: center;">
-        <i class="cci cci-npc-tier-2 i--m i--dark"></i>
-        {{{l-num-input "data.stats.armor" data.stats.armor.[1]}}}
-      </div>
-      <div class="flexrow stat-container" style="align-self: center;">
-        <i class="cci cci-npc-tier-3 i--m i--dark"></i>
-        {{{l-num-input "data.stats.armor" data.stats.armor.[2]}}}
-      </div>
-    </div>
-    <div class="flexcol card clipped" style="grid-area: 2/2/2/3">
-      <div class="lancer-stat-header clipped-top flexrow">
-        <i class="mdi mdi-heart-outline i--m i--light" style="float: left; padding-left: 10px"> </i>
-        <span class="major">HP</span>
-      </div>
-      <div class="flexrow stat-container" style="align-self: center;">
-        <i class="cci cci-npc-tier-1 i--m i--dark"></i>
-        {{{l-num-input "data.stats.hp" data.stats.hp.[0]}}}
-      </div>
-      <div class="flexrow stat-container" style="align-self: center;">
-        <i class="cci cci-npc-tier-2 i--m i--dark"></i>
-        {{{l-num-input "data.stats.hp" data.stats.hp.[1]}}}
-      </div>
-      <div class="flexrow stat-container" style="align-self: center;">
-        <i class="cci cci-npc-tier-3 i--m i--dark"></i>
-        {{{l-num-input "data.stats.hp" data.stats.hp.[2]}}}
-      </div>
-    </div>
-    <div class="flexcol card clipped" style="grid-area: 2/3/2/4">
-      <div class="lancer-stat-header clipped-top flexrow">
-        <i class="cci cci-structure i--m i--light" style="float: left; padding-left: 10px"> </i>
-        <span class="major">STRUCTURE</span>
-      </div>
-      <div class="flexrow stat-container" style="align-self: center;">
-        <i class="cci cci-npc-tier-1 i--m i--dark"></i>
-        {{{l-num-input "data.stats.structure" data.stats.structure.[0]}}}
-      </div>
-      <div class="flexrow stat-container" style="align-self: center;">
-        <i class="cci cci-npc-tier-2 i--m i--dark"></i>
-        {{{l-num-input "data.stats.structure" data.stats.structure.[1]}}}
-      </div>
-      <div class="flexrow stat-container" style="align-self: center;">
-        <i class="cci cci-npc-tier-3 i--m i--dark"></i>
-        {{{l-num-input "data.stats.structure" data.stats.structure.[2]}}}
-      </div>
-    </div>
-    <div class="flexcol card clipped" style="grid-area: 2/4/2/5">
-      <div class="lancer-stat-header clipped-top flexrow">
-        <i class="cci cci-reactor i--m i--light" style="float: left; padding-left: 10px"> </i>
-        <span class="major">STRESS</span>
-      </div>
-      <div class="flexrow stat-container" style="align-self: center;">
-        <i class="cci cci-npc-tier-1 i--m i--dark"></i>
-        {{{l-num-input "data.stats.stress" data.stats.stress.[0]}}}
-      </div>
-      <div class="flexrow stat-container" style="align-self: center;">
-        <i class="cci cci-npc-tier-2 i--m i--dark"></i>
-        {{{l-num-input "data.stats.stress" data.stats.stress.[1]}}}
-      </div>
-      <div class="flexrow stat-container" style="align-self: center;">
-        <i class="cci cci-npc-tier-3 i--m i--dark"></i>
-        {{{l-num-input "data.stats.stress" data.stats.stress.[2]}}}
-      </div>
-    </div>
-    <div class="flexcol card clipped" style="grid-area: 3/1/3/2">
-      <div class="lancer-stat-header clipped-top flexrow">
-        <i class="cci cci-evasion i--m i--light" style="float: left; padding-left: 10px"> </i>
-        <span class="major">EVASION</span>
-      </div>
-      <div class="flexrow stat-container" style="align-self: center;">
-        <i class="cci cci-npc-tier-1 i--m i--dark"></i>
-        {{{l-num-input "data.stats.evasion" data.stats.evasion.[0]}}}
-      </div>
-      <div class="flexrow stat-container" style="align-self: center;">
-        <i class="cci cci-npc-tier-2 i--m i--dark"></i>
-        {{{l-num-input "data.stats.evasion" data.stats.evasion.[1]}}}
-      </div>
-      <div class="flexrow stat-container" style="align-self: center;">
-        <i class="cci cci-npc-tier-3 i--m i--dark"></i>
-        {{{l-num-input "data.stats.evasion" data.stats.evasion.[2]}}}
-      </div>
-    </div>
-    <div class="flexcol card clipped" style="grid-area: 3/2/3/3">
-      <div class="lancer-stat-header clipped-top flexrow">
-        <i class="cci cci-edef i--m i--light" style="float: left; padding-left: 10px"> </i>
-        <span class="major">E-DEF</span>
-      </div>
-      <div class="flexrow stat-container" style="align-self: center;">
-        <i class="cci cci-npc-tier-1 i--m i--dark"></i>
-        {{{l-num-input "data.stats.edef" data.stats.edef.[0]}}}
-      </div>
-      <div class="flexrow stat-container" style="align-self: center;">
-        <i class="cci cci-npc-tier-2 i--m i--dark"></i>
-        {{{l-num-input "data.stats.edef" data.stats.edef.[1]}}}
-      </div>
-      <div class="flexrow stat-container" style="align-self: center;">
-        <i class="cci cci-npc-tier-3 i--m i--dark"></i>
-        {{{l-num-input "data.stats.edef" data.stats.edef.[2]}}}
-      </div>
-    </div>
-    <div class="flexcol card clipped" style="grid-area: 3/3/3/4">
-      <div class="lancer-stat-header clipped-top flexrow">
-        <i class="cci cci-heat i--m i--light" style="float: left; padding-left: 10px"> </i>
-        <span class="major">HEAT</span>
-      </div>
-      <div class="flexrow stat-container" style="align-self: center;">
-        <i class="cci cci-npc-tier-1 i--m i--dark"></i>
-        {{{l-num-input "data.stats.heatcap" data.stats.heatcap.[0]}}}
-      </div>
-      <div class="flexrow stat-container" style="align-self: center;">
-        <i class="cci cci-npc-tier-2 i--m i--dark"></i>
-        {{{l-num-input "data.stats.heatcap" data.stats.heatcap.[1]}}}
-      </div>
-      <div class="flexrow stat-container" style="align-self: center;">
-        <i class="cci cci-npc-tier-3 i--m i--dark"></i>
-        {{{l-num-input "data.stats.heatcap" data.stats.heatcap.[2]}}}
-      </div>
-    </div>
-    <div class="flexcol card clipped" style="grid-area: 3/4/3/5">
-      <div class="lancer-stat-header clipped-top flexrow">
-        <i class="mdi mdi-arrow-right-bold-hexagon-outline i--m i--light"
-          style="float: left; padding-left: 10px"> </i>
-        <span class="major">SPEED</span>
-      </div>
-      <div class="flexrow stat-container" style="align-self: center;">
-        <i class="cci cci-npc-tier-1 i--m i--dark"></i>
-        {{{l-num-input "data.stats.speed" data.stats.speed.[0]}}}
-      </div>
-      <div class="flexrow stat-container" style="align-self: center;">
-        <i class="cci cci-npc-tier-2 i--m i--dark"></i>
-        {{{l-num-input "data.stats.speed" data.stats.speed.[1]}}}
-      </div>
-      <div class="flexrow stat-container" style="align-self: center;">
-        <i class="cci cci-npc-tier-3 i--m i--dark"></i>
-        {{{l-num-input "data.stats.speed" data.stats.speed.[2]}}}
-      </div>
-    </div>
-    <div class="flexcol card clipped" style="grid-area: 4/1/4/2">
-      <div class="lancer-stat-header clipped-top flexrow">
-        <i class="cci cci-activation-full i--m i--light" style="float: left; padding-left: 10px"> </i>
-        <span class="major">ACTIVATIONS</span>
-      </div>
-      <div class="flexrow stat-container" style="align-self: center;">
-        <i class="cci cci-npc-tier-1 i--m i--dark"></i>
-        {{{l-num-input "data.stats.activations" data.stats.activations.[0]}}}
-      </div>
-      <div class="flexrow stat-container" style="align-self: center;">
-        <i class="cci cci-npc-tier-2 i--m i--dark"></i>
-        {{{l-num-input "data.stats.activations" data.stats.activations.[1]}}}
-      </div>
-      <div class="flexrow stat-container" style="align-self: center;">
-        <i class="cci cci-npc-tier-3 i--m i--dark"></i>
-        {{{l-num-input "data.stats.activations" data.stats.activations.[2]}}}
-      </div>
-    </div>
-    <div class="flexcol card clipped" style="grid-area: 4/2/4/3">
-      <div class="lancer-stat-header clipped-top flexrow">
-        <i class="cci cci-sensor i--m i--light" style="float: left; padding-left: 10px"> </i>
-        <span class="major">SENSORS</span>
-      </div>
-      <div class="flexrow stat-container" style="align-self: center;">
-        <i class="cci cci-npc-tier-1 i--m i--dark"></i>
-        {{{l-num-input "data.stats.sensor_range" data.stats.sensor_range.[0]}}}
-      </div>
-      <div class="flexrow stat-container" style="align-self: center;">
-        <i class="cci cci-npc-tier-2 i--m i--dark"></i>
-        {{{l-num-input "data.stats.sensor_range" data.stats.sensor_range.[1]}}}
-      </div>
-      <div class="flexrow stat-container" style="align-self: center;">
-        <i class="cci cci-npc-tier-3 i--m i--dark"></i>
-        {{{l-num-input "data.stats.sensor_range" data.stats.sensor_range.[2]}}}
-      </div>
-    </div>
-    <div class="flexcol card clipped" style="grid-area: 4/3/4/4">
-      <div class="lancer-stat-header clipped-top flexrow">
-        <i class="cci cci-save i--m i--light" style="float: left; padding-left: 10px"> </i>
-        <span class="major">SAVE T.</span>
-      </div>
-      <div class="flexrow stat-container" style="align-self: center;">
-        <i class="cci cci-npc-tier-1 i--m i--dark"></i>
-        {{{l-num-input "data.stats.save" data.stats.save.[0]}}}
-      </div>
-      <div class="flexrow stat-container" style="align-self: center;">
-        <i class="cci cci-npc-tier-2 i--m i--dark"></i>
-        {{{l-num-input "data.stats.save" data.stats.save.[1]}}}
-      </div>
-      <div class="flexrow stat-container" style="align-self: center;">
-        <i class="cci cci-npc-tier-3 i--m i--dark"></i>
-        {{{l-num-input "data.stats.save" data.stats.save.[2]}}}
-      </div>
-    </div>
-    <div class="flexcol card clipped" style="grid-area: 4/4/4/5">
-      <div class="lancer-stat-header clipped-top flexrow">
-        <i class="cci cci-size-1 i--m i--light" style="float: left; padding-left: 10px"> </i>
-        <span class="major">SIZE</span>
-      </div>
-      <div class="flexrow stat-container" style="align-self: center;">
-        <i class="cci cci-npc-tier-1 i--m i--dark"></i>
-        {{{l-num-input "data.stats.size" data.stats.size.[0]}}}
-      </div>
-      <div class="flexrow stat-container" style="align-self: center;">
-        <i class="cci cci-npc-tier-2 i--m i--dark"></i>
-        {{{l-num-input "data.stats.size" data.stats.size.[1]}}}
-      </div>
-      <div class="flexrow stat-container" style="align-self: center;">
-        <i class="cci cci-npc-tier-3 i--m i--dark"></i>
-        {{{l-num-input "data.stats.size" data.stats.size.[2]}}}
-      </div>
+  <div class="card clipped wraprow quadruple">
+    <div class="wraprow quadruple">
+      {{{npc-clicker-stat-card "HULL" "mm.ent.Stats.hull"}}}
+      {{{npc-clicker-stat-card "AGILITY" "mm.ent.Stats.agility"}}}
+      {{{npc-clicker-stat-card "SYSTEMS" "mm.ent.Stats.systems"}}}
+      {{{npc-clicker-stat-card "ENGINEERING" "mm.ent.Stats.engineering"}}}
+      {{{npc-clicker-stat-card "ARMOR" "mm.ent.Stats.armor"}}}
+      {{{npc-clicker-stat-card "HP" "mm.ent.Stats.hp"}}}
+      {{{npc-clicker-stat-card "STRUCTURE" "mm.ent.Stats.structure"}}}
+      {{{npc-clicker-stat-card "STRESS" "mm.ent.Stats.stress"}}}
+      {{{npc-clicker-stat-card "EVASION" "mm.ent.Stats.evade"}}}
+      {{{npc-clicker-stat-card "E-DEFENSE" "mm.ent.Stats.edef"}}}
+      {{{npc-clicker-stat-card "HEAT" "mm.ent.Stats.heatcap"}}}
+      {{{npc-clicker-stat-card "SPEED" "mm.ent.Stats.speed"}}}
+      {{{npc-clicker-stat-card "ACTIVATIONS" "mm.ent.Stats.activations"}}}
+      {{{npc-clicker-stat-card "SENSORS" "mm.ent.Stats.sensor"}}}
+      {{{npc-clicker-stat-card "SAVE" "mm.ent.Stats.save"}}}
+      {{{npc-clicker-stat-card "SIZE" "mm.ent.Stats.size"}}}
     </div>
   </div>
 
-  <div class="flexcol tags-container base-features-container arrayed-item-container" style="margin: 10px;">
-    <div class="flexrow lancer-title">
-      <div class="major">BASE FEATURES</div>
+  <div class="flexcol tags-container" style="margin: 10px;">
+    <div class="lancer-title">
+      <span class="major">BASE FEATURES</span>
     </div>
-      <ul>
-        <div id="base_feature_items"></div>
-      </ul>
+
+    {{#each mm.ent.BaseFeatures as |feature feature_index|}}
+        {{{ref-mm-controllable-item-native (concat "mm.ent.BaseFeatures." feature_index) "splice" }}}
+    {{/each}}
+    {{{ref-mm-list-item-append "mm.ent.BaseFeatures" "npc_feature"}}}
   </div>
 
-  <div class="flexcol tags-container opt-features-container arrayed-item-container" style="margin: 10px;">
-    <div class="flexrow lancer-title">
-      <div class="major">OPTIONAL FEATURES</div>
+  <div class="flexcol tags-container" style="margin: 10px;">
+    <div class="lancer-title">
+      <span class="major">OPTIONAL FEATURES</span>
     </div>
-      <ul>
-        <div id="optional_feature_items"></div>
-      </ul>
+
+    {{#each mm.ent.OptionalFeatures as |feature feature_index|}}
+        {{{ref-mm-controllable-item-native (concat "mm.ent.OptionalFeatures." feature_index) "splice" }}}
+    {{/each}}
+    {{{ref-mm-list-item-append "mm.ent.OptionalFeatures" "npc_feature"}}}
   </div>
 
 </form>

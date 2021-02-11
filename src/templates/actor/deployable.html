@@ -2,67 +2,84 @@
 
   {{!-- Sheet Header --}}
   <header class="sheet-header card clipped-bot">
-    <img class="profile-img" src="{{actor.img}}" data-edit="img" title="{{actor.name}}" height="100" width="100"/>
-    <div class="header-fields" style="grid-area: 1/1/2/5;">
+    <div class="header-fields">
       <h1 class="charname"><input class="header-field" name="name" type="text" value="{{actor.name}}" placeholder="Name"/></h1>
     </div>
+    {{{ ref-portrait-img actor.img "img" mm.ent }}}
   </header>
 
-  <div class="deployable-stats" style="display:flex; justify-content: center">
-    <div class="flexcol card clipped" style="width: 20%">
-      <div class="lancer-stat-header clipped-top flexrow">
-        <i class="mdi mdi-heart-outline i--m i--light" style="float: left; padding-left: 10px"> </i>
-        <span class="major">HP</span>
-      </div>
-      <div class="flexrow" style="align-self: center;">
-        <input class="lancer-stat major" type="number" name="data.hp.value" value="{{data.hp.value}}" data-dtype="Number"/>
-        <span class="medium" style="max-width: min-content;" >/</span>
-        <input class="lancer-stat major" type="number" name="data.hp.max" value="{{data.hp.max}}" data-dtype="Number"/>
-      </div>
-    </div>
-    <!--
-    <div class="flexcol card clipped" style="width: 20%">
-      <div class="lancer-stat-header clipped-top flexrow">
-        <i class="cci cci-heat i--m i--light" style="float: left; padding-left: 10px"> </i>
-        <span class="major">HEAT</span>
-      </div>
-      <div class="flexrow" style="align-self: center;">
-        <input class="lancer-stat major" type="number" name="data.mech.heat.value" value="{{data.mech.heat.value}}" data-dtype="Number"/>
-        <span class="medium" style="max-width: min-content;">/</span>
-        <input class="lancer-stat major" type="number" name="data.mech.heat.max" value="{{data.heat.max}}" data-dtype="Number"/>
-      </div>
-    </div>
-    -->
-    <div class="flexcol card clipped" style="width: 20%">
-      <div class="lancer-stat-header clipped-top flexrow">
-        <i class="mdi mdi-shield-outline i--m i--light" style="float: left; padding-left: 10px"> </i>
-        <span class="major">ARMOR</span>
-      </div>
-      <input class="lancer-stat medium" type="number" name="data.armor" value="{{data.armor}}" data-dtype="Number"/>
-    </div>
-    <div class="flexcol card clipped" style="width: 20%">
-      <div class="lancer-stat-header clipped-top flexrow">
-        <i class="cci cci-evasion i--m i--light" style="float: left; padding-left: 10px"> </i>
-        <span class="major">EVASION</span>
-      </div>
-      <input class="lancer-stat medium" type="number" name="data.evasion" value="{{data.evasion}}" data-dtype="Number"/>
-    </div>
-    <div class="flexcol card clipped" style="width: 20%">
-      <div class="lancer-stat-header clipped-top flexrow">
-        <i class="cci cci-edef i--m i--light" style="float: left; padding-left: 10px"> </i>
-        <span class="major">E-DEF</span>
-      </div>
-      <input class="lancer-stat medium" type="number" name="data.edef" value="{{data.edef}}" data-dtype="Number"/>
-    </div>
-  </div>
+  {{!-- Sheet Tab Navigation --}}
+  <nav class="lancer-tabs" data-group="primary">
+    <a class="item lancer-tab medium" data-tab="status">&lt;STATUS&gt;</a>
+    <a class="item lancer-tab medium" data-tab="config">&lt;CONFIG&gt;</a>
+    <!--<a class="item lancer-tab medium" data-tab="mech">&lt;FRAME//LOADOUT&gt;</a>-->
+  </nav>
 
-  <div class="flexcol card clipped">
-    <span class="lancer-stat-header major clipped-top">EFFECT</span>
-    {{editor content=data.effect target="data.effect" button=true owner=owner editable=editable}}
-  </div>
+  {{!-- Sheet Body --}}
+  <section class="sheet-body">
 
-  <div class="flexcol card clipped">
-    <span class="lancer-stat-header major clipped-top">DESCRIPTION</span>
-    {{editor content=data.description target="data.description" button=true owner=owner editable=editable}}
-  </div>
+    {{!-- Active Tab --}}
+    <div class="tab manage" data-group="primary" data-tab="status">
+      <div class="wraprow quadruple">
+        {{{stat-edit-max-card  "HP"          "mdi mdi-heart-outline"    "mm.ent.CurrentHP"      "mm.ent.MaxHP" }}}
+        {{{stat-edit-max-card  "HEAT"        "cci cci-heat"             "mm.ent.CurrentHeat"    "mm.ent.HeatCapacity" }}}
+        {{{stat-edit-card      "BURN"        "cci cci-burn"             "mm.ent.Burn" }}}
+        {{{stat-edit-card      "OVERSHIELD"  "cci cci-heat"             "mm.ent.Overshield" }}}
+
+        {{{stat-view-card      "SIZE"        (concat "mdi " mm.ent.SizeIcon)   "mm.ent.Size" }}}
+        {{{stat-view-card      "ARMOR"       "mdi mdi-shield-outline"   "mm.ent.Armor" }}}
+        {{{stat-view-card      "EVASION"     "cci cci-evasion"          "mm.ent.Evasion" }}}
+        {{{stat-view-card      "E-DEF"       "cci cci-edef"             "mm.ent.EDefense" }}}
+
+        {{{stat-view-card      "SPEED"       "mdi mdi-arrow-right-bold-hexagon-outline" "mm.ent.Speed" }}}
+        {{{stat-view-card      "SAVE"        "cci cci-save"             "mm.ent.SaveTarget" }}}
+
+        <div class="card clipped double">
+          <div class="lancer-header major">
+            DEPLOYER
+          </div>
+          {{{deployer-slot "mm.ent.Deployer" }}}
+        </div>
+
+        {{!-- 
+          {{{stat-edit-max-card  "REPAIRS"     "cci cci-repair"           "mm.ent.CurrentRepairs" "mm.ent.RepairCapacity" }}}
+          {{{stat-view-card      "ATTACK"      "cci cci-heart"            "mm.ent.AttackBonus" }}}
+          {{{stat-view-card      "TECH ATK"    "cci cci-tech-full"        "mm.ent.TechAttack" }}}
+          {{{stat-view-card      "SENSORS"     "cci cci-sensor"           "mm.ent.SensorRange" }}}
+        --}}
+      </div>
+    </div>
+
+    {{!-- Config Tab --}}
+    <div class="tab manage flexcol" data-group="primary" data-tab="config">
+      {{!-- Description --}}
+      <div class="card clipped" style="text-align: left;">
+        <span class="lancer-header major " style="text-align: center;">DETAIL</span>
+        <div class="desc-text">{{editor content=mm.ent.Detail target="mm.ent.Detail" button=true owner=owner editable=editable}}</div>
+      </div>
+
+      {{!-- Frame Stats --}}
+      <div class="card clipped" style="text-align: left;">
+        <span class="lancer-header major " style="text-align: center;">BASE STATS</span>
+        <div class="card clipped wraprow quadruple">
+          <div class="wraprow quadruple">
+            {{{clicker-stat-card "MAX HP"      "mdi mdi-heart-outline"     "mm.ent.BaseMaxHP" }}}
+            {{{clicker-stat-card "ARMOR"       "mdi mdi-shield-outline"    "mm.ent.BaseArmor" }}}
+            {{{clicker-stat-card "REPAIRS"     "cci cci-repair"            "mm.ent.BaseRepairCapacity" }}}
+            {{{clicker-stat-card "EVASION"     "cci cci-evasion"           "mm.ent.BaseEvasion" }}}
+
+            {{{clicker-stat-card "E-DEF"       "cci cci-edef"              "mm.ent.BaseEDefense" }}}
+            {{{clicker-stat-card "HEAT CAP"    "cci cci-heatcap"           "mm.ent.BaseHeatCapacity" }}}
+            {{{clicker-stat-card "SPEED"       "mdi mdi-arrow-right-bold-hexagon-outline" "mm.ent.BaseSpeed" }}}
+            {{{clicker-stat-card "TECH ATK"    "cci cci-tech-full"         "mm.ent.BaseTechAttack" }}}
+
+            {{{clicker-stat-card "SENSORS"     "cci cci-sensor"            "mm.ent.BaseSensorRange" }}}
+            {{{clicker-stat-card "SAVE"        "cci cci-save"              "mm.ent.BaseSaveTarget" }}}
+            {{{clicker-stat-card "SIZE"        "cci cci-hexagon"           "mm.ent.BaseSize" }}}
+            {{{clicker-stat-card "COST"        "cci cci-hexagon"           "mm.ent.Cost" }}}
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 </form>

@@ -1,21 +1,8 @@
-import { LancerMountData, LancerPilotData, LancerPilotSheetData } from "../interfaces";
 import {
-  LancerCoreBonus,
-  LancerFrame,
-  LancerItem,
-  LancerLicense,
-  LancerMechSystem,
   LancerMechWeapon,
-  LancerPilotArmor,
-  LancerPilotGear,
   LancerPilotWeapon,
-  LancerSkill,
-  LancerTalent,
 } from "../item/lancer-item";
-import { LancerActor, LancerPilot } from "./lancer-actor";
 import { LANCER } from "../config";
-import { ItemDataManifest } from "../item/util";
-import { import_pilot_by_code, update_pilot_by_code } from "./util";
 import { LancerActorSheet } from "./lancer-actor-sheet";
 import { prepareCoreActiveMacro, prepareCorePassiveMacro } from "../macros";
 import { EntryType, MountType, OpCtx } from "machine-mind";
@@ -33,15 +20,6 @@ const entryPrompt = "//:AWAIT_ENTRY>";
  * Extend the basic ActorSheet
  */
 export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
-  /**
-   * A convenience reference to the Actor entity
-   */
-  // get actor(): LancerPilot {
-  //   return this.actor;
-  // };
-
-  /* -------------------------------------------- */
-
   /**
    * Extend and override the default options used by the Pilot Sheet
    * @returns {Object}
@@ -246,71 +224,6 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
           item.setAttribute("draggable", "true");
         });
 
-      // Update Inventory Item
-      this.activateOpenItemListeners(html);
-
-      // Delete Item when trash can is clicked
-      let items = html.find('.stats-control[data-action*="delete"]');
-      items.on("click", ev => {
-        if (!ev.currentTarget) return; // No target, let other handlers take care of it.
-        ev.stopPropagation(); // Avoids triggering parent event handlers
-        console.log(ev);
-        const item = $(ev.currentTarget).closest(".item");
-        const itemId = item.data("itemId");
-
-        // Delete the item from the actor.
-        this.actor.deleteOwnedItem(itemId).then();
-        item.slideUp(200, () => this.render(true));
-      });
-
-      /*
-      // Create Mounts
-      let add_button = html.find('.add-button[data-action*="create"]');
-      add_button.on("click", (ev) => {
-        ev.stopPropagation();
-        let mount: LancerMountData = {
-          type: MountType.Main,
-          weapons: [],
-          secondary_mount: "",
-        };
-
-        let mounts = duplicate(this.actor.data.data.mech_loadout.mounts);
-        mounts.push(mount);
-        this.actor.update({ "data.mech_loadout.mounts": mounts }).then();
-        this._onSubmit(ev).then();
-      });
-
-      // Update Mounts
-      let mount_selector = html.find('select.mounts-control[data-action*="update"]');
-      mount_selector.on("change", (ev: JQuery.ChangeEvent) => {
-        ev.stopPropagation();
-        let mounts = duplicate(this.actor.data.data.mech_loadout.mounts);
-        mounts[
-          parseInt($(ev.currentTarget).closest(".lancer-mount-container").data("itemKey"))
-        ].type = $(ev.currentTarget).children("option:selected").val();
-        this.actor.update({ "data.mech_loadout.mounts": mounts }).then();
-        this._onSubmit(ev).then();
-      });
-
-      // Delete Mounts
-      let mount_trash = html.find('a.mounts-control[data-action*="delete"]');
-      mount_trash.on("click", (ev: Event) => {
-        if (!ev.currentTarget) return; // No target, let other handlers take care of it.
-        ev.stopPropagation();
-        let mounts = duplicate(this.actor.data.data.mech_loadout.mounts);
-        let id = $(ev.currentTarget).closest(".lancer-mount-container").data("itemKey");
-        // Delete each weapon in the selected mount from the actor's owned items
-        let weapons = (this.actor.data.data as LancerPilotData).mech_loadout.mounts[id].weapons;
-        for (let i = 0; i < weapons.length; i++) {
-          const weapon = weapons[i];
-          if (weapon._id) this.actor.deleteOwnedItem(weapon._id).then();
-        }
-        mounts.splice(parseInt(id), 1);
-        this.actor.update({ "data.mech_loadout.mounts": mounts }).then();
-        this._onSubmit(ev).then();
-      });
-      */
-
       // Cloud download
       let download = html.find('.cloud-control[data-action*="download"]');
       download.on("click", async ev => {
@@ -322,11 +235,12 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
           let raw_pilot_data = await funcs.gist_io.download_pilot(self.mm.ent.CloudID);
 
           // Pull the trigger
-          let pseudo_compendium = new FoundryReg({ for_compendium: true });
-          let synced_data = await funcs.cloud_sync(raw_pilot_data, self.mm.ent, [
-            pseudo_compendium,
-          ]);
-          if (!synced_data) {
+          let pseudo_compendium = new FoundryReg({ // We look for missing items here
+            item_source: ["compendium", null],
+            actor_source: "world"
+          });
+          let synced_data = await funcs.cloud_sync(raw_pilot_data, self.mm.ent, [pseudo_compendium]);
+          if(!synced_data) {
             throw new Error("Pilot was somehow destroyed by the sync");
           }
 
@@ -341,7 +255,7 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
             await mech_actor.update({
               name: mech.Name || mech_actor.name,
               img: mech.CloudPortrait || mech_actor.img,
-            });
+            }, {});
             mech_actor.render();
           }
 
@@ -407,64 +321,60 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
     const this_mm = sheet_data.mm;
     const item = drop.entity;
 
-    // Behaviour differs based on if we get this as a machine-mind item or not
-    if (LANCER.mm_compat_item_types.includes(item.type)) {
-      // Check if we can even do anything with it first
-      if (!LANCER.pilot_items.includes(item.type)) {
-        ui.notifications.error(`Cannot add Item of type "${item.type}" to a Pilot.`);
-        return null;
-      }
-
-      // Make the context for the item
-      const item_mm: MMEntityContext<EntryType> = await mm_wrap_item(item);
-
-      // Always add the item to the pilot inventory, now that we know it is a valid pilot posession
-      // Make a new ctx to hold the item and a post-item-add copy of our mech
-      let new_ctx = new OpCtx();
-      let new_live_item = await item_mm.ent.insinuate(this_mm.reg, new_ctx);
-
-      // Update this, to re-populate arrays etc to reflect new item
-      let new_live_this = (await this_mm.ent.refreshed(new_ctx))!;
-
-      // Now, do sensible things with it
-      let loadout = new_live_this.Loadout;
-      if (new_live_item.Type === EntryType.PILOT_WEAPON) {
-        // If weapon, try to equip to first empty slot
-        for (let i = 0; i < loadout.Weapons.length; i++) {
-          if (!loadout.Weapons[i]) {
-            loadout.Weapons[i] = new_live_item;
-            break;
-          }
-        }
-      } else if (new_live_item.Type === EntryType.PILOT_GEAR) {
-        // If gear, try to equip to first empty slot
-        for (let i = 0; i < loadout.Gear.length; i++) {
-          if (!loadout.Gear[i]) {
-            loadout.Gear[i] = new_live_item;
-            break;
-          }
-        }
-      } else if (new_live_item.Type === EntryType.PILOT_ARMOR) {
-        // If armor, try to equip to first empty slot
-        for (let i = 0; i < loadout.Armor.length; i++) {
-          if (!loadout.Gear[i]) {
-            loadout.Armor[i] = new_live_item;
-            break;
-          }
-        }
-      } else if (new_live_item.Type === EntryType.SKILL || new_live_item.Type == EntryType.TALENT) {
-        // If skill or talent, reset to level 1
-        new_live_item.CurrentRank = 1;
-        await new_live_item.writeback(); // Since we're editing the item, we gotta do this
-      }
-
-      // Most other things we really don't need to do anything with
-
-      // Writeback when done. Even if nothing explicitly changed, probably good to trigger a redraw (unless this is double-tapping? idk)
-      await new_live_this.writeback();
-    } else {
-      console.error("We don't yet handle non MM items. MaybeTODO???");
+    // Check if we can even do anything with it first
+    if (!LANCER.pilot_items.includes(item.type)) {
+      ui.notifications.error(`Cannot add Item of type "${item.type}" to a Pilot.`);
+      return null;
     }
+
+    // Make the context for the item
+    const item_mm: MMEntityContext<EntryType> = await mm_wrap_item(item);
+
+    // Always add the item to the pilot inventory, now that we know it is a valid pilot posession
+    // Make a new ctx to hold the item and a post-item-add copy of our mech
+    let new_ctx = new OpCtx();
+    let new_live_item = await item_mm.ent.insinuate(this_mm.reg, new_ctx);
+
+    // Update this, to re-populate arrays etc to reflect new item
+    let new_live_this = (await this_mm.ent.refreshed(new_ctx))!;
+
+    // Now, do sensible things with it
+    let loadout = new_live_this.Loadout;
+    if (new_live_item.Type === EntryType.PILOT_WEAPON) {
+      // If weapon, try to equip to first empty slot
+      for (let i = 0; i < loadout.Weapons.length; i++) {
+        if (!loadout.Weapons[i]) {
+          loadout.Weapons[i] = new_live_item;
+          break;
+        }
+      }
+    } else if (new_live_item.Type === EntryType.PILOT_GEAR) {
+      // If gear, try to equip to first empty slot
+      for (let i = 0; i < loadout.Gear.length; i++) {
+        if (!loadout.Gear[i]) {
+          loadout.Gear[i] = new_live_item;
+          break;
+        }
+      }
+    } else if (new_live_item.Type === EntryType.PILOT_ARMOR) {
+      // If armor, try to equip to first empty slot
+      for (let i = 0; i < loadout.Armor.length; i++) {
+        if (!loadout.Gear[i]) {
+          loadout.Armor[i] = new_live_item;
+          break;
+        }
+      }
+    } else if (new_live_item.Type === EntryType.SKILL || new_live_item.Type == EntryType.TALENT) {
+      // If skill or talent, reset to level 1
+      new_live_item.CurrentRank = 1;
+      await new_live_item.writeback(); // Since we're editing the item, we gotta do this
+    }
+
+    // Most other things we really don't need to do anything with
+
+    // Writeback when done. Even if nothing explicitly changed, probably good to trigger a redraw (unless this is double-tapping? idk)
+    await new_live_this.writeback();
+
 
     // Always return the item if we haven't failed for some reason
     return item;

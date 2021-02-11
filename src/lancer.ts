@@ -10,32 +10,15 @@
 // Import TypeScript modules
 import { LANCER, STATUSES, WELCOME } from "./module/config";
 import { LancerGame } from "./module/lancer-game";
-import { LancerActor, lancerActorInit, npc_tier_selector } from "./module/actor/lancer-actor";
+import {
+  LancerActor,
+  lancerActorInit,
+} from "./module/actor/lancer-actor";
 import { LancerItem, lancerItemInit } from "./module/item/lancer-item";
 
 import {
   action_type_icon,
   action_type_selector,
-  ai_effect_preview,
-  basic_effect_preview,
-  bonus_effect_preview,
-  charge_effect_preview,
-  charge_type_selector,
-  deployable_effect_preview,
-  drone_effect_preview,
-  effect_preview,
-  generic_effect_preview,
-  invade_option_preview,
-  npc_reaction_effect_preview,
-  npc_system_effect_preview,
-  npc_tech_effect_preview,
-  npc_trait_effect_preview,
-  npc_weapon_effect_preview,
-  offensive_effect_preview,
-  profile_effect_preview,
-  protocol_effect_preview,
-  reaction_effect_preview,
-  tech_effect_preview,
 } from "./module/item/effects";
 
 // Import applications
@@ -52,12 +35,8 @@ import { WeaponRangeTemplate } from "./module/pixi/weapon-range-template";
 import { preloadTemplates } from "./module/preloadTemplates";
 import { registerSettings } from "./module/settings";
 import {
-  compactTagList,
-  compact_tag_list,
-  renderChunkyTag,
-  renderCompactTag,
-  renderFullTag,
-} from "./module/item/tags";
+  compact_tag_list
+} from "./module/helpers/tags";
 import * as migrations from "./module/migration";
 import { addLCPManager } from "./module/apps/lcpManager";
 
@@ -66,46 +45,47 @@ import * as macros from "./module/macros";
 
 // Import node modules
 import compareVersions = require("compare-versions");
-import { NpcFeatureType, EntryType } from "machine-mind";
-import { render_icon, resolve_dotpath } from "./module/helpers/commons";
+import { NpcFeatureType, EntryType, Manufacturer, Bonus } from "machine-mind";
+import {
+  render_light_icon,
+  resolve_dotpath,
+  resolve_helper_dotpath,
+} from "./module/helpers/commons";
 import { is_loading } from "machine-mind/dist/classes/mech/EquipUtil";
 import {
   weapon_size_selector,
   weapon_type_selector,
   range_editor,
-  npc_weapon_damage_selector,
-  weapon_range_preview,
-  weapon_damage_preview,
   npc_attack_bonus_preview,
   npc_accuracy_preview,
-  mech_weapon_preview,
+  mech_weapon_refview,
   system_type_selector,
-  effect_type_selector,
   mech_system_preview,
   npc_feature_preview,
-  core_system_preview,
-  mech_trait_preview,
   damage_editor,
-  bonus_array,
+  bonuses_display,
   pilot_armor_slot,
-  pilot_weapon_slot,
-  pilot_gear_slot,
+  pilot_weapon_refview,
+  pilot_gear_refview,
+  license_ref,
+  manufacturer_ref,
+  uses_control,
+  single_bonus_editor,
 } from "./module/helpers/item";
 import {
-  editable_mm_ref_list_item,
   clicker_num_input,
   clicker_stat_card,
   compact_stat_edit,
   compact_stat_view,
-  mech_loadout,
   overcharge_button,
   stat_edit_card,
   stat_edit_card_max,
   stat_view_card,
-  pilot_slot,
 } from "./module/helpers/actor";
 import { HelperOptions } from "handlebars";
-import { manufacturer_ref, simple_mm_ref } from "./module/helpers/refs";
+import { editable_mm_ref_list_item, simple_mm_ref, mm_ref_portrait, mm_ref_list_append_slot, editable_mm_ref_list_item_native } from "./module/helpers/refs";
+import { mech_loadout, pilot_slot } from "./module/helpers/loadout";
+import { LancerNPCSheet } from "./module/actor/npc-sheet";
 
 const lp = LANCER.log_prefix;
 
@@ -201,7 +181,8 @@ Hooks.once("init", async function () {
     makeDefault: true,
   });
   Items.registerSheet("lancer", LancerFrameSheet, { types: [EntryType.FRAME], makeDefault: true });
-  Items.registerSheet("lancer", LancerNPCClassSheet, {
+  // Items.registerSheet("lancer", LancerNPCClassSheet, {
+  Items.registerSheet("lancer", LancerItemSheet, {
     types: [EntryType.NPC_CLASS, EntryType.NPC_TEMPLATE],
     makeDefault: true,
   });
@@ -225,13 +206,14 @@ Hooks.once("init", async function () {
   });
 
   // rp, to resolve path values strs. Helps use effectively half as many arguments for many helpers/partials
+  // Using this, {{{rp path}}} {{path}} would show the value at path, and path, respectively. No need to pass both!
   Handlebars.registerHelper("rp", function (path: string, options: HelperOptions) {
-    return resolve_dotpath(options.data?.root, path);
+    return resolve_helper_dotpath(options, path);
   });
 
   // get-set, to resolve situations wherein we read and write to the same path via "value" and "name" element properties
   Handlebars.registerHelper("getset", function (path: string, options: HelperOptions) {
-    let value = resolve_dotpath(options.data?.root, path);
+    let value = resolve_helper_dotpath(options, path);
     return ` name="${path}" value="${value}" `;
   });
 
@@ -306,7 +288,7 @@ Hooks.once("init", async function () {
 
   // ------------------------------------------------------------------------
   // Generic components
-  Handlebars.registerHelper("light-icon", render_icon);
+  Handlebars.registerHelper("light-icon", render_light_icon);
 
   Handlebars.registerHelper("l-num-input", clicker_num_input);
 
@@ -328,34 +310,44 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("stat-edit-card", stat_edit_card);
   Handlebars.registerHelper("stat-edit-max-card", stat_edit_card_max);
   Handlebars.registerHelper("clicker-stat-card", clicker_stat_card);
+  Handlebars.registerHelper("npc-clicker-stat-card", npc_clicker_stat_card);
+
 
   // ------------------------------------------------------------------------
   // Refs
   Handlebars.registerHelper("simple-ref", simple_mm_ref);
-  Handlebars.registerHelper("ref-mm-list-item", editable_mm_ref_list_item);
+  Handlebars.registerHelper("ref-mm-controllable-item", editable_mm_ref_list_item);
+  Handlebars.registerHelper("ref-mm-controllable-item-native", editable_mm_ref_list_item_native);
+  Handlebars.registerHelper("ref-mm-list-item-append", mm_ref_list_append_slot);
   Handlebars.registerHelper("pilot-slot", pilot_slot);
+  Handlebars.registerHelper("deployer-slot", deployer_slot); // Can be pilot, npc, or mech. Preferably mech, lol
+  Handlebars.registerHelper("ref-portrait-img", mm_ref_portrait);
 
   // ------------------------------------------------------------------------
   // Pilot stuff
   Handlebars.registerHelper("pilot-armor-slot", pilot_armor_slot);
-  Handlebars.registerHelper("pilot-weapon-slot", pilot_weapon_slot);
-  Handlebars.registerHelper("pilot-gear-slot", pilot_gear_slot);
+  Handlebars.registerHelper("pilot-weapon-slot", pilot_weapon_refview);
+  Handlebars.registerHelper("pilot-gear-slot", pilot_gear_refview);
 
   // ------------------------------------------------------------------------
   // Tags
-  Handlebars.registerHelper("compact-tag", renderCompactTag);
-  Handlebars.registerPartial("tag-list", compactTagList);
-  Handlebars.registerPartial("mm-tag-list", compact_tag_list);
-  Handlebars.registerHelper("chunky-tag", renderChunkyTag);
-  Handlebars.registerHelper("full-tag", renderFullTag);
+  // Handlebars.registerHelper("compact-tag", renderCompactTag);
+  // Handlebars.registerPartial("tag-list", compactTagList);
+  Handlebars.registerHelper("mm-tag-list", compact_tag_list);
+  // Handlebars.registerHelper("chunky-tag", renderChunkyTag);
+  // Handlebars.registerHelper("full-tag", renderFullTag);
 
   // ------------------------------------------------------------------------
   // License data
   Handlebars.registerHelper("ref-manufacturer", manufacturer_ref);
+  Handlebars.registerHelper("ref-license", license_ref);
 
   // ------------------------------------------------------------------------
   // Bonuses
-  Handlebars.registerHelper("bonuses-editor", bonus_array);
+  Handlebars.registerHelper("edit-bonuses-view", (bonuses_path: string, bonuses_array: Bonus[]) => bonuses_display(bonuses_path, bonuses_array, true));
+  Handlebars.registerHelper("read-bonuses-view", (bonuses_path: string, bonuses_array: Bonus[]) => bonuses_display(bonuses_path, bonuses_array, false));
+  Handlebars.registerHelper("bonuses-view", bonuses_display); // Takes a third arg
+  Handlebars.registerHelper("edit-bonus", single_bonus_editor);
 
   // ------------------------------------------------------------------------
   // Weapons
@@ -364,24 +356,21 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("wpn-type-sel", weapon_type_selector);
   Handlebars.registerHelper("wpn-range-sel", range_editor);
   Handlebars.registerHelper("wpn-damage-sel", damage_editor);
-  Handlebars.registerHelper("npc-wpn-damage-sel", npc_weapon_damage_selector);
-  Handlebars.registerHelper("wpn-range", weapon_range_preview);
-  Handlebars.registerHelper("wpn-damage", weapon_damage_preview);
   Handlebars.registerHelper("npcf-atk", npc_attack_bonus_preview);
   Handlebars.registerHelper("npcf-acc", npc_accuracy_preview);
-  Handlebars.registerPartial("mech-weapon-preview", mech_weapon_preview);
+  Handlebars.registerHelper("mech-weapon-preview", mech_weapon_refview);
 
   // ------------------------------------------------------------------------
   // Systems
   Handlebars.registerHelper("sys-type-sel", system_type_selector);
-  Handlebars.registerHelper("eff-type-sel", effect_type_selector);
+  Handlebars.registerHelper("uses-ctrl", uses_control);
   Handlebars.registerHelper("act-icon", action_type_icon);
   Handlebars.registerHelper("act-type-sel", action_type_selector);
-  Handlebars.registerHelper("chg-type-sel", charge_type_selector);
   Handlebars.registerPartial("mech-system-preview", mech_system_preview);
 
   // ------------------------------------------------------------------------
   // Effects
+  /*
   Handlebars.registerHelper("eff-preview", effect_preview);
   Handlebars.registerPartial("generic-eff-preview", generic_effect_preview);
   Handlebars.registerHelper("basic-eff-preview", basic_effect_preview);
@@ -405,11 +394,11 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("npc-trait-preview", npc_trait_effect_preview);
   Handlebars.registerHelper("npc-tech-preview", npc_tech_effect_preview);
   Handlebars.registerHelper("npc-wpn-preview", npc_weapon_effect_preview);
+  */
 
   // ------------------------------------------------------------------------
   // Frames
-  Handlebars.registerPartial("core-system", core_system_preview);
-  Handlebars.registerPartial("mech-trait", mech_trait_preview);
+  // Handlebars.registerPartial("core-system", core_system_preview);
 
   // ------------------------------------------------------------------------
   // Pilot components
@@ -422,33 +411,40 @@ Hooks.once("init", async function () {
   // ------------------------------------------------------------------------
   // NPC components
   Handlebars.registerHelper("tier-selector", npc_tier_selector);
+  Handlebars.registerHelper("npc-feat-preview", npc_feature_preview);
 });
 
 /* ------------------------------------ */
 /* When ready                           */
 /* ------------------------------------ */
-Hooks.once("ready", async function () {
-  await versionCheck();
+// Make an awaitable for when this shit is done
+export const system_ready: Promise<void> = new Promise((success) => {
+  Hooks.once("ready", async function () {
+    await versionCheck();
 
-  // Show welcome message if not hidden.
-  if (!game.settings.get(LANCER.sys_name, LANCER.setting_welcome)) {
-    new Dialog({
-      title: `Welcome to LANCER v${game.system.data.version}`,
-      content: WELCOME,
-      buttons: {
-        dont_show: {
-          label: "Do Not Show Again",
-          callback: async () => {
-            await game.settings.set(LANCER.sys_name, LANCER.setting_welcome, true);
+    // Show welcome message if not hidden.
+    if (!game.settings.get(LANCER.sys_name, LANCER.setting_welcome)) {
+      new Dialog({
+        title: `Welcome to LANCER v${game.system.data.version}`,
+        content: WELCOME,
+        buttons: {
+          dont_show: {
+            label: "Do Not Show Again",
+            callback: async () => {
+              await game.settings.set(LANCER.sys_name, LANCER.setting_welcome, true);
+            },
+          },
+          close: {
+            label: "Close",
           },
         },
-        close: {
-          label: "Close",
-        },
-      },
-      default: "Close",
-    }).render(true);
-  }
+        default: "Close",
+      }).render(true);
+    }
+
+    // We're ready, freddy
+    success();
+  });
 });
 
 // Add any additional hooks if necessary
@@ -601,6 +597,21 @@ Hooks.on("hotbarDrop", (_bar: any, data: any, slot: number) => {
     game.user.assignHotbarMacro(macro, slot).then();
   }
 });
+
+// Make derived fields properly update their intended origin target
+Hooks.on("modifyTokenAttribute", (_: any, data: any) => {
+  for(let key of Object.keys(data)) {
+    // If starts with "data.derived", replace with just "data"
+    if(key.includes("data.derived.")) {
+      // Cut the .derived, and also remove any trailing .value to resolve pseudo-bars
+      let new_key = key.replace(/^data\.derived\./, "data.");
+      new_key = new_key.replace(/\.value$/, "");
+      data[new_key] = data[key];
+
+      console.log(`Overrode assignment from ${key} to ${new_key}`);
+    }
+  }
+})
 
 /**
  * Performs our version validation

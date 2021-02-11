@@ -1,17 +1,16 @@
 <form class="{{cssClass}} lancer-sheet" autocomplete="off">
-
   {{!-- Sheet Header --}}
   <header class="sheet-header card clipped-bot">
-    <img class="profile-img" src="{{actor.img}}" data-edit="actor.img" title="{{actor.name}}" height="100" width="100"/>
-    <div class="header-fields" style="grid-area: 1/1/2/5;">
-      <h1 class="charname"><input class="header-field" name="actor.name" type="text" value="{{actor.name}}" placeholder="Name"/></h1>
+    <div grow">
+      <h1 class="charname"><input class="header-field" name="name" type="text" value="{{actor.name}}" placeholder="Name"/></h1>
     </div>
+    {{{ ref-portrait-img actor.img "img" mm.ent }}}
   </header>
 
-  <div class="wraprow quadruple">
+  <div class="wraprow quintuple">
     {{{stat-edit-max-card  "HP"          "mdi mdi-heart-outline"    "mm.ent.CurrentHP"      "mm.ent.MaxHP" }}}
     {{{stat-edit-max-card  "HEAT"        "cci cci-heat"             "mm.ent.CurrentHeat"    "mm.ent.HeatCapacity" }}}
-    {{{stat-view-card      "ARMOR"       "cci cci-armor"            "mm.ent.Armor" }}}
+    {{{stat-edit-card      "BURN"        "cci cci-burn"             "mm.ent.Burn" }}}
     {{{stat-edit-card      "OVERSHIELD"  "cci cci-heat"             "mm.ent.Overshield" }}}
     {{{stat-edit-max-card  "REPAIRS"     "cci cci-repair"           "mm.ent.CurrentRepairs" "mm.ent.RepairCapacity" }}}
     {{{stat-view-card      "SIZE"        (concat "mdi " mm.ent.SizeIcon)   "mm.ent.Size" }}}
@@ -25,56 +24,55 @@
     {{{stat-view-card      "SAVE"        "cci cci-save"             "mm.ent.SaveTarget" }}}
     {{{stat-view-card      "SYS POINTS"  "cci cci-system"           "mm.ent.MaxSP" }}}
     {{{stat-view-card      "ATTACK"      "cci cci-heart"            "mm.ent.AttackBonus" }}}
-    <div class="card clipped">
-      {{{overcharge-button "mm.ent.CurrentOvercharge" }}}
-    </div>
+    {{{overcharge-button "mm.ent.CurrentOvercharge" }}}
 
-
-    <div class="card clipped triple">
-      <div class="lancer-stat-header clipped-top flexrow">
-        <i class="cci cci-pilot i--m i--light" style="float: left; padding-left: 10px"> </i>
+    <div class="card clipped double">
+      <div class="lancer-header ">
+        <i class="cci cci-pilot i--m i--light header-icon"> </i>
         <span class="major">PILOT</span>
       </div>
-      <div class="actor-ref-drop">
-        {{{pilot-slot "mm.ent.Pilot" }}}
-      </div>
+      {{{pilot-slot "mm.ent.Pilot" }}}
     </div>
   </div>
 
-  <div class="flexcol card clipped">
-    <span class="lancer-stat-header major clipped-top">LOADOUT [SP: {{mm.ent.Loadout.TotalSP}} / {{mm.ent.MaxSP}}]</span>
-    {{{mech-loadout "mm.ent.Loadout"}}}
+  <div class="card">
+    <span class="lancer-header major ">LOADOUT [SP: {{mm.ent.Loadout.TotalSP}} / {{mm.ent.MaxSP}}]</span>
+    {{{mech-loadout "mm.ent"}}}
   </div>
 
-  <div class="flexcol card clipped">
-    <span class="lancer-stat-header major clipped-top">FRAMES</span>
-    <div class="wraprow">
+  <div class="card clipped">
+    <span class="lancer-header major ">FRAMES</span>
+    <div class="wraprow triple">
       {{#each mm.ent.OwnedFrames as |frame index|}}
-        {{{ref-mm-list-item (concat "mm.ent.OwnedFrames." index) "delete" }}}
+        {{{ref-mm-controllable-item (concat "mm.ent.OwnedFrames." index) "delete" }}}
       {{/each}}
     </div>
   </div>
 
-  <div class="flexcol card clipped">
-    <span class="lancer-stat-header major clipped-top">WEAPONS</span>
-    <div class="wraprow">
+  <div class="card clipped">
+    <span class="lancer-header major ">WEAPONS</span>
+    <div class="wraprow quadruple">
       {{#each mm.ent.OwnedWeapons as |weapon index|}}
-        {{{ref-mm-list-item (concat "mm.ent.OwnedWeapons." index) "delete" }}}
+        {{{ref-mm-controllable-item (concat "mm.ent.OwnedWeapons." index) "delete" }}}
       {{/each}}
     </div>
   </div> 
   
-  <div class="flexcol card clipped">
-    <span class="lancer-stat-header major clipped-top">SYSTEMS</span>
-    {{#each mm.ent.OwnedSystems as |system index|}}
-      {{{ref-mm-list-item (concat "mm.ent.OwnedSystems." index) "delete" }}}
-    {{/each}}
+  <div class="card clipped">
+    <span class="lancer-header major ">SYSTEMS</span>
+    <div class="wraprow quadruple">
+      {{#each mm.ent.OwnedSystems as |system index|}}
+        {{{ref-mm-controllable-item (concat "mm.ent.OwnedSystems." index) "delete" }}}
+      {{/each}}
+    </div>
   </div>
 
-  <div class="flexcol card clipped">
-    <span class="lancer-stat-header major clipped-top">MODS</span>
-    {{#each mm.ent.OwnedWeaponMods as |mod index|}}
-      {{{ref-mm-list-item (concat "mm.ent.OwnedWeaponMods." index) "delete" }}}
-    {{/each}}
+  <div class="card clipped">
+    <span class="lancer-header major ">MODS</span>
+    <div class="wraprow quadruple">
+      {{#each mm.ent.OwnedWeaponMods as |mod index|}}
+        {{{ref-mm-controllable-item (concat "mm.ent.OwnedWeaponMods." index) "delete" }}}
+      {{/each}}
+    </div>
   </div>
 </form>

@@ -6,6 +6,8 @@ import {
   IContentPack,
   InsinuationRecord,
   Manufacturer,
+  MechWeapon,
+  MechWeaponProfile,
   MidInsinuationRecord,
   OpCtx,
   RegEntry,
@@ -165,13 +167,16 @@ export async function import_cp(cp: IContentPack, progress_callback?: (done: num
   // Make a static reg, and load in the reg for pre-processing
   let env = new RegEnv();
   let tmp_lcp_reg = new StaticReg(env);
+
+  // Name it compendium so that refs will (mostly) carry through properly. Id's will still be borked but fallback mmid's should handle that
+  tmp_lcp_reg.set_name("compendium|compendium");
   await funcs.intake_pack(cp, tmp_lcp_reg);
 
   // Count the total items in the reg
   let total_items = 0;
   for(let type of Object.values(EntryType)) {
     let cat = tmp_lcp_reg.get_cat(type);
-    total_items += (await cat.list_raw()).length;
+    total_items += (await cat.raw_map()).size;
   }
 
   // Insinuate data to the actual foundry reg
@@ -224,7 +229,10 @@ class ImportUtilityReg extends FoundryReg {
   replacement_tag_templates: Map<string, TagTemplate> = new Map(); // Maps MMID -> Template
 
   constructor() {
-    super({for_compendium: true});
+    super({
+      actor_source: "compendium",
+      item_source: ["compendium", null]
+    });
   }
 
   // Initialize our indexes
@@ -298,7 +306,7 @@ class ImportUtilityReg extends FoundryReg {
     }
 
     // Hot-wire our tags
-    for(let in_tag of [...(rp.Tags ?? []), ...(rp.AddedTags ?? [])] as TagInstance[]) {
+    for(let in_tag of [...(rp.Tags ?? []), ...(rp.AddedTags ?? []), ...(rp.Profiles?.flatMap((p: MechWeaponProfile) => p.Tags) ?? [])] as TagInstance[]) {
       // Same shebang
       let existing_tag = this.replacement_tag_templates.get(in_tag.Tag.ID);
 

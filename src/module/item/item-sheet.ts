@@ -1,9 +1,12 @@
-import { DamageData, LancerItemSheetData, RangeData } from "../interfaces";
-import { LANCER, LancerItemType } from "../config";
-import { mm_wrap_item } from "../mm-util/helpers";
-import { LancerItem } from "./lancer-item";
-import { activate_general_controls, gentle_merge, resolve_dotpath } from "../helpers/commons";
-import { HANDLER_openRefOnClick } from "../helpers/refs";
+import {  LancerItemSheetData, } from "../interfaces";
+import { LANCER } from "../config";
+import { LancerItem, LancerItemType } from "./lancer-item";
+import { HANDLER_activate_general_controls, gentle_merge, resolve_dotpath } from "../helpers/commons";
+import { HANDLER_activate_native_ref_dragging, HANDLER_activate_ref_dragging, HANDLER_activate_ref_drop_clearing, HANDLER_activate_ref_drop_setting, HANDLER_add_ref_to_list_on_drop, HANDLER_openRefOnClick } from "../helpers/refs";
+import { EntryType } from "machine-mind";
+import { get_pack } from "../mm-util/db_abstractions";
+import { HANDLER_activate_edit_bonus } from "../helpers/item";
+import { HANDLER_activate_tag_context_menus } from "../helpers/tags";
 
 const lp = LANCER.log_prefix;
 
@@ -21,15 +24,24 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
     return mergeObject(super.defaultOptions, {
       classes: ["lancer", "sheet", "item"],
       width: 700,
-      height: 480,
+      height: "auto",
       tabs: [
         {
-          navSelector: ".sheet-tabs",
+          navSelector: ".lancer-tabs",
           contentSelector: ".sheet-body",
           initial: "description",
         },
       ],
     });
+  }
+
+  constructor(...args: any) {
+    super(...args);
+    if(this.item.type == EntryType.MECH_WEAPON) {
+      this.options.initial = `profile${this.item.data.data.selected_profile || 0}`;
+    }
+    //
+
   }
 
   /** @override */
@@ -62,10 +74,17 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
     $(html).find(".ref.valid").on("click", HANDLER_openRefOnClick);
 
     // Enable general controls, so items can be deleted and such
-    activate_general_controls(html.find(".gen-control"), () => this.getDataLazy(), (_) => this._commitCurrMM());
+    HANDLER_activate_general_controls(html.find(".gen-control"), () => this.getDataLazy(), (_) => this._commitCurrMM());
+
+    // Enable ref dragging
+    HANDLER_activate_ref_dragging(html);
+    HANDLER_activate_native_ref_dragging(html);
 
     // Everything below here is only needed if the sheet is editable
-    if (!this.options.editable) return;
+    if (!this.options.editable) {
+      console.log("Not editable!"); // TODO: remove
+      return;
+    }
 
     // Customized increment/decrement arrows. Same as in actor. TODO: Standardize??
     const mod_handler = (delta: number) => (ev: Event) => {
@@ -85,224 +104,33 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
     let incr = html.find('button[class*="mod-plus-button"]');
     incr.on("click", mod_handler(+1));
 
-    // Add or Remove options
-    // Yes, theoretically this could be abstracted out to one function. You do it then.
-    html
-      .find(".arrayed-item-container")
-      .on("click", ".clickable", this._onClickArrayControl.bind(this));
-    html
-      .find(".arrayed-item-container")
-      .on("change", ".delete-selector", this._onSelectDelete.bind(this));
+    // Allow dragging items into lists
+    HANDLER_add_ref_to_list_on_drop(html, () => this.getDataLazy(), (_) => this._commitCurrMM());
+
+    // Allow set things by drop. Mostly we use this for manufacturer/license dragging
+    HANDLER_activate_ref_drop_setting(html, () => this.getDataLazy(), (_) => this._commitCurrMM());
+    HANDLER_activate_ref_drop_clearing(html, () => this.getDataLazy(), (_) => this._commitCurrMM());
+
+    // Enable bonus editors
+    HANDLER_activate_edit_bonus(html, () => this.getDataLazy(), (_) => this._commitCurrMM());
+
+    // Enable tag editing
+    HANDLER_activate_tag_context_menus(html, () => this.getDataLazy(), (_) => this._commitCurrMM());
   }
 
   /* -------------------------------------------- */
-
-  /**
-   * Listen for events on a selector to remove the referenced item
-   * @param event    The originating event
-   * @private
-   */
-  async _onSelectDelete(event: any) {
-    const s = $(event.currentTarget);
-    if (s.val() === "delete") {
-      event.preventDefault();
-      const itemString = s.data("item");
-      const itemArr = duplicate(this["object"]["data"]["data"][itemString]);
-      const parent = s.parents(".arrayed-item");
-      const id = parent.data("key");
-
-      delete itemArr[id];
-      itemArr["-=" + id] = null;
-      console.log(itemArr);
-      await parent.remove();
-      await this.object.update({ "data.mounts": itemArr });
-    }
-  }
-
-  /**
-   * Listen for click events on an attribute control to modify the composition of attributes in the sheet
-   * @param {MouseEvent} event    The originating left click event
-   * @private
-   */
-  async _onClickArrayControl(event: any) {
-    let itemArr;
-    event.preventDefault();
-    const a = $(event.currentTarget);
-    const action = a.data("action");
-    const itemString = a.parents(".arrayed-item-container").data("item");
-    console.log(itemString);
-    const baseArr = resolve_dotpath(this, "object.data.data." + itemString);
-    if (!baseArr) {
-      itemArr = [];
-    } else {
-      itemArr = duplicate(baseArr);
-    }
-    const dataRef = "data." + itemString;
-
-    console.log("_onClickArrayControl()", action, itemArr, itemString);
-    if (action === "create") {
-      // I can't figure out a better way to prevent collisions
-      // Feel free to come up with something better
-      const keys = Object.keys(itemArr);
-      let newIndex = 0;
-      if (keys.length > 0) {
-        // @ts-ignore ??? Some old array shenaniganry
-        newIndex = Math.max.apply(Math, keys) + 1;
-      }
-      itemArr[newIndex] = null;
-      await this.object.update({ [dataRef]: itemArr });
-    } else if (action === "delete") {
-      // delete tag
-      const parent = a.parents(".arrayed-item");
-      const id = parent.data("key");
-
-      // Since we're doing weird things with arrays, let's just split as needed
-      if (Array.isArray(itemArr)) {
-        // This is for arrays:
-        itemArr.splice(id, 1);
-      } else {
-        // For dict
-        delete itemArr[id];
-        itemArr["-=" + id] = null;
-
-        // So the question now becomes: why do all my arrays become dicts of objects?
-      }
-
-      this.object.update({ [dataRef]: itemArr });
-    }
-  }
-
-  /* -------------------------------------------- */
-
-  /** @override */
-  /*
-  async _updateObject(event: any, formData: any) {
-    console.log("DISABLED");
-    return;
-    formData = LancerItemSheet.arrayifyTags(formData, "data.tags");
-    formData = LancerItemSheet.arrayifyTags(formData, "data.core_system.tags");
-    formData = LancerItemSheet.arrayifyTags(formData, "data.traits");
-
-    // Update the Lancer-data name to match the item name.
-    formData["data.name"] = formData["name"];
-
-    if (this.item.data.type === EntryType.NPC_FEATURE) {
-      // Change image to match feature type, unless a custom image has been selected
-      const imgPath = "systems/lancer/assets/icons/";
-      const shortImg = formData["img"].slice(formData["img"].lastIndexOf("/") + 1);
-      if (
-        formData["img"].startsWith(imgPath) &&
-        Object.values(NPCFeatureIcons).includes(shortImg)
-      ) {
-        formData["img"] =
-          imgPath + NPCFeatureIcons[formData["data.feature_type"] as NpcFeatureType];
-      }
-
-      // Re-build NPC Weapon size and type
-      if (
-        this.item.data.type === EntryType.NPC_FEATURE &&
-        this.item.data.data.feature_type === NpcFeatureType.Weapon
-      ) {
-        formData[
-          "data.weapon_type"
-        ] = `${formData["data.weapon_size"]} ${formData["data.weapon_type"]}`;
-        delete formData["data.weapon_size"];
-      }
-
-      // Give it a custom fake ID if it doesn't have one
-      if(!(this.item.data.data.id)) {
-        this.item.update({"data.id":"custom_npcf_" + this.item.id},{});
-      }
-    }
-
-    // Weapons & systems can have ranges, consolidating into one place w/ better matching
-    if (LANCER.weapon_items.includes(this.item.data.type) || this.item.data.type === 'mech_system') {
-      // Safeguard against non-weapon NPC features
-      if (
-        this.item.data.type !== EntryType.NPC_FEATURE ||
-        (this.item.data.type === EntryType.NPC_FEATURE &&
-          this.item.data.data.feature_type === NpcFeatureType.Weapon)
-      ) {
-
-        // Uses Regex to dynamically find ranges/damages for better forward extensibility
-        var damKeys = [];
-        var rangeKeys = [];
-        var damFilter = /(\.damage)\.\d\.(type|val)/;
-        var rangeFilter = /(\.range)\.\d\.(type|val)/;
-        var key = "";
-        for (key in formData) {
-          if (formData.hasOwnProperty(key) && damFilter.test(key)) {
-            damKeys.push(key);
-          }
-          if (formData.hasOwnProperty(key) && rangeFilter.test(key)) {
-            rangeKeys.push(key);
-          }
-        }
-
-        // Sanity check to make sure it's all paired
-        if(rangeKeys.length % 2 || damKeys.length % 2) {
-          console.log("Error updating range/damage");
-          ui.notifications.error(
-            `Warning: Error updating item range/damage. Please report this`
-          );
-          return;
-        }
-
-        var newDamage: {[index:string]:Array<object>} = {};
-        let newRange: {[index:string]:Array<object>} = {};
-        var split = [];
-
-
-        // We're going to process both at once because we're fancy like that
-        var newCombined: Array<{[index:string]:Array<object>}> = [newDamage, newRange];
-        var combinedKeys: Array<Array<string>> = [damKeys, rangeKeys];
-        var combinedFilters: Array<RegExp> = [damFilter, rangeFilter];
-
-        // Remember to use standard for loops if it's arrays...
-        for(var i = 0; i < newCombined.length; i++) {
-          for (var j = 0; j  < combinedKeys[i].length; j += 2 ) {
-            // Grab our pre-damage/range path
-            split = combinedKeys[i][j].split(combinedFilters[i]);
-
-            // Initialize if it hasn't already
-            if(!newCombined[i][split[0] + split[1]]) {
-              newCombined[i][split[0] + split[1]] = []
-            }
-
-            // For now... assume type first (which should always be the case)
-            newCombined[i][split[0] + split[1]].push({
-              type: formData[combinedKeys[i][j]],
-              val: formData[combinedKeys[i][j+1]]
-            });
-
-            // Remove the old data
-            delete formData[combinedKeys[i][j]];
-            delete formData[combinedKeys[i][j+1]];
-          }
-
-          // Put back in the real data
-          for (key in newCombined[i]){
-            formData[key] = newCombined[i][key];
-          }
-        }
-      }
-    }
-
-    console.log(`${lp} Item sheet form data: `, formData);
-
-    // Update the Item
-    return this.object.update(formData);
-  }
-  */
 
   // Helper function for making fields effectively target multiple attributes
   _propagateMMData(formData: any) {
     // Pushes relevant field data down from the "item" data block to the "mm.ent" data block
     // Returns true if any of these top level fields require updating (i.e. do we need to .update({img: ___, name: __, etc}))
-    formData["mm.ent.Name"] = formData["item.name"];
+    formData["mm.ent.Name"] = formData["name"];
 
-    return this.item.img != formData["item.img"] || this.item.name != formData["item.name"];
+
+    return this.item.img != formData["img"] || this.item.name != formData["name"];
   }
+
+
 
   /**
    * Implement the _updateObject method as required by the parent class spec
@@ -310,19 +138,24 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
    * @private
    */
   async _updateObject(event: Event | JQuery.Event, formData: any): Promise<any> {
-    // hmm
-    console.log("UPDATE OBJECT CALLED");
-
     // Fetch data, modify, and writeback
     let ct = await this.getDataLazy();
 
     let need_top_update = this._propagateMMData(formData);
-    gentle_merge(ct, formData);
 
+    // Do a separate update depending on mm data
     if (need_top_update) {
-      await this.item.update(ct.item, undefined);
+      let top_update = {} as any;
+      for(let key of Object.keys(formData)) {
+        if(!key.includes("mm.ent")) {
+          top_update[key] = formData[key];
+        }
+      }
+      await this.item.update(top_update, {});
+    } else {
+      gentle_merge(ct, formData);
+      await this._commitCurrMM();
     }
-    return ct.mm.ent.writeback();
   }
 
   /**
@@ -331,34 +164,21 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
    */
   //@ts-ignore Foundry-pc-types does not properly acknowledge that sheet `getData` functions can be/are asynchronous
   async getData(): Promise<LancerItemSheetData<T>> {
+    // If a compendium, wait 50ms to avoid most race conflicts. TODO: Remove this when foundry fixes compendium editing to not be so awful
+    if(this.item.compendium) {
+      //@ts-ignore
+      this.object = await new Promise((s) => setTimeout(s, 50)).then(() => get_pack(this.item.type)).then(p => p.getEntity(this.item.id));
+    }
     const data = super.getData() as LancerItemSheetData<T>; // Not fully populated yet!
 
-    // Load item, mm-wrapped
-    data.mm = await mm_wrap_item(this.item as LancerItem<T>);
-    console.log(`${lp} Item ctx: `, data);
-    this._currData = data;
-    return data;
-  }
+    // Wait for preparations to complete
+    let tmp_dat = this.item.data as LancerItem<T>["data"]; // For typing convenience
+    data.mm = await tmp_dat.data.derived.mmec_promise;
+    let lic_ref = tmp_dat.data.derived.license;
+    data.license = lic_ref ? (await data.mm.reg.resolve(data.mm.ctx, lic_ref)) : null;
 
-  static arrayifyTags(data: any, prefix: string) {
-    if (data.hasOwnProperty(`${prefix}.0.name`)) {
-      let tags = [];
-      let i = 0;
-      while (data.hasOwnProperty(`${prefix}.${i}.name`)) {
-        tags.push({
-          name: data[`${prefix}.${i}.name`],
-          id: data[`${prefix}.${i}.id`],
-          description: data[`${prefix}.${i}.description`],
-          val: data[`${prefix}.${i}.val`],
-        });
-        delete data[`${prefix}.${i}.name`];
-        delete data[`${prefix}.${i}.id`];
-        delete data[`${prefix}.${i}.description`];
-        delete data[`${prefix}.${i}.val`];
-        i++;
-      }
-      data[`${prefix}`] = tags;
-    }
+    console.log(`${lp} Rendering with following item ctx: `, data);
+    this._currData = data;
     return data;
   }
 
@@ -370,10 +190,14 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
 
   // Write back our currently cached _currData, then refresh this sheet
   // Useful for when we want to do non form-based alterations
-  async _commitCurrMM(render: boolean = true) {
-    await this._currData?.mm.ent.writeback();
-    this._currData = null; // Reset
-    if(render) {
+  async _commitCurrMM() {
+    console.log("Committing");
+    let cd = this._currData;
+    this._currData = null;
+    await cd?.mm.ent.writeback() ?? null;
+
+    // Compendium entries don't re-draw appropriately
+    if(this.item.compendium) {
       this.render();
     }
   }

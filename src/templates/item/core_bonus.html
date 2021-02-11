@@ -2,20 +2,37 @@
 
   {{!-- Sheet Header --}}
   <header class="sheet-header card clipped-bot">
-    <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}" height="100" width="100"/>
-    <div class="header-fields" style="grid-area: 1/1/2/5;">
+    <div class="flexcol grow">
       <h1 class="charname"><input class="header-field" name="name" type="text" value="{{item.name}}" placeholder="Name"/></h1>
+      {{{ ref-manufacturer "mm.ent.Source" }}}
     </div>
-    <div class="header-fields" style="grid-area: 2/1/3/4">
-      <h3 class="source"><input class="header-field" name="source" type="text" value="{{data.source}}" placeholder="Source"/></h3>
-    </div>
+    {{{ ref-portrait-img item.img "img" mm.ent }}}
   </header>
 
   {{!-- Sheet Body --}}
   <div class="flexcol">
-    <div style="min-height: 15em">
-    {{editor content=data.effect target="data.effect" button=true owner=owner editable=editable}}
+    <div class="card clipped">
+      <span class="lancer-header">DESCRIPTION</span>
+      <div class="big-editor">
+        {{editor content=mm.ent.Description target="mm.ent.Description" button=true owner=owner editable=editable}}
+      </div>
     </div>
-    <textarea class="lancer-invisible-input clipped-bot major" name="data.mounted_effect" data-dtype="String" style="background-color: #dbdbdb; margin-left: 1.5em; width: calc(100% - 2em)">{{data.mounted_effect}}</textarea>
+
+    <div class="card clipped">
+      <span class="lancer-header">EFFECT</span>
+      <div class="big-editor">
+        {{editor content=mm.ent.Effect target="mm.ent.Effect" button=true owner=owner editable=editable}}
+      </div>
+    </div>
+
+    <div class="card clipped">
+      <span class="lancer-header">MOUNTED EFFECT</span>
+      <div class="big-editor">
+        {{editor content=mm.ent.MountedEffect target="mm.ent.MountedEffect" button=true owner=owner editable=editable}}
+      </div>
+    </div>
+
+    {{!-- Bonuses --}}
+    {{{bonuses-view "mm.ent.Bonuses" mm.ent.Bonuses editable}}}
   </div>
 </form>

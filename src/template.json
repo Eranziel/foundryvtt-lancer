@@ -81,6 +81,7 @@
       "mechSkills": [0, 0, 0, 0],
       "mounted": false,
       "notes": "",
+      "current_overshield": 0,
       "player_name": "",
       "portrait": "",
       "sort_index": 0,
@@ -101,15 +102,17 @@
         "max": 0,
         "value": 0
       },
-      "deactivation": "",
-      "detail": "",
-      "edef": 0,
-      "evasion": 0,
       "heat": {
         "min": 0,
         "max": 0,
         "value": 0
       },
+      "instances": 1,
+      "burn": 0,
+      "deactivation": "",
+      "detail": "",
+      "edef": 0,
+      "evasion": 0,
       "name": "",
       "overshield": 0,
       "recall": "",
@@ -120,7 +123,10 @@
       "size": 0,
       "speed": 0,
       "tech_attack": 0,
-      "type": ""
+      "type": "",
+      "avail_mounted": true,
+      "avail_unmounted": false,
+      "deployer": null
     },
     "mech": {
       "activations": 1,
@@ -352,46 +358,57 @@
       "name": "New Mech Weapon",
       "profiles": [],
       "selected_profile": 0,
-      "size": ""
+      "size": "",
+
+      "no_core_bonuses": false,
+      "no_mods": false,
+      "no_bonuses": false,
+      "no_synergies": false,
+      "no_attack": false
     },
     "npc_class":{
       "templates": ["compendium_item"],
+      "role": "",
       "info": {
         "flavour": "",
         "tactics": ""
       },
-      "mechtype": [],
+      "power": 100,
       "stats": {
-        "hp": [],
-        "heatcap": [],
-        "structure": [],
-        "stress": [],
-        "armor": [],
-        "evasion": [],
-        "edef": [],
-        "speed": [],
-        "sensor_range": [],
-        "save": [],
-        "activations": [],
-        "size": [],
-        "hull": [],
-        "agility": [],
-        "systems": [],
-        "engineering": []
+        "activations": [1, 1, 1],
+        "armor": [1, 1, 1],
+        "hp": [10, 10, 10],
+        "evade": [10, 10, 10],
+        "edef": [10, 10, 10],
+        "heatcap": [5, 5, 5],
+        "speed": [5, 5, 5],
+        "sensor": [10, 10, 10],
+        "save": [10, 10, 10],
+        "hull": [0, 0, 0],
+        "agility": [0, 0, 0],
+        "systems": [0, 0, 0],
+        "engineering": [0, 0, 0],
+        "size": [[1], [1], [1]],
+        "structure": [1, 1, 1],
+        "stress": [1, 1, 1]
       },
       "base_features": [],
       "optional_features":[]
     },
     "npc_template":{
       "templates": ["compendium_item"],
+      "power": 100,
       "base_features": [],
       "optional_features":[]
     },
     "npc_feature":{
       "templates": ["compendium_item"],
-      "origin_type": "",
-      "origin_name": "",
-      "origin_base": false,
+      "origin": {
+        "type": "",
+        "name": "",
+        "base": false
+      },
+      "tier_override": 0,
       "feature_type": "",
       "effect": "",
       "bonus": {},
@@ -403,11 +420,11 @@
       "max_uses": 0,
       "trigger": "",
       "tech_type": "",
-      "attack_bonus": [],
-      "accuracy": [],
+      "attack_bonus": [0, 0, 0],
+      "accuracy": [0, 0, 0],
       "weapon_type": "",
       "range": [],
-      "damage": [],
+      "damage": [[], [], []],
       "on_hit": ""
     },
     "organization": {

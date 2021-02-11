@@ -2,10 +2,10 @@ import {
   EntryType,
     OpCtx,
   RegEntry,
+  RegRef,
 } from "machine-mind";
-import { LancerActor } from "../actor/lancer-actor";
-import { LancerActorType, LancerItemType } from "../config";
-import { LancerItem } from "../item/lancer-item";
+import { is_actor_type, LancerActor, LancerActorType } from "../actor/lancer-actor";
+import { is_item_type, LancerItem, LancerItemType } from "../item/lancer-item";
 import { FoundryReg } from "../mm-util/foundry-reg";
 import { MMEntityContext, mm_wrap_actor, mm_wrap_item } from "../mm-util/helpers";
 import { gentle_merge, is_ref, safe_json_parse } from "./commons";
@@ -274,6 +274,43 @@ export async function resolve_native_drop(event_data: string): Promise<ResolvedN
     return null;
 }
 
+// Turns a regref into a native drop, if possible
+export function convert_ref_to_native<T extends EntryType>(ref: RegRef<T>): NativeDrop | null {
+  if(!ref.type || is_item_type(ref.type)) {
+    let src = ref.reg_name.split("|")[0];
+    if(src == "world") {
+      return {
+        type: "Item",
+        id: ref.id,
+      }
+    } else if(ref.type) { // It's a typed compendium ref
+      return {
+        type: "Item",
+        id: ref.id,
+        pack: "world." + ref.type
+      }
+    } else {
+      return null; // Couldn't make an explicit native item ref
+    }
+  } else if(is_actor_type(ref.type)) {
+    let src = ref.reg_name.split("|")[1];
+    if(src == "world") {
+      return {
+        type: "Actor",
+        id: ref.id,
+      }
+    } else { // It's a typed compendium ref
+      return {
+        type: "Actor",
+        id: ref.id,
+        pack: "world." + ref.type
+      }
+    } 
+  } else {
+    return null;
+  }
+}
+
 // Wraps a call to enable_dropping to specifically handle RegRef drops.
 // Convenient for if you really only care about the final resolved RegEntry result
 // Allows use of hover_handler for styling
@@ -289,9 +326,14 @@ export function enable_simple_ref_dropping(
         let dest_type = dest[0].dataset.type;
 
         // If it isn't a ref, we don't handle
-        if(!is_ref(recon_ref) || recon_ref.type != dest_type) {
+        if(!is_ref(recon_ref)) {
           return;
         } 
+
+        // If it doesn't match type, we also don't handle
+        if(dest_type && !dest_type.includes(recon_ref.type)) {
+          return;
+        }
 
         // It is a ref, so we stop anyone else from handling the drop
         // (immediate props are fine)
@@ -301,6 +343,8 @@ export function enable_simple_ref_dropping(
         let resolved = await new FoundryReg().resolve(new OpCtx(), recon_ref);
         if(resolved) {
             on_drop(resolved, dest, evt);
+        } else {
+          console.error("Failed to resolve ref", recon_ref);
         }
       },
 
@@ -310,7 +354,7 @@ export function enable_simple_ref_dropping(
         let recon_ref = safe_json_parse(data);
         if(is_ref(recon_ref)) {
           let dest_type = dest[0].dataset.type;
-          return recon_ref.type == dest_type // Simply confirm same type. 
+          return (dest_type || "").includes(recon_ref.type) // Simply confirm same type. Using includes allows for multiple types
         }
         return false;
       },
@@ -359,11 +403,10 @@ export function enable_native_dropping(
         }
 
         // Get our actual allowed types, as it can be overriden by data-type
-        let dest_type = dest[0].dataset.type;
-        let dest_allowed_types = dest_type ? [dest_type] : (allowed_types ?? null);
+        let dest_type = dest[0].dataset.type ?? (allowed_types ?? []).join(" ");
 
         // Now, as far as whether it should really have any effect, that depends on the type
-        if(!dest_allowed_types || dest_allowed_types.includes(type)) {
+        if(!dest_type || dest_type.includes(type)) {
           // We're golden. Call the callback
           on_drop(resolved.entity, dest, evt);
         }

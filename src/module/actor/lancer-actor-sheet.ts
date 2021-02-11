@@ -1,24 +1,11 @@
-import { LANCER, LancerActorType } from "../config";
-import {
-  activate_general_controls,
-  del_arr_key,
-  gentle_merge,
-  is_ref,
-  resolve_dotpath,
-  safe_json_parse,
-} from "../helpers/commons";
-import {
-  enable_native_dropping_mm_wrap,
-  enable_simple_ref_dragging,
-  enable_simple_ref_dropping,
-  NativeDrop,
-  ResolvedNativeDrop,
-  resolve_native_drop,
-} from "../helpers/dragdrop";
-import { HANDLER_openRefOnClick } from "../helpers/refs";
+import { LANCER } from "../config";
+import { HANDLER_activate_general_controls,  gentle_merge, is_ref, resolve_dotpath, safe_json_parse } from "../helpers/commons";
+import { enable_native_dropping_mm_wrap, enable_simple_ref_dragging, enable_simple_ref_dropping, NativeDrop, ResolvedNativeDrop, resolve_native_drop } from "../helpers/dragdrop";
+import { HANDLER_activate_ref_dragging, HANDLER_activate_ref_drop_clearing, HANDLER_activate_ref_drop_setting, HANDLER_openRefOnClick } from "../helpers/refs";
 import { LancerActorSheetData, LancerStatMacroData } from "../interfaces";
+import { FoundryRegActorData } from "../mm-util/foundry-reg";
 import { mm_wrap_actor } from "../mm-util/helpers";
-import { LancerActor } from "./lancer-actor";
+import { LancerActor, LancerActorType } from "./lancer-actor";
 const lp = LANCER.log_prefix;
 
 /**
@@ -56,21 +43,24 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     // Make refs clickable to open the item
     $(html).find(".ref.valid").on("click", HANDLER_openRefOnClick);
 
+    // Enable ref dragging
+    HANDLER_activate_ref_dragging(html);
+
+    // Everything below here is only needed if the sheet is editable
+    if (!this.options.editable) return;
+
     // Make +/- buttons work
     this._activatePlusMinusButtons(html);
 
-    // Enable ref dragging
-    this._activateRefDragging(html);
+    // Make refs droppable
+    HANDLER_activate_ref_drop_setting(html, () => this.getDataLazy(), (_) => this._commitCurrMM());
+    HANDLER_activate_ref_drop_clearing(html, () => this.getDataLazy(), (_) => this._commitCurrMM());
 
     // Enable native ref drag handlers
     this._activateNativeRefDropBoxes(html);
 
     // Enable general controls, so items can be deleted and such
-    activate_general_controls(
-      html.find(".gen-control"),
-      () => this.getDataLazy(),
-      _ => this._commitCurrMM()
-    );
+    HANDLER_activate_general_controls(html.find(".gen-control"), () => this.getDataLazy(), (_) => this._commitCurrMM());
   }
 
   _activatePlusMinusButtons(html: any) {
@@ -93,32 +83,6 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     incr.on("click", mod_handler(+1));
   }
 
-  // Enables dragging of ref items to slot
-  _activateRefDragging(html: JQuery) {
-    // Allow refs to be dragged arbitrarily
-    enable_simple_ref_dragging(html.find(".ref.valid"), (start_stop, src, evt) => {
-      // Highlight valid drop points
-      let target_selector = `.ref.drop-target.${src[0].dataset.type}`;
-
-      if (start_stop == "start") {
-        html.find(target_selector).addClass("highlight-can-drop");
-      } else {
-        html.find(target_selector).removeClass("highlight-can-drop");
-      }
-    });
-
-    // Allow every ".ref" spot to be dropped onto, with a payload of a JSON RegRef
-    enable_simple_ref_dropping(html.find(".ref.drop-target"), async (entry, evt) => {
-      let data = await this.getDataLazy();
-      let path = evt[0].dataset.path;
-      if (path) {
-        // Set the item at the data path
-        gentle_merge(data, { [path]: entry });
-        this._commitCurrMM();
-      }
-    });
-  }
-
   // Enables functionality for converting native foundry drags to be handled by ref drop slots
   // This is primarily useful for dropping actors onto sheets
   _activateNativeRefDropBoxes(html: JQuery) {
@@ -127,7 +91,8 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
       async (item, dest, evt) => {
         // Now, as far as whether it should really have any effect, that depends on the type
         let path = dest[0].dataset.path!;
-        if (path) {
+        console.log("Native drop box handling");
+        if(path) {
           let data = await this.getDataLazy();
           gentle_merge(data, { [path]: item.ent });
           await this._commitCurrMM();
@@ -139,6 +104,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
         // as doing so tends to require type resolution (an async op that we can't really afford to do here).
         // But, so long as we have an ID and type, we should be able to resolve
         let pdata = safe_json_parse(data) as NativeDrop;
+        console.log("Native drop hovering");
         if (pdata?.id !== undefined && pdata?.type !== undefined) {
           return true;
         }
@@ -185,22 +151,6 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
   }
 
   /**
-   * Activate event listeners for editing owned items using the prepared sheet HTML
-   * @param html {JQuery}   The prepared HTML object ready to be rendered into the DOM
-   */
-  activateOpenItemListeners(html: JQuery) {
-    let items = html.find(".item");
-    items.on("click", (ev: Event) => {
-      if (!ev.currentTarget) return; // No target, let other handlers take care of it.
-      const li = $(ev.currentTarget);
-      const item = this.actor.getOwnedItem(li.data("itemId"));
-      if (item) {
-        item.sheet.render(true);
-      }
-    });
-  }
-
-  /**
    * Converts the data from a DragEvent event into an Item (or actor/journal/whatever) to add to the Actor.
    * This method does not modify the actor. Sub-classes must override _onDrop to
    * call super._onDrop and handle the resulting resolved drop
@@ -236,19 +186,6 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     return Promise.resolve(true);
   }
 
-  _updateTokenImage(formData: any) {
-    let token: any = this.actor.data["token"];
-    // Set the prototype token image if the prototype token isn't initialized
-    if (!token) {
-      formData["token.img"] = formData["img"];
-    }
-    // Update token image if it matches the old actor image
-    else if (this.actor.data.img === token["img"] && this.actor.img !== formData["img"]) {
-      formData["token.img"] = formData["img"];
-    }
-    return formData;
-  }
-
   _propagateMMData(formData: any): boolean {
     // Pushes relevant field data down from the "actor" data block to the "mm.ent" data block
     // Also meant to encapsulate all of the behavior of _updateTokenImage
@@ -258,23 +195,36 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
 
     // Set the prototype token image if the prototype token isn't initialized
     if (!token) {
-      formData["actor.token.img"] = formData["actor.img"];
+      formData["token.img"] = formData["img"];
+      formData["token.name"] = formData["name"];
       needs_update = true;
     }
 
-    // Update token image if it matches the old actor image
-    else if (this.actor.data.img === token["img"] && this.actor.img !== formData["actor.img"]) {
-      formData["actor.token.img"] = formData["actor.img"];
-      needs_update = true;
-    } // Otherwise don't update image
+    // Update token image if it matches the old actor image - keep in sync
+    // Ditto for name
+    else {
+      if (this.actor.data.img === token["img"] && this.actor.img !== formData["img"]) {
+        formData["token.img"] = formData["img"];
+        needs_update = true;
+      } // Otherwise don't update token
+      if (this.actor.data.name === token["name"] && this.actor.name !== formData["name"]) {
+        formData["token.name"] = formData["name"];
+        needs_update = true;
+      }
+    }
 
     // Need to update if name changed
-    if (this.actor.name != formData["actor.name"]) {
+    if (this.actor.name != formData["name"]) {
       needs_update = true;
+    }
+
+    // Numeric selects are annoying
+    if("npctier" in formData) {
+      formData["mm.ent.Tier"] = Number.parseInt(formData["npctier"]) || 1;
     }
 
     // Do push down name changes
-    formData["mm.ent.Name"] = formData["actor.name"];
+    formData["mm.ent.Name"] = formData["name"];
     return needs_update;
   }
 
@@ -287,22 +237,23 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     // Fetch the curr data
     let ct = await this.getDataLazy();
 
-    // Automatically propagate fields that should be set to multiple places
-    let should_top_update = this._propagateMMData(formData);
+    // Automatically propagate fields that should be set to multiple places, and determine if we need to update anything besides mm ent
+    let need_top_update = this._propagateMMData(formData);
 
-    // Locally update our working data
-    gentle_merge(ct, formData);
-
-    // Update top level. Handles name + token changes, etc
-    if (should_top_update) {
-      await this.actor.update(ct.actor);
+    // Do a separate update depending on mm data
+    if (need_top_update) {
+      let top_update = {} as any;
+      for(let key of Object.keys(formData)) {
+        if(!key.includes("mm.ent")) {
+          top_update[key] = formData[key];
+        }
+      }
+      // await this.actor.update(top_update, {});
+      await this.actor.update(top_update);
+    } else {
+      gentle_merge(ct, formData);
+      await this._commitCurrMM();
     }
-
-    // And then do a mm level writeback, always
-    await this._commitCurrMM(false); // will be done by update, regardless
-
-    // Return form data with any modifications
-    return formData;
   }
 
   /**
@@ -311,13 +262,11 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
    */
   // @ts-ignore Foundry-pc-types does not properly acknowledge that sheet `getData` functions can be/are asynchronous
   async getData(): Promise<LancerActorSheetData<T>> {
-    //@ts-ignore Conversion of type 'ActorSheetData | Promise<ActorSheetData>' to type 'LancerActorSheetData<T>' may be
-    // a mistake because neither type sufficiently overlaps with the other.
     const data = super.getData() as LancerActorSheetData<T>; // Not fully populated yet!
 
-    // Load mech meta stuff
-    data.mm = await mm_wrap_actor(this.actor as LancerActor<T>);
-    console.log(`${lp} Actor ctx: `, data);
+    // Drag up the mm context (when ready) to a top level entry in the sheet data
+    data.mm = await (this.actor.data as LancerActor<T>["data"]).data.derived.mmec_promise;
+    console.log(`${lp} Rendering with following actor ctx: `, data);
     this._currData = data;
     return data;
   }
@@ -330,10 +279,14 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
 
   // Write back our currently cached _currData, then refresh this sheet
   // Useful for when we want to do non form-based alterations
-  async _commitCurrMM(render: boolean = true) {
-    await this._currData?.mm.ent.writeback();
-    this._currData = null; // Reset
-    if (render) {
+  async _commitCurrMM() {
+    console.log("Committing ", this._currData);
+    let cd = this._currData;
+    this._currData = null;
+    await cd?.mm.ent.writeback() ?? null;
+
+    // Compendium entries don't re-draw appropriately
+    if(this.actor.compendium) {
       this.render();
     }
   }

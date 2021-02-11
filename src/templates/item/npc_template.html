@@ -1,36 +1,38 @@
 <form class="{{cssClass}} lancer-sheet" autocomplete="off">
-  
   {{!-- Sheet Header --}}
   <header class="sheet-header card clipped-bot">
-    <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}" height="100" width="100" />
-    <div class="header-fields" style="grid-area: 1/1/2/5;">
+    <div class="header-fields">
       <h1 class="charname"><input class="header-field" name="name" type="text" value="{{item.name}}" placeholder="Name"/></h1>
     </div>
+    {{{ ref-portrait-img item.img "img" mm.ent }}}
   </header>
   
   {{!-- Description --}}
-  <div class="flexcol card clipped" style="text-align: left;">
-    <span class="lancer-stat-header major clipped-top" style="text-align: center;">DESCRIPTION</span>
-    {{editor content=data.description target="data.description" button=true owner=owner editable=editable}}
+  <div class="card clipped" style="text-align: left;">
+    <span class="lancer-header major " style="text-align: center;">DESCRIPTION</span>
+    {{editor content=mm.ent.Description target="mm.ent.Description" button=true owner=owner editable=editable}}
   </div>
   
-  <div class="flexcol tags-container" style="margin: 10px;">
-    <div class="flexrow lancer-title">
-      <div class="major">BASE FEATURES</div>
-      <a class="add-button clickable" style="float: right; margin-right: 1em; max-width: 30px;">+</a>
+  </div>
+  <div class="flexcol" style="margin: 10px;">
+    <div class="lancer-title">
+      <span class="major">BASE FEATURES</span>
     </div>
-      <ul>
-        <div id="base_feature_items"></div>
-      </ul>
+
+    {{#each mm.ent.BaseFeatures as |feature feature_index|}}
+        {{{ref-mm-controllable-item-native (concat "mm.ent.BaseFeatures." feature_index) "splice" }}}
+    {{/each}}
+    {{{ref-mm-list-item-append "mm.ent.BaseFeatures" "npc_feature"}}}
   </div>
 
-  <div class="flexcol tags-container" style="margin: 10px;">
-    <div class="flexrow lancer-title">
-      <div class="major">OPTIONAL FEATURES</div>
-      <a class="add-button clickable" style="float: right; margin-right: 1em; max-width: 30px;">+</a>
+  <div class="flexcol" style="margin: 10px;">
+    <div class="lancer-title">
+      <span class="major">OPTIONAL FEATURES</span>
     </div>
-      <ul>
-        <div id="optional_feature_items"></div>
-      </ul>
+
+    {{#each mm.ent.OptionalFeatures as |feature feature_index|}}
+        {{{ref-mm-controllable-item-native (concat "mm.ent.OptionalFeatures." feature_index) "splice" }}}
+    {{/each}}
+    {{{ref-mm-list-item-append "mm.ent.OptionalFeatures" "npc_feature"}}}
   </div>
-  </form>
+</form>

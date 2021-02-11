@@ -17,11 +17,9 @@ import {
   LancerTalentMacroData,
   LancerTechMacroData,
   LancerTextMacroData,
-  LancerOverchargeMacroData,
-  TagDataShort,
 } from "./interfaces";
 // Import JSON data
-import { DamageType, EntryType, NpcFeatureType } from "machine-mind";
+import { DamageType, EntryType, NpcFeatureType, TagInstance } from "machine-mind";
 
 const lp = LANCER.log_prefix;
 
@@ -576,7 +574,7 @@ export function prepareCorePassiveMacro(a: string) {
  * @param text  Data path to text to be displayed by the macro
  * @param tags  Can optionally pass through an array of tags to be rendered
  */
-export function prepareTextMacro(a: string, title: string, text: string, tags?: TagDataShort[]) {
+export function prepareTextMacro(a: string, title: string, text: string, tags?: TagInstance[]) {
   console.log("DISABLED");
   return;
   // Determine which Actor to speak as

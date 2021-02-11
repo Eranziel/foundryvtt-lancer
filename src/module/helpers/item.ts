@@ -20,31 +20,28 @@ import {
   PilotArmor,
   PilotWeapon,
   PilotGear,
+  Mech,
+  Manufacturer,
+  License,
+  NpcFeature,
+  FittingSize,
 } from "machine-mind";
-import { MechWeapon, MechWeaponProfile } from "machine-mind";
-import { LANCER, LancerItemType, TypeIcon } from "../config";
-import { NPCDamageData, RangeData, TagData } from "../interfaces";
-import { LancerNpcFeatureData } from "../item/lancer-item";
-import { compact_tag_list } from "../item/tags";
-import { FlagData } from "../mm-util/foundry-reg";
-import { checked, render_icon, resolve_dotpath, selected } from "./commons";
-import { ref_commons, simple_mm_ref } from "./refs";
+import { MechWeapon } from "machine-mind";
+import { BonusEditDialog } from "../apps/bonus-editor";
+import { TypeIcon } from "../config";
+import { npc_reaction_effect_preview, npc_system_effect_preview, npc_tech_effect_preview, npc_trait_effect_preview, npc_weapon_effect_preview } from "../item/effects";
+import { compact_tag_list } from "./tags";
+import { checked, inc_if, render_light_icon, resolve_dotpath, resolve_helper_dotpath, selected } from "./commons";
+import { ref_commons, ref_params  } from "./refs";
 
-/**
- * Handlebars helper which checks whether a weapon is loading by examining its tags
- * @param tags The tags for the weapon
- */
-export function is_loading(tags: TagData[]) {
-  if (!tags || !Array.isArray(tags) || tags.length < 1) return false;
-  for (let i = 0; i < tags.length; i++) {
-    if (tags[i].id && tags[i].id === "tg_loading") {
-      return true;
-    }
-    if (tags[i].name && tags[i].name.toUpperCase() === "LOADING") {
-      return true;
-    }
-  }
-  return false;
+
+// Helper to handle formatting for on hit, crit, etc effects
+export function effect_helper(header: string, body: string): string { 
+  return `
+  <div class="flexcol effect-text" style="padding: 5px">
+    <div class="medium effect-title">EFFECT</div>
+    <div class="effect-text">${body}</div>
+  </div>`;
 }
 
 // TODO
@@ -53,17 +50,17 @@ export function is_loading(tags: TagData[]) {
 /**
  * Handlebars helper for weapon size selector
  */
-export function weapon_size_selector(weapon: MechWeapon, data_target_prefix: string) {
-  const data_target = `${data_target_prefix}.Size`;
+export function weapon_size_selector(size_path: string, helper: HelperOptions) {
+  let curr_size: WeaponSize = resolve_helper_dotpath(helper, size_path);
   let options: string[] = [];
 
   // Build our options
   for (let size of Object.values(WeaponSize)) {
-    let is_selected = weapon.Size.toLowerCase() == size.toLowerCase(); // Case tolerant selected
+    let is_selected = curr_size.toLowerCase() == size.toLowerCase(); // Case tolerant selected
     options.push(`<option value="${size}" ${selected(is_selected)}>${size.toUpperCase()}</option>`);
   }
 
-  return `<select name="${data_target}" data-type="String" style="align-self: center;"> 
+  return `<select name="${size_path}" data-type="String"> 
     ${options.join("\n")} 
   </select>`;
 }
@@ -71,17 +68,17 @@ export function weapon_size_selector(weapon: MechWeapon, data_target_prefix: str
 /**
  * Handlebars helper for weapon type selector. First parameter is the existing selection.
  */
-export function weapon_type_selector(profile: MechWeaponProfile, data_target_prefix: string) {
-  const data_target = `${data_target_prefix}.WepType`;
+export function weapon_type_selector(type_path: string, helper: HelperOptions) {
+  let curr_type: WeaponSize = resolve_helper_dotpath(helper, type_path);
   let options: string[] = [];
 
   // Build our options
   for (let type of Object.values(WeaponType)) {
-    let is_selected = profile.WepType.toLowerCase() == type.toLowerCase(); // Case tolerant selected
+    let is_selected = curr_type.toLowerCase() == type.toLowerCase(); // Case tolerant selected
     options.push(`<option value="${type}" ${selected(is_selected)}>${type.toUpperCase()}</option>`);
   }
 
-  return `<select name="${data_target}" data-type="String" style="align-self: center;"> 
+  return `<select name="${type_path}" data-type="String"> 
     ${options.join("\n")} 
   </select>`;
 }
@@ -160,7 +157,6 @@ export function damage_editor(damage: Damage, data_target_prefix: string) {
  * Handlebars helper for showing damage values
  */
 export function show_damage_array(damages: Damage[]): string {
-  console.log("Damages", damages);
   let results: string[] = [];
   for(let damage of damages) {
     let damage_item = `<span class="compact-damage"><i class="cci ${damage.Icon} i--m i--dark"></i>${damage.Value}</span>`;
@@ -173,131 +169,13 @@ export function show_damage_array(damages: Damage[]): string {
  * Handlebars helper for showing range values
  */
 export function show_range_array(ranges: Range[]): string {
-  console.log("Ranges", ranges);
   let results: string[] = [];
   for(let range of ranges) {
     let range_item = `<span class="compact-range"><i class="cci ${range.Icon} i--m i--dark"></i>${range.Value}</span>`;
     results.push(range_item);
   }
-  return `<div class="flexrow">${results.join(" // ")}</div>`
-}
-
-/**
- * Handlebars helper for npc weapon damage selector, across all 3 tiers
- */
-export function npc_weapon_damage_selector(
-  dmg_arr: NPCDamageData[],
-  key: number | string,
-  data_target: string
-) {
-  if (typeof key == "string") key = Number.parseInt(key);
-  let dmg: Partial<NPCDamageData> = {};
-  if (dmg_arr && Array.isArray(dmg_arr)) {
-    dmg = dmg_arr[key];
-  }
-  // Default in
-  dmg = {
-    type: DamageType.Kinetic,
-    val: ["0", "0", "0"],
-    ...dmg,
-  };
-
-  function damage_selector(dmg_type: DamageType, key: number | string, data_target: string) {
-    const dtype = dmg_type!.toLowerCase();
-    let html = '<div class="flexrow flex-center" style="padding: 5px; flex-wrap: nowrap;">';
-
-    if (dmg_type) {
-      html += `<i class="cci cci-${dtype} i--m damage--${dtype}"></i>`;
-    }
-    html += `<select name="${data_target}.type" data-type="String" style="align-self: center;">
-      <option value="" ${!dmg_type ? "selected" : ""}>NONE</option>
-      <option value="${DamageType.Kinetic}" ${
-      dtype === DamageType.Kinetic.toLowerCase() ? "selected" : ""
-    }>KINETIC</option>
-      <option value="${DamageType.Energy}" ${
-      dtype === DamageType.Energy.toLowerCase() ? "selected" : ""
-    }>ENERGY</option>
-      <option value="${DamageType.Explosive}" ${
-      dtype === DamageType.Explosive.toLowerCase() ? "selected" : ""
-    }>EXPLOSIVE</option>
-      <option value="${DamageType.Heat}" ${
-      dtype === DamageType.Heat.toLowerCase() ? "selected" : ""
-    }>HEAT</option>
-      <option value="${DamageType.Burn}" ${
-      dtype === DamageType.Burn.toLowerCase() ? "selected" : ""
-    }>BURN</option>
-      <option value="${DamageType.Variable}" ${
-      dtype === DamageType.Variable.toLowerCase() ? "selected" : ""
-    }>VARIABLE</option>
-    </select>`;
-    return html;
-  }
-
-  let html = damage_selector(dmg.type!, key, data_target);
-
-  html += `</div>
-  <div class="flexrow flex-center">
-    <i class="cci cci-npc-tier-1 i--m i--dark"></i>
-    <input class="lancer-stat" name="${data_target}.val" value="${
-    dmg.val![0] ? dmg.val![0] : ""
-  }" data-dtype="String" style="max-width: 80%;"/>
-  </div>
-  <div class="flexrow flex-center">
-    <i class="cci cci-npc-tier-2 i--m i--dark"></i>
-    <input class="lancer-stat" name="${data_target}.val" value="${
-    dmg.val![1] ? dmg.val![1] : ""
-  }" data-dtype="String" style="max-width: 80%;"/>
-  </div>
-  <div class="flexrow flex-center">
-    <i class="cci cci-npc-tier-3 i--m i--dark"></i>
-    <input class="lancer-stat" name="${data_target}.val" value="${
-    dmg.val![2] ? dmg.val![2] : ""
-  }" data-dtype="String" style="max-width: 80%;"/>
-  </div>`;
-  return html;
-}
-
-/**
- * Handlebars helper for a weapon preview range stat
- * @param range {RangeData} The range stat to render.
- * @param key {number} The range's index.
- */
-export function weapon_range_preview(range: Range, key: number) {
-  let html = ``;
-  if (range.Value) {
-    if (key > 0) {
-      html += `<span class="flexrow" style="align-items: center; justify-content: center; max-width: min-content;"> // </span>`;
-    }
-    html += `
-    <div class="compact-range">
-      <i class="cci cci-${range.RangeType.toLowerCase()} i--m i--dark"></i>
-      <span class="medium">${range.Value}</span>
-    </div>`;
-  }
-  return html;
-}
-
-/**
- * Handlebars helper for a weapon preview damage stat
- * @param damage {DamageData | NPCDamageData} The damage stat to render.
- * @param tier {number} The tier number of the NPC, not applicable to pilot-type weapons.
- */
-export function weapon_damage_preview(damage: Damage /* | NPCDamageData */, tier?: number) {
-  let html = ``;
-  let val: number | string;
-  if (tier != undefined && Array.isArray((damage as any).val)) {
-    // val = (damage as NPCDamageData).val[tier];
-    val = "npcs not yet reimp";
-  } else {
-    val = damage.Value;
-  }
-  if (damage && damage.DamageType) {
-    html += `<div class="compact-damage">
-      <i class="cci cci-${damage.DamageType.toLowerCase()} i--m damage--${damage.DamageType.toLowerCase()}"></i>
-      <span class="medium">${val}</span>
-    </div>`;
-  }
-  return html;
+  const sep = ` <span class="i--m"> // </span> `;
+  return `<div class="flexrow compact-range">${results.join(sep)}</div>`
 }
 
 /**
@@ -331,180 +209,44 @@ export function npc_accuracy_preview(acc: number) {
   return html;
 }
 
-// Previews an item posessed by a mech
-export function item_preview(item: LiveEntryTypes<LancerItemType>) {
-  /*
-  event.preventDefault();
-    const  a = event.currentTarget;
-    let entity = null;
-
-    // Target 1 - Compendium Link
-    if ( a.dataset.pack ) {
-      const pack = game.packs.get(a.dataset.pack);
-      let id = a.dataset.id;
-      if ( a.dataset.lookup ) {
-        if ( !pack.index.length ) await pack.getIndex();
-        const entry = pack.index.find(i => (i._id === a.dataset.lookup) || (i.name === a.dataset.lookup));
-        id = entry._id;
-      }
-      entity = id ? await pack.getEntity(id) : null;
-    }
-
-    // Target 2 - World Entity Link
-    else {
-      const cls = CONFIG[a.dataset.entity].entityClass;
-      entity = cls.collection.get(a.dataset.id);
-      if ( entity.entity === "Scene" && entity.journal ) entity = entity.journal;
-      if ( !entity.hasPerm(game.user, "LIMITED") ) {
-        return ui.notifications.warn(`You do not have permission to view this ${entity.entity} sheet.`);
-      }
-    }
-    if ( !entity ) return;
-
-    // Action 1 - Execute an Action
-    if ( entity.entity === "Macro" ) {
-      if ( !entity.hasPerm(game.user, "LIMITED") ) {
-        return ui.notifications.warn(`You do not have permission to use this ${entity.entity}.`);
-      }
-      return entity.execute();
-    }
-
-    // Action 2 - Render the Entity sheet
-    return entity.sheet.render(true);
-    */
-  return `<span>${item.Name}</span>`;
-}
-
-/**
- * Handlebars partial for a mech weapon preview card.
- */
-export const mech_weapon_preview = `<div class="flexcol clipped lancer-weapon-container weapon macroable item" style="max-height: fit-content;" data-item-id="{{weapon._id}}" data-item-key="{{key}}">
-  <div class="lancer-weapon-header clipped-top" style="grid-area: 1/1/2/3">
-    <i class="cci cci-weapon i--m i--light"> </i>
-    <span class="minor">{{weapon.name}} // {{upper-case weapon.data.mount}} {{upper-case weapon.data.weapon_type}}</span>
-    <a class="stats-control i--light" data-action="delete"><i class="fas fa-trash"></i></a>
-  </div> 
-  <div class="lancer-weapon-body">
-    <a class="roll-attack" style="grid-area: 1/1/2/2;"><i class="fas fa-dice-d20 i--m i--dark"></i></a>
-    <div class="flexrow" style="grid-area: 1/2/2/3; text-align: left; white-space: nowrap;">
-      {{#each weapon.data.range as |range rkey|}}
-        {{{wpn-range range rkey}}}
-      {{/each}}
-      <hr class="vsep">
-      {{#each weapon.data.damage as |damage dkey|}}
-        {{{wpn-damage damage}}}
-      {{/each}}
-
-      {{!-- Loading toggle - WIP, needs a way to link to related weapon. Maybe needs to be a callback instead of input.
-      <hr class="vsep">
-      {{#if (is-loading weapon.data.tags)}}
-        <div class="flexrow" style="align-items: center;">
-          LOADED: <label class="switch">
-            <input type="checkbox" name="weapon.data.loaded" {{checked weapon.data.loaded}}>
-            <span class="slider round"></span>
-          </label>
-        </div>
-      {{/if}}
-      --}}
-
-    </div>
-    {{#with weapon.data.effect as |effect|}}
-    <div style="grid-area: 2/1/3/3; display: inherit;">
-      {{{eff-preview effect}}}
-    </div>
-    {{/with}}
-    <div style="grid-area: 4/1/5/3; display: inherit;">
-      {{> tag-list tags=weapon.data.tags}}
-    </div>
-  </div>
-</div>`;
 
 /**
  * Handlebars partial for weapon type selector
  */
-export function system_type_selector(s_type: string, data_target: string) {
+export function system_type_selector(s_type: SystemType, data_target: string) {
   const s = s_type ? s_type.toLowerCase() : SystemType.System.toLowerCase();
+  let options: string[] = [];
+  for(let type of Object.values(SystemType)) {
+    options.push(`<option value="${type}" ${selected(s === type.toLowerCase())}>${type.toUpperCase()}</option>`);
+  }
+
   return `<select name="${data_target}" data-type="String" style="height: 2em; align-self: center;" >
-    <option value="${SystemType.System}" ${
-    s === SystemType.System.toLowerCase() ? "selected" : ""
-  }>SYSTEM</option>
-    <option value="${SystemType.AI}" ${
-    s === SystemType.AI.toLowerCase() ? "selected" : ""
-  }>AI</option>
-    <option value="${SystemType.Armor}" ${
-    s === SystemType.Armor.toLowerCase() ? "selected" : ""
-  }>ARMOR</option>
-    <option value="${SystemType.Deployable}" ${
-    s === SystemType.Deployable.toLowerCase() ? "selected" : ""
-  }>DEPLOYABLE</option>
-    <option value="${SystemType.Drone}" ${
-    s === SystemType.Drone.toLowerCase() ? "selected" : ""
-  }>DRONE</option>
-    <option value="${SystemType.FlightSystem}" ${
-    s === SystemType.FlightSystem.toLowerCase() ? "selected" : ""
-  }>FLIGHT SYSTEM</option>
-    <option value="${SystemType.Integrated}" ${
-    s === SystemType.Integrated.toLowerCase() ? "selected" : ""
-  }>INTEGRATED</option>
-    <option value="${SystemType.Mod}" ${
-    s === SystemType.Mod.toLowerCase() ? "selected" : ""
-  }>MOD</option>
-    <option value="${SystemType.Shield}" ${
-    s === SystemType.Shield.toLowerCase() ? "selected" : ""
-  }>SHIELD</option>
-    <option value="${SystemType.Tech}" ${
-    s === SystemType.Tech.toLowerCase() ? "selected" : ""
-  }>TECH</option>
-  </select>`;
+      ${options.join("")}
+    </select>`;
 }
 
 /**
- * Handlebars partial for effect type selector
+ * Handlebars partial for limited uses remaining
  */
-export function effect_type_selector(e_type: string, data_target: string) {
-  /*
-  const e = e_type ? e_type.toLowerCase() : EffectType.Basic.toLowerCase();
-  return `<select name="${data_target}" data-type="String" style="height: 2em;float: right" >
-    <option value="${EffectType.Basic}" ${
-    e === EffectType.Basic.toLowerCase() ? "selected" : ""
-  }>BASIC</option>
-    <option value="${EffectType.AI}" ${
-    e === EffectType.AI.toLowerCase() ? "selected" : ""
-  }>AI</option>
-    <option value="${EffectType.Charge}" ${
-    e === EffectType.Charge.toLowerCase() ? "selected" : ""
-  }>CHARGE</option>
-    <option value="${EffectType.Bonus}" ${
-    e === EffectType.Bonus.toLowerCase() ? "selected" : ""
-  }>BONUS</option>
-    <option value="${EffectType.Deployable}" ${
-    e === EffectType.Deployable.toLowerCase() ? "selected" : ""
-  }>DEPLOYABLE</option>
-    <option value="${EffectType.Drone}" ${
-    e === EffectType.Drone.toLowerCase() ? "selected" : ""
-  }>DRONE</option>
-    <option value="${EffectType.Protocol}" ${
-    e === EffectType.Protocol.toLowerCase() ? "selected" : ""
-  }>PROTOCOL</option>
-    <option value="${EffectType.Reaction}" ${
-    e === EffectType.Reaction.toLowerCase() ? "selected" : ""
-  }>REACTION</option>
-    <option value="${EffectType.Tech}" ${
-    e === EffectType.Tech.toLowerCase() ? "selected" : ""
-  }>TECH</option>
-  </select>`;
-  */
-  return "<span>effects are deprecated</span>";
+export function uses_control(uses_path: string, max_uses: number, helper: HelperOptions) {
+  const curr_uses = resolve_helper_dotpath(helper, uses_path) ?? 0;
+  // TODO: Remove this "justify-content" stuff, that should really be accomplished via a class
+  return ` <div class="flexrow flex-center">
+              <span>USES</span>
+              <input class="lancer-stat lancer-invisible-input" type="number" name="${uses_path}" value="${curr_uses}" data-dtype="Number" style="justify-content: left"/>
+              <span>/</span>
+              <span class="lancer-stat" style="justify-content: left"> ${max_uses}</span>
+            </div>`;
 }
 
 /**
  * Handlebars partial for a mech system preview card.
  */
 export const mech_system_preview = `<li class="card clipped mech-system-compact item" data-item-id="{{system._id}}">
-<div class="lancer-system-header clipped-top" style="grid-area: 1/1/2/3; display: flex">
+<div class="lancer-header" style="grid-area: 1/1/2/3; display: flex">
   <i class="cci cci-system i--m"> </i>
   <a class="system-macro macroable"><i class="mdi mdi-message"></i></a>
-  <span class="minor" style="flex-grow: 1">{{system.name}}</span>
+  <span class="minor grow">{{system.name}}</span>
   <a class="stats-control" data-action="delete"><i class="fas fa-trash"></i></a>
 </div>
 <div class="flexrow">
@@ -536,86 +278,31 @@ export const mech_system_preview = `<li class="card clipped mech-system-compact 
 {{> tag-list tags=system.data.tags}}
 </li>`;
 
-/**
- * Handlebars partial for non-editable Mech Trait
- */
-export const mech_trait_preview = `<div class="lancer-mech-trait-header medium clipped-top" style="grid-area: 1/1/2/2">
-  <i class="cci cci-trait i--m i--light"> </i>
-  <span class="major">{{trait.name}}</span>
-</div>
-<div class="effect-text" style="grid-area: 2/1/3/2">{{{trait.description}}}</div>`;
+export function npc_feature_preview(npc_feature_path: string, tier: number, helper: HelperOptions) {
+  let feature: NpcFeature = resolve_helper_dotpath(helper, npc_feature_path);
+  let delete_button = `<a class="gen-control" data-action="delete" data-path="${npc_feature_path}"><i class="fas fa-trash"></i></a>`
 
-/**
- * Handlebars partial for non-editable Core System
- */
-export const core_system_preview = `<div class="card clipped frame-core flexcol">
-  <div class="lancer-core-sys-header medium clipped-top">
-    <i></i>
-    <div class="major">{{csys.name}}</div>
-    <div class="medium" style="justify-self: right;"> // CORE SYSTEM</div>
-  </div>
-  {{#if csys.description}}
-  <div class="desc-text">{{{csys.description}}}</div>
-  {{/if}}
-  {{#if csys.passive_name}}
-  <div class="card clipped">
-    <div class="lancer-core-sys-header medium clipped-top" style="display:flex">
-      <i class="mdi mdi-circle-expand i--m i--light "> </i>
-      <a class="core-passive-macro macroable"><i class="mdi mdi-message"></i></a>
-      <div class="medium" style="flex-grow: 1">{{csys.passive_name}}</div>
-      <div class="medium" style="justify-self: right;"> // PASSIVE</div>
-    </div>
-    <div class="effect-text">{{{csys.passive_effect}}}</div>
-  </div>
-  {{/if}}
-  <div class="card clipped">
-    <div class="lancer-core-sys-header medium clipped-top" style="display:flex">
-      <i class="cci cci-corebonus i--m i--light" > </i>
-      <a class="core-active-macro macroable"><i class="mdi mdi-message"></i></a>
-      <div class="medium" style="flex-grow: 1">{{csys.active_name}}</div>
-      <div class="medium" style="justify-self: right;"> // ACTIVE</div>
-    </div>
-    <div class="effect-text">{{{csys.active_effect}}}</div>
-    {{> tag-list tags=csys.tags}}
-  </div>
-</div>`;
-
-export function npc_feature_preview(npc_feature: LancerNpcFeatureData, tier: number) {
-  let body = ``;
-  let type_class = `item`;
-  console.warn("NPC feature types WIP");
-  /*
-  switch (npc_feature.data.type) {
+  switch (feature.FeatureType) {
     case "Reaction":
-      body += npc_reaction_effect_preview(npc_feature.data as LancerNPCReactionData);
-      break;
+      return npc_reaction_effect_preview(npc_feature_path, feature, delete_button);
     case "System":
-      body += npc_system_effect_preview(npc_feature.data as LancerNPCSystemData);
-      break;
+      return npc_system_effect_preview(npc_feature_path, feature, delete_button);
     case "Trait":
-      body += npc_trait_effect_preview(npc_feature.data as LancerNPCTraitData);
-      break;
+      return npc_trait_effect_preview(npc_feature_path, feature, delete_button);
     case "Tech":
-      body += npc_tech_effect_preview(npc_feature.data as LancerNPCTechData, tier);
-      type_class += ` tech`;
-      break;
+      return npc_tech_effect_preview(npc_feature_path, feature, tier, delete_button);
     case "Weapon":
-      body += npc_weapon_effect_preview(npc_feature.data as LancerNPCWeaponData, tier);
-      type_class += ` weapon`;
-      break;
+      return npc_weapon_effect_preview(npc_feature_path, feature, tier, delete_button);
+    default:
+      return "bad feature";
   }
-  */
-  let html = `<li class="card clipped npc-feature-compact ${type_class}" data-item-id="${npc_feature._id}">`;
-  html += body;
-  html += `</li>`;
-  return html;
 }
 
 /** Expected arguments:
  * - bonus_path=<string path to the individual bonus item>,  ex: ="ent.mm.Bonuses.3"
  * - bonus=<bonus object to pre-populate with>
  */
-export function bonus_editor(bonus_path: string, bonus: Bonus) {
+export function single_bonus_editor(bonus_path: string, bonus: Bonus) {
   // Our main two inputs
   let id_input = `<label>ID: <input name="${bonus_path}.ID" value="${bonus.ID}" data-dtype="String" /> </label>`;
   let val_input = `<label>Value: <input name="${bonus_path}.Value" value="${bonus.Value}" data-dtype="String" /> </label>`;
@@ -624,11 +311,12 @@ export function bonus_editor(bonus_path: string, bonus: Bonus) {
   let damage_checkboxes: string[] = [];
   for (let dt of Object.values(DamageType)) {
     damage_checkboxes.push(
-      `<label>${render_icon(
-        Damage.icon_for(dt)
-      )} <input type="checkbox" name="${bonus_path}.DamageTypes.${dt}" ${checked(
-        bonus.DamageTypes[dt]
-      )} /> </label>`
+      `<label>
+        ${render_light_icon(Damage.icon_for(dt))} 
+        <input type="checkbox" 
+            name="${bonus_path}.DamageTypes.${dt}" 
+            ${checked(bonus.DamageTypes[dt])} /> 
+      </label>`
     );
   }
 
@@ -636,12 +324,11 @@ export function bonus_editor(bonus_path: string, bonus: Bonus) {
   for (let rt of Object.values(RangeType)) {
     range_checkboxes.push(
       `<label>
-        ${render_icon(Range.icon_for(rt))} 
+        ${render_light_icon(Range.icon_for(rt))} 
         <input type="checkbox" 
-          name="${bonus_path}.RangeTypes.${rt}"  
-          ${checked(bonus.RangeTypes[rt])} 
-          /> 
-        </label>`
+            name="${bonus_path}.RangeTypes.${rt}"  
+            ${checked(bonus.RangeTypes[rt])} /> 
+      </label>`
     );
   }
 
@@ -651,8 +338,7 @@ export function bonus_editor(bonus_path: string, bonus: Bonus) {
       `<label> ${tt} 
         <input type="checkbox" 
           name="${bonus_path}.WeaponTypes.${tt}" 
-          ${checked(bonus.WeaponTypes[tt])} 
-          /> 
+          ${checked(bonus.WeaponTypes[tt])} /> 
       </label>`
     );
   }
@@ -663,26 +349,25 @@ export function bonus_editor(bonus_path: string, bonus: Bonus) {
       `<label> ${st} 
         <input type="checkbox" 
           name="${bonus_path}.WeaponSizes.${st}" 
-          ${checked(bonus.WeaponSizes[st])}
-          /> 
+          ${checked(bonus.WeaponSizes[st])} /> 
       </label>`
     );
   }
 
   // Consolidate them into rows
-  return `<div class="card clipped">
-      ${id_input} <br>
-      ${val_input} <br>
-      <div class="d-flex">
+  return `<div class="card clipped" style="align-content: flex-start">
+      ${id_input}
+      ${val_input}
+      <div class="flexrow">
         ${damage_checkboxes.join(" ")}
       </div>
-      <div class="d-flex">
+      <div class="flexrow">
         ${range_checkboxes.join(" ")}
       </div>
-      <div class="d-flex">
+      <div class="flexrow">
         ${type_checkboxes.join(" ")}
       </div>
-      <div class="d-flex">
+      <div class="flexrow">
         ${size_checkboxes.join(" ")}
       </div>
     </div>`;
@@ -691,80 +376,59 @@ export function bonus_editor(bonus_path: string, bonus: Bonus) {
 /** Expected arguments:
  * - bonuses_path=<string path to the bonuses array>,  ex: ="ent.mm.Bonuses"
  * - bonuses=<bonus array to pre-populate with>.
+ * Displays a list of bonuses, with buttons to add/delete (if edit true)
  */
-export function bonus_array(bonuses_path: string, bonuses_array: Bonus[]) {
-  let rows = bonuses_array.map((bonus, index) => bonus_editor(`${bonuses_path}.${index}`, bonus));
-  rows = rows.map(r => `<li> ${r} </li>`);
-  return `<ul>
-        ${rows.join("\n")}
-    </ul>`;
-}
-
-// A specific MM ref display focused on displaying weapon info.
-export function weapon_preview(weapon_path: string, helper: HelperOptions): string {
-  let weapon: MechWeapon | null = resolve_dotpath(helper.data?.root, weapon_path);
-
-  // TODO? maybe do a little bit more here, aesthetically speaking
-  if (weapon) {
-    let orig_ent = (weapon.flags as FlagData<EntryType.MECH_WEAPON>).orig_entity;
-    let ref = weapon.as_ref();
-
-    let ranges = weapon.SelectedProfile.BaseRange.map((r, i) => weapon_range_preview(r, i)); // TODO: Show Bonuses
-    let damages = weapon.SelectedProfile.BaseDamage.map((r, i) => weapon_damage_preview(r, i));  // TODO: Show Bonuses
-    let loaded_section = "";
-    if(weapon.IsLoading) {
-      loaded_section = `
-          <div class="flexrow" style="align-items: center;">
-            LOADED: <label class="switch">
-              <input type="checkbox" name="${weapon_path}.Loaded" ${checked(weapon.Loaded)}>
-              <span class="slider round"></span>
-            </label>
-          </div>
-      ` ;
-    }
-
-    return `
-  <div class="flexcol clipped lancer-weapon-container weapon macroable item" style="max-height: fit-content;" data-item-id="${weapon.RegistryID}">
-    <div class="lancer-weapon-header clipped-top" style="grid-area: 1/1/2/3">
-      <i class="cci cci-weapon i--m i--light"> </i>
-      <span class="minor">${weapon.Name} // ${weapon.Size.toUpperCase()} ${weapon.Type.toUpperCase()}</span>
-      <a class="gen-control i--light" data-action="clear"><i class="fas fa-trash"></i></a>
-    </div> 
-    <div class="lancer-weapon-body">
-      <a class="roll-attack" style="grid-area: 1/1/2/2;"><i class="fas fa-dice-d20 i--m i--dark"></i></a>
-      <div class="flexrow" style="grid-area: 1/2/2/3; text-align: left; white-space: nowrap;">
-        ${ranges.join("")}
-        <hr class="vsep">
-        ${damages.join("")}
-
-        <!-- Loading toggle - WIP, needs a way to link to related weapon. Maybe needs to be a callback instead of input. -->
-        <hr class="vsep">
-        ${loaded_section}
+export function bonuses_display(bonuses_path: string, bonuses_array: Bonus[], edit: boolean) {
+  let items: string[] = [];
+  for(let i=0; i<bonuses_array.length; i++) {
+    let bonus = bonuses_array[i];
+    items.push(`
+      <div class="${inc_if("editable", edit)} bonus card clipped" data-path="${bonuses_path}.${i}">
+        <div class="lancer-header" title="${bonus.ID}">
+          <span class="grow">${bonus.Title}</span> 
+          ${inc_if(`<a class="gen-control" data-action="splice" data-path="${bonuses_path}.${i}"><i class="fas fa-trash"></i></a>`, edit)}
+        </div>
+        <span>${bonus.Detail}</span>
       </div>
-
-      <div style="grid-area: 4/1/5/3; display: inherit;">
-        ${compact_tag_list(weapon.SelectedProfile.Tags)}
-      </div>
-    </div>
-  </div>`;
-  } else {
-    return simple_mm_ref(EntryType.MECH_WEAPON, null, weapon_path);
+    `);
   }
-}
 
+  return `
+    <div class="card clipped">
+      <div class="lancer-header">
+        <span>BONUSES</span>
+        ${inc_if(`<a class="gen-control" data-action="append" data-path="${bonuses_path}" data-action-value="(struct)bonus">+</a>`, edit)}
+      </div>
+      ${items.join("\n")}
+    </div>
+    `;
+}
+export function HANDLER_activate_edit_bonus<T>(
+  html: JQuery,
+  data_getter: () => Promise<T> | T,
+  commit_func: (data: T) => void | Promise<void>
+) {
+  let bonuses = html.find(".editable.bonus.card");
+  bonuses.on("click", async (event) => {
+    // Find the bonus
+    let bonus_path = event.currentTarget.dataset.path;
+    if(!bonus_path) return;
+    let data = await data_getter();
+    return BonusEditDialog.edit_bonus(data, bonus_path, commit_func).catch(e => console.error("Dialog failed", e));
+  });
+}
 
 // Helper for showing a piece of armor, or a slot to hold it (if path is provided)
 export function pilot_armor_slot(armor_path: string, helper: HelperOptions): string {
   // Fetch the item
-  let armor_: PilotArmor | null = resolve_dotpath(helper.data?.root, armor_path);
+  let armor_: PilotArmor | null = resolve_helper_dotpath(helper, armor_path);
 
   // Generate commons
   let cd = ref_commons(armor_);
 
-
   if (!cd) {
     // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
-    return `<div class="${EntryType.PILOT_ARMOR} ref drop-target card clipped pilot-armor-compact-item" 
+    return `<div class="${EntryType.PILOT_ARMOR} ref drop-settable card" 
                         data-path="${armor_path}" 
                         data-type="${EntryType.PILOT_ARMOR}">
           <img class="ref-icon" src="${TypeIcon(EntryType.PILOT_ARMOR)}"></img>
@@ -781,13 +445,9 @@ export function pilot_armor_slot(armor_path: string, helper: HelperOptions): str
   let eva_val = armor.Bonuses.find(b => b.ID == "pilot_evasion")?.Value ?? "0";
   let hp_val = armor.Bonuses.find(b => b.ID == "pilot_hp")?.Value ?? "0";
 
-  return `<div class="valid ${cd.ref.type} ref drop-target card clipped pilot-armor-compact item" 
-                data-id="${cd.ref.id}" 
-                data-ref-type="${cd.ref.type}" 
-                data-reg-name="${cd.ref.reg_name}" 
-                data-path="${armor_path}"
-                data-type="${EntryType.PILOT_ARMOR}">
-            <div class="lancer-trait-header clipped-top" style="grid-area: 1/1/2/3">
+  return `<div class="valid ${cd.ref.type} ref drop-settable card clipped pilot-armor-compact item" 
+                ${ref_params(cd.ref, armor_path)} >
+            <div class="lancer-header">
               <i class="mdi mdi-shield-outline i--m i--light"> </i>
               <span class="minor">${armor!.Name}</span>
               <a class="gen-control i--light" data-action="null" data-path="${armor_path}"><i class="fas fa-trash"></i></a>
@@ -817,23 +477,23 @@ export function pilot_armor_slot(armor_path: string, helper: HelperOptions): str
             <div class="effect-text" style=" padding: 5px">
               ${armor.Description}
             </div>
-            ${compact_tag_list(armor.Tags)}
+            ${compact_tag_list(armor_path + ".Tags", armor.Tags)}
           </div>`;
 }
 
 
 
 // Helper for showing a pilot weapon, or a slot to hold it (if path is provided)
-export function pilot_weapon_slot(weapon_path: string, helper: HelperOptions): string {
+export function pilot_weapon_refview(weapon_path: string, helper: HelperOptions): string {
   // Fetch the item
-  let weapon_: PilotWeapon | null = resolve_dotpath(helper.data?.root, weapon_path);
+  let weapon_: PilotWeapon | null = resolve_helper_dotpath(helper, weapon_path);
 
   // Generate commons
   let cd = ref_commons(weapon_);
 
   if (!cd) {
     // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
-    return `<div class="${EntryType.PILOT_WEAPON} ref drop-target card clipped pilot-weapon-compact item" 
+    return `<div class="${EntryType.PILOT_WEAPON} ref drop-settable card flexrow" 
                         data-path="${weapon_path}" 
                         data-type="${EntryType.PILOT_WEAPON}">
           <img class="ref-icon" src="${TypeIcon(EntryType.PILOT_WEAPON)}"></img>
@@ -842,13 +502,9 @@ export function pilot_weapon_slot(weapon_path: string, helper: HelperOptions): s
   }
 
   let weapon = weapon_!;
-  return `<div class="valid ${EntryType.PILOT_WEAPON} ref drop-target card clipped pilot-weapon-compact item macroable"
-                data-id="${cd.ref.id}" 
-                data-ref-type="${cd.ref.type}" 
-                data-reg-name="${cd.ref.reg_name}" 
-                data-path="${weapon_path}"
-                data-type="${EntryType.PILOT_ARMOR}">
-    <div class="lancer-weapon-header clipped-top">
+  return `<div class="valid ${EntryType.PILOT_WEAPON} ref drop-settable card clipped pilot-weapon-compact item macroable"
+                ${ref_params(cd.ref, weapon_path)} >
+    <div class="lancer-header">
       <i class="cci cci-weapon i--m i--light"> </i>
       <span class="minor">${weapon.Name}</span>
       <a class="gen-control i--light" data-action="null" data-path="${weapon_path}"><i class="fas fa-trash"></i></a>
@@ -871,15 +527,13 @@ export function pilot_weapon_slot(weapon_path: string, helper: HelperOptions): s
       </div>
       -->
 
-      <div class="flexrow">
-        ${compact_tag_list(weapon.Tags)}
-      </div>
+      ${compact_tag_list(weapon_path + ".Tags", weapon.Tags)}
     </div>
   </div>`;
 }
 
 // Helper for showing a pilot gear, or a slot to hold it (if path is provided)
-export function pilot_gear_slot(gear_path: string, helper: HelperOptions): string {
+export function pilot_gear_refview(gear_path: string, helper: HelperOptions): string {
   // Fetch the item
   let gear_: PilotGear | null = resolve_dotpath(helper.data?.root, gear_path);
 
@@ -888,7 +542,7 @@ export function pilot_gear_slot(gear_path: string, helper: HelperOptions): strin
 
   if (!cd) {
     // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
-    return `<div class="${EntryType.PILOT_GEAR} ref drop-target card clipped pilot-gear-compact item" 
+    return `<div class="${EntryType.PILOT_GEAR} ref drop-settable card flexrow" 
                         data-path="${gear_path}" 
                         data-type="${EntryType.PILOT_GEAR}">
           <img class="ref-icon" src="${TypeIcon(EntryType.PILOT_GEAR)}"></img>
@@ -912,13 +566,9 @@ export function pilot_gear_slot(gear_path: string, helper: HelperOptions): strin
     `
   }
 
-  return `<div class="valid ${EntryType.PILOT_GEAR} ref drop-target card clipped pilot-gear-compact item macroable"
-                data-id="${cd.ref.id}" 
-                data-ref-type="${cd.ref.type}" 
-                data-reg-name="${cd.ref.reg_name}" 
-                data-path="${gear_path}"
-                data-type="${EntryType.PILOT_ARMOR}">
-    <div class="lancer-gear-header clipped-top">
+  return `<div class="valid ${EntryType.PILOT_GEAR} ref drop-settable card clipped macroable"
+                ${ref_params(cd.ref, gear_path)} >
+    <div class="lancer-header">
       <i class="cci cci-generic-item i--m"> </i>
       <a class="gear-macro macroable"><i class="mdi mdi-message"></i></a>
       <span class="minor">${gear.Name}</span>
@@ -927,20 +577,137 @@ export function pilot_gear_slot(gear_path: string, helper: HelperOptions): strin
     <div class="flexcol">
       ${uses}
 
-      <!-- Loading toggle - WIP
-      <div class="flexrow">
-        {{#if (is-loading gear.data.tags)}}
-          LOADING
-        {{/if}}
-      </div>
-      -->
       <div class="effect-text" style=" padding: 5px">
         ${gear.Description}
       </div>
 
-      <div class="flexrow">
-        ${compact_tag_list(gear.Tags)}
-      </div>
+      ${compact_tag_list(gear_path + ".Tags", gear.Tags)}
     </div>
   </div>`;
+}
+
+/**
+ * Handlebars helper for a mech weapon preview card. Doubles as a slot. Mech path needed for bonuses
+ */
+export function mech_weapon_refview(weapon_path: string, mech_path: string | "", helper: HelperOptions, size?: FittingSize): string { 
+  // Fetch the item(s)
+  let weapon_: MechWeapon | null = resolve_helper_dotpath(helper, weapon_path);
+  let mech_: Mech | null = resolve_helper_dotpath(helper, mech_path);
+
+  // Generate commons
+  let cd = ref_commons(weapon_);
+
+  if (!cd) {
+    // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
+    return `
+      <div class="${EntryType.MECH_WEAPON} ref drop-settable card flexrow" 
+                        data-path="${weapon_path}" 
+                        data-type="${EntryType.MECH_WEAPON}">
+        <img class="ref-icon" src="${TypeIcon(EntryType.MECH_WEAPON)}"></img>
+        <span class="major">Insert ${size ? size : "any"} weapon</span>
+      </div>`;
+  }
+
+  // Assert not null
+  let weapon = weapon_!;
+
+  // What profile are we using?
+  let profile = weapon.SelectedProfile;
+  let profile_path = `${weapon_path}.Profiles.${weapon.SelectedProfileIndex}`;
+
+  // Augment ranges
+  let ranges = profile.BaseRange;
+  if(mech_) {
+    ranges = Range.calc_range_with_bonuses(weapon, profile, mech_);
+  }
+
+  // Generate loading segment as needed
+  let loading = "";
+  if(weapon.IsLoading) {
+    let loading_icon = `mdi mdi-hexagon-slice-${weapon.Loaded ? 6 : 0}`;
+    loading = `<span> 
+                LOADED: 
+                <a class="gen-control" data-action="set" data-set-value="(bool)${!weapon.Loaded}" data-path="${weapon_path}.Loaded"><i class="${loading_icon}"></i></a>
+                </span>`;
+  }
+
+  // Generate effects
+  let effect = profile.Effect ? effect_helper("Effect", profile.Effect) : "";
+  let on_attack = profile.OnAttack ? effect_helper("On Attack", profile.OnAttack) : "";
+  let on_hit = profile.OnHit ? effect_helper("On Hit", profile.OnHit) : "";
+  let on_crit = profile.OnCrit ? effect_helper("On Crit", profile.OnCrit) : "";
+
+  return `
+  <div class="valid ${EntryType.MECH_WEAPON} ref drop-settable flexcol clipped lancer-weapon-container macroable item"
+                ${ref_params(cd.ref, weapon_path)}
+                style="max-height: fit-content;">
+    <div class="lancer-header">
+      <i class="cci cci-weapon i--m i--light"> </i>
+      <span class="minor">${weapon.Name} // ${weapon.Size.toUpperCase()} ${weapon.Type.toUpperCase()}</span>
+      <a class="gen-control i--light" data-action="null" data-path="${weapon_path}"><i class="fas fa-trash"></i></a>
+    </div> 
+    <div class="lancer-body">
+      <div class="flexrow" style="text-align: left; white-space: nowrap;">
+        <a class="roll-attack"><i class="fas fa-dice-d20 i--m i--dark"></i></a>
+        <hr class="vsep">
+        ${show_range_array(ranges)}
+        <hr class="vsep">
+        ${show_damage_array(weapon.SelectedProfile.BaseDamage)}
+
+        <!-- Loading toggle, if we are loading-->
+        <hr class="vsep">
+        ${loading}
+      </div>
+      
+      <div class="flexcol">
+        <span>${weapon.SelectedProfile.Description}</span>
+        ${effect}
+        ${on_attack}
+        ${on_hit}
+        ${on_crit}
+        ${compact_tag_list(profile_path + ".Tags", profile.Tags)}
+      </div>
+    </div>
+  </div>`
+};
+
+// A specific MM ref helper focused on displaying manufacturer info.
+export function manufacturer_ref(source_path: string, helper: HelperOptions): string {
+  let source_: Manufacturer | null = resolve_helper_dotpath(helper, source_path);
+  let cd = ref_commons(source_);
+  // TODO? maybe do a little bit more here, aesthetically speaking
+  if (cd) {
+    let source = source_!;
+    return `<div class="valid ${EntryType.MANUFACTURER} ref ref-card drop-settable" ${ref_params(cd.ref, source_path)}> 
+              <h3 class="mfr-name" style="color: ${source!.GetColor(false)};">
+                <i class="i--m cci ${source.Logo}"></i>
+                ${source!.ID}
+              </h3>
+                
+            </div>
+        `;
+  } else {
+    return `<div class="ref ref-card drop-settable ${EntryType.MANUFACTURER}">
+              <h3 class="mfr-name">No source specified</h3>
+            </div>
+        `;
+  }
+}
+
+// A specific MM ref helper focused on displaying license info.
+// This if for display purposes and does not provide editable fields
+export function license_ref(license: License | null, level: number): string {
+  let cd = ref_commons(license);
+  // TODO? maybe do a little bit more here, aesthetically speaking
+  if (cd) {
+    return `<div class="valid ${EntryType.LICENSE} ref ref-card" ${ref_params(cd.ref)}> 
+              <h3 class="license-name">${license!.Name} ${level}</h3>
+            </div>
+        `;
+  } else {
+    return `<div class="ref ref-card">
+              <h3 class="license-name">No license specified</h3>
+            </div>
+        `;
+  }
 }

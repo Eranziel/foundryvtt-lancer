@@ -1,6 +1,8 @@
 // Namespace configuration Values
 
 import { EntryType } from "machine-mind";
+import { LancerActorType } from "./actor/lancer-actor";
+import { LancerItemType } from "./item/lancer-item";
 
 const ASCII = `
 ╭╮╱╱╭━━━┳━╮╱╭┳━━━┳━━━┳━━━╮ 
@@ -30,73 +32,7 @@ const npc_items: LancerItemType[] = [ET.NPC_CLASS, ET.NPC_FEATURE, ET.NPC_TEMPLA
 const weapon_items: LancerItemType[] = [ET.MECH_WEAPON, ET.PILOT_WEAPON, ET.NPC_FEATURE];
 
 export type LancerEntityType = LancerItemType | LancerActorType;
-// A type containing all valid item types, machine-mind or otherwise
-export type LancerItemType =
-  | EntryType.CORE_BONUS
-  | EntryType.FACTION
-  | EntryType.FRAME
-  | EntryType.LICENSE
-  | EntryType.MECH_WEAPON
-  | EntryType.MECH_SYSTEM
-  | EntryType.NPC_CLASS
-  | EntryType.NPC_TEMPLATE
-  | EntryType.NPC_FEATURE
-  | EntryType.ORGANIZATION
-  | EntryType.PILOT_ARMOR
-  | EntryType.PILOT_WEAPON
-  | EntryType.PILOT_GEAR
-  | EntryType.RESERVE
-  | EntryType.SKILL
-  | EntryType.STATUS
-  | EntryType.TALENT
-  | EntryType.WEAPON_MOD
-  | EntryType.QUIRK
-  | EntryType.MANUFACTURER // hmmmm.... these falls into a similar role as tag. for the time being leaving it here, but it should really be more of a journal thing. Are there journal types?
-  | EntryType.SITREP
-  | EntryType.ENVIRONMENT
-  | EntryType.TAG;
 
-// A list of items that MM can handle safely. Ideally would be all of them, but there could be cases where they can't be (e.g. if someone adds mana or pets or something
-const mm_compat_item_types: Array<LancerItemType & EntryType> = [
-  ET.CORE_BONUS,
-  ET.FACTION,
-  ET.FRAME,
-  ET.LICENSE,
-  ET.MECH_WEAPON,
-  ET.MECH_SYSTEM,
-  ET.NPC_CLASS,
-  ET.NPC_TEMPLATE,
-  ET.NPC_FEATURE,
-  ET.ORGANIZATION,
-  ET.PILOT_ARMOR,
-  ET.PILOT_WEAPON,
-  ET.PILOT_GEAR,
-  ET.RESERVE,
-  ET.SKILL,
-  ET.STATUS,
-  ET.TALENT,
-  ET.WEAPON_MOD,
-  ET.QUIRK,
-  ET.MANUFACTURER,
-  ET.SITREP,
-  ET.ENVIRONMENT,
-  ET.TAG,
-];
-
-// A type containing all valid npc types, machine-mind or otherwise
-export type LancerActorType =
-  | EntryType.MECH
-  | EntryType.NPC
-  | EntryType.DEPLOYABLE
-  | EntryType.PILOT;
-
-// A list of actors that MM can handle safely.
-const mm_compat_actor_types: Array<LancerActorType & EntryType> = [
-  ET.MECH,
-  ET.NPC,
-  ET.DEPLOYABLE,
-  ET.PILOT,
-];
 
 export const STATUSES = [
   {
@@ -254,11 +190,7 @@ export const LANCER = {
   mech_items,
   pilot_items,
   weapon_items,
-  npc_items,
-  mm_compat_actor_types,
-  mm_compat_item_types,
-  actor_types: [...mm_compat_actor_types], // Could eventually be more
-  item_types: [...mm_compat_item_types], // Could eventually be more
+  npc_items
 };
 
 // Convenience for mapping item/actor types to full names
@@ -331,6 +263,7 @@ export function FriendlyTypeName(type: LancerItemType | LancerActorType, count?:
 }
 
 // Icons for each entity
+export const GENERIC_ITEM_ICON = "systems/lancer/assets/icons/generic_item.svg";
 const ENTITY_ICONS = {
   [EntryType.CORE_BONUS]: "systems/lancer/assets/icons/core_bonus.svg",
   [EntryType.DEPLOYABLE]: "systems/lancer/assets/icons/deployable.svg",
@@ -342,7 +275,7 @@ const ENTITY_ICONS = {
   [EntryType.MECH]: "systems/lancer/assets/icons/mech.svg",
   [EntryType.MECH_SYSTEM]: "systems/lancer/assets/icons/mech_system.svg",
   [EntryType.MECH_WEAPON]: "systems/lancer/assets/icons/mech_weapon.svg",
-  [EntryType.NPC]: "systems/lancer/assets/icons/npc.svg",
+  [EntryType.NPC]: "systems/lancer/assets/icons/npc_class.svg",
   [EntryType.NPC_CLASS]: "systems/lancer/assets/icons/npc_class.svg",
   [EntryType.NPC_FEATURE]: "systems/lancer/assets/icons/npc_feature.svg",
   [EntryType.NPC_TEMPLATE]: "systems/lancer/assets/icons/npc_template.svg",
@@ -359,7 +292,7 @@ const ENTITY_ICONS = {
   [EntryType.TAG]: "systems/lancer/assets/icons/tag.svg",
   [EntryType.TALENT]: "systems/lancer/assets/icons/talent.svg",
   [EntryType.WEAPON_MOD]: "systems/lancer/assets/icons/weapon_mod.svg",
-  generic: "systems/lancer/assets/icons/generic_item.svg",
+  generic: GENERIC_ITEM_ICON
 };
 
 // TODO: const MACRO_ICONS

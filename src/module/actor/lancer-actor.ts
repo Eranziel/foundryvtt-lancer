@@ -1,13 +1,20 @@
+import { LANCER } from "../config";
 import {
-  LancerPilotActorData,
-  LancerNPCActorData,
-  LancerDeployableActorData,
-  LancerNPCData,
-  LancerMountData,
-} from "../interfaces";
-import { LANCER, LancerActorType } from "../config";
-import { EntryType, MountType, funcs, RegEntryTypes } from "machine-mind";
+  EntryType,
+  funcs,
+  RegMechData,
+  Mech,
+  Deployable,
+  Npc,
+  RegRef,
+  RegDeployableData,
+  OpCtx,
+} from "machine-mind";
 import { FoundryRegActorData, FoundryRegItemData } from "../mm-util/foundry-reg";
+import { LancerHooks, LancerSubscription } from "../helpers/hooks";
+import { mm_wrap_actor } from "../mm-util/helpers";
+import { system_ready } from "../../lancer";
+import { LancerItemType } from "../item/lancer-item";
 import { renderMacro } from "../macros";
 const lp = LANCER.log_prefix;
 
@@ -43,9 +50,9 @@ export function lancerActorInit(data: any) {
     mergeObject(data, {
       data: default_data,
       img: `systems/lancer/assets/icons/${data.type}.svg`,
-      // TODO: NPCs still need to use mech.hp and mech.heat
-      "token.bar1": { attribute: "hp" }, // Default Bar 1 to HP
-      "token.bar2": { attribute: "heat" }, // Default Bar 2 to Heat
+      // TODO: Update to match data model
+      "token.bar1": { attribute: "derived.current_hp" }, // Default Bar 1 to HP
+      "token.bar2": { attribute: "derived.current_heat" }, // Default Bar 2 to Heat
       "token.displayName": display_mode,
       "token.displayBars": display_mode,
       "token.disposition": disposition,
@@ -58,67 +65,49 @@ export function lancerActorInit(data: any) {
   }
 }
 
+// Use for HP, etc
+interface BoundedValue {
+  min: number;
+  max: number;
+  value: number;
+}
+
 /**
  * Extend the Actor class for Lancer Actors.
  */
 export class LancerActor<T extends LancerActorType> extends Actor {
-  data!: FoundryRegActorData<T>;
+  data!: FoundryRegActorData<T> & {
+    // TODO: update to match template
+    data: {
+      // Include additional derived info
+      derived: {
+        // These are all derived and populated by MM
+        current_hp: BoundedValue;
+        current_heat: BoundedValue;
+        current_stress: BoundedValue;
+        current_structure: BoundedValue;
+        current_repairs: BoundedValue;
+        overshield: BoundedValue; // Though not truly a bounded value, useful to have it as such for bars etc
 
-  // Some TypeGuards...
-  isPilot = (
-    data: LancerPilotActorData | LancerNPCActorData | LancerDeployableActorData
-  ): data is LancerPilotActorData => data.type === "Pilot";
-  isNPC = (
-    data: LancerPilotActorData | LancerNPCActorData | LancerDeployableActorData
-  ): data is LancerNPCActorData => data.type === "NPC";
-  isDep = (
-    data: LancerPilotActorData | LancerNPCActorData | LancerDeployableActorData
-  ): data is LancerDeployableActorData => data.type === "deployable";
+        // Other values we particularly appreciate having cached
+        evasion: number;
+        edef: number;
+        save_target: number;
+        // todo - bonuses and stuff. How to allow for accuracy?
+      };
+    };
+  };
 
-  /**
-   * @override
-   * Handle how changes to a Token attribute bar are applied to the Actor.
-   * @param {string} attribute    The attribute path
-   * @param {number} value        The target attribute value
-   * @param {boolean} isDelta     Whether the number represents a relative change (true) or an absolute change (false)
-   * @param {boolean} isBar       Whether the new value is part of an attribute bar, or just a direct value
-   * @return {Promise<Actor>}     The updated Actor entity
-   */
-  async modifyTokenAttribute(
-    attribute: any,
-    value: number,
-    isDelta: boolean = false,
-    isBar: boolean = true
-  ) {
-    const current = getProperty(this.data.data, attribute);
-    if (isBar) {
-      if (isDelta) value = Number(current.value) + value;
-      return this.update({ [`data.${attribute}.value`]: value });
-    } else {
-      if (isDelta) value = Number(current) + value;
-      return this.update({ [`data.${attribute}`]: value });
-    }
-  }
+  /* -------------------------------------------- */
 
-  /**
-   * Returns the current frame used by the actor as an item
-   * Only applicable for pilots
-   */
-  // TODO: update or remove
-  // getCurrentFrame(): LancerFrameItemData | null {
-  //   // Function is only applicable to pilots.
-  //   if (this.data.type !== "pilot") return null;
-  //
-  //   let item_data = (this.items as unknown) as LancerItemData[];
-  //   let sorted = new ItemDataManifest().add_items(item_data.values());
-  //
-  //   // Only take one frame
-  //   if (sorted.frames.length) {
-  //     return (sorted.frames[0].data as unknown) as LancerFrameItemData;
-  //   } else {
-  //     return null;
-  //   }
-  // }
+  // Tracks data propagation
+  subscriptions: LancerSubscription[] = [];
+
+  // Kept for comparing previous to next values
+  prior_max_hp = -1;
+
+  // Kept separately so it can be used by items. Same as in our .data.data.derived.mmec_promise
+  _actor_ctx!: OpCtx;
 
   /**
    * Returns the current overcharge roll/text
@@ -144,96 +133,6 @@ export class LancerActor<T extends LancerActorType> extends Actor {
     // }
     return "1";
   }
-
-  /**
-   * Change Class or Tier on a NPC. Recalculates all stats on the NPC.
-   * @param newNPCClass Stats object from the new Class.
-   */
-  /*
-  async swapNPCClassOrTier(
-    newNPCClass: LancerNPCClassStatsData,
-    ClassSwap: boolean,
-    tier?: string
-  ): Promise<void> {
-    // Function is only applicable to NPCs.
-    if (this.data.type !== "npc") return;
-
-    let data = duplicate(this.data) as LancerNPCActorData;
-    const mech = duplicate((this.data as LancerNPCActorData).data.mech);
-
-    if (ClassSwap) {
-      data.data.tier = "npc-tier-1";
-      tier = "npc-tier-1";
-    }
-    let i = 0;
-    data.data.tier_num = 1;
-    switch (tier) {
-      case "npc-tier-custom":
-        data.data.tier_num = 4;
-        await this.update(data);
-        return;
-      case "npc-tier-2":
-        data.data.tier_num = 2;
-        i = 1;
-        break;
-      case "npc-tier-3":
-        data.data.tier_num = 3;
-        i = 2;
-    }
-    console.log(`LANCER| Swapping to Tier ${data.data.tier_num}`);
-
-    //HASE
-    mech.hull = newNPCClass.hull[i];
-    mech.agility = newNPCClass.agility[i];
-    mech.systems = newNPCClass.systems[i];
-    mech.engineering = newNPCClass.engineering[i];
-
-    // Resources
-    mech.hp.max = newNPCClass.hp[i];
-    mech.hp.value = mech.hp.max;
-    mech.heat.max = newNPCClass.heatcap[i];
-    mech.heat.value = 0;
-    if (Array.isArray(newNPCClass.structure) && newNPCClass.structure[i]) {
-      mech.structure.max = newNPCClass.structure[i];
-      mech.structure.value = mech.structure.max;
-    } else {
-      mech.structure.max = 1;
-      mech.structure.value = 1;
-    }
-    if (Array.isArray(newNPCClass.stress) && newNPCClass.stress[i]) {
-      mech.stress.max = newNPCClass.stress[i];
-      mech.stress.value = mech.stress.max;
-    } else {
-      mech.stress.max = 1;
-      mech.stress.value = 1;
-    }
-
-    // Stats
-    mech.size = newNPCClass.size[i];
-    mech.armor = newNPCClass.armor[i];
-    mech.speed = newNPCClass.speed[i];
-    mech.evasion = newNPCClass.evasion[i];
-    mech.edef = newNPCClass.edef[i];
-    mech.sensors = newNPCClass.sensor_range[i];
-    mech.save = newNPCClass.save[i];
-    if (Array.isArray(newNPCClass.size) && newNPCClass.size[i]) {
-      mech.size = newNPCClass.size[i];
-      if (newNPCClass.size[i] === 0.5) {
-        data.data.npc_size = "size-half";
-      } else {
-        data.data.npc_size = `size-${newNPCClass.size[i]}`;
-      }
-    } else {
-      mech.size = 1;
-      data.data.npc_size = `size-1`;
-    }
-    data.data.activations = newNPCClass.activations[i];
-
-    // Update the actor
-    data.data.mech = mech;
-    await this.update(data);
-  }
-  */
 
   /**
    * Performs overheat on the mech
@@ -471,24 +370,224 @@ export class LancerActor<T extends LancerActorType> extends Actor {
   /* -------------------------------------------- */
 
   /** @override
-   * Prepare any derived data which is actor-specific and does not depend on Items or Active Effects
+   * We want to reset our ctx before this. It is used by our items, such that they all can share
+   * the same ctx space.
    */
-  prepareBaseData() {
-    // console.log("Prepare base", this.data.name, this.data);
-    // switch ( this.data.type ) {
-    // case EntryType.PILOT:
-    // break;
-    // case "npc":
-    // break;
-    // case "vehicle":
-    // break;
-    // }
+  prepareEmbeddedEntities() {
+    this._actor_ctx = new OpCtx();
+    super.prepareEmbeddedEntities();
   }
 
-  /* -------------------------------------------- */
+  /** @override
+   * We need to both:
+   *  - Re-generate all of our subscriptions
+   *  - Re-initialize our MM context
+   */
+  prepareDerivedData() {
+    // Reset subscriptions for new data
+    this.setupLancerHooks();
 
-  /** @override */
-  prepareDerivedData() {}
+    // Declare our derived data with a shorthand "dr" - we will be using it a lot
+    let dr: this["data"]["data"]["derived"];
+
+    // Default in fields
+    let default_bounded = () => ({
+      min: 0,
+      max: 0,
+      value: 0,
+    });
+
+    // Prepare our derived stat data by first initializing an empty obj
+    dr = {
+      edef: 0,
+      evasion: 0,
+      save_target: 0,
+      current_heat: default_bounded(),
+      current_hp: default_bounded(),
+      overshield: default_bounded(),
+      current_structure: default_bounded(),
+      current_stress: default_bounded(),
+      current_repairs: default_bounded(),
+      mmec: null as any, // we will set these momentarily
+      mmec_promise: null as any, // we will set these momentarily
+    };
+
+    // Add into our wip data structure
+    this.data.data.derived = dr;
+
+    // Begin the task of wrapping our actor. When done, it will setup our derived fields - namely, our max values
+    // Need to wait for system ready to avoid having this break if prepareData called during init step (spoiler alert - it is)
+    let mmec_promise = system_ready
+      .then(() => mm_wrap_actor(this, this._actor_ctx))
+      .then(mmec => {
+        // Always save the context
+        // Save the context via defineProperty so it does not show up in JSON stringifies. Also, no point in having it writeable
+        Object.defineProperty(dr, "mmec", {
+          value: mmec,
+          configurable: true,
+          enumerable: false,
+        });
+
+        // Changes in max-hp should heal the actor. But certain requirements must be met
+        // - Must know prior (would be in dr.current_hp.max). If 0, do nothing
+        // - Must not be dead. If HP <= 0, do nothing
+        // - New HP must be valid. If 0, do nothing
+        // If above two are true, then set HP = HP - OldMaxHP + NewMaxHP. This should never drop the ent below 1 hp
+        const hp_change_corrector = (curr_hp: number, old_max: number, new_max: number) => {
+          if (curr_hp <= 0) return curr_hp;
+          if (old_max <= 0) return curr_hp;
+          if (new_max <= 0) return curr_hp;
+          let new_hp = curr_hp - old_max + new_max;
+          if (new_hp < 1) new_hp = 1;
+
+          // Return so it can also be set to the MM item
+          return new_hp;
+        };
+
+        // If our max hp changed, do somethin'
+        let curr_hp = mmec.ent.CurrentHP;
+        let corrected_hp = hp_change_corrector(curr_hp, this.prior_max_hp, mmec.ent.MaxHP);
+        if (curr_hp != corrected_hp) {
+          // Cancel christmas. We gotta update ourselves to reflect the new HP change >:(
+          console.warn(
+            "TODO: figure out a more elegant way to update hp based on max hp than calling update in prepareData. Maybe only choice."
+          );
+        }
+
+        // Set the general props. ALl actors have at least these
+        dr.edef = mmec.ent.EDefense;
+        dr.evasion = mmec.ent.Evasion;
+
+        dr.current_hp.value = mmec.ent.CurrentHP;
+        dr.current_hp.max = mmec.ent.MaxHP;
+
+        dr.overshield.value = mmec.ent.Overshield;
+        dr.overshield.max = mmec.ent.MaxHP; // as good a number as any I guess
+
+        // Depending on type, setup derived fields more precisely as able
+        if (mmec.ent.Type != EntryType.PILOT) {
+          let robot = mmec.ent as Mech | Npc | Deployable;
+
+          // All "wow, cool robot" type units have these
+          dr.save_target = robot.SaveTarget;
+          dr.current_heat.max = robot.HeatCapacity;
+          dr.current_heat.value = robot.CurrentHeat;
+
+          if (robot.Type != EntryType.DEPLOYABLE) {
+            // Deployables don't have stress/struct
+            dr.current_structure.max = robot.MaxStructure;
+            dr.current_structure.value = robot.CurrentStructure;
+
+            dr.current_stress.max = robot.MaxStress;
+            dr.current_stress.value = robot.CurrentStress;
+          }
+          if (robot.Type != EntryType.NPC) {
+            // Npcs don't have repairs
+            dr.current_repairs.max = robot.RepairCapacity;
+            dr.current_repairs.value = robot.CurrentRepairs;
+          }
+        }
+
+        // Update prior max hp val
+        this.prior_max_hp = dr.current_hp.max;
+
+        // Now that data is set properly, force token to draw its bars
+        if (this.token) {
+          (this.token as any).drawBars();
+        } else {
+          for (let token of this.getActiveTokens()) {
+            (token as any).drawBars();
+          }
+        }
+
+        return mmec;
+      });
+
+    // Also assign the promise via defineProperty, similarly to prevent enumerability
+    Object.defineProperty(dr, "mmec_promise", {
+      value: mmec_promise,
+      configurable: true,
+      enumerable: false,
+    });
+  }
+
+  /** @override
+   * Want to destroy derived data before passing it to an update
+   */
+  async update(data: any, options: any = undefined) {
+    // Never submit derived data. Typically won't show up here regardless
+    if (data?.derived) {
+      delete data.data.derived;
+    }
+
+    return super.update(data, options);
+  }
+
+  /** @override
+   * On the result of an update, we want to cascade derived data.
+   */
+  _onUpdate(...args: any) {
+    // Upon ourselves being updated, trigger any listener hooks
+    super._onUpdate(args[0], args[1], args[2], args[3]);
+    LancerHooks.call(this);
+  }
+
+  // Ditto - items alter stats quite often
+  _onModifyEmbeddedEntity(...args: any) {
+    //@ts-ignore Incorrect typings
+    super._onModifyEmbeddedEntity(...args);
+    LancerHooks.call(this);
+  }
+
+  setupLancerHooks() {
+    // If we're a compendium entity, don't actually do anything
+    if (this.compendium) {
+      return;
+    }
+
+    // Clear old subs
+    this.subscriptions?.forEach(subscription => {
+      subscription.unsubscribe();
+    });
+    this.subscriptions = [];
+
+    let dependency: RegRef<LancerActorType> | null = null;
+    // If we are a mech, we need to subscribe to our pilot (if it exists)
+    if (this.data.type == EntryType.MECH) {
+      let mech_data = (this.data.data as unknown) as RegMechData;
+      if (mech_data.pilot) {
+        dependency = mech_data.pilot;
+      }
+    } else if (this.data.type == EntryType.DEPLOYABLE) {
+      // If deployable, same deal
+      let dep_data = (this.data.data as unknown) as RegDeployableData;
+      if (dep_data.deployer) {
+        dependency = dep_data.deployer;
+      }
+    }
+
+    // Make a subscription for each
+    if (dependency) {
+      let sub = LancerHooks.on(dependency, async (_: any) => {
+        console.log("Triggering subscription-based update on " + this.name);
+        // We typically don't need to actually .update() ourselves when a dependency updates
+        // Each client will individually prepareDerivedData in response to the update, and so there is no need for DB communication
+        // Only exception is for cases like changes in max hp changing current HP - a tangible change in what data should be stored on this.
+        // Said updates will be fied off in prepareData if necessary.
+        this.prepareDerivedData();
+
+        // Wait for it to be done
+        await this.data.data.derived.mmec_promise;
+
+        // Trigger a render. Sheets may need to show something different now
+        this.render();
+
+        // Also, let any listeners on us know!
+        LancerHooks.call(this);
+      });
+      this.subscriptions.push(sub);
+    }
+  }
 }
 
 // Discrete types for all of our possible generic values
@@ -501,22 +600,19 @@ export type LancerPilotData = FoundryRegActorData<EntryType.PILOT>;
 export type LancerDeployable = LancerActor<EntryType.DEPLOYABLE>;
 export type LancerDeployableData = FoundryRegActorData<EntryType.DEPLOYABLE>;
 
-/* ------------------------------------ */
-/* Handlebars Helpers                    */
-/* ------------------------------------ */
+export type AnyLancerActor = LancerActor<LancerActorType>;
+export type LancerActorType =
+  | EntryType.MECH
+  | EntryType.DEPLOYABLE
+  | EntryType.NPC
+  | EntryType.PILOT;
+export const LancerActorTypes: LancerActorType[] = [
+  EntryType.MECH,
+  EntryType.DEPLOYABLE,
+  EntryType.NPC,
+  EntryType.PILOT,
+];
 
-/**
- * Handlebars helper for an NPC tier selector
- * @param tier The tier ID string
- */
-export function npc_tier_selector(tier: number) {
-  let template = `<select id="tier-type" class="tier-control" data-action="update">
-    <option value="npc-tier-1" ${tier === 1 ? "selected" : ""}>TIER 1</option>
-    <option value="npc-tier-2" ${tier === 2 ? "selected" : ""}>TIER 2</option>
-    <option value="npc-tier-3" ${tier === 3 ? "selected" : ""}>TIER 3</option>
-    <option value="npc-tier-custom" ${
-      tier != 1 && tier != 2 && tier != 3 ? "selected" : ""
-    }>CUSTOM</option>
-  </select>`;
-  return template;
+export function is_actor_type(type: LancerActorType | LancerItemType): type is LancerActorType {
+  return LancerActorTypes.includes(type as LancerActorType);
 }
