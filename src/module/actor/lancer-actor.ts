@@ -114,6 +114,8 @@ export class LancerActor<T extends LancerActorType> extends Actor {
    * Only applicable for pilots
    * Overkill for now but there are situations where we'll want this to be configurable
    */
+  // TODO: migrate to new paradigm
+  /*
   getOverchargeRoll(): string | null {
     // Function is only applicable to pilots.
     if (this.data.type !== "pilot") return null;
@@ -133,6 +135,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
     // }
     return "1";
   }
+   */
 
   /**
    * Performs overheat on the mech

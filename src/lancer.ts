@@ -10,16 +10,10 @@
 // Import TypeScript modules
 import { LANCER, STATUSES, WELCOME } from "./module/config";
 import { LancerGame } from "./module/lancer-game";
-import {
-  LancerActor,
-  lancerActorInit,
-} from "./module/actor/lancer-actor";
+import { LancerActor, lancerActorInit } from "./module/actor/lancer-actor";
 import { LancerItem, lancerItemInit } from "./module/item/lancer-item";
 
-import {
-  action_type_icon,
-  action_type_selector,
-} from "./module/item/effects";
+import { action_type_icon, action_type_selector } from "./module/item/effects";
 
 // Import applications
 import { LancerPilotSheet } from "./module/actor/pilot-sheet";
@@ -34,9 +28,7 @@ import { WeaponRangeTemplate } from "./module/pixi/weapon-range-template";
 // Import helpers
 import { preloadTemplates } from "./module/preloadTemplates";
 import { registerSettings } from "./module/settings";
-import {
-  compact_tag_list
-} from "./module/helpers/tags";
+import { compact_tag_list } from "./module/helpers/tags";
 import * as migrations from "./module/migration";
 import { addLCPManager } from "./module/apps/lcpManager";
 
@@ -77,15 +69,23 @@ import {
   clicker_stat_card,
   compact_stat_edit,
   compact_stat_view,
+  deployer_slot,
+  npc_clicker_stat_card,
+  npc_tier_selector,
   overcharge_button,
   stat_edit_card,
   stat_edit_card_max,
   stat_view_card,
 } from "./module/helpers/actor";
 import { HelperOptions } from "handlebars";
-import { editable_mm_ref_list_item, simple_mm_ref, mm_ref_portrait, mm_ref_list_append_slot, editable_mm_ref_list_item_native } from "./module/helpers/refs";
+import {
+  editable_mm_ref_list_item,
+  simple_mm_ref,
+  mm_ref_portrait,
+  mm_ref_list_append_slot,
+  editable_mm_ref_list_item_native,
+} from "./module/helpers/refs";
 import { mech_loadout, pilot_slot } from "./module/helpers/loadout";
-import { LancerNPCSheet } from "./module/actor/npc-sheet";
 
 const lp = LANCER.log_prefix;
 
@@ -312,7 +312,6 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("clicker-stat-card", clicker_stat_card);
   Handlebars.registerHelper("npc-clicker-stat-card", npc_clicker_stat_card);
 
-
   // ------------------------------------------------------------------------
   // Refs
   Handlebars.registerHelper("simple-ref", simple_mm_ref);
@@ -344,8 +343,12 @@ Hooks.once("init", async function () {
 
   // ------------------------------------------------------------------------
   // Bonuses
-  Handlebars.registerHelper("edit-bonuses-view", (bonuses_path: string, bonuses_array: Bonus[]) => bonuses_display(bonuses_path, bonuses_array, true));
-  Handlebars.registerHelper("read-bonuses-view", (bonuses_path: string, bonuses_array: Bonus[]) => bonuses_display(bonuses_path, bonuses_array, false));
+  Handlebars.registerHelper("edit-bonuses-view", (bonuses_path: string, bonuses_array: Bonus[]) =>
+    bonuses_display(bonuses_path, bonuses_array, true)
+  );
+  Handlebars.registerHelper("read-bonuses-view", (bonuses_path: string, bonuses_array: Bonus[]) =>
+    bonuses_display(bonuses_path, bonuses_array, false)
+  );
   Handlebars.registerHelper("bonuses-view", bonuses_display); // Takes a third arg
   Handlebars.registerHelper("edit-bonus", single_bonus_editor);
 
@@ -418,7 +421,7 @@ Hooks.once("init", async function () {
 /* When ready                           */
 /* ------------------------------------ */
 // Make an awaitable for when this shit is done
-export const system_ready: Promise<void> = new Promise((success) => {
+export const system_ready: Promise<void> = new Promise(success => {
   Hooks.once("ready", async function () {
     await versionCheck();
 
@@ -600,9 +603,9 @@ Hooks.on("hotbarDrop", (_bar: any, data: any, slot: number) => {
 
 // Make derived fields properly update their intended origin target
 Hooks.on("modifyTokenAttribute", (_: any, data: any) => {
-  for(let key of Object.keys(data)) {
+  for (let key of Object.keys(data)) {
     // If starts with "data.derived", replace with just "data"
-    if(key.includes("data.derived.")) {
+    if (key.includes("data.derived.")) {
       // Cut the .derived, and also remove any trailing .value to resolve pseudo-bars
       let new_key = key.replace(/^data\.derived\./, "data.");
       new_key = new_key.replace(/\.value$/, "");
@@ -611,7 +614,7 @@ Hooks.on("modifyTokenAttribute", (_: any, data: any) => {
       console.log(`Overrode assignment from ${key} to ${new_key}`);
     }
   }
-})
+});
 
 /**
  * Performs our version validation

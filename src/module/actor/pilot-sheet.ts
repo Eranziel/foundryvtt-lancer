@@ -1,7 +1,4 @@
-import {
-  LancerMechWeapon,
-  LancerPilotWeapon,
-} from "../item/lancer-item";
+import { LancerMechWeapon, LancerPilotWeapon } from "../item/lancer-item";
 import { LANCER } from "../config";
 import { LancerActorSheet } from "./lancer-actor-sheet";
 import { prepareCoreActiveMacro, prepareCorePassiveMacro } from "../macros";
@@ -235,12 +232,15 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
           let raw_pilot_data = await funcs.gist_io.download_pilot(self.mm.ent.CloudID);
 
           // Pull the trigger
-          let pseudo_compendium = new FoundryReg({ // We look for missing items here
+          let pseudo_compendium = new FoundryReg({
+            // We look for missing items here
             item_source: ["compendium", null],
-            actor_source: "world"
+            actor_source: "world",
           });
-          let synced_data = await funcs.cloud_sync(raw_pilot_data, self.mm.ent, [pseudo_compendium]);
-          if(!synced_data) {
+          let synced_data = await funcs.cloud_sync(raw_pilot_data, self.mm.ent, [
+            pseudo_compendium,
+          ]);
+          if (!synced_data) {
             throw new Error("Pilot was somehow destroyed by the sync");
           }
 
@@ -252,10 +252,13 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
 
           for (let mech of synced_data.pilot_mechs) {
             let mech_actor = (mech.flags as FlagData<EntryType.MECH>).orig_entity;
-            await mech_actor.update({
-              name: mech.Name || mech_actor.name,
-              img: mech.CloudPortrait || mech_actor.img,
-            }, {});
+            await mech_actor.update(
+              {
+                name: mech.Name || mech_actor.name,
+                img: mech.CloudPortrait || mech_actor.img,
+              },
+              {}
+            );
             mech_actor.render();
           }
 
@@ -374,7 +377,6 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
 
     // Writeback when done. Even if nothing explicitly changed, probably good to trigger a redraw (unless this is double-tapping? idk)
     await new_live_this.writeback();
-
 
     // Always return the item if we haven't failed for some reason
     return item;
@@ -506,7 +508,8 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
       formData["actor.token.name"] = formData["data.callsign"];
     }
 
-    formData = this._updateTokenImage(formData);
+    // TODO: where did you come from, where did you go?
+    // formData = this._updateTokenImage(formData);
 
     // Then let poarent handle
     return super._updateObject(event, formData);

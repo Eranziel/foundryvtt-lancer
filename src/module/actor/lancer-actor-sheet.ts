@@ -1,7 +1,25 @@
 import { LANCER } from "../config";
-import { HANDLER_activate_general_controls,  gentle_merge, is_ref, resolve_dotpath, safe_json_parse } from "../helpers/commons";
-import { enable_native_dropping_mm_wrap, enable_simple_ref_dragging, enable_simple_ref_dropping, NativeDrop, ResolvedNativeDrop, resolve_native_drop } from "../helpers/dragdrop";
-import { HANDLER_activate_ref_dragging, HANDLER_activate_ref_drop_clearing, HANDLER_activate_ref_drop_setting, HANDLER_openRefOnClick } from "../helpers/refs";
+import {
+  HANDLER_activate_general_controls,
+  gentle_merge,
+  is_ref,
+  resolve_dotpath,
+  safe_json_parse,
+} from "../helpers/commons";
+import {
+  enable_native_dropping_mm_wrap,
+  enable_simple_ref_dragging,
+  enable_simple_ref_dropping,
+  NativeDrop,
+  ResolvedNativeDrop,
+  resolve_native_drop,
+} from "../helpers/dragdrop";
+import {
+  HANDLER_activate_ref_dragging,
+  HANDLER_activate_ref_drop_clearing,
+  HANDLER_activate_ref_drop_setting,
+  HANDLER_openRefOnClick,
+} from "../helpers/refs";
 import { LancerActorSheetData, LancerStatMacroData } from "../interfaces";
 import { FoundryRegActorData } from "../mm-util/foundry-reg";
 import { mm_wrap_actor } from "../mm-util/helpers";
@@ -53,14 +71,26 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     this._activatePlusMinusButtons(html);
 
     // Make refs droppable
-    HANDLER_activate_ref_drop_setting(html, () => this.getDataLazy(), (_) => this._commitCurrMM());
-    HANDLER_activate_ref_drop_clearing(html, () => this.getDataLazy(), (_) => this._commitCurrMM());
+    HANDLER_activate_ref_drop_setting(
+      html,
+      () => this.getDataLazy(),
+      _ => this._commitCurrMM()
+    );
+    HANDLER_activate_ref_drop_clearing(
+      html,
+      () => this.getDataLazy(),
+      _ => this._commitCurrMM()
+    );
 
     // Enable native ref drag handlers
     this._activateNativeRefDropBoxes(html);
 
     // Enable general controls, so items can be deleted and such
-    HANDLER_activate_general_controls(html.find(".gen-control"), () => this.getDataLazy(), (_) => this._commitCurrMM());
+    HANDLER_activate_general_controls(
+      html.find(".gen-control"),
+      () => this.getDataLazy(),
+      _ => this._commitCurrMM()
+    );
   }
 
   _activatePlusMinusButtons(html: any) {
@@ -92,7 +122,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
         // Now, as far as whether it should really have any effect, that depends on the type
         let path = dest[0].dataset.path!;
         console.log("Native drop box handling");
-        if(path) {
+        if (path) {
           let data = await this.getDataLazy();
           gentle_merge(data, { [path]: item.ent });
           await this._commitCurrMM();
@@ -219,7 +249,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     }
 
     // Numeric selects are annoying
-    if("npctier" in formData) {
+    if ("npctier" in formData) {
       formData["mm.ent.Tier"] = Number.parseInt(formData["npctier"]) || 1;
     }
 
@@ -243,8 +273,8 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     // Do a separate update depending on mm data
     if (need_top_update) {
       let top_update = {} as any;
-      for(let key of Object.keys(formData)) {
-        if(!key.includes("mm.ent")) {
+      for (let key of Object.keys(formData)) {
+        if (!key.includes("mm.ent")) {
           top_update[key] = formData[key];
         }
       }
@@ -262,7 +292,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
    */
   // @ts-ignore Foundry-pc-types does not properly acknowledge that sheet `getData` functions can be/are asynchronous
   async getData(): Promise<LancerActorSheetData<T>> {
-    const data = super.getData() as LancerActorSheetData<T>; // Not fully populated yet!
+    const data = ((await super.getData()) as unknown) as LancerActorSheetData<T>; // Not fully populated yet!
 
     // Drag up the mm context (when ready) to a top level entry in the sheet data
     data.mm = await (this.actor.data as LancerActor<T>["data"]).data.derived.mmec_promise;
@@ -283,10 +313,10 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     console.log("Committing ", this._currData);
     let cd = this._currData;
     this._currData = null;
-    await cd?.mm.ent.writeback() ?? null;
+    (await cd?.mm.ent.writeback()) ?? null;
 
     // Compendium entries don't re-draw appropriately
-    if(this.actor.compendium) {
+    if (this.actor.compendium) {
       this.render();
     }
   }

@@ -12,6 +12,7 @@ import { LancerActor } from "./actor/lancer-actor";
 import {
   LancerAttackMacroData,
   LancerGenericMacroData,
+  LancerOverchargeMacroData,
   LancerReactionMacroData,
   LancerStatMacroData,
   LancerTalentMacroData,

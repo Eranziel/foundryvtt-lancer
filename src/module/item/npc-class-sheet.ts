@@ -220,10 +220,12 @@ export class LancerNPCClassSheet extends LancerItemSheet<EntryType.NPC_CLASS> {
     this.render();
   }
 
+  // TODO: npc_feature_preview expects a path to the feature, not a feature reference
+  /*
   private _displayFeatures(features: LancerNpcFeatureData[], elementToReplace: JQuery<Element>) {
     let featureItems = features
       .map(feature => {
-        return npc_feature_preview(feature, 0);
+        return npc_feature_preview(feature, 0, {});
       })
       .map(featureItem => {
         if (featureItem) {
@@ -240,4 +242,5 @@ export class LancerNPCClassSheet extends LancerItemSheet<EntryType.NPC_CLASS> {
 
     elementToReplace.replaceWith(featureItems);
   }
+   */
 }
