@@ -577,6 +577,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         // Each client will individually prepareDerivedData in response to the update, and so there is no need for DB communication
         // Only exception is for cases like changes in max hp changing current HP - a tangible change in what data should be stored on this.
         // Said updates will be fied off in prepareData if necessary.
+        this._actor_ctx = new OpCtx();
         this.prepareDerivedData();
 
         // Wait for it to be done

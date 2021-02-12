@@ -24,30 +24,18 @@
       </div>
 
       <div>
-        {{{sys-type-sel mm.ent.SysType "mm.ent.SysType"}}}
+        {{{sys-type-sel "mm.ent.SysType"}}}
       </div>
     </div>
 
 
-    <div class="card clipped">
-      <span class="lancer-header major ">DESCRIPTION</span>
-      <div style="margin: 5px">
-        {{editor content=mm.ent.Description target="mm.ent.Description" button=true owner=owner editable=editable}}
-      </div>
-    </div>
-
-    {{!-- EFFECT --}}
-    <div class="card clipped">
-      <span class="lancer-header major">EFFECT</span>
-      <div style="margin: 5px">
-        {{editor content=mm.ent.Effect target="mm.ent.Effect" button=true owner=owner editable=editable}}
-      </div>
-    </div>
+    {{{textarea-card "DESCRIPTION" "mm.ent.Description"}}}
+    {{{textarea-card "EFFECT" "mm.ent.Effect"}}}
 
     {{!-- Tags --}}
     <div class="card">
       <span class="lancer-header major">TAGS</span>
-      {{{mm-tag-list "mm.ent.Tags" mm.ent.Tags}}}
+      {{{mm-tag-list "mm.ent.Tags" mm.ent.Tags editable}}}
     </div>
 
     {{!-- Bonuses --}}

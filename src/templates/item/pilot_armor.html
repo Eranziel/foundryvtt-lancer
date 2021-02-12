@@ -18,35 +18,35 @@
           <i class="mdi mdi-shield-outline i--m i--light header-icon"> </i>
           <span class="major">ARMOR</span>
         </div>
-        {{{l-num-input "data.armor" data.armor}}}
+        {{{l-num-input "data.armor"}}}
       </div>
       <div class="card clipped">
         <div class="lancer-header">
           <i class="mdi mdi-heart-outline i--m i--light header-icon"> </i>
           <span class="major">HP BONUS</span>
         </div>
-        {{{l-num-input "data.hp_bonus" data.hp_bonus}}}
+        {{{l-num-input "data.hp_bonus" }}}
       </div>
       <div class="card clipped">
         <div class="lancer-header">
           <i class="cci cci-edef i--m i--light header-icon"> </i>
           <span class="major">E-DEF</span>
         </div>
-        {{{l-num-input "data.edef" data.edef}}}
+        {{{l-num-input "data.edef" }}}
       </div>
       <div class="card clipped">
         <div class="lancer-header">
           <i class="cci cci-evasion i--m i--light header-icon"> </i>
           <span class="major">EVASION</span>
         </div>
-        {{{l-num-input "data.evasion" data.evasion}}}
+        {{{l-num-input "data.evasion" }}}
       </div>
       <div class="card clipped">
         <div class="lancer-header">
           <i class="mdi mdi-arrow-right-bold-hexagon-outline i--m i--light header-icon"> </i>
           <span class="major">SPEED</span>
         </div>
-        {{{l-num-input "data.speed" data.speed}}}
+        {{{l-num-input "data.speed" }}}
       </div>
     </div>
   </div>
@@ -54,17 +54,12 @@
   --}}
 
   {{!-- Description --}}
-  <div class="card clipped">
-    <span class="lancer-header major">DESCRIPTION</span>
-    <div class="big-editor">
-      {{editor content=mm.ent.Description target="mm.ent.Description" button=true owner=owner editable=editable}}
-    </div>
-  </div>
+  {{{textarea-card "DESCRIPTION" "mm.ent.Description"}}}
 
   {{!-- Tags --}}
   <div class="card">
     <span class="lancer-header major">TAGS</span>
-    {{{mm-tag-list "mm.ent.Tags" mm.ent.Tags}}}
+    {{{mm-tag-list "mm.ent.Tags" mm.ent.Tags editable}}}
   </div>
 
   {{!-- Bonuses --}} 

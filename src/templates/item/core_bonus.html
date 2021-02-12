@@ -11,26 +11,9 @@
 
   {{!-- Sheet Body --}}
   <div class="flexcol">
-    <div class="card clipped">
-      <span class="lancer-header">DESCRIPTION</span>
-      <div class="big-editor">
-        {{editor content=mm.ent.Description target="mm.ent.Description" button=true owner=owner editable=editable}}
-      </div>
-    </div>
-
-    <div class="card clipped">
-      <span class="lancer-header">EFFECT</span>
-      <div class="big-editor">
-        {{editor content=mm.ent.Effect target="mm.ent.Effect" button=true owner=owner editable=editable}}
-      </div>
-    </div>
-
-    <div class="card clipped">
-      <span class="lancer-header">MOUNTED EFFECT</span>
-      <div class="big-editor">
-        {{editor content=mm.ent.MountedEffect target="mm.ent.MountedEffect" button=true owner=owner editable=editable}}
-      </div>
-    </div>
+    {{{textarea-card "DESCRIPTION" "mm.ent.Description"}}}
+    {{{textarea-card "EFFECT" "mm.ent.Effect"}}}
+    {{{textarea-card "MOUNTED EFFECT" "mm.ent.MountedEffect"}}}
 
     {{!-- Bonuses --}}
     {{{bonuses-view "mm.ent.Bonuses" mm.ent.Bonuses editable}}}

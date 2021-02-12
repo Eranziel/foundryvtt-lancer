@@ -34,23 +34,21 @@ export class BonusEditDialog<O> extends Dialog {
    * Expose our data
   */
   getData(): any {
-    let new_data = {
+    return {
+      ...super.getData(),
       damage_types: Object.values(DamageType),
       range_types: Object.values(RangeType),
       weapon_types: Object.values(WeaponType),
       weapon_sizes: Object.values(WeaponSize),
       bonus: this.bonus,
       path: this.bonus_path
-
-
     }
-    return mergeObject(super.getData(), new_data);
   }
 
   /* -------------------------------------------- */
 
   /**
-   * A helper constructor function which displays the Long Rest confirmation dialog and returns a Promise once it's
+   * A helper constructor function which displays the bonus editor and returns a Promise once it's
    * workflow has been resolved.
    * @param {Actor5e} actor
    * @return {Promise}
@@ -84,7 +82,6 @@ export class BonusEditDialog<O> extends Dialog {
               });
 
               // Do the merge
-              console.log("FLAT DATA", flat_data);
               gentle_merge(in_object, flat_data);
               resolve(Promise.resolve(commit_callback(in_object)));
             }

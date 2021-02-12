@@ -20,5 +20,10 @@
   {{!-- Sheet Body --}}
   <section class="sheet-body">
     {{{textarea-card "DESCRIPTION" "mm.ent.Description"}}}
+    <div class="card">
+      <span class="lancer-header">TAG META INFO</span>
+      {{{ std-string-input "mm.ent.ID" label="ID:"  }}}
+      {{{ std-checkbox "mm.ent.Hidden" label="Hidden:"  label_classes="self-left" }}}
+    </div>
   </section>
 </form>

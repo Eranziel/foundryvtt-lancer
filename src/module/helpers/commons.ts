@@ -16,8 +16,11 @@ import {
   FittingSize,
   MechWeaponProfile,
   FrameTrait,
-  Bonus
+  Bonus,
+  SerUtil
 } from "machine-mind";
+import { defaults } from "machine-mind/dist/funcs";
+import { HTMLEditDialog } from "../apps/text-editor";
 import { LancerActorSheetData, LancerItemSheetData } from "../interfaces";
 import { MMEntityContext } from "../mm-util/helpers";
 
@@ -63,8 +66,8 @@ export function gentle_merge(dest: any, flat_data: any) {
     if (curr instanceof Object && curr[tail] !== undefined) {
       // Implicitly hits array as well
       curr[tail] = v;
-    } else {
-      console.log(`Gentlemerge skipped key "${k}" while merging `, dest, flat_data);
+    } else  {
+      // console.log(`Gentlemerge skipped key "${k}" while merging `, dest, flat_data);
     }
   }
 }
@@ -110,9 +113,65 @@ export function array_path_edit(target: any, flat_path: string, value: any, mode
   }
 }
 
-/** Makes an icon */
-export function render_light_icon(icon_name: string): string {
-  return `<i class="cci ${icon_name} i--m i--light"> </i>`;
+/** Makes many icons in the same format with ease an icon */
+export class IconFactory {
+  // Applied to each icon
+  private classes: string[] = [];
+  private icon_prefix: string = "";
+
+  constructor(args: {
+    light?: boolean, // Force icon white
+    dark?: boolean, // Force icon black
+    size?: "xs" | "s" | "sm" | "m" | "l" | "xl",
+    /*
+    This arg a bit fancy. 
+    - Can be left unset, in which case you'll invoke r with a fairly conventional r("cci cci-heat"), for example.
+    - Can be set with the icon grouping, e.x. "cci", in which case one would only have to supply r("cci-heat")
+    - Can be set with icon grouping and glyph prefix, e.x. "cci,cci" in which case it will automatically prefix any params to arg with the prefix. So, can do r("heat")
+    */
+    icon_set?: string 
+  }) {
+    // Turn options into classes
+    if(args.light) {
+      this.classes.push("i--light");
+    }
+    if(args.dark) {
+      this.classes.push("i--dark");
+    }
+
+    this.classes.push(`i--${args.size ?? "m"}`); // Default medium
+
+    if(args.icon_set) {
+      let split = args.icon_set.split(",");
+      if(split.length > 1) {
+        // Advanced prefixing mode
+        this.classes.push(split[0]);
+        this.icon_prefix = split[1].trim() + "-";
+      } else {
+        // Simpler mode
+        this.classes.push(args.icon_set);
+      }
+    }
+  }
+
+  // Produces an icon with the given glyph using configured classes
+  r(icon: string): string {
+    return `<i class="${this.classes.join(" ")} ${this.icon_prefix}${icon}"> </i>`;
+  }
+}
+
+// Common to many feature/weapon/system previews. Auto-omits on empty body
+export function effect_box(title: string, text: string, add_classes:string = ""): string {
+  if (text) {
+    return `
+      <div class="effect-box ${add_classes}">
+        <span class="effect-title">${title}</span>
+        <span class="effect-text" style="padding: 0 5px ">${text}</span>
+      </div>
+      `;
+  } else {
+    return "";
+  }
 }
 
 // JSON parses a string, returning null instead of an exception on a failed parse
@@ -143,16 +202,55 @@ export function format_dotpath(path: string): string {
 }
 
 // Helper function to get arbitrarily deep array references
-export function resolve_dotpath(object: any, path: string) {
+export function resolve_dotpath(object: any, path: string, default_: any = null) {
   return format_dotpath(path)
     .split(".")
-    .reduce((o, k) => o?.[k], object) ?? null;
+    .reduce((o, k) => o?.[k], object) ?? default_;
 }
 
 // Helper function to get arbitrarily deep array references, specifically in a helperoptions, and with better types for that matter
-export function resolve_helper_dotpath(helper: HelperOptions, path: string): any {
-  let resolved = resolve_dotpath(helper.data?.root, path);
-  return resolved;
+export function resolve_helper_dotpath<T>(helper: HelperOptions, path: string): T
+export function resolve_helper_dotpath<T>(helper: HelperOptions, path: string, default_: T): T
+export function resolve_helper_dotpath<T>(helper: HelperOptions, path: string, default_: T, try_parent: boolean): T
+export function resolve_helper_dotpath(helper: HelperOptions, path: string, default_: any = null, try_parent: boolean = false): any {
+  if(try_parent) {
+    const false_fail = "MaybeWecanTryagian"; // A temporary default value. Distinguish this from like, a "real" null/default/whatever
+    let data = helper.data;
+
+    // Loop until no _parent
+    while(data) {
+      let resolved = resolve_dotpath(data?.root, path, false_fail);
+      if(resolved != false_fail) {
+        // Looks like we found something!
+        return resolved;
+      }
+      data = data._parent;
+    }
+
+    // We've found nothing. Sad
+    return default_;
+  } else {
+    // Trivial wrapper.
+    return resolve_dotpath(helper.data?.root, path, default_);
+  }
+}
+
+/**
+ * Use this when invoking a helper from another helper, and you want to augment the hash args in some way
+ * @argument defaults These properties will be inserted iff the hash doesn't already have that value.
+ * @argument overrides These properties will be inserted regardless of pre-existing value
+*/
+export function ext_helper_hash(orig_helper: HelperOptions, overrides: HelperOptions["hash"], defaults: HelperOptions["hash"] = {}): HelperOptions {
+  return {
+    fn: orig_helper.fn,
+    inverse: orig_helper.inverse,
+    hash: {
+      ...defaults,
+      ...orig_helper.hash,
+      ...overrides
+    },
+    data: orig_helper.data
+  }
 }
 
 /** Enables controls that can:
@@ -177,7 +275,7 @@ export function HANDLER_activate_general_controls<T extends LancerActorSheetData
     data_getter: (() => (Promise<T> | T)),
     commit_func: ((data: T) => void | Promise<void>)) {
 
-    html.on("click", async (event: any) => { 
+    html.find(".gen-control").on("click", async (event: any) => { 
      // Get the id/action
       event.stopPropagation();
       const elt = event.currentTarget;
@@ -310,4 +408,190 @@ async function control_structs(key: string, ctx: MMEntityContext<any>): Promise<
 
   // Didn't find a match
   return [false, null];
+}
+
+// Our standardized functions for making simple key-value input pair
+// Todo - these could on the whole be a bit fancier, yeah?
+
+/**
+ * Our standardized string/number inputs.
+ * By default, just invoked with a path expression which is resolved into a value.
+ * However, can supply the following
+ * - `label`: Prefix the input with a label
+ * - `value`: Override the initial value with one resolved from elsewhere. Useful if get/set don't go to same place
+ * - `classes`: Additional classes to put on the input.
+ * - `label_classes`: Additional classes to put on the label, if one exists.
+ * - `default`: If resolved value is undefined, use this
+ */
+function std_input(path: string, type: string, options: HelperOptions) {
+  // Get other info
+  let input_classes: string = options.hash["classes"] || "";
+  let label: string = options.hash["label"] || "";
+  let label_classes: string = options.hash["label_classes"] || "";
+  let default_val: string = "" + (options.hash["default"] ?? ""); // May sometimes get zero. Handle that
+
+  let value: string | undefined = options.hash["value"];
+  if(value == undefined) {
+    // Resolve
+    value = resolve_helper_dotpath(options, path) ?? default_val;
+  }
+
+  let input = `<input class="grow ${input_classes}" name="${path}" value="${value}" type="${type.toLowerCase()}" data-dtype="${type}" />`;
+
+  if(label) {
+    return `
+    <label class="flexrow no-wrap ${label_classes}">
+      <span class="no-grow" style="padding: 2px 5px;">${label}</span> 
+      ${input}
+    </label>`;
+  } else {
+    return input;
+  }
+}
+
+export function std_string_input(path: string, options: HelperOptions) {
+  return std_input(path, "String", options);
+}
+
+export function std_num_input(path: string, options: HelperOptions) {
+  return std_input(path, "Number", options);
+}
+
+// Shows a [X] / Y display, where X is an editable value and Y is some total (e.x. max hp)
+export function std_x_of_y(x_path: string, x: number, y: number, add_classes: string = "") {
+  return ` <div class="flexrow flex-center no-wrap ${add_classes}">
+              <input class="lancer-stat lancer-invisible-input" type="number" name="${x_path}" value="${x}" data-dtype="Number" style="justify-content: left"/>
+              <span>/</span>
+              <span class="lancer-stat" style="justify-content: left"> ${y}</span>
+            </div>`;
+}
+
+/**
+ * Our standardized checkbox
+ * By default, just invoked with a path expression which is resolved into a value, which is used as the initial selection true/false
+ * However, can supply the following
+ * - `value`: Override the initial value with one resolved from elsewhere. Useful if get/set don't go to same place
+ * - `label`: Label to use, if any
+ * - `classes`: Additional classes to put on the checkbox itself.
+ * - `label_classes`: Additional classes to put on the label, if it exists
+ * - `default`: Change the default value if resolution fails. Otherwise, we just use the first one in the enum.
+ */
+export function std_checkbox(path: string, options: HelperOptions) {
+  // Get hash args
+  let input_classes: string = options.hash["classes"] || "";
+  let label: string = options.hash["label"] || "";
+  let label_classes: string = options.hash["label_classes"] || "";
+  let default_val: boolean = !!options.hash["default"]; 
+
+  // Get the value, either by supplied arg, path resolution, or default
+  let value: boolean | undefined = options.hash["value"];
+  if(value == undefined) {
+    // Resolve
+    value = resolve_helper_dotpath(options, path) ?? default_val;
+  }
+
+
+
+  let input = `<input class="${input_classes}" name="${path}" ${inc_if("checked", value)} type="checkbox" />`;
+  if(label) {
+  return `
+    <label class="flexrow flex-center ${label_classes}">
+      <span class="no-grow" style="padding: 2px 5px;">${label}</span>
+      ${input}
+    </label>`;
+  } else {
+    return input; // Nothing else needed
+  }
+}
+
+/**
+ * Our standardized select, which allows picking of a choice from an enum of options
+ * By default, just invoked with a path expression which is resolved into a value, which is used as the initial selection
+ * However, can supply the following
+ * - `value`: Override the initial value with one resolved from elsewhere. Useful if get/set don't go to same place
+ * - `classes`: Additional classes to put on the select.
+ * - `default`: Change the default value if resolution fails. Otherwise, we just use the first one in the enum.
+ */
+export function std_enum_select<T extends string>(path: string, enum_: {[key: string]: T}, options: HelperOptions) {
+  // Get the classes to add
+  let select_classes: string = options.hash["classes"] || "";
+
+  // Get the default. If undefined, use first found.
+  let default_val: T | undefined = options.hash["default"];
+  if(default_val == undefined) {
+    default_val = Object.values(enum_)[0];
+  }
+
+  // Get the value
+  let value: T | undefined = options.hash["value"];
+  if(value == undefined) {
+    // Resolve
+    value = resolve_helper_dotpath(options, path, default_val);
+  }
+
+  // Restrict value to the enum
+  let selected = SerUtil.restrict_enum(enum_, default_val, value!);
+
+  let choices: string[] = [];
+  for(let choice of Object.values(enum_)) {
+    choices.push(`<option value="${choice}" ${inc_if("selected", choice === selected)}>${choice.toUpperCase()}</option>`);
+  }
+
+  let select = `
+      <select name="${path}" class="${select_classes}" data-type="String" style="height: 2em; align-self: center;" >
+        ${choices.join("")}
+      </select>`;
+  return select;
+}
+
+// A button to open a popout editor targeting the specified path
+export function popout_editor_button(path: string) {
+  return `<a class="fas fa-edit popout-text-edit-button" data-path="${path}"> </a>`;
+}
+
+export function HANDLER_activate_popout_text_editor<T extends LancerActorSheetData<any> | LancerItemSheetData<any>>(
+    html: JQuery, 
+    // Retrieves the data that we will operate on
+    data_getter: (() => (Promise<T> | T)),
+    commit_func: ((data: T) => void | Promise<void>)) {
+
+    html.find(".popout-text-edit-button").on("click", async evt => {
+      let cd = await data_getter();
+      evt.stopPropagation();
+      const elt = evt.currentTarget;
+      const path = elt.dataset.path;
+      if(path) {
+        HTMLEditDialog.edit_text(cd, path, commit_func);
+      }
+    })
+}
+
+
+// A handlebars helper that makes the provided html safe by closing tags and eliminating all on<eventname> attributes
+export function safe_html_helper(orig: string) {
+  // Do simple html correction
+  let doc = document.createElement('div');
+  doc.innerHTML = orig;
+  orig = doc.innerHTML; // Will have had all tags etc closed
+
+  // then kill all on<event>. Technically this will hit attrs, we don't really care
+  let bad = /on[a-zA-Z\-]+=".*?"/g
+  orig = orig.replace(bad, "");
+  return orig;
+}
+
+// These typically are the exact same so we made a helper for 'em
+export function large_textbox_card(title: string, text_path: string, helper: HelperOptions) {
+  let resolved = resolve_helper_dotpath(helper, text_path, "");
+  return `
+  <div class="card full clipped">
+    <div class="lancer-header">
+      <span>${title}</span>
+      ${popout_editor_button(text_path)}
+    </div>
+    <div class="desc-text">
+      ${safe_html_helper(resolved.trim() || "// MISSING ENTRY //")}
+    </div>
+  </div>
+  `;
 }

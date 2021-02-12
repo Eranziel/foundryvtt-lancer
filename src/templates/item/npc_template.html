@@ -7,11 +7,7 @@
     {{{ ref-portrait-img item.img "img" mm.ent }}}
   </header>
   
-  {{!-- Description --}}
-  <div class="card clipped" style="text-align: left;">
-    <span class="lancer-header major " style="text-align: center;">DESCRIPTION</span>
-    {{editor content=mm.ent.Description target="mm.ent.Description" button=true owner=owner editable=editable}}
-  </div>
+  {{{textarea-card "DESCRIPTION" "mm.ent.Description"}}}
   
   </div>
   <div class="flexcol" style="margin: 10px;">

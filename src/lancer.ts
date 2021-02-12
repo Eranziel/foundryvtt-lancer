@@ -13,7 +13,10 @@ import { LancerGame } from "./module/lancer-game";
 import { LancerActor, lancerActorInit } from "./module/actor/lancer-actor";
 import { LancerItem, lancerItemInit } from "./module/item/lancer-item";
 
-import { action_type_icon, action_type_selector } from "./module/item/effects";
+import {
+  action_type_icon,
+  action_type_selector,
+} from "./module/helpers/npc";
 
 // Import applications
 import { LancerPilotSheet } from "./module/actor/pilot-sheet";
@@ -39,9 +42,14 @@ import * as macros from "./module/macros";
 import compareVersions = require("compare-versions");
 import { NpcFeatureType, EntryType, Manufacturer, Bonus } from "machine-mind";
 import {
-  render_light_icon,
   resolve_dotpath,
   resolve_helper_dotpath,
+  popout_editor_button,
+  safe_html_helper,
+  large_textbox_card,
+  std_string_input,
+  std_num_input,
+  std_checkbox,
 } from "./module/helpers/commons";
 import { is_loading } from "machine-mind/dist/classes/mech/EquipUtil";
 import {
@@ -52,7 +60,6 @@ import {
   npc_accuracy_preview,
   mech_weapon_refview,
   system_type_selector,
-  mech_system_preview,
   npc_feature_preview,
   damage_editor,
   bonuses_display,
@@ -286,10 +293,11 @@ Hooks.once("init", async function () {
     return accum;
   });
 
+  Handlebars.registerHelper("safe-html", safe_html_helper);
+
+
   // ------------------------------------------------------------------------
   // Generic components
-  Handlebars.registerHelper("light-icon", render_light_icon);
-
   Handlebars.registerHelper("l-num-input", clicker_num_input);
 
   // For debugging
@@ -302,6 +310,9 @@ Hooks.once("init", async function () {
     return s;
   });
 
+  Handlebars.registerHelper("textarea-card", large_textbox_card);
+
+
   // ------------------------------------------------------------------------
   // Stat helpers
   Handlebars.registerHelper("compact-stat-edit", compact_stat_edit);
@@ -311,6 +322,10 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("stat-edit-max-card", stat_edit_card_max);
   Handlebars.registerHelper("clicker-stat-card", clicker_stat_card);
   Handlebars.registerHelper("npc-clicker-stat-card", npc_clicker_stat_card);
+  Handlebars.registerHelper("std-string-input", std_string_input);
+  Handlebars.registerHelper("std-num-input", std_num_input);
+  Handlebars.registerHelper("std-checkbox", std_checkbox);
+  
 
   // ------------------------------------------------------------------------
   // Refs
@@ -351,6 +366,7 @@ Hooks.once("init", async function () {
   );
   Handlebars.registerHelper("bonuses-view", bonuses_display); // Takes a third arg
   Handlebars.registerHelper("edit-bonus", single_bonus_editor);
+  Handlebars.registerHelper("popout-editor-button", popout_editor_button);
 
   // ------------------------------------------------------------------------
   // Weapons
@@ -369,7 +385,6 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("uses-ctrl", uses_control);
   Handlebars.registerHelper("act-icon", action_type_icon);
   Handlebars.registerHelper("act-type-sel", action_type_selector);
-  Handlebars.registerPartial("mech-system-preview", mech_system_preview);
 
   // ------------------------------------------------------------------------
   // Effects

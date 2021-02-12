@@ -41,6 +41,8 @@
           {{{deployer-slot "mm.ent.Deployer" }}}
         </div>
 
+        {{{textarea-card "DETAILS" "mm.ent.Detail"}}}
+
         {{!-- 
           {{{stat-edit-max-card  "REPAIRS"     "cci cci-repair"           "mm.ent.CurrentRepairs" "mm.ent.RepairCapacity" }}}
           {{{stat-view-card      "ATTACK"      "cci cci-heart"            "mm.ent.AttackBonus" }}}
@@ -52,12 +54,6 @@
 
     {{!-- Config Tab --}}
     <div class="tab manage flexcol" data-group="primary" data-tab="config">
-      {{!-- Description --}}
-      <div class="card clipped" style="text-align: left;">
-        <span class="lancer-header major " style="text-align: center;">DETAIL</span>
-        <div class="desc-text">{{editor content=mm.ent.Detail target="mm.ent.Detail" button=true owner=owner editable=editable}}</div>
-      </div>
-
       {{!-- Frame Stats --}}
       <div class="card clipped" style="text-align: left;">
         <span class="lancer-header major " style="text-align: center;">BASE STATS</span>

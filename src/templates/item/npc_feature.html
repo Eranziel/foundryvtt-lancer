@@ -39,28 +39,18 @@
 
     {{!-- Reaction --}}
     {{#if (eq mm.ent.FeatureType "Reaction")}}
-    <div class="clipped card">
-      <span class="lancer-header major ">TRIGGER</span>
-      {{editor content=mm.ent.Trigger target="mm.ent.Trigger" button=true editable=editable}}
-      <span class="lancer-header major ">EFFECT</span>
-      {{editor content=mm.ent.Effect target="mm.ent.Effect" button=true editable=editable}}
-    </div>
+      {{{textarea-card "TRIGGER" "mm.ent.Trigger"}}}
+      {{{textarea-card "EFFECT" "mm.ent.Effect"}}}
     {{/if}}
 
     {{!-- System --}}
     {{#if (eq mm.ent.FeatureType "System")}}
-    <div class="clipped card">
-      <span class="lancer-header major ">EFFECT</span>
-      {{editor content=mm.ent.Effect target="mm.ent.Effect" button=true editable=editable}}
-    </div>
+      {{{textarea-card "EFFECT" "mm.ent.Effect"}}}
     {{/if}}
 
     {{!-- Trait --}}
     {{#if (eq mm.ent.FeatureType "Trait")}}
-    <div class="clipped card">
-      <span class="lancer-header major ">EFFECT</span>
-      {{editor content=mm.ent.Effect target="mm.ent.Effect" button=true editable=editable}}
-    </div>
+      {{{textarea-card "EFFECT" "mm.ent.Effect"}}}
     {{/if}}
 
     {{!-- Tech --}}
@@ -77,10 +67,7 @@
       </div>
       {{{npc-clicker-stat-card "ATTACK BONUS" "mm.ent.AttackBonus"}}}
       {{{npc-clicker-stat-card "ACCURACY" "mm.ent.Accuracy"}}}
-      <div class="card clipped full">
-        <span class="lancer-header major ">EFFECT</span>
-        {{editor content=mm.ent.Effect target="mm.ent.Effect" button=true editable=editable}}
-      </div>
+      {{{textarea-card "EFFECT" "mm.ent.Effect"}}}
     </div>
     {{/if}}
 
@@ -102,7 +89,7 @@
           <a class="gen-control" data-action="append" data-path="mm.ent.Range" data-action-value="(struct)range" style="float: right">+</a>
         </span>
         {{#each mm.ent.Range as |range range_index|}}
-            {{{wpn-range-sel range (concat "mm.ent.Range." prof_index) }}}
+            {{{wpn-range-sel (concat "mm.ent.Range." range_index) }}}
         {{/each}}
       </div>
 
@@ -121,25 +108,21 @@
           <a class="gen-control" data-action="append" data-path="mm.ent.Damage.{{tier_index}}" data-action-value="(struct)damage" style="float: right">+</a>
         </span>
         {{#each tier_damage_array as |damage damage_index|}}
-          {{{wpn-damage-sel damage (concat "mm.ent.Damage." tier_index "." damage_index) }}}
+          {{{wpn-damage-sel (concat "mm.ent.Damage." tier_index "." damage_index) }}}
         {{/each}}
       </div>
       {{/each}}
 
       {{!-- Effects --}}
-      <div class="card clipped full">
-        <span class="lancer-header major ">ON HIT EFFECT</span>
-        {{editor content=mm.ent.OnHit target="mm.ent.OnHit" button=true editable=editable}}
-        <span class="lancer-header major ">EFFECT</span>
-        {{editor content=mm.ent.Effect target="mm.ent.Effect" button=true editable=editable}}
-      </div>
+      {{{textarea-card "ON HIT EFFECT" "mm.ent.OnHit"}}}
+      {{{textarea-card "EFFECT" "mm.ent.Effect"}}}
     </div>
     {{/if}}
 
     {{!-- Tags --}}
     <div class="card full">
       <span class="lancer-header major ">TAGS</span>
-      {{{mm-tag-list "mm.ent.Tags" mm.ent.Tags}}}
+      {{{mm-tag-list "mm.ent.Tags" mm.ent.Tags editable}}}
     </div>
   </section>
 </form>

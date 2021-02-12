@@ -9,7 +9,7 @@
   --main-theme-color: #991e2a;  /* I've configured calls to this to fall back on fuchsia when things go wrong */
   --secondary-theme-color: #505050;  
   --loadout-color: #777f86;  
-  --ref-color: #ffe9df;  
+  --ref-color: #ddc0b3;  
   --gms-theme-color: #991e2a;
   --ipsn-theme-color: #1662b8;
   --ssc-theme-color: #d1920a;
@@ -20,6 +20,7 @@
   --reaction-clip-path: polygon( 0 0, 100% 0, 100% 1px, calc(100% - 9px) 1px, calc(100% - 8px) 2px, 100% 2px, 100% 3px, calc(100% - 7px) 3px, calc(100% - 6px) 4px, 100% 4px, 100% 5px, calc(100% - 5px) 5px, calc(100% - 4px) 6px, 100% 6px, 100% 7px, calc(100% - 3px) 7px, calc(100% - 2px) 8px, 100% 8px, 100% 100%, 0 100% );
   --trait-color: #0a7674;
   --bonus-color: #5d8673;
+  --bonus-list-color: #71a373;
   --system-color: #9ad882;
   --error-color: #b4800e;
   --tech-clip-path: polygon( 0 0, calc(100% - 12px) 0, calc(100% - 12px) 7px, calc(100% - 7px) 7px, calc(100% - 7px) 3px, calc(100% - 3px) 3px, calc(100% - 3px) 0, 100% 0, 100% 3px, calc(100% - 3px) 3px, calc(100% - 3px) 7px, calc(100% - 7px) 7px, calc(100% - 7px) 12px, 100% 12px, 100% 100%, 0 100% );
@@ -80,6 +81,12 @@ button {
 .flex-center {
   align-items: center;
   justify-content: center;
+}
+
+
+/* For if you just want a single item left */
+.self-left {
+  align-self: flex-start;
 }
 
 /* ---------- */
@@ -148,8 +155,8 @@ button {
   border-left: 1px solid #444444;
   border-right: 1px solid #444444;
   max-width: 3px;
-  margin-left: 10px;
-  margin-right: 10px;
+  margin-left: 6px;
+  margin-right: 6px;
 }
 
 .add-button {
@@ -218,13 +225,11 @@ button {
 .compact-tag {
   color: white;
   background-color: var(--main-theme-color, fuchsia);
-  max-width: max-content;
-  min-width: max-content;
+  max-height: 20px;
   align-items: center;
   border-radius: 5px;
   padding: 0px 5px;
   margin: 3px 5px;
-  border: 2px;
   font-size: 12px;
 }
 
@@ -234,7 +239,7 @@ button {
   flex-wrap: wrap;
   justify-content: flex-end;
   flex: 1;
-  margin: 10px;
+  margin: 3px;
 }
 
 .license-desc {
@@ -280,6 +285,7 @@ button {
   background: transparent;
   border: none;
   color: inherit;
+  text-align: center;
 }
 
 ul.items-list {
@@ -339,6 +345,10 @@ ul.items-list {
 .size-icon,
 .tier-icon {
   @include icon-size(120px);
+}
+
+.profile-img {
+  @include icon-size(100px);
 }
 
 .i--dark {
@@ -466,9 +476,6 @@ tr.lcp-index-header {
   color: white;
 }
 
-.big-editor {
-  background-color: #dbdbdb; min-height: 15em; text-align: left
-}
 
 /* The dashed-line border aesthetic found around certain items.
  * Should be used on an inner div of a card
@@ -522,6 +529,7 @@ tr.lcp-index-header {
   flex-direction: row;
   align-items: center;
   flex-wrap: nowrap;
+  white-space: nowrap;
   margin: 5px;
   max-width: min-content;
   min-width: fit-content;
@@ -541,6 +549,10 @@ tr.lcp-index-header {
   cursor: pointer;
   text-align: center;
   max-height: 40px;
+
+  & .span {
+    padding-left: 5px;
+  }
 }
 
 /* Valid, as a prefix, indicates that a ref is satisfied. It has ${ref_params()} */
@@ -578,6 +590,23 @@ tr.lcp-index-header {
   visibility: visible;
 }
 
+/* Re-allow clicking in these damn things */
+.lancer input,.input,textarea {
+  -webkit-user-select: auto;
+  -moz-user-select: auto;
+  -ms-user-select: auto;
+  user-select: auto;
+
+  /* Also make them not insist on being so obnoxiously large */
+  min-width: 30px;
+}
+
+/* Some text area sizes */
+.lancer textarea {
+  min-height: 200px;
+}
+
+
 .pilot-stats {
   clip-path: polygon( 0 0, calc(100% - 30px) 0, 100% 100%, 0 100% );
   -webkit-clip-path: polygon( 0 0, calc(100% - 30px) 0, 100% 100%, 0 100% );
@@ -600,7 +629,7 @@ tr.lcp-index-header {
   flex-direction: row;
 }
 
-/* Consolidate all of our stat stuff */
+/* Consolidate all of our card header stuff stuff */
 .lancer-header {
   flex: 0 0 2.0em;
 
@@ -610,13 +639,14 @@ tr.lcp-index-header {
   }
 
   text-overflow: ellipsis;
-  overflow: hidden;
+  /* overflow: hidden; */ /* Disabled this to get context menus working */
   font-weight: normal;
 
   display: flex;
   flex-direction: row;
   justify-content: space-around;
   align-items: center;
+  align-self: stretch;
 
   color: white;
   background-color: var(--main-theme-color, fuchsia);
@@ -642,11 +672,13 @@ tr.lcp-index-header {
   span, input {
     flex-grow: 1;
     text-align: center;
+    font-size: inherit;
   }
 
   /* Sometimes want left align, using the "left" class */
   span.left, input.left {
     text-align: left;
+    margin-left: 10px;
   }
 
   /* Like main just an off color */
@@ -663,13 +695,19 @@ tr.lcp-index-header {
   }
 
   /* Category specific coloration */
+  .npc-trait &,
   .frame_trait & {
     background-color: var(--trait-color, fuchsia);
+  }
+
+  .bonus-list & {
+    background-color: var(--bonus-list-color, fuchsia);
   }
 
   .bonus & {
     background-color: var(--bonus-color, fuchsia);
   }
+
 
   .wep-mount &,
   .sys-mount &,
@@ -686,21 +724,24 @@ tr.lcp-index-header {
     background-color: var(--protocol-color);
   }
 
-  .reaction & {
+  .npc-reaction & {
     background-color: var(--reaction-color);
   }
 
-  .tech & {
+  .tech &,
+  .npc-tech & {
     /* clip-path: var(--tech-clip-path);
     -webkit-clip-path: var(--tech-clip-path); */
     background-color: var(--tech-color);
   }
 
-  .mech_system & {
+  .mech_system &,
+  .npc-system {
     background-color: var(--system-color);
   }
 
   .mech_weapon &,
+  .npc-weapon &,
   .pilot_weapon & {
     background-color: var(--weapon-color);
   }
@@ -785,13 +826,9 @@ input[type=string].lancer-input {
   color: white !important;
 }
 
-.editor {
-  //height: -webkit-fill-available;
-  min-height: 100px;
-}
-
-.editor-content {
-  min-height: 5em;
+.editor, .editor-content {
+  height: -webkit-fill-available;
+  min-height: 30em;
 }
 
 .card {
@@ -810,7 +847,6 @@ input[type=string].lancer-input {
 .card .editor-content {
   text-align: left;
 }
-
 
 .lancer-title {
   text-align: center;
@@ -833,9 +869,34 @@ input[type=string].lancer-input {
   background: rgba(0, 0, 0, 0.2);
 }
 
-.effect-text {
+.effect-box {
   text-align: left;
-  padding: 0.5em;
+  align-items: flex-start;
+  display: flex;
+  flex-direction: column;
+  border-width: 1px;
+  border-radius: 8px;
+  border-color: black;
+  border-style: solid;
+  margin-top: 10px;
+}
+
+.effect-title {
+  text-transform: uppercase;
+  letter-spacing: .13em !important;
+  font-weight: 530;
+  position: relative;
+  top: -8px;
+  left: 8px;
+  background: var(--main-theme-color);
+  color: white;
+  border-radius: 5px;
+  padding-left: 3px;
+  padding-right: 3px;
+}
+
+.effect-text {
+  padding: 0px 0px 0.5em 0.5em;
   font-family: Helvetica;
 }
 
@@ -948,6 +1009,8 @@ code.horus:hover {
   flex-direction: row;
   justify-content: center;
   align-items: center;
+  flex-grow: 0;
+  margin: 3px 10px;
 }
 
 .system-macro {
@@ -1118,7 +1181,11 @@ input.core-power-toggle:not(:checked)::before
 }
 
 .no-grow {
-  flex-grow: 1 !important;
+  flex-grow: 0 !important;
+}
+
+.no-wrap {
+  flex-wrap: nowrap !important;
 }
 
 /* Glow effect courtesy of https://codepen.io/jackrugile/pen/ABeIi */

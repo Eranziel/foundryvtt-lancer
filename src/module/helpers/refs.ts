@@ -122,6 +122,7 @@ export function simple_mm_ref<T extends EntryType>(
 // $(html).find(".ref.valid").on("click", HANDLER_onClickRef);
 export async function HANDLER_openRefOnClick<T extends EntryType>(event: any) {
   event.preventDefault();
+  event.stopPropagation();
   const element = event.currentTarget;
 
   const found_entity = await resolve_ref_element(element);

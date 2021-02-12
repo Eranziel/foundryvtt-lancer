@@ -16,7 +16,7 @@ import {
   LancerItemType,
 } from "./item/lancer-item";
 import { RangeType, NPCTag } from "./enums";
-import { EffectData } from "./item/effects";
+import { EffectData } from "./helpers/npc";
 import * as mm from "machine-mind";
 import {
   EntryType,

@@ -1,7 +1,9 @@
 import { HelperOptions } from "handlebars";
-import { TagInstance, typed_lancer_data } from "machine-mind";
+import { EntryType, TagInstance, typed_lancer_data } from "machine-mind";
 import { array_path_edit, resolve_dotpath, resolve_helper_dotpath } from "./commons";
 import { LancerActorSheetData, LancerItemSheetData } from "../interfaces";
+import { enable_native_dropping, enable_native_dropping_mm_wrap, enable_simple_ref_dropping } from "./dragdrop";
+import { ref_params } from "./refs";
 
 const TAGS = typed_lancer_data.tags;
 
@@ -100,19 +102,19 @@ export const compactTagList = `<div class="compact-tag-row">
 export function compact_tag(tag_path: string, tag: TagInstance): string {
   // Format the {VAL} out of the name
   let formatted_name = tag.Tag.Name.replace("{VAL}", `${tag.Value ?? "?"}`);
-  return `<div class="editable-tag-instance compact-tag flexrow" data-path="${tag_path}">
+  return `<div class="editable-tag-instance valid ref compact-tag flexrow" data-path="${tag_path}" ${ref_params(tag.Tag.as_ref())}>
       <i class="mdi mdi-label i--s i--light"></i>
       <span style="margin: 3px;" >${formatted_name}</span>
     </div>`;
 }
 
 // The above, but on an array, filtering out hidden as appropriate
-export function compact_tag_list(tag_array_path: string, tags: TagInstance[]): string {
+export function compact_tag_list(tag_array_path: string, tags: TagInstance[], allow_drop: boolean): string {
   // Collect all of the tags, formatting them using `compact_tag`
   let processed_tags: string[] = [];
   for (let i = 0; i < tags.length; i++) {
     let tag = tags[i];
-    if (!tag.Tag.IsHidden) {
+    if (!tag.Tag.Hidden) {
       // We want to show it!
       let affixed_path = `${tag_array_path}.${i}`;
       processed_tags.push(compact_tag(affixed_path, tag));
@@ -120,7 +122,11 @@ export function compact_tag_list(tag_array_path: string, tags: TagInstance[]): s
   }
 
   // Combine into a row
-  if (processed_tags.length) {
+  if (allow_drop) {
+    return `<div class="compact-tag-row tag-list-append" data-path="${tag_array_path}">
+      ${processed_tags.join("")}
+    </div>`;
+  } else if(processed_tags.length) {
     return `<div class="compact-tag-row">
       ${processed_tags.join("")}
     </div>`;
@@ -159,6 +165,7 @@ export function HANDLER_activate_tag_context_menus<
   let set_value = {
     name: "Edit Value",
     icon: '<i class="fas fa-edit"></i>',
+    classes: "lancer dialog",
     // condition: game.user.isGM,
     callback: async (html: JQuery) => {
       let cd = await data_getter();
@@ -204,6 +211,7 @@ export function HANDLER_activate_tag_context_menus<
 }
 
 // Renders a tag, with description and a delete button. Takes by path so it can properly splice the tag instance out
+/*
 export function chunky_tag(tag_path: string, helper: HelperOptions): string {
   let tag_instance = resolve_helper_dotpath(helper, tag_path) as TagInstance;
   return `<div class="tag flexrow">
@@ -217,36 +225,36 @@ export function chunky_tag(tag_path: string, helper: HelperOptions): string {
     </div>
   </div>`;
 }
-
-/**
- * Handlebars helper to generate verbose tag template.
- * @returns The html template for the tag.
- * @param tag {TagData | null} The tag's data.
- * @param key {number} The value of the tag's data-key in the DOM.
- * @param data_prefix {string} The path to the tag's data in the data model.
- * @returns {string} The html template for the tag.
- */
-/*
-export function renderFullTag(
-  tag: TagData | null,
-  key: number,
-  data_prefix: string = "data.tags"
-): string {
-  let template: string = "";
-  tag = prepareTag(tag);
-
-  // Don't render hidden tags
-  if (tag["hidden"]) return template;
-
-  // Editable partial
-  template = `<div class="tag arrayed-item" data-key="${key}">
-  <i class="mdi mdi-label i--l theme--main" style="grid-area: 1/1/3/2;"></i>
-  <input name="${data_prefix}.${key}.id" value="${tag.id}" data-dtype="String" style="display:none"/>
-  <input name="${data_prefix}.${key}.val" value="${tag.val}" data-dtype="String" style="display:none"/>
-  <input name="${data_prefix}.${key}.name" value="${tag.name}" data-dtype="String" class="lancer-invisible-input medium theme--main" style="grid-area: 1/2/2/3; text-align:left; padding-left: 0.5em; margin-top: 0.25em;"/>
-  <textarea class="lancer-invisible-input effect-text" name="${data_prefix}.${key}.description" data-dtype="String" style="grid-area: 2/2/3/3">${tag.description}</textarea>
-  <a class="remove-button fa fa-trash clickable" data-action="delete" style="grid-area: 2/3/3/4; margin-right: 11px; margin-top: -.8em; justify-self: right; align-self: self-start"></a>
-  </div>`;
-  return template;
-}
 */
+
+// Enables dropping of tags into open designated by .ref-list-append classed divs
+// Explicitly designed to handle natives. Generates a tag instance corresponding to that native, with a default value of 1
+// Follows conventional HANDLER design patterns
+export function HANDLER_activate_tag_dropping<T>(
+  html: JQuery,
+  // Retrieves the data that we will operate on
+  data_getter: () => Promise<T> | T,
+  commit_func: (data: T) => void | Promise<void>
+) {
+  enable_native_dropping_mm_wrap(
+    html.find(".tag-list-append"),
+    async (tag_ent_ctx, dest, evt) => {
+      // Well, we got a drop!
+      let path = dest[0].dataset.path!;
+      if(path) {
+        // Make an instance of the tag
+        let tag_instance = new TagInstance(tag_ent_ctx.reg, tag_ent_ctx.ctx, {
+          tag: tag_ent_ctx.ent.as_ref(),
+          val: 1
+        });
+        await tag_instance.ready();
+
+        // Append it and re-commit
+        let data = await data_getter();
+        array_path_edit(data, path + "[-1]", tag_instance, "insert");
+        await commit_func(data);
+      }
+    },
+    [EntryType.TAG],
+    undefined);
+}

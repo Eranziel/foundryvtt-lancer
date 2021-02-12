@@ -1,40 +1,35 @@
 import { HelperOptions } from "handlebars";
-import { EntryType,funcs, RegEntry  } from "machine-mind";
+import { EntryType,funcs, Mech, Npc, Pilot, RegEntry  } from "machine-mind";
 import { LancerItemType } from "../item/lancer-item";
-import { resolve_helper_dotpath, selected } from "./commons";
+import { ext_helper_hash, inc_if, resolve_helper_dotpath, selected, std_num_input, std_x_of_y } from "./commons";
 import { ref_commons, simple_mm_ref } from "./refs";
 // ---------------------------------------
 // Some simple stat editing thingies
 
 // Shows an X / MAX clipped card
 export function stat_edit_card_max(title: string, icon: string, data_path: string, max_path: string, options: HelperOptions): string {
-  let data_val = resolve_helper_dotpath(options, data_path);
-  let max_val = resolve_helper_dotpath(options, max_path);
+  let data_val = resolve_helper_dotpath(options, data_path, 0);
+  let max_val = resolve_helper_dotpath(options, max_path, 0);
   return `
     <div class="card clipped">
       <div class="lancer-header ">
-        <i class="${icon} i--m i--light header-icon"> </i>
+        <i class="${icon} i--m header-icon"> </i>
         <span class="major">${title}</span>
       </div>
-      <div class="flexrow" style="align-items: center">
-        <input class="lancer-stat major" type="number" name="${data_path}" value="${data_val}" data-dtype="Number"/>
-        <span class="medium" style="max-width: min-content;">/</span>
-        <span class="lancer-stat major">${max_val}</span>
-      </div>
+      ${std_x_of_y(data_path, data_val, max_val, "lancer-stat")}
     </div>
     `;
 }
 
 // Shows an X clipped card
 export function stat_edit_card(title: string, icon: string, data_path: string, options: HelperOptions): string {
-  let data_val = resolve_helper_dotpath(options, data_path);
   return `
     <div class="card clipped">
       <div class="lancer-header ">
-        <i class="${icon} i--m i--light header-icon"> </i>
+        <i class="${icon} i--m header-icon"> </i>
         <span class="major">${title}</span>
       </div>
-      <input class="lancer-stat major" type="number" name="${data_path}" value="${data_val}" data-dtype="Number"/>
+      ${std_num_input(data_path, ext_helper_hash(options, {classes: "lancer-stat lancer-invisible-input"}))}
     </div>
     `;
 }
@@ -45,7 +40,7 @@ export function stat_view_card(title: string, icon: string, data_path: string, o
   return `
     <div class="card clipped">
       <div class="lancer-header ">
-        <i class="${icon} i--m i--light header-icon"> </i>
+        ${inc_if(`<i class="${icon} i--m i--light header-icon"> </i>`, icon)}
         <span class="major">${title}</span>
       </div>
       <span class="lancer-stat major">${data_val}</span>
@@ -71,7 +66,7 @@ export function compact_stat_edit(icon: string, data_path: string, max_path: str
   return `        
         <div class="compact-stat">
           <i class="${icon} i--m i--dark"></i>
-          <input class="lancer-stat minor" type="number" name="${data_path}" value="${data_val}" data-dtype="Number"/>
+          ${std_num_input(data_path, ext_helper_hash(options, {classes: "lancer-stat minor"}))}
           <span class="minor" style="max-width: min-content;" > / </span>
           <span class="lancer-stat minor">${max_val}</span>
         </div>
@@ -79,35 +74,28 @@ export function compact_stat_edit(icon: string, data_path: string, max_path: str
 }
 
 // An editable field with +/- buttons
-export function clicker_num_input(target: string, value: string) {
-    // Init value to 0 if it doesn't exist
-    // So the arrows work properly
-    if (!value) {
-      value = "0";
-    }
-
+export function clicker_num_input(data_path: string, options: HelperOptions) {
     return `<div class="flexrow arrow-input-container">
       <button class="mod-minus-button" type="button">-</button>
-      <input class="lancer-stat major" type="number" name="${target}" value="${value}" data-dtype="Number"\>
+      ${std_num_input(data_path, ext_helper_hash(options, {classes: "lancer-stat minor", default: 0}))}
       <button class="mod-plus-button" type="button">+</button>
     </div>`;
 }
 
 // The above, in card form
 export function clicker_stat_card(title: string, icon: string, data_path: string, options: HelperOptions): string {
-  let data_val = resolve_helper_dotpath(options, data_path);
   return `<div class="card clipped">
       <div class="lancer-header ">
         <i class="${icon} i--m i--light header-icon"> </i>
         <span class="major">${title}</span>
       </div>
-      ${clicker_num_input(data_path, data_val)}
+      ${clicker_num_input(data_path, options)}
     </div>
   `;
 }
 
 export function npc_clicker_stat_card(title: string, data_path: string, options: HelperOptions): string {
-  let data_val_arr = resolve_helper_dotpath(options, data_path) ?? [];
+  let data_val_arr: number[] = resolve_helper_dotpath(options, data_path) ?? [];
   let tier_clickers: string[] = [];
   let tier = 1;
 
@@ -118,13 +106,13 @@ export function npc_clicker_stat_card(title: string, data_path: string, options:
     tier_clickers.push(`
       <div class="flexrow stat-container" style="align-self: center;">
         <i class="cci cci-npc-tier-${tier} i--m i--dark"></i>
-        ${clicker_num_input(`${data_path}.${tier-1}`, val)}
+        ${clicker_num_input(`${data_path}.${tier-1}`, options)}
       </div>`);
       tier++;
   }
   return `
     <div class="card clipped">
-      <div class="flexrow lancer-header major >
+      <div class="flexrow lancer-header major">
         <span class="lancer-header major ">${title}</span>
         <a class="gen-control" data-path="${data_path}" data-action="set" data-action-value="(struct)npc_stat_array"><i class="fas fa-redo"></i></a>
       </div>
@@ -176,7 +164,7 @@ export function npc_tier_selector(tier_path: string, helper: HelperOptions) {
 // Create a div with flags for dropping native pilots/mechs/npcs
 export function deployer_slot(data_path: string, options: HelperOptions): string {
   // get the existing
-  let existing = resolve_helper_dotpath(options, data_path);
+  let existing = resolve_helper_dotpath<Pilot | Mech | Npc | null>(options, data_path, null);
   return simple_mm_ref([EntryType.PILOT, EntryType.MECH, EntryType.NPC], existing, "No Deployer", data_path, true);
 }
 

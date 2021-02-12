@@ -5,24 +5,14 @@
       <h1 class="charname"><input class="header-field" name="name" type="text" value="{{item.name}}" placeholder="Name"/></h1>
       <div class="flexrow">
         <span>RANK:</span>
-        {{{l-num-input "mm.ent.CurrentRank" mm.ent.CurrentRank}}}
+        {{{l-num-input "mm.ent.CurrentRank"}}}
       </div>
     </div>
     {{{ ref-portrait-img item.img "img" mm.ent }}}
   </header>
 
   {{!-- Sheet Body --}}
-  <div class="card clipped flexcol">
-    <span class="lancer-header major">DESCRIPTION</span>
-    <div style="text-align: left">
-      {{editor content=mm.ent.Description target="mm.ent.Description" button=true owner=owner editable=editable}}
-    </div>
-  </div>
+  {{{textarea-card "DESCRIPTION" "mm.ent.Description"}}}
 
-  <div class="card clipped flexcol">
-    <span class="lancer-header major">DETAILS</span>
-    <div style="text-align: left">
-      {{editor content=mm.ent.Detail target="mm.ent.Detail" button=true owner=owner editable=editable}}
-    </div>
-  </div>
+  {{{textarea-card "DETAILS" "mm.ent.Detail"}}}
 </form>

@@ -1,7 +1,6 @@
 import { HelperOptions } from "handlebars";
-import { EntryType, Mech, MechLoadout  } from "machine-mind";
+import { EntryType, Mech, MechLoadout, SystemMount, Pilot, Frame  } from "machine-mind";
 import { WeaponMount } from "machine-mind";
-import { SystemMount } from "machine-mind/dist/class";
 import { inc_if, resolve_helper_dotpath } from "./commons";
 import { mech_weapon_refview } from "./item";
 import { simple_mm_ref } from "./refs";
@@ -19,8 +18,8 @@ function system_mount(
     <div class="mount card">
       <span class="lancer-header">
         <span>System Mount</span>
-        <a class="gen-control" data-action="splice" data-path="${mount_path}"><i class="fas fa-trash"></i></a>
-        <a class="reset-system-mount-button" data-path="${mount_path}"><i class="fas fa-redo"></i></a>
+        <a class="gen-control fas fa-trash" data-action="splice" data-path="${mount_path}"></a>
+        <a class="reset-system-mount-button fas fa-redo" data-path="${mount_path}"></a>
       </span>
       <div class="lancer-body">
         ${slot}
@@ -41,11 +40,11 @@ function weapon_mount(
 
   return ` 
     <div class="mount card" >
-      <span class="lancer-header mount-type-ctx-root" data-path="${mount_path}">
+      <div class="lancer-header mount-type-ctx-root" data-path="${mount_path}">
         <span>${mount.MountType} Weapon Mount</span>
-        <a class="gen-control" data-action="splice" data-path="${mount_path}"><i class="fas fa-trash"></i></a>
-        <a class="reset-weapon-mount-button" data-path="${mount_path}"><i class="fas fa-redo"></i></a>
-      </span>
+        <a class="gen-control fas fa-trash" data-action="splice" data-path="${mount_path}"></a>
+        <a class="reset-weapon-mount-button fas fa-redo" data-path="${mount_path}"></a>
+      </div>
       ${inc_if(`
         <span class="lancer-header error">${err.toUpperCase()}</span>`, 
         err)}
@@ -63,8 +62,8 @@ function all_weapon_mount_view(mech_path: string, loadout_path: string, helper: 
   return `
     <span class="lancer-header loadout-category submajor">
         <span>MOUNTED WEAPONS</span>
-        <a class="gen-control" data-action="append" data-path="${loadout_path}.WepMounts" data-action-value="(struct)wep_mount">+</a>
-        <a class="reset-all-weapon-mounts-button" data-path="${loadout_path}.WepMounts"><i class="fas fa-redo"></i></a>
+        <a class="gen-control fas fa-plus" data-action="append" data-path="${loadout_path}.WepMounts" data-action-value="(struct)wep_mount"></a>
+        <a class="reset-all-weapon-mounts-button fas fa-redo" data-path="${loadout_path}.WepMounts"></a>
     </span>
     <div class="wraprow double">
       ${weapon_mounts.join("")}
@@ -80,8 +79,8 @@ function all_system_mount_view(mech_path: string, loadout_path: string, helper: 
   return `
     <span class="lancer-header loadout-category submajor">
         <span>MOUNTED SYSTEMS</span>
-        <a class="gen-control" data-action="append" data-path="${loadout_path}.SysMounts" data-action-value="(struct)sys_mount">+</a>
-        <a class="gen-control" data-action="set" data-path="${loadout_path}.SysMounts" data-action-value="(struct)empty_array"><i class="fas fa-redo"></i></a>
+        <a class="gen-control fas fa-plus" data-action="append" data-path="${loadout_path}.SysMounts" data-action-value="(struct)sys_mount"></a>
+        <a class="gen-control fas fa-trash" data-action="set" data-path="${loadout_path}.SysMounts" data-action-value="(struct)empty_array"></a>
     </span>
     <div class="wraprow quadruple">
       ${system_slots.join("")}
@@ -110,13 +109,13 @@ export function mech_loadout(mech_path: string, helper: HelperOptions): string {
 // Create a div with flags for dropping native pilots
 export function pilot_slot(data_path: string, options: HelperOptions): string {
   // get the existing
-  let existing = resolve_helper_dotpath(options, data_path);
+  let existing = resolve_helper_dotpath<Pilot | null>(options, data_path, null);
   return simple_mm_ref(EntryType.PILOT, existing, "No Pilot", data_path, true);
 }
 
 // A drag-drop slot for a frame. TODO: fancify, giving basic stats or something???
 export function frame_refview(frame_path: string, helper: HelperOptions): string {
-  let frame = resolve_helper_dotpath(helper, frame_path);
+  let frame = resolve_helper_dotpath<Frame | null>(helper, frame_path, null);
   return `<div class="lancer-header loadout-category submajor">
             <span>CURRENT FRAME</span>
           </div>

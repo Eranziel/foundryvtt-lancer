@@ -6,7 +6,7 @@
       <h1 class="charname"><input class="header-field" name="name" type="text" value="{{item.name}}" placeholder="Name"/></h1>
       <div class="flexrow">
         <span>RANK:</span>
-        {{{l-num-input "mm.ent.CurrentRank" mm.ent.CurrentRank}}}
+        {{{l-num-input "mm.ent.CurrentRank"}}}
       </div>
     </div>
     {{{ ref-portrait-img item.img "img" mm.ent }}}
@@ -14,22 +14,18 @@
 
   {{!-- Sheet Body --}}
   <div class="flexcol">
-    <div class="card clipped flexcol">
-      <span class="lancer-header major">DESCRIPTION</span>
-      <div style="text-align: left">
-      {{editor content=mm.ent.Description target="mm.ent.Description" button=true owner=owner editable=editable}}
-      </div>
-    </div>
+    {{{textarea-card "DESCRIPTION" "mm.ent.Description"}}}
 
     {{#each mm.ent.Ranks as |rank index|}}
       <div class="talent-level card clipped-bot flexcol">
-        <div class="lancer-header">
+        <div class="lancer-header" style="flex-basis: auto;">
           <i class="cci cci-rank-{{inc index}} i--xl i--dark"></i>
           <input class="lancer-invisible-input" name="mm.ent.Ranks.{{index}}.Name" value="{{rank.Name}}" data-dtype="String" style="color: white"/>
           <span class="minor">// RANK {{inc index}}</span>
+          {{{popout-editor-button (concat "mm.ent.Ranks." index ".Description") }}}
         </div>
-        <div class="big-editor">
-          {{editor content=rank.Description target=(concat "mm.ent.Ranks." index ".Description") button=true owner=owner editable=editable}}
+        <div class="desc-text">
+          {{{safe-html rank.Description}}}
         </div>
 
         {{!-- Bonuses --}}
