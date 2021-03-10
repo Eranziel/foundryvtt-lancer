@@ -6,12 +6,16 @@
 :root {
   --main-font-family: Helvetica, Arial, sans-serif;
 
-  --main-theme-color: #991e2a;  /* I've configured calls to this to fall back on fuchsia when things go wrong */
-  --gms-theme-color: #991e2a;
-  --ipsn-theme-color: #1662b8;
-  --ssc-theme-color: #d1920a;
-  --horus-theme-color: #00a256;
-  --ha-theme-color: #6e4373;
+  /* Load theme colors (which are defined by files in the themes directory) */
+  /* Defaults to GMS Red, both settings-wise and as a hard default */
+  --main-theme-color: var(--theme-background-header, #991e2a);
+  --main-background-main: var(--theme-background-main, #ededed);
+  --main-background-value: var(--theme-background-value, #cccccc);
+  --main-background-card: var(--theme-background-card, rgba(0,0,0,0.07));
+  --main-text-content: var(--theme-text-content, #2e2e2e);
+  --main-text-light: var(--theme-text-light, #ffffff);
+  --main-text-flavor: var(--theme-text-flavor, #424242);
+  --main-text-theme: var(--theme-text-theme, #8c1420);
 
   --reaction-clip-path: polygon( 0 0, 100% 0, 100% 1px, calc(100% - 9px) 1px, calc(100% - 8px) 2px, 100% 2px, 100% 3px, calc(100% - 7px) 3px, calc(100% - 6px) 4px, 100% 4px, 100% 5px, calc(100% - 5px) 5px, calc(100% - 4px) 6px, 100% 6px, 100% 7px, calc(100% - 3px) 7px, calc(100% - 2px) 8px, 100% 8px, 100% 100%, 0 100% );
   --reaction-color: #0a7674;
@@ -31,10 +35,21 @@
 .window-app .window-content,
 #chat-controls div.roll-type-select select,
 #chat-form textarea,
-button {
-  background: #ededed;  /* Set default backgrounds to a futuristic gundam light grey */
+button, select {
+  background: var(--main-background-main); /* Overwrite default the parchment background */
   font-family: var(--main-font-family);
+  color: var(--main-text-content);
 }
+
+.window-app .window-content .notes {
+  color: var(--main-text-flavor);
+}
+
+.tox.tox-tinymce {
+  /* Make the TinyMCE editor always use a usable background */
+  background: white;
+}
+
 /* ---------- */
 
 /* Elements Layer */
@@ -48,7 +63,7 @@ button {
 }
 
 .lancer.sheet .mount-header select {
-  color: white;
+  color: var(--main-text-light);
   outline: 0;
   border: none;
 }
@@ -71,7 +86,7 @@ button {
 
 /* Components Layer */
 .lancer.sheet .window-content {
-  background: #ededed; /* Overwrite the parchment background */
+  color: var(--main-text-content);
 }
 
 .lancer.sheet header:not(.window-header) {
@@ -140,10 +155,18 @@ button {
 /* Chat Styles */
 
 #chat-log .message {
-  background: rgba(237, 237, 237);
+  background-color: var(--main-background-main);
   border-radius: 25px 5px;
-  padding: 0;
   overflow: hidden;
+  padding: 0;
+  margin: 3px;
+}
+
+/* Prevent Ernie's Modern UI from messing with chat spacing */
+/* Yes, we need FIVE id selectors to have sufficient specificity */
+#emu #chat-log#chat-log#chat-log#chat-log .message {
+  padding: 0;
+  margin: 3px;
 }
 
 #chat-log .message-header {
@@ -153,11 +176,13 @@ button {
 }
 
 #chat-log .message-header * {
-  color: white;
+  color: var(--main-text-light);
 }
 
 #chat-log .message-content {
   padding: 5px 10px;
+  background-color: var(--main-background-value);
+  color: var(--main-text-content);
 }
 
 /* ---------- */
@@ -192,7 +217,7 @@ button {
   border-radius: 4px;
   text-align: center;
   color: #8e8e8e;
-  padding-top: 2px 
+  padding-top: 2px
 }
 
 .tags-container > div {
@@ -288,7 +313,7 @@ ul.items-list {
   padding: 0;
 }
 
-.small-icon {   
+.small-icon {
   flex-grow: 0;
   min-width: 1em;
   max-height: 1em;
@@ -355,7 +380,7 @@ ul.items-list {
 }
 
 .i--dark {
-  color: #2e2e2e;
+  color: var(--main-text-content);
 }
 
 .i--faded {
@@ -458,7 +483,7 @@ tr.lcp-index-header {
 .lancer-tab {
   clip-path: polygon( 10px 0, 100% 0, calc(100% - 10px) 100%, 0 100% );
   -webkit-clip-path: polygon( 10px 0, 100% 0, calc(100% - 10px) 100%, 0 100% );
-  padding: 10px; 
+  padding: 10px;
   margin-left: 10px;
   margin-right: 10px;
 }
@@ -647,7 +672,7 @@ tr.lcp-index-header {
 .pilot-stats {
   clip-path: polygon( 0 0, calc(100% - 30px) 0, 100% 100%, 0 100% );
   -webkit-clip-path: polygon( 0 0, calc(100% - 30px) 0, 100% 100%, 0 100% );
-  background-color: #CCCCCC;
+  background-color: var(--main-background-value);
   grid-area: 3/1/4/5;
   display: grid;
   grid-template-columns: repeat(5, 1fr);
@@ -709,6 +734,7 @@ input[type=number].lancer-stat {
   text-align: center;
   max-width: 50px;
   min-width: 30px;
+  color: var(--main-text-content);
 }
 
 .lancer-text-field,
@@ -760,7 +786,7 @@ input[type=string].lancer-input {
 
 .card {
   /* Literally just a darkened background and centering children components inside */
-  background-color: rgba(0,0,0,0.07);
+  background-color: var(--main-background-card);
   margin: 3px 10px;
   text-align: center;
   padding-bottom: 1px;
@@ -802,7 +828,7 @@ input[type=string].lancer-input {
   text-align: left;
   padding: 0.5em;
   font-family: Consolas;
-  
+
   border: 1px solid #999;
   border-radius: 5px;
   margin: 5px;
@@ -813,6 +839,7 @@ input[type=string].lancer-input {
   text-align: left;
   padding: 0.5em;
   font-family: Helvetica;
+  color: var(--main-text-flavor);
 }
 
 .skill-compact {
@@ -952,8 +979,8 @@ code.horus:hover {
 }
 
 .lancer-card .section-title {
-  text-align: center; 
-  font-size: 14px; 
+  text-align: center;
+  font-size: 14px;
   font-weight: bold;
 }
 
@@ -1038,6 +1065,7 @@ button.overkill-reroll {
 
 input[type=number] {
   -moz-appearance: textfield;
+  color: var(--main-text-content);
 }
 
 input::-webkit-outer-spin-button,
@@ -1069,6 +1097,14 @@ input.core-power-toggle:not(:checked)::before
 {
   content: "\F007A";
   color: grey;
+}
+
+input.medium {
+  color: var(--main-text-content);
+}
+input::placeholder {
+  color: var(--main-text-flavor);
+  opacity: 0.8;
 }
 
 /*
@@ -1112,7 +1148,7 @@ input.core-power-toggle:not(:checked)::before
 }
 
 .overcharge-heat {
-  color:#fc3e0f; 
+  color:#fc3e0f;
   flex-grow: unset;
   width: 1.5em;
 }

@@ -75,7 +75,7 @@ import { WeaponRangeTemplate } from "./module/pixi/weapon-range-template";
 
 // Import helpers
 import { preloadTemplates } from "./module/preloadTemplates";
-import { registerSettings } from "./module/settings";
+import { registerSettings, updateTheme } from "./module/settings";
 import {
   compactTagList,
   renderChunkyTag,
@@ -387,6 +387,9 @@ Hooks.once("setup", async function () {
 Hooks.once("ready", async function () {
   await versionCheck();
   await showChangelog();
+
+  // Set the theme to whatever is in the settings
+  updateTheme(game.settings.get(LANCER.sys_name, LANCER.setting_theme));
 
   // v0.1.20 Warning for v0.2
   // TODO: Remove for v0.2

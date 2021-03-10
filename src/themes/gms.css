@@ -1,0 +1,13 @@
+:root {
+  /* Themes from Comp/Con */
+  --theme-background-main: #ededed;
+  --theme-background-header: #991e2a;
+  --theme-background-value: #dbdbdb;
+  --theme-background-card: #dbdbdb66;
+  --theme-text-content: #212121;
+  --theme-text-light: #ffffff;
+  --theme-text-flavor: #424242;
+  --theme-text-theme: #8c1420;
+
+  scrollbar-color: #782e22 #111;
+}

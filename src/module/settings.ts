@@ -1,5 +1,23 @@
 import { LANCER } from "./config";
 
+export const updateTheme = function (theme: String) {
+  const lp = LANCER.log_prefix;
+
+  console.log(`${lp} updateTheme called, theme: ${theme}`);
+
+  let themeLink = document.getElementById("lancer-theme-link");
+  if (themeLink == null) {
+    /* If it's not already there, create and add the theme import */
+    themeLink = document.createElement("link");
+    document.getElementsByTagName("head")[0].appendChild(themeLink);
+    themeLink.setAttribute("id", "lancer-theme-link");
+    themeLink.setAttribute("rel", "stylesheet");
+    themeLink.setAttribute("type", "text/css");
+  }
+
+  themeLink.setAttribute("href", `systems/${LANCER.sys_name}/themes/${theme}`);
+}
+
 export const registerSettings = function () {
   /**
    * Track the system version upon which point a migration was last applied
@@ -80,12 +98,26 @@ export const registerSettings = function () {
     type: Boolean,
     default: true,
   });
-  
+
   game.settings.register(LANCER.sys_name, LANCER.setting_120, {
     name: "Show v0.1.20 Warning",
     scope: "world",
     config: false,
     type: Boolean,
     default: true,
+  });
+
+  game.settings.register(LANCER.sys_name, LANCER.setting_theme, {
+    name: "UI Theme",
+    scope: "client",
+    config: true,
+    type: String,
+    choices: {
+      "gms.css": "GMS Red (Default)",
+      "msmc.css": "MSMC Solarized",
+      "horus.css": "HORUS Terminal"
+    },
+    default: "gms.css",
+    onChange: (value: String) => updateTheme(value)
   });
 };
