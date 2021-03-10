@@ -113,11 +113,12 @@ export const registerSettings = function () {
     config: true,
     type: String,
     choices: {
-      "gms.css": "GMS Red (Default)",
-      "msmc.css": "MSMC Solarized",
-      "horus.css": "HORUS Terminal"
+      "lancer-red.css": "Lancer Red (Default)",
+      "solarized-light.css": "Solarized Light",
+      "solarized-dark.css": "Solarized Dark",
+      "lighthaus.css": "Lighthaus"
     },
-    default: "gms.css",
+    default: "lancer-red.css",
     onChange: (value: String) => updateTheme(value)
   });
 };

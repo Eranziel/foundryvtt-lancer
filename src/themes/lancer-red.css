@@ -1,0 +1,14 @@
+/* Default theme */
+
+:root {
+  --theme-background-main: #ededed;
+  --theme-background-header: #991e2a;
+  --theme-background-value: #cccccc;
+  --theme-background-card: rgba(0, 0, 0, 0.07);
+  --theme-text-content: rgb(25, 24, 19);
+  --theme-text-light: #ffffff;
+  --theme-text-flavor: rgb(25, 24, 19);
+  --theme-text-theme: #991e2a;
+
+  scrollbar-color: #782e22 #111;
+}
