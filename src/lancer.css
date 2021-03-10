@@ -7,15 +7,15 @@
   --main-font-family: Helvetica, Arial, sans-serif;
 
   /* Load theme colors (which are defined by files in the themes directory) */
-  /* Defaults to GMS Red, both settings-wise and as a hard default */
+  /* Defaults to Lancer Red, both settings-wise and as a hard default */
   --main-theme-color: var(--theme-background-header, #991e2a);
   --main-background-main: var(--theme-background-main, #ededed);
-  --main-background-value: var(--theme-background-value, #cccccc);
-  --main-background-card: var(--theme-background-card, rgba(0,0,0,0.07));
-  --main-text-content: var(--theme-text-content, #2e2e2e);
+  --main-background-value: var(--theme-background-value, rgba(0, 0, 0, 0.2));
+  --main-background-card: var(--theme-background-card, rgba(0, 0, 0, 0.07));
+  --main-text-content: var(--theme-text-content, rgb(25, 24, 19));
   --main-text-light: var(--theme-text-light, #ffffff);
-  --main-text-flavor: var(--theme-text-flavor, #424242);
-  --main-text-theme: var(--theme-text-theme, #8c1420);
+  --main-text-flavor: var(--theme-text-flavor, rgb(25, 24, 19));
+  --main-text-theme: var(--theme-text-theme, #991e2a);
 
   --reaction-clip-path: polygon( 0 0, 100% 0, 100% 1px, calc(100% - 9px) 1px, calc(100% - 8px) 2px, 100% 2px, 100% 3px, calc(100% - 7px) 3px, calc(100% - 6px) 4px, 100% 4px, 100% 5px, calc(100% - 5px) 5px, calc(100% - 4px) 6px, 100% 6px, 100% 7px, calc(100% - 3px) 7px, calc(100% - 2px) 8px, 100% 8px, 100% 100%, 0 100% );
   --reaction-color: #0a7674;
@@ -63,7 +63,7 @@ button, select {
 }
 
 .lancer.sheet .mount-header select {
-  color: var(--main-text-light);
+  color: var(--main-text-content);
   outline: 0;
   border: none;
 }
@@ -833,12 +833,16 @@ input[type=string].lancer-input {
   border-radius: 5px;
   margin: 5px;
   background: rgba(0, 0, 0, 0.2);
+  color: var(--main-text-flavor);
 }
 
 .effect-text {
   text-align: left;
   padding: 0.5em;
   font-family: Helvetica;
+}
+
+textarea.effect-text {
   color: var(--main-text-flavor);
 }
 
@@ -1103,8 +1107,21 @@ input.medium {
   color: var(--main-text-content);
 }
 input::placeholder {
+  color: var(--main-text-light);
+  opacity: 0.6;
+}
+.sidebar-tab .directory-header .header-search input[name="search"] {
+  background-color: var(--main-theme-color);
+  color: var(--main-text-light);
+}
+form .form-header {
+  color: var(--main-text-content);
+}
+form .form-group span.units {
   color: var(--main-text-flavor);
-  opacity: 0.8;
+}
+.window-app .window-content input[type=text] {
+  color: var(--main-text-content);
 }
 
 /*
