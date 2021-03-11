@@ -4,7 +4,7 @@ export const registerSettings = function () {
   /**
    * Track the system version upon which point a migration was last applied
    */
-  game.settings.register(LANCER.sys_name, LANCER.setting_migration, {
+  game.settings.register(game.system.id, LANCER.setting_migration, {
     name: "System Migration Version",
     scope: "world",
     config: false,
@@ -12,7 +12,7 @@ export const registerSettings = function () {
     default: 0,
   });
 
-  game.settings.register(LANCER.sys_name, LANCER.setting_core_data, {
+  game.settings.register(game.system.id, LANCER.setting_core_data, {
     name: "Lancer Data Version",
     scope: "world",
     config: false,
@@ -20,14 +20,14 @@ export const registerSettings = function () {
     default: "0.0.0",
   });
 
-  game.settings.register(LANCER.sys_name, LANCER.setting_lcps, {
+  game.settings.register(game.system.id, LANCER.setting_lcps, {
     name: "Installed LCPs",
     scope: "world",
     config: false,
     type: Object,
   });
 
-  game.settings.register(LANCER.sys_name, LANCER.setting_stock_icons, {
+  game.settings.register(game.system.id, LANCER.setting_stock_icons, {
     name: "Keep Stock Icons",
     scope: "world",
     config: true,
@@ -35,7 +35,7 @@ export const registerSettings = function () {
     default: false,
   });
 
-  game.settings.register(LANCER.sys_name, LANCER.setting_welcome, {
+  game.settings.register(game.system.id, LANCER.setting_welcome, {
     name: "Hide Welcome Message",
     hint: "Hide the welcome message for the latest update to the Lancer system.",
     scope: "world",
@@ -44,7 +44,7 @@ export const registerSettings = function () {
     default: false,
   });
 
-  game.settings.register(LANCER.sys_name, LANCER.setting_automation, {
+  game.settings.register(game.system.id, LANCER.setting_automation, {
     name: "System Automation",
     hint: "Master enable switch for system automation. Turn this off to do everything manually.",
     scope: "world",
@@ -53,7 +53,7 @@ export const registerSettings = function () {
     default: true,
   });
 
-  game.settings.register(LANCER.sys_name, LANCER.setting_auto_structure, {
+  game.settings.register(game.system.id, LANCER.setting_auto_structure, {
     name: "Automatic Structure/Stress",
     hint:
       "When a mech rolls a structure/overheat macro, should it automatically decrease structure/stress?",
@@ -63,7 +63,7 @@ export const registerSettings = function () {
     default: true,
   });
 
-  game.settings.register(LANCER.sys_name, LANCER.setting_pilot_oc_heat, {
+  game.settings.register(game.system.id, LANCER.setting_pilot_oc_heat, {
     name: "Auto-Apply Overcharge Heat",
     hint: "When a mech rolls an overcharge, should it automatically apply heat?",
     scope: "world",
@@ -72,7 +72,7 @@ export const registerSettings = function () {
     default: true,
   });
 
-  game.settings.register(LANCER.sys_name, LANCER.setting_overkill_heat, {
+  game.settings.register(game.system.id, LANCER.setting_overkill_heat, {
     name: "Auto-Apply Overkill Heat",
     hint: "When an overkill weapon triggers overkill rerolls, should it automatically apply heat?",
     scope: "world",
@@ -80,8 +80,8 @@ export const registerSettings = function () {
     type: Boolean,
     default: true,
   });
-  
-  game.settings.register(LANCER.sys_name, LANCER.setting_120, {
+
+  game.settings.register(game.system.id, LANCER.setting_120, {
     name: "Show v0.1.20 Warning",
     scope: "world",
     config: false,

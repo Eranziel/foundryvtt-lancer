@@ -274,7 +274,7 @@ async function rollStatMacro(actor: Actor, data: LancerStatMacroData) {
     roll_tooltip: roll_tt,
     effect: data.effect ? data.effect : null,
   };
-  const template = `systems/lancer/templates/chat/stat-roll-card.html`;
+  const template = `systems/${game.system.id}/templates/chat/stat-roll-card.html`;
   return renderMacro(actor, template, templateData);
 }
 
@@ -286,7 +286,7 @@ async function rollSystemMacro(actor: Actor, data: LancerGenericMacroData) {
     title: data.title,
     effect: data.effect ? data.effect : null,
   };
-  const template = `systems/lancer/templates/chat/system-card.html`;
+  const template = `systems/${game.system.id}/templates/chat/system-card.html`;
   return renderMacro(actor, template, templateData);
 }
 
@@ -299,7 +299,7 @@ async function rollTalentMacro(actor: Actor, data: LancerTalentMacroData) {
     rank: data.talent.ranks[data.rank],
     lvl: data.rank,
   };
-  const template = `systems/lancer/templates/chat/talent-card.html`;
+  const template = `systems/${game.system.id}/templates/chat/talent-card.html`;
   return renderMacro(actor, template, templateData);
 }
 
@@ -465,8 +465,8 @@ async function rollAttackMacro(actor: Actor, data: LancerAttackMacroData) {
   }
 
   if (
-    game.settings.get(LANCER.sys_name, LANCER.setting_automation) &&
-    game.settings.get(LANCER.sys_name, LANCER.setting_overkill_heat)
+    game.settings.get(game.system.id, LANCER.setting_automation) &&
+    game.settings.get(game.system.id, LANCER.setting_overkill_heat)
   ) {
     const a_data: LancerPilotActorData = duplicate(actor.data);
     if (a_data.type === "pilot") {
@@ -488,7 +488,7 @@ async function rollAttackMacro(actor: Actor, data: LancerAttackMacroData) {
     on_hit: data.on_hit ? data.on_hit : null,
     tags: data.tags,
   };
-  const template = `systems/lancer/templates/chat/attack-card.html`;
+  const template = `systems/${game.system.id}/templates/chat/attack-card.html`;
   return await renderMacro(actor, template, templateData);
 }
 
@@ -500,7 +500,7 @@ async function rollAttackMacro(actor: Actor, data: LancerAttackMacroData) {
 export function rollReactionMacro(actor: Actor, data: LancerReactionMacroData) {
   if (!actor) return Promise.resolve();
 
-  const template = `systems/lancer/templates/chat/reaction-card.html`;
+  const template = `systems/${game.system.id}/templates/chat/reaction-card.html`;
   return renderMacro(actor, template, data);
 }
 
@@ -585,7 +585,7 @@ export function prepareTextMacro(a: string, title: string, text: string, tags?: 
 async function rollTextMacro(actor: Actor, data: LancerTextMacroData) {
   if (!actor) return Promise.resolve();
 
-  const template = `systems/lancer/templates/chat/generic-card.html`;
+  const template = `systems/${game.system.id}/templates/chat/generic-card.html`;
   return renderMacro(actor, template, data);
 }
 
@@ -657,7 +657,7 @@ async function rollTechMacro(actor: Actor, data: LancerTechMacroData) {
     tags: data.tags,
   };
 
-  const template = `systems/lancer/templates/chat/tech-attack-card.html`;
+  const template = `systems/${game.system.id}/templates/chat/tech-attack-card.html`;
   return await renderMacro(actor, template, templateData);
 }
 
@@ -670,7 +670,7 @@ export async function promptAccDiffModifier(acc?: number, title?: string) {
   }
 
   let template = await renderTemplate(
-    `systems/lancer/templates/window/promptAccDiffModifier.html`,
+    `systems/${game.system.id}/templates/window/promptAccDiffModifier.html`,
     { acc: acc, diff: diff }
   );
   return new Promise<number>((resolve, reject) => {
@@ -743,8 +743,8 @@ export async function prepareOverchargeMacro(a: string) {
 
   // Only increase heat if we haven't disabled it
   if (
-    game.settings.get(LANCER.sys_name, LANCER.setting_automation) &&
-    game.settings.get(LANCER.sys_name, LANCER.setting_pilot_oc_heat)
+    game.settings.get(game.system.id, LANCER.setting_automation) &&
+    game.settings.get(game.system.id, LANCER.setting_pilot_oc_heat)
   ) {
     data.data.mech.heat.value = data.data.mech.heat.value + roll.total;
   }
@@ -767,7 +767,7 @@ async function rollOverchargeMacro(actor: Actor, data: LancerOverchargeMacroData
     level: data.level,
     roll_tooltip: roll_tt,
   };
-  const template = `systems/lancer/templates/chat/overcharge-card.html`;
+  const template = `systems/${game.system.id}/templates/chat/overcharge-card.html`;
   return renderMacro(actor, template, templateData);
 }
 

@@ -23,7 +23,7 @@ export class LancerDeployableSheet extends LancerActorSheet {
   static get defaultOptions() {
     return mergeObject(super.defaultOptions, {
       classes: ["lancer", "sheet", "actor", "npc"],
-      template: "systems/lancer/templates/actor/deployable.html",
+      template: `systems/${game.system.id}/templates/actor/deployable.html`,
       width: 800,
       height: 800,
     });

@@ -33,7 +33,7 @@ export class LancerItemSheet extends ItemSheet {
 
   /** @override */
   get template() {
-    const path = "systems/lancer/templates/item";
+    const path = `systems/${game.system.id}/templates/item`;
     return `${path}/${this.item.data.type}.html`;
   }
 
@@ -222,7 +222,7 @@ export class LancerItemSheet extends ItemSheet {
 
     if (this.item.data.type === "npc_feature") {
       // Change image to match feature type, unless a custom image has been selected
-      const imgPath = "systems/lancer/assets/icons/";
+      const imgPath = `systems/${game.system.id}/assets/icons/`;
       const shortImg = formData["img"].slice(formData["img"].lastIndexOf("/") + 1);
       if (
         formData["img"].startsWith(imgPath) &&
@@ -297,12 +297,12 @@ export class LancerItemSheet extends ItemSheet {
           for (var j = 0; j  < combinedKeys[i].length; j += 2 ) {
             // Grab our pre-damage/range path
             split = combinedKeys[i][j].split(combinedFilters[i]);
-  
+
             // Initialize if it hasn't already
             if(!newCombined[i][split[0] + split[1]]) {
               newCombined[i][split[0] + split[1]] = []
             }
-  
+
             // For now... assume type first (which should always be the case)
             newCombined[i][split[0] + split[1]].push({
               type: formData[combinedKeys[i][j]],

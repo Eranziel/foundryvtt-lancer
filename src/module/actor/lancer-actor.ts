@@ -71,7 +71,7 @@ export function lancerActorInit(data: any) {
   } else if (data.type === "deployable") {
     mergeObject(data, {
       // Initialize image
-      img: "systems/lancer/assets/icons/deployable.svg",
+      img: `systems/${game.system.id}/assets/icons/deployable.svg`,
       // Initialize prototype token
       "token.bar1": { attribute: "hp" }, // Default Bar 1 to HP
       "token.displayName": CONST.TOKEN_DISPLAY_MODES.HOVER, // Default display name to be always on
@@ -354,8 +354,8 @@ export class LancerActor extends Actor {
 
     const mech = this.data.data.mech;
     if (
-      game.settings.get(LANCER.sys_name, LANCER.setting_automation) &&
-      game.settings.get(LANCER.sys_name, LANCER.setting_auto_structure)
+      game.settings.get(game.system.id, LANCER.setting_automation) &&
+      game.settings.get(game.system.id, LANCER.setting_auto_structure)
     ) {
       if (mech.heat.value > mech.heat.max) {
         // https://discord.com/channels/426286410496999425/760966283545673730/789297842228297748
@@ -414,7 +414,7 @@ export class LancerActor extends Actor {
         text: text,
       };
     }
-    const template = `systems/lancer/templates/chat/overheat-card.html`;
+    const template = `systems/${game.system.id}/templates/chat/overheat-card.html`;
     const actor: Actor = game.actors.get(ChatMessage.getSpeaker().actor);
     return renderMacro(actor, template, templateData);
   }
@@ -469,8 +469,8 @@ export class LancerActor extends Actor {
 
     const mech = this.data.data.mech;
     if (
-      game.settings.get(LANCER.sys_name, LANCER.setting_automation) &&
-      game.settings.get(LANCER.sys_name, LANCER.setting_auto_structure)
+      game.settings.get(game.system.id, LANCER.setting_automation) &&
+      game.settings.get(game.system.id, LANCER.setting_auto_structure)
     ) {
       if (mech.hp.value <= 0) {
         mech.hp.value += mech.hp.max;
@@ -527,7 +527,7 @@ export class LancerActor extends Actor {
         text: text,
       };
     }
-    const template = `systems/lancer/templates/chat/structure-card.html`;
+    const template = `systems/${game.system.id}/templates/chat/structure-card.html`;
     const actor: Actor = game.actors.get(ChatMessage.getSpeaker().actor);
     return renderMacro(actor, template, templateData);
   }

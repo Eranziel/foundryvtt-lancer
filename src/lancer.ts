@@ -138,7 +138,7 @@ Hooks.once("init", async function () {
   registerSettings();
 
   // Set up system status icons
-  const keepStock = game.settings.get(LANCER.sys_name, LANCER.setting_stock_icons);
+  const keepStock = game.settings.get(game.system.id, LANCER.setting_stock_icons);
   let statuses: { id: string; label: string; icon: string }[] = [];
   // The type for statusEffects is wrong
   //@ts-ignore
@@ -391,7 +391,7 @@ Hooks.once("ready", async function () {
   // v0.1.20 Warning for v0.2
   // TODO: Remove for v0.2
   // Get the published warning from https://github.com/Eranziel/foundryvtt-lancer/wiki/v0.1.20-Announcement
-  if (game.settings.get(LANCER.sys_name, LANCER.setting_120)) {
+  if (game.settings.get(game.system.id, LANCER.setting_120)) {
     function warningDialog(text: string) {new Dialog(
       {
         title: `Warning for next update`,
@@ -400,7 +400,7 @@ Hooks.once("ready", async function () {
           dont_show: {
             label: "Acknowledged",
             callback: async () => {
-              await game.settings.set(LANCER.sys_name, LANCER.setting_120, false);
+              await game.settings.set(game.system.id, LANCER.setting_120, false);
             },
           },
           close: {
@@ -421,7 +421,7 @@ Hooks.once("ready", async function () {
     req.done((data, status) => {
       warningDialog(marked(data));
     });
-      
+
     req.fail((data, status) => {
       let errorText = `<h2>Warning: Next version will include major changes</h2></br><a href="https://raw.githubusercontent.com/wiki/Eranziel/foundryvtt-lancer/v0.1.20-Announcement.md">Click Here For More Information</a>`;
 
@@ -457,7 +457,7 @@ Hooks.on("renderChatMessage", async (cm: ChatMessage, html: any, data: any) => {
           roll_tooltip: await roll.getTooltip(),
         };
         const html = await renderTemplate(
-          "systems/lancer/templates/chat/overkill-reroll.html",
+          `systems/${game.system.id}/templates/chat/overkill-reroll.html`,
           templateData
         );
         let chat_data = {
@@ -481,7 +481,7 @@ Hooks.on("hotbarDrop", (_bar: any, data: any, slot: number) => {
 
   let command = "";
   let title = "";
-  let img = "systems/lancer/assets/icons/macro-icons/d20-framed.svg";
+  let img = `systems/${game.system.id}/assets/icons/macro-icons/d20-framed.svg`;
 
   console.log(`${lp} Data dropped on hotbar:`, data);
 
@@ -501,47 +501,47 @@ Hooks.on("hotbarDrop", (_bar: any, data: any, slot: number) => {
     if (data.data.type === "talent") {
       command = `game.lancer.prepareItemMacro("${data.actorId}", "${data.itemId}", {rank: ${data.rank}});`;
       title = data.title;
-      img = `systems/lancer/assets/icons/macro-icons/talent.svg`;
+      img = `systems/${game.system.id}/assets/icons/macro-icons/talent.svg`;
     } else {
       title = data.data.name;
     }
     // Pick the image for the hotbar
     switch (data.data.type) {
       case "skill":
-        img = `systems/lancer/assets/icons/macro-icons/skill.svg`;
+        img = `systems/${game.system.id}/assets/icons/macro-icons/skill.svg`;
         break;
       case "talent":
-        img = `systems/lancer/assets/icons/macro-icons/talent.svg`;
+        img = `systems/${game.system.id}/assets/icons/macro-icons/talent.svg`;
         break;
       case "core_bonus":
-        img = `systems/lancer/assets/icons/macro-icons/corebonus.svg`;
+        img = `systems/${game.system.id}/assets/icons/macro-icons/corebonus.svg`;
         break;
       case "pilot_gear":
-        img = `systems/lancer/assets/icons/macro-icons/generic_item.svg`;
+        img = `systems/${game.system.id}/assets/icons/macro-icons/generic_item.svg`;
         break;
       case "pilot_weapon":
       case "mech_weapon":
-        img = `systems/lancer/assets/icons/macro-icons/mech_weapon.svg`;
+        img = `systems/${game.system.id}/assets/icons/macro-icons/mech_weapon.svg`;
         break;
       case "mech_system":
-        img = `systems/lancer/assets/icons/macro-icons/mech_system.svg`;
+        img = `systems/${game.system.id}/assets/icons/macro-icons/mech_system.svg`;
         break;
       case "npc_feature":
         switch (data.data.data.feature_type) {
           case NpcFeatureType.Reaction:
-            img = `systems/lancer/assets/icons/macro-icons/reaction.svg`;
+            img = `systems/${game.system.id}/assets/icons/macro-icons/reaction.svg`;
             break;
           case NpcFeatureType.System:
-            img = `systems/lancer/assets/icons/macro-icons/mech_system.svg`;
+            img = `systems/${game.system.id}/assets/icons/macro-icons/mech_system.svg`;
             break;
           case NpcFeatureType.Trait:
-            img = `systems/lancer/assets/icons/macro-icons/trait.svg`;
+            img = `systems/${game.system.id}/assets/icons/macro-icons/trait.svg`;
             break;
           case NpcFeatureType.Tech:
-            img = `systems/lancer/assets/icons/macro-icons/tech_quick.svg`;
+            img = `systems/${game.system.id}/assets/icons/macro-icons/tech_quick.svg`;
             break;
           case NpcFeatureType.Weapon:
-            img = `systems/lancer/assets/icons/macro-icons/mech_weapon.svg`;
+            img = `systems/${game.system.id}/assets/icons/macro-icons/mech_weapon.svg`;
             break;
         }
         break;
@@ -552,15 +552,15 @@ Hooks.on("hotbarDrop", (_bar: any, data: any, slot: number) => {
   } else if (data.type === "Core-Active") {
     title = data.title;
     command = `game.lancer.prepareCoreActiveMacro("${data.actorId}")`;
-    img = `systems/lancer/assets/icons/macro-icons/corebonus.svg`;
+    img = `systems/${game.system.id}/assets/icons/macro-icons/corebonus.svg`;
   } else if (data.type === "Core-Passive") {
     title = data.title;
     command = `game.lancer.prepareCorePassiveMacro("${data.actorId}")`;
-    img = `systems/lancer/assets/icons/macro-icons/corebonus.svg`;
+    img = `systems/${game.system.id}/assets/icons/macro-icons/corebonus.svg`;
   } else if (data.type === "overcharge") {
     title = data.title;
     command = `game.lancer.prepareOverchargeMacro("${data.actorId}")`;
-    img = `systems/lancer/assets/icons/macro-icons/overcharge.svg`;
+    img = `systems/${game.system.id}/assets/icons/macro-icons/overcharge.svg`;
   } else {
     // Let's not error or anything, since it's possible to accidentally drop stuff pretty easily
     return;
@@ -593,11 +593,11 @@ Hooks.on("hotbarDrop", (_bar: any, data: any, slot: number) => {
  */
 async function versionCheck() {
   // Determine whether a system migration is required and feasible
-  const currentVersion = game.settings.get(LANCER.sys_name, LANCER.setting_migration);
+  const currentVersion = game.settings.get(game.system.id, LANCER.setting_migration);
 
   // If it's 0 then it's a fresh install
   if (currentVersion === "0") {
-    await game.settings.set(LANCER.sys_name, LANCER.setting_migration, game.system.data.version);
+    await game.settings.set(game.system.id, LANCER.setting_migration, game.system.data.version);
     return;
   }
 
@@ -609,7 +609,7 @@ async function versionCheck() {
   // Check whether system has been updated since last run.
   if (compareVersions(currentVersion, game.system.data.version) != 0 && game.user.isGM) {
     // Un-hide the welcome message
-    await game.settings.set(LANCER.sys_name, LANCER.setting_welcome, false);
+    await game.settings.set(game.system.id, LANCER.setting_welcome, false);
 
     if (needMigration <= 0) {
       if (currentVersion && compareVersions(currentVersion, COMPATIBLE_MIGRATION_VERSION) < 0) {
@@ -623,7 +623,7 @@ async function versionCheck() {
       await migrations.migrateWorld();
     }
     // Set the version for future migration and welcome message checking
-    await game.settings.set(LANCER.sys_name, LANCER.setting_migration, game.system.data.version);
+    await game.settings.set(game.system.id, LANCER.setting_migration, game.system.data.version);
   }
 
   // Use the new FEATURES dict to see if we can assume that there will be issues
@@ -654,7 +654,7 @@ async function versionCheck() {
 
 async function showChangelog() {
   // Show welcome message if not hidden.
-  if (!game.settings.get(LANCER.sys_name, LANCER.setting_welcome)) {
+  if (!game.settings.get(game.system.id, LANCER.setting_welcome)) {
     let renderChangelog = (changelog: string) => {
       new Dialog(
         {
@@ -664,7 +664,7 @@ async function showChangelog() {
             dont_show: {
               label: "Do Not Show Again",
               callback: async () => {
-                await game.settings.set(LANCER.sys_name, LANCER.setting_welcome, true);
+                await game.settings.set(game.system.id, LANCER.setting_welcome, true);
               },
             },
             close: {
@@ -714,9 +714,9 @@ function addSettingsButtons(app: Application, html: HTMLElement) {
         </button>`);
 
   $(html).find("#settings-documentation").append(faqButton);
-    
+
   faqButton.click(async ev => {
-    let helpContent = await renderTemplate("systems/lancer/templates/window/lancerHelp.html",{});
+    let helpContent = await renderTemplate(`systems/${game.system.id}/templates/window/lancerHelp.html`,{});
 
     new Dialog(
       {
