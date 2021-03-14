@@ -12,7 +12,12 @@ export class BonusEditDialog<O> extends Dialog {
   // Where it is
   bonus_path: string;
 
-  constructor(target: O, bonus_path: string, dialogData: DialogData  = {}, options: ApplicationOptions = {}) {
+  constructor(
+    target: O,
+    bonus_path: string,
+    dialogData: DialogData = {},
+    options: ApplicationOptions = {}
+  ) {
     super(dialogData, options);
     this.bonus_path = bonus_path;
     this.bonus = resolve_dotpath(target, bonus_path);
@@ -26,13 +31,13 @@ export class BonusEditDialog<O> extends Dialog {
       template: "systems/lancer/templates/window/bonus.html",
       width: 400,
       height: "auto",
-      classes: ["lancer"]
+      classes: ["lancer"],
     });
   }
 
-  /** @override 
+  /** @override
    * Expose our data
-  */
+   */
   getData(): any {
     return {
       ...super.getData(),
@@ -41,8 +46,8 @@ export class BonusEditDialog<O> extends Dialog {
       weapon_types: Object.values(WeaponType),
       weapon_sizes: Object.values(WeaponSize),
       bonus: this.bonus,
-      path: this.bonus_path
-    }
+      path: this.bonus_path,
+    };
   }
 
   /* -------------------------------------------- */
@@ -53,7 +58,11 @@ export class BonusEditDialog<O> extends Dialog {
    * @param {Actor5e} actor
    * @return {Promise}
    */
-  static async edit_bonus<T>(in_object: T, at_path: string, commit_callback: (v: T) => void | Promise<void>): Promise<void> {
+  static async edit_bonus<T>(
+    in_object: T,
+    at_path: string,
+    commit_callback: (v: T) => void | Promise<void>
+  ): Promise<void> {
     return new Promise((resolve, reject) => {
       const dlg = new this(in_object, at_path, {
         title: "Edit bonus",
@@ -65,35 +74,37 @@ export class BonusEditDialog<O> extends Dialog {
               // Idk how to get form data - FormData doesn't work :(
               // Just collect inputs manually
               let flat_data: any = {};
-              $(html).find("input").each((index, elt) => {
-                // Retrieve input info
-                let name = elt.name;
-                let val: boolean | string;
-                if(elt.type == "text") {
-                  val = elt.value;
-                } else if(elt.type == "checkbox") {
-                  val = elt.checked;
-                } else {
-                  return;
-                }
+              $(html)
+                .find("input")
+                .each((index, elt) => {
+                  // Retrieve input info
+                  let name = elt.name;
+                  let val: boolean | string;
+                  if (elt.type == "text") {
+                    val = elt.value;
+                  } else if (elt.type == "checkbox") {
+                    val = elt.checked;
+                  } else {
+                    return;
+                  }
 
-                // Add to form
-                flat_data[name] = val;
-              });
+                  // Add to form
+                  flat_data[name] = val;
+                });
 
               // Do the merge
               gentle_merge(in_object, flat_data);
               resolve(Promise.resolve(commit_callback(in_object)));
-            }
+            },
           },
           cancel: {
             icon: '<i class="fas fa-times"></i>',
             label: "Cancel",
-            callback: () => resolve()
-          }
+            callback: () => resolve(),
+          },
         },
-        default: 'confirm',
-        close: () => resolve()
+        default: "confirm",
+        close: () => resolve(),
       });
       dlg.render(true);
     });

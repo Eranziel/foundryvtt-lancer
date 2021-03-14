@@ -20,10 +20,19 @@ export class HTMLEditDialog<O> extends FormApplication {
   // Promise to signal completion of workflow
   resolve: () => any;
 
-  constructor(target: O, text_path: string, options: any, commit_func: (_: any) => void | Promise<void>, resolve_func: () => any) {
-    super({
-      hasPerm: () => true,// We give it a dummy object because we don't want it messing with our shit
-    }, options); 
+  constructor(
+    target: O,
+    text_path: string,
+    options: any,
+    commit_func: (_: any) => void | Promise<void>,
+    resolve_func: () => any
+  ) {
+    super(
+      {
+        hasPerm: () => true, // We give it a dummy object because we don't want it messing with our shit
+      },
+      options
+    );
     this.target = target;
     this.text_path = text_path;
     this.text = resolve_dotpath(target, text_path);
@@ -43,20 +52,19 @@ export class HTMLEditDialog<O> extends FormApplication {
       classes: ["lancer"],
       submitOnChange: false,
       submitOnClose: true,
-      closeOnSubmit: true
+      closeOnSubmit: true,
     });
   }
 
-  /** @override 
+  /** @override
    * Expose our data
-  */
+   */
   getData(): any {
     let new_data = {
-      text: this.text
-    }
+      text: this.text,
+    };
     return mergeObject(super.getData(), new_data);
   }
-
 
   /** @override */
   async _updateObject(event: any, formData: any) {
@@ -67,16 +75,15 @@ export class HTMLEditDialog<O> extends FormApplication {
     // doc.innerHTML = new_text;
     // new_text = doc.innerHTML; // Will have had all tags etc closed
 
-
     // Do the merge
-    gentle_merge(this.target, {[this.text_path]: new_text});
+    gentle_merge(this.target, { [this.text_path]: new_text });
     await Promise.resolve(this.commit_callback(this.target));
     this.resolve();
-  } 
+  }
 
-  /** @override 
+  /** @override
    * Want to resolve promise before closing
-  */
+   */
   //@ts-ignore Types don't account for the options
   close(options: any): any {
     this.resolve();
@@ -91,13 +98,20 @@ export class HTMLEditDialog<O> extends FormApplication {
    * workflow has been resolved.
    * @return {Promise}
    */
-  static async edit_text<T>(in_object: T, at_path: string, commit_callback: (v: T) => void | Promise<void>): Promise<void> {
+  static async edit_text<T>(
+    in_object: T,
+    at_path: string,
+    commit_callback: (v: T) => void | Promise<void>
+  ): Promise<void> {
     return new Promise((resolve, reject) => {
-      const dlg = new this(in_object, at_path, {
-        title: "Edit Text",
-      },
-      commit_callback,
-      resolve 
+      const dlg = new this(
+        in_object,
+        at_path,
+        {
+          title: "Edit Text",
+        },
+        commit_callback,
+        resolve
       );
       dlg.render(true);
     });

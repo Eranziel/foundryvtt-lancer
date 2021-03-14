@@ -1,8 +1,20 @@
-import {  LancerItemSheetData, } from "../interfaces";
+import { LancerItemSheetData } from "../interfaces";
 import { LANCER } from "../config";
 import { LancerItem, LancerItemType } from "./lancer-item";
-import { HANDLER_activate_general_controls, gentle_merge, resolve_dotpath, HANDLER_activate_popout_text_editor } from "../helpers/commons";
-import { HANDLER_activate_native_ref_dragging, HANDLER_activate_ref_dragging, HANDLER_activate_ref_drop_clearing, HANDLER_activate_ref_drop_setting, HANDLER_add_ref_to_list_on_drop, HANDLER_openRefOnClick } from "../helpers/refs";
+import {
+  HANDLER_activate_general_controls,
+  gentle_merge,
+  resolve_dotpath,
+  HANDLER_activate_popout_text_editor,
+} from "../helpers/commons";
+import {
+  HANDLER_activate_native_ref_dragging,
+  HANDLER_activate_ref_dragging,
+  HANDLER_activate_ref_drop_clearing,
+  HANDLER_activate_ref_drop_setting,
+  HANDLER_add_ref_to_list_on_drop,
+  HANDLER_openRefOnClick,
+} from "../helpers/refs";
 import { EntryType } from "machine-mind";
 import { get_pack } from "../mm-util/db_abstractions";
 import { HANDLER_activate_edit_bonus } from "../helpers/item";
@@ -37,7 +49,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
 
   constructor(...args: any) {
     super(...args);
-    if(this.item.type == EntryType.MECH_WEAPON) {
+    if (this.item.type == EntryType.MECH_WEAPON) {
       this.options.initial = `profile${this.item.data.data.selected_profile || 0}`;
     }
   }
@@ -52,10 +64,10 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
 
   /** @override */
   // setPosition(options = {}) {
-    // const sheetBody = (this.element as HTMLDivElement).find(".sheet-body");
-    // const bodyHeight = position.height - 192;
-    // sheetBody.css("height", bodyHeight);
-    // return super.setPosition(options);
+  // const sheetBody = (this.element as HTMLDivElement).find(".sheet-body");
+  // const bodyHeight = position.height - 192;
+  // sheetBody.css("height", bodyHeight);
+  // return super.setPosition(options);
   // }
 
   /* -------------------------------------------- */
@@ -132,11 +144,8 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
     // Returns true if any of these top level fields require updating (i.e. do we need to .update({img: ___, name: __, etc}))
     formData["mm.ent.Name"] = formData["name"];
 
-
     return this.item.img != formData["img"] || this.item.name != formData["name"];
   }
-
-
 
   /**
    * Implement the _updateObject method as required by the parent class spec
@@ -152,8 +161,8 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
     // Do a separate update depending on mm data
     if (need_top_update) {
       let top_update = {} as any;
-      for(let key of Object.keys(formData)) {
-        if(!key.includes("mm.ent")) {
+      for (let key of Object.keys(formData)) {
+        if (!key.includes("mm.ent")) {
           top_update[key] = formData[key];
         }
       }
@@ -171,9 +180,11 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
   //@ts-ignore Foundry-pc-types does not properly acknowledge that sheet `getData` functions can be/are asynchronous
   async getData(): Promise<LancerItemSheetData<T>> {
     // If a compendium, wait 50ms to avoid most race conflicts. TODO: Remove this when foundry fixes compendium editing to not be so awful
-    if(this.item.compendium) {
-      //@ts-ignore
-      this.object = await new Promise((s) => setTimeout(s, 50)).then(() => get_pack(this.item.type)).then(p => p.getEntity(this.item.id));
+    if (this.item.compendium) {
+      this.object = await new Promise(s => setTimeout(s, 50))
+        //@ts-ignore
+        .then(() => get_pack(this.item.type))
+        .then(p => p.getEntity(this.item.id));
     }
     const data = super.getData() as LancerItemSheetData<T>; // Not fully populated yet!
 
@@ -181,7 +192,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
     let tmp_dat = this.item.data as LancerItem<T>["data"]; // For typing convenience
     data.mm = await tmp_dat.data.derived.mmec_promise;
     let lic_ref = tmp_dat.data.derived.license;
-    data.license = lic_ref ? (await data.mm.reg.resolve(data.mm.ctx, lic_ref)) : null;
+    data.license = lic_ref ? await data.mm.reg.resolve(data.mm.ctx, lic_ref) : null;
 
     console.log(`${lp} Rendering with following item ctx: `, data);
     this._currData = data;
@@ -200,12 +211,11 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
     console.log("Committing");
     let cd = this._currData;
     this._currData = null;
-    await cd?.mm.ent.writeback() ?? null;
+    (await cd?.mm.ent.writeback()) ?? null;
 
     // Compendium entries don't re-draw appropriately
-    if(this.item.compendium) {
+    if (this.item.compendium) {
       this.render();
     }
   }
 }
-

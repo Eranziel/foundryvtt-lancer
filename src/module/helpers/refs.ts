@@ -13,7 +13,12 @@ import { GENERIC_ITEM_ICON, LANCER, TypeIcon } from "../config";
 import { is_item_type, LancerItem, LancerItemType } from "../item/lancer-item";
 import { FlagData, FoundryReg } from "../mm-util/foundry-reg";
 import { gentle_merge, resolve_dotpath, resolve_helper_dotpath } from "./commons";
-import { convert_ref_to_native, enable_dragging, enable_simple_ref_dragging, enable_simple_ref_dropping } from "./dragdrop";
+import {
+  convert_ref_to_native,
+  enable_dragging,
+  enable_simple_ref_dragging,
+  enable_simple_ref_dropping,
+} from "./dragdrop";
 
 // We use these for virtually every ref function
 export function ref_commons<T extends EntryType>(
@@ -79,7 +84,7 @@ export function simple_mm_ref<T extends EntryType>(
   native: boolean = false
 ) {
   // Flatten types
-  if(!Array.isArray(types)) {
+  if (!Array.isArray(types)) {
     types = [types];
   }
   let flat_types = types.join(" ");
@@ -209,7 +214,9 @@ export function mm_ref_portrait<T extends EntryType>(
   helper: HelperOptions
 ) {
   // Fetch the image
-  return `<img class="profile-img ref valid ${item.Type}" src="${img}" data-edit="${img_path}" ${ref_params(item.as_ref())} width="100" height="100" />`;
+  return `<img class="profile-img ref valid ${
+    item.Type
+  }" src="${img}" data-edit="${img_path}" ${ref_params(item.as_ref())} width="100" height="100" />`;
 }
 
 // Use this slot callback to add items of certain kind(s) to a list.
@@ -249,8 +256,15 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
 }
 
 // Exactly as above, but drags as a native when appropriate handlers called
-export function editable_mm_ref_list_item_native<T extends LancerItemType>(item_path: string, trash_action: "delete" | "splice" | "null", helper: HelperOptions) {
-  return editable_mm_ref_list_item(item_path, trash_action, helper).replace("ref ref-card", "ref ref-card native-drag");
+export function editable_mm_ref_list_item_native<T extends LancerItemType>(
+  item_path: string,
+  trash_action: "delete" | "splice" | "null",
+  helper: HelperOptions
+) {
+  return editable_mm_ref_list_item(item_path, trash_action, helper).replace(
+    "ref ref-card",
+    "ref ref-card native-drag"
+  );
 }
 
 // Put this at the end of ref lists to have a place to drop things. Supports both native and non-native drops
@@ -315,15 +329,15 @@ export function HANDLER_activate_ref_dragging(html: JQuery) {
 export function HANDLER_activate_native_ref_dragging(html: JQuery) {
   // Allow refs to be dragged arbitrarily
   enable_dragging(html.find(".ref.valid.native-drag"), drag_src => {
-      // Drag a JSON ref
-      let ref = recreate_ref_from_element(drag_src[0]);
-      let native = ref ? convert_ref_to_native(ref) : null;
-      if(native) {
-        return JSON.stringify(native);
-      } else {
-        return "";
-      }
-    });
+    // Drag a JSON ref
+    let ref = recreate_ref_from_element(drag_src[0]);
+    let native = ref ? convert_ref_to_native(ref) : null;
+    if (native) {
+      return JSON.stringify(native);
+    } else {
+      return "";
+    }
+  });
 }
 
 // Allow every ".ref.drop-settable" spot to be dropped onto, with a payload of a JSON RegRef
@@ -350,15 +364,14 @@ export function HANDLER_activate_ref_drop_clearing<T>(
   data_getter: () => Promise<T> | T,
   commit_func: (data: T) => void | Promise<void>
 ) {
-  html.find(".ref.drop-settable").on("contextmenu", async (event) => {
+  html.find(".ref.drop-settable").on("contextmenu", async event => {
     let data = await data_getter();
     let path = event.target.dataset.path;
-    if(path) {
+    if (path) {
       // Check there's anything there before doing anything
-      if(!resolve_dotpath(data, path)) return;
+      if (!resolve_dotpath(data, path)) return;
       gentle_merge(data, { [path]: null });
       await commit_func(data);
     }
   });
 }
-

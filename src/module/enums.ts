@@ -7,6 +7,7 @@ export enum PilotEquipType {
   PilotWeapon = "weapon",
   PilotGear = "gear",
 }
+
 export enum RangeType {
   Range = "Range",
   Threat = "Threat",

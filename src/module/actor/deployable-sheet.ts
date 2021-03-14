@@ -32,7 +32,7 @@ export class LancerDeployableSheet extends LancerActorSheet<EntryType.DEPLOYABLE
           contentSelector: ".sheet-body",
           initial: "status",
         },
-      ]
+      ],
     });
   }
 

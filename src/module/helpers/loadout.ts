@@ -1,18 +1,19 @@
 import { HelperOptions } from "handlebars";
-import { EntryType, Mech, MechLoadout, SystemMount, Pilot, Frame  } from "machine-mind";
+import { EntryType, Mech, MechLoadout, SystemMount, Pilot, Frame } from "machine-mind";
 import { WeaponMount } from "machine-mind";
 import { inc_if, resolve_helper_dotpath } from "./commons";
 import { mech_weapon_refview } from "./item";
 import { simple_mm_ref } from "./refs";
 
 // A drag-drop slot for a system mount. TODO: delete button, clear button
-function system_mount(
-  mech_path: string,
-  mount_path: string,
-  helper: HelperOptions
-): string {
+function system_mount(mech_path: string, mount_path: string, helper: HelperOptions): string {
   let mount = resolve_helper_dotpath(helper, mount_path) as SystemMount;
-  let slot = simple_mm_ref(EntryType.MECH_SYSTEM, mount.System, "No System", `${mount_path}.System`);
+  let slot = simple_mm_ref(
+    EntryType.MECH_SYSTEM,
+    mount.System,
+    "No System",
+    `${mount_path}.System`
+  );
 
   return ` 
     <div class="mount card">
@@ -28,14 +29,12 @@ function system_mount(
 }
 
 // A drag-drop slot for a weapon mount. TODO: delete button, clear button
-function weapon_mount(
-  mech_path: string,
-  mount_path: string,
-  helper: HelperOptions
-): string {
-  let mount = resolve_helper_dotpath(helper, mount_path) as WeaponMount
+function weapon_mount(mech_path: string, mount_path: string, helper: HelperOptions): string {
+  let mount = resolve_helper_dotpath(helper, mount_path) as WeaponMount;
   // let mech = resolve_helper_dotpath(helper, mech_path, EntryType.MECH);
-  let slots = mount.Slots.map((slot, index) => mech_weapon_refview(`${mount_path}.Slots.${index}.Weapon`, mech_path, helper, slot.Size));
+  let slots = mount.Slots.map((slot, index) =>
+    mech_weapon_refview(`${mount_path}.Slots.${index}.Weapon`, mech_path, helper, slot.Size)
+  );
   let err = mount.validate() ?? "";
 
   return ` 
@@ -45,9 +44,11 @@ function weapon_mount(
         <a class="gen-control fas fa-trash" data-action="splice" data-path="${mount_path}"></a>
         <a class="reset-weapon-mount-button fas fa-redo" data-path="${mount_path}"></a>
       </div>
-      ${inc_if(`
-        <span class="lancer-header error">${err.toUpperCase()}</span>`, 
-        err)}
+      ${inc_if(
+        `
+        <span class="lancer-header error">${err.toUpperCase()}</span>`,
+        err
+      )}
       <div class="lancer-body">
         ${slots.join("")}
       </div>
@@ -57,7 +58,9 @@ function weapon_mount(
 // Helper to display all weapon mounts on a mech loadout
 function all_weapon_mount_view(mech_path: string, loadout_path: string, helper: HelperOptions) {
   let loadout = resolve_helper_dotpath(helper, loadout_path) as MechLoadout;
-  const weapon_mounts = loadout.WepMounts.map((wep, index) => weapon_mount(mech_path, `${loadout_path}.WepMounts.${index}`, helper));
+  const weapon_mounts = loadout.WepMounts.map((wep, index) =>
+    weapon_mount(mech_path, `${loadout_path}.WepMounts.${index}`, helper)
+  );
 
   return `
     <span class="lancer-header loadout-category submajor">
@@ -74,7 +77,9 @@ function all_weapon_mount_view(mech_path: string, loadout_path: string, helper: 
 // Helper to display all system mounts on a mech loadout
 function all_system_mount_view(mech_path: string, loadout_path: string, helper: HelperOptions) {
   let loadout = resolve_helper_dotpath(helper, loadout_path) as MechLoadout;
-  const system_slots = loadout.SysMounts.map((sys, index) => system_mount(mech_path, `${loadout_path}.SysMounts.${index}`, helper));
+  const system_slots = loadout.SysMounts.map((sys, index) =>
+    system_mount(mech_path, `${loadout_path}.SysMounts.${index}`, helper)
+  );
 
   return `
     <span class="lancer-header loadout-category submajor">
@@ -96,7 +101,9 @@ function all_system_mount_view(mech_path: string, loadout_path: string, helper: 
  */
 export function mech_loadout(mech_path: string, helper: HelperOptions): string {
   const mech: Mech = resolve_helper_dotpath(helper, mech_path);
-  if(!mech) {return "err";}
+  if (!mech) {
+    return "err";
+  }
   const loadout_path = `${mech_path}.Loadout`;
   return `
     <div class="flexcol">

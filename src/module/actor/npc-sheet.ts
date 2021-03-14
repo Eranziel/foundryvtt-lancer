@@ -3,9 +3,7 @@ import { LANCER } from "../config";
 import { LancerActorSheet } from "./lancer-actor-sheet";
 import { prepareItemMacro } from "../macros";
 import { EntryType, OpCtx } from "machine-mind";
-import {
-  LancerNpcFeature,
-} from "../item/lancer-item";
+import { LancerNpcFeature } from "../item/lancer-item";
 import { ResolvedNativeDrop } from "../helpers/dragdrop";
 import { MMEntityContext, mm_wrap_item } from "../mm-util/helpers";
 const lp = LANCER.log_prefix;
@@ -191,13 +189,14 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
     let new_live_item = await item_mm.ent.insinuate(this_mm.reg, new_ctx);
 
     // Go ahead and bring in base features from templates
-    if(new_live_item.Type == EntryType.NPC_TEMPLATE) {
-      for(let b of new_live_item.BaseFeatures) {
+    if (new_live_item.Type == EntryType.NPC_TEMPLATE) {
+      for (let b of new_live_item.BaseFeatures) {
         await b.insinuate(this_mm.reg, new_ctx);
       }
     }
-    if(new_live_item.Type == EntryType.NPC_CLASS && !this_mm.ent.ActiveClass) { // Only bring in everything if we don't already have a class
-      for(let b of new_live_item.BaseFeatures) {
+    if (new_live_item.Type == EntryType.NPC_CLASS && !this_mm.ent.ActiveClass) {
+      // Only bring in everything if we don't already have a class
+      for (let b of new_live_item.BaseFeatures) {
         await b.insinuate(this_mm.reg, new_ctx);
       }
     }

@@ -269,14 +269,14 @@ export class ActorInventoryWrapper<T extends LancerItemType> extends EntityColle
   // Need this to filter results by type
   type: T;
 
-  // Where we get the items from. 
+  // Where we get the items from.
   actor: Actor;
 
   // Is this a compendium actor?
   for_compendium: boolean;
   constructor(type: T, actor: Actor) {
     super();
-    if(!actor) {
+    if (!actor) {
       throw new Error("Bad actor");
     }
     this.type = type;
@@ -313,8 +313,10 @@ export class ActorInventoryWrapper<T extends LancerItemType> extends EntityColle
   }
 
   async update(id: string, item: RegEntryTypes<T>): Promise<void> {
-    if(this.for_compendium) {
-      console.warn("Warning: Cannot currently edit owned items of actors. Re-examine this with Foundry .8, as there was mention of this changing with further tweaks to active effects");
+    if (this.for_compendium) {
+      console.warn(
+        "Warning: Cannot currently edit owned items of actors. Re-examine this with Foundry .8, as there was mention of this changing with further tweaks to active effects"
+      );
       return;
     }
 
@@ -357,7 +359,7 @@ export class ActorInventoryWrapper<T extends LancerItemType> extends EntityColle
   async enumerate(): Promise<GetResult<T>[]> {
     // let items = (this.actor.items as unknown) as LancerItem<T>[] | Collection<LancerItem<T>>; // Typings are wrong here. Entities and entries appear to have swapped type decls
     // if(!Array.isArray(items)) {
-      // items = Array.from(items.values());
+    // items = Array.from(items.values());
     // }
     let items = (this.actor.items.entries as unknown) as LancerItem<T>[]; // Typings are wrong here. Entities and entries appear to have swapped type decls
     return items
@@ -378,14 +380,12 @@ export class TokenInventoryWrapper<T extends LancerItemType> extends ActorInvent
 
   constructor(type: T, token: Token) {
     super(type, token.actor);
-    if(!token) {
+    if (!token) {
       throw new Error("Bad token");
     }
     this.token = token;
   }
 }
-
-
 
 // Handles accesses to top level items/actors in compendiums
 export class CompendiumWrapper<T extends EntryType> extends EntityCollectionWrapper<T> {
@@ -446,7 +446,7 @@ export class CompendiumWrapper<T extends EntryType> extends EntityCollectionWrap
   async update(id: string, item: RegEntryTypes<T>): Promise<void> {
     let fi = await this.subget(id);
     if (fi) {
-      await fi.update({ data: item }, {render: false});
+      await fi.update({ data: item }, { render: false });
 
       // No need to flush entire cache - but we do need to re-fetch that item
       let updated_entry = await this.pack().then(p => p.getEntity(id));
@@ -496,7 +496,6 @@ export class CompendiumWrapper<T extends EntryType> extends EntityCollectionWrap
   }
 }
 
-
 // Information about a pack
 interface PackMetadata {
   name: string;
@@ -544,14 +543,17 @@ export class FetcherCache<A, T> {
   // Holds the expiration time of specified keys. Repeated access will keep alive for longer
   private timeout_map: Map<A, number> = new Map();
 
-  constructor(private readonly timeout: number | null, private readonly fetch_func: ((arg: A) => Promise<T>)) {}
+  constructor(
+    private readonly timeout: number | null,
+    private readonly fetch_func: (arg: A) => Promise<T>
+  ) {}
 
   // Fetch the value using the specified arg
   async fetch(arg: A): Promise<T> {
     let now = Date.now();
 
     // Refresh the lookup on our target value (or set it for the first time, depending) ((if we have a timeout))
-    if(this.timeout) {
+    if (this.timeout) {
       this.timeout_map.set(arg, now + this.timeout);
 
       // Pre-emptively cleanup
@@ -560,7 +562,7 @@ export class FetcherCache<A, T> {
 
     // Check if we have cached data. If so, yield. If not, create
     let cached = this.cached_values.get(arg);
-    if(cached) {
+    if (cached) {
       return cached;
     } else {
       let new_val_promise = this.fetch_func(arg);
@@ -568,7 +570,7 @@ export class FetcherCache<A, T> {
       new_val_promise.then(resolved => this.cached_resolved_values.set(arg, resolved));
       return new_val_promise;
     }
-  } 
+  }
 
   // Fetch the value iff it is currently cached. Essentially a no-cost peek, useful for editing the cached val without doing a full re-fetch
   soft_fetch(arg: A): T | null {
@@ -578,13 +580,12 @@ export class FetcherCache<A, T> {
   // Destroys all entries that should be destroyed
   private cleanup() {
     let now = Date.now();
-    for(let [arg, expire] of this.timeout_map.entries()) {
-      if(expire < now) {
+    for (let [arg, expire] of this.timeout_map.entries()) {
+      if (expire < now) {
         this.timeout_map.delete(arg);
         this.cached_values.delete(arg);
       }
     }
-
   }
 
   // Destroy a particular set of cached values
@@ -597,26 +598,34 @@ export class FetcherCache<A, T> {
   // Destroy all entries, period.
   public flush_all() {
     this.cached_values.clear();
-    this.cached_resolved_values.clear()
+    this.cached_resolved_values.clear();
     this.timeout_map.clear();
   }
 }
 
-
 // Caches getContent() _as a map_ (wowee!). Idk if generating these maps are expensive but why tempt fate, lmao
-const PackContentMapCache = new FetcherCache(COMPENDIUM_CACHE_TIMEOUT, async (type: LancerItemType | LancerActorType) => {
-  let pack = await get_pack(type);
-  let data = await pack.getContent();
-  let map = new Map();
-  for(let e of data) {
-    map.set(e._id, e);
+const PackContentMapCache = new FetcherCache(
+  COMPENDIUM_CACHE_TIMEOUT,
+  async (type: LancerItemType | LancerActorType) => {
+    let pack = await get_pack(type);
+    let data = await pack.getContent();
+    let map = new Map();
+    for (let e of data) {
+      map.set(e._id, e);
+    }
+    return map;
   }
-  return map;
-});
-
+);
 
 // This wraps interfacing with above caches, but with better typing!
-export async function cached_get_pack_map<T extends LancerItemType | LancerActorType>(type: T): Promise<Map<string, T extends LancerItemType ? LancerItem<T> : T extends LancerActorType ? LancerActor<T> : never>> {
+export async function cached_get_pack_map<T extends LancerItemType | LancerActorType>(
+  type: T
+): Promise<
+  Map<
+    string,
+    T extends LancerItemType ? LancerItem<T> : T extends LancerActorType ? LancerActor<T> : never
+  >
+> {
   return PackContentMapCache.fetch(type);
 }
 

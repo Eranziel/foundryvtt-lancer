@@ -33,7 +33,6 @@ const weapon_items: LancerItemType[] = [ET.MECH_WEAPON, ET.PILOT_WEAPON, ET.NPC_
 
 export type LancerEntityType = LancerItemType | LancerActorType;
 
-
 export const STATUSES = [
   {
     id: "immobilized",
@@ -190,7 +189,7 @@ export const LANCER = {
   mech_items,
   pilot_items,
   weapon_items,
-  npc_items
+  npc_items,
 };
 
 // Convenience for mapping item/actor types to full names
@@ -292,7 +291,7 @@ const ENTITY_ICONS = {
   [EntryType.TAG]: "systems/lancer/assets/icons/tag.svg",
   [EntryType.TALENT]: "systems/lancer/assets/icons/talent.svg",
   [EntryType.WEAPON_MOD]: "systems/lancer/assets/icons/weapon_mod.svg",
-  generic: GENERIC_ITEM_ICON
+  generic: GENERIC_ITEM_ICON,
 };
 
 // TODO: const MACRO_ICONS

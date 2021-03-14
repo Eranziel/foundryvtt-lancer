@@ -13,10 +13,7 @@ import { LancerGame } from "./module/lancer-game";
 import { LancerActor, lancerActorInit } from "./module/actor/lancer-actor";
 import { LancerItem, lancerItemInit } from "./module/item/lancer-item";
 
-import {
-  action_type_icon,
-  action_type_selector,
-} from "./module/helpers/npc";
+import { action_type_icon, action_type_selector } from "./module/helpers/npc";
 
 // Import applications
 import { LancerPilotSheet } from "./module/actor/pilot-sheet";
@@ -295,7 +292,6 @@ Hooks.once("init", async function () {
 
   Handlebars.registerHelper("safe-html", safe_html_helper);
 
-
   // ------------------------------------------------------------------------
   // Generic components
   Handlebars.registerHelper("l-num-input", clicker_num_input);
@@ -312,7 +308,6 @@ Hooks.once("init", async function () {
 
   Handlebars.registerHelper("textarea-card", large_textbox_card);
 
-
   // ------------------------------------------------------------------------
   // Stat helpers
   Handlebars.registerHelper("compact-stat-edit", compact_stat_edit);
@@ -325,7 +320,6 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("std-string-input", std_string_input);
   Handlebars.registerHelper("std-num-input", std_num_input);
   Handlebars.registerHelper("std-checkbox", std_checkbox);
-  
 
   // ------------------------------------------------------------------------
   // Refs
