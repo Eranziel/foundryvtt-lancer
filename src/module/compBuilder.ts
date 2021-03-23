@@ -77,7 +77,7 @@ async function lock_all() {
 // Clear all packs
 export async function clear_all(): Promise<void> {
   // TODO - unlock and lock compendiums
-  // await unlock_all();
+  await unlock_all();
   for (let p of Object.values(EntryType)) {
     let pack: Compendium | undefined;
     pack = game.packs.get(`world.${p}`);
@@ -90,8 +90,7 @@ export async function clear_all(): Promise<void> {
       });
     }
   }
-  // await lock_all();
-
+  await lock_all();
   return Promise.resolve();
 }
 
@@ -155,7 +154,7 @@ async function transfer_cat<T extends EntryType>(
   for (let item of await from_cat.list_live(ctx)) {
     // Do the deed
     let prom = (item.insinuate(to) as Promise<any>).then(insinuated => {
-      console.log(`Import | Added ${type} ${item.Name}`);
+      console.log(`Import | Added ${type} ${item.Name}`, insinuated);
       return insinuated;
     });
     promises.push(prom);
@@ -167,7 +166,7 @@ export async function import_cp(
   cp: IContentPack,
   progress_callback?: (done: number, out_of: number) => void
 ): Promise<void> {
-  // await unlock_all(); // TODO: re-enable i guess?
+  await unlock_all();
 
   // Stub in a progress callback so we don't have to null check it all the time
   if (!progress_callback) {
@@ -230,7 +229,11 @@ export async function import_cp(
   await comp_reg.execute_order_66();
   progress_callback(transmit_count, total_items + comp_reg.to_kill_count());
 
-  // await lock_all();
+  // Set default image on each item
+  for (let type of Object.values(EntryType)) {
+  }
+
+  await lock_all();
 }
 
 // This handles name-uniqueness, and destroys and existing entries with unique names

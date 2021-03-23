@@ -77,7 +77,7 @@ class LCPManager extends Application {
     this.manifest = null;
     this.coreVersion = game.settings.get(LANCER.sys_name, LANCER.setting_core_data);
     // TODO: pull available core version from machine-mind
-    this.coreUpdate = "2.0.35";
+    this.coreUpdate = "3.0.21";
     console.log(`${lp} Lancer Data version:`, this.coreVersion);
     this.lcpIndex = new LCPIndex(game.settings.get(LANCER.sys_name, LANCER.setting_lcps).index);
   }
