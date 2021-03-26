@@ -256,6 +256,8 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
               {
                 name: mech.Name || mech_actor.name,
                 img: mech.CloudPortrait || mech_actor.img,
+                //@ts-ignore
+                permission: self.entity.permission
               },
               {}
             );
@@ -501,9 +503,9 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
   async _updateObject(event: Event | JQuery.Event, formData: any): Promise<any> {
     // Do some pre-processing
     // Do these only if the callsign updated
-    if (this.actor.data.data.pilot.callsign !== formData["data.pilot.callsign"]) {
+    if (this.actor.data.data.callsign !== formData["data.pilot.callsign"]) {
       // Use the Actor's name for the pilot's callsign
-      formData["name"] = formData["data.callsign"];
+      // formData["name"] = formData["data.callsign"];
       // Copy the pilot's callsign to the prototype token
       formData["actor.token.name"] = formData["data.callsign"];
     }
