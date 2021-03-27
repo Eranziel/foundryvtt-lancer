@@ -1,5 +1,5 @@
 import { LANCER, TypeIcon } from "../config";
-import { EntryType, License, NpcFeatureType, OpCtx, RegRef } from "machine-mind";
+import { EntryType, License, NpcFeatureType, OpCtx, RegRef, TagInstance } from 'machine-mind';
 import { FoundryRegActorData, FoundryRegItemData } from "../mm-util/foundry-reg";
 import { LancerActor, LancerActorType } from "../actor/lancer-actor";
 import { system_ready } from "../../lancer";
@@ -216,10 +216,11 @@ export class LancerItem<T extends LancerItemType> extends Item {
   }
   */
 
+  
+
   /**
    * Return whether a weapon has the overkill tag
    */
-  /*
   get isOverkill(): boolean {
     if (
       this.data.type === EntryType.PILOT_WEAPON ||
@@ -231,7 +232,6 @@ export class LancerItem<T extends LancerItemType> extends Item {
       return false;
     }
   }
-  */
 
   /**
    * Return whether a weapon has the smart tag
@@ -281,17 +281,19 @@ export class LancerItem<T extends LancerItemType> extends Item {
    * @param name Tag name to search for.
    * @returns true if the tag was found, false otherwise.
    */
-  /*
   searchTags(id: string, name: string): boolean {
-    const data = this.data.data as any;
+    console.log("Not searching tags yet");
+    return false;
+    /*
+    const data = this.data.data;
     if (!data.tags || !Array.isArray(data.tags)) return false;
     let result = false;
-    data.tags.forEach((t: TagData) => {
+    data.tags.forEach((t: TagInstance) => {
       if (t.id.toLowerCase() === id || t.name.toUpperCase() === name) result = true;
     });
     return result;
-  }
-  */
+    */
+  } 
 }
 
 // Provide some convenient shorthands

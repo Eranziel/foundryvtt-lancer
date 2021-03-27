@@ -4,11 +4,13 @@ import {
   LancerCoreBonus,
   LancerItem,
   LancerMechSystem,
+  LancerMechWeaponData,
   LancerNpcFeature,
   LancerPilotGear,
+  LancerPilotWeaponData,
   LancerSkill,
 } from "./item/lancer-item";
-import { LancerActor } from "./actor/lancer-actor";
+import { LancerActor, LancerPilot } from './actor/lancer-actor';
 import {
   LancerAttackMacroData,
   LancerGenericMacroData,
@@ -20,7 +22,7 @@ import {
   LancerTextMacroData,
 } from "./interfaces";
 // Import JSON data
-import { DamageType, EntryType, NpcFeatureType, TagInstance } from "machine-mind";
+import { DamageType, EntryType, NpcFeatureType, TagInstance, Pilot, PilotWeapon, MechWeapon, RegDamageData } from 'machine-mind';
 
 const lp = LANCER.log_prefix;
 
@@ -322,9 +324,6 @@ async function prepareAttackMacro({
     damBonus: { type: DamageType; val: number };
   };
 }) {
-  console.log("DISABLED");
-  return;
-  /*
   let mData: LancerAttackMacroData = {
     title: item.name,
     grit: 0,
@@ -334,15 +333,19 @@ async function prepareAttackMacro({
     overkill: item.isOverkill,
     effect: "",
   };
-  let typeMissing: boolean = false;
+  let actorEnt: Pilot = (await actor.data.data.derived.mmec_promise).ent;
+  let itemEnt: PilotWeapon = (await item.data.data.derived.mmec_promise).ent;
+  console.log(actorEnt);
   if (item.type === EntryType.MECH_WEAPON || item.type === EntryType.PILOT_WEAPON) {
     const wData = item.data.data as LancerMechWeaponData | LancerPilotWeaponData;
-    mData.grit = (item.actor!.data as LancerPilotActorData).data.pilot.grit;
-    mData.acc = item.accuracy;
-    mData.damage = [...wData.damage];
-    mData.tags = wData.tags;
-    mData.effect = wData.effect;
+    mData.grit = actorEnt.Grit;
+    mData.acc = 0;
+    mData.damage = itemEnt.Damage;
+    mData.tags = itemEnt.Tags;
+    mData.effect = itemEnt.Effect;
   } else if (item.type === EntryType.NPC_FEATURE) {
+    console.log("Not doing NPC attacks yet!")
+    /*
     const wData = item.data.data as LancerNPCWeaponData;
     let tier: number;
     if (item.actor === null) {
@@ -361,12 +364,14 @@ async function prepareAttackMacro({
     mData.tags = wData.tags;
     mData.on_hit = wData.on_hit ? wData.on_hit : undefined;
     mData.effect = wData.effect ? wData.effect : "";
+    */
   } else {
     ui.notifications.error(`Error preparing attack macro - ${item.name} is not a weapon!`);
     return Promise.resolve();
   }
 
   // Check for damages that are missing type
+  let typeMissing = false;
   mData.damage.forEach((d: any) => {
     if (d.type === "" && d.val != "" && d.val != 0) typeMissing = true;
   });
@@ -381,7 +386,7 @@ async function prepareAttackMacro({
       mData.grit += options.accBonus;
     }
     if(options.damBonus) {
-      let i = mData.damage.findIndex((dam: IDamageData) => {return dam.type === options.damBonus.type});
+      let i = mData.damage.findIndex((dam: RegDamageData) => {return dam.type === options.damBonus.type});
       if(i >= 0) {
         // We need to clone so it doesn't go all the way back up to the weapon
         let damClone = {...mData.damage[i]};
@@ -398,7 +403,6 @@ async function prepareAttackMacro({
   }
 
   await rollAttackMacro(actor, mData).then();
-   */
 }
 
 async function rollAttackMacro(actor: Actor, data: LancerAttackMacroData) {
@@ -416,7 +420,7 @@ async function rollAttackMacro(actor: Actor, data: LancerAttackMacroData) {
   let overkill_heat: number = 0;
   for (const x of data.damage) {
     if (x.val === "" || x.val == 0) continue; // Skip undefined and zero damage
-    let d_formula: string = x.val.toString();
+    let d_formula: string = x.Value.toString();
     // If the damage formula involves dice and is overkill, add "r1" to reroll all 1's.
     if (d_formula.includes("d") && data.overkill) {
       let d_ind = d_formula.indexOf("d");
@@ -462,7 +466,7 @@ async function rollAttackMacro(actor: Actor, data: LancerAttackMacroData) {
       damage_results.push({
         roll: droll,
         tt: tt,
-        d_type: x.type,
+        d_type: x.DamageType,
       });
     }
   }

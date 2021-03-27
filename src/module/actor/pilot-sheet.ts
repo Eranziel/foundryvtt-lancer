@@ -171,8 +171,8 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
         if (!ev.currentTarget) return; // No target, let other handlers take care of it.
         ev.stopPropagation();
 
-        const weaponElement = $(ev.currentTarget).closest(".weapon")[0] as HTMLElement;
-        const weaponId = weaponElement.getAttribute("data-item-id");
+        const weaponElement = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
+        const weaponId = weaponElement.getAttribute("data-id");
         if (!weaponId) return ui.notifications.warn(`Error rolling macro: No weapon ID!`);
         const item = this.actor.getOwnedItem(weaponId);
         if (!item)
