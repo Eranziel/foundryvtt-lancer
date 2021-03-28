@@ -78,41 +78,6 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
   activateListeners(html: JQuery) {
     super.activateListeners(html);
 
-    if (this.actor.owner) {
-      // TODO: move to mech
-      /*
-      // Overcharge text
-      let overchargeText = html.find(".overcharge-text");
-
-      overchargeText.on("click", (ev: Event) => {
-        this._setOverchargeLevel(
-          <MouseEvent>ev,
-          Math.min(this.actor.data.data.mech.overcharge_level + 1, 3)
-        );
-      });
-
-      // Overcharge reset
-      let overchargeReset = html.find(".overcharge-reset");
-
-      overchargeReset.on("click", (ev: Event) => {
-        this._setOverchargeLevel(<MouseEvent>ev, 0);
-      });
-
-      // Overcharge macro
-      let overchargeMacro = html.find(".overcharge-macro");
-
-      overchargeMacro.on("click", () => {
-        game.lancer.prepareOverchargeMacro(this.actor._id);
-      });
-       */
-
-      // Macro triggers
-
-
-
-
-    }
-
     // Everything below here is only needed if the sheet is editable
     if (!this.options.editable) return;
 
@@ -247,56 +212,6 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
   }
 
 
-  // TODO: migrate to mech
-  /**
-   * For dragging overcharge to the hotbar
-   * @param event   The associated DragEvent
-   */
-  /*
-  _onDragOverchargeStart(event: DragEvent) {
-    event.stopPropagation(); // Avoids triggering parent event handlers
-
-    // let target = <HTMLElement>event.currentTarget;
-
-    let data = {
-      actorId: this.actor._id,
-      // Title will simply be CORE PASSIVE since we want to keep the macro dynamic
-      title: "OVERCHARGE",
-      type: "overcharge",
-    };
-
-    event.dataTransfer?.setData("text/plain", JSON.stringify(data));
-  }
-
-   */
-
-  // TODO: migrate to mech
-  /**
-   * Sets the overcharge level for this actor
-   * @param event An event, used by a proper overcharge section in the sheet, to get the overcharge field
-   * @param level Level to set overcharge to
-   */
-  /*
-  _setOverchargeLevel(event: MouseEvent, level: number) {
-    let target = <HTMLElement>event.currentTarget;
-    let inputField = $(target).siblings('[name="data.mech.overcharge_level"]');
-
-    inputField.val(String(level));
-    this._onSubmit(event).then();
-  }
-
-   */
-
-  // TODO: migrate to mech
-  /**
-   * Performs the overcharge macro
-   * @param event An event, used by a proper overcharge section in the sheet, to get the overcharge field
-   */
-  /*
-  _onClickOvercharge(event: MouseEvent) {
-    game.lancer.prepareOverchargeMacro(this.actor._id);
-  }
-   */
 
   /* -------------------------------------------- */
 

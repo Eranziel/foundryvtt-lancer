@@ -110,34 +110,6 @@ export class LancerActor<T extends LancerActorType> extends Actor {
   _actor_ctx!: OpCtx;
 
   /**
-   * Returns the current overcharge roll/text
-   * Only applicable for pilots
-   * Overkill for now but there are situations where we'll want this to be configurable
-   */
-  // TODO: migrate to new paradigm
-  /*
-  getOverchargeRoll(): string | null {
-    // Function is only applicable to pilots.
-    if (this.data.type !== "pilot") return null;
-
-    const data = this.data as LancerPilotActorData;
-
-    // TODO: update to new paradigm
-    // switch (data.data.mech.overcharge_level) {
-    //   case 1:
-    //     return "1d3";
-    //   case 2:
-    //     return "1d6";
-    //   case 3:
-    //     return "1d6+4";
-    //   default:
-    //     return "1";
-    // }
-    return "1";
-  }
-   */
-
-  /**
    * Performs overheat on the mech
    * For now, just rolls on table. Eventually we can include configuration to do automation
    */
@@ -540,6 +512,29 @@ export class LancerActor<T extends LancerActorType> extends Actor {
     //@ts-ignore Incorrect typings
     super._onModifyEmbeddedEntity(...args);
     LancerHooks.call(this);
+  }
+
+  /**
+   * Returns the current overcharge roll/text
+   * Only applicable for pilots
+   * Overkill for now but there are situations where we'll want this to be configurable
+   */
+   getOverchargeRoll(): string | null {
+    // Function is only applicable to pilots.
+    if (this.data.type !== EntryType.MECH) return null;
+
+    const data = this.data as LancerMechData;
+
+    switch (data.data.current_overcharge) {
+       case 1:
+         return "1d3";
+       case 2:
+         return "1d6";
+       case 3:
+         return "1d6+4";
+       default:
+         return "1";
+    }
   }
 
   setupLancerHooks() {

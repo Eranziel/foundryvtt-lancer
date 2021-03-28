@@ -28,6 +28,7 @@ import { stringify } from "querystring";
 import { FoundryReg } from "./mm-util/foundry-reg";
 import { resolve_dotpath } from './helpers/commons';
 import { mm_wrap_actor } from "./mm-util/helpers";
+import { debug } from "console";
 
 const lp = LANCER.log_prefix;
 
@@ -666,6 +667,7 @@ export function rollReactionMacro(actor: Actor, data: LancerReactionMacroData) {
  */
 export function prepareCoreActiveMacro(a: string) {
   console.log("DISABLED");
+  debugger
   return;
 
   /*
@@ -697,6 +699,7 @@ export function prepareCoreActiveMacro(a: string) {
  */
 export function prepareCorePassiveMacro(a: string) {
   console.log("DISABLED");
+  debugger
   return;
   /*
   // Determine which Actor to speak as
@@ -729,6 +732,7 @@ export function prepareCorePassiveMacro(a: string) {
  */
 export function prepareTextMacro(a: string, title: string, text: string, tags?: TagInstance[]) {
   console.log("DISABLED");
+  debugger
   return;
   // Determine which Actor to speak as
   /*
@@ -760,6 +764,7 @@ async function rollTextMacro(actor: Actor, data: LancerTextMacroData) {
 
 export async function prepareTechMacro(a: string, t: string) {
   console.log("DISABLED");
+  debugger
   return;
   /*
   // Determine which Actor to speak as
@@ -817,6 +822,7 @@ export async function prepareTechMacro(a: string, t: string) {
 
 async function rollTechMacro(actor: Actor, data: LancerTechMacroData) {
   console.log("DISABLED");
+  debugger
   return;
   /*
   let atk_str = await buildAttackRollString(data.title, data.acc, data.t_atk);
@@ -883,25 +889,18 @@ export async function promptAccDiffModifier(acc?: number, title?: string) {
 }
 
 export async function prepareOverchargeMacro(a: string) {
-  console.log("DISABLED");
-  return;
-  /*
   // Determine which Actor to speak as
-  let actor: LancerActor | null = getMacroSpeaker(a);
+  let actor: LancerActor<any> | null = getMacroSpeaker(a);
   if (!actor) {
     ui.notifications.warn(`Failed to find Actor for macro. Do you need to select a token?`);
     return null;
   }
 
-  // Validate that we're overcharging a pilot
-  if (actor.data.type !== "pilot") {
+  // Validate that we're overcharging a mech
+  if (actor.data.type !== "mech") {
     ui.notifications.warn(`Only pilots can overcharge!`);
     return null;
   }
-
-  // We're now certain it will be a pilot
-  //@ts-ignore
-  let data: LancerPilotActorData = actor.data;
 
   // And here too... we should probably revisit our type definitions...
   let rollText = actor.getOverchargeRoll();
@@ -913,27 +912,28 @@ export async function prepareOverchargeMacro(a: string) {
   // Prep data
   let roll = new Roll(rollText).roll();
 
+  let data = actor.data;
+
   let mData: LancerOverchargeMacroData = {
-    level: data.data.mech.overcharge_level,
+    level: data.data.current_overcharge,
     roll: roll,
   };
 
   // Assume we can always increment overcharge here...
-  data.data.mech.overcharge_level = Math.min(data.data.mech.overcharge_level + 1, 3);
+  data.data.current_overcharge = Math.min(data.data.current_overcharge + 1, 3);
 
   // Only increase heat if we haven't disabled it
   if (
     game.settings.get(LANCER.sys_name, LANCER.setting_automation) &&
     game.settings.get(LANCER.sys_name, LANCER.setting_pilot_oc_heat)
   ) {
-    data.data.mech.heat.value = data.data.mech.heat.value + roll.total;
+    data.data.current_heat = data.data.current_heat + roll.total;
   }
 
   console.log(roll, data);
   await actor.update(data);
 
   return rollOverchargeMacro(actor, mData);
-   */
 }
 
 async function rollOverchargeMacro(actor: Actor, data: LancerOverchargeMacroData) {
@@ -958,6 +958,7 @@ async function rollOverchargeMacro(actor: Actor, data: LancerOverchargeMacroData
  */
 export async function prepareOverheatMacro(a: string) {
   console.log("DISABLED");
+  debugger
   return;
   /*
   // Determine which Actor to speak as
@@ -983,6 +984,7 @@ export async function prepareOverheatMacro(a: string) {
  */
 export async function prepareStructureMacro(a: string) {
   console.log("DISABLED");
+  debugger
   return;
   /*
   // Determine which Actor to speak as

@@ -23,7 +23,9 @@
     {{{stat-view-card      "SENSORS"     "cci cci-sensor"           "mm.ent.SensorRange" }}}
     {{{stat-view-card      "SAVE"        "cci cci-save"             "mm.ent.SaveTarget" }}}
     {{{stat-view-card      "SYS POINTS"  "cci cci-system"           "mm.ent.MaxSP" }}}
+    {{!-- I don't think we need attack 
     {{{stat-view-card      "ATTACK"      "cci cci-heart"            "mm.ent.AttackBonus" }}}
+    --}}
     {{{overcharge-button "mm.ent.CurrentOvercharge" }}}
 
     <div class="card clipped double">
@@ -39,6 +41,9 @@
     <span class="lancer-header major ">LOADOUT [SP: {{mm.ent.Loadout.TotalSP}} / {{mm.ent.MaxSP}}]</span>
     {{{mech-loadout "mm.ent"}}}
   </div>
+
+  {{!-- Stripping all this out for a pilot-based Armory in the future
+  TODO 
 
   <div class="card clipped">
     <span class="lancer-header major ">FRAMES</span>
@@ -75,4 +80,6 @@
       {{/each}}
     </div>
   </div>
+
+  --}}
 </form>

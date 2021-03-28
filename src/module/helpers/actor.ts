@@ -181,15 +181,14 @@ export function overcharge_button(overcharge_path: string, options: HelperOption
   index = funcs.bound_int(index, 0, overcharge_sequence.length - 1);
   let over_val = overcharge_sequence[index];
   return `
-    <div class="card clipped flexcol">
-      <div class="lancer-header ">
+    <div class="flexcol card clipped" style="grid-area: 4/5/5/6">
+      <div class="lancer-header clipped-top flexrow">
         <span class="major">OVERCHARGE</span>
       </div>
-      <div class=flexrow>
-        <a class="overcharge-button">
-          <i class="cci cci-overcharge i--dark i--sm"> </i>
-        </a>
-        <span>${over_val}</span>
+      <div class="overcharge-container">
+        <a class="overcharge-macro macroable i--dark i--sm" data-action="roll-macro"><i class="fas fa-dice-d20"></i></a>
+        <a class="overcharge-text">${over_val}</a>
+        <a class="overcharge-reset mdi mdi-restore"></a>
       </div>
     </div>`;
 }
