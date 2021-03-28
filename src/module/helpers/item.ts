@@ -533,7 +533,7 @@ export function pilot_weapon_refview(weapon_path: string, helper: HelperOptions)
     </div>
     <div class="flexcol">
       <div class="flexrow">
-        <a class="flexrow roll-attack roll-attack" style="max-width: min-content;">
+        <a class="flexrow roll-attack" style="max-width: min-content;">
           <i class="fas fa-dice-d20 i--sm i--dark"></i>
         </a>
         ${show_range_array(weapon.Range, helper)}

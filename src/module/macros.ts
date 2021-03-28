@@ -22,9 +22,143 @@ import {
   LancerTextMacroData,
 } from "./interfaces";
 // Import JSON data
-import { DamageType, EntryType, NpcFeatureType, TagInstance, Pilot, PilotWeapon, MechWeapon, RegDamageData } from 'machine-mind';
+import { DamageType, EntryType, NpcFeatureType, TagInstance, Pilot, PilotWeapon, MechWeapon, RegDamageData, MechWeaponProfile, NpcFeature, OpCtx } from 'machine-mind';
+import { resolve_native_drop, convert_ref_to_native } from './helpers/dragdrop';
+import { stringify } from "querystring";
+import { FoundryReg } from "./mm-util/foundry-reg";
 
 const lp = LANCER.log_prefix;
+
+
+export async function onHotbarDrop(_bar: any, data: any, slot: number) {
+  
+  // We set an associated command & title based off the type
+  // Everything else gets handled elsewhere
+
+  let command = "";
+  let title = "";
+  let img = "systems/lancer/assets/icons/macro-icons/d20-framed.svg";
+
+  console.log(`${lp} Data dropped on hotbar:`, data);
+
+  let item = await new FoundryReg().resolve(new OpCtx(), data);
+
+  if(!item) return;
+
+  // Is this the way to handle this? Idk, but the only other option I see is changing dragdrop
+  // Pilot ID is encoded in reg_name...
+  // TODO: There's got to be a better way
+  let actorId = (data['reg_name'].split("|")[0]).split(":")[1]
+
+  switch (data.type) {
+    case EntryType.SKILL:
+      command = `
+        const a = game.actors.get('${actorId}');
+        if (a) {
+          game.lancer.prepareStatMacro('${actorId}', "${data.dataPath}");
+        } else {
+          ui.notifications.error("Error rolling macro");
+        }`;
+      img = `systems/lancer/assets/icons/macro-icons/skill.svg`;
+      break;
+    case EntryType.TALENT:
+      command = `game.lancer.prepareItemMacro("${actorId}", "${data.id}", {rank: ${data.rank}});`;
+      img = `systems/lancer/assets/icons/macro-icons/talent.svg`;
+      break;
+    case EntryType.CORE_BONUS:
+      img = `systems/lancer/assets/icons/macro-icons/corebonus.svg`;
+      break;
+    case EntryType.PILOT_GEAR:
+      img = `systems/lancer/assets/icons/macro-icons/generic_item.svg`;
+      break;
+    case EntryType.PILOT_WEAPON:
+    case EntryType.MECH_WEAPON:
+      command = `game.lancer.prepareItemMacro("${actorId}", "${data.id}");`;
+      img = `systems/lancer/assets/icons/macro-icons/mech_weapon.svg`;
+      break;
+    case EntryType.MECH_SYSTEM:
+      img = `systems/lancer/assets/icons/macro-icons/mech_system.svg`;
+      break;
+    case EntryType.NPC_FEATURE:
+      switch (data.data.data.feature_type) {
+        case NpcFeatureType.Reaction:
+          img = `systems/lancer/assets/icons/macro-icons/reaction.svg`;
+          break;
+        case NpcFeatureType.System:
+          img = `systems/lancer/assets/icons/macro-icons/mech_system.svg`;
+          break;
+        case NpcFeatureType.Trait:
+          img = `systems/lancer/assets/icons/macro-icons/trait.svg`;
+          break;
+        case NpcFeatureType.Tech:
+          img = `systems/lancer/assets/icons/macro-icons/tech_quick.svg`;
+          break;
+        case NpcFeatureType.Weapon:
+          img = `systems/lancer/assets/icons/macro-icons/mech_weapon.svg`;
+          break;
+      }
+      break;
+  }
+
+  // TODO: Figure out if I am really going down this route and, if so, switch to a switch
+  if (data.type === "actor") {
+    title = data.title;
+  } else if (data.type === "pilot_weapon") {
+    // Talent are the only ones (I think??) that we need to name specially
+    if (data.type === EntryType.TALENT) {
+      img = `systems/lancer/assets/icons/macro-icons/talent.svg`;
+    } 
+    // Pick the image for the hotbar
+  } else if (data.type === "Text") {
+    command = `game.lancer.prepareTextMacro("${data.actorId}", "${data.title}", {rank: ${data.description}})`;
+  } else if (data.type === "Core-Active") {
+    command = `game.lancer.prepareCoreActiveMacro("${data.actorId}")`;
+    img = `systems/lancer/assets/icons/macro-icons/corebonus.svg`;
+  } else if (data.type === "Core-Passive") {
+    command = `game.lancer.prepareCorePassiveMacro("${data.actorId}")`;
+    img = `systems/lancer/assets/icons/macro-icons/corebonus.svg`;
+  } else if (data.type === "overcharge") {
+    command = `game.lancer.prepareOverchargeMacro("${data.actorId}")`;
+    img = `systems/lancer/assets/icons/macro-icons/overcharge.svg`;
+  }
+
+  title = item.Name;
+
+  // Until we properly register commands as something macros can have...
+  // @ts-ignore
+  let macro = game.macros.entities.find(
+    (m: Macro) => m.name === title && (m.data as any).command === command
+  );
+  if (!macro) {
+    Macro.create(
+      {
+        command,
+        name: title,
+        type: "script",
+        img: img,
+      },
+      { displaySheet: false }
+    ).then(macro => game.user.assignHotbarMacro(macro as Macro, slot));
+  } else {
+    game.user.assignHotbarMacro(macro, slot).then();
+  }
+}
+
+function ownedItemFromString(i: string, actor: Actor): LancerItem<any> | null {
+  // Get the item
+  const item = actor.getOwnedItem(i) as LancerItem<any> | null;
+  if (!item) {
+    ui.notifications.error(
+      `Error preparing macro: could not find Item ${i} owned by Actor ${Actor.name}.`
+    );
+    return null;
+  } else if (!item.isOwned) {
+    ui.notifications.error(`Error preparing macro: ${item.name} is not owned by an Actor.`);
+    return null;
+  }
+
+  return item;
+}
 
 /**
  * Generic macro preparer for any item.
@@ -43,15 +177,9 @@ export async function prepareItemMacro(a: string, i: string, options?: any) {
     return null;
   }
 
-  // Get the item
-  const item = actor.getOwnedItem(i) as LancerItem<any> | null;
-  if (!item) {
-    return ui.notifications.error(
-      `Error preparing macro: could not find Item ${i} owned by Actor ${a}.`
-    );
-  } else if (!item.isOwned) {
-    return ui.notifications.error(`Error preparing macro: ${item.name} is not owned by an Actor.`);
-  }
+  const item = ownedItemFromString(i, actor);
+
+  if(!item) return;
 
   // Make a macro depending on the type
   switch (item.data.type) {
@@ -333,18 +461,24 @@ async function prepareAttackMacro({
     overkill: item.isOverkill,
     effect: "",
   };
-  let actorEnt: Pilot = (await actor.data.data.derived.mmec_promise).ent;
-  let itemEnt: PilotWeapon = (await item.data.data.derived.mmec_promise).ent;
-  console.log(actorEnt);
-  if (item.type === EntryType.MECH_WEAPON || item.type === EntryType.PILOT_WEAPON) {
-    const wData = item.data.data as LancerMechWeaponData | LancerPilotWeaponData;
-    mData.grit = actorEnt.Grit;
-    mData.acc = 0;
-    mData.damage = itemEnt.Damage;
-    mData.tags = itemEnt.Tags;
-    mData.effect = itemEnt.Effect;
-  } else if (item.type === EntryType.NPC_FEATURE) {
+  
+  let weaponData: NpcFeature | PilotWeapon | MechWeaponProfile;
+  let pilotEnt: Pilot;
+
+  // We can safely split off pilot/mech weapons by actor type
+  if (actor.data.type === EntryType.MECH) {
+    pilotEnt = (await actor.data.data.derived.mmec_promise).ent.Pilot;
+    let itemEnt: MechWeapon = (await item.data.data.derived.mmec_promise).ent;
+    weaponData = itemEnt.SelectedProfile;
+    mData.damage = weaponData.BaseDamage;
+  } else if (actor.data.type === EntryType.PILOT) {
+    pilotEnt = (await actor.data.data.derived.mmec_promise).ent;
+    let itemEnt: PilotWeapon = (await item.data.data.derived.mmec_promise).ent;
+    weaponData = itemEnt;
+    mData.damage = weaponData.Damage;
+  } else if (actor.data.type === EntryType.NPC) {
     console.log("Not doing NPC attacks yet!")
+    return Promise.resolve();
     /*
     const wData = item.data.data as LancerNPCWeaponData;
     let tier: number;
@@ -366,9 +500,14 @@ async function prepareAttackMacro({
     mData.effect = wData.effect ? wData.effect : "";
     */
   } else {
-    ui.notifications.error(`Error preparing attack macro - ${item.name} is not a weapon!`);
+    ui.notifications.error(`Error preparing attack macro - ${actor.name} is an unknown type!`);
     return Promise.resolve();
   }
+
+  mData.grit = pilotEnt.Grit;
+  mData.acc = 0;
+  mData.tags = weaponData.Tags;
+  mData.effect = weaponData.Effect;
 
   // Check for damages that are missing type
   let typeMissing = false;
