@@ -8,6 +8,7 @@ import {
   LiveEntryTypes,
   License,
   Skill,
+  Talent,
 } from "machine-mind";
 import { is_actor_type, LancerActor } from "../actor/lancer-actor";
 import { GENERIC_ITEM_ICON, LANCER, TypeIcon } from "../config";
@@ -244,6 +245,33 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
   let item = item_!; // cd truthiness implies item truthiness
 
   switch(item.Type) {
+    case EntryType.TALENT:
+      let talent: Talent = <Talent><any>item;
+      let retStr = `<li class="card clipped talent-compact item ref valid" ${ref_params(cd.ref)}>
+      <div class="lancer-talent-header medium clipped-top" style="grid-area: 1/1/2/4">
+      <i class="cci cci-talent i--m"></i>
+      <span class="major">${talent.Name}</span>
+      <div class="ref-list-controls">
+      <a class="gen-control i--dark" data-action="${trash_action}" data-path="${item_path}"><i class="fas fa-trash"></i></a>
+      </div>
+      </div>
+      <ul style="grid-area: 2/1/3/3">`
+      
+      for(var i=0;i<talent.CurrentRank;i++) {
+        retStr += `<li class="talent-rank-compact card clipped" style="padding: 5px">
+        <a class="cci cci-rank-${i+1} i--l i--dark talent-macro macroable" data-rank="${i}" style="grid-area: 1/1/2/2"></a>
+        <span class="major" style="grid-area: 1/2/2/3">${talent.Ranks[i].Name}</span>
+        <div class="effect-text" style="grid-area: 2/1/3/3">
+        ${talent.Ranks[i].Description}
+        </div>
+        </li>`
+      }
+      
+      retStr += `</ul>
+      </li>`
+
+      return retStr;
+
     case EntryType.SKILL:
       let skill: Skill = <Skill><any>item;
       return `

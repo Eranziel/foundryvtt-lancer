@@ -39,24 +39,36 @@ export async function onHotbarDrop(_bar: any, data: any, slot: number) {
   let title = "";
   let img = "systems/lancer/assets/icons/macro-icons/d20-framed.svg";
 
+  let itemId = "error";
+
   console.log(`${lp} Data dropped on hotbar:`, data);
 
-  let item = await new FoundryReg().resolve(new OpCtx(), data);
+  // Determine if we're using old or new method
+  if("actorId" in data) {
+    var actorId = data.actorId;
 
-  if(!item) return;
-
-  // Is this the way to handle this? Idk, but the only other option I see is changing dragdrop
-  // Pilot ID is encoded in reg_name...
-  // TODO: There's got to be a better way
-  let actorId = (data['reg_name'].split("|")[0]).split(":")[1]
+    title = data.title;
+    itemId = data.itemId;
+  } else {
+    var item = <any>(await new FoundryReg().resolve(new OpCtx(), data));
+    title = item.Name;
+  
+    if(!item) return;
+  
+    // Is this the way to handle this? Idk, but the only other option I see is changing dragdrop
+    // Pilot ID is encoded in reg_name...
+    // TODO: There's got to be a better way
+    var actorId = (data['reg_name'].split("|")[0]).split(":")[1]
+    itemId = data.id;
+  }
 
   switch (data.type) {
     case EntryType.SKILL:
-      command = `game.lancer.prepareItemMacro("${actorId}", "${data.id}");`;
+      command = `game.lancer.prepareItemMacro("${actorId}", "${itemId}");`;
       img = `systems/lancer/assets/icons/macro-icons/skill.svg`;
       break;
     case EntryType.TALENT:
-      command = `game.lancer.prepareItemMacro("${actorId}", "${data.id}", {rank: ${data.rank}});`;
+      command = `game.lancer.prepareItemMacro("${actorId}", "${itemId}", {rank: ${data.rank}});`;
       img = `systems/lancer/assets/icons/macro-icons/talent.svg`;
       break;
     case EntryType.CORE_BONUS:
@@ -67,7 +79,7 @@ export async function onHotbarDrop(_bar: any, data: any, slot: number) {
       break;
     case EntryType.PILOT_WEAPON:
     case EntryType.MECH_WEAPON:
-      command = `game.lancer.prepareItemMacro("${actorId}", "${data.id}");`;
+      command = `game.lancer.prepareItemMacro("${actorId}", "${itemId}");`;
       img = `systems/lancer/assets/icons/macro-icons/mech_weapon.svg`;
       break;
     case EntryType.MECH_SYSTEM:
@@ -116,7 +128,6 @@ export async function onHotbarDrop(_bar: any, data: any, slot: number) {
     img = `systems/lancer/assets/icons/macro-icons/overcharge.svg`;
   }
 
-  title = item.Name;
 
   // Until we properly register commands as something macros can have...
   // @ts-ignore
@@ -202,8 +213,8 @@ export async function prepareItemMacro(a: string, i: string, options?: any) {
       break;
     // Talents
     case EntryType.TALENT:
-      // If we aren't passed a rank, default to 0
-      let rank = options.rank ? options.rank : 0;
+      // If we aren't passed a rank, default to current rank
+      let rank = options.rank ? options.rank : item.data.data.curr_rank;
 
       let talData: LancerTalentMacroData = {
         talent: item.data.data,

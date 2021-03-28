@@ -129,7 +129,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
 
       const el = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
 
-      game.lancer.prepareItemMacro(this.actor._id, el.getAttribute("data-item-id")!, {
+      game.lancer.prepareItemMacro(this.actor._id, el.getAttribute("data-id")!, {
         rank: (<HTMLDataElement>ev.currentTarget).getAttribute("data-rank"),
       });
     });
@@ -216,14 +216,11 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     let target = <HTMLElement>event.currentTarget;
 
     let data = {
-      itemId: target.closest(".item")?.getAttribute("data-item-id"),
+      itemId: target.closest(".item")?.getAttribute("data-id"),
       actorId: this.actor._id,
-      type: "Item",
+      type: EntryType.TALENT,
       title: target.nextElementSibling?.textContent,
       rank: target.getAttribute("data-rank"),
-      data: {
-        type: EntryType.TALENT,
-      },
     };
 
     event.dataTransfer?.setData("text/plain", JSON.stringify(data));

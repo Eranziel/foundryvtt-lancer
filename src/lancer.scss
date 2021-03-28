@@ -896,8 +896,8 @@ input[type=string].lancer-input {
 }
 
 .effect-text {
-  padding: 0px 0px 0.5em 0.5em;
-  font-family: Helvetica;
+  text-align: left;
+  padding: 0.5em;
 }
 
 /* Start of HORUS glitchy styles used in lancer-data */
@@ -1249,4 +1249,18 @@ input.core-power-toggle:not(:checked)::before
 
 a.flexrow.skill-macro {
   margin-inline: 1.2em;
+}
+
+.lancer-talent-header {
+  background-color: var(--talent-color);
+}
+
+.talent-rank-compact {
+  display: grid;
+  grid-template: 2.5em 1fr / 30px 1fr;
+}
+
+.major {
+  font-size: 18px;
+  font-weight: bold;
 }
