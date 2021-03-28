@@ -52,13 +52,7 @@ export async function onHotbarDrop(_bar: any, data: any, slot: number) {
 
   switch (data.type) {
     case EntryType.SKILL:
-      command = `
-        const a = game.actors.get('${actorId}');
-        if (a) {
-          game.lancer.prepareStatMacro('${actorId}', "${data.dataPath}");
-        } else {
-          ui.notifications.error("Error rolling macro");
-        }`;
+      command = `game.lancer.prepareItemMacro("${actorId}", "${data.id}");`;
       img = `systems/lancer/assets/icons/macro-icons/skill.svg`;
       break;
     case EntryType.TALENT:

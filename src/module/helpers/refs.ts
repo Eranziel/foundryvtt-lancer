@@ -7,6 +7,7 @@ import {
   Manufacturer,
   LiveEntryTypes,
   License,
+  Skill,
 } from "machine-mind";
 import { is_actor_type, LancerActor } from "../actor/lancer-actor";
 import { GENERIC_ITEM_ICON, LANCER, TypeIcon } from "../config";
@@ -242,17 +243,38 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
 
   let item = item_!; // cd truthiness implies item truthiness
 
-  // Basically the same as the simple ref card, but with control assed
-  return `
-    <div class="valid ${cd.ref.type} ref ref-card" 
-            ${ref_params(cd.ref)}>
-      <img class="ref-icon" src="${cd.img}"></img>
-      <span class="major">${cd.name}</span>
-      <hr class="vsep"> 
-      <div class="ref-list-controls">
-        <a class="gen-control i--dark" data-action="${trash_action}" data-path="${item_path}"><i class="fas fa-trash"></i></a>
+  switch(item.Type) {
+    case EntryType.SKILL:
+      let skill: Skill = <Skill><any>item;
+      return `
+      <li class="card clipped skill-compact item macroable ref valid" ${ref_params(cd.ref)}>
+      <div class="lancer-trigger-header medium clipped-top" style="grid-area: 1/1/2/3">
+        <i class="cci cci-skill i--m i--dark"> </i>
+        <span class="major modifier-name">${skill.Name}</span>
+        <div class="ref-list-controls">
+          <a class="gen-control i--dark" data-action="${trash_action}" data-path="${item_path}"><i class="fas fa-trash"></i></a>
+        </div>
       </div>
-    </div>`;
+      <a class="flexrow skill-macro" style="grid-area: 2/1/3/2;">
+        <i class="fas fa-dice-d20 i--sm i--dark"></i>
+        <div class="major roll-modifier" style="align-self: center">+${skill.CurrentRank * 2}</div>
+      </a>
+      <div class="desc-text" style="grid-area: 2/2/3/3">${skill.Description}</div>
+    </li>`;
+      break;
+    default:
+      // Basically the same as the simple ref card, but with control assed
+      return `
+      <div class="valid ${cd.ref.type} ref ref-card" 
+              ${ref_params(cd.ref)}>
+        <img class="ref-icon" src="${cd.img}"></img>
+        <span class="major">${cd.name}</span>
+        <hr class="vsep"> 
+        <div class="ref-list-controls">
+          <a class="gen-control i--dark" data-action="${trash_action}" data-path="${item_path}"><i class="fas fa-trash"></i></a>
+        </div>
+      </div>`;
+  }
 }
 
 // Exactly as above, but drags as a native when appropriate handlers called

@@ -30,7 +30,7 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
         {
           navSelector: ".lancer-tabs",
           contentSelector: ".sheet-body",
-          initial: "mech",
+          initial: "tactical",
         },
       ],
     });

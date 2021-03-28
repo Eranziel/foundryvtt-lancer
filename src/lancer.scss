@@ -1209,3 +1209,44 @@ input.core-power-toggle:not(:checked)::before
 		box-shadow: 0 0 20px rgba(0,255,0,.6), inset 0 0 10px rgba(0,255,0,.4), 0 2px 0 #000;
     }
 }
+
+
+.lancer-mech-trait-header,
+.lancer-core-sys-header,
+.lancer-talent-header,
+.lancer-system-header,
+.lancer-trait-header,
+.lancer-trigger-header,
+.lancer-protocol-header,
+.lancer-reaction-header,
+.lancer-tech-header,
+.lancer-weapon-header {
+  color: white;
+  background-color: var(--main-theme-color, fuchsia);
+  padding-left: 15px;
+  padding-right: 15px;
+  display: grid;
+  white-space: nowrap;
+  text-align: center;
+  max-height: 2.0em;
+  min-height: 2.0em;
+  grid-template-columns: 40px 1fr 40px;
+  align-items: center;
+  text-overflow: ellipsis;
+}
+
+.lancer-trigger-header {
+  color: var(--main-theme-color, fuchsia);
+  background-color: white;
+}
+
+.skill-compact {
+  display: grid;
+  grid-template: 2.0em 1fr / 100px 1fr;
+  align-items: center;
+  margin-right: 25px;
+}
+
+a.flexrow.skill-macro {
+  margin-inline: 1.2em;
+}

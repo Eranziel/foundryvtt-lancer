@@ -104,7 +104,11 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
         // if (item.classList.contains("overcharge-macro"))
         //   item.addEventListener("dragstart", overchargeMacroHandler, false);
         if (item.classList.contains("item"))
-          item.addEventListener("dragstart", (ev: any) => this._onDragStart(ev), false);
+          item.addEventListener("dragstart", (ev: any) => {
+            this._onDragStart(ev)
+            console.log("A")
+          }
+            , false);
         item.setAttribute("draggable", "true");
       });
   }
@@ -164,7 +168,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
 
       const el = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
 
-      game.lancer.prepareItemMacro(this.actor._id, el.getAttribute("data-item-id")!);
+      game.lancer.prepareItemMacro(this.actor._id, el.getAttribute("data-id")!);
     });
 
     // TODO: This are really just mech-specific
