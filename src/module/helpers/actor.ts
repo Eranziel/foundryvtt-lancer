@@ -121,14 +121,20 @@ export function clicker_stat_card(
   title: string,
   icon: string,
   data_path: string,
+  roller: boolean,
   options: HelperOptions
 ): string {
-  return `<div class="card clipped">
+  let button = ""
+  if(roller) button = '<a class="roll-stat stat-macro macroable i--dark i--sm" data-action="roll-macro"><i class="fas fa-dice-d20"></i></a>'
+  return `<div class="card clipped stat-container">
       <div class="lancer-header ">
         <i class="${icon} i--m i--light header-icon"> </i>
         <span class="major">${title}</span>
       </div>
-      ${clicker_num_input(data_path, options)}
+      <div class="flexrow">
+        ${button}
+        ${clicker_num_input(data_path, options)}
+      </div>
     </div>
   `;
 }

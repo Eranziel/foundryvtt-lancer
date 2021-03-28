@@ -26,6 +26,8 @@ import { DamageType, EntryType, NpcFeatureType, TagInstance, Pilot, PilotWeapon,
 import { resolve_native_drop, convert_ref_to_native } from './helpers/dragdrop';
 import { stringify } from "querystring";
 import { FoundryReg } from "./mm-util/foundry-reg";
+import { resolve_dotpath } from './helpers/commons';
+import { mm_wrap_actor } from "./mm-util/helpers";
 
 const lp = LANCER.log_prefix;
 
@@ -104,6 +106,8 @@ export async function onHotbarDrop(_bar: any, data: any, slot: number) {
           break;
       }
       break;
+    case "HASE":
+      command = `game.lancer.prepareStatMacro("${actorId}", "${data.dataPath}");`;
   }
 
   // TODO: Figure out if I am really going down this route and, if so, switch to a switch
@@ -357,17 +361,16 @@ async function buildAttackRollString(
   return `1d20+${bonus}${acc_str}`;
 }
 
-export function prepareStatMacro(a: string, statKey: string) {
+export async function prepareStatMacro(a: string, statKey: string) {
   // Determine which Actor to speak as
-  let actor: Actor | null = getMacroSpeaker(a);
+  let actor: LancerActor<EntryType.PILOT> | null = getMacroSpeaker(a);
   if (!actor) return;
 
-  let bonus: any = actor.data;
   const statPath = statKey.split(".");
-  for (let i = 0; i < statPath.length; i++) {
-    const p = statPath[i];
-    bonus = bonus[`${p}`];
-  }
+
+  let mm_ent = await mm_wrap_actor(actor);
+
+  let bonus: number = resolve_dotpath(mm_ent, statKey.substr(3));
 
   let mData: LancerStatMacroData = {
     title: statPath[statPath.length - 1].toUpperCase(),

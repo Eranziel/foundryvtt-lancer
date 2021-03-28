@@ -796,8 +796,8 @@ tr.lcp-index-header {
 input[type=number].lancer-stat {
   align-self: center;
   text-align: center;
-  max-width: 50px;
-  min-width: 30px;
+  max-width: 40px;
+  min-width: 25px;
 }
 
 .lancer-text-field,
@@ -1051,6 +1051,7 @@ button.overkill-reroll {
   align-self: center;
   max-width: fit-content;
   flex-wrap: nowrap;
+  margin: auto;
 }
 
 .mod-plus-button {

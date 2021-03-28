@@ -203,7 +203,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     let data = {
       title: tSplit[tSplit.length - 1].toUpperCase(),
       dataPath: path,
-      type: "actor",
+      type: "HASE",
       actorId: this.actor._id,
     };
     event.dataTransfer?.setData("text/plain", JSON.stringify(data));
