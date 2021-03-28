@@ -580,7 +580,7 @@ export function pilot_gear_refview(gear_path: string, helper: HelperOptions): st
     `;
   }
 
-  return `<div class="valid ${EntryType.PILOT_GEAR} ref drop-settable card clipped macroable"
+  return `<div class="valid ${EntryType.PILOT_GEAR} ref drop-settable card clipped macroable item"
                 ${ref_params(cd.ref, gear_path)} >
     <div class="lancer-header">
       <i class="cci cci-generic-item i--m"> </i>

@@ -77,6 +77,7 @@ export async function onHotbarDrop(_bar: any, data: any, slot: number) {
       img = `systems/lancer/assets/icons/macro-icons/corebonus.svg`;
       break;
     case EntryType.PILOT_GEAR:
+      command = `game.lancer.prepareItemMacro("${actorId}", "${itemId}");`;
       img = `systems/lancer/assets/icons/macro-icons/generic_item.svg`;
       break;
     case EntryType.PILOT_WEAPON:
@@ -751,14 +752,10 @@ export function prepareTextMacro(a: string, title: string, text: string, tags?: 
  * @param data {LancerTextMacroData} Prepared macro data.
  */
 async function rollTextMacro(actor: Actor, data: LancerTextMacroData) {
-  console.log("DISABLED");
-  return;
-  /*
   if (!actor) return Promise.resolve();
 
   const template = `systems/lancer/templates/chat/generic-card.html`;
   return renderMacro(actor, template, data);
-  */
 }
 
 export async function prepareTechMacro(a: string, t: string) {
