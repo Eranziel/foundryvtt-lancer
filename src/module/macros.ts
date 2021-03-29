@@ -22,13 +22,14 @@ import {
   LancerTextMacroData,
 } from "./interfaces";
 // Import JSON data
-import { DamageType, EntryType, NpcFeatureType, TagInstance, Pilot, PilotWeapon, MechWeapon, RegDamageData, MechWeaponProfile, NpcFeature, OpCtx, PackedNpcDamageData, PackedDamageData, Damage, TagTemplate, SerUtil } from 'machine-mind';
+import { DamageType, EntryType, NpcFeatureType, TagInstance, Pilot, PilotWeapon, MechWeapon, RegDamageData, MechWeaponProfile, NpcFeature, OpCtx, PackedNpcDamageData, PackedDamageData, Damage, TagTemplate, SerUtil, PackedNpcTechData, NpcTechType, RegNpcData, RegNpcTechData } from 'machine-mind';
 import { resolve_native_drop, convert_ref_to_native } from './helpers/dragdrop';
 import { stringify } from "querystring";
 import { FoundryReg } from "./mm-util/foundry-reg";
 import { resolve_dotpath } from './helpers/commons';
 import { mm_wrap_actor } from "./mm-util/helpers";
 import { debug } from "console";
+import { LancerItemType, LancerMechSystemData } from './item/lancer-item';
 
 const lp = LANCER.log_prefix;
 
@@ -783,16 +784,12 @@ async function rollTextMacro(actor: Actor, data: LancerTextMacroData) {
 }
 
 export async function prepareTechMacro(a: string, t: string) {
-  console.log("DISABLED");
-  debugger
-  return;
-  /*
   // Determine which Actor to speak as
   let actor: Actor | null = getMacroSpeaker(a);
   if (!actor) return;
 
   // Get the item
-  const item: LancerItem | null = actor.getOwnedItem(t) as LancerItem | null;
+  const item: LancerItem<EntryType.NPC_FEATURE> | LancerItem<EntryType.MECH_SYSTEM> | null = actor.getOwnedItem(t) as LancerItem<EntryType.NPC_FEATURE> | LancerItem<EntryType.MECH_SYSTEM> | null;
   if (!item) {
     return ui.notifications.error(
       `Error preparing tech attack macro - could not find Item ${t} owned by Actor ${a}! Did you add the Item to the token, instead of the source Actor?`
@@ -811,40 +808,37 @@ export async function prepareTechMacro(a: string, t: string) {
     tags: [],
   };
   if (item.type === EntryType.MECH_SYSTEM) {
+    debugger;
+    /*
     const tData = item.data.data as LancerMechSystemData;
     mData.t_atk = (item.actor!.data as LancerPilotActorData).data.mech.tech_attack;
     mData.tags = tData.tags;
-    mData.effect = ""; // TODO
+    mData.effect = ""; // TODO */
   } else if (item.type === EntryType.NPC_FEATURE) {
-    const tData = item.data.data as LancerNPCTechData;
+    const tData = item.data.data as RegNpcTechData;
     let tier: number;
     if (item.actor === null) {
-      tier = actor.data.data.tier_num;
+      tier = actor.data.data.tier_num - 1;
     } else {
-      tier = (item.actor.data.data as LancerNPCData).tier_num - 1;
+      tier = item.actor.data.data.tier_num - 1;
     }
     mData.t_atk =
       tData.attack_bonus && tData.attack_bonus.length > tier ? tData.attack_bonus[tier] : 0;
     mData.acc = tData.accuracy && tData.accuracy.length > tier ? tData.accuracy[tier] : 0;
-    mData.tags = tData.tags;
+    mData.tags = await SerUtil.process_tags(new FoundryReg(), new OpCtx(), tData.tags);
     mData.effect = tData.effect ? tData.effect : "";
   } else {
     ui.notifications.error(
-      `Error rolling tech attack macro - ${item.name} does not a tech attack!`
+      `Error rolling tech attack macro`
     );
     return Promise.resolve();
   }
   console.log(`${lp} Tech Attack Macro Item:`, item, mData);
 
   await rollTechMacro(actor, mData);
-  */
 }
 
 async function rollTechMacro(actor: Actor, data: LancerTechMacroData) {
-  console.log("DISABLED");
-  debugger
-  return;
-  /*
   let atk_str = await buildAttackRollString(data.title, data.acc, data.t_atk);
   if (!atk_str) return;
   let attack_roll = new Roll(atk_str).roll();
@@ -861,7 +855,6 @@ async function rollTechMacro(actor: Actor, data: LancerTechMacroData) {
 
   const template = `systems/lancer/templates/chat/tech-attack-card.html`;
   return await renderMacro(actor, template, templateData);
-  */
 }
 
 export async function promptAccDiffModifier(acc?: number, title?: string) {

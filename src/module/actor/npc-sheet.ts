@@ -105,8 +105,8 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
       techMacro.on("click", (ev: Event) => {
         if (!ev.currentTarget) return; // No target, let other handlers take care of it.
         ev.stopPropagation();
-        const techElement = $(ev.currentTarget).closest(".tech")[0] as HTMLElement;
-        let techId = techElement.getAttribute("data-item-id");
+        const techElement = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
+        let techId = techElement.getAttribute("data-id");
         game.lancer.prepareItemMacro(this.actor._id, techId!);
       });
     }
