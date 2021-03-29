@@ -1,5 +1,5 @@
 import { HelperOptions } from "handlebars";
-import { NpcFeature } from "machine-mind";
+import { NpcFeature, NpcFeatureType } from "machine-mind";
 import { ActivationType } from "../enums";
 import { effect_box, resolve_dotpath, resolve_helper_dotpath } from "./commons";
 import {
@@ -86,11 +86,15 @@ function del_button(path: string): string {
 
 function npc_feature_scaffold(path: string, npc_feature: NpcFeature, body: string) {
   let feature_class = `npc-${npc_feature.FeatureType.toLowerCase()}`;
+  let macro_button = ""
+  if(npc_feature.FeatureType !== NpcFeatureType.Weapon) {
+    macro_button = `<a class="macroable item-macro"><i class="mdi mdi-message"></i></a>`
+  }
   return `
-  <div class="valid ref card ${feature_class}" ${ref_params(npc_feature.as_ref())}>
+  <div class="valid ref card item ${feature_class}" ${ref_params(npc_feature.as_ref())}>
     <div class="flexrow lancer-header clipped-top">
       <i class="cci cci-${npc_feature.FeatureType.toLowerCase()} i--m i--light"> </i>
-      <a class="macroable item-macro"><i class="mdi mdi-message"></i></a>
+      ${macro_button}
       <span class="minor grow">${npc_feature.Name}</span>
       ${del_button(path)}
     </div>

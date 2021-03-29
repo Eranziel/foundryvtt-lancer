@@ -22,7 +22,7 @@ import {
   LancerTextMacroData,
 } from "./interfaces";
 // Import JSON data
-import { DamageType, EntryType, NpcFeatureType, TagInstance, Pilot, PilotWeapon, MechWeapon, RegDamageData, MechWeaponProfile, NpcFeature, OpCtx } from 'machine-mind';
+import { DamageType, EntryType, NpcFeatureType, TagInstance, Pilot, PilotWeapon, MechWeapon, RegDamageData, MechWeaponProfile, NpcFeature, OpCtx, PackedNpcDamageData, PackedDamageData, Damage, TagTemplate, SerUtil } from 'machine-mind';
 import { resolve_native_drop, convert_ref_to_native } from './helpers/dragdrop';
 import { stringify } from "querystring";
 import { FoundryReg } from "./mm-util/foundry-reg";
@@ -87,23 +87,29 @@ export async function onHotbarDrop(_bar: any, data: any, slot: number) {
       img = `systems/lancer/assets/icons/macro-icons/mech_weapon.svg`;
       break;
     case EntryType.MECH_SYSTEM:
+      command = `game.lancer.prepareItemMacro("${actorId}", "${itemId}");`;
       img = `systems/lancer/assets/icons/macro-icons/mech_system.svg`;
       break;
     case EntryType.NPC_FEATURE:
-      switch (data.data.data.feature_type) {
+      switch (item.FeatureType) {
         case NpcFeatureType.Reaction:
+          command = `game.lancer.prepareItemMacro("${actorId}", "${itemId}");`;
           img = `systems/lancer/assets/icons/macro-icons/reaction.svg`;
           break;
         case NpcFeatureType.System:
+          command = `game.lancer.prepareItemMacro("${actorId}", "${itemId}");`;
           img = `systems/lancer/assets/icons/macro-icons/mech_system.svg`;
           break;
         case NpcFeatureType.Trait:
+          command = `game.lancer.prepareItemMacro("${actorId}", "${itemId}");`;
           img = `systems/lancer/assets/icons/macro-icons/trait.svg`;
           break;
         case NpcFeatureType.Tech:
+          command = `game.lancer.prepareItemMacro("${actorId}", "${itemId}");`;
           img = `systems/lancer/assets/icons/macro-icons/tech_quick.svg`;
           break;
         case NpcFeatureType.Weapon:
+          command = `game.lancer.prepareItemMacro("${actorId}", "${itemId}");`;
           img = `systems/lancer/assets/icons/macro-icons/mech_weapon.svg`;
           break;
       }
@@ -480,44 +486,58 @@ async function prepareAttackMacro({
     pilotEnt = (await actor.data.data.derived.mmec_promise).ent.Pilot;
     let itemEnt: MechWeapon = (await item.data.data.derived.mmec_promise).ent;
     weaponData = itemEnt.SelectedProfile;
+
     mData.damage = weaponData.BaseDamage;
+    mData.grit = pilotEnt.Grit;
+    mData.acc = 0;
+    mData.tags = weaponData.Tags;
+    mData.effect = weaponData.Effect;
+
   } else if (actor.data.type === EntryType.PILOT) {
     pilotEnt = (await actor.data.data.derived.mmec_promise).ent;
     let itemEnt: PilotWeapon = (await item.data.data.derived.mmec_promise).ent;
     weaponData = itemEnt;
+
     mData.damage = weaponData.Damage;
+    mData.grit = pilotEnt.Grit;
+    mData.acc = 0;
+    mData.tags = weaponData.Tags;
+    mData.effect = weaponData.Effect;
+
   } else if (actor.data.type === EntryType.NPC) {
-    console.log("Not doing NPC attacks yet!")
-    return Promise.resolve();
-    /*
-    const wData = item.data.data as LancerNPCWeaponData;
     let tier: number;
     if (item.actor === null) {
       tier = actor.data.data.tier_num;
     } else {
-      tier = (item.actor.data.data as LancerNPCData).tier_num - 1;
+      tier = item.actor.data.data.tier_num;
     }
+
+    let wData = item.data.data;
 
     // This can be a string... but can also be a number...
     mData.grit = Number(wData.attack_bonus[tier]);
     mData.acc = wData.accuracy[tier];
     // Reduce damage values to only this tier
-    mData.damage = wData.damage.map((d: NPCDamageData) => {
-      return { type: d.type, override: d.override, val: d.val[tier] };
+    // Convert to new Damage type if it's old
+    mData.damage = wData.damage[tier].map((d: Damage | PackedDamageData) => {
+      if("type" in d && "val" in d) {
+        // Then this is an old damage type which only contains these two values
+        return new Damage({type: d.type, val: d.val.toString()})
+      } else {
+        // This is the new damage type
+        return d
+      }
     });
-    mData.tags = wData.tags;
+    
+    mData.tags = await SerUtil.process_tags(new FoundryReg(), new OpCtx(), wData.tags);
+
     mData.on_hit = wData.on_hit ? wData.on_hit : undefined;
     mData.effect = wData.effect ? wData.effect : "";
-    */
   } else {
     ui.notifications.error(`Error preparing attack macro - ${actor.name} is an unknown type!`);
     return Promise.resolve();
   }
 
-  mData.grit = pilotEnt.Grit;
-  mData.acc = 0;
-  mData.tags = weaponData.Tags;
-  mData.effect = weaponData.Effect;
 
   // Check for damages that are missing type
   let typeMissing = false;
@@ -568,7 +588,7 @@ async function rollAttackMacro(actor: Actor, data: LancerAttackMacroData) {
   }> = [];
   let overkill_heat: number = 0;
   for (const x of data.damage) {
-    if (x.val === "" || x.val == 0) continue; // Skip undefined and zero damage
+    if (x.Value === "" || x.Value == 0) continue; // Skip undefined and zero damage
     let d_formula: string = x.Value.toString();
     // If the damage formula involves dice and is overkill, add "r1" to reroll all 1's.
     if (d_formula.includes("d") && data.overkill) {
@@ -898,7 +918,7 @@ export async function prepareOverchargeMacro(a: string) {
 
   // Validate that we're overcharging a mech
   if (actor.data.type !== "mech") {
-    ui.notifications.warn(`Only pilots can overcharge!`);
+    ui.notifications.warn(`Only mechs can overcharge!`);
     return null;
   }
 
