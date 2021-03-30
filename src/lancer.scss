@@ -1267,3 +1267,16 @@ a.flexrow.skill-macro {
   font-size: 18px;
   font-weight: bold;
 }
+
+
+// Action activation types
+$activations-types: none passive quick full other reaction protocol free;
+// The rgb-based colors I just made up, not sure if there are official colors for those
+$activations-colors: rgb(10, 126, 204) rgb(98, 0, 255) #3949ab #283593 rgb(162, 0, 255) #512da8 #007676 rgb(84, 7, 119) ;
+
+@each $a-type in $activations-types {
+  $i: index($activations-types, $a-type);
+  .action-activation-#{$a-type} {
+    background-color: nth($activations-colors, $i);
+  }
+}

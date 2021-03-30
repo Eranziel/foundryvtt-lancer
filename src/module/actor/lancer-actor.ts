@@ -15,7 +15,7 @@ import { LancerHooks, LancerSubscription } from "../helpers/hooks";
 import { mm_wrap_actor } from "../mm-util/helpers";
 import { system_ready } from "../../lancer";
 import { LancerItemType } from "../item/lancer-item";
-import { renderMacro } from "../macros";
+import { renderMacroTemplate } from "../macros";
 const lp = LANCER.log_prefix;
 
 export function lancerActorInit(data: any) {

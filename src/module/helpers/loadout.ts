@@ -1,31 +1,28 @@
 import { HelperOptions } from "handlebars";
-import { EntryType, Mech, MechLoadout, SystemMount, Pilot, Frame } from "machine-mind";
+import { EntryType, Mech, MechLoadout, SystemMount, Pilot, Frame, RegEntry } from "machine-mind";
 import { WeaponMount } from "machine-mind";
-import { inc_if, resolve_helper_dotpath } from "./commons";
+import { inc_if, resolve_helper_dotpath, array_path_edit } from './commons';
 import { mech_weapon_refview } from "./item";
-import { simple_mm_ref } from "./refs";
+import { editable_mm_ref_list_item, simple_mm_ref } from "./refs";
 
 // A drag-drop slot for a system mount. TODO: delete button, clear button
 function system_mount(mech_path: string, mount_path: string, helper: HelperOptions): string {
   let mount = resolve_helper_dotpath(helper, mount_path) as SystemMount;
-  let slot = simple_mm_ref(
-    EntryType.MECH_SYSTEM,
-    mount.System,
-    "No System",
-    `${mount_path}.System`
-  );
+  if(!mount) return '';
 
-  return ` 
-    <div class="mount card">
-      <span class="lancer-header">
-        <span>System Mount</span>
-        <a class="gen-control fas fa-trash" data-action="splice" data-path="${mount_path}"></a>
-        <a class="reset-system-mount-button fas fa-redo" data-path="${mount_path}"></a>
-      </span>
-      <div class="lancer-body">
+  let item_: RegEntry<EntryType.MECH_SYSTEM> | null = resolve_helper_dotpath(helper, `${mount_path}.System`);
+  if(item_) {
+    let slot = editable_mm_ref_list_item(`${mount_path}.System`,"delete",helper);
+  
+    return ` 
+      <div class="mount card">
         ${slot}
-      </div>
-    </div>`;
+      </div>`;
+  } else {
+    // Assuming we just want to delete empty mounts, which may be a faulty assumption
+    array_path_edit(helper.data.root,mount_path,null,"delete")
+    return system_mount(mech_path,mount_path,helper);
+  }
 }
 
 // A drag-drop slot for a weapon mount. TODO: delete button, clear button
@@ -81,13 +78,14 @@ function all_system_mount_view(mech_path: string, loadout_path: string, helper: 
     system_mount(mech_path, `${loadout_path}.SysMounts.${index}`, helper)
   );
 
+
+  // Archiving add button: <a class="gen-control fas fa-plus" data-action="append" data-path="${loadout_path}.SysMounts" data-action-value="(struct)sys_mount"></a>
+
   return `
     <span class="lancer-header loadout-category submajor">
         <span>MOUNTED SYSTEMS</span>
-        <a class="gen-control fas fa-plus" data-action="append" data-path="${loadout_path}.SysMounts" data-action-value="(struct)sys_mount"></a>
-        <a class="gen-control fas fa-trash" data-action="set" data-path="${loadout_path}.SysMounts" data-action-value="(struct)empty_array"></a>
     </span>
-    <div class="wraprow quadruple">
+    <div class="flexcol">
       ${system_slots.join("")}
     </div>
     `;

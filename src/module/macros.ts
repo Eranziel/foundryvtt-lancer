@@ -3,7 +3,6 @@ import { LANCER } from "./config";
 import {
   LancerCoreBonus,
   LancerItem,
-  LancerMechSystem,
   LancerMechWeaponData,
   LancerNpcFeature,
   LancerPilotGear,
@@ -22,14 +21,15 @@ import {
   LancerTextMacroData,
 } from "./interfaces";
 // Import JSON data
-import { DamageType, EntryType, NpcFeatureType, TagInstance, Pilot, PilotWeapon, MechWeapon, RegDamageData, MechWeaponProfile, NpcFeature, OpCtx, PackedNpcDamageData, PackedDamageData, Damage, TagTemplate, SerUtil, PackedNpcTechData, NpcTechType, RegNpcData, RegNpcTechData } from 'machine-mind';
+import { DamageType, EntryType, NpcFeatureType, TagInstance, Pilot, PilotWeapon, MechWeapon, RegDamageData, MechWeaponProfile, NpcFeature, OpCtx, PackedNpcDamageData, PackedDamageData, Damage, TagTemplate, SerUtil, PackedNpcTechData, NpcTechType, RegNpcData, RegNpcTechData, RegMechSystemData, MechSystem, Action } from 'machine-mind';
 import { resolve_native_drop, convert_ref_to_native } from './helpers/dragdrop';
 import { stringify } from "querystring";
-import { FoundryReg } from "./mm-util/foundry-reg";
+import { FoundryReg, FoundryRegItemData } from './mm-util/foundry-reg';
 import { resolve_dotpath } from './helpers/commons';
 import { mm_wrap_actor } from "./mm-util/helpers";
 import { debug } from "console";
-import { LancerItemType, LancerMechSystemData } from './item/lancer-item';
+import { LancerItemType, LancerMechSystemData, LancerMechSystem } from './item/lancer-item';
+import { compact_tag_list } from "./helpers/tags";
 
 const lp = LANCER.log_prefix;
 
@@ -216,13 +216,7 @@ export async function prepareItemMacro(a: string, i: string, options?: any) {
       break;
     // Systems
     case EntryType.MECH_SYSTEM:
-      // TODO--this can probably be a textMacro
-      let sysData: LancerGenericMacroData = {
-        title: item.name,
-        effect: (item as LancerMechSystem).data.data.effect,
-      };
-
-      await rollSystemMacro(actor, sysData);
+      await rollSystemMacro(actor, item.data.data.derived.mmec.ent);
       break;
     // Talents
     case EntryType.TALENT:
@@ -316,9 +310,16 @@ export function getMacroSpeaker(a_id?: string): LancerActor<any> | null {
   return actor ? (actor as LancerActor<any>) : null;
 }
 
-export async function renderMacro(actor: Actor, template: string, templateData: any) {
+/**
+ * 
+ */
+export async function renderMacroTemplate(actor: Actor, template: string, templateData: any) {
   const html = await renderTemplate(template, templateData);
   let roll = templateData.roll || templateData.attack;
+  return renderMacroHTML(actor,html,roll);
+}
+
+export async function renderMacroHTML(actor: Actor, html: HTMLElement | string, roll?: Roll) {
   let chat_data = {
     user: game.user,
     type: roll ? CONST.CHAT_MESSAGE_TYPES.ROLL : CONST.CHAT_MESSAGE_TYPES.IC,
@@ -420,19 +421,64 @@ async function rollStatMacro(actor: Actor, data: LancerStatMacroData) {
     effect: data.effect ? data.effect : null,
   };
   const template = `systems/lancer/templates/chat/stat-roll-card.html`;
-  return renderMacro(actor, template, templateData);
+  return renderMacroTemplate(actor, template, templateData);
 }
 
-async function rollSystemMacro(actor: Actor, data: LancerGenericMacroData) {
+async function rollSystemMacro(actor: Actor, data: MechSystem) {
   if (!actor) return Promise.resolve();
 
   // Construct the template
-  const templateData = {
-    title: data.title,
-    effect: data.effect ? data.effect : null,
-  };
-  const template = `systems/lancer/templates/chat/system-card.html`;
-  return renderMacro(actor, template, templateData);
+  const html = await buildSystemHTML(data)
+  return renderMacroHTML(actor, html);
+}
+
+async function buildSystemHTML(data:MechSystem): Promise<string> {
+
+  let eff: string | undefined;
+  let actions: string | undefined;
+  let useFirstActivation = false;
+
+  if(data.Effect) eff = data.Effect;
+  else {
+    // If our first action doesn't have a name & we don't have an effect then first action is our "effect"
+    // Always first action? Or a better way?
+    useFirstActivation = !data.Actions[0].Name;
+  }
+  if(data.Actions)
+    actions = data.Actions.map((a: Action, i: number) => {
+      return buildActionHTML(a, !i && useFirstActivation);
+    }).join("");
+
+  let html = `<div class="card clipped-bot" style="margin: 0px;">
+  <div class="lancer-header ">// SYSTEM :: ${data.Name} //</div>
+  ${eff ? eff : ""}
+  ${actions ? actions: ""}
+  ${compact_tag_list("data.Tags", data.Tags, false)}
+</div>`
+  return html;
+}
+
+function buildActionHTML(action: Action, full?: boolean): string {
+  let detailText: string | undefined;
+
+  // TODO
+  if(full) {
+    detailText = `
+      <div class="action-detail">
+        ${action.Detail}
+      </div>
+    `
+  }
+
+  return `
+  <div class="action-wrapper">
+    <span class="action-title">
+      ${action.Name ? action.Name : ""}
+    </span>
+    ${detailText ? detailText : ""}
+    <div class="action-activation-${action.Activation.toLowerCase()}">${action.Activation.toUpperCase()}</div>
+  </div>
+  `
 }
 
 async function rollTalentMacro(actor: Actor, data: LancerTalentMacroData) {
@@ -445,7 +491,7 @@ async function rollTalentMacro(actor: Actor, data: LancerTalentMacroData) {
     lvl: data.rank,
   };
   const template = `systems/lancer/templates/chat/talent-card.html`;
-  return renderMacro(actor, template, templateData);
+  return renderMacroTemplate(actor, template, templateData);
 }
 
 /**
@@ -667,7 +713,7 @@ async function rollAttackMacro(actor: Actor, data: LancerAttackMacroData) {
     tags: data.tags,
   };
   const template = `systems/lancer/templates/chat/attack-card.html`;
-  return await renderMacro(actor, template, templateData);
+  return await renderMacroTemplate(actor, template, templateData);
 }
 
 /**
@@ -679,7 +725,7 @@ export function rollReactionMacro(actor: Actor, data: LancerReactionMacroData) {
   if (!actor) return Promise.resolve();
 
   const template = `systems/lancer/templates/chat/reaction-card.html`;
-  return renderMacro(actor, template, data);
+  return renderMacroTemplate(actor, template, data);
 }
 
 /**
@@ -780,7 +826,7 @@ async function rollTextMacro(actor: Actor, data: LancerTextMacroData) {
   if (!actor) return Promise.resolve();
 
   const template = `systems/lancer/templates/chat/generic-card.html`;
-  return renderMacro(actor, template, data);
+  return renderMacroTemplate(actor, template, data);
 }
 
 export async function prepareTechMacro(a: string, t: string) {
@@ -854,7 +900,7 @@ async function rollTechMacro(actor: Actor, data: LancerTechMacroData) {
   };
 
   const template = `systems/lancer/templates/chat/tech-attack-card.html`;
-  return await renderMacro(actor, template, templateData);
+  return await renderMacroTemplate(actor, template, templateData);
 }
 
 export async function promptAccDiffModifier(acc?: number, title?: string) {
@@ -962,7 +1008,7 @@ async function rollOverchargeMacro(actor: Actor, data: LancerOverchargeMacroData
     roll_tooltip: roll_tt,
   };
   const template = `systems/lancer/templates/chat/overcharge-card.html`;
-  return renderMacro(actor, template, templateData);
+  return renderMacroTemplate(actor, template, templateData);
 }
 
 /**

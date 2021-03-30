@@ -247,12 +247,6 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
         let wep_mount = resolve_dotpath(data, path) as WeaponMount;
         wep_mount?.reset();
         break;
-      case "overcharge":
-        ent.CurrentOvercharge++;
-        break;
-      case "overcharge-rollback":
-        ent.CurrentOvercharge--;
-        break;
       default:
         return; // no-op
     }

@@ -9,6 +9,7 @@ import {
   License,
   Skill,
   Talent,
+  MechSystem,
 } from "machine-mind";
 import { is_actor_type, LancerActor } from "../actor/lancer-actor";
 import { GENERIC_ITEM_ICON, LANCER, TypeIcon } from "../config";
@@ -21,6 +22,7 @@ import {
   enable_simple_ref_dragging,
   enable_simple_ref_dropping,
 } from "./dragdrop";
+import { compact_tag_list } from "./tags";
 
 // We use these for virtually every ref function
 export function ref_commons<T extends EntryType>(
@@ -245,6 +247,41 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
   let item = item_!; // cd truthiness implies item truthiness
 
   switch(item.Type) {
+    case EntryType.MECH_SYSTEM:
+      let sys: MechSystem = <MechSystem><any>item;
+      let desc = "";
+      if (sys.Description && sys.Description !== 'No description') {
+        desc = `<div class="desc-text" style="padding: 5px">
+          ${sys.Description}
+        </div>`
+      }
+      let eff = "";
+      if (sys.Effect) {
+        eff = `<div class="desc-text" style="padding: 5px">
+          ${sys.Description}
+        </div>`
+      }
+      let str = `<li class="card clipped mech-system-compact item" ${ref_params(cd.ref)}>
+        <div class="lancer-header" style="grid-area: 1/1/2/3; display: flex">
+          <i class="cci cci-system i--m"> </i>
+          <a class="system-macro macroable"><i class="mdi mdi-message"></i></a>
+          <span class="minor grow">${sys.Name}</span>
+          <div class="ref-list-controls">
+          <a class="gen-control i--dark" data-action="${trash_action}" data-path="${item_path}"><i class="fas fa-trash"></i></a>
+          </div>
+        </div>
+        <div class="flexrow">
+          <div style="float: left; align-items: center; display: inherit;">
+            <i class="cci cci-system-point i--m i--dark"> </i>
+            <span class="medium" style="padding: 5px;">${sys.SP} SP</span>
+          </div>
+        </div>
+        ${desc}
+        ${eff}
+        ${compact_tag_list(item_path + ".Tags",sys.Tags,false)}
+        </li>`;
+      return str;
+
     case EntryType.TALENT:
       let talent: Talent = <Talent><any>item;
       let retStr = `<li class="card clipped talent-compact item ref valid" ${ref_params(cd.ref)}>
