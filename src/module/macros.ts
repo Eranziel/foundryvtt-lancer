@@ -30,6 +30,7 @@ import { mm_wrap_actor } from "./mm-util/helpers";
 import { debug } from "console";
 import { LancerItemType, LancerMechSystemData, LancerMechSystem } from './item/lancer-item';
 import { compact_tag_list } from "./helpers/tags";
+import { buildActionHTML } from "./helpers/item";
 
 const lp = LANCER.log_prefix;
 
@@ -448,8 +449,9 @@ async function buildSystemHTML(data:MechSystem): Promise<string> {
     actions = data.Actions.map((a: Action, i: number) => {
       return buildActionHTML(a, !i && useFirstActivation);
     }).join("");
+  
 
-  let html = `<div class="card clipped-bot" style="margin: 0px;">
+  let html = `<div class="card clipped-bot system-wrapper" style="margin: 0px;">
   <div class="lancer-header ">// SYSTEM :: ${data.Name} //</div>
   ${eff ? eff : ""}
   ${actions ? actions: ""}
@@ -458,28 +460,6 @@ async function buildSystemHTML(data:MechSystem): Promise<string> {
   return html;
 }
 
-function buildActionHTML(action: Action, full?: boolean): string {
-  let detailText: string | undefined;
-
-  // TODO
-  if(full) {
-    detailText = `
-      <div class="action-detail">
-        ${action.Detail}
-      </div>
-    `
-  }
-
-  return `
-  <div class="action-wrapper">
-    <span class="action-title">
-      ${action.Name ? action.Name : ""}
-    </span>
-    ${detailText ? detailText : ""}
-    <div class="action-activation-${action.Activation.toLowerCase()}">${action.Activation.toUpperCase()}</div>
-  </div>
-  `
-}
 
 async function rollTalentMacro(actor: Actor, data: LancerTalentMacroData) {
   if (!actor) return Promise.resolve();
