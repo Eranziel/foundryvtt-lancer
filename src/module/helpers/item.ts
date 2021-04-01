@@ -760,7 +760,7 @@ export function buildDeployableHTML(dep: Deployable, full?: boolean, num?:number
   }
 
   if(num !== undefined) {
-    chip = `<a class="activation-chip activation-${dep.Activation.toLowerCase()}" data-activation=${num}>
+    chip = `<a class="activation-chip activation-${dep.Activation.toLowerCase()}" data-deployable=${num}>
               <i class="cci cci-deployable"></i>
               ${dep.Activation.toUpperCase()}
             </a>`

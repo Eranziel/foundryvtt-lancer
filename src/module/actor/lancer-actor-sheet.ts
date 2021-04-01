@@ -24,8 +24,9 @@ import {
 import { LancerActorSheetData, LancerStatMacroData } from "../interfaces";
 import { LancerMechWeapon, LancerPilotWeapon } from "../item/lancer-item";
 import { LancerActor, LancerActorType } from "./lancer-actor";
-import { prepareActionMacro, prepareCoreActiveMacro, prepareCorePassiveMacro, prepareItemMacro } from "../macros";
+import { prepareActivationMacro, prepareCoreActiveMacro, prepareCorePassiveMacro, prepareItemMacro } from "../macros";
 import { EntryType } from "machine-mind";
+import { ActivationTypes } from "../enums";
 const lp = LANCER.log_prefix;
 
 /**
@@ -172,17 +173,22 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     });
 
     // Action-chip (system? Or broader?) macros
-    html.find("a.action-chip").on("click",(ev: JQuery.ClickEvent) => {
+    html.find("a.activation-chip").on("click",(ev: JQuery.ClickEvent) => {
       ev.stopPropagation();
 
       const el = ev.currentTarget;
 
       const item = $(el).closest(".item")[0].getAttribute("data-id");
-      if(!item) throw Error("No item ID from action chip");
+      if(!item) throw Error("No item ID from activation chip");
 
-      const activation = el.getAttribute("data-activation");
+      const activation = parseInt(el.getAttribute("data-activation"));
+      const deployable = parseInt(el.getAttribute("data-deployable"));
 
-      prepareActionMacro(this.actor._id, item, activation);
+      if(!Number.isNaN(activation)) {
+        prepareActivationMacro(this.actor._id, item, ActivationTypes.ACTION, activation);
+      } else if(!Number.isNaN(deployable)) {
+        prepareActivationMacro(this.actor._id, item, ActivationTypes.DEPLOYABLE, deployable);
+      } 
     })
 
     // TODO: This are really just mech-specific

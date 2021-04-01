@@ -271,11 +271,8 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
         </div>`
       }
 
-      let activatableActions = ["Tech"]
-
       if(sys.Actions.length) {
         actions = sys.Actions.map((a: Action, i: number | undefined) => {
-          if(!activatableActions.includes(sys.SysType)) i = undefined;
           return buildActionHTML(a, true, i);
         }).join("");
       }

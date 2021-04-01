@@ -22,7 +22,7 @@ import {
   LancerTextMacroData,
 } from "./interfaces";
 // Import JSON data
-import { DamageType, EntryType, NpcFeatureType, TagInstance, Pilot, PilotWeapon, MechWeapon, RegDamageData, MechWeaponProfile, NpcFeature, OpCtx, PackedNpcDamageData, PackedDamageData, Damage, TagTemplate, SerUtil, PackedNpcTechData, NpcTechType, RegNpcData, RegNpcTechData, RegMechSystemData, MechSystem, Action, Mech, Deployable } from 'machine-mind';
+import { DamageType, EntryType, NpcFeatureType, TagInstance, Pilot, PilotWeapon, MechWeapon, RegDamageData, MechWeaponProfile, NpcFeature, OpCtx, PackedNpcDamageData, PackedDamageData, Damage, TagTemplate, SerUtil, PackedNpcTechData, NpcTechType, RegNpcData, RegNpcTechData, RegMechSystemData, MechSystem, Action, Mech, Deployable, SystemType } from 'machine-mind';
 import { resolve_native_drop, convert_ref_to_native } from './helpers/dragdrop';
 import { stringify } from "querystring";
 import { FoundryReg, FoundryRegItemData } from './mm-util/foundry-reg';
@@ -33,6 +33,7 @@ import { LancerItemType, LancerMechSystemData, LancerMechSystem } from './item/l
 import { compact_tag_list } from "./helpers/tags";
 import { buildActionHTML, buildDeployableHTML } from "./helpers/item";
 import { System } from "pixi.js";
+import { ActivationTypes } from './enums';
 
 const lp = LANCER.log_prefix;
 
@@ -1056,7 +1057,7 @@ export async function prepareStructureMacro(a: string) {
    */
 }
 
-export async function prepareActionMacro(a: string, i: string, index: number) {
+export async function prepareActivationMacro(a: string, i: string, type: ActivationTypes, index: number) {
   // Determine which Actor to speak as
   let actor: Actor | null = getMacroSpeaker(a);
   if (!actor) return;
@@ -1076,13 +1077,46 @@ export async function prepareActionMacro(a: string, i: string, index: number) {
   let itemEnt: MechSystem | NpcFeature = (await item.data.data.derived.mmec_promise).ent;
   let actorEnt: Mech = (await actor.data.data.derived.mmec_promise).ent;
 
+  // TODO--handle NPC Activations
+  if (itemEnt.Type === EntryType.NPC_FEATURE) return;
+
+  switch(type) {
+    case ActivationTypes.ACTION:
+      switch(itemEnt.SysType) {
+        case SystemType.Tech:
+          _prepareTechActionMacro(actorEnt,itemEnt,index);
+          break;
+        default:
+          _prepareTextActionMacro(actorEnt,itemEnt,index);
+      }
+      return;
+    case ActivationTypes.DEPLOYABLE:
+      _prepareDeployableMacro(actorEnt,itemEnt,index);
+      return;
+  }
+
+  throw Error("You shouldn't be here!");
+}
+
+async function _prepareTextActionMacro(actorEnt: Mech, itemEnt: MechSystem | NpcFeature, index: number) {
+
+    // Support this later...
+  if(itemEnt.Type !== EntryType.MECH_SYSTEM) return;
+
+  let action = itemEnt.Actions[index];
+
+  await renderMacroHTML(actorEnt.flags.orig_entity, buildActionHTML(action, true));
+}
+
+async function _prepareTechActionMacro(actorEnt: Mech, itemEnt: MechSystem | NpcFeature, index: number) {
+
     // Support this later...
   if(itemEnt.Type !== EntryType.MECH_SYSTEM) return;
 
   let action = itemEnt.Actions[index];
   
   let mData: LancerActionMacroData = {
-    title: item.name,
+    title: itemEnt.Name,
     t_atk: 0,
     acc: 0,
     actionName: action.Name.toUpperCase(),
@@ -1093,6 +1127,7 @@ export async function prepareActionMacro(a: string, i: string, index: number) {
   mData.t_atk = actorEnt.TechAttack;
   mData.tags = itemEnt.Tags;
 
+  /*
   if (item.type === EntryType.NPC_FEATURE) {
     const tData = item.data.data as RegNpcTechData;
     let tier: number;
@@ -1106,9 +1141,19 @@ export async function prepareActionMacro(a: string, i: string, index: number) {
     mData.acc = tData.accuracy && tData.accuracy.length > tier ? tData.accuracy[tier] : 0;
     mData.tags = await SerUtil.process_tags(new FoundryReg(), new OpCtx(), tData.tags);
     mData.detail = tData.effect ? tData.effect : "";
-  }
+  } */
 
-  console.log(`${lp} Tech Attack Macro Item:`, item, mData);
 
-  await rollTechMacro(actor, mData);
+  await rollTechMacro(actorEnt.flags.orig_entity, mData);
 }
+
+async function _prepareDeployableMacro(actorEnt: Mech, itemEnt: MechSystem | NpcFeature, index: number) {
+
+    // Support this later...
+  if(itemEnt.Type !== EntryType.MECH_SYSTEM) return;
+
+  let dep = itemEnt.Deployables[index];  
+
+  await renderMacroHTML(actorEnt.flags.orig_entity, buildDeployableHTML(dep, true));
+}
+

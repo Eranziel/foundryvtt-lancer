@@ -1334,6 +1334,7 @@ $activations-colors: rgb(10, 126, 204) rgb(98, 0, 255) #3949ab #283593 rgb(162, 
 .action-title, .deployable-title {
   font-size: 16px;
   margin-top: 3px;
+  margin: auto;
 }
 
 a.activation-chip > i.fas, a.activation-chip > i.cci {

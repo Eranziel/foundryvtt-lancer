@@ -64,3 +64,10 @@ export enum NPCTag {
   Biological = "Biological",
   Squad = "Squad",
 }
+
+export enum ActivationTypes {
+  ACTION = "Action",
+  TECH = "Tech",
+  ATTACK = "Attack",
+  DEPLOYABLE = "Deployable"
+}
