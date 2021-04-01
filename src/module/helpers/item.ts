@@ -26,6 +26,7 @@ import {
   NpcFeature,
   FittingSize,
   Action,
+  Deployable,
 } from "machine-mind";
 import { MechWeapon } from "machine-mind";
 import { BonusEditDialog } from "../apps/bonus-editor";
@@ -694,4 +695,86 @@ export function license_ref(license: License | null, level: number): string {
             </div>
         `;
   }
+}
+
+/**
+ * Builds the HTML for a given action
+ * @param action  Standard action to generate in HTML form
+ * @param full    Determines if we should generate full HTML info or just mini version (title & action)
+ * @param number  If we're building full, we can pass through a number to denote which index of action 
+ *                this is for macro purposes. Only used for macro-able actions
+ * @returns Activation HTML in string form
+ */
+ export function buildActionHTML(action: Action, full?: boolean, num?:number): string {
+  let detailText: string | undefined;
+  let chip: string;
+
+  // TODO--can probably do better than this
+  if(full) {
+    detailText = `
+      <div class="action-detail">
+        ${action.Detail}
+      </div>
+    `
+  }
+
+  if(num !== undefined) {
+    chip = `<a class="activation-chip activation-${action.Activation.toLowerCase()}" data-activation=${num}>
+              <i class="fas fa-dice-d20"></i>
+              ${action.Activation.toUpperCase()}
+            </a>`
+  } else {
+    chip = `<div class="activation-chip activation-${action.Activation.toLowerCase()}">${action.Activation.toUpperCase()}</div>`
+  }
+
+  return `
+  <div class="action-wrapper">
+    <span class="action-title">
+      ${action.Name ? action.Name : ""}
+    </span>
+    ${detailText ? detailText : ""}
+    ${chip}
+  </div>
+  `
+}
+
+/**
+ * Builds the HTML for a given in-system deployable
+ * @param deployable  Deployable to generate in HTML form
+ * @param full    Determines if we should generate full HTML info or just mini version (title & action)
+ * @param number  If we're building full, we can pass through a number to denote which index of action 
+ *                this is for macro purposes. Only used for macro-able actions
+ * @returns Activation HTML in string form
+ */
+export function buildDeployableHTML(dep: Deployable, full?: boolean, num?:number): string {
+  let detailText: string | undefined;
+  let chip: string;
+
+  // TODO--can probably do better than this
+  if(full) {
+    detailText = `
+      <div class="deployable-detail">
+        ${dep.Detail}
+      </div>
+    `
+  }
+
+  if(num !== undefined) {
+    chip = `<a class="activation-chip activation-${dep.Activation.toLowerCase()}" data-activation=${num}>
+              <i class="cci cci-deployable"></i>
+              ${dep.Activation.toUpperCase()}
+            </a>`
+  } else {
+    chip = `<div class="activation-chip activation-${dep.Activation.toLowerCase()}">${dep.Activation.toUpperCase()}</div>`
+  }
+
+  return `
+  <div class="deployable-wrapper">
+    <span class="deployable-title">
+      ${dep.Name ? dep.Name : ""}
+    </span>
+    ${detailText ? detailText : ""}
+    ${chip}
+  </div>
+  `
 }

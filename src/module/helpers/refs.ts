@@ -10,7 +10,11 @@ import {
   Skill,
   Talent,
   MechSystem,
+  Action,
+  SystemType,
+  Deployable,
 } from "machine-mind";
+import { System } from "pixi.js";
 import { is_actor_type, LancerActor } from "../actor/lancer-actor";
 import { GENERIC_ITEM_ICON, LANCER, TypeIcon } from "../config";
 import { is_item_type, LancerItem, LancerItemType } from "../item/lancer-item";
@@ -22,6 +26,7 @@ import {
   enable_simple_ref_dragging,
   enable_simple_ref_dropping,
 } from "./dragdrop";
+import { buildActionHTML, buildDeployableHTML } from "./item";
 import { compact_tag_list } from "./tags";
 
 // We use these for virtually every ref function
@@ -249,19 +254,39 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
   switch(item.Type) {
     case EntryType.MECH_SYSTEM:
       let sys: MechSystem = <MechSystem><any>item;
-      let desc = "";
+      let desc: string | undefined;
+      let actions: string | undefined;
+      let deployables: string | undefined;
+      let eff: string | undefined;
+
       if (sys.Description && sys.Description !== 'No description') {
         desc = `<div class="desc-text" style="padding: 5px">
           ${sys.Description}
         </div>`
       }
-      let eff = "";
+
       if (sys.Effect) {
-        eff = `<div class="desc-text" style="padding: 5px">
-          ${sys.Description}
+        eff = `<div class="eff-text" style="padding: 5px">
+          ${sys.Effect}
         </div>`
       }
-      let str = `<li class="card clipped mech-system-compact item" ${ref_params(cd.ref)}>
+
+      let activatableActions = ["Tech"]
+
+      if(sys.Actions.length) {
+        actions = sys.Actions.map((a: Action, i: number | undefined) => {
+          if(!activatableActions.includes(sys.SysType)) i = undefined;
+          return buildActionHTML(a, true, i);
+        }).join("");
+      }
+
+      if(sys.Deployables.length) {
+        deployables = sys.Deployables.map((d: Deployable, i: number) => {
+          return buildDeployableHTML(d, true, i);
+        }).join("");
+      }
+
+      let str = `<li class="card clipped mech-system-compact item ${ sys.SysType === SystemType.Tech ? "tech-item" : ""}" ${ref_params(cd.ref)}>
         <div class="lancer-header" style="grid-area: 1/1/2/3; display: flex">
           <i class="cci cci-system i--m"> </i>
           <a class="system-macro macroable"><i class="mdi mdi-message"></i></a>
@@ -276,8 +301,10 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
             <span class="medium" style="padding: 5px;">${sys.SP} SP</span>
           </div>
         </div>
-        ${desc}
-        ${eff}
+        ${desc ? desc : ""}
+        ${eff ? eff : ""}
+        ${actions ? actions : ""}
+        ${deployables ? deployables: ""}
         ${compact_tag_list(item_path + ".Tags",sys.Tags,false)}
         </li>`;
       return str;

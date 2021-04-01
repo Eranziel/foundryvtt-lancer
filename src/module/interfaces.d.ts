@@ -101,6 +101,15 @@ declare interface LancerTechMacroData {
   tags: TagDataShort[];
 }
 
+declare interface LancerActionMacroData {
+  title: string;
+  t_atk: number;
+  acc: number;
+  actionName: string;
+  detail: string;
+  tags: TagDataShort[];
+}
+
 declare interface LancerTalentMacroData {
   talent: LancerTalentData;
   rank: number;

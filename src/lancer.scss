@@ -1276,7 +1276,66 @@ $activations-colors: rgb(10, 126, 204) rgb(98, 0, 255) #3949ab #283593 rgb(162, 
 
 @each $a-type in $activations-types {
   $i: index($activations-types, $a-type);
-  .action-activation-#{$a-type} {
+  .activation-#{$a-type} {
     background-color: nth($activations-colors, $i);
+    border-color: nth($activations-colors, $i);
   }
+}
+
+.action-detail, .deployable-detail {
+  text-align: left;
+  margin-left: 4px;
+  margin-right: 4px;
+}
+
+.activation-chip {
+  align-self: flex-end;
+  right: 5px;
+  margin-top: 5px;
+  font-size: 12px;
+  height: 24px;
+  color: #fff;
+  border-radius: 4px !important;
+  align-items: center;
+  // cursor: default;
+  display: inline-flex;
+  line-height: 20px;
+  max-width: 100%;
+  outline: none;
+  overflow: hidden;
+  padding: 0 12px;
+  position: relative;
+  text-decoration: none;
+  transition-duration: .28s;
+  transition-property: box-shadow,opacity;
+  transition-timing-function: cubic-bezier(.4,0,.2,1);
+  vertical-align: middle;
+  white-space: nowrap;
+  margin-bottom: 5px;
+}
+
+.action-wrapper, .deployable-wrapper {
+  display: flex;
+  flex-direction: column;
+  border-radius: 10px;
+  background-color: rgba(0, 0, 0, 0.07);
+  margin-top: 6px;
+  padding-top: 4px;
+  margin-bottom: 4px;
+}
+/*
+.action-wrapper + .action-wrapper {
+  //background: linear-gradient(#000, #000) top /40% 2px no-repeat rgba(0, 0, 0, 0.07);
+  margin-bottom: 4px;
+  padding-top: 4px;
+  margin-top: 6px;
+}*/
+
+.action-title, .deployable-title {
+  font-size: 16px;
+  margin-top: 3px;
+}
+
+a.activation-chip > i.fas, a.activation-chip > i.cci {
+  margin-right: 6px;
 }

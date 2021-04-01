@@ -11,6 +11,7 @@ import {
 } from "./item/lancer-item";
 import { LancerActor, LancerPilot } from './actor/lancer-actor';
 import {
+  LancerActionMacroData,
   LancerAttackMacroData,
   LancerGenericMacroData,
   LancerOverchargeMacroData,
@@ -21,7 +22,7 @@ import {
   LancerTextMacroData,
 } from "./interfaces";
 // Import JSON data
-import { DamageType, EntryType, NpcFeatureType, TagInstance, Pilot, PilotWeapon, MechWeapon, RegDamageData, MechWeaponProfile, NpcFeature, OpCtx, PackedNpcDamageData, PackedDamageData, Damage, TagTemplate, SerUtil, PackedNpcTechData, NpcTechType, RegNpcData, RegNpcTechData, RegMechSystemData, MechSystem, Action } from 'machine-mind';
+import { DamageType, EntryType, NpcFeatureType, TagInstance, Pilot, PilotWeapon, MechWeapon, RegDamageData, MechWeaponProfile, NpcFeature, OpCtx, PackedNpcDamageData, PackedDamageData, Damage, TagTemplate, SerUtil, PackedNpcTechData, NpcTechType, RegNpcData, RegNpcTechData, RegMechSystemData, MechSystem, Action, Mech, Deployable } from 'machine-mind';
 import { resolve_native_drop, convert_ref_to_native } from './helpers/dragdrop';
 import { stringify } from "querystring";
 import { FoundryReg, FoundryRegItemData } from './mm-util/foundry-reg';
@@ -30,7 +31,8 @@ import { mm_wrap_actor } from "./mm-util/helpers";
 import { debug } from "console";
 import { LancerItemType, LancerMechSystemData, LancerMechSystem } from './item/lancer-item';
 import { compact_tag_list } from "./helpers/tags";
-import { buildActionHTML } from "./helpers/item";
+import { buildActionHTML, buildDeployableHTML } from "./helpers/item";
+import { System } from "pixi.js";
 
 const lp = LANCER.log_prefix;
 
@@ -437,24 +439,34 @@ async function buildSystemHTML(data:MechSystem): Promise<string> {
 
   let eff: string | undefined;
   let actions: string | undefined;
+  let deployables: string | undefined;
   let useFirstActivation = false;
 
   if(data.Effect) eff = data.Effect;
   else {
     // If our first action doesn't have a name & we don't have an effect then first action is our "effect"
     // Always first action? Or a better way?
-    useFirstActivation = !data.Actions[0].Name;
+    useFirstActivation = data.Actions.length ? !data.Actions[0].Name : false;
   }
-  if(data.Actions)
+
+  if(data.Actions) {
     actions = data.Actions.map((a: Action, i: number) => {
       return buildActionHTML(a, !i && useFirstActivation);
+    }).join(""); 
+  }
+
+  if(data.Deployables) {
+    deployables = data.Deployables.map((d: Deployable, i: number) => {
+      return buildDeployableHTML(d);
     }).join("");
+  }
   
 
   let html = `<div class="card clipped-bot system-wrapper" style="margin: 0px;">
   <div class="lancer-header ">// SYSTEM :: ${data.Name} //</div>
   ${eff ? eff : ""}
   ${actions ? actions: ""}
+  ${deployables ? deployables: ""}
   ${compact_tag_list("data.Tags", data.Tags, false)}
 </div>`
   return html;
@@ -861,10 +873,10 @@ export async function prepareTechMacro(a: string, t: string) {
   }
   console.log(`${lp} Tech Attack Macro Item:`, item, mData);
 
-  await rollTechMacro(actor, mData);
+  //await rollTechMacro(actor, mData);
 }
 
-async function rollTechMacro(actor: Actor, data: LancerTechMacroData) {
+async function rollTechMacro(actor: Actor, data: LancerActionMacroData) {
   let atk_str = await buildAttackRollString(data.title, data.acc, data.t_atk);
   if (!atk_str) return;
   let attack_roll = new Roll(atk_str).roll();
@@ -875,7 +887,8 @@ async function rollTechMacro(actor: Actor, data: LancerTechMacroData) {
     title: data.title,
     attack: attack_roll,
     attack_tooltip: attack_tt,
-    effect: data.effect ? data.effect : null,
+    actionName: data.actionName,
+    detail: data.detail ? data.detail : null,
     tags: data.tags,
   };
 
@@ -1041,4 +1054,61 @@ export async function prepareStructureMacro(a: string) {
   // Hand it off to the actor to overheat
   await actor.structureMech();
    */
+}
+
+export async function prepareActionMacro(a: string, i: string, index: number) {
+  // Determine which Actor to speak as
+  let actor: Actor | null = getMacroSpeaker(a);
+  if (!actor) return;
+
+  // Get the item
+  const item: LancerItem<EntryType.NPC_FEATURE> | LancerItem<EntryType.MECH_SYSTEM> | null = actor.getOwnedItem(i) as LancerItem<EntryType.NPC_FEATURE> | LancerItem<EntryType.MECH_SYSTEM> | null;
+  if (!item) {
+    return ui.notifications.error(
+      `Error preparing tech attack macro - could not find Item ${i} owned by Actor ${a}! Did you add the Item to the token, instead of the source Actor?`
+    );
+  } else if (!item.isOwned) {
+    return ui.notifications.error(
+      `Error rolling tech attack macro - ${item.name} is not owned by an Actor!`
+    );
+  }
+
+  let itemEnt: MechSystem | NpcFeature = (await item.data.data.derived.mmec_promise).ent;
+  let actorEnt: Mech = (await actor.data.data.derived.mmec_promise).ent;
+
+    // Support this later...
+  if(itemEnt.Type !== EntryType.MECH_SYSTEM) return;
+
+  let action = itemEnt.Actions[index];
+  
+  let mData: LancerActionMacroData = {
+    title: item.name,
+    t_atk: 0,
+    acc: 0,
+    actionName: action.Name.toUpperCase(),
+    detail: action.Detail,
+    tags: itemEnt.Tags,
+  };
+
+  mData.t_atk = actorEnt.TechAttack;
+  mData.tags = itemEnt.Tags;
+
+  if (item.type === EntryType.NPC_FEATURE) {
+    const tData = item.data.data as RegNpcTechData;
+    let tier: number;
+    if (item.actor === null) {
+      tier = actor.data.data.tier_num - 1;
+    } else {
+      tier = item.actor.data.data.tier_num - 1;
+    }
+    mData.t_atk =
+      tData.attack_bonus && tData.attack_bonus.length > tier ? tData.attack_bonus[tier] : 0;
+    mData.acc = tData.accuracy && tData.accuracy.length > tier ? tData.accuracy[tier] : 0;
+    mData.tags = await SerUtil.process_tags(new FoundryReg(), new OpCtx(), tData.tags);
+    mData.detail = tData.effect ? tData.effect : "";
+  }
+
+  console.log(`${lp} Tech Attack Macro Item:`, item, mData);
+
+  await rollTechMacro(actor, mData);
 }

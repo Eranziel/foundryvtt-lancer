@@ -38,7 +38,7 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
    * Activate event listeners using the prepared sheet HTML
    * @param html {HTMLElement}   The prepared HTML object ready to be rendered into the DOM
    */
-  activateListeners(html: any) {
+  activateListeners(html: JQuery<HTMLElement>) {
     super.activateListeners(html);
 
     // Everything below here is only needed if the sheet is editable
@@ -92,7 +92,8 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
       // If frame, weapon, put it in an available slot
       new_live_this.Loadout.equip_weapon(new_live_item);
     } else if (new_live_item.Type === EntryType.MECH_SYSTEM) {
-      new_live_this.Loadout.equip_system(new_live_item);
+      new_live_this.Loadout.SysMounts.push(new SystemMount(item_mm.reg,item_mm.ctx,{system: new_live_item.as_ref()}))
+      //new_live_this.Loadout.equip_system(new_live_item);
     }
     // Most other things (weapon mods) aren't directly equipped to the mech and should be handled in their own sheet / their own subcomponents. We've already taken posession, and do nothing more
 

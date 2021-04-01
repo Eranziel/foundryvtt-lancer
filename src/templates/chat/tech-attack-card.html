@@ -18,14 +18,10 @@
       </div>
     </div>
   </div>
-  {{#if effect}}
+  {{#if detail}}
   <div class="card clipped">
-    <div class="lancer-header">// EFFECT //</div>
-    {{#if effect.effect_type}}
-      <h3 class="flexrow">{{upper-case effect.effect_type}} EFFECT</h3>
-      <span class="effect-text">{{{effect.hit}}}</span>
-    {{/if}}
-    {{#unless effect.effect_type}}<span class="effect-text">{{{effect}}}</span>{{/unless}}
+    <div class="lancer-header">// {{ actionName }} //</div>
+    <span class="effect-text">{{{detail}}}</span>
   </div>
   {{/if}}
   <div class="flexrow" style="justify-content: flex-end; flex-wrap: wrap;">

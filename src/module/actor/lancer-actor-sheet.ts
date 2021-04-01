@@ -24,7 +24,7 @@ import {
 import { LancerActorSheetData, LancerStatMacroData } from "../interfaces";
 import { LancerMechWeapon, LancerPilotWeapon } from "../item/lancer-item";
 import { LancerActor, LancerActorType } from "./lancer-actor";
-import { prepareCoreActiveMacro, prepareCorePassiveMacro } from "../macros";
+import { prepareActionMacro, prepareCoreActiveMacro, prepareCorePassiveMacro, prepareItemMacro } from "../macros";
 import { EntryType } from "machine-mind";
 const lp = LANCER.log_prefix;
 
@@ -168,8 +168,22 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
 
       const el = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
 
-      game.lancer.prepareItemMacro(this.actor._id, el.getAttribute("data-id")!);
+      prepareItemMacro(this.actor._id, el.getAttribute("data-id")!);
     });
+
+    // Action-chip (system? Or broader?) macros
+    html.find("a.action-chip").on("click",(ev: JQuery.ClickEvent) => {
+      ev.stopPropagation();
+
+      const el = ev.currentTarget;
+
+      const item = $(el).closest(".item")[0].getAttribute("data-id");
+      if(!item) throw Error("No item ID from action chip");
+
+      const activation = el.getAttribute("data-activation");
+
+      prepareActionMacro(this.actor._id, item, activation);
+    })
 
     // TODO: This are really just mech-specific
     // Core active & passive text rollers
