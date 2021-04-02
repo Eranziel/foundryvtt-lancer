@@ -18,7 +18,7 @@ import { System } from "pixi.js";
 import { is_actor_type, LancerActor } from "../actor/lancer-actor";
 import { GENERIC_ITEM_ICON, LANCER, TypeIcon } from "../config";
 import { is_item_type, LancerItem, LancerItemType } from "../item/lancer-item";
-import { FlagData, FoundryReg } from "../mm-util/foundry-reg";
+import { FoundryFlagData, FoundryReg } from "../mm-util/foundry-reg";
 import { gentle_merge, resolve_dotpath, resolve_helper_dotpath } from "./commons";
 import {
   convert_ref_to_native,
@@ -43,7 +43,7 @@ export function ref_commons<T extends EntryType>(
   }
 
   // Grab flags to retrieve original entity
-  let flags = item.flags as FlagData<T>;
+  let flags = item.Flags as FoundryFlagData<T>;
 
   // Declare our results
   let ref = item.as_ref();
@@ -53,12 +53,12 @@ export function ref_commons<T extends EntryType>(
   // best to know what we are working with
   if (is_actor_type(item.Type)) {
     // 'tis an actor, sire
-    let actor = flags.orig_entity as LancerActor<any>;
+    let actor = flags.orig_doc as LancerActor<any>;
     img = actor.img;
     name = actor.name;
   } else if (is_item_type(item.Type)) {
     // 'tis an item, m'lord
-    let item = flags.orig_entity as LancerItem<any>;
+    let item = flags.orig_doc as LancerItem<any>;
     img = item.img;
     name = item.name;
   } else {
@@ -144,7 +144,7 @@ export async function HANDLER_openRefOnClick<T extends EntryType>(event: any) {
 
   // We didn't really need the fully resolved class but, hwatever
   // open that link
-  let sheet = (found_entity.flags as FlagData<T>).orig_entity.sheet;
+  let sheet = (found_entity.Flags as FoundryFlagData<T>).orig_doc.sheet;
 
   // If the sheet is already rendered:
   if (sheet.rendered) {
@@ -251,39 +251,41 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
 
   let item = item_!; // cd truthiness implies item truthiness
 
-  switch(item.Type) {
+  switch (item.Type) {
     case EntryType.MECH_SYSTEM:
-      let sys: MechSystem = <MechSystem><any>item;
+      let sys: MechSystem = <MechSystem>(<any>item);
       let desc: string | undefined;
       let actions: string | undefined;
       let deployables: string | undefined;
       let eff: string | undefined;
 
-      if (sys.Description && sys.Description !== 'No description') {
+      if (sys.Description && sys.Description !== "No description") {
         desc = `<div class="desc-text" style="padding: 5px">
           ${sys.Description}
-        </div>`
+        </div>`;
       }
 
       if (sys.Effect) {
         eff = `<div class="eff-text" style="padding: 5px">
           ${sys.Effect}
-        </div>`
+        </div>`;
       }
 
-      if(sys.Actions.length) {
+      if (sys.Actions.length) {
         actions = sys.Actions.map((a: Action, i: number | undefined) => {
           return buildActionHTML(a, true, i);
         }).join("");
       }
 
-      if(sys.Deployables.length) {
+      if (sys.Deployables.length) {
         deployables = sys.Deployables.map((d: Deployable, i: number) => {
           return buildDeployableHTML(d, true, i);
         }).join("");
       }
 
-      let str = `<li class="card clipped mech-system-compact item ${ sys.SysType === SystemType.Tech ? "tech-item" : ""}" ${ref_params(cd.ref)}>
+      let str = `<li class="card clipped mech-system-compact item ${
+        sys.SysType === SystemType.Tech ? "tech-item" : ""
+      }" ${ref_params(cd.ref)}>
         <div class="lancer-header" style="grid-area: 1/1/2/3; display: flex">
           <i class="cci cci-system i--m"> </i>
           <a class="system-macro macroable"><i class="mdi mdi-message"></i></a>
@@ -301,13 +303,13 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
         ${desc ? desc : ""}
         ${eff ? eff : ""}
         ${actions ? actions : ""}
-        ${deployables ? deployables: ""}
-        ${compact_tag_list(item_path + ".Tags",sys.Tags,false)}
+        ${deployables ? deployables : ""}
+        ${compact_tag_list(item_path + ".Tags", sys.Tags, false)}
         </li>`;
       return str;
 
     case EntryType.TALENT:
-      let talent: Talent = <Talent><any>item;
+      let talent: Talent = <Talent>(<any>item);
       let retStr = `<li class="card clipped talent-compact item ref valid" ${ref_params(cd.ref)}>
       <div class="lancer-talent-header medium clipped-top" style="grid-area: 1/1/2/4">
       <i class="cci cci-talent i--m"></i>
@@ -316,25 +318,27 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
       <a class="gen-control i--dark" data-action="${trash_action}" data-path="${item_path}"><i class="fas fa-trash"></i></a>
       </div>
       </div>
-      <ul style="grid-area: 2/1/3/3">`
-      
-      for(var i=0;i<talent.CurrentRank;i++) {
+      <ul style="grid-area: 2/1/3/3">`;
+
+      for (var i = 0; i < talent.CurrentRank; i++) {
         retStr += `<li class="talent-rank-compact card clipped" style="padding: 5px">
-        <a class="cci cci-rank-${i+1} i--l i--dark talent-macro macroable" data-rank="${i}" style="grid-area: 1/1/2/2"></a>
+        <a class="cci cci-rank-${
+          i + 1
+        } i--l i--dark talent-macro macroable" data-rank="${i}" style="grid-area: 1/1/2/2"></a>
         <span class="major" style="grid-area: 1/2/2/3">${talent.Ranks[i].Name}</span>
         <div class="effect-text" style="grid-area: 2/1/3/3">
         ${talent.Ranks[i].Description}
         </div>
-        </li>`
+        </li>`;
       }
-      
+
       retStr += `</ul>
-      </li>`
+      </li>`;
 
       return retStr;
 
     case EntryType.SKILL:
-      let skill: Skill = <Skill><any>item;
+      let skill: Skill = <Skill>(<any>item);
       return `
       <li class="card clipped skill-compact item macroable ref valid" ${ref_params(cd.ref)}>
       <div class="lancer-trigger-header medium clipped-top" style="grid-area: 1/1/2/3">

@@ -19,6 +19,7 @@ import { EntryType } from "machine-mind";
 import { get_pack } from "../mm-util/db_abstractions";
 import { HANDLER_activate_edit_bonus } from "../helpers/item";
 import { HANDLER_activate_tag_context_menus, HANDLER_activate_tag_dropping } from "../helpers/tags";
+import { CollapseHandler } from "../helpers/collapse";
 
 const lp = LANCER.log_prefix;
 
@@ -27,6 +28,9 @@ const lp = LANCER.log_prefix;
  * @extends {ItemSheet}
  */
 export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
+  // Tracks collapse state between renders
+  private collapse_handler = new CollapseHandler();
+  
   /**
    * @override
    * Extend and override the default options used by the Item Sheet

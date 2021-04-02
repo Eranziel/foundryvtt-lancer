@@ -1,5 +1,5 @@
 import { EntryType, License, LiveEntryTypes, OpCtx, Pilot, Registry, RegRef } from "machine-mind";
-import type { LancerActor, LancerActorType } from "../actor/lancer-actor";
+import type { LancerActor, LancerActorType, LancerMech, LancerPilot } from "../actor/lancer-actor";
 import type { LancerItem, LancerItemType } from "../item/lancer-item";
 import { FetcherCache } from "./db_abstractions";
 import { FoundryReg } from "./foundry-reg";
@@ -115,7 +115,7 @@ export async function mm_wrap_actor<T extends EntryType & LancerActorType>(
 // Helper for finding what license an item comes from. Checks by name, an inelegant solution but probably good enough
 export async function find_license_for(
   mmec: MMEntityContext<LancerItemType>,
-  in_actor?: LancerActor<EntryType.MECH | EntryType.PILOT>
+  in_actor?: LancerMech | LancerPilot
 ): Promise<RegRef<EntryType.LICENSE> | null> {
   // If the item does not have a license name, then we just bail
   let license_name = (mmec.ent as any).License;

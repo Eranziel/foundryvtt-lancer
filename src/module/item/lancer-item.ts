@@ -1,7 +1,7 @@
 import { LANCER, TypeIcon } from "../config";
-import { EntryType, License, NpcFeatureType, OpCtx, RegRef, TagInstance } from 'machine-mind';
+import { EntryType, License, LiveEntryTypes, NpcFeatureType, OpCtx, RegRef, TagInstance } from "machine-mind";
 import { FoundryRegActorData, FoundryRegItemData } from "../mm-util/foundry-reg";
-import { LancerActor, LancerActorType } from "../actor/lancer-actor";
+import { AnyMMActor, LancerActor, LancerActorType, LancerMech, LancerPilot } from "../actor/lancer-actor";
 import { system_ready } from "../../lancer";
 import { find_license_for, MMEntityContext, mm_wrap_item } from "../mm-util/helpers";
 
@@ -97,10 +97,7 @@ export class LancerItem<T extends LancerItemType> extends Item {
         // Additionally we would like to find a matching license. Re-use ctx, try both a world and global reg, actor as well if it exists
         let found_license: RegRef<EntryType.LICENSE> | null;
         if (this.actor?.data.type == EntryType.PILOT || this.actor?.data.type == EntryType.MECH) {
-          found_license = await find_license_for(
-            mmec,
-            this.actor! as LancerActor<EntryType.MECH | EntryType.PILOT>
-          );
+          found_license = await find_license_for(mmec, this.actor! as LancerMech | LancerPilot);
         } else {
           found_license = await find_license_for(mmec);
         }
@@ -216,8 +213,6 @@ export class LancerItem<T extends LancerItemType> extends Item {
   }
   */
 
-  
-
   /**
    * Return whether a weapon has the overkill tag
    */
@@ -293,7 +288,7 @@ export class LancerItem<T extends LancerItemType> extends Item {
     });
     return result;
     */
-  } 
+  }
 }
 
 // Provide some convenient shorthands
@@ -340,6 +335,7 @@ export type LancerWeaponModData = FoundryRegItemData<EntryType.WEAPON_MOD>;
 export type LancerWeaponMod = LancerItem<EntryType.WEAPON_MOD>;
 
 export type AnyLancerItem = LancerItem<LancerItemType>;
+export type AnyMMItem = LiveEntryTypes<LancerItemType>;
 
 export type LancerItemType =
   | EntryType.CORE_BONUS
@@ -393,3 +389,8 @@ export const LancerItemTypes = [
 export function is_item_type(type: LancerActorType | LancerItemType): type is LancerItemType {
   return LancerItemTypes.includes(type as LancerActorType);
 }
+
+export function has_mmid<T extends AnyMMItem | AnyMMActor>(item: AnyMMItem | AnyMMActor): item is T & {ID: string} {
+  return (item as any).ID != undefined;
+}
+
