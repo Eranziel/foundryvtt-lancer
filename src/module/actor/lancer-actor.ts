@@ -9,6 +9,7 @@ import {
   RegRef,
   RegDeployableData,
   OpCtx,
+  LiveEntryTypes,
 } from "machine-mind";
 import { FoundryRegActorData, FoundryRegItemData } from "../mm-util/foundry-reg";
 import { LancerHooks, LancerSubscription } from "../helpers/hooks";
@@ -467,11 +468,13 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         this.prior_max_hp = dr.current_hp.max;
 
         // Now that data is set properly, force token to draw its bars
-        if (this.token) {
+        if (this.token && (this.token as any).bars) {
           (this.token as any).drawBars();
         } else {
           for (let token of this.getActiveTokens()) {
-            (token as any).drawBars();
+            if ((token as any).bars) {
+              (token as any).drawBars();
+            }
           }
         }
 
@@ -502,8 +505,8 @@ export class LancerActor<T extends LancerActorType> extends Actor {
    * On the result of an update, we want to cascade derived data.
    */
   _onUpdate(...args: any) {
-    // Upon ourselves being updated, trigger any listener hooks
-    super._onUpdate(args[0], args[1], args[2], args[3]);
+    //@ts-ignore Incorrect typings
+    super._onUpdate(...args);
     LancerHooks.call(this);
   }
 
@@ -514,27 +517,14 @@ export class LancerActor<T extends LancerActorType> extends Actor {
     LancerHooks.call(this);
   }
 
-  /**
-   * Returns the current overcharge roll/text
-   * Only applicable for pilots
-   * Overkill for now but there are situations where we'll want this to be configurable
-   */
-   getOverchargeRoll(): string | null {
-    // Function is only applicable to pilots.
-    if (this.data.type !== EntryType.MECH) return null;
+  _onDelete(...args: any) {
+    //@ts-ignore Incorrect typings
+    super._onDelete(...args);
 
-    const data = this.data as LancerMechData;
-
-    switch (data.data.current_overcharge) {
-       case 1:
-         return "1d3";
-       case 2:
-         return "1d6";
-       case 3:
-         return "1d6+4";
-       default:
-         return "1";
-    }
+    this.subscriptions?.forEach(subscription => {
+      subscription.unsubscribe();
+    });
+    this.subscriptions = [];
   }
 
   setupLancerHooks() {
@@ -587,6 +577,29 @@ export class LancerActor<T extends LancerActorType> extends Actor {
       this.subscriptions.push(sub);
     }
   }
+
+  /**
+   * Returns the current overcharge roll/text
+   * Only applicable for pilots
+   * Overkill for now but there are situations where we'll want this to be configurable
+   */
+  getOverchargeRoll(): string | null {
+    // Function is only applicable to pilots.
+    if (this.data.type !== EntryType.MECH) return null;
+
+    const data = this.data as LancerMechData;
+
+    switch (data.data.current_overcharge) {
+      case 1:
+        return "1d3";
+      case 2:
+        return "1d6";
+      case 3:
+        return "1d6+4";
+      default:
+        return "1";
+    }
+  }
 }
 
 // Discrete types for all of our possible generic values
@@ -600,6 +613,7 @@ export type LancerDeployable = LancerActor<EntryType.DEPLOYABLE>;
 export type LancerDeployableData = FoundryRegActorData<EntryType.DEPLOYABLE>;
 
 export type AnyLancerActor = LancerActor<LancerActorType>;
+export type AnyMMActor = LiveEntryTypes<LancerActorType>;
 export type LancerActorType =
   | EntryType.MECH
   | EntryType.DEPLOYABLE

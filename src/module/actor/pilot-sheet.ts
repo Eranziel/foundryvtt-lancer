@@ -2,9 +2,9 @@ import { LancerMechWeapon, LancerPilotWeapon } from "../item/lancer-item";
 import { LANCER } from "../config";
 import { LancerActorSheet } from "./lancer-actor-sheet";
 import { EntryType, MountType, OpCtx } from "machine-mind";
-import { FlagData, FoundryReg } from "../mm-util/foundry-reg";
+import { FoundryFlagData, FoundryReg } from "../mm-util/foundry-reg";
 import { MMEntityContext, mm_wrap_item } from "../mm-util/helpers";
-import { funcs } from "machine-mind";
+import { funcs, quick_relinker } from "machine-mind";
 import { ResolvedNativeDrop } from "../helpers/dragdrop";
 
 const lp = LANCER.log_prefix;
@@ -95,15 +95,20 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
           let raw_pilot_data = await funcs.gist_io.download_pilot(self.mm.ent.CloudID);
 
           // Pull the trigger
-          let pseudo_compendium = new FoundryReg({
-            // We look for missing items here
-            item_source: ["compendium", null],
-            actor_source: "world",
+          let ps1 = new FoundryReg({ // We look for missing items  in world first
+            item_source: ["world", null],
+            actor_source: "world"
           });
-          let synced_data = await funcs.cloud_sync(raw_pilot_data, self.mm.ent, [
-            pseudo_compendium,
-          ]);
-          if (!synced_data) {
+          let ps2 = new FoundryReg({ // We look for missing items  in world first
+            item_source: ["compendium", null],
+            actor_source: "compendium"
+          });
+          let synced_data = await funcs.cloud_sync(raw_pilot_data, self.mm.ent, [ps1, ps2], {
+            relinker: quick_relinker<any>({
+              key_pairs: [["ID", "id"], ["Name", "name"]]
+            })
+          });
+          if(!synced_data) {
             throw new Error("Pilot was somehow destroyed by the sync");
           }
 
@@ -111,19 +116,18 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
           await this.actor.update({
             name: synced_data.pilot.Name || this.actor.name,
             img: synced_data.pilot.CloudPortrait || this.actor.img,
+            "token.name": synced_data.pilot.Name || this.actor.name,
+            "token.img": synced_data.pilot.CloudPortrait || this.actor.img,
           });
 
-          for (let mech of synced_data.pilot_mechs) {
-            let mech_actor = (mech.flags as FlagData<EntryType.MECH>).orig_entity;
-            await mech_actor.update(
-              {
-                name: mech.Name || mech_actor.name,
-                img: mech.CloudPortrait || mech_actor.img,
-                //@ts-ignore
-                permission: self.entity.permission
-              },
-              {}
-            );
+          for(let mech of synced_data.pilot_mechs) {
+            let mech_actor = (mech.Flags as FoundryFlagData<EntryType.MECH>).orig_doc;
+            await mech_actor.update({
+              name: mech.Name || mech_actor.name,
+              img: mech.CloudPortrait || mech_actor.img,
+              "token.name": mech.Name || mech_actor.name,
+              "token.img": mech.CloudPortrait || mech_actor.img
+            }, {});
             mech_actor.render();
           }
 
@@ -140,7 +144,6 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
       });
     }
   }
-
 
   // Baseline drop behavior. Let people add stuff to the pilot
   async _onDrop(event: any): Promise<any> {
@@ -210,8 +213,6 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
     // Always return the item if we haven't failed for some reason
     return item;
   }
-
-
 
   /* -------------------------------------------- */
 
