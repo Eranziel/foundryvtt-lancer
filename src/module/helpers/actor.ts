@@ -60,18 +60,34 @@ export function stat_view_card(
   title: string,
   icon: string,
   data_path: string,
-  options: HelperOptions
+  options: HelperOptions & {"rollable":boolean}
 ): string {
   let data_val = resolve_helper_dotpath(options, data_path);
+  let macro_button: string | undefined;
+  if(options.rollable) macro_button = '<a class="roll-stat stat-macro macroable i--dark i--sm" data-action="roll-macro"><i class="fas fa-dice-d20"></i></a>'
   return `
     <div class="card clipped">
       <div class="lancer-header ">
         ${inc_if(`<i class="${icon} i--m i--light header-icon"> </i>`, icon)}
         <span class="major">${title}</span>
       </div>
-      <span class="lancer-stat major">${data_val}</span>
+      <div class="flexrow ${macro_button ? "stat-macro-container" : ""}">
+      ${macro_button ? macro_button : ""}
+        <span class="lancer-stat major" data-path="${data_path}">${data_val}</span>
+        ${macro_button ? "<div></div>" : ""}
+      </div>
     </div>
     `;
+}
+
+// Show a readonly rollable clipped card
+export function stat_rollable_card(
+  title: string,
+  icon: string,
+  data_path: string,
+  options: HelperOptions
+): string {
+  return stat_view_card(title,icon,data_path,{...options,"rollable":true});
 }
 
 // Shows a compact readonly value

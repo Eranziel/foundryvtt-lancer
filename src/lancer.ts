@@ -79,6 +79,7 @@ import {
   overcharge_button,
   stat_edit_card,
   stat_edit_card_max,
+  stat_rollable_card,
   stat_view_card,
 } from "./module/helpers/actor";
 import { HelperOptions } from "handlebars";
@@ -313,6 +314,7 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("compact-stat-edit", compact_stat_edit);
   Handlebars.registerHelper("compact-stat-view", compact_stat_view);
   Handlebars.registerHelper("stat-view-card", stat_view_card);
+  Handlebars.registerHelper("stat-rollable-card", stat_rollable_card);
   Handlebars.registerHelper("stat-edit-card", stat_edit_card);
   Handlebars.registerHelper("stat-edit-max-card", stat_edit_card_max);
   Handlebars.registerHelper("clicker-stat-card", clicker_stat_card);

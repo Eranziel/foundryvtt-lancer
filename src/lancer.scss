@@ -1135,6 +1135,7 @@ input.core-power-toggle:not(:checked)::before
   &.#{$prefix} > * {
     flex: 1 0 calc(#{$percent} - #{$margin * 2}); 
     margin: 3px;
+    flex-grow: unset;
   }
 
   &.#{$prefix} > .double {
@@ -1176,6 +1177,7 @@ input.core-power-toggle:not(:checked)::before
   &.hextuple > .full { 
     flex: 1 0 calc(100% - 6px); 
     margin: 3px;
+    flex-grow: unset;
   }
 }
 
@@ -1339,4 +1341,13 @@ $activations-colors: rgb(10, 126, 204) rgb(98, 0, 255) #3949ab #283593 rgb(162, 
 
 a.activation-chip > i.fas, a.activation-chip > i.cci {
   margin-right: 6px;
+}
+
+.stat-macro-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+.stat-macro-container > a {
+  margin: auto;
 }

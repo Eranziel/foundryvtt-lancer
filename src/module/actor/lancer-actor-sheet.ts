@@ -24,7 +24,7 @@ import {
 import { LancerActorSheetData, LancerStatMacroData } from "../interfaces";
 import { LancerMechWeapon, LancerPilotWeapon } from "../item/lancer-item";
 import { LancerActor, LancerActorType } from "./lancer-actor";
-import { prepareActivationMacro, prepareCoreActiveMacro, prepareCorePassiveMacro, prepareItemMacro } from "../macros";
+import { prepareActivationMacro, prepareCoreActiveMacro, prepareCorePassiveMacro, prepareItemMacro, prepareStatMacro } from "../macros";
 import { EntryType } from "machine-mind";
 import { ActivationTypes } from "../enums";
 const lp = LANCER.log_prefix;
@@ -119,7 +119,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     let statMacro = html.find(".roll-stat");
     statMacro.on("click", ev => {
       ev.stopPropagation(); // Avoids triggering parent event handlers
-      game.lancer.prepareStatMacro(this.actor._id, this.getStatPath(ev)!);
+      prepareStatMacro(this.actor._id, this.getStatPath(ev)!);
     });
 
     // Talent rollers
@@ -350,10 +350,14 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
       .closest(".stat-container")
       .find(".lancer-stat")[0] as HTMLElement;
 
+    if(!el) el = $(event.currentTarget).siblings(".lancer-stat")[0]
+
     if (el.nodeName === "INPUT") {
       return (<HTMLInputElement>el).name;
     } else if (el.nodeName === "DATA") {
       return (<HTMLDataElement>el).id;
+    } else if (el.nodeName === "SPAN") {
+      return (<HTMLSpanElement>el).getAttribute("data-path");
     } else {
       throw "Error - stat macro was not run on an input or data element";
     }
