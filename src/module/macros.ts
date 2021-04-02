@@ -9,7 +9,7 @@ import {
   LancerPilotWeaponData,
   LancerSkill,
 } from "./item/lancer-item";
-import { LancerActor, LancerPilot } from './actor/lancer-actor';
+import { LancerActor, LancerPilot } from "./actor/lancer-actor";
 import {
   LancerActionMacroData,
   LancerAttackMacroData,
@@ -22,24 +22,49 @@ import {
   LancerTextMacroData,
 } from "./interfaces";
 // Import JSON data
-import { DamageType, EntryType, NpcFeatureType, TagInstance, Pilot, PilotWeapon, MechWeapon, RegDamageData, MechWeaponProfile, NpcFeature, OpCtx, PackedNpcDamageData, PackedDamageData, Damage, TagTemplate, SerUtil, PackedNpcTechData, NpcTechType, RegNpcData, RegNpcTechData, RegMechSystemData, MechSystem, Action, Mech, Deployable, SystemType } from 'machine-mind';
-import { resolve_native_drop, convert_ref_to_native } from './helpers/dragdrop';
+import {
+  DamageType,
+  EntryType,
+  NpcFeatureType,
+  TagInstance,
+  Pilot,
+  PilotWeapon,
+  MechWeapon,
+  RegDamageData,
+  MechWeaponProfile,
+  NpcFeature,
+  OpCtx,
+  PackedNpcDamageData,
+  PackedDamageData,
+  Damage,
+  TagTemplate,
+  SerUtil,
+  PackedNpcTechData,
+  NpcTechType,
+  RegNpcData,
+  RegNpcTechData,
+  RegMechSystemData,
+  MechSystem,
+  Action,
+  Mech,
+  Deployable,
+  SystemType,
+} from "machine-mind";
+import { resolve_native_drop, convert_ref_to_native } from "./helpers/dragdrop";
 import { stringify } from "querystring";
-import { FoundryReg, FoundryRegItemData } from './mm-util/foundry-reg';
-import { resolve_dotpath } from './helpers/commons';
+import { FoundryReg, FoundryRegItemData } from "./mm-util/foundry-reg";
+import { resolve_dotpath } from "./helpers/commons";
 import { mm_wrap_actor } from "./mm-util/helpers";
 import { debug } from "console";
-import { LancerItemType, LancerMechSystemData, LancerMechSystem } from './item/lancer-item';
+import { LancerItemType, LancerMechSystemData, LancerMechSystem } from "./item/lancer-item";
 import { compact_tag_list } from "./helpers/tags";
 import { buildActionHTML, buildDeployableHTML } from "./helpers/item";
 import { System } from "pixi.js";
-import { ActivationTypes } from './enums';
+import { ActivationTypes } from "./enums";
 
 const lp = LANCER.log_prefix;
 
-
 export async function onHotbarDrop(_bar: any, data: any, slot: number) {
-  
   // We set an associated command & title based off the type
   // Everything else gets handled elsewhere
 
@@ -52,21 +77,21 @@ export async function onHotbarDrop(_bar: any, data: any, slot: number) {
   console.log(`${lp} Data dropped on hotbar:`, data);
 
   // Determine if we're using old or new method
-  if("actorId" in data) {
+  if ("actorId" in data) {
     var actorId = data.actorId;
 
     title = data.title;
     itemId = data.itemId;
   } else {
-    var item = <any>(await new FoundryReg().resolve(new OpCtx(), data));
+    var item = <any>await new FoundryReg().resolve(new OpCtx(), data);
     title = item.Name;
-  
-    if(!item) return;
-  
+
+    if (!item) return;
+
     // Is this the way to handle this? Idk, but the only other option I see is changing dragdrop
     // Pilot ID is encoded in reg_name...
     // TODO: There's got to be a better way
-    var actorId = (data['reg_name'].split("|")[0]).split(":")[1]
+    var actorId = data["reg_name"].split("|")[0].split(":")[1];
     itemId = data.id;
   }
 
@@ -130,7 +155,7 @@ export async function onHotbarDrop(_bar: any, data: any, slot: number) {
     // Talent are the only ones (I think??) that we need to name specially
     if (data.type === EntryType.TALENT) {
       img = `systems/lancer/assets/icons/macro-icons/talent.svg`;
-    } 
+    }
     // Pick the image for the hotbar
   } else if (data.type === "Text") {
     command = `game.lancer.prepareTextMacro("${data.actorId}", "${data.title}", {rank: ${data.description}})`;
@@ -144,7 +169,6 @@ export async function onHotbarDrop(_bar: any, data: any, slot: number) {
     command = `game.lancer.prepareOverchargeMacro("${data.actorId}")`;
     img = `systems/lancer/assets/icons/macro-icons/overcharge.svg`;
   }
-
 
   // Until we properly register commands as something macros can have...
   // @ts-ignore
@@ -201,7 +225,7 @@ export async function prepareItemMacro(a: string, i: string, options?: any) {
 
   const item = ownedItemFromString(i, actor);
 
-  if(!item) return;
+  if (!item) return;
 
   // Make a macro depending on the type
   switch (item.data.type) {
@@ -315,12 +339,12 @@ export function getMacroSpeaker(a_id?: string): LancerActor<any> | null {
 }
 
 /**
- * 
+ *
  */
 export async function renderMacroTemplate(actor: Actor, template: string, templateData: any) {
   const html = await renderTemplate(template, templateData);
   let roll = templateData.roll || templateData.attack;
-  return renderMacroHTML(actor,html,roll);
+  return renderMacroHTML(actor, html, roll);
 }
 
 export async function renderMacroHTML(actor: Actor, html: HTMLElement | string, roll?: Roll) {
@@ -432,47 +456,44 @@ async function rollSystemMacro(actor: Actor, data: MechSystem) {
   if (!actor) return Promise.resolve();
 
   // Construct the template
-  const html = await buildSystemHTML(data)
+  const html = await buildSystemHTML(data);
   return renderMacroHTML(actor, html);
 }
 
-async function buildSystemHTML(data:MechSystem): Promise<string> {
-
+async function buildSystemHTML(data: MechSystem): Promise<string> {
   let eff: string | undefined;
   let actions: string | undefined;
   let deployables: string | undefined;
   let useFirstActivation = false;
 
-  if(data.Effect) eff = data.Effect;
+  if (data.Effect) eff = data.Effect;
   else {
     // If our first action doesn't have a name & we don't have an effect then first action is our "effect"
     // Always first action? Or a better way?
     useFirstActivation = data.Actions.length ? !data.Actions[0].Name : false;
   }
 
-  if(data.Actions) {
+  if (data.Actions) {
     actions = data.Actions.map((a: Action, i: number) => {
       return buildActionHTML(a, !i && useFirstActivation);
-    }).join(""); 
+    }).join("");
   }
 
-  if(data.Deployables) {
+  if (data.Deployables) {
     deployables = data.Deployables.map((d: Deployable, i: number) => {
       return buildDeployableHTML(d);
     }).join("");
   }
-  
 
   let html = `<div class="card clipped-bot system-wrapper" style="margin: 0px;">
   <div class="lancer-header ">// SYSTEM :: ${data.Name} //</div>
   ${eff ? eff : ""}
-  ${actions ? actions: ""}
-  ${deployables ? deployables: ""}
+  ${actions ? actions : ""}
+  ${deployables ? deployables : ""}
   ${compact_tag_list("data.Tags", data.Tags, false)}
-</div>`
+</div>`;
   return html;
 }
-
 
 async function rollTalentMacro(actor: Actor, data: LancerTalentMacroData) {
   if (!actor) return Promise.resolve();
@@ -517,7 +538,7 @@ async function prepareAttackMacro({
     overkill: item.isOverkill,
     effect: "",
   };
-  
+
   let weaponData: NpcFeature | PilotWeapon | MechWeaponProfile;
   let pilotEnt: Pilot;
 
@@ -532,7 +553,6 @@ async function prepareAttackMacro({
     mData.acc = 0;
     mData.tags = weaponData.Tags;
     mData.effect = weaponData.Effect;
-
   } else if (actor.data.type === EntryType.PILOT) {
     pilotEnt = (await actor.data.data.derived.mmec_promise).ent;
     let itemEnt: PilotWeapon = (await item.data.data.derived.mmec_promise).ent;
@@ -543,7 +563,6 @@ async function prepareAttackMacro({
     mData.acc = 0;
     mData.tags = weaponData.Tags;
     mData.effect = weaponData.Effect;
-
   } else if (actor.data.type === EntryType.NPC) {
     let tier: number;
     if (item.actor === null) {
@@ -560,15 +579,15 @@ async function prepareAttackMacro({
     // Reduce damage values to only this tier
     // Convert to new Damage type if it's old
     mData.damage = wData.damage[tier].map((d: Damage | PackedDamageData) => {
-      if("type" in d && "val" in d) {
+      if ("type" in d && "val" in d) {
         // Then this is an old damage type which only contains these two values
-        return new Damage({type: d.type, val: d.val.toString()})
+        return new Damage({ type: d.type, val: d.val.toString() });
       } else {
         // This is the new damage type
-        return d
+        return d;
       }
     });
-    
+
     mData.tags = await SerUtil.process_tags(new FoundryReg(), new OpCtx(), wData.tags);
 
     mData.on_hit = wData.on_hit ? wData.on_hit : undefined;
@@ -577,7 +596,6 @@ async function prepareAttackMacro({
     ui.notifications.error(`Error preparing attack macro - ${actor.name} is an unknown type!`);
     return Promise.resolve();
   }
-
 
   // Check for damages that are missing type
   let typeMissing = false;
@@ -590,19 +608,21 @@ async function prepareAttackMacro({
   }
 
   // Options processing
-  if(options) {
-    if(options.accBonus) {
+  if (options) {
+    if (options.accBonus) {
       mData.grit += options.accBonus;
     }
-    if(options.damBonus) {
-      let i = mData.damage.findIndex((dam: RegDamageData) => {return dam.type === options.damBonus.type});
-      if(i >= 0) {
+    if (options.damBonus) {
+      let i = mData.damage.findIndex((dam: RegDamageData) => {
+        return dam.type === options.damBonus.type;
+      });
+      if (i >= 0) {
         // We need to clone so it doesn't go all the way back up to the weapon
-        let damClone = {...mData.damage[i]};
-        if(damClone.val > 0) {
+        let damClone = { ...mData.damage[i] };
+        if (damClone.val > 0) {
           damClone.val = `${damClone.val}+${options.damBonus.val}`;
         } else {
-          damClone.val = options.damBonus.val
+          damClone.val = options.damBonus.val;
         }
         mData.damage[i] = damClone;
       } else {
@@ -727,7 +747,7 @@ export function rollReactionMacro(actor: Actor, data: LancerReactionMacroData) {
  */
 export function prepareCoreActiveMacro(a: string) {
   console.log("DISABLED");
-  debugger
+  debugger;
   return;
 
   /*
@@ -759,7 +779,7 @@ export function prepareCoreActiveMacro(a: string) {
  */
 export function prepareCorePassiveMacro(a: string) {
   console.log("DISABLED");
-  debugger
+  debugger;
   return;
   /*
   // Determine which Actor to speak as
@@ -792,7 +812,7 @@ export function prepareCorePassiveMacro(a: string) {
  */
 export function prepareTextMacro(a: string, title: string, text: string, tags?: TagInstance[]) {
   console.log("DISABLED");
-  debugger
+  debugger;
   return;
   // Determine which Actor to speak as
   /*
@@ -828,7 +848,13 @@ export async function prepareTechMacro(a: string, t: string) {
   if (!actor) return;
 
   // Get the item
-  const item: LancerItem<EntryType.NPC_FEATURE> | LancerItem<EntryType.MECH_SYSTEM> | null = actor.getOwnedItem(t) as LancerItem<EntryType.NPC_FEATURE> | LancerItem<EntryType.MECH_SYSTEM> | null;
+  const item:
+    | LancerItem<EntryType.NPC_FEATURE>
+    | LancerItem<EntryType.MECH_SYSTEM>
+    | null = actor.getOwnedItem(t) as
+    | LancerItem<EntryType.NPC_FEATURE>
+    | LancerItem<EntryType.MECH_SYSTEM>
+    | null;
   if (!item) {
     return ui.notifications.error(
       `Error preparing tech attack macro - could not find Item ${t} owned by Actor ${a}! Did you add the Item to the token, instead of the source Actor?`
@@ -867,9 +893,7 @@ export async function prepareTechMacro(a: string, t: string) {
     mData.tags = await SerUtil.process_tags(new FoundryReg(), new OpCtx(), tData.tags);
     mData.effect = tData.effect ? tData.effect : "";
   } else {
-    ui.notifications.error(
-      `Error rolling tech attack macro`
-    );
+    ui.notifications.error(`Error rolling tech attack macro`);
     return Promise.resolve();
   }
   console.log(`${lp} Tech Attack Macro Item:`, item, mData);
@@ -1011,7 +1035,7 @@ async function rollOverchargeMacro(actor: Actor, data: LancerOverchargeMacroData
  */
 export async function prepareOverheatMacro(a: string) {
   console.log("DISABLED");
-  debugger
+  debugger;
   return;
   /*
   // Determine which Actor to speak as
@@ -1037,7 +1061,7 @@ export async function prepareOverheatMacro(a: string) {
  */
 export async function prepareStructureMacro(a: string) {
   console.log("DISABLED");
-  debugger
+  debugger;
   return;
   /*
   // Determine which Actor to speak as
@@ -1057,13 +1081,24 @@ export async function prepareStructureMacro(a: string) {
    */
 }
 
-export async function prepareActivationMacro(a: string, i: string, type: ActivationTypes, index: number) {
+export async function prepareActivationMacro(
+  a: string,
+  i: string,
+  type: ActivationTypes,
+  index: number
+) {
   // Determine which Actor to speak as
   let actor: Actor | null = getMacroSpeaker(a);
   if (!actor) return;
 
   // Get the item
-  const item: LancerItem<EntryType.NPC_FEATURE> | LancerItem<EntryType.MECH_SYSTEM> | null = actor.getOwnedItem(i) as LancerItem<EntryType.NPC_FEATURE> | LancerItem<EntryType.MECH_SYSTEM> | null;
+  const item:
+    | LancerItem<EntryType.NPC_FEATURE>
+    | LancerItem<EntryType.MECH_SYSTEM>
+    | null = actor.getOwnedItem(i) as
+    | LancerItem<EntryType.NPC_FEATURE>
+    | LancerItem<EntryType.MECH_SYSTEM>
+    | null;
   if (!item) {
     return ui.notifications.error(
       `Error preparing tech attack macro - could not find Item ${i} owned by Actor ${a}! Did you add the Item to the token, instead of the source Actor?`
@@ -1080,41 +1115,47 @@ export async function prepareActivationMacro(a: string, i: string, type: Activat
   // TODO--handle NPC Activations
   if (itemEnt.Type === EntryType.NPC_FEATURE) return;
 
-  switch(type) {
+  switch (type) {
     case ActivationTypes.ACTION:
-      switch(itemEnt.SysType) {
+      switch (itemEnt.SysType) {
         case SystemType.Tech:
-          _prepareTechActionMacro(actorEnt,itemEnt,index);
+          _prepareTechActionMacro(actorEnt, itemEnt, index);
           break;
         default:
-          _prepareTextActionMacro(actorEnt,itemEnt,index);
+          _prepareTextActionMacro(actorEnt, itemEnt, index);
       }
       return;
     case ActivationTypes.DEPLOYABLE:
-      _prepareDeployableMacro(actorEnt,itemEnt,index);
+      _prepareDeployableMacro(actorEnt, itemEnt, index);
       return;
   }
 
   throw Error("You shouldn't be here!");
 }
 
-async function _prepareTextActionMacro(actorEnt: Mech, itemEnt: MechSystem | NpcFeature, index: number) {
-
-    // Support this later...
-  if(itemEnt.Type !== EntryType.MECH_SYSTEM) return;
+async function _prepareTextActionMacro(
+  actorEnt: Mech,
+  itemEnt: MechSystem | NpcFeature,
+  index: number
+) {
+  // Support this later...
+  if (itemEnt.Type !== EntryType.MECH_SYSTEM) return;
 
   let action = itemEnt.Actions[index];
 
-  await renderMacroHTML(actorEnt.flags.orig_entity, buildActionHTML(action, true));
+  await renderMacroHTML(actorEnt.Flags.orig_doc, buildActionHTML(action, true));
 }
 
-async function _prepareTechActionMacro(actorEnt: Mech, itemEnt: MechSystem | NpcFeature, index: number) {
-
-    // Support this later...
-  if(itemEnt.Type !== EntryType.MECH_SYSTEM) return;
+async function _prepareTechActionMacro(
+  actorEnt: Mech,
+  itemEnt: MechSystem | NpcFeature,
+  index: number
+) {
+  // Support this later...
+  if (itemEnt.Type !== EntryType.MECH_SYSTEM) return;
 
   let action = itemEnt.Actions[index];
-  
+
   let mData: LancerActionMacroData = {
     title: itemEnt.Name,
     t_atk: 0,
@@ -1143,17 +1184,18 @@ async function _prepareTechActionMacro(actorEnt: Mech, itemEnt: MechSystem | Npc
     mData.detail = tData.effect ? tData.effect : "";
   } */
 
-
-  await rollTechMacro(actorEnt.flags.orig_entity, mData);
+  await rollTechMacro(actorEnt.Flags.orig_doc, mData);
 }
 
-async function _prepareDeployableMacro(actorEnt: Mech, itemEnt: MechSystem | NpcFeature, index: number) {
+async function _prepareDeployableMacro(
+  actorEnt: Mech,
+  itemEnt: MechSystem | NpcFeature,
+  index: number
+) {
+  // Support this later...
+  if (itemEnt.Type !== EntryType.MECH_SYSTEM) return;
 
-    // Support this later...
-  if(itemEnt.Type !== EntryType.MECH_SYSTEM) return;
+  let dep = itemEnt.Deployables[index];
 
-  let dep = itemEnt.Deployables[index];  
-
-  await renderMacroHTML(actorEnt.flags.orig_entity, buildDeployableHTML(dep, true));
+  await renderMacroHTML(actorEnt.Flags.orig_doc, buildDeployableHTML(dep, true));
 }
-

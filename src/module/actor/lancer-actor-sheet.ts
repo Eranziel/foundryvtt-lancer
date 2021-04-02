@@ -27,12 +27,16 @@ import { LancerActor, LancerActorType } from "./lancer-actor";
 import { prepareActivationMacro, prepareCoreActiveMacro, prepareCorePassiveMacro, prepareItemMacro } from "../macros";
 import { EntryType } from "machine-mind";
 import { ActivationTypes } from "../enums";
+import { CollapseHandler } from "../helpers/collapse";
 const lp = LANCER.log_prefix;
 
 /**
  * Extend the basic ActorSheet
  */
 export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
+  // Tracks collapse state between renders
+  private collapse_handler = new CollapseHandler();
+
   /* -------------------------------------------- */
   /**
    * @override
