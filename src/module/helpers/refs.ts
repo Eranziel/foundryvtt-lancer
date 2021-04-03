@@ -273,7 +273,7 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
 
       if (sys.Actions.length) {
         actions = sys.Actions.map((a: Action, i: number | undefined) => {
-          return buildActionHTML(a, true, i);
+          return buildActionHTML(a, {full: true, num: i});
         }).join("");
       }
 

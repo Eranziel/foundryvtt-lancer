@@ -1,6 +1,5 @@
 import { HelperOptions } from "handlebars";
-import { NpcFeature, NpcFeatureType } from "machine-mind";
-import { ActivationType } from "../enums";
+import { ActivationType, NpcFeature, NpcFeatureType } from "machine-mind";
 import { effect_box, resolve_dotpath, resolve_helper_dotpath } from "./commons";
 import {
   npc_attack_bonus_preview,

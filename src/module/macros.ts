@@ -49,6 +49,7 @@ import {
   Mech,
   Deployable,
   SystemType,
+  ActivationType,
 } from "machine-mind";
 import { resolve_native_drop, convert_ref_to_native } from "./helpers/dragdrop";
 import { stringify } from "querystring";
@@ -58,9 +59,9 @@ import { mm_wrap_actor } from "./mm-util/helpers";
 import { debug } from "console";
 import { LancerItemType, LancerMechSystemData, LancerMechSystem } from "./item/lancer-item";
 import { compact_tag_list } from "./helpers/tags";
-import { buildActionHTML, buildDeployableHTML } from "./helpers/item";
+import { buildActionHTML, buildDeployableHTML, buildSystemHTML } from "./helpers/item";
 import { System } from "pixi.js";
-import { ActivationTypes } from "./enums";
+import { ActivationOptions } from "./enums";
 
 const lp = LANCER.log_prefix;
 
@@ -460,40 +461,6 @@ async function rollSystemMacro(actor: Actor, data: MechSystem) {
   return renderMacroHTML(actor, html);
 }
 
-async function buildSystemHTML(data: MechSystem): Promise<string> {
-  let eff: string | undefined;
-  let actions: string | undefined;
-  let deployables: string | undefined;
-  let useFirstActivation = false;
-
-  if (data.Effect) eff = data.Effect;
-  else {
-    // If our first action doesn't have a name & we don't have an effect then first action is our "effect"
-    // Always first action? Or a better way?
-    useFirstActivation = data.Actions.length ? !data.Actions[0].Name : false;
-  }
-
-  if (data.Actions) {
-    actions = data.Actions.map((a: Action, i: number) => {
-      return buildActionHTML(a, !i && useFirstActivation);
-    }).join("");
-  }
-
-  if (data.Deployables) {
-    deployables = data.Deployables.map((d: Deployable, i: number) => {
-      return buildDeployableHTML(d);
-    }).join("");
-  }
-
-  let html = `<div class="card clipped-bot system-wrapper" style="margin: 0px;">
-  <div class="lancer-header ">// SYSTEM :: ${data.Name} //</div>
-  ${eff ? eff : ""}
-  ${actions ? actions : ""}
-  ${deployables ? deployables : ""}
-  ${compact_tag_list("data.Tags", data.Tags, false)}
-</div>`;
-  return html;
-}
 
 async function rollTalentMacro(actor: Actor, data: LancerTalentMacroData) {
   if (!actor) return Promise.resolve();
@@ -1084,7 +1051,7 @@ export async function prepareStructureMacro(a: string) {
 export async function prepareActivationMacro(
   a: string,
   i: string,
-  type: ActivationTypes,
+  type: ActivationOptions,
   index: number
 ) {
   // Determine which Actor to speak as
@@ -1116,16 +1083,18 @@ export async function prepareActivationMacro(
   if (itemEnt.Type === EntryType.NPC_FEATURE) return;
 
   switch (type) {
-    case ActivationTypes.ACTION:
-      switch (itemEnt.SysType) {
-        case SystemType.Tech:
+    case ActivationOptions.ACTION:
+      switch (itemEnt.Actions[index].Activation) {
+        case ActivationType.FullTech:
+        case ActivationType.Invade:
+        case ActivationType.QuickTech:
           _prepareTechActionMacro(actorEnt, itemEnt, index);
           break;
         default:
           _prepareTextActionMacro(actorEnt, itemEnt, index);
       }
       return;
-    case ActivationTypes.DEPLOYABLE:
+    case ActivationOptions.DEPLOYABLE:
       _prepareDeployableMacro(actorEnt, itemEnt, index);
       return;
   }
@@ -1143,7 +1112,7 @@ async function _prepareTextActionMacro(
 
   let action = itemEnt.Actions[index];
 
-  await renderMacroHTML(actorEnt.Flags.orig_doc, buildActionHTML(action, true));
+  await renderMacroHTML(actorEnt.Flags.orig_doc, buildActionHTML(action, {full: true, tags: itemEnt.Tags}));
 }
 
 async function _prepareTechActionMacro(

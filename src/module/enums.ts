@@ -33,16 +33,6 @@ export enum EffectType {
   Profile = "Profile",
 }
 
-export enum ActivationType {
-  None = "None",
-  Passive = "Passive",
-  Quick = "Quick",
-  Full = "Full",
-  Other = "Other",
-  Reaction = "Reaction",
-  Protocol = "Protocol",
-}
-
 export enum ChargeType {
   Grenade = "Grenade",
   Mine = "Mine",
@@ -65,7 +55,7 @@ export enum NPCTag {
   Squad = "Squad",
 }
 
-export enum ActivationTypes {
+export enum ActivationOptions {
   ACTION = "Action",
   TECH = "Tech",
   ATTACK = "Attack",

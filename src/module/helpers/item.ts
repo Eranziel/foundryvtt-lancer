@@ -27,8 +27,10 @@ import {
   FittingSize,
   Action,
   Deployable,
+  MechSystem,
+  ActivationType,
 } from "machine-mind";
-import { MechWeapon } from "machine-mind";
+import { MechWeapon, TagInstance } from 'machine-mind';
 import { BonusEditDialog } from "../apps/bonus-editor";
 import { TypeIcon } from "../config";
 import {
@@ -54,6 +56,7 @@ import {
   std_x_of_y,
 } from "./commons";
 import { ref_commons, ref_params } from "./refs";
+import { ActivationOptions } from "../enums";
 
 /**
  * Handlebars helper for weapon size selector
@@ -700,17 +703,20 @@ export function license_ref(license: License | null, level: number): string {
 /**
  * Builds the HTML for a given action
  * @param action  Standard action to generate in HTML form
- * @param full    Determines if we should generate full HTML info or just mini version (title & action)
- * @param number  If we're building full, we can pass through a number to denote which index of action 
+ * @param options Options such as:
+ *        full    Determines if we should generate full HTML info or just mini version (title & action)
+ *        number  If we're building full, we can pass through a number to denote which index of action 
  *                this is for macro purposes. Only used for macro-able actions
+ *        tags    Array of TagInstances which can optionally be passed
  * @returns Activation HTML in string form
  */
- export function buildActionHTML(action: Action, full?: boolean, num?:number): string {
+ export function buildActionHTML(action: Action, options: {full?: boolean, num?: number, tags?:TagInstance[]}): string {
   let detailText: string | undefined;
   let chip: string;
+  let tags: string | undefined;
 
   // TODO--can probably do better than this
-  if(full) {
+  if(options.full) {
     detailText = `
       <div class="action-detail">
         ${action.Detail}
@@ -718,13 +724,34 @@ export function license_ref(license: License | null, level: number): string {
     `
   }
 
-  if(num !== undefined) {
-    chip = `<a class="activation-chip activation-${action.Activation.toLowerCase()}" data-activation=${num}>
-              <i class="fas fa-dice-d20"></i>
+  // Not using type yet but let's plan forward a bit
+  let type: ActivationOptions;
+  let icon: string | undefined;
+
+  if(options.num !== undefined) {
+    switch(action.Activation) {
+      case ActivationType.QuickTech:
+      case ActivationType.FullTech:
+      case ActivationType.Invade:
+        type = ActivationOptions.TECH;
+        icon = `<i class="fas fa-dice-d20"></i>`
+        break;
+      default:
+        type = ActivationOptions.ACTION;
+        icon = `<i class="mdi mdi-message"></i>`;
+        break;
+    }
+
+    chip = `<a class="activation-chip activation-${action.Activation.toLowerCase().replace(/\s+/g, '')}" data-activation=${options.num}>
+              ${icon ? icon : ""}
               ${action.Activation.toUpperCase()}
             </a>`
   } else {
-    chip = `<div class="activation-chip activation-${action.Activation.toLowerCase()}">${action.Activation.toUpperCase()}</div>`
+    chip = `<div class="activation-chip activation-${action.Activation.toLowerCase().replace(/\s+/g, '')}">${action.Activation.toUpperCase()}</div>`
+  }
+
+  if(options.tags !== undefined) {
+    tags = compact_tag_list("",options.tags,false);
   }
 
   return `
@@ -734,6 +761,7 @@ export function license_ref(license: License | null, level: number): string {
     </span>
     ${detailText ? detailText : ""}
     ${chip}
+    ${tags ? tags : ""}
   </div>
   `
 }
@@ -777,4 +805,40 @@ export function buildDeployableHTML(dep: Deployable, full?: boolean, num?:number
     ${chip}
   </div>
   `
+}
+
+
+export async function buildSystemHTML(data: MechSystem): Promise<string> {
+  let eff: string | undefined;
+  let actions: string | undefined;
+  let deployables: string | undefined;
+  let useFirstActivation = false;
+
+  if (data.Effect) eff = data.Effect;
+  else {
+    // If our first action doesn't have a name & we don't have an effect then first action is our "effect"
+    // Always first action? Or a better way?
+    useFirstActivation = data.Actions.length ? !data.Actions[0].Name : false;
+  }
+
+  if (data.Actions) {
+    actions = data.Actions.map((a: Action, i: number) => {
+      return buildActionHTML(a, {full: !i && useFirstActivation});
+    }).join("");
+  }
+
+  if (data.Deployables) {
+    deployables = data.Deployables.map((d: Deployable, i: number) => {
+      return buildDeployableHTML(d);
+    }).join("");
+  }
+
+  let html = `<div class="card clipped-bot system-wrapper" style="margin: 0px;">
+  <div class="lancer-header ">// SYSTEM :: ${data.Name} //</div>
+  ${eff ? eff : ""}
+  ${actions ? actions : ""}
+  ${deployables ? deployables : ""}
+  ${compact_tag_list("data.Tags", data.Tags, false)}
+</div>`;
+  return html;
 }

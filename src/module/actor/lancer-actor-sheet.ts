@@ -26,7 +26,7 @@ import { LancerMechWeapon, LancerPilotWeapon } from "../item/lancer-item";
 import { LancerActor, LancerActorType } from "./lancer-actor";
 import { prepareActivationMacro, prepareCoreActiveMacro, prepareCorePassiveMacro, prepareItemMacro, prepareStatMacro } from "../macros";
 import { EntryType } from "machine-mind";
-import { ActivationTypes } from "../enums";
+import { ActivationOptions } from "../enums";
 import { CollapseHandler } from "../helpers/collapse";
 const lp = LANCER.log_prefix;
 
@@ -189,9 +189,9 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
       const deployable = parseInt(el.getAttribute("data-deployable"));
 
       if(!Number.isNaN(activation)) {
-        prepareActivationMacro(this.actor._id, item, ActivationTypes.ACTION, activation);
+        prepareActivationMacro(this.actor._id, item, ActivationOptions.ACTION, activation);
       } else if(!Number.isNaN(deployable)) {
-        prepareActivationMacro(this.actor._id, item, ActivationTypes.DEPLOYABLE, deployable);
+        prepareActivationMacro(this.actor._id, item, ActivationOptions.DEPLOYABLE, deployable);
       } 
     })
 
