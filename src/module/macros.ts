@@ -97,6 +97,12 @@ export async function onHotbarDrop(_bar: any, data: any, slot: number) {
   }
 
   switch (data.type) {
+    case "":
+      if(data.command && data.title && data.icon) {
+        command = `game.lancer.prepareItemMacro("${actorId}", "${itemId}");`;
+        img = `systems/lancer/assets/icons/macro-icons/skill.svg`;
+        title = data.title;
+      }
     case EntryType.SKILL:
       command = `game.lancer.prepareItemMacro("${actorId}", "${itemId}");`;
       img = `systems/lancer/assets/icons/macro-icons/skill.svg`;
@@ -119,6 +125,10 @@ export async function onHotbarDrop(_bar: any, data: any, slot: number) {
       break;
     case EntryType.MECH_SYSTEM:
       command = `game.lancer.prepareItemMacro("${actorId}", "${itemId}");`;
+      img = `systems/lancer/assets/icons/macro-icons/mech_system.svg`;
+      break;
+    case ActivationOptions.ACTION:
+      command = `game.lancer.prepareActivationMacro("${actorId}", "${itemId}", "${ActivationOptions.ACTION}", "${data.number}");`;
       img = `systems/lancer/assets/icons/macro-icons/mech_system.svg`;
       break;
     case EntryType.NPC_FEATURE:
@@ -171,8 +181,6 @@ export async function onHotbarDrop(_bar: any, data: any, slot: number) {
     img = `systems/lancer/assets/icons/macro-icons/overcharge.svg`;
   }
 
-  // Until we properly register commands as something macros can have...
-  // @ts-ignore
   let macro = game.macros.entities.find(
     (m: Macro) => m.name === title && (m.data as any).command === command
   );

@@ -742,7 +742,7 @@ export function license_ref(license: License | null, level: number): string {
         break;
     }
 
-    chip = `<a class="activation-chip activation-${action.Activation.toLowerCase().replace(/\s+/g, '')}" data-activation=${options.num}>
+    chip = `<a class="macroable activation-chip activation-${action.Activation.toLowerCase().replace(/\s+/g, '')}" data-activation=${options.num}>
               ${icon ? icon : ""}
               ${action.Activation.toUpperCase()}
             </a>`

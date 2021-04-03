@@ -87,6 +87,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     const textMacroHandler = (e: DragEvent) => this._onDragTextMacroableStart(e);
     const CAMacroHandler = (e: DragEvent) => this._onDragCoreActiveStart(e);
     const CPMacroHandler = (e: DragEvent) => this._onDragCorePassiveStart(e);
+    const ActionMacroHandler = (e: DragEvent) => this._onDragActivationChipStart(e);
     // TODO: migrate to mech
     // const overchargeMacroHandler = (e: DragEvent) => this._onDragOverchargeStart(e);
     html
@@ -103,8 +104,10 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
           item.addEventListener("dragstart", textMacroHandler, false);
         if (item.classList.contains("core-active-macro"))
           item.addEventListener("dragstart", CAMacroHandler, false);
-        if (item.classList.contains("core-passive-macro"))
-          item.addEventListener("dragstart", CPMacroHandler, false);
+          if (item.classList.contains("core-passive-macro"))
+            item.addEventListener("dragstart", CPMacroHandler, false);
+        if (item.classList.contains("activation-chip"))
+          item.addEventListener("dragstart", ActionMacroHandler, false);
         // TODO: migrate to mech
         // if (item.classList.contains("overcharge-macro"))
         //   item.addEventListener("dragstart", overchargeMacroHandler, false);
@@ -230,6 +233,45 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
       type: "HASE",
       actorId: this.actor._id,
     };
+    event.dataTransfer?.setData("text/plain", JSON.stringify(data));
+  }
+
+  _onDragActivationChipStart(event: DragEvent) {
+    // For talent macros
+    event.stopPropagation(); // Avoids triggering parent event handlers
+
+    let target = <HTMLElement>event.currentTarget;
+
+    let title = target.closest(".action-wrapper")?.querySelector(".action-title")?.textContent;
+    let itemId = target.closest(".item")?.getAttribute("data-id")
+
+    if(!itemId) throw Error("No item found)");
+
+    if(title === undefined)
+      title = this.actor.getOwnedItem(itemId)?.name;
+
+    let data = {
+      itemId: target.closest(".item")?.getAttribute("data-id"),
+      actorId: this.actor._id,
+      type: "",
+      number: 0,
+      title: title,
+    };
+
+    let a = target.getAttribute("data-activation");
+    let d = target.getAttribute("data-deployable");
+
+
+    if(a) {
+      const activation = parseInt(a);
+      data.type = ActivationOptions.ACTION;
+      data.number = activation;
+    } else if(d) {
+      const deployable = parseInt(d);
+      data.type = "DEPLOYABLE";
+      data.number = deployable;
+    } 
+
     event.dataTransfer?.setData("text/plain", JSON.stringify(data));
   }
 

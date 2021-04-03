@@ -124,6 +124,7 @@ Hooks.once("init", async function () {
     prepareOverchargeMacro: macros.prepareOverchargeMacro,
     prepareOverheatMacro: macros.prepareOverheatMacro,
     prepareStructureMacro: macros.prepareStructureMacro,
+    prepareActivationMacro: macros.prepareActivationMacro,
     migrations: migrations,
 
     // For whitespines testing /('o')/
