@@ -36,11 +36,10 @@ import {
   NpcFeature,
   PilotWeapon,
   NpcTemplate,
-  InsinuationRecord,
   InventoriedRegEntry,
 } from "machine-mind";
-import { AnyLancerActor, is_actor_type, LancerActor, LancerActorType } from "../actor/lancer-actor";
-import { AnyLancerItem, is_item_type, LancerItem, LancerItemType } from "../item/lancer-item";
+import { is_actor_type, LancerActor, LancerActorType } from "../actor/lancer-actor";
+import { is_item_type, LancerItem, LancerItemType } from "../item/lancer-item";
 import {
   EntityCollectionWrapper,
   CompendiumWrapper,
@@ -139,28 +138,28 @@ interface RegArgs {
  */
 const cached_regs = new Map<string, FoundryReg>(); // Since regs are stateless, we can just do this
 export class FoundryReg extends Registry {
-  // Give a registry for the provided inventoried item
+  // Give a registry for the provided inventoried item. 
   async switch_reg_inv(for_inv_item: InventoriedRegEntry<EntryType>): Promise<Registry> {
-    // We can usually deduce which to use based on which registry we were recovered from
-    let reg = for_inv_item.Registry as FoundryReg;
-    let new_reg: Registry | null = null;
-    let id = for_inv_item.RegistryID;
+    // Determine based on actor metadata
+    let flags = for_inv_item.Flags as FoundryFlagData<EntryType>;
+    let orig = flags.orig_doc as LancerActor<any>;  
 
-    if (reg.config.actor_source == ACTORS_COMP) {
-      let comp_key = `${ITEMS_COMP_INV}:${id}|${ACTORS_COMP}`;
-      new_reg = await this.switch_reg(comp_key);
-    } else if (reg.config.actor_source == ACTORS_TOKEN) {
-      let token_key = `${ITEMS_TOKEN_INV}:${id}|${ACTORS_TOKEN}`;
-      new_reg = await this.switch_reg(token_key);
-    } else if (reg.config.actor_source == ACTORS_WORLD) {
-      let world_key = `${ITEMS_WORLD_INV}:${id}|${ACTORS_WORLD}`;
-      new_reg = await this.switch_reg(world_key);
-    }
-
-    if (!new_reg) {
-      throw new Error("Failed to switch reg.... hmmmmmm");
+    // If a compendium actor, make a compendium reg
+    if (orig.compendium) {
+      return new FoundryReg({
+        actor_source: "compendium", // Associated actors will come from compendium
+        item_source: ["actor", orig as LancerActor<any>] // Items will come from this actors inventory
+      });
+    } else if (orig.isToken) {
+      return new FoundryReg({
+        actor_source: "token", // Associated actors will probably be tokens, as a first guess. Isn't super important.
+        item_source: ["token", orig.token] // Items will come from token
+      });
     } else {
-      return new_reg;
+      return new FoundryReg({ 
+        actor_source: "world", // Associated actors will come from world
+        item_source: ["actor", orig] // Items will come from actor inventory
+      });
     }
   }
 
@@ -341,8 +340,7 @@ export class FoundryReg extends Registry {
       }
 
       // Otherwise create
-      let new_item = new clazz(for_type, reg, ctx, id, raw);
-      new_item.Flags = flags;
+      let new_item = new clazz(for_type, reg, ctx, id, raw, flags);
       ctx.set(id, new_item);
       await new_item.ready();
 
@@ -427,10 +425,10 @@ export class FoundryReg extends Registry {
         await orig_actor.update({ img, name, token });
       } else {
         // 'tis an item. Update its img and name
-        let orig_doc = orig as AnyLancerItem;
-        let img = orig_doc.data?.img;
-        let name = orig_doc.data?.name;
-        await orig_doc.update({ img, name }, {});
+        let orig_entity = orig as AnyLancerItem;
+        let img = orig_entity.data?.img;
+        let name = orig_entity.data?.name;
+        await orig_entity.update({ img, name }, {});
       }
       */
     };
@@ -495,10 +493,9 @@ export class FoundryRegCat<T extends EntryType> extends RegCat<T> {
   async lookup_raw(
     criteria: (x: RegEntryTypes<T>) => boolean
   ): Promise<{ id: string; val: RegEntryTypes<T> } | null> {
-    // lil' a bit janky, but serviceable. O(N) lookup
+    // Just call criteria on all items. O(n) lookup, which is obviously not ideal, but if it must be done it must be done
     for (let wrapper of await this.handler.enumerate()) {
       if (criteria(wrapper.item)) {
-        // return this.revive_func(this.parent, ctx, wrapper.id, wrapper.item);
         return { id: wrapper.id, val: wrapper.item };
       }
     }
@@ -540,6 +537,29 @@ export class FoundryRegCat<T extends EntryType> extends RegCat<T> {
       return null;
     }
     return this.revive_and_flag(retrieved, ctx);
+  }
+
+  // Directly wrap a foundry document, without going through resolution mechanism. Careful here
+  async wrap_doc(ctx: OpCtx, ent: T extends LancerActorType ? LancerActor<T> : T extends LancerItemType ? LancerItem<T> : never): Promise<LiveEntryTypes<T> | null> {
+    let id = ent.id;
+
+    // ID is different if we are an unlinked token 
+    if(ent instanceof LancerActor && ent.isToken) {
+      id = ent.token.id;
+      
+      // Warn if this isn't housed in a sensible reg. I _think_ it'll still work? But something we'd like to be aware of
+      if((this.parent as FoundryReg).config.actor_source != "token") {
+        console.warn("Wrapping a token doc while not in a token reg.");
+      }
+    }
+
+    let contrived: GetResult<T> = {
+      entity: ent as any,
+      id,
+      item: ent.data.data as any,
+      type: ent.data.type as T
+    };
+    return this.revive_and_flag(contrived, ctx);
   }
 
   // Just call revive on each of the 'entries'

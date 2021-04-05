@@ -1,4 +1,4 @@
-import { LANCER } from "../config";
+import { LANCER, TypeIcon } from "../config";
 import {
   EntryType,
   funcs,
@@ -10,6 +10,8 @@ import {
   RegDeployableData,
   OpCtx,
   LiveEntryTypes,
+  RegEnv,
+  StaticReg,
 } from "machine-mind";
 import { FoundryRegActorData, FoundryRegItemData } from "../mm-util/foundry-reg";
 import { LancerHooks, LancerSubscription } from "../helpers/hooks";
@@ -23,7 +25,7 @@ export function lancerActorInit(data: any) {
   // Some subtype of ActorData
   console.log(`${lp} Initializing new ${data.type}`);
   // If it has an ID it's a duplicate, so we don't want to override values
-  if (!data._id && (data.type === "pilot" || data.type === "npc")) {
+  if (!data._id) {
     // Produce our default data
     let default_data: any = {};
     let display_mode: number = CONST.TOKEN_DISPLAY_MODES.ALWAYS;
@@ -31,6 +33,7 @@ export function lancerActorInit(data: any) {
     switch (data.type) {
       case EntryType.NPC:
         default_data = funcs.defaults.NPC();
+        display_mode = CONST.TOKEN_DISPLAY_MODES.OWNER_HOVER;
         disposition = CONST.TOKEN_DISPOSITIONS.HOSTILE;
         break;
       case EntryType.PILOT:
@@ -50,8 +53,7 @@ export function lancerActorInit(data: any) {
     // Put in the basics
     mergeObject(data, {
       data: default_data,
-      img: `systems/lancer/assets/icons/${data.type}.svg`,
-      // TODO: Update to match data model
+      img: TypeIcon(data.type),
       "token.bar1": { attribute: "derived.current_hp" }, // Default Bar 1 to HP
       "token.bar2": { attribute: "derived.current_heat" }, // Default Bar 2 to Heat
       "token.displayName": display_mode,
@@ -354,132 +356,154 @@ export class LancerActor<T extends LancerActorType> extends Actor {
     super.prepareEmbeddedEntities();
   }
 
-  /** @override
+/** @override
    * We need to both:
    *  - Re-generate all of our subscriptions
    *  - Re-initialize our MM context
    */
-  prepareDerivedData() {
-    // Reset subscriptions for new data
-    this.setupLancerHooks();
+ prepareDerivedData() {
+  // Reset subscriptions for new data
+  this.setupLancerHooks();
 
-    // Declare our derived data with a shorthand "dr" - we will be using it a lot
-    let dr: this["data"]["data"]["derived"];
+  // Declare our derived data with a shorthand "dr" - we will be using it a lot
+  let dr: this["data"]["data"]["derived"];
 
-    // Default in fields
-    let default_bounded = () => ({
-      min: 0,
-      max: 0,
-      value: 0,
-    });
+  // Default in fields
+  let default_bounded = () => ({
+    min: 0,
+    max: 0,
+    value: 0,
+  });
 
-    // Prepare our derived stat data by first initializing an empty obj
-    dr = {
-      edef: 0,
-      evasion: 0,
-      save_target: 0,
-      current_heat: default_bounded(),
-      current_hp: default_bounded(),
-      overshield: default_bounded(),
-      current_structure: default_bounded(),
-      current_stress: default_bounded(),
-      current_repairs: default_bounded(),
-      mmec: null as any, // we will set these momentarily
-      mmec_promise: null as any, // we will set these momentarily
-    };
+  // Prepare our derived stat data by first initializing an empty obj
+  dr = {
+    edef: 0,
+    evasion: 0,
+    save_target: 0,
+    current_heat: default_bounded(),
+    current_hp: default_bounded(),
+    overshield: default_bounded(),
+    current_structure: default_bounded(),
+    current_stress: default_bounded(),
+    current_repairs: default_bounded(),
+    mmec: null as any, // we will set these momentarily
+    mmec_promise: null as any, // we will set these momentarily
+  };
 
-    // Add into our wip data structure
-    this.data.data.derived = dr;
+  // Add into our wip data structure
+  this.data.data.derived = dr;
 
-    // Begin the task of wrapping our actor. When done, it will setup our derived fields - namely, our max values
-    // Need to wait for system ready to avoid having this break if prepareData called during init step (spoiler alert - it is)
-    let mmec_promise = system_ready
-      .then(() => mm_wrap_actor(this, this._actor_ctx))
-      .then(mmec => {
-        // Always save the context
-        // Save the context via defineProperty so it does not show up in JSON stringifies. Also, no point in having it writeable
-        Object.defineProperty(dr, "mmec", {
-          value: mmec,
-          configurable: true,
-          enumerable: false,
-        });
+  // Begin the task of wrapping our actor. When done, it will setup our derived fields - namely, our max values
+  // Need to wait for system ready to avoid having this break if prepareData called during init step (spoiler alert - it is)
+  let mmec_promise = system_ready
+    .then(() => mm_wrap_actor(this, this._actor_ctx))
+    .catch(async (e) => {
+      // This is 90% of the time a token not being able to resolve itself due to canvas not loading yet
+      console.warn("Token unable to prepare - hopefully trying again when canvas ready. In meantime, using dummy");
+      console.warn(e);
 
-        // Changes in max-hp should heal the actor. But certain requirements must be met
-        // - Must know prior (would be in dr.current_hp.max). If 0, do nothing
-        // - Must not be dead. If HP <= 0, do nothing
-        // - New HP must be valid. If 0, do nothing
-        // If above two are true, then set HP = HP - OldMaxHP + NewMaxHP. This should never drop the ent below 1 hp
-        const hp_change_corrector = (curr_hp: number, old_max: number, new_max: number) => {
-          if (curr_hp <= 0) return curr_hp;
-          if (old_max <= 0) return curr_hp;
-          if (new_max <= 0) return curr_hp;
-          let new_hp = curr_hp - old_max + new_max;
-          if (new_hp < 1) new_hp = 1;
-
-          // Return so it can also be set to the MM item
-          return new_hp;
-        };
-
-        // If our max hp changed, do somethin'
-        let curr_hp = mmec.ent.CurrentHP;
-        let corrected_hp = hp_change_corrector(curr_hp, this.prior_max_hp, mmec.ent.MaxHP);
-        if (curr_hp != corrected_hp) {
-          // Cancel christmas. We gotta update ourselves to reflect the new HP change >:(
-          console.warn(
-            "TODO: figure out a more elegant way to update hp based on max hp than calling update in prepareData. Maybe only choice."
-          );
-        }
-
-        // Set the general props. ALl actors have at least these
-        dr.edef = mmec.ent.EDefense;
-        dr.evasion = mmec.ent.Evasion;
-
-        dr.current_hp.value = mmec.ent.CurrentHP;
-        dr.current_hp.max = mmec.ent.MaxHP;
-
-        dr.overshield.value = mmec.ent.Overshield;
-        dr.overshield.max = mmec.ent.MaxHP; // as good a number as any I guess
-
-        // Depending on type, setup derived fields more precisely as able
-        if (mmec.ent.Type != EntryType.PILOT) {
-          let robot = mmec.ent as Mech | Npc | Deployable;
-
-          // All "wow, cool robot" type units have these
-          dr.save_target = robot.SaveTarget;
-          dr.current_heat.max = robot.HeatCapacity;
-          dr.current_heat.value = robot.CurrentHeat;
-
-          if (robot.Type != EntryType.DEPLOYABLE) {
-            // Deployables don't have stress/struct
-            dr.current_structure.max = robot.MaxStructure;
-            dr.current_structure.value = robot.CurrentStructure;
-
-            dr.current_stress.max = robot.MaxStress;
-            dr.current_stress.value = robot.CurrentStress;
-          }
-          if (robot.Type != EntryType.NPC) {
-            // Npcs don't have repairs
-            dr.current_repairs.max = robot.RepairCapacity;
-            dr.current_repairs.value = robot.CurrentRepairs;
-          }
-        }
-
-        // Update prior max hp val
-        this.prior_max_hp = dr.current_hp.max;
-
-        // Now that data is set properly, force token to draw its bars
-        if (this.token && (this.token as any).bars) {
-          (this.token as any).drawBars();
-        } else {
-          for (let token of this.getActiveTokens()) {
-            if ((token as any).bars) {
-              (token as any).drawBars();
-            }
-          }
-        }
-
-        return mmec;
+      // Make a dummy value
+      let ctx = new OpCtx();
+      let env = new RegEnv();
+      let reg = new StaticReg(env);
+      let ent = await reg.get_cat(this.data.type).create_default(ctx);
+      return {
+        reg,
+        ent,
+        ctx
+      };
+    })
+    .then(mmec => {
+      // Always save the context
+      // Save the context via defineProperty so it does not show up in JSON stringifies. Also, no point in having it writeable
+      Object.defineProperty(dr, "mmec", {
+        value: mmec,
+        configurable: true,
+        enumerable: false,
       });
+
+      // Changes in max-hp should heal the actor. But certain requirements must be met
+      // - Must know prior (would be in dr.current_hp.max). If 0, do nothing
+      // - Must not be dead. If HP <= 0, do nothing
+      // - New HP must be valid. If 0, do nothing
+      // If above two are true, then set HP = HP - OldMaxHP + NewMaxHP. This should never drop the ent below 1 hp
+      const hp_change_corrector = (curr_hp: number, old_max: number, new_max: number) => {
+        if (curr_hp <= 0) return curr_hp;
+        if (old_max <= 0) return curr_hp;
+        if (new_max <= 0) return curr_hp;
+        let new_hp = curr_hp - old_max + new_max;
+        if (new_hp < 1) new_hp = 1;
+
+        // Return so it can also be set to the MM item
+        return new_hp;
+      };
+
+      // If our max hp changed, do somethin'
+      let curr_hp = mmec.ent.CurrentHP;
+      let corrected_hp = hp_change_corrector(curr_hp, this.prior_max_hp, mmec.ent.MaxHP);
+      if (curr_hp != corrected_hp) {
+        // Cancel christmas. We gotta update ourselves to reflect the new HP change >:(
+        console.warn(
+          "TODO: figure out a more elegant way to update hp based on max hp than calling update in prepareData. Maybe only choice."
+        );
+      }
+
+      // Set the general props. ALl actors have at least these
+      dr.edef = mmec.ent.EDefense;
+      dr.evasion = mmec.ent.Evasion;
+
+      dr.current_hp.value = mmec.ent.CurrentHP;
+      dr.current_hp.max = mmec.ent.MaxHP;
+
+      dr.overshield.value = mmec.ent.Overshield;
+      dr.overshield.max = mmec.ent.MaxHP; // as good a number as any I guess
+
+      // Depending on type, setup derived fields more precisely as able
+      if (mmec.ent.Type != EntryType.PILOT) {
+        let robot = mmec.ent as Mech | Npc | Deployable;
+
+        // All "wow, cool robot" type units have these
+        dr.save_target = robot.SaveTarget;
+        dr.current_heat.max = robot.HeatCapacity;
+        dr.current_heat.value = robot.CurrentHeat;
+
+        if (robot.Type != EntryType.DEPLOYABLE) {
+          // Deployables don't have stress/struct
+          dr.current_structure.max = robot.MaxStructure;
+          dr.current_structure.value = robot.CurrentStructure;
+
+          dr.current_stress.max = robot.MaxStress;
+          dr.current_stress.value = robot.CurrentStress;
+        }
+        if (robot.Type != EntryType.NPC) {
+          // Npcs don't have repairs
+          dr.current_repairs.max = robot.RepairCapacity;
+          dr.current_repairs.value = robot.CurrentRepairs;
+        }
+      }
+
+      // Update prior max hp val
+      this.prior_max_hp = dr.current_hp.max;
+
+      // Now that data is set properly, force token to draw its bars
+      if (this.isToken && (this.token as any).bars) {
+        // Just redraw self
+        try {
+          (this.token as any).drawBars();
+        } catch (e) {}
+      } else {
+        // Redraw all active tokens
+        for (let token of this.getActiveTokens()) {
+          if ((token as any).bars) {
+            try {
+              (token as any).drawBars();
+            } catch (e) {}
+          }
+        }
+      }
+
+      return mmec;
+    });
 
     // Also assign the promise via defineProperty, similarly to prevent enumerability
     Object.defineProperty(dr, "mmec_promise", {

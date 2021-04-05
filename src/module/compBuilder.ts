@@ -11,8 +11,8 @@ import {
   StaticReg,
 } from "machine-mind";
 import { FoundryReg } from "./mm-util/foundry-reg";
-import { invalidate_cached_pack_map } from "./mm-util/db_abstractions";
 import { has_mmid } from "./item/lancer-item";
+import { invalidate_cached_pack_map } from "./mm-util/db_abstractions";
 
 // Some useful subgroupings
 type MechItemEntryType =
@@ -34,41 +34,6 @@ type PilotItemEntryType =
 
 type ItemEntryType = MechItemEntryType | PilotItemEntryType;
 
-// Unlock all packs
-async function unlock_all() {
-  // Unlock all the packs
-  // @ts-ignore We ignore here because foundry-pc-types does not have the Compendium static var "CONFIG_SETTING"
-  const config = game.settings.get("core", Compendium.CONFIG_SETTING);
-  console.log(`${lp} Pre-unlock config:`, config);
-  for (let p of Object.values(EntryType)) {
-    const key = `world.${p}`;
-    if (!config[key]) {
-      config[key] = { private: false, locked: false };
-    } else {
-      config[key] = mergeObject(config[key], { locked: false });
-    }
-  }
-  // @ts-ignore We ignore here because foundry-pc-types does not have the Compendium static var "CONFIG_SETTING"
-  await game.settings.set("core", Compendium.CONFIG_SETTING, config);
-}
-
-// Lock all packs
-async function lock_all() {
-  // Lock all the packs
-  // @ts-ignore We ignore here because foundry-pc-types does not have the Compendium static var "CONFIG_SETTING"
-  const config = game.settings.get("core", Compendium.CONFIG_SETTING);
-  console.log(`${lp} Pre-lock config:`, config);
-  for (let p of Object.values(EntryType)) {
-    const key = `world.${p}`;
-    if (!config[key]) {
-      config[key] = { private: false, locked: true };
-    }
-    config[key] = mergeObject(config[key], { locked: true });
-  }
-  //@ts-ignore
-  await game.settings.set("core", Compendium.CONFIG_SETTING, config);
-}
-
 // Clear all packs
 export async function clear_all(): Promise<void> {
   // await unlock_all();
@@ -87,58 +52,63 @@ export async function clear_all(): Promise<void> {
 }
 
 // Transfers a category. Returns a list of all the insinuated items
-async function transfer_cat<T extends EntryType>(type: T, from: Registry, to: Registry, ctx: OpCtx): Promise<RegEntry<T>[]> {
-    // Insinuate each item in the cat
-    invalidate_cached_pack_map(type);
-    let from_cat = from.get_cat(type);
-    let promises: Array<Promise<RegEntry<T>>> = [];
+async function transfer_cat<T extends EntryType>(
+  type: T,
+  from: Registry,
+  to: Registry,
+  ctx: OpCtx
+): Promise<RegEntry<T>[]> {
+  // Insinuate each item in the cat
+  invalidate_cached_pack_map(type);
+  let from_cat = from.get_cat(type);
 
-    let new_items: RegEntry<T>[] = [];
-    let linked_items: RegEntry<T>[] = []
+  let new_items: RegEntry<T>[] = [];
+  let linked_items: RegEntry<T>[] = [];
 
-    for (let item of await from_cat.list_live(ctx)) {
-      // Do the deed
-        let new_v = true;
-        let insinuated = await item.insinuate(to, null, {
-          relinker: async (src_item, dest_reg, dest_cat) => {
-            // We try pretty hard to find a matching item.
-            // First by MMID
-            if(has_mmid(src_item)) {
-              let by_id = await dest_cat.lookup_mmid_live(ctx, (src_item as any).ID);
-              if(by_id) {
-                new_v = false;
-                linked_items.push(by_id as any);
-                return by_id;
-              }
-            }
-
-            // Then by name?
-            let by_name = await dest_cat.lookup_live(ctx, cand => cand.name == src_item.Name);
-            if(by_name) {
-              new_v = false;
-              linked_items.push(by_name as any);
-              return by_name;
-            }
-
-            // We give up! Make a new thing
-            return null;
+  for (let item of await from_cat.list_live(ctx)) {
+    // Do the deed
+    let new_v = true;
+    let insinuated = ((await item.insinuate(to, null, {
+      relinker: async (src_item, dest_reg, dest_cat) => {
+        // We try pretty hard to find a matching item.
+        // First by MMID
+        if (has_mmid(src_item)) {
+          let by_id = await dest_cat.lookup_mmid_live(ctx, (src_item as any).ID);
+          if (by_id) {
+            new_v = false;
+            linked_items.push(by_id as any);
+            return by_id;
           }
-        }) as unknown as RegEntry<T>;
-      
-        if(new_v)  {
-          new_items.push(insinuated);
+        } else {
+          let by_name = await dest_cat.lookup_live(ctx, cand => cand.name == src_item.Name);
+          if (by_name) {
+            new_v = false;
+            linked_items.push(by_name as any);
+            return by_name;
+          }
         }
-        if(new_v)
-          console.log(`Import | ${new_v ? "Added" : "Linked"} ${type} ${item.Name}`);
+
+        // We give up! Make a new thing
+        return null;
+      },
+    })) as unknown) as RegEntry<T>;
+
+    if (new_v) {
+      new_items.push(insinuated);
     }
-    return [...new_items, ...linked_items];
+    if (new_v) console.log(`Import | ${new_v ? "Added" : "Linked"} ${type} ${item.Name}`);
+  }
+  return [...new_items, ...linked_items];
 }
 
-export async function import_cp(cp: IContentPack, progress_callback?: (done: number, out_of: number) => void): Promise<void> {
-  // await unlock_all(); // TODO: re-enable i guess?
+export async function import_cp(
+  cp: IContentPack,
+  progress_callback?: (done: number, out_of: number) => void
+): Promise<void> {
+  await set_all_lock(false);
 
   // Stub in a progress callback so we don't have to null check it all the time
-  if(!progress_callback) {
+  if (!progress_callback) {
     progress_callback = (a, b) => {};
   }
 
@@ -152,7 +122,7 @@ export async function import_cp(cp: IContentPack, progress_callback?: (done: num
 
   // Count the total items in the reg
   let total_items = 0;
-  for(let type of Object.values(EntryType)) {
+  for (let type of Object.values(EntryType)) {
     let cat = tmp_lcp_reg.get_cat(type);
     total_items += (await cat.raw_map()).size;
   }
@@ -162,28 +132,57 @@ export async function import_cp(cp: IContentPack, progress_callback?: (done: num
   // We only want to do "top level features" - so no deployables, etc that would be included in a frame/weapon/whatever (as they will be insinuated naturally)
   let comp_reg = new FoundryReg({
     item_source: ["compendium", null],
-    actor_source: "compendium"
+    actor_source: "compendium",
   });
   let dest_ctx = new OpCtx();
 
   let transmit_count = 0;
 
   // Do globals
-  transmit_count += await transfer_cat(EntryType.MANUFACTURER,  tmp_lcp_reg, comp_reg, dest_ctx).then(l => l.length);
+  transmit_count += await transfer_cat(
+    EntryType.MANUFACTURER,
+    tmp_lcp_reg,
+    comp_reg,
+    dest_ctx
+  ).then(l => l.length);
   progress_callback(transmit_count, total_items);
-  transmit_count += await transfer_cat(EntryType.TAG,  tmp_lcp_reg, comp_reg, dest_ctx).then(l => l.length);
+  transmit_count += await transfer_cat(EntryType.TAG, tmp_lcp_reg, comp_reg, dest_ctx).then(
+    l => l.length
+  );
   progress_callback(transmit_count, total_items);
-  
+
   let errata: EntryType[] = [EntryType.DEPLOYABLE, EntryType.TAG, EntryType.MANUFACTURER];
 
   // Do the rest
   for (let type of Object.values(EntryType)) {
     // Skip if subtype
     if (!errata.includes(type)) {
-      transmit_count += await transfer_cat(type, tmp_lcp_reg, comp_reg, dest_ctx).then(l => l.length);
+      transmit_count += await transfer_cat(type, tmp_lcp_reg, comp_reg, dest_ctx).then(
+        l => l.length
+      );
       progress_callback(transmit_count, total_items);
     }
   }
 
   progress_callback(transmit_count, total_items);
+  await set_all_lock(true);
+}
+
+// Lock/Unlock all packs
+async function set_all_lock(lock: boolean) {
+  // Unlock all the packs
+  // @ts-ignore We ignore here because foundry-pc-types does not have the Compendium static var "CONFIG_SETTING"
+  const config = game.settings.get("core", Compendium.CONFIG_SETTING);
+  console.log(`${lp} Pre-unlock config:`, config);
+
+  for (let p of Object.values(EntryType)) {
+    const key = `world.${p}`;
+    if (!config[key]) {
+      config[key] = { private: false, locked: lock };
+    } else {
+      config[key] = mergeObject(config[key], { locked: lock });
+    }
+  }
+  // @ts-ignore We ignore here because foundry-pc-types does not have the Compendium static var "CONFIG_SETTING"
+  await game.settings.set("core", Compendium.CONFIG_SETTING, config);
 }
