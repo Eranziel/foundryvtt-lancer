@@ -56,7 +56,7 @@ import {
   std_x_of_y,
 } from "./commons";
 import { ref_commons, ref_params } from "./refs";
-import { ActivationOptions } from "../enums";
+import { ActivationOptions, ChipIcons } from "../enums";
 
 /**
  * Handlebars helper for weapon size selector
@@ -710,48 +710,49 @@ export function license_ref(license: License | null, level: number): string {
  *        tags    Array of TagInstances which can optionally be passed
  * @returns Activation HTML in string form
  */
- export function buildActionHTML(action: Action, options: {full?: boolean, num?: number, tags?:TagInstance[]}): string {
+ export function buildActionHTML(action: Action, options?: {full?: boolean, num?: number, tags?:TagInstance[]}): string {
   let detailText: string | undefined;
-  let chip: string;
+  let chip: string | undefined;
   let tags: string | undefined;
 
   // TODO--can probably do better than this
-  if(options.full) {
-    detailText = `
-      <div class="action-detail">
-        ${action.Detail}
-      </div>
-    `
-  }
-
-  // Not using type yet but let's plan forward a bit
-  let type: ActivationOptions;
-  let icon: string | undefined;
-
-  if(options.num !== undefined) {
-    switch(action.Activation) {
-      case ActivationType.QuickTech:
-      case ActivationType.FullTech:
-      case ActivationType.Invade:
-        type = ActivationOptions.TECH;
-        icon = `<i class="fas fa-dice-d20"></i>`
-        break;
-      default:
-        type = ActivationOptions.ACTION;
-        icon = `<i class="mdi mdi-message"></i>`;
-        break;
+  if(options) {
+    if(options.full) {
+      detailText = `
+        <div class="action-detail">
+          ${action.Detail}
+        </div>
+      `
     }
 
-    chip = `<a class="macroable activation-chip activation-${action.Activation.toLowerCase().replace(/\s+/g, '')}" data-activation=${options.num}>
-              ${icon ? icon : ""}
-              ${action.Activation.toUpperCase()}
-            </a>`
-  } else {
-    chip = `<div class="activation-chip activation-${action.Activation.toLowerCase().replace(/\s+/g, '')}">${action.Activation.toUpperCase()}</div>`
+    // Not using type yet but let's plan forward a bit
+    let type: ActivationOptions;
+    let icon: string | undefined;
+
+    if(options.num !== undefined) {
+      switch(action.Activation) {
+        case ActivationType.QuickTech:
+        case ActivationType.FullTech:
+        case ActivationType.Invade:
+          type = ActivationOptions.TECH;
+          icon = ChipIcons.Roll;
+          break;
+        default:
+          type = ActivationOptions.ACTION;
+          icon = ChipIcons.Chat;
+          break;
+      }
+
+      chip = buildChipHTML(action.Activation, {icon: icon, num: options.num})
+    } 
+
+    if(options.tags !== undefined) {
+      tags = compact_tag_list("",options.tags,false);
+    }
   }
 
-  if(options.tags !== undefined) {
-    tags = compact_tag_list("",options.tags,false);
+  if(!chip) {
+    chip = buildChipHTML(action.Activation);
   }
 
   return `
@@ -777,6 +778,7 @@ export function license_ref(license: License | null, level: number): string {
 export function buildDeployableHTML(dep: Deployable, full?: boolean, num?:number): string {
   let detailText: string | undefined;
   let chip: string;
+  let activation: ActivationType | undefined;
 
   // TODO--can probably do better than this
   if(full) {
@@ -785,15 +787,27 @@ export function buildDeployableHTML(dep: Deployable, full?: boolean, num?:number
         ${dep.Detail}
       </div>
     `
+    /*
+    Until further notice, Actions in Deployables are just... not
+    if(dep.Actions.length) {
+      detailText += dep.Actions.map((a) => {return buildActionHTML(a)})
+    } */
   }
 
+  // All places we could get our activation, in preferred order
+  let activationSources = [dep.Activation,dep.Redeploy,dep.Recall,dep.Actions.length ? dep.Actions[0].Activation: ActivationType.None]
+  for (var i = 0;i < activationSources.length;i++) {
+    if(activationSources[i] !== ActivationType.None) {
+      activation = activationSources[i];
+    }
+  }
+
+  if(!activation) activation = ActivationType.None;
+
   if(num !== undefined) {
-    chip = `<a class="activation-chip activation-${dep.Activation.toLowerCase()}" data-deployable=${num}>
-              <i class="cci cci-deployable"></i>
-              ${dep.Activation.toUpperCase()}
-            </a>`
+    chip = buildChipHTML(activation,{icon: ChipIcons.Deployable,num: num,isDep: true});
   } else {
-    chip = `<div class="activation-chip activation-${dep.Activation.toLowerCase()}">${dep.Activation.toUpperCase()}</div>`
+    chip = buildChipHTML(activation);
   }
 
   return `
@@ -807,6 +821,16 @@ export function buildDeployableHTML(dep: Deployable, full?: boolean, num?:number
   `
 }
 
+export function buildChipHTML(activation: ActivationType, macroData?: {icon: string, num: number, isDep?: boolean}): string {
+  if(macroData)
+    return `<a class="macroable activation-chip activation-${activation.toLowerCase().replace(/\s+/g, '')}" data-${macroData.isDep ? "deployable" : "activation"}=${macroData.num}>
+            ${macroData.icon ? macroData.icon : ""}
+            ${activation.toUpperCase()}
+          </a>`
+  else
+    return `<div class="activation-chip activation-${activation.toLowerCase()}">${activation.toUpperCase()}</div>`
+
+}
 
 export async function buildSystemHTML(data: MechSystem): Promise<string> {
   let eff: string | undefined;

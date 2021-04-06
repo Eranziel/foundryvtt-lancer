@@ -27,6 +27,14 @@
     {{{stat-view-card      "ATTACK"      "cci cci-heart"            "mm.ent.AttackBonus" }}}
     --}}
     {{{overcharge-button "mm.ent.CurrentOvercharge" }}}
+    <div class="flexcol card clipped">
+      <div class="lancer-header" style="right: .65em;position: relative;">
+        <span class="major">CORE</span>
+      </div>
+      <div class="flexrow stat-container">
+        <input name="mm.ent.CurrentCoreEnergy" class="core-power-toggle mdi mdi-battery" style="margin:auto" type="checkbox" data-dtype="Boolean" {{checked mm.ent.CurrentCoreEnergy}}/>
+      </div>
+    </div>
 
     <div class="card clipped double">
       <div class="lancer-header ">

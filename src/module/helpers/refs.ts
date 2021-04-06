@@ -17,6 +17,7 @@ import {
 import { System } from "pixi.js";
 import { is_actor_type, LancerActor } from "../actor/lancer-actor";
 import { GENERIC_ITEM_ICON, LANCER, TypeIcon } from "../config";
+import { LancerMacroData } from "../interfaces";
 import { is_item_type, LancerItem, LancerItemType } from "../item/lancer-item";
 import { FoundryFlagData, FoundryReg } from "../mm-util/foundry-reg";
 import { gentle_merge, resolve_dotpath, resolve_helper_dotpath } from "./commons";
@@ -283,12 +284,18 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
         }).join("");
       }
 
+      let macroData: LancerMacroData = {
+        iconPath: `systems/lancer/assets/icons/macro-icons/mech_system.svg`,
+        title: sys.Name,
+        command: `game.lancer.prepareItemMacro("${sys.Flags.orig_doc.actor._id}", "${sys.Flags.orig_doc._id}")`
+      }
+
       let str = `<li class="card clipped mech-system-compact item ${
         sys.SysType === SystemType.Tech ? "tech-item" : ""
       }" ${ref_params(cd.ref)}>
         <div class="lancer-header" style="grid-area: 1/1/2/3; display: flex">
           <i class="cci cci-system i--m"> </i>
-          <a class="system-macro macroable"><i class="mdi mdi-message"></i></a>
+          <a class="lancer-macro" data-macro="${btoa(encodeURI(JSON.stringify(macroData)))}"><i class="mdi mdi-message"></i></a>
           <span class="minor grow">${sys.Name}</span>
           <div class="ref-list-controls">
           <a class="gen-control i--dark" data-action="${trash_action}" data-path="${item_path}"><i class="fas fa-trash"></i></a>

@@ -137,3 +137,9 @@ declare interface LancerOverchargeMacroData {
   level: number;
   roll: Roll;
 }
+
+declare interface LancerMacroData {
+  command: string;
+  iconPath?: string;
+  title: string;
+}

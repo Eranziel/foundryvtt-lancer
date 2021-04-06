@@ -89,14 +89,18 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     const CAMacroHandler = (e: DragEvent) => this._onDragCoreActiveStart(e);
     const CPMacroHandler = (e: DragEvent) => this._onDragCorePassiveStart(e);
     const ActionMacroHandler = (e: DragEvent) => this._onDragActivationChipStart(e);
+    const EncodedMacroHandler = (e: DragEvent) => this._onDragEncodedMacroStart(e);
     // TODO: migrate to mech
     // const overchargeMacroHandler = (e: DragEvent) => this._onDragOverchargeStart(e);
     html
       .find('li[class*="item"]')
       .add('span[class*="item"]')
       .add('[class*="macroable"]')
+      .add('[class*="lancer-macro"]')
       .each((i: number, item: any) => {
         if (item.classList.contains("inventory-header")) return;
+        if (item.classList.contains("lancer-macro"))
+          item.addEventListener("dragstart",EncodedMacroHandler,false);
         if (item.classList.contains("stat-macro"))
           item.addEventListener("dragstart", statMacroHandler, false);
         if (item.classList.contains("talent-macro"))
@@ -120,6 +124,18 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
             , false);
         item.setAttribute("draggable", "true");
       });
+  }
+
+  _onDragEncodedMacroStart(e: DragEvent) {
+    // For macros with encoded data
+    e.stopPropagation(); 
+    
+    let encoded = (<HTMLElement>e.currentTarget).getAttribute("data-macro");
+
+    if(!encoded) throw Error("No macro data available")
+
+    let data = JSON.parse(decodeURI(atob(encoded)))
+    e.dataTransfer?.setData("text/plain", JSON.stringify(data));
   }
 
   _activateMacroListeners(html: JQuery) {

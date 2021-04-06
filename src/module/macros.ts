@@ -73,112 +73,114 @@ export async function onHotbarDrop(_bar: any, data: any, slot: number) {
   let title = "";
   let img = "systems/lancer/assets/icons/macro-icons/d20-framed.svg";
 
-  let itemId = "error";
-
-  console.log(`${lp} Data dropped on hotbar:`, data);
-
-  // Determine if we're using old or new method
-  if ("actorId" in data) {
-    var actorId = data.actorId;
-
+  // Grab new encoded data ASAP
+  if(data.command && data.title) {
+    command = data.command,
+    img = data.iconPath ? data.iconPath : `systems/lancer/assets/icons/macro-icons/skill.svg`;
     title = data.title;
-    itemId = data.itemId;
-  } else {
-    var item = <any>await new FoundryReg().resolve(new OpCtx(), data);
-    title = item.Name;
+    } else {
 
-    if (!item) return;
+    let itemId = "error";
 
-    // Is this the way to handle this? Idk, but the only other option I see is changing dragdrop
-    // Pilot ID is encoded in reg_name...
-    // TODO: There's got to be a better way
-    var actorId = data["reg_name"].split("|")[0].split(":")[1];
-    itemId = data.id;
-  }
+    console.log(`${lp} Data dropped on hotbar:`, data);
 
-  switch (data.type) {
-    case "":
-      if(data.command && data.title && data.icon) {
+    // Determine if we're using old or new method
+    if ("actorId" in data) {
+      var actorId = data.actorId;
+
+      title = data.title;
+      itemId = data.itemId;
+    } else {
+      var item = <any>await new FoundryReg().resolve(new OpCtx(), data);
+      title = item.Name;
+
+      if (!item) return;
+
+      // Is this the way to handle this? Idk, but the only other option I see is changing dragdrop
+      // Pilot ID is encoded in reg_name...
+      // TODO: There's got to be a better way
+      var actorId = data["reg_name"].split("|")[0].split(":")[1];
+      itemId = data.id;
+    }
+
+    switch (data.type) {
+      case EntryType.SKILL:
         command = `game.lancer.prepareItemMacro("${actorId}", "${itemId}");`;
         img = `systems/lancer/assets/icons/macro-icons/skill.svg`;
-        title = data.title;
-      }
-    case EntryType.SKILL:
-      command = `game.lancer.prepareItemMacro("${actorId}", "${itemId}");`;
-      img = `systems/lancer/assets/icons/macro-icons/skill.svg`;
-      break;
-    case EntryType.TALENT:
-      command = `game.lancer.prepareItemMacro("${actorId}", "${itemId}", {rank: ${data.rank}});`;
-      img = `systems/lancer/assets/icons/macro-icons/talent.svg`;
-      break;
-    case EntryType.CORE_BONUS:
-      img = `systems/lancer/assets/icons/macro-icons/corebonus.svg`;
-      break;
-    case EntryType.PILOT_GEAR:
-      command = `game.lancer.prepareItemMacro("${actorId}", "${itemId}");`;
-      img = `systems/lancer/assets/icons/macro-icons/generic_item.svg`;
-      break;
-    case EntryType.PILOT_WEAPON:
-    case EntryType.MECH_WEAPON:
-      command = `game.lancer.prepareItemMacro("${actorId}", "${itemId}");`;
-      img = `systems/lancer/assets/icons/macro-icons/mech_weapon.svg`;
-      break;
-    case EntryType.MECH_SYSTEM:
-      command = `game.lancer.prepareItemMacro("${actorId}", "${itemId}");`;
-      img = `systems/lancer/assets/icons/macro-icons/mech_system.svg`;
-      break;
-    case ActivationOptions.ACTION:
-      command = `game.lancer.prepareActivationMacro("${actorId}", "${itemId}", "${ActivationOptions.ACTION}", "${data.number}");`;
-      img = `systems/lancer/assets/icons/macro-icons/mech_system.svg`;
-      break;
-    case EntryType.NPC_FEATURE:
-      switch (item.FeatureType) {
-        case NpcFeatureType.Reaction:
-          command = `game.lancer.prepareItemMacro("${actorId}", "${itemId}");`;
-          img = `systems/lancer/assets/icons/macro-icons/reaction.svg`;
-          break;
-        case NpcFeatureType.System:
-          command = `game.lancer.prepareItemMacro("${actorId}", "${itemId}");`;
-          img = `systems/lancer/assets/icons/macro-icons/mech_system.svg`;
-          break;
-        case NpcFeatureType.Trait:
-          command = `game.lancer.prepareItemMacro("${actorId}", "${itemId}");`;
-          img = `systems/lancer/assets/icons/macro-icons/trait.svg`;
-          break;
-        case NpcFeatureType.Tech:
-          command = `game.lancer.prepareItemMacro("${actorId}", "${itemId}");`;
-          img = `systems/lancer/assets/icons/macro-icons/tech_quick.svg`;
-          break;
-        case NpcFeatureType.Weapon:
-          command = `game.lancer.prepareItemMacro("${actorId}", "${itemId}");`;
-          img = `systems/lancer/assets/icons/macro-icons/mech_weapon.svg`;
-          break;
-      }
-      break;
-    case "HASE":
-      command = `game.lancer.prepareStatMacro("${actorId}", "${data.dataPath}");`;
-  }
-
-  // TODO: Figure out if I am really going down this route and, if so, switch to a switch
-  if (data.type === "actor") {
-    title = data.title;
-  } else if (data.type === "pilot_weapon") {
-    // Talent are the only ones (I think??) that we need to name specially
-    if (data.type === EntryType.TALENT) {
-      img = `systems/lancer/assets/icons/macro-icons/talent.svg`;
+        break;
+      case EntryType.TALENT:
+        command = `game.lancer.prepareItemMacro("${actorId}", "${itemId}", {rank: ${data.rank}});`;
+        img = `systems/lancer/assets/icons/macro-icons/talent.svg`;
+        break;
+      case EntryType.CORE_BONUS:
+        img = `systems/lancer/assets/icons/macro-icons/corebonus.svg`;
+        break;
+      case EntryType.PILOT_GEAR:
+        command = `game.lancer.prepareItemMacro("${actorId}", "${itemId}");`;
+        img = `systems/lancer/assets/icons/macro-icons/generic_item.svg`;
+        break;
+      case EntryType.PILOT_WEAPON:
+      case EntryType.MECH_WEAPON:
+        command = `game.lancer.prepareItemMacro("${actorId}", "${itemId}");`;
+        img = `systems/lancer/assets/icons/macro-icons/mech_weapon.svg`;
+        break;
+      case EntryType.MECH_SYSTEM:
+        command = `game.lancer.prepareItemMacro("${actorId}", "${itemId}");`;
+        img = `systems/lancer/assets/icons/macro-icons/mech_system.svg`;
+        break;
+      case ActivationOptions.ACTION:
+        command = `game.lancer.prepareActivationMacro("${actorId}", "${itemId}", "${ActivationOptions.ACTION}", "${data.number}");`;
+        img = `systems/lancer/assets/icons/macro-icons/mech_system.svg`;
+        break;
+      case EntryType.NPC_FEATURE:
+        switch (item.FeatureType) {
+          case NpcFeatureType.Reaction:
+            command = `game.lancer.prepareItemMacro("${actorId}", "${itemId}");`;
+            img = `systems/lancer/assets/icons/macro-icons/reaction.svg`;
+            break;
+          case NpcFeatureType.System:
+            command = `game.lancer.prepareItemMacro("${actorId}", "${itemId}");`;
+            img = `systems/lancer/assets/icons/macro-icons/mech_system.svg`;
+            break;
+          case NpcFeatureType.Trait:
+            command = `game.lancer.prepareItemMacro("${actorId}", "${itemId}");`;
+            img = `systems/lancer/assets/icons/macro-icons/trait.svg`;
+            break;
+          case NpcFeatureType.Tech:
+            command = `game.lancer.prepareItemMacro("${actorId}", "${itemId}");`;
+            img = `systems/lancer/assets/icons/macro-icons/tech_quick.svg`;
+            break;
+          case NpcFeatureType.Weapon:
+            command = `game.lancer.prepareItemMacro("${actorId}", "${itemId}");`;
+            img = `systems/lancer/assets/icons/macro-icons/mech_weapon.svg`;
+            break;
+        }
+        break;
+      case "HASE":
+        command = `game.lancer.prepareStatMacro("${actorId}", "${data.dataPath}");`;
     }
-    // Pick the image for the hotbar
-  } else if (data.type === "Text") {
-    command = `game.lancer.prepareTextMacro("${data.actorId}", "${data.title}", {rank: ${data.description}})`;
-  } else if (data.type === "Core-Active") {
-    command = `game.lancer.prepareCoreActiveMacro("${data.actorId}")`;
-    img = `systems/lancer/assets/icons/macro-icons/corebonus.svg`;
-  } else if (data.type === "Core-Passive") {
-    command = `game.lancer.prepareCorePassiveMacro("${data.actorId}")`;
-    img = `systems/lancer/assets/icons/macro-icons/corebonus.svg`;
-  } else if (data.type === "overcharge") {
-    command = `game.lancer.prepareOverchargeMacro("${data.actorId}")`;
-    img = `systems/lancer/assets/icons/macro-icons/overcharge.svg`;
+
+    // TODO: Figure out if I am really going down this route and, if so, switch to a switch
+    if (data.type === "actor") {
+      title = data.title;
+    } else if (data.type === "pilot_weapon") {
+      // Talent are the only ones (I think??) that we need to name specially
+      if (data.type === EntryType.TALENT) {
+        img = `systems/lancer/assets/icons/macro-icons/talent.svg`;
+      }
+      // Pick the image for the hotbar
+    } else if (data.type === "Text") {
+      command = `game.lancer.prepareTextMacro("${data.actorId}", "${data.title}", {rank: ${data.description}})`;
+    } else if (data.type === "Core-Active") {
+      command = `game.lancer.prepareCoreActiveMacro("${data.actorId}")`;
+      img = `systems/lancer/assets/icons/macro-icons/corebonus.svg`;
+    } else if (data.type === "Core-Passive") {
+      command = `game.lancer.prepareCorePassiveMacro("${data.actorId}")`;
+      img = `systems/lancer/assets/icons/macro-icons/corebonus.svg`;
+    } else if (data.type === "overcharge") {
+      command = `game.lancer.prepareOverchargeMacro("${data.actorId}")`;
+      img = `systems/lancer/assets/icons/macro-icons/overcharge.svg`;
+    }
   }
 
   let macro = game.macros.entities.find(
@@ -343,6 +345,9 @@ export function getMacroSpeaker(a_id?: string): LancerActor<any> | null {
   }
   if (!actor || (a_id && actor.id !== a_id)) {
     actor = game.actors.get(a_id!);
+  }
+  if (!actor) {
+    ui.notifications.warn(`Failed to find Actor for macro. Do you need to select a token?`);
   }
   return actor ? (actor as LancerActor<any>) : null;
 }

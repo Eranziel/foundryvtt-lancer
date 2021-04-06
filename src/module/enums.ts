@@ -61,3 +61,9 @@ export enum ActivationOptions {
   ATTACK = "Attack",
   DEPLOYABLE = "Deployable"
 }
+
+export enum ChipIcons {
+  Roll = `<i class="fas fa-dice-d20"></i>`,
+  Chat =  `<i class="mdi mdi-message"></i>`,
+  Deployable = `<i class="cci cci-deployable"></i>`
+}
