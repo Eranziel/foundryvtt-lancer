@@ -99,8 +99,11 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
       .add('[class*="lancer-macro"]')
       .each((i: number, item: any) => {
         if (item.classList.contains("inventory-header")) return;
-        if (item.classList.contains("lancer-macro"))
+        item.setAttribute("draggable", "true");
+        if (item.classList.contains("lancer-macro")) {
           item.addEventListener("dragstart",EncodedMacroHandler,false);
+          return;
+        }
         if (item.classList.contains("stat-macro"))
           item.addEventListener("dragstart", statMacroHandler, false);
         if (item.classList.contains("talent-macro"))
@@ -122,7 +125,6 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
             console.log("A")
           }
             , false);
-        item.setAttribute("draggable", "true");
       });
   }
 
@@ -206,7 +208,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     });
 
     // Action-chip (system? Or broader?) macros
-    html.find("a.activation-chip").on("click",(ev: JQuery.ClickEvent) => {
+    html.find("a.activation-chip:not(.lancer-macro)").on("click",(ev: JQuery.ClickEvent) => {
       ev.stopPropagation();
 
       const el = ev.currentTarget;

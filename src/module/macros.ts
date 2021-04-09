@@ -735,30 +735,49 @@ export function rollReactionMacro(actor: Actor, data: LancerReactionMacroData) {
  * @param a     String of the actor ID to roll the macro as, and who we're getting core info for
  */
 export function prepareCoreActiveMacro(a: string) {
-  console.log("DISABLED");
-  debugger;
-  return;
-
-  /*
   // Determine which Actor to speak as
-  let actor: LancerActor | null = getMacroSpeaker(a);
-  if (!actor) return;
+  let mech: LancerActor<EntryType.MECH> | null = getMacroSpeaker(a);
+  if (!mech) return;
 
-  let frame: LancerFrameItemData | null = actor.getCurrentFrame();
+  var ent = mech.data.data.derived.mmec.ent;
+  if(!ent.Frame) return;
 
-  if (!frame) {
-    // Could probably handle this better eventually
-    return;
+  if(!ent.CurrentCoreEnergy) {
+    ui.notifications.warn(`No core power remaining on this frame!`);
+    return;    
   }
 
   let mData: LancerTextMacroData = {
-    title: frame.data.core_system.active_name,
-    description: frame.data.core_system.active_effect,
-    tags: frame.data.core_system.tags,
+    title: ent.Frame.CoreSystem.ActiveName,
+    description: ent.Frame.CoreSystem.ActiveEffect,
+    tags: ent.Frame.CoreSystem.Tags
   };
 
-  rollTextMacro(actor, mData).then();
-  */
+
+  // TODO--setting for this?
+  new Dialog({
+    title: "Consume Core Power?",
+    content: "Consume your mech's core power?",
+    buttons: {
+      submit: {
+        icon: '<i class="fas fa-check"></i>',
+        label: "Yes",
+        callback: async dlg => {
+          mech?.update({"data.current_core_energy": Math.max(ent.CurrentCoreEnergy - 1,0)})
+          console.log(
+            `Automatically consumed core power for ${ent.ID}`
+          );
+        },
+      },
+      cancel: {
+        icon: '<i class="fas fa-times"></i>',
+        label: "No"
+      },
+    },
+    default: "submit"
+  }).render(true);
+
+  rollTextMacro(mech, mData).then();
 }
 
 /**
@@ -963,7 +982,7 @@ export async function prepareOverchargeMacro(a: string) {
   }
 
   // Validate that we're overcharging a mech
-  if (actor.data.type !== "mech") {
+  if (actor.data.type !== EntryType.MECH) {
     ui.notifications.warn(`Only mechs can overcharge!`);
     return null;
   }

@@ -65,5 +65,6 @@ export enum ActivationOptions {
 export enum ChipIcons {
   Roll = `<i class="fas fa-dice-d20"></i>`,
   Chat =  `<i class="mdi mdi-message"></i>`,
-  Deployable = `<i class="cci cci-deployable"></i>`
+  Deployable = `<i class="cci cci-deployable"></i>`,
+  Core = `<i class="cci cci-corebonus"></i>`
 }

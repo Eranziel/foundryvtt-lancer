@@ -57,6 +57,8 @@ import {
 } from "./commons";
 import { ref_commons, ref_params } from "./refs";
 import { ActivationOptions, ChipIcons } from "../enums";
+import { LancerMacroData } from "../interfaces";
+import { encodeMacroData } from '../macros';
 
 /**
  * Handlebars helper for weapon size selector
@@ -727,7 +729,7 @@ export function license_ref(license: License | null, level: number): string {
 
     // Not using type yet but let's plan forward a bit
     let type: ActivationOptions;
-    let icon: string | undefined;
+    let icon: ChipIcons | undefined;
 
     if(options.num !== undefined) {
       switch(action.Activation) {
@@ -821,13 +823,20 @@ export function buildDeployableHTML(dep: Deployable, full?: boolean, num?:number
   `
 }
 
-export function buildChipHTML(activation: ActivationType, macroData?: {icon: string, num: number, isDep?: boolean}): string {
-  if(macroData)
-    return `<a class="macroable activation-chip activation-${activation.toLowerCase().replace(/\s+/g, '')}" data-${macroData.isDep ? "deployable" : "activation"}=${macroData.num}>
+export function buildChipHTML(activation: ActivationType, macroData?: {icon?: ChipIcons, num?: number, isDep?: boolean, fullData?: LancerMacroData}): string {
+  if(macroData && (macroData?.fullData || (macroData?.num !== undefined))) {
+    if(!macroData.icon) 
+      macroData.icon = ChipIcons.Chat;
+    let data: string | undefined;
+    if(macroData?.fullData)
+      data = `data-macro=${encodeMacroData(macroData.fullData)}`;
+    else
+      data = `data-${macroData.isDep ? "deployable" : "activation"}=${macroData.num}`;
+    return `<a class="${macroData?.fullData ? 'lancer-macro' : `macroable`} activation-chip activation-${activation.toLowerCase().replace(/\s+/g, '')}" ${data}>
             ${macroData.icon ? macroData.icon : ""}
             ${activation.toUpperCase()}
           </a>`
-  else
+  } else
     return `<div class="activation-chip activation-${activation.toLowerCase()}">${activation.toUpperCase()}</div>`
 
 }

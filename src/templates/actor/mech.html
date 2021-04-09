@@ -35,13 +35,21 @@
         <input name="mm.ent.CurrentCoreEnergy" class="core-power-toggle mdi mdi-battery" style="margin:auto" type="checkbox" data-dtype="Boolean" {{checked mm.ent.CurrentCoreEnergy}}/>
       </div>
     </div>
+  </div>
 
-    <div class="card clipped double">
-      <div class="lancer-header ">
-        <i class="cci cci-pilot i--m i--light header-icon"> </i>
-        <span class="major">PILOT</span>
-      </div>
+  <div class="pilot-frame-wrapper flexrow">
+    <div class="pilot-summary-wrapper">
       {{{pilot-slot "mm.ent.Pilot" }}}
+      <div class="wraprow quadruple">
+        {{{stat-rollable-card "HUL"  ""     "mm.ent.Hull" }}}
+        {{{stat-rollable-card "AGI"  ""     "mm.ent.Agi" }}}
+        {{{stat-rollable-card "SYS"  ""     "mm.ent.Sys" }}}
+        {{{stat-rollable-card "ENG"  ""     "mm.ent.Eng" }}}
+      </div>
+    </div>
+
+    <div class="frame-wrapper flexrow">
+      {{{mech-frame "mm.ent.Frame"}}}
     </div>
   </div>
 
@@ -91,3 +99,5 @@
 
   --}}
 </form>
+
+

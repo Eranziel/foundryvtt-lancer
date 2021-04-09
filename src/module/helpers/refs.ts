@@ -94,6 +94,9 @@ export function simple_mm_ref<T extends EntryType>(
   slot_path: string = "",
   native: boolean = false
 ) {
+
+  console.log("You're still using a simple ref")
+
   // Flatten types
   if (!Array.isArray(types)) {
     types = [types];

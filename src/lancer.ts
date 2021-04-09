@@ -90,7 +90,7 @@ import {
   mm_ref_list_append_slot,
   editable_mm_ref_list_item_native,
 } from "./module/helpers/refs";
-import { mech_loadout, pilot_slot } from "./module/helpers/loadout";
+import { mech_loadout, pilot_slot, frame_refview } from './module/helpers/loadout';
 
 const lp = LANCER.log_prefix;
 
@@ -422,6 +422,7 @@ Hooks.once("init", async function () {
   // ------------------------------------------------------------------------
   // Mech components
   Handlebars.registerHelper("mech-loadout", mech_loadout);
+  Handlebars.registerHelper("mech-frame", frame_refview);
 
   // ------------------------------------------------------------------------
   // NPC components

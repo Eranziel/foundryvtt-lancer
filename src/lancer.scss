@@ -903,13 +903,14 @@ input[type=string].lancer-input {
 /* Start of HORUS glitchy styles used in lancer-data */
 code {
   padding: 4px 12px 4px 12px;
+  font-family: monospace,monospace;
 }
 
 code.horus {
   font-size: 1.1em;
-  background-color: black !important;
+  background-color: rgba(0, 0, 0, 0.7) !important;
   box-shadow: none;
-  color: white;
+  //color: white;
   font-style: normal;
   letter-spacing: 0.05em;
   border-radius: 0;
@@ -1284,7 +1285,7 @@ $activations-colors: rgb(204, 10, 10) rgb(98, 0, 255) #3949ab #3949ab #222222 #2
   }
 }
 
-.action-detail, .deployable-detail {
+.action-detail, .deployable-detail, .core-active-detail, .core-passive-detail {
   text-align: left;
   margin-left: 4px;
   margin-right: 4px;
@@ -1316,7 +1317,7 @@ $activations-colors: rgb(204, 10, 10) rgb(98, 0, 255) #3949ab #3949ab #222222 #2
   margin-bottom: 5px;
 }
 
-.action-wrapper, .deployable-wrapper {
+.action-wrapper, .deployable-wrapper, .core-active-wrapper, .core-passive-wrapper, .core-wrapper {
   display: flex;
   flex-direction: column;
   border-radius: 10px;
@@ -1333,7 +1334,7 @@ $activations-colors: rgb(204, 10, 10) rgb(98, 0, 255) #3949ab #3949ab #222222 #2
   margin-top: 6px;
 }*/
 
-.action-title, .deployable-title {
+.action-title, .deployable-title, .coresys-title, .core-active-title, .core-passive-title{
   font-size: 16px;
   margin-top: 3px;
   margin: auto;
@@ -1350,4 +1351,72 @@ a.activation-chip > i.fas, a.activation-chip > i.cci, a.activation-chip > i.mdi 
 
 .stat-macro-container > a {
   margin: auto;
+}
+
+.pilot-summary { 
+  position: relative;
+  text-align: center;
+  cursor: pointer;
+}
+
+.pilot-summary-wrapper {
+  max-width: 25%;
+}
+
+.pilot-summary-name {
+  height: 2em;
+  position: absolute;
+  top: 2px;
+  left: 50%;
+  -webkit-transform: translateX(-50%);
+  transform: translateX(-50%);
+  width: 100%;
+  font-size: 1.4em;
+  font-weight: bold;
+  color: white;
+  -webkit-text-stroke-width: 1px;
+  -webkit-text-stroke-color: black;
+}
+
+.pilot-summary-label {
+  position: absolute;
+  top: 6px;
+  left: 2em;
+}
+
+.pilot-summary-ll {
+  position: absolute;
+  bottom: 4px;
+  right: .5em;
+  font-size: 1.6em;
+}
+
+.frame-trait {
+  margin: 2px;
+  flex-grow: unset;
+}
+
+.frame-traits {
+  width: 50%;
+}
+
+.frame-trait-header {
+  height: 1.5em;
+}
+
+.frame-wrapper > .lancer-header {
+  flex-basis: 100%;
+}
+
+.frame-header {
+  margin: 2px;
+  border-radius: 3px;
+  height: 1.5em;
+}
+
+
+.coresys-title {
+  width: 100%;
+  text-align: center;
+  font-weight: bold;
 }
