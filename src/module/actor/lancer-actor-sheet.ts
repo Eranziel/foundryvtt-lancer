@@ -24,7 +24,7 @@ import {
 import { LancerActorSheetData, LancerStatMacroData } from "../interfaces";
 import { LancerMechWeapon, LancerPilotWeapon } from "../item/lancer-item";
 import { LancerActor, LancerActorType } from "./lancer-actor";
-import { prepareActivationMacro, prepareCoreActiveMacro, prepareCorePassiveMacro, prepareItemMacro, prepareStatMacro } from "../macros";
+import { prepareActivationMacro, prepareCoreActiveMacro, prepareCorePassiveMacro, prepareItemMacro, prepareStatMacro, runEncodedMacro } from "../macros";
 import { EntryType } from "machine-mind";
 import { ActivationOptions } from "../enums";
 import { CollapseHandler } from "../helpers/collapse";
@@ -139,12 +139,21 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
   }
 
   _activateMacroListeners(html: JQuery) {
+
+    // Encoded macros
+    let encMacros = html.find("a.lancer-macro");
+    encMacros.on("click", ev => {
+      ev.stopPropagation(); // Avoids triggering parent event handlers
+      runEncodedMacro($(ev.currentTarget));
+    })
+
+    /*
     // Stat rollers
     let statMacro = html.find(".roll-stat");
     statMacro.on("click", ev => {
       ev.stopPropagation(); // Avoids triggering parent event handlers
       prepareStatMacro(this.actor._id, this.getStatPath(ev)!);
-    });
+    });*/
 
     // Talent rollers
     let talentMacro = html.find(".talent-macro");

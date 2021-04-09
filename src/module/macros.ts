@@ -14,6 +14,7 @@ import {
   LancerActionMacroData,
   LancerAttackMacroData,
   LancerGenericMacroData,
+  LancerMacroData,
   LancerOverchargeMacroData,
   LancerReactionMacroData,
   LancerStatMacroData,
@@ -65,6 +66,10 @@ import { ActivationOptions } from "./enums";
 
 const lp = LANCER.log_prefix;
 
+export function encodeMacroData(macroData: LancerMacroData): string {
+  return btoa(encodeURI(JSON.stringify(macroData)));
+}
+
 export async function onHotbarDrop(_bar: any, data: any, slot: number) {
   // We set an associated command & title based off the type
   // Everything else gets handled elsewhere
@@ -76,7 +81,7 @@ export async function onHotbarDrop(_bar: any, data: any, slot: number) {
   // Grab new encoded data ASAP
   if(data.command && data.title) {
     command = data.command,
-    img = data.iconPath ? data.iconPath : `systems/lancer/assets/icons/macro-icons/skill.svg`;
+    img = data.iconPath ? data.iconPath : `systems/lancer/assets/icons/macro-icons/generic_item.svg`;
     title = data.title;
     } else {
 
@@ -129,6 +134,8 @@ export async function onHotbarDrop(_bar: any, data: any, slot: number) {
         img = `systems/lancer/assets/icons/macro-icons/mech_system.svg`;
         break;
       case ActivationOptions.ACTION:
+        // This should be fully migrated to encoded
+        throw Error("This should be migrated");
         command = `game.lancer.prepareActivationMacro("${actorId}", "${itemId}", "${ActivationOptions.ACTION}", "${data.number}");`;
         img = `systems/lancer/assets/icons/macro-icons/mech_system.svg`;
         break;
@@ -157,6 +164,8 @@ export async function onHotbarDrop(_bar: any, data: any, slot: number) {
         }
         break;
       case "HASE":
+        // This should be fully migrated to encoded
+        throw Error("This should be migrated");
         command = `game.lancer.prepareStatMacro("${actorId}", "${data.dataPath}");`;
     }
 
@@ -1160,7 +1169,7 @@ async function _prepareTechActionMacro(
       tier = item.actor.data.data.tier_num - 1;
     }
     mData.t_atk =
-      tData.attack_bonus && tData.attack_bonus.length > tier ? tData.attack_bonus[tier] : 0;
+      tData.attack_bonus && tData.attack_bonus.length 6> tier ? tData.attack_bonus[tier] : 0;
     mData.acc = tData.accuracy && tData.accuracy.length > tier ? tData.accuracy[tier] : 0;
     mData.tags = await SerUtil.process_tags(new FoundryReg(), new OpCtx(), tData.tags);
     mData.detail = tData.effect ? tData.effect : "";
@@ -1181,3 +1190,16 @@ async function _prepareDeployableMacro(
 
   await renderMacroHTML(actorEnt.Flags.orig_doc, buildDeployableHTML(dep, true));
 }
+
+export function runEncodedMacro(el: JQuery<HTMLElement>) {
+  let encoded = el.attr("data-macro");
+
+  if(!encoded) throw Error("No macro data available")
+  let data: LancerMacroData = JSON.parse(decodeURI(atob(encoded)))
+
+  let command = data.command;
+
+  // Some might say eval is bad, but it's no worse than what we can already do with macros
+  eval(command);
+}
+

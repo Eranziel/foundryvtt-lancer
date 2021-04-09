@@ -10,6 +10,7 @@ import {
   std_x_of_y,
 } from "./commons";
 import { ref_commons, simple_mm_ref } from "./refs";
+import { encodeMacroData } from '../macros';
 // ---------------------------------------
 // Some simple stat editing thingies
 
@@ -64,7 +65,11 @@ export function stat_view_card(
 ): string {
   let data_val = resolve_helper_dotpath(options, data_path);
   let macro_button: string | undefined;
-  if(options.rollable) macro_button = '<a class="roll-stat stat-macro macroable i--dark i--sm" data-action="roll-macro"><i class="fas fa-dice-d20"></i></a>'
+  let macroData = encodeMacroData({
+    command: `game.lancer.prepareStatMacro("${options.data.root.actor._id}","${data_path}");`,
+    title: title
+  })
+  if(options.rollable) macro_button = `<a class="i--dark i--sm lancer-macro" data-macro="${macroData}"><i class="fas fa-dice-d20"></i></a>`
   return `
     <div class="card clipped">
       <div class="lancer-header ">
@@ -141,7 +146,11 @@ export function clicker_stat_card(
   options: HelperOptions
 ): string {
   let button = ""
-  if(roller) button = '<a class="roll-stat stat-macro macroable i--dark i--sm" data-action="roll-macro"><i class="fas fa-dice-d20"></i></a>'
+  let macroData = encodeMacroData({
+    command: `game.lancer.prepareStatMacro("${options.data.root.actor._id}","${data_path}");`,
+    title: title
+  })
+  if(roller) button = `<a class="lancer-macro i--dark i--sm" data-macro="${macroData}"><i class="fas fa-dice-d20"></i></a>`
   return `<div class="card clipped stat-container">
       <div class="lancer-header ">
         <i class="${icon} i--m i--light header-icon"> </i>
