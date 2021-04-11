@@ -390,7 +390,7 @@ export function is_item_type(type: LancerActorType | LancerItemType): type is La
   return LancerItemTypes.includes(type as LancerActorType);
 }
 
-export function has_mmid<T extends AnyMMItem | AnyMMActor>(item: AnyMMItem | AnyMMActor): item is T & {ID: string} {
-  return (item as any).ID != undefined;
+export function has_lid<T extends AnyMMItem | AnyMMActor>(item: AnyMMItem | AnyMMActor): item is T & {ID: string} {
+  return (item as any).LID != undefined;
 }
 

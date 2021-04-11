@@ -447,7 +447,7 @@ export class FoundryReg extends Registry {
       let cat = this.get_cat(ref.type) as FoundryRegCat<T>;
       return (
         cat.get_foundry_entity(ref.id) ??
-        cat.get_foundry_entity_by_name_or_mmid(ref.fallback_mmid) ??
+        cat.get_foundry_entity_by_name_or_lid(ref.fallback_lid) ??
         null
       );
     } else {
@@ -461,7 +461,7 @@ export class FoundryReg extends Registry {
       // Then by fallback
       for (let type of Object.values(EntryType)) {
         let cat = this.get_cat(type) as FoundryRegCat<EntryType>;
-        let by_id = await cat.get_foundry_entity_by_name_or_mmid(ref.fallback_mmid);
+        let by_id = await cat.get_foundry_entity_by_name_or_lid(ref.fallback_lid);
         if (by_id) return by_id as DocFor<T>;
       }
 
@@ -608,7 +608,7 @@ export class FoundryRegCat<T extends EntryType> extends RegCat<T> {
     return Promise.all(created).then(created_results => {
       return created_results.map(g => ({
         id: g.id,
-        fallback_mmid: "",
+        fallback_lid: "",
         type: g.type,
         reg_name: this.parent.name(),
       }));
@@ -625,14 +625,14 @@ export class FoundryRegCat<T extends EntryType> extends RegCat<T> {
     return (await this.handler.get(id))?.entity ?? null;
   }
 
-  // Look through all entries, picking first by mmid and, failing that, by name
-  async get_foundry_entity_by_name_or_mmid(id: string): Promise<DocFor<T> | null> {
+  // Look through all entries, picking first by lid and, failing that, by name
+  async get_foundry_entity_by_name_or_lid(id: string): Promise<DocFor<T> | null> {
     let all = await this.handler.enumerate();
 
-    // Look for mmid
+    // Look for lid
     for (let gotten of all) {
-      let mmid = (gotten.item as any).id;
-      if (id == mmid) {
+      let lid = (gotten.item as any).id;
+      if (id == lid) {
         return gotten.entity;
       }
     }

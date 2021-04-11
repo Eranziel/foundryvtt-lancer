@@ -107,9 +107,9 @@ export async function mm_wrap_actor<T extends EntryType & LancerActorType>(
   };
 }
 
-// Define a helper to check if a license includes the specified item. Checks by mmid. Maybe change that in the future?
+// Define a helper to check if a license includes the specified item. Checks by lid. Maybe change that in the future?
 // export function license_has(license: License, item: LiveEntryTypes<LancerItemType>) {
-// return license.FlatUnlocks.some(unlockable => unlockable.ID == (item as any).ID);
+// return license.FlatUnlocks.some(unlockable => unlockable.LID == (item as any).LID);
 // }
 
 // Helper for finding what license an item comes from. Checks by name, an inelegant solution but probably good enough
@@ -158,7 +158,7 @@ const world_and_comp_license_cache = new FetcherCache<string, RegRef<EntryType.L
         return {
           id,
           reg_name: world_reg.name(),
-          fallback_mmid: "",
+          fallback_lid: "",
           type: EntryType.LICENSE,
         };
       }
@@ -175,7 +175,7 @@ const world_and_comp_license_cache = new FetcherCache<string, RegRef<EntryType.L
         return {
           id,
           reg_name: compendium_reg.name(),
-          fallback_mmid: "",
+          fallback_lid: "",
           type: EntryType.LICENSE,
         };
       }

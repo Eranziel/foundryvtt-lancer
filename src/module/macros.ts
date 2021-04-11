@@ -765,7 +765,7 @@ export function prepareCoreActiveMacro(a: string) {
         callback: async dlg => {
           mech?.update({"data.current_core_energy": Math.max(ent.CurrentCoreEnergy - 1,0)})
           console.log(
-            `Automatically consumed core power for ${ent.ID}`
+            `Automatically consumed core power for ${ent.LID}`
           );
         },
       },
