@@ -51,7 +51,7 @@ export class LancerPilotSheet extends LancerActorSheet {
   static get defaultOptions(): object {
     return mergeObject(super.defaultOptions, {
       classes: ["lancer", "sheet", "actor", "pilot"],
-      template: "systems/lancer/templates/actor/pilot.html",
+      template: `systems/${game.system.id}/templates/actor/pilot.html`,
       width: 800,
       height: 800,
       tabs: [
@@ -735,7 +735,7 @@ export function overchargeButton(level: number) {
   }
 
   return `<div class="overcharge-container">
-    
+
       <a class="overcharge-macro macroable i--dark i--sm" data-action="roll-macro"><i class="fas fa-dice-d20"></i></a>
       <a class="overcharge-text">${rollVal}</a>
       <input style="display:none;border:none" type="number" name="data.mech.overcharge_level" value="${level}" data-dtype="Number"/>

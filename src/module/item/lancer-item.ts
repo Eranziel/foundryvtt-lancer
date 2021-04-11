@@ -62,7 +62,7 @@ export type LancerItemType =
 
 export function lancerItemInit(data: any) {
   console.log(`${lp} Initializing new ${data.type}`);
-  let img: string = "systems/lancer/assets/icons/";
+  let img: string = `systems/${game.system.id}/assets/icons/`;
 
   let type = data.type as LancerItemType | "_doesnotmatter_justhelpstypecheck";
   if (type == "skill") {
@@ -99,7 +99,7 @@ export function lancerItemInit(data: any) {
         // Give them a custom fake id
         "data.id":"custom_npcf_" + data._id,
       });
-      
+
     }
   } else {
     img += "generic_item.svg";
@@ -455,11 +455,11 @@ export function weapon_range_selector(
   if (rng.type) {
     html += `<i class="cci cci-${rtype} i--m i--dark"></i>`;
   }
-  /* TODO: For a next iteration--would be really nifty to set it up to select images rather than text. 
+  /* TODO: For a next iteration--would be really nifty to set it up to select images rather than text.
     But that seems like a non-trivial task...
-    <img class="med-icon" src="../systems/lancer/assets/icons/range.svg">
-    <img class="med-icon" src="../systems/lancer/assets/icons/aoe_blast.svg">
-    <img class="med-icon" src="../systems/lancer/assets/icons/damage_explosive.svg">
+    <img class="med-icon" src=`../systems/${game.system.id}/assets/icons/range.svg`>
+    <img class="med-icon" src=`../systems/${game.system.id}/assets/icons/aoe_blast.svg`>
+    <img class="med-icon" src=`../systems/${game.system.id}/assets/icons/damage_explosive.svg`>
   */
   html += `<select name="${data_target}.type" data-type="String" style="align-self: center;">
     <option value="" ${!rng.type ? "selected" : ""}>NONE</option>
@@ -679,7 +679,7 @@ export const mech_weapon_preview = `<div class="flexcol clipped lancer-weapon-co
     <i class="cci cci-weapon i--m i--light"> </i>
     <span class="minor">{{weapon.name}} // {{upper-case weapon.data.mount}} {{upper-case weapon.data.weapon_type}}</span>
     <a class="stats-control i--light" data-action="delete"><i class="fas fa-trash"></i></a>
-  </div> 
+  </div>
   <div class="lancer-weapon-body">
     <a class="roll-attack" style="grid-area: 1/1/2/2;"><i class="fas fa-dice-d20 i--m i--dark"></i></a>
     <div class="flexrow" style="grid-area: 1/2/2/3; text-align: left; white-space: nowrap;">

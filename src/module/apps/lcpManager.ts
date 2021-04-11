@@ -75,16 +75,16 @@ class LCPManager extends Application {
     this.lcpFile = null;
     this.cp = null;
     this.manifest = null;
-    this.coreVersion = game.settings.get(LANCER.sys_name, LANCER.setting_core_data);
+    this.coreVersion = game.settings.get(game.system.id, LANCER.setting_core_data);
     // TODO: pull available core version from machine-mind
     this.coreUpdate = "2.0.35";
     console.log(`${lp} Lancer Data version:`, this.coreVersion);
-    this.lcpIndex = new LCPIndex(game.settings.get(LANCER.sys_name, LANCER.setting_lcps).index);
+    this.lcpIndex = new LCPIndex(game.settings.get(game.system.id, LANCER.setting_lcps).index);
   }
 
   static get defaultOptions() {
     return mergeObject(super.defaultOptions, {
-      template: "systems/lancer/templates/lcp/lcp-manager.html",
+      template: `systems/${game.system.id}/templates/lcp/lcp-manager.html`,
       title: "LANCER Compendium Manager",
       width: 800,
       height: 800,
@@ -103,22 +103,22 @@ class LCPManager extends Application {
 
   updateLcpIndex(manifest: IContentPackManifest) {
     if (!this.lcpIndex)
-      this.lcpIndex = new LCPIndex(game.settings.get(LANCER.sys_name, LANCER.setting_lcps).index);
+      this.lcpIndex = new LCPIndex(game.settings.get(game.system.id, LANCER.setting_lcps).index);
     else this.lcpIndex.updateManifest(manifest);
     game.settings
-      .set(LANCER.sys_name, LANCER.setting_lcps, this.lcpIndex)
+      .set(game.system.id, LANCER.setting_lcps, this.lcpIndex)
       .then(() => this.render());
   }
 
   async clearCompendiums() {
     ui.notifications.info(`Clearing all LANCER Compendium data. Please wait.`);
     console.log(`${lp} Clearing all LANCER Compendium data.`);
-    await game.settings.set(LANCER.sys_name, LANCER.setting_core_data, "0.0.0");
-    await game.settings.set(LANCER.sys_name, LANCER.setting_lcps, new LCPIndex(null));
+    await game.settings.set(game.system.id, LANCER.setting_core_data, "0.0.0");
+    await game.settings.set(game.system.id, LANCER.setting_lcps, new LCPIndex(null));
     await clearCompendiums();
     ui.notifications.info(`LANCER Compendiums cleared.`);
-    this.coreVersion = game.settings.get(LANCER.sys_name, LANCER.setting_core_data);
-    this.lcpIndex = new LCPIndex(game.settings.get(LANCER.sys_name, LANCER.setting_lcps).index);
+    this.coreVersion = game.settings.get(game.system.id, LANCER.setting_core_data);
+    this.lcpIndex = new LCPIndex(game.settings.get(game.system.id, LANCER.setting_lcps).index);
     this.render(true);
   }
 
@@ -148,7 +148,7 @@ class LCPManager extends Application {
     console.log(`${lp} Updating Lancer Core data to v${this.coreUpdate}`);
     await buildCompendiums(mm.getBaseContentPack());
     ui.notifications.info(`Lancer Core data update complete.`);
-    await game.settings.set(LANCER.sys_name, LANCER.setting_core_data, this.coreUpdate);
+    await game.settings.set(game.system.id, LANCER.setting_core_data, this.coreUpdate);
     this.coreVersion = this.coreUpdate;
     this.render();
   }

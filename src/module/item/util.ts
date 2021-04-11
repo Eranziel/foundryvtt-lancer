@@ -434,7 +434,7 @@ export async function MachineMind_pilot_to_VTT_items_compendium_lookup(
       let sid: LancerSkillItemData = {
         name: sd.name,
         type: "skill",
-        img: "systems/lancer/assets/icons/skill.svg",
+        img: `systems/${game.system.id}/assets/icons/skill.svg`,
         flags: {},
         data: sd,
       };
