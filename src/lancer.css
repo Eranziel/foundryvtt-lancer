@@ -1062,11 +1062,13 @@ input.core-power-toggle {
 
 input.core-power-toggle:checked::before
 {
+  font-family: "Material Design Icons";
   content: "\F0079";
   color: green;
 }
 input.core-power-toggle:not(:checked)::before
 {
+  font-family: "Material Design Icons";
   content: "\F007A";
   color: grey;
 }
