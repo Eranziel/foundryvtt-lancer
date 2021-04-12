@@ -19,19 +19,37 @@
     {{{stat-view-card      "EVASION"     "cci cci-evasion"          "mm.ent.Evasion" }}}
     {{{stat-view-card      "E-DEF"       "cci cci-edef"             "mm.ent.EDefense" }}}
     {{{stat-view-card      "SPEED"       "mdi mdi-arrow-right-bold-hexagon-outline" "mm.ent.Speed" }}}
-    {{{stat-view-card      "TECH ATK"    "cci cci-tech-full"        "mm.ent.TechAttack" }}}
+    {{{stat-rollable-card      "TECH ATK"    "cci cci-tech-full"        "mm.ent.TechAttack" }}}
     {{{stat-view-card      "SENSORS"     "cci cci-sensor"           "mm.ent.SensorRange" }}}
     {{{stat-view-card      "SAVE"        "cci cci-save"             "mm.ent.SaveTarget" }}}
+    {{!-- I don't think we need these
     {{{stat-view-card      "SYS POINTS"  "cci cci-system"           "mm.ent.MaxSP" }}}
     {{{stat-view-card      "ATTACK"      "cci cci-heart"            "mm.ent.AttackBonus" }}}
+    --}}
     {{{overcharge-button "mm.ent.CurrentOvercharge" }}}
-
-    <div class="card clipped double">
-      <div class="lancer-header ">
-        <i class="cci cci-pilot i--m i--light header-icon"> </i>
-        <span class="major">PILOT</span>
+    <div class="flexcol card clipped">
+      <div class="lancer-header" style="right: .65em;position: relative;">
+        <span class="major">CORE</span>
       </div>
+      <div class="flexrow stat-container">
+        <input name="mm.ent.CurrentCoreEnergy" class="core-power-toggle mdi mdi-battery" style="margin:auto" type="checkbox" data-dtype="Boolean" {{checked mm.ent.CurrentCoreEnergy}}/>
+      </div>
+    </div>
+  </div>
+
+  <div class="pilot-frame-wrapper flexrow">
+    <div class="pilot-summary-wrapper">
       {{{pilot-slot "mm.ent.Pilot" }}}
+      <div class="wraprow quadruple">
+        {{{stat-rollable-card "HUL"  ""     "mm.ent.Hull" }}}
+        {{{stat-rollable-card "AGI"  ""     "mm.ent.Agi" }}}
+        {{{stat-rollable-card "SYS"  ""     "mm.ent.Sys" }}}
+        {{{stat-rollable-card "ENG"  ""     "mm.ent.Eng" }}}
+      </div>
+    </div>
+
+    <div class="frame-wrapper flexrow">
+      {{{mech-frame "mm.ent.Frame"}}}
     </div>
   </div>
 
@@ -39,6 +57,9 @@
     <span class="lancer-header major ">LOADOUT [SP: {{mm.ent.Loadout.TotalSP}} / {{mm.ent.MaxSP}}]</span>
     {{{mech-loadout "mm.ent"}}}
   </div>
+
+  {{!-- Stripping all this out for a pilot-based Armory in the future
+  TODO 
 
   <div class="card clipped">
     <span class="lancer-header major ">FRAMES</span>
@@ -75,4 +96,8 @@
       {{/each}}
     </div>
   </div>
+
+  --}}
 </form>
+
+

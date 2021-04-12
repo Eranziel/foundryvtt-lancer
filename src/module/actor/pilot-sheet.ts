@@ -1,11 +1,10 @@
 import { LancerMechWeapon, LancerPilotWeapon } from "../item/lancer-item";
 import { LANCER } from "../config";
 import { LancerActorSheet } from "./lancer-actor-sheet";
-import { prepareCoreActiveMacro, prepareCorePassiveMacro } from "../macros";
 import { EntryType, MountType, OpCtx } from "machine-mind";
-import { FlagData, FoundryReg } from "../mm-util/foundry-reg";
+import { FoundryFlagData, FoundryReg } from "../mm-util/foundry-reg";
 import { MMEntityContext, mm_wrap_item } from "../mm-util/helpers";
-import { funcs } from "machine-mind";
+import { funcs, quick_relinker } from "machine-mind";
 import { ResolvedNativeDrop } from "../helpers/dragdrop";
 
 const lp = LANCER.log_prefix;
@@ -31,7 +30,7 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
         {
           navSelector: ".lancer-tabs",
           contentSelector: ".sheet-body",
-          initial: "mech",
+          initial: "tactical",
         },
       ],
     });
@@ -79,147 +78,11 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
   activateListeners(html: JQuery) {
     super.activateListeners(html);
 
-    if (this.actor.owner) {
-      // TODO: move to mech
-      /*
-      // Overcharge text
-      let overchargeText = html.find(".overcharge-text");
-
-      overchargeText.on("click", (ev: Event) => {
-        this._setOverchargeLevel(
-          <MouseEvent>ev,
-          Math.min(this.actor.data.data.mech.overcharge_level + 1, 3)
-        );
-      });
-
-      // Overcharge reset
-      let overchargeReset = html.find(".overcharge-reset");
-
-      overchargeReset.on("click", (ev: Event) => {
-        this._setOverchargeLevel(<MouseEvent>ev, 0);
-      });
-
-      // Overcharge macro
-      let overchargeMacro = html.find(".overcharge-macro");
-
-      overchargeMacro.on("click", () => {
-        game.lancer.prepareOverchargeMacro(this.actor._id);
-      });
-       */
-
-      // Macro triggers
-      // Stat rollers
-      let statMacro = html.find(".roll-stat");
-      statMacro.on("click", ev => {
-        ev.stopPropagation(); // Avoids triggering parent event handlers
-        game.lancer.prepareStatMacro(this.actor._id, this.getStatPath(ev)!);
-      });
-
-      // Talent rollers
-      let talentMacro = html.find(".talent-macro");
-      talentMacro.on("click", ev => {
-        if (!ev.currentTarget) return; // No target, let other handlers take care of it.
-        ev.stopPropagation(); // Avoids triggering parent event handlers
-
-        const el = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
-
-        game.lancer.prepareItemMacro(this.actor._id, el.getAttribute("data-item-id")!, {
-          rank: (<HTMLDataElement>ev.currentTarget).getAttribute("data-rank"),
-        });
-      });
-
-      // TODO: This should really just be a single item-macro class
-      // Trigger rollers
-      let itemMacros = html
-        .find(".skill-macro")
-        // System rollers
-        .add(html.find(".system-macro"))
-        // Gear rollers
-        .add(html.find(".gear-macro"))
-        // Core bonus
-        .add(html.find(".cb-macro"));
-      itemMacros.on("click", (ev: any) => {
-        ev.stopPropagation(); // Avoids triggering parent event handlers
-
-        const el = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
-
-        game.lancer.prepareItemMacro(this.actor._id, el.getAttribute("data-item-id")!);
-      });
-
-      // Core active & passive text rollers
-      let CAMacro = html.find(".core-active-macro");
-      CAMacro.on("click", (ev: any) => {
-        ev.stopPropagation(); // Avoids triggering parent event handlers
-
-        // let target = <HTMLElement>ev.currentTarget;
-
-        prepareCoreActiveMacro(this.actor._id);
-      });
-
-      let CPMacro = html.find(".core-passive-macro");
-      CPMacro.on("click", (ev: any) => {
-        ev.stopPropagation(); // Avoids triggering parent event handlers
-
-        // let target = <HTMLElement>ev.currentTarget;
-
-        prepareCorePassiveMacro(this.actor._id);
-      });
-
-      // Weapon rollers
-      let weaponMacro = html.find(".roll-attack");
-      weaponMacro.on("click", ev => {
-        if (!ev.currentTarget) return; // No target, let other handlers take care of it.
-        ev.stopPropagation();
-
-        const weaponElement = $(ev.currentTarget).closest(".weapon")[0] as HTMLElement;
-        const weaponId = weaponElement.getAttribute("data-item-id");
-        if (!weaponId) return ui.notifications.warn(`Error rolling macro: No weapon ID!`);
-        const item = this.actor.getOwnedItem(weaponId);
-        if (!item)
-          return ui.notifications.warn(
-            `Error rolling macro: Couldn't find weapon with ID ${weaponId}.`
-          );
-
-        const weapon = item as LancerPilotWeapon | LancerMechWeapon;
-        game.lancer.prepareItemMacro(this.actor._id, weapon._id);
-      });
-    }
-
     // Everything below here is only needed if the sheet is editable
     if (!this.options.editable) return;
 
     if (this.actor.owner) {
       // Item/Macroable Dragging
-      const statMacroHandler = (e: DragEvent) => this._onDragMacroableStart(e);
-      const talentMacroHandler = (e: DragEvent) => this._onDragTalentMacroableStart(e);
-      const textMacroHandler = (e: DragEvent) => this._onDragTextMacroableStart(e);
-      const CAMacroHandler = (e: DragEvent) => this._onDragCoreActiveStart(e);
-      const CPMacroHandler = (e: DragEvent) => this._onDragCorePassiveStart(e);
-      // TODO: migrate to mech
-      // const overchargeMacroHandler = (e: DragEvent) => this._onDragOverchargeStart(e);
-      html
-        .find('li[class*="item"]')
-        .add('span[class*="item"]')
-        .add('[class*="macroable"]')
-        .each((i: number, item: any) => {
-          if (item.classList.contains("inventory-header")) return;
-          if (item.classList.contains("stat-macro"))
-            item.addEventListener("dragstart", statMacroHandler, false);
-          if (item.classList.contains("talent-macro"))
-            item.addEventListener("dragstart", talentMacroHandler, false);
-          if (item.classList.contains("text-macro"))
-            item.addEventListener("dragstart", textMacroHandler, false);
-          if (item.classList.contains("core-active-macro"))
-            item.addEventListener("dragstart", CAMacroHandler, false);
-          if (item.classList.contains("core-passive-macro"))
-            item.addEventListener("dragstart", CPMacroHandler, false);
-          // TODO: migrate to mech
-          // if (item.classList.contains("overcharge-macro"))
-          //   item.addEventListener("dragstart", overchargeMacroHandler, false);
-          if (item.classList.contains("item"))
-            item.addEventListener("dragstart", (ev: any) => this._onDragStart(ev), false);
-          item.setAttribute("draggable", "true");
-        });
 
       // Cloud download
       let download = html.find('.cloud-control[data-action*="download"]');
@@ -232,15 +95,20 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
           let raw_pilot_data = await funcs.gist_io.download_pilot(self.mm.ent.CloudID);
 
           // Pull the trigger
-          let pseudo_compendium = new FoundryReg({
-            // We look for missing items here
-            item_source: ["compendium", null],
-            actor_source: "world",
+          let ps1 = new FoundryReg({ // We look for missing items  in world first
+            item_source: ["world", null],
+            actor_source: "world"
           });
-          let synced_data = await funcs.cloud_sync(raw_pilot_data, self.mm.ent, [
-            pseudo_compendium,
-          ]);
-          if (!synced_data) {
+          let ps2 = new FoundryReg({ // We look for missing items  in world first
+            item_source: ["compendium", null],
+            actor_source: "compendium"
+          });
+          let synced_data = await funcs.cloud_sync(raw_pilot_data, self.mm.ent, [ps1, ps2], {
+            relinker: quick_relinker<any>({
+              key_pairs: [["ID", "id"], ["Name", "name"]]
+            })
+          });
+          if(!synced_data) {
             throw new Error("Pilot was somehow destroyed by the sync");
           }
 
@@ -248,19 +116,18 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
           await this.actor.update({
             name: synced_data.pilot.Name || this.actor.name,
             img: synced_data.pilot.CloudPortrait || this.actor.img,
+            "token.name": synced_data.pilot.Name || this.actor.name,
+            "token.img": synced_data.pilot.CloudPortrait || this.actor.img,
           });
 
-          for (let mech of synced_data.pilot_mechs) {
-            let mech_actor = (mech.flags as FlagData<EntryType.MECH>).orig_entity;
-            await mech_actor.update(
-              {
-                name: mech.Name || mech_actor.name,
-                img: mech.CloudPortrait || mech_actor.img,
-                //@ts-ignore
-                permission: self.entity.permission
-              },
-              {}
-            );
+          for(let mech of synced_data.pilot_mechs) {
+            let mech_actor = (mech.Flags as FoundryFlagData<EntryType.MECH>).orig_doc;
+            await mech_actor.update({
+              name: mech.Name || mech_actor.name,
+              img: mech.CloudPortrait || mech_actor.img,
+              "token.name": mech.Name || mech_actor.name,
+              "token.img": mech.CloudPortrait || mech_actor.img
+            }, {});
             mech_actor.render();
           }
 
@@ -276,43 +143,6 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
         }
       });
     }
-  }
-
-  _onDragMacroableStart(event: DragEvent) {
-    // For roll-stat macros
-    event.stopPropagation(); // Avoids triggering parent event handlers
-    // It's an input so it'll always be an InputElement, right?
-    let path = this.getStatPath(event);
-    if (!path) return ui.notifications.error("Error finding stat for macro.");
-
-    let tSplit = path.split(".");
-    let data = {
-      title: tSplit[tSplit.length - 1].toUpperCase(),
-      dataPath: path,
-      type: "actor",
-      actorId: this.actor._id,
-    };
-    event.dataTransfer?.setData("text/plain", JSON.stringify(data));
-  }
-
-  _onDragTalentMacroableStart(event: DragEvent) {
-    // For talent macros
-    event.stopPropagation(); // Avoids triggering parent event handlers
-
-    let target = <HTMLElement>event.currentTarget;
-
-    let data = {
-      itemId: target.closest(".item")?.getAttribute("data-item-id"),
-      actorId: this.actor._id,
-      type: "Item",
-      title: target.nextElementSibling?.textContent,
-      rank: target.getAttribute("data-rank"),
-      data: {
-        type: EntryType.TALENT,
-      },
-    };
-
-    event.dataTransfer?.setData("text/plain", JSON.stringify(data));
   }
 
   // Baseline drop behavior. Let people add stuff to the pilot
@@ -383,115 +213,6 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
     // Always return the item if we haven't failed for some reason
     return item;
   }
-
-  /**
-   * For macros which simple expect a title & description, no fancy handling.
-   * Assumes data-path-title & data-path-description defined
-   * @param event   The associated DragEvent
-   */
-  _onDragTextMacroableStart(event: DragEvent) {
-    event.stopPropagation(); // Avoids triggering parent event handlers
-
-    let target = <HTMLElement>event.currentTarget;
-
-    let data = {
-      title: target.getAttribute("data-path-title"),
-      description: target.getAttribute("data-path-description"),
-      actorId: this.actor._id,
-      type: "Text",
-    };
-
-    event.dataTransfer?.setData("text/plain", JSON.stringify(data));
-  }
-
-  /**
-   * For dragging the core active to the hotbar
-   * @param event   The associated DragEvent
-   */
-  _onDragCoreActiveStart(event: DragEvent) {
-    event.stopPropagation(); // Avoids triggering parent event handlers
-
-    // let target = <HTMLElement>event.currentTarget;
-
-    let data = {
-      actorId: this.actor._id,
-      // Title will simply be CORE ACTIVE since we want to keep the macro dynamic
-      title: "CORE ACTIVE",
-      type: "Core-Active",
-    };
-
-    event.dataTransfer?.setData("text/plain", JSON.stringify(data));
-  }
-
-  /**
-   * For dragging the core passive to the hotbar
-   * @param event   The associated DragEvent
-   */
-  _onDragCorePassiveStart(event: DragEvent) {
-    event.stopPropagation(); // Avoids triggering parent event handlers
-
-    // let target = <HTMLElement>event.currentTarget;
-
-    let data = {
-      actorId: this.actor._id,
-      // Title will simply be CORE PASSIVE since we want to keep the macro dynamic
-      title: "CORE PASSIVE",
-      type: "Core-Passive",
-    };
-
-    event.dataTransfer?.setData("text/plain", JSON.stringify(data));
-  }
-
-  // TODO: migrate to mech
-  /**
-   * For dragging overcharge to the hotbar
-   * @param event   The associated DragEvent
-   */
-  /*
-  _onDragOverchargeStart(event: DragEvent) {
-    event.stopPropagation(); // Avoids triggering parent event handlers
-
-    // let target = <HTMLElement>event.currentTarget;
-
-    let data = {
-      actorId: this.actor._id,
-      // Title will simply be CORE PASSIVE since we want to keep the macro dynamic
-      title: "OVERCHARGE",
-      type: "overcharge",
-    };
-
-    event.dataTransfer?.setData("text/plain", JSON.stringify(data));
-  }
-
-   */
-
-  // TODO: migrate to mech
-  /**
-   * Sets the overcharge level for this actor
-   * @param event An event, used by a proper overcharge section in the sheet, to get the overcharge field
-   * @param level Level to set overcharge to
-   */
-  /*
-  _setOverchargeLevel(event: MouseEvent, level: number) {
-    let target = <HTMLElement>event.currentTarget;
-    let inputField = $(target).siblings('[name="data.mech.overcharge_level"]');
-
-    inputField.val(String(level));
-    this._onSubmit(event).then();
-  }
-
-   */
-
-  // TODO: migrate to mech
-  /**
-   * Performs the overcharge macro
-   * @param event An event, used by a proper overcharge section in the sheet, to get the overcharge field
-   */
-  /*
-  _onClickOvercharge(event: MouseEvent) {
-    game.lancer.prepareOverchargeMacro(this.actor._id);
-  }
-   */
 
   /* -------------------------------------------- */
 

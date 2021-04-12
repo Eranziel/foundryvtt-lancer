@@ -38,7 +38,7 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
    * Activate event listeners using the prepared sheet HTML
    * @param html {HTMLElement}   The prepared HTML object ready to be rendered into the DOM
    */
-  activateListeners(html: any) {
+  activateListeners(html: JQuery<HTMLElement>) {
     super.activateListeners(html);
 
     // Everything below here is only needed if the sheet is editable
@@ -47,6 +47,7 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
     this._activateOverchargeControls(html);
     this._activateLoadoutControls(html);
     this._activateMountContextMenus(html);
+
   }
 
   /* -------------------------------------------- */
@@ -91,7 +92,8 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
       // If frame, weapon, put it in an available slot
       new_live_this.Loadout.equip_weapon(new_live_item);
     } else if (new_live_item.Type === EntryType.MECH_SYSTEM) {
-      new_live_this.Loadout.equip_system(new_live_item);
+      new_live_this.Loadout.SysMounts.push(new SystemMount(item_mm.reg,item_mm.ctx,{system: new_live_item.as_ref()}))
+      //new_live_this.Loadout.equip_system(new_live_item);
     }
     // Most other things (weapon mods) aren't directly equipped to the mech and should be handled in their own sheet / their own subcomponents. We've already taken posession, and do nothing more
 
@@ -106,19 +108,68 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
    * Handles actions in the overcharge panel
    */
   _activateOverchargeControls(html: any) {
-    let button = html.find(".overcharge-button");
+      // Overcharge text
+      let overchargeText = html.find(".overcharge-text");
 
-    // Increment on click
-    button.on("click", async (evt: JQuery.ClickEvent) => {
-      this._event_handler("overcharge", evt);
-    });
 
-    // Decrement on right click
-    button.on("contextmenu", async (evt: JQuery.ClickEvent) => {
-      evt.preventDefault();
-      this._event_handler("overcharge-rollback", evt);
-    });
+      overchargeText.on("click", (ev: Event) => {
+        this._setOverchargeLevel(<MouseEvent>ev,Math.min(this.actor.data.data.current_overcharge + 1,3));
+      });
+
+      // Overcharge reset
+      let overchargeReset = html.find(".overcharge-reset");
+
+      overchargeReset.on("click", (ev: Event) => {
+        this._setOverchargeLevel(<MouseEvent>ev,0);
+      });
+
+      // Overcharge macro
+      let overchargeMacro = html.find(".overcharge-macro");
+
+      overchargeMacro.on("click", (ev: Event) => {
+        this._onClickOvercharge(<MouseEvent>ev);
+      });
   }
+
+  /**
+   * For dragging overcharge to the hotbar
+   * @param event   The associated DragEvent
+   */
+  _onDragOverchargeStart(event: DragEvent) {
+    event.stopPropagation(); // Avoids triggering parent event handlers
+
+    // let target = <HTMLElement>event.currentTarget;
+
+    let data = {
+      actorId: this.actor._id,
+      // Title will simply be CORE PASSIVE since we want to keep the macro dynamic
+      title: "OVERCHARGE",
+      type: "overcharge",
+    };
+
+    event.dataTransfer?.setData("text/plain", JSON.stringify(data));
+  }
+
+  /**
+   * Sets the overcharge level for this actor
+   * @param event An event, used by a proper overcharge section in the sheet, to get the overcharge field
+   * @param level Level to set overcharge to
+   */
+  async _setOverchargeLevel(event: MouseEvent, level: number) {
+    let data = await this.getDataLazy();
+    let ent = data.mm.ent;
+    ent.CurrentOvercharge = level;
+    await this._commitCurrMM();
+  }
+
+  /**
+   * Performs the overcharge macro
+   * @param event An event, used by a proper overcharge section in the sheet, to get the overcharge field
+   */
+  _onClickOvercharge(event: MouseEvent) {
+    game.lancer.prepareOverchargeMacro(this.actor._id);
+  }
+
 
   /**
    * Handles more niche controls in the loadout in the overcharge panel
@@ -196,12 +247,6 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
         if (!path) return;
         let wep_mount = resolve_dotpath(data, path) as WeaponMount;
         wep_mount?.reset();
-        break;
-      case "overcharge":
-        ent.CurrentOvercharge++;
-        break;
-      case "overcharge-rollback":
-        ent.CurrentOvercharge--;
         break;
       default:
         return; // no-op

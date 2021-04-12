@@ -22,13 +22,22 @@ import {
   HANDLER_openRefOnClick as HANDLER_activate_ref_clicking,
 } from "../helpers/refs";
 import { LancerActorSheetData, LancerStatMacroData } from "../interfaces";
+import { LancerMechWeapon, LancerPilotWeapon } from "../item/lancer-item";
 import { LancerActor, LancerActorType } from "./lancer-actor";
+import { prepareActivationMacro, prepareCoreActiveMacro, prepareCorePassiveMacro, prepareItemMacro, prepareStatMacro, runEncodedMacro } from "../macros";
+import { EntryType } from "machine-mind";
+import { ActivationOptions } from "../enums";
+import { CollapseHandler } from "../helpers/collapse";
+import { FoundryFlagData } from "../mm-util/foundry-reg";
 const lp = LANCER.log_prefix;
 
 /**
  * Extend the basic ActorSheet
  */
 export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
+  // Tracks collapse state between renders
+  private collapse_handler = new CollapseHandler();
+
   /* -------------------------------------------- */
   /**
    * @override
@@ -46,6 +55,12 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
 
     // Everything below here is only needed if the sheet is editable
     if (!this.options.editable) return;
+
+    // All-actor macros
+    this._activateMacroListeners(html);
+
+    // All-actor macro dragging
+    this._activateMacroDragging(html);
 
     // Make +/- buttons work
     this._activatePlusMinusButtons(html);
@@ -65,6 +80,303 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
 
     // Enable popout editors
     HANDLER_activate_popout_text_editor(html, getfunc, commitfunc);
+  }
+
+  _activateMacroDragging(html: JQuery) {
+    const statMacroHandler = (e: DragEvent) => this._onDragMacroableStart(e);
+    const talentMacroHandler = (e: DragEvent) => this._onDragTalentMacroableStart(e);
+    const textMacroHandler = (e: DragEvent) => this._onDragTextMacroableStart(e);
+    const CAMacroHandler = (e: DragEvent) => this._onDragCoreActiveStart(e);
+    const CPMacroHandler = (e: DragEvent) => this._onDragCorePassiveStart(e);
+    const ActionMacroHandler = (e: DragEvent) => this._onDragActivationChipStart(e);
+    const EncodedMacroHandler = (e: DragEvent) => this._onDragEncodedMacroStart(e);
+    // TODO: migrate to mech
+    // const overchargeMacroHandler = (e: DragEvent) => this._onDragOverchargeStart(e);
+    html
+      .find('li[class*="item"]')
+      .add('span[class*="item"]')
+      .add('[class*="macroable"]')
+      .add('[class*="lancer-macro"]')
+      .each((i: number, item: any) => {
+        if (item.classList.contains("inventory-header")) return;
+        item.setAttribute("draggable", "true");
+        if (item.classList.contains("lancer-macro")) {
+          item.addEventListener("dragstart",EncodedMacroHandler,false);
+          return;
+        }
+        if (item.classList.contains("stat-macro"))
+          item.addEventListener("dragstart", statMacroHandler, false);
+        if (item.classList.contains("talent-macro"))
+          item.addEventListener("dragstart", talentMacroHandler, false);
+        if (item.classList.contains("text-macro"))
+          item.addEventListener("dragstart", textMacroHandler, false);
+        if (item.classList.contains("core-active-macro"))
+          item.addEventListener("dragstart", CAMacroHandler, false);
+          if (item.classList.contains("core-passive-macro"))
+            item.addEventListener("dragstart", CPMacroHandler, false);
+        if (item.classList.contains("activation-chip"))
+          item.addEventListener("dragstart", ActionMacroHandler, false);
+        // TODO: migrate to mech
+        // if (item.classList.contains("overcharge-macro"))
+        //   item.addEventListener("dragstart", overchargeMacroHandler, false);
+        if (item.classList.contains("item"))
+          item.addEventListener("dragstart", (ev: any) => {
+            this._onDragStart(ev)
+            console.log("A")
+          }
+            , false);
+      });
+  }
+
+  _onDragEncodedMacroStart(e: DragEvent) {
+    // For macros with encoded data
+    e.stopPropagation(); 
+    
+    let encoded = (<HTMLElement>e.currentTarget).getAttribute("data-macro");
+
+    if(!encoded) throw Error("No macro data available")
+
+    let data = JSON.parse(decodeURI(atob(encoded)))
+    e.dataTransfer?.setData("text/plain", JSON.stringify(data));
+  }
+
+  _activateMacroListeners(html: JQuery) {
+
+    // Encoded macros
+    let encMacros = html.find("a.lancer-macro");
+    encMacros.on("click", ev => {
+      ev.stopPropagation(); // Avoids triggering parent event handlers
+      runEncodedMacro($(ev.currentTarget));
+    })
+
+    /*
+    // Stat rollers
+    let statMacro = html.find(".roll-stat");
+    statMacro.on("click", ev => {
+      ev.stopPropagation(); // Avoids triggering parent event handlers
+      prepareStatMacro(this.actor._id, this.getStatPath(ev)!);
+    });*/
+
+    // Talent rollers
+    let talentMacro = html.find(".talent-macro");
+    talentMacro.on("click", ev => {
+      if (!ev.currentTarget) return; // No target, let other handlers take care of it.
+      ev.stopPropagation(); // Avoids triggering parent event handlers
+
+      const el = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
+
+      game.lancer.prepareItemMacro(this.actor._id, el.getAttribute("data-id")!, {
+        rank: (<HTMLDataElement>ev.currentTarget).getAttribute("data-rank"),
+      });
+    });
+    
+    // Weapon rollers
+    let weaponMacro = html.find(".roll-attack");
+    weaponMacro.on("click", ev => {
+      if (!ev.currentTarget) return; // No target, let other handlers take care of it.
+      ev.stopPropagation();
+
+      const weaponElement = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
+      const weaponId = weaponElement.getAttribute("data-id");
+      if (!weaponId) return ui.notifications.warn(`Error rolling macro: No weapon ID!`);
+      const item = this.actor.getOwnedItem(weaponId);
+      if (!item)
+        return ui.notifications.warn(
+          `Error rolling macro: Couldn't find weapon with ID ${weaponId}.`
+        );
+
+      const weapon = item as LancerPilotWeapon | LancerMechWeapon;
+      game.lancer.prepareItemMacro(this.actor._id, weapon._id);
+    });
+    
+    // TODO: This should really just be a single item-macro class
+    // Trigger rollers
+    let itemMacros = html
+      .find(".skill-macro")
+      // System rollers
+      .add(html.find(".system-macro"))
+      // Gear rollers
+      .add(html.find(".gear-macro"))
+      // Core bonus
+      .add(html.find(".cb-macro"));
+    itemMacros.on("click", (ev: any) => {
+      ev.stopPropagation(); // Avoids triggering parent event handlers
+
+      const el = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
+
+      prepareItemMacro(this.actor._id, el.getAttribute("data-id")!);
+    });
+
+    // Action-chip (system? Or broader?) macros
+    html.find("a.activation-chip:not(.lancer-macro)").on("click",(ev: JQuery.ClickEvent) => {
+      ev.stopPropagation();
+
+      const el = ev.currentTarget;
+
+      const item = $(el).closest(".item")[0].getAttribute("data-id");
+      if(!item) throw Error("No item ID from activation chip");
+
+      const activation = parseInt(el.getAttribute("data-activation"));
+      const deployable = parseInt(el.getAttribute("data-deployable"));
+
+      if(!Number.isNaN(activation)) {
+        prepareActivationMacro(this.actor._id, item, ActivationOptions.ACTION, activation);
+      } else if(!Number.isNaN(deployable)) {
+        prepareActivationMacro(this.actor._id, item, ActivationOptions.DEPLOYABLE, deployable);
+      } 
+    })
+
+    // TODO: This are really just mech-specific
+    // Core active & passive text rollers
+    let CAMacro = html.find(".core-active-macro");
+    CAMacro.on("click", (ev: any) => {
+      ev.stopPropagation(); // Avoids triggering parent event handlers
+
+      // let target = <HTMLElement>ev.currentTarget;
+
+      prepareCoreActiveMacro(this.actor._id);
+    });
+
+    let CPMacro = html.find(".core-passive-macro");
+    CPMacro.on("click", (ev: any) => {
+      ev.stopPropagation(); // Avoids triggering parent event handlers
+
+      // let target = <HTMLElement>ev.currentTarget;
+
+      prepareCorePassiveMacro(this.actor._id);
+    });
+  }
+
+  _onDragMacroableStart(event: DragEvent) {
+    // For roll-stat macros
+    event.stopPropagation(); // Avoids triggering parent event handlers
+    // It's an input so it'll always be an InputElement, right?
+    let path = this.getStatPath(event);
+    if (!path) return ui.notifications.error("Error finding stat for macro.");
+
+    let tSplit = path.split(".");
+    let data = {
+      title: tSplit[tSplit.length - 1].toUpperCase(),
+      dataPath: path,
+      type: "HASE",
+      actorId: this.actor._id,
+    };
+    event.dataTransfer?.setData("text/plain", JSON.stringify(data));
+  }
+
+  _onDragActivationChipStart(event: DragEvent) {
+    // For talent macros
+    event.stopPropagation(); // Avoids triggering parent event handlers
+
+    let target = <HTMLElement>event.currentTarget;
+
+    let title = target.closest(".action-wrapper")?.querySelector(".action-title")?.textContent;
+    let itemId = target.closest(".item")?.getAttribute("data-id")
+
+    if(!itemId) throw Error("No item found)");
+
+    if(title === undefined)
+      title = this.actor.getOwnedItem(itemId)?.name;
+
+    let data = {
+      itemId: target.closest(".item")?.getAttribute("data-id"),
+      actorId: this.actor._id,
+      type: "",
+      number: 0,
+      title: title,
+    };
+
+    let a = target.getAttribute("data-activation");
+    let d = target.getAttribute("data-deployable");
+
+
+    if(a) {
+      const activation = parseInt(a);
+      data.type = ActivationOptions.ACTION;
+      data.number = activation;
+    } else if(d) {
+      const deployable = parseInt(d);
+      data.type = "DEPLOYABLE";
+      data.number = deployable;
+    } 
+
+    event.dataTransfer?.setData("text/plain", JSON.stringify(data));
+  }
+
+  _onDragTalentMacroableStart(event: DragEvent) {
+    // For talent macros
+    event.stopPropagation(); // Avoids triggering parent event handlers
+
+    let target = <HTMLElement>event.currentTarget;
+
+    let data = {
+      itemId: target.closest(".item")?.getAttribute("data-id"),
+      actorId: this.actor._id,
+      type: EntryType.TALENT,
+      title: target.nextElementSibling?.textContent,
+      rank: target.getAttribute("data-rank"),
+    };
+
+    event.dataTransfer?.setData("text/plain", JSON.stringify(data));
+  }
+
+  
+  /**
+   * For macros which simple expect a title & description, no fancy handling.
+   * Assumes data-path-title & data-path-description defined
+   * @param event   The associated DragEvent
+   */
+   _onDragTextMacroableStart(event: DragEvent) {
+    event.stopPropagation(); // Avoids triggering parent event handlers
+
+    let target = <HTMLElement>event.currentTarget;
+
+    let data = {
+      title: target.getAttribute("data-path-title"),
+      description: target.getAttribute("data-path-description"),
+      actorId: this.actor._id,
+      type: "Text",
+    };
+
+    event.dataTransfer?.setData("text/plain", JSON.stringify(data));
+  }
+
+  /**
+   * For dragging the core active to the hotbar
+   * @param event   The associated DragEvent
+   */
+  _onDragCoreActiveStart(event: DragEvent) {
+    event.stopPropagation(); // Avoids triggering parent event handlers
+
+    // let target = <HTMLElement>event.currentTarget;
+
+    let data = {
+      actorId: this.actor._id,
+      // Title will simply be CORE ACTIVE since we want to keep the macro dynamic
+      title: "CORE ACTIVE",
+      type: "Core-Active",
+    };
+
+    event.dataTransfer?.setData("text/plain", JSON.stringify(data));
+  }
+
+  /**
+   * For dragging the core passive to the hotbar
+   * @param event   The associated DragEvent
+   */
+  _onDragCorePassiveStart(event: DragEvent) {
+    event.stopPropagation(); // Avoids triggering parent event handlers
+
+    // let target = <HTMLElement>event.currentTarget;
+
+    let data = {
+      actorId: this.actor._id,
+      // Title will simply be CORE PASSIVE since we want to keep the macro dynamic
+      title: "CORE PASSIVE",
+      type: "Core-Passive",
+    };
+
+    event.dataTransfer?.setData("text/plain", JSON.stringify(data));
   }
 
   _activatePlusMinusButtons(html: any) {
@@ -112,10 +424,14 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
       .closest(".stat-container")
       .find(".lancer-stat")[0] as HTMLElement;
 
+    if(!el) el = $(event.currentTarget).siblings(".lancer-stat")[0]
+
     if (el.nodeName === "INPUT") {
       return (<HTMLInputElement>el).name;
     } else if (el.nodeName === "DATA") {
       return (<HTMLDataElement>el).id;
+    } else if (el.nodeName === "SPAN") {
+      return (<HTMLSpanElement>el).getAttribute("data-path");
     } else {
       throw "Error - stat macro was not run on an input or data element";
     }
@@ -178,46 +494,43 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     return Promise.resolve(true);
   }
 
-  _propagateMMData(formData: any): boolean {
+  _propagateMMData(formData: any): any {
     // Pushes relevant field data down from the "actor" data block to the "mm.ent" data block
     // Also meant to encapsulate all of the behavior of _updateTokenImage
     // Returns true if any of these top level fields require updating (i.e. do we need to .update({img: ___, token: __, etc}))
     let token: any = this.actor.data["token"];
-    let needs_update = false;
+    let new_top: any = {};
+
+    // Get the basics
+    new_top["img"] = formData["img"];
+    new_top["name"] = formData["name"];
 
     // Set the prototype token image if the prototype token isn't initialized
     if (!token) {
-      formData["token.img"] = formData["img"];
-      formData["token.name"] = formData["name"];
-      needs_update = true;
+      new_top["token.img"] = formData["img"];
+      new_top["token.name"] = formData["name"];
     }
 
     // Update token image if it matches the old actor image - keep in sync
     // Ditto for name
     else {
       if (this.actor.data.img === token["img"] && this.actor.img !== formData["img"]) {
-        formData["token.img"] = formData["img"];
-        needs_update = true;
+        new_top["token.img"] = formData["img"];
       } // Otherwise don't update token
       if (this.actor.data.name === token["name"] && this.actor.name !== formData["name"]) {
-        formData["token.name"] = formData["name"];
-        needs_update = true;
+        new_top["token.name"] = formData["name"];
       }
     }
 
-    // Need to update if name changed
-    if (this.actor.name != formData["name"]) {
-      needs_update = true;
-    }
-
-    // Numeric selects are annoying
+    // Bound NPC tier as it is one of the most frequent sheet breakers. TODO: more general solution
     if ("npctier" in formData) {
       formData["mm.ent.Tier"] = Number.parseInt(formData["npctier"]) || 1;
     }
 
     // Do push down name changes
     formData["mm.ent.Name"] = formData["name"];
-    return needs_update;
+
+    return new_top;
   }
 
   /**
@@ -230,22 +543,12 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     let ct = await this.getDataLazy();
 
     // Automatically propagate fields that should be set to multiple places, and determine if we need to update anything besides mm ent
-    let need_top_update = this._propagateMMData(formData);
+    let new_top = this._propagateMMData(formData);
 
     // Do a separate update depending on mm data
-    if (need_top_update) {
-      let top_update = {} as any;
-      for (let key of Object.keys(formData)) {
-        if (!key.includes("mm.ent")) {
-          top_update[key] = formData[key];
-        }
-      }
-      // await this.actor.update(top_update, {});
-      await this.actor.update(top_update);
-    } else {
-      gentle_merge(ct, formData);
-      await this._commitCurrMM();
-    }
+    gentle_merge(ct, formData);
+    mergeObject((ct.mm.ent.Flags as FoundryFlagData<any>).top_level_data, new_top);
+    await this._commitCurrMM();
   }
 
   /**
@@ -262,7 +565,6 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     this._currData = data;
     return data;
   }
-
   // Cached getdata
   protected _currData: LancerActorSheetData<T> | null = null;
   async getDataLazy(): Promise<LancerActorSheetData<T>> {

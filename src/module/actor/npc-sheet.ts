@@ -53,7 +53,7 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
 
         const el = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
 
-        prepareItemMacro(this.actor._id, <string>el.getAttribute("data-item-id")).then();
+        prepareItemMacro(this.actor._id, <string>el.getAttribute("data-id")).then();
       });
 
       // Stat rollers
@@ -79,15 +79,16 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
       // Trigger rollers
       this.activateTriggerListeners(html);
 
+      /*
       // Weapon rollers
       let weaponMacro = html.find(".roll-attack");
       weaponMacro.on("click", (ev: Event) => {
         if (!ev.currentTarget) return; // No target, let other handlers take care of it.
         ev.stopPropagation(); // Avoids triggering parent event handlers
 
-        const weaponElement = $(ev.currentTarget).closest(".weapon")[0] as HTMLElement;
+        const weaponElement = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
         // console.log(weaponElement);
-        const weaponId = weaponElement.getAttribute("data-item-id");
+        const weaponId = weaponElement.getAttribute("data-id");
         if (!weaponId) return ui.notifications.warn(`Error rolling macro: No weapon ID!`);
         const item = this.actor.getOwnedItem(weaponId);
         if (!item)
@@ -97,15 +98,15 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
 
         const weapon = item as LancerNpcFeature;
         game.lancer.prepareItemMacro(this.actor._id, weapon._id);
-      });
+      });*/
 
       // Tech rollers
       let techMacro = html.find(".roll-tech");
       techMacro.on("click", (ev: Event) => {
         if (!ev.currentTarget) return; // No target, let other handlers take care of it.
         ev.stopPropagation();
-        const techElement = $(ev.currentTarget).closest(".tech")[0] as HTMLElement;
-        let techId = techElement.getAttribute("data-item-id");
+        const techElement = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
+        let techId = techElement.getAttribute("data-id");
         game.lancer.prepareItemMacro(this.actor._id, techId!);
       });
     }

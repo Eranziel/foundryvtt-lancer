@@ -10,6 +10,7 @@ import {
   std_x_of_y,
 } from "./commons";
 import { ref_commons, simple_mm_ref } from "./refs";
+import { encodeMacroData } from '../macros';
 // ---------------------------------------
 // Some simple stat editing thingies
 
@@ -60,18 +61,38 @@ export function stat_view_card(
   title: string,
   icon: string,
   data_path: string,
-  options: HelperOptions
+  options: HelperOptions & {"rollable":boolean}
 ): string {
   let data_val = resolve_helper_dotpath(options, data_path);
+  let macro_button: string | undefined;
+  let macroData = encodeMacroData({
+    command: `game.lancer.prepareStatMacro("${options.data.root.actor._id}","${data_path}");`,
+    title: title
+  })
+  if(options.rollable) macro_button = `<a class="i--dark i--sm lancer-macro" data-macro="${macroData}"><i class="fas fa-dice-d20"></i></a>`
   return `
     <div class="card clipped">
       <div class="lancer-header ">
         ${inc_if(`<i class="${icon} i--m i--light header-icon"> </i>`, icon)}
         <span class="major">${title}</span>
       </div>
-      <span class="lancer-stat major">${data_val}</span>
+      <div class="flexrow ${macro_button ? "stat-macro-container" : ""}">
+      ${macro_button ? macro_button : ""}
+        <span class="lancer-stat major" data-path="${data_path}">${data_val}</span>
+        ${macro_button ? "<div></div>" : ""}
+      </div>
     </div>
     `;
+}
+
+// Show a readonly rollable clipped card
+export function stat_rollable_card(
+  title: string,
+  icon: string,
+  data_path: string,
+  options: HelperOptions
+): string {
+  return stat_view_card(title,icon,data_path,{...options,"rollable":true});
 }
 
 // Shows a compact readonly value
@@ -121,14 +142,24 @@ export function clicker_stat_card(
   title: string,
   icon: string,
   data_path: string,
+  roller: boolean,
   options: HelperOptions
 ): string {
-  return `<div class="card clipped">
+  let button = ""
+  let macroData = encodeMacroData({
+    command: `game.lancer.prepareStatMacro("${options.data.root.actor._id}","${data_path}");`,
+    title: title
+  })
+  if(roller) button = `<a class="lancer-macro i--dark i--sm" data-macro="${macroData}"><i class="fas fa-dice-d20"></i></a>`
+  return `<div class="card clipped stat-container">
       <div class="lancer-header ">
         <i class="${icon} i--m i--light header-icon"> </i>
         <span class="major">${title}</span>
       </div>
-      ${clicker_num_input(data_path, options)}
+      <div class="flexrow">
+        ${button}
+        ${clicker_num_input(data_path, options)}
+      </div>
     </div>
   `;
 }
@@ -175,15 +206,14 @@ export function overcharge_button(overcharge_path: string, options: HelperOption
   index = funcs.bound_int(index, 0, overcharge_sequence.length - 1);
   let over_val = overcharge_sequence[index];
   return `
-    <div class="card clipped flexcol">
-      <div class="lancer-header ">
+    <div class="flexcol card clipped" style="grid-area: 4/5/5/6">
+      <div class="lancer-header clipped-top flexrow">
         <span class="major">OVERCHARGE</span>
       </div>
-      <div class=flexrow>
-        <a class="overcharge-button">
-          <i class="cci cci-overcharge i--dark i--sm"> </i>
-        </a>
-        <span>${over_val}</span>
+      <div class="overcharge-container">
+        <a class="overcharge-macro macroable i--dark i--sm" data-action="roll-macro"><i class="fas fa-dice-d20"></i></a>
+        <a class="overcharge-text">${over_val}</a>
+        <a class="overcharge-reset mdi mdi-restore"></a>
       </div>
     </div>`;
 }

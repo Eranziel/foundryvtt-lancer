@@ -796,8 +796,8 @@ tr.lcp-index-header {
 input[type=number].lancer-stat {
   align-self: center;
   text-align: center;
-  max-width: 50px;
-  min-width: 30px;
+  max-width: 40px;
+  min-width: 25px;
 }
 
 .lancer-text-field,
@@ -896,20 +896,21 @@ input[type=string].lancer-input {
 }
 
 .effect-text {
-  padding: 0px 0px 0.5em 0.5em;
-  font-family: Helvetica;
+  text-align: left;
+  padding: 0.5em;
 }
 
 /* Start of HORUS glitchy styles used in lancer-data */
 code {
   padding: 4px 12px 4px 12px;
+  font-family: monospace,monospace;
 }
 
 code.horus {
   font-size: 1.1em;
-  background-color: black !important;
+  background-color: rgba(0, 0, 0, 0.7) !important;
   box-shadow: none;
-  color: white;
+  //color: white;
   font-style: normal;
   letter-spacing: 0.05em;
   border-radius: 0;
@@ -1051,6 +1052,7 @@ button.overkill-reroll {
   align-self: center;
   max-width: fit-content;
   flex-wrap: nowrap;
+  margin: auto;
 }
 
 .mod-plus-button {
@@ -1107,24 +1109,26 @@ input.core-power-toggle:not(:checked)::before
 }
 
 .overcharge-container {
-  clip-path: circle();
-  display: flex;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   align-items: center;
-  background-color: var(--main-theme-color, fuchsia);
 }
 
-.overcharge-button {
-  background-color: white;
-  clip-path: circle();
+.overcharge-text {
   display: flex;
   justify-content: center;
   align-items: center;
   line-height: .8em;
-  font-weight: bold;
-  font-size: 16pt;
-  color: var(--main-theme-color, fuchsia);
-  border: none;
+}
+
+.overcharge-macro {
+  justify-self: center;
+}
+
+.overcharge-heat {
+  color:#fc3e0f; 
+  flex-grow: unset;
+  width: 1.5em;
 }
 
 /* Some flex helpers */
@@ -1132,6 +1136,7 @@ input.core-power-toggle:not(:checked)::before
   &.#{$prefix} > * {
     flex: 1 0 calc(#{$percent} - #{$margin * 2}); 
     margin: 3px;
+    flex-grow: unset;
   }
 
   &.#{$prefix} > .double {
@@ -1173,6 +1178,7 @@ input.core-power-toggle:not(:checked)::before
   &.hextuple > .full { 
     flex: 1 0 calc(100% - 6px); 
     margin: 3px;
+    flex-grow: unset;
   }
 }
 
@@ -1208,4 +1214,209 @@ input.core-power-toggle:not(:checked)::before
 		border-color: #6f6;
 		box-shadow: 0 0 20px rgba(0,255,0,.6), inset 0 0 10px rgba(0,255,0,.4), 0 2px 0 #000;
     }
+}
+
+
+.lancer-mech-trait-header,
+.lancer-core-sys-header,
+.lancer-talent-header,
+.lancer-system-header,
+.lancer-trait-header,
+.lancer-trigger-header,
+.lancer-protocol-header,
+.lancer-reaction-header,
+.lancer-tech-header,
+.lancer-weapon-header {
+  color: white;
+  background-color: var(--main-theme-color, fuchsia);
+  padding-left: 15px;
+  padding-right: 15px;
+  display: grid;
+  white-space: nowrap;
+  text-align: center;
+  max-height: 2.0em;
+  min-height: 2.0em;
+  grid-template-columns: 40px 1fr 40px;
+  align-items: center;
+  text-overflow: ellipsis;
+}
+
+.lancer-trigger-header {
+  color: var(--main-theme-color, fuchsia);
+  background-color: white;
+}
+
+.skill-compact {
+  display: grid;
+  grid-template: 2.0em 1fr / 100px 1fr;
+  align-items: center;
+  margin-right: 25px;
+}
+
+a.flexrow.skill-macro {
+  margin-inline: 1.2em;
+}
+
+.lancer-talent-header {
+  background-color: var(--talent-color);
+}
+
+.talent-rank-compact {
+  display: grid;
+  grid-template: 2.5em 1fr / 30px 1fr;
+}
+
+.major {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+
+// Action activation types
+$activations-types: none passive quick quicktech invade full fulltech other reaction protocol free;
+// The rgb-based colors I just made up, not sure if there are official colors for those
+$activations-colors: rgb(204, 10, 10) rgb(98, 0, 255) #3949ab #3949ab #222222 #283593 #283593 rgb(162, 0, 255) #512da8 #007676 #00695c;
+
+@each $a-type in $activations-types {
+  $i: index($activations-types, $a-type);
+  .activation-#{$a-type} {
+    background-color: nth($activations-colors, $i);
+    border-color: nth($activations-colors, $i);
+  }
+}
+
+.action-detail, .deployable-detail, .core-active-detail, .core-passive-detail {
+  text-align: left;
+  margin-left: 4px;
+  margin-right: 4px;
+}
+
+.activation-chip {
+  align-self: flex-end;
+  right: 5px;
+  margin-top: 5px;
+  font-size: 12px;
+  height: 24px;
+  color: #fff;
+  border-radius: 4px !important;
+  align-items: center;
+  // cursor: default;
+  display: inline-flex;
+  line-height: 20px;
+  max-width: 100%;
+  outline: none;
+  overflow: hidden;
+  padding: 0 12px;
+  position: relative;
+  text-decoration: none;
+  transition-duration: .28s;
+  transition-property: box-shadow,opacity;
+  transition-timing-function: cubic-bezier(.4,0,.2,1);
+  vertical-align: middle;
+  white-space: nowrap;
+  margin-bottom: 5px;
+}
+
+.action-wrapper, .deployable-wrapper, .core-active-wrapper, .core-passive-wrapper, .core-wrapper {
+  display: flex;
+  flex-direction: column;
+  border-radius: 10px;
+  background-color: rgba(0, 0, 0, 0.07);
+  margin-top: 6px;
+  padding-top: 4px;
+  margin-bottom: 4px;
+}
+/*
+.action-wrapper + .action-wrapper {
+  //background: linear-gradient(#000, #000) top /40% 2px no-repeat rgba(0, 0, 0, 0.07);
+  margin-bottom: 4px;
+  padding-top: 4px;
+  margin-top: 6px;
+}*/
+
+.action-title, .deployable-title, .coresys-title, .core-active-title, .core-passive-title{
+  font-size: 16px;
+  margin-top: 3px;
+  margin: auto;
+}
+
+a.activation-chip > i.fas, a.activation-chip > i.cci, a.activation-chip > i.mdi {
+  margin-right: 6px;
+}
+
+.stat-macro-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+.stat-macro-container > a {
+  margin: auto;
+}
+
+.pilot-summary { 
+  position: relative;
+  text-align: center;
+  cursor: pointer;
+}
+
+.pilot-summary-wrapper {
+  max-width: 25%;
+}
+
+.pilot-summary-name {
+  height: 2em;
+  position: absolute;
+  top: 2px;
+  left: 50%;
+  -webkit-transform: translateX(-50%);
+  transform: translateX(-50%);
+  width: 100%;
+  font-size: 1.4em;
+  font-weight: bold;
+  color: white;
+  -webkit-text-stroke-width: 1px;
+  -webkit-text-stroke-color: black;
+}
+
+.pilot-summary-label {
+  position: absolute;
+  top: 6px;
+  left: 2em;
+}
+
+.pilot-summary-ll {
+  position: absolute;
+  bottom: 4px;
+  right: .5em;
+  font-size: 1.6em;
+}
+
+.frame-trait {
+  margin: 2px;
+  flex-grow: unset;
+}
+
+.frame-traits {
+  width: 50%;
+}
+
+.frame-trait-header {
+  height: 1.5em;
+}
+
+.frame-wrapper > .lancer-header {
+  flex-basis: 100%;
+}
+
+.frame-header {
+  margin: 2px;
+  border-radius: 3px;
+  height: 1.5em;
+}
+
+
+.coresys-title {
+  width: 100%;
+  text-align: center;
+  font-weight: bold;
 }

@@ -33,16 +33,6 @@ export enum EffectType {
   Profile = "Profile",
 }
 
-export enum ActivationType {
-  None = "None",
-  Passive = "Passive",
-  Quick = "Quick",
-  Full = "Full",
-  Other = "Other",
-  Reaction = "Reaction",
-  Protocol = "Protocol",
-}
-
 export enum ChargeType {
   Grenade = "Grenade",
   Mine = "Mine",
@@ -63,4 +53,18 @@ export enum NPCTag {
   Ship = "Ship",
   Biological = "Biological",
   Squad = "Squad",
+}
+
+export enum ActivationOptions {
+  ACTION = "Action",
+  TECH = "Tech",
+  ATTACK = "Attack",
+  DEPLOYABLE = "Deployable"
+}
+
+export enum ChipIcons {
+  Roll = `<i class="fas fa-dice-d20"></i>`,
+  Chat =  `<i class="mdi mdi-message"></i>`,
+  Deployable = `<i class="cci cci-deployable"></i>`,
+  Core = `<i class="cci cci-corebonus"></i>`
 }

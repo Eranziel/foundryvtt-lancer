@@ -1,8 +1,8 @@
 import { EntryType, License, LiveEntryTypes, OpCtx, Pilot, Registry, RegRef } from "machine-mind";
-import type { LancerActor, LancerActorType } from "../actor/lancer-actor";
+import type { LancerActor, LancerActorType, LancerMech, LancerPilot } from "../actor/lancer-actor";
 import type { LancerItem, LancerItemType } from "../item/lancer-item";
 import { FetcherCache } from "./db_abstractions";
-import { FoundryReg } from "./foundry-reg";
+import { FoundryReg, FoundryRegCat } from "./foundry-reg";
 
 // Provides an environment for interacting with a provided item.
 // The registry is whatever registry is most sensibly "local" for the given item. If the item is from a compendium, the reg will be compendium local.
@@ -55,7 +55,6 @@ export async function mm_wrap_item<T extends EntryType & LancerItemType>(
   // Load up the item. This _should_ always work
   let ent = (await reg.get_cat(item.type).get_live(ctx, item._id)) as LiveEntryTypes<T>;
   if (!ent) {
-    console.error(is_compendium, token, actor, "world?", item, reg);
     throw new Error("Something went wrong while trying to contextualize an item...");
   }
 
@@ -94,8 +93,9 @@ export async function mm_wrap_actor<T extends EntryType & LancerActorType>(
   }
   let ctx = use_existing_ctx || new OpCtx();
 
-  // Load up the item. This _should_ always work barring exceptional race conditions (like, deleting the actor while opening the sheet)
-  let ent = (await reg.get_cat(actor.data.type).get_live(ctx, id)) as LiveEntryTypes<T>;
+  // let ent = (await reg.get_cat(actor.data.type).get_live(ctx, id)) as LiveEntryTypes<T>;
+  let cat = reg.get_cat(actor.data.type) as FoundryRegCat<T>;
+  let ent = (await cat.wrap_doc(ctx, actor as any)) as LiveEntryTypes<T>; // Poor typescript doesn't know how to handle these
   if (!ent) {
     throw new Error("Something went wrong while trying to contextualize an actor...");
   }
@@ -115,7 +115,7 @@ export async function mm_wrap_actor<T extends EntryType & LancerActorType>(
 // Helper for finding what license an item comes from. Checks by name, an inelegant solution but probably good enough
 export async function find_license_for(
   mmec: MMEntityContext<LancerItemType>,
-  in_actor?: LancerActor<EntryType.MECH | EntryType.PILOT>
+  in_actor?: LancerMech | LancerPilot
 ): Promise<RegRef<EntryType.LICENSE> | null> {
   // If the item does not have a license name, then we just bail
   let license_name = (mmec.ent as any).License;

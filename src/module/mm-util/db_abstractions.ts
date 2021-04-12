@@ -1,7 +1,9 @@
 import { EntryType, LiveEntryTypes, RegEntryTypes } from "machine-mind";
 import { is_actor_type, LancerActor, LancerActorType } from "../actor/lancer-actor";
 import { FriendlyTypeName, LANCER } from "../config";
+import { gentle_merge } from "../helpers/commons";
 import { LancerItem, LancerItemType } from "../item/lancer-item";
+import { FoundryFlagData } from "./foundry-reg";
 
 const lp = LANCER.log_prefix;
 
@@ -18,12 +20,31 @@ export interface GetResult<T extends LancerItemType | LancerActorType> {
   type: T; // same
 }
 
+/**
+ * Converts an entity into an item suitable for calling .create/.update/whatver with.
+ * Specifically,
+ * - creates the "data" by .save()ing the entity
+ * - augments the data with anything in our top_level_data
+ * - includes an id appropriate to the item. This will allow for bulk .update()s, and has no effect on .create()s
+ *  + Note that this ID is taken from the MM ent, not the original entity. This is because some techniques like insinuation rely on manually altering Registry info to propagate ref changes
+ */
+function as_document_blob<T extends EntryType>(ent: LiveEntryTypes<T>): any {
+  let flags = ent.Flags as FoundryFlagData<T>;
+  return mergeObject(
+    {
+      _id: ent.RegistryID,
+      data: ent.save(),
+    },
+    flags.top_level_data
+  );
+}
+
 // This can wrap an actors inventory, the global actor/item inventory, or a compendium
 export abstract class EntityCollectionWrapper<T extends EntryType> {
   // Create an item and return a reference to it
   abstract create(item: RegEntryTypes<T>): Promise<GetResult<T>>; // Return id
   // Update the specified item of type T
-  abstract update(id: string, item: RegEntryTypes<T>): Promise<void>;
+  abstract update(items: Array<LiveEntryTypes<T>>): Promise<void>;
   // Retrieve the specified item of type T, or yield null if it does not exist
   abstract get(id: string): Promise<GetResult<T> | null>;
   // Delete the specified item
@@ -71,13 +92,9 @@ export class WorldItemsWrapper<T extends LancerItemType> extends EntityCollectio
   }
 
   // Fetch and call .update()
-  async update(id: string, item: RegEntryTypes<T>): Promise<void> {
-    let fi = this.subget(id);
-    if (fi) {
-      await fi.update({ data: item }, {});
-    } else {
-      console.error(`Failed to update item ${id} of type ${this.type} - item not found`);
-    }
+  async update(items: Array<LiveEntryTypes<T>>): Promise<void> {
+    //@ts-ignore Typings dont yet include mass update functions
+    return Item.update(items.map(as_document_blob));
   }
 
   // Call game.items.get
@@ -156,13 +173,9 @@ export class WorldActorsWrapper<T extends LancerActorType> extends EntityCollect
     };
   }
 
-  async update(id: string, item: RegEntryTypes<T>): Promise<void> {
-    let fi = this.subget(id);
-    if (fi) {
-      await fi.update({ data: item }, {});
-    } else {
-      console.error(`Failed to update actor ${id} of type ${this.type} - actor not found`);
-    }
+  async update(items: Array<LiveEntryTypes<T>>): Promise<void> {
+    //@ts-ignore Typings dont yet include mass update functions
+    return Actor.update(items.map(as_document_blob));
   }
 
   async get(id: string): Promise<GetResult<T> | null> {
@@ -225,12 +238,17 @@ export class TokensActorsWrapper<T extends LancerActorType> extends EntityCollec
     throw new Error("This is an ill advised way to create a token. Do better");
   }
 
-  async update(id: string, item: RegEntryTypes<T>): Promise<void> {
-    let fi = this.subget(id);
-    if (fi) {
-      await fi.actor.update({ data: item }, {});
-    } else {
-      console.error(`Failed to update actor ${id} of type ${this.type} - actor not found`);
+  async update(items: Array<LiveEntryTypes<T>>): Promise<void> {
+    // Only care about updating tokens that are synthetic.
+    for (let item of items) {
+      console.log("Updating a token actor. Could this be done faster?");
+      let id = item.RegistryID;
+      let fi = this.subget(id);
+      if (fi) {
+        await fi.actor.update(as_document_blob(item), {});
+      } else {
+        console.error(`Failed to update actor ${id} of type ${this.type} - actor not found`);
+      }
     }
   }
 
@@ -312,24 +330,16 @@ export class ActorInventoryWrapper<T extends LancerItemType> extends EntityColle
     };
   }
 
-  async update(id: string, item: RegEntryTypes<T>): Promise<void> {
+  async update(items: Array<LiveEntryTypes<T>>): Promise<void> {
     if (this.for_compendium) {
       console.warn(
-        "Warning: Cannot currently edit owned items of actors. Re-examine this with Foundry .8, as there was mention of this changing with further tweaks to active effects"
+        "Warning: Cannot currently edit owned items of compendium actors. Re-examine this with Foundry .8, as there was mention of this changing with further tweaks to active effects"
       );
       return;
     }
 
-    let fi = await this.subget(id);
-    if (fi) {
-      await fi.update({ data: item }, {});
-      return;
-    } else {
-      console.error(
-        `Failed to update item ${id} of type ${this.type} in actor. Actor or item not found`,
-        this.actor
-      );
-    }
+    // @ts-ignore Typings dont yet include mass update functions
+    return this.actor.updateEmbeddedEntity("OwnedItem", items.map(as_document_blob));
   }
 
   async get(id: string): Promise<GetResult<T> | null> {
@@ -380,7 +390,7 @@ export class TokenInventoryWrapper<T extends LancerItemType> extends ActorInvent
 
   constructor(type: T, token: Token) {
     super(type, token.actor);
-    if (!token) {
+    if (!token || !token.actor) {
       throw new Error("Bad token");
     }
     this.token = token;
@@ -443,16 +453,20 @@ export class CompendiumWrapper<T extends EntryType> extends EntityCollectionWrap
     };
   }
 
-  async update(id: string, item: RegEntryTypes<T>): Promise<void> {
-    let fi = await this.subget(id);
-    if (fi) {
-      await fi.update({ data: item }, { render: false });
+  async update(items: Array<LiveEntryTypes<T>>): Promise<void> {
+    for (let item of items) {
+      let fi = await this.subget(item.RegistryID);
+      if (fi) {
+        await fi.update(as_document_blob(item), { render: false });
 
-      // No need to flush entire cache - but we do need to re-fetch that item
-      let updated_entry = await this.pack().then(p => p.getEntity(id));
-      PackContentMapCache.soft_fetch(this.type)?.set(id, updated_entry);
-    } else {
-      console.error(`Failed to update item ${id} of type ${this.type} - item not found`);
+        // No need to flush entire cache - but we do need to re-fetch that item
+        let updated_entry = await this.pack().then(p => p.getEntity(item.RegistryID));
+        PackContentMapCache.soft_fetch(this.type)?.set(item.RegistryID, updated_entry);
+      } else {
+        console.error(
+          `Failed to update item ${item.RegistryID} of type ${this.type} - item not found`
+        );
+      }
     }
   }
 
@@ -486,7 +500,7 @@ export class CompendiumWrapper<T extends EntryType> extends EntityCollectionWrap
   async enumerate(): Promise<GetResult<T>[]> {
     let content = await cached_get_pack_map(this.type);
     return Array.from(content.values())
-      .filter(e => e.data.type == this.type) // Sanity check
+      .filter(e => e && e.data.type == this.type) // Sanity check. I've seen nulls in here
       .map(e => ({
         id: (e.data as any)._id,
         item: e.data.data as RegEntryTypes<T>,

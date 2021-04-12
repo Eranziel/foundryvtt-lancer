@@ -26,8 +26,11 @@ import {
   NpcFeature,
   FittingSize,
   Action,
+  Deployable,
+  MechSystem,
+  ActivationType,
 } from "machine-mind";
-import { MechWeapon } from "machine-mind";
+import { MechWeapon, TagInstance } from 'machine-mind';
 import { BonusEditDialog } from "../apps/bonus-editor";
 import { TypeIcon } from "../config";
 import {
@@ -53,6 +56,9 @@ import {
   std_x_of_y,
 } from "./commons";
 import { ref_commons, ref_params } from "./refs";
+import { ActivationOptions, ChipIcons } from "../enums";
+import { LancerMacroData } from "../interfaces";
+import { encodeMacroData } from '../macros';
 
 /**
  * Handlebars helper for weapon size selector
@@ -227,47 +233,6 @@ export function uses_control(uses_path: string, max_uses: number, helper: Helper
     </div>
     `;
 }
-
-/**
- * Handlebars partial for a mech system preview card.
- */
-/*
-export const mech_system_preview = `<li class="card clipped mech-system-compact item" data-item-id="{{system._id}}">
-<div class="lancer-header" style="grid-area: 1/1/2/3; display: flex">
-  <i class="cci cci-system i--m"> </i>
-  <a class="system-macro macroable"><i class="mdi mdi-message"></i></a>
-  <span class="minor grow">{{system.name}}</span>
-  <a class="stats-control" data-action="delete"><i class="fas fa-trash"></i></a>
-</div>
-<div class="flexrow">
-  <div style="float: left; align-items: center; display: inherit;">
-    <i class="cci cci-system-point i--m i--dark"> </i>
-    <span class="medium" style="padding: 5px;">{{system.data.sp}} SP</span>
-  </div>
-  {{#if system.data.uses}}
-  <div class="compact-stat">
-    <span class="minor" style="max-width: min-content;">USES: </span>
-    <span class="minor" style="max-width: min-content;">{{system.data.uses}}</span>
-    <span class="minor" style="max-width: min-content;" > / </span>
-    <span class="minor" style="max-width: min-content;">{{system.data.max_uses}}</span>
-  </div>
-  {{/if}}
-</div>
-{{#if (ne system.data.description "")}}
-<div class="desc-text" style="padding: 5px">
-  {{{system.data.description}}}
-</div>
-{{/if}}
-{{#with system.data.effect as |effect|}}
-  {{#if effect.effect_type}}
-    {{{eff-preview effect}}}
-  {{else}}
-    {{> generic-eff-preview effect=effect}}
-  {{/if}}
-{{/with}}
-{{> tag-list tags=system.data.tags}}
-</li>`;
-*/
 
 export function npc_feature_preview(npc_feature_path: string, helper: HelperOptions) {
   let feature: NpcFeature = resolve_helper_dotpath(helper, npc_feature_path);
@@ -580,7 +545,7 @@ export function pilot_gear_refview(gear_path: string, helper: HelperOptions): st
     `;
   }
 
-  return `<div class="valid ${EntryType.PILOT_GEAR} ref drop-settable card clipped macroable"
+  return `<div class="valid ${EntryType.PILOT_GEAR} ref drop-settable card clipped macroable item"
                 ${ref_params(cd.ref, gear_path)} >
     <div class="lancer-header">
       <i class="cci cci-generic-item i--m"> </i>
@@ -735,4 +700,178 @@ export function license_ref(license: License | null, level: number): string {
             </div>
         `;
   }
+}
+
+/**
+ * Builds the HTML for a given action
+ * @param action  Standard action to generate in HTML form
+ * @param options Options such as:
+ *        full    Determines if we should generate full HTML info or just mini version (title & action)
+ *        number  If we're building full, we can pass through a number to denote which index of action 
+ *                this is for macro purposes. Only used for macro-able actions
+ *        tags    Array of TagInstances which can optionally be passed
+ * @returns Activation HTML in string form
+ */
+ export function buildActionHTML(action: Action, options?: {full?: boolean, num?: number, tags?:TagInstance[]}): string {
+  let detailText: string | undefined;
+  let chip: string | undefined;
+  let tags: string | undefined;
+
+  // TODO--can probably do better than this
+  if(options) {
+    if(options.full) {
+      detailText = `
+        <div class="action-detail">
+          ${action.Detail}
+        </div>
+      `
+    }
+
+    // Not using type yet but let's plan forward a bit
+    let type: ActivationOptions;
+    let icon: ChipIcons | undefined;
+
+    if(options.num !== undefined) {
+      switch(action.Activation) {
+        case ActivationType.QuickTech:
+        case ActivationType.FullTech:
+        case ActivationType.Invade:
+          type = ActivationOptions.TECH;
+          icon = ChipIcons.Roll;
+          break;
+        default:
+          type = ActivationOptions.ACTION;
+          icon = ChipIcons.Chat;
+          break;
+      }
+
+      chip = buildChipHTML(action.Activation, {icon: icon, num: options.num})
+    } 
+
+    if(options.tags !== undefined) {
+      tags = compact_tag_list("",options.tags,false);
+    }
+  }
+
+  if(!chip) {
+    chip = buildChipHTML(action.Activation);
+  }
+
+  return `
+  <div class="action-wrapper">
+    <span class="action-title">
+      ${action.Name ? action.Name : ""}
+    </span>
+    ${detailText ? detailText : ""}
+    ${chip}
+    ${tags ? tags : ""}
+  </div>
+  `
+}
+
+/**
+ * Builds the HTML for a given in-system deployable
+ * @param deployable  Deployable to generate in HTML form
+ * @param full    Determines if we should generate full HTML info or just mini version (title & action)
+ * @param number  If we're building full, we can pass through a number to denote which index of action 
+ *                this is for macro purposes. Only used for macro-able actions
+ * @returns Activation HTML in string form
+ */
+export function buildDeployableHTML(dep: Deployable, full?: boolean, num?:number): string {
+  let detailText: string | undefined;
+  let chip: string;
+  let activation: ActivationType | undefined;
+
+  // TODO--can probably do better than this
+  if(full) {
+    detailText = `
+      <div class="deployable-detail">
+        ${dep.Detail}
+      </div>
+    `
+    /*
+    Until further notice, Actions in Deployables are just... not
+    if(dep.Actions.length) {
+      detailText += dep.Actions.map((a) => {return buildActionHTML(a)})
+    } */
+  }
+
+  // All places we could get our activation, in preferred order
+  let activationSources = [dep.Activation,dep.Redeploy,dep.Recall,dep.Actions.length ? dep.Actions[0].Activation: ActivationType.None]
+  for (var i = 0;i < activationSources.length;i++) {
+    if(activationSources[i] !== ActivationType.None) {
+      activation = activationSources[i];
+    }
+  }
+
+  if(!activation) activation = ActivationType.None;
+
+  if(num !== undefined) {
+    chip = buildChipHTML(activation,{icon: ChipIcons.Deployable,num: num,isDep: true});
+  } else {
+    chip = buildChipHTML(activation);
+  }
+
+  return `
+  <div class="deployable-wrapper">
+    <span class="deployable-title">
+      ${dep.Name ? dep.Name : ""}
+    </span>
+    ${detailText ? detailText : ""}
+    ${chip}
+  </div>
+  `
+}
+
+export function buildChipHTML(activation: ActivationType, macroData?: {icon?: ChipIcons, num?: number, isDep?: boolean, fullData?: LancerMacroData}): string {
+  if(macroData && (macroData?.fullData || (macroData?.num !== undefined))) {
+    if(!macroData.icon) 
+      macroData.icon = ChipIcons.Chat;
+    let data: string | undefined;
+    if(macroData?.fullData)
+      data = `data-macro=${encodeMacroData(macroData.fullData)}`;
+    else
+      data = `data-${macroData.isDep ? "deployable" : "activation"}=${macroData.num}`;
+    return `<a class="${macroData?.fullData ? 'lancer-macro' : `macroable`} activation-chip activation-${activation.toLowerCase().replace(/\s+/g, '')}" ${data}>
+            ${macroData.icon ? macroData.icon : ""}
+            ${activation.toUpperCase()}
+          </a>`
+  } else
+    return `<div class="activation-chip activation-${activation.toLowerCase()}">${activation.toUpperCase()}</div>`
+
+}
+
+export async function buildSystemHTML(data: MechSystem): Promise<string> {
+  let eff: string | undefined;
+  let actions: string | undefined;
+  let deployables: string | undefined;
+  let useFirstActivation = false;
+
+  if (data.Effect) eff = data.Effect;
+  else {
+    // If our first action doesn't have a name & we don't have an effect then first action is our "effect"
+    // Always first action? Or a better way?
+    useFirstActivation = data.Actions.length ? !data.Actions[0].Name : false;
+  }
+
+  if (data.Actions) {
+    actions = data.Actions.map((a: Action, i: number) => {
+      return buildActionHTML(a, {full: !i && useFirstActivation});
+    }).join("");
+  }
+
+  if (data.Deployables) {
+    deployables = data.Deployables.map((d: Deployable, i: number) => {
+      return buildDeployableHTML(d);
+    }).join("");
+  }
+
+  let html = `<div class="card clipped-bot system-wrapper" style="margin: 0px;">
+  <div class="lancer-header ">// SYSTEM :: ${data.Name} //</div>
+  ${eff ? eff : ""}
+  ${actions ? actions : ""}
+  ${deployables ? deployables : ""}
+  ${compact_tag_list("data.Tags", data.Tags, false)}
+</div>`;
+  return html;
 }
