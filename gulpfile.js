@@ -347,7 +347,7 @@ async function linkUserData() {
 			console.log(
 				chalk.green(`Copying build to ${chalk.blueBright(linkDir)}`)
 			);
-			await fs.symlink(path.resolve('./dist'), linkDir);
+			await fs.symlink(path.resolve('./dist'), linkDir, 'junction');
 		}
 		return Promise.resolve();
 	} catch (err) {

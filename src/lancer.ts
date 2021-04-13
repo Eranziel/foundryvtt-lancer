@@ -472,6 +472,11 @@ Hooks.on("renderSidebarTab", async (app: Application, html: HTMLElement) => {
   addLCPManager(app, html);
 });
 
+// For the settings tab
+Hooks.on("renderSettings", async (app: Application, html: HTMLElement) => {
+  addSettingsButtons(app, html);
+});
+
 // Attack function to overkill reroll button
 Hooks.on("renderChatMessage", async (cm: ChatMessage, html: any, data: any) => {
   const overkill = html[0].getElementsByClassName("overkill-reroll");
@@ -530,6 +535,13 @@ Hooks.on("modifyTokenAttribute", (_: any, data: any) => {
 async function versionCheck() {
   // Determine whether a system migration is required and feasible
   const currentVersion = game.settings.get(LANCER.sys_name, LANCER.setting_migration);
+
+  // If it's 0 then it's a fresh install
+  if (currentVersion === "0") {
+    await game.settings.set(LANCER.sys_name, LANCER.setting_migration, game.system.data.version);
+    return;
+  }
+
   // Modify these constants to set which Lancer version numbers need and permit migration.
   const NEEDS_MIGRATION_VERSION = "0.1.7";
   const COMPATIBLE_MIGRATION_VERSION = "0.1.6";
@@ -579,4 +591,88 @@ async function versionCheck() {
       );
     }
   }
+}
+
+async function showChangelog() {
+  // Show welcome message if not hidden.
+  if (!game.settings.get(LANCER.sys_name, LANCER.setting_welcome)) {
+    let renderChangelog = (changelog: string) => {
+      new Dialog(
+        {
+          title: `Welcome to LANCER v${game.system.data.version}`,
+          content: WELCOME(changelog),
+          buttons: {
+            dont_show: {
+              label: "Do Not Show Again",
+              callback: async () => {
+                await game.settings.set(LANCER.sys_name, LANCER.setting_welcome, true);
+              },
+            },
+            close: {
+              label: "Close",
+            },
+          },
+          default: "Close",
+        },
+        {
+          width: 700,
+        }
+      ).render(true);
+    };
+
+    // Get an automatic changelog for our version
+    let req = $.get(
+      `https://raw.githubusercontent.com/Eranziel/foundryvtt-lancer/v${game.system.data.version}/CHANGELOG.md`
+    );
+    req.done((data, status) => {
+      // Regex magic to only grab the first 25 lines
+      let r = /(?:[^\n]*\n){25}/;
+      let trimmedChangelog = data.match(r)[0];
+
+      // Grab the position of the last H1 and trim to that to ensure we split along version lines
+      // But also set a min so we're keeping at least one version
+      let lastH1Pos = trimmedChangelog.lastIndexOf("\n# ");
+      if (lastH1Pos < 20) lastH1Pos = trimmedChangelog.length;
+
+      trimmedChangelog = trimmedChangelog.substring(0, lastH1Pos);
+
+      let changelog = marked(trimmedChangelog);
+
+      renderChangelog(changelog);
+    });
+
+    req.fail((data, status) => {
+      let errorText = `<h2>Error retrieving changelog</h2>`;
+
+      renderChangelog(errorText);
+    });
+  }
+}
+
+function addSettingsButtons(app: Application, html: HTMLElement) {
+  const faqButton = $(`<button id="triggler-form" data-action="triggler">
+            <i class="fas fa-robot"></i>LANCER Help
+        </button>`);
+
+  $(html).find("#settings-documentation").append(faqButton);
+    
+  faqButton.click(async ev => {
+    let helpContent = await renderTemplate("systems/lancer/templates/window/lancerHelp.html",{});
+
+    new Dialog(
+      {
+        title: `LANCER Help`,
+        content: helpContent,
+        buttons: {
+          close: {
+            label: "Close",
+          },
+        },
+        default: "Close",
+      },
+      {
+        width: 600,
+      }
+    ).render(true);
+  })
 }

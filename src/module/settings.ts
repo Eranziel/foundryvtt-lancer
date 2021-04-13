@@ -80,4 +80,12 @@ export const registerSettings = function () {
     type: Boolean,
     default: true,
   });
+  
+  game.settings.register(LANCER.sys_name, LANCER.setting_120, {
+    name: "Show v0.1.20 Warning",
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
 };
