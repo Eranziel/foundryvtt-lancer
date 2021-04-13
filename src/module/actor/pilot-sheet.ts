@@ -105,7 +105,7 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
           });
           let synced_data = await funcs.cloud_sync(raw_pilot_data, self.mm.ent, [ps1, ps2], {
             relinker: quick_relinker<any>({
-              key_pairs: [["ID", "id"], ["Name", "name"]]
+              key_pairs: [["LID", "lid"], ["Name", "name"]]
             })
           });
           if(!synced_data) {

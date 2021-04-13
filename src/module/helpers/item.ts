@@ -259,7 +259,7 @@ export function npc_feature_preview(npc_feature_path: string, helper: HelperOpti
  */
 export function single_bonus_editor(bonus_path: string, bonus: Bonus, options: HelperOptions) {
   // Our main two inputs
-  let id_input = std_string_input(`${bonus_path}.ID`, ext_helper_hash(options, { label: "ID" }));
+  let id_input = std_string_input(`${bonus_path}.LID`, ext_helper_hash(options, { label: "ID" }));
   let val_input = std_string_input(
     `${bonus_path}.Value`,
     ext_helper_hash(options, { label: "Value" })
@@ -394,7 +394,7 @@ export function HANDLER_activate_edit_bonus<T>(
  */
 export function single_action_editor(path: string, options: HelperOptions) {
   // Make inputs for each important field
-  let id_input = std_string_input(`${path}.ID`, ext_helper_hash(options, { label: "ID" }));
+  let id_input = std_string_input(`${path}.LID`, ext_helper_hash(options, { label: "ID" }));
   let name_input = std_string_input(`${path}.Name`, ext_helper_hash(options, { label: "Name" }));
 
   // Consolidate them into rows
@@ -426,11 +426,11 @@ export function pilot_armor_slot(armor_path: string, helper: HelperOptions): str
   let armor = armor_!;
 
   // Need to look in bonuses to find what we need
-  let armor_val = armor.Bonuses.find(b => b.ID == "pilot_armor")?.Value ?? "0";
-  let speed_val = armor.Bonuses.find(b => b.ID == "pilot_speed")?.Value ?? "0";
-  let edef_val = armor.Bonuses.find(b => b.ID == "pilot_edef")?.Value ?? "0";
-  let eva_val = armor.Bonuses.find(b => b.ID == "pilot_evasion")?.Value ?? "0";
-  let hp_val = armor.Bonuses.find(b => b.ID == "pilot_hp")?.Value ?? "0";
+  let armor_val = armor.Bonuses.find(b => b.LID == "pilot_armor")?.Value ?? "0";
+  let speed_val = armor.Bonuses.find(b => b.LID == "pilot_speed")?.Value ?? "0";
+  let edef_val = armor.Bonuses.find(b => b.LID == "pilot_edef")?.Value ?? "0";
+  let eva_val = armor.Bonuses.find(b => b.LID == "pilot_evasion")?.Value ?? "0";
+  let hp_val = armor.Bonuses.find(b => b.LID == "pilot_hp")?.Value ?? "0";
 
   return `<div class="valid ${cd.ref.type} ref drop-settable card clipped pilot-armor-compact item" 
                 ${ref_params(cd.ref, armor_path)} >
@@ -671,7 +671,7 @@ export function manufacturer_ref(source_path: string, helper: HelperOptions): st
     )}> 
               <h3 class="mfr-name" style="color: ${source!.GetColor(false)};">
                 <i class="i--m cci ${source.Logo}"></i>
-                ${source!.ID}
+                ${source!.LID}
               </h3>
                 
             </div>

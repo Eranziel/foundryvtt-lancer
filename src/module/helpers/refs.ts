@@ -170,7 +170,7 @@ export function recreate_ref_from_element<T extends EntryType>(
   let id = element.dataset.id;
   let type = element.dataset.type as T | undefined;
   let reg_name = element.dataset.regName;
-  let fallback_mmid = "";
+  let fallback_lid = "";
 
   // Check existence
   if (!id) {
@@ -188,7 +188,7 @@ export function recreate_ref_from_element<T extends EntryType>(
     id,
     type,
     reg_name,
-    fallback_mmid,
+    fallback_lid,
   };
 
   return ref;
