@@ -75,7 +75,7 @@ import { WeaponRangeTemplate } from "./module/pixi/weapon-range-template";
 
 // Import helpers
 import { preloadTemplates } from "./module/preloadTemplates";
-import { registerSettings } from "./module/settings";
+import { registerSettings, updateTheme } from "./module/settings";
 import {
   compactTagList,
   renderChunkyTag,
@@ -356,7 +356,7 @@ Hooks.once("init", async function () {
 });
 
 /* ------------------------------------ */
-/* Setup system			            				*/
+/* Setup system                          */
 /* ------------------------------------ */
 Hooks.once("setup", async function () {
   // Do anything after initialization but before ready.
@@ -388,6 +388,9 @@ Hooks.once("ready", async function () {
   await versionCheck();
   await showChangelog();
 
+  // Set the theme to whatever is in the settings
+  updateTheme(game.settings.get(LANCER.sys_name, LANCER.setting_theme));
+
   // v0.1.20 Warning for v0.2
   // TODO: Remove for v0.2
   // Get the published warning from https://github.com/Eranziel/foundryvtt-lancer/wiki/v0.1.20-Announcement
@@ -412,8 +415,7 @@ Hooks.once("ready", async function () {
       {
         width: 800,
       }
-    ).render(true);
-  }
+    ).render(true);}
 
     let req = $.get(
       `https://raw.githubusercontent.com/wiki/Eranziel/foundryvtt-lancer/v0.1.20-Announcement.md`
@@ -421,7 +423,7 @@ Hooks.once("ready", async function () {
     req.done((data, status) => {
       warningDialog(marked(data));
     });
-      
+
     req.fail((data, status) => {
       let errorText = `<h2>Warning: Next version will include major changes</h2></br><a href="https://raw.githubusercontent.com/wiki/Eranziel/foundryvtt-lancer/v0.1.20-Announcement.md">Click Here For More Information</a>`;
 
@@ -714,7 +716,7 @@ function addSettingsButtons(app: Application, html: HTMLElement) {
         </button>`);
 
   $(html).find("#settings-documentation").append(faqButton);
-    
+
   faqButton.click(async ev => {
     let helpContent = await renderTemplate("systems/lancer/templates/window/lancerHelp.html",{});
 
