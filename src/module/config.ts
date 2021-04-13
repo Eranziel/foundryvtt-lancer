@@ -1,5 +1,9 @@
 // Namespace configuration Values
 
+import { EntryType } from "machine-mind";
+import { LancerActorType } from "./actor/lancer-actor";
+import { LancerItemType } from "./item/lancer-item";
+
 const ASCII = `
 ╭╮╱╱╭━━━┳━╮╱╭┳━━━┳━━━┳━━━╮ 
 ┃┃╱╱┃╭━╮┃┃╰╮┃┃╭━╮┃╭━━┫╭━╮┃ 
@@ -8,35 +12,26 @@ const ASCII = `
 ┃╰━╯┃╭━╮┃┃╱┃┃┃╰━╯┃╰━━┫┃┃╰╮ 
 ╰━━━┻╯╱╰┻╯╱╰━┻━━━┻━━━┻╯╰━╯`;
 
-export const LANCER = {
-  ASCII,
-  log_prefix: "LANCER |",
-  sys_name: "lancer",
-  setting_migration: "systemMigrationVersion",
-  setting_core_data: "coreDataVersion",
-  setting_lcps: "installedLCPs",
-  setting_stock_icons: "keepStockIcons",
-  setting_welcome: "hideWelcome",
-  setting_automation: "automationSwitch",
-  setting_pilot_oc_heat: "autoOCHeat",
-  setting_overkill_heat: "autoOKillHeat",
-  setting_auto_structure: "autoCalcStructure",
-  setting_120: "warningFor120",
-  pilot_items: [
-    "frame",
-    "skill",
-    "talent",
-    "core_bonus",
-    "license",
-    "pilot_armor",
-    "pilot_weapon",
-    "pilot_gear",
-    "mech_weapon",
-    "mech_system",
-  ],
-  npc_items: ["npc_class", "npc_template", "npc_feature"],
-  weapon_items: ["mech_weapon", "pilot_weapon", "npc_feature"],
-};
+let ET = EntryType;
+// These are general categories that items fall under, useful for the purpose of knowing when moving that item is allowed
+const mech_items: LancerItemType[] = [ET.WEAPON_MOD, ET.FRAME, ET.MECH_WEAPON, ET.MECH_SYSTEM];
+const pilot_items: LancerItemType[] = [
+  ET.SKILL,
+  ET.TALENT,
+  ET.CORE_BONUS,
+  ET.LICENSE,
+  ET.PILOT_ARMOR,
+  ET.PILOT_WEAPON,
+  ET.PILOT_GEAR,
+  ET.FACTION,
+  ET.QUIRK,
+  ET.RESERVE,
+  ET.ORGANIZATION,
+];
+const npc_items: LancerItemType[] = [ET.NPC_CLASS, ET.NPC_FEATURE, ET.NPC_TEMPLATE];
+const weapon_items: LancerItemType[] = [ET.MECH_WEAPON, ET.PILOT_WEAPON, ET.NPC_FEATURE];
+
+export type LancerEntityType = LancerItemType | LancerActorType;
 
 export const STATUSES = [
   {
@@ -131,25 +126,176 @@ export const STATUSES = [
   },
 ];
 
-export function WELCOME(changelog: string): string {
-  return `<div style="margin: 10px 5px">
-  <p>Welcome to Lancer on Foundry! If you haven't already, check out the project wiki for 
-  <a href="https://github.com/Eranziel/foundryvtt-lancer/wiki/FAQ">FAQ</a>
-  and a list of <a href="https://github.com/Eranziel/foundryvtt-lancer/wiki/Resources">recommended modules</a>, as well
-  as other information about how to use the system.</p>
-  
-  <p>In particular, if you aren't using them already we <i>strongly</i> recommend the modules
-  <a href="https://foundryvtt.com/packages/hex-size-support/">"Hex Token Size Support"</a> by
-  Ourobor (even if you don't use hexes it is very useful for tweaking token art size and placement) and 
-  <a href="https://foundryvtt.com/packages/lancer-initiative/">"Lancer Initiative"</a> by Bolts.</p>
-  
-  <p>You can report issues on GitHub here: 
-  <a href="https://github.com/Eranziel/foundryvtt-lancer/issues">https://github.com/Eranziel/foundryvtt-lancer/issues</a></p>
-  
-  <p><h1>Change Log:
-  ${changelog}
-  
-  <p><a href="https://github.com/Eranziel/foundryvtt-lancer/blob/master/CHANGELOG.md">Click here for the full changelog.</a></p>
-  </div>
-  `;
+export const WELCOME = `<div style="margin: 10px 5px">
+<p>Welcome to Lancer on Foundry! If you haven't already, check out the project wiki for 
+<a href="https://github.com/Eranziel/foundryvtt-lancer/wiki/FAQ">FAQ</a>
+and a list of <a href="https://github.com/Eranziel/foundryvtt-lancer/wiki/Resources">recommended modules</a>, as well
+as other information about how to use the system.</p>
+
+<p>In particular, if you aren't using them already we <i>strongly</i> recommend the modules
+<a href="https://foundryvtt.com/packages/hex-size-support/">"Hex Token Size Support"</a> by
+Ourobor (even if you don't use hexes - seriously) and 
+<a href="https://foundryvtt.com/packages/lancer-initiative/">"Lancer Initiative"</a> by Bolts.</p>
+
+<p>You can report issues on GitHub here: 
+<a href="https://github.com/Eranziel/foundryvtt-lancer/issues">https://github.com/Eranziel/foundryvtt-lancer/issues</a></p>
+
+<p><h1>Change Log:</h1>
+<h2>0.1.18 (2020-12-15)</h2>
+<h3>Bug Fixes</h3>
+<ul>
+<li><b>Macros</b>: Fix a bug with the structure/overheat macros that decide to declare your mech destroyed if structure/stress are full.</li>
+</ul>
+
+<h2>0.1.17 (2020-12-15)</h2>
+<h3>Features</h3>
+<ul>
+<li><b>Macros</b>: Structure and Overheat macros have been added. They can be found in the "LANCER Macros" Compendium, and their functionality can be customized using the system settings. Closes #91.</li>
+<li><b>Macros</b>: Macros for placing common AOE templates have been added. They can be found in the "AoE Templates" Compendium.</li>
+<li><b>NPC Classes</b>: Add functionality to NPC Class sheet allowing features from Compendium to be added. Partial for #110.</li>
+</ul>
+<h3>Bug Fixes</h3>
+<ul>
+<li><b>NPCs</b>: Don't override NPC stat values when duplicating NPCs. Closes #94.</li>
+<li><b>Pilot/NPC Sheet</b>: Fix a bug which overwrites prototype token name even if the Actor's name was not edited. Closes #116.</li>
+<li><b>Item Sheets</b>: Fix some inconsistencies in how range and damage selectors were handled, which caused charge-type systems in particular to lose data when saved. Closes #116.</li>
+<li><b>Macros</b>: Fix and improve Overkill handling for attack macros.</li> 
+</ul>
+<h2>0.1.16 (2020-11-25)</h2>
+<h3>Bug Fixes</h3>
+<ul>
+<li><b>Pilot Sheet</b>: Syncing Comp/Con cloud saves no longer fails with a 401 error. Closes #113. Again.</li>
+<li><b>Pilot Sheet</b>: Fix an issue where some synced pilots caused the pilot sheet to not render after syncing. Closes #115.</li>
+<li><b>Macros</b>: Pilot skill trigger and overcharge macros rolled from the sheet no longer fail if no token is selected.</li>
+</ul>
+
+<p><a href="https://github.com/Eranziel/foundryvtt-lancer/blob/master/CHANGELOG.md">Click here for the full changelog.</a></p>
+</div>
+`;
+
+export const LANCER = {
+  ASCII,
+  log_prefix: "LANCER |",
+  sys_name: "lancer",
+  setting_migration: "systemMigrationVersion",
+  setting_core_data: "coreDataVersion",
+  setting_lcps: "installedLCPs",
+  setting_stock_icons: "keepStockIcons",
+  setting_welcome: "hideWelcome",
+  setting_automation: "automationSwitch",
+  setting_pilot_oc_heat: "autoOCHeat",
+  setting_overkill_heat: "autoOKillHeat",
+  setting_auto_structure: "autoCalcStructure",
+  mech_items,
+  pilot_items,
+  weapon_items,
+  npc_items,
+};
+
+// Convenience for mapping item/actor types to full names
+const FRIENDLY_ENTITY_NAMES_SINGULAR = {
+  [EntryType.CORE_BONUS]: "Core Bonus",
+  [EntryType.DEPLOYABLE]: "Deployable",
+  [EntryType.ENVIRONMENT]: "Environment",
+  [EntryType.FACTION]: "Faction",
+  [EntryType.FRAME]: "Frame",
+  [EntryType.LICENSE]: "License",
+  [EntryType.MANUFACTURER]: "Manufacturer",
+  [EntryType.MECH]: "Mech",
+  [EntryType.MECH_SYSTEM]: "Mech System",
+  [EntryType.MECH_WEAPON]: "Mech Weapon",
+  [EntryType.NPC]: "Npc",
+  [EntryType.NPC_CLASS]: "Npc Class",
+  [EntryType.NPC_FEATURE]: "Npc Feature",
+  [EntryType.NPC_TEMPLATE]: "Npc Template",
+  [EntryType.ORGANIZATION]: "Organization",
+  [EntryType.PILOT]: "Pilot Preset",
+  [EntryType.PILOT_ARMOR]: "Pilot Armor",
+  [EntryType.PILOT_GEAR]: "Pilot Gear",
+  [EntryType.PILOT_WEAPON]: "Pilot Weapon",
+  [EntryType.QUIRK]: "Quirk",
+  [EntryType.RESERVE]: "Reserve",
+  [EntryType.SITREP]: "Sitrep",
+  [EntryType.SKILL]: "Skill",
+  [EntryType.STATUS]: "Status/Condition",
+  [EntryType.TAG]: "Tag",
+  [EntryType.TALENT]: "Talent",
+  [EntryType.WEAPON_MOD]: "Weapon Mod",
+};
+const FRIENDLY_ENTITY_NAMES_PLURAL = {
+  [EntryType.CORE_BONUS]: "Core Bonuses",
+  [EntryType.DEPLOYABLE]: "Deployables",
+  [EntryType.ENVIRONMENT]: "Environments",
+  [EntryType.FACTION]: "Factions",
+  [EntryType.FRAME]: "Frames",
+  [EntryType.LICENSE]: "Licenses",
+  [EntryType.MANUFACTURER]: "Manufacturers",
+  [EntryType.MECH]: "Mechs",
+  [EntryType.MECH_SYSTEM]: "Mech Systems",
+  [EntryType.MECH_WEAPON]: "Mech Weapons",
+  [EntryType.NPC]: "Npcs",
+  [EntryType.NPC_CLASS]: "Npc Classes",
+  [EntryType.NPC_FEATURE]: "Npc Features",
+  [EntryType.NPC_TEMPLATE]: "Npc Templates",
+  [EntryType.ORGANIZATION]: "Organizations",
+  [EntryType.PILOT]: "Pilot Presets",
+  [EntryType.PILOT_ARMOR]: "Pilot Armor",
+  [EntryType.PILOT_GEAR]: "Pilot Gear",
+  [EntryType.PILOT_WEAPON]: "Pilot Weapons",
+  [EntryType.QUIRK]: "Quirks",
+  [EntryType.RESERVE]: "Reserves",
+  [EntryType.SITREP]: "Sitreps",
+  [EntryType.SKILL]: "Skills",
+  [EntryType.STATUS]: "Statuses / Conditions",
+  [EntryType.TAG]: "Tags",
+  [EntryType.TALENT]: "Talents",
+  [EntryType.WEAPON_MOD]: "Weapon Mods",
+};
+
+// Quick for single/plural
+export function FriendlyTypeName(type: LancerItemType | LancerActorType, count?: number): string {
+  if ((count ?? 1) > 1) {
+    return FRIENDLY_ENTITY_NAMES_PLURAL[type] ?? `Unknown <${type}>s`;
+  } else {
+    return FRIENDLY_ENTITY_NAMES_SINGULAR[type] ?? `Unknown <${type}>`;
+  }
+}
+
+// Icons for each entity
+export const GENERIC_ITEM_ICON = "systems/lancer/assets/icons/generic_item.svg";
+const ENTITY_ICONS = {
+  [EntryType.CORE_BONUS]: "systems/lancer/assets/icons/core_bonus.svg",
+  [EntryType.DEPLOYABLE]: "systems/lancer/assets/icons/deployable.svg",
+  [EntryType.ENVIRONMENT]: "systems/lancer/assets/icons/environment.svg",
+  [EntryType.FACTION]: "systems/lancer/assets/icons/faction.svg",
+  [EntryType.FRAME]: "systems/lancer/assets/icons/frame.svg",
+  [EntryType.LICENSE]: "systems/lancer/assets/icons/license.svg",
+  [EntryType.MANUFACTURER]: "systems/lancer/assets/icons/manufacturer.svg",
+  [EntryType.MECH]: "systems/lancer/assets/icons/mech.svg",
+  [EntryType.MECH_SYSTEM]: "systems/lancer/assets/icons/mech_system.svg",
+  [EntryType.MECH_WEAPON]: "systems/lancer/assets/icons/mech_weapon.svg",
+  [EntryType.NPC]: "systems/lancer/assets/icons/npc_class.svg",
+  [EntryType.NPC_CLASS]: "systems/lancer/assets/icons/npc_class.svg",
+  [EntryType.NPC_FEATURE]: "systems/lancer/assets/icons/npc_feature.svg",
+  [EntryType.NPC_TEMPLATE]: "systems/lancer/assets/icons/npc_template.svg",
+  [EntryType.ORGANIZATION]: "systems/lancer/assets/icons/organization.svg",
+  [EntryType.PILOT]: "systems/lancer/assets/icons/pilot.svg",
+  [EntryType.PILOT_ARMOR]: "systems/lancer/assets/icons/role_tank.svg",
+  [EntryType.PILOT_GEAR]: "systems/lancer/assets/icons/generic_item.svg",
+  [EntryType.PILOT_WEAPON]: "systems/lancer/assets/icons/role_artillery.svg",
+  [EntryType.QUIRK]: "systems/lancer/assets/icons/quirk.svg",
+  [EntryType.RESERVE]: "systems/lancer/assets/icons/reserve.svg",
+  [EntryType.SITREP]: "systems/lancer/assets/icons/sitrep.svg",
+  [EntryType.SKILL]: "systems/lancer/assets/icons/skill.svg",
+  [EntryType.STATUS]: "systems/lancer/assets/icons/status.svg",
+  [EntryType.TAG]: "systems/lancer/assets/icons/tag.svg",
+  [EntryType.TALENT]: "systems/lancer/assets/icons/talent.svg",
+  [EntryType.WEAPON_MOD]: "systems/lancer/assets/icons/weapon_mod.svg",
+  generic: GENERIC_ITEM_ICON,
+};
+
+// TODO: const MACRO_ICONS
+
+export function TypeIcon(type: LancerItemType | LancerActorType, macro?: boolean): string {
+  return ENTITY_ICONS[type] ?? ENTITY_ICONS["generic"];
 }

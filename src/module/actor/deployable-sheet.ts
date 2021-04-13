@@ -1,12 +1,12 @@
-import { LancerDeployableSheetData } from "../interfaces";
 import { LANCER } from "../config";
 import { LancerActorSheet } from "./lancer-actor-sheet";
+import { EntryType } from "machine-mind";
 const lp = LANCER.log_prefix;
 
 /**
  * Extend the basic ActorSheet
  */
-export class LancerDeployableSheet extends LancerActorSheet {
+export class LancerDeployableSheet extends LancerActorSheet<EntryType.DEPLOYABLE> {
   /**
    * A convenience reference to the Actor entity
    */
@@ -26,6 +26,13 @@ export class LancerDeployableSheet extends LancerActorSheet {
       template: "systems/lancer/templates/actor/deployable.html",
       width: 800,
       height: 800,
+      tabs: [
+        {
+          navSelector: ".lancer-tabs",
+          contentSelector: ".sheet-body",
+          initial: "status",
+        },
+      ],
     });
   }
 
@@ -44,38 +51,5 @@ export class LancerDeployableSheet extends LancerActorSheet {
 
     // Add or Remove options
     // Yes, theoretically this could be abstracted out to one function. You do it then.
-  }
-
-  /* -------------------------------------------- */
-
-  /**
-   * Prepare data for rendering the Actor sheet
-   * The prepared data object contains both the actor data as well as additional sheet options
-   */
-  getData(): LancerDeployableSheetData {
-    const data: LancerDeployableSheetData = super.getData() as LancerDeployableSheetData;
-
-    // Populate name if blank (new Actor)
-    if (data.data.name === "") {
-      data.data.name = data.actor.name;
-    }
-
-    console.log(`${lp} Deployable data: `, data);
-    return data;
-  }
-
-  /**
-   * Implement the _updateObject method as required by the parent class spec
-   * This defines how to update the subject of the form when the form is submitted
-   * @private
-   */
-  _updateObject(event: Event | JQuery.Event, formData: any): Promise<any> {
-    // Copy the new name to the prototype token.
-    formData["token.name"] = formData["name"];
-
-    formData = this._updateTokenImage(formData);
-
-    // Update the Actor
-    return this.object.update(formData);
   }
 }

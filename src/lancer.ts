@@ -10,64 +10,16 @@
 // Import TypeScript modules
 import { LANCER, STATUSES, WELCOME } from "./module/config";
 import { LancerGame } from "./module/lancer-game";
-import {
-  LancerActor,
-  lancerActorInit,
-  mount_card,
-  mount_type_selector,
-  npc_tier_selector,
-} from "./module/actor/lancer-actor";
-import {
-  core_system_preview,
-  effect_type_selector,
-  is_loading,
-  LancerItem,
-  lancerItemInit,
-  mech_system_preview,
-  mech_trait_preview,
-  mech_weapon_preview,
-  npc_accuracy_preview,
-  npc_attack_bonus_preview,
-  npc_feature_preview,
-  npc_weapon_damage_selector,
-  pilot_weapon_damage_selector,
-  system_type_selector,
-  weapon_damage_preview,
-  weapon_range_preview,
-  weapon_range_selector,
-  weapon_size_selector,
-  weapon_type_selector,
-} from "./module/item/lancer-item";
+import { LancerActor, lancerActorInit } from "./module/actor/lancer-actor";
+import { LancerItem, lancerItemInit } from "./module/item/lancer-item";
 
-import {
-  action_type_icon,
-  action_type_selector,
-  ai_effect_preview,
-  basic_effect_preview,
-  bonus_effect_preview,
-  charge_effect_preview,
-  charge_type_selector,
-  deployable_effect_preview,
-  drone_effect_preview,
-  effect_preview,
-  generic_effect_preview,
-  invade_option_preview,
-  npc_reaction_effect_preview,
-  npc_system_effect_preview,
-  npc_tech_effect_preview,
-  npc_trait_effect_preview,
-  npc_weapon_effect_preview,
-  offensive_effect_preview,
-  profile_effect_preview,
-  protocol_effect_preview,
-  reaction_effect_preview,
-  tech_effect_preview,
-} from "./module/item/effects";
+import { action_type_icon, action_type_selector } from "./module/helpers/npc";
 
 // Import applications
-import { LancerPilotSheet, overchargeButton } from "./module/actor/pilot-sheet";
+import { LancerPilotSheet } from "./module/actor/pilot-sheet";
 import { LancerNPCSheet } from "./module/actor/npc-sheet";
 import { LancerDeployableSheet } from "./module/actor/deployable-sheet";
+import { LancerMechSheet } from "./module/actor/mech-sheet";
 import { LancerItemSheet } from "./module/item/item-sheet";
 import { LancerFrameSheet } from "./module/item/frame-sheet";
 import { LancerNPCClassSheet } from "./module/item/npc-class-sheet";
@@ -76,24 +28,69 @@ import { WeaponRangeTemplate } from "./module/pixi/weapon-range-template";
 // Import helpers
 import { preloadTemplates } from "./module/preloadTemplates";
 import { registerSettings } from "./module/settings";
-import {
-  compactTagList,
-  renderChunkyTag,
-  renderCompactTag,
-  renderFullTag,
-} from "./module/item/tags";
+import { compact_tag_list } from "./module/helpers/tags";
 import * as migrations from "./module/migration";
 import { addLCPManager } from "./module/apps/lcpManager";
 
 // Import Machine Mind and helpers
-import { CCDataStore, NpcFeatureType, setup_store } from "machine-mind";
-import { FauxPersistor } from "./module/ccdata_io";
-import { reload_store } from "./module/item/util";
 import * as macros from "./module/macros";
 
 // Import node modules
 import compareVersions = require("compare-versions");
-import marked = require("marked");
+import { NpcFeatureType, EntryType, Manufacturer, Bonus } from "machine-mind";
+import {
+  resolve_dotpath,
+  resolve_helper_dotpath,
+  popout_editor_button,
+  safe_html_helper,
+  large_textbox_card,
+  std_string_input,
+  std_num_input,
+  std_checkbox,
+} from "./module/helpers/commons";
+import { is_loading } from "machine-mind/dist/classes/mech/EquipUtil";
+import {
+  weapon_size_selector,
+  weapon_type_selector,
+  range_editor,
+  npc_attack_bonus_preview,
+  npc_accuracy_preview,
+  mech_weapon_refview,
+  system_type_selector,
+  npc_feature_preview,
+  damage_editor,
+  bonuses_display,
+  pilot_armor_slot,
+  pilot_weapon_refview,
+  pilot_gear_refview,
+  license_ref,
+  manufacturer_ref,
+  uses_control,
+  single_bonus_editor,
+} from "./module/helpers/item";
+import {
+  clicker_num_input,
+  clicker_stat_card,
+  compact_stat_edit,
+  compact_stat_view,
+  deployer_slot,
+  npc_clicker_stat_card,
+  npc_tier_selector,
+  overcharge_button,
+  stat_edit_card,
+  stat_edit_card_max,
+  stat_rollable_card,
+  stat_view_card,
+} from "./module/helpers/actor";
+import { HelperOptions } from "handlebars";
+import {
+  editable_mm_ref_list_item,
+  simple_mm_ref,
+  mm_ref_portrait,
+  mm_ref_list_append_slot,
+  editable_mm_ref_list_item_native,
+} from "./module/helpers/refs";
+import { mech_loadout, pilot_slot, frame_refview } from './module/helpers/loadout';
 
 const lp = LANCER.log_prefix;
 
@@ -127,7 +124,11 @@ Hooks.once("init", async function () {
     prepareOverchargeMacro: macros.prepareOverchargeMacro,
     prepareOverheatMacro: macros.prepareOverheatMacro,
     prepareStructureMacro: macros.prepareStructureMacro,
+    prepareActivationMacro: macros.prepareActivationMacro,
     migrations: migrations,
+
+    // For whitespines testing /('o')/
+    tmp: {},
   };
 
   // Record Configuration Values
@@ -140,12 +141,10 @@ Hooks.once("init", async function () {
   // Set up system status icons
   const keepStock = game.settings.get(LANCER.sys_name, LANCER.setting_stock_icons);
   let statuses: { id: string; label: string; icon: string }[] = [];
-  // The type for statusEffects is wrong
-  //@ts-ignore
+  // @ts-ignore The type for statusEffects is wrong. Currently string[], should be the above type
   if (keepStock) statuses = statuses.concat(CONFIG.statusEffects);
   statuses = statuses.concat(STATUSES);
-  // The type for statusEffects is wrong
-  //@ts-ignore
+  //@ts-ignore See previous ignore
   CONFIG.statusEffects = statuses;
 
   // Register Web Components
@@ -158,31 +157,39 @@ Hooks.once("init", async function () {
 
   // Register sheet application classes
   Actors.unregisterSheet("core", ActorSheet);
-  Actors.registerSheet("lancer", LancerPilotSheet, { types: ["pilot"], makeDefault: true });
-  Actors.registerSheet("lancer", LancerNPCSheet, { types: ["npc"], makeDefault: true });
+  Actors.registerSheet("lancer", LancerPilotSheet, { types: [EntryType.PILOT], makeDefault: true });
+  Actors.registerSheet("lancer", LancerMechSheet, { types: [EntryType.MECH], makeDefault: true });
+  Actors.registerSheet("lancer", LancerNPCSheet, { types: [EntryType.NPC], makeDefault: true });
   Actors.registerSheet("lancer", LancerDeployableSheet, {
-    types: ["deployable"],
+    types: [EntryType.DEPLOYABLE],
     makeDefault: true,
   });
   Items.unregisterSheet("core", ItemSheet);
   Items.registerSheet("lancer", LancerItemSheet, {
     types: [
-      "skill",
-      "talent",
-      "license",
-      "core_bonus",
-      "pilot_armor",
-      "pilot_weapon",
-      "pilot_gear",
-      "mech_system",
-      "mech_weapon",
-      "npc_feature",
+      EntryType.SKILL,
+      EntryType.TALENT,
+      EntryType.LICENSE,
+      EntryType.CORE_BONUS,
+      EntryType.RESERVE,
+      EntryType.STATUS,
+      EntryType.TAG,
+      EntryType.PILOT_ARMOR,
+      EntryType.PILOT_WEAPON,
+      EntryType.PILOT_GEAR,
+      EntryType.MECH_SYSTEM,
+      EntryType.MECH_WEAPON,
+      EntryType.WEAPON_MOD,
+      EntryType.NPC_FEATURE,
+      EntryType.MANUFACTURER,
+      EntryType.QUIRK,
     ],
     makeDefault: true,
   });
-  Items.registerSheet("lancer", LancerFrameSheet, { types: ["frame"], makeDefault: true });
-  Items.registerSheet("lancer", LancerNPCClassSheet, {
-    types: ["npc_class", "npc_template"],
+  Items.registerSheet("lancer", LancerFrameSheet, { types: [EntryType.FRAME], makeDefault: true });
+  // Items.registerSheet("lancer", LancerNPCClassSheet, {
+  Items.registerSheet("lancer", LancerItemSheet, {
+    types: [EntryType.NPC_CLASS, EntryType.NPC_TEMPLATE],
     makeDefault: true,
   });
 
@@ -197,6 +204,23 @@ Hooks.once("init", async function () {
   // dec, for those off-by-one errors
   Handlebars.registerHelper("dec", function (value) {
     return parseInt(value) - 1;
+  });
+
+  // cons, to concatenate strs. Can take any number of args. Last is omitted (as it is just a handlebars ref object)
+  Handlebars.registerHelper("concat", function (...values) {
+    return values.slice(0, values.length - 1).join("");
+  });
+
+  // rp, to resolve path values strs. Helps use effectively half as many arguments for many helpers/partials
+  // Using this, {{{rp path}}} {{path}} would show the value at path, and path, respectively. No need to pass both!
+  Handlebars.registerHelper("rp", function (path: string, options: HelperOptions) {
+    return resolve_helper_dotpath(options, path);
+  });
+
+  // get-set, to resolve situations wherein we read and write to the same path via "value" and "name" element properties
+  Handlebars.registerHelper("getset", function (path: string, options: HelperOptions) {
+    let value = resolve_helper_dotpath(options, path);
+    return ` name="${path}" value="${value}" `;
   });
 
   // get an index from an array
@@ -268,53 +292,100 @@ Hooks.once("init", async function () {
     return accum;
   });
 
+  Handlebars.registerHelper("safe-html", safe_html_helper);
+
   // ------------------------------------------------------------------------
   // Generic components
-  Handlebars.registerHelper("l-num-input", function (target: string, value: string) {
-    // Init value to 0 if it doesn't exist
-    // So the arrows work properly
-    if (!value) {
-      value = "0";
-    }
+  Handlebars.registerHelper("l-num-input", clicker_num_input);
 
-    return `<div class="flexrow arrow-input-container">
-      <button class="mod-minus-button" type="button">-</button>
-      <input class="lancer-stat major" type="number" name="${target}" value="${value}" data-dtype="Number"\>
-      <button class="mod-plus-button" type="button">+</button>
-    </div>`;
+  // For debugging
+  Handlebars.registerHelper("debug_each", function (it, block) {
+    // if(typeof a == 'function')
+    // a = a.call(this);
+    console.log(it);
+    var s = "";
+    for (let x of it) s += block(x);
+    return s;
   });
+
+  Handlebars.registerHelper("textarea-card", large_textbox_card);
+
+  // ------------------------------------------------------------------------
+  // Stat helpers
+  Handlebars.registerHelper("compact-stat-edit", compact_stat_edit);
+  Handlebars.registerHelper("compact-stat-view", compact_stat_view);
+  Handlebars.registerHelper("stat-view-card", stat_view_card);
+  Handlebars.registerHelper("stat-rollable-card", stat_rollable_card);
+  Handlebars.registerHelper("stat-edit-card", stat_edit_card);
+  Handlebars.registerHelper("stat-edit-max-card", stat_edit_card_max);
+  Handlebars.registerHelper("clicker-stat-card", clicker_stat_card);
+  Handlebars.registerHelper("npc-clicker-stat-card", npc_clicker_stat_card);
+  Handlebars.registerHelper("std-string-input", std_string_input);
+  Handlebars.registerHelper("std-num-input", std_num_input);
+  Handlebars.registerHelper("std-checkbox", std_checkbox);
+
+  // ------------------------------------------------------------------------
+  // Refs
+  Handlebars.registerHelper("simple-ref", simple_mm_ref);
+  Handlebars.registerHelper("ref-mm-controllable-item", editable_mm_ref_list_item);
+  Handlebars.registerHelper("ref-mm-controllable-item-native", editable_mm_ref_list_item_native);
+  Handlebars.registerHelper("ref-mm-list-item-append", mm_ref_list_append_slot);
+  Handlebars.registerHelper("pilot-slot", pilot_slot);
+  Handlebars.registerHelper("deployer-slot", deployer_slot); // Can be pilot, npc, or mech. Preferably mech, lol
+  Handlebars.registerHelper("ref-portrait-img", mm_ref_portrait);
+
+  // ------------------------------------------------------------------------
+  // Pilot stuff
+  Handlebars.registerHelper("pilot-armor-slot", pilot_armor_slot);
+  Handlebars.registerHelper("pilot-weapon-slot", pilot_weapon_refview);
+  Handlebars.registerHelper("pilot-gear-slot", pilot_gear_refview);
+
   // ------------------------------------------------------------------------
   // Tags
-  Handlebars.registerHelper("compact-tag", renderCompactTag);
-  Handlebars.registerPartial("tag-list", compactTagList);
-  Handlebars.registerHelper("chunky-tag", renderChunkyTag);
-  Handlebars.registerHelper("full-tag", renderFullTag);
+  // Handlebars.registerHelper("compact-tag", renderCompactTag);
+  // Handlebars.registerPartial("tag-list", compactTagList);
+  Handlebars.registerHelper("mm-tag-list", compact_tag_list);
+  // Handlebars.registerHelper("chunky-tag", renderChunkyTag);
+  // Handlebars.registerHelper("full-tag", renderFullTag);
+
+  // ------------------------------------------------------------------------
+  // License data
+  Handlebars.registerHelper("ref-manufacturer", manufacturer_ref);
+  Handlebars.registerHelper("ref-license", license_ref);
+
+  // ------------------------------------------------------------------------
+  // Bonuses
+  Handlebars.registerHelper("edit-bonuses-view", (bonuses_path: string, bonuses_array: Bonus[]) =>
+    bonuses_display(bonuses_path, bonuses_array, true)
+  );
+  Handlebars.registerHelper("read-bonuses-view", (bonuses_path: string, bonuses_array: Bonus[]) =>
+    bonuses_display(bonuses_path, bonuses_array, false)
+  );
+  Handlebars.registerHelper("bonuses-view", bonuses_display); // Takes a third arg
+  Handlebars.registerHelper("edit-bonus", single_bonus_editor);
+  Handlebars.registerHelper("popout-editor-button", popout_editor_button);
 
   // ------------------------------------------------------------------------
   // Weapons
   Handlebars.registerHelper("is-loading", is_loading);
   Handlebars.registerHelper("wpn-size-sel", weapon_size_selector);
   Handlebars.registerHelper("wpn-type-sel", weapon_type_selector);
-  Handlebars.registerHelper("wpn-range-sel", weapon_range_selector);
-  Handlebars.registerHelper("wpn-damage-sel", pilot_weapon_damage_selector);
-  Handlebars.registerHelper("npc-wpn-damage-sel", npc_weapon_damage_selector);
-  Handlebars.registerHelper("wpn-range", weapon_range_preview);
-  Handlebars.registerHelper("wpn-damage", weapon_damage_preview);
+  Handlebars.registerHelper("wpn-range-sel", range_editor);
+  Handlebars.registerHelper("wpn-damage-sel", damage_editor);
   Handlebars.registerHelper("npcf-atk", npc_attack_bonus_preview);
   Handlebars.registerHelper("npcf-acc", npc_accuracy_preview);
-  Handlebars.registerPartial("mech-weapon-preview", mech_weapon_preview);
+  Handlebars.registerHelper("mech-weapon-preview", mech_weapon_refview);
 
   // ------------------------------------------------------------------------
   // Systems
   Handlebars.registerHelper("sys-type-sel", system_type_selector);
-  Handlebars.registerHelper("eff-type-sel", effect_type_selector);
+  Handlebars.registerHelper("uses-ctrl", uses_control);
   Handlebars.registerHelper("act-icon", action_type_icon);
   Handlebars.registerHelper("act-type-sel", action_type_selector);
-  Handlebars.registerHelper("chg-type-sel", charge_type_selector);
-  Handlebars.registerPartial("mech-system-preview", mech_system_preview);
 
   // ------------------------------------------------------------------------
   // Effects
+  /*
   Handlebars.registerHelper("eff-preview", effect_preview);
   Handlebars.registerPartial("generic-eff-preview", generic_effect_preview);
   Handlebars.registerHelper("basic-eff-preview", basic_effect_preview);
@@ -338,96 +409,58 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("npc-trait-preview", npc_trait_effect_preview);
   Handlebars.registerHelper("npc-tech-preview", npc_tech_effect_preview);
   Handlebars.registerHelper("npc-wpn-preview", npc_weapon_effect_preview);
+  */
 
   // ------------------------------------------------------------------------
   // Frames
-  Handlebars.registerPartial("core-system", core_system_preview);
-  Handlebars.registerPartial("mech-trait", mech_trait_preview);
+  // Handlebars.registerPartial("core-system", core_system_preview);
 
   // ------------------------------------------------------------------------
   // Pilot components
-  Handlebars.registerHelper("mount-selector", mount_type_selector);
-  Handlebars.registerPartial("mount-card", mount_card);
-  Handlebars.registerHelper("overcharge-button", overchargeButton);
+  Handlebars.registerHelper("overcharge-button", overcharge_button);
+
+  // ------------------------------------------------------------------------
+  // Mech components
+  Handlebars.registerHelper("mech-loadout", mech_loadout);
+  Handlebars.registerHelper("mech-frame", frame_refview);
 
   // ------------------------------------------------------------------------
   // NPC components
   Handlebars.registerHelper("tier-selector", npc_tier_selector);
-});
-
-/* ------------------------------------ */
-/* Setup system			            				*/
-/* ------------------------------------ */
-Hooks.once("setup", async function () {
-  // Do anything after initialization but before ready.
-
-  // Create the faux Comp/Con store.
-  try {
-    // Do some CC magic
-    let store = new CCDataStore(new FauxPersistor(), {
-      disable_core_data: true,
-      shim_fallback_items: true,
-    });
-    setup_store(store);
-    await store.load_all(f => f(store));
-    await reload_store();
-    console.log(`${lp} Comp/Con data store initialized.`);
-  } catch (error) {
-    console.log(`Fatal error loading COMP/CON`);
-    console.log(error);
-    ui.notifications.error(
-      `Warning: COMP/CON has failed to load. You may experience severe data integrity failure`
-    );
-  }
+  Handlebars.registerHelper("npc-feat-preview", npc_feature_preview);
 });
 
 /* ------------------------------------ */
 /* When ready                           */
 /* ------------------------------------ */
-Hooks.once("ready", async function () {
-  await versionCheck();
-  await showChangelog();
+// Make an awaitable for when this shit is done
+export const system_ready: Promise<void> = new Promise(success => {
+  Hooks.once("ready", async function () {
+    await versionCheck();
 
-  // v0.1.20 Warning for v0.2
-  // TODO: Remove for v0.2
-  // Get the published warning from https://github.com/Eranziel/foundryvtt-lancer/wiki/v0.1.20-Announcement
-  if (game.settings.get(LANCER.sys_name, LANCER.setting_120)) {
-    function warningDialog(text: string) {new Dialog(
-      {
-        title: `Warning for next update`,
-        content: text,
+    // Show welcome message if not hidden.
+    if (!game.settings.get(LANCER.sys_name, LANCER.setting_welcome)) {
+      new Dialog({
+        title: `Welcome to LANCER v${game.system.data.version}`,
+        content: WELCOME,
         buttons: {
           dont_show: {
-            label: "Acknowledged",
+            label: "Do Not Show Again",
             callback: async () => {
-              await game.settings.set(LANCER.sys_name, LANCER.setting_120, false);
+              await game.settings.set(LANCER.sys_name, LANCER.setting_welcome, true);
             },
           },
           close: {
-            label: "Remind Later",
+            label: "Close",
           },
         },
-        default: "Remind Later",
-      },
-      {
-        width: 800,
-      }
-    ).render(true);
-  }
+        default: "Close",
+      }).render(true);
+    }
 
-    let req = $.get(
-      `https://raw.githubusercontent.com/wiki/Eranziel/foundryvtt-lancer/v0.1.20-Announcement.md`
-    );
-    req.done((data, status) => {
-      warningDialog(marked(data));
-    });
-      
-    req.fail((data, status) => {
-      let errorText = `<h2>Warning: Next version will include major changes</h2></br><a href="https://raw.githubusercontent.com/wiki/Eranziel/foundryvtt-lancer/v0.1.20-Announcement.md">Click Here For More Information</a>`;
-
-      warningDialog(errorText);
-    });
-  }
+    // We're ready, freddy
+    success();
+  });
 });
 
 // Add any additional hooks if necessary
@@ -476,113 +509,21 @@ Hooks.on("renderChatMessage", async (cm: ChatMessage, html: any, data: any) => {
 });
 
 Hooks.on("hotbarDrop", (_bar: any, data: any, slot: number) => {
-  // We set an associated command & title based off the type
-  // Everything else gets handled elsewhere
+  macros.onHotbarDrop(_bar,data,slot);
+});
 
-  let command = "";
-  let title = "";
-  let img = "systems/lancer/assets/icons/macro-icons/d20-framed.svg";
+// Make derived fields properly update their intended origin target
+Hooks.on("modifyTokenAttribute", (_: any, data: any) => {
+  for (let key of Object.keys(data)) {
+    // If starts with "data.derived", replace with just "data"
+    if (key.includes("data.derived.")) {
+      // Cut the .derived, and also remove any trailing .value to resolve pseudo-bars
+      let new_key = key.replace(/^data\.derived\./, "data.");
+      new_key = new_key.replace(/\.value$/, "");
+      data[new_key] = data[key];
 
-  console.log(`${lp} Data dropped on hotbar:`, data);
-
-  // TODO: Figure out if I am really going down this route and, if so, switch to a switch
-  if (data.type === "actor") {
-    command = `
-      const a = game.actors.get('${data.actorId}');
-      if (a) {
-        game.lancer.prepareStatMacro('${data.actorId}', "${data.dataPath}");
-      } else {
-        ui.notifications.error("Error rolling macro");
-      }`;
-    title = data.title;
-  } else if (data.type === "Item") {
-    command = `game.lancer.prepareItemMacro("${data.actorId}", "${data.data._id}");`;
-    // Talent are the only ones (I think??) that we need to name specially
-    if (data.data.type === "talent") {
-      command = `game.lancer.prepareItemMacro("${data.actorId}", "${data.itemId}", {rank: ${data.rank}});`;
-      title = data.title;
-      img = `systems/lancer/assets/icons/macro-icons/talent.svg`;
-    } else {
-      title = data.data.name;
+      console.log(`Overrode assignment from ${key} to ${new_key}`);
     }
-    // Pick the image for the hotbar
-    switch (data.data.type) {
-      case "skill":
-        img = `systems/lancer/assets/icons/macro-icons/skill.svg`;
-        break;
-      case "talent":
-        img = `systems/lancer/assets/icons/macro-icons/talent.svg`;
-        break;
-      case "core_bonus":
-        img = `systems/lancer/assets/icons/macro-icons/corebonus.svg`;
-        break;
-      case "pilot_gear":
-        img = `systems/lancer/assets/icons/macro-icons/generic_item.svg`;
-        break;
-      case "pilot_weapon":
-      case "mech_weapon":
-        img = `systems/lancer/assets/icons/macro-icons/mech_weapon.svg`;
-        break;
-      case "mech_system":
-        img = `systems/lancer/assets/icons/macro-icons/mech_system.svg`;
-        break;
-      case "npc_feature":
-        switch (data.data.data.feature_type) {
-          case NpcFeatureType.Reaction:
-            img = `systems/lancer/assets/icons/macro-icons/reaction.svg`;
-            break;
-          case NpcFeatureType.System:
-            img = `systems/lancer/assets/icons/macro-icons/mech_system.svg`;
-            break;
-          case NpcFeatureType.Trait:
-            img = `systems/lancer/assets/icons/macro-icons/trait.svg`;
-            break;
-          case NpcFeatureType.Tech:
-            img = `systems/lancer/assets/icons/macro-icons/tech_quick.svg`;
-            break;
-          case NpcFeatureType.Weapon:
-            img = `systems/lancer/assets/icons/macro-icons/mech_weapon.svg`;
-            break;
-        }
-        break;
-    }
-  } else if (data.type === "Text") {
-    title = data.title;
-    command = `game.lancer.prepareTextMacro("${data.actorId}", "${data.title}", {rank: ${data.description}})`;
-  } else if (data.type === "Core-Active") {
-    title = data.title;
-    command = `game.lancer.prepareCoreActiveMacro("${data.actorId}")`;
-    img = `systems/lancer/assets/icons/macro-icons/corebonus.svg`;
-  } else if (data.type === "Core-Passive") {
-    title = data.title;
-    command = `game.lancer.prepareCorePassiveMacro("${data.actorId}")`;
-    img = `systems/lancer/assets/icons/macro-icons/corebonus.svg`;
-  } else if (data.type === "overcharge") {
-    title = data.title;
-    command = `game.lancer.prepareOverchargeMacro("${data.actorId}")`;
-    img = `systems/lancer/assets/icons/macro-icons/overcharge.svg`;
-  } else {
-    // Let's not error or anything, since it's possible to accidentally drop stuff pretty easily
-    return;
-  }
-
-  // Until we properly register commands as something macros can have...
-  // @ts-ignore
-  let macro = game.macros.entities.find(
-    (m: Macro) => m.name === title && (m.data as any).command === command
-  );
-  if (!macro) {
-    Macro.create(
-      {
-        command,
-        name: title,
-        type: "script",
-        img: img,
-      },
-      { displaySheet: false }
-    ).then(macro => game.user.assignHotbarMacro(macro as Macro, slot));
-  } else {
-    game.user.assignHotbarMacro(macro, slot).then();
   }
 });
 

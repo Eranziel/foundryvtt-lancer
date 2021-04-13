@@ -3,7 +3,7 @@
     {{!-- Update core data --}}
     {{#if core_update}}
     <div class="lcp-core-update card clipped flexcol">
-      <div class="lancer-stat-header major">LANCER Core Data</div>
+      <div class="lancer-header major">LANCER Core Data</div>
       <div class="form fields flexrow" style="align-items: center">
         <span class="medium" style="margin: 5px 10px">Core Data is at v{{core_version}}</span>
         {{#if (ne core_version core_update)}}
@@ -18,7 +18,7 @@
 
     {{!-- Import New LCP --}}
     <div class="lcp-importer card clipped">
-      <div class="lancer-stat-header major" style="grid-area: 1/1/2/3;">Import/Update LCP</div>
+      <div class="lancer-header major" style="grid-area: 1/1/2/3;">Import/Update LCP</div>
       <input id="lcp-file" type="file" name="lcp-up" class="lcp-up" accept=".lcp">
       <button type="button" class="lcp-import" title="Import LCP" tabindex="-1">
         <i class="cci cci-content-manager i--m"></i>
@@ -30,7 +30,7 @@
       {{!-- New LCP Manifest --}}
       {{#if manifest}}
         <div class="card clipped flexcol" style="grid-column: 1/3;">
-          <div class="lancer-stat-header major clipped-top">{{manifest.name}} v{{manifest.version}}</div>
+          <div class="lancer-header major ">{{manifest.name}} v{{manifest.version}}</div>
           <div class="major" style="margin: 10px;">by {{manifest.author}}</div>
           {{#if manifest.website}}
           <a href="{{manifest.website}}" class="medium" style="margin: 5px;">Website</a>
@@ -49,7 +49,7 @@
 
     {{!-- List installed LCPs --}}
     <div class="card clipped-top">
-      <div class="lancer-stat-header major">Imported LCPs</div>
+      <div class="lancer-header major">Imported LCPs</div>
       <div class="flexrow">
         <table class="lcp-index">
           <tr class="lcp-index-header">
@@ -78,5 +78,7 @@
         Clear LANCER Compendium Data
       </button>
     </div>
+
+    <progress class="lcp-progress"></progress>
   </div>
 </form>

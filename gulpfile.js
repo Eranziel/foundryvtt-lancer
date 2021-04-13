@@ -133,33 +133,38 @@ const tsConfig = ts.createProject('tsconfig.json', {
 /*		BUILD		*/
 /********************/
 
+let webpackConfig = (shouldWatch) => {
+	return {
+		entry: "./src/lancer.ts",
+		devtool: "inline-source-map",
+		optimization: {
+		minimize: false,
+		},
+		module: {
+		rules: [
+			{
+			test: /\.tsx?$/,
+			use: "ts-loader",
+			exclude: /node_modules/,
+			}
+		]
+		},
+		resolve: {
+		extensions: [".ts", ".tsx", ".js"],
+		},
+		output: {
+		filename: "lancer.js",
+		path: path.resolve(__dirname, "dist"),
+		},
+		watch: shouldWatch
+	}
+  }
+
 async function buildWebpack() {
 	return gulp
     .src("src/lancer.ts")
     .pipe(
-      webpack({
-        entry: "./src/lancer.ts",
-        devtool: "inline-source-map",
-        optimization: {
-          minimize: false,
-        },
-        module: {
-          rules: [
-            {
-              test: /\.tsx?$/,
-              use: "ts-loader",
-              exclude: /node_modules/,
-            },
-          ],
-        },
-        resolve: {
-          extensions: [".ts", ".tsx", ".js"],
-        },
-        output: {
-          filename: "lancer.js",
-          path: path.resolve(__dirname, "dist"),
-        },
-      })
+      webpack(webpackConfig(false))
     )
 	.pipe(gulp.dest("dist/"));
 }
@@ -226,7 +231,14 @@ async function copyFiles() {
  * Watch for changes for each build step
  */
 function buildWatch() {
-	gulp.watch('src/**/*.ts', { ignoreInitial: false }, buildWebpack);
+
+	// Moving to webpack's watch because it's more efficient
+	gulp.src("src/lancer.ts")
+		.pipe(
+		webpack(webpackConfig(true))
+		)
+		.pipe(gulp.dest("dist/"));
+//	gulp.watch('src/**/*.ts', { ignoreInitial: false }, buildWebpack);
 	gulp.watch('src/**/*.less', { ignoreInitial: false }, buildLess);
 	gulp.watch('src/**/*.scss', { ignoreInitial: false }, buildSASS);
 	gulp.watch(

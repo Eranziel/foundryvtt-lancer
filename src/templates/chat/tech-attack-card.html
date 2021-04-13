@@ -1,10 +1,10 @@
 <div class="card clipped-bot" style="margin: 0px;">
-  <div class="lancer-tech-header medium">
+  <div class="lancer-header medium">
     <i class="cci cci-tech-quick i--m i--light"> </i>
     <span>TECH ATK :: {{ title }}</span>
   </div>
   <div class="card clipped">
-    <div class="lancer-stat-header clipped-top">// ATTACK //</div>
+    <div class="lancer-header">// ATTACK //</div>
     <div class="dice-roll lancer-dice-roll">
       <div class="dice-result">
         <div class="dice-formula lancer-dice-formula flexrow">
@@ -18,20 +18,14 @@
       </div>
     </div>
   </div>
-  {{#if effect}}
+  {{#if detail}}
   <div class="card clipped">
-    <div class="lancer-stat-header clipped-top">// EFFECT //</div>
-    {{#if effect.effect_type}}
-      <h3 class="flexrow">{{upper-case effect.effect_type}} EFFECT</h3>
-      <span class="effect-text">{{{effect.hit}}}</span>
-    {{/if}}
-    {{#unless effect.effect_type}}<span class="effect-text">{{{effect}}}</span>{{/unless}}
+    <div class="lancer-header">// {{ actionName }} //</div>
+    <span class="effect-text">{{{detail}}}</span>
   </div>
   {{/if}}
   <div class="flexrow" style="justify-content: flex-end; flex-wrap: wrap;">
-  {{#each tags as |tag key|}}
-  {{{compact-tag tag}}}
-  {{/each}}
+  {{{mm-tag-list tags tags}}}
   </div>
 </div>
 

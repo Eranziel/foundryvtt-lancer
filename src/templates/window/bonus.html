@@ -1,0 +1,14 @@
+<form class="{{cssClass}} lancer-sheet" onsubmit="event.preventDefault();">
+    <div class="card flexcol">
+        {{{edit-bonus path bonus}}}
+
+        <div class="dialog-buttons flexrow">
+            {{#each buttons as |button id|}}
+            <button class="dialog-button" data-button="{{id}}">
+                {{{button.icon}}}
+                {{{button.label}}}
+            </button>
+            {{/each}}
+        </div>
+    </div>
+</form>

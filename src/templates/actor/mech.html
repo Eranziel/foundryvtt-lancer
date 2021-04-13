@@ -1,0 +1,103 @@
+<form class="{{cssClass}} lancer-sheet" autocomplete="off">
+  {{!-- Sheet Header --}}
+  <header class="sheet-header card clipped-bot">
+    <div grow">
+      <h1 class="charname"><input class="header-field" name="name" type="text" value="{{actor.name}}" placeholder="Name"/></h1>
+    </div>
+    {{{ ref-portrait-img actor.img "img" mm.ent }}}
+  </header>
+
+  <div class="wraprow quintuple">
+    {{{stat-edit-max-card  "HP"          "mdi mdi-heart-outline"    "mm.ent.CurrentHP"      "mm.ent.MaxHP" }}}
+    {{{stat-edit-max-card  "HEAT"        "cci cci-heat"             "mm.ent.CurrentHeat"    "mm.ent.HeatCapacity" }}}
+    {{{stat-edit-card      "BURN"        "cci cci-burn"             "mm.ent.Burn" }}}
+    {{{stat-edit-card      "O.SHIELD"    "cci cci-heat"             "mm.ent.Overshield" }}}
+    {{{stat-edit-max-card  "REPAIRS"     "cci cci-repair"           "mm.ent.CurrentRepairs" "mm.ent.RepairCapacity" }}}
+    {{{stat-view-card      "SIZE"        (concat "mdi " mm.ent.SizeIcon)   "mm.ent.Size" }}}
+
+    {{{stat-view-card      "ARMOR"       "mdi mdi-shield-outline"   "mm.ent.Armor" }}}
+    {{{stat-view-card      "EVASION"     "cci cci-evasion"          "mm.ent.Evasion" }}}
+    {{{stat-view-card      "E-DEF"       "cci cci-edef"             "mm.ent.EDefense" }}}
+    {{{stat-view-card      "SPEED"       "mdi mdi-arrow-right-bold-hexagon-outline" "mm.ent.Speed" }}}
+    {{{stat-rollable-card      "TECH ATK"    "cci cci-tech-full"        "mm.ent.TechAttack" }}}
+    {{{stat-view-card      "SENSORS"     "cci cci-sensor"           "mm.ent.SensorRange" }}}
+    {{{stat-view-card      "SAVE"        "cci cci-save"             "mm.ent.SaveTarget" }}}
+    {{!-- I don't think we need these
+    {{{stat-view-card      "SYS POINTS"  "cci cci-system"           "mm.ent.MaxSP" }}}
+    {{{stat-view-card      "ATTACK"      "cci cci-heart"            "mm.ent.AttackBonus" }}}
+    --}}
+    {{{overcharge-button "mm.ent.CurrentOvercharge" }}}
+    <div class="flexcol card clipped">
+      <div class="lancer-header" style="right: .65em;position: relative;">
+        <span class="major">CORE</span>
+      </div>
+      <div class="flexrow stat-container">
+        <input name="mm.ent.CurrentCoreEnergy" class="core-power-toggle mdi mdi-battery" style="margin:auto" type="checkbox" data-dtype="Boolean" {{checked mm.ent.CurrentCoreEnergy}}/>
+      </div>
+    </div>
+  </div>
+
+  <div class="pilot-frame-wrapper flexrow">
+    <div class="pilot-summary-wrapper">
+      {{{pilot-slot "mm.ent.Pilot" }}}
+      <div class="wraprow quadruple">
+        {{{stat-rollable-card "HUL"  ""     "mm.ent.Hull" }}}
+        {{{stat-rollable-card "AGI"  ""     "mm.ent.Agi" }}}
+        {{{stat-rollable-card "SYS"  ""     "mm.ent.Sys" }}}
+        {{{stat-rollable-card "ENG"  ""     "mm.ent.Eng" }}}
+      </div>
+    </div>
+
+    <div class="frame-wrapper flexrow">
+      {{{mech-frame "mm.ent.Frame"}}}
+    </div>
+  </div>
+
+  <div class="card">
+    <span class="lancer-header major ">LOADOUT [SP: {{mm.ent.Loadout.TotalSP}} / {{mm.ent.MaxSP}}]</span>
+    {{{mech-loadout "mm.ent"}}}
+  </div>
+
+  {{!-- Stripping all this out for a pilot-based Armory in the future
+  TODO 
+
+  <div class="card clipped">
+    <span class="lancer-header major ">FRAMES</span>
+    <div class="wraprow triple">
+      {{#each mm.ent.OwnedFrames as |frame index|}}
+        {{{ref-mm-controllable-item (concat "mm.ent.OwnedFrames." index) "delete" }}}
+      {{/each}}
+    </div>
+  </div>
+
+  <div class="card clipped">
+    <span class="lancer-header major ">WEAPONS</span>
+    <div class="wraprow quadruple">
+      {{#each mm.ent.OwnedWeapons as |weapon index|}}
+        {{{ref-mm-controllable-item (concat "mm.ent.OwnedWeapons." index) "delete" }}}
+      {{/each}}
+    </div>
+  </div> 
+  
+  <div class="card clipped">
+    <span class="lancer-header major ">SYSTEMS</span>
+    <div class="wraprow quadruple">
+      {{#each mm.ent.OwnedSystems as |system index|}}
+        {{{ref-mm-controllable-item (concat "mm.ent.OwnedSystems." index) "delete" }}}
+      {{/each}}
+    </div>
+  </div>
+
+  <div class="card clipped">
+    <span class="lancer-header major ">MODS</span>
+    <div class="wraprow quadruple">
+      {{#each mm.ent.OwnedWeaponMods as |mod index|}}
+        {{{ref-mm-controllable-item (concat "mm.ent.OwnedWeaponMods." index) "delete" }}}
+      {{/each}}
+    </div>
+  </div>
+
+  --}}
+</form>
+
+

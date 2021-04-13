@@ -1,73 +1,94 @@
 <form class="{{cssClass}} lancer-sheet" autocomplete="off">
-
   {{!-- Sheet Header --}}
   <header class="sheet-header card clipped-bot">
-    <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}" height="100" width="100"/>
-    <div class="header-fields" style="grid-area: 1/1/2/5;">
+    <div class="flexcol grow">
       <h1 class="charname"><input class="header-field" name="name" type="text" value="{{item.name}}" placeholder="Name"/></h1>
+      <div class="flexrow">
+        {{{ ref-manufacturer "mm.ent.Source" }}}
+        {{{ ref-license license mm.ent.LicenseLevel }}}
+      </div>
     </div>
-    <div class="header-fields flexrow" style="grid-area: 2/1/3/5">
-      <h3 class="source"><input class="header-field" name="data.source" type="text" value="{{data.source}}" placeholder="Source"/></h3>
-      <h3 class="license"><input class="header-field" name="data.license" type="text" value="{{data.license}}" placeholder="License"/></h3>
-      <h3 class="license-level"><input class="header-field effect-stat" style="color: black !important;float: left" name="data.license_level" type="number" value="{{data.license_level}}" data-dtype="Number"/></h3>
-    </div>
+    {{{ ref-portrait-img item.img "img" mm.ent }}}
   </header>
 
+  {{!-- Sheet Tab Navigation --}}
+  <nav class="lancer-tabs" data-group="primary">
+    {{#each mm.ent.Profiles as |profile prof_index|}}
+      <a class="item lancer-tab medium" data-tab="profile{{prof_index}}">&lt;{{profile.Name}}&gt;</a>
+    {{/each}}
+
+    {{!-- Fake tab to add new profiles --}}
+    <a class="item lancer-tab medium gen-control" data-action="append" data-action-value="(struct)weapon_profile" data-path="mm.ent.Profiles">+</a>
+  </nav>
+
+
   {{!-- Sheet Body --}}
-  <section class="sheet-body" style="height: 100%">
-    <div style="grid-template: 2em 10em fit-content(0) fit-content(0) 1fr / repeat(3, 1fr); display: grid;">
-
-      {{!-- Size and Type --}}
-      <div style="grid-area: 1/1/2/4; margin-left: 30px;">
-        <span class="medium">SIZE</span>
-        {{{wpn-size-sel data.mount "data.mount"}}}
-        <span class="medium">TYPE</span>
-        {{{wpn-type-sel data.weapon_type "data.weapon_type"}}}
+  <section class="sheet-body">
+    <div class="wraprow double">
+      {{!-- Size --}}
+      <div class="card clipped" style="padding: 10px;">
+        <span class="lancer-header major ">SIZE</span>
+        {{{wpn-size-sel "mm.ent.Size"}}}
       </div>
 
-      {{!-- Range --}}
-      <div class="flexcol card clipped" style="grid-area: 2/1/3/2">
-        <span class="lancer-stat-header major clipped-top">RANGE</span>
-        {{{wpn-range-sel data.range "0" "data.range.0"}}}
-        {{{wpn-range-sel data.range "1" "data.range.1"}}}
-      </div>
-
-      {{!-- Damage --}}
-      <div class="flexcol card clipped" style="grid-area: 2/2/3/4;">
-        <span class="lancer-stat-header major clipped-top">DAMAGE</span>
-        <div class="flexrow flex-center" style="padding: 5px;">
-          {{{wpn-damage-sel data.damage "0" "data.damage.0"}}}
-          <hr class="vsep" style="height: 30px;">
-          {{{wpn-damage-sel data.damage "1" "data.damage.1"}}}
+      {{!-- Status --}}
+      <div class="card clipped" style="padding: 10px;">
+        <span class="lancer-header major ">STATUS</span>
+        <div class="flexrow">
+          <span>LOADED:</span>
+          <span><i>todo</i></span>
+        </div>
+        <div class="flexrow">
+          <span>LIMITED:</span>
+          <span><i>todo</i></span>
         </div>
       </div>
 
-      {{!-- Description --}}
-      <div class="flexcol card clipped" style="grid-area: 3 / 1 / 4 / 4">
-        <span class="lancer-stat-header major clipped-top">DESCRIPTION</span>
-        {{editor content=data.description target="data.description" button=true owner=owner editable=editable}}
-      </div>
+      {{#each mm.ent.Profiles as |profile prof_index|}}
+      <div class="tab profile{{prof_index}} double" data-group="primary" data-tab="profile{{prof_index}}">
+        <div class="wraprow quintuple">
 
-      {{!-- TODO: Proper item effects --}}
-      {{!-- Effects --}}
-      <div class="flexcol card clipped" style="grid-area: 4 / 1 / 5 / 4">
-        <span class="lancer-stat-header major clipped-top">EFFECT</span>
-        {{editor content=data.effect.detail target="data.effect.detail" button=true owner=owner editable=editable}}
-      </div>
+          {{!-- Type --}}
+          <div class="card clipped">
+            <span class="lancer-header submajor ">TYPE</span>
+            {{{wpn-type-sel (concat "mm.ent.Profiles." prof_index ".WepType") }}}
+          </div>
 
+          {{!-- Range --}}
+          <div class="card clipped double">
+            <span class="lancer-header submajor ">
+              RANGE
+              <a class="gen-control fas fa-plus" data-action="append" data-path="mm.ent.Profiles.{{prof_index}}.BaseRange" data-action-value="(struct)range"></a>
+            </span>
+            {{#each profile.BaseRange as |range range_index|}}
+                {{{wpn-range-sel (concat "mm.ent.Profiles." prof_index ".BaseRange." range_index) }}}
+            {{/each}}
+          </div>
 
-      {{!-- TODO: We can probably even pull this out... --}}
-      {{!-- Tags --}}
-      <div class="arrayed-item-container tags-container flexcol" style="grid-area: 5 / 1 / 6 / 4" data-item="tags">
-        <div>
-          <span class="minor" style="float: left">WEAPON TAGS</span>
-          <a class="add-button clickable" data-action="create" style="float: right; margin-right: 1em">+</a>
+          {{!-- Damage --}}
+          <div class="card clipped double">
+            <span class="lancer-header submajor ">
+              DAMAGE
+              <a class="gen-control fas fa-plus" data-action="append" data-path="mm.ent.Profiles.{{prof_index}}.BaseDamage" data-action-value="(struct)damage"></a>
+            </span>
+            {{#each profile.BaseDamage as |damage damage_index|}}
+                {{{wpn-damage-sel (concat "mm.ent.Profiles." prof_index ".BaseDamage." damage_index) }}}
+            {{/each}}
+          </div>
+
+          {{!-- Description --}}
+          {{{textarea-card "DESCRIPTION" (concat "mm.ent.Profiles." prof_index ".Description") }}}
+
+          {{!-- TODO: Item effects/actions --}}
+
+          {{!-- Tags --}}
+          <div class="card full">
+            <span class="lancer-header submajor">TAGS</span>
+            {{{mm-tag-list (concat "mm.ent.Profiles." prof_index ".Tags") profile.Tags ../editable}}}
+          </div>
         </div>
-        {{#each item.data.tags as |tag key|}}
-        {{{full-tag tag key "data.tags"}}}
-        {{/each}}
       </div>
+      {{/each}}
     </div>
   </section>
-
 </form>
