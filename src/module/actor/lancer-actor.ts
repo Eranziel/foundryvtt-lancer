@@ -134,7 +134,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
           switch (remStress) {
             case 2:
               // Choosing not to auto-roll the checks to keep the suspense up
-              return "Roll an ENGINEERING check. On a success, your mech is EXPOSED; on a failure, it suffers a reactor meltdown after 1d6 of your turns (rolled by the GM). A reactor meltdown can be prevented by retrying the ENGINEERING check as a free action.";
+              return "Roll an ENGINEERING check. On a success, your mech is EXPOSED; on a failure, it suffers a reactor meltdown after 1d6 of your turns (rolled by the GM). A reactor meltdown can be prevented by retrying the ENGINEERING check as a full action.";
             case 1:
               return "Your mech suffers a reactor meltdown at the end of your next turn.";
             default:

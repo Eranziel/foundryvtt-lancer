@@ -11,7 +11,7 @@ import {
   StaticReg,
 } from "machine-mind";
 import { FoundryReg } from "./mm-util/foundry-reg";
-import { has_mmid } from "./item/lancer-item";
+import { has_lid } from "./item/lancer-item";
 import { invalidate_cached_pack_map } from "./mm-util/db_abstractions";
 
 // Some useful subgroupings
@@ -36,7 +36,7 @@ type ItemEntryType = MechItemEntryType | PilotItemEntryType;
 
 // Clear all packs
 export async function clear_all(): Promise<void> {
-  // await unlock_all();
+  await set_all_lock(false);
   for (let p of Object.values(EntryType)) {
     let pack: Compendium | undefined;
     pack = game.packs.get(`world.${p}`);
@@ -49,6 +49,7 @@ export async function clear_all(): Promise<void> {
       });
     }
   }
+  await set_all_lock(true);
 }
 
 // Transfers a category. Returns a list of all the insinuated items
@@ -72,8 +73,8 @@ async function transfer_cat<T extends EntryType>(
       relinker: async (src_item, dest_reg, dest_cat) => {
         // We try pretty hard to find a matching item.
         // First by MMID
-        if (has_mmid(src_item)) {
-          let by_id = await dest_cat.lookup_mmid_live(ctx, (src_item as any).ID);
+        if (has_lid(src_item)) {
+          let by_id = await dest_cat.lookup_lid_live(ctx, (src_item as any).LID);
           if (by_id) {
             new_v = false;
             linked_items.push(by_id as any);
@@ -116,7 +117,7 @@ export async function import_cp(
   let env = new RegEnv();
   let tmp_lcp_reg = new StaticReg(env);
 
-  // Name it compendium so that refs will (mostly) carry through properly. Id's will still be borked but fallback mmid's should handle that
+  // Name it compendium so that refs will (mostly) carry through properly. Id's will still be borked but fallback lid's should handle that
   tmp_lcp_reg.set_name("compendium|compendium");
   await funcs.intake_pack(cp, tmp_lcp_reg);
 

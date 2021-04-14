@@ -519,6 +519,7 @@ async function prepareAttackMacro({
   };
 }) {
   let mData: LancerAttackMacroData = {
+    item_id: item.data._id,
     title: item.name,
     grit: 0,
     acc: 0,
@@ -661,7 +662,22 @@ async function rollAttackMacro(actor: Actor, data: LancerAttackMacroData) {
     let droll: Roll | null;
     let tt: HTMLElement | JQuery | null;
     try {
-      droll = new Roll(d_formula).roll();
+      droll = new Roll(x.val.toString());
+
+      for (let die of droll.dice) {
+        // @ts-ignore TS is having trouble finding DiceTerm for some reason...
+        if (!die instanceof DiceTerm) continue;
+        // set an original die count
+        var die_count = die.number;
+        // double the number of dice rolled on critical
+        if (attack_roll.total >= 20) die.number *= 2;
+        // add die explosion on 1 and keep the highest of the original number of die
+        if (data.overkill) die.modifiers.push("x1");
+        // for both sections above, we want to keep the highest of the die count
+        if (attack_roll.total >= 20 || data.overkill) die.modifiers.push(`kh${die_count}`);
+      }
+
+      droll = droll.roll();
       tt = await droll.getTooltip();
     } catch {
       droll = null;
@@ -705,6 +721,8 @@ async function rollAttackMacro(actor: Actor, data: LancerAttackMacroData) {
 
   // Output
   const templateData = {
+    actor_id: actor._id,
+    item_id: data.item_id,
     title: data.title,
     attack: attack_roll,
     attack_tooltip: attack_tt,
@@ -765,7 +783,7 @@ export function prepareCoreActiveMacro(a: string) {
         callback: async dlg => {
           mech?.update({"data.current_core_energy": Math.max(ent.CurrentCoreEnergy - 1,0)})
           console.log(
-            `Automatically consumed core power for ${ent.ID}`
+            `Automatically consumed core power for ${ent.LID}`
           );
         },
       },
