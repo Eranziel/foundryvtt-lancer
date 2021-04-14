@@ -50,7 +50,7 @@ export function stat_edit_card(
       </div>
       ${std_num_input(
         data_path,
-        ext_helper_hash(options, { classes: "lancer-stat lancer-invisible-input" })
+        ext_helper_hash(options, { classes: "lancer-stat" })
       )}
     </div>
     `;
@@ -206,7 +206,7 @@ export function overcharge_button(overcharge_path: string, options: HelperOption
   index = funcs.bound_int(index, 0, overcharge_sequence.length - 1);
   let over_val = overcharge_sequence[index];
   return `
-    <div class="flexcol card clipped" style="grid-area: 4/5/5/6">
+    <div class="flexcol card clipped">
       <div class="lancer-header clipped-top flexrow">
         <span class="major">OVERCHARGE</span>
       </div>

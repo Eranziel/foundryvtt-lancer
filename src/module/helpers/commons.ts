@@ -492,7 +492,7 @@ export function std_num_input(path: string, options: HelperOptions) {
 // Shows a [X] / Y display, where X is an editable value and Y is some total (e.x. max hp)
 export function std_x_of_y(x_path: string, x: number, y: number, add_classes: string = "") {
   return ` <div class="flexrow flex-center no-wrap ${add_classes}">
-              <input class="lancer-stat lancer-invisible-input" type="number" name="${x_path}" value="${x}" data-dtype="Number" style="justify-content: left"/>
+              <input class="lancer-stat lancer-stat" type="number" name="${x_path}" value="${x}" data-dtype="Number" style="justify-content: left"/>
               <span>/</span>
               <span class="lancer-stat" style="justify-content: left"> ${y}</span>
             </div>`;

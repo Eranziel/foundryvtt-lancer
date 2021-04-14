@@ -124,13 +124,8 @@ export function pilot_slot(data_path: string, options: HelperOptions): string {
   let cd = ref_commons(existing);
   if(!cd) return simple_mm_ref(EntryType.PILOT, existing, "No Pilot", data_path, true);
 
-  return `<div class="pilot-summary 
-          valid ${cd.ref.type} ref" 
-          ${ref_params(cd.ref)}">
-    <img src="${existing.Flags.top_level_data.img}">
-    <div class="pilot-summary-name">
-      <span>${existing.Name}</span>
-    </div>
+  return `<div class="pilot-summary">
+    <img class="valid ${cd.ref.type} ref" ${ref_params(cd.ref)} style="height: 100%" src="${existing.Flags.top_level_data.img}"/>
     <div class="pilot-summary-ll">
       <span>LL${existing.Level}</span>
     </div>
