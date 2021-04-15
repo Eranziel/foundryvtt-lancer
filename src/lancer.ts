@@ -8,6 +8,7 @@
  */
 
 // Import TypeScript modules
+const marked = require("marked");
 import { LANCER, STATUSES, WELCOME } from "./module/config";
 import { LancerGame } from "./module/lancer-game";
 import { LancerActor, lancerActorInit } from "./module/actor/lancer-actor";
@@ -437,28 +438,8 @@ Hooks.once("init", async function () {
 export const system_ready: Promise<void> = new Promise(success => {
   Hooks.once("ready", async function () {
     await versionCheck();
+    await showChangelog();
 
-    // Show welcome message if not hidden.
-    if (!game.settings.get(LANCER.sys_name, LANCER.setting_welcome)) {
-      new Dialog({
-        title: `Welcome to LANCER v${game.system.data.version}`,
-        content: WELCOME,
-        buttons: {
-          dont_show: {
-            label: "Do Not Show Again",
-            callback: async () => {
-              await game.settings.set(LANCER.sys_name, LANCER.setting_welcome, true);
-            },
-          },
-          close: {
-            label: "Close",
-          },
-        },
-        default: "Close",
-      }).render(true);
-    }
-
-    // We're ready, freddy
     success();
   });
 });

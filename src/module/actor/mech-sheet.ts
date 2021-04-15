@@ -13,7 +13,6 @@ import {
 import { MMEntityContext, mm_wrap_item } from "../mm-util/helpers";
 import { ResolvedNativeDrop } from "../helpers/dragdrop";
 import { gentle_merge, resolve_dotpath } from "../helpers/commons";
-import fitty from "fitty";
 
 /**
  * Extend the basic ActorSheet
