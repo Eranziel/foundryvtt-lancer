@@ -147,7 +147,7 @@ export function clicker_stat_card(
 ): string {
   let button = ""
   let macroData = encodeMacroData({
-    command: `game.lancer.prepareStatMacro("${options.data.root.actor._id}","${data_path}");`,
+    command: `game.lancer.prepareStatMacro("${options.data.root.entity._id}","${data_path}");`,
     title: title
   })
   if(roller) button = `<a class="lancer-macro i--dark i--sm" data-macro="${macroData}"><i class="fas fa-dice-d20"></i></a>`

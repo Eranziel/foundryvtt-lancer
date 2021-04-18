@@ -296,7 +296,7 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
       let macroData: LancerMacroData = {
         iconPath: `systems/lancer/assets/icons/macro-icons/mech_system.svg`,
         title: sys.Name,
-        command: `game.lancer.prepareItemMacro("${sys.Flags.orig_doc.actor._id}", "${sys.Flags.orig_doc._id}")`
+        command: `game.lancer.prepareItemMacro("${sys.Flags.orig_doc.entity._id}", "${sys.Flags.orig_doc._id}")`
       }
 
       if (is_limited(sys)) limited = limited_HTML(sys,item_path,helper);

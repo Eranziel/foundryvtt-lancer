@@ -184,6 +184,10 @@ Hooks.once("init", async function () {
       EntryType.NPC_FEATURE,
       EntryType.MANUFACTURER,
       EntryType.QUIRK,
+      EntryType.ENVIRONMENT,
+      EntryType.FACTION,
+      EntryType.ORGANIZATION,
+      EntryType.SITREP
     ],
     makeDefault: true,
   });
