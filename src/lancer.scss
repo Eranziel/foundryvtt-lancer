@@ -1226,6 +1226,8 @@ input.core-power-toggle:not(:checked)::before
 .lancer-protocol-header,
 .lancer-reaction-header,
 .lancer-tech-header,
+.lancer-corebonus-header,
+.lancer-license-header,
 .lancer-weapon-header {
   color: white;
   background-color: var(--main-theme-color, fuchsia);
@@ -1239,6 +1241,16 @@ input.core-power-toggle:not(:checked)::before
   grid-template-columns: 40px 1fr 40px;
   align-items: center;
   text-overflow: ellipsis;
+}
+
+.lancer-corebonus-header {
+  background-color: var(--bonus-color);
+  color: var(--secondary-theme-color);
+}
+
+.lancer-license-header {
+  background-color: var(--loadout-color);
+  color: var(--main-theme-color);
 }
 
 .lancer-trigger-header {
@@ -1465,4 +1477,15 @@ a.activation-chip > i.fas, a.activation-chip > i.cci, a.activation-chip > i.mdi 
 
 .pilot-summary img {
   border:unset;
+}
+
+.loading-wrapper {
+  align-items: center;
+  margin-top: .75em;
+  max-width: fit-content;
+}
+
+.uses-wrapper {
+  float:right;
+  max-width: 4em;
 }

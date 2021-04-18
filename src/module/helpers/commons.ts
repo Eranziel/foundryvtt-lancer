@@ -290,67 +290,80 @@ export function ext_helper_hash(
  *
  * The data getter and commit func are used to retrieve the target data, and to save it back (respectively)
  */
-export function HANDLER_activate_general_controls<
-  T extends LancerActorSheetData<any> | LancerItemSheetData<any>
+ export function HANDLER_activate_general_controls<
+ T extends LancerActorSheetData<any> | LancerItemSheetData<any>
 >(
-  html: JQuery,
-  // Retrieves the data that we will operate on
-  data_getter: () => Promise<T> | T,
-  commit_func: (data: T) => void | Promise<void>
+ html: JQuery,
+ // Retrieves the data that we will operate on
+ data_getter: () => Promise<T> | T,
+ commit_func: (data: T) => void | Promise<void>
 ) {
-  html.find(".gen-control").on("click", async (event: any) => {
-    // Get the id/action
-    event.stopPropagation();
-    const elt = event.currentTarget;
-    const path = elt.dataset.path;
-    const action = elt.dataset.action;
-    const data = await data_getter();
-    const raw_val: string = elt.dataset.actionValue ?? "";
+ html.find(".gen-control").on("click", async (event: any) => {
+   // Get the id/action
+   event.stopPropagation();
+   const elt = event.currentTarget;
+   const path = elt.dataset.path;
+   const action = elt.dataset.action;
+   const data = await data_getter();
+   const raw_val: string = elt.dataset.actionValue ?? "";
+   const item_override: string = elt.dataset.commitItem ?? "";
 
-    if (!path || !data) {
-      console.error("Gen control failed: missing path");
-    } else if (!action) {
-      console.error("Gen control failed: missing action");
-    } else if (!data) {
-      console.error("Gen control failed: data could not be retrieved");
-    }
+   if (!path || !data) {
+     console.error("Gen control failed: missing path");
+   } else if (!action) {
+     console.error("Gen control failed: missing action");
+   } else if (!data) {
+     console.error("Gen control failed: data could not be retrieved");
+   }
 
-    if (action == "delete") {
-      // Find and delete the item at that path
-      let item = resolve_dotpath(data, path) as RegEntry<any>;
-      return item.destroy_entry();
-    } else if (action == "splice") {
-      // Splice out the value at path dest, then writeback
-      array_path_edit(data, path, null, "delete");
-    } else if (action == "null") {
-      // Null out the target space
-      gentle_merge(data, { [path]: null });
-    } else if (["set", "append", "insert"].includes(action)) {
-      let result = await parse_control_val(raw_val, data.mm);
-      let success = result[0];
-      let value = result[1];
-      if (!success) {
-        console.warn(`Bad data-action-value: ${value}`);
-        return; // Bad arg - no effect
-      }
+   if (action == "delete") {
+     // Find and delete the item at that path
+     let item = resolve_dotpath(data, path) as RegEntry<any>;
+     return item.destroy_entry();
+   } else if (action == "splice") {
+     // Splice out the value at path dest, then writeback
+     array_path_edit(data, path, null, "delete");
+   } else if (action == "null") {
+     // Null out the target space
+     gentle_merge(data, { [path]: null });
+   } else if (["set", "append", "insert"].includes(action)) {
+     let result = await parse_control_val(raw_val, data.mm);
+     let success = result[0];
+     let value = result[1];
+     if (!success) {
+       console.warn(`Bad data-action-value: ${value}`);
+       return; // Bad arg - no effect
+     }
 
-      // Multiplex with our parsed actions
-      switch (action) {
-        case "set":
-          gentle_merge(data, { [path]: value });
-          break;
-        case "append":
-          array_path_edit(data, path + "[-1]", value, "insert");
-          break;
-        case "insert":
-          array_path_edit(data, path, value, "insert");
-          break;
-      }
-    }
+     // Multiplex with our parsed actions
+     switch (action) {
+       case "set":
+         gentle_merge(data, { [path]: value });
+         break;
+       case "append":
+         array_path_edit(data, path + "[-1]", value, "insert");
+         break;
+       case "insert":
+         array_path_edit(data, path, value, "insert");
+         break;
+     }
+   } else {
+     console.error("Unhandled action: " + action);
+   }
 
-    // Handle writing back our changes
-    await commit_func(data);
-  });
+   // Handle writing back our changes
+   if (item_override) {
+     let item = resolve_dotpath(data, item_override);
+     try {
+       await item.writeback();
+     } catch (e) {
+       console.error(`Failed to writeback item at path "${item_override}"`);
+       return;
+     }
+   } else {
+     await commit_func(data);
+   }
+ });
 }
 
 // Used by above to figure out how to handle "set"/"append" args
@@ -637,4 +650,15 @@ export function large_textbox_card(title: string, text_path: string, helper: Hel
     </div>
   </div>
   `;
+}
+
+
+// Reads the specified form to a JSON object, including unchecked inputs
+// Wraps the build in foundry method
+export function read_form(
+  form_element: HTMLFormElement
+): { [key: string]: string | number | boolean } {
+  // @ts-ignore The typings don't yet include this utility class
+  let form_data = new FormDataExtended(form_element);
+  return form_data.toObject();
 }

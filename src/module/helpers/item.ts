@@ -59,6 +59,7 @@ import { ref_commons, ref_params } from "./refs";
 import { ActivationOptions, ChipIcons } from "../enums";
 import { LancerMacroData } from "../interfaces";
 import { encodeMacroData } from '../macros';
+import { is_loading } from "machine-mind/dist/classes/mech/EquipUtil";
 
 /**
  * Handlebars helper for weapon size selector
@@ -486,7 +487,14 @@ export function pilot_weapon_refview(weapon_path: string, helper: HelperOptions)
       </div>`;
   }
 
+
+
   let weapon = weapon_!;
+
+  let loading = "";
+  // Generate loading segment as needed
+  if(is_loading(weapon)) loading = loading_indicator(weapon.Loaded,weapon_path);
+
   return `<div class="valid ${
     EntryType.PILOT_WEAPON
   } ref drop-settable card clipped pilot-weapon-compact item macroable"
@@ -505,6 +513,8 @@ export function pilot_weapon_refview(weapon_path: string, helper: HelperOptions)
         ${show_range_array(weapon.Range, helper)}
         <hr class="vsep">
         ${show_damage_array(weapon.Damage, helper)}
+        <!-- Loading toggle, if we are loading-->
+        ${inc_if(`<hr class="vsep"> ${loading}`, loading)}
       </div>
 
       ${compact_tag_list(weapon_path + ".Tags", weapon.Tags, false)}
@@ -608,13 +618,7 @@ export function mech_weapon_refview(
 
   // Generate loading segment as needed
   let loading = "";
-  if (weapon.IsLoading) {
-    let loading_icon = `mdi mdi-hexagon-slice-${weapon.Loaded ? 6 : 0}`;
-    loading = `<span> 
-                LOADED: 
-                <a class="gen-control" data-action="set" data-action-value="(bool)${!weapon.Loaded}" data-path="${weapon_path}.Loaded"><i class="${loading_icon}"></i></a>
-                </span>`;
-  }
+  if(weapon.IsLoading) loading = loading_indicator(weapon.Loaded,weapon_path);
 
   // Generate effects
   let effect = profile.Effect ? effect_box("Effect", profile.Effect) : "";
@@ -657,6 +661,14 @@ export function mech_weapon_refview(
       </div>
     </div>
   </div>`;
+}
+
+function loading_indicator(loaded: boolean,weapon_path: string): string {
+    let loading_icon = `mdi ${loaded ? "mdi-hexagon-slice-6" : "mdi-hexagon-outline"}`;
+    return `<span class="flexcol loading-wrapper"> 
+                LOADED: 
+                <a class="gen-control" data-action="set" data-action-value="(bool)${!loaded}" data-path="${weapon_path}.Loaded" data-commit-item="${weapon_path}"><i class="${loading_icon}"></i></a>
+                </span>`;
 }
 
 // A specific MM ref helper focused on displaying manufacturer info.
@@ -805,7 +817,7 @@ export function buildDeployableHTML(dep: Deployable, full?: boolean, num?:number
     }
   }
 
-  if(!activation) activation = ActivationType.None;
+  if(!activation) activation = ActivationType.Quick;
 
   if(num !== undefined) {
     chip = buildChipHTML(activation,{icon: ChipIcons.Deployable,num: num,isDep: true});

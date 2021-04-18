@@ -29,6 +29,7 @@ import { EntryType } from "machine-mind";
 import { ActivationOptions } from "../enums";
 import { CollapseHandler } from "../helpers/collapse";
 import { FoundryFlagData } from "../mm-util/foundry-reg";
+import { HANDLER_intercept_form_changes } from '../helpers/refs';
 const lp = LANCER.log_prefix;
 
 /**
@@ -78,6 +79,9 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     // Enable general controls, so items can be deleted and such
     HANDLER_activate_general_controls(html, getfunc, commitfunc);
 
+    // Item-referencing inputs
+    HANDLER_intercept_form_changes(html, getfunc);
+
     // Enable popout editors
     HANDLER_activate_popout_text_editor(html, getfunc, commitfunc);
   }
@@ -122,7 +126,6 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
         if (item.classList.contains("item"))
           item.addEventListener("dragstart", (ev: any) => {
             this._onDragStart(ev)
-            console.log("A")
           }
             , false);
       });

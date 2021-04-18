@@ -13,7 +13,11 @@ import {
   Action,
   SystemType,
   Deployable,
+  CoreBonus,
+  MechWeapon,
+  TagInstance,
 } from "machine-mind";
+import { is_limited, limited_max } from "machine-mind/dist/classes/mech/EquipUtil";
 import { System } from "pixi.js";
 import { is_actor_type, LancerActor } from "../actor/lancer-actor";
 import { GENERIC_ITEM_ICON, LANCER, TypeIcon } from "../config";
@@ -21,7 +25,7 @@ import { LancerMacroData } from "../interfaces";
 import { is_item_type, LancerItem, LancerItemType } from "../item/lancer-item";
 import { encodeMacroData } from "../macros";
 import { FoundryFlagData, FoundryReg } from "../mm-util/foundry-reg";
-import { gentle_merge, resolve_dotpath, resolve_helper_dotpath } from "./commons";
+import { gentle_merge, read_form, resolve_dotpath, resolve_helper_dotpath, std_num_input, std_x_of_y } from "./commons";
 import {
   convert_ref_to_native,
   enable_dragging,
@@ -263,6 +267,7 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
       let actions: string | undefined;
       let deployables: string | undefined;
       let eff: string | undefined;
+      let limited: string | undefined;
 
       if (sys.Description && sys.Description !== "No description") {
         desc = `<div class="desc-text" style="padding: 5px">
@@ -294,6 +299,8 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
         command: `game.lancer.prepareItemMacro("${sys.Flags.orig_doc.actor._id}", "${sys.Flags.orig_doc._id}")`
       }
 
+      if (is_limited(sys)) limited = limited_HTML(sys,item_path,helper);
+
       let str = `<li class="card clipped mech-system-compact item ${
         sys.SysType === SystemType.Tech ? "tech-item" : ""
       }" ${ref_params(cd.ref)}>
@@ -309,6 +316,9 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
           <div style="float: left; align-items: center; display: inherit;">
             <i class="cci cci-system-point i--m i--dark"> </i>
             <span class="medium" style="padding: 5px;">${sys.SP} SP</span>
+          </div>
+          <div class="uses-wrapper">
+            ${limited ? limited : ""}
           </div>
         </div>
         ${desc ? desc : ""}
@@ -365,9 +375,38 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
       </a>
       <div class="desc-text" style="grid-area: 2/2/3/3">${skill.Description}</div>
     </li>`;
-      break;
+    
+    case EntryType.CORE_BONUS:
+      let cb: CoreBonus = <CoreBonus><any>item;
+      return `
+      <li class="card clipped item ref valid" ${ref_params(cd.ref)}>
+      <div class="lancer-corebonus-header medium clipped-top" style="grid-area: 1/1/2/3">
+        <i class="cci cci-corebonus i--m i--dark"> </i>
+        <span class="major modifier-name">${cb.Name}</span>
+        <div class="ref-list-controls">
+          <a class="gen-control i--dark" data-action="${trash_action}" data-path="${item_path}"><i class="fas fa-trash"></i></a>
+        </div>
+      </div>
+      <div class="desc-text" style="grid-area: 2/2/3/3">${cb.Description}</div>
+    </li>`;
+
+    case EntryType.LICENSE:
+      let license: License = <License><any>item;
+      return `
+      <li class="card clipped item macroable ref valid" ${ref_params(cd.ref)}>
+      <div class="lancer-license-header medium clipped-top" style="grid-area: 1/1/2/3">
+        <i class="cci cci-license i--m i--dark"> </i>
+        <span class="major modifier-name">${license.Name} ${license.CurrentRank}</span>
+        <div class="ref-list-controls">
+          <a class="gen-control i--dark" data-action="${trash_action}" data-path="${item_path}"><i class="fas fa-trash"></i></a>
+        </div>
+      </div>
+    </li>`;
+
+
     default:
       // Basically the same as the simple ref card, but with control assed
+      console.log("You're using the default refview, you may not want that");
       return `
       <div class="valid ${cd.ref.type} ref ref-card" 
               ${ref_params(cd.ref)}>
@@ -379,6 +418,18 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
         </div>
       </div>`;
   }
+}
+
+function limited_HTML(item: MechWeapon | {Tags: TagInstance[];}, path: string, helper: HelperOptions): string {
+  let val_path = path + ".Uses"
+  let data_val = resolve_helper_dotpath(helper, val_path, 0);
+
+  return `Uses: 
+  <div class="flexrow flex-center no-wrap">
+  <input class="lancer-stat" type="number" name="${val_path}" value="${data_val}" data-dtype="Number" data-commit-item="${path}" style="justify-content: left"/>
+  <span>/</span>
+  <span class="lancer-stat" style="justify-content: left"> ${limited_max(item)}</span>
+</div>`;
 }
 
 // Exactly as above, but drags as a native when appropriate handlers called
@@ -498,6 +549,42 @@ export function HANDLER_activate_ref_drop_clearing<T>(
       if (!resolve_dotpath(data, path)) return;
       gentle_merge(data, { [path]: null });
       await commit_func(data);
+    }
+  });
+}
+
+
+/**
+ * Use this for previews of items. Will prevent change/submit events from propagating all the way up, and instead call writeback() on the
+ * appropriate entity instead.
+ * Control in same way as generic action handler: with the "data-commit-item" property pointing at the MM item
+ */
+ export function HANDLER_intercept_form_changes<T>(
+  html: JQuery,
+  // Retrieves the data that we will operate on
+  data_getter: () => Promise<T> | T
+  // commit_func: (data: T) => void | Promise<void> -- not necessary
+) {
+  // Capture anywhere with a data-commit-item path specified
+  let capturers = html.find("[data-commit-item]");
+  capturers.on("change", async evt => {
+    // Don't let it reach root form
+    evt.stopPropagation();
+
+    // Get our form data. We're kinda just replicating what would happen in onUpdate, but minus all of the fancier processing that is needed there
+    let form = $(evt.target).parents("form")[0];
+    let form_data = read_form(form);
+
+    // Get our target data
+    let sheet_data = await data_getter();
+    let path = evt.currentTarget.dataset.commitItem;
+    if (path) {
+      let item_data = resolve_dotpath(sheet_data, path);
+      if (item_data) {
+        // Apply and writeback
+        gentle_merge(sheet_data, form_data); // Will apply any modifications to the item
+        await item_data.writeback();
+      }
     }
   });
 }
