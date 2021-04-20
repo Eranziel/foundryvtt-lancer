@@ -18,9 +18,47 @@
     </header>
   
     {{!-- Sheet Body --}}
-    <section class="sheet-body">
-        {{{textarea-card "DESCRIPTION" "mm.ent.Description"}}}
-        {{{textarea-card "EFFECT" "mm.ent.Effect"}}}
+    <section class="sheet-body flexcol sheet-weapon-mod">
+        
+        {{{item-edit-effect "mm.ent.Effect"}}}
+        {{{item-edit-uses "mm.ent"}}}
+        {{{item-edit-license}}}
+        {{{item-edit-arrayed-actions "mm.ent.Actions"}}}
+        {{{item-edit-arrayed-damage "mm.ent.AddedDamage"}}}
+        {{{item-edit-arrayed-range "mm.ent.AddedRange"}}}
+        {{{item-edit-arrayed-tags "mm.ent.AddedTags"}}}
+        {{{item-edit-arrayed-enum "mm.ent.AllowedSizes" "WeaponSize"}}}
+        {{{item-edit-arrayed-enum "mm.ent.AllowedTypes" "WeaponType"}}}
+        {{{item-edit-arrayed-bonuses "mm.ent"}}}
+        {{{item-edit-arrayed-counters "mm.ent"}}}
+        {{{item-edit-arrayed-deployables "mm.ent"}}}
+        {{{item-edit-arrayed-synergies "mm.ent"}}}
+        {{{item-edit-arrayed-deployables "mm.ent"}}}
+        {{{item-edit-arrayed-integrated "mm.ent.Integrated"}}}
+        {{!-- 
+            Fields needed for:
+            Arrayed
+              Actions -Action-
+              AddedDamage -Damage-
+              AddedRange -Range-
+              AddedTags -Tag-
+              AllowedSizes -WeaponSize-
+              AllowedTypes -WeaponType-
+              Bonuses -Bonus-
+              Counters -Counter-
+              Deployables -Deployable-
+              Synergies -Synergy-
+              Tags -Tag-
+
+            Effect
+            Integrated
+            License
+              + LicenseLevel
+            * Name
+            SP
+            Uses (?) (no max uses)
+
+          --}}
     </section>
   </form>
   

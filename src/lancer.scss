@@ -1501,3 +1501,39 @@ a.activation-chip > i.fas, a.activation-chip > i.cci, a.activation-chip > i.mdi 
 .weapon-mod-addon > span {
   margin-left: .5em;
 }
+
+.mech-weapon-wrapper {
+  margin-bottom: 4px;
+}
+
+// CSS for Item-level Editing
+
+.sheet-weapon-mod {
+  display: grid;
+  grid-template: auto / 1fr 1fr 1fr;
+}
+
+.edit-license-wrapper {
+  margin-right: 1em;
+}
+
+.rank-wrapper {
+  align-items: center;
+  justify-content: center;
+  border-color: var(--loadout-color);
+  border-width: 0px 1px 1px;
+  border-style: solid;
+  position: relative;
+  top: -1px;
+  padding:2px;
+}
+
+.rank-wrapper span {
+  margin-right: .5em;
+  font-size: 1.2em;
+  flex-grow: unset;
+}
+
+.rank-wrapper input {
+  max-width: 2em;
+}

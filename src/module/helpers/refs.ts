@@ -16,6 +16,8 @@ import {
   CoreBonus,
   MechWeapon,
   TagInstance,
+  PilotWeapon,
+  PilotGear,
 } from "machine-mind";
 import { is_limited, limited_max } from "machine-mind/dist/classes/mech/EquipUtil";
 import { System } from "pixi.js";
@@ -34,6 +36,7 @@ import {
 } from "./dragdrop";
 import { buildActionHTML, buildDeployableHTML } from "./item";
 import { compact_tag_list } from "./tags";
+import { WeaponSize } from 'machine-mind';
 
 // We use these for virtually every ref function
 export function ref_commons<T extends EntryType>(
@@ -100,6 +103,8 @@ export function simple_mm_ref<T extends EntryType>(
 ) {
 
   console.log("You're still using a simple ref")
+
+  
 
   // Flatten types
   if (!Array.isArray(types)) {
@@ -420,7 +425,7 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
   }
 }
 
-function limited_HTML(item: MechWeapon | {Tags: TagInstance[];}, path: string, helper: HelperOptions): string {
+function limited_HTML(item: MechWeapon | MechSystem | PilotWeapon | PilotGear , path: string, helper: HelperOptions): string {
   let val_path = path + ".Uses"
   let data_val = resolve_helper_dotpath(helper, val_path, 0);
 
@@ -428,7 +433,7 @@ function limited_HTML(item: MechWeapon | {Tags: TagInstance[];}, path: string, h
   <div class="flexrow flex-center no-wrap">
   <input class="lancer-stat" type="number" name="${val_path}" value="${data_val}" data-dtype="Number" data-commit-item="${path}" style="justify-content: left"/>
   <span>/</span>
-  <span class="lancer-stat" style="justify-content: left"> ${limited_max(item)}</span>
+  <span class="lancer-stat" style="justify-content: left"> ${item.OrigData.derived.max_uses}</span>
 </div>`;
 }
 

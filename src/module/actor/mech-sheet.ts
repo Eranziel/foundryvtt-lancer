@@ -12,7 +12,9 @@ import {
 } from "machine-mind";
 import { MMEntityContext, mm_wrap_item } from "../mm-util/helpers";
 import { ResolvedNativeDrop } from "../helpers/dragdrop";
-import { gentle_merge, resolve_dotpath } from "../helpers/commons";
+import { gentle_merge, resolve_dotpath } from '../helpers/commons';
+import { LancerMechWeapon } from "../item/lancer-item";
+import { Mech, MechWeapon } from 'machine-mind';
 
 /**
  * Extend the basic ActorSheet
@@ -58,6 +60,9 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
       return null; // Bail.
     }
 
+    // In case we're mounting a mod
+    var mount_slot_path: string | undefined;
+
     // Prep data
     let item = drop.entity;
     const sheet_data = await this.getDataLazy();
@@ -71,6 +76,44 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
 
     // Make the context for the item
     const item_mm: MMEntityContext<EntryType> = await mm_wrap_item(item);
+
+    // If it's a mod, perform checks to ensure it can be equipped
+    if(item_mm.ent.Type === EntryType.WEAPON_MOD) {
+      let equipping_weapon_id = $(event.target).closest(".item")?.data("id");
+      let weapon_path = $(event.target).closest(".item")?.data("path");
+      mount_slot_path = weapon_path.substr(0,weapon_path.lastIndexOf("."));
+
+      // Need to set the path to strip out the sheet-native references
+      mount_slot_path = mount_slot_path?.substr(7);
+
+      if(!equipping_weapon_id) {
+        ui.notifications.error("You dropped a mod onto something that isn't an item!");
+        return;
+      }
+
+      let equipping_weapon = <LancerMechWeapon>this.actor.getOwnedItem(equipping_weapon_id);
+
+      if(!equipping_weapon) {
+        ui.notifications.error("Actor doesn't own the item?");
+        return;
+      }
+
+      if(equipping_weapon.type !== EntryType.MECH_WEAPON) {
+        ui.notifications.error("Can only equip weapon mods to a weapon!");
+        return;
+      }
+      
+      if(!mount_slot_path) return;
+      
+      let mount_slot = resolve_dotpath(await this.actor.data.data.derived.mmec.ent,mount_slot_path);
+
+      // Check can take outputs a string if error, rather than a bool...
+      if (mount_slot.check_can_take(item_mm.ent)) {
+        ui.notifications.error("This mod can't be equipped to this weapon");
+        return;
+      }
+
+    }
 
     // Always add the item to the mech, now that we know it is a valid mech posession
     // Make a new ctx to hold the item and a post-item-add copy of our mech
@@ -93,9 +136,13 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
     } else if (new_live_item.Type === EntryType.MECH_SYSTEM) {
       await new_live_this.Loadout.equip_system(new_live_item);
       //new_live_this.Loadout.equip_system(new_live_item);
+    } else if (new_live_item.Type === EntryType.WEAPON_MOD) {
+      // If it's a mod and we got here, it's valid and we can proceed
+      if(!mount_slot_path) return
+      let mount_slot: WeaponSlot = resolve_dotpath(new_live_this,mount_slot_path);
+      mount_slot.Mod = <any>item_mm.ent;
     }
-    // Most other things (weapon mods) aren't directly equipped to the mech and should be handled in their own sheet / their own subcomponents. We've already taken posession, and do nothing more
-
+    
     // Writeback when done. Even if nothing explicitly changed, probably good to trigger a redraw (unless this is double-tapping? idk)
     await new_live_this.writeback();
 

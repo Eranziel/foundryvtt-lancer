@@ -616,6 +616,7 @@ export function mech_weapon_refview(
         ${ref_params(cd_mod.ref, weapon_path)}>
       <i class="cci cci-weaponmod i--m i--light"> </i>
       <span>${mod.Name}</span>
+      <a style="flex-grow: unset;margin-right: 1em" class="gen-control i--light" data-action="null" data-path="${mod_path}"><i class="fas fa-trash"></i></a>
     </div>`
   }
 
@@ -643,7 +644,7 @@ export function mech_weapon_refview(
   let on_crit = profile.OnCrit ? effect_box("On Crit", profile.OnCrit) : "";
 
   return `
-  <div class="mech-weapon-wrapper">
+  <div class="mech-weapon-wrapper${mod_text ? "-modded" : ""}">
     <div class="valid ${EntryType.MECH_WEAPON} 
     ref drop-settable flexcol lancer-weapon-container macroable item"
                   ${ref_params(cd.ref, weapon_path)}
