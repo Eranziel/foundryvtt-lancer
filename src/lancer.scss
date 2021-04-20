@@ -1489,3 +1489,15 @@ a.activation-chip > i.fas, a.activation-chip > i.cci, a.activation-chip > i.mdi 
   float:right;
   max-width: 4em;
 }
+
+.weapon-mod-addon {
+  background-color: var(--bonus-color);
+  margin: 0px 3px .5em 3px;
+  color:white;
+  align-items: center;
+  min-height: 2em;
+}
+
+.weapon-mod-addon > span {
+  margin-left: .5em;
+}

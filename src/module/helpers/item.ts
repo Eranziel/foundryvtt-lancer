@@ -29,6 +29,7 @@ import {
   Deployable,
   MechSystem,
   ActivationType,
+  WeaponMod,
 } from "machine-mind";
 import { MechWeapon, TagInstance } from 'machine-mind';
 import { BonusEditDialog } from "../apps/bonus-editor";
@@ -588,6 +589,10 @@ export function mech_weapon_refview(
   // Fetch the item(s)
   let weapon_: MechWeapon | null = resolve_helper_dotpath(options, weapon_path);
   let mech_: Mech | null = resolve_helper_dotpath(options, mech_path);
+  let mod_path = weapon_path.substr(0,weapon_path.lastIndexOf(".")) + ".Mod";
+  let mod: WeaponMod | null = resolve_helper_dotpath(options,mod_path);
+  let mod_text: string | undefined;
+
 
   // Generate commons
   let cd = ref_commons(weapon_);
@@ -595,12 +600,23 @@ export function mech_weapon_refview(
   if (!cd) {
     // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
     return `
-      <div class="${EntryType.MECH_WEAPON} ref drop-settable card flexrow" 
+      <div class=" ${EntryType.MECH_WEAPON} ref drop-settable card flexrow" 
                         data-path="${weapon_path}" 
                         data-type="${EntryType.MECH_WEAPON}">
         <img class="ref-icon" src="${TypeIcon(EntryType.MECH_WEAPON)}"></img>
         <span class="major">Insert ${size ? size : "any"} weapon</span>
       </div>`;
+  }
+
+  let cd_mod = ref_commons(mod);
+
+  if(cd_mod && mod) {
+    mod_text = `
+    <div class="valid item weapon-mod-addon flexrow clipped-bot ref ${EntryType.WEAPON_MOD}"
+        ${ref_params(cd_mod.ref, weapon_path)}>
+      <i class="cci cci-weaponmod i--m i--light"> </i>
+      <span>${mod.Name}</span>
+    </div>`
   }
 
   // Assert not null
@@ -627,39 +643,41 @@ export function mech_weapon_refview(
   let on_crit = profile.OnCrit ? effect_box("On Crit", profile.OnCrit) : "";
 
   return `
-  <div class="valid ${
-    EntryType.MECH_WEAPON
-  } ref drop-settable flexcol clipped lancer-weapon-container macroable item"
-                ${ref_params(cd.ref, weapon_path)}
-                style="max-height: fit-content;">
-    <div class="lancer-header">
-      <i class="cci cci-weapon i--m i--light"> </i>
-      <span class="minor">${
-        weapon.Name
-      } // ${weapon.Size.toUpperCase()} ${weapon.SelectedProfile.WepType.toUpperCase()}</span>
-      <a class="gen-control i--light" data-action="null" data-path="${weapon_path}"><i class="fas fa-trash"></i></a>
-    </div> 
-    <div class="lancer-body">
-      <div class="flexrow" style="text-align: left; white-space: nowrap;">
-        <a class="roll-attack"><i class="fas fa-dice-d20 i--m i--dark"></i></a>
-        <hr class="vsep">
-        ${show_range_array(ranges, options)}
-        <hr class="vsep">
-        ${show_damage_array(weapon.SelectedProfile.BaseDamage, options)}
+  <div class="mech-weapon-wrapper">
+    <div class="valid ${EntryType.MECH_WEAPON} 
+    ref drop-settable flexcol lancer-weapon-container macroable item"
+                  ${ref_params(cd.ref, weapon_path)}
+                  style="max-height: fit-content;">
+      <div class="lancer-header">
+        <i class="cci cci-weapon i--m i--light"> </i>
+        <span class="minor">${
+          weapon.Name
+        } // ${weapon.Size.toUpperCase()} ${weapon.SelectedProfile.WepType.toUpperCase()}</span>
+        <a class="gen-control i--light" data-action="null" data-path="${weapon_path}"><i class="fas fa-trash"></i></a>
+      </div> 
+      <div class="lancer-body">
+        <div class="flexrow" style="text-align: left; white-space: nowrap;">
+          <a class="roll-attack"><i class="fas fa-dice-d20 i--m i--dark"></i></a>
+          <hr class="vsep">
+          ${show_range_array(ranges, options)}
+          <hr class="vsep">
+          ${show_damage_array(weapon.SelectedProfile.BaseDamage, options)}
 
-        <!-- Loading toggle, if we are loading-->
-        ${inc_if(`<hr class="vsep"> ${loading}`, loading)}
-      </div>
-      
-      <div class="flexcol">
-        <span>${weapon.SelectedProfile.Description}</span>
-        ${effect}
-        ${on_attack}
-        ${on_hit}
-        ${on_crit}
-        ${compact_tag_list(profile_path + ".Tags", profile.Tags, false)}
+          <!-- Loading toggle, if we are loading-->
+          ${inc_if(`<hr class="vsep"> ${loading}`, loading)}
+        </div>
+        
+        <div class="flexcol">
+          <span>${weapon.SelectedProfile.Description}</span>
+          ${effect}
+          ${on_attack}
+          ${on_hit}
+          ${on_crit}
+          ${compact_tag_list(profile_path + ".Tags", profile.Tags, false)}
+        </div>
       </div>
     </div>
+    ${mod_text ? mod_text : ""}
   </div>`;
 }
 
