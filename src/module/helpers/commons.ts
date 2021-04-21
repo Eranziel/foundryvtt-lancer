@@ -18,11 +18,14 @@ import {
   FrameTrait,
   Bonus,
   SerUtil,
+  Talent,
 } from "machine-mind";
+import { TALENT_RANK } from "machine-mind/dist/classes/default_entries";
 import { defaults } from "machine-mind/dist/funcs";
 import { HTMLEditDialog } from "../apps/text-editor";
 import { LancerActorSheetData, LancerItemSheetData } from "../interfaces";
 import { MMEntityContext } from "../mm-util/helpers";
+import { Deployable } from 'machine-mind';
 
 // A shorthand for only including the first string if the second value is truthy
 export function inc_if(val: string, test: any) {
@@ -449,6 +452,20 @@ async function control_structs(key: string, ctx: MMEntityContext<any>): Promise<
     case "weapon_profile":
       let profile = new MechWeaponProfile(ctx.reg, ctx.ctx, funcs.defaults.WEAPON_PROFILE());
       return [true, await profile.ready()];
+    case "talent_rank":
+      //TODO: We should have a type and constructor for this
+      let new_rank = {
+        Actions: [],
+        Bonuses: [],
+        Counters: [],
+        Deployables: [],
+        Description: "",
+        Exclusive: false,
+        Integrated: [],
+        Name: "",
+        Synergies: []
+      }
+      return [true, new_rank];
   }
 
   // Didn't find a match

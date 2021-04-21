@@ -425,7 +425,7 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
   }
 }
 
-function limited_HTML(item: MechWeapon | MechSystem | PilotWeapon | PilotGear , path: string, helper: HelperOptions): string {
+function limited_HTML(item: MechWeapon | MechSystem | PilotWeapon | PilotGear, path: string, helper: HelperOptions): string {
   let val_path = path + ".Uses"
   let data_val = resolve_helper_dotpath(helper, val_path, 0);
 

@@ -4,10 +4,13 @@
   <header class="sheet-header card clipped-bot">
     <div class="flexcol grow">
       <h1 class="charname"><input class="header-field" name="name" type="text" value="{{item.name}}" placeholder="Name"/></h1>
+      
+      {{#if (eq (idx mm.reg.config.item_source 0) "actor") }}
       <div class="flexrow">
         <span>RANK:</span>
         {{{l-num-input "mm.ent.CurrentRank"}}}
       </div>
+      {{/if}}
     </div>
     {{{ ref-portrait-img item.img "img" mm.ent }}}
   </header>
@@ -16,12 +19,16 @@
   <div class="flexcol">
     {{{textarea-card "DESCRIPTION" "mm.ent.Description"}}}
 
+    
+    <a class="gen-control fas fa-plus" data-action="append" data-path="mm.ent.Ranks" style="align-self: flex-end;margin-right: 1em;" data-action-value="(struct)talent_rank"></a>
+
     {{#each mm.ent.Ranks as |rank index|}}
       <div class="talent-level card clipped-bot flexcol">
         <div class="lancer-header" style="flex-basis: auto;">
           <i class="cci cci-rank-{{inc index}} i--xl i--dark"></i>
           <input class="lancer-invisible-input" name="mm.ent.Ranks.{{index}}.Name" value="{{rank.Name}}" data-dtype="String" style="color: white"/>
           <span class="minor">// RANK {{inc index}}</span>
+          <a class="gen-control i--light" data-action="splice" data-path="mm.ent.Ranks.{{index}}"><i class="fas fa-trash"></i></a>
           {{{popout-editor-button (concat "mm.ent.Ranks." index ".Description") }}}
         </div>
         <div class="desc-text">

@@ -83,6 +83,10 @@ button {
   justify-content: center;
 }
 
+.flex-center > * {
+  flex-grow: unset;
+}
+
 
 /* For if you just want a single item left */
 .self-left {
@@ -1509,12 +1513,12 @@ a.activation-chip > i.fas, a.activation-chip > i.cci, a.activation-chip > i.mdi 
 // CSS for Item-level Editing
 
 .sheet-weapon-mod {
-  display: grid;
-  grid-template: auto / 1fr 1fr 1fr;
+  margin-right: 1em;
 }
 
-.edit-license-wrapper {
-  margin-right: 1em;
+.sheet-weapon-mod > .flexcol > * {
+  flex-grow: unset;
+  margin-bottom: .25em;
 }
 
 .rank-wrapper {
@@ -1536,4 +1540,17 @@ a.activation-chip > i.fas, a.activation-chip > i.cci, a.activation-chip > i.mdi 
 
 .rank-wrapper input {
   max-width: 2em;
+}
+
+.uses-editor > span {
+  padding: auto;
+  text-align: center;
+  background-color: var(--darken-1);
+  margin-bottom: 4px;
+}
+
+.uses-editor {
+  background-color: var(--darken-1);
+  padding-bottom: .5em;
+  margin-bottom: auto;
 }
