@@ -96,7 +96,6 @@ import {
   item_edit_arrayed_actions,
   item_edit_arrayed_damage,
   item_edit_arrayed_range,
-  item_edit_arrayed_tags,
   item_edit_arrayed_bonuses,
   item_edit_arrayed_counters,
   item_edit_arrayed_deployables,
@@ -410,7 +409,6 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("item-edit-arrayed-actions", item_edit_arrayed_actions);
   Handlebars.registerHelper("item-edit-arrayed-damage", item_edit_arrayed_damage);
   Handlebars.registerHelper("item-edit-arrayed-range", item_edit_arrayed_range);
-  Handlebars.registerHelper("item-edit-arrayed-tags", item_edit_arrayed_tags);
   Handlebars.registerHelper("item-edit-arrayed-enum", item_edit_arrayed_enum);
   Handlebars.registerHelper("item-edit-arrayed-enum", item_edit_arrayed_enum);
   Handlebars.registerHelper("item-edit-arrayed-bonuses", item_edit_arrayed_bonuses);

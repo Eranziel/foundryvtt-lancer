@@ -1554,3 +1554,8 @@ a.activation-chip > i.fas, a.activation-chip > i.cci, a.activation-chip > i.mdi 
   padding-bottom: .5em;
   margin-bottom: auto;
 }
+
+.item-edit-arrayed .gen-control {
+  flex-grow: unset;
+  margin: 5px;
+}

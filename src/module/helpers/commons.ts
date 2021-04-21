@@ -25,7 +25,7 @@ import { defaults } from "machine-mind/dist/funcs";
 import { HTMLEditDialog } from "../apps/text-editor";
 import { LancerActorSheetData, LancerItemSheetData } from "../interfaces";
 import { MMEntityContext } from "../mm-util/helpers";
-import { Deployable } from 'machine-mind';
+import { Deployable, WeaponType } from 'machine-mind';
 
 // A shorthand for only including the first string if the second value is truthy
 export function inc_if(val: string, test: any) {
@@ -466,6 +466,10 @@ async function control_structs(key: string, ctx: MMEntityContext<any>): Promise<
         Synergies: []
       }
       return [true, new_rank];
+      case "WeaponSize":
+        return [true,WeaponSize.Aux];
+      case "WeaponType":
+        return [true,WeaponType.CQB];
   }
 
   // Didn't find a match

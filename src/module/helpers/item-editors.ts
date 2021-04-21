@@ -1,7 +1,7 @@
 import { HelperOptions } from "handlebars";
-import { Bonus, Damage, License, WeaponMod } from "machine-mind";
+import { Bonus, Damage, License, WeaponMod, WeaponSize, WeaponType } from "machine-mind";
 import { license_ref, manufacturer_ref, bonuses_display, damage_editor, range_editor } from './item';
-import { large_textbox_card, resolve_helper_dotpath } from './commons';
+import { large_textbox_card, resolve_helper_dotpath, std_enum_select } from './commons';
 
 export function item_edit_arrayed_actions(): string {
     console.log("TODO: Add arrayed actions editor");
@@ -27,7 +27,7 @@ export function item_edit_arrayed_damage(path: string, title: string, helper: He
     }
 
     return `
-    <div class="card clipped double">
+    <div class="card clipped double edi">
       <span class="lancer-header submajor ">
         ${title}
         <a class="gen-control fas fa-plus" data-action="append" data-path="${path}" data-action-value="(struct)damage"></a>
@@ -58,16 +58,12 @@ export function item_edit_arrayed_range(path: string, title: string, helper: Hel
     <div class="card clipped double">
       <span class="lancer-header submajor ">
         ${title}
-        <a class="gen-control fas fa-plus" data-action="append" data-path="mm.ent.Profiles.{{prof_index}}.BaseRange" data-action-value="(struct)range"></a>
+        <a class="gen-control fas fa-plus" data-action="append" data-path="${path}" data-action-value="(struct)range"></a>
       </span>
       ${range_detail}
     </div>`
 }
 
-export function item_edit_arrayed_tags(): string {
-    console.log("TODO: Add arrayed tags editor");
-    return `<span>TODO: Add arrayed tags editor</span>`
-}
 export function item_edit_arrayed_bonuses(path: string, helper: HelperOptions): string {
     let arr: Bonus[] = resolve_helper_dotpath(helper,path);
     if(!arr) arr = []
@@ -86,9 +82,58 @@ export function item_edit_arrayed_synergies(): string {
     console.log("TODO: Add arrayed synergies editor");
     return `<span>TODO: Add arrayed synergies editor</span>`
 }
+
+/**
+ * Allows for control of an array of selectors, build from a given enum. No validation is performed
+ * @param title         Title of the field
+ * @param path          Path to the array
+ * @param enum_name     Enum to use. Must be added here and in commons > control_structs
+*                       Currently supported:
+ *                          * WeaponSize
+ *                          * WeaponType
+ * @param helper        Standard helper object
+ * @returns             HTML for an array of selectable, addable and removable items from the struct
+ */
 export function item_edit_arrayed_enum(title: string, path: string, enum_name: string, helper: HelperOptions): string {
-    console.log("TODO: Add arrayed enum editor");
-    return `<span>TODO: Add arrayed enum editor</span>`
+    enum none_enum {None = "None"}
+    let resolved_enum: any;
+    // Resolve the enum name
+    switch(enum_name) {
+        case "WeaponSize":
+            resolved_enum = WeaponSize;
+            break;
+        case "WeaponType":
+            resolved_enum = WeaponType;
+            break;
+        default:
+            console.log("Using default enum with enum_name of ".concat(enum_name));
+            debugger;
+            resolved_enum = none_enum;
+            break;
+    }
+
+    let enum_arr: Array<typeof resolved_enum> = resolve_helper_dotpath(helper,path);
+
+    let selector_detail = "";
+
+    if(enum_arr) {
+        for (let i = 0; i < enum_arr.length; i++) {
+            selector_detail = selector_detail.concat(`
+            <div class="flexrow">
+                ${std_enum_select(path.concat(`.${i}`),resolved_enum,helper)}
+                <a class="gen-control fas fa-trash" data-action="splice" data-path="${path.concat(`.${i}`)}"></a>
+            </div>`);
+        }
+    }
+
+    return `
+    <div class="card clipped item-edit-arrayed">
+      <span class="lancer-header submajor ">
+        ${title}
+        <a class="gen-control fas fa-plus" data-action="append" data-path="${path}" data-action-value="(struct)${enum_name}"></a>
+      </span>
+        ${selector_detail}
+    </div>`
 }
 
 /**

@@ -24,13 +24,20 @@
         {{{item-edit-arrayed-actions      "mm.ent.Actions"}}}
         {{{item-edit-arrayed-damage       "mm.ent.AddedDamage"    "ADDED DAMAGE"}}}
         {{{item-edit-arrayed-range        "mm.ent.AddedRange"     "ADDED RANGE"}}}
-        {{{item-edit-arrayed-tags         "mm.ent.AddedTags"}}}
+        <div class="card full">
+          <span class="lancer-header submajor">ADDED TAGS</span>
+          {{{mm-tag-list "mm.ent.AddedTags" mm.ent.AddedTags editable}}}
+        </div>
         {{{item-edit-arrayed-bonuses      "mm.ent.Bonuses"}}}
         {{{item-edit-arrayed-counters     "mm.ent"}}}
         {{{item-edit-arrayed-deployables  "mm.ent"}}}
         {{{item-edit-arrayed-synergies    "mm.ent"}}}
         {{{item-edit-arrayed-deployables  "mm.ent"}}}
         {{{item-edit-arrayed-integrated   "mm.ent.Integrated"}}}
+        <div class="card full">
+          <span class="lancer-header submajor">TAGS</span>
+          {{{mm-tag-list "mm.ent.Tags" mm.ent.Tags editable}}}
+        </div>
       </div>
       <div class="flexcol" style="flex-basis: 33%;">
         {{{item-edit-license}}}
