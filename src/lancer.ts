@@ -639,33 +639,55 @@ async function versionCheck() {
 }
 
 async function sanityCheck() {
-  const message = `Warning stuff.`;
+  const message = `<h1>DO NOT USE THIS VERSION ON AN EXISTING WORLD</h1>
+<p>This version contains <i>vast</i> changes from the current stable release of LANCER, and does not contain <i>any</i>
+safety or migration for existing world data. If this is an existing world that contains <i><b>ANY</b></i> data you
+care about, <i><b>DO NOT CONTINUE</b></i>.</p>
+
+<p>This version should only be used on a fresh, empty world created just for
+testing this beta. You must re-install the stable release of LANCER before running your regularly scheduled games.</p>
+
+<p>With that said, welcome to LANCER v0.9.0, the closed beta test before v1.0.0 releases! Please kick the tires, explore
+the new system, and send us your feedback! Bug reports can be submitted at 
+<a href="https://github.com/Eranziel/foundryvtt-lancer/issues">our GitHub issues list</a>. We haven't kept a changelog,
+because nearly everything has changed (sorry).</p>`;
   if (!game.settings.get(LANCER.sys_name, LANCER.setting_beta_warning)) {
     console.log(`${lp} Sanity check already done, continuing as normal.`);
     return;
   }
   console.log(`${lp} Performing sanity check.`);
-  new Dialog({
-    title: `LANCER BETA v${game.system.data.version}`,
-    content: message,
-    buttons: {
-      accept: {
-        label: "YES, I HAVE A BACKUP",
-        callback: async () => {
-          await game.settings.set(LANCER.sys_name, LANCER.setting_beta_warning, false);
-          window.location.reload(false);
+  new Dialog(
+    {
+      title: `LANCER BETA v${game.system.data.version}`,
+      content: message,
+      buttons: {
+        accept: {
+          label: "This is a fresh world, I am safe to beta test here",
+          callback: async () => {
+            await game.settings.set(LANCER.sys_name, LANCER.setting_beta_warning, false);
+            ui.notifications.info("Beta test beginning momentarily! Page reloading in 3...");
+            await sleep(1000);
+            ui.notifications.info("2...");
+            await sleep(1000);
+            ui.notifications.info("1...");
+            await sleep(1000);
+            window.location.reload(false);
+          },
+        },
+        cancel: {
+          label: "TAKE ME BACK, I CARE ABOUT MY DATA",
+          callback: async () => {
+            await game.settings.set(LANCER.sys_name, LANCER.setting_beta_warning, true);
+            game.logOut();
+          },
         },
       },
-      cancel: {
-        label: "I DO NOT HAVE A BACKUP",
-        callback: async () => {
-          await game.settings.set(LANCER.sys_name, LANCER.setting_beta_warning, true);
-          game.logOut();
-        },
-      },
+      default: "cancel",
     },
-    default: "cancel",
-  }).render(true);
+    {
+      width: 1000,
+    }
+  ).render(true);
 }
 
 async function showChangelog() {
