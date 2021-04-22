@@ -10,7 +10,7 @@ import {
   std_x_of_y,
 } from "./commons";
 import { ref_commons, simple_mm_ref } from "./refs";
-import { encodeMacroData } from '../macros';
+import { encodeMacroData } from "../macros";
 // ---------------------------------------
 // Some simple stat editing thingies
 
@@ -48,10 +48,7 @@ export function stat_edit_card(
         <i class="${icon} i--m header-icon"> </i>
         <span class="major">${title}</span>
       </div>
-      ${std_num_input(
-        data_path,
-        ext_helper_hash(options, { classes: "lancer-stat" })
-      )}
+      ${std_num_input(data_path, ext_helper_hash(options, { classes: "lancer-stat" }))}
     </div>
     `;
 }
@@ -61,15 +58,16 @@ export function stat_view_card(
   title: string,
   icon: string,
   data_path: string,
-  options: HelperOptions & {"rollable":boolean}
+  options: HelperOptions & { rollable: boolean }
 ): string {
   let data_val = resolve_helper_dotpath(options, data_path);
   let macro_button: string | undefined;
   let macroData = encodeMacroData({
     command: `game.lancer.prepareStatMacro("${options.data.root.actor._id}","${data_path}");`,
-    title: title
-  })
-  if(options.rollable) macro_button = `<a class="i--dark i--sm lancer-macro" data-macro="${macroData}"><i class="fas fa-dice-d20"></i></a>`
+    title: title,
+  });
+  if (options.rollable)
+    macro_button = `<a class="i--dark i--sm lancer-macro" data-macro="${macroData}"><i class="fas fa-dice-d20"></i></a>`;
   return `
     <div class="card clipped">
       <div class="lancer-header ">
@@ -92,7 +90,7 @@ export function stat_rollable_card(
   data_path: string,
   options: HelperOptions
 ): string {
-  return stat_view_card(title,icon,data_path,{...options,"rollable":true});
+  return stat_view_card(title, icon, data_path, { ...options, rollable: true });
 }
 
 // Shows a compact readonly value
@@ -145,12 +143,13 @@ export function clicker_stat_card(
   roller: boolean,
   options: HelperOptions
 ): string {
-  let button = ""
+  let button = "";
   let macroData = encodeMacroData({
     command: `game.lancer.prepareStatMacro("${options.data.root.entity._id}","${data_path}");`,
-    title: title
-  })
-  if(roller) button = `<a class="lancer-macro i--dark i--sm" data-macro="${macroData}"><i class="fas fa-dice-d20"></i></a>`
+    title: title,
+  });
+  if (roller)
+    button = `<a class="lancer-macro i--dark i--sm" data-macro="${macroData}"><i class="fas fa-dice-d20"></i></a>`;
   return `<div class="card clipped stat-container">
       <div class="lancer-header ">
         <i class="${icon} i--m i--light header-icon"> </i>

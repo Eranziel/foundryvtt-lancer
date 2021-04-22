@@ -1,5 +1,4 @@
 <form class="{{cssClass}} lancer-sheet" autocomplete="off">
-  
   {{!-- Sheet Header --}}
   <header>
     <div class="flexcol">
@@ -8,34 +7,33 @@
           <span>LICENSE LEVEL:</span>
           <span class="pilot-callsign">{{mm.ent.Level}}</span>
         </div>
-        
+
         <div class="details flexcol">
           <span>CALLSIGN:</span>
           <span class="pilot-callsign">{{mm.ent.Callsign}}</span>
         </div>
-        
+
         <div class="details flexcol">
           <span>NAME:</span>
           <span class="medium">{{actor.name}}</span>
         </div>
-        
+
         <div class="details flexcol">
           <span>BACKGROUND:</span>
           <span class="medium">{{mm.ent.Background}}</span>
         </div>
       </div>
       <div class="flexrow pilot-stats">
-        {{{compact-stat-edit "mdi mdi-heart-outline"                     "mm.ent.CurrentHP"  "mm.ent.MaxHP" }}}
-        {{{compact-stat-edit "mdi mdi-heart-outline"                     "mm.ent.Overshield"  "mm.ent.MaxHP" }}}
-        {{{compact-stat-view "mdi mdi-shield-outline"                    "mm.ent.Armor"  }}}
-        {{{compact-stat-view "cci cci-evasion"                           "mm.ent.Evasion"  }}}
-        {{{compact-stat-view "cci cci-edef"                              "mm.ent.EDefense"  }}}
-        {{{compact-stat-view "mdi mdi-arrow-right-bold-hexagon-outline"  "mm.ent.Speed"  }}}
+        {{{compact-stat-edit "mdi mdi-heart-outline" "mm.ent.CurrentHP" "mm.ent.MaxHP" }}}
+        {{{compact-stat-edit "mdi mdi-heart-outline" "mm.ent.Overshield" "mm.ent.MaxHP" }}}
+        {{{compact-stat-view "mdi mdi-shield-outline" "mm.ent.Armor" }}} {{{compact-stat-view "cci
+        cci-evasion" "mm.ent.Evasion" }}} {{{compact-stat-view "cci cci-edef" "mm.ent.EDefense" }}}
+        {{{compact-stat-view "mdi mdi-arrow-right-bold-hexagon-outline" "mm.ent.Speed" }}}
       </div>
     </div>
     {{{ ref-portrait-img actor.img "img" mm.ent }}}
   </header>
-  
+
   {{!-- Sheet Tab Navigation --}}
   <nav class="lancer-tabs" data-group="primary">
     <a class="item lancer-tab medium" data-tab="cloud">&lt;RM-4://SYNC&gt;</a>
@@ -44,140 +42,137 @@
     <a class="item lancer-tab medium" data-tab="abilities">&lt;PILOT//ABILITIES&gt;</a>
     <!--<a class="item lancer-tab medium" data-tab="mech">&lt;FRAME//LOADOUT&gt;</a>-->
   </nav>
-  
+
   {{!-- Sheet Body --}}
   <section class="sheet-body">
-    
     {{!-- Cloud Management Tab --}}
     <div class="tab manage" data-group="primary" data-tab="cloud">
       <div style="display: grid; grid-template: auto / 1fr 1fr;">
         <div class="card clipped" style="grid-area: 1/1/2/3;">
-          <span class="lancer-header major ">RM-4://(OMNINET UPLINK ID)</span>
+          <span class="lancer-header major">RM-4://(OMNINET UPLINK ID)</span>
           <input
-          class="lancer-input major"
-          style="text-align: center;"
-          type="string"
-          name="mm.ent.CloudID"
-          value="{{mm.ent.CloudID}}"
-          data-dtype="String"
+            class="lancer-input major"
+            style="text-align: center;"
+            type="string"
+            name="mm.ent.CloudID"
+            value="{{mm.ent.CloudID}}"
+            data-dtype="String"
           />
         </div>
-        
+
         <div class="card clipped" style="grid-area: 2/1/3/2;">
-          <span class="lancer-header major ">DOWNLOAD</span>
-          <a class="cloud-control i--dark i--l" style="align-self: center;" data-action="download"><i class="cci cci-tech-quick"></i></a>
-          <span class="minor desc-text" style="text-align: center;">Last synced: {{mm.ent.LastCloudUpdate}}</span>
+          <span class="lancer-header major">DOWNLOAD</span>
+          <a class="cloud-control i--dark i--l" style="align-self: center;" data-action="download"
+            ><i class="cci cci-tech-quick"></i
+          ></a>
+          <span class="minor desc-text" style="text-align: center;"
+            >Last synced: {{mm.ent.LastCloudUpdate}}</span
+          >
         </div>
-        
+
         <div class="card clipped" style="grid-area: 2/2/3/3;">
-          <span class="lancer-header major ">UPLOAD</span>
+          <span class="lancer-header major">UPLOAD</span>
           <span>FEATURE IN PROGRESS</span>
         </div>
       </div>
     </div>
-    
+
     {{!-- Dossier Tab --}}
     <div class="tab dossier active" data-group="primary" data-tab="dossier">
       <div class="wraprow double">
         <div class="card clipped">
-          <span class="lancer-header major ">CALLSIGN</span>
+          <span class="lancer-header major">CALLSIGN</span>
           <input class="lancer-input major" {{{getset "mm.ent.Callsign" }}} data-dtype="String"/>
         </div>
         <div class="card clipped">
-          <span class="lancer-header major ">NAME</span>
-          <input class="lancer-input major" name="name" value="{{actor.name}}"  data-dtype="String"/>
+          <span class="lancer-header major">NAME</span>
+          <input
+            class="lancer-input major"
+            name="name"
+            value="{{actor.name}}"
+            data-dtype="String"
+          />
         </div>
-        
-        {{{textarea-card "BACKGROUND" "mm.ent.Background"}}}
-        {{{textarea-card "HISTORY" "mm.ent.History"}}}
-        {{{textarea-card "NOTES" "mm.ent.Notes"}}}
+
+        {{{textarea-card "BACKGROUND" "mm.ent.Background"}}} {{{textarea-card "HISTORY"
+        "mm.ent.History"}}} {{{textarea-card "NOTES" "mm.ent.Notes"}}}
       </div>
     </div>
-    
+
     {{!-- Pilot Tactical Tab --}}
     <div class="tab pilot flexcol" data-group="primary" data-tab="tactical">
       <div class="card clipped">
         <div class="flexrow">
-          {{{clicker-stat-card "LEVEL"       "mdi mdi-shield-outline"    "mm.ent.Level" false }}}
-          {{{stat-rollable-card   "GRIT"       "cci cci-armor"     "mm.ent.Grit" }}}
+          {{{clicker-stat-card "LEVEL" "mdi mdi-shield-outline" "mm.ent.Level" false }}}
+          {{{stat-rollable-card "GRIT" "cci cci-armor" "mm.ent.Grit" }}}
         </div>
         <div class="flexrow">
-          {{{clicker-stat-card "HUL"  "mdi mdi-heart-outline"     "mm.ent.MechSkills.Hull" true }}}
-          {{{clicker-stat-card "AGI"  "mdi mdi-heart-outline"     "mm.ent.MechSkills.Agi" true }}}
-          {{{clicker-stat-card "SYS"  "mdi mdi-heart-outline"     "mm.ent.MechSkills.Sys" true }}}
-          {{{clicker-stat-card "ENG"  "mdi mdi-heart-outline"     "mm.ent.MechSkills.Eng" true }}}
+          {{{clicker-stat-card "HUL" "mdi mdi-heart-outline" "mm.ent.MechSkills.Hull" true }}}
+          {{{clicker-stat-card "AGI" "mdi mdi-heart-outline" "mm.ent.MechSkills.Agi" true }}}
+          {{{clicker-stat-card "SYS" "mdi mdi-heart-outline" "mm.ent.MechSkills.Sys" true }}}
+          {{{clicker-stat-card "ENG" "mdi mdi-heart-outline" "mm.ent.MechSkills.Eng" true }}}
         </div>
       </div>
-      
+
       {{!-- Armor + Weapons --}}
       <div class="flexrow">
         {{!-- Armor --}}
         <div class="card clipped">
-          <h2 class="lancer-header major ">ARMOR</h2>
-          {{#each mm.ent.Loadout.Armor as |armor key|}}
-          {{{pilot-armor-slot (concat "mm.ent.Loadout.Armor." key)}}}
-          {{/each}}
+          <h2 class="lancer-header major">ARMOR</h2>
+          {{#each mm.ent.Loadout.Armor as |armor key|}} {{{pilot-armor-slot (concat
+          "mm.ent.Loadout.Armor." key)}}} {{/each}}
         </div>
-        
+
         {{!-- Weapons --}}
         <div class="card clipped">
-          <h2 class="lancer-header major ">WEAPONS</h2>
-          {{#each mm.ent.Loadout.Weapons as |weapon key|}}
-          {{{pilot-weapon-slot (concat "mm.ent.Loadout.Weapons." key)}}}
-          {{/each}}
+          <h2 class="lancer-header major">WEAPONS</h2>
+          {{#each mm.ent.Loadout.Weapons as |weapon key|}} {{{pilot-weapon-slot (concat
+          "mm.ent.Loadout.Weapons." key)}}} {{/each}}
         </div>
       </div>
-      
+
       {{!-- Gear --}}
       <div class="flexrow">
         {{!-- Gear --}}
         <div class="card clipped">
           <h2 class="lancer-title clipped-top">GEAR</h2>
-          {{#each mm.ent.Loadout.Gear as |gear key|}}
-          {{{pilot-gear-slot (concat "mm.ent.Loadout.Gear." key)}}}
-          {{/each}}
+          {{#each mm.ent.Loadout.Gear as |gear key|}} {{{pilot-gear-slot (concat
+          "mm.ent.Loadout.Gear." key)}}} {{/each}}
         </div>
       </div>
-      
+
       {{!-- Talents + Core Bonuses + Licenses --}}
       <div class="flexrow">
-        
         {{!-- Licenses --}}
         <div class="card clipped">
           <h2 class="lancer-title clipped-top">LICENSES</h2>
-          {{#each mm.ent.Licenses as |license index|}}
-          {{{ref-mm-controllable-item (concat "mm.ent.Licenses." index) "delete" }}}
-          {{/each}}
+          {{#each mm.ent.Licenses as |license index|}} {{{ref-mm-controllable-item (concat
+          "mm.ent.Licenses." index) "delete" }}} {{/each}}
         </div>
-        
+
         {{!-- Core Bonuses --}}
         <div class="card clipped">
           <h2 class="lancer-title clipped-top">CORE BONUSES</h2>
-          {{#each mm.ent.CoreBonuses as |core_bonus index|}}
-          {{{ref-mm-controllable-item (concat "mm.ent.CoreBonuses." index) "delete" }}}
-          {{/each}}
+          {{#each mm.ent.CoreBonuses as |core_bonus index|}} {{{ref-mm-controllable-item (concat
+          "mm.ent.CoreBonuses." index) "delete" }}} {{/each}}
         </div>
       </div>
     </div>
-    
+
     {{!-- Pilot Abilities Tab --}}
     <div class="tab tactical flexcol" data-group="primary" data-tab="abilities">
-      
       {{!-- Skill Triggers --}}
       <div class="card clipped">
         <h2 class="lancer-title clipped">SKILL TRIGGERS</h2>
-        {{#each mm.ent.Skills as |skill index|}}
-        {{{ref-mm-controllable-item (concat "mm.ent.Skills." index) "delete" }}}
-        {{/each}}
+        {{#each mm.ent.Skills as |skill index|}} {{{ref-mm-controllable-item (concat
+        "mm.ent.Skills." index) "delete" }}} {{/each}}
       </div>
-      
-      
+
       {{!-- Talents --}}
       <div class="card clipped">
         <h2 class="lancer-title clipped">TALENTS</h2>
-        {{#each mm.ent.Talents as |skill index|}}
-        {{{ref-mm-controllable-item (concat "mm.ent.Talents." index) "delete" }}}
-        {{/each}}
+        {{#each mm.ent.Talents as |skill index|}} {{{ref-mm-controllable-item (concat
+        "mm.ent.Talents." index) "delete" }}} {{/each}}
       </div>
     </div>
   </section>
