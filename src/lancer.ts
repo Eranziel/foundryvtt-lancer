@@ -120,6 +120,10 @@ Hooks.once("init", async function () {
   registerSettings();
 
   await sanityCheck();
+  if (game.settings.get(LANCER.sys_name, LANCER.setting_beta_warning)) {
+    return;
+  }
+  console.log(`${lp} Sanity check passed, continuing with initialization.`);
 
   // Assign custom classes and constants here
   // Create a Lancer namespace within the game global
@@ -495,6 +499,7 @@ export const system_ready: Promise<void> = new Promise(success => {
       await sleep(1000);
       ready = game.lancer?.finishedInit;
     }
+    console.log(`${lp} Foundry ready, doing final checks.`);
 
     await versionCheck();
     await showChangelog();
