@@ -31,7 +31,7 @@ import {
   ActivationType,
   WeaponMod,
 } from "machine-mind";
-import { MechWeapon, TagInstance } from 'machine-mind';
+import { MechWeapon, TagInstance } from "machine-mind";
 import { BonusEditDialog } from "../apps/bonus-editor";
 import { TypeIcon } from "../config";
 import {
@@ -59,8 +59,9 @@ import {
 import { ref_commons, ref_params } from "./refs";
 import { ActivationOptions, ChipIcons } from "../enums";
 import { LancerMacroData } from "../interfaces";
-import { encodeMacroData } from '../macros';
+import { encodeMacroData } from "../macros";
 import { is_loading } from "machine-mind/dist/classes/mech/EquipUtil";
+import { CollapseRegistry } from "./loadout";
 
 /**
  * Handlebars helper for weapon size selector
@@ -99,11 +100,7 @@ export function range_editor(path: string, options: HelperOptions) {
   */
 
   // Extend the options to not have to repeat lookup
-  let type_options = ext_helper_hash(
-    options,
-    { value: range.RangeType },
-    { default: RangeType.Range }
-  );
+  let type_options = ext_helper_hash(options, { value: range.RangeType }, { default: RangeType.Range });
   let range_type_selector = std_enum_select(path + ".RangeType", RangeType, type_options);
 
   let value_options = ext_helper_hash(options, { value: range.Value });
@@ -127,11 +124,7 @@ export function damage_editor(path: string, options: HelperOptions) {
 
   let icon_html = `<i class="cci ${damage.Icon} i--m"></i>`;
 
-  let type_options = ext_helper_hash(
-    options,
-    { value: damage.DamageType },
-    { default: DamageType.Kinetic }
-  );
+  let type_options = ext_helper_hash(options, { value: damage.DamageType }, { default: DamageType.Kinetic });
   let damage_type_selector = std_enum_select(path + ".DamageType", DamageType, type_options);
 
   let value_options = ext_helper_hash(options, { value: damage.Value });
@@ -215,11 +208,7 @@ export function npc_accuracy_preview(acc: number) {
  * Handlebars partial for weapon type selector
  */
 export function system_type_selector(path: string, options: HelperOptions) {
-  return std_enum_select(
-    path,
-    SystemType,
-    ext_helper_hash(options, {}, { default: SystemType.System })
-  );
+  return std_enum_select(path, SystemType, ext_helper_hash(options, {}, { default: SystemType.System }));
 }
 
 /**
@@ -262,10 +251,7 @@ export function npc_feature_preview(npc_feature_path: string, helper: HelperOpti
 export function single_bonus_editor(bonus_path: string, bonus: Bonus, options: HelperOptions) {
   // Our main two inputs
   let id_input = std_string_input(`${bonus_path}.LID`, ext_helper_hash(options, { label: "ID" }));
-  let val_input = std_string_input(
-    `${bonus_path}.Value`,
-    ext_helper_hash(options, { label: "Value" })
-  );
+  let val_input = std_string_input(`${bonus_path}.Value`, ext_helper_hash(options, { label: "Value" }));
 
   // Icon factory
   let iconer = new IconFactory({
@@ -286,25 +272,18 @@ export function single_bonus_editor(bonus_path: string, bonus: Bonus, options: H
   let range_checkboxes: string[] = [];
   for (let rt of Object.values(RangeType)) {
     range_checkboxes.push(
-      std_checkbox(
-        `${bonus_path}.RangeTypes.${rt}`,
-        ext_helper_hash(options, { label: iconer.r(Range.icon_for(rt)) })
-      )
+      std_checkbox(`${bonus_path}.RangeTypes.${rt}`, ext_helper_hash(options, { label: iconer.r(Range.icon_for(rt)) }))
     );
   }
 
   let type_checkboxes: string[] = [];
   for (let wt of Object.values(WeaponType)) {
-    type_checkboxes.push(
-      std_checkbox(`${bonus_path}.WeaponTypes.${wt}`, ext_helper_hash(options, { label: wt }))
-    );
+    type_checkboxes.push(std_checkbox(`${bonus_path}.WeaponTypes.${wt}`, ext_helper_hash(options, { label: wt })));
   }
 
   let size_checkboxes: string[] = [];
   for (let st of Object.values(WeaponSize)) {
-    size_checkboxes.push(
-      std_checkbox(`${bonus_path}.WeaponSizes.${st}`, ext_helper_hash(options, { label: st }))
-    );
+    size_checkboxes.push(std_checkbox(`${bonus_path}.WeaponSizes.${st}`, ext_helper_hash(options, { label: st })));
   }
 
   // Consolidate them into rows
@@ -384,9 +363,7 @@ export function HANDLER_activate_edit_bonus<T>(
     let bonus_path = event.currentTarget.dataset.path;
     if (!bonus_path) return;
     let data = await data_getter();
-    return BonusEditDialog.edit_bonus(data, bonus_path, commit_func).catch(e =>
-      console.error("Dialog failed", e)
-    );
+    return BonusEditDialog.edit_bonus(data, bonus_path, commit_func).catch(e => console.error("Dialog failed", e));
   });
 }
 
@@ -488,13 +465,11 @@ export function pilot_weapon_refview(weapon_path: string, helper: HelperOptions)
       </div>`;
   }
 
-
-
   let weapon = weapon_!;
 
   let loading = "";
   // Generate loading segment as needed
-  if(is_loading(weapon)) loading = loading_indicator(weapon.Loaded,weapon_path);
+  if (is_loading(weapon)) loading = loading_indicator(weapon.Loaded, weapon_path);
 
   return `<div class="valid ${
     EntryType.PILOT_WEAPON
@@ -584,15 +559,15 @@ export function mech_weapon_refview(
   weapon_path: string,
   mech_path: string | "",
   options: HelperOptions,
+  registry?: CollapseRegistry,
   size?: FittingSize
 ): string {
   // Fetch the item(s)
   let weapon_: MechWeapon | null = resolve_helper_dotpath(options, weapon_path);
   let mech_: Mech | null = resolve_helper_dotpath(options, mech_path);
-  let mod_path = weapon_path.substr(0,weapon_path.lastIndexOf(".")) + ".Mod";
-  let mod: WeaponMod | null = resolve_helper_dotpath(options,mod_path);
+  let mod_path = weapon_path.substr(0, weapon_path.lastIndexOf(".")) + ".Mod";
+  let mod: WeaponMod | null = resolve_helper_dotpath(options, mod_path);
   let mod_text: string | undefined;
-
 
   // Generate commons
   let cd = ref_commons(weapon_);
@@ -610,18 +585,27 @@ export function mech_weapon_refview(
 
   let cd_mod = ref_commons(mod);
 
-  if(cd_mod && mod) {
+  if (cd_mod && mod) {
     mod_text = `
     <div class="valid item weapon-mod-addon flexrow clipped-bot ref ${EntryType.WEAPON_MOD}"
         ${ref_params(cd_mod.ref, weapon_path)}>
       <i class="cci cci-weaponmod i--m i--light"> </i>
       <span>${mod.Name}</span>
       <a style="flex-grow: unset;margin-right: 1em" class="gen-control i--light" data-action="null" data-path="${mod_path}"><i class="fas fa-trash"></i></a>
-    </div>`
+    </div>`;
   }
 
   // Assert not null
   let weapon = weapon_!;
+
+  let collapseID;
+  if (registry != null) {
+    // On sheet, enable collapse.
+    registry[weapon.LID] == null && (registry[weapon.LID] = 0);
+
+    let collapseNumCheck = ++registry[weapon.LID];
+    collapseID = `${weapon.LID}_${collapseNumCheck}`;
+  }
 
   // What profile are we using?
   let profile = weapon.SelectedProfile;
@@ -635,7 +619,7 @@ export function mech_weapon_refview(
 
   // Generate loading segment as needed
   let loading = "";
-  if(weapon.IsLoading) loading = loading_indicator(weapon.Loaded,weapon_path);
+  if (weapon.IsLoading) loading = loading_indicator(weapon.Loaded, weapon_path);
 
   // Generate effects
   let effect = profile.Effect ? effect_box("Effect", profile.Effect) : "";
@@ -650,10 +634,10 @@ export function mech_weapon_refview(
                   ${ref_params(cd.ref, weapon_path)}
                   style="max-height: fit-content;">
       <div class="lancer-header">
-        <i class="cci cci-weapon i--m i--light"> </i>
-        <span class="minor">${
-          weapon.Name
-        } // ${weapon.Size.toUpperCase()} ${weapon.SelectedProfile.WepType.toUpperCase()}</span>
+        <i class="cci cci-weapon i--m i--light i--click"> </i>
+        <span class="minor collapse-trigger" data-collapse-id="${collapseID}">${
+    weapon.Name
+  } // ${weapon.Size.toUpperCase()} ${weapon.SelectedProfile.WepType.toUpperCase()}</span>
         <a class="gen-control i--light" data-action="null" data-path="${weapon_path}"><i class="fas fa-trash"></i></a>
       </div> 
       <div class="lancer-body">
@@ -669,7 +653,7 @@ export function mech_weapon_refview(
         </div>
         
         <div class="flexcol">
-          <span>${weapon.SelectedProfile.Description}</span>
+          <span class="collapse" data-collapse-id="${collapseID}">${weapon.SelectedProfile.Description}</span>
           ${effect}
           ${on_attack}
           ${on_hit}
@@ -682,9 +666,9 @@ export function mech_weapon_refview(
   </div>`;
 }
 
-function loading_indicator(loaded: boolean,weapon_path: string): string {
-    let loading_icon = `mdi ${loaded ? "mdi-hexagon-slice-6" : "mdi-hexagon-outline"}`;
-    return `<span class="flexcol loading-wrapper"> 
+function loading_indicator(loaded: boolean, weapon_path: string): string {
+  let loading_icon = `mdi ${loaded ? "mdi-hexagon-slice-6" : "mdi-hexagon-outline"}`;
+  return `<span class="flexcol loading-wrapper"> 
                 LOADED: 
                 <a class="gen-control" data-action="set" data-action-value="(bool)${!loaded}" data-path="${weapon_path}.Loaded" data-commit-item="${weapon_path}"><i class="${loading_icon}"></i></a>
                 </span>`;
@@ -697,10 +681,7 @@ export function manufacturer_ref(source_path: string, helper: HelperOptions): st
   // TODO? maybe do a little bit more here, aesthetically speaking
   if (cd) {
     let source = source_!;
-    return `<div class="valid ${EntryType.MANUFACTURER} ref ref-card drop-settable" ${ref_params(
-      cd.ref,
-      source_path
-    )}> 
+    return `<div class="valid ${EntryType.MANUFACTURER} ref ref-card drop-settable" ${ref_params(cd.ref, source_path)}> 
               <h3 class="mfr-name" style="color: ${source!.GetColor(false)};">
                 <i class="i--m cci ${source.Logo}"></i>
                 ${source!.LID}
@@ -739,32 +720,35 @@ export function license_ref(license: License | null, level: number): string {
  * @param action  Standard action to generate in HTML form
  * @param options Options such as:
  *        full    Determines if we should generate full HTML info or just mini version (title & action)
- *        number  If we're building full, we can pass through a number to denote which index of action 
+ *        number  If we're building full, we can pass through a number to denote which index of action
  *                this is for macro purposes. Only used for macro-able actions
  *        tags    Array of TagInstances which can optionally be passed
  * @returns Activation HTML in string form
  */
- export function buildActionHTML(action: Action, options?: {full?: boolean, num?: number, tags?:TagInstance[]}): string {
+export function buildActionHTML(
+  action: Action,
+  options?: { full?: boolean; num?: number; tags?: TagInstance[] }
+): string {
   let detailText: string | undefined;
   let chip: string | undefined;
   let tags: string | undefined;
 
   // TODO--can probably do better than this
-  if(options) {
-    if(options.full) {
+  if (options) {
+    if (options.full) {
       detailText = `
         <div class="action-detail">
           ${action.Detail}
         </div>
-      `
+      `;
     }
 
     // Not using type yet but let's plan forward a bit
     let type: ActivationOptions;
     let icon: ChipIcons | undefined;
 
-    if(options.num !== undefined) {
-      switch(action.Activation) {
+    if (options.num !== undefined) {
+      switch (action.Activation) {
         case ActivationType.QuickTech:
         case ActivationType.FullTech:
         case ActivationType.Invade:
@@ -777,15 +761,15 @@ export function license_ref(license: License | null, level: number): string {
           break;
       }
 
-      chip = buildChipHTML(action.Activation, {icon: icon, num: options.num})
-    } 
+      chip = buildChipHTML(action.Activation, { icon: icon, num: options.num });
+    }
 
-    if(options.tags !== undefined) {
-      tags = compact_tag_list("",options.tags,false);
+    if (options.tags !== undefined) {
+      tags = compact_tag_list("", options.tags, false);
     }
   }
 
-  if(!chip) {
+  if (!chip) {
     chip = buildChipHTML(action.Activation);
   }
 
@@ -798,29 +782,29 @@ export function license_ref(license: License | null, level: number): string {
     ${chip}
     ${tags ? tags : ""}
   </div>
-  `
+  `;
 }
 
 /**
  * Builds the HTML for a given in-system deployable
  * @param deployable  Deployable to generate in HTML form
  * @param full    Determines if we should generate full HTML info or just mini version (title & action)
- * @param number  If we're building full, we can pass through a number to denote which index of action 
+ * @param number  If we're building full, we can pass through a number to denote which index of action
  *                this is for macro purposes. Only used for macro-able actions
  * @returns Activation HTML in string form
  */
-export function buildDeployableHTML(dep: Deployable, full?: boolean, num?:number): string {
+export function buildDeployableHTML(dep: Deployable, full?: boolean, num?: number): string {
   let detailText: string | undefined;
   let chip: string;
   let activation: ActivationType | undefined;
 
   // TODO--can probably do better than this
-  if(full) {
+  if (full) {
     detailText = `
       <div class="deployable-detail">
         ${dep.Detail}
       </div>
-    `
+    `;
     /*
     Until further notice, Actions in Deployables are just... not
     if(dep.Actions.length) {
@@ -829,17 +813,22 @@ export function buildDeployableHTML(dep: Deployable, full?: boolean, num?:number
   }
 
   // All places we could get our activation, in preferred order
-  let activationSources = [dep.Activation,dep.Redeploy,dep.Recall,dep.Actions.length ? dep.Actions[0].Activation: ActivationType.None]
-  for (var i = 0;i < activationSources.length;i++) {
-    if(activationSources[i] !== ActivationType.None) {
+  let activationSources = [
+    dep.Activation,
+    dep.Redeploy,
+    dep.Recall,
+    dep.Actions.length ? dep.Actions[0].Activation : ActivationType.None,
+  ];
+  for (var i = 0; i < activationSources.length; i++) {
+    if (activationSources[i] !== ActivationType.None) {
       activation = activationSources[i];
     }
   }
 
-  if(!activation) activation = ActivationType.Quick;
+  if (!activation) activation = ActivationType.Quick;
 
-  if(num !== undefined) {
-    chip = buildChipHTML(activation,{icon: ChipIcons.Deployable,num: num,isDep: true});
+  if (num !== undefined) {
+    chip = buildChipHTML(activation, { icon: ChipIcons.Deployable, num: num, isDep: true });
   } else {
     chip = buildChipHTML(activation);
   }
@@ -852,25 +841,25 @@ export function buildDeployableHTML(dep: Deployable, full?: boolean, num?:number
     ${detailText ? detailText : ""}
     ${chip}
   </div>
-  `
+  `;
 }
 
-export function buildChipHTML(activation: ActivationType, macroData?: {icon?: ChipIcons, num?: number, isDep?: boolean, fullData?: LancerMacroData}): string {
-  if(macroData && (macroData?.fullData || (macroData?.num !== undefined))) {
-    if(!macroData.icon) 
-      macroData.icon = ChipIcons.Chat;
+export function buildChipHTML(
+  activation: ActivationType,
+  macroData?: { icon?: ChipIcons; num?: number; isDep?: boolean; fullData?: LancerMacroData }
+): string {
+  if (macroData && (macroData?.fullData || macroData?.num !== undefined)) {
+    if (!macroData.icon) macroData.icon = ChipIcons.Chat;
     let data: string | undefined;
-    if(macroData?.fullData)
-      data = `data-macro=${encodeMacroData(macroData.fullData)}`;
-    else
-      data = `data-${macroData.isDep ? "deployable" : "activation"}=${macroData.num}`;
-    return `<a class="${macroData?.fullData ? 'lancer-macro' : `macroable`} activation-chip activation-${activation.toLowerCase().replace(/\s+/g, '')}" ${data}>
+    if (macroData?.fullData) data = `data-macro=${encodeMacroData(macroData.fullData)}`;
+    else data = `data-${macroData.isDep ? "deployable" : "activation"}=${macroData.num}`;
+    return `<a class="${
+      macroData?.fullData ? "lancer-macro" : `macroable`
+    } activation-chip activation-${activation.toLowerCase().replace(/\s+/g, "")}" ${data}>
             ${macroData.icon ? macroData.icon : ""}
             ${activation.toUpperCase()}
-          </a>`
-  } else
-    return `<div class="activation-chip activation-${activation.toLowerCase()}">${activation.toUpperCase()}</div>`
-
+          </a>`;
+  } else return `<div class="activation-chip activation-${activation.toLowerCase()}">${activation.toUpperCase()}</div>`;
 }
 
 export async function buildSystemHTML(data: MechSystem): Promise<string> {
@@ -888,7 +877,7 @@ export async function buildSystemHTML(data: MechSystem): Promise<string> {
 
   if (data.Actions) {
     actions = data.Actions.map((a: Action, i: number) => {
-      return buildActionHTML(a, {full: !i && useFirstActivation});
+      return buildActionHTML(a, { full: !i && useFirstActivation });
     }).join("");
   }
 

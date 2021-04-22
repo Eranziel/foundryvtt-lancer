@@ -372,6 +372,10 @@ ul.items-list {
   max-height: $pixels;
 }
 
+.i--click {
+  cursor: pointer;
+}
+
 .i--xs {
   @include icon-size(15px);
 }
@@ -901,6 +905,22 @@ input[type="string"].lancer-input {
 
 .card .editor-content {
   text-align: left;
+}
+
+.collapse-icon {
+  margin: 4px;
+}
+.collapse-trigger {
+  cursor: pointer;
+}
+.collapse {
+  max-height: 2000px;
+  overflow: hidden;
+  transition: max-height 0.75s ease-in-out;
+}
+.collapse.collapsed {
+  max-height: 0;
+  min-height: 0;
 }
 
 .lancer-title {

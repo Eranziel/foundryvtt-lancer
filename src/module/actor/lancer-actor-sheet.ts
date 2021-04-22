@@ -24,12 +24,19 @@ import {
 import { LancerActorSheetData, LancerStatMacroData } from "../interfaces";
 import { LancerMechWeapon, LancerPilotWeapon } from "../item/lancer-item";
 import { LancerActor, LancerActorType } from "./lancer-actor";
-import { prepareActivationMacro, prepareCoreActiveMacro, prepareCorePassiveMacro, prepareItemMacro, prepareStatMacro, runEncodedMacro } from "../macros";
+import {
+  prepareActivationMacro,
+  prepareCoreActiveMacro,
+  prepareCorePassiveMacro,
+  prepareItemMacro,
+  prepareStatMacro,
+  runEncodedMacro,
+} from "../macros";
 import { EntryType } from "machine-mind";
 import { ActivationOptions } from "../enums";
 import { CollapseHandler } from "../helpers/collapse";
 import { FoundryFlagData } from "../mm-util/foundry-reg";
-import { HANDLER_intercept_form_changes } from '../helpers/refs';
+import { HANDLER_intercept_form_changes } from "../helpers/refs";
 const lp = LANCER.log_prefix;
 
 /**
@@ -47,6 +54,9 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
    */
   activateListeners(html: JQuery) {
     super.activateListeners(html);
+
+    // Enable collapse triggers.
+    this._activateCollapses(html);
 
     // Make refs clickable to open the item
     $(html).find(".ref.valid").on("click", HANDLER_activate_ref_clicking);
@@ -105,52 +115,80 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
         if (item.classList.contains("inventory-header")) return;
         item.setAttribute("draggable", "true");
         if (item.classList.contains("lancer-macro")) {
-          item.addEventListener("dragstart",EncodedMacroHandler,false);
+          item.addEventListener("dragstart", EncodedMacroHandler, false);
           return;
         }
-        if (item.classList.contains("stat-macro"))
-          item.addEventListener("dragstart", statMacroHandler, false);
-        if (item.classList.contains("talent-macro"))
-          item.addEventListener("dragstart", talentMacroHandler, false);
-        if (item.classList.contains("text-macro"))
-          item.addEventListener("dragstart", textMacroHandler, false);
-        if (item.classList.contains("core-active-macro"))
-          item.addEventListener("dragstart", CAMacroHandler, false);
-          if (item.classList.contains("core-passive-macro"))
-            item.addEventListener("dragstart", CPMacroHandler, false);
-        if (item.classList.contains("activation-chip"))
-          item.addEventListener("dragstart", ActionMacroHandler, false);
+        if (item.classList.contains("stat-macro")) item.addEventListener("dragstart", statMacroHandler, false);
+        if (item.classList.contains("talent-macro")) item.addEventListener("dragstart", talentMacroHandler, false);
+        if (item.classList.contains("text-macro")) item.addEventListener("dragstart", textMacroHandler, false);
+        if (item.classList.contains("core-active-macro")) item.addEventListener("dragstart", CAMacroHandler, false);
+        if (item.classList.contains("core-passive-macro")) item.addEventListener("dragstart", CPMacroHandler, false);
+        if (item.classList.contains("activation-chip")) item.addEventListener("dragstart", ActionMacroHandler, false);
         // TODO: migrate to mech
         // if (item.classList.contains("overcharge-macro"))
         //   item.addEventListener("dragstart", overchargeMacroHandler, false);
         if (item.classList.contains("item"))
-          item.addEventListener("dragstart", (ev: any) => {
-            this._onDragStart(ev)
-          }
-            , false);
+          item.addEventListener(
+            "dragstart",
+            (ev: any) => {
+              this._onDragStart(ev);
+            },
+            false
+          );
       });
   }
 
   _onDragEncodedMacroStart(e: DragEvent) {
     // For macros with encoded data
-    e.stopPropagation(); 
-    
+    e.stopPropagation();
+
     let encoded = (<HTMLElement>e.currentTarget).getAttribute("data-macro");
 
-    if(!encoded) throw Error("No macro data available")
+    if (!encoded) throw Error("No macro data available");
 
-    let data = JSON.parse(decodeURI(atob(encoded)))
+    let data = JSON.parse(decodeURI(atob(encoded)));
     e.dataTransfer?.setData("text/plain", JSON.stringify(data));
   }
 
-  _activateMacroListeners(html: JQuery) {
+  _activateCollapses(html: JQuery) {
+    let prefix = `lancer-collapse-${this.object.data._id}-`;
+    let triggers = html.find(".collapse-trigger");
+    // Init according to session store.
+    triggers.each((index, trigger) => {
+      let id = trigger.getAttribute("data-collapse-id");
+      if (id !== null && sessionStorage.getItem(prefix + id) !== null) {
+        let collapse = document.querySelector(`.collapse[data-collapse-id=${id}]`);
+        sessionStorage.getItem(prefix + id) === "opened"
+          ? collapse?.classList.remove("collapsed")
+          : collapse?.classList.add("collapsed");
+      }
+    });
 
+    // Set listeners.
+    triggers.on("click", ev => {
+      ev.stopPropagation();
+
+      // On click, find matching collapse, and toggle collapsed class.
+      let id = ev.currentTarget.getAttribute("data-collapse-id");
+      let collapse = document.querySelector(`.collapse[data-collapse-id=${id}]`);
+      if (collapse?.classList.contains("collapsed")) {
+        collapse.classList.remove("collapsed");
+        sessionStorage.setItem(`${prefix}${id}`, "opened");
+      } else {
+        collapse?.classList.add("collapsed");
+        sessionStorage.setItem(`${prefix}${id}`, "closed");
+      }
+      console.log(collapse);
+    });
+  }
+
+  _activateMacroListeners(html: JQuery) {
     // Encoded macros
     let encMacros = html.find("a.lancer-macro");
     encMacros.on("click", ev => {
       ev.stopPropagation(); // Avoids triggering parent event handlers
       runEncodedMacro($(ev.currentTarget));
-    })
+    });
 
     /*
     // Stat rollers
@@ -172,7 +210,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
         rank: (<HTMLDataElement>ev.currentTarget).getAttribute("data-rank"),
       });
     });
-    
+
     // Weapon rollers
     let weaponMacro = html.find(".roll-attack");
     weaponMacro.on("click", ev => {
@@ -183,15 +221,12 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
       const weaponId = weaponElement.getAttribute("data-id");
       if (!weaponId) return ui.notifications.warn(`Error rolling macro: No weapon ID!`);
       const item = this.actor.getOwnedItem(weaponId);
-      if (!item)
-        return ui.notifications.warn(
-          `Error rolling macro: Couldn't find weapon with ID ${weaponId}.`
-        );
+      if (!item) return ui.notifications.warn(`Error rolling macro: Couldn't find weapon with ID ${weaponId}.`);
 
       const weapon = item as LancerPilotWeapon | LancerMechWeapon;
       game.lancer.prepareItemMacro(this.actor._id, weapon._id);
     });
-    
+
     // TODO: This should really just be a single item-macro class
     // Trigger rollers
     let itemMacros = html
@@ -211,23 +246,23 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     });
 
     // Action-chip (system? Or broader?) macros
-    html.find("a.activation-chip:not(.lancer-macro)").on("click",(ev: JQuery.ClickEvent) => {
+    html.find("a.activation-chip:not(.lancer-macro)").on("click", (ev: JQuery.ClickEvent) => {
       ev.stopPropagation();
 
       const el = ev.currentTarget;
 
       const item = $(el).closest(".item")[0].getAttribute("data-id");
-      if(!item) throw Error("No item ID from activation chip");
+      if (!item) throw Error("No item ID from activation chip");
 
       const activation = parseInt(el.getAttribute("data-activation"));
       const deployable = parseInt(el.getAttribute("data-deployable"));
 
-      if(!Number.isNaN(activation)) {
+      if (!Number.isNaN(activation)) {
         prepareActivationMacro(this.actor._id, item, ActivationOptions.ACTION, activation);
-      } else if(!Number.isNaN(deployable)) {
+      } else if (!Number.isNaN(deployable)) {
         prepareActivationMacro(this.actor._id, item, ActivationOptions.DEPLOYABLE, deployable);
-      } 
-    })
+      }
+    });
 
     // TODO: This are really just mech-specific
     // Core active & passive text rollers
@@ -274,12 +309,11 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     let target = <HTMLElement>event.currentTarget;
 
     let title = target.closest(".action-wrapper")?.querySelector(".action-title")?.textContent;
-    let itemId = target.closest(".item")?.getAttribute("data-id")
+    let itemId = target.closest(".item")?.getAttribute("data-id");
 
-    if(!itemId) throw Error("No item found)");
+    if (!itemId) throw Error("No item found)");
 
-    if(title === undefined)
-      title = this.actor.getOwnedItem(itemId)?.name;
+    if (title === undefined) title = this.actor.getOwnedItem(itemId)?.name;
 
     let data = {
       itemId: target.closest(".item")?.getAttribute("data-id"),
@@ -292,16 +326,15 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     let a = target.getAttribute("data-activation");
     let d = target.getAttribute("data-deployable");
 
-
-    if(a) {
+    if (a) {
       const activation = parseInt(a);
       data.type = ActivationOptions.ACTION;
       data.number = activation;
-    } else if(d) {
+    } else if (d) {
       const deployable = parseInt(d);
       data.type = "DEPLOYABLE";
       data.number = deployable;
-    } 
+    }
 
     event.dataTransfer?.setData("text/plain", JSON.stringify(data));
   }
@@ -323,13 +356,12 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     event.dataTransfer?.setData("text/plain", JSON.stringify(data));
   }
 
-  
   /**
    * For macros which simple expect a title & description, no fancy handling.
    * Assumes data-path-title & data-path-description defined
    * @param event   The associated DragEvent
    */
-   _onDragTextMacroableStart(event: DragEvent) {
+  _onDragTextMacroableStart(event: DragEvent) {
     event.stopPropagation(); // Avoids triggering parent event handlers
 
     let target = <HTMLElement>event.currentTarget;
@@ -423,11 +455,9 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
   getStatPath(event: any): string | null {
     if (!event.currentTarget) return null;
     // Find the stat input to get the stat's key to pass to the macro function
-    let el = $(event.currentTarget)
-      .closest(".stat-container")
-      .find(".lancer-stat")[0] as HTMLElement;
+    let el = $(event.currentTarget).closest(".stat-container").find(".lancer-stat")[0] as HTMLElement;
 
-    if(!el) el = $(event.currentTarget).siblings(".lancer-stat")[0]
+    if (!el) el = $(event.currentTarget).siblings(".lancer-stat")[0];
 
     if (el.nodeName === "INPUT") {
       return (<HTMLInputElement>el).name;
@@ -474,9 +504,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
 
     // Only proceed if user is owner or GM.
     if (!this.actor.owner && !game.user.isGM) {
-      ui.notifications.warn(
-        `LANCER, you shouldn't try to modify ${this.actor.name}'s loadout. Access Denied.`
-      );
+      ui.notifications.warn(`LANCER, you shouldn't try to modify ${this.actor.name}'s loadout. Access Denied.`);
       return null;
     }
 
