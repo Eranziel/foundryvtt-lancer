@@ -1,11 +1,29 @@
 import { HelperOptions } from "handlebars";
-import { Bonus, Damage, License, WeaponMod, WeaponSize, WeaponType } from "machine-mind";
-import { license_ref, manufacturer_ref, bonuses_display, damage_editor, range_editor } from './item';
+import { Bonus, Damage, License, WeaponMod, WeaponSize, WeaponType, Action } from 'machine-mind';
+import { license_ref, manufacturer_ref, bonuses_display, damage_editor, range_editor, buildActionHTML } from './item';
 import { large_textbox_card, resolve_helper_dotpath, std_enum_select } from './commons';
 
-export function item_edit_arrayed_actions(): string {
-    console.log("TODO: Add arrayed actions editor");
-    return `<span>TODO: Add arrayed actions editor</span>`
+export function item_edit_arrayed_actions(path: string, title: string, helper: HelperOptions): string {
+    let action_arr: Array<Action> = resolve_helper_dotpath(helper,path);
+    
+    let action_detail = "";
+
+    if(action_arr) {
+        for (let i = 0; i < action_arr.length; i++) {
+            action_detail = action_detail.concat(buildActionHTML(action_arr[i],{editable: true,path: path.concat(`.${i}`),full: true,num:i}));
+        }
+    }
+
+    return `
+    <div class="card clipped double edi">
+      <span class="lancer-header submajor ">
+        ${title}
+        <a class="gen-control fas fa-plus" data-action="append" data-path="${path}" data-action-value="(struct)action"></a>
+      </span>
+      <div class="editable-action-array">
+        ${action_detail}
+      </div>
+    </div>`
 }
 
 /**
@@ -58,7 +76,7 @@ export function item_edit_arrayed_range(path: string, title: string, helper: Hel
     <div class="card clipped double">
       <span class="lancer-header submajor ">
         ${title}
-        <a class="gen-control fas fa-plus" data-action="append" data-path="${path}" data-action-value="(struct)range"></a>
+        <a class="gen-control fas fa-plus" data-action="append" data-path="${path}" data-action-value="(struct)action"></a>
       </span>
       ${range_detail}
     </div>`

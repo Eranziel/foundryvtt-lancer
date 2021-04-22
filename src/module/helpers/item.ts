@@ -744,10 +744,12 @@ export function license_ref(license: License | null, level: number): string {
  *        tags    Array of TagInstances which can optionally be passed
  * @returns Activation HTML in string form
  */
- export function buildActionHTML(action: Action, options?: {full?: boolean, num?: number, tags?:TagInstance[]}): string {
+// TODO: The options are out of control
+ export function buildActionHTML(action: Action, options?: {editable?: boolean, path?: string, full?: boolean, num?: number, tags?:TagInstance[]}): string {
   let detailText: string | undefined;
   let chip: string | undefined;
   let tags: string | undefined;
+  let editor: string | undefined;
 
   // TODO--can probably do better than this
   if(options) {
@@ -778,6 +780,16 @@ export function license_ref(license: License | null, level: number): string {
       }
 
       chip = buildChipHTML(action.Activation, {icon: icon, num: options.num})
+
+      if(options.editable) {
+        if(!options.path) throw Error("You're trying to edit an action without a path");
+        // If it's editable, it's deletable
+        editor = `
+        <div class="action-editor-wrapper">
+          <a class="gen-control" data-action="splice" data-path="${options.path}"><i class="fas fa-trash"></i></a>
+          <a class="action-editor fas fa-edit" data-path="${options.path}"></a>
+        </div>`
+      }
     } 
 
     if(options.tags !== undefined) {
@@ -791,9 +803,12 @@ export function license_ref(license: License | null, level: number): string {
 
   return `
   <div class="action-wrapper">
-    <span class="action-title">
-      ${action.Name ? action.Name : ""}
-    </span>
+    <div class="title-wrapper">
+      <span class="action-title">
+        ${action.Name ? action.Name : ""}
+      </span>
+      ${editor ? editor : ""}
+    </div>
     ${detailText ? detailText : ""}
     ${chip}
     ${tags ? tags : ""}
