@@ -1,3 +1,11 @@
+{{!--
+  Effects
+  Icon
+  LID
+  Name
+  Subtype
+--}}
+
 <form class="{{cssClass}} lancer-sheet" autocomplete="off">
     {{!-- Sheet Header --}}
     <header class="sheet-header card clipped-bot">
@@ -12,6 +20,14 @@
               placeholder="Name"
             />
           </h1>
+          <div class="flexrow">
+            <select class="header-field" name="mm.ent.Subtype" data-type="String">
+              {{#select mm.ent.Subtype}}
+              <option class="i--dark" value="status">STATUS</option>
+              <option class="i--dark" value="condition">CONDITION</option>
+              {{/select}}
+            </select>
+          </div>
         </div>
         {{{ ref-portrait-img item.img "img" mm.ent }}}
       </div>

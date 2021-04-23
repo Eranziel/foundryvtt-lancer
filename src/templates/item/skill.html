@@ -4,6 +4,17 @@
     <div class="flexcol grow">
       <h1 class="charname"><input class="header-field" name="name" type="text" value="{{item.name}}" placeholder="Name"/></h1>
       <div class="flexrow">
+        <select class="header-field" name="mm.ent.Family" data-type="String">
+          {{#select mm.ent.Family}}
+          <option class="i--dark" value="cha">CHA</option>
+          <option class="i--dark" value="con">CON</option>
+          <option class="i--dark" value="dex">DEX</option>
+          <option class="i--dark" value="int">INT</option>
+          <option class="i--dark" value="str">STR</option>
+          {{/select}}
+        </select>
+      </div>
+      <div class="flexrow">
         <span>RANK:</span>
         {{{l-num-input "mm.ent.CurrentRank"}}}
       </div>

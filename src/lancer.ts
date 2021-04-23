@@ -410,7 +410,6 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("item-edit-arrayed-damage", item_edit_arrayed_damage);
   Handlebars.registerHelper("item-edit-arrayed-range", item_edit_arrayed_range);
   Handlebars.registerHelper("item-edit-arrayed-enum", item_edit_arrayed_enum);
-  Handlebars.registerHelper("item-edit-arrayed-enum", item_edit_arrayed_enum);
   Handlebars.registerHelper("item-edit-arrayed-bonuses", item_edit_arrayed_bonuses);
   Handlebars.registerHelper("item-edit-arrayed-counters", item_edit_arrayed_counters);
   Handlebars.registerHelper("item-edit-arrayed-deployables", item_edit_arrayed_deployables);

@@ -1,3 +1,27 @@
+{{!--
+Actions
+Bonuses
+Counters
+~CurrentRank
+Deployables
+Description
+Icon
+LID
+Name
+Ranks
+  Actions
+  Bonuses
+  Counters
+  Deployables
+  Description
+  Exclusive
+  Integrated
+  Name
+  Synergies
+Synergies
+Terse
+--}}
+
 <form class="{{cssClass}} lancer-sheet" autocomplete="off">
 
   {{!-- Sheet Header --}}
@@ -18,7 +42,12 @@
   {{!-- Sheet Body --}}
   <div class="flexcol">
     {{{textarea-card "DESCRIPTION" "mm.ent.Description"}}}
-
+    {{{textarea-card "TERSE DESCRIPTION" "mm.ent.Terse"}}}
+    {{{item-edit-arrayed-actions      "mm.ent.Actions"        "ACTIONS"}}}
+    {{{item-edit-arrayed-bonuses      "mm.ent.Bonuses"}}}
+    {{{item-edit-arrayed-counters     "mm.ent"}}}
+    {{{item-edit-arrayed-deployables  "mm.ent.Deployables"                "DEPLOYABLES"}}}
+    {{{item-edit-arrayed-synergies    "mm.ent.Synergies"                  "SYNERGIES"}}}
     
     <a class="gen-control fas fa-plus" data-action="append" data-path="mm.ent.Ranks" style="align-self: flex-end;margin-right: 1em;" data-action-value="(struct)talent_rank"></a>
 
@@ -36,7 +65,11 @@
         </div>
 
         {{!-- Bonuses --}}
-        {{{bonuses-view (concat "mm.ent.Ranks." index ".Bonuses") rank.Bonuses  ../editable}}}
+        {{{item-edit-arrayed-actions      (concat "mm.ent.Ranks." index ".Actions")        "ACTIONS"}}}
+        {{{item-edit-arrayed-bonuses      (concat "mm.ent.Ranks." index ".Bonuses")}}}
+        {{{item-edit-arrayed-counters     (concat "mm.ent.Ranks." index)}}}
+        {{{item-edit-arrayed-deployables  (concat "mm.ent.Ranks." index ".Deployables")    "DEPLOYABLES"}}}
+        {{{item-edit-arrayed-synergies    (concat "mm.ent.Ranks." index ".Synergies")      "SYNERGIES"}}}
       </div>
     {{/each}}
   </div>

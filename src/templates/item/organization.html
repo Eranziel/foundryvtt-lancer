@@ -20,6 +20,12 @@
     {{!-- Sheet Body --}}
     <section class="sheet-body">
       {{{textarea-card "DESCRIPTION" "mm.ent.Description"}}}
+      {{{textarea-card "ACTIONS" "mm.ent.Actions"}}}
+      <div class="flexrow">
+        {{{std-num-input             "mm.ent.Efficiency"    label="EFFICIENCY"}}}
+        {{{std-num-input             "mm.ent.Influence"    label="INFLUENCE"}}}
+        {{{std-string-input          "mm.ent.Purpose"    label="PURPOSE"}}}
+      </div>
     </section>
   </form>
   

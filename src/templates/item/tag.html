@@ -1,3 +1,11 @@
+{{!--
+  Description
+  FilterIgnore
+  Hidden
+  LID
+  Name
+--}}
+
 <form class="{{cssClass}} lancer-sheet" autocomplete="off">
   {{!-- Sheet Header --}}
   <header class="sheet-header card clipped-bot">
@@ -24,6 +32,7 @@
       <span class="lancer-header">TAG META INFO</span>
       {{{ std-string-input "mm.ent.LID" label="ID:"  }}}
       {{{ std-checkbox "mm.ent.Hidden" label="Hidden:"  label_classes="self-left" }}}
+      {{{ std-checkbox "mm.ent.FilterIgnore" label="Filter Ignore:"  label_classes="self-left" }}}
     </div>
   </section>
 </form>

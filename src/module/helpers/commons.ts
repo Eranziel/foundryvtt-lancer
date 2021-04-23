@@ -419,6 +419,8 @@ async function control_structs(key: string, ctx: MMEntityContext<any>): Promise<
   switch (key) {
     case "empty_array":
       return [true, []];
+    case "string":
+      return [true, ""];
     case "npc_stat_array":
       return [true, [0, 0, 0]];
     case "frame_trait":

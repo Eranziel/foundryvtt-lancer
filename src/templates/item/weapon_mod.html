@@ -1,3 +1,29 @@
+{{!--
+  Actions
+  AddedDamage
+  AddedRange
+  AddedTags
+  AllowedSizes
+  AllowedTypes
+  BaseLimit
+  Bonuses
+  Cascading
+  Counters
+  Deployables
+  Destroyed
+  Effect
+  Integrated
+  License
+  LicenseLevel
+  LID
+  Name
+  SP
+  Synergies
+  Tags
+  Uses
+--}}
+
+
 <form class="{{cssClass}} lancer-sheet" autocomplete="off">
     {{!-- Sheet Header --}}
     <header class="sheet-header card clipped-bot">
@@ -30,9 +56,9 @@
         </div>
         {{{item-edit-arrayed-bonuses      "mm.ent.Bonuses"}}}
         {{{item-edit-arrayed-counters     "mm.ent"}}}
-        {{{item-edit-arrayed-deployables  "mm.ent"}}}
-        {{{item-edit-arrayed-synergies    "mm.ent"}}}
-        {{{item-edit-arrayed-integrated   "mm.ent.Integrated"}}}
+        {{{item-edit-arrayed-deployables  "mm.ent.Deployables"                "ADDED DEPLOYABLES"}}}
+        {{{item-edit-arrayed-synergies    "mm.ent.Synergies"                  "SYNERGIES"}}}
+        {{{item-edit-arrayed-integrated   "mm.ent.Integrated"                 "INTEGRATED ITEMS"}}}
         <div class="card full">
           <span class="lancer-header submajor">TAGS</span>
           {{{mm-tag-list "mm.ent.Tags" mm.ent.Tags editable}}}
@@ -42,7 +68,8 @@
         {{{item-edit-license}}}
         {{{item-edit-arrayed-enum         "Allowed Sizes"         "mm.ent.AllowedSizes"     "WeaponSize"}}}
         {{{item-edit-arrayed-enum         "Allowed Types"         "mm.ent.AllowedTypes"     "WeaponType"}}}
-        {{{item-edit-uses}}}
+        {{{item-edit-uses                 "mm.ent.Uses" "data.derived.max_uses"}}}
+        {{{item-edit-sp                   "mm.ent.SP"}}}
       </div>
         {{!-- 
             Fields needed for:
