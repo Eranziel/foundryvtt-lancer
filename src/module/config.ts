@@ -163,6 +163,7 @@ export const LANCER = {
   setting_overkill_heat: "autoOKillHeat",
   setting_auto_structure: "autoCalcStructure",
   setting_120: "warningFor120",
+  setting_beta_warning: "warningForBeta",
   mech_items,
   pilot_items,
   weapon_items,
