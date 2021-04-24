@@ -43,11 +43,6 @@ Terse
   <div class="flexcol">
     {{{textarea-card "DESCRIPTION" "mm.ent.Description"}}}
     {{{textarea-card "TERSE DESCRIPTION" "mm.ent.Terse"}}}
-    {{{item-edit-arrayed-actions      "mm.ent.Actions"        "ACTIONS"}}}
-    {{{item-edit-arrayed-bonuses      "mm.ent.Bonuses"}}}
-    {{{item-edit-arrayed-counters     "mm.ent"}}}
-    {{{item-edit-arrayed-deployables  "mm.ent.Deployables"                "DEPLOYABLES"}}}
-    {{{item-edit-arrayed-synergies    "mm.ent.Synergies"                  "SYNERGIES"}}}
     
     <a class="gen-control fas fa-plus" data-action="append" data-path="mm.ent.Ranks" style="align-self: flex-end;margin-right: 1em;" data-action-value="(struct)talent_rank"></a>
 
@@ -67,7 +62,7 @@ Terse
         {{!-- Bonuses --}}
         {{{item-edit-arrayed-actions      (concat "mm.ent.Ranks." index ".Actions")        "ACTIONS"}}}
         {{{item-edit-arrayed-bonuses      (concat "mm.ent.Ranks." index ".Bonuses")}}}
-        {{{item-edit-arrayed-counters     (concat "mm.ent.Ranks." index)}}}
+        {{{counter-array rank.Counters    (concat "mm.ent.Ranks." index ".Counters") (concat "mm.ent.Ranks." index ".Counters") true}}}
         {{{item-edit-arrayed-deployables  (concat "mm.ent.Ranks." index ".Deployables")    "DEPLOYABLES"}}}
         {{{item-edit-arrayed-synergies    (concat "mm.ent.Ranks." index ".Synergies")      "SYNERGIES"}}}
       </div>
