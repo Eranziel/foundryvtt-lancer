@@ -642,7 +642,7 @@ async function sanityCheck() {
   const message = `<h1>DO NOT USE THIS VERSION ON AN EXISTING WORLD</h1>
 <p>This version contains <i>vast</i> changes from the current stable release of LANCER, and does not contain <i>any</i>
 safety or migration for existing world data. If this is an existing world that contains <i><b>ANY</b></i> data you
-care about, <i><b>DO NOT CONTINUE</b></i>.</p>
+care about, <i class="horus--subtle"><b>DO NOT CONTINUE</b></i>.</p>
 
 <p>This version should only be used on a fresh, empty world created just for
 testing this beta. You must re-install the stable release of LANCER before running your regularly scheduled games.</p>
