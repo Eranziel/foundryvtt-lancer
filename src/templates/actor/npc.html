@@ -1,9 +1,16 @@
 <form class="{{cssClass}} lancer-sheet" autocomplete="off">
-
   {{!-- Sheet Header --}}
   <header class="sheet-header card clipped-bot">
     <div class="header-fields">
-      <h1 class="charname"><input class="header-field" name="name" type="text" value="{{actor.name}}" placeholder="Name"/></h1>
+      <h1 class="charname">
+        <input
+          class="header-field"
+          name="name"
+          type="text"
+          value="{{actor.name}}"
+          placeholder="Name"
+        />
+      </h1>
     </div>
     <div class="details flexcol">
       <i class="cci cci-npc-tier-{{mm.ent.Tier}} tier-icon theme--npc"></i>
@@ -12,11 +19,7 @@
     <div class="details flexcol">
       <span>CLASS:</span>
       <span class="major">
-        {{#if mm.ent.ActiveClass}}
-          {{mm.ent.ActiveClass.Name}}
-        {{else}}
-          NO CLASS FOUND
-        {{/if}}
+        {{#if mm.ent.ActiveClass}} {{mm.ent.ActiveClass.Name}} {{else}} NO CLASS FOUND {{/if}}
       </span>
     </div>
     {{{ ref-portrait-img actor.img "img" mm.ent }}}
@@ -24,59 +27,49 @@
 
   {{!-- Sheet Body --}}
   <section class="sheet-body">
-
     <div class="flexcol">
       {{!-- Stats et all --}}
       <div class="wraprow quintuple">
-        {{{clicker-stat-card   "TIER"       (concat "cci cci-npc-tier-" mm.ent.Tier)            "mm.ent.Tier" false }}}
-        {{{stat-view-card      "HULL"       ""            "mm.ent.Hull" }}}
-        {{{stat-view-card      "AGI"        ""             "mm.ent.Agility" }}}
-        {{{stat-view-card      "SYS"        ""             "mm.ent.Systems" }}}
-        {{{stat-view-card      "ENG"        ""             "mm.ent.Engineering" }}}
-
-        {{{stat-edit-max-card  "HP"          "mdi mdi-heart-outline"    "mm.ent.CurrentHP"      "mm.ent.MaxHP" }}}
-        {{{stat-edit-max-card  "HEAT"        "cci cci-heat"             "mm.ent.CurrentHeat"    "mm.ent.HeatCapacity" }}}
-        {{{stat-view-card      "ARMOR"       "cci cci-armor"            "mm.ent.Armor" }}}
-        {{{stat-edit-card      "OVERSHIELD"  "cci cci-heat"             "mm.ent.Overshield" }}}
-        {{{stat-edit-card      "BURN"        "cci cci-burn"             "mm.ent.Burn" }}}
-
-        {{{stat-view-card      "SPEED"       "mdi mdi-arrow-right-bold-hexagon-outline" "mm.ent.Speed" }}}
-        {{{stat-view-card      "EVASION"     "cci cci-evasion"          "mm.ent.Evasion" }}}
-        {{{stat-view-card      "E-DEF"       "cci cci-edef"             "mm.ent.EDefense" }}}
-        {{{stat-view-card      "SENSORS"     "cci cci-sensor"           "mm.ent.SensorRange" }}}
-        {{{stat-view-card      "SAVE"        "cci cci-save"             "mm.ent.SaveTarget" }}}
-
-        {{{stat-view-card      "SIZE"        (concat "cci cci-size-" mm.ent.Size)   "mm.ent.Size" }}}
-        {{{stat-view-card      "ACTIVATIONS"  "cci cci-heart"            "mm.ent.Activations" }}}
-        {{{stat-edit-max-card  "STRUCTURE"    "cci cci-heart"            "mm.ent.Structure"   "mm.ent.MaxStructure" }}}
-        {{{stat-edit-max-card  "STRESS"       "cci cci-heart"            "mm.ent.Stress"      "mm.ent.MaxStress"}}}
+        {{{clicker-stat-card "TIER" (concat "cci cci-npc-tier-" mm.ent.Tier) "mm.ent.Tier" false }}}
+        {{{stat-view-card "HULL" "" "mm.ent.Hull" }}} {{{stat-view-card "AGI" "" "mm.ent.Agility"
+        }}} {{{stat-view-card "SYS" "" "mm.ent.Systems" }}} {{{stat-view-card "ENG" ""
+        "mm.ent.Engineering" }}} {{{stat-edit-max-card "HP" "mdi mdi-heart-outline"
+        "mm.ent.CurrentHP" "mm.ent.MaxHP" }}} {{{stat-edit-max-card "HEAT" "cci cci-heat"
+        "mm.ent.CurrentHeat" "mm.ent.HeatCapacity" }}} {{{stat-view-card "ARMOR" "cci cci-armor"
+        "mm.ent.Armor" }}} {{{stat-edit-card "OVERSHIELD" "cci cci-heat" "mm.ent.Overshield" }}}
+        {{{stat-edit-card "BURN" "cci cci-burn" "mm.ent.Burn" }}} {{{stat-view-card "SPEED" "mdi
+        mdi-arrow-right-bold-hexagon-outline" "mm.ent.Speed" }}} {{{stat-view-card "EVASION" "cci
+        cci-evasion" "mm.ent.Evasion" }}} {{{stat-view-card "E-DEF" "cci cci-edef" "mm.ent.EDefense"
+        }}} {{{stat-view-card "SENSORS" "cci cci-sensor" "mm.ent.SensorRange" }}} {{{stat-view-card
+        "SAVE" "cci cci-save" "mm.ent.SaveTarget" }}} {{{stat-view-card "SIZE" (concat "cci
+        cci-size-" mm.ent.Size) "mm.ent.Size" }}} {{{stat-view-card "ACTIVATIONS" "cci cci-heart"
+        "mm.ent.Activations" }}} {{{stat-edit-max-card "STRUCTURE" "cci cci-heart"
+        "mm.ent.Structure" "mm.ent.MaxStructure" }}} {{{stat-edit-max-card "STRESS" "cci cci-heart"
+        "mm.ent.Stress" "mm.ent.MaxStress"}}}
       </div>
 
       {{!-- Equipment et all --}}
       <div class="card clipped">
-        <span class="lancer-header submajor ">CLASSES (LIMIT 1)</span>
+        <span class="lancer-header submajor">CLASSES (LIMIT 1)</span>
         <div class="flexcol">
-          {{#each mm.ent.Classes as |class index|}}
-            {{{ref-mm-controllable-item (concat "mm.ent.Classes." index) "delete" }}}
-          {{/each}}
+          {{#each mm.ent.Classes as |class index|}} {{{ref-mm-controllable-item (concat
+          "mm.ent.Classes." index) "delete" }}} {{/each}}
         </div>
       </div>
 
       <div class="card clipped">
-        <span class="lancer-header submajor ">TEMPLATES</span>
+        <span class="lancer-header submajor">TEMPLATES</span>
         <div class="wraprow double">
-          {{#each mm.ent.Templates as |template index|}}
-            {{{ref-mm-controllable-item (concat "mm.ent.Templates." index) "delete" }}}
-          {{/each}}
+          {{#each mm.ent.Templates as |template index|}} {{{ref-mm-controllable-item (concat
+          "mm.ent.Templates." index) "delete" }}} {{/each}}
         </div>
       </div>
 
       <div class="card clipped">
-        <span class="lancer-header submajor ">FEATURES</span>
+        <span class="lancer-header submajor">FEATURES</span>
         <div class="wraprow double">
-          {{#each mm.ent.Features as |feature index|}}
-            {{{npc-feat-preview (concat "mm.ent.Features." index) tier=../mm.ent.Tier }}}
-          {{/each}}
+          {{#each mm.ent.Features as |feature index|}} {{{npc-feat-preview (concat
+          "mm.ent.Features." index) tier=../mm.ent.Tier }}} {{/each}}
         </div>
       </div>
 

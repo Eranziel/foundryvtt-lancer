@@ -1,6 +1,7 @@
 # IDE
 .vscode/**
 .idea/**
+.devcontainer
 
 # NPM
 node_modules/**

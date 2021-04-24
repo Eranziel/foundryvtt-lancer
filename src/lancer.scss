@@ -1,15 +1,16 @@
-
 /* TODO: Maybe multiple stylesheets is a good idea? Check out ITCSS and segment them by their layer */
 /* TODO: Webcomponents. Tags, cards, compact stat */
+
+@import "https://cdn.jsdelivr.net/npm/@mdi/font@5.9.55/css/materialdesignicons.min.css";
 
 /* Settings Layer*/
 :root {
   --main-font-family: Helvetica, Arial, sans-serif;
 
-  --main-theme-color: #991e2a;  /* I've configured calls to this to fall back on fuchsia when things go wrong */
-  --secondary-theme-color: #505050;  
-  --loadout-color: #777f86;  
-  --ref-color: #ddc0b3;  
+  --main-theme-color: #991e2a; /* I've configured calls to this to fall back on fuchsia when things go wrong */
+  --secondary-theme-color: #505050;
+  --loadout-color: #777f86;
+  --ref-color: #ddc0b3;
   --gms-theme-color: #991e2a;
   --ipsn-theme-color: #1662b8;
   --ssc-theme-color: #d1920a;
@@ -17,13 +18,51 @@
   --ha-theme-color: #6e4373;
   /* Shouldn't there be some sort of "--current-theme"??? */
 
-  --reaction-clip-path: polygon( 0 0, 100% 0, 100% 1px, calc(100% - 9px) 1px, calc(100% - 8px) 2px, 100% 2px, 100% 3px, calc(100% - 7px) 3px, calc(100% - 6px) 4px, 100% 4px, 100% 5px, calc(100% - 5px) 5px, calc(100% - 4px) 6px, 100% 6px, 100% 7px, calc(100% - 3px) 7px, calc(100% - 2px) 8px, 100% 8px, 100% 100%, 0 100% );
+  --reaction-clip-path: polygon(
+    0 0,
+    100% 0,
+    100% 1px,
+    calc(100% - 9px) 1px,
+    calc(100% - 8px) 2px,
+    100% 2px,
+    100% 3px,
+    calc(100% - 7px) 3px,
+    calc(100% - 6px) 4px,
+    100% 4px,
+    100% 5px,
+    calc(100% - 5px) 5px,
+    calc(100% - 4px) 6px,
+    100% 6px,
+    100% 7px,
+    calc(100% - 3px) 7px,
+    calc(100% - 2px) 8px,
+    100% 8px,
+    100% 100%,
+    0 100%
+  );
   --trait-color: #0a7674;
   --bonus-color: #5d8673;
   --bonus-list-color: #71a373;
   --system-color: #9ad882;
   --error-color: #b4800e;
-  --tech-clip-path: polygon( 0 0, calc(100% - 12px) 0, calc(100% - 12px) 7px, calc(100% - 7px) 7px, calc(100% - 7px) 3px, calc(100% - 3px) 3px, calc(100% - 3px) 0, 100% 0, 100% 3px, calc(100% - 3px) 3px, calc(100% - 3px) 7px, calc(100% - 7px) 7px, calc(100% - 7px) 12px, 100% 12px, 100% 100%, 0 100% );
+  --tech-clip-path: polygon(
+    0 0,
+    calc(100% - 12px) 0,
+    calc(100% - 12px) 7px,
+    calc(100% - 7px) 7px,
+    calc(100% - 7px) 3px,
+    calc(100% - 3px) 3px,
+    calc(100% - 3px) 0,
+    100% 0,
+    100% 3px,
+    calc(100% - 3px) 3px,
+    calc(100% - 3px) 7px,
+    calc(100% - 7px) 7px,
+    calc(100% - 7px) 12px,
+    100% 12px,
+    100% 100%,
+    0 100%
+  );
   --tech-color: #7d2477;
   --talent-color: #3a81c3;
   --weapon-color: #111111;
@@ -34,9 +73,16 @@
   --darken-1: #00000016;
 
   $clip_in: 10px;
-  --top-dogear-path: polygon( #{$clip_in} 0, 100% 0, 100% 100%, 0 100%, 0 #{$clip_in} );
-  --bottom-dogear-path: polygon( 0 0, 100% 0, 100% calc(100% - #{$clip_in}), calc(100% - #{$clip_in}) 100%, 0 100% );
-  --double-dogear-path: polygon( #{$clip_in} 0, 100% 0, 100% calc(100% - #{$clip_in}), calc(100% - #{$clip_in}) 100%, 0 100%, 0 #{$clip_in} );
+  --top-dogear-path: polygon(#{$clip_in} 0, 100% 0, 100% 100%, 0 100%, 0 #{$clip_in});
+  --bottom-dogear-path: polygon(0 0, 100% 0, 100% calc(100% - #{$clip_in}), calc(100% - #{$clip_in}) 100%, 0 100%);
+  --double-dogear-path: polygon(
+    #{$clip_in} 0,
+    100% 0,
+    100% calc(100% - #{$clip_in}),
+    calc(100% - #{$clip_in}) 100%,
+    0 100%,
+    0 #{$clip_in}
+  );
 }
 
 .app {
@@ -48,15 +94,21 @@
 #chat-controls div.roll-type-select select,
 #chat-form textarea,
 button {
-  background: #ededed;  /* Set default backgrounds to a futuristic gundam light grey */
+  background: #ededed; /* Set default backgrounds to a futuristic gundam light grey */
   font-family: var(--main-font-family);
 }
 /* ---------- */
 
 /* Elements Layer */
 .lancer.sheet .window-content *:not(.fas, .mdi, .cci),
-#chat-log .message *:not(.fas, .mdi, .cci) {  /* An exception for each icon font */
+#chat-log .message *:not(.fas, .mdi, .cci) {
+  /* An exception for each icon font */
   font-family: var(--main-font-family);
+}
+
+.message .lancer-weapon-header span {
+  overflow: auto;
+  width: 120%;
 }
 
 .lancer.sheet select {
@@ -86,7 +138,6 @@ button {
 .flex-center > * {
   flex-grow: unset;
 }
-
 
 /* For if you just want a single item left */
 .self-left {
@@ -184,7 +235,7 @@ button {
   border-radius: 4px;
   text-align: center;
   color: #8e8e8e;
-  padding-top: 2px 
+  padding-top: 2px;
 }
 
 .tags-container > div {
@@ -210,7 +261,6 @@ button {
   align-items: center;
 }
 
-
 .simple-button {
   color: white;
   background-color: var(--main-theme-color, fuchsia);
@@ -223,8 +273,6 @@ button {
   border: 2px;
   font-size: 12px;
 }
-
-
 
 .compact-tag {
   color: white;
@@ -256,12 +304,13 @@ button {
   margin: 0;
 }
 
-.license-desc > input[type=number] {
-  -moz-appearance:textfield; /* Firefox */
+.license-desc > input[type="number"] {
+  -moz-appearance: textfield; /* Firefox */
   width: 3ch;
 }
 
-.license-desc > input, .license-desc > span {
+.license-desc > input,
+.license-desc > span {
   background: transparent;
   border: none;
   color: #828282;
@@ -296,7 +345,7 @@ ul.items-list {
   padding: 0;
 }
 
-.small-icon {   
+.small-icon {
   flex-grow: 0;
   min-width: 1em;
   max-height: 1em;
@@ -320,6 +369,10 @@ ul.items-list {
   max-width: $pixels;
   min-height: $pixels;
   max-height: $pixels;
+}
+
+.i--click {
+  cursor: pointer;
 }
 
 .i--xs {
@@ -388,7 +441,7 @@ ul.items-list {
 }
 
 .damage--variable {
-  color: #D500F9;
+  color: #d500f9;
 }
 
 .clipped {
@@ -443,8 +496,8 @@ tr.lcp-index-header {
 }
 
 .lancer-tabs {
-  clip-path: polygon( 0 0, 100% 0, calc(100% - 20px) 100%, 0 100% );
-  -webkit-clip-path: polygon( 0 0, 100% 0, calc(100% - 20px) 100%, 0 100% );
+  clip-path: polygon(0 0, 100% 0, calc(100% - 20px) 100%, 0 100%);
+  -webkit-clip-path: polygon(0 0, 100% 0, calc(100% - 20px) 100%, 0 100%);
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
@@ -457,9 +510,9 @@ tr.lcp-index-header {
 }
 
 .lancer-tab {
-  clip-path: polygon( 10px 0, 100% 0, calc(100% - 10px) 100%, 0 100% );
-  -webkit-clip-path: polygon( 10px 0, 100% 0, calc(100% - 10px) 100%, 0 100% );
-  padding: 10px; 
+  clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+  -webkit-clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+  padding: 10px;
   margin-left: 10px;
   margin-right: 10px;
 }
@@ -479,7 +532,6 @@ tr.lcp-index-header {
   background-color: #991e2a;
   color: white;
 }
-
 
 /* The dashed-line border aesthetic found around certain items.
  * Should be used on an inner div of a card
@@ -507,8 +559,8 @@ tr.lcp-index-header {
   .talent > & {
     border-color: #3a81c3;
     background-color: #3a81c333;
-    clip-path: polygon( 0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100% );
-    -webkit-clip-path: polygon( 0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100% );
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%);
+    -webkit-clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%);
   }
 
   .weapon > & {
@@ -548,7 +600,7 @@ tr.lcp-index-header {
 .ref-card {
   border: 2px solid black;
   margin: 3px;
-  display: flex; 
+  display: flex;
   align-items: center;
   cursor: pointer;
   text-align: center;
@@ -595,7 +647,9 @@ tr.lcp-index-header {
 }
 
 /* Re-allow clicking in these damn things */
-.lancer input,.input,textarea {
+.lancer input,
+.input,
+textarea {
   -webkit-user-select: auto;
   -moz-user-select: auto;
   -ms-user-select: auto;
@@ -610,11 +664,10 @@ tr.lcp-index-header {
   min-height: 200px;
 }
 
-
 .pilot-stats {
-  clip-path: polygon( 0 0, calc(100% - 30px) 0, 100% 100%, 0 100% );
-  -webkit-clip-path: polygon( 0 0, calc(100% - 30px) 0, 100% 100%, 0 100% );
-  background-color: #CCCCCC;
+  clip-path: polygon(0 0, calc(100% - 30px) 0, 100% 100%, 0 100%);
+  -webkit-clip-path: polygon(0 0, calc(100% - 30px) 0, 100% 100%, 0 100%);
+  background-color: #cccccc;
   padding-left: 5px;
   padding-right: 5px;
   align-items: flex-start;
@@ -635,7 +688,7 @@ tr.lcp-index-header {
 
 /* Consolidate all of our card header stuff stuff */
 .lancer-header {
-  flex: 0 0 2.0em;
+  flex: 0 0 2em;
 
   /* Generally uglier, inconsistent. Use when header needs other stuff in it, like with talents large icons etc */
   &.stretch {
@@ -657,8 +710,10 @@ tr.lcp-index-header {
 
   /* For buttons/icons, we want them to not grow but also not just get squashed into nothing 
   * If this unbalances things, add an equal # of balancers to the other side
-  */ 
-  a, i, img {
+  */
+  a,
+  i,
+  img {
     flex: 0 0 auto;
     padding-left: 5px;
     padding-right: 5px;
@@ -673,14 +728,16 @@ tr.lcp-index-header {
   /* Spans are the main bodies of headers. We want them to grow! 
   * Inputs too for those cases where the title is editable.
   */
-  span, input {
+  span,
+  input {
     flex-grow: 1;
     text-align: center;
     font-size: inherit;
   }
 
   /* Sometimes want left align, using the "left" class */
-  span.left, input.left {
+  span.left,
+  input.left {
     text-align: left;
     margin-left: 10px;
   }
@@ -712,12 +769,11 @@ tr.lcp-index-header {
     background-color: var(--bonus-color, fuchsia);
   }
 
-
   .wep-mount &,
   .sys-mount &,
   .mount & {
     background-color: var(--main-theme-color, fuchsia);
-  }  
+  }
 
   .trigger & {
     color: var(--main-theme-color, fuchsia);
@@ -767,8 +823,6 @@ tr.lcp-index-header {
     background-color: var(--error-color);
   }
 
-
-
   /* General font sizing options */
   &.major {
     font-size: 18px;
@@ -787,9 +841,9 @@ tr.lcp-index-header {
 }
 
 .big-editor {
-  background-color: #dbdbdb; 
-  min-height: 15em; 
-  text-align: left
+  background-color: #dbdbdb;
+  min-height: 15em;
+  text-align: left;
 }
 
 .lancer-stat {
@@ -797,7 +851,7 @@ tr.lcp-index-header {
 }
 
 .effect-stat,
-input[type=number].lancer-stat {
+input[type="number"].lancer-stat {
   align-self: center;
   text-align: center;
   max-width: 40px;
@@ -805,13 +859,12 @@ input[type=number].lancer-stat {
 }
 
 .lancer-text-field,
-input[type=string].lancer-input {
+input[type="string"].lancer-input {
   align-self: center;
   text-align: left;
   width: calc(100% - 20px);
   margin: 5px;
 }
-
 
 .size-icon {
   color: var(--main-theme-color, fuchsia);
@@ -830,13 +883,14 @@ input[type=string].lancer-input {
   color: white !important;
 }
 
-.editor, .editor-content {
+.editor,
+.editor-content {
   height: -webkit-fill-available;
   min-height: 30em;
 }
 
 .card {
-  background-color: rgba(0,0,0,0.07);
+  background-color: rgba(0, 0, 0, 0.07);
   margin: 3px 10px;
   text-align: center;
   padding-bottom: 1px;
@@ -850,6 +904,22 @@ input[type=string].lancer-input {
 
 .card .editor-content {
   text-align: left;
+}
+
+.collapse-icon {
+  margin: 4px;
+}
+.collapse-trigger {
+  cursor: pointer;
+}
+.collapse {
+  max-height: 2000px;
+  overflow: hidden;
+  transition: max-height 0.75s ease-in-out;
+}
+.collapse.collapsed {
+  max-height: 0;
+  min-height: 0;
 }
 
 .lancer-title {
@@ -866,7 +936,7 @@ input[type=string].lancer-input {
   text-align: left;
   padding: 0.5em;
   font-family: Consolas;
-  
+
   border: 1px solid #999;
   border-radius: 5px;
   margin: 5px;
@@ -887,7 +957,7 @@ input[type=string].lancer-input {
 
 .effect-title {
   text-transform: uppercase;
-  letter-spacing: .13em !important;
+  letter-spacing: 0.13em !important;
   font-weight: 530;
   position: relative;
   top: -8px;
@@ -907,7 +977,7 @@ input[type=string].lancer-input {
 /* Start of HORUS glitchy styles used in lancer-data */
 code {
   padding: 4px 12px 4px 12px;
-  font-family: monospace,monospace;
+  font-family: monospace, monospace;
 }
 
 code.horus {
@@ -998,17 +1068,22 @@ code.horus:hover {
   }
 }
 
-
 /* End of HORUS glitchy styles used in lancer-data */
 
-.roll-stat, .roll-attack,
-.roll-trigger, .system-macro,
-.gear-macro, .cb-macro, .item-macro,
-.core-passive-macro, .core-active-macro {
+.roll-stat,
+.roll-attack,
+.roll-trigger,
+.system-macro,
+.gear-macro,
+.cb-macro,
+.item-macro,
+.core-passive-macro,
+.core-active-macro {
   margin: 3px 10px;
 }
 
-.roll-attack, .roll-tech,
+.roll-attack,
+.roll-tech,
 .system-macro {
   display: flex;
   flex-direction: row;
@@ -1034,7 +1109,7 @@ code.horus:hover {
   background: rgba(0, 0, 0, 0.1);
   border: 1px solid #999;
   border-radius: 3px;
-  box-shadow: 0 0 2px #FFF inset;
+  box-shadow: 0 0 2px #fff inset;
 }
 
 .lancer-dice-total {
@@ -1067,17 +1142,18 @@ button.overkill-reroll {
   clip-path: polygon(100% 0%, 80% 50%, 100% 100%, 25% 100%, 0% 50%, 25% 0%);
 }
 
-.mod-minus-button, .mod-plus-button {
+.mod-minus-button,
+.mod-plus-button {
   width: 2em;
   max-width: 2em;
   background-color: #828282;
   color: #bebebe;
-  border:none;
+  border: none;
   /* Don't ask me why, but this aligns it vertically nicely */
   line-height: 1px;
 }
 
-input[type=number] {
+input[type="number"] {
   -moz-appearance: textfield;
 }
 
@@ -1101,13 +1177,11 @@ input.core-power-toggle {
   filter: none !important;
 }
 
-input.core-power-toggle:checked::before
-{
+input.core-power-toggle:checked::before {
   content: "\F0079";
   color: green;
 }
-input.core-power-toggle:not(:checked)::before
-{
+input.core-power-toggle:not(:checked)::before {
   content: "\F007A";
   color: grey;
 }
@@ -1122,7 +1196,7 @@ input.core-power-toggle:not(:checked)::before
   display: flex;
   justify-content: center;
   align-items: center;
-  line-height: .8em;
+  line-height: 0.8em;
 }
 
 .overcharge-macro {
@@ -1130,7 +1204,7 @@ input.core-power-toggle:not(:checked)::before
 }
 
 .overcharge-heat {
-  color:#fc3e0f; 
+  color: #fc3e0f;
   flex-grow: unset;
   width: 1.5em;
 }
@@ -1138,29 +1212,29 @@ input.core-power-toggle:not(:checked)::before
 /* Some flex helpers */
 @mixin wr-item($prefix, $percent, $margin) {
   &.#{$prefix} > * {
-    flex: 1 0 calc(#{$percent} - #{$margin * 2}); 
+    flex: 1 0 calc(#{$percent} - #{$margin * 2});
     margin: 3px;
     flex-grow: unset;
   }
 
   &.#{$prefix} > .double {
-    flex: 1 0 calc(#{$percent * 2} - #{$margin * 2}); 
+    flex: 1 0 calc(#{$percent * 2} - #{$margin * 2});
   }
 
   &.#{$prefix} > .triple {
-    flex: 1 0 calc(#{$percent * 3} - #{$margin * 2}); 
+    flex: 1 0 calc(#{$percent * 3} - #{$margin * 2});
   }
 
   &.#{$prefix} > .quadruple {
-    flex: 1 0 calc(#{$percent * 4} - #{$margin * 2}); 
+    flex: 1 0 calc(#{$percent * 4} - #{$margin * 2});
   }
 
   &.#{$prefix} > .quintuple {
-    flex: 1 0 calc(#{$percent * 5} - #{$margin * 2}); 
+    flex: 1 0 calc(#{$percent * 5} - #{$margin * 2});
   }
 
   &.#{$prefix} > .hextuple {
-    flex: 1 0 calc(#{$percent * 6} - #{$margin * 2}); 
+    flex: 1 0 calc(#{$percent * 6} - #{$margin * 2});
   }
 }
 
@@ -1173,21 +1247,21 @@ input.core-power-toggle:not(:checked)::before
   @include wr-item("quadruple", 25%, 3px);
   @include wr-item("quintuple", 20%, 3px);
   @include wr-item("hextuple", 16.66%, 3px);
-    
+
   /* 3/3. However, we generalize */
   &.double > .full,
   &.triple > .full,
   &.quadruple > .full,
   &.quintuple > .full,
-  &.hextuple > .full { 
-    flex: 1 0 calc(100% - 6px); 
+  &.hextuple > .full {
+    flex: 1 0 calc(100% - 6px);
     margin: 3px;
     flex-grow: unset;
   }
 }
 
 .grow {
-  flex-grow: 1; 
+  flex-grow: 1;
 }
 
 .no-grow {
@@ -1200,26 +1274,25 @@ input.core-power-toggle:not(:checked)::before
 
 /* Glow effect courtesy of https://codepen.io/jackrugile/pen/ABeIi */
 .highlight-can-drop {
-	animation: glow 800ms ease-out infinite alternate;
-	background: #222922;
-	background: linear-gradient(#333933, #222922);
-	border-color: #393;
-	box-shadow: 0 0 5px rgba(0,255,0,.2), inset 0 0 5px rgba(0,255,0,.1), 0 2px 0 #000;
-	color: #efe;
-	outline: none;
+  animation: glow 800ms ease-out infinite alternate;
+  background: #222922;
+  background: linear-gradient(#333933, #222922);
+  border-color: #393;
+  box-shadow: 0 0 5px rgba(0, 255, 0, 0.2), inset 0 0 5px rgba(0, 255, 0, 0.1), 0 2px 0 #000;
+  color: #efe;
+  outline: none;
 }
 
 @keyframes glow {
-    0% {
-		border-color: #393;
-		box-shadow: 0 0 5px rgba(0,255,0,.2), inset 0 0 5px rgba(0,255,0,.1), 0 2px 0 #000;
-    }	
-    100% {
-		border-color: #6f6;
-		box-shadow: 0 0 20px rgba(0,255,0,.6), inset 0 0 10px rgba(0,255,0,.4), 0 2px 0 #000;
-    }
+  0% {
+    border-color: #393;
+    box-shadow: 0 0 5px rgba(0, 255, 0, 0.2), inset 0 0 5px rgba(0, 255, 0, 0.1), 0 2px 0 #000;
+  }
+  100% {
+    border-color: #6f6;
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.6), inset 0 0 10px rgba(0, 255, 0, 0.4), 0 2px 0 #000;
+  }
 }
-
 
 .lancer-mech-trait-header,
 .lancer-core-sys-header,
@@ -1240,8 +1313,8 @@ input.core-power-toggle:not(:checked)::before
   display: grid;
   white-space: nowrap;
   text-align: center;
-  max-height: 2.0em;
-  min-height: 2.0em;
+  max-height: 2em;
+  min-height: 2em;
   grid-template-columns: 40px 1fr 40px;
   align-items: center;
   text-overflow: ellipsis;
@@ -1264,7 +1337,7 @@ input.core-power-toggle:not(:checked)::before
 
 .skill-compact {
   display: grid;
-  grid-template: 2.0em 1fr / 100px 1fr;
+  grid-template: 2em 1fr / 100px 1fr;
   align-items: center;
   margin-right: 25px;
 }
@@ -1287,11 +1360,11 @@ a.flexrow.skill-macro {
   font-weight: bold;
 }
 
-
 // Action activation types
 $activations-types: none passive quick quicktech invade full fulltech other reaction protocol free;
 // The rgb-based colors I just made up, not sure if there are official colors for those
-$activations-colors: rgb(204, 10, 10) rgb(98, 0, 255) #3949ab #3949ab #222222 #283593 #283593 rgb(162, 0, 255) #512da8 #007676 #00695c;
+$activations-colors: rgb(204, 10, 10) rgb(98, 0, 255) #3949ab #3949ab #222222 #283593 #283593 rgb(162, 0, 255) #512da8
+  #007676 #00695c;
 
 @each $a-type in $activations-types {
   $i: index($activations-types, $a-type);
@@ -1301,7 +1374,10 @@ $activations-colors: rgb(204, 10, 10) rgb(98, 0, 255) #3949ab #3949ab #222222 #2
   }
 }
 
-.action-detail, .deployable-detail, .core-active-detail, .core-passive-detail {
+.action-detail,
+.deployable-detail,
+.core-active-detail,
+.core-passive-detail {
   text-align: left;
   margin-left: 4px;
   margin-right: 4px;
@@ -1325,15 +1401,19 @@ $activations-colors: rgb(204, 10, 10) rgb(98, 0, 255) #3949ab #3949ab #222222 #2
   padding: 0 12px;
   position: relative;
   text-decoration: none;
-  transition-duration: .28s;
-  transition-property: box-shadow,opacity;
-  transition-timing-function: cubic-bezier(.4,0,.2,1);
+  transition-duration: 0.28s;
+  transition-property: box-shadow, opacity;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   vertical-align: middle;
   white-space: nowrap;
   margin-bottom: 5px;
 }
 
-.action-wrapper, .deployable-wrapper, .core-active-wrapper, .core-passive-wrapper, .core-wrapper {
+.action-wrapper,
+.deployable-wrapper,
+.core-active-wrapper,
+.core-passive-wrapper,
+.core-wrapper {
   display: flex;
   flex-direction: column;
   border-radius: 10px;
@@ -1350,13 +1430,19 @@ $activations-colors: rgb(204, 10, 10) rgb(98, 0, 255) #3949ab #3949ab #222222 #2
   margin-top: 6px;
 }*/
 
-.action-title, .deployable-title, .coresys-title, .core-active-title, .core-passive-title{
+.action-title,
+.deployable-title,
+.coresys-title,
+.core-active-title,
+.core-passive-title {
   font-size: 16px;
   margin-top: 3px;
   margin: auto;
 }
 
-a.activation-chip > i.fas, a.activation-chip > i.cci, a.activation-chip > i.mdi {
+a.activation-chip > i.fas,
+a.activation-chip > i.cci,
+a.activation-chip > i.mdi {
   margin-right: 6px;
 }
 
@@ -1365,7 +1451,8 @@ a.activation-chip > i.fas, a.activation-chip > i.cci, a.activation-chip > i.mdi 
   grid-template-columns: 1fr 1fr 1fr;
 }
 
-.stat-container, .stat-macro-container {
+.stat-container,
+.stat-macro-container {
   align-items: center;
 }
 
@@ -1373,7 +1460,7 @@ a.activation-chip > i.fas, a.activation-chip > i.cci, a.activation-chip > i.mdi 
   margin: auto;
 }
 
-.pilot-summary { 
+.pilot-summary {
   position: relative;
   text-align: center;
   cursor: pointer;
@@ -1399,10 +1486,10 @@ a.activation-chip > i.fas, a.activation-chip > i.cci, a.activation-chip > i.mdi 
 
 .pilot-summary-ll {
   position: absolute;
-  right: .5em;
+  right: 0.5em;
   top: 0px;
   font-size: 1.6em;
-  width:60%;
+  width: 60%;
   clip-path: polygon(0 0, 100% 0, 100% 100%, 32% 100%);
   background-color: var(--main-theme-color);
 }
@@ -1434,7 +1521,6 @@ a.activation-chip > i.fas, a.activation-chip > i.cci, a.activation-chip > i.mdi 
   height: 1.5em;
 }
 
-
 .coresys-title {
   width: 100%;
   text-align: center;
@@ -1442,8 +1528,8 @@ a.activation-chip > i.fas, a.activation-chip > i.cci, a.activation-chip > i.mdi 
 }
 
 .pilot-stat-area {
-  display: grid; 
-  grid-template: repeat(5,4.5em) / repeat(5,1fr)
+  display: grid;
+  grid-template: repeat(5, 4.5em) / repeat(5, 1fr);
 }
 
 .size-card {
@@ -1469,8 +1555,8 @@ a.activation-chip > i.fas, a.activation-chip > i.cci, a.activation-chip > i.mdi 
 }
 
 .pilot-summary-hase .stat-macro-container {
-  padding-left: .25em;
-  padding-right: .5em;
+  padding-left: 0.25em;
+  padding-right: 0.5em;
   grid-template-columns: 1fr 1fr;
 }
 
@@ -1480,30 +1566,30 @@ a.activation-chip > i.fas, a.activation-chip > i.cci, a.activation-chip > i.mdi 
 }
 
 .pilot-summary img {
-  border:unset;
+  border: unset;
 }
 
 .loading-wrapper {
   align-items: center;
-  margin-top: .75em;
+  margin-top: 0.75em;
   max-width: fit-content;
 }
 
 .uses-wrapper {
-  float:right;
+  float: right;
   max-width: 4em;
 }
 
 .weapon-mod-addon {
   background-color: var(--bonus-color);
-  margin: 0px 3px .5em 3px;
-  color:white;
+  margin: 0px 3px 0.5em 3px;
+  color: white;
   align-items: center;
   min-height: 2em;
 }
 
 .weapon-mod-addon > span {
-  margin-left: .5em;
+  margin-left: 0.5em;
 }
 
 .mech-weapon-wrapper {
@@ -1518,7 +1604,7 @@ a.activation-chip > i.fas, a.activation-chip > i.cci, a.activation-chip > i.mdi 
 
 .sheet-weapon-mod > .flexcol > * {
   flex-grow: unset;
-  margin-bottom: .25em;
+  margin-bottom: 0.25em;
 }
 
 .rank-wrapper {
@@ -1529,11 +1615,11 @@ a.activation-chip > i.fas, a.activation-chip > i.cci, a.activation-chip > i.mdi 
   border-style: solid;
   position: relative;
   top: -1px;
-  padding:2px;
+  padding: 2px;
 }
 
 .rank-wrapper span {
-  margin-right: .5em;
+  margin-right: 0.5em;
   font-size: 1.2em;
   flex-grow: unset;
 }
@@ -1551,7 +1637,7 @@ a.activation-chip > i.fas, a.activation-chip > i.cci, a.activation-chip > i.mdi 
 
 .uses-editor {
   background-color: var(--darken-1);
-  padding-bottom: .5em;
+  padding-bottom: 0.5em;
   margin-bottom: auto;
 }
 

@@ -38,7 +38,7 @@ import * as macros from "./module/macros";
 
 // Import node modules
 import compareVersions = require("compare-versions");
-import { NpcFeatureType, EntryType, Manufacturer, Bonus, WeaponSize, Action } from 'machine-mind';
+import { NpcFeatureType, EntryType, Manufacturer, Bonus, WeaponSize, Action } from "machine-mind";
 import {
   resolve_dotpath,
   resolve_helper_dotpath,
@@ -93,7 +93,7 @@ import {
   mm_ref_list_append_slot,
   editable_mm_ref_list_item_native,
 } from "./module/helpers/refs";
-import { mech_loadout, pilot_slot, frame_refview } from './module/helpers/loadout';
+import { mech_loadout, pilot_slot, frame_refview } from "./module/helpers/loadout";
 import {
   item_edit_arrayed_actions,
   item_edit_arrayed_damage,
@@ -204,7 +204,7 @@ Hooks.once("init", async function () {
       EntryType.ENVIRONMENT,
       EntryType.FACTION,
       EntryType.ORGANIZATION,
-      EntryType.SITREP
+      EntryType.SITREP,
     ],
     makeDefault: true,
   });
@@ -426,7 +426,6 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("item-edit-sp", item_edit_sp);
   Handlebars.registerHelper("item-edit-uses", item_edit_uses);
 
-
   // ------------------------------------------------------------------------
   // Effects
   /*
@@ -533,7 +532,7 @@ Hooks.on("renderChatMessage", async (cm: ChatMessage, html: any, data: any) => {
 });
 
 Hooks.on("hotbarDrop", (_bar: any, data: any, slot: number) => {
-  macros.onHotbarDrop(_bar,data,slot);
+  macros.onHotbarDrop(_bar, data, slot);
 });
 
 // Make derived fields properly update their intended origin target
@@ -679,9 +678,9 @@ function addSettingsButtons(app: Application, html: HTMLElement) {
         </button>`);
 
   $(html).find("#settings-documentation").append(faqButton);
-    
+
   faqButton.click(async ev => {
-    let helpContent = await renderTemplate("systems/lancer/templates/window/lancerHelp.html",{});
+    let helpContent = await renderTemplate("systems/lancer/templates/window/lancerHelp.html", {});
 
     new Dialog(
       {
@@ -698,5 +697,5 @@ function addSettingsButtons(app: Application, html: HTMLElement) {
         width: 600,
       }
     ).render(true);
-  })
+  });
 }
