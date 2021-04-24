@@ -20,6 +20,7 @@ import {
   SerUtil,
   Talent,
   Action,
+  Counter,
 } from "machine-mind";
 import { TALENT_RANK } from "machine-mind/dist/classes/default_entries";
 import { defaults } from "machine-mind/dist/funcs";
@@ -430,6 +431,15 @@ async function control_structs(key: string, ctx: MMEntityContext<any>): Promise<
       return [true, new Bonus(funcs.defaults.BONUS())];
     case "action":
       return [true, new Action(funcs.defaults.ACTION())]
+    case "counter":
+      return [true, new Counter({
+        lid: "tempLID",
+        name: "New Counter",
+        min: 1,
+        max: 6,
+        default_value: 1,
+        val: 1
+      })]
     case "mount_type":
       return [true, MountType.Main];
     case "range":

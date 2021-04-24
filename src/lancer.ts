@@ -68,6 +68,8 @@ import {
   manufacturer_ref,
   uses_control,
   single_bonus_editor,
+  buildCounterHTML,
+  buildCounterArrayHTML,
 } from "./module/helpers/item";
 import {
   clicker_num_input,
@@ -359,6 +361,7 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("pilot-armor-slot", pilot_armor_slot);
   Handlebars.registerHelper("pilot-weapon-slot", pilot_weapon_refview);
   Handlebars.registerHelper("pilot-gear-slot", pilot_gear_refview);
+  Handlebars.registerHelper("counter-array", buildCounterArrayHTML);
 
   // ------------------------------------------------------------------------
   // Tags
