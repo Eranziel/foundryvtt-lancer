@@ -1,11 +1,29 @@
 import { HelperOptions } from "handlebars";
-import { Bonus, Damage, License, WeaponMod, WeaponSize, WeaponType } from "machine-mind";
-import { license_ref, manufacturer_ref, bonuses_display, damage_editor, range_editor } from './item';
-import { large_textbox_card, resolve_helper_dotpath, std_enum_select } from './commons';
+import { Bonus, Damage, License, WeaponMod, WeaponSize, WeaponType, Action, Deployable, Synergy } from 'machine-mind';
+import { license_ref, manufacturer_ref, bonuses_display, damage_editor, range_editor, buildActionHTML, buildDeployableHTML } from './item';
+import { large_textbox_card, resolve_helper_dotpath, std_enum_select, std_num_input } from './commons';
 
-export function item_edit_arrayed_actions(): string {
-    console.log("TODO: Add arrayed actions editor");
-    return `<span>TODO: Add arrayed actions editor</span>`
+export function item_edit_arrayed_actions(path: string, title: string, helper: HelperOptions): string {
+    let action_arr: Array<Action> = resolve_helper_dotpath(helper,path);
+    
+    let action_detail = "";
+
+    if(action_arr) {
+        for (let i = 0; i < action_arr.length; i++) {
+            action_detail = action_detail.concat(buildActionHTML(action_arr[i],{editable: true,path: path.concat(`.${i}`),full: true,num:i}));
+        }
+    }
+
+    return `
+    <div class="card clipped double edi">
+      <span class="lancer-header submajor ">
+        ${title}
+        <a class="gen-control fas fa-plus" data-action="append" data-path="${path}" data-action-value="(struct)action"></a>
+      </span>
+      <div class="editable-action-array">
+        ${action_detail}
+      </div>
+    </div>`
 }
 
 /**
@@ -64,6 +82,12 @@ export function item_edit_arrayed_range(path: string, title: string, helper: Hel
     </div>`
 }
 
+/**
+ * The standard bonus editor
+ * @param path      Path to the Bonus array
+ * @param helper    Standard helper object
+ * @returns         HTML for an editable bonus area
+ */
 export function item_edit_arrayed_bonuses(path: string, helper: HelperOptions): string {
     let arr: Bonus[] = resolve_helper_dotpath(helper,path);
     if(!arr) arr = []
@@ -74,13 +98,55 @@ export function item_edit_arrayed_counters(): string {
     console.log("TODO: Add arrayed counters editor");
     return `<span>TODO: Add arrayed counters editor</span>`
 }
-export function item_edit_arrayed_deployables(): string {
-    console.log("TODO: Add arrayed deployables editor");
-    return `<span>TODO: Add arrayed deployables editor</span>`
+
+
+/**
+ * The standard deployable editor
+ * @param path      Path to the Deployable array
+ * @param title     Title of our editor
+ * @param helper    Standard helper object
+ * @returns         HTML for an editable deployable area
+ */
+export function item_edit_arrayed_deployables(path: string, title: string, helper: HelperOptions): string {
+    let dep_arr: Array<Deployable> = resolve_helper_dotpath(helper,path);
+    
+    
+    let depHTML = dep_arr.map((d: Deployable, i: number | undefined) => {
+        return buildDeployableHTML(d, true, i);
+      }).join("");
+
+    return `
+    <div class="core-active-wrapper">
+      <span class="lancer-header submajor clipped-top">
+        ${title}
+      </span>
+      ${depHTML}
+    </div>`
 }
-export function item_edit_arrayed_synergies(): string {
-    console.log("TODO: Add arrayed synergies editor");
-    return `<span>TODO: Add arrayed synergies editor</span>`
+
+
+/**
+ * The standard synergy editor
+ * @param path      Path to the Synergy array
+ * @param title     Title of our editor
+ * @param helper    Standard helper object
+ * @returns         HTML for an editable synergy area
+ */
+export function item_edit_arrayed_synergies(path: string, title: string, helper: HelperOptions): string {
+    let syn_arr: Array<Synergy> = resolve_helper_dotpath(helper,path);
+    
+    
+    let synHTML = syn_arr.map((d: Synergy, i: number | undefined) => {
+        return ``;
+      }).join("");
+
+    return `
+    <div class="core-active-wrapper">
+      <span class="lancer-header submajor clipped-top">
+        ${title}
+      </span>
+      ${synHTML}
+    </div>`
 }
 
 /**
@@ -147,10 +213,29 @@ export function item_edit_effect(path: string, helper: HelperOptions): string {
     return large_textbox_card("EFFECT",path,helper);
 }
 
+/**
+ * The standard integrated item editor
+ * @param path      Path to the Integrated array
+ * @param title     Title of our editor
+ * @param helper    Standard helper object
+ * @returns         HTML for an editable integrated area
+ */
+export function item_edit_arrayed_integrated(path: string, title: string, helper: HelperOptions): string {
+    let int_arr: Array<string> = resolve_helper_dotpath(helper,path);
+    
+    
+    let intHTML = int_arr.map((s: string, i: number | undefined) => {
+        return `INTEGRATED ITEM: ${s}`;
+      }).join("");
 
-export function item_edit_arrayed_integrated(): string {
-    console.log("TODO: Add integrated editor");
-    return `<span>TODO: Add integrated editor</span>`
+    return `
+    <div class="card clipped item-edit-arrayed">
+      <span class="lancer-header submajor ">
+        INTEGRATED ITEMS
+        <a class="gen-control fas fa-plus" data-action="append" data-path="${path}" data-action-value="(struct)string"></a>
+      </span>
+        ${intHTML}
+    </div>`
 }
 
 /**
@@ -180,13 +265,26 @@ export function item_edit_license(helper: HelperOptions): string {
         </div>
     </div>`
 }
-export function item_edit_sp(): string {
-    console.log("TODO: Add SP editor");
-    return `<span>TODO: Add SP editor</span>`
+
+
+/**
+ * A standard SP editor
+ * @param path      Path where we store our SP cost
+ * @param helper    Standard helper
+ * @returns         HTML for our SP editor
+ */
+export function item_edit_sp(path: string, helper: HelperOptions): string {
+    console.log("TODO: Using temporary SP editor")
+    helper.hash["label"] = "SP:";
+    return std_num_input(path, helper);
 }
-export function item_edit_uses(helper: HelperOptions): string {
-    let cur_uses_path = "mm.ent.Uses"
-    let max_uses_path = "data.max_uses"
+
+/**
+ * Standard uses editor, for Uses at the root of the given entity
+ * @param helper    Standard helper from the template for a gievn entity
+ * @returns         HTML to edit Uses and Max Uses
+ */
+export function item_edit_uses(cur_uses_path: string, max_uses_path: string, helper: HelperOptions): string {
     let cur_uses = resolve_helper_dotpath(helper,cur_uses_path);
     let max_uses = resolve_helper_dotpath(helper,max_uses_path);
 
@@ -196,7 +294,7 @@ export function item_edit_uses(helper: HelperOptions): string {
         <div class="flexrow flex-center no-wrap">
             <input class="lancer-stat lancer-stat" type="number" name="${cur_uses_path}" value="${cur_uses}" data-dtype="Number" style="justify-content: left"/>
             <span>/</span>
-            <input class="lancer-stat lancer-stat" type="number" name="${max_uses_path}" value="${max_uses}" data-dtype="Number" style="justify-content: left"/>
+            <span class="lancer-stat" style="justify-content: left">${max_uses}</span>
         </div>
     </div>`;
 }

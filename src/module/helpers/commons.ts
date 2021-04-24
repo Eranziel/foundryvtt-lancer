@@ -19,6 +19,8 @@ import {
   Bonus,
   SerUtil,
   Talent,
+  Action,
+  Counter,
 } from "machine-mind";
 import { TALENT_RANK } from "machine-mind/dist/classes/default_entries";
 import { defaults } from "machine-mind/dist/funcs";
@@ -418,6 +420,8 @@ async function control_structs(key: string, ctx: MMEntityContext<any>): Promise<
   switch (key) {
     case "empty_array":
       return [true, []];
+    case "string":
+      return [true, ""];
     case "npc_stat_array":
       return [true, [0, 0, 0]];
     case "frame_trait":
@@ -425,6 +429,17 @@ async function control_structs(key: string, ctx: MMEntityContext<any>): Promise<
       return [true, await trait.ready()];
     case "bonus":
       return [true, new Bonus(funcs.defaults.BONUS())];
+    case "action":
+      return [true, new Action(funcs.defaults.ACTION())]
+    case "counter":
+      return [true, new Counter({
+        lid: "tempLID",
+        name: "New Counter",
+        min: 1,
+        max: 6,
+        default_value: 1,
+        val: 1
+      })]
     case "mount_type":
       return [true, MountType.Main];
     case "range":
@@ -453,23 +468,11 @@ async function control_structs(key: string, ctx: MMEntityContext<any>): Promise<
       let profile = new MechWeaponProfile(ctx.reg, ctx.ctx, funcs.defaults.WEAPON_PROFILE());
       return [true, await profile.ready()];
     case "talent_rank":
-      //TODO: We should have a type and constructor for this
-      let new_rank = {
-        Actions: [],
-        Bonuses: [],
-        Counters: [],
-        Deployables: [],
-        Description: "",
-        Exclusive: false,
-        Integrated: [],
-        Name: "",
-        Synergies: []
-      }
-      return [true, new_rank];
-      case "WeaponSize":
-        return [true,WeaponSize.Aux];
-      case "WeaponType":
-        return [true,WeaponType.CQB];
+      return [true, funcs.defaults.TALENT_RANK()];
+    case "WeaponSize":
+      return [true,WeaponSize.Aux];
+    case "WeaponType":
+      return [true,WeaponType.CQB];
   }
 
   // Didn't find a match

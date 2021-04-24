@@ -12,15 +12,27 @@
   <div class="flexcol">
     {{!-- Weapon Stats --}}
     <div class="flexrow">
-      {{#each mm.ent.Range as |range range_index| }}
-        {{{wpn-range-sel (concat "mm.ent.Range." range_index) }}}
-      {{/each}}
-      {{#each mm.ent.Damage as |damage damage_index| }}
-        {{{wpn-damage-sel (concat "mm.ent.Damage." damage_index) }}}
-      {{/each}}
+      {{{item-edit-arrayed-range        "mm.ent.Range"     "RANGE"}}}
+      {{{item-edit-arrayed-damage       "mm.ent.Damage"    "DAMAGE"}}}
+    </div>
+    <div class="flexrow">
+      {{#if mm.ent.IsLoading}}
+        {{{ std-checkbox "mm.ent.Loaded" label="LOADED:" }}}
+      {{/if}}
+      {{#if mm.ent.IsLimited}}
+        {{{item-edit-uses "mm.ent.Uses" "data.derived.max_uses"}}}
+      {{/if}}
     </div>
 
     {{{textarea-card "DESCRIPTION" "mm.ent.Description"}}}
+    {{{textarea-card "EFFECT" "mm.ent.Effect"}}}
+
+    {{!-- Bonuses --}}
+    {{{item-edit-arrayed-actions      "mm.ent.Actions"        "ACTIONS"}}}
+    {{{item-edit-arrayed-bonuses      "mm.ent.Bonuses"}}}
+    {{{counter-array mm.ent.Counters "mm.ent.Counters" "mm.ent.Counters" true}}}
+    {{{item-edit-arrayed-deployables  "mm.ent.Deployables"                "DEPLOYABLES"}}}
+    {{{item-edit-arrayed-synergies    "mm.ent.Synergies"                  "SYNERGIES"}}}
 
     {{!-- Tags --}}
     <div class="card full">
@@ -28,8 +40,6 @@
       {{{mm-tag-list "mm.ent.Tags" mm.ent.Tags editable}}}
     </div>
 
-    {{!-- Bonuses --}}
-    {{{bonuses-view "mm.ent.Bonuses" mm.ent.Bonuses editable}}}
   </div>
 
 </form>

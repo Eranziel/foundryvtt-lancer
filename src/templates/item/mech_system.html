@@ -3,10 +3,6 @@
   <header class="sheet-header card clipped-bot">
     <div class="flexcol grow">
       <h1 class="charname"><input class="header-field" name="name" type="text" value="{{item.name}}" placeholder="Name"/></h1>
-      <div class="flexrow">
-        {{{ ref-manufacturer "mm.ent.Source" }}}
-        {{{ ref-license license mm.ent.LicenseLevel }}}
-      </div>
     </div>
     {{{ ref-portrait-img item.img "img" mm.ent }}}
   </header>
@@ -14,23 +10,27 @@
   <div class="card">
     <div class="lancer-header stretch">
       <!-- Put all the system metadata up here -->
-      <div class="flexrow flex-center">
-        <span>SP</span>
-        <input class="lancer-stat lancer-invisible-input" type="number" name="mm.ent.SP" value="{{mm.ent.SP}}" data-dtype="Number" style="justify-content: left"/>
-      </div>
-
-      <div>
-        {{{uses-ctrl "mm.ent.Uses" data.derived.max_uses }}}
-      </div>
-
+      {{{item-edit-sp                   "mm.ent.SP"}}}
+      {{{item-edit-uses                 "mm.ent.Uses" "data.derived.max_uses"}}}
       <div>
         {{{sys-type-sel "mm.ent.SysType"}}}
       </div>
+      {{{item-edit-license}}}
     </div>
 
 
     {{{textarea-card "DESCRIPTION" "mm.ent.Description"}}}
     {{{textarea-card "EFFECT" "mm.ent.Effect"}}}
+
+    {{!-- Bonuses --}}
+    {{{item-edit-arrayed-actions      "mm.ent.Actions"        "ACTIONS"}}}
+    {{{item-edit-arrayed-bonuses      "mm.ent.Bonuses"}}}
+    {{{counter-array mm.ent.Counters "mm.ent.Counters" "mm.ent.Counters" true}}}
+    {{{item-edit-arrayed-deployables  "mm.ent.Deployables"                "DEPLOYABLES"}}}
+    {{{item-edit-arrayed-synergies    "mm.ent.Synergies"                  "SYNERGIES"}}}
+    {{{item-edit-arrayed-integrated   "mm.ent.Integrated"                 "INTEGRATED ITEMS"}}}
+    <div class="flexrow">
+    </div>
 
     {{!-- Tags --}}
     <div class="card">
@@ -38,7 +38,5 @@
       {{{mm-tag-list "mm.ent.Tags" mm.ent.Tags editable}}}
     </div>
 
-    {{!-- Bonuses --}}
-    {{{bonuses-view "mm.ent.Bonuses" mm.ent.Bonuses editable}}}
   </div>
 </form>

@@ -1,3 +1,18 @@
+{{!--
+  "id": string,
+  "name": string,
+  "source": string, // must be the same as the Manufacturer ID to sort correctly
+  "effect": string, // v-html
+  "description": string, // v-html
+  "mounted_effect"?: string
+  "actions"?: IActionData[],
+  "bonuses"?: IBonusData[]
+  "synergies"?: ISynergyData[]
+  "deployables"?: IDeployableData[],
+  "counters"?: ICounterData[],
+  "integrated"?: string[]
+  "special_equipment"?: string[]
+  --}}
 <form class="{{cssClass}} lancer-sheet" autocomplete="off">
 
   {{!-- Sheet Header --}}
@@ -14,6 +29,12 @@
     {{{textarea-card "DESCRIPTION" "mm.ent.Description"}}}
     {{{textarea-card "EFFECT" "mm.ent.Effect"}}}
     {{{textarea-card "MOUNTED EFFECT" "mm.ent.MountedEffect"}}}
+    {{{item-edit-arrayed-actions      "mm.ent.Actions"        "ACTIONS"}}}
+    {{{item-edit-arrayed-bonuses      "mm.ent.Bonuses"}}}
+    {{{item-edit-arrayed-synergies    "mm.ent.Synergies"                  "SYNERGIES"}}}
+    {{{item-edit-arrayed-deployables  "mm.ent.Deployables"                "DEPLOYABLES"}}}
+    {{{counter-array mm.ent.Counters "mm.ent.Counters" "mm.ent.Counters" true}}}
+    {{{item-edit-arrayed-integrated   "mm.ent.Integrated"                 "INTEGRATED ITEMS"}}}
 
     {{!-- Bonuses --}}
     {{{bonuses-view "mm.ent.Bonuses" mm.ent.Bonuses editable}}}

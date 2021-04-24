@@ -15,11 +15,12 @@ import {
   HANDLER_add_ref_to_list_on_drop,
   HANDLER_openRefOnClick,
 } from "../helpers/refs";
-import { EntryType } from "machine-mind";
+import { EntryType, Skill, SkillFamily } from "machine-mind";
 import { get_pack } from "../mm-util/db_abstractions";
 import { HANDLER_activate_edit_bonus } from "../helpers/item";
 import { HANDLER_activate_tag_context_menus, HANDLER_activate_tag_dropping } from "../helpers/tags";
 import { CollapseHandler } from "../helpers/collapse";
+import { activate_action_editor } from "../apps/action-editor";
 
 const lp = LANCER.log_prefix;
 
@@ -138,6 +139,9 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
 
     // Enable tag dropping
     HANDLER_activate_tag_dropping(html, getfunc, commitfunc);
+
+    // Enable action editors
+    activate_action_editor(html, getfunc, commitfunc);
   }
 
   /* -------------------------------------------- */

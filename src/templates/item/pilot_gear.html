@@ -12,10 +12,16 @@
   <div class="flexcol">
     {{!-- Uses --}}
     <div>
-        {{{uses-ctrl "mm.ent.Uses" mm.ent.MaxUses}}}
+        {{{item-edit-uses "mm.ent.Uses" "mm.ent.MaxUses"}}}
     </div>
 
     {{{textarea-card "DESCRIPTION" "mm.ent.Description"}}}
+
+    {{!-- Bonuses --}}
+    {{{item-edit-arrayed-actions      "mm.ent.Actions"        "ACTIONS"}}}
+    {{{item-edit-arrayed-bonuses      "mm.ent.Bonuses"}}}
+    {{{item-edit-arrayed-deployables  "mm.ent.Deployables"                "DEPLOYABLES"}}}
+    {{{item-edit-arrayed-synergies    "mm.ent.Synergies"                  "SYNERGIES"}}}
 
     {{!-- Tags --}}
     <div class="card">
@@ -23,8 +29,6 @@
       {{{mm-tag-list "mm.ent.Tags" mm.ent.Tags editable}}}
     </div>
     
-    {{!-- Bonuses --}}
-    {{{bonuses-view "mm.ent.Bonuses" mm.ent.Bonuses editable}}}
   </div>
 
 </form>

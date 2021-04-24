@@ -19,6 +19,29 @@
 
   {{!-- Sheet Body --}}
   <section class="sheet-body">
-    {{{textarea-card "DESCRIPTION" "mm.ent.Description"}}}
+    <div class="flexrow">
+      <div class="flexcol">
+        <span>CONSUMABLE:</span>
+        <input type="checkbox" name="mm.ent.Consumable" {{checked mm.ent.Consumable}}>
+      </div>
+      <div class="flexcol">
+        <span>USED:</span>
+        <input type="checkbox" name="mm.ent.Used" {{checked mm.ent.Used}}>
+      </div>
+    </div>
+      {{{textarea-card "DESCRIPTION" "mm.ent.Description"}}}
+      {{{item-edit-arrayed-actions      "mm.ent.Actions"        "ACTIONS"}}}
+      {{{item-edit-arrayed-bonuses      "mm.ent.Bonuses"}}}
+      {{{counter-array mm.ent.Counters "mm.ent.Counters" "mm.ent.Counters" true}}}
+      {{{item-edit-arrayed-deployables  "mm.ent.Deployables"                "DEPLOYABLES"}}}
+      {{{item-edit-arrayed-integrated   "mm.ent.Integrated"                 "INTEGRATED ITEMS"}}}
+      {{{item-edit-arrayed-synergies    "mm.ent.Synergies"                  "SYNERGIES"}}}
+    <div class="flexrow">
+      {{{std-string-input             "mm.ent.ReserveType"    label="RESERVE TYPE"}}}
+      {{{std-string-input             "mm.ent.ResourceCost"   label="RESOURCE COST"}}}
+      {{{std-string-input             "mm.ent.ResourceLabel"  label="RESOURCE LABEL"}}}
+      {{{std-string-input             "mm.ent.ResourceName"   label="RESOURCE NAME"}}}
+      {{{std-string-input             "mm.ent.ResourceNote"   label="RESOURCE NOTE"}}}
+    </div>
   </section>
 </form>

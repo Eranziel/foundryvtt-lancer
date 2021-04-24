@@ -30,6 +30,7 @@ import {
   MechSystem,
   ActivationType,
   WeaponMod,
+  Counter,
 } from "machine-mind";
 import { MechWeapon, TagInstance } from "machine-mind";
 import { BonusEditDialog } from "../apps/bonus-editor";
@@ -725,13 +726,15 @@ export function license_ref(license: License | null, level: number): string {
  *        tags    Array of TagInstances which can optionally be passed
  * @returns Activation HTML in string form
  */
+// TODO: The options are out of control
 export function buildActionHTML(
   action: Action,
-  options?: { full?: boolean; num?: number; tags?: TagInstance[] }
+  options?: {editable?: boolean, path?: string, full?: boolean, num?: number, tags?:TagInstance[]}
 ): string {
   let detailText: string | undefined;
   let chip: string | undefined;
   let tags: string | undefined;
+  let editor: string | undefined;
 
   // TODO--can probably do better than this
   if (options) {
@@ -762,7 +765,17 @@ export function buildActionHTML(
       }
 
       chip = buildChipHTML(action.Activation, { icon: icon, num: options.num });
-    }
+
+      if(options.editable) {
+        if(!options.path) throw Error("You're trying to edit an action without a path");
+        // If it's editable, it's deletable
+        editor = `
+        <div class="action-editor-wrapper">
+          <a class="gen-control" data-action="splice" data-path="${options.path}"><i class="fas fa-trash"></i></a>
+          <a class="action-editor fas fa-edit" data-path="${options.path}"></a>
+        </div>`
+      }
+    } 
 
     if (options.tags !== undefined) {
       tags = compact_tag_list("", options.tags, false);
@@ -775,9 +788,12 @@ export function buildActionHTML(
 
   return `
   <div class="action-wrapper">
-    <span class="action-title">
-      ${action.Name ? action.Name : ""}
-    </span>
+    <div class="title-wrapper">
+      <span class="action-title">
+        ${action.Name ? action.Name : ""}
+      </span>
+      ${editor ? editor : ""}
+    </div>
     ${detailText ? detailText : ""}
     ${chip}
     ${tags ? tags : ""}
@@ -862,7 +878,7 @@ export function buildChipHTML(
   } else return `<div class="activation-chip activation-${activation.toLowerCase()}">${activation.toUpperCase()}</div>`;
 }
 
-export async function buildSystemHTML(data: MechSystem): Promise<string> {
+export function buildSystemHTML(data: MechSystem): string {
   let eff: string | undefined;
   let actions: string | undefined;
   let deployables: string | undefined;
@@ -895,4 +911,69 @@ export async function buildSystemHTML(data: MechSystem): Promise<string> {
   ${compact_tag_list("data.Tags", data.Tags, false)}
 </div>`;
   return html;
+}
+
+export function buildCounterHTML(data: Counter, path: string, fully_editable?: boolean, item_path?: string): string {
+  // if(fully_editable) debugger;
+  console.log("You've indicated you want to fully edit this counter, which we don't allow yet");
+  let editHTML: string;
+
+
+  if(fully_editable) {
+    editHTML = `
+    <input class="lancer-stat lancer-stat" type="number" name="${path.concat(".Value")}" value="${data.Value}" data-dtype="Number" style="justify-content: left"/>
+    <span>/</span>
+    <input class="lancer-stat lancer-stat" type="number" name="${path.concat(".Max")}" value="${data.Max}" data-dtype="Number" style="justify-content: left"/>`
+  } else {
+    editHTML = `
+    <input class="lancer-stat lancer-stat" type="number" name="${path.concat(".Value")}" value="${data.Value}" data-dtype="Number" data-commit-item="${item_path}" style="justify-content: left"/>
+    <span>/</span>
+    <span>${data.Max}</span>`
+  }
+
+  return `
+  <div class="card clipped-bot counter-wrapper">
+    <div class="lancer-header ">
+      <span>// ${data.Name} //</span>
+      <a class="gen-control" data-action="splice" data-path="${path}"><i class="fas fa-trash"></i></a>
+    </div>
+    <div class="flexrow flex-center no-wrap">
+      ${editHTML}
+    </div>
+  </div>`;
+}
+
+export function buildCounterArrayHTML(counters: Counter[] | {counter: Counter, source: any}[], path: string, custom_path?: string, fully_editable?: boolean): string {
+  let counter_detail = "";
+  let counter_arr: Counter[] | undefined;
+
+  function isCounters(array: Counter[] | {counter: Counter, source: any}[]): array is Counter[] {
+    return !('counter' in array[0])
+  }
+
+  // Is our path sourced or direct?
+  if(counters.length > 0) {
+    if(isCounters(counters)) {
+      for (let i = 0; i < counters.length; i++) {
+        counter_detail = counter_detail.concat(buildCounterHTML(counters[i],path.concat(`.${i}`),fully_editable));
+      }
+    } else {
+      counter_arr = counters.map((x) => {return x.counter})
+      for (let i = 0; i < counters.length; i++) {
+        counter_detail = counter_detail.concat(buildCounterHTML(counter_arr[i],path.concat(`.${i}.counter`),fully_editable,path.concat(`.${i}.source`)));
+      }
+    }
+  }
+
+
+
+  return `
+  <div class="card clipped double">
+    <span class="lancer-header submajor ">
+      COUNTERS
+      <a class="gen-control fas fa-plus" data-action="append" data-path="${custom_path ? custom_path : path}" data-action-value="(struct)counter"></a>
+    </span>
+    ${counter_detail}
+  </div>`
+
 }

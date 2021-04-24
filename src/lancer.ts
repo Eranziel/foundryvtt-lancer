@@ -68,6 +68,8 @@ import {
   manufacturer_ref,
   uses_control,
   single_bonus_editor,
+  buildCounterHTML,
+  buildCounterArrayHTML,
 } from "./module/helpers/item";
 import {
   clicker_num_input,
@@ -359,6 +361,7 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("pilot-armor-slot", pilot_armor_slot);
   Handlebars.registerHelper("pilot-weapon-slot", pilot_weapon_refview);
   Handlebars.registerHelper("pilot-gear-slot", pilot_gear_refview);
+  Handlebars.registerHelper("counter-array", buildCounterArrayHTML);
 
   // ------------------------------------------------------------------------
   // Tags
@@ -409,7 +412,6 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("item-edit-arrayed-actions", item_edit_arrayed_actions);
   Handlebars.registerHelper("item-edit-arrayed-damage", item_edit_arrayed_damage);
   Handlebars.registerHelper("item-edit-arrayed-range", item_edit_arrayed_range);
-  Handlebars.registerHelper("item-edit-arrayed-enum", item_edit_arrayed_enum);
   Handlebars.registerHelper("item-edit-arrayed-enum", item_edit_arrayed_enum);
   Handlebars.registerHelper("item-edit-arrayed-bonuses", item_edit_arrayed_bonuses);
   Handlebars.registerHelper("item-edit-arrayed-counters", item_edit_arrayed_counters);
