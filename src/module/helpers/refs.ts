@@ -36,7 +36,7 @@ import {
 } from "./dragdrop";
 import { buildActionHTML, buildDeployableHTML } from "./item";
 import { compact_tag_list } from "./tags";
-import { WeaponSize } from 'machine-mind';
+import { WeaponSize } from "machine-mind";
 
 // We use these for virtually every ref function
 export function ref_commons<T extends EntryType>(
@@ -101,10 +101,7 @@ export function simple_mm_ref<T extends EntryType>(
   slot_path: string = "",
   native: boolean = false
 ) {
-
-  console.log("You're still using a simple ref")
-
-  
+  console.log("You're still using a simple ref");
 
   // Flatten types
   if (!Array.isArray(types)) {
@@ -173,9 +170,7 @@ export async function HANDLER_openRefOnClick<T extends EntryType>(event: any) {
 }
 
 // Given a ref element (as created by simple_mm_ref or similar function), reconstruct a RegRef to the item it is referencing
-export function recreate_ref_from_element<T extends EntryType>(
-  element: HTMLElement
-): RegRef<T> | null {
+export function recreate_ref_from_element<T extends EntryType>(element: HTMLElement): RegRef<T> | null {
   let id = element.dataset.id;
   let type = element.dataset.type as T | undefined;
   let reg_name = element.dataset.regName;
@@ -237,9 +232,9 @@ export function mm_ref_portrait<T extends EntryType>(
   helper: HelperOptions
 ) {
   // Fetch the image
-  return `<img class="profile-img ref valid ${
-    item.Type
-  }" src="${img}" data-edit="${img_path}" ${ref_params(item.as_ref())} width="100" height="100" />`;
+  return `<img class="profile-img ref valid ${item.Type}" src="${img}" data-edit="${img_path}" ${ref_params(
+    item.as_ref()
+  )} width="100" height="100" />`;
 }
 
 // Use this slot callback to add items of certain kind(s) to a list.
@@ -288,7 +283,7 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
 
       if (sys.Actions.length) {
         actions = sys.Actions.map((a: Action, i: number | undefined) => {
-          return buildActionHTML(a, {full: true, num: i});
+          return buildActionHTML(a, { full: true, num: i });
         }).join("");
       }
 
@@ -301,10 +296,10 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
       let macroData: LancerMacroData = {
         iconPath: `systems/lancer/assets/icons/macro-icons/mech_system.svg`,
         title: sys.Name,
-        command: `game.lancer.prepareItemMacro("${sys.Flags.orig_doc.entity._id}", "${sys.Flags.orig_doc._id}")`
-      }
+        command: `game.lancer.prepareItemMacro("${sys.Flags.orig_doc.options.actor.id}", "${sys.Flags.orig_doc._id}")`,
+      };
 
-      if (is_limited(sys)) limited = limited_HTML(sys,item_path,helper);
+      if (is_limited(sys)) limited = limited_HTML(sys, item_path, helper);
 
       let str = `<li class="card clipped mech-system-compact item ${
         sys.SysType === SystemType.Tech ? "tech-item" : ""
@@ -380,9 +375,9 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
       </a>
       <div class="desc-text" style="grid-area: 2/2/3/3">${skill.Description}</div>
     </li>`;
-    
+
     case EntryType.CORE_BONUS:
-      let cb: CoreBonus = <CoreBonus><any>item;
+      let cb: CoreBonus = <CoreBonus>(<any>item);
       return `
       <li class="card clipped item ref valid" ${ref_params(cd.ref)}>
       <div class="lancer-corebonus-header medium clipped-top" style="grid-area: 1/1/2/3">
@@ -396,7 +391,7 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
     </li>`;
 
     case EntryType.LICENSE:
-      let license: License = <License><any>item;
+      let license: License = <License>(<any>item);
       return `
       <li class="card clipped item macroable ref valid" ${ref_params(cd.ref)}>
       <div class="lancer-license-header medium clipped-top" style="grid-area: 1/1/2/3">
@@ -407,7 +402,6 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
         </div>
       </div>
     </li>`;
-
 
     default:
       // Basically the same as the simple ref card, but with control assed
@@ -425,8 +419,12 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
   }
 }
 
-function limited_HTML(item: MechWeapon | MechSystem | PilotWeapon | PilotGear, path: string, helper: HelperOptions): string {
-  let val_path = path + ".Uses"
+function limited_HTML(
+  item: MechWeapon | MechSystem | PilotWeapon | PilotGear,
+  path: string,
+  helper: HelperOptions
+): string {
+  let val_path = path + ".Uses";
   let data_val = resolve_helper_dotpath(helper, val_path, 0);
 
   return `Uses: 
@@ -443,19 +441,12 @@ export function editable_mm_ref_list_item_native<T extends LancerItemType>(
   trash_action: "delete" | "splice" | "null",
   helper: HelperOptions
 ) {
-  return editable_mm_ref_list_item(item_path, trash_action, helper).replace(
-    "ref ref-card",
-    "ref ref-card native-drag"
-  );
+  return editable_mm_ref_list_item(item_path, trash_action, helper).replace("ref ref-card", "ref ref-card native-drag");
 }
 
 // Put this at the end of ref lists to have a place to drop things. Supports both native and non-native drops
 // Allowed types is a list of space-separated allowed types. "mech pilot mech_weapon", for instance
-export function mm_ref_list_append_slot(
-  item_array_path: string,
-  allowed_types: string,
-  helper: HelperOptions
-) {
+export function mm_ref_list_append_slot(item_array_path: string, allowed_types: string, helper: HelperOptions) {
   return `
     <div class="ref ref-card ref-list-append ${allowed_types}" 
             data-path="${item_array_path}" 
@@ -558,13 +549,12 @@ export function HANDLER_activate_ref_drop_clearing<T>(
   });
 }
 
-
 /**
  * Use this for previews of items. Will prevent change/submit events from propagating all the way up, and instead call writeback() on the
  * appropriate entity instead.
  * Control in same way as generic action handler: with the "data-commit-item" property pointing at the MM item
  */
- export function HANDLER_intercept_form_changes<T>(
+export function HANDLER_intercept_form_changes<T>(
   html: JQuery,
   // Retrieves the data that we will operate on
   data_getter: () => Promise<T> | T

@@ -63,6 +63,7 @@ import { compact_tag_list } from "./helpers/tags";
 import { buildActionHTML, buildDeployableHTML, buildSystemHTML } from "./helpers/item";
 import { System } from "pixi.js";
 import { ActivationOptions } from "./enums";
+import { applyCollapseListeners } from "./helpers/collapse";
 
 const lp = LANCER.log_prefix;
 
@@ -79,12 +80,11 @@ export async function onHotbarDrop(_bar: any, data: any, slot: number) {
   let img = "systems/lancer/assets/icons/macro-icons/d20-framed.svg";
 
   // Grab new encoded data ASAP
-  if(data.command && data.title) {
-    command = data.command,
-    img = data.iconPath ? data.iconPath : `systems/lancer/assets/icons/macro-icons/generic_item.svg`;
+  if (data.command && data.title) {
+    (command = data.command),
+      (img = data.iconPath ? data.iconPath : `systems/lancer/assets/icons/macro-icons/generic_item.svg`);
     title = data.title;
-    } else {
-
+  } else {
     let itemId = "error";
 
     console.log(`${lp} Data dropped on hotbar:`, data);
@@ -192,9 +192,7 @@ export async function onHotbarDrop(_bar: any, data: any, slot: number) {
     }
   }
 
-  let macro = game.macros.entities.find(
-    (m: Macro) => m.name === title && (m.data as any).command === command
-  );
+  let macro = game.macros.entities.find((m: Macro) => m.name === title && (m.data as any).command === command);
   if (!macro) {
     Macro.create(
       {
@@ -214,9 +212,7 @@ function ownedItemFromString(i: string, actor: Actor): LancerItem<any> | null {
   // Get the item
   const item = actor.getOwnedItem(i) as LancerItem<any> | null;
   if (!item) {
-    ui.notifications.error(
-      `Error preparing macro: could not find Item ${i} owned by Actor ${Actor.name}.`
-    );
+    ui.notifications.error(`Error preparing macro: could not find Item ${i} owned by Actor ${Actor.name}.`);
     return null;
   } else if (!item.isOwned) {
     ui.notifications.error(`Error preparing macro: ${item.name} is not owned by an Actor.`);
@@ -334,6 +330,8 @@ export async function prepareItemMacro(a: string, i: string, options?: any) {
       console.log("No macro exists for that item type");
       return ui.notifications.error(`Error - No macro exists for that item type`);
   }
+
+  applyCollapseListeners();
 }
 
 export function getMacroSpeaker(a_id?: string): LancerActor<any> | null {
@@ -405,11 +403,7 @@ function getMacroActorItem(a: string, i: string): { actor: Actor | null; item: I
   return result;
 }
 
-async function buildAttackRollString(
-  title: string,
-  acc: number,
-  bonus: number
-): Promise<string | null> {
+async function buildAttackRollString(title: string, acc: number, bonus: number): Promise<string | null> {
   let abort: boolean = false;
   await promptAccDiffModifier(acc, title).then(
     resolve => (acc = resolve),
@@ -482,7 +476,6 @@ async function rollSystemMacro(actor: Actor, data: MechSystem) {
   const html = await buildSystemHTML(data);
   return renderMacroHTML(actor, html);
 }
-
 
 async function rollTalentMacro(actor: Actor, data: LancerTalentMacroData) {
   if (!actor) return Promise.resolve();
@@ -740,19 +733,18 @@ export function prepareCoreActiveMacro(a: string) {
   if (!mech) return;
 
   var ent = mech.data.data.derived.mmec.ent;
-  if(!ent.Frame) return;
+  if (!ent.Frame) return;
 
-  if(!ent.CurrentCoreEnergy) {
+  if (!ent.CurrentCoreEnergy) {
     ui.notifications.warn(`No core power remaining on this frame!`);
-    return;    
+    return;
   }
 
   let mData: LancerTextMacroData = {
     title: ent.Frame.CoreSystem.ActiveName,
     description: ent.Frame.CoreSystem.ActiveEffect,
-    tags: ent.Frame.CoreSystem.Tags
+    tags: ent.Frame.CoreSystem.Tags,
   };
-
 
   // TODO--setting for this?
   new Dialog({
@@ -763,18 +755,16 @@ export function prepareCoreActiveMacro(a: string) {
         icon: '<i class="fas fa-check"></i>',
         label: "Yes",
         callback: async dlg => {
-          mech?.update({"data.current_core_energy": Math.max(ent.CurrentCoreEnergy - 1,0)})
-          console.log(
-            `Automatically consumed core power for ${ent.LID}`
-          );
+          mech?.update({ "data.current_core_energy": Math.max(ent.CurrentCoreEnergy - 1, 0) });
+          console.log(`Automatically consumed core power for ${ent.LID}`);
         },
       },
       cancel: {
         icon: '<i class="fas fa-times"></i>',
-        label: "No"
+        label: "No",
       },
     },
-    default: "submit"
+    default: "submit",
   }).render(true);
 
   rollTextMacro(mech, mData).then();
@@ -856,10 +846,7 @@ export async function prepareTechMacro(a: string, t: string) {
   if (!actor) return;
 
   // Get the item
-  const item:
-    | LancerItem<EntryType.NPC_FEATURE>
-    | LancerItem<EntryType.MECH_SYSTEM>
-    | null = actor.getOwnedItem(t) as
+  const item: LancerItem<EntryType.NPC_FEATURE> | LancerItem<EntryType.MECH_SYSTEM> | null = actor.getOwnedItem(t) as
     | LancerItem<EntryType.NPC_FEATURE>
     | LancerItem<EntryType.MECH_SYSTEM>
     | null;
@@ -868,9 +855,7 @@ export async function prepareTechMacro(a: string, t: string) {
       `Error preparing tech attack macro - could not find Item ${t} owned by Actor ${a}! Did you add the Item to the token, instead of the source Actor?`
     );
   } else if (!item.isOwned) {
-    return ui.notifications.error(
-      `Error rolling tech attack macro - ${item.name} is not owned by an Actor!`
-    );
+    return ui.notifications.error(`Error rolling tech attack macro - ${item.name} is not owned by an Actor!`);
   }
 
   let mData: LancerTechMacroData = {
@@ -895,8 +880,7 @@ export async function prepareTechMacro(a: string, t: string) {
     } else {
       tier = item.actor.data.data.tier_num - 1;
     }
-    mData.t_atk =
-      tData.attack_bonus && tData.attack_bonus.length > tier ? tData.attack_bonus[tier] : 0;
+    mData.t_atk = tData.attack_bonus && tData.attack_bonus.length > tier ? tData.attack_bonus[tier] : 0;
     mData.acc = tData.accuracy && tData.accuracy.length > tier ? tData.accuracy[tier] : 0;
     mData.tags = await SerUtil.process_tags(new FoundryReg(), new OpCtx(), tData.tags);
     mData.effect = tData.effect ? tData.effect : "";
@@ -937,10 +921,10 @@ export async function promptAccDiffModifier(acc?: number, title?: string) {
     acc = 0;
   }
 
-  let template = await renderTemplate(
-    `systems/lancer/templates/window/promptAccDiffModifier.html`,
-    { acc: acc, diff: diff }
-  );
+  let template = await renderTemplate(`systems/lancer/templates/window/promptAccDiffModifier.html`, {
+    acc: acc,
+    diff: diff,
+  });
   return new Promise<number>((resolve, reject) => {
     new Dialog({
       title: title ? `${title} - Accuracy and Difficulty` : "Accuracy and Difficulty",
@@ -1089,21 +1073,13 @@ export async function prepareStructureMacro(a: string) {
    */
 }
 
-export async function prepareActivationMacro(
-  a: string,
-  i: string,
-  type: ActivationOptions,
-  index: number
-) {
+export async function prepareActivationMacro(a: string, i: string, type: ActivationOptions, index: number) {
   // Determine which Actor to speak as
   let actor: Actor | null = getMacroSpeaker(a);
   if (!actor) return;
 
   // Get the item
-  const item:
-    | LancerItem<EntryType.NPC_FEATURE>
-    | LancerItem<EntryType.MECH_SYSTEM>
-    | null = actor.getOwnedItem(i) as
+  const item: LancerItem<EntryType.NPC_FEATURE> | LancerItem<EntryType.MECH_SYSTEM> | null = actor.getOwnedItem(i) as
     | LancerItem<EntryType.NPC_FEATURE>
     | LancerItem<EntryType.MECH_SYSTEM>
     | null;
@@ -1112,9 +1088,7 @@ export async function prepareActivationMacro(
       `Error preparing tech attack macro - could not find Item ${i} owned by Actor ${a}! Did you add the Item to the token, instead of the source Actor?`
     );
   } else if (!item.isOwned) {
-    return ui.notifications.error(
-      `Error rolling tech attack macro - ${item.name} is not owned by an Actor!`
-    );
+    return ui.notifications.error(`Error rolling tech attack macro - ${item.name} is not owned by an Actor!`);
   }
 
   let itemEnt: MechSystem | NpcFeature = (await item.data.data.derived.mmec_promise).ent;
@@ -1143,24 +1117,16 @@ export async function prepareActivationMacro(
   throw Error("You shouldn't be here!");
 }
 
-async function _prepareTextActionMacro(
-  actorEnt: Mech,
-  itemEnt: MechSystem | NpcFeature,
-  index: number
-) {
+async function _prepareTextActionMacro(actorEnt: Mech, itemEnt: MechSystem | NpcFeature, index: number) {
   // Support this later...
   if (itemEnt.Type !== EntryType.MECH_SYSTEM) return;
 
   let action = itemEnt.Actions[index];
 
-  await renderMacroHTML(actorEnt.Flags.orig_doc, buildActionHTML(action, {full: true, tags: itemEnt.Tags}));
+  await renderMacroHTML(actorEnt.Flags.orig_doc, buildActionHTML(action, { full: true, tags: itemEnt.Tags }));
 }
 
-async function _prepareTechActionMacro(
-  actorEnt: Mech,
-  itemEnt: MechSystem | NpcFeature,
-  index: number
-) {
+async function _prepareTechActionMacro(actorEnt: Mech, itemEnt: MechSystem | NpcFeature, index: number) {
   // Support this later...
   if (itemEnt.Type !== EntryType.MECH_SYSTEM) return;
 
@@ -1197,11 +1163,7 @@ async function _prepareTechActionMacro(
   await rollTechMacro(actorEnt.Flags.orig_doc, mData);
 }
 
-async function _prepareDeployableMacro(
-  actorEnt: Mech,
-  itemEnt: MechSystem | NpcFeature,
-  index: number
-) {
+async function _prepareDeployableMacro(actorEnt: Mech, itemEnt: MechSystem | NpcFeature, index: number) {
   // Support this later...
   if (itemEnt.Type !== EntryType.MECH_SYSTEM) return;
 
@@ -1213,12 +1175,11 @@ async function _prepareDeployableMacro(
 export function runEncodedMacro(el: JQuery<HTMLElement>) {
   let encoded = el.attr("data-macro");
 
-  if(!encoded) throw Error("No macro data available")
-  let data: LancerMacroData = JSON.parse(decodeURI(atob(encoded)))
+  if (!encoded) throw Error("No macro data available");
+  let data: LancerMacroData = JSON.parse(decodeURI(atob(encoded)));
 
   let command = data.command;
 
   // Some might say eval is bad, but it's no worse than what we can already do with macros
   eval(command);
 }
-

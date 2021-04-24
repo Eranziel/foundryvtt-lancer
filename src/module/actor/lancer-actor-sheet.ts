@@ -34,7 +34,7 @@ import {
 } from "../macros";
 import { EntryType } from "machine-mind";
 import { ActivationOptions } from "../enums";
-import { CollapseHandler } from "../helpers/collapse";
+import { applyCollapseListeners, CollapseHandler } from "../helpers/collapse";
 import { FoundryFlagData } from "../mm-util/foundry-reg";
 import { HANDLER_intercept_form_changes } from "../helpers/refs";
 const lp = LANCER.log_prefix;
@@ -164,22 +164,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
       }
     });
 
-    // Set listeners.
-    triggers.on("click", ev => {
-      ev.stopPropagation();
-
-      // On click, find matching collapse, and toggle collapsed class.
-      let id = ev.currentTarget.getAttribute("data-collapse-id");
-      let collapse = document.querySelector(`.collapse[data-collapse-id=${id}]`);
-      if (collapse?.classList.contains("collapsed")) {
-        collapse.classList.remove("collapsed");
-        sessionStorage.setItem(`${prefix}${id}`, "opened");
-      } else {
-        collapse?.classList.add("collapsed");
-        sessionStorage.setItem(`${prefix}${id}`, "closed");
-      }
-      console.log(collapse);
-    });
+    applyCollapseListeners();
   }
 
   _activateMacroListeners(html: JQuery) {
