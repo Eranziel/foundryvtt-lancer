@@ -4,8 +4,7 @@
     <div class="flexcol grow">
       <h1 class="charname"><input class="header-field" name="name" type="text" value="{{item.name}}" placeholder="Name"/></h1>
       <div class="flexrow">
-        {{{ ref-manufacturer "mm.ent.Source" }}}
-        {{{ ref-license license mm.ent.LicenseLevel }}}
+        {{{item-edit-license}}}
       </div>
     </div>
     {{{ ref-portrait-img item.img "img" mm.ent }}}

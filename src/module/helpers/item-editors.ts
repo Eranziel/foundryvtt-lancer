@@ -288,6 +288,9 @@ export function item_edit_uses(cur_uses_path: string, max_uses_path: string, hel
     let cur_uses = resolve_helper_dotpath(helper,cur_uses_path);
     let max_uses = resolve_helper_dotpath(helper,max_uses_path);
 
+    // If we don't have max uses, it's not already limited--so we should add the tag
+    if(!max_uses) return ``;
+
     return ` 
     <div class="flexcol uses-editor clipped-top">
         <span class="major">Uses</span>
