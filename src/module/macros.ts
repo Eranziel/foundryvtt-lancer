@@ -556,11 +556,11 @@ async function prepareAttackMacro({
 
     let wData = item.data.data;
     // This can be a string... but can also be a number...
-    mData.grit = Number(wData.attack_bonus[tier]);
-    mData.acc = wData.accuracy[tier];
+    mData.grit = Number(wData.attack_bonus[tier - 1]);
+    mData.acc = wData.accuracy[tier - 1];
     // Reduce damage values to only this tier
     // Convert to new Damage type if it's old
-    mData.damage = wData.damage[tier].map((d: Damage | PackedDamageData) => {
+    mData.damage = wData.damage[tier - 1].map((d: Damage | PackedDamageData) => {
       if ("type" in d && "val" in d) {
         // Then this is an old damage type which only contains these two values
         return new Damage({ type: d.type, val: d.val.toString() });
@@ -620,10 +620,12 @@ async function rollAttackMacro(actor: Actor, data: LancerAttackMacroData) {
   let atk_str = await buildAttackRollString(data.title, data.acc, data.grit);
   if (!atk_str) return;
 
+  // IS SMART?
+  const isSmart = data.tags.findIndex(tag => tag.Tag.LID === "tg_smart") > -1;
   // CHECK TARGETS
   const targets = getTargets();
   let hits: {
-    actor: LancerActor<LancerActorType>;
+    token: { name: string; img: string };
     total: string;
     hit: boolean;
   }[] = [];
@@ -632,12 +634,15 @@ async function rollAttackMacro(actor: Actor, data: LancerAttackMacroData) {
     for (const target of targets) {
       let attack_roll = new Roll(atk_str!).roll();
       const attack_tt = await attack_roll.getTooltip();
-
       attacks.push({ roll: attack_roll, tt: attack_tt });
+
       hits.push({
-        actor: target,
+        token: {
+          name: target.token ? target.token.data.name : target.data.name,
+          img: target.token ? target.token.data.img : target.data.img,
+        },
         total: String(attack_roll._total).padStart(2, "0"),
-        hit: checkForHit(false, attack_roll, target),
+        hit: checkForHit(isSmart, attack_roll, target),
       });
     }
   } else {
@@ -727,6 +732,7 @@ async function rollAttackMacro(actor: Actor, data: LancerAttackMacroData) {
     title: data.title,
     attacks: attacks,
     hits: hits,
+    defense: isSmart ? "E-DEF" : "EVASION",
     damages: damage_results,
     overkill_heat: overkill_heat,
     effect: data.effect ? data.effect : null,

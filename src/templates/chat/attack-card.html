@@ -22,14 +22,14 @@
   </div>
   {{#if hits}}
   <div class="card clipped">
-    <div class="lancer-header">// HITS //</div>
+    <div class="lancer-header">// HIT VS {{defense}} //</div>
     {{#each hits as |hit key|}}
     <div class="lancer-hit">
       <div>
-        <img class="lancer-hit-thumb" src="{{hit.actor.token.data.img}}" />
+        <img class="lancer-hit-thumb" src="{{hit.token.img}}" />
       </div>
       <div class="lancer-hit-text">
-        <span class="lancer-hit-text-name">{{hit.actor.token.data.name}}</span>
+        <span class="lancer-hit-text-name">{{hit.token.name}}</span>
         {{#if hit.hit}}
         <span class="card clipped lancer-hit-chip hit">{{hit.total}} - HIT</span>
         {{else}}
