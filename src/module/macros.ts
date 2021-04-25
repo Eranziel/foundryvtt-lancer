@@ -548,13 +548,12 @@ async function prepareAttackMacro({
   } else if (actor.data.type === EntryType.NPC) {
     let tier: number;
     if (item.actor === null) {
-      tier = actor.data.data.tier_num;
+      tier = actor.data.data.tier;
     } else {
-      tier = item.actor.data.data.tier_num;
+      tier = item.actor.data.data.tier;
     }
 
     let wData = item.data.data;
-
     // This can be a string... but can also be a number...
     mData.grit = Number(wData.attack_bonus[tier]);
     mData.acc = wData.accuracy[tier];
