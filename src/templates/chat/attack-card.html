@@ -5,20 +5,41 @@
   </div>
   <div class="card clipped">
     <div class="lancer-header">// ATTACK //</div>
+    {{#each attacks as |attack key|}}
     <div class="dice-roll lancer-dice-roll">
       <div class="dice-result">
         <div class="dice-formula lancer-dice-formula flexrow">
-          <span style="text-align: left; margin-left: 5px;">{{ attack.formula }}</span>
-          <span class="dice-total lancer-dice-total major">{{ attack.total }}</span>
+          <span style="text-align: left; margin-left: 5px;">{{ attack.roll.formula }}</span>
+          <span class="dice-total lancer-dice-total major">{{ attack.roll.total }}</span>
           <i class="cci cci-reticule i--m i--dark"> </i>
         </div>
         <div style="text-align: left;">
-          {{{ attack_tooltip }}}
+          {{{ attack.tt }}}
         </div>
       </div>
     </div>
+    {{/each}}
   </div>
-  {{#if damages}}
+  {{#if hits}}
+  <div class="card clipped">
+    <div class="lancer-header">// HITS //</div>
+    {{#each hits as |hit key|}}
+    <div class="lancer-hit">
+      <div>
+        <img class="lancer-hit-thumb" src="{{hit.actor.token.data.img}}" />
+      </div>
+      <div class="lancer-hit-text">
+        <span class="lancer-hit-text-name">{{hit.actor.token.data.name}}</span>
+        {{#if hit.hit}}
+        <span class="card clipped lancer-hit-chip hit">{{hit.total}} - HIT</span>
+        {{else}}
+        <span class="card clipped lancer-hit-chip miss">{{hit.total}} - MISS</span>
+        {{/if}}
+      </div>
+    </div>
+    {{/each}}
+  </div>
+  {{/if}} {{#if damages}}
   <div class="card clipped">
     <div class="lancer-header">// DAMAGE //</div>
     {{#each damages as |damage key|}}

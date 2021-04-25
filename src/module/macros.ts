@@ -9,7 +9,7 @@ import {
   LancerPilotWeaponData,
   LancerSkill,
 } from "./item/lancer-item";
-import { LancerActor, LancerPilot } from "./actor/lancer-actor";
+import { LancerActor, LancerActorType, LancerPilot } from "./actor/lancer-actor";
 import {
   LancerActionMacroData,
   LancerAttackMacroData,
@@ -64,6 +64,7 @@ import { buildActionHTML, buildDeployableHTML, buildSystemHTML } from "./helpers
 import { System } from "pixi.js";
 import { ActivationOptions } from "./enums";
 import { applyCollapseListeners } from "./helpers/collapse";
+import { checkForHit, getTargets } from "./helpers/automation/targeting";
 
 const lp = LANCER.log_prefix;
 
@@ -618,8 +619,32 @@ async function prepareAttackMacro({
 async function rollAttackMacro(actor: Actor, data: LancerAttackMacroData) {
   let atk_str = await buildAttackRollString(data.title, data.acc, data.grit);
   if (!atk_str) return;
-  let attack_roll = new Roll(atk_str).roll();
-  const attack_tt = await attack_roll.getTooltip();
+
+  // CHECK TARGETS
+  const targets = getTargets();
+  let hits: {
+    actor: LancerActor<LancerActorType>;
+    total: string;
+    hit: boolean;
+  }[] = [];
+  let attacks: { roll: Roll; tt: HTMLElement | JQuery<HTMLElement> }[] = [];
+  if (targets.length > 0) {
+    for (const target of targets) {
+      let attack_roll = new Roll(atk_str!).roll();
+      const attack_tt = await attack_roll.getTooltip();
+
+      attacks.push({ roll: attack_roll, tt: attack_tt });
+      hits.push({
+        actor: target,
+        total: String(attack_roll._total).padStart(2, "0"),
+        hit: checkForHit(false, attack_roll, target),
+      });
+    }
+  } else {
+    let attack_roll = new Roll(atk_str).roll();
+    const attack_tt = await attack_roll.getTooltip();
+    attacks.push({ roll: attack_roll, tt: attack_tt });
+  }
 
   // Iterate through damage types, rolling each
   let damage_results: Array<{
@@ -628,56 +653,58 @@ async function rollAttackMacro(actor: Actor, data: LancerAttackMacroData) {
     d_type: DamageType;
   }> = [];
   let overkill_heat: number = 0;
-  for (const x of data.damage) {
-    if (x.Value === "" || x.Value == 0) continue; // Skip undefined and zero damage
-    let d_formula: string = x.Value.toString();
-    // If the damage formula involves dice and is overkill, add "r1" to reroll all 1's.
-    if (d_formula.includes("d") && data.overkill) {
-      let d_ind = d_formula.indexOf("d");
-      let p_ind = d_formula.indexOf("+");
-      if (d_ind >= 0) {
-        let d_count = "1";
-        let d_expr: RegExp = /\d+(?=d)/;
-        if (d_ind != 0) {
-          let match = d_expr.exec(d_formula);
-          //console.log(`${lp} Formula ${d_expr} matched ${match} in ${d_formula}`);
-          if (match != null) {
-            d_count = match[0];
-          }
-        }
-        if (p_ind > d_ind) {
-          d_formula = d_formula.substring(0, p_ind) + "x1kh" + d_count + d_formula.substring(p_ind);
-        } else d_formula += "x1kh" + d_count;
-      }
-    }
-    let droll: Roll | null;
-    let tt: HTMLElement | JQuery | null;
-    try {
-      droll = new Roll(d_formula).roll();
-      tt = await droll.getTooltip();
-    } catch {
-      droll = null;
-      tt = null;
-    }
-    if (data.overkill && droll) {
-      // Count overkill heat
-      // @ts-ignore
-      droll.terms.forEach(p => {
-        if (p.results && Array.isArray(p.results)) {
-          p.results.forEach((r: any) => {
-            if (r.exploded) {
-              overkill_heat += 1;
+  if (hits.length === 0 || hits.find(hit => hit.hit)) {
+    for (const x of data.damage) {
+      if (x.Value === "" || x.Value == 0) continue; // Skip undefined and zero damage
+      let d_formula: string = x.Value.toString();
+      // If the damage formula involves dice and is overkill, add "r1" to reroll all 1's.
+      if (d_formula.includes("d") && data.overkill) {
+        let d_ind = d_formula.indexOf("d");
+        let p_ind = d_formula.indexOf("+");
+        if (d_ind >= 0) {
+          let d_count = "1";
+          let d_expr: RegExp = /\d+(?=d)/;
+          if (d_ind != 0) {
+            let match = d_expr.exec(d_formula);
+            //console.log(`${lp} Formula ${d_expr} matched ${match} in ${d_formula}`);
+            if (match != null) {
+              d_count = match[0];
             }
-          });
+          }
+          if (p_ind > d_ind) {
+            d_formula = d_formula.substring(0, p_ind) + "x1kh" + d_count + d_formula.substring(p_ind);
+          } else d_formula += "x1kh" + d_count;
         }
-      });
-    }
-    if (droll && tt) {
-      damage_results.push({
-        roll: droll,
-        tt: tt,
-        d_type: x.DamageType,
-      });
+      }
+      let droll: Roll | null;
+      let tt: HTMLElement | JQuery | null;
+      try {
+        droll = new Roll(d_formula).roll();
+        tt = await droll.getTooltip();
+      } catch {
+        droll = null;
+        tt = null;
+      }
+      if (data.overkill && droll) {
+        // Count overkill heat
+        // @ts-ignore
+        droll.terms.forEach(p => {
+          if (p.results && Array.isArray(p.results)) {
+            p.results.forEach((r: any) => {
+              if (r.exploded) {
+                overkill_heat += 1;
+              }
+            });
+          }
+        });
+      }
+      if (droll && tt) {
+        damage_results.push({
+          roll: droll,
+          tt: tt,
+          d_type: x.DamageType,
+        });
+      }
     }
   }
 
@@ -698,14 +725,16 @@ async function rollAttackMacro(actor: Actor, data: LancerAttackMacroData) {
   // Output
   const templateData = {
     title: data.title,
-    attack: attack_roll,
-    attack_tooltip: attack_tt,
+    attacks: attacks,
+    hits: hits,
     damages: damage_results,
     overkill_heat: overkill_heat,
     effect: data.effect ? data.effect : null,
     on_hit: data.on_hit ? data.on_hit : null,
     tags: data.tags,
   };
+
+  console.log(templateData);
   const template = `systems/lancer/templates/chat/attack-card.html`;
   return await renderMacroTemplate(actor, template, templateData);
 }

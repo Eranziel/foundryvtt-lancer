@@ -203,6 +203,41 @@ button {
   padding: 5px 10px;
 }
 
+.lancer-hit {
+  display: inline-flex;
+  margin: 8px;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card.lancer-hit-chip {
+  float: right;
+  width: 90px;
+  color: #e6e6e6;
+  background-color: #3c3c3c;
+}
+
+.card.lancer-hit-chip.hit {
+  color: #fff;
+  background-color: #1a4015;
+  width: 75px;
+}
+
+.lancer-hit-thumb {
+  width: 50px;
+  margin-right: 4px;
+  border-right: none;
+  border-left: none;
+}
+.lancer-hit-text {
+  display: inline-grid;
+  text-align: start;
+  width: 80%;
+}
+.lancer-hit-text-name {
+  font-size: 1.25em;
+}
+
 /* ---------- */
 
 .vsep {
@@ -1648,5 +1683,5 @@ a.activation-chip > i.mdi {
 
 .action-editor-wrapper {
   float: right;
-  margin-right: .5em;
+  margin-right: 0.5em;
 }
