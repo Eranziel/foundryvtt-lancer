@@ -63,6 +63,7 @@ import { LancerMacroData } from "../interfaces";
 import { encodeMacroData } from "../macros";
 import { is_loading } from "machine-mind/dist/classes/mech/EquipUtil";
 import { CollapseRegistry } from "./loadout";
+import { uuid4 } from "./collapse";
 
 /**
  * Handlebars helper for weapon size selector
@@ -636,7 +637,9 @@ export function mech_weapon_refview(
                   style="max-height: fit-content;">
       <div class="lancer-header">
         <i class="cci cci-weapon i--m i--light i--click"> </i>
-        <span class="minor collapse-trigger" data-collapse-id="${collapseID}">${
+        <span class="minor collapse-trigger" ${
+          mech_ ? `data-collapse-store="${mech_.RegistryID}"` : ""
+        }" data-collapse-id="${collapseID}">${
     weapon.Name
   } // ${weapon.Size.toUpperCase()} ${weapon.SelectedProfile.WepType.toUpperCase()}</span>
         <a class="gen-control i--light" data-action="null" data-path="${weapon_path}"><i class="fas fa-trash"></i></a>
@@ -729,22 +732,19 @@ export function license_ref(license: License | null, level: number): string {
 // TODO: The options are out of control
 export function buildActionHTML(
   action: Action,
-  options?: {editable?: boolean, path?: string, full?: boolean, num?: number, tags?:TagInstance[]}
+  options?: { editable?: boolean; path?: string; full?: boolean; num?: number; tags?: TagInstance[] }
 ): string {
   let detailText: string | undefined;
   let chip: string | undefined;
   let tags: string | undefined;
   let editor: string | undefined;
 
+  let collID = uuid4();
   // TODO--can probably do better than this
   if (options) {
-    if (options.full) {
-      detailText = `
-        <div class="action-detail">
-          ${action.Detail}
-        </div>
-      `;
-    }
+    detailText = `<div class="action-detail collapse ${options.full ? "" : "collapsed"}" data-collapse-id="${collID}">${
+      action.Detail
+    }</div>`;
 
     // Not using type yet but let's plan forward a bit
     let type: ActivationOptions;
@@ -766,16 +766,16 @@ export function buildActionHTML(
 
       chip = buildChipHTML(action.Activation, { icon: icon, num: options.num });
 
-      if(options.editable) {
-        if(!options.path) throw Error("You're trying to edit an action without a path");
+      if (options.editable) {
+        if (!options.path) throw Error("You're trying to edit an action without a path");
         // If it's editable, it's deletable
         editor = `
         <div class="action-editor-wrapper">
           <a class="gen-control" data-action="splice" data-path="${options.path}"><i class="fas fa-trash"></i></a>
           <a class="action-editor fas fa-edit" data-path="${options.path}"></a>
-        </div>`
+        </div>`;
       }
-    } 
+    }
 
     if (options.tags !== undefined) {
       tags = compact_tag_list("", options.tags, false);
@@ -789,7 +789,7 @@ export function buildActionHTML(
   return `
   <div class="action-wrapper">
     <div class="title-wrapper">
-      <span class="action-title">
+      <span class="action-title collapse-trigger" data-collapse-id="${collID}">
         ${action.Name ? action.Name : ""}
       </span>
       ${editor ? editor : ""}
@@ -814,19 +814,16 @@ export function buildDeployableHTML(dep: Deployable, full?: boolean, num?: numbe
   let chip: string;
   let activation: ActivationType | undefined;
 
+  let collID = uuid4();
+  detailText = `<div class="deployable-detail collapse ${full ? "" : "collapsed"}" data-collapse-id="${collID}">${
+    dep.Detail
+  }</div>`;
   // TODO--can probably do better than this
-  if (full) {
-    detailText = `
-      <div class="deployable-detail">
-        ${dep.Detail}
-      </div>
-    `;
-    /*
+  /*
     Until further notice, Actions in Deployables are just... not
     if(dep.Actions.length) {
       detailText += dep.Actions.map((a) => {return buildActionHTML(a)})
     } */
-  }
 
   // All places we could get our activation, in preferred order
   let activationSources = [
@@ -851,7 +848,7 @@ export function buildDeployableHTML(dep: Deployable, full?: boolean, num?: numbe
 
   return `
   <div class="deployable-wrapper">
-    <span class="deployable-title">
+    <span class="deployable-title collapse-trigger" data-collapse-id="${collID}">
       ${dep.Name ? dep.Name : ""}
     </span>
     ${detailText ? detailText : ""}
@@ -893,13 +890,14 @@ export function buildSystemHTML(data: MechSystem): string {
 
   if (data.Actions) {
     actions = data.Actions.map((a: Action, i: number) => {
-      return buildActionHTML(a, { full: !i && useFirstActivation });
+      // return buildActionHTML(a, { full: !i && useFirstActivation });
+      return buildActionHTML(a, { full: false });
     }).join("");
   }
 
   if (data.Deployables) {
     deployables = data.Deployables.map((d: Deployable, i: number) => {
-      return buildDeployableHTML(d);
+      return buildDeployableHTML(d, false);
     }).join("");
   }
 
@@ -918,17 +916,22 @@ export function buildCounterHTML(data: Counter, path: string, fully_editable?: b
   console.log("You've indicated you want to fully edit this counter, which we don't allow yet");
   let editHTML: string;
 
-
-  if(fully_editable) {
+  if (fully_editable) {
     editHTML = `
-    <input class="lancer-stat lancer-stat" type="number" name="${path.concat(".Value")}" value="${data.Value}" data-dtype="Number" style="justify-content: left"/>
+    <input class="lancer-stat lancer-stat" type="number" name="${path.concat(".Value")}" value="${
+      data.Value
+    }" data-dtype="Number" style="justify-content: left"/>
     <span>/</span>
-    <input class="lancer-stat lancer-stat" type="number" name="${path.concat(".Max")}" value="${data.Max}" data-dtype="Number" style="justify-content: left"/>`
+    <input class="lancer-stat lancer-stat" type="number" name="${path.concat(".Max")}" value="${
+      data.Max
+    }" data-dtype="Number" style="justify-content: left"/>`;
   } else {
     editHTML = `
-    <input class="lancer-stat lancer-stat" type="number" name="${path.concat(".Value")}" value="${data.Value}" data-dtype="Number" data-commit-item="${item_path}" style="justify-content: left"/>
+    <input class="lancer-stat lancer-stat" type="number" name="${path.concat(".Value")}" value="${
+      data.Value
+    }" data-dtype="Number" data-commit-item="${item_path}" style="justify-content: left"/>
     <span>/</span>
-    <span>${data.Max}</span>`
+    <span>${data.Max}</span>`;
   }
 
   return `
@@ -943,37 +946,45 @@ export function buildCounterHTML(data: Counter, path: string, fully_editable?: b
   </div>`;
 }
 
-export function buildCounterArrayHTML(counters: Counter[] | {counter: Counter, source: any}[], path: string, custom_path?: string, fully_editable?: boolean): string {
+export function buildCounterArrayHTML(
+  counters: Counter[] | { counter: Counter; source: any }[],
+  path: string,
+  custom_path?: string,
+  fully_editable?: boolean
+): string {
   let counter_detail = "";
   let counter_arr: Counter[] | undefined;
 
-  function isCounters(array: Counter[] | {counter: Counter, source: any}[]): array is Counter[] {
-    return !('counter' in array[0])
+  function isCounters(array: Counter[] | { counter: Counter; source: any }[]): array is Counter[] {
+    return !("counter" in array[0]);
   }
 
   // Is our path sourced or direct?
-  if(counters.length > 0) {
-    if(isCounters(counters)) {
+  if (counters.length > 0) {
+    if (isCounters(counters)) {
       for (let i = 0; i < counters.length; i++) {
-        counter_detail = counter_detail.concat(buildCounterHTML(counters[i],path.concat(`.${i}`),fully_editable));
+        counter_detail = counter_detail.concat(buildCounterHTML(counters[i], path.concat(`.${i}`), fully_editable));
       }
     } else {
-      counter_arr = counters.map((x) => {return x.counter})
+      counter_arr = counters.map(x => {
+        return x.counter;
+      });
       for (let i = 0; i < counters.length; i++) {
-        counter_detail = counter_detail.concat(buildCounterHTML(counter_arr[i],path.concat(`.${i}.counter`),fully_editable,path.concat(`.${i}.source`)));
+        counter_detail = counter_detail.concat(
+          buildCounterHTML(counter_arr[i], path.concat(`.${i}.counter`), fully_editable, path.concat(`.${i}.source`))
+        );
       }
     }
   }
-
-
 
   return `
   <div class="card clipped double">
     <span class="lancer-header submajor ">
       COUNTERS
-      <a class="gen-control fas fa-plus" data-action="append" data-path="${custom_path ? custom_path : path}" data-action-value="(struct)counter"></a>
+      <a class="gen-control fas fa-plus" data-action="append" data-path="${
+        custom_path ? custom_path : path
+      }" data-action-value="(struct)counter"></a>
     </span>
     ${counter_detail}
-  </div>`
-
+  </div>`;
 }

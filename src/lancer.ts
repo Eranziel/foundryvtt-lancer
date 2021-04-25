@@ -109,6 +109,7 @@ import {
   item_edit_uses,
   item_edit_arrayed_integrated,
 } from "./module/helpers/item-editors";
+import { applyCollapseListeners } from "./module/helpers/collapse";
 
 const lp = LANCER.log_prefix;
 
@@ -506,6 +507,7 @@ export const system_ready: Promise<void> = new Promise(success => {
     await versionCheck();
     await showChangelog();
 
+    applyCollapseListeners();
     success();
   });
 });
@@ -536,10 +538,7 @@ Hooks.on("renderChatMessage", async (cm: ChatMessage, html: any, data: any) => {
           roll: roll,
           roll_tooltip: await roll.getTooltip(),
         };
-        const html = await renderTemplate(
-          "systems/lancer/templates/chat/overkill-reroll.html",
-          templateData
-        );
+        const html = await renderTemplate("systems/lancer/templates/chat/overkill-reroll.html", templateData);
         let chat_data = {
           user: game.user,
           type: CONST.CHAT_MESSAGE_TYPES.ROLL,
