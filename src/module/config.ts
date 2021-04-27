@@ -159,6 +159,7 @@ export const LANCER = {
   setting_stock_icons: "keepStockIcons",
   setting_welcome: "hideWelcome",
   setting_automation: "automationSwitch",
+  setting_automation_attack: "attackSwitch",
   setting_pilot_oc_heat: "autoOCHeat",
   setting_overkill_heat: "autoOKillHeat",
   setting_auto_structure: "autoCalcStructure",

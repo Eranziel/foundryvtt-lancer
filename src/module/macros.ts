@@ -522,6 +522,7 @@ async function prepareAttackMacro({
     tags: [],
     overkill: item.isOverkill,
     effect: "",
+    loaded: true,
   };
 
   let weaponData: NpcFeature | PilotWeapon | MechWeaponProfile;
@@ -531,8 +532,10 @@ async function prepareAttackMacro({
   if (actor.data.type === EntryType.MECH) {
     pilotEnt = (await actor.data.data.derived.mmec_promise).ent.Pilot;
     let itemEnt: MechWeapon = (await item.data.data.derived.mmec_promise).ent;
+
     weaponData = itemEnt.SelectedProfile;
 
+    mData.loaded = itemEnt.Loaded;
     mData.damage = weaponData.BaseDamage;
     mData.grit = pilotEnt.Grit;
     mData.acc = 0;
@@ -543,6 +546,7 @@ async function prepareAttackMacro({
     let itemEnt: PilotWeapon = (await item.data.data.derived.mmec_promise).ent;
     weaponData = itemEnt;
 
+    mData.loaded = itemEnt.Loaded;
     mData.damage = weaponData.Damage;
     mData.grit = pilotEnt.Grit;
     mData.acc = 0;
@@ -557,6 +561,7 @@ async function prepareAttackMacro({
     }
 
     let wData = item.data.data;
+    mData.loaded = item.data.data.loaded;
     // This can be a string... but can also be a number...
     mData.grit = Number(wData.attack_bonus[tier - 1]);
     mData.acc = wData.accuracy[tier - 1];
@@ -614,12 +619,34 @@ async function prepareAttackMacro({
       }
     }
   }
+  // Check if weapon if loaded.
+  const loaded: boolean = mData.loaded;
+  if (game.settings.get(LANCER.sys_name, LANCER.setting_automation_attack) && !loaded) {
+    ui.notifications.warn(`Weapon ${item.data.data.name} is not loaded!`);
+    return;
+  }
 
-  await rollAttackMacro(actor, mData).then();
+  // Build attack string before deducting charge.
+  const atk_str = await buildAttackRollString(mData.title, mData.acc, mData.grit);
+  if (!atk_str) return;
+
+  // Deduct charge if LOADING weapon.
+  if (
+    game.settings.get(LANCER.sys_name, LANCER.setting_automation_attack) &&
+    mData.tags.find(tag => tag.Tag.LID === "tg_loading")
+  ) {
+    console.log(item);
+    console.log(actor);
+
+    let itemEnt: MechWeapon = (await item.data.data.derived.mmec_promise).ent;
+    itemEnt.Loaded = false;
+    itemEnt.writeback();
+  }
+
+  await rollAttackMacro(actor, atk_str, mData).then();
 }
 
-async function rollAttackMacro(actor: Actor, data: LancerAttackMacroData) {
-  let atk_str = await buildAttackRollString(data.title, data.acc, data.grit);
+async function rollAttackMacro(actor: Actor, atk_str: string | null, data: LancerAttackMacroData) {
   if (!atk_str) return;
 
   // IS SMART?
@@ -632,7 +659,7 @@ async function rollAttackMacro(actor: Actor, data: LancerAttackMacroData) {
     hit: boolean;
   }[] = [];
   let attacks: { roll: Roll; tt: HTMLElement | JQuery<HTMLElement> }[] = [];
-  if (targets.length > 0) {
+  if (game.settings.get(LANCER.sys_name, LANCER.setting_automation_attack) && targets.length > 0) {
     for (const target of targets) {
       let attack_roll = new Roll(atk_str!).roll();
       const attack_tt = await attack_roll.getTooltip();

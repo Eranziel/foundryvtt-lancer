@@ -91,6 +91,7 @@ declare interface LancerAttackMacroData {
   effect: EffectData | string;
   on_hit?: string; // For NPC weapons - to be removed once they use EffectData
   tags: TagDataShort[];
+  loaded: boolean;
 }
 
 declare interface LancerTechMacroData {
