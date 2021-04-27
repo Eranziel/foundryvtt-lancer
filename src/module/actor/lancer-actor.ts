@@ -113,17 +113,24 @@ export class LancerActor<T extends LancerActorType> extends Actor {
   _actor_ctx!: OpCtx;
 
   /**
-   * Performs overheat on the mech
+   * Performs overheat
    * For now, just rolls on table. Eventually we can include configuration to do automation
    */
-  // TODO: migrate to mech
-  /*
-  async overheatMech() {
-    // Assert that we aren't on a deployable somehow
-    if (this.isDep(this.data)) {
+  // TODO: Only let us overheat things that can actually overheat
+  async overheat() {
+    // Assert that we're on a mech or NPC
+    if (this.data.type === EntryType.MECH) {
+      this.overheatMech();
+    } else if (this.data.type === EntryType.NPC) {
+      ui.notifications.warn("Currently just doing normal mech overheats");      
+      this.overheatMech();
+    } else {
+      ui.notifications.warn("Can only overheat NPCs and Mechs");      
       return;
     }
+  }
 
+  async overheatMech() {
     // Table of descriptions
     function stressTableD(roll: number, remStress: number) {
       switch (roll) {
@@ -161,28 +168,28 @@ export class LancerActor<T extends LancerActorType> extends Actor {
       "Emergency Shunt",
     ];
 
-    const mech = this.data.data.mech;
+    let ent = await this.data.data.derived.mmec.ent as Mech | Npc;
     if (
       game.settings.get(LANCER.sys_name, LANCER.setting_automation) &&
       game.settings.get(LANCER.sys_name, LANCER.setting_auto_structure)
     ) {
-      if (mech.heat.value > mech.heat.max) {
+      if (ent.CurrentHeat > ent.HeatCapacity) {
         // https://discord.com/channels/426286410496999425/760966283545673730/789297842228297748
-        mech.heat.value -= (mech.heat.max);
-        mech.stress.value -= 1;
+        ent.CurrentHeat -= (ent.HeatCapacity);
+        ent.CurrentStress -= 1;
       }
     }
-    if (mech.stress.value === mech.stress.max) {
+    if (ent.CurrentStress === ent.MaxStress) {
       ui.notifications.info("The mech is at full Stress, no overheating check to roll.");
       return;
     }
-    await this.update(this.data);
-    let remStress = mech.stress.value;
+    await ent.writeback();
+    let remStress = ent.CurrentStress;
     let templateData = {};
 
     // If we're already at 0 just kill em
     if (remStress > 0) {
-      let damage = mech.stress.max - mech.stress.value;
+      let damage = ent.MaxStress - ent.CurrentStress;
 
       let roll = new Roll(`${damage}d6kl1`).roll();
       let result = roll.total;
@@ -204,8 +211,8 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         total = "Multiple Ones";
       }
       templateData = {
-        val: mech.stress.value,
-        max: mech.stress.max,
+        val: ent.CurrentStress,
+        max: ent.MaxStress,
         tt: tt,
         title: title,
         total: total,
@@ -217,29 +224,35 @@ export class LancerActor<T extends LancerActorType> extends Actor {
       let title = stressTableT[0];
       let text = stressTableD(0, 0);
       templateData = {
-        val: mech.stress.value,
-        max: mech.stress.max,
+        val: ent.CurrentStress,
+        max: ent.MaxStress,
         title: title,
         text: text,
       };
     }
     const template = `systems/lancer/templates/chat/overheat-card.html`;
     const actor: Actor = game.actors.get(ChatMessage.getSpeaker().actor);
-    return renderMacro(actor, template, templateData);
+    return renderMacroTemplate(actor, template, templateData);
   }
-   */
 
-  // TODO: migrate to mech
   /**
    * Performs structure on the mech
    * For now, just rolls on table. Eventually we can include configuration to do automation
    */
-  /*
-  async structureMech() {
-    // Assert that we aren't on a deployable somehow
-    if (this.isDep(this.data)) {
+   async structure() {
+    // Assert that we're on a mech or NPC
+    if (this.data.type === EntryType.MECH) {
+      this.structureMech();
+    } else if (this.data.type === EntryType.NPC) {
+      ui.notifications.warn("Currently just doing normal mech structures");      
+      this.structureMech();
+    } else {
+      ui.notifications.warn("Can only structure NPCs and Mechs");      
       return;
     }
+  }
+
+  async structureMech() {
 
     // Table of descriptions
     function structTableD(roll: number, remStruct: number) {
@@ -277,28 +290,29 @@ export class LancerActor<T extends LancerActorType> extends Actor {
       "System Trauma",
       "Glancing Blow",
       "Glancing Blow",
-    ];
-
-    const mech = this.data.data.mech;
+      ];
+    
+    let ent = await this.data.data.derived.mmec.ent as Mech | Npc;
     if (
       game.settings.get(LANCER.sys_name, LANCER.setting_automation) &&
       game.settings.get(LANCER.sys_name, LANCER.setting_auto_structure)
     ) {
-      if (mech.hp.value <= 0) {
-        mech.hp.value += mech.hp.max;
-        mech.structure.value -= 1;
+      if (ent.CurrentHP <= 0) {
+        ent.CurrentHP += ent.MaxHP;
+        ent.CurrentStructure -= 1;
       }
     }
-    if (mech.structure.value === mech.structure.max) {
+    if (ent.CurrentStructure === ent.MaxStructure) {
       ui.notifications.info("The mech is at full Structure, no structure check to roll.");
       return;
     }
-    await this.update(this.data);
-    let remStruct = mech.structure.value;
+
+    await ent.writeback();
+    let remStruct = ent.CurrentStructure;
     let templateData = {};
     // If we're already at 0 just kill em
     if (remStruct > 0) {
-      let damage = mech.structure.max - mech.structure.value;
+      let damage = ent.MaxStructure - ent.CurrentStructure;
 
       let roll = new Roll(`${damage}d6kl1`).roll();
       let result = roll.total;
@@ -320,8 +334,8 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         total = "Multiple Ones";
       }
       templateData = {
-        val: mech.structure.value,
-        max: mech.structure.max,
+        val: ent.CurrentStructure,
+        max: ent.MaxStructure,
         tt: tt,
         title: title,
         total: total,
@@ -333,17 +347,17 @@ export class LancerActor<T extends LancerActorType> extends Actor {
       let title = structTableT[0];
       let text = structTableD(0, 0);
       templateData = {
-        val: mech.structure.value,
-        max: mech.structure.max,
+        val: ent.CurrentStructure,
+        max: ent.MaxStructure,
         title: title,
         text: text,
       };
     }
     const template = `systems/lancer/templates/chat/structure-card.html`;
     const actor: Actor = game.actors.get(ChatMessage.getSpeaker().actor);
-    return renderMacro(actor, template, templateData);
+    return renderMacroTemplate(actor, template, templateData);
   }
-  */
+  
 
   /* -------------------------------------------- */
 

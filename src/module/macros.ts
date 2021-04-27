@@ -1025,25 +1025,15 @@ async function rollOverchargeMacro(actor: Actor, data: LancerOverchargeMacroData
  * @param a ID of actor to overheat
  */
 export async function prepareOverheatMacro(a: string) {
-  console.log("DISABLED");
-  debugger;
-  return;
-  /*
   // Determine which Actor to speak as
-  let actor: LancerActor | null = getMacroSpeaker(a);
+  let actor: LancerActor<any> | null = getMacroSpeaker(a);
   if (!actor) {
     ui.notifications.warn(`Failed to find Actor for macro. Do you need to select a token?`);
     return null;
   }
 
-  if (!("mech" in actor.data.data)) {
-    ui.notifications.error("Selected token is not a mech");
-    return;
-  }
-
   // Hand it off to the actor to overheat
-  await actor.overheatMech();
-   */
+  await actor.overheat();
 }
 
 /**
@@ -1051,25 +1041,16 @@ export async function prepareOverheatMacro(a: string) {
  * @param a ID of actor to structure
  */
 export async function prepareStructureMacro(a: string) {
-  console.log("DISABLED");
-  debugger;
-  return;
-  /*
   // Determine which Actor to speak as
-  let actor: LancerActor | null = getMacroSpeaker(a);
+  let actor: LancerActor<any> | null = getMacroSpeaker(a);
+
   if (!actor) {
     ui.notifications.warn(`Failed to find Actor for macro. Do you need to select a token?`);
     return null;
   }
 
-  if (!("mech" in actor.data.data)) {
-    ui.notifications.error("Selected token is not a mech");
-    return;
-  }
-
-  // Hand it off to the actor to overheat
-  await actor.structureMech();
-   */
+  // Hand it off to the actor to structure
+  await actor.structure();
 }
 
 export async function prepareActivationMacro(a: string, i: string, type: ActivationOptions, index: number) {
