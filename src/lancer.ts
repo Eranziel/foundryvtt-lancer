@@ -539,12 +539,14 @@ Hooks.on("renderChatMessage", async (cm: ChatMessage, html: any, data: any) => {
           roll_tooltip: await roll.getTooltip(),
         };
         const html = await renderTemplate("systems/lancer/templates/chat/overkill-reroll.html", templateData);
+        const rollMode = game.settings.get("core", "rollMode");
         let chat_data = {
           user: game.user,
           type: CONST.CHAT_MESSAGE_TYPES.ROLL,
           roll: templateData.roll,
           speaker: data.message.speaker,
           content: html,
+          whisper: rollMode !== "roll" ? ChatMessage.getWhisperRecipients("GM").filter(u => u.active) : undefined,
         };
         let cm = await ChatMessage.create(chat_data);
         cm.render();

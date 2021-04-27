@@ -203,6 +203,10 @@ button {
   padding: 5px 10px;
 }
 
+#chat-log .message.whisper {
+  border: 2px solid fuchsia;
+}
+
 .lancer-hit {
   display: inline-flex;
   margin: 8px;

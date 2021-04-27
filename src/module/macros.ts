@@ -370,7 +370,8 @@ export async function renderMacroTemplate(actor: Actor, template: string, templa
 }
 
 export async function renderMacroHTML(actor: Actor, html: HTMLElement | string, roll?: Roll) {
-  let chat_data = {
+  const rollMode = game.settings.get("core", "rollMode");
+  const chat_data = {
     user: game.user,
     type: roll ? CONST.CHAT_MESSAGE_TYPES.ROLL : CONST.CHAT_MESSAGE_TYPES.IC,
     roll: roll,
@@ -380,8 +381,9 @@ export async function renderMacroHTML(actor: Actor, html: HTMLElement | string, 
       alias: actor.token ? actor.token.name : null,
     },
     content: html,
+    whisper: rollMode !== "roll" ? ChatMessage.getWhisperRecipients("GM").filter(u => u.active) : undefined,
   };
-  let cm = await ChatMessage.create(chat_data);
+  const cm = await ChatMessage.create(chat_data);
   cm.render();
   return Promise.resolve();
 }
