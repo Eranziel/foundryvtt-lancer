@@ -911,7 +911,8 @@ export function buildSystemHTML(data: MechSystem): string {
   return html;
 }
 
-export function buildCounterHTML(data: Counter, path: string, fully_editable?: boolean, item_path?: string): string {
+// This has gotten very messy to account for the pilots, should refactor - TODO
+export function buildCounterHTML(data: Counter, path: string, fully_editable?: boolean, item_path?: string, cannot_delete?: boolean, array_path?: string): string {
   // if(fully_editable) debugger;
   console.log("You've indicated you want to fully edit this counter, which we don't allow yet");
   let editHTML: string;
@@ -938,7 +939,7 @@ export function buildCounterHTML(data: Counter, path: string, fully_editable?: b
   <div class="card clipped-bot counter-wrapper">
     <div class="lancer-header ">
       <span>// ${data.Name} //</span>
-      <a class="gen-control" data-action="splice" data-path="${path}"><i class="fas fa-trash"></i></a>
+      ${cannot_delete ? "" : `<a class="gen-control" data-action="splice" data-path="${array_path ? array_path : path}"><i class="fas fa-trash"></i></a>`}
     </div>
     <div class="flexrow flex-center no-wrap">
       ${editHTML}

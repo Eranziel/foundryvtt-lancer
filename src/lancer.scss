@@ -913,7 +913,7 @@ input[type="string"].lancer-input {
   cursor: pointer;
 }
 .collapse {
-  max-height: 2000px;
+  max-height: 10000em;
   overflow: hidden;
   transition: max-height 0.75s ease-in-out;
 }
