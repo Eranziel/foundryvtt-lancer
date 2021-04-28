@@ -523,6 +523,7 @@ async function prepareAttackMacro({
     overkill: item.isOverkill,
     effect: "",
     loaded: true,
+    destroyed: false,
   };
 
   let weaponData: NpcFeature | PilotWeapon | MechWeaponProfile;
@@ -536,6 +537,7 @@ async function prepareAttackMacro({
     weaponData = itemEnt.SelectedProfile;
 
     mData.loaded = itemEnt.Loaded;
+    mData.destroyed = itemEnt.Destroyed;
     mData.damage = weaponData.BaseDamage;
     mData.grit = pilotEnt.Grit;
     mData.acc = 0;
@@ -562,6 +564,7 @@ async function prepareAttackMacro({
 
     let wData = item.data.data;
     mData.loaded = item.data.data.loaded;
+    // mData.destroyed = item.data.data.destroyed; TODO: NPC weapons don't seem to have a destroyed field
     // This can be a string... but can also be a number...
     mData.grit = Number(wData.attack_bonus[tier - 1]);
     mData.acc = wData.accuracy[tier - 1];
@@ -620,10 +623,15 @@ async function prepareAttackMacro({
     }
   }
   // Check if weapon if loaded.
-  const loaded: boolean = mData.loaded;
-  if (game.settings.get(LANCER.sys_name, LANCER.setting_automation_attack) && !loaded) {
-    ui.notifications.warn(`Weapon ${item.data.data.name} is not loaded!`);
-    return;
+  if (game.settings.get(LANCER.sys_name, LANCER.setting_automation_attack)) {
+    if (!mData.loaded) {
+      ui.notifications.warn(`Weapon ${item.data.data.name} is not loaded!`);
+      return;
+    }
+    if (mData.destroyed) {
+      ui.notifications.warn(`Weapon ${item.data.data.name} is destroyed!`);
+      return;
+    }
   }
 
   // Build attack string before deducting charge.

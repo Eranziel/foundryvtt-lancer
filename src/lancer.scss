@@ -772,6 +772,7 @@ textarea {
     flex-grow: 1;
     text-align: center;
     font-size: inherit;
+    margin: 0 4px;
   }
 
   /* Sometimes want left align, using the "left" class */
@@ -877,6 +878,19 @@ textarea {
     font-size: 12px;
     font-weight: lighter;
   }
+}
+
+.lancer-header span.minor {
+  margin: 0 16px;
+}
+.lancer-header.destroyed span {
+  text-decoration: line-through;
+  color: #fb3535;
+}
+.lancer-header.destroyed .mdi {
+  font-size: 28px;
+  color: #ff6a23;
+  margin-bottom: -2px;
 }
 
 .big-editor {
