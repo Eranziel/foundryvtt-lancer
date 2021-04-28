@@ -153,6 +153,8 @@ Hooks.once("init", async function () {
     prepareOverheatMacro: macros.prepareOverheatMacro,
     prepareStructureMacro: macros.prepareStructureMacro,
     prepareActivationMacro: macros.prepareActivationMacro,
+    fullRepairMacro: macros.fullRepairMacro,
+    stabilizeMacro: macros.stabilizeMacro,
     migrations: migrations,
 
     // For whitespines testing /('o')/

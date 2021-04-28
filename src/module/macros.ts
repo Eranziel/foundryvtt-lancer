@@ -62,7 +62,7 @@ import { LancerItemType, LancerMechSystemData, LancerMechSystem } from "./item/l
 import { compact_tag_list } from "./helpers/tags";
 import { buildActionHTML, buildDeployableHTML, buildSystemHTML } from "./helpers/item";
 import { System } from "pixi.js";
-import { ActivationOptions } from "./enums";
+import { ActivationOptions, StabOptions1, StabOptions2 } from "./enums";
 import { applyCollapseListeners } from "./helpers/collapse";
 
 const lp = LANCER.log_prefix;
@@ -808,11 +808,7 @@ export function prepareCorePassiveMacro(a: string) {
  * @param tags  Can optionally pass through an array of tags to be rendered
  */
 export function prepareTextMacro(a: string, title: string, text: string, tags?: TagInstance[]) {
-  console.log("DISABLED");
-  debugger;
-  return;
   // Determine which Actor to speak as
-  /*
   let actor: Actor | null = getMacroSpeaker(a);
   if (!actor) return;
 
@@ -824,7 +820,6 @@ export function prepareTextMacro(a: string, title: string, text: string, tags?: 
   };
 
   rollTextMacro(actor, mData).then();
-  */
 }
 
 /**
@@ -1163,3 +1158,63 @@ export function runEncodedMacro(el: JQuery<HTMLElement>) {
   // Some might say eval is bad, but it's no worse than what we can already do with macros
   eval(command);
 }
+
+export async function fullRepairMacro(a: string) {
+  // Determine which Actor to speak as
+  let actor: LancerActor<any> | null = getMacroSpeaker(a);
+  if (!actor) {
+    ui.notifications.warn(`Failed to find Actor for macro. Do you need to select a token?`);
+    return null;
+  }
+
+  await actor.full_repair();
+
+  prepareTextMacro(a, "// REPAIRED //",`Notice: ${actor.name} has been fully repaired.`);
+}
+
+export async function stabilizeMacro(a: string) {
+  // Determine which Actor to speak as
+  let actor: LancerActor<any> | null = getMacroSpeaker(a);
+  if (!actor) {
+    ui.notifications.warn(`Failed to find Actor for macro. Do you need to select a token?`);
+    return null;
+  }
+
+  let template = await renderTemplate(`systems/lancer/templates/window/promptStabilize.html`, {});
+
+  return new Promise<number>((resolve, reject) => {
+    new Dialog({
+      title: `STABILIZE - ${actor?.name}`,
+      content: template,
+      buttons: {
+        submit: {
+          icon: '<i class="fas fa-check"></i>',
+          label: "Submit",
+          callback: async dlg => {
+            // Gotta typeguard the actor again
+            if(!actor) return;
+            
+            let o1 = <StabOptions1>$(dlg).find(".stabilize-options-1:checked").first().val();
+            let o2 = <StabOptions2>$(dlg).find(".stabilize-options-2:checked").first().val();
+            
+            let text = await actor.stabilize(o1,o2);
+
+            if(!text) text = "But an unknown error occurred"
+
+            prepareTextMacro(a, "// STABILIZED //",`Notice: ${actor.name} has stabilized.<br>${text}`);
+          },
+        },
+        cancel: {
+          icon: '<i class="fas fa-times"></i>',
+          label: "Cancel",
+          callback: async () => {
+            reject(true);
+          },
+        },
+      },
+      default: "submit",
+      close: () => reject(true),
+    }).render(true);
+  });
+
+ }

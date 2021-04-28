@@ -8,6 +8,7 @@
   --main-font-family: Helvetica, Arial, sans-serif;
 
   --main-theme-color: #991e2a; /* I've configured calls to this to fall back on fuchsia when things go wrong */
+  --main-theme-text: #E8BCBE;
   --secondary-theme-color: #505050;
   --loadout-color: #777f86;
   --ref-color: #ddc0b3;
@@ -1649,4 +1650,42 @@ a.activation-chip > i.mdi {
 .action-editor-wrapper {
   float: right;
   margin-right: .5em;
+}
+
+
+// Begin "Button" radio buttons
+.hidden {
+  display: none;
+}
+
+.radio-label:checked + .button-label {
+  box-shadow: rgba(0, 0, 0, 0.7);
+  filter: brightness(80%);
+}
+
+.radio-label + .button-label:hover {
+  filter: brightness(120%);
+}
+
+.button-label {
+  display: inline-block;
+  padding: 1em 2em;
+  margin: 0.5em;
+  cursor: pointer;
+  border-radius: 0.25em;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+  user-select: none;
+}
+
+.center-text {
+  display: table;
+  text-align: center;
+}
+
+// Stabilize dialog
+
+.stabilize-wrapper .button-label {
+  background-color: var(--main-theme-color);
+  color: var(--main-theme-text);
+  flex-basis: 45%;
 }
