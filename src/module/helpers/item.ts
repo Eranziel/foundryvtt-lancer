@@ -670,7 +670,7 @@ export function mech_weapon_refview(
   </div>`;
 }
 
-function loading_indicator(loaded: boolean, weapon_path: string): string {
+export function loading_indicator(loaded: boolean, weapon_path: string): string {
   let loading_icon = `mdi ${loaded ? "mdi-hexagon-slice-6" : "mdi-hexagon-outline"}`;
   return `<span class="flexcol loading-wrapper"> 
                 LOADED: 

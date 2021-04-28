@@ -1199,9 +1199,9 @@ export async function stabilizeMacro(a: string) {
             
             let text = await actor.stabilize(o1,o2);
 
-            if(!text) text = "But an unknown error occurred"
+            if(!text) return;
 
-            prepareTextMacro(a, "// STABILIZED //",`Notice: ${actor.name} has stabilized.<br>${text}`);
+            prepareTextMacro(a, `${actor.name.capitalize()} HAS STABILIZED`,`${actor.name} has stabilized.<br>${text}`);
           },
         },
         cancel: {

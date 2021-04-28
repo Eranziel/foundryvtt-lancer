@@ -12,6 +12,8 @@ import {
   LiveEntryTypes,
   RegEnv,
   StaticReg,
+  MechSystem,
+  PilotWeapon,
 } from "machine-mind";
 import { FoundryRegActorData, FoundryRegItemData } from "../mm-util/foundry-reg";
 import { LancerHooks, LancerSubscription } from "../helpers/hooks";
@@ -19,8 +21,9 @@ import { mm_wrap_actor } from "../mm-util/helpers";
 import { system_ready } from "../../lancer";
 import { LancerItemType } from "../item/lancer-item";
 import { renderMacroTemplate, prepareTextMacro } from '../macros';
-import { RegEntry } from 'machine-mind';
+import { RegEntry, MechWeapon, NpcFeature } from 'machine-mind';
 import { StabOptions1, StabOptions2 } from "../enums";
+import { limited_max, is_loading } from 'machine-mind/dist/classes/mech/EquipUtil';
 const lp = LANCER.log_prefix;
 
 export function lancerActorInit(data: any) {
@@ -399,21 +402,68 @@ export class LancerActor<T extends LancerActorType> extends Actor {
    * Includes loading as well
    */
   async refill_all_limited() {
-    debugger;
+    let ent = (await this.data.data.derived.mmec_promise).ent;
+
+    if(is_reg_mech(ent)) {
+      let items: Array<MechSystem | MechWeapon> = ent.OwnedWeapons;
+      items = items.concat(ent.OwnedSystems);
+
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+
+        item.Uses = item.OrigData.derived.max_uses;
+
+        item.writeback();
+      }
+    }
+
+    await this.reload_all_items();
   }
 
   /**
    * Find all owned items and set them to be not destroyed
    */
    async repair_all_items() {
-    debugger;
+    let ent = (await this.data.data.derived.mmec_promise).ent;
+
+    if(is_reg_mech(ent)) {
+      let weps = ent.OwnedWeapons;
+
+      for (let i = 0; i < weps.length; i++) {
+        const wep = weps[i];
+
+        wep.Destroyed = false;
+        await wep.writeback();
+      }
+    }
   }
 
   /**
-   * Find all owned items and reload them
+   * Find all owned weapons and reload them
    */
   async reload_all_items() {
-    debugger;
+    let ent = (await this.data.data.derived.mmec_promise).ent;
+
+    let items: Array<MechWeapon | PilotWeapon | NpcFeature> = [];
+
+    // We should be able to handle NPC Features here just fine
+    if (is_reg_mech(ent)) {
+      items = ent.OwnedWeapons;
+    } else if (is_reg_pilot(ent)) {
+      items = ent.OwnedWeapons;
+    } else if (is_reg_npc(ent)) {
+      items = ent.Features;
+    }
+
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+
+      if(is_loading(item)) {
+        item.Loaded = true;
+  
+        item.writeback();
+      }
+    }
   }
 
   /**

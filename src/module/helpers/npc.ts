@@ -1,11 +1,13 @@
 import { HelperOptions } from "handlebars";
 import { ActivationType, NpcFeature, NpcFeatureType } from "machine-mind";
+import { is_loading } from "machine-mind/dist/classes/mech/EquipUtil";
 import { effect_box, resolve_dotpath, resolve_helper_dotpath } from "./commons";
 import {
   npc_attack_bonus_preview,
   npc_accuracy_preview,
   show_damage_array,
   show_range_array,
+  loading_indicator,
 } from "./item";
 import { ref_params } from "./refs";
 import { compact_tag, compact_tag_list } from "./tags";
@@ -183,6 +185,8 @@ export function npc_weapon_effect_preview(path: string, options: HelperOptions) 
   // Get the feature
   let npc_feature: NpcFeature = resolve_helper_dotpath(options, path);
 
+  let loading: string | undefined;
+
   // Get the tier (or default 1)
   let tier_index: number = (options.hash["tier"] ?? 1) - 1;
 
@@ -208,6 +212,8 @@ export function npc_weapon_effect_preview(path: string, options: HelperOptions) 
   if (npc_feature.Damage[tier_index] && npc_feature.Damage[tier_index].length) {
     subheader_items.push(show_damage_array(npc_feature.Damage[tier_index], options));
   }
+  
+  if (is_loading(npc_feature)) subheader_items.push(loading_indicator(npc_feature.Loaded, path));
 
   return npc_feature_scaffold(
     path,
