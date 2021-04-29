@@ -1,11 +1,13 @@
 import { LancerMechWeapon, LancerPilotWeapon } from "../item/lancer-item";
 import { LANCER } from "../config";
 import { LancerActorSheet } from "./lancer-actor-sheet";
-import { EntryType, MountType, OpCtx } from "machine-mind";
+import { Counter, EntryType, MountType, OpCtx, Pilot } from "machine-mind";
 import { FoundryFlagData, FoundryReg } from "../mm-util/foundry-reg";
 import { MMEntityContext, mm_wrap_item } from "../mm-util/helpers";
 import { funcs, quick_relinker } from "machine-mind";
 import { ResolvedNativeDrop } from "../helpers/dragdrop";
+import { HelperOptions } from 'handlebars';
+import { buildCounterHTML } from "../helpers/item";
 
 const lp = LANCER.log_prefix;
 
@@ -277,3 +279,33 @@ export function overchargeButton(level: number) {
 }
 
  */
+
+
+export function pilot_counters(ent: Pilot, helper: HelperOptions): string {
+  let counter_detail = "";
+
+
+  let counter_arr = ent.AllCounters;
+  let custom_path = "mm.ent.CustomCounters"
+
+  // Pilots have AllCounters, but self-sourced ones refer to CustomCounters specifically
+  for (let i = 0; i < counter_arr.length; i++) {
+    // If our source is the pilot, we'll add it later to make sure we align with the CustomCounters index
+    if (counter_arr[i].source === ent) continue;
+
+    counter_detail = counter_detail.concat(buildCounterHTML(counter_arr[i].counter, `mm.ent.Allcounters.${i}.counter`, false, `ent.AllCounters.${i}.source`, true));
+  }
+  // Now do our CustomCounters
+  for (let i = 0; i < ent.CustomCounters.length; i++) {
+    counter_detail = counter_detail.concat(buildCounterHTML(ent.CustomCounters[i], `mm.ent.CustomCounters.${i}`, false));
+  }
+
+  return `
+  <div class="card clipped double">
+    <span class="lancer-header submajor ">
+      COUNTERS
+      <a class="gen-control fas fa-plus" data-action="append" data-path="${custom_path}" data-action-value="(struct)counter"></a>
+    </span>
+    ${counter_detail}
+  </div>`;
+}

@@ -68,3 +68,15 @@ export enum ChipIcons {
   Deployable = `<i class="cci cci-deployable"></i>`,
   Core = `<i class="cci cci-corebonus"></i>`
 }
+
+export enum StabOptions1 {
+  Cool = "Cool",
+  Repair = "Repair"
+}
+
+export enum StabOptions2 {
+  Reload = "Reload",
+  ClearBurn = "ClearBurn",
+  ClearOwnCond = "ClearOwnCond",
+  ClearOtherCond = "ClearOtherCond"
+}
