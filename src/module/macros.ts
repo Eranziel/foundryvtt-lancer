@@ -84,6 +84,9 @@ export async function onHotbarDrop(_bar: any, data: any, slot: number) {
     (command = data.command),
       (img = data.iconPath ? data.iconPath : `systems/lancer/assets/icons/macro-icons/generic_item.svg`);
     title = data.title;
+  } else if (data.pack) {
+    // If we have a source pack, it's dropped from a compendium and there's no processing for us to do
+    return;
   } else {
     let itemId = "error";
 
@@ -1167,9 +1170,38 @@ export async function fullRepairMacro(a: string) {
     return null;
   }
 
-  await actor.full_repair();
 
-  prepareTextMacro(a, "// REPAIRED //",`Notice: ${actor.name} has been fully repaired.`);
+  return new Promise<number>((resolve, reject) => {
+    new Dialog({
+      title: `FULL REPAIR - ${actor?.name}`,
+      content: `<h3>Are you sure you want to fully repair the ${actor?.data.type} ${actor?.name}?`,
+      buttons: {
+        submit: {
+          icon: '<i class="fas fa-check"></i>',
+          label: "Yes",
+          callback: async dlg => {
+            // Gotta typeguard the actor again
+            if(!actor) return;
+            
+            await actor.full_repair();
+
+            prepareTextMacro(a, "REPAIRED",`Notice: ${actor.name} has been fully repaired.`);
+          },
+        },
+        cancel: {
+          icon: '<i class="fas fa-times"></i>',
+          label: "No",
+          callback: async () => {
+            reject(true);
+          },
+        },
+      },
+      default: "submit",
+      close: () => reject(true),
+    }).render(true);
+  });
+
+
 }
 
 export async function stabilizeMacro(a: string) {
