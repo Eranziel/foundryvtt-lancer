@@ -53,10 +53,19 @@ export const registerSettings = function () {
     default: true,
   });
 
+  game.settings.register(LANCER.sys_name, LANCER.setting_automation_attack, {
+    name: "Attack Automation",
+    hint:
+      "Toggle for whether or not you want the system to auto-calculate hits, damage, and other attack related checks.",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: true,
+  });
+
   game.settings.register(LANCER.sys_name, LANCER.setting_auto_structure, {
     name: "Automatic Structure/Stress",
-    hint:
-      "When a mech rolls a structure/overheat macro, should it automatically decrease structure/stress?",
+    hint: "When a mech rolls a structure/overheat macro, should it automatically decrease structure/stress?",
     scope: "world",
     config: true,
     type: Boolean,

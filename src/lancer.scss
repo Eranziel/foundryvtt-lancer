@@ -204,6 +204,45 @@ button {
   padding: 5px 10px;
 }
 
+#chat-log .message.whisper {
+  border: 2px solid fuchsia;
+}
+
+.lancer-hit {
+  display: inline-flex;
+  margin: 8px;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card.lancer-hit-chip {
+  float: right;
+  width: 90px;
+  color: #e6e6e6;
+  background-color: #3c3c3c;
+}
+
+.card.lancer-hit-chip.hit {
+  color: #fff;
+  background-color: #1a4015;
+  width: 75px;
+}
+
+.lancer-hit-thumb {
+  width: 50px;
+  margin-right: 4px;
+  border-right: none;
+  border-left: none;
+}
+.lancer-hit-text {
+  display: inline-grid;
+  text-align: start;
+  width: 80%;
+}
+.lancer-hit-text-name {
+  font-size: 1.2em;
+}
+
 /* ---------- */
 
 .vsep {
@@ -734,6 +773,7 @@ textarea {
     flex-grow: 1;
     text-align: center;
     font-size: inherit;
+    margin: 0 4px;
   }
 
   /* Sometimes want left align, using the "left" class */
@@ -839,6 +879,19 @@ textarea {
     font-size: 12px;
     font-weight: lighter;
   }
+}
+
+.lancer-header span.minor {
+  margin: 0 16px;
+}
+.lancer-header.destroyed span {
+  text-decoration: line-through;
+  color: #fb3535;
+}
+.lancer-header.destroyed .mdi {
+  font-size: 28px;
+  color: #ff6a23;
+  margin-bottom: -2px;
 }
 
 .big-editor {
@@ -1649,7 +1702,7 @@ a.activation-chip > i.mdi {
 
 .action-editor-wrapper {
   float: right;
-  margin-right: .5em;
+  margin-right: 0.5em;
 }
 
 

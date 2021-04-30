@@ -9,7 +9,7 @@ import {
   LancerPilotWeaponData,
   LancerSkill,
 } from "./item/lancer-item";
-import { LancerActor, LancerPilot } from "./actor/lancer-actor";
+import { LancerActor, LancerActorType, LancerPilot } from "./actor/lancer-actor";
 import {
   LancerActionMacroData,
   LancerAttackMacroData,
@@ -64,6 +64,7 @@ import { buildActionHTML, buildDeployableHTML, buildSystemHTML } from "./helpers
 import { System } from "pixi.js";
 import { ActivationOptions, StabOptions1, StabOptions2 } from "./enums";
 import { applyCollapseListeners } from "./helpers/collapse";
+import { checkForHit, getTargets } from "./helpers/automation/targeting";
 
 const lp = LANCER.log_prefix;
 
@@ -372,7 +373,8 @@ export async function renderMacroTemplate(actor: Actor, template: string, templa
 }
 
 export async function renderMacroHTML(actor: Actor, html: HTMLElement | string, roll?: Roll) {
-  let chat_data = {
+  const rollMode = game.settings.get("core", "rollMode");
+  const chat_data = {
     user: game.user,
     type: roll ? CONST.CHAT_MESSAGE_TYPES.ROLL : CONST.CHAT_MESSAGE_TYPES.IC,
     roll: roll,
@@ -382,8 +384,9 @@ export async function renderMacroHTML(actor: Actor, html: HTMLElement | string, 
       alias: actor.token ? actor.token.name : null,
     },
     content: html,
+    whisper: rollMode !== "roll" ? ChatMessage.getWhisperRecipients("GM").filter(u => u.active) : undefined,
   };
-  let cm = await ChatMessage.create(chat_data);
+  const cm = await ChatMessage.create(chat_data);
   cm.render();
   return Promise.resolve();
 }
@@ -522,6 +525,8 @@ async function prepareAttackMacro({
     tags: [],
     overkill: item.isOverkill,
     effect: "",
+    loaded: true,
+    destroyed: false,
   };
 
   let weaponData: NpcFeature | PilotWeapon | MechWeaponProfile;
@@ -531,8 +536,11 @@ async function prepareAttackMacro({
   if (actor.data.type === EntryType.MECH) {
     pilotEnt = (await actor.data.data.derived.mmec_promise).ent.Pilot;
     let itemEnt: MechWeapon = (await item.data.data.derived.mmec_promise).ent;
+
     weaponData = itemEnt.SelectedProfile;
 
+    mData.loaded = itemEnt.Loaded;
+    mData.destroyed = itemEnt.Destroyed;
     mData.damage = weaponData.BaseDamage;
     mData.grit = pilotEnt.Grit;
     mData.acc = 0;
@@ -543,6 +551,7 @@ async function prepareAttackMacro({
     let itemEnt: PilotWeapon = (await item.data.data.derived.mmec_promise).ent;
     weaponData = itemEnt;
 
+    mData.loaded = itemEnt.Loaded;
     mData.damage = weaponData.Damage;
     mData.grit = pilotEnt.Grit;
     mData.acc = 0;
@@ -557,12 +566,14 @@ async function prepareAttackMacro({
     }
 
     let wData = item.data.data;
+    mData.loaded = item.data.data.loaded;
+    // mData.destroyed = item.data.data.destroyed; TODO: NPC weapons don't seem to have a destroyed field
     // This can be a string... but can also be a number...
-    mData.grit = Number(wData.attack_bonus[tier]);
-    mData.acc = wData.accuracy[tier];
+    mData.grit = Number(wData.attack_bonus[tier - 1]);
+    mData.acc = wData.accuracy[tier - 1];
     // Reduce damage values to only this tier
     // Convert to new Damage type if it's old
-    mData.damage = wData.damage[tier].map((d: Damage | PackedDamageData) => {
+    mData.damage = wData.damage[tier - 1].map((d: Damage | PackedDamageData) => {
       if ("type" in d && "val" in d) {
         // Then this is an old damage type which only contains these two values
         return new Damage({ type: d.type, val: d.val.toString() });
@@ -614,15 +625,71 @@ async function prepareAttackMacro({
       }
     }
   }
+  // Check if weapon if loaded.
+  if (game.settings.get(LANCER.sys_name, LANCER.setting_automation_attack)) {
+    if (!mData.loaded) {
+      ui.notifications.warn(`Weapon ${item.data.data.name} is not loaded!`);
+      return;
+    }
+    if (mData.destroyed) {
+      ui.notifications.warn(`Weapon ${item.data.data.name} is destroyed!`);
+      return;
+    }
+  }
 
-  await rollAttackMacro(actor, mData).then();
+  // Build attack string before deducting charge.
+  const atk_str = await buildAttackRollString(mData.title, mData.acc, mData.grit);
+  if (!atk_str) return;
+
+  // Deduct charge if LOADING weapon.
+  if (
+    game.settings.get(LANCER.sys_name, LANCER.setting_automation_attack) &&
+    mData.tags.find(tag => tag.Tag.LID === "tg_loading")
+  ) {
+    console.log(item);
+    console.log(actor);
+
+    let itemEnt: MechWeapon = (await item.data.data.derived.mmec_promise).ent;
+    itemEnt.Loaded = false;
+    itemEnt.writeback();
+  }
+
+  await rollAttackMacro(actor, atk_str, mData).then();
 }
 
-async function rollAttackMacro(actor: Actor, data: LancerAttackMacroData) {
-  let atk_str = await buildAttackRollString(data.title, data.acc, data.grit);
+async function rollAttackMacro(actor: Actor, atk_str: string | null, data: LancerAttackMacroData) {
   if (!atk_str) return;
-  let attack_roll = new Roll(atk_str).roll();
-  const attack_tt = await attack_roll.getTooltip();
+
+  // IS SMART?
+  const isSmart = data.tags.findIndex(tag => tag.Tag.LID === "tg_smart") > -1;
+  // CHECK TARGETS
+  const targets = getTargets();
+  let hits: {
+    token: { name: string; img: string };
+    total: string;
+    hit: boolean;
+  }[] = [];
+  let attacks: { roll: Roll; tt: HTMLElement | JQuery<HTMLElement> }[] = [];
+  if (game.settings.get(LANCER.sys_name, LANCER.setting_automation_attack) && targets.length > 0) {
+    for (const target of targets) {
+      let attack_roll = new Roll(atk_str!).roll();
+      const attack_tt = await attack_roll.getTooltip();
+      attacks.push({ roll: attack_roll, tt: attack_tt });
+
+      hits.push({
+        token: {
+          name: target.token ? target.token.data.name : target.data.name,
+          img: target.token ? target.token.data.img : target.data.img,
+        },
+        total: String(attack_roll._total).padStart(2, "0"),
+        hit: checkForHit(isSmart, attack_roll, target),
+      });
+    }
+  } else {
+    let attack_roll = new Roll(atk_str).roll();
+    const attack_tt = await attack_roll.getTooltip();
+    attacks.push({ roll: attack_roll, tt: attack_tt });
+  }
 
   // Iterate through damage types, rolling each
   let damage_results: Array<{
@@ -631,56 +698,58 @@ async function rollAttackMacro(actor: Actor, data: LancerAttackMacroData) {
     d_type: DamageType;
   }> = [];
   let overkill_heat: number = 0;
-  for (const x of data.damage) {
-    if (x.Value === "" || x.Value == 0) continue; // Skip undefined and zero damage
-    let d_formula: string = x.Value.toString();
-    // If the damage formula involves dice and is overkill, add "r1" to reroll all 1's.
-    if (d_formula.includes("d") && data.overkill) {
-      let d_ind = d_formula.indexOf("d");
-      let p_ind = d_formula.indexOf("+");
-      if (d_ind >= 0) {
-        let d_count = "1";
-        let d_expr: RegExp = /\d+(?=d)/;
-        if (d_ind != 0) {
-          let match = d_expr.exec(d_formula);
-          //console.log(`${lp} Formula ${d_expr} matched ${match} in ${d_formula}`);
-          if (match != null) {
-            d_count = match[0];
-          }
-        }
-        if (p_ind > d_ind) {
-          d_formula = d_formula.substring(0, p_ind) + "x1kh" + d_count + d_formula.substring(p_ind);
-        } else d_formula += "x1kh" + d_count;
-      }
-    }
-    let droll: Roll | null;
-    let tt: HTMLElement | JQuery | null;
-    try {
-      droll = new Roll(d_formula).roll();
-      tt = await droll.getTooltip();
-    } catch {
-      droll = null;
-      tt = null;
-    }
-    if (data.overkill && droll) {
-      // Count overkill heat
-      // @ts-ignore
-      droll.terms.forEach(p => {
-        if (p.results && Array.isArray(p.results)) {
-          p.results.forEach((r: any) => {
-            if (r.exploded) {
-              overkill_heat += 1;
+  if (hits.length === 0 || hits.find(hit => hit.hit)) {
+    for (const x of data.damage) {
+      if (x.Value === "" || x.Value == 0) continue; // Skip undefined and zero damage
+      let d_formula: string = x.Value.toString();
+      // If the damage formula involves dice and is overkill, add "r1" to reroll all 1's.
+      if (d_formula.includes("d") && data.overkill) {
+        let d_ind = d_formula.indexOf("d");
+        let p_ind = d_formula.indexOf("+");
+        if (d_ind >= 0) {
+          let d_count = "1";
+          let d_expr: RegExp = /\d+(?=d)/;
+          if (d_ind != 0) {
+            let match = d_expr.exec(d_formula);
+            //console.log(`${lp} Formula ${d_expr} matched ${match} in ${d_formula}`);
+            if (match != null) {
+              d_count = match[0];
             }
-          });
+          }
+          if (p_ind > d_ind) {
+            d_formula = d_formula.substring(0, p_ind) + "x1kh" + d_count + d_formula.substring(p_ind);
+          } else d_formula += "x1kh" + d_count;
         }
-      });
-    }
-    if (droll && tt) {
-      damage_results.push({
-        roll: droll,
-        tt: tt,
-        d_type: x.DamageType,
-      });
+      }
+      let droll: Roll | null;
+      let tt: HTMLElement | JQuery | null;
+      try {
+        droll = new Roll(d_formula).roll();
+        tt = await droll.getTooltip();
+      } catch {
+        droll = null;
+        tt = null;
+      }
+      if (data.overkill && droll) {
+        // Count overkill heat
+        // @ts-ignore
+        droll.terms.forEach(p => {
+          if (p.results && Array.isArray(p.results)) {
+            p.results.forEach((r: any) => {
+              if (r.exploded) {
+                overkill_heat += 1;
+              }
+            });
+          }
+        });
+      }
+      if (droll && tt) {
+        damage_results.push({
+          roll: droll,
+          tt: tt,
+          d_type: x.DamageType,
+        });
+      }
     }
   }
 
@@ -701,14 +770,17 @@ async function rollAttackMacro(actor: Actor, data: LancerAttackMacroData) {
   // Output
   const templateData = {
     title: data.title,
-    attack: attack_roll,
-    attack_tooltip: attack_tt,
+    attacks: attacks,
+    hits: hits,
+    defense: isSmart ? "E-DEF" : "EVASION",
     damages: damage_results,
     overkill_heat: overkill_heat,
     effect: data.effect ? data.effect : null,
     on_hit: data.on_hit ? data.on_hit : null,
     tags: data.tags,
   };
+
+  console.log(templateData);
   const template = `systems/lancer/templates/chat/attack-card.html`;
   return await renderMacroTemplate(actor, template, templateData);
 }

@@ -635,8 +635,10 @@ export function mech_weapon_refview(
     ref drop-settable flexcol lancer-weapon-container macroable item"
                   ${ref_params(cd.ref, weapon_path)}
                   style="max-height: fit-content;">
-      <div class="lancer-header">
-        <i class="cci cci-weapon i--m i--light i--click"> </i>
+      <div class="lancer-header ${weapon.Destroyed ? "destroyed" : ""}">
+        <i class="${
+          weapon.Destroyed ? "mdi mdi-cog" : "cci cci-weapon i--m i--light"
+        }  i--click" data-context-menu="toggle" data-field="Destroyed" data-path="${weapon_path}"> </i>
         <span class="minor collapse-trigger" ${
           mech_ ? `data-collapse-store="${mech_.RegistryID}"` : ""
         }" data-collapse-id="${collapseID}">${

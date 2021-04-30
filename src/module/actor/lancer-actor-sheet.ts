@@ -32,7 +32,7 @@ import {
   prepareStatMacro,
   runEncodedMacro,
 } from "../macros";
-import { EntryType } from "machine-mind";
+import { EntryType, RegEntry } from "machine-mind";
 import { ActivationOptions } from "../enums";
 import { applyCollapseListeners, CollapseHandler } from "../helpers/collapse";
 import { FoundryFlagData } from "../mm-util/foundry-reg";
@@ -78,6 +78,9 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
 
     let getfunc = () => this.getDataLazy();
     let commitfunc = (_: any) => this._commitCurrMM();
+
+    // Enable context menu triggers.
+    this._activateContextListeners(html);
 
     // Make refs droppable
     HANDLER_activate_ref_drop_setting(html, getfunc, commitfunc);
@@ -165,6 +168,32 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     });
 
     applyCollapseListeners();
+  }
+
+  // Simple listener:
+  // - Upon right click of the element, retrieves the boolean data at the specified MM path and toggles it.
+  async _activateContextListeners(html: JQuery) {
+    let elements = html.find("[data-context-menu]");
+    elements.on("contextmenu", async ev => {
+      ev.stopPropagation();
+      ev.preventDefault();
+
+      const params = ev.currentTarget.dataset;
+      const data = await this.getDataLazy();
+      if (params.path && params.field && params.contextMenu) {
+        const item = resolve_dotpath(data, params.path) as RegEntry<any>;
+        const field = params.field;
+
+        const ent = item as any;
+        if (params.contextMenu === "toggle" && ent[field] !== undefined) {
+          ent[field] = !ent[field];
+          item.writeback();
+        } else {
+          ent[field] = params.contextMenu;
+          item.writeback();
+        }
+      }
+    });
   }
 
   _activateMacroListeners(html: JQuery) {
