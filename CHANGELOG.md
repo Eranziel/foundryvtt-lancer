@@ -1,3 +1,21 @@
+# 0.9.1 (2021-04-30)
+## Features
+* **Attacks**: Now auto-calculates if a targeted attack hits.
+* **Macros**: #145 Added Stabilize and Full Repair Macros
+
+## Bug Fixes
+* #147 - Correctly calculates Max Uses of a system
+* #154 - Fixed weapon data being pulled in incorrectly
+* #156 - Structure/Stress Rolling again
+* #157 - NPCs can now roll again
+* Added HASE buttons to NPCs
+* NPC Classes now show more data
+* #161 - Macros now support the proper chat privacy selection
+
+# 0.9.0 (2021-04-22)
+## Features
+System completely rebuilt from the ground up to support the new COMP/CON data structure!
+
 # 0.1.19 (2020-12-17)
 ## Features
 * **Macros**: Add options object for attack macros to specify static attack bonus and bonus damage. Partial for #117.
