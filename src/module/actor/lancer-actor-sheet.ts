@@ -22,7 +22,7 @@ import {
   HANDLER_openRefOnClick as HANDLER_activate_ref_clicking,
 } from "../helpers/refs";
 import { LancerActorSheetData, LancerStatMacroData } from "../interfaces";
-import { LancerMechWeapon, LancerPilotWeapon } from "../item/lancer-item";
+import { AnyLancerItem, LancerMechWeapon, LancerPilotWeapon } from "../item/lancer-item";
 import { LancerActor, LancerActorType } from "./lancer-actor";
 import {
   prepareActivationMacro,
@@ -606,6 +606,10 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
 
     // Drag up the mm context (when ready) to a top level entry in the sheet data
     data.mm = await (this.actor.data as LancerActor<T>["data"]).data.derived.mmec_promise;
+
+    // Also wait for all of their items
+    await Promise.all(this.actor.items.map((i: AnyLancerItem) => i.data.data.derived.mmec_promise));
+
     console.log(`${lp} Rendering with following actor ctx: `, data);
     this._currData = data;
     return data;

@@ -25,7 +25,7 @@
       </div>
       <div class="flexrow pilot-stats">
         {{{compact-stat-edit "mdi mdi-heart-outline" "mm.ent.CurrentHP" "mm.ent.MaxHP" }}}
-        {{{compact-stat-edit "mdi mdi-heart-outline" "mm.ent.Overshield" "mm.ent.MaxHP" }}}
+        {{{compact-stat-edit "mdi mdi-shield-star-outline" "mm.ent.Overshield" "mm.ent.MaxHP" }}}
         {{{compact-stat-view "mdi mdi-shield-outline" "mm.ent.Armor" }}} {{{compact-stat-view "cci
         cci-evasion" "mm.ent.Evasion" }}} {{{compact-stat-view "cci cci-edef" "mm.ent.EDefense" }}}
         {{{compact-stat-view "mdi mdi-arrow-right-bold-hexagon-outline" "mm.ent.Speed" }}}
@@ -159,7 +159,7 @@
       </div>
 
       <div class="flexrow">
-        {{{counter-array mm.ent.AllCounters "mm.ent.AllCounters" "mm.ent.CustomCounters" false}}}
+        {{{pilot-counters mm.ent}}}
       </div>
     </div>
 

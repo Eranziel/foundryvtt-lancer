@@ -12,13 +12,18 @@ import {
   LiveEntryTypes,
   RegEnv,
   StaticReg,
+  MechSystem,
+  PilotWeapon,
 } from "machine-mind";
 import { FoundryRegActorData, FoundryRegItemData } from "../mm-util/foundry-reg";
 import { LancerHooks, LancerSubscription } from "../helpers/hooks";
 import { mm_wrap_actor } from "../mm-util/helpers";
 import { system_ready } from "../../lancer";
 import { LancerItemType } from "../item/lancer-item";
-import { renderMacroTemplate } from "../macros";
+import { renderMacroTemplate, prepareTextMacro } from '../macros';
+import { RegEntry, MechWeapon, NpcFeature } from 'machine-mind';
+import { StabOptions1, StabOptions2 } from "../enums";
+import { limited_max, is_loading } from 'machine-mind/dist/classes/mech/EquipUtil';
 const lp = LANCER.log_prefix;
 
 export function lancerActorInit(data: any) {
@@ -113,17 +118,24 @@ export class LancerActor<T extends LancerActorType> extends Actor {
   _actor_ctx!: OpCtx;
 
   /**
-   * Performs overheat on the mech
+   * Performs overheat
    * For now, just rolls on table. Eventually we can include configuration to do automation
    */
-  // TODO: migrate to mech
-  /*
-  async overheatMech() {
-    // Assert that we aren't on a deployable somehow
-    if (this.isDep(this.data)) {
+  // TODO: Only let us overheat things that can actually overheat
+  async overheat() {
+    // Assert that we're on a mech or NPC
+    if (this.data.type === EntryType.MECH) {
+      this.overheatMech();
+    } else if (this.data.type === EntryType.NPC) {
+      ui.notifications.warn("Currently just doing normal mech overheats");      
+      this.overheatMech();
+    } else {
+      ui.notifications.warn("Can only overheat NPCs and Mechs");      
       return;
     }
+  }
 
+  async overheatMech() {
     // Table of descriptions
     function stressTableD(roll: number, remStress: number) {
       switch (roll) {
@@ -161,28 +173,28 @@ export class LancerActor<T extends LancerActorType> extends Actor {
       "Emergency Shunt",
     ];
 
-    const mech = this.data.data.mech;
+    let ent = await this.data.data.derived.mmec.ent as Mech | Npc;
     if (
       game.settings.get(LANCER.sys_name, LANCER.setting_automation) &&
       game.settings.get(LANCER.sys_name, LANCER.setting_auto_structure)
     ) {
-      if (mech.heat.value > mech.heat.max) {
+      if (ent.CurrentHeat > ent.HeatCapacity) {
         // https://discord.com/channels/426286410496999425/760966283545673730/789297842228297748
-        mech.heat.value -= (mech.heat.max);
-        mech.stress.value -= 1;
+        ent.CurrentHeat -= (ent.HeatCapacity);
+        ent.CurrentStress -= 1;
       }
     }
-    if (mech.stress.value === mech.stress.max) {
+    if (ent.CurrentStress === ent.MaxStress) {
       ui.notifications.info("The mech is at full Stress, no overheating check to roll.");
       return;
     }
-    await this.update(this.data);
-    let remStress = mech.stress.value;
+    await ent.writeback();
+    let remStress = ent.CurrentStress;
     let templateData = {};
 
     // If we're already at 0 just kill em
     if (remStress > 0) {
-      let damage = mech.stress.max - mech.stress.value;
+      let damage = ent.MaxStress - ent.CurrentStress;
 
       let roll = new Roll(`${damage}d6kl1`).roll();
       let result = roll.total;
@@ -204,8 +216,8 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         total = "Multiple Ones";
       }
       templateData = {
-        val: mech.stress.value,
-        max: mech.stress.max,
+        val: ent.CurrentStress,
+        max: ent.MaxStress,
         tt: tt,
         title: title,
         total: total,
@@ -217,29 +229,35 @@ export class LancerActor<T extends LancerActorType> extends Actor {
       let title = stressTableT[0];
       let text = stressTableD(0, 0);
       templateData = {
-        val: mech.stress.value,
-        max: mech.stress.max,
+        val: ent.CurrentStress,
+        max: ent.MaxStress,
         title: title,
         text: text,
       };
     }
     const template = `systems/lancer/templates/chat/overheat-card.html`;
     const actor: Actor = game.actors.get(ChatMessage.getSpeaker().actor);
-    return renderMacro(actor, template, templateData);
+    return renderMacroTemplate(actor, template, templateData);
   }
-   */
 
-  // TODO: migrate to mech
   /**
    * Performs structure on the mech
    * For now, just rolls on table. Eventually we can include configuration to do automation
    */
-  /*
-  async structureMech() {
-    // Assert that we aren't on a deployable somehow
-    if (this.isDep(this.data)) {
+   async structure() {
+    // Assert that we're on a mech or NPC
+    if (this.data.type === EntryType.MECH) {
+      this.structureMech();
+    } else if (this.data.type === EntryType.NPC) {
+      ui.notifications.warn("Currently just doing normal mech structures");      
+      this.structureMech();
+    } else {
+      ui.notifications.warn("Can only structure NPCs and Mechs");      
       return;
     }
+  }
+
+  async structureMech() {
 
     // Table of descriptions
     function structTableD(roll: number, remStruct: number) {
@@ -277,28 +295,29 @@ export class LancerActor<T extends LancerActorType> extends Actor {
       "System Trauma",
       "Glancing Blow",
       "Glancing Blow",
-    ];
-
-    const mech = this.data.data.mech;
+      ];
+    
+    let ent = await this.data.data.derived.mmec.ent as Mech | Npc;
     if (
       game.settings.get(LANCER.sys_name, LANCER.setting_automation) &&
       game.settings.get(LANCER.sys_name, LANCER.setting_auto_structure)
     ) {
-      if (mech.hp.value <= 0) {
-        mech.hp.value += mech.hp.max;
-        mech.structure.value -= 1;
+      if (ent.CurrentHP <= 0) {
+        ent.CurrentHP += ent.MaxHP;
+        ent.CurrentStructure -= 1;
       }
     }
-    if (mech.structure.value === mech.structure.max) {
+    if (ent.CurrentStructure === ent.MaxStructure) {
       ui.notifications.info("The mech is at full Structure, no structure check to roll.");
       return;
     }
-    await this.update(this.data);
-    let remStruct = mech.structure.value;
+
+    await ent.writeback();
+    let remStruct = ent.CurrentStructure;
     let templateData = {};
     // If we're already at 0 just kill em
     if (remStruct > 0) {
-      let damage = mech.structure.max - mech.structure.value;
+      let damage = ent.MaxStructure - ent.CurrentStructure;
 
       let roll = new Roll(`${damage}d6kl1`).roll();
       let result = roll.total;
@@ -320,8 +339,8 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         total = "Multiple Ones";
       }
       templateData = {
-        val: mech.structure.value,
-        max: mech.structure.max,
+        val: ent.CurrentStructure,
+        max: ent.MaxStructure,
         tt: tt,
         title: title,
         total: total,
@@ -333,17 +352,174 @@ export class LancerActor<T extends LancerActorType> extends Actor {
       let title = structTableT[0];
       let text = structTableD(0, 0);
       templateData = {
-        val: mech.structure.value,
-        max: mech.structure.max,
+        val: ent.CurrentStructure,
+        max: ent.MaxStructure,
         title: title,
         text: text,
       };
     }
     const template = `systems/lancer/templates/chat/structure-card.html`;
     const actor: Actor = game.actors.get(ChatMessage.getSpeaker().actor);
-    return renderMacro(actor, template, templateData);
+    return renderMacroTemplate(actor, template, templateData);
   }
-  */
+  
+  // Fully repair actor
+  // Even pilots can be fully repaired
+  async full_repair() {
+
+    let ent = await this.data.data.derived.mmec.ent;
+
+    ent.CurrentHP = ent.MaxHP;
+
+    // Things for mechs & NPCs
+    if(is_reg_mech(ent) || is_reg_npc(ent)) {
+      ent.CurrentHeat = 0;
+      ent.CurrentStress = ent.MaxStress;
+      ent.CurrentStructure = ent.MaxStructure;
+    } 
+
+    // Things just for mechs
+    if(is_reg_mech(ent)) {
+      ent.CurrentCoreEnergy = 1;
+      ent.CurrentRepairs = ent.RepairCapacity;
+    }
+
+    // I believe the only thing a pilot needs
+    if(is_reg_pilot(ent)) {
+      let mech = await ent.ActiveMech();
+      if(mech) {
+        await mech.Flags.orig_doc.full_repair();
+      }
+    }
+    
+    if(!is_dep(this))
+      await this.refill_all_limited();
+    await ent.writeback();
+  }
+
+  /**
+   * Find all limited systems and set them to their max
+   * Includes loading as well
+   */
+  async refill_all_limited() {
+    let ent = (await this.data.data.derived.mmec_promise).ent;
+
+    if(is_reg_mech(ent)) {
+      let items: Array<MechSystem | MechWeapon> = ent.OwnedWeapons;
+      items = items.concat(ent.OwnedSystems);
+
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+
+        item.Uses = item.OrigData.derived.max_uses;
+
+        item.writeback();
+      }
+    }
+
+    await this.reload_all_items();
+  }
+
+  /**
+   * Find all owned items and set them to be not destroyed
+   */
+   async repair_all_items() {
+    let ent = (await this.data.data.derived.mmec_promise).ent;
+
+    if(is_reg_mech(ent)) {
+      let weps = ent.OwnedWeapons;
+
+      for (let i = 0; i < weps.length; i++) {
+        const wep = weps[i];
+
+        wep.Destroyed = false;
+        await wep.writeback();
+      }
+    }
+  }
+
+  /**
+   * Find all owned weapons and reload them
+   */
+  async reload_all_items() {
+    let ent = (await this.data.data.derived.mmec_promise).ent;
+
+    let items: Array<MechWeapon | PilotWeapon | NpcFeature> = [];
+
+    // We should be able to handle NPC Features here just fine
+    if (is_reg_mech(ent)) {
+      items = ent.OwnedWeapons;
+    } else if (is_reg_pilot(ent)) {
+      items = ent.OwnedWeapons;
+    } else if (is_reg_npc(ent)) {
+      items = ent.Features;
+    }
+
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+
+      if(is_loading(item)) {
+        item.Loaded = true;
+  
+        item.writeback();
+      }
+    }
+  }
+
+  /**
+   * Stabilize this actor, given two choices that have already been made
+   * @param o1  Choice 1, Cooling or Repairing
+   * @param o2  Choice 2, Reloading, removing Burn, or clearing own or adjacent ally condition
+   * @returns   Details to be printed to chat
+   */
+  async stabilize(o1: StabOptions1, o2: StabOptions2): Promise<string> {
+
+    let ent = await this.data.data.derived.mmec.ent;
+    let skip = false;
+
+    let return_text = "";
+
+    if(!(is_reg_mech(ent) || is_reg_npc(ent))) {
+      ui.notifications.warn("This can't be stabilized!");
+      return '';
+    }
+
+    if(o1 === StabOptions1.Cool) {
+      return_text = return_text.concat("Mech is cooling itself. Please clear Exposed manually<br>")
+      ent.CurrentHeat = 0;
+      await ent.writeback();
+    } else if (o1 === StabOptions1.Repair) {
+      if(is_reg_mech(ent) && ent.CurrentRepairs === 0) {
+        return "Mech has decided to repair, but doesn't have any repair left. Please try again<br>";
+      } else if (is_reg_mech(ent)) {
+        ent.CurrentRepairs -= 1;
+      }
+      ent.CurrentHP = ent.MaxHP;
+      await ent.writeback();
+    } else {
+      return ``;
+    }
+
+    switch(o2) {
+      case StabOptions2.ClearBurn:
+        return_text = return_text.concat("Mech has selected full burn clear. Please clear manually")
+        break;
+      case StabOptions2.ClearOtherCond:
+        return_text = return_text.concat("Mech has selected to clear an allied condition. Please clear manually")
+        break;
+      case StabOptions2.ClearOwnCond:
+        return_text = return_text.concat("Mech has selected to clear own condition. Please clear manually")
+        break;
+      case StabOptions2.Reload:
+        return_text = return_text.concat("Mech has selected full reload, reloading...");
+        await this.reload_all_items();
+        break;
+      default:
+        return ``;
+    }
+
+    return return_text;
+  }
 
   /* -------------------------------------------- */
 
@@ -652,4 +828,36 @@ export const LancerActorTypes: LancerActorType[] = [
 
 export function is_actor_type(type: LancerActorType | LancerItemType): type is LancerActorType {
   return LancerActorTypes.includes(type as LancerActorType);
+}
+
+export function is_pilot(actor: LancerActor<any>): actor is LancerActor<EntryType.PILOT> {
+  return actor.data.type === EntryType.PILOT;
+}
+
+export function is_mech(actor: LancerActor<any>): actor is LancerActor<EntryType.MECH> {
+  return actor.data.type === EntryType.MECH;
+}
+
+export function is_npc(actor: LancerActor<any>): actor is LancerActor<EntryType.NPC> {
+  return actor.data.type === EntryType.NPC;
+}
+
+export function is_dep(actor: LancerActor<any>): actor is LancerActor<EntryType.DEPLOYABLE> {
+  return actor.data.type === EntryType.DEPLOYABLE;
+}
+
+export function is_reg_pilot(actor: RegEntry<any>): actor is RegEntry<EntryType.PILOT> {
+  return actor.Type === EntryType.PILOT;
+}
+
+export function is_reg_mech(actor: RegEntry<any>): actor is RegEntry<EntryType.MECH> {
+  return actor.Type === EntryType.MECH;
+}
+
+export function is_reg_npc(actor: RegEntry<any>): actor is RegEntry<EntryType.NPC> {
+  return actor.Type === EntryType.NPC;
+}
+
+export function is_reg_dep(actor: RegEntry<any>): actor is RegEntry<EntryType.DEPLOYABLE> {
+  return actor.Type === EntryType.DEPLOYABLE;
 }

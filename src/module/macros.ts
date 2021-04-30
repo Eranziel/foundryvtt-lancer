@@ -62,7 +62,7 @@ import { LancerItemType, LancerMechSystemData, LancerMechSystem } from "./item/l
 import { compact_tag_list } from "./helpers/tags";
 import { buildActionHTML, buildDeployableHTML, buildSystemHTML } from "./helpers/item";
 import { System } from "pixi.js";
-import { ActivationOptions } from "./enums";
+import { ActivationOptions, StabOptions1, StabOptions2 } from "./enums";
 import { applyCollapseListeners } from "./helpers/collapse";
 import { checkForHit, getTargets } from "./helpers/automation/targeting";
 
@@ -85,6 +85,9 @@ export async function onHotbarDrop(_bar: any, data: any, slot: number) {
     (command = data.command),
       (img = data.iconPath ? data.iconPath : `systems/lancer/assets/icons/macro-icons/generic_item.svg`);
     title = data.title;
+  } else if (data.pack) {
+    // If we have a source pack, it's dropped from a compendium and there's no processing for us to do
+    return;
   } else {
     let itemId = "error";
 
@@ -880,11 +883,7 @@ export function prepareCorePassiveMacro(a: string) {
  * @param tags  Can optionally pass through an array of tags to be rendered
  */
 export function prepareTextMacro(a: string, title: string, text: string, tags?: TagInstance[]) {
-  console.log("DISABLED");
-  debugger;
-  return;
   // Determine which Actor to speak as
-  /*
   let actor: Actor | null = getMacroSpeaker(a);
   if (!actor) return;
 
@@ -896,7 +895,6 @@ export function prepareTextMacro(a: string, title: string, text: string, tags?: 
   };
 
   rollTextMacro(actor, mData).then();
-  */
 }
 
 /**
@@ -1097,25 +1095,15 @@ async function rollOverchargeMacro(actor: Actor, data: LancerOverchargeMacroData
  * @param a ID of actor to overheat
  */
 export async function prepareOverheatMacro(a: string) {
-  console.log("DISABLED");
-  debugger;
-  return;
-  /*
   // Determine which Actor to speak as
-  let actor: LancerActor | null = getMacroSpeaker(a);
+  let actor: LancerActor<any> | null = getMacroSpeaker(a);
   if (!actor) {
     ui.notifications.warn(`Failed to find Actor for macro. Do you need to select a token?`);
     return null;
   }
 
-  if (!("mech" in actor.data.data)) {
-    ui.notifications.error("Selected token is not a mech");
-    return;
-  }
-
   // Hand it off to the actor to overheat
-  await actor.overheatMech();
-   */
+  await actor.overheat();
 }
 
 /**
@@ -1123,25 +1111,16 @@ export async function prepareOverheatMacro(a: string) {
  * @param a ID of actor to structure
  */
 export async function prepareStructureMacro(a: string) {
-  console.log("DISABLED");
-  debugger;
-  return;
-  /*
   // Determine which Actor to speak as
-  let actor: LancerActor | null = getMacroSpeaker(a);
+  let actor: LancerActor<any> | null = getMacroSpeaker(a);
+
   if (!actor) {
     ui.notifications.warn(`Failed to find Actor for macro. Do you need to select a token?`);
     return null;
   }
 
-  if (!("mech" in actor.data.data)) {
-    ui.notifications.error("Selected token is not a mech");
-    return;
-  }
-
-  // Hand it off to the actor to overheat
-  await actor.structureMech();
-   */
+  // Hand it off to the actor to structure
+  await actor.structure();
 }
 
 export async function prepareActivationMacro(a: string, i: string, type: ActivationOptions, index: number) {
@@ -1254,3 +1233,92 @@ export function runEncodedMacro(el: JQuery<HTMLElement>) {
   // Some might say eval is bad, but it's no worse than what we can already do with macros
   eval(command);
 }
+
+export async function fullRepairMacro(a: string) {
+  // Determine which Actor to speak as
+  let actor: LancerActor<any> | null = getMacroSpeaker(a);
+  if (!actor) {
+    ui.notifications.warn(`Failed to find Actor for macro. Do you need to select a token?`);
+    return null;
+  }
+
+
+  return new Promise<number>((resolve, reject) => {
+    new Dialog({
+      title: `FULL REPAIR - ${actor?.name}`,
+      content: `<h3>Are you sure you want to fully repair the ${actor?.data.type} ${actor?.name}?`,
+      buttons: {
+        submit: {
+          icon: '<i class="fas fa-check"></i>',
+          label: "Yes",
+          callback: async dlg => {
+            // Gotta typeguard the actor again
+            if(!actor) return;
+            
+            await actor.full_repair();
+
+            prepareTextMacro(a, "REPAIRED",`Notice: ${actor.name} has been fully repaired.`);
+          },
+        },
+        cancel: {
+          icon: '<i class="fas fa-times"></i>',
+          label: "No",
+          callback: async () => {
+            reject(true);
+          },
+        },
+      },
+      default: "submit",
+      close: () => reject(true),
+    }).render(true);
+  });
+
+
+}
+
+export async function stabilizeMacro(a: string) {
+  // Determine which Actor to speak as
+  let actor: LancerActor<any> | null = getMacroSpeaker(a);
+  if (!actor) {
+    ui.notifications.warn(`Failed to find Actor for macro. Do you need to select a token?`);
+    return null;
+  }
+
+  let template = await renderTemplate(`systems/lancer/templates/window/promptStabilize.html`, {});
+
+  return new Promise<number>((resolve, reject) => {
+    new Dialog({
+      title: `STABILIZE - ${actor?.name}`,
+      content: template,
+      buttons: {
+        submit: {
+          icon: '<i class="fas fa-check"></i>',
+          label: "Submit",
+          callback: async dlg => {
+            // Gotta typeguard the actor again
+            if(!actor) return;
+            
+            let o1 = <StabOptions1>$(dlg).find(".stabilize-options-1:checked").first().val();
+            let o2 = <StabOptions2>$(dlg).find(".stabilize-options-2:checked").first().val();
+            
+            let text = await actor.stabilize(o1,o2);
+
+            if(!text) return;
+
+            prepareTextMacro(a, `${actor.name.capitalize()} HAS STABILIZED`,`${actor.name} has stabilized.<br>${text}`);
+          },
+        },
+        cancel: {
+          icon: '<i class="fas fa-times"></i>',
+          label: "Cancel",
+          callback: async () => {
+            reject(true);
+          },
+        },
+      },
+      default: "submit",
+      close: () => reject(true),
+    }).render(true);
+  });
+
+ }
