@@ -98,6 +98,7 @@ declare interface LancerAttackMacroData {
 declare interface LancerTechMacroData {
   title: string;
   t_atk: number;
+  action: string;
   acc: number;
   effect: string;
   tags: TagDataShort[];

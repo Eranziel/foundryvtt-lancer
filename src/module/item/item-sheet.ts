@@ -31,7 +31,7 @@ const lp = LANCER.log_prefix;
 export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
   // Tracks collapse state between renders
   private collapse_handler = new CollapseHandler();
-  
+
   /**
    * @override
    * Extend and override the default options used by the Item Sheet

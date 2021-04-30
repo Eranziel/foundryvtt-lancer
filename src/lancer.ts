@@ -529,8 +529,11 @@ Hooks.on("renderSettings", async (app: Application, html: HTMLElement) => {
   addSettingsButtons(app, html);
 });
 
-// Attack function to overkill reroll button
 Hooks.on("renderChatMessage", async (cm: ChatMessage, html: any, data: any) => {
+  // Reapply listeners.
+  applyCollapseListeners();
+
+  // Attack function to overkill reroll button
   const overkill = html[0].getElementsByClassName("overkill-reroll");
   for (let i = 0; i < overkill.length; i++) {
     if (cm.isAuthor) {
