@@ -267,7 +267,6 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
       let actions: string | undefined;
       let deployables: string | undefined;
       let eff: string | undefined;
-      let limited: string | undefined;
 
       if (sys.Description && sys.Description !== "No description") {
         desc = `<div class="desc-text" style="padding: 5px">
@@ -299,7 +298,10 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
         command: `game.lancer.prepareItemMacro("${sys.Flags.orig_doc.options.actor.id}", "${sys.Flags.orig_doc._id}")`,
       };
 
-      if (is_limited(sys)) limited = limited_HTML(sys, item_path, helper);
+      let limited = "";
+      if (is_limited(sys)) {
+        limited = limited_chip_HTML(sys, item_path);
+      }
 
       let str = `<li class="card clipped mech-system-compact item ${
         sys.SysType === SystemType.Tech ? "tech-item" : ""
@@ -318,7 +320,7 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
             <span class="medium" style="padding: 5px;">${sys.SP} SP</span>
           </div>
           <div class="uses-wrapper">
-            ${limited ? limited : ""}
+            ${limited}
           </div>
         </div>
         ${desc ? desc : ""}
@@ -417,6 +419,20 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
         </div>
       </div>`;
   }
+}
+
+function limited_chip_HTML(item: MechWeapon | MechSystem | PilotWeapon | PilotGear, path: string): string {
+  const uses = item.Uses;
+  const maxUses = item.OrigData.derived.max_uses;
+
+  const hexes = [...Array(maxUses)].map((_ele, index) => {
+    const available = index + 1 <= uses;
+    return `<i class="uses-hex mdi ${
+      available ? "mdi-hexagon-slice-6" : "mdi-hexagon-outline"
+    } theme--light" data-available="${available}" data-path="${path}"></i>`;
+  });
+
+  return `Uses: ${hexes.join("")}`;
 }
 
 function limited_HTML(

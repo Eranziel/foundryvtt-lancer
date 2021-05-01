@@ -1633,8 +1633,17 @@ a.activation-chip > i.mdi {
 }
 
 .uses-wrapper {
-  float: right;
-  max-width: 4em;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-right: 4px;
+  margin-top: 4px;
+}
+
+.uses-hex {
+  cursor: pointer;
+  font-size: 2em;
+  color: rgb(173, 6, 22);
 }
 
 .weapon-mod-addon {
