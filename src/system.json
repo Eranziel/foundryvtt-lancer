@@ -10,8 +10,7 @@
   "esmodules": ["lancer.js"],
   "styles": [
     "lancer.css",
-    "fonts/compcon/glyphs.css",
-    "fonts/mdi/css/materialdesignicons.css"
+    "fonts/compcon/glyphs.css"
   ],
   "packs": [
     {
