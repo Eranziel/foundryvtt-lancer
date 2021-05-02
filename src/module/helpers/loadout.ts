@@ -57,6 +57,15 @@ function weapon_mount(
   );
   let err = mount.validate() ?? "";
 
+  // FLEX mount weirdness.
+  if (!err && mount.MountType === "Flex") {
+    if (mount.Slots[0].Weapon && mount.Slots[0].Weapon.Size === "Main") {
+      slots.pop();
+    } else if (mount.Slots[1].Weapon && mount.Slots[1].Size === "Auxiliary") {
+      slots[0] = slots[0].replace("Insert Main", "Insert Auxiliary");
+    }
+  }
+
   return ` 
     <div class="mount card" >
       <div class="lancer-header mount-type-ctx-root" data-path="${mount_path}">

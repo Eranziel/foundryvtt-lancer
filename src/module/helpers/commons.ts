@@ -27,7 +27,7 @@ import { defaults } from "machine-mind/dist/funcs";
 import { HTMLEditDialog } from "../apps/text-editor";
 import { LancerActorSheetData, LancerItemSheetData } from "../interfaces";
 import { MMEntityContext } from "../mm-util/helpers";
-import { Deployable, WeaponType } from 'machine-mind';
+import { Deployable, WeaponType } from "machine-mind";
 
 // A shorthand for only including the first string if the second value is truthy
 export function inc_if(val: string, test: any) {
@@ -82,12 +82,7 @@ export function gentle_merge(dest: any, flat_data: any) {
  * If "delete" specified, deletes (splices) instead. Value is unused
  * Has no effect if target is not an array.
  */
-export function array_path_edit(
-  target: any,
-  flat_path: string,
-  value: any,
-  mode: "insert" | "delete"
-) {
+export function array_path_edit(target: any, flat_path: string, value: any, mode: "insert" | "delete") {
   // Break it up
   flat_path = format_dotpath(flat_path);
   let split = flat_path.split(".");
@@ -119,9 +114,7 @@ export function array_path_edit(
       array.splice(index, 0, value);
     }
   } else {
-    console.error(
-      `Unable to insert array item "${flat_path}[${tail}]": not an array (or not a valid index)`
-    );
+    console.error(`Unable to insert array item "${flat_path}[${tail}]": not an array (or not a valid index)`);
   }
 }
 
@@ -186,6 +179,14 @@ export function effect_box(title: string, text: string, add_classes: string = ""
   }
 }
 
+export function charged_box(charged: boolean, path: string) {
+  return `<div class="clipped card charged-box ${
+    charged ? "charged" : ""
+  }"><span style="margin:4px;">Charged:</span><a style="margin-top:2px;" class="gen-control" data-action="set" data-action-value="(bool)${!charged}" data-path="${path}.Charged" data-commit-item="${path}"><i class="hex hex-white mdi ${
+    charged ? "mdi-hexagon-slice-6" : "mdi-hexagon-outline"
+  }"></i></a></div>`;
+}
+
 // JSON parses a string, returning null instead of an exception on a failed parse
 export function safe_json_parse(str: string): any | null {
   try {
@@ -223,12 +224,7 @@ export function resolve_dotpath(object: any, path: string, default_: any = null)
 // Helper function to get arbitrarily deep array references, specifically in a helperoptions, and with better types for that matter
 export function resolve_helper_dotpath<T>(helper: HelperOptions, path: string): T;
 export function resolve_helper_dotpath<T>(helper: HelperOptions, path: string, default_: T): T;
-export function resolve_helper_dotpath<T>(
-  helper: HelperOptions,
-  path: string,
-  default_: T,
-  try_parent: boolean
-): T;
+export function resolve_helper_dotpath<T>(helper: HelperOptions, path: string, default_: T, try_parent: boolean): T;
 export function resolve_helper_dotpath(
   helper: HelperOptions,
   path: string,
@@ -295,88 +291,83 @@ export function ext_helper_hash(
  *
  * The data getter and commit func are used to retrieve the target data, and to save it back (respectively)
  */
- export function HANDLER_activate_general_controls<
- T extends LancerActorSheetData<any> | LancerItemSheetData<any>
->(
- html: JQuery,
- // Retrieves the data that we will operate on
- data_getter: () => Promise<T> | T,
- commit_func: (data: T) => void | Promise<void>
+export function HANDLER_activate_general_controls<T extends LancerActorSheetData<any> | LancerItemSheetData<any>>(
+  html: JQuery,
+  // Retrieves the data that we will operate on
+  data_getter: () => Promise<T> | T,
+  commit_func: (data: T) => void | Promise<void>
 ) {
- html.find(".gen-control").on("click", async (event: any) => {
-   // Get the id/action
-   event.stopPropagation();
-   const elt = event.currentTarget;
-   const path = elt.dataset.path;
-   const action = elt.dataset.action;
-   const data = await data_getter();
-   const raw_val: string = elt.dataset.actionValue ?? "";
-   const item_override: string = elt.dataset.commitItem ?? "";
+  html.find(".gen-control").on("click", async (event: any) => {
+    // Get the id/action
+    event.stopPropagation();
+    const elt = event.currentTarget;
+    const path = elt.dataset.path;
+    const action = elt.dataset.action;
+    const data = await data_getter();
+    const raw_val: string = elt.dataset.actionValue ?? "";
+    const item_override: string = elt.dataset.commitItem ?? "";
 
-   if (!path || !data) {
-     console.error("Gen control failed: missing path");
-   } else if (!action) {
-     console.error("Gen control failed: missing action");
-   } else if (!data) {
-     console.error("Gen control failed: data could not be retrieved");
-   }
+    if (!path || !data) {
+      console.error("Gen control failed: missing path");
+    } else if (!action) {
+      console.error("Gen control failed: missing action");
+    } else if (!data) {
+      console.error("Gen control failed: data could not be retrieved");
+    }
 
-   if (action == "delete") {
-     // Find and delete the item at that path
-     let item = resolve_dotpath(data, path) as RegEntry<any>;
-     return item.destroy_entry();
-   } else if (action == "splice") {
-     // Splice out the value at path dest, then writeback
-     array_path_edit(data, path, null, "delete");
-   } else if (action == "null") {
-     // Null out the target space
-     gentle_merge(data, { [path]: null });
-   } else if (["set", "append", "insert"].includes(action)) {
-     let result = await parse_control_val(raw_val, data.mm);
-     let success = result[0];
-     let value = result[1];
-     if (!success) {
-       console.warn(`Bad data-action-value: ${value}`);
-       return; // Bad arg - no effect
-     }
+    if (action == "delete") {
+      // Find and delete the item at that path
+      let item = resolve_dotpath(data, path) as RegEntry<any>;
+      return item.destroy_entry();
+    } else if (action == "splice") {
+      // Splice out the value at path dest, then writeback
+      array_path_edit(data, path, null, "delete");
+    } else if (action == "null") {
+      // Null out the target space
+      gentle_merge(data, { [path]: null });
+    } else if (["set", "append", "insert"].includes(action)) {
+      let result = await parse_control_val(raw_val, data.mm);
+      let success = result[0];
+      let value = result[1];
+      if (!success) {
+        console.warn(`Bad data-action-value: ${value}`);
+        return; // Bad arg - no effect
+      }
 
-     // Multiplex with our parsed actions
-     switch (action) {
-       case "set":
-         gentle_merge(data, { [path]: value });
-         break;
-       case "append":
-         array_path_edit(data, path + "[-1]", value, "insert");
-         break;
-       case "insert":
-         array_path_edit(data, path, value, "insert");
-         break;
-     }
-   } else {
-     console.error("Unhandled action: " + action);
-   }
+      // Multiplex with our parsed actions
+      switch (action) {
+        case "set":
+          gentle_merge(data, { [path]: value });
+          break;
+        case "append":
+          array_path_edit(data, path + "[-1]", value, "insert");
+          break;
+        case "insert":
+          array_path_edit(data, path, value, "insert");
+          break;
+      }
+    } else {
+      console.error("Unhandled action: " + action);
+    }
 
-   // Handle writing back our changes
-   if (item_override) {
-     let item = resolve_dotpath(data, item_override);
-     try {
-       await item.writeback();
-     } catch (e) {
-       console.error(`Failed to writeback item at path "${item_override}"`);
-       return;
-     }
-   } else {
-     await commit_func(data);
-   }
- });
+    // Handle writing back our changes
+    if (item_override) {
+      let item = resolve_dotpath(data, item_override);
+      try {
+        await item.writeback();
+      } catch (e) {
+        console.error(`Failed to writeback item at path "${item_override}"`);
+        return;
+      }
+    } else {
+      await commit_func(data);
+    }
+  });
 }
 
 // Used by above to figure out how to handle "set"/"append" args
 // Returns [success: boolean, val: any]
-async function parse_control_val(
-  raw_val: string,
-  ctx: MMEntityContext<any>
-): Promise<[boolean, any]> {
+async function parse_control_val(raw_val: string, ctx: MMEntityContext<any>): Promise<[boolean, any]> {
   // Declare
   let real_val: string | number | boolean | any;
 
@@ -430,16 +421,19 @@ async function control_structs(key: string, ctx: MMEntityContext<any>): Promise<
     case "bonus":
       return [true, new Bonus(funcs.defaults.BONUS())];
     case "action":
-      return [true, new Action(funcs.defaults.ACTION())]
+      return [true, new Action(funcs.defaults.ACTION())];
     case "counter":
-      return [true, new Counter({
-        lid: "tempLID",
-        name: "New Counter",
-        min: 1,
-        max: 6,
-        default_value: 1,
-        val: 1
-      })]
+      return [
+        true,
+        new Counter({
+          lid: "tempLID",
+          name: "New Counter",
+          min: 1,
+          max: 6,
+          default_value: 1,
+          val: 1,
+        }),
+      ];
     case "mount_type":
       return [true, MountType.Main];
     case "range":
@@ -470,9 +464,9 @@ async function control_structs(key: string, ctx: MMEntityContext<any>): Promise<
     case "talent_rank":
       return [true, funcs.defaults.TALENT_RANK()];
     case "WeaponSize":
-      return [true,WeaponSize.Aux];
+      return [true, WeaponSize.Aux];
     case "WeaponType":
-      return [true,WeaponType.CQB];
+      return [true, WeaponType.CQB];
   }
 
   // Didn't find a match
@@ -559,10 +553,7 @@ export function std_checkbox(path: string, options: HelperOptions) {
     value = resolve_helper_dotpath(options, path) ?? default_val;
   }
 
-  let input = `<input class="${input_classes}" name="${path}" ${inc_if(
-    "checked",
-    value
-  )} type="checkbox" />`;
+  let input = `<input class="${input_classes}" name="${path}" ${inc_if("checked", value)} type="checkbox" />`;
   if (label) {
     return `
     <label class="flexrow flex-center ${label_classes}">
@@ -582,11 +573,7 @@ export function std_checkbox(path: string, options: HelperOptions) {
  * - `classes`: Additional classes to put on the select.
  * - `default`: Change the default value if resolution fails. Otherwise, we just use the first one in the enum.
  */
-export function std_enum_select<T extends string>(
-  path: string,
-  enum_: { [key: string]: T },
-  options: HelperOptions
-) {
+export function std_enum_select<T extends string>(path: string, enum_: { [key: string]: T }, options: HelperOptions) {
   // Get the classes to add
   let select_classes: string = options.hash["classes"] || "";
 
@@ -609,10 +596,7 @@ export function std_enum_select<T extends string>(
   let choices: string[] = [];
   for (let choice of Object.values(enum_)) {
     choices.push(
-      `<option value="${choice}" ${inc_if(
-        "selected",
-        choice === selected
-      )}>${choice.toUpperCase()}</option>`
+      `<option value="${choice}" ${inc_if("selected", choice === selected)}>${choice.toUpperCase()}</option>`
     );
   }
 
@@ -628,9 +612,7 @@ export function popout_editor_button(path: string) {
   return `<a class="fas fa-edit popout-text-edit-button" data-path="${path}"> </a>`;
 }
 
-export function HANDLER_activate_popout_text_editor<
-  T extends LancerActorSheetData<any> | LancerItemSheetData<any>
->(
+export function HANDLER_activate_popout_text_editor<T extends LancerActorSheetData<any> | LancerItemSheetData<any>>(
   html: JQuery,
   // Retrieves the data that we will operate on
   data_getter: () => Promise<T> | T,
@@ -676,12 +658,9 @@ export function large_textbox_card(title: string, text_path: string, helper: Hel
   `;
 }
 
-
 // Reads the specified form to a JSON object, including unchecked inputs
 // Wraps the build in foundry method
-export function read_form(
-  form_element: HTMLFormElement
-): { [key: string]: string | number | boolean } {
+export function read_form(form_element: HTMLFormElement): { [key: string]: string | number | boolean } {
   // @ts-ignore The typings don't yet include this utility class
   let form_data = new FormDataExtended(form_element);
   return form_data.toObject();

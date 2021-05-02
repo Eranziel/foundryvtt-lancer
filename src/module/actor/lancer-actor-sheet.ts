@@ -26,13 +26,14 @@ import { AnyLancerItem, LancerMechWeapon, LancerPilotWeapon } from "../item/lanc
 import { LancerActor, LancerActorType } from "./lancer-actor";
 import {
   prepareActivationMacro,
+  prepareChargeMacro,
   prepareCoreActiveMacro,
   prepareCorePassiveMacro,
   prepareItemMacro,
   prepareStatMacro,
   runEncodedMacro,
 } from "../macros";
-import { EntryType, RegEntry } from "machine-mind";
+import { EntryType, MechSystem, RegEntry } from "machine-mind";
 import { ActivationOptions } from "../enums";
 import { applyCollapseListeners, CollapseHandler } from "../helpers/collapse";
 import { FoundryFlagData } from "../mm-util/foundry-reg";
@@ -57,6 +58,9 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
 
     // Enable collapse triggers.
     this._activateCollapses(html);
+
+    // Enable hex use triggers.
+    this._activateHexListeners(html);
 
     // Make refs clickable to open the item
     $(html).find(".ref.valid").on("click", HANDLER_activate_ref_clicking);
@@ -196,6 +200,31 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     });
   }
 
+  async _activateHexListeners(html: JQuery) {
+    let elements = html.find(".uses-hex");
+    elements.on("click", async ev => {
+      ev.stopPropagation();
+
+      const params = ev.currentTarget.dataset;
+      const data = await this.getDataLazy();
+      if (params.path) {
+        const item = resolve_dotpath(data, params.path) as MechSystem;
+        const available = params.available === "true";
+
+        if (available) {
+          // Deduct uses.
+          item.Uses = item.Uses > 0 ? item.Uses - 1 : 0;
+        } else {
+          // Increment uses.
+          item.Uses = item.Uses < item.OrigData.derived.max_uses ? item.Uses + 1 : item.OrigData.derived.max_uses;
+        }
+
+        item.writeback();
+        console.log(item);
+      }
+    });
+  }
+
   _activateMacroListeners(html: JQuery) {
     // Encoded macros
     let encMacros = html.find("a.lancer-macro");
@@ -296,6 +325,13 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
       // let target = <HTMLElement>ev.currentTarget;
 
       prepareCorePassiveMacro(this.actor._id);
+    });
+
+    let ChargeMacro = html.find(".charge-macro");
+    ChargeMacro.on("click", ev => {
+      ev.stopPropagation(); // Avoids triggering parent event handlers
+
+      prepareChargeMacro(this.actor._id);
     });
   }
 

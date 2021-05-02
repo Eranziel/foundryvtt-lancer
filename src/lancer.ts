@@ -110,6 +110,7 @@ import {
   item_edit_arrayed_integrated,
 } from "./module/helpers/item-editors";
 import { applyCollapseListeners } from "./module/helpers/collapse";
+import { handleCombatUpdate } from "./module/helpers/automation/combat";
 
 const lp = LANCER.log_prefix;
 
@@ -499,6 +500,8 @@ function sleep(ms: number) {
 // Make an awaitable for when this shit is done
 export const system_ready: Promise<void> = new Promise(success => {
   Hooks.once("ready", async function () {
+    Hooks.on("preUpdateCombat", handleCombatUpdate);
+
     // Wait for sanity check to complete.
     let ready: boolean = false;
     while (!ready) {
@@ -529,8 +532,11 @@ Hooks.on("renderSettings", async (app: Application, html: HTMLElement) => {
   addSettingsButtons(app, html);
 });
 
-// Attack function to overkill reroll button
 Hooks.on("renderChatMessage", async (cm: ChatMessage, html: any, data: any) => {
+  // Reapply listeners.
+  applyCollapseListeners();
+
+  // Attack function to overkill reroll button
   const overkill = html[0].getElementsByClassName("overkill-reroll");
   for (let i = 0; i < overkill.length; i++) {
     if (cm.isAuthor) {

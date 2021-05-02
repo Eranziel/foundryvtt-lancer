@@ -1,7 +1,7 @@
 import { HelperOptions } from "handlebars";
 import { ActivationType, NpcFeature, NpcFeatureType } from "machine-mind";
 import { is_loading } from "machine-mind/dist/classes/mech/EquipUtil";
-import { effect_box, resolve_dotpath, resolve_helper_dotpath } from "./commons";
+import { charged_box, effect_box, resolve_dotpath, resolve_helper_dotpath } from "./commons";
 import {
   npc_attack_bonus_preview,
   npc_accuracy_preview,
@@ -9,7 +9,7 @@ import {
   show_range_array,
   loading_indicator,
 } from "./item";
-import { ref_params } from "./refs";
+import { limited_chip_HTML, ref_params } from "./refs";
 import { compact_tag, compact_tag_list } from "./tags";
 
 export const EffectIcons = {
@@ -54,15 +54,9 @@ export function action_type_selector(a_type: string, data_target: string) {
   let html = '<div class="flexrow flex-center" style="padding: 5px; flex-wrap: nowrap;">';
   html += action_type_icon(a_type);
   html += `<select name="${data_target}" data-type="String" style="height: 2em;float: right" >
-    <option value="${ActivationType.None}" ${
-    a === ActivationType.None.toLowerCase() ? "selected" : ""
-  }>NONE</option>
-    <option value="${ActivationType.Full}" ${
-    a === ActivationType.Full.toLowerCase() ? "selected" : ""
-  }>FULL</option>
-    <option value="${ActivationType.Quick}" ${
-    a === ActivationType.Quick.toLowerCase() ? "selected" : ""
-  }>QUICK</option>
+    <option value="${ActivationType.None}" ${a === ActivationType.None.toLowerCase() ? "selected" : ""}>NONE</option>
+    <option value="${ActivationType.Full}" ${a === ActivationType.Full.toLowerCase() ? "selected" : ""}>FULL</option>
+    <option value="${ActivationType.Quick}" ${a === ActivationType.Quick.toLowerCase() ? "selected" : ""}>QUICK</option>
     <option value="${ActivationType.Reaction}" ${
     a === ActivationType.Reaction.toLowerCase() ? "selected" : ""
   }>REACTION</option>
@@ -72,9 +66,7 @@ export function action_type_selector(a_type: string, data_target: string) {
     <option value="${ActivationType.Passive}" ${
     a === ActivationType.Passive.toLowerCase() ? "selected" : ""
   }>PASSIVE</option>
-    <option value="${ActivationType.Other}" ${
-    a === ActivationType.Other.toLowerCase() ? "selected" : ""
-  }>OTHER</option>
+    <option value="${ActivationType.Other}" ${a === ActivationType.Other.toLowerCase() ? "selected" : ""}>OTHER</option>
   </select>
   </div>`;
   return html;
@@ -87,9 +79,9 @@ function del_button(path: string): string {
 
 function npc_feature_scaffold(path: string, npc_feature: NpcFeature, body: string) {
   let feature_class = `npc-${npc_feature.FeatureType.toLowerCase()}`;
-  let macro_button = ""
-  if(npc_feature.FeatureType !== NpcFeatureType.Weapon) {
-    macro_button = `<a class="macroable item-macro"><i class="mdi mdi-message"></i></a>`
+  let macro_button = "";
+  if (npc_feature.FeatureType !== NpcFeatureType.Weapon) {
+    macro_button = `<a class="macroable item-macro"><i class="mdi mdi-message"></i></a>`;
   }
   return `
   <div class="valid ref card item ${feature_class}" ${ref_params(npc_feature.as_ref())}>
@@ -123,6 +115,8 @@ function npc_system_trait_effect_preview(path: string, options: HelperOptions) {
     path,
     npc_feature,
     `<div class="flexcol lancer-body">
+      ${npc_feature.Tags.find(tag => tag.Tag.LID === "tg_limited") ? limited_chip_HTML(npc_feature, path) : ""}
+      ${npc_feature.Tags.find(tag => tag.Tag.LID === "tg_recharge") ? charged_box(npc_feature.Charged, path) : ""}
       ${effect_box("EFFECT", npc_feature.Effect)}
       ${compact_tag_list(path + ".Tags", npc_feature.Tags, false)}
     </div>`
@@ -191,9 +185,7 @@ export function npc_weapon_effect_preview(path: string, options: HelperOptions) 
   let tier_index: number = (options.hash["tier"] ?? 1) - 1;
 
   let sep = `<hr class="vsep">`;
-  let subheader_items = [
-    `<a class="roll-attack no-grow"><i class="fas fa-dice-d20 i--m i--dark"></i></a>`,
-  ];
+  let subheader_items = [`<a class="roll-attack no-grow"><i class="fas fa-dice-d20 i--m i--dark"></i></a>`];
 
   // Weapon info
 
@@ -212,7 +204,7 @@ export function npc_weapon_effect_preview(path: string, options: HelperOptions) 
   if (npc_feature.Damage[tier_index] && npc_feature.Damage[tier_index].length) {
     subheader_items.push(show_damage_array(npc_feature.Damage[tier_index], options));
   }
-  
+
   if (is_loading(npc_feature)) subheader_items.push(loading_indicator(npc_feature.Loaded, path));
 
   return npc_feature_scaffold(
@@ -224,9 +216,7 @@ export function npc_weapon_effect_preview(path: string, options: HelperOptions) 
         ${subheader_items.join(sep)}
       </div>
       <div>
-        <span>${npc_feature.WepType ?? "Weapon"} // ${npc_feature.Origin.name} ${
-      npc_feature.Origin.type
-    } Feature</span>
+        <span>${npc_feature.WepType ?? "Weapon"} // ${npc_feature.Origin.name} ${npc_feature.Origin.type} Feature</span>
       </div>
       ${effect_box("ON HIT", npc_feature.OnHit)}
       ${effect_box("EFFECT", npc_feature.Effect)}

@@ -63,7 +63,7 @@ import { compact_tag_list } from "./helpers/tags";
 import { buildActionHTML, buildDeployableHTML, buildSystemHTML } from "./helpers/item";
 import { System } from "pixi.js";
 import { ActivationOptions, StabOptions1, StabOptions2 } from "./enums";
-import { applyCollapseListeners } from "./helpers/collapse";
+import { applyCollapseListeners, uuid4 } from "./helpers/collapse";
 import { checkForHit, getTargets } from "./helpers/automation/targeting";
 
 const lp = LANCER.log_prefix;
@@ -357,6 +357,9 @@ export function getMacroSpeaker(a_id?: string): LancerActor<any> | null {
   if (!actor || (a_id && actor.id !== a_id)) {
     actor = game.actors.get(a_id!);
   }
+  if (!actor || (a_id && actor.id !== a_id)) {
+    actor = ((game.actors.tokens as any) as Record<string, Actor>)[a_id!];
+  }
   if (!actor) {
     ui.notifications.warn(`Failed to find Actor for macro. Do you need to select a token?`);
   }
@@ -367,6 +370,9 @@ export function getMacroSpeaker(a_id?: string): LancerActor<any> | null {
  *
  */
 export async function renderMacroTemplate(actor: Actor, template: string, templateData: any) {
+  const cardUUID = uuid4();
+  templateData._uuid = cardUUID;
+
   const html = await renderTemplate(template, templateData);
   let roll = templateData.roll || templateData.attack;
   return renderMacroHTML(actor, html, roll);
@@ -437,7 +443,11 @@ export async function prepareStatMacro(a: string, statKey: string) {
     title: statPath[statPath.length - 1].toUpperCase(),
     bonus: bonus,
   };
-  rollStatMacro(actor, mData).then();
+  if (mData.title === "TECHATTACK") {
+    rollTechMacro(actor, { acc: 0, action: "Quick", t_atk: bonus, effect: "", tags: [], title: "" });
+  } else {
+    rollStatMacro(actor, mData).then();
+  }
 }
 
 // Rollers
@@ -933,6 +943,7 @@ export async function prepareTechMacro(a: string, t: string) {
     acc: 0,
     effect: "",
     tags: [],
+    action: "",
   };
   if (item.type === EntryType.MECH_SYSTEM) {
     debugger;
@@ -945,36 +956,64 @@ export async function prepareTechMacro(a: string, t: string) {
     const tData = item.data.data as RegNpcTechData;
     let tier: number;
     if (item.actor === null) {
-      tier = actor.data.data.tier_num - 1;
+      tier = actor.data.data.tier - 1;
     } else {
-      tier = item.actor.data.data.tier_num - 1;
+      tier = item.actor.data.data.tier - 1;
     }
     mData.t_atk = tData.attack_bonus && tData.attack_bonus.length > tier ? tData.attack_bonus[tier] : 0;
     mData.acc = tData.accuracy && tData.accuracy.length > tier ? tData.accuracy[tier] : 0;
     mData.tags = await SerUtil.process_tags(new FoundryReg(), new OpCtx(), tData.tags);
     mData.effect = tData.effect ? tData.effect : "";
+    mData.action = tData.tech_type ? tData.tech_type : "";
   } else {
     ui.notifications.error(`Error rolling tech attack macro`);
     return Promise.resolve();
   }
   console.log(`${lp} Tech Attack Macro Item:`, item, mData);
 
-  //await rollTechMacro(actor, mData);
+  await rollTechMacro(actor, mData);
 }
 
-async function rollTechMacro(actor: Actor, data: LancerActionMacroData) {
+async function rollTechMacro(actor: Actor, data: LancerTechMacroData) {
   let atk_str = await buildAttackRollString(data.title, data.acc, data.t_atk);
   if (!atk_str) return;
-  let attack_roll = new Roll(atk_str).roll();
-  const attack_tt = await attack_roll.getTooltip();
+
+  // CHECK TARGETS
+  const targets = getTargets();
+  let hits: {
+    token: { name: string; img: string };
+    total: string;
+    hit: boolean;
+  }[] = [];
+  let attacks: { roll: Roll; tt: HTMLElement | JQuery<HTMLElement> }[] = [];
+  if (game.settings.get(LANCER.sys_name, LANCER.setting_automation_attack) && targets.length > 0) {
+    for (const target of targets) {
+      let attack_roll = new Roll(atk_str!).roll();
+      const attack_tt = await attack_roll.getTooltip();
+      attacks.push({ roll: attack_roll, tt: attack_tt });
+
+      hits.push({
+        token: {
+          name: target.token ? target.token.data.name : target.data.name,
+          img: target.token ? target.token.data.img : target.data.img,
+        },
+        total: String(attack_roll._total).padStart(2, "0"),
+        hit: checkForHit(true, attack_roll, target),
+      });
+    }
+  } else {
+    let attack_roll = new Roll(atk_str).roll();
+    const attack_tt = await attack_roll.getTooltip();
+    attacks.push({ roll: attack_roll, tt: attack_tt });
+  }
 
   // Output
   const templateData = {
     title: data.title,
-    attack: attack_roll,
-    attack_tooltip: attack_tt,
-    actionName: data.actionName,
-    detail: data.detail ? data.detail : null,
+    attacks: attacks,
+    hits: hits,
+    action: data.action,
+    effect: data.effect ? data.effect : null,
     tags: data.tags,
   };
 
@@ -1090,6 +1129,45 @@ async function rollOverchargeMacro(actor: Actor, data: LancerOverchargeMacroData
   return renderMacroTemplate(actor, template, templateData);
 }
 
+export async function prepareChargeMacro(a: string) {
+  // Determine which Actor to speak as
+  let mech: LancerActor<EntryType.MECH> | null = getMacroSpeaker(a);
+  if (!mech) return;
+  const ent = mech.data.data.derived.mmec.ent;
+  const feats: NpcFeature[] = (ent as any).Features;
+  if (!feats) return;
+
+  // Make recharge roll.
+  const roll = new Roll("1d6").roll();
+  const roll_tt = await roll.getTooltip();
+  // Iterate over each system with recharge, if val of tag is lower or equal to roll, set to charged.
+
+  let changed: { name: string; target: string | null | number | undefined; charged: boolean }[] = [];
+  feats.forEach(feat => {
+    if (!feat.Charged) {
+      const recharge = feat.Tags.find(tag => tag.Tag.LID === "tg_recharge");
+      if (recharge && recharge.Value && recharge.Value <= roll.total) {
+        feat.Charged = true;
+        feat.writeback();
+      }
+      changed.push({ name: feat.Name, target: recharge?.Value, charged: feat.Charged });
+    }
+  });
+
+  // Skip chat if no changes found.
+  if (changed.length === 0) return;
+
+  // Render template.
+  const templateData = {
+    actorName: mech.name,
+    roll: roll,
+    roll_tooltip: roll_tt,
+    changed: changed,
+  };
+  const template = `systems/lancer/templates/chat/charge-card.html`;
+  return renderMacroTemplate(mech, template, templateData);
+}
+
 /**
  * Performs a roll on the overheat table for the given actor
  * @param a ID of actor to overheat
@@ -1182,12 +1260,12 @@ async function _prepareTechActionMacro(actorEnt: Mech, itemEnt: MechSystem | Npc
 
   let action = itemEnt.Actions[index];
 
-  let mData: LancerActionMacroData = {
+  let mData: LancerTechMacroData = {
     title: itemEnt.Name,
     t_atk: 0,
     acc: 0,
-    actionName: action.Name.toUpperCase(),
-    detail: action.Detail,
+    action: action.Name.toUpperCase(),
+    effect: action.Detail,
     tags: itemEnt.Tags,
   };
 
@@ -1242,7 +1320,6 @@ export async function fullRepairMacro(a: string) {
     return null;
   }
 
-
   return new Promise<number>((resolve, reject) => {
     new Dialog({
       title: `FULL REPAIR - ${actor?.name}`,
@@ -1253,11 +1330,11 @@ export async function fullRepairMacro(a: string) {
           label: "Yes",
           callback: async dlg => {
             // Gotta typeguard the actor again
-            if(!actor) return;
-            
+            if (!actor) return;
+
             await actor.full_repair();
 
-            prepareTextMacro(a, "REPAIRED",`Notice: ${actor.name} has been fully repaired.`);
+            prepareTextMacro(a, "REPAIRED", `Notice: ${actor.name} has been fully repaired.`);
           },
         },
         cancel: {
@@ -1272,8 +1349,6 @@ export async function fullRepairMacro(a: string) {
       close: () => reject(true),
     }).render(true);
   });
-
-
 }
 
 export async function stabilizeMacro(a: string) {
@@ -1296,16 +1371,20 @@ export async function stabilizeMacro(a: string) {
           label: "Submit",
           callback: async dlg => {
             // Gotta typeguard the actor again
-            if(!actor) return;
-            
+            if (!actor) return;
+
             let o1 = <StabOptions1>$(dlg).find(".stabilize-options-1:checked").first().val();
             let o2 = <StabOptions2>$(dlg).find(".stabilize-options-2:checked").first().val();
-            
-            let text = await actor.stabilize(o1,o2);
 
-            if(!text) return;
+            let text = await actor.stabilize(o1, o2);
 
-            prepareTextMacro(a, `${actor.name.capitalize()} HAS STABILIZED`,`${actor.name} has stabilized.<br>${text}`);
+            if (!text) return;
+
+            prepareTextMacro(
+              a,
+              `${actor.name.capitalize()} HAS STABILIZED`,
+              `${actor.name} has stabilized.<br>${text}`
+            );
           },
         },
         cancel: {
@@ -1320,5 +1399,4 @@ export async function stabilizeMacro(a: string) {
       close: () => reject(true),
     }).render(true);
   });
-
- }
+}

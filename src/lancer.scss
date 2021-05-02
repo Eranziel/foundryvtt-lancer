@@ -8,7 +8,7 @@
   --main-font-family: Helvetica, Arial, sans-serif;
 
   --main-theme-color: #991e2a; /* I've configured calls to this to fall back on fuchsia when things go wrong */
-  --main-theme-text: #E8BCBE;
+  --main-theme-text: #e8bcbe;
   --secondary-theme-color: #505050;
   --loadout-color: #777f86;
   --ref-color: #ddc0b3;
@@ -207,7 +207,7 @@ button {
 }
 
 #chat-log .message.whisper {
-  border: 2px solid fuchsia;
+  border: 2px solid #fdcb28;
 }
 
 .lancer-hit {
@@ -243,6 +243,15 @@ button {
 }
 .lancer-hit-text-name {
   font-size: 1.2em;
+}
+
+.card.lancer-charge-chip {
+  color: #e6e6e6;
+  background-color: #3c3c3c;
+}
+.card.lancer-charge-chip.charged {
+  color: #fff;
+  background-color: #1a4015;
 }
 
 /* ---------- */
@@ -894,6 +903,28 @@ textarea {
   }
 }
 
+.hex {
+  cursor: pointer;
+  font-size: 1.6em;
+}
+.hex-filled {
+  color: rgb(173, 6, 22);
+}
+.hex-white {
+  color: white;
+}
+
+.clipped.card.charged-box {
+  width: fit-content;
+  display: inline-flex;
+  flex-direction: row;
+  padding: 4px 8px;
+  justify-content: space-between;
+  align-items: center;
+  color: white;
+  background-color: var(--main-theme-color, fuchsia);
+}
+
 .lancer-header span.minor {
   margin: 0 16px;
 }
@@ -980,13 +1011,16 @@ input[type="string"].lancer-input {
   cursor: pointer;
 }
 .collapse {
-  max-height: 10000em;
+  max-height: 1000em;
+  opacity: 1;
   overflow: hidden;
-  transition: max-height 0.75s ease-in-out;
+  transition: max-height 0.5s, opacity 0.2s, padding 0.5s ease-in;
 }
 .collapse.collapsed {
   max-height: 0;
   min-height: 0;
+  padding: 0;
+  opacity: 0;
 }
 
 .lancer-title {
@@ -1643,8 +1677,17 @@ a.activation-chip > i.mdi {
 }
 
 .uses-wrapper {
-  float: right;
-  max-width: 4em;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-right: 4px;
+  margin-top: 4px;
+}
+
+.uses-hex {
+  cursor: pointer;
+  font-size: 2em;
+  color: white;
 }
 
 .weapon-profile-wrapper {
@@ -1740,7 +1783,6 @@ a.activation-chip > i.mdi {
   margin-right: 0.5em;
 }
 
-
 // Begin "Button" radio buttons
 .hidden {
   display: none;
@@ -1761,7 +1803,7 @@ a.activation-chip > i.mdi {
   margin: 0.5em;
   cursor: pointer;
   border-radius: 0.25em;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
   user-select: none;
 }
 
