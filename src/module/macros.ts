@@ -374,7 +374,48 @@ export async function renderMacroTemplate(actor: Actor, template: string, templa
   templateData._uuid = cardUUID;
 
   const html = await renderTemplate(template, templateData);
-  let roll = templateData.roll || templateData.attack;
+  let roll: Roll | undefined;
+  // Create JSON for the aggregate rolls.
+  let aggregate: any = {
+    class: "Roll",
+    dice: [],
+    formula: "",
+    terms: [],
+    results: [],
+  };
+  if (templateData.roll) {
+    roll = templateData.roll;
+  }
+  if (templateData.attacks) {
+    const attacks: { roll: Roll; tt: string }[] = templateData.attacks;
+    attacks.forEach(atk => {
+      aggregate.formula += `+${atk.roll.formula}`;
+      if (aggregate.terms.length > 0) aggregate.terms.push("+");
+      atk.roll.terms.forEach(term => {
+        aggregate.terms.push(term);
+      });
+      (atk.roll as any).results.forEach((result: any) => {
+        aggregate.results.push(result);
+      });
+    });
+  }
+  if (templateData.damages) {
+    const damages: { roll: Roll; tt: string; d_type: string }[] = templateData.damages;
+    damages.forEach(dmg => {
+      aggregate.formula += `+${dmg.roll.formula}`;
+      if (aggregate.terms.length > 0) aggregate.terms.push("+");
+      dmg.roll.terms.forEach(term => {
+        aggregate.terms.push(term);
+      });
+      (dmg.roll as any).results.forEach((result: any) => {
+        aggregate.results.push(result);
+      });
+    });
+  }
+
+  if (aggregate.results.length > 0) {
+    roll = Roll.fromJSON(JSON.stringify(aggregate));
+  }
   return renderMacroHTML(actor, html, roll);
 }
 
@@ -661,10 +702,10 @@ async function prepareAttackMacro({
 
     let itemEnt: MechWeapon = (await item.data.data.derived.mmec_promise).ent;
     itemEnt.Loaded = false;
-    itemEnt.writeback();
+    await itemEnt.writeback();
   }
 
-  await rollAttackMacro(actor, atk_str, mData).then();
+  await rollAttackMacro(actor, atk_str, mData);
 }
 
 async function rollAttackMacro(actor: Actor, atk_str: string | null, data: LancerAttackMacroData) {
