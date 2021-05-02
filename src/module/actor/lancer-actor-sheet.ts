@@ -26,6 +26,7 @@ import { AnyLancerItem, LancerMechWeapon, LancerPilotWeapon } from "../item/lanc
 import { LancerActor, LancerActorType } from "./lancer-actor";
 import {
   prepareActivationMacro,
+  prepareChargeMacro,
   prepareCoreActiveMacro,
   prepareCorePassiveMacro,
   prepareItemMacro,
@@ -324,6 +325,13 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
       // let target = <HTMLElement>ev.currentTarget;
 
       prepareCorePassiveMacro(this.actor._id);
+    });
+
+    let ChargeMacro = html.find(".charge-macro");
+    ChargeMacro.on("click", ev => {
+      ev.stopPropagation(); // Avoids triggering parent event handlers
+
+      prepareChargeMacro(this.actor._id);
     });
   }
 

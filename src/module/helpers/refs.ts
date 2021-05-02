@@ -18,6 +18,7 @@ import {
   TagInstance,
   PilotWeapon,
   PilotGear,
+  NpcFeature,
 } from "machine-mind";
 import { is_limited, limited_max } from "machine-mind/dist/classes/mech/EquipUtil";
 import { System } from "pixi.js";
@@ -421,7 +422,10 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
   }
 }
 
-function limited_chip_HTML(item: MechWeapon | MechSystem | PilotWeapon | PilotGear, path: string): string {
+export function limited_chip_HTML(
+  item: MechWeapon | MechSystem | PilotWeapon | PilotGear | NpcFeature,
+  path: string
+): string {
   const uses = item.Uses;
   const maxUses = item.OrigData.derived.max_uses;
 
@@ -432,7 +436,7 @@ function limited_chip_HTML(item: MechWeapon | MechSystem | PilotWeapon | PilotGe
     } theme--light" data-available="${available}" data-path="${path}"></i>`;
   });
 
-  return `Uses: ${hexes.join("")}`;
+  return `<div class="clipped card charged-box charged">Uses: ${hexes.join("")}</div>`;
 }
 
 function limited_HTML(

@@ -357,6 +357,9 @@ export function getMacroSpeaker(a_id?: string): LancerActor<any> | null {
   if (!actor || (a_id && actor.id !== a_id)) {
     actor = game.actors.get(a_id!);
   }
+  if (!actor || (a_id && actor.id !== a_id)) {
+    actor = ((game.actors.tokens as any) as Record<string, Actor>)[a_id!];
+  }
   if (!actor) {
     ui.notifications.warn(`Failed to find Actor for macro. Do you need to select a token?`);
   }
@@ -1124,6 +1127,45 @@ async function rollOverchargeMacro(actor: Actor, data: LancerOverchargeMacroData
   };
   const template = `systems/lancer/templates/chat/overcharge-card.html`;
   return renderMacroTemplate(actor, template, templateData);
+}
+
+export async function prepareChargeMacro(a: string) {
+  // Determine which Actor to speak as
+  let mech: LancerActor<EntryType.MECH> | null = getMacroSpeaker(a);
+  if (!mech) return;
+  const ent = mech.data.data.derived.mmec.ent;
+  const feats: NpcFeature[] = (ent as any).Features;
+  if (!feats) return;
+
+  // Make recharge roll.
+  const roll = new Roll("1d6").roll();
+  const roll_tt = await roll.getTooltip();
+  // Iterate over each system with recharge, if val of tag is lower or equal to roll, set to charged.
+
+  let changed: { name: string; target: string | null | number | undefined; charged: boolean }[] = [];
+  feats.forEach(feat => {
+    if (!feat.Charged) {
+      const recharge = feat.Tags.find(tag => tag.Tag.LID === "tg_recharge");
+      if (recharge && recharge.Value && recharge.Value <= roll.total) {
+        feat.Charged = true;
+        feat.writeback();
+      }
+      changed.push({ name: feat.Name, target: recharge?.Value, charged: feat.Charged });
+    }
+  });
+
+  // Skip chat if no changes found.
+  if (changed.length === 0) return;
+
+  // Render template.
+  const templateData = {
+    actorName: mech.name,
+    roll: roll,
+    roll_tooltip: roll_tt,
+    changed: changed,
+  };
+  const template = `systems/lancer/templates/chat/charge-card.html`;
+  return renderMacroTemplate(mech, template, templateData);
 }
 
 /**
