@@ -189,12 +189,18 @@ function buildCoreSysHTML(core: CoreSystem) {
   // Removing desc temporarily because of space constraints
   // <div class="frame-core-desc">${core.Description ? core.Description : ""}</div>
 
+  // Generate core passive HTML only if it has one
+  let passive = "";
+  if (core.PassiveEffect !== "") {
+    passive = `<div class="frame-passive">${frame_passive(core)}</div>`;
+  }
+
   return `<div class="core-wrapper frame-coresys flexcol">
     <div class="coresys-title">
       <span>${core.Name}</span>
     </div>
     <div class="frame-active">${frame_active(core)}</div>
-    <div class="frame-passive">${frame_passive(core)}</div>
+    ${passive}
     ${tags ? tags : ""}
   </div>`;
 }
