@@ -609,6 +609,20 @@ export function mech_weapon_refview(
     collapseID = `${weapon.LID}_${collapseNumCheck}`;
   }
 
+  // Do we need a profile selector?
+  let profiles = "";
+  if (weapon.Profiles.length > 1) {
+    profiles = `<div class="flexrow weapon-profile-wrapper">`;
+    for (let i = 0; i < weapon.Profiles.length; i++) {
+      let p = weapon.Profiles[i];
+      profiles += `<a class="gen-control weapon-profile ${i === weapon.SelectedProfileIndex ? "selected-profile" : ""}"
+data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.SelectedProfileIndex" data-commit-item="${weapon_path}">
+<span class="minor">${p.Name}</span>
+</a>`;
+    }
+    profiles += `</div>`;
+  }
+
   // What profile are we using?
   let profile = weapon.SelectedProfile;
   let profile_path = `${weapon_path}.Profiles.${weapon.SelectedProfileIndex}`;
@@ -647,6 +661,7 @@ export function mech_weapon_refview(
         <a class="gen-control i--light" data-action="null" data-path="${weapon_path}"><i class="fas fa-trash"></i></a>
       </div> 
       <div class="lancer-body">
+        ${profiles}
         <div class="flexrow" style="text-align: left; white-space: nowrap;">
           <a class="roll-attack"><i class="fas fa-dice-d20 i--m i--dark"></i></a>
           <hr class="vsep">

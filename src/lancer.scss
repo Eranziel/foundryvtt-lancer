@@ -1634,6 +1634,28 @@ a.activation-chip > i.mdi {
   max-width: 4em;
 }
 
+.weapon-profile-wrapper {
+  padding: 5px 5px 0px 5px;
+  background-color: var(--main-theme-color);
+  clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+}
+
+.weapon-profile {
+  color: white;
+  background-color: var(--main-theme-color);
+  align-items: center;
+  min-height: 2em;
+  text-align: center;
+  padding: 0px 9px;
+  clip-path: polygon(9px 0, 100% 0, calc(100% - 9px) 100%, 0 100%);
+}
+
+.weapon-profile.selected-profile {
+  color: var(--main-theme-color);
+  background-color: white;
+  font-weight: bold;
+}
+
 .weapon-mod-addon {
   background-color: var(--bonus-color);
   margin: 0px 3px 0.5em 3px;
