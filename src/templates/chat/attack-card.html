@@ -33,11 +33,13 @@
         </div>
         <div class="lancer-hit-text">
           <span class="lancer-hit-text-name">{{hit.token.name}}</span>
-          {{#if hit.hit}}
+          {{#if hit.crit}}
+          <span class="card clipped lancer-hit-chip crit">{{hit.total}} - CRIT</span>
+          {{else}}{{#if hit.hit}}
           <span class="card clipped lancer-hit-chip hit">{{hit.total}} - HIT</span>
           {{else}}
           <span class="card clipped lancer-hit-chip miss">{{hit.total}} - MISS</span>
-          {{/if}}
+          {{/if}}{{/if}}
         </div>
       </div>
       {{/each}}
