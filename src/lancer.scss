@@ -841,7 +841,9 @@ textarea {
   }
 
   .tech &,
-  .npc-tech & {
+  .npc-tech &,
+  &.tech,
+  &.npc-tech, {
     /* clip-path: var(--tech-clip-path);
     -webkit-clip-path: var(--tech-clip-path); */
     background-color: var(--tech-color);
@@ -854,7 +856,10 @@ textarea {
 
   .mech_weapon &,
   .npc-weapon &,
-  .pilot_weapon & {
+  .pilot_weapon &,
+  &.mech_weapon,
+  &.npc-weapon,
+  &.pilot_weapon, {
     background-color: var(--weapon-color);
   }
 
@@ -871,7 +876,10 @@ textarea {
   .pilot_weapon:hover &,
   .mech_system:hover &,
   .mech-system-compact:hover &,
+  .npc-trait:hover &,
   .npc-system:hover &,
+  .npc-tech:hover &,
+  .npc-reaction:hover &,
   .pilot_gear:hover &,
   .pilot_armor:hover & {
     box-shadow: var(--hover-bright);
@@ -901,6 +909,13 @@ textarea {
     font-size: 12px;
     font-weight: lighter;
   }
+}
+
+.lancer-mini-header {
+  align-items: center;
+  color: white;
+  background-color: var(--main-theme-color, fuchsia);
+  max-height: fit-content;
 }
 
 .hex {

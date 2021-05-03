@@ -1,10 +1,10 @@
 <div class="card clipped-bot" style="margin: 0px;">
-  <div class="lancer-header medium">
+  <div class="lancer-header tech medium">
     <i class="cci cci-tech-quick i--m i--light"> </i>
     <span>TECH ATK{{#if title}} :: {{title}}{{/if}}</span>
   </div>
   <div class="card clipped">
-    <div class="lancer-header collapse-trigger" data-collapse-id="{{_uuid}}-attacks">
+    <div class="lancer-mini-header collapse-trigger" data-collapse-id="{{_uuid}}-attacks">
       // ATTACK //
     </div>
     {{#each attacks as |attack key|}}
@@ -27,7 +27,7 @@
   </div>
   {{#if hits}}
   <div class="card clipped">
-    <div class="lancer-header collapse-trigger" data-collapse-id="{{_uuid}}-hits">// HIT VS E-DEF //</div>
+    <div class="lancer-mini-header collapse-trigger" data-collapse-id="{{_uuid}}-hits">// HIT VS E-DEF //</div>
     {{#each hits as |hit key|}}
     <div class="lancer-hit collapse" data-collapse-id="{{../_uuid}}-hits">
       <div>
@@ -46,7 +46,7 @@
   </div>
   {{/if}} {{#if effect}}
   <div class="card clipped">
-    <div class="lancer-header collapse-trigger" data-collapse-id="{{_uuid}}-effect">// EFFECT //</div>
+    <div class="lancer-mini-header collapse-trigger" data-collapse-id="{{_uuid}}-effect">// EFFECT //</div>
     <span class="effect-text collapse" data-collapse-id="{{_uuid}}-effect">{{{effect}}}</span>
   </div>
   {{/if}}
