@@ -170,13 +170,20 @@ export function effect_box(title: string, text: string, add_classes: string = ""
   if (text) {
     return `
       <div class="effect-box ${add_classes}">
-        <span class="effect-title">${title}</span>
-        <span class="effect-text" style="padding: 0 5px ">${text}</span>
+        <span class="effect-title clipped-bot">${title}</span>
+        <span class="effect-text" style="padding: 0 0.5em 0.5em 0.5em;">${text}</span>
       </div>
       `;
   } else {
     return "";
   }
+}
+
+export function sp_display(sp: number | string) {
+  return `<div style="float: left; align-items: center; display: inherit;">
+            <i class="cci cci-system-point i--m i--dark"> </i>
+            <span class="medium" style="padding: 5px;">${sp} SP</span>
+          </div>`;
 }
 
 export function charged_box(charged: boolean, path: string) {
