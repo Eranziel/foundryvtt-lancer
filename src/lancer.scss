@@ -1712,9 +1712,9 @@ a.activation-chip > i.mdi {
 }
 
 .weapon-profile-wrapper {
-  padding: 5px 5px 0px 5px;
+  padding: 8px 8px 0px 5px;
   background-color: var(--main-theme-color);
-  clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+  clip-path: polygon(0 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
 }
 
 .weapon-profile {
@@ -1724,7 +1724,11 @@ a.activation-chip > i.mdi {
   min-height: 2em;
   text-align: center;
   padding: 0px 9px;
-  clip-path: polygon(9px 0, 100% 0, calc(100% - 9px) 100%, 0 100%);
+  clip-path: polygon(9px 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+}
+
+.weapon-profile:hover {
+  box-shadow: var(--hover-bright);
 }
 
 .weapon-profile.selected-profile {
