@@ -73,6 +73,9 @@ export type LancerActorSheetData<T extends LancerActorType> = {
 
   // reg ctx
   mm: MMEntityContext<T>;
+
+  // Store active mech at the root level
+  active_mech: Mech | null;
 };
 
 // -------- Macro data -------------------------------------

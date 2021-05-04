@@ -17,7 +17,7 @@ import { LancerItem, lancerItemInit } from "./module/item/lancer-item";
 import { action_type_icon, action_type_selector } from "./module/helpers/npc";
 
 // Import applications
-import { LancerPilotSheet, pilot_counters } from "./module/actor/pilot-sheet";
+import { LancerPilotSheet, active_mech_preview, pilot_counters } from "./module/actor/pilot-sheet";
 import { LancerNPCSheet } from "./module/actor/npc-sheet";
 import { LancerDeployableSheet } from "./module/actor/deployable-sheet";
 import { LancerMechSheet } from "./module/actor/mech-sheet";
@@ -374,6 +374,7 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("pilot-gear-slot", pilot_gear_refview);
   Handlebars.registerHelper("counter-array", buildCounterArrayHTML);
   Handlebars.registerHelper("pilot-counters", pilot_counters);
+  Handlebars.registerHelper("active-mech-preview", active_mech_preview);
 
   // ------------------------------------------------------------------------
   // Tags

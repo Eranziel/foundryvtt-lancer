@@ -58,7 +58,7 @@ export function stat_view_card(
   title: string,
   icon: string,
   data_path: string,
-  options: HelperOptions & { rollable: boolean }
+  options: HelperOptions & { rollable?: boolean }
 ): string {
   let data_val = resolve_helper_dotpath(options, data_path);
   let macro_button: string | undefined;

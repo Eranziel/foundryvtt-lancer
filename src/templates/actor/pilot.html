@@ -40,6 +40,7 @@
     <a class="item lancer-tab medium" data-tab="dossier">&lt;PILOT//DOSSIER&gt;</a>
     <a class="item lancer-tab medium" data-tab="tactical">&lt;PILOT//TACTICAL&gt;</a>
     <a class="item lancer-tab medium" data-tab="abilities">&lt;PILOT//ABILITIES&gt;</a>
+    <a class="item lancer-tab medium" data-tab="loadout">&lt;EQUIP//LOADOUT&gt;</a>
     <!--<a class="item lancer-tab medium" data-tab="mech">&lt;FRAME//LOADOUT&gt;</a>-->
   </nav>
 
@@ -178,6 +179,16 @@
         {{#each mm.ent.Talents as |skill index|}} {{{ref-mm-controllable-item (concat
         "mm.ent.Talents." index) "delete" }}} {{/each}}
       </div>
+    </div>
+    
+    {{!-- Loadout Tab --}}
+    {{!-- Things to put in here:
+        * ActiveMechRef (maybe just drag&drop & a link here to get to it?)
+        * Access to a full list of things unlocked by licenses (read-only)    
+    --}}
+    <div class="tab loadout flexcol" data-group="primary" data-tab="loadout">
+      {{!-- Active Mech --}}
+      {{{active-mech-preview active_mech "active_mech" "mm.ent.ActiveMechRef"}}}
     </div>
   </section>
 </form>

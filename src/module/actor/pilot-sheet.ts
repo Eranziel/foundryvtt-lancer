@@ -1,13 +1,18 @@
 import { LancerMechWeapon, LancerPilotWeapon } from "../item/lancer-item";
 import { LANCER } from "../config";
 import { LancerActorSheet } from "./lancer-actor-sheet";
-import { Counter, EntryType, MountType, OpCtx, Pilot } from "machine-mind";
+import { Counter, EntryType, Mech, MountType, OpCtx, Pilot, RegRef } from "machine-mind";
 import { FoundryFlagData, FoundryReg } from "../mm-util/foundry-reg";
 import { MMEntityContext, mm_wrap_item } from "../mm-util/helpers";
 import { funcs, quick_relinker } from "machine-mind";
 import { ResolvedNativeDrop } from "../helpers/dragdrop";
 import { HelperOptions } from 'handlebars';
 import { buildCounterHTML } from "../helpers/item";
+import { LancerActorSheetData } from "../interfaces";
+import { ref_commons, ref_params, simple_mm_ref } from "../helpers/refs";
+import { stat_view_card } from '../helpers/actor';
+import { title } from "process";
+import { inc_if, resolve_dotpath } from "../helpers/commons";
 
 const lp = LANCER.log_prefix;
 
@@ -145,6 +150,17 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
         }
       });
     }
+  }
+
+  async getData(): Promise<LancerActorSheetData<EntryType.PILOT>> {
+    const data = ((await super.getData()) as unknown) as LancerActorSheetData<EntryType.PILOT>; // Not fully populated yet!
+
+    if(data.mm.ent.ActiveMechRef){
+      let ctx = new OpCtx();
+      data.active_mech = await new FoundryReg().resolve(ctx, data.mm.ent.ActiveMechRef);
+    }
+
+    return data;
   }
 
   // Baseline drop behavior. Let people add stuff to the pilot
@@ -308,4 +324,50 @@ export function pilot_counters(ent: Pilot, helper: HelperOptions): string {
     </span>
     ${counter_detail}
   </div>`;
+}
+
+export function active_mech_preview(mech: Mech, path:string, helper: HelperOptions): string {
+  var html = ``;
+
+  // Generate commons
+  let cd = ref_commons(mech);
+  if (!cd) return simple_mm_ref(EntryType.MECH, mech, "No Active Mech", path, true);
+  
+  // Making ourselves easy templates for the preview in case we want to switch in the future
+  let preview_stats_arr = [
+    {title: "HP",icon:"mdi mdi-heart-outline",path:"CurrentHP"},
+    {title: "HEAT",icon:"cci cci-heat",path:"CurrentHeat"},
+    {title: "EVASION",icon:"cci cci-evasion",path:"Evasion"},
+    {title: "ARMOR",icon:"mdi mdi-shield-outline",path:"Armor"},
+    {title: "STRUCTURE",icon:"cci cci-structure",path:"CurrentStructure"},
+    {title: "STRESS",icon:"cci cci-reactor",path:"CurrentStress"},
+    {title: "E-DEF",icon:"cci cci-edef",path:"EDefense"},
+    {title: "SPEED",icon:"mdi mdi-arrow-right-bold-hexagon-outline",path:"Speed"},
+    {title: "SAVE",icon:"cci cci-save",path:"SaveTarget"},
+    {title: "SENSORS",icon:"cci cci-sensor",path:"SensorRange"},
+  ];
+
+  var stats_html = ``
+
+  for (let i = 0; i < preview_stats_arr.length; i++) {
+    const builder = preview_stats_arr[i];
+    stats_html = stats_html.concat(`
+    <div class="mech-preview-stat-wrapper">
+      <i class="${builder.icon} i--m i--dark"> </i>
+      <span class="major">${builder.title}</span>
+      <span class="major">${resolve_dotpath(mech,builder.path)}</span>
+    </div>`)
+  }
+  
+  html = html.concat(`
+  <div class="mech-preview">
+    <div class="mech-preview-titlebar">
+      <span>ACTIVE MECH: ${mech.Name}</span>
+    </div>
+    <img class="valid ${cd.ref.type} ref" ${ref_params(cd.ref)} src="${
+    mech.Flags.top_level_data.img}"/>
+    ${stats_html}
+  </div>`)
+  
+  return html;
 }
