@@ -112,13 +112,17 @@ export function compact_stat_edit(
   options: HelperOptions
 ): string {
   let data_val = resolve_helper_dotpath(options, data_path);
-  let max_val = resolve_helper_dotpath(options, max_path);
+  let max_html = ``;
+  if(max_path) {
+    let max_val = resolve_helper_dotpath(options, max_path);
+    max_html = `<span class="minor" style="max-width: min-content;" > / </span>
+    <span class="lancer-stat minor">${max_val}</span>`;
+  }
   return `        
         <div class="compact-stat">
           <i class="${icon} i--m i--dark"></i>
           ${std_num_input(data_path, ext_helper_hash(options, { classes: "lancer-stat minor" }))}
-          <span class="minor" style="max-width: min-content;" > / </span>
-          <span class="lancer-stat minor">${max_val}</span>
+          ${max_html}
         </div>
     `;
 }
