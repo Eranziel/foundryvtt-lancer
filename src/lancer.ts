@@ -16,6 +16,8 @@ import { LancerItem, lancerItemInit } from "./module/item/lancer-item";
 
 import { action_type_icon, action_type_selector } from "./module/helpers/npc";
 
+import { LancerActionManager } from "./module/action/actionManager";
+
 // Import applications
 import { LancerPilotSheet, pilot_counters } from "./module/actor/pilot-sheet";
 import { LancerNPCSheet } from "./module/actor/npc-sheet";
@@ -516,6 +518,23 @@ export const system_ready: Promise<void> = new Promise(success => {
     applyCollapseListeners();
     success();
   });
+});
+
+// Action Manager hooks.
+Hooks.on("canvasReady", async () => {
+  game.action_manager = new LancerActionManager();
+  await game.action_manager.init();
+});
+Hooks.on("controlToken", () => {
+  game.action_manager.update();
+});
+Hooks.on("updateToken", (_scene: Scene, token: Token, diff: any, _options: any, _idUser: any) => {
+  // If it's an X or Y change assume the token is just moving.
+  if (diff.hasOwnProperty("y") || diff.hasOwnProperty("x")) return;
+  game.action_manager.update();
+});
+Hooks.on("updateActor", (_actor: Actor) => {
+  game.action_manager.update();
 });
 
 // Add any additional hooks if necessary

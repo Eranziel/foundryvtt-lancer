@@ -1462,15 +1462,15 @@ a.flexrow.skill-macro {
 }
 
 // Action activation types
-$activations-types: none passive quick quicktech invade full fulltech other reaction protocol free;
+$activations-types: none passive quick quicktech invade full fulltech other reaction protocol free move;
 // The rgb-based colors I just made up, not sure if there are official colors for those
 $activations-colors: rgb(204, 10, 10) rgb(98, 0, 255) #3949ab #3949ab #222222 #283593 #283593 rgb(162, 0, 255) #512da8
-  #007676 #00695c;
+  #007676 #00695c rgb(204, 10, 10);
 
 @each $a-type in $activations-types {
   $i: index($activations-types, $a-type);
   .activation-#{$a-type} {
-    background-color: nth($activations-colors, $i);
+    background-color: nth($activations-colors, $i) !important;
     border-color: nth($activations-colors, $i);
   }
 }
@@ -1818,4 +1818,65 @@ a.activation-chip > i.mdi {
   background-color: var(--main-theme-color);
   color: var(--main-theme-text);
   flex-basis: 45%;
+}
+
+// Action manager
+#action-manager {
+  flex-direction: row;
+  position: fixed;
+  z-index: 100;
+  background-color: #eaeaea;
+  border: 1px solid black;
+}
+#action-manager-drag {
+  cursor: pointer;
+  font-size: 1.5em;
+  padding: 14px 4px 0px 8px;
+}
+.action-bar {
+  display: flex;
+  align-items: center;
+}
+
+a.action {
+  font-size: 36px;
+  margin: 4px;
+  border-radius: 20px;
+  height: 40px;
+  width: 40px;
+  background-color: #616161;
+
+  i {
+    display: inline-flex;
+    padding-top: 2px;
+  }
+
+  &:hover {
+    -moz-box-shadow: inset 0 0 100px 100px rgba(255, 255, 255, 0.3);
+    -webkit-box-shadow: inset 0 0 100px 100px rgba(255, 255, 255, 0.3);
+    box-shadow: inset 0 0 100px 100px rgba(255, 255, 255, 0.3);
+    text-shadow: none;
+  }
+}
+
+// V-IMPORTS
+.white--text {
+  color: #fff !important;
+  caret-color: #fff !important;
+}
+
+.v-divide {
+  align-self: stretch;
+  border: solid;
+  border-width: 0 thin 0 0;
+  display: inline-flex;
+  height: inherit;
+  min-height: 100%;
+  max-height: 100%;
+  max-width: 0;
+  width: 0;
+  vertical-align: text-bottom;
+  margin: 0 8px;
+  padding: 4px;
+  color: #888888;
 }
