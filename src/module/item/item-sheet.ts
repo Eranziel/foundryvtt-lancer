@@ -62,7 +62,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
   /** @override */
   get template() {
     const path = "systems/lancer/templates/item";
-    return `${path}/${this.item.data.type}.html`;
+    return `${path}/${this.item.data.type}.hbs`;
   }
 
   /* -------------------------------------------- */

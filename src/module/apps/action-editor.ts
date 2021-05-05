@@ -27,7 +27,7 @@ import { gentle_merge, resolve_dotpath } from '../helpers/commons';
     /** @override */
     static get defaultOptions() {
       return mergeObject(super.defaultOptions, {
-        template: "systems/lancer/templates/window/action_editor.html",
+        template: "systems/lancer/templates/window/action_editor.hbs",
         width: 400,
         height: "auto",
         classes: ["lancer"],

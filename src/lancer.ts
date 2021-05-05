@@ -571,7 +571,7 @@ Hooks.on("renderChatMessage", async (cm: ChatMessage, html: any, data: any) => {
           roll: roll,
           roll_tooltip: await roll.getTooltip(),
         };
-        const html = await renderTemplate("systems/lancer/templates/chat/overkill-reroll.html", templateData);
+        const html = await renderTemplate("systems/lancer/templates/chat/overkill-reroll.hbs", templateData);
         const rollMode = game.settings.get("core", "rollMode");
         let chat_data = {
           user: game.user,
@@ -790,7 +790,7 @@ function addSettingsButtons(app: Application, html: HTMLElement) {
   $(html).find("#settings-documentation").append(faqButton);
 
   faqButton.click(async ev => {
-    let helpContent = await renderTemplate("systems/lancer/templates/window/lancerHelp.html", {});
+    let helpContent = await renderTemplate("systems/lancer/templates/window/lancerHelp.hbs", {});
 
     new Dialog(
       {

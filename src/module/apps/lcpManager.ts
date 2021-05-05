@@ -84,7 +84,7 @@ class LCPManager extends Application {
 
   static get defaultOptions() {
     return mergeObject(super.defaultOptions, {
-      template: "systems/lancer/templates/lcp/lcp-manager.html",
+      template: "systems/lancer/templates/lcp/lcp-manager.hbs",
       title: "LANCER Compendium Manager",
       width: 800,
       height: 800,

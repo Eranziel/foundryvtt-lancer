@@ -19,7 +19,7 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
   static get defaultOptions() {
     return mergeObject(super.defaultOptions, {
       classes: ["lancer", "sheet", "actor", "npc"],
-      template: "systems/lancer/templates/actor/npc.html",
+      template: "systems/lancer/templates/actor/npc.hbs",
       width: 800,
       height: 800,
       tabs: [

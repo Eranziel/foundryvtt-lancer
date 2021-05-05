@@ -522,7 +522,7 @@ async function rollStatMacro(actor: Actor, data: LancerStatMacroData) {
     roll_tooltip: roll_tt,
     effect: data.effect ? data.effect : null,
   };
-  const template = `systems/lancer/templates/chat/stat-roll-card.html`;
+  const template = `systems/lancer/templates/chat/stat-roll-card.hbs`;
   return renderMacroTemplate(actor, template, templateData);
 }
 
@@ -543,7 +543,7 @@ async function rollTalentMacro(actor: Actor, data: LancerTalentMacroData) {
     rank: data.talent.ranks[data.rank],
     lvl: data.rank,
   };
-  const template = `systems/lancer/templates/chat/talent-card.html`;
+  const template = `systems/lancer/templates/chat/talent-card.hbs`;
   return renderMacroTemplate(actor, template, templateData);
 }
 
@@ -834,7 +834,7 @@ async function rollAttackMacro(actor: Actor, atk_str: string | null, data: Lance
   };
 
   console.log(templateData);
-  const template = `systems/lancer/templates/chat/attack-card.html`;
+  const template = `systems/lancer/templates/chat/attack-card.hbs`;
   return await renderMacroTemplate(actor, template, templateData);
 }
 
@@ -846,7 +846,7 @@ async function rollAttackMacro(actor: Actor, atk_str: string | null, data: Lance
 export function rollReactionMacro(actor: Actor, data: LancerReactionMacroData) {
   if (!actor) return Promise.resolve();
 
-  const template = `systems/lancer/templates/chat/reaction-card.html`;
+  const template = `systems/lancer/templates/chat/reaction-card.hbs`;
   return renderMacroTemplate(actor, template, data);
 }
 
@@ -958,7 +958,7 @@ export function prepareTextMacro(a: string, title: string, text: string, tags?: 
 async function rollTextMacro(actor: Actor, data: LancerTextMacroData) {
   if (!actor) return Promise.resolve();
 
-  const template = `systems/lancer/templates/chat/generic-card.html`;
+  const template = `systems/lancer/templates/chat/generic-card.hbs`;
   return renderMacroTemplate(actor, template, data);
 }
 
@@ -1062,7 +1062,7 @@ async function rollTechMacro(actor: Actor, data: LancerTechMacroData) {
     tags: data.tags,
   };
 
-  const template = `systems/lancer/templates/chat/tech-attack-card.html`;
+  const template = `systems/lancer/templates/chat/tech-attack-card.hbs`;
   return await renderMacroTemplate(actor, template, templateData);
 }
 
@@ -1074,7 +1074,7 @@ export async function promptAccDiffModifier(acc?: number, title?: string) {
     acc = 0;
   }
 
-  let template = await renderTemplate(`systems/lancer/templates/window/promptAccDiffModifier.html`, {
+  let template = await renderTemplate(`systems/lancer/templates/window/promptAccDiffModifier.hbs`, {
     acc: acc,
     diff: diff,
   });
@@ -1170,7 +1170,7 @@ async function rollOverchargeMacro(actor: Actor, data: LancerOverchargeMacroData
     level: data.level,
     roll_tooltip: roll_tt,
   };
-  const template = `systems/lancer/templates/chat/overcharge-card.html`;
+  const template = `systems/lancer/templates/chat/overcharge-card.hbs`;
   return renderMacroTemplate(actor, template, templateData);
 }
 
@@ -1209,7 +1209,7 @@ export async function prepareChargeMacro(a: string) {
     roll_tooltip: roll_tt,
     changed: changed,
   };
-  const template = `systems/lancer/templates/chat/charge-card.html`;
+  const template = `systems/lancer/templates/chat/charge-card.hbs`;
   return renderMacroTemplate(mech, template, templateData);
 }
 
@@ -1404,7 +1404,7 @@ export async function stabilizeMacro(a: string) {
     return null;
   }
 
-  let template = await renderTemplate(`systems/lancer/templates/window/promptStabilize.html`, {});
+  let template = await renderTemplate(`systems/lancer/templates/window/promptStabilize.hbs`, {});
 
   return new Promise<number>((resolve, reject) => {
     new Dialog({

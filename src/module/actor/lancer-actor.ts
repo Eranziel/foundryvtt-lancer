@@ -241,7 +241,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         text: text,
       };
     }
-    const template = `systems/lancer/templates/chat/overheat-card.html`;
+    const template = `systems/lancer/templates/chat/overheat-card.hbs`;
     const actor: Actor = game.actors.get(ChatMessage.getSpeaker().actor);
     return renderMacroTemplate(actor, template, templateData);
   }
@@ -363,7 +363,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         text: text,
       };
     }
-    const template = `systems/lancer/templates/chat/structure-card.html`;
+    const template = `systems/lancer/templates/chat/structure-card.hbs`;
     const actor: Actor = game.actors.get(ChatMessage.getSpeaker().actor);
     return renderMacroTemplate(actor, template, templateData);
   }
