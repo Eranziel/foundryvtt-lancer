@@ -1,10 +1,10 @@
 <div class="card clipped-bot" style="margin: 0px;">
-  <div class="lancer-weapon-header medium">
+  <div class="lancer-header mech_weapon medium">
     <i class="cci cci-weapon i--m i--light"> </i>
     <span>{{ title }}</span>
   </div>
   <div class="card clipped">
-    <div class="lancer-header collapse-trigger" data-collapse-id="{{_uuid}}-attacks">// ATTACK //</div>
+    <div class="lancer-mini-header collapse-trigger" data-collapse-id="{{_uuid}}-attacks">// ATTACK //</div>
     <div class="collapse{{#if hits}} collapsed{{/if}}" data-collapse-id="{{_uuid}}-attacks">
       {{#each attacks as |attack key|}}
       <div class="dice-roll lancer-dice-roll">
@@ -24,7 +24,7 @@
   </div>
   {{#if hits}}
   <div class="card clipped">
-    <div class="lancer-header collapse-trigger" data-collapse-id="{{_uuid}}-hits">// HIT VS {{defense}} //</div>
+    <div class="lancer-mini-header collapse-trigger" data-collapse-id="{{_uuid}}-hits">// HIT VS {{defense}} //</div>
     <div class="collapse" data-collapse-id="{{_uuid}}-hits">
       {{#each hits as |hit key|}}
       <div class="lancer-hit">
@@ -33,11 +33,13 @@
         </div>
         <div class="lancer-hit-text">
           <span class="lancer-hit-text-name">{{hit.token.name}}</span>
-          {{#if hit.hit}}
+          {{#if hit.crit}}
+          <span class="card clipped lancer-hit-chip crit">{{hit.total}} - CRIT</span>
+          {{else}}{{#if hit.hit}}
           <span class="card clipped lancer-hit-chip hit">{{hit.total}} - HIT</span>
           {{else}}
           <span class="card clipped lancer-hit-chip miss">{{hit.total}} - MISS</span>
-          {{/if}}
+          {{/if}}{{/if}}
         </div>
       </div>
       {{/each}}
@@ -45,7 +47,7 @@
   </div>
   {{/if}} {{#if damages}}
   <div class="card clipped">
-    <div class="lancer-header collapse-trigger" data-collapse-id="{{_uuid}}-damage">// DAMAGE //</div>
+    <div class="lancer-mini-header collapse-trigger" data-collapse-id="{{_uuid}}-damage">// DAMAGE //</div>
     {{#each damages as |damage key|}}
     <div class="dice-roll lancer-dice-roll collapse" data-collapse-id="{{../_uuid}}-damage">
       <div class="dice-result">
@@ -70,12 +72,12 @@
   </div>
   {{/if}} {{#if on_hit}}
   <div class="card clipped">
-    <div class="lancer-header collapse-trigger" data-collapse-id="{{_uuid}}-effect">// ON HIT //</div>
+    <div class="lancer-mini-header collapse-trigger" data-collapse-id="{{_uuid}}-effect">// ON HIT //</div>
     <span class="effect-text collapse" data-collapse-id="{{_uuid}}-effect">{{{on_hit}}}</span>
   </div>
   {{/if}} {{#if effect}}
   <div class="card clipped">
-    <div class="lancer-header">// EFFECT //</div>
+    <div class="lancer-mini-header">// EFFECT //</div>
     {{#if effect.effect_type}} {{{eff-preview effect}}} {{/if}} {{#unless effect.effect_type}}<span class="effect-text"
       >{{{effect}}}</span
     >{{/unless}}

@@ -28,7 +28,16 @@ import { LancerMacroData } from "../interfaces";
 import { is_item_type, LancerItem, LancerItemType } from "../item/lancer-item";
 import { encodeMacroData } from "../macros";
 import { FoundryFlagData, FoundryReg } from "../mm-util/foundry-reg";
-import { gentle_merge, read_form, resolve_dotpath, resolve_helper_dotpath, std_num_input, std_x_of_y } from "./commons";
+import {
+  effect_box,
+  gentle_merge,
+  read_form,
+  resolve_dotpath,
+  resolve_helper_dotpath,
+  sp_display,
+  std_num_input,
+  std_x_of_y,
+} from "./commons";
 import {
   convert_ref_to_native,
   enable_dragging,
@@ -264,10 +273,13 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
   switch (item.Type) {
     case EntryType.MECH_SYSTEM:
       let sys: MechSystem = <MechSystem>(<any>item);
+      let sp: string;
       let desc: string | undefined;
       let actions: string | undefined;
       let deployables: string | undefined;
       let eff: string | undefined;
+
+      sp = sp_display(sys.SP ? sys.SP : 0);
 
       if (sys.Description && sys.Description !== "No description") {
         desc = `<div class="desc-text" style="padding: 5px">
@@ -276,9 +288,7 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
       }
 
       if (sys.Effect) {
-        eff = `<div class="eff-text" style="padding: 5px">
-          ${sys.Effect}
-        </div>`;
+        eff = effect_box("EFFECT", sys.Effect);
       }
 
       if (sys.Actions.length) {
@@ -315,20 +325,19 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
           <a class="gen-control i--dark" data-action="${trash_action}" data-path="${item_path}"><i class="fas fa-trash"></i></a>
           </div>
         </div>
-        <div class="flexrow">
-          <div style="float: left; align-items: center; display: inherit;">
-            <i class="cci cci-system-point i--m i--dark"> </i>
-            <span class="medium" style="padding: 5px;">${sys.SP} SP</span>
+        <div style="padding: 0.5em">
+          <div class="flexrow">
+            ${sp}
+            <div class="uses-wrapper">
+              ${limited}
+            </div>
           </div>
-          <div class="uses-wrapper">
-            ${limited}
-          </div>
+          ${desc ? desc : ""}
+          ${eff ? eff : ""}
+          ${actions ? actions : ""}
+          ${deployables ? deployables : ""}
+          ${compact_tag_list(item_path + ".Tags", sys.Tags, false)}
         </div>
-        ${desc ? desc : ""}
-        ${eff ? eff : ""}
-        ${actions ? actions : ""}
-        ${deployables ? deployables : ""}
-        ${compact_tag_list(item_path + ".Tags", sys.Tags, false)}
         </li>`;
       return str;
 

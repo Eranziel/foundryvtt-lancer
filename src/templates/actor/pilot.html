@@ -25,7 +25,7 @@
       </div>
       <div class="flexrow pilot-stats">
         {{{compact-stat-edit "mdi mdi-heart-outline" "mm.ent.CurrentHP" "mm.ent.MaxHP" }}}
-        {{{compact-stat-edit "mdi mdi-shield-star-outline" "mm.ent.Overshield" "mm.ent.MaxHP" }}}
+        {{{compact-stat-edit "mdi mdi-shield-star-outline" "mm.ent.Overshield" "" }}}
         {{{compact-stat-view "mdi mdi-shield-outline" "mm.ent.Armor" }}} {{{compact-stat-view "cci
         cci-evasion" "mm.ent.Evasion" }}} {{{compact-stat-view "cci cci-edef" "mm.ent.EDefense" }}}
         {{{compact-stat-view "mdi mdi-arrow-right-bold-hexagon-outline" "mm.ent.Speed" }}}
@@ -40,6 +40,7 @@
     <a class="item lancer-tab medium" data-tab="dossier">&lt;PILOT//DOSSIER&gt;</a>
     <a class="item lancer-tab medium" data-tab="tactical">&lt;PILOT//TACTICAL&gt;</a>
     <a class="item lancer-tab medium" data-tab="abilities">&lt;PILOT//ABILITIES&gt;</a>
+    <a class="item lancer-tab medium" data-tab="loadout">&lt;EQUIP//LOADOUT&gt;</a>
     <!--<a class="item lancer-tab medium" data-tab="mech">&lt;FRAME//LOADOUT&gt;</a>-->
   </nav>
 
@@ -107,10 +108,10 @@
           {{{stat-rollable-card "GRIT" "cci cci-armor" "mm.ent.Grit" }}}
         </div>
         <div class="flexrow">
-          {{{clicker-stat-card "HUL" "mdi mdi-heart-outline" "mm.ent.MechSkills.Hull" true }}}
-          {{{clicker-stat-card "AGI" "mdi mdi-heart-outline" "mm.ent.MechSkills.Agi" true }}}
-          {{{clicker-stat-card "SYS" "mdi mdi-heart-outline" "mm.ent.MechSkills.Sys" true }}}
-          {{{clicker-stat-card "ENG" "mdi mdi-heart-outline" "mm.ent.MechSkills.Eng" true }}}
+          {{{clicker-stat-card "HUL" "" "mm.ent.MechSkills.Hull" true }}}
+          {{{clicker-stat-card "AGI" "" "mm.ent.MechSkills.Agi" true }}}
+          {{{clicker-stat-card "SYS" "" "mm.ent.MechSkills.Sys" true }}}
+          {{{clicker-stat-card "ENG" "" "mm.ent.MechSkills.Eng" true }}}
         </div>
       </div>
 
@@ -178,6 +179,16 @@
         {{#each mm.ent.Talents as |skill index|}} {{{ref-mm-controllable-item (concat
         "mm.ent.Talents." index) "delete" }}} {{/each}}
       </div>
+    </div>
+    
+    {{!-- Loadout Tab --}}
+    {{!-- Things to put in here:
+        * ActiveMechRef (maybe just drag&drop & a link here to get to it?)
+        * Access to a full list of things unlocked by licenses (read-only)    
+    --}}
+    <div class="tab loadout flexcol" data-group="primary" data-tab="loadout">
+      {{!-- Active Mech --}}
+      {{{active-mech-preview active_mech "active_mech" "mm.ent.ActiveMechRef"}}}
     </div>
   </section>
 </form>

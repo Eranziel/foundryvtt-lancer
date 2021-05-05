@@ -719,6 +719,7 @@ async function rollAttackMacro(actor: Actor, atk_str: string | null, data: Lance
     token: { name: string; img: string };
     total: string;
     hit: boolean;
+    crit: boolean;
   }[] = [];
   let attacks: { roll: Roll; tt: HTMLElement | JQuery<HTMLElement> }[] = [];
   if (game.settings.get(LANCER.sys_name, LANCER.setting_automation_attack) && targets.length > 0) {
@@ -734,6 +735,7 @@ async function rollAttackMacro(actor: Actor, atk_str: string | null, data: Lance
         },
         total: String(attack_roll._total).padStart(2, "0"),
         hit: checkForHit(isSmart, attack_roll, target),
+        crit: attack_roll._total >= 20,
       });
     }
   } else {
@@ -1025,6 +1027,7 @@ async function rollTechMacro(actor: Actor, data: LancerTechMacroData) {
     token: { name: string; img: string };
     total: string;
     hit: boolean;
+    crit: boolean;
   }[] = [];
   let attacks: { roll: Roll; tt: HTMLElement | JQuery<HTMLElement> }[] = [];
   if (game.settings.get(LANCER.sys_name, LANCER.setting_automation_attack) && targets.length > 0) {
@@ -1040,6 +1043,7 @@ async function rollTechMacro(actor: Actor, data: LancerTechMacroData) {
         },
         total: String(attack_roll._total).padStart(2, "0"),
         hit: checkForHit(true, attack_roll, target),
+        crit: attack_roll._total >= 20,
       });
     }
   } else {

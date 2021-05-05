@@ -51,6 +51,7 @@ import {
   resolve_dotpath,
   resolve_helper_dotpath,
   selected,
+  sp_display,
   std_checkbox,
   std_enum_select,
   std_num_input,
@@ -623,6 +624,8 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.Select
     profiles += `</div>`;
   }
 
+  let sp = sp_display(weapon.SP ? weapon.SP : 0);
+
   // What profile are we using?
   let profile = weapon.SelectedProfile;
   let profile_path = `${weapon_path}.Profiles.${weapon.SelectedProfileIndex}`;
@@ -661,6 +664,7 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.Select
         <a class="gen-control i--light" data-action="null" data-path="${weapon_path}"><i class="fas fa-trash"></i></a>
       </div> 
       <div class="lancer-body">
+        ${weapon.SP ? sp : ""}
         ${profiles}
         <div class="flexrow" style="text-align: left; white-space: nowrap;">
           <a class="roll-attack"><i class="fas fa-dice-d20 i--m i--dark"></i></a>

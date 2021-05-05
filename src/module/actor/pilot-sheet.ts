@@ -1,13 +1,18 @@
 import { LancerMechWeapon, LancerPilotWeapon } from "../item/lancer-item";
 import { LANCER } from "../config";
 import { LancerActorSheet } from "./lancer-actor-sheet";
-import { Counter, EntryType, MountType, OpCtx, Pilot } from "machine-mind";
+import { Counter, EntryType, Mech, MountType, OpCtx, Pilot, RegRef } from "machine-mind";
 import { FoundryFlagData, FoundryReg } from "../mm-util/foundry-reg";
 import { MMEntityContext, mm_wrap_item } from "../mm-util/helpers";
 import { funcs, quick_relinker } from "machine-mind";
 import { ResolvedNativeDrop } from "../helpers/dragdrop";
 import { HelperOptions } from 'handlebars';
 import { buildCounterHTML } from "../helpers/item";
+import { LancerActorSheetData } from "../interfaces";
+import { ref_commons, ref_params, simple_mm_ref } from "../helpers/refs";
+import { stat_view_card } from '../helpers/actor';
+import { title } from "process";
+import { inc_if, resolve_dotpath } from "../helpers/commons";
 
 const lp = LANCER.log_prefix;
 
@@ -147,73 +152,94 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
     }
   }
 
+  async getData(): Promise<LancerActorSheetData<EntryType.PILOT>> {
+    const data = ((await super.getData()) as unknown) as LancerActorSheetData<EntryType.PILOT>; // Not fully populated yet!
+
+    if(data.mm.ent.ActiveMechRef){
+      let ctx = new OpCtx();
+      data.active_mech = await new FoundryReg().resolve(ctx, data.mm.ent.ActiveMechRef);
+    }
+
+    return data;
+  }
+
   // Baseline drop behavior. Let people add stuff to the pilot
   async _onDrop(event: any): Promise<any> {
     let drop: ResolvedNativeDrop | null = await super._onDrop(event);
-    if (drop?.type != "Item") {
+    if (!(drop?.type === "Item" || drop?.type === "Actor")) {
       return null; // Bail.
     }
 
     const sheet_data = await this.getDataLazy();
     const this_mm = sheet_data.mm;
-    const item = drop.entity;
 
-    // Check if we can even do anything with it first
-    if (!LANCER.pilot_items.includes(item.type)) {
-      ui.notifications.error(`Cannot add Item of type "${item.type}" to a Pilot.`);
-      return null;
+    if(drop?.type === "Item") {
+      const item = drop.entity;
+
+      // Check if we can even do anything with it first
+      if (!LANCER.pilot_items.includes(item.type)) {
+        ui.notifications.error(`Cannot add Item of type "${item.type}" to a Pilot.`);
+        return null;
+      }
+
+      // Make the context for the item
+      const item_mm: MMEntityContext<EntryType> = await mm_wrap_item(item);
+
+      // Always add the item to the pilot inventory, now that we know it is a valid pilot posession
+      // Make a new ctx to hold the item and a post-item-add copy of our mech
+      let new_ctx = new OpCtx();
+      let new_live_item = await item_mm.ent.insinuate(this_mm.reg, new_ctx);
+
+      // Update this, to re-populate arrays etc to reflect new item
+      let new_live_this = (await this_mm.ent.refreshed(new_ctx))!;
+
+      // Now, do sensible things with it
+      let loadout = new_live_this.Loadout;
+      if (new_live_item.Type === EntryType.PILOT_WEAPON) {
+        // If weapon, try to equip to first empty slot
+        for (let i = 0; i < loadout.Weapons.length; i++) {
+          if (!loadout.Weapons[i]) {
+            loadout.Weapons[i] = new_live_item;
+            break;
+          }
+        }
+      } else if (new_live_item.Type === EntryType.PILOT_GEAR) {
+        // If gear, try to equip to first empty slot
+        for (let i = 0; i < loadout.Gear.length; i++) {
+          if (!loadout.Gear[i]) {
+            loadout.Gear[i] = new_live_item;
+            break;
+          }
+        }
+      } else if (new_live_item.Type === EntryType.PILOT_ARMOR) {
+        // If armor, try to equip to first empty slot
+        for (let i = 0; i < loadout.Armor.length; i++) {
+          if (!loadout.Gear[i]) {
+            loadout.Armor[i] = new_live_item;
+            break;
+          }
+        }
+      } else if (new_live_item.Type === EntryType.SKILL || new_live_item.Type == EntryType.TALENT) {
+        // If skill or talent, reset to level 1
+        new_live_item.CurrentRank = 1;
+        await new_live_item.writeback(); // Since we're editing the item, we gotta do this
+      }
+
+      // Most other things we really don't need to do anything with
+
+      // Writeback when done. Even if nothing explicitly changed, probably good to trigger a redraw (unless this is double-tapping? idk)
+      await new_live_this.writeback();
+
+      // Always return the item if we haven't failed for some reason
+      return item;
+    } else if(drop?.type === "Actor") {
+      if(drop.entity.data.type != 'mech') return null;
+      const mech = drop.entity.data.data.derived.mmec.ent as Mech;
+
+      this_mm.ent.ActiveMechRef = mech.as_ref();
+
+      this_mm.ent.writeback();
     }
-
-    // Make the context for the item
-    const item_mm: MMEntityContext<EntryType> = await mm_wrap_item(item);
-
-    // Always add the item to the pilot inventory, now that we know it is a valid pilot posession
-    // Make a new ctx to hold the item and a post-item-add copy of our mech
-    let new_ctx = new OpCtx();
-    let new_live_item = await item_mm.ent.insinuate(this_mm.reg, new_ctx);
-
-    // Update this, to re-populate arrays etc to reflect new item
-    let new_live_this = (await this_mm.ent.refreshed(new_ctx))!;
-
-    // Now, do sensible things with it
-    let loadout = new_live_this.Loadout;
-    if (new_live_item.Type === EntryType.PILOT_WEAPON) {
-      // If weapon, try to equip to first empty slot
-      for (let i = 0; i < loadout.Weapons.length; i++) {
-        if (!loadout.Weapons[i]) {
-          loadout.Weapons[i] = new_live_item;
-          break;
-        }
-      }
-    } else if (new_live_item.Type === EntryType.PILOT_GEAR) {
-      // If gear, try to equip to first empty slot
-      for (let i = 0; i < loadout.Gear.length; i++) {
-        if (!loadout.Gear[i]) {
-          loadout.Gear[i] = new_live_item;
-          break;
-        }
-      }
-    } else if (new_live_item.Type === EntryType.PILOT_ARMOR) {
-      // If armor, try to equip to first empty slot
-      for (let i = 0; i < loadout.Armor.length; i++) {
-        if (!loadout.Gear[i]) {
-          loadout.Armor[i] = new_live_item;
-          break;
-        }
-      }
-    } else if (new_live_item.Type === EntryType.SKILL || new_live_item.Type == EntryType.TALENT) {
-      // If skill or talent, reset to level 1
-      new_live_item.CurrentRank = 1;
-      await new_live_item.writeback(); // Since we're editing the item, we gotta do this
-    }
-
-    // Most other things we really don't need to do anything with
-
-    // Writeback when done. Even if nothing explicitly changed, probably good to trigger a redraw (unless this is double-tapping? idk)
-    await new_live_this.writeback();
-
-    // Always return the item if we haven't failed for some reason
-    return item;
   }
 
   /* -------------------------------------------- */
@@ -308,4 +334,50 @@ export function pilot_counters(ent: Pilot, helper: HelperOptions): string {
     </span>
     ${counter_detail}
   </div>`;
+}
+
+export function active_mech_preview(mech: Mech, path:string, helper: HelperOptions): string {
+  var html = ``;
+
+  // Generate commons
+  let cd = ref_commons(mech);
+  if (!cd) return simple_mm_ref(EntryType.MECH, mech, "No Active Mech", path, true);
+  
+  // Making ourselves easy templates for the preview in case we want to switch in the future
+  let preview_stats_arr = [
+    {title: "HP",icon:"mdi mdi-heart-outline",path:"CurrentHP"},
+    {title: "HEAT",icon:"cci cci-heat",path:"CurrentHeat"},
+    {title: "EVASION",icon:"cci cci-evasion",path:"Evasion"},
+    {title: "ARMOR",icon:"mdi mdi-shield-outline",path:"Armor"},
+    {title: "STRUCTURE",icon:"cci cci-structure",path:"CurrentStructure"},
+    {title: "STRESS",icon:"cci cci-reactor",path:"CurrentStress"},
+    {title: "E-DEF",icon:"cci cci-edef",path:"EDefense"},
+    {title: "SPEED",icon:"mdi mdi-arrow-right-bold-hexagon-outline",path:"Speed"},
+    {title: "SAVE",icon:"cci cci-save",path:"SaveTarget"},
+    {title: "SENSORS",icon:"cci cci-sensor",path:"SensorRange"},
+  ];
+
+  var stats_html = ``
+
+  for (let i = 0; i < preview_stats_arr.length; i++) {
+    const builder = preview_stats_arr[i];
+    stats_html = stats_html.concat(`
+    <div class="mech-preview-stat-wrapper">
+      <i class="${builder.icon} i--m i--dark"> </i>
+      <span class="major">${builder.title}</span>
+      <span class="major">${resolve_dotpath(mech,builder.path)}</span>
+    </div>`)
+  }
+  
+  html = html.concat(`
+  <div class="mech-preview">
+    <div class="mech-preview-titlebar">
+      <span>ACTIVE MECH: ${mech.Name}</span>
+    </div>
+    <img class="valid ${cd.ref.type} ref" ${ref_params(cd.ref)} src="${
+    mech.Flags.top_level_data.img}"/>
+    ${stats_html}
+  </div>`)
+  
+  return html;
 }

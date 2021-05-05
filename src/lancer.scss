@@ -230,6 +230,12 @@ button {
   width: 75px;
 }
 
+.card.lancer-hit-chip.crit {
+  color: #fff;
+  background-color: #b36c3e;
+  width: 75px;
+}
+
 .lancer-hit-thumb {
   width: 50px;
   margin-right: 4px;
@@ -564,8 +570,6 @@ tr.lcp-index-header {
   clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
   -webkit-clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
   padding: 10px;
-  margin-left: 10px;
-  margin-right: 10px;
 }
 
 .lancer-tab.active {
@@ -841,7 +845,9 @@ textarea {
   }
 
   .tech &,
-  .npc-tech & {
+  .npc-tech &,
+  &.tech,
+  &.npc-tech {
     /* clip-path: var(--tech-clip-path);
     -webkit-clip-path: var(--tech-clip-path); */
     background-color: var(--tech-color);
@@ -854,7 +860,10 @@ textarea {
 
   .mech_weapon &,
   .npc-weapon &,
-  .pilot_weapon & {
+  .pilot_weapon &,
+  &.mech_weapon,
+  &.npc-weapon,
+  &.pilot_weapon {
     background-color: var(--weapon-color);
   }
 
@@ -871,7 +880,10 @@ textarea {
   .pilot_weapon:hover &,
   .mech_system:hover &,
   .mech-system-compact:hover &,
+  .npc-trait:hover &,
   .npc-system:hover &,
+  .npc-tech:hover &,
+  .npc-reaction:hover &,
   .pilot_gear:hover &,
   .pilot_armor:hover & {
     box-shadow: var(--hover-bright);
@@ -901,6 +913,13 @@ textarea {
     font-size: 12px;
     font-weight: lighter;
   }
+}
+
+.lancer-mini-header {
+  align-items: center;
+  color: white;
+  background-color: var(--main-theme-color, fuchsia);
+  max-height: fit-content;
 }
 
 .hex {
@@ -1065,9 +1084,9 @@ input[type="string"].lancer-input {
   left: 8px;
   background: var(--main-theme-color);
   color: white;
-  border-radius: 5px;
-  padding-left: 3px;
-  padding-right: 3px;
+  //border-radius: 5px;
+  padding-left: 5px;
+  padding-right: 12px;
 }
 
 .effect-text {
@@ -1691,9 +1710,9 @@ a.activation-chip > i.mdi {
 }
 
 .weapon-profile-wrapper {
-  padding: 5px 5px 0px 5px;
+  padding: 8px 8px 0px 5px;
   background-color: var(--main-theme-color);
-  clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+  clip-path: polygon(0 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
 }
 
 .weapon-profile {
@@ -1703,7 +1722,11 @@ a.activation-chip > i.mdi {
   min-height: 2em;
   text-align: center;
   padding: 0px 9px;
-  clip-path: polygon(9px 0, 100% 0, calc(100% - 9px) 100%, 0 100%);
+  clip-path: polygon(9px 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+}
+
+.weapon-profile:hover {
+  box-shadow: var(--hover-bright);
 }
 
 .weapon-profile.selected-profile {
@@ -1887,4 +1910,39 @@ a.action {
   margin: 0 8px;
   padding: 4px;
   color: #888888;
+
+// Mech
+.mech-preview {
+  max-height: 6em;
+  display: grid;
+  grid-template-rows: 2em 3em 3em 3em 3em 3em;
+  grid-template-columns: 14em 1fr 1fr;
+}
+
+.mech-preview img {
+  grid-row: 2 / -1;
+  height: 100%;
+}
+
+.mech-preview-titlebar {
+  grid-row: 1 / 2;
+  grid-column: 1 / -1;
+  -webkit-clip-path: polygon(0 0, 100% 0, calc(100% - 20px) 100%, 0 100%);
+  clip-path: polygon(0 0, 100% 0, calc(100% - 20px) 100%, 0 100%);
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  background-color: var(--main-theme-color, fuchsia);
+  color: white;
+  padding: 3px 10px;
+  min-height: max-content;
+  align-items: center;
+  margin-right: 5em;
+}
+
+.mech-preview-stat-wrapper {
+  display: grid;
+  grid-template-columns: 3em 10em 1fr;
+  align-items: center;
 }
