@@ -1,6 +1,11 @@
 {
   "Actor": {
-    "types": ["pilot", "mech", "npc", "deployable"],
+    "types": [
+      "pilot",
+      "mech",
+      "npc",
+      "deployable"
+    ],
     "templates": {},
     "pilot": {
       "name": "",
@@ -20,15 +25,20 @@
       "lastCloudUpdate": "",
       "level": 0,
       "loadout": {
-          "lid": "",
-          "name": "",
-          "armor": [],
-          "gear": [],
-          "weapons": [],
-          "extendedGear": [],
-          "extendedWeapons": []
+        "lid": "",
+        "name": "",
+        "armor": [],
+        "gear": [],
+        "weapons": [],
+        "extendedGear": [],
+        "extendedWeapons": []
       },
-      "mechSkills": [0, 0, 0, 0],
+      "mechSkills": [
+        0,
+        0,
+        0,
+        0
+      ],
       "mounted": false,
       "notes": "",
       "current_overshield": 0,
@@ -37,8 +47,9 @@
       "sort_index": 0,
       "status": "",
       "text_appearance": ""
-     },
+    },
     "npc": {
+      "actions": {},
       "lid": "",
       "name": "",
       "subtitle": "",
@@ -96,6 +107,7 @@
       "deployer": null
     },
     "mech": {
+      "actions": {},
       "activations": 1,
       "burn": 0,
       "cc_ver": "",
@@ -112,9 +124,9 @@
       "gm_note": "",
       "lid": "",
       "loadout": {
-          "frame": null,
-          "system_mounts": [],
-          "weapon_mounts": []
+        "frame": null,
+        "system_mounts": [],
+        "weapon_mounts": []
       },
       "meltdown_imminent": false,
       "name": "",
@@ -187,54 +199,56 @@
       "logo_url": ""
     },
     "frame": {
+      "description": "",
+      "lid": "",
+      "license_level": 2,
+      "mechtype": [
+        "BALANCED"
+      ],
+      "mounts": [],
+      "name": "New Mech",
+      "source": null,
+      "stats": {
+        "armor": 0,
+        "edef": 0,
+        "evasion": 0,
+        "heatcap": 0,
+        "hp": 0,
+        "repcap": 0,
+        "save": 0,
+        "sensor_range": 0,
+        "size": 1,
+        "sp": 0,
+        "speed": 0,
+        "stress": 4,
+        "structure": 4,
+        "tech_attack": 0
+      },
+      "traits": [],
+      "y_pos": 0,
+      "core_system": {
+        "name": "",
         "description": "",
-        "lid": "",
-        "license_level": 2,
-        "mechtype": ["BALANCED"],
-        "mounts": [],
-        "name": "New Mech",
-        "source": null,
-        "stats": {
-            "armor": 0,
-            "edef": 0,
-            "evasion": 0,
-            "heatcap": 0,
-            "hp": 0,
-            "repcap": 0,
-            "save": 0,
-            "sensor_range": 0,
-            "size": 1,
-            "sp": 0,
-            "speed": 0,
-            "stress": 4,
-            "structure": 4,
-            "tech_attack": 0
-        },
-        "traits": [],
-        "y_pos": 0,
-        "core_system": {
-          "name": "",
-          "description": "",
-          "use": "",
-          "activation": "",
-          "active_name": "",
-          "active_effect": "",
-          "active_actions": [],
-          "active_bonuses": [],
-          "active_synergies": [],
-          "deactivation": "",
-          "counters": [],
-          "deployables": [],
-          "integrated": [],
-          "passive_actions": [],
-          "passive_effect": "",
-          "passive_name": "",
-          "passive_bonuses": [],
-          "passive_synergies": [],
-          "tags": []
-        },
-        "image_url": "",
-        "other_art": []
+        "use": "",
+        "activation": "",
+        "active_name": "",
+        "active_effect": "",
+        "active_actions": [],
+        "active_bonuses": [],
+        "active_synergies": [],
+        "deactivation": "",
+        "counters": [],
+        "deployables": [],
+        "integrated": [],
+        "passive_actions": [],
+        "passive_effect": "",
+        "passive_name": "",
+        "passive_bonuses": [],
+        "passive_synergies": [],
+        "tags": []
+      },
+      "image_url": "",
+      "other_art": []
     },
     "license": {
       "name": "New License",
@@ -260,33 +274,101 @@
         "tactics": ""
       },
       "power": 100,
-
       "base_features": [],
       "optional_features": [],
       "stats": {
-        "activations": [1, 1, 1],
-        "armor": [1, 1, 1],
-        "hp": [10, 10, 10],
-        "evade": [10, 10, 10],
-        "edef": [10, 10, 10],
-        "heatcap": [5, 5, 5],
-        "speed": [5, 5, 5],
-        "sensor": [10, 10, 10],
-        "save": [10, 10, 10],
-        "hull": [0, 0, 0],
-        "agility": [0, 0, 0],
-        "systems": [0, 0, 0],
-        "engineering": [0, 0, 0],
-        "size": [[1], [1], [1]],
-        "structure": [1, 1, 1],
-        "stress": [1, 1, 1]
+        "activations": [
+          1,
+          1,
+          1
+        ],
+        "armor": [
+          1,
+          1,
+          1
+        ],
+        "hp": [
+          10,
+          10,
+          10
+        ],
+        "evade": [
+          10,
+          10,
+          10
+        ],
+        "edef": [
+          10,
+          10,
+          10
+        ],
+        "heatcap": [
+          5,
+          5,
+          5
+        ],
+        "speed": [
+          5,
+          5,
+          5
+        ],
+        "sensor": [
+          10,
+          10,
+          10
+        ],
+        "save": [
+          10,
+          10,
+          10
+        ],
+        "hull": [
+          0,
+          0,
+          0
+        ],
+        "agility": [
+          0,
+          0,
+          0
+        ],
+        "systems": [
+          0,
+          0,
+          0
+        ],
+        "engineering": [
+          0,
+          0,
+          0
+        ],
+        "size": [
+          [
+            1
+          ],
+          [
+            1
+          ],
+          [
+            1
+          ]
+        ],
+        "structure": [
+          1,
+          1,
+          1
+        ],
+        "stress": [
+          1,
+          1,
+          1
+        ]
       }
     },
     "npc_template": {
       "name": "",
       "description": "",
       "power": 100,
-
       "base_features": [],
       "optional_features": []
     },
@@ -306,9 +388,12 @@
       "charged": true,
       "loaded": true,
       "uses": 0,
-
       "weapon_type": "",
-      "damage": [[], [], []],
+      "damage": [
+        [],
+        [],
+        []
+      ],
       "range": [],
       "on_hit": "",
       "accuracy": [],
@@ -318,72 +403,71 @@
       "tier_override": 0
     },
     "weapon_mod": {
-        "added_tags": [],
-        "added_damage": [],
-        "cascading": false,
-        "counters": [],
-        "deployables": [],
-        "destroyed": false,
-        "effect": "",
-        "lid": "",
-        "integrated": [],
-        "license": "",
-        "license_level": 0,
-        "name": "New Weapon Mod",
-        "source": null,
-        "tags": [],
-        "sp": 0,
-        "uses": 0,
-        "allowed_sizes": [],
-        "allowed_types": [],
-        "actions": [],
-        "added_range": [],
-        "bonuses": [],
-        "synergies": []
+      "added_tags": [],
+      "added_damage": [],
+      "cascading": false,
+      "counters": [],
+      "deployables": [],
+      "destroyed": false,
+      "effect": "",
+      "lid": "",
+      "integrated": [],
+      "license": "",
+      "license_level": 0,
+      "name": "New Weapon Mod",
+      "source": null,
+      "tags": [],
+      "sp": 0,
+      "uses": 0,
+      "allowed_sizes": [],
+      "allowed_types": [],
+      "actions": [],
+      "added_range": [],
+      "bonuses": [],
+      "synergies": []
     },
     "mech_system": {
-        "cascading": false,
-        "counters": [],
-        "deployables": [],
-        "destroyed": false,
-        "effect": "",
-        "lid": "",
-        "integrated": [],
-        "license": "",
-        "license_level": 0,
-        "name": "New Mech System",
-        "source": null,
-        "tags": [],
-        "sp": 0,
-        "uses": 0,
-        "actions": [],
-        "bonuses": [],
-        "synergies": [],
-        "description": "",
-        "type": ""
+      "cascading": false,
+      "counters": [],
+      "deployables": [],
+      "destroyed": false,
+      "effect": "",
+      "lid": "",
+      "integrated": [],
+      "license": "",
+      "license_level": 0,
+      "name": "New Mech System",
+      "source": null,
+      "tags": [],
+      "sp": 0,
+      "uses": 0,
+      "actions": [],
+      "bonuses": [],
+      "synergies": [],
+      "description": "",
+      "type": ""
     },
     "mech_weapon": {
       "cascading": false,
-        "deployables": [],
-        "destroyed": false,
-        "lid": "",
-        "integrated": [],
-        "license": "",
-        "license_level": 0,
-        "name": "New Mech Weapon",
-        "source": null,
-        "sp": 0,
-        "uses": 0,
-        "profiles": [],
-        "loaded": false,
-        "selected_profile": 0,
-        "size": "",
-
-        "no_core_bonuses": false,
-        "no_mods": false,
-        "no_bonuses": false,
-        "no_synergies": false,
-        "no_attack": false
+      "deployables": [],
+      "destroyed": false,
+      "lid": "",
+      "integrated": [],
+      "license": "",
+      "license_level": 0,
+      "name": "New Mech Weapon",
+      "source": null,
+      "sp": 0,
+      "uses": 0,
+      "profiles": [],
+      "loaded": false,
+      "selected_profile": 0,
+      "size": "",
+      "no_core_bonuses": false,
+      "no_mods": false,
+      "no_bonuses": false,
+      "no_synergies": false,
+      "no_attack": false
     },
     "organization": {
       "actions": "",
@@ -392,7 +476,6 @@
       "influence": 0,
       "name": "New Organization",
       "purpose": "Academic"
-
     },
     "pilot_armor": {
       "actions": [],
@@ -495,11 +578,11 @@
       "rank": 1
     },
     "tag": {
-        "description": "",
-        "lid": "",
-        "name": "New Tag",
-        "hidden": false,
-        "filter_ignore": false
+      "description": "",
+      "lid": "",
+      "name": "New Tag",
+      "hidden": false,
+      "filter_ignore": false
     }
   }
 }

@@ -160,6 +160,7 @@ export const LANCER = {
   setting_welcome: "hideWelcome",
   setting_automation: "automationSwitch",
   setting_automation_attack: "attackSwitch",
+  setting_action_manager: "actionManager",
   setting_pilot_oc_heat: "autoOCHeat",
   setting_overkill_heat: "autoOKillHeat",
   setting_auto_structure: "autoCalcStructure",

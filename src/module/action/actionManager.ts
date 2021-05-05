@@ -2,6 +2,7 @@ import { EntryType } from "machine-mind";
 import { LancerActor, LancerActorType } from "../actor/lancer-actor";
 import { LancerGame } from "../lancer-game";
 import { ActionData, ActionType } from ".";
+import { LANCER } from "../config";
 
 export const _defaultActionData = (target: Actor) => {
   return {
@@ -25,8 +26,9 @@ export const _endTurnActionData = () => {
 };
 
 export class LancerActionManager extends Application {
-  static DEF_LEFT = 280;
-  static DEF_TOP = 893;
+  static DEF_LEFT = 600;
+  static DEF_TOP = 20;
+  static enabled: boolean;
 
   target: LancerActor<any> | null = null;
 
@@ -35,6 +37,7 @@ export class LancerActionManager extends Application {
   }
 
   async init() {
+    LancerActionManager.enabled = game.settings.get(LANCER.sys_name, LANCER.setting_action_manager);
     this.loadUserPos();
     await this.updateControlledToken();
   }
@@ -44,7 +47,7 @@ export class LancerActionManager extends Application {
     return mergeObject(super.defaultOptions, {
       template: "systems/lancer/templates/window/action_manager.hbs",
       width: 360,
-      height: 52,
+      height: 70,
       left: LancerActionManager.DEF_LEFT,
       top: LancerActionManager.DEF_TOP,
       scale: 1,
@@ -56,9 +59,10 @@ export class LancerActionManager extends Application {
   }
 
   /** @override */
-  getData(options = {}) {
+  getData(_options = {}) {
     const data = super.getData();
     data.position = this.position;
+    data.name = this.target && this.target.data.name.toLocaleUpperCase();
     data.actions = this.getActions();
     return data;
   }
@@ -68,22 +72,34 @@ export class LancerActionManager extends Application {
    * Get proxy for ease of migration when we change over to MM data backing.
    * @returns actions map.
    */
-  private getActions(): ActionData {
-    return this.target?.getFlag("lancer", "actions");
+  private getActions(): ActionData | undefined {
+    return this.target?.data.data.actions ? { ...this.target?.data.data.actions } : undefined;
   }
   /**
    * Set proxy for ease of migration when we change over to MM data backing.
    */
-  private async updateActions(actions: ActionData) {
-    await this.target?.setFlag("lancer", "actions", actions);
+  private async updateActions(actor: LancerActor<any>, actions: ActionData) {
+    await actor.update({ "data.actions": actions });
     // this.token?.update({ "flags.lancer.actions": actions });
   }
   //
 
   async update() {
-    // console.log("Action Manager updating...");
-    await this.updateControlledToken();
-    this.render(true);
+    if (LancerActionManager.enabled) {
+      // console.log("Action Manager updating...");
+      await this.updateControlledToken();
+      this.render(true);
+    }
+  }
+
+  async updateConfig() {
+    if (game.settings.get(LANCER.sys_name, LANCER.setting_action_manager)) {
+      await this.update();
+      LancerActionManager.enabled = true;
+    } else {
+      this.close();
+      LancerActionManager.enabled = false;
+    }
   }
 
   private async updateControlledToken() {
@@ -94,23 +110,26 @@ export class LancerActionManager extends Application {
       // TEMPORARY HANDLING OF OLD TOKENS
       // TODO: Remove when action data is properly within MM.
       if (this.getActions() === undefined) {
-        await this.updateActions(_defaultActionData(this.target));
+        await this.updateActions(this.target, _defaultActionData(this.target));
       }
     } else this.target = null;
   }
 
   /**
    * Spends an action or triggers end turn effect (empty all actions).
+   * @param actor actor to modify.
+   * @param spend whether to refresh or spend an action.
    * @param type specific action to spend, or undefined for end-turn behavior.
    */
-  async modAction(spend: boolean, type?: ActionType) {
-    let actions = this.getActions();
+  async modAction(actor: LancerActor<any>, spend: boolean, type?: ActionType) {
+    let actions = { ...actor.data.data.actions };
     if (actions) {
       switch (type) {
         case "move": // TODO: replace with tooltip for movement counting.
-          actions.move = spend ? 0 : getSpeed(this.target!);
+          actions.move = spend ? 0 : getSpeed(actor);
           break;
         case "free": // Never disabled
+          actions.free = true;
           break;
         case "quick":
           if (spend) {
@@ -135,24 +154,24 @@ export class LancerActionManager extends Application {
           break;
 
         case undefined:
-          actions = spend ? _endTurnActionData() : _defaultActionData(this.target!);
+          actions = spend ? _endTurnActionData() : _defaultActionData(actor);
       }
 
       // When any action is spent, disable protocol.
       if (spend) {
         actions.protocol = false;
       }
-      const res = await this.updateActions(actions);
+      const res = await this.updateActions(actor, actions);
       this.render();
     }
   }
-  async toggleAction(type: ActionType) {
+  private async toggleAction(type: ActionType) {
     let actions = this.getActions();
     if (actions) {
       if (actions[type]) {
-        await this.modAction(true, type);
+        await this.modAction(this.target!, true, type);
       } else {
-        await this.modAction(false, type);
+        await this.modAction(this.target!, false, type);
       }
     }
   }

@@ -536,6 +536,10 @@ Hooks.on("updateToken", (_scene: Scene, token: Token, diff: any, _options: any, 
 Hooks.on("updateActor", (_actor: Actor) => {
   game.action_manager.update();
 });
+Hooks.on("closeSettingsConfig", () => {
+  game.action_manager.updateConfig();
+});
+//
 
 // Add any additional hooks if necessary
 Hooks.on("preCreateActor", lancerActorInit);

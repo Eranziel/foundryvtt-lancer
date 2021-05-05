@@ -1822,20 +1822,28 @@ a.activation-chip > i.mdi {
 
 // Action manager
 #action-manager {
-  flex-direction: row;
+  flex-direction: column;
   position: fixed;
   z-index: 100;
   background-color: #eaeaea;
-  border: 1px solid black;
+  border: 1px solid #5d5d5d;
 }
 #action-manager-drag {
   cursor: pointer;
   font-size: 1.5em;
-  padding: 14px 4px 0px 8px;
+  padding: 12px 4px 0px 8px;
 }
 .action-bar {
   display: flex;
   align-items: center;
+}
+.action-label {
+  display: inline-flex;
+  padding-left: 12px;
+  border-bottom: 1px solid black;
+  background-color: var(--main-theme-color);
+  color: white;
+  font-style: italic;
 }
 
 a.action {

@@ -63,6 +63,15 @@ export const registerSettings = function () {
     default: true,
   });
 
+  game.settings.register(LANCER.sys_name, LANCER.setting_action_manager, {
+    name: "Action Manager Hotbar",
+    hint: "Toggle for whether or not to display the action tracking hotbar for selected tokens.",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: true,
+  });
+
   game.settings.register(LANCER.sys_name, LANCER.setting_auto_structure, {
     name: "Automatic Structure/Stress",
     hint: "When a mech rolls a structure/overheat macro, should it automatically decrease structure/stress?",
