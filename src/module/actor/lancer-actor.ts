@@ -20,10 +20,11 @@ import { LancerHooks, LancerSubscription } from "../helpers/hooks";
 import { mm_wrap_actor } from "../mm-util/helpers";
 import { system_ready } from "../../lancer";
 import { LancerItemType } from "../item/lancer-item";
-import { renderMacroTemplate, prepareTextMacro } from '../macros';
-import { RegEntry, MechWeapon, NpcFeature } from 'machine-mind';
+import { renderMacroTemplate, prepareTextMacro } from "../macros";
+import { RegEntry, MechWeapon, NpcFeature } from "machine-mind";
 import { StabOptions1, StabOptions2 } from "../enums";
-import { limited_max, is_loading } from 'machine-mind/dist/classes/mech/EquipUtil';
+import { limited_max, is_loading } from "machine-mind/dist/classes/mech/EquipUtil";
+import { ActionData } from "../action";
 const lp = LANCER.log_prefix;
 
 export function lancerActorInit(data: any) {
@@ -53,6 +54,8 @@ export function lancerActorInit(data: any) {
       default:
         // Idk, just in case
         default_data = funcs.defaults.MECH();
+
+        default_data.actions = { full: true };
         break;
     }
     // Put in the basics
@@ -87,6 +90,9 @@ export class LancerActor<T extends LancerActorType> extends Actor {
   data!: FoundryRegActorData<T> & {
     // TODO: update to match template
     data: {
+      // Temporary action store.
+      actions?: ActionData;
+
       // Include additional derived info
       derived: {
         // These are all derived and populated by MM
@@ -127,10 +133,10 @@ export class LancerActor<T extends LancerActorType> extends Actor {
     if (this.data.type === EntryType.MECH) {
       this.overheatMech();
     } else if (this.data.type === EntryType.NPC) {
-      ui.notifications.warn("Currently just doing normal mech overheats");      
+      ui.notifications.warn("Currently just doing normal mech overheats");
       this.overheatMech();
     } else {
-      ui.notifications.warn("Can only overheat NPCs and Mechs");      
+      ui.notifications.warn("Can only overheat NPCs and Mechs");
       return;
     }
   }
@@ -173,14 +179,14 @@ export class LancerActor<T extends LancerActorType> extends Actor {
       "Emergency Shunt",
     ];
 
-    let ent = await this.data.data.derived.mmec.ent as Mech | Npc;
+    let ent = (await this.data.data.derived.mmec.ent) as Mech | Npc;
     if (
       game.settings.get(LANCER.sys_name, LANCER.setting_automation) &&
       game.settings.get(LANCER.sys_name, LANCER.setting_auto_structure)
     ) {
       if (ent.CurrentHeat > ent.HeatCapacity) {
         // https://discord.com/channels/426286410496999425/760966283545673730/789297842228297748
-        ent.CurrentHeat -= (ent.HeatCapacity);
+        ent.CurrentHeat -= ent.HeatCapacity;
         ent.CurrentStress -= 1;
       }
     }
@@ -244,21 +250,20 @@ export class LancerActor<T extends LancerActorType> extends Actor {
    * Performs structure on the mech
    * For now, just rolls on table. Eventually we can include configuration to do automation
    */
-   async structure() {
+  async structure() {
     // Assert that we're on a mech or NPC
     if (this.data.type === EntryType.MECH) {
       this.structureMech();
     } else if (this.data.type === EntryType.NPC) {
-      ui.notifications.warn("Currently just doing normal mech structures");      
+      ui.notifications.warn("Currently just doing normal mech structures");
       this.structureMech();
     } else {
-      ui.notifications.warn("Can only structure NPCs and Mechs");      
+      ui.notifications.warn("Can only structure NPCs and Mechs");
       return;
     }
   }
 
   async structureMech() {
-
     // Table of descriptions
     function structTableD(roll: number, remStruct: number) {
       switch (roll) {
@@ -295,9 +300,9 @@ export class LancerActor<T extends LancerActorType> extends Actor {
       "System Trauma",
       "Glancing Blow",
       "Glancing Blow",
-      ];
-    
-    let ent = await this.data.data.derived.mmec.ent as Mech | Npc;
+    ];
+
+    let ent = (await this.data.data.derived.mmec.ent) as Mech | Npc;
     if (
       game.settings.get(LANCER.sys_name, LANCER.setting_automation) &&
       game.settings.get(LANCER.sys_name, LANCER.setting_auto_structure)
@@ -362,38 +367,36 @@ export class LancerActor<T extends LancerActorType> extends Actor {
     const actor: Actor = game.actors.get(ChatMessage.getSpeaker().actor);
     return renderMacroTemplate(actor, template, templateData);
   }
-  
+
   // Fully repair actor
   // Even pilots can be fully repaired
   async full_repair() {
-
     let ent = await this.data.data.derived.mmec.ent;
 
     ent.CurrentHP = ent.MaxHP;
 
     // Things for mechs & NPCs
-    if(is_reg_mech(ent) || is_reg_npc(ent)) {
+    if (is_reg_mech(ent) || is_reg_npc(ent)) {
       ent.CurrentHeat = 0;
       ent.CurrentStress = ent.MaxStress;
       ent.CurrentStructure = ent.MaxStructure;
-    } 
+    }
 
     // Things just for mechs
-    if(is_reg_mech(ent)) {
+    if (is_reg_mech(ent)) {
       ent.CurrentCoreEnergy = 1;
       ent.CurrentRepairs = ent.RepairCapacity;
     }
 
     // I believe the only thing a pilot needs
-    if(is_reg_pilot(ent)) {
+    if (is_reg_pilot(ent)) {
       let mech = await ent.ActiveMech();
-      if(mech) {
+      if (mech) {
         await mech.Flags.orig_doc.full_repair();
       }
     }
-    
-    if(!is_dep(this))
-      await this.refill_all_limited();
+
+    if (!is_dep(this)) await this.refill_all_limited();
     await ent.writeback();
   }
 
@@ -404,7 +407,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
   async refill_all_limited() {
     let ent = (await this.data.data.derived.mmec_promise).ent;
 
-    if(is_reg_mech(ent)) {
+    if (is_reg_mech(ent)) {
       let items: Array<MechSystem | MechWeapon> = ent.OwnedWeapons;
       items = items.concat(ent.OwnedSystems);
 
@@ -423,10 +426,10 @@ export class LancerActor<T extends LancerActorType> extends Actor {
   /**
    * Find all owned items and set them to be not destroyed
    */
-   async repair_all_items() {
+  async repair_all_items() {
     let ent = (await this.data.data.derived.mmec_promise).ent;
 
-    if(is_reg_mech(ent)) {
+    if (is_reg_mech(ent)) {
       let weps = ent.OwnedWeapons;
 
       for (let i = 0; i < weps.length; i++) {
@@ -458,9 +461,9 @@ export class LancerActor<T extends LancerActorType> extends Actor {
     for (let i = 0; i < items.length; i++) {
       const item = items[i];
 
-      if(is_loading(item)) {
+      if (is_loading(item)) {
         item.Loaded = true;
-  
+
         item.writeback();
       }
     }
@@ -473,23 +476,22 @@ export class LancerActor<T extends LancerActorType> extends Actor {
    * @returns   Details to be printed to chat
    */
   async stabilize(o1: StabOptions1, o2: StabOptions2): Promise<string> {
-
     let ent = await this.data.data.derived.mmec.ent;
     let skip = false;
 
     let return_text = "";
 
-    if(!(is_reg_mech(ent) || is_reg_npc(ent))) {
+    if (!(is_reg_mech(ent) || is_reg_npc(ent))) {
       ui.notifications.warn("This can't be stabilized!");
-      return '';
+      return "";
     }
 
-    if(o1 === StabOptions1.Cool) {
-      return_text = return_text.concat("Mech is cooling itself. Please clear Exposed manually<br>")
+    if (o1 === StabOptions1.Cool) {
+      return_text = return_text.concat("Mech is cooling itself. Please clear Exposed manually<br>");
       ent.CurrentHeat = 0;
       await ent.writeback();
     } else if (o1 === StabOptions1.Repair) {
-      if(is_reg_mech(ent) && ent.CurrentRepairs === 0) {
+      if (is_reg_mech(ent) && ent.CurrentRepairs === 0) {
         return "Mech has decided to repair, but doesn't have any repair left. Please try again<br>";
       } else if (is_reg_mech(ent)) {
         ent.CurrentRepairs -= 1;
@@ -500,15 +502,15 @@ export class LancerActor<T extends LancerActorType> extends Actor {
       return ``;
     }
 
-    switch(o2) {
+    switch (o2) {
       case StabOptions2.ClearBurn:
-        return_text = return_text.concat("Mech has selected full burn clear. Please clear manually")
+        return_text = return_text.concat("Mech has selected full burn clear. Please clear manually");
         break;
       case StabOptions2.ClearOtherCond:
-        return_text = return_text.concat("Mech has selected to clear an allied condition. Please clear manually")
+        return_text = return_text.concat("Mech has selected to clear an allied condition. Please clear manually");
         break;
       case StabOptions2.ClearOwnCond:
-        return_text = return_text.concat("Mech has selected to clear own condition. Please clear manually")
+        return_text = return_text.concat("Mech has selected to clear own condition. Please clear manually");
         break;
       case StabOptions2.Reload:
         return_text = return_text.concat("Mech has selected full reload, reloading...");
@@ -532,154 +534,154 @@ export class LancerActor<T extends LancerActorType> extends Actor {
     super.prepareEmbeddedEntities();
   }
 
-/** @override
+  /** @override
    * We need to both:
    *  - Re-generate all of our subscriptions
    *  - Re-initialize our MM context
    */
- prepareDerivedData() {
-  // Reset subscriptions for new data
-  this.setupLancerHooks();
+  prepareDerivedData() {
+    // Reset subscriptions for new data
+    this.setupLancerHooks();
 
-  // Declare our derived data with a shorthand "dr" - we will be using it a lot
-  let dr: this["data"]["data"]["derived"];
+    // Declare our derived data with a shorthand "dr" - we will be using it a lot
+    let dr: this["data"]["data"]["derived"];
 
-  // Default in fields
-  let default_bounded = () => ({
-    min: 0,
-    max: 0,
-    value: 0,
-  });
+    // Default in fields
+    let default_bounded = () => ({
+      min: 0,
+      max: 0,
+      value: 0,
+    });
 
-  // Prepare our derived stat data by first initializing an empty obj
-  dr = {
-    edef: 0,
-    evasion: 0,
-    save_target: 0,
-    current_heat: default_bounded(),
-    current_hp: default_bounded(),
-    overshield: default_bounded(),
-    current_structure: default_bounded(),
-    current_stress: default_bounded(),
-    current_repairs: default_bounded(),
-    mmec: null as any, // we will set these momentarily
-    mmec_promise: null as any, // we will set these momentarily
-  };
+    // Prepare our derived stat data by first initializing an empty obj
+    dr = {
+      edef: 0,
+      evasion: 0,
+      save_target: 0,
+      current_heat: default_bounded(),
+      current_hp: default_bounded(),
+      overshield: default_bounded(),
+      current_structure: default_bounded(),
+      current_stress: default_bounded(),
+      current_repairs: default_bounded(),
+      mmec: null as any, // we will set these momentarily
+      mmec_promise: null as any, // we will set these momentarily
+    };
 
-  // Add into our wip data structure
-  this.data.data.derived = dr;
+    // Add into our wip data structure
+    this.data.data.derived = dr;
 
-  // Begin the task of wrapping our actor. When done, it will setup our derived fields - namely, our max values
-  // Need to wait for system ready to avoid having this break if prepareData called during init step (spoiler alert - it is)
-  let mmec_promise = system_ready
-    .then(() => mm_wrap_actor(this, this._actor_ctx))
-    .catch(async (e) => {
-      // This is 90% of the time a token not being able to resolve itself due to canvas not loading yet
-      console.warn("Token unable to prepare - hopefully trying again when canvas ready. In meantime, using dummy");
-      console.warn(e);
+    // Begin the task of wrapping our actor. When done, it will setup our derived fields - namely, our max values
+    // Need to wait for system ready to avoid having this break if prepareData called during init step (spoiler alert - it is)
+    let mmec_promise = system_ready
+      .then(() => mm_wrap_actor(this, this._actor_ctx))
+      .catch(async e => {
+        // This is 90% of the time a token not being able to resolve itself due to canvas not loading yet
+        console.warn("Token unable to prepare - hopefully trying again when canvas ready. In meantime, using dummy");
+        console.warn(e);
 
-      // Make a dummy value
-      let ctx = new OpCtx();
-      let env = new RegEnv();
-      let reg = new StaticReg(env);
-      let ent = await reg.get_cat(this.data.type).create_default(ctx);
-      return {
-        reg,
-        ent,
-        ctx
-      };
-    })
-    .then(mmec => {
-      // Always save the context
-      // Save the context via defineProperty so it does not show up in JSON stringifies. Also, no point in having it writeable
-      Object.defineProperty(dr, "mmec", {
-        value: mmec,
-        configurable: true,
-        enumerable: false,
-      });
+        // Make a dummy value
+        let ctx = new OpCtx();
+        let env = new RegEnv();
+        let reg = new StaticReg(env);
+        let ent = await reg.get_cat(this.data.type).create_default(ctx);
+        return {
+          reg,
+          ent,
+          ctx,
+        };
+      })
+      .then(mmec => {
+        // Always save the context
+        // Save the context via defineProperty so it does not show up in JSON stringifies. Also, no point in having it writeable
+        Object.defineProperty(dr, "mmec", {
+          value: mmec,
+          configurable: true,
+          enumerable: false,
+        });
 
-      // Changes in max-hp should heal the actor. But certain requirements must be met
-      // - Must know prior (would be in dr.current_hp.max). If 0, do nothing
-      // - Must not be dead. If HP <= 0, do nothing
-      // - New HP must be valid. If 0, do nothing
-      // If above two are true, then set HP = HP - OldMaxHP + NewMaxHP. This should never drop the ent below 1 hp
-      const hp_change_corrector = (curr_hp: number, old_max: number, new_max: number) => {
-        if (curr_hp <= 0) return curr_hp;
-        if (old_max <= 0) return curr_hp;
-        if (new_max <= 0) return curr_hp;
-        let new_hp = curr_hp - old_max + new_max;
-        if (new_hp < 1) new_hp = 1;
+        // Changes in max-hp should heal the actor. But certain requirements must be met
+        // - Must know prior (would be in dr.current_hp.max). If 0, do nothing
+        // - Must not be dead. If HP <= 0, do nothing
+        // - New HP must be valid. If 0, do nothing
+        // If above two are true, then set HP = HP - OldMaxHP + NewMaxHP. This should never drop the ent below 1 hp
+        const hp_change_corrector = (curr_hp: number, old_max: number, new_max: number) => {
+          if (curr_hp <= 0) return curr_hp;
+          if (old_max <= 0) return curr_hp;
+          if (new_max <= 0) return curr_hp;
+          let new_hp = curr_hp - old_max + new_max;
+          if (new_hp < 1) new_hp = 1;
 
-        // Return so it can also be set to the MM item
-        return new_hp;
-      };
+          // Return so it can also be set to the MM item
+          return new_hp;
+        };
 
-      // If our max hp changed, do somethin'
-      let curr_hp = mmec.ent.CurrentHP;
-      let corrected_hp = hp_change_corrector(curr_hp, this.prior_max_hp, mmec.ent.MaxHP);
-      if (curr_hp != corrected_hp) {
-        // Cancel christmas. We gotta update ourselves to reflect the new HP change >:(
-        console.warn(
-          "TODO: figure out a more elegant way to update hp based on max hp than calling update in prepareData. Maybe only choice."
-        );
-      }
-
-      // Set the general props. ALl actors have at least these
-      dr.edef = mmec.ent.EDefense;
-      dr.evasion = mmec.ent.Evasion;
-
-      dr.current_hp.value = mmec.ent.CurrentHP;
-      dr.current_hp.max = mmec.ent.MaxHP;
-
-      dr.overshield.value = mmec.ent.Overshield;
-      dr.overshield.max = mmec.ent.MaxHP; // as good a number as any I guess
-
-      // Depending on type, setup derived fields more precisely as able
-      if (mmec.ent.Type != EntryType.PILOT) {
-        let robot = mmec.ent as Mech | Npc | Deployable;
-
-        // All "wow, cool robot" type units have these
-        dr.save_target = robot.SaveTarget;
-        dr.current_heat.max = robot.HeatCapacity;
-        dr.current_heat.value = robot.CurrentHeat;
-
-        if (robot.Type != EntryType.DEPLOYABLE) {
-          // Deployables don't have stress/struct
-          dr.current_structure.max = robot.MaxStructure;
-          dr.current_structure.value = robot.CurrentStructure;
-
-          dr.current_stress.max = robot.MaxStress;
-          dr.current_stress.value = robot.CurrentStress;
+        // If our max hp changed, do somethin'
+        let curr_hp = mmec.ent.CurrentHP;
+        let corrected_hp = hp_change_corrector(curr_hp, this.prior_max_hp, mmec.ent.MaxHP);
+        if (curr_hp != corrected_hp) {
+          // Cancel christmas. We gotta update ourselves to reflect the new HP change >:(
+          console.warn(
+            "TODO: figure out a more elegant way to update hp based on max hp than calling update in prepareData. Maybe only choice."
+          );
         }
-        if (robot.Type != EntryType.NPC) {
-          // Npcs don't have repairs
-          dr.current_repairs.max = robot.RepairCapacity;
-          dr.current_repairs.value = robot.CurrentRepairs;
-        }
-      }
 
-      // Update prior max hp val
-      this.prior_max_hp = dr.current_hp.max;
+        // Set the general props. ALl actors have at least these
+        dr.edef = mmec.ent.EDefense;
+        dr.evasion = mmec.ent.Evasion;
 
-      // Now that data is set properly, force token to draw its bars
-      if (this.isToken && (this.token as any).bars) {
-        // Just redraw self
-        try {
-          (this.token as any).drawBars();
-        } catch (e) {}
-      } else {
-        // Redraw all active tokens
-        for (let token of this.getActiveTokens()) {
-          if ((token as any).bars) {
-            try {
-              (token as any).drawBars();
-            } catch (e) {}
+        dr.current_hp.value = mmec.ent.CurrentHP;
+        dr.current_hp.max = mmec.ent.MaxHP;
+
+        dr.overshield.value = mmec.ent.Overshield;
+        dr.overshield.max = mmec.ent.MaxHP; // as good a number as any I guess
+
+        // Depending on type, setup derived fields more precisely as able
+        if (mmec.ent.Type != EntryType.PILOT) {
+          let robot = mmec.ent as Mech | Npc | Deployable;
+
+          // All "wow, cool robot" type units have these
+          dr.save_target = robot.SaveTarget;
+          dr.current_heat.max = robot.HeatCapacity;
+          dr.current_heat.value = robot.CurrentHeat;
+
+          if (robot.Type != EntryType.DEPLOYABLE) {
+            // Deployables don't have stress/struct
+            dr.current_structure.max = robot.MaxStructure;
+            dr.current_structure.value = robot.CurrentStructure;
+
+            dr.current_stress.max = robot.MaxStress;
+            dr.current_stress.value = robot.CurrentStress;
+          }
+          if (robot.Type != EntryType.NPC) {
+            // Npcs don't have repairs
+            dr.current_repairs.max = robot.RepairCapacity;
+            dr.current_repairs.value = robot.CurrentRepairs;
           }
         }
-      }
 
-      return mmec;
-    });
+        // Update prior max hp val
+        this.prior_max_hp = dr.current_hp.max;
+
+        // Now that data is set properly, force token to draw its bars
+        if (this.isToken && (this.token as any).bars) {
+          // Just redraw self
+          try {
+            (this.token as any).drawBars();
+          } catch (e) {}
+        } else {
+          // Redraw all active tokens
+          for (let token of this.getActiveTokens()) {
+            if ((token as any).bars) {
+              try {
+                (token as any).drawBars();
+              } catch (e) {}
+            }
+          }
+        }
+
+        return mmec;
+      });
 
     // Also assign the promise via defineProperty, similarly to prevent enumerability
     Object.defineProperty(dr, "mmec_promise", {
@@ -814,11 +816,7 @@ export type LancerDeployableData = FoundryRegActorData<EntryType.DEPLOYABLE>;
 
 export type AnyLancerActor = LancerActor<LancerActorType>;
 export type AnyMMActor = LiveEntryTypes<LancerActorType>;
-export type LancerActorType =
-  | EntryType.MECH
-  | EntryType.DEPLOYABLE
-  | EntryType.NPC
-  | EntryType.PILOT;
+export type LancerActorType = EntryType.MECH | EntryType.DEPLOYABLE | EntryType.NPC | EntryType.PILOT;
 export const LancerActorTypes: LancerActorType[] = [
   EntryType.MECH,
   EntryType.DEPLOYABLE,
