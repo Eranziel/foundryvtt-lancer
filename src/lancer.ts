@@ -33,7 +33,7 @@ import { preloadTemplates } from "./module/preloadTemplates";
 import { registerSettings } from "./module/settings";
 import { compact_tag_list } from "./module/helpers/tags";
 import * as migrations from "./module/migration";
-import { addLCPManager } from "./module/apps/lcpManager";
+import { addLCPManager, updateCore } from "./module/apps/lcpManager";
 
 // Import Machine Mind and helpers
 import * as macros from "./module/macros";
@@ -609,6 +609,39 @@ Hooks.on("modifyTokenAttribute", (_: any, data: any) => {
 });
 
 /**
+ * Prompts users to install core data
+ * Designed for use the first time you launch a new world
+ */
+async function promptInstallCoreData() {
+  let version = "3.0.21";
+  let text = `
+  <h2 style="text-align: center">WELCOME GAME MASTER</h2>
+  <p style="text-align: center;margin-bottom: 1em">THIS IS YOUR <span class="horus--very--subtle">FIRST</span> TIME LAUNCHING</p>
+  <p style="text-align: center;margin-bottom: 1em">WOULD YOU LIKE TO INSTALL <span class="horus--very--subtle">CORE</span> LANCER DATA <span class="horus--very--subtle">v${version}?</span></p>`
+  new Dialog(
+    {
+      title: `Install Core Data`,
+      content: text,
+      buttons: {
+        yes: {
+          label: "Yes",
+          callback: async () => {
+            await updateCore(version);
+          },
+        },
+        close: {
+          label: "No",
+        },
+      },
+      default: "No",
+    },
+    {
+      width: 700,
+    }
+  ).render(true);
+}
+
+/**
  * Performs our version validation
  * Uses window.FEATURES to check theoretical Foundry compatibility with our features
  * Also performs system version checks
@@ -620,6 +653,7 @@ async function versionCheck() {
   // If it's 0 then it's a fresh install
   if (currentVersion === "0") {
     await game.settings.set(LANCER.sys_name, LANCER.setting_migration, game.system.data.version);
+    await promptInstallCoreData();
     return;
   }
 

@@ -1188,6 +1188,49 @@ code.horus:hover {
   }
 }
 
+.horus--very--subtle {
+  animation: distort-very-subtle 5s infinite;
+}
+
+@keyframes distort-very-subtle {
+  25% {
+    text-shadow: none;
+  }
+  26% {
+    text-shadow: 1px -1px rgba(255, 0, 0, 0.5), -1px 2px rgba(0, 255, 255, 0.5);
+  }
+  27% {
+    text-shadow: -1px -2px rgba(255, 0, 0, 0.5), 1px 1px rgba(0, 255, 255, 0.5);
+  }
+  28% {
+    text-shadow: 1px 1px rgba(255, 0, 0, 0.5), -2px 1px rgba(0, 255, 255, 0.5);
+  }
+  29% {
+    text-shadow: -2px 1px rgba(255, 0, 0, 0.5), -1px -1px rgba(0, 255, 255, 0.5);
+  }
+  30% {
+    text-shadow: none;
+  }
+  75% {
+    text-shadow: none;
+  }
+  76% {
+    text-shadow: -2px 1px rgba(255, 0, 0, 0.5), -1px -1px rgba(0, 255, 255, 0.5);
+  }
+  77% {
+    text-shadow: -1px -2px rgba(255, 0, 0, 0.5), 1px 1px rgba(0, 255, 255, 0.5);
+  }
+  78% {
+    text-shadow: 1px -1px rgba(255, 0, 0, 0.5), -1px 2px rgba(0, 255, 255, 0.5);
+  }
+  79% {
+    text-shadow: 1px 1px rgba(255, 0, 0, 0.5), -2px 1px rgba(0, 255, 255, 0.5);
+  }
+  80% {
+    text-shadow: none;
+  }
+}
+
 /* End of HORUS glitchy styles used in lancer-data */
 
 .roll-stat,

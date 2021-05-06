@@ -144,13 +144,9 @@ class LCPManager extends Application {
   async _onCoreUpdateButtonClick(ev: MouseEvent) {
     if (!game.user.isGM) return ui.notifications.warn(`Only GM can modify the Compendiums.`);
     if (!ev.currentTarget || !this.coreUpdate) return;
-    ui.notifications.info(`Updating Lancer Core data to v${this.coreUpdate}. Please wait.`);
 
-    console.log(`${lp} Updating Lancer Core data to v${this.coreUpdate}`);
-    await import_cp(mm.funcs.get_base_content_pack(), (x, y) => this.update_progress_bar(x, y));
+    await updateCore(this.coreUpdate, this);
 
-    ui.notifications.info(`Lancer Core data update complete.`);
-    await game.settings.set(LANCER.sys_name, LANCER.setting_core_data, this.coreUpdate);
     this.coreVersion = this.coreUpdate;
     this.render();
   }
@@ -243,3 +239,25 @@ class LCPManager extends Application {
 }
 
 export { LCPManager, addLCPManager, LCPIndex };
+
+export async function updateCore(version: string, manager?: LCPManager) {
+  var progress = 1;
+  let progress_func = (x: any, y: any) => {
+    // If we're passing a manager, let it do things as well
+    if(manager) manager.update_progress_bar(x,y);
+    // Provide updates every 25% by default
+    let quarter = Math.ceil(y / 4);
+    if(x >= quarter * progress) {
+      ui.notifications.info(`${progress * 25}% of Lancer Core data updated`);
+      progress += 1;
+    }
+  }
+  
+  ui.notifications.info(`Updating Lancer Core data to v${version}. Please wait.`);
+
+  console.log(`${lp} Updating Lancer Core data to v${version}`);
+  await import_cp(mm.funcs.get_base_content_pack(), progress_func);
+
+  ui.notifications.info(`Lancer Core data update complete.`);
+  await game.settings.set(LANCER.sys_name, LANCER.setting_core_data, version);
+}
