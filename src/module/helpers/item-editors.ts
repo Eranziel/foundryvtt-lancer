@@ -1,5 +1,5 @@
 import { HelperOptions } from "handlebars";
-import { Bonus, Damage, License, WeaponMod, WeaponSize, WeaponType, Action, Deployable, Synergy } from 'machine-mind';
+import { Bonus, Damage, License, WeaponMod, WeaponSize, WeaponType, Action, Deployable, Synergy, ActivationType } from 'machine-mind';
 import { license_ref, manufacturer_ref, bonuses_display, damage_editor, range_editor, buildActionHTML, buildDeployableHTML } from './item';
 import { large_textbox_card, resolve_helper_dotpath, std_enum_select, std_num_input } from './commons';
 
@@ -157,26 +157,12 @@ export function item_edit_arrayed_synergies(path: string, title: string, helper:
 *                       Currently supported:
  *                          * WeaponSize
  *                          * WeaponType
+ *                          * Activation
  * @param helper        Standard helper object
  * @returns             HTML for an array of selectable, addable and removable items from the struct
  */
 export function item_edit_arrayed_enum(title: string, path: string, enum_name: string, helper: HelperOptions): string {
-    enum none_enum {None = "None"}
-    let resolved_enum: any;
-    // Resolve the enum name
-    switch(enum_name) {
-        case "WeaponSize":
-            resolved_enum = WeaponSize;
-            break;
-        case "WeaponType":
-            resolved_enum = WeaponType;
-            break;
-        default:
-            console.log("Using default enum with enum_name of ".concat(enum_name));
-            debugger;
-            resolved_enum = none_enum;
-            break;
-    }
+    let resolved_enum = resolve_enum(enum_name);
 
     let enum_arr: Array<typeof resolved_enum> = resolve_helper_dotpath(helper,path);
 
@@ -200,6 +186,28 @@ export function item_edit_arrayed_enum(title: string, path: string, enum_name: s
       </span>
         ${selector_detail}
     </div>`
+}
+
+export function item_edit_enum(path: string, enum_name: string, helper: HelperOptions) {
+  let resolved_enum = resolve_enum(enum_name);
+  // Resolve the enum name
+
+  return std_enum_select(path,resolved_enum,helper)
+}
+
+function resolve_enum(enum_name: string): any {
+  enum none_enum {None = "None"}
+  switch(enum_name) {
+      case "WeaponSize":
+          return WeaponSize;
+      case "WeaponType":
+          return WeaponType;
+      case "ActivationType":
+          return ActivationType
+      default:
+          console.log("Using default enum with enum_name of ".concat(enum_name));
+          return none_enum;
+  }  
 }
 
 /**
