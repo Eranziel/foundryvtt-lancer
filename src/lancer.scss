@@ -1307,10 +1307,11 @@ button.overkill-reroll {
 
 .mod-minus-button,
 .mod-plus-button {
-  width: 2em;
-  max-width: 2em;
+  cursor: pointer;
+  width: 30px;
+  height: 30px;
   background-color: #828282;
-  color: #bebebe;
+  color: #fff;
   border: none;
   /* Don't ask me why, but this aligns it vertically nicely */
   line-height: 1px;
@@ -1943,6 +1944,85 @@ a.action {
   .tippy-content {
     transform: skew(330deg);
   }
+}
+
+// Acc_Diff
+.accdiff-grid {
+  display: flex;
+  justify-content: space-between;
+
+  .container {
+    display: block;
+    position: relative;
+    padding-left: 35px;
+    margin-bottom: 8px;
+    font-size: 1em;
+    user-select: none;
+  }
+
+  /* Hide the browser's default checkbox */
+  .container input {
+    position: absolute;
+    opacity: 0 !important;
+    height: 0;
+    width: 0;
+  }
+
+  /* Create a custom checkbox */
+  .checkmark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 25px;
+    width: 25px;
+    background-color: #a9a9a9;
+    cursor: pointer;
+  }
+
+  input[disabled] ~ .checkmark {
+    background-color: #313131;
+    cursor: unset;
+  }
+
+  /* On mouse-over, add a grey background color */
+  .container:hover input:not([disabled]) ~ .checkmark {
+    background-color: #757575;
+  }
+
+  /* When the checkbox is checked, add a blue background */
+  .container input:checked:not([disabled]) ~ .checkmark {
+    background-color: var(--main-theme-color, fuchsia);
+  }
+
+  /* Create the checkmark/indicator (hidden when not checked) */
+  .checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+  }
+
+  /* Show the checkmark when checked */
+  .container input:checked ~ .checkmark:after {
+    display: block;
+  }
+
+  /* Style the checkmark/indicator */
+  .container .checkmark:after {
+    left: 9px;
+    top: 5px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 3px 3px 0;
+    -webkit-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    transform: rotate(45deg);
+  }
+}
+
+.accdiff-footer {
+  padding-top: 8px;
+  border-top: 1px solid #782e22;
 }
 
 // V-IMPORTS
