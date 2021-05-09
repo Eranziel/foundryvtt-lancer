@@ -1895,7 +1895,7 @@ a.activation-chip > i.mdi {
   border: 1px solid #5d5d5d;
 }
 #action-manager-drag {
-  cursor: pointer;
+  cursor: move;
   font-size: 1.5em;
   padding: 12px 4px 0px 8px;
 }
@@ -1930,6 +1930,18 @@ a.action {
     -webkit-box-shadow: inset 0 0 100px 100px rgba(255, 255, 255, 0.3);
     box-shadow: inset 0 0 100px 100px rgba(255, 255, 255, 0.3);
     text-shadow: none;
+  }
+}
+
+// TIPPY
+.tippy-box[data-theme~="lancer"] {
+  font-size: 1.1em;
+  padding-left: 8px;
+  padding-right: 8px;
+  transform: skew(30deg);
+
+  .tippy-content {
+    transform: skew(330deg);
   }
 }
 
