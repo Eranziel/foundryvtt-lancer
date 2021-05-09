@@ -7,6 +7,7 @@
   * When starting a turn, a token's actions are refreshed.
   * When ending a turn, all remaining actions are wasted (minus Reaction, which is immediately refreshed at every turn).
   * When spending a Quick action and a Full action is available, the Full action is spent instead (represents the 2 Quick = 1 Full conversion).
+* **Action Editing**: First draft of action editing on all manner of items, first step towards homebrew and ease-of-use UX.
 * (0.9.1 but not documented) Right clicking weapon icons will toggle destroyed state. This will eventually be folded into a proper context menu.
 
 ## Bug Fixes
