@@ -29,10 +29,13 @@ export function tagsToFlags(tags: TagInstance[]): AccDiffFlag[] {
     switch (tag.Tag.LID) {
       case "tg_accurate":
         ret.push("ACCURATE");
+        break;
       case "tg_inaccurate":
         ret.push("INACCURATE");
+        break;
       case "tg_seeking":
         ret.push("SEEKING");
+        break;
     }
   });
   return ret;
