@@ -1,20 +1,12 @@
 import { LANCER } from "../config";
 import { LancerActorSheet } from "./lancer-actor-sheet";
-import {
-  EntryType,
-  funcs,
-  MountType,
-  OpCtx,
-  RegRef,
-  SystemMount,
-  WeaponMount,
-  WeaponSlot,
-} from "machine-mind";
+import { EntryType, funcs, MountType, OpCtx, RegRef, SystemMount, WeaponMount, WeaponSlot } from "machine-mind";
 import { MMEntityContext, mm_wrap_item } from "../mm-util/helpers";
 import { ResolvedNativeDrop } from "../helpers/dragdrop";
-import { gentle_merge, resolve_dotpath } from '../helpers/commons';
+import { gentle_merge, resolve_dotpath } from "../helpers/commons";
 import { LancerMechWeapon } from "../item/lancer-item";
-import { Mech, MechWeapon } from 'machine-mind';
+import { Mech, MechWeapon } from "machine-mind";
+import tippy from "tippy.js";
 
 /**
  * Extend the basic ActorSheet
@@ -42,16 +34,25 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
    */
   activateListeners(html: JQuery<HTMLElement>) {
     super.activateListeners(html);
+
+    this._activateTooltips();
+
     // Everything below here is only needed if the sheet is editable
     if (!this.options.editable) return;
 
     this._activateOverchargeControls(html);
     this._activateLoadoutControls(html);
     this._activateMountContextMenus(html);
-
   }
 
   /* -------------------------------------------- */
+
+  private _activateTooltips() {
+    tippy('[data-context-menu="toggle"][data-field="Destroyed"]', {
+      content: "Right Click to Destroy",
+      delay: [300, 100],
+    });
+  }
 
   // Baseline drop behavior. Let people add stuff to the mech
   async _onDrop(event: any): Promise<any> {
@@ -78,41 +79,40 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
     const item_mm: MMEntityContext<EntryType> = await mm_wrap_item(item);
 
     // If it's a mod, perform checks to ensure it can be equipped
-    if(item_mm.ent.Type === EntryType.WEAPON_MOD) {
+    if (item_mm.ent.Type === EntryType.WEAPON_MOD) {
       let equipping_weapon_id = $(event.target).closest(".item")?.data("id");
       let weapon_path = $(event.target).closest(".item")?.data("path");
-      mount_slot_path = weapon_path.substr(0,weapon_path.lastIndexOf("."));
+      mount_slot_path = weapon_path.substr(0, weapon_path.lastIndexOf("."));
 
       // Need to set the path to strip out the sheet-native references
       mount_slot_path = mount_slot_path?.substr(7);
 
-      if(!equipping_weapon_id) {
+      if (!equipping_weapon_id) {
         ui.notifications.error("You dropped a mod onto something that isn't an item!");
         return;
       }
 
       let equipping_weapon = <LancerMechWeapon>this.actor.getOwnedItem(equipping_weapon_id);
 
-      if(!equipping_weapon) {
+      if (!equipping_weapon) {
         ui.notifications.error("Actor doesn't own the item?");
         return;
       }
 
-      if(equipping_weapon.type !== EntryType.MECH_WEAPON) {
+      if (equipping_weapon.type !== EntryType.MECH_WEAPON) {
         ui.notifications.error("Can only equip weapon mods to a weapon!");
         return;
       }
-      
-      if(!mount_slot_path) return;
-      
-      let mount_slot = resolve_dotpath(await this.actor.data.data.derived.mmec.ent,mount_slot_path);
+
+      if (!mount_slot_path) return;
+
+      let mount_slot = resolve_dotpath(await this.actor.data.data.derived.mmec.ent, mount_slot_path);
 
       // Check can take outputs a string if error, rather than a bool...
       if (mount_slot.check_can_take(item_mm.ent)) {
         ui.notifications.error("This mod can't be equipped to this weapon");
         return;
       }
-
     }
 
     // Always add the item to the mech, now that we know it is a valid mech posession
@@ -138,11 +138,11 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
       //new_live_this.Loadout.equip_system(new_live_item);
     } else if (new_live_item.Type === EntryType.WEAPON_MOD) {
       // If it's a mod and we got here, it's valid and we can proceed
-      if(!mount_slot_path) return
-      let mount_slot: WeaponSlot = resolve_dotpath(new_live_this,mount_slot_path);
+      if (!mount_slot_path) return;
+      let mount_slot: WeaponSlot = resolve_dotpath(new_live_this, mount_slot_path);
       mount_slot.Mod = <any>item_mm.ent;
     }
-    
+
     // Writeback when done. Even if nothing explicitly changed, probably good to trigger a redraw (unless this is double-tapping? idk)
     await new_live_this.writeback();
 
@@ -154,27 +154,26 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
    * Handles actions in the overcharge panel
    */
   _activateOverchargeControls(html: any) {
-      // Overcharge text
-      let overchargeText = html.find(".overcharge-text");
+    // Overcharge text
+    let overchargeText = html.find(".overcharge-text");
 
+    overchargeText.on("click", (ev: Event) => {
+      this._setOverchargeLevel(<MouseEvent>ev, Math.min(this.actor.data.data.current_overcharge + 1, 3));
+    });
 
-      overchargeText.on("click", (ev: Event) => {
-        this._setOverchargeLevel(<MouseEvent>ev,Math.min(this.actor.data.data.current_overcharge + 1,3));
-      });
+    // Overcharge reset
+    let overchargeReset = html.find(".overcharge-reset");
 
-      // Overcharge reset
-      let overchargeReset = html.find(".overcharge-reset");
+    overchargeReset.on("click", (ev: Event) => {
+      this._setOverchargeLevel(<MouseEvent>ev, 0);
+    });
 
-      overchargeReset.on("click", (ev: Event) => {
-        this._setOverchargeLevel(<MouseEvent>ev,0);
-      });
+    // Overcharge macro
+    let overchargeMacro = html.find(".overcharge-macro");
 
-      // Overcharge macro
-      let overchargeMacro = html.find(".overcharge-macro");
-
-      overchargeMacro.on("click", (ev: Event) => {
-        this._onClickOvercharge(<MouseEvent>ev);
-      });
+    overchargeMacro.on("click", (ev: Event) => {
+      this._onClickOvercharge(<MouseEvent>ev);
+    });
   }
 
   /**
@@ -215,7 +214,6 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
   _onClickOvercharge(event: MouseEvent) {
     game.lancer.prepareOverchargeMacro(this.actor._id);
   }
-
 
   /**
    * Handles more niche controls in the loadout in the overcharge panel
@@ -267,12 +265,7 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
 
   // Save ourselves repeat work by handling most events clicks actual operations here
   async _event_handler(
-    mode:
-      | "reset-wep"
-      | "reset-all-weapon-mounts"
-      | "reset-sys"
-      | "overcharge"
-      | "overcharge-rollback",
+    mode: "reset-wep" | "reset-all-weapon-mounts" | "reset-sys" | "overcharge" | "overcharge-rollback",
     evt: JQuery.ClickEvent
   ) {
     evt.stopPropagation();

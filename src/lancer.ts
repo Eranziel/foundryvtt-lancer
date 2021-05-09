@@ -38,6 +38,12 @@ import { addLCPManager, updateCore } from "./module/apps/lcpManager";
 // Import Machine Mind and helpers
 import * as macros from "./module/macros";
 
+// Import Tippy.js
+import tippy from "tippy.js";
+import "tippy.js/dist/tippy.css"; // optional for styling
+tippy.setDefaultProps({ theme: "lancer", arrow: false, delay: [400, 200] });
+// tippy.setDefaultProps({ theme: "lancer", arrow: false, delay: [400, 200], hideOnClick: false, trigger: "click"});
+
 // Import node modules
 import compareVersions = require("compare-versions");
 import { NpcFeatureType, EntryType, Manufacturer, Bonus, WeaponSize, Action } from "machine-mind";
@@ -621,7 +627,7 @@ async function promptInstallCoreData() {
   let text = `
   <h2 style="text-align: center">WELCOME GAME MASTER</h2>
   <p style="text-align: center;margin-bottom: 1em">THIS IS YOUR <span class="horus--very--subtle">FIRST</span> TIME LAUNCHING</p>
-  <p style="text-align: center;margin-bottom: 1em">WOULD YOU LIKE TO INSTALL <span class="horus--very--subtle">CORE</span> LANCER DATA <span class="horus--very--subtle">v${version}?</span></p>`
+  <p style="text-align: center;margin-bottom: 1em">WOULD YOU LIKE TO INSTALL <span class="horus--very--subtle">CORE</span> LANCER DATA <span class="horus--very--subtle">v${version}?</span></p>`;
   new Dialog(
     {
       title: `Install Core Data`,
