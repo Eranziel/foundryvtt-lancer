@@ -14,6 +14,7 @@
   "author": "",
   "license": "",
   "devDependencies": {
+    "@league-of-foundry-developers/foundry-vtt-types": "^0.7.9-6",
     "archiver": "^3.1.1",
     "chalk": "^3.0.0",
     "css-loader": "^5.2.4",
@@ -38,7 +39,7 @@
     "@mdi/font": "^5.9.55",
     "@types/marked": "^1.2.1",
     "compare-versions": "^3.6.0",
-    "machine-mind": "^0.2.0-beta.94",
+    "machine-mind": "0.2.0-beta.94",
     "marked": "^2.0.3",
     "tippy.js": "^6.3.1"
   }

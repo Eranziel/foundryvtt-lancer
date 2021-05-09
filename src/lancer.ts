@@ -240,17 +240,17 @@ Hooks.once("init", async function () {
   // Register handlebars helpers
 
   // inc, for those off-by-one errors
-  Handlebars.registerHelper("inc", function (value) {
+  Handlebars.registerHelper("inc", function (value: any) {
     return parseInt(value) + 1;
   });
 
   // dec, for those off-by-one errors
-  Handlebars.registerHelper("dec", function (value) {
+  Handlebars.registerHelper("dec", function (value: any) {
     return parseInt(value) - 1;
   });
 
   // cons, to concatenate strs. Can take any number of args. Last is omitted (as it is just a handlebars ref object)
-  Handlebars.registerHelper("concat", function (...values) {
+  Handlebars.registerHelper("concat", function (...values: any[]) {
     return values.slice(0, values.length - 1).join("");
   });
 
@@ -267,54 +267,54 @@ Hooks.once("init", async function () {
   });
 
   // get an index from an array
-  Handlebars.registerHelper("idx", function (array, index) {
+  Handlebars.registerHelper("idx", function (array: any, index: any) {
     return array[index];
   });
 
   // invert the input
-  Handlebars.registerHelper("neg", function (value) {
+  Handlebars.registerHelper("neg", function (value: any) {
     return parseInt(value) * -1;
   });
 
   // double the input
-  Handlebars.registerHelper("double", function (value) {
+  Handlebars.registerHelper("double", function (value: any) {
     return parseInt(value) * 2;
   });
 
   // Equal-to evaluation
-  Handlebars.registerHelper("eq", function (val1, val2) {
+  Handlebars.registerHelper("eq", function (val1: any, val2: any) {
     return val1 === val2;
   });
 
   // Equal-to evaluation
-  Handlebars.registerHelper("neq", function (val1, val2) {
+  Handlebars.registerHelper("neq", function (val1: any, val2: any) {
     return val1 !== val2;
   });
 
   // Logical "or" evaluation
-  Handlebars.registerHelper("or", function (val1, val2) {
+  Handlebars.registerHelper("or", function (val1: any, val2: any) {
     return val1 || val2;
   });
 
   // Greater-than evaluation
-  Handlebars.registerHelper("gt", function (val1, val2) {
+  Handlebars.registerHelper("gt", function (val1: any, val2: any) {
     return val1 > val2;
   });
 
   // Greater-than evaluation after applying parseInt to both values
-  Handlebars.registerHelper("gtpi", function (val1, val2) {
+  Handlebars.registerHelper("gtpi", function (val1: any, val2: any) {
     val1 = parseInt(val1);
     val2 = parseInt(val2);
     return val1 > val2;
   });
 
   // Less-than evaluation
-  Handlebars.registerHelper("lt", function (val1, val2) {
+  Handlebars.registerHelper("lt", function (val1: any, val2: any) {
     return val1 < val2;
   });
 
   // Greater-than evaluation after applying parseInt to both values
-  Handlebars.registerHelper("ltpi", function (val1, val2) {
+  Handlebars.registerHelper("ltpi", function (val1: any, val2: any) {
     val1 = parseInt(val1);
     val2 = parseInt(val2);
     return val1 < val2;
@@ -329,7 +329,7 @@ Hooks.once("init", async function () {
   });
 
   // For loops in Handlebars
-  Handlebars.registerHelper("for", function (n, block) {
+  Handlebars.registerHelper("for", function (n: any, block: any) {
     var accum = "";
     for (var i = 0; i < n; ++i) accum += block.fn(i);
     return accum;
@@ -342,7 +342,7 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("l-num-input", clicker_num_input);
 
   // For debugging
-  Handlebars.registerHelper("debug_each", function (it, block) {
+  Handlebars.registerHelper("debug_each", function (it: any, block: any) {
     // if(typeof a == 'function')
     // a = a.call(this);
     console.log(it);
