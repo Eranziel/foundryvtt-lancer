@@ -279,3 +279,19 @@ const ENTITY_ICONS = {
 export function TypeIcon(type: LancerItemType | LancerActorType, macro?: boolean): string {
   return ENTITY_ICONS[type] ?? ENTITY_ICONS["generic"];
 }
+
+// A substitution method that replaces the first argument IFF it is an img that we don't think should be preserved, and if the trimmed replacement string is truthy
+export function replace_default_resource(current: string, replacement: string | null): string {
+  // If no replacement, then obviously keep initial
+  if(!replacement?.trim()) {
+    return current;
+  }
+
+  // If empty or from system path or mystery man, replace
+  if(!current?.trim() || current.includes("system/lancer") || current == "icons/svg/mystery-man.svg") {
+    return replacement;
+  }
+
+  // Otherwise keep as is
+  return current;
+}

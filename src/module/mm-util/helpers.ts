@@ -8,16 +8,11 @@ import { FoundryReg, FoundryRegCat } from "./foundry-reg";
 // The registry is whatever registry is most sensibly "local" for the given item. If the item is from a compendium, the reg will be compendium local.
 // If the item is from an actor, then the registry will be for that actor
 // Otherwise (item is global / item is an actor), we do standard global space
-export interface MMEntityContext<T extends EntryType> {
-  reg: Registry;
-  ctx: OpCtx; // Could just fetch from item but this cleaner
-  ent: LiveEntryTypes<T>;
-}
 
 export async function mm_wrap_item<T extends EntryType & LancerItemType>(
   item: LancerItem<T>,
   use_existing_ctx?: OpCtx
-): Promise<MMEntityContext<T>> {
+): Promise<LiveEntryTypes<T>> {
   // Figure out what our context ought to be
   let is_compendium = item.compendium != null; // If compendium is set, we use that
   let actor: LancerActor<any> | null = item.options.actor ?? null; // If actor option is set, we use that
@@ -57,18 +52,13 @@ export async function mm_wrap_item<T extends EntryType & LancerItemType>(
   if (!ent) {
     throw new Error("Something went wrong while trying to contextualize an item...");
   }
-
-  return {
-    ctx,
-    reg,
-    ent: ent,
-  };
+  return ent;
 }
 
 export async function mm_wrap_actor<T extends EntryType & LancerActorType>(
   actor: LancerActor<T>,
   use_existing_ctx?: OpCtx
-): Promise<MMEntityContext<T>> {
+): Promise<LiveEntryTypes<T>> {
   // Get our reg
   let reg: FoundryReg;
   let id: string;
@@ -100,11 +90,7 @@ export async function mm_wrap_actor<T extends EntryType & LancerActorType>(
     throw new Error("Something went wrong while trying to contextualize an actor...");
   }
 
-  return {
-    ctx,
-    reg,
-    ent: ent,
-  };
+  return ent;
 }
 
 // Define a helper to check if a license includes the specified item. Checks by lid. Maybe change that in the future?
@@ -114,23 +100,23 @@ export async function mm_wrap_actor<T extends EntryType & LancerActorType>(
 
 // Helper for finding what license an item comes from. Checks by name, an inelegant solution but probably good enough
 export async function find_license_for(
-  mmec: MMEntityContext<LancerItemType>,
+  mm: LiveEntryTypes<LancerItemType>,
   in_actor?: LancerMech | LancerPilot
 ): Promise<RegRef<EntryType.LICENSE> | null> {
   // If the item does not have a license name, then we just bail
-  let license_name = (mmec.ent as any).License;
+  let license_name = (mm as any).License;
   if (!license_name) {
     return null;
   }
 
   // If an actor was supplied, we first check their inventory.
   if (in_actor) {
-    let actor_mmec = await in_actor.data.data.derived.mmec_promise;
+    let actor_mm = await in_actor.data.data.derived.mm_promise;
 
     // Only pilots should have licenses
     let pilot: Pilot | null = null;
-    if (actor_mmec.ent.Type == EntryType.MECH) {
-      pilot = actor_mmec.ent.Pilot;
+    if (actor_mm.Type == EntryType.MECH) {
+      pilot = actor_mm.Pilot;
     }
 
     // Check pilot inventory, in case they have a weird custom license

@@ -309,5 +309,5 @@ export class LancerActionManager extends Application {
 }
 
 function getSpeed(actor: Actor) {
-  return actor.data.data?.derived?.mmec?.ent.Speed ? actor.data.data?.derived?.mmec?.ent.Speed : 4;
+  return actor.data.data?.derived?.mm?.Speed ? actor.data.data?.derived?.mm.Speed : 4;
 }

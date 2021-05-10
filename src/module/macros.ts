@@ -265,7 +265,7 @@ export async function prepareItemMacro(a: string, i: string, options?: any) {
       break;
     // Systems
     case EntryType.MECH_SYSTEM:
-      await rollSystemMacro(actor, item.data.data.derived.mmec.ent);
+      await rollSystemMacro(actor, item.data.data.derived.mm);
       break;
     // Talents
     case EntryType.TALENT:
@@ -592,8 +592,8 @@ async function prepareAttackMacro({
 
   // We can safely split off pilot/mech weapons by actor type
   if (actor.data.type === EntryType.MECH) {
-    pilotEnt = (await actor.data.data.derived.mmec_promise).ent.Pilot;
-    let itemEnt: MechWeapon = (await item.data.data.derived.mmec_promise).ent;
+    pilotEnt = (await actor.data.data.derived.mm_promise).Pilot;
+    let itemEnt: MechWeapon = (await item.data.data.derived.mm_promise);
 
     weaponData = itemEnt.SelectedProfile;
 
@@ -606,8 +606,8 @@ async function prepareAttackMacro({
     mData.overkill = weaponData.Tags.find(tag => tag.Tag.LID === "tg_overkill") !== undefined;
     mData.effect = weaponData.Effect;
   } else if (actor.data.type === EntryType.PILOT) {
-    pilotEnt = (await actor.data.data.derived.mmec_promise).ent;
-    let itemEnt: PilotWeapon = (await item.data.data.derived.mmec_promise).ent;
+    pilotEnt = (await actor.data.data.derived.mm_promise);
+    let itemEnt: PilotWeapon = (await item.data.data.derived.mm_promise);
     weaponData = itemEnt;
 
     mData.loaded = itemEnt.Loaded;
@@ -714,7 +714,7 @@ async function prepareAttackMacro({
     console.log(item);
     console.log(actor);
 
-    let itemEnt: MechWeapon = (await item.data.data.derived.mmec_promise).ent;
+    let itemEnt: MechWeapon = (await item.data.data.derived.mm_promise);
     itemEnt.Loaded = false;
     await itemEnt.writeback();
   }
@@ -919,7 +919,7 @@ export function prepareCoreActiveMacro(a: string) {
   let mech: LancerActor<EntryType.MECH> | null = getMacroSpeaker(a);
   if (!mech) return;
 
-  var ent = mech.data.data.derived.mmec.ent;
+  var ent = mech.data.data.derived.mm;
   if (!ent.Frame) return;
 
   if (!ent.CurrentCoreEnergy) {
@@ -1254,7 +1254,7 @@ export async function prepareChargeMacro(a: string) {
   // Determine which Actor to speak as
   let mech: LancerActor<EntryType.MECH> | null = getMacroSpeaker(a);
   if (!mech) return;
-  const ent = mech.data.data.derived.mmec.ent;
+  const ent = mech.data.data.derived.mm;
   const feats: NpcFeature[] = (ent as any).Features;
   if (!feats) return;
 
@@ -1340,8 +1340,8 @@ export async function prepareActivationMacro(a: string, i: string, type: Activat
     return ui.notifications.error(`Error rolling tech attack macro - ${item.name} is not owned by an Actor!`);
   }
 
-  let itemEnt: MechSystem | NpcFeature = (await item.data.data.derived.mmec_promise).ent;
-  let actorEnt: Mech = (await actor.data.data.derived.mmec_promise).ent;
+  let itemEnt: MechSystem | NpcFeature = (await item.data.data.derived.mm_promise);
+  let actorEnt: Mech = (await actor.data.data.derived.mm_promise);
 
   // TODO--handle NPC Activations
   if (itemEnt.Type === EntryType.NPC_FEATURE) return;

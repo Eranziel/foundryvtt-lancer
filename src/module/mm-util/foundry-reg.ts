@@ -52,7 +52,6 @@ import {
   TokensActorsWrapper as TokenActorsWrapper,
   TokenInventoryWrapper,
 } from "./db_abstractions";
-import { MMEntityContext } from "./helpers";
 
 // Pluck
 const defaults = funcs.defaults;
@@ -80,8 +79,8 @@ export interface FoundryRegItemData<T extends EntryType> {
   data: RegEntryTypes<T> & {
     // Derived data. Should be removed from any update calls
     derived: {
-      mmec: MMEntityContext<T>;
-      mmec_promise: Promise<MMEntityContext<T>>; // The above, in promise form. More robust
+      mm: LiveEntryTypes<T>;
+      mm_promise: Promise<LiveEntryTypes<T>>; // The above, in promise form. More robust
       // Include other details as appropriate to the entity
     };
   };
@@ -89,6 +88,7 @@ export interface FoundryRegItemData<T extends EntryType> {
   img: string;
   flags: any;
   name: string;
+  folder?: string | null;
 }
 
 // Ditto for actors
@@ -102,8 +102,16 @@ export interface FoundryFlagData<T extends EntryType> {
   // The foundry document that this document corresponds to
   orig_doc: DocFor<T>;
 
+  // The original foundry name. We track this so that if either the .mm.Name or the .orig_doc.name change
+  orig_doc_name: string;
+
   // Will be included in any create/update calls. Merged in after the real data. Should/must be in flat key format (please!)
-  top_level_data: { [key: string]: any };
+  top_level_data: { 
+    // name: string,
+    // folder: string,
+    // img: string
+    [key: string]: any 
+  };
 }
 
 /**
@@ -408,31 +416,6 @@ export class FoundryReg extends Registry {
     this.make_cat(_config, EntryType.TAG, TagTemplate, defaults.TAG_TEMPLATE);
     this.make_cat(_config, EntryType.TALENT, Talent, defaults.TALENT);
     this.make_cat(_config, EntryType.WEAPON_MOD, WeaponMod, defaults.WEAPON_MOD);
-
-    // Insinuation hook - carries over additional data when insinuating from an item
-    this.hooks.pre_final_write = async record => {
-      // Pending is an odd thing, because though it claims to be from the destination register, that is just a ruse (a deliberate one, mind you)
-      // Conveniently, this means that all of its associations etc have their original entities flagged, and also that the top level name/img data
-      // is fixed up properly already as well.
-      let orig = record.pending.Flags.orig_doc;
-      /*
-      if (is_actor_type(orig.type)) {
-        // 'tis an actor
-        let orig_actor = orig as AnyLancerActor;
-        let img = orig_actor.data?.img;
-        let name = orig_actor.data?.name;
-        let token = orig_actor.data?.token;
-        await orig_actor.update({ img, name, token });
-      } else {
-        // 'tis an item. Update its img and name
-        let orig_entity = orig as AnyLancerItem;
-        let img = orig_entity.data?.img;
-        let name = orig_entity.data?.name;
-        await orig_entity.update({ img, name }, {});
-      }
-      */
-    };
-
     this.init_finalize();
   }
 }
@@ -483,13 +466,15 @@ export class FoundryRegCat<T extends EntryType> extends RegCat<T> {
     return map;
   }
 
-  // Converts a getresult into an appropriately flagged live item
+  // Converts a getresult into an appropriately flagged live item. Just wraps revive_func with flag generation and automatic id/raw deduction
   private async revive_and_flag(g: GetResult<T>, ctx: OpCtx): Promise<LiveEntryTypes<T>> {
     let flags: FoundryFlagData<T> = {
       orig_doc: g.entity,
+      orig_doc_name: g.entity.name,
       top_level_data: {
         name: g.entity.name,
         img: g.entity.img,
+        folder: g.entity.data.folder || null
       },
     };
     let result = await this.revive_func(this.parent, ctx, g.id, g.item, flags);
@@ -509,6 +494,7 @@ export class FoundryRegCat<T extends EntryType> extends RegCat<T> {
   async wrap_doc(ctx: OpCtx, ent: T extends LancerActorType ? LancerActor<T> : T extends LancerItemType ? LancerItem<T> : never): Promise<LiveEntryTypes<T> | null> {
     let id = ent.id;
 
+    console.log("Wrapping");
     // ID is different if we are an unlinked token 
     if(ent instanceof LancerActor && ent.isToken) {
       id = ent.token.id;

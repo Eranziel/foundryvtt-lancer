@@ -13,7 +13,7 @@
           />
         </h1>
       </div>
-      {{{ ref-portrait-img item.img "img" mm.ent }}}
+      {{{ ref-portrait-img item.img "img" mm }}}
     </div>
   </header>
 
@@ -22,26 +22,26 @@
     <div class="flexrow">
       <div class="flexcol">
         <span>CONSUMABLE:</span>
-        <input type="checkbox" name="mm.ent.Consumable" {{checked mm.ent.Consumable}}>
+        <input type="checkbox" name="mm.Consumable" {{checked mm.Consumable}}>
       </div>
       <div class="flexcol">
         <span>USED:</span>
-        <input type="checkbox" name="mm.ent.Used" {{checked mm.ent.Used}}>
+        <input type="checkbox" name="mm.Used" {{checked mm.Used}}>
       </div>
     </div>
-      {{{textarea-card "DESCRIPTION" "mm.ent.Description"}}}
-      {{{item-edit-arrayed-actions      "mm.ent.Actions"        "ACTIONS"}}}
-      {{{item-edit-arrayed-bonuses      "mm.ent.Bonuses"}}}
-      {{{counter-array mm.ent.Counters "mm.ent.Counters" "mm.ent.Counters" true}}}
-      {{{item-edit-arrayed-deployables  "mm.ent.Deployables"                "DEPLOYABLES"}}}
-      {{{item-edit-arrayed-integrated   "mm.ent.Integrated"                 "INTEGRATED ITEMS"}}}
-      {{{item-edit-arrayed-synergies    "mm.ent.Synergies"                  "SYNERGIES"}}}
+      {{{textarea-card "DESCRIPTION" "mm.Description"}}}
+      {{{item-edit-arrayed-actions      "mm.Actions"        "ACTIONS"}}}
+      {{{item-edit-arrayed-bonuses      "mm.Bonuses"}}}
+      {{{counter-array mm.Counters "mm.Counters" "mm.Counters" true}}}
+      {{{item-edit-arrayed-deployables  "mm.Deployables"                "DEPLOYABLES"}}}
+      {{{item-edit-arrayed-integrated   "mm.Integrated"                 "INTEGRATED ITEMS"}}}
+      {{{item-edit-arrayed-synergies    "mm.Synergies"                  "SYNERGIES"}}}
     <div class="flexrow">
-      {{{std-string-input             "mm.ent.ReserveType"    label="RESERVE TYPE"}}}
-      {{{std-string-input             "mm.ent.ResourceCost"   label="RESOURCE COST"}}}
-      {{{std-string-input             "mm.ent.ResourceLabel"  label="RESOURCE LABEL"}}}
-      {{{std-string-input             "mm.ent.ResourceName"   label="RESOURCE NAME"}}}
-      {{{std-string-input             "mm.ent.ResourceNote"   label="RESOURCE NOTE"}}}
+      {{{std-string-input             "mm.ReserveType"    label="RESERVE TYPE"}}}
+      {{{std-string-input             "mm.ResourceCost"   label="RESOURCE COST"}}}
+      {{{std-string-input             "mm.ResourceLabel"  label="RESOURCE LABEL"}}}
+      {{{std-string-input             "mm.ResourceName"   label="RESOURCE NAME"}}}
+      {{{std-string-input             "mm.ResourceNote"   label="RESOURCE NOTE"}}}
     </div>
   </section>
 </form>

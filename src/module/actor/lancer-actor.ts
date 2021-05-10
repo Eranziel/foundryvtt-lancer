@@ -14,6 +14,10 @@ import {
   StaticReg,
   MechSystem,
   PilotWeapon,
+  Pilot,
+  PilotArmor,
+  PilotGear,
+  WeaponMod,
 } from "machine-mind";
 import { FoundryRegActorData, FoundryRegItemData } from "../mm-util/foundry-reg";
 import { LancerHooks, LancerSubscription } from "../helpers/hooks";
@@ -58,6 +62,9 @@ export function lancerActorInit(data: any) {
         default_data.actions = { full: true };
         break;
     }
+    // Sync the name
+    default_data.name = data.name ?? default_data.name;
+
     // Put in the basics
     mergeObject(data, {
       data: default_data,
@@ -67,7 +74,7 @@ export function lancerActorInit(data: any) {
       "token.displayName": display_mode,
       "token.displayBars": display_mode,
       "token.disposition": disposition,
-      name: data.name ?? default_data.name, // Set name to match internal
+      name: default_data.name,
       "token.name": data.name ?? default_data.name, // Set token name to match internal
       "token.actorLink": [EntryType.PILOT, EntryType.MECH].includes(data.type), // Link the token to the Actor for pilots and mechs, but not for NPCs or deployables
     });
@@ -120,7 +127,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
   // Kept for comparing previous to next values
   prior_max_hp = -1;
 
-  // Kept separately so it can be used by items. Same as in our .data.data.derived.mmec_promise
+  // Kept separately so it can be used by items. Same as in our .data.data.derived.mm_promise
   _actor_ctx!: OpCtx;
 
   /**
@@ -179,7 +186,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
       "Emergency Shunt",
     ];
 
-    let ent = (await this.data.data.derived.mmec.ent) as Mech | Npc;
+    let ent = (await this.data.data.derived.mm) as Mech | Npc;
     if (
       game.settings.get(LANCER.sys_name, LANCER.setting_automation) &&
       game.settings.get(LANCER.sys_name, LANCER.setting_auto_structure)
@@ -302,7 +309,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
       "Glancing Blow",
     ];
 
-    let ent = (await this.data.data.derived.mmec.ent) as Mech | Npc;
+    let ent = (await this.data.data.derived.mm) as Mech | Npc;
     if (
       game.settings.get(LANCER.sys_name, LANCER.setting_automation) &&
       game.settings.get(LANCER.sys_name, LANCER.setting_auto_structure)
@@ -371,7 +378,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
   // Fully repair actor
   // Even pilots can be fully repaired
   async full_repair() {
-    let ent = await this.data.data.derived.mmec.ent;
+    let ent = await this.data.data.derived.mm_promise;
 
     ent.CurrentHP = ent.MaxHP;
 
@@ -396,77 +403,115 @@ export class LancerActor<T extends LancerActorType> extends Actor {
       }
     }
 
-    if (!is_dep(this)) await this.refill_all_limited();
+    if (!is_dep(this)) await this.restore_all_items();
     await ent.writeback();
   }
 
-  /**
-   * Find all limited systems and set them to their max
-   * Includes loading as well
-   */
-  async refill_all_limited() {
-    let ent = (await this.data.data.derived.mmec_promise).ent;
-
-    if (is_reg_mech(ent)) {
-      let items: Array<MechSystem | MechWeapon> = ent.OwnedWeapons;
-      items = items.concat(ent.OwnedSystems);
-
-      for (let i = 0; i < items.length; i++) {
-        const item = items[i];
-
-        item.Uses = item.OrigData.derived.max_uses;
-
-        item.writeback();
+  // Do the specified junk to an item. Returns the item. Does not writeback
+  private refresh(
+    item: PilotWeapon | MechWeapon | PilotArmor | PilotGear | MechSystem | WeaponMod | NpcFeature,
+    opts: {
+      repair?: boolean;
+      reload?: boolean;
+      refill?: boolean;
+    }
+  ): PilotWeapon | MechWeapon | PilotArmor | PilotGear | MechSystem | WeaponMod | NpcFeature {
+    if (opts.repair) {
+      if (
+        [EntryType.MECH_WEAPON, EntryType.MECH_SYSTEM, EntryType.WEAPON_MOD, EntryType.NPC_FEATURE].includes(item.Type)
+      ) {
+        (item as MechWeapon | MechSystem | WeaponMod).Destroyed = false;
       }
     }
+    if (opts.reload) {
+      if ([EntryType.MECH_WEAPON, EntryType.NPC_FEATURE, EntryType.PILOT_WEAPON].includes(item.Type)) {
+        (item as MechWeapon | NpcFeature | PilotWeapon).Loaded = true;
+      }
+    }
+    if (opts.refill) {
+      item.Uses = item.OrigData.derived.max_uses;
+    }
+    return item;
+  }
 
-    await this.reload_all_items();
+  // List the relevant items on this actor
+  private async list_items(): Promise<
+    Array<PilotWeapon | MechWeapon | PilotArmor | PilotGear | MechSystem | WeaponMod | NpcFeature>
+  > {
+    let ent = (await this.data.data.derived.mm_promise) as Mech | Pilot | Npc | Deployable;
+    let result: any[] = [];
+    if (is_reg_mech(ent)) {
+      // Do all of the weapons/systems/mods on our loadout
+      for (let mount of ent.Loadout.WepMounts) {
+        for (let slot of mount.Slots) {
+          // Do weapon
+          if (slot.Weapon) {
+            result.push(slot.Weapon);
+          }
+          // Do mod
+          if (slot.Mod) {
+            result.push(slot.Mod);
+          }
+        }
+      }
+
+      // Do all systems now
+      result.push(...ent.Loadout.Systems);
+    } else if (is_reg_npc(ent)) {
+      result.push(...ent.Features);
+    } else if (is_reg_pilot(ent)) {
+      result.push(...ent.OwnedWeapons, ...ent.OwnedArmor, ...ent.OwnedGear);
+    } else {
+      ui.notifications.warn("Cannot reload deployables");
+    }
+    return result;
+  }
+
+  /**
+   * Find all limited systems and set them to their max/repaired/ideal state
+   */
+  async restore_all_items() {
+    return Promise.all(
+      (await this.list_items())
+        .map(i =>
+          this.refresh(i, {
+            reload: true,
+            repair: true,
+            refill: true,
+          })
+        )
+        .map(i => i.writeback())
+    );
   }
 
   /**
    * Find all owned items and set them to be not destroyed
    */
   async repair_all_items() {
-    let ent = (await this.data.data.derived.mmec_promise).ent;
-
-    if (is_reg_mech(ent)) {
-      let weps = ent.OwnedWeapons;
-
-      for (let i = 0; i < weps.length; i++) {
-        const wep = weps[i];
-
-        wep.Destroyed = false;
-        await wep.writeback();
-      }
-    }
+    return Promise.all(
+      (await this.list_items())
+        .map(i =>
+          this.refresh(i, {
+            repair: true,
+          })
+        )
+        .map(i => i.writeback())
+    );
   }
 
   /**
    * Find all owned weapons and reload them
    */
   async reload_all_items() {
-    let ent = (await this.data.data.derived.mmec_promise).ent;
-
-    let items: Array<MechWeapon | PilotWeapon | NpcFeature> = [];
-
-    // We should be able to handle NPC Features here just fine
-    if (is_reg_mech(ent)) {
-      items = ent.OwnedWeapons;
-    } else if (is_reg_pilot(ent)) {
-      items = ent.OwnedWeapons;
-    } else if (is_reg_npc(ent)) {
-      items = ent.Features;
-    }
-
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i];
-
-      if (is_loading(item)) {
-        item.Loaded = true;
-
-        item.writeback();
-      }
-    }
+    return Promise.all(
+      (await this.list_items())
+        .map(i =>
+          this.refresh(i, {
+            reload: true,
+          })
+        )
+        .map(i => i.writeback())
+    );
   }
 
   /**
@@ -476,7 +521,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
    * @returns   Details to be printed to chat
    */
   async stabilize(o1: StabOptions1, o2: StabOptions2): Promise<string> {
-    let ent = await this.data.data.derived.mmec.ent;
+    let ent = await this.data.data.derived.mm_promise;
     let skip = false;
 
     let return_text = "";
@@ -564,8 +609,8 @@ export class LancerActor<T extends LancerActorType> extends Actor {
       current_structure: default_bounded(),
       current_stress: default_bounded(),
       current_repairs: default_bounded(),
-      mmec: null as any, // we will set these momentarily
-      mmec_promise: null as any, // we will set these momentarily
+      mm: null as any, // we will set these momentarily
+      mm_promise: null as any, // we will set these momentarily
     };
 
     // Add into our wip data structure
@@ -573,7 +618,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
 
     // Begin the task of wrapping our actor. When done, it will setup our derived fields - namely, our max values
     // Need to wait for system ready to avoid having this break if prepareData called during init step (spoiler alert - it is)
-    let mmec_promise = system_ready
+    let mm_promise = system_ready
       .then(() => mm_wrap_actor(this, this._actor_ctx))
       .catch(async e => {
         // This is 90% of the time a token not being able to resolve itself due to canvas not loading yet
@@ -585,17 +630,13 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         let env = new RegEnv();
         let reg = new StaticReg(env);
         let ent = await reg.get_cat(this.data.type).create_default(ctx);
-        return {
-          reg,
-          ent,
-          ctx,
-        };
+        return ent;
       })
-      .then(mmec => {
+      .then(mm => {
         // Always save the context
         // Save the context via defineProperty so it does not show up in JSON stringifies. Also, no point in having it writeable
-        Object.defineProperty(dr, "mmec", {
-          value: mmec,
+        Object.defineProperty(dr, "mm", {
+          value: mm,
           configurable: true,
           enumerable: false,
         });
@@ -617,8 +658,8 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         };
 
         // If our max hp changed, do somethin'
-        let curr_hp = mmec.ent.CurrentHP;
-        let corrected_hp = hp_change_corrector(curr_hp, this.prior_max_hp, mmec.ent.MaxHP);
+        let curr_hp = mm.CurrentHP;
+        let corrected_hp = hp_change_corrector(curr_hp, this.prior_max_hp, mm.MaxHP);
         if (curr_hp != corrected_hp) {
           // Cancel christmas. We gotta update ourselves to reflect the new HP change >:(
           console.warn(
@@ -627,18 +668,18 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         }
 
         // Set the general props. ALl actors have at least these
-        dr.edef = mmec.ent.EDefense;
-        dr.evasion = mmec.ent.Evasion;
+        dr.edef = mm.EDefense;
+        dr.evasion = mm.Evasion;
 
-        dr.current_hp.value = mmec.ent.CurrentHP;
-        dr.current_hp.max = mmec.ent.MaxHP;
+        dr.current_hp.value = mm.CurrentHP;
+        dr.current_hp.max = mm.MaxHP;
 
-        dr.overshield.value = mmec.ent.Overshield;
-        dr.overshield.max = mmec.ent.MaxHP; // as good a number as any I guess
+        dr.overshield.value = mm.Overshield;
+        dr.overshield.max = mm.MaxHP; // as good a number as any I guess
 
         // Depending on type, setup derived fields more precisely as able
-        if (mmec.ent.Type != EntryType.PILOT) {
-          let robot = mmec.ent as Mech | Npc | Deployable;
+        if (mm.Type != EntryType.PILOT) {
+          let robot = mm as Mech | Npc | Deployable;
 
           // All "wow, cool robot" type units have these
           dr.save_target = robot.SaveTarget;
@@ -680,12 +721,12 @@ export class LancerActor<T extends LancerActorType> extends Actor {
           }
         }
 
-        return mmec;
+        return mm;
       });
 
     // Also assign the promise via defineProperty, similarly to prevent enumerability
-    Object.defineProperty(dr, "mmec_promise", {
-      value: mmec_promise,
+    Object.defineProperty(dr, "mm_promise", {
+      value: mm_promise,
       configurable: true,
       enumerable: false,
     });
@@ -768,7 +809,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         this.prepareDerivedData();
 
         // Wait for it to be done
-        await this.data.data.derived.mmec_promise;
+        await this.data.data.derived.mm_promise;
 
         // Trigger a render. Sheets may need to show something different now
         this.render();
@@ -844,18 +885,18 @@ export function is_dep(actor: LancerActor<any>): actor is LancerActor<EntryType.
   return actor.data.type === EntryType.DEPLOYABLE;
 }
 
-export function is_reg_pilot(actor: RegEntry<any>): actor is RegEntry<EntryType.PILOT> {
+export function is_reg_pilot(actor: RegEntry<any>): actor is Pilot {
   return actor.Type === EntryType.PILOT;
 }
 
-export function is_reg_mech(actor: RegEntry<any>): actor is RegEntry<EntryType.MECH> {
+export function is_reg_mech(actor: RegEntry<any>): actor is Mech {
   return actor.Type === EntryType.MECH;
 }
 
-export function is_reg_npc(actor: RegEntry<any>): actor is RegEntry<EntryType.NPC> {
+export function is_reg_npc(actor: RegEntry<any>): actor is Npc {
   return actor.Type === EntryType.NPC;
 }
 
-export function is_reg_dep(actor: RegEntry<any>): actor is RegEntry<EntryType.DEPLOYABLE> {
+export function is_reg_dep(actor: RegEntry<any>): actor is Deployable {
   return actor.Type === EntryType.DEPLOYABLE;
 }

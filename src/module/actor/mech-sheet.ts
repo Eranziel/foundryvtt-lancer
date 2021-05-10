@@ -1,7 +1,18 @@
 import { LANCER } from "../config";
 import { LancerActorSheet } from "./lancer-actor-sheet";
-import { EntryType, funcs, MountType, OpCtx, RegRef, SystemMount, WeaponMount, WeaponSlot } from "machine-mind";
-import { MMEntityContext, mm_wrap_item } from "../mm-util/helpers";
+import {
+  EntryType,
+  funcs,
+  LiveEntryTypes,
+  MountType,
+  OpCtx,
+  RegRef,
+  SystemMount,
+  WeaponMod,
+  WeaponMount,
+  WeaponSlot,
+} from "machine-mind";
+import { mm_wrap_item } from "../mm-util/helpers";
 import { ResolvedNativeDrop } from "../helpers/dragdrop";
 import { gentle_merge, resolve_dotpath } from "../helpers/commons";
 import { LancerMechWeapon } from "../item/lancer-item";
@@ -76,16 +87,17 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
     }
 
     // Make the context for the item
-    const item_mm: MMEntityContext<EntryType> = await mm_wrap_item(item);
+    const item_mm: LiveEntryTypes<EntryType> = await mm_wrap_item(item);
 
     // If it's a mod, perform checks to ensure it can be equipped
-    if (item_mm.ent.Type === EntryType.WEAPON_MOD) {
+
+    if (item_mm.Type === EntryType.WEAPON_MOD) {
       let equipping_weapon_id = $(event.target).closest(".item")?.data("id");
       let weapon_path = $(event.target).closest(".item")?.data("path");
       mount_slot_path = weapon_path.substr(0, weapon_path.lastIndexOf("."));
 
       // Need to set the path to strip out the sheet-native references
-      mount_slot_path = mount_slot_path?.substr(7);
+      mount_slot_path = mount_slot_path?.substr(4);
 
       if (!equipping_weapon_id) {
         ui.notifications.error("You dropped a mod onto something that isn't an item!");
@@ -106,10 +118,10 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
 
       if (!mount_slot_path) return;
 
-      let mount_slot = resolve_dotpath(await this.actor.data.data.derived.mmec.ent, mount_slot_path);
+      let mount_slot = resolve_dotpath(await this.actor.data.data.derived.mm, mount_slot_path);
 
       // Check can take outputs a string if error, rather than a bool...
-      if (mount_slot.check_can_take(item_mm.ent)) {
+      if (mount_slot.check_can_take(item_mm)) {
         ui.notifications.error("This mod can't be equipped to this weapon");
         return;
       }
@@ -118,10 +130,11 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
     // Always add the item to the mech, now that we know it is a valid mech posession
     // Make a new ctx to hold the item and a post-item-add copy of our mech
     let new_ctx = new OpCtx();
-    let new_live_item = await item_mm.ent.insinuate(this_mm.reg, new_ctx);
+    let this_inv = await this_mm.get_inventory();
+    let new_live_item = await item_mm.insinuate(this_mm.Registry, new_ctx);
 
     // Update this, to re-populate arrays etc to reflect new item
-    let new_live_this = (await this_mm.ent.refreshed(new_ctx))!;
+    let new_live_this = (await this_mm.refreshed(new_ctx))!;
 
     // Now, do sensible things with it
     if (new_live_item.Type === EntryType.FRAME) {
@@ -140,7 +153,7 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
       // If it's a mod and we got here, it's valid and we can proceed
       if (!mount_slot_path) return;
       let mount_slot: WeaponSlot = resolve_dotpath(new_live_this, mount_slot_path);
-      mount_slot.Mod = <any>item_mm.ent;
+      mount_slot.Mod = item_mm as WeaponMod;
     }
 
     // Writeback when done. Even if nothing explicitly changed, probably good to trigger a redraw (unless this is double-tapping? idk)
@@ -202,7 +215,7 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
    */
   async _setOverchargeLevel(event: MouseEvent, level: number) {
     let data = await this.getDataLazy();
-    let ent = data.mm.ent;
+    let ent = data.mm;
     ent.CurrentOvercharge = level;
     await this._commitCurrMM();
   }
@@ -270,7 +283,7 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
   ) {
     evt.stopPropagation();
     let data = await this.getDataLazy();
-    let ent = data.mm.ent;
+    let ent = data.mm;
     let path = evt.currentTarget?.dataset?.path;
 
     switch (mode) {

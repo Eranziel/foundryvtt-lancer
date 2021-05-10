@@ -4,32 +4,32 @@
     <div class="flexcol grow">
       <h1 class="charname"><input class="header-field" name="name" type="text" value="{{item.name}}" placeholder="Name"/></h1>
     </div>
-    {{{ ref-portrait-img item.img "img" mm.ent }}}
+    {{{ ref-portrait-img item.img "img" mm }}}
   </header>
 
   {{!-- Description --}}
-  {{{textarea-card "DESCRIPTION" "mm.ent.Info.flavor"}}}
-  {{{textarea-card "TACTICS" "mm.ent.Info.tactics"}}}
+  {{{textarea-card "DESCRIPTION" "mm.Info.flavor"}}}
+  {{{textarea-card "TACTICS" "mm.Info.tactics"}}}
 
   {{!-- Frame Stats --}}
   <div class="card clipped wraprow quadruple">
     <div class="wraprow quadruple">
-      {{{npc-clicker-stat-card "HULL" "mm.ent.Stats.hull"}}}
-      {{{npc-clicker-stat-card "AGILITY" "mm.ent.Stats.agility"}}}
-      {{{npc-clicker-stat-card "SYSTEMS" "mm.ent.Stats.systems"}}}
-      {{{npc-clicker-stat-card "ENGINEERING" "mm.ent.Stats.engineering"}}}
-      {{{npc-clicker-stat-card "ARMOR" "mm.ent.Stats.armor"}}}
-      {{{npc-clicker-stat-card "HP" "mm.ent.Stats.hp"}}}
-      {{{npc-clicker-stat-card "STRUCTURE" "mm.ent.Stats.structure"}}}
-      {{{npc-clicker-stat-card "STRESS" "mm.ent.Stats.stress"}}}
-      {{{npc-clicker-stat-card "EVASION" "mm.ent.Stats.evade"}}}
-      {{{npc-clicker-stat-card "E-DEFENSE" "mm.ent.Stats.edef"}}}
-      {{{npc-clicker-stat-card "HEAT" "mm.ent.Stats.heatcap"}}}
-      {{{npc-clicker-stat-card "SPEED" "mm.ent.Stats.speed"}}}
-      {{{npc-clicker-stat-card "ACTIVATIONS" "mm.ent.Stats.activations"}}}
-      {{{npc-clicker-stat-card "SENSORS" "mm.ent.Stats.sensor"}}}
-      {{{npc-clicker-stat-card "SAVE" "mm.ent.Stats.save"}}}
-      {{{npc-clicker-stat-card "SIZE" "mm.ent.Stats.size"}}}
+      {{{npc-clicker-stat-card "HULL" "mm.Stats.hull"}}}
+      {{{npc-clicker-stat-card "AGILITY" "mm.Stats.agility"}}}
+      {{{npc-clicker-stat-card "SYSTEMS" "mm.Stats.systems"}}}
+      {{{npc-clicker-stat-card "ENGINEERING" "mm.Stats.engineering"}}}
+      {{{npc-clicker-stat-card "ARMOR" "mm.Stats.armor"}}}
+      {{{npc-clicker-stat-card "HP" "mm.Stats.hp"}}}
+      {{{npc-clicker-stat-card "STRUCTURE" "mm.Stats.structure"}}}
+      {{{npc-clicker-stat-card "STRESS" "mm.Stats.stress"}}}
+      {{{npc-clicker-stat-card "EVASION" "mm.Stats.evade"}}}
+      {{{npc-clicker-stat-card "E-DEFENSE" "mm.Stats.edef"}}}
+      {{{npc-clicker-stat-card "HEAT" "mm.Stats.heatcap"}}}
+      {{{npc-clicker-stat-card "SPEED" "mm.Stats.speed"}}}
+      {{{npc-clicker-stat-card "ACTIVATIONS" "mm.Stats.activations"}}}
+      {{{npc-clicker-stat-card "SENSORS" "mm.Stats.sensor"}}}
+      {{{npc-clicker-stat-card "SAVE" "mm.Stats.save"}}}
+      {{{npc-clicker-stat-card "SIZE" "mm.Stats.size"}}}
     </div>
   </div>
 
@@ -38,10 +38,10 @@
       <span class="major">BASE FEATURES</span>
     </div>
 
-    {{#each mm.ent.BaseFeatures as |feature feature_index|}}
-        {{{ref-mm-controllable-item-native (concat "mm.ent.BaseFeatures." feature_index) "splice" }}}
+    {{#each mm.BaseFeatures as |feature feature_index|}}
+        {{{ref-mm-controllable-item-native (concat "mm.BaseFeatures." feature_index) "splice" }}}
     {{/each}}
-    {{{ref-mm-list-item-append "mm.ent.BaseFeatures" "npc_feature"}}}
+    {{{ref-mm-list-item-append "mm.BaseFeatures" "npc_feature"}}}
   </div>
 
   <div class="flexcol tags-container" style="margin: 10px;">
@@ -49,10 +49,10 @@
       <span class="major">OPTIONAL FEATURES</span>
     </div>
 
-    {{#each mm.ent.OptionalFeatures as |feature feature_index|}}
-        {{{ref-mm-controllable-item-native (concat "mm.ent.OptionalFeatures." feature_index) "splice" }}}
+    {{#each mm.OptionalFeatures as |feature feature_index|}}
+        {{{ref-mm-controllable-item-native (concat "mm.OptionalFeatures." feature_index) "splice" }}}
     {{/each}}
-    {{{ref-mm-list-item-append "mm.ent.OptionalFeatures" "npc_feature"}}}
+    {{{ref-mm-list-item-append "mm.OptionalFeatures" "npc_feature"}}}
   </div>
 
 </form>

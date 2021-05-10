@@ -269,7 +269,7 @@ export function item_edit_license(helper: HelperOptions): string {
         ${licenseInfo}
         <div class="flexrow rank-wrapper">
             <span>Rank</span>
-            <input name="mm.ent.LicenseLevel" value="${helper.data.root.mm.ent.LicenseLevel}" type="number" data-dtype="Number" />
+            <input name="mm.LicenseLevel" value="${helper.data.root.mm.LicenseLevel}" type="number" data-dtype="Number" />
         </div>
     </div>`
 }

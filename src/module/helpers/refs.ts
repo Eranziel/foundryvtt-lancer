@@ -306,7 +306,9 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
       let macroData: LancerMacroData = {
         iconPath: `systems/lancer/assets/icons/macro-icons/mech_system.svg`,
         title: sys.Name,
-        command: `game.lancer.prepareItemMacro("${sys.Flags.orig_doc.options.actor.id}", "${sys.Flags.orig_doc._id}")`,
+        command: `game.lancer.prepareItemMacro("${sys.Flags.orig_doc.options.actor?.id ?? ""}", "${
+          sys.Flags.orig_doc._id
+        }")`,
       };
 
       let limited = "";
@@ -597,7 +599,7 @@ export function HANDLER_intercept_form_changes<T>(
 
     // Get our form data. We're kinda just replicating what would happen in onUpdate, but minus all of the fancier processing that is needed there
     let form = $(evt.target).parents("form")[0];
-    let form_data = read_form(form);
+    let form_data = read_form(form as any);
 
     // Get our target data
     let sheet_data = await data_getter();

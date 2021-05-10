@@ -1,4 +1,4 @@
-import { EntryType, LiveEntryTypes, RegEntryTypes } from "machine-mind";
+import { EntryType, LiveEntryTypes, RegEntry, RegEntryTypes } from "machine-mind";
 import { is_actor_type, LancerActor, LancerActorType } from "../actor/lancer-actor";
 import { FriendlyTypeName, LANCER } from "../config";
 import { gentle_merge } from "../helpers/commons";
@@ -9,9 +9,8 @@ const lp = LANCER.log_prefix;
 
 // The associated entity to a given entry type. Type's a lil complex, but we need it to get things correct between abstracters that take items vs actors
 // tl;dr maps entrytype to LancerItem or LancerActor
-export type EntFor<
-  T extends EntryType & (LancerItemType | LancerActorType)
-> = T extends LancerItemType ? LancerItem<T> : T extends LancerActorType ? LancerActor<T> : never;
+// export type EntFor<T extends EntryType & (LancerItemType | LancerActorType) > = T extends LancerItemType ? LancerItem<T> : (T extends LancerActorType ? LancerActor<T> : never);
+export type EntFor<T extends EntryType> = T extends LancerItemType ? LancerItem<T> : (T extends LancerActorType ? LancerActor<T> : never);
 
 export interface GetResult<T extends LancerItemType | LancerActorType> {
   item: RegEntryTypes<T>;
@@ -30,13 +29,23 @@ export interface GetResult<T extends LancerItemType | LancerActorType> {
  */
 function as_document_blob<T extends EntryType>(ent: LiveEntryTypes<T>): any {
   let flags = ent.Flags as FoundryFlagData<T>;
-  return mergeObject(
+
+  let result = mergeObject(
     {
       _id: ent.RegistryID,
       data: ent.save(),
     },
     flags.top_level_data
   );
+
+  // Set name from changed data. Prioritize a changed top level name over a changed ent name
+  if(flags.top_level_data.name && flags.top_level_data.name != flags.orig_doc_name) {
+    // Nothing to do - top level will properly set
+  } else if(ent.Name && ent.Name != flags.orig_doc_name) {
+    // Override with this
+    result.name = ent.Name;
+  }
+  return result;
 }
 
 // This can wrap an actors inventory, the global actor/item inventory, or a compendium
@@ -473,7 +482,9 @@ export class CompendiumWrapper<T extends EntryType> extends EntityCollectionWrap
   async get(id: string): Promise<GetResult<T> | null> {
     let fi = await this.subget(id);
     if (fi) {
+      let d = fi.data.data;
       return {
+        // @ts-ignore  Typescript expands a type here then gets confused why it doesn't fit back together. Really dumb! We know better
         item: fi.data.data as RegEntryTypes<T>,
         entity: fi,
         id,
@@ -491,6 +502,7 @@ export class CompendiumWrapper<T extends EntryType> extends EntityCollectionWrap
       await pack.deleteEntity(id);
       // Rather than flush, we just remove this item from the cached map if it exists
       PackContentMapCache.soft_fetch(this.type)?.delete(id);
+      // @ts-ignore  Typescript expands a type here then gets confused why it doesn't fit back together. Really dumb! We know better. If this is wrong, compendiums wouldn't work at all, so pretty easy to tell :)
       return subgot.data.data as RegEntryTypes<T>;
     } else {
       return null;
@@ -503,6 +515,7 @@ export class CompendiumWrapper<T extends EntryType> extends EntityCollectionWrap
       .filter(e => e && e.data.type == this.type) // Sanity check. I've seen nulls in here
       .map(e => ({
         id: (e.data as any)._id,
+        // @ts-ignore  Typescript expands a type here then gets confused why it doesn't fit back together. Really dumb! We know better
         item: e.data.data as RegEntryTypes<T>,
         entity: e as EntFor<T>,
         type: this.type,

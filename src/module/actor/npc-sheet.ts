@@ -2,10 +2,9 @@ import { LancerStatMacroData } from "../interfaces";
 import { LANCER } from "../config";
 import { LancerActorSheet } from "./lancer-actor-sheet";
 import { prepareItemMacro } from "../macros";
-import { EntryType, OpCtx } from "machine-mind";
-import { LancerNpcFeature } from "../item/lancer-item";
+import { EntryType, LiveEntryTypes, OpCtx } from "machine-mind";
 import { ResolvedNativeDrop } from "../helpers/dragdrop";
-import { MMEntityContext, mm_wrap_item } from "../mm-util/helpers";
+import { mm_wrap_item } from "../mm-util/helpers";
 const lp = LANCER.log_prefix;
 
 /**
@@ -182,28 +181,29 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
     }
 
     // Make the context for the item
-    const item_mm: MMEntityContext<EntryType> = await mm_wrap_item(item);
+    const item_mm: LiveEntryTypes<EntryType> = await mm_wrap_item(item);
 
     // Always add the item to the pilot inventory, now that we know it is a valid pilot posession
     // Make a new ctx to hold the item and a post-item-add copy of our mech
     let new_ctx = new OpCtx();
-    let new_live_item = await item_mm.ent.insinuate(this_mm.reg, new_ctx);
+    let this_inv = await this_mm.get_inventory();
+    let new_live_item = await item_mm.insinuate(this_inv, new_ctx);
 
     // Go ahead and bring in base features from templates
     if (new_live_item.Type == EntryType.NPC_TEMPLATE) {
       for (let b of new_live_item.BaseFeatures) {
-        await b.insinuate(this_mm.reg, new_ctx);
+        await b.insinuate(this_inv, new_ctx);
       }
     }
-    if (new_live_item.Type == EntryType.NPC_CLASS && !this_mm.ent.ActiveClass) {
+    if (new_live_item.Type == EntryType.NPC_CLASS && !this_mm.ActiveClass) {
       // Only bring in everything if we don't already have a class
       for (let b of new_live_item.BaseFeatures) {
-        await b.insinuate(this_mm.reg, new_ctx);
+        await b.insinuate(this_inv, new_ctx);
       }
     }
 
     // Update this, to re-populate arrays etc to reflect new item
-    let new_live_this = (await this_mm.ent.refreshed(new_ctx))!;
+    let new_live_this = (await this_mm.refreshed(new_ctx))!;
 
     // Fill our hp, stress, and structure to match new maxes
     new_live_this.CurrentHP = new_live_this.MaxHP;

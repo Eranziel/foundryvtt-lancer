@@ -5,12 +5,12 @@
       <div class="flexrow">
         <div class="details">
           <span>LICENSE LEVEL:</span>
-          <span class="pilot-callsign">{{mm.ent.Level}}</span>
+          <span class="pilot-callsign">{{mm.Level}}</span>
         </div>
 
         <div class="details flexcol">
           <span>CALLSIGN:</span>
-          <span class="pilot-callsign">{{mm.ent.Callsign}}</span>
+          <span class="pilot-callsign">{{mm.Callsign}}</span>
         </div>
 
         <div class="details flexcol">
@@ -20,18 +20,18 @@
 
         <div class="details flexcol">
           <span>BACKGROUND:</span>
-          <span class="medium">{{mm.ent.Background}}</span>
+          <span class="medium">{{mm.Background}}</span>
         </div>
       </div>
       <div class="flexrow pilot-stats">
-        {{{compact-stat-edit "mdi mdi-heart-outline" "mm.ent.CurrentHP" "mm.ent.MaxHP" }}}
-        {{{compact-stat-edit "mdi mdi-shield-star-outline" "mm.ent.Overshield" "" }}}
-        {{{compact-stat-view "mdi mdi-shield-outline" "mm.ent.Armor" }}} {{{compact-stat-view "cci
-        cci-evasion" "mm.ent.Evasion" }}} {{{compact-stat-view "cci cci-edef" "mm.ent.EDefense" }}}
-        {{{compact-stat-view "mdi mdi-arrow-right-bold-hexagon-outline" "mm.ent.Speed" }}}
+        {{{compact-stat-edit "mdi mdi-heart-outline" "mm.CurrentHP" "mm.MaxHP" }}}
+        {{{compact-stat-edit "mdi mdi-shield-star-outline" "mm.Overshield" "" }}}
+        {{{compact-stat-view "mdi mdi-shield-outline" "mm.Armor" }}} {{{compact-stat-view "cci
+        cci-evasion" "mm.Evasion" }}} {{{compact-stat-view "cci cci-edef" "mm.EDefense" }}}
+        {{{compact-stat-view "mdi mdi-arrow-right-bold-hexagon-outline" "mm.Speed" }}}
       </div>
     </div>
-    {{{ ref-portrait-img actor.img "img" mm.ent }}}
+    {{{ ref-portrait-img actor.img "img" mm }}}
   </header>
 
   {{!-- Sheet Tab Navigation --}}
@@ -55,8 +55,8 @@
             class="lancer-input major"
             style="text-align: center;"
             type="string"
-            name="mm.ent.CloudID"
-            value="{{mm.ent.CloudID}}"
+            name="mm.CloudID"
+            value="{{mm.CloudID}}"
             data-dtype="String"
           />
         </div>
@@ -67,7 +67,7 @@
             ><i class="cci cci-tech-quick"></i
           ></a>
           <span class="minor desc-text" style="text-align: center;"
-            >Last synced: {{mm.ent.LastCloudUpdate}}</span
+            >Last synced: {{mm.LastCloudUpdate}}</span
           >
         </div>
 
@@ -83,7 +83,7 @@
       <div class="wraprow double">
         <div class="card clipped">
           <span class="lancer-header major">CALLSIGN</span>
-          <input class="lancer-input major" {{{getset "mm.ent.Callsign" }}} data-dtype="String"/>
+          <input class="lancer-input major" {{{getset "mm.Callsign" }}} data-dtype="String"/>
         </div>
         <div class="card clipped">
           <span class="lancer-header major">NAME</span>
@@ -95,8 +95,8 @@
           />
         </div>
 
-        {{{textarea-card "BACKGROUND" "mm.ent.Background"}}} {{{textarea-card "HISTORY"
-        "mm.ent.History"}}} {{{textarea-card "NOTES" "mm.ent.Notes"}}}
+        {{{textarea-card "BACKGROUND" "mm.Background"}}} {{{textarea-card "HISTORY"
+        "mm.History"}}} {{{textarea-card "NOTES" "mm.Notes"}}}
       </div>
     </div>
 
@@ -104,14 +104,14 @@
     <div class="tab pilot flexcol" data-group="primary" data-tab="tactical">
       <div class="card clipped">
         <div class="flexrow">
-          {{{clicker-stat-card "LEVEL" "mdi mdi-shield-outline" "mm.ent.Level" false }}}
-          {{{stat-rollable-card "GRIT" "cci cci-armor" "mm.ent.Grit" }}}
+          {{{clicker-stat-card "LEVEL" "mdi mdi-shield-outline" "mm.Level" false }}}
+          {{{stat-rollable-card "GRIT" "cci cci-armor" "mm.Grit" }}}
         </div>
         <div class="flexrow">
-          {{{clicker-stat-card "HUL" "" "mm.ent.MechSkills.Hull" true }}}
-          {{{clicker-stat-card "AGI" "" "mm.ent.MechSkills.Agi" true }}}
-          {{{clicker-stat-card "SYS" "" "mm.ent.MechSkills.Sys" true }}}
-          {{{clicker-stat-card "ENG" "" "mm.ent.MechSkills.Eng" true }}}
+          {{{clicker-stat-card "HUL" "" "mm.MechSkills.Hull" true }}}
+          {{{clicker-stat-card "AGI" "" "mm.MechSkills.Agi" true }}}
+          {{{clicker-stat-card "SYS" "" "mm.MechSkills.Sys" true }}}
+          {{{clicker-stat-card "ENG" "" "mm.MechSkills.Eng" true }}}
         </div>
       </div>
 
@@ -120,15 +120,15 @@
         {{!-- Armor --}}
         <div class="card clipped">
           <h2 class="lancer-header major">ARMOR</h2>
-          {{#each mm.ent.Loadout.Armor as |armor key|}} {{{pilot-armor-slot (concat
-          "mm.ent.Loadout.Armor." key)}}} {{/each}}
+          {{#each mm.Loadout.Armor as |armor key|}} {{{pilot-armor-slot (concat
+          "mm.Loadout.Armor." key)}}} {{/each}}
         </div>
 
         {{!-- Weapons --}}
         <div class="card clipped">
           <h2 class="lancer-header major">WEAPONS</h2>
-          {{#each mm.ent.Loadout.Weapons as |weapon key|}} {{{pilot-weapon-slot (concat
-          "mm.ent.Loadout.Weapons." key)}}} {{/each}}
+          {{#each mm.Loadout.Weapons as |weapon key|}} {{{pilot-weapon-slot (concat
+          "mm.Loadout.Weapons." key)}}} {{/each}}
         </div>
       </div>
 
@@ -137,8 +137,8 @@
         {{!-- Gear --}}
         <div class="card clipped">
           <h2 class="lancer-title clipped-top">GEAR</h2>
-          {{#each mm.ent.Loadout.Gear as |gear key|}} {{{pilot-gear-slot (concat
-          "mm.ent.Loadout.Gear." key)}}} {{/each}}
+          {{#each mm.Loadout.Gear as |gear key|}} {{{pilot-gear-slot (concat
+          "mm.Loadout.Gear." key)}}} {{/each}}
         </div>
       </div>
 
@@ -147,20 +147,20 @@
         {{!-- Licenses --}}
         <div class="card clipped">
           <h2 class="lancer-title clipped-top">LICENSES</h2>
-          {{#each mm.ent.Licenses as |license index|}} {{{ref-mm-controllable-item (concat
-          "mm.ent.Licenses." index) "delete" }}} {{/each}}
+          {{#each mm.Licenses as |license index|}} {{{ref-mm-controllable-item (concat
+          "mm.Licenses." index) "delete" }}} {{/each}}
         </div>
 
         {{!-- Core Bonuses --}}
         <div class="card clipped">
           <h2 class="lancer-title clipped-top">CORE BONUSES</h2>
-          {{#each mm.ent.CoreBonuses as |core_bonus index|}} {{{ref-mm-controllable-item (concat
-          "mm.ent.CoreBonuses." index) "delete" }}} {{/each}}
+          {{#each mm.CoreBonuses as |core_bonus index|}} {{{ref-mm-controllable-item (concat
+          "mm.CoreBonuses." index) "delete" }}} {{/each}}
         </div>
       </div>
 
       <div class="flexrow">
-        {{{pilot-counters mm.ent}}}
+        {{{pilot-counters mm}}}
       </div>
     </div>
 
@@ -169,15 +169,15 @@
       {{!-- Skill Triggers --}}
       <div class="card clipped">
         <h2 class="lancer-title clipped">SKILL TRIGGERS</h2>
-        {{#each mm.ent.Skills as |skill index|}} {{{ref-mm-controllable-item (concat
-        "mm.ent.Skills." index) "delete" }}} {{/each}}
+        {{#each mm.Skills as |skill index|}} {{{ref-mm-controllable-item (concat
+        "mm.Skills." index) "delete" }}} {{/each}}
       </div>
 
       {{!-- Talents --}}
       <div class="card clipped">
         <h2 class="lancer-title clipped">TALENTS</h2>
-        {{#each mm.ent.Talents as |skill index|}} {{{ref-mm-controllable-item (concat
-        "mm.ent.Talents." index) "delete" }}} {{/each}}
+        {{#each mm.Talents as |skill index|}} {{{ref-mm-controllable-item (concat
+        "mm.Talents." index) "delete" }}} {{/each}}
       </div>
     </div>
     
@@ -188,7 +188,7 @@
     --}}
     <div class="tab loadout flexcol" data-group="primary" data-tab="loadout">
       {{!-- Active Mech --}}
-      {{{active-mech-preview active_mech "active_mech" "mm.ent.ActiveMechRef"}}}
+      {{{active-mech-preview active_mech "active_mech" "mm.ActiveMechRef"}}}
     </div>
   </section>
 </form>

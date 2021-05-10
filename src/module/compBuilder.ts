@@ -4,22 +4,19 @@ import {
   EntryType,
   funcs,
   IContentPack,
+  LiveEntryTypes,
   OpCtx,
+  quick_relinker,
   RegEntry,
   RegEnv,
   Registry,
   StaticReg,
 } from "machine-mind";
 import { FoundryReg } from "./mm-util/foundry-reg";
-import { has_lid } from "./item/lancer-item";
 import { invalidate_cached_pack_map } from "./mm-util/db_abstractions";
 
 // Some useful subgroupings
-type MechItemEntryType =
-  | EntryType.FRAME
-  | EntryType.MECH_WEAPON
-  | EntryType.MECH_SYSTEM
-  | EntryType.WEAPON_MOD;
+type MechItemEntryType = EntryType.FRAME | EntryType.MECH_WEAPON | EntryType.MECH_SYSTEM | EntryType.WEAPON_MOD;
 type PilotItemEntryType =
   | EntryType.CORE_BONUS
   | EntryType.TALENT
@@ -53,27 +50,30 @@ export async function clear_all(): Promise<void> {
 }
 
 // Transfers a category. Returns a list of all the insinuated items
-async function transfer_cat<T extends EntryType>(
-  type: T,
+async function transfer_cat<G extends EntryType>(
+  type: G,
   from: Registry,
   to: Registry,
   ctx: OpCtx
-): Promise<RegEntry<T>[]> {
+): Promise<LiveEntryTypes<G>[]> {
   // Insinuate each item in the cat
   invalidate_cached_pack_map(type);
   let from_cat = from.get_cat(type);
 
-  let new_items: RegEntry<T>[] = [];
-  let linked_items: RegEntry<T>[] = [];
+  let items: LiveEntryTypes<G>[] = [];
 
   for (let item of await from_cat.list_live(ctx)) {
     // Do the deed
-    let new_v = true;
-    let insinuated = ((await item.insinuate(to, null, {
-      relinker: async (src_item, dest_reg, dest_cat) => {
-        // We try pretty hard to find a matching item.
-        // First by MMID
-        if (has_lid(src_item)) {
+    let insinuated = (await item.insinuate(to, null, {
+      relinker: quick_relinker({
+        key_pairs: [["LID", "lid"] as any, ["Name", "name"]],
+      }) as any,
+    })) as LiveEntryTypes<G>;
+    items.push(insinuated);
+    // We try pretty hard to find a matching item.
+    // First by MMID
+    // if (has_lid(src_item)) {
+    /*
           let by_id = await dest_cat.lookup_lid_live(ctx, (src_item as any).LID);
           if (by_id) {
             new_v = false;
@@ -93,13 +93,9 @@ async function transfer_cat<T extends EntryType>(
         return null;
       },
     })) as unknown) as RegEntry<T>;
-
-    if (new_v) {
-      new_items.push(insinuated);
-    }
-    if (new_v) console.log(`Import | ${new_v ? "Added" : "Linked"} ${type} ${item.Name}`);
+    */
   }
-  return [...new_items, ...linked_items];
+  return items;
 }
 
 export async function import_cp(
@@ -140,16 +136,9 @@ export async function import_cp(
   let transmit_count = 0;
 
   // Do globals
-  transmit_count += await transfer_cat(
-    EntryType.MANUFACTURER,
-    tmp_lcp_reg,
-    comp_reg,
-    dest_ctx
-  ).then(l => l.length);
+  transmit_count += await transfer_cat(EntryType.MANUFACTURER, tmp_lcp_reg, comp_reg, dest_ctx).then(l => l.length);
   progress_callback(transmit_count, total_items);
-  transmit_count += await transfer_cat(EntryType.TAG, tmp_lcp_reg, comp_reg, dest_ctx).then(
-    l => l.length
-  );
+  transmit_count += await transfer_cat(EntryType.TAG, tmp_lcp_reg, comp_reg, dest_ctx).then(l => l.length);
   progress_callback(transmit_count, total_items);
 
   let errata: EntryType[] = [EntryType.DEPLOYABLE, EntryType.TAG, EntryType.MANUFACTURER];
@@ -158,9 +147,7 @@ export async function import_cp(
   for (let type of Object.values(EntryType)) {
     // Skip if subtype
     if (!errata.includes(type)) {
-      transmit_count += await transfer_cat(type, tmp_lcp_reg, comp_reg, dest_ctx).then(
-        l => l.length
-      );
+      transmit_count += await transfer_cat(type, tmp_lcp_reg, comp_reg, dest_ctx).then(l => l.length);
       progress_callback(transmit_count, total_items);
     }
   }

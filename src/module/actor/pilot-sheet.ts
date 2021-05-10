@@ -1,18 +1,15 @@
-import { LancerMechWeapon, LancerPilotWeapon } from "../item/lancer-item";
-import { LANCER } from "../config";
+import { LANCER, replace_default_resource } from "../config";
 import { LancerActorSheet } from "./lancer-actor-sheet";
-import { Counter, EntryType, Mech, MountType, OpCtx, Pilot, RegRef } from "machine-mind";
+import { Deployable, EntryType, LiveEntryTypes, Mech, OpCtx, Pilot } from "machine-mind";
 import { FoundryFlagData, FoundryReg } from "../mm-util/foundry-reg";
-import { MMEntityContext, mm_wrap_item } from "../mm-util/helpers";
+import { mm_wrap_item } from "../mm-util/helpers";
 import { funcs, quick_relinker } from "machine-mind";
 import { ResolvedNativeDrop } from "../helpers/dragdrop";
-import { HelperOptions } from 'handlebars';
+import { HelperOptions } from "handlebars";
 import { buildCounterHTML } from "../helpers/item";
 import { LancerActorSheetData } from "../interfaces";
 import { ref_commons, ref_params, simple_mm_ref } from "../helpers/refs";
-import { stat_view_card } from '../helpers/actor';
-import { title } from "process";
-import { inc_if, resolve_dotpath } from "../helpers/commons";
+import { resolve_dotpath } from "../helpers/commons";
 
 const lp = LANCER.log_prefix;
 
@@ -95,58 +92,120 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
       let download = html.find('.cloud-control[data-action*="download"]');
       download.on("click", async ev => {
         ev.stopPropagation();
-        // Get the data
         try {
+          // Fetch data to sync
           ui.notifications.info("Importing character...");
           let self = await this.getDataLazy();
-          let raw_pilot_data = await funcs.gist_io.download_pilot(self.mm.ent.CloudID);
+          let raw_pilot_data = await funcs.gist_io.download_pilot(self.mm.CloudID);
 
-          // Pull the trigger
-          let ps1 = new FoundryReg({ // We look for missing items  in world first
-            item_source: ["world", null],
-            actor_source: "world"
-          });
-          let ps2 = new FoundryReg({ // We look for missing items  in world first
-            item_source: ["compendium", null],
-            actor_source: "compendium"
-          });
-          let synced_data = await funcs.cloud_sync(raw_pilot_data, self.mm.ent, [ps1, ps2], {
-            relinker: quick_relinker<any>({
-              key_pairs: [["LID", "lid"], ["Name", "name"]]
-            })
-          });
-          if(!synced_data) {
-            throw new Error("Pilot was somehow destroyed by the sync");
+          // Get/create folder for sub-actors
+          let unit_folder_name = `${raw_pilot_data.callsign}'s Units`;
+          let unit_folder = game.folders.getName(unit_folder_name);
+          if (!unit_folder) {
+            unit_folder = await Folder.create({
+              name: unit_folder_name,
+              type: "Actor",
+              sorting: "a",
+              // @ts-ignore  ActorData has folder, always, as far as I can tell
+              parent: this.actor.data.folder || null,
+            });
           }
+          console.log("Unit folder id:", unit_folder.id);
 
-          // Back-populate names and images
-          await this.actor.update({
-            name: synced_data.pilot.Name || this.actor.name,
-            img: synced_data.pilot.CloudPortrait || this.actor.img,
-            "token.name": synced_data.pilot.Name || this.actor.name,
-            "token.img": synced_data.pilot.CloudPortrait || this.actor.img,
+          // Setup registries
+          let ps1 = new FoundryReg({
+            // We look for missing items in world first
+            item_source: ["world", null],
+            actor_source: "world",
+          });
+          let ps2 = new FoundryReg({
+            // We look for missing items in compendium second
+            item_source: ["compendium", null],
+            actor_source: "compendium",
           });
 
-          for(let mech of synced_data.pilot_mechs) {
-            let mech_actor = (mech.Flags as FoundryFlagData<EntryType.MECH>).orig_doc;
-            await mech_actor.update({
-              name: mech.Name || mech_actor.name,
-              img: mech.CloudPortrait || mech_actor.img,
-              "token.name": mech.Name || mech_actor.name,
-              "token.img": mech.CloudPortrait || mech_actor.img
-            }, {});
-            mech_actor.render();
+          // Setup relinker to be folder bound for actors
+          let base_relinker = quick_relinker<any>({
+            key_pairs: [
+              ["LID", "lid"],
+              ["Name", "name"],
+            ],
+          });
+
+          // Setup sync tracking etc
+          let synced_deployables: Deployable[] = []; // Track these as we go
+          let synced_data = await funcs.cloud_sync(raw_pilot_data, self.mm, [ps1, ps2], {
+            relinker: async (source_item, dest_reg, dest_cat) => {
+              // Link by specific subfolder if deployable
+              if (source_item.Type == EntryType.DEPLOYABLE) {
+                console.log("Relinking deployable: ", source_item);
+                // Narrow down our destination options to find one that's in the proper folder
+                let dest_deployables = (await dest_cat.list_live(source_item.OpCtx)) as Deployable[];
+                return dest_deployables.find(dd => {
+                  let dd_folder_id: string = dd.Flags.orig_doc.data.folder;
+                  console.log(
+                    "Checking folder: " + dd.Name + " has folder id " + dd_folder_id + " which ?== " + unit_folder!._id
+                  );
+                  if (dd_folder_id != unit_folder!._id) {
+                    return false;
+                  }
+
+                  // Still need to have the right name, though. Do by substring since we reformat quite a bit
+                  return dd.Name.includes(source_item.Name);
+                });
+              } else {
+                return base_relinker(source_item, dest_reg, dest_cat);
+              }
+            },
+            // Rename and rehome deployables
+            // @TODO: pilot typing weirdness.
+            // @ts-ignore
+            sync_deployable_nosave: (dep: Deployable) => {
+              let flags = dep.Flags as FoundryFlagData<EntryType.DEPLOYABLE>;
+              flags.top_level_data["name"] = dep.Name;
+              flags.top_level_data["folder"] = unit_folder!._id;
+              flags.top_level_data["token.name"] = `${raw_pilot_data.callsign}'s ${dep.Name}`;
+              // dep.writeback(); -- do this later, after setting active!
+              synced_deployables.push(dep);
+            },
+            // Rename and rehome mechs
+            sync_mech: (mech: Pilot) => {
+              let flags = mech.Flags as FoundryFlagData<EntryType.MECH>;
+              flags.top_level_data["name"] = mech.Name;
+              flags.top_level_data["folder"] = unit_folder!._id;
+              flags.top_level_data["token.name"] = raw_pilot_data.callsign;
+              // TODO: Retrogrades
+            },
+            // Set pilot token
+            sync_pilot: (pilot: Pilot) => {
+              let flags = pilot.Flags as FoundryFlagData<EntryType.PILOT>;
+              let new_img = replace_default_resource(flags.top_level_data["img"], pilot.CloudPortrait);
+              flags.top_level_data["name"] = pilot.Name;
+              flags.top_level_data["img"] = new_img;
+              flags.top_level_data["token.name"] = pilot.Callsign;
+              flags.top_level_data["token.img"] = new_img;
+            },
+          });
+
+          // Now we can iterate over deploys, setting their deployer to active mech and writing back again. Set all deployers to the pilots active mech
+          let active = await (synced_data as any).ActiveMech();
+          for (let deployable of synced_deployables) {
+            if (active) {
+              // deployable.Deployer = active;
+              // TODO: RE-ENABLE
+            }
+            deployable.writeback();
           }
 
           // Reset curr data and render all
           this._currData = null;
           this.actor.render();
+          (await (synced_data as any).Mechs()).forEach((m: Mech) => m.Flags.orig_doc.render());
+
           ui.notifications.info("Successfully loaded pilot state from cloud");
         } catch (e) {
           console.warn(e);
-          ui.notifications.warn(
-            "Failed to update pilot, likely due to missing LCP data: " + e.message
-          );
+          ui.notifications.warn("Failed to update pilot, likely due to missing LCP data: " + e.message);
         }
       });
     }
@@ -155,10 +214,7 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
   async getData(): Promise<LancerActorSheetData<EntryType.PILOT>> {
     const data = ((await super.getData()) as unknown) as LancerActorSheetData<EntryType.PILOT>; // Not fully populated yet!
 
-    if(data.mm.ent.ActiveMechRef){
-      let ctx = new OpCtx();
-      data.active_mech = await new FoundryReg().resolve(ctx, data.mm.ent.ActiveMechRef);
-    }
+    data.active_mech = await data.mm.ActiveMech();
 
     return data;
   }
@@ -173,7 +229,7 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
     const sheet_data = await this.getDataLazy();
     const this_mm = sheet_data.mm;
 
-    if(drop?.type === "Item") {
+    if (drop?.type === "Item") {
       const item = drop.entity;
 
       // Check if we can even do anything with it first
@@ -183,15 +239,16 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
       }
 
       // Make the context for the item
-      const item_mm: MMEntityContext<EntryType> = await mm_wrap_item(item);
+      const item_mm: LiveEntryTypes<EntryType> = await mm_wrap_item(item);
 
       // Always add the item to the pilot inventory, now that we know it is a valid pilot posession
       // Make a new ctx to hold the item and a post-item-add copy of our mech
       let new_ctx = new OpCtx();
-      let new_live_item = await item_mm.ent.insinuate(this_mm.reg, new_ctx);
+      let this_inv = await this_mm.get_inventory();
+      let new_live_item = await item_mm.insinuate(this_inv, new_ctx);
 
       // Update this, to re-populate arrays etc to reflect new item
-      let new_live_this = (await this_mm.ent.refreshed(new_ctx))!;
+      let new_live_this = (await this_mm.refreshed(new_ctx))!;
 
       // Now, do sensible things with it
       let loadout = new_live_this.Loadout;
@@ -232,13 +289,13 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
 
       // Always return the item if we haven't failed for some reason
       return item;
-    } else if(drop?.type === "Actor") {
-      if(drop.entity.data.type != 'mech') return null;
-      const mech = drop.entity.data.data.derived.mmec.ent as Mech;
+    } else if (drop?.type === "Actor") {
+      if (drop.entity.data.type != "mech") return null;
+      const mech = drop.entity.data.data.derived.mm as Mech;
 
-      this_mm.ent.ActiveMechRef = mech.as_ref();
+      this_mm.ActiveMechRef = mech.as_ref();
 
-      this_mm.ent.writeback();
+      this_mm.writeback();
     }
   }
 
@@ -258,11 +315,7 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
       // Copy the pilot's callsign to the prototype token
       formData["actor.token.name"] = formData["data.callsign"];
     }
-
-    // TODO: where did you come from, where did you go?
-    // formData = this._updateTokenImage(formData);
-
-    // Then let poarent handle
+    // Then let parent handle
     return super._updateObject(event, formData);
   }
 }
@@ -306,24 +359,30 @@ export function overchargeButton(level: number) {
 
  */
 
-
 export function pilot_counters(ent: Pilot, helper: HelperOptions): string {
   let counter_detail = "";
 
-
   let counter_arr = ent.AllCounters;
-  let custom_path = "mm.ent.CustomCounters"
+  let custom_path = "mm.CustomCounters";
 
   // Pilots have AllCounters, but self-sourced ones refer to CustomCounters specifically
   for (let i = 0; i < counter_arr.length; i++) {
     // If our source is the pilot, we'll add it later to make sure we align with the CustomCounters index
     if (counter_arr[i].source === ent) continue;
 
-    counter_detail = counter_detail.concat(buildCounterHTML(counter_arr[i].counter, `mm.ent.Allcounters.${i}.counter`, false, `ent.AllCounters.${i}.source`, true));
+    counter_detail = counter_detail.concat(
+      buildCounterHTML(
+        counter_arr[i].counter,
+        `mm.Allcounters.${i}.counter`,
+        false,
+        `ent.AllCounters.${i}.source`,
+        true
+      )
+    );
   }
   // Now do our CustomCounters
   for (let i = 0; i < ent.CustomCounters.length; i++) {
-    counter_detail = counter_detail.concat(buildCounterHTML(ent.CustomCounters[i], `mm.ent.CustomCounters.${i}`, false));
+    counter_detail = counter_detail.concat(buildCounterHTML(ent.CustomCounters[i], `mm.CustomCounters.${i}`, false));
   }
 
   return `
@@ -336,28 +395,28 @@ export function pilot_counters(ent: Pilot, helper: HelperOptions): string {
   </div>`;
 }
 
-export function active_mech_preview(mech: Mech, path:string, helper: HelperOptions): string {
+export function active_mech_preview(mech: Mech, path: string, helper: HelperOptions): string {
   var html = ``;
 
   // Generate commons
   let cd = ref_commons(mech);
   if (!cd) return simple_mm_ref(EntryType.MECH, mech, "No Active Mech", path, true);
-  
+
   // Making ourselves easy templates for the preview in case we want to switch in the future
   let preview_stats_arr = [
-    {title: "HP",icon:"mdi mdi-heart-outline",path:"CurrentHP"},
-    {title: "HEAT",icon:"cci cci-heat",path:"CurrentHeat"},
-    {title: "EVASION",icon:"cci cci-evasion",path:"Evasion"},
-    {title: "ARMOR",icon:"mdi mdi-shield-outline",path:"Armor"},
-    {title: "STRUCTURE",icon:"cci cci-structure",path:"CurrentStructure"},
-    {title: "STRESS",icon:"cci cci-reactor",path:"CurrentStress"},
-    {title: "E-DEF",icon:"cci cci-edef",path:"EDefense"},
-    {title: "SPEED",icon:"mdi mdi-arrow-right-bold-hexagon-outline",path:"Speed"},
-    {title: "SAVE",icon:"cci cci-save",path:"SaveTarget"},
-    {title: "SENSORS",icon:"cci cci-sensor",path:"SensorRange"},
+    { title: "HP", icon: "mdi mdi-heart-outline", path: "CurrentHP" },
+    { title: "HEAT", icon: "cci cci-heat", path: "CurrentHeat" },
+    { title: "EVASION", icon: "cci cci-evasion", path: "Evasion" },
+    { title: "ARMOR", icon: "mdi mdi-shield-outline", path: "Armor" },
+    { title: "STRUCTURE", icon: "cci cci-structure", path: "CurrentStructure" },
+    { title: "STRESS", icon: "cci cci-reactor", path: "CurrentStress" },
+    { title: "E-DEF", icon: "cci cci-edef", path: "EDefense" },
+    { title: "SPEED", icon: "mdi mdi-arrow-right-bold-hexagon-outline", path: "Speed" },
+    { title: "SAVE", icon: "cci cci-save", path: "SaveTarget" },
+    { title: "SENSORS", icon: "cci cci-sensor", path: "SensorRange" },
   ];
 
-  var stats_html = ``
+  var stats_html = ``;
 
   for (let i = 0; i < preview_stats_arr.length; i++) {
     const builder = preview_stats_arr[i];
@@ -365,19 +424,18 @@ export function active_mech_preview(mech: Mech, path:string, helper: HelperOptio
     <div class="mech-preview-stat-wrapper">
       <i class="${builder.icon} i--m i--dark"> </i>
       <span class="major">${builder.title}</span>
-      <span class="major">${resolve_dotpath(mech,builder.path)}</span>
-    </div>`)
+      <span class="major">${resolve_dotpath(mech, builder.path)}</span>
+    </div>`);
   }
-  
+
   html = html.concat(`
   <div class="mech-preview">
     <div class="mech-preview-titlebar">
       <span>ACTIVE MECH: ${mech.Name}</span>
     </div>
-    <img class="valid ${cd.ref.type} ref" ${ref_params(cd.ref)} src="${
-    mech.Flags.top_level_data.img}"/>
+    <img class="valid ${cd.ref.type} ref" ${ref_params(cd.ref)} src="${mech.Flags.top_level_data.img}"/>
     ${stats_html}
-  </div>`)
-  
+  </div>`);
+
   return html;
 }

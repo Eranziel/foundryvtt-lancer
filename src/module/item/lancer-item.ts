@@ -1,9 +1,9 @@
 import { LANCER, TypeIcon } from "../config";
-import { EntryType, License, LiveEntryTypes, NpcFeatureType, OpCtx, RegRef, TagInstance } from "machine-mind";
+import { EntryType, funcs, License, LiveEntryTypes, NpcFeatureType, OpCtx, RegRef, TagInstance } from "machine-mind";
 import { FoundryRegActorData, FoundryRegItemData } from "../mm-util/foundry-reg";
 import { AnyMMActor, LancerActor, LancerActorType, LancerMech, LancerPilot } from "../actor/lancer-actor";
 import { system_ready } from "../../lancer";
-import { find_license_for, MMEntityContext, mm_wrap_item } from "../mm-util/helpers";
+import { find_license_for, mm_wrap_item } from "../mm-util/helpers";
 
 const lp = LANCER.log_prefix;
 
@@ -13,25 +13,102 @@ export function lancerItemInit(data: any) {
   // Select default image
   let img = TypeIcon(data.type as LancerItemType);
 
-  // Try to be more specific with npc features
+  let default_data: any;
+  switch (data.type as EntryType) {
+    default:
+    case EntryType.ENVIRONMENT:
+      default_data = funcs.defaults.ENVIRONMENT();
+      break;
+    case EntryType.FACTION:
+      default_data = funcs.defaults.FACTION();
+      break;
+    case EntryType.FRAME:
+      default_data = funcs.defaults.FRAME();
+      break;
+    case EntryType.LICENSE:
+      default_data = funcs.defaults.LICENSE();
+      break;
+    case EntryType.MANUFACTURER:
+      default_data = funcs.defaults.MANUFACTURER();
+      break;
+    case EntryType.MECH_SYSTEM:
+      default_data = funcs.defaults.MECH_SYSTEM();
+      break;
+    case EntryType.MECH_WEAPON:
+      default_data = funcs.defaults.MECH_WEAPON();
+      break;
+    case EntryType.NPC_CLASS:
+      default_data = funcs.defaults.NPC_CLASS();
+      break;
+    case EntryType.NPC_FEATURE:
+      default_data = funcs.defaults.NPC_FEATURE();
+      break;
+    case EntryType.NPC_TEMPLATE:
+      default_data = funcs.defaults.NPC_TEMPLATE();
+      break;
+    case EntryType.ORGANIZATION:
+      default_data = funcs.defaults.ORGANIZATION();
+      break;
+    case EntryType.PILOT_ARMOR:
+      default_data = funcs.defaults.PILOT_ARMOR();
+      break;
+    case EntryType.PILOT_GEAR:
+      default_data = funcs.defaults.PILOT_GEAR();
+      break;
+    case EntryType.PILOT_WEAPON:
+      default_data = funcs.defaults.PILOT_WEAPON();
+      break;
+    case EntryType.QUIRK:
+      default_data = funcs.defaults.QUIRK();
+      break;
+    case EntryType.RESERVE:
+      default_data = funcs.defaults.RESERVE();
+      break;
+    case EntryType.SITREP:
+      default_data = funcs.defaults.SITREP();
+      break;
+    case EntryType.SKILL:
+      default_data = funcs.defaults.SKILL();
+      break;
+    case EntryType.STATUS:
+      default_data = funcs.defaults.STATUS();
+      break;
+    case EntryType.TAG:
+      default_data = funcs.defaults.TAG_TEMPLATE();
+      break;
+    case EntryType.TALENT:
+      default_data = funcs.defaults.TALENT();
+      break;
+    case EntryType.WEAPON_MOD:
+      default_data = funcs.defaults.WEAPON_MOD();
+      break;
+  }
+
+  // Try to be more specific with npc features icons
   if (data.type === EntryType.NPC_FEATURE && data.feature_type) {
     let trait_type = data.feature_type as NpcFeatureType;
-
     switch (trait_type) {
       default:
       case NpcFeatureType.Trait:
-        img += "trait.svg";
+        img = img.replace("npc_feature.svg", "trait.svg");
+      case NpcFeatureType.Reaction:
+        img = img.replace("npc_feature.svg", "reaction.svg");
+      case NpcFeatureType.System:
+        img = img.replace("npc_feature.svg", "system.svg");
+      case NpcFeatureType.Weapon:
+        img = img.replace("npc_feature.svg", "weapon.svg");
+      case NpcFeatureType.Tech:
+        img = img.replace("npc_feature.svg", "tech_full.svg");
     }
-    trait_type;
-    mergeObject(data, {
-      // Default new NPC features to traits
-      "data.feature_type": NpcFeatureType.Trait,
-    });
   }
 
+  // Sync the name
+  default_data.name = data.name ?? default_data.name;
+
   mergeObject(data, {
-    // Initialize image
+    data: default_data,
     img: img,
+    name: default_data.name, 
   });
 }
 
@@ -68,8 +145,8 @@ export class LancerItem<T extends LancerItemType> extends Item {
       dr = {
         license: null,
         max_uses: 0,
-        mmec: null as any, // We will set this shortly
-        mmec_promise: null as any, // We will set this shortly
+        mm: null as any, // We will set this shortly
+        mm_promise: null as any, // We will set this shortly
       };
 
       // We set it normally.
@@ -83,50 +160,49 @@ export class LancerItem<T extends LancerItemType> extends Item {
     let actor_ctx: OpCtx | undefined = (this.actor as LancerActor<any> | undefined)?._actor_ctx;
 
     // Spool up our Machine Mind wrapping process
-    let mmec_promise = system_ready
+    let mm_promise = system_ready
       .then(() => mm_wrap_item(this, actor_ctx))
-      .then(async mmec => {
+      .then(async mm => {
         // Always save the context
         // Save the context via defineProperty so it does not show up in JSON stringifies. Also, no point in having it writeable
-        Object.defineProperty(dr, "mmec", {
-          value: mmec,
+        Object.defineProperty(dr, "mm", {
+          value: mm,
           configurable: true,
           enumerable: false,
         });
 
         // Additionally we would like to find a matching license. Re-use ctx, try both a world and global reg, actor as well if it exists
-        let found_license: RegRef<EntryType.LICENSE> | null;
+        let found_license: RegRef<EntryType.LICENSE> | null = null;
         if (this.actor?.data.type == EntryType.PILOT || this.actor?.data.type == EntryType.MECH) {
-          found_license = await find_license_for(mmec, this.actor! as LancerMech | LancerPilot);
+          found_license = await find_license_for(mm, this.actor! as LancerMech | LancerPilot);
         } else {
-          found_license = await find_license_for(mmec);
+          found_license = await find_license_for(mm);
         }
 
         // Store the found license
         dr.license = found_license;
 
         // Also, compute max uses if needed
-        let base_limit = (mmec.ent as any).BaseLimit;
+        let base_limit = (mm as any).BaseLimit;
         if (base_limit) {
           dr.max_uses = base_limit; // A decent baseline - start with the limited tag
 
           // If we have an actor, then try to get limited bonuses
           if (this.actor) {
-            let actor_mmec: MMEntityContext<LancerActorType> = await this.actor.data.data.derived
-              .mmec_promise;
-            if (actor_mmec.ent.Type == EntryType.MECH || actor_mmec.ent.Type == EntryType.PILOT) {
+            let actor_mm: LiveEntryTypes<LancerActorType> = await this.actor.data.data.derived.mm_promise;
+            if (actor_mm.Type == EntryType.MECH || actor_mm.Type == EntryType.PILOT) {
               // Add pilot/mech lim bonus
-              dr.max_uses += actor_mmec.ent.LimitedBonus;
+              dr.max_uses += actor_mm.LimitedBonus;
             }
           }
         }
 
-        return mmec;
+        return mm;
       });
 
     // Also assign the promise via defineProperty, similarly to prevent enumerability
-    Object.defineProperty(dr, "mmec_promise", {
-      value: mmec_promise,
+    Object.defineProperty(dr, "mm_promise", {
+      value: mm_promise,
       configurable: true,
       enumerable: false,
     });
@@ -390,7 +466,7 @@ export function is_item_type(type: LancerActorType | LancerItemType): type is La
   return LancerItemTypes.includes(type as LancerActorType);
 }
 
-export function has_lid<T extends AnyMMItem | AnyMMActor>(item: AnyMMItem | AnyMMActor): item is T & {ID: string} {
-  return (item as any).LID != undefined;
-}
+// export function has_lid<T extends AnyMMItem | AnyMMActor>(item: AnyMMItem | AnyMMActor): item is T & {ID: string} {
+  // return (item as any).LID != undefined;
+// }
 
