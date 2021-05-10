@@ -70,7 +70,33 @@
     </div>
     {{/if}}
   </div>
-  {{/if}} {{#if on_hit}}
+  {{/if}} {{#if crit_damages}}
+  <div class="card clipped">
+    <div class="lancer-mini-header collapse-trigger" data-collapse-id="{{_uuid}}-damage">// CRIT DAMAGE //</div>
+    {{#each crit_damages as |damage key|}}
+    <div class="dice-roll lancer-dice-roll collapse" data-collapse-id="{{../_uuid}}-damage">
+      <div class="dice-result">
+        <div class="dice-formula lancer-dice-formula flexrow">
+          <span style="text-align: left; margin-left: 5px;">{{ damage.roll.formula }}</span>
+          <span class="dice-total lancer-dice-total major">{{ damage.roll.total }}</span>
+          <i class="cci cci-{{lower-case damage.d_type}} i--m damage--{{lower-case damage.d_type}}"> </i>
+        </div>
+        <div style="text-align: left;">
+          {{{ damage.tt }}}
+        </div>
+      </div>
+    </div>
+    {{/each}} {{#if overkill_heat}}
+    <div class="lancer-dice-total flexrow">
+      <span style="text-align: left; margin-left: 5px;">OVERKILL!</span>
+      <span class="dice-total lancer-dice-total major">{{ overkill_heat }}</span>
+      <i class="cci cci-heat i--m damage--heat"> </i>
+      {{!-- <button class="overkill-reroll"><i class="fas fa-redo"></i> +d6</button> --}}
+    </div>
+    {{/if}}
+  </div>
+  {{/if}}
+  {{#if on_hit}}
   <div class="card clipped">
     <div class="lancer-mini-header collapse-trigger" data-collapse-id="{{_uuid}}-effect">// ON HIT //</div>
     <span class="effect-text collapse" data-collapse-id="{{_uuid}}-effect">{{{on_hit}}}</span>

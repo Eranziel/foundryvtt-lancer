@@ -457,10 +457,15 @@ function getMacroActorItem(a: string, i: string): { actor: Actor | null; item: I
   return result;
 }
 
-async function buildAttackRollString(title: string, flags: AccDiffFlag[], bonus: number): Promise<string | null> {
+async function buildAttackRollString(
+  title: string,
+  flags: AccDiffFlag[],
+  bonus: number,
+  starting?: [number, number]
+): Promise<string | null> {
   let abort: boolean = false;
   let acc = 0;
-  await promptAccDiffModifier(flags, title).then(
+  await promptAccDiffModifier(flags, title, starting).then(
     resolve => (acc = resolve),
     reject => (abort = reject)
   );
@@ -576,7 +581,7 @@ async function prepareAttackMacro({
     acc: 0,
     damage: [],
     tags: [],
-    overkill: item.isOverkill,
+    overkill: false,
     effect: "",
     loaded: true,
     destroyed: false,
@@ -598,6 +603,7 @@ async function prepareAttackMacro({
     mData.grit = pilotEnt.Grit;
     mData.acc = 0;
     mData.tags = weaponData.Tags;
+    mData.overkill = weaponData.Tags.find(tag => tag.Tag.LID === "tg_overkill") !== undefined;
     mData.effect = weaponData.Effect;
   } else if (actor.data.type === EntryType.PILOT) {
     pilotEnt = (await actor.data.data.derived.mmec_promise).ent;
@@ -609,6 +615,7 @@ async function prepareAttackMacro({
     mData.grit = pilotEnt.Grit;
     mData.acc = 0;
     mData.tags = weaponData.Tags;
+    mData.overkill = weaponData.Tags.find(tag => tag.Tag.LID === "tg_overkill") !== undefined;
     mData.effect = weaponData.Effect;
   } else if (actor.data.type === EntryType.NPC) {
     let tier: number;
@@ -637,7 +644,7 @@ async function prepareAttackMacro({
     });
 
     mData.tags = await SerUtil.process_tags(new FoundryReg(), new OpCtx(), wData.tags);
-
+    mData.overkill = mData.tags.find(tag => tag.Tag.LID === "tg_overkill") !== undefined;
     mData.on_hit = wData.on_hit ? wData.on_hit : undefined;
     mData.effect = wData.effect ? wData.effect : "";
   } else {
@@ -691,7 +698,12 @@ async function prepareAttackMacro({
   }
 
   // Build attack string before deducting charge.
-  const atk_str = await buildAttackRollString(mData.title, tagsToFlags(mData.tags), mData.grit);
+  const atk_str = await buildAttackRollString(
+    mData.title,
+    tagsToFlags(mData.tags),
+    mData.grit,
+    mData.acc > 0 ? [mData.acc, 0] : undefined
+  );
   if (!atk_str) return;
 
   // Deduct charge if LOADING weapon.
@@ -752,34 +764,34 @@ async function rollAttackMacro(actor: Actor, atk_str: string | null, data: Lance
     tt: HTMLElement | JQuery;
     d_type: DamageType;
   }> = [];
+  let crit_damage_results: Array<{
+    roll: Roll;
+    tt: HTMLElement | JQuery;
+    d_type: DamageType;
+  }> = [];
   let overkill_heat: number = 0;
-  if (hits.length === 0 || hits.find(hit => hit.hit)) {
+
+  if (
+    (hits.length === 0 && attacks.find(attack => attack.roll._total < 20)) ||
+    hits.find(hit => hit.hit && !hit.crit)
+  ) {
     for (const x of data.damage) {
       if (x.Value === "" || x.Value == 0) continue; // Skip undefined and zero damage
       let d_formula: string = x.Value.toString();
-      // If the damage formula involves dice and is overkill, add "r1" to reroll all 1's.
-      if (d_formula.includes("d") && data.overkill) {
-        let d_ind = d_formula.indexOf("d");
-        let p_ind = d_formula.indexOf("+");
-        if (d_ind >= 0) {
-          let d_count = "1";
-          let d_expr: RegExp = /\d+(?=d)/;
-          if (d_ind != 0) {
-            let match = d_expr.exec(d_formula);
-            //console.log(`${lp} Formula ${d_expr} matched ${match} in ${d_formula}`);
-            if (match != null) {
-              d_count = match[0];
-            }
+      let droll: Roll | null = new Roll(d_formula);
+      // Add overkill if enabled.
+      if (data.overkill) {
+        droll.terms.forEach(term => {
+          if (term.faces) {
+            term.modifiers.push("x1");
+            term.modifiers.push(`kh1`);
           }
-          if (p_ind > d_ind) {
-            d_formula = d_formula.substring(0, p_ind) + "x1kh" + d_count + d_formula.substring(p_ind);
-          } else d_formula += "x1kh" + d_count;
-        }
+        });
       }
-      let droll: Roll | null;
+
       let tt: HTMLElement | JQuery | null;
       try {
-        droll = new Roll(d_formula).roll();
+        droll.roll();
         tt = await droll.getTooltip();
       } catch {
         droll = null;
@@ -800,6 +812,51 @@ async function rollAttackMacro(actor: Actor, atk_str: string | null, data: Lance
       }
       if (droll && tt) {
         damage_results.push({
+          roll: droll,
+          tt: tt,
+          d_type: x.DamageType,
+        });
+      }
+    }
+  }
+  if ((hits.length === 0 && attacks.find(attack => attack.roll._total >= 20)) || hits.find(hit => hit.crit)) {
+    // if (hits.length === 0 || hits.find(hit => hit.crit)) {
+    for (const x of data.damage) {
+      if (x.Value === "" || x.Value == 0) continue; // Skip undefined and zero damage
+      let d_formula: string = x.Value.toString();
+      let droll: Roll | null = new Roll(d_formula);
+      // double all dice, add KH. Add overkill if necessary.
+      droll.terms.forEach(term => {
+        if (term.number) {
+          term.modifiers.push(`kh${term.number}`);
+          data.overkill && term.modifiers.push("x1");
+          term.number *= 2;
+        }
+      });
+
+      let tt: HTMLElement | JQuery | null;
+      try {
+        droll.roll();
+        tt = await droll.getTooltip();
+      } catch {
+        droll = null;
+        tt = null;
+      }
+      if (data.overkill && droll) {
+        // Count overkill heat
+        // @ts-ignore
+        droll.terms.forEach(p => {
+          if (p.results && Array.isArray(p.results)) {
+            p.results.forEach((r: any) => {
+              if (r.exploded) {
+                overkill_heat += 1;
+              }
+            });
+          }
+        });
+      }
+      if (droll && tt) {
+        crit_damage_results.push({
           roll: droll,
           tt: tt,
           d_type: x.DamageType,
@@ -829,6 +886,7 @@ async function rollAttackMacro(actor: Actor, atk_str: string | null, data: Lance
     hits: hits,
     defense: isSmart ? "E-DEF" : "EVASION",
     damages: damage_results,
+    crit_damages: crit_damage_results,
     overkill_heat: overkill_heat,
     effect: data.effect ? data.effect : null,
     on_hit: data.on_hit ? data.on_hit : null,
@@ -1068,7 +1126,7 @@ async function rollTechMacro(actor: Actor, data: LancerTechMacroData) {
   return await renderMacroTemplate(actor, template, templateData);
 }
 
-export async function promptAccDiffModifier(flags?: AccDiffFlag[], title?: string) {
+export async function promptAccDiffModifier(flags?: AccDiffFlag[], title?: string, starting?: [number, number]) {
   let template = await renderTemplate(`systems/lancer/templates/window/acc_diff.hbs`, {});
   return new Promise<number>((resolve, reject) => {
     new Dialog({
@@ -1105,6 +1163,12 @@ export async function promptAccDiffModifier(flags?: AccDiffFlag[], title?: strin
           toggleCover(false);
         }
         updateTotals();
+
+        if (starting) {
+          $("#accdiff-other-acc").val(starting[0]);
+          $("#accdiff-other-diff").val(starting[1]);
+          updateTotals();
+        }
 
         // LISTENERS
         $("[data-acc],[data-diff]").on("click", e => {
