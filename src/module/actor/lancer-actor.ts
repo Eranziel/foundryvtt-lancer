@@ -460,7 +460,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
     } else if (is_reg_npc(ent)) {
       result.push(...ent.Features);
     } else if (is_reg_pilot(ent)) {
-      result.push(...ent.OwnedWeapons, ...ent.OwnedArmor, ...ent.OwnedGear);
+      result.push(...ent.OwnedPilotWeapons, ...ent.OwnedPilotArmor, ...ent.OwnedPilotGear);
     } else {
       ui.notifications.warn("Cannot reload deployables");
     }

@@ -169,7 +169,7 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
               synced_deployables.push(dep);
             },
             // Rename and rehome mechs
-            sync_mech: (mech: Pilot) => {
+            sync_mech: (mech: Mech) => {
               let flags = mech.Flags as FoundryFlagData<EntryType.MECH>;
               flags.top_level_data["name"] = mech.Name;
               flags.top_level_data["folder"] = unit_folder!._id;
