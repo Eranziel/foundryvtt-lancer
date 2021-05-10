@@ -1,5 +1,7 @@
-import { Action, Damage } from 'machine-mind';
-import { gentle_merge, resolve_dotpath } from '../helpers/commons';
+import { Action, Damage, MechSystem, RegEntry } from 'machine-mind';
+import { gentle_merge, HANDLER_activate_general_controls, HANDLER_activate_popout_text_editor, resolve_dotpath, selected } from '../helpers/commons';
+import { HANDLER_intercept_form_changes } from '../helpers/refs';
+import { LancerItem } from '../item/lancer-item';
 /**
  * A helper Dialog subclass for editing a bonus
  * @extends {Dialog}
@@ -10,6 +12,9 @@ import { gentle_merge, resolve_dotpath } from '../helpers/commons';
   
     // Where it is
     action_path: string;
+
+    // Who it's going back to
+    origin_item: RegEntry<any>;
   
     constructor(
       target: O,
@@ -18,6 +23,9 @@ import { gentle_merge, resolve_dotpath } from '../helpers/commons';
       options: ApplicationOptions = {}
     ) {
       super(dialogData, options);
+
+      //@ts-ignore I don't want to mess around with the generic typing but this is fine
+      this.origin_item = target.mm.ent;
       this.action_path = action_path;
       this.action = resolve_dotpath(target, action_path);
     }
@@ -40,15 +48,109 @@ import { gentle_merge, resolve_dotpath } from '../helpers/commons';
     getData(): any {
       return {
         ...super.getData(),
-        bonus: this.action,
+        action: this.action,
         path: this.action_path,
       };
     }
   
+    /**
+     * @override
+     * Activate event listeners using the prepared sheet HTML
+     * @param html {HTMLElement}   The prepared HTML object ready to be rendered into the DOM
+     */
+    activateListeners(html: JQuery<HTMLElement>) {
+      super.activateListeners(html);
+      // Everything below here is only needed if the sheet is editable
+      
+      let getfunc = () => this.getData();
+      let commitfunc = (_: any) => this._commitCurrMM();
+
+      // Enable general controls, so items can be deleted and such
+      HANDLER_activate_general_controls(html, getfunc, commitfunc);
+
+      // Item-referencing inputs
+      HANDLER_intercept_form_changes(html, getfunc);
+
+      // Enable popout editors
+      HANDLER_activate_popout_text_editor(html, getfunc, commitfunc);
+
+    }
+
+    async _commitCurrMM() {
+      await this.origin_item.writeback();
+      this.render();
+    }
+
+    /**
+     * Handle a left-mouse click on one of the dialog choice buttons
+     * @param {MouseEvent} event    The left-mouse click event
+     * @private
+     */
+    _onClickButton(event: MouseEvent) {
+      //@ts-ignore This is just from the inherit... whatever.
+      const id = event.currentTarget.dataset.button;
+      // Just pass through our button id
+      this.submit(id);
+    }
+
+    /**
+     * Submit the Dialog by selecting one of its buttons
+     * @param {string} button     The chosen button
+     * @private
+     */
+    async submit(id: string) {
+      //@ts-ignore This is fine
+      let button = this.data.buttons[id]
+      if(button) {
+        try {
+          if (button.callback) button.callback(this.element);
+          this.close();
+        } catch(err) {
+          ui.notifications.error(err);
+          throw new Error(err);
+        }
+      } else if (id === 'confirm') {
+        let flat_data: any = {};
+        $(this.element)
+          .find("input")
+          .each((index, elt) => {
+            // Retrieve input info
+            let name = elt.name;
+            let val: boolean | string;
+            if (elt.type == "text") {
+              val = elt.value;
+            } else if (elt.type == "checkbox") {
+              val = elt.checked;
+            } else {
+              return;
+            }
+
+            // Add to form
+            flat_data[name] = val;
+          });
+
+        $(this.element)
+          .find("select")
+          .each((index, elt: HTMLSelectElement) => {
+            // Retrieve input info
+            let name = elt.name;
+            let val = elt.selectedOptions[0].value;
+
+            // Add to form
+            flat_data[name] = val;            
+          })
+
+        // Do the merge
+        gentle_merge(this, flat_data);
+        this.close();
+        await this._commitCurrMM();
+      }
+    }
+
     /* -------------------------------------------- */
   
     /**
-     * A helper constructor function which displays the bonus editor and returns a Promise once it's
+     * A helper constructor function which displays the action editor and returns a Promise once it's
      * workflow has been resolved.
      * @param in_object         Object we're within
      * @param at_path           Path object is located at
@@ -63,44 +165,14 @@ import { gentle_merge, resolve_dotpath } from '../helpers/commons';
       return new Promise((resolve, reject) => {
         const dlg = new this(in_object, at_path, {
           title: "Edit Action",
+          content: '',
+          // All the buttons config isn't actually controlled here
           buttons: {
-            confirm: {
-              icon: '<i class="fas fa-save"></i>',
-              label: "Save",
-              callback: html => {
-                // Idk how to get form data - FormData doesn't work :(
-                // Just collect inputs manually
-                let flat_data: any = {};
-                $(html)
-                  .find("input")
-                  .each((index, elt) => {
-                    // Retrieve input info
-                    let name = elt.name;
-                    let val: boolean | string;
-                    if (elt.type == "text") {
-                      val = elt.value;
-                    } else if (elt.type == "checkbox") {
-                      val = elt.checked;
-                    } else {
-                      return;
-                    }
-  
-                    // Add to form
-                    flat_data[name] = val;
-                  });
-  
-                // Do the merge
-                gentle_merge(in_object, flat_data);
-                resolve(Promise.resolve(commit_callback(in_object)));
-              },
-            },
             cancel: {
-              icon: '<i class="fas fa-times"></i>',
-              label: "Cancel",
-              callback: () => resolve(),
-            },
+              label: "Cancel"
+            }
           },
-          default: "confirm",
+          default: "Save",
           close: () => resolve(),
         });
         dlg.render(true);

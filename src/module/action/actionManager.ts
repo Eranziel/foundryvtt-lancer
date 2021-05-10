@@ -3,6 +3,7 @@ import { LancerActor, LancerActorType } from "../actor/lancer-actor";
 import { LancerGame } from "../lancer-game";
 import { ActionData, ActionType } from ".";
 import { LANCER } from "../config";
+import tippy from "tippy.js";
 
 export const _defaultActionData = (target: Actor) => {
   return {
@@ -188,6 +189,9 @@ export class LancerActionManager extends Application {
       const action = e.currentTarget.dataset.action;
       action && this.toggleAction(action as ActionType);
     });
+
+    // Enable tooltips.
+    this.loadTooltips();
   }
 
   private loadUserPos() {
@@ -212,6 +216,27 @@ export class LancerActionManager extends Application {
         }
       }
       loop();
+    });
+  }
+
+  private loadTooltips() {
+    tippy('.action[data-action="protocol"]', {
+      content: "Protocol",
+    });
+    tippy('.action[data-action="full"]', {
+      content: "Full Action",
+    });
+    tippy('.action[data-action="quick"]', {
+      content: "Quick Action",
+    });
+    tippy('.action[data-action="move"]', {
+      content: "Movement Action",
+    });
+    tippy('.action[data-action="reaction"]', {
+      content: "Reaction",
+    });
+    tippy('.action[data-action="free"]', {
+      content: "Free Actions",
     });
   }
 
@@ -267,8 +292,8 @@ export class LancerActionManager extends Application {
           let xPos = elmnt.offsetLeft - pos1 > window.innerWidth ? window.innerWidth : elmnt.offsetLeft - pos1;
           let yPos =
             elmnt.offsetTop - pos2 > window.innerHeight - 20 ? window.innerHeight - 100 : elmnt.offsetTop - pos2;
-          xPos = xPos < 0 ? 0 : xPos;
-          yPos = yPos < 0 ? 0 : yPos;
+          xPos = xPos < 8 ? 0 : xPos - 8;
+          yPos = yPos < 8 ? 0 : yPos - 8;
           if (xPos != elmnt.offsetLeft - pos1 || yPos != elmnt.offsetTop - pos2) {
             elmnt.style.top = yPos + "px";
             elmnt.style.left = xPos + "px";

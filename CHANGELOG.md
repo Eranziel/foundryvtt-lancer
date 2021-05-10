@@ -1,3 +1,23 @@
+# 0.9.2 (2021-05-08)
+## Features
+* **Player Charges**: Add support for LIMITED, LOADING, and USES tags for systems and some weapons. This allows for proper tracking of resources on actor sheets, and if combat automation is enabled in the settings, then this will also tie into the combat roll workflow (Unloaded weapons can't be fired, etc.).
+* **NPC Charges**: Add NPC sheet support uses and RECHARGE abilities. If combat automation is enabled, at the start of an NPC turn a Recharge roll will be made and report which systems made the roll, and automatically charge them.
+* **Weapon Profiles**: Add profiles to weapons in tabs.
+* **Action Manager**: First draft of the action manager. While controlling a token, a (movable) HUD will appear. If you've used Comp/Con's active mode, this will be very similar to the action bar at the bottom right. Currently actions need to be manually spent for actions (When done moving, click the move action button, etc.). The core workflows of the action system is there:
+  * When starting a turn, a token's actions are refreshed.
+  * When ending a turn, all remaining actions are wasted (minus Reaction, which is immediately refreshed at every turn).
+  * When spending a Quick action and a Full action is available, the Full action is spent instead (represents the 2 Quick = 1 Full conversion).
+* **Action Editing**: First draft of action editing on all manner of items, first step towards homebrew and ease-of-use UX.
+* (0.9.1 but not documented) Right clicking weapon icons will toggle destroyed state. This will eventually be folded into a proper context menu.
+
+## Bug Fixes
+* Fixes for NPC tech and attack macros.
+* Fixes for attack card.
+* Fixes for FLEX mounts showing extra possible slots in some situations.
+* #183 - NPC sheet path fixes.
+* Lots of refinement and styling fixes.
+* Fixes for drag drop and previews.
+
 # 0.9.1 (2021-04-30)
 ## Features
 * **Attacks**: Now auto-calculates if a targeted attack hits.

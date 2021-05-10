@@ -24,7 +24,8 @@ import {
 } from "machine-mind";
 import { HTMLEditDialog } from "../apps/text-editor";
 import { LancerActorSheetData, LancerItemSheetData } from "../interfaces";
-import { Deployable, WeaponType } from "machine-mind";
+
+import { Deployable, WeaponType, ActivationType } from 'machine-mind';
 
 // A shorthand for only including the first string if the second value is truthy
 export function inc_if(val: string, test: any) {
@@ -471,6 +472,8 @@ async function control_structs(key: string, on: LiveEntryTypes<EntryType>): Prom
       return [true, WeaponSize.Aux];
     case "WeaponType":
       return [true, WeaponType.CQB];
+    case "ActivationType":
+      return [true, ActivationType.Quick];
   }
 
   // Didn't find a match

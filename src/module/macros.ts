@@ -65,6 +65,7 @@ import { System } from "pixi.js";
 import { ActivationOptions, StabOptions1, StabOptions2 } from "./enums";
 import { applyCollapseListeners, uuid4 } from "./helpers/collapse";
 import { checkForHit, getTargets } from "./helpers/automation/targeting";
+import { calcAccDiff, AccDiffFlag, tagsToFlags, toggleCover, updateTotals } from "./helpers/acc_diff";
 
 const lp = LANCER.log_prefix;
 
@@ -456,9 +457,10 @@ function getMacroActorItem(a: string, i: string): { actor: Actor | null; item: I
   return result;
 }
 
-async function buildAttackRollString(title: string, acc: number, bonus: number): Promise<string | null> {
+async function buildAttackRollString(title: string, flags: AccDiffFlag[], bonus: number): Promise<string | null> {
   let abort: boolean = false;
-  await promptAccDiffModifier(acc, title).then(
+  let acc = 0;
+  await promptAccDiffModifier(flags, title).then(
     resolve => (acc = resolve),
     reject => (abort = reject)
   );
@@ -503,7 +505,7 @@ async function rollStatMacro(actor: Actor, data: LancerStatMacroData) {
   // Get accuracy/difficulty with a prompt
   let acc: number = 0;
   let abort: boolean = false;
-  await promptAccDiffModifier(acc).then(
+  await promptAccDiffModifier().then(
     resolve => (acc = resolve),
     () => (abort = true)
   );
@@ -689,7 +691,7 @@ async function prepareAttackMacro({
   }
 
   // Build attack string before deducting charge.
-  const atk_str = await buildAttackRollString(mData.title, mData.acc, mData.grit);
+  const atk_str = await buildAttackRollString(mData.title, tagsToFlags(mData.tags), mData.grit);
   if (!atk_str) return;
 
   // Deduct charge if LOADING weapon.
@@ -1018,7 +1020,7 @@ export async function prepareTechMacro(a: string, t: string) {
 }
 
 async function rollTechMacro(actor: Actor, data: LancerTechMacroData) {
-  let atk_str = await buildAttackRollString(data.title, data.acc, data.t_atk);
+  let atk_str = await buildAttackRollString(data.title, tagsToFlags(data.tags), data.t_atk);
   if (!atk_str) return;
 
   // CHECK TARGETS
@@ -1066,18 +1068,8 @@ async function rollTechMacro(actor: Actor, data: LancerTechMacroData) {
   return await renderMacroTemplate(actor, template, templateData);
 }
 
-export async function promptAccDiffModifier(acc?: number, title?: string) {
-  if (!acc) acc = 0;
-  let diff = 0;
-  if (acc < 0) {
-    diff = -acc;
-    acc = 0;
-  }
-
-  let template = await renderTemplate(`systems/lancer/templates/window/promptAccDiffModifier.hbs`, {
-    acc: acc,
-    diff: diff,
-  });
+export async function promptAccDiffModifier(flags?: AccDiffFlag[], title?: string) {
+  let template = await renderTemplate(`systems/lancer/templates/window/acc_diff.hbs`, {});
   return new Promise<number>((resolve, reject) => {
     new Dialog({
       title: title ? `${title} - Accuracy and Difficulty` : "Accuracy and Difficulty",
@@ -1086,13 +1078,9 @@ export async function promptAccDiffModifier(acc?: number, title?: string) {
         submit: {
           icon: '<i class="fas fa-check"></i>',
           label: "Submit",
-          callback: async dlg => {
-            let accuracy = <string>$(dlg).find(".accuracy").first().val();
-            let difficulty = <string>$(dlg).find(".difficulty").first().val();
-            let total = parseInt(accuracy) - parseInt(difficulty);
-            console.log(
-              `${lp} Dialog returned ${accuracy} accuracy and ${difficulty} difficulty resulting in a modifier of ${total}d6`
-            );
+          callback: async dialog => {
+            let total = updateTotals();
+            console.log(`${lp} Dialog returned a modifier of ${total}d6`);
             resolve(total);
           },
         },
@@ -1105,8 +1093,32 @@ export async function promptAccDiffModifier(acc?: number, title?: string) {
         },
       },
       default: "submit",
+      render: (_html: any) => {
+        if (flags) {
+          for (let flag of flags) {
+            const ret = document.querySelector(`[data-acc="${flag}"],[data-diff="${flag}"]`);
+            ret && ((ret as HTMLInputElement).checked = true);
+          }
+        }
+
+        if (flags?.includes("SEEKING")) {
+          toggleCover(false);
+        }
+        updateTotals();
+
+        // LISTENERS
+        $("[data-acc],[data-diff]").on("click", e => {
+          if (e.currentTarget.dataset.acc === "SEEKING") {
+            toggleCover(!(e.currentTarget as HTMLInputElement).checked);
+          }
+          updateTotals();
+        });
+        $(".accdiff-grid button.dec-set").on("click", _e => {
+          updateTotals();
+        });
+      },
       close: () => reject(true),
-    }).render(true);
+    } as DialogData).render(true);
   });
 }
 
@@ -1190,7 +1202,7 @@ export async function prepareChargeMacro(a: string) {
   let changed: { name: string; target: string | null | number | undefined; charged: boolean }[] = [];
   feats.forEach(feat => {
     if (!feat.Charged) {
-      const recharge = feat.Tags.find(tag => tag.Tag.LID === "tg_recharge");
+      const recharge = feat.Tags.find((tag: TagInstance) => tag.Tag.LID === "tg_recharge");
       if (recharge && recharge.Value && recharge.Value <= roll.total) {
         feat.Charged = true;
         feat.writeback();

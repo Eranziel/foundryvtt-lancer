@@ -1307,10 +1307,11 @@ button.overkill-reroll {
 
 .mod-minus-button,
 .mod-plus-button {
-  width: 2em;
-  max-width: 2em;
+  cursor: pointer;
+  width: 30px;
+  height: 30px;
   background-color: #828282;
-  color: #bebebe;
+  color: #fff;
   border: none;
   /* Don't ask me why, but this aligns it vertically nicely */
   line-height: 1px;
@@ -1895,7 +1896,7 @@ a.activation-chip > i.mdi {
   border: 1px solid #5d5d5d;
 }
 #action-manager-drag {
-  cursor: pointer;
+  cursor: move;
   font-size: 1.5em;
   padding: 12px 4px 0px 8px;
 }
@@ -1931,6 +1932,91 @@ a.action {
     box-shadow: inset 0 0 100px 100px rgba(255, 255, 255, 0.3);
     text-shadow: none;
   }
+}
+
+// TIPPY
+.tippy-box[data-theme~="lancer"] {
+  font-size: 1.1em;
+  padding-left: 8px;
+  padding-right: 8px;
+  transform: skew(30deg);
+
+  .tippy-content {
+    transform: skew(330deg);
+  }
+}
+
+// Acc_Diff
+.accdiff-grid {
+  display: flex;
+  justify-content: space-between;
+
+  .container {
+    display: flex;
+    position: relative;
+    padding-left: 35px;
+    margin-bottom: 4px;
+    font-size: 0.9em;
+    user-select: none;
+    align-items: center;
+  }
+
+  /* Hide the browser's default checkbox */
+  .container input {
+    position: absolute;
+    opacity: 0 !important;
+    height: 0;
+    width: 0;
+  }
+
+  .checkmark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 20px;
+    width: 20px;
+    background-color: #a9a9a9;
+    cursor: pointer;
+  }
+
+  input[disabled] ~ .checkmark {
+    background-color: #313131;
+    cursor: unset;
+  }
+
+  .container:hover input:not([disabled]) ~ .checkmark {
+    background-color: #757575;
+  }
+
+  .container input:checked:not([disabled]) ~ .checkmark {
+    background-color: var(--main-theme-color, fuchsia);
+  }
+
+  .checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+  }
+  .container input:checked ~ .checkmark:after {
+    display: block;
+  }
+
+  .card.clipped {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 8px 8px 8px 16px;
+    background-color: var(--main-theme-color, fuchsia);
+    color: white;
+    width: fit-content;
+  }
+}
+
+.accdiff-footer {
+  padding-top: 8px;
+  padding-bottom: 4px;
+  margin-top: 12px;
+  border-top: 1px solid #782e22;
 }
 
 // V-IMPORTS
