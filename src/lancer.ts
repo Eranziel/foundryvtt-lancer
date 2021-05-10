@@ -527,15 +527,15 @@ export const system_ready: Promise<void> = new Promise(success => {
     await showChangelog();
 
     applyCollapseListeners();
+
+    game.action_manager = new LancerActionManager();
+    await game.action_manager.init();
+
     success();
   });
 });
 
 // Action Manager hooks.
-Hooks.on("canvasReady", async () => {
-  game.action_manager = new LancerActionManager();
-  await game.action_manager.init();
-});
 Hooks.on("controlToken", () => {
   game.action_manager.update();
 });
@@ -549,6 +549,9 @@ Hooks.on("updateActor", (_actor: Actor) => {
 });
 Hooks.on("closeSettingsConfig", () => {
   game.action_manager.updateConfig();
+});
+Hooks.on("getSceneNavigationContext", async () => {
+  await game.action_manager.reset();
 });
 //
 

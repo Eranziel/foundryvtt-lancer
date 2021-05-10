@@ -41,6 +41,7 @@ export class LancerActionManager extends Application {
     LancerActionManager.enabled = game.settings.get(LANCER.sys_name, LANCER.setting_action_manager);
     this.loadUserPos();
     await this.updateControlledToken();
+    this.render(true);
   }
 
   /** @override */
@@ -85,11 +86,16 @@ export class LancerActionManager extends Application {
   }
   //
 
-  async update() {
+  async reset() {
+    await this.close();
+    this.render(true);
+  }
+
+  async update(force?: boolean) {
     if (LancerActionManager.enabled) {
       // console.log("Action Manager updating...");
       await this.updateControlledToken();
-      this.render(true);
+      this.render(force);
     }
   }
 
@@ -106,13 +112,12 @@ export class LancerActionManager extends Application {
   private async updateControlledToken() {
     const token = canvas.tokens.controlled[0] as Token;
     if (token && token.actor && (token.actor.data.type === "mech" || token.actor.data.type === "npc")) {
-      this.target = token.actor as LancerActor<any>;
-
       // TEMPORARY HANDLING OF OLD TOKENS
       // TODO: Remove when action data is properly within MM.
-      if (this.getActions() === undefined) {
-        await this.updateActions(this.target, _defaultActionData(this.target));
+      if (token.actor.data.data.actions === undefined) {
+        await this.updateActions(token.actor as LancerActor<any>, _defaultActionData(token.actor));
       }
+      this.target = token.actor as LancerActor<any>;
     } else this.target = null;
   }
 

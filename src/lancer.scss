@@ -1895,6 +1895,9 @@ a.activation-chip > i.mdi {
   background-color: #eaeaea;
   border: 1px solid #5d5d5d;
 }
+#action-manager.hidden {
+  display: none !important; // Because apparently you need to do this.
+}
 #action-manager-drag {
   cursor: move;
   font-size: 1.5em;
