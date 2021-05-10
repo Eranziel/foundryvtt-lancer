@@ -17,11 +17,11 @@ import {
 } from "./item/lancer-item";
 import { RangeType, NPCTag } from "./enums";
 import { EffectData } from "./helpers/npc";
-import * as mm from "machine-mind";
 import {
   EntryType,
   ITagTemplateData,
   License,
+  LiveEntryTypes,
   MountType,
   OpCtx,
   Pilot,
@@ -32,7 +32,6 @@ import {
   RegSkillData,
 } from "machine-mind";
 import { FoundryRegActorData, FoundryRegItemData } from "./mm-util/foundry-reg";
-import { MMEntityContext, abracadabra } from "./mm-util/helpers";
 import { LancerActorType } from "./actor/lancer-actor";
 // ------------------------------------------------------
 // |       UTILITY
@@ -57,7 +56,7 @@ export type LancerItemSheetData<T extends LancerItemType> = {
   editable: boolean;
 
   // reg ctx
-  mm: MMEntityContext<T>;
+  mm: LiveEntryTypes<T>;
 
   // The license, if it could be recovered
   license: License | null;
@@ -71,8 +70,8 @@ export type LancerActorSheetData<T extends LancerActorType> = {
   // Can we edit?
   editable: boolean;
 
-  // reg ctx
-  mm: MMEntityContext<T>;
+  // Item
+  mm: LiveEntryTypes<T>;
 
   // Store active mech at the root level
   active_mech: Mech | null;

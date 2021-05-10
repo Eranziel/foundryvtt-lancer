@@ -148,9 +148,9 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
 
   // Helper function for making fields effectively target multiple attributes
   _propagateMMData(formData: any) {
-    // Pushes relevant field data down from the "item" data block to the "mm.ent" data block
+    // Pushes relevant field data down from the "item" data block to the "mm" data block
     // Returns true if any of these top level fields require updating (i.e. do we need to .update({img: ___, name: __, etc}))
-    formData["mm.ent.Name"] = formData["name"];
+    formData["mm.Name"] = formData["name"];
 
     return this.item.img != formData["img"] || this.item.name != formData["name"];
   }
@@ -170,7 +170,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
     if (need_top_update) {
       let top_update = {} as any;
       for (let key of Object.keys(formData)) {
-        if (!key.includes("mm.ent")) {
+        if (!key.includes("mm")) {
           top_update[key] = formData[key];
         }
       }
@@ -198,9 +198,9 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
 
     // Wait for preparations to complete
     let tmp_dat = this.item.data as LancerItem<T>["data"]; // For typing convenience
-    data.mm = await tmp_dat.data.derived.mmec_promise;
+    data.mm = await tmp_dat.data.derived.mm_promise;
     let lic_ref = tmp_dat.data.derived.license;
-    data.license = lic_ref ? await data.mm.reg.resolve(data.mm.ctx, lic_ref) : null;
+    data.license = lic_ref ? await data.mm.Registry.resolve(data.mm.OpCtx, lic_ref) : null;
 
     console.log(`${lp} Rendering with following item ctx: `, data);
     this._currData = data;
@@ -219,7 +219,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
     console.log("Committing");
     let cd = this._currData;
     this._currData = null;
-    (await cd?.mm.ent.writeback()) ?? null;
+    (await cd?.mm.writeback()) ?? null;
 
     // Compendium entries don't re-draw appropriately
     if (this.item.compendium) {

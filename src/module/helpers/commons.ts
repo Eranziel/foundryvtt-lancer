@@ -22,11 +22,8 @@ import {
   Action,
   Counter,
 } from "machine-mind";
-import { TALENT_RANK } from "machine-mind/dist/classes/default_entries";
-import { defaults } from "machine-mind/dist/funcs";
 import { HTMLEditDialog } from "../apps/text-editor";
 import { LancerActorSheetData, LancerItemSheetData } from "../interfaces";
-import { MMEntityContext } from "../mm-util/helpers";
 import { Deployable, WeaponType } from "machine-mind";
 
 // A shorthand for only including the first string if the second value is truthy
@@ -374,7 +371,7 @@ export function HANDLER_activate_general_controls<T extends LancerActorSheetData
 
 // Used by above to figure out how to handle "set"/"append" args
 // Returns [success: boolean, val: any]
-async function parse_control_val(raw_val: string, ctx: MMEntityContext<any>): Promise<[boolean, any]> {
+async function parse_control_val(raw_val: string, ctx: LiveEntryTypes<EntryType>): Promise<[boolean, any]> {
   // Declare
   let real_val: string | number | boolean | any;
 
@@ -413,7 +410,7 @@ async function parse_control_val(raw_val: string, ctx: MMEntityContext<any>): Pr
 
 // Used by above to insert/set more advanced items. Expand as needed
 // Returns [success: boolean, val: any]
-async function control_structs(key: string, ctx: MMEntityContext<any>): Promise<[boolean, any]> {
+async function control_structs(key: string, on: LiveEntryTypes<EntryType>): Promise<[boolean, any]> {
   // Look for a matching result
   switch (key) {
     case "empty_array":
@@ -423,7 +420,7 @@ async function control_structs(key: string, ctx: MMEntityContext<any>): Promise<
     case "npc_stat_array":
       return [true, [0, 0, 0]];
     case "frame_trait":
-      let trait = new FrameTrait(ctx.reg, ctx.ctx, funcs.defaults.FRAME_TRAIT());
+      let trait = new FrameTrait(on.Registry, on.OpCtx, funcs.defaults.FRAME_TRAIT());
       return [true, await trait.ready()];
     case "bonus":
       return [true, new Bonus(funcs.defaults.BONUS())];
@@ -460,13 +457,13 @@ async function control_structs(key: string, ctx: MMEntityContext<any>): Promise<
         }),
       ];
     case "sys_mount":
-      let sys_mount = new SystemMount(ctx.reg, ctx.ctx, { system: null });
+      let sys_mount = new SystemMount(on.Registry, on.OpCtx, { system: null });
       return [true, await sys_mount.ready()];
     case "wep_mount":
-      let wep_mount = new WeaponMount(ctx.reg, ctx.ctx, funcs.defaults.WEAPON_MOUNT_DATA());
+      let wep_mount = new WeaponMount(on.Registry, on.OpCtx, funcs.defaults.WEAPON_MOUNT_DATA());
       return [true, await wep_mount.ready()];
     case "weapon_profile":
-      let profile = new MechWeaponProfile(ctx.reg, ctx.ctx, funcs.defaults.WEAPON_PROFILE());
+      let profile = new MechWeaponProfile(on.Registry, on.OpCtx, funcs.defaults.WEAPON_PROFILE());
       return [true, await profile.ready()];
     case "talent_rank":
       return [true, funcs.defaults.TALENT_RANK()];

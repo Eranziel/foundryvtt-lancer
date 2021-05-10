@@ -11,7 +11,7 @@ export function getTargets(): LancerActor<LancerActorType>[] {
 }
 
 export function checkForHit(tech: boolean, roll: Roll, target: LancerActor<LancerActorType>): boolean {
-  let def: number = tech ? target.data.data.derived.mmec.ent.EDefense : target.data.data.derived.mmec.ent.Evasion;
+  let def: number = tech ? target.data.data.derived.mm.EDefense : target.data.data.derived.mm.Evasion;
   !def && (def = 8);
 
   return roll._total >= def;

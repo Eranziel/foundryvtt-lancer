@@ -1,8 +1,8 @@
-import { EntryType, OpCtx, RegEntry, RegRef } from "machine-mind";
+import { EntryType, LiveEntryTypes, OpCtx, RegEntry, RegRef } from "machine-mind";
 import { is_actor_type, LancerActor, LancerActorType } from "../actor/lancer-actor";
 import { is_item_type, LancerItem, LancerItemType } from "../item/lancer-item";
 import { FoundryReg } from "../mm-util/foundry-reg";
-import { MMEntityContext, mm_wrap_actor, mm_wrap_item } from "../mm-util/helpers";
+import { mm_wrap_actor, mm_wrap_item } from "../mm-util/helpers";
 import { gentle_merge, is_ref, safe_json_parse } from "./commons";
 import { recreate_ref_from_element } from "./refs";
 
@@ -454,7 +454,7 @@ export function enable_native_dropping(
 // Same as above, but wraps in a MM context
 export function enable_native_dropping_mm_wrap<T extends EntryType>(
   items: string | JQuery,
-  on_drop: (ent_ctx: MMEntityContext<T>, dest: JQuery, evt: JQuery.DropEvent) => void,
+  on_drop: (ent: LiveEntryTypes<T>, dest: JQuery, evt: JQuery.DropEvent) => void,
   allowed_types?: T[] | null, // null implies wildcard. `data-type` always takes precedence
   hover_handler?: HoverHandlerFunc
 ) {
@@ -462,8 +462,9 @@ export function enable_native_dropping_mm_wrap<T extends EntryType>(
     items,
     async (entity, dest, evt) => {
       // From here, depends slightly on tye
-      let item: MMEntityContext<T>;
+      let item: LiveEntryTypes<T>;
       let ent_type = (entity as any).entity;
+      console.error("You meant to investigate this");
       if (ent_type == "Actor") {
         item = await mm_wrap_actor(entity as LancerActor<T & LancerActorType>);
       } else if (ent_type == "Item") {

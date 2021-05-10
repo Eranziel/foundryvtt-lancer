@@ -7,17 +7,17 @@
         {{{item-edit-license}}}
       </div>
     </div>
-    {{{ ref-portrait-img item.img "img" mm.ent }}}
+    {{{ ref-portrait-img item.img "img" mm }}}
   </header>
 
   {{!-- Sheet Tab Navigation --}}
   <nav class="lancer-tabs" data-group="primary">
-    {{#each mm.ent.Profiles as |profile prof_index|}}
+    {{#each mm.Profiles as |profile prof_index|}}
       <a class="item lancer-tab medium" data-tab="profile{{prof_index}}">&lt;{{profile.Name}}&gt;</a>
     {{/each}}
 
     {{!-- Fake tab to add new profiles --}}
-    <a class="item lancer-tab medium gen-control" data-action="append" data-action-value="(struct)weapon_profile" data-path="mm.ent.Profiles">+</a>
+    <a class="item lancer-tab medium gen-control" data-action="append" data-action-value="(struct)weapon_profile" data-path="mm.Profiles">+</a>
   </nav>
 
 
@@ -27,7 +27,7 @@
       {{!-- Size --}}
       <div class="card clipped" style="padding: 10px;">
         <span class="lancer-header major ">SIZE</span>
-        {{{wpn-size-sel "mm.ent.Size"}}}
+        {{{wpn-size-sel "mm.Size"}}}
       </div>
 
       {{!-- Status --}}
@@ -37,35 +37,35 @@
           <span>LOADED:</span>
           <span><i>todo</i></span>
         </div>
-        {{{item-edit-uses                 "mm.ent.Uses" "data.derived.max_uses"}}}        
+        {{{item-edit-uses                 "mm.Uses" "data.derived.max_uses"}}}        
       </div>
 
-      {{#each mm.ent.Profiles as |profile prof_index|}}
+      {{#each mm.Profiles as |profile prof_index|}}
       <div class="tab profile{{prof_index}} double" data-group="primary" data-tab="profile{{prof_index}}">
         <div class="wraprow quintuple">
 
           {{!-- Type --}}
           <div class="card clipped">
             <span class="lancer-header submajor ">TYPE</span>
-            {{{wpn-type-sel (concat "mm.ent.Profiles." prof_index ".WepType") }}}
+            {{{wpn-type-sel (concat "mm.Profiles." prof_index ".WepType") }}}
           </div>
 
           {{!-- Range --}}
-          {{{item-edit-arrayed-range "mm.ent.AddedRange" "RANGE"}}}
+          {{{item-edit-arrayed-range "mm.AddedRange" "RANGE"}}}
 
           {{!-- Damage --}}
-          {{{item-edit-arrayed-damage (concat "mm.ent.Profiles." prof_index ".BaseDamage") "DAMAGE"}}}
+          {{{item-edit-arrayed-damage (concat "mm.Profiles." prof_index ".BaseDamage") "DAMAGE"}}}
 
           {{!-- Description --}}
-          {{{textarea-card "DESCRIPTION" (concat "mm.ent.Profiles." prof_index ".Description") }}}
+          {{{textarea-card "DESCRIPTION" (concat "mm.Profiles." prof_index ".Description") }}}
 
           {{!-- TODO: Item effects/actions --}}
-          {{{item-edit-arrayed-actions "mm.ent.Actions" "ADDED ACTIONS"}}}
+          {{{item-edit-arrayed-actions "mm.Actions" "ADDED ACTIONS"}}}
 
           {{!-- Tags --}}
           <div class="card full">
             <span class="lancer-header submajor">TAGS</span>
-            {{{mm-tag-list (concat "mm.ent.Profiles." prof_index ".Tags") profile.Tags ../editable}}}
+            {{{mm-tag-list (concat "mm.Profiles." prof_index ".Tags") profile.Tags ../editable}}}
           </div>
         </div>
       </div>

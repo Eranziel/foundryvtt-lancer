@@ -5,28 +5,28 @@
       <div class="header-fields">
         <h1 class="charname"><input class="header-field" name="name" type="text" value="{{item.name}}" placeholder="Name"/></h1>
       </div>
-      {{{ ref-portrait-img item.img "img" mm.ent }}}
+      {{{ ref-portrait-img item.img "img" mm }}}
     </div>
   </header>
 
   <div class="flexcol">
     {{!-- Uses --}}
     <div>
-        {{{item-edit-uses "mm.ent.Uses" "mm.ent.MaxUses"}}}
+        {{{item-edit-uses "mm.Uses" "mm.MaxUses"}}}
     </div>
 
-    {{{textarea-card "DESCRIPTION" "mm.ent.Description"}}}
+    {{{textarea-card "DESCRIPTION" "mm.Description"}}}
 
     {{!-- Bonuses --}}
-    {{{item-edit-arrayed-actions      "mm.ent.Actions"        "ACTIONS"}}}
-    {{{item-edit-arrayed-bonuses      "mm.ent.Bonuses"}}}
-    {{{item-edit-arrayed-deployables  "mm.ent.Deployables"                "DEPLOYABLES"}}}
-    {{{item-edit-arrayed-synergies    "mm.ent.Synergies"                  "SYNERGIES"}}}
+    {{{item-edit-arrayed-actions      "mm.Actions"        "ACTIONS"}}}
+    {{{item-edit-arrayed-bonuses      "mm.Bonuses"}}}
+    {{{item-edit-arrayed-deployables  "mm.Deployables"                "DEPLOYABLES"}}}
+    {{{item-edit-arrayed-synergies    "mm.Synergies"                  "SYNERGIES"}}}
 
     {{!-- Tags --}}
     <div class="card">
       <span class="lancer-header major">TAGS</span>
-      {{{mm-tag-list "mm.ent.Tags" mm.ent.Tags editable}}}
+      {{{mm-tag-list "mm.Tags" mm.Tags editable}}}
     </div>
     
   </div>

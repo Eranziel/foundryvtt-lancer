@@ -21,21 +21,21 @@
             />
           </h1>
           <div class="flexrow">
-            <select class="header-field" name="mm.ent.Subtype" data-type="String">
-              {{#select mm.ent.Subtype}}
+            <select class="header-field" name="mm.Subtype" data-type="String">
+              {{#select mm.Subtype}}
               <option class="i--dark" value="status">STATUS</option>
               <option class="i--dark" value="condition">CONDITION</option>
               {{/select}}
             </select>
           </div>
         </div>
-        {{{ ref-portrait-img item.img "img" mm.ent }}}
+        {{{ ref-portrait-img item.img "img" mm }}}
       </div>
     </header>
   
     {{!-- Sheet Body --}}
     <section class="sheet-body">
-      {{{item-edit-effect               "mm.ent.Effect"}}}
+      {{{item-edit-effect               "mm.Effect"}}}
     </section>
   </form>
   

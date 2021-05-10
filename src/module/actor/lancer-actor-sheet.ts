@@ -494,7 +494,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
         let path = dest[0].dataset.path!;
         if (path) {
           let data = await this.getDataLazy();
-          gentle_merge(data, { [path]: item.ent });
+          gentle_merge(data, { [path]: item });
           await this._commitCurrMM();
         }
       },
@@ -576,7 +576,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
   }
 
   _propagateMMData(formData: any): any {
-    // Pushes relevant field data down from the "actor" data block to the "mm.ent" data block
+    // Pushes relevant field data down from the "actor" data block to the "mm" data block
     // Also meant to encapsulate all of the behavior of _updateTokenImage
     // Returns true if any of these top level fields require updating (i.e. do we need to .update({img: ___, token: __, etc}))
     let token: any = this.actor.data["token"];
@@ -605,11 +605,11 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
 
     // Bound NPC tier as it is one of the most frequent sheet breakers. TODO: more general solution
     if ("npctier" in formData) {
-      formData["mm.ent.Tier"] = Number.parseInt(formData["npctier"]) || 1;
+      formData["mm.Tier"] = Number.parseInt(formData["npctier"]) || 1;
     }
 
     // Do push down name changes
-    formData["mm.ent.Name"] = formData["name"];
+    formData["mm.Name"] = formData["name"];
 
     return new_top;
   }
@@ -628,7 +628,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
 
     // Do a separate update depending on mm data
     gentle_merge(ct, formData);
-    mergeObject((ct.mm.ent.Flags as FoundryFlagData<any>).top_level_data, new_top);
+    mergeObject((ct.mm.Flags as FoundryFlagData<any>).top_level_data, new_top);
     await this._commitCurrMM();
   }
 
@@ -641,10 +641,10 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     const data = ((await super.getData()) as unknown) as LancerActorSheetData<T>; // Not fully populated yet!
 
     // Drag up the mm context (when ready) to a top level entry in the sheet data
-    data.mm = await (this.actor.data as LancerActor<T>["data"]).data.derived.mmec_promise;
+    data.mm = await (this.actor.data as LancerActor<T>["data"]).data.derived.mm_promise;
 
     // Also wait for all of their items
-    await Promise.all(this.actor.items.map((i: AnyLancerItem) => i.data.data.derived.mmec_promise));
+    await Promise.all(this.actor.items.map((i: AnyLancerItem) => i.data.data.derived.mm_promise));
 
     console.log(`${lp} Rendering with following actor ctx: `, data);
     this._currData = data;
@@ -662,7 +662,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     console.log("Committing ", this._currData);
     let cd = this._currData;
     this._currData = null;
-    (await cd?.mm.ent.writeback()) ?? null;
+    (await cd?.mm.writeback()) ?? null;
 
     // Compendium entries don't re-draw appropriately
     if (this.actor.compendium) {

@@ -30,12 +30,12 @@ export class LancerFrameSheet extends LancerItemSheet<EntryType.FRAME> {
       let data = await this.getDataLazy();
 
       // Splice it out
-      let mounts = [...data.mm.ent.Mounts];
+      let mounts = [...data.mm.Mounts];
       mounts.splice(index, 1);
-      data.mm.ent.Mounts = mounts;
+      data.mm.Mounts = mounts;
 
       // Save it
-      await data.mm.ent.writeback();
+      await data.mm.writeback();
 
       // No need to submit
       event.stopPropagation();

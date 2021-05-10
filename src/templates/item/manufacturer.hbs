@@ -2,7 +2,7 @@
 
   {{!-- Sheet Header --}}
   <header class="sheet-header card clipped-bot">
-    {{{ ref-portrait-img item.img "img" mm.ent }}}
+    {{{ ref-portrait-img item.img "img" mm }}}
     <div class="header-fields" style="grid-area: 1/1/2/5;">
       <h1 class="charname"><input class="header-field" name="name" type="text" value="{{item.name}}" placeholder="Name"/></h1>
     </div>
@@ -11,12 +11,12 @@
   {{!-- Sheet Body --}}
   <section class="sheet-body">
     <div class="flexcol">
-      {{{textarea-card "DESCRIPTION" "mm.ent.Description"}}}
-      {{{textarea-card "QUOTE" "mm.ent.Quote"}}}
+      {{{textarea-card "DESCRIPTION" "mm.Description"}}}
+      {{{textarea-card "QUOTE" "mm.Quote"}}}
       <div class="flexrow">
-        {{{std-string-input             "mm.ent.Dark"    label="DARK COLOR"}}}
-        {{{std-string-input             "mm.ent.Light"   label="LIGHT COLOR"}}}
-        {{{std-string-input             "mm.ent.Logo"    label="LOGO LABEL"}}}
+        {{{std-string-input             "mm.Dark"    label="DARK COLOR"}}}
+        {{{std-string-input             "mm.Light"   label="LIGHT COLOR"}}}
+        {{{std-string-input             "mm.Logo"    label="LOGO LABEL"}}}
       </div>
     </div>
   </section>

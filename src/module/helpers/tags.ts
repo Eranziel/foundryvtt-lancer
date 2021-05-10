@@ -248,13 +248,13 @@ export function HANDLER_activate_tag_dropping<T>(
 ) {
   enable_native_dropping_mm_wrap(
     html.find(".tag-list-append"),
-    async (tag_ent_ctx, dest, evt) => {
+    async (tag_ent, dest, evt) => {
       // Well, we got a drop!
       let path = dest[0].dataset.path!;
       if (path) {
         // Make an instance of the tag
-        let tag_instance = new TagInstance(tag_ent_ctx.reg, tag_ent_ctx.ctx, {
-          tag: tag_ent_ctx.ent.as_ref(),
+        let tag_instance = new TagInstance(tag_ent.Registry, tag_ent.OpCtx, {
+          tag: tag_ent.as_ref(),
           val: 1,
         });
         await tag_instance.ready();

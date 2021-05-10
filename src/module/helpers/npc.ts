@@ -146,7 +146,7 @@ export function npc_tech_effect_preview(path: string, options: HelperOptions) {
 
   // If we didn't find one, retrieve. Maybe check for undefined as we want an explicit 0 to be a true 0? How to support this in UI?
   if (!attack_bonus) {
-    resolve_helper_dotpath(options, "mm.ent.Systems", 0, true); // A bit lazy. Expand this to cover more cases if needed
+    resolve_helper_dotpath(options, "mm.Systems", 0, true); // A bit lazy. Expand this to cover more cases if needed
     from_sys = true;
   }
   if (attack_bonus) {
