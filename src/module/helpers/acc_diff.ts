@@ -9,18 +9,41 @@ export const AccDiffRegistry: Record<AccDiffFlag, number> = {
   SEEKING: 0,
 };
 
-export function calcAccDiff(flags: AccDiffFlag[], manual = 0) {
-  let total = 0;
+export function calcAccDiff() {
+  let acc = 0;
+  let diff = 0;
+  let flags: AccDiffFlag[] = [];
+  document
+    .querySelectorAll("[data-acc]:checked:not([disabled])")
+    .forEach(ele => flags.push(ele.getAttribute("data-acc") as AccDiffFlag));
+  document
+    .querySelectorAll("[data-diff]:checked:not([disabled])")
+    .forEach(ele => flags.push(ele.getAttribute("data-diff") as AccDiffFlag));
 
   const isSeeking = flags.includes("SEEKING");
   for (let flag of flags) {
-    if (flag === "HARD_COVER" || flag === "SOFT_COVER") {
-      total += isSeeking ? 0 : AccDiffRegistry[flag];
-    } else {
-      total += AccDiffRegistry[flag];
+    switch (flag) {
+      case "SOFT_COVER":
+      case "HARD_COVER":
+        diff += isSeeking ? 0 : AccDiffRegistry[flag];
+        break;
+      case "ACCURATE":
+        acc += 1;
+        break;
+      case "INACCURATE":
+        diff -= 1;
+        break;
+      case "SEEKING":
+        break;
     }
   }
-  return total + manual;
+  return [acc, -diff];
+}
+
+function calcManualAccDiff() {
+  const acc = parseInt((document.querySelector(`#accdiff-other-acc`) as HTMLInputElement)?.value);
+  const diff = parseInt((document.querySelector(`#accdiff-other-diff`) as HTMLInputElement)?.value);
+  return [acc, diff];
 }
 
 export function tagsToFlags(tags: TagInstance[]): AccDiffFlag[] {
@@ -41,7 +64,24 @@ export function tagsToFlags(tags: TagInstance[]): AccDiffFlag[] {
   return ret;
 }
 
+// DOM Manipulation
 export function toggleCover(toggle: boolean) {
   const ret = document.querySelectorAll('[data-accdiff="SOFT_COVER"],[data-accdiff="HARD_COVER"]');
   ret.forEach(ele => (toggle ? ele.removeAttribute("disabled") : ele.setAttribute("disabled", "true")));
+}
+
+export function updateTotals() {
+  const accEle = document.querySelector("#accdiff-total-acc");
+  const diffEle = document.querySelector("#accdiff-total-diff");
+  const flags = calcAccDiff();
+  const other = calcManualAccDiff();
+
+  const totalAcc = flags[0] + other[0];
+  const totalDiff = flags[1] + other[1];
+
+  accEle!.innerHTML = String(totalAcc);
+  diffEle!.innerHTML = String(totalDiff);
+  1;
+
+  return totalAcc - totalDiff;
 }

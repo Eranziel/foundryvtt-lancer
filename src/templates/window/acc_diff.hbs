@@ -7,12 +7,12 @@
       </h3>
       <label class="container">
         Accurate (+1)
-        <input type="checkbox" data-accdiff="ACCURATE" />
+        <input type="checkbox" data-acc="ACCURATE" />
         <span class="checkmark"></span>
       </label>
       <label class="container">
         Seeking (*)
-        <input type="checkbox" data-accdiff="SEEKING" />
+        <input type="checkbox" data-acc="SEEKING" />
         <span class="checkmark"></span>
       </label>
     </div>
@@ -23,45 +23,93 @@
       </h3>
       <label class="container">
         Inaccurate (-1)
-        <input type="checkbox" data-accdiff="INACCURATE" />
+        <input type="checkbox" data-diff="INACCURATE" />
         <span class="checkmark"></span>
       </label>
       <label class="container">
         Soft Cover (-1)
-        <input type="checkbox" data-accdiff="SOFT_COVER" />
+        <input type="checkbox" data-diff="SOFT_COVER" />
         <span class="checkmark"></span>
       </label>
       <label class="container">
         Hard Cover (-2)
-        <input type="checkbox" data-accdiff="HARD_COVER" />
+        <input type="checkbox" data-diff="HARD_COVER" />
         <span class="checkmark"></span>
       </label>
     </div>
   </div>
-  <div class="accdiff-footer">
-    <label style="max-width: fit-content;line-height: 2em;height: 2em;" class="flexrow">
-      Other Modifiers:
-    </label>
-    <button
-      class="mod-minus-button dec-set"
-      type="button"
-      onclick="this.nextElementSibling.value = this.nextElementSibling.valueAsNumber - 1"
-    >
-      -
-    </button>
-    <input
-      id="accdiff-other"
-      class="difficulty lancer-invisible-input dec-set"
-      style="max-width: 2em;text-align: center;font-size: 1.2em"
-      type="number"
-      value="0"
-    />
-    <button
-      class="mod-plus-button dec-set"
-      type="button"
-      onclick="this.previousElementSibling.value = this.previousElementSibling.valueAsNumber + 1"
-    >
-      +
-    </button>
+  <label class="flexrow accdiff-footer">
+    Other Sources:
+  </label>
+  <div class="accdiff-grid">
+    <div style="width:100%;">
+      <button
+        class="mod-minus-button dec-set"
+        type="button"
+        onclick="this.nextElementSibling.value = this.nextElementSibling.valueAsNumber - 1"
+      >
+        -
+      </button>
+      <input
+        id="accdiff-other-acc"
+        class="difficulty lancer-invisible-input dec-set"
+        style="max-width: 2em;text-align: center;font-size: 1.2em"
+        type="number"
+        value="0"
+        min="0"
+      />
+      <button
+        class="mod-plus-button dec-set"
+        type="button"
+        onclick="this.previousElementSibling.value = this.previousElementSibling.valueAsNumber + 1"
+      >
+        +
+      </button>
+    </div>
+    <div style="width:100%;">
+      <button
+        class="mod-minus-button dec-set"
+        type="button"
+        onclick="this.nextElementSibling.value = this.nextElementSibling.valueAsNumber - 1"
+      >
+        -
+      </button>
+      <input
+        id="accdiff-other-diff"
+        class="difficulty lancer-invisible-input dec-set"
+        style="max-width: 2em;text-align: center;font-size: 1.2em"
+        type="number"
+        value="0"
+        min="0"
+      />
+      <button
+        class="mod-plus-button dec-set"
+        type="button"
+        onclick="this.previousElementSibling.value = this.previousElementSibling.valueAsNumber + 1"
+      >
+        +
+      </button>
+    </div>
+  </div>
+  <label class="flexrow accdiff-footer">
+    Totals:
+  </label>
+  <div class="accdiff-grid">
+    <div style="width:100%;">
+      <div class="card clipped">
+        <span id="accdiff-total-acc">
+          0
+        </span>
+        <i class="cci cci-accuracy i--m i--dark white--text" style="vertical-align:middle;border:none"></i>
+      </div>
+    </div>
+    <div style="width:100%;">
+      <div class="card clipped">
+        <span id="accdiff-total-diff">
+          0
+        </span>
+        <i class="cci cci-difficulty i--m i--dark white--text" style="vertical-align:middle;border:none"></i>
+      </div>
+    </div>
   </div>
 </div>

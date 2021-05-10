@@ -65,7 +65,7 @@ import { System } from "pixi.js";
 import { ActivationOptions, StabOptions1, StabOptions2 } from "./enums";
 import { applyCollapseListeners, uuid4 } from "./helpers/collapse";
 import { checkForHit, getTargets } from "./helpers/automation/targeting";
-import { calcAccDiff, AccDiffFlag, tagsToFlags, toggleCover } from "./helpers/acc_diff";
+import { calcAccDiff, AccDiffFlag, tagsToFlags, toggleCover, updateTotals } from "./helpers/acc_diff";
 
 const lp = LANCER.log_prefix;
 
@@ -1079,15 +1079,7 @@ export async function promptAccDiffModifier(flags?: AccDiffFlag[], title?: strin
           icon: '<i class="fas fa-check"></i>',
           label: "Submit",
           callback: async dialog => {
-            let manual = document.querySelector("#accdiff-other")
-              ? parseInt((document.querySelector("#accdiff-other") as HTMLInputElement).value)
-              : 0;
-            let flags: AccDiffFlag[] = [];
-            document
-              .querySelectorAll("[data-accdiff]:checked:not([disabled])")
-              .forEach(ele => flags.push(ele.getAttribute("data-accdiff") as AccDiffFlag));
-
-            let total = calcAccDiff(flags, manual);
+            let total = updateTotals();
             console.log(`${lp} Dialog returned a modifier of ${total}d6`);
             resolve(total);
           },
@@ -1104,7 +1096,7 @@ export async function promptAccDiffModifier(flags?: AccDiffFlag[], title?: strin
       render: (_html: any) => {
         if (flags) {
           for (let flag of flags) {
-            const ret = document.querySelector(`[data-accdiff="${flag}"]`);
+            const ret = document.querySelector(`[data-acc="${flag}"],[data-diff="${flag}"]`);
             ret && ((ret as HTMLInputElement).checked = true);
           }
         }
@@ -1112,10 +1104,17 @@ export async function promptAccDiffModifier(flags?: AccDiffFlag[], title?: strin
         if (flags?.includes("SEEKING")) {
           toggleCover(false);
         }
-        $("[data-accdiff]").on("click", e => {
-          if (e.currentTarget.dataset.accdiff === "SEEKING") {
+        updateTotals();
+
+        // LISTENERS
+        $("[data-acc],[data-diff]").on("click", e => {
+          if (e.currentTarget.dataset.acc === "SEEKING") {
             toggleCover(!(e.currentTarget as HTMLInputElement).checked);
           }
+          updateTotals();
+        });
+        $(".accdiff-grid button.dec-set").on("click", _e => {
+          updateTotals();
         });
       },
       close: () => reject(true),
