@@ -5,6 +5,7 @@ import { prepareItemMacro } from "../macros";
 import { EntryType, LiveEntryTypes, OpCtx } from "machine-mind";
 import { ResolvedNativeDrop } from "../helpers/dragdrop";
 import { mm_wrap_item } from "../mm-util/helpers";
+import tippy from "tippy.js";
 const lp = LANCER.log_prefix;
 
 /**
@@ -118,8 +119,7 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
         .add('[class*="macroable"]')
         .each((i: number, item: any) => {
           if (item.classList.contains("inventory-header")) return;
-          if (item.classList.contains("roll-stat"))
-            item.addEventListener("dragstart", haseMacroHandler, false);
+          if (item.classList.contains("roll-stat")) item.addEventListener("dragstart", haseMacroHandler, false);
           if (item.classList.contains("item"))
             item.addEventListener("dragstart", (ev: DragEvent) => this._onDragStart(ev), false);
           item.setAttribute("draggable", "true");
@@ -144,6 +144,8 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
       });
       */
     }
+
+    this._activateTooltips();
   }
 
   _onDragMacroableStart(event: DragEvent) {
@@ -161,6 +163,13 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
     };
 
     event.dataTransfer?.setData("text/plain", JSON.stringify(data));
+  }
+
+  private _activateTooltips() {
+    tippy('[data-context-menu="toggle"][data-field="Destroyed"]', {
+      content: "Right Click to Destroy",
+      delay: [300, 100],
+    });
   }
 
   /* -------------------------------------------- */

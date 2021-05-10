@@ -947,14 +947,25 @@ textarea {
 .lancer-header span.minor {
   margin: 0 16px;
 }
-.lancer-header.destroyed span {
-  text-decoration: line-through;
-  color: #fb3535;
-}
-.lancer-header.destroyed .mdi {
-  font-size: 28px;
-  color: #ff6a23;
-  margin-bottom: -2px;
+
+.lancer-header.destroyed {
+  background-color: #000;
+
+  span {
+    text-decoration: line-through;
+    color: #fb3535;
+  }
+
+  .cci {
+    color: #ff6a23;
+  }
+  .mdi {
+    color: #ff6a23;
+    margin-bottom: -2px;
+  }
+  .mdi-cog {
+    font-size: 28px;
+  }
 }
 
 .big-editor {

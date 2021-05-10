@@ -85,8 +85,8 @@ function npc_feature_scaffold(path: string, npc_feature: NpcFeature, body: strin
   }
   return `
   <div class="valid ref card item ${feature_class}" ${ref_params(npc_feature.as_ref())}>
-    <div class="flexrow lancer-header clipped-top">
-      <i class="cci cci-${npc_feature.FeatureType.toLowerCase()} i--m i--light"> </i>
+    <div class="flexrow lancer-header clipped-top ${npc_feature.Destroyed ? "destroyed" : ""}">
+      <i class="cci cci-${npc_feature.FeatureType.toLowerCase()} i--m i--light i--click" data-context-menu="toggle" data-field="Destroyed" data-path="${path}"> </i>
       ${macro_button}
       <span class="minor grow">${npc_feature.Name}</span>
       ${del_button(path)}
