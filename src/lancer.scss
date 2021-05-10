@@ -1972,7 +1972,7 @@ a.action {
   .checkmark {
     position: absolute;
     top: 0;
-    left: 0;
+    left: 5px;
     height: 20px;
     width: 20px;
     background-color: #a9a9a9;
@@ -2010,6 +2010,18 @@ a.action {
     color: white;
     width: fit-content;
   }
+}
+
+.accdiff-other-grid {
+  width: 100%;
+  padding-left: 5px;
+  display: flex;
+  justify-content: center;
+}
+
+.accdiff-weight {
+  justify-content: center;
+  font-weight: bold;
 }
 
 .accdiff-footer {

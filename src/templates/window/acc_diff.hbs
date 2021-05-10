@@ -1,6 +1,6 @@
 <div id="accdiff-dialog" style="padding:4px">
   <div class="accdiff-grid">
-    <div style="width:100%;padding:4px;">
+    <div style="width:100%;padding:4px;border-right: 1px dashed #782e22;">
       <h3>
         <i class="cci cci-accuracy i--m i--dark" style="vertical-align:middle;border:none"></i>
         Accuracy
@@ -38,11 +38,11 @@
       </label>
     </div>
   </div>
-  <label class="flexrow accdiff-footer">
-    Other Sources:
+  <label class="flexrow accdiff-footer accdiff-weight">
+    Other Sources
   </label>
   <div class="accdiff-grid">
-    <div style="width:100%;">
+    <div class="accdiff-other-grid" style="border-right: 1px dashed #782e22;">
       <button
         class="mod-minus-button dec-set"
         type="button"
@@ -66,7 +66,7 @@
         +
       </button>
     </div>
-    <div style="width:100%;">
+    <div class="accdiff-other-grid">
       <button
         class="mod-minus-button dec-set"
         type="button"
@@ -91,24 +91,16 @@
       </button>
     </div>
   </div>
-  <label class="flexrow accdiff-footer">
-    Totals:
+  <label class="flexrow accdiff-footer accdiff-weight">
+    Total
   </label>
-  <div class="accdiff-grid">
-    <div style="width:100%;">
+  <div class="accdiff-grid accdiff-weight">
+    <div>
       <div class="card clipped">
-        <span id="accdiff-total-acc">
+        <span id="accdiff-total">
           0
         </span>
         <i class="cci cci-accuracy i--m i--dark white--text" style="vertical-align:middle;border:none"></i>
-      </div>
-    </div>
-    <div style="width:100%;">
-      <div class="card clipped">
-        <span id="accdiff-total-diff">
-          0
-        </span>
-        <i class="cci cci-difficulty i--m i--dark white--text" style="vertical-align:middle;border:none"></i>
       </div>
     </div>
   </div>

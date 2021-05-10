@@ -71,17 +71,31 @@ export function toggleCover(toggle: boolean) {
 }
 
 export function updateTotals() {
-  const accEle = document.querySelector("#accdiff-total-acc");
-  const diffEle = document.querySelector("#accdiff-total-diff");
   const flags = calcAccDiff();
   const other = calcManualAccDiff();
-
   const totalAcc = flags[0] + other[0];
   const totalDiff = flags[1] + other[1];
+  const fullTotal = totalAcc - totalDiff;
 
-  accEle!.innerHTML = String(totalAcc);
-  diffEle!.innerHTML = String(totalDiff);
-  1;
+  // SEPARATE SUBTOTALS
+  // const accEle = document.querySelector("#accdiff-total-acc");
+  // const diffEle = document.querySelector("#accdiff-total-diff");
+  // accEle && (accEle.innerHTML = String(totalAcc));
+  // diffEle && (diffEle.innerHTML = String(totalDiff));
 
-  return totalAcc - totalDiff;
+  // SINGLE TOTAL
+  const accEle = document.querySelector("#accdiff-total");
+  if (accEle) {
+    accEle.innerHTML = String(Math.abs(fullTotal));
+
+    // Change color based on result.
+    const color = fullTotal > 0 ? "#017934" : fullTotal < 0 ? "#9c0d0d" : "#443c3c";
+    accEle.parentElement!.style.backgroundColor = color;
+
+    // Change icon based on result.
+    fullTotal > 0 && accEle.nextElementSibling?.classList.replace("cci-difficulty", "cci-accuracy");
+    fullTotal < 0 && accEle.nextElementSibling?.classList.replace("cci-accuracy", "cci-difficulty");
+  }
+
+  return fullTotal;
 }
