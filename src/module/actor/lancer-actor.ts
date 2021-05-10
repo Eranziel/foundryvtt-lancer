@@ -74,7 +74,7 @@ export function lancerActorInit(data: any) {
       "token.displayName": display_mode,
       "token.displayBars": display_mode,
       "token.disposition": disposition,
-      name: default_data.name, 
+      name: default_data.name,
       "token.name": data.name ?? default_data.name, // Set token name to match internal
       "token.actorLink": [EntryType.PILOT, EntryType.MECH].includes(data.type), // Link the token to the Actor for pilots and mechs, but not for NPCs or deployables
     });
@@ -402,48 +402,54 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         await mech.Flags.orig_doc.full_repair();
       }
     }
-    
-    if(!is_dep(this))
-      await this.restore_all_items();
+
+    if (!is_dep(this)) await this.restore_all_items();
     await ent.writeback();
   }
 
   // Do the specified junk to an item. Returns the item. Does not writeback
-  private refresh(item: PilotWeapon | MechWeapon | PilotArmor | PilotGear | MechSystem | WeaponMod | NpcFeature, opts: {
-      repair?: boolean, 
-      reload?: boolean, 
-      refill?: boolean, 
-  }): PilotWeapon | MechWeapon | PilotArmor | PilotGear | MechSystem | WeaponMod | NpcFeature {
-    if(opts.repair) {
-      if([EntryType.MECH_WEAPON, EntryType.MECH_SYSTEM, EntryType.WEAPON_MOD, EntryType.NPC_FEATURE].includes(item.Type)) {
-        (item as MechWeapon | MechSystem | WeaponMod | NpcFeature).Destroyed = false;
+  private refresh(
+    item: PilotWeapon | MechWeapon | PilotArmor | PilotGear | MechSystem | WeaponMod | NpcFeature,
+    opts: {
+      repair?: boolean;
+      reload?: boolean;
+      refill?: boolean;
+    }
+  ): PilotWeapon | MechWeapon | PilotArmor | PilotGear | MechSystem | WeaponMod | NpcFeature {
+    if (opts.repair) {
+      if (
+        [EntryType.MECH_WEAPON, EntryType.MECH_SYSTEM, EntryType.WEAPON_MOD, EntryType.NPC_FEATURE].includes(item.Type)
+      ) {
+        (item as MechWeapon | MechSystem | WeaponMod).Destroyed = false;
       }
     }
-    if(opts.reload) {
-      if([EntryType.MECH_WEAPON, EntryType.NPC_FEATURE, EntryType.PILOT_WEAPON].includes(item.Type)) {
+    if (opts.reload) {
+      if ([EntryType.MECH_WEAPON, EntryType.NPC_FEATURE, EntryType.PILOT_WEAPON].includes(item.Type)) {
         (item as MechWeapon | NpcFeature | PilotWeapon).Loaded = true;
       }
     }
-    if(opts.refill) {
+    if (opts.refill) {
       item.Uses = item.OrigData.derived.max_uses;
     }
     return item;
   }
 
   // List the relevant items on this actor
-  private async list_items(): Promise<Array<PilotWeapon | MechWeapon | PilotArmor | PilotGear | MechSystem | WeaponMod | NpcFeature>> {
+  private async list_items(): Promise<
+    Array<PilotWeapon | MechWeapon | PilotArmor | PilotGear | MechSystem | WeaponMod | NpcFeature>
+  > {
     let ent = (await this.data.data.derived.mm_promise) as Mech | Pilot | Npc | Deployable;
     let result: any[] = [];
-    if(is_reg_mech(ent)) {
+    if (is_reg_mech(ent)) {
       // Do all of the weapons/systems/mods on our loadout
-      for(let mount of ent.Loadout.WepMounts) {
-        for(let slot of mount.Slots) {
+      for (let mount of ent.Loadout.WepMounts) {
+        for (let slot of mount.Slots) {
           // Do weapon
-          if(slot.Weapon) {
+          if (slot.Weapon) {
             result.push(slot.Weapon);
           }
           // Do mod
-          if(slot.Mod) {
+          if (slot.Mod) {
             result.push(slot.Mod);
           }
         }
@@ -451,44 +457,61 @@ export class LancerActor<T extends LancerActorType> extends Actor {
 
       // Do all systems now
       result.push(...ent.Loadout.Systems);
-    } else if(is_reg_npc(ent)) {
+    } else if (is_reg_npc(ent)) {
       result.push(...ent.Features);
-    } else if(is_reg_pilot(ent)) {
-      result.push(...ent.OwnedPilotWeapons, ...ent.OwnedPilotArmor, ...ent.OwnedPilotGear);
+    } else if (is_reg_pilot(ent)) {
+      result.push(...ent.OwnedWeapons, ...ent.OwnedArmor, ...ent.OwnedGear);
     } else {
       ui.notifications.warn("Cannot reload deployables");
     }
     return result;
   }
 
-
   /**
    * Find all limited systems and set them to their max/repaired/ideal state
    */
   async restore_all_items() {
-    return Promise.all((await this.list_items()).map(i => this.refresh(i, {
-      reload: true,
-      repair: true,
-      refill: true
-    })).map(i => i.writeback()));
+    return Promise.all(
+      (await this.list_items())
+        .map(i =>
+          this.refresh(i, {
+            reload: true,
+            repair: true,
+            refill: true,
+          })
+        )
+        .map(i => i.writeback())
+    );
   }
 
   /**
    * Find all owned items and set them to be not destroyed
    */
-   async repair_all_items() {
-    return Promise.all((await this.list_items()).map(i => this.refresh(i, {
-      repair: true,
-    })).map(i => i.writeback()));
+  async repair_all_items() {
+    return Promise.all(
+      (await this.list_items())
+        .map(i =>
+          this.refresh(i, {
+            repair: true,
+          })
+        )
+        .map(i => i.writeback())
+    );
   }
 
   /**
    * Find all owned weapons and reload them
    */
   async reload_all_items() {
-    return Promise.all((await this.list_items()).map(i => this.refresh(i, {
-      reload: true,
-    })).map(i => i.writeback()));
+    return Promise.all(
+      (await this.list_items())
+        .map(i =>
+          this.refresh(i, {
+            reload: true,
+          })
+        )
+        .map(i => i.writeback())
+    );
   }
 
   /**

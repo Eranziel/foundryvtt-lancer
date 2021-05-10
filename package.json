@@ -39,7 +39,7 @@
     "@mdi/font": "^5.9.55",
     "@types/marked": "^1.2.1",
     "compare-versions": "^3.6.0",
-    "machine-mind": "^0.2.0-beta.99",
+    "machine-mind": "0.2.0-beta.94",
     "marked": "^2.0.3",
     "tippy.js": "^6.3.1"
   }

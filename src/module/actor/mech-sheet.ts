@@ -12,7 +12,7 @@ import {
   WeaponMount,
   WeaponSlot,
 } from "machine-mind";
-import { MMEntityContext, mm_wrap_item } from "../mm-util/helpers";
+import { mm_wrap_item } from "../mm-util/helpers";
 import { ResolvedNativeDrop } from "../helpers/dragdrop";
 import { gentle_merge, resolve_dotpath } from "../helpers/commons";
 import { LancerMechWeapon } from "../item/lancer-item";
@@ -91,7 +91,7 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
 
     // If it's a mod, perform checks to ensure it can be equipped
 
-    if (item_mm.ent.Type === EntryType.WEAPON_MOD) {
+    if (item_mm.Type === EntryType.WEAPON_MOD) {
       let equipping_weapon_id = $(event.target).closest(".item")?.data("id");
       let weapon_path = $(event.target).closest(".item")?.data("path");
       mount_slot_path = weapon_path.substr(0, weapon_path.lastIndexOf("."));
@@ -115,11 +115,10 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
         ui.notifications.error("Can only equip weapon mods to a weapon!");
         return;
       }
-      
-      if(!mount_slot_path) return;
-      
-      let mount_slot = resolve_dotpath(await this.actor.data.data.derived.mm,mount_slot_path);
 
+      if (!mount_slot_path) return;
+
+      let mount_slot = resolve_dotpath(await this.actor.data.data.derived.mm, mount_slot_path);
 
       // Check can take outputs a string if error, rather than a bool...
       if (mount_slot.check_can_take(item_mm)) {
@@ -152,10 +151,9 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
       //new_live_this.Loadout.equip_system(new_live_item);
     } else if (new_live_item.Type === EntryType.WEAPON_MOD) {
       // If it's a mod and we got here, it's valid and we can proceed
-      if(!mount_slot_path) return
-      let mount_slot: WeaponSlot = resolve_dotpath(new_live_this,mount_slot_path);
+      if (!mount_slot_path) return;
+      let mount_slot: WeaponSlot = resolve_dotpath(new_live_this, mount_slot_path);
       mount_slot.Mod = item_mm as WeaponMod;
-
     }
 
     // Writeback when done. Even if nothing explicitly changed, probably good to trigger a redraw (unless this is double-tapping? idk)

@@ -16,11 +16,7 @@ import { FoundryReg } from "./mm-util/foundry-reg";
 import { invalidate_cached_pack_map } from "./mm-util/db_abstractions";
 
 // Some useful subgroupings
-type MechItemEntryType =
-  | EntryType.FRAME
-  | EntryType.MECH_WEAPON
-  | EntryType.MECH_SYSTEM
-  | EntryType.WEAPON_MOD;
+type MechItemEntryType = EntryType.FRAME | EntryType.MECH_WEAPON | EntryType.MECH_SYSTEM | EntryType.WEAPON_MOD;
 type PilotItemEntryType =
   | EntryType.CORE_BONUS
   | EntryType.TALENT
@@ -68,16 +64,16 @@ async function transfer_cat<G extends EntryType>(
 
   for (let item of await from_cat.list_live(ctx)) {
     // Do the deed
-    let insinuated = await item.insinuate(to, null, {
-      relinker: quick_relinker({ 
-        key_pairs: [["LID",  "lid"], ["Name", "name"]]
-      })
-    }) as LiveEntryTypes<G>;
+    let insinuated = (await item.insinuate(to, null, {
+      relinker: quick_relinker({
+        key_pairs: [["LID", "lid"] as any, ["Name", "name"]],
+      }) as any,
+    })) as LiveEntryTypes<G>;
     items.push(insinuated);
-        // We try pretty hard to find a matching item.
-        // First by MMID
-        // if (has_lid(src_item)) {
-          /*
+    // We try pretty hard to find a matching item.
+    // First by MMID
+    // if (has_lid(src_item)) {
+    /*
           let by_id = await dest_cat.lookup_lid_live(ctx, (src_item as any).LID);
           if (by_id) {
             new_v = false;
@@ -140,16 +136,9 @@ export async function import_cp(
   let transmit_count = 0;
 
   // Do globals
-  transmit_count += await transfer_cat(
-    EntryType.MANUFACTURER,
-    tmp_lcp_reg,
-    comp_reg,
-    dest_ctx
-  ).then(l => l.length);
+  transmit_count += await transfer_cat(EntryType.MANUFACTURER, tmp_lcp_reg, comp_reg, dest_ctx).then(l => l.length);
   progress_callback(transmit_count, total_items);
-  transmit_count += await transfer_cat(EntryType.TAG, tmp_lcp_reg, comp_reg, dest_ctx).then(
-    l => l.length
-  );
+  transmit_count += await transfer_cat(EntryType.TAG, tmp_lcp_reg, comp_reg, dest_ctx).then(l => l.length);
   progress_callback(transmit_count, total_items);
 
   let errata: EntryType[] = [EntryType.DEPLOYABLE, EntryType.TAG, EntryType.MANUFACTURER];
@@ -158,9 +147,7 @@ export async function import_cp(
   for (let type of Object.values(EntryType)) {
     // Skip if subtype
     if (!errata.includes(type)) {
-      transmit_count += await transfer_cat(type, tmp_lcp_reg, comp_reg, dest_ctx).then(
-        l => l.length
-      );
+      transmit_count += await transfer_cat(type, tmp_lcp_reg, comp_reg, dest_ctx).then(l => l.length);
       progress_callback(transmit_count, total_items);
     }
   }
