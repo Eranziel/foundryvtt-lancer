@@ -25,7 +25,7 @@ import {
 import { HTMLEditDialog } from "../apps/text-editor";
 import { LancerActorSheetData, LancerItemSheetData } from "../interfaces";
 
-import { Deployable, WeaponType, ActivationType } from 'machine-mind';
+import { Deployable, WeaponType, ActivationType } from "machine-mind";
 
 // A shorthand for only including the first string if the second value is truthy
 export function inc_if(val: string, test: any) {

@@ -1502,8 +1502,10 @@ input.core-power-toggle:not(:checked)::before {
 }
 
 .lancer-license-header {
-  background-color: var(--loadout-color);
+  background-color: #ffffff;
   color: var(--main-theme-color);
+  border: 1px dashed #656464;
+  cursor: pointer;
 }
 
 .lancer-trigger-header {
