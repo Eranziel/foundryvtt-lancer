@@ -1,4 +1,4 @@
-{{!--
+{{!
 Actions
 Bonuses
 Counters
@@ -9,63 +9,84 @@ Icon
 LID
 Name
 Ranks
-  Actions
-  Bonuses
-  Counters
-  Deployables
-  Description
-  Exclusive
-  Integrated
-  Name
-  Synergies
+Actions
+Bonuses
+Counters
+Deployables
+Description
+Exclusive
+Integrated
+Name
+Synergies
 Synergies
 Terse
---}}
-
+}}
 <form class="{{cssClass}} lancer-sheet" autocomplete="off">
-
-  {{!-- Sheet Header --}}
+  {{! Sheet Header }}
   <header class="sheet-header card clipped-bot">
     <div class="flexcol grow">
-      <h1 class="charname"><input class="header-field" name="name" type="text" value="{{item.name}}" placeholder="Name"/></h1>
-      
-      {{#if (eq (idx mm.reg.config.item_source 0) "actor") }}
-      <div class="flexrow">
-        <span>RANK:</span>
-        {{{l-num-input "mm.CurrentRank"}}}
-      </div>
+      <h1 class="charname">
+        <input class="header-field" name="name" type="text" value="{{item.name}}" placeholder="Name" />
+      </h1>
+      {{#if (eq (idx mm.Registry.config.item_source 0) "actor")}}
+        <div class="flexrow">
+          <span>
+            RANK:
+          </span>
+          {{{l-num-input "mm.CurrentRank"}}}
+        </div>
       {{/if}}
     </div>
-    {{{ ref-portrait-img item.img "img" mm }}}
+    {{{ref-portrait-img item.img "img" mm}}}
   </header>
-
-  {{!-- Sheet Body --}}
+  {{! Sheet Body }}
   <div class="flexcol">
     {{{textarea-card "DESCRIPTION" "mm.Description"}}}
     {{{textarea-card "TERSE DESCRIPTION" "mm.Terse"}}}
-    
-    <a class="gen-control fas fa-plus" data-action="append" data-path="mm.Ranks" style="align-self: flex-end;margin-right: 1em;" data-action-value="(struct)talent_rank"></a>
-
-    {{#each mm.Ranks as |rank index|}}
-      <div class="talent-level card clipped-bot flexcol">
-        <div class="lancer-header" style="flex-basis: auto;">
-          <i class="cci cci-rank-{{inc index}} i--xl i--dark"></i>
-          <input class="lancer-invisible-input" name="mm.Ranks.{{index}}.Name" value="{{rank.Name}}" data-dtype="String" style="color: white"/>
-          <span class="minor">// RANK {{inc index}}</span>
-          <a class="gen-control i--light" data-action="splice" data-path="mm.Ranks.{{index}}"><i class="fas fa-trash"></i></a>
-          {{{popout-editor-button (concat "mm.Ranks." index ".Description") }}}
+    <a
+      class="gen-control fas fa-plus"
+      data-action="append"
+      data-path="mm.Ranks"
+      style="align-self: flex-end;margin-right: 1em;"
+      data-action-value="(struct)talent_rank"
+    ></a>
+    {{#if mm.Ranks}}
+      {{#each mm.Ranks as |rank index|}}
+        <div class="talent-level card clipped-bot flexcol">
+          <div class="lancer-header" style="flex-basis: auto;">
+            <i class="cci cci-rank-{{inc index}} i--xl i--dark"></i>
+            <input
+              class="lancer-invisible-input"
+              name="mm.Ranks.{{index}}.Name"
+              value="{{rank.Name}}"
+              data-dtype="String"
+              style="color: white"
+            />
+            <span class="minor">
+              // RANK
+              {{inc index}}
+            </span>
+            <a class="gen-control i--light" data-action="splice" data-path="mm.Ranks.{{index}}">
+              <i class="fas fa-trash"></i>
+            </a>
+            {{{popout-editor-button (concat "mm.Ranks." index ".Description")}}}
+          </div>
+          <div class="desc-text">
+            {{{safe-html rank.Description}}}
+          </div>
+          {{! Bonuses }}
+          {{{item-edit-arrayed-actions (concat "mm.Ranks." index ".Actions") "ACTIONS"}}}
+          {{{item-edit-arrayed-bonuses (concat "mm.Ranks." index ".Bonuses")}}}
+          {{{counter-array
+            rank.Counters
+            (concat "mm.Ranks." index ".Counters")
+            (concat "mm.Ranks." index ".Counters")
+            true
+          }}}
+          {{{item-edit-arrayed-deployables (concat "mm.Ranks." index ".Deployables") "DEPLOYABLES"}}}
+          {{{item-edit-arrayed-synergies (concat "mm.Ranks." index ".Synergies") "SYNERGIES"}}}
         </div>
-        <div class="desc-text">
-          {{{safe-html rank.Description}}}
-        </div>
-
-        {{!-- Bonuses --}}
-        {{{item-edit-arrayed-actions      (concat "mm.Ranks." index ".Actions")        "ACTIONS"}}}
-        {{{item-edit-arrayed-bonuses      (concat "mm.Ranks." index ".Bonuses")}}}
-        {{{counter-array rank.Counters    (concat "mm.Ranks." index ".Counters") (concat "mm.Ranks." index ".Counters") true}}}
-        {{{item-edit-arrayed-deployables  (concat "mm.Ranks." index ".Deployables")    "DEPLOYABLES"}}}
-        {{{item-edit-arrayed-synergies    (concat "mm.Ranks." index ".Synergies")      "SYNERGIES"}}}
-      </div>
-    {{/each}}
+      {{/each}}
+    {{/if}}
   </div>
 </form>

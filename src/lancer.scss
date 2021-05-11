@@ -1043,7 +1043,7 @@ input[type="string"].lancer-input {
 .collapse {
   max-height: 1000em;
   opacity: 1;
-  overflow: hidden;
+  overflow: unset;
   transition: max-height 0.5s, opacity 0.2s, padding 0.5s ease-in;
 }
 .collapse.collapsed {
@@ -1051,6 +1051,7 @@ input[type="string"].lancer-input {
   min-height: 0;
   padding: 0;
   opacity: 0;
+  overflow: hidden;
 }
 
 .lancer-title {
