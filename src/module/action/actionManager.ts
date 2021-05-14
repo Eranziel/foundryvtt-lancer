@@ -66,6 +66,7 @@ export class LancerActionManager extends Application {
     data.position = this.position;
     data.name = this.target && this.target.data.name.toLocaleUpperCase();
     data.actions = this.getActions();
+    data.clickable = game.user.isGM || game.settings.get(LANCER.sys_name, LANCER.setting_action_manager_players);
     return data;
   }
 
@@ -191,8 +192,12 @@ export class LancerActionManager extends Application {
     // Enable action toggles.
     html.find("a.action[data-action]").on("click", e => {
       e.preventDefault();
-      const action = e.currentTarget.dataset.action;
-      action && this.toggleAction(action as ActionType);
+      if (game.user.isGM || game.settings.get(LANCER.sys_name, LANCER.setting_action_manager_players)) {
+        const action = e.currentTarget.dataset.action;
+        action && this.toggleAction(action as ActionType);
+      } else {
+        console.log(`${game.user.name} :: Users currently not allowed to toggle actions through action manager.`);
+      }
     });
 
     // Enable tooltips.

@@ -1917,6 +1917,10 @@ a.activation-chip > i.mdi {
   font-size: 1.5em;
   padding: 12px 4px 0px 8px;
 }
+#action-manager.noclick a {
+  cursor: unset !important;
+}
+
 .action-bar {
   display: flex;
   align-items: center;
