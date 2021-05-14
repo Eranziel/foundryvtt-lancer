@@ -72,6 +72,15 @@ export const registerSettings = function () {
     default: true,
   });
 
+  game.settings.register(LANCER.sys_name, LANCER.setting_action_manager_players, {
+    name: "Action Manager - Player Usage",
+    hint: "If enabled, players will be able to manually toggle actions for any controlled tokens.",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: true,
+  });
+
   game.settings.register(LANCER.sys_name, LANCER.setting_auto_structure, {
     name: "Automatic Structure/Stress",
     hint: "When a mech rolls a structure/overheat macro, should it automatically decrease structure/stress?",

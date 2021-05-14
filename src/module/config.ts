@@ -161,6 +161,7 @@ export const LANCER = {
   setting_automation: "automationSwitch",
   setting_automation_attack: "attackSwitch",
   setting_action_manager: "actionManager",
+  setting_action_manager_players: "actionManagerPlayersUse",
   setting_pilot_oc_heat: "autoOCHeat",
   setting_overkill_heat: "autoOKillHeat",
   setting_auto_structure: "autoCalcStructure",
@@ -283,12 +284,12 @@ export function TypeIcon(type: LancerItemType | LancerActorType, macro?: boolean
 // A substitution method that replaces the first argument IFF it is an img that we don't think should be preserved, and if the trimmed replacement string is truthy
 export function replace_default_resource(current: string, replacement: string | null): string {
   // If no replacement, then obviously keep initial
-  if(!replacement?.trim()) {
+  if (!replacement?.trim()) {
     return current;
   }
 
   // If empty or from system path or mystery man, replace
-  if(!current?.trim() || current.includes("system/lancer") || current == "icons/svg/mystery-man.svg") {
+  if (!current?.trim() || current.includes("system/lancer") || current == "icons/svg/mystery-man.svg") {
     return replacement;
   }
 
