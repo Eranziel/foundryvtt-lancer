@@ -664,7 +664,7 @@ async function versionCheck() {
   const currentVersion = game.settings.get(LANCER.sys_name, LANCER.setting_migration);
 
   // If it's 0 then it's a fresh install
-  if (currentVersion === "0") {
+  if (currentVersion === "0" || currentVersion === "") {
     await game.settings.set(LANCER.sys_name, LANCER.setting_migration, game.system.data.version);
     await promptInstallCoreData();
     return;
