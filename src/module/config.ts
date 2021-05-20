@@ -14,7 +14,10 @@ const ASCII = `
 
 let ET = EntryType;
 // These are general categories that items fall under, useful for the purpose of knowing when moving that item is allowed
-const mech_items: LancerItemType[] = [ET.WEAPON_MOD, ET.FRAME, ET.MECH_WEAPON, ET.MECH_SYSTEM];
+// Items that are allowed to be owned by MECHS
+const mech_items: LancerItemType[] = [ET.STATUS];
+
+// Items that are to be owned by PILOTS
 const pilot_items: LancerItemType[] = [
   ET.SKILL,
   ET.TALENT,
@@ -27,6 +30,10 @@ const pilot_items: LancerItemType[] = [
   ET.QUIRK,
   ET.RESERVE,
   ET.ORGANIZATION,
+  ET.MECH_SYSTEM,
+  ET.MECH_WEAPON,
+  ET.WEAPON_MOD,
+  ET.FRAME,
 ];
 const npc_items: LancerItemType[] = [ET.NPC_CLASS, ET.NPC_FEATURE, ET.NPC_TEMPLATE];
 const weapon_items: LancerItemType[] = [ET.MECH_WEAPON, ET.PILOT_WEAPON, ET.NPC_FEATURE];
