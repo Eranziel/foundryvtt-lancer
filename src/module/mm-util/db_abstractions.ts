@@ -382,7 +382,7 @@ export class CompendiumWrapper<T extends EntryType> extends EntityCollectionWrap
 
   // Decide which document type corr to provided entrytype
   private document_type(): any {
-    if(LancerActorTypes.includes(this.type as LancerActorType)) {
+    if(is_actor_type(this.type)) {
       return Actor;
     } else {
       return Item
@@ -512,7 +512,8 @@ export async function get_pack(type: LancerItemType | LancerActorType): Promise<
       path: `./packs/${type}.db`,
     };
 
-    return Compendium.create(metadata);
+    //@ts-ignore .8
+    return CompendiumCollection.createCompendium(metadata);
   }
 }
 

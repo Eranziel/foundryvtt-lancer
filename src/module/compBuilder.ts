@@ -158,19 +158,10 @@ export async function import_cp(
 
 // Lock/Unlock all packs
 async function set_all_lock(lock: boolean) {
-  // Unlock all the packs
-  // @ts-ignore We ignore here because foundry-pc-types does not have the Compendium static var "CONFIG_SETTING"
-  const config = game.settings.get("core", Compendium.CONFIG_SETTING);
-  console.log(`${lp} Pre-unlock config:`, config);
-
+  // Lock/Unlock all the packs
   for (let p of Object.values(EntryType)) {
     const key = `world.${p}`;
-    if (!config[key]) {
-      config[key] = { private: false, locked: lock };
-    } else {
-      config[key] = mergeObject(config[key], { locked: lock });
-    }
+    // @ts-ignore .8
+    game.packs.get(key)?.configure({private: false, locked: lock});
   }
-  // @ts-ignore We ignore here because foundry-pc-types does not have the Compendium static var "CONFIG_SETTING"
-  await game.settings.set("core", Compendium.CONFIG_SETTING, config);
 }
