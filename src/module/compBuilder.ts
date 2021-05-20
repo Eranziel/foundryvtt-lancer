@@ -159,8 +159,7 @@ export async function import_cp(
 // Lock/Unlock all packs
 async function set_all_lock(lock: boolean) {
   // Unlock all the packs
-  // @ts-ignore We ignore here because foundry-pc-types does not have the Compendium static var "CONFIG_SETTING"
-  const config = game.settings.get("core", Compendium.CONFIG_SETTING);
+  const config = game.settings.get("core", "compendiumConfiguration");
   console.log(`${lp} Pre-unlock config:`, config);
 
   for (let p of Object.values(EntryType)) {
@@ -171,6 +170,5 @@ async function set_all_lock(lock: boolean) {
       config[key] = mergeObject(config[key], { locked: lock });
     }
   }
-  // @ts-ignore We ignore here because foundry-pc-types does not have the Compendium static var "CONFIG_SETTING"
-  await game.settings.set("core", Compendium.CONFIG_SETTING, config);
+  await game.settings.set("core", "compendiumConfiguration", config);
 }
