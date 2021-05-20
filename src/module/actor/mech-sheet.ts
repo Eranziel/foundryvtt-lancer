@@ -6,13 +6,14 @@ import {
   LiveEntryTypes,
   MountType,
   OpCtx,
+  RegEntry,
   RegRef,
   SystemMount,
   WeaponMod,
   WeaponMount,
   WeaponSlot,
 } from "machine-mind";
-import { mm_wrap_item } from "../mm-util/helpers";
+import { mm_owner, mm_wrap_item } from "../mm-util/helpers";
 import { ResolvedNativeDrop } from "../helpers/dragdrop";
 import { gentle_merge, resolve_dotpath } from "../helpers/commons";
 import { LancerMechWeapon } from "../item/lancer-item";
@@ -65,10 +66,28 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
     });
   }
 
+  
+  can_drop_entry(item: RegEntry<any>): boolean {
+    // Return true if mech or pilot type
+    let owner = mm_owner(item);
+    if(LANCER.mech_items.includes(item.Type)) {
+      // Straightforward
+      return !owner || owner == this.actor;
+    } else if(LANCER.mech_items.includes(item.Type)) {
+      // Ok, who's our pilot
+      let pilot = this.actor.data.data.derived.mm?.Pilot;
+      let pilot_actor = 
+      if(pilot && 
+
+    } else {
+      return false;
+    } 
+  }
+
   // Baseline drop behavior. Let people add stuff to the mech
   async _onDrop(event: any): Promise<any> {
-    let drop: ResolvedNativeDrop | null = await super._onDrop(event);
-    if (drop?.type != "Item") {
+    let drop: LiveEntryTypes<EntryType> | null = await super._onDrop(event);
+    if (!drop) {
       return null; // Bail.
     }
 

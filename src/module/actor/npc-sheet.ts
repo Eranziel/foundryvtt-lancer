@@ -2,10 +2,11 @@ import { LancerStatMacroData } from "../interfaces";
 import { LANCER } from "../config";
 import { LancerActorSheet } from "./lancer-actor-sheet";
 import { prepareItemMacro } from "../macros";
-import { EntryType, LiveEntryTypes, OpCtx } from "machine-mind";
+import { EntryType, LiveEntryTypes, OpCtx, RegEntry } from "machine-mind";
 import { ResolvedNativeDrop } from "../helpers/dragdrop";
-import { mm_wrap_item } from "../mm-util/helpers";
+import { mm_owner, mm_wrap_item } from "../mm-util/helpers";
 import tippy from "tippy.js";
+import { AnyMMItem, is_item_type, LancerItemTypes } from "../item/lancer-item";
 const lp = LANCER.log_prefix;
 
 /**
@@ -173,29 +174,35 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
   }
 
   /* -------------------------------------------- */
+  
+  can_drop_entry(item: RegEntry<any>): boolean {
+    // Reject any non npc item
+    if(!LANCER.npc_items.includes(item.Type)) {
+      return false;
+    }
+
+    // Reject any non-null, non-owned-by us item
+    let owner = mm_owner(item);
+    return !owner || owner == this.actor;
+  }
 
   async _onDrop(event: any): Promise<any> {
-    let drop: ResolvedNativeDrop | null = await super._onDrop(event);
-    if (drop?.type != "Item") {
+    let drop: LiveEntryTypes<EntryType> | null = await super._onDrop(event);
+    if (!drop) {
       return null; // Bail.
     }
 
     const sheet_data = await this.getDataLazy();
     const this_mm = sheet_data.mm;
-    const item = drop.entity;
 
-    if (!LANCER.npc_items.includes(item.type)) {
-      ui.notifications.error(`Cannot add Item of type "${item.type}" to an NPC.`);
-      return null;
+    // If not owned by us, then we want it to be
+    if(is_item_type(drop.Type) && mm_owner(drop as AnyMMItem) == null) {
+      let this_inv = await this_mm.get_inventory();
+      drop = await drop.insinuate(this_inv, drop.OpCtx);  
     }
 
-    // Make the context for the item
-    const item_mm: LiveEntryTypes<EntryType> = await mm_wrap_item(item);
-
-    // Always add the item to the pilot inventory, now that we know it is a valid pilot posession
     // Make a new ctx to hold the item and a post-item-add copy of our mech
     let new_ctx = new OpCtx();
-    let this_inv = await this_mm.get_inventory();
     let new_live_item = await item_mm.insinuate(this_inv, new_ctx);
 
     // Go ahead and bring in base features from templates

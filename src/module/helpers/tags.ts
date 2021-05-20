@@ -3,9 +3,9 @@ import { EntryType, TagInstance, typed_lancer_data } from "machine-mind";
 import { array_path_edit, resolve_dotpath, resolve_helper_dotpath } from "./commons";
 import { LancerActorSheetData, LancerItemSheetData } from "../interfaces";
 import {
-  enable_native_dropping,
-  enable_native_dropping_mm_wrap,
-  enable_simple_ref_dropping,
+  HANDLER_enable_native_dropping,
+  HANDLER_enable_native_dropping_mm_wrap,
+  HANDLER_enable_mm_dropping,
 } from "./dragdrop";
 import { ref_params } from "./refs";
 
@@ -246,7 +246,7 @@ export function HANDLER_activate_tag_dropping<T>(
   data_getter: () => Promise<T> | T,
   commit_func: (data: T) => void | Promise<void>
 ) {
-  enable_native_dropping_mm_wrap(
+  HANDLER_enable_native_dropping_mm_wrap(
     html.find(".tag-list-append"),
     async (tag_ent, dest, evt) => {
       // Well, we got a drop!
@@ -257,7 +257,7 @@ export function HANDLER_activate_tag_dropping<T>(
           tag: tag_ent.as_ref(),
           val: 1,
         });
-        await tag_instance.ready();
+        await tag_instance.load_done();
 
         // Append it and re-commit
         let data = await data_getter();

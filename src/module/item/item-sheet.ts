@@ -1,6 +1,6 @@
 import { LancerItemSheetData } from "../interfaces";
 import { LANCER } from "../config";
-import { LancerItem, LancerItemType } from "./lancer-item";
+import { AnyLancerItem, LancerItem, LancerItemType } from "./lancer-item";
 import {
   HANDLER_activate_general_controls,
   gentle_merge,
@@ -15,7 +15,7 @@ import {
   HANDLER_add_ref_to_list_on_drop,
   HANDLER_openRefOnClick,
 } from "../helpers/refs";
-import { EntryType, Skill, SkillFamily } from "machine-mind";
+import { EntryType, OpCtx, Skill, SkillFamily } from "machine-mind";
 import { get_pack } from "../mm-util/db_abstractions";
 import { HANDLER_activate_edit_bonus } from "../helpers/item";
 import { HANDLER_activate_tag_context_menus, HANDLER_activate_tag_dropping } from "../helpers/tags";
@@ -118,11 +118,15 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
 
     let getfunc = () => this.getDataLazy();
     let commitfunc = (_: any) => this._commitCurrMM();
+
+    // Grab pre-existing ctx if available
+    let ctx = (this.item as AnyLancerItem).data.data.derived.mm?.OpCtx ?? new OpCtx();
+
     // Allow dragging items into lists
-    HANDLER_add_ref_to_list_on_drop(html, getfunc, commitfunc);
+    HANDLER_add_ref_to_list_on_drop(ctx, html, getfunc, commitfunc);
 
     // Allow set things by drop. Mostly we use this for manufacturer/license dragging
-    HANDLER_activate_ref_drop_setting(html, getfunc, commitfunc);
+    HANDLER_activate_ref_drop_setting(ctx, html, null, getfunc, commitfunc); // Don't restrict what can be dropped past type
     HANDLER_activate_ref_drop_clearing(html, getfunc, commitfunc);
 
     // Enable bonus editors

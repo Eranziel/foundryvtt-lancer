@@ -39,10 +39,11 @@ import {
   std_x_of_y,
 } from "./commons";
 import {
+  AllowMMDropPredicateFunc,
   convert_ref_to_native,
   enable_dragging,
-  enable_simple_ref_dragging,
-  enable_simple_ref_dropping,
+  HANDLER_enable_mm_dragging,
+  HANDLER_enable_mm_dropping,
 } from "./dragdrop";
 import { buildActionHTML, buildDeployableHTML } from "./item";
 import { compact_tag_list } from "./tags";
@@ -490,23 +491,28 @@ export function mm_ref_list_append_slot(item_array_path: string, allowed_types: 
 // This doesn't handle natives. Requires two callbacks: One to get the item that will actually have its list appended,
 // and one to commit any changes to aforementioned object
 export function HANDLER_add_ref_to_list_on_drop<T>(
+  use_ctx: OpCtx,
   html: JQuery,
   // Retrieves the data that we will operate on
   data_getter: () => Promise<T> | T,
   commit_func: (data: T) => void | Promise<void>
 ) {
   // Use our handy dandy helper
-  enable_simple_ref_dropping(html.find(".ref.ref-list-append"), async (entry, evt) => {
-    let data = await data_getter();
-    let path = evt[0].dataset.path;
-    if (path) {
-      let array = resolve_dotpath(data, path) as Array<RegEntry<any>>;
-      if (Array.isArray(array)) {
-        array.push(entry);
-        console.log("Success", entry, array);
-        await commit_func(data);
+  HANDLER_enable_mm_dropping(
+    use_ctx,
+    html.find(".ref.ref-list-append"), 
+    null, // In general these are explicitly meant to refer to "outside" items, so no real filtering needed
+    async (entry, evt) => {
+      let data = await data_getter();
+      let path = evt[0].dataset.path;
+      if (path) {
+        let array = resolve_dotpath(data, path) as Array<RegEntry<any>>;
+        if (Array.isArray(array)) {
+          array.push(entry);
+          console.log("Success", entry, array);
+          await commit_func(data);
+        }
       }
-    }
   });
 }
 
@@ -515,7 +521,7 @@ export function HANDLER_add_ref_to_list_on_drop<T>(
 // This doesn't handle natives
 export function HANDLER_activate_ref_dragging(html: JQuery) {
   // Allow refs to be dragged arbitrarily
-  enable_simple_ref_dragging(html.find(".ref.valid:not(.native-drag)"), (start_stop, src, evt) => {
+  HANDLER_enable_mm_dragging(html.find(".ref.valid:not(.native-drag)"), (start_stop, src, evt) => {
     // Highlight valid drop points
     let drop_set_target_selector = `.ref.drop-settable.${src[0].dataset.type}`;
     let drop_append_target_selector = `.ref.ref-list-append.${src[0].dataset.type}`;
@@ -546,20 +552,26 @@ export function HANDLER_activate_native_ref_dragging(html: JQuery) {
 
 // Allow every ".ref.drop-settable" spot to be dropped onto, with a payload of a JSON RegRef
 // Uses same getter/commit func scheme as other callbacks
+// Validates that the item exists anywhere in the o
 export function HANDLER_activate_ref_drop_setting<T>(
+  use_ctx: OpCtx,
   html: JQuery,
+  can_drop: null | AllowMMDropPredicateFunc,
   data_getter: () => Promise<T> | T,
   commit_func: (data: T) => void | Promise<void>
 ) {
-  enable_simple_ref_dropping(html.find(".ref.drop-settable"), async (entry, evt) => {
-    let data = await data_getter();
-    let path = evt[0].dataset.path;
-    if (path) {
-      // Set the item at the data path
-      gentle_merge(data, { [path]: entry });
-      await commit_func(data);
-    }
-  });
+  HANDLER_enable_mm_dropping(
+    use_ctx, html.find(".ref.drop-settable"), 
+    can_drop,
+    async (entry, evt) => {
+      let data = await data_getter();
+      let path = evt[0].dataset.path;
+      if (path) {
+        // Set the item at the data path
+        gentle_merge(data, { [path]: entry });
+        await commit_func(data);
+      }
+    });
 }
 // Allow every ".ref.drop-settable" spot to be right-click cleared
 // Uses same getter/commit func scheme as other callbacks

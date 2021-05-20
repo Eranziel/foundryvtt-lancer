@@ -1,8 +1,8 @@
 import { LANCER, replace_default_resource } from "../config";
 import { LancerActorSheet } from "./lancer-actor-sheet";
-import { Deployable, EntryType, LiveEntryTypes, Mech, OpCtx, Pilot } from "machine-mind";
+import { Deployable, EntryType, LiveEntryTypes, Mech, OpCtx, Pilot, RegEntry } from "machine-mind";
 import { FoundryFlagData, FoundryReg } from "../mm-util/foundry-reg";
-import { mm_wrap_item } from "../mm-util/helpers";
+import { mm_owner, mm_wrap_item } from "../mm-util/helpers";
 import { funcs, quick_relinker } from "machine-mind";
 import { ResolvedNativeDrop } from "../helpers/dragdrop";
 import { HelperOptions } from "handlebars";
@@ -217,15 +217,35 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
     data.active_mech = await data.mm.ActiveMech();
 
     return data;
+  } 
+  
+  // Pilots can handle most stuff
+  can_drop_entry(item: RegEntry<any>): boolean {
+    // Accept mechs
+    if(item.Type == EntryType.MECH) {
+      return true;
+    }
+
+    // Reject any non pilot item
+    if(!LANCER.pilot_items.includes(item.Type)) {
+      return false;
+    }
+
+    // Reject any non-null, non-owned-by us item
+    let owner = mm_owner(item);
+    return !owner || owner == this.actor;
   }
+
+
 
   // Baseline drop behavior. Let people add stuff to the pilot
   async _onDrop(event: any): Promise<any> {
-    let drop: ResolvedNativeDrop | null = await super._onDrop(event);
-    if (!(drop?.type === "Item" || drop?.type === "Actor")) {
+    let drop: LiveEntryTypes<EntryType> | null = await super._onDrop(event);
+    if (!drop) {
       return null; // Bail.
     }
 
+    // Fetch pre-requisites
     const sheet_data = await this.getDataLazy();
     const this_mm = sheet_data.mm;
 
@@ -234,7 +254,6 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
 
       // Check if we can even do anything with it first
       if (!LANCER.pilot_items.includes(item.type)) {
-        ui.notifications.error(`Cannot add Item of type "${item.type}" to a Pilot.`);
         return null;
       }
 

@@ -19,7 +19,7 @@ import {
   PilotGear,
   WeaponMod,
 } from "machine-mind";
-import { FoundryRegActorData, FoundryRegItemData } from "../mm-util/foundry-reg";
+import { FoundryFlagData, FoundryRegActorData, FoundryRegItemData } from "../mm-util/foundry-reg";
 import { LancerHooks, LancerSubscription } from "../helpers/hooks";
 import { mm_wrap_actor } from "../mm-util/helpers";
 import { system_ready } from "../../lancer";
@@ -29,6 +29,7 @@ import { RegEntry, MechWeapon, NpcFeature } from "machine-mind";
 import { StabOptions1, StabOptions2 } from "../enums";
 import { limited_max, is_loading } from "machine-mind/dist/classes/mech/EquipUtil";
 import { ActionData } from "../action";
+import { MECH } from "machine-mind/dist/classes/default_entries";
 const lp = LANCER.log_prefix;
 
 export function lancerActorInit(data: any) {
@@ -566,6 +567,46 @@ export class LancerActor<T extends LancerActorType> extends Actor {
     }
 
     return return_text;
+  }
+
+  /**
+   * Handle an item being dropped on the mech, without any particular other context (no specific target, etc)
+   * Returns success
+   */
+  static async native_drop_item_onto(unit: LiveEntryTypes<LancerActorType>, item: LiveEntryTypes<LancerItemType>): Promise<boolean> {
+    // This may be a tad complicated, but here we go :)
+    if(unit instanceof Mech && LANCER.mech_items.includes(item.Type)) {
+      // Put it in the inventory
+      let mech_inv = await unit.get_inventory();
+      await item.insinuate(mech_inv, unit.OpCtx);
+
+
+    } else if(unit instanceof Mech && unit.Pilot) {
+      // This is the more common circumstance, in which case we want to add item to Pilot, but equip it on the mech
+      if(unit.Pilot) {
+        let sub_result = await this.native_drop_item_onto(unit.Pilot, item);
+        if(!sub_result) return false;
+
+        // Proceed - our pilot owns it, now we can equip it
+        return true;
+      }
+    } else if(unit instanceof Npc && LANCER.npc_items.includes(item.Type)) {
+      // Put it in the inventory
+      let npc_inv = await unit.get_inventory();
+      await item.insinuate(npc_inv, unit.OpCtx);
+
+      // We don't really equip or anything so... guess we're done
+    } else if(unit instanceof Pilot && LANCER.pilot_items.includes(item.Type)) {
+      // Put it in the inventory
+      let pilot_inv = await unit.get_inventory();
+      await item.insinuate(pilot_inv, unit.OpCtx);
+
+      // And for certain items, we try to equip to loadout
+    }
+
+    // Return early lest ye receive this harrowing warning
+    ui.notifications.error(`Cannot add Item of type "${item.Type}" to a ${unit.Type}.`);
+    return true;
   }
 
   /* -------------------------------------------- */

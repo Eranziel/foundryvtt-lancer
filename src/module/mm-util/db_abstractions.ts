@@ -1,7 +1,6 @@
 import { EntryType, LiveEntryTypes, RegEntry, RegEntryTypes } from "machine-mind";
 import { is_actor_type, LancerActor, LancerActorType } from "../actor/lancer-actor";
 import { FriendlyTypeName, LANCER } from "../config";
-import { gentle_merge } from "../helpers/commons";
 import { LancerItem, LancerItemType } from "../item/lancer-item";
 import { FoundryFlagData } from "./foundry-reg";
 
@@ -30,6 +29,16 @@ export interface GetResult<T extends LancerItemType | LancerActorType> {
 function as_document_blob<T extends EntryType>(ent: LiveEntryTypes<T>): any {
   let flags = ent.Flags as FoundryFlagData<T>;
 
+  // Set name from changed data. Prioritize a changed top level name over a changed ent name
+  if(flags.top_level_data.name && flags.top_level_data.name != flags.orig_doc_name) {
+    // Override ent data with top level
+    ent.Name = flags.top_level_data.name;
+  } else if(ent.Name && ent.Name != flags.orig_doc_name) {
+    // Override top level with ent data
+    flags.top_level_data.name;
+  }
+
+  // Combine saved data with top level data
   let result = mergeObject(
     {
       _id: ent.RegistryID,
@@ -38,13 +47,6 @@ function as_document_blob<T extends EntryType>(ent: LiveEntryTypes<T>): any {
     flags.top_level_data
   );
 
-  // Set name from changed data. Prioritize a changed top level name over a changed ent name
-  if(flags.top_level_data.name && flags.top_level_data.name != flags.orig_doc_name) {
-    // Nothing to do - top level will properly set
-  } else if(ent.Name && ent.Name != flags.orig_doc_name) {
-    // Override with this
-    result.name = ent.Name;
-  }
   return result;
 }
 
