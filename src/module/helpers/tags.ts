@@ -257,7 +257,7 @@ export function HANDLER_activate_tag_dropping<T>(
           tag: tag_ent.as_ref(),
           val: 1,
         });
-        await tag_instance.ready();
+        await tag_instance.load_done();
 
         // Append it and re-commit
         let data = await data_getter();

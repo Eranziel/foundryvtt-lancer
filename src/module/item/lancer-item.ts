@@ -161,7 +161,7 @@ export class LancerItem<T extends LancerItemType> extends Item {
 
     // Spool up our Machine Mind wrapping process
     let mm_promise = system_ready
-      .then(() => mm_wrap_item(this, actor_ctx))
+      .then(() => mm_wrap_item(this, actor_ctx ?? new OpCtx()))
       .then(async mm => {
         // Always save the context
         // Save the context via defineProperty so it does not show up in JSON stringifies. Also, no point in having it writeable

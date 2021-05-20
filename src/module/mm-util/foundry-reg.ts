@@ -50,8 +50,7 @@ import {
   EntFor as DocFor,
   GetResult,
   cached_get_pack_map,
-  TokensActorsWrapper as TokenActorsWrapper,
-  TokenInventoryWrapper,
+  TokenActorsWrapper
 } from "./db_abstractions";
 
 // Pluck
@@ -353,7 +352,7 @@ export class FoundryReg extends Registry {
       } else if (config.item_source[0] == ITEMS_ACTOR_INV) {
         return new ActorInventoryWrapper(for_type, config.item_source[1]);
       } else if (config.item_source[0] == ITEMS_TOKEN_INV) {
-        return new TokenInventoryWrapper(for_type, config.item_source[1]);
+        return new ActorInventoryWrapper(for_type, config.item_source[1].actor);
       }
     }
     throw new Error(`Unhandled item type: ${for_type}`);
@@ -476,8 +475,8 @@ export class FoundryRegCat<T extends EntryType> extends RegCat<T> {
   ): Promise<{ id: string; val: RegEntryTypes<T> } | null> {
     // Just call criteria on all items. O(n) lookup, which is obviously not ideal, but if it must be done it must be done
     for (let wrapper of await this.handler.enumerate()) {
-      if (criteria(wrapper.item)) {
-        return { id: wrapper.id, val: wrapper.item };
+      if (criteria(wrapper.data)) {
+        return { id: wrapper.id, val: wrapper.data };
       }
     }
     return null;
@@ -486,14 +485,14 @@ export class FoundryRegCat<T extends EntryType> extends RegCat<T> {
   // User entry '.get'
   async get_raw(id: string): Promise<RegEntryTypes<T> | null> {
     let gotten = await this.handler.get(id);
-    return gotten?.item ?? null;
+    return gotten?.data ?? null;
   }
 
   // Return the 'entries' array
   async raw_map(): Promise<Map<string, RegEntryTypes<T>>> {
     let map = new Map<string, RegEntryTypes<T>>();
     for (let gr of await this.handler.enumerate()) {
-      map.set(gr.id, gr.item);
+      map.set(gr.id, gr.data);
     }
     return map;
   }
@@ -509,7 +508,7 @@ export class FoundryRegCat<T extends EntryType> extends RegCat<T> {
         folder: g.entity.data.folder || null
       },
     };
-    let result = await this.revive_func(this.registry, ctx, g.id, g.item, flags, load_options);
+    let result = await this.revive_func(this.registry, ctx, g.id, g.data, flags, load_options);
     return result;
   }
 
@@ -540,7 +539,7 @@ export class FoundryRegCat<T extends EntryType> extends RegCat<T> {
     let contrived: GetResult<T> = {
       entity: ent as any,
       id,
-      item: ent.data.data as any,
+      data: ent.data.data as any,
       type: ent.data.type as T
     };
     return this.revive_and_flag(contrived, ctx, {wait_ctx_ready: true}); // Probably want to be ready
@@ -562,41 +561,26 @@ export class FoundryRegCat<T extends EntryType> extends RegCat<T> {
   }
 
   // Use our delete function
-  async delete_id(id: string): Promise<RegEntryTypes<T> | null> {
-    return await this.handler.destroy(id);
+  async delete_id(id: string): Promise<void> {
+    await this.handler.destroy(id);
   }
 
   // Create and revive
   async create_many_live(ctx: OpCtx, ...vals: RegEntryTypes<T>[]): Promise<LiveEntryTypes<T>[]> {
-    let revived: Promise<LiveEntryTypes<T>>[] = [];
-
-    // Set and revive all
-    for (let raw of vals) {
-      let created = this.handler.create(raw);
-      let viv = created.then(c => this.revive_and_flag(c, ctx));
-      revived.push(viv);
-    }
-
-    return Promise.all(revived);
+    return this.handler.create_many(vals).then(created => {
+      return Promise.all(created.map(c => this.revive_and_flag(c, ctx)))
+    });
   }
 
   // Just create using our handler
   async create_many_raw(...vals: RegEntryTypes<T>[]): Promise<RegRef<T>[]> {
-    let created: Promise<GetResult<T>>[] = [];
-
-    // Set and revive all
-    for (let raw of vals) {
-      created.push(this.handler.create(raw));
-    }
-
-    return Promise.all(created).then(created_results => {
-      return created_results.map(g => ({
-        id: g.id,
+    return this.handler.create_many(vals).then(created => created.map(c => ({
+        id: c.id,
         fallback_lid: "",
-        type: g.type,
+        type: c.type,
         reg_name: this.registry.name(),
-      }));
-    });
+      })
+    ));
   }
 
   // Just delegate above

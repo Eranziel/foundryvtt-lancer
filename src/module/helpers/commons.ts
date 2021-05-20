@@ -422,7 +422,7 @@ async function control_structs(key: string, on: LiveEntryTypes<EntryType>): Prom
       return [true, [0, 0, 0]];
     case "frame_trait":
       let trait = new FrameTrait(on.Registry, on.OpCtx, funcs.defaults.FRAME_TRAIT());
-      return [true, await trait.ready()];
+      return [true, await trait.load_done()];
     case "bonus":
       return [true, new Bonus(funcs.defaults.BONUS())];
     case "action":
@@ -459,13 +459,13 @@ async function control_structs(key: string, on: LiveEntryTypes<EntryType>): Prom
       ];
     case "sys_mount":
       let sys_mount = new SystemMount(on.Registry, on.OpCtx, { system: null });
-      return [true, await sys_mount.ready()];
+      return [true, await sys_mount.load_done()];
     case "wep_mount":
       let wep_mount = new WeaponMount(on.Registry, on.OpCtx, funcs.defaults.WEAPON_MOUNT_DATA());
-      return [true, await wep_mount.ready()];
+      return [true, await wep_mount.load_done()];
     case "weapon_profile":
       let profile = new MechWeaponProfile(on.Registry, on.OpCtx, funcs.defaults.WEAPON_PROFILE());
-      return [true, await profile.ready()];
+      return [true, await profile.load_done()];
     case "talent_rank":
       return [true, funcs.defaults.TALENT_RANK()];
     case "WeaponSize":

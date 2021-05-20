@@ -466,9 +466,9 @@ export function enable_native_dropping_mm_wrap<T extends EntryType>(
       let ent_type = (entity as any).entity;
       console.error("You meant to investigate this");
       if (ent_type == "Actor") {
-        item = await mm_wrap_actor(entity as LancerActor<T & LancerActorType>);
+        item = await mm_wrap_actor(entity as LancerActor<T & LancerActorType>, new OpCtx());
       } else if (ent_type == "Item") {
-        item = await mm_wrap_item(entity as LancerItem<T & LancerItemType>);
+        item = await mm_wrap_item(entity as LancerItem<T & LancerItemType>, new OpCtx());
       } else {
         return;
       }

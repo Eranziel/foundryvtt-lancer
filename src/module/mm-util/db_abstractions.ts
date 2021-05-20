@@ -1,5 +1,5 @@
 import { EntryType, LiveEntryTypes, RegEntry, RegEntryTypes } from "machine-mind";
-import { is_actor_type, LancerActor, LancerActorType } from "../actor/lancer-actor";
+import { is_actor_type, LancerActor, LancerActorType, LancerActorTypes } from "../actor/lancer-actor";
 import { FriendlyTypeName, LANCER } from "../config";
 import { LancerItem, LancerItemType } from "../item/lancer-item";
 import { FoundryFlagData } from "./foundry-reg";
@@ -12,7 +12,7 @@ const lp = LANCER.log_prefix;
 export type EntFor<T extends EntryType> = T extends LancerItemType ? LancerItem<T> : (T extends LancerActorType ? LancerActor<T> : never);
 
 export interface GetResult<T extends LancerItemType | LancerActorType> {
-  item: RegEntryTypes<T>;
+  data: RegEntryTypes<T>;
   entity: EntFor<T>;
   id: string; // only truly necessary on enums, but still convenient
   type: T; // same
@@ -53,13 +53,13 @@ function as_document_blob<T extends EntryType>(ent: LiveEntryTypes<T>): any {
 // This can wrap an actors inventory, the global actor/item inventory, or a compendium
 export abstract class EntityCollectionWrapper<T extends EntryType> {
   // Create an item and return a reference to it
-  abstract create(item: RegEntryTypes<T>): Promise<GetResult<T>>; // Return id
+  abstract create_many(items: RegEntryTypes<T>[]): Promise<GetResult<T>[]>; // Return id
   // Update the specified item of type T
-  abstract update(items: Array<LiveEntryTypes<T>>): Promise<void>;
+  abstract update(items: Array<LiveEntryTypes<T>>): Promise<any>;
   // Retrieve the specified item of type T, or yield null if it does not exist
   abstract get(id: string): Promise<GetResult<T> | null>;
   // Delete the specified item
-  abstract destroy(id: string): Promise<RegEntryTypes<T> | null>;
+  abstract destroy(id: string): Promise<any>;
   // List items, including id for reference
   abstract enumerate(): Promise<GetResult<T>[]>;
 }
@@ -74,46 +74,36 @@ export class WorldItemsWrapper<T extends LancerItemType> extends EntityCollectio
     this.type = type;
   }
 
-  // Handles type checking
-  private subget(id: string): LancerItem<T> | null {
-    let fi = game.items.get(id);
-    if (fi && fi.type == this.type) {
-      return fi as LancerItem<T>;
-    } else {
-      return null;
-    }
-  }
-
-  async create(data: RegEntryTypes<T>): Promise<GetResult<T>> {
+  async create_many(reg_data: RegEntryTypes<T>[]): Promise<GetResult<T>[]> {
     // Create the item
-    data = duplicate(data);
-    let name = data.name || "unknown";
-    let new_item = (await Item.create({ type: this.type, name, data: data })) as EntFor<T>;
-
-    // TODO: Try to remove this, as it should be unnecessary once we have proper template.json
-    await new_item.update({ data }, {});
+    // @ts-ignore
+    let new_items = await Item.createDocuments(reg_data.map(d => ({ 
+      type: this.type, 
+      name: d.name, 
+      data: duplicate(d) 
+    }))) as EntFor<T>[];
 
     // Return the reference
-    return {
-      id: new_item.data._id,
-      entity: new_item,
+    return new_items.map((item, index) => ({
+      id: item.data._id,
+      entity: item,
       type: this.type,
-      item: data,
-    };
+      data: reg_data[index]
+    }));
   }
 
   // Fetch and call .update()
   async update(items: Array<LiveEntryTypes<T>>): Promise<void> {
     //@ts-ignore Typings dont yet include mass update functions
-    return Item.update(items.map(as_document_blob));
+    return Item.updateDocuments(items.map(as_document_blob));
   }
 
   // Call game.items.get
   async get(id: string): Promise<GetResult<T> | null> {
-    let fi = this.subget(id);
-    if (fi) {
+    let fi = game.items.get(id);
+    if (fi && fi.type == this.type) {
       return {
-        item: fi.data.data as RegEntryTypes<T>,
+        data: fi.data.data as RegEntryTypes<T>,
         entity: fi as EntFor<T>,
         id,
         type: this.type,
@@ -125,13 +115,8 @@ export class WorldItemsWrapper<T extends LancerItemType> extends EntityCollectio
 
   // Call .delete()
   async destroy(id: string): Promise<RegEntryTypes<T> | null> {
-    let subgot = this.subget(id);
-    if (subgot) {
-      await subgot.delete();
-      return subgot.data.data;
-    } else {
-      return null;
-    }
+    //@ts-ignore .8
+    return Item.deleteDocuments([id]);
   }
 
   // Just pull from game.items.entities
@@ -140,7 +125,7 @@ export class WorldItemsWrapper<T extends LancerItemType> extends EntityCollectio
       .filter(e => e.data.type == this.type)
       .map(e => ({
         id: (e.data as any)._id,
-        item: e.data.data as RegEntryTypes<T>,
+        data: e.data.data as RegEntryTypes<T>,
         entity: e as EntFor<T>,
         type: this.type,
       }));
@@ -156,44 +141,34 @@ export class WorldActorsWrapper<T extends LancerActorType> extends EntityCollect
     this.type = type;
   }
 
-  // Handles type checking
-  private subget(id: string): Actor | null {
-    let fi = game.actors.get(id);
-    if (fi && fi.data.type == this.type) {
-      return fi;
-    } else {
-      return null;
-    }
-  }
+  async create_many(reg_data: RegEntryTypes<T>[]): Promise<GetResult<T>[]> {
+    // Create the actors
+    // @ts-ignore
+    let new_items = await Actor.createDocuments(reg_data.map(d => ({ 
+      type: this.type, 
+      name: d.name, 
+      data: duplicate(d) 
+    }))) as EntFor<T>[];
 
-  async create(data: RegEntryTypes<T>): Promise<GetResult<T>> {
-    // Create the item
-    data = duplicate(data);
-    let name = data.name || "unknown";
-    let new_item = (await Actor.create({ type: this.type, name, data })) as EntFor<T>;
-
-    // TODO: Remove this, as it should (theoretically) be unnecessary once we have proper template.json
-    await new_item.update({ data });
-
-    // Return the reference
-    return {
-      id: new_item.data._id,
-      entity: new_item,
+    // Return the references
+    return new_items.map((item, index) => ({
+      id: item.data._id,
+      entity: item,
       type: this.type,
-      item: data,
-    };
+      data: reg_data[index]
+    }));
   }
 
   async update(items: Array<LiveEntryTypes<T>>): Promise<void> {
-    //@ts-ignore Typings dont yet include mass update functions
-    return Actor.update(items.map(as_document_blob));
+    //@ts-ignore .8
+    return Actor.updateDocuments(items.map(as_document_blob));
   }
 
   async get(id: string): Promise<GetResult<T> | null> {
-    let fi = this.subget(id);
-    if (fi) {
+    let fi = game.actors.get(id);
+    if (fi && fi.data.type == this.type) {
       return {
-        item: fi.data.data as RegEntryTypes<T>,
+        data: fi.data.data as RegEntryTypes<T>,
         entity: fi as EntFor<T>,
         id,
         type: this.type,
@@ -204,13 +179,8 @@ export class WorldActorsWrapper<T extends LancerActorType> extends EntityCollect
   }
 
   async destroy(id: string): Promise<RegEntryTypes<T> | null> {
-    let subgot = this.subget(id);
-    if (subgot) {
-      await subgot.delete();
-      return subgot.data.data;
-    } else {
-      return null;
-    }
+    //@ts-ignore .8
+    return Actor.deleteDocuments([id]);
   }
 
   async enumerate(): Promise<GetResult<T>[]> {
@@ -218,7 +188,7 @@ export class WorldActorsWrapper<T extends LancerActorType> extends EntityCollect
       .filter(e => e.data.type == this.type)
       .map(e => ({
         id: (e.data as any)._id,
-        item: e.data.data as RegEntryTypes<T>,
+        data: e.data.data as RegEntryTypes<T>,
         entity: e as EntFor<T>,
         type: this.type,
       }));
@@ -226,7 +196,7 @@ export class WorldActorsWrapper<T extends LancerActorType> extends EntityCollect
 }
 
 // Handles accesses to the placeable tokens synthetic actor set
-export class TokensActorsWrapper<T extends LancerActorType> extends EntityCollectionWrapper<T> {
+export class TokenActorsWrapper<T extends LancerActorType> extends EntityCollectionWrapper<T> {
   // Need this to filter results by type
   type: T;
   constructor(type: T) {
@@ -234,40 +204,52 @@ export class TokensActorsWrapper<T extends LancerActorType> extends EntityCollec
     this.type = type;
   }
 
-  // Handles type checking
+  // Handles type checking + complicated token lookups
   private subget(id: string): Token | null {
     let fi: Token | undefined = canvas.tokens.get(id);
     if (fi && fi.actor.data.type == this.type) {
       return fi;
     } else {
-      return null;
+      console.warn("TODO: Should search in places that arent just curr scene, in case scene changes while sheet open: see comment ");
+        return null;
     }
+    /*
+    WE SHOULD MAYBE JUST BE USING UUIDS? FOR EVERY REGISTRYID? 
+    I don't think that we'd actually need distinct registry names, just a more sophisticated sorting mechanism for 
+    doing bulk updates (but even that is largely just a vanity project). Compendium caching probably would need revision
+
+    alternatively, something like this, cached, would be good
+    SceneDirectory.collection.reduce((group, scene) => {
+      // concat scene.data.tokens onto group
+      return group;
+    }, [])
+  */
   }
 
-  async create(data: RegEntryTypes<T>): Promise<GetResult<T>> {
+  async create_many(reg_data: RegEntryTypes<T>[]): Promise<GetResult<T>[]> {
     // No
     throw new Error("This is an ill advised way to create a token. Do better");
   }
 
-  async update(items: Array<LiveEntryTypes<T>>): Promise<void> {
-    // Only care about updating tokens that are synthetic.
-    for (let item of items) {
-      console.log("Updating a token actor. Could this be done faster?");
-      let id = item.RegistryID;
-      let fi = this.subget(id);
+  async update(items: Array<LiveEntryTypes<T>>): Promise<any> {
+    console.log("Updating token actors. Could this be done faster?");
+    let promises: Promise<any>[] = [];
+    for (let token_entry of items) {
+      let fi = token_entry.Flags.orig_doc;
       if (fi) {
-        await fi.actor.update(as_document_blob(item), {});
+        promises.push(fi.actor.update(as_document_blob(token_entry), {}));
       } else {
-        console.error(`Failed to update actor ${id} of type ${this.type} - actor not found`);
+        console.error(`Failed to update actor ${token_entry.Registry} of type ${this.type} - token actor not found`);
       }
     }
+    return Promise.all(promises);
   }
 
   async get(id: string): Promise<GetResult<T> | null> {
     let fi = this.subget(id);
     if (fi) {
       return {
-        item: fi.actor.data.data as RegEntryTypes<T>,
+        data: fi.actor.data.data as RegEntryTypes<T>,
         entity: fi.actor as EntFor<T>,
         id,
         type: this.type,
@@ -283,16 +265,18 @@ export class TokensActorsWrapper<T extends LancerActorType> extends EntityCollec
   }
 
   async enumerate(): Promise<GetResult<T>[]> {
+    console.warn("Should we just be enumerating current scene?");
     return (canvas.tokens.placeables as Array<Token>)
       .filter(e => e?.actor?.data?.type == this.type)
       .map(e => ({
         id: e.id,
-        item: e.actor.data.data as RegEntryTypes<T>,
+        data: e.actor.data.data as RegEntryTypes<T>,
         entity: e.actor as EntFor<T>,
         type: this.type,
       }));
   }
 }
+
 // Handles accesses to items owned by actor
 export class ActorInventoryWrapper<T extends LancerItemType> extends EntityCollectionWrapper<T> {
   // Need this to filter results by type
@@ -313,51 +297,34 @@ export class ActorInventoryWrapper<T extends LancerItemType> extends EntityColle
     this.for_compendium = !!actor.compendium;
   }
 
-  // Handles type checking
-  private async subget(id: string): Promise<LancerItem<T> | null> {
-    let fi = this.actor.items.get(id);
-    if (fi && fi.type == this.type) {
-      return fi as LancerItem<T>;
-    } else {
-      return null;
-    }
-  }
+  async create_many(reg_data: RegEntryTypes<T>[]): Promise<GetResult<T>[]> {
+    // Create the items
+    // @ts-ignore
+    let new_items = await this.actor.createEmbeddedDocuments("Item", reg_data.map(d => ({ 
+      type: this.type, 
+      name: d.name, 
+      data: duplicate(d) 
+    }))) as EntFor<T>[];
 
-  async create(data: RegEntryTypes<T>): Promise<GetResult<T>> {
-    // Create the item
-    data = duplicate(data); // better safe than sorry
-    let name = data.name || "unknown";
-    let new_item = (await this.actor.createOwnedItem({ type: this.type, name, data })) as EntFor<T>;
-
-    // TODO: Try to remove this, as it should be unnecessary once we have proper template.json
-    // await new_item.update({data}, {});
-
-    // Return the ref
-    return {
-      id: new_item._id,
-      entity: new_item,
+    // Return the references
+    return new_items.map((item, index) => ({
+      id: item.data._id,
+      entity: item,
       type: this.type,
-      item: data,
-    };
+      data: reg_data[index]
+    }));
   }
 
   async update(items: Array<LiveEntryTypes<T>>): Promise<void> {
-    if (this.for_compendium) {
-      console.warn(
-        "Warning: Cannot currently edit owned items of compendium actors. Re-examine this with Foundry .8, as there was mention of this changing with further tweaks to active effects"
-      );
-      return;
-    }
-
     // @ts-ignore Typings dont yet include mass update functions
-    return this.actor.updateEmbeddedEntity("OwnedItem", items.map(as_document_blob));
+    return this.actor.updateEmbeddedDocuments("Item", items.map(as_document_blob));
   }
 
   async get(id: string): Promise<GetResult<T> | null> {
-    let fi = await this.subget(id);
-    if (fi) {
+    let fi = this.actor.items.get(id);
+    if (fi && fi.type == this.type) {
       return {
-        item: fi.data.data as RegEntryTypes<T>,
+        data: fi.data.data as RegEntryTypes<T>,
         entity: fi as EntFor<T>,
         id,
         type: this.type,
@@ -368,43 +335,26 @@ export class ActorInventoryWrapper<T extends LancerItemType> extends EntityColle
   }
 
   async destroy(id: string): Promise<RegEntryTypes<T> | null> {
-    let subgot = await this.subget(id);
-    if (subgot) {
-      await subgot.delete();
-      return subgot.data.data;
+    let fi = this.actor.items.get(id);
+    if (fi && fi.type == this.type) {
+      await fi.delete();
+      return fi.data.data;
     } else {
       return null;
     }
   }
 
   async enumerate(): Promise<GetResult<T>[]> {
-    // let items = (this.actor.items as unknown) as LancerItem<T>[] | Collection<LancerItem<T>>; // Typings are wrong here. Entities and entries appear to have swapped type decls
-    // if(!Array.isArray(items)) {
-    // items = Array.from(items.values());
-    // }
-    let items = (this.actor.items.entries as unknown) as LancerItem<T>[]; // Typings are wrong here. Entities and entries appear to have swapped type decls
+    // @ts-ignore .8 stuff
+    let items = (this.actor.items.contents as unknown) as LancerItem<T>[]; 
     return items
       .filter(e => e.data.type == this.type)
       .map(e => ({
         id: e.data._id,
-        item: e.data.data,
+        data: e.data.data,
         entity: e as EntFor<T>,
         type: this.type,
       }));
-  }
-}
-
-// Handles accesses to items owned by token. Luckily, synthetic token actors work just like normal actors, so we can just subclass
-export class TokenInventoryWrapper<T extends LancerItemType> extends ActorInventoryWrapper<T> {
-  // Where we get the items from.
-  token: Token;
-
-  constructor(type: T, token: Token) {
-    super(type, token.actor);
-    if (!token || !token.actor) {
-      throw new Error("Bad token");
-    }
-    this.token = token;
   }
 }
 
@@ -415,15 +365,6 @@ export class CompendiumWrapper<T extends EntryType> extends EntityCollectionWrap
   constructor(type: T) {
     super();
     this.type = type;
-  }
-
-  // We cache the pack. This probably isn't a huge performance boon, but anything helps when it comes to this compendium shit
-  private cached_pack: any = null;
-  private async pack(): Promise<Compendium> {
-    if (!this.cached_pack) {
-      this.cached_pack = get_pack(this.type);
-    }
-    return this.cached_pack;
   }
 
   // Handles type checking and stuff
@@ -439,40 +380,57 @@ export class CompendiumWrapper<T extends EntryType> extends EntityCollectionWrap
     }
   }
 
-  async create(data: RegEntryTypes<T>): Promise<GetResult<T>> {
-    let name = (data.name || "unknown").toUpperCase();
-    data = duplicate(data); // better safe than sorry
-    let p = await this.pack();
-    let new_item = (await p.createEntity({
+  // Decide which document type corr to provided entrytype
+  private document_type(): any {
+    if(LancerActorTypes.includes(this.type as LancerActorType)) {
+      return Actor;
+    } else {
+      return Item
+    }
+  }
+
+  private get pack_id(): string {
+    return get_pack_id(this.type);
+  }
+
+  async create_many(reg_data: RegEntryTypes<T>[]): Promise<GetResult<T>[]> {
+    let p = await get_pack(this.type);
+
+    // Create the items
+    // @ts-ignore
+    let new_items = await this.document_type().createDocuments(reg_data.map(d => ({ 
+      type: this.type, 
+      name: d.name, 
+      data: duplicate(d) 
+    }), {
+      pack: this.pack_id
+    })) as EntFor<T>[];
+
+    // Add them all to the currently cached version
+    for(let ni of new_items) {
+      PackContentMapCache.soft_fetch(this.type)?.set(ni._id, ni);
+    }
+
+    // Return the references
+    return new_items.map((item, index) => ({
+      id: item.data._id,
+      entity: item,
       type: this.type,
-      name,
-      data,
-    })) as EntFor<T>;
-
-    // Add it to the currently cached version
-    // console.log("Compendium wrapper used to create ", name, new_item._id);
-    PackContentMapCache.soft_fetch(this.type)?.set(new_item._id, new_item);
-
-    // TODO: Try to remove this, as it should be unnecessary once we have proper template.json
-    // await new_item.update({ data }, {});
-
-    return {
-      id: new_item.data._id,
-      entity: new_item,
-      type: this.type,
-      item: data,
-    };
+      data: reg_data[index]
+    }));
   }
 
   async update(items: Array<LiveEntryTypes<T>>): Promise<void> {
+    // Perform update
+    await this.document_type().updateDocuments(items.map(as_document_blob), {
+      pack: this.pack_id
+    });
+
+    // Update cache
     for (let item of items) {
       let fi = await this.subget(item.RegistryID);
-      if (fi) {
-        await fi.update(as_document_blob(item), { render: false });
-
-        // No need to flush entire cache - but we do need to re-fetch that item
-        let updated_entry = await this.pack().then(p => p.getEntity(item.RegistryID));
-        PackContentMapCache.soft_fetch(this.type)?.set(item.RegistryID, updated_entry);
+      if(fi) {
+        PackContentMapCache.soft_fetch(this.type)?.set(item.RegistryID, fi);
       } else {
         console.error(
           `Failed to update item ${item.RegistryID} of type ${this.type} - item not found`
@@ -484,10 +442,9 @@ export class CompendiumWrapper<T extends EntryType> extends EntityCollectionWrap
   async get(id: string): Promise<GetResult<T> | null> {
     let fi = await this.subget(id);
     if (fi) {
-      let d = fi.data.data;
       return {
         // @ts-ignore  Typescript expands a type here then gets confused why it doesn't fit back together. Really dumb! We know better
-        item: fi.data.data as RegEntryTypes<T>,
+        data: fi.data.data as RegEntryTypes<T>,
         entity: fi,
         id,
         type: this.type,
@@ -497,18 +454,11 @@ export class CompendiumWrapper<T extends EntryType> extends EntityCollectionWrap
     }
   }
 
-  async destroy(id: string): Promise<RegEntryTypes<T> | null> {
-    let pack = await this.pack();
-    let subgot = await this.subget(id);
-    if (subgot) {
-      await pack.deleteEntity(id);
-      // Rather than flush, we just remove this item from the cached map if it exists
-      PackContentMapCache.soft_fetch(this.type)?.delete(id);
-      // @ts-ignore  Typescript expands a type here then gets confused why it doesn't fit back together. Really dumb! We know better. If this is wrong, compendiums wouldn't work at all, so pretty easy to tell :)
-      return subgot.data.data as RegEntryTypes<T>;
-    } else {
-      return null;
-    }
+  async destroy(id: string): Promise<void> {
+    await this.document_type().deleteDocuments([id], {pack: this.pack_id});
+
+    // Additionally remove item from cache
+    PackContentMapCache.soft_fetch(this.type)?.delete(id);
   }
 
   async enumerate(): Promise<GetResult<T>[]> {
@@ -518,7 +468,7 @@ export class CompendiumWrapper<T extends EntryType> extends EntityCollectionWrap
       .map(e => ({
         id: (e.data as any)._id,
         // @ts-ignore  Typescript expands a type here then gets confused why it doesn't fit back together. Really dumb! We know better
-        item: e.data.data as RegEntryTypes<T>,
+        data: e.data.data as RegEntryTypes<T>,
         entity: e as EntFor<T>,
         type: this.type,
       }));
@@ -535,12 +485,18 @@ interface PackMetadata {
   entity: "Item" | "Actor";
 }
 
+// Get a pack id
+export function get_pack_id(type: EntryType): string {
+  return "world." + type;
+}
+
 // Retrieve a pack, or create it as necessary
+// async to handle the latter case
 export async function get_pack(type: LancerItemType | LancerActorType): Promise<Compendium> {
   let pack: Compendium | undefined;
 
   // Find existing world compendium
-  pack = game.packs.get(`world.${type}`) ?? game.packs.get(`lancer.${type}`);
+  pack = game.packs.get(get_pack_id(type));
   if (pack) {
     return pack;
   } else {
@@ -655,6 +611,7 @@ export async function cached_get_pack_map<T extends LancerItemType | LancerActor
     T extends LancerItemType ? LancerItem<T> : T extends LancerActorType ? LancerActor<T> : never
   >
 > {
+  console.log("Cache flushing should be triggered off of compendium CRUD hooks");
   return PackContentMapCache.fetch(type);
 }
 
