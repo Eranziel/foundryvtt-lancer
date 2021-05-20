@@ -37,6 +37,7 @@ import {
   PilotWeapon,
   NpcTemplate,
   InventoriedRegEntry,
+  LoadOptions,
 } from "machine-mind";
 import { is_actor_type, LancerActor, LancerActorType } from "../actor/lancer-actor";
 import { is_item_type, LancerItem, LancerItemType } from "../item/lancer-item";
@@ -302,6 +303,31 @@ export class FoundryReg extends Registry {
     return reg;
   }
 
+  // The inventoried entity we are representing
+  public inventory_for(): RegRef<EntryType> | null {
+    if(this.config.item_source[0] == "actor") {
+      // Return a reg ref to that world actor
+      let actor = this.config.item_source[1];
+      return {
+        reg_name: this.name(), // should be fine
+        id: actor._id,
+        fallback_lid: "",
+        type: actor.data.type as EntryType
+      };
+    } else if(this.config.item_source[0] == "token") {
+      let token = this.config.item_source[1];
+      return {
+        reg_name: this.name(), // should be fine
+        id: token.id,
+        fallback_lid: "",
+        type: token.data.type as EntryType
+      };
+    } else {
+      // Not an inventory
+      return null;
+    }
+  }
+
   // The configuration we were provided
   config: RegArgs;
 
@@ -338,22 +364,28 @@ export class FoundryReg extends Registry {
     for_type: T,
     clazz: EntryConstructor<T>
   ): ReviveFunc<T> {
-    return async (reg, ctx, id, raw, flags) => {
+    return async (reg, ctx, id, raw, flag, opts) => { // <--- Revive func
       // Our actual builder function shared between all cats.
       // First check for existing item in ctx
       let pre = ctx.get(id);
-      if (pre) {
-        await pre.ready();
-        return pre as LiveEntryTypes<T>;
+
+      if (!pre) {
+        // Otherwise create
+        pre = new clazz(for_type, reg, ctx, id, raw);
+
+        // Flag with the some junk, doesn't really matter
+        pre.Flags = flag ?? {};
       }
 
-      // Otherwise create
-      let new_item = new clazz(for_type, reg, ctx, id, raw, flags);
-      ctx.set(id, new_item);
-      await new_item.ready();
+
+      // Wait ready if necessary
+      if(opts?.wait_ctx_ready ?? true) {
+          // await pre.load_done(); -- unnecessary 
+          await pre.ctx_ready();
+      }
 
       // And we're done
-      return new_item;
+      return pre as LiveEntryTypes<T>;
     };
   }
 
@@ -467,7 +499,7 @@ export class FoundryRegCat<T extends EntryType> extends RegCat<T> {
   }
 
   // Converts a getresult into an appropriately flagged live item. Just wraps revive_func with flag generation and automatic id/raw deduction
-  private async revive_and_flag(g: GetResult<T>, ctx: OpCtx): Promise<LiveEntryTypes<T>> {
+  private async revive_and_flag(g: GetResult<T>, ctx: OpCtx, load_options?: LoadOptions): Promise<LiveEntryTypes<T>> {
     let flags: FoundryFlagData<T> = {
       orig_doc: g.entity,
       orig_doc_name: g.entity.name,
@@ -477,20 +509,20 @@ export class FoundryRegCat<T extends EntryType> extends RegCat<T> {
         folder: g.entity.data.folder || null
       },
     };
-    let result = await this.revive_func(this.parent, ctx, g.id, g.item, flags);
+    let result = await this.revive_func(this.registry, ctx, g.id, g.item, flags, load_options);
     return result;
   }
 
   // Just call revive on the '.get' result, then set flag to orig item
-  async get_live(ctx: OpCtx, id: string): Promise<LiveEntryTypes<T> | null> {
+  async get_live(ctx: OpCtx, id: string, load_options?: LoadOptions): Promise<LiveEntryTypes<T> | null> {
     let retrieved = await this.handler.get(id);
     if (!retrieved) {
       return null;
     }
-    return this.revive_and_flag(retrieved, ctx);
+    return this.revive_and_flag(retrieved, ctx, load_options);
   }
 
-  // Directly wrap a foundry document, without going through resolution mechanism. Careful here
+  // Directly wrap a foundry document, without going through get_live resolution mechanism. Modestly dangerous, but no need to repeat lookup. Careful here
   async wrap_doc(ctx: OpCtx, ent: T extends LancerActorType ? LancerActor<T> : T extends LancerItemType ? LancerItem<T> : never): Promise<LiveEntryTypes<T> | null> {
     let id = ent.id;
 
@@ -500,7 +532,7 @@ export class FoundryRegCat<T extends EntryType> extends RegCat<T> {
       id = ent.token.id;
       
       // Warn if this isn't housed in a sensible reg. I _think_ it'll still work? But something we'd like to be aware of
-      if((this.parent as FoundryReg).config.actor_source != "token") {
+      if((this.registry as FoundryReg).config.actor_source != "token") {
         console.warn("Wrapping a token doc while not in a token reg.");
       }
     }
@@ -511,14 +543,14 @@ export class FoundryRegCat<T extends EntryType> extends RegCat<T> {
       item: ent.data.data as any,
       type: ent.data.type as T
     };
-    return this.revive_and_flag(contrived, ctx);
+    return this.revive_and_flag(contrived, ctx, {wait_ctx_ready: true}); // Probably want to be ready
   }
 
   // Just call revive on each of the 'entries'
-  async list_live(ctx: OpCtx): Promise<LiveEntryTypes<T>[]> {
+  async list_live(ctx: OpCtx, load_options?: LoadOptions): Promise<LiveEntryTypes<T>[]> {
     let sub_pending: Promise<LiveEntryTypes<T>>[] = [];
     for (let e of await this.handler.enumerate()) {
-      let live = this.revive_and_flag(e, ctx);
+      let live = this.revive_and_flag(e, ctx, load_options);
       sub_pending.push(live);
     }
     return Promise.all(sub_pending);
@@ -562,7 +594,7 @@ export class FoundryRegCat<T extends EntryType> extends RegCat<T> {
         id: g.id,
         fallback_lid: "",
         type: g.type,
-        reg_name: this.parent.name(),
+        reg_name: this.registry.name(),
       }));
     });
   }

@@ -1,8 +1,8 @@
-import { EntryType, License, LiveEntryTypes, OpCtx, Pilot, Registry, RegRef } from "machine-mind";
+import { EntryType, License, LiveEntryTypes, OpCtx, Pilot, RegEntry, Registry, RegRef } from "machine-mind";
 import type { LancerActor, LancerActorType, LancerMech, LancerPilot } from "../actor/lancer-actor";
-import type { LancerItem, LancerItemType } from "../item/lancer-item";
+import { LancerItem, LancerItemType, LancerItemTypes } from "../item/lancer-item";
 import { FetcherCache } from "./db_abstractions";
-import { FoundryReg, FoundryRegCat } from "./foundry-reg";
+import { FoundryFlagData, FoundryReg, FoundryRegCat } from "./foundry-reg";
 
 // Provides an environment for interacting with a provided item.
 // The registry is whatever registry is most sensibly "local" for the given item. If the item is from a compendium, the reg will be compendium local.
@@ -11,7 +11,7 @@ import { FoundryReg, FoundryRegCat } from "./foundry-reg";
 
 export async function mm_wrap_item<T extends EntryType & LancerItemType>(
   item: LancerItem<T>,
-  use_existing_ctx?: OpCtx
+  use_existing_ctx: OpCtx
 ): Promise<LiveEntryTypes<T>> {
   // Figure out what our context ought to be
   let is_compendium = item.compendium != null; // If compendium is set, we use that
@@ -57,7 +57,7 @@ export async function mm_wrap_item<T extends EntryType & LancerItemType>(
 
 export async function mm_wrap_actor<T extends EntryType & LancerActorType>(
   actor: LancerActor<T>,
-  use_existing_ctx?: OpCtx
+  use_existing_ctx: OpCtx
 ): Promise<LiveEntryTypes<T>> {
   // Get our reg
   let reg: FoundryReg;
@@ -172,3 +172,15 @@ const world_and_comp_license_cache = new FetcherCache<string, RegRef<EntryType.L
     return null;
   }
 );
+
+
+// Get the owner of an item, or null if none exists
+export function mm_owner<T extends LancerItemType>(item: RegEntry<T>): LancerActor<LancerActorType> | null {
+    let flags = item.Flags as FoundryFlagData<T>;
+    let owner = flags.orig_doc.actor;
+    if(owner) {
+      return owner as LancerActor<LancerActorType>;
+    } else {
+      return null;
+    }
+}
