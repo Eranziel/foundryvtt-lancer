@@ -551,7 +551,7 @@ Hooks.on("closeSettingsConfig", () => {
   game.action_manager.updateConfig();
 });
 Hooks.on("getSceneNavigationContext", async () => {
-  await game.action_manager.reset();
+  game.action_manager && await game.action_manager.reset();
 });
 //
 
@@ -709,16 +709,18 @@ async function versionCheck() {
     TOKENS: 3,
   };
 
-  for (const k in supportedFeatures) {
-    // This is fine so...
-    //@ts-ignore
-    if (supportedFeatures[k] !== window.FEATURES[k]) {
-      console.log(`Major version error for feature ${k}`);
-      ui.notifications.error(
-        `Warning: A major version incompatibility has been detected. You may experience issues, please return to a supported version.`
-      );
-    }
-  }
+
+  // GOODBYE FEATURES!
+  // for (const k in supportedFeatures) {
+  //   // This is fine so...
+  //   //@ts-ignore
+  //   if (supportedFeatures[k] !== window.FEATURES[k]) {
+  //     console.log(`Major version error for feature ${k}`);
+  //     ui.notifications.error(
+  //       `Warning: A major version incompatibility has been detected. You may experience issues, please return to a supported version.`
+  //     );
+  //   }
+  // }
 }
 
 async function sanityCheck() {
