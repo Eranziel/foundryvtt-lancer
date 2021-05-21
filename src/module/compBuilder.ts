@@ -66,7 +66,7 @@ async function transfer_cat<G extends EntryType>(
       relinker: quick_relinker({
         key_pairs: [["LID", "lid"] as any, ["Name", "name"]],
       }) as any,
-    })) as LiveEntryTypes<G>;
+    })) as LiveEntryTypes<G>; 
     items.push(insinuated);
     // We try pretty hard to find a matching item.
     // First by MMID
