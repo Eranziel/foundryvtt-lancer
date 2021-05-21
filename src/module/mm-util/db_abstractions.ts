@@ -193,9 +193,10 @@ export class WorldActorsWrapper<T extends LancerActorType> extends EntityCollect
   }
 
   async enumerate(): Promise<GetResult<T>[]> {
-    return game.actors.entities
-      .filter(e => e.data.type == this.type)
-      .map(e => ({
+    //@ts-ignore .8
+    return game.actors.contents
+      .filter((e: Actor) => e.data.type == this.type)
+      .map((e: Actor) => ({
         id: (e.data as any)._id,
         data: e.data.data as RegEntryTypes<T>,
         entity: e as EntFor<T>,
