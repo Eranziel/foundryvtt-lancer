@@ -77,7 +77,6 @@ export function lancerActorInit(base_actor: any, creation_args: any) {
     "token.name": base_actor.name ?? default_data.name, // Set token name to match internal
     "token.actorLink": [EntryType.PILOT, EntryType.MECH].includes(base_actor.type), // Link the token to the Actor for pilots and mechs, but not for NPCs or deployables
   });
-
 }
 
 // Use for HP, etc
@@ -205,8 +204,8 @@ export class LancerActor<T extends LancerActorType> extends Actor {
     // If we're already at 0 just kill em
     if (remStress > 0) {
       let damage = ent.MaxStress - ent.CurrentStress;
-
-      let roll = new Roll(`${damage}d6kl1`).roll();
+      // @ts-ignore .8
+      let roll: Roll = await new Roll(`${damage}d6kl1`).evaluate({ async: true });
       let result = roll.total;
 
       let tt = await roll.getTooltip();
@@ -328,7 +327,8 @@ export class LancerActor<T extends LancerActorType> extends Actor {
     if (remStruct > 0) {
       let damage = ent.MaxStructure - ent.CurrentStructure;
 
-      let roll = new Roll(`${damage}d6kl1`).roll();
+      // @ts-ignore .8
+      let roll: Roll = await new Roll(`${damage}d6kl1`).evaluate({ async: true });
       let result = roll.total;
 
       let tt = await roll.getTooltip();

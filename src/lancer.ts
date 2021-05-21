@@ -540,7 +540,8 @@ Hooks.on("renderChatMessage", async (cm: ChatMessage, html: any, data: any) => {
     if (cm.isAuthor) {
       overkill[i].addEventListener("click", async function () {
         // console.log(data);
-        const roll = new Roll("1d6").roll();
+        // @ts-ignore .8
+        const roll = await new Roll("1d6").evaluate({ async: true });
         const templateData = {
           roll: roll,
           roll_tooltip: await roll.getTooltip(),

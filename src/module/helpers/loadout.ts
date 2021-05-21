@@ -247,7 +247,7 @@ function frame_active(core: CoreSystem): string {
   let actor: LancerActor = core.Registry.config.item_source[1];
 
   let coreMacroData: LancerMacroData = {
-    command: `game.lancer.prepareCoreActiveMacro("${actor._id}")`,
+    command: `game.lancer.prepareCoreActiveMacro("${actor.id}")`,
     title: `${actor.name} | CORE POWER`,
     iconPath: `systems/lancer/assets/icons/macro-icons/corebonus.svg`,
   };

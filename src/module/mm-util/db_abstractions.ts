@@ -127,9 +127,10 @@ export class WorldItemsWrapper<T extends LancerItemType> extends EntityCollectio
 
   // Just pull from game.items.entities
   async enumerate(): Promise<GetResult<T>[]> {
-    return game.items.entities
-      .filter(e => e.data.type == this.type)
-      .map(e => ({
+    // @ts-ignore .8
+    return game.items.contents
+      .filter((e: Item) => e.data.type == this.type)
+      .map((e: Item) => ({
         id: (e.data as any)._id,
         data: e.data.data as RegEntryTypes<T>,
         entity: e as EntFor<T>,
@@ -247,7 +248,8 @@ export class TokenActorsWrapper<T extends LancerActorType> extends EntityCollect
     for (let token_entry of items) {
       let fi = token_entry.Flags.orig_doc;
       if (fi) {
-        promises.push(fi.actor.update(as_document_blob(token_entry), {}));
+        let actor = fi.actor ? fi.actor : fi;
+        promises.push(actor.update(as_document_blob(token_entry), {}));
       } else {
         console.error(`Failed to update actor ${token_entry.Registry} of type ${this.type} - token actor not found`);
       }
@@ -607,10 +609,10 @@ const PackContentMapCache = new FetcherCache(
   COMPENDIUM_CACHE_TIMEOUT,
   async (type: LancerItemType | LancerActorType) => {
     let pack = await get_pack(type);
-    let data = await pack.getContent();
+    let data = await (pack as any).getDocuments();
     let map = new Map();
     for (let e of data) {
-      map.set(e._id, e);
+      map.set(e.id, e);
     }
     return map;
   }

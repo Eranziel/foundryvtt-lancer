@@ -215,7 +215,7 @@ export async function onHotbarDrop(_bar: any, data: any, slot: number) {
 
 function ownedItemFromString(i: string, actor: Actor): LancerItem<any> | null {
   // Get the item
-  const item = actor.getOwnedItem(i) as LancerItem<any> | null;
+  const item = (actor as any).items.get(i) as LancerItem<any> | null;
   if (!item) {
     ui.notifications.error(`Error preparing macro: could not find Item ${i} owned by Actor ${Actor.name}.`);
     return null;
@@ -382,7 +382,7 @@ export async function renderMacroTemplate(actor: Actor, template: string, templa
     dice: [],
     formula: "",
     terms: [],
-    results: [],
+    result: "",
   };
   if (templateData.roll) {
     roll = templateData.roll;
@@ -395,9 +395,7 @@ export async function renderMacroTemplate(actor: Actor, template: string, templa
       atk.roll.terms.forEach(term => {
         aggregate.terms.push(term);
       });
-      (atk.roll as any).results.forEach((result: any) => {
-        aggregate.results.push(result);
-      });
+      aggregate.result += (atk.roll as any).result;
     });
   }
   if (templateData.damages) {
@@ -408,15 +406,11 @@ export async function renderMacroTemplate(actor: Actor, template: string, templa
       dmg.roll.terms.forEach(term => {
         aggregate.terms.push(term);
       });
-      (dmg.roll as any).results.forEach((result: any) => {
-        aggregate.results.push(result);
-      });
+      aggregate.result += (dmg.roll as any).result;
     });
   }
 
-  if (aggregate.results.length > 0) {
-    roll = Roll.fromJSON(JSON.stringify(aggregate));
-  }
+  roll = Roll.fromJSON(JSON.stringify(aggregate));
   return renderMacroHTML(actor, html, roll);
 }
 
@@ -518,7 +512,8 @@ async function rollStatMacro(actor: Actor, data: LancerStatMacroData) {
 
   // Do the roll
   let acc_str = acc != 0 ? ` + ${acc}d6kh1` : "";
-  let roll = new Roll(`1d20+${data.bonus}${acc_str}`).roll();
+  // @ts-ignore .8
+  let roll = await new Roll(`1d20+${data.bonus}${acc_str}`).evaluate({ async: true });
 
   const roll_tt = await roll.getTooltip();
 
@@ -593,7 +588,7 @@ async function prepareAttackMacro({
   // We can safely split off pilot/mech weapons by actor type
   if (actor.data.type === EntryType.MECH) {
     pilotEnt = (await actor.data.data.derived.mm_promise).Pilot;
-    let itemEnt: MechWeapon = (await item.data.data.derived.mm_promise);
+    let itemEnt: MechWeapon = await item.data.data.derived.mm_promise;
 
     weaponData = itemEnt.SelectedProfile;
 
@@ -606,8 +601,8 @@ async function prepareAttackMacro({
     mData.overkill = weaponData.Tags.find(tag => tag.Tag.LID === "tg_overkill") !== undefined;
     mData.effect = weaponData.Effect;
   } else if (actor.data.type === EntryType.PILOT) {
-    pilotEnt = (await actor.data.data.derived.mm_promise);
-    let itemEnt: PilotWeapon = (await item.data.data.derived.mm_promise);
+    pilotEnt = await actor.data.data.derived.mm_promise;
+    let itemEnt: PilotWeapon = await item.data.data.derived.mm_promise;
     weaponData = itemEnt;
 
     mData.loaded = itemEnt.Loaded;
@@ -714,7 +709,7 @@ async function prepareAttackMacro({
     console.log(item);
     console.log(actor);
 
-    let itemEnt: MechWeapon = (await item.data.data.derived.mm_promise);
+    let itemEnt: MechWeapon = await item.data.data.derived.mm_promise;
     itemEnt.Loaded = false;
     await itemEnt.writeback();
   }
@@ -738,7 +733,8 @@ async function rollAttackMacro(actor: Actor, atk_str: string | null, data: Lance
   let attacks: { roll: Roll; tt: HTMLElement | JQuery<HTMLElement> }[] = [];
   if (game.settings.get(LANCER.sys_name, LANCER.setting_automation_attack) && targets.length > 0) {
     for (const target of targets) {
-      let attack_roll = new Roll(atk_str!).roll();
+      // @ts-ignore .8
+      let attack_roll = await new Roll(atk_str!).evaluate({ async: true });
       const attack_tt = await attack_roll.getTooltip();
       attacks.push({ roll: attack_roll, tt: attack_tt });
 
@@ -753,7 +749,8 @@ async function rollAttackMacro(actor: Actor, atk_str: string | null, data: Lance
       });
     }
   } else {
-    let attack_roll = new Roll(atk_str).roll();
+    // @ts-ignore .8
+    let attack_roll = await new Roll(atk_str).evaluate({ async: true });
     const attack_tt = await attack_roll.getTooltip();
     attacks.push({ roll: attack_roll, tt: attack_tt });
   }
@@ -791,7 +788,8 @@ async function rollAttackMacro(actor: Actor, atk_str: string | null, data: Lance
 
       let tt: HTMLElement | JQuery | null;
       try {
-        droll.roll();
+        // @ts-ignore .8
+        await droll.evaluate({ async: true });
         tt = await droll.getTooltip();
       } catch {
         droll = null;
@@ -828,6 +826,7 @@ async function rollAttackMacro(actor: Actor, atk_str: string | null, data: Lance
       // double all dice, add KH. Add overkill if necessary.
       droll.terms.forEach(term => {
         if (term.number) {
+          term.modifiers === undefined && (term.modifiers = []);
           term.modifiers.push(`kh${term.number}`);
           data.overkill && term.modifiers.push("x1");
           term.number *= 2;
@@ -836,7 +835,8 @@ async function rollAttackMacro(actor: Actor, atk_str: string | null, data: Lance
 
       let tt: HTMLElement | JQuery | null;
       try {
-        droll.roll();
+        // @ts-ignore .8
+        await droll.evaluate({ async: true });
         tt = await droll.getTooltip();
       } catch {
         droll = null;
@@ -1092,7 +1092,8 @@ async function rollTechMacro(actor: Actor, data: LancerTechMacroData) {
   let attacks: { roll: Roll; tt: HTMLElement | JQuery<HTMLElement> }[] = [];
   if (game.settings.get(LANCER.sys_name, LANCER.setting_automation_attack) && targets.length > 0) {
     for (const target of targets) {
-      let attack_roll = new Roll(atk_str!).roll();
+      // @ts-ignore .8
+      let attack_roll = await new Roll(atk_str!).evaluate({ async: true });
       const attack_tt = await attack_roll.getTooltip();
       attacks.push({ roll: attack_roll, tt: attack_tt });
 
@@ -1107,7 +1108,8 @@ async function rollTechMacro(actor: Actor, data: LancerTechMacroData) {
       });
     }
   } else {
-    let attack_roll = new Roll(atk_str).roll();
+    // @ts-ignore .8
+    let attack_roll = await new Roll(atk_str).evaluate({ async: true });
     const attack_tt = await attack_roll.getTooltip();
     attacks.push({ roll: attack_roll, tt: attack_tt });
   }
@@ -1208,7 +1210,8 @@ export async function prepareOverchargeMacro(a: string) {
   }
 
   // Prep data
-  let roll = new Roll(rollText).roll();
+  // @ts-ignore .8
+  let roll = await new Roll(rollText).evaluate({ async: true });
 
   let data = actor.data;
 
@@ -1259,7 +1262,8 @@ export async function prepareChargeMacro(a: string) {
   if (!feats) return;
 
   // Make recharge roll.
-  const roll = new Roll("1d6").roll();
+  // @ts-ignore .8
+  const roll = await new Roll("1d6").evaluate({ async: true });
   const roll_tt = await roll.getTooltip();
   // Iterate over each system with recharge, if val of tag is lower or equal to roll, set to charged.
 
@@ -1340,8 +1344,8 @@ export async function prepareActivationMacro(a: string, i: string, type: Activat
     return ui.notifications.error(`Error rolling tech attack macro - ${item.name} is not owned by an Actor!`);
   }
 
-  let itemEnt: MechSystem | NpcFeature = (await item.data.data.derived.mm_promise);
-  let actorEnt: Mech = (await actor.data.data.derived.mm_promise);
+  let itemEnt: MechSystem | NpcFeature = await item.data.data.derived.mm_promise;
+  let actorEnt: Mech = await actor.data.data.derived.mm_promise;
 
   // TODO--handle NPC Activations
   if (itemEnt.Type === EntryType.NPC_FEATURE) return;

@@ -263,11 +263,12 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
       const weaponElement = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
       const weaponId = weaponElement.getAttribute("data-id");
       if (!weaponId) return ui.notifications.warn(`Error rolling macro: No weapon ID!`);
-      const item = this.actor.getOwnedItem(weaponId);
+      // @ts-ignore .8
+      const item: Item | null = this.actor.items.get(weaponId);
       if (!item) return ui.notifications.warn(`Error rolling macro: Couldn't find weapon with ID ${weaponId}.`);
 
       const weapon = item as LancerPilotWeapon | LancerMechWeapon;
-      game.lancer.prepareItemMacro(this.actor._id, weapon._id);
+      game.lancer.prepareItemMacro(this.actor.id, weapon.id);
     });
 
     // TODO: This should really just be a single item-macro class

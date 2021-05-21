@@ -85,7 +85,8 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
     // Everything below here is only needed if the sheet is editable
     if (!this.options.editable) return;
 
-    if (this.actor.owner) {
+    // @ts-ignore .8
+    if (this.actor.isOwner) {
       // Item/Macroable Dragging
 
       // Cloud download

@@ -45,7 +45,8 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
     if (!this.options.editable) return;
 
     // Macro triggers
-    if (this.actor.owner) {
+    // @ts-ignore .8
+    if (this.actor.isOwner) {
       // Macros that can be handled via the generic item interface
       let itemMacros = html.find(".item-macro");
       itemMacros.on("click", (ev: any) => {
@@ -110,7 +111,8 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
         game.lancer.prepareItemMacro(this.actor._id, techId!);
       });
     }
-    if (this.actor.owner) {
+    // @ts-ignore .8
+    if (this.actor.isOwner) {
       // Item/Macroable Dragging
       const haseMacroHandler = (e: DragEvent) => this._onDragMacroableStart(e);
       html
