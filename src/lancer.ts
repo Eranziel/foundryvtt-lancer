@@ -194,48 +194,6 @@ Hooks.once("init", async function () {
   // Preload Handlebars templates
   await preloadTemplates();
 
-  // Register sheet application classes
-  Actors.unregisterSheet("core", ActorSheet);
-  Actors.registerSheet("lancer", LancerPilotSheet, { types: [EntryType.PILOT], makeDefault: true });
-  Actors.registerSheet("lancer", LancerMechSheet, { types: [EntryType.MECH], makeDefault: true });
-  Actors.registerSheet("lancer", LancerNPCSheet, { types: [EntryType.NPC], makeDefault: true });
-  Actors.registerSheet("lancer", LancerDeployableSheet, {
-    types: [EntryType.DEPLOYABLE],
-    makeDefault: true,
-  });
-  Items.unregisterSheet("core", ItemSheet);
-  Items.registerSheet("lancer", LancerItemSheet, {
-    types: [
-      EntryType.SKILL,
-      EntryType.TALENT,
-      EntryType.LICENSE,
-      EntryType.CORE_BONUS,
-      EntryType.RESERVE,
-      EntryType.STATUS,
-      EntryType.TAG,
-      EntryType.PILOT_ARMOR,
-      EntryType.PILOT_WEAPON,
-      EntryType.PILOT_GEAR,
-      EntryType.MECH_SYSTEM,
-      EntryType.MECH_WEAPON,
-      EntryType.WEAPON_MOD,
-      EntryType.NPC_FEATURE,
-      EntryType.MANUFACTURER,
-      EntryType.QUIRK,
-      EntryType.ENVIRONMENT,
-      EntryType.FACTION,
-      EntryType.ORGANIZATION,
-      EntryType.SITREP,
-    ],
-    makeDefault: true,
-  });
-  Items.registerSheet("lancer", LancerFrameSheet, { types: [EntryType.FRAME], makeDefault: true });
-  // Items.registerSheet("lancer", LancerNPCClassSheet, {
-  Items.registerSheet("lancer", LancerItemSheet, {
-    types: [EntryType.NPC_CLASS, EntryType.NPC_TEMPLATE],
-    makeDefault: true,
-  });
-
   // *******************************************************************
   // Register handlebars helpers
 
@@ -513,6 +471,9 @@ function sleep(ms: number) {
 // Make an awaitable for when this shit is done
 export const system_ready: Promise<void> = new Promise(success => {
   Hooks.once("ready", async function () {
+    // Register sheet application classes
+    setupSheets();
+
     Hooks.on("preUpdateCombat", handleCombatUpdate);
 
     // Wait for sanity check to complete.
@@ -551,7 +512,7 @@ Hooks.on("closeSettingsConfig", () => {
   game.action_manager.updateConfig();
 });
 Hooks.on("getSceneNavigationContext", async () => {
-  game.action_manager && await game.action_manager.reset();
+  game.action_manager && (await game.action_manager.reset());
 });
 //
 
@@ -654,6 +615,49 @@ async function promptInstallCoreData() {
   ).render(true);
 }
 
+function setupSheets() {
+  Actors.unregisterSheet("core", ActorSheet);
+  Actors.registerSheet("lancer", LancerPilotSheet, { types: [EntryType.PILOT], makeDefault: true });
+  Actors.registerSheet("lancer", LancerMechSheet, { types: [EntryType.MECH], makeDefault: true });
+  Actors.registerSheet("lancer", LancerNPCSheet, { types: [EntryType.NPC], makeDefault: true });
+  Actors.registerSheet("lancer", LancerDeployableSheet, {
+    types: [EntryType.DEPLOYABLE],
+    makeDefault: true,
+  });
+  Items.unregisterSheet("core", ItemSheet);
+  Items.registerSheet("lancer", LancerItemSheet, {
+    types: [
+      EntryType.SKILL,
+      EntryType.TALENT,
+      EntryType.LICENSE,
+      EntryType.CORE_BONUS,
+      EntryType.RESERVE,
+      EntryType.STATUS,
+      EntryType.TAG,
+      EntryType.PILOT_ARMOR,
+      EntryType.PILOT_WEAPON,
+      EntryType.PILOT_GEAR,
+      EntryType.MECH_SYSTEM,
+      EntryType.MECH_WEAPON,
+      EntryType.WEAPON_MOD,
+      EntryType.NPC_FEATURE,
+      EntryType.MANUFACTURER,
+      EntryType.QUIRK,
+      EntryType.ENVIRONMENT,
+      EntryType.FACTION,
+      EntryType.ORGANIZATION,
+      EntryType.SITREP,
+    ],
+    makeDefault: true,
+  });
+  Items.registerSheet("lancer", LancerFrameSheet, { types: [EntryType.FRAME], makeDefault: true });
+  // Items.registerSheet("lancer", LancerNPCClassSheet, {
+  Items.registerSheet("lancer", LancerItemSheet, {
+    types: [EntryType.NPC_CLASS, EntryType.NPC_TEMPLATE],
+    makeDefault: true,
+  });
+}
+
 /**
  * Performs our version validation
  * Uses window.FEATURES to check theoretical Foundry compatibility with our features
@@ -711,7 +715,6 @@ async function versionCheck() {
     SETTINGS: 2,
     TOKENS: 3,
   };
-
 
   // GOODBYE FEATURES!
   // for (const k in supportedFeatures) {

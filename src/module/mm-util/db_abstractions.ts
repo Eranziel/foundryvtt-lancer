@@ -9,7 +9,11 @@ const lp = LANCER.log_prefix;
 // The associated entity to a given entry type. Type's a lil complex, but we need it to get things correct between abstracters that take items vs actors
 // tl;dr maps entrytype to LancerItem or LancerActor
 // export type EntFor<T extends EntryType & (LancerItemType | LancerActorType) > = T extends LancerItemType ? LancerItem<T> : (T extends LancerActorType ? LancerActor<T> : never);
-export type EntFor<T extends EntryType> = T extends LancerItemType ? LancerItem<T> : (T extends LancerActorType ? LancerActor<T> : never);
+export type EntFor<T extends EntryType> = T extends LancerItemType
+  ? LancerItem<T>
+  : T extends LancerActorType
+  ? LancerActor<T>
+  : never;
 
 export interface GetResult<T extends LancerItemType | LancerActorType> {
   data: RegEntryTypes<T>;
@@ -30,10 +34,10 @@ function as_document_blob<T extends EntryType>(ent: LiveEntryTypes<T>): any {
   let flags = ent.Flags as FoundryFlagData<T>;
 
   // Set name from changed data. Prioritize a changed top level name over a changed ent name
-  if(flags.top_level_data.name && flags.top_level_data.name != flags.orig_doc_name) {
+  if (flags.top_level_data.name && flags.top_level_data.name != flags.orig_doc_name) {
     // Override ent data with top level
     ent.Name = flags.top_level_data.name;
-  } else if(ent.Name && ent.Name != flags.orig_doc_name) {
+  } else if (ent.Name && ent.Name != flags.orig_doc_name) {
     // Override top level with ent data
     flags.top_level_data.name;
   }
@@ -77,18 +81,20 @@ export class WorldItemsWrapper<T extends LancerItemType> extends EntityCollectio
   async create_many(reg_data: RegEntryTypes<T>[]): Promise<GetResult<T>[]> {
     // Create the item
     // @ts-ignore
-    let new_items = await Item.createDocuments(reg_data.map(d => ({ 
-      type: this.type, 
-      name: d.name, 
-      data: duplicate(d) 
-    }))) as EntFor<T>[];
+    let new_items = (await Item.createDocuments(
+      reg_data.map(d => ({
+        type: this.type,
+        name: d.name,
+        data: duplicate(d),
+      }))
+    )) as EntFor<T>[];
 
     // Return the reference
     return new_items.map((item, index) => ({
       id: item.data._id,
       entity: item,
       type: this.type,
-      data: reg_data[index]
+      data: reg_data[index],
     }));
   }
 
@@ -144,18 +150,20 @@ export class WorldActorsWrapper<T extends LancerActorType> extends EntityCollect
   async create_many(reg_data: RegEntryTypes<T>[]): Promise<GetResult<T>[]> {
     // Create the actors
     // @ts-ignore
-    let new_items = await Actor.createDocuments(reg_data.map(d => ({ 
-      type: this.type, 
-      name: d.name, 
-      data: duplicate(d) 
-    }))) as EntFor<T>[];
+    let new_items = (await Actor.createDocuments(
+      reg_data.map(d => ({
+        type: this.type,
+        name: d.name,
+        data: duplicate(d),
+      }))
+    )) as EntFor<T>[];
 
     // Return the references
     return new_items.map((item, index) => ({
       id: item.data._id,
       entity: item,
       type: this.type,
-      data: reg_data[index]
+      data: reg_data[index],
     }));
   }
 
@@ -210,8 +218,10 @@ export class TokenActorsWrapper<T extends LancerActorType> extends EntityCollect
     if (fi && fi.actor.data.type == this.type) {
       return fi;
     } else {
-      console.warn("TODO: Should search in places that arent just curr scene, in case scene changes while sheet open: see comment ");
-        return null;
+      console.warn(
+        "TODO: Should search in places that arent just curr scene, in case scene changes while sheet open: see comment "
+      );
+      return null;
     }
     /*
     WE SHOULD MAYBE JUST BE USING UUIDS? FOR EVERY REGISTRYID? 
@@ -300,18 +310,21 @@ export class ActorInventoryWrapper<T extends LancerItemType> extends EntityColle
   async create_many(reg_data: RegEntryTypes<T>[]): Promise<GetResult<T>[]> {
     // Create the items
     // @ts-ignore
-    let new_items = await this.actor.createEmbeddedDocuments("Item", reg_data.map(d => ({ 
-      type: this.type, 
-      name: d.name, 
-      data: duplicate(d) 
-    }))) as EntFor<T>[];
+    let new_items = (await this.actor.createEmbeddedDocuments(
+      "Item",
+      reg_data.map(d => ({
+        type: this.type,
+        name: d.name,
+        data: duplicate(d),
+      }))
+    )) as EntFor<T>[];
 
     // Return the references
     return new_items.map((item, index) => ({
       id: item.data._id,
       entity: item,
       type: this.type,
-      data: reg_data[index]
+      data: reg_data[index],
     }));
   }
 
@@ -346,7 +359,7 @@ export class ActorInventoryWrapper<T extends LancerItemType> extends EntityColle
 
   async enumerate(): Promise<GetResult<T>[]> {
     // @ts-ignore .8 stuff
-    let items = (this.actor.items.contents as unknown) as LancerItem<T>[]; 
+    let items = (this.actor.items.contents as unknown) as LancerItem<T>[];
     return items
       .filter(e => e.data.type == this.type)
       .map(e => ({
@@ -382,10 +395,10 @@ export class CompendiumWrapper<T extends EntryType> extends EntityCollectionWrap
 
   // Decide which document type corr to provided entrytype
   private document_type(): any {
-    if(is_actor_type(this.type)) {
+    if (is_actor_type(this.type)) {
       return Actor;
     } else {
-      return Item
+      return Item;
     }
   }
 
@@ -398,16 +411,21 @@ export class CompendiumWrapper<T extends EntryType> extends EntityCollectionWrap
 
     // Create the items
     // @ts-ignore
-    let new_items = await this.document_type().createDocuments(reg_data.map(d => ({ 
-      type: this.type, 
-      name: d.name, 
-      data: duplicate(d) 
-    }), {
-      pack: this.pack_id
-    })) as EntFor<T>[];
+    let new_items = (await this.document_type().createDocuments(
+      reg_data.map(
+        d => ({
+          type: this.type,
+          name: d.name,
+          data: duplicate(d),
+        }),
+        {
+          pack: this.pack_id,
+        }
+      )
+    )) as EntFor<T>[];
 
     // Add them all to the currently cached version
-    for(let ni of new_items) {
+    for (let ni of new_items) {
       PackContentMapCache.soft_fetch(this.type)?.set(ni._id, ni);
     }
 
@@ -416,25 +434,23 @@ export class CompendiumWrapper<T extends EntryType> extends EntityCollectionWrap
       id: item.data._id,
       entity: item,
       type: this.type,
-      data: reg_data[index]
+      data: reg_data[index],
     }));
   }
 
   async update(items: Array<LiveEntryTypes<T>>): Promise<void> {
     // Perform update
     await this.document_type().updateDocuments(items.map(as_document_blob), {
-      pack: this.pack_id
+      pack: this.pack_id,
     });
 
     // Update cache
     for (let item of items) {
       let fi = await this.subget(item.RegistryID);
-      if(fi) {
+      if (fi) {
         PackContentMapCache.soft_fetch(this.type)?.set(item.RegistryID, fi);
       } else {
-        console.error(
-          `Failed to update item ${item.RegistryID} of type ${this.type} - item not found`
-        );
+        console.error(`Failed to update item ${item.RegistryID} of type ${this.type} - item not found`);
       }
     }
   }
@@ -455,7 +471,7 @@ export class CompendiumWrapper<T extends EntryType> extends EntityCollectionWrap
   }
 
   async destroy(id: string): Promise<void> {
-    await this.document_type().deleteDocuments([id], {pack: this.pack_id});
+    await this.document_type().deleteDocuments([id], { pack: this.pack_id });
 
     // Additionally remove item from cache
     PackContentMapCache.soft_fetch(this.type)?.delete(id);
@@ -487,7 +503,7 @@ interface PackMetadata {
 
 // Get a pack id
 export function get_pack_id(type: EntryType): string {
-  return "world." + type;
+  return "lancer." + type;
 }
 
 // Retrieve a pack, or create it as necessary
@@ -529,10 +545,7 @@ export class FetcherCache<A, T> {
   // Holds the expiration time of specified keys. Repeated access will keep alive for longer
   private timeout_map: Map<A, number> = new Map();
 
-  constructor(
-    private readonly timeout: number | null,
-    private readonly fetch_func: (arg: A) => Promise<T>
-  ) {}
+  constructor(private readonly timeout: number | null, private readonly fetch_func: (arg: A) => Promise<T>) {}
 
   // Fetch the value using the specified arg
   async fetch(arg: A): Promise<T> {
@@ -606,12 +619,7 @@ const PackContentMapCache = new FetcherCache(
 // This wraps interfacing with above caches, but with better typing!
 export async function cached_get_pack_map<T extends LancerItemType | LancerActorType>(
   type: T
-): Promise<
-  Map<
-    string,
-    T extends LancerItemType ? LancerItem<T> : T extends LancerActorType ? LancerActor<T> : never
-  >
-> {
+): Promise<Map<string, T extends LancerItemType ? LancerItem<T> : T extends LancerActorType ? LancerActor<T> : never>> {
   console.log("Cache flushing should be triggered off of compendium CRUD hooks");
   return PackContentMapCache.fetch(type);
 }

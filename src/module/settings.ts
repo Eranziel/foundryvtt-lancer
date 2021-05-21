@@ -17,7 +17,9 @@ export const registerSettings = function () {
     scope: "world",
     config: false,
     type: String,
+    // Toggle for dev swapping to test import.
     default: "0.0.0",
+    // default: "3.0.21",
   });
 
   game.settings.register(LANCER.sys_name, LANCER.setting_lcps, {

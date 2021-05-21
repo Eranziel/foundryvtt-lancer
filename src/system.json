@@ -2,12 +2,14 @@
   "name": "lancer",
   "title": "LANCER",
   "description": "A Foundry VTT game system for <a href=\"https://massif-press.itch.io/corebook-pdf\">Lancer</a> by <a href=\"https://massif-press.itch.io/\">Massif Press</a>, a mud-and-lasers tactical mech RPG.",
-  "version": "0.9.2",
-  "minimumCoreVersion": "0.7.0",
-  "compatibleCoreVersion": "0.7.9",
+  "version": "1.0.0",
+  "minimumCoreVersion": "0.8.0",
+  "compatibleCoreVersion": "0.8.4",
   "author": "Eranziel",
   "scripts": [],
-  "esmodules": ["lancer.js"],
+  "esmodules": [
+    "lancer.js"
+  ],
   "styles": [
     "lancer.css",
     "fonts/compcon/glyphs.css"
@@ -18,7 +20,7 @@
       "label": "AoE Templates",
       "system": "lancer",
       "module": "lancer",
-      "path": "packs/aoe-templates.db",
+      "path": "./packs/aoe-templates.db",
       "entity": "Macro"
     },
     {
@@ -27,6 +29,153 @@
       "system": "lancer",
       "path": "./packs/core_macros.db",
       "entity": "Macro"
+    },
+    {
+      "name": "manufacturer",
+      "entity": "Item",
+      "label": "Manufacturer",
+      "system": "lancer",
+      "path": "./packs/manufacturer.db"
+    },
+    {
+      "name": "tag",
+      "entity": "Item",
+      "label": "Tag",
+      "system": "lancer",
+      "path": "./packs/tag.db"
+    },
+    {
+      "name": "core_bonus",
+      "entity": "Item",
+      "label": "Core Bonus",
+      "system": "lancer",
+      "path": "./packs/core_bonus.db"
+    },
+    {
+      "name": "environment",
+      "entity": "Item",
+      "label": "Environment",
+      "system": "lancer",
+      "path": "./packs/environment.db"
+    },
+    {
+      "name": "frame",
+      "entity": "Item",
+      "label": "Frame",
+      "system": "lancer",
+      "path": "./packs/frame.db"
+    },
+    {
+      "name": "license",
+      "entity": "Item",
+      "label": "License",
+      "system": "lancer",
+      "path": "./packs/license.db"
+    },
+    {
+      "name": "mech_weapon",
+      "entity": "Item",
+      "label": "Mech Weapon",
+      "system": "lancer",
+      "path": "./packs/mech_weapon.db"
+    },
+    {
+      "name": "deployable",
+      "entity": "Actor",
+      "label": "Deployable",
+      "system": "lancer",
+      "path": "./packs/deployable.db"
+    },
+    {
+      "name": "mech_system",
+      "entity": "Item",
+      "label": "Mech System",
+      "system": "lancer",
+      "path": "./packs/mech_system.db"
+    },
+    {
+      "name": "weapon_mod",
+      "entity": "Item",
+      "label": "Weapon Mod",
+      "system": "lancer",
+      "path": "./packs/weapon_mod.db"
+    },
+    {
+      "name": "pilot_armor",
+      "entity": "Item",
+      "label": "Pilot Armor",
+      "system": "lancer",
+      "path": "./packs/pilot_armor.db"
+    },
+    {
+      "name": "pilot_gear",
+      "entity": "Item",
+      "label": "Pilot Gear",
+      "system": "lancer",
+      "path": "./packs/pilot_gear.db"
+    },
+    {
+      "name": "pilot_weapon",
+      "entity": "Item",
+      "label": "Pilot Weapon",
+      "system": "lancer",
+      "path": "./packs/pilot_weapon.db"
+    },
+    {
+      "name": "reserve",
+      "entity": "Item",
+      "label": "Reserve",
+      "system": "lancer",
+      "path": "./packs/reserve.db"
+    },
+    {
+      "name": "sitrep",
+      "entity": "Item",
+      "label": "Sitrep",
+      "system": "lancer",
+      "path": "./packs/sitrep.db"
+    },
+    {
+      "name": "skill",
+      "entity": "Item",
+      "label": "Skill",
+      "system": "lancer",
+      "path": "./packs/skill.db"
+    },
+    {
+      "name": "status",
+      "entity": "Item",
+      "label": "Status/Condition",
+      "system": "lancer",
+      "path": "./packs/status.db"
+    },
+    {
+      "name": "talent",
+      "entity": "Item",
+      "label": "Talent",
+      "system": "lancer",
+      "path": "./packs/talent.db"
+    },
+    {
+      "name": "npc_class",
+      "entity": "Item",
+      "label": "Npc Class",
+      "system": "lancer",
+      "path": "./packs/npc_class.db"
+    },
+    {
+      "name": "npc_feature",
+      "entity": "Item",
+      "label": "Npc Feature",
+      "system": "lancer",
+      "path": "./packs/npc_feature.db"
+    },
+    {
+      "name": "npc_template",
+      "entity": "Item",
+      "label": "Npc Template",
+      "system": "lancer",
+      "path": "./packs/npc_template.db"
     }
   ],
   "languages": [],
