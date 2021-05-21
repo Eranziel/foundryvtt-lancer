@@ -37,14 +37,12 @@ export async function clear_all(): Promise<void> {
   for (let p of Object.values(EntryType)) {
     let pack: Compendium | undefined;
     pack = game.packs.get(`world.${p}`);
+    if(!pack) continue;
 
-    if (pack) {
-      // Delete every item in the pack
-      let index: { _id: string; name: string }[] = await pack.getIndex();
-      index.forEach(i => {
-        pack?.deleteEntity(i._id);
-      });
-    }
+    await pack.getIndex();
+    let keys = Array.from(pack.index.keys());
+    // @ts-ignore .8
+    await pack.documentClass.deleteDocuments(keys, {pack: pack.collection});
   }
   await set_all_lock(true);
 }
@@ -68,7 +66,7 @@ async function transfer_cat<G extends EntryType>(
       relinker: quick_relinker({
         key_pairs: [["LID", "lid"] as any, ["Name", "name"]],
       }) as any,
-    })) as LiveEntryTypes<G>;
+    })) as LiveEntryTypes<G>; 
     items.push(insinuated);
     // We try pretty hard to find a matching item.
     // First by MMID
@@ -158,17 +156,9 @@ export async function import_cp(
 
 // Lock/Unlock all packs
 async function set_all_lock(lock: boolean) {
-  // Unlock all the packs
-  const config = game.settings.get("core", "compendiumConfiguration");
-  console.log(`${lp} Pre-unlock config:`, config);
-
   for (let p of Object.values(EntryType)) {
     const key = `world.${p}`;
-    if (!config[key]) {
-      config[key] = { private: false, locked: lock };
-    } else {
-      config[key] = mergeObject(config[key], { locked: lock });
-    }
+    // @ts-ignore .8
+    game.packs.get(key)?.configure({private: false, locked: lock});
   }
-  await game.settings.set("core", "compendiumConfiguration", config);
 }

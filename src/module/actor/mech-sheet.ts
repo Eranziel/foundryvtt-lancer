@@ -86,8 +86,8 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
       return null;
     }
 
-    // Make the context for the item
-    const item_mm: LiveEntryTypes<EntryType> = await mm_wrap_item(item);
+    // Make the context for the item. TODO: make it use existing.
+    const item_mm: LiveEntryTypes<EntryType> = await mm_wrap_item(item, new OpCtx());
 
     // If it's a mod, perform checks to ensure it can be equipped
 

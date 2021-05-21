@@ -663,8 +663,11 @@ async function versionCheck() {
   // Determine whether a system migration is required and feasible
   const currentVersion = game.settings.get(LANCER.sys_name, LANCER.setting_migration);
 
+  console.warn("Skipping version check due to invalid semver...");
+  return;
+
   // If it's 0 then it's a fresh install
-  if (currentVersion === "0") {
+  if (currentVersion === "0" || currentVersion === "") {
     await game.settings.set(LANCER.sys_name, LANCER.setting_migration, game.system.data.version);
     await promptInstallCoreData();
     return;

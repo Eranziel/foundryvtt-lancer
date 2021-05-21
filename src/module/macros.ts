@@ -483,7 +483,7 @@ export async function prepareStatMacro(a: string, statKey: string) {
 
   const statPath = statKey.split(".");
 
-  let mm_ent = await mm_wrap_actor(actor);
+  let mm_ent = await actor.data.data.derived.mm_promise;
 
   let bonus: number = resolve_dotpath(mm_ent, statKey.substr(3));
 

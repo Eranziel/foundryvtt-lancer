@@ -189,8 +189,8 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
       return null;
     }
 
-    // Make the context for the item
-    const item_mm: LiveEntryTypes<EntryType> = await mm_wrap_item(item);
+    // Make the context for the item. TODO: Make use existing
+    const item_mm: LiveEntryTypes<EntryType> = await mm_wrap_item(item, new OpCtx());
 
     // Always add the item to the pilot inventory, now that we know it is a valid pilot posession
     // Make a new ctx to hold the item and a post-item-add copy of our mech

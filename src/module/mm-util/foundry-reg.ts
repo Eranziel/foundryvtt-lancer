@@ -37,6 +37,7 @@ import {
   PilotWeapon,
   NpcTemplate,
   InventoriedRegEntry,
+  LoadOptions,
 } from "machine-mind";
 import { is_actor_type, LancerActor, LancerActorType } from "../actor/lancer-actor";
 import { is_item_type, LancerItem, LancerItemType } from "../item/lancer-item";
@@ -49,8 +50,7 @@ import {
   EntFor as DocFor,
   GetResult,
   cached_get_pack_map,
-  TokensActorsWrapper as TokenActorsWrapper,
-  TokenInventoryWrapper,
+  TokenActorsWrapper
 } from "./db_abstractions";
 
 // Pluck
@@ -302,6 +302,31 @@ export class FoundryReg extends Registry {
     return reg;
   }
 
+  // The inventoried entity we are representing
+  public inventory_for(): RegRef<EntryType> | null {
+    if(this.config.item_source[0] == "actor") {
+      // Return a reg ref to that world actor
+      let actor = this.config.item_source[1];
+      return {
+        reg_name: this.name(), // should be fine
+        id: actor._id,
+        fallback_lid: "",
+        type: actor.data.type as EntryType
+      };
+    } else if(this.config.item_source[0] == "token") {
+      let token = this.config.item_source[1];
+      return {
+        reg_name: this.name(), // should be fine
+        id: token.id,
+        fallback_lid: "",
+        type: token.data.type as EntryType
+      };
+    } else {
+      // Not an inventory
+      return null;
+    }
+  }
+
   // The configuration we were provided
   config: RegArgs;
 
@@ -327,7 +352,7 @@ export class FoundryReg extends Registry {
       } else if (config.item_source[0] == ITEMS_ACTOR_INV) {
         return new ActorInventoryWrapper(for_type, config.item_source[1]);
       } else if (config.item_source[0] == ITEMS_TOKEN_INV) {
-        return new TokenInventoryWrapper(for_type, config.item_source[1]);
+        return new ActorInventoryWrapper(for_type, config.item_source[1].actor);
       }
     }
     throw new Error(`Unhandled item type: ${for_type}`);
@@ -338,22 +363,25 @@ export class FoundryReg extends Registry {
     for_type: T,
     clazz: EntryConstructor<T>
   ): ReviveFunc<T> {
-    return async (reg, ctx, id, raw, flags) => {
+    return async (reg, ctx, id, raw, flag, opts) => { // <--- Revive func
       // Our actual builder function shared between all cats.
       // First check for existing item in ctx
       let pre = ctx.get(id);
-      if (pre) {
-        await pre.ready();
-        return pre as LiveEntryTypes<T>;
+
+      if (!pre) {
+        // Otherwise create
+        pre = new clazz(for_type, reg, ctx, id, raw, flag ?? {});
       }
 
-      // Otherwise create
-      let new_item = new clazz(for_type, reg, ctx, id, raw, flags);
-      ctx.set(id, new_item);
-      await new_item.ready();
+
+      // Wait ready if necessary
+      if(opts?.wait_ctx_ready ?? true) {
+          // await pre.load_done(); -- unnecessary 
+          await pre.ctx_ready();
+      }
 
       // And we're done
-      return new_item;
+      return pre as LiveEntryTypes<T>;
     };
   }
 
@@ -444,8 +472,8 @@ export class FoundryRegCat<T extends EntryType> extends RegCat<T> {
   ): Promise<{ id: string; val: RegEntryTypes<T> } | null> {
     // Just call criteria on all items. O(n) lookup, which is obviously not ideal, but if it must be done it must be done
     for (let wrapper of await this.handler.enumerate()) {
-      if (criteria(wrapper.item)) {
-        return { id: wrapper.id, val: wrapper.item };
+      if (criteria(wrapper.data)) {
+        return { id: wrapper.id, val: wrapper.data };
       }
     }
     return null;
@@ -454,20 +482,20 @@ export class FoundryRegCat<T extends EntryType> extends RegCat<T> {
   // User entry '.get'
   async get_raw(id: string): Promise<RegEntryTypes<T> | null> {
     let gotten = await this.handler.get(id);
-    return gotten?.item ?? null;
+    return gotten?.data ?? null;
   }
 
   // Return the 'entries' array
   async raw_map(): Promise<Map<string, RegEntryTypes<T>>> {
     let map = new Map<string, RegEntryTypes<T>>();
     for (let gr of await this.handler.enumerate()) {
-      map.set(gr.id, gr.item);
+      map.set(gr.id, gr.data);
     }
     return map;
   }
 
   // Converts a getresult into an appropriately flagged live item. Just wraps revive_func with flag generation and automatic id/raw deduction
-  private async revive_and_flag(g: GetResult<T>, ctx: OpCtx): Promise<LiveEntryTypes<T>> {
+  private async revive_and_flag(g: GetResult<T>, ctx: OpCtx, load_options?: LoadOptions): Promise<LiveEntryTypes<T>> {
     let flags: FoundryFlagData<T> = {
       orig_doc: g.entity,
       orig_doc_name: g.entity.name,
@@ -477,20 +505,20 @@ export class FoundryRegCat<T extends EntryType> extends RegCat<T> {
         folder: g.entity.data.folder || null
       },
     };
-    let result = await this.revive_func(this.parent, ctx, g.id, g.item, flags);
+    let result = await this.revive_func(this.registry, ctx, g.id, g.data, flags, load_options);
     return result;
   }
 
   // Just call revive on the '.get' result, then set flag to orig item
-  async get_live(ctx: OpCtx, id: string): Promise<LiveEntryTypes<T> | null> {
+  async get_live(ctx: OpCtx, id: string, load_options?: LoadOptions): Promise<LiveEntryTypes<T> | null> {
     let retrieved = await this.handler.get(id);
     if (!retrieved) {
       return null;
     }
-    return this.revive_and_flag(retrieved, ctx);
+    return this.revive_and_flag(retrieved, ctx, load_options);
   }
 
-  // Directly wrap a foundry document, without going through resolution mechanism. Careful here
+  // Directly wrap a foundry document, without going through get_live resolution mechanism. Modestly dangerous, but no need to repeat lookup. Careful here
   async wrap_doc(ctx: OpCtx, ent: T extends LancerActorType ? LancerActor<T> : T extends LancerItemType ? LancerItem<T> : never): Promise<LiveEntryTypes<T> | null> {
     let id = ent.id;
 
@@ -500,7 +528,7 @@ export class FoundryRegCat<T extends EntryType> extends RegCat<T> {
       id = ent.token.id;
       
       // Warn if this isn't housed in a sensible reg. I _think_ it'll still work? But something we'd like to be aware of
-      if((this.parent as FoundryReg).config.actor_source != "token") {
+      if((this.registry as FoundryReg).config.actor_source != "token") {
         console.warn("Wrapping a token doc while not in a token reg.");
       }
     }
@@ -508,17 +536,17 @@ export class FoundryRegCat<T extends EntryType> extends RegCat<T> {
     let contrived: GetResult<T> = {
       entity: ent as any,
       id,
-      item: ent.data.data as any,
+      data: ent.data.data as any,
       type: ent.data.type as T
     };
-    return this.revive_and_flag(contrived, ctx);
+    return this.revive_and_flag(contrived, ctx, {wait_ctx_ready: true}); // Probably want to be ready
   }
 
   // Just call revive on each of the 'entries'
-  async list_live(ctx: OpCtx): Promise<LiveEntryTypes<T>[]> {
+  async list_live(ctx: OpCtx, load_options?: LoadOptions): Promise<LiveEntryTypes<T>[]> {
     let sub_pending: Promise<LiveEntryTypes<T>>[] = [];
     for (let e of await this.handler.enumerate()) {
-      let live = this.revive_and_flag(e, ctx);
+      let live = this.revive_and_flag(e, ctx, load_options);
       sub_pending.push(live);
     }
     return Promise.all(sub_pending);
@@ -530,41 +558,26 @@ export class FoundryRegCat<T extends EntryType> extends RegCat<T> {
   }
 
   // Use our delete function
-  async delete_id(id: string): Promise<RegEntryTypes<T> | null> {
-    return await this.handler.destroy(id);
+  async delete_id(id: string): Promise<void> {
+    await this.handler.destroy(id);
   }
 
   // Create and revive
   async create_many_live(ctx: OpCtx, ...vals: RegEntryTypes<T>[]): Promise<LiveEntryTypes<T>[]> {
-    let revived: Promise<LiveEntryTypes<T>>[] = [];
-
-    // Set and revive all
-    for (let raw of vals) {
-      let created = this.handler.create(raw);
-      let viv = created.then(c => this.revive_and_flag(c, ctx));
-      revived.push(viv);
-    }
-
-    return Promise.all(revived);
+    return this.handler.create_many(vals).then(created => {
+      return Promise.all(created.map(c => this.revive_and_flag(c, ctx)))
+    });
   }
 
   // Just create using our handler
   async create_many_raw(...vals: RegEntryTypes<T>[]): Promise<RegRef<T>[]> {
-    let created: Promise<GetResult<T>>[] = [];
-
-    // Set and revive all
-    for (let raw of vals) {
-      created.push(this.handler.create(raw));
-    }
-
-    return Promise.all(created).then(created_results => {
-      return created_results.map(g => ({
-        id: g.id,
+    return this.handler.create_many(vals).then(created => created.map(c => ({
+        id: c.id,
         fallback_lid: "",
-        type: g.type,
-        reg_name: this.parent.name(),
-      }));
-    });
+        type: c.type,
+        reg_name: this.registry.name(),
+      })
+    ));
   }
 
   // Just delegate above

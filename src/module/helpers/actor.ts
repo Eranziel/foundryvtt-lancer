@@ -63,7 +63,7 @@ export function stat_view_card(
   let data_val = resolve_helper_dotpath(options, data_path);
   let macro_button: string | undefined;
   let macroData = encodeMacroData({
-    command: `game.lancer.prepareStatMacro("${options.data.root.actor._id}","${data_path}");`,
+    command: `game.lancer.prepareStatMacro("${options.data.root.data._id}","${data_path}");`,
     title: title,
   });
   if (options.rollable)
@@ -149,7 +149,7 @@ export function clicker_stat_card(
 ): string {
   let button = "";
   let macroData = encodeMacroData({
-    command: `game.lancer.prepareStatMacro("${options.data.root.entity._id}","${data_path}");`,
+    command: `game.lancer.prepareStatMacro("${options.data.root.data._id}","${data_path}");`,
     title: title,
   });
   if (roller)

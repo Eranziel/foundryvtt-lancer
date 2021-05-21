@@ -1,8 +1,8 @@
-import { EntryType, License, LiveEntryTypes, OpCtx, Pilot, Registry, RegRef } from "machine-mind";
+import { EntryType, License, LiveEntryTypes, OpCtx, Pilot, RegEntry, Registry, RegRef } from "machine-mind";
 import type { LancerActor, LancerActorType, LancerMech, LancerPilot } from "../actor/lancer-actor";
-import type { LancerItem, LancerItemType } from "../item/lancer-item";
+import { LancerItem, LancerItemType, LancerItemTypes } from "../item/lancer-item";
 import { FetcherCache } from "./db_abstractions";
-import { FoundryReg, FoundryRegCat } from "./foundry-reg";
+import { FoundryFlagData, FoundryReg, FoundryRegCat } from "./foundry-reg";
 
 // Provides an environment for interacting with a provided item.
 // The registry is whatever registry is most sensibly "local" for the given item. If the item is from a compendium, the reg will be compendium local.
@@ -11,11 +11,11 @@ import { FoundryReg, FoundryRegCat } from "./foundry-reg";
 
 export async function mm_wrap_item<T extends EntryType & LancerItemType>(
   item: LancerItem<T>,
-  use_existing_ctx?: OpCtx
+  use_existing_ctx: OpCtx
 ): Promise<LiveEntryTypes<T>> {
   // Figure out what our context ought to be
   let is_compendium = item.compendium != null; // If compendium is set, we use that
-  let actor: LancerActor<any> | null = item.options.actor ?? null; // If actor option is set, we use that
+  let actor = item.actor as LancerActor<any> ?? null; // If actor option is set, we use that
   let token: Token | null = actor?.token ?? null;
 
   // Get our reg. Actor arg doesn't really matter - we default to world
@@ -48,7 +48,9 @@ export async function mm_wrap_item<T extends EntryType & LancerItemType>(
   let ctx = use_existing_ctx || new OpCtx();
 
   // Load up the item. This _should_ always work
-  let ent = (await reg.get_cat(item.type).get_live(ctx, item._id)) as LiveEntryTypes<T>;
+  // let ent = (await reg.get_cat(item.type).get_live(ctx, item.id)) as LiveEntryTypes<T>;
+  let cat = reg.get_cat(item.data.type) as FoundryRegCat<T>;
+  let ent = (await cat.wrap_doc(ctx, item as any)) as LiveEntryTypes<T>; // Poor typescript doesn't know how to handle these
   if (!ent) {
     throw new Error("Something went wrong while trying to contextualize an item...");
   }
@@ -57,7 +59,7 @@ export async function mm_wrap_item<T extends EntryType & LancerItemType>(
 
 export async function mm_wrap_actor<T extends EntryType & LancerActorType>(
   actor: LancerActor<T>,
-  use_existing_ctx?: OpCtx
+  use_existing_ctx: OpCtx
 ): Promise<LiveEntryTypes<T>> {
   // Get our reg
   let reg: FoundryReg;
@@ -172,3 +174,15 @@ const world_and_comp_license_cache = new FetcherCache<string, RegRef<EntryType.L
     return null;
   }
 );
+
+
+// Get the owner of an item, or null if none exists
+export function mm_owner<T extends LancerItemType>(item: RegEntry<T>): LancerActor<LancerActorType> | null {
+    let flags = item.Flags as FoundryFlagData<T>;
+    let owner = flags.orig_doc.actor;
+    if(owner) {
+      return owner as LancerActor<LancerActorType>;
+    } else {
+      return null;
+    }
+}

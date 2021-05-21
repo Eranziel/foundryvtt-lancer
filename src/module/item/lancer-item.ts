@@ -7,14 +7,14 @@ import { find_license_for, mm_wrap_item } from "../mm-util/helpers";
 
 const lp = LANCER.log_prefix;
 
-export function lancerItemInit(data: any) {
-  console.log(`${lp} Initializing new ${data.type}`);
+export function lancerItemInit(base_item: any) {
+  console.log(`${lp} Initializing new ${base_item.type}`);
 
   // Select default image
-  let img = TypeIcon(data.type as LancerItemType);
+  let img = TypeIcon(base_item.type as LancerItemType);
 
   let default_data: any;
-  switch (data.type as EntryType) {
+  switch (base_item.type as EntryType) {
     default:
     case EntryType.ENVIRONMENT:
       default_data = funcs.defaults.ENVIRONMENT();
@@ -85,8 +85,8 @@ export function lancerItemInit(data: any) {
   }
 
   // Try to be more specific with npc features icons
-  if (data.type === EntryType.NPC_FEATURE && data.feature_type) {
-    let trait_type = data.feature_type as NpcFeatureType;
+  if (base_item.type === EntryType.NPC_FEATURE && base_item.feature_type) {
+    let trait_type = base_item.feature_type as NpcFeatureType;
     switch (trait_type) {
       default:
       case NpcFeatureType.Trait:
@@ -103,9 +103,9 @@ export function lancerItemInit(data: any) {
   }
 
   // Sync the name
-  default_data.name = data.name ?? default_data.name;
+  default_data.name = base_item.name ?? default_data.name;
 
-  mergeObject(data, {
+  return base_item.data.update({
     data: default_data,
     img: img,
     name: default_data.name, 
@@ -161,7 +161,7 @@ export class LancerItem<T extends LancerItemType> extends Item {
 
     // Spool up our Machine Mind wrapping process
     let mm_promise = system_ready
-      .then(() => mm_wrap_item(this, actor_ctx))
+      .then(() => mm_wrap_item(this, actor_ctx ?? new OpCtx()))
       .then(async mm => {
         // Always save the context
         // Save the context via defineProperty so it does not show up in JSON stringifies. Also, no point in having it writeable

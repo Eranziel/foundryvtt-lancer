@@ -31,56 +31,53 @@ import { limited_max, is_loading } from "machine-mind/dist/classes/mech/EquipUti
 import { ActionData } from "../action";
 const lp = LANCER.log_prefix;
 
-export function lancerActorInit(data: any) {
+export function lancerActorInit(base_actor: any, creation_args: any) {
   // Some subtype of ActorData
-  console.log(`${lp} Initializing new ${data.type}`);
-  // If it has an ID it's a duplicate, so we don't want to override values
-  if (!data._id) {
-    // Produce our default data
-    let default_data: any = {};
-    let display_mode: number = CONST.TOKEN_DISPLAY_MODES.ALWAYS;
-    let disposition: number = CONST.TOKEN_DISPOSITIONS.FRIENDLY;
-    switch (data.type) {
-      case EntryType.NPC:
-        default_data = funcs.defaults.NPC();
-        display_mode = CONST.TOKEN_DISPLAY_MODES.OWNER_HOVER;
-        disposition = CONST.TOKEN_DISPOSITIONS.HOSTILE;
-        break;
-      case EntryType.PILOT:
-        default_data = funcs.defaults.PILOT();
-        break;
-      case EntryType.DEPLOYABLE:
-        default_data = funcs.defaults.DEPLOYABLE();
-        display_mode = CONST.TOKEN_DISPLAY_MODES.HOVER;
-        disposition = CONST.TOKEN_DISPOSITIONS.NEUTRAL;
-        break;
-      case EntryType.MECH:
-      default:
-        // Idk, just in case
-        default_data = funcs.defaults.MECH();
+  console.log(`${lp} Initializing new ${base_actor.type}`);
 
-        default_data.actions = { full: true };
-        break;
-    }
-    // Sync the name
-    default_data.name = data.name ?? default_data.name;
+  // Produce our default data
+  let default_data: any = {};
+  let display_mode: number = CONST.TOKEN_DISPLAY_MODES.ALWAYS;
+  let disposition: number = CONST.TOKEN_DISPOSITIONS.FRIENDLY;
+  switch (base_actor.type) {
+    case EntryType.NPC:
+      default_data = funcs.defaults.NPC();
+      display_mode = CONST.TOKEN_DISPLAY_MODES.OWNER_HOVER;
+      disposition = CONST.TOKEN_DISPOSITIONS.HOSTILE;
+      break;
+    case EntryType.PILOT:
+      default_data = funcs.defaults.PILOT();
+      break;
+    case EntryType.DEPLOYABLE:
+      default_data = funcs.defaults.DEPLOYABLE();
+      display_mode = CONST.TOKEN_DISPLAY_MODES.HOVER;
+      disposition = CONST.TOKEN_DISPOSITIONS.NEUTRAL;
+      break;
+    case EntryType.MECH:
+    default:
+      // Idk, just in case
+      default_data = funcs.defaults.MECH();
 
-    // Put in the basics
-    mergeObject(data, {
-      data: default_data,
-      img: TypeIcon(data.type),
-      "token.bar1": { attribute: "derived.current_hp" }, // Default Bar 1 to HP
-      "token.bar2": { attribute: "derived.current_heat" }, // Default Bar 2 to Heat
-      "token.displayName": display_mode,
-      "token.displayBars": display_mode,
-      "token.disposition": disposition,
-      name: default_data.name,
-      "token.name": data.name ?? default_data.name, // Set token name to match internal
-      "token.actorLink": [EntryType.PILOT, EntryType.MECH].includes(data.type), // Link the token to the Actor for pilots and mechs, but not for NPCs or deployables
-    });
-
-    console.log(data);
+      default_data.actions = { full: true };
+      break;
   }
+  // Sync the name
+  default_data.name = base_actor.name ?? default_data.name;
+
+  // Put in the basics
+  return base_actor.data.update({
+    data: default_data,
+    img: TypeIcon(base_actor.type),
+    "token.bar1": { attribute: "derived.current_hp" }, // Default Bar 1 to HP
+    "token.bar2": { attribute: "derived.current_heat" }, // Default Bar 2 to Heat
+    "token.displayName": display_mode,
+    "token.displayBars": display_mode,
+    "token.disposition": disposition,
+    name: default_data.name,
+    "token.name": base_actor.name ?? default_data.name, // Set token name to match internal
+    "token.actorLink": [EntryType.PILOT, EntryType.MECH].includes(base_actor.type), // Link the token to the Actor for pilots and mechs, but not for NPCs or deployables
+  });
+
 }
 
 // Use for HP, etc
