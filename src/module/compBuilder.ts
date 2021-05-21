@@ -37,14 +37,12 @@ export async function clear_all(): Promise<void> {
   for (let p of Object.values(EntryType)) {
     let pack: Compendium | undefined;
     pack = game.packs.get(`world.${p}`);
+    if(!pack) continue;
 
-    if (pack) {
-      // Delete every item in the pack
-      let index: { _id: string; name: string }[] = await pack.getIndex();
-      index.forEach(i => {
-        pack?.deleteEntity(i._id);
-      });
-    }
+    await pack.getIndex();
+    let keys = Array.from(pack.index.keys());
+    // @ts-ignore .8
+    await pack.documentClass.deleteDocuments(keys, {pack: pack.collection});
   }
   await set_all_lock(true);
 }
