@@ -15,7 +15,7 @@ export async function mm_wrap_item<T extends EntryType & LancerItemType>(
 ): Promise<LiveEntryTypes<T>> {
   // Figure out what our context ought to be
   let is_compendium = item.compendium != null; // If compendium is set, we use that
-  let actor: LancerActor<any> | null = item.options.actor ?? null; // If actor option is set, we use that
+  let actor = item.actor as LancerActor<any> ?? null; // If actor option is set, we use that
   let token: Token | null = actor?.token ?? null;
 
   // Get our reg. Actor arg doesn't really matter - we default to world
@@ -48,7 +48,9 @@ export async function mm_wrap_item<T extends EntryType & LancerItemType>(
   let ctx = use_existing_ctx || new OpCtx();
 
   // Load up the item. This _should_ always work
-  let ent = (await reg.get_cat(item.type).get_live(ctx, item._id)) as LiveEntryTypes<T>;
+  // let ent = (await reg.get_cat(item.type).get_live(ctx, item.id)) as LiveEntryTypes<T>;
+  let cat = reg.get_cat(item.data.type) as FoundryRegCat<T>;
+  let ent = (await cat.wrap_doc(ctx, item as any)) as LiveEntryTypes<T>; // Poor typescript doesn't know how to handle these
   if (!ent) {
     throw new Error("Something went wrong while trying to contextualize an item...");
   }

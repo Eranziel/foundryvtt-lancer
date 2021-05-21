@@ -370,10 +370,7 @@ export class FoundryReg extends Registry {
 
       if (!pre) {
         // Otherwise create
-        pre = new clazz(for_type, reg, ctx, id, raw);
-
-        // Flag with the some junk, doesn't really matter
-        pre.Flags = flag ?? {};
+        pre = new clazz(for_type, reg, ctx, id, raw, flag ?? {});
       }
 
 
