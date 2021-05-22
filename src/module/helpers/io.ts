@@ -1,4 +1,11 @@
-import { PilotLoadout } from "machine-mind";
+import {
+  INpcFeatureData,
+  INpcStats,
+  NpcFeature,
+  NpcItem,
+  NpcStats,
+  PilotLoadout,
+} from "machine-mind";
 import { nanoid } from "nanoid";
 import { LancerActor } from "../actor/lancer-actor";
 import {
@@ -6,20 +13,56 @@ import {
   LancerMechLoadoutData,
   LancerMechWeaponItemData,
   LancerMountData,
+  LancerNPCActorData,
   LancerPilotActorData,
   LancerPilotData,
   LancerPilotSubData,
 } from "../interfaces";
+import { LancerItem } from "../item/lancer-item";
 
-export function handleActorExport(actor: LancerActor) {
+/**
+ * Exports an actor into a compatible format for importing (faked C/C style).
+ * @param actor actor to export to fake C/C data.
+ * @param download whether to trigger an automatic download of the json file.
+ * @returns the export in object form.
+ */
+export function handleActorExport(actor: LancerActor, download = true) {
+  let dump = {};
   switch (actor.data.type) {
     case "pilot":
-      handlePilotExport(actor);
+      dump = handlePilotExport(actor);
+      break;
+    case "npc":
+      dump = handleNPCExport(actor);
+      break;
+  }
+
+  if (download) {
+    const a = document.createElement("a");
+    const dumpFile = new Blob([JSON.stringify(dump, undefined, 2)], { type: "text/plain" });
+    a.href = URL.createObjectURL(dumpFile);
+    a.download = `${actor.data.name.toLocaleLowerCase().replace(" ", "_")}.json`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
+  return dump;
+}
+
+export function addExportButton(actor: LancerActor, html: JQuery) {
+  // @ts-ignore
+  const id = actor.data._id;
+  if (!document.getElementById(id)) {
+    // Don't create a second link on re-renders;
+    const link = $(`<a id="${id}"><i class="fas fa-external-link-alt"></i>Export</a>`);
+    link.on("click", () => handleActorExport(actor));
+    html.parent().parent().find(".window-title").after(link);
   }
 }
 
 // I'll just make my own since I'm scared to bring modern MM here.
 //
+// Pilot
 type FakePackedEquipmentState = {
   id: string;
   destroyed: boolean;
@@ -36,7 +79,6 @@ type FakePackedPilotLoadout = {
   extendedWeapons: (FakePackedEquipmentState | null)[];
   extendedGear: (FakePackedEquipmentState | null)[];
 };
-//
 type FakePackedWeapon = {
   size: string;
   weapon: {
@@ -63,7 +105,7 @@ type FakePackedMechLoadout = {
   systems: (FakePackedEquipmentState | null)[];
   integratedSystems: (FakePackedEquipmentState | null)[];
   mounts: FakePackedMount[];
-  integratedMounts: { weapon: FakePackedWeapon }[];
+  integratedMounts: FakePackedWeapon[];
 };
 type FakePackedMech = {
   id: string;
@@ -92,7 +134,7 @@ type FakePackedMech = {
   reactor_destroyed: false;
   core_active: boolean;
 };
-//
+
 type FakePackedPilot = {
   id: string;
   name: string;
@@ -100,17 +142,108 @@ type FakePackedPilot = {
   level: number;
   notes: string;
   history: string;
-  quirk: string;
+  quirks: string[];
   current_hp: number;
   background: string;
   mechSkills: [number, number, number, number];
-  // license: { id: string; rank: number }[];
+  reserves: [];
+  orgs: [];
+  licenses: { id: string; rank: number }[];
   skills: { id: string; rank: number }[];
   talents: { id: string; rank: number }[];
   core_bonuses: string[];
   loadout: FakePackedPilotLoadout;
   mechs: [FakePackedMech];
 };
+//
+// NPC
+type FakePackedNPC = {
+  id: string;
+  class: string;
+  tier: number;
+  name: string;
+  labels: [];
+  templates: string[];
+  items: { itemID: string; tier: number; destroyed: false; charged: boolean; uses: number }[];
+  stats: INpcStats;
+  currentStats: INpcStats;
+  note: "";
+  side: "Enemy";
+  statuses: [];
+  conditions: [];
+  resistances: [];
+  burn: number;
+  overshield: number;
+  destroyed: false;
+  actions: number;
+};
+
+//
+// HANDLERS
+function handleNPCExport(actor: LancerActor) {
+  const data = actor.data as LancerNPCActorData;
+  console.log(`Exporting NPC: ${data.name}`);
+
+  const items = (data as any).items;
+  const mech = data.data.mech;
+  const cla = items.find((item: any) => item.type === "npc_class");
+  const stats: INpcStats = {
+    activations: (data as any).activations,
+    armor: mech.armor,
+    structure: mech.structure.max,
+    stress: mech.stress.max,
+    hp: mech.hp.max,
+    evade: mech.evasion,
+    edef: mech.edef,
+    heatcap: mech.heat.max,
+    speed: mech.speed,
+    sensor: mech.sensors,
+    save: mech.save,
+    hull: mech.hull,
+    agility: mech.agility,
+    systems: mech.systems,
+    engineering: mech.engineering,
+    sizes: [mech.size],
+    size: mech.size,
+    reactions: ["Overwatch"],
+  };
+
+  const exportNPC: FakePackedNPC = {
+    id: nanoid(),
+    class: cla ? cla.data.id : "",
+    tier: data.data.tier_num,
+    name: data.name,
+    labels: [],
+    templates: items
+      .filter((item: any) => item.type === "npc_template")
+      .map((item: any) => item.data.id),
+    items: items
+      .filter((item: any) => item.type === "npc_feature")
+      .map((item: any) => {
+        return {
+          itemID: item.data.id,
+          tier: data.data.tier_num,
+          destroyed: false,
+          charged: item.data.charged,
+          uses: item.data.uses,
+        };
+      }),
+    stats: stats,
+    currentStats: { ...stats },
+    note: "",
+    side: "Enemy",
+    statuses: [],
+    conditions: [],
+    resistances: [],
+    burn: 0,
+    overshield: 0,
+    destroyed: false,
+    actions: (data as any).activations,
+  };
+
+  console.log(exportNPC);
+  return exportNPC;
+}
 
 function handlePilotExport(actor: LancerActor) {
   const data = actor.data as LancerPilotActorData;
@@ -172,9 +305,7 @@ function handlePilotExport(actor: LancerActor) {
     integratedMounts: loadout.mounts
       .filter(mount => mount.type === "Integrated")
       .map(mount => {
-        return {
-          weapon: mapWeapon(mount.weapons[0]),
-        };
+        return mapWeapon(mount.weapons[0]);
       }),
   };
 
@@ -185,10 +316,13 @@ function handlePilotExport(actor: LancerActor) {
     level: pilot.level,
     notes: pilot.notes,
     history: pilot.history,
-    quirk: pilot.quirk,
+    quirks: [pilot.quirk],
     current_hp: pilot.stats.hp.value,
     background: pilot.background,
     mechSkills: [mech.hull, mech.agility, mech.systems, mech.engineering],
+    reserves: [],
+    orgs: [],
+    licenses: [],
     skills: items
       .filter((item: Item) => item.type === "skill")
       .map((item: any) => {
@@ -235,8 +369,11 @@ function handlePilotExport(actor: LancerActor) {
   };
 
   console.log(exportPilot);
+  return exportPilot;
 }
 
+//
+// UTILITY
 function mapMount(mount: LancerMountData) {
   const packedMount: FakePackedMount = {
     mount_type: mount.type,

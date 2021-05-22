@@ -20,6 +20,7 @@ import { get_NpcFeatures_pack, ItemManifest, ItemDataManifest } from "../item/ut
 import { LancerNPCTechData, LancerNPCWeaponData } from "../item/npc-feature";
 import { LancerActorSheet } from "./lancer-actor-sheet";
 import { prepareItemMacro } from "../macros";
+import { addExportButton } from "../helpers/io";
 const lp = LANCER.log_prefix;
 
 /**
@@ -216,6 +217,8 @@ export class LancerNPCSheet extends LancerActorSheet {
         await actor.swapNPCClassOrTier(NPCClassStats, false, tier);
       });
     }
+
+    addExportButton(this.object, html);
   }
 
   _onDragMacroableStart(event: DragEvent) {

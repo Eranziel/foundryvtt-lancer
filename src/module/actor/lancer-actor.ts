@@ -306,10 +306,6 @@ export class LancerActor extends Actor {
     await this.update(data);
   }
 
-  async export() {
-    handleActorExport(this);
-  }
-
   async overheatMech() {
     // Assert that we aren't on a deployable somehow
     if (this.isDep(this.data)) {
@@ -360,7 +356,7 @@ export class LancerActor extends Actor {
     ) {
       if (mech.heat.value > mech.heat.max) {
         // https://discord.com/channels/426286410496999425/760966283545673730/789297842228297748
-        mech.heat.value -= (mech.heat.max);
+        mech.heat.value -= mech.heat.max;
         mech.stress.value -= 1;
       }
     }

@@ -25,6 +25,7 @@ import { MountType } from "machine-mind";
 import { import_pilot_by_code, update_pilot } from "./util";
 import { LancerActorSheet } from "./lancer-actor-sheet";
 import { prepareCoreActiveMacro, prepareCorePassiveMacro } from "../macros";
+import { addExportButton } from "../helpers/io";
 
 const lp = LANCER.log_prefix;
 
@@ -430,18 +431,7 @@ export class LancerPilotSheet extends LancerActorSheet {
       });
     }
 
-    this._addExportButton(html);
-  }
-
-  _addExportButton(html: JQuery) {
-    const actor = this.object;
-    const id = actor.data._id;
-    if (!document.getElementById(id)) {
-      // Don't create a second link on re-renders;
-      const link = $(`<a id="${id}"><i class="fas fa-external-link-alt"></i>Export</a>`);
-      link.on("click", () => actor.export());
-      html.parent().parent().find(".window-title").after(link);
-    }
+    addExportButton(this.object, html);
   }
 
   _onDragMacroableStart(event: DragEvent) {
