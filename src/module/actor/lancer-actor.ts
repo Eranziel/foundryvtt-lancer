@@ -13,6 +13,7 @@ import { MountType } from "machine-mind";
 import { LancerFrame, LancerItemData } from "../item/lancer-item";
 import { ItemDataManifest } from "../item/util";
 import { renderMacro } from "../macros";
+import { handleActorExport } from "../helpers/io";
 const lp = LANCER.log_prefix;
 
 export const DEFAULT_MECH = {
@@ -305,10 +306,10 @@ export class LancerActor extends Actor {
     await this.update(data);
   }
 
-  /**
-   * Performs overheat on the mech
-   * For now, just rolls on table. Eventually we can include configuration to do automation
-   */
+  async export() {
+    handleActorExport(this);
+  }
+
   async overheatMech() {
     // Assert that we aren't on a deployable somehow
     if (this.isDep(this.data)) {

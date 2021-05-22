@@ -429,6 +429,19 @@ export class LancerPilotSheet extends LancerActorSheet {
           });
       });
     }
+
+    this._addExportButton(html);
+  }
+
+  _addExportButton(html: JQuery) {
+    const actor = this.object;
+    const id = actor.data._id;
+    if (!document.getElementById(id)) {
+      // Don't create a second link on re-renders;
+      const link = $(`<a id="${id}"><i class="fas fa-external-link-alt"></i>Export</a>`);
+      link.on("click", () => actor.export());
+      html.parent().parent().find(".window-title").after(link);
+    }
   }
 
   _onDragMacroableStart(event: DragEvent) {
