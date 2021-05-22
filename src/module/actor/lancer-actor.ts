@@ -29,6 +29,7 @@ import { RegEntry, MechWeapon, NpcFeature } from "machine-mind";
 import { StabOptions1, StabOptions2 } from "../enums";
 import { limited_max, is_loading } from "machine-mind/dist/classes/mech/EquipUtil";
 import { ActionData } from "../action";
+import { handleActorExport } from "../helpers/io";
 const lp = LANCER.log_prefix;
 
 export function lancerActorInit(data: any) {
@@ -147,7 +148,6 @@ export class LancerActor<T extends LancerActorType> extends Actor {
       return;
     }
   }
-
   async overheatMech() {
     // Table of descriptions
     function stressTableD(roll: number, remStress: number) {
