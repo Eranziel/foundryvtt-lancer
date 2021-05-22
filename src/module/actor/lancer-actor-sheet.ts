@@ -38,6 +38,7 @@ import { ActivationOptions } from "../enums";
 import { applyCollapseListeners, CollapseHandler } from "../helpers/collapse";
 import { FoundryFlagData } from "../mm-util/foundry-reg";
 import { HANDLER_intercept_form_changes } from "../helpers/refs";
+import { addExportButton } from "../helpers/io";
 const lp = LANCER.log_prefix;
 
 /**
@@ -101,6 +102,9 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
 
     // Enable popout editors
     HANDLER_activate_popout_text_editor(html, getfunc, commitfunc);
+
+    // Add export button.
+    addExportButton(this.object, html);
   }
 
   _activateMacroDragging(html: JQuery) {
