@@ -12,7 +12,6 @@ export const _defaultActionData = (target: Actor) => {
     full: true,
     quick: true,
     reaction: true,
-    free: true,
   } as ActionData;
 };
 export const _endTurnActionData = () => {
@@ -22,7 +21,6 @@ export const _endTurnActionData = () => {
     full: false,
     quick: false,
     reaction: true,
-    free: true,
   } as ActionData;
 };
 
@@ -39,16 +37,18 @@ export class LancerActionManager extends Application {
 
   async init() {
     LancerActionManager.enabled = game.settings.get(LANCER.sys_name, LANCER.setting_action_manager);
-    this.loadUserPos();
-    await this.updateControlledToken();
-    this.render(true);
+    if (LancerActionManager.enabled) {
+      this.loadUserPos();
+      await this.updateControlledToken();
+      this.render(true);
+    }
   }
 
   /** @override */
   static get defaultOptions() {
     return mergeObject(super.defaultOptions, {
       template: "systems/lancer/templates/window/action_manager.hbs",
-      width: 360,
+      width: 310,
       height: 70,
       left: LancerActionManager.DEF_LEFT,
       top: LancerActionManager.DEF_TOP,
@@ -112,7 +112,7 @@ export class LancerActionManager extends Application {
 
   private async updateControlledToken() {
     const token = canvas.tokens.controlled[0] as Token;
-    if (token && token.inCombat && (token.actor?.data.type === "mech" || token.actor?.data.type === "npc")) {
+    if (token && token.inCombat && (token.actor.data.type === "mech" || token.actor.data.type === "npc")) {
       // TEMPORARY HANDLING OF OLD TOKENS
       // TODO: Remove when action data is properly within MM.
       if (token.actor.data.data.actions === undefined) {

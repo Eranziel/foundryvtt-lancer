@@ -556,6 +556,12 @@ Hooks.on("closeSettingsConfig", () => {
 Hooks.on("getSceneNavigationContext", async () => {
   game.action_manager && (await game.action_manager.reset());
 });
+Hooks.on("createCombat", (_actor: Actor) => {
+  game.action_manager.update();
+});
+Hooks.on("deleteCombat", (_actor: Actor) => {
+  game.action_manager.update();
+});
 //
 
 // Add any additional hooks if necessary
