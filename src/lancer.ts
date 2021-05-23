@@ -120,6 +120,7 @@ import {
 } from "./module/helpers/item-editors";
 import { applyCollapseListeners } from "./module/helpers/collapse";
 import { handleCombatUpdate } from "./module/helpers/automation/combat";
+import { handleActorExport, validForExport } from "./module/helpers/io";
 
 const lp = LANCER.log_prefix;
 
@@ -190,6 +191,47 @@ Hooks.once("init", async function () {
   customElements.define("card-clipped", class LancerClippedCard extends HTMLDivElement {}, {
     extends: "div",
   });
+
+  const actors_old_getEntryContextOptions = ActorDirectory.prototype._getEntryContextOptions;
+  ActorDirectory.prototype._getEntryContextOptions = function () {
+    const ctxOptions = actors_old_getEntryContextOptions.call(this);
+
+    const editMigratePilot = {
+      name: "Migrate Pilot",
+      icon: '<i class="fas fa-user-circle"></i>',
+      condition: (li: any) => {
+        const actor = game.actors.get(li.data("entityId")) as LancerActor<any>;
+        return actor.data.type === "pilot" && validForExport(actor);
+      },
+      callback: (li: any) => {
+        const actor: LancerActor<EntryType.PILOT> = game.actors.get(li.data("entityId")) as LancerActor<
+          EntryType.PILOT
+        >;
+        const dump = handleActorExport(actor, false);
+        dump && actor.importCC(dump as any);
+      },
+    };
+
+    const editExportPilot = {
+      name: "Export Pilot",
+      icon: '<i class="fas fa-user-circle"></i>',
+      condition: (li: any) => {
+        const actor = game.actors.get(li.data("entityId")) as LancerActor<any>;
+        return actor.data.type === "pilot" && validForExport(actor);
+      },
+      callback: (li: any) => {
+        const actor: LancerActor<EntryType.PILOT> = game.actors.get(li.data("entityId")) as LancerActor<
+          EntryType.PILOT
+        >;
+        handleActorExport(actor, true);
+      },
+    };
+
+    ctxOptions.unshift(editMigratePilot);
+    ctxOptions.unshift(editExportPilot);
+
+    return ctxOptions;
+  };
 
   // Preload Handlebars templates
   await preloadTemplates();

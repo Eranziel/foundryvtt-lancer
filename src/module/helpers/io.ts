@@ -1,4 +1,11 @@
-import { EntryType } from "machine-mind";
+import {
+  EntryType,
+  PackedMechData,
+  PackedMechLoadoutData,
+  PackedMountData,
+  PackedPilotData,
+  PackedPilotLoadoutData,
+} from "machine-mind";
 import { nanoid } from "nanoid";
 import { LancerActor } from "../actor/lancer-actor";
 
@@ -265,7 +272,8 @@ function handlePilotExport(actor: LegacyLancerActor) {
   const mech = (data.data as any).mech;
   const loadout = (data.data as any).mech_loadout;
 
-  const pilotLoadout: FakePackedPilotLoadout = {
+  // Pilot Loadout
+  const pilotLoadout: PackedPilotLoadoutData = {
     id: nanoid(),
     name: "Primary",
     armor: items
@@ -273,6 +281,7 @@ function handlePilotExport(actor: LegacyLancerActor) {
       .map((item: any) => {
         return {
           id: item.data.data.id,
+          uses: item.data.data.uses ? item.data.data.uses : 0,
           destroyed: false,
           cascading: false,
           customDamageType: null,
@@ -283,6 +292,7 @@ function handlePilotExport(actor: LegacyLancerActor) {
       .map((item: any) => {
         return {
           id: item.data.data.id,
+          uses: item.data.data.uses ? item.data.data.uses : 0,
           destroyed: false,
           cascading: false,
           customDamageType: null,
@@ -302,7 +312,7 @@ function handlePilotExport(actor: LegacyLancerActor) {
     extendedWeapons: [],
     extendedGear: [],
   };
-  const mechLoadout: FakePackedMechLoadout = {
+  const mechLoadout: PackedMechLoadoutData = {
     id: nanoid(),
     name: "Primary",
     systems: items
@@ -313,6 +323,7 @@ function handlePilotExport(actor: LegacyLancerActor) {
           uses: item.data.data.uses ? item.data.data.uses : 0,
           destroyed: false,
           cascading: false,
+          note: "",
         };
       }),
     integratedSystems: items
@@ -323,6 +334,7 @@ function handlePilotExport(actor: LegacyLancerActor) {
           uses: item.data.data.uses ? item.data.data.uses : 0,
           destroyed: false,
           cascading: false,
+          note: "",
         };
       }),
     mounts: loadout.mounts.filter((mount: any) => mount.type !== "Integrated").map((mount: any) => mapMount(mount)),
@@ -331,23 +343,40 @@ function handlePilotExport(actor: LegacyLancerActor) {
       .map((mount: any) => {
         return mapWeapon(mount.weapons[0]);
       }),
+    improved_armament: { bonus_effects: [], extra: [], lock: false, mount_type: "Flex", slots: [] },
+    integratedWeapon: { bonus_effects: [], extra: [], lock: false, mount_type: "Aux", slots: [] },
   };
 
   const frame = items.find((item: Item) => item.type === "frame");
-  const exportPilot: FakePackedPilot = {
+  const exportPilot: PackedPilotData = {
     id: nanoid(),
     name: pilot.name,
     callsign: pilot.callsign,
     level: pilot.level,
     notes: pilot.notes,
     history: pilot.history,
-    quirks: [pilot.quirk],
+    group: "",
+    factionID: "",
+    campaign: "",
+    cloudID: pilot.cloud_code,
+    cloudOwnerID: pilot.cloud_owner_code,
+    lastCloudUpdate: pilot.cloud_time,
+    player_name: data.data.player_name,
+    status: data.data.status,
+    text_appearance: data.data.text_appearance,
+    portrait: data.data.portrait,
+    cloud_portrait: data.data.cloud_portrait,
+    cc_ver: "",
+    quirk: pilot.quirk,
+    brews: [],
+    combat_history: {} as any,
     current_hp: pilot.stats.hp.value,
     background: pilot.background,
     mechSkills: [mech.hull, mech.agility, mech.systems, mech.engineering],
     reserves: [],
     orgs: [],
     licenses: [],
+    sort_index: 0,
     skills: items
       .filter((item: Item) => item.type === "skill")
       .map((item: any) => {
@@ -367,13 +396,13 @@ function handlePilotExport(actor: LegacyLancerActor) {
         frame: frame ? frame.data.data.id : undefined,
         active: true,
         current_structure: mech.structure.value,
-        current_move: mech.speed,
         current_hp: mech.hp.value,
         current_stress: mech.stress.value,
+        current_move: mech.move,
         current_heat: mech.heat.value,
         current_repairs: mech.repairs.value,
         current_overcharge: mech.overcharge_level,
-        current_core_energy: mech.current_core_energy,
+        current_core_energy: mech.current_core_energy ? 1 : 0,
         overshield: 0,
         loadouts: [mechLoadout],
         statuses: [],
@@ -387,8 +416,17 @@ function handlePilotExport(actor: LegacyLancerActor) {
         reactor_destroyed: false,
         core_active: false,
         active_loadout_index: 0,
-      },
+        notes: "",
+        gm_note: "",
+        cc_ver: "",
+        defeat: "",
+        portrait: "",
+        cloud_portrait: "",
+        ejected: false,
+      } as PackedMechData,
     ],
+    counter_data: [],
+    custom_counters: [],
   };
 
   console.log(exportPilot);
@@ -427,6 +465,6 @@ function mapWeapon(weapon: any): FakePackedWeapon {
   };
 }
 
-function validForExport(actor: LegacyLancerActor | LancerActor<any>) {
+export function validForExport(actor: LegacyLancerActor | LancerActor<any>) {
   return !actor.data.data?.cc_ver?.startsWith("MchMnd2");
 }
