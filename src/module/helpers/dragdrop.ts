@@ -1,5 +1,6 @@
 import { EntryType, LiveEntryTypes, OpCtx, RegEntry, RegRef } from "machine-mind";
 import { is_actor_type, LancerActor, LancerActorType } from "../actor/lancer-actor";
+import { PACK_SCOPE } from "../compBuilder";
 import { is_item_type, LancerItem, LancerItemType } from "../item/lancer-item";
 import { FoundryReg } from "../mm-util/foundry-reg";
 import { mm_wrap_actor, mm_wrap_item } from "../mm-util/helpers";
@@ -302,7 +303,7 @@ export function convert_ref_to_native<T extends EntryType>(ref: RegRef<T>): Nati
       return {
         type: "Item",
         id: ref.id,
-        pack: "world." + ref.type,
+        pack: `${PACK_SCOPE}.${ref.type}`,
       };
     } else {
       return null; // Couldn't make an explicit native item ref
@@ -319,7 +320,7 @@ export function convert_ref_to_native<T extends EntryType>(ref: RegRef<T>): Nati
       return {
         type: "Actor",
         id: ref.id,
-        pack: "world." + ref.type,
+        pack: `${PACK_SCOPE}.${ref.type}`,
       };
     }
   } else {

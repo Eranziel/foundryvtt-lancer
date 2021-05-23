@@ -31,18 +31,20 @@ type PilotItemEntryType =
 
 type ItemEntryType = MechItemEntryType | PilotItemEntryType;
 
+export const PACK_SCOPE = "lancer";
+
 // Clear all packs
 export async function clear_all(): Promise<void> {
   await set_all_lock(false);
   for (let p of Object.values(EntryType)) {
     let pack: Compendium | undefined;
-    pack = game.packs.get(`world.${p}`);
-    if(!pack) continue;
+    pack = game.packs.get(`${PACK_SCOPE}.${p}`);
+    if (!pack) continue;
 
     await pack.getIndex();
     let keys = Array.from(pack.index.keys());
     // @ts-ignore .8
-    await pack.documentClass.deleteDocuments(keys, {pack: pack.collection});
+    await pack.documentClass.deleteDocuments(keys, { pack: pack.collection });
   }
   await set_all_lock(true);
 }
@@ -66,7 +68,7 @@ async function transfer_cat<G extends EntryType>(
       relinker: quick_relinker({
         key_pairs: [["LID", "lid"] as any, ["Name", "name"]],
       }) as any,
-    })) as LiveEntryTypes<G>; 
+    })) as LiveEntryTypes<G>;
     items.push(insinuated);
     // We try pretty hard to find a matching item.
     // First by MMID
@@ -157,8 +159,8 @@ export async function import_cp(
 // Lock/Unlock all packs
 async function set_all_lock(lock: boolean) {
   for (let p of Object.values(EntryType)) {
-    const key = `world.${p}`;
+    const key = `${PACK_SCOPE}.${p}`;
     // @ts-ignore .8
-    game.packs.get(key)?.configure({private: false, locked: lock});
+    game.packs.get(key)?.configure({ private: false, locked: lock });
   }
 }

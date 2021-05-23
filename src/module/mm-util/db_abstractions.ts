@@ -1,5 +1,6 @@
 import { EntryType, LiveEntryTypes, RegEntry, RegEntryTypes } from "machine-mind";
 import { is_actor_type, LancerActor, LancerActorType, LancerActorTypes } from "../actor/lancer-actor";
+import { PACK_SCOPE } from "../compBuilder";
 import { FriendlyTypeName, LANCER } from "../config";
 import { LancerItem, LancerItemType } from "../item/lancer-item";
 import { FoundryFlagData } from "./foundry-reg";
@@ -429,7 +430,7 @@ export class CompendiumWrapper<T extends EntryType> extends EntityCollectionWrap
 
     // Add them all to the currently cached version
     for (let ni of new_items) {
-      PackContentMapCache.soft_fetch(this.type)?.set(ni._id, ni);
+      PackContentMapCache.soft_fetch(this.type)?.set(ni.data._id, ni);
     }
 
     // Return the references
@@ -506,7 +507,7 @@ interface PackMetadata {
 
 // Get a pack id
 export function get_pack_id(type: EntryType): string {
-  return "lancer." + type;
+  return `${PACK_SCOPE}.${type}`;
 }
 
 // Retrieve a pack, or create it as necessary

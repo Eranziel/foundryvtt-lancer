@@ -668,6 +668,9 @@ async function versionCheck() {
   // Determine whether a system migration is required and feasible
   const currentVersion = game.settings.get(LANCER.sys_name, LANCER.setting_migration);
 
+  // Toggle flags for different stages.
+  await migrations.migrateWorld(false, false);
+
   console.warn("Skipping version check due to invalid semver...");
   return;
 

@@ -10,6 +10,7 @@ import { buildCounterHTML } from "../helpers/item";
 import { LancerActorSheetData } from "../interfaces";
 import { ref_commons, ref_params, simple_mm_ref } from "../helpers/refs";
 import { resolve_dotpath } from "../helpers/commons";
+import { LancerActor } from "./lancer-actor";
 
 const lp = LANCER.log_prefix;
 
@@ -91,123 +92,16 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
 
       // Cloud download
       let download = html.find('.cloud-control[data-action*="download"]');
+      let actor = this.actor as LancerActor<EntryType.PILOT>;
       download.on("click", async ev => {
         ev.stopPropagation();
-        try {
-          // Fetch data to sync
-          ui.notifications.info("Importing character...");
-          let self = await this.getDataLazy();
-          let raw_pilot_data = await funcs.gist_io.download_pilot(self.mm.CloudID);
+        // Fetch data to sync
+        ui.notifications.info("Importing character...");
+        let self = await this.getDataLazy();
+        let raw_pilot_data = await funcs.gist_io.download_pilot(self.mm.CloudID);
 
-          // Get/create folder for sub-actors
-          let unit_folder_name = `${raw_pilot_data.callsign}'s Units`;
-          let unit_folder = game.folders.getName(unit_folder_name);
-          if (!unit_folder) {
-            unit_folder = await Folder.create({
-              name: unit_folder_name,
-              type: "Actor",
-              sorting: "a",
-              // @ts-ignore  ActorData has folder, always, as far as I can tell
-              parent: this.actor.data.folder || null,
-            });
-          }
-          console.log("Unit folder id:", unit_folder.id);
-
-          // Setup registries
-          let ps1 = new FoundryReg({
-            // We look for missing items in world first
-            item_source: ["world", null],
-            actor_source: "world",
-          });
-          let ps2 = new FoundryReg({
-            // We look for missing items in compendium second
-            item_source: ["compendium", null],
-            actor_source: "compendium",
-          });
-
-          // Setup relinker to be folder bound for actors
-          let base_relinker = quick_relinker<any>({
-            key_pairs: [
-              ["LID", "lid"],
-              ["Name", "name"],
-            ],
-          });
-
-          // Setup sync tracking etc
-          let synced_deployables: Deployable[] = []; // Track these as we go
-          let synced_data = await funcs.cloud_sync(raw_pilot_data, self.mm, [ps1, ps2], {
-            relinker: async (source_item, dest_reg, dest_cat) => {
-              // Link by specific subfolder if deployable
-              if (source_item.Type == EntryType.DEPLOYABLE) {
-                console.log("Relinking deployable: ", source_item);
-                // Narrow down our destination options to find one that's in the proper folder
-                let dest_deployables = (await dest_cat.list_live(source_item.OpCtx)) as Deployable[];
-                return dest_deployables.find(dd => {
-                  let dd_folder_id: string = dd.Flags.orig_doc.data.folder;
-                  console.log(
-                    "Checking folder: " + dd.Name + " has folder id " + dd_folder_id + " which ?== " + unit_folder!._id
-                  );
-                  if (dd_folder_id != unit_folder!._id) {
-                    return false;
-                  }
-
-                  // Still need to have the right name, though. Do by substring since we reformat quite a bit
-                  return dd.Name.includes(source_item.Name);
-                });
-              } else {
-                return base_relinker(source_item, dest_reg, dest_cat);
-              }
-            },
-            // Rename and rehome deployables
-            // @TODO: pilot typing weirdness.
-            // @ts-ignore
-            sync_deployable_nosave: (dep: Deployable) => {
-              let flags = dep.Flags as FoundryFlagData<EntryType.DEPLOYABLE>;
-              flags.top_level_data["name"] = dep.Name;
-              flags.top_level_data["folder"] = unit_folder!._id;
-              flags.top_level_data["token.name"] = `${raw_pilot_data.callsign}'s ${dep.Name}`;
-              // dep.writeback(); -- do this later, after setting active!
-              synced_deployables.push(dep);
-            },
-            // Rename and rehome mechs
-            sync_mech: (mech: Mech) => {
-              let flags = mech.Flags as FoundryFlagData<EntryType.MECH>;
-              flags.top_level_data["name"] = mech.Name;
-              flags.top_level_data["folder"] = unit_folder!._id;
-              flags.top_level_data["token.name"] = raw_pilot_data.callsign;
-              // TODO: Retrogrades
-            },
-            // Set pilot token
-            sync_pilot: (pilot: Pilot) => {
-              let flags = pilot.Flags as FoundryFlagData<EntryType.PILOT>;
-              let new_img = replace_default_resource(flags.top_level_data["img"], pilot.CloudPortrait);
-              flags.top_level_data["name"] = pilot.Name;
-              flags.top_level_data["img"] = new_img;
-              flags.top_level_data["token.name"] = pilot.Callsign;
-              flags.top_level_data["token.img"] = new_img;
-            },
-          });
-
-          // Now we can iterate over deploys, setting their deployer to active mech and writing back again. Set all deployers to the pilots active mech
-          let active = await (synced_data as any).ActiveMech();
-          for (let deployable of synced_deployables) {
-            if (active) {
-              // deployable.Deployer = active;
-              // TODO: RE-ENABLE
-            }
-            deployable.writeback();
-          }
-
-          // Reset curr data and render all
-          this._currData = null;
-          this.actor.render();
-          (await (synced_data as any).Mechs()).forEach((m: Mech) => m.Flags.orig_doc.render());
-
-          ui.notifications.info("Successfully loaded pilot state from cloud");
-        } catch (e) {
-          console.warn(e);
-          ui.notifications.warn("Failed to update pilot, likely due to missing LCP data: " + e.message);
-        }
+        await actor.importCC(raw_pilot_data);
+        this._currData = null;
       });
     }
   }

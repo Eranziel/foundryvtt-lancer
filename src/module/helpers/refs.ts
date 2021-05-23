@@ -358,9 +358,9 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
         <a class="cci cci-rank-${
           i + 1
         } i--l i--dark talent-macro macroable" data-rank="${i}" style="grid-area: 1/1/2/2"></a>
-        <span class="major" style="grid-area: 1/2/2/3">${talent.Ranks[i].Name}</span>
+        <span class="major" style="grid-area: 1/2/2/3">${talent.Ranks[i]?.Name}</span>
         <div class="effect-text" style="grid-area: 2/1/3/3">
-        ${talent.Ranks[i].Description}
+        ${talent.Ranks[i]?.Description}
         </div>
         </li>`;
       }

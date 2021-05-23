@@ -1,73 +1,107 @@
 // @ts-nocheck
 // We do not care about this file being super rigorous
 
-import { LANCER } from "./config";
+import { handleActorExport } from "./helpers/io";
+import { LancerActor } from "./actor/lancer-actor";
 
 /**
  * Perform a system migration for the entire World, applying migrations for Actors, Items, and Compendium packs
  * @return {Promise}      A Promise which resolves once the migration is completed
  */
-export const migrateWorld = async function () {
+export const migrateWorld = async function (migrateComps = true, migrateActors = true) {
   ui.notifications.info(
     `Applying LANCER System Migration for version ${game.system.data.version}. Please be patient and do not close your game or shut down your server.`,
     { permanent: true }
   );
 
-  // Migrate World Actors
-  for (let a of game.actors.entities) {
-    try {
-      const updateData = migrateActorData(a);
-      if (!isObjectEmpty(updateData)) {
-        console.log(`Migrating Actor entity ${a.name}`);
-        await a.update(updateData, { enforceTypes: false });
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  }
-
-  // Migrate World Items
-  for (let i of game.items.entities) {
-    try {
-      const updateData = migrateItemData(i);
-      if (!isObjectEmpty(updateData)) {
-        console.log(`Migrating Item entity ${i.name}`);
-        await i.update(updateData, { enforceTypes: false });
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  }
-
-  // Migrate Actor Override Tokens
-  for (let s of game.scenes.entities) {
-    try {
-      const updateData = migrateSceneData(s);
-      if (updateData && !isObjectEmpty(updateData)) {
-        console.log(`Migrating Scene entity ${s.name}`);
-        await s.update(updateData, { enforceTypes: false });
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  }
-
   // Migrate World Compendium Packs
-  for (let p of game.packs) {
-    if (p.metadata.package === "world" && ["Actor", "Item", "Scene"].includes(p.metadata.entity)) {
-      await migrateCompendium(p);
+  // await scorchedEarthCompendiums();
+  // for (let p of game.packs) {
+  //   if (p.metadata.package === "world" && ["Actor", "Item", "Scene"].includes(p.metadata.entity)) {
+  //     await migrateCompendium(p);
+  //   }
+  // }
+
+  // Migrate World Actors
+  if (migrateActors) {
+    for (let a of game.actors.values()) {
+      try {
+        if (a.data.type === "pilot") {
+          const ret = handleActorExport(a, false);
+          if (ret) {
+            console.log(`== Migrating Actor entity ${a.name}`);
+            (a as LancerActor).importCC(ret);
+            console.log(ret);
+          }
+        }
+      } catch (err) {
+        console.error(err);
+        console.error(`== Migrating Actor entity ${a.name} failed.`);
+      }
     }
   }
+
+  // // Migrate World Items
+  // for (let i of game.items.entities) {
+  //   try {
+  //     const updateData = migrateItemData(i);
+  //     if (!isObjectEmpty(updateData)) {
+  //       console.log(`Migrating Item entity ${i.name}`);
+  //       await i.update(updateData, { enforceTypes: false });
+  //     }
+  //   } catch (err) {
+  //     console.error(err);
+  //   }
+  // }
+
+  // // Migrate Actor Override Tokens
+  // for (let s of game.scenes.entities) {
+  //   try {
+  //     const updateData = migrateSceneData(s);
+  //     if (updateData && !isObjectEmpty(updateData)) {
+  //       console.log(`Migrating Scene entity ${s.name}`);
+  //       await s.update(updateData, { enforceTypes: false });
+  //     }
+  //   } catch (err) {
+  //     console.error(err);
+  //   }
+  // }
 
   // Set the migration as complete
   // await game.settings.set(LANCER.sys_name, LANCER.setting_migration, game.system.data.version);
-  ui.notifications.info(
-    `LANCER System Migration to version ${game.system.data.version} completed!`,
-    { permanent: true }
-  );
+  ui.notifications.info(`LANCER System Migration to version ${game.system.data.version} completed!`, {
+    permanent: true,
+  });
 };
 
 /* -------------------------------------------- */
+
+const compTitles = [
+  "Skill Triggers",
+  "Talents",
+  "Core Bonuses",
+  "Pilot Armor",
+  "Pilot Weapons",
+  "Pilot Gear",
+  "Frames",
+  "Systems",
+  "Weapons",
+  "NPC Classes",
+  "NPC Templates",
+  "NPC Features",
+];
+export const scorchedEarthCompendiums = async () => {
+  game.packs
+    .filter(comp => compTitles.includes(comp.title))
+    .forEach(async comp => {
+      await comp.configure({ locked: false });
+      await comp.deleteCompendium();
+
+      await CompendiumCollection.createCompendium({ entity: "Item", label: comp.title, locked: true });
+    });
+
+  await game.settings.set("lancer", "coreDataVersion", "0.0.0");
+};
 
 /**
  * Apply migration rules to all Entities within a single Compendium pack
@@ -76,15 +110,15 @@ export const migrateWorld = async function () {
  */
 export const migrateCompendium = async function (pack: Compendium) {
   const wasLocked = pack.locked;
-  pack.locked = false;
-  if (pack.locked)
-    return ui.notifications.error(`Could not migrate ${pack.collection} as it is locked.`);
+  await pack.configure({ locked: false });
+  if (pack.locked) return ui.notifications.error(`Could not migrate ${pack.collection} as it is locked.`);
   const entity = pack.metadata.entity;
   if (!["Actor", "Item", "Scene"].includes(entity)) return;
 
   // Begin by requesting server-side data model migration and get the migrated content
   await pack.migrate({});
-  const content = await pack.getContent();
+
+  const content = await pack.getDocuments();
 
   // Iterate over compendium entries - applying fine-tuned migration functions
   for (let ent of content) {
@@ -103,7 +137,7 @@ export const migrateCompendium = async function (pack: Compendium) {
       console.error(err);
     }
   }
-  pack.locked = wasLocked;
+  await pack.configure({ locked: wasLocked });
   console.log(`Migrated all ${entity} entities from Compendium ${pack.collection}`);
 };
 

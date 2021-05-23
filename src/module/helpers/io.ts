@@ -21,8 +21,8 @@ type LegacyLancerActor = {
  */
 export function handleActorExport(actor: LegacyLancerActor | LancerActor<any>, download = true) {
   // TODO: replace check with version check and appropriate export handler.
-  if (validForExport(actor)) {
-    ui.notifications.warn("Exporting for this version of actor is currently unsupported.");
+  if (!validForExport(actor)) {
+    // ui.notifications.warn("Exporting for this version of actor is currently unsupported.");
     return null;
   }
 
@@ -271,19 +271,29 @@ function handlePilotExport(actor: LegacyLancerActor) {
     armor: items
       .filter((item: Item) => item.type === "pilot_armor")
       .map((item: any) => {
-        return { id: item.data.id, destroyed: false, cascading: false, customDamageType: null };
+        return {
+          id: item.data.data.id,
+          destroyed: false,
+          cascading: false,
+          customDamageType: null,
+        };
       }),
     weapons: items
       .filter((item: Item) => item.type === "pilot_weapon")
       .map((item: any) => {
-        return { id: item.data.id, destroyed: false, cascading: false, customDamageType: null };
+        return {
+          id: item.data.data.id,
+          destroyed: false,
+          cascading: false,
+          customDamageType: null,
+        };
       }),
     gear: items
       .filter((item: Item) => item.type === "pilot_gear")
       .map((item: any) => {
         return {
-          id: item.data.id,
-          uses: item.data.uses,
+          id: item.data.data.id,
+          uses: item.data.data.uses ? item.data.data.uses : 0,
           destroyed: false,
           cascading: false,
           customDamageType: null,
@@ -298,12 +308,22 @@ function handlePilotExport(actor: LegacyLancerActor) {
     systems: items
       .filter((item: any) => item.type === "mech_system" && !item.data.integrated)
       .map((item: any) => {
-        return { id: item.data.id, uses: item.data.uses, destroyed: false, cascading: false };
+        return {
+          id: item.data.data.id,
+          uses: item.data.data.uses ? item.data.data.uses : 0,
+          destroyed: false,
+          cascading: false,
+        };
       }),
     integratedSystems: items
       .filter((item: any) => item.type === "mech_system" && item.data.integrated)
       .map((item: any) => {
-        return { id: item.data.id, uses: item.data.uses, destroyed: false, cascading: false };
+        return {
+          id: item.data.data.id,
+          uses: item.data.data.uses ? item.data.data.uses : 0,
+          destroyed: false,
+          cascading: false,
+        };
       }),
     mounts: loadout.mounts.filter((mount: any) => mount.type !== "Integrated").map((mount: any) => mapMount(mount)),
     integratedMounts: loadout.mounts
@@ -313,6 +333,7 @@ function handlePilotExport(actor: LegacyLancerActor) {
       }),
   };
 
+  const frame = items.find((item: Item) => item.type === "frame");
   const exportPilot: FakePackedPilot = {
     id: nanoid(),
     name: pilot.name,
@@ -330,20 +351,20 @@ function handlePilotExport(actor: LegacyLancerActor) {
     skills: items
       .filter((item: Item) => item.type === "skill")
       .map((item: any) => {
-        return { id: item.data.id, rank: item.data.rank };
+        return { id: item.data.data.id, rank: item.data.data.rank };
       }),
     talents: items
       .filter((item: Item) => item.type === "talent")
       .map((item: any) => {
-        return { id: item.data.id, rank: item.data.rank };
+        return { id: item.data.data.id, rank: item.data.data.rank };
       }),
-    core_bonuses: items.filter((item: Item) => item.type === "core_bonus").map((item: any) => item.data.id),
+    core_bonuses: items.filter((item: Item) => item.type === "core_bonus").map((item: any) => item.data.data.id),
     loadout: pilotLoadout,
     mechs: [
       {
         id: nanoid(),
         name: mech.name,
-        frame: items.find((item: Item) => item.type === "frame")?.data.id,
+        frame: frame ? frame.data.data.id : undefined,
         active: true,
         current_structure: mech.structure.value,
         current_move: mech.speed,
@@ -407,5 +428,5 @@ function mapWeapon(weapon: any): FakePackedWeapon {
 }
 
 function validForExport(actor: LegacyLancerActor | LancerActor<any>) {
-  return actor.data.data?.cc_ver?.startsWith("MchMnd2");
+  return !actor.data.data?.cc_ver?.startsWith("MchMnd2");
 }
