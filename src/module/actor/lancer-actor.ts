@@ -621,9 +621,9 @@ export class LancerActor<T extends LancerActorType> extends Actor {
             return dest_deployables.find(dd => {
               let dd_folder_id: string = dd.Flags.orig_doc.data.folder;
               console.log(
-                "Checking folder: " + dd.Name + " has folder id " + dd_folder_id + " which ?== " + unit_folder!._id
+                "Checking folder: " + dd.Name + " has folder id " + dd_folder_id + " which ?== " + unit_folder!.id
               );
-              if (dd_folder_id != unit_folder!._id) {
+              if (dd_folder_id != unit_folder!.id) {
                 return false;
               }
 
@@ -639,9 +639,10 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         // @ts-ignore
         sync_deployable_nosave: (dep: Deployable) => {
           let flags = dep.Flags as FoundryFlagData<EntryType.DEPLOYABLE>;
-          flags.top_level_data["name"] = dep.Name;
-          flags.top_level_data["folder"] = unit_folder!._id;
-          flags.top_level_data["token.name"] = `${data.callsign}'s ${dep.Name}`;
+          let owned_name = `${data.callsign}'s ${dep.Name}`;
+          flags.top_level_data["name"] = owned_name;
+          flags.top_level_data["folder"] = unit_folder!.id;
+          flags.top_level_data["token.name"] = owned_name;
           // dep.writeback(); -- do this later, after setting active!
           synced_deployables.push(dep);
         },
@@ -649,7 +650,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         sync_mech: (mech: Mech) => {
           let flags = mech.Flags as FoundryFlagData<EntryType.MECH>;
           flags.top_level_data["name"] = mech.Name;
-          flags.top_level_data["folder"] = unit_folder!._id;
+          flags.top_level_data["folder"] = unit_folder!.id;
           flags.top_level_data["token.name"] = data.callsign;
           // TODO: Retrogrades
         },
@@ -668,7 +669,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
       let active = await (synced_data as any).ActiveMech();
       for (let deployable of synced_deployables) {
         if (active) {
-          // deployable.Deployer = active;
+          deployable.Deployer = active;
           // TODO: RE-ENABLE
         }
         deployable.writeback();

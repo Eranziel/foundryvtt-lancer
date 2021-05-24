@@ -421,12 +421,12 @@ export class CompendiumWrapper<T extends EntryType> extends EntityCollectionWrap
           type: this.type,
           name: d.name,
           data: duplicate(d),
-        }),
+        })),
         {
           pack: this.pack_id,
         }
       )
-    )) as EntFor<T>[];
+    ) as EntFor<T>[];
 
     // Add them all to the currently cached version
     for (let ni of new_items) {
@@ -630,5 +630,6 @@ export async function cached_get_pack_map<T extends LancerItemType | LancerActor
 
 // Use this for incoming compendium updates, as we cannot really watch for them otherwise
 export function invalidate_cached_pack_map<T extends EntryType>(type: T) {
+  console.log("Flushed cache: ", type);
   PackContentMapCache.flush(type);
 }

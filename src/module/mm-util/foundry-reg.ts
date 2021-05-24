@@ -522,7 +522,6 @@ export class FoundryRegCat<T extends EntryType> extends RegCat<T> {
   async wrap_doc(ctx: OpCtx, ent: T extends LancerActorType ? LancerActor<T> : T extends LancerItemType ? LancerItem<T> : never): Promise<LiveEntryTypes<T> | null> {
     let id = ent.id;
 
-    console.log("Wrapping");
     // ID is different if we are an unlinked token 
     if(ent instanceof LancerActor && ent.isToken) {
       id = ent.token.id;
