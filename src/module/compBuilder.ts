@@ -7,7 +7,6 @@ import {
   LiveEntryTypes,
   OpCtx,
   quick_relinker,
-  RegEntry,
   RegEnv,
   Registry,
   StaticReg,
@@ -137,6 +136,6 @@ async function set_all_lock(lock: boolean) {
   for (let p of Object.values(EntryType)) {
     const key = `${PACK_SCOPE}.${p}`;
     // @ts-ignore .8
-    game.packs.get(key)?.configure({ private: false, locked: lock });
+    await game.packs.get(key)?.configure({ private: false, locked: lock });
   }
 }

@@ -428,37 +428,48 @@ ul.items-list {
   max-height: $pixels;
 }
 
+@mixin vert-mid() {
+  vertical-align: middle;
+}
+
 .i--click {
   cursor: pointer;
 }
 
 .i--xs {
   @include icon-size(15px);
+  @include vert-mid();
 }
 
 .i--s {
   @include icon-size(20px);
+  @include vert-mid();
 }
 
 .i--sm {
   @include icon-size(25px);
+  @include vert-mid();
 }
 
 .i--m {
   @include icon-size(30px);
+  @include vert-mid();
 }
 
 .i--l {
   @include icon-size(40px);
+  @include vert-mid();
 }
 
 .i--xl {
   @include icon-size(60px);
+  @include vert-mid();
 }
 
 .size-icon,
 .tier-icon {
   @include icon-size(120px);
+  @include vert-mid();
 }
 
 .profile-img {
