@@ -2,9 +2,9 @@
   "name": "lancer",
   "title": "LANCER",
   "description": "A Foundry VTT game system for <a href=\"https://massif-press.itch.io/corebook-pdf\">Lancer</a> by <a href=\"https://massif-press.itch.io/\">Massif Press</a>, a mud-and-lasers tactical mech RPG.",
-  "version": "1.0.0",
-  "minimumCoreVersion": "0.8.0",
-  "compatibleCoreVersion": "0.8.4",
+  "version": "0.9.2",
+  "minimumCoreVersion": "0.8.4",
+  "compatibleCoreVersion": "0.8.5",
   "author": "Eranziel",
   "scripts": [],
   "esmodules": [
