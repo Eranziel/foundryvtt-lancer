@@ -3,6 +3,7 @@ const lp = LANCER.log_prefix;
 import { import_cp, clearCompendiumData, set_all_lock } from "../compBuilder";
 import * as mm from "machine-mind";
 import { IContentPack, IContentPackManifest } from "machine-mind";
+import { migrateAllActors } from "../migration";
 
 function addLCPManager(app: Application, html: any) {
   if (app.options.id == "compendium") {
@@ -14,12 +15,20 @@ function addLCPManager(app: Application, html: any) {
       console.log(`${lp} Unable to add LCP Manager button - Compendium Tab buttons not found!`, buttons);
       return;
     }
-    const button = document.createElement("button");
+    let button = document.createElement("button");
     button.setAttribute("style", "flex-basis: 100%;margin-top: 5px;");
     button.innerHTML = "<i class='cci cci-content-manager i--s'></i> LANCER Compendium Manager";
     buttons.append(button);
     button.addEventListener("click", () => {
       new LCPManager().render(true);
+    });
+
+    button = document.createElement("button");
+    button.setAttribute("style", "flex-basis: 100%;margin-top: 5px;");
+    button.innerHTML = "<i class='fas fa-users'></i>Migrate Actors";
+    buttons.append(button);
+    button.addEventListener("click", () => {
+      migrateAllActors();
     });
   }
 }
@@ -240,7 +249,17 @@ export async function updateCore(version: string, manager?: LCPManager) {
   ui.notifications.info(`Updating Lancer Core data to v${version}. Please wait.`);
 
   console.log(`${lp} Updating Lancer Core data to v${version}`);
-  await import_cp(mm.funcs.get_base_content_pack(), progress_func);
+  try {
+    await import_cp(mm.funcs.get_base_content_pack(), progress_func);
+  } catch (err) {
+    console.error(err);
+
+    ui.notifications.warn(
+      `Lancer Core data update ran into an issue... Please open the compendium manager and attempt an update after clearing LCPs.`
+    );
+    // await set_all_lock(true);
+    return;
+  }
 
   ui.notifications.info(`Lancer Core data update complete.`);
   await set_all_lock(true);

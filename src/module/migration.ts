@@ -1,9 +1,11 @@
 // @ts-nocheck
 // We do not care about this file being super rigorous
-
+import { LANCER } from "./config";
 import { handleActorExport } from "./helpers/io";
 import { LancerActor } from "./actor/lancer-actor";
-import { updateCore } from "./apps/lcpManager";
+import { updateCore, LCPIndex } from "./apps/lcpManager";
+
+import compareVersions = require("compare-versions");
 
 /**
  * Perform a system migration for the entire World, applying migrations for Actors, Items, and Compendium packs
@@ -18,7 +20,7 @@ export const migrateWorld = async function (migrateComps = true, migrateActors =
   // Migrate World Compendium Packs
   if (migrateComps) {
     await scorchedEarthCompendiums();
-    // await updateCore("3.0.21");
+    await updateCore("3.0.21");
 
     // for (let p of game.packs) {
     //   if (p.metadata.package === "world" && ["Actor", "Item", "Scene"].includes(p.metadata.entity)) {
@@ -28,23 +30,15 @@ export const migrateWorld = async function (migrateComps = true, migrateActors =
   }
 
   // Migrate World Actors
-  if (migrateActors) {
-    for (let a of game.actors.values()) {
-      try {
-        if (a.data.type === "pilot") {
-          const ret = handleActorExport(a, false);
-          if (ret) {
-            console.log(`== Migrating Actor entity ${a.name}`);
-            (a as LancerActor).importCC(ret);
-            console.log(ret);
-          }
-        }
-      } catch (err) {
-        console.error(err);
-        console.error(`== Migrating Actor entity ${a.name} failed.`);
-      }
-    }
-  }
+  // NEVERMIND, GMs gotta update LCPs first.
+  // const dataVersion = game.settings.get(LANCER.sys_name, LANCER.setting_core_data);
+  // if (migrateActors && compareVersions(dataVersion, "3.0.0") > 0) {
+  //   await migrateAllActors();
+  // } else {
+  //   ui.notifications.warn(
+  //     "Actor migration paused due to old Core Data. Please update your compendiums and manually trigger migration."
+  //   );
+  // }
 
   // // Migrate World Items
   // for (let i of game.items.entities) {
@@ -81,29 +75,92 @@ export const migrateWorld = async function (migrateComps = true, migrateActors =
 
 /* -------------------------------------------- */
 
-const compTitles = [
-  "Skill Triggers",
-  "Talents",
-  "Core Bonuses",
-  "Pilot Armor",
-  "Pilot Weapons",
-  "Pilot Gear",
-  "Frames",
-  "Systems",
-  "Weapons",
-  "NPC Classes",
-  "NPC Templates",
-  "NPC Features",
-];
-export const scorchedEarthCompendiums = async () => {
-  game.packs
-    .filter(comp => compTitles.includes(comp.title))
-    .forEach(async comp => {
-      await comp.configure({ locked: false });
-      await comp.deleteCompendium();
-    });
+const compTitles = {
+  old: [
+    "Skill Triggers",
+    "Talents",
+    "Core Bonuses",
+    "Pilot Armor",
+    "Pilot Weapons",
+    "Pilot Gear",
+    "Frames",
+    "Systems",
+    "Weapons",
+    "NPC Classes",
+    "NPC Templates",
+    "NPC Features",
+  ],
+  new: {
+    Actor: ["Deployable"],
+    Item: [
+      "Core Bonus",
+      "Environment",
+      "Frame",
+      "License",
+      "Manufacturer",
+      "Mech System",
+      "Mech Weapon",
+      "Pilot Armor",
+      "Pilot Gear",
+      "Reserve",
+      "Sitrep",
+      "Skill",
+      "Status/Condition",
+      "Tag",
+      "Talent",
+      "Weapon Mod",
+    ],
+  },
+};
 
-  await game.settings.set("lancer", "coreDataVersion", "0.0.0");
+export const migrateAllActors = async () => {
+  let count = 0;
+  for (let a of game.actors.values()) {
+    try {
+      if (a.data.type === "pilot") {
+        const ret = handleActorExport(a, false);
+        if (ret) {
+          console.log(`== Migrating Actor entity ${a.name}`);
+          await (a as LancerActor).importCC(ret, true);
+          console.log(ret);
+          count++;
+        }
+      }
+    } catch (err) {
+      console.error(err);
+      console.error(`== Migrating Actor entity ${a.name} failed.`);
+    }
+  }
+  ui.notifications.info(`Migrations triggered: ${count}`);
+};
+
+export const scorchedEarthCompendiums = async () => {
+  // Remove all packs.
+  for (let comp of game.packs.filter(comp => compTitles.old.includes(comp.title))) {
+    await comp.configure({ locked: false });
+    await comp.deleteCompendium();
+    console.log(`Deleting ${comp.title}`);
+  }
+  // Build blank ones.
+  for (let type in compTitles.new) {
+    compTitles.new[type].forEach(async (title: string) => {
+      const id = title.toLocaleLowerCase().replace(" ", "_").split("/")[0];
+      if (!game.packs.has(`world.${id}`)) {
+        await CompendiumCollection.createCompendium({
+          name: id,
+          label: title,
+          path: `packs/${id}.db`,
+          private: false,
+          entity: type,
+          system: "lancer",
+          package: "world",
+        });
+      }
+    });
+  }
+
+  await game.settings.set(LANCER.sys_name, LANCER.setting_core_data, "0.0.0");
+  await game.settings.set(LANCER.sys_name, LANCER.setting_lcps, new LCPIndex(null));
 };
 
 /**
@@ -119,7 +176,11 @@ export const migrateCompendium = async function (pack: Compendium) {
   if (!["Actor", "Item", "Scene"].includes(entity)) return;
 
   // Begin by requesting server-side data model migration and get the migrated content
-  await pack.migrate({});
+  try {
+    await pack.migrate({});
+  } catch (err) {
+    console.error(err);
+  }
 
   const content = await pack.getDocuments();
 

@@ -132,7 +132,7 @@ export async function import_cp(
 }
 
 // Lock/Unlock all packs
-export async function set_all_lock(lock: boolean) {
+export async function set_all_lock(lock = false) {
   for (let p of Object.values(EntryType)) {
     const key = `${PACK_SCOPE}.${p}`;
     // @ts-ignore .8

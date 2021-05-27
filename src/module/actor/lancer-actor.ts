@@ -567,11 +567,12 @@ export class LancerActor<T extends LancerActorType> extends Actor {
     return return_text;
   }
 
-  async importCC(data: PackedPilotData) {
+  async importCC(data: PackedPilotData, clearFirst = false) {
     if (this.data.type !== "pilot") {
       return;
     }
     if (data == null) return;
+    if (clearFirst) await this.clearBadData();
 
     try {
       const mm = await this.data.data.derived.mm_promise;
@@ -679,11 +680,16 @@ export class LancerActor<T extends LancerActorType> extends Actor {
       this.render();
       (await (synced_data as any).Mechs()).forEach((m: Mech) => m.Flags.orig_doc.render());
 
-      ui.notifications.info("Successfully loaded pilot state from cloud");
+      ui.notifications.info("Successfully loaded pilot new state.");
     } catch (e) {
       console.warn(e);
       ui.notifications.warn("Failed to update pilot, likely due to missing LCP data: " + e.message);
     }
+  }
+
+  async clearBadData() {
+    // @ts-ignore .8
+    await this.deleteEmbeddedDocuments("Item", Array.from(this.data.items.keys()));
   }
 
   /* -------------------------------------------- */

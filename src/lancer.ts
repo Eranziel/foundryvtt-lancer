@@ -209,7 +209,7 @@ Hooks.once("init", async function () {
           EntryType.PILOT
         >;
         const dump = handleActorExport(actor, false);
-        dump && actor.importCC(dump as any);
+        dump && actor.importCC(dump as any, true);
       },
     };
 
