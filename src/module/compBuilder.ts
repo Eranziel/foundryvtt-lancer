@@ -13,6 +13,7 @@ import {
 } from "machine-mind";
 import { FoundryReg } from "./mm-util/foundry-reg";
 import { invalidate_cached_pack_map } from "./mm-util/db_abstractions";
+import { LCPIndex } from "./apps/lcpManager";
 
 // Some useful subgroupings
 type MechItemEntryType = EntryType.FRAME | EntryType.MECH_WEAPON | EntryType.MECH_SYSTEM | EntryType.WEAPON_MOD;
@@ -128,14 +129,22 @@ export async function import_cp(
   }
 
   progress_callback(transmit_count, total_items);
-  await set_all_lock(true);
 }
 
 // Lock/Unlock all packs
-async function set_all_lock(lock: boolean) {
+export async function set_all_lock(lock: boolean) {
   for (let p of Object.values(EntryType)) {
     const key = `${PACK_SCOPE}.${p}`;
     // @ts-ignore .8
     await game.packs.get(key)?.configure({ private: false, locked: lock });
   }
+}
+
+export async function clearCompendiumData() {
+  ui.notifications.info(`Clearing all LANCER Compendium data. Please wait.`);
+  console.log(`${lp} Clearing all LANCER Compendium data.`);
+  await game.settings.set(LANCER.sys_name, LANCER.setting_core_data, "0.0.0");
+  await game.settings.set(LANCER.sys_name, LANCER.setting_lcps, new LCPIndex(null));
+  await clear_all();
+  ui.notifications.info(`LANCER Compendiums cleared.`);
 }

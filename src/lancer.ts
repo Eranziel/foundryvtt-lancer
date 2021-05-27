@@ -717,12 +717,6 @@ async function versionCheck() {
   // Determine whether a system migration is required and feasible
   const currentVersion = game.settings.get(LANCER.sys_name, LANCER.setting_migration);
 
-  // Toggle flags for different stages.
-  await migrations.migrateWorld(false, false);
-
-  console.warn("Skipping version check due to invalid semver...");
-  return;
-
   // If it's 0 then it's a fresh install
   if (currentVersion === "0" || currentVersion === "") {
     await game.settings.set(LANCER.sys_name, LANCER.setting_migration, game.system.data.version);
@@ -731,8 +725,8 @@ async function versionCheck() {
   }
 
   // Modify these constants to set which Lancer version numbers need and permit migration.
-  const NEEDS_MIGRATION_VERSION = "0.1.7";
-  const COMPATIBLE_MIGRATION_VERSION = "0.1.6";
+  const NEEDS_MIGRATION_VERSION = "0.9.0";
+  const COMPATIBLE_MIGRATION_VERSION = "0.1.0";
   let needMigration = currentVersion ? compareVersions(currentVersion, NEEDS_MIGRATION_VERSION) : 1;
 
   // Check whether system has been updated since last run.
@@ -749,7 +743,7 @@ async function versionCheck() {
         );
       }
       // Perform the migration
-      await migrations.migrateWorld();
+      await migrations.migrateWorld(true, false);
     }
     // Set the version for future migration and welcome message checking
     await game.settings.set(LANCER.sys_name, LANCER.setting_migration, game.system.data.version);

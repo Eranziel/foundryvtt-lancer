@@ -3,24 +3,29 @@
 
 import { handleActorExport } from "./helpers/io";
 import { LancerActor } from "./actor/lancer-actor";
+import { updateCore } from "./apps/lcpManager";
 
 /**
  * Perform a system migration for the entire World, applying migrations for Actors, Items, and Compendium packs
  * @return {Promise}      A Promise which resolves once the migration is completed
  */
-export const migrateWorld = async function (migrateComps = true, migrateActors = true) {
+export const migrateWorld = async function (migrateComps = true, migrateActors = false) {
   ui.notifications.info(
     `Applying LANCER System Migration for version ${game.system.data.version}. Please be patient and do not close your game or shut down your server.`,
     { permanent: true }
   );
 
   // Migrate World Compendium Packs
-  // await scorchedEarthCompendiums();
-  // for (let p of game.packs) {
-  //   if (p.metadata.package === "world" && ["Actor", "Item", "Scene"].includes(p.metadata.entity)) {
-  //     await migrateCompendium(p);
-  //   }
-  // }
+  if (migrateComps) {
+    await scorchedEarthCompendiums();
+    // await updateCore("3.0.21");
+
+    // for (let p of game.packs) {
+    //   if (p.metadata.package === "world" && ["Actor", "Item", "Scene"].includes(p.metadata.entity)) {
+    //     await migrateCompendium(p);
+    //   }
+    // }
+  }
 
   // Migrate World Actors
   if (migrateActors) {
@@ -96,8 +101,6 @@ export const scorchedEarthCompendiums = async () => {
     .forEach(async comp => {
       await comp.configure({ locked: false });
       await comp.deleteCompendium();
-
-      await CompendiumCollection.createCompendium({ entity: "Item", label: comp.title, locked: true });
     });
 
   await game.settings.set("lancer", "coreDataVersion", "0.0.0");

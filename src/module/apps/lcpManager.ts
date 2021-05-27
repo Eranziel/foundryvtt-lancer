@@ -1,6 +1,6 @@
 import { LANCER } from "../config";
 const lp = LANCER.log_prefix;
-import { import_cp, clear_all } from "../compBuilder";
+import { import_cp, clearCompendiumData, set_all_lock } from "../compBuilder";
 import * as mm from "machine-mind";
 import { IContentPack, IContentPackManifest } from "machine-mind";
 
@@ -102,12 +102,7 @@ class LCPManager extends Application {
   }
 
   async clearCompendiums() {
-    ui.notifications.info(`Clearing all LANCER Compendium data. Please wait.`);
-    console.log(`${lp} Clearing all LANCER Compendium data.`);
-    await game.settings.set(LANCER.sys_name, LANCER.setting_core_data, "0.0.0");
-    await game.settings.set(LANCER.sys_name, LANCER.setting_lcps, new LCPIndex(null));
-    await clear_all();
-    ui.notifications.info(`LANCER Compendiums cleared.`);
+    await clearCompendiumData();
     this.coreVersion = game.settings.get(LANCER.sys_name, LANCER.setting_core_data);
     this.lcpIndex = new LCPIndex(game.settings.get(LANCER.sys_name, LANCER.setting_lcps).index);
     this.render(true);
@@ -248,5 +243,6 @@ export async function updateCore(version: string, manager?: LCPManager) {
   await import_cp(mm.funcs.get_base_content_pack(), progress_func);
 
   ui.notifications.info(`Lancer Core data update complete.`);
+  await set_all_lock(true);
   await game.settings.set(LANCER.sys_name, LANCER.setting_core_data, version);
 }
