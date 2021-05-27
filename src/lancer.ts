@@ -25,6 +25,7 @@ import { LancerDeployableSheet } from "./module/actor/deployable-sheet";
 import { LancerMechSheet } from "./module/actor/mech-sheet";
 import { LancerItemSheet } from "./module/item/item-sheet";
 import { LancerFrameSheet } from "./module/item/frame-sheet";
+import { LancerLicenseSheet } from "./module/item/license-sheet";
 import { LancerNPCClassSheet } from "./module/item/npc-class-sheet";
 import { WeaponRangeTemplate } from "./module/pixi/weapon-range-template";
 
@@ -678,7 +679,6 @@ function setupSheets() {
     types: [
       EntryType.SKILL,
       EntryType.TALENT,
-      EntryType.LICENSE,
       EntryType.CORE_BONUS,
       EntryType.RESERVE,
       EntryType.STATUS,
@@ -700,6 +700,7 @@ function setupSheets() {
     makeDefault: true,
   });
   Items.registerSheet("lancer", LancerFrameSheet, { types: [EntryType.FRAME], makeDefault: true });
+  Items.registerSheet("lancer", LancerLicenseSheet, { types: [EntryType.LICENSE], makeDefault: true });
   // Items.registerSheet("lancer", LancerNPCClassSheet, {
   Items.registerSheet("lancer", LancerItemSheet, {
     types: [EntryType.NPC_CLASS, EntryType.NPC_TEMPLATE],

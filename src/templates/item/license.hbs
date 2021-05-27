@@ -7,7 +7,7 @@
     {{{ref-portrait-img item.img "img" mm}}}
   </header>
   <div>
-    {{#if (eq (idx mm.Registry.config.item_source 0) "actor")}}
+    {{#if item.isOwned }}
       <div class="flexrow" style="align-items:center;margin-right:8px;">
         <span style="text-align: right;padding: 4px;">
           RANK:
@@ -17,6 +17,7 @@
     {{/if}}
   </div>
   <div class="flexcol">
+    <!--
     <a
       class="gen-control simple-button"
       data-action="append"
@@ -26,21 +27,24 @@
     >
       Add Rank
     </a>
-    {{#each mm.Unlocks as |unlock_array rank|}}
+    -->
+    {{#each unlocks as |unlock_array rank|}}
       <div class="card">
         <div class="lancer-header">
           <span class="left">
             //RANK
             {{rank}}
           </span>
+          <!--
           <a class="gen-control" data-action="splice" data-path="mm.Unlocks.{{rank}}">
             <i class="fas fa-trash"></i>
           </a>
+          -->
         </div>
         {{#each unlock_array as |unlock unlock_index|}}
-          {{{ref-mm-controllable-item-native (concat "mm.Unlocks." rank "." unlock_index) "splice"}}}
+          {{{ref-mm-controllable-item-native (concat "unlocks." rank "." unlock_index) null }}}
         {{/each}}
-        {{{ref-mm-list-item-append (concat "mm.Unlocks." rank) "frame mech_system mech_weapon weapon_mod"}}}
+        <!--{{{ref-mm-list-item-append (concat "mm.Unlocks." rank) "frame mech_system mech_weapon weapon_mod"}}}-->
       </div>
     {{/each}}
   </div>

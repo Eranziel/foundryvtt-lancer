@@ -251,9 +251,10 @@
       "other_art": []
     },
     "license": {
+      "lid": "",
       "name": "New License",
       "manufacturer": null,
-      "unlocks": [],
+      "key": "",
       "rank": 0
     },
     "manufacturer": {

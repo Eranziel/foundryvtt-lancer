@@ -7,7 +7,6 @@ import {
   LiveEntryTypes,
   OpCtx,
   quick_relinker,
-  RegEntry,
   RegEnv,
   Registry,
   StaticReg,
@@ -31,7 +30,7 @@ type PilotItemEntryType =
 
 type ItemEntryType = MechItemEntryType | PilotItemEntryType;
 
-export const PACK_SCOPE = "lancer";
+export const PACK_SCOPE = "world";
 
 // Clear all packs
 export async function clear_all(): Promise<void> {
@@ -64,36 +63,12 @@ async function transfer_cat<G extends EntryType>(
 
   for (let item of await from_cat.list_live(ctx)) {
     // Do the deed
-    let insinuated = (await item.insinuate(to, null, {
+    let insinuated = (await item.insinuate(to, ctx, {
       relinker: quick_relinker({
         key_pairs: [["LID", "lid"] as any, ["Name", "name"]],
       }) as any,
     })) as LiveEntryTypes<G>;
     items.push(insinuated);
-    // We try pretty hard to find a matching item.
-    // First by MMID
-    // if (has_lid(src_item)) {
-    /*
-          let by_id = await dest_cat.lookup_lid_live(ctx, (src_item as any).LID);
-          if (by_id) {
-            new_v = false;
-            linked_items.push(by_id as any);
-            return by_id;
-          }
-        } else {
-          let by_name = await dest_cat.lookup_live(ctx, cand => cand.name == src_item.Name);
-          if (by_name) {
-            new_v = false;
-            linked_items.push(by_name as any);
-            return by_name;
-          }
-        }
-
-        // We give up! Make a new thing
-        return null;
-      },
-    })) as unknown) as RegEntry<T>;
-    */
   }
   return items;
 }
@@ -161,6 +136,6 @@ async function set_all_lock(lock: boolean) {
   for (let p of Object.values(EntryType)) {
     const key = `${PACK_SCOPE}.${p}`;
     // @ts-ignore .8
-    game.packs.get(key)?.configure({ private: false, locked: lock });
+    await game.packs.get(key)?.configure({ private: false, locked: lock });
   }
 }

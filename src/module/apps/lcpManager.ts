@@ -8,16 +8,10 @@ function addLCPManager(app: Application, html: any) {
   if (app.options.id == "compendium") {
     const buttons = $(html).find(".header-actions");
     if (!buttons) {
-      ui.notifications.error(
-        "Unable to add LCP Manager button - Compendium Tab buttons not found!",
-        {
-          permanent: true,
-        }
-      );
-      console.log(
-        `${lp} Unable to add LCP Manager button - Compendium Tab buttons not found!`,
-        buttons
-      );
+      ui.notifications.error("Unable to add LCP Manager button - Compendium Tab buttons not found!", {
+        permanent: true,
+      });
+      console.log(`${lp} Unable to add LCP Manager button - Compendium Tab buttons not found!`, buttons);
       return;
     }
     const button = document.createElement("button");
@@ -102,12 +96,9 @@ class LCPManager extends Application {
   }
 
   updateLcpIndex(manifest: IContentPackManifest) {
-    if (!this.lcpIndex)
-      this.lcpIndex = new LCPIndex(game.settings.get(LANCER.sys_name, LANCER.setting_lcps).index);
+    if (!this.lcpIndex) this.lcpIndex = new LCPIndex(game.settings.get(LANCER.sys_name, LANCER.setting_lcps).index);
     else this.lcpIndex.updateManifest(manifest);
-    game.settings
-      .set(LANCER.sys_name, LANCER.setting_lcps, this.lcpIndex)
-      .then(() => this.render());
+    game.settings.set(LANCER.sys_name, LANCER.setting_lcps, this.lcpIndex).then(() => this.render());
   }
 
   async clearCompendiums() {
@@ -124,7 +115,7 @@ class LCPManager extends Application {
 
   activateListeners(html: HTMLElement | JQuery) {
     super.activateListeners(html);
-    document.getElementsByClassName("lcp-core-update")[0].addEventListener("click", (ev: Event) => {
+    document.getElementsByClassName("lcp-core-update")[0]?.addEventListener("click", (ev: Event) => {
       this._onCoreUpdateButtonClick(<MouseEvent>ev).then();
     });
     let fileInput = document.getElementById("lcp-file");
@@ -133,10 +124,10 @@ class LCPManager extends Application {
         this._onLcpPicked(ev);
       };
     }
-    document.getElementsByClassName("lcp-import")[0].addEventListener("click", () => {
+    document.getElementsByClassName("lcp-import")[0]?.addEventListener("click", () => {
       this._onImportButtonClick().then();
     });
-    document.getElementsByClassName("lcp-clear-all")[0].addEventListener("click", (ev: Event) => {
+    document.getElementsByClassName("lcp-clear-all")[0]?.addEventListener("click", (ev: Event) => {
       this._onClearAllButtonClick(<MouseEvent>ev);
     });
   }
@@ -220,9 +211,7 @@ class LCPManager extends Application {
     const manifest = this.manifest;
     if (!cp || !manifest) return;
 
-    ui.notifications.info(
-      `Starting import of ${cp.manifest.name} v${cp.manifest.version}. Please wait.`
-    );
+    ui.notifications.info(`Starting import of ${cp.manifest.name} v${cp.manifest.version}. Please wait.`);
     console.log(`${lp} Starting import of ${cp.manifest.name} v${cp.manifest.version}.`);
     console.log(`${lp} Parsed content pack:`, cp);
     await import_cp(cp, (x, y) => this.update_progress_bar(x, y));
@@ -244,15 +233,15 @@ export async function updateCore(version: string, manager?: LCPManager) {
   var progress = 1;
   let progress_func = (x: any, y: any) => {
     // If we're passing a manager, let it do things as well
-    if(manager) manager.update_progress_bar(x,y);
+    if (manager) manager.update_progress_bar(x, y);
     // Provide updates every 25% by default
     let quarter = Math.ceil(y / 4);
-    if(x >= quarter * progress) {
+    if (x >= quarter * progress) {
       ui.notifications.info(`${progress * 25}% of Lancer Core data updated`);
       progress += 1;
     }
-  }
-  
+  };
+
   ui.notifications.info(`Updating Lancer Core data to v${version}. Please wait.`);
 
   console.log(`${lp} Updating Lancer Core data to v${version}`);

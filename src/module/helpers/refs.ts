@@ -111,8 +111,6 @@ export function simple_mm_ref<T extends EntryType>(
   slot_path: string = "",
   native: boolean = false
 ) {
-  console.log("You're still using a simple ref");
-
   // Flatten types
   if (!Array.isArray(types)) {
     types = [types];
@@ -253,7 +251,7 @@ export function mm_ref_portrait<T extends EntryType>(
 // trash_actions controls what happens when the trashcan is clicked. Delete destroys an item, splice removes it from the array it is found in, and null replaces with null
 export function editable_mm_ref_list_item<T extends LancerItemType>(
   item_path: string,
-  trash_action: "delete" | "splice" | "null",
+  trash_action: "delete" | "splice" | "null" | null,
   helper: HelperOptions
 ) {
   // Fetch the item
@@ -269,6 +267,13 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
   }
 
   let item = item_!; // cd truthiness implies item truthiness
+
+  // Make a re-used trashcan imprint
+  let trash_can = "";
+  if(trash_action) {
+    trash_can = `<a class="gen-control i--white" data-action="${trash_action}" data-path="${item_path}"><i class="fas fa-trash"></i></a>`;
+  }
+
 
   switch (item.Type) {
     case EntryType.MECH_SYSTEM:
@@ -313,7 +318,6 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
       if (is_limited(sys)) {
         limited = limited_chip_HTML(sys, item_path);
       }
-
       let str = `<li class="card clipped mech-system-compact item ${
         sys.SysType === SystemType.Tech ? "tech-item" : ""
       }" ${ref_params(cd.ref)}>
@@ -322,7 +326,7 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
           <a class="lancer-macro" data-macro="${encodeMacroData(macroData)}"><i class="mdi mdi-message"></i></a>
           <span class="minor grow">${sys.Name}</span>
           <div class="ref-list-controls">
-          <a class="gen-control i--white" data-action="${trash_action}" data-path="${item_path}"><i class="fas fa-trash"></i></a>
+          ${trash_can}
           </div>
         </div>
         <div style="padding: 0.5em">
@@ -348,7 +352,7 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
       <i class="cci cci-talent i--m"></i>
       <span class="major">${talent.Name}</span>
       <div class="ref-list-controls">
-      <a class="gen-control i--dark" data-action="${trash_action}" data-path="${item_path}"><i class="fas fa-trash"></i></a>
+      ${trash_can}
       </div>
       </div>
       <ul style="grid-area: 2/1/3/3">`;
@@ -378,7 +382,7 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
         <i class="cci cci-skill i--m i--dark"> </i>
         <span class="major modifier-name">${skill.Name}</span>
         <div class="ref-list-controls">
-          <a class="gen-control i--dark" data-action="${trash_action}" data-path="${item_path}"><i class="fas fa-trash"></i></a>
+          ${trash_can}
         </div>
       </div>
       <a class="flexrow skill-macro" style="grid-area: 2/1/3/2;">
@@ -396,7 +400,7 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
         <i class="cci cci-corebonus i--m i--dark"> </i>
         <span class="major modifier-name">${cb.Name}</span>
         <div class="ref-list-controls">
-          <a class="gen-control i--dark" data-action="${trash_action}" data-path="${item_path}"><i class="fas fa-trash"></i></a>
+          ${trash_can}
         </div>
       </div>
       <div class="desc-text" style="grid-area: 2/2/3/3">${cb.Description}</div>
@@ -410,7 +414,7 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
         <i class="cci cci-license i--m i--dark"> </i>
         <span class="major modifier-name">${license.Name} ${license.CurrentRank}</span>
         <div class="ref-list-controls">
-          <a class="gen-control i--dark" data-action="${trash_action}" data-path="${item_path}"><i class="fas fa-trash"></i></a>
+          ${trash_can}
         </div>
       </div>
     </li>`;
@@ -425,7 +429,7 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
         <span class="major">${cd.name}</span>
         <hr class="vsep"> 
         <div class="ref-list-controls">
-          <a class="gen-control i--dark" data-action="${trash_action}" data-path="${item_path}"><i class="fas fa-trash"></i></a>
+          ${trash_can}
         </div>
       </div>`;
   }
@@ -467,7 +471,7 @@ function limited_HTML(
 // Exactly as above, but drags as a native when appropriate handlers called
 export function editable_mm_ref_list_item_native<T extends LancerItemType>(
   item_path: string,
-  trash_action: "delete" | "splice" | "null",
+  trash_action: "delete" | "splice" | "null" | null,
   helper: HelperOptions
 ) {
   return editable_mm_ref_list_item(item_path, trash_action, helper).replace("ref ref-card", "ref ref-card native-drag");
