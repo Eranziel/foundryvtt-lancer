@@ -541,27 +541,27 @@ export const system_ready: Promise<void> = new Promise(success => {
 
 // Action Manager hooks.
 Hooks.on("controlToken", () => {
-  game.action_manager.update();
+  game.action_manager?.update();
 });
 Hooks.on("updateToken", (_scene: Scene, token: Token, diff: any, _options: any, _idUser: any) => {
   // If it's an X or Y change assume the token is just moving.
   if (diff.hasOwnProperty("y") || diff.hasOwnProperty("x")) return;
-  game.action_manager.update();
+  game.action_manager?.update();
 });
 Hooks.on("updateActor", (_actor: Actor) => {
-  game.action_manager.update();
+  game.action_manager?.update();
 });
 Hooks.on("closeSettingsConfig", () => {
-  game.action_manager.updateConfig();
+  game.action_manager?.updateConfig();
 });
 Hooks.on("getSceneNavigationContext", async () => {
   game.action_manager && (await game.action_manager.reset());
 });
 Hooks.on("createCombat", (_actor: Actor) => {
-  game.action_manager.update();
+  game.action_manager?.update();
 });
 Hooks.on("deleteCombat", (_actor: Actor) => {
-  game.action_manager.update();
+  game.action_manager?.update();
 });
 //
 
