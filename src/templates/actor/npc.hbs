@@ -24,7 +24,7 @@
     <div class="flexcol">
       {{!-- Stats et all --}}
       <div class="wraprow quintuple">
-        {{{clicker-stat-card "TIER" (concat "cci cci-npc-tier-" mm.Tier) "mm.Tier" false }}}
+        {{{clicker-stat-card "TIER" (concat "cci cci-npc-tier-" mm.Tier) "mm.Tier" true }}}
         {{{stat-rollable-card "HULL" "" "mm.Hull" }}} {{{stat-rollable-card "AGI" "" "mm.Agility" }}}
         {{{stat-rollable-card "SYS" "" "mm.Systems" }}} {{{stat-rollable-card "ENG" "" "mm.Engineering" }}}
         {{{stat-edit-max-card "HP" "mdi mdi-heart-outline" "mm.CurrentHP" "mm.MaxHP" }}} {{{stat-edit-max-card
@@ -38,6 +38,7 @@
         "cci cci-activate" "mm.Activations" }}} {{{stat-edit-max-card "STRUCTURE" "cci cci-structure"
         "mm.CurrentStructure" "mm.MaxStructure" }}} {{{stat-edit-max-card "STRESS" "cci cci-reactor"
         "mm.CurrentStress" "mm.MaxStress"}}}
+    {{{stat-rollable-card "GRIT" "cci cci-armor" "mm.Pilot.Grit" }}}
       </div>
 
       {{!-- Equipment et all --}}

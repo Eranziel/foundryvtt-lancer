@@ -48,7 +48,7 @@ export const registerSettings = function () {
 
   game.settings.register(LANCER.sys_name, LANCER.setting_action_manager, {
     name: "Action Manager Hotbar",
-    hint: "Toggle for whether or not to display the action tracking hotbar for selected tokens.",
+    hint: "Toggle for whether you will see the action tracking hotbar for selected tokens.",
     scope: "client",
     config: true,
     type: Boolean,
