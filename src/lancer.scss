@@ -474,6 +474,7 @@ ul.items-list {
 
 .profile-img {
   @include icon-size(100px);
+  object-fit: cover;
 }
 
 .i--dark {
@@ -1660,6 +1661,10 @@ a.activation-chip > i.mdi {
   min-height: 0;
 }
 
+.pilot-summary > img {
+  object-fit: cover;
+}
+
 .pilot-summary-image {
   grid-column: 5 / 6;
 
@@ -2119,4 +2124,8 @@ a.action {
   display: grid;
   grid-template-columns: 3em 10em 1fr;
   align-items: center;
+}
+
+.settings-list > div:nth-last-child(-n+4) {
+  margin-left: 1em;
 }

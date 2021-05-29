@@ -46,6 +46,42 @@ export const registerSettings = function () {
     default: false,
   });
 
+  game.settings.register(LANCER.sys_name, LANCER.setting_action_manager, {
+    name: "Action Manager Hotbar",
+    hint: "Toggle for whether or not to display the action tracking hotbar for selected tokens.",
+    scope: "client",
+    config: true,
+    type: Boolean,
+    default: true,
+  });
+
+  game.settings.register(LANCER.sys_name, LANCER.setting_action_manager_players, {
+    name: "Action Manager - Player Usage",
+    hint: "If enabled, players will be able to manually toggle actions for any controlled tokens.",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: true,
+  });
+
+  game.settings.register(LANCER.sys_name, LANCER.setting_120, {
+    name: "Show v0.1.20 Warning",
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
+  game.settings.register(LANCER.sys_name, LANCER.setting_beta_warning, {
+    name: "Show Beta Warning",
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
+  // Keep all automation settings at the bottom for the selector
+  // If you're adding an automation setting, be sure to go increment the settings-list css selector
   game.settings.register(LANCER.sys_name, LANCER.setting_automation, {
     name: "System Automation",
     hint: "Master enable switch for system automation. Turn this off to do everything manually.",
@@ -59,24 +95,6 @@ export const registerSettings = function () {
     name: "Attack Automation",
     hint:
       "Toggle for whether or not you want the system to auto-calculate hits, damage, and other attack related checks.",
-    scope: "world",
-    config: true,
-    type: Boolean,
-    default: true,
-  });
-
-  game.settings.register(LANCER.sys_name, LANCER.setting_action_manager, {
-    name: "Action Manager Hotbar",
-    hint: "Toggle for whether or not to display the action tracking hotbar for selected tokens.",
-    scope: "world",
-    config: true,
-    type: Boolean,
-    default: true,
-  });
-
-  game.settings.register(LANCER.sys_name, LANCER.setting_action_manager_players, {
-    name: "Action Manager - Player Usage",
-    hint: "If enabled, players will be able to manually toggle actions for any controlled tokens.",
     scope: "world",
     config: true,
     type: Boolean,
@@ -110,19 +128,6 @@ export const registerSettings = function () {
     default: true,
   });
 
-  game.settings.register(LANCER.sys_name, LANCER.setting_120, {
-    name: "Show v0.1.20 Warning",
-    scope: "world",
-    config: false,
-    type: Boolean,
-    default: true,
-  });
-
-  game.settings.register(LANCER.sys_name, LANCER.setting_beta_warning, {
-    name: "Show Beta Warning",
-    scope: "world",
-    config: true,
-    type: Boolean,
-    default: true,
-  });
+  // Only put automation settings above this
+  // Nothing below this
 };

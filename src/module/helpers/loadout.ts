@@ -175,11 +175,11 @@ export function pilot_slot(data_path: string, options: HelperOptions): string {
 // A drag-drop slot for a frame. TODO: fancify, giving basic stats or something???
 export function frame_refview(frame_path: string, helper: HelperOptions): string {
   let frame = resolve_helper_dotpath<Frame | null>(helper, frame_path, null);
-  if (!frame) return simple_mm_ref(EntryType.FRAME, frame, "No Pilot", frame_path, true);
+  if (!frame) return simple_mm_ref(EntryType.FRAME, frame, "No Frame", frame_path, true);
 
   // Generate commons
   let cd = ref_commons(frame);
-  if (!cd) return simple_mm_ref(EntryType.FRAME, frame, "No Pilot", frame_path, true);
+  if (!cd) return simple_mm_ref(EntryType.FRAME, frame, "No Frame", frame_path, true);
 
   return `<div class="lancer-header submajor clipped-top frame-header">
             <span>${frame.Name}</span>
