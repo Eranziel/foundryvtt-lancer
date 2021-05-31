@@ -35,37 +35,21 @@ import {
   MechWeaponProfile,
   NpcFeature,
   OpCtx,
-  PackedNpcDamageData,
   PackedDamageData,
   Damage,
-  TagTemplate,
-  SerUtil,
-  PackedNpcTechData,
-  NpcTechType,
-  RegNpcData,
   RegNpcTechData,
-  RegMechSystemData,
   MechSystem,
-  Action,
   Mech,
-  Deployable,
-  SystemType,
   ActivationType,
+  funcs,
 } from "machine-mind";
-import { resolve_native_drop, convert_ref_to_native } from "./helpers/dragdrop";
-import { stringify } from "querystring";
 import { FoundryReg, FoundryRegItemData } from "./mm-util/foundry-reg";
 import { resolve_dotpath } from "./helpers/commons";
-import { mm_wrap_actor } from "./mm-util/helpers";
-import { debug } from "console";
-import { LancerItemType, LancerMechSystemData, LancerMechSystem } from "./item/lancer-item";
-import { compact_tag_list } from "./helpers/tags";
 import { buildActionHTML, buildDeployableHTML, buildSystemHTML } from "./helpers/item";
-import { System } from "pixi.js";
 import { ActivationOptions, StabOptions1, StabOptions2 } from "./enums";
 import { applyCollapseListeners, uuid4 } from "./helpers/collapse";
 import { checkForHit, getTargets } from "./helpers/automation/targeting";
-import { calcAccDiff, AccDiffFlag, tagsToFlags, toggleCover, updateTotals } from "./helpers/acc_diff";
+import { AccDiffFlag, tagsToFlags, toggleCover, updateTotals } from "./helpers/acc_diff";
 
 const lp = LANCER.log_prefix;
 
@@ -613,35 +597,34 @@ async function prepareAttackMacro({
     mData.overkill = weaponData.Tags.find(tag => tag.Tag.LID === "tg_overkill") !== undefined;
     mData.effect = weaponData.Effect;
   } else if (actor.data.type === EntryType.NPC) {
-    let tier: number;
-    if (item.actor === null) {
-      tier = actor.data.data.tier;
+    const mm: NpcFeature = item.data.data.derived.mm;
+    let tier_index: number = mm.TierOverride;
+    if(!mm.TierOverride) {
+      if (item.actor === null) {
+        // Use selected actor
+        tier_index = actor.data.data.tier - 1;
+      } else {
+        // Use provided actor
+        tier_index = item.actor.data.data.tier - 1;
+      }
     } else {
-      tier = item.actor.data.data.tier;
+      // Fix to be index
+      tier_index--;
     }
 
-    let wData = item.data.data;
-    mData.loaded = item.data.data.loaded;
+    mData.loaded = mm.Loaded;
     // mData.destroyed = item.data.data.destroyed; TODO: NPC weapons don't seem to have a destroyed field
     // This can be a string... but can also be a number...
-    mData.grit = Number(wData.attack_bonus[tier - 1]);
-    mData.acc = wData.accuracy[tier - 1];
+    mData.grit = Number(mm.AttackBonus[tier_index]) || 0;
+    mData.acc = mm.Accuracy[tier_index];
     // Reduce damage values to only this tier
     // Convert to new Damage type if it's old
-    mData.damage = wData.damage[tier - 1].map((d: Damage | PackedDamageData) => {
-      if ("type" in d && "val" in d) {
-        // Then this is an old damage type which only contains these two values
-        return new Damage({ type: d.type, val: d.val.toString() });
-      } else {
-        // This is the new damage type
-        return d;
-      }
-    });
+    mData.damage = mm.Damage[tier_index];
 
-    mData.tags = await SerUtil.process_tags(new FoundryReg(), new OpCtx(), wData.tags);
-    mData.overkill = mData.tags.find(tag => tag.Tag.LID === "tg_overkill") !== undefined;
-    mData.on_hit = wData.on_hit ? wData.on_hit : undefined;
-    mData.effect = wData.effect ? wData.effect : "";
+    mData.tags = mm.Tags
+    mData.overkill = funcs.is_overkill(mm);
+    mData.on_hit = mm.OnHit;
+    mData.effect = mm.Effect;
   } else {
     ui.notifications.error(`Error preparing attack macro - ${actor.name} is an unknown type!`);
     return Promise.resolve();
@@ -1056,18 +1039,26 @@ export async function prepareTechMacro(a: string, t: string) {
     mData.tags = tData.tags;
     mData.effect = ""; // TODO */
   } else if (item.type === EntryType.NPC_FEATURE) {
-    const tData = item.data.data as RegNpcTechData;
-    let tier: number;
-    if (item.actor === null) {
-      tier = actor.data.data.tier - 1;
+    const mm: NpcFeature = item.data.data.derived.mm;
+    let tier_index: number = mm.TierOverride;
+    if(!mm.TierOverride) {
+      if (item.actor === null) {
+        // Use selected actor
+        tier_index = actor.data.data.tier - 1;
+      } else {
+        // Use provided actor
+        tier_index = item.actor.data.data.tier - 1;
+      }
     } else {
-      tier = item.actor.data.data.tier - 1;
+      // Correct to be index
+      tier_index -= 1;
     }
-    mData.t_atk = tData.attack_bonus && tData.attack_bonus.length > tier ? tData.attack_bonus[tier] : 0;
-    mData.acc = tData.accuracy && tData.accuracy.length > tier ? tData.accuracy[tier] : 0;
-    mData.tags = await SerUtil.process_tags(new FoundryReg(), new OpCtx(), tData.tags);
-    mData.effect = tData.effect ? tData.effect : "";
-    mData.action = tData.tech_type ? tData.tech_type : "";
+
+    mData.t_atk = mm.AttackBonus[tier_index] ?? 0;
+    mData.acc = mm.Accuracy[tier_index] ?? 0;
+    mData.tags = mm.Tags;
+    mData.effect = mm.Effect;
+    mData.action = mm.TechType;
   } else {
     ui.notifications.error(`Error rolling tech attack macro`);
     return Promise.resolve();

@@ -146,15 +146,6 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
 
   /* -------------------------------------------- */
 
-  // Helper function for making fields effectively target multiple attributes
-  _propagateMMData(formData: any) {
-    // Pushes relevant field data down from the "item" data block to the "mm" data block
-    // Returns true if any of these top level fields require updating (i.e. do we need to .update({img: ___, name: __, etc}))
-    formData["mm.Name"] = formData["name"];
-
-    return this.item.img != formData["img"] || this.item.name != formData["name"];
-  }
-
   /**
    * Implement the _updateObject method as required by the parent class spec
    * This defines how to update the subject of the form when the form is submitted
@@ -164,21 +155,9 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
     // Fetch data, modify, and writeback
     let ct = await this.getDataLazy();
 
-    let need_top_update = this._propagateMMData(formData);
-
-    // Do a separate update depending on mm data
-    if (need_top_update) {
-      let top_update = {} as any;
-      for (let key of Object.keys(formData)) {
-        if (!key.includes("mm")) {
-          top_update[key] = formData[key];
-        }
-      }
-      await this.item.update(top_update, {});
-    } else {
-      gentle_merge(ct, formData);
-      await this._commitCurrMM();
-    }
+    // No need for the complicated actor logic since no token weirdness to account for
+    gentle_merge(ct, formData);
+    await this._commitCurrMM();
   }
 
   /**

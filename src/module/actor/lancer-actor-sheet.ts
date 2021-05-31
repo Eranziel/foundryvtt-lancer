@@ -585,11 +585,12 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     // Also meant to encapsulate all of the behavior of _updateTokenImage
     // Returns true if any of these top level fields require updating (i.e. do we need to .update({img: ___, token: __, etc}))
     let token: any = this.actor.data["token"];
-    let new_top: any = {};
 
     // Get the basics
-    new_top["img"] = formData["img"];
-    new_top["name"] = formData["name"];
+    let new_top: any = {
+      img: formData.img,
+      name: formData.name
+    };
 
     // Set the prototype token image if the prototype token isn't initialized
     if (!token) {
@@ -608,14 +609,6 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
       }
     }
 
-    // Bound NPC tier as it is one of the most frequent sheet breakers. TODO: more general solution
-    if ("npctier" in formData) {
-      formData["mm.Tier"] = Number.parseInt(formData["npctier"]) || 1;
-    }
-
-    // Do push down name changes
-    formData["mm.Name"] = formData["name"];
-
     return new_top;
   }
 
@@ -628,10 +621,15 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     // Fetch the curr data
     let ct = await this.getDataLazy();
 
-    // Automatically propagate fields that should be set to multiple places, and determine if we need to update anything besides mm ent
+    // Bound NPC tier as it is one of the most frequent sheet breakers. TODO: more general solution
+    if ("npctier" in formData) {
+      formData["mm.Tier"] = Number.parseInt(formData["npctier"]) || 1;
+    }
+    
+    // Automatically propagates chanages that should affect multiple things.
     let new_top = this._propagateMMData(formData);
 
-    // Do a separate update depending on mm data
+    // Combine the data, making sure to propagate the "top level data" to the appropriate location in flags
     gentle_merge(ct, formData);
     mergeObject((ct.mm.Flags as FoundryFlagData<any>).top_level_data, new_top);
     await this._commitCurrMM();

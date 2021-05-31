@@ -7,7 +7,12 @@ import { find_license_for, mm_wrap_item } from "../mm-util/helpers";
 
 const lp = LANCER.log_prefix;
 
-export function lancerItemInit(base_item: any) {
+export function lancerItemInit(base_item: any, provided_data: any) {
+  // If base item has data, then we are probably importing. Skip this step
+  if(provided_data?.data) {
+    return;
+  }
+
   console.log(`${lp} Initializing new ${base_item.type}`);
 
   // Select default image
@@ -216,154 +221,6 @@ export class LancerItem<T extends LancerItemType> extends Item {
       delete data.data.derived;
     }
     return super.update(data, options);
-  }
-
-  // ============================================================
-  //          WEAPONS
-  // ============================================================
-
-  /**
-   * Return whether a weapon has the smart tag
-   */
-  /*
-  get isLoading(): boolean {
-    if (
-      this.data.type === EntryType.PILOT_WEAPON ||
-      this.data.type === EntryType.MECH_WEAPON ||
-      this.data.type === EntryType.NPC_FEATURE
-    ) {
-      return this.searchTags("tg_loading", "LOADING");
-    } else {
-      return false;
-    }
-  }
-  */
-
-  /**
-   * Return whether a weapon has the smart tag
-   */
-  /*
-  get isOrdnance(): boolean {
-    if (
-      this.data.type === EntryType.PILOT_WEAPON ||
-      this.data.type === EntryType.MECH_WEAPON ||
-      this.data.type === EntryType.NPC_FEATURE
-    ) {
-      return this.searchTags("tg_ordnance", "ORDNANCE");
-    } else {
-      return false;
-    }
-  }
-  */
-
-  /**
-   * Return a weapon's innate accuracy/difficulty based on its tags.
-   */
-  /*
-  get accuracy(): number {
-    if (this.data.type === EntryType.PILOT_WEAPON || this.data.type === EntryType.MECH_WEAPON) {
-      let acc = 0;
-      if (this.searchTags("tg_accurate", "ACCURATE")) acc += 1;
-      if (this.searchTags("tg_inaccurate", "INACCURATE")) acc -= 1;
-      return acc;
-    } else {
-      return 0;
-    }
-  }
-  */
-
-  /**
-   * Return whether a weapon has the smart tag
-   */
-  /*
-  get isSmart(): boolean {
-    if (
-      this.data.type === EntryType.PILOT_WEAPON ||
-      this.data.type === EntryType.MECH_WEAPON ||
-      this.data.type === EntryType.NPC_FEATURE
-    ) {
-      return this.searchTags("tg_smart", "SMART");
-    } else {
-      return false;
-    }
-  }
-  */
-
-  /**
-   * Return whether a weapon has the overkill tag
-   */
-  get isOverkill(): boolean {
-    if (
-      this.data.type === EntryType.PILOT_WEAPON ||
-      this.data.type === EntryType.MECH_WEAPON ||
-      this.data.type === EntryType.NPC_FEATURE
-    ) {
-      return this.searchTags("tg_overkill", "OVERKILL");
-    } else {
-      return false;
-    }
-  }
-
-  /**
-   * Return whether a weapon has the smart tag
-   */
-  /*
-  get isAp(): boolean {
-    if (
-      this.data.type === EntryType.PILOT_WEAPON ||
-      this.data.type === EntryType.MECH_WEAPON ||
-      this.data.type === EntryType.NPC_FEATURE
-    ) {
-      return this.searchTags("tg_ap", "ARMOR-PIERCING (AP)");
-    } else {
-      return false;
-    }
-  }
-  */
-
-  /**
-   * Return a weapon's innate accuracy/difficulty based on its tags.
-   */
-  /*
-  get reliable(): number | string {
-    if (this.data.type === EntryType.PILOT_WEAPON || this.data.type === EntryType.MECH_WEAPON) {
-      let rel: number | string = 0;
-      const data = this.data.data as any;
-      if (!data.tags || !Array.isArray(data.tags)) return rel;
-      data.tags.forEach((t: TagData) => {
-        if (t.id.toLowerCase() === "tg_reliable" || t.name.toUpperCase() === "RELIABLE") {
-          rel = t.val ? t.val : rel;
-        }
-      });
-      return rel;
-    } else {
-      return 0;
-    }
-  }
-  */
-
-  // ============================================================
-  //          GENERAL
-  // ============================================================
-
-  /**
-   * Search the Item's tags to see if any have the given ID or name.
-   * @param id Tag ID to search for.
-   * @param name Tag name to search for.
-   * @returns true if the tag was found, false otherwise.
-   */
-  searchTags(id: string, name: string): boolean {
-    console.log("Not searching tags yet");
-    return false;
-    /*
-    const data = this.data.data;
-    if (!data.tags || !Array.isArray(data.tags)) return false;
-    let result = false;
-    data.tags.forEach((t: TagInstance) => {
-      if (t.id.toLowerCase() === id || t.name.toUpperCase() === name) result = true;
-    });
-    return result;
-    */
   }
 }
 

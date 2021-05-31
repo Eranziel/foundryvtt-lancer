@@ -31,6 +31,7 @@ import {
   ActivationType,
   WeaponMod,
   Counter,
+  funcs,
 } from "machine-mind";
 import { MechWeapon, TagInstance } from "machine-mind";
 import { BonusEditDialog } from "../apps/bonus-editor";
@@ -523,14 +524,14 @@ export function pilot_gear_refview(gear_path: string, helper: HelperOptions): st
 
   // Conditionally show uses
   let uses = "";
-  let limited = gear.Tags.find(t => t.Tag.IsLimited);
+  let limited = funcs.limited_max(gear);
   if (limited) {
     uses = `
       <div class="compact-stat">
         <span class="minor" style="max-width: min-content;">USES: </span>
         <span class="minor" style="max-width: min-content;">todo</span>
         <span class="minor" style="max-width: min-content;" > / </span>
-        <span class="minor" style="max-width: min-content;">${limited.Value}</span>
+        <span class="minor" style="max-width: min-content;">${limited}</span>
       </div>
     `;
   }
@@ -638,7 +639,7 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.Select
 
   // Generate loading segment as needed
   let loading = "";
-  if (weapon.IsLoading) loading = loading_indicator(weapon.Loaded, weapon_path);
+  if (funcs.is_loading(weapon)) loading = loading_indicator(weapon.Loaded, weapon_path);
 
   // Generate effects
   let effect = profile.Effect ? effect_box("Effect", profile.Effect) : "";

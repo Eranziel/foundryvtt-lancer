@@ -47,7 +47,7 @@ tippy.setDefaultProps({ theme: "lancer", arrow: false, delay: [400, 200] });
 
 // Import node modules
 import compareVersions = require("compare-versions");
-import { NpcFeatureType, EntryType, Manufacturer, Bonus, WeaponSize, Action } from "machine-mind";
+import { NpcFeatureType, EntryType, Manufacturer, Bonus, WeaponSize, Action, funcs } from "machine-mind";
 import {
   resolve_dotpath,
   resolve_helper_dotpath,
@@ -58,7 +58,6 @@ import {
   std_num_input,
   std_checkbox,
 } from "./module/helpers/commons";
-import { is_loading } from "machine-mind/dist/classes/mech/EquipUtil";
 import {
   weapon_size_selector,
   weapon_type_selector,
@@ -369,6 +368,21 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("std-checkbox", std_checkbox);
 
   // ------------------------------------------------------------------------
+  // Tag helpers
+  Handlebars.registerHelper("is-tagged", function (item: any) {
+    return funcs.is_tagged(item);
+  });
+
+  Handlebars.registerHelper("is-limited", function (item: funcs.TaggedEquippable) {
+    return funcs.is_limited(item);
+  });
+
+  Handlebars.registerHelper("is-loading", function (item: funcs.TaggedEquippable) {
+    return funcs.is_loading(item);
+  });
+
+
+  // ------------------------------------------------------------------------
   // Refs
   Handlebars.registerHelper("simple-ref", simple_mm_ref);
   Handlebars.registerHelper("ref-mm-controllable-item", editable_mm_ref_list_item);
@@ -414,7 +428,6 @@ Hooks.once("init", async function () {
 
   // ------------------------------------------------------------------------
   // Weapons
-  Handlebars.registerHelper("is-loading", is_loading);
   Handlebars.registerHelper("wpn-size-sel", weapon_size_selector);
   Handlebars.registerHelper("wpn-type-sel", weapon_type_selector);
   Handlebars.registerHelper("wpn-range-sel", range_editor);
