@@ -51,6 +51,7 @@ import {
   Deployable,
   SystemType,
   ActivationType,
+  funcs,
 } from "machine-mind";
 import { resolve_native_drop, convert_ref_to_native } from "./helpers/dragdrop";
 import { stringify } from "querystring";
@@ -575,7 +576,7 @@ async function prepareAttackMacro({
     grit: 0,
     acc: 0,
     damage: [],
-    tags: [],
+    tags: item.data.data.derived.mm.Tags,
     overkill: false,
     effect: "",
     loaded: true,
@@ -628,18 +629,19 @@ async function prepareAttackMacro({
     mData.acc = wData.accuracy[tier - 1];
     // Reduce damage values to only this tier
     // Convert to new Damage type if it's old
-    mData.damage = wData.damage[tier - 1].map((d: Damage | PackedDamageData) => {
-      if ("type" in d && "val" in d) {
-        // Then this is an old damage type which only contains these two values
-        return new Damage({ type: d.type, val: d.val.toString() });
-      } else {
-        // This is the new damage type
-        return d;
-      }
-    });
+    if(mData.damage && mData.damage.length)
+      mData.damage = wData.damage[tier - 1].map((d: Damage | PackedDamageData) => {
+        if ("type" in d && "val" in d) {
+          // Then this is an old damage type which only contains these two values
+          return new Damage({ type: d.type, val: d.val.toString() });
+        } else {
+          // This is the new damage type
+          return d;
+        }
+      });
 
     mData.tags = await SerUtil.process_tags(new FoundryReg(), new OpCtx(), wData.tags);
-    mData.overkill = mData.tags.find(tag => tag.Tag.LID === "tg_overkill") !== undefined;
+    mData.overkill = funcs.is_overkill(item.data.data.derived.mm);    
     mData.on_hit = wData.on_hit ? wData.on_hit : undefined;
     mData.effect = wData.effect ? wData.effect : "";
   } else {

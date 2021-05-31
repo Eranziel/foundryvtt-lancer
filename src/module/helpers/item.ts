@@ -31,6 +31,7 @@ import {
   ActivationType,
   WeaponMod,
   Counter,
+  funcs,
 } from "machine-mind";
 import { MechWeapon, TagInstance } from "machine-mind";
 import { BonusEditDialog } from "../apps/bonus-editor";
@@ -638,7 +639,7 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.Select
 
   // Generate loading segment as needed
   let loading = "";
-  if (weapon.IsLoading) loading = loading_indicator(weapon.Loaded, weapon_path);
+  if (funcs.is_loading(weapon)) loading = loading_indicator(weapon.Loaded, weapon_path);
 
   // Generate effects
   let effect = profile.Effect ? effect_box("Effect", profile.Effect) : "";
