@@ -59,11 +59,11 @@ import {
   std_string_input,
   std_x_of_y,
 } from "./commons";
-import { ref_commons, ref_params } from "./refs";
+import { limited_chip_HTML, ref_commons, ref_params } from "./refs";
 import { ActivationOptions, ChipIcons } from "../enums";
 import { LancerMacroData } from "../interfaces";
 import { encodeMacroData } from "../macros";
-import { is_loading } from "machine-mind/dist/classes/mech/EquipUtil";
+import { is_limited, is_loading } from "machine-mind/dist/classes/mech/EquipUtil";
 import { CollapseRegistry } from "./loadout";
 import { uuid4 } from "./collapse";
 
@@ -646,6 +646,8 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.Select
   let on_attack = profile.OnAttack ? effect_box("On Attack", profile.OnAttack) : "";
   let on_hit = profile.OnHit ? effect_box("On Hit", profile.OnHit) : "";
   let on_crit = profile.OnCrit ? effect_box("On Crit", profile.OnCrit) : "";
+  
+  let limited = is_limited(weapon) ? limited_chip_HTML(weapon, weapon_path): "";
 
   return `
   <div class="mech-weapon-wrapper${mod_text ? "-modded" : ""}">
@@ -676,6 +678,9 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.Select
 
           <!-- Loading toggle, if we are loading-->
           ${inc_if(`<hr class="vsep"> ${loading}`, loading)}
+
+          <!-- Limited toggle if we are limited-->
+          ${limited}
         </div>
         
         <div class="flexcol">

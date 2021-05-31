@@ -2127,3 +2127,15 @@ a.action {
 div[data-tab=system] > .settings-list > div:nth-last-child(-n+4) {
   margin-left: 1em;
 }
+
+
+.limited-card {
+  width: fit-content;
+  display: inline-flex;
+  flex-direction: row;
+  padding: 4px 8px;
+  justify-content: space-between;
+  align-items: center;
+  color: white;
+  background-color: rgb(55, 55, 55);
+}
