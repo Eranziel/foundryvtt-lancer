@@ -1402,7 +1402,6 @@ input.core-power-toggle:not(:checked)::before {
   &.#{$prefix} > * {
     flex: 1 0 calc(#{$percent} - #{$margin * 2});
     margin: 3px;
-    flex-grow: unset;
   }
 
   &.#{$prefix} > .double {
@@ -1444,7 +1443,6 @@ input.core-power-toggle:not(:checked)::before {
   &.hextuple > .full {
     flex: 1 0 calc(100% - 6px);
     margin: 3px;
-    flex-grow: unset;
   }
 }
 
@@ -2126,6 +2124,6 @@ a.action {
   align-items: center;
 }
 
-.settings-list > div:nth-last-child(-n+4) {
+div[data-tab=system] > .settings-list > div:nth-last-child(-n+4) {
   margin-left: 1em;
 }
