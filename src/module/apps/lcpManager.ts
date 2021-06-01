@@ -5,6 +5,8 @@ import * as mm from "machine-mind";
 import { IContentPack, IContentPackManifest } from "machine-mind";
 import { migrateAllActors } from "../migration";
 
+export const core_update = "3.0.31"; // typed_lancer_data.info.version;
+
 function addLCPManager(app: Application, html: any) {
   if (app.options.id == "compendium") {
     const buttons = $(html).find(".header-actions");
@@ -80,7 +82,7 @@ class LCPManager extends Application {
     this.manifest = null;
     this.coreVersion = game.settings.get(LANCER.sys_name, LANCER.setting_core_data);
     // TODO: pull available core version from machine-mind
-    this.coreUpdate = "3.0.21";
+    this.coreUpdate = core_update;
     console.log(`${lp} Lancer Data version:`, this.coreVersion);
     this.lcpIndex = new LCPIndex(game.settings.get(LANCER.sys_name, LANCER.setting_lcps).index);
   }
@@ -238,10 +240,11 @@ export async function updateCore(version: string, manager?: LCPManager) {
   let progress_func = (x: any, y: any) => {
     // If we're passing a manager, let it do things as well
     if (manager) manager.update_progress_bar(x, y);
-    // Provide updates every 25% by default
-    let quarter = Math.ceil(y / 4);
-    if (x >= quarter * progress) {
-      ui.notifications.info(`${progress * 25}% of Lancer Core data updated`);
+    // Provide updates every 10%
+    const denom = 10;
+    let incr = Math.ceil(y / denom);
+    if (x >= incr * progress) {
+      ui.notifications.info(`${progress * (100 / denom)}% of Lancer Core data updated`);
       progress += 1;
     }
   };
