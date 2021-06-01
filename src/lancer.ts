@@ -176,8 +176,10 @@ Hooks.once("init", async function () {
   };
 
   // Record Configuration Values
-  CONFIG.Actor.entityClass = LancerActor;
-  CONFIG.Item.entityClass = LancerItem;
+  // @ts-ignore 0.8
+  CONFIG.Actor.documentClass = LancerActor;
+  // @ts-ignore 0.8
+  CONFIG.Item.documentClass = LancerItem;
 
   // Set up system status icons
   const keepStock = game.settings.get(LANCER.sys_name, LANCER.setting_stock_icons);
