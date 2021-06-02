@@ -3,9 +3,7 @@
 import { LANCER } from "./config";
 import { handleActorExport } from "./helpers/io";
 import { LancerActor } from "./actor/lancer-actor";
-import { updateCore, LCPIndex } from "./apps/lcpManager";
-
-import compareVersions = require("compare-versions");
+import { updateCore, LCPIndex, core_update } from "./apps/lcpManager";
 
 /**
  * Perform a system migration for the entire World, applying migrations for Actors, Items, and Compendium packs
@@ -20,7 +18,7 @@ export const migrateWorld = async function (migrateComps = true, migrateActors =
   // Migrate World Compendium Packs
   if (migrateComps) {
     await scorchedEarthCompendiums();
-    await updateCore("3.0.21");
+    await updateCore(core_update);
 
     // for (let p of game.packs) {
     //   if (p.metadata.package === "world" && ["Actor", "Item", "Scene"].includes(p.metadata.entity)) {
