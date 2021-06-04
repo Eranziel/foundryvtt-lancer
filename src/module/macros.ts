@@ -629,7 +629,7 @@ async function prepareAttackMacro({
     mData.acc = wData.accuracy[tier - 1];
     // Reduce damage values to only this tier
     // Convert to new Damage type if it's old
-    if(mData.damage && mData.damage.length)
+    if (wData.damage && wData.damage.length)
       mData.damage = wData.damage[tier - 1].map((d: Damage | PackedDamageData) => {
         if ("type" in d && "val" in d) {
           // Then this is an old damage type which only contains these two values
@@ -641,7 +641,7 @@ async function prepareAttackMacro({
       });
 
     mData.tags = await SerUtil.process_tags(new FoundryReg(), new OpCtx(), wData.tags);
-    mData.overkill = funcs.is_overkill(item.data.data.derived.mm);    
+    mData.overkill = funcs.is_overkill(item.data.data.derived.mm);
     mData.on_hit = wData.on_hit ? wData.on_hit : undefined;
     mData.effect = wData.effect ? wData.effect : "";
   } else {
@@ -770,6 +770,7 @@ async function rollAttackMacro(actor: Actor, atk_str: string | null, data: Lance
   }> = [];
   let overkill_heat: number = 0;
 
+  // If there is at least one non-crit hit, evaluate normal damage.
   if (
     (hits.length === 0 && attacks.find(attack => attack.roll._total < 20)) ||
     hits.find(hit => hit.hit && !hit.crit)
@@ -819,6 +820,8 @@ async function rollAttackMacro(actor: Actor, atk_str: string | null, data: Lance
       }
     }
   }
+
+  // If there is at least one crit hit, evaluate crit damage
   if ((hits.length === 0 && attacks.find(attack => attack.roll._total >= 20)) || hits.find(hit => hit.crit)) {
     // if (hits.length === 0 || hits.find(hit => hit.crit)) {
     for (const x of data.damage) {
@@ -827,7 +830,7 @@ async function rollAttackMacro(actor: Actor, atk_str: string | null, data: Lance
       let droll: Roll | null = new Roll(d_formula);
       // double all dice, add KH. Add overkill if necessary.
       droll.terms.forEach(term => {
-        if (term.number) {
+        if (term.faces) {
           term.modifiers === undefined && (term.modifiers = []);
           term.modifiers.push(`kh${term.number}`);
           data.overkill && term.modifiers.push("x1");
