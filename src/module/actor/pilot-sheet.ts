@@ -22,8 +22,10 @@ const entryPrompt = "//:AWAIT_ENTRY>";
  * Extend the basic ActorSheet
  */
 export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
-  // pilot cache and potential vault id
-  // these get hooked into getData() to get bound to the template
+  // potential vault id
+  // gets hooked into getData() to get bound to the template
+  // we need this _and_ cloud id to have an idea of where to look, it seems like
+  // maybe there's a better solution here
   vaultID: string = ""
   /**
    * Extend and override the default options used by the Pilot Sheet
