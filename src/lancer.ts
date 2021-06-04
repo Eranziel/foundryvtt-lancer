@@ -60,6 +60,8 @@ import {
   safe_html_helper,
   large_textbox_card,
   std_string_input,
+  std_text_input,
+  std_password_input,
   std_num_input,
   std_checkbox,
 } from "./module/helpers/commons";
@@ -374,6 +376,8 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("clicker-stat-card", clicker_stat_card);
   Handlebars.registerHelper("npc-clicker-stat-card", npc_clicker_stat_card);
   Handlebars.registerHelper("std-string-input", std_string_input);
+  Handlebars.registerHelper("std-text-input", std_text_input);
+  Handlebars.registerHelper("std-password-input", std_password_input);
   Handlebars.registerHelper("std-num-input", std_num_input);
   Handlebars.registerHelper("std-checkbox", std_checkbox);
 
