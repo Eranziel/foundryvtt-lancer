@@ -9,6 +9,11 @@
 
 // Import TypeScript modules
 const marked = require("marked");
+// Pull in the parts of AWS Amplify we need
+import aws from "./aws-exports";
+import Auth from "@aws-amplify/auth";
+import Storage from "@aws-amplify/storage"
+
 import { LANCER, STATUSES, WELCOME } from "./module/config";
 import { LancerGame } from "./module/lancer-game";
 import { LancerActor, lancerActorInit } from "./module/actor/lancer-actor";
@@ -139,6 +144,8 @@ Hooks.once("init", async function () {
     return;
   }
   console.log(`${lp} Sanity check passed, continuing with initialization.`);
+
+  configureAmplify();
 
   // Assign custom classes and constants here
   // Create a Lancer namespace within the game global
@@ -828,6 +835,11 @@ because nearly everything has changed (sorry).</p>`;
       width: 1000,
     }
   ).render(true);
+}
+
+function configureAmplify() {
+  Auth.configure(aws);
+  Storage.configure(aws);
 }
 
 async function showChangelog() {
