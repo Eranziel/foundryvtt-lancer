@@ -22,11 +22,6 @@ const entryPrompt = "//:AWAIT_ENTRY>";
  * Extend the basic ActorSheet
  */
 export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
-  // potential vault id
-  // gets hooked into getData() to get bound to the template
-  // we need this _and_ cloud id to have an idea of where to look, it seems like
-  // maybe there's a better solution here
-  vaultID: string = ""
   /**
    * Extend and override the default options used by the Pilot Sheet
    * @returns {Object}
@@ -105,14 +100,12 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
         let self = await this.getDataLazy();
         // Fetch data to sync
         let raw_pilot_data = null;
-        // we check for vault id first, because for vault-fetched pilots, the mm CloudID
-        // gets populated with the vaultID, but they may not be in the old gist system.
         if (self.vaultID != "") {
           ui.notifications.info("Importing character from vault...");
           raw_pilot_data = await fetchPilot(self.vaultID);
-        } else if (self.mm.CloudID != "") {
+        } else if (self.gistID != "") {
           ui.notifications.info("Importing character from cloud share code...");
-          raw_pilot_data = await funcs.gist_io.download_pilot(self.mm.CloudID);
+          raw_pilot_data = await funcs.gist_io.download_pilot(self.gistID);
         } else {
           ui.notifications.error("Could not find character to import!");
           return;
@@ -128,14 +121,29 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
     const data = ((await super.getData()) as unknown) as LancerActorSheetData<EntryType.PILOT>; // Not fully populated yet!
 
     data.active_mech = await data.mm.ActiveMech();
-    data.vaultID = this.vaultID;
     data.pilotCache = pilotNames();
+
+    if ((data.mm.CloudID.match(/-/g) || []).length == 4) { // this is a vault id
+      data.vaultID = data.mm.CloudID;
+      data.gistID = "";
+    } else {
+      data.gistID = data.mm.CloudID;
+      data.vaultID = "";
+    }
 
     return data;
   }
 
   async _commitCurrMM() {
-    this.vaultID = this?._currData?.vaultID || "";
+    if (this._currData) {
+      // we prioritise vault ids so that users using old gist ids just have to select
+      // a pilot from the dropdown and hit download
+      // this does mean that switching from a vault id to a gist id is cumbersome
+      // you have to deselect the vault id from the dropdown
+      // then enter the gist id
+      // then hit download
+      this._currData.mm.CloudID = this._currData.vaultID || this._currData.gistID || "";
+    }
     return super._commitCurrMM()
   }
 
