@@ -114,6 +114,15 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
         await actor.importCC(raw_pilot_data);
         this._currData = null;
       });
+
+      // editing gistID clears vaultID
+      // (other way happens automatically because we prioritise vaultID in commit)
+      let gistInput = html.find('input[name="gistID"]');
+      gistInput.on("input", async ev => {
+        if ((ev.target as any).value != "") {
+          (html.find('select[name="vaultID"]')[0] as any).value = "";
+        }
+      });
     }
   }
 
@@ -136,12 +145,10 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
 
   async _commitCurrMM() {
     if (this._currData) {
-      // we prioritise vault ids so that users using old gist ids just have to select
-      // a pilot from the dropdown and hit download
-      // this does mean that switching from a vault id to a gist id is cumbersome
-      // you have to deselect the vault id from the dropdown
-      // then enter the gist id
-      // then hit download
+      // we prioritise vault ids here, so when the user selects a vault id via dropdown
+      // it gets saved and any gistID doesn't, so the render clears the gistID
+      // i.e., editing vaultID clears gistID
+      // other way around happens in the gistID input listener
       this._currData.mm.CloudID = this._currData.vaultID || this._currData.gistID || "";
     }
     return super._commitCurrMM()
