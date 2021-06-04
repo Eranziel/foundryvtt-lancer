@@ -3,7 +3,7 @@ import { LancerActorSheet } from "./lancer-actor-sheet";
 import { Deployable, EntryType, LiveEntryTypes, Mech, OpCtx, Pilot } from "machine-mind";
 import { FoundryFlagData, FoundryReg } from "../mm-util/foundry-reg";
 import { mm_wrap_item } from "../mm-util/helpers";
-import { funcs, quick_relinker } from "machine-mind";
+import { funcs, quick_relinker, PackedPilotData } from "machine-mind";
 import { ResolvedNativeDrop } from "../helpers/dragdrop";
 import { HelperOptions } from "handlebars";
 import { buildCounterHTML } from "../helpers/item";
@@ -11,6 +11,7 @@ import { LancerActorSheetData } from "../interfaces";
 import { ref_commons, ref_params, simple_mm_ref } from "../helpers/refs";
 import { resolve_dotpath } from "../helpers/commons";
 import { LancerActor } from "./lancer-actor";
+import { fetchPilot, pilotNames } from "../compcon";
 
 const lp = LANCER.log_prefix;
 
@@ -21,6 +22,9 @@ const entryPrompt = "//:AWAIT_ENTRY>";
  * Extend the basic ActorSheet
  */
 export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
+  // pilot cache and potential vault id
+  // these get hooked into getData() to get bound to the template
+  vaultID: string = ""
   /**
    * Extend and override the default options used by the Pilot Sheet
    * @returns {Object}
@@ -95,10 +99,22 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
       let actor = this.actor as LancerActor<EntryType.PILOT>;
       download.on("click", async ev => {
         ev.stopPropagation();
-        // Fetch data to sync
-        ui.notifications.info("Importing character...");
+
         let self = await this.getDataLazy();
-        let raw_pilot_data = await funcs.gist_io.download_pilot(self.mm.CloudID);
+        // Fetch data to sync
+        let raw_pilot_data = null;
+        // we check for vault id first, because for vault-fetched pilots, the mm CloudID
+        // gets populated with the vaultID, but they may not be in the old gist system.
+        if (self.vaultID != "") {
+          ui.notifications.info("Importing character from vault...");
+          raw_pilot_data = await fetchPilot(self.vaultID);
+        } else if (self.mm.CloudID != "") {
+          ui.notifications.info("Importing character from cloud share code...");
+          raw_pilot_data = await funcs.gist_io.download_pilot(self.mm.CloudID);
+        } else {
+          ui.notifications.error("Could not find character to import!");
+          return;
+        };
 
         await actor.importCC(raw_pilot_data);
         this._currData = null;
@@ -110,8 +126,15 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
     const data = ((await super.getData()) as unknown) as LancerActorSheetData<EntryType.PILOT>; // Not fully populated yet!
 
     data.active_mech = await data.mm.ActiveMech();
+    data.vaultID = this.vaultID;
+    data.pilotCache = pilotNames();
 
     return data;
+  }
+
+  async _commitCurrMM() {
+    this.vaultID = this?._currData?.vaultID || "";
+    return super._commitCurrMM()
   }
 
   // Baseline drop behavior. Let people add stuff to the pilot
