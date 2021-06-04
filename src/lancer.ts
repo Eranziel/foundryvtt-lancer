@@ -18,6 +18,7 @@ import { LANCER, STATUSES, WELCOME } from "./module/config";
 import { LancerGame } from "./module/lancer-game";
 import { LancerActor, lancerActorInit } from "./module/actor/lancer-actor";
 import { LancerItem, lancerItemInit } from "./module/item/lancer-item";
+import { populatePilotCache } from "./module/compcon";
 
 import { action_type_icon, action_type_selector } from "./module/helpers/npc";
 
@@ -844,6 +845,10 @@ because nearly everything has changed (sorry).</p>`;
 function configureAmplify() {
   Auth.configure(aws);
   Storage.configure(aws);
+
+  // if we have a login already, this is where we populate the pilot cache
+  // no need to block on it; it can happen in the background
+  populatePilotCache();
 }
 
 async function showChangelog() {
