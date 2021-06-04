@@ -132,7 +132,7 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
     data.active_mech = await data.mm.ActiveMech();
     data.pilotCache = pilotNames();
 
-    if ((data.mm.CloudID.match(/-/g) || []).length == 4) { // this is a vault id
+    if (data.mm.CloudID.match(/^[^-]+(-[^-]+){4}$/)) { // if this is a vault id
       data.vaultID = data.mm.CloudID;
       data.gistID = "";
     } else {
