@@ -848,7 +848,8 @@ function configureAmplify() {
 
   // if we have a login already, this is where we populate the pilot cache
   // no need to block on it; it can happen in the background
-  populatePilotCache();
+  // errors when we don't have a login already, which is normal behaviour
+  populatePilotCache().catch(e => e);
 }
 
 async function showChangelog() {
