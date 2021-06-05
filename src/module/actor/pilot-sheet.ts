@@ -3,7 +3,7 @@ import { LancerActorSheet } from "./lancer-actor-sheet";
 import { Deployable, EntryType, LiveEntryTypes, Mech, OpCtx, Pilot } from "machine-mind";
 import { FoundryFlagData, FoundryReg } from "../mm-util/foundry-reg";
 import { mm_wrap_item } from "../mm-util/helpers";
-import { funcs, quick_relinker, PackedPilotData } from "machine-mind";
+import { funcs, quick_relinker } from "machine-mind";
 import { ResolvedNativeDrop } from "../helpers/dragdrop";
 import { HelperOptions } from "handlebars";
 import { buildCounterHTML } from "../helpers/item";

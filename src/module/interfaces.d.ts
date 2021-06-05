@@ -30,7 +30,6 @@ import {
   RegNpcData,
   RegPilotData,
   RegSkillData,
-  PackedPilotData,
 } from "machine-mind";
 import { FoundryRegActorData, FoundryRegItemData } from "./mm-util/foundry-reg";
 import { LancerActorType } from "./actor/lancer-actor";
