@@ -9,10 +9,16 @@
 
 // Import TypeScript modules
 const marked = require("marked");
+// Pull in the parts of AWS Amplify we need
+import aws from "./aws-exports";
+import Auth from "@aws-amplify/auth";
+import Storage from "@aws-amplify/storage"
+
 import { LANCER, STATUSES, WELCOME } from "./module/config";
 import { LancerGame } from "./module/lancer-game";
 import { LancerActor, lancerActorInit } from "./module/actor/lancer-actor";
 import { LancerItem, lancerItemInit } from "./module/item/lancer-item";
+import { populatePilotCache } from "./module/compcon";
 
 import { action_type_icon, action_type_selector } from "./module/helpers/npc";
 
@@ -55,6 +61,8 @@ import {
   safe_html_helper,
   large_textbox_card,
   std_string_input,
+  std_text_input,
+  std_password_input,
   std_num_input,
   std_checkbox,
 } from "./module/helpers/commons";
@@ -139,6 +147,8 @@ Hooks.once("init", async function () {
     return;
   }
   console.log(`${lp} Sanity check passed, continuing with initialization.`);
+
+  configureAmplify();
 
   // Assign custom classes and constants here
   // Create a Lancer namespace within the game global
@@ -367,6 +377,8 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("clicker-stat-card", clicker_stat_card);
   Handlebars.registerHelper("npc-clicker-stat-card", npc_clicker_stat_card);
   Handlebars.registerHelper("std-string-input", std_string_input);
+  Handlebars.registerHelper("std-text-input", std_text_input);
+  Handlebars.registerHelper("std-password-input", std_password_input);
   Handlebars.registerHelper("std-num-input", std_num_input);
   Handlebars.registerHelper("std-checkbox", std_checkbox);
 
@@ -828,6 +840,16 @@ because nearly everything has changed (sorry).</p>`;
       width: 1000,
     }
   ).render(true);
+}
+
+function configureAmplify() {
+  Auth.configure(aws);
+  Storage.configure(aws);
+
+  // if we have a login already, this is where we populate the pilot cache
+  // no need to block on it; it can happen in the background
+  // errors when we don't have a login already, which is normal behaviour
+  populatePilotCache().catch(e => e);
 }
 
 async function showChangelog() {

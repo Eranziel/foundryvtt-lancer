@@ -1,4 +1,5 @@
 import { LANCER } from "./config";
+import CompconLoginForm from "./helpers/compcon-login-form";
 
 export const registerSettings = function () {
   /**
@@ -27,6 +28,15 @@ export const registerSettings = function () {
     scope: "world",
     config: false,
     type: Object,
+  });
+
+  game.settings.registerMenu(LANCER.sys_name, "compconLogin", {
+    name: "Comp/Con Login",
+    label: "Log in to Comp/Con",
+    hint: "Log in to Comp/Con to automatically load any pilots and mechs you have access to",
+    icon: "fas fa-bars",
+    type: CompconLoginForm,
+    restricted: true
   });
 
   game.settings.register(LANCER.sys_name, LANCER.setting_stock_icons, {
