@@ -567,6 +567,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
     return return_text;
   }
 
+  // Imports an old-style compcon pilot sync code
   async importCC(data: PackedPilotData, clearFirst = false) {
     if (this.data.type !== "pilot") {
       return;
@@ -591,16 +592,9 @@ export class LancerActor<T extends LancerActorType> extends Actor {
       console.log("Unit folder id:", unit_folder.id);
 
       // Setup registries
-      let ps1 = new FoundryReg({
-        // We look for missing items in world first
-        item_source: ["world", null],
-        actor_source: "world",
-      });
-      let ps2 = new FoundryReg({
-        // We look for missing items in compendium second
-        item_source: ["compendium", null],
-        actor_source: "compendium",
-      });
+      // We look for missing items in world first, compendium second
+      let ps1 = new FoundryReg("game");
+      let ps2 = new FoundryReg("comp_core");
 
       // Setup relinker to be folder bound for actors
       let base_relinker = quick_relinker<any>({

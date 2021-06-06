@@ -1,9 +1,9 @@
 import { EntryType, LiveEntryTypes, RegEntry, RegEntryTypes } from "machine-mind";
 import { is_actor_type, LancerActor, LancerActorType, LancerActorTypes } from "../actor/lancer-actor";
-import { PACK_SCOPE } from "../compBuilder";
-import { FriendlyTypeName, LANCER } from "../config";
+import { LANCER } from "../config";
 import { LancerItem, LancerItemType } from "../item/lancer-item";
-import { FoundryFlagData } from "./foundry-reg";
+import type { FoundryFlagData, FoundryRegNameParsed } from "./foundry-reg";
+import { get_pack_id } from "./helpers";
 
 const lp = LANCER.log_prefix;
 
@@ -55,7 +55,16 @@ function as_document_blob<T extends EntryType>(ent: LiveEntryTypes<T>): any {
   return result;
 }
 
-// This can wrap an actors inventory, the global actor/item inventory, or a compendium
+
+/**
+ * A FoundryRegNameParsed resolved into specific collections
+ */
+export type ResolvedRegArgs = {
+  item_collection?: null | (() => Promise<any>); // If provided we use this item collection. Might be an inventory, hence the asynchronous lookup
+  actor_collection?: null | any; // If provided we use this actor collection. If not provided, we use the token collection and map to the appropriate actor
+  token_collection?: null | any; // If provided we use this token collection to fetch actors. Corresponds to a single Scene
+}
+
 export abstract class EntityCollectionWrapper<T extends EntryType> {
   // Create an item and return a reference to it
   abstract create_many(items: RegEntryTypes<T>[]): Promise<GetResult<T>[]>; // Return id
@@ -65,548 +74,281 @@ export abstract class EntityCollectionWrapper<T extends EntryType> {
   abstract get(id: string): Promise<GetResult<T> | null>;
   // Delete the specified item
   abstract destroy(id: string): Promise<any>;
-  // List items, including id for reference
+  // List items matching specific query items, including id for reference
+  abstract query(query_ob: {[key: string]: any}): Promise<GetResult<T>[]>;
+  // List all items, including id for reference
   abstract enumerate(): Promise<GetResult<T>[]>;
 }
 
-// Handles accesses to the global item set
-export class WorldItemsWrapper<T extends LancerItemType> extends EntityCollectionWrapper<T> {
-  // Need this to filter results by type/know what we're returning
-  type: T;
+// 0.8: Should return CompendiumCollection. Lists all compendiums of specified document type that aren't in our standard id set
 
-  constructor(type: T) {
+
+export class NuWrapper<T extends EntryType> extends EntityCollectionWrapper<T> {
+  // Need this to filter results by type/know what we're returning
+  entry_type: T;
+
+  // This is our document type that we'll use for creation/destruction
+  // doc_type: typeof Actor | typeof Item;
+
+  // Our collection. Can be a world collection, embedded collection, or compendiumcollection
+  // Note: technically, "scene_tokens" still uses the game.actors collection
+  // Has .documentClass, which we use to call updateDocuments etc
+  // (Sometimes) has .parent. If we have an actor, will have .parent
+  collection: Promise<any>; // 0.8 Should be EmbeddedCollection | WorldCollection, and can be of Items or Actors
+
+  // Our scene, if any. If provided, we use special procedures for getting data to properly fetch from here
+  // Note: we ONLY set this if we are src type "scene", since "scene_token" doesn't really care
+  // Scene and pack will never both be set
+  scene: any | null; // 0.8 Should be `Scene` once the type is fixed
+
+  // Our pack, if any. Should only ever be one, because
+  // - If we have a parent, it will be from a single pack and thus all items in our purview will also be from that singular pack
+  // - If we are core, in spite of the numerous packs we have but a single one that actually is associated with this entry type
+  // - If we are not core, then we are exclusively associated with a single custom compendium pack name
+  // Scene and pack will never both be set
+  pack: string | null; 
+
+  private static async lookup_collection<G extends EntryType>(entry_type: G, cfg: FoundryRegNameParsed): Promise<any> {
+      if(cfg.src == "comp_actor") {
+        // Get our desired pack
+        // @ts-ignore 0.8
+        let actor_pack = game.packs.get(cfg.comp_id);
+        if(!actor_pack) {
+          throw new Error("Couldn't find pack " + cfg.comp_id); 
+        }
+
+        // Get our desired actor document from the pack
+        // @ts-ignore 0.8
+        actor_pack.getDocument(cfg.token_id).then(actor => {
+          if(!actor) {
+            throw new Error("Pack " + cfg.comp_id + " didn't have actor with id " + cfg.actor_id);
+          }
+
+          // Victory! Return the actors item collection
+          return actor.items;
+        });
+
+      } else if(cfg.src == "game_actor") {
+        // Lookup the actor
+        let actor = game.actors.get(cfg.actor_id);
+        if(!actor) {
+          throw new Error("Couldn't find game actor " + cfg.actor_id);
+        }
+
+        // Success!
+        return actor.items;
+      } else if(cfg.src == "scene_token") {
+        // Lookup scene
+        let scene = game.scenes.get(cfg.scene_id);
+        if(!scene) {
+          throw new Error("Couldn't find scene " + cfg.scene_id);
+        }
+
+        // Lookup token in scene
+        // @ts-ignore 0.8
+        let token = scene.tokens.get(cfg.token_id);
+        if(!token) {
+          throw new Error("Couldn't find token " + cfg.token_id + " in scene " + cfg.scene_id);
+        } 
+
+        // Get actor from token
+        if(!token.actor) {
+          throw new Error(`Token ${cfg.token_id} has no actor`); // Possible, albeit unlikely, if tokens actor is delete
+        }
+
+        // Return the token actor. Success!
+        return token.actor.items;
+      } else if(cfg.src == "comp") {
+        // Get the pack collection. 
+        let pack = game.packs.get(cfg.comp_id);
+        if(!pack) {
+          throw new Error(`Pack ${cfg.comp_id} does not exist`);
+        }
+      } else if(cfg.src == "comp_core") {
+        // Get the pack collection, derived from our type
+        let comp_id = get_pack_id(entry_type);
+        let pack = game.packs.get(comp_id);
+        if(!pack) {
+          throw new Error(`Core pack ${comp_id} does not exist`);
+        }
+      } else if(cfg.src == "game") {
+        // Get the appropriate world collection
+        if(is_actor_type(entry_type)) {
+          return game.actors;
+        } else {
+          return game.items;
+        }
+      } else if(cfg.src == "scene") {
+        // A bit weird, but we return game.actors
+        // Separate logic will make sure that we update with the right parent
+        return game.actors;
+      }
+  }
+
+  constructor(type: T, cfg: FoundryRegNameParsed) {
     super();
-    this.type = type;
+
+    // Set type and doc type
+    this.entry_type = type;
+
+    // Resolve our pack
+    if(cfg.src == "comp" || cfg.src == "comp_actor") {
+      // Resolve from our core type pack primarily, but also give others!
+      this.pack = cfg.comp_id
+    } else if(cfg.src == "comp_core") {
+      this.pack = get_pack_id(this.entry_type);
+    } else {
+      this.pack = null;
+    }
+
+    // Resolve our scene
+    if(cfg.src == "scene") {
+      this.scene = game.scenes.get(cfg.scene_id);
+      if(!this.scene) {
+        throw new Error(`Invalid scene id: "${cfg.scene_id}"`);
+      }
+    } else {
+      this.scene = null;
+    }
+
+    // Resolve our collection as appropriate. Async to handle comp_actor cases
+    this.collection = NuWrapper.lookup_collection(this.entry_type, cfg);
+  }
+
+  // Options to provide to document editing operations. 
+  private async non_scene_opts(): Promise<any> { // 0.8 Should eventually be DocumentModificationContext
+    // Attempt to resolve
+    let collection = await this.collection;
+    let parent = collection.parent; // Will give base actor
+
+    if(parent) {
+      return {
+        parent,
+        pack: this.pack 
+      }
+    } else {
+      return {
+        pack: this.pack
+      }
+    }
   }
 
   async create_many(reg_data: RegEntryTypes<T>[]): Promise<GetResult<T>[]> {
-    // Create the item
-    // @ts-ignore
-    let new_items = (await Item.createDocuments(
+    // Creating tokens via this mechanism is forbidden, for the time being. 
+    if(this.scene) {
+      console.error("Creating tokens via registry is not yet supported");
+      return [];
+    }
+
+    // Create the docs. Opts will properly put things in the right collection/actor/whatever
+    // @ts-ignore 0.8
+    let new_docs = ((await this.collection).documentClass.createDocuments(
       reg_data.map(d => ({
-        type: this.type,
+        type: this.entry_type,
         name: d.name,
         data: duplicate(d),
-      }))
-    )) as EntFor<T>[];
+      })), await this.non_scene_opts())) as EntFor<T>[];
 
     // Return the reference
-    return new_items.map((item, index) => ({
+    return new_docs.map((item, index) => ({
       id: item.data._id,
       entity: item,
-      type: this.type,
+      type: this.entry_type,
       data: reg_data[index],
     }));
   }
 
-  // Fetch and call .update()
+  // Simple delegated call to <document class>.updateDocuments
   async update(items: Array<LiveEntryTypes<T>>): Promise<void> {
-    //@ts-ignore Typings dont yet include mass update functions
-    return Item.updateDocuments(items.map(as_document_blob));
+    //@ts-ignore 0.8
+    return (await this.collection).documentClass.updateDocuments(items.map(as_document_blob), await this.non_scene_opts());
   }
 
-  // Call game.items.get
+  // Simple delegated call to <document class>.deleteDocuments
+  async destroy(id: string): Promise<RegEntryTypes<T> | null> {
+    //@ts-ignore .8
+    return (await this.collection).documentClass.deleteDocuments([id], await this.non_scene_opts());
+  }
+
+  // Call a .get appropriate to our parent/pack/lack thereof
   async get(id: string): Promise<GetResult<T> | null> {
-    let fi = game.items.get(id);
-    if (fi && fi.type == this.type) {
+    let collection = await this.collection; 
+    let fi: any; // Our found result
+
+    // Getting item slightly different if we're a pack
+    if(this.pack) {
+      fi = await collection.getDocument(id); // Is a CompendiumCollection
+    } else {
+      // @ts-ignore 0.8
+      fi = collection.get(id);
+    } 
+
+    // Check its type and return
+    if (fi && fi.type == this.entry_type) {
       return {
         data: fi.data.data as RegEntryTypes<T>,
         entity: fi as EntFor<T>,
         id,
-        type: this.type,
+        type: this.entry_type,
       };
     } else {
       return null;
     }
   }
 
-  // Call .delete()
-  async destroy(id: string): Promise<RegEntryTypes<T> | null> {
-    //@ts-ignore .8
-    return Item.deleteDocuments([id]);
-  }
-
-  // Just pull from game.items.entities
-  async enumerate(): Promise<GetResult<T>[]> {
-    // @ts-ignore .8
-    return game.items.contents
-      .filter((e: Item) => e.data.type == this.type)
-      .map((e: Item) => ({
-        id: (e.data as any)._id,
-        data: e.data.data as RegEntryTypes<T>,
-        entity: e as EntFor<T>,
-        type: this.type,
-      }));
-  }
-}
-
-// Handles accesses to the global actor set
-export class WorldActorsWrapper<T extends LancerActorType> extends EntityCollectionWrapper<T> {
-  // Need this to filter results by type
-  type: T;
-  constructor(type: T) {
-    super();
-    this.type = type;
-  }
-
-  async create_many(reg_data: RegEntryTypes<T>[]): Promise<GetResult<T>[]> {
-    // Create the actors
-    // @ts-ignore
-    let new_items = (await Actor.createDocuments(
-      reg_data.map(d => ({
-        type: this.type,
-        name: d.name,
-        data: duplicate(d),
-      }))
-    )) as EntFor<T>[];
-
-    // Return the references
-    return new_items.map((item, index) => ({
-      id: item.data._id,
-      entity: item,
-      type: this.type,
-      data: reg_data[index],
-    }));
-  }
-
-  async update(items: Array<LiveEntryTypes<T>>): Promise<void> {
-    //@ts-ignore .8
-    return Actor.updateDocuments(items.map(as_document_blob));
-  }
-
-  async get(id: string): Promise<GetResult<T> | null> {
-    let fi = game.actors.get(id);
-    if (fi && fi.data.type == this.type) {
-      return {
-        data: fi.data.data as RegEntryTypes<T>,
-        entity: fi as EntFor<T>,
-        id,
-        type: this.type,
-      };
+  // Call a .contents/getDocuments appropriate to our parent/container/whatever, then filter to match query
+  async query(query_obj: {[key: string]: any}): Promise<GetResult<T>[]> {
+    // If we are a pack must first call .getDocuments() to fetch all
+    let collection = await this.collection;
+    let all: any[];
+    if(this.pack) {
+      all = await collection.getDocuments({
+        ...query_obj,
+        type: this.entry_type
+      });
     } else {
-      return null;
-    }
-  }
-
-  async destroy(id: string): Promise<RegEntryTypes<T> | null> {
-    //@ts-ignore .8
-    return Actor.deleteDocuments([id]);
-  }
-
-  async enumerate(): Promise<GetResult<T>[]> {
-    //@ts-ignore .8
-    return game.actors.contents
-      .filter((e: Actor) => e.data.type == this.type)
-      .map((e: Actor) => ({
-        id: (e.data as any)._id,
-        data: e.data.data as RegEntryTypes<T>,
-        entity: e as EntFor<T>,
-        type: this.type,
-      }));
-  }
-}
-
-// Handles accesses to the placeable tokens synthetic actor set
-export class TokenActorsWrapper<T extends LancerActorType> extends EntityCollectionWrapper<T> {
-  // Need this to filter results by type
-  type: T;
-  constructor(type: T) {
-    super();
-    this.type = type;
-  }
-
-  // Handles type checking + complicated token lookups
-  private subget(id: string): Token | null {
-    let fi: Token | undefined = canvas.tokens.get(id);
-    if (fi && fi.actor.data.type == this.type) {
-      return fi;
-    } else {
-      console.warn(
-        "TODO: Should search in places that arent just curr scene, in case scene changes while sheet open: see comment "
-      );
-      return null;
-    }
-    /*
-    WE SHOULD MAYBE JUST BE USING UUIDS? FOR EVERY REGISTRYID? 
-    I don't think that we'd actually need distinct registry names, just a more sophisticated sorting mechanism for 
-    doing bulk updates (but even that is largely just a vanity project). Compendium caching probably would need revision
-
-    alternatively, something like this, cached, would be good
-    SceneDirectory.collection.reduce((group, scene) => {
-      // concat scene.data.tokens onto group
-      return group;
-    }, [])
-  */
-  }
-
-  async create_many(reg_data: RegEntryTypes<T>[]): Promise<GetResult<T>[]> {
-    // No
-    throw new Error("This is an ill advised way to create a token. Do better");
-  }
-
-  async update(items: Array<LiveEntryTypes<T>>): Promise<any> {
-    console.log("Updating token actors. Could this be done faster?");
-    let promises: Promise<any>[] = [];
-    for (let token_entry of items) {
-      let fi = token_entry.Flags.orig_doc;
-      if (fi) {
-        let actor = fi.actor ? fi.actor : fi;
-        promises.push(actor.update(as_document_blob(token_entry), {}));
-      } else {
-        console.error(`Failed to update actor ${token_entry.Registry} of type ${this.type} - token actor not found`);
-      }
-    }
-    return Promise.all(promises);
-  }
-
-  async get(id: string): Promise<GetResult<T> | null> {
-    let fi = this.subget(id);
-    if (fi) {
-      return {
-        data: fi.actor.data.data as RegEntryTypes<T>,
-        entity: fi.actor as EntFor<T>,
-        id,
-        type: this.type,
-      };
-    } else {
-      return null;
-    }
-  }
-
-  async destroy(id: string): Promise<RegEntryTypes<T> | null> {
-    // No
-    throw new Error("This is an ill advised way to destroy a token. Probably");
-  }
-
-  async enumerate(): Promise<GetResult<T>[]> {
-    console.warn("Should we just be enumerating current scene?");
-    return (canvas.tokens.placeables as Array<Token>)
-      .filter(e => e?.actor?.data?.type == this.type)
-      .map(e => ({
-        id: e.id,
-        data: e.actor.data.data as RegEntryTypes<T>,
-        entity: e.actor as EntFor<T>,
-        type: this.type,
-      }));
-  }
-}
-
-// Handles accesses to items owned by actor
-export class ActorInventoryWrapper<T extends LancerItemType> extends EntityCollectionWrapper<T> {
-  // Need this to filter results by type
-  type: T;
-
-  // Where we get the items from.
-  actor: Actor;
-
-  // Is this a compendium actor?
-  for_compendium: boolean;
-  constructor(type: T, actor: Actor) {
-    super();
-    if (!actor) {
-      throw new Error("Bad actor");
-    }
-    this.type = type;
-    this.actor = actor;
-    this.for_compendium = !!actor.compendium;
-  }
-
-  async create_many(reg_data: RegEntryTypes<T>[]): Promise<GetResult<T>[]> {
-    // Create the items
-    // @ts-ignore
-    let new_items = (await this.actor.createEmbeddedDocuments(
-      "Item",
-      reg_data.map(d => ({
-        type: this.type,
-        name: d.name,
-        data: duplicate(d),
-      }))
-    )) as EntFor<T>[];
-
-    // Return the references
-    return new_items.map((item, index) => ({
-      id: item.data._id,
-      entity: item,
-      type: this.type,
-      data: reg_data[index],
-    }));
-  }
-
-  async update(items: Array<LiveEntryTypes<T>>): Promise<void> {
-    // @ts-ignore Typings dont yet include mass update functions
-    return this.actor.updateEmbeddedDocuments("Item", items.map(as_document_blob));
-  }
-
-  async get(id: string): Promise<GetResult<T> | null> {
-    let fi = this.actor.items.get(id);
-    if (fi && fi.type == this.type) {
-      return {
-        data: fi.data.data as RegEntryTypes<T>,
-        entity: fi as EntFor<T>,
-        id,
-        type: this.type,
-      };
-    } else {
-      return null;
-    }
-  }
-
-  async destroy(id: string): Promise<RegEntryTypes<T> | null> {
-    let fi = this.actor.items.get(id);
-    if (fi && fi.type == this.type) {
-      await fi.delete();
-      return fi.data.data;
-    } else {
-      return null;
-    }
-  }
-
-  async enumerate(): Promise<GetResult<T>[]> {
-    // @ts-ignore .8 stuff
-    let items = (this.actor.items.contents as unknown) as LancerItem<T>[];
-    return items
-      .filter(e => e.data.type == this.type)
-      .map(e => ({
-        id: e.data._id,
-        data: e.data.data,
-        entity: e as EntFor<T>,
-        type: this.type,
-      }));
-  }
-}
-
-// Handles accesses to top level items/actors in compendiums
-export class CompendiumWrapper<T extends EntryType> extends EntityCollectionWrapper<T> {
-  // Need this to filter results by type
-  type: T;
-  constructor(type: T) {
-    super();
-    this.type = type;
-  }
-
-  // Handles type checking and stuff
-  private async subget(id: string): Promise<EntFor<T> | null> {
-    let map = await PackContentMapCache.fetch(this.type);
-    // console.log(`Compendium wrapper looking up ${this.type} ${id} in map `, map);
-    let retrieved = map.get(id);
-
-    if (retrieved && retrieved.data.type == this.type) {
-      return retrieved as EntFor<T>;
-    } else {
-      return null;
-    }
-  }
-
-  // Decide which document type corr to provided entrytype
-  private document_type(): any {
-    if (is_actor_type(this.type)) {
-      return Actor;
-    } else {
-      return Item;
-    }
-  }
-
-  private get pack_id(): string {
-    return get_pack_id(this.type);
-  }
-
-  async create_many(reg_data: RegEntryTypes<T>[]): Promise<GetResult<T>[]> {
-    let p = await get_pack(this.type);
-
-    // Create the items
-    // @ts-ignore
-    let new_items = (await this.document_type().createDocuments(
-      reg_data.map(
-        d => ({
-          type: this.type,
-          name: d.name,
-          data: duplicate(d),
-        })),
-        {
-          pack: this.pack_id,
+      all = collection.contents;
+      // But we have to filter it ourselves - no getDocuments query here!
+      all = all.filter(doc => {
+        // First check entry type
+        if(doc.type != this.entry_type) {
+            return false; // Failure! Filter it out
         }
-      )
-    ) as EntFor<T>[];
 
-    // Add them all to the currently cached version
-    for (let ni of new_items) {
-      PackContentMapCache.soft_fetch(this.type)?.set(ni.data._id, ni);
+        // Check each k, v
+        for(let [k,v] of Object.entries(query_obj)) {
+          if(doc.data._source.data[k] != v) {
+            return false; // Failure! Filter it out
+          }
+        }
+        return true; // It's fine :)
+      });
     }
 
-    // Return the references
-    return new_items.map((item, index) => ({
-      id: item.data._id,
-      entity: item,
-      type: this.type,
-      data: reg_data[index],
-    }));
-  }
-
-  async update(items: Array<LiveEntryTypes<T>>): Promise<void> {
-    // Perform update
-    await this.document_type().updateDocuments(items.map(as_document_blob), {
-      pack: this.pack_id,
-    });
-
-    // Update cache
-    for (let item of items) {
-      let fi = await this.subget(item.RegistryID);
-      if (fi) {
-        PackContentMapCache.soft_fetch(this.type)?.set(item.RegistryID, fi);
-      } else {
-        console.error(`Failed to update item ${item.RegistryID} of type ${this.type} - item not found`);
-      }
-    }
-  }
-
-  async get(id: string): Promise<GetResult<T> | null> {
-    let fi = await this.subget(id);
-    if (fi) {
-      return {
-        // @ts-ignore  Typescript expands a type here then gets confused why it doesn't fit back together. Really dumb! We know better
-        data: fi.data.data as RegEntryTypes<T>,
-        entity: fi,
-        id,
-        type: this.type,
-      };
-    } else {
-      return null;
-    }
-  }
-
-  async destroy(id: string): Promise<void> {
-    await this.document_type().deleteDocuments([id], { pack: this.pack_id });
-
-    // Additionally remove item from cache
-    PackContentMapCache.soft_fetch(this.type)?.delete(id);
-  }
-
-  async enumerate(): Promise<GetResult<T>[]> {
-    let content = await cached_get_pack_map(this.type);
-    return Array.from(content.values())
-      .filter(e => e && e.data.type == this.type) // Sanity check. I've seen nulls in here
-      .map(e => ({
+    // Having retrieved all, just map to our GetResult format
+    // @ts-ignore .8 Should be document
+    return all.map((e: any) => ({
         id: (e.data as any)._id,
-        // @ts-ignore  Typescript expands a type here then gets confused why it doesn't fit back together. Really dumb! We know better
         data: e.data.data as RegEntryTypes<T>,
         entity: e as EntFor<T>,
-        type: this.type,
+        type: this.entry_type,
       }));
   }
-}
 
-// Information about a pack
-interface PackMetadata {
-  name: string;
-  label: string;
-  system: "lancer";
-  package: "world";
-  path: string; // "./packs/skills.db",
-  entity: "Item" | "Actor";
-}
-
-// Get a pack id
-export function get_pack_id(type: EntryType): string {
-  return `${PACK_SCOPE}.${type}`;
-}
-
-// Retrieve a pack, or create it as necessary
-// async to handle the latter case
-export async function get_pack(type: LancerItemType | LancerActorType): Promise<Compendium> {
-  let pack: Compendium | undefined;
-
-  // Find existing world compendium
-  pack = game.packs.get(get_pack_id(type));
-  if (pack) {
-    return pack;
-  } else {
-    // Compendium doesn't exist yet. Create a new one.
-    // Create our metadata
-    const entity_type = is_actor_type(type) ? "Actor" : "Item";
-    const metadata: PackMetadata = {
-      name: type,
-      entity: entity_type,
-      label: FriendlyTypeName(type),
-      system: "lancer",
-      package: "world",
-      path: `./packs/${type}.db`,
-    };
-
-    //@ts-ignore .8
-    return CompendiumCollection.createCompendium(metadata);
+  // Just query with no filter! ez
+  enumerate(): Promise<GetResult<T>[]> {
+    return this.query({});
   }
 }
+
+
 
 /********* COMPENDIUM CACHING **********/
-const COMPENDIUM_CACHE_TIMEOUT = 20 * 1000; // 20 seconds
+// const COMPENDIUM_CACHE_TIMEOUT = 2 * 1000; // 20 seconds 
 
-// Simple mechanism for caching fetchable values for a certain length of time
-export class FetcherCache<A, T> {
-  // The currently cached value
-  private cached_values: Map<A, Promise<T>> = new Map();
-  private cached_resolved_values: Map<A, T> = new Map();
-
-  // Holds the expiration time of specified keys. Repeated access will keep alive for longer
-  private timeout_map: Map<A, number> = new Map();
-
-  constructor(private readonly timeout: number | null, private readonly fetch_func: (arg: A) => Promise<T>) {}
-
-  // Fetch the value using the specified arg
-  async fetch(arg: A): Promise<T> {
-    let now = Date.now();
-
-    // Refresh the lookup on our target value (or set it for the first time, depending) ((if we have a timeout))
-    if (this.timeout) {
-      this.timeout_map.set(arg, now + this.timeout);
-
-      // Pre-emptively cleanup
-      this.cleanup();
-    }
-
-    // Check if we have cached data. If so, yield. If not, create
-    let cached = this.cached_values.get(arg);
-    if (cached) {
-      return cached;
-    } else {
-      let new_val_promise = this.fetch_func(arg);
-      this.cached_values.set(arg, new_val_promise);
-      new_val_promise.then(resolved => this.cached_resolved_values.set(arg, resolved));
-      return new_val_promise;
-    }
-  }
-
-  // Fetch the value iff it is currently cached. Essentially a no-cost peek, useful for editing the cached val without doing a full re-fetch
-  soft_fetch(arg: A): T | null {
-    return this.cached_resolved_values.get(arg) ?? null;
-  }
-
-  // Destroys all entries that should be destroyed
-  private cleanup() {
-    let now = Date.now();
-    for (let [arg, expire] of this.timeout_map.entries()) {
-      if (expire < now) {
-        this.timeout_map.delete(arg);
-        this.cached_values.delete(arg);
-      }
-    }
-  }
-
-  // Destroy a particular set of cached values
-  public flush(arg: A) {
-    this.cached_values.delete(arg);
-    this.cached_resolved_values.delete(arg);
-    this.timeout_map.delete(arg);
-  }
-
-  // Destroy all entries, period.
-  public flush_all() {
-    this.cached_values.clear();
-    this.cached_resolved_values.clear();
-    this.timeout_map.clear();
-  }
-}
 
 // Caches getContent() _as a map_ (wowee!). Idk if generating these maps are expensive but why tempt fate, lmao
+/*
 const PackContentMapCache = new FetcherCache(
   COMPENDIUM_CACHE_TIMEOUT,
   async (type: LancerItemType | LancerActorType) => {
@@ -630,6 +372,7 @@ export async function cached_get_pack_map<T extends LancerItemType | LancerActor
 
 // Use this for incoming compendium updates, as we cannot really watch for them otherwise
 export function invalidate_cached_pack_map<T extends EntryType>(type: T) {
-  console.log("Flushed cache: ", type);
+  console.log("Flushed cache. Note that this was made faster for testing, and should be more of a 60 second interval thing: ", type);
   PackContentMapCache.flush(type);
 }
+*/

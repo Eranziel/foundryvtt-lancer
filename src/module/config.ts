@@ -234,7 +234,7 @@ const FRIENDLY_ENTITY_NAMES_PLURAL = {
 };
 
 // Quick for single/plural
-export function FriendlyTypeName(type: LancerItemType | LancerActorType, count?: number): string {
+export function friendly_entrytype_name(type: LancerItemType | LancerActorType, count?: number): string {
   if ((count ?? 1) > 1) {
     return FRIENDLY_ENTITY_NAMES_PLURAL[type] ?? `Unknown <${type}>s`;
   } else {

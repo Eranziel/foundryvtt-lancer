@@ -12,7 +12,7 @@ import {
   StaticReg,
 } from "machine-mind";
 import { FoundryReg } from "./mm-util/foundry-reg";
-import { invalidate_cached_pack_map } from "./mm-util/db_abstractions";
+// import { invalidate_cached_pack_map } from "./mm-util/db_abstractions";
 import { LCPIndex } from "./apps/lcpManager";
 
 // Some useful subgroupings
@@ -57,7 +57,7 @@ async function transfer_cat<G extends EntryType>(
   ctx: OpCtx
 ): Promise<LiveEntryTypes<G>[]> {
   // Insinuate each item in the cat
-  invalidate_cached_pack_map(type);
+  // invalidate_cached_pack_map(type);
   let from_cat = from.get_cat(type);
 
   let items: LiveEntryTypes<G>[] = [];
@@ -103,10 +103,7 @@ export async function import_cp(
   // Insinuate data to the actual foundry reg
   // We want to do globals first
   // We only want to do "top level features" - so no deployables, etc that would be included in a frame/weapon/whatever (as they will be insinuated naturally)
-  let comp_reg = new FoundryReg({
-    item_source: ["compendium", null],
-    actor_source: "compendium",
-  });
+  let comp_reg = new FoundryReg("comp_core");
   let dest_ctx = new OpCtx();
 
   let transmit_count = 0;

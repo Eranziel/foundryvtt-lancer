@@ -16,7 +16,6 @@ import {
   HANDLER_openRefOnClick,
 } from "../helpers/refs";
 import { EntryType, Skill, SkillFamily } from "machine-mind";
-import { get_pack } from "../mm-util/db_abstractions";
 import { HANDLER_activate_edit_bonus } from "../helpers/item";
 import { HANDLER_activate_tag_context_menus, HANDLER_activate_tag_dropping } from "../helpers/tags";
 import { CollapseHandler } from "../helpers/collapse";
@@ -164,15 +163,15 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
    * Prepare data for rendering the frame sheet
    * The prepared data object contains both the actor data as well as additional sheet options
    */
-  //@ts-ignore Foundry-pc-types does not properly acknowledge that sheet `getData` functions can be/are asynchronous
+  //@ts-ignore 0.8 hopefully? Foundry-pc-types does not properly acknowledge that sheet `getData` functions can be/are asynchronous
   async getData(): Promise<LancerItemSheetData<T>> {
     // If a compendium, wait 50ms to avoid most race conflicts. TODO: Remove this when foundry fixes compendium editing to not be so awful
-    if (this.item.compendium) {
-      this.object = await new Promise(s => setTimeout(s, 50))
-        //@ts-ignore
-        .then(() => get_pack(this.item.type))
-        .then(p => p.getEntity(this.item.id));
-    }
+    // if (this.item.compendium) {
+      // this.object = await new Promise(s => setTimeout(s, 50))
+        // //@ts-ignore
+        // .then(() => get_pack(this.item.type))
+        // .then(p => p.getEntity(this.item.id));
+    // }
     const data = super.getData() as LancerItemSheetData<T>; // Not fully populated yet!
 
     // Wait for preparations to complete
