@@ -707,6 +707,9 @@ export class LancerActor<T extends LancerActorType> extends Actor {
    *  - Re-initialize our MM context
    */
   prepareDerivedData() {
+    // If no id, leave
+    if(!this.id) return;
+
     // Reset subscriptions for new data
     this.setupLancerHooks();
 

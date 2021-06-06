@@ -86,15 +86,12 @@ export abstract class EntityCollectionWrapper<T extends EntryType> {
 export class NuWrapper<T extends EntryType> extends EntityCollectionWrapper<T> {
   // Need this to filter results by type/know what we're returning
   entry_type: T;
+  // We hold onto this as well
+  cfg: FoundryRegNameParsed;
 
   // This is our document type that we'll use for creation/destruction
   // doc_type: typeof Actor | typeof Item;
 
-  // Our collection. Can be a world collection, embedded collection, or compendiumcollection
-  // Note: technically, "scene_tokens" still uses the game.actors collection
-  // Has .documentClass, which we use to call updateDocuments etc
-  // (Sometimes) has .parent. If we have an actor, will have .parent
-  collection: Promise<any>; // 0.8 Should be EmbeddedCollection | WorldCollection, and can be of Items or Actors
 
   // Our scene, if any. If provided, we use special procedures for getting data to properly fetch from here
   // Note: we ONLY set this if we are src type "scene", since "scene_token" doesn't really care
@@ -186,11 +183,26 @@ export class NuWrapper<T extends EntryType> extends EntityCollectionWrapper<T> {
       }
   }
 
+  // Our collection. Can be a world collection, embedded collection, or compendiumcollection
+  // Note: technically, "scene_tokens" still uses the game.actors collection
+  // Has .documentClass, which we use to call updateDocuments etc
+  // (Sometimes) has .parent. If we have an actor, will have .parent
+  // collection: Promise<any>; // 0.8 Should be EmbeddedCollection | WorldCollection, and can be of Items or Actors
+  private _cached_collection: Promise<any> | null = null;
+  // Resolves our collection as appropriate. Async to handle comp_actor cases. We only do this if we need to, hence it not being in constructor
+  private async collection(): Promise<any> {
+    if(!this._cached_collection) {
+      this._cached_collection = NuWrapper.lookup_collection(this.entry_type, this.cfg);
+    }
+    return this._cached_collection;
+  }
+
   constructor(type: T, cfg: FoundryRegNameParsed) {
     super();
 
-    // Set type and doc type
+    // Set type and config
     this.entry_type = type;
+    this.cfg = cfg;
 
     // Resolve our pack
     if(cfg.src == "comp" || cfg.src == "comp_actor") {
@@ -211,15 +223,12 @@ export class NuWrapper<T extends EntryType> extends EntityCollectionWrapper<T> {
     } else {
       this.scene = null;
     }
-
-    // Resolve our collection as appropriate. Async to handle comp_actor cases
-    this.collection = NuWrapper.lookup_collection(this.entry_type, cfg);
   }
 
   // Options to provide to document editing operations. 
   private async non_scene_opts(): Promise<any> { // 0.8 Should eventually be DocumentModificationContext
     // Attempt to resolve
-    let collection = await this.collection;
+    let collection = await this.collection();
     let parent = collection.parent; // Will give base actor
 
     if(parent) {
@@ -241,7 +250,7 @@ export class NuWrapper<T extends EntryType> extends EntityCollectionWrapper<T> {
       return [];
     }
 
-    let collection = await this.collection;
+    let collection = await this.collection();
     let opts = await this.non_scene_opts();
 
     // console.log("CREATING " + reg_data.map(i => `${i.name} - ${this.entry_type}`).join(","));
@@ -274,19 +283,19 @@ export class NuWrapper<T extends EntryType> extends EntityCollectionWrapper<T> {
   async update(items: Array<LiveEntryTypes<T>>): Promise<void> {
     // console.log("UPDATING " + items.map(i => `${i.Name} - ${i.Type} - ${i.RegistryID}`).join(","));
     //@ts-ignore 0.8
-    return (await this.collection).documentClass.updateDocuments(items.map(as_document_blob), await this.non_scene_opts());
+    return (await this.collection()).documentClass.updateDocuments(items.map(as_document_blob), await this.non_scene_opts());
   }
 
   // Simple delegated call to <document class>.deleteDocuments
   async destroy(id: string): Promise<RegEntryTypes<T> | null> {
     //@ts-ignore .8
-    return (await this.collection).documentClass.deleteDocuments([id], await this.non_scene_opts());
+    return (await this.collection()).documentClass.deleteDocuments([id], await this.non_scene_opts());
   }
 
   // Call a .get appropriate to our parent/pack/lack thereof
   async get(id: string): Promise<GetResult<T> | null> {
     // console.log("GETTING " + id);
-    let collection = await this.collection; 
+    let collection = await this.collection(); 
     let fi: any; // Our found result
 
     // Getting item slightly different if we're a pack
@@ -313,7 +322,7 @@ export class NuWrapper<T extends EntryType> extends EntityCollectionWrapper<T> {
   // Call a .contents/getDocuments appropriate to our parent/container/whatever, then filter to match query
   async query(query_obj: {[key: string]: any}): Promise<GetResult<T>[]> {
     // If we are a pack must first call .getDocuments() to fetch all
-    let collection = await this.collection;
+    let collection = await this.collection();
     let all: any[];
     if(this.pack) {
       all = await collection.getDocuments({

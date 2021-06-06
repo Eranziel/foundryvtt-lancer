@@ -125,6 +125,10 @@ export class LancerItem<T extends LancerItemType> extends Item {
    */
   prepareData() {
     super.prepareData();
+
+    // If no id, leave
+    if(!this.id) return;
+
     // Push down name
     this.data.data.name = this.data.name;
     if (!this.data.img) this.data.img = CONST.DEFAULT_TOKEN;
