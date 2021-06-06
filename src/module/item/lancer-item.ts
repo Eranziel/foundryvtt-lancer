@@ -104,8 +104,6 @@ export function lancerItemInit(base_item: any, provided_data: any) {
   });
 }
 
-let dumbo_ctr = 0;
-
 export class LancerItem<T extends LancerItemType> extends Item {
   data!: FoundryRegItemData<T> & {
     data: {
@@ -127,7 +125,6 @@ export class LancerItem<T extends LancerItemType> extends Item {
    */
   prepareData() {
     super.prepareData();
-    console.log("CTR" + dumbo_ctr++ + " - " + this.name + " - " + this.type);
     // Push down name
     this.data.data.name = this.data.name;
     if (!this.data.img) this.data.img = CONST.DEFAULT_TOKEN;
