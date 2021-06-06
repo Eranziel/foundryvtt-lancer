@@ -141,7 +141,7 @@ export const scorchedEarthCompendiums = async () => {
   }
   // Build blank ones.
   for (let type in compTitles.new) {
-    compTitles.new[type].forEach(async (title: string) => {
+    for (let title of compTitles.new[type]) {
       const id = title.toLocaleLowerCase().replace(" ", "_").split("/")[0];
       if (!game.packs.has(`world.${id}`)) {
         await CompendiumCollection.createCompendium({
@@ -154,7 +154,7 @@ export const scorchedEarthCompendiums = async () => {
           package: "world",
         });
       }
-    });
+    }
   }
 
   await game.settings.set(LANCER.sys_name, LANCER.setting_core_data, "0.0.0");
