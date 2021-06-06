@@ -576,19 +576,23 @@ export class LancerActor<T extends LancerActorType> extends Actor {
 
     try {
       const mm = await this.data.data.derived.mm_promise;
+      // This block is kept for posterity, in case we want to re-implement automatic folder creation.
       // Get/create folder for sub-actors
-      let unit_folder_name = `${data.callsign}'s Units`;
-      let unit_folder = game.folders.getName(unit_folder_name);
-      if (!unit_folder) {
-        unit_folder = await Folder.create({
-          name: unit_folder_name,
-          type: "Actor",
-          sorting: "a",
-          // @ts-ignore  ActorData has folder, always, as far as I can tell
-          parent: this.data.folder || null,
-        });
-      }
-      console.log("Unit folder id:", unit_folder.id);
+      // let unit_folder_name = `${data.callsign}'s Units`;
+      // let unit_folder = game.folders.getName(unit_folder_name);
+      // if (!unit_folder) {
+      //   unit_folder = await Folder.create({
+      //     name: unit_folder_name,
+      //     type: "Actor",
+      //     sorting: "a",
+      //     // @ts-ignore  ActorData has folder, always, as far as I can tell
+      //     parent: this.data.folder || null,
+      //   });
+      // }
+      let unit_folder = this.folder;
+      console.log("Unit folder id:", unit_folder?.id);
+      //@ts-ignore 0.8
+      let permission = duplicate(this.data._source.permission);
 
       // Setup registries
       let ps1 = new FoundryReg({
@@ -640,10 +644,11 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         // @ts-ignore
         sync_deployable_nosave: (dep: Deployable) => {
           let flags = dep.Flags as FoundryFlagData<EntryType.DEPLOYABLE>;
-          let owned_name = `${data.callsign}'s ${dep.Name}`;
+          let owned_name = dep.Name.includes(data.callsign) ? dep.Name : `${data.callsign}'s ${dep.Name}`;
           flags.top_level_data["name"] = owned_name;
-          flags.top_level_data["folder"] = unit_folder!.id;
+          flags.top_level_data["folder"] = unit_folder ? unit_folder.id : null;
           flags.top_level_data["token.name"] = owned_name;
+          flags.top_level_data["permission"] = permission;
           // dep.writeback(); -- do this later, after setting active!
           synced_deployables.push(dep);
         },
@@ -651,8 +656,9 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         sync_mech: (mech: Mech) => {
           let flags = mech.Flags as FoundryFlagData<EntryType.MECH>;
           flags.top_level_data["name"] = mech.Name;
-          flags.top_level_data["folder"] = unit_folder!.id;
+          flags.top_level_data["folder"] = unit_folder ? unit_folder.id : null;
           flags.top_level_data["token.name"] = data.callsign;
+          flags.top_level_data["permission"] = permission;
           // TODO: Retrogrades
         },
         // Set pilot token
@@ -671,7 +677,6 @@ export class LancerActor<T extends LancerActorType> extends Actor {
       for (let deployable of synced_deployables) {
         if (active) {
           deployable.Deployer = active;
-          // TODO: RE-ENABLE
         }
         deployable.writeback();
       }
