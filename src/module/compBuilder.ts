@@ -41,8 +41,9 @@ export async function clear_all(): Promise<void> {
     pack = game.packs.get(`${PACK_SCOPE}.${p}`);
     if (!pack) continue;
 
-    await pack.getIndex();
-    let keys = Array.from(pack.index.keys());
+    //@ts-ignore .8
+    let docs = await pack.getDocuments();
+    let keys = docs.map((d: any) => d.id);
     // @ts-ignore .8
     await pack.documentClass.deleteDocuments(keys, { pack: pack.collection });
   }
@@ -66,7 +67,7 @@ async function transfer_cat<G extends EntryType>(
     // Do the deed
     let insinuated = (await item.insinuate(to, ctx, {
       relinker: quick_relinker({
-        key_pairs: [["LID", "lid"] as any, ["Name", "name"]],
+       key_pairs: [["LID", "lid"] as any, ["Name", "name"]],
       }) as any,
     })) as LiveEntryTypes<G>;
     items.push(insinuated);
@@ -80,56 +81,63 @@ export async function import_cp(
 ): Promise<void> {
   await set_all_lock(false);
 
-  // Stub in a progress callback so we don't have to null check it all the time
-  if (!progress_callback) {
-    progress_callback = (a, b) => {};
-  }
-
-  // Make a static reg, and load in the reg for pre-processing
-  let env = new RegEnv();
-  let tmp_lcp_reg = new StaticReg(env);
-
-  // Name it compendium so that refs will (mostly) carry through properly. Id's will still be borked but fallback lid's should handle that
-  tmp_lcp_reg.set_name("compendium|compendium");
-  await funcs.intake_pack(cp, tmp_lcp_reg);
-
-  // Count the total items in the reg
-  let total_items = 0;
-  for (let type of Object.values(EntryType)) {
-    let cat = tmp_lcp_reg.get_cat(type);
-    total_items += (await cat.raw_map()).size;
-  }
-
-  // Insinuate data to the actual foundry reg
-  // We want to do globals first
-  // We only want to do "top level features" - so no deployables, etc that would be included in a frame/weapon/whatever (as they will be insinuated naturally)
-  let comp_reg = new FoundryReg("comp_core");
-  let dest_ctx = new OpCtx();
-
-  let transmit_count = 0;
-
-  // Do globals
-  transmit_count += await transfer_cat(EntryType.MANUFACTURER, tmp_lcp_reg, comp_reg, dest_ctx).then(l => l.length);
-  progress_callback(transmit_count, total_items);
-  transmit_count += await transfer_cat(EntryType.TAG, tmp_lcp_reg, comp_reg, dest_ctx).then(l => l.length);
-  progress_callback(transmit_count, total_items);
-
-  let errata: EntryType[] = [EntryType.DEPLOYABLE, EntryType.TAG, EntryType.MANUFACTURER];
-
-  // Do the rest
-  for (let type of Object.values(EntryType)) {
-    // Skip if subtype
-    if (!errata.includes(type)) {
-      transmit_count += await transfer_cat(type, tmp_lcp_reg, comp_reg, dest_ctx).then(l => l.length);
-      progress_callback(transmit_count, total_items);
+  try {
+    // Stub in a progress callback so we don't have to null check it all the time
+    if (!progress_callback) {
+      progress_callback = (a, b) => {};
     }
-  }
 
-  progress_callback(transmit_count, total_items);
+    // Make a static reg, and load in the reg for pre-processing
+    let env = new RegEnv();
+    let tmp_lcp_reg = new StaticReg(env);
+
+    // Name it compendium so that refs will (mostly) carry through properly. Id's will still be borked but fallback lid's should handle that
+    tmp_lcp_reg.set_name("comp_core");
+    await funcs.intake_pack(cp, tmp_lcp_reg);
+
+    // Count the total items in the reg
+    let total_items = 0;
+    for (let type of Object.values(EntryType)) {
+      let cat = tmp_lcp_reg.get_cat(type);
+      total_items += (await cat.raw_map()).size;
+    }
+
+    // Insinuate data to the actual foundry reg
+    // We want to do globals first
+    // We only want to do "top level features" - so no deployables, etc that would be included in a frame/weapon/whatever (as they will be insinuated naturally)
+    let comp_reg = new FoundryReg("comp_core");
+    let dest_ctx = new OpCtx();
+
+    let transmit_count = 0;
+
+    // Do globals
+    transmit_count += await transfer_cat(EntryType.MANUFACTURER, tmp_lcp_reg, comp_reg, dest_ctx).then(l => l.length);
+    progress_callback(transmit_count, total_items);
+    transmit_count += await transfer_cat(EntryType.TAG, tmp_lcp_reg, comp_reg, dest_ctx).then(l => l.length);
+    progress_callback(transmit_count, total_items);
+
+    let errata: EntryType[] = [EntryType.DEPLOYABLE, EntryType.TAG, EntryType.MANUFACTURER];
+
+    // Do the rest
+    for (let type of Object.values(EntryType)) {
+      // Skip if subtype
+      if (!errata.includes(type)) {
+        transmit_count += await transfer_cat(type, tmp_lcp_reg, comp_reg, dest_ctx).then(l => l.length);
+        progress_callback(transmit_count, total_items);
+      }
+    }
+
+    progress_callback(transmit_count, total_items);
+  } catch(err) {
+    console.error(err);
+  }
+  set_all_lock(true);
 }
 
 // Lock/Unlock all packs
+export let IS_IMPORTING = false;
 export async function set_all_lock(lock = false) {
+  IS_IMPORTING = !lock;
   for (let p of Object.values(EntryType)) {
     const key = `${PACK_SCOPE}.${p}`;
     // @ts-ignore .8

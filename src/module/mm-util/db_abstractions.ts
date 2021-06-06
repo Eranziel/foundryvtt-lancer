@@ -1,9 +1,9 @@
-import { EntryType, LiveEntryTypes, RegEntry, RegEntryTypes } from "machine-mind";
+import { AnyRegNpcFeatureData, EntryType, LiveEntryTypes, RegEntry, RegEntryTypes } from "machine-mind";
 import { is_actor_type, LancerActor, LancerActorType, LancerActorTypes } from "../actor/lancer-actor";
-import { LANCER } from "../config";
+import { LANCER, TypeIcon } from "../config";
 import { LancerItem, LancerItemType } from "../item/lancer-item";
 import type { FoundryFlagData, FoundryRegNameParsed } from "./foundry-reg";
-import { get_pack_id } from "./helpers";
+import { get_pack, get_pack_id } from "./helpers";
 
 const lp = LANCER.log_prefix;
 
@@ -119,15 +119,13 @@ export class NuWrapper<T extends EntryType> extends EntityCollectionWrapper<T> {
 
         // Get our desired actor document from the pack
         // @ts-ignore 0.8
-        actor_pack.getDocument(cfg.token_id).then(actor => {
-          if(!actor) {
-            throw new Error("Pack " + cfg.comp_id + " didn't have actor with id " + cfg.actor_id);
-          }
+        let actor = await actor_pack.getDocument(cfg.actor_id);
+        if(!actor) {
+          throw new Error("Pack " + cfg.comp_id + " didn't have actor with id " + cfg.actor_id);
+        }
 
-          // Victory! Return the actors item collection
-          return actor.items;
-        });
-
+        // Victory! Return the actors item collection
+        return actor.items;
       } else if(cfg.src == "game_actor") {
         // Lookup the actor
         let actor = game.actors.get(cfg.actor_id);
@@ -164,13 +162,14 @@ export class NuWrapper<T extends EntryType> extends EntityCollectionWrapper<T> {
         if(!pack) {
           throw new Error(`Pack ${cfg.comp_id} does not exist`);
         }
+        return pack;
       } else if(cfg.src == "comp_core") {
         // Get the pack collection, derived from our type
-        let comp_id = get_pack_id(entry_type);
-        let pack = game.packs.get(comp_id);
+        let pack = await get_pack(entry_type);
         if(!pack) {
-          throw new Error(`Core pack ${comp_id} does not exist`);
+          throw new Error(`Failed to (re)-generate core pack ${entry_type}`);
         }
+        return pack;
       } else if(cfg.src == "game") {
         // Get the appropriate world collection
         if(is_actor_type(entry_type)) {
@@ -182,6 +181,8 @@ export class NuWrapper<T extends EntryType> extends EntityCollectionWrapper<T> {
         // A bit weird, but we return game.actors
         // Separate logic will make sure that we update with the right parent
         return game.actors;
+      } else {
+        throw new Error(`Invalid cfg.src ${(cfg as any).src}`);
       }
   }
 
@@ -240,14 +241,25 @@ export class NuWrapper<T extends EntryType> extends EntityCollectionWrapper<T> {
       return [];
     }
 
-    // Create the docs. Opts will properly put things in the right collection/actor/whatever
-    // @ts-ignore 0.8
-    let new_docs = ((await this.collection).documentClass.createDocuments(
-      reg_data.map(d => ({
+    let collection = await this.collection;
+    let opts = await this.non_scene_opts();
+
+    // console.log("CREATING " + reg_data.map(i => `${i.name} - ${this.entry_type}`).join(","));
+
+    // Turn data into the format expected by createDocuments
+    let docified = reg_data.map(d => ({
         type: this.entry_type,
         name: d.name,
         data: duplicate(d),
-      })), await this.non_scene_opts())) as EntFor<T>[];
+        img: TypeIcon(this.entry_type + (this.entry_type == EntryType.NPC_FEATURE ? (d as AnyRegNpcFeatureData).type : ""))
+    }));
+
+    // Create the docs. Opts will properly put things in the right collection/actor/whatever
+    // @ts-ignore 0.8
+    let new_docs = await (collection.documentClass.createDocuments(docified, opts)) as EntFor<T>[];
+
+    // console.log("CREATED " + new_docs.map(i => `${i.name} - ${this.entry_type} - ${i.id}`).join(","));
+
 
     // Return the reference
     return new_docs.map((item, index) => ({
@@ -260,6 +272,7 @@ export class NuWrapper<T extends EntryType> extends EntityCollectionWrapper<T> {
 
   // Simple delegated call to <document class>.updateDocuments
   async update(items: Array<LiveEntryTypes<T>>): Promise<void> {
+    // console.log("UPDATING " + items.map(i => `${i.Name} - ${i.Type} - ${i.RegistryID}`).join(","));
     //@ts-ignore 0.8
     return (await this.collection).documentClass.updateDocuments(items.map(as_document_blob), await this.non_scene_opts());
   }
@@ -272,6 +285,7 @@ export class NuWrapper<T extends EntryType> extends EntityCollectionWrapper<T> {
 
   // Call a .get appropriate to our parent/pack/lack thereof
   async get(id: string): Promise<GetResult<T> | null> {
+    // console.log("GETTING " + id);
     let collection = await this.collection; 
     let fi: any; // Our found result
 

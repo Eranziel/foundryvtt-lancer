@@ -1,9 +1,10 @@
 import { LANCER, TypeIcon } from "../config";
 import { EntryType, funcs, License, LiveEntryTypes, NpcFeatureType, OpCtx, RegRef, TagInstance } from "machine-mind";
-import { FoundryRegActorData, FoundryRegItemData } from "../mm-util/foundry-reg";
-import { AnyMMActor, LancerActor, LancerActorType, LancerMech, LancerPilot } from "../actor/lancer-actor";
+import { FoundryRegItemData } from "../mm-util/foundry-reg";
+import { LancerActor, LancerActorType } from "../actor/lancer-actor";
 import { system_ready } from "../../lancer";
-import { find_license_for, mm_wrap_item } from "../mm-util/helpers";
+import { mm_wrap_item } from "../mm-util/helpers";
+import { IS_IMPORTING } from "../compBuilder";
 
 const lp = LANCER.log_prefix;
 
@@ -16,7 +17,11 @@ export function lancerItemInit(base_item: any, provided_data: any) {
   console.log(`${lp} Initializing new ${base_item.type}`);
 
   // Select default image
-  let img = TypeIcon(base_item.type as LancerItemType);
+  let icon_lookup = base_item.type;
+  if(base_item.type == EntryType.NPC_FEATURE) {
+    icon_lookup += base_item.type ?? "";
+  }
+  let img = TypeIcon(icon_lookup);
 
   let default_data: any;
   switch (base_item.type as EntryType) {
@@ -89,24 +94,6 @@ export function lancerItemInit(base_item: any, provided_data: any) {
       break;
   }
 
-  // Try to be more specific with npc features icons
-  if (base_item.type === EntryType.NPC_FEATURE && base_item.feature_type) {
-    let trait_type = base_item.feature_type as NpcFeatureType;
-    switch (trait_type) {
-      default:
-      case NpcFeatureType.Trait:
-        img = img.replace("npc_feature.svg", "trait.svg");
-      case NpcFeatureType.Reaction:
-        img = img.replace("npc_feature.svg", "reaction.svg");
-      case NpcFeatureType.System:
-        img = img.replace("npc_feature.svg", "system.svg");
-      case NpcFeatureType.Weapon:
-        img = img.replace("npc_feature.svg", "weapon.svg");
-      case NpcFeatureType.Tech:
-        img = img.replace("npc_feature.svg", "tech_full.svg");
-    }
-  }
-
   // Sync the name
   default_data.name = base_item.name ?? default_data.name;
 
@@ -116,6 +103,8 @@ export function lancerItemInit(base_item: any, provided_data: any) {
     name: default_data.name, 
   });
 }
+
+let dumbo_ctr = 0;
 
 export class LancerItem<T extends LancerItemType> extends Item {
   data!: FoundryRegItemData<T> & {
@@ -138,6 +127,7 @@ export class LancerItem<T extends LancerItemType> extends Item {
    */
   prepareData() {
     super.prepareData();
+    console.log("CTR" + dumbo_ctr++ + " - " + this.name + " - " + this.type);
     // Push down name
     this.data.data.name = this.data.name;
     if (!this.data.img) this.data.img = CONST.DEFAULT_TOKEN;
@@ -177,15 +167,15 @@ export class LancerItem<T extends LancerItemType> extends Item {
         });
 
         // Additionally we would like to find a matching license. Re-use ctx, try both a world and global reg, actor as well if it exists
-        let found_license: RegRef<EntryType.LICENSE> | null = null;
-        if (this.actor?.data.type == EntryType.PILOT || this.actor?.data.type == EntryType.MECH) {
-          found_license = await find_license_for(mm, this.actor! as LancerMech | LancerPilot);
-        } else {
-          found_license = await find_license_for(mm);
-        }
+        // let found_license: RegRef<EntryType.LICENSE> | null = null;
+        // if (this.actor?.data.type == EntryType.PILOT || this.actor?.data.type == EntryType.MECH) {
+          // found_license = await find_license_for(mm, this.actor! as LancerMech | LancerPilot);
+        // } else {
+          // found_license = await find_license_for(mm);
+        // }
 
         // Store the found license
-        dr.license = found_license;
+        // dr.license = found_license;
 
         // Also, compute max uses if needed
         let base_limit = (mm as any).BaseLimit;

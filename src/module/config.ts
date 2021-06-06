@@ -1,6 +1,6 @@
 // Namespace configuration Values
 
-import { EntryType } from "machine-mind";
+import { EntryType, NpcFeatureType } from "machine-mind";
 import { LancerActorType } from "./actor/lancer-actor";
 import { LancerItemType } from "./item/lancer-item";
 
@@ -259,6 +259,11 @@ const ENTITY_ICONS = {
   [EntryType.NPC]: "systems/lancer/assets/icons/npc_class.svg",
   [EntryType.NPC_CLASS]: "systems/lancer/assets/icons/npc_class.svg",
   [EntryType.NPC_FEATURE]: "systems/lancer/assets/icons/npc_feature.svg",
+  [EntryType.NPC_FEATURE + NpcFeatureType.Trait]: "systems/lancer/assets/icons/trait.svg",
+  [EntryType.NPC_FEATURE + NpcFeatureType.Reaction]: "systems/lancer/assets/icons/reaction.svg",
+  [EntryType.NPC_FEATURE + NpcFeatureType.System]: "systems/lancer/assets/icons/system.svg",
+  [EntryType.NPC_FEATURE + NpcFeatureType.Weapon]: "systems/lancer/assets/icons/weapon.svg",
+  [EntryType.NPC_FEATURE + NpcFeatureType.Tech]: "systems/lancer/assets/icons/tech_full.svg",
   [EntryType.NPC_TEMPLATE]: "systems/lancer/assets/icons/npc_template.svg",
   [EntryType.ORGANIZATION]: "systems/lancer/assets/icons/encounter.svg",
   [EntryType.PILOT]: "systems/lancer/assets/icons/pilot.svg",
@@ -278,7 +283,7 @@ const ENTITY_ICONS = {
 
 // TODO: const MACRO_ICONS
 
-export function TypeIcon(type: LancerItemType | LancerActorType, macro?: boolean): string {
+export function TypeIcon(type: string, macro?: boolean): string {
   return ENTITY_ICONS[type] ?? ENTITY_ICONS["generic"];
 }
 

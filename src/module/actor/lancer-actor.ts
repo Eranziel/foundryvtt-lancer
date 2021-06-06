@@ -21,7 +21,7 @@ import {
   PackedPilotData,
   quick_relinker,
 } from "machine-mind";
-import { FoundryFlagData, FoundryReg, FoundryRegActorData, FoundryRegItemData } from "../mm-util/foundry-reg";
+import { FoundryFlagData, FoundryReg, FoundryRegActorData } from "../mm-util/foundry-reg";
 import { LancerHooks, LancerSubscription } from "../helpers/hooks";
 import { mm_wrap_actor } from "../mm-util/helpers";
 import { system_ready } from "../../lancer";
@@ -29,9 +29,8 @@ import { LancerItemType } from "../item/lancer-item";
 import { renderMacroTemplate, prepareTextMacro } from "../macros";
 import { RegEntry, MechWeapon, NpcFeature } from "machine-mind";
 import { StabOptions1, StabOptions2 } from "../enums";
-import { limited_max, is_loading } from "machine-mind/dist/classes/mech/EquipUtil";
 import { ActionData } from "../action";
-import { handleActorExport } from "../helpers/io";
+import { IS_IMPORTING } from "../compBuilder";
 const lp = LANCER.log_prefix;
 
 export function lancerActorInit(base_actor: any, creation_args: any) {
