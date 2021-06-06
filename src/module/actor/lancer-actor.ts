@@ -594,6 +594,22 @@ export class LancerActor<T extends LancerActorType> extends Actor {
       //@ts-ignore 0.8
       let permission = duplicate(this.data._source.permission);
 
+      // Check whether players are allowed to create Actors
+      if (!game.user.can("ACTOR_CREATE")) {
+        new Dialog({
+          title: "Cannot Create Actors",
+          content: `<p>You are not permitted to create actors, so sync may fail.</p>
+            <p>Your GM can allow Players/Trusted Players to create actors in Settings->Configure Permissions.</p>`,
+          buttons: {
+            ok: {
+              icon: '<i class="fas fa-check"></i>',
+              label: "OK",
+            },
+          },
+          default: "ok",
+        }).render(true);
+      }
+
       // Setup registries
       let ps1 = new FoundryReg({
         // We look for missing items in world first

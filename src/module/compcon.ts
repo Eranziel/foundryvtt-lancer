@@ -25,7 +25,11 @@ export async function fetchPilot(id: string): Promise<PackedPilotData> {
   if (id.substring(0, 6) != "pilot/") {
     id = "pilot/" + id;
   }
-  await Auth.currentSession(); // refresh the token if we need to
+  try {
+    await Auth.currentSession(); // refresh the token if we need to
+  } catch {
+    ui.notifications.error("Sync failed - you aren't logged into a Comp/Con account.");
+  }
   const res = (await Storage.get(id, { level: "protected", download: true })) as any;
   const text = await res.Body.text();
   return JSON.parse(text);
