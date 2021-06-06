@@ -1,3 +1,22 @@
+# 0.9.3 (2021-06-02)
+## Features
+* Now supporting FoundryVTT version v0.8!
+* Improved action manager
+
+## Bug Fixes
+* #199 - Better NPC Feature Sizing
+* #197 - Allow rolling of weapons without damage
+* #195 - Fixes to the action tracker
+* #187 - Allow for user-breaking of systems
+* #185 - UI for limited weapons
+* #180 - Better mount selection
+* #179 - Can alter license ranks
+* #175 - Can add NPC Features to tokens
+* #173 - Grit rolls for mechs and NPC rank rolls for NPCs
+* #172 - Better roll logic, especially for crits
+* #166, #62 - Fix NPC Tech actions
+* #163 - Active mech loadout
+
 # 0.9.2 (2021-05-08)
 ## Features
 * **Player Charges**: Add support for LIMITED, LOADING, and USES tags for systems and some weapons. This allows for proper tracking of resources on actor sheets, and if combat automation is enabled in the settings, then this will also tie into the combat roll workflow (Unloaded weapons can't be fired, etc.).

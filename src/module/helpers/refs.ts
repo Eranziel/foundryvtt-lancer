@@ -449,7 +449,7 @@ export function limited_chip_HTML(
     } theme--light" data-available="${available}" data-path="${path}"></i>`;
   });
 
-  return `<div class="clipped card charged-box charged">Uses: ${hexes.join("")}</div>`;
+  return `<div class="clipped card limited-card">Uses: ${hexes.join("")}</div>`;
 }
 
 function limited_HTML(

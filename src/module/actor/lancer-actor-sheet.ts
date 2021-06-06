@@ -39,6 +39,7 @@ import { applyCollapseListeners, CollapseHandler } from "../helpers/collapse";
 import { FoundryFlagData } from "../mm-util/foundry-reg";
 import { HANDLER_intercept_form_changes } from "../helpers/refs";
 import { addExportButton } from "../helpers/io";
+import { is_limited, is_loading, is_tagged } from 'machine-mind/dist/classes/mech/EquipUtil';
 const lp = LANCER.log_prefix;
 
 /**
@@ -566,9 +567,17 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     // Resolve the drop and delegate to children
     let raw_drop_data = event.dataTransfer.getData("text/plain") ?? "";
     let native_drop = await resolve_native_drop(raw_drop_data);
+
+    // Pre-process any drops
+    // Max out uses
+    if(native_drop?.type == "Item" && native_drop.entity.data.data.derived.mm && is_tagged(native_drop.entity.data.data.derived.mm) && is_limited(native_drop.entity.data.data.derived.mm))
+      //@ts-ignore Since we're limited we have uses
+      native_drop.entity.data.data.uses = native_drop.entity.data.data.derived.max_uses;
     return native_drop;
   }
 
+
+  // TODO - Pretty sure this is no longer used
   async _addOwnedItem(item: Item) {
     const actor = this.actor as LancerActor<any>;
     console.log(`${lp} Copying ${item.name} to ${actor.name}.`);

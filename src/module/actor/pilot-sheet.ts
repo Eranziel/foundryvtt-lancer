@@ -11,6 +11,7 @@ import { LancerActorSheetData } from "../interfaces";
 import { ref_commons, ref_params, simple_mm_ref } from "../helpers/refs";
 import { resolve_dotpath } from "../helpers/commons";
 import { LancerActor } from "./lancer-actor";
+import { fetchPilot, pilotNames } from "../compcon";
 
 const lp = LANCER.log_prefix;
 
@@ -95,13 +96,32 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
       let actor = this.actor as LancerActor<EntryType.PILOT>;
       download.on("click", async ev => {
         ev.stopPropagation();
-        // Fetch data to sync
-        ui.notifications.info("Importing character...");
+
         let self = await this.getDataLazy();
-        let raw_pilot_data = await funcs.gist_io.download_pilot(self.mm.CloudID);
+        // Fetch data to sync
+        let raw_pilot_data = null;
+        if (self.vaultID != "") {
+          ui.notifications.info("Importing character from vault...");
+          raw_pilot_data = await fetchPilot(self.vaultID);
+        } else if (self.gistID != "") {
+          ui.notifications.info("Importing character from cloud share code...");
+          raw_pilot_data = await funcs.gist_io.download_pilot(self.gistID);
+        } else {
+          ui.notifications.error("Could not find character to import!");
+          return;
+        };
 
         await actor.importCC(raw_pilot_data);
         this._currData = null;
+      });
+
+      // editing gistID clears vaultID
+      // (other way happens automatically because we prioritise vaultID in commit)
+      let gistInput = html.find('input[name="gistID"]');
+      gistInput.on("input", async ev => {
+        if ((ev.target as any).value != "") {
+          (html.find('select[name="vaultID"]')[0] as any).value = "";
+        }
       });
     }
   }
@@ -110,8 +130,28 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
     const data = ((await super.getData()) as unknown) as LancerActorSheetData<EntryType.PILOT>; // Not fully populated yet!
 
     data.active_mech = await data.mm.ActiveMech();
+    data.pilotCache = pilotNames();
+
+    if (data.mm.CloudID.match(/^[^-]+(-[^-]+){4}$/)) { // if this is a vault id
+      data.vaultID = data.mm.CloudID;
+      data.gistID = "";
+    } else {
+      data.gistID = data.mm.CloudID;
+      data.vaultID = "";
+    }
 
     return data;
+  }
+
+  async _commitCurrMM() {
+    if (this._currData) {
+      // we prioritise vault ids here, so when the user selects a vault id via dropdown
+      // it gets saved and any gistID doesn't, so the render clears the gistID
+      // i.e., editing vaultID clears gistID
+      // other way around happens in the gistID input listener
+      this._currData.mm.CloudID = this._currData.vaultID || this._currData.gistID || "";
+    }
+    return super._commitCurrMM()
   }
 
   // Baseline drop behavior. Let people add stuff to the pilot

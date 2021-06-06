@@ -506,7 +506,10 @@ function std_input(path: string, type: string, options: HelperOptions) {
     value = resolve_helper_dotpath(options, path) ?? default_val;
   }
 
-  let input = `<input class="grow ${input_classes}" name="${path}" value="${value}" type="${type.toLowerCase()}" data-dtype="${type}" />`;
+  let html_type = type.toLowerCase();
+  let data_type = type == "Password" || type == "Text" ? "String" : type;
+
+  let input = `<input class="grow ${input_classes}" name="${path}" value="${value}" type="${html_type}" data-dtype="${data_type}" />`;
 
   if (label) {
     return `
@@ -519,8 +522,19 @@ function std_input(path: string, type: string, options: HelperOptions) {
   }
 }
 
+
+// input type="string" isn't styled by foundry, but input type="text" is
+// that's not a great reason to keep both of them, but it is the reason we have
 export function std_string_input(path: string, options: HelperOptions) {
   return std_input(path, "String", options);
+}
+
+export function std_text_input(path: string, options: HelperOptions) {
+  return std_input(path, "Text", options);
+}
+
+export function std_password_input(path: string, options: HelperOptions) {
+  return std_input(path, "Password", options);
 }
 
 export function std_num_input(path: string, options: HelperOptions) {

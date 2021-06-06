@@ -51,13 +51,23 @@
       <div style="display: grid; grid-template: auto / 1fr 1fr;">
         <div class="card clipped" style="grid-area: 1/1/2/3;">
           <span class="lancer-header major">RM-4://(OMNINET UPLINK ID)</span>
+          <select class="lancer-input major lancer-text-field"
+            style="text-align: center;" name="vaultID" data-type="String">
+            {{#select vaultID}}
+              <option value="">Load from your Comp/Con account (if logged in)</option>
+              {{#each pilotCache}}
+                <option value="{{id}}">{{name}}</option>
+              {{/each}}
+            {{/select}}
+          </select>
           <input
             class="lancer-input major"
             style="text-align: center;"
             type="string"
-            name="mm.CloudID"
-            value="{{mm.CloudID}}"
+            name="gistID"
+            value="{{gistID}}"
             data-dtype="String"
+            placeholder="or enter an old cloud share code"
           />
         </div>
 

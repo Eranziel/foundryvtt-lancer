@@ -75,6 +75,10 @@ export type LancerActorSheetData<T extends LancerActorType> = {
 
   // Store active mech at the root level
   active_mech: Mech | null;
+  // Store cloud pilot cache and potential cloud ids at the root level
+  pilotCache: Array<{ id: string, name: string }>;
+  vaultID: string;
+  gistID: string;
 };
 
 // -------- Macro data -------------------------------------

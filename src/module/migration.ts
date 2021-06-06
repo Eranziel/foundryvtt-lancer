@@ -3,9 +3,7 @@
 import { LANCER } from "./config";
 import { handleActorExport } from "./helpers/io";
 import { LancerActor } from "./actor/lancer-actor";
-import { updateCore, LCPIndex } from "./apps/lcpManager";
-
-import compareVersions = require("compare-versions");
+import { updateCore, LCPIndex, core_update } from "./apps/lcpManager";
 
 /**
  * Perform a system migration for the entire World, applying migrations for Actors, Items, and Compendium packs
@@ -20,7 +18,7 @@ export const migrateWorld = async function (migrateComps = true, migrateActors =
   // Migrate World Compendium Packs
   if (migrateComps) {
     await scorchedEarthCompendiums();
-    await updateCore("3.0.21");
+    await updateCore(core_update);
 
     // for (let p of game.packs) {
     //   if (p.metadata.package === "world" && ["Actor", "Item", "Scene"].includes(p.metadata.entity)) {
@@ -143,7 +141,7 @@ export const scorchedEarthCompendiums = async () => {
   }
   // Build blank ones.
   for (let type in compTitles.new) {
-    compTitles.new[type].forEach(async (title: string) => {
+    for (let title of compTitles.new[type]) {
       const id = title.toLocaleLowerCase().replace(" ", "_").split("/")[0];
       if (!game.packs.has(`world.${id}`)) {
         await CompendiumCollection.createCompendium({
@@ -156,7 +154,7 @@ export const scorchedEarthCompendiums = async () => {
           package: "world",
         });
       }
-    });
+    }
   }
 
   await game.settings.set(LANCER.sys_name, LANCER.setting_core_data, "0.0.0");

@@ -1,4 +1,5 @@
 import { LANCER } from "./config";
+import CompconLoginForm from "./helpers/compcon-login-form";
 
 export const registerSettings = function () {
   /**
@@ -29,6 +30,15 @@ export const registerSettings = function () {
     type: Object,
   });
 
+  game.settings.registerMenu(LANCER.sys_name, LANCER.setting_compcon_login, {
+    name: "Comp/Con Login",
+    label: "Log in to Comp/Con",
+    scope: "user",
+    hint: "Log in to Comp/Con to automatically load any pilots and mechs you have access to",
+    icon: "fas fa-bars",
+    type: CompconLoginForm,
+  });
+
   game.settings.register(LANCER.sys_name, LANCER.setting_stock_icons, {
     name: "Keep Stock Icons",
     scope: "world",
@@ -40,7 +50,7 @@ export const registerSettings = function () {
   game.settings.register(LANCER.sys_name, LANCER.setting_welcome, {
     name: "Hide Welcome Message",
     hint: "Hide the welcome message for the latest update to the Lancer system.",
-    scope: "world",
+    scope: "user",
     config: true,
     type: Boolean,
     default: false,

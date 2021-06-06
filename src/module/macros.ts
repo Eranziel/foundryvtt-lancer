@@ -559,7 +559,7 @@ async function prepareAttackMacro({
     grit: 0,
     acc: 0,
     damage: [],
-    tags: [],
+    tags: item.data.data.derived.mm.Tags,
     overkill: false,
     effect: "",
     loaded: true,
@@ -617,9 +617,9 @@ async function prepareAttackMacro({
     // This can be a string... but can also be a number...
     mData.grit = Number(mm.AttackBonus[tier_index]) || 0;
     mData.acc = mm.Accuracy[tier_index];
+
     // Reduce damage values to only this tier
-    // Convert to new Damage type if it's old
-    mData.damage = mm.Damage[tier_index];
+    mData.damage = mm.Damage[tier_index] ?? [];
 
     mData.tags = mm.Tags
     mData.overkill = funcs.is_overkill(mm);
@@ -751,6 +751,7 @@ async function rollAttackMacro(actor: Actor, atk_str: string | null, data: Lance
   }> = [];
   let overkill_heat: number = 0;
 
+  // If there is at least one non-crit hit, evaluate normal damage.
   if (
     (hits.length === 0 && attacks.find(attack => attack.roll._total < 20)) ||
     hits.find(hit => hit.hit && !hit.crit)
@@ -800,6 +801,8 @@ async function rollAttackMacro(actor: Actor, atk_str: string | null, data: Lance
       }
     }
   }
+
+  // If there is at least one crit hit, evaluate crit damage
   if ((hits.length === 0 && attacks.find(attack => attack.roll._total >= 20)) || hits.find(hit => hit.crit)) {
     // if (hits.length === 0 || hits.find(hit => hit.crit)) {
     for (const x of data.damage) {
@@ -808,7 +811,7 @@ async function rollAttackMacro(actor: Actor, atk_str: string | null, data: Lance
       let droll: Roll | null = new Roll(d_formula);
       // double all dice, add KH. Add overkill if necessary.
       droll.terms.forEach(term => {
-        if (term.number) {
+        if (term.faces) {
           term.modifiers === undefined && (term.modifiers = []);
           term.modifiers.push(`kh${term.number}`);
           data.overkill && term.modifiers.push("x1");
