@@ -335,8 +335,14 @@ export class NuWrapper<T extends EntryType> extends EntityCollectionWrapper<T> {
     let collection = await this.collection();
     let all: any[];
     if(this.pack) {
+      // Need to prepend every key with "data."
+      let new_query: typeof query_obj = {};
+      for(let kv of Object.entries(query_obj)) {
+        new_query["data." + kv[0]] = kv[1];        
+      }
+
       all = await collection.getDocuments({
-        ...query_obj,
+        ...new_query,
         type: this.entry_type
       });
     } else {
