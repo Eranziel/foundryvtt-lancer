@@ -727,7 +727,7 @@ async function rollAttackMacro(actor: Actor, atk_str: string | null, data: Lance
           img: target.token ? target.token.data.img : target.data.img,
         },
         total: String(attack_roll._total).padStart(2, "0"),
-        hit: checkForHit(isSmart, attack_roll, target),
+        hit: await checkForHit(isSmart, attack_roll, target),
         crit: attack_roll._total >= 20,
       });
     }
@@ -900,12 +900,12 @@ export function rollReactionMacro(actor: Actor, data: LancerReactionMacroData) {
  * Prepares a macro to present core active information for
  * @param a     String of the actor ID to roll the macro as, and who we're getting core info for
  */
-export function prepareCoreActiveMacro(a: string) {
+export async function prepareCoreActiveMacro(a: string) {
   // Determine which Actor to speak as
   let mech: LancerActor<EntryType.MECH> | null = getMacroSpeaker(a);
   if (!mech) return;
 
-  var ent = mech.data.data.derived.mm;
+  var ent = await mech.data.data.derived.mm_promise;
   if (!ent.Frame) return;
 
   if (!ent.CurrentCoreEnergy) {
@@ -1042,7 +1042,7 @@ export async function prepareTechMacro(a: string, t: string) {
     mData.tags = tData.tags;
     mData.effect = ""; // TODO */
   } else if (item.type === EntryType.NPC_FEATURE) {
-    const mm: NpcFeature = item.data.data.derived.mm;
+    const mm: NpcFeature = await item.data.data.derived.mm_promise;
     let tier_index: number = mm.TierOverride;
     if(!mm.TierOverride) {
       if (item.actor === null) {
@@ -1097,7 +1097,7 @@ async function rollTechMacro(actor: Actor, data: LancerTechMacroData) {
           img: target.token ? target.token.data.img : target.data.img,
         },
         total: String(attack_roll._total).padStart(2, "0"),
-        hit: checkForHit(true, attack_roll, target),
+        hit: await checkForHit(true, attack_roll, target),
         crit: attack_roll._total >= 20,
       });
     }

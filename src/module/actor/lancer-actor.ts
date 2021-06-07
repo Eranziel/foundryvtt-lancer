@@ -112,6 +112,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         evasion: number;
         edef: number;
         save_target: number;
+        speed: number;
         // todo - bonuses and stuff. How to allow for accuracy?
       };
     };
@@ -701,6 +702,9 @@ export class LancerActor<T extends LancerActorType> extends Actor {
     super.prepareEmbeddedEntities();
   }
 
+  // Use this to prevent race conditions
+  private _prepare_race_ticker!: number;
+
   /** @override
    * We need to both:
    *  - Re-generate all of our subscriptions
@@ -709,6 +713,12 @@ export class LancerActor<T extends LancerActorType> extends Actor {
   prepareDerivedData() {
     // If no id, leave
     if(!this.id) return;
+
+    // Track which prepare iteration this is
+    if(this._prepare_race_ticker == undefined) {
+      this._prepare_race_ticker = 0;
+    }
+    let this_prepare_ticker = (++this._prepare_race_ticker);
 
     // Reset subscriptions for new data
     this.setupLancerHooks();
@@ -724,22 +734,30 @@ export class LancerActor<T extends LancerActorType> extends Actor {
     });
 
     // Prepare our derived stat data by first initializing an empty obj
-    dr = {
-      edef: 0,
-      evasion: 0,
-      save_target: 0,
-      current_heat: default_bounded(),
-      current_hp: default_bounded(),
-      overshield: default_bounded(),
-      current_structure: default_bounded(),
-      current_stress: default_bounded(),
-      current_repairs: default_bounded(),
-      mm: null as any, // we will set these momentarily
-      mm_promise: null as any, // we will set these momentarily
-    };
-
     // Add into our wip data structure
-    this.data.data.derived = dr;
+
+    // If no value at present, set this up. Better than nothing
+    if(!this.data.data.derived) {
+      dr = {
+        edef: 0,
+        evasion: 0,
+        save_target: 0,
+        speed: 0,
+        current_heat: default_bounded(),
+        current_hp: default_bounded(),
+        overshield: default_bounded(),
+        current_structure: default_bounded(),
+        current_stress: default_bounded(),
+        current_repairs: default_bounded(),
+        mm: null, // we will set these momentarily
+        mm_promise: null as any, // we will set these momentarily
+      };
+      this.data.data.derived = dr;
+    } else {
+      // Otherwise, clear mm. Will be set in promise
+      dr = this.data.data.derived;
+      dr.mm = null;
+    }
 
     // Begin the task of wrapping our actor. When done, it will setup our derived fields - namely, our max values
     // Need to wait for system ready to avoid having this break if prepareData called during init step (spoiler alert - it is)
@@ -758,6 +776,12 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         return ent;
       })
       .then(mm => {
+        // If our job ticker doesnt match, then another prepared object has usurped us in setting these values. Bail, as they are higher priority
+        if(this._prepare_race_ticker != this_prepare_ticker) {
+          console.log("prepareData race prevented");
+          return;
+        }
+
         // Always save the context
         // Save the context via defineProperty so it does not show up in JSON stringifies. Also, no point in having it writeable
         Object.defineProperty(dr, "mm", {
@@ -765,6 +789,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
           configurable: true,
           enumerable: false,
         });
+        console.log("Defined property!");
 
         // Changes in max-hp should heal the actor. But certain requirements must be met
         // - Must know prior (would be in dr.current_hp.max). If 0, do nothing

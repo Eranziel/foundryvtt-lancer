@@ -10,8 +10,9 @@ export function getTargets(): LancerActor<LancerActorType>[] {
   return ret;
 }
 
-export function checkForHit(tech: boolean, roll: Roll, target: LancerActor<LancerActorType>): boolean {
-  let def: number = tech ? target.data.data.derived.mm.EDefense : target.data.data.derived.mm.Evasion;
+export async function checkForHit(tech: boolean, roll: Roll, target: LancerActor<LancerActorType>): Promise<boolean> {
+  let mm = await target.data.data.derived.mm_promise;
+  let def: number = tech ? mm.EDefense : mm.Evasion;
   !def && (def = 8);
 
   return roll._total >= def;

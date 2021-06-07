@@ -59,7 +59,7 @@ export interface FoundryRegItemData<T extends EntryType> {
   data: RegEntryTypes<T> & {
     // Derived data. Should be removed from any update calls
     derived: {
-      mm: LiveEntryTypes<T>;
+      mm: LiveEntryTypes<T> | null;
       mm_promise: Promise<LiveEntryTypes<T>>; // The above, in promise form. More robust
       // Include other details as appropriate to the entity
     };
