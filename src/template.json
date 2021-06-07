@@ -6,8 +6,41 @@
       "npc",
       "deployable"
     ],
-    "templates": {},
+    "templates": {
+      "derived_values": {
+        "derived": {
+          "edef": 8,
+          "evasion": 5,
+          "save_target": 0,
+          "current_heat": {
+            "value": 0,
+            "max": 1
+          },
+          "current_hp": {
+            "value": 0,
+            "max": 1
+          },
+          "overshield": {
+            "value": 0,
+            "max": 1
+          },
+          "current_structure": {
+            "value": 0,
+            "max": 1
+          },
+          "current_stress": {
+            "value": 0,
+            "max": 1
+          },
+          "current_repairs": {
+            "value": 0,
+            "max": 1
+          }
+        }
+      }
+    },
     "pilot": {
+      "templates": ["derived_values"],
       "name": "",
       "active_mech": null,
       "background": "",
@@ -49,6 +82,7 @@
       "text_appearance": ""
     },
     "npc": {
+      "templates": ["derived_values"],
       "actions": {},
       "lid": "",
       "name": "",
@@ -73,6 +107,7 @@
       "current_structure": 0
     },
     "deployable": {
+      "templates": ["derived_values"],
       "actions": [],
       "bonuses": [],
       "counters": [],
@@ -107,6 +142,7 @@
       "deployer": null
     },
     "mech": {
+      "templates": ["derived_values"],
       "actions": {},
       "activations": 1,
       "burn": 0,
