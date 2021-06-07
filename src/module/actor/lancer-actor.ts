@@ -789,7 +789,6 @@ export class LancerActor<T extends LancerActorType> extends Actor {
           configurable: true,
           enumerable: false,
         });
-        console.log("Defined property!");
 
         // Changes in max-hp should heal the actor. But certain requirements must be met
         // - Must know prior (would be in dr.current_hp.max). If 0, do nothing

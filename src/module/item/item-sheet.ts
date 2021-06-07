@@ -20,6 +20,7 @@ import { HANDLER_activate_edit_bonus } from "../helpers/item";
 import { HANDLER_activate_tag_context_menus, HANDLER_activate_tag_dropping } from "../helpers/tags";
 import { CollapseHandler } from "../helpers/collapse";
 import { activate_action_editor } from "../apps/action-editor";
+import { FoundryFlagData } from "../mm-util/foundry-reg";
 
 const lp = LANCER.log_prefix;
 
@@ -145,6 +146,17 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
 
   /* -------------------------------------------- */
 
+  _propagateMMData(formData: any): any {
+    // Pushes relevant field data from the form to other appropriate locations,
+    // (presently there aren't any but uhhh could be i guess. Just here to mirror actor-sheet)
+    // Get the basics
+    let new_top: any = {
+      img: formData.img,
+      name: formData.name
+    };
+
+    return new_top;
+  }
   /**
    * Implement the _updateObject method as required by the parent class spec
    * This defines how to update the subject of the form when the form is submitted
@@ -154,8 +166,12 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
     // Fetch data, modify, and writeback
     let ct = await this.getDataLazy();
 
+    // Automatically propagates chanages that should affect multiple things.
+    let new_top = this._propagateMMData(formData);
+
     // No need for the complicated actor logic since no token weirdness to account for
     gentle_merge(ct, formData);
+    mergeObject((ct.mm.Flags as FoundryFlagData<any>).top_level_data, new_top);
     await this._commitCurrMM();
   }
 

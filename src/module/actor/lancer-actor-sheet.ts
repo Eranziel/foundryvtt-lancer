@@ -590,9 +590,8 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
   }
 
   _propagateMMData(formData: any): any {
-    // Pushes relevant field data down from the "actor" data block to the "mm" data block
-    // Also meant to encapsulate all of the behavior of _updateTokenImage
-    // Returns true if any of these top level fields require updating (i.e. do we need to .update({img: ___, token: __, etc}))
+    // Pushes relevant field data from the form to other appropriate locations,
+    // e.x. to synchronize name between token and actor
     let token: any = this.actor.data["token"];
 
     // Get the basics
