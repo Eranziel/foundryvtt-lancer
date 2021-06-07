@@ -186,7 +186,7 @@ export class NuWrapper<T extends EntryType> extends EntityCollectionWrapper<T> {
   // Our collection. Can be a world collection, embedded collection, or compendiumcollection
   // Note: technically, "scene_tokens" still uses the game.actors collection
   // Has .documentClass, which we use to call updateDocuments etc
-  // (Sometimes) has .parent. If we have an actor, will have .parent
+  // (Sometimes) has .parent. If we have an actor, will have .parent that yields actordata
   // collection: Promise<any>; // 0.8 Should be EmbeddedCollection | WorldCollection, and can be of Items or Actors
   private _cached_collection: Promise<any> | null = null;
   // Resolves our collection as appropriate. Async to handle comp_actor cases. We only do this if we need to, hence it not being in constructor
@@ -226,12 +226,16 @@ export class NuWrapper<T extends EntryType> extends EntityCollectionWrapper<T> {
   }
 
   // Options to provide to document editing operations. 
-  private async non_scene_opts(): Promise<any> { // 0.8 Should eventually be DocumentModificationContext
+  private async opts(): Promise<any> { // 0.8 Should eventually be DocumentModificationContext
     // Attempt to resolve
     let collection = await this.collection();
-    let parent = collection.parent; // Will give base actor
+    let parent = collection.parent; // Will give base actor / token
 
     if(parent) {
+      // Fix if document option exists (sometimes collection.parent will just be an ActorData)
+      if(parent.document) {
+        parent = parent.document;
+      }
       return {
         parent,
         pack: this.pack 
@@ -251,7 +255,7 @@ export class NuWrapper<T extends EntryType> extends EntityCollectionWrapper<T> {
     }
 
     let collection = await this.collection();
-    let opts = await this.non_scene_opts();
+    let opts = await this.opts();
 
     // console.log("CREATING " + reg_data.map(i => `${i.name} - ${this.entry_type}`).join(","));
 
@@ -282,14 +286,20 @@ export class NuWrapper<T extends EntryType> extends EntityCollectionWrapper<T> {
   // Simple delegated call to <document class>.updateDocuments
   async update(items: Array<LiveEntryTypes<T>>): Promise<void> {
     // console.log("UPDATING " + items.map(i => `${i.Name} - ${i.Type} - ${i.RegistryID}`).join(","));
-    //@ts-ignore 0.8
-    return (await this.collection()).documentClass.updateDocuments(items.map(as_document_blob), await this.non_scene_opts());
+    if(this.cfg.src == "scene") {
+      for(let item of items) {
+        await this.scene.tokens.get(item.RegistryID)?.actor.update(as_document_blob(item));
+      }
+    } else {
+      //@ts-ignore 0.8
+      return (await this.collection()).documentClass.updateDocuments(items.map(as_document_blob), await this.opts());
+    }
   }
 
   // Simple delegated call to <document class>.deleteDocuments
   async destroy(id: string): Promise<RegEntryTypes<T> | null> {
     //@ts-ignore .8
-    return (await this.collection()).documentClass.deleteDocuments([id], await this.non_scene_opts());
+    return (await this.collection()).documentClass.deleteDocuments([id], await this.opts());
   }
 
   // Call a .get appropriate to our parent/pack/lack thereof

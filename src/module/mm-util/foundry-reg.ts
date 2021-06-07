@@ -289,19 +289,19 @@ export class FoundryReg extends Registry {
 
     // Begin processing
     if(tokens[0] == "game") {
+      // Is "game" globals
+      return {
+        src: "game"
+      };
+    } else if(tokens[0] == "game_actor") {
       if(tokens[1]) {
         // Is "game.<actor_id>" inventory
         return {
           src: "game_actor",
           actor_id: tokens[1]
         };
-      } else {
-        // Is "game" globals
-        return {
-          src: "game"
-        };
       }
-    } else if(tokens[0] == "scene") {
+    } else if(tokens[0] == "scene_token") {
       if(tokens[2]) {
         // Is "scene.<scene_id>.<actor_id>" specific token inventory listing
         return {
@@ -309,7 +309,9 @@ export class FoundryReg extends Registry {
           scene_id: tokens[1],
           token_id: tokens[2]
         };
-      } else if(tokens[1]) {
+      }
+    } else if(tokens[0] == "scene") {
+      if(tokens[1]) {
         // Is "scene.<scene_id>" token listing
         return {
           src: "scene",
