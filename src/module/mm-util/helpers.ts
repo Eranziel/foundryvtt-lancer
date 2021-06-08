@@ -1,8 +1,8 @@
-import { EntryType, LiveEntryTypes, OpCtx, Pilot, RegEntry, Registry, RegRef } from "machine-mind";
+import { EntryType, License, LicensedItem, LiveEntryTypes, OpCtx, Pilot, RegEntry, Registry, RegRef } from "machine-mind";
 import { is_actor_type, LancerActor, LancerActorType, LancerMech, LancerPilot } from "../actor/lancer-actor";
 import { PACK_SCOPE } from "../compBuilder";
 import { friendly_entrytype_name } from "../config";
-import { LancerItem, LancerItemType, LancerItemTypes } from "../item/lancer-item";
+import { LancerItem, LancerItemType } from "../item/lancer-item";
 import { FoundryFlagData, FoundryReg, FoundryRegCat } from "./foundry-reg";
 
 // Simple caching mechanism for handling async fetchable values for a certain length of time
@@ -205,9 +205,9 @@ export async function mm_wrap_actor<T extends EntryType & LancerActorType>(
 export async function find_license_for(
   mm: LiveEntryTypes<LancerItemType>,
   in_actor?: LancerMech | LancerPilot
-): Promise<RegRef<EntryType.LICENSE> | null> {
+): Promise<License | null> {
   // If the item does not have a license name, then we just bail
-  let license_name = (mm as any).License;
+  let license_name = (mm as LicensedItem).License;
   if (!license_name) {
     return null;
   }
@@ -216,7 +216,7 @@ export async function find_license_for(
   if (in_actor) {
     let actor_mm = await in_actor.data.data.derived.mm_promise;
 
-    // Only pilots should have licenses
+    // Only pilots should have licenses, so for mechs we go to active pilot
     let pilot: Pilot | null = null;
     if (actor_mm.Type == EntryType.MECH) {
       pilot = actor_mm.Pilot;
@@ -226,7 +226,7 @@ export async function find_license_for(
     if (pilot) {
       let found = pilot.Licenses.find(lic => lic.LicenseKey == license_name);
       if (found) {
-        return found.as_ref();
+        return found;
       }
     }
   }
@@ -237,34 +237,21 @@ export async function find_license_for(
 
 // The cache to implement the above. Doesn't need to last long - this just happens in bursts
 // Just keeps track of license refs by name
-const world_and_comp_license_cache = new FetcherCache<string, RegRef<EntryType.LICENSE> | null>(
-  10_000,
+const world_and_comp_license_cache = new FetcherCache<string, License | null>(
+  60_000,
   async license_name => {
+    let ctx = new OpCtx();
     let world_reg = new FoundryReg("game"); // Actor src doesn't matter at all
-    let world_licenses = await world_reg.get_cat(EntryType.LICENSE).raw_map();
-    for (let [id, lic] of world_licenses.entries()) {
-      if (lic.name == license_name) {
-        return {
-          id,
-          reg_name: world_reg.name(),
-          fallback_lid: "",
-          type: EntryType.LICENSE,
-        };
-      }
+    let world_license = await world_reg.get_cat(EntryType.LICENSE).lookup_live(ctx, {key: license_name});
+    if (world_license.length) {
+      return world_license[0];
     }
 
     // Ok. Try core compendium. This is most likely to be where it is, but best to try world first
     let compendium_reg = new FoundryReg("comp_core");
-    let compendium_licenses = await compendium_reg.get_cat(EntryType.LICENSE).raw_map();
-    for (let [id, lic] of compendium_licenses.entries()) {
-      if (lic.name == license_name) {
-        return {
-          id,
-          reg_name: compendium_reg.name(),
-          fallback_lid: "",
-          type: EntryType.LICENSE,
-        };
-      }
+    let compendium_license = await compendium_reg.get_cat(EntryType.LICENSE).lookup_live(ctx, {key: license_name});
+    if(compendium_license.length) {
+      return compendium_license[0];
     }
 
     // Oh well!

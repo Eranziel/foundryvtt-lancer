@@ -4,7 +4,6 @@ import { LancerItem, LancerItemType } from "./lancer-item";
 import {
   HANDLER_activate_general_controls,
   gentle_merge,
-  resolve_dotpath,
   HANDLER_activate_popout_text_editor,
 } from "../helpers/commons";
 import {
@@ -15,12 +14,14 @@ import {
   HANDLER_add_ref_to_list_on_drop,
   HANDLER_openRefOnClick,
 } from "../helpers/refs";
-import { EntryType, Skill, SkillFamily } from "machine-mind";
+import { EntryType } from "machine-mind";
 import { HANDLER_activate_edit_bonus } from "../helpers/item";
 import { HANDLER_activate_tag_context_menus, HANDLER_activate_tag_dropping } from "../helpers/tags";
 import { CollapseHandler } from "../helpers/collapse";
 import { activate_action_editor } from "../apps/action-editor";
 import { FoundryFlagData } from "../mm-util/foundry-reg";
+import { find_license_for } from "../mm-util/helpers";
+import { LancerMech, LancerPilot } from "../actor/lancer-actor";
 
 const lp = LANCER.log_prefix;
 
@@ -193,8 +194,15 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
     // Wait for preparations to complete
     let tmp_dat = this.item.data as LancerItem<T>["data"]; // For typing convenience
     data.mm = await tmp_dat.data.derived.mm_promise;
-    let lic_ref = tmp_dat.data.derived.license;
-    data.license = lic_ref ? await data.mm.Registry.resolve(data.mm.OpCtx, lic_ref) : null;
+
+
+    // Additionally we would like to find a matching license. Re-use ctx, try both a world and global reg, actor as well if it exists
+    data.license = null;
+    if (this.actor?.data.type == EntryType.PILOT || this.actor?.data.type == EntryType.MECH) {
+      data.license = await find_license_for(data.mm, this.actor! as LancerMech | LancerPilot);
+    } else {
+      data.license = await find_license_for(data.mm);
+    }
 
     console.log(`${lp} Rendering with following item ctx: `, data);
     this._currData = data;

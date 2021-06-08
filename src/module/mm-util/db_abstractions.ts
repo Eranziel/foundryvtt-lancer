@@ -1,5 +1,5 @@
-import { AnyRegNpcFeatureData, EntryType, LiveEntryTypes, RegEntry, RegEntryTypes } from "machine-mind";
-import { is_actor_type, LancerActor, LancerActorType, LancerActorTypes } from "../actor/lancer-actor";
+import { AnyRegNpcFeatureData, EntryType, LiveEntryTypes, RegEntryTypes } from "machine-mind";
+import { is_actor_type, LancerActor, LancerActorType } from "../actor/lancer-actor";
 import { LANCER, TypeIcon } from "../config";
 import { LancerItem, LancerItemType } from "../item/lancer-item";
 import type { FoundryFlagData, FoundryRegNameParsed } from "./foundry-reg";
@@ -334,7 +334,7 @@ export class NuWrapper<T extends EntryType> extends EntityCollectionWrapper<T> {
     // If we are a pack must first call .getDocuments() to fetch all
     let collection = await this.collection();
     let all: any[];
-    if(this.pack) {
+    if(this.pack && !collection.parent) {
       // Need to prepend every key with "data."
       let new_query: typeof query_obj = {};
       for(let kv of Object.entries(query_obj)) {

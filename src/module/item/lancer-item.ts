@@ -1,10 +1,9 @@
 import { LANCER, TypeIcon } from "../config";
-import { EntryType, funcs, License, LiveEntryTypes, NpcFeatureType, OpCtx, RegRef, TagInstance } from "machine-mind";
+import { EntryType, funcs, License, LiveEntryTypes, OpCtx } from "machine-mind";
 import { FoundryRegItemData } from "../mm-util/foundry-reg";
 import { LancerActor, LancerActorType } from "../actor/lancer-actor";
 import { system_ready } from "../../lancer";
 import { mm_wrap_item } from "../mm-util/helpers";
-import { IS_IMPORTING } from "../compBuilder";
 
 const lp = LANCER.log_prefix;
 
@@ -109,7 +108,7 @@ export class LancerItem<T extends LancerItemType> extends Item {
     data: {
       // Include additional derived info
       derived: {
-        license: RegRef<EntryType.LICENSE> | null; // The license granting this item, if one could be found
+        // license: RegRef<EntryType.LICENSE> | null; // The license granting this item, if one could be found
         max_uses: number; // The max uses, augmented to also include any actor bonuses
       };
     };
@@ -139,7 +138,7 @@ export class LancerItem<T extends LancerItemType> extends Item {
     if (!this.data.data.derived) {
       // Prepare our derived stat data by first initializing an empty obj
       dr = {
-        license: null,
+        // license: null,
         max_uses: 0,
         mm: null as any, // We will set this shortly
         mm_promise: null as any, // We will set this shortly
@@ -166,17 +165,6 @@ export class LancerItem<T extends LancerItemType> extends Item {
           configurable: true,
           enumerable: false,
         });
-
-        // Additionally we would like to find a matching license. Re-use ctx, try both a world and global reg, actor as well if it exists
-        // let found_license: RegRef<EntryType.LICENSE> | null = null;
-        // if (this.actor?.data.type == EntryType.PILOT || this.actor?.data.type == EntryType.MECH) {
-          // found_license = await find_license_for(mm, this.actor! as LancerMech | LancerPilot);
-        // } else {
-          // found_license = await find_license_for(mm);
-        // }
-
-        // Store the found license
-        // dr.license = found_license;
 
         // Also, compute max uses if needed
         let base_limit = (mm as any).BaseLimit;
