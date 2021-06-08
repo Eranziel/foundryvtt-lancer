@@ -819,6 +819,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         // Set the general props. ALl actors have at least these
         dr.edef = mm.EDefense;
         dr.evasion = mm.Evasion;
+        dr.speed = mm.Speed;
 
         dr.current_hp.value = mm.CurrentHP;
         dr.current_hp.max = mm.MaxHP;
