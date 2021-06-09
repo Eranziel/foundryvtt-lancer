@@ -3,7 +3,7 @@
 import { LANCER } from "./config";
 import { handleActorExport } from "./helpers/io";
 import { LancerActor } from "./actor/lancer-actor";
-import { updateCore, LCPIndex, core_update } from "./apps/lcpManager";
+import { updateCore, LCPIndex, core_update, LCPManager } from "./apps/lcpManager";
 
 /**
  * Perform a system migration for the entire World, applying migrations for Actors, Items, and Compendium packs
@@ -19,6 +19,61 @@ export const migrateWorld = async function (migrateComps = true, migrateActors =
   if (migrateComps) {
     await scorchedEarthCompendiums();
     await updateCore(core_update);
+
+    if ((await game.settings.get(LANCER.sys_name, LANCER.setting_core_data)) === core_update) {
+      // Open the LCP manager for convenience.
+      new LCPManager().render(true);
+
+      // Compendium migration succeeded, prompt to migrate actors.
+      new Dialog({
+        title: `Migrate Actors`,
+        content: `
+<p>Lancer compendiums have been successfully migrated to core version ${core_update}.</p>
+<p>Next, you need to import all of the LCPs that your pilots and NPCs require. You must use current, up-to-date
+LCP compatible with Comp/Con.</p>
+<p>Once that is complete, click the button below to start migrating all of your actors. If you want 
+to close this window while working on your LCPs, you can start migrating your actors by clicking 
+the button in the Compendium tab.</p>`,
+        buttons: {
+          accept: {
+            label: "Start Migration",
+            callback: async () => {
+              await migrateAllActors();
+            },
+          },
+          cancel: {
+            label: "Close",
+          },
+        },
+        default: "cancel",
+      }).render(true);
+    } else {
+      // Compendium migration failed.
+      new Dialog({
+        title: `Compendium Migration Failed`,
+        content: `
+<p>Something went wrong while attempting to build the core data Compendiums for the new Lancer system.
+Please refresh the page to try again.</p>`,
+        buttons: {
+          accept: {
+            label: "Refresh",
+            callback: async () => {
+              ui.notifications.info("Page reloading in 3...");
+              await sleep(1000);
+              ui.notifications.info("2...");
+              await sleep(1000);
+              ui.notifications.info("1...");
+              await sleep(1000);
+              window.location.reload(false);
+            },
+          },
+          cancel: {
+            label: "Close",
+          },
+        },
+        default: "accept",
+      }).render(true);
+    }
 
     // for (let p of game.packs) {
     //   if (p.metadata.package === "world" && ["Actor", "Item", "Scene"].includes(p.metadata.entity)) {
