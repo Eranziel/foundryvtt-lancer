@@ -149,6 +149,10 @@ export function WELCOME(changelog: string): string {
   `;
 }
 
+// Modify these constants to set which Lancer version numbers need and permit migration.
+export const NEEDS_MIGRATION_VERSION = "0.9.0";
+export const COMPATIBLE_MIGRATION_VERSION = "0.1.0";
+
 export const LANCER = {
   ASCII,
   log_prefix: "LANCER |",

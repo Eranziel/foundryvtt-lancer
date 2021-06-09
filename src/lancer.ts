@@ -12,9 +12,9 @@ const marked = require("marked");
 // Pull in the parts of AWS Amplify we need
 import aws from "./aws-exports";
 import Auth from "@aws-amplify/auth";
-import Storage from "@aws-amplify/storage"
+import Storage from "@aws-amplify/storage";
 
-import { LANCER, STATUSES, WELCOME } from "./module/config";
+import { COMPATIBLE_MIGRATION_VERSION, LANCER, NEEDS_MIGRATION_VERSION, STATUSES, WELCOME } from "./module/config";
 import { LancerGame } from "./module/lancer-game";
 import { LancerActor, lancerActorInit } from "./module/actor/lancer-actor";
 import { LancerItem, lancerItemInit } from "./module/item/lancer-item";
@@ -40,7 +40,7 @@ import { preloadTemplates } from "./module/preloadTemplates";
 import { registerSettings } from "./module/settings";
 import { compact_tag_list } from "./module/helpers/tags";
 import * as migrations from "./module/migration";
-import { addLCPManager, updateCore } from "./module/apps/lcpManager";
+import { addLCPManager, core_update, updateCore } from "./module/apps/lcpManager";
 
 // Import Machine Mind and helpers
 import * as macros from "./module/macros";
@@ -541,7 +541,7 @@ export const system_ready: Promise<void> = new Promise(success => {
     }
     console.log(`${lp} Foundry ready, doing final checks.`);
 
-    await versionCheck();
+    await doMigration();
     await showChangelog();
 
     applyCollapseListeners();
@@ -651,7 +651,7 @@ Hooks.on("modifyTokenAttribute", (_: any, data: any) => {
  * Designed for use the first time you launch a new world
  */
 async function promptInstallCoreData() {
-  let version = "3.0.21";
+  let version = core_update;
   let text = `
   <h2 style="text-align: center">WELCOME GAME MASTER</h2>
   <p style="text-align: center;margin-bottom: 1em">THIS IS YOUR <span class="horus--very--subtle">FIRST</span> TIME LAUNCHING</p>
@@ -727,7 +727,7 @@ function setupSheets() {
  * Uses window.FEATURES to check theoretical Foundry compatibility with our features
  * Also performs system version checks
  */
-async function versionCheck() {
+async function versionCheck(): Promise<0 | 1 | -1> {
   // Determine whether a system migration is required and feasible
   const currentVersion = game.settings.get(LANCER.sys_name, LANCER.setting_migration);
 
@@ -735,14 +735,16 @@ async function versionCheck() {
   if (currentVersion === "0" || currentVersion === "") {
     await game.settings.set(LANCER.sys_name, LANCER.setting_migration, game.system.data.version);
     await promptInstallCoreData();
-    return;
+    return 0;
   }
 
-  // Modify these constants to set which Lancer version numbers need and permit migration.
-  const NEEDS_MIGRATION_VERSION = "0.9.0";
-  const COMPATIBLE_MIGRATION_VERSION = "0.1.0";
-  let needMigration = currentVersion ? compareVersions(currentVersion, NEEDS_MIGRATION_VERSION) : 1;
+  return currentVersion ? compareVersions(currentVersion, NEEDS_MIGRATION_VERSION) : 1;
+}
 
+async function doMigration() {
+  // Determine whether a system migration is required and feasible
+  const currentVersion = game.settings.get(LANCER.sys_name, LANCER.setting_migration);
+  let needMigration = await versionCheck();
   // Check whether system has been updated since last run.
   if (compareVersions(currentVersion, game.system.data.version) != 0 && game.user.isGM) {
     // Un-hide the welcome message
