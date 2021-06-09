@@ -148,6 +148,12 @@ Hooks.once("init", async function () {
   }
   console.log(`${lp} Sanity check passed, continuing with initialization.`);
 
+  // Do not continue with system initialization if it needs migration from 0.1.x
+  if ((await versionCheck()) > 0) {
+    console.log(`${lp} Skipping init to let migration run.`);
+    return;
+  }
+
   configureAmplify();
 
   // Assign custom classes and constants here
