@@ -416,17 +416,15 @@ export class CompendiumWrapper<T extends EntryType> extends EntityCollectionWrap
     // Create the items
     // @ts-ignore
     let new_items = (await this.document_type().createDocuments(
-      reg_data.map(
-        d => ({
-          type: this.type,
-          name: d.name,
-          data: duplicate(d),
-        })),
-        {
-          pack: this.pack_id,
-        }
-      )
-    ) as EntFor<T>[];
+      reg_data.map(d => ({
+        type: this.type,
+        name: d.name,
+        data: duplicate(d),
+      })),
+      {
+        pack: this.pack_id,
+      }
+    )) as EntFor<T>[];
 
     // Add them all to the currently cached version
     for (let ni of new_items) {
@@ -624,7 +622,7 @@ const PackContentMapCache = new FetcherCache(
 export async function cached_get_pack_map<T extends LancerItemType | LancerActorType>(
   type: T
 ): Promise<Map<string, T extends LancerItemType ? LancerItem<T> : T extends LancerActorType ? LancerActor<T> : never>> {
-  console.log("Cache flushing should be triggered off of compendium CRUD hooks");
+  // console.log("Cache flushing should be triggered off of compendium CRUD hooks");
   return PackContentMapCache.fetch(type);
 }
 
