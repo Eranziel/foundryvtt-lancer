@@ -20,6 +20,7 @@ import {
   WeaponMod,
   PackedPilotData,
   quick_relinker,
+  RegEntryTypes,
 } from "machine-mind";
 import { FoundryFlagData, FoundryReg, FoundryRegActorData } from "../mm-util/foundry-reg";
 import { LancerHooks, LancerSubscription } from "../helpers/hooks";
@@ -113,6 +114,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         edef: number;
         save_target: number;
         speed: number;
+        armor: number;
         // todo - bonuses and stuff. How to allow for accuracy?
       };
     };
@@ -743,6 +745,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         evasion: 0,
         save_target: 0,
         speed: 0,
+        armor: 0,
         current_heat: default_bounded(),
         current_hp: default_bounded(),
         overshield: default_bounded(),
@@ -758,6 +761,19 @@ export class LancerActor<T extends LancerActorType> extends Actor {
       dr = this.data.data.derived;
       dr.mm = null;
     }
+
+    // Update our known values now, synchronously. 
+    dr.current_hp.value = this.data.data.current_hp
+    if(this.data.type != EntryType.PILOT) {
+      let md = this.data.data as RegEntryTypes<EntryType.MECH | EntryType.NPC | EntryType.DEPLOYABLE>;
+      dr.current_heat.value = md.current_heat;
+      if(this.data.type != EntryType.DEPLOYABLE) {
+        let md = this.data.data as RegEntryTypes<EntryType.MECH | EntryType.NPC>;
+        dr.current_stress.value = md.current_stress;
+        dr.current_structure.value = md.current_structure;
+      }
+    }
+
 
     // Begin the task of wrapping our actor. When done, it will setup our derived fields - namely, our max values
     // Need to wait for system ready to avoid having this break if prepareData called during init step (spoiler alert - it is)
@@ -820,6 +836,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         dr.edef = mm.EDefense;
         dr.evasion = mm.Evasion;
         dr.speed = mm.Speed;
+        dr.armor = mm.Armor;
 
         dr.current_hp.value = mm.CurrentHP;
         dr.current_hp.max = mm.MaxHP;
