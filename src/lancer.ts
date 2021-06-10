@@ -149,7 +149,7 @@ Hooks.once("init", async function () {
   console.log(`${lp} Sanity check passed, continuing with initialization.`);
 
   // Do not continue with system initialization if it needs migration from 0.1.x
-  if ((await versionCheck()) > 0) {
+  if ((await versionCheck()) < 0) {
     console.log(`${lp} Skipping init to let migration run.`);
     return;
   }
@@ -729,9 +729,9 @@ function setupSheets() {
 }
 
 /**
- * Performs our version validation
- * Uses window.FEATURES to check theoretical Foundry compatibility with our features
- * Also performs system version checks
+ * Check whether the world needs any migration.
+ * @return -1 for migration needed, 0 for world equal to migration target version,
+ * 1 for world ahead of migration target version.
  */
 async function versionCheck(): Promise<0 | 1 | -1> {
   // Determine whether a system migration is required and feasible
@@ -747,6 +747,11 @@ async function versionCheck(): Promise<0 | 1 | -1> {
   return currentVersion ? compareVersions(currentVersion, NEEDS_MIGRATION_VERSION) : 1;
 }
 
+/**
+ * Performs our version validation and migration
+ * Uses window.FEATURES to check theoretical Foundry compatibility with our features
+ * Also performs system version checks
+ */
 async function doMigration() {
   // Determine whether a system migration is required and feasible
   const currentVersion = game.settings.get(LANCER.sys_name, LANCER.setting_migration);
