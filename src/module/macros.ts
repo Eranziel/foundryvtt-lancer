@@ -9,7 +9,7 @@ import {
   LancerPilotWeaponData,
   LancerSkill,
 } from "./item/lancer-item";
-import { LancerActor, LancerActorType, LancerPilot } from "./actor/lancer-actor";
+import { LancerActor, LancerActorType, LancerPilot, AnyMMActor } from './actor/lancer-actor';
 import {
   LancerActionMacroData,
   LancerAttackMacroData,
@@ -870,19 +870,16 @@ async function rollAttackMacro(actor: Actor, atk_str: string | null, data: Lance
     }
   }
 
-  // TODO: convert to new paradigm
-  /*
   if (
     game.settings.get(LANCER.sys_name, LANCER.setting_automation) &&
     game.settings.get(LANCER.sys_name, LANCER.setting_overkill_heat)
   ) {
-    const a_data: LancerPilotActorData = duplicate(actor.data);
-    if (a_data.type === "pilot") {
-      a_data.data.mech.heat.value += overkill_heat;
+    let mment: AnyMMActor = actor.data.data.derived.mm;
+    if(mment.Type === EntryType.MECH) {
+      mment.CurrentHeat += overkill_heat;
+      await mment.writeback();
     }
-    await actor.update(a_data);
   }
-   */
 
   // Output
   const templateData = {
