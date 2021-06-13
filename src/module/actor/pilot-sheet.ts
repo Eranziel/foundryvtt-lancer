@@ -311,13 +311,13 @@ export function pilot_counters(ent: Pilot, helper: HelperOptions): string {
         `mm.Allcounters.${i}.counter`,
         false,
         `ent.AllCounters.${i}.source`,
-        true
+        false
       )
     );
   }
   // Now do our CustomCounters
   for (let i = 0; i < ent.CustomCounters.length; i++) {
-    counter_detail = counter_detail.concat(buildCounterHTML(ent.CustomCounters[i], `mm.CustomCounters.${i}`, false));
+    counter_detail = counter_detail.concat(buildCounterHTML(ent.CustomCounters[i], `mm.CustomCounters.${i}`, false, "", true));
   }
 
   return `

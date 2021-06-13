@@ -944,12 +944,11 @@ export function buildCounterHTML(
   path: string,
   fully_editable?: boolean,
   item_path?: string,
-  cannot_delete?: boolean,
+  actor_level?: boolean,
   array_path?: string
 ): string {
-  // if(fully_editable) debugger;
-  console.log("You've indicated you want to fully edit this counter, which we don't allow yet");
   let editHTML: string;
+  let nameChunk: string;
 
   if (fully_editable) {
     editHTML = `
@@ -969,16 +968,19 @@ export function buildCounterHTML(
     <span>${data.Max}</span>`;
   }
 
+  if(actor_level) nameChunk = `<input class="counter-name" name="${data.Name}" value="${data.Name}" type="text" data-dtype="text" />`;
+  else nameChunk = data.Name;
+
   return `
   <div class="card clipped-bot counter-wrapper">
     <div class="lancer-header ">
-      <span>// ${data.Name} //</span>
+      <span>// ${nameChunk} //</span>
       ${
-        cannot_delete
-          ? ""
-          : `<a class="gen-control" data-action="splice" data-path="${
-              array_path ? array_path : path
-            }"><i class="fas fa-trash"></i></a>`
+        actor_level
+          ? `<a class="gen-control" data-action="splice" data-path="${
+            array_path ? array_path : path
+          }"><i class="fas fa-trash"></i></a>`
+          : ""
       }
     </div>
     <div class="flexrow flex-center no-wrap">
