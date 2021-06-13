@@ -317,13 +317,13 @@ export function pilot_counters(ent: Pilot, helper: HelperOptions): string {
   }
   // Now do our CustomCounters
   for (let i = 0; i < ent.CustomCounters.length; i++) {
-    counter_detail = counter_detail.concat(buildCounterHTML(ent.CustomCounters[i], `mm.CustomCounters.${i}`, false, "", true));
+    counter_detail = counter_detail.concat(buildCounterHTML(ent.CustomCounters[i], `mm.CustomCounters.${i}`, true, "", true));
   }
 
   return `
   <div class="card clipped double">
-    <span class="lancer-header submajor ">
-      COUNTERS
+    <span class="lancer-header submajor" style="padding-right: 5px">
+      <span>COUNTERS</span>
       <a class="gen-control fas fa-plus" data-action="append" data-path="${custom_path}" data-action-value="(struct)counter"></a>
     </span>
     ${counter_detail}
