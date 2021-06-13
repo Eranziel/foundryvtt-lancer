@@ -318,7 +318,7 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
       if (is_limited(sys)) {
         limited = limited_chip_HTML(sys, item_path);
       }
-      let str = `<li class="card clipped mech-system-compact item ${
+      let str = `<li class="valid ref card clipped mech-system-compact item ${
         sys.SysType === SystemType.Tech ? "tech-item" : ""
       }" ${ref_params(cd.ref)}>
         <div class="lancer-header ${sys.Destroyed ? "destroyed" : ""}" style="grid-area: 1/1/2/3; display: flex">
