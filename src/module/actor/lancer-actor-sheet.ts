@@ -655,7 +655,10 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     data.mm = await (this.actor.data as LancerActor<T>["data"]).data.derived.mm_promise;
 
     // Also wait for all of their items
-    await Promise.all(this.actor.items.map((i: AnyLancerItem) => i.data.data.derived.mm_promise));
+    // @ts-ignore 0.8
+    for(let i of this.actor.items.contents) {
+      await i.data.data.derived?.mm_promise; // The ? is necessary in case of a foundry internal race condition
+    }
 
     console.log(`${lp} Rendering with following actor ctx: `, data);
     this._currData = data;

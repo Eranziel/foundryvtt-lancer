@@ -721,7 +721,8 @@ export class LancerActor<T extends LancerActorType> extends Actor {
   }
 
   // Use this to prevent race conditions
-  private _prepare_race_ticker!: number;
+  private _current_prepare_job_id!: number;
+  private _job_tracker!: Map<number, Promise<AnyMMActor>>;
 
   /** @override
    * We need to both:
@@ -733,10 +734,12 @@ export class LancerActor<T extends LancerActorType> extends Actor {
     if(!this.id) return;
 
     // Track which prepare iteration this is
-    if(this._prepare_race_ticker == undefined) {
-      this._prepare_race_ticker = 0;
+    if(this._current_prepare_job_id == undefined) {
+      this._current_prepare_job_id = 0;
+      this._job_tracker = new Map();
     }
-    let this_prepare_ticker = (++this._prepare_race_ticker);
+    this._current_prepare_job_id++;
+    let job_id = this._current_prepare_job_id;
 
     // Reset subscriptions for new data
     this.setupLancerHooks();
@@ -773,9 +776,8 @@ export class LancerActor<T extends LancerActorType> extends Actor {
       };
       this.data.data.derived = dr;
     } else {
-      // Otherwise, clear mm. Will be set in promise
+      // Otherwise, grab existing
       dr = this.data.data.derived;
-      dr.mm = null;
     }
 
     // Update our known values now, synchronously. 
@@ -790,11 +792,13 @@ export class LancerActor<T extends LancerActorType> extends Actor {
       }
     }
 
+    // Break these out of this scope to avoid weird race scoping
+    let actor_ctx = this._actor_ctx;
 
     // Begin the task of wrapping our actor. When done, it will setup our derived fields - namely, our max values
     // Need to wait for system ready to avoid having this break if prepareData called during init step (spoiler alert - it is)
-    let mm_promise = system_ready
-      .then(() => mm_wrap_actor(this, this._actor_ctx))
+    dr.mm_promise = system_ready
+      .then(() => mm_wrap_actor(this, actor_ctx))
       .catch(async e => {
         // This is 90% of the time a token not being able to resolve itself due to canvas not loading yet
         console.warn("Token unable to prepare - hopefully trying again when canvas ready. In meantime, using dummy");
@@ -808,19 +812,23 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         return ent;
       })
       .then(mm => {
-        // If our job ticker doesnt match, then another prepared object has usurped us in setting these values. Bail, as they are higher priority
-        if(this._prepare_race_ticker != this_prepare_ticker) {
-          console.log("prepareData race prevented");
-          return;
+        // If our job ticker doesnt match, then another prepared object has usurped us in setting these values. 
+        // We return this elevated promise, so anyone waiting on this task instead waits on the most up to date one
+        if(job_id != this._current_prepare_job_id) {
+          return this._job_tracker.get(this._current_prepare_job_id)! as any; // This will definitely be a different promise
+        }
+
+        // Delete all old tracked jobs
+        for(let k of this._job_tracker.keys()) {
+          if(k != job_id) {
+            console.warn("Deleting jobid " + k);
+            this._job_tracker.delete(k);
+          }
         }
 
         // Always save the context
         // Save the context via defineProperty so it does not show up in JSON stringifies. Also, no point in having it writeable
-        Object.defineProperty(dr, "mm", {
-          value: mm,
-          configurable: true,
-          enumerable: false,
-        });
+        dr.mm = mm;
 
         // Changes in max-hp should heal the actor. But certain requirements must be met
         // - Must know prior (would be in dr.current_hp.max). If 0, do nothing
@@ -906,13 +914,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
 
         return mm;
       });
-
-    // Also assign the promise via defineProperty, similarly to prevent enumerability
-    Object.defineProperty(dr, "mm_promise", {
-      value: mm_promise,
-      configurable: true,
-      enumerable: false,
-    });
+      this._job_tracker.set(job_id, dr.mm_promise);
   }
 
   /** @override

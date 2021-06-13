@@ -136,9 +136,7 @@ export class LancerItem<T extends LancerItemType> extends Item {
 
     // Init our derived data if necessary
     if (!this.data.data.derived) {
-      // Prepare our derived stat data by first initializing an empty obj
       dr = {
-        // license: null,
         max_uses: 0,
         mm: null as any, // We will set this shortly
         mm_promise: null as any, // We will set this shortly
@@ -147,7 +145,7 @@ export class LancerItem<T extends LancerItemType> extends Item {
       // We set it normally.
       this.data.data.derived = dr;
     } else {
-      // That done/guaranteed make a shorthand
+      // Otherwise, grab existing
       dr = this.data.data.derived;
     }
 
@@ -155,16 +153,11 @@ export class LancerItem<T extends LancerItemType> extends Item {
     let actor_ctx: OpCtx | undefined = (this.actor as LancerActor<any> | undefined)?._actor_ctx;
 
     // Spool up our Machine Mind wrapping process
-    let mm_promise = system_ready
+    dr.mm_promise = system_ready
       .then(() => mm_wrap_item(this, actor_ctx ?? new OpCtx()))
       .then(async mm => {
-        // Always save the context
-        // Save the context via defineProperty so it does not show up in JSON stringifies. Also, no point in having it writeable
-        Object.defineProperty(dr, "mm", {
-          value: mm,
-          configurable: true,
-          enumerable: false,
-        });
+        // Save the entity to derived
+        dr.mm = mm;
 
         // Also, compute max uses if needed
         let base_limit = (mm as any).BaseLimit;
@@ -183,13 +176,6 @@ export class LancerItem<T extends LancerItemType> extends Item {
 
         return mm;
       });
-
-    // Also assign the promise via defineProperty, similarly to prevent enumerability
-    Object.defineProperty(dr, "mm_promise", {
-      value: mm_promise,
-      configurable: true,
-      enumerable: false,
-    });
   }
 
   /** @override

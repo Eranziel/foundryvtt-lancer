@@ -78,7 +78,7 @@ export interface FoundryRegActorData<T extends EntryType> extends FoundryRegItem
 }
 
 // This flag data will, as best as possible, be placed on every item
-export interface FoundryFlagData<T extends EntryType> {
+export interface FoundryFlagData<T extends EntryType = EntryType> {
   // The foundry document that this document corresponds to
   orig_doc: DocFor<T>;
 
@@ -143,18 +143,18 @@ export type FoundryRegName = Source_Game | Source_Scene | Source_Core | Source_C
  * game             - Encompasses the global `game.items` collection.  Equivalent to the "Items.<item_id>" uuid pattern.
  *                    Also encompasses the   `game.actors` collection. Equivalent to the "Actors.<actor_id>" uuid pattern.
  * 
- * game.<aid>       - Inventoried registry. Contains the items for game-scoped actor <aid>. 
+ * game|<aid>       - Inventoried registry. Contains the items for game-scoped actor <aid>. 
  *                    Equivalent to "Actors.<aid>.Item.<item_id>" uuid pattern.
  * 
- * scene.<sid>      - Encompasses all UNLINKED tokens actors on scene <sid>. Equivalent to "Scene.<scene_id>.Token.<token_id>" uuid pattern.
+ * scene|<sid>      - Encompasses all UNLINKED tokens actors on scene <sid>. Equivalent to "Scene.<scene_id>.Token.<token_id>" uuid pattern.
  *                    Currently only really can hold actors-typed entrys, but if "dropped" items ever become a thing will cover that as well
  *               
- * scene.<sid>.<aid> -Encompasses all items owned by synthetic actor <aid> on scene <sid>. 
+ * scene|<sid>|<aid> -Encompasses all items owned by synthetic actor <aid> on scene <sid>. 
  *                    Equivalent to "Scene.<scene_id>.Token.<token_id>.Item.<item_id>" uuid pattern.
  * 
  * comp_core         - Encompasses all entries across all items located in the core compendiums (IE those fetched by get_pack)
- * comp.<comp_id>    - Encompasses all entries within the _NON_CORE_ compendium at comp_id. These are slightly harder to enumerate to, naturally
- * comp.<comp_id>.<actor_id>   - Encompasses all item entries owned by the specified actor_id located in the specific compendium comp_id
+ * comp|<comp_id>    - Encompasses all entries within the _NON_CORE_ compendium at comp_id. These are slightly harder to enumerate to, naturally
+ * comp|<comp_id>|<actor_id>   - Encompasses all item entries owned by the specified actor_id located in the specific compendium comp_id
  *          
  * 
  * DEPRECATED
@@ -184,9 +184,6 @@ export type FoundryRegName = Source_Game | Source_Scene | Source_Core | Source_C
 export class FoundryReg extends Registry {
   // Give a registry for the provided inventoried item. 
   async switch_reg_inv(for_inv_item: InventoriedRegEntry<EntryType>): Promise<Registry> {
-    // 0.9 beta tester compat spot-fixes
-    console.log("TODO: translate");
-
     // Determine based on actor metadata
     let flags = for_inv_item.Flags as FoundryFlagData<EntryType>;
     let actor = flags.orig_doc as LancerActor<any>;  
@@ -283,36 +280,54 @@ export class FoundryReg extends Registry {
   }
 
   // Turns reg args provided as a dict into a dict. 
-  private static parse_reg_args(args: FoundryRegName): FoundryRegNameParsed {
+  public static parse_reg_args(args: FoundryRegName): FoundryRegNameParsed {
+    /// 0.9 BETA COMPAT BLOCK
+    // 0.9 beta tester compat spot-fixes the earlier naming convention for refs
+    // We will eventually want to remove these, probably
+    let cpargs = args as string;
+    if(cpargs == "compendium|compendium") {
+      args = "comp_core";
+      console.log(`Tweaked to be "${args}" from "${cpargs}"`);
+    } else if(cpargs == "world|world") {
+      args = "game";
+      console.log(`Tweaked to be "${args}" from "${cpargs}"`);
+    } else if(cpargs.slice(0, "world_inv".length) == "world_inv") {
+      // * world_inv:<actor_id>|<anything>    -> game|<actor>
+      let actor_id = cpargs.slice("world_inv".length + 1).split("|")[0];
+      args = `game|${actor_id}` as FoundryRegName;
+      console.log(`Tweaked to be "${args}" from "${cpargs}"`);
+    }
+    // We don't bother converting the rest. Anyone who has made more esoteric things like compendium pilots will simply have to deal
+    /// END 0.9 BETA COMPAT BLOCK
+
+
     // Tokenize 
     let tokens = args.split("|");
 
     // Begin processing
     if(tokens[0] == "game") {
-      // Is "game" globals
-      return {
-        src: "game"
-      };
-    } else if(tokens[0] == "game_actor") {
       if(tokens[1]) {
-        // Is "game.<actor_id>" inventory
+        // Is "game|<actor_id>" inventory
         return {
           src: "game_actor",
           actor_id: tokens[1]
         };
-      }
-    } else if(tokens[0] == "scene_token") {
+      } else {
+        // Is "game" globals
+        return {
+          src: "game"
+        };
+      } 
+    } else if(tokens[0] == "scene") {
       if(tokens[2]) {
-        // Is "scene.<scene_id>.<actor_id>" specific token inventory listing
+        // Is "scene|<scene_id>|<actor_id>" specific token inventory listing
         return {
           src: "scene_token",
           scene_id: tokens[1],
           token_id: tokens[2]
         };
-      }
-    } else if(tokens[0] == "scene") {
-      if(tokens[1]) {
-        // Is "scene.<scene_id>" token listing
+      } else if(tokens[1]) {
+        // Is "scene|<scene_id>" token listing
         return {
           src: "scene",
           scene_id: tokens[1]
@@ -320,14 +335,14 @@ export class FoundryReg extends Registry {
       } 
     } else if(tokens[0] == "comp") {
       if(tokens[2]) {
-        // Is "comp.<comp_id>.<actor_id>" specific compendium actor inventory
+        // Is "comp|<comp_id>|<actor_id>" specific compendium actor inventory
         return {
           src: "comp_actor",
           comp_id: tokens[1],
           actor_id: tokens[2]
         };
       } else if(tokens[1]) {
-        // Is targeting a specifc compendium "comp.<comp_id>" all-compendium item amalgam
+        // Is targeting a specifc compendium "comp|<comp_id>" all-compendium item amalgam
         return {
           src: "comp",
           comp_id: tokens[1]
@@ -354,13 +369,13 @@ export class FoundryReg extends Registry {
       case "comp_core":
         return "comp_core";
       case "scene":
-        return `${args.src}|${args.scene_id}` as FoundryRegName;
+        return `scene|${args.scene_id}` as FoundryRegName;
       case "game_actor":
-        return `${args.src}|${args.actor_id}` as FoundryRegName;
+        return `game|${args.actor_id}` as FoundryRegName;
       case "scene_token":
-        return `${args.src}|${args.scene_id}|${args.token_id}` as FoundryRegName;
+        return `scene|${args.scene_id}|${args.token_id}` as FoundryRegName;
       case "comp_actor":
-        return `${args.src}|${args.comp_id}|${args.actor_id}` as FoundryRegName;
+        return `comp|${args.comp_id}|${args.actor_id}` as FoundryRegName;
       default:
         console.error("Invalid parsed reg args", args);
         throw new Error("Invalid parsed reg args");
@@ -526,7 +541,7 @@ export class FoundryRegCat<T extends EntryType> extends RegCat<T> {
   // Directly wrap a foundry document, without going through get_live resolution mechanism. 
   // Modestly dangerous, but can save a lot of repeated computation
   // BE CAREFUL! IF YOU WRAP A DOCUMENT IN A REGISTRY THAT WOULDNT HAVE FETCHED IT, IT WONT WRITE BACK PROPERLY
-  async dangerous_wrap_doc(ctx: OpCtx, ent: T extends LancerActorType ? LancerActor<T> : T extends LancerItemType ? LancerItem<T> : never): Promise<LiveEntryTypes<T> | null> {
+  async dangerous_wrap_doc(ctx: OpCtx, ent: T extends LancerActorType ? LancerActor<T> : T extends LancerItemType ? LancerItem<T> : never, wait_ready: boolean = true): Promise<LiveEntryTypes<T> | null> {
     let id = ent.id;
 
     // ID is different if we are an unlinked token 
@@ -540,7 +555,7 @@ export class FoundryRegCat<T extends EntryType> extends RegCat<T> {
       data: ent.data.data as any,
       type: ent.data.type as T
     };
-    return this.revive_and_flag(contrived, ctx, {wait_ctx_ready: true}); // Probably want to be ready
+    return this.revive_and_flag(contrived, ctx, {wait_ctx_ready: wait_ready}); // Probably want to be ready
   }
 
   // Just call revive on each of the 'entries'

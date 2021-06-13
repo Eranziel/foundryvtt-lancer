@@ -1,6 +1,7 @@
 // Import TypeScript modules
 import { LANCER } from "./config";
 import {
+  AnyLancerItem,
   LancerCoreBonus,
   LancerItem,
   LancerMechWeaponData,
@@ -43,8 +44,8 @@ import {
   ActivationType,
   funcs,
 } from "machine-mind";
-import { FoundryReg, FoundryRegItemData } from "./mm-util/foundry-reg";
-import { resolve_dotpath } from "./helpers/commons";
+import { FoundryFlagData, FoundryReg, FoundryRegItemData } from "./mm-util/foundry-reg";
+import { is_ref, resolve_dotpath } from "./helpers/commons";
 import { buildActionHTML, buildDeployableHTML, buildSystemHTML } from "./helpers/item";
 import { ActivationOptions, StabOptions1, StabOptions2 } from "./enums";
 import { applyCollapseListeners, uuid4 } from "./helpers/collapse";
@@ -79,22 +80,23 @@ export async function onHotbarDrop(_bar: any, data: any, slot: number) {
     console.log(`${lp} Data dropped on hotbar:`, data);
 
     // Determine if we're using old or new method
+    let actorId: string;
     if ("actorId" in data) {
-      var actorId = data.actorId;
-
       title = data.title;
       itemId = data.itemId;
-    } else {
-      var item = <any>await new FoundryReg().resolve(new OpCtx(), data);
+      actorId = data.actorId;
+    } else if(is_ref(data)) {
+      var item = await new FoundryReg().resolve(new OpCtx(), data);
       title = item.Name;
 
       if (!item) return;
 
-      // Is this the way to handle this? Idk, but the only other option I see is changing dragdrop
-      // Pilot ID is encoded in reg_name...
-      // TODO: There's got to be a better way
-      var actorId = data["reg_name"].split("|")[0].split(":")[1];
+      let orig_doc = (item.Flags as FoundryFlagData).orig_doc;
+      // @ts-ignore 0.8
+      actorId = orig_doc.actor?.id ?? "error";
       itemId = data.id;
+    } else {
+      return;
     }
 
     switch (data.type) {

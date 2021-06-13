@@ -308,8 +308,11 @@ export class NuWrapper<T extends EntryType> extends EntityCollectionWrapper<T> {
     let collection = await this.collection(); 
     let fi: any; // Our found result
 
-    // Getting item slightly different if we're a pack
-    if(this.pack) {
+    // Getting item slightly different if we're a pack/scene
+    if(this.scene) {
+      let tok = this.scene.tokens.get(id);
+      fi = tok?.actor;
+    } else if(this.pack) {
       fi = await collection.getDocument(id); // Is a CompendiumCollection
     } else {
       // @ts-ignore 0.8

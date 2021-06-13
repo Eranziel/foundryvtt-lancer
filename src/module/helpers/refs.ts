@@ -39,7 +39,7 @@ import {
   std_x_of_y,
 } from "./commons";
 import {
-  convert_ref_to_native,
+  convert_ref_to_native_drop,
   enable_dragging,
   enable_simple_ref_dragging,
   enable_simple_ref_dropping,
@@ -537,7 +537,7 @@ export function HANDLER_activate_native_ref_dragging(html: JQuery) {
   enable_dragging(html.find(".ref.valid.native-drag"), drag_src => {
     // Drag a JSON ref
     let ref = recreate_ref_from_element(drag_src[0]);
-    let native = ref ? convert_ref_to_native(ref) : null;
+    let native = ref ? convert_ref_to_native_drop(ref) : null;
     if (native) {
       return JSON.stringify(native);
     } else {

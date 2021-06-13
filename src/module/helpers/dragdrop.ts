@@ -1,9 +1,9 @@
 import { EntryType, LiveEntryTypes, OpCtx, RegEntry, RegRef } from "machine-mind";
-import { is_actor_type, LancerActor, LancerActorType } from "../actor/lancer-actor";
+import { AnyLancerActor, is_actor_type, LancerActor, LancerActorType } from "../actor/lancer-actor";
 import { PACK_SCOPE } from "../compBuilder";
-import { is_item_type, LancerItem, LancerItemType } from "../item/lancer-item";
-import { FoundryReg } from "../mm-util/foundry-reg";
-import { mm_wrap_actor, mm_wrap_item } from "../mm-util/helpers";
+import { AnyLancerItem, is_item_type, LancerItem, LancerItemType } from "../item/lancer-item";
+import { FoundryReg, FoundryRegName } from "../mm-util/foundry-reg";
+import { get_pack_id, mm_wrap_actor, mm_wrap_item } from "../mm-util/helpers";
 import { gentle_merge, is_ref, safe_json_parse } from "./commons";
 import { recreate_ref_from_element } from "./refs";
 
@@ -177,34 +177,55 @@ export function enable_dragging(
   });
 }
 
-// "Everything" that foundry will natively drop. Scenes are not yet implemented
-export type NativeDrop =
-  | {
+export type NewNativeDrop = ({
       type: "Item";
-      id: string;
-      pack?: string;
     }
   | {
-      type: "Actor";
-      id: string;
-      pack?: string;
-    }
-  | {
-      type: "JournalEntry";
-      id: string;
-      pack?: string;
-    }
-  | null;
+      type: "ActiveEffect";
+  }) & {
+    test: string;
+  };
+
+
+// "Everything" that foundry will natively drop. Scene dropping,  are not yet implemented
+type _DropContextInfo = {
+  pack?: string; // Compendium pack we are dragging from
+  actorId?: string; // If provided, this is the actor that the dragged item is embedded in
+  tokenId?: string; // If provided, the document is embedded in a token synthetic actor associated with this token
+  sceneId?: string; // If provided, the document is embedded in a token in this scene
+  // Note: It is not necessarily safe to assume that tokenId implies sceneId, since floating combat tokens exist, maybe? Its iffy. Tread cautiously
+};
+type _PhysicalDrop =  
+    (
+      { type: "Item"; }
+      | 
+      { type: "ActiveEffect"; }
+      | 
+      { type: "Actor"; }
+    ) 
+    & 
+    _DropContextInfo
+    &
+    { id: string; };
+
+// Meta here handles weirder stuff like journals, scenes, sounds, macros, etc 
+type _MetaDrop = {
+  type: "JournalEntry";
+  id: string;
+  pack?: string;
+}
+
+export type NativeDrop = _PhysicalDrop | _MetaDrop;
 
 // Result of resolving a native drop to its corresponding entity
 export type ResolvedNativeDrop =
   | {
       type: "Item";
-      entity: LancerItem<LancerItemType>;
+      entity: AnyLancerItem;
     }
   | {
       type: "Actor";
-      entity: LancerActor<LancerActorType>;
+      entity: AnyLancerActor;
     }
   | {
       type: "JournalEntry";
@@ -215,44 +236,56 @@ export type ResolvedNativeDrop =
 // Resolves a native foundry actor/item drop event datatransfer to the actual contained item
 export async function resolve_native_drop(event_data: string): Promise<ResolvedNativeDrop> {
   // Get dropped data
-  let data = safe_json_parse(event_data) as NativeDrop;
-  if (!data) return null;
+  let drop = safe_json_parse(event_data) as NativeDrop;
+  if (!drop) return null;
 
-  // NOTE: these cases are copied almost verbatim from ActorSheet._onDrop
-  if (data.type == "Item") {
+  if (drop.type == "Item") {
     let item: LancerItem<LancerItemType> | null = null;
-    // Case 1 - Item is from a Compendium pack
-    if (data.pack) {
-      item = (await game.packs.get(data.pack)!.getEntity(data.id)) as LancerItem<any>;
-      console.log(`Item native dropped from compendium: `, item);
+    if (drop.pack && drop.actorId) {
+      // Case 1 - Item is from a Compendium actor item
+      // @ts-ignore 0.8
+      let actor = (await game.packs.get(drop.pack)?.getDocument(drop.actorId)) as AnyLancerActor | undefined;
+      item = (actor?.items.get(drop.id) ?? null) as AnyLancerItem | null;
+    } else if(drop.sceneId && drop.tokenId) {
+      // Case 2 - Item is a token actor item
+      // @ts-ignore 0.8
+      let actor = game.scenes.get(drop.sceneId)?.tokens.get(drop.tokenId)?.actor as AnyLancerActor | undefined;
+      item = (actor?.items.get(drop.id) ?? null) as AnyLancerItem | null;
+    } else if(drop.actorId) {
+      // Case 3 - Item is a game actor item
+      let actor = game.actors.get(drop.actorId);
+      item = (actor?.items.get(drop.id) ?? null) as AnyLancerItem | null;
+    } else if (drop.pack) {
+      // Case 4 - Item is from a Compendium 
+      // @ts-ignore 0.8
+      item = ((await game.packs.get(drop.pack)!.getDocument(drop.id)) ?? null) as AnyLancerItem | null;
+    } else {
+      // Case 5 - item is a game item
+      item = (game.items.get(drop.id) ?? null) as LancerItem<any> | null;
     }
 
-    // Case 2 - Item is a World entity
-    else {
-      item = game.items.get(data.id) as LancerItem<any>;
-      console.log(`Item native dropped from world: `, item);
-    }
-
+    // Return if it exists
     if (item) {
       return {
         type: "Item",
         entity: item,
       };
     }
-  } else if (data.type == "Actor") {
+  } else if (drop.type == "Actor") {
     // Same deal
     let actor: LancerActor<LancerActorType> | null = null;
 
-    // Case 1 - Actor is from a Compendium pack
-    if (data.pack) {
-      actor = (await game.packs.get(data.pack)!.getEntity(data.id)) as LancerActor<any>;
-      console.log(`Actor native dropped from compendium: `, actor);
-    }
-
-    // Case 2 - Actor is a World entity
-    else {
-      actor = game.actors.get(data.id) as LancerActor<any>;
-      console.log(`Actor native dropped from world: `, actor);
+    if (drop.pack) {
+      // Case 1 - Actor is from a Compendium pack
+      // @ts-ignore 0.8
+      actor = ((await game.packs.get(drop.pack)!.getDocument(drop.id)) ?? null) as AnyLancerActor | null
+    } else if(drop.sceneId && drop.actorId) {
+      // Case 2 - Actor is a scene token
+      // @ts-ignore 0.8
+      actor = (game.scenes.get(drop.sceneId)?.tokens.get(drop.tokenId)?.actor ?? null) as AnyLancerActor | null;
+    } else {
+      // Case 3 - Actor is a game actor
+      actor = (game.actors.get(drop.id) ?? null) as AnyLancerActor | null;
     }
 
     if (actor) {
@@ -261,20 +294,19 @@ export async function resolve_native_drop(event_data: string): Promise<ResolvedN
         entity: actor,
       };
     }
-  } else if (data.type == "JournalEntry") {
+  } else if (drop.type == "JournalEntry") {
     // Same deal
     let journal: JournalEntry | null = null;
 
     // Case 1 - JournalEntry is from a Compendium pack
-    if (data.pack) {
-      journal = (await game.packs.get(data.pack)!.getEntity(data.id)) as JournalEntry;
-      console.log(`JournalEntry native dropped from compendium: `, journal);
+    if (drop.pack) {
+      // @ts-ignore 0.8
+      journal = ((await game.packs.get(drop.pack)!.getDocument(drop.id)) ?? null) as JournalEntry | null;
     }
 
     // Case 2 - JournalEntry is a World entity
     else {
-      journal = game.journals.get(data.id) as JournalEntry;
-      console.log(`JournalEntry native dropped from world: `, journal);
+      journal = (game.journals.get(drop.id) ?? null) as JournalEntry | null;
     }
 
     if (journal) {
@@ -286,46 +318,70 @@ export async function resolve_native_drop(event_data: string): Promise<ResolvedN
   }
 
   // All else fails
+  console.log(`Couldn't resolve native drop:`, drop);
   return null;
 }
 
 // Turns a regref into a native drop, if possible
-export function convert_ref_to_native<T extends EntryType>(ref: RegRef<T>): NativeDrop | null {
-  if (!ref.type || is_item_type(ref.type)) {
-    let src = ref.reg_name.split("|")[0];
-    if (src == "world") {
-      return {
-        type: "Item",
-        id: ref.id,
-      };
-    } else if (ref.type) {
-      // It's a typed compendium ref
-      return {
-        type: "Item",
-        id: ref.id,
-        pack: `${PACK_SCOPE}.${ref.type}`,
-      };
-    } else {
-      return null; // Couldn't make an explicit native item ref
-    }
+export function convert_ref_to_native_drop<T extends EntryType>(ref: RegRef<T>): NativeDrop | null {
+  // Can't handle null typed refs
+  if (!ref.type) {
+    console.error("Attempted to turn a null-typed ref into a native drop. This is, generally, impossible");
+    return null;  
+  } 
+
+  // Build out our scaffold
+  let evt: Partial<_PhysicalDrop> = {};
+
+  // Parse the reg name
+  let rn = FoundryReg.parse_reg_args(ref.reg_name as FoundryRegName);
+
+  // Decide type
+  if(is_item_type(ref.type)) {
+    evt.type = "Item";
   } else if (is_actor_type(ref.type)) {
-    let src = ref.reg_name.split("|")[1];
-    if (src == "world") {
-      return {
-        type: "Actor",
-        id: ref.id,
-      };
-    } else {
-      // It's a typed compendium ref
-      return {
-        type: "Actor",
-        id: ref.id,
-        pack: `${PACK_SCOPE}.${ref.type}`,
-      };
-    }
+    evt.type = "Actor";
   } else {
+    console.error("Couldn't convert the following ref into a native foundry drop event:", ref);
     return null;
   }
+
+  // Decide pack
+  if(rn.src == "comp_core") {
+    evt.pack = get_pack_id(ref.type)
+  } else if(rn.src == "comp") {
+    evt.pack = rn.comp_id;
+  } 
+
+  // Decide scene
+  if(rn.src == "scene") {
+    evt.sceneId = rn.scene_id;
+    evt.tokenId = ref.id;
+  } else if(rn.src == "scene_token") {
+    evt.sceneId = rn.scene_id;
+    evt.tokenId = rn.token_id;
+  }
+
+  // Decide actor id
+  if(rn.src == "comp_actor") {
+    evt.actorId = rn.actor_id;
+  } else if(rn.src == "game_actor") {
+    evt.actorId = rn.actor_id;
+  } else if(rn.src == "scene_token") {
+    // @ts-ignore
+    evt.actorId = game.scenes.get(evt.sceneId)?.tokens.get(evt.tokenId)?.actor.id;
+  }
+  
+  // Decide ID, which is slightly weird for scene token actors
+  if(rn.src == "scene") {
+    // @ts-ignore
+    evt.id = game.scenes.get(evt.sceneId)?.tokens.get(evt.tokenId)?.actor.id;
+  } else {
+    evt.id = ref.id;
+  }
+
+  // Done
+  return evt as NativeDrop;
 }
 
 // Wraps a call to enable_dropping to specifically handle RegRef drops.
