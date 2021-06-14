@@ -28,12 +28,11 @@ import {
   prepareItemMacro,
   runEncodedMacro,
 } from "../macros";
-import { EntryType, LiveEntryTypes, MechSystem, OpCtx, RegEntry } from "machine-mind";
+import { EntryType, LiveEntryTypes, MechSystem, MechWeapon, NpcFeature, OpCtx, PilotGear, PilotWeapon, RegEntry, WeaponMod, funcs, Mech } from "machine-mind";
 import { ActivationOptions } from "../enums";
 import { applyCollapseListeners, CollapseHandler } from "../helpers/collapse";
 import { HANDLER_intercept_form_changes } from "../helpers/refs";
 import { addExportButton } from "../helpers/io";
-import { is_limited, is_tagged } from 'machine-mind/dist/classes/mech/EquipUtil';
 import { FoundryFlagData } from "../mm-util/foundry-reg";
 import { mm_owner } from "../mm-util/helpers";
 const lp = LANCER.log_prefix;
@@ -555,6 +554,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
 
   // Makes us own (or rather, creates an owned copy of) the provided item if we don't already. 
   // The second return value indicates whether a new copy was made (true), or if we already owned it/it is an actor (false)
+  // Note: this operation also fixes limited to be the full capability of our actor
   async quick_own<T extends EntryType>(entry: LiveEntryTypes<T>): Promise<[LiveEntryTypes<T>, boolean]> {
     // Actors are unaffected
     if(is_actor_type(entry.Type)) {
@@ -566,7 +566,17 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
       let this_mm = sheet_data.mm;
       let ctx = this.getCtx();
       let inv = await this_mm.get_inventory();
-      return [(await entry.insinuate(inv, ctx)) as LiveEntryTypes<T>, true];
+
+      let result = await entry.insinuate(inv, ctx, {
+        pre_final_write: (rec) => {
+            // Pull a sneaky: set the limited value to max before insinuating
+            if(funcs.is_tagged(rec.pending) && (rec.pending as any).Uses != undefined) {
+              let as_lim = rec.pending as NpcFeature | MechWeapon | MechSystem | PilotWeapon | PilotGear | WeaponMod;
+              as_lim.Uses = funcs.limited_max(as_lim) + (this_mm instanceof Mech ? this_mm.LimitedBonus : 0);
+            }
+          }
+      });
+      return [result as LiveEntryTypes<T>, true];
     } else {
       // Its already owned
       return [entry, false];
