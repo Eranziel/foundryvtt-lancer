@@ -1215,26 +1215,25 @@ export async function prepareOverchargeMacro(a: string) {
   // @ts-ignore .8
   let roll = await new Roll(rollText).evaluate({ async: true });
 
-  let data = actor.data;
+  let mech: Mech = actor.data.data.derived.mm;
 
   let mData: LancerOverchargeMacroData = {
-    level: data.data.current_overcharge,
+    level: mech.CurrentOvercharge,
     roll: roll,
   };
 
   // Assume we can always increment overcharge here...
-  data.data.current_overcharge = Math.min(data.data.current_overcharge + 1, 3);
+  mech.CurrentOvercharge = Math.min(mech.CurrentOvercharge + 1, 3);
 
   // Only increase heat if we haven't disabled it
   if (
     game.settings.get(LANCER.sys_name, LANCER.setting_automation) &&
     game.settings.get(LANCER.sys_name, LANCER.setting_pilot_oc_heat)
   ) {
-    data.data.current_heat = data.data.current_heat + roll.total;
+    mech.CurrentHeat = mech.CurrentHeat + roll.total;
   }
 
-  console.log(roll, data);
-  await actor.update(data);
+  await mech.writeback();
 
   return rollOverchargeMacro(actor, mData);
 }
