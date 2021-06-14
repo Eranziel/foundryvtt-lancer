@@ -176,10 +176,10 @@ export type FoundryRegName = Source_Game | Source_Scene | Source_Core | Source_C
  * 
  * DEPRECATED TRANSLATION?
  * compendium|<anything>              -> comp
- * compendium_inv:<actor_id>|<anything>  -> lookup actor <actor> -> comp.<that_actor_pack_id>.<that_actor_id>
+ * compendium_inv:<actor_id>|<anything>  -> lookup actor <actor> -> comp|<that_actor_pack_id>|<that_actor_id>
  * world|<anything>                   -> game
- * world_inv:<actor_id>|<anything>    -> game.<actor>
- * token_inv:<token_id>|<anything>    -> lookup token <token_id> in all scenes -> scene.<that_token_scene_id>.<that_token_id>
+ * world_inv:<actor_id>|<anything>    -> game|<actor>
+ * token_inv:<token_id>|<anything>    -> lookup token <token_id> in all scenes -> scene|<that_token_scene_id>|<that_token_id>
  */
 export class FoundryReg extends Registry {
   // Give a registry for the provided inventoried item. 

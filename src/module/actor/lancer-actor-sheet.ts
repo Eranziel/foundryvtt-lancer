@@ -17,9 +17,9 @@ import {
   HANDLER_activate_ref_drop_setting,
   HANDLER_openRefOnClick as HANDLER_activate_ref_clicking,
 } from "../helpers/refs";
-import { LancerActorSheetData, LancerStatMacroData } from "../interfaces";
+import { LancerActorSheetData, LancerStatMacroData, GenControlContext } from "../interfaces";
 import { AnyLancerItem, AnyMMItem, LancerItemType, LancerMechWeapon, LancerPilotWeapon } from "../item/lancer-item";
-import { AnyLancerActor, AnyMMActor, is_actor_type, LancerActor, LancerActorType } from "./lancer-actor";
+import { AnyLancerActor, AnyMMActor, is_actor_type, is_reg_npc, LancerActor, LancerActorType } from "./lancer-actor";
 import {
   prepareActivationMacro,
   prepareChargeMacro,
@@ -28,7 +28,7 @@ import {
   prepareItemMacro,
   runEncodedMacro,
 } from "../macros";
-import { EntryType, LiveEntryTypes, MechSystem, MechWeapon, NpcFeature, OpCtx, PilotGear, PilotWeapon, RegEntry, WeaponMod, funcs, Mech } from "machine-mind";
+import { EntryType, LiveEntryTypes, MechSystem, MechWeapon, NpcFeature, OpCtx, PilotGear, PilotWeapon, RegEntry, WeaponMod, funcs, Mech, Npc } from "machine-mind";
 import { ActivationOptions } from "../enums";
 import { applyCollapseListeners, CollapseHandler } from "../helpers/collapse";
 import { HANDLER_intercept_form_changes } from "../helpers/refs";
@@ -90,6 +90,11 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     // Make refs droppable, in such a way that we take ownership when dropped
     HANDLER_activate_ref_drop_setting(resolver, html, this.can_root_drop_entry, async (x) => (await this.quick_own(x))[0], getfunc, commitfunc);
     HANDLER_activate_ref_drop_clearing(html, getfunc, commitfunc);
+
+    // Enable NPC class-deletion controls
+    let classWrapper = $(html).find(".class-wrapper")
+
+    HANDLER_activate_general_controls(classWrapper, getfunc, commitfunc, handleClassDelete);
 
     // Enable general controls, so items can be deleted and such
     HANDLER_activate_general_controls(html, getfunc, commitfunc);
@@ -681,5 +686,25 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
   // Get the ctx that our actor + its items reside in
   getCtx(): OpCtx {
     return (this.actor as AnyLancerActor)._actor_ctx;
+  }
+}
+
+function handleClassDelete(ctx: GenControlContext<LancerActorSheetData<any>>): undefined {
+  if(is_reg_npc(ctx.data.mm)) {
+    let features: NpcFeature[] = resolve_dotpath(ctx.data, ctx.path).BaseFeatures;
+    let npc = ctx.data.mm;
+    removeFeaturesFromNPC(npc,features);
+  } 
+  return;
+}
+
+export async function removeFeaturesFromNPC(npc: Npc, features: NpcFeature[]) {
+  // Gross...
+  for (let i = 0; i < features.length; i++) {
+    for (let j = 0; j < npc.Features.length; j++) {
+      if(features[i].LID === npc.Features[j].LID) {
+        await npc.Features[j].destroy_entry();
+      }
+    }
   }
 }

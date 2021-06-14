@@ -2139,3 +2139,9 @@ div[data-tab=system] > .settings-list > div:nth-last-child(-n+4) {
   color: white;
   background-color: rgb(55, 55, 55);
 }
+
+.counter-name {
+  max-width: 90%;
+  width: fit-content !important;
+  color: white !important;
+}

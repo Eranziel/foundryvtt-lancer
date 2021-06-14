@@ -2,22 +2,12 @@ import { LANCER } from "../config";
 import { LancerActorSheet } from "./lancer-actor-sheet";
 import {
   EntryType,
-  funcs,
-  LiveEntryTypes,
   MountType,
-  OpCtx,
-  RegEntry,
-  RegRef,
   SystemMount,
-  WeaponMod,
   WeaponMount,
-  WeaponSlot,
 } from "machine-mind";
-import { mm_owner, mm_wrap_item } from "../mm-util/helpers";
-import { ResolvedNativeDrop } from "../helpers/dragdrop";
-import { gentle_merge, resolve_dotpath } from "../helpers/commons";
-import { AnyMMItem, is_item_type, LancerItemType, LancerItemTypes, LancerMechWeapon } from "../item/lancer-item";
-import { Mech, MechWeapon } from "machine-mind";
+import {  resolve_dotpath } from "../helpers/commons";
+import { AnyMMItem, LancerItemType } from "../item/lancer-item";
 import tippy from "tippy.js";
 import { AnyMMActor } from "./lancer-actor";
 

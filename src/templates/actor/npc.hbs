@@ -41,11 +41,10 @@
       </div>
 
       {{!-- Equipment et all --}}
-      <div class="card clipped">
-        <span class="lancer-header submajor">CLASSES (LIMIT 1)</span>
+      <div class="card clipped class-wrapper">
+        <span class="lancer-header submajor">CLASS</span>
         <div class="flexcol">
-          {{#each mm.Classes as |class index|}} {{{ref-mm-controllable-item (concat "mm.Classes." index)
-          "delete" }}} {{/each}}
+          {{#if mm.ActiveClass}} {{{ref-mm-controllable-item "mm.ActiveClass" "delete" }}} {{else}} NO CLASS FOUND {{/if}}
         </div>
       </div>
 
