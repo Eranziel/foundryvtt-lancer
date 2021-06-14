@@ -3,7 +3,13 @@
 import { LANCER } from "./config";
 import { handleActorExport } from "./helpers/io";
 import { LancerActor } from "./actor/lancer-actor";
-import { updateCore, LCPIndex, core_update, LCPManager } from "./apps/lcpManager";
+import { core_update, LCPIndex, LCPManager, updateCore } from "./apps/lcpManager";
+import { EntryType, NpcClass, NpcFeature, NpcTemplate, OpCtx } from "machine-mind";
+import { LancerItem } from "./item/lancer-item";
+import { FoundryReg } from "./mm-util/foundry-reg";
+import { RegRef } from "machine-mind/dist/registry";
+
+let lp = LANCER.log_prefix;
 
 /**
  * Perform a system migration for the entire World, applying migrations for Actors, Items, and Compendium packs
@@ -178,6 +184,10 @@ export const migrateAllActors = async () => {
           console.log(ret);
           count++;
         }
+      } else if (a.data.type === "npc") {
+        await (a.items as [LancerItem]).forEach(item => {
+          item.update(migrateItemData(item));
+        });
       }
     } catch (err) {
       console.error(err);
@@ -326,8 +336,69 @@ function cleanActorData(actorData: ActorData) {
  * Migrate a single Item entity to incorporate latest data model changes
  * @param item
  */
-export const migrateItemData = function (item: Item) {
-  const updateData = {};
+export const migrateItemData = function (item: LancerItem<NpcClass | NpcTemplate | NpcFeature>) {
+  const origData = item.data;
+  const updateData = duplicate(origData);
+
+  switch (origData.type) {
+    case EntryType.NPC_CLASS:
+      console.log(`${lp} Migrating NPC class`, item);
+      break;
+    case EntryType.NPC_TEMPLATE:
+      console.log(`${lp} Migrating NPC template`, item);
+      break;
+    case EntryType.NPC_FEATURE:
+      console.log(`${lp} Migrating NPC feature`, item);
+      updateData.data.lid = origData.data.id;
+      updateData.data.loaded = true;
+      updateData.data.type = origData.data.feature_type;
+      updateData.data.origin = {
+        origin: origData.data.origin_name,
+        base: origData.data.origin_base,
+        type: origData.data.origin_type,
+      };
+      updateData.data.tier_override = 0;
+      // Transform damage. Old format is array of damage types, each type has an Array[3] of vals.
+      // New format is an Array[3] of damage types per tier. Each damage type follows normal {type, val} spec.
+      updateData.data.damage = [[], [], []];
+      origData.data.damage.forEach((oldDamage: { type: str; val: [str | int] }) => {
+        if (oldDamage.val && Array.isArray(oldDamage.val)) {
+          for (let i = 0; i < Math.min(3, oldDamage.val.length); i++) {
+            updateData.data.damage[i].push({ type: oldDamage.type, val: oldDamage.val[i] });
+          }
+        }
+      });
+      // Migrate & relink tags;
+      updateData.data.tags = [];
+      if (origData.data.tags && Array.isArray(origData.data.tags)) {
+        // let cat = new FoundryReg({
+        //   item_source: "compendium|compendium",
+        // }).get_cat(EntryType.TAG);
+        origData.data.tags.forEach(async tag => {
+          let newTag: RegRef<EntryType.TAG> = {
+            fallback_lid: tag.id,
+          };
+          updateData.data.tags.push(newTag);
+        });
+      }
+
+      // Remove deprecated fields
+      updateData.data.id = undefined;
+      updateData.data.feature_type = undefined;
+      updateData.data.max_uses = undefined;
+      // Keep these ones if they have anything in them, just in case.
+      if (updateData.data.flavor_description === "") {
+        updateData.data.flavor_description = undefined;
+      }
+      if (updateData.data.flavor_name === "") {
+        updateData.data.flavor_name = undefined;
+      }
+      if (updateData.data.note === "") {
+        updateData.data.note = undefined;
+      }
+
+      break;
+  }
 
   // Remove deprecated fields
   _migrateRemoveDeprecated(item, updateData);
