@@ -481,34 +481,6 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("item-edit-uses", item_edit_uses);
 
   // ------------------------------------------------------------------------
-  // Effects
-  /*
-  Handlebars.registerHelper("eff-preview", effect_preview);
-  Handlebars.registerPartial("generic-eff-preview", generic_effect_preview);
-  Handlebars.registerHelper("basic-eff-preview", basic_effect_preview);
-  Handlebars.registerHelper("ai-eff-preview", ai_effect_preview);
-  Handlebars.registerHelper("bonus-eff-preview", bonus_effect_preview);
-  Handlebars.registerHelper("chg-eff-preview", charge_effect_preview);
-  Handlebars.registerHelper("dep-eff-preview", deployable_effect_preview);
-  Handlebars.registerHelper("drn-eff-preview", drone_effect_preview);
-  Handlebars.registerHelper("off-eff-preview", offensive_effect_preview);
-  Handlebars.registerHelper("prf-eff-preview", profile_effect_preview);
-  Handlebars.registerHelper("prot-eff-preview", protocol_effect_preview);
-  Handlebars.registerHelper("rct-eff-preview", reaction_effect_preview);
-  Handlebars.registerHelper("inv-eff-preview", invade_option_preview);
-  Handlebars.registerHelper("tech-eff-preview", tech_effect_preview);
-
-  // ------------------------------------------------------------------------
-  // NPC Effects
-  Handlebars.registerHelper("npc-feat-preview", npc_feature_preview);
-  Handlebars.registerHelper("npc-rct-preview", npc_reaction_effect_preview);
-  Handlebars.registerHelper("npc-sys-preview", npc_system_effect_preview);
-  Handlebars.registerHelper("npc-trait-preview", npc_trait_effect_preview);
-  Handlebars.registerHelper("npc-tech-preview", npc_tech_effect_preview);
-  Handlebars.registerHelper("npc-wpn-preview", npc_weapon_effect_preview);
-  */
-
-  // ------------------------------------------------------------------------
   // Frames
   // Handlebars.registerPartial("core-system", core_system_preview);
 

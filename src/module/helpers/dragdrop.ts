@@ -1,9 +1,9 @@
 import { EntryType, LiveEntryTypes, OpCtx, RegEntry, RegRef } from "machine-mind";
-import { AnyLancerActor, is_actor_type, LancerActor, LancerActorType } from "../actor/lancer-actor";
+import { AnyLancerActor, AnyMMActor, is_actor_type, LancerActor, LancerActorType } from "../actor/lancer-actor";
 import { PACK_SCOPE } from "../compBuilder";
-import { AnyLancerItem, is_item_type, LancerItem, LancerItemType } from "../item/lancer-item";
+import { AnyLancerItem, AnyMMItem, is_item_type, LancerItem, LancerItemType } from "../item/lancer-item";
 import { FoundryReg, FoundryRegName } from "../mm-util/foundry-reg";
-import { get_pack_id, mm_wrap_actor, mm_wrap_item } from "../mm-util/helpers";
+import { FetcherCache, get_pack_id, mm_wrap_actor, mm_wrap_item } from "../mm-util/helpers";
 import { gentle_merge, is_ref, safe_json_parse } from "./commons";
 import { recreate_ref_from_element } from "./refs";
 
@@ -19,6 +19,7 @@ import { recreate_ref_from_element } from "./refs";
  *
  * The second argument is a callback provided with the data for the drag, the dest of the drag, as well as the dragover event.
  * It is called once, on a successful drop
+ * Note that it is guaranteed to have passed the allow_drop function if one was provided
  * Not all of these arguments are usually necessary: remember you can just _ away unused vars
  *
  * The third argument is an optional callback provided with the dest of the drag, as well as the dragover event.
@@ -27,20 +28,21 @@ import { recreate_ref_from_element } from "./refs";
  * The fourth and final argument is an optional callback provided with all info as the drop handler, but also is informed if the mouse is entering or exiting
  * This can be used for fancier on-hover enter/exit visual behavior. It is only called if dropping is permitted on that item
  */
-type DropHandlerFunc = (data: string, drag_dest: JQuery, drop_event: JQuery.DropEvent) => void;
-type AllowDropPredicateFunc = (
+export type AnyDragoverEvent = JQuery.DragOverEvent | JQuery.DragEnterEvent | JQuery.DragLeaveEvent | JQuery.DropEvent;
+export type DropHandlerFunc = (data: string, drag_dest: JQuery, drop_event: JQuery.DropEvent) => void;
+export type AllowDropPredicateFunc = (
   data: string,
   drag_dest: JQuery,
-  dragover_event: JQuery.DragOverEvent | JQuery.DragEnterEvent | JQuery.DragLeaveEvent
+  dragover_event: AnyDragoverEvent
 ) => boolean;
-type HoverHandlerFunc = (
+export type HoverHandlerFunc = (
   mode: "enter" | "leave",
   data: string,
   drag_dest: JQuery,
   drag_event: JQuery.DragEnterEvent | JQuery.DragLeaveEvent
 ) => void;
 
-export function enable_dropping(
+export function HANDLER_enable_dropping(
   items: string | JQuery,
   drop_handler: DropHandlerFunc,
   allow_drop?: AllowDropPredicateFunc,
@@ -116,6 +118,12 @@ export function enable_dropping(
       let data = event.originalEvent?.dataTransfer?.getData("text/plain");
       if (!data) return;
 
+      // Check dropability just to be safe - some event may have trickled down here somehow
+      if(allow_drop && !allow_drop(data, item, event)) {
+        return;
+      }
+
+      // Finally, call our predicate. It can decide to stop propagation if it wishes
       drop_handler(data, item, event);
 
       event.preventDefault();
@@ -233,10 +241,13 @@ export type ResolvedNativeDrop =
     }
   | null;
 
-// Resolves a native foundry actor/item drop event datatransfer to the actual contained item
-export async function resolve_native_drop(event_data: string): Promise<ResolvedNativeDrop> {
+// Resolves a native foundry actor/item drop event datatransfer to the actual contained actor/item/journal
+// This can be annoying, so we made it a dedicated method
+export async function resolve_native_drop(drop: string | {[key: string]: any} | null): Promise<ResolvedNativeDrop> {
   // Get dropped data
-  let drop = safe_json_parse(event_data) as NativeDrop;
+  if(typeof drop == "string") {
+    drop = safe_json_parse(drop) as NativeDrop;
+  }
   if (!drop) return null;
 
   if (drop.type == "Item") {
@@ -384,59 +395,77 @@ export function convert_ref_to_native_drop<T extends EntryType>(ref: RegRef<T>):
   return evt as NativeDrop;
 }
 
-// Wraps a call to enable_dropping to specifically handle RegRef drops.
-// Convenient for if you really only care about the final resolved RegEntry result
+// Wraps a call to enable_dropping to specifically handle both RegRef drops and NativeDrops.
+// Convenient for if you really only care about the final resolved RegEntry result (which is like, 90% of the time)
+// The additional
 // Allows use of hover_handler for styling
-export function enable_simple_ref_dropping(
-  items: string | JQuery,
-  on_drop: (entry: RegEntry<any>, dest: JQuery, evt: JQuery.DropEvent) => void,
-  hover_handler?: HoverHandlerFunc
+// Also enables native ref dropping
+export type AllowMMDropPredicateFunc = (
+  entry: AnyMMActor | AnyMMItem,
+  drag_dest: JQuery,
+  dragover_event: AnyDragoverEvent
+) => boolean;
+
+export function HANDLER_enable_mm_dropping(
+  html_items: string | JQuery,
+  resolver: MMDragResolveCache,
+  can_drop: null | AllowMMDropPredicateFunc,
+  on_drop: (entry: AnyMMItem | AnyMMActor, dest: JQuery, evt: JQuery.DropEvent) => void,
+  hover_handler?: HoverHandlerFunc,
 ) {
-  enable_dropping(
-    items,
-    async (ref_json, dest, evt) => {
-      let recon_ref: any = safe_json_parse(ref_json);
-      let dest_type = dest[0].dataset.type;
+  HANDLER_enable_dropping(
+    html_items,
+    async (data, dest, evt) => {
+      // Resolve the data once more. Should just be cached, otherwise this would never have been permitted
+      let resolved = await resolver.fetch(data);
 
-      // If it isn't a ref, we don't handle
-      if (!is_ref(recon_ref)) {
-        return;
-      }
-
-      // If it doesn't match type, we also don't handle
-      if (dest_type && !dest_type.includes(recon_ref.type)) {
-        return;
-      }
-
-      // It is a ref, so we stop anyone else from handling the drop
-      // (immediate props are fine)
+      // It is guaranteed to be acceptable to our can_drop function and basic type checks, so we
+      // don't want it to propagate any further
       evt.stopPropagation();
 
-      // Resolve the data. Just use a new ctx. Maybe should accept as arg, but lets not overcomplicate
-      let resolved = await new FoundryReg().resolve(new OpCtx(), recon_ref);
       if (resolved) {
         on_drop(resolved, dest, evt);
       } else {
-        console.error("Failed to resolve ref", recon_ref);
+        console.error("Failed to resolve ref. This should never happen at this stage - verify that prior guards are properly validating drop options", data);
       }
     },
 
-    // Allow drop simply checks if it is a ref and that the type matches the type on the elt
-    (data, dest) => {
-      // Parse our drag data as a ref
-      let recon_ref = safe_json_parse(data);
-      if (is_ref(recon_ref)) {
-        let dest_type = dest[0].dataset.type;
-        return (dest_type || "").includes(recon_ref.type); // Simply confirm same type. Using includes allows for multiple types
+    // Allow drop must be synchronous, but we need to fetch async data...
+    // We use the MMResolverCache to handle this! Nice!
+    // When it _is_ done, we can retrieve synchronously from the cache! Nice!
+    (data, dest, evt) => {
+      // Resolve the data if we can, and otherwise spawn a task to do so
+      let [resolved, done] = resolver.sync_fetch(data);
+
+      // We aren't there yet
+      if(!done) {
+        return false;
+      } else if(!resolved) {
+        console.warn("Failed to resolve ref.", data);
+        return false; // Can't drop something that didnt resolve, lol
       }
-      return false;
+
+      // Check that the dest type matches. dest_type must always be provided
+      // Using `includes` allows for multiple types
+      let dest_type = dest[0].dataset.type;
+      if(dest_type && !dest_type.includes(resolved.Type)) {
+        return false;
+      }; 
+
+      // If we have another predicate and it fails, then bail!
+      if(can_drop && !can_drop(resolved, dest, evt)) {
+        return false;
+      }
+
+      // Otherwise, we have received a regentry of the correct type and stuff, so just give it the go-ahead
+      return true;
     },
     hover_handler
   );
 }
 
 // Wraps a call to enable_dragging that attempts to derive a RegRef JSON from the dragged element
-export function enable_simple_ref_dragging(items: string | JQuery, start_stop?: DragStartEndFunc) {
+export function HANDLER_enable_mm_dragging(items: string | JQuery, start_stop?: DragStartEndFunc) {
   enable_dragging(
     items,
     drag_src => {
@@ -452,90 +481,49 @@ export function enable_simple_ref_dragging(items: string | JQuery, start_stop?: 
   );
 }
 
-// Adds a drop handler for native drops, e.x. drag item from the sidebar to a sheet
-export function enable_native_dropping(
-  items: string | JQuery,
-  on_drop: (
-    entity: LancerActor<LancerActorType> | LancerItem<LancerItemType> | JournalEntry,
-    dest: JQuery,
-    evt: JQuery.DropEvent
-  ) => void,
-  allowed_types?: (EntryType | "journal")[] | null, // null implies wildcard. `data-type` always takes precedence
-  hover_handler?: HoverHandlerFunc
-) {
-  enable_dropping(
-    items,
-    async (drop_json, dest, evt) => {
-      // We resolve it as a real item
-      let resolved = await resolve_native_drop(drop_json);
+// This class coordinates the looking-up of raw drag-drop event data such that we can resolve things synchronously, while performing async fetches
+// All entries are resolved to the provided ctx, which effectively provides the true cache of this resolver
+export class MMDragResolveCache { // extends FetcherCache<string, AnyMMActor | AnyMMItem | null> {
+  private cache: FetcherCache<string, AnyMMActor | AnyMMItem | null>;
 
-      // If it doesn't exist, well, darn
-      if (!resolved) {
-        return;
-      }
-      evt.stopPropagation();
+  constructor(private readonly ctx: OpCtx){
+    this.cache = new FetcherCache(30_000, async (key) => {
+      // Get the 
+      let as_json: RegRef<EntryType> | NativeDrop | null = safe_json_parse(key);
+      if(!as_json) return null;
 
-      // Figure out its type
-      let type: EntryType | "journal";
-      if (resolved.type == "JournalEntry") {
-        type = "journal";
+      // Distinguish
+      if(is_ref(as_json)) {
+        // Resolution is simple
+        return new FoundryReg().resolve(this.ctx, as_json);
       } else {
-        type = resolved.entity.data.type;
+        // Resolution is complex but still solved
+        let resolved = await resolve_native_drop(as_json);
+        if(resolved?.type == "Actor")  {
+          return mm_wrap_actor(resolved.entity, this.ctx);
+        } else if(resolved?.type == "Item") {
+          return mm_wrap_item(resolved.entity, this.ctx);
+        } else {
+          return null;
+        }
       }
+    });
+  }
 
-      // Get our actual allowed types, as it can be overriden by data-type
-      let dest_type = dest[0].dataset.type ?? (allowed_types ?? []).join(" ");
+  // Fetch synchronously. Returns either:
+  // [null, false] if the key is not yet cached (but the caching job will be started)
+  // [<value>, true] if the key is cached. Value may still be null
+  sync_fetch(event_transfer_key: string): [AnyMMActor | AnyMMItem | null, boolean] {
+    if(this.cache.has_resolved(event_transfer_key)) {
+      return [this.cache.soft_fetch(event_transfer_key), true];
+    } else {
+      this.cache.fetch(event_transfer_key);
+      return [null, false];
+    }
+  }
 
-      // Now, as far as whether it should really have any effect, that depends on the type
-      if (!dest_type || dest_type.includes(type)) {
-        // We're golden. Call the callback
-        on_drop(resolved.entity, dest, evt);
-      }
-    },
-    (data, dest) => {
-      // We have no idea if we should truly be able to drop here since we don't know what we're dropping
-      // As such, we simply determine that it is in fact a native drag
-      // Having a simple cache resolving the item is possible, but expensive / could potentially bloat really hard
-      // An LRU cache would work? Long term goal, if performance ever becomes a big deal
-      let pdata = safe_json_parse(data) as NativeDrop;
-
-      if (pdata?.id !== undefined && pdata?.type !== undefined) {
-        return true;
-      }
-      return false;
-    },
-    hover_handler
-  );
+  // As above, but waits for values
+  async fetch(event_transfer_key: string): Promise<AnyMMActor | AnyMMItem | null> {
+    return this.cache.fetch(event_transfer_key);
+  }
 }
-
-// Same as above, but wraps in a MM context
-export function enable_native_dropping_mm_wrap<T extends EntryType>(
-  items: string | JQuery,
-  on_drop: (ent: LiveEntryTypes<T>, dest: JQuery, evt: JQuery.DropEvent) => void,
-  allowed_types?: T[] | null, // null implies wildcard. `data-type` always takes precedence
-  hover_handler?: HoverHandlerFunc
-) {
-  enable_native_dropping(
-    items,
-    async (entity, dest, evt) => {
-      // From here, depends slightly on tye
-      let item: LiveEntryTypes<T>;
-      let ent_type = (entity as any).entity;
-      console.error("You meant to investigate this");
-      if (ent_type == "Actor") {
-        item = await mm_wrap_actor(entity as LancerActor<T & LancerActorType>, new OpCtx());
-      } else if (ent_type == "Item") {
-        item = await mm_wrap_item(entity as LancerItem<T & LancerItemType>, new OpCtx());
-      } else {
-        return;
-      }
-
-      // Make callback
-      on_drop(item, dest, evt);
-    },
-    allowed_types,
-    hover_handler
-  );
-}
-/*
- */

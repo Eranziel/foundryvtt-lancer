@@ -2,7 +2,7 @@ import { EntryType, License, LicensedItem, LiveEntryTypes, OpCtx, Pilot, RegEntr
 import { is_actor_type, LancerActor, LancerActorType, LancerMech, LancerPilot } from "../actor/lancer-actor";
 import { PACK_SCOPE } from "../compBuilder";
 import { friendly_entrytype_name } from "../config";
-import { LancerItem, LancerItemType } from "../item/lancer-item";
+import { AnyLancerItem, LancerItem, LancerItemType } from "../item/lancer-item";
 import { FoundryFlagData, FoundryReg, FoundryRegCat } from "./foundry-reg";
 
 // Simple caching mechanism for handling async fetchable values for a certain length of time
@@ -14,19 +14,17 @@ export class FetcherCache<A, T> {
   // Holds the expiration time of specified keys. Repeated access will keep alive for longer
   private timeout_map: Map<A, number> = new Map();
 
-  constructor(private readonly timeout: number | null, private readonly fetch_func: (arg: A) => Promise<T>) {}
+  constructor(private readonly timeout: number, private readonly fetch_func: (arg: A) => Promise<T>) {}
 
   // Fetch the value using the specified arg
   async fetch(arg: A): Promise<T> {
     let now = Date.now();
 
     // Refresh the lookup on our target value (or set it for the first time, depending) ((if we have a timeout))
-    if (this.timeout) {
-      this.timeout_map.set(arg, now + this.timeout);
+    this.timeout_map.set(arg, now + this.timeout);
 
-      // Pre-emptively cleanup
-      this.cleanup();
-    }
+    // Pre-emptively cleanup
+    this.cleanup();
 
     // Check if we have cached data. If so, yield. If not, create
     let cached = this.cached_values.get(arg);
@@ -41,8 +39,18 @@ export class FetcherCache<A, T> {
   }
 
   // Fetch the value iff it is currently cached. Essentially a no-cost peek, useful for editing the cached val without doing a full re-fetch
+  // Refreshes cache time
   soft_fetch(arg: A): T | null {
-    return this.cached_resolved_values.get(arg) ?? null;
+    if(this.cached_resolved_values.has(arg)) {
+      this.timeout_map.set(arg, Date.now() + this.timeout);
+      return this.cached_resolved_values.get(arg)!;
+    }
+    return null;
+  }
+
+  // Do we have this value resolved?
+  has_resolved(arg: A): boolean {
+    return this.cached_resolved_values.has(arg);
   }
 
   // Destroys all entries that should be destroyed
@@ -264,7 +272,7 @@ const world_and_comp_license_cache = new FetcherCache<string, License | null>(
 // Get the owner of an item, or null if none exists
 export function mm_owner<T extends LancerItemType>(item: RegEntry<T>): LancerActor<LancerActorType> | null {
     let flags = item.Flags as FoundryFlagData<T>;
-    let owner = flags.orig_doc.actor;
+    let owner = (flags.orig_doc as AnyLancerItem).actor;
     if(owner) {
       return owner as LancerActor<LancerActorType>;
     } else {

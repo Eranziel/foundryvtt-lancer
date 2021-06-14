@@ -2,17 +2,13 @@ import { LANCER } from "../config";
 import {
   HANDLER_activate_general_controls,
   gentle_merge,
-  is_ref,
   resolve_dotpath,
-  safe_json_parse,
   HANDLER_activate_popout_text_editor,
 } from "../helpers/commons";
 import {
-  enable_native_dropping_mm_wrap,
-  enable_simple_ref_dragging,
-  enable_simple_ref_dropping,
-  NativeDrop,
-  ResolvedNativeDrop,
+  HANDLER_enable_dropping,
+  HANDLER_enable_mm_dropping,
+  MMDragResolveCache,
   resolve_native_drop,
 } from "../helpers/dragdrop";
 import {
@@ -22,24 +18,24 @@ import {
   HANDLER_openRefOnClick as HANDLER_activate_ref_clicking,
 } from "../helpers/refs";
 import { LancerActorSheetData, LancerStatMacroData } from "../interfaces";
-import { AnyLancerItem, LancerMechWeapon, LancerPilotWeapon } from "../item/lancer-item";
-import { LancerActor, LancerActorType } from "./lancer-actor";
+import { AnyLancerItem, AnyMMItem, LancerItemType, LancerMechWeapon, LancerPilotWeapon } from "../item/lancer-item";
+import { AnyLancerActor, AnyMMActor, is_actor_type, LancerActor, LancerActorType } from "./lancer-actor";
 import {
   prepareActivationMacro,
   prepareChargeMacro,
   prepareCoreActiveMacro,
   prepareCorePassiveMacro,
   prepareItemMacro,
-  prepareStatMacro,
   runEncodedMacro,
 } from "../macros";
-import { EntryType, MechSystem, RegEntry } from "machine-mind";
+import { EntryType, LiveEntryTypes, MechSystem, OpCtx, RegEntry } from "machine-mind";
 import { ActivationOptions } from "../enums";
 import { applyCollapseListeners, CollapseHandler } from "../helpers/collapse";
-import { FoundryFlagData } from "../mm-util/foundry-reg";
 import { HANDLER_intercept_form_changes } from "../helpers/refs";
 import { addExportButton } from "../helpers/io";
-import { is_limited, is_loading, is_tagged } from 'machine-mind/dist/classes/mech/EquipUtil';
+import { is_limited, is_tagged } from 'machine-mind/dist/classes/mech/EquipUtil';
+import { FoundryFlagData } from "../mm-util/foundry-reg";
+import { mm_owner } from "../mm-util/helpers";
 const lp = LANCER.log_prefix;
 
 /**
@@ -88,12 +84,13 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     // Enable context menu triggers.
     this._activateContextListeners(html);
 
-    // Make refs droppable
-    HANDLER_activate_ref_drop_setting(html, getfunc, commitfunc);
-    HANDLER_activate_ref_drop_clearing(html, getfunc, commitfunc);
+    // Make our resolver
+    let ctx = this.getCtx();
+    let resolver = new MMDragResolveCache(ctx);
 
-    // Enable native ref drag handlers
-    this._activateNativeRefDropBoxes(html);
+    // Make refs droppable, in such a way that we take ownership when dropped
+    HANDLER_activate_ref_drop_setting(resolver, html, this.can_root_drop_entry, async (x) => (await this.quick_own(x))[0], getfunc, commitfunc);
+    HANDLER_activate_ref_drop_clearing(html, getfunc, commitfunc);
 
     // Enable general controls, so items can be deleted and such
     HANDLER_activate_general_controls(html, getfunc, commitfunc);
@@ -106,7 +103,17 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
 
     // Add export button.
     addExportButton(this.object, html);
+
+    // Add root dropping
+    HANDLER_enable_mm_dropping(
+      html, 
+      resolver,
+      (entry, _dest, _event) => this.can_root_drop_entry(entry),
+      async (entry, _dest, _event) => this.on_root_drop(entry),
+      () => {}
+    );
   }
+
 
   _activateMacroDragging(html: JQuery) {
     const statMacroHandler = (e: DragEvent) => this._onDragMacroableStart(e);
@@ -490,24 +497,6 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     incr.on("click", mod_handler(+1));
   }
 
-  // Enables functionality for converting native foundry drags to be handled by ref drop slots
-  // This is primarily useful for dropping actors onto sheets
-  _activateNativeRefDropBoxes(html: JQuery) {
-    enable_native_dropping_mm_wrap(
-      html.find(".native-refdrop"),
-      async (item, dest, evt) => {
-        // We trust that our outer handlers did all data validation.
-        let path = dest[0].dataset.path!;
-        if (path) {
-          let data = await this.getDataLazy();
-          gentle_merge(data, { [path]: item });
-          await this._commitCurrMM();
-        }
-      },
-      [] // We only accept if data-type set
-    );
-  }
-
   getStatPath(event: any): string | null {
     if (!event.currentTarget) return null;
     // Find the stat input to get the stat's key to pass to the macro function
@@ -547,46 +536,41 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     });
   }
 
-  /**
-   * Converts the data from a DragEvent event into an Item (or actor/journal/whatever) to add to the Actor.
-   * This method does not modify the actor. Sub-classes must override _onDrop to
-   * call super._onDrop and handle the resulting resolved drop
-   * @param event {any}  The DragEvent.
-   * @return The Item or null. Sub-classes must handle adding the Item to the Actor,
-   *   and any other associated work.
-   */
-  async _onDrop(event: any): Promise<ResolvedNativeDrop> {
-    event.preventDefault();
 
-    // Only proceed if user is owner or GM.
-    if (!this.actor.owner && !game.user.isGM) {
-      ui.notifications.warn(`LANCER, you shouldn't try to modify ${this.actor.name}'s loadout. Access Denied.`);
-      return null;
-    }
-
-    // Resolve the drop and delegate to children
-    let raw_drop_data = event.dataTransfer.getData("text/plain") ?? "";
-    let native_drop = await resolve_native_drop(raw_drop_data);
-
-    // Pre-process any drops
-    // Max out uses
-    if(native_drop?.type == "Item" && native_drop.entity.data.data.derived.mm && is_tagged(native_drop.entity.data.data.derived.mm) && is_limited(native_drop.entity.data.data.derived.mm))
-      //@ts-ignore Since we're limited we have uses
-      native_drop.entity.data.data.uses = native_drop.entity.data.data.derived.max_uses;
-    return native_drop;
+  // A grand filter that pre-decides if we can drop an item ref anywhere within this sheet. Should be implemented by child sheets
+  // We generally assume that a global item is droppable if it matches our types, and that an owned item is droppable if it is owned by this actor 
+  // This is more of a permissions/suitability question
+  can_root_drop_entry(item: AnyMMItem | AnyMMActor): boolean {
+    return false;
   }
 
+  // This function is called on any dragged item that percolates down to root without being handled
+  async on_root_drop(item: AnyMMItem | AnyMMActor): Promise<void> {
+  }
 
-  // TODO - Pretty sure this is no longer used
-  async _addOwnedItem(item: Item) {
-    const actor = this.actor as LancerActor<any>;
-    console.log(`${lp} Copying ${item.name} to ${actor.name}.`);
-    const dupData = duplicate(item.data);
-    const newItem = await actor.createOwnedItem(dupData);
-    // Make sure the new item includes all of the data from the original.
-    (dupData as any)._id = newItem._id;
-    await actor.updateOwnedItem(dupData);
-    return Promise.resolve(true);
+  // Override base behavior
+  async _onDrop(evt: any) {
+    return;
+  }
+
+  // Makes us own (or rather, creates an owned copy of) the provided item if we don't already. 
+  // The second return value indicates whether a new copy was made (true), or if we already owned it/it is an actor (false)
+  async quick_own<T extends EntryType>(entry: LiveEntryTypes<T>): Promise<[LiveEntryTypes<T>, boolean]> {
+    // Actors are unaffected
+    if(is_actor_type(entry.Type)) {
+      return [entry, false];
+    }
+
+    if(mm_owner(entry as AnyMMItem) != this.actor) {
+      let sheet_data = await this.getDataLazy();
+      let this_mm = sheet_data.mm;
+      let ctx = this.getCtx();
+      let inv = await this_mm.get_inventory();
+      return [(await entry.insinuate(inv, ctx)) as LiveEntryTypes<T>, true];
+    } else {
+      // Its already owned
+      return [entry, false];
+    }
   }
 
   _propagateMMData(formData: any): any {
@@ -676,11 +660,16 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     console.log("Committing ", this._currData);
     let cd = this._currData;
     this._currData = null;
-    (await cd?.mm.writeback()) ?? null;
+    await cd?.mm.writeback();
 
-    // Compendium entries don't re-draw appropriately
+    // Compendium entries don't re-draw appropriately unless we do this. 0.8 Should fix, hopefully
     if (this.actor.compendium) {
       this.render();
     }
+  }
+
+  // Get the ctx that our actor + its items reside in
+  getCtx(): OpCtx {
+    return (this.actor as AnyLancerActor)._actor_ctx;
   }
 }

@@ -6,18 +6,20 @@ import {
   LiveEntryTypes,
   MountType,
   OpCtx,
+  RegEntry,
   RegRef,
   SystemMount,
   WeaponMod,
   WeaponMount,
   WeaponSlot,
 } from "machine-mind";
-import { mm_wrap_item } from "../mm-util/helpers";
+import { mm_owner, mm_wrap_item } from "../mm-util/helpers";
 import { ResolvedNativeDrop } from "../helpers/dragdrop";
 import { gentle_merge, resolve_dotpath } from "../helpers/commons";
-import { LancerMechWeapon } from "../item/lancer-item";
+import { AnyMMItem, is_item_type, LancerItemType, LancerItemTypes, LancerMechWeapon } from "../item/lancer-item";
 import { Mech, MechWeapon } from "machine-mind";
 import tippy from "tippy.js";
+import { AnyMMActor } from "./lancer-actor";
 
 /**
  * Extend the basic ActorSheet
@@ -65,102 +67,47 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
     });
   }
 
-  // Baseline drop behavior. Let people add stuff to the mech
-  async _onDrop(event: any): Promise<any> {
-    let drop: ResolvedNativeDrop | null = await super._onDrop(event);
-    if (drop?.type != "Item") {
-      return null; // Bail.
+  
+  can_root_drop_entry(item: AnyMMActor | AnyMMItem): boolean {
+    // Reject any non npc / non pilot item
+    if(item.Type == EntryType.PILOT) {
+      // For setting pilot
+      return true;
     }
 
-    // In case we're mounting a mod
-    var mount_slot_path: string | undefined;
-
-    // Prep data
-    let item = drop.entity;
-    const sheet_data = await this.getDataLazy();
-    const this_mm = sheet_data.mm;
-
-    // Check if we can even do anything with it first
-    if (!LANCER.mech_items.includes(item.type)) {
-      ui.notifications.error(`Cannot add Item of type "${item.type}" to a Mech.`);
-      return null;
+    if(LANCER.mech_items.includes(item.Type as LancerItemType)) {
+      // For everything else
+      return true;
     }
+    return false;
+  }
 
-    // Make the context for the item. TODO: make it use existing.
-    const item_mm: LiveEntryTypes<EntryType> = await mm_wrap_item(item, new OpCtx());
+  async on_root_drop(base_drop: AnyMMItem | AnyMMActor): Promise<void> {
+    let sheet_data = await this.getDataLazy();
+    let this_mm = sheet_data.mm;
 
-    // If it's a mod, perform checks to ensure it can be equipped
-
-    if (item_mm.Type === EntryType.WEAPON_MOD) {
-      let equipping_weapon_id = $(event.target).closest(".item")?.data("id");
-      let weapon_path = $(event.target).closest(".item")?.data("path");
-      mount_slot_path = weapon_path.substr(0, weapon_path.lastIndexOf("."));
-
-      // Need to set the path to strip out the sheet-native references
-      mount_slot_path = mount_slot_path?.substr(4);
-
-      if (!equipping_weapon_id) {
-        ui.notifications.error("You dropped a mod onto something that isn't an item!");
-        return;
-      }
-
-      let equipping_weapon = <LancerMechWeapon>this.actor.getOwnedItem(equipping_weapon_id);
-
-      if (!equipping_weapon) {
-        ui.notifications.error("Actor doesn't own the item?");
-        return;
-      }
-
-      if (equipping_weapon.type !== EntryType.MECH_WEAPON) {
-        ui.notifications.error("Can only equip weapon mods to a weapon!");
-        return;
-      }
-
-      if (!mount_slot_path) return;
-
-      let mount_slot = resolve_dotpath(await this.actor.data.data.derived.mm, mount_slot_path);
-
-      // Check can take outputs a string if error, rather than a bool...
-      if (mount_slot.check_can_take(item_mm)) {
-        ui.notifications.error("This mod can't be equipped to this weapon");
-        return;
-      }
-    }
-
-    // Always add the item to the mech, now that we know it is a valid mech posession
-    // Make a new ctx to hold the item and a post-item-add copy of our mech
-    let new_ctx = new OpCtx();
-    let this_inv = await this_mm.get_inventory();
-    let new_live_item = await item_mm.insinuate(this_mm.Registry, new_ctx);
-
-    // Update this, to re-populate arrays etc to reflect new item
-    let new_live_this = (await this_mm.refreshed(new_ctx))!;
+    console.log("Mech dropping");
+    // Take posession
+    let [drop, is_new] = await this.quick_own(base_drop);
 
     // Now, do sensible things with it
-    if (new_live_item.Type === EntryType.FRAME) {
-      // If frame, auto swap with prior frame
-      new_live_this.Loadout.Frame = new_live_item;
+    if (is_new && drop.Type === EntryType.FRAME) {
+      // If new frame, auto swap with prior frame
+      this_mm.Loadout.Frame = drop;
 
       // Reset mounts
-      await new_live_this.Loadout.reset_weapon_mounts();
-    } else if (new_live_item.Type === EntryType.MECH_WEAPON) {
+      await this_mm.Loadout.reset_weapon_mounts();
+    } else if (is_new && drop.Type === EntryType.MECH_WEAPON) {
       // If frame, weapon, put it in an available slot
-      new_live_this.Loadout.equip_weapon(new_live_item);
-    } else if (new_live_item.Type === EntryType.MECH_SYSTEM) {
-      await new_live_this.Loadout.equip_system(new_live_item);
-      //new_live_this.Loadout.equip_system(new_live_item);
-    } else if (new_live_item.Type === EntryType.WEAPON_MOD) {
-      // If it's a mod and we got here, it's valid and we can proceed
-      if (!mount_slot_path) return;
-      let mount_slot: WeaponSlot = resolve_dotpath(new_live_this, mount_slot_path);
-      mount_slot.Mod = item_mm as WeaponMod;
+      await this_mm.Loadout.equip_weapon(drop);
+    } else if (is_new && drop.Type === EntryType.MECH_SYSTEM) {
+      await this_mm.Loadout.equip_system(drop);
+    } else if (drop.Type == EntryType.PILOT) {
+      this_mm.Pilot = drop;
     }
 
     // Writeback when done. Even if nothing explicitly changed, probably good to trigger a redraw (unless this is double-tapping? idk)
-    await new_live_this.writeback();
-
-    // Always return the item if we haven't failed for some reason
-    return item;
+    await this_mm.writeback();
   }
 
   /**

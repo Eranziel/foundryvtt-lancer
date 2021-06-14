@@ -31,7 +31,6 @@ import { renderMacroTemplate, prepareTextMacro } from "../macros";
 import { RegEntry, MechWeapon, NpcFeature } from "machine-mind";
 import { StabOptions1, StabOptions2 } from "../enums";
 import { ActionData } from "../action";
-import { IS_IMPORTING } from "../compBuilder";
 const lp = LANCER.log_prefix;
 
 export function lancerActorInit(base_actor: any, creation_args: any) {
@@ -821,7 +820,6 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         // Delete all old tracked jobs
         for(let k of this._job_tracker.keys()) {
           if(k != job_id) {
-            console.warn("Deleting jobid " + k);
             this._job_tracker.delete(k);
           }
         }

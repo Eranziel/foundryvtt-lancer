@@ -1,6 +1,6 @@
 import { LancerItemSheetData } from "../interfaces";
 import { LANCER } from "../config";
-import { LancerItem, LancerItemType } from "./lancer-item";
+import { AnyLancerItem, LancerItem, LancerItemType } from "./lancer-item";
 import {
   HANDLER_activate_general_controls,
   gentle_merge,
@@ -14,7 +14,7 @@ import {
   HANDLER_add_ref_to_list_on_drop,
   HANDLER_openRefOnClick,
 } from "../helpers/refs";
-import { EntryType } from "machine-mind";
+import { EntryType, OpCtx, Skill, SkillFamily } from "machine-mind";
 import { HANDLER_activate_edit_bonus } from "../helpers/item";
 import { HANDLER_activate_tag_context_menus, HANDLER_activate_tag_dropping } from "../helpers/tags";
 import { CollapseHandler } from "../helpers/collapse";
@@ -22,6 +22,7 @@ import { activate_action_editor } from "../apps/action-editor";
 import { FoundryFlagData } from "../mm-util/foundry-reg";
 import { find_license_for } from "../mm-util/helpers";
 import { LancerMech, LancerPilot } from "../actor/lancer-actor";
+import { MMDragResolveCache } from "../helpers/dragdrop";
 
 const lp = LANCER.log_prefix;
 
@@ -119,11 +120,16 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
 
     let getfunc = () => this.getDataLazy();
     let commitfunc = (_: any) => this._commitCurrMM();
+
+    // Grab pre-existing ctx if available
+    let ctx = this.getCtx() || new OpCtx();
+    let resolver = new MMDragResolveCache(ctx);
+
     // Allow dragging items into lists
-    HANDLER_add_ref_to_list_on_drop(html, getfunc, commitfunc);
+    HANDLER_add_ref_to_list_on_drop(resolver, html, getfunc, commitfunc);
 
     // Allow set things by drop. Mostly we use this for manufacturer/license dragging
-    HANDLER_activate_ref_drop_setting(html, getfunc, commitfunc);
+    HANDLER_activate_ref_drop_setting(resolver, html, null, null, getfunc, commitfunc); // Don't restrict what can be dropped past type, and don't take ownership or whatever
     HANDLER_activate_ref_drop_clearing(html, getfunc, commitfunc);
 
     // Enable bonus editors
@@ -139,7 +145,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
     HANDLER_activate_general_controls(html, getfunc, commitfunc);
 
     // Enable tag dropping
-    HANDLER_activate_tag_dropping(html, getfunc, commitfunc);
+    HANDLER_activate_tag_dropping(resolver, html, getfunc, commitfunc);
 
     // Enable action editors
     activate_action_editor(html, getfunc, commitfunc);
@@ -227,5 +233,11 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
     if (this.item.compendium) {
       this.render();
     }
+  }
+
+  // Get the ctx that our actor + its items reside in. If an unowned item we'll just yield null
+  getCtx(): OpCtx | null{
+    let ctx = (this.item as AnyLancerItem).data.data.derived.mm?.OpCtx;
+    return ctx ?? null;
   }
 }

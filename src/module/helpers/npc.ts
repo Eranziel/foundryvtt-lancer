@@ -73,11 +73,12 @@ export function action_type_selector(a_type: string, data_target: string) {
 }
 
 // TODO: Make this globally consistent
-function del_button(path: string): string {
-  return `<a class="gen-control" data-action="delete" data-path="${path}"><i class="fas fa-trash"></i></a>`;
+function del_button(path: string, options: HelperOptions): string {
+  let trash_action = options.hash["trash-action"] ?? "delete"
+  return `<a class="gen-control" data-action="${trash_action}" data-path="${path}"><i class="fas fa-trash"></i></a>`;
 }
 
-function npc_feature_scaffold(path: string, npc_feature: NpcFeature, body: string) {
+function npc_feature_scaffold(path: string, npc_feature: NpcFeature, body: string, options: HelperOptions) {
   let feature_class = `npc-${npc_feature.FeatureType.toLowerCase()}`;
   let macro_button = "";
   if (npc_feature.FeatureType !== NpcFeatureType.Weapon) {
@@ -89,7 +90,7 @@ function npc_feature_scaffold(path: string, npc_feature: NpcFeature, body: strin
       <i class="cci cci-${npc_feature.FeatureType.toLowerCase()} i--m i--light i--click" data-context-menu="toggle" data-field="Destroyed" data-path="${path}"> </i>
       ${macro_button}
       <span class="minor grow">${npc_feature.Name}</span>
-      ${del_button(path)}
+      ${del_button(path, options)}
     </div>
     ${body}
   </div>`;
@@ -104,7 +105,8 @@ export function npc_reaction_effect_preview(path: string, options: HelperOptions
       ${effect_box("TRIGGER", npc_feature.Trigger)}
       ${effect_box("EFFECT", npc_feature.Effect)}
       ${compact_tag_list(path + ".Tags", npc_feature.Tags, false)}
-    </div>`
+    </div>`,
+    options
   );
 }
 
@@ -119,7 +121,8 @@ function npc_system_trait_effect_preview(path: string, options: HelperOptions) {
       ${npc_feature.Tags.find(tag => tag.Tag.LID === "tg_recharge") ? charged_box(npc_feature.Charged, path) : ""}
       ${effect_box("EFFECT", npc_feature.Effect)}
       ${compact_tag_list(path + ".Tags", npc_feature.Tags, false)}
-    </div>`
+    </div>`,
+    options
   );
 }
 
@@ -171,7 +174,8 @@ export function npc_tech_effect_preview(path: string, options: HelperOptions) {
         ${compact_tag_list(path + ".Tags", npc_feature.Tags, false)}
       </div>
     </div>
-    `
+    `,
+    options
   );
 }
 
@@ -222,6 +226,7 @@ export function npc_weapon_effect_preview(path: string, options: HelperOptions) 
       ${effect_box("EFFECT", npc_feature.Effect)}
       ${compact_tag_list(path + ".Tags", npc_feature.Tags, false)}
     </div>
-    `
+    `,
+    options
   );
 }

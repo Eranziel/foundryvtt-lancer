@@ -2,10 +2,11 @@ import { LancerStatMacroData } from "../interfaces";
 import { LANCER } from "../config";
 import { LancerActorSheet } from "./lancer-actor-sheet";
 import { prepareItemMacro } from "../macros";
-import { EntryType, LiveEntryTypes, OpCtx } from "machine-mind";
-import { ResolvedNativeDrop } from "../helpers/dragdrop";
-import { mm_wrap_item } from "../mm-util/helpers";
+import { EntryType, RegEntry } from "machine-mind";
+import { mm_owner } from "../mm-util/helpers";
 import tippy from "tippy.js";
+import { AnyMMItem, is_item_type, LancerItemType, LancerItemTypes } from "../item/lancer-item";
+import { AnyMMActor } from "./lancer-actor";
 const lp = LANCER.log_prefix;
 
 /**
@@ -175,52 +176,63 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
   }
 
   /* -------------------------------------------- */
-
-  async _onDrop(event: any): Promise<any> {
-    let drop: ResolvedNativeDrop | null = await super._onDrop(event);
-    if (drop?.type != "Item") {
-      return null; // Bail.
+  
+  can_root_drop_entry(item: AnyMMItem | AnyMMActor): boolean {
+    // Reject any non npc item
+    if(!LANCER.npc_items.includes(item.Type as LancerItemType)) {
+      return false;
     }
 
-    const sheet_data = await this.getDataLazy();
-    const this_mm = sheet_data.mm;
-    const item = drop.entity;
+    // Reject any non-null, non-owned-by us item
+    // let owner = mm_owner(item);
+    // return !owner || owner == this.actor;
+    return true;
+  }
 
-    if (!LANCER.npc_items.includes(item.type)) {
-      ui.notifications.error(`Cannot add Item of type "${item.type}" to an NPC.`);
-      return null;
-    }
+  // Take ownership of appropriate items. Already filtered by can_drop_entry
+  async on_root_drop(base_drop: AnyMMItem | AnyMMActor): Promise<void> {
+    let sheet_data = await this.getDataLazy();
+    let this_mm = sheet_data.mm;
+    let ctx = this.getCtx();
 
-    // Make the context for the item. TODO: Make use existing
-    const item_mm: LiveEntryTypes<EntryType> = await mm_wrap_item(item, new OpCtx());
+    console.log("Root dropped", base_drop);
 
-    // Always add the item to the pilot inventory, now that we know it is a valid pilot posession
-    // Make a new ctx to hold the item and a post-item-add copy of our mech
-    let new_ctx = new OpCtx();
-    let this_inv = await this_mm.get_inventory();
-    let new_live_item = await item_mm.insinuate(this_inv, new_ctx);
+    // Take posession
+    let [drop, is_new] = await this.quick_own(base_drop);
 
-    // Go ahead and bring in base features from templates
-    if (new_live_item.Type == EntryType.NPC_TEMPLATE) {
-      for (let b of new_live_item.BaseFeatures) {
-        await b.insinuate(this_inv, new_ctx);
+    // Flag to know if we need to reset stats
+    let needs_refresh = false;
+
+    // Bring in base features from templates
+    if (is_new && drop.Type == EntryType.NPC_TEMPLATE) {
+      let this_inv = await this_mm.get_inventory();
+      for (let feat of drop.BaseFeatures) {
+        await feat.insinuate(this_inv, ctx);
       }
-    }
-    if (new_live_item.Type == EntryType.NPC_CLASS && !this_mm.ActiveClass) {
-      // Only bring in everything if we don't already have a class
-      for (let b of new_live_item.BaseFeatures) {
-        await b.insinuate(this_inv, new_ctx);
+      needs_refresh = true;
+    } else if (is_new && drop.Type == EntryType.NPC_CLASS && !this_mm.ActiveClass) {
+      // Bring in base features from classes, if we don't already have an active class
+      let this_inv = await this_mm.get_inventory();
+      for (let b of drop.BaseFeatures) {
+        await b.insinuate(this_inv, ctx);
       }
+      needs_refresh = true;
+    } else if (is_new && drop.Type == EntryType.NPC_FEATURE) {
+      // Features need no special work, but we do need to update stats
+      needs_refresh = true;
     }
 
-    // Update this, to re-populate arrays etc to reflect new item
-    let new_live_this = (await this_mm.refreshed(new_ctx))!;
+    // If a new item was added, fill our hp, stress, and structure to match new maxes
+    if(needs_refresh) {
+      // Update this, to re-populate arrays etc to reflect new item
+      await this_mm.repopulate_inventory();
+      this_mm.recompute_bonuses();
 
-    // Fill our hp, stress, and structure to match new maxes
-    new_live_this.CurrentHP = new_live_this.MaxHP;
-    new_live_this.CurrentStress = new_live_this.MaxStress;
-    new_live_this.CurrentStructure = new_live_this.MaxStructure;
-    await new_live_this.writeback();
+      this_mm.CurrentHP = this_mm.MaxHP;
+      this_mm.CurrentStress = this_mm.MaxStress;
+      this_mm.CurrentStructure = this_mm.MaxStructure;
+      await this_mm.writeback();
+    }
   }
 }
 
