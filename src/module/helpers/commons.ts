@@ -23,7 +23,7 @@ import {
   Counter,
 } from "machine-mind";
 import { HTMLEditDialog } from "../apps/text-editor";
-import { LancerActorSheetData, LancerItemSheetData } from "../interfaces";
+import { GenControlContext, LancerActorSheetData, LancerItemSheetData } from "../interfaces";
 
 import { Deployable, WeaponType, ActivationType } from "machine-mind";
 
@@ -295,77 +295,102 @@ export function ext_helper_hash(
  * all using a similar api: a `path` to the item, and an `action` to perform on that item. In some cases, a `val` will be used
  *
  * The data getter and commit func are used to retrieve the target data, and to save it back (respectively)
+ * 
+ * The post_hook function is just run after all logic has been finished. It is provided the context object.
+ * It has no influence on the behavior of the operation, but can nonetheless be useful for augmenting other behaviors.
+ * (e.x. to delete associated entities when remove buttons cleared)
  */
-export function HANDLER_activate_general_controls<T extends LancerActorSheetData<any> | LancerItemSheetData<any>>(
+ export function HANDLER_activate_general_controls<T extends LancerActorSheetData<any> | LancerItemSheetData<any>>(
   html: JQuery,
   // Retrieves the data that we will operate on
   data_getter: () => Promise<T> | T,
-  commit_func: (data: T) => void | Promise<void>
+  commit_func: (data: T) => void | Promise<void>,
+  post_hook?: (ctrl_info: GenControlContext<T>) => any
 ) {
   html.find(".gen-control").on("click", async (event: any) => {
-    // Get the id/action
     event.stopPropagation();
-    const elt = event.currentTarget;
-    const path = elt.dataset.path;
-    const action = elt.dataset.action;
-    const data = await data_getter();
-    const raw_val: string = elt.dataset.actionValue ?? "";
-    const item_override: string = elt.dataset.commitItem ?? "";
 
-    if (!path || !data) {
+    // Collect the raw information / perform initial conversions
+    let elt = event.currentTarget;
+    let item_override_path = elt.dataset.commitItem;
+    let raw_val = elt.dataset.actionValue;
+
+    let data = await data_getter();
+    let value: any = undefined;
+    if(raw_val) {
+      let result = await parse_control_val(raw_val ?? "", data.mm);
+      let success = result[0];
+      value = result[1];
+      if (!success) {
+        console.error(`Gen control failed: Bad data-action-value: ${raw_val}`);
+        return; // Bad arg - no effect
+      }
+    }
+
+    // Construct our ctx
+    let ctx: GenControlContext<T> = {
+      // Base
+      elt,
+      path: elt.dataset.path,
+      action: elt.dataset.action,
+      raw_val: elt.dataset.actionValue,
+      item_override_path,
+      commit_func,
+
+      // Derived
+      data,
+      item_override: item_override_path ? resolve_dotpath(data, item_override_path) : null,
+      parsed_val: value
+    };
+
+    // Check our less reliably fetchable data
+    if (!ctx.path) {
       console.error("Gen control failed: missing path");
-    } else if (!action) {
+    } else if (!ctx.action) {
       console.error("Gen control failed: missing action");
     } else if (!data) {
       console.error("Gen control failed: data could not be retrieved");
     }
 
-    if (action == "delete") {
+    // Perform action
+    if (ctx.action == "delete") {
       // Find and delete the item at that path
-      let item = resolve_dotpath(data, path) as RegEntry<any>;
-      return item.destroy_entry();
-    } else if (action == "splice") {
+      let item = resolve_dotpath(ctx.data, ctx.path) as RegEntry<any>;
+      item.destroy_entry();
+    } else if (ctx.action == "splice") {
       // Splice out the value at path dest, then writeback
-      array_path_edit(data, path, null, "delete");
-    } else if (action == "null") {
+      array_path_edit(ctx.data, ctx.path, null, "delete");
+    } else if (ctx.action == "null") {
       // Null out the target space
-      gentle_merge(data, { [path]: null });
-    } else if (["set", "append", "insert"].includes(action)) {
-      let result = await parse_control_val(raw_val, data.mm);
-      let success = result[0];
-      let value = result[1];
-      if (!success) {
-        console.warn(`Bad data-action-value: ${value}`);
-        return; // Bad arg - no effect
-      }
-
-      // Multiplex with our parsed actions
-      switch (action) {
-        case "set":
-          gentle_merge(data, { [path]: value });
-          break;
-        case "append":
-          array_path_edit(data, path + "[-1]", value, "insert");
-          break;
-        case "insert":
-          array_path_edit(data, path, value, "insert");
-          break;
-      }
+      gentle_merge(ctx.data, { [ctx.path]: null });
+    } else if (ctx.action == "set") {
+      // Set the target space
+      gentle_merge(ctx.data, { [ctx.path]: value });
+    } else if (ctx.action == "append") {
+      // Append to target array 
+      array_path_edit(ctx.data, ctx.path + "[-1]", value, "insert");
+    } else if (ctx.action == "insert") {
+      // insert into target array 
+      array_path_edit(ctx.data, ctx.path + "[-1]", value, "insert");
     } else {
-      console.error("Unhandled action: " + action);
+      console.error("Unknown gen control action: " + ctx.action);
     }
 
     // Handle writing back our changes
-    if (item_override) {
-      let item = resolve_dotpath(data, item_override);
+    if (ctx.item_override_path) {
       try {
-        await item.writeback();
+        await ctx.item_override!.writeback();
       } catch (e) {
-        console.error(`Failed to writeback item at path "${item_override}"`);
+        console.error(`Failed to writeback item at path "${ctx.item_override_path}"`, e);
         return;
       }
     } else {
-      await commit_func(data);
+      await commit_func(ctx.data);
+    }
+
+    // Post hook if necessary
+    if(post_hook) {
+      post_hook(ctx);
     }
   });
 }

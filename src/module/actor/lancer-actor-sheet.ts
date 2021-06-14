@@ -21,9 +21,9 @@ import {
   HANDLER_activate_ref_drop_setting,
   HANDLER_openRefOnClick as HANDLER_activate_ref_clicking,
 } from "../helpers/refs";
-import { LancerActorSheetData, LancerStatMacroData } from "../interfaces";
-import { AnyLancerItem, LancerMechWeapon, LancerPilotWeapon } from "../item/lancer-item";
-import { LancerActor, LancerActorType } from "./lancer-actor";
+import { GenControlContext, LancerActorSheetData, LancerStatMacroData } from "../interfaces";
+import { AnyLancerItem, LancerMechWeapon, LancerPilotWeapon } from '../item/lancer-item';
+import { is_npc, is_reg_npc, LancerActor, LancerActorType } from "./lancer-actor";
 import {
   prepareActivationMacro,
   prepareChargeMacro,
@@ -33,7 +33,7 @@ import {
   prepareStatMacro,
   runEncodedMacro,
 } from "../macros";
-import { EntryType, MechSystem, RegEntry } from "machine-mind";
+import { EntryType, MechSystem, Npc, NpcClass, RegEntry, RegNpcData, NpcFeature, finding_iterate } from 'machine-mind';
 import { ActivationOptions } from "../enums";
 import { applyCollapseListeners, CollapseHandler } from "../helpers/collapse";
 import { FoundryFlagData } from "../mm-util/foundry-reg";
@@ -94,6 +94,11 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
 
     // Enable native ref drag handlers
     this._activateNativeRefDropBoxes(html);
+
+    // Enable NPC class-deletion controls
+    let classWrapper = $(html).find(".class-wrapper")
+
+    HANDLER_activate_general_controls(classWrapper, getfunc, commitfunc, handleClassDelete);
 
     // Enable general controls, so items can be deleted and such
     HANDLER_activate_general_controls(html, getfunc, commitfunc);
@@ -681,6 +686,26 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     // Compendium entries don't re-draw appropriately
     if (this.actor.compendium) {
       this.render();
+    }
+  }
+}
+
+function handleClassDelete(ctx: GenControlContext<LancerActorSheetData<any>>): undefined {
+  if(is_reg_npc(ctx.data.mm)) {
+    let features: NpcFeature[] = resolve_dotpath(ctx.data, ctx.path).BaseFeatures;
+    let npc = ctx.data.mm;
+    removeFeaturesFromNPC(npc,features);
+  } 
+  return;
+}
+
+export function removeFeaturesFromNPC(npc: Npc, features: NpcFeature[]) {
+  // Gross...
+  for (let i = 0; i < features.length; i++) {
+    for (let j = 0; j < npc.Features.length; j++) {
+      if(features[i].LID === npc.Features[j].LID) {
+        npc.Features[j].destroy_entry();
+      }
     }
   }
 }

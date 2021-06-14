@@ -1,8 +1,8 @@
-import { LancerStatMacroData } from "../interfaces";
+import { GenControlContext, LancerStatMacroData } from "../interfaces";
 import { LANCER } from "../config";
-import { LancerActorSheet } from "./lancer-actor-sheet";
+import { LancerActorSheet, removeFeaturesFromNPC } from "./lancer-actor-sheet";
 import { prepareItemMacro } from "../macros";
-import { EntryType, LiveEntryTypes, OpCtx } from "machine-mind";
+import { EntryType, LiveEntryTypes, Npc, NpcClass, NpcFeature, OpCtx, RegNpcData } from "machine-mind";
 import { ResolvedNativeDrop } from "../helpers/dragdrop";
 import { mm_wrap_item } from "../mm-util/helpers";
 import tippy from "tippy.js";
@@ -80,27 +80,6 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
       // Trigger rollers
       this.activateTriggerListeners(html);
 
-      /*
-      // Weapon rollers
-      let weaponMacro = html.find(".roll-attack");
-      weaponMacro.on("click", (ev: Event) => {
-        if (!ev.currentTarget) return; // No target, let other handlers take care of it.
-        ev.stopPropagation(); // Avoids triggering parent event handlers
-
-        const weaponElement = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
-        // console.log(weaponElement);
-        const weaponId = weaponElement.getAttribute("data-id");
-        if (!weaponId) return ui.notifications.warn(`Error rolling macro: No weapon ID!`);
-        const item = this.actor.getOwnedItem(weaponId);
-        if (!item)
-          return ui.notifications.warn(
-            `Error rolling macro: Couldn't find weapon with ID ${weaponId}.`
-          );
-
-        const weapon = item as LancerNpcFeature;
-        game.lancer.prepareItemMacro(this.actor._id, weapon._id);
-      });*/
-
       // Tech rollers
       let techMacro = html.find(".roll-tech");
       techMacro.on("click", (ev: Event) => {
@@ -110,9 +89,7 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
         let techId = techElement.getAttribute("data-id");
         game.lancer.prepareItemMacro(this.actor._id, techId!);
       });
-    }
-    // @ts-ignore .8
-    if (this.actor.isOwner) {
+
       // Item/Macroable Dragging
       const haseMacroHandler = (e: DragEvent) => this._onDragMacroableStart(e);
       html
@@ -126,25 +103,6 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
             item.addEventListener("dragstart", (ev: DragEvent) => this._onDragStart(ev), false);
           item.setAttribute("draggable", "true");
         });
-
-      // Change tier
-      /*
-      let tier_selector = html.find('select.tier-control[data-action*="update"]');
-      tier_selector.on("change", async (ev: Event) => {
-        if (!ev.currentTarget) return; // No target, let other handlers take care of it.
-        ev.stopPropagation();
-        let tier = (ev.currentTarget as HTMLSelectElement).selectedOptions[0].value;
-        await this.actor.update({ "data.tier": tier });
-        // Set Values for
-        let actor = this.actor;
-        let NPCClassStats: any;
-        NPCClassStats = (actor.items.find((i: Item) => i.type === EntryType.NPC_CLASS) as any).data
-          .data.stats;
-        console.log(`${lp} TIER Swap with ${tier} and ${NPCClassStats}`);
-        console.log(`disabled!!!`);
-        // await actor.swapNPCClassOrTier(NPCClassStats, false, tier);
-      });
-      */
     }
 
     this._activateTooltips();
@@ -198,16 +156,28 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
     // Make a new ctx to hold the item and a post-item-add copy of our mech
     let new_ctx = new OpCtx();
     let this_inv = await this_mm.get_inventory();
-    let new_live_item = await item_mm.insinuate(this_inv, new_ctx);
 
-    // Go ahead and bring in base features from templates
-    if (new_live_item.Type == EntryType.NPC_TEMPLATE) {
-      for (let b of new_live_item.BaseFeatures) {
+    // If it's a class and we already have one, we need to swap--otherwise, easy to add
+    if (item_mm.Type == EntryType.NPC_CLASS) {
+      if(this_mm.ActiveClass){
+        // If we have a class, get rid of it
+        removeFeaturesFromNPC(this_mm,this_mm.ActiveClass.BaseFeatures);
+        this_mm.ActiveClass.destroy_entry();
+        for (let i = 0; i < this_mm.Classes.length; i++) {
+          this_mm.Classes[i].destroy_entry();          
+        }
+      }
+      // Should now always be good to add the base features
+      for (let b of item_mm.BaseFeatures) {
         await b.insinuate(this_inv, new_ctx);
       }
     }
-    if (new_live_item.Type == EntryType.NPC_CLASS && !this_mm.ActiveClass) {
-      // Only bring in everything if we don't already have a class
+
+    // Insinuate after cleaning up the old class if necessary, and do other processing
+    let new_live_item = await item_mm.insinuate(this_inv, new_ctx);
+
+    // Go ahead and bring in base features from templates if it's that
+    if (new_live_item.Type == EntryType.NPC_TEMPLATE) {
       for (let b of new_live_item.BaseFeatures) {
         await b.insinuate(this_inv, new_ctx);
       }

@@ -164,9 +164,6 @@ export class LancerNPCClassSheet extends LancerItemSheet<EntryType.NPC_CLASS> {
     });
   }
 
-  // TODO:
-  // * Make trash can work
-
   /**
    * Adds the given item ID as a feature to the class
    * @param featID      String ID of the feature to add
