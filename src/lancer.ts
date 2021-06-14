@@ -148,12 +148,6 @@ Hooks.once("init", async function () {
   }
   console.log(`${lp} Sanity check passed, continuing with initialization.`);
 
-  // Do not continue with system initialization if it needs migration from 0.1.x
-  if ((await versionCheck()) < 0) {
-    console.log(`${lp} Skipping init to let migration run.`);
-    return;
-  }
-
   configureAmplify();
 
   // Assign custom classes and constants here
@@ -540,11 +534,11 @@ export const system_ready: Promise<void> = new Promise(success => {
     Hooks.on("preUpdateCombat", handleCombatUpdate);
 
     // Wait for sanity check to complete.
-    let ready: boolean = false;
-    while (!ready) {
-      await sleep(1000);
-      ready = game.lancer?.finishedInit;
-    }
+    // let ready: boolean = false;
+    // while (!ready) {
+    //   await sleep(1000);
+    //   ready = game.lancer?.finishedInit;
+    // }
     console.log(`${lp} Foundry ready, doing final checks.`);
 
     await doMigration();
