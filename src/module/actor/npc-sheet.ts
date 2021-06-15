@@ -166,7 +166,7 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
         await feat.insinuate(this_inv, ctx);
       }
       needs_refresh = true;
-    } else if (is_new && drop.Type == EntryType.NPC_CLASS && !this_mm.ActiveClass) {
+    } else if (is_new && drop.Type == EntryType.NPC_CLASS) {
       // Bring in base features from classes, if we don't already have an active class
       let this_inv = await this_mm.get_inventory();
 
