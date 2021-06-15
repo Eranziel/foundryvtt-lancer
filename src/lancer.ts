@@ -130,6 +130,7 @@ import {
 import { applyCollapseListeners } from "./module/helpers/collapse";
 import { handleCombatUpdate } from "./module/helpers/automation/combat";
 import { handleActorExport, validForExport } from "./module/helpers/io";
+import { runEncodedMacro, prepareTextMacro } from './module/macros';
 
 const lp = LANCER.log_prefix;
 
@@ -625,6 +626,12 @@ Hooks.on("renderChatMessage", async (cm: ChatMessage, html: any, data: any) => {
       });
     }
   }
+
+  html.find(".chat-button").on("click", (ev: MouseEvent) => {
+    ev.stopPropagation();
+    let element = ev.target as HTMLElement;
+    runEncodedMacro($(element));
+  })
 });
 
 Hooks.on("hotbarDrop", (_bar: any, data: any, slot: number) => {

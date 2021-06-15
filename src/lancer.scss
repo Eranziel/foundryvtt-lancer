@@ -2145,3 +2145,8 @@ div[data-tab=system] > .settings-list > div:nth-last-child(-n+4) {
   width: fit-content !important;
   color: white !important;
 }
+
+.chat-macro-button {
+  max-width: 60%;
+  align-self: center;
+}

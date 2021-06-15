@@ -74,6 +74,18 @@ export function encodeMacroData(macroData: LancerMacroData): string {
   return btoa(encodeURI(JSON.stringify(macroData)));
 }
 
+export async function runEncodedMacro(el: JQuery<HTMLElement>) {
+  let encoded = el.attr("data-macro");
+
+  if (!encoded) throw Error("No macro data available");
+  let data: LancerMacroData = JSON.parse(decodeURI(atob(encoded)));
+
+  let command = data.command;
+
+  // Some might say eval is bad, but it's no worse than what we can already do with macros
+  eval(command);
+}
+
 export async function onHotbarDrop(_bar: any, data: any, slot: number) {
   // We set an associated command & title based off the type
   // Everything else gets handled elsewhere
@@ -514,7 +526,7 @@ async function rollStatMacro(actor: Actor, data: LancerStatMacroData) {
   // Do the roll
   let acc_str = acc != 0 ? ` + ${acc}d6kh1` : "";
   // @ts-ignore .8
-  let roll = await new Roll(`1d20+${data.bonus}${acc_str}`).evaluate({ async: true });
+  let roll = await new Roll(`1d20+${data.bonus || 0}${acc_str}`).evaluate({ async: true });
 
   const roll_tt = await roll.getTooltip();
 
@@ -1424,18 +1436,6 @@ async function _prepareDeployableMacro(actorEnt: Mech, itemEnt: MechSystem | Npc
   let dep = itemEnt.Deployables[index];
 
   await renderMacroHTML(actorEnt.Flags.orig_doc, buildDeployableHTML(dep, true));
-}
-
-export function runEncodedMacro(el: JQuery<HTMLElement>) {
-  let encoded = el.attr("data-macro");
-
-  if (!encoded) throw Error("No macro data available");
-  let data: LancerMacroData = JSON.parse(decodeURI(atob(encoded)));
-
-  let command = data.command;
-
-  // Some might say eval is bad, but it's no worse than what we can already do with macros
-  eval(command);
 }
 
 export async function fullRepairMacro(a: string) {

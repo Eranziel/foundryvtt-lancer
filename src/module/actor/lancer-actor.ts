@@ -26,12 +26,13 @@ import { LancerHooks, LancerSubscription } from "../helpers/hooks";
 import { mm_wrap_actor } from "../mm-util/helpers";
 import { system_ready } from "../../lancer";
 import { LancerItemType } from "../item/lancer-item";
-import { renderMacroTemplate, prepareTextMacro } from "../macros";
+import { renderMacroTemplate, prepareTextMacro, encodeMacroData } from "../macros";
 import { RegEntry, MechWeapon, NpcFeature } from "machine-mind";
 import { StabOptions1, StabOptions2 } from "../enums";
 import { limited_max, is_loading } from "machine-mind/dist/classes/mech/EquipUtil";
 import { ActionData } from "../action";
 import { handleActorExport } from "../helpers/io";
+import { LancerMacroData } from "../interfaces";
 const lp = LANCER.log_prefix;
 
 export function lancerActorInit(base_actor: any, creation_args: any) {
@@ -215,6 +216,8 @@ export class LancerActor<T extends LancerActorType> extends Actor {
       let text = stressTableD(result, remStress);
       let total = roll.total.toString();
 
+      let secondaryRoll = "";
+
       // Critical
       // This is fine
       //@ts-ignore
@@ -225,6 +228,15 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         text = stressTableD(result, 1);
         title = stressTableT[0];
         total = "Multiple Ones";
+      } else {
+        if(result === 1 && remStress === 2) {
+          let macroData = encodeMacroData({
+            command: `game.lancer.prepareStatMacro("${ent.RegistryID}","mm.Eng");`,
+            title: "Engineering",
+          });
+
+          secondaryRoll = `<button class="chat-macro-button"><a class="chat-button" data-macro="${macroData}"><i class="fas fa-dice-d20"></i> Engineering</a></button>`;
+        }
       }
       templateData = {
         val: ent.CurrentStress,
@@ -234,6 +246,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         total: total,
         text: text,
         roll: roll,
+        secondaryRoll: secondaryRoll
       };
     } else {
       // You ded
@@ -278,7 +291,6 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         case 1:
           switch (remStruct) {
             case 2:
-              // Choosing not to auto-roll the checks to keep the suspense up
               return "Roll a HULL check. On a success, your mech is STUNNED until the end of your next turn. On a failure, your mech is destroyed.";
             case 1:
               return "Your mech is destroyed.";
@@ -288,7 +300,6 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         case 2:
         case 3:
         case 4:
-          // Idk, should this auto-roll?
           return "Parts of your mech are torn off by the damage. Roll 1d6. On a 1–3, all weapons on one mount of your choice are destroyed; on a 4–6, a system of your choice is destroyed. LIMITED systems and weapons that are out of charges are not valid choices. If there are no valid choices remaining, it becomes the other result. If there are no valid systems or weapons remaining, this result becomes a DIRECT HIT instead.";
         case 5:
         case 6:
@@ -338,6 +349,8 @@ export class LancerActor<T extends LancerActorType> extends Actor {
       let text = structTableD(result, remStruct);
       let total = roll.total.toString();
 
+      let secondaryRoll = "";
+
       // Crushing hits
       // This is fine
       //@ts-ignore
@@ -348,6 +361,49 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         text = structTableD(result, 1);
         title = structTableT[0];
         total = "Multiple Ones";
+      } else {
+        if(result === 1 && remStruct === 2) {
+          let macroData = encodeMacroData({
+            command: `game.lancer.prepareStatMacro("${ent.RegistryID}","mm.Hull");`,
+            title: "Hull",
+          });
+
+          secondaryRoll = `<button class="chat-macro-button"><a class="chat-button" data-macro="${macroData}"><i class="fas fa-dice-d20"></i>Hull</a></button>`;
+        } else if (result >= 2 && result <= 4) {
+          let macroData = encodeMacroData({
+            // TODO: Should create a "prepareRollMacro" or something to handle generic roll-based macros
+            // Since we can't change prepareTextMacro too much or break everyone's macros
+            command: `
+            let roll = new Roll('1d6').evaluate({async: false});
+            let result = roll.total;
+            if(result<=3) { 
+              game.lancer.prepareTextMacro("${ent.RegistryID}","Destroy Weapons",\`
+              <div class="dice-roll lancer-dice-roll">
+                <div class="dice-result">
+                  <div class="dice-formula lancer-dice-formula flexrow">
+                    <span style="text-align: left; margin-left: 5px;">\${ roll.formula }</span>
+                    <span class="dice-total lancer-dice-total major">\${ result }</span>
+                  </div>
+                </div>
+              </div>
+              <span>On a 1–3, all weapons on one mount of your choice are destroyed</span>\`);
+            } else {
+              game.lancer.prepareTextMacro("${ent.RegistryID}","Destroy Systems",\`
+              <div class="dice-roll lancer-dice-roll">
+                <div class="dice-result">
+                  <div class="dice-formula lancer-dice-formula flexrow">
+                    <span style="text-align: left; margin-left: 5px;">\${ roll.formula }</span>
+                    <span class="dice-total lancer-dice-total major">\${ result }</span>
+                  </div>
+                </div>
+              </div>
+              <span>On a 4–6, a system of your choice is destroyed</span>\`);
+            }`,
+            title: "Roll for Destruction",
+          });
+
+          secondaryRoll = `<button class="chat-macro-button"><a class="chat-button" data-macro="${macroData}"><i class="fas fa-dice-d20"></i>Destroy</a></button>`;
+        }
       }
       templateData = {
         val: ent.CurrentStructure,
@@ -357,6 +413,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         total: total,
         text: text,
         roll: roll,
+        secondaryRoll: secondaryRoll
       };
     } else {
       // You ded
