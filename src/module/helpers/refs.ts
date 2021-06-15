@@ -41,7 +41,7 @@ import {
 import {
   convert_ref_to_native_drop,
   AllowMMDropPredicateFunc,
-  enable_dragging,
+  HANDLER_enable_dragging,
   HANDLER_enable_mm_dragging,
   HANDLER_enable_mm_dropping,
   MMDragResolveCache,
@@ -541,7 +541,7 @@ export function HANDLER_activate_ref_dragging(html: JQuery) {
 // Enables dragging of ref cards (or anything with .ref.valid and the appropriate fields) marked with ".native-drag", converting the dragged item to a native foundry ref
 export function HANDLER_activate_native_ref_dragging(html: JQuery) {
   // Allow refs to be dragged arbitrarily
-  enable_dragging(html.find(".ref.valid.native-drag"), drag_src => {
+  HANDLER_enable_dragging(html.find(".ref.valid.native-drag"), drag_src => {
     // Drag a JSON ref
     let ref = recreate_ref_from_element(drag_src[0]);
     let native = ref ? convert_ref_to_native_drop(ref) : null;

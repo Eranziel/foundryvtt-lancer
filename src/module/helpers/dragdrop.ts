@@ -144,7 +144,7 @@ type DragStartEndFunc = (
   event: JQuery.DragStartEvent | JQuery.DragEndEvent
 ) => void;
 // type AllowDragFunc = (drag_source: JQuery, event: JQuery.DragStartEvent | JQuery.DragEndEvent) => void;
-export function enable_dragging(
+export function HANDLER_enable_dragging(
   items: string | JQuery,
   data_transfer_func: DragDeriveDataFunc,
   start_stop_func?: DragStartEndFunc
@@ -466,7 +466,7 @@ export function HANDLER_enable_mm_dropping(
 
 // Wraps a call to enable_dragging that attempts to derive a RegRef JSON from the dragged element
 export function HANDLER_enable_mm_dragging(items: string | JQuery, start_stop?: DragStartEndFunc) {
-  enable_dragging(
+  HANDLER_enable_dragging(
     items,
     drag_src => {
       // Drag a JSON ref
