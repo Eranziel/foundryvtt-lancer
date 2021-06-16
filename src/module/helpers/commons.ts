@@ -116,6 +116,17 @@ export function array_path_edit(target: any, flat_path: string, value: any, mode
   }
 }
 
+export function arrayify_object(in_obj: any) {
+  const out_arr = [];
+  for (const [key, value] of Object.entries(in_obj)) {
+    if (!isNaN(parseInt(key))) {
+      out_arr.push(value);
+    }
+  }
+  console.log(in_obj, out_arr);
+  return out_arr;
+}
+
 /** Makes many icons in the same format with ease an icon */
 export class IconFactory {
   // Applied to each icon
@@ -521,7 +532,6 @@ function std_input(path: string, type: string, options: HelperOptions) {
     return input;
   }
 }
-
 
 // input type="string" isn't styled by foundry, but input type="text" is
 // that's not a great reason to keep both of them, but it is the reason we have
