@@ -695,9 +695,9 @@ export class LancerActor<T extends LancerActorType> extends Actor {
             return dest_deployables.find(dd => {
               let dd_folder_id: string = dd.Flags.orig_doc.data.folder;
               console.log(
-                "Checking folder: " + dd.Name + " has folder id " + dd_folder_id + " which ?== " + unit_folder!.id
+                "Checking folder: " + dd.Name + " has folder id " + dd_folder_id + " which ?== " + unit_folder?.id
               );
-              if (dd_folder_id != unit_folder!.id) {
+              if (dd_folder_id != unit_folder?.id) {
                 return false;
               }
 
