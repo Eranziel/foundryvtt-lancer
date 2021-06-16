@@ -307,7 +307,7 @@ export function ext_helper_hash(
   commit_func: (data: T) => void | Promise<void>,
   post_hook?: (ctrl_info: GenControlContext<T>) => any
 ) {
-  html.find(".gen-control").on("click", async (event: any) => {
+  html.find(".gen-control").off("click").on("click", async (event: any) => {
     event.stopPropagation();
 
     // Collect the raw information / perform initial conversions

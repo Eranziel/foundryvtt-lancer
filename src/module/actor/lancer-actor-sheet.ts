@@ -91,13 +91,12 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     HANDLER_activate_ref_drop_setting(resolver, html, this.can_root_drop_entry, async (x) => (await this.quick_own(x))[0], getfunc, commitfunc);
     HANDLER_activate_ref_drop_clearing(html, getfunc, commitfunc);
 
-    // Enable NPC class-deletion controls
-    let classWrapper = $(html).find(".class-wrapper")
-
-    HANDLER_activate_general_controls(classWrapper, getfunc, commitfunc, handleClassDelete);
-
     // Enable general controls, so items can be deleted and such
     HANDLER_activate_general_controls(html, getfunc, commitfunc);
+
+    // Enable NPC class-deletion controls
+    let classWrapper = $(html).find(".class-wrapper")
+    HANDLER_activate_general_controls(classWrapper, getfunc, commitfunc, handleClassDelete);
 
     // Item-referencing inputs
     HANDLER_intercept_form_changes(html, getfunc);
