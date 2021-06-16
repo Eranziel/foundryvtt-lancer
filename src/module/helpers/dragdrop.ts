@@ -413,6 +413,14 @@ export function HANDLER_enable_mm_dropping(
   on_drop: (entry: AnyMMItem | AnyMMActor, dest: JQuery, evt: JQuery.DropEvent) => void,
   hover_handler?: HoverHandlerFunc,
 ) {
+  // Make a helper for checking dest dataset
+  const check_targ_type = (ent: RegEntry<any>, elt: JQuery<HTMLElement>) => {
+    // Check that the dest type matches. dest_type must always be provided
+    // Using `includes` allows for multiple types
+    let dest_type = elt[0].dataset.type;
+    return !dest_type || dest_type.includes(ent.Type);
+  };
+
   HANDLER_enable_dropping(
     html_items,
     async (data, dest, evt) => {
@@ -424,6 +432,16 @@ export function HANDLER_enable_mm_dropping(
       evt.stopPropagation();
 
       if (resolved) {
+        // Check type
+        if(!check_targ_type(resolved, dest)) {
+          return false;
+        }
+
+        // If we have another predicate and it fails, then bail!
+        if(can_drop && !can_drop(resolved, dest, evt)) {
+          return false;
+        }
+
         on_drop(resolved, dest, evt);
       } else {
         console.error("Failed to resolve ref. This should never happen at this stage - verify that prior guards are properly validating drop options", data);
@@ -439,18 +457,16 @@ export function HANDLER_enable_mm_dropping(
 
       // We aren't there yet
       if(!done) {
-        return false;
+        return true; // Note - this allows dropping unresolved items! We allow this for particularly speedy users. We therefore need to check can_drop again in actual drop func
       } else if(!resolved) {
         console.warn("Failed to resolve ref.", data);
         return false; // Can't drop something that didnt resolve, lol
       }
 
-      // Check that the dest type matches. dest_type must always be provided
-      // Using `includes` allows for multiple types
-      let dest_type = dest[0].dataset.type;
-      if(dest_type && !dest_type.includes(resolved.Type)) {
+      // Check type
+      if(!check_targ_type(resolved, dest)) {
         return false;
-      }; 
+      }
 
       // If we have another predicate and it fails, then bail!
       if(can_drop && !can_drop(resolved, dest, evt)) {
@@ -526,4 +542,13 @@ export class MMDragResolveCache { // extends FetcherCache<string, AnyMMActor | A
   async fetch(event_transfer_key: string): Promise<AnyMMActor | AnyMMItem | null> {
     return this.cache.fetch(event_transfer_key);
   }
+}
+
+// Needed for chrome, but also lets us do some nice stuff
+export const GlobalMMDragState = {
+
+
+  // dragging_listeners():
+  // listen_
+
 }
