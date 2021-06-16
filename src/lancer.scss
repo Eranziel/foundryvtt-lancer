@@ -707,6 +707,9 @@ tr.lcp-index-header {
 .ref-list-append {
   visibility: hidden;
 }
+.editable .ref-list-append {
+  visibility: visible;
+}
 
 /* But if they are a valid drop target, we do! */
 .ref-list-append.highlight-can-drop {

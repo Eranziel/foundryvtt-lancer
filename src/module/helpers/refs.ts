@@ -486,7 +486,7 @@ export function mm_ref_list_append_slot(item_array_path: string, allowed_types: 
     <div class="ref ref-card ref-list-append ${allowed_types}" 
             data-path="${item_array_path}" 
             data-type="${allowed_types}">
-      <span class="major">Add an item</span>
+      <span class="major">Drop to add item</span>
     </div>`;
 }
 
