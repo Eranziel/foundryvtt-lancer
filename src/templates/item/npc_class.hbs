@@ -39,7 +39,7 @@
     </div>
 
     {{#each mm.BaseFeatures as |feature feature_index|}}
-        {{{npc-feat-preview (concat "mm.BaseFeatures." feature_index) }}}
+        {{{npc-feat-preview (concat "mm.BaseFeatures." feature_index) trash-action="splice" }}}
     {{/each}}
     {{{ref-mm-list-item-append "mm.BaseFeatures" "npc_feature"}}}
   </div>
@@ -50,7 +50,7 @@
     </div>
 
     {{#each mm.OptionalFeatures as |feature feature_index|}}
-        {{{npc-feat-preview (concat "mm.OptionalFeatures." feature_index) }}}
+        {{{npc-feat-preview (concat "mm.OptionalFeatures." feature_index) trash-action="splice" }}}
     {{/each}}
     {{{ref-mm-list-item-append "mm.OptionalFeatures" "npc_feature"}}}
   </div>

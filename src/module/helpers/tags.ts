@@ -1,12 +1,7 @@
-import { HelperOptions } from "handlebars";
-import { EntryType, TagInstance, typed_lancer_data } from "machine-mind";
+import { EntryType, TagInstance, TagTemplate, typed_lancer_data } from "machine-mind";
 import { array_path_edit, resolve_dotpath, resolve_helper_dotpath } from "./commons";
 import { LancerActorSheetData, LancerItemSheetData } from "../interfaces";
-import {
-  enable_native_dropping,
-  enable_native_dropping_mm_wrap,
-  enable_simple_ref_dropping,
-} from "./dragdrop";
+import { HANDLER_enable_mm_dropping, MMDragResolveCache } from "./dragdrop";
 import { ref_params } from "./refs";
 
 const TAGS = typed_lancer_data.tags;
@@ -241,20 +236,23 @@ export function chunky_tag(tag_path: string, helper: HelperOptions): string {
 // Explicitly designed to handle natives. Generates a tag instance corresponding to that native, with a default value of 1
 // Follows conventional HANDLER design patterns
 export function HANDLER_activate_tag_dropping<T>(
+  resolver: MMDragResolveCache,
   html: JQuery,
   // Retrieves the data that we will operate on
   data_getter: () => Promise<T> | T,
   commit_func: (data: T) => void | Promise<void>
 ) {
-  enable_native_dropping_mm_wrap(
+  HANDLER_enable_mm_dropping(
     html.find(".tag-list-append"),
+    resolver,
+    (ent) => ent.Type == EntryType.TAG,
     async (tag_ent, dest, evt) => {
       // Well, we got a drop!
       let path = dest[0].dataset.path!;
       if (path) {
         // Make an instance of the tag
         let tag_instance = new TagInstance(tag_ent.Registry, tag_ent.OpCtx, {
-          tag: tag_ent.as_ref(),
+          tag: (tag_ent as TagTemplate).as_ref(),
           val: 1,
         });
         await tag_instance.load_done();
@@ -265,7 +263,13 @@ export function HANDLER_activate_tag_dropping<T>(
         await commit_func(data);
       }
     },
-    [EntryType.TAG],
-    undefined
+    (mode, data, target) => {
+      // Make it glow I guess
+      if (mode == "enter") {
+        $(target).addClass("highlight-can-drop");
+      } else {
+        $(target).removeClass("highlight-can-drop");
+      }
+    }
   );
 }

@@ -32,7 +32,7 @@
     "style-loader": "^2.0.0",
     "ts-loader": "^8.2.0",
     "tslib": "^1.14.1",
-    "typescript": "^3.9.9",
+    "typescript": "^4.3.2",
     "webpack-stream": "^6.1.2",
     "yargs": "^15.4.1"
   },
@@ -41,7 +41,7 @@
     "@types/marked": "^1.2.1",
     "aws-amplify": "^4.0.3",
     "compare-versions": "^3.6.0",
-    "machine-mind": "0.2.0-beta.106",
+    "machine-mind": "0.2.0-beta.113",
     "marked": "^2.0.3",
     "tippy.js": "^6.3.1"
   }

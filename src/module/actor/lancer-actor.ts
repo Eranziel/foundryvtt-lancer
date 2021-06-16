@@ -20,8 +20,9 @@ import {
   WeaponMod,
   PackedPilotData,
   quick_relinker,
+  RegEntryTypes,
 } from "machine-mind";
-import { FoundryFlagData, FoundryReg, FoundryRegActorData, FoundryRegItemData } from "../mm-util/foundry-reg";
+import { FoundryFlagData, FoundryReg, FoundryRegActorData } from "../mm-util/foundry-reg";
 import { LancerHooks, LancerSubscription } from "../helpers/hooks";
 import { mm_wrap_actor } from "../mm-util/helpers";
 import { system_ready } from "../../lancer";
@@ -29,7 +30,6 @@ import { LancerItemType } from "../item/lancer-item";
 import { renderMacroTemplate, prepareTextMacro, encodeMacroData } from "../macros";
 import { RegEntry, MechWeapon, NpcFeature } from "machine-mind";
 import { StabOptions1, StabOptions2 } from "../enums";
-import { limited_max, is_loading } from "machine-mind/dist/classes/mech/EquipUtil";
 import { ActionData } from "../action";
 import { handleActorExport } from "../helpers/io";
 import { LancerMacroData } from "../interfaces";
@@ -114,6 +114,8 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         evasion: number;
         edef: number;
         save_target: number;
+        speed: number;
+        armor: number;
         // todo - bonuses and stuff. How to allow for accuracy?
       };
     };
@@ -624,6 +626,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
     return return_text;
   }
 
+  // Imports an old-style compcon pilot sync code
   async importCC(data: PackedPilotData, clearFirst = false) {
     if (this.data.type !== "pilot") {
       return;
@@ -668,16 +671,9 @@ export class LancerActor<T extends LancerActorType> extends Actor {
       }
 
       // Setup registries
-      let ps1 = new FoundryReg({
-        // We look for missing items in world first
-        item_source: ["world", null],
-        actor_source: "world",
-      });
-      let ps2 = new FoundryReg({
-        // We look for missing items in compendium second
-        item_source: ["compendium", null],
-        actor_source: "compendium",
-      });
+      // We look for missing items in world first, compendium second
+      let ps1 = new FoundryReg("game");
+      let ps2 = new FoundryReg("comp_core");
 
       // Setup relinker to be folder bound for actors
       let base_relinker = quick_relinker<any>({
@@ -781,12 +777,27 @@ export class LancerActor<T extends LancerActorType> extends Actor {
     super.prepareEmbeddedEntities();
   }
 
+  // Use this to prevent race conditions
+  private _current_prepare_job_id!: number;
+  private _job_tracker!: Map<number, Promise<AnyMMActor>>;
+
   /** @override
    * We need to both:
    *  - Re-generate all of our subscriptions
    *  - Re-initialize our MM context
    */
   prepareDerivedData() {
+    // If no id, leave
+    if(!this.id) return;
+
+    // Track which prepare iteration this is
+    if(this._current_prepare_job_id == undefined) {
+      this._current_prepare_job_id = 0;
+      this._job_tracker = new Map();
+    }
+    this._current_prepare_job_id++;
+    let job_id = this._current_prepare_job_id;
+
     // Reset subscriptions for new data
     this.setupLancerHooks();
 
@@ -801,27 +812,50 @@ export class LancerActor<T extends LancerActorType> extends Actor {
     });
 
     // Prepare our derived stat data by first initializing an empty obj
-    dr = {
-      edef: 0,
-      evasion: 0,
-      save_target: 0,
-      current_heat: default_bounded(),
-      current_hp: default_bounded(),
-      overshield: default_bounded(),
-      current_structure: default_bounded(),
-      current_stress: default_bounded(),
-      current_repairs: default_bounded(),
-      mm: null as any, // we will set these momentarily
-      mm_promise: null as any, // we will set these momentarily
-    };
-
     // Add into our wip data structure
-    this.data.data.derived = dr;
+
+    // If no value at present, set this up. Better than nothing
+    if(!this.data.data.derived) {
+      dr = {
+        edef: 0,
+        evasion: 0,
+        save_target: 0,
+        speed: 0,
+        armor: 0,
+        current_heat: default_bounded(),
+        current_hp: default_bounded(),
+        overshield: default_bounded(),
+        current_structure: default_bounded(),
+        current_stress: default_bounded(),
+        current_repairs: default_bounded(),
+        mm: null, // we will set these momentarily
+        mm_promise: null as any, // we will set these momentarily
+      };
+      this.data.data.derived = dr;
+    } else {
+      // Otherwise, grab existing
+      dr = this.data.data.derived;
+    }
+
+    // Update our known values now, synchronously. 
+    dr.current_hp.value = this.data.data.current_hp
+    if(this.data.type != EntryType.PILOT) {
+      let md = this.data.data as RegEntryTypes<EntryType.MECH | EntryType.NPC | EntryType.DEPLOYABLE>;
+      dr.current_heat.value = md.current_heat;
+      if(this.data.type != EntryType.DEPLOYABLE) {
+        let md = this.data.data as RegEntryTypes<EntryType.MECH | EntryType.NPC>;
+        dr.current_stress.value = md.current_stress;
+        dr.current_structure.value = md.current_structure;
+      }
+    }
+
+    // Break these out of this scope to avoid weird race scoping
+    let actor_ctx = this._actor_ctx;
 
     // Begin the task of wrapping our actor. When done, it will setup our derived fields - namely, our max values
     // Need to wait for system ready to avoid having this break if prepareData called during init step (spoiler alert - it is)
-    let mm_promise = system_ready
-      .then(() => mm_wrap_actor(this, this._actor_ctx))
+    dr.mm_promise = system_ready
+      .then(() => mm_wrap_actor(this, actor_ctx))
       .catch(async e => {
         // This is 90% of the time a token not being able to resolve itself due to canvas not loading yet
         console.warn("Token unable to prepare - hopefully trying again when canvas ready. In meantime, using dummy");
@@ -835,13 +869,22 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         return ent;
       })
       .then(mm => {
+        // If our job ticker doesnt match, then another prepared object has usurped us in setting these values. 
+        // We return this elevated promise, so anyone waiting on this task instead waits on the most up to date one
+        if(job_id != this._current_prepare_job_id) {
+          return this._job_tracker.get(this._current_prepare_job_id)! as any; // This will definitely be a different promise
+        }
+
+        // Delete all old tracked jobs
+        for(let k of this._job_tracker.keys()) {
+          if(k != job_id) {
+            this._job_tracker.delete(k);
+          }
+        }
+
         // Always save the context
         // Save the context via defineProperty so it does not show up in JSON stringifies. Also, no point in having it writeable
-        Object.defineProperty(dr, "mm", {
-          value: mm,
-          configurable: true,
-          enumerable: false,
-        });
+        dr.mm = mm;
 
         // Changes in max-hp should heal the actor. But certain requirements must be met
         // - Must know prior (would be in dr.current_hp.max). If 0, do nothing
@@ -872,6 +915,8 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         // Set the general props. ALl actors have at least these
         dr.edef = mm.EDefense;
         dr.evasion = mm.Evasion;
+        dr.speed = mm.Speed;
+        dr.armor = mm.Armor;
 
         dr.current_hp.value = mm.CurrentHP;
         dr.current_hp.max = mm.MaxHP;
@@ -925,13 +970,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
 
         return mm;
       });
-
-    // Also assign the promise via defineProperty, similarly to prevent enumerability
-    Object.defineProperty(dr, "mm_promise", {
-      value: mm_promise,
-      configurable: true,
-      enumerable: false,
-    });
+      this._job_tracker.set(job_id, dr.mm_promise);
   }
 
   /** @override

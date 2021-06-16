@@ -1,8 +1,8 @@
 import { LANCER, replace_default_resource } from "../config";
 import { LancerActorSheet } from "./lancer-actor-sheet";
-import { Deployable, EntryType, LiveEntryTypes, Mech, OpCtx, Pilot } from "machine-mind";
+import { Deployable, EntryType, LiveEntryTypes, Mech, OpCtx, Pilot, RegEntry } from "machine-mind";
 import { FoundryFlagData, FoundryReg } from "../mm-util/foundry-reg";
-import { mm_wrap_item } from "../mm-util/helpers";
+import { mm_owner, mm_wrap_item } from "../mm-util/helpers";
 import { funcs, quick_relinker } from "machine-mind";
 import { ResolvedNativeDrop } from "../helpers/dragdrop";
 import { HelperOptions } from "handlebars";
@@ -10,8 +10,9 @@ import { buildCounterHTML } from "../helpers/item";
 import { LancerActorSheetData } from "../interfaces";
 import { ref_commons, ref_params, simple_mm_ref } from "../helpers/refs";
 import { resolve_dotpath } from "../helpers/commons";
-import { LancerActor } from "./lancer-actor";
+import { AnyMMActor, LancerActor } from "./lancer-actor";
 import { fetchPilot, pilotNames } from "../compcon";
+import { AnyMMItem, LancerItemType } from "../item/lancer-item";
 
 const lp = LANCER.log_prefix;
 
@@ -141,6 +142,73 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
     }
 
     return data;
+  } 
+  
+  // Pilots can handle most stuff
+  can_root_drop_entry(item: AnyMMActor | AnyMMItem): boolean {
+    // Accept mechs, so as to change their actor
+    if(item.Type == EntryType.MECH) {
+      return true;
+    }
+
+    // Accept non pilot item
+    if(LANCER.pilot_items.includes(item.Type as LancerItemType)) {
+      return true;
+    }
+
+    // Reject anything else
+    return false;
+  }
+
+  async on_root_drop(base_drop: AnyMMItem | AnyMMActor): Promise<void> {
+    let sheet_data = await this.getDataLazy();
+    let this_mm = sheet_data.mm;
+
+    // Take posession
+    let [drop, is_new] = await this.quick_own(base_drop);
+
+    // Now, do sensible things with it
+    let loadout = this_mm.Loadout;
+    if (is_new && drop.Type === EntryType.PILOT_WEAPON) {
+      // If new weapon, try to equip to first empty slot
+      for (let i = 0; i < loadout.Weapons.length; i++) {
+        if (!loadout.Weapons[i]) {
+          loadout.Weapons[i] = drop;
+          break;
+        }
+      }
+    } else if (is_new && drop.Type === EntryType.PILOT_GEAR) {
+      // If new gear, try to equip to first empty slot
+      for (let i = 0; i < loadout.Gear.length; i++) {
+        if (!loadout.Gear[i]) {
+          loadout.Gear[i] = drop;
+          break;
+        }
+      }
+    } else if (is_new && drop.Type === EntryType.PILOT_ARMOR) {
+      // If new armor, try to equip to first empty slot
+      for (let i = 0; i < loadout.Armor.length; i++) {
+        if (!loadout.Gear[i]) {
+          loadout.Armor[i] = drop;
+          break;
+        }
+      }
+    } else if (is_new && drop.Type === EntryType.SKILL || drop.Type == EntryType.TALENT) {
+      // If new skill or talent, reset to level 1
+      drop.CurrentRank = 1;
+      await drop.writeback(); // Since we're editing the item, we gotta do this
+    } else if(drop.Type === EntryType.MECH) {
+      // Set active mech
+      this_mm.ActiveMechRef = drop.as_ref();
+      if(drop.Pilot?.RegistryID != this_mm.RegistryID) {
+        // Also set the mechs pilot if necessary
+        drop.Pilot = this_mm;
+        drop.writeback();
+      }
+    }
+
+    // Writeback when done. Even if nothing explicitly changed, probably good to trigger a redraw
+    await this_mm.writeback();
   }
 
   async _commitCurrMM() {
@@ -152,86 +220,6 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
       this._currData.mm.CloudID = this._currData.vaultID || this._currData.gistID || "";
     }
     return super._commitCurrMM()
-  }
-
-  // Baseline drop behavior. Let people add stuff to the pilot
-  async _onDrop(event: any): Promise<any> {
-    let drop: ResolvedNativeDrop | null = await super._onDrop(event);
-    if (!(drop?.type === "Item" || drop?.type === "Actor")) {
-      return null; // Bail.
-    }
-
-    const sheet_data = await this.getDataLazy();
-    const this_mm = sheet_data.mm;
-
-    if (drop?.type === "Item") {
-      const item = drop.entity;
-
-      // Check if we can even do anything with it first
-      if (!LANCER.pilot_items.includes(item.type)) {
-        ui.notifications.error(`Cannot add Item of type "${item.type}" to a Pilot.`);
-        return null;
-      }
-
-      // Make the context for the item
-      const item_mm: LiveEntryTypes<EntryType> = await mm_wrap_item(item, new OpCtx());
-
-      // Always add the item to the pilot inventory, now that we know it is a valid pilot posession
-      // Make a new ctx to hold the item and a post-item-add copy of our mech
-      let new_ctx = new OpCtx();
-      let this_inv = await this_mm.get_inventory();
-      let new_live_item = await item_mm.insinuate(this_inv, new_ctx);
-
-      // Update this, to re-populate arrays etc to reflect new item
-      let new_live_this = (await this_mm.refreshed(new_ctx))!;
-
-      // Now, do sensible things with it
-      let loadout = new_live_this.Loadout;
-      if (new_live_item.Type === EntryType.PILOT_WEAPON) {
-        // If weapon, try to equip to first empty slot
-        for (let i = 0; i < loadout.Weapons.length; i++) {
-          if (!loadout.Weapons[i]) {
-            loadout.Weapons[i] = new_live_item;
-            break;
-          }
-        }
-      } else if (new_live_item.Type === EntryType.PILOT_GEAR) {
-        // If gear, try to equip to first empty slot
-        for (let i = 0; i < loadout.Gear.length; i++) {
-          if (!loadout.Gear[i]) {
-            loadout.Gear[i] = new_live_item;
-            break;
-          }
-        }
-      } else if (new_live_item.Type === EntryType.PILOT_ARMOR) {
-        // If armor, try to equip to first empty slot
-        for (let i = 0; i < loadout.Armor.length; i++) {
-          if (!loadout.Gear[i]) {
-            loadout.Armor[i] = new_live_item;
-            break;
-          }
-        }
-      } else if (new_live_item.Type === EntryType.SKILL || new_live_item.Type == EntryType.TALENT) {
-        // If skill or talent, reset to level 1
-        new_live_item.CurrentRank = 1;
-        await new_live_item.writeback(); // Since we're editing the item, we gotta do this
-      }
-
-      // Most other things we really don't need to do anything with
-
-      // Writeback when done. Even if nothing explicitly changed, probably good to trigger a redraw (unless this is double-tapping? idk)
-      await new_live_this.writeback();
-
-      // Always return the item if we haven't failed for some reason
-      return item;
-    } else if (drop?.type === "Actor") {
-      if (drop.entity.data.type != "mech") return null;
-      const mech = drop.entity.data.data.derived.mm as Mech;
-
-      this_mm.ActiveMechRef = mech.as_ref();
-
-      this_mm.writeback();
-    }
   }
 
   /* -------------------------------------------- */

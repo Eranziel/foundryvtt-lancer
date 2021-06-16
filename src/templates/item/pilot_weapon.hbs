@@ -16,10 +16,10 @@
       {{{item-edit-arrayed-damage       "mm.Damage"    "DAMAGE"}}}
     </div>
     <div class="flexrow">
-      {{#if mm.IsLoading}}
+      {{#if (is-loading mm)}}
         {{{ std-checkbox "mm.Loaded" label="LOADED:" }}}
       {{/if}}
-      {{#if mm.IsLimited}}
+      {{#if (is-limited mm)}}
         {{{item-edit-uses "mm.Uses" "data.derived.max_uses"}}}
       {{/if}}
     </div>

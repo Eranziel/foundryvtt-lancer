@@ -3,9 +3,9 @@ import { LANCER } from "../config";
 import { LancerActorSheet, removeFeaturesFromNPC } from "./lancer-actor-sheet";
 import { prepareItemMacro } from "../macros";
 import { EntryType, LiveEntryTypes, Npc, NpcClass, NpcFeature, OpCtx, RegNpcData } from "machine-mind";
-import { ResolvedNativeDrop } from "../helpers/dragdrop";
-import { mm_wrap_item } from "../mm-util/helpers";
 import tippy from "tippy.js";
+import { AnyMMItem, is_item_type, LancerItemType, LancerItemTypes } from "../item/lancer-item";
+import { AnyMMActor } from "./lancer-actor";
 const lp = LANCER.log_prefix;
 
 /**
@@ -133,64 +133,70 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
   }
 
   /* -------------------------------------------- */
-
-  async _onDrop(event: any): Promise<any> {
-    let drop: ResolvedNativeDrop | null = await super._onDrop(event);
-    if (drop?.type != "Item") {
-      return null; // Bail.
+  
+  can_root_drop_entry(item: AnyMMItem | AnyMMActor): boolean {
+    // Reject any non npc item
+    if(!LANCER.npc_items.includes(item.Type as LancerItemType)) {
+      return false;
     }
 
-    const sheet_data = await this.getDataLazy();
-    const this_mm = sheet_data.mm;
-    const item = drop.entity;
+    // Reject any non-null, non-owned-by us item
+    // let owner = mm_owner(item);
+    // return !owner || owner == this.actor;
+    return true;
+  }
 
-    if (!LANCER.npc_items.includes(item.type)) {
-      ui.notifications.error(`Cannot add Item of type "${item.type}" to an NPC.`);
-      return null;
-    }
+  // Take ownership of appropriate items. Already filtered by can_drop_entry
+  async on_root_drop(base_drop: AnyMMItem | AnyMMActor): Promise<void> {
+    let sheet_data = await this.getDataLazy();
+    let this_mm = sheet_data.mm;
+    let ctx = this.getCtx();
 
-    // Make the context for the item. TODO: Make use existing
-    const item_mm: LiveEntryTypes<EntryType> = await mm_wrap_item(item, new OpCtx());
 
-    // Always add the item to the pilot inventory, now that we know it is a valid pilot posession
-    // Make a new ctx to hold the item and a post-item-add copy of our mech
-    let new_ctx = new OpCtx();
-    let this_inv = await this_mm.get_inventory();
+    // Take posession
+    let [drop, is_new] = await this.quick_own(base_drop);
 
-    // If it's a class and we already have one, we need to swap--otherwise, easy to add
-    if (item_mm.Type == EntryType.NPC_CLASS) {
-      if(this_mm.ActiveClass){
+    // Flag to know if we need to reset stats
+    let needs_refresh = false;
+
+    // Bring in base features from templates
+    if (is_new && drop.Type == EntryType.NPC_TEMPLATE) {
+      let this_inv = await this_mm.get_inventory();
+      for (let feat of drop.BaseFeatures) {
+        await feat.insinuate(this_inv, ctx);
+      }
+      needs_refresh = true;
+    } else if (is_new && drop.Type == EntryType.NPC_CLASS) {
+      // Bring in base features from classes, if we don't already have an active class
+      let this_inv = await this_mm.get_inventory();
+
+      // But before we do that, destroy all old classes
+      for(let clazz of this_mm.Classes) {
         // If we have a class, get rid of it
-        removeFeaturesFromNPC(this_mm,this_mm.ActiveClass.BaseFeatures);
-        this_mm.ActiveClass.destroy_entry();
-        for (let i = 0; i < this_mm.Classes.length; i++) {
-          this_mm.Classes[i].destroy_entry();          
-        }
+        await removeFeaturesFromNPC(this_mm, [...clazz.BaseFeatures, ...clazz.OptionalFeatures]);
+        await clazz.destroy_entry();
       }
-      // Should now always be good to add the base features
-      for (let b of item_mm.BaseFeatures) {
-        await b.insinuate(this_inv, new_ctx);
-      }
+
+      for (let b of drop.BaseFeatures) {
+        await b.insinuate(this_inv, ctx);
+      }      
+      needs_refresh = true;
+    } else if (is_new && drop.Type == EntryType.NPC_FEATURE) {
+      // Features need no special work, but we do need to update stats
+      needs_refresh = true;
     }
 
-    // Insinuate after cleaning up the old class if necessary, and do other processing
-    let new_live_item = await item_mm.insinuate(this_inv, new_ctx);
+    // If a new item was added, fill our hp, stress, and structure to match new maxes
+    if(needs_refresh) {
+      // Update this, to re-populate arrays etc to reflect new item
+      await this_mm.repopulate_inventory();
+      this_mm.recompute_bonuses();
 
-    // Go ahead and bring in base features from templates if it's that
-    if (new_live_item.Type == EntryType.NPC_TEMPLATE) {
-      for (let b of new_live_item.BaseFeatures) {
-        await b.insinuate(this_inv, new_ctx);
-      }
+      this_mm.CurrentHP = this_mm.MaxHP;
+      this_mm.CurrentStress = this_mm.MaxStress;
+      this_mm.CurrentStructure = this_mm.MaxStructure;
+      await this_mm.writeback();
     }
-
-    // Update this, to re-populate arrays etc to reflect new item
-    let new_live_this = (await this_mm.refreshed(new_ctx))!;
-
-    // Fill our hp, stress, and structure to match new maxes
-    new_live_this.CurrentHP = new_live_this.MaxHP;
-    new_live_this.CurrentStress = new_live_this.MaxStress;
-    new_live_this.CurrentStructure = new_live_this.MaxStructure;
-    await new_live_this.writeback();
   }
 }
 

@@ -1,6 +1,7 @@
 // Import TypeScript modules
 import { LANCER } from "./config";
 import {
+  AnyLancerItem,
   LancerCoreBonus,
   LancerItem,
   LancerMechWeaponData,
@@ -35,38 +36,21 @@ import {
   MechWeaponProfile,
   NpcFeature,
   OpCtx,
-  PackedNpcDamageData,
   PackedDamageData,
   Damage,
-  TagTemplate,
-  SerUtil,
-  PackedNpcTechData,
-  NpcTechType,
-  RegNpcData,
   RegNpcTechData,
-  RegMechSystemData,
   MechSystem,
-  Action,
   Mech,
-  Deployable,
-  SystemType,
   ActivationType,
   funcs,
 } from "machine-mind";
-import { resolve_native_drop, convert_ref_to_native } from "./helpers/dragdrop";
-import { stringify } from "querystring";
-import { FoundryReg, FoundryRegItemData } from "./mm-util/foundry-reg";
-import { resolve_dotpath } from "./helpers/commons";
-import { mm_wrap_actor } from "./mm-util/helpers";
-import { debug } from "console";
-import { LancerItemType, LancerMechSystemData, LancerMechSystem } from "./item/lancer-item";
-import { compact_tag_list } from "./helpers/tags";
+import { FoundryFlagData, FoundryReg, FoundryRegItemData } from "./mm-util/foundry-reg";
+import { is_ref, resolve_dotpath } from "./helpers/commons";
 import { buildActionHTML, buildDeployableHTML, buildSystemHTML } from "./helpers/item";
-import { System } from "pixi.js";
 import { ActivationOptions, StabOptions1, StabOptions2 } from "./enums";
 import { applyCollapseListeners, uuid4 } from "./helpers/collapse";
 import { checkForHit, getTargets } from "./helpers/automation/targeting";
-import { calcAccDiff, AccDiffFlag, tagsToFlags, toggleCover, updateTotals } from "./helpers/acc_diff";
+import { AccDiffFlag, tagsToFlags, toggleCover, updateTotals } from "./helpers/acc_diff";
 
 const lp = LANCER.log_prefix;
 
@@ -108,22 +92,23 @@ export async function onHotbarDrop(_bar: any, data: any, slot: number) {
     console.log(`${lp} Data dropped on hotbar:`, data);
 
     // Determine if we're using old or new method
+    let actorId: string;
     if ("actorId" in data) {
-      var actorId = data.actorId;
-
       title = data.title;
       itemId = data.itemId;
-    } else {
-      var item = <any>await new FoundryReg().resolve(new OpCtx(), data);
+      actorId = data.actorId;
+    } else if(is_ref(data)) {
+      var item = await new FoundryReg().resolve(new OpCtx(), data);
       title = item.Name;
 
       if (!item) return;
 
-      // Is this the way to handle this? Idk, but the only other option I see is changing dragdrop
-      // Pilot ID is encoded in reg_name...
-      // TODO: There's got to be a better way
-      var actorId = data["reg_name"].split("|")[0].split(":")[1];
+      let orig_doc = (item.Flags as FoundryFlagData).orig_doc;
+      // @ts-ignore 0.8
+      actorId = orig_doc.actor?.id ?? "error";
       itemId = data.id;
+    } else {
+      return;
     }
 
     switch (data.type) {
@@ -626,36 +611,34 @@ async function prepareAttackMacro({
     mData.overkill = weaponData.Tags.find(tag => tag.Tag.LID === "tg_overkill") !== undefined;
     mData.effect = weaponData.Effect;
   } else if (actor.data.type === EntryType.NPC) {
-    let tier: number;
-    if (item.actor === null) {
-      tier = actor.data.data.tier;
+    const mm: NpcFeature = item.data.data.derived.mm;
+    let tier_index: number = mm.TierOverride;
+    if(!mm.TierOverride) {
+      if (item.actor === null) {
+        // Use selected actor
+        tier_index = actor.data.data.tier - 1;
+      } else {
+        // Use provided actor
+        tier_index = item.actor.data.data.tier - 1;
+      }
     } else {
-      tier = item.actor.data.data.tier;
+      // Fix to be index
+      tier_index--;
     }
 
-    let wData = item.data.data;
-    mData.loaded = item.data.data.loaded;
+    mData.loaded = mm.Loaded;
     // mData.destroyed = item.data.data.destroyed; TODO: NPC weapons don't seem to have a destroyed field
     // This can be a string... but can also be a number...
-    mData.grit = Number(wData.attack_bonus[tier - 1]);
-    mData.acc = wData.accuracy[tier - 1];
-    // Reduce damage values to only this tier
-    // Convert to new Damage type if it's old
-    if (wData.damage && wData.damage.length)
-      mData.damage = wData.damage[tier - 1].map((d: Damage | PackedDamageData) => {
-        if ("type" in d && "val" in d) {
-          // Then this is an old damage type which only contains these two values
-          return new Damage({ type: d.type, val: d.val.toString() });
-        } else {
-          // This is the new damage type
-          return d;
-        }
-      });
+    mData.grit = Number(mm.AttackBonus[tier_index]) || 0;
+    mData.acc = mm.Accuracy[tier_index];
 
-    mData.tags = await SerUtil.process_tags(new FoundryReg(), new OpCtx(), wData.tags);
-    mData.overkill = funcs.is_overkill(item.data.data.derived.mm);
-    mData.on_hit = wData.on_hit ? wData.on_hit : undefined;
-    mData.effect = wData.effect ? wData.effect : "";
+    // Reduce damage values to only this tier
+    mData.damage = mm.Damage[tier_index] ?? [];
+
+    mData.tags = mm.Tags
+    mData.overkill = funcs.is_overkill(mm);
+    mData.on_hit = mm.OnHit;
+    mData.effect = mm.Effect;
   } else {
     ui.notifications.error(`Error preparing attack macro - ${actor.name} is an unknown type!`);
     return Promise.resolve();
@@ -758,7 +741,7 @@ async function rollAttackMacro(actor: Actor, atk_str: string | null, data: Lance
           img: target.token ? target.token.data.img : target.data.img,
         },
         total: String(attack_roll._total).padStart(2, "0"),
-        hit: checkForHit(isSmart, attack_roll, target),
+        hit: await checkForHit(isSmart, attack_roll, target),
         crit: attack_roll._total >= 20,
       });
     }
@@ -928,12 +911,12 @@ export function rollReactionMacro(actor: Actor, data: LancerReactionMacroData) {
  * Prepares a macro to present core active information for
  * @param a     String of the actor ID to roll the macro as, and who we're getting core info for
  */
-export function prepareCoreActiveMacro(a: string) {
+export async function prepareCoreActiveMacro(a: string) {
   // Determine which Actor to speak as
   let mech: LancerActor<EntryType.MECH> | null = getMacroSpeaker(a);
   if (!mech) return;
 
-  var ent = mech.data.data.derived.mm;
+  var ent = await mech.data.data.derived.mm_promise;
   if (!ent.Frame) return;
 
   if (!ent.CurrentCoreEnergy) {
@@ -1070,18 +1053,26 @@ export async function prepareTechMacro(a: string, t: string) {
     mData.tags = tData.tags;
     mData.effect = ""; // TODO */
   } else if (item.type === EntryType.NPC_FEATURE) {
-    const tData = item.data.data as RegNpcTechData;
-    let tier: number;
-    if (item.actor === null) {
-      tier = actor.data.data.tier - 1;
+    const mm: NpcFeature = await item.data.data.derived.mm_promise;
+    let tier_index: number = mm.TierOverride;
+    if(!mm.TierOverride) {
+      if (item.actor === null) {
+        // Use selected actor
+        tier_index = actor.data.data.tier - 1;
+      } else {
+        // Use provided actor
+        tier_index = item.actor.data.data.tier - 1;
+      }
     } else {
-      tier = item.actor.data.data.tier - 1;
+      // Correct to be index
+      tier_index -= 1;
     }
-    mData.t_atk = tData.attack_bonus && tData.attack_bonus.length > tier ? tData.attack_bonus[tier] : 0;
-    mData.acc = tData.accuracy && tData.accuracy.length > tier ? tData.accuracy[tier] : 0;
-    mData.tags = await SerUtil.process_tags(new FoundryReg(), new OpCtx(), tData.tags);
-    mData.effect = tData.effect ? tData.effect : "";
-    mData.action = tData.tech_type ? tData.tech_type : "";
+
+    mData.t_atk = mm.AttackBonus[tier_index] ?? 0;
+    mData.acc = mm.Accuracy[tier_index] ?? 0;
+    mData.tags = mm.Tags;
+    mData.effect = mm.Effect;
+    mData.action = mm.TechType;
   } else {
     ui.notifications.error(`Error rolling tech attack macro`);
     return Promise.resolve();
@@ -1117,7 +1108,7 @@ async function rollTechMacro(actor: Actor, data: LancerTechMacroData) {
           img: target.token ? target.token.data.img : target.data.img,
         },
         total: String(attack_roll._total).padStart(2, "0"),
-        hit: checkForHit(true, attack_roll, target),
+        hit: await checkForHit(true, attack_roll, target),
         crit: attack_roll._total >= 20,
       });
     }
