@@ -40,7 +40,7 @@ import { preloadTemplates } from "./module/preloadTemplates";
 import { registerSettings } from "./module/settings";
 import { compact_tag_list } from "./module/helpers/tags";
 import * as migrations from "./module/migration";
-import { addLCPManager, updateCore } from "./module/apps/lcpManager";
+import { addLCPManager, updateCore, core_update } from './module/apps/lcpManager';
 
 // Import Machine Mind and helpers
 import * as macros from "./module/macros";
@@ -643,7 +643,7 @@ Hooks.on("modifyTokenAttribute", (_: any, data: any) => {
  * Designed for use the first time you launch a new world
  */
 async function promptInstallCoreData() {
-  let version = "3.0.21";
+  let version = core_update;
   let text = `
   <h2 style="text-align: center">WELCOME GAME MASTER</h2>
   <p style="text-align: center;margin-bottom: 1em">THIS IS YOUR <span class="horus--very--subtle">FIRST</span> TIME LAUNCHING</p>
