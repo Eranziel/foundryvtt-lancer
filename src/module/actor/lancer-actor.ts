@@ -884,7 +884,14 @@ export class LancerActor<T extends LancerActorType> extends Actor {
 
         // Always save the context
         // Save the context via defineProperty so it does not show up in JSON stringifies. Also, no point in having it writeable
-        dr.mm = mm;
+        Object.defineProperties(dr, {
+          mm: {
+            enumerable: false,
+            configurable: true,
+            writable: false,
+            value: mm
+          }
+        });
 
         // Changes in max-hp should heal the actor. But certain requirements must be met
         // - Must know prior (would be in dr.current_hp.max). If 0, do nothing

@@ -157,7 +157,14 @@ export class LancerItem<T extends LancerItemType> extends Item {
       .then(() => mm_wrap_item(this, actor_ctx ?? new OpCtx()))
       .then(async mm => {
         // Save the entity to derived
-        dr.mm = mm;
+        Object.defineProperties(dr, {
+          mm: {
+            enumerable: false,
+            configurable: true,
+            writable: false,
+            value: mm
+          }
+        });
 
         // Also, compute max uses if needed
         let base_limit = (mm as any).BaseLimit;
