@@ -342,12 +342,70 @@ export const migrateItemData = function (item: LancerItem<NpcClass | NpcTemplate
   const origData = item.data;
   const updateData = duplicate(origData);
 
+  function ids_to_rr(id_arr) {
+    let rr_arr = [];
+    id_arr.forEach(feat_id => {
+      let rr: RegRef<EntryType.NPC_FEATURE> = {
+        id: "",
+        fallback_lid: feat_id,
+        type: EntryType.NPC_FEATURE,
+        reg_name: "comp_core",
+      };
+      rr_arr.push(rr);
+    });
+    return rr_arr;
+  }
+
   switch (origData.type) {
     case EntryType.NPC_CLASS:
       console.log(`${lp} Migrating NPC class`, origData);
+      // id -> lid
+      updateData.data.lid = origData.data.id;
+      // base_features convert from array of CC IDs to array of RegRefs.
+      updateData.data.base_features = ids_to_rr(origData.data.base_features);
+      // optional_features convert from array of CC IDs to array of RegRefs.
+      updateData.data.optional_features = ids_to_rr(origData.data.optional_features);
+      // stats -> base_stats
+      //      evasion -> evade
+      //      sensor_range -> sensor
+      //      delete stress, structure
+      updateData.data.base_stats = origData.data.stats;
+      updateData.data.base_stats.evade = origData.data.stats.evasion;
+      updateData.data.base_stats.sensor = origData.data.stats.sensor_range;
+      delete updateData.data.base_stats.evasion;
+      delete updateData.data.base_stats.sensor_range;
+      delete updateData.data.base_stats.structure;
+      delete updateData.data.base_stats.stress;
+      // mech_type -> role
+      updateData.data.role = origData.data.mech_type;
+      // add power, type
+      updateData.data.power = 100;
+      // delete id, flavor_name, flavor_description, description, mech_type, item_type, note
+      delete updateData.data.id;
+      delete updateData.data.flavor_name;
+      delete updateData.data.flavor_description;
+      delete updateData.data.description;
+      delete updateData.data.mech_type;
+      delete updateData.data.item_type;
+      delete updateData.data.note;
+
       break;
     case EntryType.NPC_TEMPLATE:
       console.log(`${lp} Migrating NPC template`, origData);
+      // id -> lid
+      updateData.data.lid = origData.data.id;
+      // base_features convert from array of CC IDs to array of RegRefs.
+      updateData.data.base_features = ids_to_rr(origData.data.base_features);
+      // optional_features convert from array of CC IDs to array of RegRefs.
+      updateData.data.optional_features = ids_to_rr(origData.data.optional_features);
+      // add power
+      updateData.data.power = 20;
+
+      // delete flavor_name, flavor_description, item_type, note
+      delete updateData.data.flavor_name;
+      delete updateData.data.flavor_description;
+      delete updateData.data.item_type;
+      delete updateData.data.note;
       break;
     case EntryType.NPC_FEATURE:
       console.log(`${lp} Migrating NPC feature`, origData);
