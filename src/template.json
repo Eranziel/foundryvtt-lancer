@@ -313,7 +313,7 @@
       "power": 100,
       "base_features": [],
       "optional_features": [],
-      "stats": {
+      "base_stats": {
         "activations": [
           1,
           1,
@@ -389,20 +389,11 @@
           [
             1
           ]
-        ],
-        "structure": [
-          1,
-          1,
-          1
-        ],
-        "stress": [
-          1,
-          1,
-          1
         ]
       }
     },
     "npc_template": {
+      "lid": "",
       "name": "",
       "description": "",
       "power": 100,
@@ -418,11 +409,12 @@
         "base": true
       },
       "effect": "",
-      "bonus": null,
-      "override": null,
+      "bonus": {},
+      "override": {},
       "tags": [],
       "type": "Trait",
       "charged": true,
+      "destroyed": false,
       "loaded": true,
       "uses": 0,
       "weapon_type": "",
