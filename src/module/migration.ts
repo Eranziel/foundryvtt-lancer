@@ -4,10 +4,10 @@ import { LANCER } from "./config";
 import { handleActorExport } from "./helpers/io";
 import { LancerActor } from "./actor/lancer-actor";
 import { core_update, LCPIndex, LCPManager, updateCore } from "./apps/lcpManager";
-import { EntryType, NpcClass, NpcFeature, NpcTemplate, OpCtx } from "machine-mind";
+import { EntryType, NpcClass, NpcFeature, NpcTemplate } from "machine-mind";
 import { LancerItem } from "./item/lancer-item";
-import { FoundryReg } from "./mm-util/foundry-reg";
 import { RegRef } from "machine-mind/dist/registry";
+import { arrayify_object } from "./helpers/commons";
 
 let lp = LANCER.log_prefix;
 
@@ -185,8 +185,10 @@ export const migrateAllActors = async () => {
           count++;
         }
       } else if (a.data.type === "npc") {
-        await (a.items as [LancerItem]).forEach(item => {
-          item.update(migrateItemData(item));
+        (a.items as [LancerItem]).forEach(async item => {
+          let updateData = migrateItemData(item);
+          console.log(`${lp} Migrated data:`, updateData);
+          await item.update(updateData);
         });
       }
     } catch (err) {
@@ -342,13 +344,13 @@ export const migrateItemData = function (item: LancerItem<NpcClass | NpcTemplate
 
   switch (origData.type) {
     case EntryType.NPC_CLASS:
-      console.log(`${lp} Migrating NPC class`, item);
+      console.log(`${lp} Migrating NPC class`, origData);
       break;
     case EntryType.NPC_TEMPLATE:
-      console.log(`${lp} Migrating NPC template`, item);
+      console.log(`${lp} Migrating NPC template`, origData);
       break;
     case EntryType.NPC_FEATURE:
-      console.log(`${lp} Migrating NPC feature`, item);
+      console.log(`${lp} Migrating NPC feature`, origData);
       updateData.data.lid = origData.data.id;
       updateData.data.loaded = true;
       updateData.data.type = origData.data.feature_type;
@@ -370,31 +372,39 @@ export const migrateItemData = function (item: LancerItem<NpcClass | NpcTemplate
       });
       // Migrate & relink tags;
       updateData.data.tags = [];
-      if (origData.data.tags && Array.isArray(origData.data.tags)) {
-        // let cat = new FoundryReg({
-        //   item_source: "compendium|compendium",
-        // }).get_cat(EntryType.TAG);
-        origData.data.tags.forEach(async tag => {
+      if (origData.data.tags) {
+        let origTags = origData.data.tags;
+        if (!Array.isArray(origTags)) {
+          origTags = arrayify_object(origTags);
+        }
+        origTags.forEach(tag => {
+          // If the tag doesn't have an id, skip it.
+          // This could be made smarter to search the tag compendium tags by name - has to account for {VAL}.
+          if (!tag.id) return;
           let newTag: RegRef<EntryType.TAG> = {
+            id: "",
             fallback_lid: tag.id,
+            reg_name: "comp_core",
+            type: EntryType.TAG,
           };
+          if (tag.val) newTag.val = tag.val;
           updateData.data.tags.push(newTag);
         });
       }
 
       // Remove deprecated fields
-      updateData.data.id = undefined;
-      updateData.data.feature_type = undefined;
-      updateData.data.max_uses = undefined;
+      delete updateData.data.id;
+      delete updateData.data.feature_type;
+      delete updateData.data.max_uses;
       // Keep these ones if they have anything in them, just in case.
       if (updateData.data.flavor_description === "") {
-        updateData.data.flavor_description = undefined;
+        delete updateData.data.flavor_description;
       }
       if (updateData.data.flavor_name === "") {
-        updateData.data.flavor_name = undefined;
+        delete updateData.data.flavor_name;
       }
       if (updateData.data.note === "") {
-        updateData.data.note = undefined;
+        delete updateData.data.note;
       }
 
       break;
