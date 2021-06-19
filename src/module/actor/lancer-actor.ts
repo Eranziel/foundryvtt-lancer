@@ -20,18 +20,19 @@ import {
   WeaponMod,
   PackedPilotData,
   quick_relinker,
+  RegEntryTypes,
 } from "machine-mind";
-import { FoundryFlagData, FoundryReg, FoundryRegActorData, FoundryRegItemData } from "../mm-util/foundry-reg";
+import { FoundryFlagData, FoundryReg, FoundryRegActorData } from "../mm-util/foundry-reg";
 import { LancerHooks, LancerSubscription } from "../helpers/hooks";
 import { mm_wrap_actor } from "../mm-util/helpers";
 import { system_ready } from "../../lancer";
 import { LancerItemType } from "../item/lancer-item";
-import { renderMacroTemplate, prepareTextMacro } from "../macros";
+import { renderMacroTemplate, prepareTextMacro, encodeMacroData } from "../macros";
 import { RegEntry, MechWeapon, NpcFeature } from "machine-mind";
 import { StabOptions1, StabOptions2 } from "../enums";
-import { limited_max, is_loading } from "machine-mind/dist/classes/mech/EquipUtil";
 import { ActionData } from "../action";
 import { handleActorExport } from "../helpers/io";
+import { LancerMacroData } from "../interfaces";
 const lp = LANCER.log_prefix;
 
 export function lancerActorInit(base_actor: any, creation_args: any) {
@@ -113,6 +114,8 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         evasion: number;
         edef: number;
         save_target: number;
+        speed: number;
+        armor: number;
         // todo - bonuses and stuff. How to allow for accuracy?
       };
     };
@@ -215,6 +218,8 @@ export class LancerActor<T extends LancerActorType> extends Actor {
       let text = stressTableD(result, remStress);
       let total = roll.total.toString();
 
+      let secondaryRoll = "";
+
       // Critical
       // This is fine
       //@ts-ignore
@@ -225,6 +230,15 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         text = stressTableD(result, 1);
         title = stressTableT[0];
         total = "Multiple Ones";
+      } else {
+        if(result === 1 && remStress === 2) {
+          let macroData = encodeMacroData({
+            command: `game.lancer.prepareStatMacro("${ent.RegistryID}","mm.Eng");`,
+            title: "Engineering",
+          });
+
+          secondaryRoll = `<button class="chat-macro-button"><a class="chat-button" data-macro="${macroData}"><i class="fas fa-dice-d20"></i> Engineering</a></button>`;
+        }
       }
       templateData = {
         val: ent.CurrentStress,
@@ -234,6 +248,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         total: total,
         text: text,
         roll: roll,
+        secondaryRoll: secondaryRoll
       };
     } else {
       // You ded
@@ -278,7 +293,6 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         case 1:
           switch (remStruct) {
             case 2:
-              // Choosing not to auto-roll the checks to keep the suspense up
               return "Roll a HULL check. On a success, your mech is STUNNED until the end of your next turn. On a failure, your mech is destroyed.";
             case 1:
               return "Your mech is destroyed.";
@@ -288,7 +302,6 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         case 2:
         case 3:
         case 4:
-          // Idk, should this auto-roll?
           return "Parts of your mech are torn off by the damage. Roll 1d6. On a 1–3, all weapons on one mount of your choice are destroyed; on a 4–6, a system of your choice is destroyed. LIMITED systems and weapons that are out of charges are not valid choices. If there are no valid choices remaining, it becomes the other result. If there are no valid systems or weapons remaining, this result becomes a DIRECT HIT instead.";
         case 5:
         case 6:
@@ -338,6 +351,8 @@ export class LancerActor<T extends LancerActorType> extends Actor {
       let text = structTableD(result, remStruct);
       let total = roll.total.toString();
 
+      let secondaryRoll = "";
+
       // Crushing hits
       // This is fine
       //@ts-ignore
@@ -348,6 +363,49 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         text = structTableD(result, 1);
         title = structTableT[0];
         total = "Multiple Ones";
+      } else {
+        if(result === 1 && remStruct === 2) {
+          let macroData = encodeMacroData({
+            command: `game.lancer.prepareStatMacro("${ent.RegistryID}","mm.Hull");`,
+            title: "Hull",
+          });
+
+          secondaryRoll = `<button class="chat-macro-button"><a class="chat-button" data-macro="${macroData}"><i class="fas fa-dice-d20"></i>Hull</a></button>`;
+        } else if (result >= 2 && result <= 4) {
+          let macroData = encodeMacroData({
+            // TODO: Should create a "prepareRollMacro" or something to handle generic roll-based macros
+            // Since we can't change prepareTextMacro too much or break everyone's macros
+            command: `
+            let roll = new Roll('1d6').evaluate({async: false});
+            let result = roll.total;
+            if(result<=3) { 
+              game.lancer.prepareTextMacro("${ent.RegistryID}","Destroy Weapons",\`
+              <div class="dice-roll lancer-dice-roll">
+                <div class="dice-result">
+                  <div class="dice-formula lancer-dice-formula flexrow">
+                    <span style="text-align: left; margin-left: 5px;">\${ roll.formula }</span>
+                    <span class="dice-total lancer-dice-total major">\${ result }</span>
+                  </div>
+                </div>
+              </div>
+              <span>On a 1–3, all weapons on one mount of your choice are destroyed</span>\`);
+            } else {
+              game.lancer.prepareTextMacro("${ent.RegistryID}","Destroy Systems",\`
+              <div class="dice-roll lancer-dice-roll">
+                <div class="dice-result">
+                  <div class="dice-formula lancer-dice-formula flexrow">
+                    <span style="text-align: left; margin-left: 5px;">\${ roll.formula }</span>
+                    <span class="dice-total lancer-dice-total major">\${ result }</span>
+                  </div>
+                </div>
+              </div>
+              <span>On a 4–6, a system of your choice is destroyed</span>\`);
+            }`,
+            title: "Roll for Destruction",
+          });
+
+          secondaryRoll = `<button class="chat-macro-button"><a class="chat-button" data-macro="${macroData}"><i class="fas fa-dice-d20"></i>Destroy</a></button>`;
+        }
       }
       templateData = {
         val: ent.CurrentStructure,
@@ -357,6 +415,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         total: total,
         text: text,
         roll: roll,
+        secondaryRoll: secondaryRoll
       };
     } else {
       // You ded
@@ -567,6 +626,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
     return return_text;
   }
 
+  // Imports an old-style compcon pilot sync code
   async importCC(data: PackedPilotData, clearFirst = false) {
     if (this.data.type !== "pilot") {
       return;
@@ -611,16 +671,9 @@ export class LancerActor<T extends LancerActorType> extends Actor {
       }
 
       // Setup registries
-      let ps1 = new FoundryReg({
-        // We look for missing items in world first
-        item_source: ["world", null],
-        actor_source: "world",
-      });
-      let ps2 = new FoundryReg({
-        // We look for missing items in compendium second
-        item_source: ["compendium", null],
-        actor_source: "compendium",
-      });
+      // We look for missing items in world first, compendium second
+      let ps1 = new FoundryReg("game");
+      let ps2 = new FoundryReg("comp_core");
 
       // Setup relinker to be folder bound for actors
       let base_relinker = quick_relinker<any>({
@@ -642,9 +695,9 @@ export class LancerActor<T extends LancerActorType> extends Actor {
             return dest_deployables.find(dd => {
               let dd_folder_id: string = dd.Flags.orig_doc.data.folder;
               console.log(
-                "Checking folder: " + dd.Name + " has folder id " + dd_folder_id + " which ?== " + unit_folder!.id
+                "Checking folder: " + dd.Name + " has folder id " + dd_folder_id + " which ?== " + unit_folder?.id
               );
-              if (dd_folder_id != unit_folder!.id) {
+              if (dd_folder_id != unit_folder?.id) {
                 return false;
               }
 
@@ -724,12 +777,27 @@ export class LancerActor<T extends LancerActorType> extends Actor {
     super.prepareEmbeddedEntities();
   }
 
+  // Use this to prevent race conditions
+  private _current_prepare_job_id!: number;
+  private _job_tracker!: Map<number, Promise<AnyMMActor>>;
+
   /** @override
    * We need to both:
    *  - Re-generate all of our subscriptions
    *  - Re-initialize our MM context
    */
   prepareDerivedData() {
+    // If no id, leave
+    if(!this.id) return;
+
+    // Track which prepare iteration this is
+    if(this._current_prepare_job_id == undefined) {
+      this._current_prepare_job_id = 0;
+      this._job_tracker = new Map();
+    }
+    this._current_prepare_job_id++;
+    let job_id = this._current_prepare_job_id;
+
     // Reset subscriptions for new data
     this.setupLancerHooks();
 
@@ -744,27 +812,50 @@ export class LancerActor<T extends LancerActorType> extends Actor {
     });
 
     // Prepare our derived stat data by first initializing an empty obj
-    dr = {
-      edef: 0,
-      evasion: 0,
-      save_target: 0,
-      current_heat: default_bounded(),
-      current_hp: default_bounded(),
-      overshield: default_bounded(),
-      current_structure: default_bounded(),
-      current_stress: default_bounded(),
-      current_repairs: default_bounded(),
-      mm: null as any, // we will set these momentarily
-      mm_promise: null as any, // we will set these momentarily
-    };
-
     // Add into our wip data structure
-    this.data.data.derived = dr;
+
+    // If no value at present, set this up. Better than nothing
+    if(!this.data.data.derived) {
+      dr = {
+        edef: 0,
+        evasion: 0,
+        save_target: 0,
+        speed: 0,
+        armor: 0,
+        current_heat: default_bounded(),
+        current_hp: default_bounded(),
+        overshield: default_bounded(),
+        current_structure: default_bounded(),
+        current_stress: default_bounded(),
+        current_repairs: default_bounded(),
+        mm: null, // we will set these momentarily
+        mm_promise: null as any, // we will set these momentarily
+      };
+      this.data.data.derived = dr;
+    } else {
+      // Otherwise, grab existing
+      dr = this.data.data.derived;
+    }
+
+    // Update our known values now, synchronously. 
+    dr.current_hp.value = this.data.data.current_hp
+    if(this.data.type != EntryType.PILOT) {
+      let md = this.data.data as RegEntryTypes<EntryType.MECH | EntryType.NPC | EntryType.DEPLOYABLE>;
+      dr.current_heat.value = md.current_heat;
+      if(this.data.type != EntryType.DEPLOYABLE) {
+        let md = this.data.data as RegEntryTypes<EntryType.MECH | EntryType.NPC>;
+        dr.current_stress.value = md.current_stress;
+        dr.current_structure.value = md.current_structure;
+      }
+    }
+
+    // Break these out of this scope to avoid weird race scoping
+    let actor_ctx = this._actor_ctx;
 
     // Begin the task of wrapping our actor. When done, it will setup our derived fields - namely, our max values
     // Need to wait for system ready to avoid having this break if prepareData called during init step (spoiler alert - it is)
-    let mm_promise = system_ready
-      .then(() => mm_wrap_actor(this, this._actor_ctx))
+    dr.mm_promise = system_ready
+      .then(() => mm_wrap_actor(this, actor_ctx))
       .catch(async e => {
         // This is 90% of the time a token not being able to resolve itself due to canvas not loading yet
         console.warn("Token unable to prepare - hopefully trying again when canvas ready. In meantime, using dummy");
@@ -778,12 +869,28 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         return ent;
       })
       .then(mm => {
+        // If our job ticker doesnt match, then another prepared object has usurped us in setting these values. 
+        // We return this elevated promise, so anyone waiting on this task instead waits on the most up to date one
+        if(job_id != this._current_prepare_job_id) {
+          return this._job_tracker.get(this._current_prepare_job_id)! as any; // This will definitely be a different promise
+        }
+
+        // Delete all old tracked jobs
+        for(let k of this._job_tracker.keys()) {
+          if(k != job_id) {
+            this._job_tracker.delete(k);
+          }
+        }
+
         // Always save the context
         // Save the context via defineProperty so it does not show up in JSON stringifies. Also, no point in having it writeable
-        Object.defineProperty(dr, "mm", {
-          value: mm,
-          configurable: true,
-          enumerable: false,
+        Object.defineProperties(dr, {
+          mm: {
+            enumerable: false,
+            configurable: true,
+            writable: false,
+            value: mm
+          }
         });
 
         // Changes in max-hp should heal the actor. But certain requirements must be met
@@ -815,6 +922,8 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         // Set the general props. ALl actors have at least these
         dr.edef = mm.EDefense;
         dr.evasion = mm.Evasion;
+        dr.speed = mm.Speed;
+        dr.armor = mm.Armor;
 
         dr.current_hp.value = mm.CurrentHP;
         dr.current_hp.max = mm.MaxHP;
@@ -868,13 +977,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
 
         return mm;
       });
-
-    // Also assign the promise via defineProperty, similarly to prevent enumerability
-    Object.defineProperty(dr, "mm_promise", {
-      value: mm_promise,
-      configurable: true,
-      enumerable: false,
-    });
+      this._job_tracker.set(job_id, dr.mm_promise);
   }
 
   /** @override

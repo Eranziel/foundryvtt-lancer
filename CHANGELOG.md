@@ -1,3 +1,26 @@
+# 0.9.4 (2021-06-16)
+## Features
+* #174 - NPCs now tie into their classes more closely, removing Features as Classes are removed
+* #132 - Structure and Stress rolls now prompt in chat for sub-rolls
+* More robust drag & dropping everywhere!
+* Simple COMP/CON Vault importing has been implemented. A more robust/prettier version to come!
+* Compatible with 0.8.7
+* Derive Speed for use with Drag Ruler or other modules
+
+## Bug Fixes
+* #110 - NPC Classes now fully support feature adding/removal
+* #207 - License Preview now opens license sheet on click
+* #210 - Tokens now let you edit HP/Heat again!
+* #211 - Crits don't double flat values anymore
+* #212 - Overkill heat applied again
+* #213 - Applying conditions no longer reset token HP values
+* #214 - Can now overcharge again
+* #215 - Custom counters now allow greater control
+* #217 - Can drag & drop NPC features from compendiums onto sheets again
+* #219 - Can safely import items and actors from compendiums again
+* #221 - NPC Templates add Structure/Stress again
+
+
 # 0.9.3 (2021-06-02)
 ## Features
 * Now supporting FoundryVTT version v0.8!

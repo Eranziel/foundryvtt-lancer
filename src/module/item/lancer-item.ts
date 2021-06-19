@@ -1,17 +1,26 @@
 import { LANCER, TypeIcon } from "../config";
-import { EntryType, funcs, License, LiveEntryTypes, NpcFeatureType, OpCtx, RegRef, TagInstance } from "machine-mind";
-import { FoundryRegActorData, FoundryRegItemData } from "../mm-util/foundry-reg";
-import { AnyMMActor, LancerActor, LancerActorType, LancerMech, LancerPilot } from "../actor/lancer-actor";
+import { EntryType, funcs, License, LiveEntryTypes, OpCtx } from "machine-mind";
+import { FoundryRegItemData } from "../mm-util/foundry-reg";
+import { LancerActor, LancerActorType } from "../actor/lancer-actor";
 import { system_ready } from "../../lancer";
-import { find_license_for, mm_wrap_item } from "../mm-util/helpers";
+import { mm_wrap_item } from "../mm-util/helpers";
 
 const lp = LANCER.log_prefix;
 
-export function lancerItemInit(base_item: any) {
+export function lancerItemInit(base_item: any, provided_data: any) {
+  // If base item has data, then we are probably importing. Skip this step
+  if(provided_data?.data) {
+    return;
+  }
+
   console.log(`${lp} Initializing new ${base_item.type}`);
 
   // Select default image
-  let img = TypeIcon(base_item.type as LancerItemType);
+  let icon_lookup = base_item.type;
+  if(base_item.type == EntryType.NPC_FEATURE) {
+    icon_lookup += base_item.type ?? "";
+  }
+  let img = TypeIcon(icon_lookup);
 
   let default_data: any;
   switch (base_item.type as EntryType) {
@@ -84,24 +93,6 @@ export function lancerItemInit(base_item: any) {
       break;
   }
 
-  // Try to be more specific with npc features icons
-  if (base_item.type === EntryType.NPC_FEATURE && base_item.feature_type) {
-    let trait_type = base_item.feature_type as NpcFeatureType;
-    switch (trait_type) {
-      default:
-      case NpcFeatureType.Trait:
-        img = img.replace("npc_feature.svg", "trait.svg");
-      case NpcFeatureType.Reaction:
-        img = img.replace("npc_feature.svg", "reaction.svg");
-      case NpcFeatureType.System:
-        img = img.replace("npc_feature.svg", "system.svg");
-      case NpcFeatureType.Weapon:
-        img = img.replace("npc_feature.svg", "weapon.svg");
-      case NpcFeatureType.Tech:
-        img = img.replace("npc_feature.svg", "tech_full.svg");
-    }
-  }
-
   // Sync the name
   default_data.name = base_item.name ?? default_data.name;
 
@@ -117,7 +108,7 @@ export class LancerItem<T extends LancerItemType> extends Item {
     data: {
       // Include additional derived info
       derived: {
-        license: RegRef<EntryType.LICENSE> | null; // The license granting this item, if one could be found
+        // license: RegRef<EntryType.LICENSE> | null; // The license granting this item, if one could be found
         max_uses: number; // The max uses, augmented to also include any actor bonuses
       };
     };
@@ -133,6 +124,10 @@ export class LancerItem<T extends LancerItemType> extends Item {
    */
   prepareData() {
     super.prepareData();
+
+    // If no id, leave
+    if(!this.id) return;
+
     // Push down name
     this.data.data.name = this.data.name;
     if (!this.data.img) this.data.img = CONST.DEFAULT_TOKEN;
@@ -141,9 +136,7 @@ export class LancerItem<T extends LancerItemType> extends Item {
 
     // Init our derived data if necessary
     if (!this.data.data.derived) {
-      // Prepare our derived stat data by first initializing an empty obj
       dr = {
-        license: null,
         max_uses: 0,
         mm: null as any, // We will set this shortly
         mm_promise: null as any, // We will set this shortly
@@ -152,7 +145,7 @@ export class LancerItem<T extends LancerItemType> extends Item {
       // We set it normally.
       this.data.data.derived = dr;
     } else {
-      // That done/guaranteed make a shorthand
+      // Otherwise, grab existing
       dr = this.data.data.derived;
     }
 
@@ -160,27 +153,18 @@ export class LancerItem<T extends LancerItemType> extends Item {
     let actor_ctx: OpCtx | undefined = (this.actor as LancerActor<any> | undefined)?._actor_ctx;
 
     // Spool up our Machine Mind wrapping process
-    let mm_promise = system_ready
+    dr.mm_promise = system_ready
       .then(() => mm_wrap_item(this, actor_ctx ?? new OpCtx()))
       .then(async mm => {
-        // Always save the context
-        // Save the context via defineProperty so it does not show up in JSON stringifies. Also, no point in having it writeable
-        Object.defineProperty(dr, "mm", {
-          value: mm,
-          configurable: true,
-          enumerable: false,
+        // Save the entity to derived
+        Object.defineProperties(dr, {
+          mm: {
+            enumerable: false,
+            configurable: true,
+            writable: false,
+            value: mm
+          }
         });
-
-        // Additionally we would like to find a matching license. Re-use ctx, try both a world and global reg, actor as well if it exists
-        let found_license: RegRef<EntryType.LICENSE> | null = null;
-        if (this.actor?.data.type == EntryType.PILOT || this.actor?.data.type == EntryType.MECH) {
-          found_license = await find_license_for(mm, this.actor! as LancerMech | LancerPilot);
-        } else {
-          found_license = await find_license_for(mm);
-        }
-
-        // Store the found license
-        dr.license = found_license;
 
         // Also, compute max uses if needed
         let base_limit = (mm as any).BaseLimit;
@@ -199,13 +183,6 @@ export class LancerItem<T extends LancerItemType> extends Item {
 
         return mm;
       });
-
-    // Also assign the promise via defineProperty, similarly to prevent enumerability
-    Object.defineProperty(dr, "mm_promise", {
-      value: mm_promise,
-      configurable: true,
-      enumerable: false,
-    });
   }
 
   /** @override
@@ -216,154 +193,6 @@ export class LancerItem<T extends LancerItemType> extends Item {
       delete data.data.derived;
     }
     return super.update(data, options);
-  }
-
-  // ============================================================
-  //          WEAPONS
-  // ============================================================
-
-  /**
-   * Return whether a weapon has the smart tag
-   */
-  /*
-  get isLoading(): boolean {
-    if (
-      this.data.type === EntryType.PILOT_WEAPON ||
-      this.data.type === EntryType.MECH_WEAPON ||
-      this.data.type === EntryType.NPC_FEATURE
-    ) {
-      return this.searchTags("tg_loading", "LOADING");
-    } else {
-      return false;
-    }
-  }
-  */
-
-  /**
-   * Return whether a weapon has the smart tag
-   */
-  /*
-  get isOrdnance(): boolean {
-    if (
-      this.data.type === EntryType.PILOT_WEAPON ||
-      this.data.type === EntryType.MECH_WEAPON ||
-      this.data.type === EntryType.NPC_FEATURE
-    ) {
-      return this.searchTags("tg_ordnance", "ORDNANCE");
-    } else {
-      return false;
-    }
-  }
-  */
-
-  /**
-   * Return a weapon's innate accuracy/difficulty based on its tags.
-   */
-  /*
-  get accuracy(): number {
-    if (this.data.type === EntryType.PILOT_WEAPON || this.data.type === EntryType.MECH_WEAPON) {
-      let acc = 0;
-      if (this.searchTags("tg_accurate", "ACCURATE")) acc += 1;
-      if (this.searchTags("tg_inaccurate", "INACCURATE")) acc -= 1;
-      return acc;
-    } else {
-      return 0;
-    }
-  }
-  */
-
-  /**
-   * Return whether a weapon has the smart tag
-   */
-  /*
-  get isSmart(): boolean {
-    if (
-      this.data.type === EntryType.PILOT_WEAPON ||
-      this.data.type === EntryType.MECH_WEAPON ||
-      this.data.type === EntryType.NPC_FEATURE
-    ) {
-      return this.searchTags("tg_smart", "SMART");
-    } else {
-      return false;
-    }
-  }
-  */
-
-  /**
-   * Return whether a weapon has the overkill tag
-   */
-  get isOverkill(): boolean {
-    if (
-      this.data.type === EntryType.PILOT_WEAPON ||
-      this.data.type === EntryType.MECH_WEAPON ||
-      this.data.type === EntryType.NPC_FEATURE
-    ) {
-      return this.searchTags("tg_overkill", "OVERKILL");
-    } else {
-      return false;
-    }
-  }
-
-  /**
-   * Return whether a weapon has the smart tag
-   */
-  /*
-  get isAp(): boolean {
-    if (
-      this.data.type === EntryType.PILOT_WEAPON ||
-      this.data.type === EntryType.MECH_WEAPON ||
-      this.data.type === EntryType.NPC_FEATURE
-    ) {
-      return this.searchTags("tg_ap", "ARMOR-PIERCING (AP)");
-    } else {
-      return false;
-    }
-  }
-  */
-
-  /**
-   * Return a weapon's innate accuracy/difficulty based on its tags.
-   */
-  /*
-  get reliable(): number | string {
-    if (this.data.type === EntryType.PILOT_WEAPON || this.data.type === EntryType.MECH_WEAPON) {
-      let rel: number | string = 0;
-      const data = this.data.data as any;
-      if (!data.tags || !Array.isArray(data.tags)) return rel;
-      data.tags.forEach((t: TagData) => {
-        if (t.id.toLowerCase() === "tg_reliable" || t.name.toUpperCase() === "RELIABLE") {
-          rel = t.val ? t.val : rel;
-        }
-      });
-      return rel;
-    } else {
-      return 0;
-    }
-  }
-  */
-
-  // ============================================================
-  //          GENERAL
-  // ============================================================
-
-  /**
-   * Search the Item's tags to see if any have the given ID or name.
-   * @param id Tag ID to search for.
-   * @param name Tag name to search for.
-   * @returns true if the tag was found, false otherwise.
-   */
-  searchTags(id: string, name: string): boolean {
-    console.log("Not searching tags yet");
-    return false;
-    /*
-    const data = this.data.data;
-    if (!data.tags || !Array.isArray(data.tags)) return false;
-    let result = false;
-    data.tags.forEach((t: TagInstance) => {
-      if (t.id.toLowerCase() === id || t.name.toUpperCase() === name) result = true;
-    });
-    return result;
-    */
   }
 }
 

@@ -1,7 +1,8 @@
 import { HelperOptions } from "handlebars";
-import { Bonus, Damage, License, WeaponMod, WeaponSize, WeaponType, Action, Deployable, Synergy, ActivationType } from 'machine-mind';
+import { Bonus, Damage, License, WeaponMod, WeaponSize, WeaponType, Action, Deployable, Synergy, ActivationType, EntryType } from 'machine-mind';
 import { license_ref, manufacturer_ref, bonuses_display, damage_editor, range_editor, buildActionHTML, buildDeployableHTML } from './item';
 import { large_textbox_card, resolve_helper_dotpath, std_enum_select, std_num_input } from './commons';
+import { ref_commons, ref_params } from "./refs";
 
 export function item_edit_arrayed_actions(path: string, title: string, helper: HelperOptions): string {
     let action_arr: Array<Action> = resolve_helper_dotpath(helper,path);
@@ -256,10 +257,11 @@ export function item_edit_arrayed_integrated(path: string, title: string, helper
 export function item_edit_license(helper: HelperOptions): string {
     let license: License | null = helper.data.root.license;
     let licenseInfo: string;
+    let cd = ref_commons(license);
 
 
-    if(!license) licenseInfo = "No license"
-    else licenseInfo = `<div class="lancer-license-header medium clipped-top">
+    if(!cd || !license) licenseInfo = "No license"
+    else licenseInfo = `<div class="valid ${EntryType.LICENSE} ref lancer-license-header medium clipped-top" ${ref_params(cd.ref)}>
     <i class="cci cci-license i--m i--dark"> </i>
     <span class="major modifier-name">${license.Name}</span>
   </div>`;

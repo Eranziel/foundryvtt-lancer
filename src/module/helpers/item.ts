@@ -524,14 +524,14 @@ export function pilot_gear_refview(gear_path: string, helper: HelperOptions): st
 
   // Conditionally show uses
   let uses = "";
-  let limited = gear.Tags.find(t => t.Tag.IsLimited);
+  let limited = funcs.limited_max(gear);
   if (limited) {
     uses = `
       <div class="compact-stat">
         <span class="minor" style="max-width: min-content;">USES: </span>
         <span class="minor" style="max-width: min-content;">todo</span>
         <span class="minor" style="max-width: min-content;" > / </span>
-        <span class="minor" style="max-width: min-content;">${limited.Value}</span>
+        <span class="minor" style="max-width: min-content;">${limited}</span>
       </div>
     `;
   }
@@ -944,12 +944,11 @@ export function buildCounterHTML(
   path: string,
   fully_editable?: boolean,
   item_path?: string,
-  cannot_delete?: boolean,
+  actor_level?: boolean,
   array_path?: string
 ): string {
-  // if(fully_editable) debugger;
-  console.log("You've indicated you want to fully edit this counter, which we don't allow yet");
   let editHTML: string;
+  let nameChunk: string;
 
   if (fully_editable) {
     editHTML = `
@@ -969,16 +968,19 @@ export function buildCounterHTML(
     <span>${data.Max}</span>`;
   }
 
+  if(actor_level) nameChunk = `<input class="counter-name" name="${data.Name}" value="${data.Name}" type="text" data-dtype="text" />`;
+  else nameChunk = data.Name;
+
   return `
   <div class="card clipped-bot counter-wrapper">
     <div class="lancer-header ">
-      <span>// ${data.Name} //</span>
+      <span>// ${nameChunk} //</span>
       ${
-        cannot_delete
-          ? ""
-          : `<a class="gen-control" data-action="splice" data-path="${
-              array_path ? array_path : path
-            }"><i class="fas fa-trash"></i></a>`
+        actor_level
+          ? `<a class="gen-control" data-action="splice" data-path="${
+            array_path ? array_path : path
+          }"><i class="fas fa-trash"></i></a>`
+          : ""
       }
     </div>
     <div class="flexrow flex-center no-wrap">

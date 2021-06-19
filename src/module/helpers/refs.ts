@@ -22,10 +22,10 @@ import {
 } from "machine-mind";
 import { is_limited, limited_max } from "machine-mind/dist/classes/mech/EquipUtil";
 import { System } from "pixi.js";
-import { is_actor_type, LancerActor } from "../actor/lancer-actor";
+import { AnyMMActor, is_actor_type, LancerActor } from "../actor/lancer-actor";
 import { GENERIC_ITEM_ICON, LANCER, TypeIcon } from "../config";
 import { LancerMacroData } from "../interfaces";
-import { is_item_type, LancerItem, LancerItemType } from "../item/lancer-item";
+import { AnyMMItem, is_item_type, LancerItem, LancerItemType } from "../item/lancer-item";
 import { encodeMacroData } from "../macros";
 import { FoundryFlagData, FoundryReg } from "../mm-util/foundry-reg";
 import {
@@ -39,10 +39,12 @@ import {
   std_x_of_y,
 } from "./commons";
 import {
-  convert_ref_to_native,
-  enable_dragging,
-  enable_simple_ref_dragging,
-  enable_simple_ref_dropping,
+  convert_ref_to_native_drop,
+  AllowMMDropPredicateFunc,
+  HANDLER_enable_dragging,
+  HANDLER_enable_mm_dragging,
+  HANDLER_enable_mm_dropping,
+  MMDragResolveCache,
 } from "./dragdrop";
 import { buildActionHTML, buildDeployableHTML } from "./item";
 import { compact_tag_list } from "./tags";
@@ -318,7 +320,7 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
       if (is_limited(sys)) {
         limited = limited_chip_HTML(sys, item_path);
       }
-      let str = `<li class="card clipped mech-system-compact item ${
+      let str = `<li class="valid ref card clipped mech-system-compact item ${
         sys.SysType === SystemType.Tech ? "tech-item" : ""
       }" ${ref_params(cd.ref)}>
         <div class="lancer-header ${sys.Destroyed ? "destroyed" : ""}" style="grid-area: 1/1/2/3; display: flex">
@@ -484,7 +486,7 @@ export function mm_ref_list_append_slot(item_array_path: string, allowed_types: 
     <div class="ref ref-card ref-list-append ${allowed_types}" 
             data-path="${item_array_path}" 
             data-type="${allowed_types}">
-      <span class="major">Add an item</span>
+      <span class="major">Drop to add item</span>
     </div>`;
 }
 
@@ -492,23 +494,28 @@ export function mm_ref_list_append_slot(item_array_path: string, allowed_types: 
 // This doesn't handle natives. Requires two callbacks: One to get the item that will actually have its list appended,
 // and one to commit any changes to aforementioned object
 export function HANDLER_add_ref_to_list_on_drop<T>(
+  resolver: MMDragResolveCache,
   html: JQuery,
   // Retrieves the data that we will operate on
   data_getter: () => Promise<T> | T,
   commit_func: (data: T) => void | Promise<void>
 ) {
   // Use our handy dandy helper
-  enable_simple_ref_dropping(html.find(".ref.ref-list-append"), async (entry, evt) => {
-    let data = await data_getter();
-    let path = evt[0].dataset.path;
-    if (path) {
-      let array = resolve_dotpath(data, path) as Array<RegEntry<any>>;
-      if (Array.isArray(array)) {
-        array.push(entry);
-        console.log("Success", entry, array);
-        await commit_func(data);
+  HANDLER_enable_mm_dropping(
+    html.find(".ref.ref-list-append"), 
+    resolver,
+    null, // In general these are explicitly meant to refer to "outside" items, so no real filtering needed
+    async (entry, evt) => {
+      let data = await data_getter();
+      let path = evt[0].dataset.path;
+      if (path) {
+        let array = resolve_dotpath(data, path) as Array<RegEntry<any>>;
+        if (Array.isArray(array)) {
+          array.push(entry);
+          console.log("Success", entry, array);
+          await commit_func(data);
+        }
       }
-    }
   });
 }
 
@@ -517,7 +524,7 @@ export function HANDLER_add_ref_to_list_on_drop<T>(
 // This doesn't handle natives
 export function HANDLER_activate_ref_dragging(html: JQuery) {
   // Allow refs to be dragged arbitrarily
-  enable_simple_ref_dragging(html.find(".ref.valid:not(.native-drag)"), (start_stop, src, evt) => {
+  HANDLER_enable_mm_dragging(html.find(".ref.valid:not(.native-drag)"), (start_stop, src, evt) => {
     // Highlight valid drop points
     let drop_set_target_selector = `.ref.drop-settable.${src[0].dataset.type}`;
     let drop_append_target_selector = `.ref.ref-list-append.${src[0].dataset.type}`;
@@ -534,10 +541,10 @@ export function HANDLER_activate_ref_dragging(html: JQuery) {
 // Enables dragging of ref cards (or anything with .ref.valid and the appropriate fields) marked with ".native-drag", converting the dragged item to a native foundry ref
 export function HANDLER_activate_native_ref_dragging(html: JQuery) {
   // Allow refs to be dragged arbitrarily
-  enable_dragging(html.find(".ref.valid.native-drag"), drag_src => {
+  HANDLER_enable_dragging(html.find(".ref.valid.native-drag"), drag_src => {
     // Drag a JSON ref
     let ref = recreate_ref_from_element(drag_src[0]);
-    let native = ref ? convert_ref_to_native(ref) : null;
+    let native = ref ? convert_ref_to_native_drop(ref) : null;
     if (native) {
       return JSON.stringify(native);
     } else {
@@ -548,20 +555,34 @@ export function HANDLER_activate_native_ref_dragging(html: JQuery) {
 
 // Allow every ".ref.drop-settable" spot to be dropped onto, with a payload of a JSON RegRef
 // Uses same getter/commit func scheme as other callbacks
+// Additionally provides the "pre_finalize_drop" function to (primarily) facillitate taking posession of items
 export function HANDLER_activate_ref_drop_setting<T>(
+  resolver: MMDragResolveCache,
   html: JQuery,
+  can_drop: null | AllowMMDropPredicateFunc,
+  pre_finalize_drop: ((entry: AnyMMItem | AnyMMActor) => Promise<AnyMMItem | AnyMMActor>) | null,
   data_getter: () => Promise<T> | T,
   commit_func: (data: T) => void | Promise<void>
 ) {
-  enable_simple_ref_dropping(html.find(".ref.drop-settable"), async (entry, evt) => {
-    let data = await data_getter();
-    let path = evt[0].dataset.path;
-    if (path) {
-      // Set the item at the data path
-      gentle_merge(data, { [path]: entry });
-      await commit_func(data);
-    }
-  });
+  HANDLER_enable_mm_dropping(
+    html.find(".ref.drop-settable"), 
+    resolver, 
+    can_drop,
+    async (entry, evt) => {
+      // Pre-finalize the entry
+      if(pre_finalize_drop) {
+        entry = await pre_finalize_drop(entry);
+      }
+
+      // Then just merge-set to the path
+      let data = await data_getter();
+      let path = evt[0].dataset.path;
+      if (path) {
+        // Set the item at the data path
+        gentle_merge(data, { [path]: entry });
+        await commit_func(data);
+      }
+    });
 }
 // Allow every ".ref.drop-settable" spot to be right-click cleared
 // Uses same getter/commit func scheme as other callbacks

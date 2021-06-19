@@ -1,10 +1,9 @@
 import { LancerItemSheetData } from "../interfaces";
 import { LANCER } from "../config";
-import { LancerItem, LancerItemType } from "./lancer-item";
+import { AnyLancerItem, LancerItem, LancerItemType } from "./lancer-item";
 import {
   HANDLER_activate_general_controls,
   gentle_merge,
-  resolve_dotpath,
   HANDLER_activate_popout_text_editor,
 } from "../helpers/commons";
 import {
@@ -15,12 +14,15 @@ import {
   HANDLER_add_ref_to_list_on_drop,
   HANDLER_openRefOnClick,
 } from "../helpers/refs";
-import { EntryType, Skill, SkillFamily } from "machine-mind";
-import { get_pack } from "../mm-util/db_abstractions";
+import { EntryType, OpCtx, Skill, SkillFamily } from "machine-mind";
 import { HANDLER_activate_edit_bonus } from "../helpers/item";
 import { HANDLER_activate_tag_context_menus, HANDLER_activate_tag_dropping } from "../helpers/tags";
 import { CollapseHandler } from "../helpers/collapse";
 import { activate_action_editor } from "../apps/action-editor";
+import { FoundryFlagData } from "../mm-util/foundry-reg";
+import { find_license_for } from "../mm-util/helpers";
+import { LancerMech, LancerPilot } from "../actor/lancer-actor";
+import { MMDragResolveCache } from "../helpers/dragdrop";
 
 const lp = LANCER.log_prefix;
 
@@ -118,11 +120,16 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
 
     let getfunc = () => this.getDataLazy();
     let commitfunc = (_: any) => this._commitCurrMM();
+
+    // Grab pre-existing ctx if available
+    let ctx = this.getCtx() || new OpCtx();
+    let resolver = new MMDragResolveCache(ctx);
+
     // Allow dragging items into lists
-    HANDLER_add_ref_to_list_on_drop(html, getfunc, commitfunc);
+    HANDLER_add_ref_to_list_on_drop(resolver, html, getfunc, commitfunc);
 
     // Allow set things by drop. Mostly we use this for manufacturer/license dragging
-    HANDLER_activate_ref_drop_setting(html, getfunc, commitfunc);
+    HANDLER_activate_ref_drop_setting(resolver, html, null, null, getfunc, commitfunc); // Don't restrict what can be dropped past type, and don't take ownership or whatever
     HANDLER_activate_ref_drop_clearing(html, getfunc, commitfunc);
 
     // Enable bonus editors
@@ -138,7 +145,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
     HANDLER_activate_general_controls(html, getfunc, commitfunc);
 
     // Enable tag dropping
-    HANDLER_activate_tag_dropping(html, getfunc, commitfunc);
+    HANDLER_activate_tag_dropping(resolver, html, getfunc, commitfunc);
 
     // Enable action editors
     activate_action_editor(html, getfunc, commitfunc);
@@ -146,15 +153,17 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
 
   /* -------------------------------------------- */
 
-  // Helper function for making fields effectively target multiple attributes
-  _propagateMMData(formData: any) {
-    // Pushes relevant field data down from the "item" data block to the "mm" data block
-    // Returns true if any of these top level fields require updating (i.e. do we need to .update({img: ___, name: __, etc}))
-    formData["mm.Name"] = formData["name"];
+  _propagateMMData(formData: any): any {
+    // Pushes relevant field data from the form to other appropriate locations,
+    // (presently there aren't any but uhhh could be i guess. Just here to mirror actor-sheet)
+    // Get the basics
+    let new_top: any = {
+      img: formData.img,
+      name: formData.name
+    };
 
-    return this.item.img != formData["img"] || this.item.name != formData["name"];
+    return new_top;
   }
-
   /**
    * Implement the _updateObject method as required by the parent class spec
    * This defines how to update the subject of the form when the form is submitted
@@ -164,43 +173,42 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
     // Fetch data, modify, and writeback
     let ct = await this.getDataLazy();
 
-    let need_top_update = this._propagateMMData(formData);
+    // Automatically propagates chanages that should affect multiple things.
+    let new_top = this._propagateMMData(formData);
 
-    // Do a separate update depending on mm data
-    if (need_top_update) {
-      let top_update = {} as any;
-      for (let key of Object.keys(formData)) {
-        if (!key.includes("mm")) {
-          top_update[key] = formData[key];
-        }
-      }
-      await this.item.update(top_update, {});
-    } else {
-      gentle_merge(ct, formData);
-      await this._commitCurrMM();
-    }
+    // No need for the complicated actor logic since no token weirdness to account for
+    gentle_merge(ct, formData);
+    mergeObject((ct.mm.Flags as FoundryFlagData<any>).top_level_data, new_top);
+    await this._commitCurrMM();
   }
 
   /**
    * Prepare data for rendering the frame sheet
    * The prepared data object contains both the actor data as well as additional sheet options
    */
-  //@ts-ignore Foundry-pc-types does not properly acknowledge that sheet `getData` functions can be/are asynchronous
+  //@ts-ignore 0.8 hopefully? Foundry-pc-types does not properly acknowledge that sheet `getData` functions can be/are asynchronous
   async getData(): Promise<LancerItemSheetData<T>> {
     // If a compendium, wait 50ms to avoid most race conflicts. TODO: Remove this when foundry fixes compendium editing to not be so awful
-    if (this.item.compendium) {
-      this.object = await new Promise(s => setTimeout(s, 50))
-        //@ts-ignore
-        .then(() => get_pack(this.item.type))
-        .then(p => p.getEntity(this.item.id));
-    }
+    // if (this.item.compendium) {
+      // this.object = await new Promise(s => setTimeout(s, 50))
+        // //@ts-ignore
+        // .then(() => get_pack(this.item.type))
+        // .then(p => p.getEntity(this.item.id));
+    // }
     const data = super.getData() as LancerItemSheetData<T>; // Not fully populated yet!
 
     // Wait for preparations to complete
     let tmp_dat = this.item.data as LancerItem<T>["data"]; // For typing convenience
     data.mm = await tmp_dat.data.derived.mm_promise;
-    let lic_ref = tmp_dat.data.derived.license;
-    data.license = lic_ref ? await data.mm.Registry.resolve(data.mm.OpCtx, lic_ref) : null;
+
+
+    // Additionally we would like to find a matching license. Re-use ctx, try both a world and global reg, actor as well if it exists
+    data.license = null;
+    if (this.actor?.data.type == EntryType.PILOT || this.actor?.data.type == EntryType.MECH) {
+      data.license = await find_license_for(data.mm, this.actor! as LancerMech | LancerPilot);
+    } else {
+      data.license = await find_license_for(data.mm);
+    }
 
     console.log(`${lp} Rendering with following item ctx: `, data);
     this._currData = data;
@@ -225,5 +233,11 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
     if (this.item.compendium) {
       this.render();
     }
+  }
+
+  // Get the ctx that our actor + its items reside in. If an unowned item we'll just yield null
+  getCtx(): OpCtx | null{
+    let ctx = (this.item as AnyLancerItem).data.data.derived.mm?.OpCtx;
+    return ctx ?? null;
   }
 }

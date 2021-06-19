@@ -1,6 +1,8 @@
 import { LANCER } from "../config";
 import { LancerActorSheet } from "./lancer-actor-sheet";
 import { EntryType } from "machine-mind";
+import { AnyMMActor, is_actor_type } from "./lancer-actor";
+import { AnyMMItem } from "../item/lancer-item";
 const lp = LANCER.log_prefix;
 
 /**
@@ -34,6 +36,15 @@ export class LancerDeployableSheet extends LancerActorSheet<EntryType.DEPLOYABLE
         },
       ],
     });
+  }  
+  
+  // Need to allow this stuff for setting deployable
+  can_root_drop_entry(item: AnyMMActor | AnyMMItem): boolean {
+    // Accept actors
+    if(item.Type == EntryType.PILOT || item.Type == EntryType.MECH || item.Type == EntryType.NPC) {
+      return true;
+    }
+    return false;
   }
 
   /* -------------------------------------------- */

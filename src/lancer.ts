@@ -40,7 +40,7 @@ import { preloadTemplates } from "./module/preloadTemplates";
 import { registerSettings } from "./module/settings";
 import { compact_tag_list } from "./module/helpers/tags";
 import * as migrations from "./module/migration";
-import { addLCPManager, core_update, updateCore } from "./module/apps/lcpManager";
+import { addLCPManager, updateCore, core_update } from './module/apps/lcpManager';
 
 // Import Machine Mind and helpers
 import * as macros from "./module/macros";
@@ -53,7 +53,7 @@ tippy.setDefaultProps({ theme: "lancer", arrow: false, delay: [400, 200] });
 
 // Import node modules
 import compareVersions = require("compare-versions");
-import { NpcFeatureType, EntryType, Manufacturer, Bonus, WeaponSize, Action } from "machine-mind";
+import { NpcFeatureType, EntryType, Manufacturer, Bonus, WeaponSize, Action, funcs } from "machine-mind";
 import {
   resolve_dotpath,
   resolve_helper_dotpath,
@@ -66,7 +66,6 @@ import {
   std_num_input,
   std_checkbox,
 } from "./module/helpers/commons";
-import { is_loading } from "machine-mind/dist/classes/mech/EquipUtil";
 import {
   weapon_size_selector,
   weapon_type_selector,
@@ -130,6 +129,7 @@ import {
 import { applyCollapseListeners } from "./module/helpers/collapse";
 import { handleCombatUpdate } from "./module/helpers/automation/combat";
 import { handleActorExport, validForExport } from "./module/helpers/io";
+import { runEncodedMacro, prepareTextMacro } from './module/macros';
 
 const lp = LANCER.log_prefix;
 
@@ -383,6 +383,21 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("std-checkbox", std_checkbox);
 
   // ------------------------------------------------------------------------
+  // Tag helpers
+  Handlebars.registerHelper("is-tagged", function (item: any) {
+    return funcs.is_tagged(item);
+  });
+
+  Handlebars.registerHelper("is-limited", function (item: funcs.TaggedEquippable) {
+    return funcs.is_limited(item);
+  });
+
+  Handlebars.registerHelper("is-loading", function (item: funcs.TaggedEquippable) {
+    return funcs.is_loading(item);
+  });
+
+
+  // ------------------------------------------------------------------------
   // Refs
   Handlebars.registerHelper("simple-ref", simple_mm_ref);
   Handlebars.registerHelper("ref-mm-controllable-item", editable_mm_ref_list_item);
@@ -428,7 +443,6 @@ Hooks.once("init", async function () {
 
   // ------------------------------------------------------------------------
   // Weapons
-  Handlebars.registerHelper("is-loading", is_loading);
   Handlebars.registerHelper("wpn-size-sel", weapon_size_selector);
   Handlebars.registerHelper("wpn-type-sel", weapon_type_selector);
   Handlebars.registerHelper("wpn-range-sel", range_editor);
@@ -466,34 +480,6 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("item-edit-license", item_edit_license);
   Handlebars.registerHelper("item-edit-sp", item_edit_sp);
   Handlebars.registerHelper("item-edit-uses", item_edit_uses);
-
-  // ------------------------------------------------------------------------
-  // Effects
-  /*
-  Handlebars.registerHelper("eff-preview", effect_preview);
-  Handlebars.registerPartial("generic-eff-preview", generic_effect_preview);
-  Handlebars.registerHelper("basic-eff-preview", basic_effect_preview);
-  Handlebars.registerHelper("ai-eff-preview", ai_effect_preview);
-  Handlebars.registerHelper("bonus-eff-preview", bonus_effect_preview);
-  Handlebars.registerHelper("chg-eff-preview", charge_effect_preview);
-  Handlebars.registerHelper("dep-eff-preview", deployable_effect_preview);
-  Handlebars.registerHelper("drn-eff-preview", drone_effect_preview);
-  Handlebars.registerHelper("off-eff-preview", offensive_effect_preview);
-  Handlebars.registerHelper("prf-eff-preview", profile_effect_preview);
-  Handlebars.registerHelper("prot-eff-preview", protocol_effect_preview);
-  Handlebars.registerHelper("rct-eff-preview", reaction_effect_preview);
-  Handlebars.registerHelper("inv-eff-preview", invade_option_preview);
-  Handlebars.registerHelper("tech-eff-preview", tech_effect_preview);
-
-  // ------------------------------------------------------------------------
-  // NPC Effects
-  Handlebars.registerHelper("npc-feat-preview", npc_feature_preview);
-  Handlebars.registerHelper("npc-rct-preview", npc_reaction_effect_preview);
-  Handlebars.registerHelper("npc-sys-preview", npc_system_effect_preview);
-  Handlebars.registerHelper("npc-trait-preview", npc_trait_effect_preview);
-  Handlebars.registerHelper("npc-tech-preview", npc_tech_effect_preview);
-  Handlebars.registerHelper("npc-wpn-preview", npc_weapon_effect_preview);
-  */
 
   // ------------------------------------------------------------------------
   // Frames
@@ -625,6 +611,12 @@ Hooks.on("renderChatMessage", async (cm: ChatMessage, html: any, data: any) => {
       });
     }
   }
+
+  html.find(".chat-button").on("click", (ev: MouseEvent) => {
+    ev.stopPropagation();
+    let element = ev.target as HTMLElement;
+    runEncodedMacro($(element));
+  })
 });
 
 Hooks.on("hotbarDrop", (_bar: any, data: any, slot: number) => {

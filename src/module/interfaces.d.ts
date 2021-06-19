@@ -152,3 +152,20 @@ declare interface LancerMacroData {
   iconPath?: string;
   title: string;
 }
+
+export interface GenControlContext<T> {
+  // Raw information
+  elt: HTMLElement;
+  path: string;
+  action: "delete" | "null" | "splice" | "set" | "append" | "insert";
+  raw_val?: string;
+  item_override_path?: string; // For writeback overriding
+
+  // Deduced information
+  data: T;
+  item_override: AnyMMActor | AnyMMItem | null;
+  parsed_val?: any; // Parsed version of raw_val
+
+  // For hooks to use
+  commit_func: (data: T) => void | Promise<void>;
+}

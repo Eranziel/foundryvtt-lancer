@@ -707,6 +707,9 @@ tr.lcp-index-header {
 .ref-list-append {
   visibility: hidden;
 }
+.editable .ref-list-append {
+  visibility: visible;
+}
 
 /* But if they are a valid drop target, we do! */
 .ref-list-append.highlight-can-drop {
@@ -1879,7 +1882,7 @@ a.activation-chip > i.mdi {
 }
 
 // Begin "Button" radio buttons
-.hidden {
+.stabilize-wrapper .hidden {
   display: none;
 }
 
@@ -2138,4 +2141,15 @@ div[data-tab=system] > .settings-list > div:nth-last-child(-n+4) {
   align-items: center;
   color: white;
   background-color: rgb(55, 55, 55);
+}
+
+.counter-name {
+  max-width: 90%;
+  width: fit-content !important;
+  color: white !important;
+}
+
+.chat-macro-button {
+  max-width: 60%;
+  align-self: center;
 }

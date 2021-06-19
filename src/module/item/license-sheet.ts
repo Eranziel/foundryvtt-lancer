@@ -23,8 +23,9 @@ export class LancerLicenseSheet extends LancerItemSheet<EntryType.LICENSE> {
     let sup = await super.getData();
 
     // Perform a scan of the compendium
-    let comp_reg = new FoundryReg({actor_source: "compendium", item_source: ["compendium", null]});
-    let scan = await sup.mm.scan(comp_reg, sup.mm.OpCtx);
+    let comp_reg = new FoundryReg("comp_core");
+    console.warn("Todo: also allow scan to hit any other compendiums"); // They just gotta be provided in the scan array argument
+    let scan = await sup.mm.scan([comp_reg], sup.mm.OpCtx);
 
     // Build an unlocks array
     let ranks = Array.from(scan.ByLevel.keys()).sort();

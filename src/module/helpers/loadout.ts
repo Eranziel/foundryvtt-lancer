@@ -173,7 +173,7 @@ export function pilot_slot(data_path: string, options: HelperOptions): string {
 }
 
 // A drag-drop slot for a frame. TODO: fancify, giving basic stats or something???
-export function frame_refview(frame_path: string, helper: HelperOptions): string {
+export function frame_refview(actor: LancerActor<EntryType.MECH>, frame_path: string, helper: HelperOptions): string {
   let frame = resolve_helper_dotpath<Frame | null>(helper, frame_path, null);
   if (!frame) return simple_mm_ref(EntryType.FRAME, frame, "No Frame", frame_path, true);
 
@@ -185,11 +185,11 @@ export function frame_refview(frame_path: string, helper: HelperOptions): string
             <span>${frame.Name}</span>
           </div>
           <div class="frame-traits flexcol">${frameTraits(frame)}</div>
-          ${frame.CoreSystem ? buildCoreSysHTML(frame.CoreSystem) : ""}
+          ${frame.CoreSystem ? buildCoreSysHTML(actor, frame.CoreSystem) : ""}
           `;
 }
 
-function buildCoreSysHTML(core: CoreSystem) {
+function buildCoreSysHTML(actor: LancerActor<EntryType.MECH>, core: CoreSystem) {
   let tags: string | undefined;
   if (core.Tags !== undefined) {
     tags = compact_tag_list("", core.Tags, false);
@@ -208,7 +208,7 @@ function buildCoreSysHTML(core: CoreSystem) {
     <div class="coresys-title">
       <span>${core.Name}</span>
     </div>
-    <div class="frame-active">${frame_active(core)}</div>
+    <div class="frame-active">${frame_active(actor, core)}</div>
     ${passive}
     ${tags ? tags : ""}
   </div>`;
@@ -229,7 +229,7 @@ function buildFrameTrait(trait: FrameTrait): string {
   </div>`;
 }
 
-function frame_active(core: CoreSystem): string {
+function frame_active(actor: LancerActor<EntryType.MECH>, core: CoreSystem): string {
   // So we have a CoreSystem with all the traits of an action inside itself as Active and Passive...
   // And then it has whole other arrays for its actions
   // :pain:
@@ -243,8 +243,7 @@ function frame_active(core: CoreSystem): string {
   }).join("");
 
   // Should find a better way to do this...
-  //@ts-ignore
-  let actor: LancerActor = core.Registry.config.item_source[1];
+
 
   let coreMacroData: LancerMacroData = {
     command: `game.lancer.prepareCoreActiveMacro("${actor.id}")`,
