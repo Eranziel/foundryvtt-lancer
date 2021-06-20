@@ -869,7 +869,7 @@ async function rollAttackMacro(actor: Actor, atk_str: string | null, data: Lance
     game.settings.get(LANCER.sys_name, LANCER.setting_automation) &&
     game.settings.get(LANCER.sys_name, LANCER.setting_overkill_heat)
   ) {
-    let mment: AnyMMActor = actor.data.data.derived.mm;
+    let mment: AnyMMActor = await actor.data.data.derived.mm_promise;
     if(mment.Type === EntryType.MECH) {
       mment.CurrentHeat += overkill_heat;
       await mment.writeback();
