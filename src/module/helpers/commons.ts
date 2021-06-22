@@ -361,8 +361,11 @@ export function ext_helper_hash(
       // Splice out the value at path dest, then writeback
       array_path_edit(ctx.data, ctx.path, null, "delete");
     } else if (ctx.action == "null") {
+      let item = resolve_dotpath(ctx.data, ctx.path) as RegEntry<any>;
       // Null out the target space
       gentle_merge(ctx.data, { [ctx.path]: null });
+      //clean up item from item register.
+      item.destroy_entry();
     } else if (ctx.action == "set") {
       // Set the target space
       gentle_merge(ctx.data, { [ctx.path]: value });
