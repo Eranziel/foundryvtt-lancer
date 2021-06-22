@@ -173,7 +173,7 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
       this._event_handler("reset-wep", evt);
     });
 
-    html.find(".reset-ll-weapon-mounts-button").on("click", async (evt: JQuery.ClickEvent) => {
+    html.find(".reset-all-weapon-mounts-button").on("click", async (evt: JQuery.ClickEvent) => {
       this._event_handler("reset-all-weapon-mounts", evt);
     });
 
