@@ -51,6 +51,7 @@ import { ActivationOptions, StabOptions1, StabOptions2 } from "./enums";
 import { applyCollapseListeners, uuid4 } from "./helpers/collapse";
 import { checkForHit, getTargets } from "./helpers/automation/targeting";
 import { AccDiffFlag, tagsToFlags, toggleCover, updateTotals } from "./helpers/acc_diff";
+import { is_overkill } from "machine-mind/dist/funcs";
 
 const lp = LANCER.log_prefix;
 
@@ -596,7 +597,7 @@ async function prepareAttackMacro({
     mData.grit = pilotEnt.Grit;
     mData.acc = 0;
     mData.tags = weaponData.Tags;
-    mData.overkill = weaponData.Tags.find(tag => tag.Tag.LID === "tg_overkill") !== undefined;
+    mData.overkill = is_overkill(itemEnt);    
     mData.effect = weaponData.Effect;
   } else if (actor.data.type === EntryType.PILOT) {
     pilotEnt = await actor.data.data.derived.mm_promise;
@@ -608,7 +609,7 @@ async function prepareAttackMacro({
     mData.grit = pilotEnt.Grit;
     mData.acc = 0;
     mData.tags = weaponData.Tags;
-    mData.overkill = weaponData.Tags.find(tag => tag.Tag.LID === "tg_overkill") !== undefined;
+    mData.overkill = is_overkill(itemEnt);
     mData.effect = weaponData.Effect;
   } else if (actor.data.type === EntryType.NPC) {
     const mm: NpcFeature = item.data.data.derived.mm;
