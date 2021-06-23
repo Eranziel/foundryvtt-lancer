@@ -206,7 +206,7 @@ function resolve_enum(enum_name: string): any {
       case "ActivationType":
           return ActivationType
       default:
-          console.log("Using default enum with enum_name of ".concat(enum_name));
+          console.debug("Using default enum with enum_name of ".concat(enum_name));
           return none_enum;
   }  
 }

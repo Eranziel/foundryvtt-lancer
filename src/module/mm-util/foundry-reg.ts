@@ -287,15 +287,15 @@ export class FoundryReg extends Registry {
     let cpargs = args as string;
     if(cpargs == "compendium|compendium") {
       args = "comp_core";
-      console.log(`Tweaked to be "${args}" from "${cpargs}"`);
+      console.debug(`Tweaked to be "${args}" from "${cpargs}"`);
     } else if(cpargs == "world|world") {
       args = "game";
-      console.log(`Tweaked to be "${args}" from "${cpargs}"`);
+      console.debug(`Tweaked to be "${args}" from "${cpargs}"`);
     } else if(cpargs.slice(0, "world_inv".length) == "world_inv") {
       // * world_inv:<actor_id>|<anything>    -> game|<actor>
       let actor_id = cpargs.slice("world_inv".length + 1).split("|")[0];
       args = `game|${actor_id}` as FoundryRegName;
-      console.log(`Tweaked to be "${args}" from "${cpargs}"`);
+      console.debug(`Tweaked to be "${args}" from "${cpargs}"`);
     }
     // We don't bother converting the rest. Anyone who has made more esoteric things like compendium pilots will simply have to deal
     /// END 0.9 BETA COMPAT BLOCK

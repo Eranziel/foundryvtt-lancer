@@ -88,7 +88,7 @@ const handleCollapse = (ev: Event) => {
     collapse?.classList.add("collapsed");
     store && sessionStorage.setItem(`${prefix}-${store}-${id}`, "closed");
   }
-  console.log(collapse);
+  console.debug(collapse);
 };
 
 // Trusty uuid gen.

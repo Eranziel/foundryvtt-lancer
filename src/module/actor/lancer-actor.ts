@@ -689,7 +689,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         relinker: async (source_item, dest_reg, dest_cat) => {
           // Link by specific subfolder if deployable
           if (source_item.Type == EntryType.DEPLOYABLE) {
-            console.log("Relinking deployable: ", source_item);
+            console.debug("Relinking deployable: ", source_item);
             // Narrow down our destination options to find one that's in the proper folder
             let dest_deployables = (await dest_cat.list_live(source_item.OpCtx)) as Deployable[];
             return dest_deployables.find(dd => {
@@ -1048,7 +1048,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
     // Make a subscription for each
     if (dependency) {
       let sub = LancerHooks.on(dependency, async (_: any) => {
-        console.log("Triggering subscription-based update on " + this.name);
+        console.debug("Triggering subscription-based update on " + this.name);
         // We typically don't need to actually .update() ourselves when a dependency updates
         // Each client will individually prepareDerivedData in response to the update, and so there is no need for DB communication
         // Only exception is for cases like changes in max hp changing current HP - a tangible change in what data should be stored on this.

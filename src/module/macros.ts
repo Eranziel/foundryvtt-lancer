@@ -704,8 +704,8 @@ async function prepareAttackMacro({
     game.settings.get(LANCER.sys_name, LANCER.setting_automation_attack) &&
     mData.tags.find(tag => tag.Tag.LID === "tg_loading")
   ) {
-    console.log(item);
-    console.log(actor);
+    console.debug(item);
+    console.debug(actor);
 
     let itemEnt: MechWeapon = await item.data.data.derived.mm_promise;
     itemEnt.Loaded = false;
@@ -891,7 +891,7 @@ async function rollAttackMacro(actor: Actor, atk_str: string | null, data: Lance
     tags: data.tags,
   };
 
-  console.log(templateData);
+  console.debug(templateData);
   const template = `systems/lancer/templates/chat/attack-card.hbs`;
   return await renderMacroTemplate(actor, template, templateData);
 }

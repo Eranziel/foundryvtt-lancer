@@ -358,7 +358,7 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("debug_each", function (it: any, block: any) {
     // if(typeof a == 'function')
     // a = a.call(this);
-    console.log(it);
+    console.debug(it);
     var s = "";
     for (let x of it) s += block(x);
     return s;

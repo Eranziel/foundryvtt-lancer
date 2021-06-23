@@ -512,7 +512,7 @@ export function HANDLER_add_ref_to_list_on_drop<T>(
         let array = resolve_dotpath(data, path) as Array<RegEntry<any>>;
         if (Array.isArray(array)) {
           array.push(entry);
-          console.log("Success", entry, array);
+          console.debug("Success", entry, array);
           await commit_func(data);
         }
       }

@@ -235,7 +235,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
         }
 
         item.writeback();
-        console.log(item);
+        console.debug(item);
       }
     });
   }
