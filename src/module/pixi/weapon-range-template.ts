@@ -16,10 +16,19 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
   isBurst: boolean;
   range: { val: number; type: string };
 
-  constructor(params: any) {
-    super(params);
-    this.isBurst = params.isBurst;
-    this.range = params.range;
+  //@ts-ignore 0.8
+  constructor(params: {data: any, doc ?: MeasuredTemplateDocument}) {
+
+    //@ts-ignore 0.8
+    let doc: MeasuredTemplateDocument
+
+    if(params.doc) doc = params.doc;
+    //@ts-ignore 0.8
+    else doc = new MeasuredTemplateDocument(params.data,{parent: canvas.scene})
+
+    super(doc);
+    this.isBurst = params.data.isBurst;
+    this.range = params.data.range;
   }
 
   /**
@@ -49,7 +58,8 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
     const scale = hex ? Math.sqrt(3) / 2 : 1;
     const templateData = {
       t: shape,
-      user: game.user._id,
+      //@ts-ignore 0.8
+      user: game.user.data.id,
       distance: (val + 0.1) * scale,
       width: scale,
       direction: 0,
@@ -60,7 +70,7 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
       isBurst: type === "Burst",
       range: { type, val },
     };
-    return new this(templateData);
+    return new this({data: templateData});
   }
 
   /**
@@ -75,26 +85,28 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
     this.activatePreviewListeners(initialLayer);
   }
 
-  activatePreviewListeners(initialLayer: any): void {
+   activatePreviewListeners(initialLayer: PlaceablesLayer) {
     const handlers: any = {};
     let moveTime = 0;
+
     // Update placement (mouse-move)
-    handlers.mm = (event: any) => {
+    handlers.mm = async (event: MouseEvent) => {
       event.stopPropagation();
       let now = Date.now(); // Apply a 20ms throttle
-      if (now - moveTime <= 20) return;
+      if ( now - moveTime <= 20 ) return;
+      //@ts-ignore 0.8
       const center = event.data.getLocalPosition(this.layer);
-      let snapped: { x: number; y: number };
-      if (this.isBurst) snapped = this.snapToToken(center);
-      else snapped = this.snapToCenter(center);
-      this.data.x = snapped.x;
-      this.data.y = snapped.y;
+      let snapped = canvas.grid.getSnappedPosition(center.x, center.y, 5);
+
+      if (this.isBurst) snapped = await this.snapToToken(center);
+
+      await this.data.update({x: snapped.x, y: snapped.y});
       this.refresh();
       moveTime = now;
     };
 
     // Cancel the workflow (right-click)
-    handlers.rc = () => {
+    handlers.rc = (event: MouseEvent) => {
       this.layer.preview.removeChildren();
       canvas.stage.off("mousemove", handlers.mm);
       canvas.stage.off("mousedown", handlers.lc);
@@ -104,20 +116,23 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
     };
 
     // Confirm the workflow (left-click)
-    handlers.lc = (event: any) => {
+    handlers.lc = async (event: MouseEvent) => {
       handlers.rc(event);
-
-      // Create the template
-      canvas.scene.createEmbeddedEntity("MeasuredTemplate", this.data);
+      let destination = canvas.grid.getSnappedPosition(this.data.x, this.data.y, 5);
+      //@ts-ignore 0.8
+      if (this.isBurst) destination = await this.snapToToken(event.data.getLocalPosition(this.layer));
+      await this.data.update(destination);
+      canvas.scene.createEmbeddedDocuments("MeasuredTemplate", [this.data]);
     };
 
     // Rotate the template by 3 degree increments (mouse-wheel)
-    handlers.mw = (event: any) => {
-      if (event.ctrlKey) event.preventDefault(); // Avoid zooming the browser window
+    handlers.mw = (event: MouseEvent) => {
+      if ( event.ctrlKey ) event.preventDefault(); // Avoid zooming the browser window
       event.stopPropagation();
       let delta = canvas.grid.type > CONST.GRID_TYPES.SQUARE ? 30 : 15;
       let snap = event.shiftKey ? delta : 5;
-      this.data.direction += snap * Math.sign(event.deltaY);
+      //@ts-ignore 0.8
+      this.data.update({direction: this.data.direction + (snap * Math.sign(event.deltaY))});
       this.refresh();
     };
 
@@ -140,7 +155,7 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
    * Snapping function to snap to the center of a hovered token. Also resizes
    * the template for bursts.
    */
-  snapToToken({ x, y }: { x: number; y: number }): { x: number; y: number } {
+  async snapToToken({ x, y }: { x: number; y: number }): Promise<{ x: number; y: number }> {
     const token = canvas.tokens.placeables
       .filter((t: any) => {
         // test if cursor is inside token
@@ -160,7 +175,7 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
         else return r;
       }, null);
     if (token) {
-      this.data.distance = this.getBurstDistance(token.data.width);
+      await this.data.update({distance: this.getBurstDistance(token.data.width)});
       return token.center;
     }
     this.data.distance = 0;
