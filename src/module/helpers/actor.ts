@@ -1,16 +1,11 @@
 import { HelperOptions } from "handlebars";
 import { EntryType, funcs, Mech, Npc, Pilot, RegEntry } from "machine-mind";
 import { LancerItemType } from "../item/lancer-item";
-import {
-  ext_helper_hash,
-  inc_if,
-  resolve_helper_dotpath,
-  selected,
-  std_num_input,
-  std_x_of_y,
-} from "./commons";
+import { ext_helper_hash, inc_if, resolve_helper_dotpath, selected, std_num_input, std_x_of_y } from "./commons";
 import { ref_commons, simple_mm_ref } from "./refs";
 import { encodeMacroData } from "../macros";
+import { ActionType } from "../action";
+import { LANCER } from "../config";
 // ---------------------------------------
 // Some simple stat editing thingies
 
@@ -36,12 +31,7 @@ export function stat_edit_card_max(
 }
 
 // Shows an X clipped card
-export function stat_edit_card(
-  title: string,
-  icon: string,
-  data_path: string,
-  options: HelperOptions
-): string {
+export function stat_edit_card(title: string, icon: string, data_path: string, options: HelperOptions): string {
   return `
     <div class="card clipped">
       <div class="lancer-header ">
@@ -84,12 +74,7 @@ export function stat_view_card(
 }
 
 // Show a readonly rollable clipped card
-export function stat_rollable_card(
-  title: string,
-  icon: string,
-  data_path: string,
-  options: HelperOptions
-): string {
+export function stat_rollable_card(title: string, icon: string, data_path: string, options: HelperOptions): string {
   return stat_view_card(title, icon, data_path, { ...options, rollable: true });
 }
 
@@ -105,15 +90,10 @@ export function compact_stat_view(icon: string, data_path: string, options: Help
 }
 
 // Shows a compact editable value
-export function compact_stat_edit(
-  icon: string,
-  data_path: string,
-  max_path: string,
-  options: HelperOptions
-): string {
+export function compact_stat_edit(icon: string, data_path: string, max_path: string, options: HelperOptions): string {
   let data_val = resolve_helper_dotpath(options, data_path);
   let max_html = ``;
-  if(max_path) {
+  if (max_path) {
     let max_val = resolve_helper_dotpath(options, max_path);
     max_html = `<span class="minor" style="max-width: min-content;" > / </span>
     <span class="lancer-stat minor">${max_val}</span>`;
@@ -131,10 +111,7 @@ export function compact_stat_edit(
 export function clicker_num_input(data_path: string, options: HelperOptions) {
   return `<div class="flexrow arrow-input-container">
       <button class="mod-minus-button" type="button">-</button>
-      ${std_num_input(
-        data_path,
-        ext_helper_hash(options, { classes: "lancer-stat minor", default: 0 })
-      )}
+      ${std_num_input(data_path, ext_helper_hash(options, { classes: "lancer-stat minor", default: 0 }))}
       <button class="mod-plus-button" type="button">+</button>
     </div>`;
 }
@@ -167,11 +144,36 @@ export function clicker_stat_card(
   `;
 }
 
-export function npc_clicker_stat_card(
+export function action_button(
   title: string,
   data_path: string,
-  options: HelperOptions
+  action: ActionType,
+  options: HelperOptions & { rollable?: boolean }
 ): string {
+  let action_val = resolve_helper_dotpath(options, data_path);
+  let active: boolean;
+  if (action == "move") {
+    active = (action_val as number) > 0;
+    title = `${title} (${action_val})`;
+  } else {
+    active = action_val as boolean;
+  }
+
+  let enabled = false;
+  if (game.user.isGM || game.settings.get(LANCER.sys_name, LANCER.setting_action_manager_players)) {
+    enabled = true;
+  }
+
+  return `
+    <button class="lancer-action-button${active ? ` active activation-${action}` : ""}${
+    enabled ? ` enabled` : ""
+  }" data-action="${action}" data-val="${action_val}">
+      ${title}
+    </button>
+    `;
+}
+
+export function npc_clicker_stat_card(title: string, data_path: string, options: HelperOptions): string {
   let data_val_arr: number[] = resolve_helper_dotpath(options, data_path) ?? [];
   let tier_clickers: string[] = [];
   let tier = 1;
@@ -242,11 +244,5 @@ export function npc_tier_selector(tier_path: string, helper: HelperOptions) {
 export function deployer_slot(data_path: string, options: HelperOptions): string {
   // get the existing
   let existing = resolve_helper_dotpath<Pilot | Mech | Npc | null>(options, data_path, null);
-  return simple_mm_ref(
-    [EntryType.PILOT, EntryType.MECH, EntryType.NPC],
-    existing,
-    "No Deployer",
-    data_path,
-    true
-  );
+  return simple_mm_ref([EntryType.PILOT, EntryType.MECH, EntryType.NPC], existing, "No Deployer", data_path, true);
 }

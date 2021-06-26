@@ -1,42 +1,41 @@
 <form class="{{cssClass}} lancer-sheet" autocomplete="off">
-  {{!-- Sheet Header --}}
+  {{! Sheet Header }}
   <header class="sheet-header card clipped-bot">
     <div grow>
       <h1 class="charname">
-        <input
-          class="header-field"
-          name="name"
-          type="text"
-          value="{{actor.name}}"
-          placeholder="Name"
-        />
+        <input class="header-field" name="name" type="text" value="{{actor.name}}" placeholder="Name" />
       </h1>
     </div>
-    {{{ ref-portrait-img actor.img "img" mm }}}
+    {{{ref-portrait-img actor.img "img" mm}}}
   </header>
-
   <div class="pilot-stat-area">
-    {{{stat-edit-max-card "HP" "mdi mdi-heart-outline" "mm.CurrentHP" "mm.MaxHP" }}}
-    {{{stat-edit-max-card "HEAT" "cci cci-heat" "mm.CurrentHeat" "mm.HeatCapacity" }}}
-    {{{stat-view-card "EVASION" "cci cci-evasion" "mm.Evasion" }}} {{{stat-view-card "ARMOR"
-    "mdi mdi-shield-outline" "mm.Armor" }}} {{{stat-edit-max-card "STRUCTURE" "cci
-    cci-structure" "mm.CurrentStructure" "mm.MaxStructure"}}} {{{stat-edit-max-card "STRESS"
-    "cci cci-reactor" "mm.CurrentStress" "mm.MaxStress"}}} {{{stat-view-card "E-DEF" "cci
-    cci-edef" "mm.EDefense" }}} {{{stat-view-card "SPEED" "mdi
-    mdi-arrow-right-bold-hexagon-outline" "mm.Speed" }}} {{{stat-view-card "SAVE" "cci cci-save"
-    "mm.SaveTarget" }}} {{{stat-view-card "SENSORS" "cci cci-sensor" "mm.SensorRange" }}}
-    {{{stat-rollable-card "TECH ATK" "cci cci-tech-full" "mm.TechAttack" }}} {{{stat-edit-card
-    "BURN" "cci cci-burn" "mm.Burn" }}} {{{stat-edit-card "O.SHIELD" "mdi mdi-shield-star-outline"
-    "mm.Overshield" }}} {{{stat-edit-max-card "REPAIRS" "cci cci-repair" "mm.CurrentRepairs"
-    "mm.RepairCapacity" }}}
-
-    <div class="size-card"><i class="cci cci-size-{{mm.Size}} size-icon theme--main"></i></div>
+    {{{stat-edit-max-card "HP" "mdi mdi-heart-outline" "mm.CurrentHP" "mm.MaxHP"}}}
+    {{{stat-edit-max-card "HEAT" "cci cci-heat" "mm.CurrentHeat" "mm.HeatCapacity"}}}
+    {{{stat-view-card "EVASION" "cci cci-evasion" "mm.Evasion"}}}
+    {{{stat-view-card "ARMOR" "mdi mdi-shield-outline" "mm.Armor"}}}
+    {{{stat-edit-max-card "STRUCTURE" "cci
+    cci-structure" "mm.CurrentStructure" "mm.MaxStructure"}}}
+    {{{stat-edit-max-card "STRESS" "cci cci-reactor" "mm.CurrentStress" "mm.MaxStress"}}}
+    {{{stat-view-card "E-DEF" "cci
+    cci-edef" "mm.EDefense"}}}
+    {{{stat-view-card "SPEED" "mdi
+    mdi-arrow-right-bold-hexagon-outline" "mm.Speed"}}}
+    {{{stat-view-card "SAVE" "cci cci-save" "mm.SaveTarget"}}}
+    {{{stat-view-card "SENSORS" "cci cci-sensor" "mm.SensorRange"}}}
+    {{{stat-rollable-card "TECH ATK" "cci cci-tech-full" "mm.TechAttack"}}}
+    {{{stat-edit-card "BURN" "cci cci-burn" "mm.Burn"}}}
+    {{{stat-edit-card "O.SHIELD" "mdi mdi-shield-star-outline" "mm.Overshield"}}}
+    {{{stat-edit-max-card "REPAIRS" "cci cci-repair" "mm.CurrentRepairs" "mm.RepairCapacity"}}}
+    <div class="size-card">
+      <i class="cci cci-size-{{mm.Size}} size-icon theme--main"></i>
+    </div>
     {{!-- {{{stat-view-card "SIZE" (concat "mdi " mm.SizeIcon) "mm.Size" }}} --}}
-    {{{overcharge-button "mm.CurrentOvercharge" }}}
-
+    {{{overcharge-button "mm.CurrentOvercharge"}}}
     <div class="flexcol card clipped">
       <div class="lancer-header">
-        <span class="major">CORE</span>
+        <span class="major">
+          CORE
+        </span>
       </div>
       <div class="flexrow stat-container">
         <input
@@ -45,38 +44,54 @@
           style="margin: auto;"
           type="checkbox"
           data-dtype="Boolean"
-          {{checked
-          mm.CurrentCoreEnergy}}
+          {{checked mm.CurrentCoreEnergy}}
         />
       </div>
     </div>
-
-    {{{stat-rollable-card "GRIT" "cci cci-armor" "mm.Pilot.Grit" }}}
+    {{{stat-rollable-card "GRIT" "cci cci-armor" "mm.Pilot.Grit"}}}
     {{!-- I don't think we need these {{{stat-view-card "SYS POINTS" "cci cci-system" "mm.MaxSP"
     }}} {{{stat-view-card "ATTACK" "cci cci-heart" "mm.AttackBonus" }}} --}}
     <div class="pilot-summary-image flexcol">
-      {{{pilot-slot "mm.Pilot" }}}
+      {{{pilot-slot "mm.Pilot"}}}
     </div>
     <div class="wraprow double pilot-summary-hase">
-      {{{stat-rollable-card "HUL" "" "mm.Hull" }}} {{{stat-rollable-card "AGI" "" "mm.Agi"
-      }}} {{{stat-rollable-card "SYS" "" "mm.Sys" }}} {{{stat-rollable-card "ENG" ""
-      "mm.Eng" }}}
+      {{{stat-rollable-card "HUL" "" "mm.Hull"}}}
+      {{{stat-rollable-card "AGI" "" "mm.Agi"}}}
+      {{{stat-rollable-card "SYS" "" "mm.Sys"}}}
+      {{{stat-rollable-card "ENG" "" "mm.Eng"}}}
     </div>
   </div>
-
+  <div class="pilot-frame-wrapper flexrow">
+    <div class="frame-wrapper flexrow">
+      <div class="lancer-header submajor clipped-top frame-header">
+        <span>
+          ACTIONS
+        </span>
+      </div>
+      <div class="lancer-action-grid">
+        {{{action-button "Protocol" "data.data.actions.protocol" "protocol"}}}
+        {{{action-button "Movement" "data.data.actions.move" "move"}}}
+        {{{action-button "Full Action" "data.data.actions.full" "full"}}}
+        {{{action-button "Quick Action" "data.data.actions.quick" "quick"}}}
+        {{{action-button "Reaction" "data.data.actions.reaction" "reaction"}}}
+      </div>
+    </div>
+  </div>
   <div class="pilot-frame-wrapper flexrow">
     <div class="frame-wrapper flexrow">
       {{{mech-frame actor "mm.Frame"}}}
     </div>
   </div>
-
   <div class="card">
-    <span class="lancer-header major"
-      >LOADOUT [SP: {{mm.Loadout.TotalSP}} / {{mm.MaxSP}}]</span
-    >
+    <span class="lancer-header major">
+      LOADOUT [SP:
+      {{mm.Loadout.TotalSP}}
+      /
+      {{mm.MaxSP}}
+      ]
+    </span>
     {{{mech-loadout "mm"}}}
   </div>
-
   {{!-- Stripping all this out for a pilot-based Armory in the future TODO
 
   <div class="card clipped">

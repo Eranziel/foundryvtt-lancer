@@ -88,6 +88,7 @@ import {
   buildCounterArrayHTML,
 } from "./module/helpers/item";
 import {
+  action_button,
   clicker_num_input,
   clicker_stat_card,
   compact_stat_edit,
@@ -381,6 +382,7 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("std-password-input", std_password_input);
   Handlebars.registerHelper("std-num-input", std_num_input);
   Handlebars.registerHelper("std-checkbox", std_checkbox);
+  Handlebars.registerHelper("action-button", action_button);
 
   // ------------------------------------------------------------------------
   // Tag helpers

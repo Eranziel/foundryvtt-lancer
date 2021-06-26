@@ -1918,7 +1918,26 @@ a.activation-chip > i.mdi {
   flex-basis: 45%;
 }
 
-// Action manager
+// Actions
+.lancer-action-grid {
+  display: flex;
+  margin-bottom: 8px;
+  padding: 4px;
+}
+
+.lancer-action-button {
+  margin: 0 4px;
+
+  &.enabled {
+    cursor: pointer;
+  }
+
+  &.active {
+    color: white;
+    font-weight: bold;
+  }
+}
+
 #action-manager {
   flex-direction: column;
   position: fixed;
@@ -2127,10 +2146,9 @@ a.action {
   align-items: center;
 }
 
-div[data-tab=system] > .settings-list > div:nth-last-child(-n+4) {
+div[data-tab="system"] > .settings-list > div:nth-last-child(-n + 4) {
   margin-left: 1em;
 }
-
 
 .limited-card {
   width: fit-content;

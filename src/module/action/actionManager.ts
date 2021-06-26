@@ -36,7 +36,7 @@ export class LancerActionManager extends Application {
   }
 
   async init() {
-    LancerActionManager.enabled = game.settings.get(LANCER.sys_name, LANCER.setting_action_manager);
+    LancerActionManager.enabled = game.settings.get(LANCER.sys_name, LANCER.setting_action_manager) && !game.settings.get("core", "noCanvas");
     if (LancerActionManager.enabled) {
       this.loadUserPos();
       await this.updateControlledToken();
@@ -96,12 +96,12 @@ export class LancerActionManager extends Application {
     if (LancerActionManager.enabled) {
       // console.log("Action Manager updating...");
       await this.updateControlledToken();
-      this.render(force);
+      this.render(true);
     }
   }
 
   async updateConfig() {
-    if (game.settings.get(LANCER.sys_name, LANCER.setting_action_manager)) {
+    if (game.settings.get(LANCER.sys_name, LANCER.setting_action_manager) && !game.settings.get("core", "noCanvas")) {
       await this.update();
       LancerActionManager.enabled = true;
     } else {

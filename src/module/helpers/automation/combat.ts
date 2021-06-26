@@ -11,15 +11,15 @@ export async function handleCombatUpdate(combat: any, changed: any) {
     const nextTurnIndex = changed.turn;
     const turnIndex = combat.current.turn;
     if (combat.turns[nextTurnIndex]) {
-      const nextToken = canvas.tokens.get(combat.turns[nextTurnIndex].tokenId);
-      const prevToken = canvas.tokens.get(combat.turns[turnIndex].tokenId);
+      const nextToken = combat.turns[nextTurnIndex].token;
+      const prevToken = combat.turns[turnIndex].token;
 
       // Handle next turn.
       if (nextToken) {
-        console.log(`Processing combat automation for ${nextToken.actor._id}`);
+        console.log(`Processing combat automation for ${nextToken.actor.id}`);
 
         // Handle NPC charges.
-        prepareChargeMacro(nextToken.actor._id);
+        prepareChargeMacro(nextToken.actor.id);
 
         // Refresh actions.
         console.log(`Next up! Refreshing [${nextToken.actor.data.name}]!`);
