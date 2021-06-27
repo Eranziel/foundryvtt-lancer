@@ -4,8 +4,10 @@ import { LancerActorSheet, removeFeaturesFromNPC } from "./lancer-actor-sheet";
 import { prepareItemMacro } from "../macros";
 import { EntryType, LiveEntryTypes, Npc, NpcClass, NpcFeature, OpCtx, RegNpcData } from "machine-mind";
 import tippy from "tippy.js";
-import { AnyMMItem, is_item_type, LancerItemType, LancerItemTypes } from "../item/lancer-item";
-import { AnyMMActor } from "./lancer-actor";
+import { AnyLancerItem, AnyMMItem, is_item_type, LancerItemType, LancerItemTypes } from "../item/lancer-item";
+import { AnyMMActor, is_actor_type } from "./lancer-actor";
+import { mm_resort_item } from "../mm-util/helpers";
+import { resolve_ref_element } from "../helpers/refs";
 const lp = LANCER.log_prefix;
 
 /**
@@ -147,7 +149,7 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
   }
 
   // Take ownership of appropriate items. Already filtered by can_drop_entry
-  async on_root_drop(base_drop: AnyMMItem | AnyMMActor): Promise<void> {
+  async on_root_drop(base_drop: AnyMMItem | AnyMMActor, event: JQuery.DropEvent, dest: JQuery<HTMLElement>): Promise<void> {
     let sheet_data = await this.getDataLazy();
     let this_mm = sheet_data.mm;
     let ctx = this.getCtx();
@@ -181,9 +183,9 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
         await b.insinuate(this_inv, ctx);
       }      
       needs_refresh = true;
-    } else if (is_new && drop.Type == EntryType.NPC_FEATURE) {
-      // Features need no special work, but we do need to update stats
-      needs_refresh = true;
+    } else if (drop.Type == EntryType.NPC_FEATURE) {
+      // If new we need to update stats
+      needs_refresh = is_new;
     }
 
     // If a new item was added, fill our hp, stress, and structure to match new maxes
@@ -196,6 +198,19 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
       this_mm.CurrentStress = this_mm.MaxStress;
       this_mm.CurrentStructure = this_mm.MaxStructure;
       await this_mm.writeback();
+    }
+
+    // We also may need to sort the item
+    if(drop.Type == EntryType.NPC_FEATURE) {
+      // Try to find a ref
+      let nearest = $(event.target).closest(".valid.ref");
+      if(nearest.length) {
+        // ok, now try to resolve it
+        let target = await resolve_ref_element(nearest[0], ctx);
+        if(target && is_item_type(target.Type)) {
+          mm_resort_item(drop, target as AnyMMItem);
+        } 
+      }
     }
   }
 }

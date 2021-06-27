@@ -138,7 +138,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
       html,
       resolver,
       (entry, _dest, _event) => this.can_root_drop_entry(entry),
-      async (entry, _dest, _event) => this.on_root_drop(entry),
+      async (entry, _dest, _event) => this.on_root_drop(entry, _event, _dest),
       () => {}
     );
   }
@@ -599,7 +599,8 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
   }
 
   // This function is called on any dragged item that percolates down to root without being handled
-  async on_root_drop(item: AnyMMItem | AnyMMActor): Promise<void> {}
+  // Override/extend as appropriate
+  async on_root_drop(item: AnyMMItem | AnyMMActor, event: JQuery.DropEvent, dest: JQuery<HTMLElement>): Promise<void> {}
 
   // Override base behavior
   async _onDrop(evt: any) {
