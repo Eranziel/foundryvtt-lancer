@@ -558,14 +558,16 @@ export class FoundryRegCat<T extends EntryType> extends RegCat<T> {
     return this.revive_and_flag(contrived, ctx, {wait_ctx_ready: wait_ready}); // Probably want to be ready
   }
 
-  // Just call revive on each of the 'entries'
+  // Just call revive on each of the 'entries', and sort by sort id if we can
   async list_live(ctx: OpCtx, load_options?: LoadOptions): Promise<LiveEntryTypes<T>[]> {
     let sub_pending: Promise<LiveEntryTypes<T>>[] = [];
     for (let e of await this._handler.enumerate()) {
       let live = this.revive_and_flag(e, ctx, load_options);
       sub_pending.push(live);
     }
-    return Promise.all(sub_pending);
+    let result = await Promise.all(sub_pending);
+    // Sort
+    return result.sort((a, b) => (a.Flags.orig_doc?.data?.sort ?? 0) - (b.Flags.orig_doc?.data?.sort ?? 0));
   }
 
   // Use our update function

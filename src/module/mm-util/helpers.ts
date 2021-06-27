@@ -2,7 +2,7 @@ import { EntryType, License, LicensedItem, LiveEntryTypes, OpCtx, Pilot, RegEntr
 import { is_actor_type, LancerActor, LancerActorType, LancerMech, LancerPilot } from "../actor/lancer-actor";
 import { PACK_SCOPE } from "../compBuilder";
 import { friendly_entrytype_name } from "../config";
-import { AnyLancerItem, LancerItem, LancerItemType } from "../item/lancer-item";
+import { AnyLancerItem, AnyMMItem, LancerItem, LancerItemType } from "../item/lancer-item";
 import { FoundryFlagData, FoundryReg, FoundryRegCat } from "./foundry-reg";
 
 // Simple caching mechanism for handling async fetchable values for a certain length of time
@@ -202,6 +202,36 @@ export async function mm_wrap_actor<T extends EntryType & LancerActorType>(
   }
 
   return ent;
+}
+
+// Sort mm items. Moves moverand to dest, either before or after depending on third arg
+export async function resort_item(moverand: AnyLancerItem, dest: AnyLancerItem, sort_before=true) {
+  // Make sure owner is the same
+  if(!dest.actor || !moverand.actor || dest.actor != moverand.actor) {
+    console.warn("Cannot sort items from two separate actors / unowned items");
+    return
+  }
+
+  // Ok, now get siblings
+  // @ts-ignore 0.8
+  let siblings: AnyLancerItem[] = dest.collection.contents;
+  siblings = siblings.filter(s => s.id != moverand.id);
+
+  // Now resort
+  return moverand.sortRelative({target: dest, siblings, sortBefore: sort_before})
+}
+
+// Same as above but takes mm
+export async function mm_resort_item(moverand: AnyMMItem, dest: AnyMMItem, sort_before=true) {
+  let m_doc = moverand.Flags.orig_doc;
+  let d_doc = dest.Flags.orig_doc;
+
+  if(!m_doc || !d_doc) {
+    console.warn("Cannot sort items without flagged orig_docs");
+    return;
+  }
+
+  return resort_item(m_doc, d_doc, sort_before);
 }
 
 // Define a helper to check if a license includes the specified item. Checks by lid. Maybe change that in the future?
