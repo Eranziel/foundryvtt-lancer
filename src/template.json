@@ -582,7 +582,8 @@
       "objective": ""
     },
     "status": {
-      "effects": [],
+      "lid": "",
+      "effects": "",
       "icon": "",
       "name": "New Status/Condition",
       "type": "Status"
