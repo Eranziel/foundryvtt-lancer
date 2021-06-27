@@ -704,11 +704,13 @@ tr.lcp-index-header {
 }
 
 /* Empty box at end of item lists where you can drop things. By default we don't want it to be visible */
-.ref-list-append {
+.locked .ref-list-append {
   visibility: hidden;
 }
-.editable .ref-list-append {
-  visibility: visible;
+
+/* Only show edit button if editable*/
+.locked .popout-text-edit-button {
+  display: none;
 }
 
 /* But if they are a valid drop target, we do! */
