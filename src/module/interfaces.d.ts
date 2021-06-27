@@ -49,8 +49,8 @@ declare interface ResourceData {
 
 // These single generic type should cover all basic sheet use cases
 export type LancerItemSheetData<T extends LancerItemType> = {
-  item: FoundryRegItemData<T>;
-  data: LancerItem<T>["data"];
+  data: FoundryRegItemData<T>;
+  item: LancerItem<T>;
 
   // Can we edit?
   editable: boolean;

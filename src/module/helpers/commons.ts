@@ -483,10 +483,10 @@ async function control_structs(key: string, on: LiveEntryTypes<EntryType>): Prom
         }),
       ];
     case "sys_mount":
-      let sys_mount = new SystemMount(on.Registry, on.OpCtx, { system: null });
+      let sys_mount = new SystemMount(on.Registry, on.OpCtx, { system: null }, null as any); // This null part may be a bit unstable, but we immediately save and that has no effect
       return [true, await sys_mount.load_done()];
     case "wep_mount":
-      let wep_mount = new WeaponMount(on.Registry, on.OpCtx, funcs.defaults.WEAPON_MOUNT_DATA());
+      let wep_mount = new WeaponMount(on.Registry, on.OpCtx, funcs.defaults.WEAPON_MOUNT_DATA(), null as any); // See above
       return [true, await wep_mount.load_done()];
     case "weapon_profile":
       let profile = new MechWeaponProfile(on.Registry, on.OpCtx, funcs.defaults.WEAPON_PROFILE());
