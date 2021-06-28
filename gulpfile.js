@@ -220,7 +220,7 @@ function buildWatch() {
   //	gulp.watch('src/**/*.ts', { ignoreInitial: false }, buildWebpack);
   gulp.watch("src/**/*.less", { ignoreInitial: false }, buildLess);
   gulp.watch("src/**/*.scss", { ignoreInitial: false }, buildSASS);
-  gulp.watch(["src/fonts", "src/templates", "src/*.json", "src/lancer.css"], { ignoreInitial: false }, copyFiles);
+  gulp.watch(["src/fonts", "src/templates", "src/*.json", "src/language/*.json", "src/lancer.css"], { ignoreInitial: false }, copyFiles);
 }
 
 /********************/

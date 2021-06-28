@@ -29,7 +29,13 @@
       "entity": "Macro"
     }
   ],
-  "languages": [],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    }
+  ],
   "socket": true,
   "gridDistance": 1,
   "gridUnits": "",

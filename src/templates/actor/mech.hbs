@@ -3,7 +3,7 @@
   <header class="sheet-header card clipped-bot">
     <div grow>
       <h1 class="charname">
-        <input class="header-field" name="name" type="text" value="{{actor.name}}" placeholder="Name" />
+        <input class="header-field" name="name" type="text" value="{{actor.name}}" placeholder="{{localize "lancer.placeholder.name"}}" />
       </h1>
     </div>
     {{{ref-portrait-img actor.img "img" mm}}}
@@ -34,7 +34,7 @@
     <div class="flexcol card clipped">
       <div class="lancer-header">
         <span class="major">
-          CORE
+          {{localize "lancer.mech-sheet.core.label"}}
         </span>
       </div>
       <div class="flexrow stat-container">
@@ -65,7 +65,7 @@
     <div class="frame-wrapper flexrow">
       <div class="lancer-header submajor clipped-top frame-header">
         <span>
-          ACTIONS
+          {{localize "lancer.mech-sheet.actions.label"}}
         </span>
       </div>
       <div class="lancer-action-grid">
@@ -84,11 +84,7 @@
   </div>
   <div class="card">
     <span class="lancer-header major">
-      LOADOUT [SP:
-      {{mm.Loadout.TotalSP}}
-      /
-      {{mm.MaxSP}}
-      ]
+      {{localize "lancer.mech-sheet.system.label" total=mm.Loadout.TotalSP max=mm.MaxSP}}
     </span>
     {{{mech-loadout "mm"}}}
   </div>
