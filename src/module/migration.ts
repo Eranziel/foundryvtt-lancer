@@ -15,7 +15,7 @@ let lp = LANCER.log_prefix;
  * Perform a system migration for the entire World, applying migrations for Actors, Items, and Compendium packs
  * @return {Promise}      A Promise which resolves once the migration is completed
  */
-export const migrateWorld = async function (migrateComps = true, migrateActors = false) {
+export const migrateWorld = async function (migrateComps = true, migrateNpcs = false) {
   ui.notifications.info(
     `Applying LANCER System Migration for version ${game.system.data.version}. Please be patient and do not close your game or shut down your server.`,
     { permanent: true }
@@ -32,19 +32,19 @@ export const migrateWorld = async function (migrateComps = true, migrateActors =
 
       // Compendium migration succeeded, prompt to migrate actors.
       new Dialog({
-        title: `Migrate Actors`,
+        title: `Migrate Pilots`,
         content: `
 <p>Lancer compendiums have been successfully migrated to core version ${core_update}.</p>
-<p>Next, you need to import all of the LCPs that your pilots and NPCs require. You must use current, up-to-date
+<p>Next, you need to import all of the LCPs that your pilots require. You must use current, up-to-date
 LCP compatible with Comp/Con.</p>
-<p>Once that is complete, click the button below to start migrating all of your actors. If you want 
-to close this window while working on your LCPs, you can start migrating your actors by clicking 
+<p>Once that is complete, click the button below to start migrating all of your pilots. If you want 
+to close this window while working on your LCPs, you can start migrating your pilots by clicking 
 the button in the Compendium tab.</p>`,
         buttons: {
           accept: {
             label: "Start Migration",
             callback: async () => {
-              await migrateAllActors();
+              await migrateActors(true, false);
             },
           },
           cancel: {
@@ -89,28 +89,23 @@ Please refresh the page to try again.</p>`,
   }
 
   // Migrate World Actors
-  // NEVERMIND, GMs gotta update LCPs first.
-  // const dataVersion = game.settings.get(LANCER.sys_name, LANCER.setting_core_data);
-  // if (migrateActors && compareVersions(dataVersion, "3.0.0") > 0) {
-  //   await migrateAllActors();
-  // } else {
-  //   ui.notifications.warn(
-  //     "Actor migration paused due to old Core Data. Please update your compendiums and manually trigger migration."
-  //   );
-  // }
+  // Only NPCs, not pilots or mechs. GMs gotta update LCPs first.
+  if (migrateNpcs) {
+    await migrateActors(false, true);
+  }
 
-  // // Migrate World Items
-  // for (let i of game.items.entities) {
-  //   try {
-  //     const updateData = migrateItemData(i);
-  //     if (!isObjectEmpty(updateData)) {
-  //       console.log(`Migrating Item entity ${i.name}`);
-  //       await i.update(updateData, { enforceTypes: false });
-  //     }
-  //   } catch (err) {
-  //     console.error(err);
-  //   }
-  // }
+  // Migrate World Items
+  for (let i of game.items.entities) {
+    try {
+      const updateData = migrateItemData(i);
+      if (!isObjectEmpty(updateData)) {
+        console.log(`Migrating Item entity ${i.name}`);
+        await i.update(updateData, { enforceTypes: false });
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }
 
   // // Migrate Actor Override Tokens
   // for (let s of game.scenes.entities) {
@@ -172,11 +167,11 @@ const compTitles = {
   },
 };
 
-export const migrateAllActors = async () => {
+export const migrateActors = async (pilots: boolean = false, npcs: boolean = false) => {
   let count = 0;
   for (let a of game.actors.values()) {
     try {
-      if (a.data.type === "pilot") {
+      if (pilots && a.data.type === "pilot") {
         const ret = handleActorExport(a, false);
         if (ret) {
           console.log(`== Migrating Actor entity ${a.name}`);
@@ -184,7 +179,7 @@ export const migrateAllActors = async () => {
           console.log(ret);
           count++;
         }
-      } else if (a.data.type === "npc") {
+      } else if (npcs && a.data.type === "npc") {
         (a.items as [LancerItem]).forEach(async item => {
           let updateData = migrateItemData(item);
           console.log(`${lp} Migrated data:`, updateData);
