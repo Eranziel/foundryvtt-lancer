@@ -40,7 +40,7 @@ import { preloadTemplates } from "./module/preloadTemplates";
 import { registerSettings } from "./module/settings";
 import { compact_tag_list } from "./module/helpers/tags";
 import * as migrations from "./module/migration";
-import { addLCPManager, updateCore, core_update } from './module/apps/lcpManager';
+import { addLCPManager, updateCore, core_update } from "./module/apps/lcpManager";
 
 // Import Machine Mind and helpers
 import * as macros from "./module/macros";
@@ -129,7 +129,7 @@ import {
 import { applyCollapseListeners } from "./module/helpers/collapse";
 import { handleCombatUpdate } from "./module/helpers/automation/combat";
 import { handleActorExport, validForExport } from "./module/helpers/io";
-import { runEncodedMacro, prepareTextMacro } from './module/macros';
+import { runEncodedMacro, prepareTextMacro } from "./module/macros";
 
 const lp = LANCER.log_prefix;
 
@@ -142,11 +142,11 @@ Hooks.once("init", async function () {
   // Register custom system settings
   registerSettings();
 
-  await sanityCheck();
-  if (game.settings.get(LANCER.sys_name, LANCER.setting_beta_warning)) {
-    return;
-  }
-  console.log(`${lp} Sanity check passed, continuing with initialization.`);
+  // await sanityCheck();
+  // if (game.settings.get(LANCER.sys_name, LANCER.setting_beta_warning)) {
+  //   return;
+  // }
+  // console.log(`${lp} Sanity check passed, continuing with initialization.`);
 
   configureAmplify();
 
@@ -396,7 +396,6 @@ Hooks.once("init", async function () {
     return funcs.is_loading(item);
   });
 
-
   // ------------------------------------------------------------------------
   // Refs
   Handlebars.registerHelper("simple-ref", simple_mm_ref);
@@ -500,7 +499,7 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("npc-feat-preview", npc_feature_preview);
 
   // TODO: remove when sanity check is no longer needed.
-  game.lancer.finishedInit = true;
+  // game.lancer.finishedInit = true;
 });
 
 // TODO: either remove when sanity check is no longer needed, or find a better home.
@@ -616,7 +615,7 @@ Hooks.on("renderChatMessage", async (cm: ChatMessage, html: any, data: any) => {
     ev.stopPropagation();
     let element = ev.target as HTMLElement;
     runEncodedMacro($(element));
-  })
+  });
 });
 
 Hooks.on("hotbarDrop", (_bar: any, data: any, slot: number) => {
@@ -756,7 +755,7 @@ async function doMigration() {
         );
       }
       // Perform the migration
-      await migrations.migrateWorld(true, false);
+      await migrations.migrateWorld(true, true);
     }
     // Set the version for future migration and welcome message checking
     await game.settings.set(LANCER.sys_name, LANCER.setting_migration, game.system.data.version);
