@@ -180,11 +180,14 @@ export const migrateActors = async (pilots: boolean = false, npcs: boolean = fal
           count++;
         }
       } else if (npcs && a.data.type === "npc") {
-        (a.items as [LancerItem]).forEach(async item => {
+        // TODO: migrate the NPC actor's data
+        for (let item: LancerItem of a.items) {
           let updateData = migrateItemData(item);
-          console.log(`${lp} Migrated data:`, updateData);
-          await item.update(updateData);
-        });
+          console.log(`NPC item update data:`, updateData);
+          // await item.update(updateData, { parent: a });
+          await a.updateEmbeddedDocuments("Item", [updateData], { parent: a });
+          // console.log(`${lp} Migrated item data:`, item.data);
+        }
       }
     } catch (err) {
       console.error(err);
@@ -408,11 +411,26 @@ export const migrateItemData = function (item: LancerItem<NpcClass | NpcTemplate
       updateData.data.loaded = true;
       updateData.data.type = origData.data.feature_type;
       updateData.data.origin = {
-        origin: origData.data.origin_name,
+        name: origData.data.origin_name,
         base: origData.data.origin_base,
         type: origData.data.origin_type,
       };
       updateData.data.tier_override = 0;
+      // Make sure accuracy and attack bonus are not strings
+      updateData.data.accuracy = [];
+      for (let acc of origData.data.accuracy) {
+        if (typeof acc === "string") {
+          if (acc === "") updateData.data.accuracy.push(0);
+          else updateData.data.accuracy.push(parseInt(acc));
+        } else updateData.data.accuracy.push(acc);
+      }
+      updateData.data.attack_bonus = [];
+      for (let atk of origData.data.attack_bonus) {
+        if (typeof atk === "string") {
+          if (atk === "") updateData.data.attack_bonus.push(0);
+          else updateData.data.attack_bonus.push(parseInt(atk));
+        } else updateData.data.attack_bonus.push(atk);
+      }
       // Transform damage. Old format is array of damage types, each type has an Array[3] of vals.
       // New format is an Array[3] of damage types per tier. Each damage type follows normal {type, val} spec.
       updateData.data.damage = [[], [], []];
@@ -447,19 +465,34 @@ export const migrateItemData = function (item: LancerItem<NpcClass | NpcTemplate
 
       // Remove deprecated fields
       delete updateData.data.id;
+      updateData["data.-=id"] = null;
       delete updateData.data.feature_type;
+      updateData["data.-=feature_type"] = null;
       delete updateData.data.max_uses;
+      updateData["data.-=max_uses"] = null;
       // Keep these ones if they have anything in them, just in case.
       if (updateData.data.flavor_description === "") {
         delete updateData.data.flavor_description;
+        updateData["data.-=flavor_description"] = null;
       }
       if (updateData.data.flavor_name === "") {
         delete updateData.data.flavor_name;
+        updateData["data.-=flavor_name"] = null;
       }
       if (updateData.data.note === "") {
         delete updateData.data.note;
+        updateData["data.-=note"] = null;
       }
+      delete updateData.data.origin_name;
+      delete updateData.data.origin_base;
+      delete updateData.data.origin_type;
+      updateData["data.-=origin_name"] = null;
+      updateData["data.-=origin_base"] = null;
+      updateData["data.-=origin_type"] = null;
 
+      break;
+    default:
+      console.log(`${lp} Skipping ${item.type} item ${item.name} with ID ${item.id}`);
       break;
   }
 
