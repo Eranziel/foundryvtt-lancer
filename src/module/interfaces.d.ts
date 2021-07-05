@@ -153,7 +153,7 @@ declare interface LancerMacroData {
   title: string;
 }
 
-export interface GenControlContext<T> {
+export interface GenControlContext<T> { // T is whatever is yielded by get_data/handled by commit_func
   // Raw information
   elt: HTMLElement;
   path: string;
@@ -162,7 +162,8 @@ export interface GenControlContext<T> {
   item_override_path?: string; // For writeback overriding
 
   // Deduced information
-  data: T;
+  data: T; // Typically the sheet data
+  path_target: null | any; // What path resolved to on data, if anything
   item_override: AnyMMActor | AnyMMItem | null;
   parsed_val?: any; // Parsed version of raw_val
 

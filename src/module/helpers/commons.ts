@@ -339,6 +339,7 @@ export function ext_helper_hash(
 
       // Derived
       data,
+      path_target: resolve_dotpath(data, elt.dataset.path) as RegEntry<any> ?? null,
       item_override: item_override_path ? resolve_dotpath(data, item_override_path) : null,
       parsed_val: value
     };
@@ -355,8 +356,7 @@ export function ext_helper_hash(
     // Perform action
     if (ctx.action == "delete") {
       // Find and delete the item at that path
-      let item = resolve_dotpath(ctx.data, ctx.path) as RegEntry<any>;
-      item.destroy_entry();
+      ctx.path_target?.destroy_entry();
     } else if (ctx.action == "splice") {
       // Splice out the value at path dest, then writeback
       array_path_edit(ctx.data, ctx.path, null, "delete");
