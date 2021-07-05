@@ -1,13 +1,14 @@
-import { GenControlContext, LancerStatMacroData } from "../interfaces";
+import { GenControlContext, LancerActorSheetData, LancerStatMacroData } from "../interfaces";
 import { LANCER } from "../config";
-import { LancerActorSheet, removeFeaturesFromNPC } from "./lancer-actor-sheet";
+import { LancerActorSheet } from "./lancer-actor-sheet";
 import { prepareItemMacro } from "../macros";
-import { EntryType, LiveEntryTypes, Npc, NpcClass, NpcFeature, OpCtx, RegNpcData } from "machine-mind";
+import { EntryType, LiveEntryTypes, Npc, NpcClass, NpcFeature, NpcTemplate, OpCtx, RegNpcData } from "machine-mind";
 import tippy from "tippy.js";
 import { AnyLancerItem, AnyMMItem, is_item_type, LancerItemType, LancerItemTypes } from "../item/lancer-item";
-import { AnyMMActor, is_actor_type } from "./lancer-actor";
+import { AnyMMActor, is_actor_type, is_reg_npc } from "./lancer-actor";
 import { mm_resort_item } from "../mm-util/helpers";
 import { resolve_ref_element } from "../helpers/refs";
+import { HANDLER_activate_general_controls, resolve_dotpath } from "../helpers/commons";
 const lp = LANCER.log_prefix;
 
 /**
@@ -134,6 +135,15 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
     });
   }
 
+  // So it can be overridden
+  activate_general_controls(html: JQuery) { 
+    let getfunc = () => this.getDataLazy();
+    let commitfunc = (_: any) => this._commitCurrMM()
+
+    // Enable NPC class/template-deletion controls
+    HANDLER_activate_general_controls(html, getfunc, commitfunc, handleClassDelete);
+  }
+
   /* -------------------------------------------- */
   
   can_root_drop_entry(item: AnyMMItem | AnyMMActor): boolean {
@@ -221,4 +231,24 @@ function getStatInput(event: Event): HTMLInputElement | HTMLDataElement | null {
   return $(event.currentTarget).closest(".stat-container").find(".lancer-stat")[0] as
     | HTMLInputElement
     | HTMLDataElement;
+}
+
+// Removes class/features when a delete happens
+function handleClassDelete(ctx: GenControlContext<LancerActorSheetData<EntryType.NPC>>) {
+  let npc = ctx.data.mm;
+  if(ctx.action == "delete") {
+    if(ctx.path_target instanceof NpcClass || ctx.path_target instanceof NpcTemplate) {
+      removeFeaturesFromNPC(npc, [...ctx.path_target.BaseFeatures , ...ctx.path_target.OptionalFeatures]);
+    }
+  }
+}
+
+export async function removeFeaturesFromNPC(npc: Npc, features: NpcFeature[]) {
+  for (let predicate_feature of features) {
+    for (let candidate_feature of npc.Features) {
+      if (candidate_feature.LID == predicate_feature.LID) {
+        await candidate_feature.destroy_entry();
+      }
+    }
+  }
 }
