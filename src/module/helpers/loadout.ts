@@ -51,7 +51,22 @@ function weapon_mount(
   registry: CollapseRegistry
 ): string {
   let mount = resolve_helper_dotpath(helper, mount_path) as WeaponMount;
-  // let mech = resolve_helper_dotpath(helper, mech_path, EntryType.MECH);
+
+  // If bracing, override
+  if(mount.Bracing) {
+    return ` 
+    <div class="mount card" >
+      <div class="lancer-header mount-type-ctx-root" data-path="${mount_path}">
+        <span>${mount.MountType} Weapon Mount</span>
+        <a class="gen-control fas fa-trash" data-action="splice" data-path="${mount_path}"></a>
+        <a class="reset-weapon-mount-button fas fa-redo" data-path="${mount_path}"></a>
+      </div>
+      <div class="lancer-body">
+        <span class="major">LOCKED: BRACING</span>
+      </div>
+    </div>`;
+  }
+
   let slots = mount.Slots.map((slot, index) =>
     mech_weapon_refview(`${mount_path}.Slots.${index}.Weapon`, mech_path, helper, registry, slot.Size)
   );

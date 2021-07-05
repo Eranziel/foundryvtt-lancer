@@ -202,6 +202,7 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
 
           // Edit it. Someday we'll want to have a way to resize without nuking. that day is not today
           mount.MountType = mount_type;
+          mount.Bracing = false;
           mount.reset();
 
           // Write back
@@ -209,6 +210,29 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
         },
       });
     }
+
+    // Add a bracing option 
+    mount_options.push({
+      name: "Superheavy Bracing",
+      icon: "",
+      callback: async (html: JQuery) => {
+          let cd = await this.getDataLazy();
+          let mount_path = html[0].dataset.path ?? "";
+
+          // Get the current mount
+          let mount: WeaponMount = resolve_dotpath(cd, mount_path);
+          if (!mount) {
+            console.error("Bad mountpath:", mount_path);
+          }
+
+          // Set as bracing
+          mount.Bracing = true;
+          mount.reset();
+
+          // Write back
+          await this._commitCurrMM();
+      }
+    });
 
     new ContextMenu(html, ".mount-type-ctx-root", mount_options);
   }
