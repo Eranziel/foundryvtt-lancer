@@ -21,7 +21,7 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
    */
   static get defaultOptions() {
     return mergeObject(super.defaultOptions, {
-      classes: ["lancer", "sheet", "actor", "npc"],
+      classes: ["lancer", "sheet", "actor", "mech"],
       template: "systems/lancer/templates/actor/mech.hbs",
       width: 800,
       height: 800,

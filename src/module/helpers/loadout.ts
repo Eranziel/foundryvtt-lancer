@@ -181,7 +181,7 @@ export function pilot_slot(data_path: string, options: HelperOptions): string {
     <img class="valid ${cd.ref.type} ref" ${ref_params(cd.ref)} style="height: 100%" src="${
     existing.Flags.top_level_data.img
   }"/>
-    <div class="pilot-summary-ll">
+    <div class="license-level">
       <span>LL${existing.Level}</span>
     </div>
 </div>`;
@@ -196,12 +196,19 @@ export function frame_refview(actor: LancerActor<EntryType.MECH>, frame_path: st
   let cd = ref_commons(frame);
   if (!cd) return simple_mm_ref(EntryType.FRAME, frame, "No Frame", frame_path, true);
 
-  return `<div class="lancer-header submajor clipped-top frame-header">
-            <span>${frame.Name}</span>
-          </div>
-          <div class="frame-traits flexcol">${frameTraits(frame)}</div>
-          ${frame.CoreSystem ? buildCoreSysHTML(actor, frame.CoreSystem) : ""}
-          `;
+  return `
+    <div class="card mech-frame">
+      <span class="lancer-header submajor clipped-top">
+        ${frame.Name}
+      </span>
+      <div class="wraprow double">
+        <div class="frame-traits flexcol">
+          ${frameTraits(frame)}
+        </div>
+        ${inc_if(buildCoreSysHTML(actor, frame.CoreSystem), frame.CoreSystem)}
+      </div>
+    </div>
+    `;
 }
 
 function buildCoreSysHTML(actor: LancerActor<EntryType.MECH>, core: CoreSystem) {
