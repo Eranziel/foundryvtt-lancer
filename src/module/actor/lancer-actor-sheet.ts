@@ -51,6 +51,7 @@ import { FoundryFlagData } from "../mm-util/foundry-reg";
 import { mm_owner } from "../mm-util/helpers";
 import { LancerActionManager } from "../action/actionManager";
 import { ActionType } from "../action";
+import { InventoryDialog } from "../apps/inventory";
 const lp = LANCER.log_prefix;
 
 /**
@@ -102,6 +103,9 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     // Enable context menu triggers.
     this._activateContextListeners(html);
 
+    // Enable viewing inventory on sheets that support it
+    this._activateInventoryButton(html);
+
     // Make our resolver
     let ctx = this.getCtx();
     let resolver = new MMDragResolveCache(ctx);
@@ -119,7 +123,6 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
 
     // Enable general controls, so items can be deleted and such
     this.activate_general_controls(html);
-
 
     // Item-referencing inputs
     HANDLER_intercept_form_changes(html, getfunc);
@@ -572,6 +575,19 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     } else {
       throw "Error - stat macro was not run on an input or data element";
     }
+  }  
+
+  /**
+   * Handles inventory button
+   */
+  _activateInventoryButton(html: any) {
+    let button = html.find(".inventory button");
+
+    button.on("click", async (ev: Event) => {
+      ev.preventDefault();
+      let d = await this.getDataLazy();
+      return InventoryDialog.show_inventory(d);
+    });
   }
 
   /**

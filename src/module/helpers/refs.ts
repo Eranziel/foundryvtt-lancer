@@ -265,7 +265,7 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
 
   if (!cd) {
     // This probably shouldn't be happening
-    console.error(`Unable to resolve ${item_path}`);
+    console.error(`Unable to resolve ${item_path} in `, helper.data);
     return "ERR: Devs, don't try and show null things in a list. this ain't a slot (but it could be if you did some magic)";
   }
 
