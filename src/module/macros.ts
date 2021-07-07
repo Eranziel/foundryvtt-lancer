@@ -454,7 +454,7 @@ async function buildAttackRollString(
   title: string,
   flags: AccDiffFlag[],
   bonus: number,
-  starting?: [number, number]
+  starting?: [number, number] // initial [accuracy, difficulty]
 ): Promise<string | null> {
   let abort: boolean = false;
   let acc = 0;
@@ -695,7 +695,7 @@ async function prepareAttackMacro({
     mData.title,
     tagsToFlags(mData.tags),
     mData.grit,
-    mData.acc > 0 ? [mData.acc, 0] : undefined
+    mData.acc > 0 ? [mData.acc, 0] : [0, -mData.acc]
   );
   if (!atk_str) return;
 
