@@ -585,8 +585,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
 
     button.on("click", async (ev: Event) => {
       ev.preventDefault();
-      let d = await this.getDataLazy();
-      return InventoryDialog.show_inventory(d);
+      return InventoryDialog.show_inventory(this.actor as AnyLancerActor);
     });
   }
 

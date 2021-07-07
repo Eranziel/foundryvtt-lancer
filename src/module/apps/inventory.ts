@@ -1,9 +1,7 @@
-import { EntryType, LiveEntryTypes, Mech } from 'machine-mind';
+import { Mech } from 'machine-mind';
 import { AnyLancerActor, AnyMMActor, LancerActorType } from '../actor/lancer-actor';
-import { LancerActorSheet } from '../actor/lancer-actor-sheet';
-import { HANDLER_activate_general_controls, resolve_dotpath } from '../helpers/commons';
+import { HANDLER_activate_general_controls } from '../helpers/commons';
 import { HANDLER_activate_native_ref_dragging, HANDLER_activate_ref_dragging, HANDLER_openRefOnClick } from '../helpers/refs';
-import { LancerActorSheetData } from '../interfaces';
 
 interface FilledCategory {
   label: string;
@@ -15,16 +13,13 @@ interface FilledCategory {
  * @extends {Dialog}
  */
 export class InventoryDialog<O extends LancerActorType> extends Dialog {
-  mm: LiveEntryTypes<O>;
-
   constructor(
-    readonly sheet_data: LancerActorSheetData<O>,
-    readonly categories: FilledCategory[],
+    readonly actor: AnyLancerActor,
     dialogData: DialogData = {},
     options: ApplicationOptions = {}
   ) {
     super(dialogData, options);
-    this.mm = sheet_data.mm;
+    this.actor = actor;
   }
 
   /* -------------------------------------------- */
@@ -42,28 +37,64 @@ export class InventoryDialog<O extends LancerActorType> extends Dialog {
   /** @override
    * Expose our data. Note that everything should be ready by now
    */
-  getData(): any {
+  async getData(): Promise<any> {
     // Fill out our categories
+    let mm = await this.actor.data.data.derived.mm_promise;
     return {
       ...super.getData(),
-      categories: this.categories // this.populate_categories()
+      categories: this.populate_categories(mm) // this.populate_categories()
     };
   }
 
-  /*
-  populate_categories(): FilledCategory[] {
-    console.log(this.sheet_data, this.categories.map((c, i) => ({
-      label: c.label,
-      path: c.path,
-      items: resolve_dotpath(this.sheet_data, c.path)
-    })));
-    return this.categories.map((c, i) => ({
-      label: c.label,
-      path: c.path,
-      items: resolve_dotpath(this.sheet_data, c.path) ?? []
-    }));
+
+  /** @inheritdoc */
+  render(force: any, options={}) {
+    // Register the active Application with the referenced Documents, to get updates
+    // @ts-ignore
+    this.actor.apps[this.appId] = this;
+    return super.render(force, options);
   }
-  */
+
+  async close(options={}) {
+    // @ts-ignore 0.8
+    delete this.actor.apps[this.appId];
+    // @ts-ignore 0.8
+    return super.close(options);
+  }
+
+  // Get the appropriate cats for the given mm actor
+  populate_categories(mm: AnyMMActor): FilledCategory[] {
+    // Decide categories based on type
+    let cats: FilledCategory[] = [];
+    if(mm instanceof Mech) {
+      cats = [
+        {
+          label: "Frames",
+          items: mm.OwnedFrames
+        },
+        {
+          label: "Weapons",
+          items: mm.OwnedMechWeapons
+        },
+        {
+          label: "Systems",
+          items: mm.OwnedSystems
+        },
+        {
+          label: "Mods",
+          items: mm.OwnedWeaponMods
+        },
+        {
+          label: "Statuses",
+          items: mm.StatusesAndConditions
+          // path: "mm.StatusesAndConditions"
+        },
+      ];
+    } else {
+      console.warn("Cannot yet show inventory for " + mm.Type);
+    }
+    return cats;
+  }
 
   /**
    * @override
@@ -89,54 +120,14 @@ export class InventoryDialog<O extends LancerActorType> extends Dialog {
   }
 
   static async show_inventory<T>(
-    data: LancerActorSheetData<LancerActorType>,
+    actor: AnyLancerActor
   ): Promise<void> {
-    // Decide categories based on type
-    let cats: FilledCategory[] = [];
-    if(data.mm instanceof Mech) {
-      cats = [
-        {
-          label: "Frames",
-          items: data.mm.OwnedFrames
-        },
-        {
-          label: "Weapons",
-          items: data.mm.OwnedMechWeapons
-        },
-        {
-          label: "Systems",
-          items: data.mm.OwnedSystems
-        },
-        {
-          label: "Mods",
-          items: data.mm.OwnedWeaponMods
-        },
-        {
-          label: "Statuses",
-          items: data.mm.StatusesAndConditions
-          // path: "mm.StatusesAndConditions"
-        },
-      ];
-    } else {
-      console.warn("Cannot yet show inventory for " + data.mm.Type);
-    }
-    console.log(data, cats);
-
     return new Promise((resolve, reject) => {
-      const dlg = new this(data, cats, {
-        title: `${data.mm.Name}'s inventory`,
+      const dlg = new this(actor, {
+        title: `${actor.name}'s inventory`,
         buttons: {},
-        /*
-          cancel: {
-            icon: '<i class="fas fa-times"></i>',
-            label: "Close",
-            callback: () => resolve(),
-          },
-        },
-        default: "close",
-        */
         close: () => resolve(),
-      });
+      });    // Register the active Application with the referenced Documents
       dlg.render(true);
     });
   }
