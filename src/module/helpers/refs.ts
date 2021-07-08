@@ -210,13 +210,14 @@ export function recreate_ref_from_element<T extends EntryType>(element: HTMLElem
 
 // Given a ref element (as created by simple_mm_ref or similar function), find the item it is currently referencing
 export async function resolve_ref_element<T extends EntryType>(
-  element: HTMLElement
+  element: HTMLElement,
+  ctx?: OpCtx
 ): Promise<LiveEntryTypes<T> | null> {
   // We reconstruct the ref
   let ref = recreate_ref_from_element(element) as RegRef<T>;
 
   // Then we resolve it
-  let ctx = new OpCtx();
+  ctx = ctx ?? new OpCtx();
   let found_entity = await new FoundryReg().resolve(ctx, ref);
 
   if (found_entity) {
@@ -264,7 +265,7 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
 
   if (!cd) {
     // This probably shouldn't be happening
-    console.error(`Unable to resolve ${item_path}`);
+    console.error(`Unable to resolve ${item_path} in `, helper.data);
     return "ERR: Devs, don't try and show null things in a list. this ain't a slot (but it could be if you did some magic)";
   }
 

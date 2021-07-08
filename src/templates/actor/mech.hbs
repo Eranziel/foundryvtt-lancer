@@ -8,7 +8,7 @@
     </div>
     {{{ref-portrait-img actor.img "img" mm}}}
   </header>
-  <div class="pilot-stat-area">
+  <div class="stat-grid">
     {{{stat-edit-max-card "HP" "mdi mdi-heart-outline" "mm.CurrentHP" "mm.MaxHP"}}}
     {{{stat-edit-max-card "HEAT" "cci cci-heat" "mm.CurrentHeat" "mm.HeatCapacity"}}}
     {{{stat-view-card "EVASION" "cci cci-evasion" "mm.Evasion"}}}
@@ -51,37 +51,32 @@
     {{{stat-rollable-card "GRIT" "cci cci-armor" "mm.Pilot.Grit"}}}
     {{!-- I don't think we need these {{{stat-view-card "SYS POINTS" "cci cci-system" "mm.MaxSP"
     }}} {{{stat-view-card "ATTACK" "cci cci-heart" "mm.AttackBonus" }}} --}}
-    <div class="pilot-summary-image flexcol">
-      {{{pilot-slot "mm.Pilot"}}}
-    </div>
-    <div class="wraprow double pilot-summary-hase">
+    {{{pilot-slot "mm.Pilot"}}}
+
+    <div class="wraprow double hase">
       {{{stat-rollable-card "HUL" "" "mm.Hull"}}}
       {{{stat-rollable-card "AGI" "" "mm.Agi"}}}
       {{{stat-rollable-card "SYS" "" "mm.Sys"}}}
       {{{stat-rollable-card "ENG" "" "mm.Eng"}}}
     </div>
-  </div>
-  <div class="pilot-frame-wrapper flexrow">
-    <div class="frame-wrapper flexrow">
-      <div class="lancer-header submajor clipped-top frame-header">
-        <span>
-          ACTIONS
-        </span>
-      </div>
-      <div class="lancer-action-grid">
-        {{{action-button "Protocol" "data.data.actions.protocol" "protocol"}}}
-        {{{action-button "Movement" "data.data.actions.move" "move"}}}
-        {{{action-button "Full Action" "data.data.actions.full" "full"}}}
-        {{{action-button "Quick Action" "data.data.actions.quick" "quick"}}}
-        {{{action-button "Reaction" "data.data.actions.reaction" "reaction"}}}
-      </div>
+
+    <div class="inventory"> 
+      <button> View Inventory </button>
     </div>
   </div>
-  <div class="pilot-frame-wrapper flexrow">
-    <div class="frame-wrapper flexrow">
-      {{{mech-frame actor "mm.Frame"}}}
+  <div class="card">
+    <span class="lancer-header submajor clipped-top">
+        ACTIONS
+    </span>
+    <div class="lancer-action-grid">
+      {{{action-button "Protocol" "data.data.actions.protocol" "protocol"}}}
+      {{{action-button "Movement" "data.data.actions.move" "move"}}}
+      {{{action-button "Full Action" "data.data.actions.full" "full"}}}
+      {{{action-button "Quick Action" "data.data.actions.quick" "quick"}}}
+      {{{action-button "Reaction" "data.data.actions.reaction" "reaction"}}}
     </div>
   </div>
+  {{{mech-frame actor "mm.Loadout.Frame"}}}
   <div class="card">
     <span class="lancer-header major">
       LOADOUT [SP:
