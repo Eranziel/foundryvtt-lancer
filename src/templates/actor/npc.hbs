@@ -3,7 +3,7 @@
   <header class="sheet-header card clipped-bot">
     <div class="header-fields">
       <h1 class="charname">
-        <input class="header-field" name="name" type="text" value="{{actor.name}}" placeholder="Name" />
+        <input class="header-field" name="name" type="text" value="{{actor.name}}" placeholder="{{localize "lancer.placeholder.name"}}" />
       </h1>
     </div>
     <div class="details flexcol">
@@ -11,9 +11,9 @@
     </div>
 
     <div class="details flexcol">
-      <span>CLASS:</span>
+      <span>{{localize "lancer.npc-sheet.header.class"}}</span>
       <span class="major">
-        {{#if mm.ActiveClass}} {{mm.ActiveClass.Name}} {{else}} NO CLASS FOUND {{/if}}
+        {{#if mm.ActiveClass}} {{mm.ActiveClass.Name}} {{else}} {{localize "lancer.npc-sheet.class.none"}} {{/if}}
       </span>
     </div>
     {{{ ref-portrait-img actor.img "img" mm }}}
@@ -41,15 +41,14 @@
       </div>
 
       {{!-- Equipment et all --}}
-      <div class="card clipped">
-        <span class="lancer-header submajor">CLASS</span>
+        <span class="lancer-header submajor">{{localize "lancer.npc-sheet.class.label"}}</span>
         <div class="flexcol">
-          {{#if mm.ActiveClass}} {{{ref-mm-controllable-item "mm.ActiveClass" "delete" }}} {{else}} NO CLASS FOUND {{/if}}
+          {{#if mm.ActiveClass}} {{{ref-mm-controllable-item "mm.ActiveClass" "delete" }}} {{else}} {{localize "lancer.npc-sheet.class.none"}} {{/if}}
         </div>
       </div>
 
       <div class="card clipped">
-        <span class="lancer-header submajor">TEMPLATES</span>
+        <span class="lancer-header submajor">{{localize "lancer.npc-sheet.templates.label"}}</span>
         <div class="wraprow double">
           {{#each mm.Templates as |template index|}} {{{ref-mm-controllable-item (concat "mm.Templates." index)
           "delete" }}} {{/each}}
@@ -58,7 +57,7 @@
 
       <div class="card clipped">
         <div class="lancer-header submajor">
-          <span style="padding-left: 41px;">FEATURES</span>
+          <span style="padding-left: 41px;">{{localize "lancer.npc-sheet.features.label"}}</span>
           <a style="margin-top: 2px; font-size: 1.4em;" class="charge-macro"><i class="mdi mdi-dice-6"></i></a>
         </div>
         <div class="wraprow double">
