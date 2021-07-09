@@ -1652,110 +1652,114 @@ a.activation-chip > i.mdi {
 .stat-macro-container > a {
   margin: auto;
 }
+/* Frame descriptor, probably-but-not-necessarily in mech-loadout */
+.mech-frame {
+  .lancer-header {
+    flex-basis: 100%;
+    margin: 2px;
+    border-radius: 3px;
+    height: 1.5em;
+  }
 
-.pilot-summary {
-  position: relative;
-  text-align: center;
-  cursor: pointer;
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
-  flex: 1;
-  min-height: 0;
+  .coresys-title {
+    width: 100%;
+    text-align: center;
+    font-weight: bold;
+  }
+
+  .frame-trait {
+    margin: 2px;
+    flex-grow: unset;
+  }
+
+  .frame-traits {
+    width: 50%;
+  }
+
+  .frame-trait-header {
+    height: 1.5em;
+  }
 }
 
-.pilot-summary > img {
-  object-fit: cover;
+.lancer.actor.mech.sheet {
+  /* The main, top region */
+  .stat-grid {
+    display: grid;
+    grid-template: repeat(5, 4.5em) / repeat(5, 1fr);
+
+    /* Most things auto-layout just fine */
+
+    /* The pilot portrait slot */
+    .pilot-summary {
+      grid-column-start: 5;
+      grid-row: 1/3; // Double-height
+      margin-top: 3px;
+
+      position: relative;
+      text-align: center;
+      cursor: pointer;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      flex: 1;
+      min-height: 0;
+
+      .license-level {
+        position: absolute;
+        right: 0.5em;
+        top: 0px;
+        font-size: 1.6em;
+        width: 60%;
+        clip-path: polygon(0 0, 100% 0, 100% 100%, 32% 100%);
+        background-color: var(--main-theme-color);
+      }
+
+      img {
+        object-fit: cover;
+      }
 }
 
-.pilot-summary-image {
-  grid-column: 5 / 6;
 
-  grid-row: 1/3;
-  margin-top: 3px;
+    /* Hex size indicator */
+    .size-card {
+      grid-column-start: 5;
+      grid-row: 3 / 5; // Double-height
+      margin: auto;
+    }
+
+    /* Button to open inventory */
+    .inventory {
+      grid-column-start: 5;
+      grid-row: 5 / 6;
+      margin: auto;
+    }
+
+    /* 2x2 HASE block */
+    .hase {
+      grid-row: -4/-2;
+      grid-column: 4/5;
+      margin: 0px 7px;
+      flex-grow: unset;
+
+      a.lancer-macro {
+        font-size: 20px;
+        max-width: 20px;
+        max-height: 20px;
+        min-width: 20px;
+        max-height: 20px;
+        position: relative;
+        top: 3px;
+      }
+
+      .stat-macro-container {
+        padding-left: 0.25em;
+        padding-right: 0.5em;
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+  }
 }
 
-.pilot-summary-label {
-  position: absolute;
-  top: 6px;
-  left: 2em;
-}
-
-.pilot-summary-ll {
-  position: absolute;
-  right: 0.5em;
-  top: 0px;
-  font-size: 1.6em;
-  width: 60%;
-  clip-path: polygon(0 0, 100% 0, 100% 100%, 32% 100%);
-  background-color: var(--main-theme-color);
-}
-
-.pilot-summary-hase {
-  flex-grow: unset;
-}
-
-.frame-trait {
-  margin: 2px;
-  flex-grow: unset;
-}
-
-.frame-traits {
-  width: 50%;
-}
-
-.frame-trait-header {
-  height: 1.5em;
-}
-
-.frame-wrapper > .lancer-header {
-  flex-basis: 100%;
-}
-
-.frame-header {
-  margin: 2px;
-  border-radius: 3px;
-  height: 1.5em;
-}
-
-.coresys-title {
-  width: 100%;
-  text-align: center;
-  font-weight: bold;
-}
-
-.pilot-stat-area {
-  display: grid;
-  grid-template: repeat(5, 4.5em) / repeat(5, 1fr);
-}
-
-.size-card {
-  grid-column-start: 5;
-  grid-row: 3 / 5;
-  margin: auto;
-}
-
-.pilot-summary-hase {
-  grid-row: -4/-2;
-  grid-column: 4/5;
-  margin: 0px 7px;
-}
-
-.pilot-summary-hase a.lancer-macro {
-  font-size: 20px;
-  max-width: 20px;
-  max-height: 20px;
-  min-width: 20px;
-  max-height: 20px;
-  position: relative;
-  top: 3px;
-}
-
-.pilot-summary-hase .stat-macro-container {
-  padding-left: 0.25em;
-  padding-right: 0.5em;
-  grid-template-columns: 1fr 1fr;
-}
 
 .pilot-summary {
   padding-left: 10px;
@@ -1809,7 +1813,7 @@ a.activation-chip > i.mdi {
 .weapon-profile.selected-profile {
   color: var(--main-theme-color);
   background-color: white;
-  font-weight: bold;
+  /* font-weight: bold; */
 }
 
 .weapon-mod-addon {

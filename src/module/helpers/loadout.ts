@@ -51,7 +51,22 @@ function weapon_mount(
   registry: CollapseRegistry
 ): string {
   let mount = resolve_helper_dotpath(helper, mount_path) as WeaponMount;
-  // let mech = resolve_helper_dotpath(helper, mech_path, EntryType.MECH);
+
+  // If bracing, override
+  if(mount.Bracing) {
+    return ` 
+    <div class="mount card" >
+      <div class="lancer-header mount-type-ctx-root" data-path="${mount_path}">
+        <span>${mount.MountType} Weapon Mount</span>
+        <a class="gen-control fas fa-trash" data-action="splice" data-path="${mount_path}"></a>
+        <a class="reset-weapon-mount-button fas fa-redo" data-path="${mount_path}"></a>
+      </div>
+      <div class="lancer-body">
+        <span class="major">LOCKED: BRACING</span>
+      </div>
+    </div>`;
+  }
+
   let slots = mount.Slots.map((slot, index) =>
     mech_weapon_refview(`${mount_path}.Slots.${index}.Weapon`, mech_path, helper, registry, slot.Size)
   );
@@ -166,7 +181,7 @@ export function pilot_slot(data_path: string, options: HelperOptions): string {
     <img class="valid ${cd.ref.type} ref" ${ref_params(cd.ref)} style="height: 100%" src="${
     existing.Flags.top_level_data.img
   }"/>
-    <div class="pilot-summary-ll">
+    <div class="license-level">
       <span>LL${existing.Level}</span>
     </div>
 </div>`;
@@ -181,12 +196,19 @@ export function frame_refview(actor: LancerActor<EntryType.MECH>, frame_path: st
   let cd = ref_commons(frame);
   if (!cd) return simple_mm_ref(EntryType.FRAME, frame, "No Frame", frame_path, true);
 
-  return `<div class="lancer-header submajor clipped-top frame-header">
-            <span>${frame.Name}</span>
-          </div>
-          <div class="frame-traits flexcol">${frameTraits(frame)}</div>
-          ${frame.CoreSystem ? buildCoreSysHTML(actor, frame.CoreSystem) : ""}
-          `;
+  return `
+    <div class="card mech-frame">
+      <span class="lancer-header submajor clipped-top">
+        ${frame.Name}
+      </span>
+      <div class="wraprow double">
+        <div class="frame-traits flexcol">
+          ${frameTraits(frame)}
+        </div>
+        ${inc_if(buildCoreSysHTML(actor, frame.CoreSystem), frame.CoreSystem)}
+      </div>
+    </div>
+    `;
 }
 
 function buildCoreSysHTML(actor: LancerActor<EntryType.MECH>, core: CoreSystem) {

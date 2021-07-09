@@ -51,6 +51,7 @@ import { FoundryFlagData } from "../mm-util/foundry-reg";
 import { mm_owner } from "../mm-util/helpers";
 import { LancerActionManager } from "../action/actionManager";
 import { ActionType } from "../action";
+import { InventoryDialog } from "../apps/inventory";
 const lp = LANCER.log_prefix;
 
 /**
@@ -102,6 +103,9 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     // Enable context menu triggers.
     this._activateContextListeners(html);
 
+    // Enable viewing inventory on sheets that support it
+    this._activateInventoryButton(html);
+
     // Make our resolver
     let ctx = this.getCtx();
     let resolver = new MMDragResolveCache(ctx);
@@ -118,11 +122,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     HANDLER_activate_ref_drop_clearing(html, getfunc, commitfunc);
 
     // Enable general controls, so items can be deleted and such
-    HANDLER_activate_general_controls(html, getfunc, commitfunc);
-
-    // Enable NPC class-deletion controls
-    let classWrapper = $(html).find(".class-wrapper");
-    HANDLER_activate_general_controls(classWrapper, getfunc, commitfunc, handleClassDelete);
+    this.activate_general_controls(html);
 
     // Item-referencing inputs
     HANDLER_intercept_form_changes(html, getfunc);
@@ -141,6 +141,13 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
       async (entry, _dest, _event) => this.on_root_drop(entry, _event, _dest),
       () => {}
     );
+  }
+
+  // So it can be overridden
+  activate_general_controls(html: JQuery) { 
+    let getfunc = () => this.getDataLazy();
+    let commitfunc = (_: any) => this._commitCurrMM()
+    HANDLER_activate_general_controls(html, getfunc, commitfunc);
   }
 
   _activateMacroDragging(html: JQuery) {
@@ -568,6 +575,18 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     } else {
       throw "Error - stat macro was not run on an input or data element";
     }
+  }  
+
+  /**
+   * Handles inventory button
+   */
+  _activateInventoryButton(html: any) {
+    let button = html.find(".inventory button");
+
+    button.on("click", async (ev: Event) => {
+      ev.preventDefault();
+      return InventoryDialog.show_inventory(this.actor as AnyLancerActor);
+    });
   }
 
   /**
@@ -736,25 +755,5 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
   // Get the ctx that our actor + its items reside in
   getCtx(): OpCtx {
     return (this.actor as AnyLancerActor)._actor_ctx;
-  }
-}
-
-function handleClassDelete(ctx: GenControlContext<LancerActorSheetData<any>>): undefined {
-  if (is_reg_npc(ctx.data.mm)) {
-    let features: NpcFeature[] = resolve_dotpath(ctx.data, ctx.path).BaseFeatures;
-    let npc = ctx.data.mm;
-    removeFeaturesFromNPC(npc, features);
-  }
-  return;
-}
-
-export async function removeFeaturesFromNPC(npc: Npc, features: NpcFeature[]) {
-  // Gross...
-  for (let i = 0; i < features.length; i++) {
-    for (let j = 0; j < npc.Features.length; j++) {
-      if (features[i].LID === npc.Features[j].LID) {
-        await npc.Features[j].destroy_entry();
-      }
-    }
   }
 }
