@@ -25,6 +25,13 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
       template: "systems/lancer/templates/actor/mech.hbs",
       width: 800,
       height: 800,
+      tabs: [
+        {
+          navSelector: ".lancer-tabs",
+          contentSelector: ".sheet-body",
+          initial: "stats",
+        },
+      ],
     });
   }
 

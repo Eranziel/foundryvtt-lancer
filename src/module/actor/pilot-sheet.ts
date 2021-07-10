@@ -95,26 +95,32 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
       // Cloud download
       let download = html.find('.cloud-control[data-action*="download"]');
       let actor = this.actor as LancerActor<EntryType.PILOT>;
-      download.on("click", async ev => {
-        ev.stopPropagation();
 
-        let self = await this.getDataLazy();
-        // Fetch data to sync
-        let raw_pilot_data = null;
-        if (self.vaultID != "") {
-          ui.notifications.info("Importing character from vault...");
-          raw_pilot_data = await fetchPilot(self.vaultID);
-        } else if (self.gistID != "") {
-          ui.notifications.info("Importing character from cloud share code...");
-          raw_pilot_data = await funcs.gist_io.download_pilot(self.gistID);
-        } else {
-          ui.notifications.error("Could not find character to import!");
-          return;
-        };
-
-        await actor.importCC(raw_pilot_data);
-        this._currData = null;
-      });
+      // Only let us download if we have a cloud actor
+      if(this.actor.data.data.derived.mm.CloudID) {
+        download.on("click", async ev => {
+          ev.stopPropagation();
+  
+          let self = await this.getDataLazy();
+          // Fetch data to sync
+          let raw_pilot_data = null;
+          if (self.vaultID != "") {
+            ui.notifications.info("Importing character from vault...");
+            raw_pilot_data = await fetchPilot(self.vaultID);
+          } else if (self.gistID != "") {
+            ui.notifications.info("Importing character from cloud share code...");
+            raw_pilot_data = await funcs.gist_io.download_pilot(self.gistID);
+          } else {
+            ui.notifications.error("Could not find character to import!");
+            return;
+          };
+  
+          await actor.importCC(raw_pilot_data);
+          this._currData = null;
+        });
+      } else {
+        download.addClass("disabled-cloud");
+      }
 
       // editing gistID clears vaultID
       // (other way happens automatically because we prioritise vaultID in commit)
