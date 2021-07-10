@@ -2177,3 +2177,9 @@ div[data-tab="system"] > .settings-list > div:nth-last-child(-n + 4) {
   max-width: 60%;
   align-self: center;
 }
+
+.disabled-cloud {
+  color: lightgray;
+  pointer-events: none;
+  cursor: default;
+}
