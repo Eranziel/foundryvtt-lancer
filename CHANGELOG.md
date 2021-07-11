@@ -1,3 +1,21 @@
+# 0.9.5 (2021-07-11)
+## Features
+* #235 - Importing Status & Conditions compendium now
+* #70 - Partially resolved, will show the _first_ integrated weapon on the sheet
+* #176 - Better item sorting
+* Superheavies can now be braced
+* Can now track your inventory to see what you don't have equipped!
+* Initial localization work--while we still only have English, any volunteer translators can begin translating to other languages!
+
+## Bug Fixes
+* #174 - Should now remove NPC Features on Class removal in all cases
+* #234 - NPC Notes are now saved
+* #231 - Tweak roll display for better usability
+* #230 - Can now roll Loading weapons
+* #226 - Template Macros fixed
+* #236 - Can now use Talent sheets
+* #243 - Temporary fix for wobbling text
+
 # 0.9.4 (2021-06-16)
 ## Features
 * #174 - NPCs now tie into their classes more closely, removing Features as Classes are removed
