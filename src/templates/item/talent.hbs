@@ -26,9 +26,9 @@ Terse
   <header class="sheet-header card clipped-bot">
     <div class="flexcol grow">
       <h1 class="charname">
-        <input class="header-field" name="name" type="text" value="{{item.name}}" placeholder="Name" />
+        <input class="header-field" name="name" type="text" value="{{item.name}}" placeholder="{{localize "lancer.placeholder.name"}}" />
       </h1>
-      {{#if (eq (idx mm.Registry.config.item_source 0) "actor")}}
+      {{#if item.actor}}
         <div class="flexrow">
           <span>
             RANK:

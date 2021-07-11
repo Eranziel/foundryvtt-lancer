@@ -1,0 +1,125 @@
+{
+    "lancer": {
+        "placeholder": {
+            "name": "Name"
+        },
+        "deployable-sheet": {
+            "tabs": {
+                "status": "<STATUS>",
+                "config": "<CONFIG>"
+            },
+            "deployer": {
+                "label": "DEPLOYER"
+            },
+            "stats": {
+                "label": "BASE STATS"
+            }
+        },
+        "mech-sheet": {
+            "core": {
+                "label": "CORE"
+            },
+            "actions": {
+                "label": "ACTIONS"
+            },
+            "system": {
+                "label": "LOADOUT [SP: {total} / {max} ]"
+            }
+        },
+        "npc-sheet": {
+            "header": {
+                "class": "CLASS:"
+            },
+            "class": {
+                "label": "CLASS",
+                "none": "NO CLASS FOUND"
+            },
+            "templates": {
+                "label": "TEMPLATES"
+            },
+            "features": {
+                "label": "FEATURES"
+            }
+        },
+        "pilot-sheet": {
+            "header": {
+                "ll": "LICENSE LEVEL:",
+                "cs": "CALLSIGN:",
+                "name": "NAME:",
+                "bg": "BACKGROUND:"
+            },
+            "tabs": {
+                "cloud": "<RM-4://SYNC>",
+                "dossier": "<PILOT//DOSSIER>",
+                "tactical": "<PILOT//TACTICAL>",
+                "abilities": "<PILOT//ABILITIES>",
+                "loadout": "<EQUIP//LOADOUT>",
+                "mech": "<FRAME//LOADOUT>"
+            },
+            "cloud-header": {
+                "label": "RM-4://(OMNINET UPLINK ID)",
+                "vaultID": "Load from your Comp/Con account (if logged in)",
+                "gist-placeholder": "or enter an old cloud share code"
+            },
+            "cloud-download": {
+                "label": "DOWNLOAD",
+                "lastSync": "Last synced: {timestamp}"
+            },
+            "cloud-upload": {
+                "label": "UPLOAD",
+                "wip": "FEATURE IN PROGRESS"
+            },
+            "dossier": {
+                "cs": "CALLSIGN",
+                "name": "NAME"
+            },
+            "tactical": {
+                "armor": "ARMOR",
+                "weapons": "WEAPONS",
+                "gear": "GEAR",
+                "licenses": "LICENSES",
+                "cores": "CORE BONUSES"
+            },
+            "abilities": {
+                "skills": "SKILL TRIGGERS",
+                "talents": "TALENTS"
+            }
+        },
+        "chat-card": {
+            "title": {
+                "attack": "// ATTACK //",
+                "damage":  "// DAMAGE //",
+                "crit-damage": "// CRIT DAMAGE //",
+                "defense-hit": "// HIT VS {defense}",
+                "e-defense-hit": "// HIT VS E-DEF",
+                "on-hit": "// ON HIT //",
+                "effect": "// EFFECT //",
+                "charge-roll": "// CHARGE ROLL //",
+                "changes": "// CHANGES //",
+                "overheating": "// OVERHEATING //",
+                "check": "// CHECK :: {check} //",
+                "system": "// SYSTEM :: {system} //"
+            },
+            "label": {
+                "trigger": "TRIGGER",
+                "effect": "EFFECT"
+            },
+            "attack": {
+                "crit": "{total} - CRIT",
+                "hit": "{total} - HIT",
+                "miss": "{total} - MISS"
+            },
+            "exclamation": {
+                "overkill": "OVERKILL!"
+            },
+            "overcharge": {
+                "charged": "{target} + :: CHARGED",
+                "uncharged": "{target} + :: UNCHARGED"
+            },
+            "overkill": {
+                "reroll": "OVERKILL<button class=\"overkill-reroll\"><i class=\"fas fa-redo\"></i> +d6</button>"
+            },
+            "remaining": "{total} / {max} REMAINING"
+        }
+    }
+}

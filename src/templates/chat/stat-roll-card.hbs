@@ -1,5 +1,5 @@
 <div class="card clipped-bot" style="margin: 0px;">
-  <div class="lancer-header ">// CHECK :: {{title}} //</div>
+  <div class="lancer-header ">{{localize "lancer.chat-card.title.check" check=title}}</div>
     <div class="dice-roll lancer-dice-roll">
       <div class="dice-result">
         <div class="dice-formula lancer-dice-formula flexrow">
@@ -12,7 +12,7 @@
       </div>
     </div>
     {{#if effect}}
-      <header>// EFFECT //</header>
+      <header>{{localize "lancer.chat-card.title.effect"}}</header>
       {{{ effect }}}
     {{/if}}
 </div>

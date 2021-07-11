@@ -28,13 +28,30 @@ import {
   prepareItemMacro,
   runEncodedMacro,
 } from "../macros";
-import { EntryType, LiveEntryTypes, MechSystem, MechWeapon, NpcFeature, OpCtx, PilotGear, PilotWeapon, RegEntry, WeaponMod, funcs, Mech, Npc } from "machine-mind";
+import {
+  EntryType,
+  LiveEntryTypes,
+  MechSystem,
+  MechWeapon,
+  NpcFeature,
+  OpCtx,
+  PilotGear,
+  PilotWeapon,
+  RegEntry,
+  WeaponMod,
+  funcs,
+  Mech,
+  Npc,
+} from "machine-mind";
 import { ActivationOptions } from "../enums";
 import { applyCollapseListeners, CollapseHandler } from "../helpers/collapse";
 import { HANDLER_intercept_form_changes } from "../helpers/refs";
 import { addExportButton } from "../helpers/io";
 import { FoundryFlagData } from "../mm-util/foundry-reg";
 import { mm_owner } from "../mm-util/helpers";
+import { LancerActionManager } from "../action/actionManager";
+import { ActionType } from "../action";
+import { InventoryDialog } from "../apps/inventory";
 const lp = LANCER.log_prefix;
 
 /**
@@ -58,6 +75,9 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
 
     // Enable hex use triggers.
     this._activateHexListeners(html);
+
+    // Enable any action grid buttons.
+    this._activateActionGridListeners(html);
 
     // Make refs clickable to open the item
     $(html).find(".ref.valid").on("click", HANDLER_activate_ref_clicking);
@@ -83,20 +103,26 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     // Enable context menu triggers.
     this._activateContextListeners(html);
 
+    // Enable viewing inventory on sheets that support it
+    this._activateInventoryButton(html);
+
     // Make our resolver
     let ctx = this.getCtx();
     let resolver = new MMDragResolveCache(ctx);
 
     // Make refs droppable, in such a way that we take ownership when dropped
-    HANDLER_activate_ref_drop_setting(resolver, html, this.can_root_drop_entry, async (x) => (await this.quick_own(x))[0], getfunc, commitfunc);
+    HANDLER_activate_ref_drop_setting(
+      resolver,
+      html,
+      this.can_root_drop_entry,
+      async x => (await this.quick_own(x))[0],
+      getfunc,
+      commitfunc
+    );
     HANDLER_activate_ref_drop_clearing(html, getfunc, commitfunc);
 
     // Enable general controls, so items can be deleted and such
-    HANDLER_activate_general_controls(html, getfunc, commitfunc);
-
-    // Enable NPC class-deletion controls
-    let classWrapper = $(html).find(".class-wrapper")
-    HANDLER_activate_general_controls(classWrapper, getfunc, commitfunc, handleClassDelete);
+    this.activate_general_controls(html);
 
     // Item-referencing inputs
     HANDLER_intercept_form_changes(html, getfunc);
@@ -109,14 +135,20 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
 
     // Add root dropping
     HANDLER_enable_mm_dropping(
-      html, 
+      html,
       resolver,
       (entry, _dest, _event) => this.can_root_drop_entry(entry),
-      async (entry, _dest, _event) => this.on_root_drop(entry),
+      async (entry, _dest, _event) => this.on_root_drop(entry, _event, _dest),
       () => {}
     );
   }
 
+  // So it can be overridden
+  activate_general_controls(html: JQuery) { 
+    let getfunc = () => this.getDataLazy();
+    let commitfunc = (_: any) => this._commitCurrMM()
+    HANDLER_activate_general_controls(html, getfunc, commitfunc);
+  }
 
   _activateMacroDragging(html: JQuery) {
     const statMacroHandler = (e: DragEvent) => this._onDragMacroableStart(e);
@@ -235,7 +267,34 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
         }
 
         item.writeback();
-        console.log(item);
+        console.debug(item);
+      }
+    });
+  }
+
+  async _activateActionGridListeners(html: JQuery) {
+    let elements = html.find(".lancer-action-button");
+    elements.on("click", async ev => {
+      ev.stopPropagation();
+      if (!game.action_manager) return;
+
+      if (game.user.isGM || game.settings.get(LANCER.sys_name, LANCER.setting_action_manager_players)) {
+        const manager: LancerActionManager = game.action_manager;
+
+        const params = ev.currentTarget.dataset;
+        const action = params.action as ActionType | undefined;
+        const data = await this.getDataLazy();
+        if (action && params.val) {
+          let spend: boolean;
+          if (params.action === "move") {
+            spend = parseInt(params.val) > 0;
+          } else {
+            spend = params.val === "true";
+          }
+          manager.modAction((data.actor as unknown) as LancerActor<any>, spend, action);
+        }
+      } else {
+        console.log(`${game.user.name} :: Users currently not allowed to toggle actions through action manager.`);
       }
     });
   }
@@ -516,6 +575,18 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     } else {
       throw "Error - stat macro was not run on an input or data element";
     }
+  }  
+
+  /**
+   * Handles inventory button
+   */
+  _activateInventoryButton(html: any) {
+    let button = html.find(".inventory button");
+
+    button.on("click", async (ev: Event) => {
+      ev.preventDefault();
+      return InventoryDialog.show_inventory(this.actor as AnyLancerActor);
+    });
   }
 
   /**
@@ -539,46 +610,45 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     });
   }
 
-
   // A grand filter that pre-decides if we can drop an item ref anywhere within this sheet. Should be implemented by child sheets
-  // We generally assume that a global item is droppable if it matches our types, and that an owned item is droppable if it is owned by this actor 
+  // We generally assume that a global item is droppable if it matches our types, and that an owned item is droppable if it is owned by this actor
   // This is more of a permissions/suitability question
   can_root_drop_entry(item: AnyMMItem | AnyMMActor): boolean {
     return false;
   }
 
   // This function is called on any dragged item that percolates down to root without being handled
-  async on_root_drop(item: AnyMMItem | AnyMMActor): Promise<void> {
-  }
+  // Override/extend as appropriate
+  async on_root_drop(item: AnyMMItem | AnyMMActor, event: JQuery.DropEvent, dest: JQuery<HTMLElement>): Promise<void> {}
 
   // Override base behavior
   async _onDrop(evt: any) {
     return;
   }
 
-  // Makes us own (or rather, creates an owned copy of) the provided item if we don't already. 
+  // Makes us own (or rather, creates an owned copy of) the provided item if we don't already.
   // The second return value indicates whether a new copy was made (true), or if we already owned it/it is an actor (false)
   // Note: this operation also fixes limited to be the full capability of our actor
   async quick_own<T extends EntryType>(entry: LiveEntryTypes<T>): Promise<[LiveEntryTypes<T>, boolean]> {
     // Actors are unaffected
-    if(is_actor_type(entry.Type)) {
+    if (is_actor_type(entry.Type)) {
       return [entry, false];
     }
 
-    if(mm_owner(entry as AnyMMItem) != this.actor) {
+    if (mm_owner(entry as AnyMMItem) != this.actor) {
       let sheet_data = await this.getDataLazy();
       let this_mm = sheet_data.mm;
       let ctx = this.getCtx();
       let inv = await this_mm.get_inventory();
 
       let result = await entry.insinuate(inv, ctx, {
-        pre_final_write: (rec) => {
-            // Pull a sneaky: set the limited value to max before insinuating
-            if(funcs.is_tagged(rec.pending) && (rec.pending as any).Uses != undefined) {
-              let as_lim = rec.pending as NpcFeature | MechWeapon | MechSystem | PilotWeapon | PilotGear | WeaponMod;
-              as_lim.Uses = funcs.limited_max(as_lim) + (this_mm instanceof Mech ? this_mm.LimitedBonus : 0);
-            }
+        pre_final_write: rec => {
+          // Pull a sneaky: set the limited value to max before insinuating
+          if (funcs.is_tagged(rec.pending) && (rec.pending as any).Uses != undefined) {
+            let as_lim = rec.pending as NpcFeature | MechWeapon | MechSystem | PilotWeapon | PilotGear | WeaponMod;
+            as_lim.Uses = funcs.limited_max(as_lim) + (this_mm instanceof Mech ? this_mm.LimitedBonus : 0);
           }
+        },
       });
       return [result as LiveEntryTypes<T>, true];
     } else {
@@ -595,7 +665,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     // Get the basics
     let new_top: any = {
       img: formData.img,
-      name: formData.name
+      name: formData.name,
     };
 
     // Set the prototype token image if the prototype token isn't initialized
@@ -631,7 +701,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     if ("npctier" in formData) {
       formData["mm.Tier"] = Number.parseInt(formData["npctier"]) || 1;
     }
-    
+
     // Automatically propagates chanages that should affect multiple things.
     let new_top = this._propagateMMData(formData);
 
@@ -654,7 +724,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
 
     // Also wait for all of their items
     // @ts-ignore 0.8
-    for(let i of this.actor.items.contents) {
+    for (let i of this.actor.items.contents) {
       await i.data.data.derived?.mm_promise; // The ? is necessary in case of a foundry internal race condition
     }
 
@@ -685,25 +755,5 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
   // Get the ctx that our actor + its items reside in
   getCtx(): OpCtx {
     return (this.actor as AnyLancerActor)._actor_ctx;
-  }
-}
-
-function handleClassDelete(ctx: GenControlContext<LancerActorSheetData<any>>): undefined {
-  if(is_reg_npc(ctx.data.mm)) {
-    let features: NpcFeature[] = resolve_dotpath(ctx.data, ctx.path).BaseFeatures;
-    let npc = ctx.data.mm;
-    removeFeaturesFromNPC(npc,features);
-  } 
-  return;
-}
-
-export async function removeFeaturesFromNPC(npc: Npc, features: NpcFeature[]) {
-  // Gross...
-  for (let i = 0; i < features.length; i++) {
-    for (let j = 0; j < npc.Features.length; j++) {
-      if(features[i].LID === npc.Features[j].LID) {
-        await npc.Features[j].destroy_entry();
-      }
-    }
   }
 }
