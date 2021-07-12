@@ -61,12 +61,10 @@
     </div>
   </div>
   <div class="pilot-frame-wrapper flexrow">
-    <div class="frame-wrapper flexrow">
-      <div class="lancer-header submajor clipped-top frame-header">
-        <span>
+    <div class="card">
+      <span class="lancer-header submajor clipped-top">
           {{localize "lancer.mech-sheet.actions.label"}}
-        </span>
-      </div>
+      </span>
       <div class="lancer-action-grid">
         {{{action-button "Protocol" "data.data.actions.protocol" "protocol"}}}
         {{{action-button "Movement" "data.data.actions.move" "move"}}}
@@ -74,20 +72,9 @@
         {{{action-button "Quick Action" "data.data.actions.quick" "quick"}}}
         {{{action-button "Reaction" "data.data.actions.reaction" "reaction"}}}
       </div>
+    </div>
     <div class="inventory"> 
       <button> View Inventory </button>
-    </div>
-  </div>
-  <div class="card">
-    <span class="lancer-header submajor clipped-top">
-        ACTIONS
-    </span>
-    <div class="lancer-action-grid">
-      {{{action-button "Protocol" "data.data.actions.protocol" "protocol"}}}
-      {{{action-button "Movement" "data.data.actions.move" "move"}}}
-      {{{action-button "Full Action" "data.data.actions.full" "full"}}}
-      {{{action-button "Quick Action" "data.data.actions.quick" "quick"}}}
-      {{{action-button "Reaction" "data.data.actions.reaction" "reaction"}}}
     </div>
   </div>
   {{{mech-frame actor "mm.Loadout.Frame"}}}
