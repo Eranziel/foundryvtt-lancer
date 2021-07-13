@@ -50,7 +50,7 @@ import { buildActionHTML, buildDeployableHTML, buildSystemHTML } from "./helpers
 import { ActivationOptions, StabOptions1, StabOptions2 } from "./enums";
 import { applyCollapseListeners, uuid4 } from "./helpers/collapse";
 import { checkForHit, getTargets } from "./helpers/automation/targeting";
-import { AccDiffFlag, tagsToFlags, toggleCover, updateTotals } from "./helpers/acc_diff";
+import { AccDiffForm, AccDiffFormData } from "./helpers/acc_diff";
 import { is_overkill } from "machine-mind/dist/funcs";
 
 const lp = LANCER.log_prefix;
@@ -450,23 +450,48 @@ function getMacroActorItem(a: string, i: string): { actor: Actor | null; item: I
   return result;
 }
 
-async function buildAttackRollString(
-  title: string,
-  flags: AccDiffFlag[],
-  bonus: number,
-  starting?: [number, number] // initial [accuracy, difficulty]
-): Promise<string | null> {
-  let abort: boolean = false;
-  let acc = 0;
-  await promptAccDiffModifier(flags, title, starting).then(
-    resolve => (acc = resolve),
-    reject => (abort = reject)
-  );
-  if (abort) return null;
+function rollStr(bonus: number, obj: { accuracy: number, difficulty: number }): string {
+  let total = obj.accuracy - obj.difficulty;
+  let modStr = "";
+  if (total != 0) {
+    let sign = total > 0 ? "+" : "-";
+    let abs = Math.abs(total);
+    let roll = abs == 1 ? "1d6" : `${abs}d6kh1`;
+    modStr = ` ${sign} ${roll}`;
+  }
+  return `1d20+${bonus}${modStr}`;
+}
 
-  // Do the attack rolling
-  let acc_str = acc != 0 ? ` + ${acc}d6kh1` : "";
-  return `1d20+${bonus}${acc_str}`;
+type AttackRoll = {
+  roll: string,
+  targeted: { target: LancerActor<LancerActorType>, roll: string }[]
+}
+
+async function buildAttackRollStrings(
+  title: string,
+  tags: TagInstance[],
+  bonus: number,
+  targets: LancerActor<LancerActorType>[],
+  starting?: [number, number] // initial [accuracy, difficulty]
+): Promise<AttackRoll | null> {
+  try {
+    let accdiff = await promptAccDiffModifiers(tags, title, targets, starting);
+    let res: AttackRoll = {
+      roll: rollStr(bonus, accdiff.baseAccDiff),
+      targeted: accdiff.targetedAccDiffs.map(tad => ({
+        target: tad.target,
+        roll: rollStr(bonus, {
+          accuracy: tad.accuracy + accdiff.baseAccDiff.accuracy,
+          difficulty: tad.difficulty + accdiff.baseAccDiff.difficulty
+        })
+      }))
+    };
+
+    return res;
+  } catch (e) {
+    // an error occurred during the prompt; probably the user cancelling
+    return null;
+  }
 }
 
 export async function prepareStatMacro(a: string, statKey: string) {
@@ -503,8 +528,8 @@ async function rollStatMacro(actor: Actor, data: LancerStatMacroData) {
   // Get accuracy/difficulty with a prompt
   let acc: number = 0;
   let abort: boolean = false;
-  await promptAccDiffModifier().then(
-    resolve => (acc = resolve),
+  await promptAccDiffModifiers().then(
+    accdiff => (acc = accdiff.baseAccDiff.accuracy - accdiff.baseAccDiff.difficulty),
     () => (abort = true)
   );
   if (abort) return Promise.resolve();
@@ -690,14 +715,16 @@ async function prepareAttackMacro({
     }
   }
 
-  // Build attack string before deducting charge.
-  const atk_str = await buildAttackRollString(
+  // Build attack rolls before deducting charge.
+  const targets = getTargets();
+  const atkRolls = await buildAttackRollStrings(
     mData.title,
-    tagsToFlags(mData.tags),
+    mData.tags,
     mData.grit,
-    mData.acc > 0 ? [mData.acc, 0] : [0, -mData.acc]
+    targets,
+    mData.acc > 0 ? [mData.acc, 0] : [0, -mData.acc],
   );
-  if (!atk_str) return;
+  if (!atkRolls) return;
 
   // Deduct charge if LOADING weapon.
   if (
@@ -712,16 +739,13 @@ async function prepareAttackMacro({
     await itemEnt.writeback();
   }
 
-  await rollAttackMacro(actor, atk_str, mData);
+  await rollAttackMacro(actor, atkRolls, mData);
 }
 
-async function rollAttackMacro(actor: Actor, atk_str: string | null, data: LancerAttackMacroData) {
-  if (!atk_str) return;
-
+async function rollAttackMacro(actor: Actor, atkRolls: AttackRoll, data: LancerAttackMacroData) {
   // IS SMART?
   const isSmart = data.tags.findIndex(tag => tag.Tag.LID === "tg_smart") > -1;
   // CHECK TARGETS
-  const targets = getTargets();
   let hits: {
     token: { name: string; img: string };
     total: string;
@@ -729,10 +753,11 @@ async function rollAttackMacro(actor: Actor, atk_str: string | null, data: Lance
     crit: boolean;
   }[] = [];
   let attacks: { roll: Roll; tt: HTMLElement | JQuery<HTMLElement> }[] = [];
-  if (game.settings.get(LANCER.sys_name, LANCER.setting_automation_attack) && targets.length > 0) {
-    for (const target of targets) {
+  if (game.settings.get(LANCER.sys_name, LANCER.setting_automation_attack) && atkRolls.targeted.length > 0) {
+    for (const targetingData of atkRolls.targeted) {
+      let target = targetingData.target;
       // @ts-ignore .8
-      let attack_roll = await new Roll(atk_str!).evaluate({ async: true });
+      let attack_roll = await new Roll(targetingData.roll).evaluate({ async: true });
       const attack_tt = await attack_roll.getTooltip();
       attacks.push({ roll: attack_roll, tt: attack_tt });
 
@@ -748,7 +773,7 @@ async function rollAttackMacro(actor: Actor, atk_str: string | null, data: Lance
     }
   } else {
     // @ts-ignore .8
-    let attack_roll = await new Roll(atk_str).evaluate({ async: true });
+    let attack_roll = await new Roll(atkRolls.roll).evaluate({ async: true });
     const attack_tt = await attack_roll.getTooltip();
     attacks.push({ roll: attack_roll, tt: attack_tt });
   }
@@ -1084,11 +1109,12 @@ export async function prepareTechMacro(a: string, t: string) {
 }
 
 async function rollTechMacro(actor: Actor, data: LancerTechMacroData) {
-  let atk_str = await buildAttackRollString(data.title, tagsToFlags(data.tags), data.t_atk);
-  if (!atk_str) return;
+  const targets = getTargets();
+
+  let atkRolls = await buildAttackRollStrings(data.title, data.tags, data.t_atk, targets);
+  if (!atkRolls) return;
 
   // CHECK TARGETS
-  const targets = getTargets();
   let hits: {
     token: { name: string; img: string };
     total: string;
@@ -1097,9 +1123,10 @@ async function rollTechMacro(actor: Actor, data: LancerTechMacroData) {
   }[] = [];
   let attacks: { roll: Roll; tt: HTMLElement | JQuery<HTMLElement> }[] = [];
   if (game.settings.get(LANCER.sys_name, LANCER.setting_automation_attack) && targets.length > 0) {
-    for (const target of targets) {
+    for (const targetingData of atkRolls.targeted) {
+      let target = targetingData.target;
       // @ts-ignore .8
-      let attack_roll = await new Roll(atk_str!).evaluate({ async: true });
+      let attack_roll = await new Roll(targetingData.roll).evaluate({ async: true });
       const attack_tt = await attack_roll.getTooltip();
       attacks.push({ roll: attack_roll, tt: attack_tt });
 
@@ -1115,7 +1142,7 @@ async function rollTechMacro(actor: Actor, data: LancerTechMacroData) {
     }
   } else {
     // @ts-ignore .8
-    let attack_roll = await new Roll(atk_str).evaluate({ async: true });
+    let attack_roll = await new Roll(atkRolls.roll).evaluate({ async: true });
     const attack_tt = await attack_roll.getTooltip();
     attacks.push({ roll: attack_roll, tt: attack_tt });
   }
@@ -1134,64 +1161,15 @@ async function rollTechMacro(actor: Actor, data: LancerTechMacroData) {
   return await renderMacroTemplate(actor, template, templateData);
 }
 
-export async function promptAccDiffModifier(flags?: AccDiffFlag[], title?: string, starting?: [number, number]) {
-  let template = await renderTemplate(`systems/lancer/templates/window/acc_diff.hbs`, {});
-  return new Promise<number>((resolve, reject) => {
-    new Dialog({
-      title: title ? `${title} - Accuracy and Difficulty` : "Accuracy and Difficulty",
-      content: template,
-      buttons: {
-        submit: {
-          icon: '<i class="fas fa-check"></i>',
-          label: "Submit",
-          callback: async dialog => {
-            let total = updateTotals();
-            console.log(`${lp} Dialog returned a modifier of ${total}d6`);
-            resolve(total);
-          },
-        },
-        cancel: {
-          icon: '<i class="fas fa-times"></i>',
-          label: "Cancel",
-          callback: async () => {
-            reject(true);
-          },
-        },
-      },
-      default: "submit",
-      render: (_html: any) => {
-        if (flags) {
-          for (let flag of flags) {
-            const ret = document.querySelector(`[data-acc="${flag}"],[data-diff="${flag}"]`);
-            ret && ((ret as HTMLInputElement).checked = true);
-          }
-        }
-
-        if (flags?.includes("SEEKING")) {
-          toggleCover(false);
-        }
-        updateTotals();
-
-        if (starting) {
-          $("#accdiff-other-acc").val(starting[0]);
-          $("#accdiff-other-diff").val(starting[1]);
-          updateTotals();
-        }
-
-        // LISTENERS
-        $("[data-acc],[data-diff]").on("click", e => {
-          if (e.currentTarget.dataset.acc === "SEEKING") {
-            toggleCover(!(e.currentTarget as HTMLInputElement).checked);
-          }
-          updateTotals();
-        });
-        $(".accdiff-grid button.dec-set").on("click", _e => {
-          updateTotals();
-        });
-      },
-      close: () => reject(true),
-    } as DialogData).render(true);
-  });
+export function promptAccDiffModifiers(
+  tags?: TagInstance[],
+  title?: string,
+  targets?: LancerActor<LancerActorType>[],
+  starting?: [number, number]
+): Promise<AccDiffFormData> {
+  let form = AccDiffForm.fromData(tags, title, targets, starting);
+  form.render(true);
+  return form.promise;
 }
 
 export async function prepareOverchargeMacro(a: string) {
