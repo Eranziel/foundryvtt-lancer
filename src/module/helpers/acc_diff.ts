@@ -1,6 +1,6 @@
 import { TagInstance } from "machine-mind";
 import { LancerActor, LancerActorType } from '../actor/lancer-actor';
-import { gentle_merge } from '../helpers/commons';
+import ReactiveForm from './reactive-form';
 
 enum Cover {
   None = 0,
@@ -32,34 +32,21 @@ export type AccDiffFormData = {
   }[],
 }
 
-type AccDiffFormView = {
+type AccDiffFormView = AccDiffFormData & {
   baseCoverDisabled: boolean,
   hasTargets: boolean
 }
 
-export class AccDiffForm extends FormApplication {
-  data: AccDiffFormData;
-  resolve: ((data: AccDiffFormData) => void) | null = null;
-  reject: ((v: void) => void) | null = null;
-  promise: Promise<AccDiffFormData>;
-
+export class AccDiffForm extends ReactiveForm<AccDiffFormData, AccDiffFormView> {
   static get defaultOptions() {
     return mergeObject(super.defaultOptions, {
       template: "systems/lancer/templates/window/acc_diff.hbs",
       resizable: false,
-      submitOnChange: false,
-      submitOnClose: false,
-      closeOnSubmit: true,
     });
   }
 
   constructor(data: AccDiffFormData) {
-    super(data, { title: data.title });
-    this.data = data;
-    this.promise = new Promise((resolve, reject) => {
-      this.resolve = resolve;
-      this.reject = reject;
-    })
+    super(data, { title: data.title })
   }
 
   static formDataFromParams(
@@ -130,58 +117,10 @@ export class AccDiffForm extends FormApplication {
     return new AccDiffForm(AccDiffForm.formDataFromParams(tags, title, targets, starting));
   }
 
-  getData(): AccDiffFormData & AccDiffFormView {
-    let ret: AccDiffFormData = this.data as AccDiffFormData;
-
-    let view: AccDiffFormView = {
-      baseCoverDisabled: ret.base.seeking || ret.targets.length > 0,
-      hasTargets: ret.targets.length > 0
-    }
-
-    return mergeObject(
-      ret as AccDiffFormData & AccDiffFormView,
-      view as AccDiffFormData & AccDiffFormView
-    );
-  }
-
-  activateListeners(html: JQuery) {
-    super.activateListeners(html);
-    html.find(".cancel").on("click", async (_ev) => {
-      return this.close();
-    });
-  }
-
-  async _onChangeInput(_e: Event) {
-    // @ts-ignore .8 -- FormApplication._onChangeInput does exist
-    await super._onChangeInput(_e);
-    // @ts-ignore .8 -- FormApplication._getSubmitData does exist
-    let data = this._getSubmitData(null);
-    await this._updateObject(_e, data);
-  }
-
-  _updateObject(ev: Event, formData: any) {
-    gentle_merge(this.data, formData);
-    this.render();
-
-    if (ev.type == "submit") {
-      if (this.resolve) {
-        this.resolve(this.data);
-        this.reject = null;
-      }
-      return this.promise;
-    } else {
-      return Promise.resolve(this.data);
-    }
-  }
-
-  // FormApplication.close() does take an options hash
-  // @ts-ignore .8
-  close(options: any = {}) {
-    if (this.reject) {
-      this.reject();
-      this.resolve = null;
-    };
-    // @ts-ignore .8
-    return super.close(options);
+  getViewModel(data: AccDiffFormData): AccDiffFormView {
+    let ret = data as AccDiffFormView; // view elements haven't been set yet
+    ret.hasTargets = ret.targets.length > 0;
+    ret.baseCoverDisabled = ret.base.seeking || ret.hasTargets;
+    return ret
   }
 }
