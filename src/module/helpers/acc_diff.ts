@@ -2,22 +2,39 @@ import { TagInstance } from "machine-mind";
 import { LancerActor, LancerActorType } from '../actor/lancer-actor';
 import { gentle_merge } from '../helpers/commons';
 
+enum Cover {
+  None = 0,
+  Soft = 1,
+  Hard = 2
+}
+
 export type AccDiffFormData = {
   title: string,
-  baseUntypedAccDiff: { accuracy: number, difficulty: number },
-  baseAccDiff: { accuracy: number, difficulty: number },
-  targetedAccDiffs: { target: LancerActor<LancerActorType>, accuracy: number, difficulty: number }[],
-  accurate: boolean,
-  inaccurate: boolean,
-  softCover: boolean,
-  hardCover: boolean,
-  seeking: boolean,
-  seekingDisabled?: string,
-  totalIcon?: {
-    value: number,
-    color: string,
-    className: string
-  }
+  base: {
+    untyped: {
+      accuracy: number,
+      difficulty: number,
+    },
+    accuracy: number,
+    difficulty: number,
+    cover: Cover,
+    accurate: boolean,
+    inaccurate: boolean,
+    seeking: boolean,
+    total: number
+  },
+  targets: {
+    target: LancerActor<LancerActorType>,
+    accuracy: number,
+    difficulty: number,
+    cover: Cover,
+    total: number
+  }[],
+}
+
+type AccDiffFormView = {
+  baseCoverDisabled: boolean,
+  hasTargets: boolean
 }
 
 export class AccDiffForm extends FormApplication {
@@ -51,39 +68,53 @@ export class AccDiffForm extends FormApplication {
     targets?: LancerActor<LancerActorType>[],
     starting?: [number, number]
   ): AccDiffFormData {
-    let baseAccDiff = {
-      accuracy: starting ? starting[0] : 0,
-      difficulty: starting ? starting[1] : 0
-    };
-
     let ret: AccDiffFormData = {
       title: title ? `${title} - Accuracy and Difficulty` : "Accuracy and Difficulty",
-      baseUntypedAccDiff: baseAccDiff,
-      baseAccDiff: baseAccDiff, // this'll get overwritten by getData soon
-
-      targetedAccDiffs: (targets || []).map(t => ({
-        target: t,
-        accuracy: 0,
-        difficulty: 0
-      })),
-
-      accurate: false,
-      inaccurate: false,
-      softCover: false,
-      hardCover: false,
-      seeking: false
+      base: {
+        accurate: false,
+        inaccurate: false,
+        cover: Cover.None,
+        seeking: false,
+        untyped: {
+          accuracy: starting ? starting[0] : 0,
+          difficulty: starting ? starting[1] : 0
+        },
+        get accuracy() {
+          return this.untyped.accuracy + (this.accurate ? 1 : 0);
+        },
+        get difficulty() {
+          return this.untyped.difficulty
+            + (this.inaccurate ? 1 : 0)
+            + (this.seeking ? 0 : this.cover)
+        },
+        get total() {
+          return this.accuracy - this.difficulty;
+        }
+      },
+      targets: []
     };
+
+    ret.targets = (targets || []).map(t => ({
+      target: t,
+      accuracy: 0,
+      difficulty: 0,
+      cover: Cover.None,
+      get total() {
+        return this.accuracy - this.difficulty
+          + ret.base.total - (ret.base.seeking ? 0 : this.cover);
+      }
+    }));
 
     for (let tag of (tags || [])) {
       switch (tag.Tag.LID) {
         case "tg_accurate":
-          ret.accurate = true;
+          ret.base.accurate = true;
           break;
         case "tg_inaccurate":
-          ret.inaccurate = true;
+          ret.base.inaccurate = true;
           break;
         case "tg_seeking":
-          ret.seeking = true;
+          ret.base.seeking = true;
           break;
       }
     }
@@ -99,28 +130,18 @@ export class AccDiffForm extends FormApplication {
     return new AccDiffForm(AccDiffForm.formDataFromParams(tags, title, targets, starting));
   }
 
-  getData(): AccDiffFormData {
-    let ret = this.data;
+  getData(): AccDiffFormData & AccDiffFormView {
+    let ret: AccDiffFormData = this.data as AccDiffFormData;
 
-    ret.baseAccDiff = {
-      accuracy: ret.baseUntypedAccDiff.accuracy + (ret.accurate ? 1 : 0),
-      difficulty: ret.baseUntypedAccDiff.difficulty + (ret.inaccurate ? 1 : 0)
-    };
-    if (!ret.seeking && (ret.hardCover || ret.softCover)) {
-      ret.baseAccDiff.difficulty += ret.hardCover ? 2 : 1;
+    let view: AccDiffFormView = {
+      baseCoverDisabled: ret.base.seeking || ret.targets.length > 0,
+      hasTargets: ret.targets.length > 0
     }
 
-    ret.seekingDisabled = ret.seeking ? "disabled" : "";
-
-    let total = ret.baseAccDiff.accuracy - ret.baseAccDiff.difficulty;
-
-    ret.totalIcon = {
-      value: Math.abs(total),
-      color: total > 0 ? "#017934" : total < 0 ? "#9c0d0d" : "#443c3c",
-      className: total >= 0 ? "cci-accuracy" : "cci-difficulty"
-    };
-
-    return ret;
+    return mergeObject(
+      ret as AccDiffFormData & AccDiffFormView,
+      view as AccDiffFormData & AccDiffFormView
+    );
   }
 
   activateListeners(html: JQuery) {

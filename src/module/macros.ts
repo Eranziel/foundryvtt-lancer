@@ -450,8 +450,7 @@ function getMacroActorItem(a: string, i: string): { actor: Actor | null; item: I
   return result;
 }
 
-function rollStr(bonus: number, obj: { accuracy: number, difficulty: number }): string {
-  let total = obj.accuracy - obj.difficulty;
+function rollStr(bonus: number, total: number): string {
   let modStr = "";
   if (total != 0) {
     let sign = total > 0 ? "+" : "-";
@@ -477,13 +476,10 @@ async function buildAttackRollStrings(
   try {
     let accdiff = await promptAccDiffModifiers(tags, title, targets, starting);
     let res: AttackRoll = {
-      roll: rollStr(bonus, accdiff.baseAccDiff),
-      targeted: accdiff.targetedAccDiffs.map(tad => ({
+      roll: rollStr(bonus, accdiff.base.total),
+      targeted: accdiff.targets.map(tad => ({
         target: tad.target,
-        roll: rollStr(bonus, {
-          accuracy: tad.accuracy + accdiff.baseAccDiff.accuracy,
-          difficulty: tad.difficulty + accdiff.baseAccDiff.difficulty
-        })
+        roll: rollStr(bonus, tad.total)
       }))
     };
 
@@ -529,7 +525,7 @@ async function rollStatMacro(actor: Actor, data: LancerStatMacroData) {
   let acc: number = 0;
   let abort: boolean = false;
   await promptAccDiffModifiers().then(
-    accdiff => (acc = accdiff.baseAccDiff.accuracy - accdiff.baseAccDiff.difficulty),
+    accdiff => (acc = accdiff.base.total),
     () => (abort = true)
   );
   if (abort) return Promise.resolve();

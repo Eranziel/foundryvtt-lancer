@@ -505,6 +505,74 @@ async function control_structs(key: string, on: LiveEntryTypes<EntryType>): Prom
   return [false, null];
 }
 
+export function std_cover_input(path: string, options: HelperOptions) {
+  let container_classes: string = options.hash["classes"] || "";
+  let label: string = options.hash["label"] || "";
+  let label_classes: string = options.hash["label_classes"] || "";
+
+  let value: string | undefined = options.hash["value"];
+  if (value == undefined) {
+    // Resolve
+    value = (resolve_helper_dotpath(options, path) as number)?.toString() ?? 0;
+  }
+
+  let checked = ["0", "1", "2"].map(v => value == v ? "checked='true'" : "");
+  let disabled: boolean = options.hash["disabled"] ? resolve_helper_dotpath(options, options.hash["disabled"]) : false;
+  let disabledStr = disabled ? "disabled" : "";
+
+  let inputs = [
+    `<input type="radio" id="${path}-cover-none" class="no-grow cover-none" name="${path}" value="0" ${checked[0]} data-dtype="Number" ${disabledStr} />
+     <label for="${path}-cover-none" class="lancer-cover-radio-label ${label_classes}">
+       <i class="cci-no-cover i--s" style="border:none"></i>
+       <span class="no-grow">No Cover</span>
+     </label>`,
+    `<input type="radio" id="${path}-cover-soft" class="no-grow cover-soft" name="${path}" value="1" ${checked[1]} data-dtype="Number" ${disabledStr} />
+    <label for="${path}-cover-soft" class="lancer-cover-radio-label ${label_classes}">
+       <i class="cci-soft-cover i--s" style="border:none"></i>
+       <span class="no-grow">Soft Cover (-1)</span>
+     </label>`,
+    `<input type="radio" id="${path}-cover-hard" class="no-grow cover-hard" name="${path}" value="2" ${checked[2]} data-dtype="Number" ${disabledStr} />
+     <label for="${path}-cover-hard" class="lancer-cover-radio-label ${label_classes}">
+       <i class="cci-hard-cover i--s" style="border:none"></i>
+       <span class="no-grow">Hard Cover (-2)</span>
+     </label>`
+  ];
+
+  if (label) {
+    return `<label class="lancer-cover-radio ${disabledStr} ${label_classes} ${container_classes}">
+              <span class="no-grow" style="padding: 2px 5px;">${label}</span>
+              ${inputs.join(" ")}
+            </label>`
+  } else {
+    return `<div class="lancer-cover-radio ${disabledStr} ${container_classes}">${inputs.join(" ")}</div>`;
+  }
+}
+
+export function accdiff_total_display(path: string, options: HelperOptions) {
+  let container_classes: string = options.hash["classes"] || "";
+  let id: string = options.hash["id"] || "";
+  let value: string | undefined = options.hash["value"];
+  let total = 0;
+  if (value == undefined) {
+    // Resolve
+    total = (resolve_helper_dotpath(options, path) as number) ?? 0;
+  }
+
+  let abs = Math.abs(total);
+  let color = total > 0 ? "#017934" : total < 0 ? "#9c0d0d" : "#443c3c";
+  let icon = total >= 0 ? "cci-accuracy" : "cci-difficulty"
+
+  return `
+<div class="${container_classes}">
+  <div>
+    <div class="card clipped" style="background-color: ${color}">
+      <span id="${id}">${abs}</span>
+      <i class="cci ${icon} i--m i--dark white--text" style="vertical-align:middle;border:none"></i>
+    </div>
+  </div>
+</div>`
+}
+
 // Our standardized functions for making simple key-value input pair
 // Todo - these could on the whole be a bit fancier, yeah?
 

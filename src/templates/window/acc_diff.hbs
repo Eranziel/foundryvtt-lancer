@@ -1,4 +1,4 @@
-<form>
+<form id="accdiff">
   <div id="accdiff-dialog" style="padding:4px">
     <div class="accdiff-grid">
       <div style="width:100%;padding:4px;border-right: 1px dashed #782e22;">
@@ -8,12 +8,12 @@
         </h3>
         <label class="container">
           Accurate (+1)
-          <input type="checkbox" name="accurate" {{checked accurate}} />
+          <input type="checkbox" name="base.accurate" {{checked base.accurate}} />
           <span class="checkmark"></span>
         </label>
         <label class="container">
           Seeking (*)
-          <input type="checkbox" name="seeking" {{checked seeking}} />
+          <input type="checkbox" name="base.seeking" {{checked base.seeking}} />
           <span class="checkmark"></span>
         </label>
       </div>
@@ -24,19 +24,13 @@
         </h3>
         <label class="container">
           Inaccurate (-1)
-          <input type="checkbox" name="inaccurate" {{checked inaccurate}} />
+          <input type="checkbox" name="base.inaccurate" {{checked base.inaccurate}} />
           <span class="checkmark"></span>
         </label>
-        <label class="container">
-          Soft Cover (-1)
-          <input type="checkbox" name="softCover" {{checked softCover}} {{seekingDisabled}} />
-          <span class="checkmark"></span>
-        </label>
-        <label class="container">
-          Hard Cover (-2)
-          <input type="checkbox" name="hardCover" {{checked hardCover}} {{seekingDisabled}} />
-          <span class="checkmark"></span>
-        </label>
+        {{{std-cover-input "base.cover"
+          classes="accdiff-base-cover flexcol"
+          disabled="baseCoverDisabled"
+        }}}
       </div>
     </div>
     <label class="flexrow accdiff-footer accdiff-weight">
@@ -56,8 +50,8 @@
           class="difficulty lancer-invisible-input dec-set"
           style="max-width: 2em;text-align: center;font-size: 1.2em"
           type="number"
-          name="baseUntypedAccDiff.accuracy"
-          value="{{baseUntypedAccDiff.accuracy}}"
+          name="base.untyped.accuracy"
+          value="{{base.untyped.accuracy}}"
           min="0"
         />
         <button
@@ -81,8 +75,8 @@
           class="difficulty lancer-invisible-input dec-set"
           style="max-width: 2em;text-align: center;font-size: 1.2em"
           type="number"
-          name="baseUntypedAccDiff.difficulty"
-          value="{{baseUntypedAccDiff.difficulty}}"
+          name="base.untyped.difficulty"
+          value="{{base.untyped.difficulty}}"
           min="0"
         />
         <button
@@ -94,19 +88,73 @@
         </button>
       </div>
     </div>
-    <label class="flexrow accdiff-footer accdiff-weight">
-      Total
-    </label>
-    <div class="accdiff-grid accdiff-weight">
-      <div>
-        <div class="card clipped" style="background-color: {{totalIcon.color}}">
-          <span id="accdiff-total">
-            {{totalIcon.value}}
-          </span>
-          <i class="cci {{totalIcon.className}} i--m i--dark white--text" style="vertical-align:middle;border:none"></i>
-        </div>
+    {{#unless hasTargets}}
+      <label class="flexrow accdiff-footer accdiff-weight">
+        Total
+      </label>
+      {{{accdiff-total-display "base.total"
+        id="accdiff-total"
+        classes="accdiff-grid accdiff-weight"
+      }}}
+    {{/unless}}
+    {{#if hasTargets}}
+      <div class="flexrow accdiff-footer accdiff-weight accdiff-grid accdiff-target-row">
+        {{#each targets as |data key|}}
+          <div class="flexcol card">
+            <label class="flexrow flex-center card">
+              {{data.target.data.name}}
+            </label>
+            <div class="flexrow">
+              <div class="accdiff-grid accdiff-weight">
+                <img class="lancer-hit-thumb" src="{{data.target.data.img}}" />
+              </div>
+              {{{accdiff-total-display (concat "targets." key ".total")
+                id=(concat "accdiff-total-" key)
+                classes="accdiff-grid accdiff-weight"
+              }}}
+            </div>
+            <div class="flexrow">
+              <button
+                class="i--m no-grow"
+                type="button"
+                onclick="this.nextElementSibling.value = this.nextElementSibling.valueAsNumber + 1; this.nextElementSibling.dispatchEvent(new Event('change', {bubbles: true}))"
+              >
+                <i class="cci cci-accuracy i--m" style="border:none"></i>
+              </button>
+              <input
+                id="accdiff-other-acc-{{key}}"
+                style="display: none"
+                type="number"
+                name="targets.{{key}}.accuracy"
+                value="{{data.accuracy}}"
+                min="0"
+              />
+              {{{std-cover-input (concat "targets." key ".cover")
+                classes="accdiff-targeted-cover flexrow flex-center"
+                label_classes="i--s"
+                container_classes="f-16"
+                disabled="base.seeking"
+              }}}
+              <input
+                id="accdiff-other-diff-{{key}}"
+                style="display: none"
+                type="number"
+                name="targets.{{key}}.difficulty"
+                value="{{data.difficulty}}"
+                min="0"
+              />
+              <button
+                class="i--m no-grow"
+                type="button"
+                onclick="this.previousElementSibling.value = this.previousElementSibling.valueAsNumber + 1; this.previousElementSibling.dispatchEvent(new Event('change', {bubbles: true}))"
+              >
+                <i class="cci cci-difficulty i--m" style="border:none"></i>
+              </button>
+            </div>
+          </div>
+        {{/each}}
       </div>
-    </div>
+    {{/if}}
   </div>
   <div class="dialog-buttons flexrow">
     <button class="dialog-button submit default" data-button="submit" type="submit">

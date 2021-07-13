@@ -2094,6 +2094,39 @@ a.action {
   border-top: 1px solid #782e22;
 }
 
+.accdiff-base-cover {
+  margin-top: 12px;
+  margin-bottom: 4px;
+  font-size: 0.9em;
+  user-select: none;
+  padding-left: 5px;
+  line-height: 2;
+}
+
+.accdiff-targeted-cover label span {
+  opacity: 0;
+  position: fixed;
+  width: 0;
+  visibility: hidden;
+}
+
+.accdiff-targeted-cover label > i {
+  font-size: 16px;
+  vertical-align: top;
+}
+
+.accdiff-base-cover label > i {
+  vertical-align: baseline;
+}
+
+// there's a very specific foundry rule that adds some margin here
+// because it assumes all icons in buttons are followed by text, I think
+.accdiff-target-row button > i {
+  margin-inline-end: 0 !important; 
+}
+
+
+
 // V-IMPORTS
 .white--text {
   color: #fff !important;
@@ -2176,4 +2209,50 @@ div[data-tab="system"] > .settings-list > div:nth-last-child(-n + 4) {
 .chat-macro-button {
   max-width: 60%;
   align-self: center;
+}
+
+.accdiff-target-row .lancer-hit-thumb {
+  margin-right: 0px;
+  margin-left: 4px;
+  margin-bottom: 4px;
+}
+
+.lancer-cover-radio input[type="radio"] {
+  opacity: 0;
+  position: fixed;
+  width: 0;
+}
+
+.lancer-cover-radio label {
+  display: inline-block;
+  padding-left: 5px;
+}
+.lancer-cover-radio.flexrow label {
+  padding: 0px;
+}
+
+
+.lancer-cover-radio:not(.disabled) label:hover {
+  background-color: #dfd;
+}
+
+.lancer-cover-radio input[type="radio"]:checked + label {
+  background-color: #ddd;
+  .card & {
+    background-color: #aaa;
+  }
+}
+
+.lancer-cover-radio.disabled {
+  opacity: 0.6;
+}
+
+.cci-no-cover:before {
+  content: '\25cb';
+}
+.cci-soft-cover:before {
+  content: '\25d1';
+}
+.cci-hard-cover:before {
+  content: '\25cf';
 }
