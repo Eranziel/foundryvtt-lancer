@@ -2183,3 +2183,7 @@ div[data-tab="system"] > .settings-list > div:nth-last-child(-n + 4) {
   pointer-events: none;
   cursor: default;
 }
+
+.compact-tag-row {
+  min-height: 1em;
+}
