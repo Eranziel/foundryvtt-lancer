@@ -523,12 +523,13 @@ async function rollStatMacro(actor: Actor, data: LancerStatMacroData) {
 
   // Get accuracy/difficulty with a prompt
   let acc: number = 0;
-  let abort: boolean = false;
-  await promptAccDiffModifiers().then(
-    accdiff => (acc = accdiff.base.total),
-    () => (abort = true)
-  );
-  if (abort) return Promise.resolve();
+  try {
+    let accdiff = await promptAccDiffModifiers();
+    acc = accdiff.base.total;
+  } catch {
+    // an error occurred during the prompt; probably the user cancelling
+    return Promise.resolve();
+  }
 
   // Do the roll
   let acc_str = acc != 0 ? ` + ${acc}d6kh1` : "";
