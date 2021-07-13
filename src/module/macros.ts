@@ -50,7 +50,7 @@ import { buildActionHTML, buildDeployableHTML, buildSystemHTML } from "./helpers
 import { ActivationOptions, StabOptions1, StabOptions2 } from "./enums";
 import { applyCollapseListeners, uuid4 } from "./helpers/collapse";
 import { checkForHit, getTargets } from "./helpers/automation/targeting";
-import { AccDiffForm, AccDiffFormData } from "./helpers/acc_diff";
+import { AccDiffForm, AccDiffData } from "./helpers/acc_diff";
 import { is_overkill } from "machine-mind/dist/funcs";
 
 const lp = LANCER.log_prefix;
@@ -466,28 +466,14 @@ type AttackRoll = {
   targeted: { target: LancerActor<LancerActorType>, roll: string }[]
 }
 
-async function buildAttackRollStrings(
-  title: string,
-  tags: TagInstance[],
-  bonus: number,
-  targets: LancerActor<LancerActorType>[],
-  starting?: [number, number] // initial [accuracy, difficulty]
-): Promise<AttackRoll | null> {
-  try {
-    let accdiff = await promptAccDiffModifiers(tags, title, targets, starting);
-    let res: AttackRoll = {
-      roll: rollStr(bonus, accdiff.base.total),
-      targeted: accdiff.targets.map(tad => ({
-        target: tad.target,
-        roll: rollStr(bonus, tad.total)
-      }))
-    };
-
-    return res;
-  } catch (e) {
-    // an error occurred during the prompt; probably the user cancelling
-    return null;
-  }
+function attackRollStrings(bonus: number, accdiff: AccDiffData): AttackRoll {
+  return {
+    roll: rollStr(bonus, accdiff.base.total),
+    targeted: accdiff.targets.map(tad => ({
+      target: tad.target,
+      roll: rollStr(bonus, tad.total)
+    }))
+  };
 }
 
 export async function prepareStatMacro(a: string, statKey: string) {
@@ -522,14 +508,10 @@ async function rollStatMacro(actor: Actor, data: LancerStatMacroData) {
   if (!actor) return Promise.resolve();
 
   // Get accuracy/difficulty with a prompt
-  let acc: number = 0;
-  try {
-    let accdiff = await promptAccDiffModifiers();
-    acc = accdiff.base.total;
-  } catch {
-    // an error occurred during the prompt; probably the user cancelling
-    return Promise.resolve();
-  }
+  let initialData = AccDiffForm.formDataFromParams();
+  let promptedData = await promptAccDiffModifiers(initialData);
+  if (!promptedData) return;
+  let acc: number = promptedData.base.total;
 
   // Do the roll
   let acc_str = acc != 0 ? ` + ${acc}d6kh1` : "";
@@ -578,6 +560,7 @@ async function rollTalentMacro(actor: Actor, data: LancerTalentMacroData) {
  *            - accBonus        Flat bonus to accuracy
  *            - damBonus        Object of form {type: val} to apply flat damage bonus of given type.
  *                              The "Bonus" type is recommended but not required
+ * @param rerollData {AccDiffData?} saved accdiff data for rerolls
  */
 async function prepareAttackMacro({
   actor,
@@ -590,7 +573,7 @@ async function prepareAttackMacro({
     accBonus: number;
     damBonus: { type: DamageType; val: number };
   };
-}) {
+}, rerollData?: AccDiffData) {
   let mData: LancerAttackMacroData = {
     title: item.name,
     grit: 0,
@@ -712,16 +695,14 @@ async function prepareAttackMacro({
     }
   }
 
-  // Build attack rolls before deducting charge.
+  // Prompt the user before deducting charges.
   const targets = getTargets();
-  const atkRolls = await buildAttackRollStrings(
-    mData.title,
-    mData.tags,
-    mData.grit,
-    targets,
-    mData.acc > 0 ? [mData.acc, 0] : [0, -mData.acc],
-  );
-  if (!atkRolls) return;
+  const initialData = rerollData ?? AccDiffForm.formDataFromParams(
+    mData.tags, mData.title, targets, mData.acc > 0 ? [mData.acc, 0] : [0, -mData.acc]);
+  const promptedData = await promptAccDiffModifiers(initialData);
+  if (!promptedData) return;
+
+  const atkRolls = attackRollStrings(mData.grit, promptedData);
 
   // Deduct charge if LOADING weapon.
   if (
@@ -1124,10 +1105,13 @@ export async function prepareTechMacro(a: string, t: string) {
   await rollTechMacro(actor, mData);
 }
 
-async function rollTechMacro(actor: Actor, data: LancerTechMacroData) {
+async function rollTechMacro(actor: Actor, data: LancerTechMacroData, rerollData?: AccDiffData) {
   const targets = getTargets();
+  const initialData = rerollData ?? AccDiffForm.formDataFromParams(data.tags, data.title, targets);
+  const promptedData = await promptAccDiffModifiers(initialData);
+  if (!promptedData) return;
 
-  let atkRolls = await buildAttackRollStrings(data.title, data.tags, data.t_atk, targets);
+  let atkRolls = attackRollStrings(data.t_atk, promptedData);
   if (!atkRolls) return;
 
   const { attacks, hits } = await checkTargets(atkRolls, true); // true = all tech attacks are "smart"
@@ -1146,15 +1130,14 @@ async function rollTechMacro(actor: Actor, data: LancerTechMacroData) {
   return await renderMacroTemplate(actor, template, templateData);
 }
 
-export function promptAccDiffModifiers(
-  tags?: TagInstance[],
-  title?: string,
-  targets?: LancerActor<LancerActorType>[],
-  starting?: [number, number]
-): Promise<AccDiffFormData> {
-  let form = AccDiffForm.fromData(tags, title, targets, starting);
+export async function promptAccDiffModifiers(data: AccDiffData): Promise<AccDiffData | null> {
+  let form = new AccDiffForm(data);
   form.render(true);
-  return form.promise;
+  try {
+    return await form.promise; // await to force any rejections into this try/catch
+  } catch (_e) {
+    return null;
+  }
 }
 
 export async function prepareOverchargeMacro(a: string) {

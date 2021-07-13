@@ -8,7 +8,7 @@ enum Cover {
   Hard = 2
 }
 
-export type AccDiffFormData = {
+export type AccDiffData = {
   title: string,
   base: {
     untyped: {
@@ -32,12 +32,12 @@ export type AccDiffFormData = {
   }[],
 }
 
-type AccDiffFormView = AccDiffFormData & {
+type AccDiffView = AccDiffData & {
   baseCoverDisabled: boolean,
   hasTargets: boolean
 }
 
-export class AccDiffForm extends ReactiveForm<AccDiffFormData, AccDiffFormView> {
+export class AccDiffForm extends ReactiveForm<AccDiffData, AccDiffView> {
   static get defaultOptions() {
     return mergeObject(super.defaultOptions, {
       template: "systems/lancer/templates/window/acc_diff.hbs",
@@ -45,7 +45,7 @@ export class AccDiffForm extends ReactiveForm<AccDiffFormData, AccDiffFormView> 
     });
   }
 
-  constructor(data: AccDiffFormData) {
+  constructor(data: AccDiffData) {
     super(data, { title: data.title })
   }
 
@@ -54,8 +54,8 @@ export class AccDiffForm extends ReactiveForm<AccDiffFormData, AccDiffFormView> 
     title?: string,
     targets?: LancerActor<LancerActorType>[],
     starting?: [number, number]
-  ): AccDiffFormData {
-    let ret: AccDiffFormData = {
+  ): AccDiffData {
+    let ret: AccDiffData = {
       title: title ? `${title} - Accuracy and Difficulty` : "Accuracy and Difficulty",
       base: {
         accurate: false,
@@ -117,8 +117,8 @@ export class AccDiffForm extends ReactiveForm<AccDiffFormData, AccDiffFormView> 
     return new AccDiffForm(AccDiffForm.formDataFromParams(tags, title, targets, starting));
   }
 
-  getViewModel(data: AccDiffFormData): AccDiffFormView {
-    let ret = data as AccDiffFormView; // view elements haven't been set yet
+  getViewModel(data: AccDiffData): AccDiffView {
+    let ret = data as AccDiffView; // view elements haven't been set yet
     ret.hasTargets = ret.targets.length > 0;
     ret.baseCoverDisabled = ret.base.seeking || ret.hasTargets;
     return ret
