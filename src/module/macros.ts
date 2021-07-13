@@ -742,41 +742,60 @@ async function prepareAttackMacro({
   await rollAttackMacro(actor, atkRolls, mData);
 }
 
-async function rollAttackMacro(actor: Actor, atkRolls: AttackRoll, data: LancerAttackMacroData) {
-  // IS SMART?
-  const isSmart = data.tags.findIndex(tag => tag.Tag.LID === "tg_smart") > -1;
-  // CHECK TARGETS
-  let hits: {
-    token: { name: string; img: string };
-    total: string;
-    hit: boolean;
-    crit: boolean;
-  }[] = [];
-  let attacks: { roll: Roll; tt: HTMLElement | JQuery<HTMLElement> }[] = [];
+type AttackResult = {
+  roll: Roll,
+  tt: HTMLElement | JQuery<HTMLElement>
+}
+
+type HitResult = {
+  token: { name: string, img: string },
+  total: string,
+  hit: boolean,
+  crit: boolean
+}
+
+async function checkTargets(atkRolls: AttackRoll, isSmart: boolean): Promise<{
+  attacks: AttackResult[],
+  hits: HitResult[]
+}> {
   if (game.settings.get(LANCER.sys_name, LANCER.setting_automation_attack) && atkRolls.targeted.length > 0) {
-    for (const targetingData of atkRolls.targeted) {
+    let data = await Promise.all(atkRolls.targeted.map(async targetingData => {
       let target = targetingData.target;
       // @ts-ignore .8
       let attack_roll = await new Roll(targetingData.roll).evaluate({ async: true });
       const attack_tt = await attack_roll.getTooltip();
-      attacks.push({ roll: attack_roll, tt: attack_tt });
+      return {
+        attack: { roll: attack_roll, tt: attack_tt },
+        hit: {
+          token: {
+            name: target.token ? target.token.data.name : target.data.name,
+            img: target.token ? target.token.data.img : target.data.img,
+          },
+          total: String(attack_roll._total).padStart(2, "0"),
+          hit: await checkForHit(isSmart, attack_roll, target),
+          crit: attack_roll._total >= 20,
+        }
+      }
+    }));
 
-      hits.push({
-        token: {
-          name: target.token ? target.token.data.name : target.data.name,
-          img: target.token ? target.token.data.img : target.data.img,
-        },
-        total: String(attack_roll._total).padStart(2, "0"),
-        hit: await checkForHit(isSmart, attack_roll, target),
-        crit: attack_roll._total >= 20,
-      });
-    }
+    return {
+      attacks: data.map(d => d.attack),
+      hits: data.map(d => d.hit)
+    };
   } else {
     // @ts-ignore .8
     let attack_roll = await new Roll(atkRolls.roll).evaluate({ async: true });
     const attack_tt = await attack_roll.getTooltip();
-    attacks.push({ roll: attack_roll, tt: attack_tt });
+    return {
+      attacks: [{ roll: attack_roll, tt: attack_tt }],
+      hits: []
+    }
   }
+}
+
+async function rollAttackMacro(actor: Actor, atkRolls: AttackRoll, data: LancerAttackMacroData) {
+  const isSmart = data.tags.findIndex(tag => tag.Tag.LID === "tg_smart") > -1;
+  const { attacks, hits } = await checkTargets(atkRolls, isSmart);
 
   // Iterate through damage types, rolling each
   let damage_results: Array<{
@@ -1114,38 +1133,7 @@ async function rollTechMacro(actor: Actor, data: LancerTechMacroData) {
   let atkRolls = await buildAttackRollStrings(data.title, data.tags, data.t_atk, targets);
   if (!atkRolls) return;
 
-  // CHECK TARGETS
-  let hits: {
-    token: { name: string; img: string };
-    total: string;
-    hit: boolean;
-    crit: boolean;
-  }[] = [];
-  let attacks: { roll: Roll; tt: HTMLElement | JQuery<HTMLElement> }[] = [];
-  if (game.settings.get(LANCER.sys_name, LANCER.setting_automation_attack) && targets.length > 0) {
-    for (const targetingData of atkRolls.targeted) {
-      let target = targetingData.target;
-      // @ts-ignore .8
-      let attack_roll = await new Roll(targetingData.roll).evaluate({ async: true });
-      const attack_tt = await attack_roll.getTooltip();
-      attacks.push({ roll: attack_roll, tt: attack_tt });
-
-      hits.push({
-        token: {
-          name: target.token ? target.token.data.name : target.data.name,
-          img: target.token ? target.token.data.img : target.data.img,
-        },
-        total: String(attack_roll._total).padStart(2, "0"),
-        hit: await checkForHit(true, attack_roll, target),
-        crit: attack_roll._total >= 20,
-      });
-    }
-  } else {
-    // @ts-ignore .8
-    let attack_roll = await new Roll(atkRolls.roll).evaluate({ async: true });
-    const attack_tt = await attack_roll.getTooltip();
-    attacks.push({ roll: attack_roll, tt: attack_tt });
-  }
+  const { attacks, hits } = await checkTargets(atkRolls, true); // true = all tech attacks are "smart"
 
   // Output
   const templateData = {
