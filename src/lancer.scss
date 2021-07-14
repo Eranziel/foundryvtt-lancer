@@ -2247,6 +2247,11 @@ div[data-tab="system"] > .settings-list > div:nth-last-child(-n + 4) {
   opacity: 0.6;
 }
 
+// needed to override a builtin that removes all shadows from the sidebar
+#sidebar a.chat-button:hover {
+  text-shadow: 0 0 8px red;
+}
+
 .cci-no-cover:before {
   content: '\25cb';
 }

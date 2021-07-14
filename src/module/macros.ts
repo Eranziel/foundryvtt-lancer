@@ -33,6 +33,7 @@ import {
   PilotWeapon,
   MechWeapon,
   RegDamageData,
+  RegRef,
   MechWeaponProfile,
   NpcFeature,
   OpCtx,
@@ -50,7 +51,7 @@ import { buildActionHTML, buildDeployableHTML, buildSystemHTML } from "./helpers
 import { ActivationOptions, StabOptions1, StabOptions2 } from "./enums";
 import { applyCollapseListeners, uuid4 } from "./helpers/collapse";
 import { checkForHit } from "./helpers/automation/targeting";
-import { AccDiffForm, AccDiffData } from "./helpers/acc_diff";
+import { AccDiffForm, AccDiffData, AccDiffDataSerialized } from "./helpers/acc_diff";
 import { is_overkill } from "machine-mind/dist/funcs";
 
 const lp = LANCER.log_prefix;
@@ -552,6 +553,26 @@ async function rollTalentMacro(actor: Actor, data: LancerTalentMacroData) {
   return renderMacroTemplate(actor, template, templateData);
 }
 
+type AttackMacroOptions = {
+  accBonus: number;
+  damBonus: { type: DamageType; val: number };
+}
+
+export async function prepareEncodedAttackMacro(
+  actor_ref: RegRef<any>, item_id: string, options: AttackMacroOptions, rerollData: AccDiffDataSerialized) {
+  let reg = new FoundryReg();
+  let opCtx = new OpCtx()
+  let mm = await reg.resolve(opCtx, actor_ref);
+  let actor = mm.Flags.orig_doc;
+  let item = ownedItemFromString(item_id, actor);
+  if (!item) {
+    ui.notifications.error("Could not find weapon to reroll");
+    return;
+  }
+  let accdiff = AccDiffData.fromObject(rerollData);
+  return prepareAttackMacro({ actor, item, options }, accdiff);
+}
+
 /**
  * Standalone prepare function for attacks, since they're complex.
  * @param actor   {Actor}       Actor to roll as. Assumes properly prepared item.
@@ -569,10 +590,7 @@ async function prepareAttackMacro({
 }: {
   actor: Actor;
   item: LancerItem<any>;
-  options?: {
-    accBonus: number;
-    damBonus: { type: DamageType; val: number };
-  };
+  options?: AttackMacroOptions;
 }, rerollData?: AccDiffData) {
   let mData: LancerAttackMacroData = {
     title: item.name,
@@ -717,7 +735,14 @@ async function prepareAttackMacro({
     await itemEnt.writeback();
   }
 
-  await rollAttackMacro(actor, atkRolls, mData);
+  let rerollMacro = `prepareEncodedAttackMacro(
+${JSON.stringify(actor.data.data.derived.mm.as_ref())},
+"${item.id}",
+${JSON.stringify(options)},
+${JSON.stringify(promptedData.toObject())}
+)`;
+
+  await rollAttackMacro(actor, atkRolls, mData, rerollMacro);
 }
 
 type AttackResult = {
@@ -768,7 +793,7 @@ async function checkTargets(atkRolls: AttackRoll, isSmart: boolean): Promise<{
   }
 }
 
-async function rollAttackMacro(actor: Actor, atkRolls: AttackRoll, data: LancerAttackMacroData) {
+async function rollAttackMacro(actor: Actor, atkRolls: AttackRoll, data: LancerAttackMacroData, rerollMacro: string) {
   const isSmart = data.tags.findIndex(tag => tag.Tag.LID === "tg_smart") > -1;
   const { attacks, hits } = await checkTargets(atkRolls, isSmart);
 
@@ -908,6 +933,7 @@ async function rollAttackMacro(actor: Actor, atkRolls: AttackRoll, data: LancerA
     effect: data.effect ? data.effect : null,
     on_hit: data.on_hit ? data.on_hit : null,
     tags: data.tags,
+    rerollMacroData: encodeMacroData({ command: rerollMacro, title: "Reroll Attack" })
   };
 
   console.debug(templateData);
