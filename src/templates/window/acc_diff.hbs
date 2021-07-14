@@ -1,3 +1,15 @@
+{{#*inline "total"}}
+  {{#if target}}
+    <div class="accdiff-grid">
+      <img class="lancer-hit-thumb" src="{{target.data.img}}" />
+    </div>
+  {{/if}}
+  {{{accdiff-total-display (concat key ".total")
+    id=(concat "accdiff-total-" key)
+    classes="accdiff-grid accdiff-weight"
+  }}}
+{{/inline}}
+
 <form id="accdiff">
   <div id="accdiff-dialog" style="padding:4px">
     <div class="accdiff-grid">
@@ -110,19 +122,10 @@
       </label>
       {{#if hasExactlyOneTarget}}
         <div class="flexrow flex-center">
-          <div class="accdiff-grid">
-            <img class="lancer-hit-thumb" src="{{targets.0.target.data.img}}" />
-          </div>
-          {{{accdiff-total-display "targets.0.total"
-            id="accdiff-total-0"
-            classes="accdiff-grid accdiff-weight"
-          }}}
+          {{> total targets.[0] key="targets.0" }}
         </div>
       {{else}}
-        {{{accdiff-total-display "base.total"
-          id="accdiff-total"
-          classes="accdiff-grid accdiff-weight"
-        }}}
+        {{> total base key="base"}}
       {{/if}}
     {{/unless}}
     {{#if hasTargets}}
@@ -133,13 +136,7 @@
               {{data.target.data.name}}
             </label>
             <div class="flexrow">
-              <div class="accdiff-grid">
-                <img class="lancer-hit-thumb" src="{{data.target.data.img}}" />
-              </div>
-              {{{accdiff-total-display (concat "targets." key ".total")
-                id=(concat "accdiff-total-" key)
-                classes="accdiff-grid accdiff-weight"
-              }}}
+              {{> total data key=(concat "targets." key) }}
             </div>
             <div class="flexrow">
               <button
