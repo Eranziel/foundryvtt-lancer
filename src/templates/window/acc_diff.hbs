@@ -27,10 +27,19 @@
           <input type="checkbox" name="weapon.inaccurate" {{checked weapon.inaccurate}} />
           <span class="checkmark"></span>
         </label>
-        {{{std-cover-input "base.cover"
-          classes="accdiff-base-cover flexcol"
-          disabled="baseCoverDisabled"
-        }}}
+        {{#unless hasTargets}}
+          {{#if hasExactlyOneTarget}}
+            {{{std-cover-input "targets.0.cover"
+              classes="accdiff-base-cover flexcol"
+              disabled="weapon.seeking"
+            }}}
+          {{else}}
+            {{{std-cover-input "base.cover"
+              classes="accdiff-base-cover flexcol"
+              disabled="weapon.seeking"
+            }}}
+          {{/if}}
+        {{/unless}}
       </div>
     </div>
     <label class="flexrow accdiff-footer accdiff-weight">
@@ -90,12 +99,24 @@
     </div>
     {{#unless hasTargets}}
       <label class="flexrow accdiff-footer accdiff-weight">
-        Total
+        Total {{#if hasExactlyOneTarget}} vs {{targets.0.target.data.name}}{{/if}}
       </label>
-      {{{accdiff-total-display "base.total"
-        id="accdiff-total"
-        classes="accdiff-grid accdiff-weight"
-      }}}
+      {{#if hasExactlyOneTarget}}
+        <div class="flexrow flex-center">
+          <div class="accdiff-grid">
+            <img class="lancer-hit-thumb" src="{{targets.0.target.data.img}}" />
+          </div>
+          {{{accdiff-total-display "targets.0.total"
+            id="accdiff-total-0"
+            classes="accdiff-grid accdiff-weight"
+          }}}
+        </div>
+      {{else}}
+        {{{accdiff-total-display "base.total"
+          id="accdiff-total"
+          classes="accdiff-grid accdiff-weight"
+        }}}
+      {{/if}}
     {{/unless}}
     {{#if hasTargets}}
       <div class="accdiff-footer accdiff-weight accdiff-target-row">
@@ -105,7 +126,7 @@
               {{data.target.data.name}}
             </label>
             <div class="flexrow">
-              <div class="accdiff-grid accdiff-weight">
+              <div class="accdiff-grid">
                 <img class="lancer-hit-thumb" src="{{data.target.data.img}}" />
               </div>
               {{{accdiff-total-display (concat "targets." key ".total")

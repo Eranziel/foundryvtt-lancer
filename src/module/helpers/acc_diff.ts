@@ -194,8 +194,8 @@ export class AccDiffData {
 }
 
 type AccDiffView = AccDiffData & {
-  baseCoverDisabled: boolean,
-  hasTargets: boolean
+  hasTargets: boolean,
+  hasExactlyOneTarget: boolean,
 }
 
 export class AccDiffForm extends ReactiveForm<AccDiffData, AccDiffView> {
@@ -213,7 +213,7 @@ export class AccDiffForm extends ReactiveForm<AccDiffData, AccDiffView> {
   getViewModel(data: AccDiffData): AccDiffView {
     let ret = data as AccDiffView; // view elements haven't been set yet
     ret.hasTargets = ret.targets.length > 1;
-    ret.baseCoverDisabled = ret.weapon.seeking || ret.hasTargets;
+    ret.hasExactlyOneTarget = ret.targets.length == 1;
     return ret
   }
 }

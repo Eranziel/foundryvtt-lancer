@@ -238,6 +238,7 @@ button {
 
 .lancer-hit-thumb {
   width: 50px;
+  min-width: 50px;
   margin-right: 4px;
   border-right: none;
   border-left: none;
@@ -2216,7 +2217,7 @@ div[data-tab="system"] > .settings-list > div:nth-last-child(-n + 4) {
   grid-template-columns: auto auto auto;
 }
 
-.accdiff-target-row .lancer-hit-thumb {
+#accdiff .lancer-hit-thumb {
   margin-right: 0px;
   margin-left: 4px;
   margin-bottom: 4px;
