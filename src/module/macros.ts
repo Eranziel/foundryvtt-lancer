@@ -56,28 +56,34 @@ import { is_overkill } from "machine-mind/dist/funcs";
 
 const lp = LANCER.log_prefix;
 
+const encodedMacroWhitelist = [
+  "prepareEncodedAttackMacro",
+  "prepareStatMacro",
+  "prepareItemMacro",
+  "prepareCoreActiveMacro",
+  "prepareStructureSecondaryRollMacro",
+];
+
 export function encodeMacroData(data: LancerMacroData): string {
   return btoa(encodeURI(JSON.stringify(data)));
 }
 
-export async function runEncodedMacro(el: HTMLElement) {
-  let encoded = el.attributes.getNamedItem('data-macro')?.nodeValue;
-  if (!encoded) {
-    console.warn("No macro data available");
-    return;
+export async function runEncodedMacro(el: HTMLElement | LancerMacroData) {
+  let data: LancerMacroData | null = null;
+
+  if (el instanceof HTMLElement) {
+    let encoded = el.attributes.getNamedItem('data-macro')?.nodeValue;
+    if (!encoded) {
+      console.warn("No macro data available");
+      return;
+    }
+
+    data = JSON.parse(decodeURI(atob(encoded))) as LancerMacroData;
+  } else {
+    data = el as LancerMacroData;
   }
 
-  let data: LancerMacroData = JSON.parse(decodeURI(atob(encoded)));
-
-  const whitelist = [
-    "prepareEncodedAttackMacro",
-    "prepareStatMacro",
-    "prepareItemMacro",
-    "prepareCoreActiveMacro",
-    "prepareStructureSecondaryRollMacro",
-  ];
-
-  if (whitelist.indexOf(data.fn) < 0) {
+  if (encodedMacroWhitelist.indexOf(data.fn) < 0) {
     console.error("Attempting to call unwhitelisted function via encoded macro: " + data.fn);
     return;
   }
@@ -95,9 +101,13 @@ export async function onHotbarDrop(_bar: any, data: any, slot: number) {
   let img = "systems/lancer/assets/icons/macro-icons/d20-framed.svg";
 
   // Grab new encoded data ASAP
-  if (data.command && data.title) {
-    (command = data.command),
-      (img = data.iconPath ? data.iconPath : `systems/lancer/assets/icons/macro-icons/generic_item.svg`);
+  if (data.fn && data.args && data.title) { // i.e., data instanceof LancerMacroData
+    if (encodedMacroWhitelist.indexOf(data.fn) < 0) {
+      ui.notifications.error("You are trying to drop an invalid macro");
+      return;
+    }
+    command = `game.lancer.${data.fn}.apply(null, ${JSON.stringify(data.args)})`;
+    img = data.iconPath ? data.iconPath : `systems/lancer/assets/icons/macro-icons/generic_item.svg`;
     title = data.title;
   } else if (data.pack) {
     // If we have a source pack, it's dropped from a compendium and there's no processing for us to do
