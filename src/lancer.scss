@@ -959,6 +959,9 @@ textarea {
   align-items: center;
   color: white;
   background-color: var(--main-theme-color, fuchsia);
+  flex-grow: unset;
+  min-width: 8em;
+  max-height: 3em;
 }
 
 .lancer-header span.minor {
