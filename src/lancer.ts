@@ -657,9 +657,15 @@ Hooks.on("renderChatMessage", async (cm: ChatMessage, html: any, data: any) => {
   }
 
   html.find(".chat-button").on("click", (ev: MouseEvent) => {
-    ev.stopPropagation();
-    let element = ev.target as HTMLElement;
-    runEncodedMacro($(element));
+    function checkTarget(element: HTMLElement) {
+      if (element.attributes.getNamedItem('data-macro')) {
+        ev.stopPropagation();
+        runEncodedMacro($(element));
+        return true;
+      }
+      return false;
+    }
+    checkTarget(ev.target as HTMLElement) || checkTarget(ev.currentTarget as HTMLElement);
   })
 });
 
