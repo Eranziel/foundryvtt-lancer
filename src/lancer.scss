@@ -2252,6 +2252,20 @@ div[data-tab="system"] > .settings-list > div:nth-last-child(-n + 4) {
   text-shadow: 0 0 8px red;
 }
 
+#sidebar a.chat-button {
+  animation: pulse 1200ms ease 1s 8 alternate;
+}
+
+@keyframes pulse {
+  0% {
+    text-shadow: none;
+  }
+  100% {
+    text-shadow: 0 0 8px red;
+  }
+}
+
+
 .cci-no-cover:before {
   content: '\25cb';
 }
