@@ -7,76 +7,67 @@ enum Cover {
   Hard = 2
 }
 
-type AccDiffBaseSerialized = {
-  untyped: { accuracy: number, difficulty: number },
-  cover: Cover,
+type AccDiffWeapon = {
   accurate: boolean,
   inaccurate: boolean,
-  seeking: boolean
+  seeking: boolean,
 }
 
-type AccDiffTargetSerialized = {
-  target: string,
+type AccDiffWeaponSerialized = AccDiffWeapon;
+
+type AccDiffBaseSerialized = {
   accuracy: number,
   difficulty: number,
   cover: Cover
 }
 
+type AccDiffTargetSerialized = AccDiffBaseSerialized & {
+  target: string
+}
+
 export type AccDiffDataSerialized = {
   title: string,
+  weapon: AccDiffWeaponSerialized,
   base: AccDiffBaseSerialized,
   targets: AccDiffTargetSerialized[],
 }
 
 class AccDiffBase {
-  untyped: { accuracy: number, difficulty: number };
+  accuracy: number;
+  difficulty: number;
   cover: Cover;
-  accurate: boolean;
-  inaccurate: boolean;
-  seeking: boolean;
+  #weapon: AccDiffWeapon;
 
-  constructor(obj: AccDiffBaseSerialized) {
-    this.untyped = obj.untyped;
+  constructor(obj: AccDiffBaseSerialized, weapon: AccDiffWeapon) {
+    this.accuracy = obj.accuracy;
+    this.difficulty = obj.difficulty;
     this.cover = obj.cover;
-    this.accurate = obj.accurate;
-    this.inaccurate = obj.inaccurate;
-    this.seeking = obj.seeking;
+    this.#weapon = weapon;
   }
 
-  static fromObject(obj: AccDiffBaseSerialized): AccDiffBase {
-    return new AccDiffBase(obj);
+  static fromObject(obj: AccDiffBaseSerialized, extra: { weapon: AccDiffWeapon }): AccDiffBase {
+    return new AccDiffBase(obj, extra.weapon);
   }
 
   toObject(): AccDiffBaseSerialized {
     return {
-      untyped: this.untyped,
+      accuracy: this.accuracy,
+      difficulty: this.difficulty,
       cover: this.cover,
-      accurate: this.accurate,
-      inaccurate: this.inaccurate,
-      seeking: this.seeking
     }
   }
 
-  get accuracy() {
-    return this.untyped.accuracy + (this.accurate ? 1 : 0);
-  }
-
-  get difficulty() {
-    return this.untyped.difficulty
-      + (this.inaccurate ? 1 : 0)
-      + (this.seeking ? 0 : this.cover)
-  }
-
   get total() {
-    return this.accuracy - this.difficulty;
+    return this.accuracy - this.difficulty
+      + (this.#weapon.accurate ? 1 : 0)
+      - (this.#weapon.inaccurate ? 1 : 0)
+      - (this.#weapon.seeking ? 0 : this.cover)
+
   }
 }
 
-class AccDiffTarget {
+class AccDiffTarget extends AccDiffBase {
   target: Token;
-  accuracy: number;
-  difficulty: number;
-  cover: Cover;
   #base: AccDiffBase;
 
   constructor(obj: {
@@ -84,11 +75,9 @@ class AccDiffTarget {
     accuracy: number,
     difficulty: number,
     cover: Cover
-  }, base: AccDiffBase) {
+  }, base: AccDiffBase, weapon: AccDiffWeapon) {
+    super(obj, weapon);
     this.target = obj.target;
-    this.accuracy = obj.accuracy;
-    this.difficulty = obj.difficulty;
-    this.cover = obj.cover;
     this.#base = base;
   }
 
@@ -101,7 +90,8 @@ class AccDiffTarget {
     }
   }
 
-  static fromObject(obj: AccDiffTargetSerialized, base: AccDiffBase): AccDiffTarget {
+  static fromObject(obj: AccDiffTargetSerialized,
+                    extra: { base: AccDiffBase, weapon: AccDiffWeapon }): AccDiffTarget {
     let target = canvas.scene.tokens.get(obj.target);
     if (!target) {
       ui.notifications.error("Trying to access tokens from a different scene!");
@@ -112,26 +102,29 @@ class AccDiffTarget {
       accuracy: obj.accuracy,
       difficulty: obj.difficulty,
       cover: obj.cover
-    }, base)
+    }, extra.base, extra.weapon)
   }
 
   get total() {
-    return this.accuracy - this.difficulty
-      + this.#base.total - (this.#base.seeking ? 0 : this.cover);
+    // the only thing we actually use base for is the untyped bonuses
+    return super.total + this.#base.accuracy - this.#base.difficulty;
   }
 }
 
 export class AccDiffData {
   title: string;
+  weapon: AccDiffWeapon;
   base: AccDiffBase;
   targets: AccDiffTarget[];
 
   constructor(obj: {
     title: string,
     base: AccDiffBase,
+    weapon: AccDiffWeapon,
     targets: AccDiffTarget[]
   }) {
     this.title = obj.title;
+    this.weapon = obj.weapon;
     this.base = obj.base;
     this.targets = obj.targets;
   }
@@ -139,15 +132,20 @@ export class AccDiffData {
   toObject(): AccDiffDataSerialized {
     return {
       title: this.title,
+      weapon: this.weapon,
       base: this.base.toObject(),
       targets: this.targets.map(t => t.toObject())
     }
   }
 
   static fromObject(obj: AccDiffDataSerialized): AccDiffData {
-    let base = AccDiffBase.fromObject(obj.base);
-    let targets = obj.targets.map(t => AccDiffTarget.fromObject(t, base));
-    return new AccDiffData({ title: obj.title, base, targets });
+    let base = AccDiffBase.fromObject(obj.base, obj);
+    let targets = obj.targets.map(t => AccDiffTarget.fromObject(t, { base, weapon: obj.weapon }));
+    return new AccDiffData({
+      title: obj.title,
+      weapon: obj.weapon,
+      base, targets
+    });
   }
 
   static fromParams(
@@ -156,40 +154,41 @@ export class AccDiffData {
     targets?: Token[],
     starting?: [number, number]
   ): AccDiffData {
-    let base = AccDiffBase.fromObject({
+    let weapon = {
       accurate: false,
       inaccurate: false,
-      cover: Cover.None,
       seeking: false,
-      untyped: {
-        accuracy: starting ? starting[0] : 0,
-        difficulty: starting ? starting[1] : 0
-      },
-    });
+    };
 
     for (let tag of (tags || [])) {
       switch (tag.Tag.LID) {
         case "tg_accurate":
-          base.accurate = true;
+          weapon.accurate = true;
           break;
         case "tg_inaccurate":
-          base.inaccurate = true;
+          weapon.inaccurate = true;
           break;
         case "tg_seeking":
-          base.seeking = true;
+          weapon.seeking = true;
           break;
       }
     }
 
+    let base = new AccDiffBase({
+      cover: Cover.None,
+      accuracy: starting ? starting[0] : 0,
+      difficulty: starting ? starting[1] : 0,
+    }, weapon);
+
     return new AccDiffData({
       title: title ? `${title} - Accuracy and Difficulty` : "Accuracy and Difficulty",
-      base: base,
+      weapon, base,
       targets: (targets || []).map(t => new AccDiffTarget({
         target: t,
         accuracy: 0,
         difficulty: 0,
         cover: Cover.None
-      }, base))
+      }, base, weapon))
     });
   }
 }
@@ -214,7 +213,7 @@ export class AccDiffForm extends ReactiveForm<AccDiffData, AccDiffView> {
   getViewModel(data: AccDiffData): AccDiffView {
     let ret = data as AccDiffView; // view elements haven't been set yet
     ret.hasTargets = ret.targets.length > 1;
-    ret.baseCoverDisabled = ret.base.seeking || ret.hasTargets;
+    ret.baseCoverDisabled = ret.weapon.seeking || ret.hasTargets;
     return ret
   }
 }

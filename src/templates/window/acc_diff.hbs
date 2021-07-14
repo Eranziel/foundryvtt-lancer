@@ -8,12 +8,12 @@
         </h3>
         <label class="container">
           Accurate (+1)
-          <input type="checkbox" name="base.accurate" {{checked base.accurate}} />
+          <input type="checkbox" name="weapon.accurate" {{checked weapon.accurate}} />
           <span class="checkmark"></span>
         </label>
         <label class="container">
           Seeking (*)
-          <input type="checkbox" name="base.seeking" {{checked base.seeking}} />
+          <input type="checkbox" name="weapon.seeking" {{checked weapon.seeking}} />
           <span class="checkmark"></span>
         </label>
       </div>
@@ -24,7 +24,7 @@
         </h3>
         <label class="container">
           Inaccurate (-1)
-          <input type="checkbox" name="base.inaccurate" {{checked base.inaccurate}} />
+          <input type="checkbox" name="weapon.inaccurate" {{checked weapon.inaccurate}} />
           <span class="checkmark"></span>
         </label>
         {{{std-cover-input "base.cover"
@@ -50,8 +50,8 @@
           class="difficulty lancer-invisible-input dec-set"
           style="max-width: 2em;text-align: center;font-size: 1.2em"
           type="number"
-          name="base.untyped.accuracy"
-          value="{{base.untyped.accuracy}}"
+          name="base.accuracy"
+          value="{{base.accuracy}}"
           min="0"
         />
         <button
@@ -75,8 +75,8 @@
           class="difficulty lancer-invisible-input dec-set"
           style="max-width: 2em;text-align: center;font-size: 1.2em"
           type="number"
-          name="base.untyped.difficulty"
-          value="{{base.untyped.difficulty}}"
+          name="base.difficulty"
+          value="{{base.difficulty}}"
           min="0"
         />
         <button
