@@ -516,27 +516,26 @@ export function std_cover_input(path: string, options: HelperOptions) {
     value = (resolve_helper_dotpath(options, path) as number)?.toString() ?? 0;
   }
 
-  let checked = ["0", "1", "2"].map(v => value == v ? "checked='true'" : "");
   let disabled: boolean = options.hash["disabled"] ? resolve_helper_dotpath(options, options.hash["disabled"]) : false;
   let disabledStr = disabled ? "disabled" : "";
 
-  let inputs = [
-    `<input type="radio" id="${path}-cover-none" class="no-grow cover-none" name="${path}" value="0" ${checked[0]} data-dtype="Number" ${disabledStr} />
-     <label for="${path}-cover-none" class="lancer-cover-radio-label ${label_classes}">
-       <i class="cci-no-cover i--s" style="border:none"></i>
-       <span class="no-grow">No Cover</span>
-     </label>`,
-    `<input type="radio" id="${path}-cover-soft" class="no-grow cover-soft" name="${path}" value="1" ${checked[1]} data-dtype="Number" ${disabledStr} />
-    <label for="${path}-cover-soft" class="lancer-cover-radio-label ${label_classes}">
-       <i class="cci-soft-cover i--s" style="border:none"></i>
-       <span class="no-grow">Soft Cover (-1)</span>
-     </label>`,
-    `<input type="radio" id="${path}-cover-hard" class="no-grow cover-hard" name="${path}" value="2" ${checked[2]} data-dtype="Number" ${disabledStr} />
-     <label for="${path}-cover-hard" class="lancer-cover-radio-label ${label_classes}">
-       <i class="cci-hard-cover i--s" style="border:none"></i>
-       <span class="no-grow">Hard Cover (-2)</span>
-     </label>`
+  let datas = [
+    { slug: "no", human: "No Cover" },
+    { slug: "soft", human: "Soft Cover (-1)" },
+    { slug: "hard", human: "Hard Cover (-2)" },
   ];
+
+  let inputs = [0, 1, 2].map(idx => {
+    let checked = value == idx.toString() ? "checked='true'" : "";
+    let data = datas[idx];
+    let id = `${path}-${data.slug}`;
+
+    return `<input type="radio" id="${id}" class="no-grow ${data.slug}-cover" name="${path}" value="${idx}" ${checked} data-dtype="Number" ${disabledStr} />
+      <label for="${id}" class="lancer-cover-radio-label ${label_classes}">
+      <i class="cci-${data.slug}-cover i--s" title="${data.human}" style="border:none"></i>
+      <span class="no-grow">${data.human}</span>
+      </label>`
+  });
 
   if (label) {
     return `<label class="lancer-cover-radio ${disabledStr} ${label_classes} ${container_classes}">
