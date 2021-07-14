@@ -1,4 +1,5 @@
 import { TagInstance } from "machine-mind";
+import { LancerActor, LancerActorType } from "../actor/lancer-actor";
 import ReactiveForm from './reactive-form';
 
 enum Cover {
@@ -22,7 +23,8 @@ type AccDiffBaseSerialized = {
 }
 
 type AccDiffTargetSerialized = AccDiffBaseSerialized & {
-  target: string
+  target: string,
+  consumeLockOn: boolean,
 }
 
 export type AccDiffDataSerialized = {
@@ -68,16 +70,16 @@ class AccDiffBase {
 
 class AccDiffTarget extends AccDiffBase {
   target: Token;
+  consumeLockOn: boolean;
   #base: AccDiffBase;
 
-  constructor(obj: {
+  constructor(obj: AccDiffBaseSerialized & {
     target: Token,
-    accuracy: number,
-    difficulty: number,
-    cover: Cover
+    consumeLockOn?: boolean,
   }, base: AccDiffBase, weapon: AccDiffWeapon) {
     super(obj, weapon);
     this.target = obj.target;
+    this.consumeLockOn = obj.consumeLockOn ?? true;
     this.#base = base;
   }
 
@@ -86,7 +88,8 @@ class AccDiffTarget extends AccDiffBase {
       target: this.target.id,
       accuracy: this.accuracy,
       difficulty: this.difficulty,
-      cover: this.cover
+      cover: this.cover,
+      consumeLockOn: this.consumeLockOn
     }
   }
 
@@ -105,9 +108,20 @@ class AccDiffTarget extends AccDiffBase {
     }, extra.base, extra.weapon)
   }
 
+  // as it turns out, we can't actually name the ActiveEffect type
+  // it's fine, this is all we need here
+  get usingLockOn(): null | { delete: () => void } {
+    if (!this.consumeLockOn) { return null; }
+    let actor = (this.target.actor as LancerActor<LancerActorType>);
+    return actor.data.effects.find(eff => eff.data.flags.core.statusId == "lockon");
+  }
+
   get total() {
     // the only thing we actually use base for is the untyped bonuses
-    return super.total + this.#base.accuracy - this.#base.difficulty;
+    let raw = super.total + this.#base.accuracy - this.#base.difficulty;
+    let lockon = this.usingLockOn ? 1 : 0;
+
+    return raw + lockon;
   }
 }
 

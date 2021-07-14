@@ -486,17 +486,22 @@ function rollStr(bonus: number, total: number): string {
   return `1d20+${bonus}${modStr}`;
 }
 
-type AttackRoll = {
+type AttackRolls = {
   roll: string,
-  targeted: { target: Token, roll: string }[]
+  targeted: {
+    target: Token,
+    roll: string,
+    usedLockOn: { delete: () => void } | null,
+  }[]
 }
 
-function attackRollStrings(bonus: number, accdiff: AccDiffData): AttackRoll {
+function attackRolls(bonus: number, accdiff: AccDiffData): AttackRolls {
   return {
     roll: rollStr(bonus, accdiff.base.total),
     targeted: accdiff.targets.map(tad => ({
       target: tad.target,
-      roll: rollStr(bonus, tad.total)
+      roll: rollStr(bonus, tad.total),
+      usedLockOn: tad.usingLockOn,
     }))
   };
 }
@@ -744,7 +749,7 @@ async function prepareAttackMacro({
   const promptedData = await promptAccDiffModifiers(initialData);
   if (!promptedData) return;
 
-  const atkRolls = attackRollStrings(mData.grit, promptedData);
+  const atkRolls = attackRolls(mData.grit, promptedData);
 
   // Deduct charge if LOADING weapon.
   if (
@@ -785,22 +790,28 @@ type HitResult = {
   crit: boolean
 }
 
-async function checkTargets(atkRolls: AttackRoll, isSmart: boolean): Promise<{
+async function checkTargets(atkRolls: AttackRolls, isSmart: boolean): Promise<{
   attacks: AttackResult[],
   hits: HitResult[]
 }> {
   if (game.settings.get(LANCER.sys_name, LANCER.setting_automation_attack) && atkRolls.targeted.length > 0) {
     let data = await Promise.all(atkRolls.targeted.map(async targetingData => {
       let target = targetingData.target;
+      let actor = target.actor as LancerActor<LancerActorType>;
       // @ts-ignore .8
       let attack_roll = await new Roll(targetingData.roll).evaluate({ async: true });
       const attack_tt = await attack_roll.getTooltip();
+
+      if (targetingData.usedLockOn) {
+        targetingData.usedLockOn.delete();
+      }
+
       return {
         attack: { roll: attack_roll, tt: attack_tt },
         hit: {
           token: { name: target.data.name, img: target.data.img },
           total: String(attack_roll._total).padStart(2, "0"),
-          hit: await checkForHit(isSmart, attack_roll, target.actor as LancerActor<LancerActorType>),
+          hit: await checkForHit(isSmart, attack_roll, actor),
           crit: attack_roll._total >= 20,
         }
       }
@@ -821,7 +832,7 @@ async function checkTargets(atkRolls: AttackRoll, isSmart: boolean): Promise<{
   }
 }
 
-async function rollAttackMacro(actor: Actor, atkRolls: AttackRoll, data: LancerAttackMacroData, rerollMacro: LancerMacroData) {
+async function rollAttackMacro(actor: Actor, atkRolls: AttackRolls, data: LancerAttackMacroData, rerollMacro: LancerMacroData) {
   const isSmart = data.tags.findIndex(tag => tag.Tag.LID === "tg_smart") > -1;
   const { attacks, hits } = await checkTargets(atkRolls, isSmart);
 
@@ -1162,7 +1173,7 @@ async function rollTechMacro(actor: Actor, data: LancerTechMacroData, rerollData
   const promptedData = await promptAccDiffModifiers(initialData);
   if (!promptedData) return;
 
-  let atkRolls = attackRollStrings(data.t_atk, promptedData);
+  let atkRolls = attackRolls(data.t_atk, promptedData);
   if (!atkRolls) return;
 
   const { attacks, hits } = await checkTargets(atkRolls, true); // true = all tech attacks are "smart"

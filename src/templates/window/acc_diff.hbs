@@ -16,6 +16,13 @@
           <input type="checkbox" name="weapon.seeking" {{checked weapon.seeking}} />
           <span class="checkmark"></span>
         </label>
+        {{#if hasExactlyOneTarget}}
+          <label class="container">
+            Consume Lock On (+1)
+            <input type="checkbox" name="targets.0.consumeLockOn" {{checked targets.0.usingLockOn}} />
+            <span class="checkmark"></span>
+          </label>
+        {{/if}}
       </div>
       <div style="width:100%;padding:4px;">
         <h3>
