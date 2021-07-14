@@ -56,20 +56,34 @@ import { is_overkill } from "machine-mind/dist/funcs";
 
 const lp = LANCER.log_prefix;
 
-export function encodeMacroData(macroData: LancerMacroData): string {
-  return btoa(encodeURI(JSON.stringify(macroData)));
+export function encodeMacroData(data: LancerMacroData): string {
+  return btoa(encodeURI(JSON.stringify(data)));
 }
 
-export async function runEncodedMacro(el: JQuery<HTMLElement>) {
-  let encoded = el.attr("data-macro");
+export async function runEncodedMacro(el: HTMLElement) {
+  let encoded = el.attributes.getNamedItem('data-macro')?.nodeValue;
+  if (!encoded) {
+    console.warn("No macro data available");
+    return;
+  }
 
-  if (!encoded) throw Error("No macro data available");
   let data: LancerMacroData = JSON.parse(decodeURI(atob(encoded)));
 
-  let command = data.command;
+  const whitelist = [
+    "prepareEncodedAttackMacro",
+    "prepareStatMacro",
+    "prepareItemMacro",
+    "prepareCoreActiveMacro",
+    "prepareStructureSecondaryRollMacro",
+  ];
 
-  // Some might say eval is bad, but it's no worse than what we can already do with macros
-  eval(command);
+  if (whitelist.indexOf(data.fn) < 0) {
+    console.error("Attempting to call unwhitelisted function via encoded macro: " + data.fn);
+    return;
+  }
+
+  let fn = game.lancer[data.fn];
+  return fn.apply(null, data.args)
 }
 
 export async function onHotbarDrop(_bar: any, data: any, slot: number) {
@@ -735,12 +749,16 @@ async function prepareAttackMacro({
     await itemEnt.writeback();
   }
 
-  let rerollMacro = `prepareEncodedAttackMacro(
-${JSON.stringify(actor.data.data.derived.mm.as_ref())},
-"${item.id}",
-${JSON.stringify(options)},
-${JSON.stringify(promptedData.toObject())}
-)`;
+  let rerollMacro = {
+    title: "Reroll attack",
+    fn: "prepareEncodedAttackMacro",
+    args: [
+      actor.data.data.derived.mm.as_ref(),
+      item.id,
+      options,
+      promptedData.toObject()
+    ]
+  };
 
   await rollAttackMacro(actor, atkRolls, mData, rerollMacro);
 }
@@ -793,7 +811,7 @@ async function checkTargets(atkRolls: AttackRoll, isSmart: boolean): Promise<{
   }
 }
 
-async function rollAttackMacro(actor: Actor, atkRolls: AttackRoll, data: LancerAttackMacroData, rerollMacro: string) {
+async function rollAttackMacro(actor: Actor, atkRolls: AttackRoll, data: LancerAttackMacroData, rerollMacro: LancerMacroData) {
   const isSmart = data.tags.findIndex(tag => tag.Tag.LID === "tg_smart") > -1;
   const { attacks, hits } = await checkTargets(atkRolls, isSmart);
 
@@ -933,7 +951,7 @@ async function rollAttackMacro(actor: Actor, atkRolls: AttackRoll, data: LancerA
     effect: data.effect ? data.effect : null,
     on_hit: data.on_hit ? data.on_hit : null,
     tags: data.tags,
-    rerollMacroData: encodeMacroData({ command: rerollMacro, title: "Reroll Attack" })
+    rerollMacroData: encodeMacroData(rerollMacro)
   };
 
   console.debug(templateData);

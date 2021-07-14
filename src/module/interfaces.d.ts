@@ -148,7 +148,8 @@ declare interface LancerOverchargeMacroData {
 }
 
 declare interface LancerMacroData {
-  command: string;
+  fn: string;
+  args: any[];
   iconPath?: string;
   title: string;
 }

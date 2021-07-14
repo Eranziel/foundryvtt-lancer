@@ -16,7 +16,7 @@ import Storage from "@aws-amplify/storage"
 
 import { LANCER, STATUSES, WELCOME } from "./module/config";
 import { LancerGame } from "./module/lancer-game";
-import { LancerActor, lancerActorInit } from "./module/actor/lancer-actor";
+import { LancerActor, lancerActorInit, prepareStructureSecondaryRollMacro } from "./module/actor/lancer-actor";
 import { LancerItem, lancerItemInit } from "./module/item/lancer-item";
 import { populatePilotCache } from "./module/compcon";
 
@@ -179,6 +179,8 @@ Hooks.once("init", async function () {
     prepareOverheatMacro: macros.prepareOverheatMacro,
     prepareStructureMacro: macros.prepareStructureMacro,
     prepareActivationMacro: macros.prepareActivationMacro,
+    prepareEncodedAttackMacro: macros.prepareEncodedAttackMacro,
+    prepareStructureSecondaryRollMacro: prepareStructureSecondaryRollMacro,
     fullRepairMacro: macros.fullRepairMacro,
     stabilizeMacro: macros.stabilizeMacro,
     migrations: migrations,
@@ -660,7 +662,7 @@ Hooks.on("renderChatMessage", async (cm: ChatMessage, html: any, data: any) => {
     function checkTarget(element: HTMLElement) {
       if (element.attributes.getNamedItem('data-macro')) {
         ev.stopPropagation();
-        runEncodedMacro($(element));
+        runEncodedMacro(element);
         return true;
       }
       return false;
