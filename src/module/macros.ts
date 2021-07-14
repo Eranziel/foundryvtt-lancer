@@ -508,7 +508,7 @@ async function rollStatMacro(actor: Actor, data: LancerStatMacroData) {
   if (!actor) return Promise.resolve();
 
   // Get accuracy/difficulty with a prompt
-  let initialData = AccDiffForm.formDataFromParams();
+  let initialData = AccDiffData.fromParams();
   let promptedData = await promptAccDiffModifiers(initialData);
   if (!promptedData) return;
   let acc: number = promptedData.base.total;
@@ -697,7 +697,7 @@ async function prepareAttackMacro({
 
   // Prompt the user before deducting charges.
   const targets = Array.from(game.user.targets);
-  const initialData = rerollData ?? AccDiffForm.formDataFromParams(
+  const initialData = rerollData ?? AccDiffData.fromParams(
     mData.tags, mData.title, targets, mData.acc > 0 ? [mData.acc, 0] : [0, -mData.acc]);
   const promptedData = await promptAccDiffModifiers(initialData);
   if (!promptedData) return;
@@ -1104,7 +1104,7 @@ export async function prepareTechMacro(a: string, t: string) {
 
 async function rollTechMacro(actor: Actor, data: LancerTechMacroData, rerollData?: AccDiffData) {
   const targets = Array.from(game.user.targets);
-  const initialData = rerollData ?? AccDiffForm.formDataFromParams(data.tags, data.title, targets);
+  const initialData = rerollData ?? AccDiffData.fromParams(data.tags, data.title, targets);
   const promptedData = await promptAccDiffModifiers(initialData);
   if (!promptedData) return;
 
