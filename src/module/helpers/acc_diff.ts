@@ -213,7 +213,7 @@ export class AccDiffForm extends ReactiveForm<AccDiffData, AccDiffView> {
 
   getViewModel(data: AccDiffData): AccDiffView {
     let ret = data as AccDiffView; // view elements haven't been set yet
-    ret.hasTargets = ret.targets.length > 0;
+    ret.hasTargets = ret.targets.length > 1;
     ret.baseCoverDisabled = ret.base.seeking || ret.hasTargets;
     return ret
   }
