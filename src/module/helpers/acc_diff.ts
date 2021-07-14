@@ -98,7 +98,7 @@ class AccDiffTarget extends AccDiffBase {
       throw new Error("Token not found");
     }
     return new AccDiffTarget({
-      target: target,
+      target: target.object,
       accuracy: obj.accuracy,
       difficulty: obj.difficulty,
       cover: obj.cover
