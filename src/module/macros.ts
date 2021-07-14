@@ -49,7 +49,7 @@ import { is_ref, resolve_dotpath } from "./helpers/commons";
 import { buildActionHTML, buildDeployableHTML, buildSystemHTML } from "./helpers/item";
 import { ActivationOptions, StabOptions1, StabOptions2 } from "./enums";
 import { applyCollapseListeners, uuid4 } from "./helpers/collapse";
-import { checkForHit, getTargets } from "./helpers/automation/targeting";
+import { checkForHit } from "./helpers/automation/targeting";
 import { AccDiffForm, AccDiffData } from "./helpers/acc_diff";
 import { is_overkill } from "machine-mind/dist/funcs";
 
@@ -463,7 +463,7 @@ function rollStr(bonus: number, total: number): string {
 
 type AttackRoll = {
   roll: string,
-  targeted: { target: LancerActor<LancerActorType>, roll: string }[]
+  targeted: { target: Token, roll: string }[]
 }
 
 function attackRollStrings(bonus: number, accdiff: AccDiffData): AttackRoll {
@@ -696,7 +696,7 @@ async function prepareAttackMacro({
   }
 
   // Prompt the user before deducting charges.
-  const targets = getTargets();
+  const targets = Array.from(game.user.targets);
   const initialData = rerollData ?? AccDiffForm.formDataFromParams(
     mData.tags, mData.title, targets, mData.acc > 0 ? [mData.acc, 0] : [0, -mData.acc]);
   const promptedData = await promptAccDiffModifiers(initialData);
@@ -745,12 +745,9 @@ async function checkTargets(atkRolls: AttackRoll, isSmart: boolean): Promise<{
       return {
         attack: { roll: attack_roll, tt: attack_tt },
         hit: {
-          token: {
-            name: target.token ? target.token.data.name : target.data.name,
-            img: target.token ? target.token.data.img : target.data.img,
-          },
+          token: { name: target.data.name, img: target.data.img },
           total: String(attack_roll._total).padStart(2, "0"),
-          hit: await checkForHit(isSmart, attack_roll, target),
+          hit: await checkForHit(isSmart, attack_roll, target.actor as LancerActor<LancerActorType>),
           crit: attack_roll._total >= 20,
         }
       }
@@ -1106,7 +1103,7 @@ export async function prepareTechMacro(a: string, t: string) {
 }
 
 async function rollTechMacro(actor: Actor, data: LancerTechMacroData, rerollData?: AccDiffData) {
-  const targets = getTargets();
+  const targets = Array.from(game.user.targets);
   const initialData = rerollData ?? AccDiffForm.formDataFromParams(data.tags, data.title, targets);
   const promptedData = await promptAccDiffModifiers(initialData);
   if (!promptedData) return;

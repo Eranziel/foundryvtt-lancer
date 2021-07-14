@@ -1,5 +1,4 @@
 import { TagInstance } from "machine-mind";
-import { LancerActor, LancerActorType } from '../actor/lancer-actor';
 import ReactiveForm from './reactive-form';
 
 enum Cover {
@@ -24,7 +23,7 @@ export type AccDiffData = {
     total: number
   },
   targets: {
-    target: LancerActor<LancerActorType>,
+    target: Token,
     accuracy: number,
     difficulty: number,
     cover: Cover,
@@ -52,7 +51,7 @@ export class AccDiffForm extends ReactiveForm<AccDiffData, AccDiffView> {
   static formDataFromParams(
     tags?: TagInstance[],
     title?: string,
-    targets?: LancerActor<LancerActorType>[],
+    targets?: Token[],
     starting?: [number, number]
   ): AccDiffData {
     let ret: AccDiffData = {
@@ -112,7 +111,7 @@ export class AccDiffForm extends ReactiveForm<AccDiffData, AccDiffView> {
   static fromData(
     tags?: TagInstance[],
     title?: string,
-    targets?: LancerActor<LancerActorType>[],
+    targets?: Token[],
     starting?: [number, number]) {
     return new AccDiffForm(AccDiffForm.formDataFromParams(tags, title, targets, starting));
   }

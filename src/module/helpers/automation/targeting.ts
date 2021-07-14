@@ -1,6 +1,6 @@
 import { LancerActor, LancerActorType } from "../../actor/lancer-actor";
 
-export function getTargets(): LancerActor<LancerActorType>[] {
+export function getTargetActors(): LancerActor<LancerActorType>[] {
   const targets = game.user.targets;
   const ret: LancerActor<LancerActorType>[] = [];
   targets.forEach(token => {
