@@ -2,6 +2,11 @@
   {{#if target}}
     <div class="accdiff-grid">
       <img class="lancer-hit-thumb" src="{{target.data.img}}" />
+      <label for="{{concat key '.consumeLockOn'}}"
+        class="{{#if usingLockOn}}checked{{/if}} {{#unless lockOnAvailable}}disabled{{/unless}}"
+        title="Consume Lock On (+1)">
+        <i class="cci cci-condition-lock-on" style="border:none"></i>
+      </label>
     </div>
   {{/if}}
   {{{accdiff-total-display (concat key ".total")
@@ -31,7 +36,12 @@
         {{#if hasExactlyOneTarget}}
           <label class="container">
             Consume Lock On (+1)
-            <input type="checkbox" name="targets.0.consumeLockOn" {{checked targets.0.usingLockOn}} />
+            <input type="checkbox"
+              name="targets.0.consumeLockOn"
+              id="targets.0.consumeLockOn"
+              {{checked targets.0.usingLockOn}}
+              {{#unless targets.0.lockOnAvailable}}disabled{{/unless}}
+            />
             <span class="checkmark"></span>
           </label>
         {{/if}}
@@ -121,8 +131,11 @@
         Total {{#if hasExactlyOneTarget}} vs {{targets.0.target.data.name}}{{/if}}
       </label>
       {{#if hasExactlyOneTarget}}
-        <div class="flexrow flex-center">
-          {{> total targets.[0] key="targets.0" }}
+        <div class="flexrow flex-center lancer-consume-lockon">
+          {{> total targets.[0] key="targets.0"
+            usingLockOn=targets.[0].usingLockOn
+            lockOnAvailable=targets.[0].lockOnAvailable
+            hasExactlyOneTarget=hasExactlyOneTarget}}
         </div>
       {{else}}
         {{> total base key="base"}}
@@ -135,8 +148,15 @@
             <label class="flexrow flex-center card">
               {{data.target.data.name}}
             </label>
-            <div class="flexrow">
-              {{> total data key=(concat "targets." key) }}
+            <div class="flexrow lancer-consume-lockon">
+              <input
+                type="checkbox"
+                id="{{concat 'targets.' key '.consumeLockOn'}}"
+                name="{{concat 'targets.' key '.consumeLockOn'}}"
+                {{checked usingLockOn}}
+                {{#unless lockOnAvailable}}disabled{{/unless}}/>
+              {{> total data key=(concat "targets." key)
+                usingLockOn=data.usingLockOn lockOnAvailable=data.lockOnAvailable }}
             </div>
             <div class="flexrow">
               <button

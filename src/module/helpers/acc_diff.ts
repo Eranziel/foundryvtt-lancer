@@ -111,7 +111,10 @@ class AccDiffTarget extends AccDiffBase {
   // as it turns out, we can't actually name the ActiveEffect type
   // it's fine, this is all we need here
   get usingLockOn(): null | { delete: () => void } {
-    if (!this.consumeLockOn) { return null; }
+    return (this.consumeLockOn && this.lockOnAvailable) || null;
+  }
+
+  get lockOnAvailable(): null | { delete: () => void } {
     let actor = (this.target.actor as LancerActor<LancerActorType>);
     return actor.data.effects.find(eff => eff.data.flags.core.statusId == "lockon");
   }

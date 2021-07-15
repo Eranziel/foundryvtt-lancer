@@ -2249,8 +2249,44 @@ div[data-tab="system"] > .settings-list > div:nth-last-child(-n + 4) {
   }
 }
 
-.lancer-cover-radio.disabled {
-  opacity: 0.6;
+@keyframes lockon {
+  70% {
+    text-shadow: 0 0 8px lightgreen;
+  }
+  80% {
+    text-shadow: 0 0 8px green;
+  }
+  90% {
+    text-shadow: 0 0 8px lightgreen;
+  }
+}
+
+.lancer-consume-lockon  {
+  & .accdiff-grid {
+    position: relative;
+  }
+  & input[type="checkbox"] {
+    opacity: 0 !important;
+    position: fixed;
+    width: 0;
+  }
+  & [for] {
+    position: absolute;
+    right: -4px;
+    top: -4px;
+    & i {
+      @include icon-size(24px);
+      text-shadow: 0 0 12px white;
+    }
+    &.checked i {
+      @include icon-size(36px);
+      animation: lockon 800ms linear 1s infinite alternate;
+    }
+  }
+}
+
+.lancer-cover-radio.disabled, .lancer-consume-lockon .disabled {
+  opacity: 0.4;
 }
 
 // needed to override a builtin that removes all shadows from the sidebar
