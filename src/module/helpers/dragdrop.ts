@@ -127,6 +127,7 @@ export function HANDLER_enable_dropping(
       drop_handler(data, item, event);
 
       event.preventDefault();
+      event.stopPropagation();
     });
   });
 }

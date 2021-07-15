@@ -112,7 +112,7 @@ export function array_path_edit(target: any, flat_path: string, value: any, mode
       array.splice(index, 0, value);
     }
   } else {
-    console.error(`Unable to insert array item "${flat_path}[${tail}]": not an array (or not a valid index)`);
+    console.error(`Unable to insert array item "${lead}[${tail}]": not an array (or not a valid index)`);
   }
 }
 
