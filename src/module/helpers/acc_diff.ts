@@ -75,11 +75,11 @@ class AccDiffTarget extends AccDiffBase {
 
   constructor(obj: AccDiffBaseSerialized & {
     target: Token,
-    consumeLockOn?: boolean,
+    consumeLockOn: boolean,
   }, base: AccDiffBase, weapon: AccDiffWeapon) {
     super(obj, weapon);
     this.target = obj.target;
-    this.consumeLockOn = obj.consumeLockOn ?? true;
+    this.consumeLockOn = obj.consumeLockOn;
     this.#base = base;
   }
 
@@ -104,7 +104,8 @@ class AccDiffTarget extends AccDiffBase {
       target: target.object,
       accuracy: obj.accuracy,
       difficulty: obj.difficulty,
-      cover: obj.cover
+      cover: obj.cover,
+      consumeLockOn: obj.consumeLockOn,
     }, extra.base, extra.weapon)
   }
 
@@ -204,7 +205,8 @@ export class AccDiffData {
         target: t,
         accuracy: 0,
         difficulty: 0,
-        cover: Cover.None
+        cover: Cover.None,
+        consumeLockOn: true,
       }, base, weapon))
     });
   }
