@@ -148,6 +148,7 @@ let webpackConfig = shouldWatch => {
     output: {
       filename: "lancer.js",
       path: path.resolve(__dirname, "dist"),
+      publicPath: 'systems/lancer/',
     },
     watch: shouldWatch,
   };

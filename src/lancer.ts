@@ -52,7 +52,7 @@ tippy.setDefaultProps({ theme: "lancer", arrow: false, delay: [400, 200] });
 // tippy.setDefaultProps({ theme: "lancer", arrow: false, delay: [400, 200], hideOnClick: false, trigger: "click"});
 
 // Import node modules
-import compareVersions = require("compare-versions");
+const compareVersions = require("compare-versions");
 import { NpcFeatureType, EntryType, Manufacturer, Bonus, WeaponSize, Action, funcs } from "machine-mind";
 import {
   resolve_dotpath,

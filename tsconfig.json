@@ -3,7 +3,7 @@
 		"target": "ES2017",
 		"experimentalDecorators": true,
 		"outDir": "./dist/",
-		"module": "commonjs",
+		"module": "esnext",
 		"sourceMap": true,
 		"lib": [
 			"DOM",
@@ -13,8 +13,8 @@
 		"types": [
 			"foundry-pc-types"
 		],
-		// "moduleResolution": "node",
+		"moduleResolution": "node",
 		"strict": true,
-		"skipLibCheck": true,
+		"skipLibCheck": true
 	}
 }
