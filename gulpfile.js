@@ -123,10 +123,11 @@ const tsConfig = ts.createProject("tsconfig.json", {
 
 let webpackConfig = shouldWatch => {
   return {
+    mode: shouldWatch ? "development" : "production",
     entry: "./src/lancer.ts",
-    devtool: "inline-source-map",
+    devtool: shouldWatch ? "inline-source-map" : "source-map",
     optimization: {
-      minimize: false,
+      minimize: !shouldWatch,
     },
     module: {
       rules: [
