@@ -3,8 +3,11 @@ import * as t from 'io-ts';
 
 import { LancerActor, LancerActorType } from "../../actor/lancer-actor";
 import ReactiveForm from '../reactive-form';
+import { AccDiffPlugin, AccDiffPluginData, AccDiffPluginCodec } from './plugin';
 import { enclass, encode, decode } from './serde';
+import { LancerItem } from "../../item/lancer-item";
 
+import { Invisibility } from "./invisibility";
 
 enum Cover {
   None = 0,
@@ -20,39 +23,67 @@ class AccDiffWeapon {
   accurate: boolean;
   inaccurate: boolean;
   seeking: boolean;
+  plugins: { [k: string]: AccDiffPluginData };
 
-  static schema = {
-    accurate: t.boolean,
-    inaccurate: t.boolean,
-    seeking: t.boolean,
+  static pluginSchema: { [k: string]: AccDiffPluginCodec<any, any, any> } = {
+
+  };
+
+  static get schema() {
+    return {
+      accurate: t.boolean,
+      inaccurate: t.boolean,
+      seeking: t.boolean,
+      plugins: t.type(this.pluginSchema),
+    }
   }
 
-  static get schemaCodec() { return t.type(this.schema); }
+  static get schemaCodec() {
+    return t.type(this.schema);
+  }
   static get codec() { return enclass(this.schemaCodec, AccDiffWeapon) }
 
   constructor(obj: t.TypeOf<typeof AccDiffWeapon.schemaCodec>) {
     this.accurate = obj.accurate;
     this.inaccurate = obj.inaccurate;
     this.seeking = obj.seeking;
+    this.plugins = obj.plugins;
   }
 
   get raw() {
-    return { accurate: this.accurate, inaccurate: this.inaccurate, seeking: this.seeking }
+    return {
+      accurate: this.accurate,
+      inaccurate: this.inaccurate,
+      seeking: this.seeking,
+      plugins: this.plugins
+    }
   }
 
-  hydrate(_d: void) { }
+  hydrate(d: AccDiffData) {
+    for (let key of Object.keys(this.plugins)) {
+      this.plugins[key].hydrate(d);
+    }
+  }
 }
 
 class AccDiffBase {
   accuracy: number;
   difficulty: number;
   cover: Cover;
+  plugins: { [k: string]: AccDiffPluginData };
   #weapon!: AccDiffWeapon; // never use this class before calling hydrate
 
-  static schema = {
-    accuracy: t.number,
-    difficulty: t.number,
-    cover: coverSchema,
+  static pluginSchema: { [k: string]: AccDiffPluginCodec<any, any, any> } = {
+
+  };
+
+  static get schema() {
+    return {
+      accuracy: t.number,
+      difficulty: t.number,
+      cover: coverSchema,
+      plugins: t.type(this.pluginSchema)
+    }
   }
   static get schemaCodec() { return t.type(this.schema); }
   static get codec() { return enclass(this.schemaCodec, AccDiffBase) }
@@ -61,15 +92,19 @@ class AccDiffBase {
     this.accuracy = obj.accuracy;
     this.difficulty = obj.difficulty;
     this.cover = obj.cover;
+    this.plugins = obj.plugins;
     // this.#weapon = weapon;
   }
 
   get raw() {
-    return { accuracy: this.accuracy, difficulty: this.difficulty, cover: this.cover }
+    return { accuracy: this.accuracy, difficulty: this.difficulty, cover: this.cover, plugins: this.plugins }
   }
 
-  hydrate(weapon: AccDiffWeapon) {
-    this.#weapon = weapon;
+  hydrate(d: AccDiffData) {
+    this.#weapon = d.weapon;
+    for (let key of Object.keys(this.plugins)) {
+      this.plugins[key].hydrate(d, this);
+    }
   }
 
   get total() {
@@ -84,21 +119,29 @@ class AccDiffBase {
 // but ... typescript checks type compatibility between _static_ methods
 // and that + io-ts I think has the variance wrong
 // so if you extend AccDiffBase it's trying to assign AccDiffBase to AccDiffTarget
-class AccDiffTarget {
+export class AccDiffTarget {
   target: Token;
   accuracy: number;
   difficulty: number;
   cover: Cover;
   consumeLockOn: boolean;
+  plugins: { [k: string]: any };
   #weapon!: AccDiffWeapon; // never use this class before calling hydrate
   #base!: AccDiffBase; // never use this class before calling hydrate
 
-  static schema = {
-    target_id: t.string,
-    accuracy: t.number,
-    difficulty: t.number,
-    cover: coverSchema,
-    consumeLockOn: t.boolean,
+  static pluginSchema: { [k: string]: AccDiffPluginCodec<any, any, any> } = {
+
+  };
+
+  static get schema() {
+    return {
+      target_id: t.string,
+      accuracy: t.number,
+      difficulty: t.number,
+      cover: coverSchema,
+      consumeLockOn: t.boolean,
+      plugins: t.type(this.pluginSchema),
+    }
   }
 
   static get schemaCodec() { return t.type(this.schema); }
@@ -116,6 +159,7 @@ class AccDiffTarget {
     this.difficulty = obj.difficulty;
     this.cover = obj.cover;
     this.consumeLockOn = obj.consumeLockOn;
+    this.plugins = obj.plugins;
     // this.#weapon = weapon;
     // this.#base = base;
   }
@@ -126,13 +170,17 @@ class AccDiffTarget {
       accuracy: this.accuracy,
       difficulty: this.difficulty,
       cover: this.cover,
-      consumeLockOn: this.consumeLockOn
+      consumeLockOn: this.consumeLockOn,
+      plugins: this.plugins,
     }
   }
 
-  hydrate(weapon: AccDiffWeapon, base: AccDiffBase) {
-    this.#weapon = weapon;
-    this.#base = base;
+  hydrate(d: AccDiffData) {
+    this.#weapon = d.weapon;
+    this.#base = d.base;
+    for (let key of Object.keys(this.plugins)) {
+      this.plugins[key].hydrate(d, this);
+    }
   }
 
   // as it turns out, we can't actually name the ActiveEffect type
@@ -184,9 +232,9 @@ export class AccDiffData {
     this.base = obj.base;
     this.targets = obj.targets;
 
-    this.weapon.hydrate();
-    this.base.hydrate(this.weapon);
-    for (let target of this.targets) { target.hydrate(this.weapon, this.base); }
+    this.weapon.hydrate(this);
+    this.base.hydrate(this);
+    for (let target of this.targets) { target.hydrate(this); }
   }
 
   get raw() {
@@ -206,7 +254,24 @@ export class AccDiffData {
     return encode(this, AccDiffData.codec);
   }
 
+  static plugins: AccDiffPlugin<AccDiffPluginData>[] = [];
+  static targetedPlugins: AccDiffPlugin<AccDiffPluginData>[] = [];
+  static registerPlugin<D extends AccDiffPluginData, P extends AccDiffPlugin<D>, O>(plugin: P) {
+    if (plugin.perRoll) {
+      AccDiffWeapon.pluginSchema[plugin.slug] = plugin.codec;
+    }
+    if (plugin.perUnknownTarget) {
+      AccDiffBase.pluginSchema[plugin.slug] = plugin.codec;
+    }
+    if (plugin.perTarget) {
+      AccDiffTarget.pluginSchema[plugin.slug] = plugin.codec;
+      this.targetedPlugins.push(plugin);
+    }
+    this.plugins.push(plugin);
+  }
+
   static fromParams(
+    item?: LancerItem<any>,
     tags?: TagInstance[],
     title?: string,
     targets?: Token[],
@@ -216,6 +281,7 @@ export class AccDiffData {
       accurate: false,
       inaccurate: false,
       seeking: false,
+      plugins: {} as { [k: string]: any },
     };
 
     for (let tag of (tags || [])) {
@@ -236,19 +302,37 @@ export class AccDiffData {
       cover: Cover.None,
       accuracy: starting ? starting[0] : 0,
       difficulty: starting ? starting[1] : 0,
+      plugins: {} as { [k: string]: any },
     };
 
-    return AccDiffData.fromObject({
+    let obj = {
       title: title ? `${title} - Accuracy and Difficulty` : "Accuracy and Difficulty",
       weapon, base,
-      targets: (targets || []).map(t => ({
-        target_id: t.id,
-        accuracy: 0,
-        difficulty: 0,
-        cover: Cover.None,
-        consumeLockOn: true,
-      }))
-    });
+      targets: (targets || []).map(t => {
+        let ret = {
+          target_id: t.id,
+          accuracy: 0,
+          difficulty: 0,
+          cover: Cover.None,
+          consumeLockOn: true,
+          plugins: {} as { [k: string]: any },
+        };
+        for (let plugin of this.targetedPlugins) {
+          ret.plugins[plugin.slug] = encode(plugin.perTarget!(t), plugin.codec);
+        }
+        return ret;
+      })
+    };
+
+    for (let plugin of this.plugins) {
+      if (plugin.perRoll) {
+        obj.weapon.plugins[plugin.slug] = encode(plugin.perRoll(item), plugin.codec);
+      }
+      if (plugin.perUnknownTarget) {
+        obj.base.plugins[plugin.slug] = encode(plugin.perUnknownTarget(), plugin.codec);
+      }
+    }
+    return AccDiffData.fromObject(obj);
   }
 }
 
@@ -276,3 +360,6 @@ export class AccDiffForm extends ReactiveForm<AccDiffData, AccDiffView> {
     return ret
   }
 }
+
+// side effects for importing, yes, yes, I know
+AccDiffData.registerPlugin(Invisibility);

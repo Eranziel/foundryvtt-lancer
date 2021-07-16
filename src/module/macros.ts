@@ -486,6 +486,10 @@ function rollStr(bonus: number, total: number): string {
   return `1d20+${bonus}${modStr}`;
 }
 
+function applyPluginsToRoll(str: string, plugins: { modifyRoll(i: string): string }[]): string {
+  return plugins.reduce((acc, p) => p.modifyRoll(acc), str);
+}
+
 type AttackRolls = {
   roll: string,
   targeted: {
@@ -496,13 +500,18 @@ type AttackRolls = {
 }
 
 function attackRolls(bonus: number, accdiff: AccDiffData): AttackRolls {
+  let perRoll = Object.values(accdiff.weapon.plugins);
+  let base = perRoll.concat(Object.values(accdiff.base.plugins));
   return {
-    roll: rollStr(bonus, accdiff.base.total),
-    targeted: accdiff.targets.map(tad => ({
-      target: tad.target,
-      roll: rollStr(bonus, tad.total),
-      usedLockOn: tad.usingLockOn,
-    }))
+    roll: applyPluginsToRoll(rollStr(bonus, accdiff.base.total), base),
+    targeted: accdiff.targets.map(tad => {
+      let perTarget = perRoll.concat(Object.values(tad.plugins));
+      return {
+        target: tad.target,
+        roll: applyPluginsToRoll(rollStr(bonus, tad.total), perTarget),
+        usedLockOn: tad.usingLockOn,
+      }
+    })
   };
 }
 
@@ -745,7 +754,7 @@ async function prepareAttackMacro({
   // Prompt the user before deducting charges.
   const targets = Array.from(game.user.targets);
   const initialData = rerollData ?? AccDiffData.fromParams(
-    mData.tags, mData.title, targets, mData.acc > 0 ? [mData.acc, 0] : [0, -mData.acc]);
+    item, mData.tags, mData.title, targets, mData.acc > 0 ? [mData.acc, 0] : [0, -mData.acc]);
   const promptedData = await promptAccDiffModifiers(initialData);
   if (!promptedData) return;
 
@@ -1164,12 +1173,12 @@ export async function prepareTechMacro(a: string, t: string) {
   }
   console.log(`${lp} Tech Attack Macro Item:`, item, mData);
 
-  await rollTechMacro(actor, mData);
+  await rollTechMacro(actor, mData, item);
 }
 
-async function rollTechMacro(actor: Actor, data: LancerTechMacroData, rerollData?: AccDiffData) {
+async function rollTechMacro(actor: Actor, data: LancerTechMacroData, item?: LancerItem<any>, rerollData?: AccDiffData) {
   const targets = Array.from(game.user.targets);
-  const initialData = rerollData ?? AccDiffData.fromParams(data.tags, data.title, targets);
+  const initialData = rerollData ?? AccDiffData.fromParams(item, data.tags, data.title, targets);
   const promptedData = await promptAccDiffModifiers(initialData);
   if (!promptedData) return;
 

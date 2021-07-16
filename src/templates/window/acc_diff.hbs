@@ -14,7 +14,20 @@
     classes="accdiff-grid accdiff-weight"
   }}}
 {{/inline}}
-
+{{#*inline "plugin"}}
+  {{#if visible}}
+    <label class="container">
+      {{humanLabel}}
+      <input type="checkbox"
+        name="{{key}}.uiState"
+        id="{{key}}.uiState"
+        {{checked uiState}}
+        {{#if disabled}}disabled{{/if}}
+      />
+      <span class="checkmark"></span>
+    </label>
+  {{/if}}
+{{/inline}}
 <form id="accdiff">
   <div id="accdiff-dialog" style="padding:4px">
     <div class="accdiff-grid">
@@ -33,6 +46,9 @@
           <input type="checkbox" name="weapon.seeking" {{checked weapon.seeking}} />
           <span class="checkmark"></span>
         </label>
+        {{#each weapon.plugins as |data key|}}
+          {{> plugin data key=(concat "weapon.plugins." key) visible=visible disabled=disabled uiState=uiState}}
+        {{/each}}
         {{#if hasExactlyOneTarget}}
           <label class="container">
             Consume Lock On (+1)
@@ -44,6 +60,9 @@
             />
             <span class="checkmark"></span>
           </label>
+          {{#each targets.0.plugins as |data key|}}
+            {{> plugin data key=(concat "targets.0.plugins." key)  visible=visible disabled=disabled uiState=uiState}}
+          {{/each}}
         {{/if}}
       </div>
       <div style="width:100%;padding:4px;">
