@@ -7,7 +7,7 @@ import { AccDiffPlugin, AccDiffPluginData, AccDiffPluginCodec } from './plugin';
 import { enclass, encode, decode } from './serde';
 import { LancerItem } from "../../item/lancer-item";
 
-import { Invisibility } from "./invisibility";
+import Invisibility from "./invisibility";
 
 enum Cover {
   None = 0,

@@ -17,7 +17,7 @@ export enum InvisibilityEnum {
   ForceInvisibility = 1,
 }
 
-export class Invisibility implements AccDiffPluginData {
+export default class Invisibility implements AccDiffPluginData {
   data: InvisibilityEnum;
   token?: Token;
 
