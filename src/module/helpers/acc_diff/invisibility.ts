@@ -4,7 +4,10 @@ import { AccDiffPlugin, AccDiffPluginData, AccDiffPluginCodec } from './plugin';
 import { AccDiffData, AccDiffTarget } from './index';
 import { enclass } from './serde';
 
-// why not just a boolean?
+// you don't need to explicitly type the serialized data,
+// but if you do then io-ts codecs can do strong checks at runtime
+
+// so for invisibility: why not persist just a boolean?
 // we want to try and capture the intent for the reroll, not just the state
 // if the user clicks to force invisible, then clicks it again
 // we want to interpret that as changing their mind, instead of forcing _visibility_
@@ -18,34 +21,48 @@ export class Invisibility implements AccDiffPluginData {
   data: InvisibilityEnum;
   token?: Token;
 
-  constructor(ser: t.TypeOf<typeof invisibilityCodec>) {
-    this.data = ser;
-  }
-  get raw(): t.TypeOf<typeof invisibilityCodec> {
-    return this.data;
+  // these methods are for easy class codecs via `enclass`
+  constructor(ser: InvisibilityEnum) { this.data = ser; }
+  get raw(): InvisibilityEnum { return this.data; }
+
+  // as you may have guessed, the codec just stores the enum
+  static get codec(): AccDiffPluginCodec<Invisibility, InvisibilityEnum, unknown> {
+    return enclass(
+      t.union([t.literal(-1), t.literal(0), t.literal(1)]),
+      Invisibility
+    )
   }
 
+  // store a reference to the current token when rehydrated
+  hydrate(_d: AccDiffData, t?: AccDiffTarget) {
+    if (t) { this.token = t.target; }
+  }
+
+  // invisibility operates on the target level, whether we know the target or not
   static perUnknownTarget(): Invisibility {
     return new Invisibility(InvisibilityEnum.NoForce);
   }
-
   static perTarget(item: Token): Invisibility {
     let ret = Invisibility.perUnknownTarget();
     ret.token = item;
     return ret;
   }
 
-  get tokenInvisible(): boolean {
+  // assume targets aren't invisible if we don't know about them
+  // otherwise, go get the status effects and check them
+  private get tokenInvisible(): boolean {
     if (!this.token) { return false; }
     let actor = (this.token.actor as LancerActor<LancerActorType>);
     return !!actor.data.effects.find(eff => eff.data.flags.core.statusId == "invisible");
   }
 
+  // UI behaviour
   uiElement: "checkbox" = "checkbox";
   slug: string = "invisibility";
   static slug: string = "invisibility";
   humanLabel: string = "Invisible (*)";
-  // uiState = "treat this target as invisible"
+
+  // our uiState is whether we're treating the current target as invisible
   get uiState() {
     if (this.data == InvisibilityEnum.NoForce) {
       return this.tokenInvisible;
@@ -53,8 +70,8 @@ export class Invisibility implements AccDiffPluginData {
       return !!(this.data + 1);
     }
   }
-  // setting invisibility to true or false when the token isn't that is interpreted as a force
-  // setting invisibility to whatever the token is is interpreted as no force
+  // toggling invisibility to what the token isn't is interpreted as a force
+  // toggling invisibility to whatever the token is is interpreted as not wanting to force
   set uiState(newState: boolean) {
     let tki = this.tokenInvisible;
     if (tki == newState) {
@@ -66,9 +83,12 @@ export class Invisibility implements AccDiffPluginData {
     }
   }
 
-  get disabled() { return false; }
-  get visible() { return true; }
+  // no behaviour here — invisibility can always be seen and toggled
+  readonly visible = true;
+  readonly disabled = false;
 
+  // the effect to have on the roll
+  // 1d2even resolves to either 0 or 1 successes, so multiplying works great
   modifyRoll(roll: string): string {
     if (this.uiState) {
       return `1d2even[👻] * (${roll})`;
@@ -76,19 +96,7 @@ export class Invisibility implements AccDiffPluginData {
       return roll;
     }
   }
-
-  hydrate(_d: AccDiffData, t?: AccDiffTarget) {
-    if (t) { this.token = t.target; }
-  }
-
-  static get codec() {
-    return invisibilityCodec;
-  }
 }
 
-const _klass: AccDiffPlugin<Invisibility> = Invisibility; // to get type errors
-
-export const invisibilityCodec: AccDiffPluginCodec<Invisibility, InvisibilityEnum, unknown> = enclass(
-  t.union([t.literal(-1), t.literal(0), t.literal(1)]),
-  Invisibility
-)
+// to check whether the static methods match the interface
+const _klass: AccDiffPlugin<Invisibility> = Invisibility;

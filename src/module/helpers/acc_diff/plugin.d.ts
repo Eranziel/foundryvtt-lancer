@@ -3,6 +3,14 @@ import { LancerItem } from "../../item/lancer-item";
 
 import type { AccDiffData } from './index';
 
+// Implementing a plugin means implementing
+// * a data object that can compute its view behaviour,
+// * a codec to serialize it,
+// * and a bunch of freestanding constructors
+
+// You don't _have_ to make the data object a class with static methods for the constructors
+// but it's convenient
+
 declare interface UIBehaviour {
   uiElement: "checkbox",
   slug: string,
@@ -18,6 +26,9 @@ declare interface RollModifier {
 }
 
 declare interface Dehydrated {
+  // the codec handles all serializable data,
+  // but we might want to pick up data from the environment too
+  // all perTarget codecs get the target as well
   hydrate(data: AccDiffData, target?: AccDiffTarget);
 }
 
@@ -27,10 +38,20 @@ export type AccDiffPluginCodec<C extends AccDiffPluginData, O, I> = Codec<C, O, 
 
 declare interface AccDiffPlugin<Data extends AccDiffPluginData> {
   slug: string,
+  // the codec lets us know how to persist whatever data you need for rerolls
   codec: AccDiffPluginCodec<Data, O, I>,
-  perRoll?(item?: LancerItem<any>),
+  // these constructors handle creating the initial data for a plugin
+  // the presence of these three constructors also indicates what scopes the plugin lives in
+  // a "perRoll" plugin applies to all rolls, like weapon seeking or particularize
+  // a "perTarget" plugin applies individually to every single target
+  // a "perUnknownTarget" applies whenever the user opens the roll dialog without a target
+  // so every roll has perRoll + exactly one of perTarget and perUnknownTarget
+  perRoll?(item?: LancerItem<any>): Data,
   perUnknownTarget?(): Data,
   perTarget?(item: Token): Data,
+  // usually you want to implement either perRoll OR both of the other two
+  // if you implement perRoll AND either or both of the other two, `rollModifier`
+  // will be called twice on the same roll, so watch out for that
 }
 
 export type Data<T> = T extends AccDiffPlugin<infer D> ? D : never;
