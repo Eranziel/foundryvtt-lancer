@@ -1,6 +1,6 @@
 import * as t from 'io-ts';
 import { LancerActor, LancerActorType } from "../../actor/lancer-actor";
-import { AccDiffPlugin, AccDiffPluginData, AccDiffPluginCodec } from './plugin';
+import { AccDiffPlugin, AccDiffCheckboxPluginData, AccDiffPluginCodec } from './plugin';
 import { AccDiffData, AccDiffTarget } from './index';
 import { enclass } from './serde';
 
@@ -17,7 +17,7 @@ export enum InvisibilityEnum {
   ForceInvisibility = 1,
 }
 
-export default class Invisibility implements AccDiffPluginData {
+export default class Invisibility implements AccDiffCheckboxPluginData {
   data: InvisibilityEnum;
   token?: Token;
 

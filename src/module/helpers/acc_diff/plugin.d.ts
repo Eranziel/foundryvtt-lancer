@@ -11,8 +11,8 @@ import type { AccDiffData } from './index';
 // You don't _have_ to make the data object a class with static methods for the constructors
 // but it's convenient
 
-declare interface UIBehaviour {
-  uiElement: "checkbox",
+declare interface CheckboxUI {
+  uiElement: "checkbox" = "checkbox",
   slug: string,
   humanLabel: string,
   get uiState(): boolean;
@@ -20,6 +20,12 @@ declare interface UIBehaviour {
   get disabled(): boolean;
   get visible(): boolean;
 }
+
+declare interface NoUI {
+  uiElement: "none" = "none",
+}
+
+type UIBehaviour = CheckboxUI | NoUI;
 
 declare interface RollModifier {
   modifyRoll(roll: string): string
@@ -33,6 +39,8 @@ declare interface Dehydrated {
 }
 
 export type AccDiffPluginData = UIBehaviour & RollModifier & Dehydrated;
+export type AccDiffCheckboxPluginData = CheckboxUI & RollModifier & Dehydrated;
+export type AccDiffNoUIPluginData = NoUI & RollModifier & Dehydrated;
 
 export type AccDiffPluginCodec<C extends AccDiffPluginData, O, I> = Codec<C, O, I>;
 

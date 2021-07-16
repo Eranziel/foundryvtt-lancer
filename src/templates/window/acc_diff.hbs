@@ -16,16 +16,18 @@
 {{/inline}}
 {{#*inline "plugin"}}
   {{#if visible}}
-    <label class="container">
-      {{humanLabel}}
-      <input type="checkbox"
-        name="{{key}}.uiState"
-        id="{{key}}.uiState"
-        {{checked uiState}}
-        {{#if disabled}}disabled{{/if}}
-      />
-      <span class="checkmark"></span>
-    </label>
+    {{#if (eq uiElement "checkbox")}}
+      <label class="container">
+        {{humanLabel}}
+        <input type="checkbox"
+          name="{{key}}.uiState"
+          id="{{key}}.uiState"
+          {{checked uiState}}
+          {{#if disabled}}disabled{{/if}}
+        />
+        <span class="checkmark"></span>
+      </label>
+    {{/if}}
   {{/if}}
 {{/inline}}
 <form id="accdiff">
