@@ -1,5 +1,5 @@
 import * as t from 'io-ts';
-import { isLeft, Either, map } from 'fp-ts/Either';
+import { isLeft, right, Either, map } from 'fp-ts/Either';
 
 function unwrap<E, A>(e: Either<E, A>): A {
   if (isLeft(e)) {
@@ -17,6 +17,13 @@ export function enclass<Raw, Klass extends { get raw(): Raw }, I, O>(
     (v: unknown): v is Klass => v instanceof Constructor,
     data => map((d: Raw) => new Constructor(d))(codec.decode(data)),
     inst => codec.encode(inst.raw)
+  );
+}
+
+export function stateless<T>(name: string, predicate: t.Is<T>, synthesise: () => T) {
+  return new t.Type<T, null, unknown>(
+    name, predicate,
+    _ => right(synthesise()), _ => null
   );
 }
 

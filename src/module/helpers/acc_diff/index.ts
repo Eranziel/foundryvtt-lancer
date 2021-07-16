@@ -8,6 +8,7 @@ import { enclass, encode, decode } from './serde';
 import { LancerItem } from "../../item/lancer-item";
 
 import Invisibility from "./invisibility";
+import Spotter from "./spotter";
 
 enum Cover {
   None = 0,
@@ -370,3 +371,4 @@ export class AccDiffForm extends ReactiveForm<AccDiffData, AccDiffView> {
 
 // side effects for importing, yes, yes, I know
 AccDiffData.registerPlugin(Invisibility);
+AccDiffData.registerPlugin(Spotter);

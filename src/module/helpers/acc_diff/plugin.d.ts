@@ -50,7 +50,7 @@ declare interface AccDiffPlugin<Data extends AccDiffPluginData> {
   codec: AccDiffPluginCodec<Data, O, I>,
   // these constructors handle creating the initial data for a plugin
   // the presence of these three constructors also indicates what scopes the plugin lives in
-  // a "perRoll" plugin applies to all rolls, like weapon seeking or particularize
+  // a "perRoll" plugin applies to all rolls, like weapon seeking
   // a "perTarget" plugin applies individually to every single target
   // a "perUnknownTarget" applies whenever the user opens the roll dialog without a target
   // so every roll has perRoll + exactly one of perTarget and perUnknownTarget
