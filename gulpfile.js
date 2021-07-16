@@ -5,7 +5,9 @@ const chalk = require("chalk");
 const archiver = require("archiver");
 const stringify = require("json-stringify-pretty-compact");
 const typescript = require("typescript");
-const webpack = require("webpack-stream");
+
+const wp = require("webpack");
+const webpack = require("piped-webpack");
 
 const ts = require("gulp-typescript");
 const less = require("gulp-less");
@@ -124,10 +126,30 @@ const tsConfig = ts.createProject("tsconfig.json", {
 let webpackConfig = shouldWatch => {
   return {
     mode: shouldWatch ? "development" : "production",
-    entry: "./src/lancer.ts",
+    entry: {
+      "lancer": "./src/lancer.ts",
+    },
     devtool: shouldWatch ? "inline-source-map" : "source-map",
     optimization: {
       minimize: !shouldWatch,
+      moduleIds: 'deterministic',
+      chunkIds: 'deterministic',
+      runtimeChunk: 'single',
+      splitChunks: {
+        chunks: 'async',
+        maxInitialRequests: 20,
+        cacheGroups: {
+          vendor: {
+            test: /[\\/]node_modules[\\/]/,
+            minSize: 0,
+            // name(module) {
+            //   const packageName = module.context.match(/[\\/]node_modules[\\/](.*?)([\\/]|$)/)[1];
+            //   // npm package names are URL-safe, but some servers don't like @ symbols
+            //   return `npm.${packageName.replace('@', '')}`;
+            // }
+          }
+        }
+      }
     },
     module: {
       rules: [
@@ -144,17 +166,21 @@ let webpackConfig = shouldWatch => {
     },
     resolve: {
       extensions: [".ts", ".tsx", ".js"],
+      fallback: {
+        "crypto": require.resolve("crypto-browserify"),
+        "stream": require.resolve("stream-browserify"),
+      },
     },
     output: {
-      filename: "lancer.js",
-      path: path.resolve(__dirname, "dist"),
+      filename: "[name].js",
+      path: path.resolve(__dirname),
       publicPath: 'systems/lancer/',
     },
     watch: shouldWatch,
   };
 };
 
-async function buildWebpack() {
+function buildWebpack() {
   return gulp
     .src("src/lancer.ts")
     .pipe(webpack(webpackConfig(false)))
@@ -196,7 +222,7 @@ async function copyFiles() {
     "glyphs.css",
     "module.json",
     "system.json",
-    "template.json",
+    "template.json"
   ];
   try {
     for (const file of statics) {

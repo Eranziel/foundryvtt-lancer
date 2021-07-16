@@ -7,7 +7,10 @@
   "compatibleCoreVersion": "0.8.6",
   "author": "Eranziel",
   "scripts": [],
-  "esmodules": ["lancer.js"],
+  "esmodules": [
+    "runtime.js",
+    "lancer.js"
+  ],
   "styles": [
     "lancer.css",
     "fonts/compcon/glyphs.css"

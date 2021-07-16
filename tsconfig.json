@@ -3,7 +3,7 @@
 		"target": "ES2017",
 		"experimentalDecorators": true,
 		"outDir": "./dist/",
-		"module": "esnext",
+		"module": "es2020",
 		"sourceMap": true,
 		"lib": [
 			"DOM",
