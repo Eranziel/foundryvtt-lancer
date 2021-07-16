@@ -607,7 +607,7 @@ export async function prepareEncodedAttackMacro(
     ui.notifications.error("Could not find weapon to reroll");
     return;
   }
-  let accdiff = AccDiffData.fromObject(rerollData);
+  let accdiff = AccDiffData.fromObject(rerollData, item);
   return prepareAttackMacro({ actor, item, options }, accdiff);
 }
 

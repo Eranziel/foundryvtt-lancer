@@ -213,6 +213,7 @@ export class AccDiffData {
   weapon: AccDiffWeapon;
   base: AccDiffBase;
   targets: AccDiffTarget[];
+  lancerItem?: LancerItem<any>; // not persisted, needs to be hydrated
 
   static get schema() {
     return {
@@ -231,7 +232,10 @@ export class AccDiffData {
     this.weapon = obj.weapon;
     this.base = obj.base;
     this.targets = obj.targets;
+    this.hydrate();
+  }
 
+  hydrate() {
     this.weapon.hydrate(this);
     this.base.hydrate(this);
     for (let target of this.targets) { target.hydrate(this); }
@@ -246,8 +250,11 @@ export class AccDiffData {
     }
   }
 
-  static fromObject(obj: t.InputOf<typeof AccDiffData.codec>) {
-    return decode(obj, AccDiffData.codec);
+  static fromObject(obj: t.InputOf<typeof AccDiffData.codec>, lancerItem?: LancerItem<any>): AccDiffData {
+    let ret = decode(obj, AccDiffData.codec);
+    ret.lancerItem = lancerItem;
+    ret.hydrate();
+    return ret;
   }
 
   toObject(): t.OutputOf<typeof AccDiffData.codec> {
@@ -256,7 +263,7 @@ export class AccDiffData {
 
   static plugins: AccDiffPlugin<AccDiffPluginData>[] = [];
   static targetedPlugins: AccDiffPlugin<AccDiffPluginData>[] = [];
-  static registerPlugin<D extends AccDiffPluginData, P extends AccDiffPlugin<D>, O>(plugin: P) {
+  static registerPlugin<D extends AccDiffPluginData, P extends AccDiffPlugin<D>>(plugin: P) {
     if (plugin.perRoll) {
       AccDiffWeapon.pluginSchema[plugin.slug] = plugin.codec;
     }
@@ -332,7 +339,7 @@ export class AccDiffData {
         obj.base.plugins[plugin.slug] = encode(plugin.perUnknownTarget(), plugin.codec);
       }
     }
-    return AccDiffData.fromObject(obj);
+    return AccDiffData.fromObject(obj, item);
   }
 }
 
