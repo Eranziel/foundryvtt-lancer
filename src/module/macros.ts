@@ -483,7 +483,7 @@ function rollStr(bonus: number, total: number): string {
     let roll = abs == 1 ? "1d6" : `${abs}d6kh1`;
     modStr = ` ${sign} ${roll}`;
   }
-  return `1d20+${bonus}${modStr}`;
+  return `1d20 + ${bonus}${modStr}`;
 }
 
 function applyPluginsToRoll(str: string, plugins: { modifyRoll(i: string): string }[]): string {
