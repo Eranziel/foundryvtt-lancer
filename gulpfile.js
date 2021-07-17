@@ -8,6 +8,7 @@ const typescript = require("typescript");
 
 const wp = require("webpack");
 const webpack = require("piped-webpack");
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 const ts = require("gulp-typescript");
 const less = require("gulp-less");
@@ -129,6 +130,7 @@ let webpackConfig = shouldWatch => {
     entry: {
       "lancer": "./src/lancer.ts",
     },
+    plugins: [ new BundleAnalyzerPlugin() ],
     devtool: shouldWatch ? "inline-source-map" : "source-map",
     optimization: {
       minimize: !shouldWatch,
