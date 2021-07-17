@@ -7,9 +7,10 @@
  * Software License: GNU GPLv3
  */
 
-// Import TypeScript modules
-const marked = require("marked");
+// Import SCSS into our build
+import './lancer.scss';
 
+// Import TypeScript modules
 import { LANCER, STATUSES, WELCOME } from "./module/config";
 import { LancerGame } from "./module/lancer-game";
 import { LancerActor, lancerActorInit } from "./module/actor/lancer-actor";
@@ -48,7 +49,6 @@ tippy.setDefaultProps({ theme: "lancer", arrow: false, delay: [400, 200] });
 // tippy.setDefaultProps({ theme: "lancer", arrow: false, delay: [400, 200], hideOnClick: false, trigger: "click"});
 
 // Import node modules
-const compareVersions = require("compare-versions");
 import { NpcFeatureType, EntryType, Manufacturer, Bonus, WeaponSize, Action, funcs } from "machine-mind";
 import {
   resolve_dotpath,
@@ -130,6 +130,10 @@ import { runEncodedMacro, prepareTextMacro } from './module/macros';
 import { fix_modify_token_attribute, LancerToken, LancerTokenDocument } from "./module/token";
 
 const lp = LANCER.log_prefix;
+
+window.addEventListener('unhandledrejection', function(event) {
+  console.error('Unhandled rejection (promise: ', event.promise, ', reason: ', event.reason, ').');
+});
 
 /* ------------------------------------ */
 /* Initialize system                    */
@@ -757,6 +761,8 @@ async function versionCheck() {
     return;
   }
 
+  let compareVersions = (await import('compare-versions')).default;
+
   // Modify these constants to set which Lancer version numbers need and permit migration.
   const NEEDS_MIGRATION_VERSION = "0.9.0";
   const COMPATIBLE_MIGRATION_VERSION = "0.1.0";
@@ -912,7 +918,7 @@ async function showChangelog() {
     let req = $.get(
       `https://raw.githubusercontent.com/Eranziel/foundryvtt-lancer/v${game.system.data.version}/CHANGELOG.md`
     );
-    req.done((data, status) => {
+    req.done(async (data, status) => {
       // Regex magic to only grab the first 25 lines
       let r = /(?:[^\n]*\n){25}/;
       let trimmedChangelog = data.match(r)[0];
@@ -924,6 +930,7 @@ async function showChangelog() {
 
       trimmedChangelog = trimmedChangelog.substring(0, lastH1Pos);
 
+      let marked = (await import('marked')).default;
       let changelog = marked(trimmedChangelog);
 
       renderChangelog(changelog);

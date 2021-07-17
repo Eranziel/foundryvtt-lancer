@@ -4,20 +4,11 @@ const path = require("path");
 const chalk = require("chalk");
 const archiver = require("archiver");
 const stringify = require("json-stringify-pretty-compact");
-const typescript = require("typescript");
+const cp = require("child_process");
 
-const wp = require("webpack");
-const webpack = require("piped-webpack");
-const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
-
-const ts = require("gulp-typescript");
-const less = require("gulp-less");
-const sass = require("gulp-sass");
 const git = require("gulp-git");
 
 const argv = require("yargs").argv;
-
-sass.compiler = require("sass");
 
 function getConfig() {
   const configPath = path.resolve(process.cwd(), "foundryconfig.json");
@@ -56,237 +47,21 @@ function getManifest() {
   return json;
 }
 
-/**
- * TypeScript transformers
- * @returns {typescript.TransformerFactory<typescript.SourceFile>}
- */
-function createTransformer() {
-  /**
-   * @param {typescript.Node} node
-   */
-  function shouldMutateModuleSpecifier(node) {
-    if (!typescript.isImportDeclaration(node) && !typescript.isExportDeclaration(node)) return false;
-    if (node.moduleSpecifier === undefined) return false;
-    if (!typescript.isStringLiteral(node.moduleSpecifier)) return false;
-    if (!node.moduleSpecifier.text.startsWith("./") && !node.moduleSpecifier.text.startsWith("../")) return false;
-    if (path.extname(node.moduleSpecifier.text) !== "") return false;
-    return true;
-  }
-
-  /**
-   * Transforms import/export declarations to append `.js` extension
-   * @param {typescript.TransformationContext} context
-   */
-  function importTransformer(context) {
-    return node => {
-      /**
-       * @param {typescript.Node} node
-       */
-      function visitor(node) {
-        if (shouldMutateModuleSpecifier(node)) {
-          if (typescript.isImportDeclaration(node)) {
-            const newModuleSpecifier = typescript.createLiteral(`${node.moduleSpecifier.text}.js`);
-            return typescript.updateImportDeclaration(
-              node,
-              node.decorators,
-              node.modifiers,
-              node.importClause,
-              newModuleSpecifier
-            );
-          } else if (typescript.isExportDeclaration(node)) {
-            const newModuleSpecifier = typescript.createLiteral(`${node.moduleSpecifier.text}.js`);
-            return typescript.updateExportDeclaration(
-              node,
-              node.decorators,
-              node.modifiers,
-              node.exportClause,
-              newModuleSpecifier
-            );
-          }
-        }
-        return typescript.visitEachChild(node, visitor, context);
-      }
-
-      return typescript.visitNode(node, visitor);
-    };
-  }
-
-  return importTransformer;
-}
-
-const tsConfig = ts.createProject("tsconfig.json", {
-  getCustomTransformers: prgram => ({
-    after: [createTransformer()],
-  }),
-});
-
 /********************/
-/*		BUILD		*/
+/*		BUILDING  		*/
 /********************/
 
-let webpackConfig = shouldWatch => {
-  return {
-    mode: shouldWatch ? "development" : "production",
-    entry: {
-      "lancer": "./src/lancer.ts",
-    },
-    plugins: [ new BundleAnalyzerPlugin({ defaultSizes: 'gzip' }) ],
-    devtool: shouldWatch ? "inline-source-map" : "source-map",
-    optimization: {
-      minimize: !shouldWatch,
-      moduleIds: 'deterministic',
-      chunkIds: 'deterministic',
-      runtimeChunk: 'single',
-      splitChunks: {
-        chunks: 'async',
-        maxInitialRequests: 20,
-        cacheGroups: {
-          vendor: {
-            test: /[\\/]node_modules[\\/]/,
-            minSize: 0,
-            // name(module) {
-            //   const packageName = module.context.match(/[\\/]node_modules[\\/](.*?)([\\/]|$)/)[1];
-            //   // npm package names are URL-safe, but some servers don't like @ symbols
-            //   return `npm.${packageName.replace('@', '')}`;
-            // }
-          }
-        }
-      }
-    },
-    module: {
-      rules: [
-        {
-          test: /\.tsx?$/,
-          use: "ts-loader",
-          exclude: /node_modules/,
-        },
-        {
-          test: /\.css$/i,
-          use: ["style-loader", "css-loader"],
-        },
-      ],
-    },
-    resolve: {
-      extensions: [".ts", ".tsx", ".js"],
-      fallback: {
-        "crypto": require.resolve("crypto-browserify"),
-        "stream": require.resolve("stream-browserify"),
-      },
-    },
-    output: {
-      filename: "[name].js",
-      path: path.resolve(__dirname),
-      publicPath: 'systems/lancer/',
-    },
-    watch: shouldWatch,
-  };
-};
 
-function buildWebpack() {
-  return gulp
-    .src("src/lancer.ts")
-    .pipe(webpack(webpackConfig(false)))
-    .pipe(gulp.dest("dist/"));
+function build() {
+  return cp.spawn('npx', ['vite', 'build'], { stdio: 'inherit' });
 }
 
-/**
- * Build TypeScript
- */
-function buildTS() {
-  return gulp.src("src/**/*.ts").pipe(tsConfig()).pipe(gulp.dest("dist"));
+function watch() {
+  return cp.spawn('npx', ['vite', 'build', '-w'], { stdio: 'inherit' });
 }
 
-/**
- * Build Less
- */
-function buildLess() {
-  return gulp.src("src/*.less").pipe(less()).pipe(gulp.dest("dist"));
-}
-
-/**
- * Build SASS
- */
-function buildSASS() {
-  return gulp.src("src/*.scss").pipe(sass().on("error", sass.logError)).pipe(gulp.dest("dist"));
-}
-
-/**
- * Copy static files
- */
-async function copyFiles() {
-  const statics = [
-    "lang",
-    "fonts",
-    "assets",
-    "packs",
-    "templates",
-    "lancer.css", // TODO: Should this be dynamic, or have a different home??
-    "glyphs.css",
-    "module.json",
-    "system.json",
-    "template.json"
-  ];
-  try {
-    for (const file of statics) {
-      if (fs.existsSync(path.join("src", file))) {
-        await fs.copy(path.join("src", file), path.join("dist", file));
-      }
-    }
-    return Promise.resolve();
-  } catch (err) {
-    Promise.reject(err);
-  }
-}
-
-/**
- * Watch for changes for each build step
- */
-function buildWatch() {
-  // Moving to webpack's watch because it's more efficient
-  gulp
-    .src("src/lancer.ts")
-    .pipe(webpack(webpackConfig(true)))
-    .pipe(gulp.dest("dist/"));
-  //	gulp.watch('src/**/*.ts', { ignoreInitial: false }, buildWebpack);
-  gulp.watch("src/**/*.less", { ignoreInitial: false }, buildLess);
-  gulp.watch("src/**/*.scss", { ignoreInitial: false }, buildSASS);
-  gulp.watch(["src/fonts", "src/templates", "src/*.json", "src/language/*.json", "src/lancer.css"], { ignoreInitial: false }, copyFiles);
-}
-
-/********************/
-/*		CLEAN		*/
-/********************/
-
-/**
- * Remove built files from `dist` folder
- * while ignoring source files
- */
-async function clean() {
-  const name = path.basename(path.resolve("."));
-  const files = [];
-
-  // If the project uses TypeScript
-  if (fs.existsSync(path.join("src", `${name}.ts`))) {
-    files.push("lang", "templates", "assets", "module", `${name}.js`, "module.json", "system.json", "template.json");
-  }
-
-  // If the project uses Less or SASS
-  if (fs.existsSync(path.join("src", `${name}.less`)) || fs.existsSync(path.join("src", `${name}.scss`))) {
-    files.push("fonts", `${name}.css`);
-  }
-
-  console.log(" ", chalk.yellow("Files to clean:"));
-  console.log("   ", chalk.blueBright(files.join("\n    ")));
-
-  // Attempt to remove the files
-  try {
-    for (const filePath of files) {
-      await fs.remove(path.join("dist", filePath));
-    }
-    return Promise.resolve();
-  } catch (err) {
-    Promise.reject(err);
-  }
+function serve() {
+  return cp.spawn('npx', ['vite'], { stdio: 'inherit' });
 }
 
 /********************/
@@ -489,13 +264,11 @@ function gitTag() {
 
 const execGit = gulp.series(gitAdd, gitCommit, gitTag);
 
-const execBuild = gulp.parallel(buildWebpack, buildLess, buildSASS, copyFiles);
-
-exports.build = gulp.series(clean, execBuild);
-exports.watch = buildWatch;
-exports.clean = clean;
+exports.build = build;
+exports.watch = watch;
+exports.serve = serve;
 exports.link = linkUserData;
 exports.package = packageBuild;
 exports.manifest = updateManifest;
 exports.git = execGit;
-exports.publish = gulp.series(clean, updateManifest, execBuild, packageBuild, execGit);
+exports.publish = gulp.series(updateManifest, build, packageBuild, execGit);

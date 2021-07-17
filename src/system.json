@@ -8,11 +8,10 @@
   "author": "Eranziel",
   "scripts": [],
   "esmodules": [
-    "runtime.js",
-    "lancer.js"
+    "index.js"
   ],
   "styles": [
-    "lancer.css",
+    "style.css",
     "fonts/compcon/glyphs.css"
   ],
   "packs": [
