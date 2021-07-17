@@ -9,10 +9,6 @@
 
 // Import TypeScript modules
 const marked = require("marked");
-// Pull in the parts of AWS Amplify we need
-import aws from "./aws-exports";
-import Auth from "@aws-amplify/auth";
-import Storage from "@aws-amplify/storage"
 
 import { LANCER, STATUSES, WELCOME } from "./module/config";
 import { LancerGame } from "./module/lancer-game";
@@ -150,6 +146,8 @@ Hooks.once("init", async function () {
   }
   console.log(`${lp} Sanity check passed, continuing with initialization.`);
 
+  // no need to block on amplify - logging into comp/con and populating the cache
+  // it can happen in the background
   configureAmplify();
 
   // Assign custom classes and constants here
@@ -863,14 +861,24 @@ because nearly everything has changed (sorry).</p>`;
   ).render(true);
 }
 
-function configureAmplify() {
+async function configureAmplify() {
+  // Pull in the parts of AWS Amplify we need
+  const aws = (await import("./aws-exports")).default as {
+    aws_cognito_identity_pool_id: string
+  };
+  const { Auth } = await import("@aws-amplify/auth");
+  const { Storage } = await import("@aws-amplify/storage");
+
   Auth.configure(aws);
   Storage.configure(aws);
 
   // if we have a login already, this is where we populate the pilot cache
-  // no need to block on it; it can happen in the background
-  // errors when we don't have a login already, which is normal behaviour
-  populatePilotCache().catch(e => e);
+  try {
+    return populatePilotCache()
+  } catch {
+    // the error is just that we don't have a login
+    // noop
+  };
 }
 
 async function showChangelog() {

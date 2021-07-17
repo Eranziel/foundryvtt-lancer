@@ -1,6 +1,4 @@
 import { PackedPilotData } from "machine-mind";
-import Auth from "@aws-amplify/auth";
-import Storage from "@aws-amplify/storage";
 
 // we don't cache anything other than id/name; we're going to fetch all other data on user input
 // but we don't want the pilot actor window to wait for network calls
@@ -9,6 +7,8 @@ import Storage from "@aws-amplify/storage";
 let pilotCache: Array<{ id: string; name: string }> = [];
 
 export async function populatePilotCache(): Promise<Array<{ id: string; name: string }>> {
+  const { Auth } = await import("@aws-amplify/auth");
+  const { Storage } = await import("@aws-amplify/storage");
   await Auth.currentSession(); // refresh the token if we need to
   const res = await Storage.list("pilot", { level: "protected" });
   const data: Array<PackedPilotData> = await Promise.all(res.map((obj: { key: string }) => fetchPilot(obj.key)));
@@ -22,6 +22,9 @@ export function pilotNames(): Array<{ id: string; name: string }> {
 }
 
 export async function fetchPilot(id: string): Promise<PackedPilotData> {
+  const { Auth } = await import("@aws-amplify/auth");
+  const { Storage } = await import("@aws-amplify/storage");
+
   if (id.substring(0, 6) != "pilot/") {
     id = "pilot/" + id;
   }

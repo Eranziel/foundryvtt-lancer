@@ -130,7 +130,7 @@ let webpackConfig = shouldWatch => {
     entry: {
       "lancer": "./src/lancer.ts",
     },
-    plugins: [ new BundleAnalyzerPlugin() ],
+    plugins: [ new BundleAnalyzerPlugin({ defaultSizes: 'gzip' }) ],
     devtool: shouldWatch ? "inline-source-map" : "source-map",
     optimization: {
       minimize: !shouldWatch,
