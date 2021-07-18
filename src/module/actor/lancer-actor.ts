@@ -627,7 +627,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
     return return_text;
   }
 
-  // Imports an old-style compcon pilot sync code
+  // Imports packed pilot data, from either a vault id or gist id
   async importCC(data: PackedPilotData, clearFirst = false) {
     if (this.data.type !== "pilot") {
       return;
@@ -725,10 +725,15 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         // Rename and rehome mechs
         sync_mech: (mech: Mech) => {
           let flags = mech.Flags as FoundryFlagData<EntryType.MECH>;
+          let portrait = mech.CloudPortrait || mech.Frame?.ImageUrl || "";
+          let new_img = replace_default_resource(flags.top_level_data["img"], portrait);
           flags.top_level_data["name"] = mech.Name;
           flags.top_level_data["folder"] = unit_folder ? unit_folder.id : null;
           flags.top_level_data["token.name"] = data.callsign;
+          flags.top_level_data["img"] = new_img;
+          flags.top_level_data["token.img"] = new_img;
           flags.top_level_data["permission"] = permission;
+          mech.writeback();
           // TODO: Retrogrades
         },
         // Set pilot token
