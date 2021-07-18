@@ -91,7 +91,7 @@ export default class Invisibility implements AccDiffCheckboxPluginData {
   // 1d2even resolves to either 0 or 1 successes, so multiplying works great
   modifyRoll(roll: string): string {
     if (this.uiState) {
-      return `{${roll}} * (1d2even[👻 invisibility])`;
+      return `{${roll}} * (1dc[👻 invisibility])`;
     } else {
       return roll;
     }
