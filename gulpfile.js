@@ -139,10 +139,15 @@ let webpackConfig = shouldWatch => {
           test: /\.css$/i,
           use: ["style-loader", "css-loader"],
         },
+        {
+          test: /\.mjs$/i,
+          include: /node_modules/,
+          type: 'javascript/auto',
+        }
       ],
     },
     resolve: {
-      extensions: [".ts", ".tsx", ".js"],
+      extensions: [".ts", ".tsx", ".js", ".mjs"],
     },
     output: {
       filename: "lancer.js",

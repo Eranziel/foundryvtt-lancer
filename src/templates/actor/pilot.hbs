@@ -56,7 +56,7 @@
             {{#select vaultID}}
               <option value="">{{localize "lancer.pilot-sheet.cloud-header.vaultID"}}</option>
               {{#each pilotCache}}
-                <option value="{{id}}">{{name}}</option>
+                <option value="{{cloudOwnerID}}//{{cloudID}}">{{name}}</option>
               {{/each}}
             {{/select}}
           </select>
@@ -64,10 +64,10 @@
             class="lancer-input major"
             style="text-align: center;"
             type="string"
-            name="gistID"
-            value="{{gistID}}"
+            name="rawID"
+            value="{{rawID}}"
             data-dtype="String"
-            placeholder="{{localize "lancer.pilot-sheet.cloud-header.gist-placeholder"}}"
+            placeholder="{{localize "lancer.pilot-sheet.cloud-header.raw-placeholder"}}"
           />
         </div>
 
