@@ -2126,6 +2126,9 @@ a.action {
   margin-inline-end: 0 !important; 
 }
 
+.accdiff-target {
+  padding: 4px;
+}
 
 
 // V-IMPORTS
@@ -2262,13 +2265,17 @@ div[data-tab="system"] > .settings-list > div:nth-last-child(-n + 4) {
 }
 
 .lancer-consume-lockon  {
+  flex-wrap: nowrap;
+  padding: 4px 10px 4px 10px;
+
   & .accdiff-grid {
     position: relative;
   }
+  // needed to override a builtin that wants to style all checkboxes
   & input[type="checkbox"] {
     opacity: 0 !important;
-    position: fixed;
-    width: 0;
+    position: absolute !important;
+    width: 0 !important;
   }
   & [for] {
     position: absolute;
