@@ -2022,6 +2022,9 @@ a.action {
     .container {
       margin: 0px;
     }
+    .checkmark {
+      height: 12px;
+    }
   }
 }
 
@@ -2059,7 +2062,7 @@ a.action {
   }
 
   input[disabled] ~ .checkmark {
-    background-color: #313131;
+    opacity: 0.5;
     cursor: unset;
   }
 
@@ -2067,7 +2070,7 @@ a.action {
     background-color: #757575;
   }
 
-  .container input:checked:not([disabled]) ~ .checkmark {
+  .container input:checked ~ .checkmark {
     background-color: var(--main-theme-color, fuchsia);
   }
 
