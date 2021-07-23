@@ -2010,6 +2010,21 @@ a.action {
   }
 }
 
+.accdiff-target-row .tippy-box[data-theme~="lancer"] {
+  font-size: 0.8em;
+  padding-left: 0px;
+  padding-right: 0px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  transform: none;
+  .tippy-content {
+    transform: none;
+    .container {
+      margin: 0px;
+    }
+  }
+}
+
 // Acc_Diff
 .accdiff-grid {
   display: flex;

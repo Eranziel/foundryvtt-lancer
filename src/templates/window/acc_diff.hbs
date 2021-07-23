@@ -1,7 +1,7 @@
 {{#*inline "total"}}
   {{#if target}}
     <div class="accdiff-grid">
-      <img class="lancer-hit-thumb" src="{{target.data.img}}" />
+      <img class="lancer-hit-thumb accdiff-target-has-dropdown" data-template="dropdown-template-{{key}}" src="{{target.data.img}}" />
       <label for="{{concat key '.consumeLockOn'}}"
         class="{{#if usingLockOn}}checked{{/if}} {{#unless lockOnAvailable}}disabled{{/unless}}"
         title="Consume Lock On (+1)">
@@ -218,6 +218,17 @@
               </button>
             </div>
           </div>
+          {{#if ../hasTargets}}
+            <div id="dropdown-template-targets.{{key}}">
+              {{#each data.plugins as |pluginData pluginKey|}}
+                {{> plugin pluginData
+                  key=(concat "targets." key ".plugins." pluginKey)
+                  visible=pluginData.visible
+                  disabled=pluginData.disabled
+                  uiState=pluginData.uiState}}
+              {{/each}}
+            </div>
+          {{/if}}
         {{/each}}
       </div>
     {{/if}}

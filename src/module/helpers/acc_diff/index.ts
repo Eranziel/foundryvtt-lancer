@@ -1,3 +1,4 @@
+import tippy from "tippy.js";
 import { TagInstance } from "machine-mind";
 import * as t from 'io-ts';
 
@@ -359,6 +360,23 @@ export class AccDiffForm extends ReactiveForm<AccDiffData, AccDiffView> {
 
   constructor(data: AccDiffData) {
     super(data, { title: data.title })
+  }
+
+  activateListeners(html: JQuery) {
+    for (let elem of html.find('.accdiff-target-has-dropdown')) {
+      const id = elem.getAttribute('data-template');
+      const tooltip = document.getElementById(id!);
+      if (tooltip) {
+        tippy(elem, {
+          content: tooltip,
+          interactive: true,
+          allowHTML: true,
+          trigger: 'click mouseenter',
+        });
+      }
+    }
+
+    return super.activateListeners(html);
   }
 
   getViewModel(data: AccDiffData): AccDiffView {
