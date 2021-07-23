@@ -77,6 +77,11 @@
           <input type="checkbox" name="weapon.inaccurate" {{checked weapon.inaccurate}} />
           <span class="checkmark"></span>
         </label>
+        <label class="container">
+          Impaired (-1)
+          <input type="checkbox" name="weapon.impaired" {{checked weapon.impaired}} disabled />
+          <span class="checkmark"></span>
+        </label>
         {{#unless hasTargets}}
           {{#if hasExactlyOneTarget}}
             {{{std-cover-input "targets.0.cover"

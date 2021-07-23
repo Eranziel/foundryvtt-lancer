@@ -11,6 +11,13 @@ import { LancerItem } from "../../item/lancer-item";
 import Invisibility from "./invisibility";
 import Spotter from "./spotter";
 
+// as it turns out, we can't actually name the ActiveEffect type
+// it's fine, this is all we need
+export type Effect = { delete: () => void };
+export function findEffect(actor: LancerActor<LancerActorType>, effect: string): Effect | null {
+  return actor.data.effects.find(eff => eff.data.flags.core.statusId == effect);
+}
+
 enum Cover {
   None = 0,
   Soft = 1,
@@ -25,6 +32,7 @@ class AccDiffWeapon {
   accurate: boolean;
   inaccurate: boolean;
   seeking: boolean;
+  #data!: AccDiffData; // never use this class before calling hydrate
   plugins: { [k: string]: AccDiffPluginData };
 
   static pluginSchema: { [k: string]: AccDiffPluginCodec<any, any, any> } = {
@@ -61,10 +69,21 @@ class AccDiffWeapon {
     }
   }
 
+  get impaired(): Effect | null {
+    return (this.#data?.lancerItem?.actor &&
+      findEffect(this.#data.lancerItem.actor as LancerActor<LancerActorType>, "impaired")) || null;
+  }
+
+  total(cover: number) {
+    return (this.accurate ? 1 : 0) - (this.inaccurate ? 1 : 0)
+      - (this.seeking ? 0 : cover) - (this.impaired ? 1 : 0);
+  }
+
   hydrate(d: AccDiffData) {
     for (let key of Object.keys(this.plugins)) {
       this.plugins[key].hydrate(d);
     }
+    this.#data = d;
   }
 }
 
@@ -110,10 +129,7 @@ class AccDiffBase {
   }
 
   get total() {
-    return this.accuracy - this.difficulty
-      + (this.#weapon.accurate ? 1 : 0)
-      - (this.#weapon.inaccurate ? 1 : 0)
-      - (this.#weapon.seeking ? 0 : this.cover)
+    return this.accuracy - this.difficulty + this.#weapon.total(this.cover);
   }
 }
 
@@ -185,22 +201,16 @@ export class AccDiffTarget {
     }
   }
 
-  // as it turns out, we can't actually name the ActiveEffect type
-  // it's fine, this is all we need here
-  get usingLockOn(): null | { delete: () => void } {
+  get usingLockOn(): null | Effect {
     return (this.consumeLockOn && this.lockOnAvailable) || null;
   }
 
-  get lockOnAvailable(): null | { delete: () => void } {
-    let actor = (this.target.actor as LancerActor<LancerActorType>);
-    return actor.data.effects.find(eff => eff.data.flags.core.statusId == "lockon");
+  get lockOnAvailable(): null | Effect {
+    return findEffect(this.target.actor as LancerActor<LancerActorType>, "lockon");
   }
 
   get total() {
-    let base = this.accuracy - this.difficulty
-      + (this.#weapon.accurate ? 1 : 0)
-      - (this.#weapon.inaccurate ? 1 : 0)
-      - (this.#weapon.seeking ? 0 : this.cover);
+    let base = this.accuracy - this.difficulty + this.#weapon.total(this.cover);
     // the only thing we actually use base for is the untyped bonuses
     let raw = base + this.#base.accuracy - this.#base.difficulty;
     let lockon = this.usingLockOn ? 1 : 0;

@@ -1,7 +1,7 @@
 import * as t from 'io-ts';
 import { LancerActor, LancerActorType } from "../../actor/lancer-actor";
 import { AccDiffPlugin, AccDiffCheckboxPluginData, AccDiffPluginCodec } from './plugin';
-import { AccDiffData, AccDiffTarget } from './index';
+import { AccDiffData, AccDiffTarget, findEffect } from './index';
 import { enclass } from './serde';
 
 // you don't need to explicitly type the serialized data,
@@ -52,8 +52,7 @@ export default class Invisibility implements AccDiffCheckboxPluginData {
   // otherwise, go get the status effects and check them
   private get tokenInvisible(): boolean {
     if (!this.token) { return false; }
-    let actor = (this.token.actor as LancerActor<LancerActorType>);
-    return !!actor.data.effects.find(eff => eff.data.flags.core.statusId == "invisible");
+    return !!findEffect(this.token.actor as LancerActor<LancerActorType>, "invisible");
   }
 
   // UI behaviour
