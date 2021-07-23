@@ -1,4 +1,3 @@
-import * as t from 'io-ts';
 import { stateless } from './serde';
 import { getMacroSpeaker } from '../../macros';
 import type { AccDiffPlugin, AccDiffPluginData } from './plugin';
@@ -33,22 +32,42 @@ function adjacentSpotter(item: LancerItem<any>): boolean {
 }
 
 function spotter(): AccDiffPluginData {
-  return {
-    uiElement: "none",
-    modifyRoll: x => x,
-    hydrate(data: AccDiffData, target?: AccDiffTarget) {
-      if (data.lancerItem && target?.usingLockOn && adjacentSpotter(data.lancerItem)) {
-        this.modifyRoll = str => str.replace('1d20', '2d20kh1[spotter]');
-        return;
+  let sp = {
+    item: null as LancerItem<any> | null,
+    target: null as AccDiffTarget | null,
+    uiElement: "checkbox" as "checkbox",
+    slug: "spotter",
+    humanLabel: "Spotter (*)",
+    get uiState() {
+      return !!(this.item && this.target?.usingLockOn && adjacentSpotter(this.item))
+    },
+    set uiState(_v: boolean) {
+      // noop
+    },
+    disabled: true,
+    get visible() {
+      return !!(this.target?.usingLockOn);
+    },
+    modifyRoll(roll: string) {
+      if (this.uiState) {
+        return roll.replace('1d20', '2d20kh1[spotter]');
+      } else {
+        return roll;
       }
+    },
+    hydrate(data: AccDiffData, target?: AccDiffTarget) {
+      this.item = data.lancerItem || null;
+      this.target = target || null;
     }
-  }
+  };
+
+  return sp;
 }
 
 const Spotter: AccDiffPlugin<AccDiffPluginData> = {
   slug: "spotter",
   codec: stateless("Spotter",
-    (t: unknown): t is AccDiffPluginData => typeof t == 'object' && (t as any)?.modifyRoll,
+    (t: unknown): t is AccDiffPluginData => typeof t == 'object' && (t as any)?.slug == "spotter",
     spotter
   ),
   perTarget(_t: Token) { return spotter() }
