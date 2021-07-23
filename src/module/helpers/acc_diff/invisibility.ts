@@ -60,7 +60,7 @@ export default class Invisibility implements AccDiffCheckboxPluginData {
   uiElement: "checkbox" = "checkbox";
   slug: string = "invisibility";
   static slug: string = "invisibility";
-  humanLabel: string = "Invisible (*)";
+  humanLabel: string = "Invisible (*)";
 
   // our uiState is whether we're treating the current target as invisible
   get uiState() {
