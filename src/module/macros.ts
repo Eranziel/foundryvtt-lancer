@@ -57,7 +57,9 @@ import { is_overkill } from "machine-mind/dist/funcs";
 const lp = LANCER.log_prefix;
 
 const encodedMacroWhitelist = [
+  "prepareActivationMacro",
   "prepareEncodedAttackMacro",
+  "prepareTechMacro",
   "prepareStatMacro",
   "prepareItemMacro",
   "prepareCoreActiveMacro",
@@ -515,7 +517,7 @@ function attackRolls(bonus: number, accdiff: AccDiffData): AttackRolls {
   };
 }
 
-export async function prepareStatMacro(a: string, statKey: string) {
+export async function prepareStatMacro(a: string, statKey: string, rerollData?: AccDiffDataSerialized) {
   // Determine which Actor to speak as
   let actor: LancerActor<EntryType.PILOT> | null = getMacroSpeaker(a);
   if (!actor) return;
@@ -531,7 +533,12 @@ export async function prepareStatMacro(a: string, statKey: string) {
     bonus: bonus,
   };
   if (mData.title === "TECHATTACK") {
-    rollTechMacro(actor, { acc: 0, action: "Quick", t_atk: bonus, effect: "", tags: [], title: "" });
+    let partialMacroData = {
+      title: "Reroll stat macro",
+      fn: "prepareStatMacro",
+      args: [a, statKey]
+    };
+    rollTechMacro(actor, { acc: 0, action: "Quick", t_atk: bonus, effect: "", tags: [], title: "" }, partialMacroData, rerollData);
   } else {
     rollStatMacro(actor, mData).then();
   }
@@ -1113,7 +1120,7 @@ async function rollTextMacro(actor: Actor, data: LancerTextMacroData) {
   return renderMacroTemplate(actor, template, data);
 }
 
-export async function prepareTechMacro(a: string, t: string) {
+export async function prepareTechMacro(a: string, t: string, rerollData?: AccDiffDataSerialized) {
   // Determine which Actor to speak as
   let actor: Actor | null = getMacroSpeaker(a);
   if (!actor) return;
@@ -1173,14 +1180,23 @@ export async function prepareTechMacro(a: string, t: string) {
   }
   console.log(`${lp} Tech Attack Macro Item:`, item, mData);
 
-  await rollTechMacro(actor, mData, item);
+  let partialMacroData = {
+    title: "Reroll tech attack",
+    fn: "prepareTechMacro",
+    args: [a, t]
+  }
+
+  await rollTechMacro(actor, mData, partialMacroData, rerollData, item);
 }
 
-async function rollTechMacro(actor: Actor, data: LancerTechMacroData, item?: LancerItem<any>, rerollData?: AccDiffData) {
+async function rollTechMacro(actor: Actor, data: LancerTechMacroData, partialMacroData: LancerMacroData, rerollData?: AccDiffDataSerialized, item?: LancerItem<any>) {
   const targets = Array.from(game.user.targets);
-  const initialData = rerollData ?? AccDiffData.fromParams(item, data.tags, data.title, targets);
+  const initialData = rerollData ?
+    AccDiffData.fromObject(rerollData, item) :
+    AccDiffData.fromParams(item, data.tags, data.title, targets);
   const promptedData = await promptAccDiffModifiers(initialData);
   if (!promptedData) return;
+  partialMacroData.args.push(promptedData.toObject());
 
   let atkRolls = attackRolls(data.t_atk, promptedData);
   if (!atkRolls) return;
@@ -1195,6 +1211,7 @@ async function rollTechMacro(actor: Actor, data: LancerTechMacroData, item?: Lan
     action: data.action,
     effect: data.effect ? data.effect : null,
     tags: data.tags,
+    rerollMacroData: encodeMacroData(partialMacroData),
   };
 
   const template = `systems/lancer/templates/chat/tech-attack-card.hbs`;
@@ -1348,7 +1365,7 @@ export async function prepareStructureMacro(a: string) {
   await actor.structure();
 }
 
-export async function prepareActivationMacro(a: string, i: string, type: ActivationOptions, index: number) {
+export async function prepareActivationMacro(a: string, i: string, type: ActivationOptions, index: number, rerollData?: AccDiffDataSerialized) {
   // Determine which Actor to speak as
   let actor: Actor | null = getMacroSpeaker(a);
   if (!actor) return;
@@ -1378,7 +1395,12 @@ export async function prepareActivationMacro(a: string, i: string, type: Activat
         case ActivationType.FullTech:
         case ActivationType.Invade:
         case ActivationType.QuickTech:
-          _prepareTechActionMacro(actorEnt, itemEnt, index);
+          let partialMacroData = {
+            title: "Reroll activation",
+            fn: "prepareActivationMacro",
+            args: [a, i, type, index]
+          };
+          _prepareTechActionMacro(actorEnt, itemEnt, index, partialMacroData, rerollData);
           break;
         default:
           _prepareTextActionMacro(actorEnt, itemEnt, index);
@@ -1401,7 +1423,7 @@ async function _prepareTextActionMacro(actorEnt: Mech, itemEnt: MechSystem | Npc
   await renderMacroHTML(actorEnt.Flags.orig_doc, buildActionHTML(action, { full: true, tags: itemEnt.Tags }));
 }
 
-async function _prepareTechActionMacro(actorEnt: Mech, itemEnt: MechSystem | NpcFeature, index: number) {
+async function _prepareTechActionMacro(actorEnt: Mech, itemEnt: MechSystem | NpcFeature, index: number, partialMacroData: LancerMacroData, rerollData?: AccDiffDataSerialized) {
   // Support this later...
   if (itemEnt.Type !== EntryType.MECH_SYSTEM) return;
 
@@ -1435,7 +1457,7 @@ async function _prepareTechActionMacro(actorEnt: Mech, itemEnt: MechSystem | Npc
     mData.detail = tData.effect ? tData.effect : "";
   } */
 
-  await rollTechMacro(actorEnt.Flags.orig_doc, mData);
+  await rollTechMacro(actorEnt.Flags.orig_doc, mData, partialMacroData, rerollData);
 }
 
 async function _prepareDeployableMacro(actorEnt: Mech, itemEnt: MechSystem | NpcFeature, index: number) {
