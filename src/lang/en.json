@@ -96,6 +96,7 @@
                 "effect": "// EFFECT //",
                 "charge-roll": "// CHARGE ROLL //",
                 "changes": "// CHANGES //",
+                "structure": "// STRUCTURE DAMAGE //",
                 "overheating": "// OVERHEATING //",
                 "check": "// CHECK :: {check} //",
                 "system": "// SYSTEM :: {system} //"

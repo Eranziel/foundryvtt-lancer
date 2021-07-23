@@ -304,7 +304,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     let encMacros = html.find("a.lancer-macro");
     encMacros.on("click", ev => {
       ev.stopPropagation(); // Avoids triggering parent event handlers
-      runEncodedMacro($(ev.currentTarget));
+      runEncodedMacro(ev.currentTarget);
     });
 
     /*

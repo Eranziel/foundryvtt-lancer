@@ -16,7 +16,7 @@ import Storage from "@aws-amplify/storage"
 
 import { LANCER, STATUSES, WELCOME } from "./module/config";
 import { LancerGame } from "./module/lancer-game";
-import { LancerActor, lancerActorInit } from "./module/actor/lancer-actor";
+import { LancerActor, lancerActorInit, prepareStructureSecondaryRollMacro } from "./module/actor/lancer-actor";
 import { LancerItem, lancerItemInit } from "./module/item/lancer-item";
 import { populatePilotCache } from "./module/compcon";
 
@@ -65,6 +65,8 @@ import {
   std_password_input,
   std_num_input,
   std_checkbox,
+  std_cover_input,
+  accdiff_total_display,
 } from "./module/helpers/commons";
 import {
   weapon_size_selector,
@@ -171,12 +173,15 @@ Hooks.once("init", async function () {
     prepareItemMacro: macros.prepareItemMacro,
     prepareStatMacro: macros.prepareStatMacro,
     prepareTextMacro: macros.prepareTextMacro,
+    prepareTechMacro: macros.prepareTechMacro,
     prepareCoreActiveMacro: macros.prepareCoreActiveMacro,
     prepareCorePassiveMacro: macros.prepareCorePassiveMacro,
     prepareOverchargeMacro: macros.prepareOverchargeMacro,
     prepareOverheatMacro: macros.prepareOverheatMacro,
     prepareStructureMacro: macros.prepareStructureMacro,
     prepareActivationMacro: macros.prepareActivationMacro,
+    prepareEncodedAttackMacro: macros.prepareEncodedAttackMacro,
+    prepareStructureSecondaryRollMacro: prepareStructureSecondaryRollMacro,
     fullRepairMacro: macros.fullRepairMacro,
     stabilizeMacro: macros.stabilizeMacro,
     migrations: migrations,
@@ -386,6 +391,8 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("std-num-input", std_num_input);
   Handlebars.registerHelper("std-checkbox", std_checkbox);
   Handlebars.registerHelper("action-button", action_button);
+  Handlebars.registerHelper("std-cover-input", std_cover_input);
+  Handlebars.registerHelper("accdiff-total-display", accdiff_total_display);
 
   // ------------------------------------------------------------------------
   // Tag helpers
@@ -653,9 +660,15 @@ Hooks.on("renderChatMessage", async (cm: ChatMessage, html: any, data: any) => {
   }
 
   html.find(".chat-button").on("click", (ev: MouseEvent) => {
-    ev.stopPropagation();
-    let element = ev.target as HTMLElement;
-    runEncodedMacro($(element));
+    function checkTarget(element: HTMLElement) {
+      if (element.attributes.getNamedItem('data-macro')) {
+        ev.stopPropagation();
+        runEncodedMacro(element);
+        return true;
+      }
+      return false;
+    }
+    checkTarget(ev.target as HTMLElement) || checkTarget(ev.currentTarget as HTMLElement);
   })
 });
 

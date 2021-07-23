@@ -35,6 +35,35 @@ import { handleActorExport } from "../helpers/io";
 import { LancerMacroData } from "../interfaces";
 const lp = LANCER.log_prefix;
 
+export function prepareStructureSecondaryRollMacro(registryId: string) {
+  // @ts-ignore
+  let roll = new Roll('1d6').evaluate({ async: false });
+  let result = roll.total;
+  if (result <= 3) {
+    prepareTextMacro(registryId, "Destroy Weapons", `
+<div class="dice-roll lancer-dice-roll">
+  <div class="dice-result">
+    <div class="dice-formula lancer-dice-formula flexrow">
+      <span style="text-align: left; margin-left: 5px;">${roll.formula}</span>
+      <span class="dice-total lancer-dice-total major">${result}</span>
+    </div>
+  </div>
+</div>
+<span>On a 1–3, all weapons on one mount of your choice are destroyed</span>`);
+  } else {
+    prepareTextMacro(registryId, "Destroy Systems", `
+<div class="dice-roll lancer-dice-roll">
+  <div class="dice-result">
+    <div class="dice-formula lancer-dice-formula flexrow">
+      <span style="text-align: left; margin-left: 5px;">${roll.formula}</span>
+      <span class="dice-total lancer-dice-total major">${result}</span>
+    </div>
+  </div>
+</div>
+<span>On a 4–6, a system of your choice is destroyed</span>`);
+  }
+}
+
 export function lancerActorInit(base_actor: any, creation_args: any, sheet_options: any, id_maybe: any, something_or_other: any) {
   // Some subtype of ActorData
   console.log(`${lp} Initializing new ${base_actor.type}`);
@@ -233,8 +262,9 @@ export class LancerActor<T extends LancerActorType> extends Actor {
       } else {
         if(result === 1 && remStress === 2) {
           let macroData = encodeMacroData({
-            command: `game.lancer.prepareStatMacro("${ent.RegistryID}","mm.Eng");`,
             title: "Engineering",
+            fn: "prepareStatMacro",
+            args: [ent.RegistryID, "mm.Eng"]
           });
 
           secondaryRoll = `<button class="chat-macro-button"><a class="chat-button" data-macro="${macroData}"><i class="fas fa-dice-d20"></i> Engineering</a></button>`;
@@ -366,8 +396,9 @@ export class LancerActor<T extends LancerActorType> extends Actor {
       } else {
         if(result === 1 && remStruct === 2) {
           let macroData = encodeMacroData({
-            command: `game.lancer.prepareStatMacro("${ent.RegistryID}","mm.Hull");`,
             title: "Hull",
+            fn: "prepareStatMacro",
+            args: [ent.RegistryID, "mm.Hull"]
           });
 
           secondaryRoll = `<button class="chat-macro-button"><a class="chat-button" data-macro="${macroData}"><i class="fas fa-dice-d20"></i>Hull</a></button>`;
@@ -375,33 +406,9 @@ export class LancerActor<T extends LancerActorType> extends Actor {
           let macroData = encodeMacroData({
             // TODO: Should create a "prepareRollMacro" or something to handle generic roll-based macros
             // Since we can't change prepareTextMacro too much or break everyone's macros
-            command: `
-            let roll = new Roll('1d6').evaluate({async: false});
-            let result = roll.total;
-            if(result<=3) { 
-              game.lancer.prepareTextMacro("${ent.RegistryID}","Destroy Weapons",\`
-              <div class="dice-roll lancer-dice-roll">
-                <div class="dice-result">
-                  <div class="dice-formula lancer-dice-formula flexrow">
-                    <span style="text-align: left; margin-left: 5px;">\${ roll.formula }</span>
-                    <span class="dice-total lancer-dice-total major">\${ result }</span>
-                  </div>
-                </div>
-              </div>
-              <span>On a 1–3, all weapons on one mount of your choice are destroyed</span>\`);
-            } else {
-              game.lancer.prepareTextMacro("${ent.RegistryID}","Destroy Systems",\`
-              <div class="dice-roll lancer-dice-roll">
-                <div class="dice-result">
-                  <div class="dice-formula lancer-dice-formula flexrow">
-                    <span style="text-align: left; margin-left: 5px;">\${ roll.formula }</span>
-                    <span class="dice-total lancer-dice-total major">\${ result }</span>
-                  </div>
-                </div>
-              </div>
-              <span>On a 4–6, a system of your choice is destroyed</span>\`);
-            }`,
             title: "Roll for Destruction",
+            fn: "prepareStructureSecondaryRollMacro",
+            args: [ent.RegistryID]
           });
 
           secondaryRoll = `<button class="chat-macro-button"><a class="chat-button" data-macro="${macroData}"><i class="fas fa-dice-d20"></i>Destroy</a></button>`;
