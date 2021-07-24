@@ -9,6 +9,7 @@ package-lock.json
 
 # Build
 foundryconfig.json
+stats.html
 dist/module
 dist/packs
 dist/templates

@@ -1,4 +1,5 @@
 import type { UserConfig } from 'vite';
+import { visualizer } from 'rollup-plugin-visualizer';
 const path = require('path');
 
 const config: UserConfig = {
@@ -38,7 +39,12 @@ const config: UserConfig = {
       fileName: 'lancer'
     }
   },
-  plugins: []
+  plugins: [
+    visualizer({
+      gzipSize: true,
+      template: "sunburst",
+    })
+  ]
 };
 
 export default config;
