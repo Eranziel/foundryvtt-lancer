@@ -22,6 +22,10 @@ const config: UserConfig = {
       replacement: ("./runtimeConfig.browser"),
     }]
   },
+  optimizeDeps: {
+    exclude: ['machine-mind'], // machine-mind triggers https://github.com/evanw/esbuild/issues/1433
+    include: ['lancer-data', 'jszip', 'axios'], // machine-mind's cjs dependencies
+  },
   build: {
     outDir: path.resolve(__dirname, 'dist'),
     emptyOutDir: true,

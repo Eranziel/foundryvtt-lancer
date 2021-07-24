@@ -1,7 +1,6 @@
-// for dev only
+// only required for dev
+// in prod, foundry loads index.js, which is compiled by vite/rollup
+// in dev, foundry loads index.js, this file, which loads lancer.ts
 
-var s = document.createElement( 'script' );
-s.setAttribute('src', 'systems/lancer/lancer.ts' );
-s.setAttribute('type', 'module');
-s.defer = true;
-document.body.appendChild( s );
+window.global = window;
+import * as LANCER from './lancer.ts';
