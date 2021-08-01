@@ -287,15 +287,15 @@ export class FoundryReg extends Registry {
     let cpargs = args as string;
     if(cpargs == "compendium|compendium") {
       args = "comp_core";
-      console.log(`Tweaked to be "${args}" from "${cpargs}"`);
+      console.debug(`Tweaked to be "${args}" from "${cpargs}"`);
     } else if(cpargs == "world|world") {
       args = "game";
-      console.log(`Tweaked to be "${args}" from "${cpargs}"`);
+      console.debug(`Tweaked to be "${args}" from "${cpargs}"`);
     } else if(cpargs.slice(0, "world_inv".length) == "world_inv") {
       // * world_inv:<actor_id>|<anything>    -> game|<actor>
       let actor_id = cpargs.slice("world_inv".length + 1).split("|")[0];
       args = `game|${actor_id}` as FoundryRegName;
-      console.log(`Tweaked to be "${args}" from "${cpargs}"`);
+      console.debug(`Tweaked to be "${args}" from "${cpargs}"`);
     }
     // We don't bother converting the rest. Anyone who has made more esoteric things like compendium pilots will simply have to deal
     /// END 0.9 BETA COMPAT BLOCK
@@ -558,14 +558,16 @@ export class FoundryRegCat<T extends EntryType> extends RegCat<T> {
     return this.revive_and_flag(contrived, ctx, {wait_ctx_ready: wait_ready}); // Probably want to be ready
   }
 
-  // Just call revive on each of the 'entries'
+  // Just call revive on each of the 'entries', and sort by sort id if we can
   async list_live(ctx: OpCtx, load_options?: LoadOptions): Promise<LiveEntryTypes<T>[]> {
     let sub_pending: Promise<LiveEntryTypes<T>>[] = [];
     for (let e of await this._handler.enumerate()) {
       let live = this.revive_and_flag(e, ctx, load_options);
       sub_pending.push(live);
     }
-    return Promise.all(sub_pending);
+    let result = await Promise.all(sub_pending);
+    // Sort
+    return result.sort((a, b) => (a.Flags.orig_doc?.data?.sort ?? 0) - (b.Flags.orig_doc?.data?.sort ?? 0));
   }
 
   // Use our update function

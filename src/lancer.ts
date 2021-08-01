@@ -88,6 +88,7 @@ import {
   buildCounterArrayHTML,
 } from "./module/helpers/item";
 import {
+  action_button,
   clicker_num_input,
   clicker_stat_card,
   compact_stat_edit,
@@ -130,6 +131,7 @@ import { applyCollapseListeners } from "./module/helpers/collapse";
 import { handleCombatUpdate } from "./module/helpers/automation/combat";
 import { handleActorExport, validForExport } from "./module/helpers/io";
 import { runEncodedMacro, prepareTextMacro } from "./module/macros";
+import { fix_modify_token_attribute, LancerToken, LancerTokenDocument } from "./module/token";
 
 const lp = LANCER.log_prefix;
 
@@ -190,6 +192,8 @@ Hooks.once("init", async function () {
   CONFIG.Actor.documentClass = LancerActor;
   // @ts-ignore 0.8
   CONFIG.Item.documentClass = LancerItem;
+  CONFIG.Token.documentClass = LancerTokenDocument;
+  CONFIG.Token.objectClass = LancerToken;
 
   // Set up system status icons
   const keepStock = game.settings.get(LANCER.sys_name, LANCER.setting_stock_icons);
@@ -358,7 +362,7 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("debug_each", function (it: any, block: any) {
     // if(typeof a == 'function')
     // a = a.call(this);
-    console.log(it);
+    console.debug(it);
     var s = "";
     for (let x of it) s += block(x);
     return s;
@@ -381,6 +385,7 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("std-password-input", std_password_input);
   Handlebars.registerHelper("std-num-input", std_num_input);
   Handlebars.registerHelper("std-checkbox", std_checkbox);
+  Handlebars.registerHelper("action-button", action_button);
 
   // ------------------------------------------------------------------------
   // Tag helpers
@@ -507,6 +512,41 @@ function sleep(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+/**
+ * Override model to have our derived trackable values, without putting them in template.json and thus compromising
+ * our data model with derived junk
+ */
+Hooks.once("setup", function () {
+  // @ts-ignore 0.8
+  let orig_gta = TokenDocument.getTrackedAttributes;
+  // @ts-ignore 0.8
+  TokenDocument.getTrackedAttributes = function(data: any, _path: any=[]) {
+    // We pre-empt the
+    if ( !data ) {
+      data = {};
+      for ( let model of Object.values(game.system.model.Actor)) {
+        mergeObject(data, model);
+      }
+
+      // Here's the custom behavior: add our derived data
+      let bar_like = {value: 0, max: 0};
+      let derived_addition = {
+        edef: 8,
+        evasion: 5,
+        save_target: 0,
+        current_heat: bar_like,
+        current_hp: bar_like,
+        overshield: bar_like,
+        current_structure: bar_like,
+        current_stress: bar_like,
+        current_repairs: bar_like
+      };
+      mergeObject(data, derived_addition);
+    }
+    return orig_gta.call(this, data, _path);
+  }
+});
+
 /* ------------------------------------ */
 /* When ready                           */
 /* ------------------------------------ */
@@ -521,7 +561,7 @@ export const system_ready: Promise<void> = new Promise(success => {
     // Wait for sanity check to complete.
     // let ready: boolean = false;
     // while (!ready) {
-    //   await sleep(1000);
+    //   await sleep(100);
     //   ready = game.lancer?.finishedInit;
     // }
     console.log(`${lp} Foundry ready, doing final checks.`);
@@ -622,19 +662,8 @@ Hooks.on("hotbarDrop", (_bar: any, data: any, slot: number) => {
   macros.onHotbarDrop(_bar, data, slot);
 });
 
-// Make derived fields properly update their intended origin target
 Hooks.on("modifyTokenAttribute", (_: any, data: any) => {
-  for (let key of Object.keys(data)) {
-    // If starts with "data.derived", replace with just "data"
-    if (key.includes("data.derived.")) {
-      // Cut the .derived, and also remove any trailing .value to resolve pseudo-bars
-      let new_key = key.replace(/^data\.derived\./, "data.");
-      new_key = new_key.replace(/\.value$/, "");
-      data[new_key] = data[key];
-
-      console.log(`Overrode assignment from ${key} to ${new_key}`);
-    }
-  }
+  fix_modify_token_attribute(data);
 });
 
 /**

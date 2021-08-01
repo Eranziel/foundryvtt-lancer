@@ -256,7 +256,7 @@ function handleNPCExport(actor: LegacyLancerActor) {
     actions: (data as any).activations,
   };
 
-  console.log(exportNPC);
+  console.debug(exportNPC);
   return exportNPC;
 }
 
@@ -429,7 +429,7 @@ function handlePilotExport(actor: LegacyLancerActor) {
     custom_counters: [],
   };
 
-  console.log(exportPilot);
+  console.debug(exportPilot);
   return exportPilot;
 }
 

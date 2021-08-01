@@ -8,7 +8,7 @@
           name="name"
           type="text"
           value="{{actor.name}}"
-          placeholder="Name"
+          placeholder="{{localize "lancer.placeholder.name"}}"
         />
       </h1>
     </div>
@@ -17,8 +17,8 @@
 
   {{!-- Sheet Tab Navigation --}}
   <nav class="lancer-tabs" data-group="primary">
-    <a class="item lancer-tab medium" data-tab="status">&lt;STATUS&gt;</a>
-    <a class="item lancer-tab medium" data-tab="config">&lt;CONFIG&gt;</a>
+    <a class="item lancer-tab medium" data-tab="status">{{localize "lancer.deployable-sheet.tabs.status"}}</a>
+    <a class="item lancer-tab medium" data-tab="config">{{localize "lancer.deployable-sheet.tabs.config"}}</a>
     <!--<a class="item lancer-tab medium" data-tab="mech">&lt;FRAME//LOADOUT&gt;</a>-->
   </nav>
 
@@ -39,7 +39,7 @@
 
         <div class="card clipped double">
           <div class="lancer-header major">
-            DEPLOYER
+            {{localize "lancer.deployable-sheet.deployer.label"}}
           </div>
           {{{deployer-slot "mm.Deployer" }}}
         </div>
@@ -56,7 +56,7 @@
     <div class="tab manage flexcol" data-group="primary" data-tab="config">
       {{!-- Frame Stats --}}
       <div class="card clipped" style="text-align: left;">
-        <span class="lancer-header major" style="text-align: center;">BASE STATS</span>
+        <span class="lancer-header major" style="text-align: center;">{{localize "lancer.deployable-sheet.stats.label"}}</span>
         <div class="card clipped wraprow quadruple">
           <div class="wraprow quadruple">
             {{{clicker-stat-card "MAX HP" "mdi mdi-heart-outline" "mm.BaseMaxHP" false }}}

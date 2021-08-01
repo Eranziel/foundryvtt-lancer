@@ -202,7 +202,7 @@ export const scorchedEarthCompendiums = async () => {
   for (let comp of game.packs.filter(comp => compTitles.old.includes(comp.title))) {
     await comp.configure({ locked: false });
     await comp.deleteCompendium();
-    console.log(`Deleting ${comp.title}`);
+    console.debug(`Deleting ${comp.title}`);
   }
   // Build blank ones.
   for (let type in compTitles.new) {
@@ -258,7 +258,7 @@ export const migrateCompendium = async function (pack: Compendium) {
         expandObject(updateData);
         updateData["_id"] = ent._id;
         await pack.updateEntity(updateData);
-        console.log(`Migrated ${entity} entity ${ent.name} in Compendium ${pack.collection}`);
+        console.debug(`Migrated ${entity} entity ${ent.name} in Compendium ${pack.collection}`);
       }
     } catch (err) {
       console.error(err);

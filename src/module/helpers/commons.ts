@@ -350,6 +350,7 @@ export function ext_helper_hash(
 
       // Derived
       data,
+      path_target: resolve_dotpath(data, elt.dataset.path) as RegEntry<any> ?? null,
       item_override: item_override_path ? resolve_dotpath(data, item_override_path) : null,
       parsed_val: value
     };
@@ -366,8 +367,7 @@ export function ext_helper_hash(
     // Perform action
     if (ctx.action == "delete") {
       // Find and delete the item at that path
-      let item = resolve_dotpath(ctx.data, ctx.path) as RegEntry<any>;
-      item.destroy_entry();
+      ctx.path_target?.destroy_entry();
     } else if (ctx.action == "splice") {
       // Splice out the value at path dest, then writeback
       array_path_edit(ctx.data, ctx.path, null, "delete");
@@ -494,10 +494,10 @@ async function control_structs(key: string, on: LiveEntryTypes<EntryType>): Prom
         }),
       ];
     case "sys_mount":
-      let sys_mount = new SystemMount(on.Registry, on.OpCtx, { system: null });
+      let sys_mount = new SystemMount(on.Registry, on.OpCtx, { system: null }, null as any); // This null part may be a bit unstable, but we immediately save and that has no effect
       return [true, await sys_mount.load_done()];
     case "wep_mount":
-      let wep_mount = new WeaponMount(on.Registry, on.OpCtx, funcs.defaults.WEAPON_MOUNT_DATA());
+      let wep_mount = new WeaponMount(on.Registry, on.OpCtx, funcs.defaults.WEAPON_MOUNT_DATA(), null as any); // See above
       return [true, await wep_mount.load_done()];
     case "weapon_profile":
       let profile = new MechWeaponProfile(on.Registry, on.OpCtx, funcs.defaults.WEAPON_PROFILE());

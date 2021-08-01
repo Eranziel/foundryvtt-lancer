@@ -6,41 +6,9 @@
       "npc",
       "deployable"
     ],
-    "templates": {
-      "derived_values": {
-        "derived": {
-          "edef": 8,
-          "evasion": 5,
-          "save_target": 0,
-          "current_heat": {
-            "value": 0,
-            "max": 1
-          },
-          "current_hp": {
-            "value": 0,
-            "max": 1
-          },
-          "overshield": {
-            "value": 0,
-            "max": 1
-          },
-          "current_structure": {
-            "value": 0,
-            "max": 1
-          },
-          "current_stress": {
-            "value": 0,
-            "max": 1
-          },
-          "current_repairs": {
-            "value": 0,
-            "max": 1
-          }
-        }
-      }
-    },
+    "templates": {},
     "pilot": {
-      "templates": ["derived_values"],
+      "templates": [],
       "name": "",
       "active_mech": null,
       "background": "",
@@ -82,7 +50,7 @@
       "text_appearance": ""
     },
     "npc": {
-      "templates": ["derived_values"],
+      "templates": [],
       "actions": {},
       "lid": "",
       "name": "",
@@ -107,7 +75,7 @@
       "current_structure": 0
     },
     "deployable": {
-      "templates": ["derived_values"],
+      "templates": [],
       "actions": [],
       "bonuses": [],
       "counters": [],
@@ -142,7 +110,7 @@
       "deployer": null
     },
     "mech": {
-      "templates": ["derived_values"],
+      "templates": [],
       "actions": {},
       "activations": 1,
       "burn": 0,
@@ -574,7 +542,8 @@
       "objective": ""
     },
     "status": {
-      "effects": [],
+      "lid": "",
+      "effects": "",
       "icon": "",
       "name": "New Status/Condition",
       "type": "Status"

@@ -35,7 +35,7 @@ import { handleActorExport } from "../helpers/io";
 import { LancerMacroData } from "../interfaces";
 const lp = LANCER.log_prefix;
 
-export function lancerActorInit(base_actor: any, creation_args: any) {
+export function lancerActorInit(base_actor: any, creation_args: any, sheet_options: any, id_maybe: any, something_or_other: any) {
   // Some subtype of ActorData
   console.log(`${lp} Initializing new ${base_actor.type}`);
 
@@ -689,7 +689,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         relinker: async (source_item, dest_reg, dest_cat) => {
           // Link by specific subfolder if deployable
           if (source_item.Type == EntryType.DEPLOYABLE) {
-            console.log("Relinking deployable: ", source_item);
+            console.debug("Relinking deployable: ", source_item);
             // Narrow down our destination options to find one that's in the proper folder
             let dest_deployables = (await dest_cat.list_live(source_item.OpCtx)) as Deployable[];
             return dest_deployables.find(dd => {
@@ -777,9 +777,10 @@ export class LancerActor<T extends LancerActorType> extends Actor {
     super.prepareEmbeddedEntities();
   }
 
-  // Use this to prevent race conditions
+  // Use this to prevent race conditions / carry over data
   private _current_prepare_job_id!: number;
   private _job_tracker!: Map<number, Promise<AnyMMActor>>;
+  private _prev_derived!: this["data"]["data"]["derived"];
 
   /** @override
    * We need to both:
@@ -811,11 +812,8 @@ export class LancerActor<T extends LancerActorType> extends Actor {
       value: 0,
     });
 
-    // Prepare our derived stat data by first initializing an empty obj
-    // Add into our wip data structure
-
-    // If no value at present, set this up. Better than nothing
-    if(!this.data.data.derived) {
+    // If no value at present, set this up. Better than nothing. Reuse derived data when possible
+    if(!this._prev_derived) {
       dr = {
         edef: 0,
         evasion: 0,
@@ -831,11 +829,12 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         mm: null, // we will set these momentarily
         mm_promise: null as any, // we will set these momentarily
       };
-      this.data.data.derived = dr;
+      this._prev_derived = dr;
     } else {
-      // Otherwise, grab existing
-      dr = this.data.data.derived;
+      // Otherwise, grab existing/prior
+      dr = this._prev_derived
     }
+    this.data.data.derived = dr;
 
     // Update our known values now, synchronously. 
     dr.current_hp.value = this.data.data.current_hp
@@ -1048,7 +1047,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
     // Make a subscription for each
     if (dependency) {
       let sub = LancerHooks.on(dependency, async (_: any) => {
-        console.log("Triggering subscription-based update on " + this.name);
+        console.debug("Triggering subscription-based update on " + this.name);
         // We typically don't need to actually .update() ourselves when a dependency updates
         // Each client will individually prepareDerivedData in response to the update, and so there is no need for DB communication
         // Only exception is for cases like changes in max hp changing current HP - a tangible change in what data should be stored on this.

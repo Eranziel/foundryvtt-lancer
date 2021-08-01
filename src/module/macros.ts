@@ -51,6 +51,7 @@ import { ActivationOptions, StabOptions1, StabOptions2 } from "./enums";
 import { applyCollapseListeners, uuid4 } from "./helpers/collapse";
 import { checkForHit, getTargets } from "./helpers/automation/targeting";
 import { AccDiffFlag, tagsToFlags, toggleCover, updateTotals } from "./helpers/acc_diff";
+import { is_overkill } from "machine-mind/dist/funcs";
 
 const lp = LANCER.log_prefix;
 
@@ -453,7 +454,7 @@ async function buildAttackRollString(
   title: string,
   flags: AccDiffFlag[],
   bonus: number,
-  starting?: [number, number]
+  starting?: [number, number] // initial [accuracy, difficulty]
 ): Promise<string | null> {
   let abort: boolean = false;
   let acc = 0;
@@ -596,7 +597,7 @@ async function prepareAttackMacro({
     mData.grit = pilotEnt.Grit;
     mData.acc = 0;
     mData.tags = weaponData.Tags;
-    mData.overkill = weaponData.Tags.find(tag => tag.Tag.LID === "tg_overkill") !== undefined;
+    mData.overkill = is_overkill(itemEnt);    
     mData.effect = weaponData.Effect;
   } else if (actor.data.type === EntryType.PILOT) {
     pilotEnt = await actor.data.data.derived.mm_promise;
@@ -608,7 +609,7 @@ async function prepareAttackMacro({
     mData.grit = pilotEnt.Grit;
     mData.acc = 0;
     mData.tags = weaponData.Tags;
-    mData.overkill = weaponData.Tags.find(tag => tag.Tag.LID === "tg_overkill") !== undefined;
+    mData.overkill = is_overkill(itemEnt);
     mData.effect = weaponData.Effect;
   } else if (actor.data.type === EntryType.NPC) {
     const mm: NpcFeature = item.data.data.derived.mm;
@@ -694,7 +695,7 @@ async function prepareAttackMacro({
     mData.title,
     tagsToFlags(mData.tags),
     mData.grit,
-    mData.acc > 0 ? [mData.acc, 0] : undefined
+    mData.acc > 0 ? [mData.acc, 0] : [0, -mData.acc]
   );
   if (!atk_str) return;
 
@@ -703,8 +704,8 @@ async function prepareAttackMacro({
     game.settings.get(LANCER.sys_name, LANCER.setting_automation_attack) &&
     mData.tags.find(tag => tag.Tag.LID === "tg_loading")
   ) {
-    console.log(item);
-    console.log(actor);
+    console.debug(item);
+    console.debug(actor);
 
     let itemEnt: MechWeapon = await item.data.data.derived.mm_promise;
     itemEnt.Loaded = false;
@@ -869,7 +870,7 @@ async function rollAttackMacro(actor: Actor, atk_str: string | null, data: Lance
     game.settings.get(LANCER.sys_name, LANCER.setting_automation) &&
     game.settings.get(LANCER.sys_name, LANCER.setting_overkill_heat)
   ) {
-    let mment: AnyMMActor = actor.data.data.derived.mm;
+    let mment: AnyMMActor = await actor.data.data.derived.mm_promise;
     if(mment.Type === EntryType.MECH) {
       mment.CurrentHeat += overkill_heat;
       await mment.writeback();
@@ -890,7 +891,7 @@ async function rollAttackMacro(actor: Actor, atk_str: string | null, data: Lance
     tags: data.tags,
   };
 
-  console.log(templateData);
+  console.debug(templateData);
   const template = `systems/lancer/templates/chat/attack-card.hbs`;
   return await renderMacroTemplate(actor, template, templateData);
 }
