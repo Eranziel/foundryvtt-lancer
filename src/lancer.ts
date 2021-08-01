@@ -32,7 +32,6 @@ import { LancerMechSheet } from "./module/actor/mech-sheet";
 import { LancerItemSheet } from "./module/item/item-sheet";
 import { LancerFrameSheet } from "./module/item/frame-sheet";
 import { LancerLicenseSheet } from "./module/item/license-sheet";
-import { LancerNPCClassSheet } from "./module/item/npc-class-sheet";
 import { WeaponRangeTemplate } from "./module/pixi/weapon-range-template";
 
 // Import helpers
@@ -53,7 +52,8 @@ tippy.setDefaultProps({ theme: "lancer", arrow: false, delay: [400, 200] });
 
 // Import node modules
 import compareVersions = require("compare-versions");
-import { NpcFeatureType, EntryType, Manufacturer, Bonus, WeaponSize, Action, funcs } from "machine-mind";
+import * as mm from "machine-mind";
+import { EntryType, funcs, Bonus } from "machine-mind";
 import {
   resolve_dotpath,
   resolve_helper_dotpath,
@@ -132,6 +132,7 @@ import { handleCombatUpdate } from "./module/helpers/automation/combat";
 import { handleActorExport, validForExport } from "./module/helpers/io";
 import { runEncodedMacro, prepareTextMacro } from './module/macros';
 import { fix_modify_token_attribute, LancerToken, LancerTokenDocument } from "./module/token";
+import { FoundryReg } from "./module/mm-util/foundry-reg";
 
 const lp = LANCER.log_prefix;
 
@@ -185,6 +186,11 @@ Hooks.once("init", async function () {
     tmp: {
       finishedInit: false,
     },
+    utilities: {
+      reg: FoundryReg,
+      ctx: mm.OpCtx,
+      mm
+    }
   };
 
   // Record Configuration Values

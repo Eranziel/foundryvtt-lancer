@@ -637,6 +637,10 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.Select
     ranges = Range.calc_range_with_bonuses(weapon, profile, mech_);
   }
 
+  // Augment tags
+  // let tags = profile.Tags;
+  // merge
+
   // Generate loading segment as needed
   let loading = "";
   if (funcs.is_loading(weapon)) loading = loading_indicator(weapon.Loaded, weapon_path);
