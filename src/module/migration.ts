@@ -322,8 +322,8 @@ function cleanActorData(actorData: ActorData) {
     obj[f] = null;
     return obj;
   }, {});
-  if (actorData.flags.dnd5e) {
-    actorData.flags.dnd5e = filterObject(actorData.flags.dnd5e, allowedFlags);
+  if (actorData.flags.lancer) {
+    actorData.flags.lancer = filterObject(actorData.flags.dnd5e, allowedFlags);
   }
 
   // Return the scrubbed data
