@@ -338,7 +338,7 @@ function cleanActorData(actorData: ActorData) {
  */
 export const migrateItemData = function (item: LancerItem<NpcClass | NpcTemplate | NpcFeature>) {
   const origData = item.data;
-  const updateData = duplicate(origData);
+  const updateData = { _id: origData._id, data: {} };
 
   function ids_to_rr(id_arr) {
     let rr_arr = [];
@@ -370,22 +370,22 @@ export const migrateItemData = function (item: LancerItem<NpcClass | NpcTemplate
       updateData.data.base_stats = origData.data.stats;
       updateData.data.base_stats.evade = origData.data.stats.evasion;
       updateData.data.base_stats.sensor = origData.data.stats.sensor_range;
-      delete updateData.data.base_stats.evasion;
-      delete updateData.data.base_stats.sensor_range;
-      delete updateData.data.base_stats.structure;
-      delete updateData.data.base_stats.stress;
+      updateData["data.base_stats.-=evasion"] = null;
+      updateData["data.base_stats.-=sensor_range"] = null;
+      updateData["data.base_stats.-=structure"] = null;
+      updateData["data.base_stats.-=stress"] = null;
       // mech_type -> role
       updateData.data.role = origData.data.mech_type;
       // add power, type
       updateData.data.power = 100;
       // delete id, flavor_name, flavor_description, description, mech_type, item_type, note
-      delete updateData.data.id;
-      delete updateData.data.flavor_name;
-      delete updateData.data.flavor_description;
-      delete updateData.data.description;
-      delete updateData.data.mech_type;
-      delete updateData.data.item_type;
-      delete updateData.data.note;
+      updateData["data.-=id"] = null;
+      updateData["data.-=flavor_name"] = null;
+      updateData["data.-=flavor_description"] = null;
+      updateData["data.-=description"] = null;
+      updateData["data.-=mech_type"] = null;
+      updateData["data.-=item_type"] = null;
+      updateData["data.-=note"] = null;
 
       break;
     case EntryType.NPC_TEMPLATE:
@@ -400,14 +400,14 @@ export const migrateItemData = function (item: LancerItem<NpcClass | NpcTemplate
       updateData.data.power = 20;
 
       // delete flavor_name, flavor_description, item_type, note
-      delete updateData.data.flavor_name;
-      delete updateData.data.flavor_description;
-      delete updateData.data.item_type;
-      delete updateData.data.note;
+      updateData["data.-=flavor_name"] = null;
+      updateData["data.-=flavor_description"] = null;
+      updateData["data.-=item_type"] = null;
+      updateData["data.-=note"] = null;
       break;
     case EntryType.NPC_FEATURE:
       console.log(`${lp} Migrating NPC feature`, origData);
-      updateData.data.lid = origData.data.id;
+      updateData.data.lid = origData.data.id ? origData.data.id : "";
       updateData.data.loaded = true;
       updateData.data.type = origData.data.feature_type;
       updateData.data.origin = {
@@ -464,28 +464,19 @@ export const migrateItemData = function (item: LancerItem<NpcClass | NpcTemplate
       }
 
       // Remove deprecated fields
-      delete updateData.data.id;
       updateData["data.-=id"] = null;
-      delete updateData.data.feature_type;
       updateData["data.-=feature_type"] = null;
-      delete updateData.data.max_uses;
       updateData["data.-=max_uses"] = null;
       // Keep these ones if they have anything in them, just in case.
-      if (updateData.data.flavor_description === "") {
-        delete updateData.data.flavor_description;
+      if (origData.data.flavor_description === "") {
         updateData["data.-=flavor_description"] = null;
       }
-      if (updateData.data.flavor_name === "") {
-        delete updateData.data.flavor_name;
+      if (origData.data.flavor_name === "") {
         updateData["data.-=flavor_name"] = null;
       }
-      if (updateData.data.note === "") {
-        delete updateData.data.note;
+      if (origData.data.note === "") {
         updateData["data.-=note"] = null;
       }
-      delete updateData.data.origin_name;
-      delete updateData.data.origin_base;
-      delete updateData.data.origin_type;
       updateData["data.-=origin_name"] = null;
       updateData["data.-=origin_base"] = null;
       updateData["data.-=origin_type"] = null;
@@ -499,6 +490,7 @@ export const migrateItemData = function (item: LancerItem<NpcClass | NpcTemplate
   // Remove deprecated fields
   _migrateRemoveDeprecated(item, updateData);
 
+  console.log("updateData:", updateData);
   // Return the migrated update data
   return updateData;
 };
