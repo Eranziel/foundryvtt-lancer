@@ -123,7 +123,6 @@ export function arrayify_object(in_obj: any) {
       out_arr.push(value);
     }
   }
-  console.log(in_obj, out_arr);
   return out_arr;
 }
 

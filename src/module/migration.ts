@@ -4,7 +4,7 @@ import { LANCER } from "./config";
 import { handleActorExport } from "./helpers/io";
 import { LancerActor } from "./actor/lancer-actor";
 import { core_update, LCPIndex, LCPManager, updateCore } from "./apps/lcpManager";
-import { EntryType, NpcClass, NpcFeature, NpcTemplate } from "machine-mind";
+import { EntryType, NpcClass, NpcFeature, NpcTemplate, RegTagInstanceData } from "machine-mind";
 import { LancerItem } from "./item/lancer-item";
 import { RegRef } from "machine-mind/dist/registry";
 import { arrayify_object } from "./helpers/commons";
@@ -183,7 +183,6 @@ export const migrateActors = async (pilots: boolean = false, npcs: boolean = fal
         // TODO: migrate the NPC actor's data
         for (let item: LancerItem of a.items) {
           let updateData = migrateItemData(item);
-          console.log(`NPC item update data:`, updateData);
           // await item.update(updateData, { parent: a });
           await a.updateEmbeddedDocuments("Item", [updateData], { parent: a });
           // console.log(`${lp} Migrated item data:`, item.data);
@@ -340,18 +339,14 @@ export const migrateItemData = function (item: LancerItem<NpcClass | NpcTemplate
   const origData = item.data;
   const updateData = { _id: origData._id, data: {} };
 
-  function ids_to_rr(id_arr) {
-    let rr_arr = [];
-    id_arr.forEach(feat_id => {
-      let rr: RegRef<EntryType.NPC_FEATURE> = {
+  function ids_to_rr(id_arr: string[]): RegRef<EntryType.NPC_FEATURE>[] {
+    return id_arr.map(feat_id => ({
         id: "",
         fallback_lid: feat_id,
         type: EntryType.NPC_FEATURE,
         reg_name: "comp_core",
-      };
-      rr_arr.push(rr);
-    });
-    return rr_arr;
+      })
+    );
   }
 
   switch (origData.type) {
@@ -452,13 +447,16 @@ export const migrateItemData = function (item: LancerItem<NpcClass | NpcTemplate
           // If the tag doesn't have an id, skip it.
           // This could be made smarter to search the tag compendium tags by name - has to account for {VAL}.
           if (!tag.id) return;
-          let newTag: RegRef<EntryType.TAG> = {
+          let newTagRef: RegRef<EntryType.TAG> = {
             id: "",
             fallback_lid: tag.id,
             reg_name: "comp_core",
             type: EntryType.TAG,
           };
-          if (tag.val) newTag.val = tag.val;
+          let newTag: RegTagInstanceData = {
+            tag: newTagRef,
+            val: tag.val
+          };
           updateData.data.tags.push(newTag);
         });
       }
@@ -490,7 +488,6 @@ export const migrateItemData = function (item: LancerItem<NpcClass | NpcTemplate
   // Remove deprecated fields
   _migrateRemoveDeprecated(item, updateData);
 
-  console.log("updateData:", updateData);
   // Return the migrated update data
   return updateData;
 };
