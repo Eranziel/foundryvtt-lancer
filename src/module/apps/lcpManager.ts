@@ -30,7 +30,7 @@ function addLCPManager(app: Application, html: any) {
     button.innerHTML = "<i class='fas fa-users'></i>Migrate Pilots";
     buttons.append(button);
     button.addEventListener("click", () => {
-      migrateActors(true, false);
+      migrateActors(true);
     });
 
     button = document.createElement("button");
@@ -38,7 +38,7 @@ function addLCPManager(app: Application, html: any) {
     button.innerHTML = "<i class='fas fa-users'></i>Migrate NPCs";
     buttons.append(button);
     button.addEventListener("click", () => {
-      migrateActors(false, true);
+      migrateActors(false);
     });
   }
 }

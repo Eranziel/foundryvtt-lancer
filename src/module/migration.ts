@@ -2,7 +2,7 @@
 // We do not care about this file being super rigorous
 import { LANCER } from "./config";
 import { handleActorExport } from "./helpers/io";
-import { LancerActor } from "./actor/lancer-actor";
+import { LancerActor, LancerDeployableData, LancerNpcData } from "./actor/lancer-actor";
 import { core_update, LCPIndex, LCPManager, updateCore } from "./apps/lcpManager";
 import { EntryType, NpcClass, NpcFeature, NpcTemplate, RegTagInstanceData } from "machine-mind";
 import { LancerItem } from "./item/lancer-item";
@@ -167,25 +167,62 @@ const compTitles = {
   },
 };
 
-export const migrateActors = async (pilots: boolean = false, npcs: boolean = false) => {
+export const migrateActors = async (pilots: boolean = false) => {
   let count = 0;
   for (let a of game.actors.values()) {
     try {
-      if (pilots && a.data.type === "pilot") {
-        const ret = handleActorExport(a, false);
-        if (ret) {
-          console.log(`== Migrating Actor entity ${a.name}`);
-          await (a as LancerActor).importCC(ret, true);
-          console.log(ret);
-          count++;
+      if (pilots) {
+        if (a.data.type === EntryType.PILOT) {
+          const ret = handleActorExport(a, false);
+          if (ret) {
+            console.log(`== Migrating Actor entity ${a.name}`);
+            await (a as LancerActor).importCC(ret, true);
+            console.log(ret);
+            count++;
+          }
         }
-      } else if (npcs && a.data.type === "npc") {
-        // TODO: migrate the NPC actor's data
-        for (let item: LancerItem of a.items) {
-          let updateData = migrateItemData(item);
-          // await item.update(updateData, { parent: a });
-          await a.updateEmbeddedDocuments("Item", [updateData], { parent: a });
-          // console.log(`${lp} Migrated item data:`, item.data);
+      } else {
+        if (a.data.type === EntryType.NPC) {
+          let origData: any = a.data;
+          const updateData: LancerNpcData = { _id: origData._id, data: {} };
+
+          updateData.data.tier = origData.data.tier_num;
+          updateData.data.current_heat = origData.data.mech.heat.value;
+          updateData.data.current_hp = origData.data.mech.hp.value;
+          updateData.data.current_stress = origData.data.mech.stress.value;
+          updateData.data.current_structure = origData.data.mech.structure.value;
+
+          updateData["data.-=mech"] = null;
+          updateData["data.-=npc_size"] = null;
+          updateData["data.-=activations"] = null;
+          await a.update(updateData);
+
+          // Migrate each of the NPC's items
+          for (let item: LancerItem of a.items) {
+            let updateData = migrateItemData(item);
+            // await item.update(updateData, { parent: a });
+            await a.updateEmbeddedDocuments("Item", [updateData], { parent: a });
+            // console.log(`${lp} Migrated item data:`, item.data);
+          }
+        } else if (a.data.type === EntryType.DEPLOYABLE) {
+          let origData: any = a.data;
+          const updateData: LancerDeployableData = { _id: origData._id, data: {} };
+
+          updateData.data.detail = origData.data.effect;
+          updateData.data.current_heat = origData.data.heat.value;
+          updateData.data.heatcap = origData.data.heat.max;
+          updateData.data.derived.current_heat = origData.data.heat;
+          updateData.data.current_hp = origData.data.hp.value;
+          updateData.data.max_hp = origData.data.hp.max;
+          updateData.data.derived.current_hp = origData.data.hp;
+          updateData.data.derived.armor = origData.data.armor;
+          updateData.data.derived.edef = origData.data.edef;
+          updateData.data.derived.evasion = origData.data.evasion;
+
+          updateData["data.-=description"] = null;
+          updateData["data.-=heat"] = null;
+          updateData["data.-=hp"] = null;
+          await a.update(updateData);
         }
       }
     } catch (err) {
@@ -341,12 +378,11 @@ export const migrateItemData = function (item: LancerItem<NpcClass | NpcTemplate
 
   function ids_to_rr(id_arr: string[]): RegRef<EntryType.NPC_FEATURE>[] {
     return id_arr.map(feat_id => ({
-        id: "",
-        fallback_lid: feat_id,
-        type: EntryType.NPC_FEATURE,
-        reg_name: "comp_core",
-      })
-    );
+      id: "",
+      fallback_lid: feat_id,
+      type: EntryType.NPC_FEATURE,
+      reg_name: "comp_core",
+    }));
   }
 
   switch (origData.type) {
@@ -455,7 +491,7 @@ export const migrateItemData = function (item: LancerItem<NpcClass | NpcTemplate
           };
           let newTag: RegTagInstanceData = {
             tag: newTagRef,
-            val: tag.val
+            val: tag.val,
           };
           updateData.data.tags.push(newTag);
         });
