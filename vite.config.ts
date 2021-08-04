@@ -1,4 +1,5 @@
 import type { UserConfig } from 'vite';
+import { svelte } from '@sveltejs/vite-plugin-svelte';
 import { visualizer } from 'rollup-plugin-visualizer';
 const path = require('path');
 
@@ -40,6 +41,9 @@ const config: UserConfig = {
     }
   },
   plugins: [
+    svelte({
+      configFile: '../svelte.config.cjs', // relative to src/
+    }),
     visualizer({
       gzipSize: true,
       template: "treemap",

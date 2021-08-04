@@ -1,4 +1,5 @@
 {
+  "extends": "@tsconfig/svelte/tsconfig.json",
   "compilerOptions": {
     "target": "esnext",
     "experimentalDecorators": true,
@@ -10,14 +11,16 @@
       "ESNext"
     ],
     "types": [
-      "foundry-pc-types"
+      "foundry-pc-types",
+      "@pyoner/svelte-types"
     ],
     "moduleResolution": "node",
     "esModuleInterop": true,
     "noEmit": true,
     "strict": true,
     "useDefineForClassFields": false,
+    "importsNotUsedAsValues": "remove",
     "skipLibCheck": true
   },
-  "include": ["./src"]
+  "include": ["src/**/*.d.ts", "src/**/*.ts", "src/**/*.js", "src/**/*.svelte"]
 }
