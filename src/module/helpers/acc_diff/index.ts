@@ -1,12 +1,12 @@
-import tippy from "tippy.js";
-import { TagInstance } from "machine-mind";
+import type { TagInstance } from "machine-mind";
 import * as t from 'io-ts';
 
-import { LancerActor, LancerActorType } from "../../actor/lancer-actor";
-import ReactiveForm from '../reactive-form';
-import { AccDiffPlugin, AccDiffPluginData, AccDiffPluginCodec } from './plugin';
+import SvelteApp from "../svelte-application";
+import AccDiffSvelte from "./Form.svelte";
+import type { LancerActor, LancerActorType } from "../../actor/lancer-actor";
+import type { AccDiffPlugin, AccDiffPluginData, AccDiffPluginCodec } from './plugin';
 import { enclass, encode, decode } from './serde';
-import { LancerItem } from "../../item/lancer-item";
+import type { LancerItem } from "../../item/lancer-item";
 
 import Invisibility from "./invisibility";
 import Spotter from "./spotter";
@@ -18,7 +18,7 @@ export function findEffect(actor: LancerActor<LancerActorType>, effect: string):
   return actor.data.effects.find(eff => eff.data.flags.core.statusId == effect);
 }
 
-enum Cover {
+export enum Cover {
   None = 0,
   Soft = 1,
   Hard = 2
@@ -28,7 +28,7 @@ let coverSchema = t.union([t.literal(0), t.literal(1), t.literal(2)]);
 // so normally you wouldn't keep the codecs with the classes like this
 // the entire point of io-ts is that the co/dec logic is separable
 // but here we want plugins to actually modify the codecs, so, sigh
-class AccDiffWeapon {
+export class AccDiffWeapon {
   accurate: boolean;
   inaccurate: boolean;
   seeking: boolean;
@@ -87,7 +87,7 @@ class AccDiffWeapon {
   }
 }
 
-class AccDiffBase {
+export class AccDiffBase {
   accuracy: number;
   difficulty: number;
   cover: Cover;
@@ -355,45 +355,15 @@ export class AccDiffData {
   }
 }
 
-type AccDiffView = AccDiffData & {
-  hasTargets: boolean,
-  hasExactlyOneTarget: boolean,
-}
-
-export class AccDiffForm extends ReactiveForm<AccDiffData, AccDiffView> {
+export class AccDiffForm extends SvelteApp<AccDiffData> {
   static get defaultOptions() {
     return mergeObject(super.defaultOptions, {
-      template: "systems/lancer/templates/window/acc_diff.hbs",
       resizable: false,
     });
   }
 
   constructor(data: AccDiffData) {
-    super(data, { title: data.title })
-  }
-
-  activateListeners(html: JQuery) {
-    for (let elem of html.find('.accdiff-target-has-dropdown')) {
-      const id = elem.getAttribute('data-template');
-      const tooltip = document.getElementById(id!);
-      if (tooltip) {
-        tippy(elem, {
-          content: tooltip,
-          interactive: true,
-          allowHTML: true,
-          trigger: 'click mouseenter',
-        });
-      }
-    }
-
-    return super.activateListeners(html);
-  }
-
-  getViewModel(data: AccDiffData): AccDiffView {
-    let ret = data as AccDiffView; // view elements haven't been set yet
-    ret.hasTargets = ret.targets.length > 1;
-    ret.hasExactlyOneTarget = ret.targets.length == 1;
-    return ret
+    super(AccDiffSvelte, data, { title: data.title })
   }
 }
 
