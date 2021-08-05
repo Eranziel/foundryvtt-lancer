@@ -112,7 +112,7 @@
       <label class="flexrow accdiff-footer accdiff-weight" for={baseTotalId}>
         Total vs {targets[0].target.data.name}
       </label>
-      <div class="flexrow flex-center lancer-consume-lockon">
+      <div class="flexrow flex-center accdiff-total">
         <Total bind:target={targets[0]} bind:id={baseTotalId} onlyTarget={true}/>
       </div>
     {:else}
@@ -122,8 +122,8 @@
             <label class="flexrow flex-center card" for={targetTotalIds[index]}>
               {data.target.data.name}
             </label>
-            <div class="flexrow lancer-consume-lockon">
-              <ConsumeLockOn bind:lockOn={data} />
+            <div class="flexrow accdiff-total">
+              <ConsumeLockOn bind:lockOn={data} visible={false} />
               <Total bind:target={data} bind:id={targetTotalIds[index]} />
             </div>
             <div class="flexrow">
@@ -173,3 +173,121 @@
     </button>
   </div>
 </form>
+
+<style>
+  :global(.accdiff-grid) {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  #accdiff :global(.container) {
+    display: flex;
+    position: relative;
+    padding-left: 30px;
+    margin-top: 12px;
+    margin-bottom: 4px;
+    font-size: 0.9em;
+    user-select: none;
+    align-items: center;
+  }
+
+  /* Hide the browser's default checkbox */
+  #accdiff :global(.container input) {
+    position: absolute;
+    opacity: 0 !important;
+    height: 0;
+    width: 0;
+  }
+
+  #accdiff :global(.checkmark) {
+    position: absolute;
+    left: 5px;
+    height: 20px;
+    width: 20px;
+    background-color: #a9a9a9;
+    cursor: pointer;
+  }
+
+  #accdiff :global(input[disabled] ~ .checkmark) {
+    opacity: 0.5;
+    cursor: unset;
+  }
+
+  #accdiff :global(.container:hover input:not([disabled]) ~ .checkmark) {
+    background-color: #757575;
+  }
+
+  #accdiff :global(.container input:checked ~ .checkmark) {
+    background-color: var(--main-theme-color, fuchsia);
+  }
+
+  #accdiff :global(.checkmark:after) {
+    content: "";
+    position: absolute;
+    display: none;
+  }
+  #accdiff :global(.container input:checked ~ .checkmark:after) {
+    display: block;
+  }
+
+  .accdiff-other-grid {
+    width: 100%;
+    padding-left: 5px;
+    display: flex;
+    justify-content: center;
+  }
+  :global(.accdiff-weight) {
+    justify-content: center;
+    font-weight: bold;
+  }
+  .accdiff-footer {
+    padding-top: 8px;
+    padding-bottom: 4px;
+    margin-top: 12px;
+    border-top: 1px solid #782e22;
+  }
+
+  .accdiff-grid :global(.accdiff-base-cover) {
+    margin-top: 12px;
+    margin-bottom: 4px;
+    font-size: 0.85em;
+    user-select: none;
+    padding-left: 5px;
+    line-height: 2;
+    cursor: pointer;
+  }
+  .accdiff-grid :global(.accdiff-base-cover i) {
+    vertical-align: baseline;
+  }
+
+  .accdiff-footer :global(.accdiff-targeted-cover span) {
+    opacity: 0;
+    position: fixed;
+    width: 0;
+    visibility: hidden;
+  }
+  .accdiff-footer :global(.accdiff-targeted-cover i) {
+    font-size: 16px;
+    vertical-align: top;
+  }
+
+  /* there's a very specific foundry rule that adds some margin here
+     because it assumes all icons in buttons are followed by text, I think */
+  #accdiff .accdiff-target-row button > i {
+    margin-inline-end: 0;
+  }
+
+  .accdiff-target-row {
+    display: grid;
+    grid-template-columns: auto auto auto;
+  }
+
+  .accdiff-target {
+    padding: 4px;
+  }
+
+  .accdiff-total  {
+    flex-wrap: nowrap;
+    padding: 4px 10px 4px 10px;
+  }
+</style>

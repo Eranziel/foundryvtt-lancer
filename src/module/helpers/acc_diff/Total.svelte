@@ -44,7 +44,11 @@
          src={target.target.data.img} bind:this={imgElement} />
     <label for={lockonId} class:checked={target.usingLockOn} class:disabled={!target.lockOnAvailable}
            title="Consume Lock On (+1)">
-      <i class="cci cci-condition-lock-on"></i>
+      <i class="cci cci-condition-lock-on"
+         class:i--click={target.lockOnAvailable}
+         class:i--sm={!target.usingLockOn}
+         class:i--l={target.usingLockOn}
+         ></i>
       <ConsumeLockOn bind:lockOn={target} visible={false} id={lockonId} />
     </label>
   </div>
@@ -57,27 +61,76 @@
   {/if}
 {/if}
 <div class="accdiff-grid accdiff-weight">
-  <div>
-    <div id={id} class="card clipped total" class:accurate={target.total > 0} class:inaccurate={target.total < 0}>
-      <span>{Math.abs(target.total)}</span>
-      <i class="cci i--m i--dark white--text middle"
-         class:cci-accuracy={target.total >= 0}
-         class:cci-difficulty={target.total < 0} ></i>
-    </div>
+  <div id={id} class="card clipped total" class:accurate={target.total > 0} class:inaccurate={target.total < 0}>
+    <span>{Math.abs(target.total)}</span>
+    <i class="cci i--m i--dark white--text middle"
+       class:cci-accuracy={target.total >= 0}
+       class:cci-difficulty={target.total < 0} ></i>
   </div>
 </div>
 
 <style>
- .total {
-     background-color: #443c3c;
+ i { border: none; }
+
+ .accdiff-grid { position: relative }
+ .card.clipped {
+     display: flex;
+     flex-direction: row;
+     align-items: center;
+     padding: 8px 8px 8px 16px;
+     background-color: var(--main-theme-color, fuchsia);
+     color: white;
+     width: fit-content;
  }
- .total.accurate {
-     background-color: #017934;
+ .card.total { background-color: #443c3c; }
+ .card.total.accurate { background-color: #017934; }
+ .card.total.inaccurate { background-color: #9c0d0d }
+ .disabled { opacity: 0.4; }
+ .lancer-hit-thumb {
+     margin-right: 0px;
+     margin-left: 4px;
+     margin-bottom: 4px;
  }
- .total.inaccurate {
-     background-color: #9c0d0d
+
+ label {
+     position: absolute;
+     right: -4px;
+     top: -4px;
  }
- i {
-     border: none;
+
+ @keyframes lockon {
+     70% {
+         text-shadow: 0 0 8px lightgreen;
+     }
+     80% {
+         text-shadow: 0 0 8px green;
+     }
+     90% {
+         text-shadow: 0 0 8px lightgreen;
+     }
+ }
+ .cci-condition-lock-on {
+     text-shadow: 0 0 12px white;
+ }
+ .cci-condition-lock-on.i--l {
+     animation: lockon 800ms linear 1s infinite alternate;
+ }
+
+ .accdiff-grid :global(.tippy-box[data-theme~="lancer"]) {
+     font-size: 0.8em;
+     padding-left: 0px;
+     padding-right: 0px;
+     padding-top: 4px;
+     padding-bottom: 4px;
+     transform: none;
+ }
+ .accdiff-grid :global(.tippy-box[data-theme~="lancer"] .tippy-content) {
+     transform: none;
+ }
+ .accdiff-grid :global(.tippy-box[data-theme~="lancer"] .tippy-content .container) {
+     margin: 0px;
+ }
+ .accdiff-grid :global(.tippy-box[data-theme~="lancer"] .tippy-content .checkmark) {
+     height: 12px;
  }
 </style>

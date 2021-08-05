@@ -31,4 +31,44 @@
 
 <style>
  i { border: none }
+
+ input {
+     opacity: 0;
+     position: fixed;
+     width: 0;
+ }
+
+ label {
+     display: inline-block;
+     padding-left: 5px;
+ }
+ .flexrow label {
+     padding: 0px;
+ }
+
+ div:not(.disabled) label:hover {
+     background-color: #dfd;
+ }
+
+ .card input:checked + label {
+     background-color: #aaa;
+ }
+
+ input:checked + label {
+     background-color: #ddd;
+ }
+
+ .disabled {
+     opacity: 0.4;
+ }
+
+ .cci-no-cover:before {
+     content: '\25cb';
+ }
+ .cci-soft-cover:before {
+     content: '\25d1';
+ }
+ .cci-hard-cover:before {
+     content: '\25cf';
+ }
 </style>

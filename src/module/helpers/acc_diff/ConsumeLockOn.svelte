@@ -16,5 +16,10 @@
              checked={!!lockOn.usingLockOn} on:input={handleClick} disabled={!lockOn.lockOnAvailable} />
 
 <style>
- input.invisible { display: none }
+ input.invisible {
+     display: none;
+     opacity: 0;
+     position: absolute;
+     width: 0;
+ }
 </style>
