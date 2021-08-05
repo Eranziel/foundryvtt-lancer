@@ -61,8 +61,6 @@ import {
   std_password_input,
   std_num_input,
   std_checkbox,
-  std_cover_input,
-  accdiff_total_display,
 } from "./module/helpers/commons";
 import {
   weapon_size_selector,
@@ -393,8 +391,6 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("std-num-input", std_num_input);
   Handlebars.registerHelper("std-checkbox", std_checkbox);
   Handlebars.registerHelper("action-button", action_button);
-  Handlebars.registerHelper("std-cover-input", std_cover_input);
-  Handlebars.registerHelper("accdiff-total-display", accdiff_total_display);
 
   // ------------------------------------------------------------------------
   // Tag helpers
