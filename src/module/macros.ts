@@ -51,7 +51,7 @@ import { buildActionHTML, buildDeployableHTML, buildSystemHTML } from "./helpers
 import { ActivationOptions, StabOptions1, StabOptions2 } from "./enums";
 import { applyCollapseListeners, uuid4 } from "./helpers/collapse";
 import { checkForHit } from "./helpers/automation/targeting";
-import { AccDiffForm, AccDiffData, AccDiffDataSerialized } from "./helpers/acc_diff";
+import type { AccDiffForm, AccDiffData, AccDiffDataSerialized } from "./helpers/acc_diff";
 import { is_overkill } from "machine-mind/dist/funcs";
 
 const lp = LANCER.log_prefix;
@@ -554,6 +554,7 @@ async function rollStatMacro(actor: Actor, data: LancerStatMacroData) {
   if (!actor) return Promise.resolve();
 
   // Get accuracy/difficulty with a prompt
+  let { AccDiffData } = await import('./helpers/acc_diff');
   let initialData = AccDiffData.fromParams();
   let promptedData = await promptAccDiffModifiers(initialData);
   if (!promptedData) return;
@@ -614,6 +615,7 @@ export async function prepareEncodedAttackMacro(
     ui.notifications.error("Could not find weapon to reroll");
     return;
   }
+  let { AccDiffData } = await import('./helpers/acc_diff');
   let accdiff = AccDiffData.fromObject(rerollData, item);
   return prepareAttackMacro({ actor, item, options }, accdiff);
 }
@@ -760,6 +762,7 @@ async function prepareAttackMacro({
 
   // Prompt the user before deducting charges.
   const targets = Array.from(game.user.targets);
+  let { AccDiffData } = await import('./helpers/acc_diff');
   const initialData = rerollData ?? AccDiffData.fromParams(
     item, mData.tags, mData.title, targets, mData.acc > 0 ? [mData.acc, 0] : [0, -mData.acc]);
   const promptedData = await promptAccDiffModifiers(initialData);
@@ -1182,6 +1185,7 @@ export async function prepareTechMacro(a: string, t: string, rerollData?: AccDif
 
 async function rollTechMacro(actor: Actor, data: LancerTechMacroData, partialMacroData: LancerMacroData, rerollData?: AccDiffDataSerialized, item?: LancerItem<any>) {
   const targets = Array.from(game.user.targets);
+  let { AccDiffData } = await import('./helpers/acc_diff');
   const initialData = rerollData ?
     AccDiffData.fromObject(rerollData, item) :
     AccDiffData.fromParams(item, data.tags, data.title, targets);
@@ -1210,6 +1214,7 @@ async function rollTechMacro(actor: Actor, data: LancerTechMacroData, partialMac
 }
 
 export async function promptAccDiffModifiers(data: AccDiffData): Promise<AccDiffData | null> {
+  let { AccDiffForm } = await import('./helpers/acc_diff');
   let form = new AccDiffForm(data);
   form.render(true);
   try {
