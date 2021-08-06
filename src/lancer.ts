@@ -520,16 +520,16 @@ Hooks.once("setup", function () {
   // @ts-ignore 0.8
   let orig_gta = TokenDocument.getTrackedAttributes;
   // @ts-ignore 0.8
-  TokenDocument.getTrackedAttributes = function(data: any, _path: any=[]) {
+  TokenDocument.getTrackedAttributes = function (data: any, _path: any = []) {
     // We pre-empt the
-    if ( !data ) {
+    if (!data) {
       data = {};
-      for ( let model of Object.values(game.system.model.Actor)) {
+      for (let model of Object.values(game.system.model.Actor)) {
         mergeObject(data, model);
       }
 
       // Here's the custom behavior: add our derived data
-      let bar_like = {value: 0, max: 0};
+      let bar_like = { value: 0, max: 0 };
       let derived_addition = {
         edef: 8,
         evasion: 5,
@@ -539,12 +539,12 @@ Hooks.once("setup", function () {
         overshield: bar_like,
         current_structure: bar_like,
         current_stress: bar_like,
-        current_repairs: bar_like
+        current_repairs: bar_like,
       };
       mergeObject(data, derived_addition);
     }
     return orig_gta.call(this, data, _path);
-  }
+  };
 });
 
 /* ------------------------------------ */
@@ -784,7 +784,7 @@ async function doMigration() {
         );
       }
       // Perform the migration
-      await migrations.migrateWorld(true, true);
+      await migrations.migrateWorld(true);
     }
     // Set the version for future migration and welcome message checking
     await game.settings.set(LANCER.sys_name, LANCER.setting_migration, game.system.data.version);

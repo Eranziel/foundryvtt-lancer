@@ -15,7 +15,7 @@ let lp = LANCER.log_prefix;
  * Perform a system migration for the entire World, applying migrations for Actors, Items, and Compendium packs
  * @return {Promise}      A Promise which resolves once the migration is completed
  */
-export const migrateWorld = async function (migrateComps = true, migrateNpcs = false) {
+export const migrateWorld = async function (migrateComps = true) {
   ui.notifications.info(
     `Applying LANCER System Migration for version ${game.system.data.version}. Please be patient and do not close your game or shut down your server.`,
     { permanent: true }
@@ -90,17 +90,25 @@ Please refresh the page to try again.</p>`,
 
   // Migrate World Actors
   // Only NPCs, not pilots or mechs. GMs gotta update LCPs first.
-  if (migrateNpcs) {
-    await migrateActors(false, true);
+  for (let a of game.actors.contents) {
+    try {
+      const updateData = migrateActorData(a);
+      if (!isObjectEmpty(updateData)) {
+        console.log(`Migrating Actor entity ${a.name}`);
+        await a.update(updateData);
+      }
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   // Migrate World Items
-  for (let i of game.items.entities) {
+  for (let i of game.items.contents) {
     try {
       const updateData = migrateItemData(i);
       if (!isObjectEmpty(updateData)) {
         console.log(`Migrating Item entity ${i.name}`);
-        await i.update(updateData, { enforceTypes: false });
+        await i.update(updateData);
       }
     } catch (err) {
       console.error(err);
@@ -167,62 +175,23 @@ const compTitles = {
   },
 };
 
-export const migrateActors = async (pilots: boolean = false) => {
+/**
+ * Function to migrate old pilots to pilot/mech paradigm.
+ * Gathers LIDs of all old pilot items, clears items, then performs a
+ * mock-CC import with all of the found LIDs.
+ * @param pilots
+ */
+export const migrateActors = async () => {
   let count = 0;
   for (let a of game.actors.values()) {
     try {
-      if (pilots) {
-        if (a.data.type === EntryType.PILOT) {
-          const ret = handleActorExport(a, false);
-          if (ret) {
-            console.log(`== Migrating Actor entity ${a.name}`);
-            await (a as LancerActor).importCC(ret, true);
-            console.log(ret);
-            count++;
-          }
-        }
-      } else {
-        if (a.data.type === EntryType.NPC) {
-          let origData: any = a.data;
-          const updateData: LancerNpcData = { _id: origData._id, data: {} };
-
-          updateData.data.tier = origData.data.tier_num;
-          updateData.data.current_heat = origData.data.mech.heat.value;
-          updateData.data.current_hp = origData.data.mech.hp.value;
-          updateData.data.current_stress = origData.data.mech.stress.value;
-          updateData.data.current_structure = origData.data.mech.structure.value;
-
-          updateData["data.-=mech"] = null;
-          updateData["data.-=npc_size"] = null;
-          updateData["data.-=activations"] = null;
-          await a.update(updateData);
-
-          // Migrate each of the NPC's items
-          for (let item: LancerItem of a.items) {
-            let updateData = migrateItemData(item);
-            // await item.update(updateData, { parent: a });
-            await a.updateEmbeddedDocuments("Item", [updateData], { parent: a });
-            // console.log(`${lp} Migrated item data:`, item.data);
-          }
-        } else if (a.data.type === EntryType.DEPLOYABLE) {
-          let origData: any = a.data;
-          const updateData: LancerDeployableData = { _id: origData._id, data: {} };
-
-          updateData.data.detail = origData.data.effect;
-          updateData.data.current_heat = origData.data.heat.value;
-          updateData.data.heatcap = origData.data.heat.max;
-          updateData.data.derived.current_heat = origData.data.heat;
-          updateData.data.current_hp = origData.data.hp.value;
-          updateData.data.max_hp = origData.data.hp.max;
-          updateData.data.derived.current_hp = origData.data.hp;
-          updateData.data.derived.armor = origData.data.armor;
-          updateData.data.derived.edef = origData.data.edef;
-          updateData.data.derived.evasion = origData.data.evasion;
-
-          updateData["data.-=description"] = null;
-          updateData["data.-=heat"] = null;
-          updateData["data.-=hp"] = null;
-          await a.update(updateData);
+      if (a.data.type === EntryType.PILOT) {
+        const ret = handleActorExport(a, false);
+        if (ret) {
+          console.log(`== Migrating Actor entity ${a.name}`);
+          await (a as LancerActor).importCC(ret, true);
+          console.log(ret);
+          count++;
         }
       }
     } catch (err) {
@@ -315,25 +284,66 @@ export const migrateCompendium = async function (pack: Compendium) {
  * @return {Object}       The updateData to apply
  */
 export const migrateActorData = function (actor: Actor) {
-  const updateData: any = {};
-  const ad: ActorData = actor.data;
+  let origData: any = a.data;
+  const updateData: LancerNpcData = { _id: origData._id, data: {} };
 
   // Insert code to migrate actor data model here
+  // For migration from 0.1.20 to 1.0, only do NPCs and Deployables. Mechs didn't exist,
+  // and pilots need the GM to import LCPs first.
+  if (a.data.type === EntryType.NPC) {
+    updateData.data.tier = origData.data.tier_num;
+    updateData.data.current_heat = origData.data.mech.heat.value;
+    updateData.data.current_hp = origData.data.mech.hp.value;
+    updateData.data.current_stress = origData.data.mech.stress.value;
+    updateData.data.current_structure = origData.data.mech.structure.value;
+
+    updateData["data.-=mech"] = null;
+    updateData["data.-=npc_size"] = null;
+    updateData["data.-=activations"] = null;
+    // await a.update(updateData);
+
+    // Migrate each of the NPC's items
+    for (let item: LancerItem of a.items) {
+      let updateData = migrateItemData(item);
+      await a.updateEmbeddedDocuments("Item", [updateData], { parent: a });
+    }
+  } else if (a.data.type === EntryType.DEPLOYABLE) {
+    updateData.data.detail = origData.data.effect;
+    updateData.data.current_heat = origData.data.heat.value;
+    updateData.data.heatcap = origData.data.heat.max;
+    updateData.data.derived.current_heat = origData.data.heat;
+    updateData.data.current_hp = origData.data.hp.value;
+    updateData.data.max_hp = origData.data.hp.max;
+    updateData.data.derived.current_hp = origData.data.hp;
+    updateData.data.derived.armor = origData.data.armor;
+    updateData.data.derived.edef = origData.data.edef;
+    updateData.data.derived.evasion = origData.data.evasion;
+
+    updateData["data.-=description"] = null;
+    updateData["data.-=heat"] = null;
+    updateData["data.-=hp"] = null;
+    // await a.update(updateData);
+  } else {
+    return {};
+  }
 
   // Migrate Owned Items
   if (!actor.items) return updateData;
   let hasItemUpdates = false;
-  const items = actor.items.map(i => {
+  const items = [];
+  actor.items.foreach(i => {
     // Migrate the Owned Item
     let itemUpdate = migrateItemData(i);
 
     // Update the Owned Item
     if (!isObjectEmpty(itemUpdate)) {
       hasItemUpdates = true;
-      return mergeObject(i, itemUpdate, { enforceTypes: false, inplace: false });
-    } else return i;
+      i.push(itemUpdate);
+    }
   });
-  if (hasItemUpdates) updateData.items = items;
+  if (hasItemUpdates) {
+    await a.updateEmbeddedDocuments("Item", items, { parent: a });
+  }
 
   // Remove deprecated fields
   _migrateRemoveDeprecated(actor, updateData);
@@ -517,8 +527,7 @@ export const migrateItemData = function (item: LancerItem<NpcClass | NpcTemplate
 
       break;
     default:
-      console.log(`${lp} Skipping ${item.type} item ${item.name} with ID ${item.id}`);
-      break;
+      return {};
   }
 
   // Remove deprecated fields
