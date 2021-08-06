@@ -6,9 +6,19 @@
       "npc",
       "deployable"
     ],
-    "templates": {},
+    "templates": {
+      "action_tracking": {
+        "action_tracker": {
+          "protocol": true,
+          "move": 0,
+          "full": true,
+          "quick": true,
+          "reaction": true
+        }
+      }
+    },
     "pilot": {
-      "templates": [],
+      "templates": ["action_tracking"],
       "name": "",
       "active_mech": null,
       "background": "",
@@ -50,7 +60,7 @@
       "text_appearance": ""
     },
     "npc": {
-      "templates": [],
+      "templates": ["action_tracking"],
       "actions": {},
       "lid": "",
       "name": "",
@@ -75,7 +85,7 @@
       "current_structure": 0
     },
     "deployable": {
-      "templates": [],
+      "templates": ["action_tracking"],
       "actions": [],
       "bonuses": [],
       "counters": [],
@@ -110,7 +120,7 @@
       "deployer": null
     },
     "mech": {
-      "templates": [],
+      "templates": ["action_tracking"],
       "actions": {},
       "activations": 1,
       "burn": 0,

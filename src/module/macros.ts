@@ -779,8 +779,7 @@ async function rollAttackMacro(actor: Actor, atk_str: string | null, data: Lance
       if (data.overkill) {
         droll.terms.forEach(term => {
           if (term.faces) {
-            term.modifiers.push("x1");
-            term.modifiers.push(`kh1`);
+            term.modifiers = ["x1", `kh${term.number}`].concat(term.modifiers);
           }
         });
       }
@@ -828,8 +827,10 @@ async function rollAttackMacro(actor: Actor, atk_str: string | null, data: Lance
       droll.terms.forEach(term => {
         if (term.faces) {
           term.modifiers === undefined && (term.modifiers = []);
+          if (data.overkill) {
+            term.modifiers = ["x1"].concat(term.modifiers);
+          }
           term.modifiers.push(`kh${term.number}`);
-          data.overkill && term.modifiers.push("x1");
           term.number *= 2;
         }
       });
@@ -960,32 +961,22 @@ export async function prepareCoreActiveMacro(a: string) {
  * Checks whether they have a passive since that could get removed on swap
  * @param a     String of the actor ID to roll the macro as, and who we're getting core info for
  */
-export function prepareCorePassiveMacro(a: string) {
-  console.log("DISABLED");
-  debugger;
-  return;
-  /*
-  // Determine which Actor to speak as
-  let actor: LancerActor | null = getMacroSpeaker(a);
-  if (!actor) return;
+ export async function prepareCorePassiveMacro(a: string) {
+   // Determine which Actor to speak as
+   let mech: LancerActor<EntryType.MECH> | null = getMacroSpeaker(a);
+   if (!mech) return;
 
-  let frame: LancerFrameItemData | null = actor.getCurrentFrame();
+   var ent = await mech.data.data.derived.mm_promise;
+   if(!ent.Frame) return;
 
-  if (!frame || !frame.data.core_system.passive_name || !frame.data.core_system.passive_effect) {
-    // Could probably handle this better eventually
-    return;
-  }
+   let mData: LancerTextMacroData = {
+     title: ent.Frame.CoreSystem.PassiveName,
+     description: ent.Frame.CoreSystem.PassiveEffect,
+     tags: ent.Frame.CoreSystem.Tags,
+   };
 
-  let mData: LancerTextMacroData = {
-    title: frame.data.core_system.passive_name,
-    description: frame.data.core_system.passive_effect,
-    tags: frame.data.core_system.tags,
-  };
-
-  rollTextMacro(actor, mData).then();
-  */
-}
-
+   rollTextMacro(mech, mData).then();
+ }
 /**
  * Given basic information, prepares a generic text-only macro to display descriptions etc
  * @param a     String of the actor ID to roll the macro as

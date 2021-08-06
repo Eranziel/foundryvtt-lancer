@@ -11,7 +11,7 @@ import { LancerActorSheetData } from "../interfaces";
 import { ref_commons, ref_params, simple_mm_ref } from "../helpers/refs";
 import { resolve_dotpath } from "../helpers/commons";
 import { AnyMMActor, LancerActor } from "./lancer-actor";
-import { fetchPilot, pilotNames } from "../compcon";
+import { cleanCloudOwnerID, fetchPilot, pilotCache } from "../compcon";
 import { AnyMMItem, LancerItemType } from "../item/lancer-item";
 
 const lp = LANCER.log_prefix;
@@ -101,12 +101,34 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
         let self = await this.getDataLazy();
         // Fetch data to sync
         let raw_pilot_data = null;
-        if (self.vaultID != "") {
+        if (self.vaultID != "" || self.rawID.match(/\/\//)) {
+          // new style vault code with owner information
+          // it's possible that this was one we reconstructed and doesn't actually live in this user acct
           ui.notifications.info("Importing character from vault...");
-          raw_pilot_data = await fetchPilot(self.vaultID);
-        } else if (self.gistID != "") {
+          try {
+            raw_pilot_data = await fetchPilot(self.vaultID != "" ? self.vaultID : self.rawID);
+          } catch {
+            if (self.vaultID != "") {
+              ui.notifications.error("Failed to import. Probably a network error, please try again.");
+            } else {
+              ui.notifications.error("Failed. You will have to ask the player whose pilot this is for their COMP/CON vault record code.");
+            }
+            return;
+          }
+        } else if (self.rawID.match(/^[^-]+(-[^-]+){4}/)) {
+          // old-style vault code
+          // not much we can do. we can try to fetch it and see if it works
+          // it will if this pilot happens to be in this comp/con user's bucket
+          ui.notifications.info("Attempting to import from old-style vault code...");
+          try {
+            raw_pilot_data = await fetchPilot(self.rawID);
+          } catch {
+            ui.notifications.error("Failed. Old-style vault ids are phasing out in support; please ask the player whose pilot this is for their COMP/CON vault record code.")
+            return;
+          }
+        } else if (self.rawID != "") {
           ui.notifications.info("Importing character from cloud share code...");
-          raw_pilot_data = await funcs.gist_io.download_pilot(self.gistID);
+          raw_pilot_data = await funcs.gist_io.download_pilot(self.rawID);
         } else {
           ui.notifications.error("Could not find character to import!");
           return;
@@ -116,10 +138,10 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
         this._currData = null;
       });
 
-      // editing gistID clears vaultID
+      // editing rawID clears vaultID
       // (other way happens automatically because we prioritise vaultID in commit)
-      let gistInput = html.find('input[name="gistID"]');
-      gistInput.on("input", async ev => {
+      let rawInput = html.find('input[name="rawID"]');
+      rawInput.on("input", async ev => {
         if ((ev.target as any).value != "") {
           (html.find('select[name="vaultID"]')[0] as any).value = "";
         }
@@ -131,13 +153,30 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
     const data = ((await super.getData()) as unknown) as LancerActorSheetData<EntryType.PILOT>; // Not fully populated yet!
 
     data.active_mech = await data.mm.ActiveMech();
-    data.pilotCache = pilotNames();
+    data.pilotCache = pilotCache();
 
-    if (data.mm.CloudID.match(/^[^-]+(-[^-]+){4}$/)) { // if this is a vault id
-      data.vaultID = data.mm.CloudID;
-      data.gistID = "";
+    data.cleanedOwnerID = cleanCloudOwnerID(data.mm.CloudOwnerID);
+
+    // use the select if and only if we have the pilot in our cache
+    let useSelect =
+      data.mm.CloudID && data.cleanedOwnerID &&
+      data.pilotCache.find(p =>
+        p.cloudID == data.mm.CloudID &&
+        p.cloudOwnerID == data.cleanedOwnerID);
+
+
+    if (useSelect) { // if this is a vault id we know of
+      data.vaultID = data.cleanedOwnerID + '//' + data.mm.CloudID;
+      data.rawID = "";
+    } else if (data.mm.CloudID) { // whatever this is, we need to display it as raw text, so the user can edit it
+      if (data.cleanedOwnerID) {
+        data.rawID = data.cleanedOwnerID + '//' + data.mm.CloudID;
+      } else {
+        data.rawID = data.mm.CloudID;
+      }
+      data.vaultID = "";
     } else {
-      data.gistID = data.mm.CloudID;
+      data.rawID = "";
       data.vaultID = "";
     }
 
@@ -214,10 +253,27 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
   async _commitCurrMM() {
     if (this._currData) {
       // we prioritise vault ids here, so when the user selects a vault id via dropdown
-      // it gets saved and any gistID doesn't, so the render clears the gistID
-      // i.e., editing vaultID clears gistID
-      // other way around happens in the gistID input listener
-      this._currData.mm.CloudID = this._currData.vaultID || this._currData.gistID || "";
+      // it gets saved and any rawID doesn't, so the render clears the rawID
+      // i.e., editing vaultID clears rawID
+      // other way around happens in the rawID input listener
+      let assignSplit = (str: string) => {
+        if (str.match(/\/\//)) {
+          let [owner, id] = str.split('//');
+          // @ts-ignore for some reason typescript thinks this `this` can be null
+          this._currData.mm.CloudOwnerID = owner;
+          // @ts-ignore
+          this._currData.mm.CloudID = id;
+        } else {
+          // @ts-ignore
+          this._currData.mm.CloudID = str;
+        }
+      }
+
+      if (this._currData.vaultID) {
+        assignSplit(this._currData.vaultID);
+      } else {
+        assignSplit(this._currData.rawID);
+      }
     }
     return super._commitCurrMM()
   }
