@@ -123,10 +123,11 @@ const tsConfig = ts.createProject("tsconfig.json", {
 
 let webpackConfig = shouldWatch => {
   return {
+    mode: shouldWatch ? "development" : "production",
     entry: "./src/lancer.ts",
-    devtool: "inline-source-map",
+    devtool: shouldWatch ? "inline-source-map" : "source-map",
     optimization: {
-      minimize: false,
+      minimize: !shouldWatch,
     },
     module: {
       rules: [
@@ -139,10 +140,15 @@ let webpackConfig = shouldWatch => {
           test: /\.css$/i,
           use: ["style-loader", "css-loader"],
         },
+        {
+          test: /\.mjs$/i,
+          include: /node_modules/,
+          type: 'javascript/auto',
+        }
       ],
     },
     resolve: {
-      extensions: [".ts", ".tsx", ".js"],
+      extensions: [".ts", ".tsx", ".js", ".mjs"],
     },
     output: {
       filename: "lancer.js",

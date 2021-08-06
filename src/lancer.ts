@@ -133,7 +133,7 @@ import { applyCollapseListeners } from "./module/helpers/collapse";
 import { handleCombatUpdate } from "./module/helpers/automation/combat";
 import { handleActorExport, validForExport } from "./module/helpers/io";
 import { runEncodedMacro, prepareTextMacro } from './module/macros';
-import { fix_modify_token_attribute, LancerToken, LancerTokenDocument } from "./module/token";
+import { LancerToken, LancerTokenDocument } from "./module/token";
 
 const lp = LANCER.log_prefix;
 
@@ -674,10 +674,6 @@ Hooks.on("renderChatMessage", async (cm: ChatMessage, html: any, data: any) => {
 
 Hooks.on("hotbarDrop", (_bar: any, data: any, slot: number) => {
   macros.onHotbarDrop(_bar, data, slot);
-});
-
-Hooks.on("modifyTokenAttribute", (_: any, data: any) => {
-  fix_modify_token_attribute(data);
 });
 
 /**

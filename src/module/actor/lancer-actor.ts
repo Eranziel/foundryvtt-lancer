@@ -33,6 +33,7 @@ import { StabOptions1, StabOptions2 } from "../enums";
 import { ActionData } from "../action";
 import { handleActorExport } from "../helpers/io";
 import { LancerMacroData } from "../interfaces";
+import { fix_modify_token_attribute } from "../token";
 const lp = LANCER.log_prefix;
 
 export function prepareStructureSecondaryRollMacro(registryId: string) {
@@ -132,7 +133,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
       // Include additional derived info
       derived: {
         // These are all derived and populated by MM
-        current_hp: BoundedValue;
+        current_hp: { max: number, value: number }; // -hps are useful for structure macros
         current_heat: BoundedValue;
         current_stress: BoundedValue;
         current_structure: BoundedValue;
@@ -633,7 +634,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
     return return_text;
   }
 
-  // Imports an old-style compcon pilot sync code
+  // Imports packed pilot data, from either a vault id or gist id
   async importCC(data: PackedPilotData, clearFirst = false) {
     if (this.data.type !== "pilot") {
       return;
@@ -731,10 +732,15 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         // Rename and rehome mechs
         sync_mech: (mech: Mech) => {
           let flags = mech.Flags as FoundryFlagData<EntryType.MECH>;
+          let portrait = mech.CloudPortrait || mech.Frame?.ImageUrl || "";
+          let new_img = replace_default_resource(flags.top_level_data["img"], portrait);
           flags.top_level_data["name"] = mech.Name;
           flags.top_level_data["folder"] = unit_folder ? unit_folder.id : null;
           flags.top_level_data["token.name"] = data.callsign;
+          flags.top_level_data["img"] = new_img;
+          flags.top_level_data["token.img"] = new_img;
           flags.top_level_data["permission"] = permission;
+          mech.writeback();
           // TODO: Retrogrades
         },
         // Set pilot token
@@ -828,7 +834,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         speed: 0,
         armor: 0,
         current_heat: default_bounded(),
-        current_hp: default_bounded(),
+        current_hp: { max: 0, value: 0 },
         overshield: default_bounded(),
         current_structure: default_bounded(),
         current_stress: default_bounded(),
@@ -984,6 +990,29 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         return mm;
       });
       this._job_tracker.set(job_id, dr.mm_promise);
+  }
+
+  /** @override
+   * This is mostly copy-pasted from Actor.modifyTokenAttribute
+   * to allow negative hps, which are useful for structure checks
+   */
+  async modifyTokenAttribute(attribute: any, value: any, isDelta = false, isBar = true) {
+    // @ts-ignore
+    const current = foundry.utils.getProperty(this.data.data, attribute);
+
+    let updates;
+    if (isBar) {
+      if (isDelta) value = Number(current.value) + value;
+      updates = { [`data.${attribute}.value`]: value };
+    } else {
+      if (isDelta) value = Number(current) + value;
+      updates = { [`data.${attribute}`]: value };
+    }
+
+    // Call a hook to handle token resource bar updates
+    fix_modify_token_attribute(updates);
+    const allowed = Hooks.call("modifyTokenAttribute", { attribute, value, isDelta, isBar }, updates);
+    return allowed !== false ? this.update(updates) : this;
   }
 
   /** @override

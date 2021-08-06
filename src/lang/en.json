@@ -59,7 +59,7 @@
             "cloud-header": {
                 "label": "RM-4://(OMNINET UPLINK ID)",
                 "vaultID": "Load from your Comp/Con account (if logged in)",
-                "gist-placeholder": "or enter an old cloud share code"
+                "raw-placeholder": "or enter a code manually"
             },
             "cloud-download": {
                 "label": "DOWNLOAD",

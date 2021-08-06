@@ -76,13 +76,13 @@ export class LancerActionManager extends Application {
    * @returns actions map.
    */
   private getActions(): ActionData | undefined {
-    return this.target?.data.data.actions ? { ...this.target?.data.data.actions } : undefined;
+    return this.target?.data.data.action_tracker ? { ...this.target?.data.data.action_tracker } : undefined;
   }
   /**
    * Set proxy for ease of migration when we change over to MM data backing.
    */
   private async updateActions(actor: LancerActor<any>, actions: ActionData) {
-    await actor.update({ "data.actions": actions });
+    await actor.update({ "data.action_tracker": actions });
     // this.token?.update({ "flags.lancer.actions": actions });
   }
   //
@@ -115,7 +115,7 @@ export class LancerActionManager extends Application {
     if (token && token.inCombat && (token.actor.data.type === "mech" || token.actor.data.type === "npc")) {
       // TEMPORARY HANDLING OF OLD TOKENS
       // TODO: Remove when action data is properly within MM.
-      if (token.actor.data.data.actions === undefined) {
+      if (token.actor.data.data.action_tracker === undefined) {
         await this.updateActions(token.actor as LancerActor<any>, _defaultActionData(token.actor));
       }
       this.target = token.actor as LancerActor<any>;
@@ -129,7 +129,7 @@ export class LancerActionManager extends Application {
    * @param type specific action to spend, or undefined for end-turn behavior.
    */
   async modAction(actor: LancerActor<any>, spend: boolean, type?: ActionType) {
-    let actions = { ...actor.data.data.actions };
+    let actions = { ...actor.data.data.action_tracker };
     if (actions) {
       switch (type) {
         case "move": // TODO: replace with tooltip for movement counting.
@@ -319,5 +319,5 @@ export class LancerActionManager extends Application {
 }
 
 function getSpeed(actor: Actor) {
-  return actor.data.data?.derived?.mm?.Speed ? actor.data.data?.derived?.mm.Speed : 4;
+  return actor.data.data?.derived?.speed || 4;
 }
