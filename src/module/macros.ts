@@ -779,8 +779,7 @@ async function rollAttackMacro(actor: Actor, atk_str: string | null, data: Lance
       if (data.overkill) {
         droll.terms.forEach(term => {
           if (term.faces) {
-            term.modifiers.push("x1");
-            term.modifiers.push(`kh1`);
+            term.modifiers = ["x1", `kh${term.number}`].concat(term.modifiers);
           }
         });
       }
@@ -828,8 +827,10 @@ async function rollAttackMacro(actor: Actor, atk_str: string | null, data: Lance
       droll.terms.forEach(term => {
         if (term.faces) {
           term.modifiers === undefined && (term.modifiers = []);
+          if (data.overkill) {
+            term.modifiers = ["x1"].concat(term.modifiers);
+          }
           term.modifiers.push(`kh${term.number}`);
-          data.overkill && term.modifiers.push("x1");
           term.number *= 2;
         }
       });
