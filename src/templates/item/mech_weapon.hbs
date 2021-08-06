@@ -51,7 +51,7 @@
           </div>
 
           {{!-- Range --}}
-          {{{item-edit-arrayed-range "mm.AddedRange" "RANGE"}}}
+          {{{item-edit-arrayed-range (concat "mm.Profiles." prof_index ".BaseRange") "RANGE"}}}
 
           {{!-- Damage --}}
           {{{item-edit-arrayed-damage (concat "mm.Profiles." prof_index ".BaseDamage") "DAMAGE"}}}
