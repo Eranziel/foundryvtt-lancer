@@ -1,67 +1,47 @@
-import { LANCER } from "../config";
-const lp = LANCER.log_prefix;
-import { EntryType, LiveEntryTypes, RegEntry, Registry, RegRef } from "machine-mind";
+import { EntryType, RegEntry, RegRef } from "machine-mind";
 import { LancerActor, LancerActorType } from "../actor/lancer-actor";
 import { LancerItem, LancerItemType } from "../item/lancer-item";
 
 export const DEBOUNCE_TIMEOUT = 500; // An update propagation hook will fire at most once every this many MS.
 // Triggers on falling edge (meaning will wait for updates to stop pouring in before firing
-type RegEntity<T extends EntryType> = Entity | RegEntry<T> | RegRef<T>;
+type RegEntity<T extends EntryType> = foundry.abstract.Document<any, any> | RegEntry<T> | RegRef<T>;
 
 export class LancerHooks {
-  static call(entity: Entity) {
-    var id: string = entity.id;
+  static call(doc: foundry.abstract.Document<any, any>) {
+    var id = doc.id!;
     // return Hooks.call(id, entity)
-    debounce_trigger(id, entity);
+    debounce_trigger(id, doc);
   }
 
-  static on<E extends Entity>(entity: E, callback: (arg: E) => any): LancerSubscription;
-  static on<T extends LancerActorType>(
-    entity: RegEntity<T>,
-    callback: (arg: LancerActor<T>) => any
-  ): LancerSubscription;
-  static on<T extends LancerItemType>(
-    entity: RegEntity<T>,
-    callback: (arg: LancerItem<T>) => any
-  ): LancerSubscription;
+  static on<E extends foundry.abstract.Document<any, any>>(doc: E, callback: (arg: E) => any): LancerSubscription;
+  static on<T extends LancerActorType>(doc: RegEntity<T>, callback: (arg: LancerActor) => any): LancerSubscription;
+  static on<T extends LancerItemType>(doc: RegEntity<T>, callback: (arg: LancerItem) => any): LancerSubscription;
 
-  static on<T extends EntryType>(
-    entity: RegEntity<T>,
-    callback: (arg: any) => any
-  ): LancerSubscription {
+  static on<T extends EntryType>(doc: RegEntity<T>, callback: (arg: any) => any): LancerSubscription {
     var id: string;
-    if (entity instanceof RegEntry) {
-      id = entity.RegistryID;
+    if (doc instanceof RegEntry) {
+      id = doc.RegistryID;
     } else {
-      id = entity.id;
+      id = doc.id!;
     }
     let subId = Hooks.on(id, callback);
     return new LancerSubscription(id, subId);
   }
 
   static off(sub: LancerSubscription): void;
-  static off(entity: RegEntity<any>, callback: number): void;
-  static off(entity: RegEntity<any>, callback: (arg: Entity) => any): void;
-  static off<T extends LancerActorType>(
-    entity: RegEntity<T>,
-    callback: (arg: LancerActor<T>) => any
-  ): void;
-  static off<T extends LancerItemType>(
-    entity: RegEntity<T>,
-    callback: (arg: LancerItem<T>) => any
-  ): void;
+  static off(doc: RegEntity<any>, callback: number): void;
+  static off(doc: RegEntity<any>, callback: (arg: foundry.abstract.Document<any, any>) => any): void;
+  static off<T extends LancerActorType>(doc: RegEntity<T>, callback: (arg: LancerActor) => any): void;
+  static off<T extends LancerItemType>(doc: RegEntity<T>, callback: (arg: LancerItem) => any): void;
 
-  static off(
-    entityOrSub: LancerSubscription | RegEntity<any>,
-    callback?: number | ((arg: any) => any)
-  ): void {
+  static off(entityOrSub: LancerSubscription | RegEntity<any>, callback?: number | ((arg: any) => any)): void {
     var id: string;
     if (entityOrSub instanceof LancerSubscription) {
       return entityOrSub.unsubscribe();
     } else if (entityOrSub instanceof RegEntry) {
       id = entityOrSub.RegistryID;
     } else {
-      id = entityOrSub.id;
+      id = entityOrSub.id!;
     }
     if (callback) {
       //@ts-ignore Pending Bolts' code merger, hooks types are incorrect
@@ -91,7 +71,7 @@ export class LancerSubscription {
 
 // Given the number of things that can trigger a hook, we debounce to make sure we're only really sending out one signal per set of updates (including user mashing + on a sheet, etc)
 const debounce_timings = new Map<string, number>();
-function debounce_trigger(hook_id: string, entity: Entity) {
+function debounce_trigger(hook_id: string, doc: foundry.abstract.Document<any, any>) {
   // Check for pending. Cancel if one exists
   let pending = debounce_timings.get(hook_id);
   if (pending) {
@@ -100,7 +80,7 @@ function debounce_trigger(hook_id: string, entity: Entity) {
 
   // Setup a new pending timeout and let it rip
   let new_pending = window.setTimeout(() => {
-    Hooks.call(hook_id, entity);
+    Hooks.call(hook_id, doc);
   }, DEBOUNCE_TIMEOUT);
   debounce_timings.set(hook_id, new_pending);
 }

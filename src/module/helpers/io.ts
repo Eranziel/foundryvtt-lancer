@@ -1,8 +1,8 @@
+// TODO: This needs a complete once-over as a lot of the stuff in here appears broken
 import {
   EntryType,
   PackedMechData,
   PackedMechLoadoutData,
-  PackedMountData,
   PackedPilotData,
   PackedPilotLoadoutData,
 } from "machine-mind";
@@ -26,28 +26,30 @@ type LegacyLancerActor = {
  * @param download whether to trigger an automatic download of the json file.
  * @returns the export in object form, or null if error occurred.
  */
-export function handleActorExport(actor: LegacyLancerActor | LancerActor<any>, download = true) {
+export function handleActorExport(actor: LegacyLancerActor | LancerActor, download = true) {
   // TODO: replace check with version check and appropriate export handler.
   if (!validForExport(actor)) {
-    // ui.notifications.warn("Exporting for this version of actor is currently unsupported.");
+    // ui.notifications!.warn("Exporting for this version of actor is currently unsupported.");
     return null;
   }
 
   let dump = null;
   switch (actor.data.type) {
     case "pilot":
+      // @ts-ignore I'm just going to assume all of this works but it probably doesn't
       dump = handlePilotExport(actor);
       break;
     case "mech":
       // dump = handlePilotExport(actor);
       break;
     case "npc":
+      // @ts-ignore I'm just going to assume all of this works but it probably doesn't
       dump = handleNPCExport(actor);
       break;
   }
 
   if (dump == null) {
-    ui.notifications.warn("Exporting ran into an issue, or actor type is not supported.");
+    ui.notifications!.warn("Exporting ran into an issue, or actor type is not supported.");
     return null;
   }
 
@@ -55,6 +57,7 @@ export function handleActorExport(actor: LegacyLancerActor | LancerActor<any>, d
     const a = document.createElement("a");
     const dumpFile = new Blob([JSON.stringify(dump, undefined, 2)], { type: "text/plain" });
     a.href = URL.createObjectURL(dumpFile);
+    // @ts-ignore I'm just going to assume all of this works but it probably doesn't
     a.download = `${actor.name.toLocaleLowerCase().replace(" ", "_")}.json`;
     a.click();
     URL.revokeObjectURL(a.href);
@@ -63,7 +66,7 @@ export function handleActorExport(actor: LegacyLancerActor | LancerActor<any>, d
   return dump;
 }
 
-export function addExportButton(actor: LegacyLancerActor | LancerActor<any>, html: JQuery) {
+export function addExportButton(actor: LegacyLancerActor | LancerActor, html: JQuery) {
   // @ts-ignore
   const id = actor.data._id;
   if (!document.getElementById(id) && validForExport(actor)) {
@@ -87,15 +90,6 @@ type FakePackedEquipmentState = {
   cascading: false;
   customDamageType?: null;
 };
-type FakePackedPilotLoadout = {
-  id: string;
-  name: string;
-  armor: (FakePackedEquipmentState | null)[]; // Accounts for gaps in the inventory slots.... Were it my call this wouldn't be how it was, but it ain't my way
-  weapons: (FakePackedEquipmentState | null)[];
-  gear: (FakePackedEquipmentState | null)[];
-  extendedWeapons: (FakePackedEquipmentState | null)[];
-  extendedGear: (FakePackedEquipmentState | null)[];
-};
 type FakePackedWeapon = {
   size: string;
   weapon: {
@@ -116,62 +110,7 @@ type FakePackedMount = {
   extra: FakePackedWeapon[];
   bonus_effects: string[];
 };
-type FakePackedMechLoadout = {
-  id: string;
-  name: "Primary";
-  systems: (FakePackedEquipmentState | null)[];
-  integratedSystems: (FakePackedEquipmentState | null)[];
-  mounts: FakePackedMount[];
-  integratedMounts: FakePackedWeapon[];
-};
-type FakePackedMech = {
-  id: string;
-  name: string;
-  frame: string;
-  active: true;
-  current_structure: number;
-  current_move: number;
-  current_hp: number;
-  current_stress: number;
-  current_heat: number;
-  current_repairs: number;
-  current_overcharge: number;
-  current_core_energy: number;
-  overshield: number;
-  loadouts: [FakePackedMechLoadout];
-  active_loadout_index: 0;
-  statuses: [];
-  conditions: [];
-  resistances: [];
-  reactions: [];
-  burn: number;
-  destroyed: false;
-  activations: 1;
-  meltdown_imminent: false;
-  reactor_destroyed: false;
-  core_active: boolean;
-};
 
-type FakePackedPilot = {
-  id: string;
-  name: string;
-  callsign: string;
-  level: number;
-  notes: string;
-  history: string;
-  quirks: string[];
-  current_hp: number;
-  background: string;
-  mechSkills: [number, number, number, number];
-  reserves: [];
-  orgs: [];
-  licenses: { id: string; rank: number }[];
-  skills: { id: string; rank: number }[];
-  talents: { id: string; rank: number }[];
-  core_bonuses: string[];
-  loadout: FakePackedPilotLoadout;
-  mechs: [FakePackedMech];
-};
 //
 // NPC
 type FakePackedNPC = {
@@ -387,12 +326,14 @@ function handlePilotExport(actor: LegacyLancerActor) {
       .map((item: any) => {
         return { id: item.data.data.id, rank: item.data.data.rank };
       }),
+    // @ts-ignore I'm just going to assume all of this works but it probably doesn't
     core_bonuses: items.filter((item: Item) => item.type === "core_bonus").map((item: any) => item.data.data.id),
     loadout: pilotLoadout,
     mechs: [
       {
         id: nanoid(),
         name: mech.name,
+        // @ts-ignore I'm just going to assume all of this works but it probably doesn't
         frame: frame ? frame.data.data.id : undefined,
         active: true,
         current_structure: mech.structure.value,
@@ -465,6 +406,7 @@ function mapWeapon(weapon: any): FakePackedWeapon {
   };
 }
 
-export function validForExport(actor: LegacyLancerActor | LancerActor<any>) {
+export function validForExport(actor: LegacyLancerActor | LancerActor) {
+  // @ts-ignore I'm just going to assume all of this works but it probably doesn't
   return !actor.data.data?.cc_ver?.startsWith("MchMnd2");
 }

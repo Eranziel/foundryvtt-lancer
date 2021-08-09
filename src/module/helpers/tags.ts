@@ -1,10 +1,9 @@
-import { EntryType, TagInstance, TagTemplate, typed_lancer_data } from "machine-mind";
-import { array_path_edit, resolve_dotpath, resolve_helper_dotpath } from "./commons";
+import { EntryType, TagInstance, TagTemplate } from "machine-mind";
+import { array_path_edit, resolve_dotpath } from "./commons";
 import { LancerActorSheetData, LancerItemSheetData } from "../interfaces";
 import { HANDLER_enable_mm_dropping, MMDragResolveCache } from "./dragdrop";
 import { ref_params } from "./refs";
 
-const TAGS = typed_lancer_data.tags;
 
 /**
  * Search for a tag template in lancer-data.
@@ -207,6 +206,7 @@ export function HANDLER_activate_tag_context_menus<
             },
           },
         },
+        default: "confirm",
       }).render(true);
     },
   };
@@ -246,7 +246,7 @@ export function HANDLER_activate_tag_dropping<T>(
     html.find(".tag-list-append"),
     resolver,
     (ent) => ent.Type == EntryType.TAG,
-    async (tag_ent, dest, evt) => {
+    async (tag_ent, dest, _evt) => {
       // Well, we got a drop!
       let path = dest[0].dataset.path!;
       if (path) {
@@ -263,7 +263,7 @@ export function HANDLER_activate_tag_dropping<T>(
         await commit_func(data);
       }
     },
-    (mode, data, target) => {
+    (mode, _data, target) => {
       // Make it glow I guess
       if (mode == "enter") {
         $(target).addClass("highlight-can-drop");

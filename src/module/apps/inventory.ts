@@ -1,7 +1,11 @@
-import { Mech } from 'machine-mind';
-import { AnyLancerActor, AnyMMActor, LancerActorType } from '../actor/lancer-actor';
-import { HANDLER_activate_general_controls } from '../helpers/commons';
-import { HANDLER_activate_native_ref_dragging, HANDLER_activate_ref_dragging, HANDLER_openRefOnClick } from '../helpers/refs';
+import { Mech } from "machine-mind";
+import { AnyLancerActor, AnyMMActor } from "../actor/lancer-actor";
+import { HANDLER_activate_general_controls } from "../helpers/commons";
+import {
+  HANDLER_activate_native_ref_dragging,
+  HANDLER_activate_ref_dragging,
+  HANDLER_openRefOnClick,
+} from "../helpers/refs";
 
 interface FilledCategory {
   label: string;
@@ -12,12 +16,8 @@ interface FilledCategory {
  * A helper Dialog subclass for editing an actors inventories
  * @extends {Dialog}
  */
-export class InventoryDialog<O extends LancerActorType> extends Dialog {
-  constructor(
-    readonly actor: AnyLancerActor,
-    dialogData: DialogData = {},
-    options: ApplicationOptions = {}
-  ) {
+export class InventoryDialog extends Dialog {
+  constructor(readonly actor: AnyLancerActor, dialogData: Dialog.Data, options: Partial<Dialog.Options> = {}) {
     super(dialogData, options);
     this.actor = actor;
   }
@@ -37,25 +37,25 @@ export class InventoryDialog<O extends LancerActorType> extends Dialog {
   /** @override
    * Expose our data. Note that everything should be ready by now
    */
-  async getData(): Promise<any> {
+  // @ts-ignore Dialog is apparently cut off from async in league types
+  async getData(): Promise<{ content: string; buttons: Record<string, Dialog.Button>; categories: FilledCategory[] }> {
     // Fill out our categories
     let mm = await this.actor.data.data.derived.mm_promise;
     return {
       ...super.getData(),
-      categories: this.populate_categories(mm) // this.populate_categories()
+      categories: this.populate_categories(mm), // this.populate_categories()
     };
   }
 
-
   /** @inheritdoc */
-  render(force: any, options={}) {
+  render(force: any, options = {}) {
     // Register the active Application with the referenced Documents, to get updates
     // @ts-ignore
     this.actor.apps[this.appId] = this;
     return super.render(force, options);
   }
 
-  async close(options={}) {
+  async close(options = {}) {
     // @ts-ignore 0.8
     delete this.actor.apps[this.appId];
     // @ts-ignore 0.8
@@ -66,27 +66,27 @@ export class InventoryDialog<O extends LancerActorType> extends Dialog {
   populate_categories(mm: AnyMMActor): FilledCategory[] {
     // Decide categories based on type
     let cats: FilledCategory[] = [];
-    if(mm instanceof Mech) {
+    if (mm instanceof Mech) {
       cats = [
         {
           label: "Frames",
-          items: mm.OwnedFrames
+          items: mm.OwnedFrames,
         },
         {
           label: "Weapons",
-          items: mm.OwnedMechWeapons
+          items: mm.OwnedMechWeapons,
         },
         {
           label: "Systems",
-          items: mm.OwnedSystems
+          items: mm.OwnedSystems,
         },
         {
           label: "Mods",
-          items: mm.OwnedWeaponMods
+          items: mm.OwnedWeaponMods,
         },
         {
           label: "Statuses",
-          items: mm.StatusesAndConditions
+          items: mm.StatusesAndConditions,
           // path: "mm.StatusesAndConditions"
         },
       ];
@@ -109,25 +109,26 @@ export class InventoryDialog<O extends LancerActorType> extends Dialog {
     let commitfunc = (_: any) => {};
 
     // Enable general controls, so items can be deleted and such
-    HANDLER_activate_general_controls(html, getfunc, commitfunc);  
-    
+    // TODO: This is going to probably cause an error every time it runs.
+    HANDLER_activate_general_controls(html, <any>getfunc, commitfunc);
+
     // Enable ref dragging
     HANDLER_activate_ref_dragging(html);
     HANDLER_activate_native_ref_dragging(html);
-    
+
     // Make refs clickable to open the item
     $(html).find(".ref.valid").on("click", HANDLER_openRefOnClick);
   }
 
-  static async show_inventory<T>(
-    actor: AnyLancerActor
-  ): Promise<void> {
-    return new Promise((resolve, reject) => {
+  static async show_inventory(actor: AnyLancerActor): Promise<void> {
+    return new Promise((resolve, _reject) => {
       const dlg = new this(actor, {
         title: `${actor.name}'s inventory`,
+        content: "",
         buttons: {},
         close: () => resolve(),
-      });    // Register the active Application with the referenced Documents
+        default: "",
+      }); // Register the active Application with the referenced Documents
       dlg.render(true);
     });
   }

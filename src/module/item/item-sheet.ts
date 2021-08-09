@@ -14,7 +14,7 @@ import {
   HANDLER_add_ref_to_list_on_drop,
   HANDLER_openRefOnClick,
 } from "../helpers/refs";
-import { EntryType, OpCtx, Skill, SkillFamily } from "machine-mind";
+import { EntryType, OpCtx } from "machine-mind";
 import { HANDLER_activate_edit_bonus } from "../helpers/item";
 import { HANDLER_activate_tag_context_menus, HANDLER_activate_tag_dropping } from "../helpers/tags";
 import { CollapseHandler } from "../helpers/collapse";
@@ -30,16 +30,23 @@ const lp = LANCER.log_prefix;
  * Extend the basic ItemSheet with some very simple modifications
  * @extends {ItemSheet}
  */
-export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
+export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemSheet.Options, LancerItemSheetData<T>> {
+  constructor(document: Item, options: ItemSheet.Options) {
+    super(document, options);
+    if (this.item.data.type == EntryType.MECH_WEAPON) {
+      // @ts-ignore IDK if this even does anything
+      this.options.initial = `profile${this.item.data.data.selected_profile || 0}`;
+    }
+  }
+
   // Tracks collapse state between renders
-  private collapse_handler = new CollapseHandler();
+  protected collapse_handler = new CollapseHandler();
 
   /**
    * @override
    * Extend and override the default options used by the Item Sheet
-   * @returns {Object}
    */
-  static get defaultOptions() {
+  static get defaultOptions(): ItemSheet.Options {
     return mergeObject(super.defaultOptions, {
       classes: ["lancer", "sheet", "item"],
       width: 700,
@@ -52,13 +59,6 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
         },
       ],
     });
-  }
-
-  constructor(...args: any) {
-    super(...args);
-    if (this.item.type == EntryType.MECH_WEAPON) {
-      this.options.initial = `profile${this.item.data.data.selected_profile || 0}`;
-    }
   }
 
   /** @override */
@@ -101,9 +101,9 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
     }
 
     // Customized increment/decrement arrows. Same as in actor. TODO: Standardize??
-    const mod_handler = (delta: number) => (ev: Event) => {
+    const mod_handler = (delta: number) => (ev: JQuery.ClickEvent<HTMLElement, unknown, HTMLElement, HTMLElement>) => {
       if (!ev.currentTarget) return; // No target, let other handlers take care of it.
-      const button = $(ev.currentTarget as HTMLElement);
+      const button = $(ev.currentTarget);
       const input = button.siblings("input");
       const curr = Number.parseInt(input.prop("value"));
       if (!isNaN(curr)) {
@@ -159,7 +159,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
     // Get the basics
     let new_top: any = {
       img: formData.img,
-      name: formData.name
+      name: formData.name,
     };
 
     return new_top;
@@ -169,7 +169,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
    * This defines how to update the subject of the form when the form is submitted
    * @private
    */
-  async _updateObject(event: Event | JQuery.Event, formData: any): Promise<any> {
+  async _updateObject(_event: Event | JQuery.Event, formData: any): Promise<any> {
     // Fetch data, modify, and writeback
     let ct = await this.getDataLazy();
 
@@ -186,21 +186,20 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
    * Prepare data for rendering the frame sheet
    * The prepared data object contains both the actor data as well as additional sheet options
    */
-  //@ts-ignore 0.8 hopefully? Foundry-pc-types does not properly acknowledge that sheet `getData` functions can be/are asynchronous
   async getData(): Promise<LancerItemSheetData<T>> {
     // If a compendium, wait 50ms to avoid most race conflicts. TODO: Remove this when foundry fixes compendium editing to not be so awful
     // if (this.item.compendium) {
-      // this.object = await new Promise(s => setTimeout(s, 50))
-        // //@ts-ignore
-        // .then(() => get_pack(this.item.type))
-        // .then(p => p.getEntity(this.item.id));
+    // this.object = await new Promise(s => setTimeout(s, 50))
+    // //@ts-ignore
+    // .then(() => get_pack(this.item.type))
+    // .then(p => p.getEntity(this.item.id));
     // }
     const data = super.getData() as LancerItemSheetData<T>; // Not fully populated yet!
 
     // Wait for preparations to complete
-    let tmp_dat = this.item.data as LancerItem<T>["data"]; // For typing convenience
+    let tmp_dat = this.item.data as LancerItem["data"]; // For typing convenience
+    // @ts-ignore idk why this is a mismatch
     data.mm = await tmp_dat.data.derived.mm_promise;
-
 
     // Additionally we would like to find a matching license. Re-use ctx, try both a world and global reg, actor as well if it exists
     data.license = null;
@@ -236,7 +235,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet {
   }
 
   // Get the ctx that our actor + its items reside in. If an unowned item we'll just yield null
-  getCtx(): OpCtx | null{
+  getCtx(): OpCtx | null {
     let ctx = (this.item as AnyLancerItem).data.data.derived.mm?.OpCtx;
     return ctx ?? null;
   }

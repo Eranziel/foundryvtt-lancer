@@ -1,8 +1,7 @@
 import { EntryType } from "machine-mind";
 import { LANCER } from "../config";
-import { npc_feature_preview } from "../helpers/item";
 import { LancerItemSheet } from "./item-sheet";
-import { LancerItem, LancerNpcClass, LancerNpcFeatureData } from "./lancer-item";
+import { LancerNpcFeatureData } from "./lancer-item";
 const lp = LANCER.log_prefix;
 
 /**
@@ -13,9 +12,8 @@ export class LancerNPCClassSheet extends LancerItemSheet<EntryType.NPC_CLASS> {
   /**
    * @override
    * Extend and override the default options used by the generic Lancer item sheet
-   * @returns {Object}
    */
-  static get defaultOptions() {
+  static get defaultOptions(): ItemSheet.Options {
     return mergeObject(super.defaultOptions, {
       width: 900,
       height: 750,
@@ -27,7 +25,7 @@ export class LancerNPCClassSheet extends LancerItemSheet<EntryType.NPC_CLASS> {
   optional_feature_items!: LancerNpcFeatureData[];
 
   /** @override */
-  _updateObject(event: any, formData: any) {
+  _updateObject(_event: any, formData: any) {
     formData["data.stats.hp"] = LancerNPCClassSheet.arrayifyStats(formData["data.stats.hp"]);
     formData["data.stats.heatcap"] = LancerNPCClassSheet.arrayifyStats(
       formData["data.stats.heatcap"]

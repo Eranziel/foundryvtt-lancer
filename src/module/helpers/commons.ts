@@ -13,19 +13,17 @@ import {
   SystemMount,
   WeaponMount,
   WeaponSize,
-  FittingSize,
   MechWeaponProfile,
   FrameTrait,
   Bonus,
   SerUtil,
-  Talent,
   Action,
   Counter,
 } from "machine-mind";
 import { HTMLEditDialog } from "../apps/text-editor";
 import { GenControlContext, LancerActorSheetData, LancerItemSheetData } from "../interfaces";
 
-import { Deployable, WeaponType, ActivationType } from "machine-mind";
+import { WeaponType, ActivationType } from "machine-mind";
 
 // A shorthand for only including the first string if the second value is truthy
 export function inc_if(val: string, test: any) {
@@ -295,112 +293,112 @@ export function ext_helper_hash(
  * all using a similar api: a `path` to the item, and an `action` to perform on that item. In some cases, a `val` will be used
  *
  * The data getter and commit func are used to retrieve the target data, and to save it back (respectively)
- * 
+ *
  * The post_hook function is just run after all logic has been finished. It is provided the context object.
  * It has no influence on the behavior of the operation, but can nonetheless be useful for augmenting other behaviors.
  * (e.x. to delete associated entities when remove buttons cleared)
  */
- export function HANDLER_activate_general_controls<T extends LancerActorSheetData<any> | LancerItemSheetData<any>>(
+export function HANDLER_activate_general_controls<T extends LancerActorSheetData<any> | LancerItemSheetData<any>>(
   html: JQuery,
   // Retrieves the data that we will operate on
   data_getter: () => Promise<T> | T,
   commit_func: (data: T) => void | Promise<void>,
   post_hook?: (ctrl_info: GenControlContext<T>) => any
 ) {
-  html.find(".gen-control").off("click").on("click", async (event: any) => {
-    event.stopPropagation();
+  html
+    .find(".gen-control")
+    .off("click")
+    .on("click", async event => {
+      event.stopPropagation();
 
-    // Collect the raw information / perform initial conversions
-    let elt = event.currentTarget;
-    let item_override_path = elt.dataset.commitItem;
-    let raw_val = elt.dataset.actionValue;
+      // Collect the raw information / perform initial conversions
+      let elt = event.currentTarget;
+      let item_override_path = elt.dataset.commitItem;
+      let raw_val = elt.dataset.actionValue;
 
-    let data = await data_getter();
-    let value: any = undefined;
-    if(raw_val) {
-      let result = await parse_control_val(raw_val ?? "", data.mm);
-      let success = result[0];
-      value = result[1];
-      if (!success) {
-        console.error(`Gen control failed: Bad data-action-value: ${raw_val}`);
-        return; // Bad arg - no effect
+      let data = await data_getter();
+      let value: any = undefined;
+      if (raw_val) {
+        let result = await parse_control_val(raw_val, data.mm);
+        let success = result[0];
+        value = result[1];
+        if (!success) {
+          console.error(`Gen control failed: Bad data-action-value: ${raw_val}`);
+          return; // Bad arg - no effect
+        }
       }
-    }
 
-    // Construct our ctx
-    let ctx: GenControlContext<T> = {
-      // Base
-      elt,
-      path: elt.dataset.path,
-      action: elt.dataset.action,
-      raw_val: elt.dataset.actionValue,
-      item_override_path,
-      commit_func,
+      // Construct our ctx
+      let ctx: GenControlContext<T> = {
+        // Base
+        elt,
+        path: elt.dataset.path!,
+        action: <any>elt.dataset.action,
+        raw_val: elt.dataset.actionValue,
+        item_override_path,
+        commit_func,
 
-      // Derived
-      data,
-      path_target: resolve_dotpath(data, elt.dataset.path) as RegEntry<any> ?? null,
-      item_override: item_override_path ? resolve_dotpath(data, item_override_path) : null,
-      parsed_val: value
-    };
+        // Derived
+        data,
+        path_target: (resolve_dotpath(data, elt.dataset.path!) as RegEntry<any>) ?? null,
+        item_override: item_override_path ? resolve_dotpath(data, item_override_path) : null,
+        parsed_val: value,
+      };
 
-    // Check our less reliably fetchable data
-    if (!ctx.path) {
-      console.error("Gen control failed: missing path");
-    } else if (!ctx.action) {
-      console.error("Gen control failed: missing action");
-    } else if (!data) {
-      console.error("Gen control failed: data could not be retrieved");
-    }
-
-    // Perform action
-    if (ctx.action == "delete") {
-      // Find and delete the item at that path
-      ctx.path_target?.destroy_entry();
-    } else if (ctx.action == "splice") {
-      // Splice out the value at path dest, then writeback
-      array_path_edit(ctx.data, ctx.path, null, "delete");
-    } else if (ctx.action == "null") {
-      // Null out the target space
-      gentle_merge(ctx.data, { [ctx.path]: null });
-    } else if (ctx.action == "set") {
-      // Set the target space
-      gentle_merge(ctx.data, { [ctx.path]: value });
-    } else if (ctx.action == "append") {
-      // Append to target array 
-      array_path_edit(ctx.data, ctx.path + "[-1]", value, "insert");
-    } else if (ctx.action == "insert") {
-      // insert into target array 
-      array_path_edit(ctx.data, ctx.path + "[-1]", value, "insert");
-    } else {
-      console.error("Unknown gen control action: " + ctx.action);
-    }
-
-    // Handle writing back our changes
-    if (ctx.item_override_path) {
-      try {
-        await ctx.item_override!.writeback();
-      } catch (e) {
-        console.error(`Failed to writeback item at path "${ctx.item_override_path}"`, e);
-        return;
+      // Check our less reliably fetchable data
+      if (!ctx.path) {
+        console.error("Gen control failed: missing path");
+      } else if (!ctx.action) {
+        console.error("Gen control failed: missing action");
+      } else if (!data) {
+        console.error("Gen control failed: data could not be retrieved");
       }
-    } else {
-      await commit_func(ctx.data);
-    }
 
-    // Post hook if necessary
-    if(post_hook) {
-      post_hook(ctx);
-    }
-  });
+      // Perform action
+      if (ctx.action == "delete") {
+        // Find and delete the item at that path
+        ctx.path_target?.destroy_entry();
+      } else if (ctx.action == "splice") {
+        // Splice out the value at path dest, then writeback
+        array_path_edit(ctx.data, ctx.path, null, "delete");
+      } else if (ctx.action == "null") {
+        // Null out the target space
+        gentle_merge(ctx.data, { [ctx.path]: null });
+      } else if (ctx.action == "set") {
+        // Set the target space
+        gentle_merge(ctx.data, { [ctx.path]: value });
+      } else if (ctx.action == "append") {
+        // Append to target array
+        array_path_edit(ctx.data, ctx.path + "[-1]", value, "insert");
+      } else if (ctx.action == "insert") {
+        // insert into target array
+        array_path_edit(ctx.data, ctx.path + "[-1]", value, "insert");
+      } else {
+        console.error("Unknown gen control action: " + ctx.action);
+      }
+
+      // Handle writing back our changes
+      if (ctx.item_override_path) {
+        try {
+          await ctx.item_override!.writeback();
+        } catch (e) {
+          console.error(`Failed to writeback item at path "${ctx.item_override_path}"`, e);
+          return;
+        }
+      } else {
+        await commit_func(ctx.data);
+      }
+
+      // Post hook if necessary
+      if (post_hook) {
+        post_hook(ctx);
+      }
+    });
 }
 
 // Used by above to figure out how to handle "set"/"append" args
 // Returns [success: boolean, val: any]
 async function parse_control_val(raw_val: string, ctx: LiveEntryTypes<EntryType>): Promise<[boolean, any]> {
-  // Declare
-  let real_val: string | number | boolean | any;
-
   // Determine what we're working with
   let match = raw_val.match(/\((.*?)\)(.*)/);
   if (match) {
@@ -546,7 +544,6 @@ function std_input(path: string, type: string, options: HelperOptions) {
     return input;
   }
 }
-
 
 // input type="string" isn't styled by foundry, but input type="text" is
 // that's not a great reason to keep both of them, but it is the reason we have
@@ -706,8 +703,9 @@ export function large_textbox_card(title: string, text_path: string, helper: Hel
 
 // Reads the specified form to a JSON object, including unchecked inputs
 // Wraps the build in foundry method
-export function read_form(form_element: HTMLFormElement): { [key: string]: string | number | boolean } {
+export function read_form(form_element: HTMLFormElement): Record<string, string | number | boolean> {
   // @ts-ignore The typings don't yet include this utility class
   let form_data = new FormDataExtended(form_element);
+  // @ts-ignore We may want to double check this, but it's probably fine
   return form_data.toObject();
 }

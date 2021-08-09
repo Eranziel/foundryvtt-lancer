@@ -1,7 +1,7 @@
 import { LANCER, TypeIcon } from "../config";
-import { EntryType, funcs, License, LiveEntryTypes, OpCtx } from "machine-mind";
+import { EntryType, funcs, LiveEntryTypes, NpcFeatureType, OpCtx } from "machine-mind";
 import { FoundryRegItemData } from "../mm-util/foundry-reg";
-import { LancerActor, LancerActorType } from "../actor/lancer-actor";
+import { LancerActorType } from "../actor/lancer-actor";
 import { system_ready } from "../../lancer";
 import { mm_wrap_item } from "../mm-util/helpers";
 
@@ -9,7 +9,7 @@ const lp = LANCER.log_prefix;
 
 export function lancerItemInit(base_item: any, provided_data: any) {
   // If base item has data, then we are probably importing. Skip this step
-  if(provided_data?.data) {
+  if (provided_data?.data) {
     return;
   }
 
@@ -17,7 +17,7 @@ export function lancerItemInit(base_item: any, provided_data: any) {
 
   // Select default image
   let icon_lookup = base_item.type;
-  if(base_item.type == EntryType.NPC_FEATURE) {
+  if (base_item.type == EntryType.NPC_FEATURE) {
     icon_lookup += base_item.type ?? "";
   }
   let img = TypeIcon(icon_lookup);
@@ -99,11 +99,419 @@ export function lancerItemInit(base_item: any, provided_data: any) {
   return base_item.data.update({
     data: default_data,
     img: img,
-    name: default_data.name, 
+    name: default_data.name,
   });
 }
 
-export class LancerItem<T extends LancerItemType> extends Item {
+interface DerivedProperties<T extends EntryType> {
+  // license: RegRef<EntryType.LICENSE> | null; // The license granting this item, if one could be found
+  max_uses: number; // The max uses, augmented to also include any actor bonuses
+  mm: LiveEntryTypes<T> | null;
+  mm_promise: Promise<LiveEntryTypes<T>>; // The above, in promise form. More robust
+}
+
+interface LancerItemEnvironmentDataSourceData {
+  derived: DerivedProperties<EntryType.ENVIRONMENT>;
+  name: string;
+  lid: string;
+}
+interface LancerItemEnvironmentDataSource {
+  type: EntryType.ENVIRONMENT;
+  data: LancerItemEnvironmentDataSourceData;
+}
+interface LancerItemEnvironmentDataPropertiesData extends LancerItemEnvironmentDataSourceData {}
+interface LancerItemEnvironmentDataProperties {
+  type: EntryType.ENVIRONMENT;
+  data: LancerItemEnvironmentDataPropertiesData;
+}
+
+interface LancerItemFactionDataSourceData {
+  derived: DerivedProperties<EntryType.FACTION>;
+  name: string;
+  lid: string;
+}
+interface LancerItemFactionDataSource {
+  type: EntryType.FACTION;
+  data: LancerItemFactionDataSourceData;
+}
+interface LancerItemFactionDataPropertiesData extends LancerItemFactionDataSourceData {}
+interface LancerItemFactionDataProperties {
+  type: EntryType.FACTION;
+  data: LancerItemFactionDataPropertiesData;
+}
+
+interface LancerItemFrameDataSourceData {
+  derived: DerivedProperties<EntryType.FRAME>;
+  name: string;
+  lid: string;
+}
+interface LancerItemFrameDataSource {
+  type: EntryType.FRAME;
+  data: LancerItemFrameDataSourceData;
+}
+interface LancerItemFrameDataPropertiesData extends LancerItemFrameDataSourceData {}
+interface LancerItemFrameDataProperties {
+  type: EntryType.FRAME;
+  data: LancerItemFrameDataPropertiesData;
+}
+
+interface LancerItemLicenseDataSourceData {
+  derived: DerivedProperties<EntryType.LICENSE>;
+  name: string;
+  lid: string;
+}
+interface LancerItemLicenseDataSource {
+  type: EntryType.LICENSE;
+  data: LancerItemLicenseDataSourceData;
+}
+interface LancerItemLicenseDataPropertiesData extends LancerItemLicenseDataSourceData {}
+interface LancerItemLicenseDataProperties {
+  type: EntryType.LICENSE;
+  data: LancerItemLicenseDataPropertiesData;
+}
+
+interface LancerItemManufacturerDataSourceData {
+  derived: DerivedProperties<EntryType.MANUFACTURER>;
+  name: string;
+  lid: string;
+}
+interface LancerItemManufacturerDataSource {
+  type: EntryType.MANUFACTURER;
+  data: LancerItemManufacturerDataSourceData;
+}
+interface LancerItemManufacturerDataPropertiesData extends LancerItemManufacturerDataSourceData {}
+interface LancerItemManufacturerDataProperties {
+  type: EntryType.MANUFACTURER;
+  data: LancerItemManufacturerDataPropertiesData;
+}
+
+interface LancerItemMechSystemDataSourceData {
+  derived: DerivedProperties<EntryType.MECH_SYSTEM>;
+  name: string;
+  lid: string;
+}
+interface LancerItemMechSystemDataSource {
+  type: EntryType.MECH_SYSTEM;
+  data: LancerItemMechSystemDataSourceData;
+}
+interface LancerItemMechSystemDataPropertiesData extends LancerItemMechSystemDataSourceData {}
+interface LancerItemMechSystemDataProperties {
+  type: EntryType.MECH_SYSTEM;
+  data: LancerItemMechSystemDataPropertiesData;
+}
+
+interface LancerItemMechWeaponDataSourceData {
+  derived: DerivedProperties<EntryType.MECH_WEAPON>;
+  name: string;
+  selected_profile: number;
+  lid: string;
+}
+interface LancerItemMechWeaponDataSource {
+  type: EntryType.MECH_WEAPON;
+  data: LancerItemMechWeaponDataSourceData;
+}
+interface LancerItemMechWeaponDataPropertiesData extends LancerItemMechWeaponDataSourceData {}
+interface LancerItemMechWeaponDataProperties {
+  type: EntryType.MECH_WEAPON;
+  data: LancerItemMechWeaponDataPropertiesData;
+}
+
+interface LancerItemNpcClassDataSourceData {
+  derived: DerivedProperties<EntryType.NPC_CLASS>;
+  name: string;
+  lid: string;
+}
+interface LancerItemNpcClassDataSource {
+  type: EntryType.NPC_CLASS;
+  data: LancerItemNpcClassDataSourceData;
+}
+interface LancerItemNpcClassDataPropertiesData extends LancerItemNpcClassDataSourceData {}
+interface LancerItemNpcClassDataProperties {
+  type: EntryType.NPC_CLASS;
+  data: LancerItemNpcClassDataPropertiesData;
+}
+
+interface LancerItemNpcFeatureDataSourceData {
+  derived: DerivedProperties<EntryType.NPC_FEATURE>;
+  name: string;
+  lid: string;
+  type: NpcFeatureType;
+  tags: unknown[];
+  effect: string;
+  trigger: string;
+  tier: number;
+}
+interface LancerItemNpcFeatureDataSource {
+  type: EntryType.NPC_FEATURE;
+  data: LancerItemNpcFeatureDataSourceData;
+}
+interface LancerItemNpcFeatureDataPropertiesData extends LancerItemNpcFeatureDataSourceData {}
+interface LancerItemNpcFeatureDataProperties {
+  type: EntryType.NPC_FEATURE;
+  data: LancerItemNpcFeatureDataPropertiesData;
+}
+
+interface LancerItemNpcTemplateDataSourceData {
+  derived: DerivedProperties<EntryType.NPC_TEMPLATE>;
+  name: string;
+  lid: string;
+}
+interface LancerItemNpcTemplateDataSource {
+  type: EntryType.NPC_TEMPLATE;
+  data: LancerItemNpcTemplateDataSourceData;
+}
+interface LancerItemNpcTemplateDataPropertiesData extends LancerItemNpcTemplateDataSourceData {}
+interface LancerItemNpcTemplateDataProperties {
+  type: EntryType.NPC_TEMPLATE;
+  data: LancerItemNpcTemplateDataPropertiesData;
+}
+
+interface LancerItemOrganizationDataSourceData {
+  derived: DerivedProperties<EntryType.ORGANIZATION>;
+  name: string;
+  lid: string;
+}
+interface LancerItemOrganizationDataSource {
+  type: EntryType.ORGANIZATION;
+  data: LancerItemOrganizationDataSourceData;
+}
+interface LancerItemOrganizationDataPropertiesData extends LancerItemOrganizationDataSourceData {}
+interface LancerItemOrganizationDataProperties {
+  type: EntryType.ORGANIZATION;
+  data: LancerItemOrganizationDataPropertiesData;
+}
+
+interface LancerItemPilotArmorDataSourceData {
+  derived: DerivedProperties<EntryType.PILOT_ARMOR>;
+  name: string;
+  lid: string;
+}
+interface LancerItemPilotArmorDataSource {
+  type: EntryType.PILOT_ARMOR;
+  data: LancerItemPilotArmorDataSourceData;
+}
+interface LancerItemPilotArmorDataPropertiesData extends LancerItemPilotArmorDataSourceData {}
+interface LancerItemPilotArmorDataProperties {
+  type: EntryType.PILOT_ARMOR;
+  data: LancerItemPilotArmorDataPropertiesData;
+}
+
+interface LancerItemPilotGearDataSourceData {
+  derived: DerivedProperties<EntryType.PILOT_GEAR>;
+  name: string;
+  lid: string;
+  description: string;
+  tags: unknown[];
+}
+interface LancerItemPilotGearDataSource {
+  type: EntryType.PILOT_GEAR;
+  data: LancerItemPilotGearDataSourceData;
+}
+interface LancerItemPilotGearDataPropertiesData extends LancerItemPilotGearDataSourceData {}
+interface LancerItemPilotGearDataProperties {
+  type: EntryType.PILOT_GEAR;
+  data: LancerItemPilotGearDataPropertiesData;
+}
+
+interface LancerItemPilotWeaponDataSourceData {
+  derived: DerivedProperties<EntryType.PILOT_WEAPON>;
+  name: string;
+  lid: string;
+}
+interface LancerItemPilotWeaponDataSource {
+  type: EntryType.PILOT_WEAPON;
+  data: LancerItemPilotWeaponDataSourceData;
+}
+interface LancerItemPilotWeaponDataPropertiesData extends LancerItemPilotWeaponDataSourceData {}
+interface LancerItemPilotWeaponDataProperties {
+  type: EntryType.PILOT_WEAPON;
+  data: LancerItemPilotWeaponDataPropertiesData;
+}
+
+interface LancerItemQuirkDataSourceData {
+  derived: DerivedProperties<EntryType.QUIRK>;
+  name: string;
+  lid: string;
+}
+interface LancerItemQuirkDataSource {
+  type: EntryType.QUIRK;
+  data: LancerItemQuirkDataSourceData;
+}
+interface LancerItemQuirkDataPropertiesData extends LancerItemQuirkDataSourceData {}
+interface LancerItemQuirkDataProperties {
+  type: EntryType.QUIRK;
+  data: LancerItemQuirkDataPropertiesData;
+}
+
+interface LancerItemReserveDataSourceData {
+  derived: DerivedProperties<EntryType.RESERVE>;
+  name: string;
+  lid: string;
+}
+interface LancerItemReserveDataSource {
+  type: EntryType.RESERVE;
+  data: LancerItemReserveDataSourceData;
+}
+interface LancerItemReserveDataPropertiesData extends LancerItemReserveDataSourceData {}
+interface LancerItemReserveDataProperties {
+  type: EntryType.RESERVE;
+  data: LancerItemReserveDataPropertiesData;
+}
+
+interface LancerItemSitrepDataSourceData {
+  derived: DerivedProperties<EntryType.SITREP>;
+  name: string;
+  lid: string;
+}
+interface LancerItemSitrepDataSource {
+  type: EntryType.SITREP;
+  data: LancerItemSitrepDataSourceData;
+}
+interface LancerItemSitrepDataPropertiesData extends LancerItemSitrepDataSourceData {}
+interface LancerItemSitrepDataProperties {
+  type: EntryType.SITREP;
+  data: LancerItemSitrepDataPropertiesData;
+}
+
+interface LancerItemSkillDataSourceData {
+  derived: DerivedProperties<EntryType.SKILL>;
+  name: string;
+  lid: string;
+  rank: number;
+}
+interface LancerItemSkillDataSource {
+  type: EntryType.SKILL;
+  data: LancerItemSkillDataSourceData;
+}
+interface LancerItemSkillDataPropertiesData extends LancerItemSkillDataSourceData {}
+interface LancerItemSkillDataProperties {
+  type: EntryType.SKILL;
+  data: LancerItemSkillDataPropertiesData;
+}
+
+interface LancerItemStatusDataSourceData {
+  derived: DerivedProperties<EntryType.STATUS>;
+  name: string;
+  lid: string;
+}
+interface LancerItemStatusDataSource {
+  type: EntryType.STATUS;
+  data: LancerItemStatusDataSourceData;
+}
+interface LancerItemStatusDataPropertiesData extends LancerItemStatusDataSourceData {}
+interface LancerItemStatusDataProperties {
+  type: EntryType.STATUS;
+  data: LancerItemStatusDataPropertiesData;
+}
+
+interface LancerItemTagDataSourceData {
+  derived: DerivedProperties<EntryType.TAG>;
+  name: string;
+  lid: string;
+}
+interface LancerItemTagDataSource {
+  type: EntryType.TAG;
+  data: LancerItemTagDataSourceData;
+}
+interface LancerItemTagDataPropertiesData extends LancerItemTagDataSourceData {}
+interface LancerItemTagDataProperties {
+  type: EntryType.TAG;
+  data: LancerItemTagDataPropertiesData;
+}
+
+interface LancerItemTalentDataSourceData {
+  derived: DerivedProperties<EntryType.TALENT>;
+  name: string;
+  lid: string;
+  curr_rank: number;
+}
+interface LancerItemTalentDataSource {
+  type: EntryType.TALENT;
+  data: LancerItemTalentDataSourceData;
+}
+interface LancerItemTalentDataPropertiesData extends LancerItemTalentDataSourceData {}
+interface LancerItemTalentDataProperties {
+  type: EntryType.TALENT;
+  data: LancerItemTalentDataPropertiesData;
+}
+
+interface LancerItemWeaponModDataSourceData {
+  derived: DerivedProperties<EntryType.WEAPON_MOD>;
+  name: string;
+  lid: string;
+}
+interface LancerItemWeaponModDataSource {
+  type: EntryType.WEAPON_MOD;
+  data: LancerItemWeaponModDataSourceData;
+}
+interface LancerItemWeaponModDataPropertiesData extends LancerItemWeaponModDataSourceData {}
+interface LancerItemWeaponModDataProperties {
+  type: EntryType.WEAPON_MOD;
+  data: LancerItemWeaponModDataPropertiesData;
+}
+
+type LancerItemDataSource =
+  | LancerItemEnvironmentDataSource
+  | LancerItemFactionDataSource
+  | LancerItemFrameDataSource
+  | LancerItemLicenseDataSource
+  | LancerItemManufacturerDataSource
+  | LancerItemMechSystemDataSource
+  | LancerItemMechWeaponDataSource
+  | LancerItemNpcClassDataSource
+  | LancerItemNpcFeatureDataSource
+  | LancerItemNpcTemplateDataSource
+  | LancerItemOrganizationDataSource
+  | LancerItemPilotArmorDataSource
+  | LancerItemPilotGearDataSource
+  | LancerItemPilotWeaponDataSource
+  | LancerItemQuirkDataSource
+  | LancerItemReserveDataSource
+  | LancerItemSitrepDataSource
+  | LancerItemSkillDataSource
+  | LancerItemStatusDataSource
+  | LancerItemTagDataSource
+  | LancerItemTalentDataSource
+  | LancerItemWeaponModDataSource;
+
+type LancerItemDataProperties =
+  | LancerItemEnvironmentDataProperties
+  | LancerItemFactionDataProperties
+  | LancerItemFrameDataProperties
+  | LancerItemLicenseDataProperties
+  | LancerItemManufacturerDataProperties
+  | LancerItemMechSystemDataProperties
+  | LancerItemMechWeaponDataProperties
+  | LancerItemNpcClassDataProperties
+  | LancerItemNpcFeatureDataProperties
+  | LancerItemNpcTemplateDataProperties
+  | LancerItemOrganizationDataProperties
+  | LancerItemPilotArmorDataProperties
+  | LancerItemPilotGearDataProperties
+  | LancerItemPilotWeaponDataProperties
+  | LancerItemQuirkDataProperties
+  | LancerItemReserveDataProperties
+  | LancerItemSitrepDataProperties
+  | LancerItemSkillDataProperties
+  | LancerItemStatusDataProperties
+  | LancerItemTagDataProperties
+  | LancerItemTalentDataProperties
+  | LancerItemWeaponModDataProperties;
+
+declare global {
+  interface SourceConfig {
+    Item: LancerItemDataSource;
+  }
+  interface DataConfig {
+    Item: LancerItemDataProperties;
+  }
+  interface DocumentClassConfig {
+    Item: typeof LancerItem;
+  }
+}
+
+export class LancerItem extends Item {
+  /*
   data!: FoundryRegItemData<T> & {
     data: {
       // Include additional derived info
@@ -113,11 +521,14 @@ export class LancerItem<T extends LancerItemType> extends Item {
       };
     };
   };
+  */
 
   // We can narrow the type significantly (make this T???)
+  /*
   get type(): T {
     return super.type as T;
   }
+  */
 
   /** Force name down to item,
    * And more importantly, perform MM workflow
@@ -126,7 +537,7 @@ export class LancerItem<T extends LancerItemType> extends Item {
     super.prepareData();
 
     // If no id, leave
-    if(!this.id) return;
+    if (!this.id) return;
 
     // Push down name
     this.data.data.name = this.data.name;
@@ -150,9 +561,10 @@ export class LancerItem<T extends LancerItemType> extends Item {
     }
 
     // Do we already have a ctx from our actor?
-    let actor_ctx: OpCtx | undefined = (this.actor as LancerActor<any> | undefined)?._actor_ctx;
+    let actor_ctx = this.actor?._actor_ctx;
 
     // Spool up our Machine Mind wrapping process
+    // @ts-ignore Something in machine mind is tangled up
     dr.mm_promise = system_ready
       .then(() => mm_wrap_item(this, actor_ctx ?? new OpCtx()))
       .then(async mm => {
@@ -162,8 +574,8 @@ export class LancerItem<T extends LancerItemType> extends Item {
             enumerable: false,
             configurable: true,
             writable: false,
-            value: mm
-          }
+            value: mm,
+          },
         });
 
         // Also, compute max uses if needed
@@ -173,7 +585,7 @@ export class LancerItem<T extends LancerItemType> extends Item {
 
           // If we have an actor, then try to get limited bonuses
           if (this.actor) {
-            let actor_mm: LiveEntryTypes<LancerActorType> = await this.actor.data.data.derived.mm_promise;
+            let actor_mm = await this.actor.data.data.derived.mm_promise;
             if (actor_mm.Type == EntryType.MECH || actor_mm.Type == EntryType.PILOT) {
               // Add pilot/mech lim bonus
               dr.max_uses += actor_mm.LimitedBonus;
@@ -197,49 +609,23 @@ export class LancerItem<T extends LancerItemType> extends Item {
 }
 
 // Provide some convenient shorthands
-export type LancerCoreBonusData = FoundryRegItemData<EntryType.CORE_BONUS>;
-export type LancerCoreBonus = LancerItem<EntryType.CORE_BONUS>;
-
-export type LancerFrameData = FoundryRegItemData<EntryType.FRAME>;
-export type LancerFrame = LancerItem<EntryType.FRAME>;
-
-export type LancerLicenseData = FoundryRegItemData<EntryType.LICENSE>;
-export type LancerLicense = LancerItem<EntryType.LICENSE>;
-
-export type LancerPilotArmorData = FoundryRegItemData<EntryType.PILOT_ARMOR>;
-export type LancerPilotArmor = LancerItem<EntryType.PILOT_ARMOR>;
-
-export type LancerPilotWeaponData = FoundryRegItemData<EntryType.PILOT_WEAPON>;
-export type LancerPilotWeapon = LancerItem<EntryType.PILOT_WEAPON>;
-
-export type LancerPilotGearData = FoundryRegItemData<EntryType.PILOT_GEAR>;
-export type LancerPilotGear = LancerItem<EntryType.PILOT_GEAR>;
-
-export type LancerMechSystemData = FoundryRegItemData<EntryType.MECH_SYSTEM>;
-export type LancerMechSystem = LancerItem<EntryType.MECH_SYSTEM>;
-
-export type LancerMechWeaponData = FoundryRegItemData<EntryType.MECH_WEAPON>;
-export type LancerMechWeapon = LancerItem<EntryType.MECH_WEAPON>;
-
+export type LancerCoreBonus = LancerItem;
+export type LancerFrame = LancerItem;
+export type LancerLicense = LancerItem;
+export type LancerPilotArmor = LancerItem;
+export type LancerPilotWeapon = LancerItem;
+export type LancerPilotGear = LancerItem;
+export type LancerMechSystem = LancerItem;
+export type LancerMechWeapon = LancerItem;
 export type LancerNpcFeatureData = FoundryRegItemData<EntryType.NPC_FEATURE>;
-export type LancerNpcFeature = LancerItem<EntryType.NPC_FEATURE>;
+export type LancerNpcFeature = LancerItem;
+export type LancerNpcTemplate = LancerItem;
+export type LancerNpcClass = LancerItem;
+export type LancerSkill = LancerItem;
+export type LancerTalent = LancerItem;
+export type LancerWeaponMod = LancerItem;
 
-export type LancerNpcTemplateData = FoundryRegItemData<EntryType.NPC_TEMPLATE>;
-export type LancerNpcTemplate = LancerItem<EntryType.NPC_TEMPLATE>;
-
-export type LancerNpcClassData = FoundryRegItemData<EntryType.NPC_CLASS>;
-export type LancerNpcClass = LancerItem<EntryType.NPC_CLASS>;
-
-export type LancerSkillData = FoundryRegItemData<EntryType.SKILL>;
-export type LancerSkill = LancerItem<EntryType.SKILL>;
-
-export type LancerTalentData = FoundryRegItemData<EntryType.TALENT>;
-export type LancerTalent = LancerItem<EntryType.TALENT>;
-
-export type LancerWeaponModData = FoundryRegItemData<EntryType.WEAPON_MOD>;
-export type LancerWeaponMod = LancerItem<EntryType.WEAPON_MOD>;
-
-export type AnyLancerItem = LancerItem<LancerItemType>;
+export type AnyLancerItem = LancerItem;
 export type AnyMMItem = LiveEntryTypes<LancerItemType>;
 
 export type LancerItemType =
@@ -296,6 +682,5 @@ export function is_item_type(type: LancerActorType | LancerItemType): type is La
 }
 
 // export function has_lid<T extends AnyMMItem | AnyMMActor>(item: AnyMMItem | AnyMMActor): item is T & {ID: string} {
-  // return (item as any).LID != undefined;
+// return (item as any).LID != undefined;
 // }
-

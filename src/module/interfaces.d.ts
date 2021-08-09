@@ -48,35 +48,22 @@ declare interface ResourceData {
 // ------------------------------------------------------
 
 // These single generic type should cover all basic sheet use cases
-export type LancerItemSheetData<T extends LancerItemType> = {
-  data: FoundryRegItemData<T>;
-  item: LancerItem<T>;
-
-  // Can we edit?
-  editable: boolean;
-
+export interface LancerItemSheetData<T extends LancerItemType> extends ItemSheet.Data<ItemSheet.Options> {
   // reg ctx
   mm: LiveEntryTypes<T>;
 
   // The license, if it could be recovered
   license: License | null;
-};
-
-export type CachedCloudPilot = {
-  id: string,
-  name: string,
-  cloudID: string,
-  cloudOwnerID: string
 }
 
-export type LancerActorSheetData<T extends LancerActorType> = {
-  actor: FoundryRegActorData<T>;
-  data: LancerActor<T>["data"];
-  items: Item[];
+export type CachedCloudPilot = {
+  id: string;
+  name: string;
+  cloudID: string;
+  cloudOwnerID: string;
+};
 
-  // Can we edit?
-  editable: boolean;
-
+export interface LancerActorSheetData<T extends LancerActorType> extends ActorSheet.Data<ActorSheet.Options> {
   // Item
   mm: LiveEntryTypes<T>;
 
@@ -84,10 +71,29 @@ export type LancerActorSheetData<T extends LancerActorType> = {
   active_mech: Mech | null;
   // Store cloud pilot cache and potential cloud ids at the root level
   pilotCache: CachedCloudPilot[];
-  cleanedOwnerID: string,
+  cleanedOwnerID: string;
   vaultID: string;
   rawID: string;
-};
+}
+
+/*
+{
+  actor: this['document'];
+  document: ConcreteDocument;
+
+  items: ToObjectFalseType<foundry.data.ActorData>['items'];
+  effects: ToObjectFalseType<foundry.data.ActorData>['effects'];
+
+  cssClass: string;
+  editable: boolean;
+  data: ToObjectFalseType<ConcreteDocument>;
+  limited: boolean;
+  options: Options;
+  owner: boolean;
+  title: string;
+  readonly entity: this['data'];
+}
+*/
 
 // -------- Macro data -------------------------------------
 declare interface LancerStatMacroData {
@@ -161,7 +167,8 @@ declare interface LancerMacroData {
   title: string;
 }
 
-export interface GenControlContext<T> { // T is whatever is yielded by get_data/handled by commit_func
+export interface GenControlContext<T> {
+  // T is whatever is yielded by get_data/handled by commit_func
   // Raw information
   elt: HTMLElement;
   path: string;

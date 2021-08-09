@@ -11,10 +11,15 @@
 			"ES2017"
 		],
 		"types": [
-			"foundry-pc-types"
+			"@league-of-foundry-developers/foundry-vtt-types"
 		],
-		// "moduleResolution": "node",
+		"moduleResolution": "node",
+		"strictNullChecks": true,
 		"strict": true,
-		"skipLibCheck": true,
-	}
+		"skipLibCheck": true
+	},
+	"include": [
+		"src/**/*.ts",
+        "src/global.d.ts"
+	]
 }

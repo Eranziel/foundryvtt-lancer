@@ -8,11 +8,11 @@
  */
 
 // Import TypeScript modules
-const marked = require("marked");
+import marked = require("marked");
 // Pull in the parts of AWS Amplify we need
 import aws from "./aws-exports";
 import Auth from "@aws-amplify/auth";
-import Storage from "@aws-amplify/storage"
+import Storage from "@aws-amplify/storage";
 
 import { LANCER, STATUSES, WELCOME } from "./module/config";
 import { LancerGame } from "./module/lancer-game";
@@ -32,7 +32,6 @@ import { LancerMechSheet } from "./module/actor/mech-sheet";
 import { LancerItemSheet } from "./module/item/item-sheet";
 import { LancerFrameSheet } from "./module/item/frame-sheet";
 import { LancerLicenseSheet } from "./module/item/license-sheet";
-import { LancerNPCClassSheet } from "./module/item/npc-class-sheet";
 import { WeaponRangeTemplate } from "./module/pixi/weapon-range-template";
 
 // Import helpers
@@ -40,7 +39,7 @@ import { preloadTemplates } from "./module/preloadTemplates";
 import { registerSettings } from "./module/settings";
 import { compact_tag_list } from "./module/helpers/tags";
 import * as migrations from "./module/migration";
-import { addLCPManager, updateCore, core_update } from './module/apps/lcpManager';
+import { addLCPManager, updateCore, core_update } from "./module/apps/lcpManager";
 
 // Import Machine Mind and helpers
 import * as macros from "./module/macros";
@@ -53,9 +52,8 @@ tippy.setDefaultProps({ theme: "lancer", arrow: false, delay: [400, 200] });
 
 // Import node modules
 import compareVersions = require("compare-versions");
-import { NpcFeatureType, EntryType, Manufacturer, Bonus, WeaponSize, Action, funcs } from "machine-mind";
+import { EntryType, Bonus, funcs } from "machine-mind";
 import {
-  resolve_dotpath,
   resolve_helper_dotpath,
   popout_editor_button,
   safe_html_helper,
@@ -84,7 +82,6 @@ import {
   manufacturer_ref,
   uses_control,
   single_bonus_editor,
-  buildCounterHTML,
   buildCounterArrayHTML,
 } from "./module/helpers/item";
 import {
@@ -130,7 +127,7 @@ import {
 import { applyCollapseListeners } from "./module/helpers/collapse";
 import { handleCombatUpdate } from "./module/helpers/automation/combat";
 import { handleActorExport, validForExport } from "./module/helpers/io";
-import { runEncodedMacro, prepareTextMacro } from './module/macros';
+import { runEncodedMacro } from "./module/macros";
 import { LancerToken, LancerTokenDocument } from "./module/token";
 
 const lp = LANCER.log_prefix;
@@ -188,9 +185,7 @@ Hooks.once("init", async function () {
   };
 
   // Record Configuration Values
-  // @ts-ignore 0.8
   CONFIG.Actor.documentClass = LancerActor;
-  // @ts-ignore 0.8
   CONFIG.Item.documentClass = LancerItem;
   CONFIG.Token.documentClass = LancerTokenDocument;
   CONFIG.Token.objectClass = LancerToken;
@@ -198,10 +193,8 @@ Hooks.once("init", async function () {
   // Set up system status icons
   const keepStock = game.settings.get(LANCER.sys_name, LANCER.setting_stock_icons);
   let statuses: { id: string; label: string; icon: string }[] = [];
-  // @ts-ignore The type for statusEffects is wrong. Currently string[], should be the above type
   if (keepStock) statuses = statuses.concat(CONFIG.statusEffects);
   statuses = statuses.concat(STATUSES);
-  //@ts-ignore See previous ignore
   CONFIG.statusEffects = statuses;
 
   // Register Web Components
@@ -209,7 +202,9 @@ Hooks.once("init", async function () {
     extends: "div",
   });
 
+  // @ts-ignore We should use libwrapper if this is necessary
   const actors_old_getEntryContextOptions = ActorDirectory.prototype._getEntryContextOptions;
+  // @ts-ignore We should use libwrapper if this is necessary
   ActorDirectory.prototype._getEntryContextOptions = function () {
     const ctxOptions = actors_old_getEntryContextOptions.call(this);
 
@@ -217,15 +212,14 @@ Hooks.once("init", async function () {
       name: "Migrate Pilot",
       icon: '<i class="fas fa-user-circle"></i>',
       condition: (li: any) => {
-        const actor = game.actors.get(li.data("entityId")) as LancerActor<any>;
-        return actor.data.type === "pilot" && validForExport(actor);
+        const actor = game.actors?.get(li.data("entityId"));
+        return actor?.data.type === "pilot" && validForExport(actor);
       },
       callback: (li: any) => {
-        const actor: LancerActor<EntryType.PILOT> = game.actors.get(li.data("entityId")) as LancerActor<
-          EntryType.PILOT
-        >;
+        const actor = game.actors?.get(li.data("entityId"));
+        // @ts-ignore Migrations?
         const dump = handleActorExport(actor, false);
-        dump && actor.importCC(dump as any, true);
+        dump && actor?.importCC(dump as any, true);
       },
     };
 
@@ -233,13 +227,12 @@ Hooks.once("init", async function () {
       name: "Export Pilot",
       icon: '<i class="fas fa-user-circle"></i>',
       condition: (li: any) => {
-        const actor = game.actors.get(li.data("entityId")) as LancerActor<any>;
-        return actor.data.type === "pilot" && validForExport(actor);
+        const actor = game.actors?.get(li.data("entityId"));
+        return actor?.data.type === "pilot" && validForExport(actor);
       },
       callback: (li: any) => {
-        const actor: LancerActor<EntryType.PILOT> = game.actors.get(li.data("entityId")) as LancerActor<
-          EntryType.PILOT
-        >;
+        const actor = game.actors?.get(li.data("entityId"));
+        // @ts-ignore Migrations?
         handleActorExport(actor, true);
       },
     };
@@ -401,7 +394,6 @@ Hooks.once("init", async function () {
     return funcs.is_loading(item);
   });
 
-
   // ------------------------------------------------------------------------
   // Refs
   Handlebars.registerHelper("simple-ref", simple_mm_ref);
@@ -505,7 +497,7 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("npc-feat-preview", npc_feature_preview);
 
   // TODO: remove when sanity check is no longer needed.
-  game.lancer.finishedInit = true;
+  (<LancerGame>game).lancer.finishedInit = true;
 });
 
 // TODO: either remove when sanity check is no longer needed, or find a better home.
@@ -514,23 +506,21 @@ function sleep(ms: number) {
 }
 
 /**
- * Override model to have our derived trackable values, without putting them in template.json and thus compromising 
- * our data model with derived junk 
+ * Override model to have our derived trackable values, without putting them in template.json and thus compromising
+ * our data model with derived junk
  */
 Hooks.once("setup", function () {
-  // @ts-ignore 0.8
   let orig_gta = TokenDocument.getTrackedAttributes;
-  // @ts-ignore 0.8
-  TokenDocument.getTrackedAttributes = function(data: any, _path: any=[]) { 
+  TokenDocument.getTrackedAttributes = function (data: any, _path: any = []) {
     // We pre-empt the
-    if ( !data ) {
+    if (!data) {
       data = {};
-      for ( let model of Object.values(game.system.model.Actor)) {
+      for (let model of Object.values(game.system.model.Actor)) {
         mergeObject(data, model);
       }
 
       // Here's the custom behavior: add our derived data
-      let bar_like = {value: 0, max: 0};
+      let bar_like = { value: 0, max: 0 };
       let derived_addition = {
         edef: 8,
         evasion: 5,
@@ -540,12 +530,12 @@ Hooks.once("setup", function () {
         overshield: bar_like,
         current_structure: bar_like,
         current_stress: bar_like,
-        current_repairs: bar_like
+        current_repairs: bar_like,
       };
       mergeObject(data, derived_addition);
     }
-    return orig_gta.call(this, data, _path); 
-  }
+    return orig_gta.call(this, data, _path);
+  };
 });
 
 /* ------------------------------------ */
@@ -563,7 +553,7 @@ export const system_ready: Promise<void> = new Promise(success => {
     let ready: boolean = false;
     while (!ready) {
       await sleep(100);
-      ready = game.lancer?.finishedInit;
+      ready = !!(<LancerGame>game).lancer?.finishedInit;
     }
     console.log(`${lp} Foundry ready, doing final checks.`);
 
@@ -572,8 +562,8 @@ export const system_ready: Promise<void> = new Promise(success => {
 
     applyCollapseListeners();
 
-    game.action_manager = new LancerActionManager();
-    await game.action_manager.init();
+    (<LancerGame>game).action_manager = new LancerActionManager();
+    await (<LancerGame>game).action_manager!.init();
 
     success();
   });
@@ -581,27 +571,27 @@ export const system_ready: Promise<void> = new Promise(success => {
 
 // Action Manager hooks.
 Hooks.on("controlToken", () => {
-  game.action_manager?.update();
+  (<LancerGame>game).action_manager?.update();
 });
-Hooks.on("updateToken", (_scene: Scene, token: Token, diff: any, _options: any, _idUser: any) => {
+Hooks.on("updateToken", (_scene: Scene, _token: Token, diff: any, _options: any, _idUser: any) => {
   // If it's an X or Y change assume the token is just moving.
   if (diff.hasOwnProperty("y") || diff.hasOwnProperty("x")) return;
-  game.action_manager?.update();
+  (<LancerGame>game).action_manager?.update();
 });
 Hooks.on("updateActor", (_actor: Actor) => {
-  game.action_manager?.update();
+  (<LancerGame>game).action_manager?.update();
 });
 Hooks.on("closeSettingsConfig", () => {
-  game.action_manager?.updateConfig();
+  (<LancerGame>game).action_manager?.updateConfig();
 });
 Hooks.on("getSceneNavigationContext", async () => {
-  game.action_manager && (await game.action_manager.reset());
+  (<LancerGame>game).action_manager && (await (<LancerGame>game).action_manager!.reset());
 });
 Hooks.on("createCombat", (_actor: Actor) => {
-  game.action_manager?.update();
+  (<LancerGame>game).action_manager?.update();
 });
 Hooks.on("deleteCombat", (_actor: Actor) => {
-  game.action_manager?.update();
+  (<LancerGame>game).action_manager?.update();
 });
 //
 
@@ -629,7 +619,6 @@ Hooks.on("renderChatMessage", async (cm: ChatMessage, html: any, data: any) => {
     if (cm.isAuthor) {
       overkill[i].addEventListener("click", async function () {
         // console.log(data);
-        // @ts-ignore .8
         const roll = await new Roll("1d6").evaluate({ async: true });
         const templateData = {
           roll: roll,
@@ -637,7 +626,7 @@ Hooks.on("renderChatMessage", async (cm: ChatMessage, html: any, data: any) => {
         };
         const html = await renderTemplate("systems/lancer/templates/chat/overkill-reroll.hbs", templateData);
         const rollMode = game.settings.get("core", "rollMode");
-        let chat_data = {
+        let chat_data: Record<string, unknown> = {
           user: game.user,
           type: CONST.CHAT_MESSAGE_TYPES.ROLL,
           roll: templateData.roll,
@@ -646,7 +635,7 @@ Hooks.on("renderChatMessage", async (cm: ChatMessage, html: any, data: any) => {
           whisper: rollMode !== "roll" ? ChatMessage.getWhisperRecipients("GM").filter(u => u.active) : undefined,
         };
         let cm = await ChatMessage.create(chat_data);
-        cm.render();
+        cm?.render();
         return Promise.resolve();
       });
     }
@@ -656,7 +645,7 @@ Hooks.on("renderChatMessage", async (cm: ChatMessage, html: any, data: any) => {
     ev.stopPropagation();
     let element = ev.target as HTMLElement;
     runEncodedMacro($(element));
-  })
+  });
 });
 
 Hooks.on("hotbarDrop", (_bar: any, data: any, slot: number) => {
@@ -761,14 +750,14 @@ async function versionCheck() {
   let needMigration = currentVersion ? compareVersions(currentVersion, NEEDS_MIGRATION_VERSION) : 1;
 
   // Check whether system has been updated since last run.
-  if (compareVersions(currentVersion, game.system.data.version) != 0 && game.user.isGM) {
+  if (compareVersions(currentVersion, game.system.data.version) != 0 && game.user!.isGM) {
     // Un-hide the welcome message
     await game.settings.set(LANCER.sys_name, LANCER.setting_welcome, false);
 
     if (needMigration <= 0) {
       if (currentVersion && compareVersions(currentVersion, COMPATIBLE_MIGRATION_VERSION) < 0) {
         // System version is too old for migration
-        ui.notifications.error(
+        ui.notifications!.error(
           `Your LANCER system data is from too old a version and cannot be reliably migrated to the latest version. The process will be attempted, but errors may occur.`,
           { permanent: true }
         );
@@ -779,32 +768,6 @@ async function versionCheck() {
     // Set the version for future migration and welcome message checking
     await game.settings.set(LANCER.sys_name, LANCER.setting_migration, game.system.data.version);
   }
-
-  // Use the new FEATURES dict to see if we can assume that there will be issues
-  // I think this is up to date with all currently in use, but we'll need to keep it updated
-  // https://gitlab.com/foundrynet/foundryvtt/-/issues/3959#note_441254976
-  let supportedFeatures = {
-    ACTORS: 2,
-    CHAT: 2,
-    COMPENDIUM: 2,
-    ENTITIES: 4,
-    ITEMS: 2,
-    MACROS: 1,
-    SETTINGS: 2,
-    TOKENS: 3,
-  };
-
-  // GOODBYE FEATURES!
-  // for (const k in supportedFeatures) {
-  //   // This is fine so...
-  //   //@ts-ignore
-  //   if (supportedFeatures[k] !== window.FEATURES[k]) {
-  //     console.log(`Major version error for feature ${k}`);
-  //     ui.notifications.error(
-  //       `Warning: A major version incompatibility has been detected. You may experience issues, please return to a supported version.`
-  //     );
-  //   }
-  // }
 }
 
 async function sanityCheck() {
@@ -834,13 +797,13 @@ because nearly everything has changed (sorry).</p>`;
           label: "This is a fresh world, I am safe to beta test here",
           callback: async () => {
             await game.settings.set(LANCER.sys_name, LANCER.setting_beta_warning, false);
-            ui.notifications.info("Beta test beginning momentarily! Page reloading in 3...");
+            ui.notifications!.info("Beta test beginning momentarily! Page reloading in 3...");
             await sleep(1000);
-            ui.notifications.info("2...");
+            ui.notifications!.info("2...");
             await sleep(1000);
-            ui.notifications.info("1...");
+            ui.notifications!.info("1...");
             await sleep(1000);
-            window.location.reload(false);
+            window.location.reload();
           },
         },
         cancel: {
@@ -900,7 +863,7 @@ async function showChangelog() {
     let req = $.get(
       `https://raw.githubusercontent.com/Eranziel/foundryvtt-lancer/v${game.system.data.version}/CHANGELOG.md`
     );
-    req.done((data, status) => {
+    req.done((data, _status) => {
       // Regex magic to only grab the first 25 lines
       let r = /(?:[^\n]*\n){25}/;
       let trimmedChangelog = data.match(r)[0];
@@ -917,7 +880,7 @@ async function showChangelog() {
       renderChangelog(changelog);
     });
 
-    req.fail((data, status) => {
+    req.fail((_data, _status) => {
       let errorText = `<h2>Error retrieving changelog</h2>`;
 
       renderChangelog(errorText);
@@ -925,14 +888,14 @@ async function showChangelog() {
   }
 }
 
-function addSettingsButtons(app: Application, html: HTMLElement) {
+function addSettingsButtons(_app: Application, html: HTMLElement) {
   const faqButton = $(`<button id="triggler-form" data-action="triggler">
             <i class="fas fa-robot"></i>LANCER Help
         </button>`);
 
   $(html).find("#settings-documentation").append(faqButton);
 
-  faqButton.click(async ev => {
+  faqButton.on("click", async () => {
     let helpContent = await renderTemplate("systems/lancer/templates/window/lancerHelp.hbs", {});
 
     new Dialog(

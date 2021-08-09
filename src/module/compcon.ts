@@ -45,7 +45,7 @@ export async function fetchPilot(cloudID: string, cloudOwnerID?: string): Promis
   try {
     await Auth.currentSession(); // refresh the token if we need to
   } catch (e) {
-    ui.notifications.error("Sync failed - you aren't logged into a Comp/Con account.");
+    ui.notifications!.error("Sync failed - you aren't logged into a Comp/Con account.");
     throw e;
   }
   const req: any = {

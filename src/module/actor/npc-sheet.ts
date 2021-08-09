@@ -1,14 +1,14 @@
 import { GenControlContext, LancerActorSheetData, LancerStatMacroData } from "../interfaces";
 import { LANCER } from "../config";
 import { LancerActorSheet } from "./lancer-actor-sheet";
-import { prepareItemMacro } from "../macros";
-import { EntryType, LiveEntryTypes, Npc, NpcClass, NpcFeature, NpcTemplate, OpCtx, RegNpcData } from "machine-mind";
+import { prepareItemMacro, prepareStatMacro } from "../macros";
+import { EntryType, Npc, NpcClass, NpcFeature, NpcTemplate } from "machine-mind";
 import tippy from "tippy.js";
-import { AnyLancerItem, AnyMMItem, is_item_type, LancerItemType, LancerItemTypes } from "../item/lancer-item";
-import { AnyMMActor, is_actor_type, is_reg_npc } from "./lancer-actor";
+import { AnyMMItem, is_item_type, LancerItemType } from "../item/lancer-item";
+import { AnyMMActor } from "./lancer-actor";
 import { mm_resort_item } from "../mm-util/helpers";
 import { resolve_ref_element } from "../helpers/refs";
-import { HANDLER_activate_general_controls, resolve_dotpath } from "../helpers/commons";
+import { HANDLER_activate_general_controls } from "../helpers/commons";
 const lp = LANCER.log_prefix;
 
 /**
@@ -17,9 +17,8 @@ const lp = LANCER.log_prefix;
 export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
   /**
    * Extend and override the default options used by the NPC Sheet
-   * @returns {Object}
    */
-  static get defaultOptions() {
+  static get defaultOptions(): ActorSheet.Options {
     return mergeObject(super.defaultOptions, {
       classes: ["lancer", "sheet", "actor", "npc"],
       template: "systems/lancer/templates/actor/npc.hbs",
@@ -57,12 +56,12 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
 
         const el = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
 
-        prepareItemMacro(this.actor._id, <string>el.getAttribute("data-id")).then();
+        prepareItemMacro(this.actor.id!, <string>el.getAttribute("data-id")).then();
       });
 
       // Stat rollers
       let statMacro = html.find(".roll-stat");
-      statMacro.on("click", (ev: Event) => {
+      statMacro.on("click", ev => {
         if (!ev.currentTarget) return; // No target, let other handlers take care of it.
         ev.stopPropagation(); // Avoids triggering parent event handlers
 
@@ -77,7 +76,7 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
         };
 
         console.log(`${lp} Rolling ${mData.title} check, bonus: ${mData.bonus}`);
-        game.lancer.prepareStatMacro(this.actor._id, this.getStatPath(ev)!);
+        prepareStatMacro(this.actor.id!, this.getStatPath(ev)!);
       });
 
       // Trigger rollers
@@ -85,12 +84,12 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
 
       // Tech rollers
       let techMacro = html.find(".roll-tech");
-      techMacro.on("click", (ev: Event) => {
+      techMacro.on("click", ev => {
         if (!ev.currentTarget) return; // No target, let other handlers take care of it.
         ev.stopPropagation();
         const techElement = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
         let techId = techElement.getAttribute("data-id");
-        game.lancer.prepareItemMacro(this.actor._id, techId!);
+        prepareItemMacro(this.actor.id!, techId!);
       });
 
       // Item/Macroable Dragging
@@ -99,7 +98,7 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
         .find('li[class*="item"]')
         .add('span[class*="item"]')
         .add('[class*="macroable"]')
-        .each((i: number, item: any) => {
+        .each((_i: number, item: any) => {
           if (item.classList.contains("inventory-header")) return;
           if (item.classList.contains("roll-stat")) item.addEventListener("dragstart", haseMacroHandler, false);
           if (item.classList.contains("item"))
@@ -115,14 +114,14 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
     // For roll-stat macros
     event.stopPropagation(); // Avoids triggering parent event handlers
     let statInput = getStatInput(event);
-    if (!statInput) return ui.notifications.error("Error finding stat input for macro.");
+    if (!statInput) return ui.notifications!.error("Error finding stat input for macro.");
 
     let tSplit = statInput.id.split(".");
     let data = {
       title: tSplit[tSplit.length - 1].toUpperCase(),
       dataPath: statInput.id,
       type: "actor",
-      actorId: this.actor._id,
+      actorId: this.actor.id,
     };
 
     event.dataTransfer?.setData("text/plain", JSON.stringify(data));
@@ -136,19 +135,19 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
   }
 
   // So it can be overridden
-  activate_general_controls(html: JQuery) { 
+  activate_general_controls(html: JQuery) {
     let getfunc = () => this.getDataLazy();
-    let commitfunc = (_: any) => this._commitCurrMM()
+    let commitfunc = (_: any) => this._commitCurrMM();
 
     // Enable NPC class/template-deletion controls
     HANDLER_activate_general_controls(html, getfunc, commitfunc, handleClassDelete);
   }
 
   /* -------------------------------------------- */
-  
+
   can_root_drop_entry(item: AnyMMItem | AnyMMActor): boolean {
     // Reject any non npc item
-    if(!LANCER.npc_items.includes(item.Type as LancerItemType)) {
+    if (!LANCER.npc_items.includes(item.Type as LancerItemType)) {
       return false;
     }
 
@@ -159,11 +158,14 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
   }
 
   // Take ownership of appropriate items. Already filtered by can_drop_entry
-  async on_root_drop(base_drop: AnyMMItem | AnyMMActor, event: JQuery.DropEvent, dest: JQuery<HTMLElement>): Promise<void> {
+  async on_root_drop(
+    base_drop: AnyMMItem | AnyMMActor,
+    event: JQuery.DropEvent,
+    _dest: JQuery<HTMLElement>
+  ): Promise<void> {
     let sheet_data = await this.getDataLazy();
     let this_mm = sheet_data.mm;
     let ctx = this.getCtx();
-
 
     // Take posession
     let [drop, is_new] = await this.quick_own(base_drop);
@@ -183,7 +185,7 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
       let this_inv = await this_mm.get_inventory();
 
       // But before we do that, destroy all old classes
-      for(let clazz of this_mm.Classes) {
+      for (let clazz of this_mm.Classes) {
         // If we have a class, get rid of it
         await removeFeaturesFromNPC(this_mm, [...clazz.BaseFeatures, ...clazz.OptionalFeatures]);
         await clazz.destroy_entry();
@@ -191,7 +193,7 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
 
       for (let b of drop.BaseFeatures) {
         await b.insinuate(this_inv, ctx);
-      }      
+      }
       needs_refresh = true;
     } else if (drop.Type == EntryType.NPC_FEATURE) {
       // If new we need to update stats
@@ -199,7 +201,7 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
     }
 
     // If a new item was added, fill our hp, stress, and structure to match new maxes
-    if(needs_refresh) {
+    if (needs_refresh) {
       // Update this, to re-populate arrays etc to reflect new item
       await this_mm.repopulate_inventory();
       this_mm.recompute_bonuses();
@@ -211,15 +213,15 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
     }
 
     // We also may need to sort the item
-    if(drop.Type == EntryType.NPC_FEATURE) {
+    if (drop.Type == EntryType.NPC_FEATURE) {
       // Try to find a ref
       let nearest = $(event.target).closest(".valid.ref");
-      if(nearest.length) {
+      if (nearest.length) {
         // ok, now try to resolve it
         let target = await resolve_ref_element(nearest[0], ctx);
-        if(target && is_item_type(target.Type)) {
+        if (target && is_item_type(target.Type)) {
           mm_resort_item(drop, target as AnyMMItem);
-        } 
+        }
       }
     }
   }
@@ -236,9 +238,9 @@ function getStatInput(event: Event): HTMLInputElement | HTMLDataElement | null {
 // Removes class/features when a delete happens
 function handleClassDelete(ctx: GenControlContext<LancerActorSheetData<EntryType.NPC>>) {
   let npc = ctx.data.mm;
-  if(ctx.action == "delete") {
-    if(ctx.path_target instanceof NpcClass || ctx.path_target instanceof NpcTemplate) {
-      removeFeaturesFromNPC(npc, [...ctx.path_target.BaseFeatures , ...ctx.path_target.OptionalFeatures]);
+  if (ctx.action == "delete") {
+    if (ctx.path_target instanceof NpcClass || ctx.path_target instanceof NpcTemplate) {
+      removeFeaturesFromNPC(npc, [...ctx.path_target.BaseFeatures, ...ctx.path_target.OptionalFeatures]);
     }
   }
 }

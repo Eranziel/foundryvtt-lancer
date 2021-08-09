@@ -14,11 +14,10 @@
   "author": "",
   "license": "",
   "devDependencies": {
-    "@league-of-foundry-developers/foundry-vtt-types": "^0.7.9-6",
+    "@league-of-foundry-developers/foundry-vtt-types": "^0.8.8-9",
     "archiver": "^3.1.1",
     "chalk": "^3.0.0",
     "css-loader": "^5.2.4",
-    "foundry-pc-types": "gitlab:Eranziel/foundry-pc-types",
     "fs-extra": "^9.1.0",
     "gulp": "^4.0.2",
     "gulp-git": "^2.10.1",
