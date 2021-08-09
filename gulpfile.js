@@ -53,11 +53,11 @@ function getManifest() {
 
 
 function build() {
-  return cp.spawn('npx', ['vite', 'build'], { stdio: 'inherit' });
+  return cp.spawn('npx', ['vite', 'build'], { stdio: 'inherit', shell: true });
 }
 
 function watch() {
-  return cp.spawn('npx', ['vite', 'build', '-w'], { stdio: 'inherit' });
+  return cp.spawn('npx', ['vite', 'build', '-w'], { stdio: 'inherit', shell: true });
 }
 
 function serve() {
@@ -67,7 +67,7 @@ function serve() {
   if (serveArg == 'serve' && process.argv.length > 3) {
     commands = commands.concat(process.argv.slice(3));
   }
-  return cp.spawn('npx', commands, { stdio: 'inherit' });
+  return cp.spawn('npx', commands, { stdio: 'inherit', shell: true });
 }
 
 /********************/
