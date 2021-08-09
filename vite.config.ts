@@ -42,7 +42,7 @@ const config: UserConfig = {
   plugins: [
     visualizer({
       gzipSize: true,
-      template: "sunburst",
+      template: "treemap",
     })
   ]
 };
