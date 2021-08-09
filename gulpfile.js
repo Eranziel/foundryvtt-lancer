@@ -61,7 +61,13 @@ function watch() {
 }
 
 function serve() {
-  return cp.spawn('npx', ['vite'], { stdio: 'inherit' });
+  // forward arguments on serves
+  const serveArg = process.argv[2];
+  let commands = ['vite', 'serve'];
+  if (serveArg == 'serve' && process.argv.length > 3) {
+    commands = commands.concat(process.argv.slice(3));
+  }
+  return cp.spawn('npx', commands, { stdio: 'inherit' });
 }
 
 /********************/
