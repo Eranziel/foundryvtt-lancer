@@ -16,6 +16,11 @@
             }
         },
         "mech-sheet": {
+            "tabs": {
+                "stats": "<MECH//STATS>",
+                "loadout": "<MECH//LOADOUT>",
+                "talents": "<PILOT//TALENTS>"
+            },
             "core": {
                 "label": "CORE"
             },

@@ -960,6 +960,9 @@ textarea {
   align-items: center;
   color: white;
   background-color: var(--main-theme-color, fuchsia);
+  flex-grow: unset;
+  min-width: 8em;
+  max-height: 3em;
 }
 
 .lancer-header span.minor {
@@ -2341,4 +2344,23 @@ div[data-tab="system"] > .settings-list > div:nth-last-child(-n + 4) {
 }
 .cci-hard-cover:before {
   content: '\25cf';
+}
+
+.disabled-cloud {
+  color: lightgray;
+  pointer-events: none;
+  cursor: default;
+}
+
+.compact-tag-row {
+  min-height: 1em;
+}
+
+.overline {
+  font-size: .75rem !important;
+  font-weight: 500;
+  letter-spacing: 0.1em !important;
+  line-height: 1.2rem;
+  text-transform: uppercase;
+  font-family: Roboto,sans-serif !important;
 }
