@@ -95,13 +95,14 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
       // Cloud download
       let download = html.find('.cloud-control[data-action*="download"]');
       let actor = this.actor as LancerActor<EntryType.PILOT>;
-      download.on("click", async ev => {
-        ev.stopPropagation();
-
-        let self = await this.getDataLazy();
-        // Fetch data to sync
-        let raw_pilot_data = null;
-        if (self.vaultID != "" || self.rawID.match(/\/\//)) {
+      if(this.actor.data.data.derived.mm.CloudID) {
+        download.on("click", async ev => {
+          ev.stopPropagation();
+          
+          let self = await this.getDataLazy();
+          // Fetch data to sync
+          let raw_pilot_data = null;
+          if (self.vaultID != "" || self.rawID.match(/\/\//)) {
           // new style vault code with owner information
           // it's possible that this was one we reconstructed and doesn't actually live in this user acct
           ui.notifications.info("Importing character from vault...");
@@ -133,10 +134,13 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
           ui.notifications.error("Could not find character to import!");
           return;
         };
-
+        
         await actor.importCC(raw_pilot_data);
         this._currData = null;
       });
+    } else {
+      download.addClass("disabled-cloud");
+    }
 
       // editing rawID clears vaultID
       // (other way happens automatically because we prioritise vaultID in commit)
