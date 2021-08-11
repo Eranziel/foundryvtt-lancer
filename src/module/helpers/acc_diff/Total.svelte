@@ -7,6 +7,8 @@
  import type { AccDiffBase, AccDiffTarget } from './index';
 
  import { onMount } from 'svelte';
+ import { fly, blur } from 'svelte/transition';
+
  import tippy from "tippy.js";
 
  import Plugin from './Plugin.svelte';
@@ -61,11 +63,19 @@
   {/if}
 {/if}
 <div class="accdiff-grid accdiff-weight">
-  <div id={id} class="card clipped total" class:accurate={target.total > 0} class:inaccurate={target.total < 0}>
-    <span>{Math.abs(target.total)}</span>
-    <i class="cci i--m i--dark white--text middle"
-       class:cci-accuracy={target.total >= 0}
-       class:cci-difficulty={target.total < 0} ></i>
+  <div class="grid-enforcement">
+    {#key target.total}
+      <div id={id} transition:blur
+        class="card clipped total" class:accurate={target.total > 0} class:inaccurate={target.total < 0}>
+        <span in:fly={{y: -50, duration: 400}} out:fly={{y: 50, duration: 200}}>
+          {Math.abs(target.total)}
+        </span>
+        <i in:fly={{y: -50, duration: 200}} out:fly={{y: 50, duration: 200}}
+          class="cci i--m i--dark white--text middle"
+          class:cci-accuracy={target.total >= 0}
+          class:cci-difficulty={target.total < 0} ></i>
+      </div>
+    {/key}
   </div>
 </div>
 
@@ -73,16 +83,24 @@
  i { border: none; }
 
  .accdiff-grid { position: relative }
+
+ /* this + the grid-column and grid-row in .card.clipped forces
+    the two cards inside it (during animations) to have the same location */
+ .grid-enforcement {
+     display: grid;
+     overflow: hidden;
+ }
  .card.clipped {
      display: flex;
      flex-direction: row;
      align-items: center;
      padding: 8px 8px 8px 16px;
-     background-color: var(--main-theme-color, fuchsia);
      color: white;
-     width: fit-content;
+     width: min-content;
+     background-color: #443c3c;
+     grid-column: 1/2;
+     grid-row: 1/2;
  }
- .card.total { background-color: #443c3c; }
  .card.total.accurate { background-color: #017934; }
  .card.total.inaccurate { background-color: #9c0d0d }
  .disabled { opacity: 0.4; }
@@ -111,6 +129,7 @@
  }
  .cci-condition-lock-on {
      text-shadow: 0 0 12px white;
+     transition: font-size 200ms;
  }
  .cci-condition-lock-on.i--l {
      animation: lockon 800ms linear 1s infinite alternate;
