@@ -563,8 +563,9 @@ async function prepareAttackMacro({
     grit: 0,
     acc: 0,
     damage: [],
-    // @ts-ignore this should be on everything, right?
-    tags: item.data.data.derived.mm!.Tags,
+    // @ts-ignore this should be on everything, right? TODO: Make sure the mech
+    // weapon type is correctly defined
+    tags: item.data.data.derived.mm?.Tags,
     overkill: false,
     effect: "",
     loaded: true,

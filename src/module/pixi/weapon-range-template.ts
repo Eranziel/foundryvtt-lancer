@@ -77,7 +77,7 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
     this.activatePreviewListeners(initialLayer);
   }
 
-  activatePreviewListeners(initialLayer: CanvasLayer<CanvasLayerOptions>|null): void {
+  activatePreviewListeners(initialLayer: CanvasLayer<CanvasLayerOptions> | null): void {
     const handlers: any = {};
     let moveTime = 0;
 
@@ -112,8 +112,7 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
       let destination = this.snapToCenter(event.data.getLocalPosition(this.layer));
       if (this.isBurst) destination = this.snapToToken(event.data.getLocalPosition(this.layer));
       this.data.update(destination);
-      // @ts-ignore MeasuredTemplateData is not assignable to Record<string, unknown>
-      canvas!.scene!.createEmbeddedDocuments("MeasuredTemplate", [this.data]);
+      canvas!.scene!.createEmbeddedDocuments("MeasuredTemplate", [this.data.toObject()]);
     };
 
     // Rotate the template by 3 degree increments (mouse-wheel)
@@ -146,8 +145,8 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
    * the template for bursts.
    */
   snapToToken({ x, y }: { x: number; y: number }): { x: number; y: number } {
-    const token = canvas!.tokens!.placeables
-      .filter((t: any) => {
+    const token = canvas!
+      .tokens!.placeables.filter((t: any) => {
         // test if cursor is inside token
         return t.x < x && t.x + t.w > x && t.y < y && t.y + t.h > y;
       })
@@ -158,8 +157,7 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
         if (
           r === null ||
           r === undefined ||
-          canvas!.grid!.measureDistance({ x, y }, t.center) <
-            canvas!.grid!.measureDistance({ x, y }, r.center)
+          canvas!.grid!.measureDistance({ x, y }, t.center) < canvas!.grid!.measureDistance({ x, y }, r.center)
         )
           return t;
         else return r;

@@ -604,7 +604,7 @@ export function HANDLER_intercept_form_changes<T>(
 
     // Get our form data. We're kinda just replicating what would happen in onUpdate, but minus all of the fancier processing that is needed there
     let form = $(evt.target).parents("form")[0];
-    let form_data = read_form(form as any);
+    let form_data = read_form(form);
 
     // Get our target data
     let sheet_data = await data_getter();

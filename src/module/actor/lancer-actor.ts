@@ -487,8 +487,7 @@ export class LancerActor extends Actor {
       }
     }
 
-    // @ts-ignore Bad typeguards?
-    if (!is_dep(this)) await this.restore_all_items();
+    if (this.data.type !== EntryType.DEPLOYABLE) await this.restore_all_items();
     await ent.writeback();
   }
 
@@ -671,7 +670,6 @@ export class LancerActor extends Actor {
       //     name: unit_folder_name,
       //     type: "Actor",
       //     sorting: "a",
-      //     // @ts-ignore  ActorData has folder, always, as far as I can tell
       //     parent: this.data.folder || null,
       //   });
       // }

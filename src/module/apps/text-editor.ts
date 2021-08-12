@@ -84,10 +84,8 @@ export class HTMLEditDialog<O> extends FormApplication {
   /** @override
    * Want to resolve promise before closing
    */
-  //@ts-ignore Types don't account for the options
-  close(options: any): any {
+  close(options: FormApplication.CloseOptions): any {
     this.resolve();
-    //@ts-ignore Types don't account for the options
     return super.close(options);
   }
 

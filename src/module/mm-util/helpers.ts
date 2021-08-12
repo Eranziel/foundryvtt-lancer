@@ -79,7 +79,7 @@ export class FetcherCache<A, T> {
   }
 }
 
-export async function mm_wrap_item<T extends EntryType & LancerItemType>(
+export async function mm_wrap_item<T extends LancerItemType>(
   item: LancerItem,
   use_existing_ctx: OpCtx
 ): Promise<LiveEntryTypes<T>> {
@@ -138,7 +138,7 @@ export async function mm_wrap_item<T extends EntryType & LancerItemType>(
   // Load up the item. This _should_ always work
   // let ent = (await reg.get_cat(item.type).get_live(ctx, item.id)) as LiveEntryTypes<T>;
   let cat = reg.get_cat(item.data.type);
-  // @ts-ignore Poor typescript doesn't know how to handle these
+  // @ts-ignore dangerous_wrap_doc doesn't seem to exist? TODO
   let ent = await cat.dangerous_wrap_doc(ctx, item);
   if (!ent) {
     throw new Error("Something went wrong while trying to contextualize an item...");
@@ -182,7 +182,7 @@ export async function mm_wrap_actor<T extends EntryType & LancerActorType>(
 
   // let ent = (await reg.get_cat(actor.data.type).get_live(ctx, id)) as LiveEntryTypes<T>;
   let cat = reg.get_cat(actor.data.type);
-  // @ts-ignore Poor typescript doesn't know how to handle these
+  // @ts-ignore dangerous_wrap_doc doesn't seem to exist? TODO
   let ent = await cat.dangerous_wrap_doc(ctx, actor as any);
   if (!ent) {
     throw new Error("Something went wrong while trying to contextualize an actor...");

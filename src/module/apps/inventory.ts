@@ -50,15 +50,12 @@ export class InventoryDialog extends Dialog {
   /** @inheritdoc */
   render(force: any, options = {}) {
     // Register the active Application with the referenced Documents, to get updates
-    // @ts-ignore
     this.actor.apps[this.appId] = this;
     return super.render(force, options);
   }
 
-  async close(options = {}) {
-    // @ts-ignore 0.8
+  async close(options: FormApplication.CloseOptions = {}) {
     delete this.actor.apps[this.appId];
-    // @ts-ignore 0.8
     return super.close(options);
   }
 

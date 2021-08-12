@@ -47,7 +47,6 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
     if (!this.options.editable) return;
 
     // Macro triggers
-    // @ts-ignore .8
     if (this.actor.isOwner) {
       // Macros that can be handled via the generic item interface
       let itemMacros = html.find(".item-macro");

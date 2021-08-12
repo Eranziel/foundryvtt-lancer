@@ -361,14 +361,12 @@ export function convert_ref_to_native_drop<T extends EntryType>(ref: RegRef<T>):
   } else if (rn.src == "game_actor") {
     evt.actorId = rn.actor_id;
   } else if (rn.src == "scene_token") {
-    // @ts-ignore
-    evt.actorId = game.scenes.get(evt.sceneId)?.tokens.get(evt.tokenId)?.actor.id;
+    evt.actorId = game.scenes!.get(evt.sceneId!)?.tokens.get(evt.tokenId!)?.actor?.id ?? undefined;
   }
 
   // Decide ID, which is slightly weird for scene token actors
   if (rn.src == "scene") {
-    // @ts-ignore
-    evt.id = game.scenes.get(evt.sceneId)?.tokens.get(evt.tokenId)?.actor.id;
+    evt.id = game.scenes!.get(evt.sceneId!)?.tokens.get(evt.tokenId!)?.actor?.id ?? undefined;
   } else {
     evt.id = ref.id;
   }

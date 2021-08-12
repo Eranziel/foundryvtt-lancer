@@ -67,7 +67,7 @@ export function handleActorExport(actor: LegacyLancerActor | LancerActor, downlo
 }
 
 export function addExportButton(actor: LegacyLancerActor | LancerActor, html: JQuery) {
-  // @ts-ignore
+  // @ts-ignore I'm just going to assume all of this works but it probably doesn't
   const id = actor.data._id;
   if (!document.getElementById(id) && validForExport(actor)) {
     // if (!document.getElementById(id)) {

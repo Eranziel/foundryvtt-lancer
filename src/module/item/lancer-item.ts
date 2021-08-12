@@ -103,18 +103,18 @@ export function lancerItemInit(base_item: any, provided_data: any) {
   });
 }
 
-interface DerivedProperties<T extends EntryType> {
+interface DerivedProperties<T extends LancerItemType> {
   // license: RegRef<EntryType.LICENSE> | null; // The license granting this item, if one could be found
   max_uses: number; // The max uses, augmented to also include any actor bonuses
   mm: LiveEntryTypes<T> | null;
   mm_promise: Promise<LiveEntryTypes<T>>; // The above, in promise form. More robust
 }
 
-interface LancerItemDataSource<T extends EntryType> {
+interface LancerItemDataSource<T extends LancerItemType> {
   type: T;
   data: RegEntryTypes<T>;
 }
-interface LancerItemDataProperties<T extends EntryType> {
+interface LancerItemDataProperties<T extends LancerItemType> {
   type: T;
   data: RegEntryTypes<T> & {
     derived: DerivedProperties<T>;
@@ -226,8 +226,8 @@ export class LancerItem extends Item {
     let actor_ctx = this.actor?._actor_ctx;
 
     // Spool up our Machine Mind wrapping process
-    // @ts-ignore Something in machine mind is tangled up
-    dr.mm_promise = system_ready
+    // Promise<A | B> is apparently unassignable to Promise<A> | Promise<B>
+    (<Promise<LiveEntryTypes<LancerItemType>>>dr.mm_promise) = system_ready
       .then(() => mm_wrap_item(this, actor_ctx ?? new OpCtx()))
       .then(async mm => {
         // Save the entity to derived

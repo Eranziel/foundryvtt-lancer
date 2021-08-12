@@ -256,13 +256,10 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
       let assignSplit = (str: string) => {
         if (str.match(/\/\//)) {
           let [owner, id] = str.split("//");
-          // @ts-ignore for some reason typescript thinks this `this` can be null
-          this._currData.mm.CloudOwnerID = owner;
-          // @ts-ignore
-          this._currData.mm.CloudID = id;
+          this._currData!.mm.CloudOwnerID = owner;
+          this._currData!.mm.CloudID = id;
         } else {
-          // @ts-ignore
-          this._currData.mm.CloudID = str;
+          this._currData!.mm.CloudID = str;
         }
       };
 
@@ -309,7 +306,6 @@ export function overchargeButton(level: number) {
   // This seems like a very inefficient way to do this...
   // I don't think there's a good way to get an actor via handlebars helpers though besides this
   // Might just need to not use helpers for this?
-  //@ts-ignore
   let actor: LancerActor = game.actors.get(this.actor._id);
 
   let rollVal = actor.getOverchargeRoll();

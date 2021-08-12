@@ -1,6 +1,6 @@
 import { LancerItemSheetData } from "../interfaces";
 import { LANCER } from "../config";
-import { LancerItem, LancerItemType } from "./lancer-item";
+import { LancerItemType } from "./lancer-item";
 import {
   HANDLER_activate_general_controls,
   gentle_merge,
@@ -34,6 +34,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
     super(document, options);
     if (this.item.data.type == EntryType.MECH_WEAPON) {
       // @ts-ignore IDK if this even does anything
+      // TODO Figure out if this even does anything
       this.options.initial = `profile${this.item.data.data.selected_profile || 0}`;
     }
   }
@@ -189,15 +190,14 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
     // If a compendium, wait 50ms to avoid most race conflicts. TODO: Remove this when foundry fixes compendium editing to not be so awful
     // if (this.item.compendium) {
     // this.object = await new Promise(s => setTimeout(s, 50))
-    // //@ts-ignore
     // .then(() => get_pack(this.item.type))
     // .then(p => p.getEntity(this.item.id));
     // }
     const data = super.getData() as LancerItemSheetData<T>; // Not fully populated yet!
 
     // Wait for preparations to complete
-    let tmp_dat = this.item.data as LancerItem["data"]; // For typing convenience
-    // @ts-ignore idk why this is a mismatch
+    let tmp_dat = this.item.data;
+    // @ts-ignore T doesn't narrow this.item.data
     data.mm = await tmp_dat.data.derived.mm_promise;
 
     // Additionally we would like to find a matching license. Re-use ctx, try both a world and global reg, actor as well if it exists

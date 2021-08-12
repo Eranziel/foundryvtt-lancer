@@ -288,8 +288,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
           } else {
             spend = params.val === "true";
           }
-          // @ts-ignore AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-          manager?.modAction((data.actor as unknown) as LancerActor<any>, spend, action);
+          manager?.modAction(data.actor, spend, action);
         }
       } else {
         console.log(`${game.user?.name} :: Users currently not allowed to toggle actions through action manager.`);
@@ -721,7 +720,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     const data = await super.getData(); // Not fully populated yet!
 
     // Drag up the mm context (when ready) to a top level entry in the sheet data
-    // @ts-ignore NFI
+    // @ts-ignore T doesn't narrow this.actor.data
     data.mm = await this.actor.data.data.derived.mm_promise;
 
     // Also wait for all of their items

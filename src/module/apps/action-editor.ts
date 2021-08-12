@@ -10,6 +10,7 @@ import { HANDLER_intercept_form_changes } from "../helpers/refs";
  * A helper Dialog subclass for editing a bonus
  * @extends {Dialog}
  */
+// TODO: Narrow O a little bit here
 export class ActionEditDialog<O> extends Dialog {
   // The bonus we're editing
   action: Action;
