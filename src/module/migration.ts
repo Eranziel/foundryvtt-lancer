@@ -8,6 +8,7 @@ import { EntryType, NpcClass, NpcFeature, NpcTemplate, RegTagInstanceData } from
 import { LancerItem } from "./item/lancer-item";
 import { RegRef } from "machine-mind/dist/registry";
 import { arrayify_object } from "./helpers/commons";
+import { LancerTokenDocument } from "./token";
 
 let lp = LANCER.log_prefix;
 
@@ -115,18 +116,18 @@ Please refresh the page to try again.</p>`,
     }
   }
 
-  // // Migrate Actor Override Tokens
-  // for (let s of game.scenes.entities) {
-  //   try {
-  //     const updateData = migrateSceneData(s);
-  //     if (updateData && !isObjectEmpty(updateData)) {
-  //       console.log(`Migrating Scene entity ${s.name}`);
-  //       await s.update(updateData, { enforceTypes: false });
-  //     }
-  //   } catch (err) {
-  //     console.error(err);
-  //   }
-  // }
+  // Migrate Actor Override Tokens
+  for (let s of game.scenes.contents) {
+    try {
+      const updateData = await migrateSceneData(s);
+      if (updateData && !isObjectEmpty(updateData)) {
+        console.log(`Migrating Scene entity ${s.name}`);
+        // await s.update(updateData);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }
 
   // Set the migration as complete
   // await game.settings.set(LANCER.sys_name, LANCER.setting_migration, game.system.data.version);
@@ -284,13 +285,13 @@ export const migrateCompendium = async function (pack: Compendium) {
  * @return {Object}       The updateData to apply
  */
 export const migrateActorData = async function (actor: Actor) {
-  let origData: any = a.data;
+  let origData: any = actor.data;
   const updateData: LancerNpcData = { _id: origData._id, data: {} };
 
   // Insert code to migrate actor data model here
   // For migration from 0.1.20 to 1.0, only do NPCs and Deployables. Mechs didn't exist,
   // and pilots need the GM to import LCPs first.
-  if (a.data.type === EntryType.NPC) {
+  if (actor.data.type === EntryType.NPC) {
     updateData.data.tier = origData.data.tier_num;
     updateData.data.current_heat = origData.data.mech.heat.value;
     updateData.data.current_hp = origData.data.mech.hp.value;
@@ -300,17 +301,11 @@ export const migrateActorData = async function (actor: Actor) {
     updateData["data.-=mech"] = null;
     updateData["data.-=npc_size"] = null;
     updateData["data.-=activations"] = null;
-    // await a.update(updateData);
-
-    // Migrate each of the NPC's items
-    for (let item: LancerItem of a.items) {
-      let updateData = migrateItemData(item);
-      await a.updateEmbeddedDocuments("Item", [updateData], { parent: a });
-    }
-  } else if (a.data.type === EntryType.DEPLOYABLE) {
+  } else if (actor.data.type === EntryType.DEPLOYABLE) {
     updateData.data.detail = origData.data.effect;
     updateData.data.current_heat = origData.data.heat.value;
     updateData.data.heatcap = origData.data.heat.max;
+    updateData.data.derived = {};
     updateData.data.derived.current_heat = origData.data.heat;
     updateData.data.current_hp = origData.data.hp.value;
     updateData.data.max_hp = origData.data.hp.max;
@@ -322,7 +317,6 @@ export const migrateActorData = async function (actor: Actor) {
     updateData["data.-=description"] = null;
     updateData["data.-=heat"] = null;
     updateData["data.-=hp"] = null;
-    // await a.update(updateData);
   } else {
     return {};
   }
@@ -331,18 +325,17 @@ export const migrateActorData = async function (actor: Actor) {
   if (!actor.items) return updateData;
   let hasItemUpdates = false;
   const items = [];
-  actor.items.foreach(i => {
+  actor.items.forEach(i => {
     // Migrate the Owned Item
     let itemUpdate = migrateItemData(i);
-
-    // Update the Owned Item
+    // Add it to the array of items to update
     if (!isObjectEmpty(itemUpdate)) {
       hasItemUpdates = true;
       i.push(itemUpdate);
     }
   });
   if (hasItemUpdates) {
-    await a.updateEmbeddedDocuments("Item", items, { parent: a });
+    await actor.updateEmbeddedDocuments("Item", items, { parent: actor });
   }
 
   // Remove deprecated fields
@@ -369,7 +362,7 @@ function cleanActorData(actorData: ActorData) {
     return obj;
   }, {});
   if (actorData.flags.lancer) {
-    actorData.flags.lancer = filterObject(actorData.flags.dnd5e, allowedFlags);
+    actorData.flags.lancer = filterObject(actorData.flags.lancer, allowedFlags);
   }
 
   // Return the scrubbed data
@@ -545,26 +538,40 @@ export const migrateItemData = async function (item: LancerItem<NpcClass | NpcTe
  * @param {Object} scene  The Scene data to Update
  * @return {Object}       The updateData to apply
  */
-export const migrateSceneData = function (scene) {
+export const migrateSceneData = async function (scene) {
+  console.log(`Migrating scene ${scene.name}`);
   if (!scene.tokens) return;
-  const tokens = duplicate(scene.tokens);
-  return {
-    tokens: tokens.map(t => {
-      if (!t.actorId || t.actorLink || !t.actorData.data) {
-        t.actorData = {};
-        return t;
-      }
-      const token = new Token(t);
-      if (!token.actor) {
-        t.actorId = null;
-        t.actorData = {};
-      } else if (!t.actorLink) {
-        const updateData = migrateActorData(token.data.actorData);
-        t.actorData = mergeObject(token.data.actorData, updateData);
-      }
-      return t;
-    }),
-  };
+  const tokens = [];
+  scene.tokens.forEach((t: LancerTokenDocument) => {
+    // console.log(t);
+    let ta = t.actor;
+    if (!t.actorLink) {
+      migrateActorData(ta.actorData).then((updateData: any) => {
+        if (updateData && !isObjectEmpty(updateData)) {
+          ta.update(updateData);
+        }
+      });
+      ta.update();
+    }
+  });
+  // return tokens.map(t => {
+  //   if (!t.actorId || t.actorLink || !t.actorData.data) {
+  //     t.actorData = {};
+  //     return t;
+  //   }
+  //   const token = new Token(t);
+  //   if (!token.actor) {
+  //     t.actorId = null;
+  //     t.actorData = {};
+  //   } else if (!t.actorLink) {
+  //     const updateData = migrateActorData(token.data.actorData);
+  //     t.actorData = mergeObject(token.data.actorData, updateData);
+  //   }
+  //   return t;
+  // });
+
+  // If the scene data itself needs to be migrated, make the changes and return the migrated data here.
+  return;
 };
 
 /* -------------------------------------------- */
