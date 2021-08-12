@@ -92,7 +92,7 @@ Please refresh the page to try again.</p>`,
   // Only NPCs, not pilots or mechs. GMs gotta update LCPs first.
   for (let a of game.actors.contents) {
     try {
-      const updateData = migrateActorData(a);
+      const updateData = await migrateActorData(a);
       if (!isObjectEmpty(updateData)) {
         console.log(`Migrating Actor entity ${a.name}`);
         await a.update(updateData);
@@ -105,7 +105,7 @@ Please refresh the page to try again.</p>`,
   // Migrate World Items
   for (let i of game.items.contents) {
     try {
-      const updateData = migrateItemData(i);
+      const updateData = await migrateItemData(i);
       if (!isObjectEmpty(updateData)) {
         console.log(`Migrating Item entity ${i.name}`);
         await i.update(updateData);
@@ -283,7 +283,7 @@ export const migrateCompendium = async function (pack: Compendium) {
  * @param {Actor} actor   The actor to Update
  * @return {Object}       The updateData to apply
  */
-export const migrateActorData = function (actor: Actor) {
+export const migrateActorData = async function (actor: Actor) {
   let origData: any = a.data;
   const updateData: LancerNpcData = { _id: origData._id, data: {} };
 
@@ -382,7 +382,7 @@ function cleanActorData(actorData: ActorData) {
  * Migrate a single Item entity to incorporate latest data model changes
  * @param item
  */
-export const migrateItemData = function (item: LancerItem<NpcClass | NpcTemplate | NpcFeature>) {
+export const migrateItemData = async function (item: LancerItem<NpcClass | NpcTemplate | NpcFeature>) {
   const origData = item.data;
   const updateData = { _id: origData._id, data: {} };
 
