@@ -2,7 +2,7 @@ import { EntryType, License, LicensedItem, LiveEntryTypes, OpCtx, Pilot, RegEntr
 import { is_actor_type, LancerActor, LancerActorType, LancerMech, LancerPilot } from "../actor/lancer-actor";
 import { PACK_SCOPE } from "../compBuilder";
 import { friendly_entrytype_name } from "../config";
-import { AnyLancerItem, AnyMMItem, LancerItem, LancerItemType } from "../item/lancer-item";
+import { AnyMMItem, LancerItem, LancerItemType } from "../item/lancer-item";
 import { FoundryFlagData, FoundryReg } from "./foundry-reg";
 
 // Simple caching mechanism for handling async fetchable values for a certain length of time
@@ -192,7 +192,7 @@ export async function mm_wrap_actor<T extends EntryType & LancerActorType>(
 }
 
 // Sort mm items. Moves moverand to dest, either before or after depending on third arg
-export async function resort_item(moverand: AnyLancerItem, dest: AnyLancerItem, sort_before = true) {
+export async function resort_item(moverand: LancerItem, dest: LancerItem, sort_before = true) {
   // Make sure owner is the same
   if (!dest.actor || !moverand.actor || dest.actor != moverand.actor) {
     console.warn("Cannot sort items from two separate actors / unowned items");
@@ -200,7 +200,7 @@ export async function resort_item(moverand: AnyLancerItem, dest: AnyLancerItem, 
   }
 
   // Ok, now get siblings
-  let siblings: AnyLancerItem[] = dest.collection.contents;
+  let siblings: LancerItem[] = dest.collection.contents;
   siblings = siblings.filter(s => s.id != moverand.id);
 
   // Now resort
@@ -286,7 +286,7 @@ const world_and_comp_license_cache = new FetcherCache<string, License | null>(60
 // Get the owner of an item, or null if none exists
 export function mm_owner<T extends LancerItemType>(item: RegEntry<T>): LancerActor | null {
   let flags = item.Flags as FoundryFlagData<T>;
-  let owner = (flags.orig_doc as AnyLancerItem).actor;
+  let owner = (flags.orig_doc as LancerItem).actor;
   if (owner) {
     return owner as LancerActor;
   } else {

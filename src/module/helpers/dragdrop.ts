@@ -1,6 +1,6 @@
 import { EntryType, OpCtx, RegEntry, RegRef } from "machine-mind";
 import { AnyLancerActor, AnyMMActor, is_actor_type, LancerActor } from "../actor/lancer-actor";
-import { AnyLancerItem, AnyMMItem, is_item_type, LancerItem } from "../item/lancer-item";
+import { AnyMMItem, is_item_type, LancerItem } from "../item/lancer-item";
 import { FoundryReg, FoundryRegName } from "../mm-util/foundry-reg";
 import { FetcherCache, get_pack_id, mm_wrap_actor, mm_wrap_item } from "../mm-util/helpers";
 import { is_ref, safe_json_parse } from "./commons";
@@ -216,11 +216,11 @@ export type NativeDrop = _PhysicalDrop | _MetaDrop;
 export type ResolvedNativeDrop =
   | {
       type: "Item";
-      entity: AnyLancerItem;
+      entity: LancerItem;
     }
   | {
       type: "Actor";
-      entity: AnyLancerActor;
+      entity: LancerActor;
     }
   | {
       type: "JournalEntry";

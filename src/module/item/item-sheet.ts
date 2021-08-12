@@ -1,6 +1,6 @@
 import { LancerItemSheetData } from "../interfaces";
 import { LANCER } from "../config";
-import { AnyLancerItem, LancerItem, LancerItemType } from "./lancer-item";
+import { LancerItem, LancerItemType } from "./lancer-item";
 import {
   HANDLER_activate_general_controls,
   gentle_merge,
@@ -236,7 +236,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
 
   // Get the ctx that our actor + its items reside in. If an unowned item we'll just yield null
   getCtx(): OpCtx | null {
-    let ctx = (this.item as AnyLancerItem).data.data.derived.mm?.OpCtx;
+    let ctx = this.item.data.data.derived.mm?.OpCtx;
     return ctx ?? null;
   }
 }

@@ -13,7 +13,7 @@ import {
   HANDLER_openRefOnClick as HANDLER_activate_ref_clicking,
 } from "../helpers/refs";
 import { LancerActorSheetData, LancerStatMacroData } from "../interfaces";
-import { AnyMMItem, LancerMechWeapon, LancerPilotWeapon } from "../item/lancer-item";
+import { AnyMMItem } from "../item/lancer-item";
 import { AnyLancerActor, AnyMMActor, is_actor_type, LancerActor, LancerActorType } from "./lancer-actor";
 import {
   prepareActivationMacro,
@@ -338,7 +338,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       const item = this.actor.items.get(weaponId);
       if (!item) return ui.notifications!.warn(`Error rolling macro: Couldn't find weapon with ID ${weaponId}.`);
 
-      const weapon = item as LancerPilotWeapon | LancerMechWeapon;
+      const weapon = item;
       prepareItemMacro(this.actor.id!, weapon.id!);
     });
 
