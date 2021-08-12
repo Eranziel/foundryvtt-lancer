@@ -268,6 +268,76 @@ export class LancerItem extends Item {
     }
     return super.update(data, options);
   }
+  // Typeguards
+  is_core_bonus(): this is LancerItem & { data: LancerItemDataProperties<EntryType.CORE_BONUS> } {
+    return this.data.type === EntryType.CORE_BONUS;
+  }
+  is_environment(): this is LancerItem & { data: LancerItemDataProperties<EntryType.ENVIRONMENT> } {
+    return this.data.type === EntryType.ENVIRONMENT;
+  }
+  is_faction(): this is LancerItem & { data: LancerItemDataProperties<EntryType.FACTION> } {
+    return this.data.type === EntryType.FACTION;
+  }
+  is_frame(): this is LancerItem & { data: LancerItemDataProperties<EntryType.FRAME> } {
+    return this.data.type === EntryType.FRAME;
+  }
+  is_license(): this is LancerItem & { data: LancerItemDataProperties<EntryType.LICENSE> } {
+    return this.data.type === EntryType.LICENSE;
+  }
+  is_manufacturer(): this is LancerItem & { data: LancerItemDataProperties<EntryType.MANUFACTURER> } {
+    return this.data.type === EntryType.MANUFACTURER;
+  }
+  is_mech_system(): this is LancerItem & { data: LancerItemDataProperties<EntryType.MECH_SYSTEM> } {
+    return this.data.type === EntryType.MECH_SYSTEM;
+  }
+  is_mech_weapon(): this is LancerItem & { data: LancerItemDataProperties<EntryType.MECH_WEAPON> } {
+    return this.data.type === EntryType.MECH_WEAPON;
+  }
+  is_npc_class(): this is LancerItem & { data: LancerItemDataProperties<EntryType.NPC_CLASS> } {
+    return this.data.type === EntryType.NPC_CLASS;
+  }
+  is_npc_feature(): this is LancerItem & { data: LancerItemDataProperties<EntryType.NPC_FEATURE> } {
+    return this.data.type === EntryType.NPC_FEATURE;
+  }
+  is_npc_template(): this is LancerItem & { data: LancerItemDataProperties<EntryType.NPC_TEMPLATE> } {
+    return this.data.type === EntryType.NPC_TEMPLATE;
+  }
+  is_organization(): this is LancerItem & { data: LancerItemDataProperties<EntryType.ORGANIZATION> } {
+    return this.data.type === EntryType.ORGANIZATION;
+  }
+  is_pilot_armor(): this is LancerItem & { data: LancerItemDataProperties<EntryType.PILOT_ARMOR> } {
+    return this.data.type === EntryType.PILOT_ARMOR;
+  }
+  is_pilot_gear(): this is LancerItem & { data: LancerItemDataProperties<EntryType.PILOT_GEAR> } {
+    return this.data.type === EntryType.PILOT_GEAR;
+  }
+  is_pilot_weapon(): this is LancerItem & { data: LancerItemDataProperties<EntryType.PILOT_WEAPON> } {
+    return this.data.type === EntryType.PILOT_WEAPON;
+  }
+  is_quirk(): this is LancerItem & { data: LancerItemDataProperties<EntryType.QUIRK> } {
+    return this.data.type === EntryType.QUIRK;
+  }
+  is_reserve(): this is LancerItem & { data: LancerItemDataProperties<EntryType.RESERVE> } {
+    return this.data.type === EntryType.RESERVE;
+  }
+  is_sitrep(): this is LancerItem & { data: LancerItemDataProperties<EntryType.SITREP> } {
+    return this.data.type === EntryType.SITREP;
+  }
+  is_skill(): this is LancerItem & { data: LancerItemDataProperties<EntryType.SKILL> } {
+    return this.data.type === EntryType.SKILL;
+  }
+  is_status(): this is LancerItem & { data: LancerItemDataProperties<EntryType.STATUS> } {
+    return this.data.type === EntryType.STATUS;
+  }
+  is_tag(): this is LancerItem & { data: LancerItemDataProperties<EntryType.TAG> } {
+    return this.data.type === EntryType.TAG;
+  }
+  is_talent(): this is LancerItem & { data: LancerItemDataProperties<EntryType.TALENT> } {
+    return this.data.type === EntryType.TALENT;
+  }
+  is_weapon_mod(): this is LancerItem & { data: LancerItemDataProperties<EntryType.WEAPON_MOD> } {
+    return this.data.type === EntryType.WEAPON_MOD;
+  }
 }
 
 // This seems like it could be removed eventually
