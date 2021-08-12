@@ -2,7 +2,6 @@ import { LANCER, replace_default_resource, TypeIcon } from "../config";
 import {
   EntryType,
   funcs,
-  RegMechData,
   Mech,
   Deployable,
   Npc,
@@ -173,9 +172,9 @@ export class LancerActor extends Actor {
   // TODO: Only let us overheat things that can actually overheat
   async overheat() {
     // Assert that we're on a mech or NPC
-    if (this.data.type === EntryType.MECH) {
+    if (this.is_mech()) {
       this.overheatMech();
-    } else if (this.data.type === EntryType.NPC) {
+    } else if (this.is_npc()) {
       ui.notifications!.warn("Currently just doing normal mech overheats");
       this.overheatMech();
     } else {
@@ -302,9 +301,9 @@ export class LancerActor extends Actor {
    */
   async structure() {
     // Assert that we're on a mech or NPC
-    if (this.data.type === EntryType.MECH) {
+    if (this.is_mech()) {
       this.structureMech();
-    } else if (this.data.type === EntryType.NPC) {
+    } else if (this.is_npc()) {
       ui.notifications!.warn("Currently just doing normal mech structures");
       this.structureMech();
     } else {
@@ -487,7 +486,7 @@ export class LancerActor extends Actor {
       }
     }
 
-    if (this.data.type !== EntryType.DEPLOYABLE) await this.restore_all_items();
+    if (!this.is_deployable()) await this.restore_all_items();
     await ent.writeback();
   }
 
@@ -1078,12 +1077,12 @@ export class LancerActor extends Actor {
 
     let dependency: RegRef<LancerActorType> | null = null;
     // If we are a mech, we need to subscribe to our pilot (if it exists)
-    if (this.data.type == EntryType.MECH) {
-      let mech_data = (this.data.data as unknown) as RegMechData;
+    if (this.is_mech()) {
+      let mech_data = this.data.data;
       if (mech_data.pilot) {
         dependency = mech_data.pilot;
       }
-    } else if (this.data.type == EntryType.DEPLOYABLE) {
+    } else if (this.is_deployable()) {
       // If deployable, same deal
       let dep_data = (this.data.data as unknown) as RegDeployableData;
       if (dep_data.deployer) {
@@ -1122,7 +1121,7 @@ export class LancerActor extends Actor {
    */
   getOverchargeRoll(): string | null {
     // Function is only applicable to pilots.
-    if (this.data.type !== EntryType.MECH) return null;
+    if (!this.is_mech()) return null;
 
     const data = this.data;
 
@@ -1137,6 +1136,20 @@ export class LancerActor extends Actor {
         return "1";
     }
   }
+
+  // Typeguards
+  is_pilot(): this is LancerActor & { data: { type: EntryType.PILOT } } {
+    return this.data.type === EntryType.PILOT;
+  }
+  is_mech(): this is LancerActor & { data: { type: EntryType.MECH } } {
+    return this.data.type === EntryType.MECH;
+  }
+  is_npc(): this is LancerActor & { data: { type: EntryType.NPC } } {
+    return this.data.type === EntryType.NPC;
+  }
+  is_deployable(): this is LancerActor & { data: { type: EntryType.DEPLOYABLE } } {
+    return this.data.type === EntryType.DEPLOYABLE;
+  }
 }
 
 export type AnyMMActor = LiveEntryTypes<LancerActorType>;
@@ -1150,22 +1163,6 @@ export const LancerActorTypes: LancerActorType[] = [
 
 export function is_actor_type(type: LancerActorType | LancerItemType): type is LancerActorType {
   return LancerActorTypes.includes(type as LancerActorType);
-}
-
-export function is_pilot(actor: LancerActor): actor is LancerActor {
-  return actor.data.type === EntryType.PILOT;
-}
-
-export function is_mech(actor: LancerActor): actor is LancerActor {
-  return actor.data.type === EntryType.MECH;
-}
-
-export function is_npc(actor: LancerActor): actor is LancerActor {
-  return actor.data.type === EntryType.NPC;
-}
-
-export function is_dep(actor: LancerActor): actor is LancerActor {
-  return actor.data.type === EntryType.DEPLOYABLE;
 }
 
 export function is_reg_pilot(actor: RegEntry<any>): actor is Pilot {

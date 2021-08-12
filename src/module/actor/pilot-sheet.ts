@@ -85,55 +85,55 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
       // Cloud download
       let download = html.find('.cloud-control[data-action*="download"]');
       let actor = this.actor;
-      if(actor.data.type === EntryType.PILOT && actor.data.data.derived.mm!.CloudID) {
+      if (actor.is_pilot() && actor.data.data.derived.mm!.CloudID) {
         download.on("click", async ev => {
           ev.stopPropagation();
-          
+
           let self = await this.getDataLazy();
           // Fetch data to sync
           let raw_pilot_data = null;
           if (self.vaultID != "" || self.rawID.match(/\/\//)) {
-          // new style vault code with owner information
-          // it's possible that this was one we reconstructed and doesn't actually live in this user acct
-          ui.notifications!.info("Importing character from vault...");
-          try {
-            raw_pilot_data = await fetchPilot(self.vaultID != "" ? self.vaultID : self.rawID);
-          } catch {
-            if (self.vaultID != "") {
-              ui.notifications!.error("Failed to import. Probably a network error, please try again.");
-            } else {
-              ui.notifications!.error(
-                "Failed. You will have to ask the player whose pilot this is for their COMP/CON vault record code."
-              );
+            // new style vault code with owner information
+            // it's possible that this was one we reconstructed and doesn't actually live in this user acct
+            ui.notifications!.info("Importing character from vault...");
+            try {
+              raw_pilot_data = await fetchPilot(self.vaultID != "" ? self.vaultID : self.rawID);
+            } catch {
+              if (self.vaultID != "") {
+                ui.notifications!.error("Failed to import. Probably a network error, please try again.");
+              } else {
+                ui.notifications!.error(
+                  "Failed. You will have to ask the player whose pilot this is for their COMP/CON vault record code."
+                );
+              }
+              return;
             }
+          } else if (self.rawID.match(/^[^-]+(-[^-]+){4}/)) {
+            // old-style vault code
+            // not much we can do. we can try to fetch it and see if it works
+            // it will if this pilot happens to be in this comp/con user's bucket
+            ui.notifications!.info("Attempting to import from old-style vault code...");
+            try {
+              raw_pilot_data = await fetchPilot(self.rawID);
+            } catch {
+              ui.notifications!.error(
+                "Failed. Old-style vault ids are phasing out in support; please ask the player whose pilot this is for their COMP/CON vault record code."
+              );
+              return;
+            }
+          } else if (self.rawID != "") {
+            ui.notifications!.info("Importing character from cloud share code...");
+            raw_pilot_data = await funcs.gist_io.download_pilot(self.rawID);
+          } else {
+            ui.notifications!.error("Could not find character to import!");
             return;
           }
-        } else if (self.rawID.match(/^[^-]+(-[^-]+){4}/)) {
-          // old-style vault code
-          // not much we can do. we can try to fetch it and see if it works
-          // it will if this pilot happens to be in this comp/con user's bucket
-          ui.notifications!.info("Attempting to import from old-style vault code...");
-          try {
-            raw_pilot_data = await fetchPilot(self.rawID);
-          } catch {
-            ui.notifications!.error(
-              "Failed. Old-style vault ids are phasing out in support; please ask the player whose pilot this is for their COMP/CON vault record code."
-            );
-            return;
-          }
-        } else if (self.rawID != "") {
-          ui.notifications!.info("Importing character from cloud share code...");
-          raw_pilot_data = await funcs.gist_io.download_pilot(self.rawID);
-        } else {
-          ui.notifications!.error("Could not find character to import!");
-          return;
-        }
-        await actor.importCC(raw_pilot_data);
-        this._currData = null;
-      });
-    } else {
-      download.addClass("disabled-cloud");
-    }
+          await actor.importCC(raw_pilot_data);
+          this._currData = null;
+        });
+      } else {
+        download.addClass("disabled-cloud");
+      }
 
       // editing rawID clears vaultID
       // (other way happens automatically because we prioritise vaultID in commit)
@@ -280,7 +280,7 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
    * @private
    */
   async _updateObject(event: Event, formData: any) {
-    if (this.actor.data.type !== EntryType.PILOT) return;
+    if (!this.actor.is_pilot()) return;
     // Do some pre-processing
     // Do these only if the callsign updated
     if (this.actor.data.data.callsign !== formData["data.pilot.callsign"]) {

@@ -1,6 +1,6 @@
 import { LancerItemSheetData } from "../interfaces";
 import { LANCER } from "../config";
-import { LancerItemType } from "./lancer-item";
+import { LancerItem, LancerItemType } from "./lancer-item";
 import {
   HANDLER_activate_general_controls,
   gentle_merge,
@@ -14,7 +14,7 @@ import {
   HANDLER_add_ref_to_list_on_drop,
   HANDLER_openRefOnClick,
 } from "../helpers/refs";
-import { EntryType, OpCtx } from "machine-mind";
+import { OpCtx } from "machine-mind";
 import { HANDLER_activate_edit_bonus } from "../helpers/item";
 import { HANDLER_activate_tag_context_menus, HANDLER_activate_tag_dropping } from "../helpers/tags";
 import { CollapseHandler } from "../helpers/collapse";
@@ -30,9 +30,9 @@ const lp = LANCER.log_prefix;
  * @extends {ItemSheet}
  */
 export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemSheet.Options, LancerItemSheetData<T>> {
-  constructor(document: Item, options: ItemSheet.Options) {
+  constructor(document: LancerItem, options: ItemSheet.Options) {
     super(document, options);
-    if (this.item.data.type == EntryType.MECH_WEAPON) {
+    if (this.item.is_mech_weapon()) {
       // @ts-ignore IDK if this even does anything
       // TODO Figure out if this even does anything
       this.options.initial = `profile${this.item.data.data.selected_profile || 0}`;
@@ -202,7 +202,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
 
     // Additionally we would like to find a matching license. Re-use ctx, try both a world and global reg, actor as well if it exists
     data.license = null;
-    if (this.actor?.data.type == EntryType.PILOT || this.actor?.data.type == EntryType.MECH) {
+    if (this.actor?.is_pilot() || this.actor?.is_mech()) {
       data.license = await find_license_for(data.mm, this.actor!);
     } else {
       data.license = await find_license_for(data.mm);

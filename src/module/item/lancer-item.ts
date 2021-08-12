@@ -268,6 +268,76 @@ export class LancerItem extends Item {
     }
     return super.update(data, options);
   }
+  // Typeguards
+  is_core_bonus(): this is LancerItem & { data: { type: EntryType.CORE_BONUS } } {
+    return this.data.type === EntryType.CORE_BONUS;
+  }
+  is_environment(): this is LancerItem & { data: { type: EntryType.ENVIRONMENT } } {
+    return this.data.type === EntryType.ENVIRONMENT;
+  }
+  is_faction(): this is LancerItem & { data: { type: EntryType.FACTION } } {
+    return this.data.type === EntryType.FACTION;
+  }
+  is_frame(): this is LancerItem & { data: { type: EntryType.FRAME } } {
+    return this.data.type === EntryType.FRAME;
+  }
+  is_license(): this is LancerItem & { data: { type: EntryType.LICENSE } } {
+    return this.data.type === EntryType.LICENSE;
+  }
+  is_manufacturer(): this is LancerItem & { data: { type: EntryType.MANUFACTURER } } {
+    return this.data.type === EntryType.MANUFACTURER;
+  }
+  is_mech_system(): this is LancerItem & { data: { type: EntryType.MECH_SYSTEM } } {
+    return this.data.type === EntryType.MECH_SYSTEM;
+  }
+  is_mech_weapon(): this is LancerItem & { data: { type: EntryType.MECH_WEAPON } } {
+    return this.data.type === EntryType.MECH_WEAPON;
+  }
+  is_npc_class(): this is LancerItem & { data: { type: EntryType.NPC_CLASS } } {
+    return this.data.type === EntryType.NPC_CLASS;
+  }
+  is_npc_feature(): this is LancerItem & { data: { type: EntryType.NPC_FEATURE } } {
+    return this.data.type === EntryType.NPC_FEATURE;
+  }
+  is_npc_template(): this is LancerItem & { data: { type: EntryType.NPC_TEMPLATE } } {
+    return this.data.type === EntryType.NPC_TEMPLATE;
+  }
+  is_organization(): this is LancerItem & { data: { type: EntryType.ORGANIZATION } } {
+    return this.data.type === EntryType.ORGANIZATION;
+  }
+  is_pilot_armor(): this is LancerItem & { data: { type: EntryType.PILOT_ARMOR } } {
+    return this.data.type === EntryType.PILOT_ARMOR;
+  }
+  is_pilot_gear(): this is LancerItem & { data: { type: EntryType.PILOT_GEAR } } {
+    return this.data.type === EntryType.PILOT_GEAR;
+  }
+  is_pilot_weapon(): this is LancerItem & { data: { type: EntryType.PILOT_WEAPON } } {
+    return this.data.type === EntryType.PILOT_WEAPON;
+  }
+  is_quirk(): this is LancerItem & { data: { type: EntryType.QUIRK } } {
+    return this.data.type === EntryType.QUIRK;
+  }
+  is_reserve(): this is LancerItem & { data: { type: EntryType.RESERVE } } {
+    return this.data.type === EntryType.RESERVE;
+  }
+  is_sitrep(): this is LancerItem & { data: { type: EntryType.SITREP } } {
+    return this.data.type === EntryType.SITREP;
+  }
+  is_skill(): this is LancerItem & { data: { type: EntryType.SKILL } } {
+    return this.data.type === EntryType.SKILL;
+  }
+  is_status(): this is LancerItem & { data: { type: EntryType.STATUS } } {
+    return this.data.type === EntryType.STATUS;
+  }
+  is_tag(): this is LancerItem & { data: { type: EntryType.TAG } } {
+    return this.data.type === EntryType.TAG;
+  }
+  is_talent(): this is LancerItem & { data: { type: EntryType.TALENT } } {
+    return this.data.type === EntryType.TALENT;
+  }
+  is_weapon_mod(): this is LancerItem & { data: { type: EntryType.WEAPON_MOD } } {
+    return this.data.type === EntryType.WEAPON_MOD;
+  }
 }
 
 // This seems like it could be removed eventually
