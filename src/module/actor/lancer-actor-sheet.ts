@@ -14,7 +14,7 @@ import {
 } from "../helpers/refs";
 import { LancerActorSheetData, LancerStatMacroData } from "../interfaces";
 import { AnyMMItem } from "../item/lancer-item";
-import { AnyLancerActor, AnyMMActor, is_actor_type, LancerActor, LancerActorType } from "./lancer-actor";
+import { AnyMMActor, is_actor_type, LancerActor, LancerActorType } from "./lancer-actor";
 import {
   prepareActivationMacro,
   prepareChargeMacro,
@@ -582,7 +582,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
 
     button.on("click", async (ev: Event) => {
       ev.preventDefault();
-      return InventoryDialog.show_inventory(this.actor as AnyLancerActor);
+      return InventoryDialog.show_inventory(this.actor as LancerActor);
     });
   }
 
@@ -755,7 +755,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
 
   // Get the ctx that our actor + its items reside in
   getCtx(): OpCtx {
-    return (this.actor as AnyLancerActor)._actor_ctx;
+    return (this.actor as LancerActor)._actor_ctx;
   }
 }
 function rollStatMacro(_actor: unknown, _mData: LancerStatMacroData) {

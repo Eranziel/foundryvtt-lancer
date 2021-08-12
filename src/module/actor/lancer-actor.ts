@@ -20,6 +20,7 @@ import {
   WeaponMod,
   PackedPilotData,
   quick_relinker,
+  RegEntryTypes,
 } from "machine-mind";
 import { FoundryFlagData, FoundryReg } from "../mm-util/foundry-reg";
 import { LancerHooks, LancerSubscription } from "../helpers/hooks";
@@ -116,98 +117,36 @@ interface DerivedProperties<T extends EntryType> {
   mm_promise: Promise<LiveEntryTypes<T>>;
 }
 
-interface LancerPilotDataSourceData {
-  action_tracker: ActionData;
-  derived: DerivedProperties<EntryType.PILOT>;
-  callsign: string;
-  current_hp: number;
-  lid: string;
+interface LancerActorDataSource<T extends EntryType> {
+  type: T;
+  data: RegEntryTypes<T>;
 }
-interface LancerPilotDataSource {
-  type: typeof EntryType['PILOT'];
-  data: LancerPilotDataSourceData;
-}
-interface LancerPilotDataPropertiesData extends LancerPilotDataSourceData {}
-interface LancerPilotDataProperties {
-  type: typeof EntryType['PILOT'];
-  data: LancerPilotDataPropertiesData;
+interface LancerActorDataProperties<T extends EntryType> {
+  type: T;
+  data: RegEntryTypes<T> & {
+    derived: DerivedProperties<T>;
+    action_tracker: ActionData;
+  };
 }
 
-interface LancerMechDataSourceData {
-  action_tracker: ActionData;
-  derived: DerivedProperties<EntryType.MECH>;
-  current_hp: number;
-  current_heat: number;
-  current_stress: number;
-  current_structure: number;
-  current_overcharge: number;
-  lid: string;
-}
-interface LancerMechDataSource {
-  type: typeof EntryType['MECH'];
-  data: LancerMechDataSourceData;
-}
-interface LancerMechDataPropertiesData extends LancerMechDataSourceData {}
-interface LancerMechDataProperties {
-  type: typeof EntryType['MECH'];
-  data: LancerMechDataPropertiesData;
-}
+type LancerActorSource =
+  | LancerActorDataSource<EntryType.PILOT>
+  | LancerActorDataSource<EntryType.MECH>
+  | LancerActorDataSource<EntryType.NPC>
+  | LancerActorDataSource<EntryType.DEPLOYABLE>;
 
-interface LancerNpcDataSourceData {
-  action_tracker: ActionData;
-  derived: DerivedProperties<EntryType.NPC>;
-  current_hp: number;
-  current_heat: number;
-  current_stress: number;
-  current_structure: number;
-  lid: string;
-  tier: number;
-}
-interface LancerNpcDataSource {
-  type: typeof EntryType['NPC'];
-  data: LancerNpcDataSourceData;
-}
-interface LancerNpcDataPropertiesData extends LancerNpcDataSourceData {}
-interface LancerNpcDataProperties {
-  type: typeof EntryType['NPC'];
-  data: LancerNpcDataPropertiesData;
-}
-
-interface LancerDeployableDataSourceData {
-  action_tracker: ActionData;
-  derived: DerivedProperties<EntryType.DEPLOYABLE>;
-  current_hp: number;
-  current_heat: number;
-  lid: string;
-}
-interface LancerDeployableDataSource {
-  type: typeof EntryType['DEPLOYABLE'];
-  data: LancerDeployableDataSourceData;
-}
-interface LancerDeployableDataPropertiesData extends LancerDeployableDataSourceData {}
-interface LancerDeployableDataProperties {
-  type: typeof EntryType['DEPLOYABLE'];
-  data: LancerDeployableDataPropertiesData;
-}
-
-type LancerActorDataSource =
-  | LancerPilotDataSource
-  | LancerMechDataSource
-  | LancerNpcDataSource
-  | LancerDeployableDataSource;
-
-type LancerActorDataProperties =
-  | LancerPilotDataProperties
-  | LancerMechDataProperties
-  | LancerNpcDataProperties
-  | LancerDeployableDataProperties;
+type LancerActorProperties =
+  | LancerActorDataProperties<EntryType.PILOT>
+  | LancerActorDataProperties<EntryType.MECH>
+  | LancerActorDataProperties<EntryType.NPC>
+  | LancerActorDataProperties<EntryType.DEPLOYABLE>;
 
 declare global {
   interface SourceConfig {
-    Actor: LancerActorDataSource;
+    Actor: LancerActorSource;
   }
   interface DataConfig {
-    Actor: LancerActorDataProperties;
+    Actor: LancerActorProperties;
   }
   interface DocumentClassConfig {
     Actor: typeof LancerActor;
@@ -218,21 +157,6 @@ declare global {
  * Extend the Actor class for Lancer Actors.
  */
 export class LancerActor extends Actor {
-  /*
-  data!: FoundryRegActorData<T> & {
-    // TODO: update to match template
-    data: {
-      // Temporary action store.
-      actions?: ActionData;
-
-      // Include additional derived info
-      derived: DerivedParameters;
-    };
-  };
-  */
-
-  /* -------------------------------------------- */
-
   // Tracks data propagation
   subscriptions: LancerSubscription[] = [];
 
@@ -753,7 +677,6 @@ export class LancerActor extends Actor {
       // }
       let unit_folder = this.folder;
       console.log("Unit folder id:", unit_folder?.id);
-      //@ts-ignore 0.8
       let permission = duplicate(this.data._source.permission);
 
       // Check whether players are allowed to create Actors
@@ -812,7 +735,6 @@ export class LancerActor extends Actor {
         },
         // Rename and rehome deployables
         // @TODO: pilot typing weirdness.
-        // @ts-ignore
         sync_deployable_nosave: (dep: Deployable) => {
           let flags = dep.Flags as FoundryFlagData<EntryType.DEPLOYABLE>;
           let owned_name = dep.Name.includes(data.callsign) ? dep.Name : `${data.callsign}'s ${dep.Name}`;
@@ -869,7 +791,6 @@ export class LancerActor extends Actor {
   }
 
   async clearBadData() {
-    // @ts-ignore .8
     await this.deleteEmbeddedDocuments("Item", Array.from(this.data.items.keys()));
   }
 
@@ -949,7 +870,7 @@ export class LancerActor extends Actor {
       let md = this.data.data;
       dr.current_heat.value = md.current_heat;
       if (this.data.type != EntryType.DEPLOYABLE) {
-        let md = this.data.data;;
+        let md = this.data.data;
         dr.current_stress.value = md.current_stress;
         dr.current_structure.value = md.current_structure;
       }
@@ -1091,7 +1012,6 @@ export class LancerActor extends Actor {
    * to allow negative hps, which are useful for structure checks
    */
   async modifyTokenAttribute(attribute: any, value: any, isDelta = false, isBar = true) {
-    // @ts-ignore
     const current = foundry.utils.getProperty(this.data.data, attribute);
 
     let updates;
@@ -1112,33 +1032,32 @@ export class LancerActor extends Actor {
   /** @override
    * Want to destroy derived data before passing it to an update
    */
-  async update(data: any, options: any = undefined) {
+  async update(data: Parameters<Actor["update"]>[0], context: Parameters<Actor["update"]>[1] = undefined) {
     // Never submit derived data. Typically won't show up here regardless
-    if (data?.derived) {
-      delete data.data.derived;
+    // @ts-expect-error Sohouldn't appear on this data
+    if (data?.data?.derived) {
+      // @ts-expect-error Shouldn't appear on this data
+      delete data.data?.derived;
     }
 
-    return super.update(data, options);
+    return super.update(data, context);
   }
 
   /** @override
    * On the result of an update, we want to cascade derived data.
    */
-  _onUpdate(...args: any) {
-    //@ts-ignore Incorrect typings
+  _onUpdate(...args: Parameters<Actor["_onUpdate"]>) {
     super._onUpdate(...args);
     LancerHooks.call(this);
   }
 
   // Ditto - items alter stats quite often
-  _onModifyEmbeddedEntity(...args: any) {
-    //@ts-ignore Incorrect typings
-    super._onModifyEmbeddedEntity(...args);
+  _onUpdateEmbeddedDocuments(...args: Parameters<Actor["_onUpdateEmbeddedDocuments"]>) {
+    super._onUpdateEmbeddedDocuments(...args);
     LancerHooks.call(this);
   }
 
-  _onDelete(...args: any) {
-    //@ts-ignore Incorrect typings
+  _onDelete(...args: Parameters<Actor["_onDelete"]>) {
     super._onDelete(...args);
 
     this.subscriptions?.forEach(subscription => {
@@ -1222,13 +1141,6 @@ export class LancerActor extends Actor {
   }
 }
 
-// Discrete types for all of our possible generic values
-export type LancerMech = LancerActor;
-export type LancerNpc = LancerActor;
-export type LancerPilot = LancerActor;
-export type LancerDeployable = LancerActor;
-
-export type AnyLancerActor = LancerActor;
 export type AnyMMActor = LiveEntryTypes<LancerActorType>;
 export type LancerActorType = EntryType.MECH | EntryType.DEPLOYABLE | EntryType.NPC | EntryType.PILOT;
 export const LancerActorTypes: LancerActorType[] = [

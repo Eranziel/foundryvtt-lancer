@@ -1,5 +1,5 @@
 import { Mech } from "machine-mind";
-import { AnyLancerActor, AnyMMActor } from "../actor/lancer-actor";
+import { LancerActor, AnyMMActor } from "../actor/lancer-actor";
 import { HANDLER_activate_general_controls } from "../helpers/commons";
 import {
   HANDLER_activate_native_ref_dragging,
@@ -17,7 +17,7 @@ interface FilledCategory {
  * @extends {Dialog}
  */
 export class InventoryDialog extends Dialog {
-  constructor(readonly actor: AnyLancerActor, dialogData: Dialog.Data, options: Partial<Dialog.Options> = {}) {
+  constructor(readonly actor: LancerActor, dialogData: Dialog.Data, options: Partial<Dialog.Options> = {}) {
     super(dialogData, options);
     this.actor = actor;
   }
@@ -120,7 +120,7 @@ export class InventoryDialog extends Dialog {
     $(html).find(".ref.valid").on("click", HANDLER_openRefOnClick);
   }
 
-  static async show_inventory(actor: AnyLancerActor): Promise<void> {
+  static async show_inventory(actor: LancerActor): Promise<void> {
     return new Promise((resolve, _reject) => {
       const dlg = new this(actor, {
         title: `${actor.name}'s inventory`,

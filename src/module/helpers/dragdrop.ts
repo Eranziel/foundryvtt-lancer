@@ -1,5 +1,5 @@
 import { EntryType, OpCtx, RegEntry, RegRef } from "machine-mind";
-import { AnyLancerActor, AnyMMActor, is_actor_type, LancerActor } from "../actor/lancer-actor";
+import { AnyMMActor, is_actor_type, LancerActor } from "../actor/lancer-actor";
 import { AnyMMItem, is_item_type, LancerItem } from "../item/lancer-item";
 import { FoundryReg, FoundryRegName } from "../mm-util/foundry-reg";
 import { FetcherCache, get_pack_id, mm_wrap_actor, mm_wrap_item } from "../mm-util/helpers";
@@ -241,11 +241,11 @@ export async function resolve_native_drop(drop: string | { [key: string]: any } 
     let item: LancerItem | undefined;
     if (drop.pack && drop.actorId) {
       // Case 1 - Item is from a Compendium actor item
-      let actor = (await game.packs.get(drop.pack)?.getDocument(drop.actorId)) as AnyLancerActor | undefined;
+      let actor = (await game.packs.get(drop.pack)?.getDocument(drop.actorId)) as LancerActor | undefined;
       item = actor?.items.get(drop.id);
     } else if (drop.sceneId && drop.tokenId) {
       // Case 2 - Item is a token actor item
-      let actor = game.scenes!.get(drop.sceneId)?.tokens.get(drop.tokenId)?.actor as AnyLancerActor | undefined;
+      let actor = game.scenes!.get(drop.sceneId)?.tokens.get(drop.tokenId)?.actor as LancerActor | undefined;
       item = actor?.items.get(drop.id);
     } else if (drop.actorId) {
       // Case 3 - Item is a game actor item
@@ -273,7 +273,7 @@ export async function resolve_native_drop(drop: string | { [key: string]: any } 
 
     if (drop.pack) {
       // Case 1 - Actor is from a Compendium pack
-      actor = (await game.packs.get(drop.pack)!.getDocument(drop.id)) as AnyLancerActor | undefined;
+      actor = (await game.packs.get(drop.pack)!.getDocument(drop.id)) as LancerActor | undefined;
     } else if (drop.sceneId && drop.actorId) {
       // Case 2 - Actor is a scene token
       actor = game.scenes!.get(drop.sceneId)?.tokens.get(drop.tokenId)?.actor;

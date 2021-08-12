@@ -1,5 +1,5 @@
 import { EntryType, License, LicensedItem, LiveEntryTypes, OpCtx, Pilot, RegEntry } from "machine-mind";
-import { is_actor_type, LancerActor, LancerActorType, LancerMech, LancerPilot } from "../actor/lancer-actor";
+import { is_actor_type, LancerActor, LancerActorType } from "../actor/lancer-actor";
 import { PACK_SCOPE } from "../compBuilder";
 import { friendly_entrytype_name } from "../config";
 import { AnyMMItem, LancerItem, LancerItemType } from "../item/lancer-item";
@@ -228,7 +228,7 @@ export async function mm_resort_item(moverand: AnyMMItem, dest: AnyMMItem, sort_
 // Helper for finding what license an item comes from. Checks by name, an inelegant solution but probably good enough
 export async function find_license_for(
   mm: LiveEntryTypes<LancerItemType>,
-  in_actor?: LancerMech | LancerPilot
+  in_actor?: LancerActor
 ): Promise<License | null> {
   // If the item does not have a license name, then we just bail
   let license_name = (mm as LicensedItem).License;

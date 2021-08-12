@@ -21,7 +21,6 @@ import { CollapseHandler } from "../helpers/collapse";
 import { activate_action_editor } from "../apps/action-editor";
 import { FoundryFlagData } from "../mm-util/foundry-reg";
 import { find_license_for } from "../mm-util/helpers";
-import { LancerMech, LancerPilot } from "../actor/lancer-actor";
 import { MMDragResolveCache } from "../helpers/dragdrop";
 
 const lp = LANCER.log_prefix;
@@ -204,7 +203,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
     // Additionally we would like to find a matching license. Re-use ctx, try both a world and global reg, actor as well if it exists
     data.license = null;
     if (this.actor?.data.type == EntryType.PILOT || this.actor?.data.type == EntryType.MECH) {
-      data.license = await find_license_for(data.mm, this.actor! as LancerMech | LancerPilot);
+      data.license = await find_license_for(data.mm, this.actor!);
     } else {
       data.license = await find_license_for(data.mm);
     }
