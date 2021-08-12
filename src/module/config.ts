@@ -299,7 +299,7 @@ export function replace_default_resource(current: string, replacement: string | 
   }
 
   // If empty or from system path or mystery man, replace
-  if (!current?.trim() || current.includes("system/lancer") || current == "icons/svg/mystery-man.svg") {
+  if (!current?.trim() || current.includes("systems/lancer") || current == "icons/svg/mystery-man.svg") {
     return replacement;
   }
 
