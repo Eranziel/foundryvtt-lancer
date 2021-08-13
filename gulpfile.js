@@ -23,28 +23,16 @@ function getConfig() {
 }
 
 function getManifest() {
-  const json = {};
-
-  if (fs.existsSync("src")) {
-    json.root = "src";
-  } else {
-    json.root = "dist";
+  for (let name of ["system.json", "module.json"]) {
+    for (let root of ["public", "src", "dist"]) {
+      const p = path.join(root, name);
+      if (fs.existsSync(p)) {
+        return { file: fs.readJSONSync(p), root, name };
+      }
+    }
   }
 
-  const modulePath = path.join(json.root, "module.json");
-  const systemPath = path.join(json.root, "system.json");
-
-  if (fs.existsSync(modulePath)) {
-    json.file = fs.readJSONSync(modulePath);
-    json.name = "module.json";
-  } else if (fs.existsSync(systemPath)) {
-    json.file = fs.readJSONSync(systemPath);
-    json.name = "system.json";
-  } else {
-    return;
-  }
-
-  return json;
+  throw Error('Could not find manifest file');
 }
 
 /********************/
