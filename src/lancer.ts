@@ -8,7 +8,7 @@
  */
 
 // Import TypeScript modules
-import { LANCER, STATUSES, WELCOME } from "./module/config";
+import { LANCER, STATUSES, FOUNDRY_VERSION_WARNING, WELCOME } from "./module/config";
 import { LancerGame } from "./module/lancer-game";
 import {
   LancerActor,
@@ -392,28 +392,29 @@ Hooks.once("ready", async function () {
   // TODO: Remove for v0.2
   // Get the published warning from https://github.com/Eranziel/foundryvtt-lancer/wiki/v0.1.20-Announcement
   if (game.settings.get(LANCER.sys_name, LANCER.setting_120)) {
-    function warningDialog(text: string) {new Dialog(
-      {
-        title: `Warning for next update`,
-        content: text,
-        buttons: {
-          dont_show: {
-            label: "Acknowledged",
-            callback: async () => {
-              await game.settings.set(LANCER.sys_name, LANCER.setting_120, false);
+    function warningDialog(text: string) {
+      new Dialog(
+        {
+          title: `Warning for next update`,
+          content: text,
+          buttons: {
+            dont_show: {
+              label: "Acknowledged",
+              callback: async () => {
+                await game.settings.set(LANCER.sys_name, LANCER.setting_120, false);
+              },
+            },
+            close: {
+              label: "Remind Later",
             },
           },
-          close: {
-            label: "Remind Later",
-          },
+          default: "Remind Later",
         },
-        default: "Remind Later",
-      },
-      {
-        width: 800,
-      }
-    ).render(true);
-  }
+        {
+          width: 800,
+        }
+      ).render(true);
+    }
 
     let req = $.get(
       `https://raw.githubusercontent.com/wiki/Eranziel/foundryvtt-lancer/v0.1.20-Announcement.md`
@@ -421,7 +422,7 @@ Hooks.once("ready", async function () {
     req.done((data, status) => {
       warningDialog(marked(data));
     });
-      
+
     req.fail((data, status) => {
       let errorText = `<h2>Warning: Next version will include major changes</h2></br><a href="https://raw.githubusercontent.com/wiki/Eranziel/foundryvtt-lancer/v0.1.20-Announcement.md">Click Here For More Information</a>`;
 
@@ -653,8 +654,26 @@ async function versionCheck() {
 }
 
 async function showChangelog() {
-  // Show welcome message if not hidden.
+  // Check Foundry version
+  if (!game.data.version.startsWith("0.7")) {
+    new Dialog(
+      {
+        title: `WARNING: Version Incompatibility!`,
+        content: FOUNDRY_VERSION_WARNING(),
+        buttons: {
+          close: {
+            label: "Close",
+          },
+        },
+        default: "Close",
+      },
+      {
+        width: 700,
+      }
+    ).render(true);
+  }
   if (!game.settings.get(LANCER.sys_name, LANCER.setting_welcome)) {
+    // Show welcome message if not hidden.
     let renderChangelog = (changelog: string) => {
       new Dialog(
         {
@@ -714,9 +733,9 @@ function addSettingsButtons(app: Application, html: HTMLElement) {
         </button>`);
 
   $(html).find("#settings-documentation").append(faqButton);
-    
+
   faqButton.click(async ev => {
-    let helpContent = await renderTemplate("systems/lancer/templates/window/lancerHelp.html",{});
+    let helpContent = await renderTemplate("systems/lancer/templates/window/lancerHelp.html", {});
 
     new Dialog(
       {
@@ -733,5 +752,5 @@ function addSettingsButtons(app: Application, html: HTMLElement) {
         width: 600,
       }
     ).render(true);
-  })
+  });
 }

@@ -153,3 +153,32 @@ export function WELCOME(changelog: string): string {
   </div>
   `;
 }
+
+export function FOUNDRY_VERSION_WARNING(): string {
+  return `<div style="margin: 10px 5px">
+  <h1>WARNING - Version unsupported!</h1> 
+  <h2>Please read the below text in full!</h2>
+  <p>You are trying to run Lancer ${game.system.data.version} on a version of Foundry beyond 0.7.X. 
+  This breaks this version of the system, but fear not!</p>
+  
+  <p>If this is your first time using the Lancer system in Foundry VTT or you 
+  are starting a new world, we recommend you update to our beta release, 0.9.X.
+  The beta has new features that enrich the experience such as having multiple 
+  mechs allowed per character, automatic hit calculation, an action tracker,
+  and compatibility with current-format LCPs.</p>
+  
+  <p>If this is a 0.1.X Lancer world that you have been playing with in 0.7.X 
+  Foundry, you have two options.</p>
+  <ol><li>Downgrade Foundry to 0.7.10 and restore your data from a backup from before upgrading Foundry.
+  Since you are seeing this message, Foundry has already migrated its data for your world to its new
+  format, so your world won't launch correctly if you only downgrade.</li>
+  <li>Install the beta version of Lancer and start a new world. The beta lacks migration code and
+  will corrupt worlds created before the beta, however this is the only thing 
+  barring it from being considered a stable release.</li></ol>
+  
+  <p>If you have read the above and wish to upgrade Lancer to the beta version, 
+  you can install this manifest in the Foundry systems menu: 
+  <a href="https://raw.githubusercontent.com/Eranziel/foundryvtt-lancer/beta-release/src/system.json">
+  https://raw.githubusercontent.com/Eranziel/foundryvtt-lancer/beta-release/src/system.json</a></p>
+  </div>`;
+}
