@@ -188,7 +188,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
       "Emergency Shunt",
     ];
 
-    let ent = (await this.data.data.derived.mm) as Mech | Npc;
+    let ent = (await this.data.data.derived.mm_promise) as Mech | Npc;
     if (
       game.settings.get(LANCER.sys_name, LANCER.setting_automation) &&
       game.settings.get(LANCER.sys_name, LANCER.setting_auto_structure)
@@ -321,7 +321,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
       "Glancing Blow",
     ];
 
-    let ent = (await this.data.data.derived.mm) as Mech | Npc;
+    let ent = (await this.data.data.derived.mm_promise) as Mech | Npc;
     if (
       game.settings.get(LANCER.sys_name, LANCER.setting_automation) &&
       game.settings.get(LANCER.sys_name, LANCER.setting_auto_structure)
