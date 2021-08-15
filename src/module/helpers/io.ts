@@ -1,5 +1,5 @@
 // TODO: This needs a complete once-over as a lot of the stuff in here appears broken
-import {
+import type {
   EntryType,
   PackedMechData,
   PackedMechLoadoutData,
@@ -7,7 +7,7 @@ import {
   PackedPilotLoadoutData,
 } from "machine-mind";
 import { nanoid } from "nanoid";
-import { LancerActor } from "../actor/lancer-actor";
+import type { LancerActor } from "../actor/lancer-actor";
 
 // GOODBYE LEGACY TYPES
 type LegacyLancerActor = {

@@ -1,7 +1,7 @@
-import { PackedPilotData } from "machine-mind";
+import type { PackedPilotData } from "machine-mind";
 import Auth from "@aws-amplify/auth";
 import Storage from "@aws-amplify/storage";
-import { CachedCloudPilot } from "./interfaces";
+import type { CachedCloudPilot } from "./interfaces";
 
 // we only cache the id, cloud ids, and name; we're going to fetch all other data on user input
 // the point of the cache is not have the pilot actor window to wait for network calls

@@ -1,4 +1,4 @@
-import { EntryType } from "machine-mind";
+import type { EntryType } from "machine-mind";
 import { LancerItemSheet } from "./item-sheet";
 
 /**

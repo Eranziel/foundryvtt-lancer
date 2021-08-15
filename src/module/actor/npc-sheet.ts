@@ -1,11 +1,11 @@
-import { GenControlContext, LancerActorSheetData, LancerStatMacroData } from "../interfaces";
+import type { GenControlContext, LancerActorSheetData, LancerStatMacroData } from "../interfaces";
 import { LANCER } from "../config";
 import { LancerActorSheet } from "./lancer-actor-sheet";
 import { prepareItemMacro, prepareStatMacro } from "../macros";
 import { EntryType, Npc, NpcClass, NpcFeature, NpcTemplate } from "machine-mind";
 import tippy from "tippy.js";
 import { AnyMMItem, is_item_type, LancerItemType } from "../item/lancer-item";
-import { AnyMMActor } from "./lancer-actor";
+import type { AnyMMActor } from "./lancer-actor";
 import { mm_resort_item } from "../mm-util/helpers";
 import { resolve_ref_element } from "../helpers/refs";
 import { HANDLER_activate_general_controls } from "../helpers/commons";

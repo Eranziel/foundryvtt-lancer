@@ -40,7 +40,7 @@ import {
   LoadOptions,
 } from "machine-mind";
 import { LancerActor, LancerActorType } from "../actor/lancer-actor";
-import { LancerItem, LancerItemType } from "../item/lancer-item";
+import type { LancerItem, LancerItemType } from "../item/lancer-item";
 import {
   EntityCollectionWrapper,
   EntFor as DocFor,

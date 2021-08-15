@@ -1,6 +1,6 @@
-import { LancerItemSheetData } from "../interfaces";
+import type { LancerItemSheetData } from "../interfaces";
 import { LANCER } from "../config";
-import { LancerItem, LancerItemType } from "./lancer-item";
+import type { LancerItem, LancerItemType } from "./lancer-item";
 import {
   HANDLER_activate_general_controls,
   gentle_merge,
@@ -19,7 +19,7 @@ import { HANDLER_activate_edit_bonus } from "../helpers/item";
 import { HANDLER_activate_tag_context_menus, HANDLER_activate_tag_dropping } from "../helpers/tags";
 import { CollapseHandler } from "../helpers/collapse";
 import { activate_action_editor } from "../apps/action-editor";
-import { FoundryFlagData } from "../mm-util/foundry-reg";
+import type { FoundryFlagData } from "../mm-util/foundry-reg";
 import { find_license_for } from "../mm-util/helpers";
 import { MMDragResolveCache } from "../helpers/dragdrop";
 

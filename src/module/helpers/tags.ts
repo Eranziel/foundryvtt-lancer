@@ -1,6 +1,6 @@
 import { EntryType, TagInstance, TagTemplate } from "machine-mind";
 import { array_path_edit, resolve_dotpath } from "./commons";
-import { LancerActorSheetData, LancerItemSheetData } from "../interfaces";
+import type { LancerActorSheetData, LancerItemSheetData } from "../interfaces";
 import { HANDLER_enable_mm_dropping, MMDragResolveCache } from "./dragdrop";
 import { ref_params } from "./refs";
 

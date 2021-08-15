@@ -1,4 +1,4 @@
-import { LancerActor } from "../../actor/lancer-actor";
+import type { LancerActor } from "../../actor/lancer-actor";
 
 export function getTargets(): LancerActor[] {
   const targets = game.user!.targets;

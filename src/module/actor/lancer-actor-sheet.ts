@@ -12,8 +12,8 @@ import {
   HANDLER_activate_ref_drop_setting,
   HANDLER_openRefOnClick as HANDLER_activate_ref_clicking,
 } from "../helpers/refs";
-import { LancerActorSheetData, LancerStatMacroData } from "../interfaces";
-import { AnyMMItem } from "../item/lancer-item";
+import type { LancerActorSheetData, LancerStatMacroData } from "../interfaces";
+import type { AnyMMItem } from "../item/lancer-item";
 import { AnyMMActor, is_actor_type, LancerActor, LancerActorType } from "./lancer-actor";
 import {
   prepareActivationMacro,
@@ -41,11 +41,11 @@ import { ActivationOptions } from "../enums";
 import { applyCollapseListeners, CollapseHandler } from "../helpers/collapse";
 import { HANDLER_intercept_form_changes } from "../helpers/refs";
 import { addExportButton } from "../helpers/io";
-import { FoundryFlagData } from "../mm-util/foundry-reg";
+import type { FoundryFlagData } from "../mm-util/foundry-reg";
 import { mm_owner } from "../mm-util/helpers";
-import { ActionType } from "../action";
+import type { ActionType } from "../action";
 import { InventoryDialog } from "../apps/inventory";
-import { LancerGame } from "../lancer-game";
+import type { LancerGame } from "../lancer-game";
 const lp = LANCER.log_prefix;
 
 /**

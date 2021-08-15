@@ -1,7 +1,7 @@
 import { AnyRegNpcFeatureData, EntryType, LiveEntryTypes, RegEntryTypes } from "machine-mind";
 import { is_actor_type, LancerActor, LancerActorType } from "../actor/lancer-actor";
 import { TypeIcon } from "../config";
-import { LancerItem, LancerItemType } from "../item/lancer-item";
+import type { LancerItem, LancerItemType } from "../item/lancer-item";
 import type { FoundryFlagData, FoundryRegNameParsed } from "./foundry-reg";
 import { get_pack, get_pack_id } from "./helpers";
 

@@ -1,5 +1,5 @@
-import { LancerActor } from "../actor/lancer-actor";
-import { ActionData, ActionType } from ".";
+import type { LancerActor } from "../actor/lancer-actor";
+import type { ActionData, ActionType } from ".";
 import { LANCER } from "../config";
 import tippy from "tippy.js";
 
