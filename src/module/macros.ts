@@ -1,8 +1,8 @@
 // Import TypeScript modules
 import { LANCER } from "./config";
-import { LancerItem } from "./item/lancer-item";
-import { LancerActor, AnyMMActor } from "./actor/lancer-actor";
-import {
+import type { LancerItem } from "./item/lancer-item";
+import type { LancerActor, AnyMMActor } from "./actor/lancer-actor";
+import type {
   LancerAttackMacroData,
   LancerMacroData,
   LancerOverchargeMacroData,

@@ -1,7 +1,7 @@
-import { EntryType } from "machine-mind";
+import type { EntryType } from "machine-mind";
 import { LANCER } from "../config";
 import { LancerItemSheet } from "./item-sheet";
-import { LancerItem } from "./lancer-item";
+import type { LancerItem } from "./lancer-item";
 const lp = LANCER.log_prefix;
 
 /**

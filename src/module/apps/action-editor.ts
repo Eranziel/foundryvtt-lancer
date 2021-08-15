@@ -1,4 +1,4 @@
-import { Action, RegEntry } from "machine-mind";
+import type { Action, RegEntry } from "machine-mind";
 import {
   gentle_merge,
   HANDLER_activate_general_controls,

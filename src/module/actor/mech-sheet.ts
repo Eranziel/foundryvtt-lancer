@@ -7,9 +7,9 @@ import {
   WeaponMount,
 } from "machine-mind";
 import {  resolve_dotpath } from "../helpers/commons";
-import { AnyMMItem, LancerItemType } from "../item/lancer-item";
+import type { AnyMMItem, LancerItemType } from "../item/lancer-item";
 import tippy from "tippy.js";
-import { AnyMMActor } from "./lancer-actor";
+import type { AnyMMActor } from "./lancer-actor";
 import { prepareOverchargeMacro } from "../macros";
 
 /**

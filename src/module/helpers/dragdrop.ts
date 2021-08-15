@@ -1,4 +1,4 @@
-import { EntryType, OpCtx, RegEntry, RegRef } from "machine-mind";
+import type { EntryType, OpCtx, RegEntry, RegRef } from "machine-mind";
 import { AnyMMActor, is_actor_type, LancerActor } from "../actor/lancer-actor";
 import { AnyMMItem, is_item_type, LancerItem } from "../item/lancer-item";
 import { FoundryReg, FoundryRegName } from "../mm-util/foundry-reg";

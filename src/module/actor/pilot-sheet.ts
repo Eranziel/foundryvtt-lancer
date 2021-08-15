@@ -2,13 +2,13 @@ import { LANCER } from "../config";
 import { LancerActorSheet } from "./lancer-actor-sheet";
 import { EntryType, Mech, Pilot } from "machine-mind";
 import { funcs } from "machine-mind";
-import { HelperOptions } from "handlebars";
+import type { HelperOptions } from "handlebars";
 import { buildCounterHTML } from "../helpers/item";
 import { ref_commons, ref_params, simple_mm_ref } from "../helpers/refs";
 import { resolve_dotpath } from "../helpers/commons";
-import { AnyMMActor } from "./lancer-actor";
+import type { AnyMMActor } from "./lancer-actor";
 import { cleanCloudOwnerID, fetchPilot, pilotCache } from "../compcon";
-import { AnyMMItem, LancerItemType } from "../item/lancer-item";
+import type { AnyMMItem, LancerItemType } from "../item/lancer-item";
 
 /**
  * Extend the basic ActorSheet

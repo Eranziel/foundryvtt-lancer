@@ -2,7 +2,7 @@ import { LANCER } from "../config";
 const lp = LANCER.log_prefix;
 import { import_cp, clearCompendiumData, set_all_lock } from "../compBuilder";
 import * as mm from "machine-mind";
-import { IContentPack, IContentPackManifest } from "machine-mind";
+import type { IContentPack, IContentPackManifest } from "machine-mind";
 import { migrateAllActors } from "../migration";
 
 export const core_update = "3.0.31"; // typed_lancer_data.info.version;

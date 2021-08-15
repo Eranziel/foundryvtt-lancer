@@ -1,4 +1,4 @@
-import { EntryType, LicensedItem } from "machine-mind";
+import type { EntryType, LicensedItem } from "machine-mind";
 import { FoundryReg } from "../mm-util/foundry-reg";
 import { LancerItemSheet } from "./item-sheet";
 

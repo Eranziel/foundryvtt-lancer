@@ -1,4 +1,4 @@
-import { HelperOptions } from "handlebars";
+import type { HelperOptions } from "handlebars";
 import {
   EntryType,
   LiveEntryTypes,
@@ -21,7 +21,7 @@ import {
   Counter,
 } from "machine-mind";
 import { HTMLEditDialog } from "../apps/text-editor";
-import { GenControlContext, LancerActorSheetData, LancerItemSheetData } from "../interfaces";
+import type { GenControlContext, LancerActorSheetData, LancerItemSheetData } from "../interfaces";
 
 import { WeaponType, ActivationType } from "machine-mind";
 

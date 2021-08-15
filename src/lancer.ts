@@ -15,7 +15,7 @@ import Auth from "@aws-amplify/auth";
 import Storage from "@aws-amplify/storage";
 
 import { LANCER, STATUSES, WELCOME } from "./module/config";
-import { LancerGame } from "./module/lancer-game";
+import type { LancerGame } from "./module/lancer-game";
 import { LancerActor, lancerActorInit } from "./module/actor/lancer-actor";
 import { LancerItem, lancerItemInit } from "./module/item/lancer-item";
 import { populatePilotCache } from "./module/compcon";
@@ -99,7 +99,7 @@ import {
   stat_rollable_card,
   stat_view_card,
 } from "./module/helpers/actor";
-import { HelperOptions } from "handlebars";
+import type { HelperOptions } from "handlebars";
 import {
   editable_mm_ref_list_item,
   simple_mm_ref,

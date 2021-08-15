@@ -1,8 +1,8 @@
 // Namespace configuration Values
 
 import { EntryType, NpcFeatureType } from "machine-mind";
-import { LancerActorType } from "./actor/lancer-actor";
-import { LancerItemType } from "./item/lancer-item";
+import type { LancerActorType } from "./actor/lancer-actor";
+import type { LancerItemType } from "./item/lancer-item";
 
 const ASCII = `
 ╭╮╱╱╭━━━┳━╮╱╭┳━━━┳━━━┳━━━╮ 

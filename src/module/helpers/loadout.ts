@@ -1,4 +1,4 @@
-import { HelperOptions } from "handlebars";
+import type { HelperOptions } from "handlebars";
 import {
   EntryType,
   Mech,
@@ -12,14 +12,14 @@ import {
   Deployable,
   CoreSystem,
 } from "machine-mind";
-import { WeaponMount } from "machine-mind";
+import type { WeaponMount } from "machine-mind";
 import { ChipIcons } from "../enums";
-import { LancerMacroData } from "../interfaces";
+import type { LancerMacroData } from "../interfaces";
 import { inc_if, resolve_helper_dotpath, array_path_edit } from "./commons";
 import { mech_weapon_refview, buildActionHTML, buildDeployableHTML, buildChipHTML } from "./item";
 import { editable_mm_ref_list_item, ref_commons, ref_params, simple_mm_ref } from "./refs";
 import { compact_tag_list } from "./tags";
-import { LancerActor } from "../actor/lancer-actor";
+import type { LancerActor } from "../actor/lancer-actor";
 
 export type CollapseRegistry = { [LID: string]: number };
 

@@ -1,7 +1,7 @@
 import { LancerActorSheet } from "./lancer-actor-sheet";
 import { EntryType } from "machine-mind";
-import { AnyMMActor } from "./lancer-actor";
-import { AnyMMItem } from "../item/lancer-item";
+import type { AnyMMActor } from "./lancer-actor";
+import type { AnyMMItem } from "../item/lancer-item";
 
 /**
  * Extend the basic ActorSheet

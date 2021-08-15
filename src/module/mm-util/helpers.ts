@@ -2,7 +2,7 @@ import { EntryType, License, LicensedItem, LiveEntryTypes, OpCtx, Pilot, RegEntr
 import { is_actor_type, LancerActor, LancerActorType } from "../actor/lancer-actor";
 import { PACK_SCOPE } from "../compBuilder";
 import { friendly_entrytype_name } from "../config";
-import { AnyMMItem, LancerItem, LancerItemType } from "../item/lancer-item";
+import type { AnyMMItem, LancerItem, LancerItemType } from "../item/lancer-item";
 import { FoundryFlagData, FoundryReg } from "./foundry-reg";
 
 // Simple caching mechanism for handling async fetchable values for a certain length of time

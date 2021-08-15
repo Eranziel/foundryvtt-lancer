@@ -25,12 +25,12 @@ import { FoundryFlagData, FoundryReg } from "../mm-util/foundry-reg";
 import { LancerHooks, LancerSubscription } from "../helpers/hooks";
 import { mm_wrap_actor } from "../mm-util/helpers";
 import { system_ready } from "../../lancer";
-import { LancerItemType } from "../item/lancer-item";
+import type { LancerItemType } from "../item/lancer-item";
 import { renderMacroTemplate, encodeMacroData } from "../macros";
-import { RegEntry, MechWeapon, NpcFeature } from "machine-mind";
+import type { RegEntry, MechWeapon, NpcFeature } from "machine-mind";
 import { StabOptions1, StabOptions2 } from "../enums";
 import { fix_modify_token_attribute } from "../token";
-import { ActionData } from "../action";
+import type { ActionData } from "../action";
 const lp = LANCER.log_prefix;
 
 // TODO: Refactor this as LancerActor._preCreate

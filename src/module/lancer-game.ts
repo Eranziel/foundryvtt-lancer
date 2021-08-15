@@ -1,4 +1,4 @@
-import { LancerActionManager } from "./action/actionManager";
+import type { LancerActionManager } from "./action/actionManager";
 
 export class LancerGame extends Game {
   // Create a lancer namespace

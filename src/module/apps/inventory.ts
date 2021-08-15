@@ -1,5 +1,5 @@
 import { Mech } from "machine-mind";
-import { LancerActor, AnyMMActor } from "../actor/lancer-actor";
+import type { LancerActor, AnyMMActor } from "../actor/lancer-actor";
 import { HANDLER_activate_general_controls } from "../helpers/commons";
 import {
   HANDLER_activate_native_ref_dragging,

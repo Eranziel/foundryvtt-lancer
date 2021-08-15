@@ -1,4 +1,4 @@
-import { HelperOptions } from "handlebars";
+import type { HelperOptions } from "handlebars";
 import {
   EntryType,
   OpCtx,
@@ -21,7 +21,7 @@ import {
 import { is_limited } from "machine-mind/dist/classes/mech/EquipUtil";
 import { AnyMMActor, is_actor_type } from "../actor/lancer-actor";
 import { TypeIcon } from "../config";
-import { LancerMacroData } from "../interfaces";
+import type { LancerMacroData } from "../interfaces";
 import { AnyMMItem, is_item_type, LancerItemType } from "../item/lancer-item";
 import { encodeMacroData } from "../macros";
 import { FoundryFlagData, FoundryReg } from "../mm-util/foundry-reg";

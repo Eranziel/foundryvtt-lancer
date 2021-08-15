@@ -1,4 +1,3 @@
-import { NpcFeatureType } from "machine-mind";
 
 // TODO: Just use machine mind, where possible
 

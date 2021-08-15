@@ -1,6 +1,6 @@
 import { EntryType, RegEntry, RegRef } from "machine-mind";
-import { LancerActor, LancerActorType } from "../actor/lancer-actor";
-import { LancerItem, LancerItemType } from "../item/lancer-item";
+import type { LancerActor, LancerActorType } from "../actor/lancer-actor";
+import type { LancerItem, LancerItemType } from "../item/lancer-item";
 
 export const DEBOUNCE_TIMEOUT = 500; // An update propagation hook will fire at most once every this many MS.
 // Triggers on falling edge (meaning will wait for updates to stop pouring in before firing

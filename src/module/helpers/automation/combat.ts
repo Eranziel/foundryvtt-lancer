@@ -1,5 +1,5 @@
 import { LANCER } from "../../config";
-import { LancerGame } from "../../lancer-game";
+import type { LancerGame } from "../../lancer-game";
 import { prepareChargeMacro } from "../../macros";
 
 export async function handleCombatUpdate(combat: any, changed: any) {
