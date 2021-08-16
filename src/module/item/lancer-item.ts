@@ -5,7 +5,7 @@ import { mm_wrap_item } from "../mm-util/helpers";
 
 const lp = LANCER.log_prefix;
 
-export function lancerItemInit(base_item: any, provided_data: any) {
+export function lancerItemInit(base_item: LancerItem, provided_data: ConstructorParameters<typeof Item>[0]) {
   // If base item has data, then we are probably importing. Skip this step
   if (provided_data?.data) {
     return;
@@ -14,13 +14,13 @@ export function lancerItemInit(base_item: any, provided_data: any) {
   console.log(`${lp} Initializing new ${base_item.type}`);
 
   // Select default image
-  let icon_lookup = base_item.type;
-  if (base_item.type == EntryType.NPC_FEATURE) {
+  let icon_lookup: string = base_item.type;
+  if (base_item.is_npc_feature()) {
     icon_lookup += base_item.type ?? "";
   }
   let img = TypeIcon(icon_lookup);
 
-  let default_data: any;
+  let default_data: any; // This could use a proper type
   switch (base_item.type as EntryType) {
     default:
     case EntryType.CORE_BONUS:

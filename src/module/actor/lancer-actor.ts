@@ -6,7 +6,6 @@ import {
   Deployable,
   Npc,
   RegRef,
-  RegDeployableData,
   OpCtx,
   LiveEntryTypes,
   RegEnv,
@@ -863,10 +862,10 @@ export class LancerActor extends Actor {
 
     // Update our known values now, synchronously.
     dr.current_hp.value = this.data.data.current_hp;
-    if (this.data.type != EntryType.PILOT) {
+    if (this.is_mech() || this.is_npc() || this.is_deployable()) {
       let md = this.data.data;
       dr.current_heat.value = md.current_heat;
-      if (this.data.type != EntryType.DEPLOYABLE) {
+      if (!this.is_deployable()) {
         let md = this.data.data;
         dr.current_stress.value = md.current_stress;
         dr.current_structure.value = md.current_structure;
@@ -1084,7 +1083,7 @@ export class LancerActor extends Actor {
       }
     } else if (this.is_deployable()) {
       // If deployable, same deal
-      let dep_data = (this.data.data as unknown) as RegDeployableData;
+      let dep_data = this.data.data;
       if (dep_data.deployer) {
         dependency = dep_data.deployer;
       }
@@ -1092,7 +1091,7 @@ export class LancerActor extends Actor {
 
     // Make a subscription for each
     if (dependency) {
-      let sub = LancerHooks.on(dependency, async (_: any) => {
+      let sub = LancerHooks.on(dependency, async (_) => {
         console.debug("Triggering subscription-based update on " + this.name);
         // We typically don't need to actually .update() ourselves when a dependency updates
         // Each client will individually prepareDerivedData in response to the update, and so there is no need for DB communication
