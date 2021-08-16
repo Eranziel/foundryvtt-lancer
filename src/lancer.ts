@@ -14,7 +14,7 @@ import aws from "./aws-exports";
 import Auth from "@aws-amplify/auth";
 import Storage from "@aws-amplify/storage";
 
-import { COMPATIBLE_MIGRATION_VERSION, LANCER, NEEDS_MIGRATION_VERSION, STATUSES, WELCOME } from "./module/config";
+import { COMPATIBLE_MIGRATION_VERSION, LANCER, NEEDS_MAJOR_MIGRATION_VERSION, NEEDS_MINOR_MIGRATION_VERSION, STATUSES, WELCOME } from "./module/config";
 import { LancerGame } from "./module/lancer-game";
 import { LancerActor, lancerActorInit } from "./module/actor/lancer-actor";
 import { LancerItem, lancerItemInit } from "./module/item/lancer-item";
@@ -534,12 +534,12 @@ Hooks.once("setup", function () {
         edef: 8,
         evasion: 5,
         save_target: 0,
-        current_heat: bar_like,
-        current_hp: bar_like,
+        heat: bar_like,
+        hp: bar_like,
         overshield: bar_like,
-        current_structure: bar_like,
-        current_stress: bar_like,
-        current_repairs: bar_like,
+        structure: bar_like,
+        stress: bar_like,
+        repairs: bar_like
       };
       mergeObject(data, derived_addition);
     }
@@ -743,7 +743,7 @@ function setupSheets() {
  * @return -1 for migration needed, 0 for world equal to migration target version,
  * 1 for world ahead of migration target version.
  */
-async function versionCheck(): Promise<0 | 1 | -1> {
+async function versionCheck(): Promise<"none" | "minor" | "major"> {
   // Determine whether a system migration is required and feasible
   const currentVersion = game.settings.get(LANCER.sys_name, LANCER.setting_migration);
 
@@ -751,11 +751,19 @@ async function versionCheck(): Promise<0 | 1 | -1> {
   if (currentVersion === "0" || currentVersion === "") {
     await game.settings.set(LANCER.sys_name, LANCER.setting_migration, game.system.data.version);
     await promptInstallCoreData();
-    return 0;
+    return "none";
   }
 
-  return currentVersion ? compareVersions(currentVersion, NEEDS_MIGRATION_VERSION) : 1;
+  if(compareVersions(currentVersion, NEEDS_MAJOR_MIGRATION_VERSION) < 0) {
+    return "major";
+  } else if(compareVersions(currentVersion, NEEDS_MINOR_MIGRATION_VERSION) < 0) {
+    return "minor";
+  } else {
+    return "none";
+  }
 }
+  /*// Modify these constants to set which Lancer version numbers need and permit migration.
+  */
 
 /**
  * Performs our version validation and migration
@@ -765,13 +773,13 @@ async function versionCheck(): Promise<0 | 1 | -1> {
 async function doMigration() {
   // Determine whether a system migration is required and feasible
   const currentVersion = game.settings.get(LANCER.sys_name, LANCER.setting_migration);
-  let needMigration = await versionCheck();
+  let migration = await versionCheck();
   // Check whether system has been updated since last run.
-  if (compareVersions(currentVersion, game.system.data.version) != 0 && game.user.isGM) {
+  if (migration != "none" && game.user.isGM) {
     // Un-hide the welcome message
     await game.settings.set(LANCER.sys_name, LANCER.setting_welcome, false);
 
-    if (needMigration <= 0) {
+    if (migration == "major") {
       if (currentVersion && compareVersions(currentVersion, COMPATIBLE_MIGRATION_VERSION) < 0) {
         // System version is too old for migration
         ui.notifications.error(
@@ -781,37 +789,42 @@ async function doMigration() {
       }
       // Perform the migration
       await migrations.migrateWorld(true);
+    } else if(migration == "minor") {
+      // Perform the migration
+      await migrations.minor09Migration(true);
     }
-    // Set the version for future migration and welcome message checking
-    await game.settings.set(LANCER.sys_name, LANCER.setting_migration, game.system.data.version);
   }
 
-  // Use the new FEATURES dict to see if we can assume that there will be issues
-  // I think this is up to date with all currently in use, but we'll need to keep it updated
-  // https://gitlab.com/foundrynet/foundryvtt/-/issues/3959#note_441254976
-  let supportedFeatures = {
-    ACTORS: 2,
-    CHAT: 2,
-    COMPENDIUM: 2,
-    ENTITIES: 4,
-    ITEMS: 2,
-    MACROS: 1,
-    SETTINGS: 2,
-    TOKENS: 3,
-  };
-
-  // GOODBYE FEATURES!
-  // for (const k in supportedFeatures) {
-  //   // This is fine so...
-  //   //@ts-ignore
-  //   if (supportedFeatures[k] !== window.FEATURES[k]) {
-  //     console.log(`Major version error for feature ${k}`);
-  //     ui.notifications.error(
-  //       `Warning: A major version incompatibility has been detected. You may experience issues, please return to a supported version.`
-  //     );
-  //   }
-  // }
+  // Set the version for future migration and welcome message checking
+  await game.settings.set(LANCER.sys_name, LANCER.setting_migration, game.system.data.version);
 }
+
+// Use the new FEATURES dict to see if we can assume that there will be issues
+// I think this is up to date with all currently in use, but we'll need to keep it updated
+// https://gitlab.com/foundrynet/foundryvtt/-/issues/3959#note_441254976
+let supportedFeatures = {
+  ACTORS: 2,
+  CHAT: 2,
+  COMPENDIUM: 2,
+  ENTITIES: 4,
+  ITEMS: 2,
+  MACROS: 1,
+  SETTINGS: 2,
+  TOKENS: 3,
+};
+
+// GOODBYE FEATURES!
+// for (const k in supportedFeatures) {
+//   // This is fine so...
+//   //@ts-ignore
+//   if (supportedFeatures[k] !== window.FEATURES[k]) {
+//     console.log(`Major version error for feature ${k}`);
+//     ui.notifications.error(
+//       `Warning: A major version incompatibility has been detected. You may experience issues, please return to a supported version.`
+//     );
+//   }
+// }
+
 
 async function sanityCheck() {
   const message = `<h1>DO NOT USE THIS VERSION ON AN EXISTING WORLD</h1>

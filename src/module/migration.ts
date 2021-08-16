@@ -119,11 +119,11 @@ Please refresh the page to try again.</p>`,
   // Migrate Actor Override Tokens
   for (let s of game.scenes.contents) {
     try {
-      const updateData = await migrateSceneData(s);
-      if (updateData && !isObjectEmpty(updateData)) {
-        console.log(`Migrating Scene entity ${s.name}`);
+      console.log(`Migrating Scene entity ${s.name}`);
+      await migrateSceneData(s);
+      // if (updateData && !isObjectEmpty(updateData)) {
         // await s.update(updateData);
-      }
+      // }
     } catch (err) {
       console.error(err);
     }
@@ -135,6 +135,10 @@ Please refresh the page to try again.</p>`,
     permanent: true,
   });
 };
+
+export const minor09Migration = async function (migrateComps = true) {
+  //pass
+}
 
 /* -------------------------------------------- */
 
@@ -293,30 +297,22 @@ export const migrateActorData = async function (actor: Actor) {
   // and pilots need the GM to import LCPs first.
   if (actor.data.type === EntryType.NPC) {
     updateData.data.tier = origData.data.tier_num;
-    updateData.data.current_heat = origData.data.mech.heat.value;
-    updateData.data.current_hp = origData.data.mech.hp.value;
-    updateData.data.current_stress = origData.data.mech.stress.value;
-    updateData.data.current_structure = origData.data.mech.structure.value;
+    updateData.data.heat = origData.data.mech.heat.value;
+    updateData.data.hp = origData.data.mech.hp.value;
+    updateData.data.stress = origData.data.mech.stress.value;
+    updateData.data.structure = origData.data.mech.structure.value;
 
     updateData["data.-=mech"] = null;
     updateData["data.-=npc_size"] = null;
     updateData["data.-=activations"] = null;
   } else if (actor.data.type === EntryType.DEPLOYABLE) {
     updateData.data.detail = origData.data.effect;
-    updateData.data.current_heat = origData.data.heat.value;
+    updateData.data.heat = origData.data.heat.value;
     updateData.data.heatcap = origData.data.heat.max;
-    updateData.data.derived = {};
-    updateData.data.derived.current_heat = origData.data.heat;
-    updateData.data.current_hp = origData.data.hp.value;
+    updateData.data.hp = origData.data.hp.value;
     updateData.data.max_hp = origData.data.hp.max;
-    updateData.data.derived.current_hp = origData.data.hp;
-    updateData.data.derived.armor = origData.data.armor;
-    updateData.data.derived.edef = origData.data.edef;
-    updateData.data.derived.evasion = origData.data.evasion;
 
     updateData["data.-=description"] = null;
-    updateData["data.-=heat"] = null;
-    updateData["data.-=hp"] = null;
   } else {
     return {};
   }
@@ -542,18 +538,74 @@ export const migrateSceneData = async function (scene) {
   console.log(`Migrating scene ${scene.name}`);
   if (!scene.tokens) return;
   const tokens = [];
-  scene.tokens.forEach((t: LancerTokenDocument) => {
-    // console.log(t);
-    let ta = t.actor;
-    if (!t.actorLink) {
-      migrateActorData(ta.actorData).then((updateData: any) => {
-        if (updateData && !isObjectEmpty(updateData)) {
-          ta.update(updateData);
-        }
-      });
-      ta.update();
+  scene.tokens.forEach(async (token: LancerTokenDocument) => {
+    // Migrate unlinked actors
+    if (!token.isLinked) {
+      let token_actor = token.actor;
+      let updateData = await migrateActorData(token_actor.data);
+      if (updateData && !isObjectEmpty(updateData)) {
+        await token_actor.update(updateData);
+      }
     }
+
+    // Migrate tokens themselves
+    await migrateTokenData(token);
   });
+}
+
+// Migrates a TokenDocument (not the actor! just the token!)
+export const migrateTokenData = async (token: LancerTokenDocument) => {
+  let updateData = {};
+
+  // Returns a corrected bar attribute or, if one could not be deduced, just hp
+  const fix_bar_attribute = (attr_name: string) => {
+    attr_name = attr_name || ""; // sanity
+    if(attr_name.includes("heat")) {
+      return "derived.heat";
+    } else if (attr_name.includes("hp")) {
+      return "derived.hp";
+    } else if (attr_name.includes("shield")) {
+      return "derived.overshield";
+    } else if (attr_name.includes("burn")) {
+      return "burn";
+    } else if (attr_name.includes("struct")) {
+      return "derived.structure";
+    } else if (attr_name.includes("stress")) {
+      return "derived.stress";
+    } else if (attr_name.includes("rep")) {
+      return "derived.repairs";
+    } else {
+      return "derived.hp"; // a safe alternative
+    }
+  };
+
+  // Fix the standard bars individually
+  if(token.data.bar1) {
+    updateData["bar1"] = {
+      attribute: fix_bar_attribute(token.data.bar1.attribute)
+    };
+  }
+  if(token.data.bar2) {
+    updateData["bar2"] = {
+      attribute: fix_bar_attribute(token.data.bar2.attribute)
+    };
+  }
+
+  // Fix bar brawlers
+  if(token.data.flags?.barbrawl) {
+    let bb_data = token.data.flags.barbrawl;
+    let bb_update_data = {};
+    for(let bar_key of Object.keys(bb_data.resourceBars)) {
+      bb_update_data[bar_key] = {
+        attribute: fix_bar_attribute(bb_update_data[bar_key].attribute)
+      };
+    }
+    updateData["flags.barbrawl.resourceBars"] = bb_update_data;
+  }
+
+  // Apply update
+  token.update(updateData);
+};
   // return tokens.map(t => {
   //   if (!t.actorId || t.actorLink || !t.actorData.data) {
   //     t.actorData = {};
@@ -571,8 +623,6 @@ export const migrateSceneData = async function (scene) {
   // });
 
   // If the scene data itself needs to be migrated, make the changes and return the migrated data here.
-  return;
-};
 
 /* -------------------------------------------- */
 

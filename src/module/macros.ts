@@ -941,7 +941,7 @@ export async function prepareCoreActiveMacro(a: string) {
         icon: '<i class="fas fa-check"></i>',
         label: "Yes",
         callback: async dlg => {
-          mech?.update({ "data.current_core_energy": Math.max(ent.CurrentCoreEnergy - 1, 0) });
+          mech?.update({ "data.core_energy": Math.max(ent.CurrentCoreEnergy - 1, 0) });
           console.log(`Automatically consumed core power for ${ent.LID}`);
         },
       },

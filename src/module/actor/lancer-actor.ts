@@ -73,8 +73,8 @@ export function lancerActorInit(base_actor: any, creation_args: any, sheet_optio
   return base_actor.data.update({
     data: default_data,
     img: TypeIcon(base_actor.type),
-    "token.bar1": { attribute: "derived.current_hp" }, // Default Bar 1 to HP
-    "token.bar2": { attribute: "derived.current_heat" }, // Default Bar 2 to Heat
+    "token.bar1": { attribute: "derived.hp" }, // Default Bar 1 to HP
+    "token.bar2": { attribute: "derived.heat" }, // Default Bar 2 to Heat
     "token.displayName": display_mode,
     "token.displayBars": display_mode,
     "token.disposition": disposition,
@@ -104,11 +104,11 @@ export class LancerActor<T extends LancerActorType> extends Actor {
       // Include additional derived info
       derived: {
         // These are all derived and populated by MM
-        current_hp: { max: number, value: number }; // -hps are useful for structure macros
-        current_heat: BoundedValue;
-        current_stress: BoundedValue;
-        current_structure: BoundedValue;
-        current_repairs: BoundedValue;
+        hp: { max: number, value: number }; // -hps are useful for structure macros
+        heat: BoundedValue;
+        stress: BoundedValue;
+        structure: BoundedValue;
+        repairs: BoundedValue;
         overshield: BoundedValue; // Though not truly a bounded value, useful to have it as such for bars etc
 
         // Other values we particularly appreciate having cached
@@ -826,12 +826,12 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         save_target: 0,
         speed: 0,
         armor: 0,
-        current_heat: default_bounded(),
-        current_hp: { max: 0, value: 0 },
+        heat: default_bounded(),
+        hp: { max: 0, value: 0 },
         overshield: default_bounded(),
-        current_structure: default_bounded(),
-        current_stress: default_bounded(),
-        current_repairs: default_bounded(),
+        structure: default_bounded(),
+        stress: default_bounded(),
+        repairs: default_bounded(),
         mm: null, // we will set these momentarily
         mm_promise: null as any, // we will set these momentarily
       };
@@ -843,14 +843,14 @@ export class LancerActor<T extends LancerActorType> extends Actor {
     this.data.data.derived = dr;
 
     // Update our known values now, synchronously. 
-    dr.current_hp.value = this.data.data.current_hp
+    dr.hp.value = this.data.data.hp
     if(this.data.type != EntryType.PILOT) {
       let md = this.data.data as RegEntryTypes<EntryType.MECH | EntryType.NPC | EntryType.DEPLOYABLE>;
-      dr.current_heat.value = md.current_heat;
+      dr.heat.value = md.heat;
       if(this.data.type != EntryType.DEPLOYABLE) {
         let md = this.data.data as RegEntryTypes<EntryType.MECH | EntryType.NPC>;
-        dr.current_stress.value = md.current_stress;
-        dr.current_structure.value = md.current_structure;
+        dr.stress.value = md.stress;
+        dr.structure.value = md.structure;
       }
     }
 
@@ -899,7 +899,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         });
 
         // Changes in max-hp should heal the actor. But certain requirements must be met
-        // - Must know prior (would be in dr.current_hp.max). If 0, do nothing
+        // - Must know prior (would be in dr.hp.max). If 0, do nothing
         // - Must not be dead. If HP <= 0, do nothing
         // - New HP must be valid. If 0, do nothing
         // If above two are true, then set HP = HP - OldMaxHP + NewMaxHP. This should never drop the ent below 1 hp
@@ -930,8 +930,8 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         dr.speed = mm.Speed;
         dr.armor = mm.Armor;
 
-        dr.current_hp.value = mm.CurrentHP;
-        dr.current_hp.max = mm.MaxHP;
+        dr.hp.value = mm.CurrentHP;
+        dr.hp.max = mm.MaxHP;
 
         dr.overshield.value = mm.Overshield;
         dr.overshield.max = mm.MaxHP; // as good a number as any I guess
@@ -942,26 +942,26 @@ export class LancerActor<T extends LancerActorType> extends Actor {
 
           // All "wow, cool robot" type units have these
           dr.save_target = robot.SaveTarget;
-          dr.current_heat.max = robot.HeatCapacity;
-          dr.current_heat.value = robot.CurrentHeat;
+          dr.heat.max = robot.HeatCapacity;
+          dr.heat.value = robot.CurrentHeat;
 
           if (robot.Type != EntryType.DEPLOYABLE) {
             // Deployables don't have stress/struct
-            dr.current_structure.max = robot.MaxStructure;
-            dr.current_structure.value = robot.CurrentStructure;
+            dr.structure.max = robot.MaxStructure;
+            dr.structure.value = robot.CurrentStructure;
 
-            dr.current_stress.max = robot.MaxStress;
-            dr.current_stress.value = robot.CurrentStress;
+            dr.stress.max = robot.MaxStress;
+            dr.stress.value = robot.CurrentStress;
           }
           if (robot.Type != EntryType.NPC) {
             // Npcs don't have repairs
-            dr.current_repairs.max = robot.RepairCapacity;
-            dr.current_repairs.value = robot.CurrentRepairs;
+            dr.repairs.max = robot.RepairCapacity;
+            dr.repairs.value = robot.CurrentRepairs;
           }
         }
 
         // Update prior max hp val
-        this.prior_max_hp = dr.current_hp.max;
+        this.prior_max_hp = dr.hp.max;
 
         // Now that data is set properly, force token to draw its bars
         if (this.isToken && (this.token as any).bars) {
