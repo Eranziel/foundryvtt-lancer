@@ -1227,10 +1227,9 @@ async function rollOverchargeMacro(actor: LancerActor, data: LancerOverchargeMac
 export async function prepareChargeMacro(a: string) {
   // Determine which Actor to speak as
   let mech = getMacroSpeaker(a);
-  if (!mech) return;
+  if (!mech || !mech.is_npc()) return;
   const ent = mech.data.data.derived.mm;
-  // TODO: Is this only supposed to run for NPCs?
-  const feats: NpcFeature[] = (ent as any).Features;
+  const feats = ent?.Features;
   if (!feats) return;
 
   // Make recharge roll.
@@ -1369,7 +1368,7 @@ async function _prepareTechActionMacro(actorEnt: Mech, itemEnt: MechSystem | Npc
   mData.tags = itemEnt.Tags;
 
   /*
-  if (item.type === EntryType.NPC_FEATURE) {
+  if (item.is_npc_feature()) {
     const tData = item.data.data as RegNpcTechData;
     let tier: number;
     if (item.actor === null) {

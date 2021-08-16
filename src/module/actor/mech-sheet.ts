@@ -115,7 +115,7 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
     let overchargeText = html.find(".overcharge-text");
 
     overchargeText.on("click", ev => {
-      if (this.actor.data.type !== EntryType.MECH) return;
+      if (!this.actor.is_mech()) return;
       this._setOverchargeLevel(ev, Math.min(this.actor.data.data.current_overcharge + 1, 3));
     });
 
