@@ -1,0 +1,251 @@
+{{#*inline "total"}}
+  {{#if target}}
+    <div class="accdiff-grid">
+      <img class="lancer-hit-thumb accdiff-target-has-dropdown" data-template="dropdown-template-{{key}}" src="{{target.data.img}}" />
+      <label for="{{concat key '.consumeLockOn'}}"
+        class="{{#if usingLockOn}}checked{{/if}} {{#unless lockOnAvailable}}disabled{{/unless}}"
+        title="Consume Lock On (+1)">
+        <i class="cci cci-condition-lock-on" style="border:none"></i>
+      </label>
+    </div>
+  {{/if}}
+  {{{accdiff-total-display (concat key ".total")
+    id=(concat "accdiff-total-" key)
+    classes="accdiff-grid accdiff-weight"
+  }}}
+{{/inline}}
+{{#*inline "plugin"}}
+  {{#if visible}}
+    {{#if (eq uiElement "checkbox")}}
+      <label class="container">
+        {{humanLabel}}
+        <input type="checkbox"
+          name="{{key}}.uiState"
+          id="{{key}}.uiState"
+          {{checked uiState}}
+          {{#if disabled}}disabled{{/if}}
+        />
+        <span class="checkmark"></span>
+      </label>
+    {{/if}}
+  {{/if}}
+{{/inline}}
+<form id="accdiff">
+  <div id="accdiff-dialog" style="padding:4px">
+    <div class="accdiff-grid">
+      <div style="width:100%;padding:4px;border-right: 1px dashed #782e22;">
+        <h3>
+          <i class="cci cci-accuracy i--m i--dark" style="vertical-align:middle;border:none"></i>
+          Accuracy
+        </h3>
+        <label class="container">
+          Accurate (+1)
+          <input type="checkbox" name="weapon.accurate" {{checked weapon.accurate}} />
+          <span class="checkmark"></span>
+        </label>
+        <label class="container">
+          Seeking (*)
+          <input type="checkbox" name="weapon.seeking" {{checked weapon.seeking}} />
+          <span class="checkmark"></span>
+        </label>
+        {{#each weapon.plugins as |data key|}}
+          {{> plugin data key=(concat "weapon.plugins." key) visible=visible disabled=disabled uiState=uiState}}
+        {{/each}}
+        {{#if hasExactlyOneTarget}}
+          <label class="container">
+            Consume Lock On (+1)
+            <input type="checkbox"
+              name="targets.0.consumeLockOn"
+              id="targets.0.consumeLockOn"
+              {{checked targets.0.usingLockOn}}
+              {{#unless targets.0.lockOnAvailable}}disabled{{/unless}}
+            />
+            <span class="checkmark"></span>
+          </label>
+          {{#each targets.0.plugins as |data key|}}
+            {{> plugin data key=(concat "targets.0.plugins." key)  visible=visible disabled=disabled uiState=uiState}}
+          {{/each}}
+        {{/if}}
+      </div>
+      <div style="width:100%;padding:4px;">
+        <h3>
+          <i class="cci cci-difficulty i--m i--dark" style="vertical-align:middle;border:none"></i>
+          Difficulty
+        </h3>
+        <label class="container">
+          Inaccurate (-1)
+          <input type="checkbox" name="weapon.inaccurate" {{checked weapon.inaccurate}} />
+          <span class="checkmark"></span>
+        </label>
+        <label class="container">
+          Impaired (-1)
+          <input type="checkbox" name="weapon.impaired" {{checked weapon.impaired}} disabled />
+          <span class="checkmark"></span>
+        </label>
+        {{#unless hasTargets}}
+          {{#if hasExactlyOneTarget}}
+            {{{std-cover-input "targets.0.cover"
+              classes="accdiff-base-cover flexcol"
+              disabled="weapon.seeking"
+            }}}
+          {{else}}
+            {{{std-cover-input "base.cover"
+              classes="accdiff-base-cover flexcol"
+              disabled="weapon.seeking"
+            }}}
+          {{/if}}
+        {{/unless}}
+      </div>
+    </div>
+    <label class="flexrow accdiff-footer accdiff-weight">
+      Other Sources
+    </label>
+    <div class="accdiff-grid">
+      <div class="accdiff-other-grid" style="border-right: 1px dashed #782e22;">
+        <button
+          class="mod-minus-button dec-set"
+          type="button"
+          onclick="this.nextElementSibling.value = this.nextElementSibling.valueAsNumber - 1; this.nextElementSibling.dispatchEvent(new Event('change', {bubbles: true}))"
+        >
+          -
+        </button>
+        <input
+          id="accdiff-other-acc"
+          class="difficulty lancer-invisible-input dec-set"
+          style="max-width: 2em;text-align: center;font-size: 1.2em"
+          type="number"
+          name="base.accuracy"
+          value="{{base.accuracy}}"
+          min="0"
+        />
+        <button
+          class="mod-plus-button dec-set"
+          type="button"
+          onclick="this.previousElementSibling.value = this.previousElementSibling.valueAsNumber + 1; this.previousElementSibling.dispatchEvent(new Event('change', {bubbles: true}))"
+        >
+          +
+        </button>
+      </div>
+      <div class="accdiff-other-grid">
+        <button
+          class="mod-minus-button dec-set"
+          type="button"
+          onclick="this.nextElementSibling.value = this.nextElementSibling.valueAsNumber - 1; this.nextElementSibling.dispatchEvent(new Event('change', {bubbles: true}))"
+        >
+          -
+        </button>
+        <input
+          id="accdiff-other-diff"
+          class="difficulty lancer-invisible-input dec-set"
+          style="max-width: 2em;text-align: center;font-size: 1.2em"
+          type="number"
+          name="base.difficulty"
+          value="{{base.difficulty}}"
+          min="0"
+        />
+        <button
+          class="mod-plus-button dec-set"
+          type="button"
+          onclick="this.previousElementSibling.value = this.previousElementSibling.valueAsNumber + 1; this.previousElementSibling.dispatchEvent(new Event('change', {bubbles: true}))"
+        >
+          +
+        </button>
+      </div>
+    </div>
+    {{#unless hasTargets}}
+      <label class="flexrow accdiff-footer accdiff-weight">
+        Total {{#if hasExactlyOneTarget}} vs {{targets.0.target.data.name}}{{/if}}
+      </label>
+      {{#if hasExactlyOneTarget}}
+        <div class="flexrow flex-center lancer-consume-lockon">
+          {{> total targets.[0] key="targets.0"
+            usingLockOn=targets.[0].usingLockOn
+            lockOnAvailable=targets.[0].lockOnAvailable
+            hasExactlyOneTarget=hasExactlyOneTarget}}
+        </div>
+      {{else}}
+        {{> total base key="base"}}
+      {{/if}}
+    {{/unless}}
+    {{#if hasTargets}}
+      <div class="accdiff-footer accdiff-weight accdiff-target-row">
+        {{#each targets as |data key|}}
+          <div class="flexcol card accdiff-target">
+            <label class="flexrow flex-center card">
+              {{data.target.data.name}}
+            </label>
+            <div class="flexrow lancer-consume-lockon">
+              <input
+                type="checkbox"
+                id="{{concat 'targets.' key '.consumeLockOn'}}"
+                name="{{concat 'targets.' key '.consumeLockOn'}}"
+                {{checked usingLockOn}}
+                {{#unless lockOnAvailable}}disabled{{/unless}}/>
+              {{> total data key=(concat "targets." key)
+                usingLockOn=data.usingLockOn lockOnAvailable=data.lockOnAvailable }}
+            </div>
+            <div class="flexrow">
+              <button
+                class="i--m no-grow"
+                type="button"
+                onclick="this.nextElementSibling.value = this.nextElementSibling.valueAsNumber + 1; this.nextElementSibling.dispatchEvent(new Event('change', {bubbles: true}))"
+              >
+                <i class="cci cci-accuracy i--m" style="border:none"></i>
+              </button>
+              <input
+                id="accdiff-other-acc-{{key}}"
+                style="display: none"
+                type="number"
+                name="targets.{{key}}.accuracy"
+                value="{{data.accuracy}}"
+                min="0"
+              />
+              {{{std-cover-input (concat "targets." key ".cover")
+                classes="accdiff-targeted-cover flexrow flex-center"
+                label_classes="i--s"
+                container_classes="f-16"
+                disabled="base.seeking"
+              }}}
+              <input
+                id="accdiff-other-diff-{{key}}"
+                style="display: none"
+                type="number"
+                name="targets.{{key}}.difficulty"
+                value="{{data.difficulty}}"
+                min="0"
+              />
+              <button
+                class="i--m no-grow"
+                type="button"
+                onclick="this.previousElementSibling.value = this.previousElementSibling.valueAsNumber + 1; this.previousElementSibling.dispatchEvent(new Event('change', {bubbles: true}))"
+              >
+                <i class="cci cci-difficulty i--m" style="border:none"></i>
+              </button>
+            </div>
+          </div>
+          {{#if ../hasTargets}}
+            <div id="dropdown-template-targets.{{key}}">
+              {{#each data.plugins as |pluginData pluginKey|}}
+                {{> plugin pluginData
+                  key=(concat "targets." key ".plugins." pluginKey)
+                  visible=pluginData.visible
+                  disabled=pluginData.disabled
+                  uiState=pluginData.uiState}}
+              {{/each}}
+            </div>
+          {{/if}}
+        {{/each}}
+      </div>
+    {{/if}}
+  </div>
+  <div class="dialog-buttons flexrow">
+    <button class="dialog-button submit default" data-button="submit" type="submit">
+      <i class="fas fa-check"></i>
+      Roll
+    </button>
+    <button class="dialog-button cancel" data-button="cancel" type="button">
+      <i class="fas fa-times"></i>
+      Cancel
+    </button>
+  </div>
+</form>

@@ -33,6 +33,7 @@ import {
   PilotWeapon,
   MechWeapon,
   RegDamageData,
+  RegRef,
   MechWeaponProfile,
   NpcFeature,
   OpCtx,
@@ -49,26 +50,48 @@ import { is_ref, resolve_dotpath } from "./helpers/commons";
 import { buildActionHTML, buildDeployableHTML, buildSystemHTML } from "./helpers/item";
 import { ActivationOptions, StabOptions1, StabOptions2 } from "./enums";
 import { applyCollapseListeners, uuid4 } from "./helpers/collapse";
-import { checkForHit, getTargets } from "./helpers/automation/targeting";
-import { AccDiffFlag, tagsToFlags, toggleCover, updateTotals } from "./helpers/acc_diff";
+import { checkForHit } from "./helpers/automation/targeting";
+import { AccDiffForm, AccDiffData, AccDiffDataSerialized } from "./helpers/acc_diff";
 import { is_overkill } from "machine-mind/dist/funcs";
 
 const lp = LANCER.log_prefix;
 
-export function encodeMacroData(macroData: LancerMacroData): string {
-  return btoa(encodeURI(JSON.stringify(macroData)));
+const encodedMacroWhitelist = [
+  "prepareActivationMacro",
+  "prepareEncodedAttackMacro",
+  "prepareTechMacro",
+  "prepareStatMacro",
+  "prepareItemMacro",
+  "prepareCoreActiveMacro",
+  "prepareStructureSecondaryRollMacro",
+];
+
+export function encodeMacroData(data: LancerMacroData): string {
+  return btoa(encodeURI(JSON.stringify(data)));
 }
 
-export async function runEncodedMacro(el: JQuery<HTMLElement>) {
-  let encoded = el.attr("data-macro");
+export async function runEncodedMacro(el: HTMLElement | LancerMacroData) {
+  let data: LancerMacroData | null = null;
 
-  if (!encoded) throw Error("No macro data available");
-  let data: LancerMacroData = JSON.parse(decodeURI(atob(encoded)));
+  if (el instanceof HTMLElement) {
+    let encoded = el.attributes.getNamedItem('data-macro')?.nodeValue;
+    if (!encoded) {
+      console.warn("No macro data available");
+      return;
+    }
 
-  let command = data.command;
+    data = JSON.parse(decodeURI(atob(encoded))) as LancerMacroData;
+  } else {
+    data = el as LancerMacroData;
+  }
 
-  // Some might say eval is bad, but it's no worse than what we can already do with macros
-  eval(command);
+  if (encodedMacroWhitelist.indexOf(data.fn) < 0) {
+    console.error("Attempting to call unwhitelisted function via encoded macro: " + data.fn);
+    return;
+  }
+
+  let fn = game.lancer[data.fn];
+  return fn.apply(null, data.args)
 }
 
 export async function onHotbarDrop(_bar: any, data: any, slot: number) {
@@ -80,9 +103,13 @@ export async function onHotbarDrop(_bar: any, data: any, slot: number) {
   let img = "systems/lancer/assets/icons/macro-icons/d20-framed.svg";
 
   // Grab new encoded data ASAP
-  if (data.command && data.title) {
-    (command = data.command),
-      (img = data.iconPath ? data.iconPath : `systems/lancer/assets/icons/macro-icons/generic_item.svg`);
+  if (data.fn && data.args && data.title) { // i.e., data instanceof LancerMacroData
+    if (encodedMacroWhitelist.indexOf(data.fn) < 0) {
+      ui.notifications.error("You are trying to drop an invalid macro");
+      return;
+    }
+    command = `game.lancer.${data.fn}.apply(null, ${JSON.stringify(data.args)})`;
+    img = data.iconPath ? data.iconPath : `systems/lancer/assets/icons/macro-icons/generic_item.svg`;
     title = data.title;
   } else if (data.pack) {
     // If we have a source pack, it's dropped from a compendium and there's no processing for us to do
@@ -450,26 +477,47 @@ function getMacroActorItem(a: string, i: string): { actor: Actor | null; item: I
   return result;
 }
 
-async function buildAttackRollString(
-  title: string,
-  flags: AccDiffFlag[],
-  bonus: number,
-  starting?: [number, number] // initial [accuracy, difficulty]
-): Promise<string | null> {
-  let abort: boolean = false;
-  let acc = 0;
-  await promptAccDiffModifier(flags, title, starting).then(
-    resolve => (acc = resolve),
-    reject => (abort = reject)
-  );
-  if (abort) return null;
-
-  // Do the attack rolling
-  let acc_str = acc != 0 ? ` + ${acc}d6kh1` : "";
-  return `1d20+${bonus}${acc_str}`;
+function rollStr(bonus: number, total: number): string {
+  let modStr = "";
+  if (total != 0) {
+    let sign = total > 0 ? "+" : "-";
+    let abs = Math.abs(total);
+    let roll = abs == 1 ? "1d6" : `${abs}d6kh1`;
+    modStr = ` ${sign} ${roll}`;
+  }
+  return `1d20 + ${bonus}${modStr}`;
 }
 
-export async function prepareStatMacro(a: string, statKey: string) {
+function applyPluginsToRoll(str: string, plugins: { modifyRoll(i: string): string }[]): string {
+  return plugins.reduce((acc, p) => p.modifyRoll(acc), str);
+}
+
+type AttackRolls = {
+  roll: string,
+  targeted: {
+    target: Token,
+    roll: string,
+    usedLockOn: { delete: () => void } | null,
+  }[]
+}
+
+function attackRolls(bonus: number, accdiff: AccDiffData): AttackRolls {
+  let perRoll = Object.values(accdiff.weapon.plugins);
+  let base = perRoll.concat(Object.values(accdiff.base.plugins));
+  return {
+    roll: applyPluginsToRoll(rollStr(bonus, accdiff.base.total), base),
+    targeted: accdiff.targets.map(tad => {
+      let perTarget = perRoll.concat(Object.values(tad.plugins));
+      return {
+        target: tad.target,
+        roll: applyPluginsToRoll(rollStr(bonus, tad.total), perTarget),
+        usedLockOn: tad.usingLockOn,
+      }
+    })
+  };
+}
+
+export async function prepareStatMacro(a: string, statKey: string, rerollData?: AccDiffDataSerialized) {
   // Determine which Actor to speak as
   let actor: LancerActor<EntryType.PILOT> | null = getMacroSpeaker(a);
   if (!actor) return;
@@ -485,7 +533,12 @@ export async function prepareStatMacro(a: string, statKey: string) {
     bonus: bonus,
   };
   if (mData.title === "TECHATTACK") {
-    rollTechMacro(actor, { acc: 0, action: "Quick", t_atk: bonus, effect: "", tags: [], title: "" });
+    let partialMacroData = {
+      title: "Reroll stat macro",
+      fn: "prepareStatMacro",
+      args: [a, statKey]
+    };
+    rollTechMacro(actor, { acc: 0, action: "Quick", t_atk: bonus, effect: "", tags: [], title: "" }, partialMacroData, rerollData);
   } else {
     rollStatMacro(actor, mData).then();
   }
@@ -501,13 +554,10 @@ async function rollStatMacro(actor: Actor, data: LancerStatMacroData) {
   if (!actor) return Promise.resolve();
 
   // Get accuracy/difficulty with a prompt
-  let acc: number = 0;
-  let abort: boolean = false;
-  await promptAccDiffModifier().then(
-    resolve => (acc = resolve),
-    () => (abort = true)
-  );
-  if (abort) return Promise.resolve();
+  let initialData = AccDiffData.fromParams();
+  let promptedData = await promptAccDiffModifiers(initialData);
+  if (!promptedData) return;
+  let acc: number = promptedData.base.total;
 
   // Do the roll
   let acc_str = acc != 0 ? ` + ${acc}d6kh1` : "";
@@ -548,6 +598,26 @@ async function rollTalentMacro(actor: Actor, data: LancerTalentMacroData) {
   return renderMacroTemplate(actor, template, templateData);
 }
 
+type AttackMacroOptions = {
+  accBonus: number;
+  damBonus: { type: DamageType; val: number };
+}
+
+export async function prepareEncodedAttackMacro(
+  actor_ref: RegRef<any>, item_id: string, options: AttackMacroOptions, rerollData: AccDiffDataSerialized) {
+  let reg = new FoundryReg();
+  let opCtx = new OpCtx()
+  let mm = await reg.resolve(opCtx, actor_ref);
+  let actor = mm.Flags.orig_doc;
+  let item = ownedItemFromString(item_id, actor);
+  if (!item) {
+    ui.notifications.error("Could not find weapon to reroll");
+    return;
+  }
+  let accdiff = AccDiffData.fromObject(rerollData, item);
+  return prepareAttackMacro({ actor, item, options }, accdiff);
+}
+
 /**
  * Standalone prepare function for attacks, since they're complex.
  * @param actor   {Actor}       Actor to roll as. Assumes properly prepared item.
@@ -556,6 +626,7 @@ async function rollTalentMacro(actor: Actor, data: LancerTalentMacroData) {
  *            - accBonus        Flat bonus to accuracy
  *            - damBonus        Object of form {type: val} to apply flat damage bonus of given type.
  *                              The "Bonus" type is recommended but not required
+ * @param rerollData {AccDiffData?} saved accdiff data for rerolls
  */
 async function prepareAttackMacro({
   actor,
@@ -564,11 +635,8 @@ async function prepareAttackMacro({
 }: {
   actor: Actor;
   item: LancerItem<any>;
-  options?: {
-    accBonus: number;
-    damBonus: { type: DamageType; val: number };
-  };
-}) {
+  options?: AttackMacroOptions;
+}, rerollData?: AccDiffData) {
   let mData: LancerAttackMacroData = {
     title: item.name,
     grit: 0,
@@ -690,14 +758,14 @@ async function prepareAttackMacro({
     }
   }
 
-  // Build attack string before deducting charge.
-  const atk_str = await buildAttackRollString(
-    mData.title,
-    tagsToFlags(mData.tags),
-    mData.grit,
-    mData.acc > 0 ? [mData.acc, 0] : [0, -mData.acc]
-  );
-  if (!atk_str) return;
+  // Prompt the user before deducting charges.
+  const targets = Array.from(game.user.targets);
+  const initialData = rerollData ?? AccDiffData.fromParams(
+    item, mData.tags, mData.title, targets, mData.acc > 0 ? [mData.acc, 0] : [0, -mData.acc]);
+  const promptedData = await promptAccDiffModifiers(initialData);
+  if (!promptedData) return;
+
+  const atkRolls = attackRolls(mData.grit, promptedData);
 
   // Deduct charge if LOADING weapon.
   if (
@@ -712,46 +780,77 @@ async function prepareAttackMacro({
     await itemEnt.writeback();
   }
 
-  await rollAttackMacro(actor, atk_str, mData);
+  let rerollMacro = {
+    title: "Reroll attack",
+    fn: "prepareEncodedAttackMacro",
+    args: [
+      actor.data.data.derived.mm.as_ref(),
+      item.id,
+      options,
+      promptedData.toObject()
+    ]
+  };
+
+  await rollAttackMacro(actor, atkRolls, mData, rerollMacro);
 }
 
-async function rollAttackMacro(actor: Actor, atk_str: string | null, data: LancerAttackMacroData) {
-  if (!atk_str) return;
+type AttackResult = {
+  roll: Roll,
+  tt: HTMLElement | JQuery<HTMLElement>
+}
 
-  // IS SMART?
-  const isSmart = data.tags.findIndex(tag => tag.Tag.LID === "tg_smart") > -1;
-  // CHECK TARGETS
-  const targets = getTargets();
-  let hits: {
-    token: { name: string; img: string };
-    total: string;
-    hit: boolean;
-    crit: boolean;
-  }[] = [];
-  let attacks: { roll: Roll; tt: HTMLElement | JQuery<HTMLElement> }[] = [];
-  if (game.settings.get(LANCER.sys_name, LANCER.setting_automation_attack) && targets.length > 0) {
-    for (const target of targets) {
+type HitResult = {
+  token: { name: string, img: string },
+  total: string,
+  hit: boolean,
+  crit: boolean
+}
+
+async function checkTargets(atkRolls: AttackRolls, isSmart: boolean): Promise<{
+  attacks: AttackResult[],
+  hits: HitResult[]
+}> {
+  if (game.settings.get(LANCER.sys_name, LANCER.setting_automation_attack) && atkRolls.targeted.length > 0) {
+    let data = await Promise.all(atkRolls.targeted.map(async targetingData => {
+      let target = targetingData.target;
+      let actor = target.actor as LancerActor<LancerActorType>;
       // @ts-ignore .8
-      let attack_roll = await new Roll(atk_str!).evaluate({ async: true });
+      let attack_roll = await new Roll(targetingData.roll).evaluate({ async: true });
       const attack_tt = await attack_roll.getTooltip();
-      attacks.push({ roll: attack_roll, tt: attack_tt });
 
-      hits.push({
-        token: {
-          name: target.token ? target.token.data.name : target.data.name,
-          img: target.token ? target.token.data.img : target.data.img,
-        },
-        total: String(attack_roll._total).padStart(2, "0"),
-        hit: await checkForHit(isSmart, attack_roll, target),
-        crit: attack_roll._total >= 20,
-      });
-    }
+      if (targetingData.usedLockOn) {
+        targetingData.usedLockOn.delete();
+      }
+
+      return {
+        attack: { roll: attack_roll, tt: attack_tt },
+        hit: {
+          token: { name: target.data.name, img: target.data.img },
+          total: String(attack_roll._total).padStart(2, "0"),
+          hit: await checkForHit(isSmart, attack_roll, actor),
+          crit: attack_roll._total >= 20,
+        }
+      }
+    }));
+
+    return {
+      attacks: data.map(d => d.attack),
+      hits: data.map(d => d.hit)
+    };
   } else {
     // @ts-ignore .8
-    let attack_roll = await new Roll(atk_str).evaluate({ async: true });
+    let attack_roll = await new Roll(atkRolls.roll).evaluate({ async: true });
     const attack_tt = await attack_roll.getTooltip();
-    attacks.push({ roll: attack_roll, tt: attack_tt });
+    return {
+      attacks: [{ roll: attack_roll, tt: attack_tt }],
+      hits: []
+    }
   }
+}
+
+async function rollAttackMacro(actor: Actor, atkRolls: AttackRolls, data: LancerAttackMacroData, rerollMacro: LancerMacroData) {
+  const isSmart = data.tags.findIndex(tag => tag.Tag.LID === "tg_smart") > -1;
+  const { attacks, hits } = await checkTargets(atkRolls, isSmart);
 
   // Iterate through damage types, rolling each
   let damage_results: Array<{
@@ -890,6 +989,7 @@ async function rollAttackMacro(actor: Actor, atk_str: string | null, data: Lance
     effect: data.effect ? data.effect : null,
     on_hit: data.on_hit ? data.on_hit : null,
     tags: data.tags,
+    rerollMacroData: encodeMacroData(rerollMacro)
   };
 
   console.debug(templateData);
@@ -1011,7 +1111,7 @@ async function rollTextMacro(actor: Actor, data: LancerTextMacroData) {
   return renderMacroTemplate(actor, template, data);
 }
 
-export async function prepareTechMacro(a: string, t: string) {
+export async function prepareTechMacro(a: string, t: string, rerollData?: AccDiffDataSerialized) {
   // Determine which Actor to speak as
   let actor: Actor | null = getMacroSpeaker(a);
   if (!actor) return;
@@ -1071,45 +1171,28 @@ export async function prepareTechMacro(a: string, t: string) {
   }
   console.log(`${lp} Tech Attack Macro Item:`, item, mData);
 
-  await rollTechMacro(actor, mData);
+  let partialMacroData = {
+    title: "Reroll tech attack",
+    fn: "prepareTechMacro",
+    args: [a, t]
+  }
+
+  await rollTechMacro(actor, mData, partialMacroData, rerollData, item);
 }
 
-async function rollTechMacro(actor: Actor, data: LancerTechMacroData) {
-  let atk_str = await buildAttackRollString(data.title, tagsToFlags(data.tags), data.t_atk);
-  if (!atk_str) return;
+async function rollTechMacro(actor: Actor, data: LancerTechMacroData, partialMacroData: LancerMacroData, rerollData?: AccDiffDataSerialized, item?: LancerItem<any>) {
+  const targets = Array.from(game.user.targets);
+  const initialData = rerollData ?
+    AccDiffData.fromObject(rerollData, item) :
+    AccDiffData.fromParams(item, data.tags, data.title, targets);
+  const promptedData = await promptAccDiffModifiers(initialData);
+  if (!promptedData) return;
+  partialMacroData.args.push(promptedData.toObject());
 
-  // CHECK TARGETS
-  const targets = getTargets();
-  let hits: {
-    token: { name: string; img: string };
-    total: string;
-    hit: boolean;
-    crit: boolean;
-  }[] = [];
-  let attacks: { roll: Roll; tt: HTMLElement | JQuery<HTMLElement> }[] = [];
-  if (game.settings.get(LANCER.sys_name, LANCER.setting_automation_attack) && targets.length > 0) {
-    for (const target of targets) {
-      // @ts-ignore .8
-      let attack_roll = await new Roll(atk_str!).evaluate({ async: true });
-      const attack_tt = await attack_roll.getTooltip();
-      attacks.push({ roll: attack_roll, tt: attack_tt });
+  let atkRolls = attackRolls(data.t_atk, promptedData);
+  if (!atkRolls) return;
 
-      hits.push({
-        token: {
-          name: target.token ? target.token.data.name : target.data.name,
-          img: target.token ? target.token.data.img : target.data.img,
-        },
-        total: String(attack_roll._total).padStart(2, "0"),
-        hit: await checkForHit(true, attack_roll, target),
-        crit: attack_roll._total >= 20,
-      });
-    }
-  } else {
-    // @ts-ignore .8
-    let attack_roll = await new Roll(atk_str).evaluate({ async: true });
-    const attack_tt = await attack_roll.getTooltip();
-    attacks.push({ roll: attack_roll, tt: attack_tt });
-  }
+  const { attacks, hits } = await checkTargets(atkRolls, true); // true = all tech attacks are "smart"
 
   // Output
   const templateData = {
@@ -1119,70 +1202,21 @@ async function rollTechMacro(actor: Actor, data: LancerTechMacroData) {
     action: data.action,
     effect: data.effect ? data.effect : null,
     tags: data.tags,
+    rerollMacroData: encodeMacroData(partialMacroData),
   };
 
   const template = `systems/lancer/templates/chat/tech-attack-card.hbs`;
   return await renderMacroTemplate(actor, template, templateData);
 }
 
-export async function promptAccDiffModifier(flags?: AccDiffFlag[], title?: string, starting?: [number, number]) {
-  let template = await renderTemplate(`systems/lancer/templates/window/acc_diff.hbs`, {});
-  return new Promise<number>((resolve, reject) => {
-    new Dialog({
-      title: title ? `${title} - Accuracy and Difficulty` : "Accuracy and Difficulty",
-      content: template,
-      buttons: {
-        submit: {
-          icon: '<i class="fas fa-check"></i>',
-          label: "Submit",
-          callback: async dialog => {
-            let total = updateTotals();
-            console.log(`${lp} Dialog returned a modifier of ${total}d6`);
-            resolve(total);
-          },
-        },
-        cancel: {
-          icon: '<i class="fas fa-times"></i>',
-          label: "Cancel",
-          callback: async () => {
-            reject(true);
-          },
-        },
-      },
-      default: "submit",
-      render: (_html: any) => {
-        if (flags) {
-          for (let flag of flags) {
-            const ret = document.querySelector(`[data-acc="${flag}"],[data-diff="${flag}"]`);
-            ret && ((ret as HTMLInputElement).checked = true);
-          }
-        }
-
-        if (flags?.includes("SEEKING")) {
-          toggleCover(false);
-        }
-        updateTotals();
-
-        if (starting) {
-          $("#accdiff-other-acc").val(starting[0]);
-          $("#accdiff-other-diff").val(starting[1]);
-          updateTotals();
-        }
-
-        // LISTENERS
-        $("[data-acc],[data-diff]").on("click", e => {
-          if (e.currentTarget.dataset.acc === "SEEKING") {
-            toggleCover(!(e.currentTarget as HTMLInputElement).checked);
-          }
-          updateTotals();
-        });
-        $(".accdiff-grid button.dec-set").on("click", _e => {
-          updateTotals();
-        });
-      },
-      close: () => reject(true),
-    } as DialogData).render(true);
-  });
+export async function promptAccDiffModifiers(data: AccDiffData): Promise<AccDiffData | null> {
+  let form = new AccDiffForm(data);
+  form.render(true);
+  try {
+    return await form.promise; // await to force any rejections into this try/catch
+  } catch (_e) {
+    return null;
+  }
 }
 
 export async function prepareOverchargeMacro(a: string) {
@@ -1322,7 +1356,7 @@ export async function prepareStructureMacro(a: string) {
   await actor.structure();
 }
 
-export async function prepareActivationMacro(a: string, i: string, type: ActivationOptions, index: number) {
+export async function prepareActivationMacro(a: string, i: string, type: ActivationOptions, index: number, rerollData?: AccDiffDataSerialized) {
   // Determine which Actor to speak as
   let actor: Actor | null = getMacroSpeaker(a);
   if (!actor) return;
@@ -1352,7 +1386,12 @@ export async function prepareActivationMacro(a: string, i: string, type: Activat
         case ActivationType.FullTech:
         case ActivationType.Invade:
         case ActivationType.QuickTech:
-          _prepareTechActionMacro(actorEnt, itemEnt, index);
+          let partialMacroData = {
+            title: "Reroll activation",
+            fn: "prepareActivationMacro",
+            args: [a, i, type, index]
+          };
+          _prepareTechActionMacro(actorEnt, itemEnt, index, partialMacroData, rerollData);
           break;
         default:
           _prepareTextActionMacro(actorEnt, itemEnt, index);
@@ -1375,7 +1414,7 @@ async function _prepareTextActionMacro(actorEnt: Mech, itemEnt: MechSystem | Npc
   await renderMacroHTML(actorEnt.Flags.orig_doc, buildActionHTML(action, { full: true, tags: itemEnt.Tags }));
 }
 
-async function _prepareTechActionMacro(actorEnt: Mech, itemEnt: MechSystem | NpcFeature, index: number) {
+async function _prepareTechActionMacro(actorEnt: Mech, itemEnt: MechSystem | NpcFeature, index: number, partialMacroData: LancerMacroData, rerollData?: AccDiffDataSerialized) {
   // Support this later...
   if (itemEnt.Type !== EntryType.MECH_SYSTEM) return;
 
@@ -1409,7 +1448,7 @@ async function _prepareTechActionMacro(actorEnt: Mech, itemEnt: MechSystem | Npc
     mData.detail = tData.effect ? tData.effect : "";
   } */
 
-  await rollTechMacro(actorEnt.Flags.orig_doc, mData);
+  await rollTechMacro(actorEnt.Flags.orig_doc, mData, partialMacroData, rerollData);
 }
 
 async function _prepareDeployableMacro(actorEnt: Mech, itemEnt: MechSystem | NpcFeature, index: number) {

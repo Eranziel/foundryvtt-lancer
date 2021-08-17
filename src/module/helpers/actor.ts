@@ -53,8 +53,12 @@ export function stat_view_card(
   let data_val = resolve_helper_dotpath(options, data_path);
   let macro_button: string | undefined;
   let macroData = encodeMacroData({
-    command: `game.lancer.prepareStatMacro("${options.data.root.data._id}","${data_path}");`,
     title: title,
+    fn: "prepareStatMacro",
+    args: [
+      options.data.root.data._id,
+      data_path
+    ]
   });
   if (options.rollable)
     macro_button = `<a class="i--dark i--sm lancer-macro" data-macro="${macroData}"><i class="fas fa-dice-d20"></i></a>`;
@@ -126,8 +130,12 @@ export function clicker_stat_card(
 ): string {
   let button = "";
   let macroData = encodeMacroData({
-    command: `game.lancer.prepareStatMacro("${options.data.root.data._id}","${data_path}");`,
     title: title,
+    fn: "prepareStatMacro",
+    args: [
+      options.data.root.data._id,
+      data_path
+    ]
   });
   if (roller)
     button = `<a class="lancer-macro i--dark i--sm" data-macro="${macroData}"><i class="fas fa-dice-d20"></i></a>`;

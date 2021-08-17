@@ -238,6 +238,7 @@ button {
 
 .lancer-hit-thumb {
   width: 50px;
+  min-width: 50px;
   margin-right: 4px;
   border-right: none;
   border-left: none;
@@ -2012,6 +2013,24 @@ a.action {
   }
 }
 
+.accdiff-target-row .tippy-box[data-theme~="lancer"] {
+  font-size: 0.8em;
+  padding-left: 0px;
+  padding-right: 0px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  transform: none;
+  .tippy-content {
+    transform: none;
+    .container {
+      margin: 0px;
+    }
+    .checkmark {
+      height: 12px;
+    }
+  }
+}
+
 // Acc_Diff
 .accdiff-grid {
   display: flex;
@@ -2046,7 +2065,7 @@ a.action {
   }
 
   input[disabled] ~ .checkmark {
-    background-color: #313131;
+    opacity: 0.5;
     cursor: unset;
   }
 
@@ -2054,7 +2073,7 @@ a.action {
     background-color: #757575;
   }
 
-  .container input:checked:not([disabled]) ~ .checkmark {
+  .container input:checked ~ .checkmark {
     background-color: var(--main-theme-color, fuchsia);
   }
 
@@ -2096,6 +2115,42 @@ a.action {
   margin-top: 12px;
   border-top: 1px solid #782e22;
 }
+
+.accdiff-base-cover {
+  margin-top: 12px;
+  margin-bottom: 4px;
+  font-size: 0.9em;
+  user-select: none;
+  padding-left: 5px;
+  line-height: 2;
+}
+
+.accdiff-targeted-cover label span {
+  opacity: 0;
+  position: fixed;
+  width: 0;
+  visibility: hidden;
+}
+
+.accdiff-targeted-cover label > i {
+  font-size: 16px;
+  vertical-align: top;
+}
+
+.accdiff-base-cover label > i {
+  vertical-align: baseline;
+}
+
+// there's a very specific foundry rule that adds some margin here
+// because it assumes all icons in buttons are followed by text, I think
+.accdiff-target-row button > i {
+  margin-inline-end: 0 !important; 
+}
+
+.accdiff-target {
+  padding: 4px;
+}
+
 
 // V-IMPORTS
 .white--text {
@@ -2179,6 +2234,116 @@ div[data-tab="system"] > .settings-list > div:nth-last-child(-n + 4) {
 .chat-macro-button {
   max-width: 60%;
   align-self: center;
+}
+
+.accdiff-target-row {
+  display: grid;
+  grid-template-columns: auto auto auto;
+}
+
+#accdiff .lancer-hit-thumb {
+  margin-right: 0px;
+  margin-left: 4px;
+  margin-bottom: 4px;
+}
+
+.lancer-cover-radio input[type="radio"] {
+  opacity: 0;
+  position: fixed;
+  width: 0;
+}
+
+.lancer-cover-radio label {
+  display: inline-block;
+  padding-left: 5px;
+}
+.lancer-cover-radio.flexrow label {
+  padding: 0px;
+}
+
+
+.lancer-cover-radio:not(.disabled) label:hover {
+  background-color: #dfd;
+}
+
+.lancer-cover-radio input[type="radio"]:checked + label {
+  background-color: #ddd;
+  .card & {
+    background-color: #aaa;
+  }
+}
+
+@keyframes lockon {
+  70% {
+    text-shadow: 0 0 8px lightgreen;
+  }
+  80% {
+    text-shadow: 0 0 8px green;
+  }
+  90% {
+    text-shadow: 0 0 8px lightgreen;
+  }
+}
+
+.lancer-consume-lockon  {
+  flex-wrap: nowrap;
+  padding: 4px 10px 4px 10px;
+
+  & .accdiff-grid {
+    position: relative;
+  }
+  // needed to override a builtin that wants to style all checkboxes
+  & input[type="checkbox"] {
+    opacity: 0 !important;
+    position: absolute !important;
+    width: 0 !important;
+  }
+  & [for] {
+    position: absolute;
+    right: -4px;
+    top: -4px;
+    & i {
+      @include icon-size(24px);
+      text-shadow: 0 0 12px white;
+    }
+    &.checked i {
+      @include icon-size(36px);
+      animation: lockon 800ms linear 1s infinite alternate;
+    }
+  }
+}
+
+.lancer-cover-radio.disabled, .lancer-consume-lockon .disabled {
+  opacity: 0.4;
+}
+
+// needed to override a builtin that removes all shadows from the sidebar
+#sidebar a.chat-button:hover {
+  text-shadow: 0 0 8px red;
+}
+
+#sidebar a.chat-button {
+  animation: pulse 1200ms ease 1s 8 alternate;
+}
+
+@keyframes pulse {
+  0% {
+    text-shadow: none;
+  }
+  100% {
+    text-shadow: 0 0 8px red;
+  }
+}
+
+
+.cci-no-cover:before {
+  content: '\25cb';
+}
+.cci-soft-cover:before {
+  content: '\25d1';
+}
+.cci-hard-cover:before {
+  content: '\25cf';
 }
 
 .disabled-cloud {

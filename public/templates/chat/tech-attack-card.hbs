@@ -2,16 +2,19 @@
   <div class="lancer-header tech medium">
     <i class="cci cci-tech-quick i--m i--light"> </i>
     <span>TECH ATK{{#if title}} :: {{title}}{{/if}}</span>
+    <a class="chat-button roll-attack lancer-macro" data-macro="{{rerollMacroData}}" title="Reroll this attack">
+      <i class="fas fa-dice-d20 i--m i--light"></i>
+    </a>
   </div>
   <div class="card clipped">
     <div class="lancer-mini-header collapse-trigger" data-collapse-id="{{_uuid}}-attacks">
       {{localize "lancer.chat-card.title.attack"}}
     </div>
     {{#each attacks as |attack key|}}
-    <div
-      class="dice-roll lancer-dice-roll collapse"
-      data-collapse-id="{{../_uuid}}-attacks"
-    >
+      <div
+        class="dice-roll lancer-dice-roll collapse"
+        data-collapse-id="{{../_uuid}}-attacks"
+      >
       <div class="dice-result">
         <div class="dice-formula lancer-dice-formula flexrow">
           <span style="text-align: left; margin-left: 5px;">{{ attack.roll.formula }}</span>
