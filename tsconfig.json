@@ -16,6 +16,7 @@
     "esModuleInterop": true,
     "noEmit": true,
     "strict": true,
+    "useDefineForClassFields": false,
     "skipLibCheck": true
   },
   "include": ["./src"]
