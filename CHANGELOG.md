@@ -1,3 +1,7 @@
+# 0.1.21 (2021-08-18)
+* **Version Warning**: Add a warning when run on Foundry 0.8.x stating incompatibility and what options are available.
+* **Mech Sheet**: Fix for missing core power icon.
+
 # 0.1.20 (2021-01-20)
 ## Features
 * **Macros**: Add automatic crit damage handling. Thanks, descention!
