@@ -133,7 +133,10 @@ export const STATUSES = [
 
 export function WELCOME(changelog: string): string {
   return `<div style="margin: 10px 5px">
-  <p>Welcome to Lancer on Foundry! If you haven't already, check out the project wiki for 
+  <p>Welcome to Lancer on Foundry! If you are running Foundry 0.7.X, be aware that updating to 
+  Foundry 0.8.X or higher carries some risks. Please read the  
+  
+  <p>If you haven't already, check out the project wiki for 
   <a href="https://github.com/Eranziel/foundryvtt-lancer/wiki/FAQ">FAQ</a>
   and a list of <a href="https://github.com/Eranziel/foundryvtt-lancer/wiki/Resources">recommended modules</a>, as well
   as other information about how to use the system.</p>
@@ -152,4 +155,38 @@ export function WELCOME(changelog: string): string {
   <p><a href="https://github.com/Eranziel/foundryvtt-lancer/blob/master/CHANGELOG.md">Click here for the full changelog.</a></p>
   </div>
   `;
+}
+
+export function FOUNDRY_VERSION_WARNING(): string {
+  return `<div style="margin: 10px 5px">
+  <h1>WARNING - Version unsupported!</h1> 
+  <h2>Please read the below text in full!</h2>
+  <p>You are trying to run Lancer ${game.system.data.version} on a version of Foundry beyond 0.7.X. 
+  This breaks this version of the system, but fear not!</p>
+  
+  <p>First, check what the <a href="https://foundryvtt.com/packages/lancer">latest released version of Lancer</a> 
+  is. If version 1.X has been released (<b>do not confuse 0.1.X for 1.X!</b>), 
+  you can simply update Lancer in the Foundry system menu. If version 1.X has <i>not</i> 
+  been released yet, read on to see your options.</p>
+  
+  <p>If this is your first time using the Lancer system in Foundry VTT or you 
+  are starting a new world, we recommend you update to our beta release, 0.9.X.
+  The beta has new features that enrich the experience such as having multiple 
+  mechs allowed per character, automatic hit calculation, an action tracker,
+  and compatibility with current-format LCPs.</p>
+  
+  <p>If this is a 0.1.X Lancer world that you have been playing with in 0.7.X 
+  Foundry, you have two options.</p>
+  <ol><li>Downgrade Foundry to 0.7.10 and restore your data from a backup from before upgrading Foundry.
+  Since you are seeing this message, Foundry has already migrated its data for your world to its new
+  format, so your world won't launch correctly if you only downgrade.</li>
+  <li>Install Lancer 0.9.X and start a new world. This version lacks migration code and
+  will corrupt worlds created before in earlier versions, however aside from that it is stable.</li></ol>
+  
+  <p>If you have read the above and wish to upgrade Lancer to 0.9.X, first try updating through the Foundry
+  system menu. If 0.9.X is not yet available as an official release, 
+  you can install it with this manifest: 
+  <a href="https://raw.githubusercontent.com/Eranziel/foundryvtt-lancer/beta-release/src/system.json">
+  https://raw.githubusercontent.com/Eranziel/foundryvtt-lancer/beta-release/src/system.json</a></p>
+  </div>`;
 }
