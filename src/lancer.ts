@@ -187,6 +187,7 @@ Hooks.once("init", async function () {
     prepareActivationMacro: macros.prepareActivationMacro,
     fullRepairMacro: macros.fullRepairMacro,
     stabilizeMacro: macros.stabilizeMacro,
+    targetsFromTemplate: macros.targetsFromTemplate,
     migrations: migrations,
 
     // For whitespines testing /('o')/
