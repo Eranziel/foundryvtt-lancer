@@ -5,6 +5,7 @@
 		"outDir": "./dist/",
 		"module": "commonjs",
 		"sourceMap": true,
+		"importsNotUsedAsValues": "error",
 		"lib": [
 			"DOM",
 			"ES6",

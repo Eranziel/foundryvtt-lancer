@@ -14,7 +14,7 @@
   "author": "",
   "license": "",
   "devDependencies": {
-    "@league-of-foundry-developers/foundry-vtt-types": "^0.8.8-9",
+    "@league-of-foundry-developers/foundry-vtt-types": "^0.8.9-0",
     "archiver": "^3.1.1",
     "chalk": "^3.0.0",
     "css-loader": "^5.2.4",

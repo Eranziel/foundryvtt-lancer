@@ -181,7 +181,7 @@ export class LancerActor extends Actor {
       return;
     }
   }
-  async overheatMech() {
+  async overheatMech(): Promise<void> {
     // Table of descriptions
     function stressTableD(roll: number, remStress: number) {
       switch (roll) {
@@ -311,7 +311,7 @@ export class LancerActor extends Actor {
     }
   }
 
-  async structureMech() {
+  async structureMech(): Promise<void> {
     // Table of descriptions
     function structTableD(roll: number, remStruct: number) {
       switch (roll) {
