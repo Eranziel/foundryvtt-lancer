@@ -297,20 +297,26 @@ export const migrateActorData = async function (actor: Actor) {
   // and pilots need the GM to import LCPs first.
   if (actor.data.type === EntryType.NPC) {
     updateData.data.tier = origData.data.tier_num;
-    updateData.data.heat = origData.data.mech.heat.value;
-    updateData.data.hp = origData.data.mech.hp.value;
-    updateData.data.stress = origData.data.mech.stress.value;
-    updateData.data.structure = origData.data.mech.structure.value;
+    // These are conditional because unlinked token actors only define the properties which have changed
+    if (origData.data.mech?.heat) updateData.data.heat = origData.data.mech.heat.value;
+    if (origData.data.mech?.hp) updateData.data.hp = origData.data.mech.hp.value;
+    if (origData.data.mech?.stress) updateData.data.stress = origData.data.mech.stress.value;
+    if (origData.data.mech?.structure) updateData.data.structure = origData.data.mech.structure.value;
 
     updateData["data.-=mech"] = null;
     updateData["data.-=npc_size"] = null;
     updateData["data.-=activations"] = null;
   } else if (actor.data.type === EntryType.DEPLOYABLE) {
     updateData.data.detail = origData.data.effect;
-    updateData.data.heat = origData.data.heat.value;
-    updateData.data.heatcap = origData.data.heat.max;
-    updateData.data.hp = origData.data.hp.value;
-    updateData.data.max_hp = origData.data.hp.max;
+    // These are conditional because unlinked token actors only define the properties which have changed
+    if (origData.data.mech?.heat) {
+      updateData.data.heat = origData.data.heat.value;
+      updateData.data.heatcap = origData.data.heat.max;
+    }
+    if (origData.data.mech?.hp) {
+      updateData.data.hp = origData.data.hp.value;
+      updateData.data.max_hp = origData.data.hp.max;
+    }
 
     updateData["data.-=description"] = null;
   } else {
@@ -596,12 +602,12 @@ export const migrateTokenData = async (token: LancerTokenDocument) => {
   }
 
   // Fix bar brawlers
-  if (token.data.flags?.barbrawl) {
+  if (token.data.flags?.barbrawl?.resourceBars) {
     let bb_data = token.data.flags.barbrawl;
     let bb_update_data = {};
     for (let bar_key of Object.keys(bb_data.resourceBars)) {
       bb_update_data[bar_key] = {
-        attribute: fix_bar_attribute(bb_update_data[bar_key].attribute),
+        attribute: fix_bar_attribute(bb_data[`${bar_key}.attribute`]),
       };
     }
     updateData["flags.barbrawl.resourceBars"] = bb_update_data;
