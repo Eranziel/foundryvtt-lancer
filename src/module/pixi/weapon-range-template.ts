@@ -3,6 +3,8 @@
  * https://gitlab.com/foundrynet/dnd5e/-/blob/master/module/pixi/ability-template.js
  */
 
+import { RegRangeData } from "machine-mind";
+
 /**
  * MeasuredTemplate sublcass to create a placeable template on weapon attacks
  * @extends MeasuredTemplate
@@ -16,15 +18,16 @@
  */
 export class WeaponRangeTemplate extends MeasuredTemplate {
   isBurst!: boolean;
-  range!: { val: number; type: string };
+  range!: RegRangeData;
 
   /**
    * Creates a new WeaponRangeTemplate from a provided range object
    * @param type Type of template
    * @param val Size of template
    */
-  static fromRange({ type, val }: { type: string; val: number }): WeaponRangeTemplate | null {
-    if (!canvas || !(game instanceof Game)) return null;
+  static fromRange({ type, val }: WeaponRangeTemplate['range']): WeaponRangeTemplate | null {
+    if (!canvas) return null;
+    let dist = parseInt(val);
     let hex: boolean = (canvas.grid?.type ?? 0) >= 2;
 
     let shape: "cone" | "ray" | "circle";
@@ -47,7 +50,7 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
     const templateData = {
       t: shape,
       user: game.user!.id,
-      distance: (val + 0.1) * scale,
+      distance: (dist + 0.1) * scale,
       width: scale,
       direction: 0,
       x: 0,
@@ -191,7 +194,7 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
   getBurstDistance(size: number): number {
     const hex = canvas!.grid!.type > 1;
     const scale = hex ? Math.sqrt(3) / 2 : 1;
-    let val = this.range.val;
+    let val = parseInt(this.range.val);
     if (hex) {
       if (size === 2) val += 0.7 - (val > 2 ? 0.1 : 0);
       if (size === 3) val += 1.2;
