@@ -119,11 +119,11 @@ Please refresh the page to try again.</p>`,
   // Migrate Actor Override Tokens
   for (let s of game.scenes.contents) {
     try {
-      console.log(`Migrating Scene entity ${s.name}`);
-      await migrateSceneData(s);
-      // if (updateData && !isObjectEmpty(updateData)) {
-        // await s.update(updateData);
-      // }
+      let updateData = await migrateSceneData(s);
+      if (updateData && !isObjectEmpty(updateData)) {
+        console.log(`Migrating Scene entity ${s.name}`);
+        await s.update(updateData);
+      }
     } catch (err) {
       console.error(err);
     }
@@ -138,7 +138,7 @@ Please refresh the page to try again.</p>`,
 
 export const minor09Migration = async function (migrateComps = true) {
   //pass
-}
+};
 
 /* -------------------------------------------- */
 
@@ -321,16 +321,19 @@ export const migrateActorData = async function (actor: Actor) {
   if (!actor.items) return updateData;
   let hasItemUpdates = false;
   const items = [];
-  actor.items.forEach(i => {
+  const ai = actor.items.contents as Array<LancerItem>;
+  for (let i = 0; i < ai.length; i++) {
+    const item = ai[i];
     // Migrate the Owned Item
-    let itemUpdate = migrateItemData(i);
+    let itemUpdate = await migrateItemData(item);
     // Add it to the array of items to update
     if (!isObjectEmpty(itemUpdate)) {
       hasItemUpdates = true;
-      i.push(itemUpdate);
+      items.push(itemUpdate);
     }
-  });
+  }
   if (hasItemUpdates) {
+    console.log(items);
     await actor.updateEmbeddedDocuments("Item", items, { parent: actor });
   }
 
@@ -537,12 +540,13 @@ export const migrateItemData = async function (item: LancerItem<NpcClass | NpcTe
 export const migrateSceneData = async function (scene) {
   console.log(`Migrating scene ${scene.name}`);
   if (!scene.tokens) return;
-  const tokens = [];
-  scene.tokens.forEach(async (token: LancerTokenDocument) => {
+  const tokens = scene.tokens.contents as Array<LancerTokenDocument>;
+  for (let i = 0; i < tokens.length; i++) {
+    const token = tokens[i];
     // Migrate unlinked actors
     if (!token.isLinked) {
       let token_actor = token.actor;
-      let updateData = await migrateActorData(token_actor.data);
+      let updateData = await migrateActorData(token_actor);
       if (updateData && !isObjectEmpty(updateData)) {
         await token_actor.update(updateData);
       }
@@ -550,8 +554,8 @@ export const migrateSceneData = async function (scene) {
 
     // Migrate tokens themselves
     await migrateTokenData(token);
-  });
-}
+  }
+};
 
 // Migrates a TokenDocument (not the actor! just the token!)
 export const migrateTokenData = async (token: LancerTokenDocument) => {
@@ -560,7 +564,7 @@ export const migrateTokenData = async (token: LancerTokenDocument) => {
   // Returns a corrected bar attribute or, if one could not be deduced, just hp
   const fix_bar_attribute = (attr_name: string) => {
     attr_name = attr_name || ""; // sanity
-    if(attr_name.includes("heat")) {
+    if (attr_name.includes("heat")) {
       return "derived.heat";
     } else if (attr_name.includes("hp")) {
       return "derived.hp";
@@ -580,49 +584,34 @@ export const migrateTokenData = async (token: LancerTokenDocument) => {
   };
 
   // Fix the standard bars individually
-  if(token.data.bar1) {
+  if (token.data.bar1) {
     updateData["bar1"] = {
-      attribute: fix_bar_attribute(token.data.bar1.attribute)
+      attribute: fix_bar_attribute(token.data.bar1.attribute),
     };
   }
-  if(token.data.bar2) {
+  if (token.data.bar2) {
     updateData["bar2"] = {
-      attribute: fix_bar_attribute(token.data.bar2.attribute)
+      attribute: fix_bar_attribute(token.data.bar2.attribute),
     };
   }
 
   // Fix bar brawlers
-  if(token.data.flags?.barbrawl) {
+  if (token.data.flags?.barbrawl) {
     let bb_data = token.data.flags.barbrawl;
     let bb_update_data = {};
-    for(let bar_key of Object.keys(bb_data.resourceBars)) {
+    for (let bar_key of Object.keys(bb_data.resourceBars)) {
       bb_update_data[bar_key] = {
-        attribute: fix_bar_attribute(bb_update_data[bar_key].attribute)
+        attribute: fix_bar_attribute(bb_update_data[bar_key].attribute),
       };
     }
     updateData["flags.barbrawl.resourceBars"] = bb_update_data;
   }
 
   // Apply update
-  token.update(updateData);
+  await token.update(updateData);
 };
-  // return tokens.map(t => {
-  //   if (!t.actorId || t.actorLink || !t.actorData.data) {
-  //     t.actorData = {};
-  //     return t;
-  //   }
-  //   const token = new Token(t);
-  //   if (!token.actor) {
-  //     t.actorId = null;
-  //     t.actorData = {};
-  //   } else if (!t.actorLink) {
-  //     const updateData = migrateActorData(token.data.actorData);
-  //     t.actorData = mergeObject(token.data.actorData, updateData);
-  //   }
-  //   return t;
-  // });
 
-  // If the scene data itself needs to be migrated, make the changes and return the migrated data here.
+// If the scene data itself needs to be migrated, make the changes and return the migrated data here.
 
 /* -------------------------------------------- */
 
