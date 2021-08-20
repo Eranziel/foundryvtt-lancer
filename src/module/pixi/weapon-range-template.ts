@@ -3,7 +3,22 @@
  * https://gitlab.com/foundrynet/dnd5e/-/blob/master/module/pixi/ability-template.js
  */
 
-import { RegRangeData } from "machine-mind";
+import { RangeType, RegRangeData } from "machine-mind";
+
+declare global {
+  interface FlagConfig {
+    MeasuredTemplate: {
+      [game.system.id]: {
+        range: RegRangeData;
+        creator?: string;
+        ignore: {
+          tokens: string[];
+          dispositions: TokenDocument["data"]["disposition"][];
+        };
+      };
+    };
+  }
+}
 
 /**
  * MeasuredTemplate sublcass to create a placeable template on weapon attacks
@@ -12,34 +27,39 @@ import { RegRangeData } from "machine-mind";
  * ```
  * WeaponRangeTemplate.fromRange({
  *     type: 'Cone',
- *     val: 5,
+ *     val: "5",
  * }).drawPreview();
  * ```
  */
 export class WeaponRangeTemplate extends MeasuredTemplate {
-  isBurst!: boolean;
-  range!: RegRangeData;
+  get range() {
+    return this.document.getFlag("lancer", "range");
+  }
+
+  get isBurst() {
+    return this.range.type === RangeType.Burst;
+  }
 
   /**
    * Creates a new WeaponRangeTemplate from a provided range object
    * @param type Type of template
    * @param val Size of template
    */
-  static fromRange({ type, val }: WeaponRangeTemplate['range']): WeaponRangeTemplate | null {
+  static fromRange({ type, val }: WeaponRangeTemplate["range"], creator?: Token): WeaponRangeTemplate | null {
     if (!canvas) return null;
     let dist = parseInt(val);
     let hex: boolean = (canvas.grid?.type ?? 0) >= 2;
 
     let shape: "cone" | "ray" | "circle";
     switch (type) {
-      case "Cone":
+      case RangeType.Cone:
         shape = "cone";
         break;
-      case "Line":
+      case RangeType.Line:
         shape = "ray";
         break;
-      case "Burst":
-      case "Blast":
+      case RangeType.Burst:
+      case RangeType.Blast:
         shape = "circle";
         break;
       default:
@@ -57,13 +77,21 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
       y: 0,
       angle: 58,
       fillColor: game.user!.data.color,
+      flags: {
+        [game.system.id]: {
+          range: { type, val },
+          creator: creator?.id,
+          ignore: {
+            tokens: type === RangeType.Blast || !creator ? [] : [creator.id],
+            dispositions: <TokenDocument['data']['disposition'][]>[],
+          },
+        },
+      },
     };
 
     const cls = CONFIG.MeasuredTemplate.documentClass;
     const template = new cls(templateData, { parent: canvas.scene ?? undefined });
     const object = new this(template);
-    object.range = { type, val };
-    object.isBurst = type === "Burst";
     return object;
   }
 

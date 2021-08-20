@@ -1486,10 +1486,10 @@ export async function stabilizeMacro(a: string) {
 /**
  * Sets user targets to tokens that are within the highlighted spaces of the
  * MeasuredTemplate
- * @param template - The id of the template to use
+ * @param templateId - The id of the template to use
  */
-export function targetsFromTemplate(template: string): void {
-  const highlight = canvas?.grid?.getHighlightLayer(`Template.${template}`);
+export function targetsFromTemplate(templateId: string): void {
+  const highlight = canvas?.grid?.getHighlightLayer(`Template.${templateId}`);
   const grid = canvas?.grid;
   if (highlight === undefined || canvas === undefined || grid === undefined || canvas.ready !== true) return;
   const test_token = (token: Token) => {
@@ -1527,6 +1527,12 @@ export function targetsFromTemplate(template: string): void {
     return Array.from(points).reduce((a, p) => a || highlight.geometry.containsPoint(p), false);
   };
 
+  // Get list of tokens and dispositions to ignore.
+  let ignore = canvas.templates!.get(templateId)!.document.getFlag(LANCER.sys_name, "ignore");
+
   // Test if each token occupies a targeted space and target it if true
-  canvas.tokens!.placeables.forEach(t => t.setTarget(test_token(t), { releaseOthers: false, groupSelection: true }));
+  canvas.tokens!.placeables.forEach(t => {
+    let skip = ignore.tokens.includes(t.id) || ignore.dispositions.includes(t.data.disposition);
+    t.setTarget(!skip && test_token(t), { releaseOthers: false, groupSelection: true });
+  });
 }
