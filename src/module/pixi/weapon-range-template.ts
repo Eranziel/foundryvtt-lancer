@@ -65,71 +65,85 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
   }
 
   /**
-   * Start placement of the template. Returns immediately, so cannot be used to
-   * block until a template is placed.
+   * Start placement of the template. Returns a promise that resolves to the
+   * final MeasuredTemplateDocument or rejects when creation is canceled or
+   * fails.
    */
-  drawPreview(): void {
-    if (!canvas) return;
+  drawPreview(): Promise<MeasuredTemplateDocument> {
+    if (!canvas) {
+      ui.notifications?.error("Cannot create WeaponRangeTemplate. Canvas is not ready");
+      throw new Error("Cannot create WeaponRangeTemplate. Canvas is not ready");
+    }
     const initialLayer = canvas.activeLayer;
     this.draw();
     this.layer.activate();
     this.layer.preview?.addChild(this);
-    this.activatePreviewListeners(initialLayer);
+    return this.activatePreviewListeners(initialLayer);
   }
 
-  activatePreviewListeners(initialLayer: CanvasLayer<CanvasLayerOptions> | null): void {
-    const handlers: any = {};
-    let moveTime = 0;
+  activatePreviewListeners(initialLayer: CanvasLayer<CanvasLayerOptions> | null): Promise<MeasuredTemplateDocument> {
+    return new Promise<MeasuredTemplateDocument>((resolve, reject) => {
+      const handlers: any = {};
+      let moveTime = 0;
 
-    // Update placement (mouse-move)
-    handlers.mm = (event: PIXI.InteractionEvent) => {
-      event.stopPropagation();
-      let now = Date.now(); // Apply a 20ms throttle
-      if (now - moveTime <= 20) return;
-      const center = event.data.getLocalPosition(this.layer);
-      let snapped = this.snapToCenter(center);
+      // Update placement (mouse-move)
+      handlers.mm = (event: PIXI.InteractionEvent) => {
+        event.stopPropagation();
+        let now = Date.now(); // Apply a 20ms throttle
+        if (now - moveTime <= 20) return;
+        const center = event.data.getLocalPosition(this.layer);
+        let snapped = this.snapToCenter(center);
 
-      if (this.isBurst) snapped = this.snapToToken(center);
+        if (this.isBurst) snapped = this.snapToToken(center);
 
-      this.data.update({ x: snapped.x, y: snapped.y });
-      this.refresh();
-      moveTime = now;
-    };
+        this.data.update({ x: snapped.x, y: snapped.y });
+        this.refresh();
+        moveTime = now;
+      };
 
-    // Cancel the workflow (right-click)
-    handlers.rc = (_event: PIXI.InteractionEvent) => {
-      this.layer.preview?.removeChildren();
-      canvas!.stage?.off("mousemove", handlers.mm);
-      canvas!.stage?.off("mousedown", handlers.lc);
-      canvas!.app!.view.oncontextmenu = null;
-      canvas!.app!.view.onwheel = null;
-      initialLayer?.activate();
-    };
+      // Cancel the workflow (right-click)
+      handlers.rc = (_e: unknown, do_reject: boolean = true) => {
+        this.layer.preview?.removeChildren();
+        canvas!.stage?.off("mousemove", handlers.mm);
+        canvas!.stage?.off("mousedown", handlers.lc);
+        canvas!.app!.view.oncontextmenu = null;
+        canvas!.app!.view.onwheel = null;
+        initialLayer?.activate();
+        if (do_reject) reject("Template creation cancelled");
+      };
 
-    // Confirm the workflow (left-click)
-    handlers.lc = (event: PIXI.InteractionEvent) => {
-      handlers.rc(event);
-      let destination = this.snapToCenter(event.data.getLocalPosition(this.layer));
-      if (this.isBurst) destination = this.snapToToken(event.data.getLocalPosition(this.layer));
-      this.data.update(destination);
-      canvas!.scene!.createEmbeddedDocuments("MeasuredTemplate", [this.data.toObject()]);
-    };
+      // Confirm the workflow (left-click)
+      handlers.lc = async (event: PIXI.InteractionEvent) => {
+        handlers.rc(event, false);
+        let destination = this.snapToCenter(event.data.getLocalPosition(this.layer));
+        if (this.isBurst) destination = this.snapToToken(event.data.getLocalPosition(this.layer));
+        this.data.update(destination);
+        const template = (<MeasuredTemplateDocument[]>(
+          await canvas!.scene!.createEmbeddedDocuments("MeasuredTemplate", [this.data.toObject()])
+        )).shift();
+        if (template === undefined) {
+          reject("Template creation failed");
+          return;
+        }
+        resolve(template);
+      };
 
-    // Rotate the template by 3 degree increments (mouse-wheel)
-    handlers.mw = (event: WheelEvent) => {
-      if (event.ctrlKey) event.preventDefault(); // Avoid zooming the browser window
-      event.stopPropagation();
-      let delta = canvas!.grid!.type > CONST.GRID_TYPES.SQUARE ? 30 : 15;
-      let snap = event.shiftKey ? delta : 5;
-      this.data.update({ direction: this.data.direction + snap * Math.sign(event.deltaY) });
-      this.refresh();
-    };
+      // Rotate the template by 3 degree increments (mouse-wheel)
+      handlers.mw = (event: WheelEvent) => {
+        if (event.ctrlKey) event.preventDefault(); // Avoid zooming the browser window
+        event.stopPropagation();
+        let delta = canvas!.grid!.type > CONST.GRID_TYPES.SQUARE ? 30 : 15;
+        let snap = event.shiftKey ? delta : 5;
+        this.data.update({ direction: this.data.direction + snap * Math.sign(event.deltaY) });
+        this.refresh();
+      };
 
-    // Activate listeners
-    canvas!.stage!.on("mousemove", handlers.mm);
-    canvas!.stage!.on("mousedown", handlers.lc);
-    canvas!.app!.view.oncontextmenu = handlers.rc;
-    canvas!.app!.view.onwheel = handlers.mw;
+      // Activate listeners
+      canvas!.stage!.on("mousemove", handlers.mm);
+      canvas!.stage!.on("mousedown", handlers.lc);
+      canvas!.app!.view.oncontextmenu = handlers.rc;
+      canvas!.app!.view.onwheel = handlers.mw;
+    });
   }
 
   /**
