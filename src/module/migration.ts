@@ -119,9 +119,9 @@ Please refresh the page to try again.</p>`,
   // Migrate Actor Override Tokens
   for (let s of game.scenes.contents) {
     try {
+      console.log(`Migrating Scene entity ${s.name}`);
       let updateData = await migrateSceneData(s);
       if (updateData && !isObjectEmpty(updateData)) {
-        console.log(`Migrating Scene entity ${s.name}`);
         await s.update(updateData);
       }
     } catch (err) {
@@ -339,7 +339,6 @@ export const migrateActorData = async function (actor: Actor) {
     }
   }
   if (hasItemUpdates) {
-    console.log(items);
     await actor.updateEmbeddedDocuments("Item", items, { parent: actor });
   }
 
@@ -395,7 +394,6 @@ export const migrateItemData = async function (item: LancerItem<NpcClass | NpcTe
 
   switch (origData.type) {
     case EntryType.NPC_CLASS:
-      console.log(`${lp} Migrating NPC class`, origData);
       // id -> lid
       updateData.data.lid = origData.data.id;
       // base_features convert from array of CC IDs to array of RegRefs.
@@ -428,7 +426,6 @@ export const migrateItemData = async function (item: LancerItem<NpcClass | NpcTe
 
       break;
     case EntryType.NPC_TEMPLATE:
-      console.log(`${lp} Migrating NPC template`, origData);
       // id -> lid
       updateData.data.lid = origData.data.id;
       // base_features convert from array of CC IDs to array of RegRefs.
@@ -445,7 +442,6 @@ export const migrateItemData = async function (item: LancerItem<NpcClass | NpcTe
       updateData["data.-=note"] = null;
       break;
     case EntryType.NPC_FEATURE:
-      console.log(`${lp} Migrating NPC feature`, origData);
       updateData.data.lid = origData.data.id ? origData.data.id : "";
       updateData.data.loaded = true;
       updateData.data.type = origData.data.feature_type;
@@ -552,6 +548,7 @@ export const migrateSceneData = async function (scene) {
     // Migrate unlinked actors
     if (!token.isLinked) {
       let token_actor = token.actor;
+      console.log(`Migrating unlinked token actor ${token_actor.name}`);
       let updateData = await migrateActorData(token_actor);
       if (updateData && !isObjectEmpty(updateData)) {
         await token_actor.update(updateData);

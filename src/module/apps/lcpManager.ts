@@ -240,8 +240,8 @@ export async function updateCore(version: string, manager?: LCPManager) {
   let progress_func = (x: any, y: any) => {
     // If we're passing a manager, let it do things as well
     if (manager) manager.update_progress_bar(x, y);
-    // Provide updates every 10%
-    const denom = 10;
+    // Provide updates every 25%
+    const denom = 4;
     let incr = Math.ceil(y / denom);
     if (x >= incr * progress) {
       ui.notifications.info(`${progress * (100 / denom)}% of Lancer Core data updated`);
