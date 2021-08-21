@@ -532,7 +532,6 @@ export class MMDragResolveCache { // extends FetcherCache<string, AnyMMActor | A
   // [null, false] if the key is not yet cached (but the caching job will be started)
   // [<value>, true] if the key is cached. Value may still be null
   sync_fetch(event_transfer_key: string): [AnyMMActor | AnyMMItem | null, boolean] {
-    console.log("Sync fetching");
     if(this.cache.has_resolved(event_transfer_key)) {
       return [this.cache.soft_fetch(event_transfer_key), true];
     } else {
@@ -623,7 +622,7 @@ export function applyGlobalDragListeners() {
       // No joy - is it by chance already a ref
       if(!resolved) {
         let ar = safe_json_parse(text) as RegRef<any>;
-        if(ar?.fallback_lid) {
+        if(ar?.fallback_lid !== undefined) {
           // It's a ref!
           set_global_drag(ar);
         }
