@@ -133,6 +133,7 @@ import { handleActorExport, validForExport } from "./module/helpers/io";
 import { runEncodedMacro, prepareTextMacro } from './module/macros';
 import { fix_modify_token_attribute, LancerToken, LancerTokenDocument } from "./module/token";
 import { FoundryReg } from "./module/mm-util/foundry-reg";
+import { applyGlobalDragListeners } from "./module/helpers/dragdrop";
 
 const lp = LANCER.log_prefix;
 
@@ -577,6 +578,7 @@ export const system_ready: Promise<void> = new Promise(success => {
     await showChangelog();
 
     applyCollapseListeners();
+    applyGlobalDragListeners();
 
     game.action_manager = new LancerActionManager();
     await game.action_manager.init();

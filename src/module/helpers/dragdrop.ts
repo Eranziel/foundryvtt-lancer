@@ -1,4 +1,4 @@
-import { EntryType, LiveEntryTypes, OpCtx, RegEntry, RegRef } from "machine-mind";
+import { EntryType, OpCtx, RegEntry, RegRef } from "machine-mind";
 import { AnyLancerActor, AnyMMActor, is_actor_type, LancerActor, LancerActorType } from "../actor/lancer-actor";
 import { PACK_SCOPE } from "../compBuilder";
 import { AnyLancerItem, AnyMMItem, is_item_type, LancerItem, LancerItemType } from "../item/lancer-item";
@@ -329,7 +329,6 @@ export async function resolve_native_drop(drop: string | {[key: string]: any} | 
   }
 
   // All else fails
-  console.log(`Couldn't resolve native drop:`, drop);
   return null;
 }
 
@@ -460,7 +459,7 @@ export function HANDLER_enable_mm_dropping(
         return true; // Note - this allows dropping unresolved items! We allow this for particularly speedy users. We therefore need to check can_drop again in actual drop func
       } else if(!resolved) {
         console.warn("Failed to resolve ref.", data);
-        return false; // Can't drop something that didnt resolve, lol
+        return false; // Can't drop something that was completed+unresolveable, lol
       }
 
       // Check type
@@ -509,20 +508,23 @@ export class MMDragResolveCache { // extends FetcherCache<string, AnyMMActor | A
       if(!as_json) return null;
 
       // Distinguish
+      let resolved: AnyMMActor | AnyMMItem | null = null;
       if(is_ref(as_json)) {
         // Resolution is simple
-        return new FoundryReg().resolve(this.ctx, as_json);
+        resolved = await new FoundryReg().resolve(this.ctx, as_json);
       } else {
         // Resolution is complex but still solved
-        let resolved = await resolve_native_drop(as_json);
-        if(resolved?.type == "Actor")  {
-          return mm_wrap_actor(resolved.entity, this.ctx);
-        } else if(resolved?.type == "Item") {
-          return mm_wrap_item(resolved.entity, this.ctx);
+        let drop = await resolve_native_drop(as_json);
+        if(drop?.type == "Actor")  {
+          resolved = await mm_wrap_actor(drop.entity, this.ctx);
+        } else if(drop?.type == "Item") {
+          resolved = await mm_wrap_item(drop.entity, this.ctx);
         } else {
-          return null;
+          resolved = null;
         }
       }
+
+      return resolved;
     });
   }
 
@@ -530,6 +532,7 @@ export class MMDragResolveCache { // extends FetcherCache<string, AnyMMActor | A
   // [null, false] if the key is not yet cached (but the caching job will be started)
   // [<value>, true] if the key is cached. Value may still be null
   sync_fetch(event_transfer_key: string): [AnyMMActor | AnyMMItem | null, boolean] {
+    console.log("Sync fetching");
     if(this.cache.has_resolved(event_transfer_key)) {
       return [this.cache.soft_fetch(event_transfer_key), true];
     } else {
@@ -544,11 +547,104 @@ export class MMDragResolveCache { // extends FetcherCache<string, AnyMMActor | A
   }
 }
 
-// Needed for chrome, but also lets us do some nice stuff
+// Tracks state and handles global flag set/unsetting. 
+// Only set by HANDLER_enable_mm_dragging. If you're using other things, well, good luck
 export const GlobalMMDragState = {
+  dragging: false as boolean,
+  curr_dragged_type: EntryType,
+  curr_dragged_entity: null as AnyLancerActor | AnyLancerItem | null, // If it is a native entity, we set this
+  curr_dragged_ref: null as RegRef<EntryType> | null // If it is a ref, we set this
+}
 
+function dragging_class(for_type: EntryType): string {
+  return `dragging-${for_type}`
+}
 
-  // dragging_listeners():
-  // listen_
+function set_global_drag(to: AnyLancerItem | AnyLancerActor | RegRef<any>) {
+  // Check for duplicate work and clear if that isn't the case
+  if(GlobalMMDragState.curr_dragged_entity == to || GlobalMMDragState.curr_dragged_ref == to) {
+    return; // don't repeat
+  }
+  clear_global_drag();
 
+  // Mark us as dragging and store the draggee
+  GlobalMMDragState.dragging = true;
+  let type: EntryType;
+  let rr = to as RegRef<any>;
+  let ent = to as AnyLancerItem | AnyLancerActor;
+  if(rr.fallback_lid !== undefined) {
+    GlobalMMDragState.curr_dragged_ref = rr;
+    type = rr.type;
+  } else if(ent.data !== undefined) {
+    GlobalMMDragState.curr_dragged_entity = ent;
+    type = ent.data.type;
+  } else {
+    console.error("Error while setting global drag");
+    return; // hmmm
+  }
+
+  // @ts-ignore
+  GlobalMMDragState.curr_dragged_type = type;
+
+  // Add an appropriate class
+  $("body").addClass(dragging_class(type));
+}
+
+function clear_global_drag() {
+  if(GlobalMMDragState.dragging) {
+    GlobalMMDragState.dragging = false;
+    if(GlobalMMDragState.curr_dragged_entity) {
+      $("body").removeClass(dragging_class(GlobalMMDragState.curr_dragged_entity.data.type));
+    } else if(GlobalMMDragState.curr_dragged_ref?.type) {
+      $("body").removeClass(dragging_class(GlobalMMDragState.curr_dragged_ref.type));
+    }
+    GlobalMMDragState.curr_dragged_entity = null;
+    GlobalMMDragState.curr_dragged_ref = null;
+  }
+}
+
+// Setup global drag mm resolution
+export function applyGlobalDragListeners() {
+  let body = document.getElementsByTagName("body")[0];
+
+  // Capture when we start dragging anything anywhere - this covers regrefs and native drags
+  body.addEventListener("dragstart", (e) => {
+    // Even though we are capturing, we need to wait a moment so the event data transfer can occur
+    setTimeout(async () => {
+      // Ok. Try to resolve
+      let text = e.dataTransfer?.getData("text/plain") ?? null
+      if(!text) {
+        // Drop it - we can't really do much about this happening
+        return;
+      }
+
+      let resolved = await resolve_native_drop(text);
+
+      // No joy - is it by chance already a ref
+      if(!resolved) {
+        let ar = safe_json_parse(text) as RegRef<any>;
+        if(ar?.fallback_lid) {
+          // It's a ref!
+          set_global_drag(ar);
+        }
+        return; // Well! no idea what that is
+      }
+
+      // Upon success
+      if(resolved.type == "Item" || resolved.type == "Actor") {
+        set_global_drag(resolved.entity);
+      }
+    }, 100);
+  }, {
+    capture: true, // We don't want people preventing us from seeing this!
+    passive: true // Improves performance. We only want to watch
+  });
+
+  // Clear whenever we stop dragging anywhere
+  body.addEventListener("dragend", (e) => {
+    clear_global_drag();
+  }, {
+    capture: true, // Same as above
+    passive: true 
+  });
 }

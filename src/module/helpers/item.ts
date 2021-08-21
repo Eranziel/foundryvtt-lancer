@@ -571,7 +571,6 @@ export function mech_weapon_refview(
   let mech_: Mech | null = resolve_helper_dotpath(options, mech_path);
   let mod_path = weapon_path.substr(0, weapon_path.lastIndexOf(".")) + ".Mod";
   let mod: WeaponMod | null = resolve_helper_dotpath(options, mod_path);
-  let mod_text: string | undefined;
 
   // Generate commons
   let cd = ref_commons(weapon_);
@@ -579,16 +578,16 @@ export function mech_weapon_refview(
   if (!cd) {
     // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
     return `
-      <div class=" ${EntryType.MECH_WEAPON} ref drop-settable card flexrow" 
-                        data-path="${weapon_path}" 
-                        data-type="${EntryType.MECH_WEAPON}">
+      <div class="${EntryType.MECH_WEAPON} ref drop-settable card flexrow" 
+           data-path="${weapon_path}" 
+           data-type="${EntryType.MECH_WEAPON}">
         <img class="ref-icon" src="${TypeIcon(EntryType.MECH_WEAPON)}"></img>
         <span class="major">Insert ${size ? size : "any"} weapon</span>
       </div>`;
   }
 
+  let mod_text: string = "";
   let cd_mod = ref_commons(mod);
-
   if (cd_mod && mod) {
     mod_text = `
     <div class="valid item weapon-mod-addon flexrow clipped-bot ref ${EntryType.WEAPON_MOD}"
@@ -597,6 +596,16 @@ export function mech_weapon_refview(
       <span>${mod.Name}</span>
       <a style="flex-grow: unset;margin-right: 1em" class="gen-control i--light" data-action="null" data-path="${mod_path}"><i class="fas fa-trash"></i></a>
     </div>`;
+  } else {
+    // Make a refbox, hidden
+    mod_text = `
+    <div class="${EntryType.WEAPON_MOD} ref drop-settable context-drop card flexrow"
+        data-path="${mod_path}"
+        data-type="${EntryType.WEAPON_MOD}">
+      <i class="cci cci-weaponmod i--m i--light"> </i>
+      <span>Insert Mod</span>
+    </div>`;
+
   }
 
   // Assert not null
@@ -634,12 +643,14 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.Select
   // Augment ranges
   let ranges = profile.BaseRange;
   if (mech_) {
-    ranges = Range.calc_range_with_bonuses(weapon, profile, mech_);
+    ranges = Range.calc_range_with_bonuses(weapon, profile, mech_, mod ?? undefined);
   }
 
   // Augment tags
-  // let tags = profile.Tags;
-  // merge
+  let tags = profile.Tags;
+  if(mod) {
+    tags = funcs.merge_tags(tags, mod.AddedTags);
+  }
 
   // Generate loading segment as needed
   let loading = "";
@@ -693,11 +704,11 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.Select
           ${on_attack}
           ${on_hit}
           ${on_crit}
-          ${compact_tag_list(profile_path + ".Tags", profile.Tags, false)}
+          ${compact_tag_list(profile_path + ".Tags", tags, false)}
         </div>
       </div>
     </div>
-    ${mod_text ? mod_text : ""}
+    ${mod_text}
   </div>`;
 }
 

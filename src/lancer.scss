@@ -3,6 +3,12 @@
 
 @import "https://cdn.jsdelivr.net/npm/@mdi/font@5.9.55/css/materialdesignicons.min.css";
 
+/* Item/entity types, useful for shorthand */
+$item-types: core_bonus environment faction frame manufacturer npc_class npc_template npc_feature weapon_mod mech_system mech_weapon organization pilot_armor pilot_gear pilot_weapon reserve sitrep skill status tag talent quirk;
+$actor-types: npc pilot mech deployable;
+$entity-types: join($item-types, $actor-types);
+
+
 /* Settings Layer*/
 :root {
   --main-font-family: Helvetica, Arial, sans-serif;
@@ -702,22 +708,6 @@ tr.lcp-index-header {
   margin-left: auto;
   max-width: 40px;
 }
-
-/* Empty box at end of item lists where you can drop things. By default we don't want it to be visible */
-.locked .ref-list-append {
-  visibility: hidden;
-}
-
-/* Only show edit button if editable*/
-.locked .popout-text-edit-button {
-  display: none;
-}
-
-/* But if they are a valid drop target, we do! */
-.ref-list-append.highlight-can-drop {
-  visibility: visible;
-}
-
 /* Re-allow clicking in these damn things */
 .lancer input,
 .input,
@@ -1552,7 +1542,6 @@ a.flexrow.skill-macro {
   font-size: 18px;
   font-weight: bold;
 }
-
 // Action activation types
 $activations-types: none passive quick quicktech invade full fulltech other reaction protocol free move;
 // The rgb-based colors I just made up, not sure if there are official colors for those
@@ -2177,3 +2166,39 @@ div[data-tab="system"] > .settings-list > div:nth-last-child(-n + 4) {
   max-width: 60%;
   align-self: center;
 }
+
+/* 
+We will add the "dragging-_____" class to the document root whenever we're dragging a type.
+.For instance, dragging-mech_weapon
+This base class configuration will make all of these options invisible.
+See the .editable ".context-drop" class for how it gets changed
+*/
+.context-drop {
+  display: none;
+}
+
+/* By default, edit*/
+.locked {
+  /* Only show edit button if not locked*/
+  .popout-text-edit-button {
+    display: none;
+  }
+}
+
+/* Editable is a built-in class on application windows containing editable sheets.
+Here, this means we want to allow for drag stuff etc to show contextually if:
+- We are dragging the appropriate type 
+- The app is editable
+- the box is a context-drop of the appropriate corresponding type
+*/
+@each $e-type in $entity-types {
+  .dragging-#{$e-type} .editable .context-drop.#{$e-type} {
+    display: revert;
+  }
+}
+
+/* Separate, older version for tags */
+.ref-list-append.highlight-can-drop {
+  visibility: visible;
+}
+
