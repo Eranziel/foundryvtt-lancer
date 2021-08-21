@@ -102,6 +102,7 @@ export function npc_reaction_effect_preview(path: string, options: HelperOptions
     path,
     npc_feature,
     `<div class="flexcol lancer-body">
+      ${npc_feature.Tags.find(tag => tag.Tag.LID === "tg_recharge") ? charged_box(npc_feature.Charged, path) : ""}
       ${effect_box("TRIGGER", npc_feature.Trigger)}
       ${effect_box("EFFECT", npc_feature.Effect)}
       ${compact_tag_list(path + ".Tags", npc_feature.Tags, false)}
@@ -160,6 +161,10 @@ export function npc_tech_effect_preview(path: string, options: HelperOptions) {
   if (npc_feature.Accuracy[tier_index]) {
     subheader_items.push(npc_accuracy_preview(npc_feature.Accuracy[tier_index]));
   }
+  
+  if(npc_feature.Tags.find(tag => tag.Tag.LID === "tg_recharge")) {
+    subheader_items.push(charged_box(npc_feature.Charged, path));
+  }
 
   return npc_feature_scaffold(
     path,
@@ -207,6 +212,10 @@ export function npc_weapon_effect_preview(path: string, options: HelperOptions) 
   }
   if (npc_feature.Damage[tier_index] && npc_feature.Damage[tier_index].length) {
     subheader_items.push(show_damage_array(npc_feature.Damage[tier_index], options));
+  }
+
+  if(npc_feature.Tags.find(tag => tag.Tag.LID === "tg_recharge")) {
+    subheader_items.push(charged_box(npc_feature.Charged, path));
   }
 
   if (is_loading(npc_feature)) subheader_items.push(loading_indicator(npc_feature.Loaded, path));

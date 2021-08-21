@@ -1,3 +1,27 @@
+# 0.9.6 (2021-08-10)
+## Features
+* #128 - Better COMP/CON Sync UI 
+
+## Bug Fixes
+* #222 - Better readiness trackers
+* #252 - Calculate overkill correctly
+* #261 - Fix structure/stress macros
+* Add a minimum height to the tags section non-tagged items can be dropped on
+* Fix action trackers
+* Fix token attributes for HP and Heat
+* Import pilot and mech images
+* Re-add the core passive macro
+
+## Bug Fixes
+* #222 - Better readiness trackers
+* #252 - Calculate overkill correctly
+* #261 - Fix structure/stress macros
+* Add a minimum height to the tags section non-tagged items can be dropped on
+* Fix action trackers
+* Fix token attributes for HP and Heat
+* Import pilot and mech images
+* Re-add the core passive macro
+
 # 0.9.5 (2021-07-11)
 ## Features
 * #235 - Importing Status & Conditions compendium now

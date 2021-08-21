@@ -16,6 +16,11 @@
             }
         },
         "mech-sheet": {
+            "tabs": {
+                "stats": "<MECH//STATS>",
+                "loadout": "<MECH//LOADOUT>",
+                "talents": "<PILOT//TALENTS>"
+            },
             "core": {
                 "label": "CORE"
             },
@@ -59,7 +64,7 @@
             "cloud-header": {
                 "label": "RM-4://(OMNINET UPLINK ID)",
                 "vaultID": "Load from your Comp/Con account (if logged in)",
-                "gist-placeholder": "or enter an old cloud share code"
+                "raw-placeholder": "or enter a code manually"
             },
             "cloud-download": {
                 "label": "DOWNLOAD",
@@ -96,6 +101,7 @@
                 "effect": "// EFFECT //",
                 "charge-roll": "// CHARGE ROLL //",
                 "changes": "// CHANGES //",
+                "structure": "// STRUCTURE DAMAGE //",
                 "overheating": "// OVERHEATING //",
                 "check": "// CHECK :: {check} //",
                 "system": "// SYSTEM :: {system} //"

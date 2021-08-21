@@ -784,13 +784,26 @@ export function buildActionHTML(
   let collID = uuid4();
   // TODO--can probably do better than this
   if (options) {
-    detailText = `<div class="action-detail collapse ${options.full ? "" : "collapsed"}" data-collapse-id="${collID}">${
-      action.Detail
-    }</div>`;
-
     // Not using type yet but let's plan forward a bit
     let type: ActivationOptions;
     let icon: ChipIcons | undefined;
+    
+    // If we don't have a trigger do a simple detail
+    if(!action.Trigger)
+      detailText = `<div class="action-detail collapse ${options.full ? "" : "collapsed"}" data-collapse-id="${collID}">${
+        action.Detail
+      }</div>`;
+    // Otherwise, look to be explicit about which is which
+    else {
+      detailText = `<div class="action-detail collapse ${options.full ? "" : "collapsed"}" data-collapse-id="${collID}">
+        <div class="overline">${game.i18n.localize('lancer.chat-card.label.trigger')}</div> 
+        <div>${action.Trigger}</div>
+        <div class="overline">${game.i18n.localize('lancer.chat-card.label.effect')}</div> 
+        <div>${action.Detail}</div> 
+      </div>`;
+    }
+    
+
 
     if (options.num !== undefined) {
       switch (action.Activation) {

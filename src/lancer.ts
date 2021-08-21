@@ -671,10 +671,6 @@ Hooks.on("hotbarDrop", (_bar: any, data: any, slot: number) => {
   macros.onHotbarDrop(_bar, data, slot);
 });
 
-Hooks.on("modifyTokenAttribute", (_: any, data: any) => {
-  fix_modify_token_attribute(data);
-});
-
 /**
  * Prompts users to install core data
  * Designed for use the first time you launch a new world
