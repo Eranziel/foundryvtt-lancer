@@ -47,7 +47,7 @@ import * as macros from "./module/macros";
 // Import Tippy.js
 import tippy from "tippy.js";
 import "tippy.js/dist/tippy.css"; // optional for styling
-tippy.setDefaultProps({ theme: "lancer", arrow: false, delay: [400, 200] });
+tippy.setDefaultProps({ theme: "lancer-small", arrow: false, delay: [400, 200] });
 // tippy.setDefaultProps({ theme: "lancer", arrow: false, delay: [400, 200], hideOnClick: false, trigger: "click"});
 
 // Import node modules
@@ -134,6 +134,7 @@ import { runEncodedMacro, prepareTextMacro } from './module/macros';
 import { fix_modify_token_attribute, LancerToken, LancerTokenDocument } from "./module/token";
 import { FoundryReg } from "./module/mm-util/foundry-reg";
 import { applyGlobalDragListeners } from "./module/helpers/dragdrop";
+import { gridDist } from "./module/helpers/automation/targeting";
 
 const lp = LANCER.log_prefix;
 
@@ -169,6 +170,9 @@ Hooks.once("init", async function () {
     },
     canvas: {
       WeaponRangeTemplate,
+    },
+    helpers: {
+      gridDist
     },
     prepareItemMacro: macros.prepareItemMacro,
     prepareStatMacro: macros.prepareStatMacro,

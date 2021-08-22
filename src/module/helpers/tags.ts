@@ -3,6 +3,7 @@ import { array_path_edit, resolve_dotpath, resolve_helper_dotpath } from "./comm
 import { LancerActorSheetData, LancerItemSheetData } from "../interfaces";
 import { HANDLER_enable_mm_dropping, MMDragResolveCache } from "./dragdrop";
 import { ref_params } from "./refs";
+import { promptText } from "../apps/simple-prompt";
 
 const TAGS = typed_lancer_data.tags;
 
@@ -152,24 +153,26 @@ export function HANDLER_activate_tag_context_menus<
   // This option allows the user to remove the right-clicked tag
   let remove = {
     name: "Remove Tag",
-    icon: '<i class="fas fa-times"></i>',
+    icon: '<i class="fas fa-fw fa-times"></i>',
     // condition: game.user.isGM,
     callback: async (html: JQuery) => {
       let cd = await data_getter();
       let tag_path = html[0].dataset.path ?? "";
 
       // Remove the tag from its array
-      array_path_edit(cd, tag_path, null, "delete");
+      if(tag_path) {
+        array_path_edit(cd, tag_path, null, "delete");
 
-      // Then commit
-      return commit_func(cd);
+        // Then commit
+        return commit_func(cd);
+      }
     },
   };
 
   // This option pops up a small dialogue that lets the user set the tag instance's value
   let set_value = {
     name: "Edit Value",
-    icon: '<i class="fas fa-edit"></i>',
+    icon: '<i class="fas fa-fw fa-edit"></i>',
     classes: "lancer dialog",
     // condition: game.user.isGM,
     callback: async (html: JQuery) => {
@@ -183,31 +186,15 @@ export function HANDLER_activate_tag_context_menus<
       if (!(tag_instance instanceof TagInstance)) return; // Stinky
 
       // Spawn the dialogue to edit
-      return new Dialog({
-        title: `Edit Tag`,
-        content: `
-          <h1>Edit ${tag_instance.Tag.Name} value:</h1>
-          <div class="form-group">  
-            <input id="tagval" value="${tag_instance.Value}"></input>
-          </div>
-          <hr>
-        `,
-        buttons: {
-          confirm: {
-            label: `Confirm`,
-            callback: async dialog_html => {
-              // Get the value
-              let new_val: string = ($(dialog_html).find("#tagval")[0] as HTMLInputElement).value;
+      let new_val = await promptText("Edit Tag", (tag_instance.Value ?? "").toString());
 
-              // Set the tag value
-              tag_instance.Value = new_val;
+      if(new_val !== null) {
+        // Set the tag value
+        tag_instance.Value = new_val;
 
-              // At last, commit
-              return commit_func(cd);
-            },
-          },
-        },
-      }).render(true);
+        // At last, commit
+        return commit_func(cd);
+      }
     },
   };
 

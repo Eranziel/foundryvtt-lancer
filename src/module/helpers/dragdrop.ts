@@ -163,7 +163,8 @@ export function HANDLER_enable_dragging(
   items.each((_, _item) => {
     let item = $(_item);
     item.on("dragstart", event => {
-      // Set data using callback
+      // Set data using callback. Clear old data
+      event.originalEvent!.dataTransfer!.clearData();
       event.originalEvent!.dataTransfer!.setData("text/plain", data_transfer_func(item, event));
 
       // We don't want weird double trouble on drags

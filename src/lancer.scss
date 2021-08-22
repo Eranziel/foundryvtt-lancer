@@ -15,7 +15,9 @@ $entity-types: join($item-types, $actor-types);
 
   --main-theme-color: #991e2a; /* I've configured calls to this to fall back on fuchsia when things go wrong */
   --main-theme-text: #e8bcbe;
-  --secondary-theme-color: #505050;
+  --secondary-theme-color: #121d21;
+  --secondary-theme-text: #ffffff;
+  --secondary-theme-highlight: #233f49;
   --loadout-color: #777f86;
   --ref-color: #ddc0b3;
   --gms-theme-color: #991e2a;
@@ -49,6 +51,7 @@ $entity-types: join($item-types, $actor-types);
   );
   --trait-color: #0a7674;
   --bonus-color: #5d8673;
+  --bonus-text: #051c1d;
   --bonus-list-color: #71a373;
   --system-color: #9ad882;
   --error-color: #b4800e;
@@ -806,11 +809,6 @@ textarea {
     margin-left: 10px;
   }
 
-  /* Like main just an off color */
-  &.alt {
-    background-color: var(--secondary-theme-color, fuchsia);
-  }
-
   /* If our parent item is clipped, we should be as well (? might not be necessary) */
   .clipped > &,
   .clipped-top > & {
@@ -1507,7 +1505,7 @@ input.core-power-toggle:not(:checked)::before {
 
 .lancer-corebonus-header {
   background-color: var(--bonus-color);
-  color: var(--secondary-theme-color);
+  color: var(--bonus-text);
 }
 
 .lancer-license-header {
@@ -1991,7 +1989,7 @@ a.action {
 }
 
 // TIPPY
-.tippy-box[data-theme~="lancer"] {
+.tippy-box[data-theme~="lancer-small"] {
   font-size: 1.1em;
   padding-left: 8px;
   padding-right: 8px;
@@ -2001,6 +1999,35 @@ a.action {
     transform: skew(330deg);
   }
 }
+
+.tippy-box[data-theme~="lancer-large"] {
+  background: var(--secondary-theme-color) !important;
+  background-color: var(--secondary-theme-color) !important;
+  max-width: 50vw;
+  border: 1px var(--main-theme-color) solid;
+  color: var(--secondary-theme-text);
+  border-radius: 4px;
+  font-size: 14px;
+  line-height: 22px;
+  width: auto;
+
+  .lancer-context-item {
+    padding: 0.25rem;
+    text-align: left;
+    cursor: pointer;
+
+    i {
+      margin-right: 5px;
+    }
+
+    &:hover {
+      background: var(--secondary-theme-highlight);
+    }
+  }
+}
+
+
+
 
 // Acc_Diff
 .accdiff-grid {
