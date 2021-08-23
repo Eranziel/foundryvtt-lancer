@@ -682,7 +682,7 @@ async function prepareAttackMacro({
     mData.overkill = is_overkill(itemEnt);
     mData.effect = weaponData.Effect;
   } else if (actor.data.type === EntryType.NPC) {
-    const mm: NpcFeature = item.data.data.derived.mm;
+    const mm: NpcFeature = await item.data.data.derived.mm_promise;
     let tier_index: number = mm.TierOverride;
     if(!mm.TierOverride) {
       if (item.actor === null) {
