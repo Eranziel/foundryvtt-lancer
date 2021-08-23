@@ -171,8 +171,8 @@ export const LANCER = {
   setting_pilot_oc_heat: "autoOCHeat",
   setting_overkill_heat: "autoOKillHeat",
   setting_auto_structure: "autoCalcStructure",
-  setting_120: "warningFor120",
-  setting_beta_warning: "warningForBeta",
+  // setting_120: "warningFor120", // Old setting, currently unused.
+  // setting_beta_warning: "warningForBeta", // Old setting, currently unused.
   mech_items,
   pilot_items,
   weapon_items,

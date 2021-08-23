@@ -14,7 +14,14 @@ import aws from "./aws-exports";
 import Auth from "@aws-amplify/auth";
 import Storage from "@aws-amplify/storage";
 
-import { COMPATIBLE_MIGRATION_VERSION, LANCER, NEEDS_MAJOR_MIGRATION_VERSION, NEEDS_MINOR_MIGRATION_VERSION, STATUSES, WELCOME } from "./module/config";
+import {
+  COMPATIBLE_MIGRATION_VERSION,
+  LANCER,
+  NEEDS_MAJOR_MIGRATION_VERSION,
+  NEEDS_MINOR_MIGRATION_VERSION,
+  STATUSES,
+  WELCOME,
+} from "./module/config";
 import { LancerGame } from "./module/lancer-game";
 import { LancerActor, lancerActorInit } from "./module/actor/lancer-actor";
 import { LancerItem, lancerItemInit } from "./module/item/lancer-item";
@@ -130,7 +137,7 @@ import {
 import { applyCollapseListeners } from "./module/helpers/collapse";
 import { handleCombatUpdate } from "./module/helpers/automation/combat";
 import { handleActorExport, validForExport } from "./module/helpers/io";
-import { runEncodedMacro, prepareTextMacro } from './module/macros';
+import { runEncodedMacro, prepareTextMacro } from "./module/macros";
 import { LancerToken, LancerTokenDocument } from "./module/token";
 
 const lp = LANCER.log_prefix;
@@ -143,12 +150,6 @@ Hooks.once("init", async function () {
 
   // Register custom system settings
   registerSettings();
-
-  // await sanityCheck();
-  // if (game.settings.get(LANCER.sys_name, LANCER.setting_beta_warning)) {
-  //   return;
-  // }
-  // console.log(`${lp} Sanity check passed, continuing with initialization.`);
 
   configureAmplify();
 
@@ -502,9 +503,6 @@ Hooks.once("init", async function () {
   // NPC components
   Handlebars.registerHelper("tier-selector", npc_tier_selector);
   Handlebars.registerHelper("npc-feat-preview", npc_feature_preview);
-
-  // TODO: remove when sanity check is no longer needed.
-  // game.lancer.finishedInit = true;
 });
 
 // TODO: either remove when sanity check is no longer needed, or find a better home.
@@ -539,7 +537,7 @@ Hooks.once("setup", function () {
         overshield: bar_like,
         structure: bar_like,
         stress: bar_like,
-        repairs: bar_like
+        repairs: bar_like,
       };
       mergeObject(data, derived_addition);
     }
@@ -754,16 +752,16 @@ async function versionCheck(): Promise<"none" | "minor" | "major"> {
     return "none";
   }
 
-  if(compareVersions(currentVersion, NEEDS_MAJOR_MIGRATION_VERSION) < 0) {
+  if (compareVersions(currentVersion, NEEDS_MAJOR_MIGRATION_VERSION) < 0) {
     return "major";
-  } else if(compareVersions(currentVersion, NEEDS_MINOR_MIGRATION_VERSION) < 0) {
+  } else if (compareVersions(currentVersion, NEEDS_MINOR_MIGRATION_VERSION) < 0) {
     return "minor";
   } else {
     return "none";
   }
 }
-  /*// Modify these constants to set which Lancer version numbers need and permit migration.
-  */
+/*// Modify these constants to set which Lancer version numbers need and permit migration.
+ */
 
 /**
  * Performs our version validation and migration
@@ -789,7 +787,7 @@ async function doMigration() {
       }
       // Perform the migration
       await migrations.migrateWorld(true);
-    } else if(migration == "minor") {
+    } else if (migration == "minor") {
       // Perform the migration
       await migrations.minor09Migration(true);
     }
@@ -824,59 +822,6 @@ let supportedFeatures = {
 //     );
 //   }
 // }
-
-
-async function sanityCheck() {
-  const message = `<h1>DO NOT USE THIS VERSION ON AN EXISTING WORLD</h1>
-<p>This version contains <i>vast</i> changes from the current stable release of LANCER, and does not contain <i>any</i>
-safety or migration for existing world data. If this is an existing world that contains <i><b>ANY</b></i> data you
-care about, <i class="horus--subtle"><b>DO NOT CONTINUE</b></i>.</p>
-
-<p>This version should only be used on a fresh, empty world created just for
-testing this beta. You must re-install the stable release of LANCER before running your regularly scheduled games.</p>
-
-<p>With that said, welcome to LANCER v0.9.0, the closed beta test before v1.0.0 releases! Please kick the tires, explore
-the new system, and send us your feedback! Bug reports can be submitted at 
-<a href="https://github.com/Eranziel/foundryvtt-lancer/issues">our GitHub issues list</a>. We haven't kept a changelog,
-because nearly everything has changed (sorry).</p>`;
-  if (!game.settings.get(LANCER.sys_name, LANCER.setting_beta_warning)) {
-    console.log(`${lp} Sanity check already done, continuing as normal.`);
-    return;
-  }
-  console.log(`${lp} Performing sanity check.`);
-  new Dialog(
-    {
-      title: `LANCER BETA v${game.system.data.version}`,
-      content: message,
-      buttons: {
-        accept: {
-          label: "This is a fresh world, I am safe to beta test here",
-          callback: async () => {
-            await game.settings.set(LANCER.sys_name, LANCER.setting_beta_warning, false);
-            ui.notifications.info("Beta test beginning momentarily! Page reloading in 3...");
-            await sleep(1000);
-            ui.notifications.info("2...");
-            await sleep(1000);
-            ui.notifications.info("1...");
-            await sleep(1000);
-            window.location.reload(false);
-          },
-        },
-        cancel: {
-          label: "TAKE ME BACK, I CARE ABOUT MY DATA",
-          callback: async () => {
-            await game.settings.set(LANCER.sys_name, LANCER.setting_beta_warning, true);
-            game.logOut();
-          },
-        },
-      },
-      default: "cancel",
-    },
-    {
-      width: 1000,
-    }
-  ).render(true);
-}
 
 function configureAmplify() {
   Auth.configure(aws);

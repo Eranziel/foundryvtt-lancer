@@ -74,22 +74,6 @@ export const registerSettings = function () {
     default: true,
   });
 
-  game.settings.register(LANCER.sys_name, LANCER.setting_120, {
-    name: "Show v0.1.20 Warning",
-    scope: "world",
-    config: false,
-    type: Boolean,
-    default: true,
-  });
-
-  game.settings.register(LANCER.sys_name, LANCER.setting_beta_warning, {
-    name: "Show Beta Warning",
-    scope: "world",
-    config: false,
-    type: Boolean,
-    default: true,
-  });
-
   // Keep all automation settings at the bottom for the selector
   // If you're adding an automation setting, be sure to go increment the settings-list css selector
   game.settings.register(LANCER.sys_name, LANCER.setting_automation, {

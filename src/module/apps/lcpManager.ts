@@ -3,7 +3,7 @@ const lp = LANCER.log_prefix;
 import { import_cp, clearCompendiumData, set_all_lock } from "../compBuilder";
 import * as mm from "machine-mind";
 import { IContentPack, IContentPackManifest } from "machine-mind";
-import { migrateActors } from "../migration";
+import { migratePilots } from "../migration";
 
 export const core_update = "3.0.31"; // typed_lancer_data.info.version;
 
@@ -23,14 +23,6 @@ function addLCPManager(app: Application, html: any) {
     buttons.append(button);
     button.addEventListener("click", () => {
       new LCPManager().render(true);
-    });
-
-    button = document.createElement("button");
-    button.setAttribute("style", "flex-basis: 100%;margin-top: 5px;");
-    button.innerHTML = "<i class='fas fa-users'></i>Migrate Pilots";
-    buttons.append(button);
-    button.addEventListener("click", () => {
-      migrateActors();
     });
   }
 }
