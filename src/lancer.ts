@@ -197,7 +197,7 @@ Hooks.once("init", async function () {
   CONFIG.Token.objectClass = LancerToken;
 
   // Set up system status icons
-  const keepStock = game.settings.get(LANCER.sys_name, LANCER.setting_stock_icons);
+  const keepStock = game.settings.get(game.system.id, LANCER.setting_stock_icons);
   let statuses: { id: string; label: string; icon: string }[] = [];
   // @ts-ignore The type for statusEffects is wrong. Currently string[], should be the above type
   if (keepStock) statuses = statuses.concat(CONFIG.statusEffects);
@@ -632,7 +632,7 @@ Hooks.on("renderChatMessage", async (cm: ChatMessage, html: any, data: any) => {
           roll: roll,
           roll_tooltip: await roll.getTooltip(),
         };
-        const html = await renderTemplate("systems/lancer/templates/chat/overkill-reroll.hbs", templateData);
+        const html = await renderTemplate(`systems/${game.system.id}/templates/chat/overkill-reroll.hbs`, templateData);
         const rollMode = game.settings.get("core", "rollMode");
         let chat_data = {
           user: game.user,
@@ -743,11 +743,11 @@ function setupSheets() {
  */
 async function versionCheck(): Promise<"none" | "minor" | "major"> {
   // Determine whether a system migration is required and feasible
-  const currentVersion = game.settings.get(LANCER.sys_name, LANCER.setting_migration);
+  const currentVersion = game.settings.get(game.system.id, LANCER.setting_migration);
 
   // If it's 0 then it's a fresh install
   if (currentVersion === "0" || currentVersion === "") {
-    await game.settings.set(LANCER.sys_name, LANCER.setting_migration, game.system.data.version);
+    await game.settings.set(game.system.id, LANCER.setting_migration, game.system.data.version);
     await promptInstallCoreData();
     return "none";
   }
@@ -770,12 +770,12 @@ async function versionCheck(): Promise<"none" | "minor" | "major"> {
  */
 async function doMigration() {
   // Determine whether a system migration is required and feasible
-  const currentVersion = game.settings.get(LANCER.sys_name, LANCER.setting_migration);
+  const currentVersion = game.settings.get(game.system.id, LANCER.setting_migration);
   let migration = await versionCheck();
   // Check whether system has been updated since last run.
   if (migration != "none" && game.user.isGM) {
     // Un-hide the welcome message
-    await game.settings.set(LANCER.sys_name, LANCER.setting_welcome, false);
+    await game.settings.set(game.system.id, LANCER.setting_welcome, false);
 
     if (migration == "major") {
       if (currentVersion && compareVersions(currentVersion, COMPATIBLE_MIGRATION_VERSION) < 0) {
@@ -794,7 +794,7 @@ async function doMigration() {
   }
 
   // Set the version for future migration and welcome message checking
-  await game.settings.set(LANCER.sys_name, LANCER.setting_migration, game.system.data.version);
+  await game.settings.set(game.system.id, LANCER.setting_migration, game.system.data.version);
 }
 
 // Use the new FEATURES dict to see if we can assume that there will be issues
@@ -835,7 +835,7 @@ function configureAmplify() {
 
 async function showChangelog() {
   // Show welcome message if not hidden.
-  if (!game.settings.get(LANCER.sys_name, LANCER.setting_welcome)) {
+  if (!game.settings.get(game.system.id, LANCER.setting_welcome)) {
     let renderChangelog = (changelog: string) => {
       new Dialog(
         {
@@ -845,7 +845,7 @@ async function showChangelog() {
             dont_show: {
               label: "Do Not Show Again",
               callback: async () => {
-                await game.settings.set(LANCER.sys_name, LANCER.setting_welcome, true);
+                await game.settings.set(game.system.id, LANCER.setting_welcome, true);
               },
             },
             close: {
@@ -897,7 +897,7 @@ function addSettingsButtons(app: Application, html: HTMLElement) {
   $(html).find("#settings-documentation").append(faqButton);
 
   faqButton.click(async ev => {
-    let helpContent = await renderTemplate("systems/lancer/templates/window/lancerHelp.hbs", {});
+    let helpContent = await renderTemplate(`systems/${game.system.id}/templates/window/lancerHelp.hbs`, {});
 
     new Dialog(
       {

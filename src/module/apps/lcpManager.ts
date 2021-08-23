@@ -72,16 +72,16 @@ class LCPManager extends Application {
     this.lcpFile = null;
     this.cp = null;
     this.manifest = null;
-    this.coreVersion = game.settings.get(LANCER.sys_name, LANCER.setting_core_data);
+    this.coreVersion = game.settings.get(game.system.id, LANCER.setting_core_data);
     // TODO: pull available core version from machine-mind
     this.coreUpdate = core_update;
     console.log(`${lp} Lancer Data version:`, this.coreVersion);
-    this.lcpIndex = new LCPIndex(game.settings.get(LANCER.sys_name, LANCER.setting_lcps).index);
+    this.lcpIndex = new LCPIndex(game.settings.get(game.system.id, LANCER.setting_lcps).index);
   }
 
   static get defaultOptions() {
     return mergeObject(super.defaultOptions, {
-      template: "systems/lancer/templates/lcp/lcp-manager.hbs",
+      template: `systems/${game.system.id}/templates/lcp/lcp-manager.hbs`,
       title: "LANCER Compendium Manager",
       width: 800,
       height: 800,
@@ -99,15 +99,15 @@ class LCPManager extends Application {
   }
 
   updateLcpIndex(manifest: IContentPackManifest) {
-    if (!this.lcpIndex) this.lcpIndex = new LCPIndex(game.settings.get(LANCER.sys_name, LANCER.setting_lcps).index);
+    if (!this.lcpIndex) this.lcpIndex = new LCPIndex(game.settings.get(game.system.id, LANCER.setting_lcps).index);
     else this.lcpIndex.updateManifest(manifest);
-    game.settings.set(LANCER.sys_name, LANCER.setting_lcps, this.lcpIndex).then(() => this.render());
+    game.settings.set(game.system.id, LANCER.setting_lcps, this.lcpIndex).then(() => this.render());
   }
 
   async clearCompendiums() {
     await clearCompendiumData();
-    this.coreVersion = game.settings.get(LANCER.sys_name, LANCER.setting_core_data);
-    this.lcpIndex = new LCPIndex(game.settings.get(LANCER.sys_name, LANCER.setting_lcps).index);
+    this.coreVersion = game.settings.get(game.system.id, LANCER.setting_core_data);
+    this.lcpIndex = new LCPIndex(game.settings.get(game.system.id, LANCER.setting_lcps).index);
     this.render(true);
   }
 
@@ -258,5 +258,5 @@ export async function updateCore(version: string, manager?: LCPManager) {
 
   ui.notifications.info(`Lancer Core data update complete.`);
   await set_all_lock(true);
-  await game.settings.set(LANCER.sys_name, LANCER.setting_core_data, version);
+  await game.settings.set(game.system.id, LANCER.setting_core_data, version);
 }

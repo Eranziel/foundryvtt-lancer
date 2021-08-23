@@ -36,7 +36,8 @@ export class LancerActionManager extends Application {
   }
 
   async init() {
-    LancerActionManager.enabled = game.settings.get(LANCER.sys_name, LANCER.setting_action_manager) && !game.settings.get("core", "noCanvas");
+    LancerActionManager.enabled =
+      game.settings.get(game.system.id, LANCER.setting_action_manager) && !game.settings.get("core", "noCanvas");
     if (LancerActionManager.enabled) {
       this.loadUserPos();
       await this.updateControlledToken();
@@ -47,7 +48,7 @@ export class LancerActionManager extends Application {
   /** @override */
   static get defaultOptions() {
     return mergeObject(super.defaultOptions, {
-      template: "systems/lancer/templates/window/action_manager.hbs",
+      template: `systems/${game.system.id}/templates/window/action_manager.hbs`,
       width: 310,
       height: 70,
       left: LancerActionManager.DEF_LEFT,
@@ -66,7 +67,7 @@ export class LancerActionManager extends Application {
     data.position = this.position;
     data.name = this.target && this.target.data.name.toLocaleUpperCase();
     data.actions = this.getActions();
-    data.clickable = game.user.isGM || game.settings.get(LANCER.sys_name, LANCER.setting_action_manager_players);
+    data.clickable = game.user.isGM || game.settings.get(game.system.id, LANCER.setting_action_manager_players);
     return data;
   }
 
@@ -101,7 +102,7 @@ export class LancerActionManager extends Application {
   }
 
   async updateConfig() {
-    if (game.settings.get(LANCER.sys_name, LANCER.setting_action_manager) && !game.settings.get("core", "noCanvas")) {
+    if (game.settings.get(game.system.id, LANCER.setting_action_manager) && !game.settings.get("core", "noCanvas")) {
       await this.update();
       LancerActionManager.enabled = true;
     } else {
@@ -192,7 +193,7 @@ export class LancerActionManager extends Application {
     // Enable action toggles.
     html.find("a.action[data-action]").on("click", e => {
       e.preventDefault();
-      if (game.user.isGM || game.settings.get(LANCER.sys_name, LANCER.setting_action_manager_players)) {
+      if (game.user.isGM || game.settings.get(game.system.id, LANCER.setting_action_manager_players)) {
         const action = e.currentTarget.dataset.action;
         action && this.toggleAction(action as ActionType);
       } else {

@@ -10,7 +10,7 @@ import {
   LancerPilotWeaponData,
   LancerSkill,
 } from "./item/lancer-item";
-import { LancerActor, LancerActorType, LancerPilot, AnyMMActor } from './actor/lancer-actor';
+import { LancerActor, LancerActorType, LancerPilot, AnyMMActor } from "./actor/lancer-actor";
 import {
   LancerActionMacroData,
   LancerAttackMacroData,
@@ -77,12 +77,12 @@ export async function onHotbarDrop(_bar: any, data: any, slot: number) {
 
   let command = "";
   let title = "";
-  let img = "systems/lancer/assets/icons/macro-icons/d20-framed.svg";
+  let img = `systems/${game.system.id}/assets/icons/macro-icons/d20-framed.svg`;
 
   // Grab new encoded data ASAP
   if (data.command && data.title) {
     (command = data.command),
-      (img = data.iconPath ? data.iconPath : `systems/lancer/assets/icons/macro-icons/generic_item.svg`);
+      (img = data.iconPath ? data.iconPath : `systems/${game.system.id}/assets/icons/macro-icons/generic_item.svg`);
     title = data.title;
   } else if (data.pack) {
     // If we have a source pack, it's dropped from a compendium and there's no processing for us to do
@@ -98,7 +98,7 @@ export async function onHotbarDrop(_bar: any, data: any, slot: number) {
       title = data.title;
       itemId = data.itemId;
       actorId = data.actorId;
-    } else if(is_ref(data)) {
+    } else if (is_ref(data)) {
       var item = await new FoundryReg().resolve(new OpCtx(), data);
       title = item.Name;
 
@@ -115,55 +115,55 @@ export async function onHotbarDrop(_bar: any, data: any, slot: number) {
     switch (data.type) {
       case EntryType.SKILL:
         command = `game.lancer.prepareItemMacro("${actorId}", "${itemId}");`;
-        img = `systems/lancer/assets/icons/macro-icons/skill.svg`;
+        img = `systems/${game.system.id}/assets/icons/macro-icons/skill.svg`;
         break;
       case EntryType.TALENT:
         command = `game.lancer.prepareItemMacro("${actorId}", "${itemId}", {rank: ${data.rank}});`;
-        img = `systems/lancer/assets/icons/macro-icons/talent.svg`;
+        img = `systems/${game.system.id}/assets/icons/macro-icons/talent.svg`;
         break;
       case EntryType.CORE_BONUS:
-        img = `systems/lancer/assets/icons/macro-icons/corebonus.svg`;
+        img = `systems/${game.system.id}/assets/icons/macro-icons/corebonus.svg`;
         break;
       case EntryType.PILOT_GEAR:
         command = `game.lancer.prepareItemMacro("${actorId}", "${itemId}");`;
-        img = `systems/lancer/assets/icons/macro-icons/generic_item.svg`;
+        img = `systems/${game.system.id}/assets/icons/macro-icons/generic_item.svg`;
         break;
       case EntryType.PILOT_WEAPON:
       case EntryType.MECH_WEAPON:
         command = `game.lancer.prepareItemMacro("${actorId}", "${itemId}");`;
-        img = `systems/lancer/assets/icons/macro-icons/mech_weapon.svg`;
+        img = `systems/${game.system.id}/assets/icons/macro-icons/mech_weapon.svg`;
         break;
       case EntryType.MECH_SYSTEM:
         command = `game.lancer.prepareItemMacro("${actorId}", "${itemId}");`;
-        img = `systems/lancer/assets/icons/macro-icons/mech_system.svg`;
+        img = `systems/${game.system.id}/assets/icons/macro-icons/mech_system.svg`;
         break;
       case ActivationOptions.ACTION:
         // This should be fully migrated to encoded
         throw Error("This should be migrated");
         command = `game.lancer.prepareActivationMacro("${actorId}", "${itemId}", "${ActivationOptions.ACTION}", "${data.number}");`;
-        img = `systems/lancer/assets/icons/macro-icons/mech_system.svg`;
+        img = `systems/${game.system.id}/assets/icons/macro-icons/mech_system.svg`;
         break;
       case EntryType.NPC_FEATURE:
         switch (item.FeatureType) {
           case NpcFeatureType.Reaction:
             command = `game.lancer.prepareItemMacro("${actorId}", "${itemId}");`;
-            img = `systems/lancer/assets/icons/macro-icons/reaction.svg`;
+            img = `systems/${game.system.id}/assets/icons/macro-icons/reaction.svg`;
             break;
           case NpcFeatureType.System:
             command = `game.lancer.prepareItemMacro("${actorId}", "${itemId}");`;
-            img = `systems/lancer/assets/icons/macro-icons/mech_system.svg`;
+            img = `systems/${game.system.id}/assets/icons/macro-icons/mech_system.svg`;
             break;
           case NpcFeatureType.Trait:
             command = `game.lancer.prepareItemMacro("${actorId}", "${itemId}");`;
-            img = `systems/lancer/assets/icons/macro-icons/trait.svg`;
+            img = `systems/${game.system.id}/assets/icons/macro-icons/trait.svg`;
             break;
           case NpcFeatureType.Tech:
             command = `game.lancer.prepareItemMacro("${actorId}", "${itemId}");`;
-            img = `systems/lancer/assets/icons/macro-icons/tech_quick.svg`;
+            img = `systems/${game.system.id}/assets/icons/macro-icons/tech_quick.svg`;
             break;
           case NpcFeatureType.Weapon:
             command = `game.lancer.prepareItemMacro("${actorId}", "${itemId}");`;
-            img = `systems/lancer/assets/icons/macro-icons/mech_weapon.svg`;
+            img = `systems/${game.system.id}/assets/icons/macro-icons/mech_weapon.svg`;
             break;
         }
         break;
@@ -179,20 +179,20 @@ export async function onHotbarDrop(_bar: any, data: any, slot: number) {
     } else if (data.type === "pilot_weapon") {
       // Talent are the only ones (I think??) that we need to name specially
       if (data.type === EntryType.TALENT) {
-        img = `systems/lancer/assets/icons/macro-icons/talent.svg`;
+        img = `systems/${game.system.id}/assets/icons/macro-icons/talent.svg`;
       }
       // Pick the image for the hotbar
     } else if (data.type === "Text") {
       command = `game.lancer.prepareTextMacro("${data.actorId}", "${data.title}", {rank: ${data.description}})`;
     } else if (data.type === "Core-Active") {
       command = `game.lancer.prepareCoreActiveMacro("${data.actorId}")`;
-      img = `systems/lancer/assets/icons/macro-icons/corebonus.svg`;
+      img = `systems/${game.system.id}/assets/icons/macro-icons/corebonus.svg`;
     } else if (data.type === "Core-Passive") {
       command = `game.lancer.prepareCorePassiveMacro("${data.actorId}")`;
-      img = `systems/lancer/assets/icons/macro-icons/corebonus.svg`;
+      img = `systems/${game.system.id}/assets/icons/macro-icons/corebonus.svg`;
     } else if (data.type === "overcharge") {
       command = `game.lancer.prepareOverchargeMacro("${data.actorId}")`;
-      img = `systems/lancer/assets/icons/macro-icons/overcharge.svg`;
+      img = `systems/${game.system.id}/assets/icons/macro-icons/overcharge.svg`;
     }
   }
 
@@ -523,7 +523,7 @@ async function rollStatMacro(actor: Actor, data: LancerStatMacroData) {
     roll_tooltip: roll_tt,
     effect: data.effect ? data.effect : null,
   };
-  const template = `systems/lancer/templates/chat/stat-roll-card.hbs`;
+  const template = `systems/${game.system.id}/templates/chat/stat-roll-card.hbs`;
   return renderMacroTemplate(actor, template, templateData);
 }
 
@@ -544,7 +544,7 @@ async function rollTalentMacro(actor: Actor, data: LancerTalentMacroData) {
     rank: data.talent.ranks[data.rank],
     lvl: data.rank,
   };
-  const template = `systems/lancer/templates/chat/talent-card.hbs`;
+  const template = `systems/${game.system.id}/templates/chat/talent-card.hbs`;
   return renderMacroTemplate(actor, template, templateData);
 }
 
@@ -597,7 +597,7 @@ async function prepareAttackMacro({
     mData.grit = pilotEnt.Grit;
     mData.acc = 0;
     mData.tags = weaponData.Tags;
-    mData.overkill = is_overkill(itemEnt);    
+    mData.overkill = is_overkill(itemEnt);
     mData.effect = weaponData.Effect;
   } else if (actor.data.type === EntryType.PILOT) {
     pilotEnt = await actor.data.data.derived.mm_promise;
@@ -614,7 +614,7 @@ async function prepareAttackMacro({
   } else if (actor.data.type === EntryType.NPC) {
     const mm: NpcFeature = item.data.data.derived.mm;
     let tier_index: number = mm.TierOverride;
-    if(!mm.TierOverride) {
+    if (!mm.TierOverride) {
       if (item.actor === null) {
         // Use selected actor
         tier_index = actor.data.data.tier - 1;
@@ -636,7 +636,7 @@ async function prepareAttackMacro({
     // Reduce damage values to only this tier
     mData.damage = mm.Damage[tier_index] ?? [];
 
-    mData.tags = mm.Tags
+    mData.tags = mm.Tags;
     mData.overkill = funcs.is_overkill(mm);
     mData.on_hit = mm.OnHit;
     mData.effect = mm.Effect;
@@ -679,7 +679,7 @@ async function prepareAttackMacro({
     }
   }
   // Check if weapon if loaded.
-  if (game.settings.get(LANCER.sys_name, LANCER.setting_automation_attack)) {
+  if (game.settings.get(game.system.id, LANCER.setting_automation_attack)) {
     if (!mData.loaded) {
       ui.notifications.warn(`Weapon ${item.data.data.name} is not loaded!`);
       return;
@@ -701,7 +701,7 @@ async function prepareAttackMacro({
 
   // Deduct charge if LOADING weapon.
   if (
-    game.settings.get(LANCER.sys_name, LANCER.setting_automation_attack) &&
+    game.settings.get(game.system.id, LANCER.setting_automation_attack) &&
     mData.tags.find(tag => tag.Tag.LID === "tg_loading")
   ) {
     console.debug(item);
@@ -729,7 +729,7 @@ async function rollAttackMacro(actor: Actor, atk_str: string | null, data: Lance
     crit: boolean;
   }[] = [];
   let attacks: { roll: Roll; tt: HTMLElement | JQuery<HTMLElement> }[] = [];
-  if (game.settings.get(LANCER.sys_name, LANCER.setting_automation_attack) && targets.length > 0) {
+  if (game.settings.get(game.system.id, LANCER.setting_automation_attack) && targets.length > 0) {
     for (const target of targets) {
       // @ts-ignore .8
       let attack_roll = await new Roll(atk_str!).evaluate({ async: true });
@@ -868,11 +868,11 @@ async function rollAttackMacro(actor: Actor, atk_str: string | null, data: Lance
   }
 
   if (
-    game.settings.get(LANCER.sys_name, LANCER.setting_automation) &&
-    game.settings.get(LANCER.sys_name, LANCER.setting_overkill_heat)
+    game.settings.get(game.system.id, LANCER.setting_automation) &&
+    game.settings.get(game.system.id, LANCER.setting_overkill_heat)
   ) {
     let mment: AnyMMActor = await actor.data.data.derived.mm_promise;
-    if(mment.Type === EntryType.MECH) {
+    if (mment.Type === EntryType.MECH) {
       mment.CurrentHeat += overkill_heat;
       await mment.writeback();
     }
@@ -893,7 +893,7 @@ async function rollAttackMacro(actor: Actor, atk_str: string | null, data: Lance
   };
 
   console.debug(templateData);
-  const template = `systems/lancer/templates/chat/attack-card.hbs`;
+  const template = `systems/${game.system.id}/templates/chat/attack-card.hbs`;
   return await renderMacroTemplate(actor, template, templateData);
 }
 
@@ -905,7 +905,7 @@ async function rollAttackMacro(actor: Actor, atk_str: string | null, data: Lance
 export function rollReactionMacro(actor: Actor, data: LancerReactionMacroData) {
   if (!actor) return Promise.resolve();
 
-  const template = `systems/lancer/templates/chat/reaction-card.hbs`;
+  const template = `systems/${game.system.id}/templates/chat/reaction-card.hbs`;
   return renderMacroTemplate(actor, template, data);
 }
 
@@ -961,22 +961,22 @@ export async function prepareCoreActiveMacro(a: string) {
  * Checks whether they have a passive since that could get removed on swap
  * @param a     String of the actor ID to roll the macro as, and who we're getting core info for
  */
- export async function prepareCorePassiveMacro(a: string) {
-   // Determine which Actor to speak as
-   let mech: LancerActor<EntryType.MECH> | null = getMacroSpeaker(a);
-   if (!mech) return;
+export async function prepareCorePassiveMacro(a: string) {
+  // Determine which Actor to speak as
+  let mech: LancerActor<EntryType.MECH> | null = getMacroSpeaker(a);
+  if (!mech) return;
 
-   var ent = await mech.data.data.derived.mm_promise;
-   if(!ent.Frame) return;
+  var ent = await mech.data.data.derived.mm_promise;
+  if (!ent.Frame) return;
 
-   let mData: LancerTextMacroData = {
-     title: ent.Frame.CoreSystem.PassiveName,
-     description: ent.Frame.CoreSystem.PassiveEffect,
-     tags: ent.Frame.CoreSystem.Tags,
-   };
+  let mData: LancerTextMacroData = {
+    title: ent.Frame.CoreSystem.PassiveName,
+    description: ent.Frame.CoreSystem.PassiveEffect,
+    tags: ent.Frame.CoreSystem.Tags,
+  };
 
-   rollTextMacro(mech, mData).then();
- }
+  rollTextMacro(mech, mData).then();
+}
 /**
  * Given basic information, prepares a generic text-only macro to display descriptions etc
  * @param a     String of the actor ID to roll the macro as
@@ -1007,7 +1007,7 @@ export function prepareTextMacro(a: string, title: string, text: string, tags?: 
 async function rollTextMacro(actor: Actor, data: LancerTextMacroData) {
   if (!actor) return Promise.resolve();
 
-  const template = `systems/lancer/templates/chat/generic-card.hbs`;
+  const template = `systems/${game.system.id}/templates/chat/generic-card.hbs`;
   return renderMacroTemplate(actor, template, data);
 }
 
@@ -1047,7 +1047,7 @@ export async function prepareTechMacro(a: string, t: string) {
   } else if (item.type === EntryType.NPC_FEATURE) {
     const mm: NpcFeature = await item.data.data.derived.mm_promise;
     let tier_index: number = mm.TierOverride;
-    if(!mm.TierOverride) {
+    if (!mm.TierOverride) {
       if (item.actor === null) {
         // Use selected actor
         tier_index = actor.data.data.tier - 1;
@@ -1087,7 +1087,7 @@ async function rollTechMacro(actor: Actor, data: LancerTechMacroData) {
     crit: boolean;
   }[] = [];
   let attacks: { roll: Roll; tt: HTMLElement | JQuery<HTMLElement> }[] = [];
-  if (game.settings.get(LANCER.sys_name, LANCER.setting_automation_attack) && targets.length > 0) {
+  if (game.settings.get(game.system.id, LANCER.setting_automation_attack) && targets.length > 0) {
     for (const target of targets) {
       // @ts-ignore .8
       let attack_roll = await new Roll(atk_str!).evaluate({ async: true });
@@ -1121,12 +1121,12 @@ async function rollTechMacro(actor: Actor, data: LancerTechMacroData) {
     tags: data.tags,
   };
 
-  const template = `systems/lancer/templates/chat/tech-attack-card.hbs`;
+  const template = `systems/${game.system.id}/templates/chat/tech-attack-card.hbs`;
   return await renderMacroTemplate(actor, template, templateData);
 }
 
 export async function promptAccDiffModifier(flags?: AccDiffFlag[], title?: string, starting?: [number, number]) {
-  let template = await renderTemplate(`systems/lancer/templates/window/acc_diff.hbs`, {});
+  let template = await renderTemplate(`systems/${game.system.id}/templates/window/acc_diff.hbs`, {});
   return new Promise<number>((resolve, reject) => {
     new Dialog({
       title: title ? `${title} - Accuracy and Difficulty` : "Accuracy and Difficulty",
@@ -1222,8 +1222,8 @@ export async function prepareOverchargeMacro(a: string) {
 
   // Only increase heat if we haven't disabled it
   if (
-    game.settings.get(LANCER.sys_name, LANCER.setting_automation) &&
-    game.settings.get(LANCER.sys_name, LANCER.setting_pilot_oc_heat)
+    game.settings.get(game.system.id, LANCER.setting_automation) &&
+    game.settings.get(game.system.id, LANCER.setting_pilot_oc_heat)
   ) {
     mech.CurrentHeat = mech.CurrentHeat + roll.total;
   }
@@ -1245,7 +1245,7 @@ async function rollOverchargeMacro(actor: Actor, data: LancerOverchargeMacroData
     level: data.level,
     roll_tooltip: roll_tt,
   };
-  const template = `systems/lancer/templates/chat/overcharge-card.hbs`;
+  const template = `systems/${game.system.id}/templates/chat/overcharge-card.hbs`;
   return renderMacroTemplate(actor, template, templateData);
 }
 
@@ -1285,7 +1285,7 @@ export async function prepareChargeMacro(a: string) {
     roll_tooltip: roll_tt,
     changed: changed,
   };
-  const template = `systems/lancer/templates/chat/charge-card.hbs`;
+  const template = `systems/${game.system.id}/templates/chat/charge-card.hbs`;
   return renderMacroTemplate(mech, template, templateData);
 }
 
@@ -1468,7 +1468,7 @@ export async function stabilizeMacro(a: string) {
     return null;
   }
 
-  let template = await renderTemplate(`systems/lancer/templates/window/promptStabilize.hbs`, {});
+  let template = await renderTemplate(`systems/${game.system.id}/templates/window/promptStabilize.hbs`, {});
 
   return new Promise<number>((resolve, reject) => {
     new Dialog({

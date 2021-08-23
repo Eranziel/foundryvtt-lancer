@@ -7,7 +7,7 @@ export async function handleCombatUpdate(combat: any, changed: any) {
   if (!("turn" in changed) && changed.round !== 1) return;
   if ((game.combats.get(combat.id).data as any).combatants.length == 0) return;
 
-  if (game.settings.get(LANCER.sys_name, LANCER.setting_automation)) {
+  if (game.settings.get(game.system.id, LANCER.setting_automation)) {
     const nextTurnIndex = changed.turn;
     const turnIndex = combat.current.turn;
     if (combat.turns[nextTurnIndex]) {

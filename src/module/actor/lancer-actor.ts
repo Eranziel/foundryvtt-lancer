@@ -36,7 +36,13 @@ import { LancerMacroData } from "../interfaces";
 import { fix_modify_token_attribute } from "../token";
 const lp = LANCER.log_prefix;
 
-export function lancerActorInit(base_actor: any, creation_args: any, sheet_options: any, id_maybe: any, something_or_other: any) {
+export function lancerActorInit(
+  base_actor: any,
+  creation_args: any,
+  sheet_options: any,
+  id_maybe: any,
+  something_or_other: any
+) {
   // Some subtype of ActorData
   console.log(`${lp} Initializing new ${base_actor.type}`);
 
@@ -104,7 +110,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
       // Include additional derived info
       derived: {
         // These are all derived and populated by MM
-        hp: { max: number, value: number }; // -hps are useful for structure macros
+        hp: { max: number; value: number }; // -hps are useful for structure macros
         heat: BoundedValue;
         stress: BoundedValue;
         structure: BoundedValue;
@@ -190,8 +196,8 @@ export class LancerActor<T extends LancerActorType> extends Actor {
 
     let ent = (await this.data.data.derived.mm) as Mech | Npc;
     if (
-      game.settings.get(LANCER.sys_name, LANCER.setting_automation) &&
-      game.settings.get(LANCER.sys_name, LANCER.setting_auto_structure)
+      game.settings.get(game.system.id, LANCER.setting_automation) &&
+      game.settings.get(game.system.id, LANCER.setting_auto_structure)
     ) {
       if (ent.CurrentHeat > ent.HeatCapacity) {
         // https://discord.com/channels/426286410496999425/760966283545673730/789297842228297748
@@ -232,7 +238,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         title = stressTableT[0];
         total = "Multiple Ones";
       } else {
-        if(result === 1 && remStress === 2) {
+        if (result === 1 && remStress === 2) {
           let macroData = encodeMacroData({
             command: `game.lancer.prepareStatMacro("${ent.RegistryID}","mm.Eng");`,
             title: "Engineering",
@@ -249,7 +255,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         total: total,
         text: text,
         roll: roll,
-        secondaryRoll: secondaryRoll
+        secondaryRoll: secondaryRoll,
       };
     } else {
       // You ded
@@ -262,7 +268,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         text: text,
       };
     }
-    const template = `systems/lancer/templates/chat/overheat-card.hbs`;
+    const template = `systems/${game.system.id}/templates/chat/overheat-card.hbs`;
     const actor: Actor = game.actors.get(ChatMessage.getSpeaker().actor);
     return renderMacroTemplate(actor, template, templateData);
   }
@@ -323,8 +329,8 @@ export class LancerActor<T extends LancerActorType> extends Actor {
 
     let ent = (await this.data.data.derived.mm) as Mech | Npc;
     if (
-      game.settings.get(LANCER.sys_name, LANCER.setting_automation) &&
-      game.settings.get(LANCER.sys_name, LANCER.setting_auto_structure)
+      game.settings.get(game.system.id, LANCER.setting_automation) &&
+      game.settings.get(game.system.id, LANCER.setting_auto_structure)
     ) {
       if (ent.CurrentHP <= 0) {
         ent.CurrentHP += ent.MaxHP;
@@ -365,7 +371,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         title = structTableT[0];
         total = "Multiple Ones";
       } else {
-        if(result === 1 && remStruct === 2) {
+        if (result === 1 && remStruct === 2) {
           let macroData = encodeMacroData({
             command: `game.lancer.prepareStatMacro("${ent.RegistryID}","mm.Hull");`,
             title: "Hull",
@@ -416,7 +422,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         total: total,
         text: text,
         roll: roll,
-        secondaryRoll: secondaryRoll
+        secondaryRoll: secondaryRoll,
       };
     } else {
       // You ded
@@ -429,7 +435,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         text: text,
       };
     }
-    const template = `systems/lancer/templates/chat/structure-card.hbs`;
+    const template = `systems/${game.system.id}/templates/chat/structure-card.hbs`;
     const actor: Actor = game.actors.get(ChatMessage.getSpeaker().actor);
     return renderMacroTemplate(actor, template, templateData);
   }
@@ -795,10 +801,10 @@ export class LancerActor<T extends LancerActorType> extends Actor {
    */
   prepareDerivedData() {
     // If no id, leave
-    if(!this.id) return;
+    if (!this.id) return;
 
     // Track which prepare iteration this is
-    if(this._current_prepare_job_id == undefined) {
+    if (this._current_prepare_job_id == undefined) {
       this._current_prepare_job_id = 0;
       this._job_tracker = new Map();
     }
@@ -819,7 +825,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
     });
 
     // If no value at present, set this up. Better than nothing. Reuse derived data when possible
-    if(!this._prev_derived) {
+    if (!this._prev_derived) {
       dr = {
         edef: 0,
         evasion: 0,
@@ -838,16 +844,16 @@ export class LancerActor<T extends LancerActorType> extends Actor {
       this._prev_derived = dr;
     } else {
       // Otherwise, grab existing/prior
-      dr = this._prev_derived
+      dr = this._prev_derived;
     }
     this.data.data.derived = dr;
 
-    // Update our known values now, synchronously. 
-    dr.hp.value = this.data.data.hp
-    if(this.data.type != EntryType.PILOT) {
+    // Update our known values now, synchronously.
+    dr.hp.value = this.data.data.hp;
+    if (this.data.type != EntryType.PILOT) {
       let md = this.data.data as RegEntryTypes<EntryType.MECH | EntryType.NPC | EntryType.DEPLOYABLE>;
       dr.heat.value = md.heat;
-      if(this.data.type != EntryType.DEPLOYABLE) {
+      if (this.data.type != EntryType.DEPLOYABLE) {
         let md = this.data.data as RegEntryTypes<EntryType.MECH | EntryType.NPC>;
         dr.stress.value = md.stress;
         dr.structure.value = md.structure;
@@ -874,15 +880,15 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         return ent;
       })
       .then(mm => {
-        // If our job ticker doesnt match, then another prepared object has usurped us in setting these values. 
+        // If our job ticker doesnt match, then another prepared object has usurped us in setting these values.
         // We return this elevated promise, so anyone waiting on this task instead waits on the most up to date one
-        if(job_id != this._current_prepare_job_id) {
+        if (job_id != this._current_prepare_job_id) {
           return this._job_tracker.get(this._current_prepare_job_id)! as any; // This will definitely be a different promise
         }
 
         // Delete all old tracked jobs
-        for(let k of this._job_tracker.keys()) {
-          if(k != job_id) {
+        for (let k of this._job_tracker.keys()) {
+          if (k != job_id) {
             this._job_tracker.delete(k);
           }
         }
@@ -894,8 +900,8 @@ export class LancerActor<T extends LancerActorType> extends Actor {
             enumerable: false,
             configurable: true,
             writable: false,
-            value: mm
-          }
+            value: mm,
+          },
         });
 
         // Changes in max-hp should heal the actor. But certain requirements must be met
@@ -982,7 +988,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
 
         return mm;
       });
-      this._job_tracker.set(job_id, dr.mm_promise);
+    this._job_tracker.set(job_id, dr.mm_promise);
   }
 
   /** @override

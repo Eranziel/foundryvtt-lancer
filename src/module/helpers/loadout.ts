@@ -270,7 +270,7 @@ function frame_active(actor: LancerActor<EntryType.MECH>, core: CoreSystem): str
   let coreMacroData: LancerMacroData = {
     command: `game.lancer.prepareCoreActiveMacro("${actor.id}")`,
     title: `${actor.name} | CORE POWER`,
-    iconPath: `systems/lancer/assets/icons/macro-icons/corebonus.svg`,
+    iconPath: `systems/${game.system.id}/assets/icons/macro-icons/corebonus.svg`,
   };
 
   return `

@@ -28,7 +28,7 @@ export class BonusEditDialog<O> extends Dialog {
   /** @override */
   static get defaultOptions() {
     return mergeObject(super.defaultOptions, {
-      template: "systems/lancer/templates/window/bonus.hbs",
+      template: `systems/${game.system.id}/templates/window/bonus.hbs`,
       width: 400,
       height: "auto",
       classes: ["lancer"],

@@ -27,7 +27,7 @@ export const migrateWorld = async function (migrateComps = true) {
     await scorchedEarthCompendiums();
     await updateCore(core_update);
 
-    if ((await game.settings.get(LANCER.sys_name, LANCER.setting_core_data)) === core_update) {
+    if ((await game.settings.get(game.system.id, LANCER.setting_core_data)) === core_update) {
       // Open the LCP manager for convenience.
       new LCPManager().render(true);
 
@@ -160,7 +160,7 @@ Please refresh the page to try again.</p>`,
   }
 
   // Set the migration as complete
-  // await game.settings.set(LANCER.sys_name, LANCER.setting_migration, game.system.data.version);
+  await game.settings.set(game.system.id, LANCER.setting_migration, game.system.data.version);
   ui.notifications.info(`LANCER System Migration to version ${game.system.data.version} completed!`, {
     permanent: true,
   });
@@ -261,8 +261,8 @@ export const scorchedEarthCompendiums = async () => {
     }
   }
 
-  await game.settings.set(LANCER.sys_name, LANCER.setting_core_data, "0.0.0");
-  await game.settings.set(LANCER.sys_name, LANCER.setting_lcps, new LCPIndex(null));
+  await game.settings.set(game.system.id, LANCER.setting_core_data, "0.0.0");
+  await game.settings.set(game.system.id, LANCER.setting_lcps, new LCPIndex(null));
 };
 
 /**

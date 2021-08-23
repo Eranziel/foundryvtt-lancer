@@ -1,12 +1,6 @@
 import { LANCER } from "./config";
 const lp = LANCER.log_prefix;
-import {
-  EntryType,
-  funcs,
-  IContentPack,
-  RegEnv,
-  StaticReg,
-} from "machine-mind";
+import { EntryType, funcs, IContentPack, RegEnv, StaticReg } from "machine-mind";
 import { FoundryReg } from "./mm-util/foundry-reg";
 // import { invalidate_cached_pack_map } from "./mm-util/db_abstractions";
 import { LCPIndex } from "./apps/lcpManager";
@@ -75,7 +69,7 @@ export async function import_cp(
 
     // Iterate over everything in core, collecting all lids
     let existing_lids: string[] = [];
-    for(let et of Object.values(EntryType)) {
+    for (let et of Object.values(EntryType)) {
       let pack = await get_pack(et);
       // Get them all
       // @ts-ignore 0.8
@@ -90,16 +84,16 @@ export async function import_cp(
 
     let transmit_count = 0;
     let progress_hook = (doc: any) => {
-      if(doc.pack && !doc.parent) {
+      if (doc.pack && !doc.parent) {
         // Presumably part of this import
         transmit_count++;
         progress_callback!(transmit_count, total_items);
       }
-    }
+    };
     Hooks.on("createActor", progress_hook);
     Hooks.on("createItem", progress_hook);
     await funcs.intake_pack(cp, comp_reg, (type, reg_val) => {
-      return !existing_lids.includes(reg_val.lid);  
+      return !existing_lids.includes(reg_val.lid);
     });
     Hooks.off("createActor", progress_hook);
     Hooks.off("createItem", progress_hook);
@@ -110,7 +104,7 @@ export async function import_cp(
       (await get_pack(p)).clear();
     }
     progress_callback(transmit_count, total_items);
-  } catch(err) {
+  } catch (err) {
     console.error(err);
   }
   set_all_lock(true);
@@ -131,8 +125,8 @@ export async function set_all_lock(lock = false) {
 export async function clearCompendiumData() {
   ui.notifications.info(`Clearing all LANCER Compendium data. Please wait.`);
   console.log(`${lp} Clearing all LANCER Compendium data.`);
-  await game.settings.set(LANCER.sys_name, LANCER.setting_core_data, "0.0.0");
-  await game.settings.set(LANCER.sys_name, LANCER.setting_lcps, new LCPIndex(null));
+  await game.settings.set(game.system.id, LANCER.setting_core_data, "0.0.0");
+  await game.settings.set(game.system.id, LANCER.setting_lcps, new LCPIndex(null));
   await clear_all();
   ui.notifications.info(`LANCER Compendiums cleared.`);
 }

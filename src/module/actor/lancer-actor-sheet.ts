@@ -144,9 +144,9 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
   }
 
   // So it can be overridden
-  activate_general_controls(html: JQuery) { 
+  activate_general_controls(html: JQuery) {
     let getfunc = () => this.getDataLazy();
-    let commitfunc = (_: any) => this._commitCurrMM()
+    let commitfunc = (_: any) => this._commitCurrMM();
     HANDLER_activate_general_controls(html, getfunc, commitfunc);
   }
 
@@ -278,7 +278,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
       ev.stopPropagation();
       if (!game.action_manager) return;
 
-      if (game.user.isGM || game.settings.get(LANCER.sys_name, LANCER.setting_action_manager_players)) {
+      if (game.user.isGM || game.settings.get(game.system.id, LANCER.setting_action_manager_players)) {
         const manager: LancerActionManager = game.action_manager;
 
         const params = ev.currentTarget.dataset;
@@ -575,7 +575,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     } else {
       throw "Error - stat macro was not run on an input or data element";
     }
-  }  
+  }
 
   /**
    * Handles inventory button

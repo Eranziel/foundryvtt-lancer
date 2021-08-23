@@ -7,7 +7,7 @@ export default class CompconLoginForm extends FormApplication {
   }
   static get defaultOptions() {
     return mergeObject(super.defaultOptions, {
-      template: "systems/lancer/templates/window/compcon_login.hbs",
+      template: `systems/${game.system.id}/templates/window/compcon_login.hbs`,
       width: 480,
       height: "auto",
       resizable: false,

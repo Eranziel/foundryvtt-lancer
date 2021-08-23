@@ -98,9 +98,9 @@ export function range_editor(path: string, options: HelperOptions) {
   let icon_html = `<i class="cci ${range.Icon} i--m i--dark"></i>`;
   /* TODO: For a next iteration--would be really nifty to set it up to select images rather than text. 
     But that seems like a non-trivial task...
-    <img class="med-icon" src="../systems/lancer/assets/icons/range.svg">
-    <img class="med-icon" src="../systems/lancer/assets/icons/aoe_blast.svg">
-    <img class="med-icon" src="../systems/lancer/assets/icons/damage_explosive.svg">
+    <img class="med-icon" src="../systems/${game.system.id}/assets/icons/range.svg">
+    <img class="med-icon" src="../systems/${game.system.id}/assets/icons/aoe_blast.svg">
+    <img class="med-icon" src="../systems/${game.system.id}/assets/icons/damage_explosive.svg">
   */
 
   // Extend the options to not have to repeat lookup

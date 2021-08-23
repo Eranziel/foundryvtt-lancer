@@ -45,7 +45,7 @@ export class HTMLEditDialog<O> extends FormApplication {
   /** @override */
   static get defaultOptions() {
     return mergeObject(super.defaultOptions, {
-      template: "systems/lancer/templates/window/html_editor.hbs",
+      template: `systems/${game.system.id}/templates/window/html_editor.hbs`,
       width: 650,
       height: "auto",
       resizable: true,

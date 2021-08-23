@@ -160,7 +160,7 @@ export function action_button(
   }
 
   let enabled = false;
-  if (game.user.isGM || game.settings.get(LANCER.sys_name, LANCER.setting_action_manager_players)) {
+  if (game.user.isGM || game.settings.get(game.system.id, LANCER.setting_action_manager_players)) {
     enabled = true;
   }
 
