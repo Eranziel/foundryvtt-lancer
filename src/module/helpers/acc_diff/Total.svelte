@@ -21,7 +21,7 @@
    return v?.target;
  }
 
- export const id = `accdiff-total-display-${counter++}`;
+ export let id = `accdiff-total-display-${counter++}`;
  let lockonId = isTarget(target) ? `accdiff-total-display-consume-lockon-${lockonCounter++}` : '';
 
  let imgElement: HTMLElement;
