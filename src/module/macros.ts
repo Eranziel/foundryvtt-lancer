@@ -38,6 +38,7 @@ import { applyCollapseListeners, uuid4 } from "./helpers/collapse";
 import { checkForHit, getTargets } from "./helpers/automation/targeting";
 import { AccDiffFlag, tagsToFlags, toggleCover, updateTotals } from "./helpers/acc_diff";
 import { is_overkill } from "machine-mind/dist/funcs";
+import type { LancerToken } from "./token";
 
 const lp = LANCER.log_prefix;
 
@@ -1492,47 +1493,16 @@ export function targetsFromTemplate(templateId: string): void {
   const highlight = canvas?.grid?.getHighlightLayer(`Template.${templateId}`);
   const grid = canvas?.grid;
   if (highlight === undefined || canvas === undefined || grid === undefined || canvas.ready !== true) return;
-  const test_token = (token: Token) => {
-    // The hitArea on a token is relative to the token. Recreate it relative to the canvas
-    let hitBox: PIXI.IHitArea;
-    if (token.hitArea instanceof PIXI.Polygon) {
-      let poly_points: number[] = [];
-      for (let i = 0; i < token.hitArea.points.length - 1; i += 2) {
-        poly_points.push(token.hitArea.points[i] + token.position.x, token.hitArea.points[i + 1] + token.position.y);
-      }
-      hitBox = new PIXI.Polygon(poly_points);
-    } else if (token.hitArea instanceof PIXI.Rectangle) {
-      hitBox = new PIXI.Rectangle(token.position.x, token.position.y, token.hitArea.width, token.hitArea.height);
-    } else {
-      // TODO, handle all possible hitArea shapes
-      return;
-    }
-
-    // Get token grid coordinate
-    const [tx, ty] = grid.grid?.getGridPositionFromPixels(token.center.x, token.center.y)!;
-
-    // Set of grid spaces occupied by the token
-    let points = new Set<Point>();
-
-    // TODO: Gridless isn't handled, probably split this off to two utility
-    // functions that handle gridded vs gridless properly
-    for (let i = tx - token.data.width; i < tx + token.data.width; i++) {
-      for (let j = ty - token.data.height; j < ty + token.data.height; j++) {
-        let pos: Point = { x: 0, y: 0 };
-        [pos.x, pos.y] = grid.grid!.getPixelsFromGridPosition(i, j);
-        [pos.x, pos.y] = grid.getCenter(pos.x, pos.y);
-        if (hitBox.contains(pos.x, pos.y)) points.add(pos);
-      }
-    }
-    return Array.from(points).reduce((a, p) => a || highlight.geometry.containsPoint(p), false);
+  const test_token = (token: LancerToken) => {
+    return Array.from(token.getOccupiedSpaces()).reduce((a, p) => a || highlight.geometry.containsPoint(p), false);
   };
 
   // Get list of tokens and dispositions to ignore.
-  let ignore = canvas.templates!.get(templateId)!.document.getFlag(LANCER.sys_name, "ignore");
+  let ignore = canvas.templates!.get(templateId)!.document.getFlag(game.system.id, "ignore");
 
   // Test if each token occupies a targeted space and target it if true
   canvas.tokens!.placeables.forEach(t => {
     let skip = ignore.tokens.includes(t.id) || ignore.dispositions.includes(t.data.disposition);
-    t.setTarget(!skip && test_token(t), { releaseOthers: false, groupSelection: true });
+    t.setTarget(!skip && test_token(<LancerToken>t), { releaseOthers: false, groupSelection: true });
   });
 }

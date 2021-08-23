@@ -2,6 +2,9 @@ declare global {
   interface DocumentClassConfig {
     Token: typeof LancerTokenDocument;
   }
+  interface PlaceableObjectClassConfig {
+    Token: typeof LancerToken;
+  }
 }
 
 /**
@@ -28,7 +31,59 @@ export class LancerTokenDocument extends TokenDocument {
  * Extend the base Token class to implement additional system-specific logic.
  * @extends {Token}
  */
-export class LancerToken extends Token {}
+export class LancerToken extends Token {
+  constructor(document: LancerTokenDocument) {
+    super(document);
+    this._spaces = new Set<Point>();
+  }
+
+  /**
+   * Cached occupied spaces
+   */
+  protected _spaces: Set<Point>;
+
+  /**
+   * Returns a Set of Points corresponding to the grid space center points that
+   * the token occupies.
+   */
+  getOccupiedSpaces(): Set<Point> {
+    if (this._spaces.size === 0 && canvas?.grid?.type !== CONST.GRID_TYPES.GRIDLESS) {
+      let hitBox: PIXI.IHitArea;
+      if (this.hitArea instanceof PIXI.Polygon) {
+        let poly_points: number[] = [];
+        for (let i = 0; i < this.hitArea.points.length - 1; i += 2) {
+          poly_points.push(this.hitArea.points[i] + this.position.x, this.hitArea.points[i + 1] + this.position.y);
+        }
+        hitBox = new PIXI.Polygon(poly_points);
+      } else if (this.hitArea instanceof PIXI.Rectangle) {
+        hitBox = new PIXI.Rectangle(this.position.x, this.position.y, this.hitArea.width, this.hitArea.height);
+      } else {
+        // TODO, handle all possible hitArea shapes
+        return this._spaces;
+      }
+
+      // Get token grid coordinate
+      const [tx, ty] = canvas!.grid!.grid?.getGridPositionFromPixels(this.position.x, this.position.y)!;
+
+      // TODO: Gridless isn't handled, probably split this off to two utility
+      // functions that handle gridded vs gridless properly
+      for (let i = tx - 1; i <= tx + this.data.width + 1; i++) {
+        for (let j = ty - 1; j <= ty + this.data.height + 1; j++) {
+          let pos = { x: 0, y: 0 };
+          [pos.x, pos.y] = canvas!.grid!.grid!.getPixelsFromGridPosition(i, j);
+          [pos.x, pos.y] = canvas!.grid!.getCenter(pos.x + 1, pos.y + 1);
+          if (hitBox.contains(pos.x, pos.y)) this._spaces.add(pos);
+        }
+      }
+    }
+    return this._spaces;
+  }
+
+  _onUpdate(...[data, options, userId]: Parameters<Token["_onUpdate"]>): void {
+    super._onUpdate(data, options, userId);
+    if (hasProperty(data ?? {}, "x") || hasProperty(data ?? {}, "y")) this._spaces.clear();
+  }
+}
 
 // Make derived fields properly update their intended origin target
 export function un_derive_attr_key(key: string) {
