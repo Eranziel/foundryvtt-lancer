@@ -3,7 +3,7 @@ import type SvelteComponent from '*.svelte';
 export default class SvelteApp<DataModel> extends Application {
   klass: typeof SvelteComponent;
   data: DataModel;
-  component!: any;
+  component!: typeof SvelteComponent; // the type reuses the same type for class and instance
 
   #resolve: ((data: DataModel) => void) | null = null;
   #reject: ((v: void) => void) | null = null;
