@@ -24,15 +24,14 @@
  // tell svelte of externally computed dependency arrows
  $: {
    // i.e., base depends on weapon
-   weapon;
-   base = base;
+   // @ts-ignore this syntax is meaningful to svelte
+   base = (weapon, base);
  };
 
  $: {
    // i.e., targets depend on weapon and base
-   weapon;
-   base;
-   targets = targets;
+   // @ts-ignore this syntax is meaningful to svelte
+   targets = (weapon, base, targets);
  }
 
  const dispatch = createEventDispatcher();
