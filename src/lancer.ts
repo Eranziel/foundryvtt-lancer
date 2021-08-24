@@ -789,7 +789,7 @@ async function doMigration() {
       await migrations.migrateWorld();
     } else if (migration == "minor") {
       // Perform the migration
-      await migrations.minor09Migration(true);
+      await migrations.minor09Migration();
     }
   }
 

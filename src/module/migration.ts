@@ -164,8 +164,38 @@ Please refresh the page to try again.</p>`,
   });
 };
 
-export const minor09Migration = async function (migrateComps = true) {
-  //pass
+export const minor09Migration = async function () {
+  // Migrate World Actors
+  for (let a of game.actors.contents) {
+    try {
+      const updateData = await migrateActorData(a, true);
+      if (!isObjectEmpty(updateData)) {
+        console.log(`Migrating Actor entity ${a.name}`);
+        await a.update(updateData);
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  // Migrate Actor Override Tokens
+  for (let s of game.scenes.contents) {
+    try {
+      console.log(`Migrating Scene entity ${s.name}`);
+      let updateData = await migrateSceneData(s, true);
+      if (updateData && !isObjectEmpty(updateData)) {
+        await s.update(updateData);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  for (let p of game.packs.contents) {
+    if (p.metadata.package === "world" && ["Actor", "Item", "Scene"].includes(p.metadata.entity)) {
+      await migrateCompendium(p);
+    }
+  }
 };
 
 /* -------------------------------------------- */
@@ -266,43 +296,36 @@ export const scorchedEarthCompendiums = async () => {
 /**
  * Apply migration rules to all Entities within a single Compendium pack
  * @param pack
+ * @param {boolean} minor Perform minor version update, defaults to false
  * @return {Promise}
  */
-export const migrateCompendium = async function (pack: Compendium) {
+export const migrateCompendium = async function (pack: Compendium, minor: boolean = true) {
   const wasLocked = pack.locked;
   await pack.configure({ locked: false });
   if (pack.locked) return ui.notifications.error(`Could not migrate ${pack.collection} as it is locked.`);
-  const entity = pack.metadata.entity;
-  if (!["Actor", "Item", "Scene"].includes(entity)) return;
-
-  // Begin by requesting server-side data model migration and get the migrated content
-  try {
-    await pack.migrate({});
-  } catch (err) {
-    console.error(err);
-  }
-
-  const content = await pack.getDocuments();
+  const docName = pack.documentName;
+  // if (!["Actor", "Item", "Scene"].includes(entity)) return;
+  // For 0.9 -> 1.0, only do actors and scenes.
+  if (!["Actor", "Scene"].includes(docName)) return;
 
   // Iterate over compendium entries - applying fine-tuned migration functions
-  for (let ent of content) {
+  for (let entry of pack.index) {
+    let doc = await pack.getDocument(entry._id);
     try {
-      let updateData = null;
-      if (entity === "Item") updateData = migrateItemData(ent as Item);
-      else if (entity === "Actor") updateData = migrateActorData(ent as Actor);
-      else if (entity === "Scene") updateData = migrateSceneData(ent.data);
+      let updateData = {};
+      if (docName === "Item") updateData = await migrateItemData(doc as Item);
+      else if (docName === "Actor") updateData = await migrateActorData(doc as Actor, minor);
+      else if (docName === "Scene") updateData = await migrateSceneData(doc.data, minor);
       if (!isObjectEmpty(updateData)) {
-        expandObject(updateData);
-        updateData["_id"] = ent._id;
-        await pack.updateEntity(updateData);
-        console.debug(`Migrated ${entity} entity ${ent.name} in Compendium ${pack.collection}`);
+        await doc.update(updateData);
+        console.debug(`Migrated ${docName} document ${doc.name} in Compendium ${pack.collection}`);
       }
     } catch (err) {
       console.error(err);
     }
   }
   await pack.configure({ locked: wasLocked });
-  console.log(`Migrated all ${entity} entities from Compendium ${pack.collection}`);
+  console.log(`Migrated all ${docName} entities from Compendium ${pack.collection}`);
 };
 
 /* -------------------------------------------- */
@@ -312,15 +335,32 @@ export const migrateCompendium = async function (pack: Compendium) {
 /**
  * Migrate a single Actor entity to incorporate latest data model changes
  * Return an Object of updateData to be applied
- * @param {Actor} actor   The actor to Update
+ * @param {Actor} actor   The actor to update
+ * @param {boolean} minor Perform minor version update, defaults to false
  * @return {Object}       The updateData to apply
  */
-export const migrateActorData = async function (actor: Actor) {
+export const migrateActorData = async function (actor: Actor, minor: boolean = false) {
   let origData: any = actor.data;
   const updateData: LancerNpcData = { _id: origData._id, data: {} };
 
   // Insert code to migrate actor data model here
-  // For migration from 0.1.20 to 1.0, only do NPCs and Deployables. Mechs didn't exist,
+  // Minor migration from version 0.9.x to 1.0 - remove `current_` from data field names
+  if (minor) {
+    const prefix = "current_";
+    for (let key of Object.keys(origData.data)) {
+      if (key.startsWith(prefix)) {
+        let new_key = key.substr(prefix.length);
+        updateData.data[new_key] = origData.data[key];
+        updateData[`data.-=${key}`] = null;
+      }
+    }
+    // Make sure we don't have any leftover derived data from old versions.
+    updateData[`data.-=derived`] = null;
+    console.log(updateData);
+    return updateData;
+  }
+
+  // Major migration from 0.1.20 to 1.0, only do NPCs and Deployables. Mechs didn't exist,
   // and pilots need the GM to import LCPs first.
   if (actor.data.type === EntryType.NPC) {
     updateData.data.tier = origData.data.tier_num;
@@ -564,9 +604,10 @@ export const migrateItemData = async function (item: LancerItem<NpcClass | NpcTe
  * Migrate a single Scene entity to incorporate changes to the data model of it's actor data overrides
  * Return an Object of updateData to be applied
  * @param {Object} scene  The Scene data to Update
+ * @param {boolean} minor Apply minor version update, defaults to false
  * @return {Object}       The updateData to apply
  */
-export const migrateSceneData = async function (scene) {
+export const migrateSceneData = async function (scene, minor: boolean = false) {
   console.log(`Migrating scene ${scene.name}`);
   if (!scene.tokens) return;
   const tokens = scene.tokens.contents as Array<LancerTokenDocument>;
@@ -576,7 +617,7 @@ export const migrateSceneData = async function (scene) {
     if (!token.isLinked) {
       let token_actor = token.actor;
       console.log(`Migrating unlinked token actor ${token_actor.name}`);
-      let updateData = await migrateActorData(token_actor);
+      let updateData = await migrateActorData(token_actor, minor);
       if (updateData && !isObjectEmpty(updateData)) {
         await token_actor.update(updateData);
       }
