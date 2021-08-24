@@ -1114,7 +1114,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
 
     const data = this.data as LancerMechData;
 
-    switch (data.data.current_overcharge) {
+    switch (data.data.overcharge) {
       case 1:
         return "1d3";
       case 2:

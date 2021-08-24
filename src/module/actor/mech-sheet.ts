@@ -115,7 +115,7 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
     let overchargeText = html.find(".overcharge-text");
 
     overchargeText.on("click", (ev: Event) => {
-      this._setOverchargeLevel(<MouseEvent>ev, Math.min(this.actor.data.data.current_overcharge + 1, 3));
+      this._setOverchargeLevel(<MouseEvent>ev, Math.min(this.actor.data.data.overcharge + 1, 3));
     });
 
     // Overcharge reset
