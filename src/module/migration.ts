@@ -16,26 +16,25 @@ let lp = LANCER.log_prefix;
  * Perform a system migration for the entire World, applying migrations for Actors, Items, and Compendium packs
  * @return {Promise}      A Promise which resolves once the migration is completed
  */
-export const migrateWorld = async function (migrateComps = true) {
+export const migrateWorld = async function () {
   ui.notifications.info(
     `Applying LANCER System Migration for version ${game.system.data.version}. Please be patient and do not close your game or shut down your server.`,
     { permanent: true }
   );
 
   // Migrate World Compendium Packs
-  if (migrateComps) {
-    await scorchedEarthCompendiums();
-    await updateCore(core_update);
+  await scorchedEarthCompendiums();
+  await updateCore(core_update);
 
-    if ((await game.settings.get(game.system.id, LANCER.setting_core_data)) === core_update) {
-      // Open the LCP manager for convenience.
-      new LCPManager().render(true);
+  if ((await game.settings.get(game.system.id, LANCER.setting_core_data)) === core_update) {
+    // Open the LCP manager for convenience.
+    new LCPManager().render(true);
 
-      // Compendium migration succeeded, prompt to migrate actors.
-      new Dialog(
-        {
-          title: `Migration Details`,
-          content: `
+    // Compendium migration succeeded, prompt to migrate actors.
+    new Dialog(
+      {
+        title: `Migration Details`,
+        content: `
 <h1>Lancer 1.0 Migration - The Big One!</h1>
 Welcome! The Lancer system has undergone a huge overhaul since the 0.1.x versions, including changing nearly all
 of the data model. As such, there is a <i>lot</i> to migrate! We have done our best to write migration code to 
@@ -67,57 +66,56 @@ LCPs compatible with Comp/Con.</p>
 <p>Once all needed LCPs are imported, click the button below to start migrating all of your pilots. 
 If you close this window while working on your LCPs, you can migrate your pilots individually by right clicking
 on them in the Actors sidebar and clicking "Migrate Pilot". </p>`,
-          buttons: {
-            accept: {
-              label: "Start Migration",
-              callback: async () => {
-                await migratePilots();
-              },
-            },
-            cancel: {
-              label: "Close",
-            },
-          },
-          default: "cancel",
-        },
-        {
-          width: 800,
-        }
-      ).render(true);
-    } else {
-      // Compendium migration failed.
-      new Dialog({
-        title: `Compendium Migration Failed`,
-        content: `
-<p>Something went wrong while attempting to build the core data Compendiums for the new Lancer system.
-Please refresh the page to try again.</p>`,
         buttons: {
           accept: {
-            label: "Refresh",
+            label: "Start Migration",
             callback: async () => {
-              ui.notifications.info("Page reloading in 3...");
-              await sleep(1000);
-              ui.notifications.info("2...");
-              await sleep(1000);
-              ui.notifications.info("1...");
-              await sleep(1000);
-              window.location.reload(false);
+              await migratePilots();
             },
           },
           cancel: {
             label: "Close",
           },
         },
-        default: "accept",
-      }).render(true);
-    }
-
-    // for (let p of game.packs) {
-    //   if (p.metadata.package === "world" && ["Actor", "Item", "Scene"].includes(p.metadata.entity)) {
-    //     await migrateCompendium(p);
-    //   }
-    // }
+        default: "cancel",
+      },
+      {
+        width: 800,
+      }
+    ).render(true);
+  } else {
+    // Compendium migration failed.
+    new Dialog({
+      title: `Compendium Migration Failed`,
+      content: `
+<p>Something went wrong while attempting to build the core data Compendiums for the new Lancer system.
+Please refresh the page to try again.</p>`,
+      buttons: {
+        accept: {
+          label: "Refresh",
+          callback: async () => {
+            ui.notifications.info("Page reloading in 3...");
+            await sleep(1000);
+            ui.notifications.info("2...");
+            await sleep(1000);
+            ui.notifications.info("1...");
+            await sleep(1000);
+            window.location.reload(false);
+          },
+        },
+        cancel: {
+          label: "Close",
+        },
+      },
+      default: "accept",
+    }).render(true);
   }
+
+  // for (let p of game.packs) {
+  //   if (p.metadata.package === "world" && ["Actor", "Item", "Scene"].includes(p.metadata.entity)) {
+  //     await migrateCompendium(p);
+  //   }
+  // }
 
   // Migrate World Actors
   // Only NPCs, not pilots or mechs. GMs gotta update LCPs first.
