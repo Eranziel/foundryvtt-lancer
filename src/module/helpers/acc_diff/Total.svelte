@@ -1,13 +1,17 @@
 <script context="module">
+ import { blur, crossfade } from 'svelte/transition';
  let lockonCounter = 0;
  let counter = 0;
+
+ // @ts-ignore the only issue is that crossfade can take a fn for duration and blur can't
+ let [send, recv] = crossfade({ fallback: blur });
 </script>
 
 <script lang="ts">
  import type { AccDiffBase, AccDiffTarget } from './index';
 
  import { onMount } from 'svelte';
- import { fly, blur } from 'svelte/transition';
+ import { fly } from 'svelte/transition';
 
  import tippy from "tippy.js";
 
@@ -40,7 +44,10 @@
 </script>
 
 {#if isTarget(target)}
-  <div class="accdiff-grid">
+  <div
+    in:send={{key: `${id}-img`, delay: 100, duration: 200}}
+    out:recv={{key: `${id}-img`, duration: 200}}
+    class="accdiff-grid">
     <img class="lancer-hit-thumb accdiff-target-has-dropdown"
          alt={target.target.data.name}
          src={target.target.data.img} bind:this={imgElement} />
@@ -62,20 +69,23 @@
     </div>
   {/if}
 {/if}
-<div class="accdiff-grid accdiff-weight">
+<div class="accdiff-grid accdiff-weight" in:send={{key: id}} out:recv={{key: id}}>
   <div class="grid-enforcement">
-    {#key target.total}
-      <div id={id} transition:blur
-        class="card clipped total" class:accurate={target.total > 0} class:inaccurate={target.total < 0}>
-        <span in:fly={{y: -50, duration: 400}} out:fly={{y: 50, duration: 200}}>
-          {Math.abs(target.total)}
-        </span>
-        <i in:fly={{y: -50, duration: 200}} out:fly={{y: 50, duration: 200}}
-          class="cci i--m i--dark white--text middle"
-          class:cci-accuracy={target.total >= 0}
-          class:cci-difficulty={target.total < 0} ></i>
-      </div>
-    {/key}
+    <!-- dummy if block for |local, see https://github.com/sveltejs/svelte/issues/5950 -->
+    {#if true}
+      {#key target.total}
+        <div id={id} transition:blur
+          class="card clipped total" class:accurate={target.total > 0} class:inaccurate={target.total < 0}>
+          <span in:fly|local={{y: -50, duration: 400}} out:fly|local={{y: 50, duration: 200}}>
+            {Math.abs(target.total)}
+          </span>
+          <i in:fly|local={{y: -50, duration: 200}} out:fly|local={{y: 50, duration: 200}}
+            class="cci i--m i--dark white--text middle"
+            class:cci-accuracy={target.total >= 0}
+            class:cci-difficulty={target.total < 0} ></i>
+        </div>
+      {/key}
+    {/if}
   </div>
 </div>
 
@@ -84,12 +94,6 @@
 
  .accdiff-grid { position: relative }
 
- /* this + the grid-column and grid-row in .card.clipped forces
-    the two cards inside it (during animations) to have the same location */
- .grid-enforcement {
-     display: grid;
-     overflow: hidden;
- }
  .card.clipped {
      display: flex;
      flex-direction: row;
@@ -98,8 +102,6 @@
      color: white;
      width: min-content;
      background-color: #443c3c;
-     grid-column: 1/2;
-     grid-row: 1/2;
  }
  .card.total.accurate { background-color: #017934; }
  .card.total.inaccurate { background-color: #9c0d0d }
@@ -133,6 +135,14 @@
  }
  .cci-condition-lock-on.i--l {
      animation: lockon 800ms linear 1s infinite alternate;
+ }
+
+ .accdiff-target-dropdown {
+     display: none;
+ }
+
+ :global(.tippy-content) .accdiff-target-dropdown {
+     display: block;
  }
 
  .accdiff-grid :global(.tippy-box[data-theme~="lancer"]) {

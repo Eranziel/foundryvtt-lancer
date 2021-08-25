@@ -557,6 +557,8 @@ async function rollStatMacro(actor: Actor, data: LancerStatMacroData) {
   let { AccDiffData } = await import('./helpers/acc_diff');
   let initialData = AccDiffData.fromParams();
   let promptedData = await promptAccDiffModifiers(initialData);
+  // note that the previous await waits for the user, and in many cases returns null as the user backs out
+
   if (!promptedData) return;
   let acc: number = promptedData.base.total;
 
@@ -766,6 +768,8 @@ async function prepareAttackMacro({
   const initialData = rerollData ?? AccDiffData.fromParams(
     item, mData.tags, mData.title, targets, mData.acc > 0 ? [mData.acc, 0] : [0, -mData.acc]);
   const promptedData = await promptAccDiffModifiers(initialData);
+  // note that the previous await waits for the user, and in many cases returns null as the user backs out
+
   if (!promptedData) return;
 
   const atkRolls = attackRolls(mData.grit, promptedData);
@@ -794,6 +798,62 @@ async function prepareAttackMacro({
     ]
   };
 
+  await rollAttackMacro(actor, atkRolls, mData, rerollMacro);
+}
+
+export async function refreshTargeting(full: "force full refresh" | "do partial refresh") {
+  const targets = Array.from(game.user.targets);
+  let { AccDiffForm } = await import('./helpers/acc_diff');
+  const form = AccDiffForm.coalesceTargets(targets, full == "force full refresh");
+  if (!form) return;
+  const promptedData = await promptAccDiffModifiers(form);
+  // note that the previous await waits for the user, and in many cases returns null as the user backs out
+
+  if (!promptedData) return;
+
+  let actor = getMacroSpeaker();
+  if (!actor) {
+    ui.notifications.error("Can't find actor to attack as.");
+    return;
+  }
+
+  let mData = {
+    grit: 0,
+    tags: [],
+    damage: [],
+  };
+
+
+  let pilotEnt: Pilot;
+  if (actor.data.type === EntryType.MECH) {
+    pilotEnt = (await actor.data.data.derived.mm_promise).Pilot;
+    mData.grit = pilotEnt.Grit;
+  } else if (actor.data.type === EntryType.PILOT) {
+    pilotEnt = await actor.data.data.derived.mm_promise;
+    mData.grit = pilotEnt.Grit;
+  } else if (actor.data.type === EntryType.NPC) {
+    const mm = await actor.data.data.derived.mm_promise;
+    let tier_bonus: number = mm.Tier - 1;
+    mData.grit = tier_bonus || 0;
+  } else {
+    ui.notifications.error(`Error preparing targeting macro - ${actor.name} is an unknown type!`);
+    return;
+  }
+
+  const atkRolls = attackRolls(mData.grit, promptedData);
+
+  let rerollMacro = {
+    title: "Reroll attack",
+    fn: "prepareEncodedAttackMacro",
+    args: [
+      actor.data.data.derived.mm.as_ref(),
+      null, // TODO: this breaks the reroll
+      {},
+      promptedData.toObject()
+    ]
+  };
+
+  // @ts-ignore TODO: check that rollAttackMacro is defensive against the missing attrs
   await rollAttackMacro(actor, atkRolls, mData, rerollMacro);
 }
 
@@ -1190,6 +1250,8 @@ async function rollTechMacro(actor: Actor, data: LancerTechMacroData, partialMac
     AccDiffData.fromObject(rerollData, item) :
     AccDiffData.fromParams(item, data.tags, data.title, targets);
   const promptedData = await promptAccDiffModifiers(initialData);
+  // note that the previous await waits for the user, and in many cases returns null as the user backs out
+
   if (!promptedData) return;
   partialMacroData.args.push(promptedData.toObject());
 
@@ -1213,10 +1275,9 @@ async function rollTechMacro(actor: Actor, data: LancerTechMacroData, partialMac
   return await renderMacroTemplate(actor, template, templateData);
 }
 
-export async function promptAccDiffModifiers(data: AccDiffData): Promise<AccDiffData | null> {
+export async function promptAccDiffModifiers(data: AccDiffData | AccDiffForm): Promise<AccDiffData | null> {
   let { AccDiffForm } = await import('./helpers/acc_diff');
-  let form = new AccDiffForm(data);
-  form.render(true);
+  let form: AccDiffForm = data instanceof AccDiffForm ? data : new AccDiffForm(data);
   try {
     return await form.promise; // await to force any rejections into this try/catch
   } catch (_e) {

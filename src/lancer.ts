@@ -509,6 +509,12 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("tier-selector", npc_tier_selector);
   Handlebars.registerHelper("npc-feat-preview", npc_feature_preview);
 
+  Hooks.on('targetToken', () => macros.refreshTargeting("do partial refresh"));
+  Hooks.on('createActiveEffect', () => macros.refreshTargeting("force full refresh"));
+  Hooks.on('deleteActiveEffect', () => macros.refreshTargeting("force full refresh"));
+  // updateToken triggers on things like token movement (spotter) and probably a lot of other things
+  Hooks.on('updateToken', () => macros.refreshTargeting("force full refresh"));
+
   // TODO: remove when sanity check is no longer needed.
   game.lancer.finishedInit = true;
 });
