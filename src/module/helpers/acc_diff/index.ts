@@ -219,7 +219,7 @@ export class AccDiffTarget {
   }
 }
 
-export type AccDiffDataSerialized = t.TypeOf<typeof AccDiffData.schemaCodec>;
+export type AccDiffDataSerialized = t.OutputOf<typeof AccDiffData.schemaCodec>;
 export class AccDiffData {
   title: string;
   weapon: AccDiffWeapon;
@@ -262,7 +262,7 @@ export class AccDiffData {
     }
   }
 
-  static fromObject(obj: t.InputOf<typeof AccDiffData.codec>, lancerItem?: LancerItem<any>): AccDiffData {
+  static fromObject(obj: AccDiffDataSerialized, lancerItem?: LancerItem<any>): AccDiffData {
     let ret = decode(obj, AccDiffData.codec);
     ret.lancerItem = lancerItem;
     ret.hydrate();
