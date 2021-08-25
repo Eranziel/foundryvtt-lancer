@@ -247,7 +247,8 @@ export class AccDiffData {
     this.hydrate();
   }
 
-  hydrate() {
+  hydrate(lancerItem?: LancerItem<any>) {
+    this.lancerItem = lancerItem;
     this.weapon.hydrate(this);
     this.base.hydrate(this);
     for (let target of this.targets) { target.hydrate(this); }
@@ -264,8 +265,7 @@ export class AccDiffData {
 
   static fromObject(obj: AccDiffDataSerialized, lancerItem?: LancerItem<any>): AccDiffData {
     let ret = decode(obj, AccDiffData.codec);
-    ret.lancerItem = lancerItem;
-    ret.hydrate();
+    ret.hydrate(lancerItem);
     return ret;
   }
 
