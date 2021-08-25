@@ -193,6 +193,21 @@ export class AccDiffTarget {
     }
   }
 
+  static fromParams(t: Token): AccDiffTarget {
+    let ret = {
+      target_id: t.id,
+      accuracy: 0,
+      difficulty: 0,
+      cover: Cover.None,
+      consumeLockOn: true,
+      plugins: {} as { [k: string]: any },
+    };
+    for (let plugin of AccDiffData.targetedPlugins) {
+      ret.plugins[plugin.slug] = encode(plugin.perTarget!(t), plugin.codec);
+    }
+    return decode(ret, AccDiffTarget.codec);
+  }
+
   hydrate(d: AccDiffData) {
     this.#weapon = d.weapon;
     this.#base = d.base;
@@ -351,6 +366,9 @@ export class AccDiffData {
         obj.base.plugins[plugin.slug] = encode(plugin.perUnknownTarget(), plugin.codec);
       }
     }
+
+    // for now this isn't using AccDiffTarget.fromParams, which means the code is duplicated
+    // that's a relatively contained bit of tech debt, but let's handle it next time this is touched
     return AccDiffData.fromObject(obj, item);
   }
 }
