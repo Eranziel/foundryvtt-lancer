@@ -3,13 +3,19 @@
   "name": "foundryvtt-lancer",
   "version": "0.9.6",
   "description": "",
+  "sideEffects": [
+    "src/lancer.scss",
+    "src/lancer.ts"
+  ],
   "scripts": {
     "package": "gulp package",
     "build": "gulp build",
     "link": "gulp link",
     "build:watch": "gulp watch",
+    "watch": "gulp serve",
+    "serve": "gulp serve",
     "format": "prettier --write --config .prettierrc.json 'src/**/*.ts'",
-    "clean": "gulp clean && gulp link --clean"
+    "clean": "rm -fR dist && gulp link --clean"
   },
   "author": "",
   "license": "",
@@ -17,23 +23,19 @@
     "@league-of-foundry-developers/foundry-vtt-types": "^0.7.9-6",
     "archiver": "^3.1.1",
     "chalk": "^3.0.0",
-    "css-loader": "^5.2.4",
     "foundry-pc-types": "gitlab:Eranziel/foundry-pc-types",
     "fs-extra": "^9.1.0",
     "gulp": "^4.0.2",
     "gulp-git": "^2.10.1",
-    "gulp-less": "^4.0.1",
-    "gulp-sass": "^4.1.0",
-    "gulp-typescript": "^6.0.0-alpha.1",
     "json-stringify-pretty-compact": "^2.0.0",
     "nanoid": "^3.1.23",
     "prettier": "2.0.5",
-    "sass": "^1.32.11",
-    "style-loader": "^2.0.0",
-    "ts-loader": "^8.2.0",
+    "rollup-plugin-visualizer": "^5.5.2",
+    "sass": "^1.35.2",
     "tslib": "^1.14.1",
     "typescript": "^4.3.2",
-    "webpack-stream": "^6.1.2",
+    "vite": "^2.5.1",
+    "vite-plugin-checker": "^0.3.4",
     "yargs": "^15.4.1"
   },
   "dependencies": {

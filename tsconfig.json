@@ -1,20 +1,23 @@
 {
-	"compilerOptions": {
-		"target": "ES2017",
-		"experimentalDecorators": true,
-		"outDir": "./dist/",
-		"module": "commonjs",
-		"sourceMap": true,
-		"lib": [
-			"DOM",
-			"ES6",
-			"ES2017"
-		],
-		"types": [
-			"foundry-pc-types"
-		],
-		// "moduleResolution": "node",
-		"strict": true,
-		"skipLibCheck": true,
-	}
+  "compilerOptions": {
+    "target": "esnext",
+    "experimentalDecorators": true,
+    "isolatedModules": false,
+    "module": "esnext",
+    "sourceMap": true,
+    "lib": [
+      "DOM",
+      "ESNext"
+    ],
+    "types": [
+      "foundry-pc-types"
+    ],
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "noEmit": true,
+    "strict": true,
+    "useDefineForClassFields": false,
+    "skipLibCheck": true
+  },
+  "include": ["./src"]
 }
