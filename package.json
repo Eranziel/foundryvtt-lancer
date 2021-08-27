@@ -12,8 +12,10 @@
     "build": "gulp build",
     "link": "gulp link",
     "build:watch": "gulp watch",
+    "watch": "gulp serve",
+    "serve": "gulp serve",
     "format": "prettier --write --config .prettierrc.json 'src/**/*.ts'",
-    "clean": "gulp clean && gulp link --clean"
+    "clean": "rm -fR dist && gulp link --clean"
   },
   "author": "",
   "license": "",
@@ -39,7 +41,8 @@
     "svelte-preprocess": "^4.7.4",
     "tslib": "^1.14.1",
     "typescript": "^4.3.2",
-    "vite": "^2.5.0",
+    "vite": "^2.5.1",
+    "vite-plugin-checker": "^0.3.4",
     "yargs": "^15.4.1"
   },
   "dependencies": {
