@@ -42,7 +42,7 @@
     "tslib": "^1.14.1",
     "typescript": "^4.3.2",
     "vite": "^2.5.1",
-    "vite-plugin-checker": "^0.3.4",
+    "vite-plugin-checker": "https://github.com/SohumB/vite-plugin-checker/releases/download/vite-plugin-checker%400.3.5/vite-plugin-checker-0.3.5.tgz",
     "yargs": "^15.4.1"
   },
   "dependencies": {
