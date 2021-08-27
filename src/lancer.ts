@@ -7,13 +7,10 @@
  * Software License: GNU GPLv3
  */
 
-// Import TypeScript modules
-import marked = require("marked");
-// Pull in the parts of AWS Amplify we need
-import aws from "./aws-exports";
-import Auth from "@aws-amplify/auth";
-import Storage from "@aws-amplify/storage";
+// Import SCSS into our build
+import './lancer.scss';
 
+// Import TypeScript modules
 import { LANCER, STATUSES, WELCOME } from "./module/config";
 import type { LancerGame } from "./module/lancer-game";
 import { LancerActor, lancerActorInit } from "./module/actor/lancer-actor";
@@ -51,7 +48,6 @@ tippy.setDefaultProps({ theme: "lancer", arrow: false, delay: [400, 200] });
 // tippy.setDefaultProps({ theme: "lancer", arrow: false, delay: [400, 200], hideOnClick: false, trigger: "click"});
 
 // Import node modules
-import compareVersions = require("compare-versions");
 import { EntryType, Bonus, funcs } from "machine-mind";
 import {
   resolve_helper_dotpath,
@@ -132,6 +128,10 @@ import { LancerToken, LancerTokenDocument } from "./module/token";
 
 const lp = LANCER.log_prefix;
 
+window.addEventListener('unhandledrejection', function(event) {
+  console.error('Unhandled rejection (promise: ', event.promise, ', reason: ', event.reason, ').');
+});
+
 /* ------------------------------------ */
 /* Initialize system                    */
 /* ------------------------------------ */
@@ -147,6 +147,8 @@ Hooks.once("init", async function () {
   }
   console.log(`${lp} Sanity check passed, continuing with initialization.`);
 
+  // no need to block on amplify - logging into comp/con and populating the cache
+  // it can happen in the background
   configureAmplify();
 
   // Assign custom classes and constants here
@@ -744,6 +746,8 @@ async function versionCheck() {
     return;
   }
 
+  let compareVersions = (await import('compare-versions')).default;
+
   // Modify these constants to set which Lancer version numbers need and permit migration.
   const NEEDS_MIGRATION_VERSION = "0.9.0";
   const COMPATIBLE_MIGRATION_VERSION = "0.1.0";
@@ -822,14 +826,24 @@ because nearly everything has changed (sorry).</p>`;
   ).render(true);
 }
 
-function configureAmplify() {
+async function configureAmplify() {
+  // Pull in the parts of AWS Amplify we need
+  const aws = (await import("./aws-exports")).default as {
+    aws_cognito_identity_pool_id: string
+  };
+  const { Auth } = await import("@aws-amplify/auth");
+  const { Storage } = await import("@aws-amplify/storage");
+
   Auth.configure(aws);
   Storage.configure(aws);
 
   // if we have a login already, this is where we populate the pilot cache
-  // no need to block on it; it can happen in the background
-  // errors when we don't have a login already, which is normal behaviour
-  populatePilotCache().catch(e => e);
+  try {
+    return populatePilotCache()
+  } catch {
+    // the error is just that we don't have a login
+    // noop
+  };
 }
 
 async function showChangelog() {
@@ -863,7 +877,7 @@ async function showChangelog() {
     let req = $.get(
       `https://raw.githubusercontent.com/Eranziel/foundryvtt-lancer/v${game.system.data.version}/CHANGELOG.md`
     );
-    req.done((data, _status) => {
+    req.done(async (data, status) => {
       // Regex magic to only grab the first 25 lines
       let r = /(?:[^\n]*\n){25}/;
       let trimmedChangelog = data.match(r)[0];
@@ -875,6 +889,7 @@ async function showChangelog() {
 
       trimmedChangelog = trimmedChangelog.substring(0, lastH1Pos);
 
+      let marked = (await import('marked')).default;
       let changelog = marked(trimmedChangelog);
 
       renderChangelog(changelog);
