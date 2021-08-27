@@ -8,7 +8,7 @@
  */
 
 // Import SCSS into our build
-import './lancer.scss';
+import "./lancer.scss";
 
 // Import TypeScript modules
 import { LANCER, STATUSES, WELCOME } from "./module/config";
@@ -128,8 +128,8 @@ import { LancerToken, LancerTokenDocument } from "./module/token";
 
 const lp = LANCER.log_prefix;
 
-window.addEventListener('unhandledrejection', function(event) {
-  console.error('Unhandled rejection (promise: ', event.promise, ', reason: ', event.reason, ').');
+window.addEventListener("unhandledrejection", function (event) {
+  console.error("Unhandled rejection (promise: ", event.promise, ", reason: ", event.reason, ").");
 });
 
 /* ------------------------------------ */
@@ -203,47 +203,6 @@ Hooks.once("init", async function () {
   customElements.define("card-clipped", class LancerClippedCard extends HTMLDivElement {}, {
     extends: "div",
   });
-
-  // @ts-ignore We should use libwrapper if this is necessary
-  const actors_old_getEntryContextOptions = ActorDirectory.prototype._getEntryContextOptions;
-  // @ts-ignore We should use libwrapper if this is necessary
-  ActorDirectory.prototype._getEntryContextOptions = function () {
-    const ctxOptions = actors_old_getEntryContextOptions.call(this);
-
-    const editMigratePilot = {
-      name: "Migrate Pilot",
-      icon: '<i class="fas fa-user-circle"></i>',
-      condition: (li: any) => {
-        const actor = game.actors?.get(li.data("entityId"));
-        return actor?.data.type === "pilot" && validForExport(actor);
-      },
-      callback: (li: any) => {
-        const actor = game.actors?.get(li.data("entityId"));
-        // @ts-ignore Migrations?
-        const dump = handleActorExport(actor, false);
-        dump && actor?.importCC(dump as any, true);
-      },
-    };
-
-    const editExportPilot = {
-      name: "Export Pilot",
-      icon: '<i class="fas fa-user-circle"></i>',
-      condition: (li: any) => {
-        const actor = game.actors?.get(li.data("entityId"));
-        return actor?.data.type === "pilot" && validForExport(actor);
-      },
-      callback: (li: any) => {
-        const actor = game.actors?.get(li.data("entityId"));
-        // @ts-ignore Migrations?
-        handleActorExport(actor, true);
-      },
-    };
-
-    ctxOptions.unshift(editMigratePilot);
-    ctxOptions.unshift(editExportPilot);
-
-    return ctxOptions;
-  };
 
   // Preload Handlebars templates
   await preloadTemplates();
@@ -606,6 +565,40 @@ Hooks.on("renderSidebarTab", async (app: Application, html: HTMLElement) => {
   addLCPManager(app, html);
 });
 
+Hooks.on("getActorDirectoryEntryContext", (_html: JQuery<HTMLElement>, ctxOptions: ContextMenuEntry[]) => {
+  const editMigratePilot: ContextMenuEntry = {
+    name: "Migrate Pilot",
+    icon: '<i class="fas fa-user-circle"></i>',
+    condition: (li: any) => {
+      const actor = game.actors?.get(li.data("entityId"));
+      return actor?.data.type === "pilot" && validForExport(actor);
+    },
+    callback: (li: any) => {
+      const actor = game.actors?.get(li.data("entityId"));
+      // @ts-ignore Migrations?
+      const dump = handleActorExport(actor, false);
+      dump && actor?.importCC(dump as any, true);
+    },
+  };
+
+  const editExportPilot: ContextMenuEntry = {
+    name: "Export Pilot",
+    icon: '<i class="fas fa-user-circle"></i>',
+    condition: (li: any) => {
+      const actor = game.actors?.get(li.data("entityId"));
+      return actor?.data.type === "pilot" && validForExport(actor);
+    },
+    callback: (li: any) => {
+      const actor = game.actors?.get(li.data("entityId"));
+      // @ts-ignore Migrations?
+      handleActorExport(actor, true);
+    },
+  };
+
+  ctxOptions.unshift(editMigratePilot);
+  ctxOptions.unshift(editExportPilot);
+});
+
 // For the settings tab
 Hooks.on("renderSettings", async (app: Application, html: HTMLElement) => {
   addSettingsButtons(app, html);
@@ -746,7 +739,7 @@ async function versionCheck() {
     return;
   }
 
-  let compareVersions = (await import('compare-versions')).default;
+  let compareVersions = (await import("compare-versions")).default;
 
   // Modify these constants to set which Lancer version numbers need and permit migration.
   const NEEDS_MIGRATION_VERSION = "0.9.0";
@@ -829,7 +822,7 @@ because nearly everything has changed (sorry).</p>`;
 async function configureAmplify() {
   // Pull in the parts of AWS Amplify we need
   const aws = (await import("./aws-exports")).default as {
-    aws_cognito_identity_pool_id: string
+    aws_cognito_identity_pool_id: string;
   };
   const { Auth } = await import("@aws-amplify/auth");
   const { Storage } = await import("@aws-amplify/storage");
@@ -839,11 +832,11 @@ async function configureAmplify() {
 
   // if we have a login already, this is where we populate the pilot cache
   try {
-    return populatePilotCache()
+    return populatePilotCache();
   } catch {
     // the error is just that we don't have a login
     // noop
-  };
+  }
 }
 
 async function showChangelog() {
@@ -889,7 +882,7 @@ async function showChangelog() {
 
       trimmedChangelog = trimmedChangelog.substring(0, lastH1Pos);
 
-      let marked = (await import('marked')).default;
+      let marked = (await import("marked")).default;
       let changelog = marked(trimmedChangelog);
 
       renderChangelog(changelog);
