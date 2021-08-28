@@ -1,6 +1,6 @@
-import { HelperOptions } from "handlebars";
-import { Bonus, Damage, License, WeaponMod, WeaponSize, WeaponType, Action, Deployable, Synergy, ActivationType, EntryType } from 'machine-mind';
-import { license_ref, manufacturer_ref, bonuses_display, damage_editor, range_editor, buildActionHTML, buildDeployableHTML } from './item';
+import type { HelperOptions } from "handlebars";
+import { Bonus, Damage, License, WeaponSize, WeaponType, Action, Deployable, Synergy, ActivationType, EntryType } from 'machine-mind';
+import { bonuses_display, damage_editor, range_editor, buildActionHTML, buildDeployableHTML } from './item';
 import { large_textbox_card, resolve_helper_dotpath, std_enum_select, std_num_input } from './commons';
 import { ref_commons, ref_params } from "./refs";
 

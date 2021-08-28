@@ -1,5 +1,5 @@
-import { PackedPilotData } from "machine-mind";
-import { CachedCloudPilot } from "./interfaces";
+import type { PackedPilotData } from "machine-mind";
+import type { CachedCloudPilot } from "./interfaces";
 
 // we only cache the id, cloud ids, and name; we're going to fetch all other data on user input
 // the point of the cache is not have the pilot actor window to wait for network calls
@@ -46,7 +46,7 @@ export async function fetchPilot(cloudID: string, cloudOwnerID?: string): Promis
     const { Auth } = await import("@aws-amplify/auth");
     await Auth.currentSession(); // refresh the token if we need to
   } catch (e) {
-    ui.notifications.error("Sync failed - you aren't logged into a Comp/Con account.");
+    ui.notifications!.error("Sync failed - you aren't logged into a Comp/Con account.");
     throw e;
   }
 

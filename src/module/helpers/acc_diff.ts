@@ -1,4 +1,4 @@
-import { TagInstance } from "machine-mind";
+import type { TagInstance } from "machine-mind";
 
 export type AccDiffFlag = "ACCURATE" | "INACCURATE" | "SOFT_COVER" | "HARD_COVER" | "SEEKING";
 export const AccDiffRegistry: Record<AccDiffFlag, number> = {

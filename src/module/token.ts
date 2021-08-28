@@ -1,24 +1,24 @@
+declare global {
+  interface DocumentClassConfig {
+    Token: typeof LancerTokenDocument;
+  }
+}
 
 /**
  * Extend the base TokenDocument class to implement system-specific HP bar logic.
  * @extends {TokenDocument}
  */
-// @ts-ignore 0.8
 export class LancerTokenDocument extends TokenDocument {
-
   /** @inheritdoc */
-  // @ts-ignore 0.8
-  getBarAttribute(...args) {
-
-    let result = super.getBarAttribute(...args);
-    if(result && !result.editable) {
+  getBarAttribute(barName: string, { alternative }: { alternative?: string | undefined } | undefined = {}) {
+    let result = super.getBarAttribute(barName, { alternative });
+    if (result && !result.editable) {
       const attr = result.attribute;
       if (attr.includes("derived.")) {
         let new_key = un_derive_attr_key(attr);
         // Get the model, and see if it _should_ be editable
-	// @ts-ignore 0.8
-        const model = game.system.model.Actor[this.actor.type];
-        result.editable = hasProperty(model, new_key);
+        const model = game.system.model.Actor[this.actor!.type];
+        result.editable = hasProperty(model!, new_key);
       }
     }
     return result;
@@ -28,15 +28,13 @@ export class LancerTokenDocument extends TokenDocument {
  * Extend the base Token class to implement additional system-specific logic.
  * @extends {Token}
  */
-// @ts-ignore 0.8
 export class LancerToken extends Token {}
-
 
 // Make derived fields properly update their intended origin target
 export function un_derive_attr_key(key: string) {
-      // Cut the .derived, and also remove any trailing .value to resolve pseudo-bars
-    let new_key = key.replace(/derived\./, "");
-    return new_key.replace(/\.value$/, "");
+  // Cut the .derived, and also remove any trailing .value to resolve pseudo-bars
+  let new_key = key.replace(/derived\./, "");
+  return new_key.replace(/\.value$/, "");
 }
 
 // Makes calls to modify_token_attribute re-route to the appropriate field

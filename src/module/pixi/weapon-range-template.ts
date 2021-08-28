@@ -24,9 +24,10 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
    * @param val Size of template
    */
   static fromRange({ type, val }: { type: string; val: number }): WeaponRangeTemplate | null {
-    let hex: boolean = canvas.grid.type >= 2;
+    if (!canvas || !(game instanceof Game)) return null;
+    let hex: boolean = (canvas.grid?.type ?? 0) >= 2;
 
-    let shape: string;
+    let shape: "cone" | "ray" | "circle";
     switch (type) {
       case "Cone":
         shape = "cone";
@@ -45,19 +46,18 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
     const scale = hex ? Math.sqrt(3) / 2 : 1;
     const templateData = {
       t: shape,
-      //@ts-ignore 0.8
-      user: game.user.data.id,
+      user: game.user!.id,
       distance: (val + 0.1) * scale,
       width: scale,
       direction: 0,
       x: 0,
       y: 0,
       angle: 58,
-      fillColor: game.user.color,
+      fillColor: game.user!.data.color,
     };
 
     const cls = CONFIG.MeasuredTemplate.documentClass;
-    const template = new cls(templateData, { parent: canvas.scene });
+    const template = new cls(templateData, { parent: canvas.scene ?? undefined });
     const object = new this(template);
     object.range = { type, val };
     object.isBurst = type === "Burst";
@@ -69,23 +69,23 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
    * block until a template is placed.
    */
   drawPreview(): void {
+    if (!canvas) return;
     const initialLayer = canvas.activeLayer;
     this.draw();
     this.layer.activate();
-    this.layer.preview.addChild(this);
+    this.layer.preview?.addChild(this);
     this.activatePreviewListeners(initialLayer);
   }
 
-  activatePreviewListeners(initialLayer: PlaceablesLayer): void {
+  activatePreviewListeners(initialLayer: CanvasLayer<CanvasLayerOptions> | null): void {
     const handlers: any = {};
     let moveTime = 0;
 
     // Update placement (mouse-move)
-    handlers.mm = (event: MouseEvent) => {
+    handlers.mm = (event: PIXI.InteractionEvent) => {
       event.stopPropagation();
       let now = Date.now(); // Apply a 20ms throttle
       if (now - moveTime <= 20) return;
-      //@ts-ignore 0.8
       const center = event.data.getLocalPosition(this.layer);
       let snapped = this.snapToCenter(center);
 
@@ -97,49 +97,46 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
     };
 
     // Cancel the workflow (right-click)
-    handlers.rc = (_event: MouseEvent) => {
-      this.layer.preview.removeChildren();
-      canvas.stage.off("mousemove", handlers.mm);
-      canvas.stage.off("mousedown", handlers.lc);
-      canvas.app.view.oncontextmenu = null;
-      canvas.app.view.onwheel = null;
-      initialLayer.activate();
+    handlers.rc = (_event: PIXI.InteractionEvent) => {
+      this.layer.preview?.removeChildren();
+      canvas!.stage?.off("mousemove", handlers.mm);
+      canvas!.stage?.off("mousedown", handlers.lc);
+      canvas!.app!.view.oncontextmenu = null;
+      canvas!.app!.view.onwheel = null;
+      initialLayer?.activate();
     };
 
     // Confirm the workflow (left-click)
-    handlers.lc = (event: MouseEvent) => {
+    handlers.lc = (event: PIXI.InteractionEvent) => {
       handlers.rc(event);
-      //@ts-ignore 0.8
       let destination = this.snapToCenter(event.data.getLocalPosition(this.layer));
-      //@ts-ignore 0.8
       if (this.isBurst) destination = this.snapToToken(event.data.getLocalPosition(this.layer));
       this.data.update(destination);
-      canvas.scene.createEmbeddedDocuments("MeasuredTemplate", [this.data]);
+      canvas!.scene!.createEmbeddedDocuments("MeasuredTemplate", [this.data.toObject()]);
     };
 
     // Rotate the template by 3 degree increments (mouse-wheel)
-    handlers.mw = (event: MouseEvent) => {
+    handlers.mw = (event: WheelEvent) => {
       if (event.ctrlKey) event.preventDefault(); // Avoid zooming the browser window
       event.stopPropagation();
-      let delta = canvas.grid.type > CONST.GRID_TYPES.SQUARE ? 30 : 15;
+      let delta = canvas!.grid!.type > CONST.GRID_TYPES.SQUARE ? 30 : 15;
       let snap = event.shiftKey ? delta : 5;
-      //@ts-ignore 0.8
       this.data.update({ direction: this.data.direction + snap * Math.sign(event.deltaY) });
       this.refresh();
     };
 
     // Activate listeners
-    canvas.stage.on("mousemove", handlers.mm);
-    canvas.stage.on("mousedown", handlers.lc);
-    canvas.app.view.oncontextmenu = handlers.rc;
-    canvas.app.view.onwheel = handlers.mw;
+    canvas!.stage!.on("mousemove", handlers.mm);
+    canvas!.stage!.on("mousedown", handlers.lc);
+    canvas!.app!.view.oncontextmenu = handlers.rc;
+    canvas!.app!.view.onwheel = handlers.mw;
   }
 
   /**
    * Snapping function to only snap to the center of spaces rather than corners.
    */
   snapToCenter({ x, y }: { x: number; y: number }): { x: number; y: number } {
-    const snapped = canvas.grid.getCenter(x, y);
+    const snapped = canvas!.grid!.getCenter(x, y);
     return { x: snapped[0], y: snapped[1] };
   }
 
@@ -148,8 +145,8 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
    * the template for bursts.
    */
   snapToToken({ x, y }: { x: number; y: number }): { x: number; y: number } {
-    const token = canvas.tokens.placeables
-      .filter((t: any) => {
+    const token = canvas!
+      .tokens!.placeables.filter((t: any) => {
         // test if cursor is inside token
         return t.x < x && t.x + t.w > x && t.y < y && t.y + t.h > y;
       })
@@ -160,8 +157,7 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
         if (
           r === null ||
           r === undefined ||
-          canvas.grid.measureDistance({ x, y }, t.center) <
-            canvas.grid.measureDistance({ x, y }, r.center)
+          canvas!.grid!.measureDistance({ x, y }, t.center) < canvas!.grid!.measureDistance({ x, y }, r.center)
         )
           return t;
         else return r;
@@ -179,7 +175,7 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
    * Get fine-tuned sizing data for Burst templates
    */
   getBurstDistance(size: number): number {
-    const hex = canvas.grid.type > 1;
+    const hex = canvas!.grid!.type > 1;
     const scale = hex ? Math.sqrt(3) / 2 : 1;
     let val = this.range.val;
     if (hex) {
