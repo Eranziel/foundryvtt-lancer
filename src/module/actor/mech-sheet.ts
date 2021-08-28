@@ -1,12 +1,7 @@
 import { LANCER } from "../config";
 import { LancerActorSheet } from "./lancer-actor-sheet";
-import {
-  EntryType,
-  MountType,
-  SystemMount,
-  WeaponMount,
-} from "machine-mind";
-import {  resolve_dotpath } from "../helpers/commons";
+import { EntryType, MountType, SystemMount, WeaponMount } from "machine-mind";
+import { resolve_dotpath } from "../helpers/commons";
 import { AnyMMItem, LancerItemType } from "../item/lancer-item";
 import tippy from "tippy.js";
 import { AnyMMActor } from "./lancer-actor";
@@ -64,15 +59,14 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
     });
   }
 
-  
   can_root_drop_entry(item: AnyMMActor | AnyMMItem): boolean {
     // Reject any non npc / non pilot item
-    if(item.Type == EntryType.PILOT) {
+    if (item.Type == EntryType.PILOT) {
       // For setting pilot
       return true;
     }
 
-    if(LANCER.mech_items.includes(item.Type as LancerItemType)) {
+    if (LANCER.mech_items.includes(item.Type as LancerItemType)) {
       // For everything else
       return true;
     }
@@ -160,7 +154,7 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
   async _setOverchargeLevel(event: MouseEvent, level: number) {
     let data = await this.getDataLazy();
     let ent = data.mm;
-    ent.CurrentOvercharge = level;
+    ent.OverchargeCount = level;
     await this._commitCurrMM();
   }
 
@@ -218,27 +212,27 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
       });
     }
 
-    // Add a bracing option 
+    // Add a bracing option
     mount_options.push({
       name: "Superheavy Bracing",
       icon: "",
       callback: async (html: JQuery) => {
-          let cd = await this.getDataLazy();
-          let mount_path = html[0].dataset.path ?? "";
+        let cd = await this.getDataLazy();
+        let mount_path = html[0].dataset.path ?? "";
 
-          // Get the current mount
-          let mount: WeaponMount = resolve_dotpath(cd, mount_path);
-          if (!mount) {
-            console.error("Bad mountpath:", mount_path);
-          }
+        // Get the current mount
+        let mount: WeaponMount = resolve_dotpath(cd, mount_path);
+        if (!mount) {
+          console.error("Bad mountpath:", mount_path);
+        }
 
-          // Set as bracing
-          mount.Bracing = true;
-          mount.reset();
+        // Set as bracing
+        mount.Bracing = true;
+        mount.reset();
 
-          // Write back
-          await this._commitCurrMM();
-      }
+        // Write back
+        await this._commitCurrMM();
+      },
     });
 
     new ContextMenu(html, ".mount-type-ctx-root", mount_options);
@@ -273,6 +267,5 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
     }
 
     await this._commitCurrMM();
-  }  
-
+  }
 }

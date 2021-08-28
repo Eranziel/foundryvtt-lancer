@@ -1213,12 +1213,12 @@ export async function prepareOverchargeMacro(a: string) {
   let mech: Mech = actor.data.data.derived.mm;
 
   let mData: LancerOverchargeMacroData = {
-    level: mech.CurrentOvercharge,
+    level: mech.OverchargeCount,
     roll: roll,
   };
 
   // Assume we can always increment overcharge here...
-  mech.CurrentOvercharge = Math.min(mech.CurrentOvercharge + 1, 3);
+  mech.OverchargeCount = Math.min(mech.OverchargeCount + 1, 3);
 
   // Only increase heat if we haven't disabled it
   if (

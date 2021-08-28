@@ -158,8 +158,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     const CPMacroHandler = (e: DragEvent) => this._onDragCorePassiveStart(e);
     const ActionMacroHandler = (e: DragEvent) => this._onDragActivationChipStart(e);
     const EncodedMacroHandler = (e: DragEvent) => this._onDragEncodedMacroStart(e);
-    // TODO: migrate to mech
-    // const overchargeMacroHandler = (e: DragEvent) => this._onDragOverchargeStart(e);
+
     html
       .find('li[class*="item"]')
       .add('span[class*="item"]')
@@ -178,9 +177,6 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
         if (item.classList.contains("core-active-macro")) item.addEventListener("dragstart", CAMacroHandler, false);
         if (item.classList.contains("core-passive-macro")) item.addEventListener("dragstart", CPMacroHandler, false);
         if (item.classList.contains("activation-chip")) item.addEventListener("dragstart", ActionMacroHandler, false);
-        // TODO: migrate to mech
-        // if (item.classList.contains("overcharge-macro"))
-        //   item.addEventListener("dragstart", overchargeMacroHandler, false);
         if (item.classList.contains("item"))
           item.addEventListener(
             "dragstart",
