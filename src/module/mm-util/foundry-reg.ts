@@ -211,6 +211,11 @@ export class FoundryReg extends Registry {
     }
   }
 
+  // This is a hack, but it's better than casting every call location
+  get_cat<T extends EntryType>(cat: T): FoundryRegCat<T> {
+    return super.get_cat(cat) as unknown as FoundryRegCat<T>;
+  }
+
   // Get a name descriptor of what region/set of items/whatever this registry represents/ provides access to
   // Sibling function to switch_reg. See comment above class def for explanation of naming convention
   name(): FoundryRegName {
