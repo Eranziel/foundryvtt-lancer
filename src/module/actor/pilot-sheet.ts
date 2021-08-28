@@ -147,7 +147,7 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
   }
 
   async getData() {
-    const data = await super.getData();
+    const data = await super.getData(); // Not fully populated yet!
 
     data.active_mech = await data.mm.ActiveMech();
     data.pilotCache = pilotCache();

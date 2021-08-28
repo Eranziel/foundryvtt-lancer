@@ -76,25 +76,6 @@ export interface LancerActorSheetData<T extends LancerActorType> extends ActorSh
   rawID: string;
 }
 
-/*
-{
-  actor: this['document'];
-  document: ConcreteDocument;
-
-  items: ToObjectFalseType<foundry.data.ActorData>['items'];
-  effects: ToObjectFalseType<foundry.data.ActorData>['effects'];
-
-  cssClass: string;
-  editable: boolean;
-  data: ToObjectFalseType<ConcreteDocument>;
-  limited: boolean;
-  options: Options;
-  owner: boolean;
-  title: string;
-  readonly entity: this['data'];
-}
-*/
-
 // -------- Macro data -------------------------------------
 declare interface LancerStatMacroData {
   title: string;

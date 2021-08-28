@@ -1303,7 +1303,7 @@ export async function prepareActivationMacro(a: string, i: string, type: Activat
 
   // Get the item
   const item = actor.items.get(i);
-  if (!item) {
+  if (!item || !actor.is_mech()) {
     return ui.notifications!.error(
       `Error preparing tech attack macro - could not find Item ${i} owned by Actor ${a}! Did you add the Item to the token, instead of the source Actor?`
     );
@@ -1314,7 +1314,6 @@ export async function prepareActivationMacro(a: string, i: string, type: Activat
   }
 
   let itemEnt: MechSystem | NpcFeature = await item.data.data.derived.mm_promise;
-  // @ts-ignore This isn't fine, but I don't know how to fix it.
   let actorEnt: Mech = await actor.data.data.derived.mm_promise;
 
   // TODO--handle NPC Activations
