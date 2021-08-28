@@ -529,22 +529,22 @@ Hooks.once("setup", function () {
       data = {};
       for ( let model of Object.values(game.system.model.Actor)) {
         mergeObject(data, model);
-      }
 
-      // Here's the custom behavior: add our derived data
-      let bar_like = {value: 0, max: 0};
-      let derived_addition = {
-        edef: 8,
-        evasion: 5,
-        save_target: 0,
-        current_heat: bar_like,
-        current_hp: bar_like,
-        overshield: bar_like,
-        current_structure: bar_like,
-        current_stress: bar_like,
-        current_repairs: bar_like
-      };
-      mergeObject(data, derived_addition);
+        // Here's the custom behavior: add our derived data
+        let bar_like = {value: 0, max: 0};
+        let derived = {
+          edef: 8,
+          evasion: 5,
+          save_target: 0,
+          current_heat: bar_like,
+          current_hp: bar_like,
+          overshield: bar_like,
+          current_structure: bar_like,
+          current_stress: bar_like,
+          current_repairs: bar_like
+        };
+        mergeObject(data, { derived });
+      }
     }
     return orig_gta.call(this, data, _path); 
   }
