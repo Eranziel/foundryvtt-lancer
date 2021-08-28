@@ -2,9 +2,10 @@ import { LANCER } from "../config";
 import { LancerActorSheet } from "./lancer-actor-sheet";
 import { EntryType, MountType, SystemMount, WeaponMount } from "machine-mind";
 import { resolve_dotpath } from "../helpers/commons";
-import { AnyMMItem, LancerItemType } from "../item/lancer-item";
+import type { AnyMMItem, LancerItemType } from "../item/lancer-item";
 import tippy from "tippy.js";
-import { AnyMMActor } from "./lancer-actor";
+import type { AnyMMActor } from "./lancer-actor";
+import { prepareOverchargeMacro } from "../macros";
 
 /**
  * Extend the basic ActorSheet
@@ -12,7 +13,6 @@ import { AnyMMActor } from "./lancer-actor";
 export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
   /**
    * Extend and override the default options used by the NPC Sheet
-   * @returns {Object}
    */
   static get defaultOptions() {
     return mergeObject(super.defaultOptions, {
@@ -104,26 +104,27 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
   /**
    * Handles actions in the overcharge panel
    */
-  _activateOverchargeControls(html: any) {
+  _activateOverchargeControls(html: JQuery<HTMLElement>) {
     // Overcharge text
     let overchargeText = html.find(".overcharge-text");
 
-    overchargeText.on("click", (ev: Event) => {
-      this._setOverchargeLevel(<MouseEvent>ev, Math.min(this.actor.data.data.overcharge + 1, 3));
+    overchargeText.on("click", ev => {
+      if (!this.actor.is_mech()) return;
+      this._setOverchargeLevel(ev, Math.min(this.actor.data.data.overcharge + 1, 3));
     });
 
     // Overcharge reset
     let overchargeReset = html.find(".overcharge-reset");
 
-    overchargeReset.on("click", (ev: Event) => {
-      this._setOverchargeLevel(<MouseEvent>ev, 0);
+    overchargeReset.on("click", ev => {
+      this._setOverchargeLevel(ev, 0);
     });
 
     // Overcharge macro
     let overchargeMacro = html.find(".overcharge-macro");
 
-    overchargeMacro.on("click", (ev: Event) => {
-      this._onClickOvercharge(<MouseEvent>ev);
+    overchargeMacro.on("click", ev => {
+      this._onClickOvercharge(ev);
     });
   }
 
@@ -137,7 +138,7 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
     // let target = <HTMLElement>event.currentTarget;
 
     let data = {
-      actorId: this.actor._id,
+      actorId: this.actor.id,
       // Title will simply be CORE PASSIVE since we want to keep the macro dynamic
       title: "OVERCHARGE",
       type: "overcharge",
@@ -151,7 +152,7 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
    * @param event An event, used by a proper overcharge section in the sheet, to get the overcharge field
    * @param level Level to set overcharge to
    */
-  async _setOverchargeLevel(event: MouseEvent, level: number) {
+  async _setOverchargeLevel(_event: JQuery.ClickEvent, level: number) {
     let data = await this.getDataLazy();
     let ent = data.mm;
     ent.OverchargeCount = level;
@@ -162,8 +163,8 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
    * Performs the overcharge macro
    * @param event An event, used by a proper overcharge section in the sheet, to get the overcharge field
    */
-  _onClickOvercharge(event: MouseEvent) {
-    game.lancer.prepareOverchargeMacro(this.actor._id);
+  _onClickOvercharge(_event: JQuery.ClickEvent) {
+    prepareOverchargeMacro(this.actor.id!);
   }
 
   /**

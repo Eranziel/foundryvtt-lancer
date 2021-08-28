@@ -1,10 +1,9 @@
-import { HelperOptions } from "handlebars";
-import { EntryType, funcs, Mech, Npc, Pilot, RegEntry } from "machine-mind";
-import { LancerItemType } from "../item/lancer-item";
+import type { HelperOptions } from "handlebars";
+import { EntryType, funcs, Mech, Npc, Pilot } from "machine-mind";
 import { ext_helper_hash, inc_if, resolve_helper_dotpath, selected, std_num_input, std_x_of_y } from "./commons";
-import { ref_commons, simple_mm_ref } from "./refs";
+import { simple_mm_ref } from "./refs";
 import { encodeMacroData } from "../macros";
-import { ActionType } from "../action";
+import type { ActionType } from "../action";
 import { LANCER } from "../config";
 // ---------------------------------------
 // Some simple stat editing thingies
@@ -160,7 +159,7 @@ export function action_button(
   }
 
   let enabled = false;
-  if (game.user.isGM || game.settings.get(game.system.id, LANCER.setting_action_manager_players)) {
+  if (game.user?.isGM || game.settings.get(game.system.id, LANCER.setting_action_manager_players)) {
     enabled = true;
   }
 

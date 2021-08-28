@@ -2,12 +2,10 @@ import { LANCER, replace_default_resource, TypeIcon } from "../config";
 import {
   EntryType,
   funcs,
-  RegMechData,
   Mech,
   Deployable,
   Npc,
   RegRef,
-  RegDeployableData,
   OpCtx,
   LiveEntryTypes,
   RegEnv,
@@ -22,34 +20,33 @@ import {
   quick_relinker,
   RegEntryTypes,
 } from "machine-mind";
-import { FoundryFlagData, FoundryReg, FoundryRegActorData } from "../mm-util/foundry-reg";
+import { FoundryFlagData, FoundryReg } from "../mm-util/foundry-reg";
 import { LancerHooks, LancerSubscription } from "../helpers/hooks";
 import { mm_wrap_actor } from "../mm-util/helpers";
 import { system_ready } from "../../lancer";
-import { LancerItemType } from "../item/lancer-item";
-import { renderMacroTemplate, prepareTextMacro, encodeMacroData } from "../macros";
-import { RegEntry, MechWeapon, NpcFeature } from "machine-mind";
+import type { LancerItemType } from "../item/lancer-item";
+import { renderMacroTemplate, encodeMacroData } from "../macros";
+import type { RegEntry, MechWeapon, NpcFeature } from "machine-mind";
 import { StabOptions1, StabOptions2 } from "../enums";
-import { ActionData } from "../action";
-import { handleActorExport } from "../helpers/io";
-import { LancerMacroData } from "../interfaces";
 import { fix_modify_token_attribute } from "../token";
+import type { ActionData } from "../action";
 const lp = LANCER.log_prefix;
 
+// TODO: Refactor this as LancerActor._preCreate
 export function lancerActorInit(
   base_actor: any,
-  creation_args: any,
-  sheet_options: any,
-  id_maybe: any,
-  something_or_other: any
+  _creation_args: any,
+  _sheet_options: any,
+  _id_maybe: any,
+  _something_or_other: any
 ) {
   // Some subtype of ActorData
   console.log(`${lp} Initializing new ${base_actor.type}`);
 
   // Produce our default data
   let default_data: any = {};
-  let display_mode: number = CONST.TOKEN_DISPLAY_MODES.ALWAYS;
-  let disposition: number = CONST.TOKEN_DISPOSITIONS.FRIENDLY;
+  let display_mode: ValueOf<typeof CONST["TOKEN_DISPLAY_MODES"]> = CONST.TOKEN_DISPLAY_MODES.ALWAYS;
+  let disposition: ValueOf<typeof CONST["TOKEN_DISPOSITIONS"]> = CONST.TOKEN_DISPOSITIONS.FRIENDLY;
   switch (base_actor.type) {
     case EntryType.NPC:
       default_data = funcs.defaults.NPC();
@@ -97,39 +94,67 @@ interface BoundedValue {
   value: number;
 }
 
+interface DerivedProperties<T extends EntryType> {
+  // These are all derived and populated by MM
+  hp: { max: number; value: number }; // -hps are useful for structure macros
+  heat: BoundedValue;
+  stress: BoundedValue;
+  structure: BoundedValue;
+  repairs: BoundedValue;
+  overshield: BoundedValue; // Though not truly a bounded value, useful to have it as such for bars etc
+
+  // Other values we particularly appreciate having cached
+  evasion: number;
+  edef: number;
+  save_target: number;
+  speed: number;
+  armor: number;
+  // todo - bonuses and stuff. How to allow for accuracy?
+
+  mm: LiveEntryTypes<T> | null;
+  mm_promise: Promise<LiveEntryTypes<T>>;
+}
+
+interface LancerActorDataSource<T extends EntryType> {
+  type: T;
+  data: RegEntryTypes<T>;
+}
+interface LancerActorDataProperties<T extends EntryType> {
+  type: T;
+  data: RegEntryTypes<T> & {
+    derived: DerivedProperties<T>;
+    action_tracker: ActionData;
+  };
+}
+
+type LancerActorSource =
+  | LancerActorDataSource<EntryType.PILOT>
+  | LancerActorDataSource<EntryType.MECH>
+  | LancerActorDataSource<EntryType.NPC>
+  | LancerActorDataSource<EntryType.DEPLOYABLE>;
+
+type LancerActorProperties =
+  | LancerActorDataProperties<EntryType.PILOT>
+  | LancerActorDataProperties<EntryType.MECH>
+  | LancerActorDataProperties<EntryType.NPC>
+  | LancerActorDataProperties<EntryType.DEPLOYABLE>;
+
+declare global {
+  interface SourceConfig {
+    Actor: LancerActorSource;
+  }
+  interface DataConfig {
+    Actor: LancerActorProperties;
+  }
+  interface DocumentClassConfig {
+    Actor: typeof LancerActor;
+  }
+}
+
 /**
  * Extend the Actor class for Lancer Actors.
  */
-export class LancerActor<T extends LancerActorType> extends Actor {
-  data!: FoundryRegActorData<T> & {
-    // TODO: update to match template
-    data: {
-      // Temporary action store.
-      actions?: ActionData;
-
-      // Include additional derived info
-      derived: {
-        // These are all derived and populated by MM
-        hp: { max: number; value: number }; // -hps are useful for structure macros
-        heat: BoundedValue;
-        stress: BoundedValue;
-        structure: BoundedValue;
-        repairs: BoundedValue;
-        overshield: BoundedValue; // Though not truly a bounded value, useful to have it as such for bars etc
-
-        // Other values we particularly appreciate having cached
-        evasion: number;
-        edef: number;
-        save_target: number;
-        speed: number;
-        armor: number;
-        // todo - bonuses and stuff. How to allow for accuracy?
-      };
-    };
-  };
-
-  /* -------------------------------------------- */
-
+export class LancerActor extends Actor {
   // Tracks data propagation
   subscriptions: LancerSubscription[] = [];
 
@@ -146,17 +171,17 @@ export class LancerActor<T extends LancerActorType> extends Actor {
   // TODO: Only let us overheat things that can actually overheat
   async overheat() {
     // Assert that we're on a mech or NPC
-    if (this.data.type === EntryType.MECH) {
+    if (this.is_mech()) {
       this.overheatMech();
-    } else if (this.data.type === EntryType.NPC) {
-      ui.notifications.warn("Currently just doing normal mech overheats");
+    } else if (this.is_npc()) {
+      ui.notifications!.warn("Currently just doing normal mech overheats");
       this.overheatMech();
     } else {
-      ui.notifications.warn("Can only overheat NPCs and Mechs");
+      ui.notifications!.warn("Can only overheat NPCs and Mechs");
       return;
     }
   }
-  async overheatMech() {
+  async overheatMech(): Promise<void> {
     // Table of descriptions
     function stressTableD(roll: number, remStress: number) {
       switch (roll) {
@@ -194,7 +219,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
       "Emergency Shunt",
     ];
 
-    let ent = (await this.data.data.derived.mm) as Mech | Npc;
+    let ent = (await this.data.data.derived.mm_promise) as Mech | Npc;
     if (
       game.settings.get(game.system.id, LANCER.setting_automation) &&
       game.settings.get(game.system.id, LANCER.setting_auto_structure)
@@ -206,7 +231,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
       }
     }
     if (ent.CurrentStress === ent.MaxStress) {
-      ui.notifications.info("The mech is at full Stress, no overheating check to roll.");
+      ui.notifications!.info("The mech is at full Stress, no overheating check to roll.");
       return;
     }
     await ent.writeback();
@@ -216,23 +241,19 @@ export class LancerActor<T extends LancerActorType> extends Actor {
     // If we're already at 0 just kill em
     if (remStress > 0) {
       let damage = ent.MaxStress - ent.CurrentStress;
-      // @ts-ignore .8
       let roll: Roll = await new Roll(`${damage}d6kl1`).evaluate({ async: true });
       let result = roll.total;
+      if (result === undefined) return;
 
       let tt = await roll.getTooltip();
       let title = stressTableT[result];
       let text = stressTableD(result, remStress);
-      let total = roll.total.toString();
+      let total = result.toString();
 
       let secondaryRoll = "";
 
       // Critical
-      // This is fine
-      //@ts-ignore
-      let one_count = roll.terms[0].results.reduce((a, v) => {
-        return v.result === 1 ? a + 1 : a;
-      }, 0);
+      let one_count = (<Die[]>roll.terms)[0].results.filter(v => v.result === 1).length;
       if (one_count > 1) {
         text = stressTableD(result, 1);
         title = stressTableT[0];
@@ -269,7 +290,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
       };
     }
     const template = `systems/${game.system.id}/templates/chat/overheat-card.hbs`;
-    const actor: Actor = game.actors.get(ChatMessage.getSpeaker().actor);
+    const actor = game.actors!.get(ChatMessage.getSpeaker().actor ?? "");
     return renderMacroTemplate(actor, template, templateData);
   }
 
@@ -279,18 +300,18 @@ export class LancerActor<T extends LancerActorType> extends Actor {
    */
   async structure() {
     // Assert that we're on a mech or NPC
-    if (this.data.type === EntryType.MECH) {
+    if (this.is_mech()) {
       this.structureMech();
-    } else if (this.data.type === EntryType.NPC) {
-      ui.notifications.warn("Currently just doing normal mech structures");
+    } else if (this.is_npc()) {
+      ui.notifications!.warn("Currently just doing normal mech structures");
       this.structureMech();
     } else {
-      ui.notifications.warn("Can only structure NPCs and Mechs");
+      ui.notifications!.warn("Can only structure NPCs and Mechs");
       return;
     }
   }
 
-  async structureMech() {
+  async structureMech(): Promise<void> {
     // Table of descriptions
     function structTableD(roll: number, remStruct: number) {
       switch (roll) {
@@ -327,7 +348,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
       "Glancing Blow",
     ];
 
-    let ent = (await this.data.data.derived.mm) as Mech | Npc;
+    let ent = (await this.data.data.derived.mm_promise) as Mech | Npc;
     if (
       game.settings.get(game.system.id, LANCER.setting_automation) &&
       game.settings.get(game.system.id, LANCER.setting_auto_structure)
@@ -338,7 +359,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
       }
     }
     if (ent.CurrentStructure === ent.MaxStructure) {
-      ui.notifications.info("The mech is at full Structure, no structure check to roll.");
+      ui.notifications!.info("The mech is at full Structure, no structure check to roll.");
       return;
     }
 
@@ -349,23 +370,19 @@ export class LancerActor<T extends LancerActorType> extends Actor {
     if (remStruct > 0) {
       let damage = ent.MaxStructure - ent.CurrentStructure;
 
-      // @ts-ignore .8
       let roll: Roll = await new Roll(`${damage}d6kl1`).evaluate({ async: true });
       let result = roll.total;
+      if (result === undefined) return;
 
       let tt = await roll.getTooltip();
       let title = structTableT[result];
       let text = structTableD(result, remStruct);
-      let total = roll.total.toString();
+      let total = result.toString();
 
       let secondaryRoll = "";
 
       // Crushing hits
-      // This is fine
-      //@ts-ignore
-      let one_count = roll.terms[0].results.reduce((a, v) => {
-        return v.result === 1 ? a + 1 : a;
-      }, 0);
+      let one_count = (<Die[]>roll.terms)[0].results.filter(v => v.result === 1).length;
       if (one_count > 1) {
         text = structTableD(result, 1);
         title = structTableT[0];
@@ -436,7 +453,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
       };
     }
     const template = `systems/${game.system.id}/templates/chat/structure-card.hbs`;
-    const actor: Actor = game.actors.get(ChatMessage.getSpeaker().actor);
+    const actor = game.actors!.get(ChatMessage.getSpeaker().actor ?? "");
     return renderMacroTemplate(actor, template, templateData);
   }
 
@@ -468,7 +485,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
       }
     }
 
-    if (!is_dep(this)) await this.restore_all_items();
+    if (!this.is_deployable()) await this.restore_all_items();
     await ent.writeback();
   }
 
@@ -527,7 +544,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
     } else if (is_reg_pilot(ent)) {
       result.push(...ent.OwnedPilotWeapons, ...ent.OwnedPilotArmor, ...ent.OwnedPilotGear);
     } else {
-      ui.notifications.warn("Cannot reload deployables");
+      ui.notifications!.warn("Cannot reload deployables");
     }
     return result;
   }
@@ -587,12 +604,11 @@ export class LancerActor<T extends LancerActorType> extends Actor {
    */
   async stabilize(o1: StabOptions1, o2: StabOptions2): Promise<string> {
     let ent = await this.data.data.derived.mm_promise;
-    let skip = false;
 
     let return_text = "";
 
     if (!(is_reg_mech(ent) || is_reg_npc(ent))) {
-      ui.notifications.warn("This can't be stabilized!");
+      ui.notifications!.warn("This can't be stabilized!");
       return "";
     }
 
@@ -652,17 +668,15 @@ export class LancerActor<T extends LancerActorType> extends Actor {
       //     name: unit_folder_name,
       //     type: "Actor",
       //     sorting: "a",
-      //     // @ts-ignore  ActorData has folder, always, as far as I can tell
       //     parent: this.data.folder || null,
       //   });
       // }
       let unit_folder = this.folder;
       console.log("Unit folder id:", unit_folder?.id);
-      //@ts-ignore 0.8
       let permission = duplicate(this.data._source.permission);
 
       // Check whether players are allowed to create Actors
-      if (!game.user.can("ACTOR_CREATE")) {
+      if (!game.user?.can("ACTOR_CREATE")) {
         new Dialog({
           title: "Cannot Create Actors",
           content: `<p>You are not permitted to create actors, so sync may fail.</p>
@@ -717,7 +731,6 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         },
         // Rename and rehome deployables
         // @TODO: pilot typing weirdness.
-        // @ts-ignore
         sync_deployable_nosave: (dep: Deployable) => {
           let flags = dep.Flags as FoundryFlagData<EntryType.DEPLOYABLE>;
           let owned_name = dep.Name.includes(data.callsign) ? dep.Name : `${data.callsign}'s ${dep.Name}`;
@@ -766,15 +779,14 @@ export class LancerActor<T extends LancerActorType> extends Actor {
       this.render();
       (await (synced_data as any).Mechs()).forEach((m: Mech) => m.Flags.orig_doc.render());
 
-      ui.notifications.info("Successfully loaded pilot new state.");
+      ui.notifications!.info("Successfully loaded pilot new state.");
     } catch (e) {
       console.warn(e);
-      ui.notifications.warn("Failed to update pilot, likely due to missing LCP data: " + e.message);
+      ui.notifications!.warn("Failed to update pilot, likely due to missing LCP data: " + e.message);
     }
   }
 
   async clearBadData() {
-    // @ts-ignore .8
     await this.deleteEmbeddedDocuments("Item", Array.from(this.data.items.keys()));
   }
 
@@ -850,11 +862,11 @@ export class LancerActor<T extends LancerActorType> extends Actor {
 
     // Update our known values now, synchronously.
     dr.hp.value = this.data.data.hp;
-    if (this.data.type != EntryType.PILOT) {
-      let md = this.data.data as RegEntryTypes<EntryType.MECH | EntryType.NPC | EntryType.DEPLOYABLE>;
+    if (this.is_mech() || this.is_npc() || this.is_deployable()) {
+      let md = this.data.data;
       dr.heat.value = md.heat;
-      if (this.data.type != EntryType.DEPLOYABLE) {
-        let md = this.data.data as RegEntryTypes<EntryType.MECH | EntryType.NPC>;
+      if (!this.is_deployable()) {
+        let md = this.data.data;
         dr.stress.value = md.stress;
         dr.structure.value = md.structure;
       }
@@ -996,7 +1008,6 @@ export class LancerActor<T extends LancerActorType> extends Actor {
    * to allow negative hps, which are useful for structure checks
    */
   async modifyTokenAttribute(attribute: any, value: any, isDelta = false, isBar = true) {
-    // @ts-ignore
     const current = foundry.utils.getProperty(this.data.data, attribute);
 
     let updates;
@@ -1017,33 +1028,32 @@ export class LancerActor<T extends LancerActorType> extends Actor {
   /** @override
    * Want to destroy derived data before passing it to an update
    */
-  async update(data: any, options: any = undefined) {
+  async update(data: Parameters<Actor["update"]>[0], context: Parameters<Actor["update"]>[1] = undefined) {
     // Never submit derived data. Typically won't show up here regardless
-    if (data?.derived) {
-      delete data.data.derived;
+    // @ts-expect-error Sohouldn't appear on this data
+    if (data?.data?.derived) {
+      // @ts-expect-error Shouldn't appear on this data
+      delete data.data?.derived;
     }
 
-    return super.update(data, options);
+    return super.update(data, context);
   }
 
   /** @override
    * On the result of an update, we want to cascade derived data.
    */
-  _onUpdate(...args: any) {
-    //@ts-ignore Incorrect typings
+  _onUpdate(...args: Parameters<Actor["_onUpdate"]>) {
     super._onUpdate(...args);
     LancerHooks.call(this);
   }
 
   // Ditto - items alter stats quite often
-  _onModifyEmbeddedEntity(...args: any) {
-    //@ts-ignore Incorrect typings
-    super._onModifyEmbeddedEntity(...args);
+  _onUpdateEmbeddedDocuments(...args: Parameters<Actor["_onUpdateEmbeddedDocuments"]>) {
+    super._onUpdateEmbeddedDocuments(...args);
     LancerHooks.call(this);
   }
 
-  _onDelete(...args: any) {
-    //@ts-ignore Incorrect typings
+  _onDelete(...args: Parameters<Actor["_onDelete"]>) {
     super._onDelete(...args);
 
     this.subscriptions?.forEach(subscription => {
@@ -1066,14 +1076,14 @@ export class LancerActor<T extends LancerActorType> extends Actor {
 
     let dependency: RegRef<LancerActorType> | null = null;
     // If we are a mech, we need to subscribe to our pilot (if it exists)
-    if (this.data.type == EntryType.MECH) {
-      let mech_data = (this.data.data as unknown) as RegMechData;
+    if (this.is_mech()) {
+      let mech_data = this.data.data;
       if (mech_data.pilot) {
         dependency = mech_data.pilot;
       }
-    } else if (this.data.type == EntryType.DEPLOYABLE) {
+    } else if (this.is_deployable()) {
       // If deployable, same deal
-      let dep_data = (this.data.data as unknown) as RegDeployableData;
+      let dep_data = this.data.data;
       if (dep_data.deployer) {
         dependency = dep_data.deployer;
       }
@@ -1081,7 +1091,7 @@ export class LancerActor<T extends LancerActorType> extends Actor {
 
     // Make a subscription for each
     if (dependency) {
-      let sub = LancerHooks.on(dependency, async (_: any) => {
+      let sub = LancerHooks.on(dependency, async (_) => {
         console.debug("Triggering subscription-based update on " + this.name);
         // We typically don't need to actually .update() ourselves when a dependency updates
         // Each client will individually prepareDerivedData in response to the update, and so there is no need for DB communication
@@ -1110,9 +1120,9 @@ export class LancerActor<T extends LancerActorType> extends Actor {
    */
   getOverchargeRoll(): string | null {
     // Function is only applicable to pilots.
-    if (this.data.type !== EntryType.MECH) return null;
+    if (!this.is_mech()) return null;
 
-    const data = this.data as LancerMechData;
+    const data = this.data;
 
     switch (data.data.overcharge) {
       case 1:
@@ -1125,19 +1135,22 @@ export class LancerActor<T extends LancerActorType> extends Actor {
         return "1";
     }
   }
+
+  // Typeguards
+  is_pilot(): this is LancerActor & { data: LancerActorDataProperties<EntryType.PILOT> } {
+    return this.data.type === EntryType.PILOT;
+  }
+  is_mech(): this is LancerActor & { data: LancerActorDataProperties<EntryType.MECH> } {
+    return this.data.type === EntryType.MECH;
+  }
+  is_npc(): this is LancerActor & { data: LancerActorDataProperties<EntryType.NPC> } {
+    return this.data.type === EntryType.NPC;
+  }
+  is_deployable(): this is LancerActor & { data: LancerActorDataProperties<EntryType.DEPLOYABLE> } {
+    return this.data.type === EntryType.DEPLOYABLE;
+  }
 }
 
-// Discrete types for all of our possible generic values
-export type LancerMech = LancerActor<EntryType.MECH>;
-export type LancerMechData = FoundryRegActorData<EntryType.MECH>;
-export type LancerNpc = LancerActor<EntryType.NPC>;
-export type LancerNpcData = FoundryRegActorData<EntryType.NPC>;
-export type LancerPilot = LancerActor<EntryType.PILOT>;
-export type LancerPilotData = FoundryRegActorData<EntryType.PILOT>;
-export type LancerDeployable = LancerActor<EntryType.DEPLOYABLE>;
-export type LancerDeployableData = FoundryRegActorData<EntryType.DEPLOYABLE>;
-
-export type AnyLancerActor = LancerActor<LancerActorType>;
 export type AnyMMActor = LiveEntryTypes<LancerActorType>;
 export type LancerActorType = EntryType.MECH | EntryType.DEPLOYABLE | EntryType.NPC | EntryType.PILOT;
 export const LancerActorTypes: LancerActorType[] = [
@@ -1149,22 +1162,6 @@ export const LancerActorTypes: LancerActorType[] = [
 
 export function is_actor_type(type: LancerActorType | LancerItemType): type is LancerActorType {
   return LancerActorTypes.includes(type as LancerActorType);
-}
-
-export function is_pilot(actor: LancerActor<any>): actor is LancerActor<EntryType.PILOT> {
-  return actor.data.type === EntryType.PILOT;
-}
-
-export function is_mech(actor: LancerActor<any>): actor is LancerActor<EntryType.MECH> {
-  return actor.data.type === EntryType.MECH;
-}
-
-export function is_npc(actor: LancerActor<any>): actor is LancerActor<EntryType.NPC> {
-  return actor.data.type === EntryType.NPC;
-}
-
-export function is_dep(actor: LancerActor<any>): actor is LancerActor<EntryType.DEPLOYABLE> {
-  return actor.data.type === EntryType.DEPLOYABLE;
 }
 
 export function is_reg_pilot(actor: RegEntry<any>): actor is Pilot {

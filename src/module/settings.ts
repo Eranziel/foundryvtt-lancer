@@ -10,7 +10,7 @@ export const registerSettings = function () {
     scope: "world",
     config: false,
     type: String,
-    default: 0,
+    default: "0",
   });
 
   game.settings.register(game.system.id, LANCER.setting_core_data, {
@@ -27,16 +27,17 @@ export const registerSettings = function () {
     name: "Installed LCPs",
     scope: "world",
     config: false,
+    // @ts-ignore There's probably a fix for this
     type: Object,
   });
 
   game.settings.registerMenu(game.system.id, LANCER.setting_compcon_login, {
     name: "Comp/Con Login",
     label: "Log in to Comp/Con",
-    scope: "user",
     hint: "Log in to Comp/Con to automatically load any pilots and mechs you have access to",
     icon: "fas fa-bars",
     type: CompconLoginForm,
+    restricted: false,
   });
 
   game.settings.register(game.system.id, LANCER.setting_stock_icons, {

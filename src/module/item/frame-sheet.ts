@@ -1,5 +1,4 @@
-import { EntryType, FrameTrait, MountType } from "machine-mind";
-import { funcs } from "machine-mind";
+import type { EntryType } from "machine-mind";
 import { LancerItemSheet } from "./item-sheet";
 
 /**
@@ -10,9 +9,8 @@ export class LancerFrameSheet extends LancerItemSheet<EntryType.FRAME> {
   /**
    * @override
    * Extend and override the default options used by the generic Lancer item sheet
-   * @returns {Object}
    */
-  static get defaultOptions() {
+  static get defaultOptions(): ItemSheet.Options {
     return mergeObject(super.defaultOptions, {
       width: 700,
       height: 750,

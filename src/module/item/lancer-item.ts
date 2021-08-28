@@ -1,30 +1,30 @@
 import { LANCER, TypeIcon } from "../config";
-import { EntryType, funcs, License, LiveEntryTypes, OpCtx } from "machine-mind";
-import { FoundryRegItemData } from "../mm-util/foundry-reg";
-import { LancerActor, LancerActorType } from "../actor/lancer-actor";
+import { EntryType, funcs, LiveEntryTypes, OpCtx, RegEntryTypes } from "machine-mind";
 import { system_ready } from "../../lancer";
 import { mm_wrap_item } from "../mm-util/helpers";
 
 const lp = LANCER.log_prefix;
 
-export function lancerItemInit(base_item: any, provided_data: any) {
+export function lancerItemInit(base_item: LancerItem, provided_data: ConstructorParameters<typeof Item>[0]) {
   // If base item has data, then we are probably importing. Skip this step
-  if(provided_data?.data) {
+  if (provided_data?.data) {
     return;
   }
 
   console.log(`${lp} Initializing new ${base_item.type}`);
 
   // Select default image
-  let icon_lookup = base_item.type;
-  if(base_item.type == EntryType.NPC_FEATURE) {
+  let icon_lookup: string = base_item.type;
+  if (base_item.is_npc_feature()) {
     icon_lookup += base_item.type ?? "";
   }
   let img = TypeIcon(icon_lookup);
 
-  let default_data: any;
+  let default_data: any; // This could use a proper type
   switch (base_item.type as EntryType) {
     default:
+    case EntryType.CORE_BONUS:
+      default_data = funcs.defaults.CORE_BONUS();
     case EntryType.ENVIRONMENT:
       default_data = funcs.defaults.ENVIRONMENT();
       break;
@@ -99,34 +99,107 @@ export function lancerItemInit(base_item: any, provided_data: any) {
   return base_item.data.update({
     data: default_data,
     img: img,
-    name: default_data.name, 
+    name: default_data.name,
   });
 }
 
-export class LancerItem<T extends LancerItemType> extends Item {
-  data!: FoundryRegItemData<T> & {
-    data: {
-      // Include additional derived info
-      derived: {
-        // license: RegRef<EntryType.LICENSE> | null; // The license granting this item, if one could be found
-        max_uses: number; // The max uses, augmented to also include any actor bonuses
-      };
-    };
+interface DerivedProperties<T extends LancerItemType> {
+  // license: RegRef<EntryType.LICENSE> | null; // The license granting this item, if one could be found
+  max_uses: number; // The max uses, augmented to also include any actor bonuses
+  mm: LiveEntryTypes<T> | null;
+  mm_promise: Promise<LiveEntryTypes<T>>; // The above, in promise form. More robust
+}
+
+interface LancerItemDataSource<T extends LancerItemType> {
+  type: T;
+  data: RegEntryTypes<T>;
+}
+interface LancerItemDataProperties<T extends LancerItemType> {
+  type: T;
+  data: RegEntryTypes<T> & {
+    derived: DerivedProperties<T>;
   };
+}
 
-  // We can narrow the type significantly (make this T???)
-  get type(): T {
-    return super.type as T;
+/**
+ * Union type for Item.data._source. Only really used in prepareData
+ */
+type LancerItemSource =
+  | LancerItemDataSource<EntryType.CORE_BONUS>
+  | LancerItemDataSource<EntryType.ENVIRONMENT>
+  | LancerItemDataSource<EntryType.FACTION>
+  | LancerItemDataSource<EntryType.FRAME>
+  | LancerItemDataSource<EntryType.LICENSE>
+  | LancerItemDataSource<EntryType.MANUFACTURER>
+  | LancerItemDataSource<EntryType.MECH_SYSTEM>
+  | LancerItemDataSource<EntryType.MECH_WEAPON>
+  | LancerItemDataSource<EntryType.NPC_CLASS>
+  | LancerItemDataSource<EntryType.NPC_FEATURE>
+  | LancerItemDataSource<EntryType.NPC_TEMPLATE>
+  | LancerItemDataSource<EntryType.ORGANIZATION>
+  | LancerItemDataSource<EntryType.PILOT_ARMOR>
+  | LancerItemDataSource<EntryType.PILOT_GEAR>
+  | LancerItemDataSource<EntryType.PILOT_WEAPON>
+  | LancerItemDataSource<EntryType.QUIRK>
+  | LancerItemDataSource<EntryType.RESERVE>
+  | LancerItemDataSource<EntryType.SITREP>
+  | LancerItemDataSource<EntryType.SKILL>
+  | LancerItemDataSource<EntryType.STATUS>
+  | LancerItemDataSource<EntryType.TAG>
+  | LancerItemDataSource<EntryType.TALENT>
+  | LancerItemDataSource<EntryType.WEAPON_MOD>;
+
+/**
+ * Union type for Item.data
+ * Can be discriminated by testing Item.data.type
+ */
+type LancerItemProperties =
+  | LancerItemDataProperties<EntryType.CORE_BONUS>
+  | LancerItemDataProperties<EntryType.ENVIRONMENT>
+  | LancerItemDataProperties<EntryType.FACTION>
+  | LancerItemDataProperties<EntryType.FRAME>
+  | LancerItemDataProperties<EntryType.LICENSE>
+  | LancerItemDataProperties<EntryType.MANUFACTURER>
+  | LancerItemDataProperties<EntryType.MECH_SYSTEM>
+  | LancerItemDataProperties<EntryType.MECH_WEAPON>
+  | LancerItemDataProperties<EntryType.NPC_CLASS>
+  | LancerItemDataProperties<EntryType.NPC_FEATURE>
+  | LancerItemDataProperties<EntryType.NPC_TEMPLATE>
+  | LancerItemDataProperties<EntryType.ORGANIZATION>
+  | LancerItemDataProperties<EntryType.PILOT_ARMOR>
+  | LancerItemDataProperties<EntryType.PILOT_GEAR>
+  | LancerItemDataProperties<EntryType.PILOT_WEAPON>
+  | LancerItemDataProperties<EntryType.QUIRK>
+  | LancerItemDataProperties<EntryType.RESERVE>
+  | LancerItemDataProperties<EntryType.SITREP>
+  | LancerItemDataProperties<EntryType.SKILL>
+  | LancerItemDataProperties<EntryType.STATUS>
+  | LancerItemDataProperties<EntryType.TAG>
+  | LancerItemDataProperties<EntryType.TALENT>
+  | LancerItemDataProperties<EntryType.WEAPON_MOD>;
+
+declare global {
+  interface SourceConfig {
+    Item: LancerItemSource;
   }
+  interface DataConfig {
+    Item: LancerItemProperties;
+  }
+  interface DocumentClassConfig {
+    Item: typeof LancerItem;
+  }
+}
 
-  /** Force name down to item,
+export class LancerItem extends Item {
+  /**
+   * Force name down to item,
    * And more importantly, perform MM workflow
    */
   prepareData() {
     super.prepareData();
 
     // If no id, leave
-    if(!this.id) return;
+    if (!this.id) return;
 
     // Push down name
     this.data.data.name = this.data.name;
@@ -150,10 +223,11 @@ export class LancerItem<T extends LancerItemType> extends Item {
     }
 
     // Do we already have a ctx from our actor?
-    let actor_ctx: OpCtx | undefined = (this.actor as LancerActor<any> | undefined)?._actor_ctx;
+    let actor_ctx = this.actor?._actor_ctx;
 
     // Spool up our Machine Mind wrapping process
-    dr.mm_promise = system_ready
+    // Promise<A | B> is apparently unassignable to Promise<A> | Promise<B>
+    (<Promise<LiveEntryTypes<LancerItemType>>>dr.mm_promise) = system_ready
       .then(() => mm_wrap_item(this, actor_ctx ?? new OpCtx()))
       .then(async mm => {
         // Save the entity to derived
@@ -162,8 +236,8 @@ export class LancerItem<T extends LancerItemType> extends Item {
             enumerable: false,
             configurable: true,
             writable: false,
-            value: mm
-          }
+            value: mm,
+          },
         });
 
         // Also, compute max uses if needed
@@ -173,7 +247,7 @@ export class LancerItem<T extends LancerItemType> extends Item {
 
           // If we have an actor, then try to get limited bonuses
           if (this.actor) {
-            let actor_mm: LiveEntryTypes<LancerActorType> = await this.actor.data.data.derived.mm_promise;
+            let actor_mm = await this.actor.data.data.derived.mm_promise;
             if (actor_mm.Type == EntryType.MECH || actor_mm.Type == EntryType.PILOT) {
               // Add pilot/mech lim bonus
               dr.max_uses += actor_mm.LimitedBonus;
@@ -194,52 +268,79 @@ export class LancerItem<T extends LancerItemType> extends Item {
     }
     return super.update(data, options);
   }
+  // Typeguards
+  is_core_bonus(): this is LancerItem & { data: LancerItemDataProperties<EntryType.CORE_BONUS> } {
+    return this.data.type === EntryType.CORE_BONUS;
+  }
+  is_environment(): this is LancerItem & { data: LancerItemDataProperties<EntryType.ENVIRONMENT> } {
+    return this.data.type === EntryType.ENVIRONMENT;
+  }
+  is_faction(): this is LancerItem & { data: LancerItemDataProperties<EntryType.FACTION> } {
+    return this.data.type === EntryType.FACTION;
+  }
+  is_frame(): this is LancerItem & { data: LancerItemDataProperties<EntryType.FRAME> } {
+    return this.data.type === EntryType.FRAME;
+  }
+  is_license(): this is LancerItem & { data: LancerItemDataProperties<EntryType.LICENSE> } {
+    return this.data.type === EntryType.LICENSE;
+  }
+  is_manufacturer(): this is LancerItem & { data: LancerItemDataProperties<EntryType.MANUFACTURER> } {
+    return this.data.type === EntryType.MANUFACTURER;
+  }
+  is_mech_system(): this is LancerItem & { data: LancerItemDataProperties<EntryType.MECH_SYSTEM> } {
+    return this.data.type === EntryType.MECH_SYSTEM;
+  }
+  is_mech_weapon(): this is LancerItem & { data: LancerItemDataProperties<EntryType.MECH_WEAPON> } {
+    return this.data.type === EntryType.MECH_WEAPON;
+  }
+  is_npc_class(): this is LancerItem & { data: LancerItemDataProperties<EntryType.NPC_CLASS> } {
+    return this.data.type === EntryType.NPC_CLASS;
+  }
+  is_npc_feature(): this is LancerItem & { data: LancerItemDataProperties<EntryType.NPC_FEATURE> } {
+    return this.data.type === EntryType.NPC_FEATURE;
+  }
+  is_npc_template(): this is LancerItem & { data: LancerItemDataProperties<EntryType.NPC_TEMPLATE> } {
+    return this.data.type === EntryType.NPC_TEMPLATE;
+  }
+  is_organization(): this is LancerItem & { data: LancerItemDataProperties<EntryType.ORGANIZATION> } {
+    return this.data.type === EntryType.ORGANIZATION;
+  }
+  is_pilot_armor(): this is LancerItem & { data: LancerItemDataProperties<EntryType.PILOT_ARMOR> } {
+    return this.data.type === EntryType.PILOT_ARMOR;
+  }
+  is_pilot_gear(): this is LancerItem & { data: LancerItemDataProperties<EntryType.PILOT_GEAR> } {
+    return this.data.type === EntryType.PILOT_GEAR;
+  }
+  is_pilot_weapon(): this is LancerItem & { data: LancerItemDataProperties<EntryType.PILOT_WEAPON> } {
+    return this.data.type === EntryType.PILOT_WEAPON;
+  }
+  is_quirk(): this is LancerItem & { data: LancerItemDataProperties<EntryType.QUIRK> } {
+    return this.data.type === EntryType.QUIRK;
+  }
+  is_reserve(): this is LancerItem & { data: LancerItemDataProperties<EntryType.RESERVE> } {
+    return this.data.type === EntryType.RESERVE;
+  }
+  is_sitrep(): this is LancerItem & { data: LancerItemDataProperties<EntryType.SITREP> } {
+    return this.data.type === EntryType.SITREP;
+  }
+  is_skill(): this is LancerItem & { data: LancerItemDataProperties<EntryType.SKILL> } {
+    return this.data.type === EntryType.SKILL;
+  }
+  is_status(): this is LancerItem & { data: LancerItemDataProperties<EntryType.STATUS> } {
+    return this.data.type === EntryType.STATUS;
+  }
+  is_tag(): this is LancerItem & { data: LancerItemDataProperties<EntryType.TAG> } {
+    return this.data.type === EntryType.TAG;
+  }
+  is_talent(): this is LancerItem & { data: LancerItemDataProperties<EntryType.TALENT> } {
+    return this.data.type === EntryType.TALENT;
+  }
+  is_weapon_mod(): this is LancerItem & { data: LancerItemDataProperties<EntryType.WEAPON_MOD> } {
+    return this.data.type === EntryType.WEAPON_MOD;
+  }
 }
 
-// Provide some convenient shorthands
-export type LancerCoreBonusData = FoundryRegItemData<EntryType.CORE_BONUS>;
-export type LancerCoreBonus = LancerItem<EntryType.CORE_BONUS>;
-
-export type LancerFrameData = FoundryRegItemData<EntryType.FRAME>;
-export type LancerFrame = LancerItem<EntryType.FRAME>;
-
-export type LancerLicenseData = FoundryRegItemData<EntryType.LICENSE>;
-export type LancerLicense = LancerItem<EntryType.LICENSE>;
-
-export type LancerPilotArmorData = FoundryRegItemData<EntryType.PILOT_ARMOR>;
-export type LancerPilotArmor = LancerItem<EntryType.PILOT_ARMOR>;
-
-export type LancerPilotWeaponData = FoundryRegItemData<EntryType.PILOT_WEAPON>;
-export type LancerPilotWeapon = LancerItem<EntryType.PILOT_WEAPON>;
-
-export type LancerPilotGearData = FoundryRegItemData<EntryType.PILOT_GEAR>;
-export type LancerPilotGear = LancerItem<EntryType.PILOT_GEAR>;
-
-export type LancerMechSystemData = FoundryRegItemData<EntryType.MECH_SYSTEM>;
-export type LancerMechSystem = LancerItem<EntryType.MECH_SYSTEM>;
-
-export type LancerMechWeaponData = FoundryRegItemData<EntryType.MECH_WEAPON>;
-export type LancerMechWeapon = LancerItem<EntryType.MECH_WEAPON>;
-
-export type LancerNpcFeatureData = FoundryRegItemData<EntryType.NPC_FEATURE>;
-export type LancerNpcFeature = LancerItem<EntryType.NPC_FEATURE>;
-
-export type LancerNpcTemplateData = FoundryRegItemData<EntryType.NPC_TEMPLATE>;
-export type LancerNpcTemplate = LancerItem<EntryType.NPC_TEMPLATE>;
-
-export type LancerNpcClassData = FoundryRegItemData<EntryType.NPC_CLASS>;
-export type LancerNpcClass = LancerItem<EntryType.NPC_CLASS>;
-
-export type LancerSkillData = FoundryRegItemData<EntryType.SKILL>;
-export type LancerSkill = LancerItem<EntryType.SKILL>;
-
-export type LancerTalentData = FoundryRegItemData<EntryType.TALENT>;
-export type LancerTalent = LancerItem<EntryType.TALENT>;
-
-export type LancerWeaponModData = FoundryRegItemData<EntryType.WEAPON_MOD>;
-export type LancerWeaponMod = LancerItem<EntryType.WEAPON_MOD>;
-
-export type AnyLancerItem = LancerItem<LancerItemType>;
+// This seems like it could be removed eventually
 export type AnyMMItem = LiveEntryTypes<LancerItemType>;
 
 export type LancerItemType =
@@ -291,11 +392,10 @@ export const LancerItemTypes = [
   EntryType.ENVIRONMENT,
   EntryType.TAG,
 ];
-export function is_item_type(type: LancerActorType | LancerItemType): type is LancerItemType {
-  return LancerItemTypes.includes(type as LancerActorType);
+export function is_item_type(type: EntryType): type is LancerItemType {
+  return LancerItemTypes.includes(type);
 }
 
 // export function has_lid<T extends AnyMMItem | AnyMMActor>(item: AnyMMItem | AnyMMActor): item is T & {ID: string} {
-  // return (item as any).LID != undefined;
+// return (item as any).LID != undefined;
 // }
-

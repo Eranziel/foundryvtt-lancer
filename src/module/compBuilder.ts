@@ -5,24 +5,6 @@ import { FoundryReg } from "./mm-util/foundry-reg";
 // import { invalidate_cached_pack_map } from "./mm-util/db_abstractions";
 import { LCPIndex } from "./apps/lcpManager";
 import { get_pack } from "./mm-util/helpers";
-import { AnyLancerItem } from "./item/lancer-item";
-import { AnyLancerActor } from "./actor/lancer-actor";
-
-// Some useful subgroupings
-type MechItemEntryType = EntryType.FRAME | EntryType.MECH_WEAPON | EntryType.MECH_SYSTEM | EntryType.WEAPON_MOD;
-type PilotItemEntryType =
-  | EntryType.CORE_BONUS
-  | EntryType.TALENT
-  | EntryType.SKILL
-  | EntryType.QUIRK
-  | EntryType.RESERVE
-  | EntryType.FACTION
-  | EntryType.ORGANIZATION
-  | EntryType.PILOT_ARMOR
-  | EntryType.PILOT_WEAPON
-  | EntryType.PILOT_GEAR /* | EntryType.LICENSE */;
-
-type ItemEntryType = MechItemEntryType | PilotItemEntryType;
 
 export const PACK_SCOPE = "world";
 
@@ -30,14 +12,11 @@ export const PACK_SCOPE = "world";
 export async function clear_all(): Promise<void> {
   await set_all_lock(false);
   for (let p of Object.values(EntryType)) {
-    let pack: Compendium | undefined;
-    pack = game.packs.get(`${PACK_SCOPE}.${p}`);
+    let pack = game.packs.get(`${PACK_SCOPE}.${p}`);
     if (!pack) continue;
 
-    //@ts-ignore .8
     let docs = await pack.getDocuments();
-    let keys = docs.map((d: any) => d.id);
-    // @ts-ignore .8
+    let keys = docs.map(d => d.id!);
     await pack.documentClass.deleteDocuments(keys, { pack: pack.collection });
   }
   await set_all_lock(true);
@@ -52,7 +31,7 @@ export async function import_cp(
   try {
     // Stub in a progress callback so we don't have to null check it all the time
     if (!progress_callback) {
-      progress_callback = (a, b) => {};
+      progress_callback = (_a, _b) => {};
     }
 
     // Make a static reg, and load in the reg for pre-processing
@@ -72,10 +51,9 @@ export async function import_cp(
     for (let et of Object.values(EntryType)) {
       let pack = await get_pack(et);
       // Get them all
-      // @ts-ignore 0.8
       let docs = await pack.getDocuments();
       // Get their ids
-      let doc_lids = docs.map((d: AnyLancerItem | AnyLancerActor) => d.data.data.lid);
+      let doc_lids = docs.map(d => <string>d.data.data.lid);
       existing_lids.push(...doc_lids);
     }
 
@@ -92,7 +70,7 @@ export async function import_cp(
     };
     Hooks.on("createActor", progress_hook);
     Hooks.on("createItem", progress_hook);
-    await funcs.intake_pack(cp, comp_reg, (type, reg_val) => {
+    await funcs.intake_pack(cp, comp_reg, (_type, reg_val) => {
       return !existing_lids.includes(reg_val.lid);
     });
     Hooks.off("createActor", progress_hook);
@@ -100,7 +78,6 @@ export async function import_cp(
 
     // Finish by forcing all packs to re-prepare
     for (let p of Object.values(EntryType)) {
-      // @ts-ignore .8
       (await get_pack(p)).clear();
     }
     progress_callback(transmit_count, total_items);
@@ -117,16 +94,15 @@ export async function set_all_lock(lock = false) {
   for (let p of Object.values(EntryType)) {
     const key = `${PACK_SCOPE}.${p}`;
     let pack = game.packs.get(key);
-    // @ts-ignore .8
     await pack?.configure({ private: false, locked: lock });
   }
 }
 
 export async function clearCompendiumData() {
-  ui.notifications.info(`Clearing all LANCER Compendium data. Please wait.`);
+  ui.notifications!.info(`Clearing all LANCER Compendium data. Please wait.`);
   console.log(`${lp} Clearing all LANCER Compendium data.`);
   await game.settings.set(game.system.id, LANCER.setting_core_data, "0.0.0");
   await game.settings.set(game.system.id, LANCER.setting_lcps, new LCPIndex(null));
   await clear_all();
-  ui.notifications.info(`LANCER Compendiums cleared.`);
+  ui.notifications!.info(`LANCER Compendiums cleared.`);
 }

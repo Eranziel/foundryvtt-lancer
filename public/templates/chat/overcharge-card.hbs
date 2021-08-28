@@ -1,0 +1,19 @@
+<div class="card clipped-bot" style="margin: 0px;">
+    <div class="lancer-stat-header clipped-top">// {{upper-case actorName}} is OVERCHARGING //</div>
+    <div class="dice-roll lancer-dice-roll">
+      <div class="dice-result">
+        <div class="dice-formula lancer-dice-formula flexrow">
+          <span style="text-align: left; margin-left: 5px;">{{ roll.formula }}</span>
+          <div class="overchage-heat-wrapper flexrow" style="justify-content: flex-end;">
+            {{#for level}}
+            <i class="cci cci-heat overcharge-heat"></i>
+            {{/for}}
+          </div>
+          <span class="dice-total lancer-dice-total major">{{ roll.total }}</span>
+        </div>
+        <div style="text-align: left;">
+          {{{ roll_tooltip }}}
+        </div>
+      </div>
+    </div>
+</div>

@@ -1,10 +1,9 @@
-import { HelperOptions } from "handlebars";
+import type { HelperOptions } from "handlebars";
 import {
   EntryType,
   OpCtx,
   RegEntry,
   RegRef,
-  Manufacturer,
   LiveEntryTypes,
   License,
   Skill,
@@ -15,29 +14,18 @@ import {
   Deployable,
   CoreBonus,
   MechWeapon,
-  TagInstance,
   PilotWeapon,
   PilotGear,
   NpcFeature,
 } from "machine-mind";
-import { is_limited, limited_max } from "machine-mind/dist/classes/mech/EquipUtil";
-import { System } from "pixi.js";
-import { AnyMMActor, is_actor_type, LancerActor } from "../actor/lancer-actor";
-import { GENERIC_ITEM_ICON, LANCER, TypeIcon } from "../config";
-import { LancerMacroData } from "../interfaces";
-import { AnyMMItem, is_item_type, LancerItem, LancerItemType } from "../item/lancer-item";
+import { is_limited } from "machine-mind/dist/classes/mech/EquipUtil";
+import { AnyMMActor, is_actor_type } from "../actor/lancer-actor";
+import { TypeIcon } from "../config";
+import type { LancerMacroData } from "../interfaces";
+import { AnyMMItem, is_item_type, LancerItemType } from "../item/lancer-item";
 import { encodeMacroData } from "../macros";
 import { FoundryFlagData, FoundryReg } from "../mm-util/foundry-reg";
-import {
-  effect_box,
-  gentle_merge,
-  read_form,
-  resolve_dotpath,
-  resolve_helper_dotpath,
-  sp_display,
-  std_num_input,
-  std_x_of_y,
-} from "./commons";
+import { effect_box, gentle_merge, read_form, resolve_dotpath, resolve_helper_dotpath, sp_display } from "./commons";
 import {
   convert_ref_to_native_drop,
   AllowMMDropPredicateFunc,
@@ -48,7 +36,6 @@ import {
 } from "./dragdrop";
 import { buildActionHTML, buildDeployableHTML } from "./item";
 import { compact_tag_list } from "./tags";
-import { WeaponSize } from "machine-mind";
 
 // We use these for virtually every ref function
 export function ref_commons<T extends EntryType>(
@@ -74,14 +61,14 @@ export function ref_commons<T extends EntryType>(
   // best to know what we are working with
   if (is_actor_type(item.Type)) {
     // 'tis an actor, sire
-    let actor = flags.orig_doc as LancerActor<any>;
-    img = actor.img;
-    name = actor.name;
+    let actor = flags.orig_doc;
+    img = actor.img!;
+    name = actor.name!;
   } else if (is_item_type(item.Type)) {
     // 'tis an item, m'lord
-    let item = flags.orig_doc as LancerItem<any>;
-    img = item.img;
-    name = item.name;
+    let item = flags.orig_doc;
+    img = item.img!;
+    name = item.name!;
   } else {
     console.warn("Error making item/actor ref", item);
     return null;
@@ -168,15 +155,13 @@ export async function HANDLER_openRefOnClick<T extends EntryType>(event: any) {
   let sheet = (found_entity.Flags as FoundryFlagData<T>).orig_doc.sheet;
 
   // If the sheet is already rendered:
-  if (sheet.rendered) {
-    //@ts-ignore foundry-pc-types has a spelling error here
+  if (sheet?.rendered) {
     sheet.maximize(); // typings say "maximise", are incorrect
-    //@ts-ignore and it is entirely missing this function
     sheet.bringToTop();
   }
 
   // Otherwise render the sheet
-  else sheet.render(true);
+  else sheet?.render(true);
 }
 
 // Given a ref element (as created by simple_mm_ref or similar function), reconstruct a RegRef to the item it is referencing
@@ -240,7 +225,7 @@ export function mm_ref_portrait<T extends EntryType>(
   img: string,
   img_path: string,
   item: RegEntry<T>,
-  helper: HelperOptions
+  _helper: HelperOptions
 ) {
   // Fetch the image
   return `<img class="profile-img ref valid ${item.Type}" src="${img}" data-edit="${img_path}" ${ref_params(
@@ -273,10 +258,9 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
 
   // Make a re-used trashcan imprint
   let trash_can = "";
-  if(trash_action) {
+  if (trash_action) {
     trash_can = `<a class="gen-control i--white" data-action="${trash_action}" data-path="${item_path}"><i class="fas fa-trash"></i></a>`;
   }
-
 
   switch (item.Type) {
     case EntryType.MECH_SYSTEM:
@@ -472,7 +456,7 @@ function limited_HTML(
 }
 
 // Exactly as above, but drags as a native when appropriate handlers called
-export function editable_mm_ref_list_item_native<T extends LancerItemType>(
+export function editable_mm_ref_list_item_native(
   item_path: string,
   trash_action: "delete" | "splice" | "null" | null,
   helper: HelperOptions
@@ -482,7 +466,7 @@ export function editable_mm_ref_list_item_native<T extends LancerItemType>(
 
 // Put this at the end of ref lists to have a place to drop things. Supports both native and non-native drops
 // Allowed types is a list of space-separated allowed types. "mech pilot mech_weapon", for instance
-export function mm_ref_list_append_slot(item_array_path: string, allowed_types: string, helper: HelperOptions) {
+export function mm_ref_list_append_slot(item_array_path: string, allowed_types: string, _helper: HelperOptions) {
   return `
     <div class="ref ref-card ref-list-append ${allowed_types}" 
             data-path="${item_array_path}" 
@@ -503,7 +487,7 @@ export function HANDLER_add_ref_to_list_on_drop<T>(
 ) {
   // Use our handy dandy helper
   HANDLER_enable_mm_dropping(
-    html.find(".ref.ref-list-append"), 
+    html.find(".ref.ref-list-append"),
     resolver,
     null, // In general these are explicitly meant to refer to "outside" items, so no real filtering needed
     async (entry, evt) => {
@@ -517,7 +501,8 @@ export function HANDLER_add_ref_to_list_on_drop<T>(
           await commit_func(data);
         }
       }
-  });
+    }
+  );
 }
 
 // Enables dragging of ref cards (or anything with .ref.valid and the appropriate fields)
@@ -525,7 +510,7 @@ export function HANDLER_add_ref_to_list_on_drop<T>(
 // This doesn't handle natives
 export function HANDLER_activate_ref_dragging(html: JQuery) {
   // Allow refs to be dragged arbitrarily
-  HANDLER_enable_mm_dragging(html.find(".ref.valid:not(.native-drag)"), (start_stop, src, evt) => {
+  HANDLER_enable_mm_dragging(html.find(".ref.valid:not(.native-drag)"), (start_stop, src, _evt) => {
     // Highlight valid drop points
     let drop_set_target_selector = `.ref.drop-settable.${src[0].dataset.type}`;
     let drop_append_target_selector = `.ref.ref-list-append.${src[0].dataset.type}`;
@@ -565,25 +550,21 @@ export function HANDLER_activate_ref_drop_setting<T>(
   data_getter: () => Promise<T> | T,
   commit_func: (data: T) => void | Promise<void>
 ) {
-  HANDLER_enable_mm_dropping(
-    html.find(".ref.drop-settable"), 
-    resolver, 
-    can_drop,
-    async (entry, evt) => {
-      // Pre-finalize the entry
-      if(pre_finalize_drop) {
-        entry = await pre_finalize_drop(entry);
-      }
+  HANDLER_enable_mm_dropping(html.find(".ref.drop-settable"), resolver, can_drop, async (entry, evt) => {
+    // Pre-finalize the entry
+    if (pre_finalize_drop) {
+      entry = await pre_finalize_drop(entry);
+    }
 
-      // Then just merge-set to the path
-      let data = await data_getter();
-      let path = evt[0].dataset.path;
-      if (path) {
-        // Set the item at the data path
-        gentle_merge(data, { [path]: entry });
-        await commit_func(data);
-      }
-    });
+    // Then just merge-set to the path
+    let data = await data_getter();
+    let path = evt[0].dataset.path;
+    if (path) {
+      // Set the item at the data path
+      gentle_merge(data, { [path]: entry });
+      await commit_func(data);
+    }
+  });
 }
 // Allow every ".ref.drop-settable" spot to be right-click cleared
 // Uses same getter/commit func scheme as other callbacks
@@ -623,7 +604,7 @@ export function HANDLER_intercept_form_changes<T>(
 
     // Get our form data. We're kinda just replicating what would happen in onUpdate, but minus all of the fancier processing that is needed there
     let form = $(evt.target).parents("form")[0];
-    let form_data = read_form(form as any);
+    let form_data = read_form(form);
 
     // Get our target data
     let sheet_data = await data_getter();

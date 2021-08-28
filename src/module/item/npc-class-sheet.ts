@@ -1,8 +1,7 @@
-import { EntryType } from "machine-mind";
+import type { EntryType } from "machine-mind";
 import { LANCER } from "../config";
-import { npc_feature_preview } from "../helpers/item";
 import { LancerItemSheet } from "./item-sheet";
-import { LancerItem, LancerNpcClass, LancerNpcFeatureData } from "./lancer-item";
+import type { LancerItem } from "./lancer-item";
 const lp = LANCER.log_prefix;
 
 /**
@@ -13,9 +12,8 @@ export class LancerNPCClassSheet extends LancerItemSheet<EntryType.NPC_CLASS> {
   /**
    * @override
    * Extend and override the default options used by the generic Lancer item sheet
-   * @returns {Object}
    */
-  static get defaultOptions() {
+  static get defaultOptions(): ItemSheet.Options {
     return mergeObject(super.defaultOptions, {
       width: 900,
       height: 750,
@@ -23,45 +21,27 @@ export class LancerNPCClassSheet extends LancerItemSheet<EntryType.NPC_CLASS> {
     });
   }
 
-  base_feature_items!: LancerNpcFeatureData[];
-  optional_feature_items!: LancerNpcFeatureData[];
+  base_feature_items!: (LancerItem["data"] & { type: EntryType.NPC_FEATURE })[];
+  optional_feature_items!: (LancerItem["data"] & { type: EntryType.NPC_FEATURE })[];
 
   /** @override */
-  _updateObject(event: any, formData: any) {
+  _updateObject(_event: any, formData: any) {
     formData["data.stats.hp"] = LancerNPCClassSheet.arrayifyStats(formData["data.stats.hp"]);
-    formData["data.stats.heatcap"] = LancerNPCClassSheet.arrayifyStats(
-      formData["data.stats.heatcap"]
-    );
-    formData["data.stats.structure"] = LancerNPCClassSheet.arrayifyStats(
-      formData["data.stats.structure"]
-    );
-    formData["data.stats.stress"] = LancerNPCClassSheet.arrayifyStats(
-      formData["data.stats.stress"]
-    );
+    formData["data.stats.heatcap"] = LancerNPCClassSheet.arrayifyStats(formData["data.stats.heatcap"]);
+    formData["data.stats.structure"] = LancerNPCClassSheet.arrayifyStats(formData["data.stats.structure"]);
+    formData["data.stats.stress"] = LancerNPCClassSheet.arrayifyStats(formData["data.stats.stress"]);
     formData["data.stats.armor"] = LancerNPCClassSheet.arrayifyStats(formData["data.stats.armor"]);
-    formData["data.stats.evasion"] = LancerNPCClassSheet.arrayifyStats(
-      formData["data.stats.evasion"]
-    );
+    formData["data.stats.evasion"] = LancerNPCClassSheet.arrayifyStats(formData["data.stats.evasion"]);
     formData["data.stats.edef"] = LancerNPCClassSheet.arrayifyStats(formData["data.stats.edef"]);
     formData["data.stats.speed"] = LancerNPCClassSheet.arrayifyStats(formData["data.stats.speed"]);
-    formData["data.stats.sensor_range"] = LancerNPCClassSheet.arrayifyStats(
-      formData["data.stats.sensor_range"]
-    );
+    formData["data.stats.sensor_range"] = LancerNPCClassSheet.arrayifyStats(formData["data.stats.sensor_range"]);
     formData["data.stats.save"] = LancerNPCClassSheet.arrayifyStats(formData["data.stats.save"]);
-    formData["data.stats.activations"] = LancerNPCClassSheet.arrayifyStats(
-      formData["data.stats.activations"]
-    );
+    formData["data.stats.activations"] = LancerNPCClassSheet.arrayifyStats(formData["data.stats.activations"]);
     formData["data.stats.size"] = LancerNPCClassSheet.arrayifyStats(formData["data.stats.size"]);
     formData["data.stats.hull"] = LancerNPCClassSheet.arrayifyStats(formData["data.stats.hull"]);
-    formData["data.stats.agility"] = LancerNPCClassSheet.arrayifyStats(
-      formData["data.stats.agility"]
-    );
-    formData["data.stats.systems"] = LancerNPCClassSheet.arrayifyStats(
-      formData["data.stats.systems"]
-    );
-    formData["data.stats.engineering"] = LancerNPCClassSheet.arrayifyStats(
-      formData["data.stats.engineering"]
-    );
+    formData["data.stats.agility"] = LancerNPCClassSheet.arrayifyStats(formData["data.stats.agility"]);
+    formData["data.stats.systems"] = LancerNPCClassSheet.arrayifyStats(formData["data.stats.systems"]);
+    formData["data.stats.engineering"] = LancerNPCClassSheet.arrayifyStats(formData["data.stats.engineering"]);
 
     formData["data.stats.size"] = (formData["data.stats.size"] as number[]).map(x => {
       if (x < 0.5) return 0.5;

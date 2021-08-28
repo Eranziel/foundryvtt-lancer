@@ -1,7 +1,7 @@
-import { HelperOptions } from "handlebars";
+import type { HelperOptions } from "handlebars";
 import { ActivationType, NpcFeature, NpcFeatureType } from "machine-mind";
 import { is_loading } from "machine-mind/dist/classes/mech/EquipUtil";
-import { charged_box, effect_box, resolve_dotpath, resolve_helper_dotpath } from "./commons";
+import { charged_box, effect_box, resolve_helper_dotpath } from "./commons";
 import {
   npc_attack_bonus_preview,
   npc_accuracy_preview,
@@ -10,7 +10,7 @@ import {
   loading_indicator,
 } from "./item";
 import { limited_chip_HTML, ref_params } from "./refs";
-import { compact_tag, compact_tag_list } from "./tags";
+import { compact_tag_list } from "./tags";
 
 export const EffectIcons = {
   Generic: `systems/lancer/assets/icons/generic_item.svg`,

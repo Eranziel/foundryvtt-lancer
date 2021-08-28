@@ -1,8 +1,8 @@
 // Namespace configuration Values
 
 import { EntryType, NpcFeatureType } from "machine-mind";
-import { LancerActorType } from "./actor/lancer-actor";
-import { LancerItemType } from "./item/lancer-item";
+import type { LancerActorType } from "./actor/lancer-actor";
+import type { LancerItemType } from "./item/lancer-item";
 
 const ASCII = `
 ╭╮╱╱╭━━━┳━╮╱╭┳━━━┳━━━┳━━━╮ 
@@ -156,22 +156,22 @@ export const COMPATIBLE_MIGRATION_VERSION = "0.1.0";
 
 export const LANCER = {
   ASCII,
-  log_prefix: "LANCER |",
-  setting_migration: "systemMigrationVersion",
-  setting_core_data: "coreDataVersion",
-  setting_lcps: "installedLCPs",
-  setting_stock_icons: "keepStockIcons",
-  setting_welcome: "hideWelcome",
-  setting_compcon_login: "compconLogin",
-  setting_automation: "automationSwitch",
-  setting_automation_attack: "attackSwitch",
-  setting_action_manager: "actionManager",
-  setting_action_manager_players: "actionManagerPlayersUse",
-  setting_pilot_oc_heat: "autoOCHeat",
-  setting_overkill_heat: "autoOKillHeat",
-  setting_auto_structure: "autoCalcStructure",
-  // setting_120: "warningFor120", // Old setting, currently unused.
-  // setting_beta_warning: "warningForBeta", // Old setting, currently unused.
+  log_prefix: "LANCER |" as const,
+  setting_migration: "systemMigrationVersion" as const,
+  setting_core_data: "coreDataVersion" as const,
+  setting_lcps: "installedLCPs" as const,
+  setting_stock_icons: "keepStockIcons" as const,
+  setting_welcome: "hideWelcome" as const,
+  setting_compcon_login: "compconLogin" as const,
+  setting_automation: "automationSwitch" as const,
+  setting_automation_attack: "attackSwitch" as const,
+  setting_action_manager: "actionManager" as const,
+  setting_action_manager_players: "actionManagerPlayersUse" as const,
+  setting_pilot_oc_heat: "autoOCHeat" as const,
+  setting_overkill_heat: "autoOKillHeat" as const,
+  setting_auto_structure: "autoCalcStructure" as const,
+  // setting_120: "warningFor120" as const, // Old setting, currently unused.
+  // setting_beta_warning: "warningForBeta" as const, // Old setting, currently unused.
   mech_items,
   pilot_items,
   weapon_items,
