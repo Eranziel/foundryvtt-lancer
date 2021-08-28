@@ -22,4 +22,3 @@ export type {
   AccDiffPlugin,
   Data as AccDiffPluginDataOf
 } from './plugin'
-export { AccDiffForm } from './form';

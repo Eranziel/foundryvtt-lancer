@@ -2133,3 +2133,15 @@ div[data-tab="system"] > .settings-list > div:nth-last-child(-n + 4) {
   text-transform: uppercase;
   font-family: Roboto,sans-serif !important;
 }
+
+/* this forces all its children to share the same space,
+    which is useful for svelte transitions */
+.grid-enforcement {
+  display: grid;
+  overflow: hidden;
+}
+
+.grid-enforcement > * {
+  grid-column: 1/2;
+  grid-row: 1/2;
+}

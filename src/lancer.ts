@@ -39,6 +39,9 @@ import { compact_tag_list } from "./module/helpers/tags";
 import * as migrations from "./module/migration";
 import { addLCPManager, updateCore, core_update } from './module/apps/lcpManager';
 
+// Import sliding HUD (used for accuracy/difficulty windows)
+import * as slidingHUD from "./module/helpers/slidinghud";
+
 // Import Machine Mind and helpers
 import * as macros from "./module/macros";
 
@@ -509,11 +512,14 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("tier-selector", npc_tier_selector);
   Handlebars.registerHelper("npc-feat-preview", npc_feature_preview);
 
-  Hooks.on('targetToken', () => macros.refreshTargeting("do partial refresh"));
-  Hooks.on('createActiveEffect', () => macros.refreshTargeting("force full refresh"));
-  Hooks.on('deleteActiveEffect', () => macros.refreshTargeting("force full refresh"));
+  // ------------------------------------------------------------------------
+  // Sliding HUD Zone, including accuracy/difficulty window
+  Hooks.on('renderHeadsUpDisplay', slidingHUD.attach);
+  Hooks.on('targetToken', () => macros.refreshTargeting());
+  Hooks.on('createActiveEffect', () => macros.refreshTargeting());
+  Hooks.on('deleteActiveEffect', () => macros.refreshTargeting());
   // updateToken triggers on things like token movement (spotter) and probably a lot of other things
-  Hooks.on('updateToken', () => macros.refreshTargeting("force full refresh"));
+  Hooks.on('updateToken', () => macros.refreshTargeting());
 
   // TODO: remove when sanity check is no longer needed.
   game.lancer.finishedInit = true;

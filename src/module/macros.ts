@@ -51,7 +51,7 @@ import { buildActionHTML, buildDeployableHTML, buildSystemHTML } from "./helpers
 import { ActivationOptions, StabOptions1, StabOptions2 } from "./enums";
 import { applyCollapseListeners, uuid4 } from "./helpers/collapse";
 import { checkForHit } from "./helpers/automation/targeting";
-import type { AccDiffForm, AccDiffData, AccDiffDataSerialized } from "./helpers/acc_diff";
+import type { AccDiffData, AccDiffDataSerialized } from "./helpers/acc_diff";
 import { is_overkill } from "machine-mind/dist/funcs";
 
 const lp = LANCER.log_prefix;
@@ -555,8 +555,8 @@ async function rollStatMacro(actor: Actor, data: LancerStatMacroData) {
 
   // Get accuracy/difficulty with a prompt
   let { AccDiffData } = await import('./helpers/acc_diff');
-  let initialData = AccDiffData.fromParams();
-  let promptedData = await promptAccDiffModifiers(initialData);
+  let initialData = AccDiffData.fromParams(undefined, undefined, data.title);
+  let promptedData = await promptAccDiffModifiers('hase', initialData);
   // note that the previous await waits for the user, and in many cases returns null as the user backs out
 
   if (!promptedData) return;
@@ -767,7 +767,7 @@ async function prepareAttackMacro({
   let { AccDiffData } = await import('./helpers/acc_diff');
   const initialData = rerollData ?? AccDiffData.fromParams(
     item, mData.tags, mData.title, targets, mData.acc > 0 ? [mData.acc, 0] : [0, -mData.acc]);
-  const promptedData = await promptAccDiffModifiers(initialData);
+  const promptedData = await promptAccDiffModifiers("attack", initialData);
   // note that the previous await waits for the user, and in many cases returns null as the user backs out
 
   if (!promptedData) return;
@@ -801,12 +801,9 @@ async function prepareAttackMacro({
   await rollAttackMacro(actor, atkRolls, mData, rerollMacro);
 }
 
-export async function refreshTargeting(full: "force full refresh" | "do partial refresh") {
+export async function refreshTargeting() {
   const targets = Array.from(game.user.targets);
-  let { AccDiffForm } = await import('./helpers/acc_diff');
-  const form = AccDiffForm.coalesceTargets(targets, full == "force full refresh");
-  if (!form) return;
-  const promptedData = await promptAccDiffModifiers(form);
+  const promptedData = await promptAccDiffModifiers("attack", targets);
   // note that the previous await waits for the user, and in many cases returns null as the user backs out
 
   if (!promptedData) return;
@@ -818,6 +815,7 @@ export async function refreshTargeting(full: "force full refresh" | "do partial 
   }
 
   let mData = {
+    title: 'BASIC ATTACK',
     grit: 0,
     tags: [],
     damage: [],
@@ -1249,7 +1247,7 @@ async function rollTechMacro(actor: Actor, data: LancerTechMacroData, partialMac
   const initialData = rerollData ?
     AccDiffData.fromObject(rerollData, item) :
     AccDiffData.fromParams(item, data.tags, data.title, targets);
-  const promptedData = await promptAccDiffModifiers(initialData);
+  const promptedData = await promptAccDiffModifiers("attack", initialData);
   // note that the previous await waits for the user, and in many cases returns null as the user backs out
 
   if (!promptedData) return;
@@ -1275,11 +1273,10 @@ async function rollTechMacro(actor: Actor, data: LancerTechMacroData, partialMac
   return await renderMacroTemplate(actor, template, templateData);
 }
 
-export async function promptAccDiffModifiers(data: AccDiffData | AccDiffForm): Promise<AccDiffData | null> {
-  let { AccDiffForm } = await import('./helpers/acc_diff');
-  let form: AccDiffForm = data instanceof AccDiffForm ? data : new AccDiffForm(data);
+export async function promptAccDiffModifiers(key: "hase" | "attack", data: AccDiffData | Token[]): Promise<AccDiffData | null> {
+  let { open } = await import('./helpers/slidinghud');
   try {
-    return await form.promise; // await to force any rejections into this try/catch
+    return await open(key, data); // await to force any rejections into this try/catch
   } catch (_e) {
     return null;
   }
