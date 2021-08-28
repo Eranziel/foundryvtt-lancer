@@ -1,0 +1,130 @@
+<form class="{{cssClass}} lancer-sheet" autocomplete="off">
+  {{!-- Sheet Header --}}
+  <header class="sheet-header card clipped-bot">
+    <div class="flexcol grow">
+      <h1 class="charname"><input class="header-field" name="name" type="text" value="{{item.name}}" placeholder="{{localize "lancer.placeholder.name"}}"/></h1>
+      <div class="flexrow">
+        {{{item-edit-license}}}
+      </div>
+    </div>
+    {{{ ref-portrait-img item.img "img" mm }}}
+  </header>
+
+  {{{textarea-card "DESCRIPTION" "mm.Description"}}}
+
+  {{!-- Frame Stats --}}
+  <div class="card clipped wraprow quadruple">
+    <div class="wraprow quadruple">
+      {{{clicker-stat-card "HP"          "mdi mdi-heart-outline"     "mm.Stats.hp" false }}}
+      {{{clicker-stat-card "ARMOR"       "mdi mdi-shield-outline"    "mm.Stats.armor" false }}}
+      {{{clicker-stat-card "REPAIRS"     "cci cci-repair"            "mm.Stats.repcap" false }}}
+      {{{clicker-stat-card "EVASION"     "cci cci-evasion"           "mm.Stats.evasion" false }}}
+      {{{clicker-stat-card "E-DEF"       "cci cci-edef"              "mm.Stats.edef" false }}}
+      {{{clicker-stat-card "HEAT CAP"    "cci cci-heatcap"           "mm.Stats.heatcap" false }}}
+      {{{clicker-stat-card "SPEED"       "mdi mdi-arrow-right-bold-hexagon-outline" "mm.Stats.speed" false }}}
+      {{{clicker-stat-card "TECH ATK"    "cci cci-tech-full"         "mm.Stats.tech_attack" false }}}
+      {{{clicker-stat-card "SENSORS"     "cci cci-sensor"            "mm.Stats.sensor_range" false }}}
+      {{{clicker-stat-card "SAVE"        "cci cci-save"              "mm.Stats.save" false }}}
+      {{{clicker-stat-card "SYS POINTS"  "cci cci-system"            "mm.Stats.sp" false }}}
+      {{{clicker-stat-card "SIZE"        "cci cci-hexagon"           "mm.Stats.size" false }}}
+    </div>
+  </div>
+
+  {{!-- Mounts --}}
+  <div class="flexcol">
+    <div>
+      <span class="minor" style="float: left">AVAILABLE WEAPON MOUNTS</span>
+      <a class="gen-control" data-action="append" data-path="mm.Mounts" data-action-value="(struct)mount_type" style="float: right">+</a>
+    </div>
+    <div class="flexrow">
+      {{#each mm.Mounts as |mount key|}}
+      <div class="flexrow mount arrayed-item">
+        <select class="mount-selector" name="mm.Mounts.{{key}}" data-type="String" index="{{key}}">
+          {{#select mount}}
+          <option value="Aux/Aux">AUX/AUX</option>
+          <option value="Main">MAIN</option>
+          <option value="Main/Aux">MAIN/AUX</option>
+          <option value="Flex">FLEX</option>
+          <option value="Heavy">HEAVY</option>
+          <option value="Integrated">INTEGRATED</option>
+          <option value="Superheavy">SUPERHEAVY</option>
+          <option value="delete">DELETE</option>
+          {{/select}}
+        </select>
+      </div>
+      {{/each}}
+    </div>
+  </div>
+
+  {{!-- Traits --}}
+  <div class="card">
+    <div class="lancer-header">
+      <span class="major left">TRAITS</span>
+      <a class="gen-control" data-action="append" data-path="mm.Traits" data-action-value="(struct)frame_trait" style="float: right">+</a>
+    </div>
+    {{#each mm.Traits as |trait trait_index|}}
+      <div class="card clipped frame_trait">
+        <div class="lancer-header major">
+          <i class="cci cci-trait i--m i--light header-icon"> </i>
+          <input class="lancer-invisible-input i--light" name="mm.Traits.{{trait_index}}.Name" value="{{trait.Name}}" data-dtype="String" />
+          {{{popout-editor-button (concat "mm.Traits." trait_index ".Description") }}}
+          <a class="gen-control" data-action="splice" data-path="mm.Traits.{{trait_index}}">
+            <i class="fas fa-trash"></i>
+          </a>
+        </div>
+        <div class="desc-text">{{{safe-html trait.Description }}}</div>
+        {{{bonuses-view (concat "mm.Traits." trait_index ".Bonuses") trait.Bonuses ../editable}}}
+      </div>
+    {{/each}}
+  </div>
+
+  {{!-- Core System --}}
+  <div class="card clipped frame-core">
+    {{!-- General Description --}}
+    <div class="lancer-header frame_core medium">
+      <i></i>
+      <input class="lancer-invisible-input major i--light" name="mm.CoreSystem.Name" value="{{mm.CoreSystem.Name}}" data-dtype="String" />
+      <div class="medium i--faded" style="justify-self: right;"> // CORE SYSTEM</div>
+      {{{popout-editor-button "mm.CoreSystem.Description" }}}
+    </div>
+    <div class="desc-text">{{{safe-html mm.CoreSystem.Description }}}</div>
+
+    {{!-- Integrated --}}
+    {{#each mm.CoreSystem.Integrated as |integrated index|}}
+      {{{ref-mm-controllable-item (concat "mm.CoreSystem.Integrated." index) "splice" }}}
+    {{/each}}
+    {{#each mm.CoreSystem.Deployables as |deployable index|}}
+      {{{ref-mm-controllable-item (concat "mm.CoreSystem.Deployables." index) "splice" }}}
+    {{/each}}
+
+    {{!-- Passive Description + Bonuses --}}
+    <div class="card clipped frame_core">
+      <div class="lancer-header">
+        <i class="mdi mdi-circle-expand i--m i--light"> </i>
+        <input class="lancer-invisible-input medium i--light" name="mm.CoreSystem.PassiveName" value="{{mm.CoreSystem.PassiveName}}" data-dtype="String" />
+        <div class="medium i--faded" style="justify-self: right;"> // PASSIVE</div>
+        {{{popout-editor-button "mm.CoreSystem.PassiveEffect" }}}
+      </div>
+      <div class="desc-text">{{{safe-html mm.CoreSystem.PassiveEffect }}}</div>
+      {{{bonuses-view "mm.CoreSystem.PassiveBonuses" mm.CoreSystem.PassiveBonuses editable}}}
+    </div>
+
+    {{!-- Active Description + Bonuses --}}
+    <div class="card clipped frame_core">
+      <div class="lancer-header">
+        <i class="cci cci-corebonus i--m i--light"> </i>
+        <input class="lancer-invisible-input medium i--light" name="mm.CoreSystem.ActiveName" value="{{mm.CoreSystem.ActiveName}}" data-dtype="String" />
+        <div class="i--faded" style="justify-self: right;"> // ACTIVE</div>
+        {{{popout-editor-button "mm.CoreSystem.ActiveEffect" }}}
+      </div>
+      <div class="desc-text">{{{safe-html mm.CoreSystem.ActiveEffect }}}</div>
+      {{{bonuses-view "mm.CoreSystem.ActiveBonuses" mm.CoreSystem.ActiveBonuses editable}}}
+    </div>
+    <div class="tags-container" style="margin: 10px;">
+      <div class="flexcol lancer-title">
+        <span class="major">TAGS</span>
+        {{{mm-tag-list "mm.CoreSystem.Tags" mm.CoreSystem.Tags editable}}}
+      </div>
+    </div>
+  </div>
+</form>

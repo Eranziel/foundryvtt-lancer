@@ -1,20 +1,20 @@
-import { LancerActor, LancerActorType } from "../../actor/lancer-actor";
+import type { LancerActor } from "../../actor/lancer-actor";
 
-export function getTargets(): LancerActor<LancerActorType>[] {
-  const targets = game.user.targets;
-  const ret: LancerActor<LancerActorType>[] = [];
+export function getTargets(): LancerActor[] {
+  const targets = game.user!.targets;
+  const ret: LancerActor[] = [];
   targets.forEach(token => {
-    ret.push(token.actor as LancerActor<LancerActorType>);
+    ret.push(token.actor!);
   });
 
   return ret;
 }
 
-export async function checkForHit(tech: boolean, roll: Roll, target: LancerActor<LancerActorType>): Promise<boolean> {
+export async function checkForHit(tech: boolean, roll: Roll, target: LancerActor): Promise<boolean> {
   let mm = await target.data.data.derived.mm_promise;
   let def: number = tech ? (mm.EDefense || 8) : (mm.Evasion || 5);
 
-  return roll._total >= def;
+  return (roll.total ?? 0) >= def;
 }
 
 // Quickly computes the distance between two tokens as a number of grid units

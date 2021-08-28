@@ -2,20 +2,16 @@
 /* Handlebars Helpers                    */
 /* ------------------------------------ */
 
-import { HelperOptions } from "handlebars";
+import type { HelperOptions } from "handlebars";
 import {
   WeaponSize,
   WeaponType,
   RangeType,
   DamageType,
   Damage,
-  LiveEntryTypes,
   SystemType,
   Range,
-  RegEntry,
   EntryType,
-  RegRef,
-  OpCtx,
   Bonus,
   PilotArmor,
   PilotWeapon,
@@ -34,7 +30,7 @@ import {
   funcs,
   MechWeaponProfile,
 } from "machine-mind";
-import { MechWeapon, TagInstance } from "machine-mind";
+import type { MechWeapon, TagInstance } from "machine-mind";
 import { BonusEditDialog } from "../apps/bonus-editor";
 import { TypeIcon } from "../config";
 import {
@@ -54,21 +50,19 @@ import {
   inc_if,
   resolve_dotpath,
   resolve_helper_dotpath,
-  selected,
   sp_display,
   std_checkbox,
   std_enum_select,
-  std_num_input,
   std_string_input,
   std_x_of_y,
   tippy_context_menu,
 } from "./commons";
 import { limited_chip_HTML, ref_commons, ref_params } from "./refs";
 import { ActivationOptions, ChipIcons } from "../enums";
-import { LancerItemSheetData, LancerMacroData } from "../interfaces";
+import type { LancerItemSheetData, LancerMacroData } from "../interfaces";
 import { encodeMacroData } from "../macros";
 import { is_limited, is_loading } from "machine-mind/dist/classes/mech/EquipUtil";
-import { CollapseRegistry } from "./loadout";
+import type { CollapseRegistry } from "./loadout";
 import { uuid4 } from "./collapse";
 import { promptText } from "../apps/simple-prompt";
 import tippy from "tippy.js";

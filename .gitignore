@@ -9,13 +9,7 @@ package-lock.json
 
 # Build
 foundryconfig.json
-dist/module
-dist/packs
-dist/templates
-dist/**/*.js
-dist/**/*.js.map
-dist/**/*.json
-dist/**/*.css
-dist/fonts/mdi/**
+stats.html
+dist/**/*
 debug.log
 foundry.js
