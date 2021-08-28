@@ -1,4 +1,5 @@
-import type { EntryType, OpCtx, RegEntry, RegRef } from "machine-mind";
+import type { OpCtx, RegEntry, RegRef } from "machine-mind";
+import { EntryType } from "machine-mind";
 import { AnyMMActor, is_actor_type, LancerActor } from "../actor/lancer-actor";
 import { AnyMMItem, is_item_type, LancerItem } from "../item/lancer-item";
 import { FoundryReg, FoundryRegName } from "../mm-util/foundry-reg";
@@ -536,7 +537,7 @@ export class MMDragResolveCache {
 export const GlobalMMDragState = {
   dragging: false as boolean,
   curr_dragged_type: EntryType,
-  curr_dragged_entity: null as AnyLancerActor | AnyLancerItem | null, // If it is a native entity, we set this
+  curr_dragged_entity: null as LancerActor | LancerItem | null, // If it is a native entity, we set this
   curr_dragged_ref: null as RegRef<EntryType> | null // If it is a ref, we set this
 }
 
@@ -544,7 +545,7 @@ function dragging_class(for_type: EntryType): string {
   return `dragging-${for_type}`
 }
 
-function set_global_drag(to: AnyLancerItem | AnyLancerActor | RegRef<any>) {
+function set_global_drag(to: LancerActor | LancerItem | RegRef<any>) {
   // Check for duplicate work and clear if that isn't the case
   if(GlobalMMDragState.curr_dragged_entity == to || GlobalMMDragState.curr_dragged_ref == to) {
     return; // don't repeat
@@ -555,7 +556,7 @@ function set_global_drag(to: AnyLancerItem | AnyLancerActor | RegRef<any>) {
   GlobalMMDragState.dragging = true;
   let type: EntryType;
   let rr = to as RegRef<any>;
-  let ent = to as AnyLancerItem | AnyLancerActor;
+  let ent = to as LancerActor | LancerItem;
   if(rr.fallback_lid !== undefined) {
     GlobalMMDragState.curr_dragged_ref = rr;
     type = rr.type;

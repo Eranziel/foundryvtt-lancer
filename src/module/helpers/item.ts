@@ -1083,7 +1083,7 @@ export function HANDLER_activate_profile_context_menus<T extends LancerItemSheet
         let weapon: MechWeapon | null = resolve_dotpath(cd, weapon_path, null);
 
         if((weapon?.Profiles.length ?? 0) <= 1) {
-          ui.notifications.error("Cannot delete last profile on a weapon");
+          ui.notifications!.error("Cannot delete last profile on a weapon");
           return;
         }
 

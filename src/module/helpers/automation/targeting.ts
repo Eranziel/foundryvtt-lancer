@@ -23,5 +23,5 @@ export function gridDist(token1: Token, token2: Token) {
   let c1 = token1.center;
   let c2 = token2.center;
   let ray = new Ray(c1, c2);
-  canvas.grid.grid.measureDistances([{ray}], {gridSpaces: true})[0]
+  return canvas?.grid?.grid?.measureDistances([{ ray }], { gridSpaces: true })[0];
 }
