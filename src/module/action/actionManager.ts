@@ -11,9 +11,9 @@ declare global {
         pos: {
           top: number;
           left: number;
-        }
-      }
-    }
+        };
+      };
+    };
   }
 }
 
@@ -48,8 +48,10 @@ export class LancerActionManager extends Application {
   }
 
   async init() {
+    // TODO: find the correct place to specify what game.system.id is expected to be
     LancerActionManager.enabled =
-      game.settings.get(game.system.id, LANCER.setting_action_manager) && !game.settings.get("core", "noCanvas");
+      game.settings.get(<"lancer">game.system.id, LANCER.setting_action_manager) &&
+      !game.settings.get("core", "noCanvas");
     if (LancerActionManager.enabled) {
       this.loadUserPos();
       await this.updateControlledToken();

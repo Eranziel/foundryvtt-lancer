@@ -21,8 +21,8 @@ declare global {
       "lancer.autoOCHeat": boolean;
       "lancer.autoOKillHeat": boolean;
       "lancer.autoCalcStructure": boolean;
-      "lancer.warningFor120": boolean;
-      "lancer.warningForBeta": boolean;
+      // "lancer.warningFor120": boolean; // Old setting, currently unused.
+      // "lancer.warningForBeta": boolean; // Old setting, currently unused.
     }
   }
 }

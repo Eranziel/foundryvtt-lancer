@@ -70,11 +70,13 @@ class LCPManager extends Application {
     this.lcpFile = null;
     this.cp = null;
     this.manifest = null;
-    this.coreVersion = game.settings.get(game.system.id, LANCER.setting_core_data);
+    // TODO: find the correct place to specify what game.system.id is expected to be
+    this.coreVersion = game.settings.get(<"lancer">game.system.id, LANCER.setting_core_data);
     // TODO: pull available core version from machine-mind
     this.coreUpdate = core_update;
     console.log(`${lp} Lancer Data version:`, this.coreVersion);
-    this.lcpIndex = new LCPIndex(game.settings.get(game.system.id, LANCER.setting_lcps).index);
+    // TODO: find the correct place to specify what game.system.id is expected to be
+    this.lcpIndex = new LCPIndex(game.settings.get(<"lancer">game.system.id, LANCER.setting_lcps).index);
   }
 
   static get defaultOptions() {
@@ -98,15 +100,19 @@ class LCPManager extends Application {
   }
 
   updateLcpIndex(manifest: IContentPackManifest) {
-    if (!this.lcpIndex) this.lcpIndex = new LCPIndex(game.settings.get(game.system.id, LANCER.setting_lcps).index);
+    // TODO: find the correct place to specify what game.system.id is expected to be
+    if (!this.lcpIndex)
+      this.lcpIndex = new LCPIndex(game.settings.get(<"lancer">game.system.id, LANCER.setting_lcps).index);
     else this.lcpIndex.updateManifest(manifest);
     game.settings.set(game.system.id, LANCER.setting_lcps, this.lcpIndex).then(() => this.render());
   }
 
   async clearCompendiums() {
     await clearCompendiumData();
-    this.coreVersion = game.settings.get(game.system.id, LANCER.setting_core_data);
-    this.lcpIndex = new LCPIndex(game.settings.get(game.system.id, LANCER.setting_lcps).index);
+    // TODO: find the correct place to specify what game.system.id is expected to be
+    this.coreVersion = game.settings.get(<"lancer">game.system.id, LANCER.setting_core_data);
+    // TODO: find the correct place to specify what game.system.id is expected to be
+    this.lcpIndex = new LCPIndex(game.settings.get(<"lancer">game.system.id, LANCER.setting_lcps).index);
     this.render(true);
   }
 
