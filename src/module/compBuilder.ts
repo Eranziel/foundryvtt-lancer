@@ -2,7 +2,6 @@ import { LANCER } from "./config";
 const lp = LANCER.log_prefix;
 import { EntryType, funcs, IContentPack, RegEnv, StaticReg } from "machine-mind";
 import { FoundryReg } from "./mm-util/foundry-reg";
-// import { invalidate_cached_pack_map } from "./mm-util/db_abstractions";
 import { LCPIndex } from "./apps/lcpManager";
 import { get_pack } from "./mm-util/helpers";
 
@@ -84,7 +83,7 @@ export async function import_cp(
   } catch (err) {
     console.error(err);
   }
-  set_all_lock(true);
+  await set_all_lock(true);
 }
 
 // Lock/Unlock all packs

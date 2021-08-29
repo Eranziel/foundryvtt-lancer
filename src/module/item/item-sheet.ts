@@ -69,16 +69,6 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
 
   /* -------------------------------------------- */
 
-  /** @override */
-  // setPosition(options = {}) {
-  // const sheetBody = (this.element as HTMLDivElement).find(".sheet-body");
-  // const bodyHeight = position.height - 192;
-  // sheetBody.css("height", bodyHeight);
-  // return super.setPosition(options);
-  // }
-
-  /* -------------------------------------------- */
-
   /**
    * @override
    * Activate event listeners using the prepared sheet HTML
@@ -190,12 +180,6 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
    * The prepared data object contains both the actor data as well as additional sheet options
    */
   async getData(): Promise<LancerItemSheetData<T>> {
-    // If a compendium, wait 50ms to avoid most race conflicts. TODO: Remove this when foundry fixes compendium editing to not be so awful
-    // if (this.item.compendium) {
-    // this.object = await new Promise(s => setTimeout(s, 50))
-    // .then(() => get_pack(this.item.type))
-    // .then(p => p.getEntity(this.item.id));
-    // }
     const data = super.getData() as LancerItemSheetData<T>; // Not fully populated yet!
 
     // Wait for preparations to complete

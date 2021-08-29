@@ -42,15 +42,13 @@ function as_document_blob<T extends EntryType>(ent: LiveEntryTypes<T>): any {
   }
 
   // Combine saved data with top level data
-  let result = mergeObject(
+  return mergeObject(
     {
       _id: ent.RegistryID,
       data: ent.save(),
     },
     flags.top_level_data
   );
-
-  return result;
 }
 
 /**

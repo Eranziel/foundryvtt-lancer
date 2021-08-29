@@ -8,15 +8,6 @@ import type { AnyMMItem } from "../item/lancer-item";
  */
 export class LancerDeployableSheet extends LancerActorSheet<EntryType.DEPLOYABLE> {
   /**
-   * A convenience reference to the Actor entity
-   */
-  // get actor(): LancerPilot {
-  //   return this.actor;
-  // };
-
-  /* -------------------------------------------- */
-
-  /**
    * Extend and override the default options used by the NPC Sheet
    */
   static get defaultOptions(): ActorSheet.Options {
@@ -38,10 +29,7 @@ export class LancerDeployableSheet extends LancerActorSheet<EntryType.DEPLOYABLE
   // Need to allow this stuff for setting deployable
   can_root_drop_entry(item: AnyMMActor | AnyMMItem): boolean {
     // Accept actors
-    if(item.Type == EntryType.PILOT || item.Type == EntryType.MECH || item.Type == EntryType.NPC) {
-      return true;
-    }
-    return false;
+    return item.Type == EntryType.PILOT || item.Type == EntryType.MECH || item.Type == EntryType.NPC;
   }
 
   /* -------------------------------------------- */

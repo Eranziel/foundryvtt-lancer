@@ -168,7 +168,6 @@ export class LancerActor extends Actor {
    * Performs overheat
    * For now, just rolls on table. Eventually we can include configuration to do automation
    */
-  // TODO: Only let us overheat things that can actually overheat
   overheat() {
     // Assert that we're on a mech or NPC
     if (this.is_mech() || this.is_npc()) {

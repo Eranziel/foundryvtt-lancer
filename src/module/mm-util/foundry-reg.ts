@@ -528,8 +528,7 @@ export class FoundryRegCat<T extends EntryType> extends RegCat<T> {
         folder: g.entity.data.folder || null
       },
     };
-    let result = await this.revive_func(this.registry, ctx, g.id, g.data, flags, load_options);
-    return result;
+    return await this.revive_func(this.registry, ctx, g.id, g.data, flags, load_options);
   }
 
   // Just call revive on the '.get' result, then set flag to orig item

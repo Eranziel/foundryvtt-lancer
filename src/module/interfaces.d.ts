@@ -1,47 +1,7 @@
-import {
-  LancerSkill,
-  LancerTalent,
-  LancerCoreBonus,
-  LancerLicense,
-  LancerFrame,
-  LancerPilotArmor,
-  LancerPilotWeapon,
-  LancerPilotGear,
-  LancerMechWeapon,
-  LancerMechSystem,
-  LancerNpcFeature,
-  LancerNpcClass,
-  LancerNpcTemplate,
-  LancerItemData,
-  LancerItemType,
-} from "./item/lancer-item";
-import { RangeType, NPCTag } from "./enums";
+import { LancerItemType } from "./item/lancer-item";
 import { EffectData } from "./helpers/npc";
-import {
-  EntryType,
-  ITagTemplateData,
-  License,
-  LiveEntryTypes,
-  MountType,
-  OpCtx,
-  Pilot,
-  RegEntryTypes,
-  Registry,
-  RegNpcData,
-  RegPilotData,
-  RegSkillData,
-} from "machine-mind";
-import { FoundryRegActorData, FoundryRegItemData } from "./mm-util/foundry-reg";
+import { License, LiveEntryTypes } from "machine-mind";
 import { LancerActorType } from "./actor/lancer-actor";
-// ------------------------------------------------------
-// |       UTILITY
-// ------------------------------------------------------
-
-declare interface ResourceData {
-  value: number;
-  min: number;
-  max: number;
-}
 
 // ------------------------------------------------------
 // |       SHEET DATA TYPES                             |

@@ -150,6 +150,7 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
       return false;
     }
 
+    // TODO: should the commented code be reinstated?
     // Reject any non-null, non-owned-by us item
     // let owner = mm_owner(item);
     // return !owner || owner == this.actor;

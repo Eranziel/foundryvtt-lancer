@@ -1,8 +1,8 @@
 // @ts-nocheck
 // We do not care about this file being super rigorous
-import { LANCER, WELCOME } from "./config";
+import { LANCER } from "./config";
 import { handleActorExport } from "./helpers/io";
-import { LancerActor, LancerDeployableData, LancerNpcData } from "./actor/lancer-actor";
+import { LancerActor, LancerNpcData } from "./actor/lancer-actor";
 import { core_update, LCPIndex, LCPManager, updateCore } from "./apps/lcpManager";
 import { EntryType, NpcClass, NpcFeature, NpcTemplate, RegTagInstanceData } from "machine-mind";
 import { LancerItem } from "./item/lancer-item";

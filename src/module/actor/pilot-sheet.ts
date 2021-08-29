@@ -34,41 +34,6 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
     });
   }
 
-  /* -------------------------------------------- */
-  /* // Populate the callsign if blank (new Actor)
-    if (data.data.pilot.callsign === "") {
-      data.data.pilot.callsign = data.actor.name;
-    }
-    // Populate name if blank (new Actor)
-    if (data.data.pilot.name === "") {
-      data.data.pilot.name = data.actor.name;
-    }
-
-    // Put placeholder prompts in empty fields
-    if (data.data.pilot.background === "") data.data.pilot.background = entryPrompt;
-    if (data.data.pilot.history === "") data.data.pilot.history = entryPrompt;
-    if (data.data.pilot.notes === "") data.data.pilot.notes = entryPrompt;
-
-    // Generate the size string for the pilot's frame
-    if (data.frame) {
-      const frame: LancerFrame = data.frame;
-      if (frame.data.data.stats.size === 0.5) {
-        data.frame_size = "size-half";
-      } else {
-        data.frame_size = `size-${frame.data.data.stats.size}`;
-      }
-    } else {
-      data.frame_size = "N/A";
-    }
-
-    // Newly-added value, overcharge_level, should be set if it doesn't exist
-    if (typeof this.actor.data.data.mech.overcharge_level === "undefined") {
-      this.actor.data.data.mech.overcharge_level = 0;
-    }
-    */
-
-  /* -------------------------------------------- */
-
   /**
    * Activate event listeners using the prepared sheet HTML
    * @param html {JQuery}   The prepared HTML object ready to be rendered into the DOM
@@ -293,44 +258,6 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
     return super._updateObject(event, formData);
   }
 }
-
-// TODO: migrate to mech
-/**
- * Handlebars helper for an overcharge button
- * Currently this is overkill, but eventually we want to support custom overcharge values
- * Also I can't think of a better way to handle actor-specific data like this here... ideally move to within the sheet eventually
- * @param level Level of overcharge, between 0 (1) and 3 (1d6+4) by default
- */
-/*
-export function overchargeButton(level: number) {
-  // This seems like a very inefficient way to do this...
-  // I don't think there's a good way to get an actor via handlebars helpers though besides this
-  // Might just need to not use helpers for this?
-  let actor: LancerActor = game.actors.get(this.actor._id);
-
-  let rollVal = actor.getOverchargeRoll();
-
-  if (!rollVal) {
-    rollVal = "ERROR";
-  }
-
-  // Add a line break if it contains a plus to prevent it being too long
-  let plusIndex = rollVal.indexOf("+");
-  if (plusIndex > 0) {
-    rollVal = rollVal.slice(0, plusIndex) + "<br>" + rollVal.slice(plusIndex);
-  }
-
-  return `<div class="overcharge-container">
-
-      <a class="overcharge-macro macroable i--dark i--sm" data-action="roll-macro"><i class="fas fa-dice-d20"></i></a>
-      <a class="overcharge-text">${rollVal}</a>
-      <input style="display:none;border:none" type="number" name="data.mech.overcharge_level" value="${level}" data-dtype="Number"/>
-      </input>
-      <a class="overcharge-reset mdi mdi-restore"></a>
-    </div>`;
-}
-
- */
 
 export function pilot_counters(ent: Pilot, _helper: HelperOptions): string {
   let counter_detail = "";

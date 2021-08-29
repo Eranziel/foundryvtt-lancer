@@ -5,98 +5,6 @@ import { HANDLER_enable_mm_dropping, MMDragResolveCache } from "./dragdrop";
 import { ref_params } from "./refs";
 import { promptText } from "../apps/simple-prompt";
 
-
-/**
- * Search for a tag template in lancer-data.
- * @param id The tag's lancer-data id string.
- * @returns The full tag data.
- */
-/*
-function findTag(id: string): TagData | null {
-  // Only check if we actually got something.
-  if (id) {
-    // Find the tag id in lancer-data
-    for (let i = 0; i < TAGS.length; i++) {
-      const t = TAGS[i];
-      if (t.id === id) {
-        return t;
-      }
-    }
-  }
-  return null;
-}
-
-/**
- * Prepares a tag's name, description, and value.
- * @param tag The tag to prepare.
- */
-/*
-function prepareTag(tag: TagData | null): TagData {
-  // Initialize if we need to
-  const default_tag = { name: "", description: "", id: "", brew: "n/a", counters: [] };
-  tag = tag || default_tag;
-
-  // If we have a pre-defined tag, insert info. Otherwise, leave it as-is.
-  if (tag["id"]) {
-    // Look up values
-    const tagdata = findTag(tag["id"]);
-    if (tagdata) {
-      tag["name"] = tagdata["name"];
-      tag["description"] = tagdata["description"];
-
-      let val: string | number = 0;
-      if (tag.val) {
-        val = tag.val;
-      } else if (tagdata.val) {
-        val = tagdata.val;
-      }
-      // If the tag has a value, insert it into the text.
-      if (val !== 0) {
-        tag["val"] = val;
-        tag["name"] = tag["name"].replace("{VAL}", String(tag["val"]));
-        tag["description"] = tag["description"].replace("{VAL}", String(tag["val"]));
-      }
-    } else {
-      tag = default_tag;
-    }
-  }
-  return tag;
-}
-
-/**
- * Handlebars helper to generate compact read-only tag template.
- * @param tag {TagData | null} an object containing the tag's ID and value.
- * @returns {string} The html template for the tag.
- */
-/*
-export function renderCompactTag(tag: TagData | null): string {
-  let template: string = "";
-  tag = prepareTag(tag);
-
-  // Don't render hidden tags
-  if (tag["hidden"]) return template;
-
-  // Generate the Handlebars partial. This will always be the read-only
-  template = `<div class="compact-tag flexrow">
-  <i class="mdi mdi-label i--s i--light"></i>
-  <span style="margin: 3px;">${tag.name}</span>
-  </div>`;
-
-  return template;
-}
-*/
-
-/**
- * Handlebars partial to generate a list of tags for weapon/system previews.
- */
-/*
-export const compactTagList = `<div class="compact-tag-row">
-  {{#each tags as |tag tkey|}}
-  {{{compact-tag tag}}}
-  {{/each}}
-</div>`;
-*/
-
 // A small tag display containing just the label and value
 export function compact_tag(tag_path: string, tag: TagInstance): string {
   // Format the {VAL} out of the name
@@ -194,23 +102,6 @@ export function HANDLER_activate_tag_context_menus<T extends LancerActorSheetDat
   // Finally, setup the context menu
   new ContextMenu(html, ".editable-tag-instance", [remove, set_value]);
 }
-
-// Renders a tag, with description and a delete button. Takes by path so it can properly splice the tag instance out
-/*
-export function chunky_tag(tag_path: string, helper: HelperOptions): string {
-  let tag_instance = resolve_helper_dotpath(helper, tag_path) as TagInstance;
-  return `<div class="tag flexrow">
-    <div class="tag-label">
-      <i class="med-icon fa fa-3x fa-tag" style="margin: 3px"></i>
-    </div>
-    <div class="flexcol">
-      <span class="medium theme--main" style="grid-area: 1/2/2/3; text-align:left; padding-left: 0.5em; margin-top: 0.25em;"> ${tag_instance.Tag.Name} </span>
-      <span class="effect-text" style="grid-area: 2/2/3/3">${tag_instance.Tag.Description}</textarea>
-      <a class="fa fa-trash gen-control" data-action="splice" data-path="tag_path" style="grid-area: 2/3/3/4; margin-right: 11px; margin-top: -.8em; justify-self: right; align-self: self-start"></a>
-    </div>
-  </div>`;
-}
-*/
 
 // Enables dropping of tags into open designated by .ref-list-append classed divs
 // Explicitly designed to handle natives. Generates a tag instance corresponding to that native, with a default value of 1

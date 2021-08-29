@@ -65,7 +65,6 @@ import { is_limited, is_loading } from "machine-mind/dist/classes/mech/EquipUtil
 import type { CollapseRegistry } from "./loadout";
 import { uuid4 } from "./collapse";
 import { promptText } from "../apps/simple-prompt";
-import tippy from "tippy.js";
 
 /**
  * Handlebars helper for weapon size selector

@@ -4,6 +4,7 @@ import { import_cp, clearCompendiumData, set_all_lock } from "../compBuilder";
 import * as mm from "machine-mind";
 import type { IContentPack, IContentPackManifest } from "machine-mind";
 
+// TODO: use the version from MM... once it's real.
 export const core_update = "3.0.34"; // typed_lancer_data.info.version;
 
 function addLCPManager(app: Application, html: any) {
@@ -226,7 +227,7 @@ class LCPManager extends Application {
 export { LCPManager, addLCPManager, LCPIndex };
 
 export async function updateCore(version: string, manager?: LCPManager) {
-  var progress = 1;
+  let progress = 1;
   let progress_func = (x: any, y: any) => {
     // If we're passing a manager, let it do things as well
     if (manager) manager.update_progress_bar(x, y);
@@ -250,7 +251,7 @@ export async function updateCore(version: string, manager?: LCPManager) {
     ui.notifications!.warn(
       `Lancer Core data update ran into an issue... Please open the compendium manager and attempt an update after clearing LCPs.`
     );
-    // await set_all_lock(true);
+    await set_all_lock(true);
     return;
   }
 
