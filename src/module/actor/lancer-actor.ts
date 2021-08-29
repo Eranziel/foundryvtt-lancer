@@ -169,18 +169,16 @@ export class LancerActor extends Actor {
    * For now, just rolls on table. Eventually we can include configuration to do automation
    */
   // TODO: Only let us overheat things that can actually overheat
-  async overheat() {
+  overheat() {
     // Assert that we're on a mech or NPC
-    if (this.is_mech()) {
-      this.overheatMech();
-    } else if (this.is_npc()) {
-      ui.notifications!.warn("Currently just doing normal mech overheats");
+    if (this.is_mech() || this.is_npc()) {
       this.overheatMech();
     } else {
       ui.notifications!.warn("Can only overheat NPCs and Mechs");
       return;
     }
   }
+
   async overheatMech(): Promise<void> {
     // Table of descriptions
     function stressTableD(roll: number, remStress: number) {
@@ -300,10 +298,7 @@ export class LancerActor extends Actor {
    */
   async structure() {
     // Assert that we're on a mech or NPC
-    if (this.is_mech()) {
-      this.structureMech();
-    } else if (this.is_npc()) {
-      ui.notifications!.warn("Currently just doing normal mech structures");
+    if (this.is_mech() || this.is_npc()) {
       this.structureMech();
     } else {
       ui.notifications!.warn("Can only structure NPCs and Mechs");
@@ -394,7 +389,7 @@ export class LancerActor extends Actor {
             title: "Hull",
           });
 
-          secondaryRoll = `<button class="chat-macro-button"><a class="chat-button" data-macro="${macroData}"><i class="fas fa-dice-d20"></i>Hull</a></button>`;
+          secondaryRoll = `<button class="chat-macro-button"><a class="chat-button" data-macro="${macroData}"><i class="fas fa-dice-d20"></i> Hull</a></button>`;
         } else if (result >= 2 && result <= 4) {
           let macroData = encodeMacroData({
             // TODO: Should create a "prepareRollMacro" or something to handle generic roll-based macros
@@ -428,7 +423,7 @@ export class LancerActor extends Actor {
             title: "Roll for Destruction",
           });
 
-          secondaryRoll = `<button class="chat-macro-button"><a class="chat-button" data-macro="${macroData}"><i class="fas fa-dice-d20"></i>Destroy</a></button>`;
+          secondaryRoll = `<button class="chat-macro-button"><a class="chat-button" data-macro="${macroData}"><i class="fas fa-dice-d20"></i> Destroy</a></button>`;
         }
       }
       templateData = {
@@ -1091,7 +1086,7 @@ export class LancerActor extends Actor {
 
     // Make a subscription for each
     if (dependency) {
-      let sub = LancerHooks.on(dependency, async (_) => {
+      let sub = LancerHooks.on(dependency, async _ => {
         console.debug("Triggering subscription-based update on " + this.name);
         // We typically don't need to actually .update() ourselves when a dependency updates
         // Each client will individually prepareDerivedData in response to the update, and so there is no need for DB communication
