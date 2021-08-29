@@ -556,7 +556,7 @@ async function rollStatMacro(actor: Actor, data: LancerStatMacroData) {
   // Get accuracy/difficulty with a prompt
   let { AccDiffData } = await import('./helpers/acc_diff');
   let initialData = AccDiffData.fromParams(undefined, undefined, data.title);
-  let promptedData = await promptAccDiffModifiers('hase', initialData);
+  let promptedData = await promptAccDiffModifiers('hase', initialData, "may open new window");
   // note that the previous await waits for the user, and in many cases returns null as the user backs out
 
   if (!promptedData) return;
@@ -767,7 +767,7 @@ async function prepareAttackMacro({
   let { AccDiffData } = await import('./helpers/acc_diff');
   const initialData = rerollData ?? AccDiffData.fromParams(
     item, mData.tags, mData.title, targets, mData.acc > 0 ? [mData.acc, 0] : [0, -mData.acc]);
-  const promptedData = await promptAccDiffModifiers("attack", initialData);
+  const promptedData = await promptAccDiffModifiers("attack", initialData, "may open new window");
   // note that the previous await waits for the user, and in many cases returns null as the user backs out
 
   if (!promptedData) return;
@@ -801,9 +801,9 @@ async function prepareAttackMacro({
   await rollAttackMacro(actor, atkRolls, mData, rerollMacro);
 }
 
-export async function refreshTargeting() {
+export async function refreshTargeting(mode: "may open new window" | "only refresh open window") {
   const targets = Array.from(game.user.targets);
-  const promptedData = await promptAccDiffModifiers("attack", targets);
+  const promptedData = await promptAccDiffModifiers("attack", targets, mode);
   // note that the previous await waits for the user, and in many cases returns null as the user backs out
 
   if (!promptedData) return;
@@ -1247,7 +1247,7 @@ async function rollTechMacro(actor: Actor, data: LancerTechMacroData, partialMac
   const initialData = rerollData ?
     AccDiffData.fromObject(rerollData, item) :
     AccDiffData.fromParams(item, data.tags, data.title, targets);
-  const promptedData = await promptAccDiffModifiers("attack", initialData);
+  const promptedData = await promptAccDiffModifiers("attack", initialData, "may open new window");
   // note that the previous await waits for the user, and in many cases returns null as the user backs out
 
   if (!promptedData) return;
@@ -1273,10 +1273,10 @@ async function rollTechMacro(actor: Actor, data: LancerTechMacroData, partialMac
   return await renderMacroTemplate(actor, template, templateData);
 }
 
-export async function promptAccDiffModifiers(key: "hase" | "attack", data: AccDiffData | Token[]): Promise<AccDiffData | null> {
+export async function promptAccDiffModifiers(key: "hase" | "attack", data: AccDiffData | Token[], mode: "may open new window" | "only refresh open window"): Promise<AccDiffData | null> {
   let { open } = await import('./helpers/slidinghud');
   try {
-    return await open(key, data); // await to force any rejections into this try/catch
+    return await open(key, data, mode); // await to force any rejections into this try/catch
   } catch (_e) {
     return null;
   }

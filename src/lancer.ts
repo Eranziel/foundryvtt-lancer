@@ -515,11 +515,13 @@ Hooks.once("init", async function () {
   // ------------------------------------------------------------------------
   // Sliding HUD Zone, including accuracy/difficulty window
   Hooks.on('renderHeadsUpDisplay', slidingHUD.attach);
-  Hooks.on('targetToken', () => macros.refreshTargeting());
-  Hooks.on('createActiveEffect', () => macros.refreshTargeting());
-  Hooks.on('deleteActiveEffect', () => macros.refreshTargeting());
+  Hooks.on('targetToken', (_user: User, _token: Token, isNewTarget: boolean) => {
+    macros.refreshTargeting(isNewTarget ? "may open new window" : "only refresh open window");
+  });
+  Hooks.on('createActiveEffect', () => macros.refreshTargeting("only refresh open window"));
+  Hooks.on('deleteActiveEffect', () => macros.refreshTargeting("only refresh open window"));
   // updateToken triggers on things like token movement (spotter) and probably a lot of other things
-  Hooks.on('updateToken', () => macros.refreshTargeting());
+  Hooks.on('updateToken', () => macros.refreshTargeting("only refresh open window"));
 
   // TODO: remove when sanity check is no longer needed.
   game.lancer.finishedInit = true;

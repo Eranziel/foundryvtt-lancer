@@ -40,6 +40,10 @@
    huds[key].data = null;
  }
 
+ export function refresh(key: string, data: any) {
+   huds[key].data = data;
+ }
+
  export function data(key: string) {
    if (huds[key] && huds[key].data) { return huds[key].data; }
  }

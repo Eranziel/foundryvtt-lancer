@@ -16,15 +16,25 @@ function rejectedPromise<T>(): Promise<T> {
   return new Promise((_res, rej) => { rej() });
 }
 
-export async function open(key: "hase" | "attack", newData: AccDiffData | Token[]): Promise<AccDiffData> {
+export async function open(
+  key: "hase" | "attack",
+  newData: AccDiffData | Token[],
+  mode: "may open new window" | "only refresh open window"
+): Promise<AccDiffData> {
   let { AccDiffData } = await import('../acc_diff');
   if (!hud) { attach(); }
 
   // @ts-ignore
   let wasOpen: boolean = hud.isOpen(key);
 
-  // if we're an attack roll, and we have no targets, and we weren't open, then... don't do anything
-  if (key == "attack" && !wasOpen && newData instanceof Array && newData.length == 0) {
+  // if we're only allowed to refresh open windows, and the window isn't open, just refresh it
+  // don't allow new handlers in this case — they wouldn't make sense anyway, the window isn't open
+  // why even bother with the refresh?
+  // just in case there's some data here that would make sense to keep a hold of for a later
+  // target-only open of the window, like a character becoming impaired from underneath us
+  if (!wasOpen && mode == "only refresh open window") {
+    // @ts-ignore
+    hud.refresh(key, newData);
     return rejectedPromise();
   }
 
