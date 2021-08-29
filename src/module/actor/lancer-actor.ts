@@ -44,13 +44,11 @@ export function lancerActorInit(
   console.log(`${lp} Initializing new ${base_actor.type}`);
 
   // Produce our default data
-  let default_data: any = {};
-  let display_mode: ValueOf<typeof CONST["TOKEN_DISPLAY_MODES"]> = CONST.TOKEN_DISPLAY_MODES.ALWAYS;
+  let default_data: any;
   let disposition: ValueOf<typeof CONST["TOKEN_DISPOSITIONS"]> = CONST.TOKEN_DISPOSITIONS.FRIENDLY;
   switch (base_actor.type) {
     case EntryType.NPC:
       default_data = funcs.defaults.NPC();
-      display_mode = CONST.TOKEN_DISPLAY_MODES.OWNER_HOVER;
       disposition = CONST.TOKEN_DISPOSITIONS.HOSTILE;
       break;
     case EntryType.PILOT:
@@ -58,14 +56,12 @@ export function lancerActorInit(
       break;
     case EntryType.DEPLOYABLE:
       default_data = funcs.defaults.DEPLOYABLE();
-      display_mode = CONST.TOKEN_DISPLAY_MODES.HOVER;
       disposition = CONST.TOKEN_DISPOSITIONS.NEUTRAL;
       break;
     case EntryType.MECH:
     default:
       // Idk, just in case
       default_data = funcs.defaults.MECH();
-
       default_data.actions = { full: true };
       break;
   }
@@ -76,10 +72,6 @@ export function lancerActorInit(
   return base_actor.data.update({
     data: default_data,
     img: TypeIcon(base_actor.type),
-    "token.bar1": { attribute: "derived.hp" }, // Default Bar 1 to HP
-    "token.bar2": { attribute: "derived.heat" }, // Default Bar 2 to Heat
-    "token.displayName": display_mode,
-    "token.displayBars": display_mode,
     "token.disposition": disposition,
     name: default_data.name,
     "token.name": base_actor.name ?? default_data.name, // Set token name to match internal
