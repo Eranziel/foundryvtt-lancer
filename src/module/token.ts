@@ -63,15 +63,15 @@ export class LancerToken extends Token {
       }
 
       // Get token grid coordinate
-      const [tx, ty] = canvas!.grid!.grid?.getGridPositionFromPixels(this.position.x, this.position.y)!;
+      const [tx, ty] = canvas.grid!.grid?.getGridPositionFromPixels(this.position.x, this.position.y)!;
 
       // TODO: Gridless isn't handled, probably split this off to two utility
       // functions that handle gridded vs gridless properly
       for (let i = tx - 1; i <= tx + this.data.width + 1; i++) {
         for (let j = ty - 1; j <= ty + this.data.height + 1; j++) {
           let pos = { x: 0, y: 0 };
-          [pos.x, pos.y] = canvas!.grid!.grid!.getPixelsFromGridPosition(i, j);
-          [pos.x, pos.y] = canvas!.grid!.getCenter(pos.x + 1, pos.y + 1);
+          [pos.x, pos.y] = canvas.grid!.grid!.getPixelsFromGridPosition(i, j);
+          [pos.x, pos.y] = canvas.grid!.getCenter(pos.x + 1, pos.y + 1);
           if (hitBox.contains(pos.x, pos.y)) this._spaces.add(pos);
         }
       }
