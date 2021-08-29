@@ -101,8 +101,8 @@ export async function set_all_lock(lock = false) {
 export async function clearCompendiumData() {
   ui.notifications!.info(`Clearing all LANCER Compendium data. Please wait.`);
   console.log(`${lp} Clearing all LANCER Compendium data.`);
-  await game.settings.set(LANCER.sys_name, LANCER.setting_core_data, "0.0.0");
-  await game.settings.set(LANCER.sys_name, LANCER.setting_lcps, new LCPIndex(null));
+  await game.settings.set(game.system.id, LANCER.setting_core_data, "0.0.0");
+  await game.settings.set(game.system.id, LANCER.setting_lcps, new LCPIndex(null));
   await clear_all();
   ui.notifications!.info(`LANCER Compendiums cleared.`);
 }

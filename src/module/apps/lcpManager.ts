@@ -3,7 +3,7 @@ const lp = LANCER.log_prefix;
 import { import_cp, clearCompendiumData, set_all_lock } from "../compBuilder";
 import * as mm from "machine-mind";
 import type { IContentPack, IContentPackManifest } from "machine-mind";
-import { migrateAllActors } from "../migration";
+import { migratePilots } from "../migration";
 
 export const core_update = "3.0.31"; // typed_lancer_data.info.version;
 
@@ -23,14 +23,6 @@ function addLCPManager(app: Application, html: any) {
     buttons.append(button);
     button.addEventListener("click", () => {
       new LCPManager().render(true);
-    });
-
-    button = document.createElement("button");
-    button.setAttribute("style", "flex-basis: 100%;margin-top: 5px;");
-    button.innerHTML = "<i class='fas fa-users'></i>Migrate Actors";
-    buttons.append(button);
-    button.addEventListener("click", () => {
-      migrateAllActors();
     });
   }
 }
@@ -78,16 +70,18 @@ class LCPManager extends Application {
     this.lcpFile = null;
     this.cp = null;
     this.manifest = null;
-    this.coreVersion = game.settings.get(LANCER.sys_name, LANCER.setting_core_data);
+    // TODO: find the correct place to specify what game.system.id is expected to be
+    this.coreVersion = game.settings.get(<"lancer">game.system.id, LANCER.setting_core_data);
     // TODO: pull available core version from machine-mind
     this.coreUpdate = core_update;
     console.log(`${lp} Lancer Data version:`, this.coreVersion);
-    this.lcpIndex = new LCPIndex(game.settings.get(LANCER.sys_name, LANCER.setting_lcps).index);
+    // TODO: find the correct place to specify what game.system.id is expected to be
+    this.lcpIndex = new LCPIndex(game.settings.get(<"lancer">game.system.id, LANCER.setting_lcps).index);
   }
 
   static get defaultOptions() {
     return mergeObject(super.defaultOptions, {
-      template: "systems/lancer/templates/lcp/lcp-manager.hbs",
+      template: `systems/${game.system.id}/templates/lcp/lcp-manager.hbs`,
       title: "LANCER Compendium Manager",
       width: 800,
       height: 800,
@@ -106,15 +100,19 @@ class LCPManager extends Application {
   }
 
   updateLcpIndex(manifest: IContentPackManifest) {
-    if (!this.lcpIndex) this.lcpIndex = new LCPIndex(game.settings.get(LANCER.sys_name, LANCER.setting_lcps).index);
+    // TODO: find the correct place to specify what game.system.id is expected to be
+    if (!this.lcpIndex)
+      this.lcpIndex = new LCPIndex(game.settings.get(<"lancer">game.system.id, LANCER.setting_lcps).index);
     else this.lcpIndex.updateManifest(manifest);
-    game.settings.set(LANCER.sys_name, LANCER.setting_lcps, this.lcpIndex).then(() => this.render());
+    game.settings.set(game.system.id, LANCER.setting_lcps, this.lcpIndex).then(() => this.render());
   }
 
   async clearCompendiums() {
     await clearCompendiumData();
-    this.coreVersion = game.settings.get(LANCER.sys_name, LANCER.setting_core_data);
-    this.lcpIndex = new LCPIndex(game.settings.get(LANCER.sys_name, LANCER.setting_lcps).index);
+    // TODO: find the correct place to specify what game.system.id is expected to be
+    this.coreVersion = game.settings.get(<"lancer">game.system.id, LANCER.setting_core_data);
+    // TODO: find the correct place to specify what game.system.id is expected to be
+    this.lcpIndex = new LCPIndex(game.settings.get(<"lancer">game.system.id, LANCER.setting_lcps).index);
     this.render(true);
   }
 
@@ -239,8 +237,8 @@ export async function updateCore(version: string, manager?: LCPManager) {
   let progress_func = (x: any, y: any) => {
     // If we're passing a manager, let it do things as well
     if (manager) manager.update_progress_bar(x, y);
-    // Provide updates every 10%
-    const denom = 10;
+    // Provide updates every 25%
+    const denom = 4;
     let incr = Math.ceil(y / denom);
     if (x >= incr * progress) {
       ui.notifications!.info(`${progress * (100 / denom)}% of Lancer Core data updated`);
@@ -265,5 +263,5 @@ export async function updateCore(version: string, manager?: LCPManager) {
 
   ui.notifications!.info(`Lancer Core data update complete.`);
   await set_all_lock(true);
-  await game.settings.set(LANCER.sys_name, LANCER.setting_core_data, version);
+  await game.settings.set(game.system.id, LANCER.setting_core_data, version);
 }

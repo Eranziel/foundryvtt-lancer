@@ -27,7 +27,7 @@ export class InventoryDialog extends Dialog {
   /** @override */
   static get defaultOptions() {
     return mergeObject(super.defaultOptions, {
-      template: "systems/lancer/templates/window/inventory.hbs",
+      template: `systems/${game.system.id}/templates/window/inventory.hbs`,
       width: 600,
       height: "auto",
       classes: ["lancer"],

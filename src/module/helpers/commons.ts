@@ -115,6 +115,16 @@ export function array_path_edit(target: any, flat_path: string, value: any, mode
   }
 }
 
+export function arrayify_object(in_obj: any) {
+  const out_arr = [];
+  for (const [key, value] of Object.entries(in_obj)) {
+    if (!isNaN(parseInt(key))) {
+      out_arr.push(value);
+    }
+  }
+  return out_arr;
+}
+
 /** Makes many icons in the same format with ease an icon */
 export class IconFactory {
   // Applied to each icon

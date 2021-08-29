@@ -343,7 +343,7 @@ function handlePilotExport(actor: LegacyLancerActor) {
         current_heat: mech.heat.value,
         current_repairs: mech.repairs.value,
         current_overcharge: mech.overcharge_level,
-        current_core_energy: mech.current_core_energy ? 1 : 0,
+        current_core_energy: mech.core_energy ? 1 : 0,
         overshield: 0,
         loadouts: [mechLoadout],
         statuses: [],

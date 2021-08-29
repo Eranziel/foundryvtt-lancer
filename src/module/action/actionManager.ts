@@ -11,9 +11,9 @@ declare global {
         pos: {
           top: number;
           left: number;
-        }
-      }
-    }
+        };
+      };
+    };
   }
 }
 
@@ -48,8 +48,10 @@ export class LancerActionManager extends Application {
   }
 
   async init() {
+    // TODO: find the correct place to specify what game.system.id is expected to be
     LancerActionManager.enabled =
-      game.settings.get(LANCER.sys_name, LANCER.setting_action_manager) && !game.settings.get("core", "noCanvas");
+      game.settings.get(<"lancer">game.system.id, LANCER.setting_action_manager) &&
+      !game.settings.get("core", "noCanvas");
     if (LancerActionManager.enabled) {
       this.loadUserPos();
       await this.updateControlledToken();
@@ -60,7 +62,7 @@ export class LancerActionManager extends Application {
   /** @override */
   static get defaultOptions() {
     return mergeObject(super.defaultOptions, {
-      template: "systems/lancer/templates/window/action_manager.hbs",
+      template: `systems/${game.system.id}/templates/window/action_manager.hbs`,
       width: 310,
       height: 70,
       left: LancerActionManager.DEF_LEFT,
@@ -79,7 +81,7 @@ export class LancerActionManager extends Application {
       position: this.position,
       name: this.target && this.target.data.name.toLocaleUpperCase(),
       actions: this.getActions(),
-      clickable: game.user?.isGM || game.settings.get(LANCER.sys_name, LANCER.setting_action_manager_players),
+      clickable: game.user?.isGM || game.settings.get(game.system.id, LANCER.setting_action_manager_players),
     };
   }
 
@@ -113,7 +115,7 @@ export class LancerActionManager extends Application {
   }
 
   async updateConfig() {
-    if (game.settings.get(LANCER.sys_name, LANCER.setting_action_manager) && !game.settings.get("core", "noCanvas")) {
+    if (game.settings.get(game.system.id, LANCER.setting_action_manager) && !game.settings.get("core", "noCanvas")) {
       await this.update();
       LancerActionManager.enabled = true;
     } else {
@@ -205,7 +207,7 @@ export class LancerActionManager extends Application {
     // Enable action toggles.
     html.find("a.action[data-action]").on("click", e => {
       e.preventDefault();
-      if (game.user?.isGM || game.settings.get(LANCER.sys_name, LANCER.setting_action_manager_players)) {
+      if (game.user?.isGM || game.settings.get(game.system.id, LANCER.setting_action_manager_players)) {
         const action = e.currentTarget.dataset.action;
         action && this.toggleAction(action as ActionType);
       } else {

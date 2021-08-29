@@ -296,7 +296,7 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
       }
 
       let macroData: LancerMacroData = {
-        iconPath: `systems/lancer/assets/icons/macro-icons/mech_system.svg`,
+        iconPath: `systems/${game.system.id}/assets/icons/macro-icons/mech_system.svg`,
         title: sys.Name,
         command: `game.lancer.prepareItemMacro("${sys.Flags.orig_doc.actor?.id ?? ""}", "${sys.Flags.orig_doc.id}")`,
       };

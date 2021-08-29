@@ -11,7 +11,14 @@
 import "./lancer.scss";
 
 // Import TypeScript modules
-import { LANCER, STATUSES, WELCOME } from "./module/config";
+import {
+  LANCER,
+  COMPATIBLE_MIGRATION_VERSION,
+  NEEDS_MAJOR_MIGRATION_VERSION,
+  NEEDS_MINOR_MIGRATION_VERSION,
+  STATUSES,
+  WELCOME,
+} from "./module/config";
 import type { LancerGame } from "./module/lancer-game";
 import { LancerActor, lancerActorInit } from "./module/actor/lancer-actor";
 import { LancerItem, lancerItemInit } from "./module/item/lancer-item";
@@ -145,12 +152,6 @@ Hooks.once("init", async function () {
   // Register custom system settings
   registerSettings();
 
-  await sanityCheck();
-  if (game.settings.get(LANCER.sys_name, LANCER.setting_beta_warning)) {
-    return;
-  }
-  console.log(`${lp} Sanity check passed, continuing with initialization.`);
-
   // no need to block on amplify - logging into comp/con and populating the cache
   // it can happen in the background
   configureAmplify();
@@ -205,7 +206,7 @@ Hooks.once("init", async function () {
   CONFIG.Token.objectClass = LancerToken;
 
   // Set up system status icons
-  const keepStock = game.settings.get(LANCER.sys_name, LANCER.setting_stock_icons);
+  const keepStock = game.settings.get(game.system.id, LANCER.setting_stock_icons);
   let statuses: { id: string; label: string; icon: string }[] = [];
   if (keepStock) statuses = statuses.concat(CONFIG.statusEffects);
   statuses = statuses.concat(STATUSES);
@@ -468,9 +469,6 @@ Hooks.once("init", async function () {
   // NPC components
   Handlebars.registerHelper("tier-selector", npc_tier_selector);
   Handlebars.registerHelper("npc-feat-preview", npc_feature_preview);
-
-  // TODO: remove when sanity check is no longer needed.
-  (<LancerGame>game).lancer.finishedInit = true;
 });
 
 // TODO: either remove when sanity check is no longer needed, or find a better home.
@@ -497,12 +495,12 @@ Hooks.once("setup", function () {
           edef: 8,
           evasion: 5,
           save_target: 0,
-          current_heat: bar_like,
-          current_hp: bar_like,
+          heat: bar_like,
+          hp: bar_like,
           overshield: bar_like,
-          current_structure: bar_like,
-          current_stress: bar_like,
-          current_repairs: bar_like,
+          structure: bar_like,
+          stress: bar_like,
+          repairs: bar_like,
         };
         mergeObject(data, { derived });
       }
@@ -523,14 +521,14 @@ export const system_ready: Promise<void> = new Promise(success => {
     Hooks.on("preUpdateCombat", handleCombatUpdate);
 
     // Wait for sanity check to complete.
-    let ready: boolean = false;
-    while (!ready) {
-      await sleep(100);
-      ready = !!(<LancerGame>game).lancer?.finishedInit;
-    }
+    // let ready: boolean = false;
+    // while (!ready) {
+    //   await sleep(100);
+    //   ready = !!(<LancerGame>game).lancer?.finishedInit;
+    // }
     console.log(`${lp} Foundry ready, doing final checks.`);
 
-    await versionCheck();
+    await doMigration();
     await showChangelog();
 
     applyCollapseListeners();
@@ -632,7 +630,7 @@ Hooks.on("renderChatMessage", async (cm: ChatMessage, html: any, data: any) => {
           roll: roll,
           roll_tooltip: await roll.getTooltip(),
         };
-        const html = await renderTemplate("systems/lancer/templates/chat/overkill-reroll.hbs", templateData);
+        const html = await renderTemplate(`systems/${game.system.id}/templates/chat/overkill-reroll.hbs`, templateData);
         const rollMode = game.settings.get("core", "rollMode");
         let chat_data: Record<string, unknown> = {
           user: game.user,
@@ -737,34 +735,52 @@ function setupSheets() {
 }
 
 /**
- * Performs our version validation
- * Uses window.FEATURES to check theoretical Foundry compatibility with our features
- * Also performs system version checks
+ * Check whether the world needs any migration.
+ * @return -1 for migration needed, 0 for world equal to migration target version,
+ * 1 for world ahead of migration target version.
  */
-async function versionCheck() {
+async function versionCheck(): Promise<"none" | "minor" | "major"> {
   // Determine whether a system migration is required and feasible
-  const currentVersion = game.settings.get(LANCER.sys_name, LANCER.setting_migration);
+  // TODO: find the correct place to specify what game.system.id is expected to be
+  const currentVersion = game.settings.get(<"lancer">game.system.id, LANCER.setting_migration);
 
   // If it's 0 then it's a fresh install
   if (currentVersion === "0" || currentVersion === "") {
-    await game.settings.set(LANCER.sys_name, LANCER.setting_migration, game.system.data.version);
+    await game.settings.set(game.system.id, LANCER.setting_migration, game.system.data.version);
     await promptInstallCoreData();
-    return;
+    return "none";
   }
 
   let compareVersions = (await import("compare-versions")).default;
 
   // Modify these constants to set which Lancer version numbers need and permit migration.
-  const NEEDS_MIGRATION_VERSION = "0.9.0";
-  const COMPATIBLE_MIGRATION_VERSION = "0.1.0";
-  let needMigration = currentVersion ? compareVersions(currentVersion, NEEDS_MIGRATION_VERSION) : 1;
+  if (compareVersions(currentVersion, NEEDS_MAJOR_MIGRATION_VERSION) < 0) {
+    return "major";
+  } else if (compareVersions(currentVersion, NEEDS_MINOR_MIGRATION_VERSION) < 0) {
+    return "minor";
+  } else {
+    return "none";
+  }
+}
 
+/**
+ * Performs our version validation and migration
+ * Uses window.FEATURES to check theoretical Foundry compatibility with our features
+ * Also performs system version checks
+ */
+async function doMigration() {
+  // Determine whether a system migration is required and feasible
+  // TODO: find the correct place to specify what game.system.id is expected to be
+  const currentVersion = game.settings.get(<"lancer">game.system.id, LANCER.setting_migration);
+  let migration = await versionCheck();
   // Check whether system has been updated since last run.
-  if (compareVersions(currentVersion, game.system.data.version) != 0 && game.user!.isGM) {
+  if (migration != "none" && game.user!.isGM) {
     // Un-hide the welcome message
-    await game.settings.set(LANCER.sys_name, LANCER.setting_welcome, false);
+    await game.settings.set(game.system.id, LANCER.setting_welcome, false);
 
-    if (needMigration <= 0) {
+    if (migration == "major") {
+      let compareVersions = (await import("compare-versions")).default;
+
       if (currentVersion && compareVersions(currentVersion, COMPATIBLE_MIGRATION_VERSION) < 0) {
         // System version is too old for migration
         ui.notifications!.error(
@@ -773,63 +789,14 @@ async function versionCheck() {
         );
       }
       // Perform the migration
-      await migrations.migrateWorld(true, false);
+      await migrations.migrateWorld();
+    } else if (migration == "minor") {
+      // Perform the migration
+      await migrations.minor09Migration();
     }
     // Set the version for future migration and welcome message checking
-    await game.settings.set(LANCER.sys_name, LANCER.setting_migration, game.system.data.version);
+    await game.settings.set(game.system.id, LANCER.setting_migration, game.system.data.version);
   }
-}
-
-async function sanityCheck() {
-  const message = `<h1>DO NOT USE THIS VERSION ON AN EXISTING WORLD</h1>
-<p>This version contains <i>vast</i> changes from the current stable release of LANCER, and does not contain <i>any</i>
-safety or migration for existing world data. If this is an existing world that contains <i><b>ANY</b></i> data you
-care about, <i class="horus--subtle"><b>DO NOT CONTINUE</b></i>.</p>
-
-<p>This version should only be used on a fresh, empty world created just for
-testing this beta. You must re-install the stable release of LANCER before running your regularly scheduled games.</p>
-
-<p>With that said, welcome to LANCER v0.9.0, the closed beta test before v1.0.0 releases! Please kick the tires, explore
-the new system, and send us your feedback! Bug reports can be submitted at 
-<a href="https://github.com/Eranziel/foundryvtt-lancer/issues">our GitHub issues list</a>. We haven't kept a changelog,
-because nearly everything has changed (sorry).</p>`;
-  if (!game.settings.get(LANCER.sys_name, LANCER.setting_beta_warning)) {
-    console.log(`${lp} Sanity check already done, continuing as normal.`);
-    return;
-  }
-  console.log(`${lp} Performing sanity check.`);
-  new Dialog(
-    {
-      title: `LANCER BETA v${game.system.data.version}`,
-      content: message,
-      buttons: {
-        accept: {
-          label: "This is a fresh world, I am safe to beta test here",
-          callback: async () => {
-            await game.settings.set(LANCER.sys_name, LANCER.setting_beta_warning, false);
-            ui.notifications!.info("Beta test beginning momentarily! Page reloading in 3...");
-            await sleep(1000);
-            ui.notifications!.info("2...");
-            await sleep(1000);
-            ui.notifications!.info("1...");
-            await sleep(1000);
-            window.location.reload();
-          },
-        },
-        cancel: {
-          label: "TAKE ME BACK, I CARE ABOUT MY DATA",
-          callback: async () => {
-            await game.settings.set(LANCER.sys_name, LANCER.setting_beta_warning, true);
-            game.logOut();
-          },
-        },
-      },
-      default: "cancel",
-    },
-    {
-      width: 1000,
-    }
-  ).render(true);
 }
 
 async function configureAmplify() {
@@ -854,7 +821,7 @@ async function configureAmplify() {
 
 async function showChangelog() {
   // Show welcome message if not hidden.
-  if (!game.settings.get(LANCER.sys_name, LANCER.setting_welcome)) {
+  if (!game.settings.get(game.system.id, LANCER.setting_welcome)) {
     let renderChangelog = (changelog: string) => {
       new Dialog(
         {
@@ -864,7 +831,7 @@ async function showChangelog() {
             dont_show: {
               label: "Do Not Show Again",
               callback: async () => {
-                await game.settings.set(LANCER.sys_name, LANCER.setting_welcome, true);
+                await game.settings.set(game.system.id, LANCER.setting_welcome, true);
               },
             },
             close: {
@@ -917,7 +884,7 @@ function addSettingsButtons(_app: Application, html: HTMLElement) {
   $(html).find("#settings-documentation").append(faqButton);
 
   faqButton.on("click", async () => {
-    let helpContent = await renderTemplate("systems/lancer/templates/window/lancerHelp.hbs", {});
+    let helpContent = await renderTemplate(`systems/${game.system.id}/templates/window/lancerHelp.hbs`, {});
 
     new Dialog(
       {

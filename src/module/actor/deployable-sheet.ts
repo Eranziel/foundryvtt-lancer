@@ -22,7 +22,7 @@ export class LancerDeployableSheet extends LancerActorSheet<EntryType.DEPLOYABLE
   static get defaultOptions(): ActorSheet.Options {
     return mergeObject(super.defaultOptions, {
       classes: ["lancer", "sheet", "actor", "npc"],
-      template: "systems/lancer/templates/actor/deployable.hbs",
+      template: `systems/${game.system.id}/templates/actor/deployable.hbs`,
       width: 800,
       height: 800,
       tabs: [

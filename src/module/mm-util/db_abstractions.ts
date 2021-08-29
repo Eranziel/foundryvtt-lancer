@@ -394,7 +394,7 @@ const PackContentMapCache = new FetcherCache(
 export async function cached_get_pack_map<T extends LancerItemType | LancerActorType>(
   type: T
 ): Promise<Map<string, T extends LancerItemType ? LancerItem<T> : T extends LancerActorType ? LancerActor<T> : never>> {
-  console.log("Cache flushing should be triggered off of compendium CRUD hooks");
+  // console.log("Cache flushing should be triggered off of compendium CRUD hooks");
   return PackContentMapCache.fetch(type);
 }
 

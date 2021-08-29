@@ -35,7 +35,7 @@ export class ActionEditDialog<O> extends Dialog {
   /** @override */
   static get defaultOptions() {
     return mergeObject(super.defaultOptions, {
-      template: "systems/lancer/templates/window/action_editor.hbs",
+      template: `systems/${game.system.id}/templates/window/action_editor.hbs`,
       width: 400,
       height: "auto",
       classes: ["lancer"],
