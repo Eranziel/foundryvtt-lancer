@@ -741,8 +741,7 @@ function setupSheets() {
  */
 async function versionCheck(): Promise<"none" | "minor" | "major"> {
   // Determine whether a system migration is required and feasible
-  // TODO: find the correct place to specify what game.system.id is expected to be
-  const currentVersion = game.settings.get(<"lancer">game.system.id, LANCER.setting_migration);
+  const currentVersion = game.settings.get(game.system.id, LANCER.setting_migration);
 
   // If it's 0 then it's a fresh install
   if (currentVersion === "0" || currentVersion === "") {
@@ -770,8 +769,7 @@ async function versionCheck(): Promise<"none" | "minor" | "major"> {
  */
 async function doMigration() {
   // Determine whether a system migration is required and feasible
-  // TODO: find the correct place to specify what game.system.id is expected to be
-  const currentVersion = game.settings.get(<"lancer">game.system.id, LANCER.setting_migration);
+  const currentVersion = game.settings.get(game.system.id, LANCER.setting_migration);
   let migration = await versionCheck();
   // Check whether system has been updated since last run.
   if (migration != "none" && game.user!.isGM) {

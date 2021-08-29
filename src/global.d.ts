@@ -5,6 +5,12 @@ declare global {
     game: never;
   }
 
+  namespace Game {
+    interface SystemData<T> {
+      id: "lancer";
+    }
+  }
+
   namespace ClientSettings {
     interface Values {
       "lancer.systemMigrationVersion": string;
