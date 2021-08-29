@@ -33,8 +33,8 @@ export class LancerDeployableSheet extends LancerActorSheet<EntryType.DEPLOYABLE
         },
       ],
     });
-  }  
-  
+  }
+
   // Need to allow this stuff for setting deployable
   can_root_drop_entry(item: AnyMMActor | AnyMMItem): boolean {
     // Accept actors

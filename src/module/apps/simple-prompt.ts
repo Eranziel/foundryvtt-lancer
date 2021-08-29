@@ -1,9 +1,10 @@
 // Spawn a simple dialogue to edit a string. Returns null on close
-export function promptText(title: string, prefill: string=""): Promise<string | null> {
-    return new Promise((succ, _rej) => {
-      new Dialog({
+export function promptText(title: string, prefill: string = ""): Promise<string | null> {
+  return new Promise((succ, _rej) => {
+    new Dialog(
+      {
         title,
-        content: `
+        content: ` 
           <div class="form-group">  
             <input id="textval" style="width: 100%;" value="${prefill}"></input>
           </div>
@@ -20,9 +21,11 @@ export function promptText(title: string, prefill: string=""): Promise<string | 
           },
         },
         close: () => succ(null),
-        default: "confirm"
-    }, {
-      classes: ["lancer"]  
-    }).render(true);
+        default: "confirm",
+      },
+      {
+        classes: ["lancer"],
+      }
+    ).render(true);
   });
 }

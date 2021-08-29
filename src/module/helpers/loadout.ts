@@ -53,7 +53,7 @@ function weapon_mount(
   let mount = resolve_helper_dotpath(helper, mount_path) as WeaponMount;
 
   // If bracing, override
-  if(mount.Bracing) {
+  if (mount.Bracing) {
     return ` 
     <div class="mount card" >
       <div class="lancer-header mount-type-ctx-root" data-path="${mount_path}">
@@ -265,7 +265,6 @@ function frame_active(actor: LancerActor, core: CoreSystem): string {
   }).join("");
 
   // Should find a better way to do this...
-
 
   let coreMacroData: LancerMacroData = {
     command: `game.lancer.prepareCoreActiveMacro("${actor.id}")`,

@@ -538,16 +538,16 @@ export const GlobalMMDragState = {
   dragging: false as boolean,
   curr_dragged_type: EntryType,
   curr_dragged_entity: null as LancerActor | LancerItem | null, // If it is a native entity, we set this
-  curr_dragged_ref: null as RegRef<EntryType> | null // If it is a ref, we set this
-}
+  curr_dragged_ref: null as RegRef<EntryType> | null, // If it is a ref, we set this
+};
 
 function dragging_class(for_type: EntryType): string {
-  return `dragging-${for_type}`
+  return `dragging-${for_type}`;
 }
 
 function set_global_drag(to: LancerActor | LancerItem | RegRef<any>) {
   // Check for duplicate work and clear if that isn't the case
-  if(GlobalMMDragState.curr_dragged_entity == to || GlobalMMDragState.curr_dragged_ref == to) {
+  if (GlobalMMDragState.curr_dragged_entity == to || GlobalMMDragState.curr_dragged_ref == to) {
     return; // don't repeat
   }
   clear_global_drag();
@@ -557,10 +557,10 @@ function set_global_drag(to: LancerActor | LancerItem | RegRef<any>) {
   let type: EntryType;
   let rr = to as RegRef<any>;
   let ent = to as LancerActor | LancerItem;
-  if(rr.fallback_lid !== undefined) {
+  if (rr.fallback_lid !== undefined) {
     GlobalMMDragState.curr_dragged_ref = rr;
     type = rr.type;
-  } else if(ent.data !== undefined) {
+  } else if (ent.data !== undefined) {
     GlobalMMDragState.curr_dragged_entity = ent;
     type = ent.data.type;
   } else {
@@ -576,11 +576,11 @@ function set_global_drag(to: LancerActor | LancerItem | RegRef<any>) {
 }
 
 function clear_global_drag() {
-  if(GlobalMMDragState.dragging) {
+  if (GlobalMMDragState.dragging) {
     GlobalMMDragState.dragging = false;
-    if(GlobalMMDragState.curr_dragged_entity) {
+    if (GlobalMMDragState.curr_dragged_entity) {
       $("body").removeClass(dragging_class(GlobalMMDragState.curr_dragged_entity.data.type));
-    } else if(GlobalMMDragState.curr_dragged_ref?.type) {
+    } else if (GlobalMMDragState.curr_dragged_ref?.type) {
       $("body").removeClass(dragging_class(GlobalMMDragState.curr_dragged_ref.type));
     }
     GlobalMMDragState.curr_dragged_entity = null;
@@ -593,43 +593,51 @@ export function applyGlobalDragListeners() {
   let body = document.getElementsByTagName("body")[0];
 
   // Capture when we start dragging anything anywhere - this covers regrefs and native drags
-  body.addEventListener("dragstart", (e) => {
-    // Even though we are capturing, we need to wait a moment so the event data transfer can occur
-    setTimeout(async () => {
-      // Ok. Try to resolve
-      let text = e.dataTransfer?.getData("text/plain") ?? null
-      if(!text) {
-        // Drop it - we can't really do much about this happening
-        return;
-      }
-
-      let resolved = await resolve_native_drop(text);
-
-      // No joy - is it by chance already a ref
-      if(!resolved) {
-        let ar = safe_json_parse(text) as RegRef<any>;
-        if(ar?.fallback_lid !== undefined) {
-          // It's a ref!
-          set_global_drag(ar);
+  body.addEventListener(
+    "dragstart",
+    e => {
+      // Even though we are capturing, we need to wait a moment so the event data transfer can occur
+      setTimeout(async () => {
+        // Ok. Try to resolve
+        let text = e.dataTransfer?.getData("text/plain") ?? null;
+        if (!text) {
+          // Drop it - we can't really do much about this happening
+          return;
         }
-        return; // Well! no idea what that is
-      }
 
-      // Upon success
-      if(resolved.type == "Item" || resolved.type == "Actor") {
-        set_global_drag(resolved.entity);
-      }
-    }, 100);
-  }, {
-    capture: true, // We don't want people preventing us from seeing this!
-    passive: true // Improves performance. We only want to watch
-  });
+        let resolved = await resolve_native_drop(text);
+
+        // No joy - is it by chance already a ref
+        if (!resolved) {
+          let ar = safe_json_parse(text) as RegRef<any>;
+          if (ar?.fallback_lid !== undefined) {
+            // It's a ref!
+            set_global_drag(ar);
+          }
+          return; // Well! no idea what that is
+        }
+
+        // Upon success
+        if (resolved.type == "Item" || resolved.type == "Actor") {
+          set_global_drag(resolved.entity);
+        }
+      }, 100);
+    },
+    {
+      capture: true, // We don't want people preventing us from seeing this!
+      passive: true, // Improves performance. We only want to watch
+    }
+  );
 
   // Clear whenever we stop dragging anywhere
-  body.addEventListener("dragend", (e) => {
-    clear_global_drag();
-  }, {
-    capture: true, // Same as above
-    passive: true
-  });
+  body.addEventListener(
+    "dragend",
+    e => {
+      clear_global_drag();
+    },
+    {
+      capture: true, // Same as above
+      passive: true,
+    }
+  );
 }

@@ -110,11 +110,7 @@ export function compact_tag(tag_path: string, tag: TagInstance): string {
 }
 
 // The above, but on an array, filtering out hidden as appropriate
-export function compact_tag_list(
-  tag_array_path: string,
-  tags: TagInstance[],
-  allow_drop: boolean
-): string {
+export function compact_tag_list(tag_array_path: string, tags: TagInstance[], allow_drop: boolean): string {
   // Collect all of the tags, formatting them using `compact_tag`
   let processed_tags: string[] = [];
   for (let i = 0; i < tags.length; i++) {
@@ -141,9 +137,7 @@ export function compact_tag_list(
 }
 
 // Allows user to remove tags or edit their value via right click
-export function HANDLER_activate_tag_context_menus<
-  T extends LancerActorSheetData<any> | LancerItemSheetData<any>
->(
+export function HANDLER_activate_tag_context_menus<T extends LancerActorSheetData<any> | LancerItemSheetData<any>>(
   html: JQuery,
   // Retrieves the data that we will operate on
   data_getter: () => Promise<T> | T,
@@ -159,7 +153,7 @@ export function HANDLER_activate_tag_context_menus<
       let tag_path = html[0].dataset.path ?? "";
 
       // Remove the tag from its array
-      if(tag_path) {
+      if (tag_path) {
         array_path_edit(cd, tag_path, null, "delete");
 
         // Then commit
@@ -187,7 +181,7 @@ export function HANDLER_activate_tag_context_menus<
       // Spawn the dialogue to edit
       let new_val = await promptText("Edit Tag", (tag_instance.Value ?? "").toString());
 
-      if(new_val !== null) {
+      if (new_val !== null) {
         // Set the tag value
         tag_instance.Value = new_val;
 
@@ -231,7 +225,7 @@ export function HANDLER_activate_tag_dropping<T>(
   HANDLER_enable_mm_dropping(
     html.find(".tag-list-append"),
     resolver,
-    (ent) => ent.Type == EntryType.TAG,
+    ent => ent.Type == EntryType.TAG,
     async (tag_ent, dest, _evt) => {
       // Well, we got a drop!
       let path = dest[0].dataset.path!;

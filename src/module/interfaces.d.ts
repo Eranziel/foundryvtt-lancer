@@ -171,5 +171,5 @@ export interface GenControlContext<T> {
 export interface ContextMenuItem {
   name: string;
   icon?: string; // class used to generate icon, if it should exist at all. e.x. "fa fa-fw fa-times"
-  callback: (target: JQuery) => void | Promise<void> // argument is the element to which the context menu attaches
+  callback: (target: JQuery) => void | Promise<void>; // argument is the element to which the context menu attaches
 }

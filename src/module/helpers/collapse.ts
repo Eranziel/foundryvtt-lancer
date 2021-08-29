@@ -1,7 +1,6 @@
 export const COLLAPSE_KEY = "collapse_state";
 /** To make collapsible work on a sheet, that sheet must export as part of its getData() function an instance of this object,
  * under the key [COLLAPSE_KEY]
- *
  */
 export class CollapseHandler {
   private state: Map<string, boolean> = new Map();

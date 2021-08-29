@@ -173,7 +173,7 @@ Hooks.once("init", async function () {
       WeaponRangeTemplate,
     },
     helpers: {
-      gridDist
+      gridDist,
     },
     prepareItemMacro: macros.prepareItemMacro,
     prepareStatMacro: macros.prepareStatMacro,
@@ -195,8 +195,8 @@ Hooks.once("init", async function () {
     utilities: {
       reg: FoundryReg,
       ctx: mm.OpCtx,
-      mm
-    }
+      mm,
+    },
   };
 
   // Record Configuration Values

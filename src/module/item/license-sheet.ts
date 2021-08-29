@@ -29,8 +29,8 @@ export class LancerLicenseSheet extends LancerItemSheet<EntryType.LICENSE> {
     // Build an unlocks array
     let ranks = Array.from(scan.ByLevel.keys()).sort();
     let unlocks: LicensedItem[][] = [];
-    if(ranks.length) {
-      for(let i = 0; i<=ranks[ranks.length - 1]; i++) {
+    if (ranks.length) {
+      for (let i = 0; i <= ranks[ranks.length - 1]; i++) {
         unlocks.push(scan.ByLevel.get(i) ?? []);
       }
     }

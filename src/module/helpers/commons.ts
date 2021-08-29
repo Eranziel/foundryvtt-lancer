@@ -227,13 +227,18 @@ export function format_dotpath(path: string): string {
 }
 
 // Helper function to get arbitrarily deep array references
-export function resolve_dotpath(object: any, path: string, default_: any = null, opts?: {
-  shorten_by?: number
-}) {
+export function resolve_dotpath(
+  object: any,
+  path: string,
+  default_: any = null,
+  opts?: {
+    shorten_by?: number;
+  }
+) {
   let pathlets = format_dotpath(path).split(".");
 
   // Shorten path if requested to do so
-  if(opts?.shorten_by && opts?.shorten_by > 0) {
+  if (opts?.shorten_by && opts?.shorten_by > 0) {
     pathlets.splice(-opts.shorten_by);
   }
 
@@ -736,13 +741,17 @@ export function read_form(form_element: HTMLFormElement): Record<string, string 
  * @argument options: The options to show
  * @argument on_select_any: Called when any options is selected, after calling callback. Useful for closing menus etc
  */
-export function create_context_menu(parent: JQuery<HTMLElement>, options: ContextMenuItem[], on_select_any?: () => void): Element {
+export function create_context_menu(
+  parent: JQuery<HTMLElement>,
+  options: ContextMenuItem[],
+  on_select_any?: () => void
+): Element {
   let menu = $(`<div class="lancer-context-menu flexcol" />`);
-  for(let o of options) {
+  for (let o of options) {
     let ro = $(`<div class="lancer-context-item">${o.icon ?? ""}${o.name}</div>`);
     ro.on("click", () => {
       o.callback(parent);
-      if(on_select_any) on_select_any();
+      if (on_select_any) on_select_any();
     });
     menu.append(ro);
   }
@@ -752,13 +761,16 @@ export function create_context_menu(parent: JQuery<HTMLElement>, options: Contex
 /** Attach a tippy context menu to the given target(s)
  *  Options can be fixed or can be generated based on the specific target to which the context menu is being
  */
-export function tippy_context_menu(targets: JQuery<HTMLElement>, options: ContextMenuItem[] | ((specific_target: JQuery<HTMLElement>) => ContextMenuItem[])): void {
+export function tippy_context_menu(
+  targets: JQuery<HTMLElement>,
+  options: ContextMenuItem[] | ((specific_target: JQuery<HTMLElement>) => ContextMenuItem[])
+): void {
   targets.each((_, _target) => {
     let target = $(_target);
 
     // Make the options
     let curr_options = options;
-    if(!Array.isArray(curr_options)) {
+    if (!Array.isArray(curr_options)) {
       curr_options = curr_options(target);
     }
 
@@ -769,7 +781,7 @@ export function tippy_context_menu(targets: JQuery<HTMLElement>, options: Contex
       trigger: "manual",
       interactive: true,
       allowHTML: true,
-      theme: "lancer-large"
+      theme: "lancer-large",
     });
 
     // Generate the content
@@ -777,7 +789,7 @@ export function tippy_context_menu(targets: JQuery<HTMLElement>, options: Contex
     instance.setContent(content);
 
     // Bind it to right click
-    target.on("contextmenu", async (event) => {
+    target.on("contextmenu", async event => {
       event.preventDefault();
       /*
         instance.setProps({

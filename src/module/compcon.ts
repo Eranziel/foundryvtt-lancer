@@ -9,7 +9,7 @@ import type { CachedCloudPilot } from "./interfaces";
 let _cache: CachedCloudPilot[] = [];
 
 export function cleanCloudOwnerID(str: string): string {
-  return str.substring(0, 10) == 'us-east-1:' ? str.substring(10) : str
+  return str.substring(0, 10) == "us-east-1:" ? str.substring(10) : str;
 }
 
 export async function populatePilotCache(): Promise<CachedCloudPilot[]> {
@@ -17,8 +17,7 @@ export async function populatePilotCache(): Promise<CachedCloudPilot[]> {
   const { Storage } = await import("@aws-amplify/storage");
   await Auth.currentSession(); // refresh the token if we need to
   const res = await Storage.list("pilot", { level: "protected" });
-  const data: Array<PackedPilotData> =
-    await Promise.all(res.map((obj: { key: string }) => fetchPilot(obj.key)));
+  const data: Array<PackedPilotData> = await Promise.all(res.map((obj: { key: string }) => fetchPilot(obj.key)));
   data.forEach(pilot => {
     pilot.mechs = [];
     pilot.cloudOwnerID = cleanCloudOwnerID(pilot.cloudOwnerID);
@@ -33,7 +32,8 @@ export function pilotCache(): CachedCloudPilot[] {
 
 export async function fetchPilot(cloudID: string, cloudOwnerID?: string): Promise<PackedPilotData> {
   // we're just gonna. accept all possible forms of this. let's not fuss.
-  if (!cloudOwnerID && cloudID.includes("//")) { // only one argument, new-style vault id
+  if (!cloudOwnerID && cloudID.includes("//")) {
+    // only one argument, new-style vault id
     [cloudOwnerID, cloudID] = cloudID.split("//");
   }
   if (cloudID.substring(0, 6) != "pilot/") {
@@ -53,9 +53,11 @@ export async function fetchPilot(cloudID: string, cloudOwnerID?: string): Promis
   const { Storage } = await import("@aws-amplify/storage");
   const req: any = {
     level: "protected",
-    download: true
+    download: true,
   };
-  if (cloudOwnerID) { req.identityId = cloudOwnerID; }
+  if (cloudOwnerID) {
+    req.identityId = cloudOwnerID;
+  }
   const res = (await Storage.get(cloudID, req)) as any;
   const text = await res.Body.text();
   return JSON.parse(text);

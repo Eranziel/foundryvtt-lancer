@@ -1,4 +1,3 @@
-
 // TODO: Just use machine mind, where possible
 
 export enum PilotEquipType {
@@ -58,24 +57,24 @@ export enum ActivationOptions {
   ACTION = "Action",
   TECH = "Tech",
   ATTACK = "Attack",
-  DEPLOYABLE = "Deployable"
+  DEPLOYABLE = "Deployable",
 }
 
 export enum ChipIcons {
   Roll = `<i class="fas fa-dice-d20"></i>`,
-  Chat =  `<i class="mdi mdi-message"></i>`,
+  Chat = `<i class="mdi mdi-message"></i>`,
   Deployable = `<i class="cci cci-deployable"></i>`,
-  Core = `<i class="cci cci-corebonus"></i>`
+  Core = `<i class="cci cci-corebonus"></i>`,
 }
 
 export enum StabOptions1 {
   Cool = "Cool",
-  Repair = "Repair"
+  Repair = "Repair",
 }
 
 export enum StabOptions2 {
   Reload = "Reload",
   ClearBurn = "ClearBurn",
   ClearOwnCond = "ClearOwnCond",
-  ClearOtherCond = "ClearOtherCond"
+  ClearOtherCond = "ClearOtherCond",
 }

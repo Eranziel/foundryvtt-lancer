@@ -605,7 +605,6 @@ export function mech_weapon_refview(
       <i class="cci cci-weaponmod i--m i--light"> </i>
       <span>Insert Mod</span>
     </div>`;
-
   }
 
   // Assert not null
@@ -648,7 +647,7 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.Select
 
   // Augment tags
   let tags = profile.Tags;
-  if(mod) {
+  if (mod) {
     tags = funcs.merge_tags(tags, mod.AddedTags);
   }
 
@@ -661,8 +660,8 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.Select
   let on_attack = profile.OnAttack ? effect_box("On Attack", profile.OnAttack) : "";
   let on_hit = profile.OnHit ? effect_box("On Hit", profile.OnHit) : "";
   let on_crit = profile.OnCrit ? effect_box("On Crit", profile.OnCrit) : "";
-  
-  let limited = is_limited(weapon) ? limited_chip_HTML(weapon, weapon_path): "";
+
+  let limited = is_limited(weapon) ? limited_chip_HTML(weapon, weapon_path) : "";
 
   return `
   <div class="mech-weapon-wrapper${mod_text ? "-modded" : ""}">
@@ -787,23 +786,21 @@ export function buildActionHTML(
     // Not using type yet but let's plan forward a bit
     let type: ActivationOptions;
     let icon: ChipIcons | undefined;
-    
+
     // If we don't have a trigger do a simple detail
-    if(!action.Trigger)
-      detailText = `<div class="action-detail collapse ${options.full ? "" : "collapsed"}" data-collapse-id="${collID}">${
-        action.Detail
-      }</div>`;
+    if (!action.Trigger)
+      detailText = `<div class="action-detail collapse ${
+        options.full ? "" : "collapsed"
+      }" data-collapse-id="${collID}">${action.Detail}</div>`;
     // Otherwise, look to be explicit about which is which
     else {
       detailText = `<div class="action-detail collapse ${options.full ? "" : "collapsed"}" data-collapse-id="${collID}">
-        <div class="overline">${game.i18n.localize('lancer.chat-card.label.trigger')}</div> 
+        <div class="overline">${game.i18n.localize("lancer.chat-card.label.trigger")}</div> 
         <div>${action.Trigger}</div>
-        <div class="overline">${game.i18n.localize('lancer.chat-card.label.effect')}</div> 
+        <div class="overline">${game.i18n.localize("lancer.chat-card.label.effect")}</div> 
         <div>${action.Detail}</div> 
       </div>`;
     }
-    
-
 
     if (options.num !== undefined) {
       switch (action.Activation) {
@@ -996,7 +993,8 @@ export function buildCounterHTML(
     <span>${data.Max}</span>`;
   }
 
-  if(actor_level) nameChunk = `<input class="counter-name" name="${data.Name}" value="${data.Name}" type="text" data-dtype="text" />`;
+  if (actor_level)
+    nameChunk = `<input class="counter-name" name="${data.Name}" value="${data.Name}" type="text" data-dtype="text" />`;
   else nameChunk = data.Name;
 
   return `
@@ -1006,8 +1004,8 @@ export function buildCounterHTML(
       ${
         actor_level
           ? `<a class="gen-control" data-action="splice" data-path="${
-            array_path ? array_path : path
-          }"><i class="fas fa-trash"></i></a>`
+              array_path ? array_path : path
+            }"><i class="fas fa-trash"></i></a>`
           : ""
       }
     </div>
@@ -1076,13 +1074,13 @@ export function HANDLER_activate_profile_context_menus<T extends LancerItemSheet
       let profile_path = html[0].dataset.path ?? "";
 
       // Remove the tag from its array
-      if(profile_path) {
+      if (profile_path) {
         // Make sure we aren't deleting the last item
         let profile_path_parts = format_dotpath(profile_path).split(".");
         let weapon_path = profile_path_parts.slice(0, profile_path_parts.length - 2).join(".");
         let weapon: MechWeapon | null = resolve_dotpath(cd, weapon_path, null);
 
-        if((weapon?.Profiles.length ?? 0) <= 1) {
+        if ((weapon?.Profiles.length ?? 0) <= 1) {
           ui.notifications!.error("Cannot delete last profile on a weapon");
           return;
         }
@@ -1114,7 +1112,7 @@ export function HANDLER_activate_profile_context_menus<T extends LancerItemSheet
       // Spawn the dialogue to edit
       let new_val = await promptText("Rename profile", (profile.Name ?? "").toString());
 
-      if(new_val !== null) {
+      if (new_val !== null) {
         // Set the name
         profile.Name = new_val;
 
