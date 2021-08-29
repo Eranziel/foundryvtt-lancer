@@ -136,6 +136,7 @@ import { fix_modify_token_attribute, LancerToken, LancerTokenDocument } from "./
 import { FoundryReg } from "./module/mm-util/foundry-reg";
 import { applyGlobalDragListeners } from "./module/helpers/dragdrop";
 import { gridDist } from "./module/helpers/automation/targeting";
+import CompconLoginForm from './module/helpers/compcon-login-form';
 
 const lp = LANCER.log_prefix;
 
@@ -879,7 +880,19 @@ function addSettingsButtons(_app: Application, html: HTMLElement) {
             <i class="fas fa-robot"></i>LANCER Help
         </button>`);
 
+  const loginButton = $(`<button id="triggler-form" data-action="triggler">
+            <i class="mdi mdi-cloud-sync-outline "></i>COMP/CON Login
+          </button>`);  
+
+  
+
   $(html).find("#settings-documentation").append(faqButton);
+  $(html).find("#settings-game").prepend(loginButton);
+
+  loginButton.on("click", async () => {
+    const app = new CompconLoginForm({});
+    return app.render(true);
+  })
 
   faqButton.on("click", async () => {
     let helpContent = await renderTemplate(`systems/${game.system.id}/templates/window/lancerHelp.hbs`, {});
