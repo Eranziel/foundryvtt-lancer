@@ -12,8 +12,16 @@ export function getTargets(): LancerActor[] {
 
 export async function checkForHit(tech: boolean, roll: Roll, target: LancerActor): Promise<boolean> {
   let mm = await target.data.data.derived.mm_promise;
-  let def: number = tech ? mm.EDefense : mm.Evasion;
-  !def && (def = 8);
+  let def: number = tech ? (mm.EDefense || 8) : (mm.Evasion || 5);
 
   return (roll.total ?? 0) >= def;
+}
+
+// Quickly computes the distance between two tokens as a number of grid units
+// TODO: Make it size aware, using the token.document.mm.Size if it exists? Prefer htss size
+export function gridDist(token1: Token, token2: Token) {
+  let c1 = token1.center;
+  let c2 = token2.center;
+  let ray = new Ray(c1, c2);
+  return canvas?.grid?.grid?.measureDistances([{ ray }], { gridSpaces: true })[0];
 }

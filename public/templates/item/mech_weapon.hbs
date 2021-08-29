@@ -13,7 +13,9 @@
   {{!-- Sheet Tab Navigation --}}
   <nav class="lancer-tabs" data-group="primary">
     {{#each mm.Profiles as |profile prof_index|}}
-      <a class="item lancer-tab medium" data-tab="profile{{prof_index}}">&lt;{{profile.Name}}&gt;</a>
+      <a class="item lancer-tab medium weapon-profile-tab" data-tab="profile{{prof_index}}" data-path="mm.Profiles.{{prof_index}}"> 
+        &lt;{{profile.Name}}&gt;
+      </a>
     {{/each}}
 
     {{!-- Fake tab to add new profiles --}}

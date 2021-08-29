@@ -15,7 +15,7 @@ import {
   HANDLER_openRefOnClick,
 } from "../helpers/refs";
 import { OpCtx } from "machine-mind";
-import { HANDLER_activate_edit_bonus } from "../helpers/item";
+import { HANDLER_activate_edit_bonus, HANDLER_activate_profile_context_menus } from "../helpers/item";
 import { HANDLER_activate_tag_context_menus, HANDLER_activate_tag_dropping } from "../helpers/tags";
 import { CollapseHandler } from "../helpers/collapse";
 import { activate_action_editor } from "../apps/action-editor";
@@ -137,6 +137,9 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
 
     // Enable tag editing
     HANDLER_activate_tag_context_menus(html, getfunc, commitfunc);
+
+    // Enable profile editing
+    HANDLER_activate_profile_context_menus(html, getfunc, commitfunc);
 
     // Enable popout editors
     HANDLER_activate_popout_text_editor(html, getfunc, commitfunc);

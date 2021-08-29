@@ -44,10 +44,11 @@ import * as macros from "./module/macros";
 // Import Tippy.js
 import tippy from "tippy.js";
 import "tippy.js/dist/tippy.css"; // optional for styling
-tippy.setDefaultProps({ theme: "lancer", arrow: false, delay: [400, 200] });
+tippy.setDefaultProps({ theme: "lancer-small", arrow: false, delay: [400, 200] });
 // tippy.setDefaultProps({ theme: "lancer", arrow: false, delay: [400, 200], hideOnClick: false, trigger: "click"});
 
 // Import node modules
+import * as mm from "machine-mind";
 import { EntryType, Bonus, funcs } from "machine-mind";
 import {
   resolve_helper_dotpath,
@@ -124,7 +125,10 @@ import { applyCollapseListeners } from "./module/helpers/collapse";
 import { handleCombatUpdate } from "./module/helpers/automation/combat";
 import { handleActorExport, validForExport } from "./module/helpers/io";
 import { runEncodedMacro } from "./module/macros";
-import { LancerToken, LancerTokenDocument } from "./module/token";
+import { fix_modify_token_attribute, LancerToken, LancerTokenDocument } from "./module/token";
+import { FoundryReg } from "./module/mm-util/foundry-reg";
+import { applyGlobalDragListeners } from "./module/helpers/dragdrop";
+import { gridDist } from "./module/helpers/automation/targeting";
 
 const lp = LANCER.log_prefix;
 
@@ -167,6 +171,9 @@ Hooks.once("init", async function () {
     canvas: {
       WeaponRangeTemplate,
     },
+    helpers: {
+      gridDist
+    },
     prepareItemMacro: macros.prepareItemMacro,
     prepareStatMacro: macros.prepareStatMacro,
     prepareTextMacro: macros.prepareTextMacro,
@@ -184,6 +191,11 @@ Hooks.once("init", async function () {
     tmp: {
       finishedInit: false,
     },
+    utilities: {
+      reg: FoundryReg,
+      ctx: mm.OpCtx,
+      mm
+    }
   };
 
   // Record Configuration Values
@@ -522,6 +534,7 @@ export const system_ready: Promise<void> = new Promise(success => {
     await showChangelog();
 
     applyCollapseListeners();
+    applyGlobalDragListeners();
 
     (<LancerGame>game).action_manager = new LancerActionManager();
     await (<LancerGame>game).action_manager!.init();

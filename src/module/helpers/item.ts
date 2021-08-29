@@ -28,6 +28,7 @@ import {
   WeaponMod,
   Counter,
   funcs,
+  MechWeaponProfile,
 } from "machine-mind";
 import type { MechWeapon, TagInstance } from "machine-mind";
 import { BonusEditDialog } from "../apps/bonus-editor";
@@ -41,8 +42,10 @@ import {
 } from "./npc";
 import { compact_tag_list } from "./tags";
 import {
+  array_path_edit,
   effect_box,
   ext_helper_hash,
+  format_dotpath,
   IconFactory,
   inc_if,
   resolve_dotpath,
@@ -52,14 +55,17 @@ import {
   std_enum_select,
   std_string_input,
   std_x_of_y,
+  tippy_context_menu,
 } from "./commons";
 import { limited_chip_HTML, ref_commons, ref_params } from "./refs";
 import { ActivationOptions, ChipIcons } from "../enums";
-import type { LancerMacroData } from "../interfaces";
+import type { LancerItemSheetData, LancerMacroData } from "../interfaces";
 import { encodeMacroData } from "../macros";
 import { is_limited, is_loading } from "machine-mind/dist/classes/mech/EquipUtil";
 import type { CollapseRegistry } from "./loadout";
 import { uuid4 } from "./collapse";
+import { promptText } from "../apps/simple-prompt";
+import tippy from "tippy.js";
 
 /**
  * Handlebars helper for weapon size selector
@@ -565,7 +571,6 @@ export function mech_weapon_refview(
   let mech_: Mech | null = resolve_helper_dotpath(options, mech_path);
   let mod_path = weapon_path.substr(0, weapon_path.lastIndexOf(".")) + ".Mod";
   let mod: WeaponMod | null = resolve_helper_dotpath(options, mod_path);
-  let mod_text: string | undefined;
 
   // Generate commons
   let cd = ref_commons(weapon_);
@@ -573,16 +578,16 @@ export function mech_weapon_refview(
   if (!cd) {
     // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
     return `
-      <div class=" ${EntryType.MECH_WEAPON} ref drop-settable card flexrow" 
-                        data-path="${weapon_path}" 
-                        data-type="${EntryType.MECH_WEAPON}">
+      <div class="${EntryType.MECH_WEAPON} ref drop-settable card flexrow" 
+           data-path="${weapon_path}" 
+           data-type="${EntryType.MECH_WEAPON}">
         <img class="ref-icon" src="${TypeIcon(EntryType.MECH_WEAPON)}"></img>
         <span class="major">Insert ${size ? size : "any"} weapon</span>
       </div>`;
   }
 
+  let mod_text: string = "";
   let cd_mod = ref_commons(mod);
-
   if (cd_mod && mod) {
     mod_text = `
     <div class="valid item weapon-mod-addon flexrow clipped-bot ref ${EntryType.WEAPON_MOD}"
@@ -591,6 +596,16 @@ export function mech_weapon_refview(
       <span>${mod.Name}</span>
       <a style="flex-grow: unset;margin-right: 1em" class="gen-control i--light" data-action="null" data-path="${mod_path}"><i class="fas fa-trash"></i></a>
     </div>`;
+  } else {
+    // Make a refbox, hidden
+    mod_text = `
+    <div class="${EntryType.WEAPON_MOD} ref drop-settable context-drop highlight-can-drop card flexrow"
+        data-path="${mod_path}"
+        data-type="${EntryType.WEAPON_MOD}">
+      <i class="cci cci-weaponmod i--m i--light"> </i>
+      <span>Insert Mod</span>
+    </div>`;
+
   }
 
   // Assert not null
@@ -628,7 +643,13 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.Select
   // Augment ranges
   let ranges = profile.BaseRange;
   if (mech_) {
-    ranges = Range.calc_range_with_bonuses(weapon, profile, mech_);
+    ranges = Range.calc_range_with_bonuses(weapon, profile, mech_, mod ?? undefined);
+  }
+
+  // Augment tags
+  let tags = profile.Tags;
+  if(mod) {
+    tags = funcs.merge_tags(tags, mod.AddedTags);
   }
 
   // Generate loading segment as needed
@@ -683,11 +704,11 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.Select
           ${on_attack}
           ${on_hit}
           ${on_crit}
-          ${compact_tag_list(profile_path + ".Tags", profile.Tags, false)}
+          ${compact_tag_list(profile_path + ".Tags", tags, false)}
         </div>
       </div>
     </div>
-    ${mod_text ? mod_text : ""}
+    ${mod_text}
   </div>`;
 }
 
@@ -1037,4 +1058,72 @@ export function buildCounterArrayHTML(
     </span>
     ${counter_detail}
   </div>`;
+}
+
+// Allows user to remove or rename profiles value via right click
+export function HANDLER_activate_profile_context_menus<T extends LancerItemSheetData<any>>(
+  html: JQuery,
+  // Retrieves the data that we will operate on
+  data_getter: () => Promise<T> | T,
+  commit_func: (data: T) => void | Promise<void>
+) {
+  // This option allows the user to remove the right-profile tag
+  let remove = {
+    name: "Delete Profile",
+    icon: '<i class="fas fa-fw fa-times"></i>',
+    callback: async (html: JQuery) => {
+      let cd = await data_getter();
+      let profile_path = html[0].dataset.path ?? "";
+
+      // Remove the tag from its array
+      if(profile_path) {
+        // Make sure we aren't deleting the last item
+        let profile_path_parts = format_dotpath(profile_path).split(".");
+        let weapon_path = profile_path_parts.slice(0, profile_path_parts.length - 2).join(".");
+        let weapon: MechWeapon | null = resolve_dotpath(cd, weapon_path, null);
+
+        if((weapon?.Profiles.length ?? 0) <= 1) {
+          ui.notifications!.error("Cannot delete last profile on a weapon");
+          return;
+        }
+
+        // Otherwise its fine
+        array_path_edit(cd, profile_path, null, "delete");
+
+        // Then commit
+        return commit_func(cd);
+      }
+    },
+  };
+
+  // This option pops up a small dialogue that lets the user set the tag instance's value
+  let set_value = {
+    name: "Rename Profile",
+    icon: '<i class="fas fa-fw fa-edit"></i>',
+    // condition: game.user.isGM,
+    callback: async (html: JQuery) => {
+      let cd = await data_getter();
+      let profile_path = html[0].dataset.path ?? "";
+
+      // Get the profile
+      let profile: MechWeaponProfile = resolve_dotpath(cd, profile_path);
+
+      // Check existence
+      if (!(profile instanceof MechWeaponProfile)) return; // Stinky
+
+      // Spawn the dialogue to edit
+      let new_val = await promptText("Rename profile", (profile.Name ?? "").toString());
+
+      if(new_val !== null) {
+        // Set the name
+        profile.Name = new_val;
+
+        // At last, commit
+        return commit_func(cd);
+      }
+    },
+  };
+
+  // Finally, setup the context menu
+  tippy_context_menu(html.find(".weapon-profile-tab"), [remove, set_value]);
 }

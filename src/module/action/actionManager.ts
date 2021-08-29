@@ -254,6 +254,7 @@ export class LancerActionManager extends Application {
     });
     tippy('.action[data-action="move"]', {
       content: "Movement Action",
+      
     });
     tippy('.action[data-action="reaction"]', {
       content: "Reaction",

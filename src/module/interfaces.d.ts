@@ -166,3 +166,10 @@ export interface GenControlContext<T> {
   // For hooks to use
   commit_func: (data: T) => void | Promise<void>;
 }
+
+// Context menu interface compatible with core foundry and our custom tippy menus
+export interface ContextMenuItem {
+  name: string;
+  icon?: string; // class used to generate icon, if it should exist at all. e.x. "fa fa-fw fa-times"
+  callback: (target: JQuery) => void | Promise<void> // argument is the element to which the context menu attaches
+}

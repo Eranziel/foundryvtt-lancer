@@ -21,9 +21,10 @@ import {
   Counter,
 } from "machine-mind";
 import { HTMLEditDialog } from "../apps/text-editor";
-import type { GenControlContext, LancerActorSheetData, LancerItemSheetData } from "../interfaces";
+import type { ContextMenuItem, GenControlContext, LancerActorSheetData, LancerItemSheetData } from "../interfaces";
 
 import { WeaponType, ActivationType } from "machine-mind";
+import tippy from "tippy.js";
 
 // A shorthand for only including the first string if the second value is truthy
 export function inc_if(val: string, test: any) {
@@ -216,12 +217,17 @@ export function format_dotpath(path: string): string {
 }
 
 // Helper function to get arbitrarily deep array references
-export function resolve_dotpath(object: any, path: string, default_: any = null) {
-  return (
-    format_dotpath(path)
-      .split(".")
-      .reduce((o, k) => o?.[k], object) ?? default_
-  );
+export function resolve_dotpath(object: any, path: string, default_: any = null, opts?: {
+  shorten_by?: number
+}) {
+  let pathlets = format_dotpath(path).split(".");
+
+  // Shorten path if requested to do so
+  if(opts?.shorten_by && opts?.shorten_by > 0) {
+    pathlets.splice(-opts.shorten_by);
+  }
+
+  return pathlets.reduce((o, k) => o?.[k], object) ?? default_;
 }
 
 // Helper function to get arbitrarily deep array references, specifically in a helperoptions, and with better types for that matter
@@ -278,7 +284,7 @@ export function ext_helper_hash(
   };
 }
 
-/** Enables controls that can:
+/** Enables controls that can (as specified by action):
  * - "delete": delete() the item located at data-path
  * - "null": set as null the value at the specified path
  * - "splice": remove the array item at the specified path
@@ -291,6 +297,10 @@ export function ext_helper_hash(
  * - "append": append the item to array at the specified path, using same semantics as data-action-value
  * - "insert": insert the item to array at the specified path, using same semantics as data-action-value. Resolves path in same way as "splice". Inserts before.
  * all using a similar api: a `path` to the item, and an `action` to perform on that item. In some cases, a `val` will be used
+ *
+ * If data-click is provided, it will be interpreted as follows
+ * - "left" default behavior, normal left click
+ *
  *
  * The data getter and commit func are used to retrieve the target data, and to save it back (respectively)
  *
@@ -708,4 +718,69 @@ export function read_form(form_element: HTMLFormElement): Record<string, string 
   let form_data = new FormDataExtended(form_element);
   // @ts-ignore We may want to double check this, but it's probably fine
   return form_data.toObject();
+}
+
+/** Clip paths kill native foundry context menus. Mix our own!
+ * This just generates the hooked context menu html, with click listeners. Up to you to put it wherever you want
+ * @argument parent: The element to which this menu will be attached. Identical to foundry behavior
+ * @argument options: The options to show
+ * @argument on_select_any: Called when any options is selected, after calling callback. Useful for closing menus etc
+ */
+export function create_context_menu(parent: JQuery<HTMLElement>, options: ContextMenuItem[], on_select_any?: () => void): Element {
+  let menu = $(`<div class="lancer-context-menu flexcol" />`);
+  for(let o of options) {
+    let ro = $(`<div class="lancer-context-item">${o.icon ?? ""}${o.name}</div>`);
+    ro.on("click", () => {
+      o.callback(parent);
+      if(on_select_any) on_select_any();
+    });
+    menu.append(ro);
+  }
+  return menu[0];
+}
+
+/** Attach a tippy context menu to the given target(s)
+ *  Options can be fixed or can be generated based on the specific target to which the context menu is being
+ */
+export function tippy_context_menu(targets: JQuery<HTMLElement>, options: ContextMenuItem[] | ((specific_target: JQuery<HTMLElement>) => ContextMenuItem[])): void {
+  targets.each((_, _target) => {
+    let target = $(_target);
+
+    // Make the options
+    let curr_options = options;
+    if(!Array.isArray(curr_options)) {
+      curr_options = curr_options(target);
+    }
+
+    // Make the instance
+    const instance = tippy(_target, {
+      appendTo: () => document.body, // "parent",
+      placement: "bottom",
+      trigger: "manual",
+      interactive: true,
+      allowHTML: true,
+      theme: "lancer-large"
+    });
+
+    // Generate the content
+    let content = create_context_menu(target, curr_options, () => instance.hide());
+    instance.setContent(content);
+
+    // Bind it to right click
+    target.on("contextmenu", async (event) => {
+      event.preventDefault();
+      /*
+        instance.setProps({
+          getReferenceClientRect: () => ({
+          width: 0,
+          height: 0,
+          top: event.clientY,
+          bottom: event.clientY,
+          left: event.clientX,
+          right: event.clientX,
+        }),
+      */
+      instance.show();
+    });
+  });
 }
