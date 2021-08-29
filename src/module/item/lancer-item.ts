@@ -5,104 +5,6 @@ import { mm_wrap_item } from "../mm-util/helpers";
 
 const lp = LANCER.log_prefix;
 
-export function lancerItemInit(base_item: LancerItem, provided_data: ConstructorParameters<typeof Item>[0]) {
-  // If base item has data, then we are probably importing. Skip this step
-  if (provided_data?.data) {
-    return;
-  }
-
-  console.log(`${lp} Initializing new ${base_item.type}`);
-
-  // Select default image
-  let icon_lookup: string = base_item.type;
-  if (base_item.is_npc_feature()) {
-    icon_lookup += base_item.type ?? "";
-  }
-  let img = TypeIcon(icon_lookup);
-
-  let default_data: any; // This could use a proper type
-  switch (base_item.type as EntryType) {
-    default:
-    case EntryType.CORE_BONUS:
-      default_data = funcs.defaults.CORE_BONUS();
-    case EntryType.ENVIRONMENT:
-      default_data = funcs.defaults.ENVIRONMENT();
-      break;
-    case EntryType.FACTION:
-      default_data = funcs.defaults.FACTION();
-      break;
-    case EntryType.FRAME:
-      default_data = funcs.defaults.FRAME();
-      break;
-    case EntryType.LICENSE:
-      default_data = funcs.defaults.LICENSE();
-      break;
-    case EntryType.MANUFACTURER:
-      default_data = funcs.defaults.MANUFACTURER();
-      break;
-    case EntryType.MECH_SYSTEM:
-      default_data = funcs.defaults.MECH_SYSTEM();
-      break;
-    case EntryType.MECH_WEAPON:
-      default_data = funcs.defaults.MECH_WEAPON();
-      break;
-    case EntryType.NPC_CLASS:
-      default_data = funcs.defaults.NPC_CLASS();
-      break;
-    case EntryType.NPC_FEATURE:
-      default_data = funcs.defaults.NPC_FEATURE();
-      break;
-    case EntryType.NPC_TEMPLATE:
-      default_data = funcs.defaults.NPC_TEMPLATE();
-      break;
-    case EntryType.ORGANIZATION:
-      default_data = funcs.defaults.ORGANIZATION();
-      break;
-    case EntryType.PILOT_ARMOR:
-      default_data = funcs.defaults.PILOT_ARMOR();
-      break;
-    case EntryType.PILOT_GEAR:
-      default_data = funcs.defaults.PILOT_GEAR();
-      break;
-    case EntryType.PILOT_WEAPON:
-      default_data = funcs.defaults.PILOT_WEAPON();
-      break;
-    case EntryType.QUIRK:
-      default_data = funcs.defaults.QUIRK();
-      break;
-    case EntryType.RESERVE:
-      default_data = funcs.defaults.RESERVE();
-      break;
-    case EntryType.SITREP:
-      default_data = funcs.defaults.SITREP();
-      break;
-    case EntryType.SKILL:
-      default_data = funcs.defaults.SKILL();
-      break;
-    case EntryType.STATUS:
-      default_data = funcs.defaults.STATUS();
-      break;
-    case EntryType.TAG:
-      default_data = funcs.defaults.TAG_TEMPLATE();
-      break;
-    case EntryType.TALENT:
-      default_data = funcs.defaults.TALENT();
-      break;
-    case EntryType.WEAPON_MOD:
-      default_data = funcs.defaults.WEAPON_MOD();
-      break;
-  }
-
-  // Sync the name
-  default_data.name = base_item.name ?? default_data.name;
-
-  return base_item.data.update({
-    data: default_data,
-    img: img,
-    name: default_data.name,
-  });
-}
-
 interface DerivedProperties<T extends LancerItemType> {
   // license: RegRef<EntryType.LICENSE> | null; // The license granting this item, if one could be found
   max_uses: number; // The max uses, augmented to also include any actor bonuses
@@ -268,6 +170,104 @@ export class LancerItem extends Item {
     }
     return super.update(data, options);
   }
+
+  protected async _preCreate(...[data, options, user]: Parameters<Item["_preCreate"]>): Promise<void> {
+    await super._preCreate(data, options, user);
+    // If base item has data, then we are probably importing. Skip this step
+    if (data?.data) return;
+
+    console.log(`${lp} Initializing new ${this.data.type}`);
+
+    // Select default image
+    let icon_lookup: string = this.data.type;
+    if (this.is_npc_feature()) {
+      icon_lookup += this.data.type;
+    }
+    let img = TypeIcon(icon_lookup);
+
+    let default_data: RegEntryTypes<LancerItemType>;
+    switch (this.data.type) {
+      default:
+      case EntryType.CORE_BONUS:
+        default_data = funcs.defaults.CORE_BONUS();
+      case EntryType.ENVIRONMENT:
+        default_data = funcs.defaults.ENVIRONMENT();
+        break;
+      case EntryType.FACTION:
+        default_data = funcs.defaults.FACTION();
+        break;
+      case EntryType.FRAME:
+        default_data = funcs.defaults.FRAME();
+        break;
+      case EntryType.LICENSE:
+        default_data = funcs.defaults.LICENSE();
+        break;
+      case EntryType.MANUFACTURER:
+        default_data = funcs.defaults.MANUFACTURER();
+        break;
+      case EntryType.MECH_SYSTEM:
+        default_data = funcs.defaults.MECH_SYSTEM();
+        break;
+      case EntryType.MECH_WEAPON:
+        default_data = funcs.defaults.MECH_WEAPON();
+        break;
+      case EntryType.NPC_CLASS:
+        default_data = funcs.defaults.NPC_CLASS();
+        break;
+      case EntryType.NPC_FEATURE:
+        default_data = funcs.defaults.NPC_FEATURE();
+        break;
+      case EntryType.NPC_TEMPLATE:
+        default_data = funcs.defaults.NPC_TEMPLATE();
+        break;
+      case EntryType.ORGANIZATION:
+        default_data = funcs.defaults.ORGANIZATION();
+        break;
+      case EntryType.PILOT_ARMOR:
+        default_data = funcs.defaults.PILOT_ARMOR();
+        break;
+      case EntryType.PILOT_GEAR:
+        default_data = funcs.defaults.PILOT_GEAR();
+        break;
+      case EntryType.PILOT_WEAPON:
+        default_data = funcs.defaults.PILOT_WEAPON();
+        break;
+      case EntryType.QUIRK:
+        default_data = funcs.defaults.QUIRK();
+        break;
+      case EntryType.RESERVE:
+        default_data = funcs.defaults.RESERVE();
+        break;
+      case EntryType.SITREP:
+        default_data = funcs.defaults.SITREP();
+        break;
+      case EntryType.SKILL:
+        default_data = funcs.defaults.SKILL();
+        break;
+      case EntryType.STATUS:
+        default_data = funcs.defaults.STATUS();
+        break;
+      case EntryType.TAG:
+        default_data = funcs.defaults.TAG_TEMPLATE();
+        break;
+      case EntryType.TALENT:
+        default_data = funcs.defaults.TALENT();
+        break;
+      case EntryType.WEAPON_MOD:
+        default_data = funcs.defaults.WEAPON_MOD();
+        break;
+    }
+
+    // Sync the name
+    default_data.name = this.name ?? default_data.name;
+
+    this.data.update({
+      data: default_data,
+      img: img,
+      name: default_data.name,
+    });
+  }
+
   // Typeguards
   is_core_bonus(): this is LancerItem & { data: LancerItemDataProperties<EntryType.CORE_BONUS> } {
     return this.data.type === EntryType.CORE_BONUS;
