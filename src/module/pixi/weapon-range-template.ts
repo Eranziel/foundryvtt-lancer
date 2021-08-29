@@ -134,7 +134,8 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
 
       // Cancel the workflow (right-click)
       handlers.rc = (_e: unknown, do_reject: boolean = true) => {
-        this.layer.preview?.removeChildren();
+        // Remove the preview
+        this.layer.preview?.removeChildren().forEach(c => c.destroy());
         canvas.stage?.off("mousemove", handlers.mm);
         canvas.stage?.off("mousedown", handlers.lc);
         canvas.app!.view.oncontextmenu = null;
