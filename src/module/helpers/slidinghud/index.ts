@@ -63,3 +63,9 @@ export async function openOrRefresh(key: "hase" | "attack", ts: Token[], title: 
     return open(key, AccDiffData.fromParams(undefined, undefined, title, ts, undefined))
   }
 }
+
+export async function fade(dir: "out" | "in" = "out") {
+  let hud = await attach();
+  // @ts-ignore
+  hud.fade(dir);
+}

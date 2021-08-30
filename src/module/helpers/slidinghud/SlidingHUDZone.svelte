@@ -52,6 +52,11 @@
    return huds[key] && huds[key].open;
  }
 
+ export let faded: boolean = false;
+ export function fade(dir: "in" | "out") {
+   faded = dir == "out";
+ }
+
  export let components: { [key: string]: SvelteComponent } = {};
 
  function forward(key: string, event: string, data?: any | undefined) {
@@ -65,7 +70,7 @@
    Object.keys(huds).filter(key => huds[key].open).sort((a,b) => huds[b].open! - huds[a].open!);
 </script>
 
-<div id="hudzone" class="window-app" style="bottom: 0; right: {$sidebarWidth}px">
+<div id="hudzone" class="window-app" class:faded style="bottom: 0; right: {$sidebarWidth}px">
   {#each visibleHudsKeys as key (key+huds[key].data.title)}
     <div class="component grid-enforcement" animate:flip transition:slide>
       <svelte:component
@@ -90,12 +95,20 @@
      box-shadow: none;
      flex-direction: row-reverse;
      pointer-events: none;
-     transition: right 600ms;
+     transition: right 600ms, opacity 200ms;
  }
 
  #hudzone > .component {
      padding-right: 10px;
      pointer-events: initial;
      flex: unset;
+ }
+
+ #hudzone.faded {
+     opacity: 0.2;
+ }
+
+ #hudzone.faded > .component {
+     pointer-events: unset;
  }
 </style>
