@@ -20,8 +20,8 @@ import {
   WELCOME,
 } from "./module/config";
 import type { LancerGame } from "./module/lancer-game";
-import { LancerActor, lancerActorInit } from "./module/actor/lancer-actor";
-import { LancerItem, lancerItemInit } from "./module/item/lancer-item";
+import { LancerActor } from "./module/actor/lancer-actor";
+import { LancerItem } from "./module/item/lancer-item";
 import { populatePilotCache } from "./module/compcon";
 
 import { action_type_icon, action_type_selector } from "./module/helpers/npc";
@@ -566,10 +566,6 @@ Hooks.on("deleteCombat", (_actor: Actor) => {
   (<LancerGame>game).action_manager?.update();
 });
 //
-
-// Add any additional hooks if necessary
-Hooks.on("preCreateActor", lancerActorInit);
-Hooks.on("preCreateItem", lancerItemInit);
 
 // Create sidebar button to import LCP
 Hooks.on("renderSidebarTab", async (app: Application, html: HTMLElement) => {
