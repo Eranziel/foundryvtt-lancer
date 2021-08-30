@@ -61,53 +61,6 @@ export function prepareStructureSecondaryRollMacro(registryId: string) {
   }
 }
 
-// TODO: Refactor this as LancerActor._preCreate
-export function lancerActorInit(
-  base_actor: any,
-  _creation_args: any,
-  _sheet_options: any,
-  _id_maybe: any,
-  _something_or_other: any
-) {
-  // Some subtype of ActorData
-  console.log(`${lp} Initializing new ${base_actor.type}`);
-
-  // Produce our default data
-  let default_data: any;
-  let disposition: ValueOf<typeof CONST["TOKEN_DISPOSITIONS"]> = CONST.TOKEN_DISPOSITIONS.FRIENDLY;
-  switch (base_actor.type) {
-    case EntryType.NPC:
-      default_data = funcs.defaults.NPC();
-      disposition = CONST.TOKEN_DISPOSITIONS.HOSTILE;
-      break;
-    case EntryType.PILOT:
-      default_data = funcs.defaults.PILOT();
-      break;
-    case EntryType.DEPLOYABLE:
-      default_data = funcs.defaults.DEPLOYABLE();
-      disposition = CONST.TOKEN_DISPOSITIONS.NEUTRAL;
-      break;
-    case EntryType.MECH:
-    default:
-      // Idk, just in case
-      default_data = funcs.defaults.MECH();
-      default_data.actions = { full: true };
-      break;
-  }
-  // Sync the name
-  default_data.name = base_actor.name ?? default_data.name;
-
-  // Put in the basics
-  return base_actor.data.update({
-    data: default_data,
-    img: TypeIcon(base_actor.type),
-    "token.disposition": disposition,
-    name: default_data.name,
-    "token.name": base_actor.name ?? default_data.name, // Set token name to match internal
-    "token.actorLink": [EntryType.PILOT, EntryType.MECH].includes(base_actor.type), // Link the token to the Actor for pilots and mechs, but not for NPCs or deployables
-  });
-}
-
 // Use for HP, etc
 interface BoundedValue {
   min: number;
@@ -1021,7 +974,7 @@ export class LancerActor extends Actor {
   /** @override
    * Want to destroy derived data before passing it to an update
    */
-  async update(data: Parameters<Actor["update"]>[0], context: Parameters<Actor["update"]>[1] = undefined) {
+  async update(...[data, context = undefined]: Parameters<Actor["update"]>) {
     // Never submit derived data. Typically won't show up here regardless
     // @ts-expect-error Sohouldn't appear on this data
     if (data?.data?.derived) {
@@ -1030,6 +983,50 @@ export class LancerActor extends Actor {
     }
 
     return super.update(data, context);
+  }
+
+  protected async _preCreate(...[data, options, user]: Parameters<Actor["_preCreate"]>): Promise<void> {
+    await super._preCreate(data, options, user);
+    if (data.data) {
+      console.log(`${lp} New ${this.type} has data provided from an import, skipping default init.`);
+      return;
+    }
+
+    console.log(`${lp} Initializing new ${this.data.type}`);
+    let default_data: RegEntryTypes<LancerActorType> & { actions?: unknown };
+    let disposition: ValueOf<typeof CONST["TOKEN_DISPOSITIONS"]> = CONST.TOKEN_DISPOSITIONS.FRIENDLY;
+    switch (this.data.type) {
+      case EntryType.NPC:
+        default_data = funcs.defaults.NPC();
+        disposition = CONST.TOKEN_DISPOSITIONS.HOSTILE;
+        break;
+      case EntryType.PILOT:
+        default_data = funcs.defaults.PILOT();
+        break;
+      case EntryType.DEPLOYABLE:
+        default_data = funcs.defaults.DEPLOYABLE();
+        disposition = CONST.TOKEN_DISPOSITIONS.NEUTRAL;
+        break;
+      case EntryType.MECH:
+      default:
+        // Idk, just in case
+        default_data = funcs.defaults.MECH();
+        default_data.actions = { full: true };
+        break;
+    }
+    // Sync the name
+    default_data.name = this.name ?? default_data.name;
+
+    // Put in the basics
+    this.data.update({
+      data: default_data,
+      img: TypeIcon(this.data.type),
+      name: default_data.name,
+      // Link the token to the Actor for pilots and mechs, but not for NPCs or deployables
+      "token.actorLink": [EntryType.PILOT, EntryType.MECH].includes(this.data.type),
+      "token.disposition": disposition,
+      "token.name": this.name ?? default_data.name,
+    });
   }
 
   /** @override
