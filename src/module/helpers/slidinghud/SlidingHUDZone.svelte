@@ -96,12 +96,14 @@
      flex-direction: row-reverse;
      pointer-events: none;
      transition: right 600ms, opacity 200ms;
+     z-index: 999;
  }
 
  #hudzone > .component {
-     padding-right: 10px;
+     padding-right: 12px;
      pointer-events: initial;
      flex: unset;
+     filter: drop-shadow(.4rem .4rem .6rem #333);
  }
 
  #hudzone.faded {
