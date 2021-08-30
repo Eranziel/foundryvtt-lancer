@@ -596,19 +596,19 @@ type AttackMacroOptions = {
 }
 
 export async function prepareEncodedAttackMacro(
-  actor_ref: RegRef<any>, item_id: string, options: AttackMacroOptions, rerollData: AccDiffDataSerialized) {
+  actor_ref: RegRef<any>, item_id: string | null, options: AttackMacroOptions, rerollData: AccDiffDataSerialized) {
   let reg = new FoundryReg();
   let opCtx = new OpCtx()
   let mm = await reg.resolve(opCtx, actor_ref);
   let actor = mm.Flags.orig_doc;
-  let item = ownedItemFromString(item_id, actor);
-  if (!item) {
-    ui.notifications!.error("Could not find weapon to reroll");
-    return;
-  }
+  let item = item_id ? ownedItemFromString(item_id, actor) : null;
   let { AccDiffData } = await import('./helpers/acc_diff');
-  let accdiff = AccDiffData.fromObject(rerollData, item);
-  return prepareAttackMacro({ actor, item, options }, accdiff);
+  let accdiff = AccDiffData.fromObject(rerollData, item ?? actor);
+  if (item) {
+    return prepareAttackMacro({ actor, item, options }, accdiff);
+  } else {
+    return refreshTargeting("may open new window", accdiff);
+  }
 }
 
 /**
@@ -801,18 +801,20 @@ async function prepareAttackMacro({
   await rollAttackMacro(actor, atkRolls, mData, rerollMacro);
 }
 
-export async function refreshTargeting(mode: "may open new window" | "only refresh open window") {
-  const targets = Array.from(game!.user!.targets);
+export async function refreshTargeting(
+  mode: "may open new window" | "only refresh open window",
+  data: Token[] | AccDiffData = Array.from(game!.user!.targets)
+) {
   let { refreshTargets, openOrRefresh } = await import('./helpers/slidinghud');
 
   if (mode == "only refresh open window") {
-    refreshTargets("attack", targets);
+    refreshTargets("attack", data);
     return;
   }
 
   let promptedData;
   try {
-    promptedData = await openOrRefresh("attack", targets, "Basic Attack");
+    promptedData = await openOrRefresh("attack", data, "Basic Attack");
   } catch (_e) {
     return;
   }
@@ -826,6 +828,7 @@ export async function refreshTargeting(mode: "may open new window" | "only refre
   let mData = {
     title: 'BASIC ATTACK',
     grit: 0,
+    acc: 0,
     tags: [],
     damage: [],
   };
@@ -854,13 +857,12 @@ export async function refreshTargeting(mode: "may open new window" | "only refre
     fn: "prepareEncodedAttackMacro",
     args: [
       actor.data.data.derived.mm!.as_ref(),
-      null, // TODO: this breaks the reroll
+      null,
       {},
       promptedData.toObject()
     ]
   };
 
-  // @ts-ignore TODO: check that rollAttackMacro is defensive against the missing attrs
   await rollAttackMacro(actor, atkRolls, mData, rerollMacro);
 }
 
