@@ -32,17 +32,17 @@
  const dispatch = createEventDispatcher();
 
  function focus(el: HTMLElement) { el.focus(); }
- function escToCancel(_el: HTMLElement) {
-   let esc = function(ev: any) {
-     ev.preventDefault();
-     if (ev.key === 'Escape') { dispatch('cancel'); }
-   };
-   window.addEventListener('keydown', esc);
 
-   // onDestroy
-   return {
-     destroy() { window.removeEventListener('keydown', esc); }
+ function escToCancel(_el: HTMLElement) {
+   function escHandler(ev: KeyboardEvent) {
+     if (ev.key === 'Escape') {
+       ev.preventDefault();
+       dispatch('cancel');
+     }
    }
+
+   window.addEventListener('keydown', escHandler);
+   return { destroy() { window.removeEventListener('keydown', escHandler); } }
  }
 </script>
 
