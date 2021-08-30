@@ -391,6 +391,7 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
         </div>
       </div>
       <div class="desc-text" style="grid-area: 2/2/3/3">${cb.Description}</div>
+      <div style="grid-area: 2/3/3/4">${cb.Effect}</div>
     </li>`;
 
     case EntryType.LICENSE:

@@ -986,7 +986,7 @@ export function buildCounterHTML(
   }
 
   if (actor_level)
-    nameChunk = `<input class="counter-name" name="${data.Name}" value="${data.Name}" type="text" data-dtype="text" />`;
+    nameChunk = `<input class="counter-name" name="${path.concat(".Name")}" value="${data.Name}" type="text" data-dtype="text" />`;
   else nameChunk = data.Name;
 
   return `
