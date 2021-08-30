@@ -179,7 +179,7 @@
                   </div>
                   <div class="flexrow">
                     <button
-                      class="i--m no-grow"
+                      class="i--m no-grow accdiff-button"
                       type="button"
                       on:click={() => data.accuracy = data.accuracy + 1}
                     >
@@ -200,7 +200,7 @@
                              min="0"
                     />
                     <button
-                      class="i--m no-grow"
+                      class="i--m no-grow accdiff-button"
                       type="button"
                       on:click={() => data.difficulty = data.difficulty + 1}
                     >
@@ -349,4 +349,33 @@
     white-space: nowrap;
   }
 
+  .accdiff-target-row .accdiff-button {
+    align-items: center;
+    display: inline-flex;
+    justify-content: center;
+    margin: 0;
+    border: none;
+    box-shadow: 1px 1px 1px var(--main-theme-color);
+    transition: 100ms cubic-bezier(0.075, 0.82, 0.165, 1);
+  }
+
+  .accdiff-target-row .accdiff-button:hover {
+    background-color: var(--main-theme-text);
+    box-shadow: 1px 1px 1px var(--main-theme-color);
+  }
+
+  .accdiff-target-row .accdiff-button:focus {
+    box-shadow: 1px 1px 1px var(--main-theme-color);
+  }
+
+  .accdiff-target-row .accdiff-button:active {
+    transform: translateX(2px) translateY(2px);
+    box-shadow: -1px -1px 1px var(--main-theme-color);
+  }
+
+  .accdiff-target-row .accdiff-button i {
+    text-shadow: none;
+    color: rgba(var(--color-text-lightest), 1);
+    cursor: pointer;
+  }
 </style>
