@@ -66,14 +66,13 @@
 </script>
 
 <div id="hudzone" class="window-app" style="bottom: 0; right: {$sidebarWidth}px">
-  {#each visibleHudsKeys as key (key)}
-    <div class="component grid-enforcement" transition:slide animate:flip>
+  {#each visibleHudsKeys as key (key+huds[key].data.title)}
+    <div class="component grid-enforcement" animate:flip transition:slide>
       <svelte:component
         this={dialogs[key]}
         bind:this={components[key]}
         kind={key}
         {...huds[key].data}
-        redrawItem={huds[key].data.title}
         on:submit={() => forward(key, "submit", huds[key].data)}
         on:cancel={() =>  forward(key, "cancel")}
       />
