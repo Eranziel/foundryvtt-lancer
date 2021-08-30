@@ -54,7 +54,7 @@ declare interface AccDiffPlugin<Data extends AccDiffPluginData> {
   // a "perTarget" plugin applies individually to every single target
   // a "perUnknownTarget" applies whenever the user opens the roll dialog without a target
   // so every roll has perRoll + exactly one of perTarget and perUnknownTarget
-  perRoll?(item?: LancerItem): Data,
+  perRoll?(item?: LancerItem | LancerActor): Data,
   perUnknownTarget?(): Data,
   perTarget?(item: Token): Data,
   // usually you want to implement either perRoll OR both of the other two

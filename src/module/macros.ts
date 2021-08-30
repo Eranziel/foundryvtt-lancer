@@ -540,7 +540,7 @@ async function rollStatMacro(actor: LancerActor, data: LancerStatMacroData) {
 
   // Get accuracy/difficulty with a prompt
   let { AccDiffData } = await import('./helpers/acc_diff');
-  let initialData = AccDiffData.fromParams(undefined, undefined, data.title);
+  let initialData = AccDiffData.fromParams(actor, undefined, data.title);
 
   let promptedData;
   try {

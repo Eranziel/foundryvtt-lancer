@@ -4,7 +4,7 @@ import * as t from 'io-ts';
 import type { LancerActor } from "../../actor/lancer-actor";
 import type { AccDiffPlugin, AccDiffPluginData, AccDiffPluginCodec } from './plugin';
 import { enclass, encode, decode } from './serde';
-import type { LancerItem } from "../../item/lancer-item";
+import { LancerItem } from "../../item/lancer-item";
 
 import Invisibility from "./invisibility";
 import Spotter from "./spotter";
@@ -66,8 +66,7 @@ export class AccDiffWeapon {
   }
 
   get impaired(): ActiveEffect | null {
-    return (this.#data?.lancerItem?.actor &&
-      findEffect(this.#data.lancerItem.actor as LancerActor, "impaired")) || null;
+    return (this.#data?.lancerActor && findEffect(this.#data.lancerActor, "impaired")) ?? null;
   }
 
   total(cover: number) {
@@ -237,6 +236,7 @@ export class AccDiffData {
   base: AccDiffBase;
   targets: AccDiffTarget[];
   lancerItem?: LancerItem; // not persisted, needs to be hydrated
+  lancerActor?: LancerActor; // not persisted, needs to be hydrated
 
   static get schema() {
     return {
@@ -258,8 +258,14 @@ export class AccDiffData {
     this.hydrate();
   }
 
-  hydrate(lancerItem?: LancerItem) {
-    this.lancerItem = lancerItem;
+  hydrate(runtimeData?: LancerItem | LancerActor) {
+    if (runtimeData instanceof LancerItem) {
+      this.lancerItem = runtimeData;
+      this.lancerActor = runtimeData.actor ?? undefined;
+    } else {
+      this.lancerActor = runtimeData ?? undefined;
+    }
+
     this.weapon.hydrate(this);
     this.base.hydrate(this);
     for (let target of this.targets) { target.hydrate(this); }
@@ -284,9 +290,9 @@ export class AccDiffData {
     }
   }
 
-  static fromObject(obj: AccDiffDataSerialized, lancerItem?: LancerItem): AccDiffData {
+  static fromObject(obj: AccDiffDataSerialized, runtimeData?: LancerItem | LancerActor): AccDiffData {
     let ret = decode(obj, AccDiffData.codec);
-    ret.hydrate(lancerItem);
+    ret.hydrate(runtimeData);
     return ret;
   }
 
@@ -311,7 +317,7 @@ export class AccDiffData {
   }
 
   static fromParams(
-    item?: LancerItem,
+    runtimeData?: LancerItem | LancerActor,
     tags?: TagInstance[],
     title?: string,
     targets?: Token[],
@@ -366,7 +372,7 @@ export class AccDiffData {
 
     for (let plugin of this.plugins) {
       if (plugin.perRoll) {
-        obj.weapon.plugins[plugin.slug] = encode(plugin.perRoll(item), plugin.codec);
+        obj.weapon.plugins[plugin.slug] = encode(plugin.perRoll(runtimeData), plugin.codec);
       }
       if (plugin.perUnknownTarget) {
         obj.base.plugins[plugin.slug] = encode(plugin.perUnknownTarget(), plugin.codec);
@@ -375,7 +381,7 @@ export class AccDiffData {
 
     // for now this isn't using AccDiffTarget.fromParams, which means the code is duplicated
     // that's a relatively contained bit of tech debt, but let's handle it next time this is touched
-    return AccDiffData.fromObject(obj, item);
+    return AccDiffData.fromObject(obj, runtimeData);
   }
 }
 
