@@ -146,21 +146,21 @@
      display: block;
  }
 
- .accdiff-grid :global(.tippy-box[data-theme~="lancer"]) {
+ .accdiff-grid :global(.tippy-box) {
      font-size: 0.8em;
      padding-left: 0px;
      padding-right: 0px;
-     padding-top: 4px;
+     padding-top: 0px;
      padding-bottom: 4px;
      transform: none;
  }
- .accdiff-grid :global(.tippy-box[data-theme~="lancer"] .tippy-content) {
+ .accdiff-grid :global(.tippy-box .tippy-content) {
      transform: none;
  }
- .accdiff-grid :global(.tippy-box[data-theme~="lancer"] .tippy-content .container) {
+ .accdiff-grid :global(.tippy-box .tippy-content .container) {
      margin: 0px;
  }
- .accdiff-grid :global(.tippy-box[data-theme~="lancer"] .tippy-content .checkmark) {
+ .accdiff-grid :global(.tippy-box .tippy-content .checkmark) {
      height: 12px;
  }
 </style>

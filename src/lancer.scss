@@ -2183,7 +2183,6 @@ Here, this means we want to allow for drag stuff etc to show contextually if:
     which is useful for svelte transitions */
 .grid-enforcement {
   display: grid;
-  overflow: hidden;
 }
 
 .grid-enforcement > * {
