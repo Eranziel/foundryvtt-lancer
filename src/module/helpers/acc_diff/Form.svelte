@@ -90,7 +90,7 @@
               {#if targets.length == 1}
                 <label class="container" for="base-consume-lockon">
                   Consume Lock On (+1)
-                  <ConsumeLockOn lockOn={targets[0]} id="base-consume-lockon" />
+                  <ConsumeLockOn bind:lockOn={targets[0]} id="base-consume-lockon" />
                   <span class="checkmark"></span>
                 </label>
                 {#each Object.keys(targets[0].plugins) as key}
@@ -165,7 +165,7 @@
             {:else if targets.length == 1}
               <div
                 class="flexrow flex-center accdiff-total">
-                <Total target={targets[0]} id="total-display-0" onlyTarget={true}/>
+                <Total bind:target={targets[0]} id="total-display-0" onlyTarget={true}/>
               </div>
             {:else}
               <div class="accdiff-weight accdiff-target-row">
@@ -178,8 +178,7 @@
                       {data.target.data.name}
                     </label>
                     <div class="flexrow accdiff-total">
-                      <ConsumeLockOn lockOn={data} visible={false} />
-                      <Total target={data} id={`total-display-${i}`} />
+                      <Total bind:target={data} id={`total-display-${i}`} />
                     </div>
                     <div class="flexrow">
                       <button
