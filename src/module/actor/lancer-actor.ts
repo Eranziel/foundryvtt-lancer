@@ -980,6 +980,11 @@ export class LancerActor extends Actor {
 
   protected async _preCreate(...[data, options, user]: Parameters<Actor["_preCreate"]>): Promise<void> {
     await super._preCreate(data, options, user);
+    if (data.data) {
+      console.log(`${lp} New ${this.type} has data provided from an import, skipping default init.`);
+      return;
+    }
+
     console.log(`${lp} Initializing new ${this.data.type}`);
     let default_data: RegEntryTypes<LancerActorType> & { actions?: unknown };
     let disposition: ValueOf<typeof CONST["TOKEN_DISPOSITIONS"]> = CONST.TOKEN_DISPOSITIONS.FRIENDLY;
