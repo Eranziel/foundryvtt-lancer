@@ -32,30 +32,29 @@ function getManifest() {
     }
   }
 
-  throw Error('Could not find manifest file');
+  throw Error("Could not find manifest file");
 }
 
 /********************/
 /*		BUILDING  		*/
 /********************/
 
-
 function build() {
-  return cp.spawn('npx', ['vite', 'build'], { stdio: 'inherit', shell: true });
+  return cp.spawn("npx", ["vite", "build"], { stdio: "inherit", shell: true });
 }
 
 function watch() {
-  return cp.spawn('npx', ['vite', 'build', '-w'], { stdio: 'inherit', shell: true });
+  return cp.spawn("npx", ["vite", "build", "-w"], { stdio: "inherit", shell: true });
 }
 
 function serve() {
   // forward arguments on serves
   const serveArg = process.argv[2];
-  let commands = ['vite', 'serve'];
-  if (serveArg == 'serve' && process.argv.length > 3) {
+  let commands = ["vite", "serve"];
+  if (serveArg == "serve" && process.argv.length > 3) {
     commands = commands.concat(process.argv.slice(3));
   }
-  return cp.spawn('npx', commands, { stdio: 'inherit', shell: true });
+  return cp.spawn("npx", commands, { stdio: "inherit", shell: true });
 }
 
 /********************/

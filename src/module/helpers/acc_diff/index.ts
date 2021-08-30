@@ -1,5 +1,4 @@
 export type {
-  Effect,
   AccDiffDataSerialized
 } from './data';
 export {

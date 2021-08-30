@@ -5,21 +5,16 @@ import {
   resolve_dotpath,
   HANDLER_activate_popout_text_editor,
 } from "../helpers/commons";
-import {
-  HANDLER_enable_dropping,
-  HANDLER_enable_mm_dropping,
-  MMDragResolveCache,
-  resolve_native_drop,
-} from "../helpers/dragdrop";
+import { HANDLER_enable_mm_dropping, MMDragResolveCache } from "../helpers/dragdrop";
 import {
   HANDLER_activate_ref_dragging,
   HANDLER_activate_ref_drop_clearing,
   HANDLER_activate_ref_drop_setting,
   HANDLER_openRefOnClick as HANDLER_activate_ref_clicking,
 } from "../helpers/refs";
-import { LancerActorSheetData, LancerStatMacroData, GenControlContext } from "../interfaces";
-import { AnyLancerItem, AnyMMItem, LancerItemType, LancerMechWeapon, LancerPilotWeapon } from "../item/lancer-item";
-import { AnyLancerActor, AnyMMActor, is_actor_type, is_reg_npc, LancerActor, LancerActorType } from "./lancer-actor";
+import type { LancerActorSheetData, LancerStatMacroData } from "../interfaces";
+import type { AnyMMItem } from "../item/lancer-item";
+import { AnyMMActor, is_actor_type, LancerActor, LancerActorType } from "./lancer-actor";
 import {
   prepareActivationMacro,
   prepareChargeMacro,
@@ -41,25 +36,27 @@ import {
   WeaponMod,
   funcs,
   Mech,
-  Npc,
 } from "machine-mind";
 import { ActivationOptions } from "../enums";
 import { applyCollapseListeners, CollapseHandler } from "../helpers/collapse";
 import { HANDLER_intercept_form_changes } from "../helpers/refs";
 import { addExportButton } from "../helpers/io";
-import { FoundryFlagData } from "../mm-util/foundry-reg";
+import type { FoundryFlagData } from "../mm-util/foundry-reg";
 import { mm_owner } from "../mm-util/helpers";
-import { LancerActionManager } from "../action/actionManager";
-import { ActionType } from "../action";
+import type { ActionType } from "../action";
 import { InventoryDialog } from "../apps/inventory";
+import type { LancerGame } from "../lancer-game";
 const lp = LANCER.log_prefix;
 
 /**
  * Extend the basic ActorSheet
  */
-export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
+export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
+  ActorSheet.Options,
+  LancerActorSheetData<T>
+> {
   // Tracks collapse state between renders
-  private collapse_handler = new CollapseHandler();
+  protected collapse_handler = new CollapseHandler();
 
   /* -------------------------------------------- */
   /**
@@ -144,9 +141,9 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
   }
 
   // So it can be overridden
-  activate_general_controls(html: JQuery) { 
+  activate_general_controls(html: JQuery) {
     let getfunc = () => this.getDataLazy();
-    let commitfunc = (_: any) => this._commitCurrMM()
+    let commitfunc = (_: any) => this._commitCurrMM();
     HANDLER_activate_general_controls(html, getfunc, commitfunc);
   }
 
@@ -158,14 +155,13 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     const CPMacroHandler = (e: DragEvent) => this._onDragCorePassiveStart(e);
     const ActionMacroHandler = (e: DragEvent) => this._onDragActivationChipStart(e);
     const EncodedMacroHandler = (e: DragEvent) => this._onDragEncodedMacroStart(e);
-    // TODO: migrate to mech
-    // const overchargeMacroHandler = (e: DragEvent) => this._onDragOverchargeStart(e);
+
     html
       .find('li[class*="item"]')
       .add('span[class*="item"]')
       .add('[class*="macroable"]')
       .add('[class*="lancer-macro"]')
-      .each((i: number, item: any) => {
+      .each((_i, item) => {
         if (item.classList.contains("inventory-header")) return;
         item.setAttribute("draggable", "true");
         if (item.classList.contains("lancer-macro")) {
@@ -178,9 +174,6 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
         if (item.classList.contains("core-active-macro")) item.addEventListener("dragstart", CAMacroHandler, false);
         if (item.classList.contains("core-passive-macro")) item.addEventListener("dragstart", CPMacroHandler, false);
         if (item.classList.contains("activation-chip")) item.addEventListener("dragstart", ActionMacroHandler, false);
-        // TODO: migrate to mech
-        // if (item.classList.contains("overcharge-macro"))
-        //   item.addEventListener("dragstart", overchargeMacroHandler, false);
         if (item.classList.contains("item"))
           item.addEventListener(
             "dragstart",
@@ -208,7 +201,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     let prefix = `lancer-collapse-${this.object.data._id}-`;
     let triggers = html.find(".collapse-trigger");
     // Init according to session store.
-    triggers.each((index, trigger) => {
+    triggers.each((_index, trigger) => {
       let id = trigger.getAttribute("data-collapse-id");
       if (id !== null && sessionStorage.getItem(prefix + id) !== null) {
         let collapse = document.querySelector(`.collapse[data-collapse-id=${id}]`);
@@ -276,10 +269,10 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     let elements = html.find(".lancer-action-button");
     elements.on("click", async ev => {
       ev.stopPropagation();
-      if (!game.action_manager) return;
+      if (!(<LancerGame>game).action_manager) return;
 
-      if (game.user.isGM || game.settings.get(LANCER.sys_name, LANCER.setting_action_manager_players)) {
-        const manager: LancerActionManager = game.action_manager;
+      if (game.user?.isGM || game.settings.get(game.system.id, LANCER.setting_action_manager_players)) {
+        const manager = (<LancerGame>game).action_manager;
 
         const params = ev.currentTarget.dataset;
         const action = params.action as ActionType | undefined;
@@ -291,10 +284,10 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
           } else {
             spend = params.val === "true";
           }
-          manager.modAction((data.actor as unknown) as LancerActor<any>, spend, action);
+          manager?.modAction(data.actor, spend, action);
         }
       } else {
-        console.log(`${game.user.name} :: Users currently not allowed to toggle actions through action manager.`);
+        console.log(`${game.user?.name} :: Users currently not allowed to toggle actions through action manager.`);
       }
     });
   }
@@ -323,7 +316,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
 
       const el = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
 
-      game.lancer.prepareItemMacro(this.actor._id, el.getAttribute("data-id")!, {
+      prepareItemMacro(this.actor.id!, el.getAttribute("data-id")!, {
         rank: (<HTMLDataElement>ev.currentTarget).getAttribute("data-rank"),
       });
     });
@@ -336,13 +329,12 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
 
       const weaponElement = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
       const weaponId = weaponElement.getAttribute("data-id");
-      if (!weaponId) return ui.notifications.warn(`Error rolling macro: No weapon ID!`);
-      // @ts-ignore .8
-      const item: Item | null = this.actor.items.get(weaponId);
-      if (!item) return ui.notifications.warn(`Error rolling macro: Couldn't find weapon with ID ${weaponId}.`);
+      if (!weaponId) return ui.notifications!.warn(`Error rolling macro: No weapon ID!`);
+      const item = this.actor.items.get(weaponId);
+      if (!item) return ui.notifications!.warn(`Error rolling macro: Couldn't find weapon with ID ${weaponId}.`);
 
-      const weapon = item as LancerPilotWeapon | LancerMechWeapon;
-      game.lancer.prepareItemMacro(this.actor.id, weapon.id);
+      const weapon = item;
+      prepareItemMacro(this.actor.id!, weapon.id!);
     });
 
     // TODO: This should really just be a single item-macro class
@@ -360,7 +352,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
 
       const el = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
 
-      prepareItemMacro(this.actor._id, el.getAttribute("data-id")!);
+      prepareItemMacro(this.actor.id!, el.getAttribute("data-id")!);
     });
 
     // Action-chip (system? Or broader?) macros
@@ -376,9 +368,9 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
       const deployable = parseInt(el.getAttribute("data-deployable"));
 
       if (!Number.isNaN(activation)) {
-        prepareActivationMacro(this.actor._id, item, ActivationOptions.ACTION, activation);
+        prepareActivationMacro(this.actor.id!, item, ActivationOptions.ACTION, activation);
       } else if (!Number.isNaN(deployable)) {
-        prepareActivationMacro(this.actor._id, item, ActivationOptions.DEPLOYABLE, deployable);
+        prepareActivationMacro(this.actor.id!, item, ActivationOptions.DEPLOYABLE, deployable);
       }
     });
 
@@ -390,7 +382,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
 
       // let target = <HTMLElement>ev.currentTarget;
 
-      prepareCoreActiveMacro(this.actor._id);
+      prepareCoreActiveMacro(this.actor.id!);
     });
 
     let CPMacro = html.find(".core-passive-macro");
@@ -399,14 +391,14 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
 
       // let target = <HTMLElement>ev.currentTarget;
 
-      prepareCorePassiveMacro(this.actor._id);
+      prepareCorePassiveMacro(this.actor.id!);
     });
 
     let ChargeMacro = html.find(".charge-macro");
     ChargeMacro.on("click", ev => {
       ev.stopPropagation(); // Avoids triggering parent event handlers
 
-      prepareChargeMacro(this.actor._id);
+      prepareChargeMacro(this.actor.id!);
     });
   }
 
@@ -415,14 +407,14 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     event.stopPropagation(); // Avoids triggering parent event handlers
     // It's an input so it'll always be an InputElement, right?
     let path = this.getStatPath(event);
-    if (!path) return ui.notifications.error("Error finding stat for macro.");
+    if (!path) return ui.notifications!.error("Error finding stat for macro.");
 
     let tSplit = path.split(".");
     let data = {
       title: tSplit[tSplit.length - 1].toUpperCase(),
       dataPath: path,
       type: "HASE",
-      actorId: this.actor._id,
+      actorId: this.actor.id,
     };
     event.dataTransfer?.setData("text/plain", JSON.stringify(data));
   }
@@ -438,11 +430,11 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
 
     if (!itemId) throw Error("No item found)");
 
-    if (title === undefined) title = this.actor.getOwnedItem(itemId)?.name;
+    if (title === undefined) title = this.actor.items.get(itemId)?.name;
 
     let data = {
       itemId: target.closest(".item")?.getAttribute("data-id"),
-      actorId: this.actor._id,
+      actorId: this.actor.id,
       type: "",
       number: 0,
       title: title,
@@ -472,7 +464,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
 
     let data = {
       itemId: target.closest(".item")?.getAttribute("data-id"),
-      actorId: this.actor._id,
+      actorId: this.actor.id,
       type: EntryType.TALENT,
       title: target.nextElementSibling?.textContent,
       rank: target.getAttribute("data-rank"),
@@ -494,7 +486,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     let data = {
       title: target.getAttribute("data-path-title"),
       description: target.getAttribute("data-path-description"),
-      actorId: this.actor._id,
+      actorId: this.actor.id,
       type: "Text",
     };
 
@@ -511,7 +503,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     // let target = <HTMLElement>event.currentTarget;
 
     let data = {
-      actorId: this.actor._id,
+      actorId: this.actor.id,
       // Title will simply be CORE ACTIVE since we want to keep the macro dynamic
       title: "CORE ACTIVE",
       type: "Core-Active",
@@ -530,7 +522,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     // let target = <HTMLElement>event.currentTarget;
 
     let data = {
-      actorId: this.actor._id,
+      actorId: this.actor.id,
       // Title will simply be CORE PASSIVE since we want to keep the macro dynamic
       title: "CORE PASSIVE",
       type: "Core-Passive",
@@ -575,7 +567,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     } else {
       throw "Error - stat macro was not run on an input or data element";
     }
-  }  
+  }
 
   /**
    * Handles inventory button
@@ -585,7 +577,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
 
     button.on("click", async (ev: Event) => {
       ev.preventDefault();
-      return InventoryDialog.show_inventory(this.actor as AnyLancerActor);
+      return InventoryDialog.show_inventory(this.actor as LancerActor);
     });
   }
 
@@ -596,7 +588,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
   activateTriggerListeners(html: JQuery) {
     // Trigger rollers
     let triggerMacro = html.find(".roll-trigger");
-    triggerMacro.on("click", (ev: Event) => {
+    triggerMacro.on("click", ev => {
       if (!ev.currentTarget) return; // No target, let other handlers take care of it.
       ev.stopPropagation(); // Avoids triggering parent event handlers
 
@@ -606,23 +598,27 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
       };
 
       console.log(`${lp} Rolling '${mData.title}' trigger (d20 + ${mData.bonus})`);
-      game.lancer.rollStatMacro(this.actor, mData);
+      rollStatMacro(this.actor, mData);
     });
   }
 
   // A grand filter that pre-decides if we can drop an item ref anywhere within this sheet. Should be implemented by child sheets
   // We generally assume that a global item is droppable if it matches our types, and that an owned item is droppable if it is owned by this actor
   // This is more of a permissions/suitability question
-  can_root_drop_entry(item: AnyMMItem | AnyMMActor): boolean {
+  can_root_drop_entry(_item: AnyMMItem | AnyMMActor): boolean {
     return false;
   }
 
   // This function is called on any dragged item that percolates down to root without being handled
   // Override/extend as appropriate
-  async on_root_drop(item: AnyMMItem | AnyMMActor, event: JQuery.DropEvent, dest: JQuery<HTMLElement>): Promise<void> {}
+  async on_root_drop(
+    _item: AnyMMItem | AnyMMActor,
+    _event: JQuery.DropEvent,
+    _dest: JQuery<HTMLElement>
+  ): Promise<void> {}
 
   // Override base behavior
-  async _onDrop(evt: any) {
+  async _onDrop(_evt: DragEvent) {
     return;
   }
 
@@ -693,7 +689,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
    * This defines how to update the subject of the form when the form is submitted
    * @private
    */
-  async _updateObject(event: Event | JQuery.Event, formData: any): Promise<any> {
+  async _updateObject(_event: Event, formData: any): Promise<LancerActor | undefined> {
     // Fetch the curr data
     let ct = await this.getDataLazy();
 
@@ -709,21 +705,21 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
     gentle_merge(ct, formData);
     mergeObject((ct.mm.Flags as FoundryFlagData<any>).top_level_data, new_top);
     await this._commitCurrMM();
+    return this.actor;
   }
 
   /**
    * Prepare data for rendering the Actor sheet
    * The prepared data object contains both the actor data as well as additional sheet options
    */
-  // @ts-ignore Foundry-pc-types does not properly acknowledge that sheet `getData` functions can be/are asynchronous
   async getData(): Promise<LancerActorSheetData<T>> {
-    const data = ((await super.getData()) as unknown) as LancerActorSheetData<T>; // Not fully populated yet!
+    const data = await super.getData(); // Not fully populated yet!
 
     // Drag up the mm context (when ready) to a top level entry in the sheet data
-    data.mm = await (this.actor.data as LancerActor<T>["data"]).data.derived.mm_promise;
+    // @ts-ignore T doesn't narrow this.actor.data
+    data.mm = await this.actor.data.data.derived.mm_promise;
 
     // Also wait for all of their items
-    // @ts-ignore 0.8
     for (let i of this.actor.items.contents) {
       await i.data.data.derived?.mm_promise; // The ? is necessary in case of a foundry internal race condition
     }
@@ -754,6 +750,9 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet {
 
   // Get the ctx that our actor + its items reside in
   getCtx(): OpCtx {
-    return (this.actor as AnyLancerActor)._actor_ctx;
+    return (this.actor as LancerActor)._actor_ctx;
   }
+}
+function rollStatMacro(_actor: unknown, _mData: LancerStatMacroData) {
+  throw new Error("Function not implemented.");
 }

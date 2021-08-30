@@ -1,15 +1,11 @@
 import { LANCER } from "../config";
 import { LancerActorSheet } from "./lancer-actor-sheet";
-import {
-  EntryType,
-  MountType,
-  SystemMount,
-  WeaponMount,
-} from "machine-mind";
-import {  resolve_dotpath } from "../helpers/commons";
-import { AnyMMItem, LancerItemType } from "../item/lancer-item";
+import { EntryType, MountType, SystemMount, WeaponMount } from "machine-mind";
+import { resolve_dotpath } from "../helpers/commons";
+import type { AnyMMItem, LancerItemType } from "../item/lancer-item";
 import tippy from "tippy.js";
-import { AnyMMActor } from "./lancer-actor";
+import type { AnyMMActor } from "./lancer-actor";
+import { prepareOverchargeMacro } from "../macros";
 
 /**
  * Extend the basic ActorSheet
@@ -17,12 +13,11 @@ import { AnyMMActor } from "./lancer-actor";
 export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
   /**
    * Extend and override the default options used by the NPC Sheet
-   * @returns {Object}
    */
   static get defaultOptions() {
     return mergeObject(super.defaultOptions, {
       classes: ["lancer", "sheet", "actor", "mech"],
-      template: "systems/lancer/templates/actor/mech.hbs",
+      template: `systems/${game.system.id}/templates/actor/mech.hbs`,
       width: 800,
       height: 800,
       tabs: [
@@ -45,7 +40,7 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
   activateListeners(html: JQuery<HTMLElement>) {
     super.activateListeners(html);
 
-    this._activateTooltips();
+    LancerMechSheet._activateTooltips();
 
     // Everything below here is only needed if the sheet is editable
     if (!this.options.editable) return;
@@ -57,26 +52,21 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
 
   /* -------------------------------------------- */
 
-  private _activateTooltips() {
+  private static _activateTooltips() {
     tippy('[data-context-menu="toggle"][data-field="Destroyed"]', {
       content: "Right Click to Destroy",
       delay: [300, 100],
     });
   }
 
-  
   can_root_drop_entry(item: AnyMMActor | AnyMMItem): boolean {
     // Reject any non npc / non pilot item
-    if(item.Type == EntryType.PILOT) {
+    if (item.Type == EntryType.PILOT) {
       // For setting pilot
       return true;
     }
 
-    if(LANCER.mech_items.includes(item.Type as LancerItemType)) {
-      // For everything else
-      return true;
-    }
-    return false;
+    return LANCER.mech_items.includes(item.Type as LancerItemType);
   }
 
   async on_root_drop(base_drop: AnyMMItem | AnyMMActor): Promise<void> {
@@ -110,26 +100,27 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
   /**
    * Handles actions in the overcharge panel
    */
-  _activateOverchargeControls(html: any) {
+  _activateOverchargeControls(html: JQuery<HTMLElement>) {
     // Overcharge text
     let overchargeText = html.find(".overcharge-text");
 
-    overchargeText.on("click", (ev: Event) => {
-      this._setOverchargeLevel(<MouseEvent>ev, Math.min(this.actor.data.data.current_overcharge + 1, 3));
+    overchargeText.on("click", ev => {
+      if (!this.actor.is_mech()) return;
+      this._setOverchargeLevel(ev, Math.min(this.actor.data.data.overcharge + 1, 3));
     });
 
     // Overcharge reset
     let overchargeReset = html.find(".overcharge-reset");
 
-    overchargeReset.on("click", (ev: Event) => {
-      this._setOverchargeLevel(<MouseEvent>ev, 0);
+    overchargeReset.on("click", ev => {
+      this._setOverchargeLevel(ev, 0);
     });
 
     // Overcharge macro
     let overchargeMacro = html.find(".overcharge-macro");
 
-    overchargeMacro.on("click", (ev: Event) => {
-      this._onClickOvercharge(<MouseEvent>ev);
+    overchargeMacro.on("click", ev => {
+      this._onClickOvercharge(ev);
     });
   }
 
@@ -143,7 +134,7 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
     // let target = <HTMLElement>event.currentTarget;
 
     let data = {
-      actorId: this.actor._id,
+      actorId: this.actor.id,
       // Title will simply be CORE PASSIVE since we want to keep the macro dynamic
       title: "OVERCHARGE",
       type: "overcharge",
@@ -157,10 +148,10 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
    * @param event An event, used by a proper overcharge section in the sheet, to get the overcharge field
    * @param level Level to set overcharge to
    */
-  async _setOverchargeLevel(event: MouseEvent, level: number) {
+  async _setOverchargeLevel(_event: JQuery.ClickEvent, level: number) {
     let data = await this.getDataLazy();
     let ent = data.mm;
-    ent.CurrentOvercharge = level;
+    ent.OverchargeCount = level;
     await this._commitCurrMM();
   }
 
@@ -168,8 +159,8 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
    * Performs the overcharge macro
    * @param event An event, used by a proper overcharge section in the sheet, to get the overcharge field
    */
-  _onClickOvercharge(event: MouseEvent) {
-    game.lancer.prepareOverchargeMacro(this.actor._id);
+  _onClickOvercharge(_event: JQuery.ClickEvent) {
+    prepareOverchargeMacro(this.actor.id!);
   }
 
   /**
@@ -218,27 +209,27 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
       });
     }
 
-    // Add a bracing option 
+    // Add a bracing option
     mount_options.push({
       name: "Superheavy Bracing",
       icon: "",
       callback: async (html: JQuery) => {
-          let cd = await this.getDataLazy();
-          let mount_path = html[0].dataset.path ?? "";
+        let cd = await this.getDataLazy();
+        let mount_path = html[0].dataset.path ?? "";
 
-          // Get the current mount
-          let mount: WeaponMount = resolve_dotpath(cd, mount_path);
-          if (!mount) {
-            console.error("Bad mountpath:", mount_path);
-          }
+        // Get the current mount
+        let mount: WeaponMount = resolve_dotpath(cd, mount_path);
+        if (!mount) {
+          console.error("Bad mountpath:", mount_path);
+        }
 
-          // Set as bracing
-          mount.Bracing = true;
-          mount.reset();
+        // Set as bracing
+        mount.Bracing = true;
+        mount.reset();
 
-          // Write back
-          await this._commitCurrMM();
-      }
+        // Write back
+        await this._commitCurrMM();
+      },
     });
 
     new ContextMenu(html, ".mount-type-ctx-root", mount_options);
@@ -273,6 +264,5 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
     }
 
     await this._commitCurrMM();
-  }  
-
+  }
 }

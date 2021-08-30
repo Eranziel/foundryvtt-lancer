@@ -1,19 +1,17 @@
 import type { TagInstance } from "machine-mind";
 import * as t from 'io-ts';
 
-import type { LancerActor, LancerActorType } from "../../actor/lancer-actor";
+import type { LancerActor } from "../../actor/lancer-actor";
 import type { AccDiffPlugin, AccDiffPluginData, AccDiffPluginCodec } from './plugin';
 import { enclass, encode, decode } from './serde';
 import type { LancerItem } from "../../item/lancer-item";
 
 import Invisibility from "./invisibility";
 import Spotter from "./spotter";
+import { LancerToken } from "../../token";
 
-// as it turns out, we can't actually name the ActiveEffect type
-// it's fine, this is all we need
-export type Effect = { delete: () => void };
-export function findEffect(actor: LancerActor<LancerActorType>, effect: string): Effect | null {
-  return actor.data.effects.find(eff => eff.data.flags.core.statusId == effect);
+export function findEffect(actor: LancerActor, effect: string): ActiveEffect | null {
+  return actor.data.effects.find(eff => (eff.data.flags.core as any).statusId == effect) ?? null;
 }
 
 export enum Cover {
@@ -67,9 +65,9 @@ export class AccDiffWeapon {
     }
   }
 
-  get impaired(): Effect | null {
+  get impaired(): ActiveEffect | null {
     return (this.#data?.lancerItem?.actor &&
-      findEffect(this.#data.lancerItem.actor as LancerActor<LancerActorType>, "impaired")) || null;
+      findEffect(this.#data.lancerItem.actor as LancerActor, "impaired")) || null;
   }
 
   total(cover: number) {
@@ -136,7 +134,7 @@ export class AccDiffBase {
 // and that + io-ts I think has the variance wrong
 // so if you extend AccDiffBase it's trying to assign AccDiffBase to AccDiffTarget
 export class AccDiffTarget {
-  target: Token;
+  target: LancerToken;
   accuracy: number;
   difficulty: number;
   cover: Cover;
@@ -164,13 +162,13 @@ export class AccDiffTarget {
   static get codec() { return enclass(this.schemaCodec, AccDiffTarget) }
 
   constructor(obj: t.TypeOf<typeof AccDiffTarget.schemaCodec>) {
-    let target = canvas.scene.tokens.get(obj.target_id);
+    let target = canvas!.scene!.tokens.get(obj.target_id);
     if (!target) {
-      ui.notifications.error("Trying to access tokens from a different scene!");
+      ui.notifications!.error("Trying to access tokens from a different scene!");
       throw new Error("Token not found");
     }
 
-    this.target = target.object;
+    this.target = target.object! as LancerToken;
     this.accuracy = obj.accuracy;
     this.difficulty = obj.difficulty;
     this.cover = obj.cover;
@@ -214,12 +212,12 @@ export class AccDiffTarget {
     }
   }
 
-  get usingLockOn(): null | Effect {
+  get usingLockOn(): null | ActiveEffect {
     return (this.consumeLockOn && this.lockOnAvailable) || null;
   }
 
-  get lockOnAvailable(): null | Effect {
-    return findEffect(this.target.actor as LancerActor<LancerActorType>, "lockon");
+  get lockOnAvailable(): null | ActiveEffect {
+    return findEffect(this.target.actor as LancerActor, "lockon");
   }
 
   get total() {
@@ -238,7 +236,7 @@ export class AccDiffData {
   weapon: AccDiffWeapon;
   base: AccDiffBase;
   targets: AccDiffTarget[];
-  lancerItem?: LancerItem<any>; // not persisted, needs to be hydrated
+  lancerItem?: LancerItem; // not persisted, needs to be hydrated
 
   static get schema() {
     return {
@@ -260,7 +258,7 @@ export class AccDiffData {
     this.hydrate();
   }
 
-  hydrate(lancerItem?: LancerItem<any>) {
+  hydrate(lancerItem?: LancerItem) {
     this.lancerItem = lancerItem;
     this.weapon.hydrate(this);
     this.base.hydrate(this);
@@ -282,7 +280,7 @@ export class AccDiffData {
     }
   }
 
-  static fromObject(obj: AccDiffDataSerialized, lancerItem?: LancerItem<any>): AccDiffData {
+  static fromObject(obj: AccDiffDataSerialized, lancerItem?: LancerItem): AccDiffData {
     let ret = decode(obj, AccDiffData.codec);
     ret.hydrate(lancerItem);
     return ret;
@@ -309,7 +307,7 @@ export class AccDiffData {
   }
 
   static fromParams(
-    item?: LancerItem<any>,
+    item?: LancerItem,
     tags?: TagInstance[],
     title?: string,
     targets?: Token[],

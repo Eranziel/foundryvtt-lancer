@@ -18,7 +18,7 @@
  export let base: AccDiffBase;
  export let targets: AccDiffTarget[];
  export let title: string;
- export let lancerItem: LancerItem<any>;
+ export let lancerItem: LancerItem;
 
  export let kind: "hase" | "attack";
  export let redrawItem: any = lancerItem;

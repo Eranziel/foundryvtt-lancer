@@ -1,4 +1,4 @@
-import { HelperOptions } from "handlebars";
+import type { HelperOptions } from "handlebars";
 import {
   EntryType,
   Mech,
@@ -12,14 +12,14 @@ import {
   Deployable,
   CoreSystem,
 } from "machine-mind";
-import { WeaponMount } from "machine-mind";
+import type { WeaponMount } from "machine-mind";
 import { ChipIcons } from "../enums";
-import { LancerMacroData } from "../interfaces";
+import type { LancerMacroData } from "../interfaces";
 import { inc_if, resolve_helper_dotpath, array_path_edit } from "./commons";
 import { mech_weapon_refview, buildActionHTML, buildDeployableHTML, buildChipHTML } from "./item";
 import { editable_mm_ref_list_item, ref_commons, ref_params, simple_mm_ref } from "./refs";
 import { compact_tag_list } from "./tags";
-import { LancerActor } from "../actor/lancer-actor";
+import type { LancerActor } from "../actor/lancer-actor";
 
 export type CollapseRegistry = { [LID: string]: number };
 
@@ -53,7 +53,7 @@ function weapon_mount(
   let mount = resolve_helper_dotpath(helper, mount_path) as WeaponMount;
 
   // If bracing, override
-  if(mount.Bracing) {
+  if (mount.Bracing) {
     return ` 
     <div class="mount card" >
       <div class="lancer-header mount-type-ctx-root" data-path="${mount_path}">
@@ -103,7 +103,7 @@ function all_weapon_mount_view(
   registry: CollapseRegistry
 ) {
   let loadout = resolve_helper_dotpath(helper, loadout_path) as MechLoadout;
-  const weapon_mounts = loadout.WepMounts.map((wep, index) =>
+  const weapon_mounts = loadout.WepMounts.map((_wep, index) =>
     weapon_mount(mech_path, `${loadout_path}.WepMounts.${index}`, helper, registry)
   );
 
@@ -125,10 +125,10 @@ function all_system_mount_view(
   mech_path: string,
   loadout_path: string,
   helper: HelperOptions,
-  registry: CollapseRegistry
+  _registry: CollapseRegistry
 ) {
   let loadout = resolve_helper_dotpath(helper, loadout_path) as MechLoadout;
-  const system_slots = loadout.SysMounts.map((sys, index) =>
+  const system_slots = loadout.SysMounts.map((_sys, index) =>
     system_mount(mech_path, `${loadout_path}.SysMounts.${index}`, helper)
   );
 
@@ -188,7 +188,7 @@ export function pilot_slot(data_path: string, options: HelperOptions): string {
 }
 
 // A drag-drop slot for a frame. TODO: fancify, giving basic stats or something???
-export function frame_refview(actor: LancerActor<EntryType.MECH>, frame_path: string, helper: HelperOptions): string {
+export function frame_refview(actor: LancerActor, frame_path: string, helper: HelperOptions): string {
   let frame = resolve_helper_dotpath<Frame | null>(helper, frame_path, null);
   if (!frame) return simple_mm_ref(EntryType.FRAME, frame, "No Frame", frame_path, true);
 
@@ -211,7 +211,7 @@ export function frame_refview(actor: LancerActor<EntryType.MECH>, frame_path: st
     `;
 }
 
-function buildCoreSysHTML(actor: LancerActor<EntryType.MECH>, core: CoreSystem) {
+function buildCoreSysHTML(actor: LancerActor, core: CoreSystem) {
   let tags: string | undefined;
   if (core.Tags !== undefined) {
     tags = compact_tag_list("", core.Tags, false);
@@ -237,7 +237,7 @@ function buildCoreSysHTML(actor: LancerActor<EntryType.MECH>, core: CoreSystem) 
 }
 
 function frameTraits(frame: Frame): string {
-  return frame.Traits.map((t: FrameTrait, i: number | undefined) => {
+  return frame.Traits.map((t: FrameTrait, _i: number | undefined) => {
     return buildFrameTrait(t);
   }).join("");
 }
@@ -251,7 +251,7 @@ function buildFrameTrait(trait: FrameTrait): string {
   </div>`;
 }
 
-function frame_active(actor: LancerActor<EntryType.MECH>, core: CoreSystem): string {
+function frame_active(actor: LancerActor, core: CoreSystem): string {
   // So we have a CoreSystem with all the traits of an action inside itself as Active and Passive...
   // And then it has whole other arrays for its actions
   // :pain:
@@ -267,7 +267,7 @@ function frame_active(actor: LancerActor<EntryType.MECH>, core: CoreSystem): str
   // Should find a better way to do this...
   let coreMacroData: LancerMacroData = {
     title: `${actor.name} | CORE POWER`,
-    iconPath: `systems/lancer/assets/icons/macro-icons/corebonus.svg`,
+    iconPath: `systems/${game.system.id}/assets/icons/macro-icons/corebonus.svg`,
     fn: "prepareCoreActiveMacro",
     args: [actor.id]
   };

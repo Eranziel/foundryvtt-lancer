@@ -1,7 +1,7 @@
-import { HelperOptions } from "handlebars";
+import type { HelperOptions } from "handlebars";
 import { ActivationType, NpcFeature, NpcFeatureType } from "machine-mind";
 import { is_loading } from "machine-mind/dist/classes/mech/EquipUtil";
-import { charged_box, effect_box, resolve_dotpath, resolve_helper_dotpath } from "./commons";
+import { charged_box, effect_box, resolve_helper_dotpath } from "./commons";
 import {
   npc_attack_bonus_preview,
   npc_accuracy_preview,
@@ -10,21 +10,21 @@ import {
   loading_indicator,
 } from "./item";
 import { limited_chip_HTML, ref_params } from "./refs";
-import { compact_tag, compact_tag_list } from "./tags";
+import { compact_tag_list } from "./tags";
 
 export const EffectIcons = {
-  Generic: "systems/lancer/assets/icons/generic_item.svg",
-  Basic: "systems/lancer/assets/icons/generic_item.svg",
-  Charge: "systems/lancer/assets/icons/mine.svg",
-  Deployable: "systems/lancer/assets/icons/deployable.svg",
-  AI: "systems/lancer/assets/icons/mech_system.svg",
-  Protocol: "systems/lancer/assets/icons/protocol.svg",
-  Reaction: "systems/lancer/assets/icons/reaction.svg",
-  Tech: "systems/lancer/assets/icons/tech_quick.svg",
-  Drone: "systems/lancer/assets/icons/drone.svg",
-  Bonus: "systems/lancer/assets/icons/shape_polygon_plus.svg",
-  Offensive: "systems/lancer/assets/icons/sword_array.svg",
-  Profile: "systems/lancer/assets/icons/weapon_profile.svg",
+  Generic: `systems/lancer/assets/icons/generic_item.svg`,
+  Basic: `systems/lancer/assets/icons/generic_item.svg`,
+  Charge: `systems/lancer/assets/icons/mine.svg`,
+  Deployable: `systems/lancer/assets/icons/deployable.svg`,
+  AI: `systems/lancer/assets/icons/mech_system.svg`,
+  Protocol: `systems/lancer/assets/icons/protocol.svg`,
+  Reaction: `systems/lancer/assets/icons/reaction.svg`,
+  Tech: `systems/lancer/assets/icons/tech_quick.svg`,
+  Drone: `systems/lancer/assets/icons/drone.svg`,
+  Bonus: `systems/lancer/assets/icons/shape_polygon_plus.svg`,
+  Offensive: `systems/lancer/assets/icons/sword_array.svg`,
+  Profile: `systems/lancer/assets/icons/weapon_profile.svg`,
 };
 
 /* ------------------------------------ */
@@ -74,7 +74,7 @@ export function action_type_selector(a_type: string, data_target: string) {
 
 // TODO: Make this globally consistent
 function del_button(path: string, options: HelperOptions): string {
-  let trash_action = options.hash["trash-action"] ?? "delete"
+  let trash_action = options.hash["trash-action"] ?? "delete";
   return `<a class="gen-control" data-action="${trash_action}" data-path="${path}"><i class="fas fa-trash"></i></a>`;
 }
 
@@ -161,8 +161,8 @@ export function npc_tech_effect_preview(path: string, options: HelperOptions) {
   if (npc_feature.Accuracy[tier_index]) {
     subheader_items.push(npc_accuracy_preview(npc_feature.Accuracy[tier_index]));
   }
-  
-  if(npc_feature.Tags.find(tag => tag.Tag.LID === "tg_recharge")) {
+
+  if (npc_feature.Tags.find(tag => tag.Tag.LID === "tg_recharge")) {
     subheader_items.push(charged_box(npc_feature.Charged, path));
   }
 
@@ -214,7 +214,7 @@ export function npc_weapon_effect_preview(path: string, options: HelperOptions) 
     subheader_items.push(show_damage_array(npc_feature.Damage[tier_index], options));
   }
 
-  if(npc_feature.Tags.find(tag => tag.Tag.LID === "tg_recharge")) {
+  if (npc_feature.Tags.find(tag => tag.Tag.LID === "tg_recharge")) {
     subheader_items.push(charged_box(npc_feature.Charged, path));
   }
 

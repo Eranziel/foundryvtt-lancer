@@ -1,6 +1,6 @@
 import type SvelteComponent from '*.svelte';
 
-type SvelteAppOptions = ApplicationOptions & {
+type SvelteAppOptions = Application.Options & {
   intro?: boolean
 }
 

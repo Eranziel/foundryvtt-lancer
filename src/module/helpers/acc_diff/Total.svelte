@@ -49,8 +49,8 @@
     out:recv={{key: `${id}-img`, duration: 200}}
     class="accdiff-grid">
     <img class="lancer-hit-thumb accdiff-target-has-dropdown"
-         alt={target.target.data.name}
-         src={target.target.data.img} bind:this={imgElement} />
+         alt={target.target.data.name ?? undefined}
+         src={target.target.data.img ?? undefined} bind:this={imgElement} />
     <label for={lockonId} class:checked={target.usingLockOn} class:disabled={!target.lockOnAvailable}
            title="Consume Lock On (+1)">
       <i class="cci cci-condition-lock-on"

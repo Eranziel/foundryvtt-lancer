@@ -1,4 +1,4 @@
-import { EntryType, FrameTrait, LicensedItem, MountType } from "machine-mind";
+import type { EntryType, LicensedItem } from "machine-mind";
 import { FoundryReg } from "../mm-util/foundry-reg";
 import { LancerItemSheet } from "./item-sheet";
 
@@ -10,9 +10,8 @@ export class LancerLicenseSheet extends LancerItemSheet<EntryType.LICENSE> {
   /**
    * @override
    * Extend and override the default options used by the generic Lancer item sheet
-   * @returns {Object}
    */
-  static get defaultOptions() {
+  static get defaultOptions(): ItemSheet.Options {
     return mergeObject(super.defaultOptions, {
       width: 700,
       height: 750,
@@ -30,8 +29,8 @@ export class LancerLicenseSheet extends LancerItemSheet<EntryType.LICENSE> {
     // Build an unlocks array
     let ranks = Array.from(scan.ByLevel.keys()).sort();
     let unlocks: LicensedItem[][] = [];
-    if(ranks.length) {
-      for(let i = 0; i<=ranks[ranks.length - 1]; i++) {
+    if (ranks.length) {
+      for (let i = 0; i <= ranks[ranks.length - 1]; i++) {
         unlocks.push(scan.ByLevel.get(i) ?? []);
       }
     }

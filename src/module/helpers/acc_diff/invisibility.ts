@@ -52,7 +52,7 @@ export default class Invisibility implements AccDiffCheckboxPluginData {
   // otherwise, go get the status effects and check them
   private get tokenInvisible(): boolean {
     if (!this.token) { return false; }
-    return !!findEffect(this.token.actor as LancerActor<LancerActorType>, "invisible");
+    return !!findEffect(this.token.actor as LancerActor, "invisible");
   }
 
   // UI behaviour

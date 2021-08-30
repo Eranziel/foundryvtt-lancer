@@ -1,23 +1,14 @@
-import { LANCER, replace_default_resource } from "../config";
+import { LANCER } from "../config";
 import { LancerActorSheet } from "./lancer-actor-sheet";
-import { Deployable, EntryType, LiveEntryTypes, Mech, OpCtx, Pilot, RegEntry } from "machine-mind";
-import { FoundryFlagData, FoundryReg } from "../mm-util/foundry-reg";
-import { mm_owner, mm_wrap_item } from "../mm-util/helpers";
-import { funcs, quick_relinker } from "machine-mind";
-import { ResolvedNativeDrop } from "../helpers/dragdrop";
-import { HelperOptions } from "handlebars";
+import { EntryType, Mech, Pilot } from "machine-mind";
+import { funcs } from "machine-mind";
+import type { HelperOptions } from "handlebars";
 import { buildCounterHTML } from "../helpers/item";
-import { LancerActorSheetData } from "../interfaces";
 import { ref_commons, ref_params, simple_mm_ref } from "../helpers/refs";
 import { resolve_dotpath } from "../helpers/commons";
-import { AnyMMActor, LancerActor } from "./lancer-actor";
+import type { AnyMMActor } from "./lancer-actor";
 import { cleanCloudOwnerID, fetchPilot, pilotCache } from "../compcon";
-import { AnyMMItem, LancerItemType } from "../item/lancer-item";
-
-const lp = LANCER.log_prefix;
-
-// TODO: should probably move to HTML/CSS
-const entryPrompt = "//:AWAIT_ENTRY>";
+import type { AnyMMItem, LancerItemType } from "../item/lancer-item";
 
 /**
  * Extend the basic ActorSheet
@@ -27,10 +18,10 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
    * Extend and override the default options used by the Pilot Sheet
    * @returns {Object}
    */
-  static get defaultOptions(): object {
+  static get defaultOptions(): ActorSheet.Options {
     return mergeObject(super.defaultOptions, {
       classes: ["lancer", "sheet", "actor", "pilot"],
-      template: "systems/lancer/templates/actor/pilot.hbs",
+      template: `systems/${game.system.id}/templates/actor/pilot.hbs`,
       width: 800,
       height: 800,
       tabs: [
@@ -43,41 +34,6 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
     });
   }
 
-  /* -------------------------------------------- */
-  /* // Populate the callsign if blank (new Actor)
-    if (data.data.pilot.callsign === "") {
-      data.data.pilot.callsign = data.actor.name;
-    }
-    // Populate name if blank (new Actor)
-    if (data.data.pilot.name === "") {
-      data.data.pilot.name = data.actor.name;
-    }
-
-    // Put placeholder prompts in empty fields
-    if (data.data.pilot.background === "") data.data.pilot.background = entryPrompt;
-    if (data.data.pilot.history === "") data.data.pilot.history = entryPrompt;
-    if (data.data.pilot.notes === "") data.data.pilot.notes = entryPrompt;
-
-    // Generate the size string for the pilot's frame
-    if (data.frame) {
-      const frame: LancerFrame = data.frame;
-      if (frame.data.data.stats.size === 0.5) {
-        data.frame_size = "size-half";
-      } else {
-        data.frame_size = `size-${frame.data.data.stats.size}`;
-      }
-    } else {
-      data.frame_size = "N/A";
-    }
-
-    // Newly-added value, overcharge_level, should be set if it doesn't exist
-    if (typeof this.actor.data.data.mech.overcharge_level === "undefined") {
-      this.actor.data.data.mech.overcharge_level = 0;
-    }
-    */
-
-  /* -------------------------------------------- */
-
   /**
    * Activate event listeners using the prepared sheet HTML
    * @param html {JQuery}   The prepared HTML object ready to be rendered into the DOM
@@ -88,59 +44,61 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
     // Everything below here is only needed if the sheet is editable
     if (!this.options.editable) return;
 
-    // @ts-ignore .8
     if (this.actor.isOwner) {
       // Item/Macroable Dragging
 
       // Cloud download
       let download = html.find('.cloud-control[data-action*="download"]');
-      let actor = this.actor as LancerActor<EntryType.PILOT>;
-      if(this.actor.data.data.derived.mm.CloudID) {
+      let actor = this.actor;
+      if (actor.is_pilot() && actor.data.data.derived.mm!.CloudID) {
         download.on("click", async ev => {
           ev.stopPropagation();
-          
+
           let self = await this.getDataLazy();
           // Fetch data to sync
           let raw_pilot_data = null;
           if (self.vaultID != "" || self.rawID.match(/\/\//)) {
-          // new style vault code with owner information
-          // it's possible that this was one we reconstructed and doesn't actually live in this user acct
-          ui.notifications.info("Importing character from vault...");
-          try {
-            raw_pilot_data = await fetchPilot(self.vaultID != "" ? self.vaultID : self.rawID);
-          } catch {
-            if (self.vaultID != "") {
-              ui.notifications.error("Failed to import. Probably a network error, please try again.");
-            } else {
-              ui.notifications.error("Failed. You will have to ask the player whose pilot this is for their COMP/CON vault record code.");
+            // new style vault code with owner information
+            // it's possible that this was one we reconstructed and doesn't actually live in this user acct
+            ui.notifications!.info("Importing character from vault...");
+            try {
+              raw_pilot_data = await fetchPilot(self.vaultID != "" ? self.vaultID : self.rawID);
+            } catch {
+              if (self.vaultID != "") {
+                ui.notifications!.error("Failed to import. Probably a network error, please try again.");
+              } else {
+                ui.notifications!.error(
+                  "Failed. You will have to ask the player whose pilot this is for their COMP/CON vault record code."
+                );
+              }
+              return;
             }
+          } else if (self.rawID.match(/^[^-]+(-[^-]+){4}/)) {
+            // old-style vault code
+            // not much we can do. we can try to fetch it and see if it works
+            // it will if this pilot happens to be in this comp/con user's bucket
+            ui.notifications!.info("Attempting to import from old-style vault code...");
+            try {
+              raw_pilot_data = await fetchPilot(self.rawID);
+            } catch {
+              ui.notifications!.error(
+                "Failed. Old-style vault ids are phasing out in support; please ask the player whose pilot this is for their COMP/CON vault record code."
+              );
+              return;
+            }
+          } else if (self.rawID != "") {
+            ui.notifications!.info("Importing character from cloud share code...");
+            raw_pilot_data = await funcs.gist_io.download_pilot(self.rawID);
+          } else {
+            ui.notifications!.error("Could not find character to import!");
             return;
           }
-        } else if (self.rawID.match(/^[^-]+(-[^-]+){4}/)) {
-          // old-style vault code
-          // not much we can do. we can try to fetch it and see if it works
-          // it will if this pilot happens to be in this comp/con user's bucket
-          ui.notifications.info("Attempting to import from old-style vault code...");
-          try {
-            raw_pilot_data = await fetchPilot(self.rawID);
-          } catch {
-            ui.notifications.error("Failed. Old-style vault ids are phasing out in support; please ask the player whose pilot this is for their COMP/CON vault record code.")
-            return;
-          }
-        } else if (self.rawID != "") {
-          ui.notifications.info("Importing character from cloud share code...");
-          raw_pilot_data = await funcs.gist_io.download_pilot(self.rawID);
-        } else {
-          ui.notifications.error("Could not find character to import!");
-          return;
-        };
-        
-        await actor.importCC(raw_pilot_data);
-        this._currData = null;
-      });
-    } else {
-      download.addClass("disabled-cloud");
-    }
+          await actor.importCC(raw_pilot_data);
+          this._currData = null;
+        });
+      } else {
+        download.addClass("disabled-cloud");
+      }
 
       // editing rawID clears vaultID
       // (other way happens automatically because we prioritise vaultID in commit)
@@ -153,8 +111,8 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
     }
   }
 
-  async getData(): Promise<LancerActorSheetData<EntryType.PILOT>> {
-    const data = ((await super.getData()) as unknown) as LancerActorSheetData<EntryType.PILOT>; // Not fully populated yet!
+  async getData() {
+    const data = await super.getData(); // Not fully populated yet!
 
     data.active_mech = await data.mm.ActiveMech();
     data.pilotCache = pilotCache();
@@ -163,18 +121,18 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
 
     // use the select if and only if we have the pilot in our cache
     let useSelect =
-      data.mm.CloudID && data.cleanedOwnerID &&
-      data.pilotCache.find(p =>
-        p.cloudID == data.mm.CloudID &&
-        p.cloudOwnerID == data.cleanedOwnerID);
+      data.mm.CloudID &&
+      data.cleanedOwnerID &&
+      data.pilotCache.find(p => p.cloudID == data.mm.CloudID && p.cloudOwnerID == data.cleanedOwnerID);
 
-
-    if (useSelect) { // if this is a vault id we know of
-      data.vaultID = data.cleanedOwnerID + '//' + data.mm.CloudID;
+    if (useSelect) {
+      // if this is a vault id we know of
+      data.vaultID = data.cleanedOwnerID + "//" + data.mm.CloudID;
       data.rawID = "";
-    } else if (data.mm.CloudID) { // whatever this is, we need to display it as raw text, so the user can edit it
+    } else if (data.mm.CloudID) {
+      // whatever this is, we need to display it as raw text, so the user can edit it
       if (data.cleanedOwnerID) {
-        data.rawID = data.cleanedOwnerID + '//' + data.mm.CloudID;
+        data.rawID = data.cleanedOwnerID + "//" + data.mm.CloudID;
       } else {
         data.rawID = data.mm.CloudID;
       }
@@ -185,17 +143,17 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
     }
 
     return data;
-  } 
-  
+  }
+
   // Pilots can handle most stuff
   can_root_drop_entry(item: AnyMMActor | AnyMMItem): boolean {
     // Accept mechs, so as to change their actor
-    if(item.Type == EntryType.MECH) {
+    if (item.Type == EntryType.MECH) {
       return true;
     }
 
     // Accept non pilot item
-    if(LANCER.pilot_items.includes(item.Type as LancerItemType)) {
+    if (LANCER.pilot_items.includes(item.Type as LancerItemType)) {
       return true;
     }
 
@@ -236,14 +194,14 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
           break;
         }
       }
-    } else if (is_new && drop.Type === EntryType.SKILL || drop.Type == EntryType.TALENT) {
+    } else if ((is_new && drop.Type === EntryType.SKILL) || drop.Type == EntryType.TALENT) {
       // If new skill or talent, reset to level 1
       drop.CurrentRank = 1;
       await drop.writeback(); // Since we're editing the item, we gotta do this
-    } else if(drop.Type === EntryType.MECH) {
+    } else if (drop.Type === EntryType.MECH) {
       // Set active mech
       this_mm.ActiveMechRef = drop.as_ref();
-      if(drop.Pilot?.RegistryID != this_mm.RegistryID) {
+      if (drop.Pilot?.RegistryID != this_mm.RegistryID) {
         // Also set the mechs pilot if necessary
         drop.Pilot = this_mm;
         drop.writeback();
@@ -262,16 +220,13 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
       // other way around happens in the rawID input listener
       let assignSplit = (str: string) => {
         if (str.match(/\/\//)) {
-          let [owner, id] = str.split('//');
-          // @ts-ignore for some reason typescript thinks this `this` can be null
-          this._currData.mm.CloudOwnerID = owner;
-          // @ts-ignore
-          this._currData.mm.CloudID = id;
+          let [owner, id] = str.split("//");
+          this._currData!.mm.CloudOwnerID = owner;
+          this._currData!.mm.CloudID = id;
         } else {
-          // @ts-ignore
-          this._currData.mm.CloudID = str;
+          this._currData!.mm.CloudID = str;
         }
-      }
+      };
 
       if (this._currData.vaultID) {
         assignSplit(this._currData.vaultID);
@@ -279,7 +234,7 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
         assignSplit(this._currData.rawID);
       }
     }
-    return super._commitCurrMM()
+    return super._commitCurrMM();
   }
 
   /* -------------------------------------------- */
@@ -289,7 +244,8 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
    * This defines how to update the subject of the form when the form is submitted
    * @private
    */
-  async _updateObject(event: Event | JQuery.Event, formData: any): Promise<any> {
+  async _updateObject(event: Event, formData: any) {
+    if (!this.actor.is_pilot()) return;
     // Do some pre-processing
     // Do these only if the callsign updated
     if (this.actor.data.data.callsign !== formData["data.pilot.callsign"]) {
@@ -303,46 +259,7 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
   }
 }
 
-// TODO: migrate to mech
-/**
- * Handlebars helper for an overcharge button
- * Currently this is overkill, but eventually we want to support custom overcharge values
- * Also I can't think of a better way to handle actor-specific data like this here... ideally move to within the sheet eventually
- * @param level Level of overcharge, between 0 (1) and 3 (1d6+4) by default
- */
-/*
-export function overchargeButton(level: number) {
-  // This seems like a very inefficient way to do this...
-  // I don't think there's a good way to get an actor via handlebars helpers though besides this
-  // Might just need to not use helpers for this?
-  //@ts-ignore
-  let actor: LancerActor = game.actors.get(this.actor._id);
-
-  let rollVal = actor.getOverchargeRoll();
-
-  if (!rollVal) {
-    rollVal = "ERROR";
-  }
-
-  // Add a line break if it contains a plus to prevent it being too long
-  let plusIndex = rollVal.indexOf("+");
-  if (plusIndex > 0) {
-    rollVal = rollVal.slice(0, plusIndex) + "<br>" + rollVal.slice(plusIndex);
-  }
-
-  return `<div class="overcharge-container">
-
-      <a class="overcharge-macro macroable i--dark i--sm" data-action="roll-macro"><i class="fas fa-dice-d20"></i></a>
-      <a class="overcharge-text">${rollVal}</a>
-      <input style="display:none;border:none" type="number" name="data.mech.overcharge_level" value="${level}" data-dtype="Number"/>
-      </input>
-      <a class="overcharge-reset mdi mdi-restore"></a>
-    </div>`;
-}
-
- */
-
-export function pilot_counters(ent: Pilot, helper: HelperOptions): string {
+export function pilot_counters(ent: Pilot, _helper: HelperOptions): string {
   let counter_detail = "";
 
   let counter_arr = ent.AllCounters;
@@ -365,7 +282,9 @@ export function pilot_counters(ent: Pilot, helper: HelperOptions): string {
   }
   // Now do our CustomCounters
   for (let i = 0; i < ent.CustomCounters.length; i++) {
-    counter_detail = counter_detail.concat(buildCounterHTML(ent.CustomCounters[i], `mm.CustomCounters.${i}`, true, "", true));
+    counter_detail = counter_detail.concat(
+      buildCounterHTML(ent.CustomCounters[i], `mm.CustomCounters.${i}`, true, "", true)
+    );
   }
 
   return `
@@ -378,7 +297,7 @@ export function pilot_counters(ent: Pilot, helper: HelperOptions): string {
   </div>`;
 }
 
-export function active_mech_preview(mech: Mech, path: string, helper: HelperOptions): string {
+export function active_mech_preview(mech: Mech, path: string, _helper: HelperOptions): string {
   var html = ``;
 
   // Generate commons

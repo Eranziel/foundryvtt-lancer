@@ -1,7 +1,6 @@
 export const COLLAPSE_KEY = "collapse_state";
 /** To make collapsible work on a sheet, that sheet must export as part of its getData() function an instance of this object,
  * under the key [COLLAPSE_KEY]
- *
  */
 export class CollapseHandler {
   private state: Map<string, boolean> = new Map();
@@ -26,13 +25,12 @@ export function HANDLER_activate_collapsibles(html: JQuery, handler: CollapseHan
   // Perform initial state setting
   $(html)
     .find(".collapse-item")
-    .each((index, _item) => {
-      let item = $(_item);
-      let id = item.attr("collapse-id") ?? "";
+    .each((_index, item) => {
+      let id = $(item).attr("collapse-id") ?? "";
       if (handler.get(id)) {
-        item.addClass("expanded");
+        $(item).addClass("expanded");
       } else {
-        item.addClass("collapsed");
+        $(item).addClass("collapsed");
       }
     });
 
@@ -88,12 +86,12 @@ const handleCollapse = (ev: Event) => {
     collapse?.classList.add("collapsed");
     store && sessionStorage.setItem(`${prefix}-${store}-${id}`, "closed");
   }
-  console.debug(collapse);
+  // console.debug(collapse);
 };
 
 // Trusty uuid gen.
 export function uuid4(): string {
-  // @ts-ignore
+  // @ts-ignore Uhhh
   return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
     // tslint:disable-next-line:no-bitwise
     (c ^ (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))).toString(16)

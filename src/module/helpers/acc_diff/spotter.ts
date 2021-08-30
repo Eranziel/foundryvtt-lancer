@@ -6,34 +6,38 @@ import type { LancerItem } from '../../item/lancer-item';
 import type { Pilot } from 'machine-mind';
 
 // this is an example of a case implemented without defining a full class
-function adjacentSpotter(item: LancerItem<any>): boolean {
-  let actor = getMacroSpeaker(item?.actor?.id);
+function adjacentSpotter(item: LancerItem): boolean {
+  let actor = getMacroSpeaker(item?.actor?.id ?? undefined);
   // only players can have spotter
   if (!actor || actor.data.type != "mech") { return false; }
 
   // this isn't adjacency, it's "is within range 1 LOS with a hack for larger mechs", but it's good enough
   // computation taken from sensor-sight
-  let radius = actor.data.data.derived.mm.Size;
+  let radius = actor.data.data.derived.mm!.Size;
   let token = actor.getActiveTokens()[0];
-  let point = token.center;
+  // TODO: TYPECHECK: center does always seem to exist on this thing ts thinks is a LancerTokenDocument
+  let point = (token as any).center;
 
   function inRange(token: { x: number, y: number }) {
     const range = Math.sqrt((token.x - point.x) * (token.x - point.x) + (token.y - point.y) * (token.y - point.y));
-    const scale = canvas.scene.data.gridType > 1 ? Math.sqrt(3) / 2 : 1; // for hexes
-    const grid = canvas.scene.data.grid;
+    const scale = canvas!.scene!.data.gridType > 1 ? Math.sqrt(3) / 2 : 1; // for hexes
+    const grid = canvas!.scene!.data.grid;
     return (radius + .01) * grid * scale > range;
   }
 
-  let adjacentPilots = canvas.tokens.objects.children
-    .filter((t: Token) => inRange(t.center) && t != token)
-    .map((t: Token) => t.actor.data.data.derived.mm.Pilot);
+  // TODO: TYPECHECK: all of this seems to work
+  let adjacentPilots = canvas!.tokens!.objects!.children
+  // @ts-ignore
+    .filter((t: Token) => inRange((t as any).center) && t != token)
+  // @ts-ignore
+    .map((t: Token) => t.actor.data.data.derived.mm!.Pilot);
 
   return (adjacentPilots.find((p: Pilot) => p.Talents.find(t => t.LID == "t_spotter")));
 }
 
 function spotter(): AccDiffPluginData {
   let sp = {
-    item: null as LancerItem<any> | null,
+    item: null as LancerItem | null,
     target: null as AccDiffTarget | null,
     uiElement: "checkbox" as "checkbox",
     slug: "spotter",

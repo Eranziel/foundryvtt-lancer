@@ -1,10 +1,10 @@
-import { EntryType, LiveEntryTypes, OpCtx, RegEntry, RegRef } from "machine-mind";
-import { AnyLancerActor, AnyMMActor, is_actor_type, LancerActor, LancerActorType } from "../actor/lancer-actor";
-import { PACK_SCOPE } from "../compBuilder";
-import { AnyLancerItem, AnyMMItem, is_item_type, LancerItem, LancerItemType } from "../item/lancer-item";
+import type { OpCtx, RegEntry, RegRef } from "machine-mind";
+import { EntryType } from "machine-mind";
+import { AnyMMActor, is_actor_type, LancerActor } from "../actor/lancer-actor";
+import { AnyMMItem, is_item_type, LancerItem } from "../item/lancer-item";
 import { FoundryReg, FoundryRegName } from "../mm-util/foundry-reg";
 import { FetcherCache, get_pack_id, mm_wrap_actor, mm_wrap_item } from "../mm-util/helpers";
-import { gentle_merge, is_ref, safe_json_parse } from "./commons";
+import { is_ref, safe_json_parse } from "./commons";
 import { recreate_ref_from_element } from "./refs";
 
 ////////////// DRAGON DROPS ////////////
@@ -30,11 +30,7 @@ import { recreate_ref_from_element } from "./refs";
  */
 export type AnyDragoverEvent = JQuery.DragOverEvent | JQuery.DragEnterEvent | JQuery.DragLeaveEvent | JQuery.DropEvent;
 export type DropHandlerFunc = (data: string, drag_dest: JQuery, drop_event: JQuery.DropEvent) => void;
-export type AllowDropPredicateFunc = (
-  data: string,
-  drag_dest: JQuery,
-  dragover_event: AnyDragoverEvent
-) => boolean;
+export type AllowDropPredicateFunc = (data: string, drag_dest: JQuery, dragover_event: AnyDragoverEvent) => boolean;
 export type HoverHandlerFunc = (
   mode: "enter" | "leave",
   data: string,
@@ -119,7 +115,7 @@ export function HANDLER_enable_dropping(
       if (!data) return;
 
       // Check dropability just to be safe - some event may have trickled down here somehow
-      if(allow_drop && !allow_drop(data, item, event)) {
+      if (allow_drop && !allow_drop(data, item, event)) {
         return;
       }
 
@@ -163,7 +159,8 @@ export function HANDLER_enable_dragging(
   items.each((_, _item) => {
     let item = $(_item);
     item.on("dragstart", event => {
-      // Set data using callback
+      // Set data using callback. Clear old data
+      event.originalEvent!.dataTransfer!.clearData();
       event.originalEvent!.dataTransfer!.setData("text/plain", data_transfer_func(item, event));
 
       // We don't want weird double trouble on drags
@@ -186,15 +183,16 @@ export function HANDLER_enable_dragging(
   });
 }
 
-export type NewNativeDrop = ({
+export type NewNativeDrop = (
+  | {
       type: "Item";
     }
   | {
       type: "ActiveEffect";
-  }) & {
-    test: string;
-  };
-
+    }
+) & {
+  test: string;
+};
 
 // "Everything" that foundry will natively drop. Scene dropping,  are not yet implemented
 type _DropContextInfo = {
@@ -204,25 +202,15 @@ type _DropContextInfo = {
   sceneId?: string; // If provided, the document is embedded in a token in this scene
   // Note: It is not necessarily safe to assume that tokenId implies sceneId, since floating combat tokens exist, maybe? Its iffy. Tread cautiously
 };
-type _PhysicalDrop =  
-    (
-      { type: "Item"; }
-      | 
-      { type: "ActiveEffect"; }
-      | 
-      { type: "Actor"; }
-    ) 
-    & 
-    _DropContextInfo
-    &
-    { id: string; };
+type _PhysicalDrop = ({ type: "Item" } | { type: "ActiveEffect" } | { type: "Actor" }) &
+  _DropContextInfo & { id: string };
 
-// Meta here handles weirder stuff like journals, scenes, sounds, macros, etc 
+// Meta here handles weirder stuff like journals, scenes, sounds, macros, etc
 type _MetaDrop = {
   type: "JournalEntry";
   id: string;
   pack?: string;
-}
+};
 
 export type NativeDrop = _PhysicalDrop | _MetaDrop;
 
@@ -230,11 +218,11 @@ export type NativeDrop = _PhysicalDrop | _MetaDrop;
 export type ResolvedNativeDrop =
   | {
       type: "Item";
-      entity: AnyLancerItem;
+      entity: LancerItem;
     }
   | {
       type: "Actor";
-      entity: AnyLancerActor;
+      entity: LancerActor;
     }
   | {
       type: "JournalEntry";
@@ -244,36 +232,34 @@ export type ResolvedNativeDrop =
 
 // Resolves a native foundry actor/item drop event datatransfer to the actual contained actor/item/journal
 // This can be annoying, so we made it a dedicated method
-export async function resolve_native_drop(drop: string | {[key: string]: any} | null): Promise<ResolvedNativeDrop> {
+export async function resolve_native_drop(drop: string | { [key: string]: any } | null): Promise<ResolvedNativeDrop> {
   // Get dropped data
-  if(typeof drop == "string") {
+  if (typeof drop == "string") {
     drop = safe_json_parse(drop) as NativeDrop;
   }
   if (!drop) return null;
 
   if (drop.type == "Item") {
-    let item: LancerItem<LancerItemType> | null = null;
+    let item: LancerItem | undefined;
     if (drop.pack && drop.actorId) {
       // Case 1 - Item is from a Compendium actor item
-      // @ts-ignore 0.8
-      let actor = (await game.packs.get(drop.pack)?.getDocument(drop.actorId)) as AnyLancerActor | undefined;
-      item = (actor?.items.get(drop.id) ?? null) as AnyLancerItem | null;
-    } else if(drop.sceneId && drop.tokenId) {
+      let actor = (await game.packs.get(drop.pack)?.getDocument(drop.actorId)) as LancerActor | undefined;
+      item = actor?.items.get(drop.id);
+    } else if (drop.sceneId && drop.tokenId) {
       // Case 2 - Item is a token actor item
-      // @ts-ignore 0.8
-      let actor = game.scenes.get(drop.sceneId)?.tokens.get(drop.tokenId)?.actor as AnyLancerActor | undefined;
-      item = (actor?.items.get(drop.id) ?? null) as AnyLancerItem | null;
-    } else if(drop.actorId) {
+      let actor = game.scenes!.get(drop.sceneId)?.tokens.get(drop.tokenId)?.actor as LancerActor | undefined;
+      item = actor?.items.get(drop.id);
+    } else if (drop.actorId) {
       // Case 3 - Item is a game actor item
-      let actor = game.actors.get(drop.actorId);
-      item = (actor?.items.get(drop.id) ?? null) as AnyLancerItem | null;
+      let actor = game.actors!.get(drop.actorId);
+      item = actor?.items.get(drop.id);
     } else if (drop.pack) {
-      // Case 4 - Item is from a Compendium 
-      // @ts-ignore 0.8
-      item = ((await game.packs.get(drop.pack)!.getDocument(drop.id)) ?? null) as AnyLancerItem | null;
+      // Case 4 - Item is from a Compendium
+      // Cast because I have NFI how to narrow the type on a compendium
+      item = (await game.packs.get(drop.pack)!.getDocument(drop.id)) as LancerItem | undefined;
     } else {
       // Case 5 - item is a game item
-      item = (game.items.get(drop.id) ?? null) as LancerItem<any> | null;
+      item = game.items!.get(drop.id);
     }
 
     // Return if it exists
@@ -285,19 +271,17 @@ export async function resolve_native_drop(drop: string | {[key: string]: any} | 
     }
   } else if (drop.type == "Actor") {
     // Same deal
-    let actor: LancerActor<LancerActorType> | null = null;
+    let actor: LancerActor | null | undefined;
 
     if (drop.pack) {
       // Case 1 - Actor is from a Compendium pack
-      // @ts-ignore 0.8
-      actor = ((await game.packs.get(drop.pack)!.getDocument(drop.id)) ?? null) as AnyLancerActor | null
-    } else if(drop.sceneId && drop.actorId) {
+      actor = (await game.packs.get(drop.pack)!.getDocument(drop.id)) as LancerActor | undefined;
+    } else if (drop.sceneId && drop.actorId) {
       // Case 2 - Actor is a scene token
-      // @ts-ignore 0.8
-      actor = (game.scenes.get(drop.sceneId)?.tokens.get(drop.tokenId)?.actor ?? null) as AnyLancerActor | null;
+      actor = game.scenes!.get(drop.sceneId)?.tokens.get(drop.tokenId)?.actor;
     } else {
       // Case 3 - Actor is a game actor
-      actor = (game.actors.get(drop.id) ?? null) as AnyLancerActor | null;
+      actor = game.actors!.get(drop.id);
     }
 
     if (actor) {
@@ -308,17 +292,16 @@ export async function resolve_native_drop(drop: string | {[key: string]: any} | 
     }
   } else if (drop.type == "JournalEntry") {
     // Same deal
-    let journal: JournalEntry | null = null;
+    let journal: JournalEntry | null | undefined;
 
     // Case 1 - JournalEntry is from a Compendium pack
     if (drop.pack) {
-      // @ts-ignore 0.8
-      journal = ((await game.packs.get(drop.pack)!.getDocument(drop.id)) ?? null) as JournalEntry | null;
+      journal = (await game.packs.get(drop.pack)!.getDocument(drop.id)) as JournalEntry | null;
     }
 
     // Case 2 - JournalEntry is a World entity
     else {
-      journal = (game.journals.get(drop.id) ?? null) as JournalEntry | null;
+      journal = game.journal!.get(drop.id);
     }
 
     if (journal) {
@@ -330,7 +313,6 @@ export async function resolve_native_drop(drop: string | {[key: string]: any} | 
   }
 
   // All else fails
-  console.log(`Couldn't resolve native drop:`, drop);
   return null;
 }
 
@@ -339,8 +321,8 @@ export function convert_ref_to_native_drop<T extends EntryType>(ref: RegRef<T>):
   // Can't handle null typed refs
   if (!ref.type) {
     console.error("Attempted to turn a null-typed ref into a native drop. This is, generally, impossible");
-    return null;  
-  } 
+    return null;
+  }
 
   // Build out our scaffold
   let evt: Partial<_PhysicalDrop> = {};
@@ -349,7 +331,7 @@ export function convert_ref_to_native_drop<T extends EntryType>(ref: RegRef<T>):
   let rn = FoundryReg.parse_reg_args(ref.reg_name as FoundryRegName);
 
   // Decide type
-  if(is_item_type(ref.type)) {
+  if (is_item_type(ref.type)) {
     evt.type = "Item";
   } else if (is_actor_type(ref.type)) {
     evt.type = "Actor";
@@ -359,35 +341,33 @@ export function convert_ref_to_native_drop<T extends EntryType>(ref: RegRef<T>):
   }
 
   // Decide pack
-  if(rn.src == "comp_core") {
-    evt.pack = get_pack_id(ref.type)
-  } else if(rn.src == "comp") {
+  if (rn.src == "comp_core") {
+    evt.pack = get_pack_id(ref.type);
+  } else if (rn.src == "comp") {
     evt.pack = rn.comp_id;
-  } 
+  }
 
   // Decide scene
-  if(rn.src == "scene") {
+  if (rn.src == "scene") {
     evt.sceneId = rn.scene_id;
     evt.tokenId = ref.id;
-  } else if(rn.src == "scene_token") {
+  } else if (rn.src == "scene_token") {
     evt.sceneId = rn.scene_id;
     evt.tokenId = rn.token_id;
   }
 
   // Decide actor id
-  if(rn.src == "comp_actor") {
+  if (rn.src == "comp_actor") {
     evt.actorId = rn.actor_id;
-  } else if(rn.src == "game_actor") {
+  } else if (rn.src == "game_actor") {
     evt.actorId = rn.actor_id;
-  } else if(rn.src == "scene_token") {
-    // @ts-ignore
-    evt.actorId = game.scenes.get(evt.sceneId)?.tokens.get(evt.tokenId)?.actor.id;
+  } else if (rn.src == "scene_token") {
+    evt.actorId = game.scenes!.get(evt.sceneId!)?.tokens.get(evt.tokenId!)?.actor?.id ?? undefined;
   }
-  
+
   // Decide ID, which is slightly weird for scene token actors
-  if(rn.src == "scene") {
-    // @ts-ignore
-    evt.id = game.scenes.get(evt.sceneId)?.tokens.get(evt.tokenId)?.actor.id;
+  if (rn.src == "scene") {
+    evt.id = game.scenes!.get(evt.sceneId!)?.tokens.get(evt.tokenId!)?.actor?.id ?? undefined;
   } else {
     evt.id = ref.id;
   }
@@ -412,7 +392,7 @@ export function HANDLER_enable_mm_dropping(
   resolver: MMDragResolveCache,
   can_drop: null | AllowMMDropPredicateFunc,
   on_drop: (entry: AnyMMItem | AnyMMActor, dest: JQuery, evt: JQuery.DropEvent) => void,
-  hover_handler?: HoverHandlerFunc,
+  hover_handler?: HoverHandlerFunc
 ) {
   // Make a helper for checking dest dataset
   const check_targ_type = (ent: RegEntry<any>, elt: JQuery<HTMLElement>) => {
@@ -434,18 +414,21 @@ export function HANDLER_enable_mm_dropping(
 
       if (resolved) {
         // Check type
-        if(!check_targ_type(resolved, dest)) {
+        if (!check_targ_type(resolved, dest)) {
           return false;
         }
 
         // If we have another predicate and it fails, then bail!
-        if(can_drop && !can_drop(resolved, dest, evt)) {
+        if (can_drop && !can_drop(resolved, dest, evt)) {
           return false;
         }
 
         on_drop(resolved, dest, evt);
       } else {
-        console.error("Failed to resolve ref. This should never happen at this stage - verify that prior guards are properly validating drop options", data);
+        console.error(
+          "Failed to resolve ref. This should never happen at this stage - verify that prior guards are properly validating drop options",
+          data
+        );
       }
     },
 
@@ -457,20 +440,20 @@ export function HANDLER_enable_mm_dropping(
       let [resolved, done] = resolver.sync_fetch(data);
 
       // We aren't there yet
-      if(!done) {
+      if (!done) {
         return true; // Note - this allows dropping unresolved items! We allow this for particularly speedy users. We therefore need to check can_drop again in actual drop func
-      } else if(!resolved) {
+      } else if (!resolved) {
         console.warn("Failed to resolve ref.", data);
-        return false; // Can't drop something that didnt resolve, lol
+        return false; // Can't drop something that was completed+unresolveable, lol
       }
 
       // Check type
-      if(!check_targ_type(resolved, dest)) {
+      if (!check_targ_type(resolved, dest)) {
         return false;
       }
 
       // If we have another predicate and it fails, then bail!
-      if(can_drop && !can_drop(resolved, dest, evt)) {
+      if (can_drop && !can_drop(resolved, dest, evt)) {
         return false;
       }
 
@@ -500,30 +483,34 @@ export function HANDLER_enable_mm_dragging(items: string | JQuery, start_stop?: 
 
 // This class coordinates the looking-up of raw drag-drop event data such that we can resolve things synchronously, while performing async fetches
 // All entries are resolved to the provided ctx, which effectively provides the true cache of this resolver
-export class MMDragResolveCache { // extends FetcherCache<string, AnyMMActor | AnyMMItem | null> {
+export class MMDragResolveCache {
+  // extends FetcherCache<string, AnyMMActor | AnyMMItem | null> {
   private cache: FetcherCache<string, AnyMMActor | AnyMMItem | null>;
 
-  constructor(private readonly ctx: OpCtx){
-    this.cache = new FetcherCache(30_000, async (key) => {
-      // Get the 
+  constructor(private readonly ctx: OpCtx) {
+    this.cache = new FetcherCache(30_000, async key => {
+      // Get the
       let as_json: RegRef<EntryType> | NativeDrop | null = safe_json_parse(key);
-      if(!as_json) return null;
+      if (!as_json) return null;
 
       // Distinguish
-      if(is_ref(as_json)) {
+      let resolved: AnyMMActor | AnyMMItem | null = null;
+      if (is_ref(as_json)) {
         // Resolution is simple
-        return new FoundryReg().resolve(this.ctx, as_json);
+        resolved = await new FoundryReg().resolve(this.ctx, as_json);
       } else {
         // Resolution is complex but still solved
-        let resolved = await resolve_native_drop(as_json);
-        if(resolved?.type == "Actor")  {
-          return mm_wrap_actor(resolved.entity, this.ctx);
-        } else if(resolved?.type == "Item") {
-          return mm_wrap_item(resolved.entity, this.ctx);
+        let drop = await resolve_native_drop(as_json);
+        if (drop?.type == "Actor") {
+          resolved = await mm_wrap_actor(drop.entity, this.ctx);
+        } else if (drop?.type == "Item") {
+          resolved = await mm_wrap_item(drop.entity, this.ctx);
         } else {
-          return null;
+          resolved = null;
         }
       }
+
+      return resolved;
     });
   }
 
@@ -531,7 +518,7 @@ export class MMDragResolveCache { // extends FetcherCache<string, AnyMMActor | A
   // [null, false] if the key is not yet cached (but the caching job will be started)
   // [<value>, true] if the key is cached. Value may still be null
   sync_fetch(event_transfer_key: string): [AnyMMActor | AnyMMItem | null, boolean] {
-    if(this.cache.has_resolved(event_transfer_key)) {
+    if (this.cache.has_resolved(event_transfer_key)) {
       return [this.cache.soft_fetch(event_transfer_key), true];
     } else {
       this.cache.fetch(event_transfer_key);
@@ -545,11 +532,112 @@ export class MMDragResolveCache { // extends FetcherCache<string, AnyMMActor | A
   }
 }
 
-// Needed for chrome, but also lets us do some nice stuff
+// Tracks state and handles global flag set/unsetting.
+// Only set by HANDLER_enable_mm_dragging. If you're using other things, well, good luck
 export const GlobalMMDragState = {
+  dragging: false as boolean,
+  curr_dragged_type: EntryType,
+  curr_dragged_entity: null as LancerActor | LancerItem | null, // If it is a native entity, we set this
+  curr_dragged_ref: null as RegRef<EntryType> | null, // If it is a ref, we set this
+};
 
+function dragging_class(for_type: EntryType): string {
+  return `dragging-${for_type}`;
+}
 
-  // dragging_listeners():
-  // listen_
+function set_global_drag(to: LancerActor | LancerItem | RegRef<any>) {
+  // Check for duplicate work and clear if that isn't the case
+  if (GlobalMMDragState.curr_dragged_entity == to || GlobalMMDragState.curr_dragged_ref == to) {
+    return; // don't repeat
+  }
+  clear_global_drag();
 
+  // Mark us as dragging and store the draggee
+  GlobalMMDragState.dragging = true;
+  let type: EntryType;
+  let rr = to as RegRef<any>;
+  let ent = to as LancerActor | LancerItem;
+  if (rr.fallback_lid !== undefined) {
+    GlobalMMDragState.curr_dragged_ref = rr;
+    type = rr.type;
+  } else if (ent.data !== undefined) {
+    GlobalMMDragState.curr_dragged_entity = ent;
+    type = ent.data.type;
+  } else {
+    console.error("Error while setting global drag");
+    return; // hmmm
+  }
+
+  // @ts-ignore
+  GlobalMMDragState.curr_dragged_type = type;
+
+  // Add an appropriate class
+  $("body").addClass(dragging_class(type));
+}
+
+function clear_global_drag() {
+  if (GlobalMMDragState.dragging) {
+    GlobalMMDragState.dragging = false;
+    if (GlobalMMDragState.curr_dragged_entity) {
+      $("body").removeClass(dragging_class(GlobalMMDragState.curr_dragged_entity.data.type));
+    } else if (GlobalMMDragState.curr_dragged_ref?.type) {
+      $("body").removeClass(dragging_class(GlobalMMDragState.curr_dragged_ref.type));
+    }
+    GlobalMMDragState.curr_dragged_entity = null;
+    GlobalMMDragState.curr_dragged_ref = null;
+  }
+}
+
+// Setup global drag mm resolution
+export function applyGlobalDragListeners() {
+  let body = document.getElementsByTagName("body")[0];
+
+  // Capture when we start dragging anything anywhere - this covers regrefs and native drags
+  body.addEventListener(
+    "dragstart",
+    e => {
+      // Even though we are capturing, we need to wait a moment so the event data transfer can occur
+      setTimeout(async () => {
+        // Ok. Try to resolve
+        let text = e.dataTransfer?.getData("text/plain") ?? null;
+        if (!text) {
+          // Drop it - we can't really do much about this happening
+          return;
+        }
+
+        let resolved = await resolve_native_drop(text);
+
+        // No joy - is it by chance already a ref
+        if (!resolved) {
+          let ar = safe_json_parse(text) as RegRef<any>;
+          if (ar?.fallback_lid !== undefined) {
+            // It's a ref!
+            set_global_drag(ar);
+          }
+          return; // Well! no idea what that is
+        }
+
+        // Upon success
+        if (resolved.type == "Item" || resolved.type == "Actor") {
+          set_global_drag(resolved.entity);
+        }
+      }, 100);
+    },
+    {
+      capture: true, // We don't want people preventing us from seeing this!
+      passive: true, // Improves performance. We only want to watch
+    }
+  );
+
+  // Clear whenever we stop dragging anywhere
+  body.addEventListener(
+    "dragend",
+    e => {
+      clear_global_drag();
+    },
+    {
+      capture: true, // Same as above
+      passive: true,
+    }
+  );
 }

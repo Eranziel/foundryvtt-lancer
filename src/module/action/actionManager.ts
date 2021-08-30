@@ -1,9 +1,21 @@
-import { EntryType } from "machine-mind";
-import { LancerActor, LancerActorType } from "../actor/lancer-actor";
-import { LancerGame } from "../lancer-game";
-import { ActionData, ActionType } from ".";
+import type { LancerActor } from "../actor/lancer-actor";
+import type { ActionData, ActionType } from ".";
 import { LANCER } from "../config";
 import tippy from "tippy.js";
+
+// TODO: Properly namespace this flag into the system scope
+declare global {
+  interface FlagConfig {
+    User: {
+      "action-manager": {
+        pos: {
+          top: number;
+          left: number;
+        };
+      };
+    };
+  }
+}
 
 export const _defaultActionData = (target: Actor) => {
   return {
@@ -29,14 +41,17 @@ export class LancerActionManager extends Application {
   static DEF_TOP = 20;
   static enabled: boolean;
 
-  target: LancerActor<any> | null = null;
+  target: LancerActor | null = null;
 
   constructor() {
     super();
   }
 
   async init() {
-    LancerActionManager.enabled = game.settings.get(LANCER.sys_name, LANCER.setting_action_manager) && !game.settings.get("core", "noCanvas");
+    // TODO: find the correct place to specify what game.system.id is expected to be
+    LancerActionManager.enabled =
+      game.settings.get(<"lancer">game.system.id, LANCER.setting_action_manager) &&
+      !game.settings.get("core", "noCanvas");
     if (LancerActionManager.enabled) {
       this.loadUserPos();
       await this.updateControlledToken();
@@ -47,7 +62,7 @@ export class LancerActionManager extends Application {
   /** @override */
   static get defaultOptions() {
     return mergeObject(super.defaultOptions, {
-      template: "systems/lancer/templates/window/action_manager.hbs",
+      template: `systems/${game.system.id}/templates/window/action_manager.hbs`,
       width: 310,
       height: 70,
       left: LancerActionManager.DEF_LEFT,
@@ -62,12 +77,12 @@ export class LancerActionManager extends Application {
 
   /** @override */
   getData(_options = {}) {
-    const data = super.getData();
-    data.position = this.position;
-    data.name = this.target && this.target.data.name.toLocaleUpperCase();
-    data.actions = this.getActions();
-    data.clickable = game.user.isGM || game.settings.get(LANCER.sys_name, LANCER.setting_action_manager_players);
-    return data;
+    return {
+      position: this.position,
+      name: this.target && this.target.data.name.toLocaleUpperCase(),
+      actions: this.getActions(),
+      clickable: game.user?.isGM || game.settings.get(game.system.id, LANCER.setting_action_manager_players),
+    };
   }
 
   // DATA BINDING
@@ -81,18 +96,17 @@ export class LancerActionManager extends Application {
   /**
    * Set proxy for ease of migration when we change over to MM data backing.
    */
-  private async updateActions(actor: LancerActor<any>, actions: ActionData) {
+  private async updateActions(actor: LancerActor, actions: ActionData) {
     await actor.update({ "data.action_tracker": actions });
     // this.token?.update({ "flags.lancer.actions": actions });
   }
-  //
 
   async reset() {
     await this.close();
     this.render(true);
   }
 
-  async update(force?: boolean) {
+  async update(_force?: boolean) {
     if (LancerActionManager.enabled) {
       // console.log("Action Manager updating...");
       await this.updateControlledToken();
@@ -101,7 +115,7 @@ export class LancerActionManager extends Application {
   }
 
   async updateConfig() {
-    if (game.settings.get(LANCER.sys_name, LANCER.setting_action_manager) && !game.settings.get("core", "noCanvas")) {
+    if (game.settings.get(game.system.id, LANCER.setting_action_manager) && !game.settings.get("core", "noCanvas")) {
       await this.update();
       LancerActionManager.enabled = true;
     } else {
@@ -111,14 +125,15 @@ export class LancerActionManager extends Application {
   }
 
   private async updateControlledToken() {
-    const token = canvas.tokens.controlled[0] as Token;
-    if (token && token.inCombat && (token.actor.data.type === "mech" || token.actor.data.type === "npc")) {
+    if (!canvas?.ready) return;
+    const token = canvas.tokens?.controlled[0];
+    if (token && token.inCombat && (token.actor?.data.type === "mech" || token.actor?.data.type === "npc")) {
       // TEMPORARY HANDLING OF OLD TOKENS
       // TODO: Remove when action data is properly within MM.
       if (token.actor.data.data.action_tracker === undefined) {
-        await this.updateActions(token.actor as LancerActor<any>, _defaultActionData(token.actor));
+        await this.updateActions(token.actor, _defaultActionData(token.actor));
       }
-      this.target = token.actor as LancerActor<any>;
+      this.target = token.actor;
     } else this.target = null;
   }
 
@@ -128,7 +143,7 @@ export class LancerActionManager extends Application {
    * @param spend whether to refresh or spend an action.
    * @param type specific action to spend, or undefined for end-turn behavior.
    */
-  async modAction(actor: LancerActor<any>, spend: boolean, type?: ActionType) {
+  async modAction(actor: LancerActor, spend: boolean, type?: ActionType) {
     let actions = { ...actor.data.data.action_tracker };
     if (actions) {
       switch (type) {
@@ -168,7 +183,7 @@ export class LancerActionManager extends Application {
       if (spend) {
         actions.protocol = false;
       }
-      const res = await this.updateActions(actor, actions);
+      await this.updateActions(actor, actions);
       this.render();
     }
   }
@@ -192,11 +207,11 @@ export class LancerActionManager extends Application {
     // Enable action toggles.
     html.find("a.action[data-action]").on("click", e => {
       e.preventDefault();
-      if (game.user.isGM || game.settings.get(LANCER.sys_name, LANCER.setting_action_manager_players)) {
+      if (game.user?.isGM || game.settings.get(game.system.id, LANCER.setting_action_manager_players)) {
         const action = e.currentTarget.dataset.action;
         action && this.toggleAction(action as ActionType);
       } else {
-        console.log(`${game.user.name} :: Users currently not allowed to toggle actions through action manager.`);
+        console.log(`${game.user?.name} :: Users currently not allowed to toggle actions through action manager.`);
       }
     });
 
@@ -205,7 +220,7 @@ export class LancerActionManager extends Application {
   }
 
   private loadUserPos() {
-    if (!(game.user.data.flags["action-manager"] && game.user.data.flags["action-manager"].pos)) return;
+    if (!(game.user?.data.flags["action-manager"] && game.user.data.flags["action-manager"].pos)) return;
 
     const pos = game.user.data.flags["action-manager"].pos;
     const appPos = this.position;
@@ -309,7 +324,7 @@ export class LancerActionManager extends Application {
             elmnt.style.left = xPos + "px";
           }
           console.log(`Action Manager | CACHING: ${xPos} || ${yPos}.`);
-          game.user.update({ flags: { "action-manager": { pos: { top: yPos, left: xPos } } } });
+          game.user?.update({ flags: { "action-manager": { pos: { top: yPos, left: xPos } } } });
           appPos.top = yPos;
           appPos.left = xPos;
         }

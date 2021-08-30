@@ -11,10 +11,11 @@
       "ESNext"
     ],
     "types": [
-      "foundry-pc-types",
+      "@league-of-foundry-developers/foundry-vtt-types",
       "@pyoner/svelte-types"
     ],
     "moduleResolution": "node",
+    "strictNullChecks": true,
     "esModuleInterop": true,
     "noEmit": true,
     "strict": true,

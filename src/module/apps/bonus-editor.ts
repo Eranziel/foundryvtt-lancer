@@ -12,12 +12,7 @@ export class BonusEditDialog<O> extends Dialog {
   // Where it is
   bonus_path: string;
 
-  constructor(
-    target: O,
-    bonus_path: string,
-    dialogData: DialogData = {},
-    options: ApplicationOptions = {}
-  ) {
+  constructor(target: O, bonus_path: string, dialogData: Dialog.Data, options: Partial<Dialog.Options> = {}) {
     super(dialogData, options);
     this.bonus_path = bonus_path;
     this.bonus = resolve_dotpath(target, bonus_path);
@@ -26,13 +21,14 @@ export class BonusEditDialog<O> extends Dialog {
   /* -------------------------------------------- */
 
   /** @override */
-  static get defaultOptions() {
-    return mergeObject(super.defaultOptions, {
-      template: "systems/lancer/templates/window/bonus.hbs",
+  static get defaultOptions(): Dialog.Options {
+    return {
+      ...super.defaultOptions,
+      template: `systems/${game.system.id}/templates/window/bonus.hbs`,
       width: 400,
       height: "auto",
       classes: ["lancer"],
-    });
+    };
   }
 
   /** @override
@@ -63,9 +59,10 @@ export class BonusEditDialog<O> extends Dialog {
     at_path: string,
     commit_callback: (v: T) => void | Promise<void>
   ): Promise<void> {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, _reject) => {
       const dlg = new this(in_object, at_path, {
         title: "Edit bonus",
+        content: "",
         buttons: {
           confirm: {
             icon: '<i class="fas fa-save"></i>',
@@ -76,7 +73,7 @@ export class BonusEditDialog<O> extends Dialog {
               let flat_data: any = {};
               $(html)
                 .find("input")
-                .each((index, elt) => {
+                .each((_i, elt) => {
                   // Retrieve input info
                   let name = elt.name;
                   let val: boolean | string;

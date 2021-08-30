@@ -2,16 +2,16 @@ import { LANCER } from "../config";
 const lp = LANCER.log_prefix;
 import { import_cp, clearCompendiumData, set_all_lock } from "../compBuilder";
 import * as mm from "machine-mind";
-import { IContentPack, IContentPackManifest } from "machine-mind";
-import { migrateAllActors } from "../migration";
+import type { IContentPack, IContentPackManifest } from "machine-mind";
 
-export const core_update = "3.0.31"; // typed_lancer_data.info.version;
+// TODO: use the version from MM... once it's real.
+export const core_update = "3.0.34"; // typed_lancer_data.info.version;
 
 function addLCPManager(app: Application, html: any) {
   if (app.options.id == "compendium") {
     const buttons = $(html).find(".header-actions");
     if (!buttons) {
-      ui.notifications.error("Unable to add LCP Manager button - Compendium Tab buttons not found!", {
+      ui.notifications!.error("Unable to add LCP Manager button - Compendium Tab buttons not found!", {
         permanent: true,
       });
       console.log(`${lp} Unable to add LCP Manager button - Compendium Tab buttons not found!`, buttons);
@@ -23,14 +23,6 @@ function addLCPManager(app: Application, html: any) {
     buttons.append(button);
     button.addEventListener("click", () => {
       new LCPManager().render(true);
-    });
-
-    button = document.createElement("button");
-    button.setAttribute("style", "flex-basis: 100%;margin-top: 5px;");
-    button.innerHTML = "<i class='fas fa-users'></i>Migrate Actors";
-    buttons.append(button);
-    button.addEventListener("click", () => {
-      migrateAllActors();
     });
   }
 }
@@ -51,14 +43,12 @@ class LCPIndex {
   }
 
   updateManifest(manifest: IContentPackManifest) {
-    let existing: boolean = false;
     for (let i = 0; i < this.index.length; i++) {
       const m = this.index[i];
       // if (Array.isArray(m) && m.length === 0) {
       //   this.index.splice(i, 1);
       // }
       if (m.name === manifest.name && m.author === manifest.author) {
-        existing = true;
         this.index.splice(i, 1);
         break;
       }
@@ -80,16 +70,16 @@ class LCPManager extends Application {
     this.lcpFile = null;
     this.cp = null;
     this.manifest = null;
-    this.coreVersion = game.settings.get(LANCER.sys_name, LANCER.setting_core_data);
+    this.coreVersion = game.settings.get(game.system.id, LANCER.setting_core_data);
     // TODO: pull available core version from machine-mind
     this.coreUpdate = core_update;
     console.log(`${lp} Lancer Data version:`, this.coreVersion);
-    this.lcpIndex = new LCPIndex(game.settings.get(LANCER.sys_name, LANCER.setting_lcps).index);
+    this.lcpIndex = new LCPIndex(game.settings.get(game.system.id, LANCER.setting_lcps).index);
   }
 
   static get defaultOptions() {
     return mergeObject(super.defaultOptions, {
-      template: "systems/lancer/templates/lcp/lcp-manager.hbs",
+      template: `systems/${game.system.id}/templates/lcp/lcp-manager.hbs`,
       title: "LANCER Compendium Manager",
       width: 800,
       height: 800,
@@ -97,29 +87,30 @@ class LCPManager extends Application {
   }
 
   getData() {
-    let data = super.getData();
-    data.core_version = this.coreVersion;
-    data.core_update = this.coreUpdate;
-    data.manifest = this.manifest;
-    data.lcps = this.lcpIndex;
+    const data = {
+      core_version: this.coreVersion,
+      core_update: this.coreUpdate,
+      manifest: this.manifest,
+      lcps: this.lcpIndex,
+    };
     console.log(`${lp} LCP Manager template data:`, data);
     return data;
   }
 
   updateLcpIndex(manifest: IContentPackManifest) {
-    if (!this.lcpIndex) this.lcpIndex = new LCPIndex(game.settings.get(LANCER.sys_name, LANCER.setting_lcps).index);
+    if (!this.lcpIndex) this.lcpIndex = new LCPIndex(game.settings.get(game.system.id, LANCER.setting_lcps).index);
     else this.lcpIndex.updateManifest(manifest);
-    game.settings.set(LANCER.sys_name, LANCER.setting_lcps, this.lcpIndex).then(() => this.render());
+    game.settings.set(game.system.id, LANCER.setting_lcps, this.lcpIndex).then(() => this.render());
   }
 
   async clearCompendiums() {
     await clearCompendiumData();
-    this.coreVersion = game.settings.get(LANCER.sys_name, LANCER.setting_core_data);
-    this.lcpIndex = new LCPIndex(game.settings.get(LANCER.sys_name, LANCER.setting_lcps).index);
+    this.coreVersion = game.settings.get(game.system.id, LANCER.setting_core_data);
+    this.lcpIndex = new LCPIndex(game.settings.get(game.system.id, LANCER.setting_lcps).index);
     this.render(true);
   }
 
-  activateListeners(html: HTMLElement | JQuery) {
+  activateListeners(html: JQuery<HTMLElement>) {
     super.activateListeners(html);
     document.getElementsByClassName("lcp-core-update")[0]?.addEventListener("click", (ev: Event) => {
       this._onCoreUpdateButtonClick(<MouseEvent>ev).then();
@@ -139,7 +130,7 @@ class LCPManager extends Application {
   }
 
   async _onCoreUpdateButtonClick(ev: MouseEvent) {
-    if (!game.user.isGM) return ui.notifications.warn(`Only GM can modify the Compendiums.`);
+    if (!game.user?.isGM) return ui.notifications!.warn(`Only GM can modify the Compendiums.`);
     if (!ev.currentTarget || !this.coreUpdate) return;
 
     await updateCore(this.coreUpdate, this);
@@ -149,7 +140,7 @@ class LCPManager extends Application {
   }
 
   _onClearAllButtonClick(ev: MouseEvent) {
-    if (!game.user.isGM) return ui.notifications.warn(`Only GM can modify the Compendiums.`);
+    if (!game.user?.isGM) return ui.notifications!.warn(`Only GM can modify the Compendiums.`);
     if (!ev.currentTarget) return;
     new Dialog({
       title: "Confirm Clearing LANCER Compendiums",
@@ -204,12 +195,12 @@ class LCPManager extends Application {
   }
 
   async _onImportButtonClick() {
-    if (!game.user.isGM) {
-      ui.notifications.warn(`Only GM can modify the Compendiums.`);
+    if (!game.user?.isGM) {
+      ui.notifications!.warn(`Only GM can modify the Compendiums.`);
       return;
     }
     if (!this.lcpFile) {
-      ui.notifications.error(`Import error: no file selected.`);
+      ui.notifications!.error(`Import error: no file selected.`);
       return;
     }
 
@@ -217,11 +208,11 @@ class LCPManager extends Application {
     const manifest = this.manifest;
     if (!cp || !manifest) return;
 
-    ui.notifications.info(`Starting import of ${cp.manifest.name} v${cp.manifest.version}. Please wait.`);
+    ui.notifications!.info(`Starting import of ${cp.manifest.name} v${cp.manifest.version}. Please wait.`);
     console.log(`${lp} Starting import of ${cp.manifest.name} v${cp.manifest.version}.`);
     console.log(`${lp} Parsed content pack:`, cp);
     await import_cp(cp, (x, y) => this.update_progress_bar(x, y));
-    ui.notifications.info(`Import of ${cp.manifest.name} v${cp.manifest.version} complete.`);
+    ui.notifications!.info(`Import of ${cp.manifest.name} v${cp.manifest.version} complete.`);
     console.log(`Import of ${cp.manifest.name} v${cp.manifest.version} complete.`);
 
     this.updateLcpIndex(manifest);
@@ -236,20 +227,20 @@ class LCPManager extends Application {
 export { LCPManager, addLCPManager, LCPIndex };
 
 export async function updateCore(version: string, manager?: LCPManager) {
-  var progress = 1;
+  let progress = 1;
   let progress_func = (x: any, y: any) => {
     // If we're passing a manager, let it do things as well
     if (manager) manager.update_progress_bar(x, y);
-    // Provide updates every 10%
-    const denom = 10;
+    // Provide updates every 25%
+    const denom = 4;
     let incr = Math.ceil(y / denom);
     if (x >= incr * progress) {
-      ui.notifications.info(`${progress * (100 / denom)}% of Lancer Core data updated`);
+      ui.notifications!.info(`${progress * (100 / denom)}% of Lancer Core data updated`);
       progress += 1;
     }
   };
 
-  ui.notifications.info(`Updating Lancer Core data to v${version}. Please wait.`);
+  ui.notifications!.info(`Updating Lancer Core data to v${version}. Please wait.`);
 
   console.log(`${lp} Updating Lancer Core data to v${version}`);
   try {
@@ -257,14 +248,14 @@ export async function updateCore(version: string, manager?: LCPManager) {
   } catch (err) {
     console.error(err);
 
-    ui.notifications.warn(
+    ui.notifications!.warn(
       `Lancer Core data update ran into an issue... Please open the compendium manager and attempt an update after clearing LCPs.`
     );
-    // await set_all_lock(true);
+    await set_all_lock(true);
     return;
   }
 
-  ui.notifications.info(`Lancer Core data update complete.`);
+  ui.notifications!.info(`Lancer Core data update complete.`);
   await set_all_lock(true);
-  await game.settings.set(LANCER.sys_name, LANCER.setting_core_data, version);
+  await game.settings.set(game.system.id, LANCER.setting_core_data, version);
 }

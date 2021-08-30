@@ -3,13 +3,21 @@
 
 @import "https://cdn.jsdelivr.net/npm/@mdi/font@5.9.55/css/materialdesignicons.min.css";
 
+/* Item/entity types, useful for shorthand */
+$item-types: core_bonus environment faction frame manufacturer npc_class npc_template npc_feature weapon_mod mech_system mech_weapon organization pilot_armor pilot_gear pilot_weapon reserve sitrep skill status tag talent quirk;
+$actor-types: npc pilot mech deployable;
+$entity-types: join($item-types, $actor-types);
+
+
 /* Settings Layer*/
 :root {
   --main-font-family: Helvetica, Arial, sans-serif;
 
   --main-theme-color: #991e2a; /* I've configured calls to this to fall back on fuchsia when things go wrong */
   --main-theme-text: #e8bcbe;
-  --secondary-theme-color: #505050;
+  --secondary-theme-color: #121d21;
+  --secondary-theme-text: #ffffff;
+  --secondary-theme-highlight: #233f49;
   --loadout-color: #777f86;
   --ref-color: #ddc0b3;
   --gms-theme-color: #991e2a;
@@ -43,6 +51,7 @@
   );
   --trait-color: #0a7674;
   --bonus-color: #5d8673;
+  --bonus-text: #051c1d;
   --bonus-list-color: #71a373;
   --system-color: #9ad882;
   --error-color: #b4800e;
@@ -350,6 +359,7 @@ button {
   justify-content: flex-end;
   flex: 1;
   margin: 3px;
+  min-height: 1em;
 }
 
 .license-desc {
@@ -703,22 +713,6 @@ tr.lcp-index-header {
   margin-left: auto;
   max-width: 40px;
 }
-
-/* Empty box at end of item lists where you can drop things. By default we don't want it to be visible */
-.locked .ref-list-append {
-  visibility: hidden;
-}
-
-/* Only show edit button if editable*/
-.locked .popout-text-edit-button {
-  display: none;
-}
-
-/* But if they are a valid drop target, we do! */
-.ref-list-append.highlight-can-drop {
-  visibility: visible;
-}
-
 /* Re-allow clicking in these damn things */
 .lancer input,
 .input,
@@ -814,11 +808,6 @@ textarea {
   input.left {
     text-align: left;
     margin-left: 10px;
-  }
-
-  /* Like main just an off color */
-  &.alt {
-    background-color: var(--secondary-theme-color, fuchsia);
   }
 
   /* If our parent item is clipped, we should be as well (? might not be necessary) */
@@ -1517,7 +1506,7 @@ input.core-power-toggle:not(:checked)::before {
 
 .lancer-corebonus-header {
   background-color: var(--bonus-color);
-  color: var(--secondary-theme-color);
+  color: var(--bonus-text);
 }
 
 .lancer-license-header {
@@ -1556,7 +1545,6 @@ a.flexrow.skill-macro {
   font-size: 18px;
   font-weight: bold;
 }
-
 // Action activation types
 $activations-types: none passive quick quicktech invade full fulltech other reaction protocol free move;
 // The rgb-based colors I just made up, not sure if there are official colors for those
@@ -2002,7 +1990,7 @@ a.action {
 }
 
 // TIPPY
-.tippy-box[data-theme~="lancer"] {
+.tippy-box[data-theme~="lancer-small"] {
   font-size: 1.1em;
   padding-left: 8px;
   padding-right: 8px;
@@ -2010,6 +1998,32 @@ a.action {
 
   .tippy-content {
     transform: skew(330deg);
+  }
+}
+
+.tippy-box[data-theme~="lancer-large"] {
+  background: var(--secondary-theme-color) !important;
+  background-color: var(--secondary-theme-color) !important;
+  max-width: 50vw;
+  border: 1px var(--main-theme-color) solid;
+  color: var(--secondary-theme-text);
+  border-radius: 4px;
+  font-size: 14px;
+  line-height: 22px;
+  width: auto;
+
+  .lancer-context-item {
+    padding: 0.25rem;
+    text-align: left;
+    cursor: pointer;
+
+    i {
+      margin-right: 5px;
+    }
+
+    &:hover {
+      background: var(--secondary-theme-highlight);
+    }
   }
 }
 
@@ -2115,14 +2129,45 @@ div[data-tab="system"] > .settings-list > div:nth-last-child(-n + 4) {
   }
 }
 
+/* 
+We will add the "dragging-_____" class to the document root whenever we're dragging a type.
+.For instance, dragging-mech_weapon
+This base class configuration will make all of these options invisible.
+See the .editable ".context-drop" class for how it gets changed
+*/
+.context-drop {
+  display: none;
+}
+
+/* By default, edit*/
+.locked {
+  /* Only show edit button if not locked*/
+  .popout-text-edit-button {
+    display: none;
+  }
+}
+
+/* Editable is a built-in class on application windows containing editable sheets.
+Here, this means we want to allow for drag stuff etc to show contextually if:
+- We are dragging the appropriate type 
+- The app is editable
+- the box is a context-drop of the appropriate corresponding type
+*/
+@each $e-type in $entity-types {
+  .dragging-#{$e-type} .editable .context-drop.#{$e-type} {
+    display: revert;
+  }
+}
+
+/* Separate, older version for tags */
+.ref-list-append.highlight-can-drop {
+  visibility: visible;
+}
+
 .disabled-cloud {
   color: lightgray;
   pointer-events: none;
   cursor: default;
-}
-
-.compact-tag-row {
-  min-height: 1em;
 }
 
 .overline {

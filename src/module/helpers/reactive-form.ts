@@ -8,9 +8,9 @@ import { gentle_merge } from '../helpers/commons';
 // * the name attributes in the html form directly match the keys in the raw data
 //     (modulo gentle_merge)
 // * the template contains precisely one HTML form as its outermost element
-export default abstract class ReactiveForm<DataModel, ViewModel extends DataModel> extends FormApplication {
-  // FormApplication defines this and sets it in the constructor
-  object!: DataModel;
+export default abstract class ReactiveForm<DataModel extends object, ViewModel extends DataModel>
+  extends FormApplication<FormApplication.Options, DataModel, DataModel> {
+  declare object: DataModel;
 
   #resolve: ((data: DataModel) => void) | null = null;
   #reject: ((v: void) => void) | null = null;
@@ -24,7 +24,7 @@ export default abstract class ReactiveForm<DataModel, ViewModel extends DataMode
     });
   }
 
-  constructor(data: DataModel, options: FormApplicationOptions) {
+  constructor(data: DataModel, options: FormApplication.Options) {
     super(data, options);
     this.promise = new Promise((resolve, reject) => {
       this.#resolve = resolve;
@@ -47,12 +47,11 @@ export default abstract class ReactiveForm<DataModel, ViewModel extends DataMode
     });
   }
 
-  async _onChangeInput(_e: Event) {
-    // @ts-ignore .8 -- FormApplication._onChangeInput does exist
+  async _onChangeInput(_e: JQuery.ChangeEvent<any, any, any, any>) {
     await super._onChangeInput(_e);
-    // @ts-ignore .8 -- FormApplication._getSubmitData does exist
     let data = this._getSubmitData(null);
-    await this._updateObject(_e, data);
+    // TODO: TYPECHECK: are jquery events castable to dom events?
+    return this._updateObject(_e as unknown as Event, data);
   }
 
   // requires the names in the template to match
@@ -72,8 +71,7 @@ export default abstract class ReactiveForm<DataModel, ViewModel extends DataMode
   }
 
   // FormApplication.close() does take an options hash
-  // @ts-ignore .8
-  close(options: any = {}) {
+  close(options = {}) {
     if (this.#reject) {
       this.#reject();
       this.#resolve = null;

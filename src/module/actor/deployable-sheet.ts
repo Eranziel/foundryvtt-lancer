@@ -1,31 +1,19 @@
-import { LANCER } from "../config";
 import { LancerActorSheet } from "./lancer-actor-sheet";
 import { EntryType } from "machine-mind";
-import { AnyMMActor, is_actor_type } from "./lancer-actor";
-import { AnyMMItem } from "../item/lancer-item";
-const lp = LANCER.log_prefix;
+import type { AnyMMActor } from "./lancer-actor";
+import type { AnyMMItem } from "../item/lancer-item";
 
 /**
  * Extend the basic ActorSheet
  */
 export class LancerDeployableSheet extends LancerActorSheet<EntryType.DEPLOYABLE> {
   /**
-   * A convenience reference to the Actor entity
-   */
-  // get actor(): LancerPilot {
-  //   return this.actor;
-  // };
-
-  /* -------------------------------------------- */
-
-  /**
    * Extend and override the default options used by the NPC Sheet
-   * @returns {Object}
    */
-  static get defaultOptions() {
+  static get defaultOptions(): ActorSheet.Options {
     return mergeObject(super.defaultOptions, {
       classes: ["lancer", "sheet", "actor", "npc"],
-      template: "systems/lancer/templates/actor/deployable.hbs",
+      template: `systems/${game.system.id}/templates/actor/deployable.hbs`,
       width: 800,
       height: 800,
       tabs: [
@@ -36,15 +24,12 @@ export class LancerDeployableSheet extends LancerActorSheet<EntryType.DEPLOYABLE
         },
       ],
     });
-  }  
-  
+  }
+
   // Need to allow this stuff for setting deployable
   can_root_drop_entry(item: AnyMMActor | AnyMMItem): boolean {
     // Accept actors
-    if(item.Type == EntryType.PILOT || item.Type == EntryType.MECH || item.Type == EntryType.NPC) {
-      return true;
-    }
-    return false;
+    return item.Type == EntryType.PILOT || item.Type == EntryType.MECH || item.Type == EntryType.NPC;
   }
 
   /* -------------------------------------------- */

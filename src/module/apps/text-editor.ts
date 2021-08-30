@@ -43,11 +43,11 @@ export class HTMLEditDialog<O> extends FormApplication {
   /* -------------------------------------------- */
 
   /** @override */
-  static get defaultOptions() {
-    return mergeObject(super.defaultOptions, {
-      template: "systems/lancer/templates/window/html_editor.hbs",
+  static get defaultOptions(): FormApplication.Options {
+    return foundry.utils.mergeObject(super.defaultOptions, {
+      template: `systems/${game.system.id}/templates/window/html_editor.hbs`,
       width: 650,
-      height: "auto",
+      height: "auto" as const,
       resizable: true,
       classes: ["lancer"],
       submitOnChange: false,
@@ -67,8 +67,8 @@ export class HTMLEditDialog<O> extends FormApplication {
   }
 
   /** @override */
-  async _updateObject(event: any, formData: any) {
-    let new_text: string = formData["text"];
+  async _updateObject(_event: unknown, formData: { text: string }) {
+    let new_text = formData["text"];
 
     // We trust tox to have handles html correction
     // let doc = document.createElement('div');
@@ -84,10 +84,8 @@ export class HTMLEditDialog<O> extends FormApplication {
   /** @override
    * Want to resolve promise before closing
    */
-  //@ts-ignore Types don't account for the options
-  close(options: any): any {
+  close(options: FormApplication.CloseOptions): any {
     this.resolve();
-    //@ts-ignore Types don't account for the options
     return super.close(options);
   }
 
@@ -103,7 +101,7 @@ export class HTMLEditDialog<O> extends FormApplication {
     at_path: string,
     commit_callback: (v: T) => void | Promise<void>
   ): Promise<void> {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, _reject) => {
       const dlg = new this(
         in_object,
         at_path,

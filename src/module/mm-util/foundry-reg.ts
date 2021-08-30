@@ -39,8 +39,8 @@ import {
   InventoriedRegEntry,
   LoadOptions,
 } from "machine-mind";
-import { is_actor_type, LancerActor, LancerActorType } from "../actor/lancer-actor";
-import { is_item_type, LancerItem, LancerItemType } from "../item/lancer-item";
+import { LancerActor, LancerActorType } from "../actor/lancer-actor";
+import type { LancerItem, LancerItemType } from "../item/lancer-item";
 import {
   EntityCollectionWrapper,
   EntFor as DocFor,
@@ -186,7 +186,7 @@ export class FoundryReg extends Registry {
   async switch_reg_inv(for_inv_item: InventoriedRegEntry<EntryType>): Promise<Registry> {
     // Determine based on actor metadata
     let flags = for_inv_item.Flags as FoundryFlagData<EntryType>;
-    let actor = flags.orig_doc as LancerActor<any>;  
+    let actor = flags.orig_doc as LancerActor;  
 
     // If a compendium actor, make a comp_actor reg
     // If a token, make a scene_token reg
@@ -194,23 +194,26 @@ export class FoundryReg extends Registry {
     if (actor.compendium) {
       return new FoundryReg({
         src: "comp_actor",
-        //@ts-ignore 0.8
-        comp_id: actor.pack,
-        actor_id: actor.id,
+        comp_id: actor.pack!,
+        actor_id: actor.id!,
       });
     } else if (actor.isToken) {
       return new FoundryReg({
         src: "scene_token",
-        //@ts-ignore 0.8
-        scene_id: actor.token.parent.id,
-        token_id: actor.token.id
+        scene_id: actor.token!.parent!.id!,
+        token_id: actor.token!.id!
       });
     } else {
       return new FoundryReg({
         src: "game_actor",
-        actor_id: actor.id
+        actor_id: actor.id!
       });
     }
+  }
+
+  // This is a hack, but it's better than casting every call location
+  get_cat<T extends EntryType>(cat: T): FoundryRegCat<T> {
+    return super.get_cat(cat) as unknown as FoundryRegCat<T>;
   }
 
   // Get a name descriptor of what region/set of items/whatever this registry represents/ provides access to
@@ -518,15 +521,14 @@ export class FoundryRegCat<T extends EntryType> extends RegCat<T> {
   private async revive_and_flag(g: GetResult<T>, ctx: OpCtx, load_options?: LoadOptions): Promise<LiveEntryTypes<T>> {
     let flags: FoundryFlagData<T> = {
       orig_doc: g.entity,
-      orig_doc_name: g.entity.name,
+      orig_doc_name: g.entity.name!,
       top_level_data: {
         name: g.entity.name,
         img: g.entity.img,
         folder: g.entity.data.folder || null
       },
     };
-    let result = await this.revive_func(this.registry, ctx, g.id, g.data, flags, load_options);
-    return result;
+    return await this.revive_func(this.registry, ctx, g.id, g.data, flags, load_options);
   }
 
   // Just call revive on the '.get' result, then set flag to orig item
@@ -541,12 +543,12 @@ export class FoundryRegCat<T extends EntryType> extends RegCat<T> {
   // Directly wrap a foundry document, without going through get_live resolution mechanism. 
   // Modestly dangerous, but can save a lot of repeated computation
   // BE CAREFUL! IF YOU WRAP A DOCUMENT IN A REGISTRY THAT WOULDNT HAVE FETCHED IT, IT WONT WRITE BACK PROPERLY
-  async dangerous_wrap_doc(ctx: OpCtx, ent: T extends LancerActorType ? LancerActor<T> : T extends LancerItemType ? LancerItem<T> : never, wait_ready: boolean = true): Promise<LiveEntryTypes<T> | null> {
-    let id = ent.id;
+  async dangerous_wrap_doc(ctx: OpCtx, ent: T extends LancerActorType ? LancerActor : T extends LancerItemType ? LancerItem : never, wait_ready: boolean = true): Promise<LiveEntryTypes<T> | null> {
+    let id = ent.id!;
 
     // ID is different if we are an unlinked token 
     if(ent instanceof LancerActor && ent.isToken) {
-      id = ent.token.id;
+      id = ent.token!.id!;
     }
 
     let contrived: GetResult<T> = {
