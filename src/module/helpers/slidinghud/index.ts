@@ -10,55 +10,56 @@ export async function attach() {
       target: document.body
     });
   }
+  return hud;
 }
 
-function rejectedPromise<T>(): Promise<T> {
-  return new Promise((_res, rej) => { rej() });
-}
+export async function open(key: "hase" | "attack", data: AccDiffData): Promise<AccDiffData> {
+  let hud = await attach();
 
-export async function open(
-  key: "hase" | "attack",
-  newData: AccDiffData | Token[],
-  mode: "may open new window" | "only refresh open window"
-): Promise<AccDiffData> {
-  let { AccDiffData } = await import('../acc_diff');
-  if (!hud) { attach(); }
-
+  // open the hud, cancelling existing listeners
   // @ts-ignore
-  let wasOpen: boolean = hud.isOpen(key);
+  hud.open(key, data);
 
-  // if we're only allowed to refresh open windows, and the window isn't open, just refresh it
-  // don't allow new handlers in this case — they wouldn't make sense anyway, the window isn't open
-  // why even bother with the refresh?
-  // just in case there's some data here that would make sense to keep a hold of for a later
-  // target-only open of the window, like a character becoming impaired from underneath us
-  if (!wasOpen && mode == "only refresh open window") {
-    // @ts-ignore
-    hud.refresh(key, newData);
-    return rejectedPromise();
-  }
+  return new Promise((resolve, reject) => {
+    hud.$on(`${key}.submit`, (ev: CustomEvent<AccDiffData>) => resolve(ev.detail));
+    hud.$on(`${key}.cancel`, () => reject());
+  });
+}
+
+// this method differs from open() in two key ways
+// 1. it's not allowed to open new windows
+// 2. it never allows the caller to observe the data via promise,
+//      assuming if the window was open that the existing handler is what we want to preserve
+export async function refreshTargets(key: "hase" | "attack", ts: Token[]) {
+  let hud = await attach();
+
+  // this method isn't allowed to open new windows, so bail out if it isn't open
+  // @ts-ignore
+  if (!hud.isOpen(key)) { return; }
+
+  let { AccDiffData } = await import('../acc_diff');
 
   // @ts-ignore
   let oldData: AccDiffData = hud.data(key);
+  if (!oldData || !(oldData instanceof AccDiffData)) {
+    throw new Error(`${key} hud is open without valid data: ${oldData}`);
+  }
+  let data: AccDiffData = oldData.replaceTargets(ts);
 
-  let data: AccDiffData = newData instanceof AccDiffData ? newData :
-    (oldData ? oldData.replaceTargets(newData) :
-      AccDiffData.fromParams(undefined, undefined, 'Basic Attack', newData, undefined));
-
-  // when given completely new data, we always want to cancel existing listeners
-  // when given just targets, we want to preserve existing listeners
-  let cancelExisting = newData instanceof AccDiffData ? "cancel existing listeners" : null;
   // @ts-ignore
-  hud.open(key, data, cancelExisting);
+  hud.refresh(key, data);
+}
 
-  // if there were older listeners (the form was open), and we didn't cancel them
-  // we want to not allow this particular call to set up new listeners
-  if (wasOpen && !cancelExisting) {
-    return rejectedPromise();
+// this method opens a new window if one isn't open, with as much data as we have, allowing new listeners
+// otherwise, it refreshes the existing window, disallowing new listeners
+export async function openOrRefresh(key: "hase" | "attack", ts: Token[], title: string): Promise<AccDiffData> {
+  let hud = await attach();
+  // @ts-ignore
+  if (hud.isOpen(key)) {
+    refreshTargets(key, ts);
+    return new Promise((_res, rej) => rej());
   } else {
-    return new Promise((resolve, reject) => {
-      hud.$on(`${key}.submit`, (ev: CustomEvent<AccDiffData>) => resolve(ev.detail));
-      hud.$on(`${key}.cancel`, () => reject());
-    });
+    let { AccDiffData } = await import('../acc_diff');
+    return open(key, AccDiffData.fromParams(undefined, undefined, title, ts, undefined))
   }
 }

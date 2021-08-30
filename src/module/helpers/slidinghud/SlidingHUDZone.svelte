@@ -28,8 +28,8 @@
    attack: { open: null }
  };
 
- export function open(key: string, data: any, cancelExisting: "cancel existing listeners" | null) {
-   if (cancelExisting) { dispatch(`${key}.cancel`) }
+ export function open(key: string, data: any) {
+   dispatch(`${key}.cancel`);
    huds[key].open = (new Date()).getTime();
    huds[key].data = data;
  }
