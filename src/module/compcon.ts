@@ -15,7 +15,12 @@ export function cleanCloudOwnerID(str: string): string {
 export async function populatePilotCache(): Promise<CachedCloudPilot[]> {
   const { Auth } = await import("@aws-amplify/auth");
   const { Storage } = await import("@aws-amplify/storage");
-  await Auth.currentSession(); // refresh the token if we need to
+  try {
+    await Auth.currentSession(); // refresh the token if we need to
+  } catch (e) {
+    console.warn(`AWS Auth failed: ${e}`);
+    return [];
+  }
   const res = await Storage.list("pilot", { level: "protected" });
   const data: Array<PackedPilotData> = await Promise.all(res.map((obj: { key: string }) => fetchPilot(obj.key)));
   data.forEach(pilot => {
