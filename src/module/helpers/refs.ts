@@ -344,7 +344,17 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
       </div>
       <ul style="grid-area: 2/1/3/3">`;
 
+
       for (var i = 0; i < talent.CurrentRank; i++) {
+
+        let talent_actions = "";
+
+        if (talent.Ranks[i].Actions) {
+          talent_actions = talent.Ranks[i].Actions.map((a: Action, i: number | undefined) => {
+            return buildActionHTML(a, { full: true, num: i });
+          }).join("");
+        }
+
         retStr += `<li class="talent-rank-compact card clipped" style="padding: 5px">
         <a class="cci cci-rank-${
           i + 1
@@ -352,6 +362,7 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
         <span class="major" style="grid-area: 1/2/2/3">${talent.Ranks[i]?.Name}</span>
         <div class="effect-text" style="grid-area: 2/1/3/3">
         ${talent.Ranks[i]?.Description}
+        ${talent_actions}
         </div>
         </li>`;
       }
