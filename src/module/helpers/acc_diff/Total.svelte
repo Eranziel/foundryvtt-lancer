@@ -28,6 +28,10 @@
  export let id = `accdiff-total-display-${counter++}`;
  let lockonId = isTarget(target) ? `accdiff-total-display-consume-lockon-${lockonCounter++}` : '';
 
+ let pluginClasses = Object.values(target.plugins).filter((plugin) => {
+   return plugin.uiElement == "checkbox" && plugin.uiState;
+}).map((plugin) => `accdiff-total-${plugin.slug}`).join(" ");
+
  let imgElement: HTMLElement;
  let dropdownElement: HTMLElement;
 
@@ -47,7 +51,7 @@
   <div
     in:send={{key: `${id}-img`, delay: 100, duration: 200}}
     out:recv={{key: `${id}-img`, duration: 200}}
-    class="accdiff-grid">
+    class="accdiff-grid {pluginClasses}">
     <img class="lancer-hit-thumb accdiff-target-has-dropdown"
          alt={target.target.data.name ?? undefined}
          src={target.target.data.img ?? undefined} bind:this={imgElement} />
@@ -70,7 +74,7 @@
   {/if}
 {/if}
 <div class="accdiff-grid accdiff-weight" in:send={{key: id}} out:recv={{key: id}}>
-  <div class="grid-enforcement total-container"
+  <div class="grid-enforcement total-container {pluginClasses}"
     class:accurate={target.total > 0} class:inaccurate={target.total < 0}>
     <!-- #key blocks currently break |local, see https://github.com/sveltejs/svelte/issues/5950 -->
     {#each [target.total] as total (target.total)}
