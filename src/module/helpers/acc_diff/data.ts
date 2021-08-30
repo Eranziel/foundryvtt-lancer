@@ -266,7 +266,11 @@ export class AccDiffData {
   }
 
   replaceTargets(ts: Token[]): AccDiffData {
-    this.targets = ts.map(t => AccDiffTarget.fromParams(t));
+    let oldTargets: { [key: string]: AccDiffTarget } = {};
+    for (let data of this.targets) { oldTargets[data.target.id] = data; }
+
+    this.targets = ts.map(t => oldTargets[t.id] ?? AccDiffTarget.fromParams(t));
+
     for (let target of this.targets) { target.hydrate(this); }
     return this;
   }
