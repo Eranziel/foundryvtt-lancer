@@ -367,7 +367,7 @@ export async function renderMacroTemplate(actor: LancerActor | undefined, templa
     result: "",
   };
   if (templateData.roll) {
-    roll = templateData.roll;
+    aggregate = templateData.roll;
   }
   if (templateData.attacks) {
     const attacks: { roll: Roll; tt: string }[] = templateData.attacks;
