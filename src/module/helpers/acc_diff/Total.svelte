@@ -70,22 +70,20 @@
   {/if}
 {/if}
 <div class="accdiff-grid accdiff-weight" in:send={{key: id}} out:recv={{key: id}}>
-  <div class="grid-enforcement">
-    <!-- dummy if block for |local, see https://github.com/sveltejs/svelte/issues/5950 -->
-    {#if true}
-      {#key target.total}
-        <div id={id} transition:blur
-          class="card clipped total" class:accurate={target.total > 0} class:inaccurate={target.total < 0}>
-          <span in:fly|local={{y: -50, duration: 400}} out:fly|local={{y: 50, duration: 200}}>
-            {Math.abs(target.total)}
-          </span>
-          <i in:fly|local={{y: -50, duration: 200}} out:fly|local={{y: 50, duration: 200}}
-            class="cci i--m i--dark white--text middle"
-            class:cci-accuracy={target.total >= 0}
-            class:cci-difficulty={target.total < 0} ></i>
-        </div>
-      {/key}
-    {/if}
+  <div class="grid-enforcement total-container"
+    class:accurate={target.total > 0} class:inaccurate={target.total < 0}>
+    <!-- #key blocks currently break |local, see https://github.com/sveltejs/svelte/issues/5950 -->
+    {#each [target.total] as total (target.total)}
+      <div id={id} transition:blur class="card clipped total">
+        <span in:fly|local={{y: -50, duration: 400}} out:fly|local={{y: 50, duration: 200}}>
+          {Math.abs(total)}
+        </span>
+        <i in:fly|local={{y: -50, duration: 200}} out:fly|local={{y: 50, duration: 200}}
+          class="cci i--m i--dark white--text middle"
+          class:cci-accuracy={total >= 0}
+          class:cci-difficulty={total < 0} ></i>
+      </div>
+    {/each}
   </div>
 </div>
 
@@ -103,8 +101,11 @@
      width: min-content;
      background-color: #443c3c;
  }
- .card.total.accurate { background-color: #017934; }
- .card.total.inaccurate { background-color: #9c0d0d }
+ .total-container { filter: drop-shadow(1px 1px 0px); }
+ .accurate > .card.total { background-color: #017934; }
+ .total-container.accurate { filter: drop-shadow(1px 1px 0px #013904); }
+ .inaccurate > .card.total { background-color: #9c0d0d }
+ .total-container.inaccurate { filter: drop-shadow(1px 1px 0px #5c0d0d); }
  .disabled { opacity: 0.4; }
  .lancer-hit-thumb {
      margin-right: 0px;
