@@ -171,7 +171,7 @@
                   in:slide={{delay:100, duration:300}} out:slide={{duration: 100}}
                   animate:flip={{duration: 200}}
                   class="flexcol card accdiff-target">
-                  <label class="flexrow flex-center card" for={data.target.id}>
+                  <label class="flexrow flex-center card card-title" for={data.target.id}>
                     {data.target.data.name}
                   </label>
                   <div class="flexrow accdiff-total">
@@ -337,7 +337,8 @@
   }
 
   .accdiff-target {
-    padding: 4px;
+    padding: 5px;
+    box-shadow: 1px 1px 2px;
   }
 
   .accdiff-total  {
@@ -377,5 +378,9 @@
     text-shadow: none;
     color: rgba(var(--color-text-lightest), 1);
     cursor: pointer;
+  }
+
+  .accdiff-target-row .card-title {
+    background-color: #00000000;
   }
 </style>
