@@ -334,6 +334,7 @@
   .accdiff-target-row {
     display: grid;
     grid-template-columns: auto auto auto;
+    grid-row-gap: 12px;
   }
 
   .accdiff-target {
