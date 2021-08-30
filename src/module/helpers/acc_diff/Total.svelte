@@ -146,6 +146,33 @@
      display: none;
  }
 
+ @keyframes blur {
+     30% {
+         filter: none;
+         opacity: 0.9;
+     }
+     35% {
+         filter: blur(1px);
+         opacity: 0.7;
+     }
+     40% {
+         filter: blur(2px);
+         opacity: 0.5;
+     }
+     43% {
+         filter: blur(1px);
+         opacity: 0.5;
+     }
+     50% {
+         filter: none;
+         opacity: 0.9;
+     }
+ }
+
+ :global(.accdiff-total-invisibility) img {
+     animation: blur 2s linear 1s infinite alternate;
+ }
+
  :global(.tippy-content) .accdiff-target-dropdown {
      display: block;
  }
