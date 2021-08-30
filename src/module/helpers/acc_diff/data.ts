@@ -11,7 +11,7 @@ import Spotter from "./spotter";
 import { LancerToken } from "../../token";
 
 export function findEffect(actor: LancerActor, effect: string): ActiveEffect | null {
-  return actor.data.effects.find(eff => (eff.data.flags.core as any).statusId == effect) ?? null;
+  return actor.data.effects.find(eff => eff.data.flags.core?.statusId?.endsWith(effect) ?? false) ?? null;
 }
 
 export enum Cover {
