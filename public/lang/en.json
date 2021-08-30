@@ -59,7 +59,7 @@
                 "tactical": "<PILOT//TACTICAL>",
                 "abilities": "<PILOT//ABILITIES>",
                 "loadout": "<EQUIP//LOADOUT>",
-                "mech": "<FRAME//LOADOUT>"
+                "mech": "<MECH//ACTIVE>"
             },
             "cloud-header": {
                 "label": "RM-4://(OMNINET UPLINK ID)",

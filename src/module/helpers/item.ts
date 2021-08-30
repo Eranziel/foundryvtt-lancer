@@ -525,14 +525,7 @@ export function pilot_gear_refview(gear_path: string, helper: HelperOptions): st
   let uses = "";
   let limited = funcs.limited_max(gear);
   if (limited) {
-    uses = `
-      <div class="compact-stat">
-        <span class="minor" style="max-width: min-content;">USES: </span>
-        <span class="minor" style="max-width: min-content;">todo</span>
-        <span class="minor" style="max-width: min-content;" > / </span>
-        <span class="minor" style="max-width: min-content;">${limited}</span>
-      </div>
-    `;
+    uses = limited_chip_HTML(gear,gear_path);
   }
 
   return `<div class="valid ${EntryType.PILOT_GEAR} ref drop-settable card clipped macroable item"
@@ -993,7 +986,7 @@ export function buildCounterHTML(
   }
 
   if (actor_level)
-    nameChunk = `<input class="counter-name" name="${data.Name}" value="${data.Name}" type="text" data-dtype="text" />`;
+    nameChunk = `<input class="counter-name" name="${path.concat(".Name")}" value="${data.Name}" type="text" data-dtype="text" />`;
   else nameChunk = data.Name;
 
   return `
