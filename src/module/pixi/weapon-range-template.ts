@@ -5,35 +5,20 @@
 
 import { RangeType, RegRangeData } from "machine-mind";
 
-declare global {
-  interface FlagConfig {
-    MeasuredTemplate: {
-      [game.system.id]: {
-        range: RegRangeData;
-        creator?: string;
-        ignore: {
-          tokens: string[];
-          dispositions: TokenDocument["data"]["disposition"][];
-        };
-      };
-    };
-  }
-}
-
 /**
  * MeasuredTemplate sublcass to create a placeable template on weapon attacks
  * @extends MeasuredTemplate
  * @example
  * ```
  * WeaponRangeTemplate.fromRange({
- *     type: 'Cone',
+ *     type: "Cone",
  *     val: "5",
  * }).drawPreview();
  * ```
  */
 export class WeaponRangeTemplate extends MeasuredTemplate {
   get range() {
-    return this.document.getFlag("lancer", "range");
+    return this.document.getFlag(game.system.id, "range");
   }
 
   get isBurst() {
@@ -148,7 +133,17 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
       handlers.lc = async (event: PIXI.InteractionEvent) => {
         handlers.rc(event, false);
         let destination = this.snapToCenter(event.data.getLocalPosition(this.layer));
-        if (this.isBurst) destination = this.snapToToken(event.data.getLocalPosition(this.layer));
+        if (this.isBurst) {
+          destination = this.snapToToken(event.data.getLocalPosition(this.layer));
+          const token = this.data.flags[game.system.id].burstToken;
+          if (token) {
+            const ignore = this.data.flags[game.system.id].ignore.tokens;
+            ignore.push(token);
+            this.data.update({
+              [`flags.${game.system.id}.ignore.tokens`]: ignore,
+            });
+          }
+        }
         this.data.update(destination);
         const template = (<MeasuredTemplateDocument[]>(
           await canvas.scene!.createEmbeddedDocuments("MeasuredTemplate", [this.data.toObject()])
@@ -192,11 +187,11 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
    */
   snapToToken({ x, y }: { x: number; y: number }): { x: number; y: number } {
     const token = canvas
-      .tokens!.placeables.filter((t: any) => {
+      .tokens!.placeables.filter(t => {
         // test if cursor is inside token
         return t.x < x && t.x + t.w > x && t.y < y && t.y + t.h > y;
       })
-      .reduce((r: any | null, t: any) => {
+      .reduce((r: Token | null, t) => {
         // skip hidden tokens
         if (!t.visible) return r;
         // use the token that is closest.
@@ -209,7 +204,10 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
         else return r;
       }, null);
     if (token) {
-      this.data.update({ distance: this.getBurstDistance(token.data.width) });
+      this.data.update({
+        distance: this.getBurstDistance(token.data.width),
+        [`flags.${game.system.id}.burstToken`]: token.id,
+      });
       return token.center;
     } else {
       this.data.update({ distance: this.getBurstDistance(1) });
@@ -234,5 +232,21 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
       if (size === 4) val += 1.9;
     }
     return (val + 0.1) * scale;
+  }
+}
+
+declare global {
+  interface FlagConfig {
+    MeasuredTemplate: {
+      [game.system.id]: {
+        range: RegRangeData;
+        creator?: string;
+        burstToken?: string;
+        ignore: {
+          tokens: string[];
+          dispositions: TokenDocument["data"]["disposition"][];
+        };
+      };
+    };
   }
 }
