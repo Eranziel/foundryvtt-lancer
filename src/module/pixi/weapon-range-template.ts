@@ -7,13 +7,19 @@ import { RangeType, RegRangeData } from "machine-mind";
 
 /**
  * MeasuredTemplate sublcass to create a placeable template on weapon attacks
- * @extends MeasuredTemplate
  * @example
- * ```
- * WeaponRangeTemplate.fromRange({
- *     type: "Cone",
- *     val: "5",
- * }).drawPreview();
+ * ```javascript
+ * const template = WeaponRangeTemplate.fromRange({
+ *   type: "Cone",
+ *   val: "5",
+ * });
+ * template?.placeTemplate()
+ *   .catch(() => {}) // Handle canceled
+ *   .then(t => {
+ *     if (t) {
+ *       // t is a MeasuredTemplate with flag data
+ *     }
+ * });
  * ```
  */
 export class WeaponRangeTemplate extends MeasuredTemplate {
@@ -27,8 +33,8 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
 
   /**
    * Creates a new WeaponRangeTemplate from a provided range object
-   * @param type Type of template
-   * @param val Size of template
+   * @param type - Type of template
+   * @param val  - Size of template
    */
   static fromRange({ type, val }: WeaponRangeTemplate["range"], creator?: Token): WeaponRangeTemplate | null {
     if (!canvas.ready) return null;
@@ -81,11 +87,21 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
   }
 
   /**
-   * Start placement of the template. Returns a promise that resolves to the
-   * final MeasuredTemplateDocument or rejects when creation is canceled or
-   * fails.
+   * Start placement of the template. Returns immediately, so cannot be used to
+   * block until a template is placed.
+   * @deprecated Since 1.0
    */
-  drawPreview(): Promise<MeasuredTemplateDocument> {
+  drawPreview(): void {
+    console.warn("WeaponRangeTemplate.drawPreview() is deprecated and has been replaced by placeTemplate()");
+    this.placeTemplate().catch(() => {});
+  }
+
+  /**
+   * Start placement of the template.
+   * @returns A Promise that resolves to the final MeasuredTemplateDocument or
+   * rejects when creation is canceled or fails.
+   */
+  placeTemplate(): Promise<MeasuredTemplateDocument> {
     if (!canvas.ready) {
       ui.notifications?.error("Cannot create WeaponRangeTemplate. Canvas is not ready");
       throw new Error("Cannot create WeaponRangeTemplate. Canvas is not ready");
@@ -97,7 +113,7 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
     return this.activatePreviewListeners(initialLayer);
   }
 
-  activatePreviewListeners(initialLayer: CanvasLayer<CanvasLayerOptions> | null): Promise<MeasuredTemplateDocument> {
+  private activatePreviewListeners(initialLayer: CanvasLayer<CanvasLayerOptions> | null): Promise<MeasuredTemplateDocument> {
     return new Promise<MeasuredTemplateDocument>((resolve, reject) => {
       const handlers: any = {};
       let moveTime = 0;
@@ -126,7 +142,7 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
         canvas.app!.view.oncontextmenu = null;
         canvas.app!.view.onwheel = null;
         initialLayer?.activate();
-        if (do_reject) reject("Template creation cancelled");
+        if (do_reject) reject(new Error("Template creation cancelled"));
       };
 
       // Confirm the workflow (left-click)
@@ -149,7 +165,7 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
           await canvas.scene!.createEmbeddedDocuments("MeasuredTemplate", [this.data.toObject()])
         )).shift();
         if (template === undefined) {
-          reject("Template creation failed");
+          reject(new Error("Template creation failed"));
           return;
         }
         resolve(template);
@@ -176,7 +192,7 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
   /**
    * Snapping function to only snap to the center of spaces rather than corners.
    */
-  snapToCenter({ x, y }: { x: number; y: number }): { x: number; y: number } {
+  private snapToCenter({ x, y }: { x: number; y: number }): { x: number; y: number } {
     const snapped = canvas.grid!.getCenter(x, y);
     return { x: snapped[0], y: snapped[1] };
   }
@@ -185,7 +201,7 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
    * Snapping function to snap to the center of a hovered token. Also resizes
    * the template for bursts.
    */
-  snapToToken({ x, y }: { x: number; y: number }): { x: number; y: number } {
+  private snapToToken({ x, y }: { x: number; y: number }): { x: number; y: number } {
     const token = canvas
       .tokens!.placeables.filter(t => {
         // test if cursor is inside token
@@ -218,7 +234,7 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
   /**
    * Get fine-tuned sizing data for Burst templates
    */
-  getBurstDistance(size: number): number {
+  private getBurstDistance(size: number): number {
     const hex = canvas.grid!.type > 1;
     const scale = hex ? Math.sqrt(3) / 2 : 1;
     let val = parseInt(this.range.val);
