@@ -26,7 +26,6 @@
     "@tsconfig/svelte": "^2.0.1",
     "archiver": "^3.1.1",
     "chalk": "^3.0.0",
-    "css-loader": "^5.2.4",
     "fs-extra": "^9.1.0",
     "gulp": "^4.0.2",
     "gulp-git": "^2.10.1",
@@ -46,7 +45,6 @@
     "yargs": "^15.4.1"
   },
   "dependencies": {
-    "@mdi/font": "^5.9.55",
     "@types/marked": "^1.2.1",
     "aws-amplify": "^4.0.3",
     "compare-versions": "^3.6.0",
