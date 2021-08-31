@@ -256,6 +256,5 @@ export async function updateCore(version: string, manager?: LCPManager) {
   }
 
   ui.notifications!.info(`Lancer Core data update complete.`);
-  await set_all_lock(true);
   await game.settings.set(game.system.id, LANCER.setting_core_data, version);
 }
