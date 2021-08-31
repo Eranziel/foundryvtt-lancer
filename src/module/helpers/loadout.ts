@@ -265,11 +265,11 @@ function frame_active(actor: LancerActor, core: CoreSystem): string {
   }).join("");
 
   // Should find a better way to do this...
-
   let coreMacroData: LancerMacroData = {
-    command: `game.lancer.prepareCoreActiveMacro("${actor.id}")`,
     title: `${actor.name} | CORE POWER`,
     iconPath: `systems/${game.system.id}/assets/icons/macro-icons/corebonus.svg`,
+    fn: "prepareCoreActiveMacro",
+    args: [actor.id]
   };
 
   return `

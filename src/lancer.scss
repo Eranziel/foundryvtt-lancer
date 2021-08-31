@@ -247,6 +247,7 @@ button {
 
 .lancer-hit-thumb {
   width: 50px;
+  min-width: 50px;
   margin-right: 4px;
   border-right: none;
   border-left: none;
@@ -2026,94 +2027,6 @@ a.action {
   }
 }
 
-
-
-
-// Acc_Diff
-.accdiff-grid {
-  display: flex;
-  justify-content: space-between;
-
-  .container {
-    display: flex;
-    position: relative;
-    padding-left: 30px;
-    margin-top: 12px;
-    margin-bottom: 4px;
-    font-size: 0.9em;
-    user-select: none;
-    align-items: center;
-  }
-
-  /* Hide the browser's default checkbox */
-  .container input {
-    position: absolute;
-    opacity: 0 !important;
-    height: 0;
-    width: 0;
-  }
-
-  .checkmark {
-    position: absolute;
-    left: 5px;
-    height: 20px;
-    width: 20px;
-    background-color: #a9a9a9;
-    cursor: pointer;
-  }
-
-  input[disabled] ~ .checkmark {
-    background-color: #313131;
-    cursor: unset;
-  }
-
-  .container:hover input:not([disabled]) ~ .checkmark {
-    background-color: #757575;
-  }
-
-  .container input:checked:not([disabled]) ~ .checkmark {
-    background-color: var(--main-theme-color, fuchsia);
-  }
-
-  .checkmark:after {
-    content: "";
-    position: absolute;
-    display: none;
-  }
-  .container input:checked ~ .checkmark:after {
-    display: block;
-  }
-
-  .card.clipped {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    padding: 8px 8px 8px 16px;
-    background-color: var(--main-theme-color, fuchsia);
-    color: white;
-    width: fit-content;
-  }
-}
-
-.accdiff-other-grid {
-  width: 100%;
-  padding-left: 5px;
-  display: flex;
-  justify-content: center;
-}
-
-.accdiff-weight {
-  justify-content: center;
-  font-weight: bold;
-}
-
-.accdiff-footer {
-  padding-top: 8px;
-  padding-bottom: 4px;
-  margin-top: 12px;
-  border-top: 1px solid #782e22;
-}
-
 // V-IMPORTS
 .white--text {
   color: #fff !important;
@@ -2198,6 +2111,24 @@ div[data-tab="system"] > .settings-list > div:nth-last-child(-n + 4) {
   align-self: center;
 }
 
+// needed to override a builtin that removes all shadows from the sidebar
+#sidebar a.chat-button:hover {
+  text-shadow: 0 0 8px red;
+}
+
+#sidebar a.chat-button {
+  animation: pulse 1200ms ease 1s 8 alternate;
+}
+
+@keyframes pulse {
+  0% {
+    text-shadow: none;
+  }
+  100% {
+    text-shadow: 0 0 8px red;
+  }
+}
+
 /* 
 We will add the "dragging-_____" class to the document root whenever we're dragging a type.
 .For instance, dragging-mech_weapon
@@ -2246,4 +2177,15 @@ Here, this means we want to allow for drag stuff etc to show contextually if:
   line-height: 1.2rem;
   text-transform: uppercase;
   font-family: Roboto,sans-serif !important;
+}
+
+/* this forces all its children to share the same space,
+    which is useful for svelte transitions */
+.grid-enforcement {
+  display: grid;
+}
+
+.grid-enforcement > * {
+  grid-column: 1/2;
+  grid-row: 1/2;
 }

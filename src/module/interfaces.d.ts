@@ -48,12 +48,12 @@ declare interface LancerAttackMacroData {
   grit: number;
   acc: number;
   damage: DamageData[];
-  overkill: boolean;
-  effect: EffectData | string;
+  overkill?: boolean;
+  effect?: EffectData | string;
   on_hit?: string; // For NPC weapons - to be removed once they use EffectData
   tags: TagDataShort[];
-  loaded: boolean;
-  destroyed: boolean;
+  loaded?: boolean;
+  destroyed?: boolean;
 }
 
 declare interface LancerTechMacroData {
@@ -103,7 +103,8 @@ declare interface LancerOverchargeMacroData {
 }
 
 declare interface LancerMacroData {
-  command: string;
+  fn: string;
+  args: any[];
   iconPath?: string;
   title: string;
 }

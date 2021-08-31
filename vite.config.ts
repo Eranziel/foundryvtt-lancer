@@ -1,4 +1,5 @@
 import type { UserConfig } from "vite";
+import { svelte } from "@sveltejs/vite-plugin-svelte";
 import { visualizer } from "rollup-plugin-visualizer";
 import checker from "vite-plugin-checker";
 const path = require("path");
@@ -48,8 +49,12 @@ const config: UserConfig = {
     },
   },
   plugins: [
+    svelte({
+      configFile: "../svelte.config.cjs", // relative to src/
+    }),
     checker({
       typescript: true,
+      svelte: { root: __dirname },
     }),
     visualizer({
       gzipSize: true,
