@@ -699,7 +699,7 @@ export class LancerActor extends Actor {
       ui.notifications!.info("Successfully loaded pilot new state.");
     } catch (e) {
       console.warn(e);
-      ui.notifications!.warn("Failed to update pilot, likely due to missing LCP data: " + e.message);
+      ui.notifications!.warn(`Failed to update pilot, likely due to missing LCP data: ${e}`);
     }
   }
 

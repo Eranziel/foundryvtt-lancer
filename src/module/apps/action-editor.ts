@@ -104,8 +104,12 @@ export class ActionEditDialog<O> extends Dialog {
         if (button.callback) button.callback(this.element);
         this.close();
       } catch (err) {
-        ui.notifications!.error(err);
-        throw new Error(err);
+        ui.notifications!.error(`${err}`);
+        if (err instanceof Error) {
+          throw err;
+        } else {
+          throw new Error(`${err}`);
+        }
       }
     } else if (id === "confirm") {
       let flat_data: any = {};
