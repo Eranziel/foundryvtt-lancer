@@ -2,14 +2,13 @@ import { stateless } from './serde';
 import { getMacroSpeaker } from '../../macros';
 import type { AccDiffPlugin, AccDiffPluginData } from './plugin';
 import type { AccDiffData, AccDiffTarget } from './index';
-import type { LancerItem } from '../../item/lancer-item';
+import type { LancerActor } from '../../actor/lancer-actor';
 import type { Pilot } from 'machine-mind';
 
 // this is an example of a case implemented without defining a full class
-function adjacentSpotter(item: LancerItem): boolean {
-  let actor = getMacroSpeaker(item?.actor?.id ?? undefined);
-  // only players can have spotter
-  if (!actor || actor.data.type != "mech") { return false; }
+function adjacentSpotter(actor: LancerActor): boolean {
+  // only players can benefit from spotter
+  if (!actor.is_mech()) { return false; }
 
   // this isn't adjacency, it's "is within range 1 LOS with a hack for larger mechs", but it's good enough
   // computation taken from sensor-sight
@@ -37,13 +36,13 @@ function adjacentSpotter(item: LancerItem): boolean {
 
 function spotter(): AccDiffPluginData {
   let sp = {
-    item: null as LancerItem | null,
+    actor: null as LancerActor | null,
     target: null as AccDiffTarget | null,
     uiElement: "checkbox" as "checkbox",
     slug: "spotter",
     humanLabel: "Spotter (*)",
     get uiState() {
-      return !!(this.item && this.target?.usingLockOn && adjacentSpotter(this.item))
+      return !!(this.actor && this.target?.usingLockOn && adjacentSpotter(this.actor))
     },
     set uiState(_v: boolean) {
       // noop
@@ -60,7 +59,7 @@ function spotter(): AccDiffPluginData {
       }
     },
     hydrate(data: AccDiffData, target?: AccDiffTarget) {
-      this.item = data.lancerItem || null;
+      this.actor = data.lancerActor || null;
       this.target = target || null;
     }
   };

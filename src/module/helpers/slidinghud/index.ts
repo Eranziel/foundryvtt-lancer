@@ -1,5 +1,6 @@
 import type HUDZone from './SlidingHUDZone.svelte';
 import type { AccDiffData } from '../acc_diff';
+import type { LancerActor } from '../../actor/lancer-actor';
 
 let hud: typeof HUDZone;
 
@@ -57,7 +58,7 @@ export async function refreshTargets(key: "hase" | "attack", ts: Token[] | AccDi
 
 // this method opens a new window if one isn't open, with as much data as we have, allowing new listeners
 // otherwise, it refreshes the existing window, disallowing new listeners
-export async function openOrRefresh(key: "hase" | "attack", ts: Token[] | AccDiffData, title: string): Promise<AccDiffData> {
+export async function openOrRefresh(key: "hase" | "attack", ts: Token[] | AccDiffData, title: string, actor?: LancerActor,): Promise<AccDiffData> {
   let hud = await attach();
   // @ts-ignore
   if (hud.isOpen(key)) {
@@ -66,7 +67,7 @@ export async function openOrRefresh(key: "hase" | "attack", ts: Token[] | AccDif
   } else {
     let { AccDiffData } = await import('../acc_diff');
     return open(key, ts instanceof AccDiffData ? ts :
-      AccDiffData.fromParams(undefined, undefined, title, ts, undefined))
+      AccDiffData.fromParams(actor, undefined, title, ts, undefined))
   }
 }
 

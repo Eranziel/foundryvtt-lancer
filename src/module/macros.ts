@@ -812,16 +812,18 @@ export async function refreshTargeting(
     return;
   }
 
+  let actor = getMacroSpeaker();
+
   let promptedData;
   try {
-    promptedData = await openOrRefresh("attack", data, "Basic Attack");
+    promptedData = await openOrRefresh("attack", data, "Basic Attack", actor);
   } catch (_e) {
     return;
   }
 
-  let actor = getMacroSpeaker();
+  actor = actor ?? getMacroSpeaker();
   if (!actor) {
-    ui.notifications!.error("Can't find actor to attack as.");
+    ui.notifications!.error("Can't find unit to attack as. Please select a token.");
     return;
   }
 
