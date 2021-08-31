@@ -1,8 +1,11 @@
 import { IContentPackManifest } from "machine-mind";
 
 declare global {
+  // Since we never use these before `init` tell league types that they are
+  // never undefined
   interface LenientGlobalVariableTypes {
     game: never;
+    canvas: never;
   }
 
   interface FlagConfig {

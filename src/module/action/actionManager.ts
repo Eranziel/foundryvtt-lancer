@@ -125,7 +125,7 @@ export class LancerActionManager extends Application {
   }
 
   private async updateControlledToken() {
-    if (!canvas?.ready) return;
+    if (!canvas.ready) return;
     const token = canvas.tokens?.controlled[0];
     if (token && token.inCombat && (token.actor?.data.type === "mech" || token.actor?.data.type === "npc")) {
       // TEMPORARY HANDLING OF OLD TOKENS
