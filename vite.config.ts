@@ -54,7 +54,7 @@ const config: UserConfig = {
     }),
     checker({
       typescript: true,
-      svelte: { root: __dirname },
+      // svelte: { root: __dirname },
     }),
     visualizer({
       gzipSize: true,
