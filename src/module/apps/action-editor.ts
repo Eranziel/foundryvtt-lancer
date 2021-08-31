@@ -25,7 +25,7 @@ export class ActionEditDialog<O> extends Dialog {
     super(dialogData, options);
 
     //@ts-ignore I don't want to mess around with the generic typing but this is fine
-    this.origin_item = target.mm.ent;
+    this.origin_item = target.mm;
     this.action_path = action_path;
     this.action = resolve_dotpath(target, action_path);
   }
