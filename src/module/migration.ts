@@ -36,10 +36,16 @@ export const migrateWorld = async function () {
         title: `Migration Details`,
         content: `
 <h1>Lancer 1.0 Migration - The Big One!</h1>
-Welcome! The Lancer system has undergone a huge overhaul since the 0.1.x versions, including changing nearly all
+<div class="desc-text">
+<span class="horus--subtle" style="white-space: pre">
+WELCOME, LANCER.
+     PLEASE STAND BY WHILE WE MAKE SOME CHANGES.
+                                  (this won't hurt a bit)
+</span></div>
+<p>The Lancer system has undergone a huge overhaul since the 0.1.x versions, including changing nearly all
 of the data model. As such, there is a <i>lot</i> to migrate! We have done our best to write migration code to 
 handle as much as possible, but with a change this big it simply isn't possible to fully migrate everything. Read on
-for the details!
+for the details!</p>
 <h2>Migration is Not Finished!</h2>
 <p>Lancer compendiums have been successfully migrated to core version ${core_update}.
 Migration of NPCs, Deployables, and Tokens is continuing in the background, <b>do not log off or close the game</b>
@@ -63,7 +69,9 @@ with the appropriate bonuses (for example, the Reinforced feature from the Veter
 This means that some of your NPC's stats may have changed from what they were in 0.1.x.</p>
 <h2>Next Steps - Migrate Pilots</h2>
 <p>Next, you need to import all of the LCPs that your pilots require. You must use current, up-to-date
-LCPs compatible with Comp/Con.</p>
+LCPs compatible with Comp/Con. You may also want to move each pilot into their own folder, if you have multiple
+pilots with the same type of deployable. Doing so will also help keep track of which mechs belong to which
+pilots.</p>
 <p>Once all needed LCPs are imported, click the button below to start migrating all of your pilots. 
 If you close this window while working on your LCPs, you can migrate your pilots individually by right clicking
 on them in the Actors sidebar and clicking "Migrate Pilot". </p>`,
