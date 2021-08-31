@@ -75,7 +75,7 @@
             <span class="checkmark"></span>
           </label>
         {/if}
-        {#if kind == "attack" && (weapon.plugins.length > 0 || targets.length == 1)}
+        {#if kind == "attack" && (Object.values(weapon.plugins).length > 0 || targets.length == 1)}
           <div transition:slide>
             <h3 style="border-top: 1px dashed #782e22; padding-right: 4px; padding-top: 16px; margin-top: 16px;">
               <i class="cci cci-reticule i--m i--dark" style="vertical-align:middle;border:none"></i>
