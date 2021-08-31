@@ -45,6 +45,9 @@ import { compact_tag_list } from "./module/helpers/tags";
 import * as migrations from "./module/migration";
 import { addLCPManager, updateCore, core_update } from "./module/apps/lcpManager";
 
+// Import sliding HUD (used for accuracy/difficulty windows)
+import * as slidingHUD from "./module/helpers/slidinghud";
+
 // Import Machine Mind and helpers
 import * as macros from "./module/macros";
 
@@ -179,12 +182,15 @@ Hooks.once("init", async function () {
     prepareItemMacro: macros.prepareItemMacro,
     prepareStatMacro: macros.prepareStatMacro,
     prepareTextMacro: macros.prepareTextMacro,
+    prepareTechMacro: macros.prepareTechMacro,
     prepareCoreActiveMacro: macros.prepareCoreActiveMacro,
     prepareCorePassiveMacro: macros.prepareCorePassiveMacro,
     prepareOverchargeMacro: macros.prepareOverchargeMacro,
     prepareOverheatMacro: macros.prepareOverheatMacro,
     prepareStructureMacro: macros.prepareStructureMacro,
     prepareActivationMacro: macros.prepareActivationMacro,
+    prepareEncodedAttackMacro: macros.prepareEncodedAttackMacro,
+    prepareStructureSecondaryRollMacro: macros.prepareStructureSecondaryRollMacro,
     fullRepairMacro: macros.fullRepairMacro,
     stabilizeMacro: macros.stabilizeMacro,
     targetsFromTemplate: macros.targetsFromTemplate,
@@ -471,6 +477,17 @@ Hooks.once("init", async function () {
   // NPC components
   Handlebars.registerHelper("tier-selector", npc_tier_selector);
   Handlebars.registerHelper("npc-feat-preview", npc_feature_preview);
+
+  // ------------------------------------------------------------------------
+  // Sliding HUD Zone, including accuracy/difficulty window
+  Hooks.on('renderHeadsUpDisplay', slidingHUD.attach);
+  Hooks.on('targetToken', (_user: User, _token: Token, isNewTarget: boolean) => {
+    macros.refreshTargeting(isNewTarget ? "may open new window" : "only refresh open window");
+  });
+  Hooks.on('createActiveEffect', () => macros.refreshTargeting("only refresh open window"));
+  Hooks.on('deleteActiveEffect', () => macros.refreshTargeting("only refresh open window"));
+  // updateToken triggers on things like token movement (spotter) and probably a lot of other things
+  Hooks.on('updateToken', () => macros.refreshTargeting("only refresh open window"));
 });
 
 // TODO: either remove when sanity check is no longer needed, or find a better home.
@@ -646,10 +663,16 @@ Hooks.on("renderChatMessage", async (cm: ChatMessage, html: any, data: any) => {
   }
 
   html.find(".chat-button").on("click", (ev: MouseEvent) => {
-    ev.stopPropagation();
-    let element = ev.target as HTMLElement;
-    runEncodedMacro($(element));
-  });
+    function checkTarget(element: HTMLElement) {
+      if (element.attributes.getNamedItem('data-macro')) {
+        ev.stopPropagation();
+        runEncodedMacro(element);
+        return true;
+      }
+      return false;
+    }
+    checkTarget(ev.target as HTMLElement) || checkTarget(ev.currentTarget as HTMLElement);
+  })
 });
 
 Hooks.on("hotbarDrop", (_bar: any, data: any, slot: number) => {

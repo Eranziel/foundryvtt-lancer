@@ -8,6 +8,12 @@ declare global {
     canvas: never;
   }
 
+  interface FlagConfig {
+    ActiveEffect: {
+      core?: { statusId?: string };
+    };
+  }
+
   namespace Game {
     interface SystemData<T> {
       id: "lancer";
