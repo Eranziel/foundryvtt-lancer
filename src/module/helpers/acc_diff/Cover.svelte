@@ -13,9 +13,9 @@
  let id = `accdiff-cover-input-${counter++}`;
 
  let inputs = [
-   { slug: "no", human: "No Cover", value: 0 },
-   { slug: "soft", human: "Soft Cover (-1)", value: 1 },
-   { slug: "hard", human: "Hard Cover (-2)", value: 2 },
+   { slug: "no", human: "No Cover", value: 0, icon: "shield-outline" },
+   { slug: "soft", human: "Soft Cover (-1)", value: 1, icon: "shield-half-full" },
+   { slug: "hard", human: "Hard Cover (-2)", value: 2, icon: "shield" },
  ];
 
  let [send, recv] = crossfade({});
@@ -26,7 +26,7 @@
     <input type="radio" id="{id}-{input.slug}" class="no-grow {input.slug}-cover"
            bind:group={cover} value={input.value} disabled={disabled} />
     <label for="{id}-{input.slug}" class="lancer-cover-radio-label {labelClass}">
-      <i class="cci-{input.slug}-cover i--s" title={input.human}></i>
+      <i class="mdi mdi-{input.icon} i--s" title={input.human}></i>
       <span class="no-grow">{input.human}</span>
       {#if input.value == cover}
         <div class="cover-arrow" in:send|local={{key: id}} out:recv|local={{key: id}}></div>
@@ -75,18 +75,7 @@
      opacity: 40%;
  }
 
-
  .disabled {
      opacity: 0.4;
- }
-
- .cci-no-cover:before {
-     content: '\25cb';
- }
- .cci-soft-cover:before {
-     content: '\25d1';
- }
- .cci-hard-cover:before {
-     content: '\25cf';
  }
 </style>

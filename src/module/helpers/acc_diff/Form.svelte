@@ -117,12 +117,12 @@
             {#if targets.length == 0}
               <div transition:slide|local>
                 <Cover bind:cover={base.cover}
-                                  class="accdiff-base-cover flexcol" disabled={weapon.seeking} />
+                       class="accdiff-base-cover flexcol" disabled={weapon.seeking} />
               </div>
             {:else if targets.length == 1}
               <div transition:slide|local>
                 <Cover bind:cover={targets[0].cover}
-                                  class="accdiff-base-cover flexcol" disabled={weapon.seeking} />
+                       class="accdiff-base-cover flexcol" disabled={weapon.seeking} />
               </div>
             {/if}
           </div>
@@ -189,7 +189,7 @@
                       style="display: none"
                       type="number"
                       bind:value={data.accuracy}
-                             min="0"
+                      min="0"
                     />
                     <Cover bind:cover={data.cover} disabled={weapon.seeking}
                       class="accdiff-targeted-cover flexrow flex-center" labelClass="i--s" />
@@ -197,7 +197,7 @@
                       style="display: none"
                       type="number"
                       bind:value={data.difficulty}
-                             min="0"
+                      min="0"
                     />
                     <button
                       class="i--m no-grow accdiff-button"
@@ -302,16 +302,18 @@
   }
 
   .accdiff-grid :global(.accdiff-base-cover) {
-    margin-top: 12px;
+    margin-top: 8px;
     margin-bottom: 4px;
     font-size: 0.85em;
-    user-select: none;
-    padding-left: 5px;
-    line-height: 2;
+    padding-left: 10px;
     cursor: pointer;
   }
   .accdiff-grid :global(.accdiff-base-cover i) {
-    vertical-align: baseline;
+    vertical-align: middle;
+  }
+
+  .accdiff-grid :global(.accdiff-base-cover span) {
+      vertical-align: middle;
   }
 
   .accdiff-footer :global(.accdiff-targeted-cover span) {
