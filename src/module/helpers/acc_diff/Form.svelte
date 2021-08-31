@@ -302,7 +302,7 @@
   }
 
   .accdiff-grid :global(.accdiff-base-cover) {
-    margin-top: 8px;
+    margin-top: 12px;
     margin-bottom: 4px;
     font-size: 0.85em;
     padding-left: 10px;
