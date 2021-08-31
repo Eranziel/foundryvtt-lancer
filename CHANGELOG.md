@@ -1,3 +1,21 @@
+# 1.0.0 (2021-08-31)
+If you are coming here from Lancer v0.1.x / Foundry 0.7.x, welcome! For you, nearly everything is new; the changes listed below accounts for changes from the latest version of the beta release.
+
+## Features
+* The accuracy/difficulty prompt has been completely revamped as an attack prompt and a check prompt, thanks to sohum! The new version is more informative and responsive, allows setting acc/diff individually on multi-target attacks, and automatically adjusts based on the Impaired status on the attacker and Lock On status on the target.
+* The template macros in the AoE Macros compendium have been repaired and updated, thanks to Bolts! For now, there are no user-visible changes, but the groundwork is laid for integrating them with the new attack prompt, including automatic targeting of tokens under the laid template. 
+
+## Bug Fixes
+* #233 - We no longer override the token data on new Actors, allowing the Foundry configuration for default settings to work as expected.
+* #260 - Dice So Nice (and other modules that trigger on dice rolls) will once again trigger on skill check rolls.
+* #262 - Importing an Actor from a compendium no longer overwrites the imported data with defaults.
+* #271 - Actor attribute names have been standardized. Pilots now have burn and overshield, and the unnecessary `current_` prefix on many attributes have been removed.
+* #276 - Fix a small formatting issue on the secondary roll button in structure/stress chat messages.
+* #278 - Add capability to rename and delete weapon profiles via right click menu.
+* #280 - Show talent actions alongside talents in pilot/mech sheets.
+* #288 - Remove an unnecessary warning displayed during structure/stress macros.
+* #293 - Fix the action editor.
+
 # 0.9.6 (2021-08-10)
 ## Features
 * #128 - Better COMP/CON Sync UI 
