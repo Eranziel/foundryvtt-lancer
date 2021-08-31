@@ -1345,6 +1345,35 @@ async function rollOverchargeMacro(actor: LancerActor, data: LancerOverchargeMac
   return renderMacroTemplate(actor, template, templateData);
 }
 
+export function prepareStructureSecondaryRollMacro(registryId: string) {
+  // @ts-ignore
+  let roll = new Roll('1d6').evaluate({ async: false });
+  let result = roll.total!;
+  if (result <= 3) {
+    prepareTextMacro(registryId, "Destroy Weapons", `
+<div class="dice-roll lancer-dice-roll">
+  <div class="dice-result">
+    <div class="dice-formula lancer-dice-formula flexrow">
+      <span style="text-align: left; margin-left: 5px;">${roll.formula}</span>
+      <span class="dice-total lancer-dice-total major">${result}</span>
+    </div>
+  </div>
+</div>
+<span>On a 1–3, all weapons on one mount of your choice are destroyed</span>`);
+  } else {
+    prepareTextMacro(registryId, "Destroy Systems", `
+<div class="dice-roll lancer-dice-roll">
+  <div class="dice-result">
+    <div class="dice-formula lancer-dice-formula flexrow">
+      <span style="text-align: left; margin-left: 5px;">${roll.formula}</span>
+      <span class="dice-total lancer-dice-total major">${result}</span>
+    </div>
+  </div>
+</div>
+<span>On a 4–6, a system of your choice is destroyed</span>`);
+  }
+}
+
 export async function prepareChargeMacro(a: string) {
   // Determine which Actor to speak as
   let mech = getMacroSpeaker(a);

@@ -25,41 +25,12 @@ import { LancerHooks, LancerSubscription } from "../helpers/hooks";
 import { mm_wrap_actor } from "../mm-util/helpers";
 import { system_ready } from "../../lancer";
 import type { LancerItemType } from "../item/lancer-item";
-import { renderMacroTemplate, prepareTextMacro, encodeMacroData } from "../macros";
+import { renderMacroTemplate, encodeMacroData } from "../macros";
 import type { RegEntry, MechWeapon, NpcFeature } from "machine-mind";
 import { StabOptions1, StabOptions2 } from "../enums";
 import { fix_modify_token_attribute } from "../token";
 import type { ActionData } from "../action";
 const lp = LANCER.log_prefix;
-
-export function prepareStructureSecondaryRollMacro(registryId: string) {
-  // @ts-ignore
-  let roll = new Roll('1d6').evaluate({ async: false });
-  let result = roll.total!;
-  if (result <= 3) {
-    prepareTextMacro(registryId, "Destroy Weapons", `
-<div class="dice-roll lancer-dice-roll">
-  <div class="dice-result">
-    <div class="dice-formula lancer-dice-formula flexrow">
-      <span style="text-align: left; margin-left: 5px;">${roll.formula}</span>
-      <span class="dice-total lancer-dice-total major">${result}</span>
-    </div>
-  </div>
-</div>
-<span>On a 1–3, all weapons on one mount of your choice are destroyed</span>`);
-  } else {
-    prepareTextMacro(registryId, "Destroy Systems", `
-<div class="dice-roll lancer-dice-roll">
-  <div class="dice-result">
-    <div class="dice-formula lancer-dice-formula flexrow">
-      <span style="text-align: left; margin-left: 5px;">${roll.formula}</span>
-      <span class="dice-total lancer-dice-total major">${result}</span>
-    </div>
-  </div>
-</div>
-<span>On a 4–6, a system of your choice is destroyed</span>`);
-  }
-}
 
 // Use for HP, etc
 interface BoundedValue {

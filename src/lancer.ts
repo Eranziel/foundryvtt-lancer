@@ -20,7 +20,7 @@ import {
   WELCOME,
 } from "./module/config";
 import type { LancerGame } from "./module/lancer-game";
-import { LancerActor, prepareStructureSecondaryRollMacro } from "./module/actor/lancer-actor";
+import { LancerActor } from "./module/actor/lancer-actor";
 import { LancerItem } from "./module/item/lancer-item";
 import { populatePilotCache } from "./module/compcon";
 
@@ -189,7 +189,7 @@ Hooks.once("init", async function () {
     prepareStructureMacro: macros.prepareStructureMacro,
     prepareActivationMacro: macros.prepareActivationMacro,
     prepareEncodedAttackMacro: macros.prepareEncodedAttackMacro,
-    prepareStructureSecondaryRollMacro: prepareStructureSecondaryRollMacro,
+    prepareStructureSecondaryRollMacro: macros.prepareStructureSecondaryRollMacro,
     fullRepairMacro: macros.fullRepairMacro,
     stabilizeMacro: macros.stabilizeMacro,
     migrations: migrations,
