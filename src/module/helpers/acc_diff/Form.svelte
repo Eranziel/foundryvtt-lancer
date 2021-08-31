@@ -12,12 +12,17 @@
  import ConsumeLockOn from './ConsumeLockOn.svelte';
  import Total from './Total.svelte';
  import PlusMinusInput from './PlusMinusInput.svelte';
+ import type { LancerItem } from '../../item/lancer-item';
+ import { RangeType } from 'machine-mind';
+ import { WeaponRangeTemplate } from '../../pixi/weapon-range-template';
+ import { fade } from '../slidinghud';
+ import { targetsFromTemplate } from '../../macros';
 
  export let weapon: AccDiffWeapon;
  export let base: AccDiffBase;
  export let targets: AccDiffTarget[];
  export let title: string;
- export const lancerItem: any | null = null;
+ export let lancerItem: LancerItem | null;
 
  export let kind: "hase" | "attack";
 
@@ -42,6 +47,36 @@
    window.addEventListener('keydown', escHandler);
    return { destroy() { window.removeEventListener('keydown', escHandler); } }
  }
+
+ function findRanges() {
+   return lancerItem?.rangesFor([
+     RangeType.Blast,
+     RangeType.Burst,
+     RangeType.Cone,
+     RangeType.Line,
+   ]) ?? [];
+ }
+
+ function deployTemplate(range: WeaponRangeTemplate['range']) {
+   const creator = lancerItem?.parent;
+   const token = (
+     creator?.token?.object ??
+     creator?.getActiveTokens().shift() ??
+     undefined
+   ) as Token | undefined;
+   const t = WeaponRangeTemplate.fromRange(range, token);
+   if (!t) return;
+   fade('out');
+   t.placeTemplate()
+     .catch(e => {
+       console.warn(e);
+       return;
+     })
+     .then(t => {
+       if (t) targetsFromTemplate(t.id!);
+       fade('in');
+     });
+ }
 </script>
 
 <form id="accdiff" class="accdiff window-content" use:escToCancel
@@ -50,6 +85,17 @@
     <div class="lancer-header mech-weapon medium">
       {#if kind == "attack"}
         <i class="cci cci-weapon i--m i--light"></i>
+        {#if lancerItem}
+          {#each findRanges() as range}
+            <button
+              class="range-button"
+              type="button"
+              on:click={() => deployTemplate(range)}
+            >
+              <i class="cci cci-{range.type.toLowerCase()} i--m i--light"></i>
+            </button>
+          {/each}
+        {/if}
       {:else if kind == "hase"}
         <i class="fas fa-dice-d20 i--m i--light"></i>
       {/if}
@@ -385,5 +431,22 @@
 
   .accdiff-target-row .card-title {
     background-color: #00000000;
+  }
+
+  .range-button {
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    text-align: left;
+    flex: 0 0;
+    margin: 4px;
+    padding: 0;
+    background: inherit;
+  }
+  .range-button:hover, .range-button:focus {
+    background: rgba(0, 0, 0, .2);
+    box-shadow: none;
+    cursor: pointer;
+  }
+  .range-button i.cci {
+    margin: 0;
   }
 </style>
