@@ -1,0 +1,61 @@
+<div class="card clipped-bot" style="margin: 0px;">
+  <div class="lancer-header tech medium">
+    <i class="cci cci-tech-quick i--m i--light"> </i>
+    <span>TECH ATK{{#if title}} :: {{title}}{{/if}}</span>
+    <a class="chat-button roll-attack lancer-macro" data-macro="{{rerollMacroData}}" title="Reroll this attack">
+      <i class="fas fa-dice-d20 i--m i--light"></i>
+    </a>
+  </div>
+  <div class="card clipped">
+    <div class="lancer-mini-header collapse-trigger" data-collapse-id="{{_uuid}}-attacks">
+      {{localize "lancer.chat-card.title.attack"}}
+    </div>
+    {{#each attacks as |attack key|}}
+      <div
+        class="dice-roll lancer-dice-roll collapse"
+        data-collapse-id="{{../_uuid}}-attacks"
+      >
+      <div class="dice-result">
+        <div class="dice-formula lancer-dice-formula flexrow">
+          <span style="text-align: left; margin-left: 5px;">{{ attack.roll.formula }}</span>
+          <span class="dice-total lancer-dice-total major">{{ attack.roll.total }}</span>
+          <i class="cci cci-reticule i--m i--dark"> </i>
+        </div>
+        <div style="text-align: left;">
+          {{{ attack.tt }}}
+        </div>
+      </div>
+    </div>
+    {{/each}}
+  </div>
+  {{#if hits}}
+  <div class="card clipped">
+    <div class="lancer-mini-header collapse-trigger" data-collapse-id="{{_uuid}}-hits">{{localize "lancer.chat-card.title.e-defense-hit"}}</div>
+    {{#each hits as |hit key|}}
+    <div class="lancer-hit collapse" data-collapse-id="{{../_uuid}}-hits">
+      <div>
+        <img class="lancer-hit-thumb" src="{{hit.token.img}}" />
+      </div>
+      <div class="lancer-hit-text">
+        <span class="lancer-hit-text-name">{{hit.token.name}}</span>
+        {{#if hit.crit}}
+        <span class="card clipped lancer-hit-chip crit">{{localize "lancer.chat-card.attack.crit" total=hit.total}}</span>
+        {{else}}{{#if hit.hit}}
+        <span class="card clipped lancer-hit-chip hit">{{localize "lancer.chat-card.attack.hit" total=hit.total}}</span>
+        {{else}}
+        <span class="card clipped lancer-hit-chip miss">{{localize "lancer.chat-card.attack.miss" total=hit.total}}</span>
+        {{/if}}{{/if}}
+      </div>
+    </div>
+    {{/each}}
+  </div>
+  {{/if}} {{#if effect}}
+  <div class="card clipped">
+    <div class="lancer-mini-header collapse-trigger" data-collapse-id="{{_uuid}}-effect">{{localize "lancer.chat-card.title.effect"}}</div>
+    <span class="effect-text collapse" data-collapse-id="{{_uuid}}-effect">{{{effect}}}</span>
+  </div>
+  {{/if}}
+  <div class="flexrow" style="justify-content: flex-end; flex-wrap: wrap;">
+    {{{mm-tag-list tags tags}}}
+  </div>
+</div>

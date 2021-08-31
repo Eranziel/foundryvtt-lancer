@@ -1,0 +1,47 @@
+<div class="card clipped-bot" style="margin: 0px;">
+  <div class="card clipped">
+    <div class="lancer-header collapse-trigger" data-collapse-id="{{_uuid}}-attacks">
+      {{localize "lancer.chat-card.title.charge-roll"}}
+    </div>
+    <div class="dice-roll lancer-dice-roll">
+      <div class="dice-result">
+        <div class="dice-formula lancer-dice-formula flexrow">
+          <span style="text-align: left; margin-left: 5px;">
+            {{roll.formula}}
+          </span>
+          <span class="dice-total lancer-dice-total major">
+            {{roll.total}}
+          </span>
+          <i class="cci cci-reticule i--m i--dark"></i>
+        </div>
+        <div style="text-align: left;">
+          {{{roll_tt}}}
+        </div>
+      </div>
+    </div>
+    <div class="card clipped">
+      <div class="lancer-header">
+        {{localize "lancer.chat-card.title.changes"}}
+      </div>
+      {{#each changed as |change key|}}
+        <div class="lancer-hit">
+          <div></div>
+          <div class="lancer-hit-text">
+            <span class="lancer-hit-text-name">
+              {{change.name}}
+            </span>
+            {{#if change.charged}}
+              <span class="card clipped lancer-charge-chip charged">
+                {{localize "lancer.chat-card.overcharge.charged" target=change.target}}
+              </span>
+            {{else}}
+              <span class="card clipped lancer-charge-chip">
+                {{localize "lancer.chat-card.overcharge.uncharged" target=change.target}}
+              </span>
+            {{/if}}
+          </div>
+        </div>
+      {{/each}}
+    </div>
+  </div>
+</div>

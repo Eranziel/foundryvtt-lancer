@@ -3,43 +3,54 @@
  * https://gitlab.com/foundrynet/dnd5e/-/blob/master/module/pixi/ability-template.js
  */
 
+import { RangeType, RegRangeData } from "machine-mind";
+
 /**
  * MeasuredTemplate sublcass to create a placeable template on weapon attacks
- * @extends MeasuredTemplate
  * @example
- * WeaponRangeTemplate.fromRange({
- *     type: 'Cone',
- *     val: 5,
- * }).drawPreview();
+ * ```javascript
+ * const template = WeaponRangeTemplate.fromRange({
+ *   type: "Cone",
+ *   val: "5",
+ * });
+ * template?.placeTemplate()
+ *   .catch(() => {}) // Handle canceled
+ *   .then(t => {
+ *     if (t) {
+ *       // t is a MeasuredTemplate with flag data
+ *     }
+ * });
+ * ```
  */
 export class WeaponRangeTemplate extends MeasuredTemplate {
-  isBurst: boolean;
-  range: { val: number; type: string };
+  get range() {
+    return this.document.getFlag(game.system.id, "range");
+  }
 
-  constructor(params: any) {
-    super(params);
-    this.isBurst = params.isBurst;
-    this.range = params.range;
+  get isBurst() {
+    return this.range.type === RangeType.Burst;
   }
 
   /**
    * Creates a new WeaponRangeTemplate from a provided range object
-   * @param type Type of template
-   * @param val Size of template
+   * @param type - Type of template
+   * @param val  - Size of template
    */
-  static fromRange({ type, val }: { type: string; val: number }): WeaponRangeTemplate | null {
-    let hex: boolean = canvas.grid.type >= 2;
+  static fromRange({ type, val }: WeaponRangeTemplate["range"], creator?: Token): WeaponRangeTemplate | null {
+    if (!canvas.ready) return null;
+    let dist = parseInt(val);
+    let hex: boolean = (canvas.grid?.type ?? 0) >= 2;
 
-    let shape: string;
+    let shape: "cone" | "ray" | "circle";
     switch (type) {
-      case "Cone":
+      case RangeType.Cone:
         shape = "cone";
         break;
-      case "Line":
+      case RangeType.Line:
         shape = "ray";
         break;
-      case "Burst":
-      case "Blast":
+      case RangeType.Burst:
+      case RangeType.Blast:
         shape = "circle";
         break;
       default:
@@ -49,90 +60,140 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
     const scale = hex ? Math.sqrt(3) / 2 : 1;
     const templateData = {
       t: shape,
-      user: game.user._id,
-      distance: (val + 0.1) * scale,
+      user: game.user!.id,
+      distance: (dist + 0.1) * scale,
       width: scale,
       direction: 0,
       x: 0,
       y: 0,
       angle: 58,
-      fillColor: game.user.color,
-      isBurst: type === "Burst",
-      range: { type, val },
+      fillColor: game.user!.data.color,
+      flags: {
+        [game.system.id]: {
+          range: { type, val },
+          creator: creator?.id,
+          ignore: {
+            tokens: type === RangeType.Blast || !creator ? [] : [creator.id],
+            dispositions: <TokenDocument["data"]["disposition"][]>[],
+          },
+        },
+      },
     };
-    return new this(templateData);
+
+    const cls = CONFIG.MeasuredTemplate.documentClass;
+    const template = new cls(templateData, { parent: canvas.scene ?? undefined });
+    const object = new this(template);
+    return object;
   }
 
   /**
    * Start placement of the template. Returns immediately, so cannot be used to
    * block until a template is placed.
+   * @deprecated Since 1.0
    */
   drawPreview(): void {
+    console.warn("WeaponRangeTemplate.drawPreview() is deprecated and has been replaced by placeTemplate()");
+    this.placeTemplate().catch(() => {});
+  }
+
+  /**
+   * Start placement of the template.
+   * @returns A Promise that resolves to the final MeasuredTemplateDocument or
+   * rejects when creation is canceled or fails.
+   */
+  placeTemplate(): Promise<MeasuredTemplateDocument> {
+    if (!canvas.ready) {
+      ui.notifications?.error("Cannot create WeaponRangeTemplate. Canvas is not ready");
+      throw new Error("Cannot create WeaponRangeTemplate. Canvas is not ready");
+    }
     const initialLayer = canvas.activeLayer;
     this.draw();
     this.layer.activate();
-    this.layer.preview.addChild(this);
-    this.activatePreviewListeners(initialLayer);
+    this.layer.preview?.addChild(this);
+    return this.activatePreviewListeners(initialLayer);
   }
 
-  activatePreviewListeners(initialLayer: any): void {
-    const handlers: any = {};
-    let moveTime = 0;
-    // Update placement (mouse-move)
-    handlers.mm = (event: any) => {
-      event.stopPropagation();
-      let now = Date.now(); // Apply a 20ms throttle
-      if (now - moveTime <= 20) return;
-      const center = event.data.getLocalPosition(this.layer);
-      let snapped: { x: number; y: number };
-      if (this.isBurst) snapped = this.snapToToken(center);
-      else snapped = this.snapToCenter(center);
-      this.data.x = snapped.x;
-      this.data.y = snapped.y;
-      this.refresh();
-      moveTime = now;
-    };
+  private activatePreviewListeners(initialLayer: CanvasLayer<CanvasLayerOptions> | null): Promise<MeasuredTemplateDocument> {
+    return new Promise<MeasuredTemplateDocument>((resolve, reject) => {
+      const handlers: any = {};
+      let moveTime = 0;
 
-    // Cancel the workflow (right-click)
-    handlers.rc = () => {
-      this.layer.preview.removeChildren();
-      canvas.stage.off("mousemove", handlers.mm);
-      canvas.stage.off("mousedown", handlers.lc);
-      canvas.app.view.oncontextmenu = null;
-      canvas.app.view.onwheel = null;
-      initialLayer.activate();
-    };
+      // Update placement (mouse-move)
+      handlers.mm = (event: PIXI.InteractionEvent) => {
+        event.stopPropagation();
+        let now = Date.now(); // Apply a 20ms throttle
+        if (now - moveTime <= 20) return;
+        const center = event.data.getLocalPosition(this.layer);
+        let snapped = this.snapToCenter(center);
 
-    // Confirm the workflow (left-click)
-    handlers.lc = (event: any) => {
-      handlers.rc(event);
+        if (this.isBurst) snapped = this.snapToToken(center);
 
-      // Create the template
-      canvas.scene.createEmbeddedEntity("MeasuredTemplate", this.data);
-    };
+        this.data.update({ x: snapped.x, y: snapped.y });
+        this.refresh();
+        moveTime = now;
+      };
 
-    // Rotate the template by 3 degree increments (mouse-wheel)
-    handlers.mw = (event: any) => {
-      if (event.ctrlKey) event.preventDefault(); // Avoid zooming the browser window
-      event.stopPropagation();
-      let delta = canvas.grid.type > CONST.GRID_TYPES.SQUARE ? 30 : 15;
-      let snap = event.shiftKey ? delta : 5;
-      this.data.direction += snap * Math.sign(event.deltaY);
-      this.refresh();
-    };
+      // Cancel the workflow (right-click)
+      handlers.rc = (_e: unknown, do_reject: boolean = true) => {
+        // Remove the preview
+        this.layer.preview?.removeChildren().forEach(c => c.destroy());
+        canvas.stage?.off("mousemove", handlers.mm);
+        canvas.stage?.off("mousedown", handlers.lc);
+        canvas.app!.view.oncontextmenu = null;
+        canvas.app!.view.onwheel = null;
+        initialLayer?.activate();
+        if (do_reject) reject(new Error("Template creation cancelled"));
+      };
 
-    // Activate listeners
-    canvas.stage.on("mousemove", handlers.mm);
-    canvas.stage.on("mousedown", handlers.lc);
-    canvas.app.view.oncontextmenu = handlers.rc;
-    canvas.app.view.onwheel = handlers.mw;
+      // Confirm the workflow (left-click)
+      handlers.lc = async (event: PIXI.InteractionEvent) => {
+        handlers.rc(event, false);
+        let destination = this.snapToCenter(event.data.getLocalPosition(this.layer));
+        if (this.isBurst) {
+          destination = this.snapToToken(event.data.getLocalPosition(this.layer));
+          const token = this.data.flags[game.system.id].burstToken;
+          if (token) {
+            const ignore = this.data.flags[game.system.id].ignore.tokens;
+            ignore.push(token);
+            this.data.update({
+              [`flags.${game.system.id}.ignore.tokens`]: ignore,
+            });
+          }
+        }
+        this.data.update(destination);
+        const template = (<MeasuredTemplateDocument[]>(
+          await canvas.scene!.createEmbeddedDocuments("MeasuredTemplate", [this.data.toObject()])
+        )).shift();
+        if (template === undefined) {
+          reject(new Error("Template creation failed"));
+          return;
+        }
+        resolve(template);
+      };
+
+      // Rotate the template by 3 degree increments (mouse-wheel)
+      handlers.mw = (event: WheelEvent) => {
+        if (event.ctrlKey) event.preventDefault(); // Avoid zooming the browser window
+        event.stopPropagation();
+        let delta = canvas.grid!.type > CONST.GRID_TYPES.SQUARE ? 30 : 15;
+        let snap = event.shiftKey ? delta : 5;
+        this.data.update({ direction: this.data.direction + snap * Math.sign(event.deltaY) });
+        this.refresh();
+      };
+
+      // Activate listeners
+      canvas.stage!.on("mousemove", handlers.mm);
+      canvas.stage!.on("mousedown", handlers.lc);
+      canvas.app!.view.oncontextmenu = handlers.rc;
+      canvas.app!.view.onwheel = handlers.mw;
+    });
   }
 
   /**
    * Snapping function to only snap to the center of spaces rather than corners.
    */
-  snapToCenter({ x, y }: { x: number; y: number }): { x: number; y: number } {
-    const snapped = canvas.grid.getCenter(x, y);
+  private snapToCenter({ x, y }: { x: number; y: number }): { x: number; y: number } {
+    const snapped = canvas.grid!.getCenter(x, y);
     return { x: snapped[0], y: snapped[1] };
   }
 
@@ -140,40 +201,43 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
    * Snapping function to snap to the center of a hovered token. Also resizes
    * the template for bursts.
    */
-  snapToToken({ x, y }: { x: number; y: number }): { x: number; y: number } {
-    const token = canvas.tokens.placeables
-      .filter((t: any) => {
+  private snapToToken({ x, y }: { x: number; y: number }): { x: number; y: number } {
+    const token = canvas
+      .tokens!.placeables.filter(t => {
         // test if cursor is inside token
         return t.x < x && t.x + t.w > x && t.y < y && t.y + t.h > y;
       })
-      .reduce((r: any | null, t: any) => {
+      .reduce((r: Token | null, t) => {
         // skip hidden tokens
         if (!t.visible) return r;
         // use the token that is closest.
         if (
           r === null ||
           r === undefined ||
-          canvas.grid.measureDistance({ x, y }, t.center) <
-            canvas.grid.measureDistance({ x, y }, r.center)
+          canvas.grid!.measureDistance({ x, y }, t.center) < canvas.grid!.measureDistance({ x, y }, r.center)
         )
           return t;
         else return r;
       }, null);
     if (token) {
-      this.data.distance = this.getBurstDistance(token.data.width);
+      this.data.update({
+        distance: this.getBurstDistance(token.data.width),
+        [`flags.${game.system.id}.burstToken`]: token.id,
+      });
       return token.center;
+    } else {
+      this.data.update({ distance: this.getBurstDistance(1) });
+      return this.snapToCenter({ x, y });
     }
-    this.data.distance = 0;
-    return this.snapToCenter({ x, y });
   }
 
   /**
    * Get fine-tuned sizing data for Burst templates
    */
-  getBurstDistance(size: number): number {
-    const hex = canvas.grid.type > 1;
+  private getBurstDistance(size: number): number {
+    const hex = canvas.grid!.type > 1;
     const scale = hex ? Math.sqrt(3) / 2 : 1;
-    let val = this.range.val;
+    let val = parseInt(this.range.val);
     if (hex) {
       if (size === 2) val += 0.7 - (val > 2 ? 0.1 : 0);
       if (size === 3) val += 1.2;
@@ -184,5 +248,21 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
       if (size === 4) val += 1.9;
     }
     return (val + 0.1) * scale;
+  }
+}
+
+declare global {
+  interface FlagConfig {
+    MeasuredTemplate: {
+      [game.system.id]: {
+        range: RegRangeData;
+        creator?: string;
+        burstToken?: string;
+        ignore: {
+          tokens: string[];
+          dispositions: TokenDocument["data"]["disposition"][];
+        };
+      };
+    };
   }
 }

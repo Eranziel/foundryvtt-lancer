@@ -1,0 +1,102 @@
+{{!--
+  Actions
+  AddedDamage
+  AddedRange
+  AddedTags
+  AllowedSizes
+  AllowedTypes
+  BaseLimit
+  Bonuses
+  Cascading
+  Counters
+  Deployables
+  Destroyed
+  Effect
+  Integrated
+  License
+  LicenseLevel
+  LID
+  Name
+  SP
+  Synergies
+  Tags
+  Uses
+--}}
+
+
+<form class="{{cssClass}} lancer-sheet" autocomplete="off">
+    {{!-- Sheet Header --}}
+    <header class="sheet-header card clipped-bot">
+      <div class="flexrow">
+        <div class="header-fields">
+          <h1 class="charname">
+            <input
+              class="header-field"
+              name="name"
+              type="text"
+              value="{{item.name}}"
+              placeholder="{{localize "lancer.placeholder.name"}}"
+            />
+          </h1>
+        </div>
+        {{{ ref-portrait-img item.img "img" mm }}}
+      </div>
+    </header>
+  
+    {{!-- Sheet Body --}}
+    <section class="sheet-body flexrow sheet-weapon-mod">
+      <div class="flexcol" style="flex-basis: 66%">
+        {{{item-edit-effect               "mm.Effect"}}}
+        {{{item-edit-arrayed-actions      "mm.Actions"        "ADDED ACTIONS"}}}
+        {{{item-edit-arrayed-damage       "mm.AddedDamage"    "ADDED DAMAGE"}}}
+        {{{item-edit-arrayed-range        "mm.AddedRange"     "ADDED RANGE"}}}
+        <div class="card full">
+          <span class="lancer-header submajor">ADDED TAGS</span>
+          {{{mm-tag-list "mm.AddedTags" mm.AddedTags editable}}}
+        </div>
+        {{{item-edit-arrayed-bonuses      "mm.Bonuses"}}}
+        <div class="flexrow">
+          {{{counter-array mm.Counters "mm.Counters" "mm.Counters" true}}}
+        </div>
+        {{{item-edit-arrayed-deployables  "mm.Deployables"                "ADDED DEPLOYABLES"}}}
+        {{{item-edit-arrayed-synergies    "mm.Synergies"                  "SYNERGIES"}}}
+        {{{item-edit-arrayed-integrated   "mm.Integrated"                 "INTEGRATED ITEMS"}}}
+        <div class="card full">
+          <span class="lancer-header submajor">TAGS</span>
+          {{{mm-tag-list "mm.Tags" mm.Tags editable}}}
+        </div>
+      </div>
+      <div class="flexcol" style="flex-basis: 33%;">
+        {{{item-edit-license}}}
+        {{{item-edit-arrayed-enum         "Allowed Sizes"         "mm.AllowedSizes"     "WeaponSize"}}}
+        {{{item-edit-arrayed-enum         "Allowed Types"         "mm.AllowedTypes"     "WeaponType"}}}
+        {{{item-edit-uses                 "mm.Uses" "data.derived.max_uses"}}}
+        {{{item-edit-sp                   "mm.SP"}}}
+      </div>
+        {{!-- 
+            Fields needed for:
+            Arrayed
+              Actions -Action-
+              AddedDamage -Damage-
+              AddedRange -Range-
+              AddedTags -Tag-
+              AllowedSizes -WeaponSize-
+              AllowedTypes -WeaponType-
+              Bonuses -Bonus-
+              Counters -Counter-
+              Deployables -Deployable-
+              Synergies -Synergy-
+              Tags -Tag-
+
+            Effect
+            Integrated
+            License
+              + LicenseLevel
+            * Name
+            SP
+            Uses (?) (no max uses)
+
+          --}}
+    </section>
+  </form>
+  

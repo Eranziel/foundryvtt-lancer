@@ -1,70 +1,60 @@
+import type { EntryType } from "machine-mind";
 import { LancerItemSheet } from "./item-sheet";
 
 /**
  * Extend the generic Lancer item sheet
  * @extends {LancerItemSheet}
  */
-export class LancerFrameSheet extends LancerItemSheet {
+export class LancerFrameSheet extends LancerItemSheet<EntryType.FRAME> {
   /**
    * @override
    * Extend and override the default options used by the generic Lancer item sheet
-   * @returns {Object}
    */
-  static get defaultOptions() {
+  static get defaultOptions(): ItemSheet.Options {
     return mergeObject(super.defaultOptions, {
       width: 700,
       height: 750,
     });
   }
 
-  /**
-   * @override
-   * Tag controls event handler
-   * @param event The click event
-   */
-  async _onClickTagControl(event: any) {
-    event.preventDefault();
-    const a = $(event.currentTarget);
-    const action = a.data("action");
-    console.log(this);
-    const tags = duplicate(this.object.data.data.core_system.tags);
+  // Handle the "delete" option of the mounts
+  async _onChangeMount(event: any) {
+    // Get the index
+    const elt = $(event.currentTarget);
+    const index = elt.prop("index");
+    const value = elt.prop("value");
+    if (value == "delete") {
+      // If delete, then delete
+      let data = await this.getDataLazy();
 
-    console.log("_onClickTagControl()", action, tags);
-    if (action === "create") {
-      // add tag
-      // I can't figure out a better way to prevent collisions
-      // Feel free to come up with something better
-      // const keys = Object.keys(tags);
-      // var newIndex = 0;
-      // if (keys.length > 0) {
-      //   newIndex = Math.max.apply(Math, keys) + 1;
-      // }
-      // tags[newIndex] = null;
-      // Default new tags to quick action... is there a better solution?
-      tags.push({ id: "tg_quick_action" });
-      await this.object.update({ "data.core_system.tags": tags }, {});
-      await this._onSubmit(event);
-    } else if (action === "delete") {
-      // delete tag
-      const parent = a.parents(".tag");
-      const id = parent.data("key");
-      delete tags[id];
-      tags["-=" + id] = null;
-      this.object.update({ "data.core_system.tags": tags }, {});
+      // Splice it out
+      let mounts = [...data.mm.Mounts];
+      mounts.splice(index, 1);
+      data.mm.Mounts = mounts;
+
+      // Save it
+      await data.mm.writeback();
+
+      // No need to submit
+      event.stopPropagation();
+
+      // But do need to refresh
+      this.render();
     }
   }
 
   /**
    * @override
-   * Prepare data for rendering the Item sheet
-   * The prepared data object contains both the item data as well as additional sheet options
+   * Activate event listeners using the prepared sheet HTML
+   * @param html {JQuery}   The prepared HTML object ready to be rendered into the DOM
    */
-  getData() {
-    const data: ItemSheetData = super.getData();
+  activateListeners(html: JQuery) {
+    super.activateListeners(html);
 
-    // TODO: frame size
+    // Everything below here is only needed if the sheet is editable
+    if (!this.options.editable) return;
 
-    // TODO: find integrated weapon
-    return data;
+    // Watch for select delete on mount
+    html.find(".mount-selector").on("change", e => this._onChangeMount(e));
   }
 }

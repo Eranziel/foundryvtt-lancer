@@ -1,0 +1,24 @@
+<form class="{{cssClass}} lancer-sheet" autocomplete="off">
+
+  {{!-- Sheet Header --}}
+  <header class="sheet-header card clipped-bot">
+    {{{ ref-portrait-img item.img "img" mm }}}
+    <div class="header-fields" style="grid-area: 1/1/2/5;">
+      <h1 class="charname"><input class="header-field" name="name" type="text" value="{{item.name}}" placeholder="{{localize "lancer.placeholder.name"}}"/></h1>
+    </div>
+  </header>
+
+  {{!-- Sheet Body --}}
+  <section class="sheet-body">
+    <div class="flexcol">
+      {{{textarea-card "DESCRIPTION" "mm.Description"}}}
+      {{{textarea-card "QUOTE" "mm.Quote"}}}
+      <div class="flexrow">
+        {{{std-string-input             "mm.Dark"    label="DARK COLOR"}}}
+        {{{std-string-input             "mm.Light"   label="LIGHT COLOR"}}}
+        {{{std-string-input             "mm.Logo"    label="LOGO LABEL"}}}
+      </div>
+    </div>
+  </section>
+
+</form>

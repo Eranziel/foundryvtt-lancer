@@ -1,0 +1,204 @@
+<form class="{{cssClass}} lancer-sheet" autocomplete="off">
+  {{!-- Sheet Header --}}
+  <header>
+    <div class="flexcol">
+      <div class="flexrow">
+        <div class="details">
+          <span>{{localize "lancer.pilot-sheet.header.ll"}}</span>
+          <span class="pilot-callsign">{{mm.Level}}</span>
+        </div>
+
+        <div class="details flexcol">
+          <span>{{localize "lancer.pilot-sheet.header.cs"}}</span>
+          <span class="pilot-callsign">{{mm.Callsign}}</span>
+        </div>
+
+        <div class="details flexcol">
+          <span>{{localize "lancer.pilot-sheet.header.name"}}</span>
+          <span class="medium">{{actor.name}}</span>
+        </div>
+
+        <div class="details flexcol">
+          <span>{{localize "lancer.pilot-sheet.header.bg"}}</span>
+          <span class="medium">{{{mm.Background}}}</span>
+        </div>
+      </div>
+      <div class="flexrow pilot-stats">
+        {{{compact-stat-edit "mdi mdi-heart-outline" "mm.CurrentHP" "mm.MaxHP" }}}
+        {{{compact-stat-edit "mdi mdi-shield-star-outline" "mm.Overshield" "" }}}
+        {{{compact-stat-view "mdi mdi-shield-outline" "mm.Armor" }}} {{{compact-stat-view "cci
+        cci-evasion" "mm.Evasion" }}} {{{compact-stat-view "cci cci-edef" "mm.EDefense" }}}
+        {{{compact-stat-view "mdi mdi-arrow-right-bold-hexagon-outline" "mm.Speed" }}}
+      </div>
+    </div>
+    {{{ ref-portrait-img actor.img "img" mm }}}
+  </header>
+
+  {{!-- Sheet Tab Navigation --}}
+  <nav class="lancer-tabs" data-group="primary">
+    <a class="item lancer-tab medium" data-tab="cloud">{{localize "lancer.pilot-sheet.tabs.cloud"}}</a>
+    <a class="item lancer-tab medium" data-tab="dossier">{{localize "lancer.pilot-sheet.tabs.dossier"}}</a>
+    <a class="item lancer-tab medium" data-tab="tactical">{{localize "lancer.pilot-sheet.tabs.tactical"}}</a>
+    <a class="item lancer-tab medium" data-tab="abilities">{{localize "lancer.pilot-sheet.tabs.abilities"}}</a>
+    <a class="item lancer-tab medium" data-tab="loadout">{{localize "lancer.pilot-sheet.tabs.mech"}}</a>
+    <!--<a class="item lancer-tab medium" data-tab="mech">{{localize "lancer.pilot-sheet.tabs.mech"}}</a>-->
+  </nav>
+
+  {{!-- Sheet Body --}}
+  <section class="sheet-body">
+    {{!-- Cloud Management Tab --}}
+    <div class="tab manage" data-group="primary" data-tab="cloud">
+      <div style="display: grid; grid-template: auto / 1fr 1fr;">
+        <div class="card clipped" style="grid-area: 1/1/2/3;">
+          <span class="lancer-header major">{{localize "lancer.pilot-sheet.cloud-header.label"}}</span>
+          <select class="lancer-input major lancer-text-field"
+            style="text-align: center;" name="vaultID" data-type="String">
+            {{#select vaultID}}
+              <option value="">{{localize "lancer.pilot-sheet.cloud-header.vaultID"}}</option>
+              {{#each pilotCache}}
+                <option value="{{cloudOwnerID}}//{{cloudID}}">{{name}}</option>
+              {{/each}}
+            {{/select}}
+          </select>
+          <input
+            class="lancer-input major"
+            style="text-align: center;"
+            type="string"
+            name="rawID"
+            value="{{rawID}}"
+            data-dtype="String"
+            placeholder="{{localize "lancer.pilot-sheet.cloud-header.raw-placeholder"}}"
+          />
+        </div>
+
+        <div class="card clipped" style="grid-area: 2/1/3/2;">
+          <span class="lancer-header major">{{localize "lancer.pilot-sheet.cloud-download.label"}}</span>
+          <a class="cloud-control i--dark i--l" style="align-self: center;" data-action="download"
+            ><i class="cci cci-tech-quick"></i
+          ></a>
+          <span class="minor desc-text" style="text-align: center;"
+            >{{localize "lancer.pilot-sheet.cloud-download.lastSync" timestamp=mm.LastCloudUpdate}}</span
+          >
+        </div>
+
+        <div class="card clipped" style="grid-area: 2/2/3/3;">
+          <span class="lancer-header major">{{localize "lancer.pilot-sheet.cloud-upload.label"}}</span>
+          <span>{{localize "lancer.pilot-sheet.cloud-upload.wip"}}</span>
+        </div>
+      </div>
+    </div>
+
+    {{!-- Dossier Tab --}}
+    <div class="tab dossier active" data-group="primary" data-tab="dossier">
+      <div class="wraprow double">
+        <div class="card clipped">
+          <span class="lancer-header major">{{localize "lancer.pilot-sheet.dossier.cs"}}</span>
+          <input class="lancer-input major" {{{getset "mm.Callsign" }}} data-dtype="String"/>
+        </div>
+        <div class="card clipped">
+          <span class="lancer-header major">{{localize "lancer.pilot-sheet.dossier.name"}}</span>
+          <input
+            class="lancer-input major"
+            name="name"
+            value="{{actor.name}}"
+            data-dtype="String"
+          />
+        </div>
+
+        {{{textarea-card "BACKGROUND" "mm.Background"}}} {{{textarea-card "HISTORY"
+        "mm.History"}}} {{{textarea-card "NOTES" "mm.Notes"}}}
+      </div>
+    </div>
+
+    {{!-- Pilot Tactical Tab --}}
+    <div class="tab pilot flexcol" data-group="primary" data-tab="tactical">
+      <div class="card clipped">
+        <div class="flexrow">
+          {{{clicker-stat-card "LEVEL" "mdi mdi-shield-outline" "mm.Level" false }}}
+          {{{stat-rollable-card "GRIT" "cci cci-armor" "mm.Grit" }}}
+        </div>
+        <div class="flexrow">
+          {{{clicker-stat-card "HUL" "" "mm.MechSkills.Hull" true }}}
+          {{{clicker-stat-card "AGI" "" "mm.MechSkills.Agi" true }}}
+          {{{clicker-stat-card "SYS" "" "mm.MechSkills.Sys" true }}}
+          {{{clicker-stat-card "ENG" "" "mm.MechSkills.Eng" true }}}
+        </div>
+      </div>
+
+      {{!-- Armor + Weapons --}}
+      <div class="flexrow">
+        {{!-- Armor --}}
+        <div class="card clipped">
+          <h2 class="lancer-header major">{{localize "lancer.pilot-sheet.tactical.armor"}}</h2>
+          {{#each mm.Loadout.Armor as |armor key|}} {{{pilot-armor-slot (concat
+          "mm.Loadout.Armor." key)}}} {{/each}}
+        </div>
+
+        {{!-- Weapons --}}
+        <div class="card clipped">
+          <h2 class="lancer-header major">{{localize "lancer.pilot-sheet.tactical.weapons"}}</h2>
+          {{#each mm.Loadout.Weapons as |weapon key|}} {{{pilot-weapon-slot (concat
+          "mm.Loadout.Weapons." key)}}} {{/each}}
+        </div>
+      </div>
+
+      {{!-- Gear --}}
+      <div class="flexrow">
+        {{!-- Gear --}}
+        <div class="card clipped">
+          <h2 class="lancer-title clipped-top">{{localize "lancer.pilot-sheet.tactical.gear"}}</h2>
+          {{#each mm.Loadout.Gear as |gear key|}} {{{pilot-gear-slot (concat
+          "mm.Loadout.Gear." key)}}} {{/each}}
+        </div>
+      </div>
+
+      {{!-- Talents + Core Bonuses + Licenses --}}
+      <div class="flexrow">
+        {{!-- Licenses --}}
+        <div class="card clipped">
+          <h2 class="lancer-title clipped-top">{{localize "lancer.pilot-sheet.tactical.licenses"}}</h2>
+          {{#each mm.Licenses as |license index|}} {{{ref-mm-controllable-item (concat
+          "mm.Licenses." index) "delete" }}} {{/each}}
+        </div>
+
+        {{!-- Core Bonuses --}}
+        <div class="card clipped">
+          <h2 class="lancer-title clipped-top">{{localize "lancer.pilot-sheet.tactical.cores"}}</h2>
+          {{#each mm.CoreBonuses as |core_bonus index|}} {{{ref-mm-controllable-item (concat
+          "mm.CoreBonuses." index) "delete" }}} {{/each}}
+        </div>
+      </div>
+
+      <div class="flexrow">
+        {{{pilot-counters mm}}}
+      </div>
+    </div>
+
+    {{!-- Pilot Abilities Tab --}}
+    <div class="tab tactical flexcol" data-group="primary" data-tab="abilities">
+      {{!-- Skill Triggers --}}
+      <div class="card clipped">
+        <h2 class="lancer-title clipped">{{localize "lancer.pilot-sheet.abilities.skills"}}</h2>
+        {{#each mm.Skills as |skill index|}} {{{ref-mm-controllable-item (concat
+        "mm.Skills." index) "delete" }}} {{/each}}
+      </div>
+
+      {{!-- Talents --}}
+      <div class="card clipped">
+        <h2 class="lancer-title clipped">{{localize "lancer.pilot-sheet.abilities.talents"}}</h2>
+        {{#each mm.Talents as |skill index|}} {{{ref-mm-controllable-item (concat
+        "mm.Talents." index) "delete" }}} {{/each}}
+      </div>
+    </div>
+    
+    {{!-- Loadout Tab --}}
+    {{!-- Things to put in here:
+        * ActiveMechRef (maybe just drag&drop & a link here to get to it?)
+        * Access to a full list of things unlocked by licenses (read-only)    
+    --}}
+    <div class="tab loadout flexcol" data-group="primary" data-tab="loadout">
+      {{!-- Active Mech --}}
+      {{{active-mech-preview active_mech "active_mech" "mm.ActiveMechRef"}}}
+    </div>
+  </section>
+</form>
