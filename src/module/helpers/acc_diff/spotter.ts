@@ -1,9 +1,8 @@
 import { stateless } from './serde';
-import { getMacroSpeaker } from '../../macros';
 import type { AccDiffPlugin, AccDiffPluginData } from './plugin';
 import type { AccDiffData, AccDiffTarget } from './index';
 import type { LancerActor } from '../../actor/lancer-actor';
-import type { Pilot } from 'machine-mind';
+import type { Mech, Pilot } from 'machine-mind';
 
 // this is an example of a case implemented without defining a full class
 function adjacentSpotter(actor: LancerActor): boolean {
@@ -25,13 +24,11 @@ function adjacentSpotter(actor: LancerActor): boolean {
   }
 
   // TODO: TYPECHECK: all of this seems to work
-  let adjacentPilots = canvas!.tokens!.objects!.children
-  // @ts-ignore
-    .filter((t: Token) => inRange((t as any).center) && t != token)
-  // @ts-ignore
-    .map((t: Token) => t.actor.data.data.derived.mm!.Pilot);
+  let adjacentPilots = (canvas!.tokens!.objects!.children as Token[])
+    .filter((t: Token) => t.actor?.is_mech() && inRange((t as any).center) && t.id != token.id)
+    .map((t: Token) => (t.actor!.data.data.derived.mm! as Mech).Pilot);
 
-  return (adjacentPilots.find((p: Pilot) => p.Talents.find(t => t.LID == "t_spotter")));
+  return !!(adjacentPilots.find((p: Pilot | null) => p?.Talents.find(t => t.LID == "t_spotter")));
 }
 
 function spotter(): AccDiffPluginData {
