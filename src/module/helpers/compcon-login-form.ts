@@ -15,7 +15,7 @@ export default class CompconLoginForm extends FormApplication {
       submitOnChange: false,
       submitOnClose: false,
       closeOnSubmit: false,
-      title: "COMP/CON Login"
+      title: "COMP/CON Login",
     };
   }
 

@@ -205,7 +205,7 @@ export class LancerActor extends Actor {
           let macroData = encodeMacroData({
             title: "Engineering",
             fn: "prepareStatMacro",
-            args: [ent.RegistryID, "mm.Eng"]
+            args: [ent.RegistryID, "mm.Eng"],
           });
 
           secondaryRoll = `<button class="chat-macro-button"><a class="chat-button" data-macro="${macroData}"><i class="fas fa-dice-d20"></i> Engineering</a></button>`;
@@ -332,7 +332,7 @@ export class LancerActor extends Actor {
           let macroData = encodeMacroData({
             title: "Hull",
             fn: "prepareStatMacro",
-            args: [ent.RegistryID, "mm.Hull"]
+            args: [ent.RegistryID, "mm.Hull"],
           });
 
           secondaryRoll = `<button class="chat-macro-button"><a class="chat-button" data-macro="${macroData}"><i class="fas fa-dice-d20"></i> Hull</a></button>`;
@@ -342,7 +342,7 @@ export class LancerActor extends Actor {
             // Since we can't change prepareTextMacro too much or break everyone's macros
             title: "Roll for Destruction",
             fn: "prepareStructureSecondaryRollMacro",
-            args: [ent.RegistryID]
+            args: [ent.RegistryID],
           });
 
           secondaryRoll = `<button class="chat-macro-button"><a class="chat-button" data-macro="${macroData}"><i class="fas fa-dice-d20"></i> Destroy</a></button>`;

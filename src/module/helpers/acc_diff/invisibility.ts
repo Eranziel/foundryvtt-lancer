@@ -1,8 +1,8 @@
-import * as t from 'io-ts';
+import * as t from "io-ts";
 import { LancerActor } from "../../actor/lancer-actor";
-import { AccDiffPlugin, AccDiffCheckboxPluginData, AccDiffPluginCodec } from './plugin';
-import { AccDiffData, AccDiffTarget, findEffect } from './index';
-import { enclass } from './serde';
+import { AccDiffPlugin, AccDiffCheckboxPluginData, AccDiffPluginCodec } from "./plugin";
+import { AccDiffData, AccDiffTarget, findEffect } from "./index";
+import { enclass } from "./serde";
 
 // you don't need to explicitly type the serialized data,
 // but if you do then io-ts codecs can do strong checks at runtime
@@ -22,20 +22,23 @@ export default class Invisibility implements AccDiffCheckboxPluginData {
   token?: Token;
 
   // these methods are for easy class codecs via `enclass`
-  constructor(ser: InvisibilityEnum) { this.data = ser; }
-  get raw(): InvisibilityEnum { return this.data; }
+  constructor(ser: InvisibilityEnum) {
+    this.data = ser;
+  }
+  get raw(): InvisibilityEnum {
+    return this.data;
+  }
 
   // as you may have guessed, the codec just stores the enum
   static get codec(): AccDiffPluginCodec<Invisibility, InvisibilityEnum, unknown> {
-    return enclass(
-      t.union([t.literal(-1), t.literal(0), t.literal(1)]),
-      Invisibility
-    )
+    return enclass(t.union([t.literal(-1), t.literal(0), t.literal(1)]), Invisibility);
   }
 
   // store a reference to the current token when rehydrated
   hydrate(_d: AccDiffData, t?: AccDiffTarget) {
-    if (t) { this.token = t.target; }
+    if (t) {
+      this.token = t.target;
+    }
   }
 
   // invisibility operates on the target level, whether we know the target or not
@@ -51,7 +54,9 @@ export default class Invisibility implements AccDiffCheckboxPluginData {
   // assume targets aren't invisible if we don't know about them
   // otherwise, go get the status effects and check them
   private get tokenInvisible(): boolean {
-    if (!this.token) { return false; }
+    if (!this.token) {
+      return false;
+    }
     return !!findEffect(this.token.actor as LancerActor, "invisible");
   }
 

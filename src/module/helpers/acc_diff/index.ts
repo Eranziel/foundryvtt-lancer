@@ -1,14 +1,5 @@
-export type {
-  AccDiffDataSerialized
-} from './data';
-export {
-  findEffect,
-  Cover,
-  AccDiffWeapon,
-  AccDiffBase,
-  AccDiffTarget,
-  AccDiffData,
-} from './data';
+export type { AccDiffDataSerialized } from "./data";
+export { findEffect, Cover, AccDiffWeapon, AccDiffBase, AccDiffTarget, AccDiffData } from "./data";
 export type {
   CheckboxUI,
   NoUI,
@@ -19,5 +10,5 @@ export type {
   AccDiffNoUIPluginData,
   AccDiffPluginCodec,
   AccDiffPlugin,
-  Data as AccDiffPluginDataOf
-} from './plugin'
+  Data as AccDiffPluginDataOf,
+} from "./plugin";

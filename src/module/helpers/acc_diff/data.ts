@@ -1,9 +1,9 @@
 import type { TagInstance } from "machine-mind";
-import * as t from 'io-ts';
+import * as t from "io-ts";
 
 import type { LancerActor } from "../../actor/lancer-actor";
-import type { AccDiffPlugin, AccDiffPluginData, AccDiffPluginCodec } from './plugin';
-import { enclass, encode, decode } from './serde';
+import type { AccDiffPlugin, AccDiffPluginData, AccDiffPluginCodec } from "./plugin";
+import { enclass, encode, decode } from "./serde";
 import { LancerItem } from "../../item/lancer-item";
 
 import Invisibility from "./invisibility";
@@ -17,7 +17,7 @@ export function findEffect(actor: LancerActor, effect: string): ActiveEffect | n
 export enum Cover {
   None = 0,
   Soft = 1,
-  Hard = 2
+  Hard = 2,
 }
 let coverSchema = t.union([t.literal(0), t.literal(1), t.literal(2)]);
 
@@ -31,9 +31,7 @@ export class AccDiffWeapon {
   #data!: AccDiffData; // never use this class before calling hydrate
   plugins: { [k: string]: AccDiffPluginData };
 
-  static pluginSchema: { [k: string]: AccDiffPluginCodec<any, any, any> } = {
-
-  };
+  static pluginSchema: { [k: string]: AccDiffPluginCodec<any, any, any> } = {};
 
   static get schema() {
     return {
@@ -41,13 +39,15 @@ export class AccDiffWeapon {
       inaccurate: t.boolean,
       seeking: t.boolean,
       plugins: t.type(this.pluginSchema),
-    }
+    };
   }
 
   static get schemaCodec() {
     return t.type(this.schema);
   }
-  static get codec() { return enclass(this.schemaCodec, AccDiffWeapon) }
+  static get codec() {
+    return enclass(this.schemaCodec, AccDiffWeapon);
+  }
 
   constructor(obj: t.TypeOf<typeof AccDiffWeapon.schemaCodec>) {
     this.accurate = obj.accurate;
@@ -61,8 +61,8 @@ export class AccDiffWeapon {
       accurate: this.accurate,
       inaccurate: this.inaccurate,
       seeking: this.seeking,
-      plugins: this.plugins
-    }
+      plugins: this.plugins,
+    };
   }
 
   get impaired(): ActiveEffect | null {
@@ -70,8 +70,7 @@ export class AccDiffWeapon {
   }
 
   total(cover: number) {
-    return (this.accurate ? 1 : 0) - (this.inaccurate ? 1 : 0)
-      - (this.seeking ? 0 : cover) - (this.impaired ? 1 : 0);
+    return (this.accurate ? 1 : 0) - (this.inaccurate ? 1 : 0) - (this.seeking ? 0 : cover) - (this.impaired ? 1 : 0);
   }
 
   hydrate(d: AccDiffData) {
@@ -89,20 +88,22 @@ export class AccDiffBase {
   plugins: { [k: string]: AccDiffPluginData };
   #weapon!: AccDiffWeapon; // never use this class before calling hydrate
 
-  static pluginSchema: { [k: string]: AccDiffPluginCodec<any, any, any> } = {
-
-  };
+  static pluginSchema: { [k: string]: AccDiffPluginCodec<any, any, any> } = {};
 
   static get schema() {
     return {
       accuracy: t.number,
       difficulty: t.number,
       cover: coverSchema,
-      plugins: t.type(this.pluginSchema)
-    }
+      plugins: t.type(this.pluginSchema),
+    };
   }
-  static get schemaCodec() { return t.type(this.schema); }
-  static get codec() { return enclass(this.schemaCodec, AccDiffBase) }
+  static get schemaCodec() {
+    return t.type(this.schema);
+  }
+  static get codec() {
+    return enclass(this.schemaCodec, AccDiffBase);
+  }
 
   constructor(obj: t.TypeOf<typeof AccDiffBase.schemaCodec>) {
     this.accuracy = obj.accuracy;
@@ -113,7 +114,7 @@ export class AccDiffBase {
   }
 
   get raw() {
-    return { accuracy: this.accuracy, difficulty: this.difficulty, cover: this.cover, plugins: this.plugins }
+    return { accuracy: this.accuracy, difficulty: this.difficulty, cover: this.cover, plugins: this.plugins };
   }
 
   hydrate(d: AccDiffData) {
@@ -142,9 +143,7 @@ export class AccDiffTarget {
   #weapon!: AccDiffWeapon; // never use this class before calling hydrate
   #base!: AccDiffBase; // never use this class before calling hydrate
 
-  static pluginSchema: { [k: string]: AccDiffPluginCodec<any, any, any> } = {
-
-  };
+  static pluginSchema: { [k: string]: AccDiffPluginCodec<any, any, any> } = {};
 
   static get schema() {
     return {
@@ -154,11 +153,15 @@ export class AccDiffTarget {
       cover: coverSchema,
       consumeLockOn: t.boolean,
       plugins: t.type(this.pluginSchema),
-    }
+    };
   }
 
-  static get schemaCodec() { return t.type(this.schema); }
-  static get codec() { return enclass(this.schemaCodec, AccDiffTarget) }
+  static get schemaCodec() {
+    return t.type(this.schema);
+  }
+  static get codec() {
+    return enclass(this.schemaCodec, AccDiffTarget);
+  }
 
   constructor(obj: t.TypeOf<typeof AccDiffTarget.schemaCodec>) {
     let target = canvas!.scene!.tokens.get(obj.target_id);
@@ -185,7 +188,7 @@ export class AccDiffTarget {
       cover: this.cover,
       consumeLockOn: this.consumeLockOn,
       plugins: this.plugins,
-    }
+    };
   }
 
   static fromParams(t: Token): AccDiffTarget {
@@ -243,12 +246,16 @@ export class AccDiffData {
       title: t.string,
       weapon: AccDiffWeapon.codec,
       base: AccDiffBase.codec,
-      targets: t.array(AccDiffTarget.codec)
-    }
+      targets: t.array(AccDiffTarget.codec),
+    };
   }
 
-  static get schemaCodec() { return t.type(this.schema); }
-  static get codec() { return enclass(this.schemaCodec, AccDiffData) }
+  static get schemaCodec() {
+    return t.type(this.schema);
+  }
+  static get codec() {
+    return enclass(this.schemaCodec, AccDiffData);
+  }
 
   constructor(obj: t.TypeOf<typeof AccDiffData.schemaCodec>) {
     this.title = obj.title;
@@ -268,16 +275,22 @@ export class AccDiffData {
 
     this.weapon.hydrate(this);
     this.base.hydrate(this);
-    for (let target of this.targets) { target.hydrate(this); }
+    for (let target of this.targets) {
+      target.hydrate(this);
+    }
   }
 
   replaceTargets(ts: Token[]): AccDiffData {
     let oldTargets: { [key: string]: AccDiffTarget } = {};
-    for (let data of this.targets) { oldTargets[data.target.id] = data; }
+    for (let data of this.targets) {
+      oldTargets[data.target.id] = data;
+    }
 
     this.targets = ts.map(t => oldTargets[t.id] ?? AccDiffTarget.fromParams(t));
 
-    for (let target of this.targets) { target.hydrate(this); }
+    for (let target of this.targets) {
+      target.hydrate(this);
+    }
     return this;
   }
 
@@ -287,7 +300,7 @@ export class AccDiffData {
       weapon: this.weapon,
       base: this.base,
       targets: this.targets,
-    }
+    };
   }
 
   static fromObject(obj: AccDiffDataSerialized, runtimeData?: LancerItem | LancerActor): AccDiffData {
@@ -330,7 +343,7 @@ export class AccDiffData {
       plugins: {} as { [k: string]: any },
     };
 
-    for (let tag of (tags || [])) {
+    for (let tag of tags || []) {
       switch (tag.Tag.LID) {
         case "tg_accurate":
           weapon.accurate = true;
@@ -352,8 +365,9 @@ export class AccDiffData {
     };
 
     let obj: AccDiffDataSerialized = {
-      title: title ? title : 'Accuracy and Difficulty',
-      weapon, base,
+      title: title ? title : "Accuracy and Difficulty",
+      weapon,
+      base,
       targets: (targets || []).map(t => {
         let ret = {
           target_id: t.id,
@@ -367,7 +381,7 @@ export class AccDiffData {
           ret.plugins[plugin.slug] = encode(plugin.perTarget!(t), plugin.codec);
         }
         return ret;
-      })
+      }),
     };
 
     for (let plugin of this.plugins) {
