@@ -9,6 +9,7 @@
 
  import { sidebarWidth } from './sidebar-width';
  import { isDragging } from './is-dragging';
+ import { userTargets } from './user-targets';
  import AccDiffForm from '../acc_diff/Form.svelte';
 
  let dispatch = createEventDispatcher();
@@ -28,6 +29,15 @@
    hase: { open: null },
    attack: { open: null }
  };
+
+ // this indirection means that only actual changes to huds.attack.data trigger the following update
+ $: attackData = huds.attack.data;
+ $: {
+   if (attackData) {
+     attackData.replaceTargets($userTargets);
+     attackData = attackData;
+   }
+ }
 
  export function open(key: string, data: any) {
    dispatch(`${key}.cancel`);

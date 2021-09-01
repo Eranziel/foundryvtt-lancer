@@ -481,13 +481,16 @@ Hooks.once("init", async function () {
   // ------------------------------------------------------------------------
   // Sliding HUD Zone, including accuracy/difficulty window
   Hooks.on('renderHeadsUpDisplay', slidingHUD.attach);
-  Hooks.on('targetToken', (_user: User, _token: Token, isNewTarget: boolean) => {
-    macros.refreshTargeting(isNewTarget ? "may open new window" : "only refresh open window");
+  let openingBasicAttackLock = false;
+  Hooks.on('targetToken', (user: User, _token: Token, isNewTarget: boolean) => {
+    if (game.user == user && isNewTarget && !openingBasicAttackLock) {
+      // this only works because openBasicAttack is a promise and runs on a future tick
+      openingBasicAttackLock = true;
+      macros.openBasicAttack().finally(() => {
+        openingBasicAttackLock = false;
+      });
+    }
   });
-  Hooks.on('createActiveEffect', () => macros.refreshTargeting("only refresh open window"));
-  Hooks.on('deleteActiveEffect', () => macros.refreshTargeting("only refresh open window"));
-  // updateToken triggers on things like token movement (spotter) and probably a lot of other things
-  Hooks.on('updateToken', () => macros.refreshTargeting("only refresh open window"));
 });
 
 // TODO: either remove when sanity check is no longer needed, or find a better home.

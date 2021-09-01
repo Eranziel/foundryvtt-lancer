@@ -608,7 +608,7 @@ export async function prepareEncodedAttackMacro(
   if (item) {
     return prepareAttackMacro({ actor, item, options }, accdiff);
   } else {
-    return refreshTargeting("may open new window", accdiff);
+    return openBasicAttack(accdiff);
   }
 }
 
@@ -802,22 +802,26 @@ async function prepareAttackMacro({
   await rollAttackMacro(actor, atkRolls, mData, rerollMacro);
 }
 
-export async function refreshTargeting(
-  mode: "may open new window" | "only refresh open window",
-  data: Token[] | AccDiffData = Array.from(game!.user!.targets)
-) {
-  let { refreshTargets, openOrRefresh } = await import('./helpers/slidinghud');
+export async function openBasicAttack(rerollData?: AccDiffData) {
+  let { isOpen, open } = await import('./helpers/slidinghud');
 
-  if (mode == "only refresh open window") {
-    refreshTargets("attack", data);
+  // if the hud is already open, and we're not overriding with new reroll data, just bail out
+  let wasOpen = await isOpen("attack");
+  if (wasOpen && !rerollData) {
     return;
   }
 
+  let { AccDiffData } = await import("./helpers/acc_diff");
+
   let actor = getMacroSpeaker();
+
+  let data = rerollData ?? AccDiffData.fromParams(
+    actor, undefined, "Basic Attack",
+    Array.from(game!.user!.targets), undefined);
 
   let promptedData;
   try {
-    promptedData = await openOrRefresh("attack", data, "Basic Attack", actor);
+    promptedData = await open("attack", data);
   } catch (_e) {
     return;
   }
