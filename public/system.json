@@ -2,14 +2,12 @@
   "name": "lancer",
   "title": "LANCER",
   "description": "A Foundry VTT game system for <a href=\"https://massif-press.itch.io/corebook-pdf\">Lancer</a> by <a href=\"https://massif-press.itch.io/\">Massif Press</a>, a mud-and-lasers tactical mech RPG.",
-  "version": "0.9.6",
+  "version": "1.0.0",
   "minimumCoreVersion": "0.8.4",
   "compatibleCoreVersion": "0.8.9",
   "author": "Eranziel",
   "scripts": [],
-  "esmodules": [
-    "index.js"
-  ],
+  "esmodules": ["index.js"],
   "styles": [
     "style.css",
     "fonts/compcon/glyphs.css"
@@ -44,8 +42,8 @@
   "primaryTokenAttribute": "mech.hp",
   "secondaryTokenAttribute": "mech.heat",
   "url": "https://github.com/Eranziel/foundryvtt-lancer",
-  "manifest": "https://raw.githubusercontent.com/Eranziel/foundryvtt-lancer/beta-release/src/system.json",
-  "download": "https://github.com/Eranziel/foundryvtt-lancer/raw/v0.9.6/package/lancer-v0.9.6.zip",
+  "manifest": "https://raw.githubusercontent.com/Eranziel/foundryvtt-lancer/master/public/system.json",
+  "download": "https://github.com/Eranziel/foundryvtt-lancer/raw/v1.0.0/package/lancer-v1.0.0.zip",
   "license": "GNU GPLv3",
   "readme": "https://github.com/Eranziel/foundryvtt-lancer/blob/beta-release/README.md",
   "bugs": "https://github.com/Eranziel/foundryvtt-lancer/issues/new/choose",
