@@ -1,0 +1,177 @@
+<form class="{{cssClass}} lancer-sheet" autocomplete="off">
+  {{! Sheet Header }}
+  <header class="sheet-header card clipped-bot">
+    <div class="header-fields">
+      <h1 class="charname">
+        <input class="header-field" name="name" type="text" value="{{item.name}}" placeholder="{{localize "lancer.placeholder.name"}}" />
+      </h1>
+    </div>
+    <div class="header-fields flexcol">
+      <h3 class="origin_name">
+        <input
+          class="header-field"
+          name="mm.Origin.name"
+          type="text"
+          value="{{mm.Origin.name}}"
+          placeholder="Origin Name"
+        />
+      </h3>
+      <h3 class="origin_type">
+        <input
+          class="header-field"
+          name="mm.Origin.type"
+          type="text"
+          value="{{mm.Origin.type}}"
+          placeholder="Origin Type"
+        />
+      </h3>
+      <h3 class="origin_type">
+        <select class="header-field" name="mm.FeatureType" data-type="String">
+          {{#select mm.FeatureType}}
+            <option class="i--dark" value="Reaction">
+              REACTION
+            </option>
+            <option class="i--dark" value="System">
+              SYSTEM
+            </option>
+            <option class="i--dark" value="Tech">
+              TECH
+            </option>
+            <option class="i--dark" value="Trait">
+              TRAIT
+            </option>
+            <option class="i--dark" value="Weapon">
+              WEAPON
+            </option>
+          {{/select}}
+        </select>
+      </h3>
+      <h3 class="origin_base">
+        BASE:
+        <input type="checkbox" name="mm.Origin.base" {{checked mm.Origin.base}} />
+      </h3>
+    </div>
+    {{{ref-portrait-img item.img "img" mm}}}
+  </header>
+  {{! Sheet Body }}
+  <section class="sheet-body">
+    {{! Limited Uses Tracking }}
+    {{#if mm.MaxUses}}
+      <div class="flexrow stat-container" style="align-self: center; margin: 5px 30px; max-width: max-content;">
+        <span class="medium">
+          USES:
+        </span>
+        <input class="lancer-stat major" type="number" name="mm.Uses" value="{{mm.Uses}}" data-dtype="Number" />
+        <span class="medium" style="max-width: min-content;">
+          /
+        </span>
+        <span class="lancer-stat major" type="number">
+          {{mm.MaxUses}}
+        </span>
+      </div>
+    {{/if}}
+    {{! Reaction }}
+    {{#if (eq mm.FeatureType "Reaction")}}
+      {{{textarea-card "TRIGGER" "mm.Trigger"}}}{{{textarea-card "EFFECT" "mm.Effect"}}}
+    {{/if}}
+    {{! System }}
+    {{#if (eq mm.FeatureType "System")}}
+      {{{textarea-card "EFFECT" "mm.Effect"}}}
+    {{/if}}
+    {{! Trait }}
+    {{#if (eq mm.FeatureType "Trait")}}
+      {{{textarea-card "EFFECT" "mm.Effect"}}}
+    {{/if}}
+    {{! Tech }}
+    {{#if (eq mm.FeatureType "Tech")}}
+      <div class="wraprow triple">
+        <div>
+          <span class="medium">
+            TECH
+          </span>
+          <select name="mm.TechType" data-type="String" style="align-self: center;">
+            {{#select mm.TechType}}
+              <option value="Quick">
+                QUICK
+              </option>
+              <option value="Full">
+                FULL
+              </option>
+            {{/select}}
+          </select>
+        </div>
+        {{{npc-clicker-stat-card "ATTACK BONUS" "mm.AttackBonus"}}}
+        {{{npc-clicker-stat-card "ACCURACY" "mm.Accuracy"}}}
+        {{{textarea-card "EFFECT" "mm.Effect"}}}
+      </div>
+    {{/if}}
+    {{! Weapon }}
+    {{#if (eq mm.FeatureType "Weapon")}}
+      <div class="wraprow triple">
+        {{! Type }}
+        <div class="card clipped">
+          <span class="lancer-header major">
+            TYPE
+          </span>
+          <input name="mm.WepType" type="text" value="{{mm.WepType}}" placeholder="Weapon Type" />
+        </div>
+        <div class="double"></div>
+        {{! Range }}
+        <div class="card clipped">
+          <span class="lancer-header major">
+            RANGE
+            <a
+              class="gen-control"
+              data-action="append"
+              data-path="mm.Range"
+              data-action-value="(struct)range"
+              style="float: right;"
+            >
+              +
+            </a>
+          </span>
+          {{#each mm.Range as |range range_index|}}
+            {{{wpn-range-sel (concat "mm.Range." range_index)}}}
+          {{/each}}
+        </div>
+        {{! Attack Bonus }}
+        {{{npc-clicker-stat-card "ATTACK BONUS" "mm.AttackBonus"}}}
+        {{! Accuracy }}
+        {{{npc-clicker-stat-card "ACCURACY" "mm.Accuracy"}}}
+        {{! All Damages }}
+        {{#each mm.Damage as |tier_damage_array tier_index|}}
+          <div class="card clipped">
+            <span class="lancer-header major">
+              <i class="cci cci-npc-tier-{{inc tier_index}} i--m i--dark"></i>
+              T
+              {{inc tier_index}}
+              DAMAGE
+              <a
+                class="gen-control"
+                data-action="append"
+                data-path="mm.Damage.{{tier_index}}"
+                data-action-value="(struct)damage"
+                style="float: right;"
+              >
+                +
+              </a>
+            </span>
+            {{#each tier_damage_array as |damage damage_index|}}
+              {{{wpn-damage-sel (concat "mm.Damage." tier_index "." damage_index)}}}
+            {{/each}}
+          </div>
+        {{/each}}
+        {{! Effects }}
+        {{{textarea-card "ON HIT EFFECT" "mm.OnHit"}}}
+        {{{textarea-card "EFFECT" "mm.Effect"}}}
+      </div>
+    {{/if}}
+    {{! Tags }}
+    <div class="card full">
+      <span class="lancer-header major">
+        TAGS
+      </span>
+      {{{mm-tag-list "mm.Tags" mm.Tags editable}}}
+    </div>
+  </section>
+</form>

@@ -7,101 +7,158 @@
  * Software License: GNU GPLv3
  */
 
-// Import TypeScript modules
-import { LANCER, STATUSES, FOUNDRY_VERSION_WARNING, WELCOME } from "./module/config";
-import { LancerGame } from "./module/lancer-game";
-import {
-  LancerActor,
-  lancerActorInit,
-  mount_card,
-  mount_type_selector,
-  npc_tier_selector,
-} from "./module/actor/lancer-actor";
-import {
-  core_system_preview,
-  effect_type_selector,
-  is_loading,
-  LancerItem,
-  lancerItemInit,
-  mech_system_preview,
-  mech_trait_preview,
-  mech_weapon_preview,
-  npc_accuracy_preview,
-  npc_attack_bonus_preview,
-  npc_feature_preview,
-  npc_weapon_damage_selector,
-  pilot_weapon_damage_selector,
-  system_type_selector,
-  weapon_damage_preview,
-  weapon_range_preview,
-  weapon_range_selector,
-  weapon_size_selector,
-  weapon_type_selector,
-} from "./module/item/lancer-item";
+// Import SCSS into our build
+import "./lancer.scss";
 
+// Import TypeScript modules
 import {
-  action_type_icon,
-  action_type_selector,
-  ai_effect_preview,
-  basic_effect_preview,
-  bonus_effect_preview,
-  charge_effect_preview,
-  charge_type_selector,
-  deployable_effect_preview,
-  drone_effect_preview,
-  effect_preview,
-  generic_effect_preview,
-  invade_option_preview,
-  npc_reaction_effect_preview,
-  npc_system_effect_preview,
-  npc_tech_effect_preview,
-  npc_trait_effect_preview,
-  npc_weapon_effect_preview,
-  offensive_effect_preview,
-  profile_effect_preview,
-  protocol_effect_preview,
-  reaction_effect_preview,
-  tech_effect_preview,
-} from "./module/item/effects";
+  LANCER,
+  COMPATIBLE_MIGRATION_VERSION,
+  NEEDS_MAJOR_MIGRATION_VERSION,
+  NEEDS_MINOR_MIGRATION_VERSION,
+  STATUSES,
+  WELCOME,
+} from "./module/config";
+import type { LancerGame } from "./module/lancer-game";
+import { LancerActor } from "./module/actor/lancer-actor";
+import { LancerItem } from "./module/item/lancer-item";
+import { populatePilotCache } from "./module/compcon";
+
+import { action_type_icon, action_type_selector } from "./module/helpers/npc";
+
+import { LancerActionManager } from "./module/action/actionManager";
 
 // Import applications
-import { LancerPilotSheet, overchargeButton } from "./module/actor/pilot-sheet";
+import { LancerPilotSheet, active_mech_preview, pilot_counters } from "./module/actor/pilot-sheet";
 import { LancerNPCSheet } from "./module/actor/npc-sheet";
 import { LancerDeployableSheet } from "./module/actor/deployable-sheet";
+import { LancerMechSheet } from "./module/actor/mech-sheet";
 import { LancerItemSheet } from "./module/item/item-sheet";
 import { LancerFrameSheet } from "./module/item/frame-sheet";
-import { LancerNPCClassSheet } from "./module/item/npc-class-sheet";
+import { LancerLicenseSheet } from "./module/item/license-sheet";
 import { WeaponRangeTemplate } from "./module/pixi/weapon-range-template";
 
 // Import helpers
 import { preloadTemplates } from "./module/preloadTemplates";
 import { registerSettings } from "./module/settings";
-import {
-  compactTagList,
-  renderChunkyTag,
-  renderCompactTag,
-  renderFullTag,
-} from "./module/item/tags";
+import { compact_tag_list } from "./module/helpers/tags";
 import * as migrations from "./module/migration";
-import { addLCPManager } from "./module/apps/lcpManager";
+import { addLCPManager, updateCore, core_update } from "./module/apps/lcpManager";
+
+// Import sliding HUD (used for accuracy/difficulty windows)
+import * as slidingHUD from "./module/helpers/slidinghud";
 
 // Import Machine Mind and helpers
-import { CCDataStore, NpcFeatureType, setup_store } from "machine-mind";
-import { FauxPersistor } from "./module/ccdata_io";
-import { reload_store } from "./module/item/util";
 import * as macros from "./module/macros";
 
+// Import Tippy.js
+import tippy from "tippy.js";
+import "tippy.js/dist/tippy.css"; // optional for styling
+tippy.setDefaultProps({ theme: "lancer-small", arrow: false, delay: [400, 200] });
+// tippy.setDefaultProps({ theme: "lancer", arrow: false, delay: [400, 200], hideOnClick: false, trigger: "click"});
+
 // Import node modules
-import compareVersions = require("compare-versions");
-import marked = require("marked");
+import * as mm from "machine-mind";
+import { EntryType, Bonus, funcs } from "machine-mind";
+import {
+  resolve_helper_dotpath,
+  popout_editor_button,
+  safe_html_helper,
+  large_textbox_card,
+  std_string_input,
+  std_text_input,
+  std_password_input,
+  std_num_input,
+  std_checkbox,
+} from "./module/helpers/commons";
+import {
+  weapon_size_selector,
+  weapon_type_selector,
+  range_editor,
+  npc_attack_bonus_preview,
+  npc_accuracy_preview,
+  mech_weapon_refview,
+  system_type_selector,
+  npc_feature_preview,
+  damage_editor,
+  bonuses_display,
+  pilot_armor_slot,
+  pilot_weapon_refview,
+  pilot_gear_refview,
+  license_ref,
+  manufacturer_ref,
+  uses_control,
+  single_bonus_editor,
+  buildCounterArrayHTML,
+} from "./module/helpers/item";
+import {
+  action_button,
+  clicker_num_input,
+  clicker_stat_card,
+  compact_stat_edit,
+  compact_stat_view,
+  deployer_slot,
+  npc_clicker_stat_card,
+  npc_tier_selector,
+  overcharge_button,
+  stat_edit_card,
+  stat_edit_card_max,
+  stat_rollable_card,
+  stat_view_card,
+} from "./module/helpers/actor";
+import type { HelperOptions } from "handlebars";
+import {
+  editable_mm_ref_list_item,
+  simple_mm_ref,
+  mm_ref_portrait,
+  mm_ref_list_append_slot,
+  editable_mm_ref_list_item_native,
+} from "./module/helpers/refs";
+import { mech_loadout, pilot_slot, frame_refview } from "./module/helpers/loadout";
+import {
+  item_edit_arrayed_actions,
+  item_edit_arrayed_damage,
+  item_edit_arrayed_range,
+  item_edit_arrayed_bonuses,
+  item_edit_arrayed_counters,
+  item_edit_arrayed_deployables,
+  item_edit_arrayed_synergies,
+  item_edit_arrayed_enum,
+  item_edit_effect,
+  item_edit_license,
+  item_edit_sp,
+  item_edit_uses,
+  item_edit_arrayed_integrated,
+  item_edit_enum,
+} from "./module/helpers/item-editors";
+import { applyCollapseListeners } from "./module/helpers/collapse";
+import { handleCombatUpdate } from "./module/helpers/automation/combat";
+import { handleActorExport, validForExport } from "./module/helpers/io";
+import { runEncodedMacro } from "./module/macros";
+import { fix_modify_token_attribute, LancerToken, LancerTokenDocument } from "./module/token";
+import { FoundryReg } from "./module/mm-util/foundry-reg";
+import { applyGlobalDragListeners } from "./module/helpers/dragdrop";
+import { gridDist } from "./module/helpers/automation/targeting";
+import CompconLoginForm from './module/helpers/compcon-login-form';
 
 const lp = LANCER.log_prefix;
+
+window.addEventListener("unhandledrejection", function (event) {
+  console.error("Unhandled rejection (promise: ", event.promise, ", reason: ", event.reason, ").");
+});
 
 /* ------------------------------------ */
 /* Initialize system                    */
 /* ------------------------------------ */
 Hooks.once("init", async function () {
   console.log(`Initializing LANCER RPG System ${LANCER.ASCII}`);
+
+  // Register custom system settings
+  registerSettings();
+
+  // no need to block on amplify - logging into comp/con and populating the cache
+  // it can happen in the background
+  configureAmplify();
 
   // Assign custom classes and constants here
   // Create a Lancer namespace within the game global
@@ -119,33 +176,48 @@ Hooks.once("init", async function () {
     canvas: {
       WeaponRangeTemplate,
     },
+    helpers: {
+      gridDist,
+    },
     prepareItemMacro: macros.prepareItemMacro,
     prepareStatMacro: macros.prepareStatMacro,
     prepareTextMacro: macros.prepareTextMacro,
+    prepareTechMacro: macros.prepareTechMacro,
     prepareCoreActiveMacro: macros.prepareCoreActiveMacro,
     prepareCorePassiveMacro: macros.prepareCorePassiveMacro,
     prepareOverchargeMacro: macros.prepareOverchargeMacro,
     prepareOverheatMacro: macros.prepareOverheatMacro,
     prepareStructureMacro: macros.prepareStructureMacro,
+    prepareActivationMacro: macros.prepareActivationMacro,
+    prepareEncodedAttackMacro: macros.prepareEncodedAttackMacro,
+    prepareStructureSecondaryRollMacro: macros.prepareStructureSecondaryRollMacro,
+    fullRepairMacro: macros.fullRepairMacro,
+    stabilizeMacro: macros.stabilizeMacro,
+    targetsFromTemplate: macros.targetsFromTemplate,
     migrations: migrations,
+
+    // For whitespines testing /('o')/
+    tmp: {
+      finishedInit: false,
+    },
+    utilities: {
+      reg: FoundryReg,
+      ctx: mm.OpCtx,
+      mm,
+    },
   };
 
   // Record Configuration Values
-  CONFIG.Actor.entityClass = LancerActor;
-  CONFIG.Item.entityClass = LancerItem;
-
-  // Register custom system settings
-  registerSettings();
+  CONFIG.Actor.documentClass = LancerActor;
+  CONFIG.Item.documentClass = LancerItem;
+  CONFIG.Token.documentClass = LancerTokenDocument;
+  CONFIG.Token.objectClass = LancerToken;
 
   // Set up system status icons
-  const keepStock = game.settings.get(LANCER.sys_name, LANCER.setting_stock_icons);
+  const keepStock = game.settings.get(game.system.id, LANCER.setting_stock_icons);
   let statuses: { id: string; label: string; icon: string }[] = [];
-  // The type for statusEffects is wrong
-  //@ts-ignore
   if (keepStock) statuses = statuses.concat(CONFIG.statusEffects);
   statuses = statuses.concat(STATUSES);
-  // The type for statusEffects is wrong
-  //@ts-ignore
   CONFIG.statusEffects = statuses;
 
   // Register Web Components
@@ -156,98 +228,85 @@ Hooks.once("init", async function () {
   // Preload Handlebars templates
   await preloadTemplates();
 
-  // Register sheet application classes
-  Actors.unregisterSheet("core", ActorSheet);
-  Actors.registerSheet("lancer", LancerPilotSheet, { types: ["pilot"], makeDefault: true });
-  Actors.registerSheet("lancer", LancerNPCSheet, { types: ["npc"], makeDefault: true });
-  Actors.registerSheet("lancer", LancerDeployableSheet, {
-    types: ["deployable"],
-    makeDefault: true,
-  });
-  Items.unregisterSheet("core", ItemSheet);
-  Items.registerSheet("lancer", LancerItemSheet, {
-    types: [
-      "skill",
-      "talent",
-      "license",
-      "core_bonus",
-      "pilot_armor",
-      "pilot_weapon",
-      "pilot_gear",
-      "mech_system",
-      "mech_weapon",
-      "npc_feature",
-    ],
-    makeDefault: true,
-  });
-  Items.registerSheet("lancer", LancerFrameSheet, { types: ["frame"], makeDefault: true });
-  Items.registerSheet("lancer", LancerNPCClassSheet, {
-    types: ["npc_class", "npc_template"],
-    makeDefault: true,
-  });
-
   // *******************************************************************
   // Register handlebars helpers
 
   // inc, for those off-by-one errors
-  Handlebars.registerHelper("inc", function (value) {
+  Handlebars.registerHelper("inc", function (value: any) {
     return parseInt(value) + 1;
   });
 
   // dec, for those off-by-one errors
-  Handlebars.registerHelper("dec", function (value) {
+  Handlebars.registerHelper("dec", function (value: any) {
     return parseInt(value) - 1;
   });
 
+  // cons, to concatenate strs. Can take any number of args. Last is omitted (as it is just a handlebars ref object)
+  Handlebars.registerHelper("concat", function (...values: any[]) {
+    return values.slice(0, values.length - 1).join("");
+  });
+
+  // rp, to resolve path values strs. Helps use effectively half as many arguments for many helpers/partials
+  // Using this, {{{rp path}}} {{path}} would show the value at path, and path, respectively. No need to pass both!
+  Handlebars.registerHelper("rp", function (path: string, options: HelperOptions) {
+    return resolve_helper_dotpath(options, path);
+  });
+
+  // get-set, to resolve situations wherein we read and write to the same path via "value" and "name" element properties
+  Handlebars.registerHelper("getset", function (path: string, options: HelperOptions) {
+    let value = resolve_helper_dotpath(options, path);
+    return ` name="${path}" value="${value}" `;
+  });
+
   // get an index from an array
-  Handlebars.registerHelper("idx", function (array, index) {
+  Handlebars.registerHelper("idx", function (array: any, index: any) {
     return array[index];
   });
 
   // invert the input
-  Handlebars.registerHelper("neg", function (value) {
+  Handlebars.registerHelper("neg", function (value: any) {
     return parseInt(value) * -1;
   });
 
   // double the input
-  Handlebars.registerHelper("double", function (value) {
+  Handlebars.registerHelper("double", function (value: any) {
     return parseInt(value) * 2;
   });
 
   // Equal-to evaluation
-  Handlebars.registerHelper("eq", function (val1, val2) {
+  Handlebars.registerHelper("eq", function (val1: any, val2: any) {
     return val1 === val2;
   });
 
   // Equal-to evaluation
-  Handlebars.registerHelper("neq", function (val1, val2) {
+  Handlebars.registerHelper("neq", function (val1: any, val2: any) {
     return val1 !== val2;
   });
 
   // Logical "or" evaluation
-  Handlebars.registerHelper("or", function (val1, val2) {
+  Handlebars.registerHelper("or", function (val1: any, val2: any) {
     return val1 || val2;
   });
 
   // Greater-than evaluation
-  Handlebars.registerHelper("gt", function (val1, val2) {
+  Handlebars.registerHelper("gt", function (val1: any, val2: any) {
     return val1 > val2;
   });
 
   // Greater-than evaluation after applying parseInt to both values
-  Handlebars.registerHelper("gtpi", function (val1, val2) {
+  Handlebars.registerHelper("gtpi", function (val1: any, val2: any) {
     val1 = parseInt(val1);
     val2 = parseInt(val2);
     return val1 > val2;
   });
 
   // Less-than evaluation
-  Handlebars.registerHelper("lt", function (val1, val2) {
+  Handlebars.registerHelper("lt", function (val1: any, val2: any) {
     return val1 < val2;
   });
 
   // Greater-than evaluation after applying parseInt to both values
-  Handlebars.registerHelper("ltpi", function (val1, val2) {
+  Handlebars.registerHelper("ltpi", function (val1: any, val2: any) {
     val1 = parseInt(val1);
     val2 = parseInt(val2);
     return val1 < val2;
@@ -262,182 +321,308 @@ Hooks.once("init", async function () {
   });
 
   // For loops in Handlebars
-  Handlebars.registerHelper("for", function (n, block) {
+  Handlebars.registerHelper("for", function (n: any, block: any) {
     var accum = "";
     for (var i = 0; i < n; ++i) accum += block.fn(i);
     return accum;
   });
 
+  Handlebars.registerHelper("safe-html", safe_html_helper);
+
   // ------------------------------------------------------------------------
   // Generic components
-  Handlebars.registerHelper("l-num-input", function (target: string, value: string) {
-    // Init value to 0 if it doesn't exist
-    // So the arrows work properly
-    if (!value) {
-      value = "0";
-    }
+  Handlebars.registerHelper("l-num-input", clicker_num_input);
 
-    return `<div class="flexrow arrow-input-container">
-      <button class="mod-minus-button" type="button">-</button>
-      <input class="lancer-stat major" type="number" name="${target}" value="${value}" data-dtype="Number"\>
-      <button class="mod-plus-button" type="button">+</button>
-    </div>`;
+  // For debugging
+  Handlebars.registerHelper("debug_each", function (it: any, block: any) {
+    // if(typeof a == 'function')
+    // a = a.call(this);
+    console.debug(it);
+    var s = "";
+    for (let x of it) s += block(x);
+    return s;
   });
+
+  Handlebars.registerHelper("textarea-card", large_textbox_card);
+
+  // ------------------------------------------------------------------------
+  // Stat helpers
+  Handlebars.registerHelper("compact-stat-edit", compact_stat_edit);
+  Handlebars.registerHelper("compact-stat-view", compact_stat_view);
+  Handlebars.registerHelper("stat-view-card", stat_view_card);
+  Handlebars.registerHelper("stat-rollable-card", stat_rollable_card);
+  Handlebars.registerHelper("stat-edit-card", stat_edit_card);
+  Handlebars.registerHelper("stat-edit-max-card", stat_edit_card_max);
+  Handlebars.registerHelper("clicker-stat-card", clicker_stat_card);
+  Handlebars.registerHelper("npc-clicker-stat-card", npc_clicker_stat_card);
+  Handlebars.registerHelper("std-string-input", std_string_input);
+  Handlebars.registerHelper("std-text-input", std_text_input);
+  Handlebars.registerHelper("std-password-input", std_password_input);
+  Handlebars.registerHelper("std-num-input", std_num_input);
+  Handlebars.registerHelper("std-checkbox", std_checkbox);
+  Handlebars.registerHelper("action-button", action_button);
+
+  // ------------------------------------------------------------------------
+  // Tag helpers
+  Handlebars.registerHelper("is-tagged", function (item: any) {
+    return funcs.is_tagged(item);
+  });
+
+  Handlebars.registerHelper("is-limited", function (item: funcs.TaggedEquippable) {
+    return funcs.is_limited(item);
+  });
+
+  Handlebars.registerHelper("is-loading", function (item: funcs.TaggedEquippable) {
+    return funcs.is_loading(item);
+  });
+
+  // ------------------------------------------------------------------------
+  // Refs
+  Handlebars.registerHelper("simple-ref", simple_mm_ref);
+  Handlebars.registerHelper("ref-mm-controllable-item", editable_mm_ref_list_item);
+  Handlebars.registerHelper("ref-mm-controllable-item-native", editable_mm_ref_list_item_native);
+  Handlebars.registerHelper("ref-mm-list-item-append", mm_ref_list_append_slot);
+  Handlebars.registerHelper("pilot-slot", pilot_slot);
+  Handlebars.registerHelper("deployer-slot", deployer_slot); // Can be pilot, npc, or mech. Preferably mech, lol
+  Handlebars.registerHelper("ref-portrait-img", mm_ref_portrait);
+
+  // ------------------------------------------------------------------------
+  // Pilot stuff
+  Handlebars.registerHelper("pilot-armor-slot", pilot_armor_slot);
+  Handlebars.registerHelper("pilot-weapon-slot", pilot_weapon_refview);
+  Handlebars.registerHelper("pilot-gear-slot", pilot_gear_refview);
+  Handlebars.registerHelper("counter-array", buildCounterArrayHTML);
+  Handlebars.registerHelper("pilot-counters", pilot_counters);
+  Handlebars.registerHelper("active-mech-preview", active_mech_preview);
+
   // ------------------------------------------------------------------------
   // Tags
-  Handlebars.registerHelper("compact-tag", renderCompactTag);
-  Handlebars.registerPartial("tag-list", compactTagList);
-  Handlebars.registerHelper("chunky-tag", renderChunkyTag);
-  Handlebars.registerHelper("full-tag", renderFullTag);
+  // Handlebars.registerHelper("compact-tag", renderCompactTag);
+  // Handlebars.registerPartial("tag-list", compactTagList);
+  Handlebars.registerHelper("mm-tag-list", compact_tag_list);
+  // Handlebars.registerHelper("chunky-tag", renderChunkyTag);
+  // Handlebars.registerHelper("full-tag", renderFullTag);
+
+  // ------------------------------------------------------------------------
+  // License data
+  Handlebars.registerHelper("ref-manufacturer", manufacturer_ref);
+  Handlebars.registerHelper("ref-license", license_ref);
+
+  // ------------------------------------------------------------------------
+  // Bonuses
+  Handlebars.registerHelper("edit-bonuses-view", (bonuses_path: string, bonuses_array: Bonus[]) =>
+    bonuses_display(bonuses_path, bonuses_array, true)
+  );
+  Handlebars.registerHelper("read-bonuses-view", (bonuses_path: string, bonuses_array: Bonus[]) =>
+    bonuses_display(bonuses_path, bonuses_array, false)
+  );
+  Handlebars.registerHelper("bonuses-view", bonuses_display); // Takes a third arg
+  Handlebars.registerHelper("edit-bonus", single_bonus_editor);
+  Handlebars.registerHelper("popout-editor-button", popout_editor_button);
 
   // ------------------------------------------------------------------------
   // Weapons
-  Handlebars.registerHelper("is-loading", is_loading);
   Handlebars.registerHelper("wpn-size-sel", weapon_size_selector);
   Handlebars.registerHelper("wpn-type-sel", weapon_type_selector);
-  Handlebars.registerHelper("wpn-range-sel", weapon_range_selector);
-  Handlebars.registerHelper("wpn-damage-sel", pilot_weapon_damage_selector);
-  Handlebars.registerHelper("npc-wpn-damage-sel", npc_weapon_damage_selector);
-  Handlebars.registerHelper("wpn-range", weapon_range_preview);
-  Handlebars.registerHelper("wpn-damage", weapon_damage_preview);
+  Handlebars.registerHelper("wpn-range-sel", range_editor);
+  Handlebars.registerHelper("wpn-damage-sel", damage_editor);
   Handlebars.registerHelper("npcf-atk", npc_attack_bonus_preview);
   Handlebars.registerHelper("npcf-acc", npc_accuracy_preview);
-  Handlebars.registerPartial("mech-weapon-preview", mech_weapon_preview);
+  Handlebars.registerHelper("mech-weapon-preview", mech_weapon_refview);
 
   // ------------------------------------------------------------------------
   // Systems
   Handlebars.registerHelper("sys-type-sel", system_type_selector);
-  Handlebars.registerHelper("eff-type-sel", effect_type_selector);
+  Handlebars.registerHelper("uses-ctrl", uses_control);
   Handlebars.registerHelper("act-icon", action_type_icon);
   Handlebars.registerHelper("act-type-sel", action_type_selector);
-  Handlebars.registerHelper("chg-type-sel", charge_type_selector);
-  Handlebars.registerPartial("mech-system-preview", mech_system_preview);
 
   // ------------------------------------------------------------------------
-  // Effects
-  Handlebars.registerHelper("eff-preview", effect_preview);
-  Handlebars.registerPartial("generic-eff-preview", generic_effect_preview);
-  Handlebars.registerHelper("basic-eff-preview", basic_effect_preview);
-  Handlebars.registerHelper("ai-eff-preview", ai_effect_preview);
-  Handlebars.registerHelper("bonus-eff-preview", bonus_effect_preview);
-  Handlebars.registerHelper("chg-eff-preview", charge_effect_preview);
-  Handlebars.registerHelper("dep-eff-preview", deployable_effect_preview);
-  Handlebars.registerHelper("drn-eff-preview", drone_effect_preview);
-  Handlebars.registerHelper("off-eff-preview", offensive_effect_preview);
-  Handlebars.registerHelper("prf-eff-preview", profile_effect_preview);
-  Handlebars.registerHelper("prot-eff-preview", protocol_effect_preview);
-  Handlebars.registerHelper("rct-eff-preview", reaction_effect_preview);
-  Handlebars.registerHelper("inv-eff-preview", invade_option_preview);
-  Handlebars.registerHelper("tech-eff-preview", tech_effect_preview);
-
-  // ------------------------------------------------------------------------
-  // NPC Effects
-  Handlebars.registerHelper("npc-feat-preview", npc_feature_preview);
-  Handlebars.registerHelper("npc-rct-preview", npc_reaction_effect_preview);
-  Handlebars.registerHelper("npc-sys-preview", npc_system_effect_preview);
-  Handlebars.registerHelper("npc-trait-preview", npc_trait_effect_preview);
-  Handlebars.registerHelper("npc-tech-preview", npc_tech_effect_preview);
-  Handlebars.registerHelper("npc-wpn-preview", npc_weapon_effect_preview);
+  // Item-level helpers for editing
+  //   - Arrayed items
+  Handlebars.registerHelper("item-edit-arrayed-actions", item_edit_arrayed_actions);
+  Handlebars.registerHelper("item-edit-arrayed-damage", item_edit_arrayed_damage);
+  Handlebars.registerHelper("item-edit-arrayed-range", item_edit_arrayed_range);
+  Handlebars.registerHelper("item-edit-arrayed-enum", item_edit_arrayed_enum);
+  Handlebars.registerHelper("item-edit-arrayed-bonuses", item_edit_arrayed_bonuses);
+  Handlebars.registerHelper("item-edit-arrayed-counters", item_edit_arrayed_counters);
+  Handlebars.registerHelper("item-edit-arrayed-deployables", item_edit_arrayed_deployables);
+  Handlebars.registerHelper("item-edit-arrayed-synergies", item_edit_arrayed_synergies);
+  Handlebars.registerHelper("item-edit-arrayed-integrated", item_edit_arrayed_integrated);
+  // Generic handler for an array that can take a selectable enum
+  Handlebars.registerHelper("item-edit-arrayed-enum", item_edit_arrayed_enum);
+  // And a single enum-based selector.
+  // Which is just a wrapper for std_enum_select but we can pass in a string and resolve it
+  Handlebars.registerHelper("item-edit-enum", item_edit_enum);
+  //   - Standalone items
+  Handlebars.registerHelper("item-edit-effect", item_edit_effect);
+  Handlebars.registerHelper("item-edit-license", item_edit_license);
+  Handlebars.registerHelper("item-edit-sp", item_edit_sp);
+  Handlebars.registerHelper("item-edit-uses", item_edit_uses);
 
   // ------------------------------------------------------------------------
   // Frames
-  Handlebars.registerPartial("core-system", core_system_preview);
-  Handlebars.registerPartial("mech-trait", mech_trait_preview);
+  // Handlebars.registerPartial("core-system", core_system_preview);
 
   // ------------------------------------------------------------------------
   // Pilot components
-  Handlebars.registerHelper("mount-selector", mount_type_selector);
-  Handlebars.registerPartial("mount-card", mount_card);
-  Handlebars.registerHelper("overcharge-button", overchargeButton);
+  Handlebars.registerHelper("overcharge-button", overcharge_button);
+
+  // ------------------------------------------------------------------------
+  // Mech components
+  Handlebars.registerHelper("mech-loadout", mech_loadout);
+  Handlebars.registerHelper("mech-frame", frame_refview);
 
   // ------------------------------------------------------------------------
   // NPC components
   Handlebars.registerHelper("tier-selector", npc_tier_selector);
+  Handlebars.registerHelper("npc-feat-preview", npc_feature_preview);
+
+  // ------------------------------------------------------------------------
+  // Sliding HUD Zone, including accuracy/difficulty window
+  Hooks.on('renderHeadsUpDisplay', slidingHUD.attach);
+  Hooks.on('targetToken', (_user: User, _token: Token, isNewTarget: boolean) => {
+    macros.refreshTargeting(isNewTarget ? "may open new window" : "only refresh open window");
+  });
+  Hooks.on('createActiveEffect', () => macros.refreshTargeting("only refresh open window"));
+  Hooks.on('deleteActiveEffect', () => macros.refreshTargeting("only refresh open window"));
+  // updateToken triggers on things like token movement (spotter) and probably a lot of other things
+  Hooks.on('updateToken', () => macros.refreshTargeting("only refresh open window"));
 });
 
-/* ------------------------------------ */
-/* Setup system			            				*/
-/* ------------------------------------ */
-Hooks.once("setup", async function () {
-  // Do anything after initialization but before ready.
+// TODO: either remove when sanity check is no longer needed, or find a better home.
+function sleep(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 
-  // Create the faux Comp/Con store.
-  try {
-    // Do some CC magic
-    let store = new CCDataStore(new FauxPersistor(), {
-      disable_core_data: true,
-      shim_fallback_items: true,
-    });
-    setup_store(store);
-    await store.load_all(f => f(store));
-    await reload_store();
-    console.log(`${lp} Comp/Con data store initialized.`);
-  } catch (error) {
-    console.log(`Fatal error loading COMP/CON`);
-    console.log(error);
-    ui.notifications.error(
-      `Warning: COMP/CON has failed to load. You may experience severe data integrity failure`
-    );
-  }
+/**
+ * Override model to have our derived trackable values, without putting them in template.json and thus compromising
+ * our data model with derived junk
+ */
+Hooks.once("setup", function () {
+  let orig_gta = TokenDocument.getTrackedAttributes;
+  TokenDocument.getTrackedAttributes = function (data: any, _path: any = []) {
+    // We pre-empt the
+    if (!data) {
+      data = {};
+      for (let model of Object.values(game.system.model.Actor)) {
+        mergeObject(data, model);
+
+        // Here's the custom behavior: add our derived data
+        let bar_like = { value: 0, max: 0 };
+        let derived = {
+          edef: 8,
+          evasion: 5,
+          save_target: 0,
+          heat: bar_like,
+          hp: bar_like,
+          overshield: bar_like,
+          structure: bar_like,
+          stress: bar_like,
+          repairs: bar_like,
+        };
+        mergeObject(data, { derived });
+      }
+    }
+    return orig_gta.call(this, data, _path);
+  };
 });
 
 /* ------------------------------------ */
 /* When ready                           */
 /* ------------------------------------ */
-Hooks.once("ready", async function () {
-  await versionCheck();
-  await showChangelog();
+// Make an awaitable for when this shit is done
+export const system_ready: Promise<void> = new Promise(success => {
+  Hooks.once("ready", async function () {
+    // Register sheet application classes
+    setupSheets();
 
-  // v0.1.20 Warning for v0.2
-  // TODO: Remove for v0.2
-  // Get the published warning from https://github.com/Eranziel/foundryvtt-lancer/wiki/v0.1.20-Announcement
-  if (game.settings.get(LANCER.sys_name, LANCER.setting_120)) {
-    function warningDialog(text: string) {
-      new Dialog(
-        {
-          title: `Warning for next update`,
-          content: text,
-          buttons: {
-            dont_show: {
-              label: "Acknowledged",
-              callback: async () => {
-                await game.settings.set(LANCER.sys_name, LANCER.setting_120, false);
-              },
-            },
-            close: {
-              label: "Remind Later",
-            },
-          },
-          default: "Remind Later",
-        },
-        {
-          width: 800,
-        }
-      ).render(true);
-    }
+    Hooks.on("preUpdateCombat", handleCombatUpdate);
 
-    let req = $.get(
-      `https://raw.githubusercontent.com/wiki/Eranziel/foundryvtt-lancer/v0.1.20-Announcement.md`
-    );
-    req.done((data, status) => {
-      warningDialog(marked(data));
-    });
+    // Wait for sanity check to complete.
+    // let ready: boolean = false;
+    // while (!ready) {
+    //   await sleep(100);
+    //   ready = !!(<LancerGame>game).lancer?.finishedInit;
+    // }
+    console.log(`${lp} Foundry ready, doing final checks.`);
 
-    req.fail((data, status) => {
-      let errorText = `<h2>Warning: Next version will include major changes</h2></br><a href="https://raw.githubusercontent.com/wiki/Eranziel/foundryvtt-lancer/v0.1.20-Announcement.md">Click Here For More Information</a>`;
+    await doMigration();
+    await showChangelog();
 
-      warningDialog(errorText);
-    });
-  }
+    applyCollapseListeners();
+    applyGlobalDragListeners();
+
+    (<LancerGame>game).action_manager = new LancerActionManager();
+    await (<LancerGame>game).action_manager!.init();
+
+    success();
+  });
 });
 
-// Add any additional hooks if necessary
-Hooks.on("preCreateActor", lancerActorInit);
-Hooks.on("preCreateItem", lancerItemInit);
+// Action Manager hooks.
+Hooks.on("controlToken", () => {
+  (<LancerGame>game).action_manager?.update();
+});
+Hooks.on("updateToken", (_scene: Scene, _token: Token, diff: any, _options: any, _idUser: any) => {
+  // If it's an X or Y change assume the token is just moving.
+  if (diff.hasOwnProperty("y") || diff.hasOwnProperty("x")) return;
+  (<LancerGame>game).action_manager?.update();
+});
+Hooks.on("updateActor", (_actor: Actor) => {
+  (<LancerGame>game).action_manager?.update();
+});
+Hooks.on("closeSettingsConfig", () => {
+  (<LancerGame>game).action_manager?.updateConfig();
+});
+Hooks.on("getSceneNavigationContext", async () => {
+  (<LancerGame>game).action_manager && (await (<LancerGame>game).action_manager!.reset());
+});
+Hooks.on("createCombat", (_actor: Actor) => {
+  (<LancerGame>game).action_manager?.update();
+});
+Hooks.on("deleteCombat", (_actor: Actor) => {
+  (<LancerGame>game).action_manager?.update();
+});
+//
 
 // Create sidebar button to import LCP
 Hooks.on("renderSidebarTab", async (app: Application, html: HTMLElement) => {
   addLCPManager(app, html);
+});
+
+Hooks.on("getActorDirectoryEntryContext", (_html: JQuery<HTMLElement>, ctxOptions: ContextMenuEntry[]) => {
+  const editMigratePilot: ContextMenuEntry = {
+    name: "Migrate Pilot",
+    icon: '<i class="fas fa-user-circle"></i>',
+    condition: (li: any) => {
+      const actor = game.actors?.get(li.data("entityId"));
+      return actor?.data.type === "pilot" && validForExport(actor);
+    },
+    callback: (li: any) => {
+      const actor = game.actors?.get(li.data("entityId"));
+      // @ts-ignore Migrations?
+      const dump = handleActorExport(actor, false);
+      dump && actor?.importCC(dump as any, true);
+    },
+  };
+
+  const editExportPilot: ContextMenuEntry = {
+    name: "Export Pilot",
+    icon: '<i class="fas fa-user-circle"></i>',
+    condition: (li: any) => {
+      const actor = game.actors?.get(li.data("entityId"));
+      return actor?.data.type === "pilot" && validForExport(actor);
+    },
+    callback: (li: any) => {
+      const actor = game.actors?.get(li.data("entityId"));
+      // @ts-ignore Migrations?
+      handleActorExport(actor, true);
+    },
+  };
+
+  ctxOptions.unshift(editMigratePilot);
+  ctxOptions.unshift(editExportPilot);
 });
 
 // For the settings tab
@@ -445,235 +630,217 @@ Hooks.on("renderSettings", async (app: Application, html: HTMLElement) => {
   addSettingsButtons(app, html);
 });
 
-// Attack function to overkill reroll button
 Hooks.on("renderChatMessage", async (cm: ChatMessage, html: any, data: any) => {
+  // Reapply listeners.
+  applyCollapseListeners();
+
+  // Attack function to overkill reroll button
   const overkill = html[0].getElementsByClassName("overkill-reroll");
   for (let i = 0; i < overkill.length; i++) {
     if (cm.isAuthor) {
       overkill[i].addEventListener("click", async function () {
         // console.log(data);
-        const roll = new Roll("1d6").roll();
+        const roll = await new Roll("1d6").evaluate({ async: true });
         const templateData = {
           roll: roll,
           roll_tooltip: await roll.getTooltip(),
         };
-        const html = await renderTemplate(
-          "systems/lancer/templates/chat/overkill-reroll.html",
-          templateData
-        );
-        let chat_data = {
+        const html = await renderTemplate(`systems/${game.system.id}/templates/chat/overkill-reroll.hbs`, templateData);
+        const rollMode = game.settings.get("core", "rollMode");
+        let chat_data: Record<string, unknown> = {
           user: game.user,
           type: CONST.CHAT_MESSAGE_TYPES.ROLL,
           roll: templateData.roll,
           speaker: data.message.speaker,
           content: html,
+          whisper: rollMode !== "roll" ? ChatMessage.getWhisperRecipients("GM").filter(u => u.active) : undefined,
         };
         let cm = await ChatMessage.create(chat_data);
-        cm.render();
+        cm?.render();
         return Promise.resolve();
       });
     }
   }
+
+  html.find(".chat-button").on("click", (ev: MouseEvent) => {
+    function checkTarget(element: HTMLElement) {
+      if (element.attributes.getNamedItem('data-macro')) {
+        ev.stopPropagation();
+        runEncodedMacro(element);
+        return true;
+      }
+      return false;
+    }
+    checkTarget(ev.target as HTMLElement) || checkTarget(ev.currentTarget as HTMLElement);
+  })
 });
 
 Hooks.on("hotbarDrop", (_bar: any, data: any, slot: number) => {
-  // We set an associated command & title based off the type
-  // Everything else gets handled elsewhere
-
-  let command = "";
-  let title = "";
-  let img = "systems/lancer/assets/icons/macro-icons/d20-framed.svg";
-
-  console.log(`${lp} Data dropped on hotbar:`, data);
-
-  // TODO: Figure out if I am really going down this route and, if so, switch to a switch
-  if (data.type === "actor") {
-    command = `
-      const a = game.actors.get('${data.actorId}');
-      if (a) {
-        game.lancer.prepareStatMacro('${data.actorId}', "${data.dataPath}");
-      } else {
-        ui.notifications.error("Error rolling macro");
-      }`;
-    title = data.title;
-  } else if (data.type === "Item") {
-    command = `game.lancer.prepareItemMacro("${data.actorId}", "${data.data._id}");`;
-    // Talent are the only ones (I think??) that we need to name specially
-    if (data.data.type === "talent") {
-      command = `game.lancer.prepareItemMacro("${data.actorId}", "${data.itemId}", {rank: ${data.rank}});`;
-      title = data.title;
-      img = `systems/lancer/assets/icons/macro-icons/talent.svg`;
-    } else {
-      title = data.data.name;
-    }
-    // Pick the image for the hotbar
-    switch (data.data.type) {
-      case "skill":
-        img = `systems/lancer/assets/icons/macro-icons/skill.svg`;
-        break;
-      case "talent":
-        img = `systems/lancer/assets/icons/macro-icons/talent.svg`;
-        break;
-      case "core_bonus":
-        img = `systems/lancer/assets/icons/macro-icons/corebonus.svg`;
-        break;
-      case "pilot_gear":
-        img = `systems/lancer/assets/icons/macro-icons/generic_item.svg`;
-        break;
-      case "pilot_weapon":
-      case "mech_weapon":
-        img = `systems/lancer/assets/icons/macro-icons/mech_weapon.svg`;
-        break;
-      case "mech_system":
-        img = `systems/lancer/assets/icons/macro-icons/mech_system.svg`;
-        break;
-      case "npc_feature":
-        switch (data.data.data.feature_type) {
-          case NpcFeatureType.Reaction:
-            img = `systems/lancer/assets/icons/macro-icons/reaction.svg`;
-            break;
-          case NpcFeatureType.System:
-            img = `systems/lancer/assets/icons/macro-icons/mech_system.svg`;
-            break;
-          case NpcFeatureType.Trait:
-            img = `systems/lancer/assets/icons/macro-icons/trait.svg`;
-            break;
-          case NpcFeatureType.Tech:
-            img = `systems/lancer/assets/icons/macro-icons/tech_quick.svg`;
-            break;
-          case NpcFeatureType.Weapon:
-            img = `systems/lancer/assets/icons/macro-icons/mech_weapon.svg`;
-            break;
-        }
-        break;
-    }
-  } else if (data.type === "Text") {
-    title = data.title;
-    command = `game.lancer.prepareTextMacro("${data.actorId}", "${data.title}", {rank: ${data.description}})`;
-  } else if (data.type === "Core-Active") {
-    title = data.title;
-    command = `game.lancer.prepareCoreActiveMacro("${data.actorId}")`;
-    img = `systems/lancer/assets/icons/macro-icons/corebonus.svg`;
-  } else if (data.type === "Core-Passive") {
-    title = data.title;
-    command = `game.lancer.prepareCorePassiveMacro("${data.actorId}")`;
-    img = `systems/lancer/assets/icons/macro-icons/corebonus.svg`;
-  } else if (data.type === "overcharge") {
-    title = data.title;
-    command = `game.lancer.prepareOverchargeMacro("${data.actorId}")`;
-    img = `systems/lancer/assets/icons/macro-icons/overcharge.svg`;
-  } else {
-    // Let's not error or anything, since it's possible to accidentally drop stuff pretty easily
-    return;
-  }
-
-  // Until we properly register commands as something macros can have...
-  // @ts-ignore
-  let macro = game.macros.entities.find(
-    (m: Macro) => m.name === title && (m.data as any).command === command
-  );
-  if (!macro) {
-    Macro.create(
-      {
-        command,
-        name: title,
-        type: "script",
-        img: img,
-      },
-      { displaySheet: false }
-    ).then(macro => game.user.assignHotbarMacro(macro as Macro, slot));
-  } else {
-    game.user.assignHotbarMacro(macro, slot).then();
-  }
+  macros.onHotbarDrop(_bar, data, slot);
 });
 
 /**
- * Performs our version validation
+ * Prompts users to install core data
+ * Designed for use the first time you launch a new world
+ */
+async function promptInstallCoreData() {
+  let version = core_update;
+  let text = `
+  <h2 style="text-align: center">WELCOME GAME MASTER</h2>
+  <p style="text-align: center;margin-bottom: 1em">THIS IS YOUR <span class="horus--very--subtle">FIRST</span> TIME LAUNCHING</p>
+  <p style="text-align: center;margin-bottom: 1em">WOULD YOU LIKE TO INSTALL <span class="horus--very--subtle">CORE</span> LANCER DATA <span class="horus--very--subtle">v${version}?</span></p>`;
+  new Dialog(
+    {
+      title: `Install Core Data`,
+      content: text,
+      buttons: {
+        yes: {
+          label: "Yes",
+          callback: async () => {
+            await updateCore(version);
+          },
+        },
+        close: {
+          label: "No",
+        },
+      },
+      default: "No",
+    },
+    {
+      width: 700,
+    }
+  ).render(true);
+}
+
+function setupSheets() {
+  Actors.unregisterSheet("core", ActorSheet);
+  Actors.registerSheet("lancer", LancerPilotSheet, { types: [EntryType.PILOT], makeDefault: true });
+  Actors.registerSheet("lancer", LancerMechSheet, { types: [EntryType.MECH], makeDefault: true });
+  Actors.registerSheet("lancer", LancerNPCSheet, { types: [EntryType.NPC], makeDefault: true });
+  Actors.registerSheet("lancer", LancerDeployableSheet, {
+    types: [EntryType.DEPLOYABLE],
+    makeDefault: true,
+  });
+  Items.unregisterSheet("core", ItemSheet);
+  Items.registerSheet("lancer", LancerItemSheet, {
+    types: [
+      EntryType.SKILL,
+      EntryType.TALENT,
+      EntryType.CORE_BONUS,
+      EntryType.RESERVE,
+      EntryType.STATUS,
+      EntryType.TAG,
+      EntryType.PILOT_ARMOR,
+      EntryType.PILOT_WEAPON,
+      EntryType.PILOT_GEAR,
+      EntryType.MECH_SYSTEM,
+      EntryType.MECH_WEAPON,
+      EntryType.WEAPON_MOD,
+      EntryType.NPC_FEATURE,
+      EntryType.MANUFACTURER,
+      EntryType.QUIRK,
+      EntryType.ENVIRONMENT,
+      EntryType.FACTION,
+      EntryType.ORGANIZATION,
+      EntryType.SITREP,
+    ],
+    makeDefault: true,
+  });
+  Items.registerSheet("lancer", LancerFrameSheet, { types: [EntryType.FRAME], makeDefault: true });
+  Items.registerSheet("lancer", LancerLicenseSheet, { types: [EntryType.LICENSE], makeDefault: true });
+  // Items.registerSheet("lancer", LancerNPCClassSheet, {
+  Items.registerSheet("lancer", LancerItemSheet, {
+    types: [EntryType.NPC_CLASS, EntryType.NPC_TEMPLATE],
+    makeDefault: true,
+  });
+}
+
+/**
+ * Check whether the world needs any migration.
+ * @return -1 for migration needed, 0 for world equal to migration target version,
+ * 1 for world ahead of migration target version.
+ */
+async function versionCheck(): Promise<"none" | "minor" | "major"> {
+  // Determine whether a system migration is required and feasible
+  const currentVersion = game.settings.get(game.system.id, LANCER.setting_migration);
+
+  // If it's 0 then it's a fresh install
+  if (currentVersion === "0" || currentVersion === "") {
+    await game.settings.set(game.system.id, LANCER.setting_migration, game.system.data.version);
+    await promptInstallCoreData();
+    return "none";
+  }
+
+  let compareVersions = (await import("compare-versions")).default;
+
+  // Modify these constants to set which Lancer version numbers need and permit migration.
+  if (compareVersions(currentVersion, NEEDS_MAJOR_MIGRATION_VERSION) < 0) {
+    return "major";
+  } else if (compareVersions(currentVersion, NEEDS_MINOR_MIGRATION_VERSION) < 0) {
+    return "minor";
+  } else {
+    return "none";
+  }
+}
+
+/**
+ * Performs our version validation and migration
  * Uses window.FEATURES to check theoretical Foundry compatibility with our features
  * Also performs system version checks
  */
-async function versionCheck() {
+async function doMigration() {
   // Determine whether a system migration is required and feasible
-  const currentVersion = game.settings.get(LANCER.sys_name, LANCER.setting_migration);
-
-  // If it's 0 then it's a fresh install
-  if (currentVersion === "0") {
-    await game.settings.set(LANCER.sys_name, LANCER.setting_migration, game.system.data.version);
-    return;
-  }
-
-  // Modify these constants to set which Lancer version numbers need and permit migration.
-  const NEEDS_MIGRATION_VERSION = "0.1.7";
-  const COMPATIBLE_MIGRATION_VERSION = "0.1.6";
-  let needMigration = currentVersion ? compareVersions(currentVersion, NEEDS_MIGRATION_VERSION) : 1;
-
+  const currentVersion = game.settings.get(game.system.id, LANCER.setting_migration);
+  let migration = await versionCheck();
   // Check whether system has been updated since last run.
-  if (compareVersions(currentVersion, game.system.data.version) != 0 && game.user.isGM) {
+  if (migration != "none" && game.user!.isGM) {
     // Un-hide the welcome message
-    await game.settings.set(LANCER.sys_name, LANCER.setting_welcome, false);
+    await game.settings.set(game.system.id, LANCER.setting_welcome, false);
 
-    if (needMigration <= 0) {
+    if (migration == "major") {
+      let compareVersions = (await import("compare-versions")).default;
+
       if (currentVersion && compareVersions(currentVersion, COMPATIBLE_MIGRATION_VERSION) < 0) {
         // System version is too old for migration
-        ui.notifications.error(
+        ui.notifications!.error(
           `Your LANCER system data is from too old a version and cannot be reliably migrated to the latest version. The process will be attempted, but errors may occur.`,
           { permanent: true }
         );
       }
       // Perform the migration
       await migrations.migrateWorld();
+    } else if (migration == "minor") {
+      // Perform the migration
+      await migrations.minor09Migration();
     }
     // Set the version for future migration and welcome message checking
-    await game.settings.set(LANCER.sys_name, LANCER.setting_migration, game.system.data.version);
+    await game.settings.set(game.system.id, LANCER.setting_migration, game.system.data.version);
   }
+}
 
-  // Use the new FEATURES dict to see if we can assume that there will be issues
-  // I think this is up to date with all currently in use, but we'll need to keep it updated
-  // https://gitlab.com/foundrynet/foundryvtt/-/issues/3959#note_441254976
-  let supportedFeatures = {
-    ACTORS: 2,
-    CHAT: 2,
-    COMPENDIUM: 2,
-    ENTITIES: 4,
-    ITEMS: 2,
-    MACROS: 1,
-    SETTINGS: 2,
-    TOKENS: 3,
+async function configureAmplify() {
+  // Pull in the parts of AWS Amplify we need
+  const aws = (await import("./aws-exports")).default as {
+    aws_cognito_identity_pool_id: string;
   };
+  const { Auth } = await import("@aws-amplify/auth");
+  const { Storage } = await import("@aws-amplify/storage");
 
-  for (const k in supportedFeatures) {
-    // This is fine so...
-    //@ts-ignore
-    if (supportedFeatures[k] !== window.FEATURES[k]) {
-      console.log(`Major version error for feature ${k}`);
-      ui.notifications.error(
-        `Warning: A major version incompatibility has been detected. You may experience issues, please return to a supported version.`
-      );
-    }
+  Auth.configure(aws);
+  Storage.configure(aws);
+
+  // if we have a login already, this is where we populate the pilot cache
+  try {
+    return populatePilotCache();
+  } catch {
+    // the error is just that we don't have a login
+    // noop
   }
 }
 
 async function showChangelog() {
-  // Check Foundry version
-  if (!game.data.version.startsWith("0.7")) {
-    new Dialog(
-      {
-        title: `WARNING: Version Incompatibility!`,
-        content: FOUNDRY_VERSION_WARNING(),
-        buttons: {
-          close: {
-            label: "Close",
-          },
-        },
-        default: "Close",
-      },
-      {
-        width: 700,
-      }
-    ).render(true);
-  }
-  if (!game.settings.get(LANCER.sys_name, LANCER.setting_welcome)) {
-    // Show welcome message if not hidden.
+  // Show welcome message if not hidden.
+  if (!game.settings.get(game.system.id, LANCER.setting_welcome)) {
     let renderChangelog = (changelog: string) => {
       new Dialog(
         {
@@ -683,7 +850,7 @@ async function showChangelog() {
             dont_show: {
               label: "Do Not Show Again",
               callback: async () => {
-                await game.settings.set(LANCER.sys_name, LANCER.setting_welcome, true);
+                await game.settings.set(game.system.id, LANCER.setting_welcome, true);
               },
             },
             close: {
@@ -702,7 +869,7 @@ async function showChangelog() {
     let req = $.get(
       `https://raw.githubusercontent.com/Eranziel/foundryvtt-lancer/v${game.system.data.version}/CHANGELOG.md`
     );
-    req.done((data, status) => {
+    req.done(async (data, status) => {
       // Regex magic to only grab the first 25 lines
       let r = /(?:[^\n]*\n){25}/;
       let trimmedChangelog = data.match(r)[0];
@@ -714,12 +881,13 @@ async function showChangelog() {
 
       trimmedChangelog = trimmedChangelog.substring(0, lastH1Pos);
 
+      let marked = (await import("marked")).default;
       let changelog = marked(trimmedChangelog);
 
       renderChangelog(changelog);
     });
 
-    req.fail((data, status) => {
+    req.fail((_data, _status) => {
       let errorText = `<h2>Error retrieving changelog</h2>`;
 
       renderChangelog(errorText);
@@ -727,15 +895,27 @@ async function showChangelog() {
   }
 }
 
-function addSettingsButtons(app: Application, html: HTMLElement) {
+function addSettingsButtons(_app: Application, html: HTMLElement) {
   const faqButton = $(`<button id="triggler-form" data-action="triggler">
             <i class="fas fa-robot"></i>LANCER Help
         </button>`);
 
-  $(html).find("#settings-documentation").append(faqButton);
+  const loginButton = $(`<button id="triggler-form" data-action="triggler">
+            <i class="mdi mdi-cloud-sync-outline "></i>COMP/CON Login
+          </button>`);
 
-  faqButton.click(async ev => {
-    let helpContent = await renderTemplate("systems/lancer/templates/window/lancerHelp.html", {});
+
+
+  $(html).find("#settings-documentation").append(faqButton);
+  $(html).find("#settings-game").prepend(loginButton);
+
+  loginButton.on("click", async () => {
+    const app = new CompconLoginForm({});
+    return app.render(true);
+  })
+
+  faqButton.on("click", async () => {
+    let helpContent = await renderTemplate(`systems/${game.system.id}/templates/window/lancerHelp.hbs`, {});
 
     new Dialog(
       {

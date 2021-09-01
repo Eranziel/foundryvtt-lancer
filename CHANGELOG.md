@@ -1,3 +1,143 @@
+# 1.0.0 (2021-08-31)
+If you are coming here from Lancer v0.1.x / Foundry 0.7.x, welcome! For you, nearly everything is new; the changes listed below accounts for changes from the latest version of the beta release.
+
+## Features
+* The accuracy/difficulty prompt has been completely revamped as an attack prompt and a check prompt, thanks to sohum! The new version is more informative and responsive, allows setting acc/diff individually on multi-target attacks, and automatically adjusts based on the Impaired status on the attacker and Lock On status on the target.
+* The template macros in the AoE Macros compendium have been repaired and updated, thanks to Bolts! For now, there are no user-visible changes, but the groundwork is laid for integrating them with the new attack prompt, including automatic targeting of tokens under the laid template. 
+
+## Bug Fixes
+* #233 - We no longer override the token data on new Actors, allowing the Foundry configuration for default settings to work as expected.
+* #260 - Dice So Nice (and other modules that trigger on dice rolls) will once again trigger on skill check rolls.
+* #262 - Importing an Actor from a compendium no longer overwrites the imported data with defaults.
+* #271 - Actor attribute names have been standardized. Pilots now have burn and overshield, and the unnecessary `current_` prefix on many attributes have been removed.
+* #276 - Fix a small formatting issue on the secondary roll button in structure/stress chat messages.
+* #278 - Add capability to rename and delete weapon profiles via right click menu.
+* #280 - Show talent actions alongside talents in pilot/mech sheets.
+* #288 - Remove an unnecessary warning displayed during structure/stress macros.
+* #293 - Fix the action editor.
+
+# 0.9.6 (2021-08-10)
+## Features
+* #128 - Better COMP/CON Sync UI 
+
+## Bug Fixes
+* #222 - Better readiness trackers
+* #252 - Calculate overkill correctly
+* #261 - Fix structure/stress macros
+* Add a minimum height to the tags section non-tagged items can be dropped on
+* Fix action trackers
+* Fix token attributes for HP and Heat
+* Import pilot and mech images
+* Re-add the core passive macro
+
+## Bug Fixes
+* #222 - Better readiness trackers
+* #252 - Calculate overkill correctly
+* #261 - Fix structure/stress macros
+* Add a minimum height to the tags section non-tagged items can be dropped on
+* Fix action trackers
+* Fix token attributes for HP and Heat
+* Import pilot and mech images
+* Re-add the core passive macro
+
+# 0.9.5 (2021-07-11)
+## Features
+* #235 - Importing Status & Conditions compendium now
+* #70 - Partially resolved, will show the _first_ integrated weapon on the sheet
+* #176 - Better item sorting
+* Superheavies can now be braced
+* Can now track your inventory to see what you don't have equipped!
+* Initial localization work--while we still only have English, any volunteer translators can begin translating to other languages!
+
+## Bug Fixes
+* #174 - Should now remove NPC Features on Class removal in all cases
+* #234 - NPC Notes are now saved
+* #231 - Tweak roll display for better usability
+* #230 - Can now roll Loading weapons
+* #226 - Template Macros fixed
+* #236 - Can now use Talent sheets
+* #243 - Temporary fix for wobbling text
+
+# 0.9.4 (2021-06-16)
+## Features
+* #174 - NPCs now tie into their classes more closely, removing Features as Classes are removed
+* #132 - Structure and Stress rolls now prompt in chat for sub-rolls
+* More robust drag & dropping everywhere!
+* Simple COMP/CON Vault importing has been implemented. A more robust/prettier version to come!
+* Compatible with 0.8.7
+* Derive Speed for use with Drag Ruler or other modules
+
+## Bug Fixes
+* #110 - NPC Classes now fully support feature adding/removal
+* #207 - License Preview now opens license sheet on click
+* #210 - Tokens now let you edit HP/Heat again!
+* #211 - Crits don't double flat values anymore
+* #212 - Overkill heat applied again
+* #213 - Applying conditions no longer reset token HP values
+* #214 - Can now overcharge again
+* #215 - Custom counters now allow greater control
+* #217 - Can drag & drop NPC features from compendiums onto sheets again
+* #219 - Can safely import items and actors from compendiums again
+* #221 - NPC Templates add Structure/Stress again
+
+
+# 0.9.3 (2021-06-02)
+## Features
+* Now supporting FoundryVTT version v0.8!
+* Improved action manager
+
+## Bug Fixes
+* #199 - Better NPC Feature Sizing
+* #197 - Allow rolling of weapons without damage
+* #195 - Fixes to the action tracker
+* #187 - Allow for user-breaking of systems
+* #185 - UI for limited weapons
+* #180 - Better mount selection
+* #179 - Can alter license ranks
+* #175 - Can add NPC Features to tokens
+* #173 - Grit rolls for mechs and NPC rank rolls for NPCs
+* #172 - Better roll logic, especially for crits
+* #166, #62 - Fix NPC Tech actions
+* #163 - Active mech loadout
+
+# 0.9.2 (2021-05-08)
+## Features
+* **Player Charges**: Add support for LIMITED, LOADING, and USES tags for systems and some weapons. This allows for proper tracking of resources on actor sheets, and if combat automation is enabled in the settings, then this will also tie into the combat roll workflow (Unloaded weapons can't be fired, etc.).
+* **NPC Charges**: Add NPC sheet support uses and RECHARGE abilities. If combat automation is enabled, at the start of an NPC turn a Recharge roll will be made and report which systems made the roll, and automatically charge them.
+* **Weapon Profiles**: Add profiles to weapons in tabs.
+* **Action Manager**: First draft of the action manager. While controlling a token, a (movable) HUD will appear. If you've used Comp/Con's active mode, this will be very similar to the action bar at the bottom right. Currently actions need to be manually spent for actions (When done moving, click the move action button, etc.). The core workflows of the action system is there:
+  * When starting a turn, a token's actions are refreshed.
+  * When ending a turn, all remaining actions are wasted (minus Reaction, which is immediately refreshed at every turn).
+  * When spending a Quick action and a Full action is available, the Full action is spent instead (represents the 2 Quick = 1 Full conversion).
+* **Action Editing**: First draft of action editing on all manner of items, first step towards homebrew and ease-of-use UX.
+* (0.9.1 but not documented) Right clicking weapon icons will toggle destroyed state. This will eventually be folded into a proper context menu.
+
+## Bug Fixes
+* Fixes for NPC tech and attack macros.
+* Fixes for attack card.
+* Fixes for FLEX mounts showing extra possible slots in some situations.
+* #183 - NPC sheet path fixes.
+* Lots of refinement and styling fixes.
+* Fixes for drag drop and previews.
+
+# 0.9.1 (2021-04-30)
+## Features
+* **Attacks**: Now auto-calculates if a targeted attack hits.
+* **Macros**: #145 Added Stabilize and Full Repair Macros
+
+## Bug Fixes
+* #147 - Correctly calculates Max Uses of a system
+* #154 - Fixed weapon data being pulled in incorrectly
+* #156 - Structure/Stress Rolling again
+* #157 - NPCs can now roll again
+* Added HASE buttons to NPCs
+* NPC Classes now show more data
+* #161 - Macros now support the proper chat privacy selection
+
+# 0.9.0 (2021-04-22)
+## Features
+System completely rebuilt from the ground up to support the new COMP/CON data structure!
+
 # 0.1.21 (2021-08-18)
 * **Version Warning**: Add a warning when run on Foundry 0.8.x stating incompatibility and what options are available.
 * **Mech Sheet**: Fix for missing core power icon.

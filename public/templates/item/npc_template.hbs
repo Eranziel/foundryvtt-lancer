@@ -1,0 +1,34 @@
+<form class="{{cssClass}} lancer-sheet" autocomplete="off">
+  {{!-- Sheet Header --}}
+  <header class="sheet-header card clipped-bot">
+    <div class="header-fields">
+      <h1 class="charname"><input class="header-field" name="name" type="text" value="{{item.name}}" placeholder="{{localize "lancer.placeholder.name"}}"/></h1>
+    </div>
+    {{{ ref-portrait-img item.img "img" mm }}}
+  </header>
+  
+  {{{textarea-card "DESCRIPTION" "mm.Description"}}}
+  
+  </div>
+  <div class="flexcol" style="margin: 10px;">
+    <div class="lancer-title">
+      <span class="major">BASE FEATURES</span>
+    </div>
+
+    {{#each mm.BaseFeatures as |feature feature_index|}}
+        {{{ref-mm-controllable-item-native (concat "mm.BaseFeatures." feature_index) "splice" }}}
+    {{/each}}
+    {{{ref-mm-list-item-append "mm.BaseFeatures" "npc_feature"}}}
+  </div>
+
+  <div class="flexcol" style="margin: 10px;">
+    <div class="lancer-title">
+      <span class="major">OPTIONAL FEATURES</span>
+    </div>
+
+    {{#each mm.OptionalFeatures as |feature feature_index|}}
+        {{{ref-mm-controllable-item-native (concat "mm.OptionalFeatures." feature_index) "splice" }}}
+    {{/each}}
+    {{{ref-mm-list-item-append "mm.OptionalFeatures" "npc_feature"}}}
+  </div>
+</form>

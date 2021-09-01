@@ -1,175 +1,38 @@
-import {
-  LancerFrameStatsData,
-  LancerMountData,
-  LancerPilotData,
-  LancerPilotSheetData,
-} from "../interfaces";
-import {
-  LancerCoreBonus,
-  LancerFrame,
-  LancerItem,
-  LancerItemData,
-  LancerLicense,
-  LancerMechSystem,
-  LancerMechWeapon,
-  LancerPilotArmor,
-  LancerPilotGear,
-  LancerPilotWeapon,
-  LancerSkill,
-  LancerTalent,
-} from "../item/lancer-item";
-import { LancerActor } from "./lancer-actor";
 import { LANCER } from "../config";
-import { ItemDataManifest } from "../item/util";
-import { MountType } from "machine-mind";
-import { import_pilot_by_code, update_pilot } from "./util";
 import { LancerActorSheet } from "./lancer-actor-sheet";
-import { prepareCoreActiveMacro, prepareCorePassiveMacro } from "../macros";
-
-const lp = LANCER.log_prefix;
-
-// TODO: should probably move to HTML/CSS
-const entryPrompt = "//:AWAIT_ENTRY>";
+import { EntryType, Mech, Pilot } from "machine-mind";
+import { funcs } from "machine-mind";
+import type { HelperOptions } from "handlebars";
+import { buildCounterHTML } from "../helpers/item";
+import { ref_commons, ref_params, simple_mm_ref } from "../helpers/refs";
+import { resolve_dotpath } from "../helpers/commons";
+import type { AnyMMActor } from "./lancer-actor";
+import { cleanCloudOwnerID, fetchPilot, pilotCache } from "../compcon";
+import type { AnyMMItem, LancerItemType } from "../item/lancer-item";
 
 /**
  * Extend the basic ActorSheet
  */
-export class LancerPilotSheet extends LancerActorSheet {
-  /**
-   * A convenience reference to the Actor entity
-   */
-  // get actor(): LancerPilot {
-  //   return this.actor;
-  // };
-
-  /* -------------------------------------------- */
-
+export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
   /**
    * Extend and override the default options used by the Pilot Sheet
    * @returns {Object}
    */
-  static get defaultOptions(): object {
+  static get defaultOptions(): ActorSheet.Options {
     return mergeObject(super.defaultOptions, {
       classes: ["lancer", "sheet", "actor", "pilot"],
-      template: "systems/lancer/templates/actor/pilot.html",
+      template: `systems/${game.system.id}/templates/actor/pilot.hbs`,
       width: 800,
       height: 800,
       tabs: [
         {
           navSelector: ".lancer-tabs",
           contentSelector: ".sheet-body",
-          initial: "mech",
+          initial: "tactical",
         },
       ],
     });
   }
-
-  /* -------------------------------------------- */
-
-  /**
-   * Prepare data for rendering the Actor sheet
-   * The prepared data object contains both the actor data as well as additional sheet options
-   */
-  getData(): LancerPilotSheetData {
-    const data: LancerPilotSheetData = super.getData() as LancerPilotSheetData;
-
-    this._prepareItems(data);
-
-    // Populate the callsign if blank (new Actor)
-    if (data.data.pilot.callsign === "") {
-      data.data.pilot.callsign = data.actor.name;
-    }
-    // Populate name if blank (new Actor)
-    if (data.data.pilot.name === "") {
-      data.data.pilot.name = data.actor.name;
-    }
-
-    // Put placeholder prompts in empty fields
-    if (data.data.pilot.background === "") data.data.pilot.background = entryPrompt;
-    if (data.data.pilot.history === "") data.data.pilot.history = entryPrompt;
-    if (data.data.pilot.notes === "") data.data.pilot.notes = entryPrompt;
-
-    // Generate the size string for the pilot's frame
-    if (data.frame) {
-      const frame: LancerFrame = data.frame;
-      if (frame.data.data.stats.size === 0.5) {
-        data.frame_size = "size-half";
-      } else {
-        data.frame_size = `size-${frame.data.data.stats.size}`;
-      }
-    } else {
-      data.frame_size = "N/A";
-    }
-
-    // Newly-added value, overcharge_level, should be set if it doesn't exist
-    if (typeof this.actor.data.data.mech.overcharge_level === "undefined") {
-      this.actor.data.data.mech.overcharge_level = 0;
-    }
-
-    console.log(`${lp} Pilot sheet data: `, data);
-    return data;
-  }
-
-  /* -------------------------------------------- */
-
-  /**
-   * Organize and classify Owned Items for Character sheets
-   * @private
-   */
-  _prepareItems(data: LancerPilotSheetData) {
-    data.sp_used = 0;
-
-    // Mirror items into filtered list properties
-    let item_data = (data.items as unknown) as LancerItemData[]; // This is a "True" casting. The typing of data.items is just busted
-    let sorted = new ItemDataManifest().add_items(item_data.values());
-    data.sp_used = sorted.count_sp();
-
-    // This is all so wrong but necessary for the time being. Really, both sides of this are just ItemData but the LancerPilotSheetData types are messed up
-    data.skills = (sorted.skills as unknown) as LancerSkill[];
-    data.talents = (sorted.talents as unknown) as LancerTalent[];
-    data.licenses = (sorted.licenses as unknown) as LancerLicense[];
-    data.core_bonuses = (sorted.core_bonuses as unknown) as LancerCoreBonus[];
-    data.pilot_loadout = {
-      gear: (sorted.pilot_gear as unknown) as LancerPilotGear[],
-      weapons: (sorted.pilot_weapons as unknown) as LancerPilotWeapon[],
-      armor: (sorted.pilot_armor as unknown) as LancerPilotArmor[],
-    };
-
-    let frame = (<LancerActor>this.actor).getCurrentFrame();
-    if (frame) {
-      // I'm pretty sure this is very cursed
-      // But items are getting reworked. FIX THIS ON ITEM REWORK since it's not worth reworking all our type assumptions here
-      data.frame = <LancerFrame>{};
-      data.frame.data = frame;
-    }
-
-    // Equip mech garbo
-    data.mech_loadout = {
-      // TODO: Handle mounts
-      weapons: (sorted.mech_weapons as unknown) as LancerMechWeapon[],
-      systems: (sorted.mech_systems as unknown) as LancerMechSystem[],
-    };
-
-    // Update mounted weapons to stay in sync with owned items
-    data.data.mech_loadout.mounts.forEach((mount: any) => {
-      if (Array.isArray(mount.weapons) && mount.weapons.length > 0) {
-        for (let i = 0; i < mount.weapons.length; i++) {
-          const mountWeapon = mount.weapons[i];
-          if (mountWeapon && mountWeapon._id) {
-            const ownedWeapon = this.actor.getOwnedItem(mount.weapons[i]._id);
-            if (ownedWeapon) {
-              mount.weapons[i] = duplicate(ownedWeapon.data);
-              continue;
-            }
-          }
-          // TODO: If the weapon doesn't exist in owned items anymore, remove it
-          mount.weapons.splice(i, 1);
-        }
-      }
-    });
-  }
-
-  /* -------------------------------------------- */
 
   /**
    * Activate event listeners using the prepared sheet HTML
@@ -178,511 +41,200 @@ export class LancerPilotSheet extends LancerActorSheet {
   activateListeners(html: JQuery) {
     super.activateListeners(html);
 
-    if (this.actor.owner) {
-      // Overcharge text
-      let overchargeText = html.find(".overcharge-text");
-
-      overchargeText.on("click", (ev: Event) => {
-        this._setOverchargeLevel(
-          <MouseEvent>ev,
-          Math.min(this.actor.data.data.mech.overcharge_level + 1, 3)
-        );
-      });
-
-      // Overcharge reset
-      let overchargeReset = html.find(".overcharge-reset");
-
-      overchargeReset.on("click", (ev: Event) => {
-        this._setOverchargeLevel(<MouseEvent>ev, 0);
-      });
-
-      // Overcharge macro
-      let overchargeMacro = html.find(".overcharge-macro");
-
-      overchargeMacro.on("click", () => {
-        game.lancer.prepareOverchargeMacro(this.actor._id);
-      });
-
-      // Macro triggers
-      // Stat rollers
-      let statMacro = html.find(".roll-stat");
-      statMacro.on("click", (ev: Event) => {
-        ev.stopPropagation(); // Avoids triggering parent event handlers
-        game.lancer.prepareStatMacro(this.actor._id, this.getStatPath(ev)!);
-      });
-
-      // Talent rollers
-      let talentMacro = html.find(".talent-macro");
-      talentMacro.on("click", (ev: Event) => {
-        if (!ev.currentTarget) return; // No target, let other handlers take care of it.
-        ev.stopPropagation(); // Avoids triggering parent event handlers
-
-        const el = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
-
-        game.lancer.prepareItemMacro(this.actor._id, el.getAttribute("data-item-id")!, {
-          rank: (<HTMLDataElement>ev.currentTarget).getAttribute("data-rank"),
-        });
-      });
-
-      // TODO: This should really just be a single item-macro class
-      // Trigger rollers
-      let itemMacros = html
-        .find(".skill-macro")
-        // System rollers
-        .add(html.find(".system-macro"))
-        // Gear rollers
-        .add(html.find(".gear-macro"))
-        // Core bonus
-        .add(html.find(".cb-macro"));
-      itemMacros.on("click", (ev: any) => {
-        ev.stopPropagation(); // Avoids triggering parent event handlers
-
-        const el = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
-
-        game.lancer.prepareItemMacro(this.actor._id, el.getAttribute("data-item-id")!);
-      });
-
-      // Core active & passive text rollers
-      let CAMacro = html.find(".core-active-macro");
-      CAMacro.on("click", (ev: any) => {
-        ev.stopPropagation(); // Avoids triggering parent event handlers
-
-        // let target = <HTMLElement>ev.currentTarget;
-
-        prepareCoreActiveMacro(this.actor._id);
-      });
-
-      let CPMacro = html.find(".core-passive-macro");
-      CPMacro.on("click", (ev: any) => {
-        ev.stopPropagation(); // Avoids triggering parent event handlers
-
-        // let target = <HTMLElement>ev.currentTarget;
-
-        prepareCorePassiveMacro(this.actor._id);
-      });
-
-      // Weapon rollers
-      let weaponMacro = html.find(".roll-attack");
-      weaponMacro.on("click", (ev: Event) => {
-        if (!ev.currentTarget) return; // No target, let other handlers take care of it.
-        ev.stopPropagation();
-
-        const weaponElement = $(ev.currentTarget).closest(".weapon")[0] as HTMLElement;
-        const weaponId = weaponElement.getAttribute("data-item-id");
-        if (!weaponId) return ui.notifications.warn(`Error rolling macro: No weapon ID!`);
-        const item = this.actor.getOwnedItem(weaponId);
-        if (!item)
-          return ui.notifications.warn(
-            `Error rolling macro: Couldn't find weapon with ID ${weaponId}.`
-          );
-
-        const weapon = item as LancerPilotWeapon | LancerMechWeapon;
-        game.lancer.prepareItemMacro(this.actor._id, weapon._id);
-      });
-    }
-
     // Everything below here is only needed if the sheet is editable
     if (!this.options.editable) return;
 
-    if (this.actor.owner) {
-      // Customized increment/decrement arrows
-      let decr = html.find('button[class*="mod-minus-button"]');
-      decr.on("click", (ev: Event) => {
-        if (!ev.currentTarget) return; // No target, let other handlers take care of it.
-        const but = $(ev.currentTarget as HTMLElement);
-        (but.next()[0] as HTMLInputElement).value = (
-          (but.next()[0] as HTMLInputElement).valueAsNumber - 1
-        ).toString();
-        this.submit({});
-      });
-      let incr = html.find('button[class*="mod-plus-button"]');
-      incr.on("click", (ev: Event) => {
-        if (!ev.currentTarget) return; // No target, let other handlers take care of it.
-        const but = $(ev.currentTarget as HTMLElement);
-        (but.prev()[0] as HTMLInputElement).value = (
-          (but.prev()[0] as HTMLInputElement).valueAsNumber + 1
-        ).toString();
-        this.submit({});
-      });
-
+    if (this.actor.isOwner) {
       // Item/Macroable Dragging
-      const statMacroHandler = (e: DragEvent) => this._onDragMacroableStart(e);
-      const talentMacroHandler = (e: DragEvent) => this._onDragTalentMacroableStart(e);
-      const textMacroHandler = (e: DragEvent) => this._onDragTextMacroableStart(e);
-      const CAMacroHandler = (e: DragEvent) => this._onDragCoreActiveStart(e);
-      const CPMacroHandler = (e: DragEvent) => this._onDragCorePassiveStart(e);
-      const overchargeMacroHandler = (e: DragEvent) => this._onDragOverchargeStart(e);
-      html
-        .find('li[class*="item"]')
-        .add('span[class*="item"]')
-        .add('[class*="macroable"]')
-        .each((i: number, item: any) => {
-          if (item.classList.contains("inventory-header")) return;
-          if (item.classList.contains("stat-macro"))
-            item.addEventListener("dragstart", statMacroHandler, false);
-          if (item.classList.contains("talent-macro"))
-            item.addEventListener("dragstart", talentMacroHandler, false);
-          if (item.classList.contains("text-macro"))
-            item.addEventListener("dragstart", textMacroHandler, false);
-          if (item.classList.contains("core-active-macro"))
-            item.addEventListener("dragstart", CAMacroHandler, false);
-          if (item.classList.contains("core-passive-macro"))
-            item.addEventListener("dragstart", CPMacroHandler, false);
-          if (item.classList.contains("overcharge-macro"))
-            item.addEventListener("dragstart", overchargeMacroHandler, false);
-          if (item.classList.contains("item"))
-            item.addEventListener("dragstart", (ev: any) => this._onDragStart(ev), false);
-          item.setAttribute("draggable", "true");
-        });
-
-      // Update Inventory Item
-      this.activateOpenItemListeners(html);
-
-      // Delete Item when trash can is clicked
-      let items = html.find('.stats-control[data-action*="delete"]');
-      items.on("click", (ev: Event) => {
-        if (!ev.currentTarget) return; // No target, let other handlers take care of it.
-        ev.stopPropagation(); // Avoids triggering parent event handlers
-        console.log(ev);
-        const item = $(ev.currentTarget).closest(".item");
-        const itemId = item.data("itemId");
-
-        let mount_element = item.closest(".lancer-mount-container");
-        let weapon_element = item.closest(".lancer-weapon-container");
-
-        // Remove the weapon from its mount
-        if (mount_element.length && weapon_element.length) {
-          let mounts = duplicate((this.actor.data.data as LancerPilotData).mech_loadout.mounts);
-          let weapons = mounts[parseInt(mount_element.data("itemKey"))].weapons;
-
-          weapons.splice(parseInt(weapon_element.data("itemKey")), 1);
-          this.actor.update({ "data.mech_loadout.mounts": mounts }).then();
-        }
-
-        // Delete the item from the actor.
-        this.actor.deleteOwnedItem(itemId).then();
-        item.slideUp(200, () => this.render(true));
-      });
-
-      // Create Mounts
-      let add_button = html.find('.add-button[data-action*="create"]');
-      add_button.on("click", (ev: Event) => {
-        ev.stopPropagation();
-        let mount: LancerMountData = {
-          type: MountType.Main,
-          weapons: [],
-          secondary_mount: "",
-        };
-
-        let mounts = duplicate(this.actor.data.data.mech_loadout.mounts);
-        mounts.push(mount);
-        this.actor.update({ "data.mech_loadout.mounts": mounts }).then();
-        this._onSubmit(ev).then();
-      });
-
-      // Update Mounts
-      let mount_selector = html.find('select.mounts-control[data-action*="update"]');
-      mount_selector.on("change", (ev: JQuery.ChangeEvent) => {
-        ev.stopPropagation();
-        let mounts = duplicate(this.actor.data.data.mech_loadout.mounts);
-        mounts[
-          parseInt($(ev.currentTarget).closest(".lancer-mount-container").data("itemKey"))
-        ].type = $(ev.currentTarget).children("option:selected").val();
-        this.actor.update({ "data.mech_loadout.mounts": mounts }).then();
-        this._onSubmit(ev).then();
-      });
-
-      // Delete Mounts
-      let mount_trash = html.find('a.mounts-control[data-action*="delete"]');
-      mount_trash.on("click", (ev: Event) => {
-        if (!ev.currentTarget) return; // No target, let other handlers take care of it.
-        ev.stopPropagation();
-        let mounts = duplicate(this.actor.data.data.mech_loadout.mounts);
-        let id = $(ev.currentTarget).closest(".lancer-mount-container").data("itemKey");
-        // Delete each weapon in the selected mount from the actor's owned items
-        let weapons = (this.actor.data.data as LancerPilotData).mech_loadout.mounts[id].weapons;
-        for (let i = 0; i < weapons.length; i++) {
-          const weapon = weapons[i];
-          if (weapon._id) this.actor.deleteOwnedItem(weapon._id).then();
-        }
-        mounts.splice(parseInt(id), 1);
-        this.actor.update({ "data.mech_loadout.mounts": mounts }).then();
-        this._onSubmit(ev).then();
-      });
 
       // Cloud download
       let download = html.find('.cloud-control[data-action*="download"]');
-      download.on("click", (ev: Event) => {
-        ev.stopPropagation();
-        // Get the data
-        ui.notifications.info("Importing character...");
-        import_pilot_by_code((this.actor.data.data as LancerPilotData).pilot.cloud_code)
-          .then(cc_pilot => update_pilot(this.actor as LancerActor, cc_pilot))
-          .then(() => {
-            ui.notifications.info("Successfully loaded pilot state from cloud");
-          })
-          .catch(e => {
-            console.warn(e);
-            ui.notifications.warn(
-              "Failed to update pilot, likely due to missing LCP data: " + e.message
-            );
-          });
+      let actor = this.actor;
+      if (actor.is_pilot() && actor.data.data.derived.mm!.CloudID) {
+        download.on("click", async ev => {
+          ev.stopPropagation();
+
+          let self = await this.getDataLazy();
+          // Fetch data to sync
+          let raw_pilot_data = null;
+          if (self.vaultID != "" || self.rawID.match(/\/\//)) {
+            // new style vault code with owner information
+            // it's possible that this was one we reconstructed and doesn't actually live in this user acct
+            ui.notifications!.info("Importing character from vault...");
+            try {
+              raw_pilot_data = await fetchPilot(self.vaultID != "" ? self.vaultID : self.rawID);
+            } catch {
+              if (self.vaultID != "") {
+                ui.notifications!.error("Failed to import. Probably a network error, please try again.");
+              } else {
+                ui.notifications!.error(
+                  "Failed. You will have to ask the player whose pilot this is for their COMP/CON vault record code."
+                );
+              }
+              return;
+            }
+          } else if (self.rawID.match(/^[^-]+(-[^-]+){4}/)) {
+            // old-style vault code
+            // not much we can do. we can try to fetch it and see if it works
+            // it will if this pilot happens to be in this comp/con user's bucket
+            ui.notifications!.info("Attempting to import from old-style vault code...");
+            try {
+              raw_pilot_data = await fetchPilot(self.rawID);
+            } catch {
+              ui.notifications!.error(
+                "Failed. Old-style vault ids are phasing out in support; please ask the player whose pilot this is for their COMP/CON vault record code."
+              );
+              return;
+            }
+          } else if (self.rawID != "") {
+            ui.notifications!.info("Importing character from cloud share code...");
+            raw_pilot_data = await funcs.gist_io.download_pilot(self.rawID);
+          } else {
+            ui.notifications!.error("Could not find character to import!");
+            return;
+          }
+          await actor.importCC(raw_pilot_data);
+          this._currData = null;
+        });
+      } else {
+        download.addClass("disabled-cloud");
+      }
+
+      // editing rawID clears vaultID
+      // (other way happens automatically because we prioritise vaultID in commit)
+      let rawInput = html.find('input[name="rawID"]');
+      rawInput.on("input", async ev => {
+        if ((ev.target as any).value != "") {
+          (html.find('select[name="vaultID"]')[0] as any).value = "";
+        }
       });
     }
   }
 
-  _onDragMacroableStart(event: DragEvent) {
-    // For roll-stat macros
-    event.stopPropagation(); // Avoids triggering parent event handlers
-    // It's an input so it'll always be an InputElement, right?
-    let path = this.getStatPath(event);
-    if (!path) return ui.notifications.error("Error finding stat for macro.");
+  async getData() {
+    const data = await super.getData(); // Not fully populated yet!
 
-    let tSplit = path.split(".");
-    let data = {
-      title: tSplit[tSplit.length - 1].toUpperCase(),
-      dataPath: path,
-      type: "actor",
-      actorId: this.actor._id,
-    };
-    event.dataTransfer?.setData("text/plain", JSON.stringify(data));
-  }
+    data.active_mech = await data.mm.ActiveMech();
+    data.pilotCache = pilotCache();
 
-  _onDragTalentMacroableStart(event: DragEvent) {
-    // For talent macros
-    event.stopPropagation(); // Avoids triggering parent event handlers
+    data.cleanedOwnerID = cleanCloudOwnerID(data.mm.CloudOwnerID);
 
-    let target = <HTMLElement>event.currentTarget;
+    // use the select if and only if we have the pilot in our cache
+    let useSelect =
+      data.mm.CloudID &&
+      data.cleanedOwnerID &&
+      data.pilotCache.find(p => p.cloudID == data.mm.CloudID && p.cloudOwnerID == data.cleanedOwnerID);
 
-    let data = {
-      itemId: target.closest(".item")?.getAttribute("data-item-id"),
-      actorId: this.actor._id,
-      type: "Item",
-      title: target.nextElementSibling?.textContent,
-      rank: target.getAttribute("data-rank"),
-      data: {
-        type: "talent",
-      },
-    };
-
-    event.dataTransfer?.setData("text/plain", JSON.stringify(data));
-  }
-
-  async _onDrop(event: any): Promise<boolean> {
-    let item: Item | null = await super._onDrop(event);
-
-    const actor = this.actor as LancerActor;
-    if (item) {
-      // Swap mech frame
-      if (item.type === "frame") {
-        let newFrameStats: LancerFrameStatsData;
-        let oldFrameStats: LancerFrameStatsData | undefined = undefined;
-        // Remove old frame
-        for (let item of actor.items) {
-          const i = (item as unknown) as LancerItem;
-          if (i.type === "frame") {
-            console.log(`${lp} Removing ${actor.name}'s old ${i.name} frame.`);
-            oldFrameStats = duplicate((i as LancerFrame).data.data.stats);
-            await this.actor.deleteOwnedItem(i._id);
-          }
-        }
-        const frame = (await actor.createOwnedItem(duplicate(item.data))) as any;
-        console.log(`${lp} Added ${frame.name} to ${actor.name}.`);
-        newFrameStats = frame.data.stats;
-
-        if (newFrameStats) {
-          console.log(`${lp} Swapping Frame stats for ${actor.name}`);
-          await actor.swapFrames(newFrameStats, oldFrameStats);
-        }
-        return Promise.resolve(true);
+    if (useSelect) {
+      // if this is a vault id we know of
+      data.vaultID = data.cleanedOwnerID + "//" + data.mm.CloudID;
+      data.rawID = "";
+    } else if (data.mm.CloudID) {
+      // whatever this is, we need to display it as raw text, so the user can edit it
+      if (data.cleanedOwnerID) {
+        data.rawID = data.cleanedOwnerID + "//" + data.mm.CloudID;
+      } else {
+        data.rawID = data.mm.CloudID;
       }
-      // Handling mech-weapon -> mount mapping
-      else if (item.type === "mech_weapon") {
-        let mounts = duplicate(this.actor.data.data.mech_loadout.mounts);
-        if (!mounts.length) {
-          ui.notifications.error(
-            "A mech weapon was dropped on the page, but there are no weapon mounts installed. Go to the Frame Loadout tab to add some!"
-          );
-          return Promise.resolve(false);
-        }
-
-        let mount_element = $(event.target.closest(".lancer-mount-container"));
-
-        if (!mount_element.length) {
-          ui.notifications.error(
-            "You dropped a mech weapon on the page, but not onto a weapon mount. Go to the Frame Loadout tab to find them!"
-          );
-          return Promise.resolve(false);
-        } else {
-          let mount_whitelist = {
-            Auxiliary: [
-              MountType.Integrated,
-              MountType.Aux,
-              MountType.AuxAux,
-              MountType.MainAux,
-              MountType.Flex,
-              MountType.Main,
-              MountType.Heavy,
-            ],
-            Main: [
-              MountType.Integrated,
-              MountType.Main,
-              MountType.Flex,
-              MountType.MainAux,
-              MountType.Heavy,
-            ],
-            Heavy: [MountType.Integrated, MountType.Heavy],
-            Superheavy: [MountType.Integrated, MountType.Heavy],
-            Other: [
-              MountType.Integrated,
-              MountType.Aux,
-              MountType.AuxAux,
-              MountType.MainAux,
-              MountType.Flex,
-              MountType.Main,
-              MountType.Heavy,
-            ],
-          };
-
-          let mount = mounts[parseInt(mount_element.data("itemKey"))];
-          let valid = mount_whitelist[(item as LancerMechWeapon).data.data.mount];
-          if (!valid.includes(mount.type)) {
-            ui.notifications.error("The weapon you dropped is too large for this weapon mount!");
-            return Promise.resolve(false);
-            // TODO: superheavy secondary mounts
-            // } else if (item.data.data.mount === "Superheavy" && !mount.secondary_mount) {
-            //   ui.notifications.error(
-            //     "Assign a secondary mount to this heavy mount in order to equip a superheavy weapon"
-            //   );
-          } else {
-            let weapon = await actor.createOwnedItem(duplicate(item.data));
-            mount.weapons.push(weapon);
-            console.log(`${lp} Inserted Mech Weapon into Mount`, weapon);
-            await this.actor.update({ "data.mech_loadout.mounts": mounts });
-          }
-        }
-
-        return Promise.resolve(true);
-      } else if (LANCER.pilot_items.includes(item.type)) {
-        await this._addOwnedItem(item);
-        return Promise.resolve(true);
-      } else if (LANCER.npc_items.includes(item.type)) {
-        ui.notifications.error(`Cannot add Item of type "${item.type}" to a Pilot.`);
-        return Promise.resolve(false);
-      }
-
-      // Get dropped data
-      let data;
-      try {
-        data = JSON.parse(event.dataTransfer.getData("text/plain"));
-      } catch (err) {
-        return false;
-      }
-      event.dataTransfer?.setData("text/plain", JSON.stringify(data));
+      data.vaultID = "";
+    } else {
+      data.rawID = "";
+      data.vaultID = "";
     }
 
-    // Finally, fall back to super's behaviour if nothing else "handles" the drop (signalled by returning).
-    // Don't hate the player, hate the imperative paradigm
-    console.log(`${lp} Falling back on super._onDrop`);
-    return super._onDrop(event);
+    return data;
   }
 
-  /**
-   * For macros which simple expect a title & description, no fancy handling.
-   * Assumes data-path-title & data-path-description defined
-   * @param event   The associated DragEvent
-   */
-  _onDragTextMacroableStart(event: DragEvent) {
-    event.stopPropagation(); // Avoids triggering parent event handlers
+  // Pilots can handle most stuff
+  can_root_drop_entry(item: AnyMMActor | AnyMMItem): boolean {
+    // Accept mechs, so as to change their actor
+    if (item.Type == EntryType.MECH) {
+      return true;
+    }
 
-    let target = <HTMLElement>event.currentTarget;
+    // Accept non pilot item
+    if (LANCER.pilot_items.includes(item.Type as LancerItemType)) {
+      return true;
+    }
 
-    let data = {
-      title: target.getAttribute("data-path-title"),
-      description: target.getAttribute("data-path-description"),
-      actorId: this.actor._id,
-      type: "Text",
-    };
-
-    event.dataTransfer?.setData("text/plain", JSON.stringify(data));
+    // Reject anything else
+    return false;
   }
 
-  /**
-   * For dragging the core active to the hotbar
-   * @param event   The associated DragEvent
-   */
-  _onDragCoreActiveStart(event: DragEvent) {
-    event.stopPropagation(); // Avoids triggering parent event handlers
+  async on_root_drop(base_drop: AnyMMItem | AnyMMActor): Promise<void> {
+    let sheet_data = await this.getDataLazy();
+    let this_mm = sheet_data.mm;
 
-    // let target = <HTMLElement>event.currentTarget;
+    // Take posession
+    let [drop, is_new] = await this.quick_own(base_drop);
 
-    let data = {
-      actorId: this.actor._id,
-      // Title will simply be CORE ACTIVE since we want to keep the macro dynamic
-      title: "CORE ACTIVE",
-      type: "Core-Active",
-    };
+    // Now, do sensible things with it
+    let loadout = this_mm.Loadout;
+    if (is_new && drop.Type === EntryType.PILOT_WEAPON) {
+      // If new weapon, try to equip to first empty slot
+      for (let i = 0; i < loadout.Weapons.length; i++) {
+        if (!loadout.Weapons[i]) {
+          loadout.Weapons[i] = drop;
+          break;
+        }
+      }
+    } else if (is_new && drop.Type === EntryType.PILOT_GEAR) {
+      // If new gear, try to equip to first empty slot
+      for (let i = 0; i < loadout.Gear.length; i++) {
+        if (!loadout.Gear[i]) {
+          loadout.Gear[i] = drop;
+          break;
+        }
+      }
+    } else if (is_new && drop.Type === EntryType.PILOT_ARMOR) {
+      // If new armor, try to equip to first empty slot
+      for (let i = 0; i < loadout.Armor.length; i++) {
+        if (!loadout.Gear[i]) {
+          loadout.Armor[i] = drop;
+          break;
+        }
+      }
+    } else if ((is_new && drop.Type === EntryType.SKILL) || drop.Type == EntryType.TALENT) {
+      // If new skill or talent, reset to level 1
+      drop.CurrentRank = 1;
+      await drop.writeback(); // Since we're editing the item, we gotta do this
+    } else if (drop.Type === EntryType.MECH) {
+      // Set active mech
+      this_mm.ActiveMechRef = drop.as_ref();
+      if (drop.Pilot?.RegistryID != this_mm.RegistryID) {
+        // Also set the mechs pilot if necessary
+        drop.Pilot = this_mm;
+        drop.writeback();
+      }
+    }
 
-    event.dataTransfer?.setData("text/plain", JSON.stringify(data));
+    // Writeback when done. Even if nothing explicitly changed, probably good to trigger a redraw
+    await this_mm.writeback();
   }
 
-  /**
-   * For dragging the core passive to the hotbar
-   * @param event   The associated DragEvent
-   */
-  _onDragCorePassiveStart(event: DragEvent) {
-    event.stopPropagation(); // Avoids triggering parent event handlers
+  async _commitCurrMM() {
+    if (this._currData) {
+      // we prioritise vault ids here, so when the user selects a vault id via dropdown
+      // it gets saved and any rawID doesn't, so the render clears the rawID
+      // i.e., editing vaultID clears rawID
+      // other way around happens in the rawID input listener
+      let assignSplit = (str: string) => {
+        if (str.match(/\/\//)) {
+          let [owner, id] = str.split("//");
+          this._currData!.mm.CloudOwnerID = owner;
+          this._currData!.mm.CloudID = id;
+        } else {
+          this._currData!.mm.CloudID = str;
+        }
+      };
 
-    // let target = <HTMLElement>event.currentTarget;
-
-    let data = {
-      actorId: this.actor._id,
-      // Title will simply be CORE PASSIVE since we want to keep the macro dynamic
-      title: "CORE PASSIVE",
-      type: "Core-Passive",
-    };
-
-    event.dataTransfer?.setData("text/plain", JSON.stringify(data));
-  }
-
-  /**
-   * For dragging overcharge to the hotbar
-   * @param event   The associated DragEvent
-   */
-  _onDragOverchargeStart(event: DragEvent) {
-    event.stopPropagation(); // Avoids triggering parent event handlers
-
-    // let target = <HTMLElement>event.currentTarget;
-
-    let data = {
-      actorId: this.actor._id,
-      // Title will simply be CORE PASSIVE since we want to keep the macro dynamic
-      title: "OVERCHARGE",
-      type: "overcharge",
-    };
-
-    event.dataTransfer?.setData("text/plain", JSON.stringify(data));
-  }
-
-  /**
-   * Sets the overcharge level for this actor
-   * @param event An event, used by a proper overcharge section in the sheet, to get the overcharge field
-   * @param level Level to set overcharge to
-   */
-  _setOverchargeLevel(event: MouseEvent, level: number) {
-    let target = <HTMLElement>event.currentTarget;
-    let inputField = $(target).siblings('[name="data.mech.overcharge_level"]');
-
-    inputField.val(String(level));
-    this._onSubmit(event).then();
-  }
-
-  /**
-   * Performs the overcharge macro
-   * @param event An event, used by a proper overcharge section in the sheet, to get the overcharge field
-   */
-  _onClickOvercharge(event: MouseEvent) {
-    game.lancer.prepareOverchargeMacro(this.actor._id);
+      if (this._currData.vaultID) {
+        assignSplit(this._currData.vaultID);
+      } else {
+        assignSplit(this._currData.rawID);
+      }
+    }
+    return super._commitCurrMM();
   }
 
   /* -------------------------------------------- */
@@ -692,54 +244,100 @@ export class LancerPilotSheet extends LancerActorSheet {
    * This defines how to update the subject of the form when the form is submitted
    * @private
    */
-  _updateObject(event: Event | JQuery.Event, formData: any): Promise<any> {
+  async _updateObject(event: Event, formData: any) {
+    if (!this.actor.is_pilot()) return;
+    // Do some pre-processing
     // Do these only if the callsign updated
-    if (this.actor.data.data.pilot.callsign !== formData["data.pilot.callsign"]) {
+    if (this.actor.data.data.callsign !== formData["data.pilot.callsign"]) {
       // Use the Actor's name for the pilot's callsign
-      formData["name"] = formData["data.pilot.callsign"];
+      // formData["name"] = formData["data.callsign"];
       // Copy the pilot's callsign to the prototype token
-      formData["token.name"] = formData["data.pilot.callsign"];
+      formData["actor.token.name"] = formData["data.callsign"];
     }
-
-    formData = this._updateTokenImage(formData);
-
-    console.log(`${lp} Pilot sheet form data: `, formData);
-    // Update the Actor
-    return this.object.update(formData);
+    // Then let parent handle
+    return super._updateObject(event, formData);
   }
 }
 
-/**
- * Handlebars helper for an overcharge button
- * Currently this is overkill, but eventually we want to support custom overcharge values
- * Also I can't think of a better way to handle actor-specific data like this here... ideally move to within the sheet eventually
- * @param level Level of overcharge, between 0 (1) and 3 (1d6+4) by default
- */
-export function overchargeButton(level: number) {
-  // This seems like a very inefficient way to do this...
-  // I don't think there's a good way to get an actor via handlebars helpers though besides this
-  // Might just need to not use helpers for this?
-  //@ts-ignore
-  let actor: LancerActor = game.actors.get(this.actor._id);
+export function pilot_counters(ent: Pilot, _helper: HelperOptions): string {
+  let counter_detail = "";
 
-  let rollVal = actor.getOverchargeRoll();
+  let counter_arr = ent.AllCounters;
+  let custom_path = "mm.CustomCounters";
 
-  if (!rollVal) {
-    rollVal = "ERROR";
+  // Pilots have AllCounters, but self-sourced ones refer to CustomCounters specifically
+  for (let i = 0; i < counter_arr.length; i++) {
+    // If our source is the pilot, we'll add it later to make sure we align with the CustomCounters index
+    if (counter_arr[i].source === ent) continue;
+
+    counter_detail = counter_detail.concat(
+      buildCounterHTML(
+        counter_arr[i].counter,
+        `mm.Allcounters.${i}.counter`,
+        false,
+        `ent.AllCounters.${i}.source`,
+        false
+      )
+    );
+  }
+  // Now do our CustomCounters
+  for (let i = 0; i < ent.CustomCounters.length; i++) {
+    counter_detail = counter_detail.concat(
+      buildCounterHTML(ent.CustomCounters[i], `mm.CustomCounters.${i}`, true, "", true)
+    );
   }
 
-  // Add a line break if it contains a plus to prevent it being too long
-  let plusIndex = rollVal.indexOf("+");
-  if (plusIndex > 0) {
-    rollVal = rollVal.slice(0, plusIndex) + "<br>" + rollVal.slice(plusIndex);
+  return `
+  <div class="card clipped double">
+    <span class="lancer-header submajor" style="padding-right: 5px">
+      <span>COUNTERS</span>
+      <a class="gen-control fas fa-plus" data-action="append" data-path="${custom_path}" data-action-value="(struct)counter"></a>
+    </span>
+    ${counter_detail}
+  </div>`;
+}
+
+export function active_mech_preview(mech: Mech, path: string, _helper: HelperOptions): string {
+  var html = ``;
+
+  // Generate commons
+  let cd = ref_commons(mech);
+  if (!cd) return simple_mm_ref(EntryType.MECH, mech, "No Active Mech", path, true);
+
+  // Making ourselves easy templates for the preview in case we want to switch in the future
+  let preview_stats_arr = [
+    { title: "HP", icon: "mdi mdi-heart-outline", path: "CurrentHP" },
+    { title: "HEAT", icon: "cci cci-heat", path: "CurrentHeat" },
+    { title: "EVASION", icon: "cci cci-evasion", path: "Evasion" },
+    { title: "ARMOR", icon: "mdi mdi-shield-outline", path: "Armor" },
+    { title: "STRUCTURE", icon: "cci cci-structure", path: "CurrentStructure" },
+    { title: "STRESS", icon: "cci cci-reactor", path: "CurrentStress" },
+    { title: "E-DEF", icon: "cci cci-edef", path: "EDefense" },
+    { title: "SPEED", icon: "mdi mdi-arrow-right-bold-hexagon-outline", path: "Speed" },
+    { title: "SAVE", icon: "cci cci-save", path: "SaveTarget" },
+    { title: "SENSORS", icon: "cci cci-sensor", path: "SensorRange" },
+  ];
+
+  var stats_html = ``;
+
+  for (let i = 0; i < preview_stats_arr.length; i++) {
+    const builder = preview_stats_arr[i];
+    stats_html = stats_html.concat(`
+    <div class="mech-preview-stat-wrapper">
+      <i class="${builder.icon} i--m i--dark"> </i>
+      <span class="major">${builder.title}</span>
+      <span class="major">${resolve_dotpath(mech, builder.path)}</span>
+    </div>`);
   }
 
-  return `<div class="overcharge-container">
-    
-      <a class="overcharge-macro macroable i--dark i--sm" data-action="roll-macro"><i class="fas fa-dice-d20"></i></a>
-      <a class="overcharge-text">${rollVal}</a>
-      <input style="display:none;border:none" type="number" name="data.mech.overcharge_level" value="${level}" data-dtype="Number"/>
-      </input>
-      <a class="overcharge-reset mdi mdi-restore"></a>
-    </div>`;
+  html = html.concat(`
+  <div class="mech-preview">
+    <div class="mech-preview-titlebar">
+      <span>ACTIVE MECH: ${mech.Name}</span>
+    </div>
+    <img class="valid ${cd.ref.type} ref" ${ref_params(cd.ref)} src="${mech.Flags.top_level_data.img}"/>
+    ${stats_html}
+  </div>`);
+
+  return html;
 }

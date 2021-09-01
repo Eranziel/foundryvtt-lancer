@@ -1,0 +1,31 @@
+<form class="{{cssClass}} lancer-sheet" autocomplete="off">
+    {{!-- Sheet Header --}}
+    <header class="sheet-header card clipped-bot">
+      <div class="flexrow">
+        <div class="header-fields">
+          <h1 class="charname">
+            <input
+              class="header-field"
+              name="name"
+              type="text"
+              value="{{item.name}}"
+              placeholder="{{localize "lancer.placeholder.name"}}"
+            />
+          </h1>
+        </div>
+        {{{ ref-portrait-img item.img "img" mm }}}
+      </div>
+    </header>
+  
+    {{!-- Sheet Body --}}
+    <section class="sheet-body">
+      {{{textarea-card "DESCRIPTION" "mm.Description"}}}
+      {{{item-edit-arrayed-actions      "mm.Actions"        "ACTIONS"}}}
+      {{{item-edit-arrayed-bonuses      "mm.Bonuses"}}}
+      {{{counter-array mm.Counters "mm.Counters" "mm.Counters" true}}}
+      {{{item-edit-arrayed-deployables  "mm.Deployables"                "DEPLOYABLES"}}}
+      {{{item-edit-arrayed-integrated   "mm.Integrated"                 "INTEGRATED ITEMS"}}}
+      {{{item-edit-arrayed-synergies    "mm.Synergies"                  "SYNERGIES"}}}
+    </section>
+  </form>
+  
