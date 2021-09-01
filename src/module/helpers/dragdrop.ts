@@ -59,8 +59,6 @@ export function HANDLER_enable_dropping(
       let data = event.originalEvent?.dataTransfer?.getData("text/plain");
       if (!data) return;
 
-      import("./slidinghud").then(mod => mod.fade("out"));
-
       // Check if we can drop
       let drop_permitted = !allow_drop || allow_drop(data, item, event);
 
@@ -126,8 +124,6 @@ export function HANDLER_enable_dropping(
 
       event.preventDefault();
       event.stopPropagation();
-
-      import("./slidinghud").then(mod => mod.fade("in"));
     });
   });
 }
@@ -600,7 +596,6 @@ export function applyGlobalDragListeners() {
   body.addEventListener(
     "dragstart",
     e => {
-      import("./slidinghud").then(mod => mod.fade("out"));
       // Even though we are capturing, we need to wait a moment so the event data transfer can occur
       setTimeout(async () => {
         // Ok. Try to resolve
@@ -638,7 +633,6 @@ export function applyGlobalDragListeners() {
   body.addEventListener(
     "dragend",
     e => {
-      import("./slidinghud").then(mod => mod.fade("in"));
       clear_global_drag();
     },
     {
