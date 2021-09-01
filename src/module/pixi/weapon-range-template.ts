@@ -31,14 +31,20 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
     return this.range.type === RangeType.Burst;
   }
 
+  private actorSheet: FormApplication | undefined;
+
   /**
    * Creates a new WeaponRangeTemplate from a provided range object
-   * @param type - Type of template
-   * @param val  - Size of template
+   * @param type - Type of template. A RangeType in typescript, or a string in js.
+   * @param val  - Size of template. A numeric string
+   * @param creator - A token that is designated as the owner of the template.
+   *                  Used to deterimine the character sheet to close as well
+   *                  as a default ignore target for Cones and Lines.
    */
   static fromRange({ type, val }: WeaponRangeTemplate["range"], creator?: Token): WeaponRangeTemplate | null {
     if (!canvas.ready) return null;
     let dist = parseInt(val);
+    if (isNaN(dist)) return null;
     let hex: boolean = (canvas.grid?.type ?? 0) >= 2;
 
     let shape: "cone" | "ray" | "circle";
@@ -73,7 +79,7 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
           range: { type, val },
           creator: creator?.id,
           ignore: {
-            tokens: type === RangeType.Blast || !creator ? [] : [creator.id],
+            tokens: [RangeType.Blast, RangeType.Burst].includes(type) || !creator ? [] : [creator.id],
             dispositions: <TokenDocument["data"]["disposition"][]>[],
           },
         },
@@ -83,6 +89,7 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
     const cls = CONFIG.MeasuredTemplate.documentClass;
     const template = new cls(templateData, { parent: canvas.scene ?? undefined });
     const object = new this(template);
+    object.actorSheet = creator?.actor?.sheet ?? undefined;
     return object;
   }
 
@@ -106,6 +113,7 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
       ui.notifications?.error("Cannot create WeaponRangeTemplate. Canvas is not ready");
       throw new Error("Cannot create WeaponRangeTemplate. Canvas is not ready");
     }
+    this.actorSheet?.minimize();
     const initialLayer = canvas.activeLayer;
     this.draw();
     this.layer.activate();
@@ -113,7 +121,9 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
     return this.activatePreviewListeners(initialLayer);
   }
 
-  private activatePreviewListeners(initialLayer: CanvasLayer<CanvasLayerOptions> | null): Promise<MeasuredTemplateDocument> {
+  private activatePreviewListeners(
+    initialLayer: CanvasLayer<CanvasLayerOptions> | null
+  ): Promise<MeasuredTemplateDocument> {
     return new Promise<MeasuredTemplateDocument>((resolve, reject) => {
       const handlers: any = {};
       let moveTime = 0;
@@ -135,6 +145,7 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
 
       // Cancel the workflow (right-click)
       handlers.rc = (_e: unknown, do_reject: boolean = true) => {
+        this.actorSheet?.maximize();
         // Remove the preview
         this.layer.preview?.removeChildren().forEach(c => c.destroy());
         canvas.stage?.off("mousemove", handlers.mm);
