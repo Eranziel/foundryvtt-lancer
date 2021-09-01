@@ -30,7 +30,11 @@ export default class CompconLoginForm extends FormApplication {
       populatePilotCache();
       return this.close();
     } catch (e) {
-      ui.notifications!.error(`Could not log in to Comp/Con: ${e}`);
+      if (e instanceof Error) {
+        ui.notifications!.error(`Could not log in to Comp/Con: ${e.message}`);
+      } else {
+        ui.notifications!.error(`Could not log in to Comp/Con: ${e}`);
+      }
     }
   }
 }
