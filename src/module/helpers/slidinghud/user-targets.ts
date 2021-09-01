@@ -6,7 +6,7 @@ export const userTargets = readable([] as Token[], update => {
   }
 
   Hooks.on('targetToken', (user: User, _token: Token, _isNewTarget: boolean) => {
-    if (user == game.user) {
+    if (user.isSelf) {
       updateData();
     }
   })

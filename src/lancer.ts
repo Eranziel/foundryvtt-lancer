@@ -483,7 +483,7 @@ Hooks.once("init", async function () {
   Hooks.on('renderHeadsUpDisplay', slidingHUD.attach);
   let openingBasicAttackLock = false;
   Hooks.on('targetToken', (user: User, _token: Token, isNewTarget: boolean) => {
-    if (game.user == user && isNewTarget && !openingBasicAttackLock) {
+    if (user.isSelf && isNewTarget && !openingBasicAttackLock) {
       // this only works because openBasicAttack is a promise and runs on a future tick
       openingBasicAttackLock = true;
       macros.openBasicAttack().finally(() => {
