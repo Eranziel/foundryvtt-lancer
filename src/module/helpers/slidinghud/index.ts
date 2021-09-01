@@ -1,7 +1,7 @@
 import type HUDZone from './SlidingHUDZone.svelte';
 import type { AccDiffData } from '../acc_diff';
 
-let hud: typeof HUDZone;
+let hud: HUDZone;
 
 export async function attach() {
   if (!hud) {
@@ -17,7 +17,6 @@ export async function open(key: "hase" | "attack", data: AccDiffData): Promise<A
   let hud = await attach();
 
   // open the hud, cancelling existing listeners
-  // @ts-ignore
   hud.open(key, data);
 
   return new Promise((resolve, reject) => {
@@ -28,12 +27,10 @@ export async function open(key: "hase" | "attack", data: AccDiffData): Promise<A
 
 export async function isOpen(key: "hase" | "attack"): Promise<boolean> {
   let hud = await attach();
-  // @ts-ignore
   return hud.isOpen(key);
 }
 
 export async function fade(dir: "out" | "in" = "out") {
   let hud = await attach();
-  // @ts-ignore
   hud.fade(dir);
 }
