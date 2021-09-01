@@ -8,6 +8,7 @@
  import { createEventDispatcher } from 'svelte';
 
  import { sidebarWidth } from './sidebar-width';
+ import { isDragging } from './is-dragging';
  import AccDiffForm from '../acc_diff/Form.svelte';
 
  let dispatch = createEventDispatcher();
@@ -70,7 +71,8 @@
    Object.keys(huds).filter(key => huds[key].open).sort((a,b) => huds[b].open! - huds[a].open!);
 </script>
 
-<div id="hudzone" class="window-app" class:faded style="bottom: 0; right: {$sidebarWidth}px">
+<div id="hudzone" class="window-app" class:faded={faded || $isDragging}
+         style="bottom: 0; right: {$sidebarWidth}px">
   {#each visibleHudsKeys as key (key+huds[key].data.title)}
     <div class="component grid-enforcement" animate:flip transition:slide>
       <svelte:component
