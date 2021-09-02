@@ -440,7 +440,7 @@
     }
     .range-button {
       cursor: pointer;
-      box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, 0.7);
+      box-shadow: 1px 1px 1px 0.6px rgba(0, 0, 0, 0.7);
       border: none;
       text-align: left;
       flex: 0 0;
@@ -451,14 +451,14 @@
       padding: 0;
       background-color: var(--main-theme-color);
       &:hover, &:focus {
-        box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, 0.7);
+        box-shadow: 1px 1px 1px 0.6px rgba(0, 0, 0, 0.7);
       }
       &:hover {
         background-color: var(--protocol-color);
       }
       &:active {
         transform: translateX(2px) translateY(2px);
-        box-shadow: -1px -1px 1px 1px rgba(0, 0, 0, 0.7);
+        box-shadow: -1px -1px 1px 0.6px rgba(0, 0, 0, 0.7);
       }
       & i {
         margin: 2px;
