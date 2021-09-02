@@ -54,7 +54,7 @@ function spotter(): AccDiffPluginData {
     },
     modifyRoll(roll: string) {
       if (this.uiState) {
-        return roll.replace("1d20", "2d20kh1[spotter]");
+        return `{${roll},${roll}}kh[🎯 spotter]`;
       } else {
         return roll;
       }
