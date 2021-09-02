@@ -1,7 +1,7 @@
 // Import TypeScript modules
 import { LANCER } from "./config";
 import type { LancerItem } from "./item/lancer-item";
-import type { LancerActor, AnyMMActor } from "./actor/lancer-actor";
+import type { AnyMMActor, LancerActor } from "./actor/lancer-actor";
 import type {
   LancerAttackMacroData,
   LancerMacroData,
@@ -14,22 +14,23 @@ import type {
 } from "./interfaces";
 // Import JSON data
 import {
+  ActivationType,
   DamageType,
   EntryType,
+  funcs,
+  Mech,
+  MechSystem,
+  MechWeapon,
+  MechWeaponProfile,
+  Npc,
+  NpcFeature,
   NpcFeatureType,
-  TagInstance,
+  OpCtx,
   Pilot,
   PilotWeapon,
-  MechWeapon,
   RegDamageData,
   RegRef,
-  MechWeaponProfile,
-  NpcFeature,
-  OpCtx,
-  MechSystem,
-  Mech,
-  ActivationType,
-  funcs,
+  TagInstance,
 } from "machine-mind";
 import { FoundryFlagData, FoundryReg } from "./mm-util/foundry-reg";
 import { is_ref, resolve_dotpath } from "./helpers/commons";
@@ -475,9 +476,7 @@ function rollStr(bonus: number, total: number): string {
 }
 
 function applyPluginsToRoll(str: string, plugins: RollModifier[]): string {
-  return plugins
-    .sort((p, q) => q.rollPrecedence - p.rollPrecedence)
-    .reduce((acc, p) => p.modifyRoll(acc), str);
+  return plugins.sort((p, q) => q.rollPrecedence - p.rollPrecedence).reduce((acc, p) => p.modifyRoll(acc), str);
 }
 
 type AttackRolls = {
@@ -813,7 +812,7 @@ async function prepareAttackMacro(
 }
 
 export async function openBasicAttack(rerollData?: AccDiffData) {
-  let { isOpen, open } = await import('./helpers/slidinghud');
+  let { isOpen, open } = await import("./helpers/slidinghud");
 
   // if the hud is already open, and we're not overriding with new reroll data, just bail out
   let wasOpen = await isOpen("attack");
@@ -825,9 +824,8 @@ export async function openBasicAttack(rerollData?: AccDiffData) {
 
   let actor = getMacroSpeaker();
 
-  let data = rerollData ?? AccDiffData.fromParams(
-    actor, undefined, "Basic Attack",
-    Array.from(game!.user!.targets), undefined);
+  let data =
+    rerollData ?? AccDiffData.fromParams(actor, undefined, "Basic Attack", Array.from(game!.user!.targets), undefined);
 
   let promptedData;
   try {
@@ -1272,10 +1270,10 @@ async function rollTechMacro(
   item?: LancerItem
 ) {
   const targets = Array.from(game!.user!.targets);
-  let { AccDiffData } = await import('./helpers/acc_diff');
-  const initialData = rerollData ?
-    AccDiffData.fromObject(rerollData, item ?? actor) :
-    AccDiffData.fromParams(item ?? actor, data.tags, data.title, targets);
+  let { AccDiffData } = await import("./helpers/acc_diff");
+  const initialData = rerollData
+    ? AccDiffData.fromObject(rerollData, item ?? actor)
+    : AccDiffData.fromParams(item ?? actor, data.tags, data.title, targets);
 
   let promptedData;
   try {
