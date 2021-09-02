@@ -3,6 +3,7 @@ import type { AccDiffPlugin, AccDiffPluginData } from "./plugin";
 import type { AccDiffData, AccDiffTarget } from "./index";
 import type { LancerActor } from "../../actor/lancer-actor";
 import type { Mech, Pilot } from "machine-mind";
+import type { LancerToken } from "../../token";
 
 // this is an example of a case implemented without defining a full class
 function adjacentSpotter(actor: LancerActor): boolean {
@@ -11,24 +12,25 @@ function adjacentSpotter(actor: LancerActor): boolean {
     return false;
   }
 
-  // this isn't adjacency, it's "is within range 1 LOS with a hack for larger mechs", but it's good enough
-  // computation taken from sensor-sight
-  let radius = actor.data.data.derived.mm!.Size;
-  let token = actor.getActiveTokens()[0];
-  // TODO: TYPECHECK: center does always seem to exist on this thing ts thinks is a LancerTokenDocument
-  let point = (token as any).center;
+  // computation shamelessly stolen from sensor-sight
 
-  function inRange(token: { x: number; y: number }) {
-    const range = Math.sqrt((token.x - point.x) * (token.x - point.x) + (token.y - point.y) * (token.y - point.y));
-    const scale = canvas!.scene!.data.gridType > 1 ? Math.sqrt(3) / 2 : 1; // for hexes
-    const grid = canvas!.scene!.data.grid;
-    return (radius + 0.01) * grid * scale > range;
+  // TODO: report this as a bug to league-types
+  let token: LancerToken = actor.getActiveTokens()[0] as unknown as LancerToken;
+
+  const spaces = token.getOccupiedSpaces("updated position");
+  function adjacent(token: LancerToken) {
+    const otherSpaces = token.getOccupiedSpaces("updated position");
+    const rays = spaces.flatMap(s => otherSpaces.map(t => ({ ray: new Ray(s, t) })));
+    const min_d = Math.min(
+      ...canvas.grid!.grid!.measureDistances(rays, { gridSpaces: true })
+    );
+    return min_d < 1.1;
   }
 
   // TODO: TYPECHECK: all of this seems to work
-  let adjacentPilots = (canvas!.tokens!.objects!.children as Token[])
-    .filter((t: Token) => t.actor?.is_mech() && inRange((t as any).center) && t.id != token.id)
-    .map((t: Token) => (t.actor!.data.data.derived.mm! as Mech).Pilot);
+  let adjacentPilots = (canvas!.tokens!.objects!.children as LancerToken[])
+    .filter((t: LancerToken) => t.actor?.is_mech() && adjacent(t) && t.id != token.id)
+    .map((t: LancerToken) => (t.actor!.data.data.derived.mm! as Mech).Pilot);
 
   return !!adjacentPilots.find((p: Pilot | null) => p?.Talents.find(t => t.LID == "t_spotter"));
 }
