@@ -1682,8 +1682,11 @@ export function targetsFromTemplate(templateId: string): void {
   let ignore = canvas.templates!.get(templateId)!.document.getFlag(game.system.id, "ignore");
 
   // Test if each token occupies a targeted space and target it if true
-  canvas.tokens!.placeables.forEach(t => {
-    let skip = ignore.tokens.includes(t.id) || ignore.dispositions.includes(t.data.disposition);
-    t.setTarget(!skip && test_token(<LancerToken>t), { releaseOthers: false, groupSelection: true });
-  });
+  const targets = canvas
+    .tokens!.placeables.filter(t => {
+      let skip = ignore.tokens.includes(t.id) || ignore.dispositions.includes(t.data.disposition);
+      return !skip && test_token(<LancerToken>t);
+    })
+    .map(t => t.id);
+  game.user!.updateTokenTargets(targets);
 }
