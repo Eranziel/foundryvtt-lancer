@@ -334,7 +334,9 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       if (!item) return ui.notifications!.warn(`Error rolling macro: Couldn't find weapon with ID ${weaponId}.`);
 
       const weapon = item;
-      prepareItemMacro(this.actor.id!, weapon.id!);
+      // @ts-ignore
+      let id = this.token ? this.token.id : this.actor.id!;
+      prepareItemMacro(id, weapon.id!);
     });
 
     // TODO: This should really just be a single item-macro class
