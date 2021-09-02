@@ -274,7 +274,7 @@
   </div>
 </form>
 
-<style>
+<style lang="scss">
   :global(.accdiff-grid) {
     display: flex;
     justify-content: space-between;
@@ -373,9 +373,9 @@
     vertical-align: top;
   }
 
-  /* there's a very specific foundry rule that adds some margin here
+  /* there's a very specific EMU rule that adds some margin here
      because it assumes all icons in buttons are followed by text, I think */
-  #accdiff .accdiff-target-row button > i {
+  #accdiff .accdiff-target-row button > i, #accdiff .mech-weapon button > i {
     margin-inline-end: 0;
   }
 
@@ -399,54 +399,71 @@
     white-space: nowrap;
   }
 
-  .accdiff-target-row .accdiff-button {
-    align-items: center;
-    display: inline-flex;
-    justify-content: center;
-    margin: 0;
-    border: none;
-    box-shadow: 1px 1px 1px var(--main-theme-color);
+  #accdiff button {
     transition: 100ms cubic-bezier(0.075, 0.82, 0.165, 1);
   }
 
-  .accdiff-target-row .accdiff-button:hover {
-    background-color: var(--main-theme-text);
-    box-shadow: 1px 1px 1px var(--main-theme-color);
-  }
-
-  .accdiff-target-row .accdiff-button:focus {
-    box-shadow: 1px 1px 1px var(--main-theme-color);
-  }
-
-  .accdiff-target-row .accdiff-button:active {
-    transform: translateX(2px) translateY(2px);
-    box-shadow: -1px -1px 1px var(--main-theme-color);
-  }
-
-  .accdiff-target-row .accdiff-button i {
-    text-shadow: none;
-    color: rgba(var(--color-text-lightest), 1);
-    cursor: pointer;
+  .accdiff-target-row {
+    .accdiff-button {
+      cursor: pointer;
+      align-items: center;
+      display: inline-flex;
+      justify-content: center;
+      margin: 0;
+      border: none;
+      box-shadow: 1px 1px 1px var(--main-theme-color);
+      &:hover, &:focus {
+        box-shadow: 1px 1px 1px var(--main-theme-color);
+      }
+      &:hover {
+        background-color: var(--main-theme-text);
+      }
+      &:active {
+        transform: translateX(2px) translateY(2px);
+        box-shadow: -1px -1px 1px var(--main-theme-color);
+      }
+      & i {
+        text-shadow: none;
+        color: rgba(var(--color-text-lightest), 1);
+      }
+    }
   }
 
   .accdiff-target-row .card-title {
     background-color: #00000000;
   }
 
-  .range-button {
-    border: 1px solid rgba(0, 0, 0, 0.2);
-    text-align: left;
-    flex: 0 0;
-    margin: 4px;
-    padding: 0;
-    background: inherit;
-  }
-  .range-button:hover, .range-button:focus {
-    background: rgba(0, 0, 0, .2);
-    box-shadow: none;
-    cursor: pointer;
-  }
-  .range-button i.cci {
-    margin: 0;
+  #accdiff .mech-weapon {
+    span {
+      margin-right: 1em;
+      margin-left: 1em;
+    }
+    .range-button {
+      cursor: pointer;
+      box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, 0.7);
+      border: none;
+      text-align: left;
+      flex: 0 0;
+      margin-left: 8px;
+      margin-right: 0px;
+      margin-top: 5px;
+      margin-bottom: 7px;
+      padding: 0;
+      background-color: var(--main-theme-color);
+      &:hover, &:focus {
+        box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, 0.7);
+      }
+      &:hover {
+        background-color: var(--protocol-color);
+      }
+      &:active {
+        transform: translateX(2px) translateY(2px);
+        box-shadow: -1px -1px 1px 1px rgba(0, 0, 0, 0.7);
+      }
+      & i {
+        margin: 2px;
+        padding: 0;
+      }
+    }
   }
 </style>
