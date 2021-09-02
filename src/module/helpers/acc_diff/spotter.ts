@@ -59,6 +59,7 @@ function spotter(): AccDiffPluginData {
         return roll;
       }
     },
+    rollPrecedence: -100, // after numeric modifiers
     hydrate(data: AccDiffData, target?: AccDiffTarget) {
       this.actor = data.lancerActor || null;
       this.target = target || null;

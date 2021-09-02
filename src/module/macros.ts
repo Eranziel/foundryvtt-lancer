@@ -37,7 +37,7 @@ import { buildActionHTML, buildDeployableHTML, buildSystemHTML } from "./helpers
 import { ActivationOptions, StabOptions1, StabOptions2 } from "./enums";
 import { applyCollapseListeners, uuid4 } from "./helpers/collapse";
 import { checkForHit } from "./helpers/automation/targeting";
-import type { AccDiffData, AccDiffDataSerialized } from "./helpers/acc_diff";
+import type { AccDiffData, AccDiffDataSerialized, RollModifier } from "./helpers/acc_diff";
 import { is_overkill } from "machine-mind/dist/funcs";
 import type { LancerToken } from "./token";
 import { LancerGame } from "./lancer-game";
@@ -474,8 +474,10 @@ function rollStr(bonus: number, total: number): string {
   return `1d20 + ${bonus}${modStr}`;
 }
 
-function applyPluginsToRoll(str: string, plugins: { modifyRoll(i: string): string }[]): string {
-  return plugins.reduce((acc, p) => p.modifyRoll(acc), str);
+function applyPluginsToRoll(str: string, plugins: RollModifier[]): string {
+  return plugins
+    .sort((p, q) => q.rollPrecedence - p.rollPrecedence)
+    .reduce((acc, p) => p.modifyRoll(acc), str);
 }
 
 type AttackRolls = {

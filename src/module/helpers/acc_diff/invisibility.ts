@@ -100,6 +100,8 @@ export default class Invisibility implements AccDiffCheckboxPluginData {
       return roll;
     }
   }
+
+  readonly rollPrecedence = -9999; // after _everything_
 }
 
 // to check whether the static methods match the interface

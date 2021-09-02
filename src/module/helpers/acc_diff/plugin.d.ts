@@ -29,6 +29,7 @@ type UIBehaviour = CheckboxUI | NoUI;
 
 declare interface RollModifier {
   modifyRoll(roll: string): string
+  get rollPrecedence(): number // higher numbers happen earlier
 }
 
 declare interface Dehydrated {
