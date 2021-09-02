@@ -1689,4 +1689,5 @@ export function targetsFromTemplate(templateId: string): void {
     })
     .map(t => t.id);
   game.user!.updateTokenTargets(targets);
+  game.user!.broadcastActivity({ targets });
 }
