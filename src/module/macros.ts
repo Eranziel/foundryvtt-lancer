@@ -41,6 +41,7 @@ import type { AccDiffData, AccDiffDataSerialized, RollModifier } from "./helpers
 import { is_overkill } from "machine-mind/dist/funcs";
 import type { LancerToken } from "./token";
 import { LancerGame } from "./lancer-game";
+import { is_reg_mech } from "./actor/lancer-actor";
 
 const lp = LANCER.log_prefix;
 
@@ -1482,7 +1483,7 @@ export async function prepareActivationMacro(
 
   // Get the item
   const item = actor.items.get(i);
-  if (!item || !actor.is_mech()) {
+  if (!item || (!actor.is_mech() && !actor.is_pilot())) {
     return ui.notifications!.error(
       `Error preparing tech attack macro - could not find Item ${i} owned by Actor ${a}! Did you add the Item to the token, instead of the source Actor?`
     );
@@ -1493,7 +1494,7 @@ export async function prepareActivationMacro(
   }
 
   let itemEnt: MechSystem | NpcFeature = await item.data.data.derived.mm_promise;
-  let actorEnt: Mech = await actor.data.data.derived.mm_promise;
+  let actorEnt: Mech | Pilot = await actor.data.data.derived.mm_promise;
 
   // TODO--handle NPC Activations
   if (itemEnt.Type === EntryType.NPC_FEATURE) return;
@@ -1523,8 +1524,9 @@ export async function prepareActivationMacro(
   throw Error("You shouldn't be here!");
 }
 
-async function _prepareTextActionMacro(actorEnt: Mech, itemEnt: MechSystem | NpcFeature, index: number) {
+async function _prepareTextActionMacro(actorEnt: Mech | Pilot | Npc, itemEnt: MechSystem | NpcFeature, index: number) {
   // Support this later...
+  // TODO: pilot gear and NPC features
   if (itemEnt.Type !== EntryType.MECH_SYSTEM) return;
 
   let action = itemEnt.Actions[index];
@@ -1533,13 +1535,14 @@ async function _prepareTextActionMacro(actorEnt: Mech, itemEnt: MechSystem | Npc
 }
 
 async function _prepareTechActionMacro(
-  actorEnt: Mech,
+  actorEnt: Mech | Pilot,
   itemEnt: MechSystem | NpcFeature,
   index: number,
   partialMacroData: LancerMacroData,
   rerollData?: AccDiffDataSerialized
 ) {
   // Support this later...
+  // TODO: pilot gear and NPC features
   if (itemEnt.Type !== EntryType.MECH_SYSTEM) return;
 
   let action = itemEnt.Actions[index];
@@ -1553,7 +1556,7 @@ async function _prepareTechActionMacro(
     tags: itemEnt.Tags,
   };
 
-  mData.t_atk = actorEnt.TechAttack;
+  mData.t_atk = is_reg_mech(actorEnt) ? actorEnt.TechAttack : 0;
   mData.tags = itemEnt.Tags;
 
   /*
@@ -1575,8 +1578,9 @@ async function _prepareTechActionMacro(
   await rollTechMacro(actorEnt.Flags.orig_doc, mData, partialMacroData, rerollData);
 }
 
-async function _prepareDeployableMacro(actorEnt: Mech, itemEnt: MechSystem | NpcFeature, index: number) {
+async function _prepareDeployableMacro(actorEnt: Mech | Pilot | Npc, itemEnt: MechSystem | NpcFeature, index: number) {
   // Support this later...
+  // TODO: pilot gear (and NPC features later?)
   if (itemEnt.Type !== EntryType.MECH_SYSTEM) return;
 
   let dep = itemEnt.Deployables[index];
