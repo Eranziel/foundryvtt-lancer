@@ -1250,8 +1250,8 @@ async function rollTechMacro(actor: LancerActor, data: LancerTechMacroData, part
   const targets = Array.from(game!.user!.targets);
   let { AccDiffData } = await import('./helpers/acc_diff');
   const initialData = rerollData ?
-    AccDiffData.fromObject(rerollData, item) :
-    AccDiffData.fromParams(item, data.tags, data.title, targets);
+    AccDiffData.fromObject(rerollData, item ?? actor) :
+    AccDiffData.fromParams(item ?? actor, data.tags, data.title, targets);
 
   let promptedData;
   try {
