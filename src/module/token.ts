@@ -34,36 +34,38 @@ export class LancerTokenDocument extends TokenDocument {
 export class LancerToken extends Token {
   constructor(document: LancerTokenDocument) {
     super(document);
-    this._spaces = new Set<Point>();
+    this._spaces = [];
   }
 
   /**
    * Cached occupied spaces
    */
-  protected _spaces: Set<Point>;
+  protected _spaces: Point[];
 
   /**
    * Returns a Set of Points corresponding to the grid space center points that
    * the token occupies.
    */
-  getOccupiedSpaces(): Set<Point> {
-    if (this._spaces.size === 0 && canvas?.grid?.type !== CONST.GRID_TYPES.GRIDLESS) {
+  getOccupiedSpaces(mode: "current position" | "updated position" = "current position"): Point[] {
+    let pos: { x: number, y: number } = mode == "current position" ? this.position : this.data;
+
+    if (this._spaces.length === 0 && canvas?.grid?.type !== CONST.GRID_TYPES.GRIDLESS) {
       let hitBox: PIXI.IHitArea;
       if (this.hitArea instanceof PIXI.Polygon) {
         let poly_points: number[] = [];
         for (let i = 0; i < this.hitArea.points.length - 1; i += 2) {
-          poly_points.push(this.hitArea.points[i] + this.position.x, this.hitArea.points[i + 1] + this.position.y);
+          poly_points.push(this.hitArea.points[i] + pos.x, this.hitArea.points[i + 1] + pos.y);
         }
         hitBox = new PIXI.Polygon(poly_points);
       } else if (this.hitArea instanceof PIXI.Rectangle) {
-        hitBox = new PIXI.Rectangle(this.position.x, this.position.y, this.hitArea.width, this.hitArea.height);
+        hitBox = new PIXI.Rectangle(pos.x, pos.y, this.hitArea.width, this.hitArea.height);
       } else {
         // TODO, handle all possible hitArea shapes
-        return this._spaces;
+        return Array.from(this._spaces);
       }
 
       // Get token grid coordinate
-      const [tx, ty] = canvas.grid!.grid?.getGridPositionFromPixels(this.position.x, this.position.y)!;
+      const [tx, ty] = canvas.grid!.grid?.getGridPositionFromPixels(pos.x, pos.y)!;
 
       // TODO: Gridless isn't handled, probably split this off to two utility
       // functions that handle gridded vs gridless properly
@@ -72,16 +74,16 @@ export class LancerToken extends Token {
           let pos = { x: 0, y: 0 };
           [pos.x, pos.y] = canvas.grid!.grid!.getPixelsFromGridPosition(i, j);
           [pos.x, pos.y] = canvas.grid!.getCenter(pos.x + 1, pos.y + 1);
-          if (hitBox.contains(pos.x, pos.y)) this._spaces.add(pos);
+          if (hitBox.contains(pos.x, pos.y)) this._spaces.push(pos);
         }
       }
     }
-    return this._spaces;
+    return Array.from(this._spaces);
   }
 
   _onUpdate(...[data, options, userId]: Parameters<Token["_onUpdate"]>): void {
     super._onUpdate(data, options, userId);
-    if (hasProperty(data ?? {}, "x") || hasProperty(data ?? {}, "y")) this._spaces.clear();
+    if (hasProperty(data ?? {}, "x") || hasProperty(data ?? {}, "y")) this._spaces = [];
   }
 }
 
