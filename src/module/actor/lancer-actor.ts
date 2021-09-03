@@ -1164,17 +1164,17 @@ export class LancerActor extends Actor {
 
   /**
    * Taking a new and old frame, swaps the actor and/or token images if 
-   * we detect that the image isn't custom. Will check each individually 
+   * we detect that the image isn't custom. Will check each individually
+   * @param robot     A MM Mech, passed through to avoid data overwrites 
    * @param oldFrame  
    * @param newFrame  
    * @returns         True if any updates were performed
    */
-  async swapFrameImage(oldFrame: Frame | null, newFrame: Frame): Promise<boolean> {
-    let oldFramePath = frameToPath[oldFrame?.Name || "EVEREST"];
-    let newFramePath = frameToPath[newFrame?.Name || "EVEREST"];
+  async swapFrameImage(robot: Mech, oldFrame: Frame | null, newFrame: Frame): Promise<boolean> {
+    let oldFramePath = frameToPath[oldFrame?.Name || ""];
+    let newFramePath = frameToPath[newFrame?.Name || ""];
     if(!newFramePath) newFramePath = "systems/lancer/assets/icons/mech.svg";
     let changed = false;
-    let robot = this.data.data.derived.mm as Mech | Npc;
     let newData: any = {}
 
     // Check the token
