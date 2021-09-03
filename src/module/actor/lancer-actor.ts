@@ -655,6 +655,7 @@ export class LancerActor extends Actor {
           flags.top_level_data["folder"] = unit_folder ? unit_folder.id : null;
           flags.top_level_data["token.name"] = owned_name;
           flags.top_level_data["permission"] = permission;
+          flags.top_level_data["token.disposition"] = CONST.TOKEN_DISPOSITIONS.NEUTRAL;
           // dep.writeback(); -- do this later, after setting active!
           synced_deployables.push(dep);
         },
@@ -665,10 +666,12 @@ export class LancerActor extends Actor {
           let new_img = replace_default_resource(flags.top_level_data["img"], portrait);
           flags.top_level_data["name"] = mech.Name;
           flags.top_level_data["folder"] = unit_folder ? unit_folder.id : null;
-          flags.top_level_data["token.name"] = data.callsign;
           flags.top_level_data["img"] = new_img;
-          flags.top_level_data["token.img"] = new_img;
           flags.top_level_data["permission"] = permission;
+          flags.top_level_data["token.img"] = new_img;
+          flags.top_level_data["token.name"] = data.callsign;
+          flags.top_level_data["token.disposition"] = this.data.token.disposition;
+          flags.top_level_data["token.actorLink"] = true;
           mech.writeback();
           // TODO: Retrogrades
         },
@@ -694,12 +697,16 @@ export class LancerActor extends Actor {
 
       // Reset curr data and render all
       this.render();
-      (await (synced_data as any).Mechs()).forEach((m: Mech) => m.Flags.orig_doc.render());
+      (await synced_data.Mechs()).forEach((m: Mech) => m.Flags.orig_doc.render());
 
       ui.notifications!.info("Successfully loaded pilot new state.");
     } catch (e) {
       console.warn(e);
-      ui.notifications!.warn(`Failed to update pilot, likely due to missing LCP data: ${e}`);
+      if (e instanceof Error) {
+        ui.notifications!.warn(`Failed to update pilot, likely due to missing LCP data: ${e.message}`);
+      } else {
+        ui.notifications!.warn(`Failed to update pilot, likely due to missing LCP data: ${e}`);
+      }
     }
   }
 
@@ -721,7 +728,7 @@ export class LancerActor extends Actor {
   // Use this to prevent race conditions / carry over data
   private _current_prepare_job_id!: number;
   private _job_tracker!: Map<number, Promise<AnyMMActor>>;
-  private _prev_derived!: this["data"]["data"]["derived"];
+  private _prev_derived: this["data"]["data"]["derived"] | undefined;
 
   /** @override
    * We need to both:
@@ -872,26 +879,45 @@ export class LancerActor extends Actor {
         dr.overshield.max = mm.MaxHP; // as good a number as any I guess
 
         // Depending on type, setup derived fields more precisely as able
-        if (mm.Type != EntryType.PILOT) {
-          let robot = mm as Mech | Npc | Deployable;
-
+        if (!is_reg_pilot(mm)) {
           // All "wow, cool robot" type units have these
-          dr.save_target = robot.SaveTarget;
-          dr.heat.max = robot.HeatCapacity;
-          dr.heat.value = robot.CurrentHeat;
+          dr.save_target = mm.SaveTarget;
+          dr.heat.max = mm.HeatCapacity;
+          dr.heat.value = mm.CurrentHeat;
 
-          if (robot.Type != EntryType.DEPLOYABLE) {
-            // Deployables don't have stress/struct
-            dr.structure.max = robot.MaxStructure;
-            dr.structure.value = robot.CurrentStructure;
-
-            dr.stress.max = robot.MaxStress;
-            dr.stress.value = robot.CurrentStress;
+          // If the Size of the ent has changed since the last update, set the
+          // protype token size to the new size
+          const cached_token_size = this.data.token.flags[game.system.id]?.mm_size;
+          if (!cached_token_size || cached_token_size !== mm.Size) {
+            const size = mm.Size <= 1 ? 1 : mm.Size;
+            this.data.token.update({
+              width: size,
+              height: size,
+              flags: {
+                "hex-size-support": {
+                  borderSize: size,
+                  altSnapping: true,
+                  evenSnap: !(size % 2),
+                },
+                [game.system.id]: {
+                  mm_size: size,
+                }
+              },
+            });
           }
-          if (robot.Type != EntryType.NPC) {
+
+          if (!is_reg_dep(mm)) {
+            // Deployables don't have stress/struct
+            dr.structure.max = mm.MaxStructure;
+            dr.structure.value = mm.CurrentStructure;
+
+            dr.stress.max = mm.MaxStress;
+            dr.stress.value = mm.CurrentStress;
+          }
+          if (!is_reg_npc(mm)) {
             // Npcs don't have repairs
-            dr.repairs.max = robot.RepairCapacity;
-            dr.repairs.value = robot.CurrentRepairs;
+            dr.repairs.max = mm.RepairCapacity;
+            dr.repairs.value = mm.CurrentRepairs;
           }
         }
 
