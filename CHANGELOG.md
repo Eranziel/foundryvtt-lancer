@@ -1,3 +1,14 @@
+# 1.0.1 (2021-09-02)
+## Features
+* Bolts has added a button to the attack HUD for placing templates according to the weapon's profile! Tokens under the template will be automatically targeted, updating the attack HUD.
+* The AoE Macros compendium has been updated so that the templates automatically target tokens they are placed upon.
+
+## Bug Fixes
+* #297 - Impaired is now applied to tech attacks as well.
+* #298 - Macros rolled from an unlinked token's sheet will use that token's name in chat.
+* #299 - Invisibility applies before any other attack modifiers, and spotter now correctly rerolls the entire attack roll.
+* #307 - Fixed talent action macros on mech sheets.
+
 # 1.0.0 (2021-08-31)
 If you are coming here from Lancer v0.1.x / Foundry 0.7.x, welcome! For you, nearly everything is new; the changes listed below accounts for changes from the latest version of the beta release.
 
