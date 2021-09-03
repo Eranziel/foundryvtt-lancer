@@ -80,6 +80,7 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
     // Now, do sensible things with it
     if (is_new && drop.Type === EntryType.FRAME) {
       // If new frame, auto swap with prior frame
+      await this.actor.swapFrameImage(this_mm.Loadout.Frame, drop);
       this_mm.Loadout.Frame = drop;
 
       // Reset mounts

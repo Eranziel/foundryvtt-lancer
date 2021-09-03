@@ -19,6 +19,7 @@ import {
   PackedPilotData,
   quick_relinker,
   RegEntryTypes,
+  Frame,
 } from "machine-mind";
 import { FoundryFlagData, FoundryReg } from "../mm-util/foundry-reg";
 import { LancerHooks, LancerSubscription } from "../helpers/hooks";
@@ -30,6 +31,8 @@ import type { RegEntry, MechWeapon, NpcFeature } from "machine-mind";
 import { StabOptions1, StabOptions2 } from "../enums";
 import { fix_modify_token_attribute } from "../token";
 import type { ActionData } from "../action";
+import { frameToPath } from "./retrograde-map";
+import { string } from "io-ts";
 const lp = LANCER.log_prefix;
 
 // Use for HP, etc
@@ -906,6 +909,27 @@ export class LancerActor extends Actor {
             });
           }
 
+          // And copying Bolts' work, do the same thing for the token image 
+          // with Retrograde's work
+          const cached_frame = this.data.token.flags[game.system.id]?.mm_size;
+          if (!cached_token_size || cached_token_size !== mm.Size) {
+            const size = mm.Size <= 1 ? 1 : mm.Size;
+            this.data.token.update({
+              width: size,
+              height: size,
+              flags: {
+                "hex-size-support": {
+                  borderSize: size,
+                  altSnapping: true,
+                  evenSnap: !(size % 2),
+                },
+                [game.system.id]: {
+                  mm_size: size,
+                }
+              },
+            });
+          }
+
           if (!is_reg_dep(mm)) {
             // Deployables don't have stress/struct
             dr.structure.max = mm.MaxStructure;
@@ -1135,6 +1159,39 @@ export class LancerActor extends Actor {
   }
   is_deployable(): this is LancerActor & { data: LancerActorDataProperties<EntryType.DEPLOYABLE> } {
     return this.data.type === EntryType.DEPLOYABLE;
+  }
+
+
+  /**
+   * Taking a new and old frame, swaps the actor and/or token images if 
+   * we detect that the image isn't custom. Will check each individually 
+   * @param oldFrame  
+   * @param newFrame  
+   * @returns         True if any updates were performed
+   */
+  async swapFrameImage(oldFrame: Frame | null, newFrame: Frame): Promise<boolean> {
+    let oldFramePath = frameToPath[oldFrame?.Name || "EVEREST"];
+    let newFramePath = frameToPath[newFrame?.Name || "EVEREST"];
+    let changed = false;
+
+    // Check the token
+    if(this.data.token.img == oldFramePath || this.data.token.img == "systems/lancer/assets/icons/mech.svg") {
+      await this.data.token.update({
+        img: newFramePath
+      })
+      changed = true;
+    }
+    
+    // Check the actor
+    if(this.data.img == oldFramePath || this.data.img == "systems/lancer/assets/icons/mech.svg") {
+      await this.data.update({
+        img: newFramePath
+      })
+      debugger
+      changed = true;
+    }
+
+    return changed;
   }
 }
 
