@@ -54,8 +54,9 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
         ev.stopPropagation(); // Avoids triggering parent event handlers
 
         const el = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
-
-        prepareItemMacro(this.actor.id!, <string>el.getAttribute("data-id")).then();
+        // @ts-ignore
+        let id = this.token ? this.token.id : this.actor.id!;
+        prepareItemMacro(id, <string>el.getAttribute("data-id")).then();
       });
 
       // Stat rollers
@@ -74,8 +75,10 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
           bonus: statInput.value,
         };
 
+        // @ts-ignore
+        let id = this.token ? this.token.id : this.actor.id!;
         console.log(`${lp} Rolling ${mData.title} check, bonus: ${mData.bonus}`);
-        prepareStatMacro(this.actor.id!, this.getStatPath(ev)!);
+        prepareStatMacro(id, this.getStatPath(ev)!);
       });
 
       // Trigger rollers
@@ -88,7 +91,9 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
         ev.stopPropagation();
         const techElement = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
         let techId = techElement.getAttribute("data-id");
-        prepareItemMacro(this.actor.id!, techId!);
+        // @ts-ignore
+        let id = this.token ? this.token.id : this.actor.id!;
+        prepareItemMacro(id, techId!);
       });
 
       // Item/Macroable Dragging
