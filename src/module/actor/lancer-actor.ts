@@ -1172,23 +1172,32 @@ export class LancerActor extends Actor {
   async swapFrameImage(oldFrame: Frame | null, newFrame: Frame): Promise<boolean> {
     let oldFramePath = frameToPath[oldFrame?.Name || "EVEREST"];
     let newFramePath = frameToPath[newFrame?.Name || "EVEREST"];
+    if(!newFramePath) newFramePath = "systems/lancer/assets/icons/mech.svg";
     let changed = false;
+    let robot = this.data.data.derived.mm as Mech | Npc;
+    let newData: any = {}
 
     // Check the token
     if(this.data.token.img == oldFramePath || this.data.token.img == "systems/lancer/assets/icons/mech.svg") {
-      await this.data.token.update({
-        img: newFramePath
-      })
+      newData.token = {"img": newFramePath};
       changed = true;
     }
     
     // Check the actor
     if(this.data.img == oldFramePath || this.data.img == "systems/lancer/assets/icons/mech.svg") {
-      await this.data.update({
-        img: newFramePath
-      })
-      debugger
+      newData.img = newFramePath;
+      
+      // Have to set our top level data in MM or it will overwrite it...
+      robot.Flags.top_level_data.img = newFramePath;
       changed = true;
+    }
+
+    let a = undefined;
+    let b = undefined;
+
+    if (changed) {
+      console.log(`${lp} Automatically updating mech image: `, newData);
+      a = await this.update(newData);
     }
 
     return changed;
