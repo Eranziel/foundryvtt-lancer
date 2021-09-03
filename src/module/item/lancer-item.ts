@@ -1,5 +1,14 @@
 import { LANCER, TypeIcon } from "../config";
-import { EntryType, funcs, LiveEntryTypes, OpCtx, RegEntryTypes } from "machine-mind";
+import {
+  EntryType,
+  funcs,
+  LiveEntryTypes,
+  NpcFeatureType,
+  OpCtx,
+  RangeType,
+  RegEntryTypes,
+  RegRangeData,
+} from "machine-mind";
 import { system_ready } from "../../lancer";
 import { mm_wrap_item } from "../mm-util/helpers";
 
@@ -93,6 +102,25 @@ declare global {
 }
 
 export class LancerItem extends Item {
+  /**
+   * Returns all ranges for the item that match the provided range types
+   */
+  rangesFor(types: Set<RangeType> | RangeType[]): RegRangeData[] {
+    const filter = new Set(types);
+    switch (this.data.type) {
+      case EntryType.MECH_WEAPON:
+        const p = this.data.data.selected_profile;
+        return this.data.data.profiles[p].range.filter(r => filter.has(r.type));
+      case EntryType.PILOT_WEAPON:
+        return this.data.data.range.filter(r => filter.has(r.type));
+      case EntryType.NPC_FEATURE:
+        if (this.data.data.type !== NpcFeatureType.Weapon) return [];
+        return this.data.data.range.filter(r => filter.has(r.type));
+      default:
+        return [];
+    }
+  }
+
   /**
    * Force name down to item,
    * And more importantly, perform MM workflow

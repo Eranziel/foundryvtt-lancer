@@ -12,7 +12,7 @@
     ],
     "types": [
       "@league-of-foundry-developers/foundry-vtt-types",
-      "@pyoner/svelte-types"
+      "svelte"
     ],
     "moduleResolution": "node",
     "strictNullChecks": true,
