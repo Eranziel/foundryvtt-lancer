@@ -1482,9 +1482,8 @@ export async function prepareActivationMacro(
 
   // Get the item
   let item: LancerItem | undefined;
-  if (actor.is_pilot()) {
-    item = actor.items.get(i);
-  } else if (actor.is_mech()) {
+  item = actor.items.get(i);
+  if (!item && actor.is_mech()) {
     let pilot = game.actors!.get(actor.data.data.pilot?.id ?? "");
     item = pilot?.items.get(i);
   }
@@ -1558,7 +1557,7 @@ async function _prepareTechActionMacro(
   let action = itemEnt.Actions[index];
 
   let mData: LancerTechMacroData = {
-    title: itemEnt.Name,
+    title: action.Name,
     t_atk: is_reg_mech(actorEnt) ? actorEnt.TechAttack : 0,
     acc: 0,
     action: action.Name.toUpperCase(),
