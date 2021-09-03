@@ -299,10 +299,7 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
         iconPath: `systems/${game.system.id}/assets/icons/macro-icons/mech_system.svg`,
         title: sys.Name,
         fn: "prepareItemMacro",
-        args: [
-          sys.Flags.orig_doc.actor?.id ?? "",
-          sys.Flags.orig_doc.id
-        ]
+        args: [sys.Flags.orig_doc.actor?.id ?? "", sys.Flags.orig_doc.id],
       };
 
       let limited = "";
@@ -348,14 +345,12 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
       </div>
       <ul style="grid-area: 2/1/3/3">`;
 
-
       for (var i = 0; i < talent.CurrentRank; i++) {
-
         let talent_actions = "";
 
         if (talent.Ranks[i].Actions) {
-          talent_actions = talent.Ranks[i].Actions.map((a: Action, i: number | undefined) => {
-            return buildActionHTML(a, { full: true, num: i });
+          talent_actions = talent.Ranks[i].Actions.map((a: Action) => {
+            return buildActionHTML(a, { full: true, num: talent.Actions.indexOf(a) });
           }).join("");
         }
 
