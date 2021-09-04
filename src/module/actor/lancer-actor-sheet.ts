@@ -330,12 +330,11 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       const weaponElement = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
       const weaponId = weaponElement.getAttribute("data-id");
       if (!weaponId) return ui.notifications!.warn(`Error rolling macro: No weapon ID!`);
-      const item = this.actor.items.get(weaponId);
-      if (!item) return ui.notifications!.warn(`Error rolling macro: Couldn't find weapon with ID ${weaponId}.`);
+      const weapon = this.actor.items.get(weaponId);
+      if (!weapon) return ui.notifications!.warn(`Error rolling macro: Couldn't find weapon with ID ${weaponId}.`);
 
-      const weapon = item;
       // @ts-ignore
-      let id = this.token ? this.token.id : this.actor.id!;
+      let id = this.token && !this.token.isLinked ? this.token.id : this.actor.id!;
       prepareItemMacro(id, weapon.id!);
     });
 
