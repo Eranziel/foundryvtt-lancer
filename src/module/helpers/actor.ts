@@ -51,13 +51,14 @@ export function stat_view_card(
 ): string {
   let data_val = resolve_helper_dotpath(options, data_path);
   let macro_button: string | undefined;
+  // Determine whether this is an unlinked token, so we can encode the correct id for the macro.
+  const r_actor = options.data.root.actor;
+  let id = r_actor.token && !r_actor.token.isLinked ? r_actor.token.id : r_actor.actor.id!;
+  console.log(r_actor, id);
   let macroData = encodeMacroData({
     title: title,
     fn: "prepareStatMacro",
-    args: [
-      options.data.root.data._id,
-      data_path
-    ]
+    args: [id, data_path],
   });
   if (options.rollable)
     macro_button = `<a class="i--dark i--sm lancer-macro" data-macro="${macroData}"><i class="fas fa-dice-d20"></i></a>`;
@@ -128,13 +129,14 @@ export function clicker_stat_card(
   options: HelperOptions
 ): string {
   let button = "";
+  // Determine whether this is an unlinked token, so we can encode the correct id for the macro.
+  const r_actor = options.data.root.actor;
+  let id = r_actor.token && !r_actor.token.isLinked ? r_actor.token.id : r_actor.actor.id!;
+  console.log(r_actor, id);
   let macroData = encodeMacroData({
     title: title,
     fn: "prepareStatMacro",
-    args: [
-      options.data.root.data._id,
-      data_path
-    ]
+    args: [id, data_path],
   });
   if (roller)
     button = `<a class="lancer-macro i--dark i--sm" data-macro="${macroData}"><i class="fas fa-dice-d20"></i></a>`;

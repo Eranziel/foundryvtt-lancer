@@ -353,7 +353,9 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
 
       const el = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
 
-      prepareItemMacro(this.actor.id!, el.getAttribute("data-id")!);
+      // @ts-ignore
+      let id = this.token && !this.token.isLinked ? this.token.id : this.actor.id!;
+      prepareItemMacro(id, el.getAttribute("data-id")!);
     });
 
     // Action-chip (system? Or broader?) macros

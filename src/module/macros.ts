@@ -318,7 +318,7 @@ export async function prepareItemMacro(a: string, i: string, options?: any) {
           await prepareAttackMacro({ actor, item, options });
           break;
         case NpcFeatureType.Tech:
-          await prepareTechMacro(actor.id!, item.id!);
+          await prepareTechMacro(a, i);
           break;
         case NpcFeatureType.System:
         case NpcFeatureType.Trait:
@@ -359,13 +359,9 @@ export function getMacroSpeaker(a_id?: string): LancerActor | undefined {
   const speaker = ChatMessage.getSpeaker();
   // console.log(`${lp} Macro speaker`, speaker);
   let actor: LancerActor | undefined;
-  // console.log(game.actors.tokens);
-  try {
-    if (speaker.token) {
-      actor = game.actors!.tokens[speaker.token];
-    }
-  } catch (TypeError) {
-    // Need anything here?
+  console.log(game.actors!.tokens);
+  if (speaker.token && Object.keys(game.actors!.tokens).includes(speaker.token)) {
+    actor = game.actors!.tokens[speaker.token];
   }
   if (!actor) {
     actor = game.actors!.get(speaker.actor!, { strict: false });
