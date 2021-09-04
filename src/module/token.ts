@@ -107,3 +107,22 @@ export function fix_modify_token_attribute(data: any) {
     }
   }
 }
+
+declare global {
+  interface FlagConfig {
+    Token: {
+      [game.system.id]?: {
+        mm_size?: number | undefined;
+      }
+      "hex-size-support"?: {
+        borderSize?: number;
+        altSnapping?: boolean;
+        evenSnap?: boolean;
+        alwaysShowBorder?: boolean;
+        alternateOrientation?: boolean;
+        pivotx?: number;
+        pivoty?: number;
+      };
+    }
+  }
+}
