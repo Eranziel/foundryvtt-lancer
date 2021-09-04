@@ -189,6 +189,11 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
       // Bring in base features from classes, if we don't already have an active class
       let this_inv = await this_mm.get_inventory();
 
+      
+      // Need to pass this_mm through so we don't overwrite data on our 
+      // later update
+      await this.actor.swapFrameImage(this_mm, this_mm.ActiveClass, drop);
+
       // But before we do that, destroy all old classes
       for (let clazz of this_mm.Classes) {
         // If we have a class, get rid of it

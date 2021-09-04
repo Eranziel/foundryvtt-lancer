@@ -631,6 +631,7 @@ Hooks.on("getActorDirectoryEntryContext", (_html: JQuery<HTMLElement>, ctxOption
 // For the settings tab
 Hooks.on("renderSettings", async (app: Application, html: HTMLElement) => {
   addSettingsButtons(app, html);
+  addRetrogradeCallout(app, html);
 });
 
 Hooks.on("renderChatMessage", async (cm: ChatMessage, html: any, data: any) => {
@@ -936,4 +937,15 @@ function addSettingsButtons(_app: Application, html: HTMLElement) {
       }
     ).render(true);
   });
+}
+
+function addRetrogradeCallout(_app: Application, html: HTMLElement) {
+  const creditsText = $(`<h2>Credits</h2>
+  <div id="settings-credits">
+    <p>Our thanks to RetrogradeMinis for the use of their amazing tokens as default mechs.</p>
+    <a href="https://www.retrogrademinis.com/">Find more of their work here</a>
+  </div>`);
+
+  $(html).find("#game-details").after(creditsText);
+
 }

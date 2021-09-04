@@ -33,6 +33,7 @@ import { fix_modify_token_attribute } from "../token";
 import type { ActionData } from "../action";
 import { frameToPath } from "./retrograde-map";
 import { string } from "io-ts";
+import { NpcClass } from 'machine-mind';
 const lp = LANCER.log_prefix;
 
 // Use for HP, etc
@@ -1163,28 +1164,30 @@ export class LancerActor extends Actor {
 
 
   /**
-   * Taking a new and old frame, swaps the actor and/or token images if 
+   * Taking a new and old frame/class, swaps the actor and/or token images if 
    * we detect that the image isn't custom. Will check each individually
-   * @param robot     A MM Mech, passed through to avoid data overwrites 
-   * @param oldFrame  
-   * @param newFrame  
+   * @param robot     A MM Mech or NPC, passed through to avoid data overwrites 
+   * @param oldFrame  Old Frame or NPC Class
+   * @param newFrame  New Frame or NPC Class
    * @returns         True if any updates were performed
    */
-  async swapFrameImage(robot: Mech, oldFrame: Frame | null, newFrame: Frame): Promise<boolean> {
+  async swapFrameImage(robot: Mech | Npc, oldFrame: Frame | NpcClass | null, newFrame: Frame | NpcClass): Promise<boolean> {
     let oldFramePath = frameToPath[oldFrame?.Name || ""];
     let newFramePath = frameToPath[newFrame?.Name || ""];
-    if(!newFramePath) newFramePath = "systems/lancer/assets/icons/mech.svg";
+    let defaultImg = robot.Type == EntryType.MECH ? "systems/lancer/assets/icons/mech.svg" : "systems/lancer/assets/icons/npc_class.svg";
+    
+    if(!newFramePath) newFramePath = defaultImg;
     let changed = false;
     let newData: any = {}
 
     // Check the token
-    if(this.data.token.img == oldFramePath || this.data.token.img == "systems/lancer/assets/icons/mech.svg") {
+    if(this.data.token.img == oldFramePath || this.data.token.img == defaultImg) {
       newData.token = {"img": newFramePath};
       changed = true;
     }
     
     // Check the actor
-    if(this.data.img == oldFramePath || this.data.img == "systems/lancer/assets/icons/mech.svg") {
+    if(this.data.img == oldFramePath || this.data.img == defaultImg) {
       newData.img = newFramePath;
       
       // Have to set our top level data in MM or it will overwrite it...
@@ -1196,7 +1199,7 @@ export class LancerActor extends Actor {
     let b = undefined;
 
     if (changed) {
-      console.log(`${lp} Automatically updating mech image: `, newData);
+      console.log(`${lp} Automatically updating image: `, newData);
       a = await this.update(newData);
     }
 
