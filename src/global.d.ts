@@ -1,3 +1,4 @@
+import type { LancerInitiativeConfig } from "lancer-initiative";
 import type { IContentPackManifest } from "machine-mind";
 import type { AutomationOptions } from "./module/settings";
 
@@ -13,6 +14,10 @@ declare global {
     interface SystemData<T> {
       id: "lancer";
     }
+  }
+
+  interface CONFIG {
+    LancerInitiative: LancerInitiativeConfig<Game["system"]["id"]>;
   }
 
   namespace ClientSettings {

@@ -141,6 +141,8 @@ import { FoundryReg } from "./module/mm-util/foundry-reg";
 import { applyGlobalDragListeners } from "./module/helpers/dragdrop";
 import { gridDist } from "./module/helpers/automation/targeting";
 import CompconLoginForm from "./module/helpers/compcon-login-form";
+import { LancerCombat, LancerCombatant, LancerCombatTracker } from "lancer-initiative";
+import { LancerCombatTrackerConfig } from "./module/helpers/lancer-initiative-config-form";
 
 const lp = LANCER.log_prefix;
 
@@ -214,6 +216,9 @@ Hooks.once("init", async function () {
   CONFIG.Item.documentClass = LancerItem;
   CONFIG.Token.documentClass = LancerTokenDocument;
   CONFIG.Token.objectClass = LancerToken;
+  CONFIG.Combat.documentClass = LancerCombat;
+  CONFIG.Combatant.documentClass = LancerCombatant;
+  CONFIG.ui.combat = LancerCombatTracker;
 
   // Set up system status icons
   const keepStock = game.settings.get(game.system.id, LANCER.setting_stock_icons);
@@ -640,6 +645,15 @@ Hooks.on("getActorDirectoryEntryContext", (_html: JQuery<HTMLElement>, ctxOption
 // For the settings tab
 Hooks.on("renderSettings", async (app: Application, html: HTMLElement) => {
   addSettingsButtons(app, html);
+});
+Hooks.on("renderCombatTracker", (...[_app, html]: Parameters<Hooks.RenderApplication<CombatTracker>>) => {
+  html
+    .find(".combat-settings")
+    .off("click")
+    .on("click", ev => {
+      ev.preventDefault();
+      new LancerCombatTrackerConfig({}).render(true);
+    });
 });
 
 Hooks.on("renderChatMessage", async (cm: ChatMessage, html: any, data: any) => {
