@@ -676,8 +676,11 @@ export class LancerActor extends Actor {
           flags.top_level_data["token.name"] = data.callsign;
           flags.top_level_data["token.disposition"] = this.data.token.disposition;
           flags.top_level_data["token.actorLink"] = true;
+
+          // If we've got a frame (which we should) check for setting Retrograde image
+          // Also check that we don't have a custom image, which would be on imgur. If so, preserve it.
+          if(mech.Frame && !(new_img.includes("imgur"))) (mech.Flags.orig_doc as LancerActor).swapFrameImage(mech,null,mech.Frame);
           mech.writeback();
-          // TODO: Retrogrades
         },
         // Set pilot token
         sync_pilot: (pilot: Pilot) => {

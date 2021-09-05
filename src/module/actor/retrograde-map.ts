@@ -27,6 +27,7 @@ export const frameToPath: Record<string, string> = {
     "SAGARMATHA": "systems/lancer/assets/retrograde-minis/Retrograde-Minis-GMS.png",
     "SALADIN": "systems/lancer/assets/retrograde-minis/Retrograde-Minis-HA-SALADIN.png",
     "SHERMAN": "systems/lancer/assets/retrograde-minis/Retrograde-Minis-HA-SHERMAN.png",
+    "SUNZI": "systems/lancer/assets/retrograde-minis/Retrograde-Minis-HA-SUNZI.png",
     "SWALLOWTAIL": "systems/lancer/assets/retrograde-minis/Retrograde-Minis-SSC-SWALLOWTAIL.png",
     "TOKUGAWA": "systems/lancer/assets/retrograde-minis/Retrograde-Minis-HA-TOKUGAWA.png",
     "TORTUGA": "systems/lancer/assets/retrograde-minis/Retrograde-Minis-IPS-N-TORTUGA.png",
