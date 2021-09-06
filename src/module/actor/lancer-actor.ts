@@ -664,10 +664,11 @@ export class LancerActor extends Actor {
           synced_deployables.push(dep);
         },
         // Rename and rehome mechs
-        sync_mech: (mech: Mech) => {
+        sync_mech: async (mech: Mech) => {
           let flags = mech.Flags as FoundryFlagData<EntryType.MECH>;
           let portrait = mech.CloudPortrait || mech.Frame?.ImageUrl || "";
           let new_img = replace_default_resource(flags.top_level_data["img"], portrait);
+          
           flags.top_level_data["name"] = mech.Name;
           flags.top_level_data["folder"] = unit_folder ? unit_folder.id : null;
           flags.top_level_data["img"] = new_img;
@@ -677,10 +678,14 @@ export class LancerActor extends Actor {
           flags.top_level_data["token.disposition"] = this.data.token.disposition;
           flags.top_level_data["token.actorLink"] = true;
 
+          await mech.writeback();
+
           // If we've got a frame (which we should) check for setting Retrograde image
           // Also check that we don't have a custom image, which would be on imgur. If so, preserve it.
-          if(mech.Frame && !(new_img.includes("imgur"))) (mech.Flags.orig_doc as LancerActor).swapFrameImage(mech,null,mech.Frame);
-          mech.writeback();
+          if(mech.Frame && !(new_img.includes("imgur")) && await (mech.Flags.orig_doc as LancerActor).swapFrameImage(mech,null,mech.Frame)) {
+            // Write back again if we swapped images
+            await mech.writeback();
+          }
         },
         // Set pilot token
         sync_pilot: (pilot: Pilot) => {
@@ -1172,9 +1177,9 @@ export class LancerActor extends Actor {
    * @param robot     A MM Mech or NPC, passed through to avoid data overwrites 
    * @param oldFrame  Old Frame or NPC Class
    * @param newFrame  New Frame or NPC Class
-   * @returns         True if any updates were performed
+   * @returns         The newFrame if any updates were performed
    */
-  async swapFrameImage(robot: Mech | Npc, oldFrame: Frame | NpcClass | null, newFrame: Frame | NpcClass): Promise<boolean> {
+  async swapFrameImage(robot: Mech | Npc, oldFrame: Frame | NpcClass | null, newFrame: Frame | NpcClass): Promise<string> {
     let oldFramePath = frameToPath[oldFrame?.Name || ""];
     let newFramePath = frameToPath[newFrame?.Name || ""];
     let defaultImg = robot.Type == EntryType.MECH ? "systems/lancer/assets/icons/mech.svg" : "systems/lancer/assets/icons/npc_class.svg";
@@ -1184,17 +1189,20 @@ export class LancerActor extends Actor {
     let newData: any = {}
 
     // Check the token
-    if(this.data.token.img == oldFramePath || this.data.token.img == defaultImg) {
+    // Add manual check for the aws images
+    if(this.data.token.img == oldFramePath || this.data.token.img == defaultImg || this.data.token.img?.includes("compcon-image-assets")) {
       newData.token = {"img": newFramePath};
       changed = true;
     }
     
     // Check the actor
-    if(this.data.img == oldFramePath || this.data.img == defaultImg) {
+    // Add manual check for the aws images
+    if(this.data.img == oldFramePath || this.data.img == defaultImg || this.data.img?.includes("compcon-image-assets")) {
       newData.img = newFramePath;
       
       // Have to set our top level data in MM or it will overwrite it...
       robot.Flags.top_level_data.img = newFramePath;
+      robot.Flags.top_level_data["token.img"] = newFramePath;
       changed = true;
     }
 
@@ -1206,7 +1214,7 @@ export class LancerActor extends Actor {
       a = await this.update(newData);
     }
 
-    return changed;
+    return newFramePath;
   }
 }
 
