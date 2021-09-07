@@ -955,23 +955,11 @@ async function rollAttackMacro(
       await droll.evaluate({ async: true });
       const tt = await droll.getTooltip();
 
-      if (data.overkill && droll) {
-        // Count overkill heat
-        (<Die[]>droll.terms).forEach(p => {
-          if (p.results && Array.isArray(p.results)) {
-            p.results.forEach(r => {
-              if (r.exploded) overkill_heat += 1;
-            });
-          }
-        });
-      }
-      if (droll && tt) {
-        damage_results.push({
-          roll: droll,
-          tt: tt,
-          d_type: x.DamageType,
-        });
-      }
+      damage_results.push({
+        roll: droll,
+        tt: tt,
+        d_type: x.DamageType,
+      });
     }
   }
 
@@ -988,6 +976,19 @@ async function rollAttackMacro(
         });
       })
     );
+  }
+
+  // Calculate overkill heat
+  if (data.overkill) {
+    (has_crit_hit ? crit_damage_results : damage_results).forEach(result => {
+      result.roll.terms.forEach(p => {
+        if (p instanceof DiceTerm) {
+          p.results.forEach(r => {
+            if (r.exploded) overkill_heat += 1;
+          });
+        }
+      });
+    });
   }
 
   // TODO: Heat (self) application
