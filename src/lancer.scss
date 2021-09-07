@@ -2051,7 +2051,6 @@ a.action {
 
 // Mech
 .mech-preview {
-  max-height: 6em;
   display: grid;
   grid-template-rows: 2em 3em 3em 3em 3em 3em;
   grid-template-columns: 14em 1fr 1fr;
@@ -2188,4 +2187,8 @@ Here, this means we want to allow for drag stuff etc to show contextually if:
 .grid-enforcement > * {
   grid-column: 1/2;
   grid-row: 1/2;
+}
+
+.mech-activator {
+  flex-grow: unset;
 }
