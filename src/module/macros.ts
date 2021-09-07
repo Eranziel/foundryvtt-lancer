@@ -969,7 +969,7 @@ async function rollAttackMacro(
   let overkill_heat = 0;
 
   const has_normal_hit =
-    (hits.length === 0 && !!attacks.find(attack => attack.roll.total ?? 0 < 20)) ||
+    (hits.length === 0 && !!attacks.find(attack => (attack.roll.total ?? 0) < 20)) ||
     !!hits.find(hit => hit.hit && !hit.crit);
   const has_crit_hit =
     (hits.length === 0 && !!attacks.find(attack => (attack.roll.total ?? 0) >= 20)) || !!hits.find(hit => hit.crit);
@@ -1013,15 +1013,17 @@ async function rollAttackMacro(
 
   // If there is at least one crit hit, evaluate crit damage
   if (has_crit_hit) {
-    damage_results.map(async result => {
-      const c_roll = await getCritRoll(result.roll);
-      const tt = await c_roll.getTooltip();
-      crit_damage_results.push({
-        roll: c_roll,
-        tt,
-        d_type: result.d_type,
-      });
-    });
+    await Promise.all(
+      damage_results.map(async result => {
+        const c_roll = await getCritRoll(result.roll);
+        const tt = await c_roll.getTooltip();
+        crit_damage_results.push({
+          roll: c_roll,
+          tt,
+          d_type: result.d_type,
+        });
+      })
+    );
   }
 
   // TODO: Heat (self) application
@@ -1072,7 +1074,8 @@ async function getCritRoll(normal: Roll) {
       dice_rolls[i] = term.results.map(r => {
         return { ...r };
       });
-      keep_dice[i] = term.number;
+      const kh = parseInt(term.modifiers.find(m => m.startsWith("kh"))?.substr(2) ?? "0");
+      keep_dice[i] = kh || term.number;
     }
   });
   t_roll.terms.forEach((term, i) => {
