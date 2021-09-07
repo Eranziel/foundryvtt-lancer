@@ -385,58 +385,22 @@ export async function renderMacroTemplate(actor: LancerActor | undefined, templa
   templateData._uuid = cardUUID;
 
   const html = await renderTemplate(template, templateData);
-  //let roll: Roll | undefined;
-  // Create JSON for the aggregate rolls.
-  // TODO: Define these types
-  let aggregate: any = {
-    class: "Roll",
-    dice: [],
-    formula: "",
-    terms: [],
-    result: "",
-  };
-  /*
-  if (templateData.roll) {
-    aggregate = templateData.roll;
-  }
-  if (templateData.attacks) {
-    const attacks: { roll: Roll; tt: string }[] = templateData.attacks;
-    attacks.forEach(atk => {
-      aggregate.formula += `+${atk.roll.formula}`;
-      if (aggregate.terms.length > 0) aggregate.terms.push("+");
-      atk.roll.terms.forEach(term => {
-        aggregate.terms.push(term);
-      });
-      aggregate.result += atk.roll.result;
-    });
-  }
-  if (templateData.damages) {
-    const damages: { roll: Roll; tt: string; d_type: string }[] = templateData.damages;
-    damages.forEach(dmg => {
-      aggregate.formula += `+${dmg.roll.formula}`;
-      if (aggregate.terms.length > 0) aggregate.terms.push("+");
-      dmg.roll.terms.forEach(term => {
-        aggregate.terms.push(term);
-      });
-      aggregate.result += dmg.roll.result;
-    });
-  }
 
-  roll = Roll.fromJSON(JSON.stringify(aggregate));
-  */
-  const agg: Roll[] = [];
+  // Schlorp up all the rolls into a mega-roll so DSN sees the stuff to throw
+  // on screen
+  const aggregate: Roll[] = [];
   if (templateData.roll) {
-    agg.push(templateData.roll);
+    aggregate.push(templateData.roll);
   }
   if (templateData.attacks) {
-    agg.push(...templateData.attacks.map((a: { roll: Roll }) => a.roll));
+    aggregate.push(...templateData.attacks.map((a: { roll: Roll }) => a.roll));
   }
   if (templateData.crit_damages) {
-    agg.push(...templateData.crit_damages.map((d: { roll: Roll }) => d.roll));
+    aggregate.push(...templateData.crit_damages.map((d: { roll: Roll }) => d.roll));
   } else if (templateData.damages) {
-    agg.push(...templateData.damages.map((d: { roll: Roll }) => d.roll));
+    aggregate.push(...templateData.damages.map((d: { roll: Roll }) => d.roll));
   }
-  const roll = Roll.fromTerms([PoolTerm.fromRolls(agg)]);
+  const roll = Roll.fromTerms([PoolTerm.fromRolls(aggregate)]);
 
   return renderMacroHTML(actor, html, roll);
 }
