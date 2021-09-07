@@ -5,6 +5,7 @@ import { simple_mm_ref } from "./refs";
 import { encodeMacroData } from "../macros";
 import type { ActionType } from "../action";
 import { LANCER } from "../config";
+import type { LancerActor } from "../actor/lancer-actor";
 // ---------------------------------------
 // Some simple stat editing thingies
 
@@ -52,8 +53,8 @@ export function stat_view_card(
   let data_val = resolve_helper_dotpath(options, data_path);
   let macro_button: string | undefined;
   // Determine whether this is an unlinked token, so we can encode the correct id for the macro.
-  const r_actor = options.data.root.actor;
-  let id = r_actor.token && !r_actor.token.isLinked ? r_actor.token.id : r_actor.actor.id!;
+  const r_actor = options.data.root.actor as LancerActor;
+  let id = r_actor.token && !r_actor.token.isLinked ? r_actor.token.id : r_actor.id!;
   console.log(r_actor, id);
   let macroData = encodeMacroData({
     title: title,
