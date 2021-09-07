@@ -32,7 +32,6 @@ import { StabOptions1, StabOptions2 } from "../enums";
 import { fix_modify_token_attribute } from "../token";
 import type { ActionData } from "../action";
 import { frameToPath } from "./retrograde-map";
-import { string } from "io-ts";
 import { NpcClass } from 'machine-mind';
 const lp = LANCER.log_prefix;
 
@@ -918,27 +917,6 @@ export class LancerActor extends Actor {
             });
           }
 
-          // And copying Bolts' work, do the same thing for the token image 
-          // with Retrograde's work
-          const cached_frame = this.data.token.flags[game.system.id]?.mm_size;
-          if (!cached_token_size || cached_token_size !== mm.Size) {
-            const size = mm.Size <= 1 ? 1 : mm.Size;
-            this.data.token.update({
-              width: size,
-              height: size,
-              flags: {
-                "hex-size-support": {
-                  borderSize: size,
-                  altSnapping: true,
-                  evenSnap: !(size % 2),
-                },
-                [game.system.id]: {
-                  mm_size: size,
-                }
-              },
-            });
-          }
-
           if (!is_reg_dep(mm)) {
             // Deployables don't have stress/struct
             dr.structure.max = mm.MaxStructure;
@@ -1182,11 +1160,11 @@ export class LancerActor extends Actor {
   async swapFrameImage(robot: Mech | Npc, oldFrame: Frame | NpcClass | null, newFrame: Frame | NpcClass): Promise<string> {
     let oldFramePath = frameToPath[oldFrame?.Name || ""];
     let newFramePath = frameToPath[newFrame?.Name || ""];
-    let defaultImg = robot.Type == EntryType.MECH ? "systems/lancer/assets/icons/mech.svg" : "systems/lancer/assets/icons/npc_class.svg";
+    let defaultImg = is_reg_mech(robot) ? "systems/lancer/assets/icons/mech.svg" : "systems/lancer/assets/icons/npc_class.svg";
     
     if(!newFramePath) newFramePath = defaultImg;
     let changed = false;
-    let newData: any = {}
+    let newData: Parameters<this["update"]>[0] = {}
 
     // Check the token
     // Add manual check for the aws images
@@ -1206,12 +1184,9 @@ export class LancerActor extends Actor {
       changed = true;
     }
 
-    let a = undefined;
-    let b = undefined;
-
     if (changed) {
       console.log(`${lp} Automatically updating image: `, newData);
-      a = await this.update(newData);
+      await this.update(newData);
     }
 
     return newFramePath;
