@@ -966,42 +966,37 @@ async function rollAttackMacro(
     tt: string;
     d_type: DamageType;
   }> = [];
-  let overkill_heat: number = 0;
+  let overkill_heat = 0;
 
-  // If there is at least one non-crit hit, evaluate normal damage.
-  if (
-    (hits.length === 0 && attacks.find(attack => (attack.roll.total ?? 0) < 20)) ||
-    hits.find(hit => hit.hit && !hit.crit)
-  ) {
+  const has_normal_hit =
+    (hits.length === 0 && !!attacks.find(attack => attack.roll.total ?? 0 < 20)) ||
+    !!hits.find(hit => hit.hit && !hit.crit);
+  const has_crit_hit =
+    (hits.length === 0 && !!attacks.find(attack => (attack.roll.total ?? 0) >= 20)) || !!hits.find(hit => hit.crit);
+
+  // If we hit evaluate normal damage, even if we only crit, we'll use this in
+  // the next step for crits
+  if (has_normal_hit || has_crit_hit) {
     for (const x of data.damage) {
       if (x.Value === "" || x.Value == "0") continue; // Skip undefined and zero damage
-      let d_formula: string = x.Value.toString();
-      let droll: Roll | null = new Roll(d_formula);
+      let d_formula = x.Value.toString();
+      let droll: Roll | undefined = new Roll(d_formula);
       // Add overkill if enabled.
       if (data.overkill) {
         (<Die[]>droll.terms).forEach(term => {
-          if (term.faces) {
-            term.modifiers = ["x1", `kh${term.number}`].concat(term.modifiers);
-          }
+          if (term.faces) term.modifiers = ["x1", `kh${term.number}`].concat(term.modifiers);
         });
       }
 
-      let tt: string | null;
-      try {
-        await droll.evaluate({ async: true });
-        tt = await droll.getTooltip();
-      } catch {
-        droll = null;
-        tt = null;
-      }
+      await droll.evaluate({ async: true });
+      const tt = await droll.getTooltip();
+
       if (data.overkill && droll) {
         // Count overkill heat
         (<Die[]>droll.terms).forEach(p => {
           if (p.results && Array.isArray(p.results)) {
             p.results.forEach(r => {
-              if (r.exploded) {
-                overkill_heat += 1;
-              }
+              if (r.exploded) overkill_heat += 1;
             });
           }
         });
@@ -1017,54 +1012,19 @@ async function rollAttackMacro(
   }
 
   // If there is at least one crit hit, evaluate crit damage
-  if ((hits.length === 0 && attacks.find(attack => (attack.roll.total ?? 0) >= 20)) || hits.find(hit => hit.crit)) {
-    // if (hits.length === 0 || hits.find(hit => hit.crit)) {
-    for (const x of data.damage) {
-      if (x.Value === "" || x.Value == "0") continue; // Skip undefined and zero damage
-      let d_formula: string = x.Value.toString();
-      let droll: Roll | null = new Roll(d_formula);
-      // double all dice, add KH. Add overkill if necessary.
-      (<DiceTerm[]>droll.terms).forEach(term => {
-        if (term.faces) {
-          term.modifiers === undefined && (term.modifiers = []);
-          if (data.overkill) {
-            term.modifiers = ["x1"].concat(term.modifiers);
-          }
-          term.modifiers.push(`kh${term.number}`);
-          term.number *= 2;
-        }
+  if (has_crit_hit) {
+    damage_results.map(async result => {
+      const c_roll = await getCritRoll(result.roll);
+      const tt = await c_roll.getTooltip();
+      crit_damage_results.push({
+        roll: c_roll,
+        tt,
+        d_type: result.d_type,
       });
-
-      let tt: string | null;
-      try {
-        await droll.evaluate({ async: true });
-        tt = await droll.getTooltip();
-      } catch {
-        droll = null;
-        tt = null;
-      }
-      if (data.overkill && droll) {
-        // Count overkill heat
-        (<Die[]>droll.terms).forEach(p => {
-          if (p.results && Array.isArray(p.results)) {
-            p.results.forEach((r: any) => {
-              if (r.exploded) {
-                overkill_heat += 1;
-              }
-            });
-          }
-        });
-      }
-      if (droll && tt) {
-        crit_damage_results.push({
-          roll: droll,
-          tt: tt,
-          d_type: x.DamageType,
-        });
-      }
-    }
+    });
   }
 
+  // TODO: Heat (self) application
   if (
     game.settings.get(game.system.id, LANCER.setting_automation) &&
     game.settings.get(game.system.id, LANCER.setting_overkill_heat)
@@ -1082,7 +1042,7 @@ async function rollAttackMacro(
     attacks: attacks,
     hits: hits,
     defense: isSmart ? "E-DEF" : "EVASION",
-    damages: damage_results,
+    damages: has_normal_hit ? damage_results : [],
     crit_damages: crit_damage_results,
     overkill_heat: overkill_heat,
     effect: data.effect ? data.effect : null,
@@ -1124,7 +1084,7 @@ async function getCritRoll(normal: Roll) {
   // Just hold the active results in a sorted array, then mutate them
   const actives: DiceTerm.Result[][] = Array(normal.terms.length).fill([]);
   dice_rolls.forEach((dice, i) => {
-      actives[i] = dice.filter(d => d.active).sort((a, b) => a.result - b.result);
+    actives[i] = dice.filter(d => d.active).sort((a, b) => a.result - b.result);
   });
   actives.forEach((dice, i) =>
     dice.forEach((d, j) => {
