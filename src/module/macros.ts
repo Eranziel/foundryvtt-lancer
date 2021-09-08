@@ -1315,7 +1315,7 @@ export async function prepareOverchargeMacro(a: string) {
   }
 
   // And here too... we should probably revisit our type definitions...
-  let rollText = actor.getOverchargeRoll();
+  let rollText = await actor.getOverchargeRoll();
   if (!rollText) {
     ui.notifications!.warn(`Error in getting overcharge roll...`);
     return;

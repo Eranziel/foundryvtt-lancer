@@ -19,6 +19,7 @@ import {
   PackedPilotData,
   quick_relinker,
   RegEntryTypes,
+  Bonus,
 } from "machine-mind";
 import { FoundryFlagData, FoundryReg } from "../mm-util/foundry-reg";
 import { LancerHooks, LancerSubscription } from "../helpers/hooks";
@@ -901,7 +902,7 @@ export class LancerActor extends Actor {
                 },
                 [game.system.id]: {
                   mm_size: size,
-                }
+                },
               },
             });
           }
@@ -1105,22 +1106,22 @@ export class LancerActor extends Actor {
    * Only applicable for pilots
    * Overkill for now but there are situations where we'll want this to be configurable
    */
-  getOverchargeRoll(): string | null {
+  async getOverchargeRoll(): Promise<string | null> {
     // Function is only applicable to pilots.
     if (!this.is_mech()) return null;
+    await this.data.data.derived.mm_promise;
 
-    const data = this.data;
+    const mech = this.data.data.derived.mm;
+    if (!mech) return null;
 
-    switch (data.data.overcharge) {
-      case 1:
-        return "1d3";
-      case 2:
-        return "1d6";
-      case 3:
-        return "1d6+4";
-      default:
-        return "1";
+    let oc_rolls = ["1", "1d3", "1d6", "1d6+4"];
+    let oc_bonus = mech.AllBonuses.filter(b => {
+      return b.LID === "overcharge";
+    });
+    if (oc_bonus.length > 0) {
+      oc_rolls = oc_bonus[0].Value.split(",");
     }
+    return oc_rolls[this.data.data.overcharge];
   }
 
   // Typeguards
