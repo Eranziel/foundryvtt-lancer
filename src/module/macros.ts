@@ -29,7 +29,6 @@ import {
   OpCtx,
   Pilot,
   PilotWeapon,
-  RegDamageData,
   RegRef,
   TagInstance,
   Talent,
@@ -386,43 +385,23 @@ export async function renderMacroTemplate(actor: LancerActor | undefined, templa
   templateData._uuid = cardUUID;
 
   const html = await renderTemplate(template, templateData);
-  let roll: Roll | undefined;
-  // Create JSON for the aggregate rolls.
-  // TODO: Define these types
-  let aggregate: any = {
-    class: "Roll",
-    dice: [],
-    formula: "",
-    terms: [],
-    result: "",
-  };
+
+  // Schlorp up all the rolls into a mega-roll so DSN sees the stuff to throw
+  // on screen
+  const aggregate: Roll[] = [];
   if (templateData.roll) {
-    aggregate = templateData.roll;
+    aggregate.push(templateData.roll);
   }
   if (templateData.attacks) {
-    const attacks: { roll: Roll; tt: string }[] = templateData.attacks;
-    attacks.forEach(atk => {
-      aggregate.formula += `+${atk.roll.formula}`;
-      if (aggregate.terms.length > 0) aggregate.terms.push("+");
-      atk.roll.terms.forEach(term => {
-        aggregate.terms.push(term);
-      });
-      aggregate.result += atk.roll.result;
-    });
+    aggregate.push(...templateData.attacks.map((a: { roll: Roll }) => a.roll));
   }
-  if (templateData.damages) {
-    const damages: { roll: Roll; tt: string; d_type: string }[] = templateData.damages;
-    damages.forEach(dmg => {
-      aggregate.formula += `+${dmg.roll.formula}`;
-      if (aggregate.terms.length > 0) aggregate.terms.push("+");
-      dmg.roll.terms.forEach(term => {
-        aggregate.terms.push(term);
-      });
-      aggregate.result += dmg.roll.result;
-    });
+  if (templateData.crit_damages) {
+    aggregate.push(...templateData.crit_damages.map((d: { roll: Roll }) => d.roll));
+  } else if (templateData.damages) {
+    aggregate.push(...templateData.damages.map((d: { roll: Roll }) => d.roll));
   }
+  const roll = Roll.fromTerms([PoolTerm.fromRolls(aggregate)]);
 
-  roll = Roll.fromJSON(JSON.stringify(aggregate));
   return renderMacroHTML(actor, html, roll);
 }
 
@@ -739,20 +718,22 @@ async function prepareAttackMacro(
       mData.grit += options.accBonus;
     }
     if (options.damBonus) {
-      let i = mData.damage.findIndex((dam: RegDamageData) => {
-        return dam.type === options.damBonus.type;
+      let i = mData.damage.findIndex(dam => {
+        return dam.DamageType === options.damBonus.type;
       });
       if (i >= 0) {
         // We need to clone so it doesn't go all the way back up to the weapon
         let damClone = { ...mData.damage[i] };
-        if (damClone.val > 0) {
-          damClone.val = `${damClone.val}+${options.damBonus.val}`;
+        if (parseInt(damClone.Value) > 0) {
+          damClone.Value = `${damClone.Value}+${options.damBonus.val}`;
         } else {
-          damClone.val = options.damBonus.val;
+          damClone.Value = options.damBonus.val.toString();
         }
+        // @ts-expect-error Not the full class, but it should work for our purposes.
         mData.damage[i] = damClone;
       } else {
-        mData.damage.push(options.damBonus);
+        // @ts-expect-error Not the full class, but it should work for our purposes.
+        mData.damage.push({ Value: options.damBonus.val.toString(), DamageType: options.damBonus.type });
       }
     }
   }
@@ -949,111 +930,74 @@ async function rollAttackMacro(
     tt: string;
     d_type: DamageType;
   }> = [];
-  let overkill_heat: number = 0;
+  let overkill_heat = 0;
 
-  // If there is at least one non-crit hit, evaluate normal damage.
-  if (
-    (hits.length === 0 && attacks.find(attack => (attack.roll.total ?? 0) < 20)) ||
-    hits.find(hit => hit.hit && !hit.crit)
-  ) {
+  const has_normal_hit =
+    (hits.length === 0 && !!attacks.find(attack => (attack.roll.total ?? 0) < 20)) ||
+    !!hits.find(hit => hit.hit && !hit.crit);
+  const has_crit_hit =
+    (hits.length === 0 && !!attacks.find(attack => (attack.roll.total ?? 0) >= 20)) || !!hits.find(hit => hit.crit);
+
+  // If we hit evaluate normal damage, even if we only crit, we'll use this in
+  // the next step for crits
+  if (has_normal_hit || has_crit_hit) {
     for (const x of data.damage) {
-      if (x.Value === "" || x.Value == 0) continue; // Skip undefined and zero damage
-      let d_formula: string = x.Value.toString();
-      let droll: Roll | null = new Roll(d_formula);
+      if (x.Value === "" || x.Value == "0") continue; // Skip undefined and zero damage
+      let d_formula = x.Value.toString();
+      let droll: Roll | undefined = new Roll(d_formula);
       // Add overkill if enabled.
       if (data.overkill) {
         (<Die[]>droll.terms).forEach(term => {
-          if (term.faces) {
-            term.modifiers = ["x1", `kh${term.number}`].concat(term.modifiers);
-          }
+          if (term.faces) term.modifiers = ["x1", `kh${term.number}`].concat(term.modifiers);
         });
       }
 
-      let tt: string | null;
-      try {
-        await droll.evaluate({ async: true });
-        tt = await droll.getTooltip();
-      } catch {
-        droll = null;
-        tt = null;
-      }
-      if (data.overkill && droll) {
-        // Count overkill heat
-        (<Die[]>droll.terms).forEach(p => {
-          if (p.results && Array.isArray(p.results)) {
-            p.results.forEach((r: any) => {
-              if (r.exploded) {
-                overkill_heat += 1;
-              }
-            });
-          }
-        });
-      }
-      if (droll && tt) {
-        damage_results.push({
-          roll: droll,
-          tt: tt,
-          d_type: x.DamageType,
-        });
-      }
+      await droll.evaluate({ async: true });
+      const tt = await droll.getTooltip();
+
+      damage_results.push({
+        roll: droll,
+        tt: tt,
+        d_type: x.DamageType,
+      });
     }
   }
 
   // If there is at least one crit hit, evaluate crit damage
-  if ((hits.length === 0 && attacks.find(attack => (attack.roll.total ?? 0) >= 20)) || hits.find(hit => hit.crit)) {
-    // if (hits.length === 0 || hits.find(hit => hit.crit)) {
-    for (const x of data.damage) {
-      if (x.Value === "" || x.Value == 0) continue; // Skip undefined and zero damage
-      let d_formula: string = x.Value.toString();
-      let droll: Roll | null = new Roll(d_formula);
-      // double all dice, add KH. Add overkill if necessary.
-      (<Die[]>droll.terms).forEach(term => {
-        if (term.faces) {
-          term.modifiers === undefined && (term.modifiers = []);
-          if (data.overkill) {
-            term.modifiers = ["x1"].concat(term.modifiers);
-          }
-          term.modifiers.push(`kh${term.number}`);
-          term.number *= 2;
-        }
-      });
-
-      let tt: string | null;
-      try {
-        await droll.evaluate({ async: true });
-        tt = await droll.getTooltip();
-      } catch {
-        droll = null;
-        tt = null;
-      }
-      if (data.overkill && droll) {
-        // Count overkill heat
-        (<Die[]>droll.terms).forEach(p => {
-          if (p.results && Array.isArray(p.results)) {
-            p.results.forEach((r: any) => {
-              if (r.exploded) {
-                overkill_heat += 1;
-              }
-            });
-          }
-        });
-      }
-      if (droll && tt) {
+  if (has_crit_hit) {
+    await Promise.all(
+      damage_results.map(async result => {
+        const c_roll = await getCritRoll(result.roll);
+        const tt = await c_roll.getTooltip();
         crit_damage_results.push({
-          roll: droll,
-          tt: tt,
-          d_type: x.DamageType,
+          roll: c_roll,
+          tt,
+          d_type: result.d_type,
         });
-      }
-    }
+      })
+    );
   }
 
+  // Calculate overkill heat
+  if (data.overkill) {
+    (has_crit_hit ? crit_damage_results : damage_results).forEach(result => {
+      result.roll.terms.forEach(p => {
+        if (p instanceof DiceTerm) {
+          p.results.forEach(r => {
+            if (r.exploded) overkill_heat += 1;
+          });
+        }
+      });
+    });
+  }
+
+  // TODO: Heat (self) application
   if (
     game.settings.get(game.system.id, LANCER.setting_automation) &&
     game.settings.get(game.system.id, LANCER.setting_overkill_heat)
   ) {
-    let mment: AnyMMActor = await actor.data.data.derived.mm_promise;
-    if (mment.Type === EntryType.MECH) {
+    let mment = await actor.data.data.derived.mm_promise;
+    if (is_reg_mech(mment)) {
       mment.CurrentHeat += overkill_heat;
       await mment.writeback();
     }
@@ -1065,7 +1009,7 @@ async function rollAttackMacro(
     attacks: attacks,
     hits: hits,
     defense: isSmart ? "E-DEF" : "EVASION",
-    damages: damage_results,
+    damages: has_normal_hit ? damage_results : [],
     crit_damages: crit_damage_results,
     overkill_heat: overkill_heat,
     effect: data.effect ? data.effect : null,
@@ -1077,6 +1021,64 @@ async function rollAttackMacro(
   console.debug(templateData);
   const template = `systems/${game.system.id}/templates/chat/attack-card.hbs`;
   return await renderMacroTemplate(actor, template, templateData);
+}
+
+/**
+ * Given an evaluated roll, create a new roll that doubles the dice and reuses
+ * the dice from the original roll.
+ * @returns An evaluated Roll
+ */
+async function getCritRoll(normal: Roll) {
+  const t_roll = new Roll(normal.formula);
+  await t_roll.evaluate({ async: true });
+
+  const dice_rolls = Array<DiceTerm.Result[]>(normal.terms.length);
+  const keep_dice: number[] = Array(normal.terms.length).fill(0);
+  normal.terms.forEach((term, i) => {
+    if (term instanceof DiceTerm) {
+      dice_rolls[i] = term.results.map(r => {
+        return { ...r };
+      });
+      const kh = parseInt(term.modifiers.find(m => m.startsWith("kh"))?.substr(2) ?? "0");
+      keep_dice[i] = kh || term.number;
+    }
+  });
+  t_roll.terms.forEach((term, i) => {
+    if (term instanceof DiceTerm) {
+      dice_rolls[i].push(...term.results);
+    }
+  });
+
+  // Just hold the active results in a sorted array, then mutate them
+  const actives: DiceTerm.Result[][] = Array(normal.terms.length).fill([]);
+  dice_rolls.forEach((dice, i) => {
+    actives[i] = dice.filter(d => d.active).sort((a, b) => a.result - b.result);
+  });
+  actives.forEach((dice, i) =>
+    dice.forEach((d, j) => {
+      d.active = j >= keep_dice[i];
+      d.discarded = j < keep_dice[i];
+    })
+  );
+
+  // We can rebuild him. We have the technology. We can make him better than he
+  // was. Better, stronger, faster
+  const terms = normal.terms.map((t, i) => {
+    if (t instanceof DiceTerm) {
+      return new Die({
+        ...t,
+        modifiers: (t.modifiers.filter(m => m.startsWith("kh")).length
+          ? t.modifiers
+          : [...t.modifiers, `kh${t.number}`]) as (keyof Die.Modifiers)[],
+        results: dice_rolls[i],
+        number: t.number * 2,
+      });
+    } else {
+      return t;
+    }
+  });
+
+  return Roll.fromTerms(terms);
 }
 
 /**
