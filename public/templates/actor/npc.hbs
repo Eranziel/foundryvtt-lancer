@@ -34,7 +34,12 @@
         mdi-arrow-right-bold-hexagon-outline" "mm.Speed" }}} {{{stat-view-card "EVASION" "cci cci-evasion"
         "mm.Evasion" }}} {{{stat-view-card "E-DEF" "cci cci-edef" "mm.EDefense" }}} {{{stat-view-card "SENSORS"
         "cci cci-sensor" "mm.SensorRange" }}} {{{stat-view-card "SAVE" "cci cci-save" "mm.SaveTarget" }}}
-        {{{stat-view-card "SIZE" (concat "cci cci-size-" mm.Size) "mm.Size" }}} {{{stat-view-card "ACTIVATIONS"
+        {{#if (eq mm.Size 0.5)}}
+          {{{stat-view-card "SIZE" (concat "cci cci-size-half") "mm.Size" }}}
+        {{else}}
+          {{{stat-view-card "SIZE" (concat "cci cci-size-" mm.Size) "mm.Size" }}}
+        {{/if}}
+        {{{stat-view-card "ACTIVATIONS"
         "cci cci-activate" "mm.Activations" }}} {{{stat-edit-max-card "STRUCTURE" "cci cci-structure"
         "mm.CurrentStructure" "mm.MaxStructure" }}} {{{stat-edit-max-card "STRESS" "cci cci-reactor"
         "mm.CurrentStress" "mm.MaxStress"}}}
