@@ -120,6 +120,13 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
 
         this.activateMech(mech);
       })
+
+      let mechDeactivator = html.find(".deactivate-mech");
+      mechDeactivator.on("click", async ev => {
+        ev.stopPropagation();
+
+        this.deactivateMech();
+      })
     }
   }
 
@@ -132,6 +139,15 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
       mech.Pilot = this_mm;
       mech.writeback();
     }
+
+    await this_mm.writeback();
+  }
+
+  async deactivateMech() {
+    let this_mm = (this.actor.data.data.derived.mm as Pilot)
+
+    // Unset active mech
+    this_mm.ActiveMechRef = null;
 
     await this_mm.writeback();
   }
@@ -316,6 +332,42 @@ export function pilot_counters(ent: Pilot, _helper: HelperOptions): string {
   </div>`;
 }
 
+export function all_mech_preview(_helper: HelperOptions): string {
+  let this_mm: Pilot = _helper.data.root.mm;
+  let active_mech: Mech | null = _helper.data.root.active_mech;
+
+  let html = ``;
+
+  /// I still feel like this is pretty inefficient... but it's probably the best we can do for now
+  game?.actors?.filter( a => a.is_mech() && 
+                        !!a.data.data.pilot && 
+                        a.data.data.pilot.id === _helper.data.root.actor.id && 
+                        a.id !== active_mech?.RegistryID).map((m, k) => {
+    let inactive_mech = m.data.data.derived.mm;
+
+    if(!inactive_mech) return;
+
+    if (!is_reg_mech(inactive_mech)) return;
+
+    let cd = ref_commons(inactive_mech);
+    if (!cd) return simple_mm_ref(EntryType.MECH, inactive_mech, "ERROR LOADING MECH", "", true);
+
+    html = html.concat(`
+      <div class="flexrow inactive-row">
+        <a class="activate-mech" ${ref_params(cd.ref)}><i class="cci cci-activate"></i></a>
+        <div class="major valid ${cd.ref.type} ref" ${ref_params(cd.ref)}>${m.name}</div>
+      </div>
+    `)
+  })
+
+
+  let cd = ref_commons(this_mm);
+  if(active_mech) 
+    return active_mech_preview(active_mech, "active_mech", _helper).concat(html);
+  else
+    return html
+}
+
 export function active_mech_preview(mech: Mech, path: string, _helper: HelperOptions): string {
   var html = ``;
 
@@ -352,33 +404,12 @@ export function active_mech_preview(mech: Mech, path: string, _helper: HelperOpt
   html = html.concat(`
   <div class="mech-preview">
     <div class="mech-preview-titlebar">
+    <a class="deactivate-mech"><i class="cci cci-activate"></i></a>
       <span>ACTIVE MECH: ${mech.Name}</span>
     </div>
     <img class="valid ${cd.ref.type} ref" ${ref_params(cd.ref)} src="${mech.Flags.top_level_data.img}"/>
     ${stats_html}
   </div>`);
-
-  /// I still feel like this is pretty inefficient... but it's probably the best we can do for now
-  game?.actors?.filter( a => a.is_mech() && 
-                        !!a.data.data.pilot && 
-                        a.data.data.pilot.id === _helper.data.root.actor.id && 
-                        a.id !== mech.RegistryID).map(m => {
-    let inactive_mech = m.data.data.derived.mm;
-
-    if(!inactive_mech) return;
-
-    if (!is_reg_mech(inactive_mech)) return;
-
-    let cd = ref_commons(inactive_mech);
-    if (!cd) return simple_mm_ref(EntryType.MECH, inactive_mech, "ERROR LOADING MECH", path, true);
-
-    html = html.concat(`
-      <div class="flexrow">
-        <a class="activate-mech" ${ref_params(cd.ref)} draggable="true"><i class="cci cci-activate"></i></a>
-        <div class="major valid ${cd.ref.type} ref" ${ref_params(cd.ref)}>${m.name}</div>
-      </div>
-    `)
-  })
 
   return html;
 }

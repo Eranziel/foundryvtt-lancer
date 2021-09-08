@@ -2189,6 +2189,22 @@ Here, this means we want to allow for drag stuff etc to show contextually if:
   grid-row: 1/2;
 }
 
-.mech-activator {
+.activate-mech {
   flex-grow: unset;
+  font-size: 2em;
+  height: 1em;
+}
+
+.inactive-row {
+  align-items: center;
+}
+.inactive-row > .major{
+  // It looks off without it...
+  margin-top: 1px;
+}
+
+.deactivate-mech {
+  font-size: 1.5em;
+  height: 1em;
+  margin-right: .4em;
 }
