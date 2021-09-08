@@ -49,10 +49,9 @@ export class LancerToken extends Token {
    * Returns a Set of Points corresponding to the grid space center points that
    * the token occupies.
    */
-  getOccupiedSpaces(mode: "current position" | "updated position" = "current position"): Point[] {
-    let pos: { x: number; y: number } = mode == "current position" ? this.position : this.data;
+  getOccupiedSpaces(): Point[] {
+    let pos: { x: number; y: number } = this.data;
     // Invalidate the cache if the position is different than when it was last calculated.
-    // INFO: Multiple calls to this with different modes in the same stackframe could very rarely lead to an invalid cache.
     if (Math.floor(pos.x) !== Math.floor(this._spaces.at.x) || Math.floor(pos.y) !== Math.floor(this._spaces.at.y)) {
       this._spaces.at = { ...pos };
       this._spaces.spaces = [];
