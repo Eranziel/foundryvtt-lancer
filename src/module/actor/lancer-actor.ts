@@ -1104,15 +1104,14 @@ export class LancerActor extends Actor {
   /**
    * Returns the overcharge rolls, modified by bonuses. Only applicable for mechs.
    */
-  async getOverchargeSequence(): Promise<string[] | null> {
+  getOverchargeSequence(): string[] | null {
     // Function is only applicable to mechs.
     if (!this.is_mech()) return null;
-    await this.data.data.derived.mm_promise;
 
+    let oc_rolls = ["+1", "+1d3", "+1d6", "+1d6+4"];
     const mech = this.data.data.derived.mm;
-    if (!mech) return null;
+    if (!mech) return oc_rolls;
 
-    let oc_rolls = ["1", "1d3", "1d6", "1d6+4"];
     let oc_bonus = mech.AllBonuses.filter(b => {
       return b.LID === "overcharge";
     });
@@ -1123,15 +1122,13 @@ export class LancerActor extends Actor {
   }
 
   /**
-   * Returns the current overcharge roll/text
-   * Only applicable for mechs.
-   * Overkill for now but there are situations where we'll want this to be configurable
+   * Returns the current overcharge roll/text. Only applicable for mechs.
    */
-  async getOverchargeRoll(): Promise<string | null> {
+  getOverchargeRoll(): string | null {
     // Function is only applicable to mechs.
     if (!this.is_mech()) return null;
 
-    const oc_rolls = await this.getOverchargeSequence();
+    const oc_rolls = this.getOverchargeSequence();
     if (!oc_rolls || oc_rolls.length < 4) return null;
     return oc_rolls[this.data.data.overcharge];
   }
