@@ -36,6 +36,7 @@ import {
 } from "./dragdrop";
 import { buildActionHTML, buildDeployableHTML } from "./item";
 import { compact_tag_list } from "./tags";
+import { CollapseRegistry } from "./loadout";
 
 // We use these for virtually every ref function
 export function ref_commons<T extends EntryType>(
@@ -240,7 +241,8 @@ export function mm_ref_portrait<T extends EntryType>(
 export function editable_mm_ref_list_item<T extends LancerItemType>(
   item_path: string,
   trash_action: "delete" | "splice" | "null" | null,
-  helper: HelperOptions
+  helper: HelperOptions,
+  registry?: CollapseRegistry
 ) {
   // Fetch the item
   let item_: RegEntry<T> | null = resolve_helper_dotpath(helper, item_path);
@@ -260,6 +262,19 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
   let trash_can = "";
   if (trash_action) {
     trash_can = `<a class="gen-control i--white" data-action="${trash_action}" data-path="${item_path}"><i class="fas fa-trash"></i></a>`;
+  }
+
+  let collapseID;
+  let collapse_trigger = "";
+  if (registry != null) {
+    // On sheet, enable collapse.
+    registry[item.LID] == null && (registry[item.LID] = 0);
+
+    let collapseNumCheck = ++registry[item.LID];
+    collapseID = `${item.LID}_${collapseNumCheck}`;
+  }
+  if (collapseID) {
+    collapse_trigger = `<i class="mdi mdi-unfold-less-horizontal collapse-trigger collapse-icon" data-collapse-id="${collapseID}"> </i>`;
   }
 
   switch (item.Type) {
@@ -312,19 +327,20 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
         <div class="lancer-header ${sys.Destroyed ? "destroyed" : ""}" style="grid-area: 1/1/2/3; display: flex">
           <i class="cci cci-system i--m i--click" data-context-menu="toggle" data-field="Destroyed" data-path="${item_path}"> </i>
           <a class="lancer-macro" data-macro="${encodeMacroData(macroData)}"><i class="mdi mdi-message"></i></a>
+          ${collapse_trigger}
           <span class="minor grow">${sys.Name}</span>
           <div class="ref-list-controls">
           ${trash_can}
           </div>
         </div>
-        <div style="padding: 0.5em">
+        <div ${collapse_trigger ? `class="collapse" data-collapse-id="${collapseID}"` : ""} style="padding: 0.5em">
           <div class="flexrow">
             ${sp}
             <div class="uses-wrapper">
               ${limited}
             </div>
           </div>
-          ${desc ? desc : ""}
+<!--          ${desc ? desc : ""}-->
           ${eff ? eff : ""}
           ${actions ? actions : ""}
           ${deployables ? deployables : ""}
