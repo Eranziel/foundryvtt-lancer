@@ -20,7 +20,6 @@ import {
   quick_relinker,
   RegEntryTypes,
   Frame,
-  Bonus,
 } from "machine-mind";
 import { FoundryFlagData, FoundryReg } from "../mm-util/foundry-reg";
 import { LancerHooks, LancerSubscription } from "../helpers/hooks";
@@ -31,7 +30,6 @@ import { renderMacroTemplate, encodeMacroData } from "../macros";
 import type { RegEntry, MechWeapon, NpcFeature } from "machine-mind";
 import { StabOptions1, StabOptions2 } from "../enums";
 import { fix_modify_token_attribute } from "../token";
-import type { LancerToken } from "../token";
 import type { ActionData } from "../action";
 import { frameToPath } from "./retrograde-map";
 import { NpcClass } from 'machine-mind';
