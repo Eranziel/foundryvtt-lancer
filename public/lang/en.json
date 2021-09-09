@@ -56,8 +56,8 @@
             "tabs": {
                 "cloud": "<RM-4://SYNC>",
                 "dossier": "<PILOT//DOSSIER>",
+                "narrative": "<PILOT//NARRATIVE>",
                 "tactical": "<PILOT//TACTICAL>",
-                "abilities": "<PILOT//ABILITIES>",
                 "loadout": "<EQUIP//LOADOUT>",
                 "mech": "<MECH//ACTIVE>"
             },

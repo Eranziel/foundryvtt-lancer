@@ -24,13 +24,18 @@ import type { LancerActor } from "../actor/lancer-actor";
 export type CollapseRegistry = { [LID: string]: number };
 
 // A drag-drop slot for a system mount. TODO: delete button, clear button
-function system_mount(mech_path: string, mount_path: string, helper: HelperOptions): string {
+function system_mount(
+  mech_path: string,
+  mount_path: string,
+  helper: HelperOptions,
+  registry?: CollapseRegistry
+): string {
   let mount = resolve_helper_dotpath(helper, mount_path) as SystemMount;
   if (!mount) return "";
 
   let item_: RegEntry<EntryType.MECH_SYSTEM> | null = resolve_helper_dotpath(helper, `${mount_path}.System`);
   if (item_) {
-    let slot = editable_mm_ref_list_item(`${mount_path}.System`, "delete", helper);
+    let slot = editable_mm_ref_list_item(`${mount_path}.System`, "delete", helper, registry);
 
     return ` 
       <div class="mount card">
@@ -129,7 +134,7 @@ function all_system_mount_view(
 ) {
   let loadout = resolve_helper_dotpath(helper, loadout_path) as MechLoadout;
   const system_slots = loadout.SysMounts.map((_sys, index) =>
-    system_mount(mech_path, `${loadout_path}.SysMounts.${index}`, helper)
+    system_mount(mech_path, `${loadout_path}.SysMounts.${index}`, helper, _registry)
   );
 
   // Archiving add button: <a class="gen-control fas fa-plus" data-action="append" data-path="${loadout_path}.SysMounts" data-action-value="(struct)sys_mount"></a>
@@ -269,7 +274,7 @@ function frame_active(actor: LancerActor, core: CoreSystem): string {
     title: `${actor.name} | CORE POWER`,
     iconPath: `systems/${game.system.id}/assets/icons/macro-icons/corebonus.svg`,
     fn: "prepareCoreActiveMacro",
-    args: [actor.id]
+    args: [actor.id],
   };
 
   return `

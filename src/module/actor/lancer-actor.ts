@@ -20,6 +20,7 @@ import {
   quick_relinker,
   RegEntryTypes,
   Frame,
+  Bonus,
 } from "machine-mind";
 import { FoundryFlagData, FoundryReg } from "../mm-util/foundry-reg";
 import { LancerHooks, LancerSubscription } from "../helpers/hooks";
@@ -912,7 +913,7 @@ export class LancerActor extends Actor {
                 },
                 [game.system.id]: {
                   mm_size: size,
-                }
+                },
               },
             });
           }
@@ -1112,26 +1113,35 @@ export class LancerActor extends Actor {
   }
 
   /**
-   * Returns the current overcharge roll/text
-   * Only applicable for pilots
-   * Overkill for now but there are situations where we'll want this to be configurable
+   * Returns the overcharge rolls, modified by bonuses. Only applicable for mechs.
    */
-  getOverchargeRoll(): string | null {
-    // Function is only applicable to pilots.
+  getOverchargeSequence(): string[] | null {
+    // Function is only applicable to mechs.
     if (!this.is_mech()) return null;
 
-    const data = this.data;
+    let oc_rolls = ["+1", "+1d3", "+1d6", "+1d6+4"];
+    const mech = this.data.data.derived.mm;
+    if (!mech) return oc_rolls;
 
-    switch (data.data.overcharge) {
-      case 1:
-        return "1d3";
-      case 2:
-        return "1d6";
-      case 3:
-        return "1d6+4";
-      default:
-        return "1";
+    let oc_bonus = mech.AllBonuses.filter(b => {
+      return b.LID === "overcharge";
+    });
+    if (oc_bonus.length > 0) {
+      oc_rolls = oc_bonus[0].Value.split(",");
     }
+    return oc_rolls;
+  }
+
+  /**
+   * Returns the current overcharge roll/text. Only applicable for mechs.
+   */
+  getOverchargeRoll(): string | null {
+    // Function is only applicable to mechs.
+    if (!this.is_mech()) return null;
+
+    const oc_rolls = this.getOverchargeSequence();
+    if (!oc_rolls || oc_rolls.length < 4) return null;
+    return oc_rolls[this.data.data.overcharge];
   }
 
   // Typeguards

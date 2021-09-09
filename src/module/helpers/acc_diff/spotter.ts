@@ -17,9 +17,9 @@ function adjacentSpotter(actor: LancerActor): boolean {
   // TODO: report this as a bug to league-types
   let token: LancerToken = actor.getActiveTokens()[0] as unknown as LancerToken;
 
-  const spaces = token.getOccupiedSpaces("updated position");
+  const spaces = token.getOccupiedSpaces();
   function adjacent(token: LancerToken) {
-    const otherSpaces = token.getOccupiedSpaces("updated position");
+    const otherSpaces = token.getOccupiedSpaces();
     const rays = spaces.flatMap(s => otherSpaces.map(t => ({ ray: new Ray(s, t) })));
     const min_d = Math.min(
       ...canvas.grid!.grid!.measureDistances(rays, { gridSpaces: true })

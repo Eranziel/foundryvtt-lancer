@@ -1,6 +1,6 @@
 import { LancerItemType } from "./item/lancer-item";
 import { EffectData } from "./helpers/npc";
-import { License, LiveEntryTypes } from "machine-mind";
+import { Damage, License, LiveEntryTypes } from "machine-mind";
 import { LancerActorType } from "./actor/lancer-actor";
 
 // ------------------------------------------------------
@@ -47,7 +47,7 @@ declare interface LancerAttackMacroData {
   title: string;
   grit: number;
   acc: number;
-  damage: DamageData[];
+  damage: Damage[];
   overkill?: boolean;
   effect?: EffectData | string;
   on_hit?: string; // For NPC weapons - to be removed once they use EffectData
