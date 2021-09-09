@@ -229,7 +229,12 @@ export async function onHotbarDrop(_bar: any, data: any, slot: number) {
 
 function ownedItemFromString(i: string, actor: LancerActor): LancerItem | null {
   // Get the item
-  const item = actor.items.get(i);
+  let item = actor.items.get(i);
+  if (!item && actor.is_mech()) {
+    let pilot = game.actors!.get(actor.data.data.pilot?.id ?? "");
+    item = pilot?.items.get(i);
+  }
+
   if (!item) {
     ui.notifications!.error(`Error preparing macro: could not find Item ${i} owned by Actor ${actor.name}.`);
     return null;
@@ -272,7 +277,7 @@ export async function prepareItemMacro(a: string, i: string, options?: any) {
     // Pilot OR Mech weapon
     case EntryType.PILOT_WEAPON:
     case EntryType.MECH_WEAPON:
-      prepareAttackMacro({ actor, item, options });
+      await prepareAttackMacro({ actor, item, options });
       break;
     // Systems
     case EntryType.MECH_SYSTEM:
