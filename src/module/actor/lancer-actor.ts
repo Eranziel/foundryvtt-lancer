@@ -31,6 +31,7 @@ import { renderMacroTemplate, encodeMacroData } from "../macros";
 import type { RegEntry, MechWeapon, NpcFeature } from "machine-mind";
 import { StabOptions1, StabOptions2 } from "../enums";
 import { fix_modify_token_attribute } from "../token";
+import type { LancerToken } from "../token";
 import type { ActionData } from "../action";
 import { frameToPath } from "./retrograde-map";
 import { NpcClass } from 'machine-mind';
@@ -937,21 +938,10 @@ export class LancerActor extends Actor {
         this.prior_max_hp = dr.hp.max;
 
         // Now that data is set properly, force token to draw its bars
-        if (this.isToken && (this.token as any).bars) {
-          // Just redraw self
-          try {
-            (this.token as any).drawBars();
-          } catch (e) {}
-        } else {
-          // Redraw all active tokens
-          for (let token of this.getActiveTokens()) {
-            if ((token as any).bars) {
-              try {
-                (token as any).drawBars();
-              } catch (e) {}
-            }
-          }
-        }
+        this.getActiveTokens().forEach(token => {
+          // @ts-expect-error This really is a Token object.
+          token.drawBars();
+        });
 
         return mm;
       });
