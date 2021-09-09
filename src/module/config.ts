@@ -138,6 +138,14 @@ export function WELCOME(changelog: string): string {
   Ourobor (even if you don't use hexes it is very useful for tweaking token art size and placement) and 
   <a href="https://foundryvtt.com/packages/lancer-initiative/">"Lancer Initiative"</a> by Bolts.</p>
   
+  <span>Special thanks to <a class="center" href="https://www.retrogrademinis.com/">Retrograde Minis</a> for our default token artwork.</span>
+
+  <div style="text-align: center; margin-top: .5em" class="flex-center">
+    <a href="https://www.retrogrademinis.com/">
+      <img style="max-width: 350px; border: none" src="https://retrograde-minis.nyc3.digitaloceanspaces.com/text/retrograde-logo.png" alt="Retrograde Minis">
+    </a>
+  </div>
+
   <p>You can report issues on GitHub here: 
   <a href="https://github.com/Eranziel/foundryvtt-lancer/issues">https://github.com/Eranziel/foundryvtt-lancer/issues</a></p>
   
