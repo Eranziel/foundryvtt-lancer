@@ -34,22 +34,30 @@ export class LancerTokenDocument extends TokenDocument {
 export class LancerToken extends Token {
   constructor(document: LancerTokenDocument) {
     super(document);
-    this._spaces = [];
+    this._spaces = {
+      at: { x: -1, y: -1 },
+      spaces: [],
+    };
   }
 
   /**
    * Cached occupied spaces
    */
-  protected _spaces: Point[];
+  protected _spaces: { at: Point; spaces: Point[] };
 
   /**
    * Returns a Set of Points corresponding to the grid space center points that
    * the token occupies.
    */
-  getOccupiedSpaces(mode: "current position" | "updated position" = "current position"): Point[] {
-    let pos: { x: number, y: number } = mode == "current position" ? this.position : this.data;
+  getOccupiedSpaces(): Point[] {
+    let pos: { x: number; y: number } = this.data;
+    // Invalidate the cache if the position is different than when it was last calculated.
+    if (Math.floor(pos.x) !== Math.floor(this._spaces.at.x) || Math.floor(pos.y) !== Math.floor(this._spaces.at.y)) {
+      this._spaces.at = { ...pos };
+      this._spaces.spaces = [];
+    }
 
-    if (this._spaces.length === 0 && canvas?.grid?.type !== CONST.GRID_TYPES.GRIDLESS) {
+    if (this._spaces.spaces.length === 0 && canvas?.grid?.type !== CONST.GRID_TYPES.GRIDLESS) {
       let hitBox: PIXI.IHitArea;
       if (this.hitArea instanceof PIXI.Polygon) {
         let poly_points: number[] = [];
@@ -61,7 +69,7 @@ export class LancerToken extends Token {
         hitBox = new PIXI.Rectangle(pos.x, pos.y, this.hitArea.width, this.hitArea.height);
       } else {
         // TODO, handle all possible hitArea shapes
-        return Array.from(this._spaces);
+        return this._spaces.spaces.map(p => ({ ...p }));
       }
 
       // Get token grid coordinate
@@ -74,16 +82,12 @@ export class LancerToken extends Token {
           let pos = { x: 0, y: 0 };
           [pos.x, pos.y] = canvas.grid!.grid!.getPixelsFromGridPosition(i, j);
           [pos.x, pos.y] = canvas.grid!.getCenter(pos.x + 1, pos.y + 1);
-          if (hitBox.contains(pos.x, pos.y)) this._spaces.push(pos);
+          if (hitBox.contains(pos.x, pos.y)) this._spaces.spaces.push(pos);
         }
       }
     }
-    return Array.from(this._spaces);
-  }
-
-  _onUpdate(...[data, options, userId]: Parameters<Token["_onUpdate"]>): void {
-    super._onUpdate(data, options, userId);
-    if (hasProperty(data ?? {}, "x") || hasProperty(data ?? {}, "y")) this._spaces = [];
+    // Make a clone so the cache can't be mutated
+    return this._spaces.spaces.map(p => ({ ...p }));
   }
 }
 
@@ -113,7 +117,7 @@ declare global {
     Token: {
       [game.system.id]?: {
         mm_size?: number | undefined;
-      }
+      };
       "hex-size-support"?: {
         borderSize?: number;
         altSnapping?: boolean;
@@ -123,6 +127,6 @@ declare global {
         pivotx?: number;
         pivoty?: number;
       };
-    }
+    };
   }
 }
