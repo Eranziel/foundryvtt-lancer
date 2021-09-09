@@ -19,6 +19,8 @@ import {
   PackedPilotData,
   quick_relinker,
   RegEntryTypes,
+  Frame,
+  Bonus,
 } from "machine-mind";
 import { FoundryFlagData, FoundryReg } from "../mm-util/foundry-reg";
 import { LancerHooks, LancerSubscription } from "../helpers/hooks";
@@ -30,6 +32,8 @@ import type { RegEntry, MechWeapon, NpcFeature } from "machine-mind";
 import { StabOptions1, StabOptions2 } from "../enums";
 import { fix_modify_token_attribute } from "../token";
 import type { ActionData } from "../action";
+import { frameToPath } from "./retrograde-map";
+import { NpcClass } from 'machine-mind';
 const lp = LANCER.log_prefix;
 
 // Use for HP, etc
@@ -655,22 +659,33 @@ export class LancerActor extends Actor {
           flags.top_level_data["folder"] = unit_folder ? unit_folder.id : null;
           flags.top_level_data["token.name"] = owned_name;
           flags.top_level_data["permission"] = permission;
+          flags.top_level_data["token.disposition"] = CONST.TOKEN_DISPOSITIONS.NEUTRAL;
           // dep.writeback(); -- do this later, after setting active!
           synced_deployables.push(dep);
         },
         // Rename and rehome mechs
-        sync_mech: (mech: Mech) => {
+        sync_mech: async (mech: Mech) => {
           let flags = mech.Flags as FoundryFlagData<EntryType.MECH>;
           let portrait = mech.CloudPortrait || mech.Frame?.ImageUrl || "";
           let new_img = replace_default_resource(flags.top_level_data["img"], portrait);
+          
           flags.top_level_data["name"] = mech.Name;
           flags.top_level_data["folder"] = unit_folder ? unit_folder.id : null;
-          flags.top_level_data["token.name"] = data.callsign;
           flags.top_level_data["img"] = new_img;
-          flags.top_level_data["token.img"] = new_img;
           flags.top_level_data["permission"] = permission;
-          mech.writeback();
-          // TODO: Retrogrades
+          flags.top_level_data["token.img"] = new_img;
+          flags.top_level_data["token.name"] = data.callsign;
+          flags.top_level_data["token.disposition"] = this.data.token.disposition;
+          flags.top_level_data["token.actorLink"] = true;
+
+          await mech.writeback();
+
+          // If we've got a frame (which we should) check for setting Retrograde image
+          // Also check that we don't have a custom image, which would be on imgur. If so, preserve it.
+          if(mech.Frame && !(new_img.includes("imgur")) && await (mech.Flags.orig_doc as LancerActor).swapFrameImage(mech,null,mech.Frame)) {
+            // Write back again if we swapped images
+            await mech.writeback();
+          }
         },
         // Set pilot token
         sync_pilot: (pilot: Pilot) => {
@@ -694,12 +709,16 @@ export class LancerActor extends Actor {
 
       // Reset curr data and render all
       this.render();
-      (await (synced_data as any).Mechs()).forEach((m: Mech) => m.Flags.orig_doc.render());
+      (await synced_data.Mechs()).forEach((m: Mech) => m.Flags.orig_doc.render());
 
       ui.notifications!.info("Successfully loaded pilot new state.");
     } catch (e) {
       console.warn(e);
-      ui.notifications!.warn(`Failed to update pilot, likely due to missing LCP data: ${e}`);
+      if (e instanceof Error) {
+        ui.notifications!.warn(`Failed to update pilot, likely due to missing LCP data: ${e.message}`);
+      } else {
+        ui.notifications!.warn(`Failed to update pilot, likely due to missing LCP data: ${e}`);
+      }
     }
   }
 
@@ -721,7 +740,7 @@ export class LancerActor extends Actor {
   // Use this to prevent race conditions / carry over data
   private _current_prepare_job_id!: number;
   private _job_tracker!: Map<number, Promise<AnyMMActor>>;
-  private _prev_derived!: this["data"]["data"]["derived"];
+  private _prev_derived: this["data"]["data"]["derived"] | undefined;
 
   /** @override
    * We need to both:
@@ -872,26 +891,45 @@ export class LancerActor extends Actor {
         dr.overshield.max = mm.MaxHP; // as good a number as any I guess
 
         // Depending on type, setup derived fields more precisely as able
-        if (mm.Type != EntryType.PILOT) {
-          let robot = mm as Mech | Npc | Deployable;
-
+        if (!is_reg_pilot(mm)) {
           // All "wow, cool robot" type units have these
-          dr.save_target = robot.SaveTarget;
-          dr.heat.max = robot.HeatCapacity;
-          dr.heat.value = robot.CurrentHeat;
+          dr.save_target = mm.SaveTarget;
+          dr.heat.max = mm.HeatCapacity;
+          dr.heat.value = mm.CurrentHeat;
 
-          if (robot.Type != EntryType.DEPLOYABLE) {
-            // Deployables don't have stress/struct
-            dr.structure.max = robot.MaxStructure;
-            dr.structure.value = robot.CurrentStructure;
-
-            dr.stress.max = robot.MaxStress;
-            dr.stress.value = robot.CurrentStress;
+          // If the Size of the ent has changed since the last update, set the
+          // protype token size to the new size
+          const cached_token_size = this.data.token.flags[game.system.id]?.mm_size;
+          if (!cached_token_size || cached_token_size !== mm.Size) {
+            const size = mm.Size <= 1 ? 1 : mm.Size;
+            this.data.token.update({
+              width: size,
+              height: size,
+              flags: {
+                "hex-size-support": {
+                  borderSize: size,
+                  altSnapping: true,
+                  evenSnap: !(size % 2),
+                },
+                [game.system.id]: {
+                  mm_size: size,
+                },
+              },
+            });
           }
-          if (robot.Type != EntryType.NPC) {
+
+          if (!is_reg_dep(mm)) {
+            // Deployables don't have stress/struct
+            dr.structure.max = mm.MaxStructure;
+            dr.structure.value = mm.CurrentStructure;
+
+            dr.stress.max = mm.MaxStress;
+            dr.stress.value = mm.CurrentStress;
+          }
+          if (!is_reg_npc(mm)) {
             // Npcs don't have repairs
-            dr.repairs.max = robot.RepairCapacity;
-            dr.repairs.value = robot.CurrentRepairs;
+            dr.repairs.max = mm.RepairCapacity;
+            dr.repairs.value = mm.CurrentRepairs;
           }
         }
 
@@ -1075,26 +1113,35 @@ export class LancerActor extends Actor {
   }
 
   /**
-   * Returns the current overcharge roll/text
-   * Only applicable for pilots
-   * Overkill for now but there are situations where we'll want this to be configurable
+   * Returns the overcharge rolls, modified by bonuses. Only applicable for mechs.
    */
-  getOverchargeRoll(): string | null {
-    // Function is only applicable to pilots.
+  getOverchargeSequence(): string[] | null {
+    // Function is only applicable to mechs.
     if (!this.is_mech()) return null;
 
-    const data = this.data;
+    let oc_rolls = ["+1", "+1d3", "+1d6", "+1d6+4"];
+    const mech = this.data.data.derived.mm;
+    if (!mech) return oc_rolls;
 
-    switch (data.data.overcharge) {
-      case 1:
-        return "1d3";
-      case 2:
-        return "1d6";
-      case 3:
-        return "1d6+4";
-      default:
-        return "1";
+    let oc_bonus = mech.AllBonuses.filter(b => {
+      return b.LID === "overcharge";
+    });
+    if (oc_bonus.length > 0) {
+      oc_rolls = oc_bonus[0].Value.split(",");
     }
+    return oc_rolls;
+  }
+
+  /**
+   * Returns the current overcharge roll/text. Only applicable for mechs.
+   */
+  getOverchargeRoll(): string | null {
+    // Function is only applicable to mechs.
+    if (!this.is_mech()) return null;
+
+    const oc_rolls = this.getOverchargeSequence();
+    if (!oc_rolls || oc_rolls.length < 4) return null;
+    return oc_rolls[this.data.data.overcharge];
   }
 
   // Typeguards
@@ -1109,6 +1156,50 @@ export class LancerActor extends Actor {
   }
   is_deployable(): this is LancerActor & { data: LancerActorDataProperties<EntryType.DEPLOYABLE> } {
     return this.data.type === EntryType.DEPLOYABLE;
+  }
+
+
+  /**
+   * Taking a new and old frame/class, swaps the actor and/or token images if 
+   * we detect that the image isn't custom. Will check each individually
+   * @param robot     A MM Mech or NPC, passed through to avoid data overwrites 
+   * @param oldFrame  Old Frame or NPC Class
+   * @param newFrame  New Frame or NPC Class
+   * @returns         The newFrame if any updates were performed
+   */
+  async swapFrameImage(robot: Mech | Npc, oldFrame: Frame | NpcClass | null, newFrame: Frame | NpcClass): Promise<string> {
+    let oldFramePath = frameToPath[oldFrame?.Name || ""];
+    let newFramePath = frameToPath[newFrame?.Name || ""];
+    let defaultImg = is_reg_mech(robot) ? "systems/lancer/assets/icons/mech.svg" : "systems/lancer/assets/icons/npc_class.svg";
+    
+    if(!newFramePath) newFramePath = defaultImg;
+    let changed = false;
+    let newData: Parameters<this["update"]>[0] = {}
+
+    // Check the token
+    // Add manual check for the aws images
+    if(this.data.token.img == oldFramePath || this.data.token.img == defaultImg || this.data.token.img?.includes("compcon-image-assets")) {
+      newData.token = {"img": newFramePath};
+      changed = true;
+    }
+    
+    // Check the actor
+    // Add manual check for the aws images
+    if(this.data.img == oldFramePath || this.data.img == defaultImg || this.data.img?.includes("compcon-image-assets")) {
+      newData.img = newFramePath;
+      
+      // Have to set our top level data in MM or it will overwrite it...
+      robot.Flags.top_level_data.img = newFramePath;
+      robot.Flags.top_level_data["token.img"] = newFramePath;
+      changed = true;
+    }
+
+    if (changed) {
+      console.log(`${lp} Automatically updating image: `, newData);
+      await this.update(newData);
+    }
+
+    return newFramePath;
   }
 }
 

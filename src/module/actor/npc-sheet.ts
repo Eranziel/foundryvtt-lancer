@@ -55,7 +55,7 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
 
         const el = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
         // @ts-ignore
-        let id = this.token ? this.token.id : this.actor.id!;
+        let id = this.token && !this.token.isLinked ? this.token.id : this.actor.id!;
         prepareItemMacro(id, <string>el.getAttribute("data-id")).then();
       });
 
@@ -76,7 +76,7 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
         };
 
         // @ts-ignore
-        let id = this.token ? this.token.id : this.actor.id!;
+        let id = this.token && !this.token.isLinked ? this.token.id : this.actor.id!;
         console.log(`${lp} Rolling ${mData.title} check, bonus: ${mData.bonus}`);
         prepareStatMacro(id, this.getStatPath(ev)!);
       });
@@ -92,7 +92,7 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
         const techElement = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
         let techId = techElement.getAttribute("data-id");
         // @ts-ignore
-        let id = this.token ? this.token.id : this.actor.id!;
+        let id = this.token && !this.token.isLinked ? this.token.id : this.actor.id!;
         prepareItemMacro(id, techId!);
       });
 
@@ -188,6 +188,11 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
     } else if (is_new && drop.Type == EntryType.NPC_CLASS) {
       // Bring in base features from classes, if we don't already have an active class
       let this_inv = await this_mm.get_inventory();
+
+      
+      // Need to pass this_mm through so we don't overwrite data on our 
+      // later update
+      await this.actor.swapFrameImage(this_mm, this_mm.ActiveClass, drop);
 
       // But before we do that, destroy all old classes
       for (let clazz of this_mm.Classes) {

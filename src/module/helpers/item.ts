@@ -151,7 +151,9 @@ export function show_damage_array(damages: Damage[], options: HelperOptions): st
   let classes = options.hash["classes"] || "";
   let results: string[] = [];
   for (let damage of damages) {
-    let damage_item = `<span class="compact-damage"><i class="cci ${damage.Icon} i--m i--dark"></i>${damage.Value}</span>`;
+    let damage_item = `<span class="compact-damage">
+      <i class="cci ${damage.Icon} i--m i--dark damage--${damage.DamageType.toLowerCase()}"></i>
+      ${damage.Value}</span>`;
     results.push(damage_item);
   }
   return `<div class="flexrow no-grow ${classes}">${results.join(" ")}</div>`;
@@ -525,7 +527,7 @@ export function pilot_gear_refview(gear_path: string, helper: HelperOptions): st
   let uses = "";
   let limited = funcs.limited_max(gear);
   if (limited) {
-    uses = limited_chip_HTML(gear,gear_path);
+    uses = limited_chip_HTML(gear, gear_path);
   }
 
   return `<div class="valid ${EntryType.PILOT_GEAR} ref drop-settable card clipped macroable item"
@@ -665,14 +667,13 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.Select
         <i class="${
           weapon.Destroyed ? "mdi mdi-cog" : "cci cci-weapon i--m i--light"
         }  i--click" data-context-menu="toggle" data-field="Destroyed" data-path="${weapon_path}"> </i>
-        <span class="minor collapse-trigger" ${
-          mech_ ? `data-collapse-store="${mech_.RegistryID}"` : ""
-        }" data-collapse-id="${collapseID}">${
-    weapon.Name
-  } // ${weapon.Size.toUpperCase()} ${weapon.SelectedProfile.WepType.toUpperCase()}</span>
+        <i class="mdi mdi-unfold-less-horizontal collapse-trigger collapse-icon" data-collapse-id="${collapseID}"> </i>
+        <span class="minor" ${mech_ ? `data-collapse-store="${mech_.RegistryID}"` : ""}" >
+          ${weapon.Name} // ${weapon.Size.toUpperCase()} ${weapon.SelectedProfile.WepType.toUpperCase()}
+        </span>
         <a class="gen-control i--light" data-action="null" data-path="${weapon_path}"><i class="fas fa-trash"></i></a>
       </div> 
-      <div class="lancer-body">
+      <div class="lancer-body collapse" data-collapse-id="${collapseID}">
         ${weapon.SP ? sp : ""}
         ${profiles}
         <div class="flexrow" style="text-align: left; white-space: nowrap;">
@@ -690,7 +691,6 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.Select
         </div>
         
         <div class="flexcol">
-          <span class="collapse" data-collapse-id="${collapseID}">${weapon.SelectedProfile.Description}</span>
           ${effect}
           ${on_attack}
           ${on_hit}
@@ -986,7 +986,9 @@ export function buildCounterHTML(
   }
 
   if (actor_level)
-    nameChunk = `<input class="counter-name" name="${path.concat(".Name")}" value="${data.Name}" type="text" data-dtype="text" />`;
+    nameChunk = `<input class="counter-name" name="${path.concat(".Name")}" value="${
+      data.Name
+    }" type="text" data-dtype="text" />`;
   else nameChunk = data.Name;
 
   return `
