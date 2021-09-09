@@ -69,4 +69,8 @@ export const frameToPath: Record<string, string> = {
     "SQUAD": "systems/lancer/assets/retrograde-minis/Retrograde-Minis-Misc-INFANTRY.png",
     "SUPPORT": "systems/lancer/assets/retrograde-minis/Retrograde-Minis-Corpro-SUPPORT.png",
     "WITCH": "systems/lancer/assets/retrograde-minis/Retrograde-Minis-Corpro-WITCH.png",
+    "ATLAS": "systems/lancer/assets/retrograde-minis/Retrograde-Minis-SSC-ATLAS.png",
+    "CALIBAN": "systems/lancer/assets/retrograde-minis/Retrograde-Minis-IPS-N-CALIBAN.png",
+    "WHITE WITCH": "systems/lancer/assets/retrograde-minis/Retrograde-Minis-SSC-WHITE WITCH.png",
+    "EMPEROR": "systems/lancer/assets/retrograde-minis/Retrograde-Minis-SSC-EMPEROR.png",
 }
