@@ -1,7 +1,7 @@
 # 1.0.2 (2021-09-08)
 ## Features
 * #120 - Mechs and NPCs which do not have custom artwork set will now use a set of defaults from [Retrograde Minis](https://www.retrogrademinis.com). Thanks a ton to Retrograde for letting us use their fantastic artwork!
-* #122 - Changing the size of Mech and NPC Actors will set the appropriate Hex Size Support configuration, if that module is installed and enabled.
+* #122 - Changing the size of Mech and NPC Actors will set the appropriate square token size and Hex Size Support configuration, if that module is installed and enabled.
 * #178 - Add handling for "overcharge" bonuses on pilot & mech items. Heatfall CB (and any homebrew LCPs that affect overcharge) now correctly modify the overcharge roll sequence.
 * #292 - Add active mech management to pilot sheet, including list of inactive mechs.
 * The Pilot sheet has been reorganized to be more similar to Comp/Con. The NARRATIVE tab now contains pilot-centric data (LL, grit, skill triggers, and pilot gear), and the TACTICAL tab contains things which affect mechs (Counters, HASE, Talents, Licenses, Core Bonuses).
