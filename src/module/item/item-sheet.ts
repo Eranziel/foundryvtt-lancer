@@ -78,7 +78,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
     super.activateListeners(html);
 
     // Make refs clickable
-    $(html).find(".ref.valid").on("click", HANDLER_openRefOnClick);
+    $(html).find(".ref.valid:not(.profile-img)").on("click", HANDLER_openRefOnClick);
 
     // Enable ref dragging
     HANDLER_activate_ref_dragging(html);
