@@ -659,7 +659,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
   _propagateMMData(formData: any): any {
     // Pushes relevant field data from the form to other appropriate locations,
     // e.x. to synchronize name between token and actor
-    let token: any = this.actor.data["token"];
+    let token = this.actor.data["token"];
 
     // Get the basics
     let new_top: any = {

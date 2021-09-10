@@ -229,7 +229,7 @@ export function mm_ref_portrait<T extends EntryType>(
   _helper: HelperOptions
 ) {
   // Fetch the image
-  return `<img class="profile-img ref valid ${item.Type}" src="${img}" data-edit="${img_path}" ${ref_params(
+  return `<img class="profile-img valid ${item.Type}" src="${img}" data-edit="${img_path}" ${ref_params(
     item.as_ref()
   )} width="100" height="100" />`;
 }
