@@ -33,6 +33,7 @@ import { fix_modify_token_attribute } from "../token";
 import type { ActionData } from "../action";
 import { frameToPath } from "./retrograde-map";
 import { NpcClass } from "machine-mind";
+import { getAutomationOptions } from "../settings";
 const lp = LANCER.log_prefix;
 
 // Use for HP, etc
@@ -165,10 +166,8 @@ export class LancerActor extends Actor {
     ];
 
     let ent = (await this.data.data.derived.mm_promise) as Mech | Npc;
-    if (
-      game.settings.get(game.system.id, LANCER.setting_automation) &&
-      game.settings.get(game.system.id, LANCER.setting_auto_structure)
-    ) {
+    const auto = getAutomationOptions();
+    if (auto.enabled && auto.structure) {
       if (ent.CurrentHeat > ent.HeatCapacity) {
         // https://discord.com/channels/426286410496999425/760966283545673730/789297842228297748
         ent.CurrentHeat -= ent.HeatCapacity;
@@ -291,10 +290,8 @@ export class LancerActor extends Actor {
     ];
 
     let ent = (await this.data.data.derived.mm_promise) as Mech | Npc;
-    if (
-      game.settings.get(game.system.id, LANCER.setting_automation) &&
-      game.settings.get(game.system.id, LANCER.setting_auto_structure)
-    ) {
+    const auto = getAutomationOptions();
+    if (auto.enabled && auto.structure) {
       if (ent.CurrentHP <= 0) {
         ent.CurrentHP += ent.MaxHP;
         ent.CurrentStructure -= 1;

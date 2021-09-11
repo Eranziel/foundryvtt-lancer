@@ -126,6 +126,21 @@
                 "reroll": "OVERKILL<button class=\"overkill-reroll\"><i class=\"fas fa-redo\"></i> +d6</button>"
             },
             "remaining": "{total} / {max} REMAINING"
+        },
+        "automation": {
+            "menu-name": "Automation",
+            "menu-label": "System Automation Settings",
+            "menu-hint": "Set up what system automation options are enabled, or turn them all off",
+            "master-switch": "Enabled",
+            "master-switch-desc": "Turn this off to do everything manually",
+            "attacks": "Attack rolls",
+            "attacks-desc": "Toggle for whether or not you want the system to auto-calculate hits, damage, and other attack related checks.",
+            "structure": "Structure/Stress",
+            "structure-desc": "Automatically adjust HP/Structure or Heat/Stress when a mech makes a Structure or Stress roll",
+            "overcharge_heat": "Apply Overcharge Heat",
+            "overcharge_heat-desc": "Automatically apply heat hen rolling overcharge",
+            "attack_self_heat": "Self Heat from Attacks",
+            "attack_self_heat-desc": "When a weapon has the Overkill or Heat (self) tags, automatically apply any heat"
         }
     }
 }

@@ -1,4 +1,5 @@
 import { LANCER } from "./config";
+import { AutomationConfig } from "./apps/automation-settings";
 import CompconLoginForm from "./helpers/compcon-login-form";
 
 export const registerSettings = function () {
@@ -40,6 +41,15 @@ export const registerSettings = function () {
     restricted: false,
   });
 
+  game.settings.registerMenu(game.system.id, "AutomationMenu", {
+    name: "lancer.automation.menu-name",
+    label: "lancer.automation.menu-label",
+    hint: "lancer.automation.menu-hint",
+    icon: "mdi mdi-state-machine",
+    type: AutomationConfig,
+    restricted: true,
+  });
+
   game.settings.register(game.system.id, LANCER.setting_stock_icons, {
     name: "Keep Stock Icons",
     scope: "world",
@@ -75,13 +85,20 @@ export const registerSettings = function () {
     default: true,
   });
 
+  game.settings.register(game.system.id, LANCER.setting_automation, {
+    scope: "world",
+    config: false,
+    type: Object,
+    default: {},
+  });
+
   // Keep all automation settings at the bottom for the selector
   // If you're adding an automation setting, be sure to go increment the settings-list css selector
-  game.settings.register(game.system.id, LANCER.setting_automation, {
+  game.settings.register(game.system.id, LANCER.setting_automation_switch, {
     name: "System Automation",
     hint: "Master enable switch for system automation. Turn this off to do everything manually.",
     scope: "world",
-    config: true,
+    config: false,
     type: Boolean,
     default: true,
   });
@@ -91,7 +108,7 @@ export const registerSettings = function () {
     hint:
       "Toggle for whether or not you want the system to auto-calculate hits, damage, and other attack related checks.",
     scope: "world",
-    config: true,
+    config: false,
     type: Boolean,
     default: true,
   });
@@ -100,7 +117,7 @@ export const registerSettings = function () {
     name: "Automatic Structure/Stress",
     hint: "When a mech rolls a structure/overheat macro, should it automatically decrease structure/stress?",
     scope: "world",
-    config: true,
+    config: false,
     type: Boolean,
     default: true,
   });
@@ -109,7 +126,7 @@ export const registerSettings = function () {
     name: "Auto-Apply Overcharge Heat",
     hint: "When a mech rolls an overcharge, should it automatically apply heat?",
     scope: "world",
-    config: true,
+    config: false,
     type: Boolean,
     default: true,
   });
@@ -118,7 +135,7 @@ export const registerSettings = function () {
     name: "Auto-Apply Overkill Heat",
     hint: "When an overkill weapon triggers overkill rerolls, should it automatically apply heat?",
     scope: "world",
-    config: true,
+    config: false,
     type: Boolean,
     default: true,
   });
@@ -126,3 +143,53 @@ export const registerSettings = function () {
   // Only put automation settings above this
   // Nothing below this
 };
+
+/**
+ * Retrieve the automation settings for the system.
+ * @param useDefault - Control if the returned value is the default.
+ *                     (default: `false`)
+ */
+export function getAutomationOptions(useDefault = false): AutomationOptions {
+  return {
+    enabled: true,
+    attacks: true,
+    structure: true,
+    overcharge_heat: true,
+    attack_self_heat: true,
+    ...(useDefault ? {} : game.settings.get(game.system.id, LANCER.setting_automation)),
+  };
+}
+
+/**
+ * Object for the various automation settings in the system
+ */
+export interface AutomationOptions {
+  /**
+   * Master switch for automation
+   * @defaultValue `true`
+   */
+  enabled: boolean;
+  /**
+   * Toggle for whether or not you want the system to auto-calculate hits,
+   * damage, and other attack related checks.
+   * @defaultValue `true`
+   */
+  attacks: boolean;
+  /**
+   * When a mech rolls a structure/overheat macro, should it automatically
+   * decrease structure/stress?
+   * @defaultValue `true`
+   */
+  structure: boolean;
+  /**
+   * When a mech rolls an overcharge, should it automatically apply heat?
+   * @defaultValue `true`
+   */
+  overcharge_heat: boolean;
+  /**
+   * When a mech rolls an attack with heat (self) and/or overkill, should it
+   * automatically apply heat?
+   * @defaultValue `true`
+   */
+  attack_self_heat: boolean;
+}

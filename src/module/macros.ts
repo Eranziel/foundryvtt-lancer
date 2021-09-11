@@ -43,6 +43,7 @@ import type { AccDiffData, AccDiffDataSerialized, RollModifier } from "./helpers
 import { is_overkill } from "machine-mind/dist/funcs";
 import type { LancerToken } from "./token";
 import { LancerGame } from "./lancer-game";
+import { getAutomationOptions } from "./settings";
 
 const lp = LANCER.log_prefix;
 
@@ -997,10 +998,8 @@ async function rollAttackMacro(
   }
 
   // TODO: Heat (self) application
-  if (
-    game.settings.get(game.system.id, LANCER.setting_automation) &&
-    game.settings.get(game.system.id, LANCER.setting_overkill_heat)
-  ) {
+  const auto = getAutomationOptions();
+  if (auto.enabled && auto.attack_self_heat) {
     let mment = await actor.data.data.derived.mm_promise;
     if (is_reg_mech(mment)) {
       mment.CurrentHeat += overkill_heat;
@@ -1340,10 +1339,8 @@ export async function prepareOverchargeMacro(a: string) {
   mech.OverchargeCount = Math.min(mech.OverchargeCount + 1, 3);
 
   // Only increase heat if we haven't disabled it
-  if (
-    game.settings.get(game.system.id, LANCER.setting_automation) &&
-    game.settings.get(game.system.id, LANCER.setting_pilot_oc_heat)
-  ) {
+  const auto = getAutomationOptions();
+  if (auto.enabled && auto.overcharge_heat) {
     mech.CurrentHeat = mech.CurrentHeat + roll.total!;
   }
 
