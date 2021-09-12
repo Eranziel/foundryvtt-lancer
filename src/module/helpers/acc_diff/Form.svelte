@@ -67,6 +67,7 @@
    const t = WeaponRangeTemplate.fromRange(range, token);
    if (!t) return;
    fade('out');
+   t.data.update({ [`flags.${game.system.id}.isAttack`]: true });
    t.placeTemplate()
      .catch(e => {
        console.warn(e);
