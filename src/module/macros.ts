@@ -957,8 +957,8 @@ async function rollAttackMacro(
       let droll: Roll | undefined = new Roll(d_formula);
       // Add overkill if enabled.
       if (data.overkill) {
-        (<Die[]>droll.terms).forEach(term => {
-          if (term.faces) term.modifiers = ["x1", `kh${term.number}`].concat(term.modifiers);
+        droll.terms.forEach(term => {
+          if (term instanceof Die) term.modifiers = ["x1", `kh${term.number}`].concat(term.modifiers);
         });
       }
 
@@ -1048,7 +1048,7 @@ async function getCritRoll(normal: Roll) {
   const dice_rolls = Array<DiceTerm.Result[]>(normal.terms.length);
   const keep_dice: number[] = Array(normal.terms.length).fill(0);
   normal.terms.forEach((term, i) => {
-    if (term instanceof DiceTerm) {
+    if (term instanceof Die) {
       dice_rolls[i] = term.results.map(r => {
         return { ...r };
       });
@@ -1057,7 +1057,7 @@ async function getCritRoll(normal: Roll) {
     }
   });
   t_roll.terms.forEach((term, i) => {
-    if (term instanceof DiceTerm) {
+    if (term instanceof Die) {
       dice_rolls[i].push(...term.results);
     }
   });
@@ -1077,7 +1077,7 @@ async function getCritRoll(normal: Roll) {
   // We can rebuild him. We have the technology. We can make him better than he
   // was. Better, stronger, faster
   const terms = normal.terms.map((t, i) => {
-    if (t instanceof DiceTerm) {
+    if (t instanceof Die) {
       return new Die({
         ...t,
         modifiers: (t.modifiers.filter(m => m.startsWith("kh")).length
