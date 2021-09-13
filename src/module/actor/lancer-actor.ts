@@ -36,6 +36,7 @@ import type { ActionData } from "../action";
 import { frameToPath } from "./retrograde-map";
 import { NpcClass } from "machine-mind";
 import { getAutomationOptions } from "../settings";
+import * as HUD from "../helpers/slidinghud";
 const lp = LANCER.log_prefix;
 
 // Use for HP, etc
@@ -1046,33 +1047,27 @@ export class LancerActor extends Actor {
       (this.is_mech() || this.is_npc())
     ) {
       const data = changed.data as DeepPartial<RegMechData | RegNpcData>;
-      if ("heat" in (data ?? {}) && (data?.heat ?? 0) > (this.data.data.derived.mm?.HeatCapacity ?? 0)) {
-        new Dialog({
-          title: "Overheating",
-          content: `${this.name} is overheating! Roll for reactor damage.`,
-          buttons: {
-            ok: {
-              label: "Roll",
-              icon: '<i class="fas fa-check"></i>',
-              callback: () => this.overheat(),
-            },
-          },
-          default: "ok",
-        }).render(true);
+      if (
+        "heat" in (data ?? {}) &&
+        (data?.heat ?? 0) > (this.data.data.derived.mm?.HeatCapacity ?? 0) &&
+        (this.data.data.derived.mm?.CurrentStress ?? 0) > 1
+      ) {
+        HUD.open("stress", {
+          title: "Reactor Damage",
+          kind: "stress",
+          lancerActor: this,
+        })
+          .then(() => this.overheat())
+          .catch(_e => {});
       }
-      if ("hp" in (data ?? {}) && (data?.hp ?? 0) <= 0) {
-        new Dialog({
-          title: "Structure",
-          content: `${this.name} took structure damage! Roll for structure damage.`,
-          buttons: {
-            ok: {
-              label: "Roll",
-              icon: '<i class="fas fa-check"></i>',
-              callback: () => this.structure(),
-            },
-          },
-          default: "ok",
-        }).render(true);
+      if ("hp" in (data ?? {}) && (data?.hp ?? 0) <= 0 && (this.data.data.derived.mm?.CurrentStructure ?? 0) > 1) {
+        HUD.open("struct", {
+          title: "Reactor Damage",
+          kind: "structure",
+          lancerActor: this,
+        })
+          .then(() => this.structure())
+          .catch(_e => {});
       }
     }
   }
