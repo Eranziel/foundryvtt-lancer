@@ -40,9 +40,10 @@ import { ActivationOptions, StabOptions1, StabOptions2 } from "./enums";
 import { applyCollapseListeners, uuid4 } from "./helpers/collapse";
 import { checkForHit } from "./helpers/automation/targeting";
 import type { AccDiffData, AccDiffDataSerialized, RollModifier } from "./helpers/acc_diff";
-import { is_overkill } from "machine-mind/dist/funcs";
+import { is_limited, is_overkill, is_tagged } from "machine-mind/dist/funcs";
 import type { LancerToken } from "./token";
 import { LancerGame } from "./lancer-game";
+import { is_loading } from 'machine-mind/dist/classes/mech/EquipUtil';
 
 const lp = LANCER.log_prefix;
 
@@ -645,11 +646,12 @@ async function prepareAttackMacro(
 
   let weaponData: NpcFeature | PilotWeapon | MechWeaponProfile;
   let pilotEnt: Pilot;
+  let itemEnt;
 
   // We can safely split off pilot/mech weapons by actor type
   if (actor.is_mech() && item.is_mech_weapon()) {
-    pilotEnt = (await actor.data.data.derived.mm_promise).Pilot!;
-    let itemEnt = await item.data.data.derived.mm_promise;
+    pilotEnt = (await actor.data.data.derived.mm_promise).Pilot!; 
+    itemEnt = await item.data.data.derived.mm_promise;
 
     weaponData = itemEnt.SelectedProfile;
 
@@ -663,7 +665,7 @@ async function prepareAttackMacro(
     mData.effect = weaponData.Effect;
   } else if (actor.is_pilot() && item.is_pilot_weapon()) {
     pilotEnt = await actor.data.data.derived.mm_promise;
-    let itemEnt: PilotWeapon = await item.data.data.derived.mm_promise;
+    itemEnt = await item.data.data.derived.mm_promise;
     weaponData = itemEnt;
 
     mData.loaded = itemEnt.Loaded;
@@ -674,9 +676,9 @@ async function prepareAttackMacro(
     mData.overkill = is_overkill(itemEnt);
     mData.effect = weaponData.Effect;
   } else if (actor.is_npc() && item.is_npc_feature()) {
-    const mm: NpcFeature = await item.data.data.derived.mm_promise;
-    let tier_index: number = mm.TierOverride;
-    if (!mm.TierOverride) {
+    itemEnt = await item.data.data.derived.mm_promise;
+    let tier_index: number = itemEnt.TierOverride;
+    if (!itemEnt.TierOverride) {
       if (item.actor === null) {
         // Use selected actor
         tier_index = actor.data.data.tier - 1;
@@ -689,19 +691,19 @@ async function prepareAttackMacro(
       tier_index--;
     }
 
-    mData.loaded = mm.Loaded;
+    mData.loaded = itemEnt.Loaded;
     // mData.destroyed = item.data.data.destroyed; TODO: NPC weapons don't seem to have a destroyed field
     // This can be a string... but can also be a number...
-    mData.grit = Number(mm.AttackBonus[tier_index]) || 0;
-    mData.acc = mm.Accuracy[tier_index];
+    mData.grit = Number(itemEnt.AttackBonus[tier_index]) || 0;
+    mData.acc = itemEnt.Accuracy[tier_index];
 
     // Reduce damage values to only this tier
-    mData.damage = mm.Damage[tier_index] ?? [];
+    mData.damage = itemEnt.Damage[tier_index] ?? [];
 
-    mData.tags = mm.Tags;
-    mData.overkill = funcs.is_overkill(mm);
-    mData.on_hit = mm.OnHit;
-    mData.effect = mm.Effect;
+    mData.tags = itemEnt.Tags;
+    mData.overkill = funcs.is_overkill(itemEnt);
+    mData.on_hit = itemEnt.OnHit;
+    mData.effect = itemEnt.Effect;
   } else {
     ui.notifications!.error(`Error preparing attack macro - ${actor.name} is an unknown type!`);
     return Promise.resolve();
@@ -744,8 +746,12 @@ async function prepareAttackMacro(
   }
   // Check if weapon if loaded.
   if (game.settings.get(game.system.id, LANCER.setting_automation_attack)) {
-    if (!mData.loaded) {
+    if (is_loading(itemEnt) && !itemEnt.Loaded) {
       ui.notifications!.warn(`Weapon ${item.data.data.name} is not loaded!`);
+      return;
+    }
+    if (is_limited(itemEnt) && itemEnt.Uses <= 0) {
+      ui.notifications!.warn(`Weapon ${item.data.data.name} has no remaining uses!`);
       return;
     }
     if (mData.destroyed) {
@@ -772,17 +778,14 @@ async function prepareAttackMacro(
   const atkRolls = attackRolls(mData.grit, promptedData);
 
   // Deduct charge if LOADING weapon.
-  if (
-    game.settings.get(game.system.id, LANCER.setting_automation_attack) &&
-    mData.tags.find(tag => tag.Tag.LID === "tg_loading") &&
-    item.is_mech_weapon()
-  ) {
-    console.debug(item);
-    console.debug(actor);
-
-    let itemEnt: MechWeapon = await item.data.data.derived.mm_promise;
-    itemEnt.Loaded = false;
-    await itemEnt.writeback();
+  if (game.settings.get(game.system.id, LANCER.setting_automation_attack)) {
+    if(is_loading(itemEnt)) {
+      itemEnt.Loaded = false;
+      await itemEnt.writeback();
+    } else if (is_limited(itemEnt)) {
+      itemEnt.Uses = itemEnt.Uses - 1;
+      await itemEnt.writeback();
+    }
   }
 
   let rerollMacro = {
@@ -1503,6 +1506,13 @@ export async function prepareActivationMacro(
   let itemEnt: MechSystem | NpcFeature | Talent = await item.data.data.derived.mm_promise;
   let actorEnt: Mech | Pilot = await actor.data.data.derived.mm_promise;
 
+  if(is_tagged(itemEnt) && is_limited(itemEnt) && itemEnt.Uses <= 0) {
+    ui.notifications!.error(
+      `Error using item--you have no uses left!`
+    );
+    return;
+  }
+
   // TODO--handle NPC Activations
   if (itemEnt.Type === EntryType.NPC_FEATURE) return;
 
@@ -1522,13 +1532,17 @@ export async function prepareActivationMacro(
         default:
           _prepareTextActionMacro(actorEnt, itemEnt, index);
       }
-      return;
     case ActivationOptions.DEPLOYABLE:
       _prepareDeployableMacro(actorEnt, itemEnt, index);
-      return;
   }
-
-  throw Error("You shouldn't be here!");
+  
+  // Wait until the end to deduct a use so we're sure it completed succesfully
+  if(is_tagged(itemEnt) && is_limited(itemEnt)) {
+    itemEnt.Uses = itemEnt.Uses - 1;
+    await itemEnt.writeback();
+  }
+  
+  return;
 }
 
 async function _prepareTextActionMacro(
