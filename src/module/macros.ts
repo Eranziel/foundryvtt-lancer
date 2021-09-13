@@ -1,7 +1,7 @@
 // Import TypeScript modules
 import { LANCER } from "./config";
 import type { LancerItem } from "./item/lancer-item";
-import type { AnyMMActor, LancerActor } from "./actor/lancer-actor";
+import type { LancerActor } from "./actor/lancer-actor";
 import { is_reg_mech } from "./actor/lancer-actor";
 import type {
   LancerAttackMacroData,
@@ -1004,7 +1004,7 @@ async function rollAttackMacro(
   if (data.self_heat) {
     // Once the double tag thing is fixed, this should iterate over all tags
     // instead just using the first one.
-    self_heat = parseInt(`${data.tags.find(tag => tag.Tag.LID === "tg_heat_self")?.Value??0}`);
+    self_heat = parseInt(`${data.tags.find(tag => tag.Tag.LID === "tg_heat_self")?.Value ?? 0}`);
   }
 
   // TODO: Heat (self) application
@@ -1605,12 +1605,12 @@ async function _prepareDeployableMacro(
   await renderMacroHTML(actorEnt.Flags.orig_doc, buildDeployableHTML(dep, true));
 }
 
-export async function fullRepairMacro(a: string) {
+export function fullRepairMacro(a: string) {
   // Determine which Actor to speak as
   let actor = getMacroSpeaker(a);
-  if (!actor) return;
+  if (!actor) return Promise.reject();
 
-  return new Promise<number>((_resolve, reject) => {
+  return new Promise<boolean>((resolve, reject) => {
     new Dialog({
       title: `FULL REPAIR - ${actor?.name}`,
       content: `<h3>Are you sure you want to fully repair the ${actor?.data.type} ${actor?.name}?`,
@@ -1620,23 +1620,23 @@ export async function fullRepairMacro(a: string) {
           label: "Yes",
           callback: async _dlg => {
             // Gotta typeguard the actor again
-            if (!actor) return;
+            if (!actor) {
+              return reject();
+            }
 
             await actor.full_repair();
-
             prepareTextMacro(a, "REPAIRED", `Notice: ${actor.name} has been fully repaired.`);
+            resolve(true);
           },
         },
         cancel: {
           icon: '<i class="fas fa-times"></i>',
           label: "No",
-          callback: async () => {
-            reject(true);
-          },
+          callback: async () => resolve(false),
         },
       },
       default: "submit",
-      close: () => reject(true),
+      close: () => resolve(false),
     }).render(true);
   });
 }
@@ -1644,11 +1644,11 @@ export async function fullRepairMacro(a: string) {
 export async function stabilizeMacro(a: string) {
   // Determine which Actor to speak as
   let actor = getMacroSpeaker(a);
-  if (!actor) return;
+  if (!actor) return Promise.reject();
 
   let template = await renderTemplate(`systems/${game.system.id}/templates/window/promptStabilize.hbs`, {});
 
-  return new Promise<number>((_resolve, reject) => {
+  return new Promise<boolean>((resolve, reject) => {
     new Dialog({
       title: `STABILIZE - ${actor?.name}`,
       content: template,
@@ -1658,7 +1658,7 @@ export async function stabilizeMacro(a: string) {
           label: "Submit",
           callback: async dlg => {
             // Gotta typeguard the actor again
-            if (!actor) return;
+            if (!actor) return reject();
 
             let o1 = <StabOptions1>$(dlg).find(".stabilize-options-1:checked").first().val();
             let o2 = <StabOptions2>$(dlg).find(".stabilize-options-2:checked").first().val();
@@ -1672,18 +1672,17 @@ export async function stabilizeMacro(a: string) {
               `${actor.name?.capitalize()} HAS STABILIZED`,
               `${actor.name} has stabilized.<br>${text}`
             );
+            return resolve(true);
           },
         },
         cancel: {
           icon: '<i class="fas fa-times"></i>',
           label: "Cancel",
-          callback: async () => {
-            reject(true);
-          },
+          callback: async () => resolve(false),
         },
       },
       default: "submit",
-      close: () => reject(true),
+      close: () => resolve(false),
     }).render(true);
   });
 }
