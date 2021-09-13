@@ -20,6 +20,8 @@ import {
   quick_relinker,
   RegEntryTypes,
   Frame,
+  RegMechData,
+  RegNpcData,
 } from "machine-mind";
 import { FoundryFlagData, FoundryReg } from "../mm-util/foundry-reg";
 import { LancerHooks, LancerSubscription } from "../helpers/hooks";
@@ -117,10 +119,10 @@ export class LancerActor extends Actor {
    * Performs overheat
    * For now, just rolls on table. Eventually we can include configuration to do automation
    */
-  overheat() {
+  async overheat() {
     // Assert that we're on a mech or NPC
     if (this.is_mech() || this.is_npc()) {
-      this.overheatMech();
+      await this.overheatMech();
     } else {
       ui.notifications!.warn("Can only overheat NPCs and Mechs");
       return;
@@ -128,6 +130,7 @@ export class LancerActor extends Actor {
   }
 
   async overheatMech(): Promise<void> {
+    if (!this.is_mech() && !this.is_npc()) return;
     // Table of descriptions
     function stressTableD(roll: number, remStress: number) {
       switch (roll) {
@@ -165,7 +168,7 @@ export class LancerActor extends Actor {
       "Emergency Shunt",
     ];
 
-    let ent = (await this.data.data.derived.mm_promise) as Mech | Npc;
+    let ent = await this.data.data.derived.mm_promise;
     const auto = getAutomationOptions();
     if (auto.structure) {
       if (ent.CurrentHeat > ent.HeatCapacity) {
@@ -245,7 +248,7 @@ export class LancerActor extends Actor {
   async structure() {
     // Assert that we're on a mech or NPC
     if (this.is_mech() || this.is_npc()) {
-      this.structureMech();
+      await this.structureMech();
     } else {
       ui.notifications!.warn("Can only structure NPCs and Mechs");
       return;
@@ -1028,9 +1031,47 @@ export class LancerActor extends Actor {
   /** @override
    * On the result of an update, we want to cascade derived data.
    */
-  _onUpdate(...args: Parameters<Actor["_onUpdate"]>) {
-    super._onUpdate(...args);
+  protected _onUpdate(...[changed, options, user]: Parameters<Actor["_onUpdate"]>) {
+    super._onUpdate(changed, options, user);
     LancerHooks.call(this);
+
+    // Check for overheating / structure
+    if (
+      getAutomationOptions().structure &&
+      this.isOwner &&
+      !(this.hasPlayerOwner && game.user?.isGM) &&
+      (this.is_mech() || this.is_npc())
+    ) {
+      const data = changed.data as DeepPartial<RegMechData | RegNpcData>;
+      if ("heat" in (data ?? {}) && (data?.heat ?? 0) > (this.data.data.derived.mm?.HeatCapacity ?? 0)) {
+        new Dialog({
+          title: "Overheating",
+          content: `${this.name} is overheating! Roll for reactor damage.`,
+          buttons: {
+            ok: {
+              label: "Roll",
+              icon: '<i class="fas fa-check"></i>',
+              callback: () => this.overheat(),
+            },
+          },
+          default: "ok",
+        }).render(true);
+      }
+      if ("hp" in (data ?? {}) && (data?.hp ?? 0) <= 0) {
+        new Dialog({
+          title: "Structure",
+          content: `${this.name} took structure damage! Roll for structure damage.`,
+          buttons: {
+            ok: {
+              label: "Roll",
+              icon: '<i class="fas fa-check"></i>',
+              callback: () => this.structure(),
+            },
+          },
+          default: "ok",
+        }).render(true);
+      }
+    }
   }
 
   // Ditto - items alter stats quite often

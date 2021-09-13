@@ -136,7 +136,7 @@
             "attacks": "Attack rolls",
             "attacks-desc": "Toggle for whether or not you want the system to auto-calculate hits, damage, and other attack related checks.",
             "structure": "Structure/Stress",
-            "structure-desc": "Automatically adjust HP/Structure or Heat/Stress when a mech makes a Structure or Stress roll",
+            "structure-desc": "Automatically prompt for a structure or stress roll when a mech reaches 0 hp or exceeds its heat cap.",
             "overcharge_heat": "Apply Overcharge Heat",
             "overcharge_heat-desc": "Automatically apply heat hen rolling overcharge",
             "attack_self_heat": "Self Heat from Attacks",
