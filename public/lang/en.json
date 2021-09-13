@@ -138,9 +138,11 @@
             "structure": "Structure/Stress",
             "structure-desc": "Automatically prompt for a structure or stress roll when a mech reaches 0 hp or exceeds its heat cap.",
             "overcharge_heat": "Apply Overcharge Heat",
-            "overcharge_heat-desc": "Automatically apply heat hen rolling overcharge",
+            "overcharge_heat-desc": "Automatically apply heat when rolling overcharge",
             "attack_self_heat": "Self Heat from Attacks",
-            "attack_self_heat-desc": "When a weapon has the Overkill or Heat (self) tags, automatically apply any heat"
+            "attack_self_heat-desc": "When a weapon has the Overkill or Heat (self) tags, automatically apply any heat.",
+            "remove_templates": "Remove Templates Each Turn",
+            "remove_templates-desc": "When the turn changes, should measured templates from attacks be cleared?"
         }
     }
 }

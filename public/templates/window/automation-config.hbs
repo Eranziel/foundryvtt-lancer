@@ -50,6 +50,17 @@
     <p class="notes">{{ localize "lancer.automation.attack_self_heat-desc" }}</p>
   </div>
   <div class="form-group">
+    <label>{{ localize "lancer.automation.remove_templates" }}</label>
+    <input
+        type="checkbox"
+        name="remove_templates"
+        {{#if remove_templates}}checked{{/if}}
+        {{#unless enabled}}disabled{{/unless}}
+        data-dtype="Boolean"
+    />
+    <p class="notes">{{ localize "lancer.automation.remove_templates-desc" }}</p>
+  </div>
+  <div class="form-group">
     <button type="submit" name="submit">
       <i class="fas fa-save"></i>
       <span>Save</span>

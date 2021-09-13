@@ -588,6 +588,13 @@ Hooks.on("createCombat", (_actor: Actor) => {
 Hooks.on("deleteCombat", (_actor: Actor) => {
   (<LancerGame>game).action_manager?.update();
 });
+Hooks.on("updateCombat", (_combat: Combat, changes: DeepPartial<Combat["data"]>) => {
+  if (getAutomationOptions().remove_templates && "turn" in changes && game.user?.isGM) {
+    canvas.templates?.placeables.forEach(t => {
+      if (t.document.getFlag("lancer", "isAttack")) t.document.delete();
+    });
+  }
+});
 //
 
 // Create sidebar button to import LCP

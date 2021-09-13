@@ -151,12 +151,13 @@ export const registerSettings = function () {
  *                     (default: `false`)
  */
 export function getAutomationOptions(useDefault = false): AutomationOptions {
-  const def = {
+  const def: AutomationOptions = {
     enabled: true,
     attacks: true,
     structure: true,
     overcharge_heat: true,
     attack_self_heat: true,
+    remove_templates: false,
   };
   if (useDefault) return def;
   const set = game.settings.get(game.system.id, LANCER.setting_automation);
@@ -173,6 +174,7 @@ export function getAutomationOptions(useDefault = false): AutomationOptions {
       structure: false,
       overcharge_heat: false,
       attack_self_heat: false,
+      remove_templates: false,
     };
   }
 }
@@ -209,4 +211,9 @@ export interface AutomationOptions {
    * @defaultValue `true`
    */
   attack_self_heat: boolean;
+  /**
+   * Remove measured templates created by attacks when the turn changes
+   * @defaultValue `false`
+   */
+  remove_templates: boolean;
 }
