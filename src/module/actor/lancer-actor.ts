@@ -1039,7 +1039,10 @@ export class LancerActor extends Actor {
     if (
       getAutomationOptions().structure &&
       this.isOwner &&
-      !(this.hasPlayerOwner && game.user?.isGM) &&
+      !(
+        game.users?.players.reduce((a, u) => a || (u.active && this.testUserPermission(u, "OWNER")), false) &&
+        game.user?.isGM
+      ) &&
       (this.is_mech() || this.is_npc())
     ) {
       const data = changed.data as DeepPartial<RegMechData | RegNpcData>;
