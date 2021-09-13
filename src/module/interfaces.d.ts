@@ -1,6 +1,6 @@
 import { LancerItemType } from "./item/lancer-item";
 import { EffectData } from "./helpers/npc";
-import { Damage, License, LiveEntryTypes } from "machine-mind";
+import { Damage, License, LiveEntryTypes, TagInstance } from "machine-mind";
 import { LancerActorType } from "./actor/lancer-actor";
 
 // ------------------------------------------------------
@@ -44,6 +44,7 @@ declare interface LancerStatMacroData {
 }
 
 declare interface LancerAttackMacroData {
+  self_heat?: boolean;
   title: string;
   grit: number;
   acc: number;
@@ -51,7 +52,7 @@ declare interface LancerAttackMacroData {
   overkill?: boolean;
   effect?: EffectData | string;
   on_hit?: string; // For NPC weapons - to be removed once they use EffectData
-  tags: TagDataShort[];
+  tags: TagInstance[];
   loaded?: boolean;
   destroyed?: boolean;
 }

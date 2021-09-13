@@ -40,7 +40,7 @@ import { ActivationOptions, StabOptions1, StabOptions2 } from "./enums";
 import { applyCollapseListeners, uuid4 } from "./helpers/collapse";
 import { checkForHit } from "./helpers/automation/targeting";
 import type { AccDiffData, AccDiffDataSerialized, RollModifier } from "./helpers/acc_diff";
-import { is_overkill } from "machine-mind/dist/funcs";
+import { is_overkill, is_self_heat } from "machine-mind/dist/funcs";
 import type { LancerToken } from "./token";
 import { LancerGame } from "./lancer-game";
 import { getAutomationOptions } from "./settings";
@@ -661,6 +661,7 @@ async function prepareAttackMacro(
     mData.acc = 0;
     mData.tags = weaponData.Tags;
     mData.overkill = is_overkill(itemEnt);
+    mData.self_heat = is_self_heat(itemEnt);
     mData.effect = weaponData.Effect;
   } else if (actor.is_pilot() && item.is_pilot_weapon()) {
     pilotEnt = await actor.data.data.derived.mm_promise;
@@ -673,6 +674,7 @@ async function prepareAttackMacro(
     mData.acc = 0;
     mData.tags = weaponData.Tags;
     mData.overkill = is_overkill(itemEnt);
+    mData.self_heat = is_self_heat(itemEnt);
     mData.effect = weaponData.Effect;
   } else if (actor.is_npc() && item.is_npc_feature()) {
     const mm: NpcFeature = await item.data.data.derived.mm_promise;
@@ -701,6 +703,7 @@ async function prepareAttackMacro(
 
     mData.tags = mm.Tags;
     mData.overkill = funcs.is_overkill(mm);
+    mData.self_heat = is_self_heat(mm);
     mData.on_hit = mm.OnHit;
     mData.effect = mm.Effect;
   } else {
@@ -937,6 +940,7 @@ async function rollAttackMacro(
     d_type: DamageType;
   }> = [];
   let overkill_heat = 0;
+  let self_heat = 0;
 
   const has_normal_hit =
     (hits.length === 0 && !!attacks.find(attack => (attack.roll.total ?? 0) < 20)) ||
@@ -997,12 +1001,17 @@ async function rollAttackMacro(
     });
   }
 
+  if (data.self_heat) {
+    // Once the double tag thing is fixed, this should iterate over all tags
+    // instead just using the first one.
+    self_heat = parseInt(`${data.tags.find(tag => tag.Tag.LID === "tg_heat_self")?.Value??0}`);
+  }
+
   // TODO: Heat (self) application
-  const auto = getAutomationOptions();
-  if (auto.attack_self_heat) {
+  if (getAutomationOptions().attack_self_heat) {
     let mment = await actor.data.data.derived.mm_promise;
     if (is_reg_mech(mment)) {
-      mment.CurrentHeat += overkill_heat;
+      mment.CurrentHeat += overkill_heat + self_heat;
       await mment.writeback();
     }
   }
@@ -1339,8 +1348,7 @@ export async function prepareOverchargeMacro(a: string) {
   mech.OverchargeCount = Math.min(mech.OverchargeCount + 1, 3);
 
   // Only increase heat if we haven't disabled it
-  const auto = getAutomationOptions();
-  if (auto.overcharge_heat) {
+  if (getAutomationOptions().overcharge_heat) {
     mech.CurrentHeat = mech.CurrentHeat + roll.total!;
   }
 
