@@ -999,7 +999,7 @@ async function rollAttackMacro(
 
   // TODO: Heat (self) application
   const auto = getAutomationOptions();
-  if (auto.enabled && auto.attack_self_heat) {
+  if (auto.attack_self_heat) {
     let mment = await actor.data.data.derived.mm_promise;
     if (is_reg_mech(mment)) {
       mment.CurrentHeat += overkill_heat;
@@ -1340,7 +1340,7 @@ export async function prepareOverchargeMacro(a: string) {
 
   // Only increase heat if we haven't disabled it
   const auto = getAutomationOptions();
-  if (auto.enabled && auto.overcharge_heat) {
+  if (auto.overcharge_heat) {
     mech.CurrentHeat = mech.CurrentHeat + roll.total!;
   }
 

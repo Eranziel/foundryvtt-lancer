@@ -19,7 +19,10 @@ export class AutomationConfig extends FormApplication<FormApplication.Options, A
 
   /** @override */
   getData(): AutomationOptions {
-    return getAutomationOptions();
+    return {
+      ...getAutomationOptions(true),
+      ...game.settings.get(game.system.id, LANCER.setting_automation),
+    }
   }
 
   /** @override */

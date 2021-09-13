@@ -145,19 +145,36 @@ export const registerSettings = function () {
 };
 
 /**
- * Retrieve the automation settings for the system.
+ * Retrieve the automation settings for the system. If automation is turned
+ * off, all keys will be `false`.
  * @param useDefault - Control if the returned value is the default.
  *                     (default: `false`)
  */
 export function getAutomationOptions(useDefault = false): AutomationOptions {
-  return {
+  const def = {
     enabled: true,
     attacks: true,
     structure: true,
     overcharge_heat: true,
     attack_self_heat: true,
-    ...(useDefault ? {} : game.settings.get(game.system.id, LANCER.setting_automation)),
   };
+  if (useDefault) return def;
+  const set = game.settings.get(game.system.id, LANCER.setting_automation);
+  if (set.enabled ?? true) {
+    return {
+      ...def,
+      ...set,
+    };
+  } else {
+    // Return all falses if automation is off
+    return {
+      enabled: false,
+      attacks: false,
+      structure: false,
+      overcharge_heat: false,
+      attack_self_heat: false,
+    };
+  }
 }
 
 /**

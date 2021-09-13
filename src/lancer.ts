@@ -40,7 +40,7 @@ import { WeaponRangeTemplate } from "./module/pixi/weapon-range-template";
 
 // Import helpers
 import { preloadTemplates } from "./module/preloadTemplates";
-import { registerSettings } from "./module/settings";
+import { getAutomationOptions, registerSettings } from "./module/settings";
 import { compact_tag_list } from "./module/helpers/tags";
 import * as migrations from "./module/migration";
 import { addLCPManager, updateCore, core_update } from "./module/apps/lcpManager";
@@ -195,6 +195,7 @@ Hooks.once("init", async function () {
     stabilizeMacro: macros.stabilizeMacro,
     targetsFromTemplate: macros.targetsFromTemplate,
     migrations: migrations,
+    getAutomationOptions: getAutomationOptions,
 
     // For whitespines testing /('o')/
     tmp: {
