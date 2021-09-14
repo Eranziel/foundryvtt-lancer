@@ -58,7 +58,7 @@ const encodedMacroWhitelist = [
 ];
 
 export function encodeMacroData(data: LancerMacroData): string {
-  return btoa(encodeURI(JSON.stringify(data)));
+  return window.btoa(encodeURI(JSON.stringify(data)));
 }
 
 export async function runEncodedMacro(el: HTMLElement | LancerMacroData) {
@@ -71,7 +71,7 @@ export async function runEncodedMacro(el: HTMLElement | LancerMacroData) {
       return;
     }
 
-    data = JSON.parse(decodeURI(atob(encoded))) as LancerMacroData;
+    data = JSON.parse(decodeURI(window.atob(encoded))) as LancerMacroData;
   } else {
     data = el as LancerMacroData;
   }
@@ -156,12 +156,6 @@ export async function onHotbarDrop(_bar: any, data: any, slot: number) {
         command = `game.lancer.prepareItemMacro("${actorId}", "${itemId}");`;
         img = `systems/${game.system.id}/assets/icons/macro-icons/mech_system.svg`;
         break;
-      case ActivationOptions.ACTION:
-        // This should be fully migrated to encoded
-        throw Error("This should be migrated");
-        command = `game.lancer.prepareActivationMacro("${actorId}", "${itemId}", "${ActivationOptions.ACTION}", "${data.number}");`;
-        img = `systems/${game.system.id}/assets/icons/macro-icons/mech_system.svg`;
-        break;
       case EntryType.NPC_FEATURE:
         switch (item.FeatureType) {
           case NpcFeatureType.Reaction:
@@ -186,10 +180,6 @@ export async function onHotbarDrop(_bar: any, data: any, slot: number) {
             break;
         }
         break;
-      case "HASE":
-        // This should be fully migrated to encoded
-        throw Error("This should be migrated");
-        command = `game.lancer.prepareStatMacro("${actorId}", "${data.dataPath}");`;
     }
 
     // TODO: Figure out if I am really going down this route and, if so, switch to a switch
@@ -358,8 +348,12 @@ export async function prepareItemMacro(a: string, i: string, options?: any) {
 /**
  * Get an actor to use for a macro. If an id is passed and the return is
  * `undefined` a warning notification will be displayed.
+ * @param a_id - The Actor to search for. If an id, try to search for the
+ *               appropriate actor to use, if an Actor document, use that doc.
  */
-export function getMacroSpeaker(a_id?: string): LancerActor | undefined {
+export function getMacroSpeaker(a_id?: string | LancerActor): LancerActor | undefined {
+  // If we have an actor already, we're gtg
+  if (a_id instanceof Actor) return a_id;
   // Determine which Actor to speak as
   const speaker = ChatMessage.getSpeaker();
   // console.log(`${lp} Macro speaker`, speaker);
@@ -431,6 +425,7 @@ export async function renderMacroHTML(actor: LancerActor | undefined, html: HTML
   return Promise.resolve();
 }
 
+/** TODO: Remove if not needed
 function getMacroActorItem(a: string, i: string): { actor: LancerActor | undefined; item: LancerItem | undefined } {
   let result: { actor: LancerActor | undefined; item: LancerItem | undefined } = { actor: undefined, item: undefined };
   // Find the Actor for a macro to speak as
@@ -445,6 +440,7 @@ function getMacroActorItem(a: string, i: string): { actor: LancerActor | undefin
   }
   return result;
 }
+ */
 
 function rollStr(bonus: number, total: number): string {
   let modStr = "";
@@ -1328,7 +1324,7 @@ export async function prepareOverchargeMacro(a: string) {
   }
 
   // And here too... we should probably revisit our type definitions...
-  let rollText = await actor.getOverchargeRoll();
+  let rollText = actor.getOverchargeRoll();
   if (!rollText) {
     ui.notifications!.warn(`Error in getting overcharge roll...`);
     return;

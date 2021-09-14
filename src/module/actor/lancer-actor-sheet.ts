@@ -193,7 +193,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
 
     if (!encoded) throw Error("No macro data available");
 
-    let data = JSON.parse(decodeURI(atob(encoded)));
+    let data = JSON.parse(decodeURI(window.atob(encoded)));
     e.dataTransfer?.setData("text/plain", JSON.stringify(data));
   }
 
