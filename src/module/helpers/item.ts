@@ -57,14 +57,15 @@ import {
   std_x_of_y,
   tippy_context_menu,
 } from "./commons";
-import { limited_chip_HTML, ref_commons, ref_params } from "./refs";
+import { limited_chip_HTML, ref_commons, ref_params, resolve_ref_element } from "./refs";
 import { ActivationOptions, ChipIcons } from "../enums";
-import type { LancerItemSheetData, LancerMacroData } from "../interfaces";
+import type { LancerActorSheetData, LancerItemSheetData, LancerMacroData } from "../interfaces";
 import { encodeMacroData } from "../macros";
 import { is_limited, is_loading } from "machine-mind/dist/classes/mech/EquipUtil";
 import type { CollapseRegistry } from "./loadout";
 import { uuid4 } from "./collapse";
 import { promptText } from "../apps/simple-prompt";
+import { FoundryFlagData } from "../mm-util/foundry-reg";
 
 /**
  * Handlebars helper for weapon size selector
@@ -664,14 +665,14 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.Select
                   ${ref_params(cd.ref, weapon_path)}
                   style="max-height: fit-content;">
       <div class="lancer-header ${weapon.Destroyed ? "destroyed" : ""}">
-        <i class="${
-          weapon.Destroyed ? "mdi mdi-cog" : "cci cci-weapon i--m i--light"
-        }  i--click" data-context-menu="toggle" data-field="Destroyed" data-path="${weapon_path}"> </i>
+        <i class="${weapon.Destroyed ? "mdi mdi-cog" : "cci cci-weapon i--m i--light"}"> </i>
         <i class="mdi mdi-unfold-less-horizontal collapse-trigger collapse-icon" data-collapse-id="${collapseID}"> </i>
         <span class="minor" ${mech_ ? `data-collapse-store="${mech_.RegistryID}"` : ""}" >
           ${weapon.Name} // ${weapon.Size.toUpperCase()} ${weapon.SelectedProfile.WepType.toUpperCase()}
         </span>
-        <a class="gen-control i--light" data-action="null" data-path="${weapon_path}"><i class="fas fa-trash"></i></a>
+        <a class="lancer-context-menu" data-context-menu="${EntryType.MECH_WEAPON}" data-path="${weapon_path}">
+          <i class="fas fa-ellipsis-v"></i>
+        </a>
       </div> 
       <div class="lancer-body collapse" data-collapse-id="${collapseID}">
         ${weapon.SP ? sp : ""}
@@ -1052,6 +1053,64 @@ export function buildCounterArrayHTML(
   </div>`;
 }
 
+export function HANDLER_activate_item_context_menus<T extends LancerActorSheetData<any>>(
+  html: JQuery,
+  // Retrieves the data that we will operate on
+  data_getter: () => Promise<T> | T,
+  commit_func: (data: T) => void | Promise<void>
+) {
+  let edit: ContextMenuEntry = {
+    name: "Edit",
+    icon: `<i class="fas fa-edit"></i>`,
+    callback: async (html: JQuery) => {
+      let element = html.closest(".ref.valid")[0];
+      if (element) {
+        const found_entity = await resolve_ref_element(element);
+        if (!found_entity) return;
+
+        let sheet = (found_entity.Flags as FoundryFlagData).orig_doc.sheet;
+        // If the sheet is already rendered:
+        if (sheet?.rendered) {
+          await sheet.maximize();
+          sheet.bringToTop();
+        }
+        // Otherwise render the sheet
+        else sheet?.render(true);
+      }
+    },
+  };
+  let destroy: ContextMenuEntry = {
+    name: "Destroy",
+    icon: `<i class="fas fa-fw fa-trash"></i>`,
+    callback: async (html: JQuery) => {
+      let cd = await data_getter();
+      let path = html[0].dataset.path ?? "";
+      if (path) {
+      }
+    },
+  };
+  let remove: ContextMenuEntry = {
+    name: "Delete",
+    icon: '<i class="fas fa-fw fa-trash"></i>',
+    callback: async (html: JQuery) => {
+      let cd = await data_getter();
+      let path = html[0].dataset.path ?? "";
+      console.log(cd, html, path);
+      // Delete the weapon
+      if (path) {
+        let weapon: MechWeapon | PilotWeapon | NpcFeature | null = resolve_dotpath(cd, path, null);
+        if (weapon) await weapon.destroy_entry();
+        // Then commit
+        await commit_func(cd);
+      }
+    },
+  };
+
+  // Finally, setup the context menu
+  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"mech_weapon\"]`), "click", [edit, remove]);
+  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"pilot_weapon\"]`), "click", [remove]);
+}
+
 // Allows user to remove or rename profiles value via right click
 export function HANDLER_activate_profile_context_menus<T extends LancerItemSheetData<any>>(
   html: JQuery,
@@ -1117,5 +1176,5 @@ export function HANDLER_activate_profile_context_menus<T extends LancerItemSheet
   };
 
   // Finally, setup the context menu
-  tippy_context_menu(html.find(".weapon-profile-tab"), [remove, set_value]);
+  tippy_context_menu(html.find(".weapon-profile-tab"), "contextmenu", [remove, set_value]);
 }
