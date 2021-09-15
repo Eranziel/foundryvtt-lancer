@@ -4,11 +4,12 @@ import { EntryType, Mech, Pilot } from "machine-mind";
 import { funcs } from "machine-mind";
 import type { HelperOptions } from "handlebars";
 import { buildCounterHTML } from "../helpers/item";
-import { ref_commons, ref_params, simple_mm_ref } from "../helpers/refs";
+import { ref_commons, ref_params, resolve_ref_element, simple_mm_ref } from "../helpers/refs";
 import { resolve_dotpath } from "../helpers/commons";
-import type { AnyMMActor } from "./lancer-actor";
+import { AnyMMActor, is_reg_mech, is_actor_type } from './lancer-actor';
 import { cleanCloudOwnerID, fetchPilot, pilotCache } from "../compcon";
 import type { AnyMMItem, LancerItemType } from "../item/lancer-item";
+import { derived } from 'svelte/store';
 
 /**
  * Extend the basic ActorSheet
@@ -108,7 +109,47 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
           (html.find('select[name="vaultID"]')[0] as any).value = "";
         }
       });
+
+      // Mech swapping
+      let mechActivators = html.find(".activate-mech");
+      mechActivators.on("click", async ev => {
+        ev.stopPropagation();
+        let mech = await resolve_ref_element(ev.currentTarget);
+        
+        if(!mech || !is_reg_mech(mech)) return;
+
+        this.activateMech(mech);
+      })
+
+      let mechDeactivator = html.find(".deactivate-mech");
+      mechDeactivator.on("click", async ev => {
+        ev.stopPropagation();
+
+        this.deactivateMech();
+      })
     }
+  }
+
+  async activateMech(mech: Mech) {
+    let this_mm = (this.actor.data.data.derived.mm as Pilot)
+    // Set active mech
+    this_mm.ActiveMechRef = mech.as_ref();
+    if (mech.Pilot?.RegistryID != mech.RegistryID) {
+      // Also set the mechs pilot if necessary
+      mech.Pilot = this_mm;
+      mech.writeback();
+    }
+
+    await this_mm.writeback();
+  }
+
+  async deactivateMech() {
+    let this_mm = (this.actor.data.data.derived.mm as Pilot)
+
+    // Unset active mech
+    this_mm.ActiveMechRef = null;
+
+    await this_mm.writeback();
   }
 
   async getData() {
@@ -199,13 +240,7 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
       drop.CurrentRank = 1;
       await drop.writeback(); // Since we're editing the item, we gotta do this
     } else if (drop.Type === EntryType.MECH) {
-      // Set active mech
-      this_mm.ActiveMechRef = drop.as_ref();
-      if (drop.Pilot?.RegistryID != this_mm.RegistryID) {
-        // Also set the mechs pilot if necessary
-        drop.Pilot = this_mm;
-        drop.writeback();
-      }
+      this.activateMech(drop);
     }
 
     // Writeback when done. Even if nothing explicitly changed, probably good to trigger a redraw
@@ -297,6 +332,42 @@ export function pilot_counters(ent: Pilot, _helper: HelperOptions): string {
   </div>`;
 }
 
+export function all_mech_preview(_helper: HelperOptions): string {
+  let this_mm: Pilot = _helper.data.root.mm;
+  let active_mech: Mech | null = _helper.data.root.active_mech;
+
+  let html = ``;
+
+  /// I still feel like this is pretty inefficient... but it's probably the best we can do for now
+  game?.actors?.filter( a => a.is_mech() && 
+                        !!a.data.data.pilot && 
+                        a.data.data.pilot.id === _helper.data.root.actor.id && 
+                        a.id !== active_mech?.RegistryID).map((m, k) => {
+    let inactive_mech = m.data.data.derived.mm;
+
+    if(!inactive_mech) return;
+
+    if (!is_reg_mech(inactive_mech)) return;
+
+    let cd = ref_commons(inactive_mech);
+    if (!cd) return simple_mm_ref(EntryType.MECH, inactive_mech, "ERROR LOADING MECH", "", true);
+
+    html = html.concat(`
+      <div class="flexrow inactive-row">
+        <a class="activate-mech" ${ref_params(cd.ref)}><i class="cci cci-activate"></i></a>
+        <div class="major valid ${cd.ref.type} ref" ${ref_params(cd.ref)}>${m.name}</div>
+      </div>
+    `)
+  })
+
+
+  let cd = ref_commons(this_mm);
+  if(active_mech) 
+    return active_mech_preview(active_mech, "active_mech", _helper).concat(html);
+  else
+    return html
+}
+
 export function active_mech_preview(mech: Mech, path: string, _helper: HelperOptions): string {
   var html = ``;
 
@@ -333,6 +404,7 @@ export function active_mech_preview(mech: Mech, path: string, _helper: HelperOpt
   html = html.concat(`
   <div class="mech-preview">
     <div class="mech-preview-titlebar">
+    <a class="deactivate-mech"><i class="cci cci-activate"></i></a>
       <span>ACTIVE MECH: ${mech.Name}</span>
     </div>
     <img class="valid ${cd.ref.type} ref" ${ref_params(cd.ref)} src="${mech.Flags.top_level_data.img}"/>

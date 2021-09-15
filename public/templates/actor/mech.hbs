@@ -38,10 +38,14 @@
           {{{stat-edit-card "O.SHIELD" "mdi mdi-shield-star-outline" "mm.Overshield"}}}
           {{{stat-edit-max-card "REPAIRS" "cci cci-repair" "mm.CurrentRepairs" "mm.RepairCapacity"}}}
           <div class="size-card">
-            <i class="cci cci-size-{{mm.Size}} size-icon theme--main"></i>
+            {{#if (eq mm.Size 0.5)}}
+              <i class="cci cci-size-half size-icon theme--main"></i>
+            {{else}}
+              <i class="cci cci-size-{{mm.Size}} size-icon theme--main"></i>
+            {{/if}}
           </div>
           {{!-- {{{stat-view-card "SIZE" (concat "mdi " mm.SizeIcon) "mm.Size" }}} --}}
-          {{{overcharge-button "mm.OverchargeCount"}}}
+          {{{overcharge-button actor "mm.OverchargeCount"}}}
           <div class="flexcol card clipped">
             <div class="lancer-header">
               <span class="major">

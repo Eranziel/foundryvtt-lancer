@@ -1,3 +1,32 @@
+# 1.0.2 (2021-09-08)
+## Features
+* #120 - Mechs and NPCs which do not have custom artwork set will now use a set of defaults from [Retrograde Minis](https://www.retrogrademinis.com). Thanks a ton to Retrograde for letting us use their fantastic artwork!
+* #122 - Changing the size of Mech and NPC Actors will set the appropriate square token size and Hex Size Support configuration, if that module is installed and enabled.
+* #178 - Add handling for "overcharge" bonuses on pilot & mech items. Heatfall CB (and any homebrew LCPs that affect overcharge) now correctly modify the overcharge roll sequence.
+* #292 - Add active mech management to pilot sheet, including list of inactive mechs.
+* The Pilot sheet has been reorganized to be more similar to Comp/Con. The NARRATIVE tab now contains pilot-centric data (LL, grit, skill triggers, and pilot gear), and the TACTICAL tab contains things which affect mechs (Counters, HASE, Talents, Licenses, Core Bonuses).
+
+## Bug Fixes
+* #298 - Fixed remaining cases where macros rolled from an unlinked token's sheet did not use that token's state for the roll.
+* #300 - Fix CORS issues with default token images by packaging defaults (Retrograde artwork) within the system.
+* #301 - Fix issue causing imported mechs' tokens to default to unlinked and hostile.
+* #310 - Fix issue erroneously preventing macros from linked mech/pilot token sheets.
+* Fix issue preventing use of talent rank macros from mech sheet. 
+* Fix issue causing irregularities with Sensor Sight token detection radius.
+* Fix issue preventing display of size 1/2 icon on various sheets.
+* Crit damage rolls now comply with Lancer RAW procedure, re-using the normal damage roll results.
+
+# 1.0.1 (2021-09-02)
+## Features
+* Bolts has added a button to the attack HUD for placing templates according to the weapon's profile! Tokens under the template will be automatically targeted, updating the attack HUD.
+* The AoE Macros compendium has been updated so that the templates automatically target tokens they are placed upon.
+
+## Bug Fixes
+* #297 - Impaired is now applied to tech attacks as well.
+* #298 - Macros rolled from an unlinked token's sheet will use that token's name in chat.
+* #299 - Invisibility applies before any other attack modifiers, and spotter now correctly rerolls the entire attack roll.
+* #307 - Fixed talent action macros on mech sheets.
+
 # 1.0.0 (2021-08-31)
 If you are coming here from Lancer v0.1.x / Foundry 0.7.x, welcome! For you, nearly everything is new; the changes listed below accounts for changes from the latest version of the beta release.
 

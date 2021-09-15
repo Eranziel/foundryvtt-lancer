@@ -5,6 +5,7 @@ import { simple_mm_ref } from "./refs";
 import { encodeMacroData } from "../macros";
 import type { ActionType } from "../action";
 import { LANCER } from "../config";
+import type { LancerActor } from "../actor/lancer-actor";
 // ---------------------------------------
 // Some simple stat editing thingies
 
@@ -51,13 +52,14 @@ export function stat_view_card(
 ): string {
   let data_val = resolve_helper_dotpath(options, data_path);
   let macro_button: string | undefined;
+  // Determine whether this is an unlinked token, so we can encode the correct id for the macro.
+  const r_actor = options.data.root.actor as LancerActor | undefined;
+  let id = r_actor?.token && !r_actor.token.isLinked ? r_actor.token.id : r_actor?.id!;
+  // console.log(r_actor, id);
   let macroData = encodeMacroData({
     title: title,
     fn: "prepareStatMacro",
-    args: [
-      options.data.root.data._id,
-      data_path
-    ]
+    args: [id, data_path],
   });
   if (options.rollable)
     macro_button = `<a class="i--dark i--sm lancer-macro" data-macro="${macroData}"><i class="fas fa-dice-d20"></i></a>`;
@@ -128,13 +130,14 @@ export function clicker_stat_card(
   options: HelperOptions
 ): string {
   let button = "";
+  // Determine whether this is an unlinked token, so we can encode the correct id for the macro.
+  const r_actor = options.data.root.actor as LancerActor | undefined;
+  let id = r_actor?.token && !r_actor.token.isLinked ? r_actor.token.id : r_actor?.id!;
+  // console.log(r_actor, id);
   let macroData = encodeMacroData({
     title: title,
     fn: "prepareStatMacro",
-    args: [
-      options.data.root.data._id,
-      data_path
-    ]
+    args: [id, data_path],
   });
   if (roller)
     button = `<a class="lancer-macro i--dark i--sm" data-macro="${macroData}"><i class="fas fa-dice-d20"></i></a>`;
@@ -209,10 +212,12 @@ export function npc_clicker_stat_card(title: string, data_path: string, options:
 /**
  * Handlebars helper for an overcharge button
  * Currently this is overkill, but eventually we want to support custom overcharge values
+ * @param actor Reference to the actor
  * @param overcharge_path Path to current overcharge level, from 0 to 3
+ * @param options Options object to pass to resolve_helper_dotpath
  */
-export function overcharge_button(overcharge_path: string, options: HelperOptions): string {
-  const overcharge_sequence = ["1", "1d3", "1d6", "1d6 + 4"];
+export function overcharge_button(actor: LancerActor, overcharge_path: string, options: HelperOptions): string {
+  const overcharge_sequence = actor.getOverchargeSequence() || ["+1", "+1d3", "+1d6", "+1d6 + 4"];
 
   let index = resolve_helper_dotpath(options, overcharge_path) as number;
   index = funcs.bound_int(index, 0, overcharge_sequence.length - 1);

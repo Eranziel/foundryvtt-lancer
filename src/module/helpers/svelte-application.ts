@@ -7,7 +7,7 @@ type SvelteAppOptions = Application.Options & {
 export default class SvelteApp<DataModel> extends Application {
   klass: typeof SvelteComponent;
   data: DataModel;
-  component?: typeof SvelteComponent; // the type reuses the same type for class and instance
+  component?: SvelteComponent;
   declare options: SvelteAppOptions;
 
   #resolve: ((data: DataModel) => void) | null = null;

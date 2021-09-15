@@ -29,7 +29,7 @@ import { action_type_icon, action_type_selector } from "./module/helpers/npc";
 import { LancerActionManager } from "./module/action/actionManager";
 
 // Import applications
-import { LancerPilotSheet, active_mech_preview, pilot_counters } from "./module/actor/pilot-sheet";
+import { LancerPilotSheet, active_mech_preview, pilot_counters, all_mech_preview } from "./module/actor/pilot-sheet";
 import { LancerNPCSheet } from "./module/actor/npc-sheet";
 import { LancerDeployableSheet } from "./module/actor/deployable-sheet";
 import { LancerMechSheet } from "./module/actor/mech-sheet";
@@ -393,7 +393,7 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("pilot-gear-slot", pilot_gear_refview);
   Handlebars.registerHelper("counter-array", buildCounterArrayHTML);
   Handlebars.registerHelper("pilot-counters", pilot_counters);
-  Handlebars.registerHelper("active-mech-preview", active_mech_preview);
+  Handlebars.registerHelper("all-mech-preview", all_mech_preview);
 
   // ------------------------------------------------------------------------
   // Tags
@@ -481,13 +481,16 @@ Hooks.once("init", async function () {
   // ------------------------------------------------------------------------
   // Sliding HUD Zone, including accuracy/difficulty window
   Hooks.on('renderHeadsUpDisplay', slidingHUD.attach);
-  Hooks.on('targetToken', (_user: User, _token: Token, isNewTarget: boolean) => {
-    macros.refreshTargeting(isNewTarget ? "may open new window" : "only refresh open window");
+  let openingBasicAttackLock = false;
+  Hooks.on('targetToken', (user: User, _token: Token, isNewTarget: boolean) => {
+    if (user.isSelf && isNewTarget && !openingBasicAttackLock) {
+      // this only works because openBasicAttack is a promise and runs on a future tick
+      openingBasicAttackLock = true;
+      macros.openBasicAttack().finally(() => {
+        openingBasicAttackLock = false;
+      });
+    }
   });
-  Hooks.on('createActiveEffect', () => macros.refreshTargeting("only refresh open window"));
-  Hooks.on('deleteActiveEffect', () => macros.refreshTargeting("only refresh open window"));
-  // updateToken triggers on things like token movement (spotter) and probably a lot of other things
-  Hooks.on('updateToken', () => macros.refreshTargeting("only refresh open window"));
 });
 
 // TODO: either remove when sanity check is no longer needed, or find a better home.

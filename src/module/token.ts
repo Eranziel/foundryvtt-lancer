@@ -34,36 +34,46 @@ export class LancerTokenDocument extends TokenDocument {
 export class LancerToken extends Token {
   constructor(document: LancerTokenDocument) {
     super(document);
-    this._spaces = new Set<Point>();
+    this._spaces = {
+      at: { x: -1, y: -1 },
+      spaces: [],
+    };
   }
 
   /**
    * Cached occupied spaces
    */
-  protected _spaces: Set<Point>;
+  protected _spaces: { at: Point; spaces: Point[] };
 
   /**
    * Returns a Set of Points corresponding to the grid space center points that
    * the token occupies.
    */
-  getOccupiedSpaces(): Set<Point> {
-    if (this._spaces.size === 0 && canvas?.grid?.type !== CONST.GRID_TYPES.GRIDLESS) {
+  getOccupiedSpaces(): Point[] {
+    let pos: { x: number; y: number } = this.data;
+    // Invalidate the cache if the position is different than when it was last calculated.
+    if (Math.floor(pos.x) !== Math.floor(this._spaces.at.x) || Math.floor(pos.y) !== Math.floor(this._spaces.at.y)) {
+      this._spaces.at = { ...pos };
+      this._spaces.spaces = [];
+    }
+
+    if (this._spaces.spaces.length === 0 && canvas?.grid?.type !== CONST.GRID_TYPES.GRIDLESS) {
       let hitBox: PIXI.IHitArea;
       if (this.hitArea instanceof PIXI.Polygon) {
         let poly_points: number[] = [];
         for (let i = 0; i < this.hitArea.points.length - 1; i += 2) {
-          poly_points.push(this.hitArea.points[i] + this.position.x, this.hitArea.points[i + 1] + this.position.y);
+          poly_points.push(this.hitArea.points[i] + pos.x, this.hitArea.points[i + 1] + pos.y);
         }
         hitBox = new PIXI.Polygon(poly_points);
       } else if (this.hitArea instanceof PIXI.Rectangle) {
-        hitBox = new PIXI.Rectangle(this.position.x, this.position.y, this.hitArea.width, this.hitArea.height);
+        hitBox = new PIXI.Rectangle(pos.x, pos.y, this.hitArea.width, this.hitArea.height);
       } else {
         // TODO, handle all possible hitArea shapes
-        return this._spaces;
+        return this._spaces.spaces.map(p => ({ ...p }));
       }
 
       // Get token grid coordinate
-      const [tx, ty] = canvas.grid!.grid?.getGridPositionFromPixels(this.position.x, this.position.y)!;
+      const [tx, ty] = canvas.grid!.grid?.getGridPositionFromPixels(pos.x, pos.y)!;
 
       // TODO: Gridless isn't handled, probably split this off to two utility
       // functions that handle gridded vs gridless properly
@@ -72,16 +82,12 @@ export class LancerToken extends Token {
           let pos = { x: 0, y: 0 };
           [pos.x, pos.y] = canvas.grid!.grid!.getPixelsFromGridPosition(i, j);
           [pos.x, pos.y] = canvas.grid!.getCenter(pos.x + 1, pos.y + 1);
-          if (hitBox.contains(pos.x, pos.y)) this._spaces.add(pos);
+          if (hitBox.contains(pos.x, pos.y)) this._spaces.spaces.push(pos);
         }
       }
     }
-    return this._spaces;
-  }
-
-  _onUpdate(...[data, options, userId]: Parameters<Token["_onUpdate"]>): void {
-    super._onUpdate(data, options, userId);
-    if (hasProperty(data ?? {}, "x") || hasProperty(data ?? {}, "y")) this._spaces.clear();
+    // Make a clone so the cache can't be mutated
+    return this._spaces.spaces.map(p => ({ ...p }));
   }
 }
 
@@ -103,5 +109,24 @@ export function fix_modify_token_attribute(data: any) {
 
       console.log(`Overrode assignment from ${key} to ${new_key}`);
     }
+  }
+}
+
+declare global {
+  interface FlagConfig {
+    Token: {
+      [game.system.id]?: {
+        mm_size?: number | undefined;
+      };
+      "hex-size-support"?: {
+        borderSize?: number;
+        altSnapping?: boolean;
+        evenSnap?: boolean;
+        alwaysShowBorder?: boolean;
+        alternateOrientation?: boolean;
+        pivotx?: number;
+        pivoty?: number;
+      };
+    };
   }
 }

@@ -12,12 +12,17 @@
  import ConsumeLockOn from './ConsumeLockOn.svelte';
  import Total from './Total.svelte';
  import PlusMinusInput from './PlusMinusInput.svelte';
+ import type { LancerItem } from '../../item/lancer-item';
+ import { RangeType } from 'machine-mind';
+ import { WeaponRangeTemplate } from '../../pixi/weapon-range-template';
+ import { fade } from '../slidinghud';
+ import { targetsFromTemplate } from '../../macros';
 
  export let weapon: AccDiffWeapon;
  export let base: AccDiffBase;
  export let targets: AccDiffTarget[];
  export let title: string;
- export const lancerItem: any | null = null;
+ export let lancerItem: LancerItem | null;
 
  export let kind: "hase" | "attack";
 
@@ -42,6 +47,36 @@
    window.addEventListener('keydown', escHandler);
    return { destroy() { window.removeEventListener('keydown', escHandler); } }
  }
+
+ function findRanges() {
+   return lancerItem?.rangesFor([
+     RangeType.Blast,
+     RangeType.Burst,
+     RangeType.Cone,
+     RangeType.Line,
+   ]) ?? [];
+ }
+
+ function deployTemplate(range: WeaponRangeTemplate['range']) {
+   const creator = lancerItem?.parent;
+   const token = (
+     creator?.token?.object ??
+     creator?.getActiveTokens().shift() ??
+     undefined
+   ) as Token | undefined;
+   const t = WeaponRangeTemplate.fromRange(range, token);
+   if (!t) return;
+   fade('out');
+   t.placeTemplate()
+     .catch(e => {
+       console.warn(e);
+       return;
+     })
+     .then(t => {
+       if (t) targetsFromTemplate(t.id!);
+       fade('in');
+     });
+ }
 </script>
 
 <form id="accdiff" class="accdiff window-content" use:escToCancel
@@ -50,6 +85,17 @@
     <div class="lancer-header mech-weapon medium">
       {#if kind == "attack"}
         <i class="cci cci-weapon i--m i--light"></i>
+        {#if lancerItem}
+          {#each findRanges() as range}
+            <button
+              class="range-button"
+              type="button"
+              on:click={() => deployTemplate(range)}
+            >
+              <i class="cci cci-{range.type.toLowerCase()} i--m i--light"></i>
+            </button>
+          {/each}
+        {/if}
       {:else if kind == "hase"}
         <i class="fas fa-dice-d20 i--m i--light"></i>
       {/if}
@@ -228,7 +274,7 @@
   </div>
 </form>
 
-<style>
+<style lang="scss">
   :global(.accdiff-grid) {
     display: flex;
     justify-content: space-between;
@@ -327,9 +373,9 @@
     vertical-align: top;
   }
 
-  /* there's a very specific foundry rule that adds some margin here
+  /* there's a very specific EMU rule that adds some margin here
      because it assumes all icons in buttons are followed by text, I think */
-  #accdiff .accdiff-target-row button > i {
+  #accdiff .accdiff-target-row button > i, #accdiff .mech-weapon button > i {
     margin-inline-end: 0;
   }
 
@@ -353,37 +399,71 @@
     white-space: nowrap;
   }
 
-  .accdiff-target-row .accdiff-button {
-    align-items: center;
-    display: inline-flex;
-    justify-content: center;
-    margin: 0;
-    border: none;
-    box-shadow: 1px 1px 1px var(--main-theme-color);
+  #accdiff button {
     transition: 100ms cubic-bezier(0.075, 0.82, 0.165, 1);
   }
 
-  .accdiff-target-row .accdiff-button:hover {
-    background-color: var(--main-theme-text);
-    box-shadow: 1px 1px 1px var(--main-theme-color);
-  }
-
-  .accdiff-target-row .accdiff-button:focus {
-    box-shadow: 1px 1px 1px var(--main-theme-color);
-  }
-
-  .accdiff-target-row .accdiff-button:active {
-    transform: translateX(2px) translateY(2px);
-    box-shadow: -1px -1px 1px var(--main-theme-color);
-  }
-
-  .accdiff-target-row .accdiff-button i {
-    text-shadow: none;
-    color: rgba(var(--color-text-lightest), 1);
-    cursor: pointer;
+  .accdiff-target-row {
+    .accdiff-button {
+      cursor: pointer;
+      align-items: center;
+      display: inline-flex;
+      justify-content: center;
+      margin: 0;
+      border: none;
+      box-shadow: 1px 1px 1px var(--main-theme-color);
+      &:hover, &:focus {
+        box-shadow: 1px 1px 1px var(--main-theme-color);
+      }
+      &:hover {
+        background-color: var(--main-theme-text);
+      }
+      &:active {
+        transform: translateX(2px) translateY(2px);
+        box-shadow: -1px -1px 1px var(--main-theme-color);
+      }
+      & i {
+        text-shadow: none;
+        color: rgba(var(--color-text-lightest), 1);
+      }
+    }
   }
 
   .accdiff-target-row .card-title {
     background-color: #00000000;
+  }
+
+  #accdiff .mech-weapon {
+    span {
+      margin-right: 1em;
+      margin-left: 1em;
+    }
+    .range-button {
+      cursor: pointer;
+      box-shadow: 1px 1px 1px 0.6px rgba(0, 0, 0, 0.7);
+      border: none;
+      text-align: left;
+      flex: 0 0;
+      margin-left: 8px;
+      margin-right: 0px;
+      margin-top: 5px;
+      margin-bottom: 7px;
+      padding: 0;
+      background-color: var(--main-theme-color);
+      &:hover, &:focus {
+        box-shadow: 1px 1px 1px 0.6px rgba(0, 0, 0, 0.7);
+      }
+      &:hover {
+        background-color: var(--protocol-color);
+      }
+      &:active {
+        transform: translateX(2px) translateY(2px);
+        box-shadow: -1px -1px 1px 0.6px rgba(0, 0, 0, 0.7);
+      }
+      & i {
+        margin: 2px;
+        padding: 0;
+      }
+    }
   }
 </style>
