@@ -172,11 +172,11 @@ export class LancerActor extends Actor {
         ent.CurrentStress -= 1;
       }
     }
-    if (ent.CurrentStress === ent.MaxStress) {
+    await ent.writeback();
+    if (ent.CurrentStress >= ent.MaxStress) {
       ui.notifications!.info("The mech is at full Stress, no overheating check to roll.");
       return;
     }
-    await ent.writeback();
     let remStress = ent.CurrentStress;
     let templateData = {};
 
@@ -233,8 +233,7 @@ export class LancerActor extends Actor {
       };
     }
     const template = `systems/${game.system.id}/templates/chat/overheat-card.hbs`;
-    const actor = game.actors!.get(ChatMessage.getSpeaker().actor ?? "");
-    return renderMacroTemplate(actor, template, templateData);
+    return renderMacroTemplate(this, template, templateData);
   }
 
   /**
@@ -298,12 +297,12 @@ export class LancerActor extends Actor {
         ent.CurrentStructure -= 1;
       }
     }
-    if (ent.CurrentStructure === ent.MaxStructure) {
+    await ent.writeback();
+    if (ent.CurrentStructure >= ent.MaxStructure) {
       ui.notifications!.info("The mech is at full Structure, no structure check to roll.");
       return;
     }
 
-    await ent.writeback();
     let remStruct = ent.CurrentStructure;
     let templateData = {};
     // If we're already at 0 just kill em
@@ -370,8 +369,7 @@ export class LancerActor extends Actor {
       };
     }
     const template = `systems/${game.system.id}/templates/chat/structure-card.hbs`;
-    const actor = game.actors!.get(ChatMessage.getSpeaker().actor ?? "");
-    return renderMacroTemplate(actor, template, templateData);
+    return renderMacroTemplate(this, template, templateData);
   }
 
   // Fully repair actor
