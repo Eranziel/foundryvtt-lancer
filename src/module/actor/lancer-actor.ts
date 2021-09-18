@@ -28,7 +28,7 @@ import { LancerHooks, LancerSubscription } from "../helpers/hooks";
 import { mm_wrap_actor } from "../mm-util/helpers";
 import { system_ready } from "../../lancer";
 import type { LancerItemType } from "../item/lancer-item";
-import { renderMacroTemplate, encodeMacroData } from "../macros";
+import { renderMacroTemplate, encodeMacroData, prepareOverheatMacro } from "../macros";
 import type { RegEntry, MechWeapon, NpcFeature } from "machine-mind";
 import { StabOptions1, StabOptions2 } from "../enums";
 import { fix_modify_token_attribute } from "../token";
@@ -118,19 +118,32 @@ export class LancerActor extends Actor {
 
   /**
    * Performs overheat
-   * For now, just rolls on table. Eventually we can include configuration to do automation
+   * If automation is enabled, adusts heat and stress and rolls if stress damage was taken, otherwise just roll on the table.
    */
-  async overheat() {
+  async overheat(reroll_data?: { stress: number; }): Promise<void> {
     // Assert that we're on a mech or NPC
-    if (this.is_mech() || this.is_npc()) {
-      await this.overheatMech();
-    } else {
+    if (!this.is_mech() && !this.is_npc()) {
       ui.notifications!.warn("Can only overheat NPCs and Mechs");
       return;
     }
+    const ent = await this.data.data.derived.mm_promise;
+    if (getAutomationOptions().structure && !reroll_data) {
+      if (getAutomationOptions().structure) {
+        if ((ent.CurrentHeat > ent.HeatCapacity) && (ent.CurrentStress >= 0)) {
+          // https://discord.com/channels/426286410496999425/760966283545673730/789297842228297748
+          ent.CurrentHeat -= ent.HeatCapacity;
+          ent.CurrentStress -= 1;
+        } else if (ent.CurrentHeat <= ent.HeatCapacity) {
+          return;
+        }
+      }
+      await ent.writeback();
+    }
+
+    await this.rollOverHeatTable(reroll_data);
   }
 
-  async overheatMech(): Promise<void> {
+  async rollOverHeatTable(reroll_data?: { stress: number; }): Promise<void> {
     if (!this.is_mech() && !this.is_npc()) return;
     // Table of descriptions
     function stressTableD(roll: number, remStress: number) {
@@ -142,19 +155,19 @@ export class LancerActor extends Actor {
           switch (remStress) {
             case 2:
               // Choosing not to auto-roll the checks to keep the suspense up
-              return "Roll an ENGINEERING check. On a success, your mech is EXPOSED; on a failure, it suffers a reactor meltdown after 1d6 of your turns (rolled by the GM). A reactor meltdown can be prevented by retrying the ENGINEERING check as a full action.";
+              return "Roll an ENGINEERING check. On a success, your mech is @Compendium[world.status.EXPOSED]; on a failure, it suffers a reactor meltdown after 1d6 of your turns (rolled by the GM). A reactor meltdown can be prevented by retrying the ENGINEERING check as a full action.";
             case 1:
               return "Your mech suffers a reactor meltdown at the end of your next turn.";
             default:
-              return "Your mech becomes Exposed.";
+              return "Your mech becomes @Compendium[world.status.EXPOSED].";
           }
         case 2:
         case 3:
         case 4:
-          return "The power plant becomes unstable, beginning to eject jets of plasma. Your mech becomes EXPOSED, taking double kinetic, explosive and electric damage until the status is cleared.";
+          return "The power plant becomes unstable, beginning to eject jets of plasma. Your mech becomes @Compendium[world.status.EXPOSED], taking double kinetic, explosive and electric damage until the status is cleared.";
         case 5:
         case 6:
-          return "Your mech’s cooling systems manage to contain the increasing heat; however, your mech becomes IMPAIRED until the end of your next turn.";
+          return "Your mech’s cooling systems manage to contain the increasing heat; however, your mech becomes @Compendium[world.status.IMPAIRED] until the end of your next turn.";
       }
     }
 
@@ -170,26 +183,17 @@ export class LancerActor extends Actor {
     ];
 
     let ent = await this.data.data.derived.mm_promise;
-    const auto = getAutomationOptions();
-    if (auto.structure) {
-      if (ent.CurrentHeat > ent.HeatCapacity) {
-        // https://discord.com/channels/426286410496999425/760966283545673730/789297842228297748
-        ent.CurrentHeat -= ent.HeatCapacity;
-        ent.CurrentStress -= 1;
-      }
-    }
-    await ent.writeback();
-    if (ent.CurrentStress >= ent.MaxStress) {
+    if (ent.CurrentStress === ent.MaxStress) {
       ui.notifications!.info("The mech is at full Stress, no overheating check to roll.");
       return;
     }
-    let remStress = ent.CurrentStress;
+    let remStress = reroll_data?.stress ?? ent.CurrentStress;
     let templateData = {};
 
     // If we're already at 0 just kill em
     if (remStress > 0) {
-      let damage = ent.MaxStress - ent.CurrentStress;
-      let roll: Roll = await new Roll(`${damage}d6kl1`).evaluate({ async: true });
+      let damage = ent.MaxStress - remStress;
+      let roll = await new Roll(`${damage}d6kl1`).evaluate({ async: true });
       let result = roll.total;
       if (result === undefined) return;
 
@@ -214,11 +218,11 @@ export class LancerActor extends Actor {
             args: [ent.RegistryID, "mm.Eng"],
           });
 
-          secondaryRoll = `<button class="chat-macro-button"><a class="chat-button" data-macro="${macroData}"><i class="fas fa-dice-d20"></i> Engineering</a></button>`;
+          secondaryRoll = `<button class="chat-button chat-macro-button" data-macro="${macroData}"><i class="fas fa-dice-d20"></i> Engineering</button>`;
         }
       }
       templateData = {
-        val: ent.CurrentStress,
+        val: remStress,
         max: ent.MaxStress,
         tt: tt,
         title: title,
@@ -226,6 +230,11 @@ export class LancerActor extends Actor {
         text: text,
         roll: roll,
         secondaryRoll: secondaryRoll,
+        rerollMacroData: encodeMacroData({ 
+          title: "Overheating",
+          fn: "prepareOverheatMacro",
+          args: [ this.id!, { stress: remStress }],
+        }),
       };
     } else {
       // You ded
@@ -1050,15 +1059,9 @@ export class LancerActor extends Actor {
       if (
         "heat" in (data ?? {}) &&
         (data?.heat ?? 0) > (this.data.data.derived.mm?.HeatCapacity ?? 0) &&
-        (this.data.data.derived.mm?.CurrentStress ?? 0) > 1
+        (this.data.data.derived.mm?.CurrentStress ?? 0) > 0
       ) {
-        HUD.open("stress", {
-          title: "Reactor Damage",
-          kind: "stress",
-          lancerActor: this,
-        })
-          .then(() => this.overheat())
-          .catch(_e => {});
+        prepareOverheatMacro(this);
       }
       if ("hp" in (data ?? {}) && (data?.hp ?? 0) <= 0 && (this.data.data.derived.mm?.CurrentStructure ?? 0) > 1) {
         HUD.open("struct", {

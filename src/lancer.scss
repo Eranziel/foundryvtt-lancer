@@ -874,6 +874,19 @@ textarea {
     background-color: var(--weapon-color);
   }
 
+  &.struct-stress {
+      padding-top: 1px;
+      display: flex;
+      flex-direction: row;
+
+      span.spacer {
+          flex: 0 0;
+      }
+      a {
+          flex: 0 0;
+      }
+  }
+
   .pilot_gear & {
     background-color: var(--system-color);
   }
@@ -2104,6 +2117,7 @@ a.action {
 .chat-macro-button {
   max-width: 60%;
   align-self: center;
+  cursor: pointer;
 }
 
 // needed to override a builtin that removes all shadows from the sidebar

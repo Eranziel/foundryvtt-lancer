@@ -55,6 +55,7 @@ const encodedMacroWhitelist = [
   "prepareItemMacro",
   "prepareCoreActiveMacro",
   "prepareStructureSecondaryRollMacro",
+  "prepareOverheatMacro",
 ];
 
 export function encodeMacroData(data: LancerMacroData): string {
@@ -62,6 +63,7 @@ export function encodeMacroData(data: LancerMacroData): string {
 }
 
 export async function runEncodedMacro(el: HTMLElement | LancerMacroData) {
+  console.log(el);
   let data: LancerMacroData | null = null;
 
   if (el instanceof HTMLElement) {
@@ -380,6 +382,7 @@ export function getMacroSpeaker(a_id?: string | LancerActor): LancerActor | unde
 /**
  *
  */
+// TODO: Indexed types for templates
 export async function renderMacroTemplate(actor: LancerActor | undefined, template: string, templateData: any) {
   const cardUUID = uuid4();
   templateData._uuid = cardUUID;
@@ -1447,15 +1450,25 @@ export async function prepareChargeMacro(a: string) {
 
 /**
  * Performs a roll on the overheat table for the given actor
- * @param a ID of actor to overheat
+ * @param a           - Actor or ID of actor to overheat
+ * @param reroll_data - Data to use if rerolling. Setting this also supresses the dialog.
  */
-export async function prepareOverheatMacro(a: string) {
+export async function prepareOverheatMacro(a: string | LancerActor, reroll_data?: { stress: number }): Promise<void> {
   // Determine which Actor to speak as
   let actor = getMacroSpeaker(a);
   if (!actor) return;
 
+  if (getAutomationOptions().structure && !reroll_data) {
+    const { open } = await import("./helpers/slidinghud");
+    try {
+      await open("stress", { kind: "stress", title: "Overheating", lancerActor: actor });
+    } catch (_e) {
+      return;
+    }
+  }
+
   // Hand it off to the actor to overheat
-  await actor.overheat();
+  await actor.overheat(reroll_data);
 }
 
 /**
