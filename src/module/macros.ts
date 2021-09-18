@@ -56,6 +56,7 @@ const encodedMacroWhitelist = [
   "prepareCoreActiveMacro",
   "prepareStructureSecondaryRollMacro",
   "prepareOverheatMacro",
+  "prepareStructureMacro",
 ];
 
 export function encodeMacroData(data: LancerMacroData): string {
@@ -1475,14 +1476,22 @@ export async function prepareOverheatMacro(a: string | LancerActor, reroll_data?
  * Performs a roll on the structure table for the given actor
  * @param a ID of actor to structure
  */
-export async function prepareStructureMacro(a: string) {
+export async function prepareStructureMacro(a: string | LancerActor, reroll_data?: { structure: number }): Promise<void> {
   // Determine which Actor to speak as
   let actor = getMacroSpeaker(a);
-
   if (!actor) return;
 
+  if (getAutomationOptions().structure && !reroll_data) {
+    const { open } = await import("./helpers/slidinghud");
+    try {
+      await open("struct", { kind: "structure", title: "Structure Damage", lancerActor: actor });
+    } catch (_e) {
+      return;
+    }
+  }
+
   // Hand it off to the actor to structure
-  await actor.structure();
+  await actor.structure(reroll_data);
 }
 
 export async function prepareActivationMacro(

@@ -28,7 +28,7 @@ import { LancerHooks, LancerSubscription } from "../helpers/hooks";
 import { mm_wrap_actor } from "../mm-util/helpers";
 import { system_ready } from "../../lancer";
 import type { LancerItemType } from "../item/lancer-item";
-import { renderMacroTemplate, encodeMacroData, prepareOverheatMacro } from "../macros";
+import { renderMacroTemplate, encodeMacroData, prepareOverheatMacro, prepareStructureMacro } from "../macros";
 import type { RegEntry, MechWeapon, NpcFeature } from "machine-mind";
 import { StabOptions1, StabOptions2 } from "../enums";
 import { fix_modify_token_attribute } from "../token";
@@ -36,7 +36,6 @@ import type { ActionData } from "../action";
 import { frameToPath } from "./retrograde-map";
 import { NpcClass } from "machine-mind";
 import { getAutomationOptions } from "../settings";
-import * as HUD from "../helpers/slidinghud";
 const lp = LANCER.log_prefix;
 
 // Use for HP, etc
@@ -120,7 +119,7 @@ export class LancerActor extends Actor {
    * Performs overheat
    * If automation is enabled, adusts heat and stress and rolls if stress damage was taken, otherwise just roll on the table.
    */
-  async overheat(reroll_data?: { stress: number; }): Promise<void> {
+  async overheat(reroll_data?: { stress: number }): Promise<void> {
     // Assert that we're on a mech or NPC
     if (!this.is_mech() && !this.is_npc()) {
       ui.notifications!.warn("Can only overheat NPCs and Mechs");
@@ -128,14 +127,12 @@ export class LancerActor extends Actor {
     }
     const ent = await this.data.data.derived.mm_promise;
     if (getAutomationOptions().structure && !reroll_data) {
-      if (getAutomationOptions().structure) {
-        if ((ent.CurrentHeat > ent.HeatCapacity) && (ent.CurrentStress >= 0)) {
-          // https://discord.com/channels/426286410496999425/760966283545673730/789297842228297748
-          ent.CurrentHeat -= ent.HeatCapacity;
-          ent.CurrentStress -= 1;
-        } else if (ent.CurrentHeat <= ent.HeatCapacity) {
-          return;
-        }
+      if (ent.CurrentHeat > ent.HeatCapacity && ent.CurrentStress >= 0) {
+        // https://discord.com/channels/426286410496999425/760966283545673730/789297842228297748
+        ent.CurrentHeat -= ent.HeatCapacity;
+        ent.CurrentStress -= 1;
+      } else if (ent.CurrentHeat <= ent.HeatCapacity) {
+        return;
       }
       await ent.writeback();
     }
@@ -143,7 +140,7 @@ export class LancerActor extends Actor {
     await this.rollOverHeatTable(reroll_data);
   }
 
-  async rollOverHeatTable(reroll_data?: { stress: number; }): Promise<void> {
+  async rollOverHeatTable(reroll_data?: { stress: number }): Promise<void> {
     if (!this.is_mech() && !this.is_npc()) return;
     // Table of descriptions
     function stressTableD(roll: number, remStress: number) {
@@ -183,7 +180,7 @@ export class LancerActor extends Actor {
     ];
 
     let ent = await this.data.data.derived.mm_promise;
-    if (ent.CurrentStress === ent.MaxStress) {
+    if ((reroll_data?.stress ?? ent.CurrentStress) >= ent.MaxStress) {
       ui.notifications!.info("The mech is at full Stress, no overheating check to roll.");
       return;
     }
@@ -230,10 +227,10 @@ export class LancerActor extends Actor {
         text: text,
         roll: roll,
         secondaryRoll: secondaryRoll,
-        rerollMacroData: encodeMacroData({ 
+        rerollMacroData: encodeMacroData({
           title: "Overheating",
           fn: "prepareOverheatMacro",
-          args: [ this.id!, { stress: remStress }],
+          args: [this.id!, { stress: remStress }],
         }),
       };
     } else {
@@ -255,17 +252,27 @@ export class LancerActor extends Actor {
    * Performs structure on the mech
    * For now, just rolls on table. Eventually we can include configuration to do automation
    */
-  async structure() {
+  async structure(reroll_data?: { structure: number }) {
     // Assert that we're on a mech or NPC
-    if (this.is_mech() || this.is_npc()) {
-      await this.structureMech();
-    } else {
+    if (!this.is_mech() && !this.is_npc()) {
       ui.notifications!.warn("Can only structure NPCs and Mechs");
       return;
     }
+    const ent = await this.data.data.derived.mm_promise;
+    if (getAutomationOptions().structure && !reroll_data) {
+      if (ent.CurrentHP < 1 && ent.CurrentStructure >= 0) {
+        ent.CurrentHP += ent.MaxHP;
+        ent.CurrentStructure -= 1;
+      } else if (ent.CurrentHP >= 1) {
+        return;
+      }
+      await ent.writeback();
+    }
+
+    await this.rollStructureTable(reroll_data);
   }
 
-  async structureMech(): Promise<void> {
+  async rollStructureTable(reroll_data?: { structure: number }): Promise<void> {
     // Table of descriptions
     function structTableD(roll: number, remStruct: number) {
       switch (roll) {
@@ -275,11 +282,11 @@ export class LancerActor extends Actor {
         case 1:
           switch (remStruct) {
             case 2:
-              return "Roll a HULL check. On a success, your mech is STUNNED until the end of your next turn. On a failure, your mech is destroyed.";
+              return "Roll a HULL check. On a success, your mech is @Compendium[world.status.STUNNED] until the end of your next turn. On a failure, your mech is destroyed.";
             case 1:
               return "Your mech is destroyed.";
             default:
-              return "Your mech is STUNNED until the end of your next turn.";
+              return "Your mech is @Compendium[world.status.STUNNED] until the end of your next turn.";
           }
         case 2:
         case 3:
@@ -287,7 +294,7 @@ export class LancerActor extends Actor {
           return "Parts of your mech are torn off by the damage. Roll 1d6. On a 1–3, all weapons on one mount of your choice are destroyed; on a 4–6, a system of your choice is destroyed. LIMITED systems and weapons that are out of charges are not valid choices. If there are no valid choices remaining, it becomes the other result. If there are no valid systems or weapons remaining, this result becomes a DIRECT HIT instead.";
         case 5:
         case 6:
-          return "Emergency systems kick in and stabilize your mech, but it’s IMPAIRED until the end of your next turn.";
+          return "Emergency systems kick in and stabilize your mech, but it’s @Compendium[world.status.IMPAIRED] until the end of your next turn.";
       }
     }
 
@@ -303,24 +310,17 @@ export class LancerActor extends Actor {
     ];
 
     let ent = (await this.data.data.derived.mm_promise) as Mech | Npc;
-    const auto = getAutomationOptions();
-    if (auto.structure) {
-      if (ent.CurrentHP <= 0) {
-        ent.CurrentHP += ent.MaxHP;
-        ent.CurrentStructure -= 1;
-      }
-    }
-    await ent.writeback();
-    if (ent.CurrentStructure >= ent.MaxStructure) {
+    if ((reroll_data?.structure ?? ent.CurrentStructure) >= ent.MaxStructure) {
       ui.notifications!.info("The mech is at full Structure, no structure check to roll.");
       return;
     }
 
-    let remStruct = ent.CurrentStructure;
+    let remStruct = reroll_data?.structure ?? ent.CurrentStructure;
     let templateData = {};
+
     // If we're already at 0 just kill em
     if (remStruct > 0) {
-      let damage = ent.MaxStructure - ent.CurrentStructure;
+      let damage = ent.MaxStructure - remStruct;
 
       let roll: Roll = await new Roll(`${damage}d6kl1`).evaluate({ async: true });
       let result = roll.total;
@@ -347,7 +347,7 @@ export class LancerActor extends Actor {
             args: [ent.RegistryID, "mm.Hull"],
           });
 
-          secondaryRoll = `<button class="chat-macro-button"><a class="chat-button" data-macro="${macroData}"><i class="fas fa-dice-d20"></i> Hull</a></button>`;
+          secondaryRoll = `<button class="chat-button chat-macro-button" data-macro="${macroData}"><i class="fas fa-dice-d20"></i> Hull</button>`;
         } else if (result >= 2 && result <= 4) {
           let macroData = encodeMacroData({
             // TODO: Should create a "prepareRollMacro" or something to handle generic roll-based macros
@@ -369,6 +369,11 @@ export class LancerActor extends Actor {
         text: text,
         roll: roll,
         secondaryRoll: secondaryRoll,
+        rerollMacroData: encodeMacroData({
+          title: "Structure Damage",
+          fn: "prepareStructureMacro",
+          args: [this.id!, { structure: remStruct }],
+        }),
       };
     } else {
       // You ded
@@ -1063,14 +1068,8 @@ export class LancerActor extends Actor {
       ) {
         prepareOverheatMacro(this);
       }
-      if ("hp" in (data ?? {}) && (data?.hp ?? 0) <= 0 && (this.data.data.derived.mm?.CurrentStructure ?? 0) > 1) {
-        HUD.open("struct", {
-          title: "Reactor Damage",
-          kind: "structure",
-          lancerActor: this,
-        })
-          .then(() => this.structure())
-          .catch(_e => {});
+      if ("hp" in (data ?? {}) && (data?.hp ?? 0) <= 0 && (this.data.data.derived.mm?.CurrentStructure ?? 0) > 0) {
+        prepareStructureMacro(this);
       }
     }
   }
