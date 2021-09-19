@@ -10,7 +10,6 @@ import {
   HANDLER_activate_ref_dragging,
   HANDLER_activate_ref_drop_clearing,
   HANDLER_activate_ref_drop_setting,
-  HANDLER_openRefOnClick as HANDLER_activate_ref_clicking,
 } from "../helpers/refs";
 import type { LancerActorSheetData, LancerStatMacroData } from "../interfaces";
 import type { AnyMMItem } from "../item/lancer-item";
@@ -32,7 +31,6 @@ import {
   OpCtx,
   PilotGear,
   PilotWeapon,
-  RegEntry,
   WeaponMod,
   funcs,
   Mech,
@@ -318,8 +316,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       const weapon = this.actor.items.get(weaponId);
       if (!weapon) return ui.notifications!.warn(`Error rolling macro: Couldn't find weapon with ID ${weaponId}.`);
 
-      // @ts-ignore
-      let id = this.token && !this.token.isLinked ? this.token.id : this.actor.id!;
+      let id = this.token && !this.token.isLinked ? this.token.id! : this.actor.id!;
       prepareItemMacro(id, weapon.id!);
     });
 
@@ -338,8 +335,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
 
       const el = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
 
-      // @ts-ignore
-      let id = this.token && !this.token.isLinked ? this.token.id : this.actor.id!;
+      let id = this.token && !this.token.isLinked ? this.token.id! : this.actor.id!;
       prepareItemMacro(id, el.getAttribute("data-id")!);
     });
 

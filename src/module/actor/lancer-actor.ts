@@ -954,7 +954,6 @@ export class LancerActor extends Actor {
 
         // Now that data is set properly, force token to draw its bars
         this.getActiveTokens().forEach(token => {
-          // @ts-expect-error This really is a Token object.
           token.drawBars();
         });
 

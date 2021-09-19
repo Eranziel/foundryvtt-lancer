@@ -1749,7 +1749,7 @@ export function targetsFromTemplate(templateId: string): void {
   const targets = canvas
     .tokens!.placeables.filter(t => {
       let skip = ignore.tokens.includes(t.id) || ignore.dispositions.includes(t.data.disposition);
-      return !skip && test_token(<LancerToken>t);
+      return !skip && test_token(t);
     })
     .map(t => t.id);
   game.user!.updateTokenTargets(targets);
