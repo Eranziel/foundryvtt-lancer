@@ -1,22 +1,22 @@
 import type { HelperOptions } from "handlebars";
 import {
+  Action,
+  CoreBonus,
+  Deployable,
   EntryType,
+  License,
+  LiveEntryTypes,
+  MechSystem,
+  MechWeapon,
+  NpcFeature,
   OpCtx,
+  PilotGear,
+  PilotWeapon,
   RegEntry,
   RegRef,
-  LiveEntryTypes,
-  License,
   Skill,
-  Talent,
-  MechSystem,
-  Action,
   SystemType,
-  Deployable,
-  CoreBonus,
-  MechWeapon,
-  PilotWeapon,
-  PilotGear,
-  NpcFeature,
+  Talent,
 } from "machine-mind";
 import { is_limited } from "machine-mind/dist/classes/mech/EquipUtil";
 import { AnyMMActor, is_actor_type } from "../actor/lancer-actor";
@@ -27,8 +27,8 @@ import { encodeMacroData } from "../macros";
 import { FoundryFlagData, FoundryReg } from "../mm-util/foundry-reg";
 import { effect_box, gentle_merge, read_form, resolve_dotpath, resolve_helper_dotpath, sp_display } from "./commons";
 import {
-  convert_ref_to_native_drop,
   AllowMMDropPredicateFunc,
+  convert_ref_to_native_drop,
   HANDLER_enable_dragging,
   HANDLER_enable_mm_dragging,
   HANDLER_enable_mm_dropping,
@@ -321,16 +321,18 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
       if (is_limited(sys)) {
         limited = limited_chip_HTML(sys, item_path);
       }
-      let str = `<li class="valid ref card clipped mech-system-compact item ${
+      return `<li class="valid ref card clipped mech-system-compact item ${
         sys.SysType === SystemType.Tech ? "tech-item" : ""
       }" ${ref_params(cd.ref)}>
         <div class="lancer-header ${sys.Destroyed ? "destroyed" : ""}" style="grid-area: 1/1/2/3; display: flex">
-          <i class="cci cci-system i--m i--click" data-context-menu="toggle" data-field="Destroyed" data-path="${item_path}"> </i>
+          <i class="${sys.Destroyed ? "mdi mdi-cog" : "cci cci-system i--m i--click"}"> </i>
           <a class="lancer-macro" data-macro="${encodeMacroData(macroData)}"><i class="mdi mdi-message"></i></a>
-          ${collapse_trigger}
           <span class="minor grow">${sys.Name}</span>
+          ${collapse_trigger}
           <div class="ref-list-controls">
-          ${trash_can}
+            <a class="lancer-context-menu" data-context-menu="${item.Type}" data-path="${item_path}"">
+              <i class="fas fa-ellipsis-v"></i>
+            </a>
           </div>
         </div>
         <div ${collapse_trigger ? `class="collapse" data-collapse-id="${collapseID}"` : ""} style="padding: 0.5em">
@@ -347,19 +349,21 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
           ${compact_tag_list(item_path + ".Tags", sys.Tags, false)}
         </div>
         </li>`;
-      return str;
 
     case EntryType.TALENT:
       let talent: Talent = <Talent>(<any>item);
       let retStr = `<li class="card clipped talent-compact item ref valid" ${ref_params(cd.ref)}>
-      <div class="lancer-talent-header medium clipped-top" style="grid-area: 1/1/2/4">
-      <i class="cci cci-talent i--m"></i>
-      <span class="major">${talent.Name}</span>
-      <div class="ref-list-controls">
-      ${trash_can}
-      </div>
-      </div>
-      <ul style="grid-area: 2/1/3/3">`;
+        <div class="lancer-talent-header medium clipped-top" style="grid-area: 1/1/2/4">
+          <i class="cci cci-talent i--m"></i>
+          <span class="major">${talent.Name}</span>
+          ${collapse_trigger}
+          <div class="ref-list-controls">
+            <a class="lancer-context-menu" data-context-menu="${item.Type}" data-path="${item_path}"">
+              <i class="fas fa-ellipsis-v"></i>
+            </a>
+          </div>
+        </div>
+      <ul ${collapse_trigger ? `class="collapse" data-collapse-id="${collapseID}"` : ""} style="grid-area: 2/1/3/3">`;
 
       for (var i = 0; i < talent.CurrentRank; i++) {
         let talent_actions = "";
@@ -391,34 +395,41 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
       let skill: Skill = <Skill>(<any>item);
       return `
       <li class="card clipped skill-compact item macroable ref valid" ${ref_params(cd.ref)}>
-      <div class="lancer-trigger-header medium clipped-top" style="grid-area: 1/1/2/3">
-        <i class="cci cci-skill i--m i--dark"> </i>
-        <span class="major modifier-name">${skill.Name}</span>
-        <div class="ref-list-controls">
-          ${trash_can}
+        <div class="lancer-trigger-header medium clipped-top" style="grid-area: 1/1/2/3">
+          <i class="cci cci-skill i--m i--dark"> </i>
+          <span class="major modifier-name">${skill.Name}</span>
+          <div class="ref-list-controls">
+            <a class="lancer-context-menu" data-context-menu="${item.Type}" data-path="${item_path}"">
+              <i class="fas fa-ellipsis-v"></i>
+            </a>
+          </div>
         </div>
-      </div>
-      <a class="flexrow skill-macro" style="grid-area: 2/1/3/2;">
-        <i class="fas fa-dice-d20 i--sm i--dark"></i>
-        <div class="major roll-modifier" style="align-self: center">+${skill.CurrentRank * 2}</div>
-      </a>
-      <div class="desc-text" style="grid-area: 2/2/3/3">${skill.Description}</div>
-    </li>`;
+        <a class="flexrow skill-macro" style="grid-area: 2/1/3/2;">
+          <i class="fas fa-dice-d20 i--sm i--dark"></i>
+          <div class="major roll-modifier" style="align-self: center">+${skill.CurrentRank * 2}</div>
+        </a>
+        <div class="desc-text" style="grid-area: 2/2/3/3">${skill.Description}</div>
+      </li>`;
 
     case EntryType.CORE_BONUS:
       let cb: CoreBonus = <CoreBonus>(<any>item);
       return `
       <li class="card clipped item ref valid" ${ref_params(cd.ref)}>
-      <div class="lancer-corebonus-header medium clipped-top" style="grid-area: 1/1/2/3">
-        <i class="cci cci-corebonus i--m i--dark"> </i>
-        <span class="major modifier-name">${cb.Name}</span>
-        <div class="ref-list-controls">
-          ${trash_can}
+        <div class="lancer-corebonus-header medium clipped-top" style="grid-area: 1/1/2/3">
+          <i class="cci cci-corebonus i--m i--dark"> </i>
+          <span class="major modifier-name">${cb.Name}</span>
+          ${collapse_trigger}
+          <div class="ref-list-controls">
+            <a class="lancer-context-menu" data-context-menu="${item.Type}" data-path="${item_path}"">
+              <i class="fas fa-ellipsis-v"></i>
+            </a>
+          </div>
         </div>
-      </div>
-      <div class="desc-text" style="grid-area: 2/2/3/3">${cb.Description}</div>
-      <div style="grid-area: 2/3/3/4">${cb.Effect}</div>
-    </li>`;
+        <div ${collapse_trigger ? `class="collapse" data-collapse-id="${collapseID}"` : ""}>
+          <div class="desc-text" style="grid-area: 2/2/3/3">${cb.Description}</div>
+          <div style="grid-area: 2/3/3/4">${cb.Effect}</div>
+        </div>
+      </li>`;
 
     case EntryType.LICENSE:
       let license: License = <License>(<any>item);
@@ -428,13 +439,15 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
         <i class="cci cci-license i--m i--dark"> </i>
         <span class="major modifier-name">${license.Name} ${license.CurrentRank}</span>
         <div class="ref-list-controls">
-          ${trash_can}
+          <a class="lancer-context-menu" data-context-menu="${item.Type}" data-path="${item_path}"">
+            <i class="fas fa-ellipsis-v"></i>
+          </a>
         </div>
       </div>
     </li>`;
 
     default:
-      // Basically the same as the simple ref card, but with control assed
+      // Basically the same as the simple ref card, but with control added
       console.log("You're using the default refview, you may not want that");
       return `
       <div class="valid ${cd.ref.type} ref ref-card" 

@@ -1122,12 +1122,18 @@ export function HANDLER_activate_item_context_menus<T extends LancerActorSheetDa
     destroy,
     remove,
   ]);
-  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"pilot_weapon\"]`), "click", [edit, remove]);
   tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"npc_feature\"]`), "click", [
     edit,
     destroy,
     remove,
   ]);
+  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"pilot_weapon\"]`), "click", [edit, remove]);
+  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"pilot_armor\"]`), "click", [edit, remove]);
+  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"pilot_gear\"]`), "click", [edit, remove]);
+  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"talent\"]`), "click", [edit, remove]);
+  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"skill\"]`), "click", [edit, remove]);
+  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"core_bonus\"]`), "click", [edit, remove]);
+  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"license\"]`), "click", [edit, remove]);
 }
 
 // Allows user to remove or rename profiles value via right click
