@@ -18,6 +18,11 @@
     if (kind === "stress") return "reactor";
     return kind;
   }
+
+  function getDamage(a: LancerActor) {
+    if (!a.is_mech() && !a.is_npc()) return 0;
+    return a.data.data.derived[stat].max - a.data.data.derived[stat].value + 1;
+  }
 </script>
 
 <form
@@ -31,15 +36,22 @@
     <i class="cci cci-{getIcon(stat)} i--m i--light" />
     <span>{title}</span>
   </div>
-  <div class="message-body">
-    <h3>{lancerActor?.name ?? "UNKNOWN MECH"} has taken {getIcon(stat)} damage!</h3>
-    <p class="message">
-      {#if lancerActor && (lancerActor.is_mech() || lancerActor.is_npc())}
-        Roll {lancerActor.data.data.derived[stat].max - lancerActor.data.data.derived[stat].value + 1}d6 to determine
-        what happens.
-      {/if}
-    </p>
-  </div>
+  {#if lancerActor && (lancerActor.is_mech() || lancerActor.is_npc())}
+    <div class="message-body">
+      <h3>{lancerActor?.name ?? "UNKNOWN MECH"} has taken {getIcon(stat)} damage!</h3>
+      <div class="damage-preview">
+        {#each { length: lancerActor.data.data.derived[stat].value - 1 } as _}
+          <i class="cci cci-{getIcon(stat)} i--m damage-pip" />
+        {/each}
+        {#each { length: getDamage(lancerActor) } as _}
+          <i class="mdi mdi-hexagon-outline i--m damage-pip damaged" />
+        {/each}
+      </div>
+      <p class="message">
+        Roll {getDamage(lancerActor)}d6 to determine what happens.
+      </p>
+    </div>
+  {/if}
   <div class="dialog-buttons flexrow">
     <button class="dialog-button submit default" data-button="submit" type="submit" use:focus>
       <i class="fas fa-check" />
@@ -55,5 +67,13 @@
 <style>
   .message-body {
     margin: 8px 4px;
+  }
+
+  .damage-preview {
+    text-align: center;
+  }
+
+  .damaged {
+    opacity: 30%;
   }
 </style>
