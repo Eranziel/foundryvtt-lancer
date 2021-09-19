@@ -133,7 +133,7 @@ export function simple_mm_ref<T extends EntryType>(
   }
 
   // The data-type
-  return `<div class="valid ${cd.ref.type} ref ref-card ${native_drop_snippet} ${settable_snippet}" 
+  return `<div class="valid ${cd.ref.type} ref clickable-ref ref-card ${native_drop_snippet} ${settable_snippet}" 
                 ${ref_params(cd.ref)}
                 data-path="${slot_path}" >
          <img class="ref-icon" src="${cd.img}"></img>
@@ -450,7 +450,7 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
       // Basically the same as the simple ref card, but with control added
       console.log("You're using the default refview, you may not want that");
       return `
-      <div class="valid ${cd.ref.type} ref ref-card" 
+      <div class="valid ${cd.ref.type} ref clickable-ref ref-card" 
               ${ref_params(cd.ref)}>
         <img class="ref-icon" src="${cd.img}"></img>
         <span class="major">${cd.name}</span>

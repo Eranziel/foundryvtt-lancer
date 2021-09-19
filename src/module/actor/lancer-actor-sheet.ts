@@ -77,9 +77,8 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     // Enable any action grid buttons.
     this._activateActionGridListeners(html);
 
-    // Make refs clickable to open the item
-    // Replaced by context menu->edit. Commented code kept in case I missed one...
-    // $(html).find(".ref.valid:not(.profile-img)").on("click", HANDLER_activate_ref_clicking);
+    // Make generic refs clickable to open the item
+    $(html).find(".ref.valid.clickable-ref:not(.profile-img)").on("click", HANDLER_activate_ref_clicking);
 
     // Enable ref dragging
     HANDLER_activate_ref_dragging(html);
