@@ -18,6 +18,7 @@ import {
   NEEDS_MINOR_MIGRATION_VERSION,
   STATUSES,
   WELCOME,
+  NEEDS_AUTOMATION_MIGRATION_VERSION,
 } from "./module/config";
 import type { LancerGame } from "./module/lancer-game";
 import { LancerActor } from "./module/actor/lancer-actor";
@@ -29,7 +30,7 @@ import { action_type_icon, action_type_selector } from "./module/helpers/npc";
 import { LancerActionManager } from "./module/action/actionManager";
 
 // Import applications
-import { LancerPilotSheet, active_mech_preview, pilot_counters, all_mech_preview } from "./module/actor/pilot-sheet";
+import { LancerPilotSheet, pilot_counters, all_mech_preview } from "./module/actor/pilot-sheet";
 import { LancerNPCSheet } from "./module/actor/npc-sheet";
 import { LancerDeployableSheet } from "./module/actor/deployable-sheet";
 import { LancerMechSheet } from "./module/actor/mech-sheet";
@@ -135,11 +136,11 @@ import { applyCollapseListeners } from "./module/helpers/collapse";
 import { handleCombatUpdate } from "./module/helpers/automation/combat";
 import { handleActorExport, validForExport } from "./module/helpers/io";
 import { runEncodedMacro } from "./module/macros";
-import { fix_modify_token_attribute, LancerToken, LancerTokenDocument } from "./module/token";
+import { LancerToken, LancerTokenDocument } from "./module/token";
 import { FoundryReg } from "./module/mm-util/foundry-reg";
 import { applyGlobalDragListeners } from "./module/helpers/dragdrop";
 import { gridDist } from "./module/helpers/automation/targeting";
-import CompconLoginForm from './module/helpers/compcon-login-form';
+import CompconLoginForm from "./module/helpers/compcon-login-form";
 
 const lp = LANCER.log_prefix;
 
@@ -481,9 +482,9 @@ Hooks.once("init", async function () {
 
   // ------------------------------------------------------------------------
   // Sliding HUD Zone, including accuracy/difficulty window
-  Hooks.on('renderHeadsUpDisplay', slidingHUD.attach);
+  Hooks.on("renderHeadsUpDisplay", slidingHUD.attach);
   let openingBasicAttackLock = false;
-  Hooks.on('targetToken', (user: User, _token: Token, isNewTarget: boolean) => {
+  Hooks.on("targetToken", (user: User, _token: Token, isNewTarget: boolean) => {
     if (user.isSelf && isNewTarget && !openingBasicAttackLock) {
       // this only works because openBasicAttack is a promise and runs on a future tick
       openingBasicAttackLock = true;
@@ -675,7 +676,7 @@ Hooks.on("renderChatMessage", async (cm: ChatMessage, html: any, data: any) => {
 
   html.find(".chat-button").on("click", (ev: MouseEvent) => {
     function checkTarget(element: HTMLElement) {
-      if (element.attributes.getNamedItem('data-macro')) {
+      if (element.attributes.getNamedItem("data-macro")) {
         ev.stopPropagation();
         runEncodedMacro(element);
         return true;
@@ -683,7 +684,7 @@ Hooks.on("renderChatMessage", async (cm: ChatMessage, html: any, data: any) => {
       return false;
     }
     checkTarget(ev.target as HTMLElement) || checkTarget(ev.currentTarget as HTMLElement);
-  })
+  });
 });
 
 Hooks.on("hotbarDrop", (_bar: any, data: any, slot: number) => {
@@ -827,6 +828,26 @@ async function doMigration() {
     // Set the version for future migration and welcome message checking
     await game.settings.set(game.system.id, LANCER.setting_migration, game.system.data.version);
   }
+
+  // Migrate old automation settings into the the new config option.
+  const automation_migration = foundry.utils.isNewerVersion(NEEDS_AUTOMATION_MIGRATION_VERSION, currentVersion);
+  if (automation_migration && game.user!.isGM) {
+    console.log(`${lp} Migrating automation settings.`);
+    const defs = getAutomationOptions(true);
+    const auto = {
+      enabled: game.settings.get(game.system.id, LANCER.setting_automation_switch),
+      attack_self_heat: game.settings.get(game.system.id, LANCER.setting_overkill_heat),
+      attacks: game.settings.get(game.system.id, LANCER.setting_automation_attack),
+      overcharge_heat: game.settings.get(game.system.id, LANCER.setting_pilot_oc_heat),
+      structure: game.settings.get(game.system.id, LANCER.setting_auto_structure),
+    };
+    await game.settings.set(
+      game.system.id,
+      LANCER.setting_automation,
+      foundry.utils.diffObject(defs, auto, { inner: true })
+    );
+    await game.settings.set(game.system.id, LANCER.setting_migration, game.system.data.version);
+  }
 }
 
 async function configureAmplify() {
@@ -880,7 +901,7 @@ async function showChangelog() {
     let req = $.get(
       `https://raw.githubusercontent.com/Eranziel/foundryvtt-lancer/v${game.system.data.version}/CHANGELOG.md`
     );
-    req.done(async (data, status) => {
+    req.done(async (data, _status) => {
       // Regex magic to only grab the first 25 lines
       let r = /(?:[^\n]*\n){25}/;
       let trimmedChangelog = data.match(r)[0];
@@ -915,15 +936,13 @@ function addSettingsButtons(_app: Application, html: HTMLElement) {
             <i class="mdi mdi-cloud-sync-outline "></i>COMP/CON Login
           </button>`);
 
-
-
   $(html).find("#settings-documentation").append(faqButton);
   $(html).find("#settings-game").prepend(loginButton);
 
   loginButton.on("click", async () => {
     const app = new CompconLoginForm({});
     return app.render(true);
-  })
+  });
 
   faqButton.on("click", async () => {
     let helpContent = await renderTemplate(`systems/${game.system.id}/templates/window/lancerHelp.hbs`, {});

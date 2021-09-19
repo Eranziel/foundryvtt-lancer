@@ -92,56 +92,60 @@ export const registerSettings = function () {
     default: {},
   });
 
-  // Keep all automation settings at the bottom for the selector
-  // If you're adding an automation setting, be sure to go increment the settings-list css selector
+  /**
+   * TODO: Remove when automation setting migration no longer needed.
+   * @deprecated since 1.0.3
+   */
   game.settings.register(game.system.id, LANCER.setting_automation_switch, {
-    name: "System Automation",
-    hint: "Master enable switch for system automation. Turn this off to do everything manually.",
     scope: "world",
     config: false,
     type: Boolean,
     default: true,
   });
 
+  /**
+   * TODO: Remove when automation setting migration no longer needed.
+   * @deprecated since 1.0.3
+   */
   game.settings.register(game.system.id, LANCER.setting_automation_attack, {
-    name: "Attack Automation",
-    hint:
-      "Toggle for whether or not you want the system to auto-calculate hits, damage, and other attack related checks.",
     scope: "world",
     config: false,
     type: Boolean,
     default: true,
   });
 
+  /**
+   * TODO: Remove when automation setting migration no longer needed.
+   * @deprecated since 1.0.3
+   */
   game.settings.register(game.system.id, LANCER.setting_auto_structure, {
-    name: "Automatic Structure/Stress",
-    hint: "When a mech rolls a structure/overheat macro, should it automatically decrease structure/stress?",
     scope: "world",
     config: false,
     type: Boolean,
     default: true,
   });
 
+  /**
+   * TODO: Remove when automation setting migration no longer needed.
+   * @deprecated since 1.0.3
+   */
   game.settings.register(game.system.id, LANCER.setting_pilot_oc_heat, {
-    name: "Auto-Apply Overcharge Heat",
-    hint: "When a mech rolls an overcharge, should it automatically apply heat?",
     scope: "world",
     config: false,
     type: Boolean,
     default: true,
   });
 
+  /**
+   * TODO: Remove when automation setting migration no longer needed.
+   * @deprecated since 1.0.3
+   */
   game.settings.register(game.system.id, LANCER.setting_overkill_heat, {
-    name: "Auto-Apply Overkill Heat",
-    hint: "When an overkill weapon triggers overkill rerolls, should it automatically apply heat?",
     scope: "world",
     config: false,
     type: Boolean,
     default: true,
   });
-
-  // Only put automation settings above this
-  // Nothing below this
 };
 
 /**

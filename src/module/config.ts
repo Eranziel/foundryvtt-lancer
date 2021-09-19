@@ -161,6 +161,7 @@ export function WELCOME(changelog: string): string {
 export const NEEDS_MAJOR_MIGRATION_VERSION = "0.9.0";
 export const NEEDS_MINOR_MIGRATION_VERSION = "0.9.99";
 export const COMPATIBLE_MIGRATION_VERSION = "0.1.0";
+export const NEEDS_AUTOMATION_MIGRATION_VERSION = "1.0.3";
 
 export const LANCER = {
   ASCII,
