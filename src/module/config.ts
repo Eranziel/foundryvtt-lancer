@@ -161,6 +161,7 @@ export function WELCOME(changelog: string): string {
 export const NEEDS_MAJOR_MIGRATION_VERSION = "0.9.0";
 export const NEEDS_MINOR_MIGRATION_VERSION = "0.9.99";
 export const COMPATIBLE_MIGRATION_VERSION = "0.1.0";
+export const NEEDS_AUTOMATION_MIGRATION_VERSION = "1.0.3";
 
 export const LANCER = {
   ASCII,
@@ -171,7 +172,8 @@ export const LANCER = {
   setting_stock_icons: "keepStockIcons" as const,
   setting_welcome: "hideWelcome" as const,
   setting_compcon_login: "compconLogin" as const,
-  setting_automation: "automationSwitch" as const,
+  setting_automation: "automationOptions" as const,
+  setting_automation_switch: "automationSwitch" as const,
   setting_automation_attack: "attackSwitch" as const,
   setting_action_manager: "actionManager" as const,
   setting_action_manager_players: "actionManagerPlayersUse" as const,

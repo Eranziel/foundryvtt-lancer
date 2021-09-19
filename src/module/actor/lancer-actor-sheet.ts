@@ -77,7 +77,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     this._activateActionGridListeners(html);
 
     // Make refs clickable to open the item
-    $(html).find(".ref.valid").on("click", HANDLER_activate_ref_clicking);
+    $(html).find(".ref.valid:not(.profile-img)").on("click", HANDLER_activate_ref_clicking);
 
     // Enable ref dragging
     HANDLER_activate_ref_dragging(html);
@@ -193,7 +193,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
 
     if (!encoded) throw Error("No macro data available");
 
-    let data = JSON.parse(decodeURI(atob(encoded)));
+    let data = JSON.parse(decodeURI(window.atob(encoded)));
     e.dataTransfer?.setData("text/plain", JSON.stringify(data));
   }
 
@@ -659,7 +659,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
   _propagateMMData(formData: any): any {
     // Pushes relevant field data from the form to other appropriate locations,
     // e.x. to synchronize name between token and actor
-    let token: any = this.actor.data["token"];
+    let token = this.actor.data["token"];
 
     // Get the basics
     let new_top: any = {

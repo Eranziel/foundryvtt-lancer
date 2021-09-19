@@ -5,7 +5,6 @@
 
 # NPM
 node_modules/**
-package-lock.json
 
 # Build
 foundryconfig.json

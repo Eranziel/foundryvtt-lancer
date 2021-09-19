@@ -11,12 +11,15 @@
  import { isDragging } from './is-dragging';
  import { userTargets } from './user-targets';
  import AccDiffForm from '../acc_diff/Form.svelte';
+ import StructStressForm from '../struct_stress/Form.svelte';
 
  let dispatch = createEventDispatcher();
 
  let dialogs: { [key: string]: typeof SvelteComponent } = {
    hase: AccDiffForm,
    attack: AccDiffForm,
+   struct: StructStressForm,
+   stress: StructStressForm,
  }
 
  // @hmr:keep
@@ -27,7 +30,9 @@
    }
  } = {
    hase: { open: null },
-   attack: { open: null }
+   attack: { open: null },
+   struct: { open: null },
+   stress: { open: null },
  };
 
  // this indirection means that only actual changes to huds.attack.data trigger the following update
