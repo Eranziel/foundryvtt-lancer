@@ -143,7 +143,7 @@ export function simple_mm_ref<T extends EntryType>(
 
 // The hook to handle clicks on refs. Opens/focuses the clicked item's window
 // $(html).find(".ref.valid").on("click", HANDLER_onClickRef);
-export async function HANDLER_openRefOnClick<T extends EntryType>(event: any) {
+export async function HANDLER_activate_ref_clicking<T extends EntryType>(event: any) {
   event.preventDefault();
   event.stopPropagation();
   const element = event.currentTarget;

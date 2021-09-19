@@ -10,6 +10,7 @@ import {
   HANDLER_activate_ref_dragging,
   HANDLER_activate_ref_drop_clearing,
   HANDLER_activate_ref_drop_setting,
+  HANDLER_activate_ref_clicking,
 } from "../helpers/refs";
 import type { LancerActorSheetData, LancerStatMacroData } from "../interfaces";
 import type { AnyMMItem } from "../item/lancer-item";
