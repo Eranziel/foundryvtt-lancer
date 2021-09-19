@@ -32,7 +32,7 @@ import { StabOptions1, StabOptions2 } from "../enums";
 import { fix_modify_token_attribute } from "../token";
 import type { ActionData } from "../action";
 import { frameToPath } from "./retrograde-map";
-import { NpcClass } from 'machine-mind';
+import { NpcClass } from "machine-mind";
 const lp = LANCER.log_prefix;
 
 // Use for HP, etc
@@ -175,11 +175,11 @@ export class LancerActor extends Actor {
         ent.CurrentStress -= 1;
       }
     }
-    if (ent.CurrentStress === ent.MaxStress) {
+    await ent.writeback();
+    if (ent.CurrentStress >= ent.MaxStress) {
       ui.notifications!.info("The mech is at full Stress, no overheating check to roll.");
       return;
     }
-    await ent.writeback();
     let remStress = ent.CurrentStress;
     let templateData = {};
 
@@ -236,8 +236,7 @@ export class LancerActor extends Actor {
       };
     }
     const template = `systems/${game.system.id}/templates/chat/overheat-card.hbs`;
-    const actor = game.actors!.get(ChatMessage.getSpeaker().actor ?? "");
-    return renderMacroTemplate(actor, template, templateData);
+    return renderMacroTemplate(this, template, templateData);
   }
 
   /**
@@ -301,12 +300,12 @@ export class LancerActor extends Actor {
         ent.CurrentStructure -= 1;
       }
     }
-    if (ent.CurrentStructure === ent.MaxStructure) {
+    await ent.writeback();
+    if (ent.CurrentStructure >= ent.MaxStructure) {
       ui.notifications!.info("The mech is at full Structure, no structure check to roll.");
       return;
     }
 
-    await ent.writeback();
     let remStruct = ent.CurrentStructure;
     let templateData = {};
     // If we're already at 0 just kill em
@@ -373,8 +372,7 @@ export class LancerActor extends Actor {
       };
     }
     const template = `systems/${game.system.id}/templates/chat/structure-card.hbs`;
-    const actor = game.actors!.get(ChatMessage.getSpeaker().actor ?? "");
-    return renderMacroTemplate(actor, template, templateData);
+    return renderMacroTemplate(this, template, templateData);
   }
 
   // Fully repair actor
@@ -667,7 +665,7 @@ export class LancerActor extends Actor {
           let flags = mech.Flags as FoundryFlagData<EntryType.MECH>;
           let portrait = mech.CloudPortrait || mech.Frame?.ImageUrl || "";
           let new_img = replace_default_resource(flags.top_level_data["img"], portrait);
-          
+
           flags.top_level_data["name"] = mech.Name;
           flags.top_level_data["folder"] = unit_folder ? unit_folder.id : null;
           flags.top_level_data["img"] = new_img;
@@ -681,7 +679,11 @@ export class LancerActor extends Actor {
 
           // If we've got a frame (which we should) check for setting Retrograde image
           // Also check that we don't have a custom image, which would be on imgur. If so, preserve it.
-          if(mech.Frame && !(new_img.includes("imgur")) && await (mech.Flags.orig_doc as LancerActor).swapFrameImage(mech,null,mech.Frame)) {
+          if (
+            mech.Frame &&
+            !new_img.includes("imgur") &&
+            (await (mech.Flags.orig_doc as LancerActor).swapFrameImage(mech, null, mech.Frame))
+          ) {
             // Write back again if we swapped images
             await mech.writeback();
           }
@@ -1146,36 +1148,49 @@ export class LancerActor extends Actor {
     return this.data.type === EntryType.DEPLOYABLE;
   }
 
-
   /**
-   * Taking a new and old frame/class, swaps the actor and/or token images if 
+   * Taking a new and old frame/class, swaps the actor and/or token images if
    * we detect that the image isn't custom. Will check each individually
-   * @param robot     A MM Mech or NPC, passed through to avoid data overwrites 
+   * @param robot     A MM Mech or NPC, passed through to avoid data overwrites
    * @param oldFrame  Old Frame or NPC Class
    * @param newFrame  New Frame or NPC Class
    * @returns         The newFrame if any updates were performed
    */
-  async swapFrameImage(robot: Mech | Npc, oldFrame: Frame | NpcClass | null, newFrame: Frame | NpcClass): Promise<string> {
+  async swapFrameImage(
+    robot: Mech | Npc,
+    oldFrame: Frame | NpcClass | null,
+    newFrame: Frame | NpcClass
+  ): Promise<string> {
     let oldFramePath = frameToPath[oldFrame?.Name || ""];
     let newFramePath = frameToPath[newFrame?.Name || ""];
-    let defaultImg = is_reg_mech(robot) ? "systems/lancer/assets/icons/mech.svg" : "systems/lancer/assets/icons/npc_class.svg";
-    
-    if(!newFramePath) newFramePath = defaultImg;
+    let defaultImg = is_reg_mech(robot)
+      ? "systems/lancer/assets/icons/mech.svg"
+      : "systems/lancer/assets/icons/npc_class.svg";
+
+    if (!newFramePath) newFramePath = defaultImg;
     let changed = false;
-    let newData: Parameters<this["update"]>[0] = {}
+    let newData: Parameters<this["update"]>[0] = {};
 
     // Check the token
     // Add manual check for the aws images
-    if(this.data.token.img == oldFramePath || this.data.token.img == defaultImg || this.data.token.img?.includes("compcon-image-assets")) {
-      newData.token = {"img": newFramePath};
+    if (
+      this.data.token.img == oldFramePath ||
+      this.data.token.img == defaultImg ||
+      this.data.token.img?.includes("compcon-image-assets")
+    ) {
+      newData.token = { img: newFramePath };
       changed = true;
     }
-    
+
     // Check the actor
     // Add manual check for the aws images
-    if(this.data.img == oldFramePath || this.data.img == defaultImg || this.data.img?.includes("compcon-image-assets")) {
+    if (
+      this.data.img == oldFramePath ||
+      this.data.img == defaultImg ||
+      this.data.img?.includes("compcon-image-assets")
+    ) {
       newData.img = newFramePath;
-      
+
       // Have to set our top level data in MM or it will overwrite it...
       robot.Flags.top_level_data.img = newFramePath;
       robot.Flags.top_level_data["token.img"] = newFramePath;
