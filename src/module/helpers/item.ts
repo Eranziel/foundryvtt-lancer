@@ -157,7 +157,7 @@ export function show_damage_array(damages: Damage[], options: HelperOptions): st
       ${damage.Value}</span>`;
     results.push(damage_item);
   }
-  return `<div class="flexrow no-grow ${classes}">${results.join(" ")}</div>`;
+  return `<div class="flexrow no-grow compact-damage ${classes}">${results.join(" ")}</div>`;
 }
 
 /**

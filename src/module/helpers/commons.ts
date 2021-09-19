@@ -187,9 +187,11 @@ export function effect_box(title: string, text: string, add_classes: string = ""
 }
 
 export function sp_display(sp: number | string) {
+  let icons = "";
+  for (let i = 0; i < sp; i++) icons += `<i class="cci cci-system-point i--m i--dark"> </i>`;
   return `<div style="float: left; align-items: center; display: inherit;">
-            <i class="cci cci-system-point i--m i--dark"> </i>
-            <span class="medium" style="padding: 5px;">${sp} SP</span>
+            ${icons}
+            <span class="medium" style="padding: 5px;">${sp} SYSTEM POINTS</span>
           </div>`;
 }
 

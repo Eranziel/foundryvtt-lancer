@@ -280,11 +280,17 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
   switch (item.Type) {
     case EntryType.MECH_SYSTEM:
       let sys: MechSystem = <MechSystem>(<any>item);
+      let icon: string;
       let sp: string;
       let desc: string | undefined;
       let actions: string | undefined;
       let deployables: string | undefined;
       let eff: string | undefined;
+
+      const icon_types = [SystemType.Deployable, SystemType.Drone, SystemType.Mod, SystemType.System, SystemType.Tech];
+      icon = icon_types.includes(sys.SysType)
+        ? `cci cci-${sys.SysType.toLowerCase()} i--m i--click`
+        : `cci cci-system i--m i--click`;
 
       sp = sp_display(sys.SP ? sys.SP : 0);
 
@@ -321,11 +327,11 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
       if (is_limited(sys)) {
         limited = limited_chip_HTML(sys, item_path);
       }
-      return `<li class="valid ref card clipped mech-system-compact item ${
+      return `<li class="valid ref card clipped mech-system item ${
         sys.SysType === SystemType.Tech ? "tech-item" : ""
       }" ${ref_params(cd.ref)}>
         <div class="lancer-header ${sys.Destroyed ? "destroyed" : ""}" style="grid-area: 1/1/2/3; display: flex">
-          <i class="${sys.Destroyed ? "mdi mdi-cog" : "cci cci-system i--m i--click"}"> </i>
+          <i class="${sys.Destroyed ? "mdi mdi-cog" : icon}"> </i>
           <a class="lancer-macro" data-macro="${encodeMacroData(macroData)}"><i class="mdi mdi-message"></i></a>
           <span class="minor grow">${sys.Name}</span>
           ${collapse_trigger}
