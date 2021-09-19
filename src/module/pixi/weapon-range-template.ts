@@ -274,6 +274,7 @@ declare global {
           tokens: string[];
           dispositions: TokenDocument["data"]["disposition"][];
         };
+        isAttack?: boolean;
       };
     };
   }

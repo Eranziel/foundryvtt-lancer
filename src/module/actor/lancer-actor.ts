@@ -20,19 +20,22 @@ import {
   quick_relinker,
   RegEntryTypes,
   Frame,
+  RegMechData,
+  RegNpcData,
 } from "machine-mind";
 import { FoundryFlagData, FoundryReg } from "../mm-util/foundry-reg";
 import { LancerHooks, LancerSubscription } from "../helpers/hooks";
 import { mm_wrap_actor } from "../mm-util/helpers";
 import { system_ready } from "../../lancer";
 import type { LancerItemType } from "../item/lancer-item";
-import { renderMacroTemplate, encodeMacroData } from "../macros";
+import { renderMacroTemplate, encodeMacroData, prepareOverheatMacro, prepareStructureMacro } from "../macros";
 import type { RegEntry, MechWeapon, NpcFeature } from "machine-mind";
 import { StabOptions1, StabOptions2 } from "../enums";
 import { fix_modify_token_attribute } from "../token";
 import type { ActionData } from "../action";
 import { frameToPath } from "./retrograde-map";
 import { NpcClass } from "machine-mind";
+import { getAutomationOptions } from "../settings";
 const lp = LANCER.log_prefix;
 
 // Use for HP, etc
@@ -114,19 +117,31 @@ export class LancerActor extends Actor {
 
   /**
    * Performs overheat
-   * For now, just rolls on table. Eventually we can include configuration to do automation
+   * If automation is enabled, adusts heat and stress and rolls if stress damage was taken, otherwise just roll on the table.
    */
-  overheat() {
+  async overheat(reroll_data?: { stress: number }): Promise<void> {
     // Assert that we're on a mech or NPC
-    if (this.is_mech() || this.is_npc()) {
-      this.overheatMech();
-    } else {
+    if (!this.is_mech() && !this.is_npc()) {
       ui.notifications!.warn("Can only overheat NPCs and Mechs");
       return;
     }
+    const ent = await this.data.data.derived.mm_promise;
+    if (getAutomationOptions().structure && !reroll_data) {
+      if (ent.CurrentHeat > ent.HeatCapacity && ent.CurrentStress >= 0) {
+        // https://discord.com/channels/426286410496999425/760966283545673730/789297842228297748
+        ent.CurrentHeat -= ent.HeatCapacity;
+        ent.CurrentStress -= 1;
+      } else if (ent.CurrentHeat <= ent.HeatCapacity) {
+        return;
+      }
+      await ent.writeback();
+    }
+
+    await this.rollOverHeatTable(reroll_data);
   }
 
-  async overheatMech(): Promise<void> {
+  async rollOverHeatTable(reroll_data?: { stress: number }): Promise<void> {
+    if (!this.is_mech() && !this.is_npc()) return;
     // Table of descriptions
     function stressTableD(roll: number, remStress: number) {
       switch (roll) {
@@ -137,19 +152,19 @@ export class LancerActor extends Actor {
           switch (remStress) {
             case 2:
               // Choosing not to auto-roll the checks to keep the suspense up
-              return "Roll an ENGINEERING check. On a success, your mech is EXPOSED; on a failure, it suffers a reactor meltdown after 1d6 of your turns (rolled by the GM). A reactor meltdown can be prevented by retrying the ENGINEERING check as a full action.";
+              return "Roll an ENGINEERING check. On a success, your mech is @Compendium[world.status.EXPOSED]; on a failure, it suffers a reactor meltdown after 1d6 of your turns (rolled by the GM). A reactor meltdown can be prevented by retrying the ENGINEERING check as a full action.";
             case 1:
               return "Your mech suffers a reactor meltdown at the end of your next turn.";
             default:
-              return "Your mech becomes Exposed.";
+              return "Your mech becomes @Compendium[world.status.EXPOSED].";
           }
         case 2:
         case 3:
         case 4:
-          return "The power plant becomes unstable, beginning to eject jets of plasma. Your mech becomes EXPOSED, taking double kinetic, explosive and electric damage until the status is cleared.";
+          return "The power plant becomes unstable, beginning to eject jets of plasma. Your mech becomes @Compendium[world.status.EXPOSED], taking double kinetic, explosive and electric damage until the status is cleared.";
         case 5:
         case 6:
-          return "Your mech’s cooling systems manage to contain the increasing heat; however, your mech becomes IMPAIRED until the end of your next turn.";
+          return "Your mech’s cooling systems manage to contain the increasing heat; however, your mech becomes @Compendium[world.status.IMPAIRED] until the end of your next turn.";
       }
     }
 
@@ -164,29 +179,18 @@ export class LancerActor extends Actor {
       "Emergency Shunt",
     ];
 
-    let ent = (await this.data.data.derived.mm_promise) as Mech | Npc;
-    if (
-      game.settings.get(game.system.id, LANCER.setting_automation) &&
-      game.settings.get(game.system.id, LANCER.setting_auto_structure)
-    ) {
-      if (ent.CurrentHeat > ent.HeatCapacity) {
-        // https://discord.com/channels/426286410496999425/760966283545673730/789297842228297748
-        ent.CurrentHeat -= ent.HeatCapacity;
-        ent.CurrentStress -= 1;
-      }
-    }
-    await ent.writeback();
-    if (ent.CurrentStress >= ent.MaxStress) {
+    let ent = await this.data.data.derived.mm_promise;
+    if ((reroll_data?.stress ?? ent.CurrentStress) >= ent.MaxStress) {
       ui.notifications!.info("The mech is at full Stress, no overheating check to roll.");
       return;
     }
-    let remStress = ent.CurrentStress;
+    let remStress = reroll_data?.stress ?? ent.CurrentStress;
     let templateData = {};
 
     // If we're already at 0 just kill em
     if (remStress > 0) {
-      let damage = ent.MaxStress - ent.CurrentStress;
-      let roll: Roll = await new Roll(`${damage}d6kl1`).evaluate({ async: true });
+      let damage = ent.MaxStress - remStress;
+      let roll = await new Roll(`${damage}d6kl1`).evaluate({ async: true });
       let result = roll.total;
       if (result === undefined) return;
 
@@ -211,11 +215,11 @@ export class LancerActor extends Actor {
             args: [ent.RegistryID, "mm.Eng"],
           });
 
-          secondaryRoll = `<button class="chat-macro-button"><a class="chat-button" data-macro="${macroData}"><i class="fas fa-dice-d20"></i> Engineering</a></button>`;
+          secondaryRoll = `<button class="chat-button chat-macro-button" data-macro="${macroData}"><i class="fas fa-dice-d20"></i> Engineering</button>`;
         }
       }
       templateData = {
-        val: ent.CurrentStress,
+        val: remStress,
         max: ent.MaxStress,
         tt: tt,
         title: title,
@@ -223,6 +227,11 @@ export class LancerActor extends Actor {
         text: text,
         roll: roll,
         secondaryRoll: secondaryRoll,
+        rerollMacroData: encodeMacroData({
+          title: "Overheating",
+          fn: "prepareOverheatMacro",
+          args: [this.id!, { stress: remStress }],
+        }),
       };
     } else {
       // You ded
@@ -243,17 +252,27 @@ export class LancerActor extends Actor {
    * Performs structure on the mech
    * For now, just rolls on table. Eventually we can include configuration to do automation
    */
-  async structure() {
+  async structure(reroll_data?: { structure: number }) {
     // Assert that we're on a mech or NPC
-    if (this.is_mech() || this.is_npc()) {
-      this.structureMech();
-    } else {
+    if (!this.is_mech() && !this.is_npc()) {
       ui.notifications!.warn("Can only structure NPCs and Mechs");
       return;
     }
+    const ent = await this.data.data.derived.mm_promise;
+    if (getAutomationOptions().structure && !reroll_data) {
+      if (ent.CurrentHP < 1 && ent.CurrentStructure >= 0) {
+        ent.CurrentHP += ent.MaxHP;
+        ent.CurrentStructure -= 1;
+      } else if (ent.CurrentHP >= 1) {
+        return;
+      }
+      await ent.writeback();
+    }
+
+    await this.rollStructureTable(reroll_data);
   }
 
-  async structureMech(): Promise<void> {
+  async rollStructureTable(reroll_data?: { structure: number }): Promise<void> {
     // Table of descriptions
     function structTableD(roll: number, remStruct: number) {
       switch (roll) {
@@ -263,11 +282,11 @@ export class LancerActor extends Actor {
         case 1:
           switch (remStruct) {
             case 2:
-              return "Roll a HULL check. On a success, your mech is STUNNED until the end of your next turn. On a failure, your mech is destroyed.";
+              return "Roll a HULL check. On a success, your mech is @Compendium[world.status.STUNNED] until the end of your next turn. On a failure, your mech is destroyed.";
             case 1:
               return "Your mech is destroyed.";
             default:
-              return "Your mech is STUNNED until the end of your next turn.";
+              return "Your mech is @Compendium[world.status.STUNNED] until the end of your next turn.";
           }
         case 2:
         case 3:
@@ -275,7 +294,7 @@ export class LancerActor extends Actor {
           return "Parts of your mech are torn off by the damage. Roll 1d6. On a 1–3, all weapons on one mount of your choice are destroyed; on a 4–6, a system of your choice is destroyed. LIMITED systems and weapons that are out of charges are not valid choices. If there are no valid choices remaining, it becomes the other result. If there are no valid systems or weapons remaining, this result becomes a DIRECT HIT instead.";
         case 5:
         case 6:
-          return "Emergency systems kick in and stabilize your mech, but it’s IMPAIRED until the end of your next turn.";
+          return "Emergency systems kick in and stabilize your mech, but it’s @Compendium[world.status.IMPAIRED] until the end of your next turn.";
       }
     }
 
@@ -291,26 +310,17 @@ export class LancerActor extends Actor {
     ];
 
     let ent = (await this.data.data.derived.mm_promise) as Mech | Npc;
-    if (
-      game.settings.get(game.system.id, LANCER.setting_automation) &&
-      game.settings.get(game.system.id, LANCER.setting_auto_structure)
-    ) {
-      if (ent.CurrentHP <= 0) {
-        ent.CurrentHP += ent.MaxHP;
-        ent.CurrentStructure -= 1;
-      }
-    }
-    await ent.writeback();
-    if (ent.CurrentStructure >= ent.MaxStructure) {
+    if ((reroll_data?.structure ?? ent.CurrentStructure) >= ent.MaxStructure) {
       ui.notifications!.info("The mech is at full Structure, no structure check to roll.");
       return;
     }
 
-    let remStruct = ent.CurrentStructure;
+    let remStruct = reroll_data?.structure ?? ent.CurrentStructure;
     let templateData = {};
+
     // If we're already at 0 just kill em
     if (remStruct > 0) {
-      let damage = ent.MaxStructure - ent.CurrentStructure;
+      let damage = ent.MaxStructure - remStruct;
 
       let roll: Roll = await new Roll(`${damage}d6kl1`).evaluate({ async: true });
       let result = roll.total;
@@ -337,7 +347,7 @@ export class LancerActor extends Actor {
             args: [ent.RegistryID, "mm.Hull"],
           });
 
-          secondaryRoll = `<button class="chat-macro-button"><a class="chat-button" data-macro="${macroData}"><i class="fas fa-dice-d20"></i> Hull</a></button>`;
+          secondaryRoll = `<button class="chat-button chat-macro-button" data-macro="${macroData}"><i class="fas fa-dice-d20"></i> Hull</button>`;
         } else if (result >= 2 && result <= 4) {
           let macroData = encodeMacroData({
             // TODO: Should create a "prepareRollMacro" or something to handle generic roll-based macros
@@ -359,6 +369,11 @@ export class LancerActor extends Actor {
         text: text,
         roll: roll,
         secondaryRoll: secondaryRoll,
+        rerollMacroData: encodeMacroData({
+          title: "Structure Damage",
+          fn: "prepareStructureMacro",
+          args: [this.id!, { structure: remStruct }],
+        }),
       };
     } else {
       // You ded
@@ -1031,9 +1046,32 @@ export class LancerActor extends Actor {
   /** @override
    * On the result of an update, we want to cascade derived data.
    */
-  _onUpdate(...args: Parameters<Actor["_onUpdate"]>) {
-    super._onUpdate(...args);
+  protected _onUpdate(...[changed, options, user]: Parameters<Actor["_onUpdate"]>) {
+    super._onUpdate(changed, options, user);
     LancerHooks.call(this);
+
+    // Check for overheating / structure
+    if (
+      getAutomationOptions().structure &&
+      this.isOwner &&
+      !(
+        game.users?.players.reduce((a, u) => a || (u.active && this.testUserPermission(u, "OWNER")), false) &&
+        game.user?.isGM
+      ) &&
+      (this.is_mech() || this.is_npc())
+    ) {
+      const data = changed.data as DeepPartial<RegMechData | RegNpcData>;
+      if (
+        "heat" in (data ?? {}) &&
+        (data?.heat ?? 0) > (this.data.data.derived.mm?.HeatCapacity ?? 0) &&
+        (this.data.data.derived.mm?.CurrentStress ?? 0) > 0
+      ) {
+        prepareOverheatMacro(this);
+      }
+      if ("hp" in (data ?? {}) && (data?.hp ?? 0) <= 0 && (this.data.data.derived.mm?.CurrentStructure ?? 0) > 0) {
+        prepareStructureMacro(this);
+      }
+    }
   }
 
   // Ditto - items alter stats quite often

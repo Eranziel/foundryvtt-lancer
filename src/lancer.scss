@@ -874,6 +874,19 @@ textarea {
     background-color: var(--weapon-color);
   }
 
+  &.struct-stress {
+      padding-top: 1px;
+      display: flex;
+      flex-direction: row;
+
+      span.spacer {
+          flex: 0 0;
+      }
+      a {
+          flex: 0 0;
+      }
+  }
+
   .pilot_gear & {
     background-color: var(--system-color);
   }
@@ -2084,10 +2097,6 @@ a.action {
   align-items: center;
 }
 
-div[data-tab="system"] > .settings-list > div:nth-last-child(-n + 4) {
-  margin-left: 1em;
-}
-
 .limited-card {
   width: fit-content;
   display: inline-flex;
@@ -2108,6 +2117,7 @@ div[data-tab="system"] > .settings-list > div:nth-last-child(-n + 4) {
 .chat-macro-button {
   max-width: 60%;
   align-self: center;
+  cursor: pointer;
 }
 
 // needed to override a builtin that removes all shadows from the sidebar

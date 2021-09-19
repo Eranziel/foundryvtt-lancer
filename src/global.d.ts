@@ -1,4 +1,5 @@
-import { IContentPackManifest } from "machine-mind";
+import type { IContentPackManifest } from "machine-mind";
+import type { AutomationOptions } from "./module/settings";
 
 declare global {
   // Since we never use these before `init` tell league types that they are
@@ -29,6 +30,7 @@ declare global {
       };
       "lancer.keepStockIcons": boolean;
       "lancer.hideWelcome": boolean;
+      "lancer.automationOptions": Partial<AutomationOptions>;
       "lancer.automationSwitch": boolean;
       "lancer.attackSwitch": boolean;
       "lancer.actionManager": boolean;

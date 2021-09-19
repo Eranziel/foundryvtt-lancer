@@ -1,0 +1,73 @@
+<form autocomplete="off">
+  <h2>{{ localize "lancer.automation.menu-label" }}</h2>
+  <div class="form-group">
+    <label>{{ localize "lancer.automation.master-switch" }}</label>
+    <input type="checkbox" name="enabled" {{#if enabled}}checked{{/if}} data-dtype="Boolean"/>
+    <p class="notes">{{ localize "lancer.automation.master-switch-desc" }}</p>
+  </div>
+  <div class="form-group">
+    <label>{{ localize "lancer.automation.attacks" }}</label>
+    <input
+        type="checkbox"
+        name="attacks"
+        {{#if attacks}}checked{{/if}}
+        {{#unless enabled}}disabled{{/unless}}
+        data-dtype="Boolean"
+    />
+    <p class="notes">{{ localize "lancer.automation.attacks-desc" }}</p>
+  </div>
+  <div class="form-group">
+    <label>{{ localize "lancer.automation.structure" }}</label>
+    <input
+        type="checkbox"
+        name="structure"
+        {{#if structure}}checked{{/if}}
+        {{#unless enabled}}disabled{{/unless}}
+        data-dtype="Boolean"
+    />
+    <p class="notes">{{ localize "lancer.automation.structure-desc" }}</p>
+  </div>
+  <div class="form-group">
+    <label>{{ localize "lancer.automation.overcharge_heat" }}</label>
+    <input
+        type="checkbox"
+        name="overcharge_heat"
+        {{#if overcharge_heat}}checked{{/if}}
+        {{#unless enabled}}disabled{{/unless}}
+        data-dtype="Boolean"
+    />
+    <p class="notes">{{ localize "lancer.automation.overcharge_heat-desc" }}</p>
+  </div>
+  <div class="form-group">
+    <label>{{ localize "lancer.automation.attack_self_heat" }}</label>
+    <input
+        type="checkbox"
+        name="attack_self_heat"
+        {{#if attack_self_heat}}checked{{/if}}
+        {{#unless enabled}}disabled{{/unless}}
+        data-dtype="Boolean"
+    />
+    <p class="notes">{{ localize "lancer.automation.attack_self_heat-desc" }}</p>
+  </div>
+  <div class="form-group">
+    <label>{{ localize "lancer.automation.remove_templates" }}</label>
+    <input
+        type="checkbox"
+        name="remove_templates"
+        {{#if remove_templates}}checked{{/if}}
+        {{#unless enabled}}disabled{{/unless}}
+        data-dtype="Boolean"
+    />
+    <p class="notes">{{ localize "lancer.automation.remove_templates-desc" }}</p>
+  </div>
+  <div class="form-group">
+    <button type="submit" name="submit">
+      <i class="fas fa-save"></i>
+      <span>Save</span>
+    </button>
+    <button type="button" name="reset">
+      <i class="fas fa-undo"></i>
+      <span>Reset</span>
+    </button>
+  </div>
+</form>

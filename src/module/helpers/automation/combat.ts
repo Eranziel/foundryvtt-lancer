@@ -1,13 +1,14 @@
-import { LANCER } from "../../config";
 import type { LancerGame } from "../../lancer-game";
 import { prepareChargeMacro } from "../../macros";
+import { getAutomationOptions } from "../../settings";
 
 export async function handleCombatUpdate(combat: any, changed: any) {
   //if (combat.round === 0 || changed?.round === 0) return;
   if (!("turn" in changed) && changed.round !== 1) return;
   if (game.combats!.get(combat.id)?.data?.combatants.contents.length == 0) return;
 
-  if (game.settings.get(game.system.id, LANCER.setting_automation)) {
+  const auto = getAutomationOptions();
+  if (auto.enabled) {
     const nextTurnIndex = changed.turn;
     const turnIndex = combat.current.turn;
     if (combat.turns[nextTurnIndex]) {
