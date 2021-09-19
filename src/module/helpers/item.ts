@@ -422,7 +422,9 @@ export function pilot_armor_slot(armor_path: string, helper: HelperOptions): str
             <div class="lancer-header">
               <i class="mdi mdi-shield-outline i--m i--light"> </i>
               <span class="minor">${armor!.Name}</span>
-              <a class="gen-control" data-action="null" data-path="${armor_path}"><i class="fas fa-trash"></i></a>
+              <a class="lancer-context-menu" data-context-menu="${armor.Type}" data-path="${armor_path}"">
+                <i class="fas fa-ellipsis-v"></i>
+              </a>
             </div>
             <div class="flexrow" style="align-items: center; padding: 5px">
               <div class="compact-stat">
@@ -484,7 +486,9 @@ export function pilot_weapon_refview(weapon_path: string, helper: HelperOptions)
     <div class="lancer-header">
       <i class="cci cci-weapon i--m i--light"> </i>
       <span class="minor">${weapon.Name}</span>
-      <a class="gen-control i--light" data-action="null" data-path="${weapon_path}"><i class="fas fa-trash"></i></a>
+              <a class="lancer-context-menu" data-context-menu="${weapon.Type}" data-path="${weapon_path}"">
+                <i class="fas fa-ellipsis-v"></i>
+              </a>
     </div>
     <div class="flexcol">
       <div class="flexrow">
@@ -537,7 +541,9 @@ export function pilot_gear_refview(gear_path: string, helper: HelperOptions): st
       <i class="cci cci-generic-item i--m"> </i>
       <a class="gear-macro macroable"><i class="mdi mdi-message"></i></a>
       <span class="minor">${gear.Name}</span>
-      <a class="gen-control i--light" data-action="null" data-path="${gear_path}"><i class="fas fa-trash"></i></a>
+      <a class="lancer-context-menu" data-context-menu="${gear.Type}" data-path="${gear_path}"">
+        <i class="fas fa-ellipsis-v"></i>
+      </a>
     </div>
     <div class="flexcol">
       ${uses}
