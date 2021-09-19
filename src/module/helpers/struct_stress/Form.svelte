@@ -5,13 +5,18 @@
   import type { LancerActor } from "../../actor/lancer-actor";
 
   export let title: string;
-  export let kind: "structure" | "stress";
+  export let stat: "structure" | "stress";
   export let lancerActor: LancerActor | null;
 
   const dispatch = createEventDispatcher();
 
   function focus(el: HTMLElement) {
     el.focus();
+  }
+
+  function getIcon(kind: "structure" | "stress") {
+    if (kind === "stress") return "reactor";
+    return kind;
   }
 </script>
 
@@ -22,13 +27,18 @@
     dispatch("submit");
   }}
 >
-  <h2>{title}</h2>
-  <h3>{lancerActor?.name ?? "UNKNOWN MECH"} has taken {kind.capitalize()} damage!</h3>
-  <div class="message">
-    {#if lancerActor && (lancerActor.is_mech() || lancerActor.is_npc())}
-      Roll {lancerActor.data.data.derived[kind].max - lancerActor.data.data.derived[kind].value + 1}d6 to determine what
-      happens.
-    {/if}
+  <div class="lancer-header medium">
+    <i class="cci cci-{getIcon(stat)} i--m i--light" />
+    <span>{title}</span>
+  </div>
+  <div class="message-body">
+    <h3>{lancerActor?.name ?? "UNKNOWN MECH"} has taken {getIcon(stat)} damage!</h3>
+    <p class="message">
+      {#if lancerActor && (lancerActor.is_mech() || lancerActor.is_npc())}
+        Roll {lancerActor.data.data.derived[stat].max - lancerActor.data.data.derived[stat].value + 1}d6 to determine
+        what happens.
+      {/if}
+    </p>
   </div>
   <div class="dialog-buttons flexrow">
     <button class="dialog-button submit default" data-button="submit" type="submit" use:focus>
@@ -43,8 +53,7 @@
 </form>
 
 <style>
-  h2 {
-    background-color: var(--main-theme-color, fuscia);
-    text-align: center;
+  .message-body {
+    margin: 8px 4px;
   }
 </style>

@@ -1462,7 +1462,7 @@ export async function prepareOverheatMacro(a: string | LancerActor, reroll_data?
   if (getAutomationOptions().structure && !reroll_data) {
     const { open } = await import("./helpers/slidinghud");
     try {
-      await open("stress", { kind: "stress", title: "Overheating", lancerActor: actor });
+      await open("stress", { stat: "stress", title: "Overheating", lancerActor: actor });
     } catch (_e) {
       return;
     }
@@ -1484,7 +1484,7 @@ export async function prepareStructureMacro(a: string | LancerActor, reroll_data
   if (getAutomationOptions().structure && !reroll_data) {
     const { open } = await import("./helpers/slidinghud");
     try {
-      await open("struct", { kind: "structure", title: "Structure Damage", lancerActor: actor });
+      await open("struct", { stat: "structure", title: "Structure Damage", lancerActor: actor });
     } catch (_e) {
       return;
     }
