@@ -218,33 +218,10 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
   // Simple listener:
   // - Upon right click of the element, retrieves the boolean data at the specified MM path and toggles it.
   async _activateContextListeners(html: JQuery) {
-    let elements = html.find(`.lancer-context-menu[data-context-menu="mech_weapon"]`);
-
     let getfunc = () => this.getDataLazy();
     let commitfunc = (_: any) => this._commitCurrMM();
     // Enable custom context menu triggers.
     HANDLER_activate_item_context_menus(html, getfunc, commitfunc);
-
-    // elements.on("contextmenu", async ev => {
-    //   ev.stopPropagation();
-    //   ev.preventDefault();
-    //
-    //   const params = ev.currentTarget.dataset;
-    //   const data = await this.getDataLazy();
-    //   if (params.path && params.field && params.contextMenu) {
-    //     const item = resolve_dotpath(data, params.path) as RegEntry<any>;
-    //     const field = params.field;
-    //
-    //     const ent = item as any;
-    //     if (params.contextMenu === "toggle" && ent[field] !== undefined) {
-    //       ent[field] = !ent[field];
-    //       item.writeback();
-    //     } else {
-    //       ent[field] = params.contextMenu;
-    //       item.writeback();
-    //     }
-    //   }
-    // });
   }
 
   async _activateHexListeners(html: JQuery) {

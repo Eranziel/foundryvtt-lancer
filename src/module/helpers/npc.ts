@@ -1,13 +1,13 @@
 import type { HelperOptions } from "handlebars";
-import { ActivationType, NpcFeature, NpcFeatureType } from "machine-mind";
+import { ActivationType, EntryType, NpcFeature, NpcFeatureType } from "machine-mind";
 import { is_loading } from "machine-mind/dist/classes/mech/EquipUtil";
 import { charged_box, effect_box, resolve_helper_dotpath } from "./commons";
 import {
-  npc_attack_bonus_preview,
+  loading_indicator,
   npc_accuracy_preview,
+  npc_attack_bonus_preview,
   show_damage_array,
   show_range_array,
-  loading_indicator,
 } from "./item";
 import { limited_chip_HTML, ref_params } from "./refs";
 import { compact_tag_list } from "./tags";
@@ -80,6 +80,8 @@ function del_button(path: string, options: HelperOptions): string {
 
 function npc_feature_scaffold(path: string, npc_feature: NpcFeature, body: string, options: HelperOptions) {
   let feature_class = `npc-${npc_feature.FeatureType.toLowerCase()}`;
+  let icon = `cci-${npc_feature.FeatureType.toLowerCase()}`;
+  if (npc_feature.FeatureType === NpcFeatureType.Tech) icon += "-quick";
   let macro_button = "";
   if (npc_feature.FeatureType !== NpcFeatureType.Weapon) {
     macro_button = `<a class="macroable item-macro"><i class="mdi mdi-message"></i></a>`;
@@ -87,10 +89,12 @@ function npc_feature_scaffold(path: string, npc_feature: NpcFeature, body: strin
   return `
   <div class="valid ref card item ${feature_class}" ${ref_params(npc_feature.as_ref())}>
     <div class="flexrow lancer-header clipped-top ${npc_feature.Destroyed ? "destroyed" : ""}">
-      <i class="cci cci-${npc_feature.FeatureType.toLowerCase()} i--m i--light i--click" data-context-menu="toggle" data-field="Destroyed" data-path="${path}"> </i>
+      <i class="${npc_feature.Destroyed ? "mdi mdi-cog" : `cci ${icon} i--m i--light`}"> </i>
       ${macro_button}
       <span class="minor grow">${npc_feature.Name}</span>
-      ${del_button(path, options)}
+      <a class="lancer-context-menu" data-context-menu="${EntryType.NPC_FEATURE}" data-path="${path}">
+        <i class="fas fa-ellipsis-v"></i>
+      </a>
     </div>
     ${body}
   </div>`;
