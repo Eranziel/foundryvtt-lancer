@@ -1459,7 +1459,17 @@ export async function prepareOverheatMacro(a: string | LancerActor, reroll_data?
   let actor = getMacroSpeaker(a);
   if (!actor) return;
 
+  if (!actor.is_mech() && !actor.is_npc()) {
+    ui.notifications!.warn("Only Mechs and NPCs can overheat");
+    return;
+  }
+
   if (getAutomationOptions().structure && !reroll_data) {
+    const ent = await actor.data.data.derived.mm_promise;
+    if (ent.CurrentHeat <= ent.HeatCapacity) {
+      ui.notifications!.info("Token heat is within heat cap.");
+      return;
+    }
     const { open } = await import("./helpers/slidinghud");
     try {
       await open("stress", { stat: "stress", title: "Overheating", lancerActor: actor });
@@ -1474,14 +1484,28 @@ export async function prepareOverheatMacro(a: string | LancerActor, reroll_data?
 
 /**
  * Performs a roll on the structure table for the given actor
- * @param a ID of actor to structure
+ * @param a           - Actor or ID of actor to structure
+ * @param reroll_data - Data to use if rerolling. Setting this also supresses the dialog.
  */
-export async function prepareStructureMacro(a: string | LancerActor, reroll_data?: { structure: number }): Promise<void> {
+export async function prepareStructureMacro(
+  a: string | LancerActor,
+  reroll_data?: { structure: number }
+): Promise<void> {
   // Determine which Actor to speak as
   let actor = getMacroSpeaker(a);
   if (!actor) return;
 
+  if (!actor.is_mech() && !actor.is_npc()) {
+    ui.notifications!.warn("Only Mechs and NPCs can take struct damage");
+    return;
+  }
+
   if (getAutomationOptions().structure && !reroll_data) {
+    const ent = await actor.data.data.derived.mm_promise;
+    if (ent.CurrentHP > 0) {
+      ui.notifications!.info("Token has hp remaining. No need to roll structure.");
+      return;
+    }
     const { open } = await import("./helpers/slidinghud");
     try {
       await open("struct", { stat: "structure", title: "Structure Damage", lancerActor: actor });
