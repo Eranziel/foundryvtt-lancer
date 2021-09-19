@@ -14,8 +14,7 @@ function adjacentSpotter(actor: LancerActor): boolean {
 
   // computation shamelessly stolen from sensor-sight
 
-  // TODO: report this as a bug to league-types
-  let token: LancerToken = actor.getActiveTokens()[0] as unknown as LancerToken;
+  let token: LancerToken = actor.getActiveTokens()[0];
 
   const spaces = token.getOccupiedSpaces();
   function adjacent(token: LancerToken) {
