@@ -3,34 +3,34 @@
 /* ------------------------------------ */
 
 import type { HelperOptions } from "handlebars";
+import type { MechWeapon, TagInstance } from "machine-mind";
 import {
+  Action,
+  ActivationType,
+  Bonus,
+  Counter,
+  Damage,
+  DamageType,
+  Deployable,
+  EntryType,
+  FittingSize,
+  funcs,
+  License,
+  Manufacturer,
+  Mech,
+  MechSystem,
+  MechWeaponProfile,
+  NpcFeature,
+  PilotArmor,
+  PilotGear,
+  PilotWeapon,
+  Range,
+  RangeType,
+  SystemType,
+  WeaponMod,
   WeaponSize,
   WeaponType,
-  RangeType,
-  DamageType,
-  Damage,
-  SystemType,
-  Range,
-  EntryType,
-  Bonus,
-  PilotArmor,
-  PilotWeapon,
-  PilotGear,
-  Mech,
-  Manufacturer,
-  License,
-  NpcFeature,
-  FittingSize,
-  Action,
-  Deployable,
-  MechSystem,
-  ActivationType,
-  WeaponMod,
-  Counter,
-  funcs,
-  MechWeaponProfile,
 } from "machine-mind";
-import type { MechWeapon, TagInstance } from "machine-mind";
 import { BonusEditDialog } from "../apps/bonus-editor";
 import { TypeIcon } from "../config";
 import {
@@ -666,10 +666,10 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.Select
                   style="max-height: fit-content;">
       <div class="lancer-header ${weapon.Destroyed ? "destroyed" : ""}">
         <i class="${weapon.Destroyed ? "mdi mdi-cog" : "cci cci-weapon i--m i--light"}"> </i>
-        <i class="mdi mdi-unfold-less-horizontal collapse-trigger collapse-icon" data-collapse-id="${collapseID}"> </i>
         <span class="minor" ${mech_ ? `data-collapse-store="${mech_.RegistryID}"` : ""}" >
           ${weapon.Name} // ${weapon.Size.toUpperCase()} ${weapon.SelectedProfile.WepType.toUpperCase()}
         </span>
+        <i class="mdi mdi-unfold-less-horizontal collapse-trigger collapse-icon" data-collapse-id="${collapseID}"> </i>
         <a class="lancer-context-menu" data-context-menu="${EntryType.MECH_WEAPON}" data-path="${weapon_path}">
           <i class="fas fa-ellipsis-v"></i>
         </a>
@@ -1080,35 +1080,54 @@ export function HANDLER_activate_item_context_menus<T extends LancerActorSheetDa
     },
   };
   let destroy: ContextMenuEntry = {
-    name: "Destroy",
-    icon: `<i class="fas fa-fw fa-trash"></i>`,
+    name: "Toggle Destroyed",
+    icon: `<i class="fas fa-fw fa-wrench"></i>`,
     callback: async (html: JQuery) => {
-      let cd = await data_getter();
+      let sheet_data = await data_getter();
       let path = html[0].dataset.path ?? "";
       if (path) {
+        let item: MechWeapon | MechSystem | NpcFeature | null = resolve_dotpath(sheet_data, path, null);
+        if (item) {
+          item.Destroyed = !item.Destroyed;
+          await item.writeback();
+        }
       }
     },
   };
   let remove: ContextMenuEntry = {
-    name: "Delete",
+    name: "Remove",
     icon: '<i class="fas fa-fw fa-trash"></i>',
     callback: async (html: JQuery) => {
-      let cd = await data_getter();
+      let sheet_data = await data_getter();
       let path = html[0].dataset.path ?? "";
-      console.log(cd, html, path);
+      console.log(sheet_data, html, path);
       // Delete the weapon
       if (path) {
-        let weapon: MechWeapon | PilotWeapon | NpcFeature | null = resolve_dotpath(cd, path, null);
-        if (weapon) await weapon.destroy_entry();
+        let item: MechWeapon | MechSystem | NpcFeature | null = resolve_dotpath(sheet_data, path, null);
+        if (item) await item.destroy_entry();
         // Then commit
-        await commit_func(cd);
+        await commit_func(sheet_data);
       }
     },
   };
 
   // Finally, setup the context menu
-  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"mech_weapon\"]`), "click", [edit, remove]);
-  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"pilot_weapon\"]`), "click", [remove]);
+  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"mech_weapon\"]`), "click", [
+    edit,
+    destroy,
+    remove,
+  ]);
+  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"mech_system\"]`), "click", [
+    edit,
+    destroy,
+    remove,
+  ]);
+  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"pilot_weapon\"]`), "click", [edit, remove]);
+  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"npc_feature\"]`), "click", [
+    edit,
+    destroy,
+    remove,
+  ]);
 }
 
 // Allows user to remove or rename profiles value via right click
