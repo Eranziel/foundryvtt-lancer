@@ -760,9 +760,13 @@ export function create_context_menu(
 
 /** Attach a tippy context menu to the given target(s)
  *  Options can be fixed or can be generated based on the specific target to which the context menu is being
+ *  @param targets JQuery elements to attach the context menu to.
+ * @param event_types JQuery event types to trigger showing the context menu.
+ * @param options Array of context menu items.
  */
 export function tippy_context_menu(
   targets: JQuery<HTMLElement>,
+  event_types: string,
   options: ContextMenuItem[] | ((specific_target: JQuery<HTMLElement>) => ContextMenuItem[])
 ): void {
   targets.each((_, _target) => {
@@ -789,7 +793,8 @@ export function tippy_context_menu(
     instance.setContent(content);
 
     // Bind it to right click
-    target.on("contextmenu", async event => {
+    target.on(event_types, async event => {
+      event.stopPropagation();
       event.preventDefault();
       /*
         instance.setProps({

@@ -46,6 +46,7 @@ import { mm_owner } from "../mm-util/helpers";
 import type { ActionType } from "../action";
 import { InventoryDialog } from "../apps/inventory";
 import type { LancerGame } from "../lancer-game";
+import { HANDLER_activate_item_context_menus } from "../helpers/item";
 const lp = LANCER.log_prefix;
 
 /**
@@ -77,7 +78,8 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     this._activateActionGridListeners(html);
 
     // Make refs clickable to open the item
-    $(html).find(".ref.valid:not(.profile-img)").on("click", HANDLER_activate_ref_clicking);
+    // Replaced by context menu->edit. Commented code kept in case I missed one...
+    // $(html).find(".ref.valid:not(.profile-img)").on("click", HANDLER_activate_ref_clicking);
 
     // Enable ref dragging
     HANDLER_activate_ref_dragging(html);
@@ -217,27 +219,10 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
   // Simple listener:
   // - Upon right click of the element, retrieves the boolean data at the specified MM path and toggles it.
   async _activateContextListeners(html: JQuery) {
-    let elements = html.find("[data-context-menu]");
-    elements.on("contextmenu", async ev => {
-      ev.stopPropagation();
-      ev.preventDefault();
-
-      const params = ev.currentTarget.dataset;
-      const data = await this.getDataLazy();
-      if (params.path && params.field && params.contextMenu) {
-        const item = resolve_dotpath(data, params.path) as RegEntry<any>;
-        const field = params.field;
-
-        const ent = item as any;
-        if (params.contextMenu === "toggle" && ent[field] !== undefined) {
-          ent[field] = !ent[field];
-          item.writeback();
-        } else {
-          ent[field] = params.contextMenu;
-          item.writeback();
-        }
-      }
-    });
+    let getfunc = () => this.getDataLazy();
+    let commitfunc = (_: any) => this._commitCurrMM();
+    // Enable custom context menu triggers.
+    HANDLER_activate_item_context_menus(html, getfunc, commitfunc);
   }
 
   async _activateHexListeners(html: JQuery) {

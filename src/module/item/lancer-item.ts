@@ -3,9 +3,13 @@ import {
   EntryType,
   funcs,
   LiveEntryTypes,
+  MechSystem,
+  MechWeapon,
+  NpcFeature,
   NpcFeatureType,
   OpCtx,
   RangeType,
+  RegEntry,
   RegEntryTypes,
   RegRangeData,
 } from "machine-mind";
@@ -427,3 +431,15 @@ export function is_item_type(type: EntryType): type is LancerItemType {
 // export function has_lid<T extends AnyMMItem | AnyMMActor>(item: AnyMMItem | AnyMMActor): item is T & {ID: string} {
 // return (item as any).LID != undefined;
 // }
+
+export function is_reg_mech_weapon(item: RegEntry<any>): item is MechWeapon {
+  return item.Type === EntryType.MECH_WEAPON;
+}
+
+export function is_reg_mech_system(item: RegEntry<any>): item is MechSystem {
+  return item.Type === EntryType.MECH_SYSTEM;
+}
+
+export function is_reg_npc_feature(item: RegEntry<any>): item is NpcFeature {
+  return item.Type === EntryType.NPC_FEATURE;
+}
