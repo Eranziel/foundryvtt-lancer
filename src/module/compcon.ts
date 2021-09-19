@@ -21,8 +21,13 @@ export async function populatePilotCache(): Promise<CachedCloudPilot[]> {
     console.warn(`AWS Auth failed: ${e}`);
     return [];
   }
-  const res = await Storage.list("pilot", { level: "protected" });
-  const data: Array<PackedPilotData> = await Promise.all(res.map((obj: { key: string }) => fetchPilot(obj.key)));
+  const res = await Storage.list("pilot", {
+    level: "protected",
+    cacheControl: "no-cache",
+  });
+
+  const data: Array<PackedPilotData> =
+    await Promise.all(res.map((obj: { key: string }) => fetchPilot(obj.key)));
   data.forEach(pilot => {
     pilot.mechs = [];
     pilot.cloudOwnerID = cleanCloudOwnerID(pilot.cloudOwnerID);
@@ -59,6 +64,7 @@ export async function fetchPilot(cloudID: string, cloudOwnerID?: string): Promis
   const req: any = {
     level: "protected",
     download: true,
+    cacheControl: "no-cache",
   };
   if (cloudOwnerID) {
     req.identityId = cloudOwnerID;
