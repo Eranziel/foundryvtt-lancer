@@ -129,7 +129,7 @@ export class LancerActor extends Actor {
     if (getAutomationOptions().structure && !reroll_data) {
       if (ent.CurrentHeat > ent.HeatCapacity && ent.CurrentStress >= 0) {
         // https://discord.com/channels/426286410496999425/760966283545673730/789297842228297748
-        ent.CurrentHeat -= ent.HeatCapacity;
+        if (ent.CurrentStress > 1) ent.CurrentHeat -= ent.HeatCapacity;
         ent.CurrentStress -= 1;
       } else if (ent.CurrentHeat <= ent.HeatCapacity) {
         return;
