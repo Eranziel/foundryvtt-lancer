@@ -1410,11 +1410,11 @@ export function prepareStructureSecondaryRollMacro(registryId: string) {
   }
 }
 
-export async function prepareChargeMacro(a: string) {
+export async function prepareChargeMacro(a: string | LancerActor) {
   // Determine which Actor to speak as
-  let mech = getMacroSpeaker(a);
-  if (!mech || !mech.is_npc()) return;
-  const ent = mech.data.data.derived.mm;
+  let actor = getMacroSpeaker(a);
+  if (!actor || !actor.is_npc()) return;
+  const ent = actor.data.data.derived.mm;
   const feats = ent?.Features;
   if (!feats) return;
 
@@ -1440,13 +1440,13 @@ export async function prepareChargeMacro(a: string) {
 
   // Render template.
   const templateData = {
-    actorName: mech.name,
+    actorName: actor.name,
     roll: roll,
     roll_tooltip: roll_tt,
     changed: changed,
   };
   const template = `systems/${game.system.id}/templates/chat/charge-card.hbs`;
-  return renderMacroTemplate(mech, template, templateData);
+  return renderMacroTemplate(actor, template, templateData);
 }
 
 /**

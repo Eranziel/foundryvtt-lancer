@@ -382,7 +382,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     ChargeMacro.on("click", ev => {
       ev.stopPropagation(); // Avoids triggering parent event handlers
 
-      prepareChargeMacro(this.actor.id!);
+      prepareChargeMacro(this.actor);
     });
   }
 
