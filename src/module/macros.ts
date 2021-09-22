@@ -361,7 +361,7 @@ export function getMacroSpeaker(a_id?: string | LancerActor): LancerActor | unde
   const speaker = ChatMessage.getSpeaker();
   // console.log(`${lp} Macro speaker`, speaker);
   let actor: LancerActor | undefined;
-  console.log(game.actors!.tokens);
+  // console.log(game.actors!.tokens);
   if (speaker.token && Object.keys(game.actors!.tokens).includes(speaker.token)) {
     actor = game.actors!.tokens[speaker.token];
   }
