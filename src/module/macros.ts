@@ -1,7 +1,7 @@
 // Import TypeScript modules
 import { LANCER } from "./config";
 import type { LancerItem } from "./item/lancer-item";
-import type { AnyMMActor, LancerActor } from "./actor/lancer-actor";
+import type { LancerActor } from "./actor/lancer-actor";
 import { is_reg_mech } from "./actor/lancer-actor";
 import type {
   LancerAttackMacroData,
@@ -40,9 +40,10 @@ import { ActivationOptions, StabOptions1, StabOptions2 } from "./enums";
 import { applyCollapseListeners, uuid4 } from "./helpers/collapse";
 import { checkForHit } from "./helpers/automation/targeting";
 import type { AccDiffData, AccDiffDataSerialized, RollModifier } from "./helpers/acc_diff";
-import { is_overkill } from "machine-mind/dist/funcs";
+import { is_overkill, is_self_heat } from "machine-mind/dist/funcs";
 import type { LancerToken } from "./token";
 import { LancerGame } from "./lancer-game";
+import { getAutomationOptions } from "./settings";
 
 const lp = LANCER.log_prefix;
 
@@ -54,13 +55,16 @@ const encodedMacroWhitelist = [
   "prepareItemMacro",
   "prepareCoreActiveMacro",
   "prepareStructureSecondaryRollMacro",
+  "prepareOverheatMacro",
+  "prepareStructureMacro",
 ];
 
 export function encodeMacroData(data: LancerMacroData): string {
-  return btoa(encodeURI(JSON.stringify(data)));
+  return window.btoa(encodeURI(JSON.stringify(data)));
 }
 
 export async function runEncodedMacro(el: HTMLElement | LancerMacroData) {
+  console.log(el);
   let data: LancerMacroData | null = null;
 
   if (el instanceof HTMLElement) {
@@ -70,7 +74,7 @@ export async function runEncodedMacro(el: HTMLElement | LancerMacroData) {
       return;
     }
 
-    data = JSON.parse(decodeURI(atob(encoded))) as LancerMacroData;
+    data = JSON.parse(decodeURI(window.atob(encoded))) as LancerMacroData;
   } else {
     data = el as LancerMacroData;
   }
@@ -155,12 +159,6 @@ export async function onHotbarDrop(_bar: any, data: any, slot: number) {
         command = `game.lancer.prepareItemMacro("${actorId}", "${itemId}");`;
         img = `systems/${game.system.id}/assets/icons/macro-icons/mech_system.svg`;
         break;
-      case ActivationOptions.ACTION:
-        // This should be fully migrated to encoded
-        throw Error("This should be migrated");
-        command = `game.lancer.prepareActivationMacro("${actorId}", "${itemId}", "${ActivationOptions.ACTION}", "${data.number}");`;
-        img = `systems/${game.system.id}/assets/icons/macro-icons/mech_system.svg`;
-        break;
       case EntryType.NPC_FEATURE:
         switch (item.FeatureType) {
           case NpcFeatureType.Reaction:
@@ -185,10 +183,6 @@ export async function onHotbarDrop(_bar: any, data: any, slot: number) {
             break;
         }
         break;
-      case "HASE":
-        // This should be fully migrated to encoded
-        throw Error("This should be migrated");
-        command = `game.lancer.prepareStatMacro("${actorId}", "${data.dataPath}");`;
     }
 
     // TODO: Figure out if I am really going down this route and, if so, switch to a switch
@@ -357,13 +351,17 @@ export async function prepareItemMacro(a: string, i: string, options?: any) {
 /**
  * Get an actor to use for a macro. If an id is passed and the return is
  * `undefined` a warning notification will be displayed.
+ * @param a_id - The Actor to search for. If an id, try to search for the
+ *               appropriate actor to use, if an Actor document, use that doc.
  */
-export function getMacroSpeaker(a_id?: string): LancerActor | undefined {
+export function getMacroSpeaker(a_id?: string | LancerActor): LancerActor | undefined {
+  // If we have an actor already, we're gtg
+  if (a_id instanceof Actor) return a_id;
   // Determine which Actor to speak as
   const speaker = ChatMessage.getSpeaker();
   // console.log(`${lp} Macro speaker`, speaker);
   let actor: LancerActor | undefined;
-  console.log(game.actors!.tokens);
+  // console.log(game.actors!.tokens);
   if (speaker.token && Object.keys(game.actors!.tokens).includes(speaker.token)) {
     actor = game.actors!.tokens[speaker.token];
   }
@@ -385,6 +383,7 @@ export function getMacroSpeaker(a_id?: string): LancerActor | undefined {
 /**
  *
  */
+// TODO: Indexed types for templates
 export async function renderMacroTemplate(actor: LancerActor | undefined, template: string, templateData: any) {
   const cardUUID = uuid4();
   templateData._uuid = cardUUID;
@@ -430,6 +429,7 @@ export async function renderMacroHTML(actor: LancerActor | undefined, html: HTML
   return Promise.resolve();
 }
 
+/** TODO: Remove if not needed
 function getMacroActorItem(a: string, i: string): { actor: LancerActor | undefined; item: LancerItem | undefined } {
   let result: { actor: LancerActor | undefined; item: LancerItem | undefined } = { actor: undefined, item: undefined };
   // Find the Actor for a macro to speak as
@@ -444,6 +444,7 @@ function getMacroActorItem(a: string, i: string): { actor: LancerActor | undefin
   }
   return result;
 }
+ */
 
 function rollStr(bonus: number, total: number): string {
   let modStr = "";
@@ -660,6 +661,7 @@ async function prepareAttackMacro(
     mData.acc = 0;
     mData.tags = weaponData.Tags;
     mData.overkill = is_overkill(itemEnt);
+    mData.self_heat = is_self_heat(itemEnt);
     mData.effect = weaponData.Effect;
   } else if (actor.is_pilot() && item.is_pilot_weapon()) {
     pilotEnt = await actor.data.data.derived.mm_promise;
@@ -672,6 +674,7 @@ async function prepareAttackMacro(
     mData.acc = 0;
     mData.tags = weaponData.Tags;
     mData.overkill = is_overkill(itemEnt);
+    mData.self_heat = is_self_heat(itemEnt);
     mData.effect = weaponData.Effect;
   } else if (actor.is_npc() && item.is_npc_feature()) {
     const mm: NpcFeature = await item.data.data.derived.mm_promise;
@@ -700,6 +703,7 @@ async function prepareAttackMacro(
 
     mData.tags = mm.Tags;
     mData.overkill = funcs.is_overkill(mm);
+    mData.self_heat = is_self_heat(mm);
     mData.on_hit = mm.OnHit;
     mData.effect = mm.Effect;
   } else {
@@ -936,6 +940,7 @@ async function rollAttackMacro(
     d_type: DamageType;
   }> = [];
   let overkill_heat = 0;
+  let self_heat = 0;
 
   const has_normal_hit =
     (hits.length === 0 && !!attacks.find(attack => (attack.roll.total ?? 0) < 20)) ||
@@ -952,8 +957,8 @@ async function rollAttackMacro(
       let droll: Roll | undefined = new Roll(d_formula);
       // Add overkill if enabled.
       if (data.overkill) {
-        (<Die[]>droll.terms).forEach(term => {
-          if (term.faces) term.modifiers = ["x1", `kh${term.number}`].concat(term.modifiers);
+        droll.terms.forEach(term => {
+          if (term instanceof Die) term.modifiers = ["x1", `kh${term.number}`].concat(term.modifiers);
         });
       }
 
@@ -996,14 +1001,17 @@ async function rollAttackMacro(
     });
   }
 
+  if (data.self_heat) {
+    // Once the double tag thing is fixed, this should iterate over all tags
+    // instead just using the first one.
+    self_heat = parseInt(`${data.tags.find(tag => tag.Tag.LID === "tg_heat_self")?.Value ?? 0}`);
+  }
+
   // TODO: Heat (self) application
-  if (
-    game.settings.get(game.system.id, LANCER.setting_automation) &&
-    game.settings.get(game.system.id, LANCER.setting_overkill_heat)
-  ) {
+  if (getAutomationOptions().attack_self_heat) {
     let mment = await actor.data.data.derived.mm_promise;
     if (is_reg_mech(mment)) {
-      mment.CurrentHeat += overkill_heat;
+      mment.CurrentHeat += overkill_heat + self_heat;
       await mment.writeback();
     }
   }
@@ -1040,7 +1048,7 @@ async function getCritRoll(normal: Roll) {
   const dice_rolls = Array<DiceTerm.Result[]>(normal.terms.length);
   const keep_dice: number[] = Array(normal.terms.length).fill(0);
   normal.terms.forEach((term, i) => {
-    if (term instanceof DiceTerm) {
+    if (term instanceof Die) {
       dice_rolls[i] = term.results.map(r => {
         return { ...r };
       });
@@ -1049,7 +1057,7 @@ async function getCritRoll(normal: Roll) {
     }
   });
   t_roll.terms.forEach((term, i) => {
-    if (term instanceof DiceTerm) {
+    if (term instanceof Die) {
       dice_rolls[i].push(...term.results);
     }
   });
@@ -1069,7 +1077,7 @@ async function getCritRoll(normal: Roll) {
   // We can rebuild him. We have the technology. We can make him better than he
   // was. Better, stronger, faster
   const terms = normal.terms.map((t, i) => {
-    if (t instanceof DiceTerm) {
+    if (t instanceof Die) {
       return new Die({
         ...t,
         modifiers: (t.modifiers.filter(m => m.startsWith("kh")).length
@@ -1320,7 +1328,7 @@ export async function prepareOverchargeMacro(a: string) {
   }
 
   // And here too... we should probably revisit our type definitions...
-  let rollText = await actor.getOverchargeRoll();
+  let rollText = actor.getOverchargeRoll();
   if (!rollText) {
     ui.notifications!.warn(`Error in getting overcharge roll...`);
     return;
@@ -1340,10 +1348,7 @@ export async function prepareOverchargeMacro(a: string) {
   mech.OverchargeCount = Math.min(mech.OverchargeCount + 1, 3);
 
   // Only increase heat if we haven't disabled it
-  if (
-    game.settings.get(game.system.id, LANCER.setting_automation) &&
-    game.settings.get(game.system.id, LANCER.setting_pilot_oc_heat)
-  ) {
+  if (getAutomationOptions().overcharge_heat) {
     mech.CurrentHeat = mech.CurrentHeat + roll.total!;
   }
 
@@ -1405,11 +1410,11 @@ export function prepareStructureSecondaryRollMacro(registryId: string) {
   }
 }
 
-export async function prepareChargeMacro(a: string) {
+export async function prepareChargeMacro(a: string | LancerActor) {
   // Determine which Actor to speak as
-  let mech = getMacroSpeaker(a);
-  if (!mech || !mech.is_npc()) return;
-  const ent = mech.data.data.derived.mm;
+  let actor = getMacroSpeaker(a);
+  if (!actor || !actor.is_npc()) return;
+  const ent = actor.data.data.derived.mm;
   const feats = ent?.Features;
   if (!feats) return;
 
@@ -1435,40 +1440,82 @@ export async function prepareChargeMacro(a: string) {
 
   // Render template.
   const templateData = {
-    actorName: mech.name,
+    actorName: actor.name,
     roll: roll,
     roll_tooltip: roll_tt,
     changed: changed,
   };
   const template = `systems/${game.system.id}/templates/chat/charge-card.hbs`;
-  return renderMacroTemplate(mech, template, templateData);
+  return renderMacroTemplate(actor, template, templateData);
 }
 
 /**
  * Performs a roll on the overheat table for the given actor
- * @param a ID of actor to overheat
+ * @param a           - Actor or ID of actor to overheat
+ * @param reroll_data - Data to use if rerolling. Setting this also supresses the dialog.
  */
-export async function prepareOverheatMacro(a: string) {
+export async function prepareOverheatMacro(a: string | LancerActor, reroll_data?: { stress: number }): Promise<void> {
   // Determine which Actor to speak as
   let actor = getMacroSpeaker(a);
   if (!actor) return;
 
+  if (!actor.is_mech() && !actor.is_npc()) {
+    ui.notifications!.warn("Only Mechs and NPCs can overheat");
+    return;
+  }
+
+  if (getAutomationOptions().structure && !reroll_data) {
+    const ent = await actor.data.data.derived.mm_promise;
+    if (ent.CurrentHeat <= ent.HeatCapacity) {
+      ui.notifications!.info("Token heat is within heat cap.");
+      return;
+    }
+    const { open } = await import("./helpers/slidinghud");
+    try {
+      await open("stress", { stat: "stress", title: "Overheating", lancerActor: actor });
+    } catch (_e) {
+      return;
+    }
+  }
+
   // Hand it off to the actor to overheat
-  await actor.overheat();
+  await actor.overheat(reroll_data);
 }
 
 /**
  * Performs a roll on the structure table for the given actor
- * @param a ID of actor to structure
+ * @param a           - Actor or ID of actor to structure
+ * @param reroll_data - Data to use if rerolling. Setting this also supresses the dialog.
  */
-export async function prepareStructureMacro(a: string) {
+export async function prepareStructureMacro(
+  a: string | LancerActor,
+  reroll_data?: { structure: number }
+): Promise<void> {
   // Determine which Actor to speak as
   let actor = getMacroSpeaker(a);
-
   if (!actor) return;
 
+  if (!actor.is_mech() && !actor.is_npc()) {
+    ui.notifications!.warn("Only Mechs and NPCs can take struct damage");
+    return;
+  }
+
+  if (getAutomationOptions().structure && !reroll_data) {
+    const ent = await actor.data.data.derived.mm_promise;
+    if (ent.CurrentHP > 0) {
+      ui.notifications!.info("Token has hp remaining. No need to roll structure.");
+      return;
+    }
+    const { open } = await import("./helpers/slidinghud");
+    try {
+      await open("struct", { stat: "structure", title: "Structure Damage", lancerActor: actor });
+    } catch (_e) {
+      return;
+    }
+  }
+
   // Hand it off to the actor to structure
-  await actor.structure();
+  await actor.structure(reroll_data);
 }
 
 export async function prepareActivationMacro(
@@ -1600,12 +1647,12 @@ async function _prepareDeployableMacro(
   await renderMacroHTML(actorEnt.Flags.orig_doc, buildDeployableHTML(dep, true));
 }
 
-export async function fullRepairMacro(a: string) {
+export function fullRepairMacro(a: string) {
   // Determine which Actor to speak as
   let actor = getMacroSpeaker(a);
-  if (!actor) return;
+  if (!actor) return Promise.reject();
 
-  return new Promise<number>((_resolve, reject) => {
+  return new Promise<boolean>((resolve, reject) => {
     new Dialog({
       title: `FULL REPAIR - ${actor?.name}`,
       content: `<h3>Are you sure you want to fully repair the ${actor?.data.type} ${actor?.name}?`,
@@ -1615,23 +1662,23 @@ export async function fullRepairMacro(a: string) {
           label: "Yes",
           callback: async _dlg => {
             // Gotta typeguard the actor again
-            if (!actor) return;
+            if (!actor) {
+              return reject();
+            }
 
             await actor.full_repair();
-
             prepareTextMacro(a, "REPAIRED", `Notice: ${actor.name} has been fully repaired.`);
+            resolve(true);
           },
         },
         cancel: {
           icon: '<i class="fas fa-times"></i>',
           label: "No",
-          callback: async () => {
-            reject(true);
-          },
+          callback: async () => resolve(false),
         },
       },
       default: "submit",
-      close: () => reject(true),
+      close: () => resolve(false),
     }).render(true);
   });
 }
@@ -1639,11 +1686,11 @@ export async function fullRepairMacro(a: string) {
 export async function stabilizeMacro(a: string) {
   // Determine which Actor to speak as
   let actor = getMacroSpeaker(a);
-  if (!actor) return;
+  if (!actor) return Promise.reject();
 
   let template = await renderTemplate(`systems/${game.system.id}/templates/window/promptStabilize.hbs`, {});
 
-  return new Promise<number>((_resolve, reject) => {
+  return new Promise<boolean>((resolve, reject) => {
     new Dialog({
       title: `STABILIZE - ${actor?.name}`,
       content: template,
@@ -1653,7 +1700,7 @@ export async function stabilizeMacro(a: string) {
           label: "Submit",
           callback: async dlg => {
             // Gotta typeguard the actor again
-            if (!actor) return;
+            if (!actor) return reject();
 
             let o1 = <StabOptions1>$(dlg).find(".stabilize-options-1:checked").first().val();
             let o2 = <StabOptions2>$(dlg).find(".stabilize-options-2:checked").first().val();
@@ -1667,18 +1714,17 @@ export async function stabilizeMacro(a: string) {
               `${actor.name?.capitalize()} HAS STABILIZED`,
               `${actor.name} has stabilized.<br>${text}`
             );
+            return resolve(true);
           },
         },
         cancel: {
           icon: '<i class="fas fa-times"></i>',
           label: "Cancel",
-          callback: async () => {
-            reject(true);
-          },
+          callback: async () => resolve(false),
         },
       },
       default: "submit",
-      close: () => reject(true),
+      close: () => resolve(false),
     }).render(true);
   });
 }
@@ -1703,7 +1749,7 @@ export function targetsFromTemplate(templateId: string): void {
   const targets = canvas
     .tokens!.placeables.filter(t => {
       let skip = ignore.tokens.includes(t.id) || ignore.dispositions.includes(t.data.disposition);
-      return !skip && test_token(<LancerToken>t);
+      return !skip && test_token(t);
     })
     .map(t => t.id);
   game.user!.updateTokenTargets(targets);

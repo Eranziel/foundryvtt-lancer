@@ -54,8 +54,7 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
         ev.stopPropagation(); // Avoids triggering parent event handlers
 
         const el = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
-        // @ts-ignore
-        let id = this.token && !this.token.isLinked ? this.token.id : this.actor.id!;
+        let id = this.token && !this.token.isLinked ? this.token.id! : this.actor.id!;
         prepareItemMacro(id, <string>el.getAttribute("data-id")).then();
       });
 
@@ -75,8 +74,7 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
           bonus: statInput.value,
         };
 
-        // @ts-ignore
-        let id = this.token && !this.token.isLinked ? this.token.id : this.actor.id!;
+        let id = this.token && !this.token.isLinked ? this.token.id! : this.actor.id!;
         console.log(`${lp} Rolling ${mData.title} check, bonus: ${mData.bonus}`);
         prepareStatMacro(id, this.getStatPath(ev)!);
       });
@@ -91,8 +89,7 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
         ev.stopPropagation();
         const techElement = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
         let techId = techElement.getAttribute("data-id");
-        // @ts-ignore
-        let id = this.token && !this.token.isLinked ? this.token.id : this.actor.id!;
+        let id = this.token && !this.token.isLinked ? this.token.id! : this.actor.id!;
         prepareItemMacro(id, techId!);
       });
 

@@ -12,7 +12,7 @@ import {
   HANDLER_activate_ref_drop_clearing,
   HANDLER_activate_ref_drop_setting,
   HANDLER_add_ref_to_list_on_drop,
-  HANDLER_openRefOnClick,
+  HANDLER_activate_ref_clicking,
 } from "../helpers/refs";
 import { OpCtx } from "machine-mind";
 import { HANDLER_activate_edit_bonus, HANDLER_activate_profile_context_menus } from "../helpers/item";
@@ -78,7 +78,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
     super.activateListeners(html);
 
     // Make refs clickable
-    $(html).find(".ref.valid").on("click", HANDLER_openRefOnClick);
+    $(html).find(".ref.valid:not(.profile-img)").on("click", HANDLER_activate_ref_clicking);
 
     // Enable ref dragging
     HANDLER_activate_ref_dragging(html);

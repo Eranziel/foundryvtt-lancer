@@ -10,7 +10,7 @@ import {
   HANDLER_activate_ref_dragging,
   HANDLER_activate_ref_drop_clearing,
   HANDLER_activate_ref_drop_setting,
-  HANDLER_openRefOnClick as HANDLER_activate_ref_clicking,
+  HANDLER_activate_ref_clicking,
 } from "../helpers/refs";
 import type { LancerActorSheetData, LancerStatMacroData } from "../interfaces";
 import type { AnyMMItem } from "../item/lancer-item";
@@ -32,7 +32,6 @@ import {
   OpCtx,
   PilotGear,
   PilotWeapon,
-  RegEntry,
   WeaponMod,
   funcs,
   Mech,
@@ -46,6 +45,7 @@ import { mm_owner } from "../mm-util/helpers";
 import type { ActionType } from "../action";
 import { InventoryDialog } from "../apps/inventory";
 import type { LancerGame } from "../lancer-game";
+import { HANDLER_activate_item_context_menus } from "../helpers/item";
 const lp = LANCER.log_prefix;
 
 /**
@@ -76,8 +76,8 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     // Enable any action grid buttons.
     this._activateActionGridListeners(html);
 
-    // Make refs clickable to open the item
-    $(html).find(".ref.valid").on("click", HANDLER_activate_ref_clicking);
+    // Make generic refs clickable to open the item
+    $(html).find(".ref.valid.clickable-ref:not(.profile-img)").on("click", HANDLER_activate_ref_clicking);
 
     // Enable ref dragging
     HANDLER_activate_ref_dragging(html);
@@ -193,7 +193,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
 
     if (!encoded) throw Error("No macro data available");
 
-    let data = JSON.parse(decodeURI(atob(encoded)));
+    let data = JSON.parse(decodeURI(window.atob(encoded)));
     e.dataTransfer?.setData("text/plain", JSON.stringify(data));
   }
 
@@ -217,27 +217,10 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
   // Simple listener:
   // - Upon right click of the element, retrieves the boolean data at the specified MM path and toggles it.
   async _activateContextListeners(html: JQuery) {
-    let elements = html.find("[data-context-menu]");
-    elements.on("contextmenu", async ev => {
-      ev.stopPropagation();
-      ev.preventDefault();
-
-      const params = ev.currentTarget.dataset;
-      const data = await this.getDataLazy();
-      if (params.path && params.field && params.contextMenu) {
-        const item = resolve_dotpath(data, params.path) as RegEntry<any>;
-        const field = params.field;
-
-        const ent = item as any;
-        if (params.contextMenu === "toggle" && ent[field] !== undefined) {
-          ent[field] = !ent[field];
-          item.writeback();
-        } else {
-          ent[field] = params.contextMenu;
-          item.writeback();
-        }
-      }
-    });
+    let getfunc = () => this.getDataLazy();
+    let commitfunc = (_: any) => this._commitCurrMM();
+    // Enable custom context menu triggers.
+    HANDLER_activate_item_context_menus(html, getfunc, commitfunc);
   }
 
   async _activateHexListeners(html: JQuery) {
@@ -333,8 +316,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       const weapon = this.actor.items.get(weaponId);
       if (!weapon) return ui.notifications!.warn(`Error rolling macro: Couldn't find weapon with ID ${weaponId}.`);
 
-      // @ts-ignore
-      let id = this.token && !this.token.isLinked ? this.token.id : this.actor.id!;
+      let id = this.token && !this.token.isLinked ? this.token.id! : this.actor.id!;
       prepareItemMacro(id, weapon.id!);
     });
 
@@ -353,8 +335,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
 
       const el = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
 
-      // @ts-ignore
-      let id = this.token && !this.token.isLinked ? this.token.id : this.actor.id!;
+      let id = this.token && !this.token.isLinked ? this.token.id! : this.actor.id!;
       prepareItemMacro(id, el.getAttribute("data-id")!);
     });
 
@@ -401,7 +382,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     ChargeMacro.on("click", ev => {
       ev.stopPropagation(); // Avoids triggering parent event handlers
 
-      prepareChargeMacro(this.actor.id!);
+      prepareChargeMacro(this.actor);
     });
   }
 
@@ -659,7 +640,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
   _propagateMMData(formData: any): any {
     // Pushes relevant field data from the form to other appropriate locations,
     // e.x. to synchronize name between token and actor
-    let token: any = this.actor.data["token"];
+    let token = this.actor.data["token"];
 
     // Get the basics
     let new_top: any = {

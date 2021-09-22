@@ -219,7 +219,7 @@ export class AccDiffTarget {
   }
 
   get lockOnAvailable(): null | ActiveEffect {
-    return findEffect(this.target.actor as LancerActor, "lockon");
+    return findEffect(this.target.actor!, "lockon");
   }
 
   get total() {
