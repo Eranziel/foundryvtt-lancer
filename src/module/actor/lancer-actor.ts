@@ -681,7 +681,7 @@ export class LancerActor extends Actor {
           let portrait = mech.CloudPortrait || mech.Frame?.ImageUrl || "";
           let new_img = replace_default_resource(flags.top_level_data["img"], portrait);
           let mech_actor = await mech.Flags.orig_doc as LancerActor
-          
+
           flags.top_level_data["name"] = mech.Name;
           flags.top_level_data["folder"] = unit_folder ? unit_folder.id : null;
           flags.top_level_data["img"] = new_img;
@@ -692,7 +692,7 @@ export class LancerActor extends Actor {
 
           // Check and see if we have a custom token (not from imgur) set, and if we don't, set the token image.
           if (
-            mech_actor.data.token.img && 
+            this.data.token.img === CONST.DEFAULT_TOKEN ||
             mech_actor.data.token.img.includes("imgur")
           ) {
             flags.top_level_data["token.img"] = new_img;
