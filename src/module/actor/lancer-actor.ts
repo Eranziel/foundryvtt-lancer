@@ -680,15 +680,22 @@ export class LancerActor extends Actor {
           let flags = mech.Flags as FoundryFlagData<EntryType.MECH>;
           let portrait = mech.CloudPortrait || mech.Frame?.ImageUrl || "";
           let new_img = replace_default_resource(flags.top_level_data["img"], portrait);
-
+          let mech_actor = await mech.Flags.orig_doc as LancerActor
           flags.top_level_data["name"] = mech.Name;
           flags.top_level_data["folder"] = unit_folder ? unit_folder.id : null;
           flags.top_level_data["img"] = new_img;
           flags.top_level_data["permission"] = permission;
-          flags.top_level_data["token.img"] = new_img;
           flags.top_level_data["token.name"] = data.callsign;
           flags.top_level_data["token.disposition"] = this.data.token.disposition;
           flags.top_level_data["token.actorLink"] = true;
+
+          // Check and see if we have a custom token (not from imgur) set, and if we don't, set the token image.
+          if (
+            !mech_actor.data.token.img ||
+            (mech_actor.data.token.img && mech_actor.data.token.img.includes("imgur"))
+          ) {
+            flags.top_level_data["token.img"] = new_img;
+          }
 
           await mech.writeback();
 
@@ -710,7 +717,15 @@ export class LancerActor extends Actor {
           flags.top_level_data["name"] = pilot.Name;
           flags.top_level_data["img"] = new_img;
           flags.top_level_data["token.name"] = pilot.Callsign;
-          flags.top_level_data["token.img"] = new_img;
+          
+          // Check and see if we have a custom token (not from imgur) set, and if we don't, set the token image.
+          if (
+            !this.data.token.img ||
+            (this.data.token.img && this.data.token.img.includes("imgur"))
+          ) {
+            flags.top_level_data["token.img"] = new_img;
+          }
+
         },
       });
 
