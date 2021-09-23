@@ -12,7 +12,7 @@
     "build": "gulp build",
     "link": "gulp link",
     "build:watch": "gulp watch",
-    "watch": "gulp serve",
+    "watch": "gulp watch",
     "serve": "gulp serve",
     "format": "prettier --write --config .prettierrc.json 'src/**/*.ts'",
     "clean": "rm -fR dist && gulp link --clean"
