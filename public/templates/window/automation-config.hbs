@@ -50,6 +50,17 @@
     <p class="notes">{{ localize "lancer.automation.attack_self_heat-desc" }}</p>
   </div>
   <div class="form-group">
+    <label>{{ localize "lancer.automation.limited_loading" }}</label>
+    <input
+        type="checkbox"
+        name="limited_loading"
+        {{#if limited_loading}}checked{{/if}}
+        {{#unless enabled}}disabled{{/unless}}
+        data-dtype="Boolean"
+    />
+    <p class="notes">{{ localize "lancer.automation.limited_loading-desc" }}</p>
+  </div>
+  <div class="form-group">
     <label>{{ localize "lancer.automation.remove_templates" }}</label>
     <input
         type="checkbox"

@@ -748,7 +748,7 @@ async function prepareAttackMacro(
     }
   }
   // Check if weapon if loaded.
-  if (game.settings.get(game.system.id, LANCER.setting_automation_attack)) {
+  if (getAutomationOptions().limited_loading && getAutomationOptions().attacks) {
     if (is_loading(itemEnt) && !itemEnt.Loaded) {
       ui.notifications!.warn(`Weapon ${item.data.data.name} is not loaded!`);
       return;
@@ -781,7 +781,7 @@ async function prepareAttackMacro(
   const atkRolls = attackRolls(mData.grit, promptedData);
 
   // Deduct charge if LOADING weapon.
-  if (game.settings.get(game.system.id, LANCER.setting_automation_attack)) {
+  if (getAutomationOptions().limited_loading && getAutomationOptions().attacks) {
     if(is_loading(itemEnt)) {
       itemEnt.Loaded = false;
       await itemEnt.writeback();
@@ -1552,7 +1552,7 @@ export async function prepareActivationMacro(
   let itemEnt: MechSystem | NpcFeature | Talent = await item.data.data.derived.mm_promise;
   let actorEnt: Mech | Pilot = await actor.data.data.derived.mm_promise;
 
-  if(is_tagged(itemEnt) && is_limited(itemEnt) && itemEnt.Uses <= 0) {
+  if(getAutomationOptions().limited_loading && is_tagged(itemEnt) && is_limited(itemEnt) && itemEnt.Uses <= 0) {
     ui.notifications!.error(
       `Error using item--you have no uses left!`
     );
@@ -1583,7 +1583,7 @@ export async function prepareActivationMacro(
   }
   
   // Wait until the end to deduct a use so we're sure it completed succesfully
-  if(is_tagged(itemEnt) && is_limited(itemEnt)) {
+  if(getAutomationOptions().limited_loading && is_tagged(itemEnt) && is_limited(itemEnt)) {
     itemEnt.Uses = itemEnt.Uses - 1;
     await itemEnt.writeback();
   }
