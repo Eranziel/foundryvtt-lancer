@@ -1,7 +1,7 @@
 # 1.0.3 (2021-09-22)
 ## Features
 * Reorganized system automation settings into their own sub-menu.
-* Structure/stress macros now use a HUD similar to attacks, improved logic, and automatically trigger (unless disabled via automation settings) when hp < 0 and heat > max.
+* Structure/stress macros now use a HUD similar to attacks, improved logic, and automatically trigger (unless disabled via automation settings) when hp <= 0 and heat > max.
 * #229 - Weapons with the self heat tag now apply heat to the owner when used.
 * Add context menus to item preview cards with options to edit, remove, and mark as destroyed/repaired. Replaces the static delete buttons and "click *almost* anywhere to open the item" functionality.
 
