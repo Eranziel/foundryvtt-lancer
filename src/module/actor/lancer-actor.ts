@@ -692,7 +692,7 @@ export class LancerActor extends Actor {
 
           // Check and see if we have a custom token (not from imgur) set, and if we don't, set the token image.
           if (
-            this.data.token.img === CONST.DEFAULT_TOKEN ||
+            this.data.token.img === "systems/lancer/assets/icons/mech.svg" ||
             mech_actor.data.token.img.includes("imgur")
           ) {
             flags.top_level_data["token.img"] = new_img;
@@ -721,7 +721,7 @@ export class LancerActor extends Actor {
           
           // Check and see if we have a custom token (not from imgur) set, and if we don't, set the token image.
           if (
-            this.data.token.img === CONST.DEFAULT_TOKEN ||
+            this.data.token.img === "systems/lancer/assets/icons/pilot.svg" ||
             this.data.token.img.includes("imgur")
           ) {
             flags.top_level_data["token.img"] = new_img;
