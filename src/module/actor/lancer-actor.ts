@@ -680,7 +680,6 @@ export class LancerActor extends Actor {
           let flags = mech.Flags as FoundryFlagData<EntryType.MECH>;
           let portrait = mech.CloudPortrait || mech.Frame?.ImageUrl || "";
           let new_img = replace_default_resource(flags.top_level_data["img"], portrait);
-          let mech_actor = await mech.Flags.orig_doc as LancerActor
 
           flags.top_level_data["name"] = mech.Name;
           flags.top_level_data["folder"] = unit_folder ? unit_folder.id : null;
@@ -689,14 +688,6 @@ export class LancerActor extends Actor {
           flags.top_level_data["token.name"] = data.callsign;
           flags.top_level_data["token.disposition"] = this.data.token.disposition;
           flags.top_level_data["token.actorLink"] = true;
-
-          // Check and see if we have a custom token (not from imgur) set, and if we don't, set the token image.
-          if (
-            this.data.token.img === "systems/lancer/assets/icons/mech.svg" ||
-            mech_actor.data.token.img.includes("imgur")
-          ) {
-            flags.top_level_data["token.img"] = new_img;
-          }
 
           await mech.writeback();
 
@@ -720,7 +711,7 @@ export class LancerActor extends Actor {
           // Check and see if we have a custom token (not from imgur) set, and if we don't, set the token image.
           if (
             this.data.token.img === "systems/lancer/assets/icons/pilot.svg" ||
-            this.data.token.img.includes("imgur")
+            this.data.token.img?.includes("imgur")
           ) {
             flags.top_level_data["token.img"] = new_img;
           }
@@ -1237,14 +1228,20 @@ export class LancerActor extends Actor {
     // Add manual check for the aws images
     if (
       this.data.img == oldFramePath ||
-      this.data.img == defaultImg ||
-      this.data.img?.includes("compcon-image-assets")
+      this.data.img == defaultImg 
     ) {
       newData.img = newFramePath;
 
       // Have to set our top level data in MM or it will overwrite it...
       robot.Flags.top_level_data.img = newFramePath;
-      robot.Flags.top_level_data["token.img"] = newFramePath;
+      if (this.data.token.img?.includes("systems/lancer/assets/retrograde-minis") || this.data.token.img == defaultImg ){
+        //we can override any retrograde assets, or the default image
+        robot.Flags.top_level_data["token.img"] = newFramePath;
+      }
+      else {
+        //do not override any custom tokens
+        robot.Flags.top_level_data["token.img"] = this.data.token.img;
+      }
       changed = true;
     }
 
