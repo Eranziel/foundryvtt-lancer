@@ -701,10 +701,8 @@ export class LancerActor extends Actor {
           await mech.writeback();
 
           // If we've got a frame (which we should) check for setting Retrograde image
-          // Also check that we don't have a custom image, which would be on imgur. If so, preserve it.
           if (
             mech.Frame &&
-            !new_img.includes("imgur") &&
             (await (mech.Flags.orig_doc as LancerActor).swapFrameImage(mech, null, mech.Frame))
           ) {
             // Write back again if we swapped images
