@@ -1225,7 +1225,6 @@ export class LancerActor extends Actor {
     }
 
     // Check the actor
-    // Add manual check for the aws images
     if (
       this.data.img == oldFramePath ||
       this.data.img == defaultImg 
