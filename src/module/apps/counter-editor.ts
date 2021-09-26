@@ -1,4 +1,4 @@
-import { Counter } from "machine-mind";
+import { Counter, RegEntry } from "machine-mind";
 import { gentle_merge, resolve_dotpath } from "../helpers/commons";
 
 /**
@@ -53,7 +53,7 @@ export class CounterEditDialog<O> extends Dialog {
     static async edit_counter<T>(
         in_object: T,
         at_path: string,
-        commit_callback: () =>  Promise<void>
+        writeback_obj: RegEntry<any>
         ): Promise<void> {
             return new Promise((resolve, _reject) => {
                 const dlg = new this(in_object, at_path, {
@@ -72,9 +72,11 @@ export class CounterEditDialog<O> extends Dialog {
                                 .each((_i, elt) => {
                                     // Retrieve input info
                                     let name = elt.name;
-                                    let val: boolean | string;
+                                    let val: boolean | string | number;
                                     if (elt.type == "text") {
                                         val = elt.value;
+                                    } else if (elt.type == "number") {
+                                        val = parseInt(elt.value);
                                     } else if (elt.type == "checkbox") {
                                         val = elt.checked;
                                     } else {
@@ -82,12 +84,12 @@ export class CounterEditDialog<O> extends Dialog {
                                     }
                                     
                                     // Add to form
-                                    flat_data[name] = val;
+                                    flat_data[at_path.concat(".").concat(name)] = val;
                                 });
-                                
+
                                 // Do the merge
                                 gentle_merge(in_object, flat_data);
-                                resolve(Promise.resolve(commit_callback()));
+                                resolve(writeback_obj.writeback());
                             },
                         },
                         cancel: {

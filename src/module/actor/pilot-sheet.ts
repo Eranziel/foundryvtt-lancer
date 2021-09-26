@@ -308,16 +308,16 @@ export function pilot_counters(ent: Pilot, _helper: HelperOptions): string {
     counter_detail = counter_detail.concat(
       buildCounterHTML(
         counter_arr[i].counter,
-        `mm.Allcounters.${i}.counter`,
-        true,
-        `ent.AllCounters.${i}.source`
+        `mm.AllCounters.${i}.counter`,
+        `mm.AllCounters.${i}.source`,
+        true
       )
     );
   }
   // Now do our CustomCounters
   for (let i = 0; i < ent.CustomCounters.length; i++) {
     counter_detail = counter_detail.concat(
-      buildCounterHTML(ent.CustomCounters[i], `mm.CustomCounters.${i}`, true, "mm")
+      buildCounterHTML(ent.CustomCounters[i], `mm.CustomCounters.${i}`, "mm", true)
     );
   }
 

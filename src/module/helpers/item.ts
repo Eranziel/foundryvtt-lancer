@@ -383,14 +383,15 @@ export function HANDLER_activate_edit_counter<T>(
     // Find the counter
     let path = evt.currentTarget.dataset.path;
     let writeback_path = evt.currentTarget.dataset.writeback_path
-    if(!path || !writeback_path) return;
+    if(!path || !writeback_path) throw "Counters weren't set up right"
 
     let data = await data_getter();
 
     let writeback_obj: RegEntry<any> | null  = resolve_dotpath(data,writeback_path)
-    if(!writeback_obj) return;
 
-    return CounterEditDialog.edit_counter(data,path,writeback_obj.writeback).catch(e => console.error("Dialog failed", e));
+    if(!writeback_obj) throw "Writeback is broken";
+
+    return CounterEditDialog.edit_counter(data,path,writeback_obj).catch(e => console.error("Dialog failed", e));
   });
 }
 
@@ -981,26 +982,21 @@ export function buildSystemHTML(data: MechSystem): string {
 export function buildCounterHTML(
   data: Counter,
   path: string,
-  editable?: boolean,
-  writeback_path?: string
+  writeback_path: string,
+  editable?: boolean
 ): string {
+  
+  // Keep it optionally editale just in case
   let editHTML = "";
-
-  if(editable && !writeback_path) {
-    console.error("Building counter incorrectly, editing without writeback");
-    return `<h1>ERROR</h1>`;
-  }
-
   if (editable) {
     editHTML = `<a class="fas fa-edit counter-edit-button" data-path="${path}" data-writeback_path="${writeback_path}"> </a>`;
   } 
 
-  
   let hexes = [...Array(data.Max)].map((_ele, index) => {
     const available = index + 1 <= data.Value;
-    return `<i class="uses-hex mdi ${
+    return `<i class="counter-hex mdi ${
       available ? "mdi-hexagon-slice-6" : "mdi-hexagon-outline"
-    } theme--light" data-available="${available}" data-path="${path}"></i>`;
+    } theme--light" data-available="${available}" data-path="${path}" data-writeback="${writeback_path}"></i>`;
   });
 
   return `
@@ -1010,7 +1006,7 @@ export function buildCounterHTML(
       ${editHTML}
     </div>
     <div class="flexrow flex-center no-wrap">
-      ${hexes}
+      ${hexes.join("")}
     </div>
   </div>`;
 }
@@ -1032,7 +1028,7 @@ export function buildCounterArrayHTML(
   if (counters.length > 0) {
     if (isCounters(counters)) {
       for (let i = 0; i < counters.length; i++) {
-        counter_detail = counter_detail.concat(buildCounterHTML(counters[i], path.concat(`.${i}`), fully_editable));
+        counter_detail = counter_detail.concat(buildCounterHTML(counters[i], path.concat(`.${i}`), "mm", true));
       }
     } else {
       counter_arr = counters.map(x => {
@@ -1040,7 +1036,7 @@ export function buildCounterArrayHTML(
       });
       for (let i = 0; i < counters.length; i++) {
         counter_detail = counter_detail.concat(
-          buildCounterHTML(counter_arr[i], path.concat(`.${i}.counter`), fully_editable, path.concat(`.${i}.source`))
+          buildCounterHTML(counter_arr[i], path.concat(`.${i}.counter`), path.concat(`.${i}.source`), true)
         );
       }
     }
