@@ -46,6 +46,7 @@ import { mm_owner } from "../mm-util/helpers";
 import type { ActionType } from "../action";
 import { InventoryDialog } from "../apps/inventory";
 import type { LancerGame } from "../lancer-game";
+import { HANDLER_activate_edit_counter } from "../helpers/item";
 const lp = LANCER.log_prefix;
 
 /**
@@ -126,6 +127,8 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
 
     // Enable popout editors
     HANDLER_activate_popout_text_editor(html, getfunc, commitfunc);
+
+    HANDLER_activate_edit_counter(html, getfunc);
 
     // Add export button.
     addExportButton(this.object, html);

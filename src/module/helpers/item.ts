@@ -29,6 +29,7 @@ import {
   Counter,
   funcs,
   MechWeaponProfile,
+  RegEntry
 } from "machine-mind";
 import type { MechWeapon, TagInstance } from "machine-mind";
 import { BonusEditDialog } from "../apps/bonus-editor";
@@ -65,6 +66,7 @@ import { is_limited, is_loading } from "machine-mind/dist/classes/mech/EquipUtil
 import type { CollapseRegistry } from "./loadout";
 import { uuid4 } from "./collapse";
 import { promptText } from "../apps/simple-prompt";
+import { CounterEditDialog } from "../apps/counter-editor";
 
 /**
  * Handlebars helper for weapon size selector
@@ -369,6 +371,26 @@ export function HANDLER_activate_edit_bonus<T>(
     if (!bonus_path) return;
     let data = await data_getter();
     return BonusEditDialog.edit_bonus(data, bonus_path, commit_func).catch(e => console.error("Dialog failed", e));
+  });
+}
+
+// Allows counter editing
+export function HANDLER_activate_edit_counter<T>(
+  html: JQuery,
+  data_getter: () => Promise<T> | T,
+) {
+  html.find(".counter-edit-button").on("click", async evt => {
+    // Find the counter
+    let path = evt.currentTarget.dataset.path;
+    let writeback_path = evt.currentTarget.dataset.writeback_path
+    if(!path || !writeback_path) return;
+
+    let data = await data_getter();
+
+    let writeback_obj: RegEntry<any> | null  = resolve_dotpath(data,writeback_path)
+    if(!writeback_obj) return;
+
+    return CounterEditDialog.edit_counter(data,path,writeback_obj.writeback).catch(e => console.error("Dialog failed", e));
   });
 }
 
@@ -959,52 +981,36 @@ export function buildSystemHTML(data: MechSystem): string {
 export function buildCounterHTML(
   data: Counter,
   path: string,
-  fully_editable?: boolean,
-  item_path?: string,
-  actor_level?: boolean,
-  array_path?: string
+  editable?: boolean,
+  writeback_path?: string
 ): string {
-  let editHTML: string;
-  let nameChunk: string;
+  let editHTML = "";
 
-  if (fully_editable) {
-    editHTML = `
-    <input class="lancer-stat lancer-stat" type="number" name="${path.concat(".Value")}" value="${
-      data.Value
-    }" data-dtype="Number" style="justify-content: left"/>
-    <span>/</span>
-    <input class="lancer-stat lancer-stat" type="number" name="${path.concat(".Max")}" value="${
-      data.Max
-    }" data-dtype="Number" style="justify-content: left"/>`;
-  } else {
-    editHTML = `
-    <input class="lancer-stat lancer-stat" type="number" name="${path.concat(".Value")}" value="${
-      data.Value
-    }" data-dtype="Number" data-commit-item="${item_path}" style="justify-content: left"/>
-    <span>/</span>
-    <span>${data.Max}</span>`;
+  if(editable && !writeback_path) {
+    console.error("Building counter incorrectly, editing without writeback");
+    return `<h1>ERROR</h1>`;
   }
 
-  if (actor_level)
-    nameChunk = `<input class="counter-name" name="${path.concat(".Name")}" value="${
-      data.Name
-    }" type="text" data-dtype="text" />`;
-  else nameChunk = data.Name;
+  if (editable) {
+    editHTML = `<a class="fas fa-edit counter-edit-button" data-path="${path}" data-writeback_path="${writeback_path}"> </a>`;
+  } 
+
+  
+  let hexes = [...Array(data.Max)].map((_ele, index) => {
+    const available = index + 1 <= data.Value;
+    return `<i class="uses-hex mdi ${
+      available ? "mdi-hexagon-slice-6" : "mdi-hexagon-outline"
+    } theme--light" data-available="${available}" data-path="${path}"></i>`;
+  });
 
   return `
   <div class="card clipped-bot counter-wrapper">
     <div class="lancer-header ">
-      <span>// ${nameChunk} //</span>
-      ${
-        actor_level
-          ? `<a class="gen-control" data-action="splice" data-path="${
-              array_path ? array_path : path
-            }"><i class="fas fa-trash"></i></a>`
-          : ""
-      }
+      <span>// ${data.Name} //</span>
+      ${editHTML}
     </div>
     <div class="flexrow flex-center no-wrap">
-      ${editHTML}
+      ${hexes}
     </div>
   </div>`;
 }

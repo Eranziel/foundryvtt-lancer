@@ -309,16 +309,15 @@ export function pilot_counters(ent: Pilot, _helper: HelperOptions): string {
       buildCounterHTML(
         counter_arr[i].counter,
         `mm.Allcounters.${i}.counter`,
-        false,
-        `ent.AllCounters.${i}.source`,
-        false
+        true,
+        `ent.AllCounters.${i}.source`
       )
     );
   }
   // Now do our CustomCounters
   for (let i = 0; i < ent.CustomCounters.length; i++) {
     counter_detail = counter_detail.concat(
-      buildCounterHTML(ent.CustomCounters[i], `mm.CustomCounters.${i}`, true, "", true)
+      buildCounterHTML(ent.CustomCounters[i], `mm.CustomCounters.${i}`, true, "mm")
     );
   }
 
@@ -328,7 +327,9 @@ export function pilot_counters(ent: Pilot, _helper: HelperOptions): string {
       <span>COUNTERS</span>
       <a class="gen-control fas fa-plus" data-action="append" data-path="${custom_path}" data-action-value="(struct)counter"></a>
     </span>
-    ${counter_detail}
+    <div class="wraprow double">
+      ${counter_detail}
+    </div>
   </div>`;
 }
 
