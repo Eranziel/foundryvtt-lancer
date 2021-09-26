@@ -362,7 +362,7 @@ export function getMacroSpeaker(a_id?: string | LancerActor): LancerActor | unde
   const speaker = ChatMessage.getSpeaker();
   // console.log(`${lp} Macro speaker`, speaker);
   let actor: LancerActor | undefined;
-  console.log(game.actors!.tokens);
+  // console.log(game.actors!.tokens);
   if (speaker.token && Object.keys(game.actors!.tokens).includes(speaker.token)) {
     actor = game.actors!.tokens[speaker.token];
   }
@@ -1412,11 +1412,11 @@ export function prepareStructureSecondaryRollMacro(registryId: string) {
   }
 }
 
-export async function prepareChargeMacro(a: string) {
+export async function prepareChargeMacro(a: string | LancerActor) {
   // Determine which Actor to speak as
-  let mech = getMacroSpeaker(a);
-  if (!mech || !mech.is_npc()) return;
-  const ent = mech.data.data.derived.mm;
+  let actor = getMacroSpeaker(a);
+  if (!actor || !actor.is_npc()) return;
+  const ent = actor.data.data.derived.mm;
   const feats = ent?.Features;
   if (!feats) return;
 
@@ -1442,13 +1442,13 @@ export async function prepareChargeMacro(a: string) {
 
   // Render template.
   const templateData = {
-    actorName: mech.name,
+    actorName: actor.name,
     roll: roll,
     roll_tooltip: roll_tt,
     changed: changed,
   };
   const template = `systems/${game.system.id}/templates/chat/charge-card.hbs`;
-  return renderMacroTemplate(mech, template, templateData);
+  return renderMacroTemplate(actor, template, templateData);
 }
 
 /**
@@ -1762,7 +1762,7 @@ export function targetsFromTemplate(templateId: string): void {
   const targets = canvas
     .tokens!.placeables.filter(t => {
       let skip = ignore.tokens.includes(t.id) || ignore.dispositions.includes(t.data.disposition);
-      return !skip && test_token(<LancerToken>t);
+      return !skip && test_token(t);
     })
     .map(t => t.id);
   game.user!.updateTokenTargets(targets);

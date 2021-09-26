@@ -183,7 +183,7 @@ export function pilot_slot(data_path: string, options: HelperOptions): string {
   if (!cd) return simple_mm_ref(EntryType.PILOT, existing, "No Pilot", data_path, true);
 
   return `<div class="pilot-summary">
-    <img class="valid ${cd.ref.type} ref" ${ref_params(cd.ref)} style="height: 100%" src="${
+    <img class="valid ${cd.ref.type} ref clickable-ref" ${ref_params(cd.ref)} style="height: 100%" src="${
     existing.Flags.top_level_data.img
   }"/>
     <div class="license-level">

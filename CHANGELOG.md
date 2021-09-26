@@ -1,3 +1,17 @@
+# 1.0.3 (2021-09-22)
+## Features
+* Reorganized system automation settings into their own sub-menu.
+* Structure/stress macros now use a HUD similar to attacks, improved logic, and automatically trigger (unless disabled via automation settings) when hp <= 0 and heat > max.
+* #229 - Weapons with the self heat tag now apply heat to the owner when used.
+* Add context menus to item preview cards with options to edit, remove, and mark as destroyed/repaired. Replaces the static delete buttons and "click *almost* anywhere to open the item" functionality.
+
+## Bug Fixes
+* #309 - Adding Fomorian Frame to size 1/2 mechs correctly sets size to 1 instead of 1.5.
+* #334 - Fix a local caching issue when retrieving pilot data from Comp/Con vaults.
+* Fix file pickers for actor images rendering behind actor sheets instead of in front.
+* Fix token bars not rendering in Foundry v9.
+* Fix NPC recharge macro sometimes not firing at start of turn.
+
 # 1.0.2 (2021-09-08)
 ## Features
 * #120 - Mechs and NPCs which do not have custom artwork set will now use a set of defaults from [Retrograde Minis](https://www.retrogrademinis.com). Thanks a ton to Retrograde for letting us use their fantastic artwork!

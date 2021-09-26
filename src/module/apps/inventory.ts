@@ -4,7 +4,7 @@ import { HANDLER_activate_general_controls } from "../helpers/commons";
 import {
   HANDLER_activate_native_ref_dragging,
   HANDLER_activate_ref_dragging,
-  HANDLER_openRefOnClick,
+  HANDLER_activate_ref_clicking,
 } from "../helpers/refs";
 
 interface FilledCategory {
@@ -114,7 +114,7 @@ export class InventoryDialog extends Dialog {
     HANDLER_activate_native_ref_dragging(html);
 
     // Make refs clickable to open the item
-    $(html).find(".ref.valid").on("click", HANDLER_openRefOnClick);
+    $(html).find(".ref.valid").on("click", HANDLER_activate_ref_clicking);
   }
 
   static async show_inventory(actor: LancerActor): Promise<void> {

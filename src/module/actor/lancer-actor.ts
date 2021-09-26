@@ -117,7 +117,7 @@ export class LancerActor extends Actor {
 
   /**
    * Performs overheat
-   * If automation is enabled, adusts heat and stress and rolls if stress damage was taken, otherwise just roll on the table.
+   * If automation is enabled, adjusts heat and stress and rolls if stress damage was taken, otherwise just roll on the table.
    */
   async overheat(reroll_data?: { stress: number }): Promise<void> {
     // Assert that we're on a mech or NPC
@@ -129,7 +129,7 @@ export class LancerActor extends Actor {
     if (getAutomationOptions().structure && !reroll_data) {
       if (ent.CurrentHeat > ent.HeatCapacity && ent.CurrentStress >= 0) {
         // https://discord.com/channels/426286410496999425/760966283545673730/789297842228297748
-        ent.CurrentHeat -= ent.HeatCapacity;
+        if (ent.CurrentStress > 1) ent.CurrentHeat -= ent.HeatCapacity;
         ent.CurrentStress -= 1;
       } else if (ent.CurrentHeat <= ent.HeatCapacity) {
         return;
@@ -261,7 +261,7 @@ export class LancerActor extends Actor {
     const ent = await this.data.data.derived.mm_promise;
     if (getAutomationOptions().structure && !reroll_data) {
       if (ent.CurrentHP < 1 && ent.CurrentStructure >= 0) {
-        ent.CurrentHP += ent.MaxHP;
+        if (ent.CurrentStructure > 1) ent.CurrentHP += ent.MaxHP;
         ent.CurrentStructure -= 1;
       } else if (ent.CurrentHP >= 1) {
         return;
@@ -954,7 +954,6 @@ export class LancerActor extends Actor {
 
         // Now that data is set properly, force token to draw its bars
         this.getActiveTokens().forEach(token => {
-          // @ts-expect-error This really is a Token object.
           token.drawBars();
         });
 

@@ -187,9 +187,11 @@ export function effect_box(title: string, text: string, add_classes: string = ""
 }
 
 export function sp_display(sp: number | string) {
+  let icons = "";
+  for (let i = 0; i < sp; i++) icons += `<i class="cci cci-system-point i--m i--dark"> </i>`;
   return `<div style="float: left; align-items: center; display: inherit;">
-            <i class="cci cci-system-point i--m i--dark"> </i>
-            <span class="medium" style="padding: 5px;">${sp} SP</span>
+            ${icons}
+            <span class="medium" style="padding: 5px;">${sp} SYSTEM POINTS</span>
           </div>`;
 }
 
@@ -760,9 +762,13 @@ export function create_context_menu(
 
 /** Attach a tippy context menu to the given target(s)
  *  Options can be fixed or can be generated based on the specific target to which the context menu is being
+ *  @param targets JQuery elements to attach the context menu to.
+ * @param event_types JQuery event types to trigger showing the context menu.
+ * @param options Array of context menu items.
  */
 export function tippy_context_menu(
   targets: JQuery<HTMLElement>,
+  event_types: string,
   options: ContextMenuItem[] | ((specific_target: JQuery<HTMLElement>) => ContextMenuItem[])
 ): void {
   targets.each((_, _target) => {
@@ -789,7 +795,8 @@ export function tippy_context_menu(
     instance.setContent(content);
 
     // Bind it to right click
-    target.on("contextmenu", async event => {
+    target.on(event_types, async event => {
+      event.stopPropagation();
       event.preventDefault();
       /*
         instance.setProps({
