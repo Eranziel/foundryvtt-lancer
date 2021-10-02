@@ -30,11 +30,9 @@ export default class CompconLoginForm extends FormApplication {
       populatePilotCache();
       return this.close();
     } catch (e) {
-      if (e instanceof Error) {
-        ui.notifications!.error(`Could not log in to Comp/Con: ${e.message}`);
-      } else {
-        ui.notifications!.error(`Could not log in to Comp/Con: ${e}`);
-      }
+      // AWS-amplify doesn't throw Errors for no apparent reason so ignore types and try our best
+      ui.notifications!.error(`Could not log in to Comp/Con: ${(e as any)?.message ?? e}`);
+      console.error(e);
     }
   }
 }
