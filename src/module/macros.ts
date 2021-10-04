@@ -43,7 +43,7 @@ import type { AccDiffData, AccDiffDataSerialized, RollModifier } from "./helpers
 import { is_limited, is_overkill, is_tagged } from "machine-mind/dist/funcs";
 import type { LancerToken } from "./token";
 import { LancerGame } from "./lancer-game";
-import { is_loading, is_self_heat } from 'machine-mind/dist/classes/mech/EquipUtil';
+import { is_loading, is_self_heat } from "machine-mind/dist/classes/mech/EquipUtil";
 import { getAutomationOptions } from "./settings";
 
 const lp = LANCER.log_prefix;
@@ -647,11 +647,11 @@ async function prepareAttackMacro(
 
   let weaponData: NpcFeature | PilotWeapon | MechWeaponProfile;
   let pilotEnt: Pilot;
-  let itemEnt;
+  let itemEnt: MechWeapon | PilotWeapon | NpcFeature;
 
   // We can safely split off pilot/mech weapons by actor type
   if (actor.is_mech() && item.is_mech_weapon()) {
-    pilotEnt = (await actor.data.data.derived.mm_promise).Pilot!; 
+    pilotEnt = (await actor.data.data.derived.mm_promise).Pilot!;
     itemEnt = await item.data.data.derived.mm_promise;
 
     weaponData = itemEnt.SelectedProfile;
@@ -782,7 +782,7 @@ async function prepareAttackMacro(
 
   // Deduct charge if LOADING weapon.
   if (getAutomationOptions().limited_loading && getAutomationOptions().attacks) {
-    if(is_loading(itemEnt)) {
+    if (is_loading(itemEnt)) {
       itemEnt.Loaded = false;
       await itemEnt.writeback();
     } else if (is_limited(itemEnt)) {
@@ -1552,10 +1552,8 @@ export async function prepareActivationMacro(
   let itemEnt: MechSystem | NpcFeature | Talent = await item.data.data.derived.mm_promise;
   let actorEnt: Mech | Pilot = await actor.data.data.derived.mm_promise;
 
-  if(getAutomationOptions().limited_loading && is_tagged(itemEnt) && is_limited(itemEnt) && itemEnt.Uses <= 0) {
-    ui.notifications!.error(
-      `Error using item--you have no uses left!`
-    );
+  if (getAutomationOptions().limited_loading && is_tagged(itemEnt) && is_limited(itemEnt) && itemEnt.Uses <= 0) {
+    ui.notifications!.error(`Error using item--you have no uses left!`);
     return;
   }
 
@@ -1581,13 +1579,13 @@ export async function prepareActivationMacro(
     case ActivationOptions.DEPLOYABLE:
       _prepareDeployableMacro(actorEnt, itemEnt, index);
   }
-  
+
   // Wait until the end to deduct a use so we're sure it completed succesfully
-  if(getAutomationOptions().limited_loading && is_tagged(itemEnt) && is_limited(itemEnt)) {
+  if (getAutomationOptions().limited_loading && is_tagged(itemEnt) && is_limited(itemEnt)) {
     itemEnt.Uses = itemEnt.Uses - 1;
     await itemEnt.writeback();
   }
-  
+
   return;
 }
 

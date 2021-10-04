@@ -36,6 +36,7 @@ import {
   funcs,
   Mech,
   Counter,
+  RegEntry,
 } from "machine-mind";
 import { ActivationOptions } from "../enums";
 import { applyCollapseListeners, CollapseHandler } from "../helpers/collapse";
@@ -236,15 +237,15 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       const data = await this.getDataLazy();
       if (params.path && params.writeback) {
         const item = resolve_dotpath(data, params.path) as Counter;
-        const writeback = resolve_dotpath(data, params.writeback) as RegEntry<any>
+        const writeback = resolve_dotpath(data, params.writeback) as RegEntry<any>;
         const available = params.available === "true";
-        
+
         if (available) {
           // Deduct uses.
           item.Value = item.Value > 0 ? item.Value - 1 : 0;
         } else {
           // Increment uses.
-          item.Value = item.Value < (item.Max || 6) ? item.Value + 1 : (item.Max || 6);
+          item.Value = item.Value < (item.Max || 6) ? item.Value + 1 : item.Max || 6;
         }
 
         writeback.writeback();
