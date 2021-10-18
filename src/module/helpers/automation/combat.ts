@@ -1,4 +1,3 @@
-import type { LancerGame } from "../../lancer-game";
 import { prepareChargeMacro } from "../../macros";
 import { getAutomationOptions } from "../../settings";
 
@@ -25,7 +24,7 @@ export async function handleCombatUpdate(...[combat, changed]: Parameters<Hooks.
 
         // Refresh actions.
         console.log(`Next up! Refreshing [${nextToken.actor!.data.name}]!`);
-        (<LancerGame>game).action_manager?.modAction(nextToken.actor!, false);
+        game.action_manager?.modAction(nextToken.actor!, false);
       }
 
       // Handle end-of-turn.
@@ -36,7 +35,7 @@ export async function handleCombatUpdate(...[combat, changed]: Parameters<Hooks.
             prevToken.actor!.data.data.action_tracker
           )}`
         );
-        (<LancerGame>game).action_manager?.modAction(prevToken.actor!, true);
+        game.action_manager?.modAction(prevToken.actor!, true);
       }
     }
   }
