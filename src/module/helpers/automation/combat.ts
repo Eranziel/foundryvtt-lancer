@@ -10,7 +10,6 @@ export async function handleCombatUpdate(...[combat, changed]: Parameters<Hooks.
   const auto = getAutomationOptions();
   if (auto.enabled) {
     const nextTurnIndex = changed.turn;
-    // @ts-expect-error TODO: Debate foundry devs if this should be protected/private
     const turnIndex = combat.current.turn!;
     if (combat.turns[nextTurnIndex]) {
       const nextToken = combat.turns[nextTurnIndex].token;
