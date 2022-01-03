@@ -1791,7 +1791,7 @@ a.activation-chip > i.mdi {
   margin-top: 4px;
 }
 
-.uses-hex {
+.uses-hex, .counter-hex {
   cursor: pointer;
   font-size: 2em;
   color: white;
@@ -2220,3 +2220,4 @@ Here, this means we want to allow for drag stuff etc to show contextually if:
   height: 1em;
   margin-right: .4em;
 }
+

@@ -298,27 +298,17 @@ export function pilot_counters(ent: Pilot, _helper: HelperOptions): string {
   let counter_detail = "";
 
   let counter_arr = ent.PilotCounters;
-  let custom_path = "mm.CustomCounters";
+  let custom_path = "mm.PilotCounters";
 
-  // Pilots have AllCounters, but self-sourced ones refer to CustomCounters specifically
   for (let i = 0; i < counter_arr.length; i++) {
-    // If our source is the pilot, we'll add it later to make sure we align with the CustomCounters index
-    if (counter_arr[i].source === ent) continue;
-
+    // Only allow deletion if the Pilot is the source
     counter_detail = counter_detail.concat(
       buildCounterHTML(
         counter_arr[i].counter,
-        `mm.Allcounters.${i}.counter`,
-        false,
-        `ent.AllCounters.${i}.source`,
-        false
+        `mm.PilotCounters.${i}.counter`,
+        `mm.PilotCounters.${i}.source`,
+        counter_arr[i].source === ent
       )
-    );
-  }
-  // Now do our CustomCounters
-  for (let i = 0; i < ent.CustomCounters.length; i++) {
-    counter_detail = counter_detail.concat(
-      buildCounterHTML(ent.CustomCounters[i], `mm.CustomCounters.${i}`, true, "", true)
     );
   }
 
@@ -328,7 +318,9 @@ export function pilot_counters(ent: Pilot, _helper: HelperOptions): string {
       <span>COUNTERS</span>
       <a class="gen-control fas fa-plus" data-action="append" data-path="${custom_path}" data-action-value="(struct)counter"></a>
     </span>
-    ${counter_detail}
+    <div class="wraprow double">
+      ${counter_detail}
+    </div>
   </div>`;
 }
 

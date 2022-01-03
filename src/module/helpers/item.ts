@@ -20,6 +20,7 @@ import {
   Mech,
   MechSystem,
   MechWeaponProfile,
+  RegEntry,
   NpcFeature,
   PilotArmor,
   PilotGear,
@@ -65,7 +66,9 @@ import { is_limited, is_loading } from "machine-mind/dist/classes/mech/EquipUtil
 import type { CollapseRegistry } from "./loadout";
 import { uuid4 } from "./collapse";
 import { promptText } from "../apps/simple-prompt";
+import { CounterEditForm } from "../apps/counter-editor";
 import { FoundryFlagData } from "../mm-util/foundry-reg";
+import { is_reg_pilot } from "../actor/lancer-actor";
 
 /**
  * Handlebars helper for weapon size selector
@@ -370,6 +373,24 @@ export function HANDLER_activate_edit_bonus<T>(
     if (!bonus_path) return;
     let data = await data_getter();
     return BonusEditDialog.edit_bonus(data, bonus_path, commit_func).catch(e => console.error("Dialog failed", e));
+  });
+}
+
+// Allows counter editing
+export function HANDLER_activate_edit_counter<T>(html: JQuery, data_getter: () => Promise<T> | T) {
+  html.find(".counter-edit-button").on("click", async evt => {
+    // Find the counter
+    let path = evt.currentTarget.dataset.path;
+    let writeback_path = evt.currentTarget.dataset.writeback_path;
+    if (!path || !writeback_path) throw "Counters weren't set up right";
+
+    let data = await data_getter();
+
+    let writeback_obj: RegEntry<any> | null = resolve_dotpath(data, writeback_path);
+
+    if (!writeback_obj) throw "Writeback is broken";
+
+    return CounterEditForm.edit_counter(data, path, writeback_obj).catch(e => console.error("Dialog failed", e));
   });
 }
 
@@ -963,55 +984,26 @@ export function buildSystemHTML(data: MechSystem): string {
 }
 
 // This has gotten very messy to account for the pilots, should refactor - TODO
-export function buildCounterHTML(
-  data: Counter,
-  path: string,
-  fully_editable?: boolean,
-  item_path?: string,
-  actor_level?: boolean,
-  array_path?: string
-): string {
-  let editHTML: string;
-  let nameChunk: string;
-
-  if (fully_editable) {
-    editHTML = `
-    <input class="lancer-stat lancer-stat" type="number" name="${path.concat(".Value")}" value="${
-      data.Value
-    }" data-dtype="Number" style="justify-content: left"/>
-    <span>/</span>
-    <input class="lancer-stat lancer-stat" type="number" name="${path.concat(".Max")}" value="${
-      data.Max
-    }" data-dtype="Number" style="justify-content: left"/>`;
-  } else {
-    editHTML = `
-    <input class="lancer-stat lancer-stat" type="number" name="${path.concat(".Value")}" value="${
-      data.Value
-    }" data-dtype="Number" data-commit-item="${item_path}" style="justify-content: left"/>
-    <span>/</span>
-    <span>${data.Max}</span>`;
-  }
-
-  if (actor_level)
-    nameChunk = `<input class="counter-name" name="${path.concat(".Name")}" value="${
-      data.Name
-    }" type="text" data-dtype="text" />`;
-  else nameChunk = data.Name;
+export function buildCounterHTML(data: Counter, path: string, writeback_path: string, can_delete?: boolean): string {
+  let hexes = [...Array(data.Max)].map((_ele, index) => {
+    const available = index + 1 <= data.Value;
+    return `<i class="counter-hex mdi ${
+      available ? "mdi-hexagon-slice-6" : "mdi-hexagon-outline"
+    } theme--light" data-available="${available}" data-path="${path}" data-writeback="${writeback_path}"></i>`;
+  });
 
   return `
-  <div class="card clipped-bot counter-wrapper">
-    <div class="lancer-header ">
-      <span>// ${nameChunk} //</span>
-      ${
-        actor_level
-          ? `<a class="gen-control" data-action="splice" data-path="${
-              array_path ? array_path : path
-            }"><i class="fas fa-trash"></i></a>`
-          : ""
-      }
+  <div class="card clipped-bot counter-wrapper" data-path="${path}" data-writeback_path="${writeback_path}">
+    <div class="lancer-header">
+      <span>// ${data.Name} //</span>
+      <a class="lancer-context-menu" data-context-menu="counter" data-path="${path}" data-can-delete="${
+    can_delete ? can_delete : false
+  }">
+        <i class="fas fa-ellipsis-v"></i>
+      </a>
     </div>
     <div class="flexrow flex-center no-wrap">
-      ${editHTML}
+      ${hexes.join("")}
     </div>
   </div>`;
 }
@@ -1033,7 +1025,7 @@ export function buildCounterArrayHTML(
   if (counters.length > 0) {
     if (isCounters(counters)) {
       for (let i = 0; i < counters.length; i++) {
-        counter_detail = counter_detail.concat(buildCounterHTML(counters[i], path.concat(`.${i}`), fully_editable));
+        counter_detail = counter_detail.concat(buildCounterHTML(counters[i], path.concat(`.${i}`), "mm"));
       }
     } else {
       counter_arr = counters.map(x => {
@@ -1041,7 +1033,7 @@ export function buildCounterArrayHTML(
       });
       for (let i = 0; i < counters.length; i++) {
         counter_detail = counter_detail.concat(
-          buildCounterHTML(counter_arr[i], path.concat(`.${i}.counter`), fully_editable, path.concat(`.${i}.source`))
+          buildCounterHTML(counter_arr[i], path.concat(`.${i}.counter`), path.concat(`.${i}.source`))
         );
       }
     }
@@ -1117,6 +1109,53 @@ export function HANDLER_activate_item_context_menus<T extends LancerActorSheetDa
     },
   };
 
+  // Counters are special so they unfortunately need dedicated controls
+  let counter_edit: ContextMenuEntry = {
+    name: "Edit",
+    icon: `<i class="fas fa-edit"></i>`,
+    callback: async (html: JQuery) => {
+      // Find the counter
+      let counter_el = html.closest(".counter-wrapper")[0];
+      let path = counter_el.dataset.path;
+      let writeback_path = counter_el.dataset.writeback_path;
+      if (!path || !writeback_path) throw "Counters weren't set up right";
+
+      let data = await data_getter();
+
+      let writeback_obj: RegEntry<any> | null = resolve_dotpath(data, writeback_path);
+
+      if (!writeback_obj) throw "Writeback is broken";
+
+      return CounterEditForm.edit_counter(data, path, writeback_obj).catch(e => console.error("Dialog failed", e));
+    },
+  };
+  let counter_remove: ContextMenuEntry = {
+    name: "Remove",
+    icon: '<i class="fas fa-fw fa-trash"></i>',
+    callback: async (html: JQuery) => {
+      let sheet_data = await data_getter();
+
+      // Find the counter
+      let counter_el = html.closest(".counter-wrapper")[0];
+      let path = counter_el.dataset.path;
+      let writeback_path = counter_el.dataset.writeback_path;
+      if (!path || !writeback_path) throw "Counters weren't set up right";
+
+      let data = await data_getter();
+
+      // Should always be the owning entity if we're able to delete
+      let ent: RegEntry<any> = resolve_dotpath(sheet_data, "mm", null);
+      let counter: Counter = resolve_dotpath(sheet_data, path, null);
+
+      // Only allow this on Pilots for now, could plausibly generalize at some point
+      if (!is_reg_pilot(ent)) return;
+
+      let index = ent.CustomCounters.indexOf(counter);
+      ent.CustomCounters.splice(index, 1);
+      ent.writeback();
+    },
+  };
+
   // Finally, setup the context menu
   tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"mech_weapon\"]`), "click", [
     edit,
@@ -1140,6 +1179,18 @@ export function HANDLER_activate_item_context_menus<T extends LancerActorSheetDa
   tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"skill\"]`), "click", [edit, remove]);
   tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"core_bonus\"]`), "click", [edit, remove]);
   tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"license\"]`), "click", [edit, remove]);
+
+  // Only some counters can be deleted
+  tippy_context_menu(
+    html.find(`.lancer-context-menu[data-context-menu=\"counter\"][data-can-delete=\"false\"]`),
+    "click",
+    [counter_edit]
+  );
+  tippy_context_menu(
+    html.find(`.lancer-context-menu[data-context-menu=\"counter\"][data-can-delete=\"true\"]`),
+    "click",
+    [counter_edit, counter_remove]
+  );
 }
 
 // Allows user to remove or rename profiles value via right click
