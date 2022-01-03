@@ -960,7 +960,14 @@ export class LancerActor extends Actor {
 
         // Now that data is set properly, force token to draw its bars
         this.getActiveTokens().forEach(token => {
-          token.drawBars();
+          // Ensure the bars container exists before attempting to redraw the
+          // bars. This check is necessary because foundry doesn't initialize
+          // token components until draw is called.
+          // TODO: Remove token.bars part of check when 0.8 compat removed
+          // @ts-expect-error `bars` param not typed. `hud.bars` is in v9
+          if (token.bars || token.hud?.bars) {
+            token.drawBars();
+          }
         });
 
         return mm;
