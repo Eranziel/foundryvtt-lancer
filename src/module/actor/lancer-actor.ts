@@ -117,7 +117,7 @@ export class LancerActor extends Actor {
 
   /**
    * Performs overheat
-   * If automation is enabled, adjusts heat and stress and rolls if stress damage was taken, otherwise just roll on the table.
+   * If automation is enabled, this is called automatically by prepareOverheatMacro
    */
   async overheat(reroll_data?: { stress: number }): Promise<void> {
     // Assert that we're on a mech or NPC
@@ -126,8 +126,8 @@ export class LancerActor extends Actor {
       return;
     }
     const ent = await this.data.data.derived.mm_promise;
-    if (getAutomationOptions().structure && !reroll_data) {
-      if (ent.CurrentHeat > ent.HeatCapacity && ent.CurrentStress >= 0) {
+    if (!reroll_data) {
+      if (ent.CurrentHeat > ent.HeatCapacity && ent.CurrentStress > 0) {
         // https://discord.com/channels/426286410496999425/760966283545673730/789297842228297748
         if (ent.CurrentStress > 1) ent.CurrentHeat -= ent.HeatCapacity;
         ent.CurrentStress -= 1;
@@ -143,11 +143,12 @@ export class LancerActor extends Actor {
   async rollOverHeatTable(reroll_data?: { stress: number }): Promise<void> {
     if (!this.is_mech() && !this.is_npc()) return;
     // Table of descriptions
-    function stressTableD(roll: number, remStress: number) {
+    function stressTableD(roll: number, remStress: number, maxStress: number) {
       switch (roll) {
         // Used for multiple ones
         case 0:
-          return "The reactor goes critical – your mech suffers a reactor meltdown at the end of your next turn.";
+          if (maxStress > 1) return "The reactor goes critical – your mech suffers a reactor meltdown at the end of your next turn.";
+          else if (maxStress <= 1) return "Your mech becomes @Compendium[world.status.EXPOSED].";
         case 1:
           switch (remStress) {
             case 2:
@@ -196,7 +197,7 @@ export class LancerActor extends Actor {
 
       let tt = await roll.getTooltip();
       let title = stressTableT[result];
-      let text = stressTableD(result, remStress);
+      let text = stressTableD(result, remStress, ent.MaxStress);
       let total = result.toString();
 
       let secondaryRoll = "";
@@ -204,7 +205,7 @@ export class LancerActor extends Actor {
       // Critical
       let one_count = (<Die[]>roll.terms)[0].results.filter(v => v.result === 1).length;
       if (one_count > 1) {
-        text = stressTableD(result, 1);
+        text = stressTableD(result, 1, ent.MaxStress);
         title = stressTableT[0];
         total = "Multiple Ones";
       } else {
@@ -236,7 +237,7 @@ export class LancerActor extends Actor {
     } else {
       // You ded
       let title = stressTableT[0];
-      let text = stressTableD(0, 0);
+      let text = stressTableD(0, 0, ent.MaxStress);
       templateData = {
         val: ent.CurrentStress,
         max: ent.MaxStress,
@@ -250,7 +251,7 @@ export class LancerActor extends Actor {
 
   /**
    * Performs structure on the mech
-   * For now, just rolls on table. Eventually we can include configuration to do automation
+   * If automation is enabled, this is called automatically by prepareStructureMacro
    */
   async structure(reroll_data?: { structure: number }) {
     // Assert that we're on a mech or NPC
@@ -259,8 +260,8 @@ export class LancerActor extends Actor {
       return;
     }
     const ent = await this.data.data.derived.mm_promise;
-    if (getAutomationOptions().structure && !reroll_data) {
-      if (ent.CurrentHP < 1 && ent.CurrentStructure >= 0) {
+    if (!reroll_data) {
+      if (ent.CurrentHP < 1 && ent.CurrentStructure > 0) {
         if (ent.CurrentStructure > 1) ent.CurrentHP += ent.MaxHP;
         ent.CurrentStructure -= 1;
       } else if (ent.CurrentHP >= 1) {
@@ -408,6 +409,7 @@ export class LancerActor extends Actor {
     if (is_reg_mech(ent)) {
       ent.CurrentCoreEnergy = 1;
       ent.CurrentRepairs = ent.RepairCapacity;
+      ent.OverchargeCount = 0
     }
 
     // I believe the only thing a pilot needs
@@ -685,7 +687,6 @@ export class LancerActor extends Actor {
           flags.top_level_data["folder"] = unit_folder ? unit_folder.id : null;
           flags.top_level_data["img"] = new_img;
           flags.top_level_data["permission"] = permission;
-          flags.top_level_data["token.img"] = new_img;
           flags.top_level_data["token.name"] = data.callsign;
           flags.top_level_data["token.disposition"] = this.data.token.disposition;
           flags.top_level_data["token.actorLink"] = true;
@@ -693,10 +694,8 @@ export class LancerActor extends Actor {
           await mech.writeback();
 
           // If we've got a frame (which we should) check for setting Retrograde image
-          // Also check that we don't have a custom image, which would be on imgur. If so, preserve it.
           if (
             mech.Frame &&
-            !new_img.includes("imgur") &&
             (await (mech.Flags.orig_doc as LancerActor).swapFrameImage(mech, null, mech.Frame))
           ) {
             // Write back again if we swapped images
@@ -710,7 +709,15 @@ export class LancerActor extends Actor {
           flags.top_level_data["name"] = pilot.Name;
           flags.top_level_data["img"] = new_img;
           flags.top_level_data["token.name"] = pilot.Callsign;
-          flags.top_level_data["token.img"] = new_img;
+          
+          // Check and see if we have a custom token (not from imgur) set, and if we don't, set the token image.
+          if (
+            this.data.token.img === "systems/lancer/assets/icons/pilot.svg" ||
+            this.data.token.img?.includes("imgur")
+          ) {
+            flags.top_level_data["token.img"] = new_img;
+          }
+
         },
       });
 
@@ -954,7 +961,14 @@ export class LancerActor extends Actor {
 
         // Now that data is set properly, force token to draw its bars
         this.getActiveTokens().forEach(token => {
-          token.drawBars();
+          // Ensure the bars container exists before attempting to redraw the
+          // bars. This check is necessary because foundry doesn't initialize
+          // token components until draw is called.
+          // TODO: Remove token.bars part of check when 0.8 compat removed
+          // @ts-expect-error `bars` param not typed. `hud.bars` is in v9
+          if (token.bars || token.hud?.bars) {
+            token.drawBars();
+          }
         });
 
         return mm;
@@ -1220,17 +1234,22 @@ export class LancerActor extends Actor {
     }
 
     // Check the actor
-    // Add manual check for the aws images
     if (
       this.data.img == oldFramePath ||
-      this.data.img == defaultImg ||
-      this.data.img?.includes("compcon-image-assets")
+      this.data.img == defaultImg 
     ) {
       newData.img = newFramePath;
 
       // Have to set our top level data in MM or it will overwrite it...
       robot.Flags.top_level_data.img = newFramePath;
-      robot.Flags.top_level_data["token.img"] = newFramePath;
+      if (this.data.token.img?.includes("systems/lancer/assets/retrograde-minis") || this.data.token.img == defaultImg ){
+        //we can override any retrograde assets, or the default image
+        robot.Flags.top_level_data["token.img"] = newFramePath;
+      }
+      else {
+        //do not override any custom tokens
+        robot.Flags.top_level_data["token.img"] = this.data.token.img;
+      }
       changed = true;
     }
 

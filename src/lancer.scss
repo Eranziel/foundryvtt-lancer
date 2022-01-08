@@ -309,18 +309,6 @@ button {
   flex-grow: 0;
 }
 
-.tag {
-  display: grid;
-  grid-template: 1em 1fr / 50px 1fr 50px;
-  align-items: center;
-  border: solid var(--main-theme-color, fuchsia);
-  border-color: var(--main-theme-color, fuchsia);
-  border-width: 1px;
-  border-radius: 5px;
-  border-left-width: 7px;
-  margin: 2px;
-}
-
 .tag-label {
   flex-grow: 0;
   display: flex;
@@ -1791,7 +1779,7 @@ a.activation-chip > i.mdi {
   margin-top: 4px;
 }
 
-.uses-hex {
+.uses-hex, .counter-hex {
   cursor: pointer;
   font-size: 2em;
   color: white;
@@ -2220,3 +2208,4 @@ Here, this means we want to allow for drag stuff etc to show contextually if:
   height: 1em;
   margin-right: .4em;
 }
+

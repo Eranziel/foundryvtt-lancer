@@ -1,0 +1,15 @@
+<form class="{{cssClass}} lancer-sheet" onsubmit="event.preventDefault();">
+    <div class="counter-form">
+        <label style="display: flex;align-items: center;">Name: <input name="Name" value="{{ counter.Name }}" type="text" data-dtype="text" /></label>
+        <label>Value: <input class="lancer-stat" type="number" name="Value" value="{{ counter.Value }}" data-dtype="Number" style="justify-content: left"/></label>
+        <label>Max: <input class="lancer-stat" type="number" name="Max" value="{{ counter.Max }}" data-dtype="Number" style="justify-content: left"/></label>
+    </div>
+	<div class="dialog-buttons flexrow">
+		{{#each buttons as |button id|}}
+		<button class="dialog-button" data-button="{{id}}">
+			{{{button.icon}}}
+			{{{button.label}}}
+		</button>
+		{{/each}}
+	</div>
+</form>

@@ -35,6 +35,8 @@ import {
   WeaponMod,
   funcs,
   Mech,
+  Counter,
+  RegEntry,
 } from "machine-mind";
 import { ActivationOptions } from "../enums";
 import { applyCollapseListeners, CollapseHandler } from "../helpers/collapse";
@@ -44,7 +46,7 @@ import type { FoundryFlagData } from "../mm-util/foundry-reg";
 import { mm_owner } from "../mm-util/helpers";
 import type { ActionType } from "../action";
 import { InventoryDialog } from "../apps/inventory";
-import { HANDLER_activate_item_context_menus } from "../helpers/item";
+import { HANDLER_activate_item_context_menus, HANDLER_activate_edit_counter } from "../helpers/item";
 const lp = LANCER.log_prefix;
 
 /**
@@ -70,7 +72,8 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     this._activateCollapses(html);
 
     // Enable hex use triggers.
-    this._activateHexListeners(html);
+    this._activateUsesListeners(html);
+    this._activateCounterListeners(html);
 
     // Enable any action grid buttons.
     this._activateActionGridListeners(html);
@@ -125,6 +128,8 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
 
     // Enable popout editors
     HANDLER_activate_popout_text_editor(html, getfunc, commitfunc);
+
+    HANDLER_activate_edit_counter(html, getfunc);
 
     // Add export button.
     addExportButton(this.object, html);
@@ -222,7 +227,33 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     HANDLER_activate_item_context_menus(html, getfunc, commitfunc);
   }
 
-  async _activateHexListeners(html: JQuery) {
+  async _activateCounterListeners(html: JQuery) {
+    let elements = html.find(".counter-hex");
+    elements.on("click", async ev => {
+      ev.stopPropagation();
+
+      const params = ev.currentTarget.dataset;
+      const data = await this.getDataLazy();
+      if (params.path && params.writeback) {
+        const item = resolve_dotpath(data, params.path) as Counter;
+        const writeback = resolve_dotpath(data, params.writeback) as RegEntry<any>;
+        const available = params.available === "true";
+
+        if (available) {
+          // Deduct uses.
+          item.Value = item.Value > 0 ? item.Value - 1 : 0;
+        } else {
+          // Increment uses.
+          item.Value = item.Value < (item.Max || 6) ? item.Value + 1 : item.Max || 6;
+        }
+
+        writeback.writeback();
+        console.debug(item);
+      }
+    });
+  }
+
+  async _activateUsesListeners(html: JQuery) {
     let elements = html.find(".uses-hex");
     elements.on("click", async ev => {
       ev.stopPropagation();
