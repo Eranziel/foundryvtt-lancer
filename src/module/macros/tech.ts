@@ -11,12 +11,14 @@ import type {
 } from "machine-mind";
 import type { AccDiffDataSerialized } from "../helpers/acc_diff";
 import {
-  getMacroSpeaker,
   attackRolls,
   checkTargets,
-  encodeMacroData,
   renderMacroTemplate
 } from "../macros"
+import {
+  encodeMacroData,
+  getMacroSpeaker,
+} from "./util"
 
 const lp = LANCER.log_prefix;
 
