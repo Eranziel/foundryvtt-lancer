@@ -409,6 +409,7 @@ export class LancerActor extends Actor {
     if (is_reg_mech(ent)) {
       ent.CurrentCoreEnergy = 1;
       ent.CurrentRepairs = ent.RepairCapacity;
+      ent.OverchargeCount = 0
     }
 
     // I believe the only thing a pilot needs
