@@ -46,7 +46,6 @@ import type { FoundryFlagData } from "../mm-util/foundry-reg";
 import { mm_owner } from "../mm-util/helpers";
 import type { ActionType } from "../action";
 import { InventoryDialog } from "../apps/inventory";
-import type { LancerGame } from "../lancer-game";
 import { HANDLER_activate_item_context_menus, HANDLER_activate_edit_counter } from "../helpers/item";
 const lp = LANCER.log_prefix;
 
@@ -283,10 +282,10 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     let elements = html.find(".lancer-action-button");
     elements.on("click", async ev => {
       ev.stopPropagation();
-      if (!(<LancerGame>game).action_manager) return;
+      if (!game.action_manager) return;
 
       if (game.user?.isGM || game.settings.get(game.system.id, LANCER.setting_action_manager_players)) {
-        const manager = (<LancerGame>game).action_manager;
+        const manager = game.action_manager;
 
         const params = ev.currentTarget.dataset;
         const action = params.action as ActionType | undefined;

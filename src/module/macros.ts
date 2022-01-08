@@ -42,7 +42,6 @@ import { checkForHit } from "./helpers/automation/targeting";
 import type { AccDiffData, AccDiffDataSerialized, RollModifier } from "./helpers/acc_diff";
 import { is_limited, is_overkill, is_tagged } from "machine-mind/dist/funcs";
 import type { LancerToken } from "./token";
-import { LancerGame } from "./lancer-game";
 import { is_loading, is_self_heat } from "machine-mind/dist/classes/mech/EquipUtil";
 import { getAutomationOptions } from "./settings";
 
@@ -85,8 +84,8 @@ export async function runEncodedMacro(el: HTMLElement | LancerMacroData) {
     return;
   }
 
-  let fn = (game as LancerGame).lancer[data.fn];
-  return (fn as any).apply(null, data.args);
+  let fn = game.lancer[data.fn];
+  return (fn as Function).apply(null, data.args);
 }
 
 export async function onHotbarDrop(_bar: any, data: any, slot: number) {

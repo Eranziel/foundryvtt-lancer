@@ -20,7 +20,6 @@ import {
   WELCOME,
   NEEDS_AUTOMATION_MIGRATION_VERSION,
 } from "./module/config";
-import type { LancerGame } from "./module/lancer-game";
 import { LancerActor } from "./module/actor/lancer-actor";
 import { LancerItem } from "./module/item/lancer-item";
 import { populatePilotCache } from "./module/compcon";
@@ -163,7 +162,7 @@ Hooks.once("init", async function () {
 
   // Assign custom classes and constants here
   // Create a Lancer namespace within the game global
-  (game as LancerGame).lancer = {
+  game.lancer = {
     applications: {
       LancerPilotSheet,
       LancerNPCSheet,
@@ -558,8 +557,8 @@ export const system_ready: Promise<void> = new Promise(success => {
     applyCollapseListeners();
     applyGlobalDragListeners();
 
-    (<LancerGame>game).action_manager = new LancerActionManager();
-    await (<LancerGame>game).action_manager!.init();
+    game.action_manager = new LancerActionManager();
+    await game.action_manager!.init();
 
     success();
   });
@@ -567,27 +566,27 @@ export const system_ready: Promise<void> = new Promise(success => {
 
 // Action Manager hooks.
 Hooks.on("controlToken", () => {
-  (<LancerGame>game).action_manager?.update();
+  game.action_manager?.update();
 });
 Hooks.on("updateToken", (_scene: Scene, _token: Token, diff: any, _options: any, _idUser: any) => {
   // If it's an X or Y change assume the token is just moving.
   if (diff.hasOwnProperty("y") || diff.hasOwnProperty("x")) return;
-  (<LancerGame>game).action_manager?.update();
+  game.action_manager?.update();
 });
 Hooks.on("updateActor", (_actor: Actor) => {
-  (<LancerGame>game).action_manager?.update();
+  game.action_manager?.update();
 });
 Hooks.on("closeSettingsConfig", () => {
-  (<LancerGame>game).action_manager?.updateConfig();
+  game.action_manager?.updateConfig();
 });
 Hooks.on("getSceneNavigationContext", async () => {
-  (<LancerGame>game).action_manager && (await (<LancerGame>game).action_manager!.reset());
+  game.action_manager && (await game.action_manager!.reset());
 });
 Hooks.on("createCombat", (_actor: Actor) => {
-  (<LancerGame>game).action_manager?.update();
+  game.action_manager?.update();
 });
 Hooks.on("deleteCombat", (_actor: Actor) => {
-  (<LancerGame>game).action_manager?.update();
+  game.action_manager?.update();
 });
 Hooks.on("updateCombat", (_combat: Combat, changes: DeepPartial<Combat["data"]>) => {
   if (getAutomationOptions().remove_templates && "turn" in changes && game.user?.isGM) {
