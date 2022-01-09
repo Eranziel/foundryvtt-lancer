@@ -246,6 +246,13 @@ export function npc_clicker_stat_card(title: string, data_path: string, options:
  */
 export function overcharge_button(actor: LancerActor, overcharge_path: string, options: HelperOptions): string {
   const overcharge_sequence = actor.getOverchargeSequence() || ["+1", "+1d3", "+1d6", "+1d6 + 4"];
+  
+  let macroData = encodeMacroData({
+    title: "OVERCHARGE",
+    fn: "prepareOverchargeMacro",
+    args: [actor.id!],
+    iconPath: `systems/${game.system.id}/assets/icons/macro-icons/overcharge.svg`,
+  });
 
   let index = resolve_helper_dotpath(options, overcharge_path) as number;
   index = funcs.bound(index, 0, overcharge_sequence.length - 1);
@@ -256,7 +263,7 @@ export function overcharge_button(actor: LancerActor, overcharge_path: string, o
         <span class="major">OVERCHARGE</span>
       </div>
       <div class="overcharge-container">
-        <a class="overcharge-macro macroable i--dark i--sm" data-action="roll-macro"><i class="fas fa-dice-d20"></i></a>
+        <a class="overcharge-macro lancer-macro i--dark i--sm" data-macro="${macroData}"><i class="fas fa-dice-d20"></i></a>
         <a class="overcharge-text">${over_val}</a>
         <a class="overcharge-reset mdi mdi-restore"></a>
       </div>
