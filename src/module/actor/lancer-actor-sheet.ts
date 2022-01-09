@@ -712,7 +712,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       formData["mm.Tier"] = Number.parseInt(formData["npctier"]) || 1;
     }
 
-    // Automatically propagates chanages that should affect multiple things.
+    // Automatically propagates changes that should affect multiple things.
     let new_top = this._propagateMMData(formData);
 
     // Combine the data, making sure to propagate the "top level data" to the appropriate location in flags

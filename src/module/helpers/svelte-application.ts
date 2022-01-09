@@ -1,8 +1,8 @@
-import type SvelteComponent from '*.svelte';
+import type SvelteComponent from "*.svelte";
 
 type SvelteAppOptions = Application.Options & {
-  intro?: boolean
-}
+  intro?: boolean;
+};
 
 export default class SvelteApp<DataModel> extends Application {
   klass: typeof SvelteComponent;
@@ -22,11 +22,13 @@ export default class SvelteApp<DataModel> extends Application {
   }
 
   refreshPromise() {
-    if (this.#reject) { this.#reject(); }
+    if (this.#reject) {
+      this.#reject();
+    }
     this.promise = new Promise((resolve, reject) => {
       this.#resolve = resolve;
       this.#reject = reject;
-    })
+    });
   }
 
   resolvePromise() {
@@ -48,25 +50,24 @@ export default class SvelteApp<DataModel> extends Application {
     let component = new this.klass({
       target: html.get(0)!,
       props: this.data,
-      intro: !!this.options.intro
+      intro: !!this.options.intro,
     });
-    component.$on('submit', (_e: Event) => {
+    component.$on("submit", (_e: Event) => {
       this.resolvePromise();
       return this.close();
     });
-    component.$on('cancel', (_e: Event) => {
+    component.$on("cancel", (_e: Event) => {
       return this.close();
     });
     this.component = component;
   }
 
   close() {
-    this.rejectPromise()
+    this.rejectPromise();
     return super.close();
   }
 
   async _renderInner(_data: any) {
-    return $('<div></div>');
+    return $("<div></div>");
   }
-
 }

@@ -147,7 +147,8 @@ export class LancerActor extends Actor {
       switch (roll) {
         // Used for multiple ones
         case 0:
-          if (maxStress > 1) return "The reactor goes critical – your mech suffers a reactor meltdown at the end of your next turn.";
+          if (maxStress > 1)
+            return "The reactor goes critical – your mech suffers a reactor meltdown at the end of your next turn.";
           else if (maxStress <= 1) return "Your mech becomes @Compendium[world.status.EXPOSED].";
         case 1:
           switch (remStress) {
@@ -409,7 +410,7 @@ export class LancerActor extends Actor {
     if (is_reg_mech(ent)) {
       ent.CurrentCoreEnergy = 1;
       ent.CurrentRepairs = ent.RepairCapacity;
-      ent.OverchargeCount = 0
+      ent.OverchargeCount = 0;
     }
 
     // I believe the only thing a pilot needs
@@ -694,10 +695,7 @@ export class LancerActor extends Actor {
           await mech.writeback();
 
           // If we've got a frame (which we should) check for setting Retrograde image
-          if (
-            mech.Frame &&
-            (await (mech.Flags.orig_doc as LancerActor).swapFrameImage(mech, null, mech.Frame))
-          ) {
+          if (mech.Frame && (await (mech.Flags.orig_doc as LancerActor).swapFrameImage(mech, null, mech.Frame))) {
             // Write back again if we swapped images
             await mech.writeback();
           }
@@ -709,7 +707,7 @@ export class LancerActor extends Actor {
           flags.top_level_data["name"] = pilot.Name;
           flags.top_level_data["img"] = new_img;
           flags.top_level_data["token.name"] = pilot.Callsign;
-          
+
           // Check and see if we have a custom token (not from imgur) set, and if we don't, set the token image.
           if (
             this.data.token.img === "systems/lancer/assets/icons/pilot.svg" ||
@@ -717,7 +715,6 @@ export class LancerActor extends Actor {
           ) {
             flags.top_level_data["token.img"] = new_img;
           }
-
         },
       });
 
@@ -1104,7 +1101,7 @@ export class LancerActor extends Actor {
   }
 
   setupLancerHooks() {
-    // If we're a compendium entity, don't actually do anything
+    // If we're a compendium document, don't actually do anything
     if (this.compendium) {
       return;
     }
@@ -1235,19 +1232,18 @@ export class LancerActor extends Actor {
     }
 
     // Check the actor
-    if (
-      this.data.img == oldFramePath ||
-      this.data.img == defaultImg 
-    ) {
+    if (this.data.img == oldFramePath || this.data.img == defaultImg) {
       newData.img = newFramePath;
 
       // Have to set our top level data in MM or it will overwrite it...
       robot.Flags.top_level_data.img = newFramePath;
-      if (this.data.token.img?.includes("systems/lancer/assets/retrograde-minis") || this.data.token.img == defaultImg ){
+      if (
+        this.data.token.img?.includes("systems/lancer/assets/retrograde-minis") ||
+        this.data.token.img == defaultImg
+      ) {
         //we can override any retrograde assets, or the default image
         robot.Flags.top_level_data["token.img"] = newFramePath;
-      }
-      else {
+      } else {
         //do not override any custom tokens
         robot.Flags.top_level_data["token.img"] = this.data.token.img;
       }
