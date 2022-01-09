@@ -1063,10 +1063,10 @@ export function HANDLER_activate_item_context_menus<T extends LancerActorSheetDa
     callback: async (html: JQuery) => {
       let element = html.closest(".ref.valid")[0];
       if (element) {
-        const found_entity = await resolve_ref_element(element);
-        if (!found_entity) return;
+        const found_doc = await resolve_ref_element(element);
+        if (!found_doc) return;
 
-        let sheet = (found_entity.Flags as FoundryFlagData).orig_doc.sheet;
+        let sheet = (found_doc.Flags as FoundryFlagData).orig_doc.sheet;
         // If the sheet is already rendered:
         if (sheet?.rendered) {
           await sheet.maximize();

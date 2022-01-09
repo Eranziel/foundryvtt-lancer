@@ -148,12 +148,12 @@ export async function HANDLER_activate_ref_clicking<T extends EntryType>(event: 
   event.stopPropagation();
   const element = event.currentTarget;
 
-  const found_entity = await resolve_ref_element(element);
-  if (!found_entity) return;
+  const found_doc = await resolve_ref_element(element);
+  if (!found_doc) return;
 
   // We didn't really need the fully resolved class but, hwatever
   // open that link
-  let sheet = (found_entity.Flags as FoundryFlagData<T>).orig_doc.sheet;
+  let sheet = (found_doc.Flags as FoundryFlagData<T>).orig_doc.sheet;
 
   // If the sheet is already rendered:
   if (sheet?.rendered) {
@@ -204,10 +204,10 @@ export async function resolve_ref_element<T extends EntryType>(
 
   // Then we resolve it
   ctx = ctx ?? new OpCtx();
-  let found_entity = await new FoundryReg().resolve(ctx, ref);
+  let found_doc = await new FoundryReg().resolve(ctx, ref);
 
-  if (found_entity) {
-    return found_entity;
+  if (found_doc) {
+    return found_doc;
   } else {
     console.warn("Failed to resolve ref element");
     return null;

@@ -61,7 +61,7 @@ export type ResolvedRegArgs = {
   token_collection?: null | any; // If provided we use this token collection to fetch actors. Corresponds to a single Scene
 };
 
-export abstract class EntityCollectionWrapper<T extends EntryType> {
+export abstract class DocumentCollectionWrapper<T extends EntryType> {
   // Create an item and return a reference to it
   abstract create_many(items: RegEntryTypes<T>[]): Promise<GetResult<T>[]>; // Return id
   // Update the specified item of type T
@@ -78,7 +78,7 @@ export abstract class EntityCollectionWrapper<T extends EntryType> {
 
 // 0.8: Should return CompendiumCollection. Lists all compendiums of specified document type that aren't in our standard id set
 
-export class NuWrapper<T extends EntryType> extends EntityCollectionWrapper<T> {
+export class NuWrapper<T extends EntryType> extends DocumentCollectionWrapper<T> {
   // Need this to filter results by type/know what we're returning
   entry_type: T;
   // We hold onto this as well
