@@ -5,12 +5,8 @@ import type { LancerTextMacroData } from "../interfaces";
 import {
     TagInstance
 } from "machine-mind";
-import {
-  renderMacroTemplate
-} from "../macros"
-import {
-  getMacroSpeaker,
-} from "./util"
+import { getMacroSpeaker } from "./util"
+import { renderMacroTemplate } from "./render"
 
 const lp = LANCER.log_prefix;
 

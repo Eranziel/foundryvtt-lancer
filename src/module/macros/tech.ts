@@ -13,12 +13,12 @@ import type { AccDiffDataSerialized } from "../helpers/acc_diff";
 import {
   attackRolls,
   checkTargets,
-  renderMacroTemplate
 } from "../macros"
 import {
   encodeMacroData,
   getMacroSpeaker,
 } from "./util"
+import { renderMacroTemplate } from "./render"
 
 const lp = LANCER.log_prefix;
 

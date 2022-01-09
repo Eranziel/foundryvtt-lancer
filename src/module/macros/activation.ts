@@ -22,12 +22,8 @@ import { is_limited, is_tagged } from "machine-mind/dist/funcs";
 import type { AccDiffDataSerialized } from "../helpers/acc_diff";
 import { buildActionHTML, buildDeployableHTML } from "../helpers/item";
 import { ActivationOptions } from "../enums";
-import {
-  renderMacroHTML
-} from "../macros"
-import {
-  getMacroSpeaker,
-} from "./util"
+import { getMacroSpeaker } from "./util"
+import { renderMacroHTML } from "./render"
 import { rollTechMacro } from "./tech"
 
 const lp = LANCER.log_prefix;
