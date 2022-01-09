@@ -105,6 +105,7 @@ import {
   stat_edit_card_max,
   stat_rollable_card,
   stat_view_card,
+  tech_flow_card,
 } from "./module/helpers/actor";
 import type { HelperOptions } from "handlebars";
 import {
@@ -362,6 +363,7 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("std-num-input", std_num_input);
   Handlebars.registerHelper("std-checkbox", std_checkbox);
   Handlebars.registerHelper("action-button", action_button);
+  Handlebars.registerHelper("tech-flow-card", tech_flow_card);
 
   // ------------------------------------------------------------------------
   // Tag helpers
