@@ -22,12 +22,13 @@ export interface GetResult<T extends LancerItemType | LancerActorType> {
 }
 
 /**
- * Converts an entity into an item suitable for calling .create/.update/whatver with.
+ * Converts a document into an item suitable for calling .create/.update/whatver with.
  * Specifically,
- * - creates the "data" by .save()ing the entity
+ * - creates the "data" by .save()ing the document
  * - augments the data with anything in our top_level_data
  * - includes an id appropriate to the item. This will allow for bulk .update()s, and has no effect on .create()s
- *  + Note that this ID is taken from the MM ent, not the original entity. This is because some techniques like insinuation rely on manually altering Registry info to propagate ref changes
+ *  + Note that this ID is taken from the MM ent, not the original document. This is because some techniques like
+ *    insinuation rely on manually altering Registry info to propagate ref changes
  */
 function as_document_blob<T extends EntryType>(ent: LiveEntryTypes<T>): any {
   let flags = ent.Flags as FoundryFlagData<T>;

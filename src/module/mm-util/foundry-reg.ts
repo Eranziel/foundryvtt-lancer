@@ -61,7 +61,7 @@ export interface FoundryRegItemData<T extends EntryType> {
     derived: {
       mm: LiveEntryTypes<T> | null;
       mm_promise: Promise<LiveEntryTypes<T>>; // The above, in promise form. More robust
-      // Include other details as appropriate to the entity
+      // Include other details as appropriate to the document
     };
   };
   type: T;
