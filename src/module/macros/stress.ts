@@ -2,7 +2,7 @@
 import { LANCER } from "../config";
 import type { LancerActor } from "../actor/lancer-actor";
 import { getAutomationOptions } from "../settings";
-import { getMacroSpeaker } from "./util"
+import { getMacroSpeaker } from "./util";
 
 const lp = LANCER.log_prefix;
 
@@ -11,7 +11,7 @@ const lp = LANCER.log_prefix;
  * @param a           - Actor or ID of actor to overheat
  * @param reroll_data - Data to use if rerolling. Setting this also supresses the dialog.
  */
- export async function prepareOverheatMacro(a: string | LancerActor, reroll_data?: { stress: number }): Promise<void> {
+export async function prepareOverheatMacro(a: string | LancerActor, reroll_data?: { stress: number }): Promise<void> {
   // Determine which Actor to speak as
   let actor = getMacroSpeaker(a);
   if (!actor) return;
@@ -22,8 +22,8 @@ const lp = LANCER.log_prefix;
   }
 
   if (getAutomationOptions().structure && !reroll_data) {
-    const ent = await actor.data.data.derived.mm_promise;
-    if (ent.CurrentHeat <= ent.HeatCapacity) {
+    const mech = await actor.data.data.derived.mm_promise;
+    if (mech.CurrentHeat <= mech.HeatCapacity) {
       ui.notifications!.info("Token heat is within heat cap.");
       return;
     }

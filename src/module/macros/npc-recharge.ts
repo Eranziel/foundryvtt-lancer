@@ -1,21 +1,18 @@
 // Import TypeScript modules
 import { LANCER } from "../config";
 import type { LancerActor } from "../actor/lancer-actor";
-import {
-  TagInstance
-} from "machine-mind";
-import { getMacroSpeaker } from "./util"
-import { renderMacroTemplate } from "./render"
+import { TagInstance } from "machine-mind";
+import { getMacroSpeaker } from "./util";
+import { renderMacroTemplate } from "./render";
 
 const lp = LANCER.log_prefix;
-
 
 export async function prepareChargeMacro(a: string | LancerActor) {
   // Determine which Actor to speak as
   let actor = getMacroSpeaker(a);
   if (!actor || !actor.is_npc()) return;
-  const ent = actor.data.data.derived.mm;
-  const feats = ent?.Features;
+  const npc = actor.data.data.derived.mm;
+  const feats = npc?.Features;
   if (!feats) return;
 
   // Make recharge roll.

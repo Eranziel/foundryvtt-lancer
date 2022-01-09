@@ -1,8 +1,8 @@
 // Import TypeScript modules
 import { LANCER } from "../config";
 import type { LancerTextMacroData } from "../interfaces";
-import { getMacroSpeaker } from "./util"
-import { rollTextMacro } from "./text"
+import { getMacroSpeaker } from "./util";
+import { rollTextMacro } from "./text";
 
 const lp = LANCER.log_prefix;
 
@@ -10,23 +10,23 @@ const lp = LANCER.log_prefix;
  * Prepares a macro to present core active information for
  * @param a     String of the actor ID to roll the macro as, and who we're getting core info for
  */
- export async function prepareCoreActiveMacro(a: string) {
+export async function prepareCoreActiveMacro(a: string) {
   // Determine which Actor to speak as
-  let mech = getMacroSpeaker(a);
-  if (!mech || !mech.is_mech()) return;
+  let actor = getMacroSpeaker(a);
+  if (!actor || !actor.is_mech()) return;
 
-  var ent = await mech.data.data.derived.mm_promise;
-  if (!ent.Frame) return;
+  let mech = await actor.data.data.derived.mm_promise;
+  if (!mech.Frame) return;
 
-  if (!ent.CurrentCoreEnergy) {
+  if (!mech.CurrentCoreEnergy) {
     ui.notifications!.warn(`No core power remaining on this frame!`);
     return;
   }
 
   let mData: LancerTextMacroData = {
-    title: ent.Frame.CoreSystem.ActiveName,
-    description: ent.Frame.CoreSystem.ActiveEffect,
-    tags: ent.Frame.CoreSystem.Tags,
+    title: mech.Frame.CoreSystem.ActiveName,
+    description: mech.Frame.CoreSystem.ActiveEffect,
+    tags: mech.Frame.CoreSystem.Tags,
   };
 
   // TODO--setting for this?
@@ -38,9 +38,9 @@ const lp = LANCER.log_prefix;
         icon: '<i class="fas fa-check"></i>',
         label: "Yes",
         callback: async _dlg => {
-          mech?.update({ "data.core_energy": Math.max(ent.CurrentCoreEnergy - 1, 0) });
-          console.log(`Automatically consumed core power for ${ent.LID}`);
-          if (mech) rollTextMacro(mech, mData);
+          actor?.update({ "data.core_energy": Math.max(mech.CurrentCoreEnergy - 1, 0) });
+          console.log(`${lp} Automatically consumed core power for ${mech.LID}`);
+          if (actor) rollTextMacro(actor, mData);
         },
       },
       cancel: {
@@ -59,17 +59,17 @@ const lp = LANCER.log_prefix;
  */
 export async function prepareCorePassiveMacro(a: string) {
   // Determine which Actor to speak as
-  let mech = getMacroSpeaker(a);
-  if (!mech || !mech.is_mech()) return;
+  let actor = getMacroSpeaker(a);
+  if (!actor || !actor.is_mech()) return;
 
-  var ent = await mech.data.data.derived.mm_promise;
-  if (!ent.Frame) return;
+  let mech = await actor.data.data.derived.mm_promise;
+  if (!mech.Frame) return;
 
   let mData: LancerTextMacroData = {
-    title: ent.Frame.CoreSystem.PassiveName,
-    description: ent.Frame.CoreSystem.PassiveEffect,
-    tags: ent.Frame.CoreSystem.Tags,
+    title: mech.Frame.CoreSystem.PassiveName,
+    description: mech.Frame.CoreSystem.PassiveEffect,
+    tags: mech.Frame.CoreSystem.Tags,
   };
 
-  rollTextMacro(mech, mData).then();
+  rollTextMacro(actor, mData).then();
 }

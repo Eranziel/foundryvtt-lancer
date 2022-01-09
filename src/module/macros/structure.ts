@@ -2,8 +2,8 @@
 import { LANCER } from "../config";
 import type { LancerActor } from "../actor/lancer-actor";
 import { getAutomationOptions } from "../settings";
-import { getMacroSpeaker } from "./util"
-import { prepareTextMacro } from "./text"
+import { getMacroSpeaker } from "./util";
+import { prepareTextMacro } from "./text";
 
 const lp = LANCER.log_prefix;
 
@@ -12,7 +12,7 @@ const lp = LANCER.log_prefix;
  * @param a           - Actor or ID of actor to structure
  * @param reroll_data - Data to use if rerolling. Setting this also supresses the dialog.
  */
- export async function prepareStructureMacro(
+export async function prepareStructureMacro(
   a: string | LancerActor,
   reroll_data?: { structure: number }
 ): Promise<void> {
@@ -26,8 +26,8 @@ const lp = LANCER.log_prefix;
   }
 
   if (getAutomationOptions().structure && !reroll_data) {
-    const ent = await actor.data.data.derived.mm_promise;
-    if (ent.CurrentHP > 0) {
+    const mech = await actor.data.data.derived.mm_promise;
+    if (mech.CurrentHP > 0) {
       ui.notifications!.info("Token has hp remaining. No need to roll structure.");
       return;
     }
