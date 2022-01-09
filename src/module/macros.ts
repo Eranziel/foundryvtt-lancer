@@ -47,6 +47,8 @@ export { prepareStatMacro } from "./macros/stat"
 export { prepareTechMacro } from "./macros/tech"
 export { prepareTextMacro } from "./macros/text"
 export { stabilizeMacro } from "./macros/stabilize"
+export { prepareOverheatMacro } from "./macros/stress"
+export { prepareStructureMacro, prepareStructureSecondaryRollMacro } from "./macros/structure"
 export { fullRepairMacro } from "./macros/full-repair"
 
 const lp = LANCER.log_prefix;
@@ -838,43 +840,6 @@ export async function prepareCorePassiveMacro(a: string) {
   rollTextMacro(mech, mData).then();
 }
 
-export function prepareStructureSecondaryRollMacro(registryId: string) {
-  // @ts-ignore
-  let roll = new Roll("1d6").evaluate({ async: false });
-  let result = roll.total!;
-  if (result <= 3) {
-    prepareTextMacro(
-      registryId,
-      "Destroy Weapons",
-      `
-<div class="dice-roll lancer-dice-roll">
-  <div class="dice-result">
-    <div class="dice-formula lancer-dice-formula flexrow">
-      <span style="text-align: left; margin-left: 5px;">${roll.formula}</span>
-      <span class="dice-total lancer-dice-total major">${result}</span>
-    </div>
-  </div>
-</div>
-<span>On a 1–3, all weapons on one mount of your choice are destroyed</span>`
-    );
-  } else {
-    prepareTextMacro(
-      registryId,
-      "Destroy Systems",
-      `
-<div class="dice-roll lancer-dice-roll">
-  <div class="dice-result">
-    <div class="dice-formula lancer-dice-formula flexrow">
-      <span style="text-align: left; margin-left: 5px;">${roll.formula}</span>
-      <span class="dice-total lancer-dice-total major">${result}</span>
-    </div>
-  </div>
-</div>
-<span>On a 4–6, a system of your choice is destroyed</span>`
-    );
-  }
-}
-
 export async function prepareChargeMacro(a: string | LancerActor) {
   // Determine which Actor to speak as
   let actor = getMacroSpeaker(a);
@@ -912,75 +877,6 @@ export async function prepareChargeMacro(a: string | LancerActor) {
   };
   const template = `systems/${game.system.id}/templates/chat/charge-card.hbs`;
   return renderMacroTemplate(actor, template, templateData);
-}
-
-/**
- * Performs a roll on the overheat table for the given actor
- * @param a           - Actor or ID of actor to overheat
- * @param reroll_data - Data to use if rerolling. Setting this also supresses the dialog.
- */
-export async function prepareOverheatMacro(a: string | LancerActor, reroll_data?: { stress: number }): Promise<void> {
-  // Determine which Actor to speak as
-  let actor = getMacroSpeaker(a);
-  if (!actor) return;
-
-  if (!actor.is_mech() && !actor.is_npc()) {
-    ui.notifications!.warn("Only Mechs and NPCs can overheat");
-    return;
-  }
-
-  if (getAutomationOptions().structure && !reroll_data) {
-    const ent = await actor.data.data.derived.mm_promise;
-    if (ent.CurrentHeat <= ent.HeatCapacity) {
-      ui.notifications!.info("Token heat is within heat cap.");
-      return;
-    }
-    const { open } = await import("./helpers/slidinghud");
-    try {
-      await open("stress", { stat: "stress", title: "Overheating", lancerActor: actor });
-    } catch (_e) {
-      return;
-    }
-  }
-
-  // Hand it off to the actor to overheat
-  await actor.overheat(reroll_data);
-}
-
-/**
- * Performs a roll on the structure table for the given actor
- * @param a           - Actor or ID of actor to structure
- * @param reroll_data - Data to use if rerolling. Setting this also supresses the dialog.
- */
-export async function prepareStructureMacro(
-  a: string | LancerActor,
-  reroll_data?: { structure: number }
-): Promise<void> {
-  // Determine which Actor to speak as
-  let actor = getMacroSpeaker(a);
-  if (!actor) return;
-
-  if (!actor.is_mech() && !actor.is_npc()) {
-    ui.notifications!.warn("Only Mechs and NPCs can take struct damage");
-    return;
-  }
-
-  if (getAutomationOptions().structure && !reroll_data) {
-    const ent = await actor.data.data.derived.mm_promise;
-    if (ent.CurrentHP > 0) {
-      ui.notifications!.info("Token has hp remaining. No need to roll structure.");
-      return;
-    }
-    const { open } = await import("./helpers/slidinghud");
-    try {
-      await open("struct", { stat: "structure", title: "Structure Damage", lancerActor: actor });
-    } catch (_e) {
-      return;
-    }
-  }
-
-  // Hand it off to the actor to structure
-  await actor.structure(reroll_data);
 }
 
 /**
