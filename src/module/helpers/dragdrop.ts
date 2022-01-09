@@ -218,15 +218,15 @@ export type NativeDrop = _PhysicalDrop | _MetaDrop;
 export type ResolvedNativeDrop =
   | {
       type: "Item";
-      entity: LancerItem;
+      document: LancerItem;
     }
   | {
       type: "Actor";
-      entity: LancerActor;
+      document: LancerActor;
     }
   | {
       type: "JournalEntry";
-      entity: JournalEntry;
+      document: JournalEntry;
     }
   | null;
 
@@ -266,7 +266,7 @@ export async function resolve_native_drop(drop: string | { [key: string]: any } 
     if (item) {
       return {
         type: "Item",
-        entity: item,
+        document: item,
       };
     }
   } else if (drop.type == "Actor") {
@@ -287,7 +287,7 @@ export async function resolve_native_drop(drop: string | { [key: string]: any } 
     if (actor) {
       return {
         type: "Actor",
-        entity: actor,
+        document: actor,
       };
     }
   } else if (drop.type == "JournalEntry") {
@@ -307,7 +307,7 @@ export async function resolve_native_drop(drop: string | { [key: string]: any } 
     if (journal) {
       return {
         type: "JournalEntry",
-        entity: journal,
+        document: journal,
       };
     }
   }
@@ -502,9 +502,9 @@ export class MMDragResolveCache {
         // Resolution is complex but still solved
         let drop = await resolve_native_drop(as_json);
         if (drop?.type == "Actor") {
-          resolved = await mm_wrap_actor(drop.entity, this.ctx);
+          resolved = await mm_wrap_actor(drop.document, this.ctx);
         } else if (drop?.type == "Item") {
-          resolved = await mm_wrap_item(drop.entity, this.ctx);
+          resolved = await mm_wrap_item(drop.document, this.ctx);
         } else {
           resolved = null;
         }
@@ -619,7 +619,7 @@ export function applyGlobalDragListeners() {
 
         // Upon success
         if (resolved.type == "Item" || resolved.type == "Actor") {
-          set_global_drag(resolved.entity);
+          set_global_drag(resolved.document);
         }
       }, 100);
     },

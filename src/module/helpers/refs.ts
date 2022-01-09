@@ -51,7 +51,7 @@ export function ref_commons<T extends EntryType>(
     return null;
   }
 
-  // Grab flags to retrieve original entity
+  // Grab flags to retrieve original document
   let flags = item.Flags as FoundryFlagData<T>;
 
   // Declare our results
@@ -632,8 +632,8 @@ export function HANDLER_activate_ref_drop_clearing<T>(
 }
 
 /**
- * Use this for previews of items. Will prevent change/submit events from propagating all the way up, and instead call writeback() on the
- * appropriate entity instead.
+ * Use this for previews of items. Will prevent change/submit events from propagating all the way up,
+ * and instead call writeback() on the appropriate document instead.
  * Control in same way as generic action handler: with the "data-commit-item" property pointing at the MM item
  */
 export function HANDLER_intercept_form_changes<T>(
