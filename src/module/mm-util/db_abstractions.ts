@@ -27,26 +27,26 @@ export interface GetResult<T extends LancerItemType | LancerActorType> {
  * - creates the "data" by .save()ing the document
  * - augments the data with anything in our top_level_data
  * - includes an id appropriate to the item. This will allow for bulk .update()s, and has no effect on .create()s
- *  + Note that this ID is taken from the MM ent, not the original document. This is because some techniques like
+ *  + Note that this ID is taken from the MM entry, not the original document. This is because some techniques like
  *    insinuation rely on manually altering Registry info to propagate ref changes
  */
-function as_document_blob<T extends EntryType>(ent: LiveEntryTypes<T>): any {
-  let flags = ent.Flags as FoundryFlagData<T>;
+function as_document_blob<T extends EntryType>(entry: LiveEntryTypes<T>): any {
+  let flags = entry.Flags as FoundryFlagData<T>;
 
-  // Set name from changed data. Prioritize a changed top level name over a changed ent name
+  // Set name from changed data. Prioritize a changed top level name over a changed entry name
   if (flags.top_level_data.name && flags.top_level_data.name != flags.orig_doc_name) {
-    // Override ent data with top level
-    ent.Name = flags.top_level_data.name;
-  } else if (ent.Name && ent.Name != flags.orig_doc_name) {
-    // Override top level with ent data
+    // Override entry data with top level
+    entry.Name = flags.top_level_data.name;
+  } else if (entry.Name && entry.Name != flags.orig_doc_name) {
+    // Override top level with entry data
     flags.top_level_data.name;
   }
 
   // Combine saved data with top level data
   return mergeObject(
     {
-      _id: ent.RegistryID,
-      data: ent.save(),
+      _id: entry.RegistryID,
+      data: entry.save(),
     },
     flags.top_level_data
   );
