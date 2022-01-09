@@ -254,7 +254,7 @@ export function npc_feature_preview(npc_feature_path: string, helper: HelperOpti
 }
 
 /** Expected arguments:
- * - bonus_path=<string path to the individual bonus item>,  ex: ="ent.mm.Bonuses.3"
+ * - bonus_path=<string path to the individual bonus item>,  ex: ="doc.mm.Bonuses.3"
  * - bonus=<bonus object to pre-populate with>
  */
 export function single_bonus_editor(bonus_path: string, bonus: Bonus, options: HelperOptions) {
@@ -326,7 +326,7 @@ export function single_bonus_editor(bonus_path: string, bonus: Bonus, options: H
 }
 
 /** Expected arguments:
- * - bonuses_path=<string path to the bonuses array>,  ex: ="ent.mm.Bonuses"
+ * - bonuses_path=<string path to the bonuses array>,  ex: ="doc.mm.Bonuses"
  * - bonuses=<bonus array to pre-populate with>.
  * Displays a list of bonuses, with buttons to add/delete (if edit true)
  */
@@ -395,7 +395,7 @@ export function HANDLER_activate_edit_counter<T>(html: JQuery, data_getter: () =
 }
 
 /** Expected arguments:
- * - bonus_path=<string path to the individual bonus item>,  ex: ="ent.mm.Bonuses.3"
+ * - bonus_path=<string path to the individual bonus item>,  ex: ="doc.mm.Bonuses.3"
  * - bonus=<bonus object to pre-populate with>
  */
 export function single_action_editor(path: string, options: HelperOptions) {
@@ -1144,15 +1144,15 @@ export function HANDLER_activate_item_context_menus<T extends LancerActorSheetDa
       let data = await data_getter();
 
       // Should always be the owning entity if we're able to delete
-      let ent: RegEntry<any> = resolve_dotpath(sheet_data, "mm", null);
+      let entry: RegEntry<any> = resolve_dotpath(sheet_data, "mm", null);
       let counter: Counter = resolve_dotpath(sheet_data, path, null);
 
       // Only allow this on Pilots for now, could plausibly generalize at some point
-      if (!is_reg_pilot(ent)) return;
+      if (!is_reg_pilot(entry)) return;
 
-      let index = ent.CustomCounters.indexOf(counter);
-      ent.CustomCounters.splice(index, 1);
-      ent.writeback();
+      let index = entry.CustomCounters.indexOf(counter);
+      entry.CustomCounters.splice(index, 1);
+      entry.writeback();
     },
   };
 

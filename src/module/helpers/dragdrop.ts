@@ -395,11 +395,11 @@ export function HANDLER_enable_mm_dropping(
   hover_handler?: HoverHandlerFunc
 ) {
   // Make a helper for checking dest dataset
-  const check_targ_type = (ent: RegEntry<any>, elt: JQuery<HTMLElement>) => {
+  const check_targ_type = (entry: RegEntry<any>, elt: JQuery<HTMLElement>) => {
     // Check that the dest type matches. dest_type must always be provided
     // Using `includes` allows for multiple types
     let dest_type = elt[0].dataset.type;
-    return !dest_type || dest_type.includes(ent.Type);
+    return !dest_type || dest_type.includes(entry.Type);
   };
 
   HANDLER_enable_dropping(
@@ -556,13 +556,13 @@ function set_global_drag(to: LancerActor | LancerItem | RegRef<any>) {
   GlobalMMDragState.dragging = true;
   let type: EntryType;
   let rr = to as RegRef<any>;
-  let ent = to as LancerActor | LancerItem;
+  let doc = to as LancerActor | LancerItem;
   if (rr.fallback_lid !== undefined) {
     GlobalMMDragState.curr_dragged_ref = rr;
     type = rr.type;
-  } else if (ent.data !== undefined) {
-    GlobalMMDragState.curr_dragged_entity = ent;
-    type = ent.data.type;
+  } else if (doc.data !== undefined) {
+    GlobalMMDragState.curr_dragged_entity = doc;
+    type = doc.data.type;
   } else {
     console.error("Error while setting global drag");
     return; // hmmm
