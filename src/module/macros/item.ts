@@ -1,7 +1,5 @@
 // Import TypeScript modules
 import { LANCER } from "../config";
-import type { LancerItem } from "../item/lancer-item";
-import type { LancerActor } from "../actor/lancer-actor";
 import type {
   LancerStatMacroData,
   LancerTalentMacroData,
@@ -14,6 +12,7 @@ import {
 } from "machine-mind";
 import { applyCollapseListeners } from "../helpers/collapse";
 import { getMacroSpeaker, ownedItemFromString } from "./util"
+import { rollReactionMacro } from "./reaction"
 import { rollSystemMacro } from "./system"
 import { rollTalentMacro } from "./talent"
 import { prepareTechMacro } from "./tech"
@@ -21,7 +20,6 @@ import { rollTextMacro } from "./text"
 import { rollTriggerMacro } from "./trigger"
 import {
   prepareAttackMacro,
-  rollReactionMacro,
 } from "../macros"
 
 const lp = LANCER.log_prefix;
