@@ -13,10 +13,11 @@ import {
   HANDLER_activate_ref_clicking,
   HANDLER_activate_uses_editor,
 } from "../helpers/refs";
-import type { LancerActorSheetData, LancerStatMacroData } from "../interfaces";
+import type { LancerActorSheetData, LancerMacroData, LancerStatMacroData } from "../interfaces";
 import type { AnyMMItem } from "../item/lancer-item";
 import { AnyMMActor, is_actor_type, LancerActor, LancerActorType } from "./lancer-actor";
 import {
+  encodeMacroData,
   prepareActivationMacro,
   prepareChargeMacro,
   prepareItemMacro,
@@ -46,6 +47,7 @@ import { mm_owner } from "../mm-util/helpers";
 import type { ActionType } from "../action";
 import { InventoryDialog } from "../apps/inventory";
 import { HANDLER_activate_item_context_menus, HANDLER_activate_edit_counter } from "../helpers/item";
+import { number } from "fp-ts";
 const lp = LANCER.log_prefix;
 
 /**
@@ -340,23 +342,6 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     });
   }
 
-  _onDragMacroableStart(event: DragEvent) {
-    // For roll-stat macros
-    event.stopPropagation(); // Avoids triggering parent event handlers
-    // It's an input so it'll always be an InputElement, right?
-    let path = this.getStatPath(event);
-    if (!path) return ui.notifications!.error("Error finding stat for macro.");
-
-    let tSplit = path.split(".");
-    let data = {
-      title: tSplit[tSplit.length - 1].toUpperCase(),
-      dataPath: path,
-      type: "HASE",
-      actorId: this.actor.id,
-    };
-    event.dataTransfer?.setData("text/plain", JSON.stringify(data));
-  }
-
   _onDragActivationChipStart(event: DragEvent) {
     // For talent macros
     event.stopPropagation(); // Avoids triggering parent event handlers
@@ -366,32 +351,38 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     let title = target.closest(".action-wrapper")?.querySelector(".action-title")?.textContent;
     let itemId = target.closest(".item")?.getAttribute("data-id");
 
-    if (!itemId) throw Error("No item found)");
+    if (!itemId) throw Error("No item found");
 
-    if (title === undefined) title = this.actor.items.get(itemId)?.name;
-
-    let data = {
-      itemId: target.closest(".item")?.getAttribute("data-id"),
-      actorId: this.actor.id,
-      type: "",
-      number: 0,
-      title: title,
-    };
+    title = title
+      ?? this.actor.items.get(itemId)?.name
+      ?? "unknown activation";
 
     let a = target.getAttribute("data-activation");
     let d = target.getAttribute("data-deployable");
 
+    let activationOption: ActivationOptions;
+    let activationIndex: number;
     if (a) {
       const activation = parseInt(a);
-      data.type = ActivationOptions.ACTION;
-      data.number = activation;
+      activationOption = ActivationOptions.ACTION;
+      activationIndex = activation;
     } else if (d) {
       const deployable = parseInt(d);
-      data.type = "DEPLOYABLE";
-      data.number = deployable;
+      activationOption = ActivationOptions.DEPLOYABLE;
+      activationIndex = deployable;
+    } else {
+      throw Error("unknown activation was dragged.");
     }
 
-    event.dataTransfer?.setData("text/plain", JSON.stringify(data));
+    // send as a generated macro:
+    let macroData: LancerMacroData = {
+      iconPath: `systems/${game.system.id}/assets/icons/macro-icons/mech_system.svg`,
+      title: title,
+      fn: "prepareActivationMacro",
+      args: [this.actor.id!, itemId, activationOption, activationIndex],
+    };
+
+    event.dataTransfer?.setData("text/plain", JSON.stringify(macroData));
   }
 
   _activatePlusMinusButtons(html: any) {
