@@ -699,8 +699,8 @@ export const migrateTokenData = async (token: LancerTokenDocument) => {
  * A general migration to remove all fields from the data model which are flagged with a _deprecated tag
  * @private
  */
-const _migrateRemoveDeprecated = function (ent, updateData) {
-  const flat = flattenObject(ent.data);
+const _migrateRemoveDeprecated = function (doc, updateData) {
+  const flat = flattenObject(doc.data);
 
   // Identify objects to deprecate
   const toDeprecate = Object.entries(flat)
