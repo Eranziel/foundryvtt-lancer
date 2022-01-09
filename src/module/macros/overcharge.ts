@@ -3,10 +3,19 @@ import { LANCER } from "../config";
 import { getAutomationOptions } from "../settings";
 import type { LancerActor } from "../actor/lancer-actor";
 import type { LancerOverchargeMacroData } from "../interfaces";
-import { getMacroSpeaker } from "./util"
+import { encodeMacroData, getMacroSpeaker } from "./util"
 import { renderMacroTemplate } from "./render"
 
 const lp = LANCER.log_prefix;
+
+export function encodeOverchargeMacroData(actor_id: string): string  {
+  return encodeMacroData({
+    title: "OVERCHARGE",
+    fn: "prepareOverchargeMacro",
+    args: [actor_id],
+    iconPath: `systems/${game.system.id}/assets/icons/macro-icons/overcharge.svg`,
+  });
+}
 
 export async function prepareOverchargeMacro(a: string) {
   // Determine which Actor to speak as

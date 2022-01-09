@@ -16,6 +16,14 @@ import { rollTechMacro } from "./tech";
 
 const lp = LANCER.log_prefix;
 
+/**
+ * Dispatch wrapper for the "action chips" on the bottom of many items, traits, systems, and so on.
+ * @param a       {string}                    Actor to roll as.
+ * @param i       {string}                    Item to use.
+ * @param type    {ActivationOptions}         Options for how to perform the activation
+ * @param index   {number}                    ?
+ * @param rerollData {AccDiffDataSerialized}  saved accdiff data for rerolls
+ */
 export async function prepareActivationMacro(
   a: string,
   i: string,

@@ -12,6 +12,7 @@ export const encodedMacroWhitelist = [
   "prepareTechMacro",
   "prepareStatMacro",
   "prepareItemMacro",
+  "prepareTalentMacro",
   "prepareCoreActiveMacro",
   "prepareFrameTraitMacro",
   "prepareOverchargeMacro",

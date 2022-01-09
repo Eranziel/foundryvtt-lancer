@@ -19,8 +19,6 @@ import { AnyMMActor, is_actor_type, LancerActor, LancerActorType } from "./lance
 import {
   prepareActivationMacro,
   prepareChargeMacro,
-  prepareCoreActiveMacro,
-  prepareCorePassiveMacro,
   prepareItemMacro,
   runEncodedMacro,
 } from "../macros";
@@ -154,11 +152,6 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
   }
 
   _activateMacroDragging(html: JQuery) {
-    const statMacroHandler = (e: DragEvent) => this._onDragMacroableStart(e);
-    const talentMacroHandler = (e: DragEvent) => this._onDragTalentMacroableStart(e);
-    const textMacroHandler = (e: DragEvent) => this._onDragTextMacroableStart(e);
-    const CAMacroHandler = (e: DragEvent) => this._onDragCoreActiveStart(e);
-    const CPMacroHandler = (e: DragEvent) => this._onDragCorePassiveStart(e);
     const ActionMacroHandler = (e: DragEvent) => this._onDragActivationChipStart(e);
     const EncodedMacroHandler = (e: DragEvent) => this._onDragEncodedMacroStart(e);
 
@@ -174,11 +167,6 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
           item.addEventListener("dragstart", EncodedMacroHandler, false);
           return;
         }
-        if (item.classList.contains("stat-macro")) item.addEventListener("dragstart", statMacroHandler, false);
-        if (item.classList.contains("talent-macro")) item.addEventListener("dragstart", talentMacroHandler, false);
-        if (item.classList.contains("text-macro")) item.addEventListener("dragstart", textMacroHandler, false);
-        if (item.classList.contains("core-active-macro")) item.addEventListener("dragstart", CAMacroHandler, false);
-        if (item.classList.contains("core-passive-macro")) item.addEventListener("dragstart", CPMacroHandler, false);
         if (item.classList.contains("activation-chip")) item.addEventListener("dragstart", ActionMacroHandler, false);
         if (item.classList.contains("item"))
           item.addEventListener(
@@ -289,18 +277,6 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       prepareStatMacro(this.actor._id, this.getStatPath(ev)!);
     });*/
 
-    // Talent rollers
-    let talentMacro = html.find(".talent-macro");
-    talentMacro.on("click", ev => {
-      if (!ev.currentTarget) return; // No target, let other handlers take care of it.
-      ev.stopPropagation(); // Avoids triggering parent event handlers
-
-      const el = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
-
-      prepareItemMacro(this.actor.id!, el.getAttribute("data-id")!, {
-        rank: (<HTMLDataElement>ev.currentTarget).getAttribute("data-rank"),
-      });
-    });
 
     // Weapon rollers
     let weaponMacro = html.find(".roll-attack");
@@ -354,26 +330,6 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       } else if (!Number.isNaN(deployable)) {
         prepareActivationMacro(this.actor.id!, item, ActivationOptions.DEPLOYABLE, deployable);
       }
-    });
-
-    // TODO: This are really just mech-specific
-    // Core active & passive text rollers
-    let CAMacro = html.find(".core-active-macro");
-    CAMacro.on("click", (ev: any) => {
-      ev.stopPropagation(); // Avoids triggering parent event handlers
-
-      // let target = <HTMLElement>ev.currentTarget;
-
-      prepareCoreActiveMacro(this.actor.id!);
-    });
-
-    let CPMacro = html.find(".core-passive-macro");
-    CPMacro.on("click", (ev: any) => {
-      ev.stopPropagation(); // Avoids triggering parent event handlers
-
-      // let target = <HTMLElement>ev.currentTarget;
-
-      prepareCorePassiveMacro(this.actor.id!);
     });
 
     let ChargeMacro = html.find(".charge-macro");
@@ -434,81 +390,6 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       data.type = "DEPLOYABLE";
       data.number = deployable;
     }
-
-    event.dataTransfer?.setData("text/plain", JSON.stringify(data));
-  }
-
-  _onDragTalentMacroableStart(event: DragEvent) {
-    // For talent macros
-    event.stopPropagation(); // Avoids triggering parent event handlers
-
-    let target = <HTMLElement>event.currentTarget;
-
-    let data = {
-      itemId: target.closest(".item")?.getAttribute("data-id"),
-      actorId: this.actor.id,
-      type: EntryType.TALENT,
-      title: target.nextElementSibling?.textContent,
-      rank: target.getAttribute("data-rank"),
-    };
-
-    event.dataTransfer?.setData("text/plain", JSON.stringify(data));
-  }
-
-  /**
-   * For macros which simple expect a title & description, no fancy handling.
-   * Assumes data-path-title & data-path-description defined
-   * @param event   The associated DragEvent
-   */
-  _onDragTextMacroableStart(event: DragEvent) {
-    event.stopPropagation(); // Avoids triggering parent event handlers
-
-    let target = <HTMLElement>event.currentTarget;
-
-    let data = {
-      title: target.getAttribute("data-path-title"),
-      description: target.getAttribute("data-path-description"),
-      actorId: this.actor.id,
-      type: "Text",
-    };
-
-    event.dataTransfer?.setData("text/plain", JSON.stringify(data));
-  }
-
-  /**
-   * For dragging the core active to the hotbar
-   * @param event   The associated DragEvent
-   */
-  _onDragCoreActiveStart(event: DragEvent) {
-    event.stopPropagation(); // Avoids triggering parent event handlers
-
-    // let target = <HTMLElement>event.currentTarget;
-
-    let data = {
-      actorId: this.actor.id,
-      // Title will simply be CORE ACTIVE since we want to keep the macro dynamic
-      title: "CORE ACTIVE",
-      type: "Core-Active",
-    };
-
-    event.dataTransfer?.setData("text/plain", JSON.stringify(data));
-  }
-
-  /**
-   * For dragging the core passive to the hotbar
-   * @param event   The associated DragEvent
-   */
-  _onDragCorePassiveStart(event: DragEvent) {
-    event.stopPropagation(); // Avoids triggering parent event handlers
-
-    // let target = <HTMLElement>event.currentTarget;
-
-    let data = {
-      actorId: this.actor.id,
-      // Title will simply be CORE PASSIVE since we want to keep the macro dynamic
-      title: "CORE PASSIVE",
-      type: "Core-Passive",
-    };
 
     event.dataTransfer?.setData("text/plain", JSON.stringify(data));
   }

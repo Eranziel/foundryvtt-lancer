@@ -37,7 +37,6 @@ export async function prepareItemMacro(a: string, i: string, options?: any) {
   if (!actor) return;
 
   const item = ownedItemFromString(i, actor);
-
   if (!item) return;
 
   // Make a macro depending on the type

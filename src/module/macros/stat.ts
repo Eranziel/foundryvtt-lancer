@@ -6,7 +6,6 @@ import { resolve_dotpath } from "../helpers/commons";
 import type { AccDiffDataSerialized } from "../helpers/acc_diff";
 import { getMacroSpeaker } from "./util"
 import { renderMacroTemplate } from "./render"
-import { rollTechMacro } from "./tech"
 
 const lp = LANCER.log_prefix;
 
@@ -25,7 +24,7 @@ export async function prepareStatMacro(a: string, statKey: string, rerollData?: 
     title: statPath[statPath.length - 1].toUpperCase(),
     bonus: bonus,
   };
-  
+
   rollStatMacro(actor, mData).then();
 }
 
