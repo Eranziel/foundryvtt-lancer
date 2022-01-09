@@ -8,7 +8,6 @@ import { getMacroSpeaker } from "./util"
 import { renderMacroTemplate } from "./render"
 import { rollTechMacro } from "./tech"
 
-
 const lp = LANCER.log_prefix;
 
 export async function prepareStatMacro(a: string, statKey: string, rerollData?: AccDiffDataSerialized) {
