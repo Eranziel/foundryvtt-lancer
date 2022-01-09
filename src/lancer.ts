@@ -602,16 +602,17 @@ Hooks.on("renderSidebarTab", async (app: Application, html: HTMLElement) => {
   addLCPManager(app, html);
 });
 
+// TODO: keep or remove?
 Hooks.on("getActorDirectoryEntryContext", (_html: JQuery<HTMLElement>, ctxOptions: ContextMenuEntry[]) => {
   const editMigratePilot: ContextMenuEntry = {
     name: "Migrate Pilot",
     icon: '<i class="fas fa-user-circle"></i>',
     condition: (li: any) => {
-      const actor = game.actors?.get(li.data("entityId"));
+      const actor = game.actors?.get(li.data("documentId"));
       return actor?.data.type === "pilot" && validForExport(actor);
     },
     callback: (li: any) => {
-      const actor = game.actors?.get(li.data("entityId"));
+      const actor = game.actors?.get(li.data("documentId"));
       // @ts-ignore Migrations?
       const dump = handleActorExport(actor, false);
       dump && actor?.importCC(dump as any, true);
@@ -622,11 +623,11 @@ Hooks.on("getActorDirectoryEntryContext", (_html: JQuery<HTMLElement>, ctxOption
     name: "Export Pilot",
     icon: '<i class="fas fa-user-circle"></i>',
     condition: (li: any) => {
-      const actor = game.actors?.get(li.data("entityId"));
+      const actor = game.actors?.get(li.data("documentId"));
       return actor?.data.type === "pilot" && validForExport(actor);
     },
     callback: (li: any) => {
-      const actor = game.actors?.get(li.data("entityId"));
+      const actor = game.actors?.get(li.data("documentId"));
       // @ts-ignore Migrations?
       handleActorExport(actor, true);
     },

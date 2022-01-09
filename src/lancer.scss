@@ -3,10 +3,10 @@
 
 @import "https://cdn.jsdelivr.net/npm/@mdi/font@5.9.55/css/materialdesignicons.min.css";
 
-/* Item/entity types, useful for shorthand */
+/* Item/document types, useful for shorthand */
 $item-types: core_bonus environment faction frame manufacturer npc_class npc_template npc_feature weapon_mod mech_system mech_weapon organization pilot_armor pilot_gear pilot_weapon reserve sitrep skill status tag talent quirk;
 $actor-types: npc pilot mech deployable;
-$entity-types: join($item-types, $actor-types);
+$document-types: join($item-types, $actor-types);
 
 
 /* Settings Layer*/
@@ -2152,7 +2152,7 @@ Here, this means we want to allow for drag stuff etc to show contextually if:
 - The app is editable
 - the box is a context-drop of the appropriate corresponding type
 */
-@each $e-type in $entity-types {
+@each $e-type in $document-types {
   .dragging-#{$e-type} .editable .context-drop.#{$e-type} {
     display: revert;
   }
