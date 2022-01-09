@@ -44,8 +44,9 @@ export default class SvelteApp<DataModel> extends Application {
   }
 
   activateListeners(html: JQuery) {
+    if (!html.get(0)) return;
     let component = new this.klass({
-      target: html.get(0),
+      target: html.get(0)!,
       props: this.data,
       intro: !!this.options.intro
     });

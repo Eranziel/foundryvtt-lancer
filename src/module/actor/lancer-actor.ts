@@ -755,9 +755,10 @@ export class LancerActor extends Actor {
    * We want to reset our ctx before this. It is used by our items, such that they all can share
    * the same ctx space.
    */
-  prepareEmbeddedEntities() {
+  prepareEmbeddedDocuments() {
     this._actor_ctx = new OpCtx();
-    super.prepareEmbeddedEntities();
+    //@ts-ignore prepareEmbeddedEntities is deprecated in v9, prepareEmbeddedDocuments is the replacement.
+    super.prepareEmbeddedDocuments();
   }
 
   // Use this to prevent race conditions / carry over data
