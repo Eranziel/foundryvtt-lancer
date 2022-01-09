@@ -6,10 +6,8 @@ import { is_reg_mech } from "./actor/lancer-actor";
 import type {
   LancerAttackMacroData,
   LancerMacroData,
-  LancerOverchargeMacroData,
   LancerReactionMacroData,
   LancerStatMacroData,
-  LancerTalentMacroData,
   LancerTextMacroData,
 } from "./interfaces";
 // Import JSON data
@@ -17,7 +15,6 @@ import {
   DamageType,
   EntryType,
   funcs,
-  MechSystem,
   MechWeapon,
   MechWeaponProfile,
   NpcFeature,
@@ -30,8 +27,6 @@ import {
 } from "machine-mind";
 import { FoundryFlagData, FoundryReg } from "./mm-util/foundry-reg";
 import { is_ref, resolve_dotpath } from "./helpers/commons";
-import { buildSystemHTML } from "./helpers/item";
-import { applyCollapseListeners } from "./helpers/collapse";
 import { checkForHit } from "./helpers/automation/targeting";
 import type { AccDiffData, AccDiffDataSerialized, RollModifier } from "./helpers/acc_diff";
 import { is_limited, is_overkill } from "machine-mind/dist/funcs";
@@ -39,14 +34,15 @@ import type { LancerToken } from "./token";
 import { is_loading, is_self_heat } from "machine-mind/dist/classes/mech/EquipUtil";
 import { getAutomationOptions } from "./settings";
 
-import { getMacroSpeaker, encodeMacroData, encodedMacroWhitelist } from "./macros/util"
-import { renderMacroTemplate, renderMacroHTML } from "./macros/render"
-import { prepareTechMacro, rollTechMacro } from "./macros/tech"
+import { getMacroSpeaker, encodeMacroData, encodedMacroWhitelist, ownedItemFromString } from "./macros/util"
+import { renderMacroTemplate } from "./macros/render"
+import { rollTechMacro } from "./macros/tech"
 import { prepareTextMacro, rollTextMacro } from "./macros/text"
 
 export { encodeMacroData, runEncodedMacro } from "./macros/util"
 export { renderMacroTemplate, renderMacroHTML } from "./macros/render"
 export { prepareActivationMacro } from "./macros/activation"
+export { prepareItemMacro } from "./macros/item"
 export { prepareOverchargeMacro } from "./macros/overcharge"
 export { stabilizeMacro } from "./macros/stabilize"
 export { prepareTechMacro } from "./macros/tech"
@@ -188,133 +184,6 @@ export async function onHotbarDrop(_bar: any, data: any, slot: number) {
   }
 }
 
-function ownedItemFromString(i: string, actor: LancerActor): LancerItem | null {
-  // Get the item
-  let item = actor.items.get(i);
-  if (!item && actor.is_mech()) {
-    let pilot = game.actors!.get(actor.data.data.pilot?.id ?? "");
-    item = pilot?.items.get(i);
-  }
-
-  if (!item) {
-    ui.notifications!.error(`Error preparing macro: could not find Item ${i} owned by Actor ${actor.name}.`);
-    return null;
-  } else if (!item.isOwned) {
-    ui.notifications!.error(`Error preparing macro: ${item.name} is not owned by an Actor.`);
-    return null;
-  }
-
-  return item;
-}
-
-/**
- * Generic macro preparer for any item.
- * Given an actor and item, will prepare data for the macro then roll it.
- * @param a The actor id to speak as
- * @param i The item id that is being rolled
- * @param options Ability to pass through various options to the item.
- *      Talents can use rank: value.
- *      Weapons can use accBonus or damBonus
- */
-export async function prepareItemMacro(a: string, i: string, options?: any) {
-  // Determine which Actor to speak as
-  let actor = getMacroSpeaker(a);
-  if (!actor) return;
-
-  const item = ownedItemFromString(i, actor);
-
-  if (!item) return;
-
-  // Make a macro depending on the type
-  switch (item.data.type) {
-    // Skills
-    case EntryType.SKILL:
-      let skillData: LancerStatMacroData = {
-        title: item.name!,
-        bonus: item.data.data.rank * 2,
-      };
-      await rollTriggerMacro(actor, skillData);
-      break;
-    // Pilot OR Mech weapon
-    case EntryType.PILOT_WEAPON:
-    case EntryType.MECH_WEAPON:
-      await prepareAttackMacro({ actor, item, options });
-      break;
-    // Systems
-    case EntryType.MECH_SYSTEM:
-      await rollSystemMacro(actor, item.data.data.derived.mm!);
-      break;
-    // Talents
-    case EntryType.TALENT:
-      // If we aren't passed a rank, default to current rank
-      let rank = options.rank ? options.rank : item.data.data.curr_rank;
-
-      let talData: LancerTalentMacroData = {
-        talent: item.data.data,
-        rank: rank,
-      };
-
-      await rollTalentMacro(actor, talData);
-      break;
-    // Gear
-    case EntryType.PILOT_GEAR:
-      let gearData: LancerTextMacroData = {
-        title: item.name!,
-        description: item.data.data.description,
-        tags: item.data.data.tags,
-      };
-
-      await rollTextMacro(actor, gearData);
-      break;
-    // Core bonuses can just be text, right?
-    /*
-    case EntryType.CORE_BONUS:
-      let CBdata: LancerTextMacroData = {
-        title: item.name,
-        description: item.data.data.effect,
-      };
-
-      await rollTextMacro(actor, CBdata);
-      break;
-      */
-    case EntryType.NPC_FEATURE:
-      switch (item.data.data.type) {
-        case NpcFeatureType.Weapon:
-          await prepareAttackMacro({ actor, item, options });
-          break;
-        case NpcFeatureType.Tech:
-          await prepareTechMacro(a, i);
-          break;
-        case NpcFeatureType.System:
-        case NpcFeatureType.Trait:
-          let sysData: LancerTextMacroData = {
-            title: item.name!,
-            description: item.data.data.effect,
-            tags: item.data.data.tags,
-          };
-
-          await rollTextMacro(actor, sysData);
-          break;
-        case NpcFeatureType.Reaction:
-          let reactData: LancerReactionMacroData = {
-            title: item.name!,
-            trigger: item.data.data.trigger,
-            effect: item.data.data.effect,
-            tags: item.data.data.tags,
-          };
-
-          await rollReactionMacro(actor, reactData);
-          break;
-      }
-      break;
-    default:
-      console.log("No macro exists for that item type");
-      return ui.notifications!.error(`Error - No macro exists for that item type`);
-  }
-
-  applyCollapseListeners();
-}
-
 /** TODO: Remove if not needed
 function getMacroActorItem(a: string, i: string): { actor: LancerActor | undefined; item: LancerItem | undefined } {
   let result: { actor: LancerActor | undefined; item: LancerItem | undefined } = { actor: undefined, item: undefined };
@@ -406,11 +275,7 @@ export async function prepareStatMacro(a: string, statKey: string, rerollData?: 
 
 // Rollers
 
-async function rollTriggerMacro(actor: LancerActor, data: LancerStatMacroData) {
-  return await rollStatMacro(actor, data);
-}
-
-async function rollStatMacro(actor: LancerActor, data: LancerStatMacroData) {
+export async function rollStatMacro(actor: LancerActor, data: LancerStatMacroData) {
   if (!actor) return Promise.resolve();
 
   // Get accuracy/difficulty with a prompt
@@ -441,27 +306,6 @@ async function rollStatMacro(actor: LancerActor, data: LancerStatMacroData) {
     effect: data.effect ? data.effect : null,
   };
   const template = `systems/${game.system.id}/templates/chat/stat-roll-card.hbs`;
-  return renderMacroTemplate(actor, template, templateData);
-}
-
-async function rollSystemMacro(actor: LancerActor, data: MechSystem) {
-  if (!actor) return Promise.resolve();
-
-  // Construct the template
-  const html = buildSystemHTML(data);
-  return renderMacroHTML(actor, html);
-}
-
-async function rollTalentMacro(actor: LancerActor, data: LancerTalentMacroData) {
-  if (!actor) return Promise.resolve();
-
-  // Construct the template
-  const templateData = {
-    title: data.talent.name,
-    rank: data.talent.ranks[data.rank],
-    lvl: data.rank,
-  };
-  const template = `systems/${game.system.id}/templates/chat/talent-card.hbs`;
   return renderMacroTemplate(actor, template, templateData);
 }
 
@@ -500,7 +344,7 @@ export async function prepareEncodedAttackMacro(
  *                              The "Bonus" type is recommended but not required
  * @param rerollData {AccDiffData?} saved accdiff data for rerolls
  */
-async function prepareAttackMacro(
+export async function prepareAttackMacro(
   {
     actor,
     item,

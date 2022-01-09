@@ -1,4 +1,5 @@
 import { LANCER } from "../config";
+import type { LancerItem } from "../item/lancer-item";
 import type { LancerActor } from "../actor/lancer-actor";
 import type {
   LancerMacroData,
@@ -79,4 +80,22 @@ export function getMacroSpeaker(a_id?: string | LancerActor): LancerActor | unde
   }
   return actor;
 }
-  
+
+export function ownedItemFromString(i: string, actor: LancerActor): LancerItem | null {
+  // Get the item
+  let item = actor.items.get(i);
+  if (!item && actor.is_mech()) {
+    let pilot = game.actors!.get(actor.data.data.pilot?.id ?? "");
+    item = pilot?.items.get(i);
+  }
+
+  if (!item) {
+    ui.notifications!.error(`Error preparing macro: could not find Item ${i} owned by Actor ${actor.name}.`);
+    return null;
+  } else if (!item.isOwned) {
+    ui.notifications!.error(`Error preparing macro: ${item.name} is not owned by an Actor.`);
+    return null;
+  }
+
+  return item;
+}
