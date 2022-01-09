@@ -15,6 +15,7 @@ import {
 import type { WeaponMount } from "machine-mind";
 import { ChipIcons } from "../enums";
 import type { LancerMacroData } from "../interfaces";
+import { encodeMacroData } from "../macros";
 import { inc_if, resolve_helper_dotpath, array_path_edit } from "./commons";
 import { mech_weapon_refview, buildActionHTML, buildDeployableHTML, buildChipHTML } from "./item";
 import { editable_mm_ref_list_item, ref_commons, ref_params, simple_mm_ref } from "./refs";
@@ -202,13 +203,13 @@ export function frame_refview(actor: LancerActor, frame_path: string, helper: He
   if (!cd) return simple_mm_ref(EntryType.FRAME, frame, "No Frame", frame_path, true);
 
   return `
-    <div class="card mech-frame">
+    <div class="card mech-frame ${ref_params(cd.ref)}">
       <span class="lancer-header submajor clipped-top">
         ${frame.Name}
       </span>
       <div class="wraprow double">
         <div class="frame-traits flexcol">
-          ${frameTraits(frame)}
+          ${frameTraits(actor, frame)}
         </div>
         ${inc_if(buildCoreSysHTML(actor, frame.CoreSystem), frame.CoreSystem)}
       </div>
@@ -241,17 +242,28 @@ function buildCoreSysHTML(actor: LancerActor, core: CoreSystem) {
   </div>`;
 }
 
-function frameTraits(frame: Frame): string {
-  return frame.Traits.map((t: FrameTrait, _i: number | undefined) => {
-    return buildFrameTrait(t);
+function frameTraits(actor: LancerActor, frame: Frame): string {
+  return frame.Traits.map((t: FrameTrait, i: number) => {
+    return buildFrameTrait(actor, t, i);
   }).join("");
 }
 
-function buildFrameTrait(trait: FrameTrait): string {
+function buildFrameTrait(actor: LancerActor, trait: FrameTrait, index: number): string {
+  
+  let macroData: LancerMacroData = {
+    title: trait.Name,
+    iconPath: `systems/${game.system.id}/assets/icons/macro-icons/trait.svg`,
+    fn: "prepareFrameTraitMacro",
+    args: [actor.id, index],
+  };
+
+  trait.Use
+
   return `<div class="frame-trait">
-    <span class="lancer-header submajor clipped-top frame-trait-header">
-        ${trait.Name}
-    </span>
+    <div class="lancer-header submajor clipped-top frame-trait-header" style="display: flex">
+      <a class="lancer-macro" data-macro="${encodeMacroData(macroData)}"><i class="mdi mdi-message"></i></a>
+      <span class="minor grow">${trait.Name}</span>
+    </div>
     <span>${trait.Description}</span>
   </div>`;
 }

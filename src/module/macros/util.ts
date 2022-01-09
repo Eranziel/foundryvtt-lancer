@@ -15,6 +15,8 @@ export const encodedMacroWhitelist = [
   "prepareStatMacro",
   "prepareItemMacro",
   "prepareCoreActiveMacro",
+  "prepareFrameTraitMacro",
+  "prepareOverchargeMacro",
   "prepareStructureSecondaryRollMacro",
   "prepareOverheatMacro",
   "prepareStructureMacro",

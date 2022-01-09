@@ -73,3 +73,27 @@ export async function prepareCorePassiveMacro(a: string) {
 
   rollTextMacro(actor, mData).then();
 }
+
+/**
+ * Prepares a macro to present frame trait information
+ * @param a     String of the actor ID to roll the macro as, and who we're getting frame trait for
+ * @param index Index of the frame trait to roll
+ */
+ export async function prepareFrameTraitMacro(a: string, index: number) {
+  // Determine which Actor to speak as
+  let mech = getMacroSpeaker(a);
+  if (!mech || !mech.is_mech()) return;
+
+  var ent = await mech.data.data.derived.mm_promise;
+  if (!ent.Frame) return;
+
+  let trait = ent.Frame.Traits[index];
+  if (!trait) return;
+
+  let mData: LancerTextMacroData = {
+    title: trait.Name,
+    description: trait.Description
+  };
+
+  rollTextMacro(mech, mData).then();
+}

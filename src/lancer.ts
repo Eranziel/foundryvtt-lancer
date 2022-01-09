@@ -185,6 +185,7 @@ Hooks.once("init", async function () {
     prepareTechMacro: macros.prepareTechMacro,
     prepareCoreActiveMacro: macros.prepareCoreActiveMacro,
     prepareCorePassiveMacro: macros.prepareCorePassiveMacro,
+    prepareFrameTraitMacro: macros.prepareFrameTraitMacro,
     prepareOverchargeMacro: macros.prepareOverchargeMacro,
     prepareOverheatMacro: macros.prepareOverheatMacro,
     prepareStructureMacro: macros.prepareStructureMacro,
