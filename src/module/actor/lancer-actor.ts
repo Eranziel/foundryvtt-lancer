@@ -125,16 +125,16 @@ export class LancerActor extends Actor {
       ui.notifications!.warn("Can only overheat NPCs and Mechs");
       return;
     }
-    const ent = await this.data.data.derived.mm_promise;
+    const mech = await this.data.data.derived.mm_promise;
     if (!reroll_data) {
-      if (ent.CurrentHeat > ent.HeatCapacity && ent.CurrentStress > 0) {
+      if (mech.CurrentHeat > mech.HeatCapacity && mech.CurrentStress > 0) {
         // https://discord.com/channels/426286410496999425/760966283545673730/789297842228297748
-        if (ent.CurrentStress > 1) ent.CurrentHeat -= ent.HeatCapacity;
-        ent.CurrentStress -= 1;
-      } else if (ent.CurrentHeat <= ent.HeatCapacity) {
+        if (mech.CurrentStress > 1) mech.CurrentHeat -= mech.HeatCapacity;
+        mech.CurrentStress -= 1;
+      } else if (mech.CurrentHeat <= mech.HeatCapacity) {
         return;
       }
-      await ent.writeback();
+      await mech.writeback();
     }
 
     await this.rollOverHeatTable(reroll_data);
@@ -260,15 +260,15 @@ export class LancerActor extends Actor {
       ui.notifications!.warn("Can only structure NPCs and Mechs");
       return;
     }
-    const ent = await this.data.data.derived.mm_promise;
+    const mech = await this.data.data.derived.mm_promise;
     if (!reroll_data) {
-      if (ent.CurrentHP < 1 && ent.CurrentStructure > 0) {
-        if (ent.CurrentStructure > 1) ent.CurrentHP += ent.MaxHP;
-        ent.CurrentStructure -= 1;
-      } else if (ent.CurrentHP >= 1) {
+      if (mech.CurrentHP < 1 && mech.CurrentStructure > 0) {
+        if (mech.CurrentStructure > 1) mech.CurrentHP += mech.MaxHP;
+        mech.CurrentStructure -= 1;
+      } else if (mech.CurrentHP >= 1) {
         return;
       }
-      await ent.writeback();
+      await mech.writeback();
     }
 
     await this.rollStructureTable(reroll_data);
@@ -311,18 +311,18 @@ export class LancerActor extends Actor {
       "Glancing Blow",
     ];
 
-    let ent = (await this.data.data.derived.mm_promise) as Mech | Npc;
-    if ((reroll_data?.structure ?? ent.CurrentStructure) >= ent.MaxStructure) {
+    let mech = (await this.data.data.derived.mm_promise) as Mech | Npc;
+    if ((reroll_data?.structure ?? mech.CurrentStructure) >= mech.MaxStructure) {
       ui.notifications!.info("The mech is at full Structure, no structure check to roll.");
       return;
     }
 
-    let remStruct = reroll_data?.structure ?? ent.CurrentStructure;
+    let remStruct = reroll_data?.structure ?? mech.CurrentStructure;
     let templateData = {};
 
     // If we're already at 0 just kill em
     if (remStruct > 0) {
-      let damage = ent.MaxStructure - remStruct;
+      let damage = mech.MaxStructure - remStruct;
 
       let roll: Roll = await new Roll(`${damage}d6kl1`).evaluate({ async: true });
       let result = roll.total;
@@ -346,7 +346,7 @@ export class LancerActor extends Actor {
           let macroData = encodeMacroData({
             title: "Hull",
             fn: "prepareStatMacro",
-            args: [ent.RegistryID, "mm.Hull"],
+            args: [mech.RegistryID, "mm.Hull"],
           });
 
           secondaryRoll = `<button class="chat-button chat-macro-button" data-macro="${macroData}"><i class="fas fa-dice-d20"></i> Hull</button>`;
@@ -356,15 +356,15 @@ export class LancerActor extends Actor {
             // Since we can't change prepareTextMacro too much or break everyone's macros
             title: "Roll for Destruction",
             fn: "prepareStructureSecondaryRollMacro",
-            args: [ent.RegistryID],
+            args: [mech.RegistryID],
           });
 
           secondaryRoll = `<button class="chat-macro-button"><a class="chat-button" data-macro="${macroData}"><i class="fas fa-dice-d20"></i> Destroy</a></button>`;
         }
       }
       templateData = {
-        val: ent.CurrentStructure,
-        max: ent.MaxStructure,
+        val: mech.CurrentStructure,
+        max: mech.MaxStructure,
         tt: tt,
         title: title,
         total: total,
@@ -382,8 +382,8 @@ export class LancerActor extends Actor {
       let title = structTableT[0];
       let text = structTableD(0, 0);
       templateData = {
-        val: ent.CurrentStructure,
-        max: ent.MaxStructure,
+        val: mech.CurrentStructure,
+        max: mech.MaxStructure,
         title: title,
         text: text,
       };

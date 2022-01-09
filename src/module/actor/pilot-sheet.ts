@@ -294,10 +294,10 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
   }
 }
 
-export function pilot_counters(ent: Pilot, _helper: HelperOptions): string {
+export function pilot_counters(pilot: Pilot, _helper: HelperOptions): string {
   let counter_detail = "";
 
-  let counter_arr = ent.PilotCounters;
+  let counter_arr = pilot.PilotCounters;
   let custom_path = "mm.PilotCounters";
 
   for (let i = 0; i < counter_arr.length; i++) {
@@ -307,7 +307,7 @@ export function pilot_counters(ent: Pilot, _helper: HelperOptions): string {
         counter_arr[i].counter,
         `mm.PilotCounters.${i}.counter`,
         `mm.PilotCounters.${i}.source`,
-        counter_arr[i].source === ent
+        counter_arr[i].source === pilot
       )
     );
   }

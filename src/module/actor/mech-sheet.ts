@@ -80,7 +80,7 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
     // Now, do sensible things with it
     if (is_new && drop.Type === EntryType.FRAME) {
       // If new frame, auto swap with prior frame
-      // Need to pass this_mm through so we don't overwrite data on our 
+      // Need to pass this_mm through so we don't overwrite data on our
       // later update
       await this.actor.swapFrameImage(this_mm, this_mm.Loadout.Frame, drop);
       this_mm.Loadout.Frame = drop;
@@ -153,8 +153,8 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
    */
   async _setOverchargeLevel(_event: JQuery.ClickEvent, level: number) {
     let data = await this.getDataLazy();
-    let ent = data.mm;
-    ent.OverchargeCount = level;
+    let mech = data.mm;
+    mech.OverchargeCount = level;
     await this._commitCurrMM();
   }
 
@@ -245,12 +245,12 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
   ) {
     evt.stopPropagation();
     let data = await this.getDataLazy();
-    let ent = data.mm;
+    let mech = data.mm;
     let path = evt.currentTarget?.dataset?.path;
 
     switch (mode) {
       case "reset-all-weapon-mounts":
-        await ent.Loadout.reset_weapon_mounts();
+        await mech.Loadout.reset_weapon_mounts();
         break;
       case "reset-sys":
         if (!path) return;
