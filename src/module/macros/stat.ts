@@ -25,21 +25,8 @@ export async function prepareStatMacro(a: string, statKey: string, rerollData?: 
     title: statPath[statPath.length - 1].toUpperCase(),
     bonus: bonus,
   };
-  if (mData.title === "TECHATTACK") {
-    let partialMacroData = {
-      title: "Reroll stat macro",
-      fn: "prepareStatMacro",
-      args: [a, statKey],
-    };
-    rollTechMacro(
-      actor,
-      { acc: 0, action: "Quick", t_atk: bonus, effect: "", tags: [], title: "" },
-      partialMacroData,
-      rerollData
-    );
-  } else {
-    rollStatMacro(actor, mData).then();
-  }
+  
+  rollStatMacro(actor, mData).then();
 }
 
 // Rollers

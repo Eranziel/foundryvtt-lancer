@@ -26,12 +26,7 @@ import { checkForHit } from "../helpers/automation/targeting";
 import type { AccDiffData, AccDiffDataSerialized, RollModifier } from "../helpers/acc_diff";
 import { getMacroSpeaker, encodeMacroData, ownedItemFromString } from "./util"
 import { renderMacroTemplate } from "./render"
-import { rollReactionMacro } from "./reaction"
-import { rollSystemMacro } from "./system"
-import { rollTalentMacro } from "./talent"
-import { prepareTechMacro } from "./tech"
-import { rollTextMacro } from "./text"
-import { rollTriggerMacro } from "./trigger"
+
 
 const lp = LANCER.log_prefix;
 
