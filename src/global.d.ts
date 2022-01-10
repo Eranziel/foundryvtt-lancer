@@ -1,3 +1,4 @@
+import type { LancerInitiativeConfig } from "lancer-initiative";
 import type { IContentPackManifest } from "machine-mind";
 import type { AutomationOptions } from "./module/settings";
 import type { LancerActionManager } from "./module/action/actionManager";
@@ -20,6 +21,10 @@ declare global {
       [x: string]: unknown;
     };
     action_manager?: LancerActionManager;
+  }
+
+  interface CONFIG {
+    LancerInitiative: LancerInitiativeConfig<Game["system"]["id"]>;
   }
 
   namespace ClientSettings {

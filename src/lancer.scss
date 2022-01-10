@@ -4,10 +4,10 @@
 @import "https://cdn.jsdelivr.net/npm/@mdi/font@5.9.55/css/materialdesignicons.min.css";
 
 /* Item/document types, useful for shorthand */
-$item-types: core_bonus environment faction frame manufacturer npc_class npc_template npc_feature weapon_mod mech_system mech_weapon organization pilot_armor pilot_gear pilot_weapon reserve sitrep skill status tag talent quirk;
+$item-types: core_bonus environment faction frame manufacturer npc_class npc_template npc_feature weapon_mod mech_system
+  mech_weapon organization pilot_armor pilot_gear pilot_weapon reserve sitrep skill status tag talent quirk;
 $actor-types: npc pilot mech deployable;
 $document-types: join($item-types, $actor-types);
-
 
 /* Settings Layer*/
 :root {
@@ -26,6 +26,14 @@ $document-types: join($item-types, $actor-types);
   --horus-theme-color: #00a256;
   --ha-theme-color: #6e4373;
   /* Shouldn't there be some sort of "--current-theme"??? */
+
+  /* Lancer initiative vars */
+  --lancer-initiative-icon-size: 1rem;
+  --lancer-initiative-player-color: #000000;
+  --lancer-initiative-friendly-color: #000000;
+  --lancer-initiative-neutral-color: #000000;
+  --lancer-initiative-enemy-color: #000000;
+  --lancer-initiative-done-color: #000000;
 
   --reaction-clip-path: polygon(
     0 0,
@@ -1712,8 +1720,7 @@ a.activation-chip > i.mdi {
       img {
         object-fit: cover;
       }
-}
-
+    }
 
     /* Hex size indicator */
     .size-card {
@@ -1754,7 +1761,6 @@ a.activation-chip > i.mdi {
     }
   }
 }
-
 
 .pilot-summary {
   padding-left: 10px;
@@ -2170,12 +2176,12 @@ Here, this means we want to allow for drag stuff etc to show contextually if:
 }
 
 .overline {
-  font-size: .75rem !important;
+  font-size: 0.75rem !important;
   font-weight: 500;
   letter-spacing: 0.1em !important;
   line-height: 1.2rem;
   text-transform: uppercase;
-  font-family: Roboto,sans-serif !important;
+  font-family: Roboto, sans-serif !important;
 }
 
 /* this forces all its children to share the same space,
@@ -2198,7 +2204,7 @@ Here, this means we want to allow for drag stuff etc to show contextually if:
 .inactive-row {
   align-items: center;
 }
-.inactive-row > .major{
+.inactive-row > .major {
   // It looks off without it...
   margin-top: 1px;
 }
@@ -2206,6 +2212,97 @@ Here, this means we want to allow for drag stuff etc to show contextually if:
 .deactivate-mech {
   font-size: 1.5em;
   height: 1em;
-  margin-right: .4em;
+  margin-right: 0.4em;
+}
+
+/* Lancer Initiative stuff
+   This is plain css for now */
+.-emu #sidebar #combat #combat-tracker li.combatant,
+.-emu #combat-popout #combat #combat-tracker li.combatant,
+#combat-tracker li.combatant {
+  padding-right: 0.5em;
+  border: 3px;
+  border-radius: 5px;
+  border-style: solid;
+  border-top: 0px;
+  border-bottom: 0px;
+  margin: 4px;
+}
+
+#combat {
+  #combat-tracker {
+    .combatant {
+      .token-initiative {
+        padding-left: 0.5em;
+        align-items: center;
+        display: flex;
+        position: relative;
+        flex: 0 0 auto;
+      }
+
+      .token-initiative {
+        i,
+        a {
+          font-size: var(--lancer-initiative-icon-size);
+        }
+
+        i.done {
+          color: var(--lancer-initiative-done-color);
+        }
+      }
+    }
+
+    .combatant.player {
+      border-color: var(--lancer-initiative-player-color) !important;
+
+      .token-initiative a {
+        color: var(--lancer-initiative-player-color);
+      }
+    }
+    .combatant.friendly {
+      border-color: var(--lancer-initiative-friendly-color) !important;
+
+      .token-initiative a {
+        color: var(--lancer-initiative-friendly-color);
+      }
+    }
+    .combatant.neutral {
+      border-color: var(--lancer-initiative-neutral-color) !important;
+
+      .token-initiative a {
+        color: var(--lancer-initiative-neutral-color);
+      }
+    }
+    .combatant.enemy {
+      border-color: var(--lancer-initiative-enemy-color) !important;
+
+      .token-initiative a {
+        color: var(--lancer-initiative-enemy-color);
+      }
+    }
+  }
+}
+
+#combat #combat-tracker li.combatant.turn-done {
+  // Furnace crap
+  color: inherit;
+  text-decoration: inherit;
+}
+
+#lancer-initiative-settings {
+  input[type="color"] {
+    flex: 0 0 3rem;
+    cursor: pointer;
+  }
+  #preview-combat {
+    padding: 0px;
+    margin: 1rem;
+  }
+  .token-image {
+    height: 48px;
+    width: 48px;
+    max-width: 48px;
+    border: 0px;
+  }
 }
 

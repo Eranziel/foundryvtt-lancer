@@ -1,3 +1,5 @@
+import { getTrackerAppearance, setAppearance } from "lancer-initiative";
+import type { LancerCombat, LancerCombatant } from "lancer-initiative";
 import { LANCER } from "./config";
 import { AutomationConfig } from "./apps/automation-settings";
 import CompconLoginForm from "./helpers/compcon-login-form";
@@ -91,6 +93,37 @@ export const registerSettings = function () {
     type: Object,
     default: {},
   });
+
+  // Lancer initiative stuff
+  CONFIG.LancerInitiative = {
+    module: game.system.id,
+    templatePath: `systems/${game.system.id}/templates/combat/combat-tracker.hbs`,
+    def_appearance: {
+      icon: "cci cci-activate",
+      icon_size: 2,
+      player_color: "#44abe0",
+      friendly_color: "#44abe0",
+      neutral_color: "#146464",
+      enemy_color: "#d98f30",
+      done_color: "#444444",
+    },
+    activations: "derived.mm.Activations",
+  };
+  game.settings.register(game.system.id, "combat-tracker-appearance", {
+    scope: "world",
+    config: false,
+    type: Object,
+    onChange: setAppearance,
+  });
+  game.settings.register(game.system.id, "combat-tracker-sort", {
+    scope: "world",
+    config: false,
+    type: Boolean,
+    onChange: () => game.combats?.render(),
+    default: true,
+  });
+  Hooks.callAll("LancerInitiativeInit");
+  setAppearance(getTrackerAppearance());
 
   /**
    * TODO: Remove when automation setting migration no longer needed.
@@ -227,4 +260,11 @@ export interface AutomationOptions {
    * @defaultValue `false`
    */
   remove_templates: boolean;
+}
+
+declare global {
+  interface DocumentClassConfig {
+    Combat: typeof LancerCombat;
+    Combatant: typeof LancerCombatant;
+  }
 }

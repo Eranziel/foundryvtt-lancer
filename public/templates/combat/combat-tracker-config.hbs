@@ -1,0 +1,43 @@
+<form autocomplete="off">
+    <div class="form-group">
+        <label>{{localize 'COMBAT.Resource'}}</label>
+        <select name="resource">
+            {{#select settings.resource}}
+            <option value="">{{ localize "None" }}</option>
+            {{#each attributeChoices as |attrs label|}}
+            <optgroup label="{{ label }}">
+                {{#each attrs}}
+                <option value="{{this}}">{{this}}</option>
+                {{/each}}
+            </optgroup>
+            {{/each}}
+            {{/select}}
+        </select>
+        <p class="notes">{{localize 'COMBAT.ResourceHint'}}</p>
+    </div>
+
+    <div class="form-group">
+        <label>{{localize 'COMBAT.SkipDefeated'}}</label>
+        <input type="checkbox" name="skipDefeated" {{checked settings.skipDefeated}} data-dtype="Boolean"/>
+        <p class="notes">{{localize 'COMBAT.SkipDefeatedHint'}}</p>
+    </div>
+
+    {{!Lancer initiative addition}}
+    <div class="form-group">
+        <label>{{localize "lancer.initiative.sorttracker"}}</label>
+        <input type="checkbox" name="sortTracker" {{checked settings.sortTracker}} data-dtype="Boolean"/>
+        <p class="notes">{{localize "lancer.initiative.sorttracker-desc"}}</p>
+    </div>
+
+    <div class="form-group">
+        <label>{{localize "lancer.initiative.appearancesettingslabel"}}</label>
+        <button type="button" id="tracker-appearance">
+            <span class="fas fa-palette"></span> {{localize "lancer.initiative.appearancesettingsbutton"}}
+        </button>
+        <p class="notes">{{localize "lancer.initiative.appearancesettings-desc"}}</p>
+    </div>
+
+    <button type="submit" name="submit">
+        <i class="fas fa-save"></i> {{localize 'COMBAT.SettingsSave'}}
+    </button>
+</form>
