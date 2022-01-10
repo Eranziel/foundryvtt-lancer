@@ -42,7 +42,7 @@ import {
 import { LancerActor, LancerActorType } from "../actor/lancer-actor";
 import type { LancerItem, LancerItemType } from "../item/lancer-item";
 import {
-  EntityCollectionWrapper,
+  DocumentCollectionWrapper,
   EntFor as DocFor,
   GetResult,
   NuWrapper
@@ -61,7 +61,7 @@ export interface FoundryRegItemData<T extends EntryType> {
     derived: {
       mm: LiveEntryTypes<T> | null;
       mm_promise: Promise<LiveEntryTypes<T>>; // The above, in promise form. More robust
-      // Include other details as appropriate to the entity
+      // Include other details as appropriate to the document
     };
   };
   type: T;
@@ -234,7 +234,7 @@ export class FoundryReg extends Registry {
   protected make_wrapper<T extends EntryType>(
     config: FoundryRegNameParsed,
     for_type: T
-  ): EntityCollectionWrapper<T> {
+  ): DocumentCollectionWrapper<T> {
     return new NuWrapper(for_type, config);
   }
 
@@ -478,7 +478,7 @@ export class FoundryReg extends Registry {
 // The meat an' potatoes
 export class FoundryRegCat<T extends EntryType> extends RegCat<T> {
   private defaulter: () => RegEntryTypes<T>;
-  _handler: EntityCollectionWrapper<T>;
+  _handler: DocumentCollectionWrapper<T>;
 
   // Pretty much just delegates to root
   constructor(
@@ -486,7 +486,7 @@ export class FoundryRegCat<T extends EntryType> extends RegCat<T> {
     cat: T,
     default_template: () => RegEntryTypes<T>,
     reviver: ReviveFunc<T>,
-    handler: EntityCollectionWrapper<T>
+    handler: DocumentCollectionWrapper<T>
   ) {
     super(parent, cat, reviver);
     this._handler = handler;

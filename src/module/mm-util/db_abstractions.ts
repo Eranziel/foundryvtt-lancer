@@ -22,30 +22,31 @@ export interface GetResult<T extends LancerItemType | LancerActorType> {
 }
 
 /**
- * Converts an entity into an item suitable for calling .create/.update/whatver with.
+ * Converts a document into an item suitable for calling .create/.update/whatver with.
  * Specifically,
- * - creates the "data" by .save()ing the entity
+ * - creates the "data" by .save()ing the document
  * - augments the data with anything in our top_level_data
  * - includes an id appropriate to the item. This will allow for bulk .update()s, and has no effect on .create()s
- *  + Note that this ID is taken from the MM ent, not the original entity. This is because some techniques like insinuation rely on manually altering Registry info to propagate ref changes
+ *  + Note that this ID is taken from the MM entry, not the original document. This is because some techniques like
+ *    insinuation rely on manually altering Registry info to propagate ref changes
  */
-function as_document_blob<T extends EntryType>(ent: LiveEntryTypes<T>): any {
-  let flags = ent.Flags as FoundryFlagData<T>;
+function as_document_blob<T extends EntryType>(entry: LiveEntryTypes<T>): any {
+  let flags = entry.Flags as FoundryFlagData<T>;
 
-  // Set name from changed data. Prioritize a changed top level name over a changed ent name
+  // Set name from changed data. Prioritize a changed top level name over a changed entry name
   if (flags.top_level_data.name && flags.top_level_data.name != flags.orig_doc_name) {
-    // Override ent data with top level
-    ent.Name = flags.top_level_data.name;
-  } else if (ent.Name && ent.Name != flags.orig_doc_name) {
-    // Override top level with ent data
+    // Override entry data with top level
+    entry.Name = flags.top_level_data.name;
+  } else if (entry.Name && entry.Name != flags.orig_doc_name) {
+    // Override top level with entry data
     flags.top_level_data.name;
   }
 
   // Combine saved data with top level data
   return mergeObject(
     {
-      _id: ent.RegistryID,
-      data: ent.save(),
+      _id: entry.RegistryID,
+      data: entry.save(),
     },
     flags.top_level_data
   );
@@ -60,7 +61,7 @@ export type ResolvedRegArgs = {
   token_collection?: null | any; // If provided we use this token collection to fetch actors. Corresponds to a single Scene
 };
 
-export abstract class EntityCollectionWrapper<T extends EntryType> {
+export abstract class DocumentCollectionWrapper<T extends EntryType> {
   // Create an item and return a reference to it
   abstract create_many(items: RegEntryTypes<T>[]): Promise<GetResult<T>[]>; // Return id
   // Update the specified item of type T
@@ -77,7 +78,7 @@ export abstract class EntityCollectionWrapper<T extends EntryType> {
 
 // 0.8: Should return CompendiumCollection. Lists all compendiums of specified document type that aren't in our standard id set
 
-export class NuWrapper<T extends EntryType> extends EntityCollectionWrapper<T> {
+export class NuWrapper<T extends EntryType> extends DocumentCollectionWrapper<T> {
   // Need this to filter results by type/know what we're returning
   entry_type: T;
   // We hold onto this as well

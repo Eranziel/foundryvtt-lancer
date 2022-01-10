@@ -4,6 +4,8 @@ import { EntryType, funcs, IContentPack, RegEnv, StaticReg } from "machine-mind"
 import { FoundryReg } from "./mm-util/foundry-reg";
 import { LCPIndex } from "./apps/lcpManager";
 import { get_pack } from "./mm-util/helpers";
+import type { LancerActor } from "./actor/lancer-actor";
+import type { LancerItem } from "./item/lancer-item";
 
 export const PACK_SCOPE = "world";
 
@@ -52,7 +54,7 @@ export async function import_cp(
       // Get them all
       let docs = await pack.getDocuments();
       // Get their ids
-      let doc_lids = docs.map(d => <string>d.data.data.lid);
+      let doc_lids = docs.map(d => (d as LancerActor | LancerItem).data.data.lid);
       existing_lids.push(...doc_lids);
     }
 

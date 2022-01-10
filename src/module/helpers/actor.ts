@@ -183,6 +183,39 @@ export function action_button(
     `;
 }
 
+export function tech_flow_card(
+  title: string,
+  icon: string,
+  data_path: string,
+  options: HelperOptions
+): string {
+  let data_val = resolve_helper_dotpath(options, data_path);
+  // Determine whether this is an unlinked token, so we can encode the correct id for the macro.
+  const r_actor = options.data.root.actor as LancerActor | undefined;
+  let id = r_actor?.token && !r_actor.token.isLinked ? r_actor.token.id : r_actor?.id!;
+  // console.log(r_actor, id);
+
+  let macroData = encodeMacroData({
+    title: title,
+    fn: "prepareTechMacro",
+    args: [id, null],
+  });
+
+  return `
+    <div class="card clipped">
+      <div class="lancer-header ">
+        ${inc_if(`<i class="${icon} i--m i--light header-icon"> </i>`, icon)}
+        <span class="major">${title}</span>
+      </div>
+      <div class="flexrow stat-macro-container">
+      <a class="i--dark i--sm lancer-macro" data-macro="${macroData}"><i class="fas fa-dice-d20"></i></a>
+        <span class="lancer-stat major" data-path="${data_path}">${data_val}</span>
+        <div></div>
+      </div>
+    </div>
+    `;
+}
+
 export function npc_clicker_stat_card(title: string, data_path: string, options: HelperOptions): string {
   let data_val_arr: number[] = resolve_helper_dotpath(options, data_path) ?? [];
   let tier_clickers: string[] = [];

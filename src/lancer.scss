@@ -3,11 +3,11 @@
 
 @import "https://cdn.jsdelivr.net/npm/@mdi/font@5.9.55/css/materialdesignicons.min.css";
 
-/* Item/entity types, useful for shorthand */
+/* Item/document types, useful for shorthand */
 $item-types: core_bonus environment faction frame manufacturer npc_class npc_template npc_feature weapon_mod mech_system
   mech_weapon organization pilot_armor pilot_gear pilot_weapon reserve sitrep skill status tag talent quirk;
 $actor-types: npc pilot mech deployable;
-$entity-types: join($item-types, $actor-types);
+$document-types: join($item-types, $actor-types);
 
 /* Settings Layer*/
 :root {
@@ -315,18 +315,6 @@ button {
 
 .tags-container > div {
   flex-grow: 0;
-}
-
-.tag {
-  display: grid;
-  grid-template: 1em 1fr / 50px 1fr 50px;
-  align-items: center;
-  border: solid var(--main-theme-color, fuchsia);
-  border-color: var(--main-theme-color, fuchsia);
-  border-width: 1px;
-  border-radius: 5px;
-  border-left-width: 7px;
-  margin: 2px;
 }
 
 .tag-label {
@@ -1797,7 +1785,7 @@ a.activation-chip > i.mdi {
   margin-top: 4px;
 }
 
-.uses-hex {
+.uses-hex, .counter-hex {
   cursor: pointer;
   font-size: 2em;
   color: white;
@@ -2170,7 +2158,7 @@ Here, this means we want to allow for drag stuff etc to show contextually if:
 - The app is editable
 - the box is a context-drop of the appropriate corresponding type
 */
-@each $e-type in $entity-types {
+@each $e-type in $document-types {
   .dragging-#{$e-type} .editable .context-drop.#{$e-type} {
     display: revert;
   }
@@ -2317,3 +2305,4 @@ Here, this means we want to allow for drag stuff etc to show contextually if:
     border: 0px;
   }
 }
+

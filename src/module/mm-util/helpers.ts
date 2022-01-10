@@ -136,13 +136,13 @@ export async function mm_wrap_item<T extends LancerItemType>(
   let ctx = use_existing_ctx || new OpCtx();
 
   // Load up the item. This _should_ always work
-  // let ent = (await reg.get_cat(item.type).get_live(ctx, item.id)) as LiveEntryTypes<T>;
+  // let entry = (await reg.get_cat(item.type).get_live(ctx, item.id)) as LiveEntryTypes<T>;
   let cat = reg.get_cat(item.data.type);
-  let ent = (await cat.dangerous_wrap_doc(ctx, item)) as LiveEntryTypes<T>;
-  if (!ent) {
+  let entry = (await cat.dangerous_wrap_doc(ctx, item)) as LiveEntryTypes<T>;
+  if (!entry) {
     throw new Error("Something went wrong while trying to contextualize an item...");
   }
-  return ent;
+  return entry;
 }
 
 export async function mm_wrap_actor<T extends EntryType & LancerActorType>(
@@ -179,14 +179,14 @@ export async function mm_wrap_actor<T extends EntryType & LancerActorType>(
   }
   let ctx = use_existing_ctx || new OpCtx();
 
-  // let ent = (await reg.get_cat(actor.data.type).get_live(ctx, id)) as LiveEntryTypes<T>;
+  // let entry = (await reg.get_cat(actor.data.type).get_live(ctx, id)) as LiveEntryTypes<T>;
   let cat = reg.get_cat(actor.data.type);
-  let ent = (await cat.dangerous_wrap_doc(ctx, actor as any)) as LiveEntryTypes<T>;
-  if (!ent) {
+  let entry = (await cat.dangerous_wrap_doc(ctx, actor as any)) as LiveEntryTypes<T>;
+  if (!entry) {
     throw new Error("Something went wrong while trying to contextualize an actor...");
   }
 
-  return ent;
+  return entry;
 }
 
 // Sort mm items. Moves moverand to dest, either before or after depending on third arg

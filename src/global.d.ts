@@ -1,6 +1,7 @@
 import type { LancerInitiativeConfig } from "lancer-initiative";
 import type { IContentPackManifest } from "machine-mind";
 import type { AutomationOptions } from "./module/settings";
+import type { LancerActionManager } from "./module/action/actionManager";
 
 declare global {
   // Since we never use these before `init` tell league types that they are
@@ -14,6 +15,12 @@ declare global {
     interface SystemData<T> {
       id: "lancer";
     }
+  }
+  interface Game {
+    lancer: {
+      [x: string]: unknown;
+    };
+    action_manager?: LancerActionManager;
   }
 
   interface CONFIG {

@@ -164,7 +164,7 @@ export class LancerItem extends Item {
     (<Promise<LiveEntryTypes<LancerItemType>>>dr.mm_promise) = system_ready
       .then(() => mm_wrap_item(this, actor_ctx ?? new OpCtx()))
       .then(async mm => {
-        // Save the entity to derived
+        // Save the document to derived
         Object.defineProperties(dr, {
           mm: {
             enumerable: false,

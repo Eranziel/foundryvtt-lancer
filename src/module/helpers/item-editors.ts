@@ -307,9 +307,11 @@ export function item_edit_sp(path: string, helper: HelperOptions): string {
 }
 
 /**
- * Standard uses editor, for Uses at the root of the given entity
- * @param helper    Standard helper from the template for a gievn entity
- * @returns         HTML to edit Uses and Max Uses
+ * Standard uses editor, for Uses at the root of the given document
+ * @param cur_uses_path  Data path to the current uses
+ * @param max_uses_path  Data path to the maximum uses
+ * @param helper         Standard helper from the template for a given document
+ * @returns              HTML to edit Uses and Max Uses
  */
 export function item_edit_uses(cur_uses_path: string, max_uses_path: string, helper: HelperOptions): string {
   let cur_uses = resolve_helper_dotpath(helper, cur_uses_path);

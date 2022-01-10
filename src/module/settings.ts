@@ -194,6 +194,7 @@ export function getAutomationOptions(useDefault = false): AutomationOptions {
     structure: true,
     overcharge_heat: true,
     attack_self_heat: true,
+    limited_loading: true,
     remove_templates: false,
   };
   if (useDefault) return def;
@@ -211,6 +212,7 @@ export function getAutomationOptions(useDefault = false): AutomationOptions {
       structure: false,
       overcharge_heat: false,
       attack_self_heat: false,
+      limited_loading: false,
       remove_templates: false,
     };
   }
@@ -248,6 +250,11 @@ export interface AutomationOptions {
    * @defaultValue `true`
    */
   attack_self_heat: boolean;
+  /**
+   * Handle limited/loading items automatically, or leave that up to the user
+   * @defaultValue `true`
+   */
+  limited_loading: boolean;
   /**
    * Remove measured templates created by attacks when the turn changes
    * @defaultValue `false`

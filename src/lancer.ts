@@ -20,7 +20,6 @@ import {
   WELCOME,
   NEEDS_AUTOMATION_MIGRATION_VERSION,
 } from "./module/config";
-import type { LancerGame } from "./module/lancer-game";
 import { LancerActor } from "./module/actor/lancer-actor";
 import { LancerItem } from "./module/item/lancer-item";
 import { populatePilotCache } from "./module/compcon";
@@ -106,6 +105,7 @@ import {
   stat_edit_card_max,
   stat_rollable_card,
   stat_view_card,
+  tech_flow_card,
 } from "./module/helpers/actor";
 import type { HelperOptions } from "handlebars";
 import {
@@ -165,7 +165,7 @@ Hooks.once("init", async function () {
 
   // Assign custom classes and constants here
   // Create a Lancer namespace within the game global
-  (game as LancerGame).lancer = {
+  game.lancer = {
     applications: {
       LancerPilotSheet,
       LancerNPCSheet,
@@ -188,6 +188,7 @@ Hooks.once("init", async function () {
     prepareTechMacro: macros.prepareTechMacro,
     prepareCoreActiveMacro: macros.prepareCoreActiveMacro,
     prepareCorePassiveMacro: macros.prepareCorePassiveMacro,
+    prepareFrameTraitMacro: macros.prepareFrameTraitMacro,
     prepareOverchargeMacro: macros.prepareOverchargeMacro,
     prepareOverheatMacro: macros.prepareOverheatMacro,
     prepareStructureMacro: macros.prepareStructureMacro,
@@ -368,6 +369,7 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("std-num-input", std_num_input);
   Handlebars.registerHelper("std-checkbox", std_checkbox);
   Handlebars.registerHelper("action-button", action_button);
+  Handlebars.registerHelper("tech-flow-card", tech_flow_card);
 
   // ------------------------------------------------------------------------
   // Tag helpers
@@ -563,8 +565,8 @@ export const system_ready: Promise<void> = new Promise(success => {
     applyCollapseListeners();
     applyGlobalDragListeners();
 
-    (<LancerGame>game).action_manager = new LancerActionManager();
-    await (<LancerGame>game).action_manager!.init();
+    game.action_manager = new LancerActionManager();
+    await game.action_manager!.init();
 
     success();
   });
@@ -572,27 +574,27 @@ export const system_ready: Promise<void> = new Promise(success => {
 
 // Action Manager hooks.
 Hooks.on("controlToken", () => {
-  (<LancerGame>game).action_manager?.update();
+  game.action_manager?.update();
 });
 Hooks.on("updateToken", (_scene: Scene, _token: Token, diff: any, _options: any, _idUser: any) => {
   // If it's an X or Y change assume the token is just moving.
   if (diff.hasOwnProperty("y") || diff.hasOwnProperty("x")) return;
-  (<LancerGame>game).action_manager?.update();
+  game.action_manager?.update();
 });
 Hooks.on("updateActor", (_actor: Actor) => {
-  (<LancerGame>game).action_manager?.update();
+  game.action_manager?.update();
 });
 Hooks.on("closeSettingsConfig", () => {
-  (<LancerGame>game).action_manager?.updateConfig();
+  game.action_manager?.updateConfig();
 });
 Hooks.on("getSceneNavigationContext", async () => {
-  (<LancerGame>game).action_manager && (await (<LancerGame>game).action_manager!.reset());
+  game.action_manager && (await game.action_manager!.reset());
 });
 Hooks.on("createCombat", (_actor: Actor) => {
-  (<LancerGame>game).action_manager?.update();
+  game.action_manager?.update();
 });
 Hooks.on("deleteCombat", (_actor: Actor) => {
-  (<LancerGame>game).action_manager?.update();
+  game.action_manager?.update();
 });
 Hooks.on("updateCombat", (_combat: Combat, changes: DeepPartial<Combat["data"]>) => {
   if (getAutomationOptions().remove_templates && "turn" in changes && game.user?.isGM) {
@@ -608,16 +610,17 @@ Hooks.on("renderSidebarTab", async (app: Application, html: HTMLElement) => {
   addLCPManager(app, html);
 });
 
+// TODO: keep or remove?
 Hooks.on("getActorDirectoryEntryContext", (_html: JQuery<HTMLElement>, ctxOptions: ContextMenuEntry[]) => {
   const editMigratePilot: ContextMenuEntry = {
     name: "Migrate Pilot",
     icon: '<i class="fas fa-user-circle"></i>',
     condition: (li: any) => {
-      const actor = game.actors?.get(li.data("entityId"));
+      const actor = game.actors?.get(li.data("documentId"));
       return actor?.data.type === "pilot" && validForExport(actor);
     },
     callback: (li: any) => {
-      const actor = game.actors?.get(li.data("entityId"));
+      const actor = game.actors?.get(li.data("documentId"));
       // @ts-ignore Migrations?
       const dump = handleActorExport(actor, false);
       dump && actor?.importCC(dump as any, true);
@@ -628,11 +631,11 @@ Hooks.on("getActorDirectoryEntryContext", (_html: JQuery<HTMLElement>, ctxOption
     name: "Export Pilot",
     icon: '<i class="fas fa-user-circle"></i>',
     condition: (li: any) => {
-      const actor = game.actors?.get(li.data("entityId"));
+      const actor = game.actors?.get(li.data("documentId"));
       return actor?.data.type === "pilot" && validForExport(actor);
     },
     callback: (li: any) => {
-      const actor = game.actors?.get(li.data("entityId"));
+      const actor = game.actors?.get(li.data("documentId"));
       // @ts-ignore Migrations?
       handleActorExport(actor, true);
     },

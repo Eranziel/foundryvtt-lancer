@@ -31,7 +31,7 @@ const pilot_items: LancerItemType[] = [
 const npc_items: LancerItemType[] = [ET.NPC_CLASS, ET.NPC_FEATURE, ET.NPC_TEMPLATE];
 const weapon_items: LancerItemType[] = [ET.MECH_WEAPON, ET.PILOT_WEAPON, ET.NPC_FEATURE];
 
-export type LancerEntityType = LancerItemType | LancerActorType;
+export type LancerDocumentType = LancerItemType | LancerActorType;
 
 export const STATUSES = [
   {
@@ -189,7 +189,7 @@ export const LANCER = {
 };
 
 // Convenience for mapping item/actor types to full names
-const FRIENDLY_ENTITY_NAMES_SINGULAR = {
+const FRIENDLY_DOCUMENT_NAMES_SINGULAR = {
   [EntryType.CORE_BONUS]: "Core Bonus",
   [EntryType.DEPLOYABLE]: "Deployable",
   [EntryType.ENVIRONMENT]: "Environment",
@@ -218,7 +218,7 @@ const FRIENDLY_ENTITY_NAMES_SINGULAR = {
   [EntryType.TALENT]: "Talent",
   [EntryType.WEAPON_MOD]: "Weapon Mod",
 };
-const FRIENDLY_ENTITY_NAMES_PLURAL = {
+const FRIENDLY_DOCUMENT_NAMES_PLURAL = {
   [EntryType.CORE_BONUS]: "Core Bonuses",
   [EntryType.DEPLOYABLE]: "Deployables",
   [EntryType.ENVIRONMENT]: "Environments",
@@ -251,15 +251,15 @@ const FRIENDLY_ENTITY_NAMES_PLURAL = {
 // Quick for single/plural
 export function friendly_entrytype_name(type: LancerItemType | LancerActorType, count?: number): string {
   if ((count ?? 1) > 1) {
-    return FRIENDLY_ENTITY_NAMES_PLURAL[type] ?? `Unknown <${type}>s`;
+    return FRIENDLY_DOCUMENT_NAMES_PLURAL[type] ?? `Unknown <${type}>s`;
   } else {
-    return FRIENDLY_ENTITY_NAMES_SINGULAR[type] ?? `Unknown <${type}>`;
+    return FRIENDLY_DOCUMENT_NAMES_SINGULAR[type] ?? `Unknown <${type}>`;
   }
 }
 
-// Icons for each entity
+// Icons for each document
 export const GENERIC_ITEM_ICON = "systems/lancer/assets/icons/generic_item.svg";
-const ENTITY_ICONS = {
+const DOCUMENT_ICONS = {
   [EntryType.CORE_BONUS]: `systems/lancer/assets/icons/core_bonus.svg`,
   [EntryType.DEPLOYABLE]: `systems/lancer/assets/icons/deployable.svg`,
   [EntryType.ENVIRONMENT]: `systems/lancer/assets/icons/orbit.svg`,
@@ -298,7 +298,7 @@ const ENTITY_ICONS = {
 // TODO: const MACRO_ICONS
 
 export function TypeIcon(type: string, macro?: boolean): string {
-  return ENTITY_ICONS[type] ?? ENTITY_ICONS["generic"];
+  return DOCUMENT_ICONS[type] ?? DOCUMENT_ICONS["generic"];
 }
 
 // A substitution method that replaces the first argument IFF it is an img that we don't think should be preserved, and if the trimmed replacement string is truthy
