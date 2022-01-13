@@ -117,7 +117,7 @@ export async function rollTechMacro(
   let { AccDiffData } = await import("../helpers/acc_diff");
   const initialData = rerollData
     ? AccDiffData.fromObject(rerollData, item ?? actor)
-    : AccDiffData.fromParams(item ?? actor, data.tags, data.title, targets);
+    : AccDiffData.fromParams(item ?? actor, data.tags, data.title, targets, data.acc > 0 ? [data.acc, 0] : [0, -data.acc]);
 
   let promptedData;
   try {
