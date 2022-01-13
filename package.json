@@ -46,7 +46,6 @@
   "dependencies": {
     "@types/marked": "^1.2.1",
     "aws-amplify": "^4.2.9",
-    "compare-versions": "^3.6.0",
     "fp-ts": "^2.11.2",
     "io-ts": "^2.2.16",
     "lancer-initiative": "^1.1.0",

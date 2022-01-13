@@ -800,12 +800,10 @@ async function versionCheck(): Promise<"none" | "minor" | "major"> {
     return "none";
   }
 
-  let compareVersions = (await import("compare-versions")).default;
-
   // Modify these constants to set which Lancer version numbers need and permit migration.
-  if (compareVersions(currentVersion, NEEDS_MAJOR_MIGRATION_VERSION) < 0) {
+  if (foundry.utils.isNewerVersion(NEEDS_MAJOR_MIGRATION_VERSION, currentVersion)) {
     return "major";
-  } else if (compareVersions(currentVersion, NEEDS_MINOR_MIGRATION_VERSION) < 0) {
+  } else if (foundry.utils.isNewerVersion(NEEDS_MINOR_MIGRATION_VERSION, currentVersion)) {
     return "minor";
   } else {
     return "none";
@@ -827,9 +825,7 @@ async function doMigration() {
     await game.settings.set(game.system.id, LANCER.setting_welcome, false);
 
     if (migration == "major") {
-      let compareVersions = (await import("compare-versions")).default;
-
-      if (currentVersion && compareVersions(currentVersion, COMPATIBLE_MIGRATION_VERSION) < 0) {
+      if (currentVersion && foundry.utils.isNewerVersion(COMPATIBLE_MIGRATION_VERSION, currentVersion)) {
         // System version is too old for migration
         ui.notifications!.error(
           `Your LANCER system data is from too old a version and cannot be reliably migrated to the latest version. The process will be attempted, but errors may occur.`,
