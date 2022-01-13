@@ -1,7 +1,10 @@
 import { getTrackerAppearance } from "lancer-initiative";
 type Appearance = NonNullable<typeof CONFIG.LancerInitiative.def_appearance>;
 
-export class LancerCombatTrackerConfig extends CombatTrackerConfig {
+export class LancerCombatTrackerConfig extends CombatTrackerConfig<
+  FormApplication.Options,
+  ClientSettings.Values['lancer.combatTrackerConfig']
+> {
   static get defaultOptions(): FormApplication.Options {
     return {
       ...super.defaultOptions,
@@ -19,10 +22,14 @@ export class LancerCombatTrackerConfig extends CombatTrackerConfig {
     html.find("button#tracker-appearance").on("click", () => new LancerCombatAppearanceConfig({}).render(true));
   }
 
-  async _updateObject(...[ev, obj]: Parameters<CombatTrackerConfig["_updateObject"]>) {
-    await super._updateObject(ev, obj);
-    console.log(obj);
-    await game.settings.set(game.system.id, "combat-tracker-sort", obj["sortTracker"]);
+  async _updateObject(
+    event: Event,
+    formData: ClientSettings.Values['lancer.combatTrackerConfig']
+  ): Promise<ClientSettings.Values['core.combatTrackerConfig']> {
+    let res = await super._updateObject(event, formData);
+    console.log(formData);
+    await game.settings.set(game.system.id, "combat-tracker-sort", formData["sortTracker"]);
+    return res;
   }
 }
 
