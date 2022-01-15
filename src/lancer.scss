@@ -146,10 +146,6 @@ button {
   color: white;
 }
 
-/* .lancer.sheet clipped-card {
-
-} */
-
 .flex-center {
   align-items: center;
   justify-content: center;
@@ -806,12 +802,13 @@ textarea {
     margin-left: 10px;
   }
 
-  /* If our parent item is clipped, we should be as well (? might not be necessary) */
+  /* If we or our parent item is clipped, make sure we don't clip our contents */
   .clipped > &,
-  .clipped-top > & {
+  .clipped-top > &,
+  &.clipped,
+  &.clipped-top {
     padding-left: 10px;
-    clip-path: var(--top-dogear-path);
-    -webkit-clip-path: var(--top-dogear-path);
+    padding-right: 10px;
   }
 
   /* Category specific coloration */
@@ -1575,8 +1572,8 @@ $activations-colors: rgb(204, 10, 10) rgb(98, 0, 255) #3949ab #3949ab #222222 #2
 .core-active-detail,
 .core-passive-detail {
   text-align: left;
-  margin-left: 4px;
-  margin-right: 4px;
+  margin-left: 8px;
+  margin-right: 8px;
 }
 
 .activation-chip {
@@ -1610,14 +1607,21 @@ $activations-colors: rgb(204, 10, 10) rgb(98, 0, 255) #3949ab #3949ab #222222 #2
 .core-active-wrapper,
 .core-passive-wrapper,
 .core-wrapper {
-  display: flex;
-  flex-direction: column;
   border-radius: 10px;
   background-color: rgba(0, 0, 0, 0.07);
   margin-top: 6px;
   padding-top: 4px;
   margin-bottom: 4px;
 }
+
+.action-wrapper,
+.deployable-wrapper,
+.core-active-wrapper,
+.core-passive-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
 /*
 .action-wrapper + .action-wrapper {
   //background: linear-gradient(#000, #000) top /40% 2px no-repeat rgba(0, 0, 0, 0.07);
@@ -1661,13 +1665,14 @@ a.activation-chip > i.mdi {
     flex-basis: 100%;
     margin: 2px;
     border-radius: 3px;
-    height: 1.5em;
   }
 
   .coresys-title {
     width: 100%;
     text-align: center;
     font-weight: bold;
+    padding-top: 4px;
+    padding-bottom: 4px;
   }
 
   .frame-trait {
@@ -1677,10 +1682,6 @@ a.activation-chip > i.mdi {
 
   .frame-traits {
     width: 50%;
-  }
-
-  .frame-trait-header {
-    height: 1.5em;
   }
 }
 

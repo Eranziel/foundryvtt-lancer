@@ -205,7 +205,7 @@ export function frame_refview(actor: LancerActor, frame_path: string, helper: He
   return `
     <div class="card mech-frame ${ref_params(cd.ref)}">
       <span class="lancer-header submajor clipped-top">
-        ${frame.Name}
+        ${frame.Source?.LID} ${frame.Name}
       </span>
       <div class="wraprow double">
         <div class="frame-traits flexcol">
@@ -237,13 +237,19 @@ function buildCoreSysHTML(actor: LancerActor, core: CoreSystem) {
     passive = `<div class="frame-passive">${frame_passive(core)}</div>`;
   }
 
-  return `<div class="core-wrapper frame-coresys flexcol">
-    <div class="coresys-title">
-      <span>${core.Name}</span>
+  return `<div class="core-wrapper frame-coresys">
+    <div class="lancer-title coresys-title clipped-top">
+      <span>${core.Name}</span> // CORE
+      <i 
+        class="mdi mdi-unfold-less-horizontal collapse-trigger collapse-icon" 
+        data-collapse-id="${actor.id}_coresys" > 
+      </i>
     </div>
-    <div class="frame-active">${frame_active(actor, core)}</div>
-    ${passive}
-    ${tags ? tags : ""}
+    <div class="collapse" data-collapse-id="${actor.id}_coresys">
+      <div class="frame-active">${frame_active(actor, core)}</div>
+      ${passive}
+      ${tags ? tags : ""}
+    </div>
   </div>`;
 }
 
@@ -296,9 +302,11 @@ function frame_active(actor: LancerActor, core: CoreSystem): string {
   return `
   <div class="core-active-wrapper">
     <span class="lancer-header submajor clipped-top">
-      ${core.ActiveName}
+      ${core.ActiveName} // ACTIVE
     </span>
-    ${core.ActiveEffect ? core.ActiveEffect : ""}
+    <div class="effect-text">
+      ${core.ActiveEffect ? core.ActiveEffect : ""}
+    </div>
     ${actionHTML ? actionHTML : ""}
     ${depHTML ? depHTML : ""}
     ${buildChipHTML(core.Activation, { icon: ChipIcons.Core, fullData: coreMacroData })}
@@ -314,9 +322,11 @@ function frame_passive(core: CoreSystem): string {
   return `
   <div class="core-active-wrapper">
     <span class="lancer-header submajor clipped-top">
-      ${core.PassiveName}
+      ${core.PassiveName} // PASSIVE
     </span>
-    ${core.PassiveEffect ? core.PassiveEffect : ""}
+    <div class="effect-text">
+      ${core.PassiveEffect ? core.PassiveEffect : ""}
+    </div>
     ${actionHTML ? actionHTML : ""}
   </div>
   `;
