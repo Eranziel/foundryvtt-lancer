@@ -930,8 +930,8 @@ async function showChangelog() {
 
       trimmedChangelog = trimmedChangelog.substring(0, lastH1Pos);
 
-      let marked = (await import("marked")).default;
-      let changelog = marked(trimmedChangelog);
+      let marked = await import("marked");
+      let changelog = marked.parse(trimmedChangelog);
 
       renderChangelog(changelog);
     });
