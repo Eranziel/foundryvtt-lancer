@@ -51,7 +51,7 @@
     "io-ts": "^2.2.16",
     "lancer-initiative": "^1.1.0",
     "machine-mind": "0.2.0-beta.124",
-    "marked": "^2.0.3",
+    "marked": "^4.0.10",
     "tippy.js": "^6.3.1"
   }
 }
