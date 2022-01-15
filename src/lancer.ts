@@ -655,7 +655,7 @@ Hooks.on("renderCombatTracker", (...[_app, html]: Parameters<Hooks.RenderApplica
     .off("click")
     .on("click", ev => {
       ev.preventDefault();
-      new LancerCombatTrackerConfig({}).render(true);
+      new LancerCombatTrackerConfig(undefined, {}).render(true);
     });
 });
 
