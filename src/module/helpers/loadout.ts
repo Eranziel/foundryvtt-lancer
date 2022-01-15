@@ -228,7 +228,12 @@ function buildCoreSysHTML(actor: LancerActor, core: CoreSystem) {
 
   // Generate core passive HTML only if it has one
   let passive = "";
-  if (core.PassiveEffect !== "") {
+  if (
+    core.PassiveName !== "" ||
+    core.PassiveEffect !== "" ||
+    core.PassiveActions.length > 0 ||
+    core.PassiveBonuses.length > 0
+  ) {
     passive = `<div class="frame-passive">${frame_passive(core)}</div>`;
   }
 
@@ -249,7 +254,6 @@ function frameTraits(actor: LancerActor, frame: Frame): string {
 }
 
 function buildFrameTrait(actor: LancerActor, trait: FrameTrait, index: number): string {
-  
   let macroData: LancerMacroData = {
     title: trait.Name,
     iconPath: `systems/${game.system.id}/assets/icons/macro-icons/trait.svg`,
@@ -257,7 +261,7 @@ function buildFrameTrait(actor: LancerActor, trait: FrameTrait, index: number): 
     args: [actor.id, index],
   };
 
-  trait.Use
+  trait.Use;
 
   return `<div class="frame-trait">
     <div class="lancer-header submajor clipped-top frame-trait-header" style="display: flex">
