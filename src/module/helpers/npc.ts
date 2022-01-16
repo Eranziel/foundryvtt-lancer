@@ -9,7 +9,7 @@ import {
   show_damage_array,
   show_range_array,
 } from "./item";
-import { limited_chip_HTML, ref_params } from "./refs";
+import { limited_uses_indicator, ref_params } from "./refs";
 import { compact_tag_list } from "./tags";
 
 export const EffectIcons = {
@@ -122,7 +122,7 @@ function npc_system_trait_effect_preview(path: string, options: HelperOptions) {
     path,
     npc_feature,
     `<div class="flexcol lancer-body">
-      ${npc_feature.Tags.find(tag => tag.Tag.LID === "tg_limited") ? limited_chip_HTML(npc_feature, path) : ""}
+      ${npc_feature.Tags.find(tag => tag.Tag.LID === "tg_limited") ? limited_uses_indicator(npc_feature, path) : ""}
       ${npc_feature.Tags.find(tag => tag.Tag.LID === "tg_recharge") ? charged_box(npc_feature.Charged, path) : ""}
       ${effect_box("EFFECT", npc_feature.Effect)}
       ${compact_tag_list(path + ".Tags", npc_feature.Tags, false)}

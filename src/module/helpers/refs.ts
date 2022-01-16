@@ -325,7 +325,7 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
 
       let limited = "";
       if (is_limited(sys)) {
-        limited = limited_chip_HTML(sys, item_path);
+        limited = limited_uses_indicator(sys, item_path);
       }
       return `<li class="valid ref card clipped mech-system item ${
         sys.SysType === SystemType.Tech ? "tech-item" : ""
@@ -468,7 +468,7 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
   }
 }
 
-export function limited_chip_HTML(
+export function limited_uses_indicator(
   item: MechWeapon | MechSystem | PilotWeapon | PilotGear | NpcFeature,
   path: string
 ): string {

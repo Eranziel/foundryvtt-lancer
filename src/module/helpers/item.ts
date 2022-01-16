@@ -58,7 +58,7 @@ import {
   std_x_of_y,
   tippy_context_menu,
 } from "./commons";
-import { limited_chip_HTML, ref_commons, ref_params, resolve_ref_element } from "./refs";
+import { limited_uses_indicator, ref_commons, ref_params, resolve_ref_element } from "./refs";
 import { ActivationOptions, ChipIcons } from "../enums";
 import type { LancerActorSheetData, LancerItemSheetData, LancerMacroData } from "../interfaces";
 import { encodeMacroData } from "../macros";
@@ -553,7 +553,7 @@ export function pilot_gear_refview(gear_path: string, helper: HelperOptions): st
   let uses = "";
   let limited = funcs.limited_max(gear);
   if (limited) {
-    uses = limited_chip_HTML(gear, gear_path);
+    uses = limited_uses_indicator(gear, gear_path);
   }
 
   return `<div class="valid ${EntryType.PILOT_GEAR} ref drop-settable card clipped macroable item"
@@ -683,7 +683,7 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.Select
   let on_hit = profile.OnHit ? effect_box("On Hit", profile.OnHit) : "";
   let on_crit = profile.OnCrit ? effect_box("On Crit", profile.OnCrit) : "";
 
-  let limited = is_limited(weapon) ? limited_chip_HTML(weapon, weapon_path) : "";
+  let limited = is_limited(weapon) ? limited_uses_indicator(weapon, weapon_path) : "";
 
   return `
   <div class="mech-weapon-wrapper${mod_text ? "-modded" : ""}">
