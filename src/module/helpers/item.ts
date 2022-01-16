@@ -499,6 +499,8 @@ export function pilot_weapon_refview(weapon_path: string, helper: HelperOptions)
   let loading = "";
   // Generate loading segment as needed
   if (is_loading(weapon)) loading = loading_indicator(weapon.Loaded, weapon_path);
+  // Generate limited segment as needed
+  let limited = is_limited(weapon) ? limited_uses_indicator(weapon, weapon_path) : "";
 
   return `<div class="valid ${
     EntryType.PILOT_WEAPON
@@ -520,8 +522,13 @@ export function pilot_weapon_refview(weapon_path: string, helper: HelperOptions)
         ${show_range_array(weapon.Range, helper)}
         <hr class="vsep">
         ${show_damage_array(weapon.Damage, helper)}
+        
+        ${inc_if(`<hr class="vsep"><div class="uses-wrapper">`, loading || limited)}
         <!-- Loading toggle, if we are loading-->
-        ${inc_if(`<hr class="vsep"> ${loading}`, loading)}
+        ${loading}
+        <!-- Limited toggle if we are limited-->
+        ${limited}
+        ${inc_if(`</div>`, loading || limited)}
       </div>
 
       ${compact_tag_list(weapon_path + ".Tags", weapon.Tags, false)}
@@ -567,7 +574,9 @@ export function pilot_gear_refview(gear_path: string, helper: HelperOptions): st
       </a>
     </div>
     <div class="flexcol">
-      ${uses}
+      <div class="uses-wrapper">
+        ${uses}
+      </div>
 
       <div class="effect-text" style=" padding: 5px">
         ${gear.Description}
@@ -711,11 +720,12 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.Select
           <hr class="vsep">
           ${show_damage_array(weapon.SelectedProfile.BaseDamage, options)}
 
+          ${inc_if(`<hr class="vsep"><div class="uses-wrapper">`, loading || limited)}
           <!-- Loading toggle, if we are loading-->
-          ${inc_if(`<hr class="vsep"> ${loading}`, loading)}
-
+          ${loading}
           <!-- Limited toggle if we are limited-->
           ${limited}
+          ${inc_if(`</div>`, loading || limited)}
         </div>
         
         <div class="flexcol">
