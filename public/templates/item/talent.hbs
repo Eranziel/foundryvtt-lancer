@@ -1,26 +1,3 @@
-{{!
-Actions
-Bonuses
-Counters
-~CurrentRank
-Deployables
-Description
-Icon
-LID
-Name
-Ranks
-Actions
-Bonuses
-Counters
-Deployables
-Description
-Exclusive
-Integrated
-Name
-Synergies
-Synergies
-Terse
-}}
 <form class="{{cssClass}} lancer-sheet" autocomplete="off">
   {{! Sheet Header }}
   <header class="sheet-header card clipped-bot">
@@ -83,6 +60,21 @@ Terse
             (concat "mm.Ranks." index ".Counters")
             true
           }}}
+          <div class="integrated-wrapper card clipped flexcol">
+            <div class="lancer-header" style="font-weight: bold">INTEGRATED GEAR</div>
+            {{#each rank.Integrated as |integrated integ_index|}}
+              {{#if (eq integrated.Type "mech_system")}}
+                {{{ref-mm-controllable-item-native (concat "mm.Ranks." index ".Integrated." integ_index) null }}}
+              {{else if (eq integrated.Type "mech_weapon")}}
+                <div style="margin:3px 10px">
+                  {{{mech-weapon-preview (concat "mm.Ranks." index ".Integrated." integ_index) "" }}}
+                </div>
+              {{else}}
+                {{!-- Fallback - typically there should be nothing other than mech systems and weapons, but just in case.--}}
+                {{{ref-mm-controllable-item-native (concat "mm.Ranks." index ".Integrated." integ_index) null }}}
+              {{/if}}
+            {{/each}}
+          </div>
           {{{item-edit-arrayed-deployables (concat "mm.Ranks." index ".Deployables") "DEPLOYABLES"}}}
           {{{item-edit-arrayed-synergies (concat "mm.Ranks." index ".Synergies") "SYNERGIES"}}}
         </div>

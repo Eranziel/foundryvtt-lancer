@@ -17,17 +17,6 @@
     {{/if}}
   </div>
   <div class="flexcol">
-    <!--
-    <a
-      class="gen-control simple-button"
-      data-action="append"
-      data-action-value="(struct)empty_array"
-      data-path="mm.Unlocks"
-      style="float: right; margin-right: 1em"
-    >
-      Add Rank
-    </a>
-    -->
     {{#each unlocks as |unlock_array rank|}}
       <div class="card">
         <div class="lancer-header">
@@ -35,16 +24,24 @@
             //RANK
             {{rank}}
           </span>
-          <!--
-          <a class="gen-control" data-action="splice" data-path="mm.Unlocks.{{rank}}">
-            <i class="fas fa-trash"></i>
-          </a>
-          -->
         </div>
         {{#each unlock_array as |unlock unlock_index|}}
-          {{{ref-mm-controllable-item-native (concat "unlocks." rank "." unlock_index) null }}}
+          {{#if (eq unlock.Type "mech_system")}}
+            {{{ref-mm-controllable-item-native (concat "unlocks." rank "." unlock_index) null }}}
+          {{else if (eq unlock.Type "mech_weapon")}}
+            <div style="margin:3px 10px">
+              {{{mech-weapon-preview (concat "unlocks." rank "." unlock_index) "" }}}
+            </div>
+          {{else if (eq unlock.Type "weapon_mod")}}
+            <div style="margin:3px 10px">
+              {{{wpn-mod-ref (concat "unlocks." rank "." unlock_index) null }}}
+            </div>
+          {{else}}
+            {{!-- Fallback - typically there should be nothing other than mech systems, weapons, and mods, but just in case.--}}
+            {{{ref-mm-controllable-item-native (concat "unlocks." rank "." unlock_index) null }}}
+          {{/if}}
         {{/each}}
-        <!--{{{ref-mm-list-item-append (concat "mm.Unlocks." rank) "frame mech_system mech_weapon weapon_mod"}}}-->
+        {{{ref-mm-list-item-append (concat "mm.Unlocks." rank) "frame mech_system mech_weapon weapon_mod"}}}
       </div>
     {{/each}}
   </div>

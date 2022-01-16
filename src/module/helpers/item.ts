@@ -620,13 +620,7 @@ export function mech_weapon_refview(
   let mod_text: string = "";
   let cd_mod = ref_commons(mod);
   if (cd_mod && mod) {
-    mod_text = `
-    <div class="valid item weapon-mod-addon flexrow clipped-bot ref ${EntryType.WEAPON_MOD}"
-        ${ref_params(cd_mod.ref, weapon_path)}>
-      <i class="cci cci-weaponmod i--m i--light"> </i>
-      <span>${mod.Name}</span>
-      <a style="flex-grow: unset;margin-right: 1em" class="gen-control i--light" data-action="null" data-path="${mod_path}"><i class="fas fa-trash"></i></a>
-    </div>`;
+    mod_text = weapon_mod_ref(mod_path, weapon_path, options);
   } else {
     // Make a refbox, hidden
     mod_text = `
@@ -745,6 +739,19 @@ export function loading_indicator(loaded: boolean, weapon_path: string): string 
   let loading_icon = `mdi ${loaded ? "mdi-hexagon-slice-6" : "mdi-hexagon-outline"} loaded-hex`;
   let indicator = `<a class="gen-control" data-action="set" data-action-value="(bool)${!loaded}" data-path="${weapon_path}.Loaded" data-commit-item="${weapon_path}"><i class="${loading_icon} i--m"></i></a>`;
   return `<div class="clipped card limited-card">LOADED ${indicator}</div>`;
+}
+
+export function weapon_mod_ref(source_path: string, weapon_path: string | null, options: HelperOptions): string {
+  let mod: WeaponMod | null = resolve_helper_dotpath(options, source_path);
+  let cd = ref_commons(mod);
+  if (!mod || !cd) return "";
+  return `
+  <div class="valid item weapon-mod-addon flexrow clipped-bot ref ${EntryType.WEAPON_MOD}"
+      ${weapon_path ? ref_params(cd.ref, weapon_path) : ref_params(cd.ref)}>
+    <i class="cci cci-weaponmod i--m i--light"> </i>
+    <span>${mod.Name}</span>
+    <a style="flex-grow: unset;margin-right: 1em" class="gen-control i--light" data-action="null" data-path="${source_path}"><i class="fas fa-trash"></i></a>
+  </div>`;
 }
 
 // A specific MM ref helper focused on displaying manufacturer info.
@@ -879,6 +886,28 @@ export function buildActionHTML(
     ${tags ? tags : ""}
   </div>
   `;
+}
+
+/**
+ * Wrapper for buildActionHTML that always builds the full card.
+ * @param action  Standard action to generate in HTML form
+ * @param options Options such as:
+ *        number  A number to denote which index of action
+ *                this is for macro purposes. Only used for macro-able actions.
+ *        tags    Array of TagInstances which can optionally be passed
+ * @returns Activation HTML in string form
+ */
+export function buildActionFullHTML(
+  action: Action,
+  options?: { editable?: boolean; path?: string; num?: number; tags?: TagInstance[] }
+): string {
+  return buildActionHTML(action, {
+    editable: options?.editable,
+    path: options?.path,
+    full: true,
+    num: options?.num,
+    tags: options?.tags,
+  });
 }
 
 /**

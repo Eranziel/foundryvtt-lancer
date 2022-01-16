@@ -90,12 +90,24 @@
     <div class="desc-text">{{{safe-html mm.CoreSystem.Description }}}</div>
 
     {{!-- Integrated --}}
-    {{#each mm.CoreSystem.Integrated as |integrated index|}}
-      {{{ref-mm-controllable-item (concat "mm.CoreSystem.Integrated." index) "splice" }}}
-    {{/each}}
-    {{#each mm.CoreSystem.Deployables as |deployable index|}}
-      {{{ref-mm-controllable-item (concat "mm.CoreSystem.Deployables." index) "splice" }}}
-    {{/each}}
+    <div class="integrated-wrapper card clipped flexcol">
+      <div class="lancer-header">INTEGRATED GEAR</div>
+      {{#each mm.CoreSystem.Integrated as |integrated index|}}
+        {{#if (eq integrated.Type "mech_system")}}
+          {{{ref-mm-controllable-item-native (concat "mm.CoreSystem.Integrated." index) null }}}
+        {{else if (eq integrated.Type "mech_weapon")}}
+          <div style="margin:3px 10px">
+            {{{mech-weapon-preview (concat "mm.CoreSystem.Integrated." index) "" }}}
+          </div>
+        {{else}}
+          {{!-- Fallback - typically there should be nothing other than mech systems and weapons, but just in case.--}}
+          {{{ref-mm-controllable-item-native (concat "mm.CoreSystem.Integrated." index) null }}}
+        {{/if}}
+      {{/each}}
+      {{#each mm.CoreSystem.Deployables as |deployable index|}}
+        {{{deployable-card deployable "true" index }}}
+      {{/each}}
+    </div>
 
     {{!-- Passive Description + Bonuses --}}
     <div class="card clipped frame_core">
@@ -107,6 +119,9 @@
       </div>
       <div class="desc-text">{{{safe-html mm.CoreSystem.PassiveEffect }}}</div>
       {{{bonuses-view "mm.CoreSystem.PassiveBonuses" mm.CoreSystem.PassiveBonuses editable}}}
+      {{#each mm.CoreSystem.PassiveActions as |action index|}}
+        {{{action-card action}}}
+      {{/each}}
     </div>
 
     {{!-- Active Description + Bonuses --}}
@@ -119,6 +134,9 @@
       </div>
       <div class="desc-text">{{{safe-html mm.CoreSystem.ActiveEffect }}}</div>
       {{{bonuses-view "mm.CoreSystem.ActiveBonuses" mm.CoreSystem.ActiveBonuses editable}}}
+      {{#each mm.CoreSystem.ActiveActions as |action index|}}
+        {{{action-card action}}}
+      {{/each}}
     </div>
     <div class="tags-container" style="margin: 10px;">
       <div class="flexcol lancer-title">

@@ -91,6 +91,9 @@ import {
   single_bonus_editor,
   buildCounterArrayHTML,
   loading_indicator,
+  weapon_mod_ref,
+  buildDeployableHTML,
+  buildActionFullHTML,
 } from "./module/helpers/item";
 import {
   action_button,
@@ -430,6 +433,9 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("bonuses-view", bonuses_display); // Takes a third arg
   Handlebars.registerHelper("edit-bonus", single_bonus_editor);
   Handlebars.registerHelper("popout-editor-button", popout_editor_button);
+  // Deployables and Actions
+  Handlebars.registerHelper("deployable-card", buildDeployableHTML);
+  Handlebars.registerHelper("action-card", buildActionFullHTML);
 
   // ------------------------------------------------------------------------
   // Weapons
@@ -440,6 +446,7 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("npcf-atk", npc_attack_bonus_preview);
   Handlebars.registerHelper("npcf-acc", npc_accuracy_preview);
   Handlebars.registerHelper("mech-weapon-preview", mech_weapon_refview);
+  Handlebars.registerHelper("wpn-mod-ref", weapon_mod_ref);
 
   // ------------------------------------------------------------------------
   // Systems
