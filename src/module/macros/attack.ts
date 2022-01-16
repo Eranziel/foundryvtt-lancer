@@ -4,10 +4,7 @@ import { getAutomationOptions } from "../settings";
 import type { LancerItem } from "../item/lancer-item";
 import type { LancerActor } from "../actor/lancer-actor";
 import { is_reg_mech } from "../actor/lancer-actor";
-import type {
-  LancerAttackMacroData,
-  LancerMacroData,
-} from "../interfaces";
+import type { LancerAttackMacroData, LancerMacroData } from "../interfaces";
 import {
   DamageType,
   funcs,
@@ -24,9 +21,8 @@ import { is_loading, is_self_heat } from "machine-mind/dist/classes/mech/EquipUt
 import { FoundryReg } from "../mm-util/foundry-reg";
 import { checkForHit } from "../helpers/automation/targeting";
 import type { AccDiffData, AccDiffDataSerialized, RollModifier } from "../helpers/acc_diff";
-import { getMacroSpeaker, encodeMacroData, ownedItemFromString } from "./util"
-import { renderMacroTemplate } from "./render"
-
+import { getMacroSpeaker, encodeMacroData, ownedItemFromString } from "./util";
+import { renderMacroTemplate } from "./render";
 
 const lp = LANCER.log_prefix;
 
@@ -70,7 +66,6 @@ export function attackRolls(bonus: number, accdiff: AccDiffData): AttackRolls {
   };
 }
 
-
 type AttackMacroOptions = {
   accBonus: number;
   damBonus: { type: DamageType; val: number };
@@ -106,7 +101,7 @@ export async function prepareEncodedAttackMacro(
  *                              The "Bonus" type is recommended but not required
  * @param rerollData {AccDiffData?} saved accdiff data for rerolls
  */
- export async function prepareAttackMacro(
+export async function prepareAttackMacro(
   {
     actor,
     item,
@@ -276,7 +271,8 @@ export async function prepareEncodedAttackMacro(
     if (is_loading(itemEnt)) {
       itemEnt.Loaded = false;
       await itemEnt.writeback();
-    } else if (is_limited(itemEnt)) {
+    }
+    if (is_limited(itemEnt)) {
       itemEnt.Uses = itemEnt.Uses - 1;
       await itemEnt.writeback();
     }
@@ -534,7 +530,7 @@ async function rollAttackMacro(
  * the dice from the original roll.
  * @returns An evaluated Roll
  */
- async function getCritRoll(normal: Roll) {
+async function getCritRoll(normal: Roll) {
   const t_roll = new Roll(normal.formula);
   await t_roll.evaluate({ async: true });
 
