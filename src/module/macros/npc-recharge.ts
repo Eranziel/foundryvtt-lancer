@@ -2,8 +2,8 @@
 import { LANCER } from "../config";
 import type { LancerActor } from "../actor/lancer-actor";
 import { TagInstance } from "machine-mind";
-import { getMacroSpeaker } from "./util";
-import { renderMacroTemplate } from "./render";
+import { getMacroSpeaker } from "./_util";
+import { renderMacroTemplate } from "./_render";
 
 const lp = LANCER.log_prefix;
 

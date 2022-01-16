@@ -21,8 +21,10 @@ import { is_loading, is_self_heat } from "machine-mind/dist/classes/mech/EquipUt
 import { FoundryReg } from "../mm-util/foundry-reg";
 import { checkForHit } from "../helpers/automation/targeting";
 import type { AccDiffData, AccDiffDataSerialized, RollModifier } from "../helpers/acc_diff";
-import { getMacroSpeaker, encodeMacroData, ownedItemFromString } from "./util";
-import { renderMacroTemplate } from "./render";
+import { getMacroSpeaker, ownedItemFromString } from "./_util";
+import { encodeMacroData } from "./_encode";
+import { renderMacroTemplate } from "./_render";
+
 
 const lp = LANCER.log_prefix;
 

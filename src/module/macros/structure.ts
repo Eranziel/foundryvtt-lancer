@@ -2,7 +2,7 @@
 import { LANCER } from "../config";
 import type { LancerActor } from "../actor/lancer-actor";
 import { getAutomationOptions } from "../settings";
-import { getMacroSpeaker } from "./util";
+import { getMacroSpeaker } from "./_util";
 import { prepareTextMacro } from "./text";
 
 const lp = LANCER.log_prefix;

@@ -2,8 +2,8 @@
 import { LANCER } from "../config";
 import type { LancerActor } from "../actor/lancer-actor";
 import type { LancerTalentMacroData } from "../interfaces";
-import { renderMacroTemplate } from "./render"
-import { encodeMacroData, getMacroSpeaker, ownedItemFromString } from "./util"
+import { renderMacroTemplate } from "./_render";
+import { getMacroSpeaker, ownedItemFromString } from "./_util";
 
 const lp = LANCER.log_prefix;
 

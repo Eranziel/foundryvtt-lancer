@@ -1,8 +1,8 @@
 // Import TypeScript modules
 import { LANCER } from "../config";
 import { StabOptions1, StabOptions2 } from "../enums";
-import { getMacroSpeaker } from "./util"
-import { prepareTextMacro } from "./text"
+import { getMacroSpeaker } from "./_util";
+import { prepareTextMacro } from "./text";
 
 const lp = LANCER.log_prefix;
 

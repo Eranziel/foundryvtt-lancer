@@ -3,8 +3,9 @@ import { LANCER } from "../config";
 import { getAutomationOptions } from "../settings";
 import type { LancerActor } from "../actor/lancer-actor";
 import type { LancerOverchargeMacroData } from "../interfaces";
-import { encodeMacroData, getMacroSpeaker } from "./util"
-import { renderMacroTemplate } from "./render"
+import { encodeMacroData } from "./_encode";
+import { getMacroSpeaker } from "./_util";
+import { renderMacroTemplate } from "./_render";
 
 const lp = LANCER.log_prefix;
 

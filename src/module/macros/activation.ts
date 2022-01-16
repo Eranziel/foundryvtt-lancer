@@ -10,11 +10,22 @@ import { is_limited, is_tagged } from "machine-mind/dist/funcs";
 import type { AccDiffDataSerialized } from "../helpers/acc_diff";
 import { buildActionHTML, buildDeployableHTML } from "../helpers/item";
 import { ActivationOptions } from "../enums";
-import { getMacroSpeaker } from "./util";
-import { renderMacroHTML } from "./render";
+import { encodeMacroData } from "./_encode";
+import { getMacroSpeaker } from "./_util";
+import { renderMacroHTML } from "./_render";
 import { rollTechMacro } from "./tech";
 
 const lp = LANCER.log_prefix;
+
+
+export function encodeActivationMacroData(actor: any, item: any): string  {
+  return encodeMacroData({
+    title: "?",
+    fn: "prepareActivationMacro",
+    args: [actor, item],
+  });
+}
+
 
 /**
  * Dispatch wrapper for the "action chips" on the bottom of many items, traits, systems, and so on.

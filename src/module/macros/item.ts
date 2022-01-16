@@ -11,14 +11,14 @@ import {
   NpcFeatureType,
 } from "machine-mind";
 import { applyCollapseListeners } from "../helpers/collapse";
-import { getMacroSpeaker, ownedItemFromString } from "./util"
-import { prepareAttackMacro } from "./attack"
-import { rollReactionMacro } from "./reaction"
-import { rollSystemMacro } from "./system"
-import { rollTalentMacro } from "./talent"
-import { prepareTechMacro } from "./tech"
-import { rollTextMacro } from "./text"
-import { rollTriggerMacro } from "./trigger"
+import { getMacroSpeaker, ownedItemFromString } from "./_util";
+import { prepareAttackMacro } from "./attack";
+import { rollReactionMacro } from "./reaction";
+import { rollSystemMacro } from "./system";
+import { rollTalentMacro } from "./talent";
+import { prepareTechMacro } from "./tech";
+import { rollTextMacro } from "./text";
+import { rollTriggerMacro } from "./trigger";
 
 const lp = LANCER.log_prefix;
 

@@ -2,8 +2,8 @@
 
 export { onHotbarDrop } from "./macros/_hotbar"
 export { targetsFromTemplate } from "./macros/_template"
-export { encodeMacroData, runEncodedMacro } from "./macros/util"
-export { renderMacroTemplate, renderMacroHTML } from "./macros/render"
+export { encodeMacroData, runEncodedMacro } from "./macros/_encode"
+export { renderMacroTemplate, renderMacroHTML } from "./macros/_render"
 export { prepareActivationMacro } from "./macros/activation"
 export { prepareEncodedAttackMacro, openBasicAttack } from "./macros/attack"
 export { prepareCoreActiveMacro, prepareCorePassiveMacro, prepareFrameTraitMacro } from "./macros/frame"

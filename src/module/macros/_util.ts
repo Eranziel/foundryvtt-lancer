@@ -1,53 +1,8 @@
 import { LANCER } from "../config";
 import type { LancerItem } from "../item/lancer-item";
 import type { LancerActor } from "../actor/lancer-actor";
-import type { LancerMacroData } from "../interfaces";
 
 const lp = LANCER.log_prefix;
-
-// TODO: wrap this in a helper function
-export const encodedMacroWhitelist = [
-  "prepareActivationMacro",
-  "prepareEncodedAttackMacro",
-  "prepareTechMacro",
-  "prepareStatMacro",
-  "prepareItemMacro",
-  "prepareTalentMacro",
-  "prepareCoreActiveMacro",
-  "prepareFrameTraitMacro",
-  "prepareOverchargeMacro",
-  "prepareStructureSecondaryRollMacro",
-  "prepareOverheatMacro",
-  "prepareStructureMacro",
-];
-
-export function encodeMacroData(data: LancerMacroData): string {
-  return window.btoa(encodeURI(JSON.stringify(data)));
-}
-
-export async function runEncodedMacro(el: HTMLElement | LancerMacroData) {
-  let data: LancerMacroData | null = null;
-
-  if (el instanceof HTMLElement) {
-    let encoded = el.attributes.getNamedItem("data-macro")?.nodeValue;
-    if (!encoded) {
-      console.warn("No macro data available");
-      return;
-    }
-
-    data = JSON.parse(decodeURI(window.atob(encoded))) as LancerMacroData;
-  } else {
-    data = el as LancerMacroData;
-  }
-
-  if (encodedMacroWhitelist.indexOf(data.fn) < 0) {
-    console.error("Attempting to call unwhitelisted function via encoded macro: " + data.fn);
-    return;
-  }
-
-  let fn = game.lancer[data.fn];
-  return (fn as Function).apply(null, data.args);
-}
 
 /**
  * Get an actor to use for a macro. If an id is passed and the return is

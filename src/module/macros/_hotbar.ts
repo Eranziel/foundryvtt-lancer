@@ -9,7 +9,7 @@ import {
 import { FoundryFlagData, FoundryReg } from "../mm-util/foundry-reg";
 import { is_ref } from "../helpers/commons";
 
-import { encodedMacroWhitelist } from "./util"
+import { isValidEncodedMacro } from "./_encode"
 
 const lp = LANCER.log_prefix;
 
@@ -49,12 +49,12 @@ export async function onHotbarDrop(_bar: any, data: any, slot: number) {
   // Grab new encoded data ASAP
   if (data.fn && data.args && data.title) {
     // i.e., data instanceof LancerMacroData
-    if (encodedMacroWhitelist.indexOf(data.fn) < 0) {
+    if (!isValidEncodedMacro(data)) {
       ui.notifications!.error("You are trying to drop an invalid macro");
       return;
     }
 
-    command = `game.lancer.${data.fn}.apply(null, ${JSON.stringify(data.args)})`;
+    command = `game.lancer.${data.fn}(${data.args.map((e: any) => JSON.stringify(e)).join(",")})`;
     img = data.iconPath ? data.iconPath : `systems/${game.system.id}/assets/icons/macro-icons/generic_item.svg`;
     title = data.title;
   } else if (data.pack) {
