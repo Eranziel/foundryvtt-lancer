@@ -61,7 +61,19 @@
           {{!-- Description --}}
           {{{textarea-card "DESCRIPTION" (concat "mm.Profiles." prof_index ".Description") }}}
 
-          {{!-- TODO: Item effects/actions --}}
+          {{!-- Effect --}}
+          {{{textarea-card "EFFECT" (concat "mm.Profiles." prof_index ".Effect") }}}
+
+          {{!-- On Attack --}}
+          {{{textarea-card "ON ATTACK" (concat "mm.Profiles." prof_index ".OnAttack") }}}
+
+          {{!-- On Hit --}}
+          {{{textarea-card "ON HIT" (concat "mm.Profiles." prof_index ".OnHit") }}}
+
+          {{!-- On Crit --}}
+          {{{textarea-card "ON CRIT" (concat "mm.Profiles." prof_index ".OnCrit") }}}
+
+          {{!-- Actions --}}
           {{{item-edit-arrayed-actions "mm.Actions" "ADDED ACTIONS"}}}
 
           {{!-- Tags --}}
