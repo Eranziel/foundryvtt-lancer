@@ -732,11 +732,9 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.Select
 }
 
 export function loading_indicator(loaded: boolean, weapon_path: string): string {
-  let loading_icon = `mdi ${loaded ? "mdi-hexagon-slice-6" : "mdi-hexagon-outline"}`;
-  return `<span class="flexcol loading-wrapper"> 
-                LOADED: 
-                <a class="gen-control" data-action="set" data-action-value="(bool)${!loaded}" data-path="${weapon_path}.Loaded" data-commit-item="${weapon_path}"><i class="${loading_icon}"></i></a>
-                </span>`;
+  let loading_icon = `mdi ${loaded ? "mdi-hexagon-slice-6" : "mdi-hexagon-outline"} loaded-hex`;
+  let indicator = `<a class="gen-control" data-action="set" data-action-value="(bool)${!loaded}" data-path="${weapon_path}.Loaded" data-commit-item="${weapon_path}"><i class="${loading_icon} i--m"></i></a>`;
+  return `<div class="clipped card limited-card">LOADED ${indicator}</div>`;
 }
 
 // A specific MM ref helper focused on displaying manufacturer info.

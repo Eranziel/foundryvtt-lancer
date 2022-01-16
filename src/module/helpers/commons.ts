@@ -671,7 +671,7 @@ export function std_enum_select<T extends string>(path: string, enum_: { [key: s
   }
 
   let select = `
-      <select name="${path}" class="${select_classes}" data-type="String" style="height: 2em; align-self: center;" >
+      <select name="${path}" class="${select_classes}" data-type="String" style="height: 2em; align-self: center; margin: 4px;" >
         ${choices.join("")}
       </select>`;
   return select;
@@ -694,7 +694,7 @@ export function HANDLER_activate_popout_text_editor<T extends LancerActorSheetDa
     const elt = evt.currentTarget;
     const path = elt.dataset.path;
     if (path) {
-      HTMLEditDialog.edit_text(cd, path, commit_func);
+      await HTMLEditDialog.edit_text(cd, path, commit_func);
     }
   });
 }

@@ -1786,7 +1786,9 @@ a.activation-chip > i.mdi {
   margin-top: 4px;
 }
 
-.uses-hex, .counter-hex {
+.uses-hex,
+.counter-hex,
+.loaded-hex {
   cursor: pointer;
   font-size: 2em;
   color: white;
@@ -2095,7 +2097,7 @@ a.action {
 }
 
 .limited-card {
-  width: fit-content;
+  max-width: fit-content;
   display: inline-flex;
   flex-direction: row;
   padding: 4px 8px;

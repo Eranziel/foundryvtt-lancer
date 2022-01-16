@@ -477,12 +477,12 @@ export function limited_uses_indicator(
 
   const hexes = [...Array(maxUses)].map((_ele, index) => {
     const available = index + 1 <= uses;
-    return `<i class="uses-hex mdi ${
+    return `<a><i class="uses-hex mdi ${
       available ? "mdi-hexagon-slice-6" : "mdi-hexagon-outline"
-    } theme--light" data-available="${available}" data-path="${path}"></i>`;
+    } theme--light" data-available="${available}" data-path="${path}"></i></a>`;
   });
 
-  return `<div class="clipped card limited-card">Uses: ${hexes.join("")}</div>`;
+  return `<div class="clipped card limited-card">USES ${hexes.join("")}</div>`;
 }
 
 function limited_HTML(

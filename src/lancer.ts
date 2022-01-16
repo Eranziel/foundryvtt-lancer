@@ -90,6 +90,7 @@ import {
   uses_control,
   single_bonus_editor,
   buildCounterArrayHTML,
+  loading_indicator,
 } from "./module/helpers/item";
 import {
   action_button,
@@ -114,6 +115,7 @@ import {
   mm_ref_portrait,
   mm_ref_list_append_slot,
   editable_mm_ref_list_item_native,
+  limited_uses_indicator,
 } from "./module/helpers/refs";
 import { mech_loadout, pilot_slot, frame_refview } from "./module/helpers/loadout";
 import {
@@ -468,6 +470,8 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("item-edit-license", item_edit_license);
   Handlebars.registerHelper("item-edit-sp", item_edit_sp);
   Handlebars.registerHelper("item-edit-uses", item_edit_uses);
+  Handlebars.registerHelper("limited-uses-indicator", limited_uses_indicator);
+  Handlebars.registerHelper("loading-indicator", loading_indicator);
 
   // ------------------------------------------------------------------------
   // Frames

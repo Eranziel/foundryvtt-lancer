@@ -27,19 +27,22 @@
   <section class="sheet-body">
     <div class="wraprow double">
       {{!-- Size --}}
-      <div class="card clipped" style="padding: 10px;">
-        <span class="lancer-header major ">SIZE</span>
+      <div class="card clipped">
+        <div class="lancer-header major ">SIZE</div>
         {{{wpn-size-sel "mm.Size"}}}
       </div>
 
       {{!-- Status --}}
-      <div class="card clipped" style="padding: 10px;">
-        <span class="lancer-header major ">STATUS</span>
-        <div class="flexrow">
-          <span>LOADED:</span>
-          <span><i>todo</i></span>
+      <div class="card clipped">
+        <div class="lancer-header major ">STATUS</div>
+        <div class="flexrow" style="align-self: center;">
+          {{#if (is-loading mm)}}
+            {{{loading-indicator mm.Loaded "mm"}}}
+          {{/if}}
+          {{#if (is-limited mm)}}
+            {{{limited-uses-indicator mm "mm"}}}
+          {{/if}}
         </div>
-        {{{item-edit-uses                 "mm.Uses" "data.derived.max_uses"}}}        
       </div>
 
       {{#each mm.Profiles as |profile prof_index|}}
