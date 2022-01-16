@@ -3,7 +3,7 @@ import { LANCER } from "../config";
 import { getAutomationOptions } from "../settings";
 import type { LancerItem } from "../item/lancer-item";
 import type { LancerActor } from "../actor/lancer-actor";
-import { is_reg_mech } from "../actor/lancer-actor";
+import { is_reg_mech, is_reg_npc } from "../actor/lancer-actor";
 import type { LancerAttackMacroData, LancerMacroData } from "../interfaces";
 import {
   DamageType,
@@ -181,7 +181,7 @@ export async function prepareAttackMacro(
     }
 
     mData.loaded = itemEnt.Loaded;
-    // mData.destroyed = item.data.data.destroyed; TODO: NPC weapons don't seem to have a destroyed field
+    mData.destroyed = item.data.data.destroyed;
     // This can be a string... but can also be a number...
     mData.grit = Number(itemEnt.AttackBonus[tier_index]) || 0;
     mData.acc = itemEnt.Accuracy[tier_index];
@@ -333,7 +333,7 @@ export async function openBasicAttack(rerollData?: AccDiffData) {
     mData.grit = pilotEnt.Grit;
   } else if (actor.is_npc()) {
     const mm = await actor.data.data.derived.mm_promise;
-    let tier_bonus: number = mm.Tier - 1;
+    let tier_bonus: number = mm.Tier;
     mData.grit = tier_bonus || 0;
   } else {
     ui.notifications!.error(`Error preparing targeting macro - ${actor.name} is an unknown type!`);
@@ -499,7 +499,7 @@ async function rollAttackMacro(
   // TODO: Heat (self) application
   if (getAutomationOptions().attack_self_heat) {
     let mment = await actor.data.data.derived.mm_promise;
-    if (is_reg_mech(mment)) {
+    if (is_reg_mech(mment) || is_reg_npc(mment)) {
       mment.CurrentHeat += overkill_heat + self_heat;
       await mment.writeback();
     }
