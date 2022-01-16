@@ -11,6 +11,7 @@ import {
   HANDLER_activate_ref_drop_clearing,
   HANDLER_activate_ref_drop_setting,
   HANDLER_activate_ref_clicking,
+  HANDLER_activate_uses_editor,
 } from "../helpers/refs";
 import type { LancerActorSheetData, LancerStatMacroData } from "../interfaces";
 import type { AnyMMItem } from "../item/lancer-item";
@@ -71,8 +72,6 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     // Enable collapse triggers.
     this._activateCollapses(html);
 
-    // Enable hex use triggers.
-    this._activateUsesListeners(html);
     this._activateCounterListeners(html);
 
     // Enable any action grid buttons.
@@ -98,6 +97,9 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
 
     let getfunc = () => this.getDataLazy();
     let commitfunc = (_: any) => this._commitCurrMM();
+
+    // Enable hex use triggers.
+    HANDLER_activate_uses_editor(html, getfunc);
 
     // Enable context menu triggers.
     this._activateContextListeners(html);
@@ -247,32 +249,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
           item.Value = item.Value < (item.Max || 6) ? item.Value + 1 : item.Max || 6;
         }
 
-        writeback.writeback();
-        console.debug(item);
-      }
-    });
-  }
-
-  async _activateUsesListeners(html: JQuery) {
-    let elements = html.find(".uses-hex");
-    elements.on("click", async ev => {
-      ev.stopPropagation();
-
-      const params = ev.currentTarget.dataset;
-      const data = await this.getDataLazy();
-      if (params.path) {
-        const item = resolve_dotpath(data, params.path) as MechSystem;
-        const available = params.available === "true";
-
-        if (available) {
-          // Deduct uses.
-          item.Uses = item.Uses > 0 ? item.Uses - 1 : 0;
-        } else {
-          // Increment uses.
-          item.Uses = item.Uses < item.OrigData.derived.max_uses ? item.Uses + 1 : item.OrigData.derived.max_uses;
-        }
-
-        item.writeback();
+        await writeback.writeback();
         console.debug(item);
       }
     });
