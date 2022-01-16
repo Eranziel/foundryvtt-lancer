@@ -130,7 +130,7 @@ export function item_edit_arrayed_deployables(path: string, title: string, helpe
     .join("");
 
   return `
-    <div class="core-active-wrapper">
+    <div class="card clipped">
       <span class="lancer-header submajor clipped-top">
         ${title}
       </span>
@@ -155,7 +155,7 @@ export function item_edit_arrayed_synergies(path: string, title: string, helper:
     .join("");
 
   return `
-    <div class="core-active-wrapper">
+    <div class="card clipped">
       <span class="lancer-header submajor clipped-top">
         ${title}
       </span>

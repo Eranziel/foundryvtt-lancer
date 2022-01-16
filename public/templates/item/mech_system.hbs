@@ -18,17 +18,26 @@
       {{{item-edit-license}}}
     </div>
 
+    {{!-- Status --}}
+    <div class="card clipped">
+      <div class="lancer-header major ">STATUS</div>
+      <div class="flexrow" style="align-self: center;">
+        {{#if (is-limited mm)}}
+          {{{limited-uses-indicator mm "mm"}}}
+        {{/if}}
+      </div>
+    </div>
 
     {{{textarea-card "DESCRIPTION" "mm.Description"}}}
     {{{textarea-card "EFFECT" "mm.Effect"}}}
 
     {{!-- Bonuses --}}
-    {{{item-edit-arrayed-actions      "mm.Actions"        "ACTIONS"}}}
+    {{{item-edit-arrayed-actions      "mm.Actions"       "ACTIONS"}}}
     {{{item-edit-arrayed-bonuses      "mm.Bonuses"}}}
-    {{{counter-array mm.Counters "mm.Counters" "mm.Counters" true}}}
-    {{{item-edit-arrayed-deployables  "mm.Deployables"                "DEPLOYABLES"}}}
-    {{{item-edit-arrayed-synergies    "mm.Synergies"                  "SYNERGIES"}}}
-    {{{item-edit-arrayed-integrated   "mm.Integrated"                 "INTEGRATED ITEMS"}}}
+    {{{counter-array mm.Counters      "mm.Counters"      "mm.Counters" true}}}
+    {{{item-edit-arrayed-deployables  "mm.Deployables"   "DEPLOYABLES"}}}
+    {{{item-edit-arrayed-synergies    "mm.Synergies"     "SYNERGIES"}}}
+    {{{item-edit-arrayed-integrated   "mm.Integrated"    "INTEGRATED ITEMS"}}}
     <div class="flexrow">
     </div>
 

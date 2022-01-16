@@ -10,18 +10,23 @@
     </div>
   </header>
   <div class="flexcol">
+    {{!-- Status --}}
+    <div class="card clipped">
+      <div class="lancer-header major ">STATUS</div>
+      <div class="flexrow" style="align-self: center;">
+        {{#if (is-loading mm)}}
+          {{{loading-indicator mm.Loaded "mm"}}}
+        {{/if}}
+        {{#if (is-limited mm)}}
+          {{{limited-uses-indicator mm "mm"}}}
+        {{/if}}
+      </div>
+    </div>
+
     {{!-- Weapon Stats --}}
     <div class="flexrow">
       {{{item-edit-arrayed-range        "mm.Range"     "RANGE"}}}
       {{{item-edit-arrayed-damage       "mm.Damage"    "DAMAGE"}}}
-    </div>
-    <div class="flexrow">
-      {{#if (is-loading mm)}}
-        {{{ std-checkbox "mm.Loaded" label="LOADED:" }}}
-      {{/if}}
-      {{#if (is-limited mm)}}
-        {{{item-edit-uses "mm.Uses" "data.derived.max_uses"}}}
-      {{/if}}
     </div>
 
     {{{textarea-card "DESCRIPTION" "mm.Description"}}}

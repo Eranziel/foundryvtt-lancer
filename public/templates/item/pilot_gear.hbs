@@ -10,18 +10,23 @@
   </header>
 
   <div class="flexcol">
-    {{!-- Uses --}}
-    <div>
-        {{{item-edit-uses "mm.Uses" "mm.MaxUses"}}}
+    {{!-- Status --}}
+    <div class="card clipped">
+      <div class="lancer-header major ">STATUS</div>
+      <div class="flexrow" style="align-self: center;">
+        {{#if (is-limited mm)}}
+          {{{limited-uses-indicator mm "mm"}}}
+        {{/if}}
+      </div>
     </div>
 
     {{{textarea-card "DESCRIPTION" "mm.Description"}}}
 
     {{!-- Bonuses --}}
-    {{{item-edit-arrayed-actions      "mm.Actions"        "ACTIONS"}}}
+    {{{item-edit-arrayed-actions      "mm.Actions"      "ACTIONS"}}}
     {{{item-edit-arrayed-bonuses      "mm.Bonuses"}}}
-    {{{item-edit-arrayed-deployables  "mm.Deployables"                "DEPLOYABLES"}}}
-    {{{item-edit-arrayed-synergies    "mm.Synergies"                  "SYNERGIES"}}}
+    {{{item-edit-arrayed-deployables  "mm.Deployables"  "DEPLOYABLES"}}}
+    {{{item-edit-arrayed-synergies    "mm.Synergies"    "SYNERGIES"}}}
 
     {{!-- Tags --}}
     <div class="card">
