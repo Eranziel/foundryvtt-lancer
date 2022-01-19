@@ -41,7 +41,6 @@
               <i class="cci cci-size-{{mm.Size}} size-icon theme--main"></i>
             {{/if}}
           </div>
-          {{!-- {{{stat-view-card "SIZE" (concat "mdi " mm.SizeIcon) "mm.Size" }}} --}}
           {{{overcharge-button actor "mm.OverchargeCount"}}}
           <div class="flexcol card clipped">
             <div class="lancer-header">
@@ -61,8 +60,6 @@
             </div>
           </div>
           {{{stat-rollable-card "GRIT" "cci cci-armor" "mm.Pilot.Grit"}}}
-          {{!-- I don't think we need these {{{stat-view-card "SYS POINTS" "cci cci-system" "mm.MaxSP"
-          }}} {{{stat-view-card "ATTACK" "cci cci-heart" "mm.AttackBonus" }}} --}}
           {{{pilot-slot "mm.Pilot"}}}
 
           <div class="wraprow double hase">

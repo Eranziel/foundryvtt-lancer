@@ -193,8 +193,15 @@ export function pilot_slot(data_path: string, options: HelperOptions): string {
 </div>`;
 }
 
-// A drag-drop slot for a frame. TODO: fancify, giving basic stats or something???
-export function frame_refview(actor: LancerActor, frame_path: string, helper: HelperOptions): string {
+/**
+ * Builds HTML for a frame reference. Either an empty ref to give a drop target, or a preview
+ * with traits and core system.
+ * @param actor       Actor the ref belongs to.
+ * @param frame_path  Path to the frame's location in actor data.
+ * @param helper      Standard helper options.
+ * @return            HTML for the frame reference, typically for inclusion in a mech sheet.
+ */
+export function mech_frame_refview(actor: LancerActor, frame_path: string, helper: HelperOptions): string {
   let frame = resolve_helper_dotpath<Frame | null>(helper, frame_path, null);
   if (!frame) return simple_mm_ref(EntryType.FRAME, frame, "No Frame", frame_path, true);
 
@@ -217,7 +224,13 @@ export function frame_refview(actor: LancerActor, frame_path: string, helper: He
     `;
 }
 
-function buildCoreSysHTML(actor: LancerActor, core: CoreSystem) {
+/**
+ * Builds HTML for a mech's core system.
+ * @param actor   Mech actor which owns the core system.
+ * @param core    The core system.
+ * @return        HTML for the core system, typically for inclusion in a mech sheet.
+ */
+function buildCoreSysHTML(actor: LancerActor, core: CoreSystem): string {
   let tags: string | undefined;
   if (core.Tags !== undefined) {
     tags = compact_tag_list("", core.Tags, false);
