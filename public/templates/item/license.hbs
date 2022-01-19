@@ -36,8 +36,10 @@
             <div style="margin:3px 10px">
               {{{wpn-mod-ref (concat "unlocks." rank "." unlock_index) null }}}
             </div>
+          {{else if (eq unlock.Type "frame")}}
+            {{{ref-frame unlock (concat "unlocks." rank "." unlock_index) }}}
           {{else}}
-            {{!-- Fallback - typically there should be nothing other than mech systems, weapons, and mods, but just in case.--}}
+            {{!-- Fallback - typically there should be nothing other than mech systems, weapons, mods, and frames, but just in case.--}}
             {{{ref-mm-controllable-item-native (concat "unlocks." rank "." unlock_index) null }}}
           {{/if}}
         {{/each}}

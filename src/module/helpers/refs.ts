@@ -34,7 +34,7 @@ import {
   HANDLER_enable_mm_dropping,
   MMDragResolveCache,
 } from "./dragdrop";
-import { buildActionHTML, buildDeployableHTML } from "./item";
+import { buildActionHTML, buildDeployableHTML, license_ref } from "./item";
 import { compact_tag_list } from "./tags";
 import { CollapseRegistry } from "./loadout";
 
@@ -439,18 +439,7 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
 
     case EntryType.LICENSE:
       let license: License = <License>(<any>item);
-      return `
-      <li class="card clipped item macroable ref valid" ${ref_params(cd.ref)}>
-      <div class="lancer-license-header medium clipped-top" style="grid-area: 1/1/2/3">
-        <i class="cci cci-license i--m i--dark"> </i>
-        <span class="major modifier-name">${license.Name} ${license.CurrentRank}</span>
-        <div class="ref-list-controls">
-          <a class="lancer-context-menu" data-context-menu="${item.Type}" data-path="${item_path}"">
-            <i class="fas fa-ellipsis-v"></i>
-          </a>
-        </div>
-      </div>
-    </li>`;
+      return license_ref(license, license.CurrentRank, item_path);
 
     default:
       // Basically the same as the simple ref card, but with control added

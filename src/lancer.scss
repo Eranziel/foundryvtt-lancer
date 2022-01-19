@@ -745,6 +745,17 @@ textarea {
   flex-direction: row;
 }
 
+.compact-frame {
+  grid-area: 1/1/2/3;
+  align-items: center;
+  height: 8em;
+  background-color: var(--main-theme-color);
+}
+
+.compact-frame:hover {
+  box-shadow: var(--hover-bright);
+}
+
 /* Consolidate all of our card header stuff stuff */
 .lancer-header {
   flex: 0 0 2em;
@@ -1521,7 +1532,6 @@ input.core-power-toggle:not(:checked)::before {
   background-color: #ffffff;
   color: var(--main-theme-color);
   border: 1px dashed #656464;
-  cursor: pointer;
 }
 
 .lancer-trigger-header {

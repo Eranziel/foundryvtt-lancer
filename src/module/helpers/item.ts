@@ -31,6 +31,7 @@ import {
   WeaponMod,
   WeaponSize,
   WeaponType,
+  Frame,
 } from "machine-mind";
 import { BonusEditDialog } from "../apps/bonus-editor";
 import { TypeIcon } from "../config";
@@ -69,6 +70,7 @@ import { promptText } from "../apps/simple-prompt";
 import { CounterEditForm } from "../apps/counter-editor";
 import { FoundryFlagData } from "../mm-util/foundry-reg";
 import { is_reg_pilot } from "../actor/lancer-actor";
+import { frameToPath } from "../actor/retrograde-map";
 
 /**
  * Handlebars helper for weapon size selector
@@ -779,19 +781,48 @@ export function manufacturer_ref(source_path: string, helper: HelperOptions): st
 
 // A specific MM ref helper focused on displaying license info.
 // This if for display purposes and does not provide editable fields
-export function license_ref(license: License | null, level: number): string {
+export function license_ref(license: License | null, level: number, item_path?: string): string {
   let cd = ref_commons(license);
-  // TODO? maybe do a little bit more here, aesthetically speaking
-  if (cd) {
-    return `<div class="valid ${EntryType.LICENSE} ref ref-card" ${ref_params(cd.ref)}> 
+  if (cd === null) {
+    return `<div class="valid ${EntryType.LICENSE} ref ref-card"> 
               <h3 class="license-name">${license!.Name} ${level}</h3>
             </div>
         `;
   } else {
-    return `<div class="ref ref-card">
-              <h3 class="license-name">No license specified</h3>
-            </div>
-        `;
+    return `
+    <li class="card clipped item macroable ref valid" ${ref_params(cd.ref)}>
+      <div class="lancer-header lancer-license-header medium clipped-top" style="grid-area: 1/1/2/3">
+        <i class="cci cci-license i--m i--dark"> </i>
+        <div class="major modifier-name">${license!.Name} ${license!.CurrentRank}</div>
+        <div class="ref-list-controls">
+          <a class="lancer-context-menu" data-context-menu="${license!.Type}" data-path="${item_path}"">
+            <i class="fas fa-ellipsis-v"></i>
+          </a>
+        </div>
+      </div>
+    </li>`;
+  }
+}
+
+export function frame_ref(frame: Frame | null, item_path?: string): string {
+  let cd = ref_commons(frame);
+  if (!cd || !frame) {
+    return "";
+  } else {
+    let frame_img = encodeURI(frameToPath[frame.Name.toUpperCase()]);
+    return `
+    <li class="card clipped item macroable ref valid" ${ref_params(cd.ref)}>
+      <div class="compact-frame medium flexrow" 
+           style="background-image: url(${frame_img}); background-position: left 10px top 40%; background-repeat: no-repeat">
+        <span style="min-width: 50px"></span>
+        <div class="major modifier-name i--light">${frame.Source?.LID} ${frame.Name}</div>
+        <div class="ref-list-controls">
+          <a class="lancer-context-menu" data-context-menu="${frame.Type}" data-path="${item_path}"">
+            <i class="fas fa-ellipsis-v i--light"></i>
+          </a>
+        </div>
+      </div>
+    </li>`;
   }
 }
 

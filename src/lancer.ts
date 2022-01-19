@@ -94,6 +94,7 @@ import {
   weapon_mod_ref,
   buildDeployableHTML,
   buildActionFullHTML,
+  frame_ref,
 } from "./module/helpers/item";
 import {
   action_button,
@@ -120,7 +121,7 @@ import {
   editable_mm_ref_list_item_native,
   limited_uses_indicator,
 } from "./module/helpers/refs";
-import { mech_loadout, pilot_slot, frame_refview } from "./module/helpers/loadout";
+import { mech_loadout, pilot_slot, mech_frame_refview } from "./module/helpers/loadout";
 import {
   item_edit_arrayed_actions,
   item_edit_arrayed_damage,
@@ -423,6 +424,10 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("ref-license", license_ref);
 
   // ------------------------------------------------------------------------
+  // License data
+  Handlebars.registerHelper("ref-frame", frame_ref);
+
+  // ------------------------------------------------------------------------
   // Bonuses
   Handlebars.registerHelper("edit-bonuses-view", (bonuses_path: string, bonuses_array: Bonus[]) =>
     bonuses_display(bonuses_path, bonuses_array, true)
@@ -491,7 +496,7 @@ Hooks.once("init", async function () {
   // ------------------------------------------------------------------------
   // Mech components
   Handlebars.registerHelper("mech-loadout", mech_loadout);
-  Handlebars.registerHelper("mech-frame", frame_refview);
+  Handlebars.registerHelper("mech-frame", mech_frame_refview);
 
   // ------------------------------------------------------------------------
   // NPC components

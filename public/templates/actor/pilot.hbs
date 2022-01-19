@@ -177,7 +177,7 @@
         {{!-- Licenses --}}
         <div class="card clipped">
           <h2 class="lancer-title clipped-top">{{localize "lancer.pilot-sheet.tactical.licenses"}}</h2>
-          {{#each mm.Licenses as |license index|}} {{{ref-mm-controllable-item (concat "mm.Licenses." index) "delete" }}} {{/each}}
+          {{#each mm.Licenses as |license index|}} {{{ref-license license license.CurrentRank (concat "mm.Licenses." index) }}} {{/each}}
         </div>
 
         {{!-- Core Bonuses --}}
