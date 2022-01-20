@@ -1119,15 +1119,16 @@ export function buildCounterArrayHTML(
   </div>`;
 }
 
-export function HANDLER_activate_item_context_menus<T extends LancerActorSheetData<any>>(
+export function HANDLER_activate_item_context_menus<T extends LancerActorSheetData<any> | LancerItemSheetData<any>>(
   html: JQuery,
   // Retrieves the data that we will operate on
   data_getter: () => Promise<T> | T,
-  commit_func: (data: T) => void | Promise<void>
+  commit_func: (data: T) => void | Promise<void>,
+  view_only: boolean = false
 ) {
   let edit: ContextMenuEntry = {
-    name: "Edit",
-    icon: `<i class="fas fa-edit"></i>`,
+    name: view_only ? "View" : "Edit",
+    icon: view_only ? `<i class="fas fa-eye"></i>` : `<i class="fas fa-edit"></i>`,
     callback: async (html: JQuery) => {
       let element = html.closest(".ref.valid")[0];
       if (element) {
@@ -1224,29 +1225,21 @@ export function HANDLER_activate_item_context_menus<T extends LancerActorSheetDa
     },
   };
 
+  let e_d_r = view_only ? [edit] : [edit, destroy, remove];
+  let e_r = view_only ? [edit] : [edit, remove];
+
   // Finally, setup the context menu
-  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"mech_weapon\"]`), "click", [
-    edit,
-    destroy,
-    remove,
-  ]);
-  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"mech_system\"]`), "click", [
-    edit,
-    destroy,
-    remove,
-  ]);
-  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"npc_feature\"]`), "click", [
-    edit,
-    destroy,
-    remove,
-  ]);
-  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"pilot_weapon\"]`), "click", [edit, remove]);
-  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"pilot_armor\"]`), "click", [edit, remove]);
-  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"pilot_gear\"]`), "click", [edit, remove]);
-  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"talent\"]`), "click", [edit, remove]);
-  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"skill\"]`), "click", [edit, remove]);
-  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"core_bonus\"]`), "click", [edit, remove]);
-  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"license\"]`), "click", [edit, remove]);
+  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"mech_weapon\"]`), "click", e_d_r);
+  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"mech_system\"]`), "click", e_d_r);
+  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"npc_feature\"]`), "click", e_d_r);
+  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"pilot_weapon\"]`), "click", e_r);
+  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"pilot_armor\"]`), "click", e_r);
+  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"pilot_gear\"]`), "click", e_r);
+  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"talent\"]`), "click", e_r);
+  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"skill\"]`), "click", e_r);
+  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"core_bonus\"]`), "click", e_r);
+  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"license\"]`), "click", e_r);
+  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"frame\"]`), "click", e_r);
 
   // Only some counters can be deleted
   tippy_context_menu(

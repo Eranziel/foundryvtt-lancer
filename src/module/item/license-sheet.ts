@@ -1,6 +1,8 @@
 import type { EntryType, LicensedItem } from "machine-mind";
 import { FoundryReg } from "../mm-util/foundry-reg";
 import { LancerItemSheet } from "./item-sheet";
+import { HANDLER_activate_item_context_menus } from "../helpers/item";
+import { LancerItemSheetData } from "../interfaces";
 
 /**
  * Extend the generic Lancer item sheet
@@ -40,6 +42,19 @@ export class LancerLicenseSheet extends LancerItemSheet<EntryType.LICENSE> {
 
     // Pass it along
     return sup;
+  }
+
+  /**
+   * @override
+   */
+  _activate_context_listeners(
+    html: JQuery,
+    // Retrieves the data that we will operate on
+    data_getter: () => Promise<LancerItemSheetData<EntryType.LICENSE>> | LancerItemSheetData<EntryType.LICENSE>,
+    commit_func: (data: LancerItemSheetData<EntryType.LICENSE>) => void | Promise<void>
+  ) {
+    // Enable custom context menu triggers with only the "view" option.
+    HANDLER_activate_item_context_menus(html, data_getter, commit_func, true);
   }
 
   /**

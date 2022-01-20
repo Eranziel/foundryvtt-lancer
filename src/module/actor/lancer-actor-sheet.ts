@@ -220,8 +220,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     applyCollapseListeners();
   }
 
-  // Simple listener:
-  // - Upon right click of the element, retrieves the boolean data at the specified MM path and toggles it.
+  // Attach context menu functionality to appropriate elements on the sheet
   async _activateContextListeners(html: JQuery) {
     let getfunc = () => this.getDataLazy();
     let commitfunc = (_: any) => this._commitCurrMM();

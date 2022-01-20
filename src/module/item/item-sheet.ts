@@ -16,7 +16,11 @@ import {
   HANDLER_activate_uses_editor,
 } from "../helpers/refs";
 import { OpCtx } from "machine-mind";
-import { HANDLER_activate_edit_bonus, HANDLER_activate_profile_context_menus } from "../helpers/item";
+import {
+  HANDLER_activate_edit_bonus,
+  HANDLER_activate_item_context_menus,
+  HANDLER_activate_profile_context_menus,
+} from "../helpers/item";
 import { HANDLER_activate_tag_context_menus, HANDLER_activate_tag_dropping } from "../helpers/tags";
 import { CollapseHandler } from "../helpers/collapse";
 import { activate_action_editor } from "../apps/action-editor";
@@ -71,6 +75,22 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
   /* -------------------------------------------- */
 
   /**
+   * Private helper that applies context menus according to the editability of the sheet.
+   * @param html {JQuery}    The prepared HTML object ready to be rendered into the DOM
+   * @param data_getter      Reference to a function which can provide the sheet data
+   * @param commit_func      Reference to a function which can commit/save data back to the document
+   */
+  _activate_context_listeners(
+    html: JQuery,
+    // Retrieves the data that we will operate on
+    data_getter: () => Promise<LancerItemSheetData<T>> | LancerItemSheetData<T>,
+    commit_func: (data: LancerItemSheetData<T>) => void | Promise<void>
+  ) {
+    // Enable custom context menu triggers. If the sheet is not editable, show only the "view" option.
+    HANDLER_activate_item_context_menus(html, data_getter, commit_func, !this.options.editable);
+  }
+
+  /**
    * @override
    * Activate event listeners using the prepared sheet HTML
    * @param html {JQuery}   The prepared HTML object ready to be rendered into the DOM
@@ -78,12 +98,17 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
   activateListeners(html: JQuery) {
     super.activateListeners(html);
 
+    let getfunc = () => this.getDataLazy();
+    let commitfunc = (_: any) => this._commitCurrMM();
+
     // Make refs clickable
-    $(html).find(".ref.valid:not(.profile-img)").on("click", HANDLER_activate_ref_clicking);
+    $(html).find(".ref.valid.clickable-ref:not(.profile-img)").on("click", HANDLER_activate_ref_clicking);
 
     // Enable ref dragging
     HANDLER_activate_ref_dragging(html);
     HANDLER_activate_native_ref_dragging(html);
+
+    this._activate_context_listeners(html, getfunc, commitfunc);
 
     // Everything below here is only needed if the sheet is editable
     if (!this.options.editable) {
@@ -107,9 +132,6 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
     decr.on("click", mod_handler(-1));
     let incr = html.find('button[class*="mod-plus-button"]');
     incr.on("click", mod_handler(+1));
-
-    let getfunc = () => this.getDataLazy();
-    let commitfunc = (_: any) => this._commitCurrMM();
 
     // Grab pre-existing ctx if available
     let ctx = this.getCtx() || new OpCtx();
