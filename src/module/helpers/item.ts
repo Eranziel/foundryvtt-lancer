@@ -71,6 +71,7 @@ import { CounterEditForm } from "../apps/counter-editor";
 import { FoundryFlagData } from "../mm-util/foundry-reg";
 import { is_reg_pilot } from "../actor/lancer-actor";
 import { frameToPath } from "../actor/retrograde-map";
+import { InventoryDialogData } from "../apps/inventory";
 
 /**
  * Handlebars helper for weapon size selector
@@ -1119,7 +1120,9 @@ export function buildCounterArrayHTML(
   </div>`;
 }
 
-export function HANDLER_activate_item_context_menus<T extends LancerActorSheetData<any> | LancerItemSheetData<any>>(
+export function HANDLER_activate_item_context_menus<
+  T extends LancerActorSheetData<any> | LancerItemSheetData<any> | InventoryDialogData
+>(
   html: JQuery,
   // Retrieves the data that we will operate on
   data_getter: () => Promise<T> | T,

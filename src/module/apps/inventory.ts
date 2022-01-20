@@ -6,10 +6,17 @@ import {
   HANDLER_activate_ref_dragging,
   HANDLER_activate_ref_clicking,
 } from "../helpers/refs";
+import { HANDLER_activate_item_context_menus } from "../helpers/item";
 
 interface FilledCategory {
   label: string;
   items: any[];
+}
+
+export interface InventoryDialogData {
+  content: string;
+  buttons: Record<string, Dialog.Button>;
+  categories: FilledCategory[];
 }
 
 /**
@@ -38,7 +45,7 @@ export class InventoryDialog extends Dialog {
    * Expose our data. Note that everything should be ready by now
    */
   // @ts-ignore Dialog is apparently cut off from async in league types
-  async getData(): Promise<{ content: string; buttons: Record<string, Dialog.Button>; categories: FilledCategory[] }> {
+  async getData(): Promise<InventoryDialogData> {
     // Fill out our categories
     let mm = await this.actor.data.data.derived.mm_promise;
     return {
@@ -113,8 +120,10 @@ export class InventoryDialog extends Dialog {
     HANDLER_activate_ref_dragging(html);
     HANDLER_activate_native_ref_dragging(html);
 
+    HANDLER_activate_item_context_menus(html, getfunc, commitfunc);
+
     // Make refs clickable to open the item
-    $(html).find(".ref.valid").on("click", HANDLER_activate_ref_clicking);
+    $(html).find(".ref.valid.clickable-ref").on("click", HANDLER_activate_ref_clicking);
   }
 
   static async show_inventory(actor: LancerActor): Promise<void> {
