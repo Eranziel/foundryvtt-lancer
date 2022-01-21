@@ -1,18 +1,3 @@
-{{!--
-  "id": string,
-  "name": string,
-  "source": string, // must be the same as the Manufacturer ID to sort correctly
-  "effect": string, // v-html
-  "description": string, // v-html
-  "mounted_effect"?: string
-  "actions"?: IActionData[],
-  "bonuses"?: IBonusData[]
-  "synergies"?: ISynergyData[]
-  "deployables"?: IDeployableData[],
-  "counters"?: ICounterData[],
-  "integrated"?: string[]
-  "special_equipment"?: string[]
-  --}}
 <form class="{{cssClass}} lancer-sheet" autocomplete="off">
 
   {{!-- Sheet Header --}}
@@ -26,15 +11,15 @@
 
   {{!-- Sheet Body --}}
   <div class="flexcol">
-    {{{textarea-card "DESCRIPTION" "mm.Description"}}}
-    {{{textarea-card "EFFECT" "mm.Effect"}}}
+    {{{textarea-card "DESCRIPTION"    "mm.Description"}}}
+    {{{textarea-card "EFFECT"         "mm.Effect"}}}
     {{{textarea-card "MOUNTED EFFECT" "mm.MountedEffect"}}}
-    {{{item-edit-arrayed-actions      "mm.Actions"        "ACTIONS"}}}
+    {{{item-edit-arrayed-actions      "mm.Actions"      "ACTIONS"}}}
     {{{item-edit-arrayed-bonuses      "mm.Bonuses"}}}
-    {{{item-edit-arrayed-synergies    "mm.Synergies"                  "SYNERGIES"}}}
-    {{{item-edit-arrayed-deployables  "mm.Deployables"                "DEPLOYABLES"}}}
-    {{{counter-array mm.Counters "mm.Counters" "mm.Counters" true}}}
-    {{{item-edit-arrayed-integrated   "mm.Integrated"                 "INTEGRATED ITEMS"}}}
+    {{{item-edit-arrayed-synergies    "mm.Synergies"    "SYNERGIES"}}}
+    {{{item-edit-arrayed-deployables  "mm.Deployables"  "DEPLOYABLES"}}}
+    {{{counter-array mm.Counters      "mm.Counters"     "mm.Counters" true}}}
+    {{{item-edit-arrayed-integrated   "mm.Integrated"   "INTEGRATED ITEMS"}}}
 
     {{!-- Bonuses --}}
     {{{bonuses-view "mm.Bonuses" mm.Bonuses editable}}}
