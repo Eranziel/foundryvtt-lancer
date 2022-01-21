@@ -51,17 +51,23 @@
       </div>
 
       {{!-- Equipment et all --}}
-        <span class="lancer-header submajor">{{localize "lancer.npc-sheet.class.label"}}</span>
-        <div class="flexcol">
-          {{#if mm.ActiveClass}} {{{ref-mm-controllable-item "mm.ActiveClass" "delete" }}} {{else}} {{localize "lancer.npc-sheet.class.none"}} {{/if}}
+      <div class="card clipped flexrow">
+        <div style="padding-right: 5px;">
+          <div class="lancer-header submajor" style="height: 30px;">{{localize "lancer.npc-sheet.class.label"}}</div>
+          <div class="flexcol">
+            {{#if mm.ActiveClass}}
+              {{{ref-npc-class mm.ActiveClass "mm.ActiveClass" }}}
+            {{else}}
+              {{localize "lancer.npc-sheet.class.none"}}
+            {{/if}}
+          </div>
         </div>
-      </div>
 
-      <div class="card clipped">
-        <span class="lancer-header submajor">{{localize "lancer.npc-sheet.templates.label"}}</span>
-        <div class="wraprow double">
-          {{#each mm.Templates as |template index|}} {{{ref-mm-controllable-item (concat "mm.Templates." index)
-          "delete" }}} {{/each}}
+        <div class="flexcol" style="padding-left: 5px;">
+          <span class="lancer-header submajor clipped-top">{{localize "lancer.npc-sheet.templates.label"}}</span>
+          {{#each mm.Templates as |template index|}}
+            {{{ref-npc-template template (concat "mm.Templates." index) }}}
+          {{/each}}
         </div>
       </div>
 

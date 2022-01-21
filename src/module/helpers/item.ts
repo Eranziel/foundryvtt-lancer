@@ -32,6 +32,8 @@ import {
   WeaponSize,
   WeaponType,
   Frame,
+  NpcClass,
+  NpcTemplate,
 } from "machine-mind";
 import { BonusEditDialog } from "../apps/bonus-editor";
 import { TypeIcon } from "../config";
@@ -812,10 +814,9 @@ export function frame_ref(frame: Frame | null, item_path?: string): string {
   } else {
     let frame_img = encodeURI(frameToPath[frame.Name.toUpperCase()]);
     return `
-    <li class="card clipped item macroable ref valid" ${ref_params(cd.ref)}>
-      <div class="compact-frame medium flexrow" 
-           style="background-image: url(${frame_img}); background-position: left 10px top 40%; background-repeat: no-repeat">
-        <span style="min-width: 50px"></span>
+    <li class="card clipped item ref valid" ${ref_params(cd.ref)}>
+      <div class="compact-frame medium flexrow">
+        <span class="img-bar" style="background-image: url(${frame_img})"></span>
         <div class="major modifier-name i--light">${frame.Source?.LID} ${frame.Name}</div>
         <div class="ref-list-controls">
           <a class="lancer-context-menu" data-context-menu="${frame.Type}" data-path="${item_path}"">
@@ -824,6 +825,47 @@ export function frame_ref(frame: Frame | null, item_path?: string): string {
         </div>
       </div>
     </li>`;
+  }
+}
+
+export function npc_class_ref(npc_class: NpcClass | null, item_path?: string): string {
+  let cd = ref_commons(npc_class);
+  if (!cd || !npc_class) {
+    return "";
+  } else {
+    let frame_img = encodeURI(frameToPath[npc_class.Name.toUpperCase()]);
+    return `
+    <div class="card clipped item ref valid" ${ref_params(cd.ref)}>
+      <div class="compact-class medium flexrow">
+        <span class="img-bar" style="background-image: url(${frame_img})"></span>
+        <div class="major modifier-name i--light">${npc_class.Name} // ${npc_class.Role.toUpperCase()}</div>
+        <div class="ref-list-controls">
+          <a class="lancer-context-menu" data-context-menu="${npc_class.Type}" data-path="${item_path}"">
+            <i class="fas fa-ellipsis-v i--light"></i>
+          </a>
+        </div>
+      </div>
+    </div>`;
+  }
+}
+
+export function npc_template_ref(npc_tmpl: NpcTemplate | null, item_path?: string): string {
+  let cd = ref_commons(npc_tmpl);
+  if (!cd || !npc_tmpl) {
+    return "";
+  } else {
+    return `
+    <div class="card clipped item ref valid" ${ref_params(cd.ref)}>
+      <div class="compact-template medium flexrow">
+        <span class="img-bar" style="background-image: url(${npc_tmpl.Flags.top_level_data.img})"></span>
+        <div class="major modifier-name i--light">${npc_tmpl.Name}</div>
+        <div class="ref-list-controls">
+          <a class="lancer-context-menu" data-context-menu="${npc_tmpl.Type}" data-path="${item_path}"">
+            <i class="fas fa-ellipsis-v i--light"></i>
+          </a>
+        </div>
+      </div>
+    </div>`;
   }
 }
 
@@ -1243,6 +1285,8 @@ export function HANDLER_activate_item_context_menus<
   tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"core_bonus\"]`), "click", e_r);
   tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"license\"]`), "click", e_r);
   tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"frame\"]`), "click", e_r);
+  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"npc_class\"]`), "click", e_r);
+  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"npc_template\"]`), "click", e_r);
 
   // Only some counters can be deleted
   tippy_context_menu(

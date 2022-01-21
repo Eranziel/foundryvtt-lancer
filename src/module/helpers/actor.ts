@@ -1,7 +1,7 @@
 import type { HelperOptions } from "handlebars";
 import { EntryType, funcs, Mech, Npc, Pilot } from "machine-mind";
 import { ext_helper_hash, inc_if, resolve_helper_dotpath, selected, std_num_input, std_x_of_y } from "./commons";
-import { simple_mm_ref } from "./refs";
+import { ref_commons, ref_params, simple_mm_ref } from "./refs";
 import { encodeMacroData } from "../macros";
 import type { ActionType } from "../action";
 import { LANCER } from "../config";
@@ -183,12 +183,7 @@ export function action_button(
     `;
 }
 
-export function tech_flow_card(
-  title: string,
-  icon: string,
-  data_path: string,
-  options: HelperOptions
-): string {
+export function tech_flow_card(title: string, icon: string, data_path: string, options: HelperOptions): string {
   let data_val = resolve_helper_dotpath(options, data_path);
   // Determine whether this is an unlinked token, so we can encode the correct id for the macro.
   const r_actor = options.data.root.actor as LancerActor | undefined;
@@ -289,5 +284,21 @@ export function npc_tier_selector(tier_path: string, helper: HelperOptions) {
 export function deployer_slot(data_path: string, options: HelperOptions): string {
   // get the existing
   let existing = resolve_helper_dotpath<Pilot | Mech | Npc | null>(options, data_path, null);
-  return simple_mm_ref([EntryType.PILOT, EntryType.MECH, EntryType.NPC], existing, "No Deployer", data_path, true);
+  if (!existing) {
+    return simple_mm_ref([EntryType.PILOT, EntryType.MECH, EntryType.NPC], existing, "No Deployer", data_path, true);
+  }
+
+  // Generate commons
+  let cd = ref_commons(existing);
+  if (!cd) {
+    return simple_mm_ref([EntryType.PILOT, EntryType.MECH, EntryType.NPC], existing, "No Deployer", data_path, true);
+  }
+
+  return `
+    <div class="card clipped ${cd.ref.type} ref valid clickable-ref" ${ref_params(cd.ref)}>
+      <div class="compact-deployer medium flexrow" >
+        <span class="img-bar" style="background-image: url(${existing.Flags.top_level_data.img});"> </span>
+        <div class="major modifier-name i--light">${existing.Type.toUpperCase()} ${existing.Name}</div>
+      </div>
+    </div>`;
 }

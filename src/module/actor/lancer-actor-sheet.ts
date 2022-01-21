@@ -102,7 +102,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     HANDLER_activate_uses_editor(html, getfunc);
 
     // Enable context menu triggers.
-    this._activateContextListeners(html);
+    HANDLER_activate_item_context_menus(html, getfunc, commitfunc);
 
     // Enable viewing inventory on sheets that support it
     this._activateInventoryButton(html);
@@ -218,14 +218,6 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     });
 
     applyCollapseListeners();
-  }
-
-  // Attach context menu functionality to appropriate elements on the sheet
-  async _activateContextListeners(html: JQuery) {
-    let getfunc = () => this.getDataLazy();
-    let commitfunc = (_: any) => this._commitCurrMM();
-    // Enable custom context menu triggers.
-    HANDLER_activate_item_context_menus(html, getfunc, commitfunc);
   }
 
   async _activateCounterListeners(html: JQuery) {

@@ -95,6 +95,8 @@ import {
   buildDeployableHTML,
   buildActionFullHTML,
   frame_ref,
+  npc_class_ref,
+  npc_template_ref,
 } from "./module/helpers/item";
 import {
   action_button,
@@ -424,8 +426,10 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("ref-license", license_ref);
 
   // ------------------------------------------------------------------------
-  // License data
+  // Frame/Class/Template data
   Handlebars.registerHelper("ref-frame", frame_ref);
+  Handlebars.registerHelper("ref-npc-class", npc_class_ref);
+  Handlebars.registerHelper("ref-npc-template", npc_template_ref);
 
   // ------------------------------------------------------------------------
   // Bonuses
