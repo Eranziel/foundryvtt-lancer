@@ -14,26 +14,26 @@ import {
   Deployable,
   EntryType,
   FittingSize,
+  Frame,
   funcs,
   License,
   Manufacturer,
   Mech,
   MechSystem,
   MechWeaponProfile,
-  RegEntry,
+  NpcClass,
   NpcFeature,
+  NpcTemplate,
   PilotArmor,
   PilotGear,
   PilotWeapon,
   Range,
   RangeType,
+  RegEntry,
   SystemType,
   WeaponMod,
   WeaponSize,
   WeaponType,
-  Frame,
-  NpcClass,
-  NpcTemplate,
 } from "machine-mind";
 import { BonusEditDialog } from "../apps/bonus-editor";
 import { TypeIcon } from "../config";
@@ -1033,12 +1033,14 @@ export function buildActionHTML(
 
   return `
   <div class="action-wrapper">
-    <div class="title-wrapper">
+    <div class="title-wrapper flexrow">
+      ${action_type_icon(action.Activation)}
       <span class="action-title collapse-trigger" data-collapse-id="${collID}">
-        ${action.Name ? action.Name : ""}
+        ${action.Name ? action.Name.toUpperCase() : ""}
       </span>
       ${editor ? editor : ""}
     </div>
+    <hr class="hsep">
     ${detailText ? detailText : ""}
     ${chip}
     ${tags ? tags : ""}
@@ -1070,9 +1072,9 @@ export function buildActionFullHTML(
 
 /**
  * Builds the HTML for a given in-system deployable
- * @param deployable  Deployable to generate in HTML form
+ * @param dep     Deployable to generate in HTML form
  * @param full    Determines if we should generate full HTML info or just mini version (title & action)
- * @param number  If we're building full, we can pass through a number to denote which index of action
+ * @param num     If we're building full, we can pass through a number to denote which index of action
  *                this is for macro purposes. Only used for macro-able actions
  * @returns Activation HTML in string form
  */
@@ -1115,9 +1117,13 @@ export function buildDeployableHTML(dep: Deployable, full?: boolean, num?: numbe
 
   return `
   <div class="deployable-wrapper">
-    <span class="deployable-title collapse-trigger" data-collapse-id="${collID}">
-      ${dep.Name ? dep.Name : ""}
-    </span>
+    <div class="title-wrapper flexrow">
+      ${action_type_icon(activation)}
+      <span class="deployable-title collapse-trigger" data-collapse-id="${collID}">
+        ${dep.Name ? dep.Name.toUpperCase() : ""}
+      </span>
+    </div>
+    <hr class="hsep">
     ${detailText ? detailText : ""}
     ${chip}
   </div>

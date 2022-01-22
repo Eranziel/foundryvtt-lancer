@@ -24,7 +24,7 @@ import { LancerActor } from "./module/actor/lancer-actor";
 import { LancerItem } from "./module/item/lancer-item";
 import { populatePilotCache } from "./module/compcon";
 
-import { action_type_icon, action_type_selector } from "./module/helpers/npc";
+import { action_type_selector } from "./module/helpers/npc";
 
 import { LancerActionManager } from "./module/action/actionManager";
 
@@ -97,6 +97,7 @@ import {
   frame_ref,
   npc_class_ref,
   npc_template_ref,
+  action_type_icon,
 } from "./module/helpers/item";
 import {
   action_button,

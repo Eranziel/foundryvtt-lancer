@@ -278,11 +278,20 @@ button {
 
 .vsep {
   border: none;
-  border-left: 1px solid #444444;
-  border-right: 1px solid #444444;
+  border-left: 1px solid var(--secondary-theme-color, black);
+  border-right: 1px solid var(--secondary-theme-color, black);
   max-width: 3px;
   margin-left: 6px;
   margin-right: 6px;
+}
+
+.hsep {
+  border: none;
+  border-top: 2px solid var(--secondary-theme-color, black);
+  max-height: 3px;
+  margin-top: 6px;
+  margin-bottom: 6px;
+  width: 95%;
 }
 
 .add-button {
@@ -1659,6 +1668,10 @@ $activations-colors: rgb(204, 10, 10) rgb(98, 0, 255) #3949ab #3949ab #222222 #2
   margin-top: 6px;
   padding-top: 4px;
   margin-bottom: 4px;
+
+  .title-wrapper {
+    text-align: left;
+  }
 }
 
 .action-wrapper,
@@ -1669,13 +1682,12 @@ $activations-colors: rgb(204, 10, 10) rgb(98, 0, 255) #3949ab #3949ab #222222 #2
   flex-direction: column;
 }
 
-/*
-.action-wrapper + .action-wrapper {
-  //background: linear-gradient(#000, #000) top /40% 2px no-repeat rgba(0, 0, 0, 0.07);
-  margin-bottom: 4px;
-  padding-top: 4px;
-  margin-top: 6px;
-}*/
+.action-wrapper,
+.deployable-wrapper {
+  border-color: var(--secondary-theme-color);
+  border-width: 1px;
+  border-style: solid;
+}
 
 .action-title,
 .deployable-title,
