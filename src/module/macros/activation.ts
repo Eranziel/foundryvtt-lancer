@@ -4,30 +4,17 @@ import { getAutomationOptions } from "../settings";
 import type { LancerItem } from "../item/lancer-item";
 import type { LancerActor } from "../actor/lancer-actor";
 import { is_reg_mech } from "../actor/lancer-actor";
-import type {
-  LancerMacroData,
-  LancerTechMacroData,
-} from "../interfaces";
-import {
-  ActivationType,
-  EntryType,
-  Mech,
-  MechSystem,
-  Npc,
-  NpcFeature,
-  Pilot,
-  Talent,
-} from "machine-mind";
+import type { LancerMacroData, LancerTechMacroData } from "../interfaces";
+import { ActivationType, EntryType, Mech, MechSystem, Npc, NpcFeature, Pilot, Talent } from "machine-mind";
 import { is_limited, is_tagged } from "machine-mind/dist/funcs";
 import type { AccDiffDataSerialized } from "../helpers/acc_diff";
 import { buildActionHTML, buildDeployableHTML } from "../helpers/item";
 import { ActivationOptions } from "../enums";
-import { getMacroSpeaker } from "./util"
-import { renderMacroHTML } from "./render"
-import { rollTechMacro } from "./tech"
+import { getMacroSpeaker } from "./util";
+import { renderMacroHTML } from "./render";
+import { rollTechMacro } from "./tech";
 
 const lp = LANCER.log_prefix;
-
 
 export async function prepareActivationMacro(
   a: string,
@@ -80,13 +67,14 @@ export async function prepareActivationMacro(
             fn: "prepareActivationMacro",
             args: [a, i, type, index],
           };
-          _prepareTechActionMacro(actorEnt, itemEnt, index, partialMacroData, rerollData);
+          await _prepareTechActionMacro(actorEnt, itemEnt, index, partialMacroData, rerollData);
           break;
         default:
-          _prepareTextActionMacro(actorEnt, itemEnt, index);
+          await _prepareTextActionMacro(actorEnt, itemEnt, index);
       }
+      break;
     case ActivationOptions.DEPLOYABLE:
-      _prepareDeployableMacro(actorEnt, itemEnt, index);
+      await _prepareDeployableMacro(actorEnt, itemEnt, index);
   }
 
   // Wait until the end to deduct a use so we're sure it completed succesfully
