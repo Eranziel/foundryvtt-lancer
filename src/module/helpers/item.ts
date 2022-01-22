@@ -923,6 +923,36 @@ export function npc_template_ref(npc_tmpl: NpcTemplate | null, item_path?: strin
   }
 }
 
+export function action_type_icon(a_type: string) {
+  const a = a_type ? a_type.toLowerCase() : ActivationType.None.toLowerCase();
+  let html = "";
+  switch (a) {
+    case ActivationType.Full.toLowerCase():
+      html += `<i class="cci cci-activation-full i--m"></i>`;
+      break;
+    case ActivationType.Quick.toLowerCase():
+      html += `<i class="cci cci-activation-quick i--m"></i>`;
+      break;
+    case ActivationType.Reaction.toLowerCase():
+      html += `<i class="cci cci-reaction i--m"></i>`;
+      break;
+    case ActivationType.Protocol.toLowerCase():
+      html += `<i class="cci cci-protocol i--m"></i>`;
+      break;
+    case ActivationType.Free.toLowerCase():
+      html += `<i class="cci cci-free-action i--m"></i>`;
+      break;
+    case ActivationType.FullTech.toLowerCase():
+      html += `<i class="cci cci-tech-full i--m"></i>`;
+      break;
+    case ActivationType.QuickTech.toLowerCase():
+    case ActivationType.Invade.toLowerCase():
+      html += `<i class="cci cci-tech-quick i--m"></i>`;
+      break;
+  }
+  return html;
+}
+
 /**
  * Builds the HTML for a given action
  * @param action  Standard action to generate in HTML form

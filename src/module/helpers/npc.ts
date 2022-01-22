@@ -3,6 +3,7 @@ import { ActivationType, EntryType, NpcFeature, NpcFeatureType } from "machine-m
 import { is_loading } from "machine-mind/dist/classes/mech/EquipUtil";
 import { charged_box, effect_box, resolve_helper_dotpath } from "./commons";
 import {
+  action_type_icon,
   loading_indicator,
   npc_accuracy_preview,
   npc_attack_bonus_preview,
@@ -30,21 +31,6 @@ export const EffectIcons = {
 /* ------------------------------------ */
 /* Handlebars Helpers                   */
 /* ------------------------------------ */
-
-export function action_type_icon(a_type: string) {
-  const a = a_type ? a_type.toLowerCase() : ActivationType.None.toLowerCase();
-  let html = "";
-  if (a === ActivationType.Full.toLowerCase()) {
-    html += `<i class="cci cci-activation-full i--m"></i>`;
-  } else if (a === ActivationType.Quick.toLowerCase()) {
-    html += `<i class="cci cci-activation-quick i--m"></i>`;
-  } else if (a === ActivationType.Reaction.toLowerCase()) {
-    html += `<i class="cci cci-reaction i--m"></i>`;
-  } else if (a === ActivationType.Protocol.toLowerCase()) {
-    html += `<i class="cci cci-protocol i--m"></i>`;
-  }
-  return html;
-}
 
 /**
  * Handlebars helper for effect action type
