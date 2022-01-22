@@ -330,7 +330,7 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
       }
       return `<li class="valid ref card clipped mech-system item ${
         sys.SysType === SystemType.Tech ? "tech-item" : ""
-      }" ${ref_params(cd.ref)}>
+      }" ${ref_params(cd.ref)} style="margin: 0;">
         <div class="lancer-header ${sys.Destroyed ? "destroyed" : ""}" style="grid-area: 1/1/2/3; display: flex">
           <i class="${sys.Destroyed ? "mdi mdi-cog" : icon}"> </i>
           <a class="lancer-macro" data-macro="${encodeMacroData(macroData)}"><i class="mdi mdi-message"></i></a>

@@ -39,7 +39,7 @@ function system_mount(
     let slot = editable_mm_ref_list_item(`${mount_path}.System`, "delete", helper, registry);
 
     return ` 
-      <div class="mount card">
+      <div class="mount card clipped">
         ${slot}
       </div>`;
   } else {
