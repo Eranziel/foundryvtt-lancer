@@ -36,6 +36,7 @@ export async function renderMacroTemplate(actor: LancerActor | undefined, templa
 
 export async function renderMacroHTML(actor: LancerActor | undefined, html: HTMLElement | string, roll?: Roll) {
   const rollMode = game.settings.get("core", "rollMode");
+  const whisper_roll = rollMode !== "roll" ? ChatMessage.getWhisperRecipients("GM").filter(u => u.active) : undefined;
   const chat_data = {
     user: game.user,
     type: roll ? CONST.CHAT_MESSAGE_TYPES.ROLL : CONST.CHAT_MESSAGE_TYPES.IC,
@@ -46,7 +47,7 @@ export async function renderMacroHTML(actor: LancerActor | undefined, html: HTML
       alias: !!actor?.token ? actor.token.name : null,
     },
     content: html,
-    whisper: rollMode !== "roll" ? ChatMessage.getWhisperRecipients("GM").filter(u => u.active) : undefined,
+    whisper: roll ? whisper_roll : [],
   };
   // @ts-ignore This is fine
   const cm = await ChatMessage.create(chat_data);
