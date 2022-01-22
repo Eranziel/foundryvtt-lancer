@@ -241,12 +241,7 @@ function buildCoreSysHTML(actor: LancerActor, core: CoreSystem): string {
 
   // Generate core passive HTML only if it has one
   let passive = "";
-  if (
-    core.PassiveName !== "" ||
-    core.PassiveEffect !== "" ||
-    core.PassiveActions.length > 0 ||
-    core.PassiveBonuses.length > 0
-  ) {
+  if (core.PassiveEffect !== "" || core.PassiveActions.length > 0 || core.PassiveBonuses.length > 0) {
     passive = `<div class="frame-passive">${frame_passive(core)}</div>`;
   }
 
