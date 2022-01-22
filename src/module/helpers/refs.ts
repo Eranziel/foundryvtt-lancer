@@ -17,6 +17,7 @@ import {
   Skill,
   SystemType,
   Talent,
+  WeaponMod,
 } from "machine-mind";
 import { is_limited } from "machine-mind/dist/classes/mech/EquipUtil";
 import { AnyMMActor, is_actor_type } from "../actor/lancer-actor";
@@ -458,7 +459,7 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
 }
 
 export function limited_uses_indicator(
-  item: MechWeapon | MechSystem | PilotWeapon | PilotGear | NpcFeature,
+  item: MechWeapon | MechSystem | WeaponMod | PilotWeapon | PilotGear | NpcFeature,
   path: string
 ): string {
   const uses = item.Uses;

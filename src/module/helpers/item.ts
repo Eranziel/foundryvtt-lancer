@@ -734,9 +734,9 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.Select
           ${on_crit}
           ${compact_tag_list(profile_path + ".Tags", tags, false)}
         </div>
+        ${mod_text}
       </div>
     </div>
-    ${mod_text}
   </div>`;
 }
 
@@ -746,16 +746,70 @@ export function loading_indicator(loaded: boolean, weapon_path: string): string 
   return `<div class="clipped card limited-card">LOADED ${indicator}</div>`;
 }
 
-export function weapon_mod_ref(source_path: string, weapon_path: string | null, options: HelperOptions): string {
-  let mod: WeaponMod | null = resolve_helper_dotpath(options, source_path);
+export function weapon_mod_ref(mod_path: string, weapon_path: string | null, options: HelperOptions): string {
+  let mod: WeaponMod | null = resolve_helper_dotpath(options, mod_path);
   let cd = ref_commons(mod);
   if (!mod || !cd) return "";
+
+  let sp = mod.SP ? sp_display(mod.SP ? mod.SP : 0) : "";
+  let limited = is_limited(mod) ? limited_uses_indicator(mod, mod_path) : "";
+  let added_range = "";
+  if (mod.AddedRange.length) {
+    added_range = `
+      <div class="effect-box">
+        <div class="effect-title clipped-bot">ADDED RANGE</div>
+        ${show_range_array(mod.AddedRange, options)}
+      </div>`;
+  }
+  let added_damage = "";
+  if (mod.AddedDamage.length) {
+    added_damage = `
+      <div class="effect-box">
+        <div class="effect-title clipped-bot">ADDED DAMAGE</div>
+        ${show_damage_array(mod.AddedDamage, options)}
+      </div>`;
+  }
+  let effect = mod.Effect ? effect_box("Effect", mod.Effect) : "";
+  let bonuses = mod.Bonuses.length > 0 ? bonuses_display(`${mod_path}.Bonuses`, mod.Bonuses, false) : "";
+  let added_tags = "";
+  if (mod.AddedTags.length) {
+    added_tags = `
+    <div class="effect-box">
+      <span class="effect-title clipped-bot">ADDED TAGS</span>
+      ${compact_tag_list(mod_path + ".AddedTags", mod.AddedTags, false)}
+    </div>
+    `;
+  }
+  let tags = mod.Tags.length ? compact_tag_list(mod_path + ".Tags", mod.Tags, false) : "";
+  let actions = "";
+  if (mod.Actions.length) {
+    actions = mod.Actions.map((a: Action, i: number | undefined) => {
+      return buildActionHTML(a, { full: true, num: i });
+    }).join("");
+  }
+
   return `
-  <div class="valid item weapon-mod-addon flexrow clipped-bot ref ${EntryType.WEAPON_MOD}"
+  <div class="valid item flexcol clipped-top ref ${EntryType.WEAPON_MOD}"
       ${weapon_path ? ref_params(cd.ref, weapon_path) : ref_params(cd.ref)}>
-    <i class="cci cci-weaponmod i--m i--light"> </i>
-    <span>${mod.Name}</span>
-    <a style="flex-grow: unset;margin-right: 1em" class="gen-control i--light" data-action="null" data-path="${source_path}"><i class="fas fa-trash"></i></a>
+    <div class="lancer-header">
+      <i class="cci cci-weaponmod i--m i--light"> </i>
+      <span class="minor">${mod.Name}</span>
+      <a class="lancer-context-menu" data-context-menu="${EntryType.WEAPON_MOD}" data-path="${mod_path}">
+        <i class="fas fa-ellipsis-v"></i>
+      </a>
+    </div>
+    <div class="lancer-body">
+      <div class="flexrow">${sp} ${limited}</div>
+      <div class="flexrow">
+        ${added_range}
+        ${added_damage}
+      </div>
+      ${effect}
+      ${bonuses}
+      ${actions}
+      ${added_tags}
+      ${tags}
+    </div>
   </div>`;
 }
 
@@ -1277,6 +1331,7 @@ export function HANDLER_activate_item_context_menus<
   tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"mech_weapon\"]`), "click", e_d_r);
   tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"mech_system\"]`), "click", e_d_r);
   tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"npc_feature\"]`), "click", e_d_r);
+  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"weapon_mod\"]`), "click", e_r);
   tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"pilot_weapon\"]`), "click", e_r);
   tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"pilot_armor\"]`), "click", e_r);
   tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"pilot_gear\"]`), "click", e_r);

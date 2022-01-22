@@ -907,6 +907,10 @@ textarea {
     background-color: var(--weapon-color);
   }
 
+  .weapon_mod & {
+    background-color: var(--trait-color);
+  }
+
   &.struct-stress {
       padding-top: 1px;
       display: flex;
@@ -929,6 +933,7 @@ textarea {
   }
 
   .mech_weapon:hover &,
+  .weapon_mod:hover &,
   .npc-weapon:hover &,
   .pilot_weapon:hover &,
   .mech-system:hover &,
