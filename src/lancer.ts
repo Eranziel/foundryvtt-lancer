@@ -684,34 +684,6 @@ Hooks.on("renderChatMessage", async (cm: ChatMessage, html: any, data: any) => {
   // Reapply listeners.
   applyCollapseListeners();
 
-  // Attack function to overkill reroll button
-  const overkill = html[0].getElementsByClassName("overkill-reroll");
-  for (let i = 0; i < overkill.length; i++) {
-    if (cm.isAuthor) {
-      overkill[i].addEventListener("click", async function () {
-        // console.log(data);
-        const roll = await new Roll("1d6").evaluate({ async: true });
-        const templateData = {
-          roll: roll,
-          roll_tooltip: await roll.getTooltip(),
-        };
-        const html = await renderTemplate(`systems/${game.system.id}/templates/chat/overkill-reroll.hbs`, templateData);
-        const rollMode = game.settings.get("core", "rollMode");
-        let chat_data: Record<string, unknown> = {
-          user: game.user,
-          type: CONST.CHAT_MESSAGE_TYPES.ROLL,
-          roll: templateData.roll,
-          speaker: data.message.speaker,
-          content: html,
-          whisper: rollMode !== "roll" ? ChatMessage.getWhisperRecipients("GM").filter(u => u.active) : undefined,
-        };
-        let cm = await ChatMessage.create(chat_data);
-        cm?.render();
-        return Promise.resolve();
-      });
-    }
-  }
-
   html.find(".chat-button").on("click", (ev: MouseEvent) => {
     function checkTarget(element: HTMLElement) {
       if (element.attributes.getNamedItem("data-macro")) {

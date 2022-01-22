@@ -122,9 +122,6 @@
                 "charged": "{target} + :: CHARGED",
                 "uncharged": "{target} + :: UNCHARGED"
             },
-            "overkill": {
-                "reroll": "OVERKILL<button class=\"overkill-reroll\"><i class=\"fas fa-redo\"></i> +d6</button>"
-            },
             "remaining": "{total} / {max} REMAINING"
         },
         "automation": {
