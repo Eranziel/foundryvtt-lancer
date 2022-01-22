@@ -633,14 +633,19 @@ tr.lcp-index-header {
     -webkit-clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%);
   }
 
-  .weapon > & {
+  .mech_weapon > &,
+  .npc-weapon > &, {
     border-color: #000000;
-    border-style: dashed;
   }
 
-  .tech > & {
+  .weapon_mod > & {
+    border-color: var(--trait-color);
+  }
+
+  .tech > &,
+  .npc-tech > &, {
     border-color: var(--tech-color);
-    border-style: dashed;
+    border-style: solid;
   }
 
   .mount > & {
@@ -1860,7 +1865,7 @@ a.activation-chip > i.mdi {
 }
 
 .weapon-mod-addon {
-  background-color: var(--bonus-color);
+  background-color: var(--trait-color);
   margin: 0px 3px 0.5em 3px;
   color: white;
   align-items: center;
@@ -1908,7 +1913,7 @@ a.activation-chip > i.mdi {
 }
 
 .uses-editor > span {
-  padding: auto;
+  padding: inherit;
   text-align: center;
   background-color: var(--darken-1);
   margin-bottom: 4px;
