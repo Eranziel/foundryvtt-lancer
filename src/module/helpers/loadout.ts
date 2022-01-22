@@ -245,7 +245,7 @@ function buildCoreSysHTML(actor: LancerActor, core: CoreSystem): string {
     passive = `<div class="frame-passive">${frame_passive(core)}</div>`;
   }
 
-  return `<div class="core-wrapper frame-coresys">
+  return `<div class="core-wrapper frame-coresys clipped-top" style="padding: 0;">
     <div class="lancer-title coresys-title clipped-top">
       <span>${core.Name}</span> // CORE
       <i 
@@ -275,14 +275,14 @@ function buildFrameTrait(actor: LancerActor, trait: FrameTrait, index: number): 
     args: [actor.id, index],
   };
 
-  trait.Use;
-
-  return `<div class="frame-trait">
-    <div class="lancer-header submajor clipped-top frame-trait-header" style="display: flex">
+  return `<div class="frame-trait clipped-top">
+    <div class="lancer-header submajor frame-trait-header" style="display: flex">
       <a class="lancer-macro" data-macro="${encodeMacroData(macroData)}"><i class="mdi mdi-message"></i></a>
       <span class="minor grow">${trait.Name}</span>
     </div>
-    <span>${trait.Description}</span>
+    <div class="lancer-body">
+      <div class="effect-text">${trait.Description}</div>
+    </div>
   </div>`;
 }
 
@@ -308,16 +308,18 @@ function frame_active(actor: LancerActor, core: CoreSystem): string {
   };
 
   return `
-  <div class="core-active-wrapper">
-    <span class="lancer-header submajor clipped-top">
+  <div class="core-active-wrapper clipped-top">
+    <span class="lancer-header submajor">
       ${core.ActiveName} // ACTIVE
     </span>
-    <div class="effect-text">
-      ${core.ActiveEffect ? core.ActiveEffect : ""}
+    <div class="lancer-body">
+      <div class="effect-text">
+        ${core.ActiveEffect ? core.ActiveEffect : ""}
+      </div>
+      ${actionHTML ? actionHTML : ""}
+      ${depHTML ? depHTML : ""}
+      ${buildChipHTML(core.Activation, { icon: ChipIcons.Core, fullData: coreMacroData })}
     </div>
-    ${actionHTML ? actionHTML : ""}
-    ${depHTML ? depHTML : ""}
-    ${buildChipHTML(core.Activation, { icon: ChipIcons.Core, fullData: coreMacroData })}
   </div>
   `;
 }
@@ -328,14 +330,16 @@ function frame_passive(core: CoreSystem): string {
   }).join("");
 
   return `
-  <div class="core-active-wrapper">
-    <span class="lancer-header submajor clipped-top">
+  <div class="core-active-wrapper clipped-top">
+    <span class="lancer-header submajor">
       ${core.PassiveName} // PASSIVE
     </span>
-    <div class="effect-text">
-      ${core.PassiveEffect ? core.PassiveEffect : ""}
+    <div class="lancer-body">
+      <div class="effect-text">
+        ${core.PassiveEffect ? core.PassiveEffect : ""}
+      </div>
+      ${actionHTML ? actionHTML : ""}
     </div>
-    ${actionHTML ? actionHTML : ""}
   </div>
   `;
 }

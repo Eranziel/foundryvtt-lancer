@@ -635,6 +635,12 @@ tr.lcp-index-header {
 
   background-color: var(--darken-1);
 
+  .core-active-wrapper > &,
+  .core-passive-wrapper > & {
+    padding-top: 0;
+    margin-top: 0;
+  }
+
   .talent > & {
     border-color: #3a81c3;
     background-color: #3a81c333;
@@ -1720,11 +1726,6 @@ a.activation-chip > i.mdi {
 }
 /* Frame descriptor, probably-but-not-necessarily in mech-loadout */
 .mech-frame {
-  .lancer-header {
-    flex-basis: 100%;
-    margin: 2px;
-    border-radius: 3px;
-  }
 
   .coresys-title {
     width: 100%;
@@ -1741,6 +1742,11 @@ a.activation-chip > i.mdi {
 
   .frame-traits {
     width: 50%;
+  }
+
+  .frame-active,
+  .frame-passive {
+    margin: 0 4px;
   }
 }
 
