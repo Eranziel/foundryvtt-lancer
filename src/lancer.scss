@@ -287,7 +287,7 @@ button {
 
 .hsep {
   border: none;
-  border-top: 2px solid var(--secondary-theme-color, black);
+  border-top: 1px solid var(--secondary-theme-color, black);
   max-height: 3px;
   margin-top: 6px;
   margin-bottom: 6px;
@@ -660,7 +660,14 @@ tr.lcp-index-header {
   .tech > &,
   .npc-tech > &, {
     border-color: var(--tech-color);
-    border-style: solid;
+  }
+
+  .npc-reaction > & {
+    border-color: var(--reaction-color);
+  }
+
+  .npc-trait > & {
+    border-color: var(--trait-color);
   }
 
   .mount > & {

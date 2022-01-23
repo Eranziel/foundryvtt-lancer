@@ -982,17 +982,21 @@ export function buildActionHTML(
 
     // If we don't have a trigger do a simple detail
     if (!action.Trigger)
-      detailText = `<div class="action-detail collapse ${
-        options.full ? "" : "collapsed"
-      }" data-collapse-id="${collID}">${action.Detail}</div>`;
+      detailText = `
+        <div class="action-detail collapse ${options.full ? "" : "collapsed"}" data-collapse-id="${collID}">
+          <hr class="hsep">
+          ${action.Detail}
+        </div>`;
     // Otherwise, look to be explicit about which is which
     else {
-      detailText = `<div class="action-detail collapse ${options.full ? "" : "collapsed"}" data-collapse-id="${collID}">
-        <div class="overline">${game.i18n.localize("lancer.chat-card.label.trigger")}</div> 
-        <div>${action.Trigger}</div>
-        <div class="overline">${game.i18n.localize("lancer.chat-card.label.effect")}</div> 
-        <div>${action.Detail}</div> 
-      </div>`;
+      detailText = `
+        <div class="action-detail collapse ${options.full ? "" : "collapsed"}" data-collapse-id="${collID}">
+          <hr class="hsep">
+          <div class="overline">${game.i18n.localize("lancer.chat-card.label.trigger")}</div> 
+          <div>${action.Trigger}</div>
+          <div class="overline">${game.i18n.localize("lancer.chat-card.label.effect")}</div> 
+          <div>${action.Detail}</div> 
+        </div>`;
     }
 
     if (options.num !== undefined) {
@@ -1040,7 +1044,6 @@ export function buildActionHTML(
       </span>
       ${editor ? editor : ""}
     </div>
-    <hr class="hsep">
     ${detailText ? detailText : ""}
     ${chip}
     ${tags ? tags : ""}
@@ -1084,9 +1087,11 @@ export function buildDeployableHTML(dep: Deployable, full?: boolean, num?: numbe
   let activation: ActivationType | undefined;
 
   let collID = uuid4();
-  detailText = `<div class="deployable-detail collapse ${full ? "" : "collapsed"}" data-collapse-id="${collID}">${
-    dep.Detail
-  }</div>`;
+  detailText = `
+    <div class="deployable-detail collapse ${full ? "" : "collapsed"}" data-collapse-id="${collID}">
+      <hr class="hsep">
+      ${dep.Detail}
+    </div>`;
   // TODO--can probably do better than this
   /*
     Until further notice, Actions in Deployables are just... not
@@ -1123,7 +1128,6 @@ export function buildDeployableHTML(dep: Deployable, full?: boolean, num?: numbe
         ${dep.Name ? dep.Name.toUpperCase() : ""}
       </span>
     </div>
-    <hr class="hsep">
     ${detailText ? detailText : ""}
     ${chip}
   </div>
