@@ -1,9 +1,7 @@
 import { LANCER } from "../config";
 import type { LancerItem } from "../item/lancer-item";
 import type { LancerActor } from "../actor/lancer-actor";
-import type {
-  LancerMacroData,
-} from "../interfaces";
+import type { LancerMacroData } from "../interfaces";
 
 const lp = LANCER.log_prefix;
 
@@ -27,7 +25,6 @@ export function encodeMacroData(data: LancerMacroData): string {
 }
 
 export async function runEncodedMacro(el: HTMLElement | LancerMacroData) {
-  console.log(el);
   let data: LancerMacroData | null = null;
 
   if (el instanceof HTMLElement) {
