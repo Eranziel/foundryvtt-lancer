@@ -49,7 +49,7 @@
     "fp-ts": "^2.11.2",
     "io-ts": "^2.2.16",
     "lancer-initiative": "^1.1.0",
-    "machine-mind": "0.2.0-beta.124",
+    "machine-mind": "0.2.1",
     "marked": "^4.0.10",
     "tippy.js": "^6.3.1"
   }
