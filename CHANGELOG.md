@@ -1,3 +1,32 @@
+# 1.1.0 (2022-01-25)
+## Features
+* #378 - Full compatibility with Foundry v9.
+* #5 - Lancer Initiative has been rolled into the system, so it no longer needs to be installed separately!
+* #62, #129 - Added generic tech attack roller to NPC sheets.
+* #70 - Integrated weapon and system details are now shown on mech frame item sheets.
+* #228 - Remaining generic item reference boxes have been replaced with more informative cards on all sheets.
+* Added more information on weapon mod previews. They should be more useful now!
+* Added a setting under system automation for limited systems uses tracking.
+* Improved tracking for limited systems uses in several areas.
+* Improved tracking and editing for counters in several areas.
+* Added chat macro for frame traits.
+
+## Bug Fixes
+* #313 - Fix issue causing duplicate weapon tags on LCP import.
+* #335 - Fix issue causing custom-selected token art to be overwritten during sync.
+* #346, #362 - Edit locations for effect, on-hit, on-attack, and on-crit added to mech weapon sheet.
+* #353 - NPC weapons now correctly apply self heat.
+* #354 - NPC basic attacks now correctly use tier as attack bonus.
+* #363 - Mech weapon sheet loading tracking is now functional.
+* #367 - NPC feature drag and drop functions are repaired on NPC actor sheet and NPC class & template sheets.
+* #368 - Overcharge counter is now reset by the full repair macro.
+* #381 - Fix issue causing NPC tech attacks to not initialize the attack roller with their innate accuracy.
+* #387 - Core systems on mech sheets show actions.
+* #389 - Fix issue causing non-roll macros to always be whispered to GM.
+* Fix missing Blast 1 macro in AOE Templates compendium.
+* Several error messages now provide more useful information.
+* Overheat automation now correctly states that single-stress actors are exposed, instead of stating they melt down.
+
 # 1.0.3 (2021-09-22)
 ## Features
 * Reorganized system automation settings into their own sub-menu.
