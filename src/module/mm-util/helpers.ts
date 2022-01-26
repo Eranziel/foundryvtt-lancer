@@ -343,7 +343,8 @@ export async function get_pack(
     const entity_type = is_actor_type(type) ? "Actor" : "Item";
     const metadata: CompendiumCollection.Metadata = {
       name: type,
-      entity: entity_type,
+      //@ts-ignore - entity property deprecated, v9 uses type instead.
+      type: entity_type,
       label: friendly_entrytype_name(type),
       system: "lancer",
       package: "world",

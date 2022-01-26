@@ -9,7 +9,7 @@ type RegDocument<T extends EntryType> = foundry.abstract.Document<any, any> | Re
 export class LancerHooks {
   static call(doc: foundry.abstract.Document<any, any>) {
     var id = doc.id!;
-    // return Hooks.call(id, entity)
+    // return Hooks.call(id, doc)
     debounce_trigger(id, doc);
   }
 

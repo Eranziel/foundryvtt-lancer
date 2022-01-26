@@ -5,7 +5,7 @@ import type { LancerItem, LancerItemType } from "../item/lancer-item";
 import type { FoundryFlagData, FoundryRegNameParsed } from "./foundry-reg";
 import { get_pack, get_pack_id } from "./helpers";
 
-// The associated entity to a given entry type. Type's a lil complex, but we need it to get things correct between abstracters that take items vs actors
+// The associated document to a given entry type. Type's a lil complex, but we need it to get things correct between abstracters that take items vs actors
 // tl;dr maps entrytype to LancerItem or LancerActor
 // export type EntFor<T extends EntryType & (LancerItemType | LancerActorType) > = T extends LancerItemType ? LancerItem<T> : (T extends LancerActorType ? LancerActor<T> : never);
 export type EntFor<T extends EntryType> = T extends LancerItemType
@@ -16,7 +16,7 @@ export type EntFor<T extends EntryType> = T extends LancerItemType
 
 export interface GetResult<T extends LancerItemType | LancerActorType> {
   data: RegEntryTypes<T>;
-  entity: EntFor<T>;
+  document: EntFor<T>;
   id: string; // only truly necessary on enums, but still convenient
   type: T; // same
 }
@@ -269,7 +269,7 @@ export class NuWrapper<T extends EntryType> extends DocumentCollectionWrapper<T>
     // Return the reference
     return new_docs.map((item, index) => ({
       id: item.id!,
-      entity: item,
+      document: item,
       type: this.entry_type,
       data: reg_data[index],
     }));
@@ -312,7 +312,7 @@ export class NuWrapper<T extends EntryType> extends DocumentCollectionWrapper<T>
     if (fi && fi.type == this.entry_type) {
       return {
         data: fi.data.data as RegEntryTypes<T>,
-        entity: fi as EntFor<T>,
+        document: fi as EntFor<T>,
         id,
         type: this.entry_type,
       };
@@ -360,7 +360,7 @@ export class NuWrapper<T extends EntryType> extends DocumentCollectionWrapper<T>
     return all.map((e: any) => ({
       id: (e.data as any)._id,
       data: e.data.data as RegEntryTypes<T>,
-      entity: e as EntFor<T>,
+      document: e as EntFor<T>,
       type: this.entry_type,
     }));
   }

@@ -214,7 +214,7 @@ type _MetaDrop = {
 
 export type NativeDrop = _PhysicalDrop | _MetaDrop;
 
-// Result of resolving a native drop to its corresponding entity
+// Result of resolving a native drop to its corresponding document
 export type ResolvedNativeDrop =
   | {
       type: "Item";
@@ -299,7 +299,7 @@ export async function resolve_native_drop(drop: string | { [key: string]: any } 
       journal = (await game.packs.get(drop.pack)!.getDocument(drop.id)) as JournalEntry | null;
     }
 
-    // Case 2 - JournalEntry is a World entity
+    // Case 2 - JournalEntry is a World document
     else {
       journal = game.journal!.get(drop.id);
     }
@@ -537,7 +537,7 @@ export class MMDragResolveCache {
 export const GlobalMMDragState = {
   dragging: false as boolean,
   curr_dragged_type: EntryType,
-  curr_dragged_entity: null as LancerActor | LancerItem | null, // If it is a native entity, we set this
+  curr_dragged_entity: null as LancerActor | LancerItem | null, // If it is a native document, we set this
   curr_dragged_ref: null as RegRef<EntryType> | null, // If it is a ref, we set this
 };
 

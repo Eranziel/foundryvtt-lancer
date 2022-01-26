@@ -121,7 +121,7 @@ Please refresh the page to try again.</p>`,
   }
 
   // for (let p of game.packs) {
-  //   if (p.metadata.package === "world" && ["Actor", "Item", "Scene"].includes(p.metadata.entity)) {
+  //   if (p.metadata.package === "world" && ["Actor", "Item", "Scene"].includes(p.metadata.type)) {
   //     await migrateCompendium(p);
   //   }
   // }
@@ -132,7 +132,7 @@ Please refresh the page to try again.</p>`,
     try {
       const updateData = await migrateActorData(a);
       if (!isObjectEmpty(updateData)) {
-        console.log(`Migrating Actor entity ${a.name}`);
+        console.log(`Migrating Actor ${a.name}`);
         await a.update(updateData);
       }
     } catch (err) {
@@ -145,7 +145,7 @@ Please refresh the page to try again.</p>`,
     try {
       const updateData = await migrateItemData(i);
       if (!isObjectEmpty(updateData)) {
-        console.log(`Migrating Item entity ${i.name}`);
+        console.log(`Migrating Item ${i.name}`);
         await i.update(updateData);
       }
     } catch (err) {
@@ -156,7 +156,7 @@ Please refresh the page to try again.</p>`,
   // Migrate Actor Override Tokens
   for (let s of game.scenes.contents) {
     try {
-      console.log(`Migrating Scene entity ${s.name}`);
+      console.log(`Migrating Scene ${s.name}`);
       let updateData = await migrateSceneData(s);
       if (updateData && !isObjectEmpty(updateData)) {
         await s.update(updateData);
@@ -179,7 +179,7 @@ export const minor09Migration = async function () {
     try {
       const updateData = await migrateActorData(a, true);
       if (!isObjectEmpty(updateData)) {
-        console.log(`Migrating Actor entity ${a.name}`);
+        console.log(`Migrating Actor ${a.name}`);
         await a.update(updateData);
       }
     } catch (err) {
@@ -190,7 +190,7 @@ export const minor09Migration = async function () {
   // Migrate Actor Override Tokens
   for (let s of game.scenes.contents) {
     try {
-      console.log(`Migrating Scene entity ${s.name}`);
+      console.log(`Migrating Scene ${s.name}`);
       let updateData = await migrateSceneData(s, true);
       if (updateData && !isObjectEmpty(updateData)) {
         await s.update(updateData);
@@ -201,7 +201,7 @@ export const minor09Migration = async function () {
   }
 
   for (let p of game.packs.contents) {
-    if (p.metadata.package === "world" && ["Actor", "Item", "Scene"].includes(p.metadata.entity)) {
+    if (p.metadata.package === "world" && ["Actor", "Item", "Scene"].includes(p.metadata.type)) {
       await migrateCompendium(p);
     }
   }
@@ -259,7 +259,7 @@ export const migratePilots = async () => {
       if (a.data.type === EntryType.PILOT) {
         const ret = handleActorExport(a, false);
         if (ret) {
-          console.log(`== Migrating Actor entity ${a.name}`);
+          console.log(`== Migrating Actor ${a.name}`);
           await (a as LancerActor).importCC(ret, true);
           console.log(ret);
           count++;
@@ -267,7 +267,7 @@ export const migratePilots = async () => {
       }
     } catch (err) {
       console.error(err);
-      console.error(`== Migrating Actor entity ${a.name} failed.`);
+      console.error(`== Migrating Actor ${a.name} failed.`);
     }
   }
   ui.notifications.info(`Pilot migration complete! Migrations triggered: ${count}`, { permanent: true });
@@ -290,7 +290,7 @@ export const scorchedEarthCompendiums = async () => {
           label: title,
           path: `packs/${id}.db`,
           private: false,
-          entity: type,
+          type: type,
           system: "lancer",
           package: "world",
         });
@@ -313,7 +313,6 @@ export const migrateCompendium = async function (pack: Compendium, minor: boolea
   await pack.configure({ locked: false });
   if (pack.locked) return ui.notifications.error(`Could not migrate ${pack.collection} as it is locked.`);
   const docName = pack.documentName;
-  // if (!["Actor", "Item", "Scene"].includes(entity)) return;
   // For 0.9 -> 1.0, only do actors and scenes.
   if (!["Actor", "Scene"].includes(docName)) return;
 
@@ -338,11 +337,11 @@ export const migrateCompendium = async function (pack: Compendium, minor: boolea
 };
 
 /* -------------------------------------------- */
-/*  Entity Type Migration Helpers               */
+/*  Document Type Migration Helpers               */
 /* -------------------------------------------- */
 
 /**
- * Migrate a single Actor entity to incorporate latest data model changes
+ * Migrate a single Actor document to incorporate latest data model changes
  * Return an Object of updateData to be applied
  * @param {Actor} actor   The actor to update
  * @param {boolean} minor Perform minor version update, defaults to false
@@ -452,7 +451,7 @@ function cleanActorData(actorData: ActorData) {
 /* -------------------------------------------- */
 
 /**
- * Migrate a single Item entity to incorporate latest data model changes
+ * Migrate a single Item document to incorporate latest data model changes
  * @param item
  */
 export const migrateItemData = async function (item: LancerItem<NpcClass | NpcTemplate | NpcFeature>) {
@@ -610,7 +609,7 @@ export const migrateItemData = async function (item: LancerItem<NpcClass | NpcTe
 /* -------------------------------------------- */
 
 /**
- * Migrate a single Scene entity to incorporate changes to the data model of it's actor data overrides
+ * Migrate a single Scene document to incorporate changes to the data model of it's actor data overrides
  * Return an Object of updateData to be applied
  * @param {Object} scene  The Scene data to Update
  * @param {boolean} minor Apply minor version update, defaults to false

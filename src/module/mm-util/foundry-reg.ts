@@ -520,12 +520,12 @@ export class FoundryRegCat<T extends EntryType> extends RegCat<T> {
   // Converts a getresult into an appropriately flagged live item. Just wraps revive_func with flag generation and automatic id/raw deduction
   private async revive_and_flag(g: GetResult<T>, ctx: OpCtx, load_options?: LoadOptions): Promise<LiveEntryTypes<T>> {
     let flags: FoundryFlagData<T> = {
-      orig_doc: g.entity,
-      orig_doc_name: g.entity.name!,
+      orig_doc: g.document,
+      orig_doc_name: g.document.name!,
       top_level_data: {
-        name: g.entity.name,
-        img: g.entity.img,
-        folder: g.entity.data.folder || null
+        name: g.document.name,
+        img: g.document.img,
+        folder: g.document.data.folder || null
       },
     };
     return await this.revive_func(this.registry, ctx, g.id, g.data, flags, load_options);
@@ -552,7 +552,7 @@ export class FoundryRegCat<T extends EntryType> extends RegCat<T> {
     }
 
     let contrived: GetResult<T> = {
-      entity: ent as any,
+      document: ent as any,
       id,
       data: ent.data.data as any,
       type: ent.data.type as T

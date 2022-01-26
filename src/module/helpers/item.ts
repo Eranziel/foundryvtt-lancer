@@ -1351,7 +1351,7 @@ export function HANDLER_activate_item_context_menus<
 
       let data = await data_getter();
 
-      // Should always be the owning entity if we're able to delete
+      // Should always be the owning document if we're able to delete
       let entry: RegEntry<any> = resolve_dotpath(sheet_data, "mm", null);
       let counter: Counter = resolve_dotpath(sheet_data, path, null);
 
