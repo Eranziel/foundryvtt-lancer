@@ -398,6 +398,7 @@ export class LancerActor extends Actor {
   async full_repair() {
     let ent = await this.data.data.derived.mm_promise;
 
+    await this.remove_all_active_effects()
     ent.CurrentHP = ent.MaxHP;
     ent.Burn = 0;
     ent.Overshield = 0;
@@ -538,6 +539,14 @@ export class LancerActor extends Actor {
   async remove_active_effect(effect: string) {
     const target_effect = findEffect(this, effect)
     target_effect?.delete()
+  }
+
+  async remove_all_active_effects() {
+    let effectsToDelete = this.effects.filter(e => e.sourceName === "None")
+      .map(e => { 
+        return e.id ? e.id : '' 
+      });
+    await this.deleteEmbeddedDocuments("ActiveEffect", effectsToDelete);
   }
 
   /**
