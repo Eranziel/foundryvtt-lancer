@@ -399,6 +399,8 @@ export class LancerActor extends Actor {
     let ent = await this.data.data.derived.mm_promise;
 
     ent.CurrentHP = ent.MaxHP;
+    ent.Burn = 0;
+    ent.Overshield = 0;
 
     // Things for mechs & NPCs
     if (is_reg_mech(ent) || is_reg_npc(ent)) {
