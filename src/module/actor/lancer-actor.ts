@@ -36,6 +36,7 @@ import type { ActionData } from "../action";
 import { frameToPath } from "./retrograde-map";
 import { NpcClass } from "machine-mind";
 import { getAutomationOptions } from "../settings";
+import { findEffect } from "../helpers/acc_diff";
 const lp = LANCER.log_prefix;
 
 // Use for HP, etc
@@ -532,6 +533,11 @@ export class LancerActor extends Actor {
     );
   }
 
+  async remove_active_effect(effect: string) {
+    const target_effect = findEffect(this, effect)
+    target_effect?.delete()
+  }
+
   /**
    * Stabilize this actor, given two choices that have already been made
    * @param o1  Choice 1, Cooling or Repairing
@@ -549,12 +555,13 @@ export class LancerActor extends Actor {
     }
 
     if (o1 === StabOptions1.Cool) {
-      return_text = return_text.concat("Mech is cooling itself. Please clear Exposed manually<br>");
+      return_text = return_text.concat("Mech is cooling itself. @Compendium[world.status.EXPOSED] cleared.<br>");
       ent.CurrentHeat = 0;
       await ent.writeback();
+      this.remove_active_effect("exposed")
     } else if (o1 === StabOptions1.Repair) {
       if (is_reg_mech(ent) && ent.CurrentRepairs === 0) {
-        return "Mech has decided to repair, but doesn't have any repair left. Please try again<br>";
+        return "Mech has decided to repair, but doesn't have any repair left. Please try again.<br>";
       } else if (is_reg_mech(ent)) {
         ent.CurrentRepairs -= 1;
       }
@@ -563,16 +570,18 @@ export class LancerActor extends Actor {
     } else {
       return ``;
     }
-
+    return_text = return_text.concat("<br>")
     switch (o2) {
       case StabOptions2.ClearBurn:
-        return_text = return_text.concat("Mech has selected full burn clear. Please clear manually");
+        return_text = return_text.concat("Mech has selected full burn clear.");
+        ent.Burn = 0
+        await ent.writeback();
         break;
       case StabOptions2.ClearOtherCond:
-        return_text = return_text.concat("Mech has selected to clear an allied condition. Please clear manually");
+        return_text = return_text.concat("Mech has selected to clear an allied condition. Please clear manually.");
         break;
       case StabOptions2.ClearOwnCond:
-        return_text = return_text.concat("Mech has selected to clear own condition. Please clear manually");
+        return_text = return_text.concat("Mech has selected to clear own condition. Please clear manually.");
         break;
       case StabOptions2.Reload:
         return_text = return_text.concat("Mech has selected full reload, reloading...");
@@ -581,7 +590,6 @@ export class LancerActor extends Actor {
       default:
         return ``;
     }
-
     return return_text;
   }
 
