@@ -398,7 +398,7 @@ export class LancerActor extends Actor {
   async full_repair() {
     let ent = await this.data.data.derived.mm_promise;
 
-    await this.remove_nontier_active_effects()
+    await this.remove_all_active_effects()
     ent.CurrentHP = ent.MaxHP;
     ent.Burn = 0;
     ent.Overshield = 0;
