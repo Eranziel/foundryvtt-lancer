@@ -14,12 +14,18 @@
     el.focus();
   }
 
+  function getCurrent(a: LancerActor | null) {
+    if (!a || (!a.is_mech() && !a.is_npc())) return 0;
+    return Math.max(a.data.data.derived[stat].value - 1, 0);
+  }
+
   function getDamage(a: LancerActor | null) {
     if (!a || (!a.is_mech() && !a.is_npc())) return 0;
-    return a.data.data.derived[stat].max - a.data.data.derived[stat].value + 1;
+    return a.data.data.derived[stat].max - getCurrent(a);
   }
 
   $: icon = stat === "stress" ? ("reactor" as const) : stat;
+  $: current = getCurrent(lancerActor);
   $: damage = getDamage(lancerActor);
 </script>
 
@@ -38,7 +44,7 @@
     <div class="message-body">
       <h3>{lancerActor?.name ?? "UNKNOWN MECH"} has taken {icon} damage!</h3>
       <div class="damage-preview">
-        {#each { length: lancerActor.data.data.derived[stat].value - 1 } as _}
+        {#each { length: current } as _}
           <i class="cci cci-{icon} i--m damage-pip" />
         {/each}
         {#each { length: damage } as _}
