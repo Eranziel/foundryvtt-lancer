@@ -670,7 +670,7 @@ export class LancerActor extends Actor {
       const resist_armor_damage = armored_damage_types.filter(t => ent.Resistances[t])
       const normal_armor_damage = armored_damage_types.filter(t => !ent.Resistances[t])
       const resist_ap_damage = ap_damage_types.filter(t => ent.Resistances[t])
-      let armor = ap || paracausal ? ent.Armor : 0
+      let armor = ap ? ent.Armor : 0
       let leftover_armor = armor
 
       // Defender-favored: Deduct Armor from non-resisted damages first
