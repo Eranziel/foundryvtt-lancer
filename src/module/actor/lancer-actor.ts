@@ -536,11 +536,18 @@ export class LancerActor extends Actor {
     );
   }
 
+  /**
+   * Locates an ActiveEffect on the Actor by name and removes it if present.
+   * @param effect String name of the ActiveEffect to remove.
+   */
   async remove_active_effect(effect: string) {
     const target_effect = findEffect(this, effect)
     target_effect?.delete()
   }
 
+  /**
+   * Wipes all ActiveEffects from the Actor.
+   */
   async remove_all_active_effects() {
     let effects_to_delete = this.effects.filter(e => e.sourceName === "None")
       .map(e => { 
@@ -549,6 +556,10 @@ export class LancerActor extends Actor {
     await this.deleteEmbeddedDocuments("ActiveEffect", effects_to_delete);
   }
 
+  /**
+   * Wipes all ActiveEffects that aren't NPC tiers from the Actor.
+   * May be subject to updates to protect additional ActiveEffects.
+   */
   async remove_nontier_active_effects() {
     let npc_tier_exp = /npc_tier_(\d)$/
     let effects_to_delete = this.effects.filter(e => {
