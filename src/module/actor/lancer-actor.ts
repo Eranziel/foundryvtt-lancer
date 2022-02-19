@@ -707,19 +707,27 @@ export class LancerActor extends Actor {
 
     if ("CurrentHeat" in ent) {
       ent.CurrentHeat += damage.Heat
+      await ent.writeback();
     }
     
     const armor_damage = Math.ceil(damage.Kinetic + damage.Energy + damage.Explosive + damage.Variable)
     let total_damage = armor_damage + damage.Burn
 
+    // Reduce Overshield first
     if (ent.Overshield) {
       const leftover_overshield = Math.max(ent.Overshield - total_damage, 0)
       total_damage = Math.max(total_damage - ent.Overshield, 0)
       ent.Overshield = leftover_overshield
+      await ent.writeback();
     }
 
+    // Finally reduce HP by remaining damage
     ent.CurrentHP -= total_damage
+    await ent.writeback();
+
+    // Add to Burn stat
     ent.Burn += damage.Burn
+    await ent.writeback();
 
     return total_damage
   }
