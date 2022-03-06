@@ -60,8 +60,8 @@ export const STATUSES = [
     icon: `systems/lancer/assets/icons/white/condition_shredded.svg`,
   },
   {
-    id: "slow",
-    label: "Slow",
+    id: "slowed",
+    label: "Slowed",
     icon: `systems/lancer/assets/icons/white/condition_slow.svg`,
   },
   {
