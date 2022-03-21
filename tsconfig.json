@@ -21,7 +21,7 @@
     "strict": true,
     "useDefineForClassFields": false,
     "importsNotUsedAsValues": "remove",
-    "skipLibCheck": true
+    "skipLibCheck": false
   },
   "include": ["src/**/*.d.ts", "src/**/*.ts", "src/**/*.js", "src/**/*.svelte"]
 }

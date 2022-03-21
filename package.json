@@ -20,7 +20,7 @@
   "author": "",
   "license": "",
   "devDependencies": {
-    "@league-of-foundry-developers/foundry-vtt-types": "^0.8.9-10",
+    "@league-of-foundry-developers/foundry-vtt-types": "^9.255.2",
     "@sveltejs/vite-plugin-svelte": "^1.0.0-next.23",
     "@tsconfig/svelte": "^2.0.1",
     "archiver": "^3.1.1",
@@ -38,7 +38,7 @@
     "svelte-language-server": "^0.14.8",
     "svelte-preprocess": "^4.9.4",
     "tslib": "^1.14.1",
-    "typescript": "^4.4.3",
+    "typescript": "^4.6.2",
     "vite": "^2.5.7",
     "vite-plugin-checker": "https://github.com/SohumB/vite-plugin-checker/releases/download/vite-plugin-checker%400.3.5/vite-plugin-checker-0.3.5.tgz",
     "yargs": "^15.4.1"
