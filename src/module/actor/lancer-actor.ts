@@ -692,6 +692,21 @@ export class LancerActor extends Actor {
           flags.top_level_data["token.disposition"] = this.data.token.disposition;
           flags.top_level_data["token.actorLink"] = true;
 
+          // the following block of code is version 1 to ensure all weapons are their own unique object in the registry.
+          // This is primarily to fix issues with loading weapons. I am not particularly proud of the method (maybe a bit more writing and deleting than I'd like)
+          // We iterate over every available mount, telling the registry to generate a new instance of itself, we then replace it in the mount and delete the original.
+
+          for(let i = 0; i<mech.Loadout.WepMounts.length; i++){
+            for(let k = 0; k<mech.Loadout.WepMounts[i].Slots.length;k++){
+              let oldWepLocation = mech.Loadout.WepMounts[i].Slots[k]
+              //console.log(`processing mount ${i}, slot ${k} :`,oldWepLocation)
+              let newWep = await oldWepLocation.Weapon?.Registry.create_live(EntryType.MECH_WEAPON,oldWepLocation.Weapon.OpCtx,oldWepLocation.Weapon.OrigData) || null
+              //console.log("Our brand new weapon: ", newWep)
+              oldWepLocation.Weapon?.Registry.delete(EntryType.MECH_WEAPON,oldWepLocation.Weapon.RegistryID)
+              oldWepLocation.Weapon = newWep
+            }
+          }
+
           await mech.writeback();
 
           // If we've got a frame (which we should) check for setting Retrograde image
