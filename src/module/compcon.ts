@@ -31,8 +31,8 @@ export async function populatePilotCache(): Promise<CachedCloudPilot[]> {
     await Promise.all(res.map((obj: { key: string }) => fetchPilot(obj.key)));
   data.forEach(pilot => {
     pilot.mechs = [];
-    pilot.cloudOwnerID = pilot.cloudOwnerID != null ? cleanCloudOwnerID(pilot.cloudOwnerID) : ""
-    pilot.cloudID = pilot.cloudID != null ? pilot.cloudID : pilot.id;
+    pilot.cloudOwnerID = pilot.cloudOwnerID != null ? cleanCloudOwnerID(pilot.cloudOwnerID) : "" // only clean the CloudOwnerID if its available
+    pilot.cloudID = pilot.cloudID != null ? pilot.cloudID : pilot.id; // if cloudID is present in the data being returned, use it. Otherwise, use the ID for selection purposes
   });
   _cache = data;
   return data;
@@ -101,6 +101,6 @@ export async function fetchPilot(cloudID: string, cloudOwnerID?: string): Promis
   }
   const res = (await Storage.get(cloudID, req)) as any;
   const text = await res.Body.text();
-  const json = JSON.parse(text);
-  return json;
+  return JSON.parse(text);
+
 }

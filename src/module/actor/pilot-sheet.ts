@@ -51,7 +51,7 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
       // Cloud download
       let download = html.find('.cloud-control[data-action*="download"]');
       let actor = this.actor;
-      if (actor.is_pilot() && (actor.data.data.derived.mm!.CloudID)) {
+      if (actor.is_pilot() && actor.data.data.derived.mm!.CloudID) {
         download.on("click", async ev => {
           ev.stopPropagation();
 
