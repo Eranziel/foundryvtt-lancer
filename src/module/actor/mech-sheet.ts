@@ -5,7 +5,6 @@ import { resolve_dotpath } from "../helpers/commons";
 import type { AnyMMItem, LancerItemType } from "../item/lancer-item";
 import tippy from "tippy.js";
 import type { AnyMMActor } from "./lancer-actor";
-import { prepareOverchargeMacro } from "../macros";
 
 /**
  * Extend the basic ActorSheet
