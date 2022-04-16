@@ -22,7 +22,7 @@
         </nav>
         {{/if}}
 
-        <nav class="encounters flexrow">
+        <nav class="encounters flexrow {{#if hasCombat}}combat{{/if}}">
             {{#if user.isGM}}
             <a class="combat-control" title="{{localize 'COMBAT.RollAll'}}" data-control="rollAll" {{#unless turns}}disabled{{/unless}} {{#unless enable_initiative}}disabled{{/unless}}>
                 <i class="fas fa-users"></i>
@@ -34,18 +34,22 @@
 
             {{#if combatCount}}
             {{#if combat.data.round}}
-            <h3>{{localize 'COMBAT.Round'}} {{combat.data.round}}</h3>
+            <h3 class="encounter-title">{{localize 'COMBAT.Round'}} {{combat.data.round}}</h3>
             {{else}}
-            <h3>{{localize 'COMBAT.NotStarted'}}</h3>
+            <h3 class="encounter-title">{{localize 'COMBAT.NotStarted'}}</h3>
             {{/if}}
             {{else}}
-            <h3>{{localize "COMBAT.None"}}</h3>
+            <h3 class="encounter-title">{{localize "COMBAT.None"}}</h3>
             {{/if}}
 
             {{#if user.isGM}}
             <a class="combat-control" title="{{localize 'COMBAT.InitiativeReset'}}" data-control="resetAll"
                 {{#unless hasCombat}}disabled{{/unless}}>
                 <i class="fas fa-undo"></i>
+            </a>
+            <a class="combat-control" title="{{labels.scope}}"
+                data-control="toggleSceneLink" {{#unless hasCombat}}disabled{{/unless}}>
+                <i class="fas fa-{{#unless linked}}un{{/unless}}link"></i>
             </a>
             <a class="combat-settings" title="{{localize 'COMBAT.Settings'}}" data-control="trackerSettings">
                 <i class="fas fa-cog"></i>
