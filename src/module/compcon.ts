@@ -1,3 +1,4 @@
+import { AUDIO_FILE_EXTENSIONS } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/constants.mjs";
 import type { PackedPilotData } from "machine-mind";
 import type { CachedCloudPilot } from "./interfaces";
 
@@ -30,7 +31,8 @@ export async function populatePilotCache(): Promise<CachedCloudPilot[]> {
     await Promise.all(res.map((obj: { key: string }) => fetchPilot(obj.key)));
   data.forEach(pilot => {
     pilot.mechs = [];
-    pilot.cloudOwnerID = cleanCloudOwnerID(pilot.cloudOwnerID);
+    pilot.cloudOwnerID = pilot.cloudOwnerID != null ? cleanCloudOwnerID(pilot.cloudOwnerID) : ""
+    pilot.cloudID = pilot.cloudID != null ? pilot.cloudID : pilot.id;
   });
   _cache = data;
   return data;
@@ -38,6 +40,34 @@ export async function populatePilotCache(): Promise<CachedCloudPilot[]> {
 
 export function pilotCache(): CachedCloudPilot[] {
   return _cache;
+}
+
+export async function fetchPilotViaShareCode(sharecode: string): Promise<PackedPilotData> {
+  const sharecodeResponse = await fetch("https://api.compcon.app/share?code=" + sharecode , {
+    headers: {
+      'x-api-key' : 'fcFvjjrnQy2hypelJQi4X9dRI55r5KuI4bC07Maf',
+    }
+  })
+
+  const shareObj = await sharecodeResponse.json();
+  const pilotResponse = await fetch(shareObj['presigned']);
+  return await pilotResponse.json();
+}
+
+export async function fetchPilotViaCache(cachedPilot: CachedCloudPilot): Promise<PackedPilotData>{
+  
+  const documentID = `pilot/${cachedPilot.name}--${cachedPilot.id}--active`
+  const { Storage } = await import("@aws-amplify/storage");
+  const req: any = {
+    level: "protected",
+    download: true,
+    cacheControl: "no-cache",
+  };
+
+  const res = (await Storage.get(documentID, req)) as any;
+  const text = await res.Body.text();
+  const json = JSON.parse(text);
+  return json;
 }
 
 export async function fetchPilot(cloudID: string, cloudOwnerID?: string): Promise<PackedPilotData> {
@@ -71,5 +101,6 @@ export async function fetchPilot(cloudID: string, cloudOwnerID?: string): Promis
   }
   const res = (await Storage.get(cloudID, req)) as any;
   const text = await res.Body.text();
-  return JSON.parse(text);
+  const json = JSON.parse(text);
+  return json;
 }

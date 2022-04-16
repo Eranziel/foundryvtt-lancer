@@ -7,7 +7,7 @@ import { buildCounterHTML } from "../helpers/item";
 import { ref_commons, ref_params, resolve_ref_element, simple_mm_ref } from "../helpers/refs";
 import { resolve_dotpath } from "../helpers/commons";
 import { AnyMMActor, is_reg_mech, is_actor_type } from "./lancer-actor";
-import { cleanCloudOwnerID, fetchPilot, pilotCache } from "../compcon";
+import { cleanCloudOwnerID, fetchPilot, fetchPilotViaCache, fetchPilotViaShareCode, pilotCache } from "../compcon";
 import type { AnyMMItem, LancerItemType } from "../item/lancer-item";
 import { derived } from "svelte/store";
 
@@ -51,27 +51,37 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
       // Cloud download
       let download = html.find('.cloud-control[data-action*="download"]');
       let actor = this.actor;
-      if (actor.is_pilot() && actor.data.data.derived.mm!.CloudID) {
+      if (actor.is_pilot() && (actor.data.data.derived.mm!.CloudID)) {
         download.on("click", async ev => {
           ev.stopPropagation();
 
           let self = await this.getDataLazy();
           // Fetch data to sync
           let raw_pilot_data = null;
-          if (self.vaultID != "" || self.rawID.match(/\/\//)) {
+          if (self.rawID.match(/^[A-Z0-9\d]{6}$/g)){
+            // pilot share codes
+            ui.notifications!.info("Importing character from share code...");
+            raw_pilot_data = await fetchPilotViaShareCode(self.rawID);
+          } else if (self.vaultID != "") {
             // new style vault code with owner information
             // it's possible that this was one we reconstructed and doesn't actually live in this user acct
             ui.notifications!.info("Importing character from vault...");
-            try {
-              raw_pilot_data = await fetchPilot(self.vaultID != "" ? self.vaultID : self.rawID);
-            } catch {
-              if (self.vaultID != "") {
-                ui.notifications!.error("Failed to import. Probably a network error, please try again.");
-              } else {
-                ui.notifications!.error(
-                  "Failed. You will have to ask the player whose pilot this is for their COMP/CON vault record code."
-                );
+            const cachedPilot = self.pilotCache.find(p => p.cloudID == self.vaultID)
+            if(cachedPilot != undefined){
+              try {
+                raw_pilot_data = await fetchPilotViaCache(cachedPilot);
+              } catch {
+                if (self.vaultID != "") {
+                  ui.notifications!.error("Failed to import. Probably a network error, please try again.");
+                } else {
+                  ui.notifications!.error(
+                    "Failed. You will have to ask the player whose pilot this is for their COMP/CON vault record code."
+                  );
+                }
+                return;
               }
+            } else{
+              ui.notifications!.error("Failed to import. Probably a network error, please try again.");
               return;
             }
           } else if (self.rawID.match(/^[^-]+(-[^-]+){4}/)) {
@@ -163,12 +173,11 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
     // use the select if and only if we have the pilot in our cache
     let useSelect =
       data.mm.CloudID &&
-      data.cleanedOwnerID &&
-      data.pilotCache.find(p => p.cloudID == data.mm.CloudID && p.cloudOwnerID == data.cleanedOwnerID);
+      data.pilotCache.find(p => p.cloudID == data.mm.CloudID);
 
     if (useSelect) {
       // if this is a vault id we know of
-      data.vaultID = data.cleanedOwnerID + "//" + data.mm.CloudID;
+      data.vaultID = data.mm.CloudID;
       data.rawID = "";
     } else if (data.mm.CloudID) {
       // whatever this is, we need to display it as raw text, so the user can edit it
