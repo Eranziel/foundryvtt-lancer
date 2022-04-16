@@ -1,4 +1,3 @@
-import { AUDIO_FILE_EXTENSIONS } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/constants.mjs";
 import type { PackedPilotData } from "machine-mind";
 import type { CachedCloudPilot } from "./interfaces";
 
