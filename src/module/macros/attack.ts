@@ -501,12 +501,11 @@ async function rollAttackMacro(
     self_heat = parseInt(`${data.tags.find(tag => tag.Tag.LID === "tg_heat_self")?.Value ?? 0}`);
   }
 
-  // TODO: Heat (self) application
   if (getAutomationOptions().attack_self_heat) {
-    let mment = await actor.data.data.derived.mm_promise;
-    if (is_reg_mech(mment) || is_reg_npc(mment)) {
-      mment.CurrentHeat += overkill_heat + self_heat;
-      await mment.writeback();
+    let mmEnt = await actor.data.data.derived.mm_promise;
+    if (is_reg_mech(mmEnt) || is_reg_npc(mmEnt)) {
+      mmEnt.CurrentHeat += overkill_heat + self_heat;
+      await mmEnt.writeback();
     }
   }
 
