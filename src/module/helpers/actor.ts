@@ -3,11 +3,36 @@ import { EntryType, funcs, Mech, Npc, Pilot } from "machine-mind";
 import { ext_helper_hash, inc_if, resolve_helper_dotpath, selected, std_num_input, std_x_of_y } from "./commons";
 import { ref_commons, ref_params, simple_mm_ref } from "./refs";
 import { encodeMacroData } from "../macros";
+import { encodeOverchargeMacroData } from "../macros/overcharge";
 import type { ActionType } from "../action";
 import { LANCER } from "../config";
 import type { LancerActor } from "../actor/lancer-actor";
+import { string } from "fp-ts";
+
 // ---------------------------------------
 // Some simple stat editing thingies
+
+interface ButtonOverrides {
+  icon?: string,
+  classes?: string
+}
+
+function _rollable_macro_button(
+  macroData: string,
+  overrides: ButtonOverrides = { }
+): string {
+  return `<a class="i--dark i--sm ${overrides.classes ?? ""} lancer-macro" data-macro="${macroData}">
+    <i class="fas ${overrides.icon ?? "fa-dice-d20"}"></i>
+  </a>`;
+}
+
+export function get_actor_id(options: HelperOptions): string | null {
+  // Determine whether this is an unlinked token, so we can encode the correct id for the macro.
+  const r_actor = options.data.root.actor as LancerActor | undefined;
+  let id = r_actor?.token && !r_actor.token.isLinked ? r_actor.token.id : r_actor?.id!;
+  //console.log(r_actor?.id, id);
+  return id;
+}
 
 // Shows an X / MAX clipped card
 export function stat_edit_card_max(
@@ -52,17 +77,13 @@ export function stat_view_card(
 ): string {
   let data_val = resolve_helper_dotpath(options, data_path);
   let macro_button: string | undefined;
-  // Determine whether this is an unlinked token, so we can encode the correct id for the macro.
-  const r_actor = options.data.root.actor as LancerActor | undefined;
-  let id = r_actor?.token && !r_actor.token.isLinked ? r_actor.token.id : r_actor?.id!;
-  // console.log(r_actor, id);
   let macroData = encodeMacroData({
     title: title,
     fn: "prepareStatMacro",
-    args: [id, data_path],
+    args: [get_actor_id(options), data_path],
   });
   if (options.rollable)
-    macro_button = `<a class="i--dark i--sm lancer-macro" data-macro="${macroData}"><i class="fas fa-dice-d20"></i></a>`;
+    macro_button = _rollable_macro_button(macroData)
   return `
     <div class="card clipped">
       <div class="lancer-header ">
@@ -130,10 +151,7 @@ export function clicker_stat_card(
   options: HelperOptions
 ): string {
   let button = "";
-  // Determine whether this is an unlinked token, so we can encode the correct id for the macro.
-  const r_actor = options.data.root.actor as LancerActor | undefined;
-  let id = r_actor?.token && !r_actor.token.isLinked ? r_actor.token.id : r_actor?.id!;
-  // console.log(r_actor, id);
+  let id = get_actor_id(options);
   let macroData = encodeMacroData({
     title: title,
     fn: "prepareStatMacro",
@@ -185,15 +203,11 @@ export function action_button(
 
 export function tech_flow_card(title: string, icon: string, data_path: string, options: HelperOptions): string {
   let data_val = resolve_helper_dotpath(options, data_path);
-  // Determine whether this is an unlinked token, so we can encode the correct id for the macro.
-  const r_actor = options.data.root.actor as LancerActor | undefined;
-  let id = r_actor?.token && !r_actor.token.isLinked ? r_actor.token.id : r_actor?.id!;
-  // console.log(r_actor, id);
 
   let macroData = encodeMacroData({
     title: title,
     fn: "prepareTechMacro",
-    args: [id, null],
+    args: [get_actor_id(options), null],
   });
 
   return `
@@ -203,7 +217,7 @@ export function tech_flow_card(title: string, icon: string, data_path: string, o
         <span class="major">${title}</span>
       </div>
       <div class="flexrow stat-macro-container">
-      <a class="i--dark i--sm lancer-macro" data-macro="${macroData}"><i class="fas fa-dice-d20"></i></a>
+      ${_rollable_macro_button(macroData)}
         <span class="lancer-stat major" data-path="${data_path}">${data_val}</span>
         <div></div>
       </div>
@@ -256,7 +270,7 @@ export function overcharge_button(actor: LancerActor, overcharge_path: string, o
         <span class="major">OVERCHARGE</span>
       </div>
       <div class="overcharge-container">
-        <a class="overcharge-macro macroable i--dark i--sm" data-action="roll-macro"><i class="fas fa-dice-d20"></i></a>
+        ${_rollable_macro_button(encodeOverchargeMacroData(actor.id!), { classes: "overcharge-macro" })}
         <a class="overcharge-text">${over_val}</a>
         <a class="overcharge-reset mdi mdi-restore"></a>
       </div>

@@ -102,8 +102,9 @@
         {{!-- Talents --}}
         <div class="card clipped">
           <h2 class="lancer-title clipped">{{localize "lancer.pilot-sheet.abilities.talents"}}</h2>
-          {{#each mm.Pilot.Talents as |skill index|}} {{{ref-mm-controllable-item (concat
-          "mm.Pilot.Talents." index) "" }}} {{/each}}
+          {{#each mm.Pilot.Talents as |skill index|}}
+            {{{ref-mm-controllable-item (concat "mm.Pilot.Talents." index) ""}}}
+          {{/each}}
         </div>
       </div>
 

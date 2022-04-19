@@ -5,7 +5,7 @@ import { buildSystemHTML } from "../helpers/item";
 import type {
   MechSystem,
 } from "machine-mind";
-import { renderMacroHTML } from "./render"
+import { renderMacroHTML } from "./_render"
 
 const lp = LANCER.log_prefix;
 

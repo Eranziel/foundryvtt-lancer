@@ -19,10 +19,13 @@ import {
 import { is_limited, is_overkill } from "machine-mind/dist/funcs";
 import { is_loading, is_self_heat } from "machine-mind/dist/classes/mech/EquipUtil";
 import { FoundryReg } from "../mm-util/foundry-reg";
+import { ref_params } from "../helpers/refs";
 import { checkForHit } from "../helpers/automation/targeting";
 import type { AccDiffData, AccDiffDataSerialized, RollModifier } from "../helpers/acc_diff";
-import { getMacroSpeaker, encodeMacroData, ownedItemFromString } from "./util";
-import { renderMacroTemplate } from "./render";
+import { getMacroSpeaker, ownedItemFromString } from "./_util";
+import { encodeMacroData } from "./_encode";
+import { renderMacroTemplate } from "./_render";
+
 
 const lp = LANCER.log_prefix;
 
@@ -508,6 +511,7 @@ async function rollAttackMacro(
   // Output
   const templateData = {
     title: data.title,
+    item_id: rerollMacro.args[1],
     attacks: attacks,
     hits: hits,
     defense: isSmart ? "E-DEF" : "EVASION",

@@ -95,6 +95,7 @@ declare interface LancerReactionMacroData {
 declare interface LancerTextMacroData {
   title: string;
   description: string;
+  item_id?: string;
   tags?: TagDataShort[];
 }
 

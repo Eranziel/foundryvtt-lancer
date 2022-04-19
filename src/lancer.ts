@@ -193,6 +193,7 @@ Hooks.once("init", async function () {
     },
     prepareItemMacro: macros.prepareItemMacro,
     prepareStatMacro: macros.prepareStatMacro,
+    prepareTalentMacro: macros.prepareTalentMacro,
     prepareTextMacro: macros.prepareTextMacro,
     prepareTechMacro: macros.prepareTechMacro,
     prepareCoreActiveMacro: macros.prepareCoreActiveMacro,
