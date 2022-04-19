@@ -268,6 +268,14 @@ function frameTraits(actor: LancerActor, frame: Frame): string {
 }
 
 function buildFrameTrait(actor: LancerActor, trait: FrameTrait, index: number): string {
+  let actionHTML = trait.Actions.map((a: Action, i: number | undefined) => {
+    return buildActionHTML(a, { full: true, num: i });
+  }).join("");
+
+  let depHTML = trait.Deployables.map((d: Deployable, i: number | undefined) => {
+    return buildDeployableHTML(d, true, i);
+  }).join("");
+
   let macroData: LancerMacroData = {
     title: trait.Name,
     iconPath: `systems/${game.system.id}/assets/icons/macro-icons/trait.svg`,
@@ -282,6 +290,8 @@ function buildFrameTrait(actor: LancerActor, trait: FrameTrait, index: number): 
     </div>
     <div class="lancer-body">
       <div class="effect-text">${trait.Description}</div>
+      ${actionHTML ? actionHTML : ""}
+      ${depHTML ? depHTML : ""}
     </div>
   </div>`;
 }
