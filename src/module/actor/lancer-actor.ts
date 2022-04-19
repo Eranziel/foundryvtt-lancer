@@ -398,7 +398,7 @@ export class LancerActor extends Actor {
   async full_repair() {
     let ent = await this.data.data.derived.mm_promise;
 
-    await this.remove_all_active_effects()
+    await this.remove_all_active_effects();
     ent.CurrentHP = ent.MaxHP;
     ent.Burn = 0;
     ent.Overshield = 0;
@@ -541,17 +541,18 @@ export class LancerActor extends Actor {
    * @param effect String name of the ActiveEffect to remove.
    */
   async remove_active_effect(effect: string) {
-    const target_effect = findEffect(this, effect)
-    target_effect?.delete()
+    const target_effect = findEffect(this, effect);
+    target_effect?.delete();
   }
 
   /**
    * Wipes all ActiveEffects from the Actor.
    */
   async remove_all_active_effects() {
-    let effects_to_delete = this.effects.filter(e => e.sourceName === "None")
-      .map(e => { 
-        return e.id ?? ''
+    let effects_to_delete = this.effects
+      .filter(e => e.sourceName === "None")
+      .map(e => {
+        return e.id ?? "";
       });
     await this.deleteEmbeddedDocuments("ActiveEffect", effects_to_delete);
   }
@@ -561,12 +562,13 @@ export class LancerActor extends Actor {
    * May be subject to updates to protect additional ActiveEffects.
    */
   async remove_nontier_active_effects() {
-    let npc_tier_exp = /npc_tier_(\d)$/
-    let effects_to_delete = this.effects.filter(e => {
-      return e.sourceName === "None" && !npc_tier_exp.test(e.data.flags.core?.statusId ?? '')
-    })
-      .map(e => { 
-        return e.id ?? ''
+    let npc_tier_exp = /npc_tier_(\d)$/;
+    let effects_to_delete = this.effects
+      .filter(e => {
+        return e.sourceName === "None" && !npc_tier_exp.test(e.data.flags.core?.statusId ?? "");
+      })
+      .map(e => {
+        return e.id ?? "";
       });
     await this.deleteEmbeddedDocuments("ActiveEffect", effects_to_delete);
   }
@@ -591,7 +593,7 @@ export class LancerActor extends Actor {
       return_text = return_text.concat("Mech is cooling itself. @Compendium[world.status.EXPOSED] cleared.<br>");
       ent.CurrentHeat = 0;
       await ent.writeback();
-      this.remove_active_effect("exposed")
+      this.remove_active_effect("exposed");
     } else if (o1 === StabOptions1.Repair) {
       if (is_reg_mech(ent) && ent.CurrentRepairs === 0) {
         return "Mech has decided to repair, but doesn't have any repair left. Please try again.<br>";
@@ -603,11 +605,11 @@ export class LancerActor extends Actor {
     } else {
       return ``;
     }
-    return_text = return_text.concat("<br>")
+    return_text = return_text.concat("<br>");
     switch (o2) {
       case StabOptions2.ClearBurn:
         return_text = return_text.concat("Mech has selected full burn clear.");
-        ent.Burn = 0
+        ent.Burn = 0;
         await ent.writeback();
         break;
       case StabOptions2.ClearOtherCond:
@@ -738,25 +740,34 @@ export class LancerActor extends Actor {
           // We iterate over every available mount, telling the registry to generate a new instance of itself, we then replace it in the mount and delete the original.
           // This is done only to avoid messing with how the Machine Mind deals with populating the sheet.
 
-          for(let i = 0; i<mech.Loadout.WepMounts.length; i++){
-            for(let k = 0; k<mech.Loadout.WepMounts[i].Slots.length;k++){
+          for (let i = 0; i < mech.Loadout.WepMounts.length; i++) {
+            for (let k = 0; k < mech.Loadout.WepMounts[i].Slots.length; k++) {
               let oldWepLocation = mech.Loadout.WepMounts[i].Slots[k];
               //console.log(`processing mount ${i}, slot ${k} :`,oldWepLocation)
-              let newWep = await oldWepLocation.Weapon?.Registry.create_live(EntryType.MECH_WEAPON,oldWepLocation.Weapon.OpCtx,oldWepLocation.Weapon.OrigData) || null;
+              let newWep =
+                (await oldWepLocation.Weapon?.Registry.create_live(
+                  EntryType.MECH_WEAPON,
+                  oldWepLocation.Weapon.OpCtx,
+                  oldWepLocation.Weapon.OrigData
+                )) || null;
               //console.log("Our brand new weapon: ", newWep)
-              oldWepLocation.Weapon?.Registry.delete(EntryType.MECH_WEAPON,oldWepLocation.Weapon.RegistryID);
+              oldWepLocation.Weapon?.Registry.delete(EntryType.MECH_WEAPON, oldWepLocation.Weapon.RegistryID);
               oldWepLocation.Weapon = newWep;
             }
           }
 
           // We proceed to do a similar process for the mech systems. This is to ensure non-unique systems can be disabled individually on the mech sheet
-          for(let i = 0; i<mech.Loadout.SysMounts.length;i++){
-            let oldSystemLocation = mech.Loadout.SysMounts[i]
-            let newSys = await oldSystemLocation.System?.Registry.create_live(EntryType.MECH_SYSTEM,oldSystemLocation.System.OpCtx,oldSystemLocation.System.OrigData)|| null;
-            oldSystemLocation.System?.Registry.delete(EntryType.MECH_SYSTEM,oldSystemLocation.System.RegistryID);
+          for (let i = 0; i < mech.Loadout.SysMounts.length; i++) {
+            let oldSystemLocation = mech.Loadout.SysMounts[i];
+            let newSys =
+              (await oldSystemLocation.System?.Registry.create_live(
+                EntryType.MECH_SYSTEM,
+                oldSystemLocation.System.OpCtx,
+                oldSystemLocation.System.OrigData
+              )) || null;
+            oldSystemLocation.System?.Registry.delete(EntryType.MECH_SYSTEM, oldSystemLocation.System.RegistryID);
             oldSystemLocation.System = newSys;
           }
-          
 
           await mech.writeback();
 

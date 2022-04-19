@@ -58,7 +58,7 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
           let self = await this.getDataLazy();
           // Fetch data to sync
           let raw_pilot_data = null;
-          if (self.rawID.match(/^[A-Z0-9\d]{6}$/g)){
+          if (self.rawID.match(/^[A-Z0-9\d]{6}$/g)) {
             // pilot share codes
             ui.notifications!.info("Importing character from share code...");
             raw_pilot_data = await fetchPilotViaShareCode(self.rawID);
@@ -66,8 +66,8 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
             // new style vault code with owner information
             // it's possible that this was one we reconstructed and doesn't actually live in this user acct
             ui.notifications!.info("Importing character from vault...");
-            const cachedPilot = self.pilotCache.find(p => p.cloudID == self.vaultID)
-            if(cachedPilot != undefined){
+            const cachedPilot = self.pilotCache.find(p => p.cloudID == self.vaultID);
+            if (cachedPilot != undefined) {
               try {
                 raw_pilot_data = await fetchPilotViaCache(cachedPilot);
               } catch {
@@ -80,7 +80,7 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
                 }
                 return;
               }
-            } else{
+            } else {
               ui.notifications!.error("Failed to import. Probably a network error, please try again.");
               return;
             }
@@ -171,9 +171,7 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
     data.cleanedOwnerID = cleanCloudOwnerID(data.mm.CloudOwnerID);
 
     // use the select if and only if we have the pilot in our cache
-    let useSelect =
-      data.mm.CloudID &&
-      data.pilotCache.find(p => p.cloudID == data.mm.CloudID);
+    let useSelect = data.mm.CloudID && data.pilotCache.find(p => p.cloudID == data.mm.CloudID);
 
     if (useSelect) {
       // if this is a vault id we know of

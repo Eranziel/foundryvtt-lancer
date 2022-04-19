@@ -26,11 +26,10 @@ export async function populatePilotCache(): Promise<CachedCloudPilot[]> {
     cacheControl: "no-cache",
   });
 
-  const data: Array<PackedPilotData> =
-    await Promise.all(res.map((obj: { key: string }) => fetchPilot(obj.key)));
+  const data: Array<PackedPilotData> = await Promise.all(res.map((obj: { key: string }) => fetchPilot(obj.key)));
   data.forEach(pilot => {
     pilot.mechs = [];
-    pilot.cloudOwnerID = pilot.cloudOwnerID != null ? cleanCloudOwnerID(pilot.cloudOwnerID) : "" // only clean the CloudOwnerID if its available
+    pilot.cloudOwnerID = pilot.cloudOwnerID != null ? cleanCloudOwnerID(pilot.cloudOwnerID) : ""; // only clean the CloudOwnerID if its available
     pilot.cloudID = pilot.cloudID != null ? pilot.cloudID : pilot.id; // if cloudID is present in the data being returned, use it. Otherwise, use the ID for selection purposes
   });
   _cache = data;
@@ -42,20 +41,19 @@ export function pilotCache(): CachedCloudPilot[] {
 }
 
 export async function fetchPilotViaShareCode(sharecode: string): Promise<PackedPilotData> {
-  const sharecodeResponse = await fetch("https://api.compcon.app/share?code=" + sharecode , {
+  const shareCodeResponse = await fetch("https://api.compcon.app/share?code=" + sharecode, {
     headers: {
-      'x-api-key' : 'fcFvjjrnQy2hypelJQi4X9dRI55r5KuI4bC07Maf',
-    }
-  })
+      "x-api-key": "fcFvjjrnQy2hypelJQi4X9dRI55r5KuI4bC07Maf",
+    },
+  });
 
-  const shareObj = await sharecodeResponse.json();
-  const pilotResponse = await fetch(shareObj['presigned']);
+  const shareObj = await shareCodeResponse.json();
+  const pilotResponse = await fetch(shareObj["presigned"]);
   return await pilotResponse.json();
 }
 
-export async function fetchPilotViaCache(cachedPilot: CachedCloudPilot): Promise<PackedPilotData>{
-  
-  const documentID = `pilot/${cachedPilot.name}--${cachedPilot.id}--active`
+export async function fetchPilotViaCache(cachedPilot: CachedCloudPilot): Promise<PackedPilotData> {
+  const documentID = `pilot/${cachedPilot.name}--${cachedPilot.id}--active`;
   const { Storage } = await import("@aws-amplify/storage");
   const req: any = {
     level: "protected",
@@ -101,5 +99,4 @@ export async function fetchPilot(cloudID: string, cloudOwnerID?: string): Promis
   const res = (await Storage.get(cloudID, req)) as any;
   const text = await res.Body.text();
   return JSON.parse(text);
-
 }
