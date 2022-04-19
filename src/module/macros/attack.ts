@@ -26,7 +26,6 @@ import { getMacroSpeaker, ownedItemFromString } from "./_util";
 import { encodeMacroData } from "./_encode";
 import { renderMacroTemplate } from "./_render";
 
-
 const lp = LANCER.log_prefix;
 
 function rollStr(bonus: number, total: number): string {
@@ -154,6 +153,9 @@ export async function prepareAttackMacro(
     mData.overkill = is_overkill(itemEnt);
     mData.self_heat = is_self_heat(itemEnt);
     mData.effect = weaponData.Effect;
+    mData.on_attack = weaponData.OnAttack;
+    mData.on_hit = weaponData.OnHit;
+    mData.on_crit = weaponData.OnCrit;
   } else if (actor.is_pilot() && item.is_pilot_weapon()) {
     pilotEnt = await actor.data.data.derived.mm_promise;
     itemEnt = await item.data.data.derived.mm_promise;
@@ -519,7 +521,9 @@ async function rollAttackMacro(
     crit_damages: crit_damage_results,
     overkill_heat: overkill_heat,
     effect: data.effect ? data.effect : null,
+    on_attack: data.on_attack ? data.on_attack : null,
     on_hit: data.on_hit ? data.on_hit : null,
+    on_crit: data.on_crit ? data.on_crit : null,
     tags: data.tags,
     rerollMacroData: encodeMacroData(rerollMacro),
   };
