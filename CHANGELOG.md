@@ -1,3 +1,18 @@
+# 1.2.0 (2022-04-XX)
+## Features
+* Update the pilot import system to use Comp/Con's new share code system. "Vault" and "cloud" style codes are no longer supported.
+* Update Lancer Initiative to take advantage of Foundry v9 features, eliminating the "Dummy Combatant".
+* Added Custom Paint Job macro from \[REDACTED\] to the Macros compendium.
+* Added Scan macro from Jazzy (and speck and Valkyrion) to the Macros compendium.
+* Added Mimic Gun macro from Infalle to the Macros compendium.
+
+## Bug Fixes
+* #249 - Imported Mechs with multiple copies of weapons/systems now create unique instances of each.
+* #391 - Selecting "clear burn" in the Stabilize macro now automatically clears burn on the actor.
+* #392 - Structure/Stress macro no longer locks up when run manually on an actor with 0 remaining.
+* Full Repair macro now clears conditions, burn, and overshield.
+* Condition renamed from "SLOW" to "SLOWED" to match the core rulebook. CUB-users will need to update their conditions to match.
+
 # 1.1.0 (2022-01-25)
 ## Features
 * #378 - Full compatibility with Foundry v9.
