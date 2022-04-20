@@ -19,10 +19,12 @@ import {
 import { is_limited, is_overkill } from "machine-mind/dist/funcs";
 import { is_loading, is_self_heat } from "machine-mind/dist/classes/mech/EquipUtil";
 import { FoundryReg } from "../mm-util/foundry-reg";
+import { ref_params } from "../helpers/refs";
 import { checkForHit } from "../helpers/automation/targeting";
 import type { AccDiffData, AccDiffDataSerialized, RollModifier } from "../helpers/acc_diff";
-import { getMacroSpeaker, encodeMacroData, ownedItemFromString } from "./util";
-import { renderMacroTemplate } from "./render";
+import { getMacroSpeaker, ownedItemFromString } from "./_util";
+import { encodeMacroData } from "./_encode";
+import { renderMacroTemplate } from "./_render";
 
 const lp = LANCER.log_prefix;
 
@@ -151,6 +153,9 @@ export async function prepareAttackMacro(
     mData.overkill = is_overkill(itemEnt);
     mData.self_heat = is_self_heat(itemEnt);
     mData.effect = weaponData.Effect;
+    mData.on_attack = weaponData.OnAttack;
+    mData.on_hit = weaponData.OnHit;
+    mData.on_crit = weaponData.OnCrit;
   } else if (actor.is_pilot() && item.is_pilot_weapon()) {
     pilotEnt = await actor.data.data.derived.mm_promise;
     itemEnt = await item.data.data.derived.mm_promise;
@@ -496,18 +501,18 @@ async function rollAttackMacro(
     self_heat = parseInt(`${data.tags.find(tag => tag.Tag.LID === "tg_heat_self")?.Value ?? 0}`);
   }
 
-  // TODO: Heat (self) application
   if (getAutomationOptions().attack_self_heat) {
-    let mment = await actor.data.data.derived.mm_promise;
-    if (is_reg_mech(mment) || is_reg_npc(mment)) {
-      mment.CurrentHeat += overkill_heat + self_heat;
-      await mment.writeback();
+    let mmEnt = await actor.data.data.derived.mm_promise;
+    if (is_reg_mech(mmEnt) || is_reg_npc(mmEnt)) {
+      mmEnt.CurrentHeat += overkill_heat + self_heat;
+      await mmEnt.writeback();
     }
   }
 
   // Output
   const templateData = {
     title: data.title,
+    item_id: rerollMacro.args[1],
     attacks: attacks,
     hits: hits,
     defense: isSmart ? "E-DEF" : "EVASION",
@@ -515,7 +520,9 @@ async function rollAttackMacro(
     crit_damages: crit_damage_results,
     overkill_heat: overkill_heat,
     effect: data.effect ? data.effect : null,
+    on_attack: data.on_attack ? data.on_attack : null,
     on_hit: data.on_hit ? data.on_hit : null,
+    on_crit: data.on_crit ? data.on_crit : null,
     tags: data.tags,
     rerollMacroData: encodeMacroData(rerollMacro),
   };

@@ -7,9 +7,11 @@ import { buildCounterHTML } from "../helpers/item";
 import { ref_commons, ref_params, resolve_ref_element, simple_mm_ref } from "../helpers/refs";
 import { resolve_dotpath } from "../helpers/commons";
 import { AnyMMActor, is_reg_mech, is_actor_type } from "./lancer-actor";
-import { cleanCloudOwnerID, fetchPilot, pilotCache } from "../compcon";
+import { cleanCloudOwnerID, fetchPilot, fetchPilotViaCache, fetchPilotViaShareCode, pilotCache } from "../compcon";
 import type { AnyMMItem, LancerItemType } from "../item/lancer-item";
 import { derived } from "svelte/store";
+
+const shareCodeMatcher = /^[A-Z0-9\d]{6}$/g;
 
 /**
  * Extend the basic ActorSheet
@@ -58,40 +60,49 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
           let self = await this.getDataLazy();
           // Fetch data to sync
           let raw_pilot_data = null;
-          if (self.vaultID != "" || self.rawID.match(/\/\//)) {
-            // new style vault code with owner information
-            // it's possible that this was one we reconstructed and doesn't actually live in this user acct
-            ui.notifications!.info("Importing character from vault...");
+          if (self.rawID.match(shareCodeMatcher)) {
+            // pilot share codes
+            ui.notifications!.info("Importing character from share code...");
+            console.log(`Attempting import with share code: ${self.rawID}`);
             try {
-              raw_pilot_data = await fetchPilot(self.vaultID != "" ? self.vaultID : self.rawID);
-            } catch {
-              if (self.vaultID != "") {
-                ui.notifications!.error("Failed to import. Probably a network error, please try again.");
-              } else {
+              raw_pilot_data = await fetchPilotViaShareCode(self.rawID);
+            } catch (error) {
+              ui.notifications!.error("Error importing from share code. Share code may need to be refreshed.");
+              console.error(`Failed import with share code ${self.rawID}, error:`, error);
+              return;
+            }
+          } else if (self.rawID) {
+            ui.notifications!.warn(
+              "Invalid share code format. Share codes must be exactly six alphanumeric characters."
+            );
+            console.warn(`Failed import with invalid share code format: ${self.rawID}`);
+            return;
+          } else if (self.vaultID != "") {
+            // Vault ID from a logged-in Comp/Con account
+            ui.notifications!.info("Importing character from COMP/CON account...");
+            const cachedPilot = self.pilotCache.find(p => p.cloudID == self.vaultID);
+            if (cachedPilot != undefined) {
+              try {
+                raw_pilot_data = await fetchPilotViaCache(cachedPilot);
+              } catch (error) {
                 ui.notifications!.error(
-                  "Failed. You will have to ask the player whose pilot this is for their COMP/CON vault record code."
+                  "Failed to import from COMP/CON account. Try refreshing the page to reload pilot list."
                 );
+                console.error(`Failed to import vaultID ${self.vaultID} via pilot list, error:`, error);
+                return;
               }
-              return;
-            }
-          } else if (self.rawID.match(/^[^-]+(-[^-]+){4}/)) {
-            // old-style vault code
-            // not much we can do. we can try to fetch it and see if it works
-            // it will if this pilot happens to be in this comp/con user's bucket
-            ui.notifications!.info("Attempting to import from old-style vault code...");
-            try {
-              raw_pilot_data = await fetchPilot(self.rawID);
-            } catch {
+            } else {
               ui.notifications!.error(
-                "Failed. Old-style vault ids are phasing out in support; please ask the player whose pilot this is for their COMP/CON vault record code."
+                "Failed to import from COMP/CON account. Try refreshing the page to reload pilot list"
               );
+              console.error(`Failed to find pilot in cache, vaultID: ${self.vaultID}`);
               return;
             }
-          } else if (self.rawID != "") {
-            ui.notifications!.info("Importing character from cloud share code...");
-            raw_pilot_data = await funcs.gist_io.download_pilot(self.rawID);
           } else {
-            ui.notifications!.error("Could not find character to import!");
+            ui.notifications!.error(
+              "Could not find character to import! No pilot selected via dropdown and no share code entered."
+            );
+            console.error(`Failed to import pilot. vaultID: ${self.vaultID}, rawID: ${self.rawID}`);
             return;
           }
           await actor.importCC(raw_pilot_data);
@@ -158,25 +169,16 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
     data.active_mech = await data.mm.ActiveMech();
     data.pilotCache = pilotCache();
 
-    data.cleanedOwnerID = cleanCloudOwnerID(data.mm.CloudOwnerID);
-
     // use the select if and only if we have the pilot in our cache
-    let useSelect =
-      data.mm.CloudID &&
-      data.cleanedOwnerID &&
-      data.pilotCache.find(p => p.cloudID == data.mm.CloudID && p.cloudOwnerID == data.cleanedOwnerID);
+    let useSelect = data.mm.CloudID && data.pilotCache.find(p => p.cloudID == data.mm.CloudID);
 
     if (useSelect) {
       // if this is a vault id we know of
-      data.vaultID = data.cleanedOwnerID + "//" + data.mm.CloudID;
+      data.vaultID = data.mm.CloudID;
       data.rawID = "";
-    } else if (data.mm.CloudID) {
-      // whatever this is, we need to display it as raw text, so the user can edit it
-      if (data.cleanedOwnerID) {
-        data.rawID = data.cleanedOwnerID + "//" + data.mm.CloudID;
-      } else {
-        data.rawID = data.mm.CloudID;
-      }
+    } else if (data.mm.CloudID && data.mm.CloudID.match(shareCodeMatcher)) {
+      // If this was a share code, show it in the input box so it can be edited
+      data.rawID = data.mm.CloudID;
       data.vaultID = "";
     } else {
       data.rawID = "";

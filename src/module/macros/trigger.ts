@@ -2,7 +2,7 @@
 import { LANCER } from "../config";
 import type { LancerActor } from "../actor/lancer-actor";
 import type { LancerStatMacroData } from "../interfaces";
-import { rollStatMacro } from "./stat"
+import { rollStatMacro } from "./stat";
 
 const lp = LANCER.log_prefix;
 

@@ -381,10 +381,17 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
           }).join("");
         }
 
+        let macroData: LancerMacroData = {
+          iconPath: `systems/${game.system.id}/assets/icons/macro-icons/talent.svg`,
+          title: talent.Ranks[i]?.Name,
+          fn: "prepareTalentMacro",
+          args: [talent.Flags.orig_doc.actor?.id ?? "", talent.Flags.orig_doc.id, i],
+        };
+
         retStr += `<li class="talent-rank-compact card clipped" style="padding: 5px">
         <a class="cci cci-rank-${
           i + 1
-        } i--l i--dark talent-macro macroable" data-rank="${i}" style="grid-area: 1/1/2/2"></a>
+        } i--l i--dark talent-macro lancer-macro" data-macro="${encodeMacroData(macroData)}" style="grid-area: 1/1/2/2"></a>
         <span class="major" style="grid-area: 1/2/2/3">${talent.Ranks[i]?.Name}</span>
         <div class="effect-text" style="grid-area: 2/1/3/3">
         ${talent.Ranks[i]?.Description}

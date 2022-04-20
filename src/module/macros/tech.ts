@@ -10,9 +10,10 @@ import type {
   NpcFeature,
 } from "machine-mind";
 import type { AccDiffDataSerialized } from "../helpers/acc_diff";
-import { encodeMacroData, getMacroSpeaker } from "./util"
-import { renderMacroTemplate } from "./render"
-import { attackRolls, checkTargets } from "./attack"
+import { encodeMacroData } from "./_encode";
+import { getMacroSpeaker } from "./_util";
+import { renderMacroTemplate } from "./_render";
+import { attackRolls, checkTargets } from "./attack";
 
 const lp = LANCER.log_prefix;
 

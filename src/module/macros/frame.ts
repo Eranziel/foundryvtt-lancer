@@ -1,7 +1,7 @@
 // Import TypeScript modules
 import { LANCER } from "../config";
 import type { LancerTextMacroData } from "../interfaces";
-import { getMacroSpeaker } from "./util";
+import { getMacroSpeaker } from "./_util";
 import { rollTextMacro } from "./text";
 
 const lp = LANCER.log_prefix;

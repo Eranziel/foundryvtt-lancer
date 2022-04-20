@@ -1178,8 +1178,8 @@ export function buildSystemHTML(data: MechSystem): string {
     }).join("");
   }
 
-  let html = `<div class="card clipped-bot system-wrapper" style="margin: 0px;">
-  <div class="lancer-header ">// SYSTEM :: ${data.Name} //</div>
+  let html = `<div class="card clipped-bot system-wrapper" ${ref_params(data.as_ref())} style="margin: 0px;">
+  <div class="lancer-header mech-system">// SYSTEM :: ${data.Name} //</div>
   ${eff ? eff : ""}
   ${actions ? actions : ""}
   ${deployables ? deployables : ""}

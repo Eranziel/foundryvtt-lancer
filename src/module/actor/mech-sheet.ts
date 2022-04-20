@@ -5,7 +5,6 @@ import { resolve_dotpath } from "../helpers/commons";
 import type { AnyMMItem, LancerItemType } from "../item/lancer-item";
 import tippy from "tippy.js";
 import type { AnyMMActor } from "./lancer-actor";
-import { prepareOverchargeMacro } from "../macros";
 
 /**
  * Extend the basic ActorSheet
@@ -118,32 +117,6 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
     overchargeReset.on("click", ev => {
       this._setOverchargeLevel(ev, 0);
     });
-
-    // Overcharge macro
-    let overchargeMacro = html.find(".overcharge-macro");
-
-    overchargeMacro.on("click", ev => {
-      this._onClickOvercharge(ev);
-    });
-  }
-
-  /**
-   * For dragging overcharge to the hotbar
-   * @param event   The associated DragEvent
-   */
-  _onDragOverchargeStart(event: DragEvent) {
-    event.stopPropagation(); // Avoids triggering parent event handlers
-
-    // let target = <HTMLElement>event.currentTarget;
-
-    let data = {
-      actorId: this.actor.id,
-      // Title will simply be CORE PASSIVE since we want to keep the macro dynamic
-      title: "OVERCHARGE",
-      type: "overcharge",
-    };
-
-    event.dataTransfer?.setData("text/plain", JSON.stringify(data));
   }
 
   /**
@@ -156,14 +129,6 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
     let mech = data.mm;
     mech.OverchargeCount = level;
     await this._commitCurrMM();
-  }
-
-  /**
-   * Performs the overcharge macro
-   * @param event An event, used by a proper overcharge section in the sheet, to get the overcharge field
-   */
-  _onClickOvercharge(_event: JQuery.ClickEvent) {
-    prepareOverchargeMacro(this.actor.id!);
   }
 
   /**

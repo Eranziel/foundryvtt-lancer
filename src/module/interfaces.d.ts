@@ -51,7 +51,9 @@ declare interface LancerAttackMacroData {
   damage: Damage[];
   overkill?: boolean;
   effect?: EffectData | string;
+  on_attack?: string;
   on_hit?: string; // For NPC weapons - to be removed once they use EffectData
+  on_crit?: string;
   tags: TagInstance[];
   loaded?: boolean;
   destroyed?: boolean;
@@ -95,6 +97,7 @@ declare interface LancerReactionMacroData {
 declare interface LancerTextMacroData {
   title: string;
   description: string;
+  item_id?: string;
   tags?: TagDataShort[];
 }
 

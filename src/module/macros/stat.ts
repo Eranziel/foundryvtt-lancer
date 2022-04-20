@@ -4,9 +4,8 @@ import type { LancerActor } from "../actor/lancer-actor";
 import type { LancerStatMacroData } from "../interfaces";
 import { resolve_dotpath } from "../helpers/commons";
 import type { AccDiffDataSerialized } from "../helpers/acc_diff";
-import { getMacroSpeaker } from "./util"
-import { renderMacroTemplate } from "./render"
-import { rollTechMacro } from "./tech"
+import { getMacroSpeaker } from "./_util";
+import { renderMacroTemplate } from "./_render";
 
 const lp = LANCER.log_prefix;
 
@@ -25,7 +24,7 @@ export async function prepareStatMacro(a: string, statKey: string, rerollData?: 
     title: statPath[statPath.length - 1].toUpperCase(),
     bonus: bonus,
   };
-  
+
   rollStatMacro(actor, mData).then();
 }
 

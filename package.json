@@ -48,7 +48,7 @@
     "aws-amplify": "^4.2.9",
     "fp-ts": "^2.11.2",
     "io-ts": "^2.2.16",
-    "lancer-initiative": "^1.1.0",
+    "lancer-initiative": "^2.0.1",
     "machine-mind": "0.2.1",
     "marked": "^4.0.10",
     "tippy.js": "^6.3.1"

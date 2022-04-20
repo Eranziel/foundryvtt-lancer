@@ -193,6 +193,7 @@ Hooks.once("init", async function () {
     },
     prepareItemMacro: macros.prepareItemMacro,
     prepareStatMacro: macros.prepareStatMacro,
+    prepareTalentMacro: macros.prepareTalentMacro,
     prepareTextMacro: macros.prepareTextMacro,
     prepareTechMacro: macros.prepareTechMacro,
     prepareCoreActiveMacro: macros.prepareCoreActiveMacro,
@@ -228,6 +229,7 @@ Hooks.once("init", async function () {
   CONFIG.Token.objectClass = LancerToken;
   CONFIG.Combat.documentClass = LancerCombat;
   CONFIG.Combatant.documentClass = LancerCombatant;
+  // @ts-expect-error Because of mismatched versions of types
   CONFIG.ui.combat = LancerCombatTracker;
 
   // Set up system status icons

@@ -56,7 +56,7 @@
             {{#select vaultID}}
               <option value="">{{localize "lancer.pilot-sheet.cloud-header.vaultID"}}</option>
               {{#each pilotCache}}
-                <option value="{{cloudOwnerID}}//{{cloudID}}">{{name}}</option>
+                <option value="{{id}}">{{callsign}} // {{name}}</option>
               {{/each}}
             {{/select}}
           </select>
