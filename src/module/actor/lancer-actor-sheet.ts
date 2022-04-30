@@ -627,7 +627,7 @@ export function mod_shared_handler(button: JQuery<HTMLElement>, delta: number) {
     const curr = Number.parseInt(input.prop("value"));
     if (!isNaN(curr)) {
       if (delta > 0) {
-        if (!button[0].dataset['max'] || curr + delta <= Number.parseInt(button[0].dataset['max'])) {
+        if (!button[0].dataset['max'] || button[0].dataset['max'] == "-1" || curr + delta <= Number.parseInt(button[0].dataset['max'])) {
           input.prop("value", curr + delta);
         } else {
           input.prop("value", input[0].dataset['max']);
