@@ -1,4 +1,4 @@
-# 1.2.0 (2022-04-XX)
+# 1.2.0 (2022-04-19)
 ## Features
 * Update the pilot import system to use Comp/Con's new share code system. "Vault" and "cloud" style codes are no longer supported.
 * Update Lancer Initiative to take advantage of Foundry v9 features, eliminating the "Dummy Combatant".
