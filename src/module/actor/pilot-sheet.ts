@@ -300,7 +300,7 @@ export function pilot_counters(pilot: Pilot, _helper: HelperOptions): string {
   let counter_detail = "";
 
   let counter_arr = pilot.PilotCounters;
-  let custom_path = "mm.PilotCounters";
+  let custom_path = "mm.CustomCounters";
 
   for (let i = 0; i < counter_arr.length; i++) {
     // Only allow deletion if the Pilot is the source
