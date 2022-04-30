@@ -1,4 +1,4 @@
-import { Counter, RegEntry } from "machine-mind";
+import { Counter, RegEntry, Talent } from "machine-mind";
 import { gentle_merge, resolve_dotpath } from "../helpers/commons";
 
 /**
@@ -8,10 +8,11 @@ import { gentle_merge, resolve_dotpath } from "../helpers/commons";
 export class CounterEditForm<O> extends FormApplication {
   _updateObject(event: Event, formData?: object): Promise<unknown> {
     debugger;
-    return new Promise(() => {});
+    return new Promise(() => { });
   }
   // The counter we're editing
   counter: Counter;
+  source: Talent;
 
   // Where it is
   path: string;
@@ -20,6 +21,7 @@ export class CounterEditForm<O> extends FormApplication {
     super(dialogData, options);
     this.path = path;
     this.counter = resolve_dotpath(target, path);
+    this.source = resolve_dotpath(target, path.replace(".counter", ".source"));
   }
 
   /* -------------------------------------------- */
@@ -30,6 +32,7 @@ export class CounterEditForm<O> extends FormApplication {
       ...super.defaultOptions,
       template: `systems/${game.system.id}/templates/window/counter.hbs`,
       width: 400,
+      title: "Counter Editing",
       height: "auto",
       classes: ["lancer"],
     };
@@ -43,7 +46,39 @@ export class CounterEditForm<O> extends FormApplication {
       ...super.getData(),
       counter: this.counter,
       path: this.path,
+      source: this.source
     };
+  }
+
+  activateListeners(html: JQuery<HTMLElement>): void {
+    super.activateListeners(html);
+
+    let elements = html.find("input.lancer-stat");
+    elements.on("change", async ev => {
+      ev.stopPropagation();
+      const input = (ev.currentTarget as HTMLInputElement);
+
+      const item = this.counter;
+      const writeback = this.source;
+
+      const newVal = input.valueAsNumber
+      if (newVal != NaN) {
+        if (input.name === "Value") {
+          item.Value = newVal;
+        } else {
+          item.Max = newVal;
+          if (item.Value > newVal) {
+            item.Value = newVal;
+          }
+        }
+
+        this.close();
+      }
+
+      await writeback.writeback();
+      console.debug(item);
+
+    });
   }
 
   /* -------------------------------------------- */
