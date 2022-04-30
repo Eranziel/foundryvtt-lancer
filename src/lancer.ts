@@ -106,6 +106,7 @@ import {
   compact_stat_edit,
   compact_stat_view,
   deployer_slot,
+  macro_button,
   npc_clicker_stat_card,
   npc_tier_selector,
   overcharge_button,
@@ -240,7 +241,7 @@ Hooks.once("init", async function () {
   CONFIG.statusEffects = statuses;
 
   // Register Web Components
-  customElements.define("card-clipped", class LancerClippedCard extends HTMLDivElement {}, {
+  customElements.define("card-clipped", class LancerClippedCard extends HTMLDivElement { }, {
     extends: "div",
   });
 
@@ -380,6 +381,7 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("std-num-input", std_num_input);
   Handlebars.registerHelper("std-checkbox", std_checkbox);
   Handlebars.registerHelper("action-button", action_button);
+  Handlebars.registerHelper("macro-button", macro_button);
   Handlebars.registerHelper("tech-flow-card", tech_flow_card);
 
   // ------------------------------------------------------------------------
