@@ -649,7 +649,7 @@ tr.lcp-index-header {
   }
 
   .mech_weapon > &,
-  .npc-weapon > &, {
+  .npc-weapon > & {
     border-color: #000000;
   }
 
@@ -658,7 +658,7 @@ tr.lcp-index-header {
   }
 
   .tech > &,
-  .npc-tech > &, {
+  .npc-tech > & {
     border-color: var(--tech-color);
   }
 
@@ -793,7 +793,7 @@ textarea {
   height: 100%;
 }
 .compact-frame > .img-bar,
-.compact-class > .img-bar, {
+.compact-class > .img-bar {
   background-position: left 50% top 40%;
 }
 .compact-template > .img-bar {
@@ -939,16 +939,16 @@ textarea {
   }
 
   &.struct-stress {
-      padding-top: 1px;
-      display: flex;
-      flex-direction: row;
+    padding-top: 1px;
+    display: flex;
+    flex-direction: row;
 
-      span.spacer {
-          flex: 0 0;
-      }
-      a {
-          flex: 0 0;
-      }
+    span.spacer {
+      flex: 0 0;
+    }
+    a {
+      flex: 0 0;
+    }
   }
 
   .pilot_gear & {
@@ -1724,7 +1724,6 @@ a.activation-chip > i.mdi {
 }
 /* Frame descriptor, probably-but-not-necessarily in mech-loadout */
 .mech-frame {
-
   .coresys-title {
     width: 100%;
     text-align: center;
@@ -1957,8 +1956,8 @@ a.activation-chip > i.mdi {
 }
 
 .radio-label:checked + .button-label {
-  box-shadow: rgba(0, 0, 0, 0.7);
-  filter: brightness(80%);
+  background-color: var(--main-theme-color);
+  color: var(--main-theme-text);
 }
 
 .radio-label + .button-label:hover {
@@ -1983,9 +1982,23 @@ a.activation-chip > i.mdi {
 // Stabilize dialog
 
 .stabilize-wrapper .button-label {
-  background-color: var(--main-theme-color);
-  color: var(--main-theme-text);
+  background-color: var(--loadout-color);
+  color: black;
   flex-basis: 45%;
+}
+
+// Macros
+.lancer-macro-grid {
+  display: flex;
+  margin-bottom: 8px;
+  padding: 4px;
+}
+
+.lancer-macro-grid button {
+  margin: 4px;
+  border-radius: 15px 0px;
+  color: white;
+  background-color: var(--main-theme-color);
 }
 
 // Actions
@@ -2369,4 +2382,3 @@ Here, this means we want to allow for drag stuff etc to show contextually if:
     border: 0px;
   }
 }
-

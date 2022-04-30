@@ -142,7 +142,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       resolver,
       (entry, _dest, _event) => this.can_root_drop_entry(entry),
       async (entry, _dest, _event) => this.on_root_drop(entry, _event, _dest),
-      () => {}
+      () => { }
     );
   }
 
@@ -265,7 +265,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
 
   _activateMacroListeners(html: JQuery) {
     // Encoded macros
-    let encMacros = html.find("a.lancer-macro");
+    let encMacros = html.find(".lancer-macro");
     encMacros.on("click", ev => {
       ev.stopPropagation(); // Avoids triggering parent event handlers
       runEncodedMacro(ev.currentTarget);
@@ -469,7 +469,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     _item: AnyMMItem | AnyMMActor,
     _event: JQuery.DropEvent,
     _dest: JQuery<HTMLElement>
-  ): Promise<void> {}
+  ): Promise<void> { }
 
   // Override base behavior
   async _onDrop(_evt: DragEvent) {

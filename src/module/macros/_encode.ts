@@ -18,6 +18,10 @@ const encodedMacroWhitelist = [
   "prepareStructureSecondaryRollMacro",
   "prepareOverheatMacro",
   "prepareStructureMacro",
+  "stabilizeMacro",
+  "structureMacro",
+  "overheatMacro",
+  "fullRepairMacro"
 ];
 
 /**
