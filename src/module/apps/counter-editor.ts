@@ -8,7 +8,7 @@ import { gentle_merge, resolve_dotpath } from "../helpers/commons";
 export class CounterEditForm<O> extends FormApplication {
   _updateObject(event: Event, formData?: object): Promise<unknown> {
     debugger;
-    return new Promise(() => { });
+    return new Promise(() => {});
   }
   // The counter we're editing
   counter: Counter;
@@ -46,38 +46,44 @@ export class CounterEditForm<O> extends FormApplication {
       ...super.getData(),
       counter: this.counter,
       path: this.path,
-      source: this.source
+      source: this.source,
     };
   }
 
   activateListeners(html: JQuery<HTMLElement>): void {
     super.activateListeners(html);
 
-    let elements = html.find("input.lancer-stat");
+    let elements = html.find("input");
     elements.on("change", async ev => {
       ev.stopPropagation();
-      const input = (ev.currentTarget as HTMLInputElement);
+      const input = ev.currentTarget as HTMLInputElement;
 
       const item = this.counter;
       const writeback = this.source;
 
-      const newVal = input.valueAsNumber
-      if (newVal != NaN) {
-        if (input.name === "Value") {
-          item.Value = newVal;
-        } else {
-          item.Max = newVal;
-          if (item.Value > newVal) {
-            item.Value = newVal;
+      const newVal = input.value;
+      const numVal = input.valueAsNumber;
+      switch (input.name) {
+        case "Value":
+          !Number.isNaN(numVal) && (item.Value = numVal);
+          break;
+        case "Max":
+          if (!Number.isNaN(numVal)) {
+            item.Max = numVal;
+            if (item.Value > numVal) {
+              item.Value = numVal;
+            }
           }
-        }
-
-        this.close();
+          break;
+        case "Name":
+          item.Name = newVal.trim();
+          break;
       }
+
+      this.close();
 
       await writeback.writeback();
       console.debug(item);
-
     });
   }
 
