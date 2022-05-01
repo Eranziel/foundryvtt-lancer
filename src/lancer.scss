@@ -126,6 +126,10 @@ button {
   font-family: var(--main-font-family);
 }
 
+.lancer-sheet.editable {
+  height: 100%;
+}
+
 .message .lancer-weapon-header span {
   overflow: auto;
   width: 120%;
@@ -144,6 +148,12 @@ button {
 .lancer.sheet .mount-header select option {
   background-color: var(--main-theme-color, fuchsia);
   color: white;
+}
+
+.scroll-body {
+  overflow-y: auto;
+  margin-top: 8px;
+  height: calc(100% - 168px);
 }
 
 .flex-center {

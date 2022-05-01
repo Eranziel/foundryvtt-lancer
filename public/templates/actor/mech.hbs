@@ -1,24 +1,26 @@
 <form class="{{cssClass}} lancer-sheet" autocomplete="off">
   {{! Sheet Header }}
-  <header class="sheet-header card clipped-bot">
-    <div grow>
-      <h1 class="charname">
-        <input class="header-field" name="name" type="text" value="{{actor.name}}" placeholder="{{localize "
-          lancer.placeholder.name"}}" />
-      </h1>
-    </div>
-    {{{ref-portrait-img actor.img "img" mm}}}
-  </header>
+  <div>
+    <header class="sheet-header card clipped-bot">
+      <div grow>
+        <h1 class="charname">
+          <input class="header-field" name="name" type="text" value="{{actor.name}}" placeholder="{{localize "
+            lancer.placeholder.name"}}" />
+        </h1>
+      </div>
+      {{{ref-portrait-img actor.img "img" mm}}}
+    </header>
 
-  {{!-- Sheet Tab Navigation --}}
-  <nav class="lancer-tabs" data-group="primary">
-    <a class="item lancer-tab medium" data-tab="stats">{{localize "lancer.mech-sheet.tabs.stats"}}</a>
-    <a class="item lancer-tab medium" data-tab="loadout">{{localize "lancer.mech-sheet.tabs.loadout"}}</a>
-    <a class="item lancer-tab medium" data-tab="talents">{{localize "lancer.mech-sheet.tabs.talents"}}</a>
-  </nav>
+    {{!-- Sheet Tab Navigation --}}
+    <nav class="lancer-tabs" data-group="primary">
+      <a class="item lancer-tab medium" data-tab="stats">{{localize "lancer.mech-sheet.tabs.stats"}}</a>
+      <a class="item lancer-tab medium" data-tab="loadout">{{localize "lancer.mech-sheet.tabs.loadout"}}</a>
+      <a class="item lancer-tab medium" data-tab="talents">{{localize "lancer.mech-sheet.tabs.talents"}}</a>
+    </nav>
+  </div>
 
   {{!-- Sheet Body --}}
-  <section class="sheet-body">
+  <section class="sheet-body scroll-body">
     <div class="tab stats" data-group="primary" data-tab="stats">
       <div class="stat-grid">
         {{{stat-edit-max-card "HP" "mdi mdi-heart-outline" "mm.CurrentHP" "mm.MaxHP"}}}
@@ -82,10 +84,11 @@
             {{localize "lancer.mech-sheet.macros.label" }}
           </span>
           <div class="lancer-macro-grid">
-            {{{macro-button "FULL REPAIR" "fullRepairMacro" "mm" }}}
             {{{macro-button "STABILIZE" "stabilizeMacro" "mm" }}}
-            {{{macro-button "OVERHEAT" "prepareOverheatMacro" "mm" }}}
+            {{{macro-button "FULL REPAIR" "fullRepairMacro" "mm" }}}
+            <div style="margin:0px 8px;border-left: 2px solid #a2a2a2;"></div>
             {{{macro-button "STRUCTURE" "prepareStructureMacro" "mm" }}}
+            {{{macro-button "OVERHEAT" "prepareOverheatMacro" "mm" }}}
           </div>
         </div>
         <div class="inventory" style="flex: inherit">
