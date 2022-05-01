@@ -27,6 +27,7 @@ import { activate_action_editor } from "../apps/action-editor";
 import type { FoundryFlagData } from "../mm-util/foundry-reg";
 import { find_license_for } from "../mm-util/helpers";
 import { MMDragResolveCache } from "../helpers/dragdrop";
+import { mod_shared_handler } from "../actor/lancer-actor-sheet";
 
 const lp = LANCER.log_prefix;
 
@@ -119,11 +120,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
     const mod_handler = (delta: number) => (ev: JQuery.ClickEvent<HTMLElement, unknown, HTMLElement, HTMLElement>) => {
       if (!ev.currentTarget) return; // No target, let other handlers take care of it.
       const button = $(ev.currentTarget);
-      const input = button.siblings("input");
-      const curr = Number.parseInt(input.prop("value"));
-      if (!isNaN(curr)) {
-        input.prop("value", curr + delta);
-      }
+      mod_shared_handler(button, delta);
       this.submit({});
     };
 

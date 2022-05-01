@@ -1863,6 +1863,11 @@ a.activation-chip > i.mdi {
   color: white;
 }
 
+.counter-hex[data-available="true"] {
+  color: var(--main-theme-color);
+  filter: brightness(1.25);
+}
+
 .weapon-profile-wrapper {
   padding: 8px 8px 0px 5px;
   background-color: var(--main-theme-color);
