@@ -2043,14 +2043,14 @@ a.activation-chip > i.mdi {
   margin: 4px;
   width: fit-content;
 
-  &.activation-protocol,
-  &.activation-move {
+  &.action-size-protocol,
+  &.action-size-move {
     width: calc(50% - 8px);
   }
 
-  &.activation-full,
-  &.activation-quick,
-  &.activation-reaction {
+  &.action-size-full,
+  &.action-size-quick,
+  &.action-size-reaction {
     width: calc(100% / 3 - 8px);
   }
 }

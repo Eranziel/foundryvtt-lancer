@@ -50,7 +50,7 @@ function condensedActionButtonHTML(actor: LancerActor, actions: ActionData) {
         }
 
         return `
-        <button class="lancer-action-button${active ? ` active activation-${action}` : ""}${false ? ` enabled` : ""
+        <button class="action-size-${action} lancer-action-button${active ? ` active activation-${action}` : ""}${false ? ` enabled` : ""
             }"><i class="${mIcon} i--m"></i></button>`;
     }
 
