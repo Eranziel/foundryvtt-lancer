@@ -27,6 +27,9 @@
             "actions": {
                 "label": "ACTIONS"
             },
+            "macros": {
+                "label": "MACROS"
+            },
             "system": {
                 "label": "LOADOUT [SP: {total} / {max} ]"
             }

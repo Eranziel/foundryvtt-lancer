@@ -126,6 +126,10 @@ button {
   font-family: var(--main-font-family);
 }
 
+.lancer-sheet.editable {
+  height: 100%;
+}
+
 .message .lancer-weapon-header span {
   overflow: auto;
   width: 120%;
@@ -144,6 +148,12 @@ button {
 .lancer.sheet .mount-header select option {
   background-color: var(--main-theme-color, fuchsia);
   color: white;
+}
+
+.scroll-body {
+  overflow-y: auto;
+  margin-top: 8px;
+  height: calc(100% - 168px);
 }
 
 .flex-center {
@@ -1961,8 +1971,8 @@ a.activation-chip > i.mdi {
 }
 
 .radio-label:checked + .button-label {
-  box-shadow: rgba(0, 0, 0, 0.7);
-  filter: brightness(80%);
+  background-color: var(--main-theme-color);
+  color: var(--main-theme-text);
 }
 
 .radio-label + .button-label:hover {
@@ -1987,9 +1997,23 @@ a.activation-chip > i.mdi {
 // Stabilize dialog
 
 .stabilize-wrapper .button-label {
-  background-color: var(--main-theme-color);
-  color: var(--main-theme-text);
+  background-color: var(--loadout-color);
+  color: black;
   flex-basis: 45%;
+}
+
+// Macros
+.lancer-macro-grid {
+  display: flex;
+  margin-bottom: 8px;
+  padding: 4px;
+}
+
+.lancer-macro-grid button {
+  margin: 4px;
+  border-radius: 15px 0px;
+  color: white;
+  background-color: var(--main-theme-color);
 }
 
 // Actions
