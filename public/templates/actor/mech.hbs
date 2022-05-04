@@ -67,18 +67,6 @@
         </div>
       </div>
       <div class="pilot-frame-wrapper flexrow">
-        {{!-- <div class="card">
-          <span class="lancer-header submajor clipped-top">
-            {{localize "lancer.mech-sheet.actions.label"}}
-          </span>
-          <div class="lancer-action-grid">
-            {{{action-button "Protocol" "data.data.actions.protocol" "protocol"}}}
-            {{{action-button "Movement" "data.data.actions.move" "move"}}}
-            {{{action-button "Full Action" "data.data.actions.full" "full"}}}
-            {{{action-button "Quick Action" "data.data.actions.quick" "quick"}}}
-            {{{action-button "Reaction" "data.data.actions.reaction" "reaction"}}}
-          </div>
-        </div> --}}
         <div class="card">
           <span class="lancer-header submajor clipped-top">
             {{localize "lancer.mech-sheet.macros.label" }}
@@ -91,7 +79,21 @@
             {{{macro-button "OVERHEAT" "prepareOverheatMacro" "mm" }}}
           </div>
         </div>
-        <div class="inventory" style="flex: inherit">
+        {{#if (is-combatant actor)}}
+        <div style="min-width:560px" class="card">
+          <span class="lancer-header submajor clipped-top">
+            {{localize "lancer.mech-sheet.actions.label"}}
+          </span>
+          <div class="lancer-action-grid">
+            {{{action-button "Protocol" "data.data.action_tracker.protocol" "protocol"}}}
+            {{{action-button "Movement" "data.data.action_tracker.move" "move"}}}
+            {{{action-button "Full Action" "data.data.action_tracker.full" "full"}}}
+            {{{action-button "Quick Action" "data.data.action_tracker.quick" "quick"}}}
+            {{{action-button "Reaction" "data.data.action_tracker.reaction" "reaction"}}}
+          </div>
+        </div>
+        {{/if}}
+        <div class="inventory" style="flex: inherit;margin:3px 10px">
           <button style="padding: 8px 16px"> View Inventory </button>
         </div>
       </div>

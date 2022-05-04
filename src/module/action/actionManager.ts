@@ -2,6 +2,7 @@ import type { LancerActor } from "../actor/lancer-actor";
 import type { ActionData, ActionType } from ".";
 import { LANCER } from "../config";
 import tippy from "tippy.js";
+import { prepareTextMacro } from "../macros";
 
 // TODO: Properly namespace this flag into the system scope
 declare global {
@@ -138,6 +139,18 @@ export class LancerActionManager extends Application {
   }
 
   /**
+   * Resets actions to their default state.
+   */
+  private async resetActions() {
+    if (this.target) {
+      console.log("Resetting " + this.target.name);
+      this.modAction(this.target, false);
+
+      // await ChatMessage.create({ user: game.userId, whisper: game.users!.contents.filter(u => u.isGM).map(u => u.id), content: `${this.target.name} has had their actions manually reset.` }, {})
+    }
+  }
+
+  /**
    * Spends an action or triggers end turn effect (empty all actions).
    * @param actor actor to modify.
    * @param spend whether to refresh or spend an action.
@@ -204,10 +217,16 @@ export class LancerActionManager extends Application {
     // Enable dragging.
     this.dragElement(html);
 
+    // Enable reset.
+    html.find("#action-manager-reset").on("click", e => {
+      e.preventDefault();
+      this.resetActions();
+    })
+
     // Enable action toggles.
     html.find("a.action[data-action]").on("click", e => {
       e.preventDefault();
-      if (game.user?.isGM || game.settings.get(game.system.id, LANCER.setting_action_manager_players)) {
+      if (this.canMod()) {
         const action = e.currentTarget.dataset.action;
         action && this.toggleAction(action as ActionType);
       } else {
@@ -330,6 +349,10 @@ export class LancerActionManager extends Application {
         }
       }
     });
+  }
+
+  private canMod() {
+    return game.user?.isGM || game.settings.get(game.system.id, LANCER.setting_action_manager_players);
   }
 }
 

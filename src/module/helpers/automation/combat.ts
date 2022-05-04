@@ -1,3 +1,4 @@
+import { LancerCombat } from "lancer-initiative";
 import { prepareChargeMacro } from "../../macros";
 import { getAutomationOptions } from "../../settings";
 
@@ -8,34 +9,51 @@ export async function handleCombatUpdate(...[combat, changed]: Parameters<Hooks.
 
   const auto = getAutomationOptions();
   if (auto.enabled) {
-    const nextTurnIndex = changed.turn;
-    const turnIndex = combat.current.turn!;
-    if (combat.turns[nextTurnIndex]) {
-      const nextToken = combat.turns[nextTurnIndex].token;
-      const prevToken = combat.turns[turnIndex].token;
+    // TODO: Update foundryvtt typings.
+    const nextActor = lookup(combat, (combat.current as any).combatantId);
+    const prevActor = lookup(combat, (combat.previous as any).combatantId);
 
-      // Handle next turn.
-      if (nextToken) {
-        console.log(`Processing combat automation for ${nextToken.actor!.id}`);
+    console.log(combat);
 
-        // Handle NPC charges.
-        prepareChargeMacro(nextToken.actor!);
+    // Handle refreshing for next combatant.
+    if (nextActor) {
+      console.log(`Processing combat automation for ${nextActor.name}`);
 
-        // Refresh actions.
-        console.log(`Next up! Refreshing [${nextToken.actor!.data.name}]!`);
-        game.action_manager?.modAction(nextToken.actor!, false);
-      }
+      // Handle NPC charges.
+      prepareChargeMacro(nextActor);
 
-      // Handle end-of-turn.
-      if (prevToken) {
-        // Dump extra actions.
-        console.log(
-          `Turn over! [${prevToken.actor!.data.name}] ended turn with ${JSON.stringify(
-            prevToken.actor!.data.data.action_tracker
-          )}`
-        );
-        game.action_manager?.modAction(prevToken.actor!, true);
-      }
+      // Refresh actions.
+      console.log(`Next up! Refreshing [${nextActor.data.name}]!`);
+      game.action_manager?.modAction(nextActor, false);
+
+      // Refresh reactions on new turn.
+      refreshReactions(combat);
     }
+
+    // Handle end-of-turn for previous combatant.
+    if (prevActor) {
+      // Dump extra actions.
+      console.log(
+        `Turn over! [${prevActor.data.name}] ended turn with ${JSON.stringify(
+          prevActor.data.data.action_tracker
+        )}`
+      );
+      game.action_manager?.modAction(prevActor, true);
+    }
+
   }
+}
+
+function lookup(combat: LancerCombat, id: String | null) {
+  if (id) {
+    return combat.data.combatants.find(com => com.id === id)?.actor;
+  } else return undefined;
+}
+
+function refreshReactions(combat: LancerCombat) {
+  combat.data.combatants.map(comb => {
+    if (comb.actor) {
+      game.action_manager?.modAction(comb.actor, false, "reaction");
+    }
+  })
 }
