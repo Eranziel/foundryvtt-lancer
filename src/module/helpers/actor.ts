@@ -19,7 +19,7 @@ interface ButtonOverrides {
 
 function _rollable_macro_button(
   macroData: string,
-  overrides: ButtonOverrides = { }
+  overrides: ButtonOverrides = {}
 ): string {
   return `<a class="i--dark i--sm ${overrides.classes ?? ""} lancer-macro" data-macro="${macroData}">
     <i class="fas ${overrides.icon ?? "fa-dice-d20"}"></i>
@@ -134,11 +134,11 @@ export function compact_stat_edit(icon: string, data_path: string, max_path: str
 }
 
 // An editable field with +/- buttons
-export function clicker_num_input(data_path: string, options: HelperOptions) {
+export function clicker_num_input(data_path: string, max: number, options: HelperOptions) {
   return `<div class="flexrow arrow-input-container">
       <button class="mod-minus-button" type="button">-</button>
       ${std_num_input(data_path, ext_helper_hash(options, { classes: "lancer-stat minor", default: 0 }))}
-      <button class="mod-plus-button" type="button">+</button>
+      <button class="mod-plus-button" data-max="${max}" type="button">+</button>
     </div>`;
 }
 
@@ -166,7 +166,7 @@ export function clicker_stat_card(
       </div>
       <div class="flexrow">
         ${button}
-        ${clicker_num_input(data_path, options)}
+        ${clicker_num_input(data_path, -1, options)}
       </div>
     </div>
   `;
@@ -193,9 +193,8 @@ export function action_button(
   }
 
   return `
-    <button class="lancer-action-button${active ? ` active activation-${action}` : ""}${
-    enabled ? ` enabled` : ""
-  }" data-action="${action}" data-val="${action_val}">
+    <button class="lancer-action-button${active ? ` active activation-${action}` : ""}${enabled ? ` enabled` : ""
+    }" data-action="${action}" data-val="${action_val}">
       ${title}
     </button>
     `;
@@ -237,7 +236,7 @@ export function npc_clicker_stat_card(title: string, data_path: string, options:
     tier_clickers.push(`
       <div class="flexrow stat-container" style="align-self: center;">
         <i class="cci cci-npc-tier-${tier} i--m i--dark"></i>
-        ${clicker_num_input(`${data_path}.${tier - 1}`, options)}
+        ${clicker_num_input(`${data_path}.${tier - 1}`, 3, options)}
       </div>`);
     tier++;
   }

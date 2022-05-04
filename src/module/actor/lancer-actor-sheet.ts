@@ -48,6 +48,7 @@ import type { ActionType } from "../action";
 import { InventoryDialog } from "../apps/inventory";
 import { HANDLER_activate_item_context_menus, HANDLER_activate_edit_counter } from "../helpers/item";
 import { number } from "fp-ts";
+import { Any } from "io-ts";
 const lp = LANCER.log_prefix;
 
 /**
@@ -142,7 +143,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       resolver,
       (entry, _dest, _event) => this.can_root_drop_entry(entry),
       async (entry, _dest, _event) => this.on_root_drop(entry, _event, _dest),
-      () => {}
+      () => { }
     );
   }
 
@@ -386,15 +387,10 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
   }
 
   _activatePlusMinusButtons(html: any) {
-    // Customized increment/decrement arrows. Same as in actor
     const mod_handler = (delta: number) => (ev: Event) => {
       if (!ev.currentTarget) return; // No target, let other handlers take care of it.
       const button = $(ev.currentTarget as HTMLElement);
-      const input = button.siblings("input");
-      const curr = Number.parseInt(input.prop("value"));
-      if (!isNaN(curr)) {
-        input.prop("value", curr + delta);
-      }
+      mod_shared_handler(button, delta);
       this.submit({});
     };
 
@@ -469,7 +465,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     _item: AnyMMItem | AnyMMActor,
     _event: JQuery.DropEvent,
     _dest: JQuery<HTMLElement>
-  ): Promise<void> {}
+  ): Promise<void> { }
 
   // Override base behavior
   async _onDrop(_evt: DragEvent) {
@@ -609,4 +605,40 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
 }
 function rollStatMacro(_actor: unknown, _mData: LancerStatMacroData) {
   throw new Error("Function not implemented.");
+}
+
+// Customized increment/decrement arrows. Same as in actor
+export function mod_shared_handler(button: JQuery<HTMLElement>, delta: number) {
+  let hexes = button.siblings("i.counter-hex");
+  if (hexes.length > 0) {
+    if (delta > 0) {
+      hexes = hexes.last();
+      if (hexes[0].dataset["available"] != "true") {
+        hexes.trigger("click");
+      }
+    } else {
+      hexes = hexes.first();
+      if (hexes[0].dataset["available"] == "true") {
+        hexes.trigger("click");
+      }
+    }
+  } else {
+    const input = button.siblings("input");
+    const curr = Number.parseInt(input.prop("value"));
+    if (!isNaN(curr)) {
+      if (delta > 0) {
+        if (!button[0].dataset['max'] || button[0].dataset['max'] == "-1" || curr + delta <= Number.parseInt(button[0].dataset['max'])) {
+          input.prop("value", curr + delta);
+        } else {
+          input.prop("value", input[0].dataset['max']);
+        }
+      } else if (delta < 0) {
+        if (curr + delta >= 0) {
+          input.prop("value", curr + delta);
+        } else {
+          input.prop("value", 0);
+        }
+      }
+    }
+  }
 }
