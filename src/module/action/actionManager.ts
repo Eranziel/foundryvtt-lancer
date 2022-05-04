@@ -4,6 +4,7 @@ import { LANCER } from "../config";
 import tippy from "tippy.js";
 import { prepareTextMacro } from "../macros";
 import { getActionTrackerOptions } from "../settings";
+import { getActions, modAction, toggleAction, updateActions, _defaultActionData } from "./actionTracker";
 
 // TODO: Properly namespace this flag into the system scope
 declare global {
@@ -18,25 +19,6 @@ declare global {
     };
   }
 }
-
-export const _defaultActionData = (target: Actor) => {
-  return {
-    protocol: true,
-    move: getSpeed(target),
-    full: true,
-    quick: true,
-    reaction: true,
-  } as ActionData;
-};
-export const _endTurnActionData = () => {
-  return {
-    protocol: false,
-    move: 0,
-    full: false,
-    quick: false,
-    reaction: true,
-  } as ActionData;
-};
 
 export class LancerActionManager extends Application {
   static DEF_LEFT = 600;
@@ -93,13 +75,13 @@ export class LancerActionManager extends Application {
    * @returns actions map.
    */
   private getActions(): ActionData | undefined {
-    return this.target?.data.data.action_tracker ? { ...this.target?.data.data.action_tracker } : undefined;
+    return this.target ? getActions(this.target) : undefined;
   }
   /**
    * Set proxy for ease of migration when we change over to MM data backing.
    */
   private async updateActions(actor: LancerActor, actions: ActionData) {
-    await actor.update({ "data.action_tracker": actions });
+    await updateActions(actor, actions);
     // this.token?.update({ "flags.lancer.actions": actions });
   }
 
@@ -145,70 +127,9 @@ export class LancerActionManager extends Application {
   private async resetActions() {
     if (this.target) {
       console.log("Resetting " + this.target.name);
-      this.modAction(this.target, false);
+      modAction(this.target, false);
 
       // await ChatMessage.create({ user: game.userId, whisper: game.users!.contents.filter(u => u.isGM).map(u => u.id), content: `${this.target.name} has had their actions manually reset.` }, {})
-    }
-  }
-
-  /**
-   * Spends an action or triggers end turn effect (empty all actions).
-   * @param actor actor to modify.
-   * @param spend whether to refresh or spend an action.
-   * @param type specific action to spend, or undefined for end-turn behavior.
-   */
-  async modAction(actor: LancerActor, spend: boolean, type?: ActionType) {
-    let actions = { ...actor.data.data.action_tracker };
-    if (actions) {
-      switch (type) {
-        case "move": // TODO: replace with tooltip for movement counting.
-          actions.move = spend ? 0 : getSpeed(actor);
-          break;
-        case "free": // Never disabled
-          actions.free = true;
-          break;
-        case "quick":
-          if (spend) {
-            actions.full ? (actions.full = false) : (actions.quick = false);
-          } else {
-            actions.quick = true;
-          }
-          break;
-        case "full":
-          if (spend) {
-            actions.full = false;
-            actions.quick = false;
-          } else {
-            actions.full = true;
-          }
-          break;
-        case "protocol":
-          actions.protocol = !spend;
-          break;
-        case "reaction":
-          actions.reaction = !spend;
-          break;
-
-        case undefined:
-          actions = spend ? _endTurnActionData() : _defaultActionData(actor);
-      }
-
-      // When any action is spent, disable protocol.
-      if (spend) {
-        actions.protocol = false;
-      }
-      await this.updateActions(actor, actions);
-      this.render();
-    }
-  }
-  private async toggleAction(type: ActionType) {
-    let actions = this.getActions();
-    if (actions) {
-      if (actions[type]) {
-        await this.modAction(this.target!, true, type);
-      } else {
-        await this.modAction(this.target!, false, type);
-      }
     }
   }
 
@@ -229,7 +150,7 @@ export class LancerActionManager extends Application {
       e.preventDefault();
       if (this.canMod()) {
         const action = e.currentTarget.dataset.action;
-        action && this.toggleAction(action as ActionType);
+        action && this.target && toggleAction(this.target, action as ActionType);
       } else {
         console.log(`${game.user?.name} :: Users currently not allowed to toggle actions through action manager.`);
       }
@@ -355,8 +276,4 @@ export class LancerActionManager extends Application {
   private canMod() {
     return game.user?.isGM || getActionTrackerOptions().allowPlayers;
   }
-}
-
-function getSpeed(actor: Actor) {
-  return actor.data.data?.derived?.speed || 4;
 }
