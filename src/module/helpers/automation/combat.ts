@@ -2,6 +2,7 @@ import { LancerCombat } from "lancer-initiative";
 import { modAction } from "../../action/actionTracker";
 import { LancerActor } from "../../actor/lancer-actor";
 import { prepareChargeMacro } from "../../macros";
+import { prepareActionTrackMacro } from "../../macros/action-track";
 import { getActionTrackerOptions, getAutomationOptions } from "../../settings";
 
 export async function handleCombatUpdate(...[combat, changed]: Parameters<Hooks.UpdateDocument<typeof Combat>>) {
@@ -41,7 +42,7 @@ function processStartTurn(actor: LancerActor) {
 
   // Print chat messages.
   if (getActionTrackerOptions().printMessages) {
-
+    prepareActionTrackMacro(actor.id!, true);
   }
 }
 
@@ -53,7 +54,7 @@ function processEndTurn(actor: LancerActor) {
 
   // Print chat messages.
   if (getActionTrackerOptions().printMessages) {
-
+    prepareActionTrackMacro(actor.id!, false);
   }
 }
 

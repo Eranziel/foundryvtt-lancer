@@ -275,7 +275,7 @@ export function getActionTrackerOptions(useDefault = false): ActionTrackerOption
   const def: ActionTrackerOptions = {
     showHotbar: true,
     allowPlayers: true,
-    printMessages: true,
+    printMessages: false,
   };
   if (useDefault) return def;
   const set = game.settings.get(game.system.id, LANCER.setting_actionTracker) as Partial<ActionTrackerOptions>;
