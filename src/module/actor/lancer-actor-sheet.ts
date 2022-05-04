@@ -49,6 +49,7 @@ import { InventoryDialog } from "../apps/inventory";
 import { HANDLER_activate_item_context_menus, HANDLER_activate_edit_counter } from "../helpers/item";
 import { number } from "fp-ts";
 import { Any } from "io-ts";
+import { getActionTrackerOptions } from "../settings";
 const lp = LANCER.log_prefix;
 
 /**
@@ -243,7 +244,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       ev.stopPropagation();
       if (!game.action_manager) return;
 
-      if (game.user?.isGM || game.settings.get(game.system.id, LANCER.setting_action_manager_players)) {
+      if (game.user?.isGM || getActionTrackerOptions().allowPlayers) {
         const manager = game.action_manager;
 
         const params = ev.currentTarget.dataset;

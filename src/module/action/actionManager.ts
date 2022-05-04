@@ -3,6 +3,7 @@ import type { ActionData, ActionType } from ".";
 import { LANCER } from "../config";
 import tippy from "tippy.js";
 import { prepareTextMacro } from "../macros";
+import { getActionTrackerOptions } from "../settings";
 
 // TODO: Properly namespace this flag into the system scope
 declare global {
@@ -51,7 +52,7 @@ export class LancerActionManager extends Application {
   async init() {
     // TODO: find the correct place to specify what game.system.id is expected to be
     LancerActionManager.enabled =
-      game.settings.get(<"lancer">game.system.id, LANCER.setting_action_manager) &&
+      getActionTrackerOptions().showHotbar &&
       !game.settings.get("core", "noCanvas");
     if (LancerActionManager.enabled) {
       this.loadUserPos();
@@ -82,7 +83,7 @@ export class LancerActionManager extends Application {
       position: this.position,
       name: this.target && this.target.data.name.toLocaleUpperCase(),
       actions: this.getActions(),
-      clickable: game.user?.isGM || game.settings.get(game.system.id, LANCER.setting_action_manager_players),
+      clickable: game.user?.isGM || getActionTrackerOptions().allowPlayers,
     };
   }
 
@@ -116,7 +117,7 @@ export class LancerActionManager extends Application {
   }
 
   async updateConfig() {
-    if (game.settings.get(game.system.id, LANCER.setting_action_manager) && !game.settings.get("core", "noCanvas")) {
+    if (getActionTrackerOptions().showHotbar && !game.settings.get("core", "noCanvas")) {
       await this.update();
       LancerActionManager.enabled = true;
     } else {
@@ -352,7 +353,7 @@ export class LancerActionManager extends Application {
   }
 
   private canMod() {
-    return game.user?.isGM || game.settings.get(game.system.id, LANCER.setting_action_manager_players);
+    return game.user?.isGM || getActionTrackerOptions().allowPlayers;
   }
 }
 
