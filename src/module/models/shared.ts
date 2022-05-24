@@ -14,6 +14,7 @@ export class LIDField extends fields.StringField {
 }
 
 // Similar to the foreignDocumentField, except untyped and supports uuids
+// Supports both sync and async lookup
 export class UUIDField extends StringField {
   /** @inheritdoc */
   static get _defaults() {
@@ -28,7 +29,7 @@ export class UUIDField extends StringField {
 
   /** @override */
   _cast(value) {
-    if ( value instanceof foundry.abstract.Document && value.uuid ) return value.uuid;
+    if ( typeof value == "object" && value.uuid) return value.uuid;
     else return String(value);
   }
 
@@ -48,16 +49,22 @@ export class UUIDField extends StringField {
   initialize(model, name, value) {
     // if ( this.idOnly ) return value;
     // if ( !game.collections ) return value; // server-side
-    return Object.defineProperty(model, name, {
-      get: () => this.model?.get(value) ?? null,
+    let rv = {
+      uuid: value,
+      doc_async: () => fromUuid(value),
+    };
+    Object.defineProperty(rv, "doc_sync", {
+      get: () => {
+        let v = fromUuidSync(value);
+        if( !(value instanceof foundry.abstract.Document) ) {
+          v = null; // It was a compendium reference. Stinky!
+        }
+        return v;
+      },
       set() {}, // no-op
-      configurable: true
+      configurable: false
     });
-  }
-
-  /** @inheritdoc */
-  toObject(model, name, value) {
-    return value?._id ?? value
+    return rv;
   }
 }
 
@@ -74,7 +81,7 @@ export class EnumField extends fields.StringField {
   static get _defaults() {
     return mergeObject(super._defaults, {
       required: true,
-      nullable: false, // Something can simply decline to be referentiable
+      nullable: false, 
       trim: true
     });
   }
