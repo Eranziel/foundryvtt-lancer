@@ -38,7 +38,8 @@
           "move": 0,
           "full": true,
           "quick": true,
-          "reaction": true
+          "reaction": true,
+          "used_reactions": []
         }
       },      
       "bonuses": {
@@ -47,7 +48,7 @@
           "damage": []
         }
       },
-      "capabilities": {
+      "offenses": {
         "save": 0,
         "sensor_range": 0,
         "tech_attack": 0
@@ -116,7 +117,7 @@
       "text_appearance": ""
     },
     "npc": {
-      "templates": ["universal", "action_tracking", "capabilities", "heat", "statuses", "struss"],
+      "templates": ["universal", "action_tracking", "offenses", "heat", "statuses", "struss"],
       "subtitle": "",
       "campaign": "",
       "labels": "",
@@ -128,7 +129,7 @@
       "tier": 1
     },
     "deployable": {
-      "templates": ["universal","action_tracking", "statuses", "heat"],
+      "templates": ["universal", "statuses", "heat"],
       "actions": [],
       "bonuses": [],
       "counters": [],
@@ -148,17 +149,11 @@
       "deployer": null
     },
     "mech": {
-      "templates": ["universal", "action_tracking", "capabilities", "heat", "statuses", "struss"],
-      "actions": {},
+      "templates": ["universal", "action_tracking", "offenses", "heat", "statuses", "struss"],
       "activations": 1,
-      "cc_ver": "",
-      "cloud_portrait": "",
       "core_active": false,
       "core_energy": true,
       "overcharge": 0,
-      "ejected": false,
-      "gm_note": "",
-      "lid": "",
       "loadout": {
         "frame": null,
         "system_mounts": [],
@@ -166,9 +161,7 @@
       },
       "meltdown_imminent": false,
       "notes": "",
-      "pilot": null,
-      "portrait": "",
-      "reactions": []
+      "pilot": null
     }
   },
   "Item": {
@@ -197,14 +190,19 @@
       "skill",
       "tag"
     ],
+    "templates": {
+      "bascdt": {
+        "actions": [],
+        "synergies": [],
+        "counters": [],
+        "deployables": [],
+        "integrated": [],
+        "tags": []
+      }
+    },
     "core_bonus": {
-      "actions": [],
-      "bonuses": [],
-      "synergies": [],
-      "counters": [],
-      "deployables": [],
+      "templates": ["bascdt"],
       "description": "",
-      "integrated": [],
       "effect": "",
       "lid": "",
       "mounted_effect": "",
@@ -212,7 +210,7 @@
     },
     "environment": {
       "description": "",
-      "lid": "",
+      "lid": ""
     },
     "faction": {
       "color": "",
@@ -297,10 +295,10 @@
       "base_features": [],
       "optional_features": [],
       "base_stats": {
-        "activations": [
-          1,
-          1,
-          1
+        "activations": [ 
+          1, 
+          1, 
+          1 
         ],
         "armor": [
           1,
@@ -413,45 +411,33 @@
       "tier_override": 0
     },
     "weapon_mod": {
+      "templates": ["bascdt"],
       "added_tags": [],
       "added_damage": [],
       "cascading": false,
-      "counters": [],
-      "deployables": [],
       "destroyed": false,
       "effect": "",
       "lid": "",
-      "integrated": [],
       "license": "",
       "license_level": 0,
       "source": null,
-      "tags": [],
       "sp": 0,
       "uses": 0,
       "allowed_sizes": [],
       "allowed_types": [],
-      "actions": [],
-      "added_range": [],
-      "bonuses": [],
-      "synergies": []
+      "added_range": []
     },
     "mech_system": {
+      "templates": ["bascdt"],
       "cascading": false,
-      "counters": [],
-      "deployables": [],
       "destroyed": false,
       "effect": "",
       "lid": "",
-      "integrated": [],
       "license": "",
       "license_level": 0,
       "source": null,
-      "tags": [],
       "sp": 0,
       "uses": 0,
-      "actions": [],
-      "bonuses": [],
-      "synergies": [],
       "description": "",
       "type": ""
     },
@@ -484,33 +470,21 @@
       "purpose": "Academic"
     },
     "pilot_armor": {
-      "actions": [],
-      "bonuses": [],
-      "deployables": [],
+      "templates": ["bascdt"],
       "description": "",
       "lid": "",
-      "synergies": [],
-      "tags": [],
       "uses": 0
     },
     "pilot_gear": {
-      "actions": [],
-      "bonuses": [],
-      "deployables": [],
+      "templates": ["bascdt"],
       "description": "",
       "lid": "",
-      "synergies": [],
-      "tags": [],
       "uses": 0
     },
     "pilot_weapon": {
-      "actions": [],
-      "bonuses": [],
-      "deployables": [],
+      "templates": ["bascdt"],
       "description": "",
       "lid": "",
-      "synergies": [],
-      "tags": [],
       "range": [],
       "damage": [],
       "effect": "",
@@ -518,21 +492,16 @@
       "uses": 0
     },
     "reserve": {
+      "templates": ["bascdt"],
       "consumable": true,
-      "counters": [],
-      "integrated": [],
       "label": "",
       "resource_name": "",
       "resource_note": "",
       "resource_cost": "",
       "type": "Resources",
       "used": false,
-      "actions": [],
-      "bonuses": [],
-      "deployables": [],
       "description": "",
-      "lid": "",
-      "synergies": []
+      "lid": ""
     },
     "sitrep": {
       "description": "",
@@ -560,13 +529,8 @@
       "terse": ""
     },
     "quirk": {
-      "actions": [],
-      "bonuses": [],
-      "counters": [],
-      "deployables": [],
-      "description": "",
-      "integrated": [],
-      "synergies": []
+      "templates": ["bascdt"],
+      "description": ""
     },
     "skill": {
       "lid": "",
