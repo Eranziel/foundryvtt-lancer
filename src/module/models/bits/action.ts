@@ -13,7 +13,7 @@ export class ActionField extends fields.SchemaField {
       {
         lid: new LIDField(),
         activation: new EnumField(Object.values(ActivationType)),
-        cost: new fields.NumberField({ min: 0, integer: true }),
+        cost: new fields.NumberField({ min: 0, integer: true, nullable: false }),
         name: new fields.StringField(),
         init: new fields.HTMLField(),
         trigger: new fields.HTMLField(),
@@ -23,7 +23,7 @@ export class ActionField extends fields.SchemaField {
         mech: new fields.BooleanField(),
         confirm: new fields.StringField(),
         available_mounted: new fields.BooleanField(),
-        heat_cost: new fields.NumberField({ min: 0, integer: true }),
+        heat_cost: new fields.NumberField({ min: 0, integer: true, nullable: false }),
         // todo: synergy_locations: 
         damage: new fields.ArrayField(new DamageField()),
         range: new fields.ArrayField(new RangeField()),

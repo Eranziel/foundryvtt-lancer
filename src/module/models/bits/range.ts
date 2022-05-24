@@ -10,7 +10,7 @@ export class RangeField extends fields.SchemaField {
     super(
       {
         type: new EnumField(Object.values(RangeType), { initial: RangeType.Range }),
-        val: new fields.StringField({ initial: "5" }),
+        val: new fields.NumberField({ min: 0, integer: true, initial: 1, nullable: false}),
       },
       options
     );

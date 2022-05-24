@@ -1,0 +1,144 @@
+// @ts-nocheck
+
+import { DamageType } from "machine-mind";
+import { CounterField } from "../bits/counter";
+import { DamageField } from "../bits/damage";
+import { BoundedNumberField, LIDField } from "../shared";
+const fields = foundry.data.fields;
+
+// Use for HP, etc
+export interface BoundedValue {
+  min: number;
+  max: number;
+  value: number;
+}
+
+/**
+ * Holds any bonuses that can't be accomplished just by direct application of active effects to the actor
+ */
+interface BonusesMap { // wip
+    bonus_range: number;
+    bonus_damage: string;
+    bonus_tags: string[]; // List of LID's of tags to add. Should only really be used with conditional / temporary things
+    // ... Todo
+}
+
+/**
+ * Tracks core statuses, and allows for active effects to easily and non-exclusively apply impaired.
+ * We use the names of keys from lancer-data, but with dashes removed
+ */
+export interface StatConMap { // wip
+    // statuses
+    dangerzone: boolean;
+    downandout: boolean;
+    engaged: boolean;
+    exposed: boolean;
+    invisible: boolean;
+    prone: boolean;
+    shutdown: boolean;
+
+    // conditions
+    immobilized: boolean;
+    impaired: boolean;
+    jammed: boolean;
+    lockon: boolean;
+    shredded: boolean;
+    slow: boolean;
+    stunned: boolean;
+}
+
+// We implement our templates here
+export function template_universal() {
+  return {
+    lid: new LIDField(),
+
+    edef: new fields.NumberField({ min: 0, integer: true, nullable: false }),
+    evasion: new fields.NumberField({ min: 0, integer: true, nullable: false }),
+
+    hp: new BoundedNumberField({ min: 0, integer: true, nullable: false }),
+    overshield: new BoundedNumberField({ min: 0, integer: true, nullable: false }),
+    burn: new fields.NumberField({ min: 0, integer: true, nullable: false }),
+    armor: new fields.NumberField({ min: 0, integer: true, nullable: false }),
+
+    size: new fields.NumberField({ min: 0, max: 4, integer: false, nullable: false }),
+    speed: new fields.NumberField({ min: 0, integer: true, nullable: false }),
+
+    resistances: new fields.SchemaField({
+      "Kinetic": new fields.BooleanField(),
+      "Energy": new fields.BooleanField(),
+      "Explosive": new fields.BooleanField(),
+      "Heat": new fields.BooleanField(),
+      "Burn": new fields.BooleanField(),
+      "Variable": new fields.BooleanField()
+    }),
+
+    custom_counters: new fields.ArrayField(new CounterField())
+  }
+}
+
+export function template_action_tracking() {
+  return {
+    actions: new fields.SchemaField({
+      protocol: new fields.BooleanField(),
+      move: new fields.NumberField({min: 0, integer: true, nullable: false}),
+      full: new fields.BooleanField(),
+      quick: new fields.BooleanField(),
+      reaction: new fields.BooleanField(),
+      used_reactions: new fields.ArrayField(new fields.StringField({nullable: false})) // lids
+    })
+  };
+}
+
+export function template_bonuses() {
+  return {
+    bonuses: new SchemaField({
+      attack: new fields.NumberField({integer: true, nullable: false}),
+      damage: new fields.ArrayField(new DamageField())
+    })
+  };
+}
+
+export function template_offenses() {
+  return {
+    bonuses: new SchemaField({
+      save: new fields.NumberField({integer: true, initial: 10, min: 0, nullable: false}),
+      sensor_range: new fields.NumberField({integer: true, initial: 10, min: 0, nullable: false}),
+      tech_attack: new fields.NumberField({integer: true, initial: 0, nullable: false})
+    })
+  };
+}
+
+export function template_heat() {
+  return {
+    stress: new BoundedNumberField({min: 0, integer: true, nullable: false}),
+  };
+}
+
+export function template_statuses() {
+  return {
+    statuses: new SchemaField({
+      dangerzone: new fields.BooleanField(),
+      downandout: new fields.BooleanField(),
+      engaged: new fields.BooleanField(),
+      exposed: new fields.BooleanField(),
+      invisible: new fields.BooleanField(),
+      prone: new fields.BooleanField(),
+      shutdown: new fields.BooleanField(),
+      immobilized: new fields.BooleanField(),
+      impaired: new fields.BooleanField(),
+      jammed: new fields.BooleanField(),
+      lockon: new fields.BooleanField(),
+      shredded: new fields.BooleanField(),
+      slow: new fields.BooleanField(),
+      stunned: new fields.BooleanField()
+    })
+  };
+}
+
+export function template_struss() {
+  return {
+    stress: new BoundedNumberField({min: 0, max: 4, integer: true, nullable: false}),
+    structure: new BoundedNumberField({min: 0, max: 4, integer: true, nullable: false}),
+  };
+}
+

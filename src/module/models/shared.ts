@@ -14,7 +14,7 @@ export class LIDField extends fields.StringField {
 }
 
 // Similar to the foreignDocumentField, except untyped and supports uuids
-class UUIDField extends StringField {
+export class UUIDField extends StringField {
   /** @inheritdoc */
   static get _defaults() {
     return mergeObject(super._defaults, {
@@ -100,4 +100,33 @@ export class EnumField extends fields.StringField {
   }
 }
 
-// export class BoundedNumberField
+// Use this to represent a field that is effectively just a number, but should present as a min/max/value field in expanded `system` data
+export class BoundedNumberField extends fields.NumberField {
+  /** @override */
+  _cast(value) {
+    let value = super._cast(value);
+    if( this.valid_options.includes(value) ) {
+      return value;
+    } else {
+      return this.valid_options[0];
+    }
+  }  
+  
+  /** @override */
+  initialize(model, name, value: number) {
+    // Expand to a somewhat reasonable range. `prepareData` functions should handle the rest
+    return {
+      min: this.min,
+      max: this.max || value || 1,
+      value
+    }
+  }
+
+  /** @override */
+  _cast(value) {
+    if(typeof value == "object") {
+      value = value.value ?? 0;
+    }
+    return Number(value);
+  }
+}

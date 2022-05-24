@@ -10,7 +10,7 @@ export class DamageField extends fields.SchemaField {
     super(
       {
         type: new EnumField(Object.values(DamageType), { initial: DamageType.Kinetic }),
-        val: new fields.StringField({ initial: "1d6" }),
+        val: new fields.StringField({ initial: "1d6", nullable: false, required: true, trim: true}),
       },
       options
     );
