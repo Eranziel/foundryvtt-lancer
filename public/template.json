@@ -7,6 +7,31 @@
       "deployable"
     ],
     "templates": {
+      "universal": {
+        "lid": "",
+
+        "edef": 8,
+        "evasion": 5,
+
+        "hp": 5,
+        "overshield": 0,
+        "burn": 0,
+        "armor": 0,
+
+        "size": 1,
+        "speed": 0,
+
+        "resistances": {
+          "Kinetic": false,
+          "Energy": false,
+          "Explosive": false,
+          "Heat": false,
+          "Burn": false,
+          "Variable": false
+        },
+
+        "custom_counters": []
+      },
       "action_tracking": {
         "action_tracker": {
           "protocol": true,
@@ -15,11 +40,46 @@
           "quick": true,
           "reaction": true
         }
+      },      
+      "bonuses": {
+        "bonuses": {
+          "attack": 0,
+          "damage": []
+        }
+      },
+      "capabilities": {
+        "save": 0,
+        "sensor_range": 0,
+        "tech_attack": 0
+      },
+      "heat": {
+        "heat": 0
+      },      
+      "statuses": {
+        "statuses": {
+          "dangerzone": false,
+          "downandout": false,
+          "engaged": false,
+          "exposed": false,
+          "invisible": false,
+          "prone": false,
+          "shutdown": false,
+          "immobilized": false,
+          "impaired": false,
+          "jammed": false,
+          "lockon": false,
+          "shredded": false,
+          "slow": false,
+          "stunned": false
+        }
+      },
+      "struss": {
+        "stress": 1,
+        "structure": 1
       }
     },
     "pilot": {
-      "templates": ["action_tracking"],
-      "name": "",
+      "templates": ["universal", "action_tracking", "statuses"],
       "active_mech": null,
       "background": "",
       "callsign": "",
@@ -28,11 +88,9 @@
       "cloudID": "",
       "cloudOwnerID": "",
       "cloud_portrait": "",
-      "hp": 0,
       "custom_counters": [],
       "group": "",
       "history": "",
-      "lid": "",
       "lastCloudUpdate": "",
       "level": 0,
       "loadout": {
@@ -52,89 +110,52 @@
       ],
       "mounted": false,
       "notes": "",
-      "overshield": 0,
-      "burn": 0,
       "player_name": "",
       "portrait": "",
-      "sort_index": 0,
       "status": "",
       "text_appearance": ""
     },
     "npc": {
-      "templates": ["action_tracking"],
-      "actions": {},
-      "lid": "",
-      "name": "",
+      "templates": ["universal", "action_tracking", "capabilities", "heat", "statuses", "struss"],
       "subtitle": "",
       "campaign": "",
       "labels": "",
       "tag": "",
       "note": "",
       "side": "",
-      "cloudImage": "",
-      "localImage": "",
-      "burn": 0,
-      "overshield": 0,
       "destroyed": false,
       "defeat": "",
-      "resistances": [],
-      "tier": 1,
-      "custom_counters": [],
-      "hp": 0,
-      "heat": 0,
-      "stress": 0,
-      "structure": 0
+      "tier": 1
     },
     "deployable": {
-      "templates": ["action_tracking"],
+      "templates": ["universal","action_tracking", "statuses", "heat"],
       "actions": [],
       "bonuses": [],
       "counters": [],
       "synergies": [],
       "tags": [],
       "activation": "",
-      "armor": 0,
       "cost": 1,
       "instances": 1,
-      "hp": 0,
-      "heat": 0,
-      "burn": 0,
       "deactivation": "",
       "detail": "",
-      "edef": 0,
-      "evasion": 0,
-      "heatcap": 0,
-      "max_hp": 0,
-      "name": "",
-      "overshield": 0,
       "recall": "",
       "redeploy": "",
-      "repcap": 0,
-      "save": 0,
-      "sensor_range": 0,
-      "size": 0,
-      "speed": 0,
-      "tech_attack": 0,
+
       "type": "",
       "avail_mounted": true,
       "avail_unmounted": false,
       "deployer": null
     },
     "mech": {
-      "templates": ["action_tracking"],
+      "templates": ["universal", "action_tracking", "capabilities", "heat", "statuses", "struss"],
       "actions": {},
       "activations": 1,
-      "burn": 0,
       "cc_ver": "",
       "cloud_portrait": "",
       "core_active": false,
       "core_energy": true,
-      "heat": 0,
-      "hp": 0,
       "overcharge": 0,
-      "repairs": 0,
-      "stress": 0,
-      "structure": 0,
       "ejected": false,
       "gm_note": "",
       "lid": "",
@@ -144,20 +165,10 @@
         "weapon_mounts": []
       },
       "meltdown_imminent": false,
-      "name": "",
       "notes": "",
-      "overshield": 0,
       "pilot": null,
       "portrait": "",
-      "reactions": [],
-      "resistances": {
-        "Kinetic": false,
-        "Energy": false,
-        "Explosive": false,
-        "Heat": false,
-        "Burn": false,
-        "Variable": false
-      }
+      "reactions": []
     }
   },
   "Item": {
@@ -194,7 +205,6 @@
       "deployables": [],
       "description": "",
       "integrated": [],
-      "name": "New Core Bonus",
       "effect": "",
       "lid": "",
       "mounted_effect": "",
@@ -203,14 +213,12 @@
     "environment": {
       "description": "",
       "lid": "",
-      "name": "New Environment"
     },
     "faction": {
       "color": "",
       "description": "",
       "lid": "",
       "logo": "",
-      "name": "New Faction",
       "logo_url": ""
     },
     "frame": {
@@ -221,7 +229,6 @@
         "BALANCED"
       ],
       "mounts": [],
-      "name": "New Mech",
       "source": null,
       "stats": {
         "armor": 0,
@@ -267,14 +274,12 @@
     },
     "license": {
       "lid": "",
-      "name": "New License",
       "manufacturer": null,
       "key": "",
       "rank": 0
     },
     "manufacturer": {
       "lid": "",
-      "name": "New Manufacturer",
       "logo": "",
       "light": "",
       "description": "",
@@ -283,7 +288,6 @@
     },
     "npc_class": {
       "lid": "",
-      "name": "",
       "role": "",
       "info": {
         "flavor": "",
@@ -373,7 +377,6 @@
     },
     "npc_template": {
       "lid": "",
-      "name": "",
       "description": "",
       "power": 100,
       "base_features": [],
@@ -381,7 +384,6 @@
     },
     "npc_feature": {
       "lid": "",
-      "name": "",
       "origin": {
         "type": "Class",
         "name": "Some Class",
@@ -422,7 +424,6 @@
       "integrated": [],
       "license": "",
       "license_level": 0,
-      "name": "New Weapon Mod",
       "source": null,
       "tags": [],
       "sp": 0,
@@ -444,7 +445,6 @@
       "integrated": [],
       "license": "",
       "license_level": 0,
-      "name": "New Mech System",
       "source": null,
       "tags": [],
       "sp": 0,
@@ -463,7 +463,6 @@
       "integrated": [],
       "license": "",
       "license_level": 0,
-      "name": "New Mech Weapon",
       "source": null,
       "sp": 0,
       "uses": 0,
@@ -482,7 +481,6 @@
       "description": "",
       "efficiency": 0,
       "influence": 0,
-      "name": "New Organization",
       "purpose": "Academic"
     },
     "pilot_armor": {
@@ -491,7 +489,6 @@
       "deployables": [],
       "description": "",
       "lid": "",
-      "name": "New Pilot Armor",
       "synergies": [],
       "tags": [],
       "uses": 0
@@ -502,7 +499,6 @@
       "deployables": [],
       "description": "",
       "lid": "",
-      "name": "New Pilot Gear",
       "synergies": [],
       "tags": [],
       "uses": 0
@@ -513,7 +509,6 @@
       "deployables": [],
       "description": "",
       "lid": "",
-      "name": "New Pilot Weapon",
       "synergies": [],
       "tags": [],
       "range": [],
@@ -523,7 +518,6 @@
       "uses": 0
     },
     "reserve": {
-      "name": "New Reserve",
       "consumable": true,
       "counters": [],
       "integrated": [],
@@ -544,7 +538,6 @@
       "description": "",
       "enemyVictory": "The enemy wins when ___",
       "lid": "",
-      "name": "New Sitrep",
       "pcVictory": "The PCs win when ___",
       "controlZone": "",
       "deployment": "",
@@ -556,7 +549,6 @@
       "lid": "",
       "effects": "",
       "icon": "",
-      "name": "New Status/Condition",
       "type": "Status"
     },
     "talent": {
@@ -564,7 +556,6 @@
       "description": "",
       "icon": "",
       "lid": "",
-      "name": "New Talent",
       "ranks": [],
       "terse": ""
     },
@@ -575,7 +566,6 @@
       "deployables": [],
       "description": "",
       "integrated": [],
-      "name": "New Quirk",
       "synergies": []
     },
     "skill": {
@@ -583,13 +573,11 @@
       "description": "",
       "detail": "",
       "family": "cha",
-      "name": "New Skill",
       "rank": 1
     },
     "tag": {
       "description": "",
       "lid": "",
-      "name": "New Tag",
       "hidden": false,
       "filter_ignore": false
     }
