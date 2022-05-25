@@ -2,7 +2,7 @@
 const fields = foundry.data.fields;
 
 import { ActivationType, RegActionData, Action } from "machine-mind";
-import { EnumField, LIDField } from "../shared";
+import { LIDField } from "../shared";
 import { DamageField } from "./damage";
 import { RangeField } from "./range";
 
@@ -12,7 +12,7 @@ export class ActionField extends fields.SchemaField {
     super(
       {
         lid: new LIDField(),
-        activation: new EnumField(Object.values(ActivationType)),
+        activation: new fields.StringField({choices: Object.values(ActivationType), initial: ActivationType.Quick}),
         cost: new fields.NumberField({ min: 0, integer: true, nullable: false }),
         name: new fields.StringField(),
         init: new fields.HTMLField(),

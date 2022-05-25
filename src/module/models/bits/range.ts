@@ -2,14 +2,13 @@
 const fields = foundry.data.fields;
 
 import { RangeType, Range, RegRangeData } from "machine-mind";
-import { EnumField } from "../shared";
 
 // A single <type, value> pairing for range. Mimics RegRangeData
 export class RangeField extends fields.SchemaField {
   constructor(options = {}) {
     super(
       {
-        type: new EnumField(Object.values(RangeType), { initial: RangeType.Range }),
+        type: new fields.StringField({choices: Object.values(RangeType), initial: RangeType.Range}),
         val: new fields.NumberField({ min: 0, integer: true, initial: 1, nullable: false}),
       },
       options

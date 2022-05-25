@@ -68,45 +68,6 @@ export class UUIDField extends StringField {
   }
 }
 
-// Use this to bound a string field to a particular set of string values
-export class EnumField extends fields.StringField {
-  valid_options: string[];
-
-  constructor(valid_options: string[], options={}) {
-    super(options);
-    this.valid_options = valid_options;
-  }
-
-  /** @inheritdoc */
-  static get _defaults() {
-    return mergeObject(super._defaults, {
-      required: true,
-      nullable: false, 
-      trim: true
-    });
-  }
-
-  /** @override */
-  _cast(value) {
-    let value = super._cast(value);
-    if( this.valid_options.includes(value) ) {
-      return value;
-    } else {
-      return this.valid_options[0];
-    }
-  }
-
-  /** @override */
-  _validateSpecial(value) {
-      // Check that its in the list, and complain otherwise
-      if(!this.valid_options.includes(value)) {
-        throw new Error(`"${value}" is invalid. Must be one of [${this.valid_options.map(x => `"${x}"`).join(', ')}]`)
-      } else {
-        return true;
-      }
-  }
-}
-
 // Use this to represent a field that is effectively just a number, but should present as a min/max/value field in expanded `system` data
 export class BoundedNumberField extends fields.NumberField {
   /** @override */
@@ -137,3 +98,11 @@ export class BoundedNumberField extends fields.NumberField {
     return Number(value);
   }
 }
+
+// Use for HP, etc
+export interface BoundedValue {
+  min: number;
+  max: number;
+  value: number;
+}
+
