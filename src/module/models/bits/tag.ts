@@ -1,9 +1,22 @@
-// @ts-nocheck
-const fields = foundry.data.fields;
-
 import { LIDField } from "../shared";
 
+// @ts-ignore
+const fields: any = foundry.data.fields;
+
 const PLACEHOLDER = "...";
+
+export interface TagFieldSourceData {
+  lid: string,
+  val: string
+}
+
+export interface TagFieldSystemData extends TagFieldSourceData {
+  name: string;
+  description: string,
+  num_val: number | null
+}
+
+
 
 // A single <lid, value> pairing for tags. Caches its name for quicker lookup
 export class TagField extends fields.SchemaField {
@@ -18,15 +31,25 @@ export class TagField extends fields.SchemaField {
   }
 
   /** @override */
-  initialize(model, name, value) {
-    // Coerce to a range
-    let rv = foundry.utils.duplicate(value);
+  initialize(model: any, name: string, value: TagFieldSourceData) {
+    // make sure our value has a specifically accessible numeric value
+    let parsed = Number.parseInt(value.val);
+    let num_val: number | null;
+    if (Number.isNaN(parsed)) {
+        num_val = null;
+    } else {
+        num_val = parsed;
+    }
 
-    // Give default values for name and description
-    rv["name"] = PLACEHOLDER;
-    rv["description"] = PLACEHOLDER;
+    // Turn it into our expanded format
+    let rv: TagFieldSystemData = {
+      ...foundry.utils.duplicate(value),
+      name: PLACEHOLDER,
+      description: PLACEHOLDER,
+      num_val
+    }
 
-    // Look them up from the actual tag object
+    // Begin a job to look it up from the actual tag object
     let tag_pack = game.packs.get("world.tag")!;
     tag_pack?.getDocuments({lid: value.lid}).then(docs => {
         if(docs.length) {
@@ -39,17 +62,12 @@ export class TagField extends fields.SchemaField {
         }
     });
 
-    // Also make sure our value has a specifically accessible numeric value
-    let parsed = Number.parseInt(value.val);
-    if (Number.isNaN(parsed)) {
-        rv["num_val"] = null;
-    } else {
-        rv["num_val"] = parsed;
-    }
+    // That's it
+    return rv;
   }
 
   /** @override */
-  _cast(value) {
+  _cast(value: any) {
       // Make sure num_val gets turned back into val
       if(value.num_val) {
         value["val"] = String(value.num_val);

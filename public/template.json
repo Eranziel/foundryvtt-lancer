@@ -201,6 +201,10 @@
         "deployables": [],
         "integrated": [],
         "tags": []
+      },
+      "destructible": {
+        "cascading": false,
+        "destroyed": false
       }
     },
     "core_bonus": {
@@ -382,7 +386,7 @@
       "optional_features": []
     },
     "npc_feature": {
-      "templates": ["universal"],
+      "templates": ["universal", "destructible"],
       "origin": {
         "type": "Class",
         "name": "Some Class",
@@ -394,7 +398,6 @@
       "tags": [],
       "type": "Trait",
       "charged": true,
-      "destroyed": false,
       "loaded": true,
       "uses": 0,
       "weapon_type": "",
@@ -412,11 +415,9 @@
       "tier_override": 0
     },
     "weapon_mod": {
-      "templates": ["universal", "bascdt"],
+      "templates": ["universal", "bascdt", "destructible"],
       "added_tags": [],
       "added_damage": [],
-      "cascading": false,
-      "destroyed": false,
       "effect": "",
       "license": "",
       "license_level": 0,
@@ -428,9 +429,7 @@
       "added_range": []
     },
     "mech_system": {
-      "templates": ["universal", "bascdt"],
-      "cascading": false,
-      "destroyed": false,
+      "templates": ["universal", "bascdt", "destructible"],
       "effect": "",
       "license": "",
       "license_level": 0,
@@ -441,10 +440,8 @@
       "type": ""
     },
     "mech_weapon": {
-      "templates": ["universal"],
-      "cascading": false,
+      "templates": ["universal", "destructible"],
       "deployables": [],
-      "destroyed": false,
       "integrated": [],
       "license": "",
       "license_level": 0,
