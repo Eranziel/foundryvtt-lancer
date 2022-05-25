@@ -1,18 +1,17 @@
 // @ts-nocheck
 
-import { ActionsField } from "./bits/action";
 import {
   template_action_tracking,
   template_heat,
   template_offenses,
   template_statuses,
   template_struss,
-  template_universal,
+  template_universal_actor,
 } from "./shared";
 
 const fields = foundry.data.fields;
 
-export class Mech extends foundry.abstract.DataModel {
+export class MechModel extends foundry.abstract.DataModel {
   static defineSchema() {
     return {
       activations: new fields.NumberField({min: 0, integer: true}),
@@ -22,7 +21,7 @@ export class Mech extends foundry.abstract.DataModel {
       meltdown_timer: new fields.NumberField({required: false, nullable: true, integer: true, min: 0}),
       notes: new fields.HTMLField(),
       pilot: new UUIDField(),
-      ...template_universal(),
+      ...template_universal_actor(),
       ...template_action_tracking(),
       ...template_offenses(),
       ...template_heat(),

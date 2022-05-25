@@ -152,6 +152,7 @@ import { gridDist } from "./module/helpers/automation/targeting";
 import CompconLoginForm from "./module/helpers/compcon-login-form";
 import { LancerCombat, LancerCombatant, LancerCombatTracker } from "lancer-initiative";
 import { LancerCombatTrackerConfig } from "./module/helpers/lancer-initiative-config-form";
+import { MechModel } from "./module/models/actors/mech";
 
 const lp = LANCER.log_prefix;
 
@@ -164,6 +165,15 @@ window.addEventListener("unhandledrejection", function (event) {
 /* ------------------------------------ */
 Hooks.once("init", async function () {
   console.log(`Initializing LANCER RPG System ${LANCER.ASCII}`);
+
+  // Add this schema for each document type.
+  // game.documentTypes.Item.forEach(type => CONFIG.Item.systemDataModels[type] = MyItemModel);
+  // @ts-ignore
+  game.documentTypes.Item.forEach(type => CONFIG.Item.compendiumIndexFields = ["lid"]); 
+  // @ts-ignore
+  CONFIG.Actor.systemDataModels[EntryType.MECH] = MechModel;
+  // @ts-ignore
+  CONFIG.Item.systemDataModels[EntryType.MECH_SYSTEM] = MechSystemModel;
 
   // Register custom system settings
   registerSettings();

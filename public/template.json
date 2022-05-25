@@ -191,6 +191,9 @@
       "tag"
     ],
     "templates": {
+      "universal": {
+        "lid": ""
+      },
       "bascdt": {
         "actions": [],
         "synergies": [],
@@ -201,27 +204,25 @@
       }
     },
     "core_bonus": {
-      "templates": ["bascdt"],
+      "templates": ["universal", "bascdt"],
       "description": "",
       "effect": "",
-      "lid": "",
-      "mounted_effect": "",
+            "mounted_effect": "",
       "source": null
     },
     "environment": {
-      "description": "",
-      "lid": ""
+      "templates": ["universal"],
+      "description": ""
     },
     "faction": {
-      "color": "",
+      "templates": ["universal"],
       "description": "",
-      "lid": "",
       "logo": "",
       "logo_url": ""
     },
     "frame": {
+      "templates": ["universal"],
       "description": "",
-      "lid": "",
       "license_level": 2,
       "mechtype": [
         "BALANCED"
@@ -271,13 +272,13 @@
       "other_art": []
     },
     "license": {
-      "lid": "",
+      "templates": ["universal"],
       "manufacturer": null,
       "key": "",
       "rank": 0
     },
     "manufacturer": {
-      "lid": "",
+      "templates": ["universal"],
       "logo": "",
       "light": "",
       "description": "",
@@ -285,7 +286,7 @@
       "quote": ""
     },
     "npc_class": {
-      "lid": "",
+      "templates": ["universal"],
       "role": "",
       "info": {
         "flavor": "",
@@ -374,14 +375,14 @@
       }
     },
     "npc_template": {
-      "lid": "",
+      "templates": ["universal"],
       "description": "",
       "power": 100,
       "base_features": [],
       "optional_features": []
     },
     "npc_feature": {
-      "lid": "",
+      "templates": ["universal"],
       "origin": {
         "type": "Class",
         "name": "Some Class",
@@ -411,13 +412,12 @@
       "tier_override": 0
     },
     "weapon_mod": {
-      "templates": ["bascdt"],
+      "templates": ["universal", "bascdt"],
       "added_tags": [],
       "added_damage": [],
       "cascading": false,
       "destroyed": false,
       "effect": "",
-      "lid": "",
       "license": "",
       "license_level": 0,
       "source": null,
@@ -428,11 +428,10 @@
       "added_range": []
     },
     "mech_system": {
-      "templates": ["bascdt"],
+      "templates": ["universal", "bascdt"],
       "cascading": false,
       "destroyed": false,
       "effect": "",
-      "lid": "",
       "license": "",
       "license_level": 0,
       "source": null,
@@ -442,10 +441,10 @@
       "type": ""
     },
     "mech_weapon": {
+      "templates": ["universal"],
       "cascading": false,
       "deployables": [],
       "destroyed": false,
-      "lid": "",
       "integrated": [],
       "license": "",
       "license_level": 0,
@@ -463,6 +462,7 @@
       "no_attack": false
     },
     "organization": {
+      "templates": ["universal"],
       "actions": "",
       "description": "",
       "efficiency": 0,
@@ -470,21 +470,18 @@
       "purpose": "Academic"
     },
     "pilot_armor": {
-      "templates": ["bascdt"],
+      "templates": ["universal", "bascdt"],
       "description": "",
-      "lid": "",
       "uses": 0
     },
     "pilot_gear": {
-      "templates": ["bascdt"],
+      "templates": ["universal", "bascdt"],
       "description": "",
-      "lid": "",
       "uses": 0
     },
     "pilot_weapon": {
-      "templates": ["bascdt"],
+      "templates": ["universal", "bascdt"],
       "description": "",
-      "lid": "",
       "range": [],
       "damage": [],
       "effect": "",
@@ -492,7 +489,7 @@
       "uses": 0
     },
     "reserve": {
-      "templates": ["bascdt"],
+      "templates": ["universal", "bascdt"],
       "consumable": true,
       "label": "",
       "resource_name": "",
@@ -501,12 +498,11 @@
       "type": "Resources",
       "used": false,
       "description": "",
-      "lid": ""
     },
     "sitrep": {
+      "templates": ["universal"],
       "description": "",
       "enemyVictory": "The enemy wins when ___",
-      "lid": "",
       "pcVictory": "The PCs win when ___",
       "controlZone": "",
       "deployment": "",
@@ -515,33 +511,33 @@
       "objective": ""
     },
     "status": {
-      "lid": "",
+      "templates": ["universal"],
       "effects": "",
       "icon": "",
       "type": "Status"
     },
     "talent": {
+      "templates": ["universal"],
       "curr_rank": 1,
       "description": "",
       "icon": "",
-      "lid": "",
       "ranks": [],
       "terse": ""
     },
     "quirk": {
-      "templates": ["bascdt"],
+      "templates": ["universal", "bascdt"],
       "description": ""
     },
     "skill": {
-      "lid": "",
+      "templates": ["universal"],
       "description": "",
       "detail": "",
       "family": "cha",
       "rank": 1
     },
     "tag": {
+      "templates": ["universal"],
       "description": "",
-      "lid": "",
       "hidden": false,
       "filter_ignore": false
     }

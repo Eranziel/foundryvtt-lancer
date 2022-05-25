@@ -1,17 +1,9 @@
 // @ts-nocheck
 
-import { DamageType } from "machine-mind";
 import { CounterField } from "../bits/counter";
 import { DamageField } from "../bits/damage";
 import { BoundedNumberField, LIDField } from "../shared";
 const fields = foundry.data.fields;
-
-// Use for HP, etc
-export interface BoundedValue {
-  min: number;
-  max: number;
-  value: number;
-}
 
 /**
  * Holds any bonuses that can't be accomplished just by direct application of active effects to the actor
@@ -48,7 +40,7 @@ export interface StatConMap { // wip
 }
 
 // We implement our templates here
-export function template_universal() {
+export function template_universal_actor() {
   return {
     lid: new LIDField(),
 
