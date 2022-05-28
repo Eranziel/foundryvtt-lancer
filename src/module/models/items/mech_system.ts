@@ -1,11 +1,11 @@
 
+import { LancerDataModel } from "../shared";
 import { template_universal_item, template_bascdt, template_destructible } from "./shared";
 
-// @ts-ignore
 const fields: any = foundry.data.fields;
 
 // @ts-ignore
-export class MechSystemModel extends foundry.abstract.DataModel {
+export class MechSystemModel extends LancerDataModel {
   static defineSchema() {
     return {
       effect: new fields.HTMLField(),

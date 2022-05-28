@@ -33,6 +33,7 @@
         "custom_counters": []
       },
       "action_tracking": {
+        "activations": 1,
         "action_tracker": {
           "protocol": true,
           "move": 0,
@@ -150,10 +151,10 @@
     },
     "mech": {
       "templates": ["universal", "action_tracking", "offenses", "heat", "statuses", "struss"],
-      "activations": 1,
       "core_active": false,
       "core_energy": true,
       "overcharge": 0,
+      "repairs": 0,
       "loadout": {
         "frame": null,
         "system_mounts": [],

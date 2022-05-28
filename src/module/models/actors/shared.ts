@@ -1,9 +1,7 @@
-// @ts-nocheck
-
 import { CounterField } from "../bits/counter";
 import { DamageField } from "../bits/damage";
 import { BoundedNumberField, LIDField } from "../shared";
-const fields = foundry.data.fields;
+const fields: any = foundry.data.fields;
 
 /**
  * Holds any bonuses that can't be accomplished just by direct application of active effects to the actor
@@ -47,8 +45,8 @@ export function template_universal_actor() {
     edef: new fields.NumberField({ min: 0, integer: true, nullable: false }),
     evasion: new fields.NumberField({ min: 0, integer: true, nullable: false }),
 
-    hp: new BoundedNumberField({ min: 0, integer: true, nullable: false }),
-    overshield: new BoundedNumberField({ min: 0, integer: true, nullable: false }),
+    hp: new BoundedNumberField(),
+    overshield: new BoundedNumberField(),
     burn: new fields.NumberField({ min: 0, integer: true, nullable: false }),
     armor: new fields.NumberField({ min: 0, integer: true, nullable: false }),
 
@@ -70,6 +68,7 @@ export function template_universal_actor() {
 
 export function template_action_tracking() {
   return {
+    activations: new fields.NumberField({integer: true, nullable: false, min: 1}),
     actions: new fields.SchemaField({
       protocol: new fields.BooleanField(),
       move: new fields.NumberField({min: 0, integer: true, nullable: false}),
@@ -83,7 +82,7 @@ export function template_action_tracking() {
 
 export function template_bonuses() {
   return {
-    bonuses: new SchemaField({
+    bonuses: new fields.SchemaField({
       attack: new fields.NumberField({integer: true, nullable: false}),
       damage: new fields.ArrayField(new DamageField())
     })
@@ -92,7 +91,7 @@ export function template_bonuses() {
 
 export function template_offenses() {
   return {
-    bonuses: new SchemaField({
+    bonuses: new fields.SchemaField({
       save: new fields.NumberField({integer: true, initial: 10, min: 0, nullable: false}),
       sensor_range: new fields.NumberField({integer: true, initial: 10, min: 0, nullable: false}),
       tech_attack: new fields.NumberField({integer: true, initial: 0, nullable: false})
@@ -102,13 +101,13 @@ export function template_offenses() {
 
 export function template_heat() {
   return {
-    stress: new BoundedNumberField({min: 0, integer: true, nullable: false}),
+    stress: new BoundedNumberField(),
   };
 }
 
 export function template_statuses() {
   return {
-    statuses: new SchemaField({
+    statuses: new fields.SchemaField({
       dangerzone: new fields.BooleanField(),
       downandout: new fields.BooleanField(),
       engaged: new fields.BooleanField(),
@@ -129,8 +128,8 @@ export function template_statuses() {
 
 export function template_struss() {
   return {
-    stress: new BoundedNumberField({min: 0, max: 4, integer: true, nullable: false}),
-    structure: new BoundedNumberField({min: 0, max: 4, integer: true, nullable: false}),
+    stress: new BoundedNumberField(),
+    structure: new BoundedNumberField(),
   };
 }
 

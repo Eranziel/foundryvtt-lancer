@@ -2,6 +2,10 @@
 
 const fields = foundry.data.fields;
 
+export class LancerDataModel extends foundry.abstract.DataModel {
+  // For you, sohum. Svelte it to your heart's content
+}
+
 // Use this for all LIDs, to ensure consistent formatting
 export class LIDField extends fields.StringField {
   /** @override */
