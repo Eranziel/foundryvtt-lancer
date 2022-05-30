@@ -636,6 +636,8 @@ export class LancerActor extends Actor {
     if (data == null) return;
     if (clearFirst) await this.clearBadData();
 
+    console.log("Importing pilot from Comp/Con. Raw data:", data);
+
     try {
       const mm = await this.data.data.derived.mm_promise;
       // This block is kept for posterity, in case we want to re-implement automatic folder creation.
