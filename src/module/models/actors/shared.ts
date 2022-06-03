@@ -41,17 +41,9 @@ export interface StatConMap { // wip
 export function template_universal_actor() {
   return {
     lid: new LIDField(),
-
-    edef: new fields.NumberField({ min: 0, integer: true, nullable: false }),
-    evasion: new fields.NumberField({ min: 0, integer: true, nullable: false }),
-
     hp: new BoundedNumberField(),
     overshield: new BoundedNumberField(),
     burn: new fields.NumberField({ min: 0, integer: true, nullable: false }),
-    armor: new fields.NumberField({ min: 0, integer: true, nullable: false }),
-
-    size: new fields.NumberField({ min: 0, max: 4, integer: false, nullable: false }),
-    speed: new fields.NumberField({ min: 0, integer: true, nullable: false }),
 
     resistances: new fields.SchemaField({
       "Kinetic": new fields.BooleanField(),

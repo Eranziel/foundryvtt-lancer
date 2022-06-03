@@ -9,17 +9,9 @@
     "templates": {
       "universal": {
         "lid": "",
-
-        "edef": 8,
-        "evasion": 5,
-
         "hp": 5,
         "overshield": 0,
         "burn": 0,
-        "armor": 0,
-
-        "size": 1,
-        "speed": 0,
 
         "resistances": {
           "Kinetic": false,
@@ -42,13 +34,7 @@
           "reaction": true,
           "used_reactions": []
         }
-      },      
-      "bonuses": {
-        "bonuses": {
-          "attack": 0,
-          "damage": []
-        }
-      },
+      }, 
       "offenses": {
         "save": 0,
         "sensor_range": 0,
@@ -122,7 +108,10 @@
       "synergies": [],
       "tags": [],
       "activation": "",
+      "armor": 0,
       "cost": 1,
+      "edef": 8,
+      "evasion": 5,
       "instances": 1,
       "deactivation": "",
       "detail": "",

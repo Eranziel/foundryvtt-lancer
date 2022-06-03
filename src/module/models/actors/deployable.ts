@@ -9,8 +9,10 @@ import { LancerDataModel } from "../shared";
 const fields: any = foundry.data.fields;
 
 const deployable_schema = {
+  armor: new fields.NumberField({ min: 0, integer: true, nullable: false, initial: 0 }),
   destroyed: new fields.Boolean({initial: false}),
-  meltdown_timer: new fields.NumberField({required: false, nullable: true, integer: true, min: 0}),
+  edef: new fields.NumberField({ min: 0, integer: true, nullable: false, initial: 8 }),
+  evasion: new fields.NumberField({ min: 0, integer: true, nullable: false, initial: 5 }),
   notes: new fields.HTMLField(),
 
   ...template_universal_actor(),
