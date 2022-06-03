@@ -85,24 +85,16 @@
       "active_mech": null,
       "background": "",
       "callsign": "",
-      "campaign": "",
-      "cc_ver": "",
       "cloudID": "",
       "cloudOwnerID": "",
-      "cloud_portrait": "",
-      "custom_counters": [],
-      "group": "",
       "history": "",
       "lastCloudUpdate": "",
       "level": 0,
       "loadout": {
         "lid": "",
-        "name": "",
         "armor": [],
         "gear": [],
-        "weapons": [],
-        "extendedGear": [],
-        "extendedWeapons": []
+        "weapons": []
       },
       "mechSkills": [
         0,
@@ -113,20 +105,13 @@
       "mounted": false,
       "notes": "",
       "player_name": "",
-      "portrait": "",
       "status": "",
       "text_appearance": ""
     },
     "npc": {
       "templates": ["universal", "action_tracking", "offenses", "heat", "statuses", "struss"],
-      "subtitle": "",
-      "campaign": "",
-      "labels": "",
-      "tag": "",
-      "note": "",
-      "side": "",
-      "destroyed": false,
-      "defeat": "",
+      "notes": "",
+      "meltdown_timer": null,
       "tier": 1
     },
     "deployable": {
@@ -160,7 +145,7 @@
         "system_mounts": [],
         "weapon_mounts": []
       },
-      "meltdown_imminent": false,
+      "meltdown_timer": null,
       "notes": "",
       "pilot": null
     }

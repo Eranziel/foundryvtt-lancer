@@ -7,18 +7,16 @@ import {
   template_universal_actor,
 } from "./shared";
 
-import { BoundedNumberField, LancerDataModel, UUIDField } from "../shared";
+import { LancerDataModel } from "../shared";
 
 const fields: any = foundry.data.fields;
 
-const mech_schema = {
-  core_energy: new fields.BooleanField({initial: true}),
-  core_active: new fields.BooleanField({initial: false}),
-  overcharge: new fields.NumberField({min: 0, integer: true}),
+const npc_schema = {
+  destroyed: new fields.Boolean({initial: false}),
   meltdown_timer: new fields.NumberField({required: false, nullable: true, integer: true, min: 0}),
   notes: new fields.HTMLField(),
-  pilot: new UUIDField(),
-  repairs: new BoundedNumberField(),
+  tier: new fields.NumberField({min: 1, max: 3, integer: true}),
+
   ...template_universal_actor(),
   ...template_action_tracking(),
   ...template_offenses(),
@@ -27,9 +25,9 @@ const mech_schema = {
   ...template_struss(),
 };
 
-type MechSchema = typeof mech_schema;
-export class MechModel extends LancerDataModel<"MechModel"> {
-  static defineSchema(): MechSchema {
-    return mech_schema;
+type NpcSchema = typeof npc_schema;
+export class NpcModel extends LancerDataModel<"NpcModel"> {
+  static defineSchema(): NpcSchema {
+    return npc_schema;
   }
 }
