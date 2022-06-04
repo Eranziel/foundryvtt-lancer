@@ -6,25 +6,25 @@ import { prepareActionTrackMacro } from "../../macros/action-track";
 import { getActionTrackerOptions, getAutomationOptions } from "../../settings";
 
 export async function handleCombatUpdate(...[combat, changed]: Parameters<Hooks.UpdateDocument<typeof Combat>>) {
-  //if (combat.round === 0 || changed?.round === 0) return;
-  if (!("turn" in changed) && changed.round !== 1) return;
-  if (game.combats!.get(combat.id!)?.data?.combatants.contents.length == 0) return;
+  if (game.user?.isGM) {
+    if (!("turn" in changed) && changed.round !== 1) return;
+    if (game.combats!.get(combat.id!)?.data?.combatants.contents.length == 0) return;
 
-  if (getAutomationOptions().enabled) {
-    // TODO: Update foundryvtt typings.
-    const nextActor = lookup(combat, (combat.current as any).combatantId);
-    const prevActor = lookup(combat, (combat.previous as any).combatantId);
+    if (getAutomationOptions().enabled) {
+      // TODO: Update foundryvtt typings.
+      const nextActor = lookup(combat, (combat.current as any).combatantId);
+      const prevActor = lookup(combat, (combat.previous as any).combatantId);
 
-    // Handle refreshing for next combatant.
-    if (nextActor) {
-      processStartTurn(nextActor);
+      // Handle refreshing for next combatant.
+      if (nextActor) {
+        processStartTurn(nextActor);
+      }
+
+      // Handle end-of-turn for previous combatant.
+      if (prevActor) {
+        processEndTurn(prevActor);
+      }
     }
-
-    // Handle end-of-turn for previous combatant.
-    if (prevActor) {
-      processEndTurn(prevActor);
-    }
-
   }
 }
 
@@ -70,6 +70,6 @@ function refreshReactions(combat: LancerCombat | null) {
       if (comb.actor) {
         modAction(comb.actor, false, "reaction");
       }
-    })
+    });
   }
 }

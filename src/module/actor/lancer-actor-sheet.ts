@@ -50,6 +50,7 @@ import { HANDLER_activate_item_context_menus, HANDLER_activate_edit_counter } fr
 import { number } from "fp-ts";
 import { Any } from "io-ts";
 import { getActionTrackerOptions } from "../settings";
+import { modAction } from "../action/actionTracker";
 const lp = LANCER.log_prefix;
 
 /**
@@ -144,7 +145,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       resolver,
       (entry, _dest, _event) => this.can_root_drop_entry(entry),
       async (entry, _dest, _event) => this.on_root_drop(entry, _event, _dest),
-      () => { }
+      () => {}
     );
   }
 
@@ -242,11 +243,8 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     let elements = html.find(".lancer-action-button");
     elements.on("click", async ev => {
       ev.stopPropagation();
-      if (!game.action_manager) return;
 
       if (game.user?.isGM || getActionTrackerOptions().allowPlayers) {
-        const manager = game.action_manager;
-
         const params = ev.currentTarget.dataset;
         const action = params.action as ActionType | undefined;
         const data = await this.getDataLazy();
@@ -257,7 +255,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
           } else {
             spend = params.val === "true";
           }
-          manager?.modAction(data.actor, spend, action);
+          modAction(data.actor, spend, action);
         }
       } else {
         console.log(`${game.user?.name} :: Users currently not allowed to toggle actions through action manager.`);
@@ -280,7 +278,6 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       ev.stopPropagation(); // Avoids triggering parent event handlers
       prepareStatMacro(this.actor._id, this.getStatPath(ev)!);
     });*/
-
 
     // Weapon rollers
     let weaponMacro = html.find(".roll-attack");
@@ -355,9 +352,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
 
     if (!itemId) throw Error("No item found");
 
-    title = title
-      ?? this.actor.items.get(itemId)?.name
-      ?? "unknown activation";
+    title = title ?? this.actor.items.get(itemId)?.name ?? "unknown activation";
 
     let a = target.getAttribute("data-activation");
     let d = target.getAttribute("data-deployable");
@@ -466,7 +461,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     _item: AnyMMItem | AnyMMActor,
     _event: JQuery.DropEvent,
     _dest: JQuery<HTMLElement>
-  ): Promise<void> { }
+  ): Promise<void> {}
 
   // Override base behavior
   async _onDrop(_evt: DragEvent) {
@@ -628,10 +623,14 @@ export function mod_shared_handler(button: JQuery<HTMLElement>, delta: number) {
     const curr = Number.parseInt(input.prop("value"));
     if (!isNaN(curr)) {
       if (delta > 0) {
-        if (!button[0].dataset['max'] || button[0].dataset['max'] == "-1" || curr + delta <= Number.parseInt(button[0].dataset['max'])) {
+        if (
+          !button[0].dataset["max"] ||
+          button[0].dataset["max"] == "-1" ||
+          curr + delta <= Number.parseInt(button[0].dataset["max"])
+        ) {
           input.prop("value", curr + delta);
         } else {
-          input.prop("value", input[0].dataset['max']);
+          input.prop("value", input[0].dataset["max"]);
         }
       } else if (delta < 0) {
         if (curr + delta >= 0) {

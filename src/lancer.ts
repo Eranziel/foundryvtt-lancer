@@ -242,7 +242,7 @@ Hooks.once("init", async function () {
   CONFIG.statusEffects = statuses;
 
   // Register Web Components
-  customElements.define("card-clipped", class LancerClippedCard extends HTMLDivElement { }, {
+  customElements.define("card-clipped", class LancerClippedCard extends HTMLDivElement {}, {
     extends: "div",
   });
 
