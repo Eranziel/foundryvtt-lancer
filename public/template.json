@@ -469,7 +469,7 @@
       "resource_cost": "",
       "type": "Resources",
       "used": false,
-      "description": "",
+      "description": ""
     },
     "sitrep": {
       "templates": ["universal"],
