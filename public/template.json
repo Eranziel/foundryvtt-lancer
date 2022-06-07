@@ -35,11 +35,6 @@
           "used_reactions": []
         }
       }, 
-      "offenses": {
-        "save": 0,
-        "sensor_range": 0,
-        "tech_attack": 0
-      },
       "heat": {
         "heat": 0
       },      
@@ -95,7 +90,7 @@
       "text_appearance": ""
     },
     "npc": {
-      "templates": ["universal", "action_tracking", "offenses", "heat", "statuses", "struss"],
+      "templates": ["universal", "action_tracking",  "heat", "statuses", "struss"],
       "notes": "",
       "meltdown_timer": null,
       "tier": 1
@@ -124,7 +119,7 @@
       "deployer": null
     },
     "mech": {
-      "templates": ["universal", "action_tracking", "offenses", "heat", "statuses", "struss"],
+      "templates": ["universal", "action_tracking", "heat", "statuses", "struss"],
       "core_active": false,
       "core_energy": true,
       "overcharge": 0,

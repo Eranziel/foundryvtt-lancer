@@ -1,7 +1,6 @@
 import {
   template_action_tracking,
   template_heat,
-  template_offenses,
   template_statuses,
   template_struss,
   template_universal_actor,
@@ -19,7 +18,6 @@ const npc_schema = {
 
   ...template_universal_actor(),
   ...template_action_tracking(),
-  ...template_offenses(),
   ...template_heat(),
   ...template_statuses(),
   ...template_struss(),

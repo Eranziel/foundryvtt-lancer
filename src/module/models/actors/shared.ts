@@ -81,16 +81,6 @@ export function template_bonuses() {
   };
 }
 
-export function template_offenses() {
-  return {
-    bonuses: new fields.SchemaField({
-      save: new fields.NumberField({integer: true, initial: 10, min: 0, nullable: false}),
-      sensor_range: new fields.NumberField({integer: true, initial: 10, min: 0, nullable: false}),
-      tech_attack: new fields.NumberField({integer: true, initial: 0, nullable: false})
-    })
-  };
-}
-
 export function template_heat() {
   return {
     stress: new BoundedNumberField(),

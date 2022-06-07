@@ -1,5 +1,5 @@
 import { EntryType } from "machine-mind";
-import { compendium_lookup_lid } from "../../lid";
+import { compendium_lookup_lid } from "../../util/lid";
 import { LIDField } from "../shared";
 
 // @ts-ignore
@@ -53,7 +53,7 @@ export class TagField extends fields.SchemaField {
     compendium_lookup_lid(value.lid, EntryType.TAG).then(doc => {
       if (doc) {
         rv["name"] = doc.name;
-        rv["description"] = doc.system.description;
+        rv["description"] = doc.data.data.description;
       } else {
         rv["name"] = "MISSINGTAG";
         rv["description"] = `Tag "${value.lid}" was not found in your tag compendium`;
