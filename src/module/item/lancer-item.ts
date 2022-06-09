@@ -87,12 +87,11 @@ declare global {
     Item: LancerItemProperties;
   }
   interface DocumentClassConfig {
-    Item: typeof LancerItem;
+    Item: typeof LancerItem<LancerItemType>;
   }
 }
 
-// export class LancerItem<T extends LancerItemType = LancerItemType> extends Item { 
-export class LancerItem extends Item { 
+export class LancerItem<T extends LancerItemType = LancerItemType> extends Item { 
   /**
    * Returns all ranges for the item that match the provided range types
    */

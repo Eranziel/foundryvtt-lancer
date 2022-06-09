@@ -54,7 +54,7 @@ declare global {
     Actor: LancerActorProperties;
   }
   interface DocumentClassConfig {
-    Actor: typeof LancerActor;
+    Actor: typeof LancerActor<LancerActorType>;
   }
 }
 
