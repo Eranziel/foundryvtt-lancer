@@ -1,7 +1,8 @@
 import { LancerActorSheet } from "./lancer-actor-sheet";
 import { EntryType } from "machine-mind";
-import type { AnyMMActor } from "./lancer-actor";
-import type { AnyMMItem } from "../item/lancer-item";
+import { LancerActor } from "./lancer-actor";
+import { LancerItem } from "../item/lancer-item";
+import { ResolvedDropData } from "../helpers/dragdrop";
 
 /**
  * Extend the basic ActorSheet
@@ -27,9 +28,9 @@ export class LancerDeployableSheet extends LancerActorSheet<EntryType.DEPLOYABLE
   }
 
   // Need to allow this stuff for setting deployable
-  can_root_drop_entry(item: AnyMMActor | AnyMMItem): boolean {
+  can_root_drop_entry(item: ResolvedDropData): boolean {
     // Accept actors
-    return item.Type == EntryType.PILOT || item.Type == EntryType.MECH || item.Type == EntryType.NPC;
+    return item.type == "Actor" && [EntryType.PILOT, EntryType.MECH, EntryType.NPC].includes(item.document.type);
   }
 
   /* -------------------------------------------- */

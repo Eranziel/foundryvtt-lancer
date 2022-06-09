@@ -63,7 +63,7 @@ export const registerSettings = function () {
   game.settings.register(game.system.id, LANCER.setting_welcome, {
     name: "Hide Welcome Message",
     hint: "Hide the welcome message for the latest update to the Lancer system.",
-    scope: "user",
+    scope: "client",
     config: true,
     type: Boolean,
     default: false,
@@ -198,11 +198,11 @@ export function getAutomationOptions(useDefault = false): AutomationOptions {
     remove_templates: false,
   };
   if (useDefault) return def;
-  const set = game.settings.get(game.system.id, LANCER.setting_automation);
-  if (set.enabled ?? true) {
+  const settings = game.settings.get(game.system.id, LANCER.setting_automation) as any ?? {};
+  if (settings == null || (typeof settings == "object" && settings.enabled)) {
     return {
       ...def,
-      ...set,
+      ...settings,
     };
   } else {
     // Return all falses if automation is off

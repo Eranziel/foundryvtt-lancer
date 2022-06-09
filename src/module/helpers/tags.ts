@@ -1,14 +1,15 @@
-import { EntryType, TagInstance, TagTemplate } from "machine-mind";
+import { EntryType } from "machine-mind";
 import { array_path_edit, resolve_dotpath } from "./commons";
 import type { LancerActorSheetData, LancerItemSheetData } from "../interfaces";
-import { HANDLER_enable_mm_dropping, MMDragResolveCache } from "./dragdrop";
+import { DragFetcherCache, HANDLER_enable_doc_dropping } from "./dragdrop";
 import { ref_params } from "./refs";
 import { promptText } from "../apps/simple-prompt";
+import { LancerItem } from "../item/lancer-item";
 
 // A small tag display containing just the label and value
-export function compact_tag(tag_path: string, tag: TagInstance): string {
+export function compact_tag(tag_path: string, tag: LancerItem<EntryType.TAG>): string {
   // Format the {VAL} out of the name
-  let formatted_name = tag.Tag.Name.replace("{VAL}", `${tag.Value ?? "?"}`);
+  let formatted_name = tag.data.data.name.replace("{VAL}", `${tag.data.data.value ?? "?"}`);
   return `<div class="editable-tag-instance valid ref compact-tag flexrow" data-path="${tag_path}" ${ref_params(
     tag.Tag.as_ref()
   )}>
@@ -107,16 +108,16 @@ export function HANDLER_activate_tag_context_menus<T extends LancerActorSheetDat
 // Explicitly designed to handle natives. Generates a tag instance corresponding to that native, with a default value of 1
 // Follows conventional HANDLER design patterns
 export function HANDLER_activate_tag_dropping<T>(
-  resolver: MMDragResolveCache,
+  resolver: DragFetcherCache,
   html: JQuery,
   // Retrieves the data that we will operate on
   data_getter: () => Promise<T> | T,
   commit_func: (data: T) => void | Promise<void>
 ) {
-  HANDLER_enable_mm_dropping(
+  HANDLER_enable_doc_dropping(
     html.find(".tag-list-append"),
     resolver,
-    ent => ent.Type == EntryType.TAG,
+    ent => ent.type == "Item" && ent.document.type == EntryType.TAG, // Ensure its a tag instance
     async (tag_ent, dest, _evt) => {
       // Well, we got a drop!
       let path = dest[0].dataset.path!;

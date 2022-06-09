@@ -1,7 +1,7 @@
-import { populatePilotCache } from "../compcon";
+import { populatePilotCache } from "../util/compcon";
 
 export default class CompconLoginForm extends FormApplication {
-  constructor(object: any, options = {}) {
+  constructor(object?: any, options = {}) {
     super(object, options);
   }
   static get defaultOptions(): FormApplication.Options {

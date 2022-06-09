@@ -9,9 +9,6 @@ import { LancerActorType } from "./actor/lancer-actor";
 
 // These single generic type should cover all basic sheet use cases
 export interface LancerItemSheetData<T extends LancerItemType> extends ItemSheet.Data<ItemSheet.Options> {
-  // reg ctx
-  mm: LiveEntryTypes<T>;
-
   // The license, if it could be recovered
   license: License | null;
 }
@@ -24,11 +21,8 @@ export type CachedCloudPilot = {
 };
 
 export interface LancerActorSheetData<T extends LancerActorType> extends ActorSheet.Data<ActorSheet.Options> {
-  // Item
-  mm: LiveEntryTypes<T>;
-
   // Store active mech at the root level
-  active_mech: Mech | null;
+  active_mech: LancerActor | null;
   // Store cloud pilot cache and potential cloud ids at the root level
   pilotCache: CachedCloudPilot[];
   cleanedOwnerID: string;
@@ -125,7 +119,7 @@ export interface GenControlContext<T> {
   // Deduced information
   data: T; // Typically the sheet data
   path_target: null | any; // What path resolved to on data, if anything
-  item_override: AnyMMActor | AnyMMItem | null;
+  item_override: Document | null;
   parsed_val?: any; // Parsed version of raw_val
 
   // For hooks to use

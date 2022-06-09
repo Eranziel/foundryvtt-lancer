@@ -1,5 +1,4 @@
 import type { EntryType, LicensedItem } from "machine-mind";
-import { FoundryReg } from "../mm-util/foundry-reg";
 import { LancerItemSheet } from "./item-sheet";
 import { HANDLER_activate_item_context_menus } from "../helpers/item";
 import { LancerItemSheetData } from "../interfaces";
@@ -22,11 +21,9 @@ export class LancerLicenseSheet extends LancerItemSheet<EntryType.LICENSE> {
 
   async getData() {
     let sup = await super.getData();
+    // TODO
+    /*
 
-    // Perform a scan of the compendium
-    let comp_reg = new FoundryReg("comp_core");
-    console.warn("Todo: also allow scan to hit any other compendiums"); // They just gotta be provided in the scan array argument
-    let scan = await sup.mm.scan([comp_reg], sup.mm.OpCtx);
 
     // Build an unlocks array
     let ranks = Array.from(scan.ByLevel.keys()).sort();
@@ -42,6 +39,7 @@ export class LancerLicenseSheet extends LancerItemSheet<EntryType.LICENSE> {
 
     // Pass it along
     return sup;
+    */
   }
 
   /**

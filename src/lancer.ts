@@ -22,7 +22,7 @@ import {
 } from "./module/config";
 import { LancerActor } from "./module/actor/lancer-actor";
 import { LancerItem } from "./module/item/lancer-item";
-import { populatePilotCache } from "./module/compcon";
+import { populatePilotCache } from "./module/util/compcon";
 
 import { action_type_selector } from "./module/helpers/npc";
 
@@ -58,7 +58,6 @@ tippy.setDefaultProps({ theme: "lancer-small", arrow: false, delay: [400, 200] }
 // tippy.setDefaultProps({ theme: "lancer", arrow: false, delay: [400, 200], hideOnClick: false, trigger: "click"});
 
 // Import node modules
-import * as mm from "machine-mind";
 import { EntryType, Bonus, funcs } from "machine-mind";
 import {
   resolve_helper_dotpath,
@@ -146,13 +145,13 @@ import { handleCombatUpdate } from "./module/helpers/automation/combat";
 import { handleActorExport, validForExport } from "./module/helpers/io";
 import { runEncodedMacro } from "./module/macros";
 import { LancerToken, LancerTokenDocument } from "./module/token";
-import { FoundryReg } from "./module/mm-util/foundry-reg";
 import { applyGlobalDragListeners } from "./module/helpers/dragdrop";
 import { gridDist } from "./module/helpers/automation/targeting";
 import CompconLoginForm from "./module/helpers/compcon-login-form";
 import { LancerCombat, LancerCombatant, LancerCombatTracker } from "lancer-initiative";
 import { LancerCombatTrackerConfig } from "./module/helpers/lancer-initiative-config-form";
 import { MechModel } from "./module/models/actors/mech";
+import { MechSystemModel } from "./module/models/items/mech_system";
 
 const lp = LANCER.log_prefix;
 
@@ -224,27 +223,22 @@ Hooks.once("init", async function () {
     // For whitespines testing /('o')/
     tmp: {
       finishedInit: false,
-    },
-    utilities: {
-      reg: FoundryReg,
-      ctx: mm.OpCtx,
-      mm,
-    },
+    }
   };
 
   // Record Configuration Values
   CONFIG.Actor.documentClass = LancerActor;
-  CONFIG.Item.documentClass = LancerItem;
+  // CONFIG.Item.documentClass = LancerItem;
   CONFIG.Token.documentClass = LancerTokenDocument;
   CONFIG.Token.objectClass = LancerToken;
   CONFIG.Combat.documentClass = LancerCombat;
   CONFIG.Combatant.documentClass = LancerCombatant;
-  // @ts-expect-error Because of mismatched versions of types
   CONFIG.ui.combat = LancerCombatTracker;
 
   // Set up system status icons
   const keepStock = game.settings.get(game.system.id, LANCER.setting_stock_icons);
-  let statuses: { id: string; label: string; icon: string }[] = [];
+  // @ts-expect-error This typing exists in the v9 types, remove this then
+  let statuses: StatusEffect[] = [];
   if (keepStock) statuses = statuses.concat(CONFIG.statusEffects);
   statuses = statuses.concat(STATUSES);
   CONFIG.statusEffects = statuses;
@@ -535,44 +529,6 @@ Hooks.once("init", async function () {
   });
 });
 
-// TODO: either remove when sanity check is no longer needed, or find a better home.
-function sleep(ms: number) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-/**
- * Override model to have our derived trackable values, without putting them in template.json and thus compromising
- * our data model with derived junk
- */
-Hooks.once("setup", function () {
-  let orig_gta = TokenDocument.getTrackedAttributes;
-  TokenDocument.getTrackedAttributes = function (data: any, _path: any = []) {
-    // We pre-empt the
-    if (!data) {
-      data = {};
-      for (let model of Object.values(game.system.model.Actor)) {
-        mergeObject(data, model);
-
-        // Here's the custom behavior: add our derived data
-        let bar_like = { value: 0, max: 0 };
-        let derived = {
-          edef: 8,
-          evasion: 5,
-          save_target: 0,
-          heat: bar_like,
-          hp: bar_like,
-          overshield: bar_like,
-          structure: bar_like,
-          stress: bar_like,
-          repairs: bar_like,
-        };
-        mergeObject(data, { derived });
-      }
-    }
-    return orig_gta.call(this, data, _path);
-  };
-});
-
 /* ------------------------------------ */
 /* When ready                           */
 /* ------------------------------------ */
@@ -796,7 +752,7 @@ function setupSheets() {
  */
 async function versionCheck(): Promise<"none" | "minor" | "major"> {
   // Determine whether a system migration is required and feasible
-  const currentVersion = game.settings.get(game.system.id, LANCER.setting_migration);
+  const currentVersion = game.settings.get(game.system.id, LANCER.setting_migration) as string | null ?? "";
 
   // If it's 0 then it's a fresh install
   if (currentVersion === "0" || currentVersion === "") {
@@ -822,7 +778,7 @@ async function versionCheck(): Promise<"none" | "minor" | "major"> {
  */
 async function doMigration() {
   // Determine whether a system migration is required and feasible
-  const currentVersion = game.settings.get(game.system.id, LANCER.setting_migration);
+  const currentVersion = game.settings.get(game.system.id, LANCER.setting_migration) as string | null ?? "";
   let migration = await versionCheck();
   // Check whether system has been updated since last run.
   if (migration != "none" && game.user!.isGM) {

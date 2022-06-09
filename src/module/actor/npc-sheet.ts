@@ -2,13 +2,14 @@ import type { GenControlContext, LancerActorSheetData, LancerStatMacroData } fro
 import { LANCER } from "../config";
 import { LancerActorSheet } from "./lancer-actor-sheet";
 import { prepareItemMacro, prepareStatMacro } from "../macros";
-import { EntryType, Npc, NpcClass, NpcFeature, NpcTemplate } from "machine-mind";
+import { EntryType } from "machine-mind";
 import tippy from "tippy.js";
-import { AnyMMItem, is_item_type, LancerItemType } from "../item/lancer-item";
-import type { AnyMMActor } from "./lancer-actor";
-import { mm_resort_item } from "../mm-util/helpers";
+import { LancerItem, is_item_type, LancerItemType } from "../item/lancer-item";
+import { insinuate, resort_item } from "../util/doc";
 import { resolve_ref_element } from "../helpers/refs";
 import { HANDLER_activate_general_controls } from "../helpers/commons";
+import { LancerActor } from "./lancer-actor";
+import { DropHandlerFunc, ResolvedDropData } from "../helpers/dragdrop";
 const lp = LANCER.log_prefix;
 
 /**
@@ -137,7 +138,7 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
 
   // So it can be overridden
   activate_general_controls(html: JQuery) {
-    let getfunc = () => this.getDataLazy();
+    let getfunc = () => this.getData();
     let commitfunc = (_: any) => this._commitCurrMM();
 
     // Enable NPC class/template-deletion controls
@@ -146,42 +147,50 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
 
   /* -------------------------------------------- */
 
-  can_root_drop_entry(item: AnyMMItem | AnyMMActor): boolean {
+  can_root_drop_entry(drop: ResolvedDropData): boolean {
     // Reject any non npc item
-    if (!LANCER.npc_items.includes(item.Type as LancerItemType)) {
-      return false;
-    }
-
-    // TODO: should the commented code be reinstated?
-    // Reject any non-null, non-owned-by us item
-    // let owner = mm_owner(item);
-    // return !owner || owner == this.actor;
-    return true;
+    return drop.type == "Item" && LANCER.npc_items.includes(drop.document.type);
   }
 
   // Take ownership of appropriate items. Already filtered by can_drop_entry
   async on_root_drop(
-    base_drop: AnyMMItem | AnyMMActor,
+    base_drop: ResolvedDropData,
     event: JQuery.DropEvent,
     _dest: JQuery<HTMLElement>
   ): Promise<void> {
-    let sheet_data = await this.getDataLazy();
-    let this_mm = sheet_data.mm;
-    let ctx = this.getCtx();
+    // Type guard
+    if(!this.actor.is_npc()) return;
 
     // Take posession
-    let [drop, is_new] = await this.quick_own(base_drop);
+    let [drop, is_new] = await this.quick_own_drop(base_drop);
 
     // Flag to know if we need to reset stats
     let needs_refresh = false;
 
     // Bring in base features from templates
-    if (is_new && drop.Type == EntryType.NPC_TEMPLATE) {
-      let this_inv = await this_mm.get_inventory();
-      for (let feat of drop.BaseFeatures) {
-        await feat.insinuate(this_inv, ctx);
+    if (is_new && drop.type == "Item") {
+      let doc = drop.document;
+
+      // Mark replaced classes for deletion
+      let delete_targets = [];
+      if (doc.is_npc_class() && this.actor.data.data.class) {
+        // If we have a class, get rid of it
+        let class_data = this.actor.data.data.class.data.data;
+        let class_features = findMatchingFeaturesInNpc(this.actor, [...class_data.base_features, ...class_data.optional_features);
+        delete_targets.push(...class_features.map(f => f.id));
       }
-      needs_refresh = true;
+
+      // And add all new features
+      if(doc.is_npc_template() || doc.is_npc_class()) {
+        for (let feat of doc.base_features) {
+          await insinuate(feat, this.actor);
+        }
+        needs_refresh = true;
+      }
+      if(doc.is_npc_class()) {
+
+        await this.actor.swapFrameImage(this_mm, this_mm.ActiveClass, drop);
+      }
     } else if (is_new && drop.Type == EntryType.NPC_CLASS) {
       // Bring in base features from classes, if we don't already have an active class
       let this_inv = await this_mm.get_inventory();
@@ -189,15 +198,8 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
       
       // Need to pass this_mm through so we don't overwrite data on our 
       // later update
-      await this.actor.swapFrameImage(this_mm, this_mm.ActiveClass, drop);
 
       // But before we do that, destroy all old classes
-      for (let clazz of this_mm.Classes) {
-        // If we have a class, get rid of it
-        await removeFeaturesFromNPC(this_mm, [...clazz.BaseFeatures, ...clazz.OptionalFeatures]);
-        await clazz.destroy_entry();
-      }
-
       for (let b of drop.BaseFeatures) {
         await b.insinuate(this_inv, ctx);
       }
@@ -227,7 +229,7 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
         // ok, now try to resolve it
         let target = await resolve_ref_element(nearest[0], ctx);
         if (target && is_item_type(target.Type)) {
-          mm_resort_item(drop, target as AnyMMItem);
+          mm_resort_item(drop, target as LancerItem);
         }
       }
     }
@@ -244,20 +246,25 @@ function getStatInput(event: Event): HTMLInputElement | HTMLDataElement | null {
 
 // Removes class/features when a delete happens
 function handleClassDelete(ctx: GenControlContext<LancerActorSheetData<EntryType.NPC>>) {
-  let npc = ctx.data.mm;
   if (ctx.action == "delete") {
-    if (ctx.path_target instanceof NpcClass || ctx.path_target instanceof NpcTemplate) {
-      removeFeaturesFromNPC(npc, [...ctx.path_target.BaseFeatures, ...ctx.path_target.OptionalFeatures]);
+    let pt = ctx.path_target;
+    if (pt instanceof LancerItem && (pt.is_npc_template() || pt.is_npc_class()) {
+      let matches = findMatchingFeaturesInNpc(ctx.data.actor, [...pt.base_features, ...pt.optional_features]);
+      ctx.data.actor.deleteEmbeddedDocuments("Item", matches.map(m => m.id));
     }
   }
 }
 
-export async function removeFeaturesFromNPC(npc: Npc, features: NpcFeature[]) {
+// Given a list of npc features, return the corresponding entries on the provided npc
+export function findMatchingFeaturesInNpc(npc: LancerActor<EntryType.NPC>, features: LancerItem<EntryType.NPC_FEATURE>[]): LancerItem<EntryType.NPC_FEATURE>[] {
+  if(!npc.is_npc()) return [];
+  let result = [];
   for (let predicate_feature of features) {
-    for (let candidate_feature of npc.Features) {
-      if (candidate_feature.LID == predicate_feature.LID) {
-        await candidate_feature.destroy_entry();
+    for (let candidate_feature of npc.data.data.features) {
+      if (candidate_feature.data.data.lid == predicate_feature.data.data.lid) {
+        result.push(candidate_feature); 
       }
     }
   }
+  return result;
 }

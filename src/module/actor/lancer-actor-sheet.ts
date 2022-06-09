@@ -5,7 +5,7 @@ import {
   resolve_dotpath,
   HANDLER_activate_popout_text_editor,
 } from "../helpers/commons";
-import { HANDLER_enable_mm_dropping, MMDragResolveCache } from "../helpers/dragdrop";
+import { dragResolverCache, HANDLER_enable_doc_dropping, NewDropData, ResolvedDropData } from "../helpers/dragdrop";
 import {
   HANDLER_activate_ref_dragging,
   HANDLER_activate_ref_drop_clearing,
@@ -14,8 +14,8 @@ import {
   HANDLER_activate_uses_editor,
 } from "../helpers/refs";
 import type { LancerActorSheetData, LancerMacroData, LancerStatMacroData } from "../interfaces";
-import type { AnyMMItem } from "../item/lancer-item";
-import { AnyMMActor, is_actor_type, LancerActor, LancerActorType } from "./lancer-actor";
+import { LancerItem, is_item_type, LancerItemType } from "../item/lancer-item";
+import { LancerActor, is_actor_type, LancerActorType } from "./lancer-actor";
 import {
   encodeMacroData,
   prepareActivationMacro,
@@ -42,12 +42,11 @@ import { ActivationOptions } from "../enums";
 import { applyCollapseListeners, CollapseHandler } from "../helpers/collapse";
 import { HANDLER_intercept_form_changes } from "../helpers/refs";
 import { addExportButton } from "../helpers/io";
-import type { FoundryFlagData } from "../mm-util/foundry-reg";
-import { mm_owner } from "../mm-util/helpers";
 import type { ActionType } from "../action";
 import { InventoryDialog } from "../apps/inventory";
 import { HANDLER_activate_item_context_menus, HANDLER_activate_edit_counter } from "../helpers/item";
 import { number } from "fp-ts";
+import { insinuate, LancerDoc } from "../util/doc";
 const lp = LANCER.log_prefix;
 
 /**
@@ -95,7 +94,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     // Make +/- buttons work
     this._activatePlusMinusButtons(html);
 
-    let getfunc = () => this.getDataLazy();
+    let getfunc = () => this.getData();
     let commitfunc = (_: any) => this._commitCurrMM();
 
     // Enable hex use triggers.
@@ -108,15 +107,14 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     this._activateInventoryButton(html);
 
     // Make our resolver
-    let ctx = this.getCtx();
-    let resolver = new MMDragResolveCache(ctx);
+    let resolver = dragResolverCache();
 
     // Make refs droppable, in such a way that we take ownership when dropped
     HANDLER_activate_ref_drop_setting(
       resolver,
       html,
       this.can_root_drop_entry,
-      async x => (await this.quick_own(x))[0],
+      x => this.quick_own_drop(x).then(v => v[0]),
       getfunc,
       commitfunc
     );
@@ -137,7 +135,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     addExportButton(this.object, html);
 
     // Add root dropping
-    HANDLER_enable_mm_dropping(
+    HANDLER_enable_doc_dropping(
       html,
       resolver,
       (entry, _dest, _event) => this.can_root_drop_entry(entry),
@@ -148,7 +146,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
 
   // So it can be overridden
   activate_general_controls(html: JQuery) {
-    let getfunc = () => this.getDataLazy();
+    let getfunc = this.getData;
     let commitfunc = (_: any) => this._commitCurrMM();
     HANDLER_activate_general_controls(html, getfunc, commitfunc);
   }
@@ -216,7 +214,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       ev.stopPropagation();
 
       const params = ev.currentTarget.dataset;
-      const data = await this.getDataLazy();
+      const data = this.getData();
       if (params.path && params.writeback) {
         const item = resolve_dotpath(data, params.path) as Counter;
         const writeback = resolve_dotpath(data, params.writeback) as RegEntry<any>;
@@ -247,7 +245,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
 
         const params = ev.currentTarget.dataset;
         const action = params.action as ActionType | undefined;
-        const data = await this.getDataLazy();
+        const data = await this.getData();
         if (action && params.val) {
           let spend: boolean;
           if (params.action === "move") {
@@ -377,7 +375,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     // send as a generated macro:
     let macroData: LancerMacroData = {
       iconPath: `systems/${game.system.id}/assets/icons/macro-icons/mech_system.svg`,
-      title: title,
+      title: title!,
       fn: "prepareActivationMacro",
       args: [this.actor.id!, itemId, activationOption, activationIndex],
     };
@@ -459,14 +457,14 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
   // A grand filter that pre-decides if we can drop an item ref anywhere within this sheet. Should be implemented by child sheets
   // We generally assume that a global item is droppable if it matches our types, and that an owned item is droppable if it is owned by this actor
   // This is more of a permissions/suitability question
-  can_root_drop_entry(_item: AnyMMItem | AnyMMActor): boolean {
+  can_root_drop_entry(_item: ResolvedDropData): boolean {
     return false;
   }
 
   // This function is called on any dragged item that percolates down to root without being handled
   // Override/extend as appropriate
   async on_root_drop(
-    _item: AnyMMItem | AnyMMActor,
+    _item: ResolvedDropData,
     _event: JQuery.DropEvent,
     _dest: JQuery<HTMLElement>
   ): Promise<void> {}
@@ -479,19 +477,10 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
   // Makes us own (or rather, creates an owned copy of) the provided item if we don't already.
   // The second return value indicates whether a new copy was made (true), or if we already owned it/it is an actor (false)
   // Note: this operation also fixes limited to be the full capability of our actor
-  async quick_own<T extends EntryType>(entry: LiveEntryTypes<T>): Promise<[LiveEntryTypes<T>, boolean]> {
-    // Actors are unaffected
-    if (is_actor_type(entry.Type)) {
-      return [entry, false];
-    }
-
-    if (mm_owner(entry as AnyMMItem) != this.actor) {
-      let sheet_data = await this.getDataLazy();
-      let this_mm = sheet_data.mm;
-      let ctx = this.getCtx();
-      let inv = await this_mm.get_inventory();
-
-      let result = await entry.insinuate(inv, ctx, {
+  async quick_own<T extends LancerItemType>(document: LancerItem<T>): Promise<[LancerItem<T>, boolean]> {
+    if (document.parent != this.actor) {
+      let [result] = await insinuate([document], this.actor);
+        /* TODO
         pre_final_write: rec => {
           // Pull a sneaky: set the limited value to max before insinuating
           if (funcs.is_tagged(rec.pending) && (rec.pending as any).Uses != undefined) {
@@ -499,15 +488,30 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
             as_lim.Uses = funcs.limited_max(as_lim) + (this_mm instanceof Mech ? this_mm.LimitedBonus : 0);
           }
         },
-      });
-      return [result as LiveEntryTypes<T>, true];
+        */
+      return [result, false];
     } else {
       // Its already owned
-      return [entry, false];
+      return [document, false];
+    }
+  }
+
+  // As quick_own, but for any drop 
+  async quick_own_drop(drop: ResolvedDropData): Promise<[ResolvedDropData, boolean]> {
+    if(drop.type == "Item") {
+      let [v, n] = await this.quick_own(drop.document);
+      return [{
+        type: "Item",
+        document: v  
+      }, n];
+    } else {
+      return [drop, false];
     }
   }
 
   _propagateMMData(formData: any): any {
+    // TODO: This isn't relevant anymore
+
     // Pushes relevant field data from the form to other appropriate locations,
     // e.x. to synchronize name between token and actor
     let token = this.actor.data["token"];
@@ -544,9 +548,6 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
    * @private
    */
   async _updateObject(_event: Event, formData: any): Promise<LancerActor | undefined> {
-    // Fetch the curr data
-    let ct = await this.getDataLazy();
-
     // Bound NPC tier as it is one of the most frequent sheet breakers. TODO: more general solution
     if ("npctier" in formData) {
       formData["mm.Tier"] = Number.parseInt(formData["npctier"]) || 1;
@@ -556,9 +557,12 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     let new_top = this._propagateMMData(formData);
 
     // Combine the data, making sure to propagate the "top level data" to the appropriate location in flags
+    // TODO:
+    /*
     gentle_merge(ct, formData);
     mergeObject((ct.mm.Flags as FoundryFlagData<any>).top_level_data, new_top);
     await this._commitCurrMM();
+    */
     return this.actor;
   }
 
@@ -569,29 +573,15 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
   async getData(): Promise<LancerActorSheetData<T>> {
     const data = await super.getData(); // Not fully populated yet!
 
-    // Drag up the mm context (when ready) to a top level entry in the sheet data
-    // @ts-ignore T doesn't narrow this.actor.data
-    data.mm = await this.actor.data.data.derived.mm_promise;
-
-    // Also wait for all of their items
-    for (let i of this.actor.items.contents) {
-      await i.data.data.derived?.mm_promise; // The ? is necessary in case of a foundry internal race condition
-    }
-
     console.log(`${lp} Rendering with following actor ctx: `, data);
-    this._currData = data;
     return data;
-  }
-  // Cached getdata
-  protected _currData: LancerActorSheetData<T> | null = null;
-  async getDataLazy(): Promise<LancerActorSheetData<T>> {
-    return this._currData ?? (await this.getData());
   }
 
   // Write back our currently cached _currData, then refresh this sheet
   // Useful for when we want to do non form-based alterations
   async _commitCurrMM() {
-    console.log("Committing ", this._currData);
+    ui.notifications?.error("Sheet writeback is broken");
+    /*
     let cd = this._currData;
     this._currData = null;
     await cd?.mm.writeback();
@@ -600,11 +590,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     if (this.actor.compendium) {
       this.render();
     }
-  }
-
-  // Get the ctx that our actor + its items reside in
-  getCtx(): OpCtx {
-    return (this.actor as LancerActor)._actor_ctx;
+    */
   }
 }
 function rollStatMacro(_actor: unknown, _mData: LancerStatMacroData) {

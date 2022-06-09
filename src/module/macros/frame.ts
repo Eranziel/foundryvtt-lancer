@@ -15,8 +15,7 @@ export async function prepareCoreActiveMacro(a: string) {
   let actor = getMacroSpeaker(a);
   if (!actor || !actor.is_mech()) return;
 
-  let mech = await actor.data.data.derived.mm_promise;
-  if (!mech.Frame) return;
+  if (!actor.data.data.loadout.frame) return;
 
   if (!mech.CurrentCoreEnergy) {
     ui.notifications!.warn(`No core power remaining on this frame!`);

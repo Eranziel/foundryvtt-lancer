@@ -200,3 +200,24 @@ export class LancerActiveEffect extends ActiveEffect {
     return categories;
   }
 }
+
+
+// To support our effect passdown
+export const AE_MODE_SET_JSON = 11;
+export const AE_MODE_APPEND_JSON = 12;
+Hooks.on("applyActiveEffect", function (actor: LancerActor, change: EffectChangeData, current: any, _delta: any, _changes: any) {
+  if(change.mode == AE_MODE_SET_JSON || change.mode == AE_MODE_APPEND_JSON) {
+    try {
+      let parsed_delta = JSON.parse(change.value);
+      // Ok, now set it to wherever it was labeled
+      if(change.mode == AE_MODE_SET_JSON) {
+        foundry.utils.setProperty(actor.data, change.key, parsed_delta);
+      } else if(change.mode == AE_MODE_APPEND_JSON) {
+        foundry.utils.getProperty(actor.data, change.key).push(parsed_delta);
+      }
+    } catch (e) { 
+      // Nothing to do really, except log it
+      console.warn(`Data transfer active effect corrupted, ${change.value}`);
+    }
+  }
+});

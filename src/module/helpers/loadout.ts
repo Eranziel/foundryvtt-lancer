@@ -18,7 +18,7 @@ import type { LancerMacroData } from "../interfaces";
 import { encodeMacroData } from "../macros";
 import { inc_if, resolve_helper_dotpath, array_path_edit } from "./commons";
 import { mech_weapon_refview, buildActionHTML, buildDeployableHTML, buildChipHTML } from "./item";
-import { editable_mm_ref_list_item, ref_commons, ref_params, simple_mm_ref } from "./refs";
+import { editable_mm_ref_list_item, ref_doc_common_attrs, ref_params, simple_mm_ref } from "./refs";
 import { compact_tag_list } from "./tags";
 import type { LancerActor } from "../actor/lancer-actor";
 
@@ -180,7 +180,7 @@ export function pilot_slot(data_path: string, options: HelperOptions): string {
   if (!existing) return simple_mm_ref(EntryType.PILOT, existing, "No Pilot", data_path, true);
 
   // Generate commons
-  let cd = ref_commons(existing);
+  let cd = ref_doc_common_attrs(existing);
   if (!cd) return simple_mm_ref(EntryType.PILOT, existing, "No Pilot", data_path, true);
 
   return `<div class="pilot-summary">
@@ -206,7 +206,7 @@ export function mech_frame_refview(actor: LancerActor, frame_path: string, helpe
   if (!frame) return simple_mm_ref(EntryType.FRAME, frame, "No Frame", frame_path, true);
 
   // Generate commons
-  let cd = ref_commons(frame);
+  let cd = ref_doc_common_attrs(frame);
   if (!cd) return simple_mm_ref(EntryType.FRAME, frame, "No Frame", frame_path, true);
 
   return `

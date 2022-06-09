@@ -61,7 +61,7 @@ import {
   std_x_of_y,
   tippy_context_menu,
 } from "./commons";
-import { limited_uses_indicator, ref_commons, ref_params, resolve_ref_element } from "./refs";
+import { limited_uses_indicator, ref_params, resolve_ref_element } from "./refs";
 import { ActivationOptions, ChipIcons } from "../enums";
 import type { LancerActorSheetData, LancerItemSheetData, LancerMacroData } from "../interfaces";
 import { encodeMacroData } from "../macros";
@@ -70,8 +70,6 @@ import type { CollapseRegistry } from "./loadout";
 import { uuid4 } from "./collapse";
 import { promptText } from "../apps/simple-prompt";
 import { CounterEditForm } from "../apps/counter-editor";
-import { FoundryFlagData } from "../mm-util/foundry-reg";
-import { is_reg_pilot } from "../actor/lancer-actor";
 import { frameToPath } from "../actor/retrograde-map";
 import { InventoryDialogData } from "../apps/inventory";
 
@@ -422,7 +420,7 @@ export function pilot_armor_slot(armor_path: string, helper: HelperOptions): str
   let armor_: PilotArmor | null = resolve_helper_dotpath(helper, armor_path);
 
   // Generate commons
-  let cd = ref_commons(armor_);
+  let cd = ref_doc_common_attrs(armor_);
 
   if (!cd) {
     // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
@@ -487,7 +485,7 @@ export function pilot_weapon_refview(weapon_path: string, helper: HelperOptions)
   let weapon_: PilotWeapon | null = resolve_helper_dotpath(helper, weapon_path);
 
   // Generate commons
-  let cd = ref_commons(weapon_);
+  let cd = ref_doc_common_attrs(weapon_);
 
   if (!cd) {
     // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
@@ -547,7 +545,7 @@ export function pilot_gear_refview(gear_path: string, helper: HelperOptions): st
   let gear_: PilotGear | null = resolve_dotpath(helper.data?.root, gear_path);
 
   // Generate commons
-  let cd = ref_commons(gear_);
+  let cd = ref_doc_common_attrs(gear_);
 
   if (!cd) {
     // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
@@ -609,7 +607,7 @@ export function mech_weapon_refview(
   let mod: WeaponMod | null = resolve_helper_dotpath(options, mod_path);
 
   // Generate commons
-  let cd = ref_commons(weapon_);
+  let cd = ref_doc_common_attrs(weapon_);
 
   if (!cd) {
     // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
@@ -623,7 +621,7 @@ export function mech_weapon_refview(
   }
 
   let mod_text: string = "";
-  let cd_mod = ref_commons(mod);
+  let cd_mod = ref_doc_common_attrs(mod);
   if (cd_mod && mod) {
     mod_text = weapon_mod_ref(mod_path, weapon_path, options);
   } else {
@@ -748,7 +746,7 @@ export function loading_indicator(loaded: boolean, weapon_path: string): string 
 
 export function weapon_mod_ref(mod_path: string, weapon_path: string | null, options: HelperOptions): string {
   let mod: WeaponMod | null = resolve_helper_dotpath(options, mod_path);
-  let cd = ref_commons(mod);
+  let cd = ref_doc_common_attrs(mod);
   if (!mod || !cd) return "";
 
   let sp = mod.SP ? sp_display(mod.SP ? mod.SP : 0) : "";
@@ -816,7 +814,7 @@ export function weapon_mod_ref(mod_path: string, weapon_path: string | null, opt
 // A specific MM ref helper focused on displaying manufacturer info.
 export function manufacturer_ref(source_path: string, helper: HelperOptions): string {
   let source_: Manufacturer | null = resolve_helper_dotpath(helper, source_path);
-  let cd = ref_commons(source_);
+  let cd = ref_doc_common_attrs(source_);
   // TODO? maybe do a little bit more here, aesthetically speaking
   if (cd) {
     let source = source_!;
@@ -839,7 +837,7 @@ export function manufacturer_ref(source_path: string, helper: HelperOptions): st
 // A specific MM ref helper focused on displaying license info.
 // This if for display purposes and does not provide editable fields
 export function license_ref(license: License | null, level: number, item_path?: string): string {
-  let cd = ref_commons(license);
+  let cd = ref_doc_common_attrs(license);
   if (cd === null) {
     return `<div class="valid ${EntryType.LICENSE} ref ref-card"> 
               <h3 class="license-name">${license!.Name} ${level}</h3>
@@ -862,7 +860,7 @@ export function license_ref(license: License | null, level: number, item_path?: 
 }
 
 export function frame_ref(frame: Frame | null, item_path?: string): string {
-  let cd = ref_commons(frame);
+  let cd = ref_doc_common_attrs(frame);
   if (!cd || !frame) {
     return "";
   } else {
@@ -883,7 +881,7 @@ export function frame_ref(frame: Frame | null, item_path?: string): string {
 }
 
 export function npc_class_ref(npc_class: NpcClass | null, item_path?: string): string {
-  let cd = ref_commons(npc_class);
+  let cd = ref_doc_common_attrs(npc_class);
   if (!cd || !npc_class) {
     return "";
   } else {
@@ -904,7 +902,7 @@ export function npc_class_ref(npc_class: NpcClass | null, item_path?: string): s
 }
 
 export function npc_template_ref(npc_tmpl: NpcTemplate | null, item_path?: string): string {
-  let cd = ref_commons(npc_tmpl);
+  let cd = ref_doc_common_attrs(npc_tmpl);
   if (!cd || !npc_tmpl) {
     return "";
   } else {

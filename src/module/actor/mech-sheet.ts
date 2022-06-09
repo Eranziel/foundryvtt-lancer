@@ -2,9 +2,10 @@ import { LANCER } from "../config";
 import { LancerActorSheet } from "./lancer-actor-sheet";
 import { EntryType, MountType, SystemMount, WeaponMount } from "machine-mind";
 import { resolve_dotpath } from "../helpers/commons";
-import type { AnyMMItem, LancerItemType } from "../item/lancer-item";
+import type { LancerItem, LancerItemType } from "../item/lancer-item";
 import tippy from "tippy.js";
-import type { AnyMMActor } from "./lancer-actor";
+import type { LancerActor } from "./lancer-actor";
+import { ResolvedDropData } from "../helpers/dragdrop";
 
 /**
  * Extend the basic ActorSheet
@@ -58,30 +59,28 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
     });
   }
 
-  can_root_drop_entry(item: AnyMMActor | AnyMMItem): boolean {
+  can_root_drop_entry(item: ResolvedDropData): boolean {
     // Reject any non npc / non pilot item
-    if (item.Type == EntryType.PILOT) {
+    if (item.type == "Actor" && item.document.is_pilot()) {
       // For setting pilot
       return true;
+    } else if (item.type == "Item") {
+      return LANCER.mech_items.includes(item.document.type);
+    } else {
+      return false;
     }
-
-    return LANCER.mech_items.includes(item.Type as LancerItemType);
   }
 
-  async on_root_drop(base_drop: AnyMMItem | AnyMMActor): Promise<void> {
-    let sheet_data = await this.getDataLazy();
-    let this_mm = sheet_data.mm;
-
-    console.log("Mech dropping");
+  async on_root_drop(base_drop: ResolvedDropData): Promise<void> {
     // Take posession
-    let [drop, is_new] = await this.quick_own(base_drop);
+    let [drop, is_new] = await this.quick_own_drop(base_drop);
 
     // Now, do sensible things with it
-    if (is_new && drop.Type === EntryType.FRAME) {
+    // TODO
+      /*
+    if (is_new && drop.type == "Item" && drop.document.is_frame() && this.actor.is_mech()) {
       // If new frame, auto swap with prior frame
-      // Need to pass this_mm through so we don't overwrite data on our
-      // later update
-      await this.actor.swapFrameImage(this_mm, this_mm.Loadout.Frame, drop);
+      await this.actor.swapFrameImage(this.actor, this.actor.data.data.loadout.frame, drop);
       this_mm.Loadout.Frame = drop;
 
       // Reset mounts
@@ -97,6 +96,7 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
 
     // Writeback when done. Even if nothing explicitly changed, probably good to trigger a redraw (unless this is double-tapping? idk)
     await this_mm.writeback();
+      */
   }
 
   /**
@@ -125,9 +125,8 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
    * @param level Level to set overcharge to
    */
   async _setOverchargeLevel(_event: JQuery.ClickEvent, level: number) {
-    let data = await this.getDataLazy();
-    let mech = data.mm;
-    mech.OverchargeCount = level;
+    let a = this.actor as LancerActor<EntryType.MECH>;
+    a.data.data.overcharge_level = level;
     await this._commitCurrMM();
   }
 
@@ -157,7 +156,7 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
         icon: "",
         // condition: game.user.isGM,
         callback: async (html: JQuery) => {
-          let cd = await this.getDataLazy();
+          let cd = await this.getData();
           let mount_path = html[0].dataset.path ?? "";
 
           // Get the current mount
@@ -182,7 +181,7 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
       name: "Superheavy Bracing",
       icon: "",
       callback: async (html: JQuery) => {
-        let cd = await this.getDataLazy();
+        let cd = await this.getData();
         let mount_path = html[0].dataset.path ?? "";
 
         // Get the current mount
@@ -209,7 +208,7 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
     evt: JQuery.ClickEvent
   ) {
     evt.stopPropagation();
-    let data = await this.getDataLazy();
+    let data = await this.getData();
     let mech = data.mm;
     let path = evt.currentTarget?.dataset?.path;
 

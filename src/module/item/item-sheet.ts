@@ -24,9 +24,7 @@ import {
 import { HANDLER_activate_tag_context_menus, HANDLER_activate_tag_dropping } from "../helpers/tags";
 import { CollapseHandler } from "../helpers/collapse";
 import { activate_action_editor } from "../apps/action-editor";
-import type { FoundryFlagData } from "../mm-util/foundry-reg";
-import { find_license_for } from "../mm-util/helpers";
-import { MMDragResolveCache } from "../helpers/dragdrop";
+import { find_license_for } from "../util/doc";
 
 const lp = LANCER.log_prefix;
 
@@ -35,7 +33,7 @@ const lp = LANCER.log_prefix;
  * @extends {ItemSheet}
  */
 export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemSheet.Options, LancerItemSheetData<T>> {
-  constructor(document: LancerItem, options: ItemSheet.Options) {
+  constructor(document: LancerItem<T>, options: ItemSheet.Options) {
     super(document, options);
     if (this.item.is_mech_weapon()) {
       // @ts-ignore IDK if this even does anything
@@ -98,7 +96,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
   activateListeners(html: JQuery) {
     super.activateListeners(html);
 
-    let getfunc = () => this.getDataLazy();
+    let getfunc = () => this.getData();
     let commitfunc = (_: any) => this._commitCurrMM();
 
     // Make refs clickable
@@ -135,7 +133,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
 
     // Grab pre-existing ctx if available
     let ctx = this.getCtx() || new OpCtx();
-    let resolver = new MMDragResolveCache(ctx);
+    let resolver = new DragResolveCache(ctx);
 
     // Enable hex use triggers.
     HANDLER_activate_uses_editor(html, getfunc);
@@ -189,7 +187,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
    */
   async _updateObject(_event: Event | JQuery.Event, formData: any): Promise<any> {
     // Fetch data, modify, and writeback
-    let ct = await this.getDataLazy();
+    let ct = await this.getData();
 
     // Automatically propagates chanages that should affect multiple things.
     let new_top = this._propagateMMData(formData);
@@ -209,8 +207,6 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
 
     // Wait for preparations to complete
     let tmp_dat = this.item.data;
-    // @ts-ignore T doesn't narrow this.item.data
-    data.mm = await tmp_dat.data.derived.mm_promise;
 
     // Additionally we would like to find a matching license. Re-use ctx, try both a world and global reg, actor as well if it exists
     data.license = null;
@@ -227,7 +223,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
 
   // Cached getdata
   private _currData: LancerItemSheetData<T> | null = null;
-  async getDataLazy(): Promise<LancerItemSheetData<T>> {
+  async getData(): Promise<LancerItemSheetData<T>> {
     return this._currData ?? (await this.getData());
   }
 

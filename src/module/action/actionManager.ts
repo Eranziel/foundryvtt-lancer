@@ -17,10 +17,10 @@ declare global {
   }
 }
 
-export const _defaultActionData = (target: Actor) => {
+export const _defaultActionData = (target: LancerActor) => {
   return {
     protocol: true,
-    move: getSpeed(target),
+    move: target.data.data.speed,
     full: true,
     quick: true,
     reaction: true,
@@ -91,7 +91,11 @@ export class LancerActionManager extends Application {
    * @returns actions map.
    */
   private getActions(): ActionData | undefined {
-    return this.target?.data.data.action_tracker ? { ...this.target?.data.data.action_tracker } : undefined;
+    let t = this.target;
+    if(!t) return;
+    if(t.is_mech() || t.is_npc()) {
+      return t.data.data.action_tracker;
+    }
   }
   /**
    * Set proxy for ease of migration when we change over to MM data backing.
@@ -126,15 +130,15 @@ export class LancerActionManager extends Application {
 
   private async updateControlledToken() {
     if (!canvas.ready) return;
-    const token = canvas.tokens?.controlled[0];
-    if (token && token.inCombat && (token.actor?.data.type === "mech" || token.actor?.data.type === "npc")) {
-      // TEMPORARY HANDLING OF OLD TOKENS
-      // TODO: Remove when action data is properly within MM.
-      if (token.actor.data.data.action_tracker === undefined) {
-        await this.updateActions(token.actor, _defaultActionData(token.actor));
+    const token = canvas.tokens?.controlled?.[0];
+    if (token && token.inCombat && token.actor) {
+      const actor = token.actor as LancerActor;
+      if(actor.is_mech() || actor.is_npc()) {
+        this.target = token.actor;
+        return this.updateActions(token.actor, _defaultActionData(token.actor));
       }
-      this.target = token.actor;
-    } else this.target = null;
+    } 
+    this.target = null;
   }
 
   /**
@@ -144,11 +148,12 @@ export class LancerActionManager extends Application {
    * @param type specific action to spend, or undefined for end-turn behavior.
    */
   async modAction(actor: LancerActor, spend: boolean, type?: ActionType) {
+    if (!actor.is_mech() && !actor.is_npc()) return;
     let actions = { ...actor.data.data.action_tracker };
     if (actions) {
       switch (type) {
         case "move": // TODO: replace with tooltip for movement counting.
-          actions.move = spend ? 0 : getSpeed(actor);
+          actions.move = spend ? 0 : actor.data.data.speed;
           break;
         case "free": // Never disabled
           actions.free = true;
@@ -331,8 +336,4 @@ export class LancerActionManager extends Application {
       }
     });
   }
-}
-
-function getSpeed(actor: Actor) {
-  return actor.data.data?.derived?.speed || 4;
 }

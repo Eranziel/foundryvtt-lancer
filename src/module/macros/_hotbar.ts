@@ -6,7 +6,6 @@ import {
   NpcFeatureType,
   OpCtx,
 } from "machine-mind";
-import { FoundryFlagData, FoundryReg } from "../mm-util/foundry-reg";
 import { is_ref } from "../helpers/commons";
 
 import { isValidEncodedMacro } from "./_encode"

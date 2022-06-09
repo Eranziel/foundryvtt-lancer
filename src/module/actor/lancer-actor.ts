@@ -3,69 +3,27 @@ import {
   EntryType,
   funcs,
   Mech,
-  Deployable,
   Npc,
   RegRef,
-  OpCtx,
-  LiveEntryTypes,
-  RegEnv,
-  StaticReg,
-  MechSystem,
-  PilotWeapon,
-  Pilot,
-  PilotArmor,
-  PilotGear,
-  WeaponMod,
   PackedPilotData,
-  quick_relinker,
   RegEntryTypes,
   Frame,
-  RegMechData,
-  RegNpcData,
 } from "machine-mind";
-import { FoundryFlagData, FoundryReg } from "../mm-util/foundry-reg";
 import { LancerHooks, LancerSubscription } from "../helpers/hooks";
-import { mm_wrap_actor } from "../mm-util/helpers";
-import { system_ready } from "../../lancer";
-import type { LancerItemType } from "../item/lancer-item";
+import type { LancerItem, LancerItemType } from "../item/lancer-item";
 import { renderMacroTemplate, encodeMacroData, prepareOverheatMacro, prepareStructureMacro } from "../macros";
-import type { RegEntry, MechWeapon, NpcFeature } from "machine-mind";
 import { StabOptions1, StabOptions2 } from "../enums";
 import { fix_modify_token_attribute } from "../token";
 import type { ActionData } from "../action";
 import { frameToPath } from "./retrograde-map";
 import { NpcClass } from "machine-mind";
-import { getAutomationOptions } from "../settings";
 import { findEffect } from "../helpers/acc_diff";
+import { TempSystemEntryType } from "../tmp-new-template";
+import { AE_MODE_SET_JSON } from "../effects/lancer-active-effect";
 const lp = LANCER.log_prefix;
 
-// Use for HP, etc
-interface BoundedValue {
-  min: number;
-  max: number;
-  value: number;
-}
 
-interface DerivedProperties<T extends EntryType> {
-  // These are all derived and populated by MM
-  hp: { max: number; value: number }; // -hps are useful for structure macros
-  heat: BoundedValue;
-  stress: BoundedValue;
-  structure: BoundedValue;
-  repairs: BoundedValue;
-  overshield: BoundedValue; // Though not truly a bounded value, useful to have it as such for bars etc
-
-  // Other values we particularly appreciate having cached
-  evasion: number;
-  edef: number;
-  save_target: number;
-  speed: number;
-  armor: number;
-  // todo - bonuses and stuff. How to allow for accuracy?
-
-  mm: LiveEntryTypes<T> | null;
-  mm_promise: Promise<LiveEntryTypes<T>>;
-}
+const DEFAULT_OVERCHARGE_SEQUENCE = ["+1", "+1d3", "+1d6", "+1d6+4"];
 
 interface LancerActorDataSource<T extends EntryType> {
   type: T;
@@ -73,10 +31,7 @@ interface LancerActorDataSource<T extends EntryType> {
 }
 interface LancerActorDataProperties<T extends EntryType> {
   type: T;
-  data: RegEntryTypes<T> & {
-    derived: DerivedProperties<T>;
-    action_tracker: ActionData;
-  };
+  data: TempSystemEntryType<T>;
 }
 
 type LancerActorSource =
@@ -106,36 +61,41 @@ declare global {
 /**
  * Extend the Actor class for Lancer Actors.
  */
-export class LancerActor extends Actor {
+export class LancerActor<T extends LancerActorType = LancerActorType> extends Actor {
   // Tracks data propagation
   subscriptions: LancerSubscription[] = [];
 
   // Kept for comparing previous to next values
   prior_max_hp = -1;
 
-  // Kept separately so it can be used by items. Same as in our .data.data.derived.mm_promise
-  _actor_ctx!: OpCtx;
+  // Are we currently in our preliminary effect application phase?
+  _preliminary = false;
 
   /**
    * Performs overheat
    * If automation is enabled, this is called automatically by prepareOverheatMacro
    */
   async overheat(reroll_data?: { stress: number }): Promise<void> {
+    let actor: Actor = null as any;
+    actor.update;
+
     // Assert that we're on a mech or NPC
     if (!this.is_mech() && !this.is_npc()) {
       ui.notifications!.warn("Can only overheat NPCs and Mechs");
       return;
     }
-    const mech = await this.data.data.derived.mm_promise;
     if (!reroll_data) {
-      if (mech.CurrentHeat > mech.HeatCapacity && mech.CurrentStress > 0) {
+      if (this.data.data.heat.value > this.data.data.heat.max && this.data.data.stress.value > 0) {
         // https://discord.com/channels/426286410496999425/760966283545673730/789297842228297748
-        if (mech.CurrentStress > 1) mech.CurrentHeat -= mech.HeatCapacity;
-        mech.CurrentStress -= 1;
-      } else if (mech.CurrentHeat <= mech.HeatCapacity) {
+        if (this.data.data.stress.value > 1) this.data.data.heat.value -= this.data.data.heat.max;
+        this.data.data.stress.value -= 1;
+        await this.update({
+          "data.stress": this.data.data.stress.value - 1,
+          "data.heat": this.data.data.heat.value - this.data.data.heat.max
+        });
+      } else if (this.data.data.heat.value <= this.data.data.heat.max) {
         return;
       }
-      await mech.writeback();
     }
 
     await this.rollOverHeatTable(reroll_data);
@@ -182,24 +142,24 @@ export class LancerActor extends Actor {
       "Emergency Shunt",
     ];
 
-    let ent = await this.data.data.derived.mm_promise;
-    if ((reroll_data?.stress ?? ent.CurrentStress) >= ent.MaxStress) {
+    let d = this.data.data;
+    if ((reroll_data?.stress ?? d.stress.value) >= d.stress.max) {
       ui.notifications!.info("The mech is at full Stress, no overheating check to roll.");
       return;
     }
-    let remStress = reroll_data?.stress ?? ent.CurrentStress;
+    let remStress = reroll_data?.stress ?? d.stress.value;
     let templateData = {};
 
     // If we're already at 0 just kill em
     if (remStress > 0) {
-      let damage = ent.MaxStress - remStress;
+      let damage = d.stress.max - remStress;
       let roll = await new Roll(`${damage}d6kl1`).evaluate({ async: true });
       let result = roll.total;
       if (result === undefined) return;
 
       let tt = await roll.getTooltip();
       let title = stressTableT[result];
-      let text = stressTableD(result, remStress, ent.MaxStress);
+      let text = stressTableD(result, remStress, d.stress.max);
       let total = result.toString();
 
       let secondaryRoll = "";
@@ -207,7 +167,7 @@ export class LancerActor extends Actor {
       // Critical
       let one_count = (<Die[]>roll.terms)[0].results.filter(v => v.result === 1).length;
       if (one_count > 1) {
-        text = stressTableD(result, 1, ent.MaxStress);
+        text = stressTableD(result, 1, d.stress.max);
         title = stressTableT[0];
         total = "Multiple Ones";
       } else {
@@ -215,7 +175,7 @@ export class LancerActor extends Actor {
           let macroData = encodeMacroData({
             title: "Engineering",
             fn: "prepareStatMacro",
-            args: [ent.RegistryID, "mm.Eng"],
+            args: [this.id, "mm.Eng"],
           });
 
           secondaryRoll = `<button class="chat-button chat-macro-button" data-macro="${macroData}"><i class="fas fa-dice-d20"></i> Engineering</button>`;
@@ -223,7 +183,7 @@ export class LancerActor extends Actor {
       }
       templateData = {
         val: remStress,
-        max: ent.MaxStress,
+        max: d.stress.max,
         tt: tt,
         title: title,
         total: total,
@@ -239,10 +199,10 @@ export class LancerActor extends Actor {
     } else {
       // You ded
       let title = stressTableT[0];
-      let text = stressTableD(0, 0, ent.MaxStress);
+      let text = stressTableD(0, 0, d.stress.max);
       templateData = {
-        val: ent.CurrentStress,
-        max: ent.MaxStress,
+        val: d.stress.value,
+        max: d.stress.max,
         title: title,
         text: text,
       };
@@ -261,21 +221,28 @@ export class LancerActor extends Actor {
       ui.notifications!.warn("Can only structure NPCs and Mechs");
       return;
     }
-    const mech = await this.data.data.derived.mm_promise;
+
+    let d = this.data.data
     if (!reroll_data) {
-      if (mech.CurrentHP < 1 && mech.CurrentStructure > 0) {
-        if (mech.CurrentStructure > 1) mech.CurrentHP += mech.MaxHP;
-        mech.CurrentStructure -= 1;
-      } else if (mech.CurrentHP >= 1) {
+      if (d.hp.value < 1 && d.structure.value > 0) {
+        await this.update({
+          "data.structure": d.structure.value - 1,
+          "data.hp": d.hp.value - d.hp.max
+        });
+      } else {
         return;
       }
-      await mech.writeback();
     }
 
     await this.rollStructureTable(reroll_data);
   }
 
   async rollStructureTable(reroll_data?: { structure: number }): Promise<void> {
+    if (!this.is_mech() && !this.is_npc()) {
+      ui.notifications!.warn("Only npcs and mechs can roll structure.");
+      return;
+    }
+
     // Table of descriptions
     function structTableD(roll: number, remStruct: number) {
       switch (roll) {
@@ -312,18 +279,19 @@ export class LancerActor extends Actor {
       "Glancing Blow",
     ];
 
-    let mech = (await this.data.data.derived.mm_promise) as Mech | Npc;
-    if ((reroll_data?.structure ?? mech.CurrentStructure) >= mech.MaxStructure) {
+    let d = this.data.data;
+
+    if ((reroll_data?.structure ?? d.structure.value) >= d.structure.max) {
       ui.notifications!.info("The mech is at full Structure, no structure check to roll.");
       return;
     }
 
-    let remStruct = reroll_data?.structure ?? mech.CurrentStructure;
+    let remStruct = reroll_data?.structure ?? d.structure.value;
     let templateData = {};
 
     // If we're already at 0 just kill em
     if (remStruct > 0) {
-      let damage = mech.MaxStructure - remStruct;
+      let damage = d.structure.max - remStruct;
 
       let roll: Roll = await new Roll(`${damage}d6kl1`).evaluate({ async: true });
       let result = roll.total;
@@ -347,7 +315,7 @@ export class LancerActor extends Actor {
           let macroData = encodeMacroData({
             title: "Hull",
             fn: "prepareStatMacro",
-            args: [mech.RegistryID, "mm.Hull"],
+            args: [this.id, "mm.Hull"],
           });
 
           secondaryRoll = `<button class="chat-button chat-macro-button" data-macro="${macroData}"><i class="fas fa-dice-d20"></i> Hull</button>`;
@@ -357,15 +325,15 @@ export class LancerActor extends Actor {
             // Since we can't change prepareTextMacro too much or break everyone's macros
             title: "Roll for Destruction",
             fn: "prepareStructureSecondaryRollMacro",
-            args: [mech.RegistryID],
+            args: [this.id],
           });
 
           secondaryRoll = `<button class="chat-macro-button"><a class="chat-button" data-macro="${macroData}"><i class="fas fa-dice-d20"></i> Destroy</a></button>`;
         }
       }
       templateData = {
-        val: mech.CurrentStructure,
-        max: mech.MaxStructure,
+        val: d.structure.value,
+        max: d.structure.max,
         tt: tt,
         title: title,
         total: total,
@@ -383,8 +351,8 @@ export class LancerActor extends Actor {
       let title = structTableT[0];
       let text = structTableD(0, 0);
       templateData = {
-        val: mech.CurrentStructure,
-        max: mech.MaxStructure,
+        val: d.structure.value,
+        max: d.structure.max,
         title: title,
         text: text,
       };
@@ -396,93 +364,99 @@ export class LancerActor extends Actor {
   // Fully repair actor
   // Even pilots can be fully repaired
   async full_repair() {
-    let ent = await this.data.data.derived.mm_promise;
-
     await this.remove_all_active_effects();
-    ent.CurrentHP = ent.MaxHP;
-    ent.Burn = 0;
-    ent.Overshield = 0;
+    //TODO fix to be a real type
+    let changes: any = {
+      "data.hp": this.data.data.hp.max,
+      "data.burn": 0,
+      "data.overshield": 0,
+    };
 
-    // Things for mechs & NPCs
-    if (is_reg_mech(ent) || is_reg_npc(ent)) {
-      ent.CurrentHeat = 0;
-      ent.CurrentStress = ent.MaxStress;
-      ent.CurrentStructure = ent.MaxStructure;
+    // Things for heat-havers
+    if (this.is_mech() || this.is_npc() || this.is_deployable()) {
+      changes["data.heat"] = 0
+    }
+
+    if (this.is_mech() || this.is_npc()) {
+      changes["data.structure"] = this.data.data.structure.max;
+      changes["data.stress"] = this.data.data.stress.max;
     }
 
     // Things just for mechs
-    if (is_reg_mech(ent)) {
-      ent.CurrentCoreEnergy = 1;
-      ent.CurrentRepairs = ent.RepairCapacity;
-      ent.OverchargeCount = 0;
+    if (this.is_mech()) {
+      changes["data.core_energy"] = 1;
+      changes["data.core_active"] = false;
+      changes["data.overcharge"] = 1;
+      changes["data.repairs"] = this.data.data.repairs.max;
+      changes["data.meltdown_timer"] = null;
     }
 
-    // I believe the only thing a pilot needs
-    if (is_reg_pilot(ent)) {
-      let mech = await ent.ActiveMech();
-      if (mech) {
-        await mech.Flags.orig_doc.full_repair();
-      }
+    // Things just for pilots - propagate a repair to their mech
+    if (this.is_pilot()) {
+      ui.notifications!.error("Rep pilot doesnt repair mech todo fix"); // TODO
+      // let mech = await ent.ActiveMech();
+      // if (mech) {
+        // await mech.Flags.orig_doc.full_repair();
+      // }
     }
 
     if (!this.is_deployable()) await this.restore_all_items();
-    await ent.writeback();
+    await this.update(changes);
   }
 
-  // Do the specified junk to an item. Returns the item. Does not writeback
+  // Do the specified junk to an item. Returns an object suitable for updateEmbeddedDocuments
   private refresh(
-    item: PilotWeapon | MechWeapon | PilotArmor | PilotGear | MechSystem | WeaponMod | NpcFeature,
+    item: LancerItem, // TODO: Restore type specficity
     opts: {
       repair?: boolean;
       reload?: boolean;
       refill?: boolean;
     }
-  ): PilotWeapon | MechWeapon | PilotArmor | PilotGear | MechSystem | WeaponMod | NpcFeature {
+  ): any { // TODO: Make this typed
+    let changes: any = {_id: item.id}; // TODO: Make this typed
     if (opts.repair) {
-      if (
-        [EntryType.MECH_WEAPON, EntryType.MECH_SYSTEM, EntryType.WEAPON_MOD, EntryType.NPC_FEATURE].includes(item.Type)
-      ) {
-        (item as MechWeapon | MechSystem | WeaponMod).Destroyed = false;
+      if ((item as any).destroyed !== undefined) {
+        changes["data.destroyed"] = false;
       }
     }
     if (opts.reload) {
-      if ([EntryType.MECH_WEAPON, EntryType.NPC_FEATURE, EntryType.PILOT_WEAPON].includes(item.Type)) {
-        (item as MechWeapon | NpcFeature | PilotWeapon).Loaded = true;
+      if ((item as any).loaded !== undefined) {
+        changes["data.loaded"] = true;
       }
     }
     if (opts.refill) {
-      item.Uses = item.OrigData.derived.max_uses;
+      changes["data.uses"] = (item as any).uses.max; // TODO: type this as well
     }
-    return item;
+
+    return changes;
   }
 
-  // List the relevant items on this actor
-  private async list_items(): Promise<
-    Array<PilotWeapon | MechWeapon | PilotArmor | PilotGear | MechSystem | WeaponMod | NpcFeature>
-  > {
-    let ent = (await this.data.data.derived.mm_promise) as Mech | Pilot | Npc | Deployable;
+  // List the _relevant_ loadout items on this actor
+  private list_loadout(): Array<LancerItem> {
+    // Array<PilotWeapon | MechWeapon | PilotArmor | PilotGear | MechSystem | WeaponMod | NpcFeature>
+    // TODO: Restore specificity
     let result: any[] = [];
-    if (is_reg_mech(ent)) {
+    if (this.is_mech()) {
       // Do all of the weapons/systems/mods on our loadout
-      for (let mount of ent.Loadout.WepMounts) {
-        for (let slot of mount.Slots) {
+      for (let mount of this.data.data.loadout.weapon_mounts) {
+        for (let slot of mount.slots) {
           // Do weapon
-          if (slot.Weapon) {
-            result.push(slot.Weapon);
+          if (slot.weapon) {
+            result.push(slot.weapon);
           }
           // Do mod
-          if (slot.Mod) {
-            result.push(slot.Mod);
+          if (slot.mod) {
+            result.push(slot.mod);
           }
         }
       }
 
       // Do all systems now
-      result.push(...ent.Loadout.Systems);
-    } else if (is_reg_npc(ent)) {
-      result.push(...ent.Features);
-    } else if (is_reg_pilot(ent)) {
-      result.push(...ent.OwnedPilotWeapons, ...ent.OwnedPilotArmor, ...ent.OwnedPilotGear);
+      result.push(...this.data.data.loadout.system_mounts.map(l => l.system));
+    } else if (this.is_npc()) {
+      // result.push(...ent.Features); // TODO
+    } else if (this.is_pilot()) {
+      // result.push(...ent.OwnedPilotWeapons, ...ent.OwnedPilotArmor, ...ent.OwnedPilotGear); // TODO
     } else {
       ui.notifications!.warn("Cannot reload deployables");
     }
@@ -493,17 +467,14 @@ export class LancerActor extends Actor {
    * Find all limited systems and set them to their max/repaired/ideal state
    */
   async restore_all_items() {
-    return Promise.all(
-      (await this.list_items())
-        .map(i =>
+    let fixes = this.list_loadout().map(i =>
           this.refresh(i, {
             reload: true,
             repair: true,
             refill: true,
           })
-        )
-        .map(i => i.writeback())
     );
+    return this.updateEmbeddedDocuments("Item", fixes);
   }
 
   /**
@@ -511,7 +482,7 @@ export class LancerActor extends Actor {
    */
   async repair_all_items() {
     return Promise.all(
-      (await this.list_items())
+      (await this.list_loadout())
         .map(i =>
           this.refresh(i, {
             repair: true,
@@ -522,17 +493,11 @@ export class LancerActor extends Actor {
   }
 
   /**
-   * Find all owned weapons and reload them
+   * Find all owned weapons and (generate the changes necessary to) reload them
    */
-  async reload_all_items() {
-    return Promise.all(
-      (await this.list_items())
-        .map(i =>
-          this.refresh(i, {
-            reload: true,
-          })
-        )
-        .map(i => i.writeback())
+  reload_all_items() {
+    return this.list_loadout().map(i => 
+      this.refresh(i, { reload: true, })
     );
   }
 
@@ -546,7 +511,7 @@ export class LancerActor extends Actor {
   }
 
   /**
-   * Wipes all ActiveEffects from the Actor.
+   * Wipes all (unsourced) ActiveEffects from the Actor.
    */
   async remove_all_active_effects() {
     let effects_to_delete = this.effects
@@ -580,28 +545,28 @@ export class LancerActor extends Actor {
    * @returns   Details to be printed to chat
    */
   async stabilize(o1: StabOptions1, o2: StabOptions2): Promise<string> {
-    let ent = await this.data.data.derived.mm_promise;
-
     let return_text = "";
 
-    if (!(is_reg_mech(ent) || is_reg_npc(ent))) {
+    if (!this.is_mech() && !this.is_npc()) {
       ui.notifications!.warn("This can't be stabilized!");
       return "";
     }
 
+    let changes: any = {}; // TODO
+    let item_changes: any = null; // TODO
+
     if (o1 === StabOptions1.Cool) {
       return_text = return_text.concat("Mech is cooling itself. @Compendium[world.status.EXPOSED] cleared.<br>");
-      ent.CurrentHeat = 0;
-      await ent.writeback();
+      await this.update({"data.heat": 0});
       this.remove_active_effect("exposed");
     } else if (o1 === StabOptions1.Repair) {
-      if (is_reg_mech(ent) && ent.CurrentRepairs === 0) {
+      if (this.is_mech()) { 
+        if(this.data.data.repairs.value <= 0) {
         return "Mech has decided to repair, but doesn't have any repair left. Please try again.<br>";
-      } else if (is_reg_mech(ent)) {
-        ent.CurrentRepairs -= 1;
+        } else {
+          changes["data.repairs"] = this.data.data.repairs.value - 1;
       }
-      ent.CurrentHP = ent.MaxHP;
-      await ent.writeback();
+      }
     } else {
       return ``;
     }
@@ -609,8 +574,7 @@ export class LancerActor extends Actor {
     switch (o2) {
       case StabOptions2.ClearBurn:
         return_text = return_text.concat("Mech has selected full burn clear.");
-        ent.Burn = 0;
-        await ent.writeback();
+        changes["data.burn"] = 0;
         break;
       case StabOptions2.ClearOtherCond:
         return_text = return_text.concat("Mech has selected to clear an allied condition. Please clear manually.");
@@ -620,21 +584,26 @@ export class LancerActor extends Actor {
         break;
       case StabOptions2.Reload:
         return_text = return_text.concat("Mech has selected full reload, reloading...");
-        await this.reload_all_items();
+        item_changes = this.reload_all_items();
         break;
       default:
         return ``;
     }
+
+    await this.update(changes);
+    await this.updateEmbeddedDocuments("Item", item_changes);
+
     return return_text;
   }
 
   // Imports packed pilot data, from either a vault id or gist id
   async importCC(data: PackedPilotData, clearFirst = false) {
+    /*
     if (this.data.type !== "pilot") {
       return;
     }
     if (data == null) return;
-    if (clearFirst) await this.clearBadData();
+    if (clearFirst) await this.clearItems();
 
     try {
       const mm = await this.data.data.derived.mm_promise;
@@ -817,138 +786,43 @@ export class LancerActor extends Actor {
         ui.notifications!.warn(`Failed to update pilot, likely due to missing LCP data: ${e}`);
       }
     }
+    */
   }
 
-  async clearBadData() {
+  async clearItems() {
     await this.deleteEmbeddedDocuments("Item", Array.from(this.data.items.keys()));
   }
 
   /* -------------------------------------------- */
 
   /** @override
-   * We want to reset our ctx before this. It is used by our items, such that they all can share
-   * the same ctx space.
+   * We require a customized active effect application workflow
    */
-  prepareEmbeddedDocuments() {
-    this._actor_ctx = new OpCtx();
-    //@ts-ignore prepareEmbeddedEntities is deprecated in v9, prepareEmbeddedDocuments is the replacement.
-    super.prepareEmbeddedDocuments();
+  prepareData() {
+    this._preliminary = true;
+    super.prepareData(); 
+    // Internally we have just
+    // - prepared base data (system)
+    // - prepared embedded data (items, active effects, + apply active effects)
+    // - prepared derived data
+    // We then apply all other active effects
+    this._preliminary = false;
+    this.applyActiveEffects();
+
+    // Finally, ask items to prepare their final attributes
+    // this.items.forEach(item => item.prepareFinalAttributes()); // TODO
   }
 
-  // Use this to prevent race conditions / carry over data
-  private _current_prepare_job_id!: number;
-  private _job_tracker!: Map<number, Promise<AnyMMActor>>;
-  private _prev_derived: this["data"]["data"]["derived"] | undefined;
 
   /** @override
-   * We need to both:
+   * We need to, in order:
    *  - Re-generate all of our subscriptions
-   *  - Re-initialize our MM context
+   *  - 
+   *  - Re-compute any derived attributes
    */
   prepareDerivedData() {
-    // If no id, leave
-    if (!this.id) return;
-
-    // Track which prepare iteration this is
-    if (this._current_prepare_job_id == undefined) {
-      this._current_prepare_job_id = 0;
-      this._job_tracker = new Map();
-    }
-    this._current_prepare_job_id++;
-    let job_id = this._current_prepare_job_id;
-
     // Reset subscriptions for new data
     this.setupLancerHooks();
-
-    // Declare our derived data with a shorthand "dr" - we will be using it a lot
-    let dr: this["data"]["data"]["derived"];
-
-    // Default in fields
-    let default_bounded = () => ({
-      min: 0,
-      max: 0,
-      value: 0,
-    });
-
-    // If no value at present, set this up. Better than nothing. Reuse derived data when possible
-    if (!this._prev_derived) {
-      dr = {
-        edef: 0,
-        evasion: 0,
-        save_target: 0,
-        speed: 0,
-        armor: 0,
-        heat: default_bounded(),
-        hp: { max: 0, value: 0 },
-        overshield: default_bounded(),
-        structure: default_bounded(),
-        stress: default_bounded(),
-        repairs: default_bounded(),
-        mm: null, // we will set these momentarily
-        mm_promise: null as any, // we will set these momentarily
-      };
-      this._prev_derived = dr;
-    } else {
-      // Otherwise, grab existing/prior
-      dr = this._prev_derived;
-    }
-    this.data.data.derived = dr;
-
-    // Update our known values now, synchronously.
-    dr.hp.value = this.data.data.hp;
-    if (this.is_mech() || this.is_npc() || this.is_deployable()) {
-      let md = this.data.data;
-      dr.heat.value = md.heat;
-      if (!this.is_deployable()) {
-        let md = this.data.data;
-        dr.stress.value = md.stress;
-        dr.structure.value = md.structure;
-      }
-    }
-
-    // Break these out of this scope to avoid weird race scoping
-    let actor_ctx = this._actor_ctx;
-
-    // Begin the task of wrapping our actor. When done, it will setup our derived fields - namely, our max values
-    // Need to wait for system ready to avoid having this break if prepareData called during init step (spoiler alert - it is)
-    dr.mm_promise = system_ready
-      .then(() => mm_wrap_actor(this, actor_ctx))
-      .catch(async e => {
-        // This is 90% of the time a token not being able to resolve itself due to canvas not loading yet
-        console.warn("Token unable to prepare - hopefully trying again when canvas ready. In meantime, using dummy");
-        console.warn(e);
-
-        // Make a dummy value
-        let ctx = new OpCtx();
-        let env = new RegEnv();
-        let reg = new StaticReg(env);
-        let ent = await reg.get_cat(this.data.type).create_default(ctx);
-        return ent;
-      })
-      .then(mm => {
-        // If our job ticker doesnt match, then another prepared object has usurped us in setting these values.
-        // We return this elevated promise, so anyone waiting on this task instead waits on the most up to date one
-        if (job_id != this._current_prepare_job_id) {
-          return this._job_tracker.get(this._current_prepare_job_id)! as any; // This will definitely be a different promise
-        }
-
-        // Delete all old tracked jobs
-        for (let k of this._job_tracker.keys()) {
-          if (k != job_id) {
-            this._job_tracker.delete(k);
-          }
-        }
-
-        // Always save the context
-        // Save the context via defineProperty so it does not show up in JSON stringifies. Also, no point in having it writeable
-        Object.defineProperties(dr, {
-          mm: {
-            enumerable: false,
-            configurable: true,
-            writable: false,
-            value: mm,
-          },
-        });
 
         // Changes in max-hp should heal the actor. But certain requirements must be met
         // - Must know prior (would be in dr.hp.max). If 0, do nothing
@@ -967,40 +841,42 @@ export class LancerActor extends Actor {
         };
 
         // If our max hp changed, do somethin'
-        let curr_hp = mm.CurrentHP;
-        let corrected_hp = hp_change_corrector(curr_hp, this.prior_max_hp, mm.MaxHP);
+    /*
+    TODO: Move this to a pre-update hook
+    let curr_hp = this.data.data.hp.value;
+    let max_hp = this.data.data.hp.max;
+    let corrected_hp = hp_change_corrector(curr_hp, this.prior_max_hp, max_hp);
         if (curr_hp != corrected_hp) {
           // Cancel christmas. We gotta update ourselves to reflect the new HP change >:(
           console.warn(
             "TODO: figure out a more elegant way to update hp based on max hp than calling update in prepareData. Maybe only choice."
           );
         }
+    */
 
-        // Set the general props. ALl actors have at least these
-        dr.edef = mm.EDefense;
-        dr.evasion = mm.Evasion;
-        dr.speed = mm.Speed;
-        dr.armor = mm.Armor;
+    // Set the general props. All actors have at least these
+    if (this.is_mech()) {
+      let frame = this.data.data.loadout.frame;
+      this.data.data.edef = 0;
+      this.data.data.evasion = 0;
+      this.data.data.speed = 0;
+      this.data.data.armor = 0;
+      // TODO - the rest
+    } else if (this.is_pilot()) {
+      // TODO
+    } else if (this.is_deployable()) {
+      // TODO
+    } else if (this.is_npc()) {
+      // TODO
+    }
 
-        dr.hp.value = mm.CurrentHP;
-        dr.hp.max = mm.MaxHP;
-
-        dr.overshield.value = mm.Overshield;
-        dr.overshield.max = mm.MaxHP; // as good a number as any I guess
-
-        // Depending on type, setup derived fields more precisely as able
-        if (!is_reg_pilot(mm)) {
-          // All "wow, cool robot" type units have these
-          dr.save_target = mm.SaveTarget;
-          dr.heat.max = mm.HeatCapacity;
-          dr.heat.value = mm.CurrentHeat;
-
-          // If the Size of the ent has changed since the last update, set the
-          // protype token size to the new size
-          const cached_token_size = this.data.token.flags[game.system.id]?.mm_size;
-          if (!cached_token_size || cached_token_size !== mm.Size) {
-            const size = mm.Size <= 1 ? 1 : mm.Size;
-            this.data.token.update({
+    // If the Size of the ent has changed since the last update, set the
+    // protype token size to the new size
+    // @ts-expect-error Flags is throwing a weird error. Missing type?
+    const cached_token_size = this.token?.flags?.[game.system.id]?.mm_size;
+    if (!cached_token_size || cached_token_size !== this.data.data.size) {
+      const size = Math.max(1, this.data.data.size);
+      this.token?.update({
               width: size,
               height: size,
               flags: {
@@ -1016,46 +892,15 @@ export class LancerActor extends Actor {
             });
           }
 
-          if (!is_reg_dep(mm)) {
-            // Deployables don't have stress/struct
-            dr.structure.max = mm.MaxStructure;
-            dr.structure.value = mm.CurrentStructure;
-
-            dr.stress.max = mm.MaxStress;
-            dr.stress.value = mm.CurrentStress;
-          }
-          if (!is_reg_npc(mm)) {
-            // Npcs don't have repairs
-            dr.repairs.max = mm.RepairCapacity;
-            dr.repairs.value = mm.CurrentRepairs;
-          }
-        }
-
         // Update prior max hp val
-        this.prior_max_hp = dr.hp.max;
-
-        // Now that data is set properly, force token to draw its bars
-        this.getActiveTokens().forEach(token => {
-          // Ensure the bars container exists before attempting to redraw the
-          // bars. This check is necessary because foundry doesn't initialize
-          // token components until draw is called.
-          // TODO: Remove token.bars part of check when 0.8 compat removed
-          // @ts-expect-error `bars` param not typed. `hud.bars` is in v9
-          if (token.bars || token.hud?.bars) {
-            token.drawBars();
-          }
-        });
-
-        return mm;
-      });
-    this._job_tracker.set(job_id, dr.mm_promise);
+    this.prior_max_hp = this.data.data.hp.max;
   }
 
   /** @override
    * This is mostly copy-pasted from Actor.modifyTokenAttribute
    * to allow negative hps, which are useful for structure checks
    */
-  async modifyTokenAttribute(attribute: any, value: any, isDelta = false, isBar = true) {
+  async modifyTokenAttribute(attribute: any, value: any, isDelta = false, isBar = true): Promise<this> {
     const current = foundry.utils.getProperty(this.data.data, attribute);
 
     let updates;
@@ -1069,22 +914,9 @@ export class LancerActor extends Actor {
 
     // Call a hook to handle token resource bar updates
     fix_modify_token_attribute(updates);
-    const allowed = Hooks.call("modifyTokenAttribute", { attribute, value, isDelta, isBar }, updates);
-    return allowed !== false ? this.update(updates) : this;
-  }
-
-  /** @override
-   * Want to destroy derived data before passing it to an update
-   */
-  async update(...[data, context = undefined]: Parameters<Actor["update"]>) {
-    // Never submit derived data. Typically won't show up here regardless
-    // @ts-expect-error Sohouldn't appear on this data
-    if (data?.data?.derived) {
-      // @ts-expect-error Shouldn't appear on this data
-      delete data.data?.derived;
-    }
-
-    return super.update(data, context);
+    const allowed: boolean = Hooks.call("modifyTokenAttribute", { attribute, value, isDelta, isBar }, updates);
+    if(allowed !== false) await this.update(updates);
+    return this;
   }
 
   protected async _preCreate(...[data, options, user]: Parameters<Actor["_preCreate"]>): Promise<void> {
@@ -1116,11 +948,12 @@ export class LancerActor extends Actor {
         default_data.actions = { full: true };
         break;
     }
+
     // Sync the name
     default_data.name = this.name ?? default_data.name;
 
     // Put in the basics
-    this.data.update({
+    this.update({
       data: default_data,
       img: TypeIcon(this.data.type),
       name: default_data.name,
@@ -1135,6 +968,7 @@ export class LancerActor extends Actor {
    * On the result of an update, we want to cascade derived data.
    */
   protected _onUpdate(...[changed, options, user]: Parameters<Actor["_onUpdate"]>) {
+    /*
     super._onUpdate(changed, options, user);
     LancerHooks.call(this);
 
@@ -1160,9 +994,10 @@ export class LancerActor extends Actor {
         prepareStructureMacro(this);
       }
     }
+    */
   }
 
-  // Ditto - items alter stats quite often
+  // As with _onUpdate, want to cascade
   _onUpdateEmbeddedDocuments(...args: Parameters<Actor["_onUpdateEmbeddedDocuments"]>) {
     super._onUpdateEmbeddedDocuments(...args);
     LancerHooks.call(this);
@@ -1189,44 +1024,39 @@ export class LancerActor extends Actor {
     });
     this.subscriptions = [];
 
-    let dependency: RegRef<LancerActorType> | null = null;
     // If we are a mech, we need to subscribe to our pilot (if it exists)
     if (this.is_mech()) {
-      let mech_data = this.data.data;
-      if (mech_data.pilot) {
-        dependency = mech_data.pilot;
-      }
-    } else if (this.is_deployable()) {
-      // If deployable, same deal
-      let dep_data = this.data.data;
-      if (dep_data.deployer) {
-        dependency = dep_data.deployer;
-      }
+      let pilot = this.data.data.pilot;
+      if (pilot) {
+        this.subscriptions.push(LancerHooks.on(pilot, async _ => {
+          console.debug(`Pilot ${pilot!.name} propagating effects to ${this.name}`);
+          // Just copy them with minor alterations, for now
+          let pilot_effects = pilot!.effects.map(e => e.toObject());
+          for(let eff of pilot_effects) {
+            eff.origin = pilot!.uuid;
+            eff.flags.from_pilot = true;
+            eff.label = `[PILOT] ${eff.label}`;
     }
 
-    // Make a subscription for each
-    if (dependency) {
-      let sub = LancerHooks.on(dependency, async _ => {
-        console.debug("Triggering subscription-based update on " + this.name);
-        // We typically don't need to actually .update() ourselves when a dependency updates
-        // Each client will individually prepareDerivedData in response to the update, and so there is no need for DB communication
-        // Only exception is for cases like changes in max hp changing current HP - a tangible change in what data should be stored on this.
-        // Said updates will be fied off in prepareData if necessary.
-        this._actor_ctx = new OpCtx();
-        this.prepareDerivedData();
-
-        // Wait for it to be done
-        await this.data.data.derived.mm_promise;
-
-        // Trigger a render. Sheets may need to show something different now
-        this.render();
+          // We also need to bake our necessary pilot information into an active effect
+          pilot_effects.push({
+            label: "Pilot Stats",
+            changes: [{
+              // @ts-expect-error Customs don't seem to be supported
+              mode: AE_MODE_SET_JSON,
+              value: JSON.stringify(pilot!.toObject().data)
+            }]
+          });
 
         // Also, let any listeners on us know!
         LancerHooks.call(this);
-      });
-      this.subscriptions.push(sub);
+        }));
+      }
+    } else if (this.is_deployable()) {
+      // TODO
     }
   }
+
 
   /**
    * Returns the overcharge rolls, modified by bonuses. Only applicable for mechs.
@@ -1235,16 +1065,13 @@ export class LancerActor extends Actor {
     // Function is only applicable to mechs.
     if (!this.is_mech()) return null;
 
-    let oc_rolls = ["+1", "+1d3", "+1d6", "+1d6+4"];
-    const mech = this.data.data.derived.mm;
-    if (!mech) return oc_rolls;
+    let oc_rolls = DEFAULT_OVERCHARGE_SEQUENCE;
 
-    let oc_bonus = mech.AllBonuses.filter(b => {
-      return b.LID === "overcharge";
-    });
-    if (oc_bonus.length > 0) {
-      oc_rolls = oc_bonus[0].Value.split(",");
-    }
+    // TODO
+    // let oc_bonus = this
+    // if (oc_bonus.length > 0) {
+      // oc_rolls = oc_bonus[0].Value.split(",");
+    // }
     return oc_rolls;
   }
 
@@ -1283,10 +1110,13 @@ export class LancerActor extends Actor {
    * @returns         The newFrame if any updates were performed
    */
   async swapFrameImage(
-    robot: Mech | Npc,
-    oldFrame: Frame | NpcClass | null,
-    newFrame: Frame | NpcClass
+    robot: LancerActor<EntryType.MECH> | LancerActor<EntryType.NPC>,
+    oldFrame: LancerItem<EntryType.FRAME> | LancerItem<EntryType.NPC_CLASS> | null,
+    newFrame: LancerItem<EntryType.FRAME> | LancerItem<EntryType.NPC_CLASS>
   ): Promise<string> {
+    ui.notifications?.error("TODO: Reimplement frame image swapping");
+    return "";
+    /*
     let oldFramePath = frameToPath[oldFrame?.Name || ""];
     let newFramePath = frameToPath[newFrame?.Name || ""];
     let defaultImg = is_reg_mech(robot)
@@ -1333,10 +1163,10 @@ export class LancerActor extends Actor {
     }
 
     return newFramePath;
+  */
   }
 }
 
-export type AnyMMActor = LiveEntryTypes<LancerActorType>;
 export type LancerActorType = EntryType.MECH | EntryType.DEPLOYABLE | EntryType.NPC | EntryType.PILOT;
 export const LancerActorTypes: LancerActorType[] = [
   EntryType.MECH,
@@ -1347,20 +1177,4 @@ export const LancerActorTypes: LancerActorType[] = [
 
 export function is_actor_type(type: LancerActorType | LancerItemType): type is LancerActorType {
   return LancerActorTypes.includes(type as LancerActorType);
-}
-
-export function is_reg_pilot(actor: RegEntry<any>): actor is Pilot {
-  return actor.Type === EntryType.PILOT;
-}
-
-export function is_reg_mech(actor: RegEntry<any>): actor is Mech {
-  return actor.Type === EntryType.MECH;
-}
-
-export function is_reg_npc(actor: RegEntry<any>): actor is Npc {
-  return actor.Type === EntryType.NPC;
-}
-
-export function is_reg_dep(actor: RegEntry<any>): actor is Deployable {
-  return actor.Type === EntryType.DEPLOYABLE;
 }

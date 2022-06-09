@@ -19,13 +19,15 @@ export class LancerFrameSheet extends LancerItemSheet<EntryType.FRAME> {
 
   // Handle the "delete" option of the mounts
   async _onChangeMount(event: any) {
+    // TODO
+    /*
     // Get the index
     const elt = $(event.currentTarget);
     const index = elt.prop("index");
     const value = elt.prop("value");
     if (value == "delete") {
       // If delete, then delete
-      let data = await this.getDataLazy();
+      let data = await this.getData();
 
       // Splice it out
       let mounts = [...data.mm.Mounts];
@@ -41,6 +43,7 @@ export class LancerFrameSheet extends LancerItemSheet<EntryType.FRAME> {
       // But do need to refresh
       this.render();
     }
+    */
   }
 
   /**

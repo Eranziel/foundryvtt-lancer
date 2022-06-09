@@ -3,9 +3,8 @@ import { LANCER } from "../config";
 import { getAutomationOptions } from "../settings";
 import type { LancerItem } from "../item/lancer-item";
 import type { LancerActor } from "../actor/lancer-actor";
-import { is_reg_mech } from "../actor/lancer-actor";
 import type { LancerMacroData, LancerTechMacroData } from "../interfaces";
-import { ActivationType, EntryType, Mech, MechSystem, Npc, NpcFeature, Pilot, Talent } from "machine-mind";
+import { ActivationType, EntryType } from "machine-mind";
 import { is_limited, is_tagged } from "machine-mind/dist/funcs";
 import type { AccDiffDataSerialized } from "../helpers/acc_diff";
 import { buildActionHTML, buildDeployableHTML } from "../helpers/item";
@@ -64,20 +63,17 @@ export async function prepareActivationMacro(
     return ui.notifications!.error(`Error rolling tech attack macro - ${item.name} is not a System or Feature!`);
   }
 
-  let itemEnt: MechSystem | NpcFeature | Talent = await item.data.data.derived.mm_promise;
-  let actorEnt: Mech | Pilot = await actor.data.data.derived.mm_promise;
-
-  if (getAutomationOptions().limited_loading && is_tagged(itemEnt) && is_limited(itemEnt) && itemEnt.Uses <= 0) {
+  if (getAutomationOptions().limited_loading && is_tagged(item) && is_limited(item) && item.Uses <= 0) {
     ui.notifications!.error(`Error using item--you have no uses left!`);
     return;
   }
 
   // TODO--handle NPC Activations
-  if (itemEnt.Type === EntryType.NPC_FEATURE) return;
+  if (item.Type === EntryType.NPC_FEATURE) return;
 
   switch (type) {
     case ActivationOptions.ACTION:
-      switch (itemEnt.Actions[index].Activation) {
+      switch (item.Actions[index].Activation) {
         case ActivationType.FullTech:
         case ActivationType.Invade:
         case ActivationType.QuickTech:
@@ -86,59 +82,60 @@ export async function prepareActivationMacro(
             fn: "prepareActivationMacro",
             args: [a, i, type, index],
           };
-          await _prepareTechActionMacro(actorEnt, itemEnt, index, partialMacroData, rerollData);
+          await _prepareTechActionMacro(actor, item, index, partialMacroData, rerollData);
           break;
         default:
-          await _prepareTextActionMacro(actorEnt, itemEnt, index);
+          await _prepareTextActionMacro(actor, item, index);
       }
       break;
     case ActivationOptions.DEPLOYABLE:
-      await _prepareDeployableMacro(actorEnt, itemEnt, index);
+      await _prepareDeployableMacro(actor, item, index);
   }
 
   // Wait until the end to deduct a use so we're sure it completed succesfully
-  if (getAutomationOptions().limited_loading && is_tagged(itemEnt) && is_limited(itemEnt)) {
-    itemEnt.Uses = itemEnt.Uses - 1;
-    await itemEnt.writeback();
+  if (getAutomationOptions().limited_loading && is_tagged(item) && is_limited(item)) {
+    item.Uses = item.Uses - 1;
+    await item.writeback();
   }
 
   return;
 }
 
 async function _prepareTextActionMacro(
-  actorEnt: Mech | Pilot | Npc,
-  itemEnt: Talent | MechSystem | NpcFeature,
+  actor: LancerActor,
+  item: LancerItem, // TODO: more specific types // Talent | MechSystem | NpcFeature,
   index: number
 ) {
   // Support this later...
   // TODO: pilot gear and NPC features
-  if (itemEnt.Type !== EntryType.MECH_SYSTEM && itemEnt.Type !== EntryType.TALENT) return;
+  if (!item.is_mech_system() || !item.is_talent() || !item.is_npc_feature()) return;
 
-  let action = itemEnt.Actions[index];
-  let tags = itemEnt.Type === EntryType.MECH_SYSTEM ? itemEnt.Tags : [];
-  await renderMacroHTML(actorEnt.Flags.orig_doc, buildActionHTML(action, { full: true, tags: tags }));
+  let action = item.data.data.actions[index];
+  let tags = item.is_mech_system() ? item.data.data.tags : [];
+  await renderMacroHTML(actor, buildActionHTML(action, { full: true, tags: tags }));
 }
 
 async function _prepareTechActionMacro(
-  actorEnt: Mech | Pilot,
-  itemEnt: Talent | MechSystem | NpcFeature,
+  actor: LancerActor, // TODO - restrict to mech or pilot
+  item: LancerItem, // TODO: more specific types // Talent | MechSystem | NpcFeature,
   index: number,
   partialMacroData: LancerMacroData,
   rerollData?: AccDiffDataSerialized
 ) {
   // Support this later...
   // TODO: pilot gear and NPC features
-  if (itemEnt.Type !== EntryType.MECH_SYSTEM && itemEnt.Type !== EntryType.TALENT) return;
+  if (!item.is_mech_system() && !item.is_talent() && !item.is_npc_feature()) return;
+  if (!actor.is_mech() && !actor.is_npc()) return;
 
-  let action = itemEnt.Actions[index];
+  let action = item.data.data.actions[index];
 
   let mData: LancerTechMacroData = {
     title: action.Name,
-    t_atk: is_reg_mech(actorEnt) ? actorEnt.TechAttack : 0,
+    t_atk: actor.is_mech() ? actor.data.data.tech_attack : 0,
     acc: 0,
     action: action.Name.toUpperCase(),
     effect: action.Detail,
-    tags: itemEnt.Type === EntryType.MECH_SYSTEM ? itemEnt.Tags : [],
+    tags: item.is_mech_system() ? item.data.data.tags : [],
   };
 
   /*
@@ -157,19 +154,19 @@ async function _prepareTechActionMacro(
     mData.detail = tData.effect ? tData.effect : "";
   } */
 
-  await rollTechMacro(actorEnt.Flags.orig_doc, mData, partialMacroData, rerollData);
+  await rollTechMacro(actor, mData, partialMacroData, rerollData);
 }
 
 async function _prepareDeployableMacro(
-  actorEnt: Mech | Pilot | Npc,
-  itemEnt: Talent | MechSystem | NpcFeature,
+  actor: LancerActor, // TODO: Mech | Pilot | Npc,
+  item: LancerItem, // TODO: Talent | MechSystem | NpcFeature,
   index: number
 ) {
   // Support this later...
   // TODO: pilot gear (and NPC features later?)
-  if (itemEnt.Type !== EntryType.MECH_SYSTEM && itemEnt.Type !== EntryType.TALENT) return;
+  if (item.type !== EntryType.MECH_SYSTEM && item.type !== EntryType.TALENT) return;
 
-  let dep = itemEnt.Deployables[index];
+  let dep = item.data.data.deployables[index];
 
-  await renderMacroHTML(actorEnt.Flags.orig_doc, buildDeployableHTML(dep, true));
+  await renderMacroHTML(actor.Flags.orig_doc, buildDeployableHTML(dep, true));
 }

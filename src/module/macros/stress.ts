@@ -22,8 +22,7 @@ export async function prepareOverheatMacro(a: string | LancerActor, reroll_data?
   }
 
   if (getAutomationOptions().structure && !reroll_data) {
-    const mech = await actor.data.data.derived.mm_promise;
-    if (mech.CurrentHeat <= mech.HeatCapacity) {
+    if (actor.data.data.heat.value <= actor.data.data.heat.max) {
       ui.notifications!.info("Token heat is within heat cap.");
       return;
     }

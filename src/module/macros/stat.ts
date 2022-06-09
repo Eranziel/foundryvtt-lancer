@@ -16,9 +16,7 @@ export async function prepareStatMacro(a: string, statKey: string, rerollData?: 
 
   const statPath = statKey.split(".");
 
-  let mm_ent = await actor.data.data.derived.mm_promise;
-
-  let bonus: number = resolve_dotpath(mm_ent, statKey.substr(3));
+  let bonus: number = resolve_dotpath(actor, statKey.substr(3));
 
   let mData: LancerStatMacroData = {
     title: statPath[statPath.length - 1].toUpperCase(),

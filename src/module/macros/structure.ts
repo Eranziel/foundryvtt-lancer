@@ -26,8 +26,7 @@ export async function prepareStructureMacro(
   }
 
   if (getAutomationOptions().structure && !reroll_data) {
-    const mech = await actor.data.data.derived.mm_promise;
-    if (mech.CurrentHP > 0) {
+    if (actor.data.data.hp .value> 0) {
       ui.notifications!.info("Token has hp remaining. No need to roll structure.");
       return;
     }

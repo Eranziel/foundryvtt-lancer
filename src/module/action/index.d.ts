@@ -6,7 +6,7 @@ export type ActionData = {
   full: boolean;
   quick: boolean;
   reaction: boolean;
-  free: true;
+  free: boolean;
 };
 
 export type ActionType = keyof ActionData;

@@ -1,14 +1,14 @@
 import { LANCER } from "../config";
 import { LancerActorSheet } from "./lancer-actor-sheet";
-import { EntryType, Mech, Pilot } from "machine-mind";
+import { EntryType } from "machine-mind";
 import { funcs } from "machine-mind";
 import type { HelperOptions } from "handlebars";
 import { buildCounterHTML } from "../helpers/item";
-import { ref_commons, ref_params, resolve_ref_element, simple_mm_ref } from "../helpers/refs";
+import { ref_doc_common_attrs, ref_params, resolve_ref_element, simple_mm_ref } from "../helpers/refs";
 import { resolve_dotpath } from "../helpers/commons";
-import { AnyMMActor, is_reg_mech, is_actor_type } from "./lancer-actor";
-import { cleanCloudOwnerID, fetchPilot, fetchPilotViaCache, fetchPilotViaShareCode, pilotCache } from "../compcon";
-import type { AnyMMItem, LancerItemType } from "../item/lancer-item";
+import { is_actor_type } from "./lancer-actor";
+import { fetchPilotViaCache, fetchPilotViaShareCode, pilotCache } from "../util/compcon";
+import type { LancerItem, LancerItemType } from "../item/lancer-item";
 import { derived } from "svelte/store";
 
 const shareCodeMatcher = /^[A-Z0-9\d]{6}$/g;
@@ -53,11 +53,11 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
       // Cloud download
       let download = html.find('.cloud-control[data-action*="download"]');
       let actor = this.actor;
-      if (actor.is_pilot() && actor.data.data.derived.mm!.CloudID) {
+      if (actor.is_pilot() && actor.data.data.cloudID) {
         download.on("click", async ev => {
           ev.stopPropagation();
 
-          let self = await this.getDataLazy();
+          let self = await this.getData();
           // Fetch data to sync
           let raw_pilot_data = null;
           if (self.rawID.match(shareCodeMatcher)) {
@@ -155,16 +155,16 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
   }
 
   async deactivateMech() {
-    let this_mm = this.actor.data.data.derived.mm as Pilot;
-
     // Unset active mech
-    this_mm.ActiveMechRef = null;
-
-    await this_mm.writeback();
+    await this.actor.update({
+      "active_mech": null
+    });
   }
 
   async getData() {
     const data = await super.getData(); // Not fully populated yet!
+    // TODO 
+    /*
 
     data.active_mech = await data.mm.ActiveMech();
     data.pilotCache = pilotCache();
@@ -184,12 +184,13 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
       data.rawID = "";
       data.vaultID = "";
     }
+    */
 
     return data;
   }
 
   // Pilots can handle most stuff
-  can_root_drop_entry(item: AnyMMActor | AnyMMItem): boolean {
+  can_root_drop_entry(item: LancerActor | LancerItem): boolean {
     // Accept mechs, so as to change their actor
     if (item.Type == EntryType.MECH) {
       return true;
@@ -204,8 +205,8 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
     return false;
   }
 
-  async on_root_drop(base_drop: AnyMMItem | AnyMMActor): Promise<void> {
-    let sheet_data = await this.getDataLazy();
+  async on_root_drop(base_drop: LancerItem | LancerActor): Promise<void> {
+    let sheet_data = await this.getData();
     let this_mm = sheet_data.mm;
 
     // Take posession
@@ -327,6 +328,8 @@ export function pilot_counters(pilot: Pilot, _helper: HelperOptions): string {
 }
 
 export function all_mech_preview(_helper: HelperOptions): string {
+
+  return "TODO"; 
   let this_mm: Pilot = _helper.data.root.mm;
   let active_mech: Mech | null = _helper.data.root.active_mech;
 
@@ -342,13 +345,9 @@ export function all_mech_preview(_helper: HelperOptions): string {
         a.id !== active_mech?.RegistryID
     )
     .map((m, k) => {
-      let inactive_mech = m.data.data.derived.mm;
-
-      if (!inactive_mech) return;
-
       if (!is_reg_mech(inactive_mech)) return;
 
-      let cd = ref_commons(inactive_mech);
+      let cd = ref_doc_common_attrs(inactive_mech);
       if (!cd) return simple_mm_ref(EntryType.MECH, inactive_mech, "ERROR LOADING MECH", "", true);
 
       html = html.concat(`
@@ -359,7 +358,7 @@ export function all_mech_preview(_helper: HelperOptions): string {
     `);
     });
 
-  let cd = ref_commons(this_mm);
+  let cd = ref_doc_common_attrs(this_mm);
   if (active_mech) return active_mech_preview(active_mech, "active_mech", _helper).concat(html);
   else return html;
 }
@@ -368,7 +367,7 @@ export function active_mech_preview(mech: Mech, path: string, _helper: HelperOpt
   var html = ``;
 
   // Generate commons
-  let cd = ref_commons(mech);
+  let cd = ref_doc_common_attrs(mech);
   if (!cd) return simple_mm_ref(EntryType.MECH, mech, "No Active Mech", path, true);
 
   // Making ourselves easy templates for the preview in case we want to switch in the future

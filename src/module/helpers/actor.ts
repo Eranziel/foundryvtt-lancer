@@ -1,7 +1,7 @@
 import type { HelperOptions } from "handlebars";
 import { EntryType, funcs, Mech, Npc, Pilot } from "machine-mind";
 import { ext_helper_hash, inc_if, resolve_helper_dotpath, selected, std_num_input, std_x_of_y } from "./commons";
-import { ref_commons, ref_params, simple_mm_ref } from "./refs";
+import { ref_doc_common_attrs, ref_params, simple_mm_ref } from "./refs";
 import { encodeMacroData } from "../macros";
 import { encodeOverchargeMacroData } from "../macros/overcharge";
 import type { ActionType } from "../action";
@@ -303,7 +303,7 @@ export function deployer_slot(data_path: string, options: HelperOptions): string
   }
 
   // Generate commons
-  let cd = ref_commons(existing);
+  let cd = ref_doc_common_attrs(existing);
   if (!cd) {
     return simple_mm_ref([EntryType.PILOT, EntryType.MECH, EntryType.NPC], existing, "No Deployer", data_path, true);
   }

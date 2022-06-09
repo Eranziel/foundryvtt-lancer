@@ -1,5 +1,5 @@
 import type { PackedPilotData } from "machine-mind";
-import type { CachedCloudPilot } from "./interfaces";
+import type { CachedCloudPilot } from "../interfaces";
 
 // we only cache the id, cloud ids, and name; we're going to fetch all other data on user input
 // the point of the cache is not have the pilot actor window to wait for network calls
@@ -23,9 +23,11 @@ export async function populatePilotCache(): Promise<CachedCloudPilot[]> {
   }
   const res = await Storage.list("pilot", {
     level: "protected",
+    // @ts-expect-error
     cacheControl: "no-cache",
   });
 
+  // @ts-expect-error
   const data: Array<PackedPilotData> = await Promise.all(res.map((obj: { key: string }) => fetchPilot(obj.key)));
   data.forEach(pilot => {
     pilot.mechs = [];

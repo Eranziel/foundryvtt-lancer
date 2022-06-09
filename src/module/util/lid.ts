@@ -1,6 +1,7 @@
 import { EntryType } from "machine-mind";
-import { LancerActor } from "./actor/lancer-actor";
-import { LancerItem } from "./item/lancer-item";
+import { LancerActor } from "../actor/lancer-actor";
+import { FetcherCache } from "./async";
+import { LancerItem } from "../item/lancer-item";
 
 
 // Mechanisms for LID resolution
@@ -26,7 +27,8 @@ export async function compendium_lookup_lid_plural(lid: string, short_circuit: b
                 if(short_circuit) {
                     return docs;
                 } else {
-                    result.push(...docs);
+                    // @ts-expect-error TS2590
+                    result.push(...e);
                 }
             }
         });
@@ -41,5 +43,12 @@ export async function compendium_lookup_lid(lid: string, types?: EntryType | Ent
         return res[0];
     } else {
         return null;
+    }
+}
+
+// A fetcher cache for LIDs
+export class LIDLookupCache extends FetcherCache<string, LancerActor | LancerItem | null> {
+    constructor(timeout?: number) {
+        super((key) => compendium_lookup_lid(key), timeout);
     }
 }

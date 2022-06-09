@@ -13,7 +13,7 @@ import {
 } from "machine-mind";
 import { bonuses_display, damage_editor, range_editor, buildActionHTML, buildDeployableHTML } from "./item";
 import { large_textbox_card, resolve_helper_dotpath, std_enum_select, std_num_input } from "./commons";
-import { ref_commons, ref_params } from "./refs";
+import { ref_params } from "./refs";
 
 export function item_edit_arrayed_actions(path: string, title: string, helper: HelperOptions): string {
   let action_arr: Array<Action> = resolve_helper_dotpath(helper, path);
@@ -273,7 +273,7 @@ export function item_edit_arrayed_integrated(path: string, title: string, helper
 export function item_edit_license(helper: HelperOptions): string {
   let license: License | null = helper.data.root.license;
   let licenseInfo: string;
-  let cd = ref_commons(license);
+  let cd = ref_doc_common_attrs(license);
 
   if (!cd || !license) licenseInfo = "No license";
   else

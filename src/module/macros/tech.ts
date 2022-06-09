@@ -39,12 +39,8 @@ export async function prepareTechMacro(a: string, t: string, rerollData?: AccDif
     mData.action = "Quick";
     mData.title = "BASIC"
 
-    if (actor.is_mech()) {
-      const mm = await actor.data.data.derived.mm_promise;
-      mData.t_atk = mm.TechAttack
-    } else if (actor.is_npc()) {
-      const mm = await actor.data.data.derived.mm_promise;
-      mData.t_atk = mm.Sys
+    if (actor.is_mech() || actor.is_npc()) {
+      mData.t_atk = actor.data.data.tech_attack; // TODO: make extra sure we populate this for npcs
     } else {
       ui.notifications!.error(`Error rolling tech attack macro (not a valid tech attacker).`);
       return Promise.resolve();

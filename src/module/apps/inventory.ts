@@ -1,5 +1,5 @@
 import { Mech } from "machine-mind";
-import type { LancerActor, AnyMMActor } from "../actor/lancer-actor";
+import type { LancerActor } from "../actor/lancer-actor";
 import { HANDLER_activate_general_controls } from "../helpers/commons";
 import {
   HANDLER_activate_native_ref_dragging,
@@ -67,7 +67,7 @@ export class InventoryDialog extends Dialog {
   }
 
   // Get the appropriate cats for the given mm actor
-  populate_categories(mm: AnyMMActor): FilledCategory[] {
+  populate_categories(mm: LancerActor): FilledCategory[] {
     // Decide categories based on type
     let cats: FilledCategory[] = [];
     if (mm instanceof Mech) {

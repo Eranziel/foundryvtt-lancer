@@ -3,23 +3,13 @@ import { LANCER } from "../config";
 import { getAutomationOptions } from "../settings";
 import type { LancerItem } from "../item/lancer-item";
 import type { LancerActor } from "../actor/lancer-actor";
-import { is_reg_mech, is_reg_npc } from "../actor/lancer-actor";
 import type { LancerAttackMacroData, LancerMacroData } from "../interfaces";
 import {
   DamageType,
   funcs,
-  MechWeapon,
-  MechWeaponProfile,
-  NpcFeature,
-  OpCtx,
-  Pilot,
-  PilotWeapon,
-  RegRef,
 } from "machine-mind";
 import { is_limited, is_overkill } from "machine-mind/dist/funcs";
 import { is_loading, is_self_heat } from "machine-mind/dist/classes/mech/EquipUtil";
-import { FoundryReg } from "../mm-util/foundry-reg";
-import { ref_params } from "../helpers/refs";
 import { checkForHit } from "../helpers/automation/targeting";
 import type { AccDiffData, AccDiffDataSerialized, RollModifier } from "../helpers/acc_diff";
 import { getMacroSpeaker, ownedItemFromString } from "./_util";
@@ -74,11 +64,12 @@ type AttackMacroOptions = {
 };
 
 export async function prepareEncodedAttackMacro(
-  actor_ref: RegRef<any>,
+  actor_uuid: string,
   item_id: string | null,
   options: AttackMacroOptions,
   rerollData: AccDiffDataSerialized
 ) {
+/*
   let reg = new FoundryReg();
   let opCtx = new OpCtx();
   let mm = await reg.resolve(opCtx, actor_ref);
@@ -91,6 +82,7 @@ export async function prepareEncodedAttackMacro(
   } else {
     return openBasicAttack(accdiff);
   }
+  */
 }
 
 /**
@@ -118,6 +110,7 @@ export async function prepareAttackMacro(
   },
   rerollData?: AccDiffData
 ) {
+  /*
   if (!item.is_npc_feature() && !item.is_mech_weapon() && !item.is_pilot_weapon()) return;
   let mData: LancerAttackMacroData = {
     title: item.name ?? "",
@@ -290,9 +283,11 @@ export async function prepareAttackMacro(
   };
 
   await rollAttackMacro(actor, atkRolls, mData, rerollMacro);
+*/
 }
 
 export async function openBasicAttack(rerollData?: AccDiffData) {
+  /*
   let { isOpen, open } = await import("../helpers/slidinghud");
 
   // if the hud is already open, and we're not overriding with new reroll data, just bail out
@@ -354,6 +349,7 @@ export async function openBasicAttack(rerollData?: AccDiffData) {
   };
 
   await rollAttackMacro(actor, atkRolls, mData, rerollMacro);
+*/
 }
 
 type AttackResult = {
@@ -502,10 +498,8 @@ async function rollAttackMacro(
   }
 
   if (getAutomationOptions().attack_self_heat) {
-    let mmEnt = await actor.data.data.derived.mm_promise;
-    if (is_reg_mech(mmEnt) || is_reg_npc(mmEnt)) {
-      mmEnt.CurrentHeat += overkill_heat + self_heat;
-      await mmEnt.writeback();
+    if (actor.is_mech() || actor.is_npc()) {
+      await actor.update({"data.heat": overkill_heat + self_heat});
     }
   }
 

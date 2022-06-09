@@ -2,28 +2,14 @@ import { LANCER, TypeIcon } from "../config";
 import {
   EntryType,
   funcs,
-  LiveEntryTypes,
-  MechSystem,
-  MechWeapon,
-  NpcFeature,
   NpcFeatureType,
-  OpCtx,
   RangeType,
-  RegEntry,
   RegEntryTypes,
   RegRangeData,
 } from "machine-mind";
-import { system_ready } from "../../lancer";
-import { mm_wrap_item } from "../mm-util/helpers";
+import { TempSystemEntryType } from "../tmp-new-template";
 
 const lp = LANCER.log_prefix;
-
-interface DerivedProperties<T extends LancerItemType> {
-  // license: RegRef<EntryType.LICENSE> | null; // The license granting this item, if one could be found
-  max_uses: number; // The max uses, augmented to also include any actor bonuses
-  mm: LiveEntryTypes<T> | null;
-  mm_promise: Promise<LiveEntryTypes<T>>; // The above, in promise form. More robust
-}
 
 interface LancerItemDataSource<T extends LancerItemType> {
   type: T;
@@ -31,8 +17,8 @@ interface LancerItemDataSource<T extends LancerItemType> {
 }
 interface LancerItemDataProperties<T extends LancerItemType> {
   type: T;
-  data: RegEntryTypes<T> & {
-    derived: DerivedProperties<T>;
+  data: TempSystemEntryType<T> & {
+  // data: RegEntryTypes<T> & {
   };
 }
 
@@ -105,7 +91,8 @@ declare global {
   }
 }
 
-export class LancerItem extends Item {
+// export class LancerItem<T extends LancerItemType = LancerItemType> extends Item { 
+export class LancerItem extends Item { 
   /**
    * Returns all ranges for the item that match the provided range types
    */
@@ -132,65 +119,33 @@ export class LancerItem extends Item {
   prepareData() {
     super.prepareData();
 
+    console.warn("TODO: Re-implement item data preparation");
+    /*
     // If no id, leave
     if (!this.id) return;
 
+    let d = foundry.utils.duplicate(this.toObject());
     // Push down name
-    this.data.data.name = this.data.name;
     if (!this.data.img) this.data.img = CONST.DEFAULT_TOKEN;
 
-    let dr: this["data"]["data"]["derived"];
+    // compute max uses if needed
+    // TODO: Re-implement base limits
+    let base_limit = d.base_limit;
+    if (base_limit) {
+      dr.max_uses = base_limit; // A decent baseline - start with the limited tag
 
-    // Init our derived data if necessary
-    if (!this.data.data.derived) {
-      dr = {
-        max_uses: 0,
-        mm: null as any, // We will set this shortly
-        mm_promise: null as any, // We will set this shortly
-      };
-
-      // We set it normally.
-      this.data.data.derived = dr;
-    } else {
-      // Otherwise, grab existing
-      dr = this.data.data.derived;
-    }
-
-    // Do we already have a ctx from our actor?
-    let actor_ctx = this.actor?._actor_ctx;
-
-    // Spool up our Machine Mind wrapping process
-    // Promise<A | B> is apparently unassignable to Promise<A> | Promise<B>
-    (<Promise<LiveEntryTypes<LancerItemType>>>dr.mm_promise) = system_ready
-      .then(() => mm_wrap_item(this, actor_ctx ?? new OpCtx()))
-      .then(async mm => {
-        // Save the document to derived
-        Object.defineProperties(dr, {
-          mm: {
-            enumerable: false,
-            configurable: true,
-            writable: false,
-            value: mm,
-          },
-        });
-
-        // Also, compute max uses if needed
-        let base_limit = (mm as any).BaseLimit;
-        if (base_limit) {
-          dr.max_uses = base_limit; // A decent baseline - start with the limited tag
-
-          // If we have an actor, then try to get limited bonuses
-          if (this.actor) {
-            let actor_mm = await this.actor.data.data.derived.mm_promise;
-            if (actor_mm.Type == EntryType.MECH || actor_mm.Type == EntryType.PILOT) {
-              // Add pilot/mech lim bonus
-              dr.max_uses += actor_mm.LimitedBonus;
-            }
-          }
+      // If we have an actor, then try to get limited bonuses
+      if (this.actor) {
+        let actor_mm = await this.actor.data.data.derived.mm_promise;
+        if (actor_mm.Type == EntryType.MECH || actor_mm.Type == EntryType.PILOT) {
+          // Add pilot/mech lim bonus
+          dr.max_uses += actor_mm.LimitedBonus;
         }
-
-        return mm;
-      });
+      }
+    }
+    
+    return d;
+    */
   }
 
   /** @override
@@ -373,8 +328,6 @@ export class LancerItem extends Item {
 }
 
 // This seems like it could be removed eventually
-export type AnyMMItem = LiveEntryTypes<LancerItemType>;
-
 export type LancerItemType =
   | EntryType.CORE_BONUS
   | EntryType.FACTION
@@ -426,20 +379,4 @@ export const LancerItemTypes = [
 ];
 export function is_item_type(type: EntryType): type is LancerItemType {
   return LancerItemTypes.includes(type);
-}
-
-// export function has_lid<T extends AnyMMItem | AnyMMActor>(item: AnyMMItem | AnyMMActor): item is T & {ID: string} {
-// return (item as any).LID != undefined;
-// }
-
-export function is_reg_mech_weapon(item: RegEntry<any>): item is MechWeapon {
-  return item.Type === EntryType.MECH_WEAPON;
-}
-
-export function is_reg_mech_system(item: RegEntry<any>): item is MechSystem {
-  return item.Type === EntryType.MECH_SYSTEM;
-}
-
-export function is_reg_npc_feature(item: RegEntry<any>): item is NpcFeature {
-  return item.Type === EntryType.NPC_FEATURE;
 }
