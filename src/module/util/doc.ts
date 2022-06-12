@@ -168,8 +168,8 @@ export async function insinuate<T extends LancerItemType>(items: Array<LancerIte
   }
   // Await and recombine
   // @ts-ignore
-  let actual_new_items = await to.createEmbeddedDocuments("Item", new_items);
-  return [...old_items, ...new_items];
+  let actual_new_items: LancerItem[] = await to.createEmbeddedDocuments("Item", new_items);
+  return [...old_items, ...actual_new_items];
 }
 
 // 

@@ -73,6 +73,8 @@ export async function onHotbarDrop(_bar: any, data: any, slot: number) {
       ui.notifications!.error(`You are trying to drop a broken drop source! ("${title}")`);
       return;
     } else if (is_ref(data)) {
+      /*
+      TODO
       var item = await new FoundryReg().resolve(new OpCtx(), data);
       title = item.Name;
 
@@ -85,6 +87,7 @@ export async function onHotbarDrop(_bar: any, data: any, slot: number) {
 
       img = _chooseItemImage(data);
       command = `game.lancer.prepareItemMacro("${actorId}", "${itemId}");`;
+      */
     } else {
       return;
     }

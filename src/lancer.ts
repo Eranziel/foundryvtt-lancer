@@ -219,11 +219,6 @@ Hooks.once("init", async function () {
     targetsFromTemplate: macros.targetsFromTemplate,
     migrations: migrations,
     getAutomationOptions: getAutomationOptions,
-
-    // For whitespines testing /('o')/
-    tmp: {
-      finishedInit: false,
-    }
   };
 
   // Record Configuration Values

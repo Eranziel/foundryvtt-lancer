@@ -2,21 +2,14 @@ import { LANCER, replace_default_resource, TypeIcon } from "../config";
 import {
   EntryType,
   funcs,
-  Mech,
-  Npc,
-  RegRef,
   PackedPilotData,
   RegEntryTypes,
-  Frame,
 } from "machine-mind";
 import { LancerHooks, LancerSubscription } from "../helpers/hooks";
-import type { LancerItem, LancerItemType } from "../item/lancer-item";
+import { LancerItem, LancerItemType } from "../item/lancer-item";
 import { renderMacroTemplate, encodeMacroData, prepareOverheatMacro, prepareStructureMacro } from "../macros";
 import { StabOptions1, StabOptions2 } from "../enums";
 import { fix_modify_token_attribute } from "../token";
-import type { ActionData } from "../action";
-import { frameToPath } from "./retrograde-map";
-import { NpcClass } from "machine-mind";
 import { findEffect } from "../helpers/acc_diff";
 import { TempSystemEntryType } from "../tmp-new-template";
 import { AE_MODE_SET_JSON } from "../effects/lancer-active-effect";
@@ -406,7 +399,7 @@ export class LancerActor<T extends LancerActorType = LancerActorType> extends Ac
 
   // Do the specified junk to an item. Returns an object suitable for updateEmbeddedDocuments
   private refresh(
-    item: LancerItem, // TODO: Restore type specficity
+    item: LancerItem, // TODO: Restore type specificity
     opts: {
       repair?: boolean;
       reload?: boolean;

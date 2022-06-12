@@ -1,6 +1,8 @@
 import {
   AnyRegNpcFeatureData,
   EntryType,
+  FittingSize,
+  MountType,
   RegCoreBonusData,
   RegDeployableData,
   RegEnvironmentData,
@@ -134,7 +136,7 @@ namespace SystemTemplates {
 
 
 type DataTypeMap = { [key in EntryType]: object };
-export interface SystemEntryTypesMap extends DataTypeMap {
+interface SystemEntryTypesMap extends DataTypeMap {
   // [EntryType.CONDITION]: IStatusData;
   [EntryType.CORE_BONUS]: RegCoreBonusData;
   [EntryType.DEPLOYABLE]: Omit<RegDeployableData, 'hp'>
@@ -156,8 +158,19 @@ export interface SystemEntryTypesMap extends DataTypeMap {
                       overcharge: number,
                       loadout: {
                         frame: LancerItem<EntryType.FRAME> | null,
-                        weapon_mounts: Array<any>, // TODO
+                        weapon_mounts: Array<{
+                          slots: Array<{
+                            weapon: LancerItem<EntryType.MECH_WEAPON> | null,
+                            mod: LancerItem<EntryType.WEAPON_MOD> | null,
+                            size: FittingSize
+                          }>,
+                          type: MountType,
+                          intergrated: boolean,
+                          bracing: boolean,
+                          // mount_flags: Record<string, unknown> 
+                        }>, // TODO
                         system_mounts: Array<any>, // TODO
+                        // TODO: class/template enumeration
                       }
                     };
   [EntryType.MECH_SYSTEM]: RegMechSystemData;
@@ -188,7 +201,12 @@ export interface SystemEntryTypesMap extends DataTypeMap {
   [EntryType.PILOT]: Omit<RegPilotData, 'hp'> 
                     & SystemTemplates.actor_universal
                     & SystemTemplates.hp
-                    & { licenses: LancerItem<EntryType.LICENSE>[] };
+                    & { 
+                      active_mech: LancerActor<EntryType.MECH> | null,
+                      owned_mechs: LancerActor<EntryType.MECH>[],
+                      licenses: LancerItem<EntryType.LICENSE>[],
+                      // TODO: other item enumeration, typed loadout
+                    };
   [EntryType.RESERVE]: RegReserveData;
   [EntryType.SITREP]: RegSitrepData;
   [EntryType.SKILL]: RegSkillData;

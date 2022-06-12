@@ -1,7 +1,6 @@
 import { LANCER } from "./config";
 const lp = LANCER.log_prefix;
 import { EntryType, funcs, IContentPack, RegEnv, StaticReg } from "machine-mind";
-import { FoundryReg } from "./mm-util/foundry-reg";
 import { LCPIndex } from "./apps/lcpManager";
 import { get_pack } from "./util/doc";
 import type { LancerActor } from "./actor/lancer-actor";

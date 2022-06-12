@@ -6,10 +6,10 @@ import { EntryType } from "machine-mind";
 import tippy from "tippy.js";
 import { LancerItem, is_item_type, LancerItemType } from "../item/lancer-item";
 import { insinuate, resort_item } from "../util/doc";
-import { resolve_ref_element } from "../helpers/refs";
 import { HANDLER_activate_general_controls } from "../helpers/commons";
 import { LancerActor } from "./lancer-actor";
 import { DropHandlerFunc, ResolvedDropData } from "../helpers/dragdrop";
+import { TempSystemEntryType } from "../tmp-new-template";
 const lp = LANCER.log_prefix;
 
 /**
@@ -175,8 +175,8 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
       let delete_targets = [];
       if (doc.is_npc_class() && this.actor.data.data.class) {
         // If we have a class, get rid of it
-        let class_data = this.actor.data.data.class.data.data;
-        let class_features = findMatchingFeaturesInNpc(this.actor, [...class_data.base_features, ...class_data.optional_features);
+        let class_data = this.actor.data.data.class.data.data as TempSystemEntryType<EntryType.NPC_CLASS>;
+        let class_features = findMatchingFeaturesInNpc(this.actor, [...class_data.base_features, ...class_data.optional_features]);
         delete_targets.push(...class_features.map(f => f.id));
       }
 
@@ -188,40 +188,13 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
         needs_refresh = true;
       }
       if(doc.is_npc_class()) {
-
-        await this.actor.swapFrameImage(this_mm, this_mm.ActiveClass, drop);
+        await this.actor.swapFrameImage(this.actor, this_mm.ActiveClass, doc);
       }
-    } else if (is_new && drop.Type == EntryType.NPC_CLASS) {
-      // Bring in base features from classes, if we don't already have an active class
-      let this_inv = await this_mm.get_inventory();
-
-      
-      // Need to pass this_mm through so we don't overwrite data on our 
-      // later update
-
-      // But before we do that, destroy all old classes
-      for (let b of drop.BaseFeatures) {
-        await b.insinuate(this_inv, ctx);
-      }
-      needs_refresh = true;
-    } else if (drop.Type == EntryType.NPC_FEATURE) {
-      // If new we need to update stats
-      needs_refresh = is_new;
-    }
-
-    // If a new item was added, fill our hp, stress, and structure to match new maxes
-    if (needs_refresh) {
-      // Update this, to re-populate arrays etc to reflect new item
-      await this_mm.repopulate_inventory();
-      this_mm.recompute_bonuses();
-
-      this_mm.CurrentHP = this_mm.MaxHP;
-      this_mm.CurrentStress = this_mm.MaxStress;
-      this_mm.CurrentStructure = this_mm.MaxStructure;
-      await this_mm.writeback();
     }
 
     // We also may need to sort the item
+    // TODO
+    /*
     if (drop.Type == EntryType.NPC_FEATURE) {
       // Try to find a ref
       let nearest = $(event.target).closest(".valid.ref");
@@ -233,6 +206,7 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
         }
       }
     }
+    */
   }
 }
 
@@ -248,9 +222,9 @@ function getStatInput(event: Event): HTMLInputElement | HTMLDataElement | null {
 function handleClassDelete(ctx: GenControlContext<LancerActorSheetData<EntryType.NPC>>) {
   if (ctx.action == "delete") {
     let pt = ctx.path_target;
-    if (pt instanceof LancerItem && (pt.is_npc_template() || pt.is_npc_class()) {
+    if (pt instanceof LancerItem && (pt.is_npc_template() || pt.is_npc_class())) {
       let matches = findMatchingFeaturesInNpc(ctx.data.actor, [...pt.base_features, ...pt.optional_features]);
-      ctx.data.actor.deleteEmbeddedDocuments("Item", matches.map(m => m.id));
+      ctx.data.actor.deleteEmbeddedDocuments("Item", matches.map(m => m.id).filter(x=>x) as string[]);
     }
   }
 }

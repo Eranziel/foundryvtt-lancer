@@ -17,9 +17,7 @@ declare global {
     }
   }
   interface Game {
-    lancer: {
-      [x: string]: unknown;
-    };
+    lancer: Record<string, unknown>,
     action_manager?: LancerActionManager;
   }
 

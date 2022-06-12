@@ -6,7 +6,7 @@ import type { HelperOptions } from "handlebars";
 import { buildCounterHTML } from "../helpers/item";
 import { ref_doc_common_attrs, ref_params, resolve_ref_element, simple_mm_ref } from "../helpers/refs";
 import { resolve_dotpath } from "../helpers/commons";
-import { is_actor_type } from "./lancer-actor";
+import { is_actor_type, LancerActor } from "./lancer-actor";
 import { fetchPilotViaCache, fetchPilotViaShareCode, pilotCache } from "../util/compcon";
 import type { LancerItem, LancerItemType } from "../item/lancer-item";
 import { derived } from "svelte/store";
@@ -127,7 +127,7 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
         ev.stopPropagation();
         let mech = await resolve_ref_element(ev.currentTarget);
 
-        if (!mech || !is_reg_mech(mech)) return;
+        if (!mech || !(mech as LancerActor).is_mech()) return;
 
         this.activateMech(mech);
       });
@@ -141,17 +141,18 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
     }
   }
 
-  async activateMech(mech: Mech) {
-    let this_mm = this.actor.data.data.derived.mm as Pilot;
+  async activateMech(mech: LancerActor<EntryType.MECH>) {
+    // TODO
+    let pilot = this.actor as LancerActor<EntryType.PILOT>;
     // Set active mech
-    this_mm.ActiveMechRef = mech.as_ref();
-    if (mech.Pilot?.RegistryID != mech.RegistryID) {
+    pilot.active_mech = mech.as_ref();
+    if (mech.data.data.pilot != mech.RegistryID) {
       // Also set the mechs pilot if necessary
-      mech.Pilot = this_mm;
+      mech.Pilot = pilot;
       mech.writeback();
     }
 
-    await this_mm.writeback();
+    await pilot.writeback();
   }
 
   async deactivateMech() {
