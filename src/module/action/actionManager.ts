@@ -1,8 +1,6 @@
 import type { LancerActor } from "../actor/lancer-actor";
 import type { ActionData, ActionType } from ".";
-import { LANCER } from "../config";
 import tippy from "tippy.js";
-import { prepareTextMacro } from "../macros";
 import { getActionTrackerOptions } from "../settings";
 import { getActions, modAction, toggleAction, updateActions, _defaultActionData } from "./actionTracker";
 
@@ -33,9 +31,7 @@ export class LancerActionManager extends Application {
 
   async init() {
     // TODO: find the correct place to specify what game.system.id is expected to be
-    LancerActionManager.enabled =
-      getActionTrackerOptions().showHotbar &&
-      !game.settings.get("core", "noCanvas");
+    LancerActionManager.enabled = getActionTrackerOptions().showHotbar && !game.settings.get("core", "noCanvas");
     if (LancerActionManager.enabled) {
       this.loadUserPos();
       await this.updateControlledToken();
@@ -143,7 +139,7 @@ export class LancerActionManager extends Application {
     html.find("#action-manager-reset").on("click", e => {
       e.preventDefault();
       this.resetActions();
-    })
+    });
 
     // Enable action toggles.
     html.find("a.action[data-action]").on("click", e => {

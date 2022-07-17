@@ -3,16 +3,16 @@
   <header class="sheet-header card clipped-bot">
     <div class="flexcol grow">
       <h1 class="charname">
-        <input class="header-field" name="name" type="text" value="{{item.name}}" placeholder="{{localize "
-          lancer.placeholder.name"}}" />
+        <input class="header-field" name="name" type="text" value="{{item.name}}"
+               placeholder="{{localize "lancer.placeholder.name"}}" />
       </h1>
       {{#if item.actor}}
-      <div class="flexrow">
-        <span>
-          RANK:
-        </span>
-        {{{l-num-input "mm.CurrentRank" 3}}}
-      </div>
+        <div class="flexrow">
+          <span>
+            RANK:
+          </span>
+          {{{l-num-input "mm.CurrentRank" 3}}}
+        </div>
       {{/if}}
     </div>
     {{{ref-portrait-img item.img "img" mm}}}
@@ -22,54 +22,55 @@
     {{{textarea-card "DESCRIPTION" "mm.Description"}}}
     {{{textarea-card "TERSE DESCRIPTION" "mm.Terse"}}}
     <a class="gen-control fas fa-plus" data-action="append" data-path="mm.Ranks"
-      style="align-self: flex-end;margin-right: 1em;" data-action-value="(struct)talent_rank"></a>
+       style="align-self: flex-end;margin-right: 1em;" data-action-value="(struct)talent_rank"></a>
     {{#if mm.Ranks}}
-    {{#each mm.Ranks as |rank index|}}
-    <div class="talent-level card clipped-bot flexcol">
-      <div class="lancer-header" style="flex-basis: auto;">
-        <i class="cci cci-rank-{{inc index}} i--xl i--dark"></i>
-        <input class="lancer-invisible-input" name="mm.Ranks.{{index}}.Name" value="{{rank.Name}}" data-dtype="String"
-          style="color: white" />
-        <span class="minor">
-          // RANK
-          {{inc index}}
-        </span>
-        <a class="gen-control i--light" data-action="splice" data-path="mm.Ranks.{{index}}">
-          <i class="fas fa-trash"></i>
-        </a>
-        {{{popout-editor-button (concat "mm.Ranks." index ".Description")}}}
-      </div>
-      <div class="desc-text">
-        {{{safe-html rank.Description}}}
-      </div>
-      {{! Bonuses }}
-      {{{item-edit-arrayed-actions (concat "mm.Ranks." index ".Actions") "ACTIONS"}}}
-      {{{item-edit-arrayed-bonuses (concat "mm.Ranks." index ".Bonuses")}}}
-      {{{counter-array
-      rank.Counters
-      (concat "mm.Ranks." index ".Counters")
-      (concat "mm.Ranks." index ".Counters")
-      true
-      }}}
-      <div class="integrated-wrapper card clipped flexcol">
-        <div class="lancer-header" style="font-weight: bold">INTEGRATED GEAR</div>
-        {{#each rank.Integrated as |integrated integ_index|}}
-        {{#if (eq integrated.Type "mech_system")}}
-        {{{ref-mm-controllable-item-native (concat "mm.Ranks." index ".Integrated." integ_index) null }}}
-        {{else if (eq integrated.Type "mech_weapon")}}
-        <div style="margin:3px 10px">
-          {{{mech-weapon-preview (concat "mm.Ranks." index ".Integrated." integ_index) "" }}}
+      {{#each mm.Ranks as |rank index|}}
+        <div class="talent-level card clipped-bot flexcol">
+          <div class="lancer-header" style="flex-basis: auto;">
+            <i class="cci cci-rank-{{inc index}} i--xl i--dark"></i>
+            <input class="lancer-invisible-input" name="mm.Ranks.{{index}}.Name" value="{{rank.Name}}"
+                   data-dtype="String" style="color: white" />
+            <span class="minor">
+              // RANK
+              {{inc index}}
+            </span>
+            <a class="gen-control i--light" data-action="splice" data-path="mm.Ranks.{{index}}">
+              <i class="fas fa-trash"></i>
+            </a>
+            {{{popout-editor-button (concat "mm.Ranks." index ".Description")}}}
+          </div>
+          <div class="desc-text">
+            {{{safe-html rank.Description}}}
+          </div>
+          {{! Bonuses }}
+          {{{item-edit-arrayed-actions (concat "mm.Ranks." index ".Actions") "ACTIONS"}}}
+          {{{item-edit-arrayed-bonuses (concat "mm.Ranks." index ".Bonuses")}}}
+          {{{counter-array
+            rank.Counters
+            (concat "mm.Ranks." index ".Counters")
+            (concat "mm.Ranks." index ".Counters")
+            true
+          }}}
+          <div class="integrated-wrapper card clipped flexcol">
+            <div class="lancer-header" style="font-weight: bold">INTEGRATED GEAR</div>
+            {{#each rank.Integrated as |integrated integ_index|}}
+              {{#if (eq integrated.Type "mech_system")}}
+                {{{ref-mm-controllable-item-native (concat "mm.Ranks." index ".Integrated." integ_index) null }}}
+              {{else if (eq integrated.Type "mech_weapon")}}
+                <div style="margin:3px 10px">
+                  {{{mech-weapon-preview (concat "mm.Ranks." index ".Integrated." integ_index) "" }}}
+                </div>
+              {{else}}
+                {{!-- Fallback - typically there should be nothing other than mech systems and weapons,
+                but just in case.--}}
+                {{{ref-mm-controllable-item-native (concat "mm.Ranks." index ".Integrated." integ_index) null }}}
+              {{/if}}
+            {{/each}}
+          </div>
+          {{{item-edit-arrayed-deployables (concat "mm.Ranks." index ".Deployables") "DEPLOYABLES"}}}
+          {{{item-edit-arrayed-synergies (concat "mm.Ranks." index ".Synergies") "SYNERGIES"}}}
         </div>
-        {{else}}
-        {{!-- Fallback - typically there should be nothing other than mech systems and weapons, but just in case.--}}
-        {{{ref-mm-controllable-item-native (concat "mm.Ranks." index ".Integrated." integ_index) null }}}
-        {{/if}}
-        {{/each}}
-      </div>
-      {{{item-edit-arrayed-deployables (concat "mm.Ranks." index ".Deployables") "DEPLOYABLES"}}}
-      {{{item-edit-arrayed-synergies (concat "mm.Ranks." index ".Synergies") "SYNERGIES"}}}
-    </div>
-    {{/each}}
+      {{/each}}
     {{/if}}
   </div>
 </form>

@@ -1,5 +1,6 @@
 import { LANCER } from "../config";
 import { ActionTrackerOptions, getActionTrackerOptions } from "../settings";
+
 /**
  * Settings form for customizing the icon appearance of the icon used in the
  * tracker
@@ -20,8 +21,8 @@ export class ActionTrackerConfig extends FormApplication<FormApplication.Options
   getData(): ActionTrackerOptions {
     return {
       ...getActionTrackerOptions(true),
-      ...game.settings.get(game.system.id, LANCER.setting_actionTracker) as Partial<ActionTrackerOptions>,
-    }
+      ...(game.settings.get(game.system.id, LANCER.setting_actionTracker) as Partial<ActionTrackerOptions>),
+    };
   }
 
   /** @override */

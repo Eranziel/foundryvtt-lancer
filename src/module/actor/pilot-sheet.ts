@@ -1,15 +1,13 @@
 import { LANCER } from "../config";
 import { LancerActorSheet } from "./lancer-actor-sheet";
 import { EntryType, Mech, Pilot } from "machine-mind";
-import { funcs } from "machine-mind";
 import type { HelperOptions } from "handlebars";
 import { buildCounterHeader, buildCounterHTML } from "../helpers/item";
 import { ref_commons, ref_params, resolve_ref_element, simple_mm_ref } from "../helpers/refs";
 import { resolve_dotpath } from "../helpers/commons";
-import { AnyMMActor, is_reg_mech, is_actor_type } from "./lancer-actor";
-import { cleanCloudOwnerID, fetchPilot, fetchPilotViaCache, fetchPilotViaShareCode, pilotCache } from "../compcon";
+import { AnyMMActor, is_reg_mech } from "./lancer-actor";
+import { fetchPilotViaCache, fetchPilotViaShareCode, pilotCache } from "../compcon";
 import type { AnyMMItem, LancerItemType } from "../item/lancer-item";
-import { derived } from "svelte/store";
 import { clicker_num_input } from "../helpers/actor";
 
 const shareCodeMatcher = /^[A-Z0-9\d]{6}$/g;
@@ -318,15 +316,19 @@ export function pilot_counters(pilot: Pilot, _helper: HelperOptions): string {
           )
         );
       } else {
-        counter_detail = counter_detail.concat(buildCounterHeader(
-          counter,
-          `mm.PilotCounters.${i}.counter`,
-          `mm.PilotCounters.${i}.source`,
-          counter_arr[i].source === pilot
-        ), clicker_num_input(`mm.PilotCounters.${i}.counter.Value`, counter.Max, _helper), '</div>')
+        counter_detail = counter_detail.concat(
+          buildCounterHeader(
+            counter,
+            `mm.PilotCounters.${i}.counter`,
+            `mm.PilotCounters.${i}.source`,
+            counter_arr[i].source === pilot
+          ),
+          clicker_num_input(`mm.PilotCounters.${i}.counter.Value`, counter.Max, _helper),
+          "</div>"
+        );
       }
     }
-  };
+  }
 
   return `
   <div class="card clipped double">

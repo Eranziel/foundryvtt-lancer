@@ -5,23 +5,18 @@ import { ref_commons, ref_params, simple_mm_ref } from "./refs";
 import { encodeMacroData } from "../macros";
 import { encodeOverchargeMacroData } from "../macros/overcharge";
 import type { ActionType } from "../action";
-import { LANCER } from "../config";
 import type { LancerActor } from "../actor/lancer-actor";
-import { string } from "fp-ts";
 import { getActionTrackerOptions } from "../settings";
 
 // ---------------------------------------
 // Some simple stat editing thingies
 
 interface ButtonOverrides {
-  icon?: string,
-  classes?: string
+  icon?: string;
+  classes?: string;
 }
 
-function _rollable_macro_button(
-  macroData: string,
-  overrides: ButtonOverrides = {}
-): string {
+function _rollable_macro_button(macroData: string, overrides: ButtonOverrides = {}): string {
   return `<a class="i--dark i--sm ${overrides.classes ?? ""} lancer-macro" data-macro="${macroData}">
     <i class="fas ${overrides.icon ?? "fa-dice-d20"}"></i>
   </a>`;
@@ -84,8 +79,7 @@ export function stat_view_card(
     args: [get_actor_id(options), data_path],
   });
   let macroBasicData = encodeMacroData({ title: "GRIT", fn: "prepareEncodedAttackMacro", args: [] });
-  if (options.rollable)
-    macro_button = _rollable_macro_button(macroData)
+  if (options.rollable) macro_button = _rollable_macro_button(macroData);
 
   return `
     <div class="card clipped">
@@ -96,7 +90,13 @@ export function stat_view_card(
       <div class="flexrow ${macro_button ? "stat-macro-container" : ""}">
         ${macro_button ? macro_button : ""}
         <span class="lancer-stat major" data-path="${data_path}">${data_val}</span>
-        ${macro_button ? data_path == 'mm.Pilot.Grit' ? _rollable_macro_button(macroBasicData, { icon: "cci cci-weapon" }) : "<div></div>" : ""}
+        ${
+          macro_button
+            ? data_path == "mm.Pilot.Grit"
+              ? _rollable_macro_button(macroBasicData, { icon: "cci cci-weapon" })
+              : "<div></div>"
+            : ""
+        }
       </div>
     </div>
     `;
@@ -196,13 +196,13 @@ export function action_button(
   }
 
   return `
-    <button class="lancer-action-button${active ? ` active activation-${action}` : ""}${enabled ? ` enabled` : ""
-    }" data-action="${action}" data-val="${action_val}">
+    <button class="lancer-action-button${active ? ` active activation-${action}` : ""}${
+    enabled ? ` enabled` : ""
+  }" data-action="${action}" data-val="${action_val}">
       ${title}
     </button>
     `;
 }
-
 
 export function macro_button(
   title: string,

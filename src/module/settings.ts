@@ -304,7 +304,6 @@ export interface ActionTrackerOptions {
    * @defaultValue `true`
    */
   printMessages: boolean;
-
 }
 //
 // > GLOBALS

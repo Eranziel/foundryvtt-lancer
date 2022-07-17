@@ -16,13 +16,7 @@ import {
 import type { LancerActorSheetData, LancerMacroData, LancerStatMacroData } from "../interfaces";
 import type { AnyMMItem } from "../item/lancer-item";
 import { AnyMMActor, is_actor_type, LancerActor, LancerActorType } from "./lancer-actor";
-import {
-  encodeMacroData,
-  prepareActivationMacro,
-  prepareChargeMacro,
-  prepareItemMacro,
-  runEncodedMacro,
-} from "../macros";
+import { prepareActivationMacro, prepareChargeMacro, prepareItemMacro, runEncodedMacro } from "../macros";
 import {
   EntryType,
   LiveEntryTypes,
@@ -47,8 +41,6 @@ import { mm_owner } from "../mm-util/helpers";
 import type { ActionType } from "../action";
 import { InventoryDialog } from "../apps/inventory";
 import { HANDLER_activate_item_context_menus, HANDLER_activate_edit_counter } from "../helpers/item";
-import { number } from "fp-ts";
-import { Any } from "io-ts";
 import { getActionTrackerOptions } from "../settings";
 import { modAction } from "../action/actionTracker";
 const lp = LANCER.log_prefix;
