@@ -1321,6 +1321,17 @@ export function HANDLER_activate_item_context_menus<
       }
     },
   };
+  let remove_reference: ContextMenuEntry = {
+    name: "Remove",
+    icon: '<i class="fas fa-fw fa-trash"></i>',
+    callback: async (html: JQuery) => {
+      let sheet_data = await data_getter();
+      let path = html[0].dataset.path ?? "";
+      console.log(sheet_data, html, path);
+      array_path_edit(sheet_data, path, null, "delete");
+      await commit_func(sheet_data);
+    },
+  };
 
   // Counters are special so they unfortunately need dedicated controls
   let counter_edit: ContextMenuEntry = {
@@ -1370,12 +1381,17 @@ export function HANDLER_activate_item_context_menus<
   };
 
   let e_d_r = view_only ? [edit] : [edit, destroy, remove];
+  let e_d_rr = view_only ? [edit] : [edit, destroy, remove_reference];
   let e_r = view_only ? [edit] : [edit, remove];
 
   // Finally, setup the context menu
   tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"mech_weapon\"]`), "click", e_d_r);
   tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"mech_system\"]`), "click", e_d_r);
-  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"npc_feature\"]`), "click", e_d_r);
+  if (html.offsetParent().hasClass('item')) {
+    tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"npc_feature\"]`), "click", e_d_rr);
+  } else {
+    tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"npc_feature\"]`), "click", e_d_r);
+  }
   tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"weapon_mod\"]`), "click", e_r);
   tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"pilot_weapon\"]`), "click", e_r);
   tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"pilot_armor\"]`), "click", e_r);
