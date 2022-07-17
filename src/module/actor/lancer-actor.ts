@@ -164,7 +164,7 @@ export class LancerActor extends Actor {
         case 2:
         case 3:
         case 4:
-          return "The power plant becomes unstable, beginning to eject jets of plasma. Your mech becomes @Compendium[world.status.EXPOSED], taking double kinetic, explosive and electric damage until the status is cleared.";
+          return "The power plant becomes unstable, beginning to eject jets of plasma. Your mech becomes @Compendium[world.status.EXPOSED], taking double kinetic, explosive and energy damage until the status is cleared.";
         case 5:
         case 6:
           return "Your mech’s cooling systems manage to contain the increasing heat; however, your mech becomes @Compendium[world.status.IMPAIRED] until the end of your next turn.";
@@ -635,6 +635,8 @@ export class LancerActor extends Actor {
     }
     if (data == null) return;
     if (clearFirst) await this.clearBadData();
+
+    console.log("Importing pilot from Comp/Con. Raw data:", data);
 
     try {
       const mm = await this.data.data.derived.mm_promise;

@@ -79,6 +79,9 @@ export async function prepareEncodedAttackMacro(
   options: AttackMacroOptions,
   rerollData: AccDiffDataSerialized
 ) {
+  if (actor_ref == null) {
+    return openBasicAttack();
+  }
   let reg = new FoundryReg();
   let opCtx = new OpCtx();
   let mm = await reg.resolve(opCtx, actor_ref);
@@ -504,8 +507,11 @@ async function rollAttackMacro(
   if (getAutomationOptions().attack_self_heat) {
     let mmEnt = await actor.data.data.derived.mm_promise;
     if (is_reg_mech(mmEnt) || is_reg_npc(mmEnt)) {
-      mmEnt.CurrentHeat += overkill_heat + self_heat;
-      await mmEnt.writeback();
+      // Separate if for typing check.
+      if (overkill_heat > 0 || self_heat > 0) {
+        mmEnt.CurrentHeat += overkill_heat + self_heat;
+        await mmEnt.writeback();
+      }
     }
   }
 

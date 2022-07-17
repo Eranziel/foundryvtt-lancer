@@ -126,6 +126,10 @@ button {
   font-family: var(--main-font-family);
 }
 
+.lancer-sheet.editable {
+  height: 100%;
+}
+
 .message .lancer-weapon-header span {
   overflow: auto;
   width: 120%;
@@ -144,6 +148,12 @@ button {
 .lancer.sheet .mount-header select option {
   background-color: var(--main-theme-color, fuchsia);
   color: white;
+}
+
+.scroll-body {
+  overflow-y: auto;
+  margin-top: 8px;
+  height: calc(100% - 168px);
 }
 
 .flex-center {
@@ -649,7 +659,7 @@ tr.lcp-index-header {
   }
 
   .mech_weapon > &,
-  .npc-weapon > &, {
+  .npc-weapon > & {
     border-color: #000000;
   }
 
@@ -658,7 +668,7 @@ tr.lcp-index-header {
   }
 
   .tech > &,
-  .npc-tech > &, {
+  .npc-tech > & {
     border-color: var(--tech-color);
   }
 
@@ -793,7 +803,7 @@ textarea {
   height: 100%;
 }
 .compact-frame > .img-bar,
-.compact-class > .img-bar, {
+.compact-class > .img-bar {
   background-position: left 50% top 40%;
 }
 .compact-template > .img-bar {
@@ -939,16 +949,16 @@ textarea {
   }
 
   &.struct-stress {
-      padding-top: 1px;
-      display: flex;
-      flex-direction: row;
+    padding-top: 1px;
+    display: flex;
+    flex-direction: row;
 
-      span.spacer {
-          flex: 0 0;
-      }
-      a {
-          flex: 0 0;
-      }
+    span.spacer {
+      flex: 0 0;
+    }
+    a {
+      flex: 0 0;
+    }
   }
 
   .pilot_gear & {
@@ -1724,7 +1734,6 @@ a.activation-chip > i.mdi {
 }
 /* Frame descriptor, probably-but-not-necessarily in mech-loadout */
 .mech-frame {
-
   .coresys-title {
     width: 100%;
     text-align: center;
@@ -1854,6 +1863,11 @@ a.activation-chip > i.mdi {
   color: white;
 }
 
+.counter-hex[data-available="true"] {
+  color: var(--main-theme-color);
+  filter: brightness(1.25);
+}
+
 .weapon-profile-wrapper {
   padding: 8px 8px 0px 5px;
   background-color: var(--main-theme-color);
@@ -1957,8 +1971,8 @@ a.activation-chip > i.mdi {
 }
 
 .radio-label:checked + .button-label {
-  box-shadow: rgba(0, 0, 0, 0.7);
-  filter: brightness(80%);
+  background-color: var(--main-theme-color);
+  color: var(--main-theme-text);
 }
 
 .radio-label + .button-label:hover {
@@ -1983,9 +1997,23 @@ a.activation-chip > i.mdi {
 // Stabilize dialog
 
 .stabilize-wrapper .button-label {
-  background-color: var(--main-theme-color);
-  color: var(--main-theme-text);
+  background-color: var(--loadout-color);
+  color: black;
   flex-basis: 45%;
+}
+
+// Macros
+.lancer-macro-grid {
+  display: flex;
+  margin-bottom: 8px;
+  padding: 4px;
+}
+
+.lancer-macro-grid button {
+  margin: 4px;
+  border-radius: 15px 0px;
+  color: white;
+  background-color: var(--main-theme-color);
 }
 
 // Actions
@@ -2008,6 +2036,25 @@ a.activation-chip > i.mdi {
   }
 }
 
+.track-message.lancer-action-grid {
+  flex-wrap: wrap;
+}
+.track-message .lancer-action-button {
+  margin: 4px;
+  width: fit-content;
+
+  &.action-size-protocol,
+  &.action-size-move {
+    width: calc(50% - 8px);
+  }
+
+  &.action-size-full,
+  &.action-size-quick,
+  &.action-size-reaction {
+    width: calc(100% / 3 - 8px);
+  }
+}
+
 #action-manager {
   flex-direction: column;
   position: fixed;
@@ -2022,6 +2069,10 @@ a.activation-chip > i.mdi {
   cursor: move;
   font-size: 1.5em;
   padding: 12px 4px 0px 8px;
+}
+#action-manager-reset {
+  display: inline-flex;
+  padding: 2px;
 }
 #action-manager.noclick a {
   cursor: unset !important;
@@ -2369,4 +2420,3 @@ Here, this means we want to allow for drag stuff etc to show contextually if:
     border: 0px;
   }
 }
-
