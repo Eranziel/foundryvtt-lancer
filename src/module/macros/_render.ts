@@ -38,7 +38,6 @@ export async function renderMacroHTML(actor: LancerActor | undefined, html: HTML
   const rollMode = game.settings.get("core", "rollMode");
   const whisper_roll = rollMode !== "roll" ? ChatMessage.getWhisperRecipients("GM").filter(u => u.active) : undefined;
   const chat_data = {
-    user: game.user,
     type: roll ? CONST.CHAT_MESSAGE_TYPES.ROLL : CONST.CHAT_MESSAGE_TYPES.IC,
     roll: roll,
     speaker: {
