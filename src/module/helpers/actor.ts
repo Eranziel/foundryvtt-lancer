@@ -82,8 +82,10 @@ export function stat_view_card(
     fn: "prepareStatMacro",
     args: [get_actor_id(options), data_path],
   });
+  let macroBasicData = encodeMacroData({ title: "GRIT", fn: "prepareEncodedAttackMacro", args: [] });
   if (options.rollable)
     macro_button = _rollable_macro_button(macroData)
+
   return `
     <div class="card clipped">
       <div class="lancer-header ">
@@ -91,9 +93,9 @@ export function stat_view_card(
         <span class="major">${title}</span>
       </div>
       <div class="flexrow ${macro_button ? "stat-macro-container" : ""}">
-      ${macro_button ? macro_button : ""}
+        ${macro_button ? macro_button : ""}
         <span class="lancer-stat major" data-path="${data_path}">${data_val}</span>
-        ${macro_button ? "<div></div>" : ""}
+        ${macro_button ? data_path == 'mm.Pilot.Grit' ? _rollable_macro_button(macroBasicData, { icon: "cci cci-weapon" }) : "<div></div>" : ""}
       </div>
     </div>
     `;
@@ -197,6 +199,42 @@ export function action_button(
     }" data-action="${action}" data-val="${action_val}">
       ${title}
     </button>
+    `;
+}
+
+
+export function macro_button(
+  title: string,
+  macro: string,
+  data_path: string,
+  options: HelperOptions & { rollable?: boolean }
+): string {
+  let macroData = encodeMacroData({
+    title: title,
+    fn: macro,
+    args: [get_actor_id(options), null],
+  });
+
+  let mIcon;
+  switch (macro) {
+    case "fullRepairMacro":
+      mIcon = "cci-repair";
+      break;
+    case "stabilizeMacro":
+      mIcon = "cci-marker";
+      break;
+    case "prepareOverheatMacro":
+      mIcon = "cci-heat";
+      break;
+    case "prepareStructureMacro":
+      mIcon = "cci-condition-shredded";
+      break;
+  }
+
+  return `
+      <button class="lancer-macro-button lancer-macro" data-macro="${macroData}">
+        <i class="cci ${mIcon} i--m"></i> ${title}
+      </button>
     `;
 }
 

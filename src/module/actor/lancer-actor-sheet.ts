@@ -266,7 +266,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
 
   _activateMacroListeners(html: JQuery) {
     // Encoded macros
-    let encMacros = html.find("a.lancer-macro");
+    let encMacros = html.find(".lancer-macro");
     encMacros.on("click", ev => {
       ev.stopPropagation(); // Avoids triggering parent event handlers
       runEncodedMacro(ev.currentTarget);
