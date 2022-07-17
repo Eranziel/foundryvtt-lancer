@@ -39,7 +39,7 @@ import { frameToPath } from "./retrograde-map";
 import { NpcClass } from "machine-mind";
 import { getAutomationOptions } from "../settings";
 import { findEffect } from "../helpers/acc_diff";
-import { AppliedDamage } from "./damage-calc"
+import { AppliedDamage } from "./damage-calc";
 const lp = LANCER.log_prefix;
 
 // Use for HP, etc
@@ -631,107 +631,107 @@ export class LancerActor extends Actor {
     return return_text;
   }
 
-  async damage_calc(damage: AppliedDamage, ap=false, paracausal=false): Promise<number> {
+  async damage_calc(damage: AppliedDamage, ap = false, paracausal = false): Promise<number> {
     const ent = await this.data.data.derived.mm_promise;
 
-    const armored_damage_types = [
-      "Kinetic",
-      "Energy",
-      "Explosive",
-      "Variable"
-    ] as const
+    const armored_damage_types = ["Kinetic", "Energy", "Explosive", "Variable"] as const;
 
-    const ap_damage_types = [
-      "Burn",
-      "Heat"
-    ] as const
- 
+    const ap_damage_types = ["Burn", "Heat"] as const;
+
+    let writeback_needed = false;
+
     // Entities without Heat Caps take Energy Damage instead
     if (!("CurrentHeat" in ent)) {
-      damage.Energy += damage.Heat
-      damage.Heat = 0
+      damage.Energy += damage.Heat;
+      damage.Heat = 0;
     }
 
     // Step 1: Exposed doubles non-burn, non-heat damage
-    if (findEffect(this, 'exposed')) {
-      armored_damage_types.forEach(d => damage[d] *= 2)
+    if (findEffect(this, "exposed")) {
+      armored_damage_types.forEach(d => (damage[d] *= 2));
     }
-    
-    /** 
+
+    /**
      * FIXME - Once Deployables and Pilots have Resistances, only include the
      * Shredded check.
-     */ 
+     */
+
     /**
      * Step 2: Reduce damage due to armor.
      * Step 3: Reduce damage due to resistance.
      * Armor reduction may favor attacker or defender depending on automation.
      * Default is "favors defender".
      */
-    if (!paracausal && !findEffect(this, 'shredded') && !is_reg_dep(ent) && !is_reg_pilot(ent)) {
+    if (!paracausal && !findEffect(this, "shredded") && !is_reg_dep(ent) && !is_reg_pilot(ent)) {
       const defense_favor = true; // getAutomationOptions().defenderArmor
-      const resist_armor_damage = armored_damage_types.filter(t => ent.Resistances[t])
-      const normal_armor_damage = armored_damage_types.filter(t => !ent.Resistances[t])
-      const resist_ap_damage = ap_damage_types.filter(t => ent.Resistances[t])
-      let armor = ap ? 0 : ent.Armor
-      let leftover_armor: number // Temp 'storage' variable for tracking used armor
+      const resist_armor_damage = armored_damage_types.filter(t => ent.Resistances[t]);
+      const normal_armor_damage = armored_damage_types.filter(t => !ent.Resistances[t]);
+      const resist_ap_damage = ap_damage_types.filter(t => ent.Resistances[t]);
+      let armor = ap ? 0 : ent.Armor;
+      let leftover_armor: number; // Temp 'storage' variable for tracking used armor
 
       // Defender-favored: Deduct Armor from non-resisted damages first
       if (defense_favor) {
         for (const t of normal_armor_damage) {
-          leftover_armor = Math.max(armor - damage[t], 0)
-          damage[t] = Math.max(damage[t] - armor, 0)
-          armor = leftover_armor
+          leftover_armor = Math.max(armor - damage[t], 0);
+          damage[t] = Math.max(damage[t] - armor, 0);
+          armor = leftover_armor;
         }
       }
 
       // Deduct Armor from resisted damage
       for (const t of resist_armor_damage) {
-        armor - damage[t]
-        leftover_armor = Math.max(armor - damage[t], 0)
-        damage[t] = Math.max(damage[t] - armor, 0)/2
-        armor = leftover_armor
+        leftover_armor = Math.max(armor - damage[t], 0);
+        damage[t] = Math.max(damage[t] - armor, 0) / 2;
+        armor = leftover_armor;
       }
 
       // Attacker-favored: Deduct Armor from non-resisted damages first
       if (!defense_favor) {
         for (const t of normal_armor_damage) {
-          leftover_armor = Math.max(armor - damage[t], 0)
-          damage[t] = Math.max(damage[t] - armor)
-          armor = leftover_armor
+          leftover_armor = Math.max(armor - damage[t], 0);
+          damage[t] = Math.max(damage[t] - armor);
+          armor = leftover_armor;
         }
       }
 
       // Resist Burn & Heat, unaffected by Armor
       for (const t of resist_ap_damage) {
-        damage[t] = damage[t]/2
+        damage[t] = damage[t] / 2;
       }
     }
 
-    if ("CurrentHeat" in ent) {
-      ent.CurrentHeat += damage.Heat
-      await ent.writeback();
+    if ("CurrentHeat" in ent && damage.Heat > 0) {
+      ent.CurrentHeat += damage.Heat;
+      writeback_needed = true;
     }
-    
-    const armor_damage = Math.ceil(damage.Kinetic + damage.Energy + damage.Explosive + damage.Variable)
-    let total_damage = armor_damage + damage.Burn
+
+    const armor_damage = Math.ceil(damage.Kinetic + damage.Energy + damage.Explosive + damage.Variable);
+    let total_damage = armor_damage + damage.Burn;
 
     // Reduce Overshield first
     if (ent.Overshield) {
-      const leftover_overshield = Math.max(ent.Overshield - total_damage, 0)
-      total_damage = Math.max(total_damage - ent.Overshield, 0)
-      ent.Overshield = leftover_overshield
-      await ent.writeback();
+      const leftover_overshield = Math.max(ent.Overshield - total_damage, 0);
+      total_damage = Math.max(total_damage - ent.Overshield, 0);
+      ent.Overshield = leftover_overshield;
+      writeback_needed = true;
     }
 
     // Finally reduce HP by remaining damage
-    ent.CurrentHP -= total_damage
-    await ent.writeback();
+    if (total_damage) {
+      ent.CurrentHP -= total_damage;
+      writeback_needed = true;
+    }
 
     // Add to Burn stat
-    ent.Burn += damage.Burn
-    await ent.writeback();
+    if (damage.Burn) {
+      ent.Burn += damage.Burn;
+      writeback_needed = true;
+    }
 
-    return total_damage
+    if (writeback_needed) await ent.writeback();
+
+    return total_damage;
   }
 
   // Imports packed pilot data, from either a vault id or gist id
