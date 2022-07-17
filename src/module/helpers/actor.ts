@@ -8,6 +8,7 @@ import type { ActionType } from "../action";
 import { LANCER } from "../config";
 import type { LancerActor } from "../actor/lancer-actor";
 import { string } from "fp-ts";
+import { getActionTrackerOptions } from "../settings";
 
 // ---------------------------------------
 // Some simple stat editing thingies
@@ -190,7 +191,7 @@ export function action_button(
   }
 
   let enabled = false;
-  if (game.user?.isGM || game.settings.get(game.system.id, LANCER.setting_action_manager_players)) {
+  if (game.user?.isGM || getActionTrackerOptions().allowPlayers) {
     enabled = true;
   }
 
@@ -329,6 +330,13 @@ export function npc_tier_selector(tier_path: string, helper: HelperOptions) {
     ${tiers.join("")}
   </select>`;
   return template;
+}
+
+export function is_combatant(actor: LancerActor) {
+  const combat = game.combat;
+  if (combat) {
+    return combat.combatants.find(comb => comb.actor?.uuid == actor.uuid);
+  }
 }
 
 // Create a div with flags for dropping native pilots/mechs/npcs

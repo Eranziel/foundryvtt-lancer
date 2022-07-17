@@ -148,6 +148,17 @@
             "limited_loading": "Manage Limited/Loading",
             "limited_loading-desc": "When items are used, should their limited and loading status be automatically managed and tracked?"
         },
+        "actionTracker": {
+            "menu-name": "Action Tracker",
+            "menu-label": "Action Tracker Settings",
+            "menu-hint": "Configure options related to action tracker HUD and automations.",
+            "showHotbar": "Show Hotbar",
+            "showHotbar-desc": "Toggles the display of the floating hotbar during combat.",
+            "allowPlayers": "Allow Players",
+            "allowPlayers-desc": "Allows players to modify their own actions.",
+            "printMessages": "Print Messages",
+            "printMessages-desc": "Prints chat messages for start and end of a token's turn."
+        },
         "initiative": {
             "sorttracker": "Sort the tracker",
             "sorttracker-desc": "Moves the unit currently taking their turn to the top of the tracker and moves units that have taken their turn to the end of the tracker.",

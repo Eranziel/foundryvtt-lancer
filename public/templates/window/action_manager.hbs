@@ -1,7 +1,9 @@
-<div id="action-manager" class="clipped card {{#unless actions}}hidden{{/unless}} {{#unless clickable}}noclick{{/unless}}"
+<div id="action-manager"
+  class="clipped card {{#unless actions}}hidden{{/unless}} {{#unless clickable}}noclick{{/unless}}"
   style="width:{{position.width}}px; height:{{position.height}}px; top:{{position.top}}px; left:{{position.left}}px;">
   <div class="action-label">
     <div>{{name}}</div>
+    <div style="right: 0px;position: absolute;"><a id="action-manager-reset" class="mdi mdi-restore"></a></div>
   </div>
   <div style="display:inline-flex;">
     <i id="action-manager-drag" class="mdi mdi-drag"></i>

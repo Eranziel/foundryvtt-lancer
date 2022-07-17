@@ -106,6 +106,7 @@ import {
   compact_stat_edit,
   compact_stat_view,
   deployer_slot,
+  is_combatant,
   macro_button,
   npc_clicker_stat_card,
   npc_tier_selector,
@@ -241,7 +242,7 @@ Hooks.once("init", async function () {
   CONFIG.statusEffects = statuses;
 
   // Register Web Components
-  customElements.define("card-clipped", class LancerClippedCard extends HTMLDivElement { }, {
+  customElements.define("card-clipped", class LancerClippedCard extends HTMLDivElement {}, {
     extends: "div",
   });
 
@@ -513,6 +514,10 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("npc-feat-preview", npc_feature_preview);
 
   // ------------------------------------------------------------------------
+  // Actor helpers
+  Handlebars.registerHelper("is-combatant", is_combatant);
+
+  // ------------------------------------------------------------------------
   // Sliding HUD Zone, including accuracy/difficulty window
   Hooks.on("renderHeadsUpDisplay", slidingHUD.attach);
   // let openingBasicAttackLock = false;
@@ -574,7 +579,7 @@ export const system_ready: Promise<void> = new Promise(success => {
     // Register sheet application classes
     setupSheets();
 
-    Hooks.on("preUpdateCombat", handleCombatUpdate);
+    Hooks.on("updateCombat", handleCombatUpdate);
 
     // Wait for sanity check to complete.
     // let ready: boolean = false;
