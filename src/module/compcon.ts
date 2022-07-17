@@ -53,7 +53,7 @@ export async function fetchPilotViaShareCode(sharecode: string): Promise<PackedP
 }
 
 export async function fetchPilotViaCache(cachedPilot: CachedCloudPilot): Promise<PackedPilotData> {
-  const documentID = `pilot/${cachedPilot.name}--${cachedPilot.id}--active`;
+  const documentID = `pilot/${cachedPilot.id}`;
   const { Storage } = await import("@aws-amplify/storage");
   const req: any = {
     level: "protected",
