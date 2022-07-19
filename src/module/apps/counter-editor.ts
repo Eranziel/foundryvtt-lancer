@@ -64,6 +64,14 @@ export class CounterEditForm<O> extends FormApplication {
       const newVal = input.value;
       const numVal = input.valueAsNumber;
       switch (input.name) {
+        case "Min":
+          if (!Number.isNaN(numVal)) {
+            item.Min = numVal;
+            if (item.Value < numVal) {
+              item.Value = numVal;
+            }
+          }
+          break;
         case "Value":
           !Number.isNaN(numVal) && (item.Value = numVal);
           break;
