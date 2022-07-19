@@ -20,8 +20,13 @@ export class CounterEditForm<O> extends FormApplication {
   constructor(target: O, path: string, dialogData: Dialog.Data, options: Partial<Dialog.Options> = {}) {
     super(dialogData, options);
     this.path = path;
+    let replace_path = path.replace(".counter", ".source");
     this.counter = resolve_dotpath(target, path);
-    this.source = resolve_dotpath(target, path.replace(".counter", ".source"));
+    if (path == replace_path) {
+      this.source = resolve_dotpath(target, "mm");
+    } else {
+      this.source = resolve_dotpath(target, replace_path);
+    }
   }
 
   /* -------------------------------------------- */

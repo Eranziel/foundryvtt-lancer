@@ -233,7 +233,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       }
 
       await writeback.writeback();
-      console.log(item);
+      console.debug(item);
     }
   }
 
