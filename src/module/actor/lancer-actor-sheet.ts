@@ -211,24 +211,30 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       ev.stopPropagation();
 
       const params = ev.currentTarget.dataset;
-      const data = await this.getDataLazy();
-      if (params.path && params.writeback) {
-        const item = resolve_dotpath(data, params.path) as Counter;
-        const writeback = resolve_dotpath(data, params.writeback) as RegEntry<any>;
-        const available = params.available === "true";
-
-        if (available) {
-          // Deduct uses.
-          item.Value = item.Value > 0 ? item.Value - 1 : 0;
-        } else {
-          // Increment uses.
-          item.Value = item.Value < (item.Max || 6) ? item.Value + 1 : item.Max || 6;
-        }
-
-        await writeback.writeback();
-        console.debug(item);
-      }
+      const available = params.available === "true";
+      this._updateCounterData(params.path, params.writeback_path, available ? -1 : 1);
     });
+  }
+
+  async _updateCounterData(path: string | undefined, writeback_path: string | undefined, delta: number) {
+    if (path && writeback_path) {
+      const data = await this.getDataLazy();
+      const item = resolve_dotpath(data, path) as Counter;
+      const writeback = resolve_dotpath(data, writeback_path) as RegEntry<any>;
+      const min = item.Min || 0;
+      const max = item.Max || 6;
+
+      if (delta < 0) {
+        // Deduct uses.
+        item.Value = item.Value > min && item.Value + delta > min ? item.Value + delta : min;
+      } else {
+        // Increment uses.
+        item.Value = item.Value < max && item.Value + delta < max ? item.Value + delta : max;
+      }
+
+      await writeback.writeback();
+      console.log(item);
+    }
   }
 
   async _activateActionGridListeners(html: JQuery) {
@@ -375,11 +381,17 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
   }
 
   _activatePlusMinusButtons(html: any) {
-    const mod_handler = (delta: number) => (ev: Event) => {
+    const mod_handler = (delta: number) => async (ev: Event) => {
       if (!ev.currentTarget) return; // No target, let other handlers take care of it.
       const button = $(ev.currentTarget as HTMLElement);
-      mod_shared_handler(button, delta);
-      this.submit({});
+      const writeback_parents = button.parents("div[data-writeback_path]");
+      if (writeback_parents.length > 0) {
+        const params = writeback_parents[0].dataset;
+        this._updateCounterData(params.path, params.writeback_path, delta);
+      } else {
+        mod_shared_handler(button, delta);
+        this.submit({});
+      }
     };
 
     // Behavior is identical, just +1 or -1 depending on button
@@ -597,39 +609,24 @@ function rollStatMacro(_actor: unknown, _mData: LancerStatMacroData) {
 
 // Customized increment/decrement arrows. Same as in actor
 export function mod_shared_handler(button: JQuery<HTMLElement>, delta: number) {
-  let hexes = button.siblings("i.counter-hex");
-  if (hexes.length > 0) {
+  const input = button.siblings("input");
+  const curr = Number.parseInt(input.prop("value"));
+  if (!isNaN(curr)) {
     if (delta > 0) {
-      hexes = hexes.last();
-      if (hexes[0].dataset["available"] != "true") {
-        hexes.trigger("click");
+      if (
+        !button[0].dataset["max"] ||
+        button[0].dataset["max"] == "-1" ||
+        curr + delta <= Number.parseInt(button[0].dataset["max"])
+      ) {
+        input.prop("value", curr + delta);
+      } else {
+        input.prop("value", input[0].dataset["max"]);
       }
-    } else {
-      hexes = hexes.first();
-      if (hexes[0].dataset["available"] == "true") {
-        hexes.trigger("click");
-      }
-    }
-  } else {
-    const input = button.siblings("input");
-    const curr = Number.parseInt(input.prop("value"));
-    if (!isNaN(curr)) {
-      if (delta > 0) {
-        if (
-          !button[0].dataset["max"] ||
-          button[0].dataset["max"] == "-1" ||
-          curr + delta <= Number.parseInt(button[0].dataset["max"])
-        ) {
-          input.prop("value", curr + delta);
-        } else {
-          input.prop("value", input[0].dataset["max"]);
-        }
-      } else if (delta < 0) {
-        if (curr + delta >= 0) {
-          input.prop("value", curr + delta);
-        } else {
-          input.prop("value", 0);
-        }
+    } else if (delta < 0) {
+      if (curr + delta >= 0) {
+        input.prop("value", curr + delta);
+      } else {
+        input.prop("value", 0);
       }
     }
   }

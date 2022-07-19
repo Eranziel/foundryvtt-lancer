@@ -1191,7 +1191,7 @@ export function buildCounterHTML(data: Counter, path: string, writeback_path: st
   let hexes = [...Array(data.Max)].map((_ele, index) => {
     const available = index + 1 <= data.Value;
     return `<i class="counter-hex mdi ${available ? "mdi-hexagon-slice-6" : "mdi-hexagon-outline"
-      } theme--light" data-available="${available}" data-path="${path}" data-writeback="${writeback_path}"></i>`;
+      } theme--light" data-available="${available}" data-path="${path}" data-writeback_path="${writeback_path}"></i>`;
   });
 
   return `${buildCounterHeader(data, path, writeback_path, can_delete)}
