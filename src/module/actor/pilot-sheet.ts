@@ -1,12 +1,13 @@
 import { LANCER } from "../config";
+const lp = LANCER.log_prefix;
 import { LancerActorSheet } from "./lancer-actor-sheet";
-import { EntryType, Mech, Pilot } from "machine-mind";
+import { EntryType, Mech, PackedPilotData, Pilot } from "machine-mind";
 import { funcs } from "machine-mind";
 import type { HelperOptions } from "handlebars";
 import { buildCounterHTML } from "../helpers/item";
 import { ref_commons, ref_params, resolve_ref_element, simple_mm_ref } from "../helpers/refs";
 import { resolve_dotpath } from "../helpers/commons";
-import { AnyMMActor, is_reg_mech, is_actor_type } from "./lancer-actor";
+import { AnyMMActor, is_reg_mech, is_actor_type, LancerActor } from "./lancer-actor";
 import { cleanCloudOwnerID, fetchPilot, fetchPilotViaCache, fetchPilotViaShareCode, pilotCache } from "../compcon";
 import type { AnyMMItem, LancerItemType } from "../item/lancer-item";
 import { derived } from "svelte/store";
@@ -17,6 +18,17 @@ const shareCodeMatcher = /^[A-Z0-9\d]{6}$/g;
  * Extend the basic ActorSheet
  */
 export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
+
+  jsonFile: File | null;
+  pilotData: PackedPilotData | null;
+
+
+  constructor(actor: LancerActor) {
+    super(actor);
+    this.jsonFile = null;
+    this.pilotData = null;
+  }
+
   /**
    * Extend and override the default options used by the Pilot Sheet
    * @returns {Object}
@@ -112,6 +124,20 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
         download.addClass("disabled-cloud");
       }
 
+      // JSON Import
+      if (actor.is_pilot()) {
+        let fileInput = document.getElementById("pilot-json-import");
+        if (fileInput) {
+          fileInput.onchange = (ev: Event) => {
+            this._onPilotJsonUpload(ev);
+          };
+        }
+        document.getElementsByClassName("pilot-json-import")[0]?.addEventListener("click", () => {
+          this._onImportButtonClick(actor).then();
+        });
+      }
+
+
       // editing rawID clears vaultID
       // (other way happens automatically because we prioritise vaultID in commit)
       let rawInput = html.find('input[name="rawID"]');
@@ -139,6 +165,43 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
         this.deactivateMech();
       });
     }
+  }
+
+  _onPilotJsonUpload(ev: Event) {
+    let files = (ev.target as HTMLInputElement).files;
+    if (files) this.jsonFile = files[0];
+    if (!this.jsonFile) return;
+
+    console.log(`${lp} Selected file changed`, this.jsonFile);
+    const fr = new FileReader();
+    fr.readAsBinaryString(this.jsonFile);
+    fr.addEventListener("load", (ev: ProgressEvent) => {
+      this._onPilotJsonParsed((ev.target as FileReader).result as string).then();
+    });
+  }
+
+  async _onPilotJsonParsed(fileData: string | null) {
+    if (!fileData) return;
+    this.pilotData =  JSON.parse(fileData) as PackedPilotData
+
+    console.log(`${lp} Pilot Data of selected JSON:`, this.pilotData);
+    this.render();
+  }
+
+  async _onImportButtonClick(actor: LancerActor) {
+    if (!this.jsonFile) {
+      ui.notifications!.error(`Import error: no file selected.`);
+      return;
+    }
+    const pilotData = this.pilotData;
+    if (!pilotData) return;
+    ui.notifications!.info(`Starting import of ${pilotData.name}, Callsign ${pilotData.callsign}. Please wait.`);
+    console.log(`${lp} Starting import of ${pilotData.name}, Callsign ${pilotData.callsign}.`);
+    console.log(`${lp} Parsed Pilot Data pack:`, pilotData);
+
+    await actor.importCC(this.pilotData as PackedPilotData);
+    ui.notifications!.info(`Import of ${pilotData.name}, Callsign ${pilotData.callsign} complete.`);
+    console.log(`${lp} Import of ${pilotData.name}, Callsign ${pilotData.callsign} complete.`);
   }
 
   async activateMech(mech: Mech) {

@@ -74,6 +74,9 @@
                 "label": "UPLOAD",
                 "wip": "FEATURE IN PROGRESS"
             },
+            "json-import": {
+                "label": "IMPORT"
+            },
             "dossier": {
                 "cs": "CALLSIGN",
                 "name": "NAME"

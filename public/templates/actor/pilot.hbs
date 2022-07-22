@@ -85,6 +85,19 @@
           <span class="lancer-header major">{{localize "lancer.pilot-sheet.cloud-upload.label"}}</span>
           <span>{{localize "lancer.pilot-sheet.cloud-upload.wip"}}</span>
         </div>
+
+        <div class="card clipped" style="grid-area: 3/1/4/2;">
+          <span class="lancer-header major">{{localize "lancer.pilot-sheet.json-import.label"}}</span>
+          <input id="pilot-json-import" type="file" name="pilot-json-up" class="lcp-up" accept=".json">
+                {{!-- New LCP Manifest --}}
+          {{#if pilotData}}
+            <div class="major" style="margin: 10px;">{{pilotData.name}}, {{pilotData.callsign}}</div>
+            <button type="button" class="pilot-json-import" title="Import Pilot" tabindex="-1">
+                <i class="cci cci-content-manager i--m"></i>
+                <label>Import Pilot</label>
+            </button>
+          {{/if}}
+        </div>
       </div>
     </div>
 
