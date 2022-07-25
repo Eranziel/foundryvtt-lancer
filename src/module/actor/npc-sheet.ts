@@ -4,12 +4,12 @@ import { LancerActorSheet } from "./lancer-actor-sheet";
 import { prepareItemMacro, prepareStatMacro } from "../macros";
 import { EntryType } from "machine-mind";
 import tippy from "tippy.js";
-import { LancerItem, is_item_type, LancerItemType } from "../item/lancer-item";
+import { LancerItem, is_item_type, LancerItemType, LancerNPC_FEATURE } from "../item/lancer-item";
 import { insinuate, resort_item } from "../util/doc";
 import { HANDLER_activate_general_controls } from "../helpers/commons";
-import { LancerActor } from "./lancer-actor";
+import { LancerActor, LancerNPC } from "./lancer-actor";
 import { DropHandlerFunc, ResolvedDropData } from "../helpers/dragdrop";
-import { TempSystemEntryType } from "../tmp-new-template";
+import { TempSystemEntryType } from "../new-template";
 const lp = LANCER.log_prefix;
 
 /**
@@ -230,7 +230,7 @@ function handleClassDelete(ctx: GenControlContext<LancerActorSheetData<EntryType
 }
 
 // Given a list of npc features, return the corresponding entries on the provided npc
-export function findMatchingFeaturesInNpc(npc: LancerActor<EntryType.NPC>, features: LancerItem<EntryType.NPC_FEATURE>[]): LancerItem<EntryType.NPC_FEATURE>[] {
+export function findMatchingFeaturesInNpc(npc: LancerNPC, features: LancerNPC_FEATURE[]): LancerNPC_FEATURE[] {
   if(!npc.is_npc()) return [];
   let result = [];
   for (let predicate_feature of features) {

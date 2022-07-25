@@ -477,7 +477,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
   // Makes us own (or rather, creates an owned copy of) the provided item if we don't already.
   // The second return value indicates whether a new copy was made (true), or if we already owned it/it is an actor (false)
   // Note: this operation also fixes limited to be the full capability of our actor
-  async quick_own<T extends LancerItemType>(document: LancerItem<T>): Promise<[LancerItem<T>, boolean]> {
+  async quick_own<T extends LancerItemType>(document: LancerItem): Promise<[LancerItem, boolean]> {
     if (document.parent != this.actor) {
       let [result] = await insinuate([document], this.actor);
         /* TODO

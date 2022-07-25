@@ -108,7 +108,7 @@ async function _prepareTextActionMacro(
 ) {
   // Support this later...
   // TODO: pilot gear and NPC features
-  if (!item.is_mech_system() || !item.is_talent() || !item.is_npc_feature()) return;
+  if (!item.is_mech_system() && !item.is_talent() && !item.is_npc_feature()) return;
 
   let action = item.data.data.actions[index];
   let tags = item.is_mech_system() ? item.data.data.tags : [];
@@ -164,9 +164,11 @@ async function _prepareDeployableMacro(
 ) {
   // Support this later...
   // TODO: pilot gear (and NPC features later?)
-  if (item.type !== EntryType.MECH_SYSTEM && item.type !== EntryType.TALENT) return;
+  if (!item.is_mech_system() && !item.is_talent()) return;
 
+  /* TODO
   let dep = item.data.data.deployables[index];
 
-  await renderMacroHTML(actor.Flags.orig_doc, buildDeployableHTML(dep, true));
+  await renderMacroHTML(actor.flags.orig_doc, buildDeployableHTML(dep, true));
+  */
 }

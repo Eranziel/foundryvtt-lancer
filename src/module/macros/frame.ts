@@ -3,6 +3,7 @@ import { LANCER } from "../config";
 import type { LancerTextMacroData } from "../interfaces";
 import { getMacroSpeaker } from "./_util";
 import { rollTextMacro } from "./text";
+import { LancerMECH } from "../actor/lancer-actor";
 
 const lp = LANCER.log_prefix;
 
@@ -17,18 +18,20 @@ export async function prepareCoreActiveMacro(a: string) {
 
   if (!actor.data.data.loadout.frame) return;
 
-  if (!mech.CurrentCoreEnergy) {
+  if (!actor.data.data.core_energy) {
     ui.notifications!.warn(`No core power remaining on this frame!`);
     return;
   }
 
+  let frame = actor.data.data.loadout.frame;
   let mData: LancerTextMacroData = {
-    title: mech.Frame.CoreSystem.ActiveName,
-    description: mech.Frame.CoreSystem.ActiveEffect,
-    tags: mech.Frame.CoreSystem.Tags,
+    title: frame.data.data.core_system.active_name,
+    description: frame.data.data.core_system.active_effect,
+    tags: frame.data.data.core_system.tags,
   };
 
   // TODO--setting for this?
+  let da = actor as LancerMECH;
   new Dialog({
     title: "Consume Core Power?",
     content: "Consume your mech's core power?",
@@ -37,8 +40,8 @@ export async function prepareCoreActiveMacro(a: string) {
         icon: '<i class="fas fa-check"></i>',
         label: "Yes",
         callback: async _dlg => {
-          actor?.update({ "data.core_energy": Math.max(mech.CurrentCoreEnergy - 1, 0) });
-          console.log(`${lp} Automatically consumed core power for ${mech.LID}`);
+          da.update({ "data.core_energy": Math.max(da.data.data.core_energy - 1, 0) });
+          console.log(`${lp} Automatically consumed core power for ${da.data.data.lid}`);
           if (actor) rollTextMacro(actor, mData);
         },
       },

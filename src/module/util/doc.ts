@@ -1,8 +1,8 @@
 import { EntryType, License, LicensedItem, LiveEntryTypes, OpCtx, Pilot, RegEntry } from "machine-mind";
-import { is_actor_type, LancerActor, LancerActorType } from "../actor/lancer-actor";
+import { is_actor_type, LancerActor, LancerActorType, LancerDEPLOYABLE, LancerMECH, LancerNPC, LancerPILOT } from "../actor/lancer-actor";
 import { PACK_SCOPE } from "../compBuilder";
 import { friendly_entrytype_name } from "../config";
-import type { LancerItem, LancerItemType } from "../item/lancer-item";
+import type { LancerCORE_BONUS, LancerENVIRONMENT, LancerFACTION, LancerFRAME, LancerItem, LancerItemType, LancerLICENSE, LancerMANUFACTURER, LancerMECH_SYSTEM, LancerMECH_WEAPON, LancerNPC_CLASS, LancerNPC_FEATURE, LancerNPC_TEMPLATE, LancerORGANIZATION, LancerPILOT_ARMOR, LancerPILOT_GEAR, LancerPILOT_WEAPON, LancerQUIRK, LancerRESERVE, LancerSITREP, LancerSKILL, LancerSTATUS, LancerTAG, LancerTALENT, LancerWEAPON_MOD } from "../item/lancer-item";
 import { FetcherCache } from "./async";
 
 
@@ -31,7 +31,7 @@ export async function resort_item(moverand: LancerItem, dest: LancerItem, sort_b
 export async function find_license_for(
   mm: LiveEntryTypes<LancerItemType>,
   in_actor?: LancerActor
-): Promise<License | null> {
+): Promise<LancerLICENSE | null> {
   // If the item does not have a license name, then we just bail
   let license_name = (mm as LicensedItem).License;
   if (!license_name) {
@@ -41,7 +41,7 @@ export async function find_license_for(
   // If an actor was supplied, we first check their inventory.
   if (in_actor) {
     // Only pilots should have licenses, so for mechs we go to active pilot
-    let pilot: LancerActor<EntryType.PILOT> | null = null;
+    let pilot: LancerPILOT | null = null;
     if (in_actor.is_mech()) {
       pilot = in_actor.data.data.pilot;
     }
@@ -155,7 +155,7 @@ export async function get_pack(
 // (or at least, clearing links to them).
 // Has no effect if destination is same as existing parent
 // Items are not returned in order
-export async function insinuate<T extends LancerItemType>(items: Array<LancerItem<T>>, to: LancerActor): Promise<Array<LancerItem<T>>> {
+export async function insinuate<T extends LancerItemType>(items: Array<LancerItem>, to: LancerActor): Promise<Array<LancerItem>> {
   console.warn("TODO: Re-implement insinuate, more sanely this time");
   let old_items = [];
   let new_items = [];
@@ -179,33 +179,33 @@ type DataTypeMap = { [key in EntryType]: object };
 // Maps EntryType to appropriate document actor/item
 interface LancerDocMap extends DataTypeMap {
   // [EntryType.CONDITION]: IStatusData;
-  [EntryType.CORE_BONUS]: LancerItem<EntryType.CORE_BONUS>;
-  [EntryType.DEPLOYABLE]: LancerActor<EntryType.DEPLOYABLE>;
-  [EntryType.ENVIRONMENT]: LancerItem<EntryType.ENVIRONMENT>;
-  [EntryType.FACTION]: LancerItem<EntryType.FACTION>;
-  [EntryType.FRAME]: LancerItem<EntryType.FRAME>;
-  [EntryType.LICENSE]: LancerItem<EntryType.LICENSE>;
-  [EntryType.MANUFACTURER]: LancerItem<EntryType.MANUFACTURER>;
-  [EntryType.MECH]: LancerActor<EntryType.MECH>;
-  [EntryType.MECH_SYSTEM]: LancerItem<EntryType.MECH_SYSTEM>;
-  [EntryType.MECH_WEAPON]: LancerItem<EntryType.MECH_WEAPON>;
-  [EntryType.NPC]: LancerActor<EntryType.NPC>;
-  [EntryType.NPC_CLASS]: LancerItem<EntryType.NPC_CLASS>;
-  [EntryType.NPC_FEATURE]: LancerItem<EntryType.NPC_FEATURE>;
-  [EntryType.NPC_TEMPLATE]: LancerItem<EntryType.NPC_TEMPLATE>;
-  [EntryType.ORGANIZATION]: LancerItem<EntryType.ORGANIZATION>;
-  [EntryType.PILOT_ARMOR]: LancerItem<EntryType.PILOT_ARMOR>;
-  [EntryType.PILOT_GEAR]: LancerItem<EntryType.PILOT_GEAR>;
-  [EntryType.PILOT_WEAPON]: LancerItem<EntryType.PILOT_WEAPON>;
-  [EntryType.PILOT]: LancerActor<EntryType.PILOT>;
-  [EntryType.RESERVE]: LancerItem<EntryType.RESERVE>;
-  [EntryType.SITREP]: LancerItem<EntryType.SITREP>;
-  [EntryType.SKILL]: LancerItem<EntryType.SKILL>;
-  [EntryType.STATUS]: LancerItem<EntryType.STATUS>;
-  [EntryType.TAG]: LancerItem<EntryType.TAG>;
-  [EntryType.TALENT]: LancerItem<EntryType.TALENT>;
-  [EntryType.QUIRK]: LancerItem<EntryType.QUIRK>;
-  [EntryType.WEAPON_MOD]: LancerItem<EntryType.WEAPON_MOD>;
+  [EntryType.CORE_BONUS]: LancerCORE_BONUS;
+  [EntryType.DEPLOYABLE]: LancerDEPLOYABLE;
+  [EntryType.ENVIRONMENT]: LancerENVIRONMENT;
+  [EntryType.FACTION]: LancerFACTION;
+  [EntryType.FRAME]: LancerFRAME;
+  [EntryType.LICENSE]: LancerLICENSE;
+  [EntryType.MANUFACTURER]: LancerMANUFACTURER;
+  [EntryType.MECH]: LancerMECH;
+  [EntryType.MECH_SYSTEM]: LancerMECH_SYSTEM;
+  [EntryType.MECH_WEAPON]: LancerMECH_WEAPON;
+  [EntryType.NPC]: LancerNPC;
+  [EntryType.NPC_CLASS]: LancerNPC_CLASS;
+  [EntryType.NPC_FEATURE]: LancerNPC_FEATURE;
+  [EntryType.NPC_TEMPLATE]: LancerNPC_TEMPLATE;
+  [EntryType.ORGANIZATION]: LancerORGANIZATION;
+  [EntryType.PILOT_ARMOR]: LancerPILOT_ARMOR;
+  [EntryType.PILOT_GEAR]: LancerPILOT_GEAR;
+  [EntryType.PILOT_WEAPON]: LancerPILOT_WEAPON;
+  [EntryType.PILOT]: LancerPILOT;
+  [EntryType.RESERVE]: LancerRESERVE;
+  [EntryType.SITREP]: LancerSITREP;
+  [EntryType.SKILL]: LancerSKILL;
+  [EntryType.STATUS]: LancerSTATUS;
+  [EntryType.TAG]: LancerTAG;
+  [EntryType.TALENT]: LancerTALENT;
+  [EntryType.QUIRK]: LancerQUIRK;
+  [EntryType.WEAPON_MOD]: LancerWEAPON_MOD;
 }
 export type LancerDoc<T extends EntryType = EntryType> = T extends keyof LancerDocMap
   ? LancerDocMap[T]

@@ -6,12 +6,12 @@ import {
   RegEntryTypes,
 } from "machine-mind";
 import { LancerHooks, LancerSubscription } from "../helpers/hooks";
-import { LancerItem, LancerItemType } from "../item/lancer-item";
+// import { LancerFRAME, LancerItem, LancerItemType, LancerNPC_CLASS } from "../item/lancer-item";
 import { renderMacroTemplate, encodeMacroData, prepareOverheatMacro, prepareStructureMacro } from "../macros";
 import { StabOptions1, StabOptions2 } from "../enums";
 import { fix_modify_token_attribute } from "../token";
 import { findEffect } from "../helpers/acc_diff";
-import { TempSystemEntryType } from "../tmp-new-template";
+import { SystemDataType } from "../new-template";
 import { AE_MODE_SET_JSON } from "../effects/lancer-active-effect";
 const lp = LANCER.log_prefix;
 
@@ -24,7 +24,7 @@ interface LancerActorDataSource<T extends EntryType> {
 }
 interface LancerActorDataProperties<T extends EntryType> {
   type: T;
-  data: TempSystemEntryType<T>;
+  data: SystemDataType<T>;
 }
 
 type LancerActorSource =
@@ -47,14 +47,14 @@ declare global {
     Actor: LancerActorProperties;
   }
   interface DocumentClassConfig {
-    Actor: typeof LancerActor<LancerActorType>;
+    Actor: typeof LancerActor;
   }
 }
 
 /**
  * Extend the Actor class for Lancer Actors.
  */
-export class LancerActor<T extends LancerActorType = LancerActorType> extends Actor {
+export class LancerActor extends Actor {
   // Tracks data propagation
   subscriptions: LancerSubscription[] = [];
 
@@ -399,7 +399,7 @@ export class LancerActor<T extends LancerActorType = LancerActorType> extends Ac
 
   // Do the specified junk to an item. Returns an object suitable for updateEmbeddedDocuments
   private refresh(
-    item: LancerItem, // TODO: Restore type specificity
+    item: any, // LancerItem, // TODO: Restore type specificity
     opts: {
       repair?: boolean;
       reload?: boolean;
@@ -425,7 +425,7 @@ export class LancerActor<T extends LancerActorType = LancerActorType> extends Ac
   }
 
   // List the _relevant_ loadout items on this actor
-  private list_loadout(): Array<LancerItem> {
+  private list_loadout(): any[] { // Array<LancerItem> { // TODO: FIx type
     // Array<PilotWeapon | MechWeapon | PilotArmor | PilotGear | MechSystem | WeaponMod | NpcFeature>
     // TODO: Restore specificity
     let result: any[] = [];
@@ -592,6 +592,7 @@ export class LancerActor<T extends LancerActorType = LancerActorType> extends Ac
   // Imports packed pilot data, from either a vault id or gist id
   async importCC(data: PackedPilotData, clearFirst = false) {
     /*
+    TODO
     if (this.data.type !== "pilot") {
       return;
     }
@@ -1035,8 +1036,8 @@ export class LancerActor<T extends LancerActorType = LancerActorType> extends Ac
           pilot_effects.push({
             label: "Pilot Stats",
             changes: [{
-              // @ts-expect-error Customs don't seem to be supported
               mode: AE_MODE_SET_JSON,
+              // @ts-expect-error toObject is not yet in
               value: JSON.stringify(pilot!.toObject().data)
             }]
           });
@@ -1081,16 +1082,16 @@ export class LancerActor<T extends LancerActorType = LancerActorType> extends Ac
   }
 
   // Typeguards
-  is_pilot(): this is LancerActor & { data: LancerActorDataProperties<EntryType.PILOT> } {
+  is_pilot(): this is LancerPILOT {
     return this.data.type === EntryType.PILOT;
   }
-  is_mech(): this is LancerActor & { data: LancerActorDataProperties<EntryType.MECH> } {
+  is_mech(): this is LancerMECH {
     return this.data.type === EntryType.MECH;
   }
-  is_npc(): this is LancerActor & { data: LancerActorDataProperties<EntryType.NPC> } {
+  is_npc(): this is LancerNPC {
     return this.data.type === EntryType.NPC;
   }
-  is_deployable(): this is LancerActor & { data: LancerActorDataProperties<EntryType.DEPLOYABLE> } {
+  is_deployable(): this is LancerDEPLOYABLE {
     return this.data.type === EntryType.DEPLOYABLE;
   }
 
@@ -1103,9 +1104,9 @@ export class LancerActor<T extends LancerActorType = LancerActorType> extends Ac
    * @returns         The newFrame if any updates were performed
    */
   async swapFrameImage(
-    robot: LancerActor<EntryType.MECH> | LancerActor<EntryType.NPC>,
-    oldFrame: LancerItem<EntryType.FRAME> | LancerItem<EntryType.NPC_CLASS> | null,
-    newFrame: LancerItem<EntryType.FRAME> | LancerItem<EntryType.NPC_CLASS>
+    robot: LancerMECH | LancerNPC,
+    oldFrame: any,// LancerFRAME | LancerNPC_CLASS | null,
+    newFrame: any,// LancerFRAME | LancerNPC_CLASS
   ): Promise<string> {
     ui.notifications?.error("TODO: Reimplement frame image swapping");
     return "";
@@ -1160,6 +1161,13 @@ export class LancerActor<T extends LancerActorType = LancerActorType> extends Ac
   }
 }
 
+
+// Typeguards
+export type LancerPILOT = LancerActor & { data: LancerActorDataProperties<EntryType.PILOT> };
+export type LancerMECH = LancerActor & { data: LancerActorDataProperties<EntryType.MECH> };
+export type LancerNPC = LancerActor & { data: LancerActorDataProperties<EntryType.NPC> };
+export type LancerDEPLOYABLE = LancerActor & { data: LancerActorDataProperties<EntryType.DEPLOYABLE> };
+
 export type LancerActorType = EntryType.MECH | EntryType.DEPLOYABLE | EntryType.NPC | EntryType.PILOT;
 export const LancerActorTypes: LancerActorType[] = [
   EntryType.MECH,
@@ -1168,6 +1176,6 @@ export const LancerActorTypes: LancerActorType[] = [
   EntryType.PILOT,
 ];
 
-export function is_actor_type(type: LancerActorType | LancerItemType): type is LancerActorType {
+export function is_actor_type(type: any): type is LancerActorType {
   return LancerActorTypes.includes(type as LancerActorType);
 }

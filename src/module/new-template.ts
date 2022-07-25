@@ -30,8 +30,8 @@ import {
   RegTalentData,
   RegWeaponModData,
 } from "machine-mind";
-import { LancerActor } from "./actor/lancer-actor";
-import { LancerItem } from "./item/lancer-item";
+import { LancerMECH, LancerPILOT } from "./actor/lancer-actor";
+import { LancerFRAME, LancerLICENSE, LancerMECH_WEAPON, LancerNPC_CLASS, LancerNPC_FEATURE, LancerNPC_TEMPLATE, LancerWEAPON_MOD } from "./item/lancer-item";
 
 // Nuke this shit from orbit as soon as LukeAbbey gets their cool auto typing thing working
 
@@ -132,11 +132,15 @@ namespace SystemTemplates {
     sensor_range: number;
     tech_attack: number;
   }
+
+  export interface uses {
+    uses: FullBoundedNum
+  }
 }
 
 
 type DataTypeMap = { [key in EntryType]: object };
-interface SystemEntryTypesMap extends DataTypeMap {
+interface SystemDataTypesMap extends DataTypeMap {
   // [EntryType.CONDITION]: IStatusData;
   [EntryType.CORE_BONUS]: RegCoreBonusData;
   [EntryType.DEPLOYABLE]: Omit<RegDeployableData, 'hp'>
@@ -154,14 +158,14 @@ interface SystemEntryTypesMap extends DataTypeMap {
                     & SystemTemplates.offenses
                     & { 
                       repairs: FullBoundedNum, 
-                      pilot: LancerActor<EntryType.PILOT> | null ,
+                      pilot: LancerPILOT | null ,
                       overcharge: number,
                       loadout: {
-                        frame: LancerItem<EntryType.FRAME> | null,
+                        frame: LancerFRAME | null,
                         weapon_mounts: Array<{
                           slots: Array<{
-                            weapon: LancerItem<EntryType.MECH_WEAPON> | null,
-                            mod: LancerItem<EntryType.WEAPON_MOD> | null,
+                            weapon: LancerMECH_WEAPON | null,
+                            mod: LancerWEAPON_MOD | null,
                             size: FittingSize
                           }>,
                           type: MountType,
@@ -173,7 +177,8 @@ interface SystemEntryTypesMap extends DataTypeMap {
                         // TODO: class/template enumeration
                       }
                     };
-  [EntryType.MECH_SYSTEM]: RegMechSystemData;
+  [EntryType.MECH_SYSTEM]: Omit<RegMechSystemData, 'uses'>
+                    & SystemTemplates.uses;
   [EntryType.MECH_WEAPON]: RegMechWeaponData;
   [EntryType.NPC]: Omit<RegNpcData, 'heat' | 'structure' | 'stress' | 'hp' | 'overshield'> 
                     & SystemTemplates.actor_universal
@@ -181,30 +186,31 @@ interface SystemEntryTypesMap extends DataTypeMap {
                     & SystemTemplates.offenses
                     & SourceTemplates.action_tracking 
                     & { 
-                      class: LancerItem<EntryType.NPC_CLASS>, 
-                      templates: Array<LancerItem<EntryType.NPC_TEMPLATE>>, 
-                      features: Array<LancerItem<EntryType.NPC_FEATURE>> 
+                      class: LancerNPC_CLASS, 
+                      templates: Array<LancerNPC_TEMPLATE>, 
+                      features: Array<LancerNPC_FEATURE> 
                     };
   [EntryType.NPC_CLASS]: Omit<RegNpcClassData, 'base_features' | 'optional_features'> & {
-    base_features: Array<LancerItem<EntryType.NPC_FEATURE>>,
-    optional_features: Array<LancerItem<EntryType.NPC_FEATURE>>  
+    base_features: Array<LancerNPC_FEATURE>,
+    optional_features: Array<LancerNPC_FEATURE>  
   };
   [EntryType.NPC_FEATURE]: AnyRegNpcFeatureData;
   [EntryType.NPC_TEMPLATE]: RegNpcTemplateData & {
-    base_features: Array<LancerItem<EntryType.NPC_FEATURE>>,
-    optional_features: Array<LancerItem<EntryType.NPC_FEATURE>>  
+    base_features: Array<LancerNPC_FEATURE>,
+    optional_features: Array<LancerNPC_FEATURE>  
   };
   [EntryType.ORGANIZATION]: RegOrganizationData;
   [EntryType.PILOT_ARMOR]: RegPilotArmorData;
   [EntryType.PILOT_GEAR]: RegPilotGearData;
-  [EntryType.PILOT_WEAPON]: RegPilotWeaponData;
+  [EntryType.PILOT_WEAPON]: Omit<RegPilotWeaponData, 'uses'>
+                    & SystemTemplates.uses;
   [EntryType.PILOT]: Omit<RegPilotData, 'hp'> 
                     & SystemTemplates.actor_universal
                     & SystemTemplates.hp
                     & { 
-                      active_mech: LancerActor<EntryType.MECH> | null,
-                      owned_mechs: LancerActor<EntryType.MECH>[],
-                      licenses: LancerItem<EntryType.LICENSE>[],
+                      active_mech: LancerMECH | null,
+                      owned_mechs: LancerMECH[],
+                      licenses: LancerLICENSE[],
                       // TODO: other item enumeration, typed loadout
                     };
   [EntryType.RESERVE]: RegReserveData;
@@ -217,6 +223,6 @@ interface SystemEntryTypesMap extends DataTypeMap {
   [EntryType.WEAPON_MOD]: RegWeaponModData;
 }
 
-export type TempSystemEntryType<T extends EntryType> = T extends keyof SystemEntryTypesMap
-  ? SystemEntryTypesMap[T]
+export type SystemDataType<T extends EntryType> = T extends keyof SystemDataTypesMap
+  ? SystemDataTypesMap[T]
   : never;
