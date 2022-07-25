@@ -9,6 +9,7 @@ const lp = LANCER.log_prefix;
 
 export async function prepareChargeMacro(a: string | LancerActor) {
   // Determine which Actor to speak as
+  /* TODO
   let actor = getMacroSpeaker(a);
   if (!actor || !actor.is_npc()) return;
   const npc = actor.data.data.derived.mm;
@@ -44,4 +45,5 @@ export async function prepareChargeMacro(a: string | LancerActor) {
   };
   const template = `systems/${game.system.id}/templates/chat/charge-card.hbs`;
   return renderMacroTemplate(actor, template, templateData);
+  */
 }

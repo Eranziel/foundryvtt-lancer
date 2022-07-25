@@ -33,6 +33,7 @@ const lp = LANCER.log_prefix;
  */
 export async function prepareItemMacro(a: string, i: string, options?: any) {
   // Determine which Actor to speak as
+  /* TODO
   let actor = getMacroSpeaker(a);
   if (!actor) return;
 
@@ -90,7 +91,7 @@ export async function prepareItemMacro(a: string, i: string, options?: any) {
 
       await rollTextMacro(actor, CBdata);
       break;
-      */
+      *//*
     case EntryType.NPC_FEATURE:
       switch (item.data.data.type) {
         case NpcFeatureType.Weapon:
@@ -127,4 +128,5 @@ export async function prepareItemMacro(a: string, i: string, options?: any) {
   }
 
   applyCollapseListeners();
+  */
 }
