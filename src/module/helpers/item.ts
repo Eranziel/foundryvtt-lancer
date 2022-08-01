@@ -628,11 +628,11 @@ export function mech_weapon_refview(
   } else {
     // Make a refbox, hidden
     mod_text = `
-    <div class="${EntryType.WEAPON_MOD} ref drop-settable context-drop highlight-can-drop card flexrow"
+    <div class="${EntryType.WEAPON_MOD} ref drop-settable card flexrow"
         data-path="${mod_path}"
         data-type="${EntryType.WEAPON_MOD}">
       <i class="cci cci-weaponmod i--m i--light"> </i>
-      <span>Insert Mod</span>
+      <span>No Mod Installed</span>
     </div>`;
   }
 

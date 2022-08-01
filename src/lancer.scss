@@ -2279,6 +2279,10 @@ Here, this means we want to allow for drag stuff etc to show contextually if:
   }
 }
 
+.drop-settable:not(.valid) {
+  align-items: center;
+}
+
 /* Separate, older version for tags */
 .ref-list-append.highlight-can-drop {
   visibility: visible;
