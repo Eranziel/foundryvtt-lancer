@@ -39,31 +39,13 @@
       "heat": {
         "heat": 0
       },      
-      "statuses": {
-        "statuses": {
-          "dangerzone": false,
-          "downandout": false,
-          "engaged": false,
-          "exposed": false,
-          "invisible": false,
-          "prone": false,
-          "shutdown": false,
-          "immobilized": false,
-          "impaired": false,
-          "jammed": false,
-          "lockon": false,
-          "shredded": false,
-          "slow": false,
-          "stunned": false
-        }
-      },
       "struss": {
         "stress": 1,
         "structure": 1
       }
     },
     "pilot": {
-      "templates": ["universal", "action_tracking", "statuses"],
+      "templates": ["universal", "action_tracking"],
       "active_mech": null,
       "background": "",
       "callsign": "",
@@ -91,7 +73,7 @@
       "text_appearance": ""
     },
     "npc": {
-      "templates": ["universal", "action_tracking",  "heat", "statuses", "struss"],
+      "templates": ["universal", "action_tracking",  "heat", "struss"],
       "notes": "",
       "meltdown_timer": null,
       "tier": 1
@@ -138,8 +120,6 @@
   "Item": {
     "types": [
       "core_bonus",
-      "environment",
-      "faction",
       "frame",
       "license",
       "manufacturer",
@@ -154,16 +134,19 @@
       "pilot_gear",
       "pilot_weapon",
       "reserve",
-      "sitrep",
       "status",
       "talent",
-      "quirk",
       "skill",
       "tag"
     ],
     "templates": {
       "universal": {
         "lid": ""
+      },
+      "licensed": {
+        "license": "",
+        "license_level": 0,
+        "manufacturer": null
       },
       "bascdt": {
         "actions": [],
@@ -185,25 +168,13 @@
             "mounted_effect": "",
       "manufacturer": null
     },
-    "environment": {
-      "templates": ["universal"],
-      "description": ""
-    },
-    "faction": {
-      "templates": ["universal"],
-      "description": "",
-      "logo": "",
-      "logo_url": ""
-    },
     "frame": {
-      "templates": ["universal"],
+      "templates": ["universal", "licensed"],
       "description": "",
-      "license_level": 2,
       "mechtype": [
         "BALANCED"
       ],
       "mounts": [],
-      "manufacturer": null,
       "stats": {
         "armor": 0,
         "edef": 0,
@@ -266,7 +237,6 @@
         "flavor": "",
         "tactics": ""
       },
-      "power": 100,
       "base_features": [],
       "optional_features": [],
       "base_stats": {
@@ -336,22 +306,15 @@
           0
         ],
         "size": [
-          [
-            1
-          ],
-          [
-            1
-          ],
-          [
-            1
-          ]
+          0,
+          0,
+          0
         ]
       }
     },
     "npc_template": {
       "templates": ["universal"],
       "description": "",
-      "power": 100,
       "base_features": [],
       "optional_features": []
     },
@@ -385,13 +348,10 @@
       "tier_override": 0
     },
     "weapon_mod": {
-      "templates": ["universal", "bascdt", "destructible"],
+      "templates": ["universal", "bascdt", "destructible", "licensed"],
       "added_tags": [],
       "added_damage": [],
       "effect": "",
-      "license": "",
-      "license_level": 0,
-      "manufacturer": null,
       "sp": 0,
       "uses": 0,
       "allowed_sizes": [],
@@ -399,23 +359,17 @@
       "added_range": []
     },
     "mech_system": {
-      "templates": ["universal", "bascdt", "destructible"],
+      "templates": ["universal", "bascdt", "destructible", "licensed"],
       "effect": "",
-      "license": "",
-      "license_level": 0,
-      "manufacturer": null,
       "sp": 0,
       "uses": 0,
       "description": "",
       "type": ""
     },
     "mech_weapon": {
-      "templates": ["universal", "destructible"],
+      "templates": ["universal", "destructible", "licensed"],
       "deployables": [],
       "integrated": [],
-      "license": "",
-      "license_level": 0,
-      "manufacturer": null,
       "sp": 0,
       "uses": 0,
       "profiles": [],
@@ -466,17 +420,6 @@
       "used": false,
       "description": ""
     },
-    "sitrep": {
-      "templates": ["universal"],
-      "description": "",
-      "enemyVictory": "The enemy wins when ___",
-      "pcVictory": "The PCs win when ___",
-      "controlZone": "",
-      "deployment": "",
-      "extraction": "",
-      "noVictory": "",
-      "objective": ""
-    },
     "status": {
       "templates": ["universal"],
       "effects": "",
@@ -490,10 +433,6 @@
       "icon": "",
       "ranks": [],
       "terse": ""
-    },
-    "quirk": {
-      "templates": ["universal", "bascdt"],
-      "description": ""
     },
     "skill": {
       "templates": ["universal"],
