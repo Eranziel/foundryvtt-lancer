@@ -444,8 +444,7 @@
     "tag": {
       "templates": ["universal"],
       "description": "",
-      "hidden": false,
-      "filter_ignore": false
+      "hidden": false
     }
   }
 }
