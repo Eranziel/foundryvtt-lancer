@@ -22,16 +22,17 @@
           "Variable": false
         },
 
+        "activations": 1,
         "custom_counters": []
       },
       "action_tracking": {
-        "activations": 1,
         "action_tracker": {
           "protocol": true,
           "move": 0,
           "full": true,
           "quick": true,
           "reaction": true,
+          "free": true,
           "used_reactions": []
         }
       }, 
@@ -220,7 +221,6 @@
         "tech_attack": 0
       },
       "traits": [],
-      "y_pos": 0,
       "core_system": {
         "name": "",
         "description": "",
