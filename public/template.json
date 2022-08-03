@@ -183,7 +183,7 @@
       "description": "",
       "effect": "",
             "mounted_effect": "",
-      "source": null
+      "manufacturer": null
     },
     "environment": {
       "templates": ["universal"],
@@ -203,7 +203,7 @@
         "BALANCED"
       ],
       "mounts": [],
-      "source": null,
+      "manufacturer": null,
       "stats": {
         "armor": 0,
         "edef": 0,
@@ -391,7 +391,7 @@
       "effect": "",
       "license": "",
       "license_level": 0,
-      "source": null,
+      "manufacturer": null,
       "sp": 0,
       "uses": 0,
       "allowed_sizes": [],
@@ -403,7 +403,7 @@
       "effect": "",
       "license": "",
       "license_level": 0,
-      "source": null,
+      "manufacturer": null,
       "sp": 0,
       "uses": 0,
       "description": "",
@@ -415,7 +415,7 @@
       "integrated": [],
       "license": "",
       "license_level": 0,
-      "source": null,
+      "manufacturer": null,
       "sp": 0,
       "uses": 0,
       "profiles": [],
