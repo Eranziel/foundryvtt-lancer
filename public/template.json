@@ -122,7 +122,6 @@
       "core_bonus",
       "frame",
       "license",
-      "manufacturer",
       "npc_class",
       "npc_template",
       "npc_feature",
@@ -146,7 +145,7 @@
       "licensed": {
         "license": "",
         "license_level": 0,
-        "manufacturer": null
+        "manufacturer": ""
       },
       "bascdt": {
         "actions": [],
@@ -165,8 +164,8 @@
       "templates": ["universal", "bascdt"],
       "description": "",
       "effect": "",
-            "mounted_effect": "",
-      "manufacturer": null
+      "mounted_effect": "",
+      "manufacturer": ""
     },
     "frame": {
       "templates": ["universal", "licensed"],
@@ -218,17 +217,9 @@
     },
     "license": {
       "templates": ["universal"],
-      "manufacturer": null,
+      "manufacturer": "",
       "key": "",
       "rank": 0
-    },
-    "manufacturer": {
-      "templates": ["universal"],
-      "logo": "",
-      "light": "",
-      "description": "",
-      "dark": "",
-      "quote": ""
     },
     "npc_class": {
       "templates": ["universal"],

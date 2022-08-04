@@ -78,9 +78,9 @@ namespace SourceTemplates {
 
   // An item that is provided as part of a license
   export interface licensed {
-    manufacturer: Ref | null;
+    manufacturer: string;
     license_level: number;
-    license: string; 
+    license: string;
   }
 
   // The core data in virtually every lancer item
@@ -136,7 +136,7 @@ namespace SourceTemplates {
       loaded: boolean;
 
       tier_override: number;
-    }
+    };
 }
 namespace SystemTemplates {
   // These won't make sense for every actor, but that doesn't matter much
@@ -149,7 +149,8 @@ namespace SystemTemplates {
     save: number;
     sensor_range: number;
     tech_attack: number;
-    statuses: { // These can be set by active effects / right click statuses
+    statuses: {
+      // These can be set by active effects / right click statuses
       dangerzone: boolean;
       downandout: boolean;
       engaged: boolean;
@@ -174,7 +175,7 @@ interface SourceDataTypesMap extends DataTypeMap {
       description: string;
       effect: string;
       mounted_effect: string;
-      manufacturer: Ref | null;
+      manufacturer: string;
     };
   [EntryType.DEPLOYABLE]: SourceTemplates.actor_universal &
     SourceTemplates.heat & {
@@ -199,8 +200,8 @@ interface SourceDataTypesMap extends DataTypeMap {
       avail_unmounted: boolean;
       deployer: Ref;
     };
-  [EntryType.ENVIRONMENT]: SourceTemplates.item_universal & { 
-    description: string 
+  [EntryType.ENVIRONMENT]: SourceTemplates.item_universal & {
+    description: string;
   };
   [EntryType.FACTION]: SourceTemplates.item_universal & {
     description: string;
@@ -233,7 +234,7 @@ interface SourceDataTypesMap extends DataTypeMap {
         counters: RegCounterData[];
         integrated: Ref[];
         deployables: Ref[];
-        actions: RegActionData[]; 
+        actions: RegActionData[];
       }>;
       core_system: {
         name: string;
@@ -264,26 +265,19 @@ interface SourceDataTypesMap extends DataTypeMap {
       other_art: string[];
     };
   [EntryType.LICENSE]: SourceTemplates.item_universal & {
-    manufacturer: Ref | null;
+    manufacturer: string;
     key: string;
     rank: 0;
-  };
-  [EntryType.MANUFACTURER]: SourceTemplates.item_universal & {
-    logo: string;
-    light: string; // Color
-    description: string;
-    dark: string; // Color
-    quote: string;
   };
   [EntryType.MECH]: SourceTemplates.actor_universal &
     SourceTemplates.action_tracking &
     SourceTemplates.heat &
     SourceTemplates.struss & {
-      overcharge: number; 
+      overcharge: number;
       repairs: FullBoundedNum;
       loadout: {
-        core_active: boolean,
-        core_energy: boolean,
+        core_active: boolean;
+        core_energy: boolean;
         frame: Ref | null; // UUID to a LancerFRAME
         weapon_mounts: Array<{
           slots: Array<{
@@ -292,15 +286,15 @@ interface SourceDataTypesMap extends DataTypeMap {
             size: FittingSize;
           }>;
           type: MountType;
-          bracing: boolean; 
-        }>; 
+          bracing: boolean;
+        }>;
         system_mounts: Array<Ref>;
       };
-      meltdown_timer: number | null; 
+      meltdown_timer: number | null;
       notes: string;
       pilot: Ref | null; // UUID to a LancerPILOT
     };
-  [EntryType.MECH_SYSTEM]: SourceTemplates.item_universal & 
+  [EntryType.MECH_SYSTEM]: SourceTemplates.item_universal &
     SourceTemplates.bascdt &
     SourceTemplates.destructible &
     SourceTemplates.licensed & {
@@ -310,7 +304,7 @@ interface SourceDataTypesMap extends DataTypeMap {
       description: string;
       type: SystemType;
     };
-  [EntryType.MECH_WEAPON]: SourceTemplates.item_universal & 
+  [EntryType.MECH_WEAPON]: SourceTemplates.item_universal &
     SourceTemplates.destructible &
     SourceTemplates.licensed & {
       deployables: Ref[];
@@ -348,7 +342,7 @@ interface SourceDataTypesMap extends DataTypeMap {
   [EntryType.NPC]: SourceTemplates.actor_universal &
     SourceTemplates.action_tracking &
     SourceTemplates.heat &
-    SourceTemplates.struss & { 
+    SourceTemplates.struss & {
       notes: string;
       meltdown_timer: number | null;
       tier: number;
@@ -361,7 +355,8 @@ interface SourceDataTypesMap extends DataTypeMap {
     };
     base_features: Ref[];
     optional_features: Ref[];
-    base_stats: { // TODO: Make this an array of objects, not an object of arrays
+    base_stats: {
+      // TODO: Make this an array of objects, not an object of arrays
       activations: number[];
       armor: number[];
       hp: number[];
@@ -375,8 +370,8 @@ interface SourceDataTypesMap extends DataTypeMap {
       agility: number[];
       systems: number[];
       engineering: number[];
-      size: number[];  // TODO: don't miss this in migrations
-    }
+      size: number[]; // TODO: don't miss this in migrations
+    };
   };
   [EntryType.NPC_FEATURE]: AnyRegNpcFeatureData; // TODO make this owned by lancer-vtt? maybe?
   [EntryType.NPC_TEMPLATE]: SourceTemplates.item_universal & {
@@ -396,12 +391,12 @@ interface SourceDataTypesMap extends DataTypeMap {
       description: string;
       uses: number;
     };
-  [EntryType.PILOT_GEAR]: SourceTemplates.item_universal & 
+  [EntryType.PILOT_GEAR]: SourceTemplates.item_universal &
     SourceTemplates.bascdt & {
       description: string;
-      uses: 0;  
+      uses: 0;
     };
-  [EntryType.PILOT_WEAPON]: SourceTemplates.item_universal & 
+  [EntryType.PILOT_WEAPON]: SourceTemplates.item_universal &
     SourceTemplates.bascdt & {
       description: string;
       range: RegRangeData[];
@@ -410,7 +405,7 @@ interface SourceDataTypesMap extends DataTypeMap {
       loaded: boolean;
       uses: number;
     };
-  [EntryType.PILOT]: SourceTemplates.actor_universal & 
+  [EntryType.PILOT]: SourceTemplates.actor_universal &
     SourceTemplates.action_tracking & {
       active_mech: Ref | null;
       background: string;
@@ -424,7 +419,7 @@ interface SourceDataTypesMap extends DataTypeMap {
         armor: Ref[];
         gear: Ref[];
         weapons: Ref[];
-      }
+      };
       mech_skills: [number, number, number, number];
       mounted: boolean;
       notes: string;
@@ -432,7 +427,7 @@ interface SourceDataTypesMap extends DataTypeMap {
       status: string;
       text_appearance: string;
     };
-  [EntryType.RESERVE]: SourceTemplates.item_universal & 
+  [EntryType.RESERVE]: SourceTemplates.item_universal &
     SourceTemplates.bascdt & {
       consumable: boolean;
       label: string;
@@ -447,7 +442,7 @@ interface SourceDataTypesMap extends DataTypeMap {
     description: string;
     detail: string;
     family: string;
-    rank: number;  
+    rank: number;
   };
   [EntryType.STATUS]: SourceTemplates.item_universal & {
     effects: string;
@@ -455,29 +450,29 @@ interface SourceDataTypesMap extends DataTypeMap {
     type: "Status" | "Condition" | "Effect";
   };
   [EntryType.TAG]: SourceTemplates.item_universal & {
-    description: string;  
+    description: string;
     hidden: boolean;
   };
   [EntryType.TALENT]: SourceTemplates.item_universal & {
-      curr_rank: number;
+    curr_rank: number;
+    description: string;
+    icon: string;
+    ranks: Array<{
+      name: string;
       description: string;
-      icon: string;
-      ranks: Array<{
-        name: string;
-        description: string;
-        exclusive: boolean;
-        actions: RegActionData[];
-        bonuses: RegBonusData[];
-        synergies: ISynergyData[];
-        deployables: Ref[];
-        counters: RegCounterData[];
-        integrated: Ref[];
-      }>;
-      terse: string;
-    }
-  [EntryType.WEAPON_MOD]: SourceTemplates.item_universal & 
-    SourceTemplates.bascdt & 
-    SourceTemplates.destructible & 
+      exclusive: boolean;
+      actions: RegActionData[];
+      bonuses: RegBonusData[];
+      synergies: ISynergyData[];
+      deployables: Ref[];
+      counters: RegCounterData[];
+      integrated: Ref[];
+    }>;
+    terse: string;
+  };
+  [EntryType.WEAPON_MOD]: SourceTemplates.item_universal &
+    SourceTemplates.bascdt &
+    SourceTemplates.destructible &
     SourceTemplates.licensed & {
       added_tags: TagInstance[];
       added_damage: RegDamageData[];
@@ -493,7 +488,7 @@ interface SourceDataTypesMap extends DataTypeMap {
 export type SourceDataType<T extends EntryType> = T extends keyof SourceDataTypesMap ? SourceDataTypesMap[T] : never;
 
 // Make some helper types for fixing up our system types
-type Replace<S, K extends string, W> = S extends {K: unknown} ? Omit<S, K> & {K: W} : S;
+type Replace<S, K extends string, W> = S extends { K: unknown } ? Omit<S, K> & { K: W } : S;
 type FixHP<T> = Replace<T, "hp", BoundedNum>;
 type FixOvershield<T> = Replace<T, "overshield", BoundedNum>;
 type FixHeat<T> = Replace<T, "heat", BoundedNum>;
@@ -508,20 +503,21 @@ interface SystemDataTypesMap extends DataTypeMap {
   [EntryType.DEPLOYABLE]: FixAll<SourceDataTypesMap[EntryType.DEPLOYABLE]> & SystemTemplates.actor_attributes;
   [EntryType.FRAME]: SourceDataTypesMap[EntryType.FRAME];
   [EntryType.LICENSE]: SourceDataTypesMap[EntryType.LICENSE];
-  [EntryType.MANUFACTURER]: SourceDataTypesMap[EntryType.MANUFACTURER];
-  [EntryType.MECH]: FixAll<SourceDataTypesMap[EntryType.MECH]> & SystemTemplates.actor_attributes & {
-    frame: LancerFRAME | null;
-    weapons: LancerMECH_WEAPON[];
-    systems: LancerMECH_SYSTEM[]; 
-    // todo: more enumerations
-  };
+  [EntryType.MECH]: FixAll<SourceDataTypesMap[EntryType.MECH]> &
+    SystemTemplates.actor_attributes & {
+      frame: LancerFRAME | null;
+      weapons: LancerMECH_WEAPON[];
+      systems: LancerMECH_SYSTEM[];
+      // todo: more enumerations
+    };
   [EntryType.MECH_SYSTEM]: SourceDataTypesMap[EntryType.MECH_SYSTEM];
   [EntryType.MECH_WEAPON]: SourceDataTypesMap[EntryType.MECH_WEAPON];
-  [EntryType.NPC]: FixAll<SourceDataTypesMap[EntryType.NPC]> &  SystemTemplates.actor_attributes & {
-    class: LancerNPC_CLASS | null; 
-    templates: Array<LancerNPC_TEMPLATE>; 
-    features: Array<LancerNPC_FEATURE>; 
-  };
+  [EntryType.NPC]: FixAll<SourceDataTypesMap[EntryType.NPC]> &
+    SystemTemplates.actor_attributes & {
+      class: LancerNPC_CLASS | null;
+      templates: Array<LancerNPC_TEMPLATE>;
+      features: Array<LancerNPC_FEATURE>;
+    };
   [EntryType.NPC_CLASS]: SourceDataTypesMap[EntryType.NPC_CLASS];
   [EntryType.NPC_FEATURE]: AnyRegNpcFeatureData;
   [EntryType.NPC_TEMPLATE]: SourceDataTypesMap[EntryType.NPC_TEMPLATE];
@@ -529,7 +525,8 @@ interface SystemDataTypesMap extends DataTypeMap {
   [EntryType.PILOT_ARMOR]: SourceDataTypesMap[EntryType.PILOT_ARMOR];
   [EntryType.PILOT_GEAR]: SourceDataTypesMap[EntryType.PILOT_GEAR];
   [EntryType.PILOT_WEAPON]: SourceDataTypesMap[EntryType.PILOT_WEAPON];
-  [EntryType.PILOT]: FixAll<SourceDataTypesMap[EntryType.PILOT]> & SystemTemplates.actor_attributes & {
+  [EntryType.PILOT]: FixAll<SourceDataTypesMap[EntryType.PILOT]> &
+    SystemTemplates.actor_attributes & {
       active_mech: LancerMECH | null;
       owned_mechs: LancerMECH[];
       licenses: LancerLICENSE[];
