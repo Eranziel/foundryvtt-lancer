@@ -501,7 +501,8 @@ interface SystemDataTypesMap extends DataTypeMap {
   [EntryType.LICENSE]: SourceDataTypesMap[EntryType.LICENSE];
   [EntryType.MECH]: Omit<
     SourceDataTypesMap[EntryType.MECH],
-    "hp" | "heat" | "repairs" | "structure" | "stress" | "overshield"
+    "hp" | "heat" | "repairs" | "structure" | "stress" | "overshield" 
+    | "pilot"  // Unpack that ref! woo
   > &
     SystemTemplates.actor_attributes & {
       hp: FullBoundedNum;
@@ -514,6 +515,8 @@ interface SystemDataTypesMap extends DataTypeMap {
       frame: LancerFRAME | null;
       weapons: LancerMECH_WEAPON[];
       systems: LancerMECH_SYSTEM[];
+
+      pilot: LancerPILOT | null;
       // todo: more enumerations
     };
   [EntryType.MECH_SYSTEM]: SourceDataTypesMap[EntryType.MECH_SYSTEM];
