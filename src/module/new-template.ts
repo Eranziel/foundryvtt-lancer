@@ -488,23 +488,29 @@ interface SourceDataTypesMap extends DataTypeMap {
 export type SourceDataType<T extends EntryType> = T extends keyof SourceDataTypesMap ? SourceDataTypesMap[T] : never;
 
 // Make some helper types for fixing up our system types
-type Replace<S, K extends string, W> = S extends { K: unknown } ? Omit<S, K> & { K: W } : S;
-type FixHP<T> = Replace<T, "hp", BoundedNum>;
-type FixOvershield<T> = Replace<T, "overshield", BoundedNum>;
-type FixHeat<T> = Replace<T, "heat", BoundedNum>;
-type FixRepairs<T> = Replace<T, "repairs", BoundedNum>;
-type FixStructure<T> = Replace<T, "structure", BoundedNum>;
-type FixStress<T> = Replace<T, "stress", BoundedNum>;
-type FixAll<T> = FixHP<FixOvershield<FixHeat<FixRepairs<FixStructure<FixStress<T>>>>>>;
-
 interface SystemDataTypesMap extends DataTypeMap {
   // [EntryType.CONDITION]: IStatusData;
   [EntryType.CORE_BONUS]: SourceDataTypesMap[EntryType.CORE_BONUS];
-  [EntryType.DEPLOYABLE]: FixAll<SourceDataTypesMap[EntryType.DEPLOYABLE]> & SystemTemplates.actor_attributes;
+  [EntryType.DEPLOYABLE]: Omit<SourceDataTypesMap[EntryType.DEPLOYABLE], "hp" | "heat" | "overshield"> &
+    SystemTemplates.actor_attributes & {
+      hp: BoundedNum;
+      heat: BoundedNum;
+      overshield: BoundedNum;
+    };
   [EntryType.FRAME]: SourceDataTypesMap[EntryType.FRAME];
   [EntryType.LICENSE]: SourceDataTypesMap[EntryType.LICENSE];
-  [EntryType.MECH]: FixAll<SourceDataTypesMap[EntryType.MECH]> &
+  [EntryType.MECH]: Omit<
+    SourceDataTypesMap[EntryType.MECH],
+    "hp" | "heat" | "repairs" | "structure" | "stress" | "overshield"
+  > &
     SystemTemplates.actor_attributes & {
+      hp: BoundedNum;
+      heat: BoundedNum;
+      repairs: BoundedNum;
+      structure: BoundedNum;
+      stress: BoundedNum;
+      overshield: BoundedNum;
+
       frame: LancerFRAME | null;
       weapons: LancerMECH_WEAPON[];
       systems: LancerMECH_SYSTEM[];
@@ -512,8 +518,14 @@ interface SystemDataTypesMap extends DataTypeMap {
     };
   [EntryType.MECH_SYSTEM]: SourceDataTypesMap[EntryType.MECH_SYSTEM];
   [EntryType.MECH_WEAPON]: SourceDataTypesMap[EntryType.MECH_WEAPON];
-  [EntryType.NPC]: FixAll<SourceDataTypesMap[EntryType.NPC]> &
+  [EntryType.NPC]: Omit<SourceDataTypesMap[EntryType.NPC], "hp" | "heat" | "structure" | "stress" | "overshield"> &
     SystemTemplates.actor_attributes & {
+      hp: BoundedNum;
+      heat: BoundedNum;
+      structure: BoundedNum;
+      stress: BoundedNum;
+      overshield: BoundedNum;
+
       class: LancerNPC_CLASS | null;
       templates: Array<LancerNPC_TEMPLATE>;
       features: Array<LancerNPC_FEATURE>;
@@ -525,8 +537,11 @@ interface SystemDataTypesMap extends DataTypeMap {
   [EntryType.PILOT_ARMOR]: SourceDataTypesMap[EntryType.PILOT_ARMOR];
   [EntryType.PILOT_GEAR]: SourceDataTypesMap[EntryType.PILOT_GEAR];
   [EntryType.PILOT_WEAPON]: SourceDataTypesMap[EntryType.PILOT_WEAPON];
-  [EntryType.PILOT]: FixAll<SourceDataTypesMap[EntryType.PILOT]> &
+  [EntryType.PILOT]: Omit<SourceDataTypesMap[EntryType.PILOT], "hp" | "overshield"> &
     SystemTemplates.actor_attributes & {
+      hp: BoundedNum;
+      overshield: BoundedNum;
+
       active_mech: LancerMECH | null;
       owned_mechs: LancerMECH[];
       licenses: LancerLICENSE[];
