@@ -274,7 +274,7 @@ interface SourceDataTypesMap extends DataTypeMap {
     SourceTemplates.heat &
     SourceTemplates.struss & {
       overcharge: number;
-      repairs: FullBoundedNum;
+      repairs: number;
       loadout: {
         core_active: boolean;
         core_energy: boolean;
@@ -493,9 +493,9 @@ interface SystemDataTypesMap extends DataTypeMap {
   [EntryType.CORE_BONUS]: SourceDataTypesMap[EntryType.CORE_BONUS];
   [EntryType.DEPLOYABLE]: Omit<SourceDataTypesMap[EntryType.DEPLOYABLE], "hp" | "heat" | "overshield"> &
     SystemTemplates.actor_attributes & {
-      hp: BoundedNum;
-      heat: BoundedNum;
-      overshield: BoundedNum;
+      hp: FullBoundedNum;
+      heat: FullBoundedNum;
+      overshield: FullBoundedNum;
     };
   [EntryType.FRAME]: SourceDataTypesMap[EntryType.FRAME];
   [EntryType.LICENSE]: SourceDataTypesMap[EntryType.LICENSE];
@@ -504,12 +504,12 @@ interface SystemDataTypesMap extends DataTypeMap {
     "hp" | "heat" | "repairs" | "structure" | "stress" | "overshield"
   > &
     SystemTemplates.actor_attributes & {
-      hp: BoundedNum;
-      heat: BoundedNum;
-      repairs: BoundedNum;
-      structure: BoundedNum;
-      stress: BoundedNum;
-      overshield: BoundedNum;
+      hp: FullBoundedNum;
+      heat: FullBoundedNum;
+      repairs: FullBoundedNum;
+      structure: FullBoundedNum;
+      stress: FullBoundedNum;
+      overshield: FullBoundedNum;
 
       frame: LancerFRAME | null;
       weapons: LancerMECH_WEAPON[];
@@ -520,11 +520,11 @@ interface SystemDataTypesMap extends DataTypeMap {
   [EntryType.MECH_WEAPON]: SourceDataTypesMap[EntryType.MECH_WEAPON];
   [EntryType.NPC]: Omit<SourceDataTypesMap[EntryType.NPC], "hp" | "heat" | "structure" | "stress" | "overshield"> &
     SystemTemplates.actor_attributes & {
-      hp: BoundedNum;
-      heat: BoundedNum;
-      structure: BoundedNum;
-      stress: BoundedNum;
-      overshield: BoundedNum;
+      hp: FullBoundedNum;
+      heat: FullBoundedNum;
+      structure: FullBoundedNum;
+      stress: FullBoundedNum;
+      overshield: FullBoundedNum;
 
       class: LancerNPC_CLASS | null;
       templates: Array<LancerNPC_TEMPLATE>;
@@ -539,8 +539,8 @@ interface SystemDataTypesMap extends DataTypeMap {
   [EntryType.PILOT_WEAPON]: SourceDataTypesMap[EntryType.PILOT_WEAPON];
   [EntryType.PILOT]: Omit<SourceDataTypesMap[EntryType.PILOT], "hp" | "overshield"> &
     SystemTemplates.actor_attributes & {
-      hp: BoundedNum;
-      overshield: BoundedNum;
+      hp: FullBoundedNum;
+      overshield: FullBoundedNum;
 
       active_mech: LancerMECH | null;
       owned_mechs: LancerMECH[];
