@@ -288,7 +288,7 @@ interface SourceDataTypesMap extends DataTypeMap {
           type: MountType;
           bracing: boolean;
         }>;
-        system_mounts: Array<Ref>;
+        systems: Array<Ref>;
       };
       meltdown_timer: number | null;
       notes: string;
@@ -503,6 +503,7 @@ interface SystemDataTypesMap extends DataTypeMap {
     SourceDataTypesMap[EntryType.MECH],
     "hp" | "heat" | "repairs" | "structure" | "stress" | "overshield" 
     | "pilot"  // Unpack that ref! woo
+    | "loadout"  // We can start unreffing these as well
   > &
     SystemTemplates.actor_attributes & {
       hp: FullBoundedNum;
@@ -518,6 +519,22 @@ interface SystemDataTypesMap extends DataTypeMap {
 
       pilot: LancerPILOT | null;
       // todo: more enumerations
+
+      loadout: {
+        core_active: boolean; // Same
+        core_energy: boolean; // Same
+        frame: LancerFRAME | null; // Resolved
+        weapon_mounts: Array<{
+          slots: Array<{
+            weapon: LancerMECH_WEAPON | null; // Resolved
+            mod: LancerMECH_WEAPON | null; // Resolved
+            size: FittingSize; // Same
+          }>;
+          type: MountType; // Same
+          bracing: boolean; // Same
+        }>;
+        systems: Array<LancerMECH_SYSTEM>; // Resolved
+      };
     };
   [EntryType.MECH_SYSTEM]: SourceDataTypesMap[EntryType.MECH_SYSTEM];
   [EntryType.MECH_WEAPON]: SourceDataTypesMap[EntryType.MECH_WEAPON];
