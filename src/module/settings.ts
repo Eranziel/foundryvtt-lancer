@@ -113,6 +113,7 @@ export const registerSettings = function () {
     config: false,
     type: Object,
     onChange: setAppearance,
+    default: {}
   });
   game.settings.register(game.system.id, "combat-tracker-sort", {
     scope: "world",
