@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "foundryvtt-lancer",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "",
   "sideEffects": [
     "src/lancer.scss",
@@ -33,7 +33,7 @@
     "prettier": "2.0.5",
     "rollup-plugin-visualizer": "^5.5.2",
     "sass": "^1.40.0",
-    "svelte": "^3.42.5",
+    "svelte": "^3.49.0",
     "svelte-check": "^2.2.6",
     "svelte-language-server": "^0.14.8",
     "svelte-preprocess": "^4.9.4",

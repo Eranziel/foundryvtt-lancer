@@ -70,6 +70,9 @@ export async function prepareEncodedAttackMacro(
   rerollData: AccDiffDataSerialized
 ) {
 /*
+  if (actor_ref == null) {
+    return openBasicAttack();
+  }
   let reg = new FoundryReg();
   let opCtx = new OpCtx();
   let mm = await reg.resolve(opCtx, actor_ref);

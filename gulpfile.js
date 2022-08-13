@@ -229,12 +229,10 @@ function updateManifest(cb) {
     manifest.file.version = targetVersion;
 
     /* Update URLs */
-
-    const result = `${downloadURL}/v${manifest.file.version}/package/${manifest.file.name}-v${manifest.file.version}.zip`;
-
+    const download = `${downloadURL}/v${manifest.file.version}/${manifest.file.name}-v${manifest.file.version}.zip`;
     manifest.file.url = repoURL;
-    manifest.file.manifest = `${rawURL}/master/${manifestRoot}/${manifest.name}`;
-    manifest.file.download = result;
+    manifest.file.manifest = `${rawURL}/${manifest.name}`;
+    manifest.file.download = download;
 
     const prettyProjectJson = stringify(manifest.file, { maxLength: 35 });
 

@@ -105,6 +105,8 @@ import {
   compact_stat_edit,
   compact_stat_view,
   deployer_slot,
+  is_combatant,
+  macro_button,
   npc_clicker_stat_card,
   npc_tier_selector,
   overcharge_button,
@@ -379,6 +381,7 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("std-num-input", std_num_input);
   Handlebars.registerHelper("std-checkbox", std_checkbox);
   Handlebars.registerHelper("action-button", action_button);
+  Handlebars.registerHelper("macro-button", macro_button);
   Handlebars.registerHelper("tech-flow-card", tech_flow_card);
 
   // ------------------------------------------------------------------------
@@ -510,18 +513,22 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("npc-feat-preview", npc_feature_preview);
 
   // ------------------------------------------------------------------------
+  // Actor helpers
+  Handlebars.registerHelper("is-combatant", is_combatant);
+
+  // ------------------------------------------------------------------------
   // Sliding HUD Zone, including accuracy/difficulty window
   Hooks.on("renderHeadsUpDisplay", slidingHUD.attach);
-  let openingBasicAttackLock = false;
-  Hooks.on("targetToken", (user: User, _token: Token, isNewTarget: boolean) => {
-    if (user.isSelf && isNewTarget && !openingBasicAttackLock) {
-      // this only works because openBasicAttack is a promise and runs on a future tick
-      openingBasicAttackLock = true;
-      macros.openBasicAttack().finally(() => {
-        openingBasicAttackLock = false;
-      });
-    }
-  });
+  // let openingBasicAttackLock = false;
+  // Hooks.on("targetToken", (user: User, _token: Token, isNewTarget: boolean) => {
+  //   if (user.isSelf && isNewTarget && !openingBasicAttackLock) {
+  //     // this only works because openBasicAttack is a promise and runs on a future tick
+  //     openingBasicAttackLock = true;
+  //     macros.openBasicAttack().finally(() => {
+  //       openingBasicAttackLock = false;
+  //     });
+  //   }
+  // });
 });
 
 /* ------------------------------------ */
@@ -533,7 +540,7 @@ export const system_ready: Promise<void> = new Promise(success => {
     // Register sheet application classes
     setupSheets();
 
-    Hooks.on("preUpdateCombat", handleCombatUpdate);
+    Hooks.on("updateCombat", handleCombatUpdate);
 
     // Wait for sanity check to complete.
     // let ready: boolean = false;

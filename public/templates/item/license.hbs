@@ -2,7 +2,8 @@
   {{! Sheet Header }}
   <header class="sheet-header card clipped-bot">
     <h1 class="charname grow">
-      <input class="header-field" name="name" type="text" value="{{item.name}}" placeholder="{{localize "lancer.placeholder.name"}}" />
+      <input class="header-field" name="name" type="text" value="{{item.name}}"
+             placeholder="{{localize "lancer.placeholder.name"}}" />
     </h1>
     {{{ref-portrait-img item.img "img" mm}}}
   </header>
@@ -12,7 +13,7 @@
         <span style="text-align: right;padding: 4px;">
           RANK:
         </span>
-        {{{l-num-input "mm.CurrentRank"}}}
+        {{{l-num-input "mm.CurrentRank" 3}}}
       </div>
     {{/if}}
   </div>
@@ -39,7 +40,8 @@
           {{else if (eq unlock.Type "frame")}}
             {{{ref-frame unlock (concat "unlocks." rank "." unlock_index) }}}
           {{else}}
-            {{!-- Fallback - typically there should be nothing other than mech systems, weapons, mods, and frames, but just in case.--}}
+            {{!-- Fallback - typically there should be nothing other than mech systems, weapons, mods, and frames,
+            but just in case.--}}
             {{{ref-mm-controllable-item-native (concat "unlocks." rank "." unlock_index) null }}}
           {{/if}}
         {{/each}}
