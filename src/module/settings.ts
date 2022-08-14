@@ -199,7 +199,7 @@ export function getAutomationOptions(useDefault = false): AutomationOptions {
     remove_templates: false,
   };
   if (useDefault) return def;
-  const settings = game.settings.get(game.system.id, LANCER.setting_automation) as any ?? {};
+  const settings = game.settings.get(game.system.id, LANCER.setting_automation) as Record<string, boolean> ?? {};
   if (settings == null || (typeof settings == "object" && settings.enabled)) {
     return {
       ...def,

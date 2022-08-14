@@ -33,8 +33,8 @@ const lp = LANCER.log_prefix;
  * Extend the basic ItemSheet with some very simple modifications
  * @extends {ItemSheet}
  */
-export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemSheet.Options, LancerItemSheetData<T>> {
-  constructor(document: LancerItem<T>, options: ItemSheet.Options) {
+export class LancerItemSheet extends ItemSheet<ItemSheet.Options, LancerItemSheetData> {
+  constructor(document: LancerItem, options: ItemSheet.Options) {
     super(document, options);
     if (this.item.is_mech_weapon()) {
       // @ts-ignore IDK if this even does anything

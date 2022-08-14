@@ -169,12 +169,13 @@ Hooks.once("init", async function () {
 
   // Add this schema for each document type.
   // game.documentTypes.Item.forEach(type => CONFIG.Item.systemDataModels[type] = MyItemModel);
-  // @ts-ignore
+  // @ts-expect-error
   game.documentTypes.Item.forEach(type => CONFIG.Item.compendiumIndexFields = ["lid"]); 
-  // @ts-ignore
+  // @ts-expect-error
   CONFIG.Actor.systemDataModels[EntryType.MECH] = MechModel;
-  // @ts-ignore
+  // @ts-expect-error
   CONFIG.Item.systemDataModels[EntryType.MECH_SYSTEM] = MechSystemModel;
+  // TODO: Register the rest of our models
 
   // Register custom system settings
   registerSettings();
@@ -225,16 +226,17 @@ Hooks.once("init", async function () {
 
   // Record Configuration Values
   CONFIG.Actor.documentClass = LancerActor;
-  // CONFIG.Item.documentClass = LancerItem;
+  CONFIG.Item.documentClass = LancerItem;
   CONFIG.Token.documentClass = LancerTokenDocument;
   CONFIG.Token.objectClass = LancerToken;
   CONFIG.Combat.documentClass = LancerCombat;
   CONFIG.Combatant.documentClass = LancerCombatant;
+  // @ts-expect-error TODO: fix up Options vs ApplicationOptions once we have more modern types
   CONFIG.ui.combat = LancerCombatTracker;
 
   // Set up system status icons
   const keepStock = game.settings.get(game.system.id, LANCER.setting_stock_icons);
-  // @ts-expect-error This typing exists in the v9 types, remove this then
+  // @ts-expect-error TODO: Remove this expect when have v9 types
   let statuses: StatusEffect[] = [];
   if (keepStock) statuses = statuses.concat(CONFIG.statusEffects);
   statuses = statuses.concat(STATUSES);

@@ -8,7 +8,7 @@ import { LancerActorType } from "./actor/lancer-actor";
 // ------------------------------------------------------
 
 // These single generic type should cover all basic sheet use cases
-export interface LancerItemSheetData<T extends LancerItemType> extends ItemSheet.Data<ItemSheet.Options> {
+export interface LancerItemSheetData extends ItemSheet.Data<ItemSheet.Options> {
   // The license, if it could be recovered
   license: License | null;
 }
@@ -20,7 +20,7 @@ export type CachedCloudPilot = {
   cloudOwnerID: string;
 };
 
-export interface LancerActorSheetData<T extends LancerActorType> extends ActorSheet.Data<ActorSheet.Options> {
+export interface LancerActorSheetData extends ActorSheet.Data<ActorSheet.Options> {
   // Store active mech at the root level
   active_mech: LancerActor | null;
   // Store cloud pilot cache and potential cloud ids at the root level
