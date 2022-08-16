@@ -29,7 +29,8 @@ export const _endTurnActionData = () => {
  * @returns actions map.
  */
 export function getActions(actor: LancerActor): ActionData | undefined {
-  return actor.data.data.action_tracker ? { ...actor.data.data.action_tracker } : undefined;
+  // @ts-expect-error Should be fixed with v10 types
+  return actor.system.action_tracker ? { ...actor.system.action_tracker } : undefined;
 }
 /**
  * Set proxy for ease of migration when we change over to MM data backing.
@@ -46,7 +47,8 @@ export async function updateActions(actor: LancerActor, actions: ActionData) {
  * @param type specific action to spend, or undefined for end-turn behavior.
  */
 export async function modAction(actor: LancerActor, spend: boolean, type?: ActionType) {
-  let actions = { ...actor.data.data.action_tracker };
+  // @ts-expect-error Should be fixed with v10 types
+  let actions = { ...actor.system.action_tracker };
   if (actions) {
     switch (type) {
       case "move": // TODO: replace with tooltip for movement counting.
@@ -100,5 +102,6 @@ export async function toggleAction(actor: LancerActor, type: ActionType) {
 }
 
 function getSpeed(actor: Actor) {
-  return actor.data.data?.derived?.speed || 4;
+  // @ts-expect-error Should be fixed with v10 types
+  return actor.system?.derived?.speed || 4;
 }

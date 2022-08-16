@@ -29,7 +29,8 @@ function adjacentSpotter(actor: LancerActor): boolean {
   // TODO: TYPECHECK: all of this seems to work
   let adjacentPilots = (canvas!.tokens!.objects!.children as LancerToken[])
     .filter((t: LancerToken) => t.actor?.is_mech() && adjacent(t) && t.id != token.id)
-    .map((t: LancerToken) => (t.actor!.data.data.derived.mm! as Mech).Pilot);
+    // @ts-expect-error Should be fixed with v10 types
+    .map((t: LancerToken) => (t.actor!.system.derived.mm! as Mech).Pilot);
 
   return !!adjacentPilots.find((p: Pilot | null) => p?.Talents.find(t => t.LID == "t_spotter"));
 }

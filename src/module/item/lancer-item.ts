@@ -111,15 +111,20 @@ export class LancerItem extends Item {
    */
   rangesFor(types: Set<RangeType> | RangeType[]): RegRangeData[] {
     const filter = new Set(types);
-    switch (this.data.type) {
+    switch (this.type) {
       case EntryType.MECH_WEAPON:
-        const p = this.data.data.selected_profile;
-        return this.data.data.profiles[p].range.filter(r => filter.has(r.type));
+        // @ts-expect-error Should be fixed with v10 types
+        const p = this.system.selected_profile;
+        // @ts-expect-error Should be fixed with v10 types
+        return this.system.profiles[p].range.filter(r => filter.has(r.type));
       case EntryType.PILOT_WEAPON:
-        return this.data.data.range.filter(r => filter.has(r.type));
+        // @ts-expect-error Should be fixed with v10 types
+        return this.system.range.filter(r => filter.has(r.type));
       case EntryType.NPC_FEATURE:
-        if (this.data.data.type !== NpcFeatureType.Weapon) return [];
-        return this.data.data.range.filter(r => filter.has(r.type));
+        // @ts-expect-error Should be fixed with v10 types
+        if (this.system.type !== NpcFeatureType.Weapon) return [];
+        // @ts-expect-error Should be fixed with v10 types
+        return this.system.range.filter(r => filter.has(r.type));
       default:
         return [];
     }
@@ -136,13 +141,16 @@ export class LancerItem extends Item {
     if (!this.id) return;
 
     // Push down name
-    this.data.data.name = this.data.name;
-    if (!this.data.img) this.data.img = CONST.DEFAULT_TOKEN;
+    // @ts-expect-error Should be fixed with v10 types
+    this.system.name = this.name;
+    // @ts-expect-error Should be fixed with v10 types
+    if (!this.img) this.img = CONST.DEFAULT_TOKEN;
 
     let dr: this["data"]["data"]["derived"];
 
     // Init our derived data if necessary
-    if (!this.data.data.derived) {
+    // @ts-expect-error Should be fixed with v10 types
+    if (!this.system.derived) {
       dr = {
         max_uses: 0,
         mm: null as any, // We will set this shortly
@@ -150,10 +158,12 @@ export class LancerItem extends Item {
       };
 
       // We set it normally.
-      this.data.data.derived = dr;
+    // @ts-expect-error Should be fixed with v10 types
+      this.system.derived = dr;
     } else {
       // Otherwise, grab existing
-      dr = this.data.data.derived;
+      // @ts-expect-error Should be fixed with v10 types
+      dr = this.system.derived;
     }
 
     // Do we already have a ctx from our actor?
@@ -181,7 +191,8 @@ export class LancerItem extends Item {
 
           // If we have an actor, then try to get limited bonuses
           if (this.actor) {
-            let actor_mm = await this.actor.data.data.derived.mm_promise;
+            // @ts-expect-error Should be fixed with v10 types
+            let actor_mm = await this.actor.system.derived.mm_promise;
             if (actor_mm.Type == EntryType.MECH || actor_mm.Type == EntryType.PILOT) {
               // Add pilot/mech lim bonus
               dr.max_uses += actor_mm.LimitedBonus;
@@ -196,11 +207,11 @@ export class LancerItem extends Item {
   /** @override
    * Want to destroy derived data before passing it to an update
    */
-  async update(data: any, options = {}) {
-    if (data?.data?.derived) {
-      delete data.data.derived;
+  async update(system: any, options = {}) {
+    if (system?.derived) {
+      delete system.derived;
     }
-    return super.update(data, options);
+    return super.update(system, options);
   }
 
   protected async _preCreate(...[data, options, user]: Parameters<Item["_preCreate"]>): Promise<void> {
@@ -208,17 +219,17 @@ export class LancerItem extends Item {
     // If base item has data, then we are probably importing. Skip this step
     if (data?.data) return;
 
-    console.log(`${lp} Initializing new ${this.data.type}`);
+    console.log(`${lp} Initializing new ${this.type}`);
 
     // Select default image
-    let icon_lookup: string = this.data.type;
+    let icon_lookup: string = this.type;
     if (this.is_npc_feature()) {
-      icon_lookup += this.data.type;
+      icon_lookup += this.type;
     }
     let img = TypeIcon(icon_lookup);
 
     let default_data: RegEntryTypes<LancerItemType>;
-    switch (this.data.type) {
+    switch (this.type) {
       default:
       case EntryType.CORE_BONUS:
         default_data = funcs.defaults.CORE_BONUS();
@@ -293,7 +304,7 @@ export class LancerItem extends Item {
     // Sync the name
     default_data.name = this.name ?? default_data.name;
 
-    this.data.update({
+    this.update({
       data: default_data,
       img: img,
       name: default_data.name,
@@ -302,73 +313,73 @@ export class LancerItem extends Item {
 
   // Typeguards
   is_core_bonus(): this is LancerItem & { data: LancerItemDataProperties<EntryType.CORE_BONUS> } {
-    return this.data.type === EntryType.CORE_BONUS;
+    return this.type === EntryType.CORE_BONUS;
   }
   is_environment(): this is LancerItem & { data: LancerItemDataProperties<EntryType.ENVIRONMENT> } {
-    return this.data.type === EntryType.ENVIRONMENT;
+    return this.type === EntryType.ENVIRONMENT;
   }
   is_faction(): this is LancerItem & { data: LancerItemDataProperties<EntryType.FACTION> } {
-    return this.data.type === EntryType.FACTION;
+    return this.type === EntryType.FACTION;
   }
   is_frame(): this is LancerItem & { data: LancerItemDataProperties<EntryType.FRAME> } {
-    return this.data.type === EntryType.FRAME;
+    return this.type === EntryType.FRAME;
   }
   is_license(): this is LancerItem & { data: LancerItemDataProperties<EntryType.LICENSE> } {
-    return this.data.type === EntryType.LICENSE;
+    return this.type === EntryType.LICENSE;
   }
   is_manufacturer(): this is LancerItem & { data: LancerItemDataProperties<EntryType.MANUFACTURER> } {
-    return this.data.type === EntryType.MANUFACTURER;
+    return this.type === EntryType.MANUFACTURER;
   }
   is_mech_system(): this is LancerItem & { data: LancerItemDataProperties<EntryType.MECH_SYSTEM> } {
-    return this.data.type === EntryType.MECH_SYSTEM;
+    return this.type === EntryType.MECH_SYSTEM;
   }
   is_mech_weapon(): this is LancerItem & { data: LancerItemDataProperties<EntryType.MECH_WEAPON> } {
-    return this.data.type === EntryType.MECH_WEAPON;
+    return this.type === EntryType.MECH_WEAPON;
   }
   is_npc_class(): this is LancerItem & { data: LancerItemDataProperties<EntryType.NPC_CLASS> } {
-    return this.data.type === EntryType.NPC_CLASS;
+    return this.type === EntryType.NPC_CLASS;
   }
   is_npc_feature(): this is LancerItem & { data: LancerItemDataProperties<EntryType.NPC_FEATURE> } {
-    return this.data.type === EntryType.NPC_FEATURE;
+    return this.type === EntryType.NPC_FEATURE;
   }
   is_npc_template(): this is LancerItem & { data: LancerItemDataProperties<EntryType.NPC_TEMPLATE> } {
-    return this.data.type === EntryType.NPC_TEMPLATE;
+    return this.type === EntryType.NPC_TEMPLATE;
   }
   is_organization(): this is LancerItem & { data: LancerItemDataProperties<EntryType.ORGANIZATION> } {
-    return this.data.type === EntryType.ORGANIZATION;
+    return this.type === EntryType.ORGANIZATION;
   }
   is_pilot_armor(): this is LancerItem & { data: LancerItemDataProperties<EntryType.PILOT_ARMOR> } {
-    return this.data.type === EntryType.PILOT_ARMOR;
+    return this.type === EntryType.PILOT_ARMOR;
   }
   is_pilot_gear(): this is LancerItem & { data: LancerItemDataProperties<EntryType.PILOT_GEAR> } {
-    return this.data.type === EntryType.PILOT_GEAR;
+    return this.type === EntryType.PILOT_GEAR;
   }
   is_pilot_weapon(): this is LancerItem & { data: LancerItemDataProperties<EntryType.PILOT_WEAPON> } {
-    return this.data.type === EntryType.PILOT_WEAPON;
+    return this.type === EntryType.PILOT_WEAPON;
   }
   is_quirk(): this is LancerItem & { data: LancerItemDataProperties<EntryType.QUIRK> } {
-    return this.data.type === EntryType.QUIRK;
+    return this.type === EntryType.QUIRK;
   }
   is_reserve(): this is LancerItem & { data: LancerItemDataProperties<EntryType.RESERVE> } {
-    return this.data.type === EntryType.RESERVE;
+    return this.type === EntryType.RESERVE;
   }
   is_sitrep(): this is LancerItem & { data: LancerItemDataProperties<EntryType.SITREP> } {
-    return this.data.type === EntryType.SITREP;
+    return this.type === EntryType.SITREP;
   }
   is_skill(): this is LancerItem & { data: LancerItemDataProperties<EntryType.SKILL> } {
-    return this.data.type === EntryType.SKILL;
+    return this.type === EntryType.SKILL;
   }
   is_status(): this is LancerItem & { data: LancerItemDataProperties<EntryType.STATUS> } {
-    return this.data.type === EntryType.STATUS;
+    return this.type === EntryType.STATUS;
   }
   is_tag(): this is LancerItem & { data: LancerItemDataProperties<EntryType.TAG> } {
-    return this.data.type === EntryType.TAG;
+    return this.type === EntryType.TAG;
   }
   is_talent(): this is LancerItem & { data: LancerItemDataProperties<EntryType.TALENT> } {
-    return this.data.type === EntryType.TALENT;
+    return this.type === EntryType.TALENT;
   }
   is_weapon_mod(): this is LancerItem & { data: LancerItemDataProperties<EntryType.WEAPON_MOD> } {
-    return this.data.type === EntryType.WEAPON_MOD;
+    return this.type === EntryType.WEAPON_MOD;
   }
 }
 

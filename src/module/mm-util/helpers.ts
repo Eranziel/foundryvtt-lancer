@@ -137,7 +137,7 @@ export async function mm_wrap_item<T extends LancerItemType>(
 
   // Load up the item. This _should_ always work
   // let entry = (await reg.get_cat(item.type).get_live(ctx, item.id)) as LiveEntryTypes<T>;
-  let cat = reg.get_cat(item.data.type);
+  let cat = reg.get_cat(item.type);
   let entry = (await cat.dangerous_wrap_doc(ctx, item)) as LiveEntryTypes<T>;
   if (!entry) {
     throw new Error("Something went wrong while trying to contextualize an item...");
@@ -180,7 +180,7 @@ export async function mm_wrap_actor<T extends EntryType & LancerActorType>(
   let ctx = use_existing_ctx || new OpCtx();
 
   // let entry = (await reg.get_cat(actor.data.type).get_live(ctx, id)) as LiveEntryTypes<T>;
-  let cat = reg.get_cat(actor.data.type);
+  let cat = reg.get_cat(actor.type);
   let entry = (await cat.dangerous_wrap_doc(ctx, actor as any)) as LiveEntryTypes<T>;
   if (!entry) {
     throw new Error("Something went wrong while trying to contextualize an actor...");
@@ -236,7 +236,8 @@ export async function find_license_for(
 
   // If an actor was supplied, we first check their inventory.
   if (in_actor) {
-    let actor_mm = await in_actor.data.data.derived.mm_promise;
+    // @ts-expect-error Should be fixed with v10 types
+    let actor_mm = await in_actor.system.derived.mm_promise;
 
     // Only pilots should have licenses, so for mechs we go to active pilot
     let pilot: Pilot | null = null;

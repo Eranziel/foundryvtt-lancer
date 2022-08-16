@@ -41,7 +41,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
     if (this.item.is_mech_weapon()) {
       // @ts-ignore IDK if this even does anything
       // TODO Figure out if this even does anything
-      this.options.initial = `profile${this.item.data.data.selected_profile || 0}`;
+      this.options.initial = `profile${this.item.system.selected_profile || 0}`;
     }
   }
 
@@ -244,7 +244,8 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
 
   // Get the ctx that our actor + its items reside in. If an unowned item we'll just yield null
   getCtx(): OpCtx | null {
-    let ctx = this.item.data.data.derived.mm?.OpCtx;
+    // @ts-expect-error Should be fixed with v10 types
+    let ctx = this.item.system.derived.mm?.OpCtx;
     return ctx ?? null;
   }
 }

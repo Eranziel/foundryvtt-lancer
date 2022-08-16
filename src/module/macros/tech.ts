@@ -40,10 +40,12 @@ export async function prepareTechMacro(a: string, t: string, rerollData?: AccDif
     mData.title = "BASIC"
 
     if (actor.is_mech()) {
-      const mm = await actor.data.data.derived.mm_promise;
+      // @ts-expect-error Should be fixed with v10 types
+      const mm = await actor.system.derived.mm_promise;
       mData.t_atk = mm.TechAttack
     } else if (actor.is_npc()) {
-      const mm = await actor.data.data.derived.mm_promise;
+      // @ts-expect-error Should be fixed with v10 types
+      const mm = await actor.system.derived.mm_promise;
       mData.t_atk = mm.Sys
     } else {
       ui.notifications!.error(`Error rolling tech attack macro (not a valid tech attacker).`);
@@ -65,26 +67,29 @@ export async function prepareTechMacro(a: string, t: string, rerollData?: AccDif
     if (item.is_mech_system()) {
       debugger;
       /*
-      const tData = item.data.data as LancerMechSystemData;
+      const tData = item.system as LancerMechSystemData;
       mData.t_atk = (item.actor!.data as LancerPilotActorData).data.mech.tech_attack;
       mData.tags = tData.tags;
       mData.effect = ""; // TODO */
     } else if (item.is_npc_feature()) {
-      const mm: NpcFeature = await item.data.data.derived.mm_promise;
+      // @ts-expect-error Should be fixed with v10 types
+      const mm: NpcFeature = await item.system.derived.mm_promise;
       let tier_index: number = mm.TierOverride;
       if (!mm.TierOverride) {
         if (item.actor === null && actor.is_npc()) {
           // Use selected actor
-          tier_index = actor.data.data.tier - 1;
+          // @ts-expect-error Should be fixed with v10 types
+          tier_index = actor.system.tier - 1;
         } else if (item.actor!.is_npc()) {
           // Use provided actor
-          tier_index = item.actor.data.data.tier - 1;
+          // @ts-expect-error Should be fixed with v10 types
+          tier_index = item.actor.system.tier - 1;
         }
       } else {
         // Correct to be index
         tier_index -= 1;
       }
-  
+
       mData.t_atk = mm.AttackBonus[tier_index] ?? 0;
       mData.acc = mm.Accuracy[tier_index] ?? 0;
       mData.tags = mm.Tags;

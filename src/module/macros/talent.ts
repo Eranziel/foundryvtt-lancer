@@ -23,7 +23,8 @@ const lp = LANCER.log_prefix;
   if (!item || !item.is_talent()) return;
 
   let talData: LancerTalentMacroData = {
-    talent: item.data.data,
+    // @ts-expect-error Should be fixed with v10 types
+    talent: item.system,
     rank: rank,
   };
 

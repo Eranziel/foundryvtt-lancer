@@ -86,11 +86,11 @@ export interface FoundryFlagData<T extends EntryType = EntryType> {
   orig_doc_name: string;
 
   // Will be included in any create/update calls. Merged in after the real data. Should/must be in flat key format (please!)
-  top_level_data: { 
+  top_level_data: {
     // name: string,
     // folder: string,
     // img: string
-    [key: string]: any 
+    [key: string]: any
   };
 }
 
@@ -142,21 +142,21 @@ export type FoundryRegName = Source_Game | Source_Scene | Source_Core | Source_C
  * One of the following:
  * game             - Encompasses the global `game.items` collection.  Equivalent to the "Items.<item_id>" uuid pattern.
  *                    Also encompasses the   `game.actors` collection. Equivalent to the "Actors.<actor_id>" uuid pattern.
- * 
- * game|<aid>       - Inventoried registry. Contains the items for game-scoped actor <aid>. 
+ *
+ * game|<aid>       - Inventoried registry. Contains the items for game-scoped actor <aid>.
  *                    Equivalent to "Actors.<aid>.Item.<item_id>" uuid pattern.
- * 
+ *
  * scene|<sid>      - Encompasses all UNLINKED tokens actors on scene <sid>. Equivalent to "Scene.<scene_id>.Token.<token_id>" uuid pattern.
  *                    Currently only really can hold actors-typed entrys, but if "dropped" items ever become a thing will cover that as well
- *               
- * scene|<sid>|<aid> -Encompasses all items owned by synthetic actor <aid> on scene <sid>. 
+ *
+ * scene|<sid>|<aid> -Encompasses all items owned by synthetic actor <aid> on scene <sid>.
  *                    Equivalent to "Scene.<scene_id>.Token.<token_id>.Item.<item_id>" uuid pattern.
- * 
+ *
  * comp_core         - Encompasses all entries across all items located in the core compendiums (IE those fetched by get_pack)
  * comp|<comp_id>    - Encompasses all entries within the _NON_CORE_ compendium at comp_id. These are slightly harder to enumerate to, naturally
  * comp|<comp_id>|<actor_id>   - Encompasses all item entries owned by the specified actor_id located in the specific compendium comp_id
- *          
- * 
+ *
+ *
  * DEPRECATED
  *    > Format of registry names:
  *    > <item_source>|<actor_source>
@@ -173,7 +173,7 @@ export type FoundryRegName = Source_Game | Source_Scene | Source_Core | Source_C
  *    > compendium               // The general compendium registry
  *    > world                    // The general world registry
  *    > token                    // The token layer
- * 
+ *
  * DEPRECATED TRANSLATION?
  * compendium|<anything>              -> comp
  * compendium_inv:<actor_id>|<anything>  -> lookup actor <actor> -> comp|<that_actor_pack_id>|<that_actor_id>
@@ -182,11 +182,11 @@ export type FoundryRegName = Source_Game | Source_Scene | Source_Core | Source_C
  * token_inv:<token_id>|<anything>    -> lookup token <token_id> in all scenes -> scene|<that_token_scene_id>|<that_token_id>
  */
 export class FoundryReg extends Registry {
-  // Give a registry for the provided inventoried item. 
+  // Give a registry for the provided inventoried item.
   async switch_reg_inv(for_inv_item: InventoriedRegEntry<EntryType>): Promise<Registry> {
     // Determine based on actor metadata
     let flags = for_inv_item.Flags as FoundryFlagData<EntryType>;
-    let actor = flags.orig_doc as LancerActor;  
+    let actor = flags.orig_doc as LancerActor;
 
     // If a compendium actor, make a comp_actor reg
     // If a token, make a scene_token reg
@@ -255,7 +255,7 @@ export class FoundryReg extends Registry {
 
       // Wait ready if necessary
       if(opts?.wait_ctx_ready ?? true) {
-          // await pre.load_done(); -- unnecessary 
+          // await pre.load_done(); -- unnecessary
           await pre.ctx_ready();
       }
 
@@ -282,7 +282,7 @@ export class FoundryReg extends Registry {
     );
   }
 
-  // Turns reg args provided as a dict into a dict. 
+  // Turns reg args provided as a dict into a dict.
   public static parse_reg_args(args: FoundryRegName): FoundryRegNameParsed {
     /// 0.9 BETA COMPAT BLOCK
     // 0.9 beta tester compat spot-fixes the earlier naming convention for refs
@@ -304,7 +304,7 @@ export class FoundryReg extends Registry {
     /// END 0.9 BETA COMPAT BLOCK
 
 
-    // Tokenize 
+    // Tokenize
     let tokens = args.split("|");
 
     // Begin processing
@@ -320,7 +320,7 @@ export class FoundryReg extends Registry {
         return {
           src: "game"
         };
-      } 
+      }
     } else if(tokens[0] == "scene") {
       if(tokens[2]) {
         // Is "scene|<scene_id>|<actor_id>" specific token inventory listing
@@ -335,7 +335,7 @@ export class FoundryReg extends Registry {
           src: "scene",
           scene_id: tokens[1]
         }
-      } 
+      }
     } else if(tokens[0] == "comp") {
       if(tokens[2]) {
         // Is "comp|<comp_id>|<actor_id>" specific compendium actor inventory
@@ -468,7 +468,7 @@ export class FoundryReg extends Registry {
         fallback_lid: "",
         type: null
       };
-    } else { 
+    } else {
       // We arent!
       return null;
     }
@@ -525,7 +525,7 @@ export class FoundryRegCat<T extends EntryType> extends RegCat<T> {
       top_level_data: {
         name: g.document.name,
         img: g.document.img,
-        folder: g.document.data.folder || null
+        folder: g.document.folder || null
       },
     };
     return await this.revive_func(this.registry, ctx, g.id, g.data, flags, load_options);
@@ -540,13 +540,13 @@ export class FoundryRegCat<T extends EntryType> extends RegCat<T> {
     return this.revive_and_flag(retrieved, ctx, load_options);
   }
 
-  // Directly wrap a foundry document, without going through get_live resolution mechanism. 
+  // Directly wrap a foundry document, without going through get_live resolution mechanism.
   // Modestly dangerous, but can save a lot of repeated computation
   // BE CAREFUL! IF YOU WRAP A DOCUMENT IN A REGISTRY THAT WOULDNT HAVE FETCHED IT, IT WONT WRITE BACK PROPERLY
   async dangerous_wrap_doc(ctx: OpCtx, ent: T extends LancerActorType ? LancerActor : T extends LancerItemType ? LancerItem : never, wait_ready: boolean = true): Promise<LiveEntryTypes<T> | null> {
     let id = ent.id!;
 
-    // ID is different if we are an unlinked token 
+    // ID is different if we are an unlinked token
     if(ent instanceof LancerActor && ent.isToken) {
       id = ent.token!.id!;
     }
@@ -554,8 +554,9 @@ export class FoundryRegCat<T extends EntryType> extends RegCat<T> {
     let contrived: GetResult<T> = {
       document: ent as any,
       id,
-      data: ent.data.data as any,
-      type: ent.data.type as T
+      // @ts-expect-error Should be fixed with v10 types
+      data: ent.system as any,
+      type: ent.type as T
     };
     return this.revive_and_flag(contrived, ctx, {wait_ctx_ready: wait_ready}); // Probably want to be ready
   }
@@ -569,7 +570,7 @@ export class FoundryRegCat<T extends EntryType> extends RegCat<T> {
     }
     let result = await Promise.all(sub_pending);
     // Sort
-    return result.sort((a, b) => (a.Flags.orig_doc?.data?.sort ?? 0) - (b.Flags.orig_doc?.data?.sort ?? 0));
+    return result.sort((a, b) => (a.Flags.orig_doc?.sort ?? 0) - (b.Flags.orig_doc?.sort ?? 0));
   }
 
   // Use our update function

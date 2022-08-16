@@ -311,7 +311,7 @@ export class NuWrapper<T extends EntryType> extends DocumentCollectionWrapper<T>
     // Check its type and return
     if (fi && fi.type == this.entry_type) {
       return {
-        data: fi.data.data as RegEntryTypes<T>,
+        data: fi.system as RegEntryTypes<T>,
         document: fi as EntFor<T>,
         id,
         type: this.entry_type,
@@ -358,8 +358,8 @@ export class NuWrapper<T extends EntryType> extends DocumentCollectionWrapper<T>
 
     // Having retrieved all, just map to our GetResult format
     return all.map((e: any) => ({
-      id: (e.data as any)._id,
-      data: e.data.data as RegEntryTypes<T>,
+      id: e._id,
+      data: e.system as RegEntryTypes<T>,
       document: e as EntFor<T>,
       type: this.entry_type,
     }));

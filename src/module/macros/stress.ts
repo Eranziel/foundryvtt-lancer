@@ -22,7 +22,8 @@ export async function prepareOverheatMacro(a: string | LancerActor, reroll_data?
   }
 
   if (getAutomationOptions().structure && !reroll_data) {
-    const mech = await actor.data.data.derived.mm_promise;
+    // @ts-expect-error Should be fixed with v10 types
+    const mech = await actor.system.derived.mm_promise;
     if (mech.CurrentHeat <= mech.HeatCapacity) {
       ui.notifications!.info("Token heat is within heat cap.");
       return;
