@@ -7,6 +7,7 @@ import {
   HANDLER_activate_popout_text_editor,
   resolve_dotpath
 } from "../helpers/commons";
+import { HANDLER_activate_counter_listeners, HANDLER_activate_plus_minus_buttons } from "../helpers/item";
 import {
   HANDLER_activate_native_ref_dragging,
   HANDLER_activate_ref_dragging,
@@ -28,7 +29,6 @@ import { activate_action_editor } from "../apps/action-editor";
 import type { FoundryFlagData } from "../mm-util/foundry-reg";
 import { find_license_for } from "../mm-util/helpers";
 import { MMDragResolveCache } from "../helpers/dragdrop";
-import { mod_shared_handler } from "../actor/lancer-actor-sheet";
 
 const lp = LANCER.log_prefix;
 
@@ -117,9 +117,11 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
       return;
     }
 
-    this._activatePlusMinusButtons(html);
+    // Make +/- buttons work
+    HANDLER_activate_plus_minus_buttons(html, getfunc, () => this.submit({}));
 
-    this._activateCounterListeners(html);
+    // Make counter pips work
+    HANDLER_activate_counter_listeners(html, getfunc);
 
     // Grab pre-existing ctx if available
     let ctx = this.getCtx() || new OpCtx();
@@ -155,59 +157,6 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
 
     // Enable action editors
     activate_action_editor(html, getfunc, commitfunc);
-  }
-
-  _activatePlusMinusButtons(html: any) {
-    const mod_handler = (delta: number) => async (ev: Event) => {
-      if (!ev.currentTarget) return; // No target, let other handlers take care of it.
-      const button = $(ev.currentTarget as HTMLElement);
-      const writeback_parents = button.parents("div[data-writeback_path]");
-      if (writeback_parents.length > 0) {
-        const params = writeback_parents[0].dataset;
-        this._updateCounterData(params.path, params.writeback_path, delta);
-      } else {
-        mod_shared_handler(button, delta);
-        this.submit({});
-      }
-    };
-
-    // Behavior is identical, just +1 or -1 depending on button
-    let decr = html.find('button[class*="mod-minus-button"]');
-    decr.on("click", mod_handler(-1));
-    let incr = html.find('button[class*="mod-plus-button"]');
-    incr.on("click", mod_handler(+1));
-  }
-
-  async _activateCounterListeners(html: JQuery) {
-    let elements = html.find(".counter-hex");
-    elements.on("click", async ev => {
-      ev.stopPropagation();
-
-      const params = ev.currentTarget.dataset;
-      const available = params.available === "true";
-      this._updateCounterData(params.path, params.writeback_path, available ? -1 : 1);
-    });
-  }
-
-  async _updateCounterData(path: string | undefined, writeback_path: string | undefined, delta: number) {
-    if (path && writeback_path) {
-      const data = await this.getDataLazy();
-      const item = resolve_dotpath(data, path) as Counter;
-      const writeback = resolve_dotpath(data, writeback_path) as RegEntry<any>;
-      const min = item.Min || 0;
-      const max = item.Max || 6;
-
-      if (delta < 0) {
-        // Deduct uses.
-        item.Value = item.Value > min && item.Value + delta > min ? item.Value + delta : min;
-      } else {
-        // Increment uses.
-        item.Value = item.Value < max && item.Value + delta < max ? item.Value + delta : max;
-      }
-
-      await writeback.writeback();
-      console.debug(item);
-    }
   }
 
   /* -------------------------------------------- */

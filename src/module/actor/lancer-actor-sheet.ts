@@ -6,6 +6,7 @@ import {
   HANDLER_activate_popout_text_editor,
 } from "../helpers/commons";
 import { HANDLER_enable_mm_dropping, MMDragResolveCache } from "../helpers/dragdrop";
+import { HANDLER_activate_counter_listeners, HANDLER_activate_plus_minus_buttons } from "../helpers/item";
 import {
   HANDLER_activate_ref_dragging,
   HANDLER_activate_ref_drop_clearing,
@@ -67,8 +68,6 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     // Enable collapse triggers.
     this._activateCollapses(html);
 
-    this._activateCounterListeners(html);
-
     // Enable any action grid buttons.
     this._activateActionGridListeners(html);
 
@@ -87,11 +86,14 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     // All-actor macro dragging
     this._activateMacroDragging(html);
 
-    // Make +/- buttons work
-    this._activatePlusMinusButtons(html);
-
     let getfunc = () => this.getDataLazy();
     let commitfunc = (_: any) => this._commitCurrMM();
+
+    // Make +/- buttons work
+    HANDLER_activate_plus_minus_buttons(html, getfunc,  () => this.submit({}));
+
+    // Make counter pips work
+    HANDLER_activate_counter_listeners(html, getfunc);
 
     // Enable hex use triggers.
     HANDLER_activate_uses_editor(html, getfunc);
@@ -203,38 +205,6 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     });
 
     applyCollapseListeners();
-  }
-
-  async _activateCounterListeners(html: JQuery) {
-    let elements = html.find(".counter-hex");
-    elements.on("click", async ev => {
-      ev.stopPropagation();
-
-      const params = ev.currentTarget.dataset;
-      const available = params.available === "true";
-      this._updateCounterData(params.path, params.writeback_path, available ? -1 : 1);
-    });
-  }
-
-  async _updateCounterData(path: string | undefined, writeback_path: string | undefined, delta: number) {
-    if (path && writeback_path) {
-      const data = await this.getDataLazy();
-      const item = resolve_dotpath(data, path) as Counter;
-      const writeback = resolve_dotpath(data, writeback_path) as RegEntry<any>;
-      const min = item.Min || 0;
-      const max = item.Max || 6;
-
-      if (delta < 0) {
-        // Deduct uses.
-        item.Value = item.Value > min && item.Value + delta > min ? item.Value + delta : min;
-      } else {
-        // Increment uses.
-        item.Value = item.Value < max && item.Value + delta < max ? item.Value + delta : max;
-      }
-
-      await writeback.writeback();
-      console.debug(item);
-    }
   }
 
   async _activateActionGridListeners(html: JQuery) {
@@ -378,27 +348,6 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     };
 
     event.dataTransfer?.setData("text/plain", JSON.stringify(macroData));
-  }
-
-  _activatePlusMinusButtons(html: any) {
-    const mod_handler = (delta: number) => async (ev: Event) => {
-      if (!ev.currentTarget) return; // No target, let other handlers take care of it.
-      const button = $(ev.currentTarget as HTMLElement);
-      const writeback_parents = button.parents("div[data-writeback_path]");
-      if (writeback_parents.length > 0) {
-        const params = writeback_parents[0].dataset;
-        this._updateCounterData(params.path, params.writeback_path, delta);
-      } else {
-        mod_shared_handler(button, delta);
-        this.submit({});
-      }
-    };
-
-    // Behavior is identical, just +1 or -1 depending on button
-    let decr = html.find('button[class*="mod-minus-button"]');
-    decr.on("click", mod_handler(-1));
-    let incr = html.find('button[class*="mod-plus-button"]');
-    incr.on("click", mod_handler(+1));
   }
 
   getStatPath(event: any): string | null {
@@ -605,29 +554,4 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
 }
 function rollStatMacro(_actor: unknown, _mData: LancerStatMacroData) {
   throw new Error("Function not implemented.");
-}
-
-// Customized increment/decrement arrows. Same as in actor
-export function mod_shared_handler(button: JQuery<HTMLElement>, delta: number) {
-  const input = button.siblings("input");
-  const curr = Number.parseInt(input.prop("value"));
-  if (!isNaN(curr)) {
-    if (delta > 0) {
-      if (
-        !button[0].dataset["max"] ||
-        button[0].dataset["max"] == "-1" ||
-        curr + delta <= Number.parseInt(button[0].dataset["max"])
-      ) {
-        input.prop("value", curr + delta);
-      } else {
-        input.prop("value", input[0].dataset["max"]);
-      }
-    } else if (delta < 0) {
-      if (curr + delta >= 0) {
-        input.prop("value", curr + delta);
-      } else {
-        input.prop("value", 0);
-      }
-    }
-  }
 }
