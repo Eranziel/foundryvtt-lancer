@@ -91,6 +91,7 @@ export const registerSettings = function () {
       "222": "lancer.squaregriddiagonals.222",
       "euc": "lancer.squaregriddiagonals.euc",
     },
+    default: "111",
   });
 
   game.settings.register(game.system.id, LANCER.setting_automation, {
