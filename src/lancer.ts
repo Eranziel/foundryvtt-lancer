@@ -155,6 +155,7 @@ import CompconLoginForm from "./module/helpers/compcon-login-form";
 import { LancerCombat, LancerCombatant, LancerCombatTracker } from "lancer-initiative";
 import { LancerCombatTrackerConfig } from "./module/helpers/lancer-initiative-config-form";
 import { handleRenderCombatCarousel } from "./module/helpers/combat-carousel";
+import { measureDistances } from "./module/grid";
 
 const lp = LANCER.log_prefix;
 
@@ -612,6 +613,10 @@ Hooks.once("ready", () => {
     game.settings.set("dice-so-nice", "enabledSimultaneousRollForMessage", false);
     game.settings.set(game.system.id, LANCER.setting_dsn_setup, true);
   }
+});
+
+Hooks.once("canvasInit", () => {
+  SquareGrid.prototype.measureDistances = measureDistances;
 });
 
 // Action Manager hooks.
