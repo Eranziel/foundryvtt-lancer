@@ -359,9 +359,9 @@ export function bonuses_display(bonuses_path: string, bonuses_array: Bonus[], ed
       <div class="lancer-header">
         <span class="left">// Bonuses</span>
         ${inc_if(
-    `<a class="gen-control fas fa-plus" data-action="append" data-path="${bonuses_path}" data-action-value="(struct)bonus"></a>`,
-    edit
-  )}
+          `<a class="gen-control fas fa-plus" data-action="append" data-path="${bonuses_path}" data-action-value="(struct)bonus"></a>`,
+          edit
+        )}
       </div>
       ${items.join("\n")}
     </div>
@@ -510,8 +510,9 @@ export function pilot_weapon_refview(weapon_path: string, helper: HelperOptions)
   // Generate limited segment as needed
   let limited = is_limited(weapon) ? limited_uses_indicator(weapon, weapon_path) : "";
 
-  return `<div class="valid ${EntryType.PILOT_WEAPON
-    } ref drop-settable card clipped pilot-weapon-compact item macroable"
+  return `<div class="valid ${
+    EntryType.PILOT_WEAPON
+  } ref drop-settable card clipped pilot-weapon-compact item macroable"
                 ${ref_params(cd.ref, weapon_path)} >
     <div class="lancer-header">
       <i class="cci cci-weapon i--m i--light"> </i>
@@ -1145,8 +1146,9 @@ export function buildChipHTML(
     let data: string | undefined;
     if (macroData?.fullData) data = `data-macro=${encodeMacroData(macroData.fullData)}`;
     else data = `data-${macroData.isDep ? "deployable" : "activation"}=${macroData.num}`;
-    return `<a class="${macroData?.fullData ? "lancer-macro" : `macroable`
-      } activation-chip activation-${activation.toLowerCase().replace(/\s+/g, "")}" ${data}>
+    return `<a class="${
+      macroData?.fullData ? "lancer-macro" : `macroable`
+    } activation-chip activation-${activation.toLowerCase().replace(/\s+/g, "")}" ${data}>
             ${macroData.icon ? macroData.icon : ""}
             ${activation.toUpperCase()}
           </a>`;
@@ -1193,8 +1195,9 @@ export function buildSystemHTML(data: MechSystem): string {
 export function buildCounterHTML(data: Counter, path: string, writeback_path: string, can_delete?: boolean): string {
   let hexes = [...Array(data.Max)].map((_ele, index) => {
     const available = index + 1 <= data.Value;
-    return `<i class="counter-hex mdi ${available ? "mdi-hexagon-slice-6" : "mdi-hexagon-outline"
-      } theme--light" data-available="${available}" data-path="${path}" data-writeback_path="${writeback_path}"></i>`;
+    return `<i class="counter-hex mdi ${
+      available ? "mdi-hexagon-slice-6" : "mdi-hexagon-outline"
+    } theme--light" data-available="${available}" data-path="${path}" data-writeback_path="${writeback_path}"></i>`;
   });
 
   return `${buildCounterHeader(data, path, writeback_path, can_delete)}
@@ -1210,13 +1213,14 @@ export function buildCounterHTML(data: Counter, path: string, writeback_path: st
  * NOTE IT DOES NOT INCLUDE TRAILING /div tag!
  */
 export function buildCounterHeader(data: Counter, path: string, writeback_path: string, can_delete?: boolean): string {
-  // 
+  //
   return `
   <div class="card clipped-bot counter-wrapper" data-path="${path}" data-writeback_path="${writeback_path}">
     <div class="lancer-header">
       <span>// ${data.Name} //</span>
-      <a class="lancer-context-menu" data-context-menu="counter" data-path="${path}" data-can-delete="${can_delete ? can_delete : false
-    }">
+      <a class="lancer-context-menu" data-context-menu="counter" data-path="${path}" data-can-delete="${
+    can_delete ? can_delete : false
+  }">
         <i class="fas fa-ellipsis-v"></i>
       </a>
     </div>`;
@@ -1257,8 +1261,9 @@ export function buildCounterArrayHTML(
   <div class="card clipped double">
     <span class="lancer-header submajor ">
       COUNTERS
-      <a class="gen-control fas fa-plus" data-action="append" data-path="${custom_path ? custom_path : path
-    }" data-action-value="(struct)counter"></a>
+      <a class="gen-control fas fa-plus" data-action="append" data-path="${
+        custom_path ? custom_path : path
+      }" data-action-value="(struct)counter"></a>
     </span>
     ${counter_detail}
   </div>`;
@@ -1288,9 +1293,7 @@ function _updateButtonSiblingData(button: JQuery<HTMLElement>, delta: number) {
   }
 }
 
-async function _updateCounterData<
-T extends LancerActorSheetData<any> | LancerItemSheetData<any>
->(
+async function _updateCounterData<T extends LancerActorSheetData<any> | LancerItemSheetData<any>>(
   data: T,
   path: string | undefined,
   writeback_path: string | undefined,
@@ -1315,9 +1318,7 @@ T extends LancerActorSheetData<any> | LancerItemSheetData<any>
   }
 }
 
-export function HANDLER_activate_plus_minus_buttons<
-  T extends LancerActorSheetData<any> | LancerItemSheetData<any>
->(
+export function HANDLER_activate_plus_minus_buttons<T extends LancerActorSheetData<any> | LancerItemSheetData<any>>(
   html: JQuery,
   // Retrieves the data that we will operate on
   data_getter: () => Promise<T> | T,
@@ -1344,9 +1345,7 @@ export function HANDLER_activate_plus_minus_buttons<
   incr.on("click", mod_handler(+1));
 }
 
-export function HANDLER_activate_counter_listeners<
-  T extends LancerActorSheetData<any> | LancerItemSheetData<any>
->(
+export function HANDLER_activate_counter_listeners<T extends LancerActorSheetData<any> | LancerItemSheetData<any>>(
   html: JQuery,
   // Retrieves the data that we will operate on
   data_getter: () => Promise<T> | T
@@ -1488,7 +1487,7 @@ export function HANDLER_activate_item_context_menus<
   // Finally, setup the context menu
   tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"mech_weapon\"]`), "click", e_d_r);
   tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"mech_system\"]`), "click", e_d_r);
-  if (html.offsetParent().hasClass('item')) {
+  if (html.offsetParent().hasClass("item")) {
     tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"npc_feature\"]`), "click", e_d_rr);
   } else {
     tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"npc_feature\"]`), "click", e_d_r);

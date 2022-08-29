@@ -89,7 +89,7 @@ export const registerSettings = function () {
       "111": "lancer.squaregriddiagonals.111",
       "121": "lancer.squaregriddiagonals.121",
       "222": "lancer.squaregriddiagonals.222",
-      "euc": "lancer.squaregriddiagonals.euc",
+      euc: "lancer.squaregriddiagonals.euc",
     },
     default: "111",
   });

@@ -90,7 +90,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     let commitfunc = (_: any) => this._commitCurrMM();
 
     // Make +/- buttons work
-    HANDLER_activate_plus_minus_buttons(html, getfunc,  () => this.submit({}));
+    HANDLER_activate_plus_minus_buttons(html, getfunc, () => this.submit({}));
 
     // Make counter pips work
     HANDLER_activate_counter_listeners(html, getfunc);
