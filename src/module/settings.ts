@@ -93,6 +93,13 @@ export const registerSettings = function () {
     default: {},
   });
 
+  game.settings.register(game.system.id, LANCER.setting_dsn_setup, {
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
   // Lancer initiative stuff
   CONFIG.LancerInitiative = {
     module: game.system.id,

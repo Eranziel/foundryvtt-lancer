@@ -605,6 +605,15 @@ export const system_ready: Promise<void> = new Promise(success => {
   });
 });
 
+// Set up Dice So Nice to icrementally show attacks then damge rolls
+Hooks.once("ready", () => {
+  if (game.modules.get("dice-so-nice")?.active && !game.settings.get(game.system.id, LANCER.setting_dsn_setup)) {
+    console.log(`${lp} First login setup for Dice So Nice`);
+    game.settings.set("dice-so-nice", "enabledSimultaneousRollForMessage", false);
+    game.settings.set(game.system.id, LANCER.setting_dsn_setup, true);
+  }
+});
+
 // Action Manager hooks.
 Hooks.on("controlToken", () => {
   game.action_manager?.update();
