@@ -165,6 +165,14 @@
             "appearancesettingslabel": "Appearance Settings",
             "appearancesettingsbutton": "Appearance",
             "appearancesettings-desc": "Configure the colors and icon used in the tracker"
+        },
+        "squaregriddiagonals": {
+            "name": "Square Grid Diagonal Movement",
+            "hint": "How distances will be calculated when moving diagonally on a square grid.",
+            "111": "1-1-1: Diagonal moves cost 1 (default)",
+            "121": "1-2-1: Diagonal moves alternate cost from 1 to 2",
+            "222": "2-2-2: Manhattan distance. Diagonals cost 2",
+            "euc": "Euclidean: Euclidian distance rounded"
         }
     },
     "LANCERINITIATIVE": {
