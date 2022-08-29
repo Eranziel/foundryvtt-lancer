@@ -1194,7 +1194,7 @@ export function buildCounterHTML(data: Counter, path: string, writeback_path: st
   let hexes = [...Array(data.Max)].map((_ele, index) => {
     const available = index + 1 <= data.Value;
     return `<i class="counter-hex mdi ${available ? "mdi-hexagon-slice-6" : "mdi-hexagon-outline"
-      } theme--light" data-available="${available}" data-path="${path}" data-writeback="${writeback_path}"></i>`;
+      } theme--light" data-available="${available}" data-path="${path}" data-writeback_path="${writeback_path}"></i>`;
   });
 
   return `${buildCounterHeader(data, path, writeback_path, can_delete)}
@@ -1262,6 +1262,104 @@ export function buildCounterArrayHTML(
     </span>
     ${counter_detail}
   </div>`;
+}
+
+function _updateButtonSiblingData(button: JQuery<HTMLElement>, delta: number) {
+  const input = button.siblings("input");
+  const curr = Number.parseInt(input.prop("value"));
+  if (!isNaN(curr)) {
+    if (delta > 0) {
+      if (
+        !button[0].dataset["max"] ||
+        button[0].dataset["max"] == "-1" ||
+        curr + delta <= Number.parseInt(button[0].dataset["max"])
+      ) {
+        input.prop("value", curr + delta);
+      } else {
+        input.prop("value", input[0].dataset["max"]);
+      }
+    } else if (delta < 0) {
+      if (curr + delta >= 0) {
+        input.prop("value", curr + delta);
+      } else {
+        input.prop("value", 0);
+      }
+    }
+  }
+}
+
+async function _updateCounterData<
+T extends LancerActorSheetData<any> | LancerItemSheetData<any>
+>(
+  data: T,
+  path: string | undefined,
+  writeback_path: string | undefined,
+  delta: number
+) {
+  if (path && writeback_path) {
+    const item = resolve_dotpath(data, path) as Counter;
+    const writeback = resolve_dotpath(data, writeback_path) as RegEntry<any>;
+    const min = item.Min || 0;
+    const max = item.Max || 6;
+
+    if (delta < 0) {
+      // Deduct uses.
+      item.Value = item.Value > min && item.Value + delta > min ? item.Value + delta : min;
+    } else {
+      // Increment uses.
+      item.Value = item.Value < max && item.Value + delta < max ? item.Value + delta : max;
+    }
+
+    await writeback.writeback();
+    console.debug(item);
+  }
+}
+
+export function HANDLER_activate_plus_minus_buttons<
+  T extends LancerActorSheetData<any> | LancerItemSheetData<any>
+>(
+  html: JQuery,
+  // Retrieves the data that we will operate on
+  data_getter: () => Promise<T> | T,
+  form_callback: () => any
+) {
+  const mod_handler = (delta: number) => async (ev: Event) => {
+    if (!ev.currentTarget) return; // No target, let other handlers take care of it.
+    const button = $(ev.currentTarget as HTMLElement);
+    const writeback_parents = button.parents("div[data-writeback_path]");
+    if (writeback_parents.length > 0) {
+      const params = writeback_parents[0].dataset;
+      const data = await data_getter();
+      _updateCounterData(data, params.path, params.writeback_path, delta);
+    } else {
+      _updateButtonSiblingData(button, delta);
+      form_callback();
+    }
+  };
+
+  // Behavior is identical, just +1 or -1 depending on button
+  let decr = html.find('button[class*="mod-minus-button"]');
+  decr.on("click", mod_handler(-1));
+  let incr = html.find('button[class*="mod-plus-button"]');
+  incr.on("click", mod_handler(+1));
+}
+
+export function HANDLER_activate_counter_listeners<
+  T extends LancerActorSheetData<any> | LancerItemSheetData<any>
+>(
+  html: JQuery,
+  // Retrieves the data that we will operate on
+  data_getter: () => Promise<T> | T
+) {
+  let elements = html.find(".counter-hex");
+  elements.on("click", async ev => {
+    ev.stopPropagation();
+
+    const params = ev.currentTarget.dataset;
+    const available = params.available === "true";
+    const data = await data_getter();
+    _updateCounterData(data, params.path, params.writeback_path, available ? -1 : 1);
+  });
 }
 
 export function HANDLER_activate_item_context_menus<
