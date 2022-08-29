@@ -48,6 +48,7 @@ declare global {
       // "lancer.warningForBeta": boolean; // Old setting, currently unused.
       "lancer.combatTrackerConfig": { sortTracker: boolean } | ClientSettings.Values["lancer.combatTrackerConfig"];
       "lancer.dsnSetup": boolean;
+      "lancer.combat-tracker-appearance": Partial<LancerInitiativeConfig["def_appearance"]>;
     }
   }
 }
