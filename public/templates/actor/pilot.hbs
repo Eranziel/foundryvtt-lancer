@@ -45,40 +45,31 @@
   </nav>
 
   {{!-- Sheet Body --}}
-  <section class="sheet-body">
+  <section class="sheet-body scroll-body">
     {{!-- Cloud Management Tab --}}
     <div class="tab manage" data-group="primary" data-tab="cloud">
       <div style="display: grid; grid-template: auto / 1fr 1fr;">
         <div class="card clipped" style="grid-area: 1/1/2/3;">
           <span class="lancer-header major">{{localize "lancer.pilot-sheet.cloud-header.label"}}</span>
-          <select class="lancer-input major lancer-text-field"
-            style="text-align: center;" name="vaultID" data-type="String">
+          <select class="lancer-input major lancer-text-field" style="text-align: center;" name="vaultID"
+            data-type="String">
             {{#select vaultID}}
-              <option value="">{{localize "lancer.pilot-sheet.cloud-header.vaultID"}}</option>
-              {{#each pilotCache}}
-                <option value="{{id}}">{{callsign}} // {{name}}</option>
-              {{/each}}
+            <option value="">{{localize "lancer.pilot-sheet.cloud-header.vaultID"}}</option>
+            {{#each pilotCache}}
+            <option value="{{id}}">{{callsign}} // {{name}}</option>
+            {{/each}}
             {{/select}}
           </select>
-          <input
-            class="lancer-input major"
-            style="text-align: center;"
-            type="string"
-            name="rawID"
-            value="{{rawID}}"
-            data-dtype="String"
-            placeholder="{{localize "lancer.pilot-sheet.cloud-header.raw-placeholder"}}"
-          />
+          <input class="lancer-input major" style="text-align: center;" type="string" name="rawID" value="{{rawID}}"
+            data-dtype="String" placeholder="{{localize " lancer.pilot-sheet.cloud-header.raw-placeholder"}}" />
         </div>
 
         <div class="card clipped" style="grid-area: 2/1/3/2;">
           <span class="lancer-header major">{{localize "lancer.pilot-sheet.cloud-download.label"}}</span>
-          <a class="cloud-control i--dark i--l" style="align-self: center;" data-action="download"
-            ><i class="cci cci-tech-quick"></i
-          ></a>
-          <span class="minor desc-text" style="text-align: center;"
-            >{{localize "lancer.pilot-sheet.cloud-download.lastSync" timestamp=mm.LastCloudUpdate}}</span
-          >
+          <a class="cloud-control i--dark i--l" style="align-self: center;" data-action="download"><i
+              class="cci cci-tech-quick"></i></a>
+          <span class="minor desc-text" style="text-align: center;">{{localize
+            "lancer.pilot-sheet.cloud-download.lastSync" timestamp=mm.LastCloudUpdate}}</span>
         </div>
 
         <div class="card clipped" style="grid-area: 2/2/3/3;">
@@ -106,19 +97,15 @@
       <div class="wraprow double">
         <div class="card clipped">
           <span class="lancer-header major">{{localize "lancer.pilot-sheet.dossier.cs"}}</span>
-          <input class="lancer-input major" {{{getset "mm.Callsign" }}} data-dtype="String"/>
+          <input class="lancer-input major" {{{getset "mm.Callsign" }}} data-dtype="String" />
         </div>
         <div class="card clipped">
           <span class="lancer-header major">{{localize "lancer.pilot-sheet.dossier.name"}}</span>
-          <input
-            class="lancer-input major"
-            name="name"
-            value="{{actor.name}}"
-            data-dtype="String"
-          />
+          <input class="lancer-input major" name="name" value="{{actor.name}}" data-dtype="String" />
         </div>
 
-        {{{textarea-card "BACKGROUND" "mm.Background"}}} {{{textarea-card "HISTORY" "mm.History"}}} {{{textarea-card "NOTES" "mm.Notes"}}}
+        {{{textarea-card "BACKGROUND" "mm.Background"}}} {{{textarea-card "HISTORY" "mm.History"}}} {{{textarea-card
+        "NOTES" "mm.Notes"}}}
       </div>
     </div>
 
@@ -134,7 +121,8 @@
       {{!-- Skill Triggers --}}
       <div class="card clipped">
         <h2 class="lancer-title clipped">{{localize "lancer.pilot-sheet.abilities.skills"}}</h2>
-        {{#each mm.Skills as |skill index|}} {{{ref-mm-controllable-item (concat "mm.Skills." index) "delete" }}} {{/each}}
+        {{#each mm.Skills as |skill index|}} {{{ref-mm-controllable-item (concat "mm.Skills." index) "delete" }}}
+        {{/each}}
       </div>
 
       {{!-- Reserves --}}
@@ -151,7 +139,8 @@
         {{!-- Weapons --}}
         <div class="card clipped">
           <h2 class="lancer-header major">{{localize "lancer.pilot-sheet.tactical.weapons"}}</h2>
-          {{#each mm.Loadout.Weapons as |weapon key|}} {{{pilot-weapon-slot (concat "mm.Loadout.Weapons." key)}}} {{/each}}
+          {{#each mm.Loadout.Weapons as |weapon key|}} {{{pilot-weapon-slot (concat "mm.Loadout.Weapons." key)}}}
+          {{/each}}
         </div>
       </div>
 
@@ -182,7 +171,8 @@
       {{!-- Talents --}}
       <div class="card clipped">
         <h2 class="lancer-title clipped">{{localize "lancer.pilot-sheet.abilities.talents"}}</h2>
-        {{#each mm.Talents as |skill index|}} {{{ref-mm-controllable-item (concat "mm.Talents." index) "delete" }}} {{/each}}
+        {{#each mm.Talents as |skill index|}} {{{ref-mm-controllable-item (concat "mm.Talents." index) "delete" }}}
+        {{/each}}
       </div>
 
       {{!-- Licenses + Core Bonuses --}}
@@ -190,13 +180,15 @@
         {{!-- Licenses --}}
         <div class="card clipped">
           <h2 class="lancer-title clipped-top">{{localize "lancer.pilot-sheet.tactical.licenses"}}</h2>
-          {{#each mm.Licenses as |license index|}} {{{ref-license license license.CurrentRank (concat "mm.Licenses." index) }}} {{/each}}
+          {{#each mm.Licenses as |license index|}} {{{ref-license license license.CurrentRank (concat "mm.Licenses."
+          index) }}} {{/each}}
         </div>
 
         {{!-- Core Bonuses --}}
         <div class="card clipped">
           <h2 class="lancer-title clipped-top">{{localize "lancer.pilot-sheet.tactical.cores"}}</h2>
-          {{#each mm.CoreBonuses as |core_bonus index|}} {{{ref-mm-controllable-item (concat "mm.CoreBonuses." index) "delete" }}} {{/each}}
+          {{#each mm.CoreBonuses as |core_bonus index|}} {{{ref-mm-controllable-item (concat "mm.CoreBonuses." index)
+          "delete" }}} {{/each}}
         </div>
       </div>
 
@@ -205,8 +197,8 @@
 
     {{!-- Loadout Tab --}}
     {{!-- Things to put in here:
-        * ActiveMechRef (maybe just drag&drop & a link here to get to it?)
-        * Access to a full list of things unlocked by licenses (read-only)    
+    * ActiveMechRef (maybe just drag&drop & a link here to get to it?)
+    * Access to a full list of things unlocked by licenses (read-only)
     --}}
     <div class="tab loadout flexcol" data-group="primary" data-tab="loadout">
       {{!-- Active Mech --}}

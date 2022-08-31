@@ -175,11 +175,12 @@ export const LANCER = {
   setting_automation: "automationOptions" as const,
   setting_automation_switch: "automationSwitch" as const,
   setting_automation_attack: "attackSwitch" as const,
-  setting_action_manager: "actionManager" as const,
-  setting_action_manager_players: "actionManagerPlayersUse" as const,
+  setting_actionTracker: "actionTracker" as const,
   setting_pilot_oc_heat: "autoOCHeat" as const,
   setting_overkill_heat: "autoOKillHeat" as const,
   setting_auto_structure: "autoCalcStructure" as const,
+  setting_dsn_setup: "dsnSetup" as const,
+  setting_square_grid_diagonals: "squareGridDiagonals" as const,
   // setting_120: "warningFor120" as const, // Old setting, currently unused.
   // setting_beta_warning: "warningForBeta" as const, // Old setting, currently unused.
   mech_items,

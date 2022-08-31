@@ -1,4 +1,4 @@
-import { Counter, RegEntry } from "machine-mind";
+import { Counter, RegEntry, Talent } from "machine-mind";
 import { gentle_merge, resolve_dotpath } from "../helpers/commons";
 
 /**
@@ -12,6 +12,7 @@ export class CounterEditForm<O> extends FormApplication {
   }
   // The counter we're editing
   counter: Counter;
+  source: Talent;
 
   // Where it is
   path: string;
@@ -19,7 +20,13 @@ export class CounterEditForm<O> extends FormApplication {
   constructor(target: O, path: string, dialogData: Dialog.Data, options: Partial<Dialog.Options> = {}) {
     super(dialogData, options);
     this.path = path;
+    let replace_path = path.replace(".counter", ".source");
     this.counter = resolve_dotpath(target, path);
+    if (path == replace_path) {
+      this.source = resolve_dotpath(target, "mm");
+    } else {
+      this.source = resolve_dotpath(target, replace_path);
+    }
   }
 
   /* -------------------------------------------- */
@@ -30,6 +37,7 @@ export class CounterEditForm<O> extends FormApplication {
       ...super.defaultOptions,
       template: `systems/${game.system.id}/templates/window/counter.hbs`,
       width: 400,
+      title: "Counter Editing",
       height: "auto",
       classes: ["lancer"],
     };
@@ -43,7 +51,53 @@ export class CounterEditForm<O> extends FormApplication {
       ...super.getData(),
       counter: this.counter,
       path: this.path,
+      source: this.source,
     };
+  }
+
+  activateListeners(html: JQuery<HTMLElement>): void {
+    super.activateListeners(html);
+
+    let elements = html.find("input");
+    elements.on("change", async ev => {
+      ev.stopPropagation();
+      const input = ev.currentTarget as HTMLInputElement;
+
+      const item = this.counter;
+      const writeback = this.source;
+
+      const newVal = input.value;
+      const numVal = input.valueAsNumber;
+      switch (input.name) {
+        case "Min":
+          if (!Number.isNaN(numVal)) {
+            item.Min = numVal;
+            if (item.Value < numVal) {
+              item.Value = numVal;
+            }
+          }
+          break;
+        case "Value":
+          !Number.isNaN(numVal) && (item.Value = numVal);
+          break;
+        case "Max":
+          if (!Number.isNaN(numVal)) {
+            item.Max = numVal;
+            if (item.Value > numVal) {
+              item.Value = numVal;
+            }
+          }
+          break;
+        case "Name":
+          item.Name = newVal.trim();
+          break;
+      }
+
+      this.close();
+
+      await writeback.writeback();
+      console.debug(item);
+    });
   }
 
   /* -------------------------------------------- */

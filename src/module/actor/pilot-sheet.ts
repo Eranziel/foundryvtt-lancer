@@ -4,15 +4,16 @@ import { LancerActorSheet } from "./lancer-actor-sheet";
 import { EntryType, Mech, PackedPilotData, Pilot } from "machine-mind";
 import { funcs } from "machine-mind";
 import type { HelperOptions } from "handlebars";
-import { buildCounterHTML } from "../helpers/item";
+import { buildCounterHeader, buildCounterHTML } from "../helpers/item";
 import { ref_commons, ref_params, resolve_ref_element, simple_mm_ref } from "../helpers/refs";
 import { resolve_dotpath } from "../helpers/commons";
 import { AnyMMActor, is_reg_mech, is_actor_type, LancerActor } from "./lancer-actor";
 import { cleanCloudOwnerID, fetchPilot, fetchPilotViaCache, fetchPilotViaShareCode, pilotCache } from "../compcon";
 import type { AnyMMItem, LancerItemType } from "../item/lancer-item";
-import { derived } from "svelte/store";
+import { clicker_num_input } from "../helpers/actor";
 
 const shareCodeMatcher = /^[A-Z0-9\d]{6}$/g;
+const COUNTER_MAX = 8;
 
 /**
  * Extend the basic ActorSheet
@@ -363,18 +364,34 @@ export function pilot_counters(pilot: Pilot, _helper: HelperOptions): string {
   let counter_detail = "";
 
   let counter_arr = pilot.PilotCounters;
-  let custom_path = "mm.PilotCounters";
+  let custom_path = "mm.CustomCounters";
 
   for (let i = 0; i < counter_arr.length; i++) {
     // Only allow deletion if the Pilot is the source
-    counter_detail = counter_detail.concat(
-      buildCounterHTML(
-        counter_arr[i].counter,
-        `mm.PilotCounters.${i}.counter`,
-        `mm.PilotCounters.${i}.source`,
-        counter_arr[i].source === pilot
-      )
-    );
+    const counter = counter_arr[i].counter;
+    if (counter.Max != null) {
+      if (counter.Max <= COUNTER_MAX) {
+        counter_detail = counter_detail.concat(
+          buildCounterHTML(
+            counter,
+            `mm.PilotCounters.${i}.counter`,
+            `mm.PilotCounters.${i}.source`,
+            counter_arr[i].source === pilot
+          )
+        );
+      } else {
+        counter_detail = counter_detail.concat(
+          buildCounterHeader(
+            counter,
+            `mm.PilotCounters.${i}.counter`,
+            `mm.PilotCounters.${i}.source`,
+            counter_arr[i].source === pilot
+          ),
+          clicker_num_input(`mm.PilotCounters.${i}.counter.Value`, counter.Max, _helper),
+          "</div>"
+        );
+      }
+    }
   }
 
   return `

@@ -3,6 +3,7 @@ import type { LancerCombat, LancerCombatant } from "lancer-initiative";
 import { LANCER } from "./config";
 import { AutomationConfig } from "./apps/automation-settings";
 import CompconLoginForm from "./helpers/compcon-login-form";
+import { ActionTrackerConfig } from "./apps/action-tracker-settings";
 
 export const registerSettings = function () {
   /**
@@ -52,6 +53,15 @@ export const registerSettings = function () {
     restricted: true,
   });
 
+  game.settings.registerMenu(game.system.id, "ActionTrackerMenu", {
+    name: "lancer.actionTracker.menu-name",
+    label: "lancer.actionTracker.menu-label",
+    hint: "lancer.actionTracker.menu-hint",
+    icon: "mdi mdi-state-machine",
+    type: ActionTrackerConfig,
+    restricted: true,
+  });
+
   game.settings.register(game.system.id, LANCER.setting_stock_icons, {
     name: "Keep Stock Icons",
     scope: "world",
@@ -69,22 +79,19 @@ export const registerSettings = function () {
     default: false,
   });
 
-  game.settings.register(game.system.id, LANCER.setting_action_manager, {
-    name: "Action Manager Hotbar",
-    hint: "Toggle for whether you will see the action tracking hotbar for selected tokens.",
-    scope: "client",
-    config: true,
-    type: Boolean,
-    default: true,
-  });
-
-  game.settings.register(game.system.id, LANCER.setting_action_manager_players, {
-    name: "Action Manager - Player Usage",
-    hint: "If enabled, players will be able to manually toggle actions for any controlled tokens.",
+  game.settings.register(game.system.id, LANCER.setting_square_grid_diagonals, {
+    name: "lancer.squaregriddiagonals.name",
+    hint: "lancer.squaregriddiagonals.hint",
     scope: "world",
     config: true,
-    type: Boolean,
-    default: true,
+    type: String,
+    choices: {
+      "111": "lancer.squaregriddiagonals.111",
+      "121": "lancer.squaregriddiagonals.121",
+      "222": "lancer.squaregriddiagonals.222",
+      euc: "lancer.squaregriddiagonals.euc",
+    },
+    default: "111",
   });
 
   game.settings.register(game.system.id, LANCER.setting_automation, {
@@ -92,6 +99,20 @@ export const registerSettings = function () {
     config: false,
     type: Object,
     default: {},
+  });
+
+  game.settings.register(game.system.id, LANCER.setting_actionTracker, {
+    scope: "world",
+    config: false,
+    type: Object,
+    default: {},
+  });
+
+  game.settings.register(game.system.id, LANCER.setting_dsn_setup, {
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: false,
   });
 
   // Lancer initiative stuff
@@ -181,6 +202,8 @@ export const registerSettings = function () {
   });
 };
 
+//
+// > GENERAL AUTOMATION
 /**
  * Retrieve the automation settings for the system. If automation is turned
  * off, all keys will be `false`.
@@ -262,6 +285,50 @@ export interface AutomationOptions {
   remove_templates: boolean;
 }
 
+//
+// > ACTION TRACKER AUTOMATION
+/**
+ * Retrieve the automation settings for the system. If automation is turned
+ * off, all keys will be `false`.
+ * @param useDefault - Control if the returned value is the default.
+ *                     (default: `false`)
+ */
+export function getActionTrackerOptions(useDefault = false): ActionTrackerOptions {
+  const def: ActionTrackerOptions = {
+    showHotbar: true,
+    allowPlayers: true,
+    printMessages: false,
+  };
+  if (useDefault) return def;
+  const set = game.settings.get(game.system.id, LANCER.setting_actionTracker) as Partial<ActionTrackerOptions>;
+  return {
+    ...def,
+    ...set,
+  };
+}
+
+/**
+ * Object for the various automation settings in the system
+ */
+export interface ActionTrackerOptions {
+  /**
+   * Whether the hotbar should be displayed.
+   * @defaultValue `true`
+   */
+  showHotbar: boolean;
+  /**
+   * Whether the players (non-GMs) can modify actions.
+   * @defaultValue `true`
+   */
+  allowPlayers: boolean;
+  /**
+   * Whether to print turn start/end chat messages.
+   * @defaultValue `true`
+   */
+  printMessages: boolean;
+}
+//
+// > GLOBALS
 declare global {
   interface DocumentClassConfig {
     Combat: typeof LancerCombat;
