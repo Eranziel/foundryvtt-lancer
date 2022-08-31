@@ -115,14 +115,8 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
 
       // JSON Import
       if (actor.is_pilot()) {
-        let fileInput = document.getElementById("pilot-json-import");
-        if (fileInput) {
-          fileInput.onchange = (ev: Event) => {
-            this._onPilotJsonUpload(ev, actor);
-          };
-        }
+        html.find("#pilot-json-import").on("change", ev => this._onPilotJsonUpload(ev, actor));
       }
-
 
       // editing rawID clears vaultID
       // (other way happens automatically because we prioritise vaultID in commit)
@@ -153,7 +147,7 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
     }
   }
 
-  _onPilotJsonUpload(ev: Event, actor: LancerActor) {
+  _onPilotJsonUpload(ev: JQuery.ChangeEvent<HTMLElement, undefined, HTMLElement, HTMLElement>, actor: LancerActor) {
     let files = (ev.target as HTMLInputElement).files;
     let jsonFile: File | null = null;
     if (files) jsonFile = files[0];
@@ -169,7 +163,7 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
 
   async _onPilotJsonParsed(fileData: string | null, actor: LancerActor) {
     if (!fileData) return;
-    const pilotData =  JSON.parse(fileData) as PackedPilotData
+    const pilotData = JSON.parse(fileData) as PackedPilotData;
     console.log(`${lp} Pilot Data of selected JSON:`, pilotData);
 
     if (!pilotData) return;
@@ -177,12 +171,11 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
     console.log(`${lp} Starting import of ${pilotData.name}, Callsign ${pilotData.callsign}.`);
     console.log(`${lp} Parsed Pilot Data pack:`, pilotData);
 
-    await actor.importCC(pilotData as PackedPilotData);
+    await actor.importCC(pilotData);
     ui.notifications!.info(`Import of ${pilotData.name}, Callsign ${pilotData.callsign} complete.`);
     console.log(`${lp} Import of ${pilotData.name}, Callsign ${pilotData.callsign} complete.`);
     this.render();
   }
-
 
   async activateMech(mech: Mech) {
     let this_mm = this.actor.data.data.derived.mm as Pilot;
