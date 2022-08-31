@@ -2,13 +2,12 @@ import { LANCER } from "../config";
 const lp = LANCER.log_prefix;
 import { LancerActorSheet } from "./lancer-actor-sheet";
 import { EntryType, Mech, PackedPilotData, Pilot } from "machine-mind";
-import { funcs } from "machine-mind";
 import type { HelperOptions } from "handlebars";
 import { buildCounterHeader, buildCounterHTML } from "../helpers/item";
 import { ref_commons, ref_params, resolve_ref_element, simple_mm_ref } from "../helpers/refs";
 import { resolve_dotpath } from "../helpers/commons";
-import { AnyMMActor, is_reg_mech, is_actor_type, LancerActor } from "./lancer-actor";
-import { cleanCloudOwnerID, fetchPilot, fetchPilotViaCache, fetchPilotViaShareCode, pilotCache } from "../compcon";
+import { AnyMMActor, is_reg_mech, LancerActor } from "./lancer-actor";
+import { fetchPilotViaCache, fetchPilotViaShareCode, pilotCache } from "../compcon";
 import type { AnyMMItem, LancerItemType } from "../item/lancer-item";
 import { clicker_num_input } from "../helpers/actor";
 
@@ -19,17 +18,6 @@ const COUNTER_MAX = 8;
  * Extend the basic ActorSheet
  */
 export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
-
-  jsonFile: File | null;
-  pilotData: PackedPilotData | null;
-
-
-  constructor(actor: LancerActor) {
-    super(actor);
-    this.jsonFile = null;
-    this.pilotData = null;
-  }
-
   /**
    * Extend and override the default options used by the Pilot Sheet
    * @returns {Object}
@@ -130,12 +118,9 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
         let fileInput = document.getElementById("pilot-json-import");
         if (fileInput) {
           fileInput.onchange = (ev: Event) => {
-            this._onPilotJsonUpload(ev);
+            this._onPilotJsonUpload(ev, actor);
           };
         }
-        document.getElementsByClassName("pilot-json-import")[0]?.addEventListener("click", () => {
-          this._onImportButtonClick(actor).then();
-        });
       }
 
 
@@ -168,42 +153,36 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
     }
   }
 
-  _onPilotJsonUpload(ev: Event) {
+  _onPilotJsonUpload(ev: Event, actor: LancerActor) {
     let files = (ev.target as HTMLInputElement).files;
-    if (files) this.jsonFile = files[0];
-    if (!this.jsonFile) return;
+    let jsonFile: File | null = null;
+    if (files) jsonFile = files[0];
+    if (!jsonFile) return;
 
-    console.log(`${lp} Selected file changed`, this.jsonFile);
+    console.log(`${lp} Selected file changed`, jsonFile);
     const fr = new FileReader();
-    fr.readAsBinaryString(this.jsonFile);
+    fr.readAsBinaryString(jsonFile);
     fr.addEventListener("load", (ev: ProgressEvent) => {
-      this._onPilotJsonParsed((ev.target as FileReader).result as string).then();
+      this._onPilotJsonParsed((ev.target as FileReader).result as string, actor).then();
     });
   }
 
-  async _onPilotJsonParsed(fileData: string | null) {
+  async _onPilotJsonParsed(fileData: string | null, actor: LancerActor) {
     if (!fileData) return;
-    this.pilotData =  JSON.parse(fileData) as PackedPilotData
+    const pilotData =  JSON.parse(fileData) as PackedPilotData
+    console.log(`${lp} Pilot Data of selected JSON:`, pilotData);
 
-    console.log(`${lp} Pilot Data of selected JSON:`, this.pilotData);
-    this.render();
-  }
-
-  async _onImportButtonClick(actor: LancerActor) {
-    if (!this.jsonFile) {
-      ui.notifications!.error(`Import error: no file selected.`);
-      return;
-    }
-    const pilotData = this.pilotData;
     if (!pilotData) return;
     ui.notifications!.info(`Starting import of ${pilotData.name}, Callsign ${pilotData.callsign}. Please wait.`);
     console.log(`${lp} Starting import of ${pilotData.name}, Callsign ${pilotData.callsign}.`);
     console.log(`${lp} Parsed Pilot Data pack:`, pilotData);
 
-    await actor.importCC(this.pilotData as PackedPilotData);
+    await actor.importCC(pilotData as PackedPilotData);
     ui.notifications!.info(`Import of ${pilotData.name}, Callsign ${pilotData.callsign} complete.`);
     console.log(`${lp} Import of ${pilotData.name}, Callsign ${pilotData.callsign} complete.`);
+    this.render();
   }
+
 
   async activateMech(mech: Mech) {
     let this_mm = this.actor.data.data.derived.mm as Pilot;
