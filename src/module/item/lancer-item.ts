@@ -217,7 +217,8 @@ export class LancerItem extends Item {
   protected async _preCreate(...[data, options, user]: Parameters<Item["_preCreate"]>): Promise<void> {
     await super._preCreate(data, options, user);
     // If base item has data, then we are probably importing. Skip this step
-    if (data?.data) return;
+    // @ts-expect-error Should be fixed with v10 types
+    if (data?.system) return;
 
     console.log(`${lp} Initializing new ${this.type}`);
 
