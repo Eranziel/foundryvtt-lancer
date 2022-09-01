@@ -157,7 +157,7 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
     const fr = new FileReader();
     fr.readAsBinaryString(jsonFile);
     fr.addEventListener("load", (ev: ProgressEvent) => {
-      this._onPilotJsonParsed((ev.target as FileReader).result as string, actor).then();
+      this._onPilotJsonParsed((ev.target as FileReader).result as string, actor);
     });
   }
 
