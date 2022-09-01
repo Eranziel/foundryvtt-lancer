@@ -33,6 +33,7 @@ export const registerSettings = function () {
     config: false,
     // @ts-ignore There's probably a fix for this
     type: Object,
+    default: {index: []}
   });
 
   game.settings.registerMenu(game.system.id, LANCER.setting_compcon_login, {
