@@ -154,6 +154,8 @@ import { gridDist } from "./module/helpers/automation/targeting";
 import CompconLoginForm from "./module/helpers/compcon-login-form";
 import { LancerCombat, LancerCombatant, LancerCombatTracker } from "lancer-initiative";
 import { LancerCombatTrackerConfig } from "./module/helpers/lancer-initiative-config-form";
+import { handleRenderCombatCarousel } from "./module/helpers/combat-carousel";
+import { measureDistances } from "./module/grid";
 
 const lp = LANCER.log_prefix;
 
@@ -530,6 +532,8 @@ Hooks.once("init", async function () {
   //     });
   //   }
   // });
+
+  Hooks.on("renderCombatCarousel", handleRenderCombatCarousel);
 });
 
 // TODO: either remove when sanity check is no longer needed, or find a better home.
@@ -602,6 +606,19 @@ export const system_ready: Promise<void> = new Promise(success => {
   });
 });
 
+// Set up Dice So Nice to icrementally show attacks then damge rolls
+Hooks.once("ready", () => {
+  if (game.modules.get("dice-so-nice")?.active && !game.settings.get(game.system.id, LANCER.setting_dsn_setup)) {
+    console.log(`${lp} First login setup for Dice So Nice`);
+    game.settings.set("dice-so-nice", "enabledSimultaneousRollForMessage", false);
+    game.settings.set(game.system.id, LANCER.setting_dsn_setup, true);
+  }
+});
+
+Hooks.once("canvasInit", () => {
+  SquareGrid.prototype.measureDistances = measureDistances;
+});
+
 // Action Manager hooks.
 Hooks.on("controlToken", () => {
   game.action_manager?.update();
@@ -631,6 +648,11 @@ Hooks.on("updateCombat", (_combat: Combat, changes: DeepPartial<Combat["data"]>)
     canvas.templates?.placeables.forEach(t => {
       if (t.document.getFlag("lancer", "isAttack")) t.document.delete();
     });
+  }
+  // This can be removed in v10
+  if (foundry.utils.hasProperty(changes, "turn")) {
+    // @ts-expect-error Just blindy try
+    ui.combatCarousel?.render();
   }
 });
 //

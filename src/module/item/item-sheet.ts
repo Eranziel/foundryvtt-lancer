@@ -5,7 +5,9 @@ import {
   HANDLER_activate_general_controls,
   gentle_merge,
   HANDLER_activate_popout_text_editor,
+  resolve_dotpath
 } from "../helpers/commons";
+import { HANDLER_activate_counter_listeners, HANDLER_activate_plus_minus_buttons } from "../helpers/item";
 import {
   HANDLER_activate_native_ref_dragging,
   HANDLER_activate_ref_dragging,
@@ -15,7 +17,7 @@ import {
   HANDLER_activate_ref_clicking,
   HANDLER_activate_uses_editor,
 } from "../helpers/refs";
-import { OpCtx } from "machine-mind";
+import { OpCtx, Counter, RegEntry } from "machine-mind";
 import {
   HANDLER_activate_edit_bonus,
   HANDLER_activate_item_context_menus,
@@ -27,7 +29,6 @@ import { activate_action_editor } from "../apps/action-editor";
 import type { FoundryFlagData } from "../mm-util/foundry-reg";
 import { find_license_for } from "../mm-util/helpers";
 import { MMDragResolveCache } from "../helpers/dragdrop";
-import { mod_shared_handler } from "../actor/lancer-actor-sheet";
 
 const lp = LANCER.log_prefix;
 
@@ -116,19 +117,11 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
       return;
     }
 
-    // Customized increment/decrement arrows. Same as in actor. TODO: Standardize??
-    const mod_handler = (delta: number) => (ev: JQuery.ClickEvent<HTMLElement, unknown, HTMLElement, HTMLElement>) => {
-      if (!ev.currentTarget) return; // No target, let other handlers take care of it.
-      const button = $(ev.currentTarget);
-      mod_shared_handler(button, delta);
-      this.submit({});
-    };
+    // Make +/- buttons work
+    HANDLER_activate_plus_minus_buttons(html, getfunc, () => this.submit({}));
 
-    // Behavior is identical, just +1 or -1 depending on button
-    let decr = html.find('button[class*="mod-minus-button"]');
-    decr.on("click", mod_handler(-1));
-    let incr = html.find('button[class*="mod-plus-button"]');
-    incr.on("click", mod_handler(+1));
+    // Make counter pips work
+    HANDLER_activate_counter_listeners(html, getfunc);
 
     // Grab pre-existing ctx if available
     let ctx = this.getCtx() || new OpCtx();

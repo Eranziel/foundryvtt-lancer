@@ -79,6 +79,21 @@ export const registerSettings = function () {
     default: false,
   });
 
+  game.settings.register(game.system.id, LANCER.setting_square_grid_diagonals, {
+    name: "lancer.squaregriddiagonals.name",
+    hint: "lancer.squaregriddiagonals.hint",
+    scope: "world",
+    config: true,
+    type: String,
+    choices: {
+      "111": "lancer.squaregriddiagonals.111",
+      "121": "lancer.squaregriddiagonals.121",
+      "222": "lancer.squaregriddiagonals.222",
+      euc: "lancer.squaregriddiagonals.euc",
+    },
+    default: "111",
+  });
+
   game.settings.register(game.system.id, LANCER.setting_automation, {
     scope: "world",
     config: false,
@@ -91,6 +106,13 @@ export const registerSettings = function () {
     config: false,
     type: Object,
     default: {},
+  });
+
+  game.settings.register(game.system.id, LANCER.setting_dsn_setup, {
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: false,
   });
 
   // Lancer initiative stuff
