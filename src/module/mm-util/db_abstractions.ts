@@ -46,7 +46,7 @@ function as_document_blob<T extends EntryType>(entry: LiveEntryTypes<T>): any {
   return mergeObject(
     {
       _id: entry.RegistryID,
-      data: entry.save(),
+      system: entry.save(),
     },
     flags.top_level_data
   );
