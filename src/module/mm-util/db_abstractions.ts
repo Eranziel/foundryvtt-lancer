@@ -339,7 +339,7 @@ export class NuWrapper<T extends EntryType> extends DocumentCollectionWrapper<T>
       // Need to prepend every key with "data."
       let new_query: typeof query_obj = {};
       for (let kv of Object.entries(query_obj)) {
-        new_query["data." + kv[0]] = kv[1];
+        new_query["system." + kv[0]] = kv[1];
       }
 
       all = await collection.getDocuments({
