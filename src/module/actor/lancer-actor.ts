@@ -1216,7 +1216,7 @@ export class LancerActor extends Actor {
   protected async _preCreate(...[data, options, user]: Parameters<Actor["_preCreate"]>): Promise<void> {
     await super._preCreate(data, options, user);
     // @ts-expect-error Should be fixed with v10 types
-    if (data.system) {
+    if (Object.keys(data.ownership).length > 1) {
       console.log(`${lp} New ${this.type} has data provided from an import, skipping default init.`);
       return;
     }
@@ -1247,8 +1247,9 @@ export class LancerActor extends Actor {
     default_data.name = this.name ?? default_data.name;
 
     // Put in the basics
-    this.update({
-      data: default_data,
+    // @ts-expect-error Should be fixed with v10 types
+    this.updateSource({
+      system: default_data,
       img: TypeIcon(this.type),
       name: default_data.name,
       // Link the token to the Actor for pilots and mechs, but not for NPCs or deployables
