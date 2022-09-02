@@ -56,6 +56,12 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
   // Tracks collapse state between renders
   protected collapse_handler = new CollapseHandler();
 
+  static get defaultOptions(): ActorSheet.Options {
+    return mergeObject(super.defaultOptions, {
+      scrollY: [".scroll-body"]
+    });
+  }
+
   /* -------------------------------------------- */
   /**
    * @override
