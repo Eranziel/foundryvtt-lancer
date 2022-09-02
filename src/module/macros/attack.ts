@@ -427,7 +427,8 @@ export async function checkTargets(
         return {
           attack: { roll: attack_roll, tt: attack_tt },
           hit: {
-            token: { name: target.data.name!, img: target.data.img! },
+            // @ts-expect-error Token structure has changed
+            token: { name: target.data.name!, img: target.document.texture?.src },
             total: String(attack_roll.total).padStart(2, "0"),
             hit: await checkForHit(isSmart, attack_roll, actor),
             crit: (attack_roll.total || 0) >= 20,
