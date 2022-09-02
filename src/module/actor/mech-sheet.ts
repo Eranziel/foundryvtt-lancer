@@ -4,7 +4,7 @@ import { EntryType, MountType, SystemMount, WeaponMount } from "machine-mind";
 import { resolve_dotpath } from "../helpers/commons";
 import type { LancerItem, LancerItemType } from "../item/lancer-item";
 import tippy from "tippy.js";
-import type { LancerActor } from "./lancer-actor";
+import type { LancerActor, LancerMECH } from "./lancer-actor";
 import { ResolvedDropData } from "../helpers/dragdrop";
 
 /**
@@ -125,7 +125,7 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
    * @param level Level to set overcharge to
    */
   async _setOverchargeLevel(_event: JQuery.ClickEvent, level: number) {
-    let a = this.actor as LancerActor<EntryType.MECH>;
+    let a = this.actor as LancerMECH;
     a.data.data.overcharge_level = level;
     await this._commitCurrMM();
   }

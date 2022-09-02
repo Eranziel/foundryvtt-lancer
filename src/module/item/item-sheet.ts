@@ -3,7 +3,6 @@ import { LANCER } from "../config";
 import type { LancerItem, LancerItemType } from "./lancer-item";
 import {
   HANDLER_activate_general_controls,
-  gentle_merge,
   HANDLER_activate_popout_text_editor,
 } from "../helpers/commons";
 import {
@@ -26,6 +25,7 @@ import { CollapseHandler } from "../helpers/collapse";
 import { activate_action_editor } from "../apps/action-editor";
 import { find_license_for } from "../util/doc";
 import { mod_shared_handler } from "../actor/lancer-actor-sheet";
+import { dragResolverCache } from "../helpers/dragdrop";
 
 const lp = LANCER.log_prefix;
 
@@ -129,8 +129,7 @@ export class LancerItemSheet extends ItemSheet<ItemSheet.Options, LancerItemShee
     incr.on("click", mod_handler(+1));
 
     // Grab pre-existing ctx if available
-    let ctx = this.getCtx() || new OpCtx();
-    let resolver = new DragResolveCache(ctx);
+    let resolver = new dragResolverCache();
 
     // Enable hex use triggers.
     HANDLER_activate_uses_editor(html, getfunc);
@@ -183,16 +182,8 @@ export class LancerItemSheet extends ItemSheet<ItemSheet.Options, LancerItemShee
    * @private
    */
   async _updateObject(_event: Event | JQuery.Event, formData: any): Promise<any> {
-    // Fetch data, modify, and writeback
-    let ct = await this.getData();
-
-    // Automatically propagates chanages that should affect multiple things.
-    let new_top = this._propagateMMData(formData);
-
-    // No need for the complicated actor logic since no token weirdness to account for
-    gentle_merge(ct, formData);
-    mergeObject((ct.mm.Flags as FoundryFlagData<any>).top_level_data, new_top);
-    await this._commitCurrMM();
+    // Simple writeback
+    await this.item.update(formData);
   }
 
   /**
@@ -216,26 +207,6 @@ export class LancerItemSheet extends ItemSheet<ItemSheet.Options, LancerItemShee
     console.log(`${lp} Rendering with following item ctx: `, data);
     this._currData = data;
     return data;
-  }
-
-  // Cached getdata
-  private _currData: LancerItemSheetData<T> | null = null;
-  async getData(): Promise<LancerItemSheetData<T>> {
-    return this._currData ?? (await this.getData());
-  }
-
-  // Write back our currently cached _currData, then refresh this sheet
-  // Useful for when we want to do non form-based alterations
-  async _commitCurrMM() {
-    console.log("Committing");
-    let cd = this._currData;
-    this._currData = null;
-    (await cd?.mm.writeback()) ?? null;
-
-    // Compendium entries don't re-draw appropriately
-    if (this.item.compendium) {
-      this.render();
-    }
   }
 
   // Get the ctx that our actor + its items reside in. If an unowned item we'll just yield null

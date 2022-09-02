@@ -21,7 +21,7 @@ export class ActionEditDialog<O> extends Dialog {
   // Who it's going back to
   origin_item: RegEntry<any>;
 
-  constructor(target: O, action_path: string, dialogData: Dialog.Data, options: Partial<Dialog.Options> = {}) {
+  constructor(target: O, action_path: string, dialogData: Dialog.Data, options: Partial<DialogOptions> = {}) {
     super(dialogData, options);
 
     //@ts-ignore I don't want to mess around with the generic typing but this is fine

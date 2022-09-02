@@ -6,7 +6,7 @@ import type { HelperOptions } from "handlebars";
 import { buildCounterHeader, buildCounterHTML } from "../helpers/item";
 import { ref_doc_common_attrs, ref_params, resolve_ref_element, simple_mm_ref } from "../helpers/refs";
 import { resolve_dotpath } from "../helpers/commons";
-import { is_actor_type, LancerActor } from "./lancer-actor";
+import { is_actor_type, LancerActor, LancerMECH, LancerPILOT } from "./lancer-actor";
 import { fetchPilotViaCache, fetchPilotViaShareCode, pilotCache } from "../util/compcon";
 import type { LancerItem, LancerItemType } from "../item/lancer-item";
 import { derived } from "svelte/store";
@@ -143,9 +143,9 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
     }
   }
 
-  async activateMech(mech: LancerActor<EntryType.MECH>) {
+  async activateMech(mech: LancerMECH) {
     // TODO
-    let pilot = this.actor as LancerActor<EntryType.PILOT>;
+    let pilot = this.actor as LancerPILOT;
     // Set active mech
     pilot.active_mech = mech.as_ref();
     if (mech.data.data.pilot != mech.RegistryID) {
@@ -225,7 +225,7 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
           break;
         }
       }
-    } else if (is_new && drop.Type === EntryType.PILOT_GEAR) {
+    } else if (is_new && drop.type === EntryType.PILOT_GEAR) {
       // If new gear, try to equip to first empty slot
       for (let i = 0; i < loadout.Gear.length; i++) {
         if (!loadout.Gear[i]) {
@@ -233,7 +233,7 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
           break;
         }
       }
-    } else if (is_new && drop.Type === EntryType.PILOT_ARMOR) {
+    } else if (is_new && drop.type === EntryType.PILOT_ARMOR) {
       // If new armor, try to equip to first empty slot
       for (let i = 0; i < loadout.Armor.length; i++) {
         if (!loadout.Gear[i]) {
@@ -241,7 +241,7 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
           break;
         }
       }
-    } else if ((is_new && drop.Type === EntryType.SKILL) || drop.Type == EntryType.TALENT) {
+    } else if ((is_new && drop.type === EntryType.SKILL) || drop.type == EntryType.TALENT) {
       // If new skill or talent, reset to level 1
       drop.CurrentRank = 1;
       await drop.writeback(); // Since we're editing the item, we gotta do this

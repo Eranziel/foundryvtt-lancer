@@ -1145,7 +1145,8 @@ export class LancerActor extends Actor {
           pilot_effects.push({
             label: "Pilot Stats",
             changes: [{
-              mode: AE_MODE_SET_JSON,
+              mode: AE_MODE_SET_JSON as any,
+              key: "pilot_inherited",
               // @ts-expect-error toObject is not yet in
               value: JSON.stringify(pilot!.toObject().data)
             }]

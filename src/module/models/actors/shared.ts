@@ -54,13 +54,13 @@ export function template_universal_actor() {
       "Variable": new fields.BooleanField()
     }),
 
+    activations: new fields.NumberField({integer: true, nullable: false, min: 0, default: 1}), // Technically an actor can have no activations (like a drone)
     custom_counters: new fields.ArrayField(new CounterField())
   }
 }
 
 export function template_action_tracking() {
   return {
-    activations: new fields.NumberField({integer: true, nullable: false, min: 1}),
     actions: new fields.SchemaField({
       protocol: new fields.BooleanField(),
       move: new fields.NumberField({min: 0, integer: true, nullable: false}),

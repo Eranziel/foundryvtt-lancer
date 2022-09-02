@@ -4,10 +4,10 @@ import type { LancerActorSheetData, LancerItemSheetData } from "../interfaces";
 import { DragFetcherCache, HANDLER_enable_doc_dropping } from "./dragdrop";
 import { ref_params } from "./refs";
 import { promptText } from "../apps/simple-prompt";
-import { LancerItem } from "../item/lancer-item";
+import { LancerItem, LancerTAG } from "../item/lancer-item";
 
 // A small tag display containing just the label and value
-export function compact_tag(tag_path: string, tag: LancerItem<EntryType.TAG>): string {
+export function compact_tag(tag_path: string, tag: LancerTAG): string {
   // Format the {VAL} out of the name
   let formatted_name = tag.data.data.name.replace("{VAL}", `${tag.data.data.value ?? "?"}`);
   return `<div class="editable-tag-instance valid ref compact-tag flexrow" data-path="${tag_path}" ${ref_params(

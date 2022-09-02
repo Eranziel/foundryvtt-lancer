@@ -155,7 +155,7 @@ export async function get_pack(
 // (or at least, clearing links to them).
 // Has no effect if destination is same as existing parent
 // Items are not returned in order
-export async function insinuate<T extends LancerItemType>(items: Array<LancerItem>, to: LancerActor): Promise<Array<LancerItem>> {
+export async function insinuate(items: Array<LancerItem>, to: LancerActor): Promise<Array<LancerItem>> {
   console.warn("TODO: Re-implement insinuate, more sanely this time");
   let old_items = [];
   let new_items = [];

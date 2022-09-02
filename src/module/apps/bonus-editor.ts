@@ -12,7 +12,7 @@ export class BonusEditDialog<O> extends Dialog {
   // Where it is
   bonus_path: string;
 
-  constructor(target: O, bonus_path: string, dialogData: Dialog.Data, options: Partial<Dialog.Options> = {}) {
+  constructor(target: O, bonus_path: string, dialogData: Dialog.Data, options: Partial<DialogOptions> = {}) {
     super(dialogData, options);
     this.bonus_path = bonus_path;
     this.bonus = resolve_dotpath(target, bonus_path);
@@ -21,7 +21,7 @@ export class BonusEditDialog<O> extends Dialog {
   /* -------------------------------------------- */
 
   /** @override */
-  static get defaultOptions(): Dialog.Options {
+  static get defaultOptions(): DialogOptions {
     return {
       ...super.defaultOptions,
       template: `systems/${game.system.id}/templates/window/bonus.hbs`,

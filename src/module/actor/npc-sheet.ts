@@ -9,7 +9,7 @@ import { insinuate, resort_item } from "../util/doc";
 import { HANDLER_activate_general_controls } from "../helpers/commons";
 import { LancerActor, LancerNPC } from "./lancer-actor";
 import { DropHandlerFunc, ResolvedDropData } from "../helpers/dragdrop";
-import { TempSystemEntryType } from "../new-template";
+import { SystemDataType } from "../new-template";
 const lp = LANCER.log_prefix;
 
 /**
@@ -175,20 +175,20 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
       let delete_targets = [];
       if (doc.is_npc_class() && this.actor.data.data.class) {
         // If we have a class, get rid of it
-        let class_data = this.actor.data.data.class.data.data as TempSystemEntryType<EntryType.NPC_CLASS>;
+        let class_data = this.actor.data.data.class.data.data as SystemDataType<EntryType.NPC_CLASS>;
         let class_features = findMatchingFeaturesInNpc(this.actor, [...class_data.base_features, ...class_data.optional_features]);
         delete_targets.push(...class_features.map(f => f.id));
       }
 
       // And add all new features
       if(doc.is_npc_template() || doc.is_npc_class()) {
-        for (let feat of doc.base_features) {
-          await insinuate(feat, this.actor);
+        for (let feat of doc.data.data.base_features) {
+          await insinuate([], this.actor as LancerNPC);
         }
         needs_refresh = true;
       }
       if(doc.is_npc_class()) {
-        await this.actor.swapFrameImage(this.actor, this_mm.ActiveClass, doc);
+        await this.actor.swapFrameImage(this.actor, this.actor.data.data.class, doc);
       }
     }
 

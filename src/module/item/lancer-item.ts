@@ -17,8 +17,7 @@ interface LancerItemDataSource<T extends LancerItemType> {
 }
 interface LancerItemDataProperties<T extends LancerItemType> {
   type: T;
-  data: SystemDataType<T> & {
-  };
+  data: SystemDataType<T>;
 }
 
 /**

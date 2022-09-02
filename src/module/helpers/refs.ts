@@ -8,7 +8,7 @@ import { is_limited } from "machine-mind/dist/classes/mech/EquipUtil";
 import { is_actor_type } from "../actor/lancer-actor";
 import { TypeIcon } from "../config";
 import type { LancerMacroData } from "../interfaces";
-import { LancerItem, is_item_type, LancerItemType } from "../item/lancer-item";
+import { LancerItem, is_item_type, LancerItemType, LancerMECH_SYSTEM, LancerMECH_WEAPON, LancerNPC_FEATURE, LancerPILOT_GEAR, LancerPILOT_WEAPON, LancerWEAPON_MOD } from "../item/lancer-item";
 import { encodeMacroData } from "../macros";
 import { effect_box, gentle_merge, read_form, resolve_dotpath, resolve_helper_dotpath, sp_display } from "./commons";
 import {
@@ -361,8 +361,8 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
 }
 
 export function limited_uses_indicator(
-  item: LancerItem<EntryType.MECH_WEAPON> | LancerItem<EntryType.MECH_SYSTEM> | LancerItem<EntryType.WEAPON_MOD> 
-      | LancerItem<EntryType.PILOT_WEAPON> | LancerItem<EntryType.PILOT_GEAR> | LancerItem<EntryType.NPC_FEATURE>,
+  item: LancerMECH_WEAPON | LancerMECH_SYSTEM | LancerWEAPON_MOD 
+      | LancerPILOT_WEAPON | LancerPILOT_GEAR | LancerNPC_FEATURE,
   path: string
 ): string {
   const uses = item.data.data.uses;
