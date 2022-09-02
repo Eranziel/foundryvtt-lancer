@@ -130,6 +130,12 @@ export class LancerItem extends Item {
     }
   }
 
+  // Use this to prevent race conditions / carry over data
+  private _current_prepare_job_id!: number;
+  private _job_tracker!: Map<number, Promise<AnyMMItem>>;
+  private _prev_derived: this["data"]["data"]["derived"] | undefined;
+
+
   /**
    * Force name down to item,
    * And more importantly, perform MM workflow
@@ -139,6 +145,14 @@ export class LancerItem extends Item {
 
     // If no id, leave
     if (!this.id) return;
+
+    // Track which prepare iteration this is
+    if (this._current_prepare_job_id == undefined) {
+      this._current_prepare_job_id = 0;
+      this._job_tracker = new Map();
+    }
+    this._current_prepare_job_id++;
+    let job_id = this._current_prepare_job_id;
 
     // Push down name
     // @ts-expect-error Should be fixed with v10 types
@@ -174,6 +188,19 @@ export class LancerItem extends Item {
     (<Promise<LiveEntryTypes<LancerItemType>>>dr.mm_promise) = system_ready
       .then(() => mm_wrap_item(this, actor_ctx ?? new OpCtx()))
       .then(async mm => {
+        // If our job ticker doesnt match, then another prepared object has usurped us in setting these values.
+        // We return this elevated promise, so anyone waiting on this task instead waits on the most up to date one
+        if (job_id != this._current_prepare_job_id) {
+          return this._job_tracker.get(this._current_prepare_job_id)! as any; // This will definitely be a different promise
+        }
+
+        // Delete all old tracked jobs
+        for (let k of this._job_tracker.keys()) {
+          if (k != job_id) {
+            this._job_tracker.delete(k);
+          }
+        }
+
         // Save the document to derived
         Object.defineProperties(dr, {
           mm: {
@@ -211,6 +238,7 @@ export class LancerItem extends Item {
     if (data?.derived) {
       delete data.derived;
     }
+    console.log("Data:", data);
     return super.update(data, options);
   }
 
