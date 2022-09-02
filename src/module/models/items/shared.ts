@@ -1,6 +1,7 @@
 import { CounterField } from "../bits/counter";
 import { ActionField } from "../bits/action";
-import { LIDField, UUIDField } from "../shared";
+import { SynergyField } from "../bits/synergy";
+import { LIDField, UUIDRefField } from "../shared";
 import { TagField } from "../bits/tag";
 
 //@ts-ignore
@@ -22,10 +23,10 @@ export function template_destructible() {
 export function template_bascdt() {
   return {
     actions: new fields.ArrayField(new ActionField()),
-    // synergies: new fields.ArrayField
+    synergies: new fields.ArrayField(new SynergyField()),
     counters: new fields.ArrayField(new CounterField()),
-    deployables: new fields.ArrayField(new UUIDField()),
-    integrated: new fields.ArrayField(new UUIDField()),
+    deployables: new fields.ArrayField(new UUIDRefField()),
+    integrated: new fields.ArrayField(new UUIDRefField()),
     tags: new fields.ArrayField(new TagField())
   };
 }

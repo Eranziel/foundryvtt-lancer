@@ -46,12 +46,12 @@ export function template_universal_actor() {
     burn: new fields.NumberField({ min: 0, integer: true, nullable: false }),
 
     resistances: new fields.SchemaField({
-      "Kinetic": new fields.BooleanField(),
-      "Energy": new fields.BooleanField(),
-      "Explosive": new fields.BooleanField(),
-      "Heat": new fields.BooleanField(),
-      "Burn": new fields.BooleanField(),
-      "Variable": new fields.BooleanField()
+      Kinetic: new fields.BooleanField(),
+      Energy: new fields.BooleanField(),
+      Explosive: new fields.BooleanField(),
+      Heat: new fields.BooleanField(),
+      Burn: new fields.BooleanField(),
+      Variable: new fields.BooleanField()
     }),
 
     activations: new fields.NumberField({integer: true, nullable: false, min: 0, default: 1}), // Technically an actor can have no activations (like a drone)
@@ -61,22 +61,14 @@ export function template_universal_actor() {
 
 export function template_action_tracking() {
   return {
-    actions: new fields.SchemaField({
+    action_tracker: new fields.SchemaField({
       protocol: new fields.BooleanField(),
       move: new fields.NumberField({min: 0, integer: true, nullable: false}),
       full: new fields.BooleanField(),
       quick: new fields.BooleanField(),
       reaction: new fields.BooleanField(),
+      free: new fields.BooleanField(),
       used_reactions: new fields.ArrayField(new fields.StringField({nullable: false})) // lids
-    })
-  };
-}
-
-export function template_bonuses() {
-  return {
-    bonuses: new fields.SchemaField({
-      attack: new fields.NumberField({integer: true, nullable: false}),
-      damage: new fields.ArrayField(new DamageField())
     })
   };
 }

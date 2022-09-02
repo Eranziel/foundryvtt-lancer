@@ -7,16 +7,6 @@ const fields: any = foundry.data.fields;
 
 const PLACEHOLDER = "...";
 
-export interface TagFieldSourceData {
-  lid: string;
-  val: string;
-}
-
-export interface TagFieldSystemData extends TagFieldSourceData {
-  name: string;
-  description: string;
-  num_val: number | null;
-}
 
 // A single <lid, value> pairing for tags. Caches its name for quicker lookup
 export class TagField extends fields.SchemaField {
@@ -24,7 +14,9 @@ export class TagField extends fields.SchemaField {
     super(
       {
         lid: new LIDField(),
-        val: new fields.StringField({ nullable: false }),
+        value: new fields.StringField({ nullable: false }),
+        name: new fields.StringField({ nullable: false }),
+        description: new fields.StringField({ nullable: false }),
       },
       options
     );

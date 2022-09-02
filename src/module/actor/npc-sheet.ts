@@ -9,7 +9,7 @@ import { insinuate, resort_item } from "../util/doc";
 import { HANDLER_activate_general_controls } from "../helpers/commons";
 import { LancerActor, LancerNPC } from "./lancer-actor";
 import { DropHandlerFunc, ResolvedDropData } from "../helpers/dragdrop";
-import { SystemDataType } from "../new-template";
+import { SystemDataType } from "../source-template";
 const lp = LANCER.log_prefix;
 
 /**

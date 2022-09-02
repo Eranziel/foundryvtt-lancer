@@ -7,7 +7,7 @@ import {
   RegEntryTypes,
   RegRangeData,
 } from "machine-mind";
-import { SystemDataType } from "../new-template";
+import { SystemDataType } from "../source-template";
 
 const lp = LANCER.log_prefix;
 

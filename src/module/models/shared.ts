@@ -18,7 +18,9 @@ export class LIDField extends fields.StringField {
 
 // Similar to the foreignDocumentField, except untyped and supports uuids
 // Supports both sync and async lookup
-export class UUIDField extends fields.StringField {
+export class UUIDRefField extends fields.StringField {
+  // The acceptable document.type's for this to resolve to
+  // Null is wildcard
   accepted_types: string[] | null;
 
   constructor(accepted_types?: string[], options={}) {
@@ -33,7 +35,8 @@ export class UUIDField extends fields.StringField {
       blank: false,
       nullable: true,
       initial: null,
-      readonly: true
+      readonly: true,
+      validationError: "is not a valid Document UUID string"
     });
   }
 

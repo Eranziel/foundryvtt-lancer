@@ -17,7 +17,7 @@ import { StabOptions1, StabOptions2 } from "../enums";
 import { fix_modify_token_attribute } from "../token";
 import { findEffect } from "../helpers/acc_diff";
 import { AppliedDamage } from "./damage-calc";
-import { SystemDataType } from "../new-template";
+import { SystemDataType } from "../source-template";
 import { AE_MODE_SET_JSON } from "../effects/lancer-active-effect";
 const lp = LANCER.log_prefix;
 

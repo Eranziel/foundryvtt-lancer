@@ -5,7 +5,7 @@ import {
   resolve_dotpath,
   HANDLER_activate_popout_text_editor,
 } from "../helpers/commons";
-import { dragResolverCache, HANDLER_enable_doc_dropping, NewDropData, ResolvedDropData } from "../helpers/dragdrop";
+import { dragResolverCache, HANDLER_enable_doc_dropping, FoundryDropData, ResolvedDropData } from "../helpers/dragdrop";
 import {
   HANDLER_activate_ref_dragging,
   HANDLER_activate_ref_drop_clearing,

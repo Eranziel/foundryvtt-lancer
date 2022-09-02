@@ -5,12 +5,12 @@ import {
   template_universal_actor,
 } from "./shared";
 
-import { BoundedNumberField, LancerDataModel, LIDField, UUIDField } from "../shared";
+import { BoundedNumberField, LancerDataModel, LIDField, UUIDRefField } from "../shared";
 
 const fields: any = foundry.data.fields;
 
 const pilotSchema = {
-  active_mech: new UUIDField(),
+  active_mech: new UUIDRefField(),
   background: new fields.HTMLField(),
   callsign: new fields.StringField(),
   cloudID: new fields.StringField(),
@@ -21,9 +21,9 @@ const pilotSchema = {
 
   loadout: new fields.SchemaField({
     lid: new LIDField(),
-    armor: new fields.ArrayField(new UUIDField()),
-    gear: new fields.ArrayField(new UUIDField()),
-    weapons: new fields.ArrayField(new UUIDField()),
+    armor: new fields.ArrayField(new UUIDRefField()),
+    gear: new fields.ArrayField(new UUIDRefField()),
+    weapons: new fields.ArrayField(new UUIDRefField()),
   }),
 
   mechSkills: new fields.ArrayField(new fields.NumberField({ min: 0, max: 6, integer: true }), {

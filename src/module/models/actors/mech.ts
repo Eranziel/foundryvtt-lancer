@@ -6,7 +6,7 @@ import {
   template_universal_actor,
 } from "./shared";
 
-import { BoundedNumberField, LancerDataModel, UUIDField } from "../shared";
+import { BoundedNumberField, LancerDataModel, UUIDRefField } from "../shared";
 
 const fields: any = foundry.data.fields;
 
@@ -16,7 +16,7 @@ const mech_schema = {
   overcharge: new fields.NumberField({min: 0, integer: true}),
   meltdown_timer: new fields.NumberField({required: false, nullable: true, integer: true, min: 0}),
   notes: new fields.HTMLField(),
-  pilot: new UUIDField(),
+  pilot: new UUIDRefField(),
   repairs: new BoundedNumberField(),
   ...template_universal_actor(),
   ...template_action_tracking(),
