@@ -1205,9 +1205,9 @@ export class LancerActor extends Actor {
   async update(...[data, context = undefined]: Parameters<Actor["update"]>) {
     // Never submit derived data. Typically won't show up here regardless
     // @ts-expect-error Sohouldn't appear on this data
-    if (system?.derived) {
+    if (data?.derived) {
       // @ts-expect-error Shouldn't appear on this data
-      delete system?.derived;
+      delete data?.derived;
     }
 
     return super.update(data, context);
@@ -1253,9 +1253,11 @@ export class LancerActor extends Actor {
       img: TypeIcon(this.type),
       name: default_data.name,
       // Link the token to the Actor for pilots and mechs, but not for NPCs or deployables
-      "token.actorLink": [EntryType.PILOT, EntryType.MECH].includes(this.type),
-      "token.disposition": disposition,
-      "token.name": this.name ?? default_data.name,
+      prototypeToken: {
+        actorLink: [EntryType.PILOT, EntryType.MECH].includes(this.type),
+        disposition: disposition,
+        name: this.name ?? default_data.name,
+      }
     });
   }
 

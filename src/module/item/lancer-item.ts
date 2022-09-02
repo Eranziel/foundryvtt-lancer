@@ -207,18 +207,21 @@ export class LancerItem extends Item {
   /** @override
    * Want to destroy derived data before passing it to an update
    */
-  async update(system: any, options = {}) {
-    if (system?.derived) {
-      delete system.derived;
+  async update(data: any, options = {}) {
+    if (data?.derived) {
+      delete data.derived;
     }
-    return super.update(system, options);
+    return super.update(data, options);
   }
 
   protected async _preCreate(...[data, options, user]: Parameters<Item["_preCreate"]>): Promise<void> {
     await super._preCreate(data, options, user);
     // If base item has data, then we are probably importing. Skip this step
     // @ts-expect-error Should be fixed with v10 types
-    if (data?.system) return;
+    if (Object.keys(data.ownership).length > 1) {
+      console.log(`${lp} New ${this.type} has data provided from an import, skipping default init.`);
+      return;
+    }
 
     console.log(`${lp} Initializing new ${this.type}`);
 
@@ -306,7 +309,7 @@ export class LancerItem extends Item {
     default_data.name = this.name ?? default_data.name;
 
     this.update({
-      data: default_data,
+      system: default_data,
       img: img,
       name: default_data.name,
     });
