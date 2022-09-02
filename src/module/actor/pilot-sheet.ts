@@ -218,7 +218,7 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
     let loadout = this_mm.Loadout;
     if (is_new && drop.Type === EntryType.PILOT_WEAPON) {
       // If new weapon, try to equip to first empty slot
-      for (let i = 0; i < loadout.Weapons.length; i++) {
+      for (let i = 0; i <= loadout.Weapons.length; i++) {
         if (!loadout.Weapons[i]) {
           loadout.Weapons[i] = drop;
           break;
@@ -226,7 +226,7 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
       }
     } else if (is_new && drop.Type === EntryType.PILOT_GEAR) {
       // If new gear, try to equip to first empty slot
-      for (let i = 0; i < loadout.Gear.length; i++) {
+      for (let i = 0; i <= loadout.Gear.length; i++) {
         if (!loadout.Gear[i]) {
           loadout.Gear[i] = drop;
           break;
@@ -234,8 +234,8 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
       }
     } else if (is_new && drop.Type === EntryType.PILOT_ARMOR) {
       // If new armor, try to equip to first empty slot
-      for (let i = 0; i < loadout.Armor.length; i++) {
-        if (!loadout.Gear[i]) {
+      for (let i = 0; i <= loadout.Armor.length; i++) {
+        if (!loadout.Armor[i]) {
           loadout.Armor[i] = drop;
           break;
         }
