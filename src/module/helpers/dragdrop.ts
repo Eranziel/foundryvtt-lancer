@@ -2,7 +2,7 @@ import type { RegRef } from "machine-mind";
 import { EntryType } from "machine-mind";
 import { LancerActor } from "../actor/lancer-actor";
 import { LancerItem } from "../item/lancer-item";
-import { FetcherCache, UNRESOLVED } from "../util/async";
+import { FetcherCache, PENDING } from "../util/async";
 import {  safe_json_parse } from "./commons";
 
 ////////////// HERE BE DRAGON DROPS ////////////
@@ -181,7 +181,7 @@ export function HANDLER_enable_dragging(
   });
 }
 
-export type NewDropData = { // TODO - update to league type, when those typings work
+export type FoundryDropData = { // TODO - update to league type, when those typings work
   type: "Actor" | "Item" | "JournalEntry" | "Macro"; // TODO: Scenes, sounds
   uuid: string;
 }
@@ -209,10 +209,10 @@ export type ResolvedDropData =
 // Resolves a native foundry actor/item drop event datatransfer to the actual contained actor/item/journal
 // This can be annoying, so we made it a dedicated method
 // Input is either a stringified JSON dropData or a uuid
-export async function resolve_native_drop(drop: string | NewDropData): Promise<ResolvedDropData | null> {
+export async function resolve_native_drop(drop: string | FoundryDropData): Promise<ResolvedDropData | null> {
   // Get dropped data
   if (typeof drop == "string") {
-    drop = safe_json_parse(drop) as NewDropData;
+    drop = safe_json_parse(drop) as FoundryDropData;
   }
   if (!drop) {
     // Attempt uuid route
@@ -276,7 +276,7 @@ export async function resolve_native_drop(drop: string | NewDropData): Promise<R
 
 
 // A basic cache suitable for native drop lookups - a common task
-export type DragFetcherCache = FetcherCache<string | NewDropData, ResolvedDropData | null>;
+export type DragFetcherCache = FetcherCache<string | FoundryDropData, ResolvedDropData | null>;
 export function dragResolverCache(): DragFetcherCache  {
   return new FetcherCache(resolve_native_drop);
 }
@@ -348,7 +348,7 @@ export function HANDLER_enable_doc_dropping(
       let resolved = cache.sync_fetch(data);
 
       // We aren't there yet
-      if (resolved === UNRESOLVED) {
+      if (resolved === PENDING) {
         return true; // Note - this allows dropping unresolved items! We allow this for particularly speedy users. We therefore need to check can_drop again in actual drop func
       } else if (!resolved) {
         console.warn("Failed to resolve ref.", data);

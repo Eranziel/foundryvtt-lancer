@@ -1,4 +1,4 @@
-export const UNRESOLVED = Symbol("UNRESOLVED_ITEM");
+export const PENDING = Symbol("PENDING_FETCH");
 
 // Simple caching mechanism for handling async fetchable values for a certain length of time
 export class FetcherCache<K, V> {
@@ -41,11 +41,11 @@ export class FetcherCache<K, V> {
   }
 
   // As peek, but startes a fetch job if value is not yet 
-  sync_fetch(key: K): V | typeof UNRESOLVED {
+  sync_fetch(key: K): V | typeof PENDING {
     let peeked = this.peek(key);
     if(peeked === null) {
       this.fetch(key);
-      return UNRESOLVED;
+      return PENDING;
     } else {
       return peeked;
     }
