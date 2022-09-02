@@ -1,11 +1,12 @@
 import { LANCER } from "../config";
+const lp = LANCER.log_prefix;
 import { LancerActorSheet } from "./lancer-actor-sheet";
-import { EntryType, Mech, Pilot } from "machine-mind";
+import { EntryType, Mech, PackedPilotData, Pilot } from "machine-mind";
 import type { HelperOptions } from "handlebars";
 import { buildCounterHeader, buildCounterHTML } from "../helpers/item";
 import { ref_commons, ref_params, resolve_ref_element, simple_mm_ref } from "../helpers/refs";
 import { resolve_dotpath } from "../helpers/commons";
-import { AnyMMActor, is_reg_mech } from "./lancer-actor";
+import { AnyMMActor, is_reg_mech, LancerActor } from "./lancer-actor";
 import { fetchPilotViaCache, fetchPilotViaShareCode, pilotCache } from "../compcon";
 import type { AnyMMItem, LancerItemType } from "../item/lancer-item";
 import { clicker_num_input } from "../helpers/actor";
@@ -112,6 +113,11 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
         download.addClass("disabled-cloud");
       }
 
+      // JSON Import
+      if (actor.is_pilot()) {
+        html.find("#pilot-json-import").on("change", ev => this._onPilotJsonUpload(ev, actor));
+      }
+
       // editing rawID clears vaultID
       // (other way happens automatically because we prioritise vaultID in commit)
       let rawInput = html.find('input[name="rawID"]');
@@ -139,6 +145,36 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
         this.deactivateMech();
       });
     }
+  }
+
+  _onPilotJsonUpload(ev: JQuery.ChangeEvent<HTMLElement, undefined, HTMLElement, HTMLElement>, actor: LancerActor) {
+    let files = (ev.target as HTMLInputElement).files;
+    let jsonFile: File | null = null;
+    if (files) jsonFile = files[0];
+    if (!jsonFile) return;
+
+    console.log(`${lp} Selected file changed`, jsonFile);
+    const fr = new FileReader();
+    fr.readAsBinaryString(jsonFile);
+    fr.addEventListener("load", (ev: ProgressEvent) => {
+      this._onPilotJsonParsed((ev.target as FileReader).result as string, actor);
+    });
+  }
+
+  async _onPilotJsonParsed(fileData: string | null, actor: LancerActor) {
+    if (!fileData) return;
+    const pilotData = JSON.parse(fileData) as PackedPilotData;
+    console.log(`${lp} Pilot Data of selected JSON:`, pilotData);
+
+    if (!pilotData) return;
+    ui.notifications!.info(`Starting import of ${pilotData.name}, Callsign ${pilotData.callsign}. Please wait.`);
+    console.log(`${lp} Starting import of ${pilotData.name}, Callsign ${pilotData.callsign}.`);
+    console.log(`${lp} Parsed Pilot Data pack:`, pilotData);
+
+    await actor.importCC(pilotData);
+    ui.notifications!.info(`Import of ${pilotData.name}, Callsign ${pilotData.callsign} complete.`);
+    console.log(`${lp} Import of ${pilotData.name}, Callsign ${pilotData.callsign} complete.`);
+    this.render();
   }
 
   async activateMech(mech: Mech) {
