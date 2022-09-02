@@ -376,8 +376,8 @@ export function all_mech_preview(_helper: HelperOptions): string {
 
       html = html.concat(`
       <div class="flexrow inactive-row">
-        <a class="activate-mech" ${ref_params(cd.ref)}><i class="cci cci-activate"></i></a>
-        <div class="major valid ${cd.ref.type} ref" ${ref_params(cd.ref)}>${m.name}</div>
+        <a class="activate-mech" ${ref_params(cd.ref, cd.uuid)}><i class="cci cci-activate"></i></a>
+        <div class="major valid ${cd.ref.type} ref" ${ref_params(cd.ref, cd.uuid)}>${m.name}</div>
       </div>
     `);
     });
@@ -426,7 +426,7 @@ export function active_mech_preview(mech: Mech, path: string, _helper: HelperOpt
     <a class="deactivate-mech"><i class="cci cci-activate"></i></a>
       <span>ACTIVE MECH: ${mech.Name}</span>
     </div>
-    <img class="valid ${cd.ref.type} ref" ${ref_params(cd.ref)} src="${mech.Flags.top_level_data.img}"/>
+    <img class="valid ${cd.ref.type} ref" ${ref_params(cd.ref, cd.uuid)} src="${mech.Flags.top_level_data.img}"/>
     ${stats_html}
   </div>`);
 

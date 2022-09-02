@@ -45,6 +45,7 @@ export function ref_commons<T extends EntryType>(
 ): null | {
   img: string;
   name: string;
+  uuid: string;
   ref: RegRef<T>;
 } {
   // Nulls beget nulls
@@ -59,6 +60,7 @@ export function ref_commons<T extends EntryType>(
   let ref = item.as_ref();
   let img: string;
   let name: string;
+  let uuid: string;
 
   // best to know what we are working with
   if (is_actor_type(item.Type)) {
@@ -66,11 +68,13 @@ export function ref_commons<T extends EntryType>(
     let actor = flags.orig_doc;
     img = actor.img!;
     name = actor.name!;
+    uuid = actor.uuid;
   } else if (is_item_type(item.Type)) {
     // 'tis an item, m'lord
     let item = flags.orig_doc;
     img = item.img!;
     name = item.name!;
+    uuid = item.uuid;
   } else {
     console.warn("Error making item/actor ref", item);
     return null;
@@ -81,15 +85,16 @@ export function ref_commons<T extends EntryType>(
     img,
     name,
     ref,
+    uuid
   };
 }
 
 // Creates the params common to all refs, essentially just the html-ified version of a RegRef
-export function ref_params(ref: RegRef<any>, path?: string) {
+export function ref_params(ref: RegRef<any>, uuid: string, path?: string) {
   if (path) {
-    return ` data-id="${ref.id}" data-type="${ref.type}" data-reg-name="${ref.reg_name}" data-path="${path}" `;
+    return ` data-id="${ref.id}" data-type="${ref.type}" data-reg-name="${ref.reg_name}" data-uuid="${uuid}" data-path="${path}" `;
   } else {
-    return ` data-id="${ref.id}" data-type="${ref.type}" data-reg-name="${ref.reg_name}" `;
+    return ` data-id="${ref.id}" data-type="${ref.type}" data-reg-name="${ref.reg_name}" data-uuid="${uuid}" `;
   }
 }
 
@@ -135,7 +140,7 @@ export function simple_mm_ref<T extends EntryType>(
 
   // The data-type
   return `<div class="valid ${cd.ref.type} ref clickable-ref ref-card ${native_drop_snippet} ${settable_snippet}" 
-                ${ref_params(cd.ref)}
+                ${ref_params(cd.ref, cd.uuid)}
                 data-path="${slot_path}" >
          <img class="ref-icon" src="${cd.img}"></img>
          <span class="major">${cd.name}</span>
@@ -167,10 +172,11 @@ export async function HANDLER_activate_ref_clicking<T extends EntryType>(event: 
 }
 
 // Given a ref element (as created by simple_mm_ref or similar function), reconstruct a RegRef to the item it is referencing
-export function recreate_ref_from_element<T extends EntryType>(element: HTMLElement): RegRef<T> | null {
+export function recreate_ref_from_element<T extends EntryType>(element: HTMLElement): (RegRef<T> & {uuid: string}) | null {
   let id = element.dataset.id;
   let type = element.dataset.type as T | undefined;
   let reg_name = element.dataset.regName;
+  let uuid = element.dataset.uuid;
   let fallback_lid = "";
 
   // Check existence
@@ -183,16 +189,18 @@ export function recreate_ref_from_element<T extends EntryType>(element: HTMLElem
   } else if (!reg_name) {
     console.error("Could not drag ref: missing data-reg-name");
     return null;
+  } else if (!uuid) {
+    console.error("Could not drag ref: missing uuid");
+    return null;
   }
 
-  let ref: RegRef<T> = {
+  return {
     id,
     type,
     reg_name,
     fallback_lid,
+    uuid 
   };
-
-  return ref;
 }
 
 // Given a ref element (as created by simple_mm_ref or similar function), find the item it is currently referencing
@@ -230,9 +238,7 @@ export function mm_ref_portrait<T extends EntryType>(
   _helper: HelperOptions
 ) {
   // Fetch the image
-  return `<img class="profile-img ref valid ${item.Type}" src="${img}" data-edit="${img_path}" ${ref_params(
-    item.as_ref()
-  )} width="100" height="100" />`;
+  return `<img class="profile-img ref valid ${item.Type}" src="${img}" data-edit="${img_path}" ${ref_params(item.as_ref(), item.Flags.orig_doc.uuid)} width="100" height="100" />`;
 }
 
 // Use this slot callback to add items of certain kind(s) to a list.
@@ -330,7 +336,7 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
       }
       return `<li class="valid ref card clipped mech-system item ${
         sys.SysType === SystemType.Tech ? "tech-item" : ""
-      }" ${ref_params(cd.ref)} style="margin: 0;">
+      }" ${ref_params(cd.ref, cd.uuid)} style="margin: 0;">
         <div class="lancer-header ${sys.Destroyed ? "destroyed" : ""}" style="grid-area: 1/1/2/3; display: flex">
           <i class="${sys.Destroyed ? "mdi mdi-cog" : icon}"> </i>
           <a class="lancer-macro" data-macro="${encodeMacroData(macroData)}"><i class="mdi mdi-message"></i></a>
@@ -359,7 +365,7 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
 
     case EntryType.TALENT:
       let talent: Talent = <Talent>(<any>item);
-      let retStr = `<li class="card clipped talent-compact item ref valid" ${ref_params(cd.ref)}>
+      let retStr = `<li class="card clipped talent-compact item ref valid" ${ref_params(cd.ref, cd.uuid)}>
         <div class="lancer-talent-header medium clipped-top" style="grid-area: 1/1/2/4">
           <i class="cci cci-talent i--m"></i>
           <span class="major">${talent.Name}</span>
@@ -408,7 +414,7 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
     case EntryType.SKILL:
       let skill: Skill = <Skill>(<any>item);
       return `
-      <li class="card clipped skill-compact item macroable ref valid" ${ref_params(cd.ref)}>
+      <li class="card clipped skill-compact item macroable ref valid" ${ref_params(cd.ref, cd.uuid)}>
         <div class="lancer-trigger-header medium clipped-top" style="grid-area: 1/1/2/3">
           <i class="cci cci-skill i--m i--dark"> </i>
           <span class="major modifier-name">${skill.Name}</span>
@@ -428,7 +434,7 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
     case EntryType.CORE_BONUS:
       let cb: CoreBonus = <CoreBonus>(<any>item);
       return `
-      <li class="card clipped item ref valid" ${ref_params(cd.ref)}>
+      <li class="card clipped item ref valid" ${ref_params(cd.ref, cd.uuid)}>
         <div class="lancer-corebonus-header medium clipped-top" style="grid-area: 1/1/2/3">
           <i class="cci cci-corebonus i--m i--dark"> </i>
           <span class="major modifier-name">${cb.Name}</span>
@@ -454,7 +460,7 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
       console.log("You're using the default refview, you may not want that");
       return `
       <div class="valid ${cd.ref.type} ref clickable-ref ref-card" 
-              ${ref_params(cd.ref)}>
+              ${ref_params(cd.ref, cd.uuid)}>
         <img class="ref-icon" src="${cd.img}"></img>
         <span class="major">${cd.name}</span>
         <hr class="vsep"> 

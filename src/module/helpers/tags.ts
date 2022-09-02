@@ -10,7 +10,8 @@ export function compact_tag(tag_path: string, tag: TagInstance): string {
   // Format the {VAL} out of the name
   let formatted_name = tag.Tag.Name.replace("{VAL}", `${tag.Value ?? "?"}`);
   return `<div class="editable-tag-instance valid ref compact-tag flexrow" data-path="${tag_path}" ${ref_params(
-    tag.Tag.as_ref()
+    tag.Tag.as_ref(),
+    tag.Tag.Flags.orig_doc.uuid
   )}>
       <i class="mdi mdi-label i--s i--light"></i>
       <span style="margin: 3px;" >${formatted_name}</span>

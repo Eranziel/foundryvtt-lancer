@@ -184,7 +184,7 @@ export function pilot_slot(data_path: string, options: HelperOptions): string {
   if (!cd) return simple_mm_ref(EntryType.PILOT, existing, "No Pilot", data_path, true);
 
   return `<div class="pilot-summary">
-    <img class="valid ${cd.ref.type} ref clickable-ref" ${ref_params(cd.ref)} style="height: 100%" src="${
+    <img class="valid ${cd.ref.type} ref clickable-ref" ${ref_params(cd.ref, cd.uuid)} style="height: 100%" src="${
     existing.Flags.top_level_data.img
   }"/>
     <div class="license-level">
@@ -210,7 +210,7 @@ export function mech_frame_refview(actor: LancerActor, frame_path: string, helpe
   if (!cd) return simple_mm_ref(EntryType.FRAME, frame, "No Frame", frame_path, true);
 
   return `
-    <div class="card mech-frame ${ref_params(cd.ref)}">
+    <div class="card mech-frame ${ref_params(cd.ref, cd.uuid)}">
       <span class="lancer-header submajor clipped-top">
         ${frame.Source?.LID} ${frame.Name}
       </span>
