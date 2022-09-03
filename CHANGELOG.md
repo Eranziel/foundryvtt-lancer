@@ -1,4 +1,4 @@
-# 1.3.0 (2022-XX-XX)
+# 1.3.0 (2022-09-03)
 ## Features
 * #23 - Added JSON import for pilots
 * #396 - Added settings for alternate measurement modes on square grids. Options include 1-1-1 (default, diagonals cost 1), 1-2-1 (diagonals alternate between costing 1 and 2), 2-2-2 (Manhattan distance), and rounded Euclidean distance.
