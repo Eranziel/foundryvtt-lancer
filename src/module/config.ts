@@ -179,6 +179,8 @@ export const LANCER = {
   setting_pilot_oc_heat: "autoOCHeat" as const,
   setting_overkill_heat: "autoOKillHeat" as const,
   setting_auto_structure: "autoCalcStructure" as const,
+  setting_dsn_setup: "dsnSetup" as const,
+  setting_square_grid_diagonals: "squareGridDiagonals" as const,
   // setting_120: "warningFor120" as const, // Old setting, currently unused.
   // setting_beta_warning: "warningForBeta" as const, // Old setting, currently unused.
   mech_items,

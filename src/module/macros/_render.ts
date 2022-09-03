@@ -1,9 +1,6 @@
 // Import TypeScript modules
-import { LANCER } from "../config";
 import type { LancerActor } from "../actor/lancer-actor";
 import { uuid4 } from "../helpers/collapse";
-
-const lp = LANCER.log_prefix;
 
 /**
  *
@@ -21,12 +18,12 @@ export async function renderMacroTemplate(actor: LancerActor | undefined, templa
   if (templateData.roll) {
     aggregate.push(templateData.roll);
   }
-  if (templateData.attacks) {
+  if ((templateData.attacks?.length ?? 0) > 0) {
     aggregate.push(...templateData.attacks.map((a: { roll: Roll }) => a.roll));
   }
-  if (templateData.crit_damages) {
+  if ((templateData.crit_damages?.length ?? 0) > 0) {
     aggregate.push(...templateData.crit_damages.map((d: { roll: Roll }) => d.roll));
-  } else if (templateData.damages) {
+  } else if ((templateData.damages?.length ?? 0) > 0) {
     aggregate.push(...templateData.damages.map((d: { roll: Roll }) => d.roll));
   }
   const roll = Roll.fromTerms([PoolTerm.fromRolls(aggregate)]);

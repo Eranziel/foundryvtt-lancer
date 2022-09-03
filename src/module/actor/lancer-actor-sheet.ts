@@ -6,6 +6,7 @@ import {
   HANDLER_activate_popout_text_editor,
 } from "../helpers/commons";
 import { dragResolverCache, HANDLER_enable_doc_dropping, FoundryDropData, ResolvedDropData } from "../helpers/dragdrop";
+import { HANDLER_activate_counter_listeners, HANDLER_activate_plus_minus_buttons } from "../helpers/item";
 import {
   HANDLER_activate_ref_dragging,
   HANDLER_activate_ref_drop_clearing,
@@ -72,8 +73,6 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     // Enable collapse triggers.
     this._activateCollapses(html);
 
-    this._activateCounterListeners(html);
-
     // Enable any action grid buttons.
     this._activateActionGridListeners(html);
 
@@ -91,9 +90,6 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
 
     // All-actor macro dragging
     this._activateMacroDragging(html);
-
-    // Make +/- buttons work
-    this._activatePlusMinusButtons(html);
 
     let getfunc = () => this.getData();
     let commitfunc = (_: any) => this._commitCurrMM();
@@ -207,32 +203,6 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     });
 
     applyCollapseListeners();
-  }
-
-  async _activateCounterListeners(html: JQuery) {
-    let elements = html.find(".counter-hex");
-    elements.on("click", async ev => {
-      ev.stopPropagation();
-
-      const params = ev.currentTarget.dataset;
-      const data = this.getData();
-      if (params.path && params.writeback) {
-        const item = resolve_dotpath(data, params.path) as Counter;
-        const writeback = resolve_dotpath(data, params.writeback) as RegEntry<any>;
-        const available = params.available === "true";
-
-        if (available) {
-          // Deduct uses.
-          item.Value = item.Value > 0 ? item.Value - 1 : 0;
-        } else {
-          // Increment uses.
-          item.Value = item.Value < (item.Max || 6) ? item.Value + 1 : item.Max || 6;
-        }
-
-        await writeback.writeback();
-        console.debug(item);
-      }
-    });
   }
 
   async _activateActionGridListeners(html: JQuery) {
@@ -378,21 +348,6 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     event.dataTransfer?.setData("text/plain", JSON.stringify(macroData));
   }
 
-  _activatePlusMinusButtons(html: any) {
-    const mod_handler = (delta: number) => (ev: Event) => {
-      if (!ev.currentTarget) return; // No target, let other handlers take care of it.
-      const button = $(ev.currentTarget as HTMLElement);
-      mod_shared_handler(button, delta);
-      this.submit({});
-    };
-
-    // Behavior is identical, just +1 or -1 depending on button
-    let decr = html.find('button[class*="mod-minus-button"]');
-    decr.on("click", mod_handler(-1));
-    let incr = html.find('button[class*="mod-plus-button"]');
-    incr.on("click", mod_handler(+1));
-  }
-
   getStatPath(event: any): string | null {
     if (!event.currentTarget) return null;
     // Find the stat input to get the stat's key to pass to the macro function
@@ -479,7 +434,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
           }
         },
         */
-      return [result, false];
+      return [result, true];
     } else {
       // Its already owned
       return [document, false];
@@ -572,6 +527,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
   async _commitCurrMM() {
     ui.notifications?.error("Sheet writeback is broken");
     /*
+    // TODO
     let cd = this._currData;
     this._currData = null;
     await cd?.mm.writeback();
@@ -583,44 +539,6 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     */
   }
 }
-}
-
-// Customized increment/decrement arrows. Same as in actor
-export function mod_shared_handler(button: JQuery<HTMLElement>, delta: number) {
-  let hexes = button.siblings("i.counter-hex");
-  if (hexes.length > 0) {
-    if (delta > 0) {
-      hexes = hexes.last();
-      if (hexes[0].dataset["available"] != "true") {
-        hexes.trigger("click");
-      }
-    } else {
-      hexes = hexes.first();
-      if (hexes[0].dataset["available"] == "true") {
-        hexes.trigger("click");
-      }
-    }
-  } else {
-    const input = button.siblings("input");
-    const curr = Number.parseInt(input.prop("value"));
-    if (!isNaN(curr)) {
-      if (delta > 0) {
-        if (
-          !button[0].dataset["max"] ||
-          button[0].dataset["max"] == "-1" ||
-          curr + delta <= Number.parseInt(button[0].dataset["max"])
-        ) {
-          input.prop("value", curr + delta);
-        } else {
-          input.prop("value", input[0].dataset["max"]);
-        }
-      } else if (delta < 0) {
-        if (curr + delta >= 0) {
-          input.prop("value", curr + delta);
-        } else {
-          input.prop("value", 0);
-        }
-      }
-    }
-  }
+function rollStatMacro(_actor: unknown, _mData: LancerStatMacroData) {
+  throw new Error("Function not implemented.");
 }

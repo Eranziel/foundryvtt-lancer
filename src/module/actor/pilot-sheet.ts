@@ -1,7 +1,7 @@
 import { LANCER } from "../config";
+const lp = LANCER.log_prefix;
 import { LancerActorSheet } from "./lancer-actor-sheet";
-import { EntryType } from "machine-mind";
-import { funcs } from "machine-mind";
+import { EntryType, Mech, PackedPilotData, Pilot, funcs } from "machine-mind";
 import type { HelperOptions } from "handlebars";
 import { buildCounterHeader, buildCounterHTML } from "../helpers/item";
 import { ref_doc_common_attrs, ref_params, resolve_ref_element, simple_mm_ref } from "../helpers/refs";
@@ -9,7 +9,6 @@ import { resolve_dotpath } from "../helpers/commons";
 import { is_actor_type, LancerActor, LancerMECH, LancerPILOT } from "./lancer-actor";
 import { fetchPilotViaCache, fetchPilotViaShareCode, pilotCache } from "../util/compcon";
 import type { LancerItem, LancerItemType } from "../item/lancer-item";
-import { derived } from "svelte/store";
 import { clicker_num_input } from "../helpers/actor";
 
 const shareCodeMatcher = /^[A-Z0-9\d]{6}$/g;
@@ -114,6 +113,11 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
         download.addClass("disabled-cloud");
       }
 
+      // JSON Import
+      if (actor.is_pilot()) {
+        html.find("#pilot-json-import").on("change", ev => this._onPilotJsonUpload(ev, actor));
+      }
+
       // editing rawID clears vaultID
       // (other way happens automatically because we prioritise vaultID in commit)
       let rawInput = html.find('input[name="rawID"]');
@@ -143,11 +147,41 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
     }
   }
 
-  async activateMech(mech: LancerMECH) {
+  _onPilotJsonUpload(ev: JQuery.ChangeEvent<HTMLElement, undefined, HTMLElement, HTMLElement>, actor: LancerActor) {
+    let files = (ev.target as HTMLInputElement).files;
+    let jsonFile: File | null = null;
+    if (files) jsonFile = files[0];
+    if (!jsonFile) return;
+
+    console.log(`${lp} Selected file changed`, jsonFile);
+    const fr = new FileReader();
+    fr.readAsBinaryString(jsonFile);
+    fr.addEventListener("load", (ev: ProgressEvent) => {
+      this._onPilotJsonParsed((ev.target as FileReader).result as string, actor);
+    });
+  }
+
+  async _onPilotJsonParsed(fileData: string | null, actor: LancerActor) {
+    if (!fileData) return;
+    const pilotData = JSON.parse(fileData) as PackedPilotData;
+    console.log(`${lp} Pilot Data of selected JSON:`, pilotData);
+
+    if (!pilotData) return;
+    ui.notifications!.info(`Starting import of ${pilotData.name}, Callsign ${pilotData.callsign}. Please wait.`);
+    console.log(`${lp} Starting import of ${pilotData.name}, Callsign ${pilotData.callsign}.`);
+    console.log(`${lp} Parsed Pilot Data pack:`, pilotData);
+
+    await actor.importCC(pilotData);
+    ui.notifications!.info(`Import of ${pilotData.name}, Callsign ${pilotData.callsign} complete.`);
+    console.log(`${lp} Import of ${pilotData.name}, Callsign ${pilotData.callsign} complete.`);
+    this.render();
+  }
+
+  async activateMech(mech: Mech) {
     // TODO
     let pilot = this.actor as LancerPILOT;
     // Set active mech
-    pilot.active_mech = mech.as_ref();
+    pilot.system.active_mech = mech.as_ref();
     if (mech.data.data.pilot != mech.RegistryID) {
       // Also set the mechs pilot if necessary
       mech.Pilot = pilot;
