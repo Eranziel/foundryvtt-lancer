@@ -1,3 +1,24 @@
+# 1.3.0 (2022-XX-XX)
+## Features
+* #23 - Added JSON import for pilots
+* #396 - Added settings for alternate measurement modes on square grids. Options include 1-1-1 (default, diagonals cost 1), 1-2-1 (diagonals alternate between costing 1 and 2), 2-2-2 (Manhattan distance), and rounded Euclidean distance.
+* #425 - "Wreck" macro now removes target from the combat tracker.
+* #426 - Improve action tracker. Non-functional buttons on mech sheet removed, tracker refreshes on turn start, added refresh button.
+* #442 - The basic attack HUD no longer pops up when targeting a token.
+* #451 - Add integration and support for the Combat Carousel module.
+* Added buttons on mech sheets for common macros: Stabilize, full repair, structure, and overheat.
+
+## Bug Fixes
+* #408 - Counters with max values greater than 10 no longer show hexes so that they don't overflow the sheet.
+* #417 - Fix 404's caused during Comp/Con import in some situations involving duplicated pilots.
+* #420 - Fix the counter editor to make it fully functional.
+* #434 - Fix typo in the "destabilized power plant" overheat result which stated electric damage instead of energy.
+* #435 - Fix bug when removing features from an NPC Class or Template item. The feature is now removed from the class/template's list instead of attempting to delete the feature from the world or compendium.
+* #449 - Fix bug preventing drag-drop of weapon mods in browsers other than Firefox. The mod location is now always shown when empty, allowing mods to be dropped onto the location.
+* Add missing delete button for damage types in NPC features.
+* Fix Dice So Nice integration to correctly show damage dice on non-critical hits. Attack and damage dice are now staggered as well.
+* Counters from talents can have their values edited correctly from either the pilot or talent sheet.
+
 # 1.2.0 (2022-04-19)
 ## Features
 * Update the pilot import system to use Comp/Con's new share code system. "Vault" and "cloud" style codes are no longer supported.
