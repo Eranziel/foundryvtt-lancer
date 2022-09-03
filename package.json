@@ -20,7 +20,7 @@
   "author": "",
   "license": "",
   "devDependencies": {
-    "@league-of-foundry-developers/foundry-vtt-types": "^0.8.9-10",
+    "@league-of-foundry-developers/foundry-vtt-types": "^9.280.0",
     "@sveltejs/vite-plugin-svelte": "^1.0.0-next.23",
     "@tsconfig/svelte": "^2.0.1",
     "archiver": "^3.1.1",
