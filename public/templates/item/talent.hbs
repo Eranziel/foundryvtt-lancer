@@ -3,14 +3,15 @@
   <header class="sheet-header card clipped-bot">
     <div class="flexcol grow">
       <h1 class="charname">
-        <input class="header-field" name="name" type="text" value="{{item.name}}" placeholder="{{localize "lancer.placeholder.name"}}" />
+        <input class="header-field" name="name" type="text" value="{{item.name}}"
+               placeholder="{{localize "lancer.placeholder.name"}}" />
       </h1>
       {{#if item.actor}}
         <div class="flexrow">
           <span>
             RANK:
           </span>
-          {{{l-num-input "mm.CurrentRank"}}}
+          {{{l-num-input "mm.CurrentRank" 3}}}
         </div>
       {{/if}}
     </div>
@@ -20,25 +21,15 @@
   <div class="flexcol">
     {{{textarea-card "DESCRIPTION" "mm.Description"}}}
     {{{textarea-card "TERSE DESCRIPTION" "mm.Terse"}}}
-    <a
-      class="gen-control fas fa-plus"
-      data-action="append"
-      data-path="mm.Ranks"
-      style="align-self: flex-end;margin-right: 1em;"
-      data-action-value="(struct)talent_rank"
-    ></a>
+    <a class="gen-control fas fa-plus" data-action="append" data-path="mm.Ranks"
+       style="align-self: flex-end;margin-right: 1em;" data-action-value="(struct)talent_rank"></a>
     {{#if mm.Ranks}}
       {{#each mm.Ranks as |rank index|}}
         <div class="talent-level card clipped-bot flexcol">
           <div class="lancer-header" style="flex-basis: auto;">
             <i class="cci cci-rank-{{inc index}} i--xl i--dark"></i>
-            <input
-              class="lancer-invisible-input"
-              name="mm.Ranks.{{index}}.Name"
-              value="{{rank.Name}}"
-              data-dtype="String"
-              style="color: white"
-            />
+            <input class="lancer-invisible-input" name="mm.Ranks.{{index}}.Name" value="{{rank.Name}}"
+                   data-dtype="String" style="color: white" />
             <span class="minor">
               // RANK
               {{inc index}}
@@ -70,7 +61,8 @@
                   {{{mech-weapon-preview (concat "mm.Ranks." index ".Integrated." integ_index) "" }}}
                 </div>
               {{else}}
-                {{!-- Fallback - typically there should be nothing other than mech systems and weapons, but just in case.--}}
+                {{!-- Fallback - typically there should be nothing other than mech systems and weapons,
+                but just in case.--}}
                 {{{ref-mm-controllable-item-native (concat "mm.Ranks." index ".Integrated." integ_index) null }}}
               {{/if}}
             {{/each}}

@@ -44,9 +44,12 @@ declare global {
       "lancer.autoOCHeat": boolean;
       "lancer.autoOKillHeat": boolean;
       "lancer.autoCalcStructure": boolean;
+      "lancer.squareGridDiagonals": "111" | "121" | "222" | "euc";
       // "lancer.warningFor120": boolean; // Old setting, currently unused.
       // "lancer.warningForBeta": boolean; // Old setting, currently unused.
-      'lancer.combatTrackerConfig': {sortTracker: boolean} | ClientSettings.Values['lancer.combatTrackerConfig'];
+      "lancer.combatTrackerConfig": { sortTracker: boolean } | ClientSettings.Values["lancer.combatTrackerConfig"];
+      "lancer.dsnSetup": boolean;
+      "lancer.combat-tracker-appearance": Partial<LancerInitiativeConfig["def_appearance"]>;
     }
   }
 }

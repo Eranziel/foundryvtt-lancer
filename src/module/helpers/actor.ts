@@ -5,22 +5,18 @@ import { ref_commons, ref_params, simple_mm_ref } from "./refs";
 import { encodeMacroData } from "../macros";
 import { encodeOverchargeMacroData } from "../macros/overcharge";
 import type { ActionType } from "../action";
-import { LANCER } from "../config";
 import type { LancerActor } from "../actor/lancer-actor";
-import { string } from "fp-ts";
+import { getActionTrackerOptions } from "../settings";
 
 // ---------------------------------------
 // Some simple stat editing thingies
 
 interface ButtonOverrides {
-  icon?: string,
-  classes?: string
+  icon?: string;
+  classes?: string;
 }
 
-function _rollable_macro_button(
-  macroData: string,
-  overrides: ButtonOverrides = { }
-): string {
+function _rollable_macro_button(macroData: string, overrides: ButtonOverrides = {}): string {
   return `<a class="i--dark i--sm ${overrides.classes ?? ""} lancer-macro" data-macro="${macroData}">
     <i class="fas ${overrides.icon ?? "fa-dice-d20"}"></i>
   </a>`;
@@ -82,8 +78,9 @@ export function stat_view_card(
     fn: "prepareStatMacro",
     args: [get_actor_id(options), data_path],
   });
-  if (options.rollable)
-    macro_button = _rollable_macro_button(macroData)
+  let macroBasicData = encodeMacroData({ title: "GRIT", fn: "prepareEncodedAttackMacro", args: [] });
+  if (options.rollable) macro_button = _rollable_macro_button(macroData);
+
   return `
     <div class="card clipped">
       <div class="lancer-header ">
@@ -91,9 +88,15 @@ export function stat_view_card(
         <span class="major">${title}</span>
       </div>
       <div class="flexrow ${macro_button ? "stat-macro-container" : ""}">
-      ${macro_button ? macro_button : ""}
+        ${macro_button ? macro_button : ""}
         <span class="lancer-stat major" data-path="${data_path}">${data_val}</span>
-        ${macro_button ? "<div></div>" : ""}
+        ${
+          macro_button
+            ? data_path == "mm.Pilot.Grit"
+              ? _rollable_macro_button(macroBasicData, { icon: "cci cci-weapon" })
+              : "<div></div>"
+            : ""
+        }
       </div>
     </div>
     `;
@@ -134,11 +137,11 @@ export function compact_stat_edit(icon: string, data_path: string, max_path: str
 }
 
 // An editable field with +/- buttons
-export function clicker_num_input(data_path: string, options: HelperOptions) {
+export function clicker_num_input(data_path: string, max: number, options: HelperOptions) {
   return `<div class="flexrow arrow-input-container">
       <button class="mod-minus-button" type="button">-</button>
       ${std_num_input(data_path, ext_helper_hash(options, { classes: "lancer-stat minor", default: 0 }))}
-      <button class="mod-plus-button" type="button">+</button>
+      <button class="mod-plus-button" data-max="${max}" type="button">+</button>
     </div>`;
 }
 
@@ -166,7 +169,7 @@ export function clicker_stat_card(
       </div>
       <div class="flexrow">
         ${button}
-        ${clicker_num_input(data_path, options)}
+        ${clicker_num_input(data_path, -1, options)}
       </div>
     </div>
   `;
@@ -188,7 +191,7 @@ export function action_button(
   }
 
   let enabled = false;
-  if (game.user?.isGM || game.settings.get(game.system.id, LANCER.setting_action_manager_players)) {
+  if (game.user?.isGM || getActionTrackerOptions().allowPlayers) {
     enabled = true;
   }
 
@@ -198,6 +201,41 @@ export function action_button(
   }" data-action="${action}" data-val="${action_val}">
       ${title}
     </button>
+    `;
+}
+
+export function macro_button(
+  title: string,
+  macro: string,
+  data_path: string,
+  options: HelperOptions & { rollable?: boolean }
+): string {
+  let macroData = encodeMacroData({
+    title: title,
+    fn: macro,
+    args: [get_actor_id(options), null],
+  });
+
+  let mIcon;
+  switch (macro) {
+    case "fullRepairMacro":
+      mIcon = "cci-repair";
+      break;
+    case "stabilizeMacro":
+      mIcon = "cci-marker";
+      break;
+    case "prepareOverheatMacro":
+      mIcon = "cci-heat";
+      break;
+    case "prepareStructureMacro":
+      mIcon = "cci-condition-shredded";
+      break;
+  }
+
+  return `
+      <button class="lancer-macro-button lancer-macro" data-macro="${macroData}">
+        <i class="cci ${mIcon} i--m"></i> ${title}
+      </button>
     `;
 }
 
@@ -237,7 +275,7 @@ export function npc_clicker_stat_card(title: string, data_path: string, options:
     tier_clickers.push(`
       <div class="flexrow stat-container" style="align-self: center;">
         <i class="cci cci-npc-tier-${tier} i--m i--dark"></i>
-        ${clicker_num_input(`${data_path}.${tier - 1}`, options)}
+        ${clicker_num_input(`${data_path}.${tier - 1}`, 3, options)}
       </div>`);
     tier++;
   }
@@ -292,6 +330,13 @@ export function npc_tier_selector(tier_path: string, helper: HelperOptions) {
     ${tiers.join("")}
   </select>`;
   return template;
+}
+
+export function is_combatant(actor: LancerActor) {
+  const combat = game.combat;
+  if (combat) {
+    return combat.combatants.find(comb => comb.actor?.uuid == actor.uuid);
+  }
 }
 
 // Create a div with flags for dropping native pilots/mechs/npcs

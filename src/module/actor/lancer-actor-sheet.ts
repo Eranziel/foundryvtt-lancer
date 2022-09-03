@@ -6,6 +6,7 @@ import {
   HANDLER_activate_popout_text_editor,
 } from "../helpers/commons";
 import { HANDLER_enable_mm_dropping, MMDragResolveCache } from "../helpers/dragdrop";
+import { HANDLER_activate_counter_listeners, HANDLER_activate_plus_minus_buttons } from "../helpers/item";
 import {
   HANDLER_activate_ref_dragging,
   HANDLER_activate_ref_drop_clearing,
@@ -16,13 +17,7 @@ import {
 import type { LancerActorSheetData, LancerMacroData, LancerStatMacroData } from "../interfaces";
 import type { AnyMMItem } from "../item/lancer-item";
 import { AnyMMActor, is_actor_type, LancerActor, LancerActorType } from "./lancer-actor";
-import {
-  encodeMacroData,
-  prepareActivationMacro,
-  prepareChargeMacro,
-  prepareItemMacro,
-  runEncodedMacro,
-} from "../macros";
+import { prepareActivationMacro, prepareChargeMacro, prepareItemMacro, runEncodedMacro } from "../macros";
 import {
   EntryType,
   LiveEntryTypes,
@@ -47,7 +42,8 @@ import { mm_owner } from "../mm-util/helpers";
 import type { ActionType } from "../action";
 import { InventoryDialog } from "../apps/inventory";
 import { HANDLER_activate_item_context_menus, HANDLER_activate_edit_counter } from "../helpers/item";
-import { number } from "fp-ts";
+import { getActionTrackerOptions } from "../settings";
+import { modAction } from "../action/actionTracker";
 const lp = LANCER.log_prefix;
 
 /**
@@ -72,8 +68,6 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     // Enable collapse triggers.
     this._activateCollapses(html);
 
-    this._activateCounterListeners(html);
-
     // Enable any action grid buttons.
     this._activateActionGridListeners(html);
 
@@ -92,11 +86,14 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     // All-actor macro dragging
     this._activateMacroDragging(html);
 
-    // Make +/- buttons work
-    this._activatePlusMinusButtons(html);
-
     let getfunc = () => this.getDataLazy();
     let commitfunc = (_: any) => this._commitCurrMM();
+
+    // Make +/- buttons work
+    HANDLER_activate_plus_minus_buttons(html, getfunc, () => this.submit({}));
+
+    // Make counter pips work
+    HANDLER_activate_counter_listeners(html, getfunc);
 
     // Enable hex use triggers.
     HANDLER_activate_uses_editor(html, getfunc);
@@ -210,41 +207,12 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     applyCollapseListeners();
   }
 
-  async _activateCounterListeners(html: JQuery) {
-    let elements = html.find(".counter-hex");
-    elements.on("click", async ev => {
-      ev.stopPropagation();
-
-      const params = ev.currentTarget.dataset;
-      const data = await this.getDataLazy();
-      if (params.path && params.writeback) {
-        const item = resolve_dotpath(data, params.path) as Counter;
-        const writeback = resolve_dotpath(data, params.writeback) as RegEntry<any>;
-        const available = params.available === "true";
-
-        if (available) {
-          // Deduct uses.
-          item.Value = item.Value > 0 ? item.Value - 1 : 0;
-        } else {
-          // Increment uses.
-          item.Value = item.Value < (item.Max || 6) ? item.Value + 1 : item.Max || 6;
-        }
-
-        await writeback.writeback();
-        console.debug(item);
-      }
-    });
-  }
-
   async _activateActionGridListeners(html: JQuery) {
     let elements = html.find(".lancer-action-button");
     elements.on("click", async ev => {
       ev.stopPropagation();
-      if (!game.action_manager) return;
 
-      if (game.user?.isGM || game.settings.get(game.system.id, LANCER.setting_action_manager_players)) {
-        const manager = game.action_manager;
-
+      if (game.user?.isGM || getActionTrackerOptions().allowPlayers) {
         const params = ev.currentTarget.dataset;
         const action = params.action as ActionType | undefined;
         const data = await this.getDataLazy();
@@ -255,7 +223,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
           } else {
             spend = params.val === "true";
           }
-          manager?.modAction(data.actor, spend, action);
+          modAction(data.actor, spend, action);
         }
       } else {
         console.log(`${game.user?.name} :: Users currently not allowed to toggle actions through action manager.`);
@@ -265,7 +233,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
 
   _activateMacroListeners(html: JQuery) {
     // Encoded macros
-    let encMacros = html.find("a.lancer-macro");
+    let encMacros = html.find(".lancer-macro");
     encMacros.on("click", ev => {
       ev.stopPropagation(); // Avoids triggering parent event handlers
       runEncodedMacro(ev.currentTarget);
@@ -278,7 +246,6 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       ev.stopPropagation(); // Avoids triggering parent event handlers
       prepareStatMacro(this.actor._id, this.getStatPath(ev)!);
     });*/
-
 
     // Weapon rollers
     let weaponMacro = html.find(".roll-attack");
@@ -353,9 +320,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
 
     if (!itemId) throw Error("No item found");
 
-    title = title
-      ?? this.actor.items.get(itemId)?.name
-      ?? "unknown activation";
+    title = title ?? this.actor.items.get(itemId)?.name ?? "unknown activation";
 
     let a = target.getAttribute("data-activation");
     let d = target.getAttribute("data-deployable");
@@ -383,26 +348,6 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     };
 
     event.dataTransfer?.setData("text/plain", JSON.stringify(macroData));
-  }
-
-  _activatePlusMinusButtons(html: any) {
-    // Customized increment/decrement arrows. Same as in actor
-    const mod_handler = (delta: number) => (ev: Event) => {
-      if (!ev.currentTarget) return; // No target, let other handlers take care of it.
-      const button = $(ev.currentTarget as HTMLElement);
-      const input = button.siblings("input");
-      const curr = Number.parseInt(input.prop("value"));
-      if (!isNaN(curr)) {
-        input.prop("value", curr + delta);
-      }
-      this.submit({});
-    };
-
-    // Behavior is identical, just +1 or -1 depending on button
-    let decr = html.find('button[class*="mod-minus-button"]');
-    decr.on("click", mod_handler(-1));
-    let incr = html.find('button[class*="mod-plus-button"]');
-    incr.on("click", mod_handler(+1));
   }
 
   getStatPath(event: any): string | null {

@@ -128,15 +128,23 @@ export const STATUSES = [
 
 export function WELCOME(changelog: string): string {
   return `<div style="margin: 10px 5px">
-  <p>Welcome to Lancer on Foundry! If you haven't already, check out the project wiki for 
+
+  <h2>V10 WARNING</h2>
+  <p>Lancer does not yet have a stable release for Foundry v10! You can check the <a href="https://docs.google.com/spreadsheets/d/e/2PACX-1vRrcQL-r09Bi4MsbHUXlmOVx6DP4Ju143zRmk3HiUK2qU6gA3naxuSUcyv3EVhjMThXzJ_455jnyWfK/pubhtml">
+  v10 compatibility spreadsheet</a> or the <a href="https://foundryvtt.com/packages/lancer">Lancer system listing</a>
+  to see if a compatible version has been released yet, or grab the <b>Foundry Club</b> role on
+  <a href="https://discord.gg/7dnpJm46">PilotNET, the Lancer Discord server</a>, to be notified about updates to the
+  Lancer system.</p>
+  
+  <h2>Welcome to Lancer on Foundry!</h2>
+  <p>If you haven't already, check out the project wiki for 
   <a href="https://github.com/Eranziel/foundryvtt-lancer/wiki/FAQ">FAQ</a>
   and a list of <a href="https://github.com/Eranziel/foundryvtt-lancer/wiki/Resources">recommended modules</a>, as well
   as other information about how to use the system.</p>
   
-  <p>In particular, if you aren't using them already we <i>strongly</i> recommend the modules
-  <a href="https://foundryvtt.com/packages/hex-size-support/">"Hex Token Size Support"</a> by
-  Ourobor (even if you don't use hexes it is very useful for tweaking token art size and placement) and 
-  <a href="https://foundryvtt.com/packages/lancer-initiative/">"Lancer Initiative"</a> by Bolts.</p>
+  <p>In particular, we <i>strongly</i> recommend the
+  <a href="https://foundryvtt.com/packages/hex-size-support/">"Hex Token Size Support"</a> module 
+  (even if you don't use hexes it is very useful for tweaking token art size and placement).</p>
   
   <span>Special thanks to <a class="center" href="https://www.retrogrademinis.com/">Retrograde Minis</a> for our default token artwork.</span>
 
@@ -175,11 +183,12 @@ export const LANCER = {
   setting_automation: "automationOptions" as const,
   setting_automation_switch: "automationSwitch" as const,
   setting_automation_attack: "attackSwitch" as const,
-  setting_action_manager: "actionManager" as const,
-  setting_action_manager_players: "actionManagerPlayersUse" as const,
+  setting_actionTracker: "actionTracker" as const,
   setting_pilot_oc_heat: "autoOCHeat" as const,
   setting_overkill_heat: "autoOKillHeat" as const,
   setting_auto_structure: "autoCalcStructure" as const,
+  setting_dsn_setup: "dsnSetup" as const,
+  setting_square_grid_diagonals: "squareGridDiagonals" as const,
   // setting_120: "warningFor120" as const, // Old setting, currently unused.
   // setting_beta_warning: "warningForBeta" as const, // Old setting, currently unused.
   mech_items,

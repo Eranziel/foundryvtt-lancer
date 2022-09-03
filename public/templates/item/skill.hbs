@@ -1,22 +1,23 @@
 <form class="{{cssClass}} lancer-sheet" autocomplete="off">
-    {{!-- Sheet Header --}}
+  {{!-- Sheet Header --}}
   <header class="sheet-header card clipped-bot">
     <div class="flexcol grow">
-      <h1 class="charname"><input class="header-field" name="name" type="text" value="{{item.name}}" placeholder="{{localize "lancer.placeholder.name"}}"/></h1>
+      <h1 class="charname"><input class="header-field" name="name" type="text" value="{{item.name}}"
+                                  placeholder="{{localize " lancer.placeholder.name"}}" /></h1>
       <div class="flexrow">
         <select class="header-field" name="mm.Family" data-type="String">
           {{#select mm.Family}}
-          <option class="i--dark" value="cha">CHA</option>
-          <option class="i--dark" value="con">CON</option>
-          <option class="i--dark" value="dex">DEX</option>
-          <option class="i--dark" value="int">INT</option>
-          <option class="i--dark" value="str">STR</option>
+            <option class="i--dark" value="cha">CHA</option>
+            <option class="i--dark" value="con">CON</option>
+            <option class="i--dark" value="dex">DEX</option>
+            <option class="i--dark" value="int">INT</option>
+            <option class="i--dark" value="str">STR</option>
           {{/select}}
         </select>
       </div>
       <div class="flexrow">
         <span>RANK:</span>
-        {{{l-num-input "mm.CurrentRank"}}}
+        {{{l-num-input "mm.CurrentRank" 3}}}
       </div>
     </div>
     {{{ ref-portrait-img item.img "img" mm }}}

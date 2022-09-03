@@ -1,17 +1,18 @@
 import { LANCER } from "../config";
+const lp = LANCER.log_prefix;
 import { LancerActorSheet } from "./lancer-actor-sheet";
-import { EntryType, Mech, Pilot } from "machine-mind";
-import { funcs } from "machine-mind";
+import { EntryType, Mech, PackedPilotData, Pilot } from "machine-mind";
 import type { HelperOptions } from "handlebars";
-import { buildCounterHTML } from "../helpers/item";
+import { buildCounterHeader, buildCounterHTML } from "../helpers/item";
 import { ref_commons, ref_params, resolve_ref_element, simple_mm_ref } from "../helpers/refs";
 import { resolve_dotpath } from "../helpers/commons";
-import { AnyMMActor, is_reg_mech, is_actor_type } from "./lancer-actor";
-import { cleanCloudOwnerID, fetchPilot, fetchPilotViaCache, fetchPilotViaShareCode, pilotCache } from "../compcon";
+import { AnyMMActor, is_reg_mech, LancerActor } from "./lancer-actor";
+import { fetchPilotViaCache, fetchPilotViaShareCode, pilotCache } from "../compcon";
 import type { AnyMMItem, LancerItemType } from "../item/lancer-item";
-import { derived } from "svelte/store";
+import { clicker_num_input } from "../helpers/actor";
 
 const shareCodeMatcher = /^[A-Z0-9\d]{6}$/g;
+const COUNTER_MAX = 8;
 
 /**
  * Extend the basic ActorSheet
@@ -112,6 +113,11 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
         download.addClass("disabled-cloud");
       }
 
+      // JSON Import
+      if (actor.is_pilot()) {
+        html.find("#pilot-json-import").on("change", ev => this._onPilotJsonUpload(ev, actor));
+      }
+
       // editing rawID clears vaultID
       // (other way happens automatically because we prioritise vaultID in commit)
       let rawInput = html.find('input[name="rawID"]');
@@ -139,6 +145,36 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
         this.deactivateMech();
       });
     }
+  }
+
+  _onPilotJsonUpload(ev: JQuery.ChangeEvent<HTMLElement, undefined, HTMLElement, HTMLElement>, actor: LancerActor) {
+    let files = (ev.target as HTMLInputElement).files;
+    let jsonFile: File | null = null;
+    if (files) jsonFile = files[0];
+    if (!jsonFile) return;
+
+    console.log(`${lp} Selected file changed`, jsonFile);
+    const fr = new FileReader();
+    fr.readAsBinaryString(jsonFile);
+    fr.addEventListener("load", (ev: ProgressEvent) => {
+      this._onPilotJsonParsed((ev.target as FileReader).result as string, actor);
+    });
+  }
+
+  async _onPilotJsonParsed(fileData: string | null, actor: LancerActor) {
+    if (!fileData) return;
+    const pilotData = JSON.parse(fileData) as PackedPilotData;
+    console.log(`${lp} Pilot Data of selected JSON:`, pilotData);
+
+    if (!pilotData) return;
+    ui.notifications!.info(`Starting import of ${pilotData.name}, Callsign ${pilotData.callsign}. Please wait.`);
+    console.log(`${lp} Starting import of ${pilotData.name}, Callsign ${pilotData.callsign}.`);
+    console.log(`${lp} Parsed Pilot Data pack:`, pilotData);
+
+    await actor.importCC(pilotData);
+    ui.notifications!.info(`Import of ${pilotData.name}, Callsign ${pilotData.callsign} complete.`);
+    console.log(`${lp} Import of ${pilotData.name}, Callsign ${pilotData.callsign} complete.`);
+    this.render();
   }
 
   async activateMech(mech: Mech) {
@@ -300,18 +336,34 @@ export function pilot_counters(pilot: Pilot, _helper: HelperOptions): string {
   let counter_detail = "";
 
   let counter_arr = pilot.PilotCounters;
-  let custom_path = "mm.PilotCounters";
+  let custom_path = "mm.CustomCounters";
 
   for (let i = 0; i < counter_arr.length; i++) {
     // Only allow deletion if the Pilot is the source
-    counter_detail = counter_detail.concat(
-      buildCounterHTML(
-        counter_arr[i].counter,
-        `mm.PilotCounters.${i}.counter`,
-        `mm.PilotCounters.${i}.source`,
-        counter_arr[i].source === pilot
-      )
-    );
+    const counter = counter_arr[i].counter;
+    if (counter.Max != null) {
+      if (counter.Max <= COUNTER_MAX) {
+        counter_detail = counter_detail.concat(
+          buildCounterHTML(
+            counter,
+            `mm.PilotCounters.${i}.counter`,
+            `mm.PilotCounters.${i}.source`,
+            counter_arr[i].source === pilot
+          )
+        );
+      } else {
+        counter_detail = counter_detail.concat(
+          buildCounterHeader(
+            counter,
+            `mm.PilotCounters.${i}.counter`,
+            `mm.PilotCounters.${i}.source`,
+            counter_arr[i].source === pilot
+          ),
+          clicker_num_input(`mm.PilotCounters.${i}.counter.Value`, counter.Max, _helper),
+          "</div>"
+        );
+      }
+    }
   }
 
   return `

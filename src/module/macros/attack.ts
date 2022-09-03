@@ -79,6 +79,9 @@ export async function prepareEncodedAttackMacro(
   options: AttackMacroOptions,
   rerollData: AccDiffDataSerialized
 ) {
+  if (actor_ref == null) {
+    return openBasicAttack();
+  }
   let reg = new FoundryReg();
   let opCtx = new OpCtx();
   let mm = await reg.resolve(opCtx, actor_ref);
@@ -381,6 +384,8 @@ export async function checkTargets(
         let target = targetingData.target;
         let actor = target.actor as LancerActor;
         let attack_roll = await new Roll(targetingData.roll).evaluate({ async: true });
+        // @ts-expect-error DSN options aren't typed
+        attack_roll.dice.forEach(d => (d.options.rollOrder = 1));
         const attack_tt = await attack_roll.getTooltip();
 
         if (targetingData.usedLockOn) {
@@ -457,6 +462,8 @@ async function rollAttackMacro(
       }
 
       await droll.evaluate({ async: true });
+      // @ts-expect-error DSN options aren't typed
+      droll.dice.forEach(d => (d.options.rollOrder = 2));
       const tt = await droll.getTooltip();
 
       damage_results.push({
@@ -472,6 +479,8 @@ async function rollAttackMacro(
     await Promise.all(
       damage_results.map(async result => {
         const c_roll = await getCritRoll(result.roll);
+        // @ts-expect-error DSN options aren't typed
+        c_roll.dice.forEach(d => (d.options.rollOrder = 2));
         const tt = await c_roll.getTooltip();
         crit_damage_results.push({
           roll: c_roll,
@@ -504,8 +513,11 @@ async function rollAttackMacro(
   if (getAutomationOptions().attack_self_heat) {
     let mmEnt = await actor.data.data.derived.mm_promise;
     if (is_reg_mech(mmEnt) || is_reg_npc(mmEnt)) {
-      mmEnt.CurrentHeat += overkill_heat + self_heat;
-      await mmEnt.writeback();
+      // Separate if for typing check.
+      if (overkill_heat > 0 || self_heat > 0) {
+        mmEnt.CurrentHeat += overkill_heat + self_heat;
+        await mmEnt.writeback();
+      }
     }
   }
 
