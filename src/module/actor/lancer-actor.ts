@@ -17,7 +17,7 @@ import { StabOptions1, StabOptions2 } from "../enums";
 import { fix_modify_token_attribute } from "../token";
 import { findEffect } from "../helpers/acc_diff";
 import { AppliedDamage } from "./damage-calc";
-import { SystemDataType } from "../source-template";
+import { SystemDataType } from "../system-template";
 import { AE_MODE_SET_JSON } from "../effects/lancer-active-effect";
 const lp = LANCER.log_prefix;
 
@@ -1132,6 +1132,7 @@ export class LancerActor extends Actor {
       let pilot = this.data.data.pilot;
       if (pilot) {
         this.subscriptions.push(LancerHooks.on(pilot, async _ => {
+          // TODO: get this working once bonuses are properyl implemented
           console.debug(`Pilot ${pilot!.name} propagating effects to ${this.name}`);
           // Just copy them with minor alterations, for now
           let pilot_effects = pilot!.effects.map(e => e.toObject());
@@ -1139,7 +1140,7 @@ export class LancerActor extends Actor {
             eff.origin = pilot!.uuid;
             eff.flags.from_pilot = true;
             eff.label = `[PILOT] ${eff.label}`;
-    }
+          }
 
           // We also need to bake our necessary pilot information into an active effect
           pilot_effects.push({
@@ -1151,14 +1152,13 @@ export class LancerActor extends Actor {
               value: JSON.stringify(pilot!.toObject().data)
             }]
           });
+        });
 
         // Also, let any listeners on us know!
         LancerHooks.call(this);
-        }));
       }
     } else if (this.is_deployable()) {
       // TODO
-    }
     } else if (this.is_deployable()) {
       // TODO
     }

@@ -260,20 +260,11 @@ export class LancerItem extends Item {
   is_core_bonus(): this is LancerCORE_BONUS {
     return this.data.type === EntryType.CORE_BONUS;
   }
-  is_environment(): this is LancerENVIRONMENT {
-    return this.data.type === EntryType.ENVIRONMENT;
-  }
-  is_faction(): this is LancerFACTION {
-    return this.data.type === EntryType.FACTION;
-  }
   is_frame(): this is LancerFRAME {
     return this.data.type === EntryType.FRAME;
   }
   is_license(): this is LancerLICENSE {
     return this.data.type === EntryType.LICENSE;
-  }
-  is_manufacturer(): this is LancerMANUFACTURER {
-    return this.data.type === EntryType.MANUFACTURER;
   }
   is_mech_system(): this is LancerMECH_SYSTEM {
     return this.data.type === EntryType.MECH_SYSTEM;
@@ -302,14 +293,8 @@ export class LancerItem extends Item {
   is_pilot_weapon(): this is LancerPILOT_WEAPON {
     return this.data.type === EntryType.PILOT_WEAPON;
   }
-  is_quirk(): this is LancerQUIRK {
-    return this.data.type === EntryType.QUIRK;
-  }
   is_reserve(): this is LancerRESERVE {
     return this.data.type === EntryType.RESERVE;
-  }
-  is_sitrep(): this is LancerSITREP {
-    return this.data.type === EntryType.SITREP;
   }
   is_skill(): this is LancerSKILL {
     return this.data.type === EntryType.SKILL;
@@ -330,8 +315,6 @@ export class LancerItem extends Item {
 
 
 export type LancerCORE_BONUS = LancerItem & { data: LancerItemDataProperties<EntryType.CORE_BONUS> };
-export type LancerENVIRONMENT = LancerItem & { data: LancerItemDataProperties<EntryType.ENVIRONMENT> };
-export type LancerFACTION = LancerItem & { data: LancerItemDataProperties<EntryType.FACTION> };
 export type LancerFRAME = LancerItem & { data: LancerItemDataProperties<EntryType.FRAME> };
 export type LancerLICENSE = LancerItem & { data: LancerItemDataProperties<EntryType.LICENSE> };
 export type LancerMANUFACTURER = LancerItem & { data: LancerItemDataProperties<EntryType.MANUFACTURER> };
@@ -344,9 +327,7 @@ export type LancerORGANIZATION = LancerItem & { data: LancerItemDataProperties<E
 export type LancerPILOT_ARMOR = LancerItem & { data: LancerItemDataProperties<EntryType.PILOT_ARMOR> };
 export type LancerPILOT_GEAR = LancerItem & { data: LancerItemDataProperties<EntryType.PILOT_GEAR> };
 export type LancerPILOT_WEAPON = LancerItem & { data: LancerItemDataProperties<EntryType.PILOT_WEAPON> };
-export type LancerQUIRK = LancerItem & { data: LancerItemDataProperties<EntryType.QUIRK> };
 export type LancerRESERVE = LancerItem & { data: LancerItemDataProperties<EntryType.RESERVE> };
-export type LancerSITREP = LancerItem & { data: LancerItemDataProperties<EntryType.SITREP> };
 export type LancerSKILL = LancerItem & { data: LancerItemDataProperties<EntryType.SKILL> };
 export type LancerSTATUS = LancerItem & { data: LancerItemDataProperties<EntryType.STATUS> };
 export type LancerTAG = LancerItem & { data: LancerItemDataProperties<EntryType.TAG> };
