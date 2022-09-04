@@ -10,7 +10,7 @@ import { ResolvedDropData } from "../helpers/dragdrop";
 /**
  * Extend the basic ActorSheet
  */
-export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
+export class LancerMechSheet extends LancerActorSheet {
   /**
    * Extend and override the default options used by the NPC Sheet
    */
@@ -65,7 +65,9 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
       // For setting pilot
       return true;
     } else if (item.type == "Item") {
-      return LANCER.mech_items.includes(item.document.type);
+      return item.document.is_mech_system() || 
+        item.document.is_mech_weapon() || 
+        item.document.is_frame();
     } else {
       return false;
     }

@@ -7,7 +7,7 @@ import {
   RegEntryTypes,
   RegRangeData,
 } from "machine-mind";
-import { SystemDataType } from "../source-template";
+import { SystemDataType } from "../system-template";
 
 const lp = LANCER.log_prefix;
 
@@ -25,11 +25,8 @@ interface LancerItemDataProperties<T extends LancerItemType> {
  */
 type LancerItemSource =
   | LancerItemDataSource<EntryType.CORE_BONUS>
-  | LancerItemDataSource<EntryType.ENVIRONMENT>
-  | LancerItemDataSource<EntryType.FACTION>
   | LancerItemDataSource<EntryType.FRAME>
   | LancerItemDataSource<EntryType.LICENSE>
-  | LancerItemDataSource<EntryType.MANUFACTURER>
   | LancerItemDataSource<EntryType.MECH_SYSTEM>
   | LancerItemDataSource<EntryType.MECH_WEAPON>
   | LancerItemDataSource<EntryType.NPC_CLASS>
@@ -39,9 +36,7 @@ type LancerItemSource =
   | LancerItemDataSource<EntryType.PILOT_ARMOR>
   | LancerItemDataSource<EntryType.PILOT_GEAR>
   | LancerItemDataSource<EntryType.PILOT_WEAPON>
-  | LancerItemDataSource<EntryType.QUIRK>
   | LancerItemDataSource<EntryType.RESERVE>
-  | LancerItemDataSource<EntryType.SITREP>
   | LancerItemDataSource<EntryType.SKILL>
   | LancerItemDataSource<EntryType.STATUS>
   | LancerItemDataSource<EntryType.TAG>
@@ -54,11 +49,8 @@ type LancerItemSource =
  */
 type LancerItemProperties =
   | LancerItemDataProperties<EntryType.CORE_BONUS>
-  | LancerItemDataProperties<EntryType.ENVIRONMENT>
-  | LancerItemDataProperties<EntryType.FACTION>
   | LancerItemDataProperties<EntryType.FRAME>
   | LancerItemDataProperties<EntryType.LICENSE>
-  | LancerItemDataProperties<EntryType.MANUFACTURER>
   | LancerItemDataProperties<EntryType.MECH_SYSTEM>
   | LancerItemDataProperties<EntryType.MECH_WEAPON>
   | LancerItemDataProperties<EntryType.NPC_CLASS>
@@ -68,9 +60,7 @@ type LancerItemProperties =
   | LancerItemDataProperties<EntryType.PILOT_ARMOR>
   | LancerItemDataProperties<EntryType.PILOT_GEAR>
   | LancerItemDataProperties<EntryType.PILOT_WEAPON>
-  | LancerItemDataProperties<EntryType.QUIRK>
   | LancerItemDataProperties<EntryType.RESERVE>
-  | LancerItemDataProperties<EntryType.SITREP>
   | LancerItemDataProperties<EntryType.SKILL>
   | LancerItemDataProperties<EntryType.STATUS>
   | LancerItemDataProperties<EntryType.TAG>

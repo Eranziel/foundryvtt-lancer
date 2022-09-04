@@ -23,6 +23,7 @@ import {
   LancerItem,
   LancerMECH_SYSTEM,
   LancerMECH_WEAPON,
+  LancerNPC_CLASS,
   LancerNPC_FEATURE,
   LancerWEAPON_MOD,
 } from "./item/lancer-item";
@@ -83,13 +84,13 @@ export namespace SystemTemplates {
 
   // Modify heat to be bounded
   export interface heat {
-    heat: BoundedNum;
+    heat: FullBoundedNum;
   }
 
   // Modify struct/stress to be bounded
   export interface struss {
-    stress: BoundedNum;
-    structure: BoundedNum;
+    stress: FullBoundedNum;
+    structure: FullBoundedNum;
   }
 
   export interface TagField extends SourceTemplates.TagField {
@@ -100,21 +101,21 @@ export namespace SystemTemplates {
   // Embedded refs local to the actor, can always be resolved synchronously
   // Note that "didn't resolve" is distinct from null, and so we track that separately
   export type ResolvedEmbeddedRef<T> =
-    | ({
+    | {
         status: "resolved"; // Resolved successfully!
         value: T;
-      } & ResolvedRefCommons)
-    | ({
+      }
+    | {
         status: "missing"; // Was unable to resolve successfully 
         value: null;
-      } & ResolvedRefCommons);
+      };
 
   // UUID refs could be in the compendium (oh no!). In which case they'll be a promise. bleh
   export type ResolvedUuidRef<T> = ResolvedEmbeddedRef<T>
-    | ({
+    | {
         status: "async";
         value: Promise<T>;
-      } & ResolvedRefCommons);
+    };
 }
 
 // Note: We could have, theoretically, done this via clever OMIT spam.
@@ -215,7 +216,7 @@ interface SystemDataTypesMap extends DataTypeMap {
     SystemTemplates.heat &
     SystemTemplates.struss & {
       overcharge: number;
-      repairs: number;
+      repairs: FullBoundedNum;
       loadout: {
         core_active: boolean;
         core_energy: boolean;
@@ -295,6 +296,8 @@ interface SystemDataTypesMap extends DataTypeMap {
       tier: number;
 
       // TODO: derived convenience arrays of features/actions? Active class?
+      features: LancerNPC_FEATURE[];
+      class: LancerNPC_CLASS | null;
     };
   [EntryType.NPC_CLASS]: SystemTemplates.item_universal & {
     role: string;

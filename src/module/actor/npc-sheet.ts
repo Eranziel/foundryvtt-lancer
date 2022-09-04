@@ -9,13 +9,13 @@ import { insinuate, resort_item } from "../util/doc";
 import { HANDLER_activate_general_controls } from "../helpers/commons";
 import { LancerActor, LancerNPC } from "./lancer-actor";
 import { DropHandlerFunc, ResolvedDropData } from "../helpers/dragdrop";
-import { SystemDataType } from "../source-template";
+import { SystemDataType } from "../system-template";
 const lp = LANCER.log_prefix;
 
 /**
  * Extend the basic ActorSheet
  */
-export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
+export class LancerNPCSheet extends LancerActorSheet {
   /**
    * Extend and override the default options used by the NPC Sheet
    */
@@ -147,9 +147,13 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
 
   /* -------------------------------------------- */
 
-  can_root_drop_entry(drop: ResolvedDropData): boolean {
+  can_root_drop_entry(item: ResolvedDropData): boolean {
     // Reject any non npc item
-    return drop.type == "Item" && LANCER.npc_items.includes(drop.document.type);
+    return item.type == "Item" && (
+      item.document.is_npc_class() || 
+      item.document.is_npc_feature() || 
+      item.document.is_npc_template()
+    );
   }
 
   // Take ownership of appropriate items. Already filtered by can_drop_entry
@@ -173,7 +177,7 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
 
       // Mark replaced classes for deletion
       let delete_targets = [];
-      if (doc.is_npc_class() && this.actor.data.data.class) {
+      if (this.actor.is_npc() && doc.is_npc_class() && this.actor.data.data.class) {
         // If we have a class, get rid of it
         let class_data = this.actor.data.data.class.data.data as SystemDataType<EntryType.NPC_CLASS>;
         let class_features = findMatchingFeaturesInNpc(this.actor, [...class_data.base_features, ...class_data.optional_features]);

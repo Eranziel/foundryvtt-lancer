@@ -83,8 +83,8 @@ export class LancerItemSheet extends ItemSheet<ItemSheet.Options, LancerItemShee
   _activate_context_listeners(
     html: JQuery,
     // Retrieves the data that we will operate on
-    data_getter: () => Promise<LancerItemSheetData<T>> | LancerItemSheetData<T>,
-    commit_func: (data: LancerItemSheetData<T>) => void | Promise<void>
+    data_getter: () => Promise<LancerItemSheetData> | LancerItemSheetData,
+    commit_func: (data: LancerItemSheetData) => void | Promise<void>
   ) {
     // Enable custom context menu triggers. If the sheet is not editable, show only the "view" option.
     HANDLER_activate_item_context_menus(html, data_getter, commit_func, !this.options.editable);

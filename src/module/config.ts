@@ -12,27 +12,7 @@ const ASCII = `
 ┃╰━╯┃╭━╮┃┃╱┃┃┃╰━╯┃╰━━┫┃┃╰╮ 
 ╰━━━┻╯╱╰┻╯╱╰━┻━━━┻━━━┻╯╰━╯`;
 
-let ET = EntryType;
 // These are general categories that items fall under, useful for the purpose of knowing when moving that item is allowed
-const mech_items: LancerItemType[] = [ET.WEAPON_MOD, ET.FRAME, ET.MECH_WEAPON, ET.MECH_SYSTEM];
-const pilot_items: LancerItemType[] = [
-  ET.SKILL,
-  ET.TALENT,
-  ET.CORE_BONUS,
-  ET.LICENSE,
-  ET.PILOT_ARMOR,
-  ET.PILOT_WEAPON,
-  ET.PILOT_GEAR,
-  ET.FACTION,
-  ET.QUIRK,
-  ET.RESERVE,
-  ET.ORGANIZATION,
-];
-const npc_items: LancerItemType[] = [ET.NPC_CLASS, ET.NPC_FEATURE, ET.NPC_TEMPLATE];
-const weapon_items: LancerItemType[] = [ET.MECH_WEAPON, ET.PILOT_WEAPON, ET.NPC_FEATURE];
-
-export type LancerDocumentType = LancerItemType | LancerActorType;
-
 export const STATUSES = [
   {
     id: "immobilized",
@@ -183,10 +163,6 @@ export const LANCER = {
   setting_square_grid_diagonals: "squareGridDiagonals" as const,
   // setting_120: "warningFor120" as const, // Old setting, currently unused.
   // setting_beta_warning: "warningForBeta" as const, // Old setting, currently unused.
-  mech_items,
-  pilot_items,
-  weapon_items,
-  npc_items,
 };
 
 // Convenience for mapping item/actor types to full names

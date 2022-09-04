@@ -2,7 +2,7 @@ import { EntryType, License, LicensedItem, LiveEntryTypes, OpCtx, Pilot, RegEntr
 import { is_actor_type, LancerActor, LancerActorType, LancerDEPLOYABLE, LancerMECH, LancerNPC, LancerPILOT } from "../actor/lancer-actor";
 import { PACK_SCOPE } from "../compBuilder";
 import { friendly_entrytype_name } from "../config";
-import type { LancerCORE_BONUS, LancerENVIRONMENT, LancerFACTION, LancerFRAME, LancerItem, LancerItemType, LancerLICENSE, LancerMANUFACTURER, LancerMECH_SYSTEM, LancerMECH_WEAPON, LancerNPC_CLASS, LancerNPC_FEATURE, LancerNPC_TEMPLATE, LancerORGANIZATION, LancerPILOT_ARMOR, LancerPILOT_GEAR, LancerPILOT_WEAPON, LancerQUIRK, LancerRESERVE, LancerSITREP, LancerSKILL, LancerSTATUS, LancerTAG, LancerTALENT, LancerWEAPON_MOD } from "../item/lancer-item";
+import type { LancerCORE_BONUS, LancerFRAME, LancerItem, LancerItemType, LancerLICENSE, LancerMANUFACTURER, LancerMECH_SYSTEM, LancerMECH_WEAPON, LancerNPC_CLASS, LancerNPC_FEATURE, LancerNPC_TEMPLATE, LancerORGANIZATION, LancerPILOT_ARMOR, LancerPILOT_GEAR, LancerPILOT_WEAPON, LancerRESERVE, LancerSKILL, LancerSTATUS, LancerTAG, LancerTALENT, LancerWEAPON_MOD } from "../item/lancer-item";
 import { FetcherCache } from "./async";
 
 
@@ -61,7 +61,7 @@ export async function find_license_for(
 
 // The cache to implement the above. Doesn't need to last long - this just happens in bursts
 // Just keeps track of license refs by name
-const world_and_comp_license_cache = new FetcherCache<string, License | null>(async license_name => {
+const world_and_comp_license_cache = new FetcherCache<string, LancerLICENSE | null>(async license_name => {
   // TODO 
   /*
   let ctx = new OpCtx();
@@ -181,8 +181,6 @@ interface LancerDocMap extends DataTypeMap {
   // [EntryType.CONDITION]: IStatusData;
   [EntryType.CORE_BONUS]: LancerCORE_BONUS;
   [EntryType.DEPLOYABLE]: LancerDEPLOYABLE;
-  [EntryType.ENVIRONMENT]: LancerENVIRONMENT;
-  [EntryType.FACTION]: LancerFACTION;
   [EntryType.FRAME]: LancerFRAME;
   [EntryType.LICENSE]: LancerLICENSE;
   [EntryType.MANUFACTURER]: LancerMANUFACTURER;
@@ -199,12 +197,10 @@ interface LancerDocMap extends DataTypeMap {
   [EntryType.PILOT_WEAPON]: LancerPILOT_WEAPON;
   [EntryType.PILOT]: LancerPILOT;
   [EntryType.RESERVE]: LancerRESERVE;
-  [EntryType.SITREP]: LancerSITREP;
   [EntryType.SKILL]: LancerSKILL;
   [EntryType.STATUS]: LancerSTATUS;
   [EntryType.TAG]: LancerTAG;
   [EntryType.TALENT]: LancerTALENT;
-  [EntryType.QUIRK]: LancerQUIRK;
   [EntryType.WEAPON_MOD]: LancerWEAPON_MOD;
 }
 export type LancerDoc<T extends EntryType = EntryType> = T extends keyof LancerDocMap

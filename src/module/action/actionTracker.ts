@@ -3,7 +3,7 @@
  */
 
 import { ActionData, ActionType } from ".";
-import { LancerActor } from "../actor/lancer-actor";
+import { LancerActor, LancerMECH } from "../actor/lancer-actor";
 
 export const _defaultActionData = (target: Actor) => {
   return {
@@ -28,8 +28,12 @@ export const _endTurnActionData = () => {
  * Get proxy for ease of migration when we change over to MM data backing.
  * @returns actions map.
  */
-export function getActions(actor: LancerActor): ActionData | undefined {
-  return actor.data.data.action_tracker ? { ...actor.data.data.action_tracker } : undefined;
+export function getActions(actor: LancerActor): ActionData | null {
+  if (actor.is_mech()) {
+    return actor.data.data.action_tracker;
+  } else {
+    return null;
+  }
 }
 /**
  * Set proxy for ease of migration when we change over to MM data backing.
@@ -46,7 +50,7 @@ export async function updateActions(actor: LancerActor, actions: ActionData) {
  * @param type specific action to spend, or undefined for end-turn behavior.
  */
 export async function modAction(actor: LancerActor, spend: boolean, type?: ActionType) {
-  let actions = { ...actor.data.data.action_tracker };
+  let actions = getActions(actor);
   if (actions) {
     switch (type) {
       case "move": // TODO: replace with tooltip for movement counting.
@@ -99,6 +103,6 @@ export async function toggleAction(actor: LancerActor, type: ActionType) {
   }
 }
 
-function getSpeed(actor: Actor) {
-  return actor.data.data?.derived?.speed || 4;
+function getSpeed(actor: LancerActor) {
+  return actor.data.data.speed;
 }

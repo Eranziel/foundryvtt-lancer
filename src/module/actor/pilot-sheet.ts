@@ -8,8 +8,9 @@ import { ref_doc_common_attrs, ref_params, resolve_ref_element, simple_mm_ref } 
 import { resolve_dotpath } from "../helpers/commons";
 import { is_actor_type, LancerActor, LancerMECH, LancerPILOT } from "./lancer-actor";
 import { fetchPilotViaCache, fetchPilotViaShareCode, pilotCache } from "../util/compcon";
-import type { LancerItem, LancerItemType } from "../item/lancer-item";
+import { LancerItem, LancerItemType } from "../item/lancer-item";
 import { clicker_num_input } from "../helpers/actor";
+import { ResolvedDropData } from "../helpers/dragdrop";
 
 const shareCodeMatcher = /^[A-Z0-9\d]{6}$/g;
 const COUNTER_MAX = 8;
@@ -17,7 +18,7 @@ const COUNTER_MAX = 8;
 /**
  * Extend the basic ActorSheet
  */
-export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
+export class LancerPilotSheet extends LancerActorSheet {
   /**
    * Extend and override the default options used by the Pilot Sheet
    * @returns {Object}
@@ -54,7 +55,7 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
       // Cloud download
       let download = html.find('.cloud-control[data-action*="download"]');
       let actor = this.actor;
-      if (actor.is_pilot() && actor.data.data.cloudID) {
+      if (actor.is_pilot() && actor.data.data.cloud_id) {
         download.on("click", async ev => {
           ev.stopPropagation();
 
@@ -177,18 +178,12 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
     this.render();
   }
 
-  async activateMech(mech: Mech) {
+  async activateMech(mech: LancerMECH) {
     // TODO
     let pilot = this.actor as LancerPILOT;
     // Set active mech
-    pilot.system.active_mech = mech.as_ref();
-    if (mech.data.data.pilot != mech.RegistryID) {
-      // Also set the mechs pilot if necessary
-      mech.Pilot = pilot;
-      mech.writeback();
-    }
-
-    await pilot.writeback();
+    await pilot.update({"system.active_mech": mech.uuid});
+    await mech.update({"system.pilot": pilot.uuid});
   }
 
   async deactivateMech() {
@@ -227,14 +222,24 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
   }
 
   // Pilots can handle most stuff
-  can_root_drop_entry(item: LancerActor | LancerItem): boolean {
-    // Accept mechs, so as to change their actor
-    if (item.Type == EntryType.MECH) {
+  can_root_drop_entry(item: ResolvedDropData): boolean {
+    // Accept mechs, so as to change their pilot
+    if (item.type == "Actor" && item.document.is_mech()) {
       return true;
     }
 
-    // Accept non pilot item
-    if (LANCER.pilot_items.includes(item.Type as LancerItemType)) {
+    // Accept pilot items
+    if (item.type == "Item" && (
+      item.document.is_core_bonus() ||
+      item.document.is_pilot_weapon() || 
+      item.document.is_pilot_armor() || 
+      item.document.is_pilot_gear() || 
+      item.document.is_license() || 
+      item.document.is_skill() || 
+      item.document.is_talent() || 
+      item.document.is_organization() || 
+      item.document.is_reserve()
+    )) {
       return true;
     }
 
@@ -242,49 +247,58 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
     return false;
   }
 
-  async on_root_drop(base_drop: LancerItem | LancerActor): Promise<void> {
+  async on_root_drop(
+    base_drop: ResolvedDropData,
+    event: JQuery.DropEvent,
+    _dest: JQuery<HTMLElement>
+  ): Promise<void> {
     let sheet_data = await this.getData();
-    let this_mm = sheet_data.mm;
 
     // Take posession
-    let [drop, is_new] = await this.quick_own(base_drop);
+    let [drop, is_new] = await this.quick_own_drop(base_drop);
+    let pilot = this.actor as LancerPILOT;
+    let loadout = pilot.data.data.loadout;
 
     // Now, do sensible things with it
-    let loadout = this_mm.Loadout;
-    if (is_new && drop.Type === EntryType.PILOT_WEAPON) {
-      // If new weapon, try to equip to first empty slot
-      for (let i = 0; i < loadout.Weapons.length; i++) {
-        if (!loadout.Weapons[i]) {
-          loadout.Weapons[i] = drop;
-          break;
+    if(drop.type == "Item") {
+      // Handle all pilot item types
+      if (drop.document.is_pilot_weapon()) {
+        // If new weapon, try to equip to first empty slot
+        for (let i = 0; i < loadout.weapons.length; i++) {
+          if (!loadout.weapons[i]) {
+            await pilot.update({
+              [`system.loadout.weapons.${i}`]: drop.document.uuid
+            });
+            break;
+          }
         }
-      }
-    } else if (is_new && drop.type === EntryType.PILOT_GEAR) {
-      // If new gear, try to equip to first empty slot
-      for (let i = 0; i < loadout.Gear.length; i++) {
-        if (!loadout.Gear[i]) {
-          loadout.Gear[i] = drop;
-          break;
+      } else if (drop.document.is_pilot_gear()) {
+        // If new gear, try to equip to first empty slot
+        for (let i = 0; i < loadout.gear.length; i++) {
+          if (!loadout.gear[i]) {
+            await pilot.update({
+              [`system.loadout.gear.${i}`]: drop.document.uuid
+            });
+            break;
+          }
         }
-      }
-    } else if (is_new && drop.type === EntryType.PILOT_ARMOR) {
-      // If new armor, try to equip to first empty slot
-      for (let i = 0; i < loadout.Armor.length; i++) {
-        if (!loadout.Gear[i]) {
-          loadout.Armor[i] = drop;
-          break;
+      } else if (drop.document.is_pilot_armor()) {
+        // If new armor, try to equip to first empty slot
+        for (let i = 0; i < loadout.armor.length; i++) {
+          if (!loadout.armor[i]) {
+            await pilot.update({
+              [`system.loadout.armor.${i}`]: drop.document.uuid
+            });
+            break;
+          }
         }
+      } else if (is_new && drop.document.is_talent() || drop.document.is_skill()) {
+        // If new skill or talent, reset to level 1
+        await drop.document.update({"system.rank": 1});
       }
-    } else if ((is_new && drop.type === EntryType.SKILL) || drop.type == EntryType.TALENT) {
-      // If new skill or talent, reset to level 1
-      drop.CurrentRank = 1;
-      await drop.writeback(); // Since we're editing the item, we gotta do this
-    } else if (drop.Type === EntryType.MECH) {
-      this.activateMech(drop);
+    } else if (drop.type == "Actor" && drop.document.is_mech()) {
+      this.activateMech(drop.document);
     }
-
-    // Writeback when done. Even if nothing explicitly changed, probably good to trigger a redraw
-    await this_mm.writeback();
   }
 
   async _commitCurrMM() {

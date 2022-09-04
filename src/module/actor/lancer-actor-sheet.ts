@@ -54,9 +54,9 @@ const lp = LANCER.log_prefix;
 /**
  * Extend the basic ActorSheet
  */
-export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
+export class LancerActorSheet extends ActorSheet<
   ActorSheet.Options,
-  LancerActorSheetData<T>
+  LancerActorSheetData
 > {
   // Tracks collapse state between renders
   protected collapse_handler = new CollapseHandler();
@@ -441,7 +441,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     }
   }
 
-  // As quick_own, but for any drop 
+  // As quick_own, but for any drop. Maintains drop structure, since not necessarily guaranteed to have made an item
   async quick_own_drop(drop: ResolvedDropData): Promise<[ResolvedDropData, boolean]> {
     if(drop.type == "Item") {
       let [v, n] = await this.quick_own(drop.document);
