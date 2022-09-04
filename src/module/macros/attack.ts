@@ -351,6 +351,8 @@ export async function openBasicAttack(rerollData?: AccDiffData) {
     const mm = await statActor.data.data.derived.mm_promise;
     let tier_bonus: number = mm.Tier;
     mData.grit = tier_bonus || 0;
+  } else if (statActor.is_deployable()) {
+    mData.grit = 0;
   } else {
     ui.notifications!.error(`Error preparing targeting macro - ${actor.name} is an unknown type!`);
     return;
