@@ -337,7 +337,6 @@ export type LancerWEAPON_MOD = LancerItem & { data: LancerItemDataProperties<Ent
 // This seems like it could be removed eventually
 export type LancerItemType =
   | EntryType.CORE_BONUS
-  | EntryType.FACTION
   | EntryType.FRAME
   | EntryType.LICENSE
   | EntryType.MECH_WEAPON
@@ -354,14 +353,9 @@ export type LancerItemType =
   | EntryType.STATUS
   | EntryType.TALENT
   | EntryType.WEAPON_MOD
-  | EntryType.QUIRK
-  | EntryType.MANUFACTURER // hmmmm.... these falls into a similar role as tag. for the time being leaving it here, but it should really be more of a journal thing. Are there journal types?
-  | EntryType.SITREP
-  | EntryType.ENVIRONMENT
   | EntryType.TAG;
 export const LancerItemTypes = [
   EntryType.CORE_BONUS,
-  EntryType.FACTION,
   EntryType.FRAME,
   EntryType.LICENSE,
   EntryType.MECH_WEAPON,
@@ -369,7 +363,6 @@ export const LancerItemTypes = [
   EntryType.NPC_CLASS,
   EntryType.NPC_TEMPLATE,
   EntryType.NPC_FEATURE,
-  EntryType.ORGANIZATION,
   EntryType.PILOT_ARMOR,
   EntryType.PILOT_WEAPON,
   EntryType.PILOT_GEAR,
@@ -378,10 +371,6 @@ export const LancerItemTypes = [
   EntryType.STATUS,
   EntryType.TALENT,
   EntryType.WEAPON_MOD,
-  EntryType.QUIRK,
-  EntryType.MANUFACTURER,
-  EntryType.SITREP,
-  EntryType.ENVIRONMENT,
   EntryType.TAG,
 ];
 export function is_item_type(type: EntryType): type is LancerItemType {
