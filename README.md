@@ -1,6 +1,8 @@
 # Lancer System for FoundryVTT
 A Foundry VTT system for the [Lancer RPG](https://massif-press.itch.io/corebook-pdf) by [Massif Press](https://massif-press.itch.io/). 
 
+**CAUTION:** Lancer does not yet have a stable release for Foundry v10. ***Do not*** launch your Lancer worlds on v10, as Foundry will automatically migrate your data and make it incompatible with v9. ***Always always always*** back up your data before updating Foundry!
+
 ## Attribution and Acknowledgements
 The Lancer universe and all related setting materials are copyright Massif Press, used by permission.
 

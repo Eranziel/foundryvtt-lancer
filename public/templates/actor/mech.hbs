@@ -65,6 +65,9 @@
           {{{stat-rollable-card "SYS" "" "mm.Sys"}}}
           {{{stat-rollable-card "ENG" "" "mm.Eng"}}}
         </div>
+        <div class="inventory" style="flex: inherit;margin:3px 10px">
+          <button style="padding: 8px 16px"> View Inventory </button>
+        </div>
       </div>
       <div class="pilot-frame-wrapper flexrow">
         <div class="card">
@@ -93,14 +96,18 @@
           </div>
         </div>
         {{/if}}
-        <div class="inventory" style="flex: inherit;margin:3px 10px">
-          <button style="padding: 8px 16px"> View Inventory </button>
-        </div>
       </div>
     </div>
 
     <div class="tab loadout" data-group="primary" data-tab="loadout">
       {{{mech-frame actor "mm.Loadout.Frame"}}}
+      <div class="card clipped">
+        <span class="lancer-header submajor">BASIC ATTACKS</span>
+        <div class="lancer-macro-grid">
+          {{{macro-button "MELEE/RANGED" "prepareEncodedAttackMacro" "mm" }}}
+          {{{macro-button "TECH" "prepareTechMacro" "mm" }}}
+        </div>
+      </div>
       <div class="card">
         <span class="lancer-header major">
           {{localize "lancer.mech-sheet.system.label" total=mm.Loadout.TotalSP max=mm.MaxSP}}

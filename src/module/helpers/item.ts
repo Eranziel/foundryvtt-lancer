@@ -116,10 +116,13 @@ export function range_editor(path: string, options: HelperOptions) {
   let value_options = ext_helper_hash(options, { value: range.Value });
   let value_input = std_string_input(path + ".Value", value_options);
 
+  let delete_button = `<a class="gen-control" data-action="splice" data-path="${path}" style="margin: 4px;"><i class="fas fa-trash"></i></a>`;
+
   return `<div class="flexrow flex-center" style="padding: 5px;">
     ${icon_html}
     ${range_type_selector}
     ${value_input}
+    ${delete_button}
   </div>
   `;
 }
@@ -208,7 +211,7 @@ export function npc_accuracy_preview(acc: number) {
     text = `+${acc} ACCURACY`;
   } else if (acc < 0) {
     icon = "difficulty";
-    text = `-${acc} DIFFICULTY`;
+    text = `${acc} DIFFICULTY`;
   } else {
     return "";
   }
