@@ -78,7 +78,7 @@ export function stat_view_card(
     fn: "prepareStatMacro",
     args: [get_actor_id(options), data_path],
   });
-  let macroBasicData = encodeMacroData({ title: "GRIT", fn: "prepareEncodedAttackMacro", args: [] });
+  let macroBasicData = encodeMacroData({ title: "BASIC ATTACK", fn: "prepareEncodedAttackMacro", args: [] });
   if (options.rollable) macro_button = _rollable_macro_button(macroData);
 
   return `
@@ -92,7 +92,7 @@ export function stat_view_card(
         <span class="lancer-stat major" data-path="${data_path}">${data_val}</span>
         ${
           macro_button
-            ? data_path == "mm.Pilot.Grit"
+            ? data_path == "mm.Pilot.Grit" || data_path === "mm.Tier"
               ? _rollable_macro_button(macroBasicData, { icon: "cci cci-weapon" })
               : "<div></div>"
             : ""
@@ -160,6 +160,7 @@ export function clicker_stat_card(
     fn: "prepareStatMacro",
     args: [id, data_path],
   });
+  let macroBasicData = encodeMacroData({ title: "BASIC ATTACK", fn: "prepareEncodedAttackMacro", args: [] });
   if (roller)
     button = `<a class="lancer-macro i--dark i--sm" data-macro="${macroData}"><i class="fas fa-dice-d20"></i></a>`;
   return `<div class="card clipped stat-container">
@@ -170,6 +171,13 @@ export function clicker_stat_card(
       <div class="flexrow">
         ${button}
         ${clicker_num_input(data_path, -1, options)}
+        ${
+          button
+            ? data_path == "mm.Pilot.Grit" || data_path === "mm.Tier"
+              ? _rollable_macro_button(macroBasicData, { icon: "cci cci-weapon" })
+              : "<div></div>"
+            : ""
+        }
       </div>
     </div>
   `;
@@ -210,12 +218,7 @@ export function macro_button(
   data_path: string,
   options: HelperOptions & { rollable?: boolean }
 ): string {
-  let macroData = encodeMacroData({
-    title: title,
-    fn: macro,
-    args: [get_actor_id(options), null],
-  });
-
+  let args = [get_actor_id(options), null];
   let mIcon;
   switch (macro) {
     case "fullRepairMacro":
@@ -230,10 +233,23 @@ export function macro_button(
     case "prepareStructureMacro":
       mIcon = "cci-condition-shredded";
       break;
+    case "prepareEncodedAttackMacro":
+      mIcon = "cci-weapon";
+      args = [];
+      break;
+    case "prepareTechMacro":
+      mIcon = "cci-tech-quick";
+      break;
   }
 
+  let macroData = encodeMacroData({
+    title: title,
+    fn: macro,
+    args: args,
+  });
+
   return `
-      <button class="lancer-macro-button lancer-macro" data-macro="${macroData}">
+      <button type="button" class="lancer-macro-button lancer-macro" data-macro="${macroData}">
         <i class="cci ${mIcon} i--m"></i> ${title}
       </button>
     `;
