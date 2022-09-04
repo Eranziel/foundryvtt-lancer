@@ -15,7 +15,7 @@ const lp = LANCER.log_prefix;
 /**
  * Extend the basic ActorSheet
  */
-export class LancerNPCSheet extends LancerActorSheet {
+export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC>{
   /**
    * Extend and override the default options used by the NPC Sheet
    */

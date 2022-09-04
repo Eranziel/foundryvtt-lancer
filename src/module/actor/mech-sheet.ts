@@ -10,7 +10,7 @@ import { ResolvedDropData } from "../helpers/dragdrop";
 /**
  * Extend the basic ActorSheet
  */
-export class LancerMechSheet extends LancerActorSheet {
+export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
   /**
    * Extend and override the default options used by the NPC Sheet
    */

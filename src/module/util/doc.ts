@@ -2,7 +2,8 @@ import { EntryType, License, LicensedItem, LiveEntryTypes, OpCtx, Pilot, RegEntr
 import { is_actor_type, LancerActor, LancerActorType, LancerDEPLOYABLE, LancerMECH, LancerNPC, LancerPILOT } from "../actor/lancer-actor";
 import { PACK_SCOPE } from "../compBuilder";
 import { friendly_entrytype_name } from "../config";
-import type { LancerCORE_BONUS, LancerFRAME, LancerItem, LancerItemType, LancerLICENSE, LancerMANUFACTURER, LancerMECH_SYSTEM, LancerMECH_WEAPON, LancerNPC_CLASS, LancerNPC_FEATURE, LancerNPC_TEMPLATE, LancerORGANIZATION, LancerPILOT_ARMOR, LancerPILOT_GEAR, LancerPILOT_WEAPON, LancerRESERVE, LancerSKILL, LancerSTATUS, LancerTAG, LancerTALENT, LancerWEAPON_MOD } from "../item/lancer-item";
+import type { LancerCORE_BONUS, LancerFRAME, LancerItem, LancerItemType, LancerLICENSE, LancerMECH_SYSTEM, LancerMECH_WEAPON, LancerNPC_CLASS, LancerNPC_FEATURE, LancerNPC_TEMPLATE, LancerORGANIZATION, LancerPILOT_ARMOR, LancerPILOT_GEAR, LancerPILOT_WEAPON, LancerRESERVE, LancerSKILL, LancerSTATUS, LancerTAG, LancerTALENT, LancerWEAPON_MOD } from "../item/lancer-item";
+import { SystemTemplates } from "../system-template";
 import { FetcherCache } from "./async";
 
 
@@ -29,11 +30,11 @@ export async function resort_item(moverand: LancerItem, dest: LancerItem, sort_b
 
 // Helper for finding what license an item comes from. Checks by name, an inelegant solution but probably good enough
 export async function find_license_for(
-  mm: LiveEntryTypes<LancerItemType>,
+  item: LancerItem,
   in_actor?: LancerActor
 ): Promise<LancerLICENSE | null> {
   // If the item does not have a license name, then we just bail
-  let license_name = (mm as LicensedItem).License;
+  let license_name = (item.data.data as SystemTemplates.licensed).license;
   if (!license_name) {
     return null;
   }

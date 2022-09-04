@@ -37,7 +37,22 @@ export namespace SystemTemplates {
   export interface action_tracking extends SourceTemplates.action_tracking {}
 
   // And, here are the ones where we ended up modifying them!
-  export type actor_universal = Omit<SourceTemplates.actor_universal, "hp" | "overshield"> & {
+  export type actor_universal = {
+    // These are exactly the same
+    lid: string;
+    burn: number;
+
+    resistances: {
+      Kinetic: boolean;
+      Energy: boolean;
+      Explosive: boolean;
+      Heat: boolean;
+      Burn: boolean;
+      Variable: boolean;
+    };
+
+    activations: number;
+    custom_counters: RegCounterData[];
     // We replace these with bounded alternatives
     hp: FullBoundedNum;
     overshield: FullBoundedNum;

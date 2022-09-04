@@ -12,7 +12,7 @@ export class BonusEditDialog<O> extends Dialog {
   // Where it is
   bonus_path: string;
 
-  constructor(target: O, bonus_path: string, dialogData: Dialog.Data, options: Partial<DialogOptions> = {}) {
+  constructor(target: O, bonus_path: string, dialogData: Dialog.Data, options: Partial<Dialog.Options> = {}) {
     super(dialogData, options);
     this.bonus_path = bonus_path;
     this.bonus = resolve_dotpath(target, bonus_path);

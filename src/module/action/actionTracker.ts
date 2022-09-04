@@ -5,7 +5,7 @@
 import { ActionData, ActionType } from ".";
 import { LancerActor, LancerMECH } from "../actor/lancer-actor";
 
-export const _defaultActionData = (target: Actor) => {
+export const _defaultActionData = (target: LancerActor) => {
   return {
     protocol: true,
     move: getSpeed(target),

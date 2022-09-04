@@ -5,13 +5,13 @@ import { LANCER } from "../config";
  * Settings form for customizing the icon appearance of the icon used in the
  * tracker
  */
-export class AutomationConfig extends FormApplication<FormApplicationOptions, AutomationOptions> {
+export class AutomationConfig extends FormApplication<FormApplication.Options, AutomationOptions> {
   constructor(object?: any, options = {}) {
     super(object, options);
   }
 
   /** @override */
-  static get defaultOptions(): FormApplicationOptions {
+  static get defaultOptions(): FormApplication.Options {
     return {
       ...super.defaultOptions,
       title: "lancer.automation.menu-label",

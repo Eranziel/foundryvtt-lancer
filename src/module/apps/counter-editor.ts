@@ -17,7 +17,7 @@ export class CounterEditForm<O> extends FormApplication {
   // Where it is
   path: string;
 
-  constructor(target: O, path: string, dialogData: Dialog.Data, options: Partial<DialogOptions> = {}) {
+  constructor(target: O, path: string, dialogData: Dialog.Data, options: Partial<Dialog.Options> = {}) {
     super(dialogData, options);
     this.path = path;
     let replace_path = path.replace(".counter", ".source");
@@ -32,7 +32,7 @@ export class CounterEditForm<O> extends FormApplication {
   /* -------------------------------------------- */
 
   /** @override */
-  static get defaultOptions(): FormApplicationOptions {
+  static get defaultOptions(): FormApplication.Options {
     return {
       ...super.defaultOptions,
       template: `systems/${game.system.id}/templates/window/counter.hbs`,

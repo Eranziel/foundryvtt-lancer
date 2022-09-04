@@ -451,7 +451,7 @@ export class LancerActor extends Actor {
       }
 
       // Do all systems now
-      result.push(...this.data.data.loadout.system_mounts.map(l => l.system));
+      result.push(...this.data.data.loadout.systems);
     } else if (this.is_npc()) {
       // result.push(...ent.Features); // TODO
     } else if (this.is_pilot()) {
@@ -1277,7 +1277,7 @@ export class LancerActor extends Actor {
 
 
 // Typeguards
-type SystemShim<T extends LancerActorType> = LancerActor & { data: LancerActorDataProperties<T>, type: T, system: SystemDataType<T> };
+type SystemShim<T extends LancerActorType> = T extends any ? LancerActor & { data: LancerActorDataProperties<T>, type: T, system: SystemDataType<T> } : never;
 export type LancerPILOT = SystemShim<EntryType.PILOT>;
 export type LancerMECH = SystemShim<EntryType.MECH>;
 export type LancerNPC = SystemShim<EntryType.NPC>;

@@ -70,8 +70,8 @@ export class LancerActionManager extends Application {
    * Get proxy for ease of migration when we change over to MM data backing.
    * @returns actions map.
    */
-  private getActions(): ActionData | undefined {
-    return this.target ? getActions(this.target) : undefined;
+  private getActions(): ActionData | null {
+    return this.target ? getActions(this.target) : null;
   }
   /**
    * Set proxy for ease of migration when we change over to MM data backing.
