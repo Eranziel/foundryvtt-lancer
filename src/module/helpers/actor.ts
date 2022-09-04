@@ -249,7 +249,7 @@ export function macro_button(
   });
 
   return `
-      <button type="button" class="lancer-macro-button lancer-macro" data-macro="${macroData}">
+      <button type="button" class="lancer-macro-button lancer-macro activation-quick" data-macro="${macroData}">
         <i class="cci ${mIcon} i--m"></i> ${title}
       </button>
     `;
