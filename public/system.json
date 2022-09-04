@@ -1,11 +1,13 @@
 {
+  "name": "lancer",
   "id": "lancer",
   "title": "LANCER",
   "description": "A Foundry VTT game system for <a href=\"https://massif-press.itch.io/corebook-pdf\">Lancer</a> by <a href=\"https://massif-press.itch.io/\">Massif Press</a>, a mud-and-lasers tactical mech RPG.",
   "version": "1.4.0-alpha.1",
   "compatibility": {
     "minimum": 10,
-    "verified": "10.284"
+    "verified": "10.284",
+    "maximum": 10
   },
   "authors": [
     {"name": "Eranziel"},

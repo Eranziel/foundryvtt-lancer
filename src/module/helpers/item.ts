@@ -210,7 +210,7 @@ export function npc_accuracy_preview(acc: number) {
     text = `+${acc} ACCURACY`;
   } else if (acc < 0) {
     icon = "difficulty";
-    text = `-${acc} DIFFICULTY`;
+    text = `${acc} DIFFICULTY`;
   } else {
     return "";
   }
