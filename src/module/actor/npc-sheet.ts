@@ -186,8 +186,7 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
       // Bring in base features from classes, if we don't already have an active class
       let this_inv = await this_mm.get_inventory();
 
-      
-      // Need to pass this_mm through so we don't overwrite data on our 
+      // Need to pass this_mm through so we don't overwrite data on our
       // later update
       await this.actor.swapFrameImage(this_mm, this_mm.ActiveClass, drop);
 
@@ -211,7 +210,8 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
     if (needs_refresh) {
       // Update this, to re-populate arrays etc to reflect new item
       await this_mm.repopulate_inventory();
-      this_mm.recompute_bonuses();
+      // Npc.recompute_bonuses() was removed in machine-mind v0.2.2
+      // this_mm.recompute_bonuses();
 
       this_mm.CurrentHP = this_mm.MaxHP;
       this_mm.CurrentStress = this_mm.MaxStress;
