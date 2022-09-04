@@ -303,26 +303,25 @@ export class LancerItem extends Item {
   }
 }
 
-
-export type LancerCORE_BONUS = LancerItem & { data: LancerItemDataProperties<EntryType.CORE_BONUS> };
-export type LancerFRAME = LancerItem & { data: LancerItemDataProperties<EntryType.FRAME> };
-export type LancerLICENSE = LancerItem & { data: LancerItemDataProperties<EntryType.LICENSE> };
-export type LancerMANUFACTURER = LancerItem & { data: LancerItemDataProperties<EntryType.MANUFACTURER> };
-export type LancerMECH_SYSTEM = LancerItem & { data: LancerItemDataProperties<EntryType.MECH_SYSTEM> };
-export type LancerMECH_WEAPON = LancerItem & { data: LancerItemDataProperties<EntryType.MECH_WEAPON> };
-export type LancerNPC_CLASS = LancerItem & { data: LancerItemDataProperties<EntryType.NPC_CLASS> };
-export type LancerNPC_FEATURE = LancerItem & { data: LancerItemDataProperties<EntryType.NPC_FEATURE> };
-export type LancerNPC_TEMPLATE = LancerItem & { data: LancerItemDataProperties<EntryType.NPC_TEMPLATE> };
-export type LancerORGANIZATION = LancerItem & { data: LancerItemDataProperties<EntryType.ORGANIZATION> };
-export type LancerPILOT_ARMOR = LancerItem & { data: LancerItemDataProperties<EntryType.PILOT_ARMOR> };
-export type LancerPILOT_GEAR = LancerItem & { data: LancerItemDataProperties<EntryType.PILOT_GEAR> };
-export type LancerPILOT_WEAPON = LancerItem & { data: LancerItemDataProperties<EntryType.PILOT_WEAPON> };
-export type LancerRESERVE = LancerItem & { data: LancerItemDataProperties<EntryType.RESERVE> };
-export type LancerSKILL = LancerItem & { data: LancerItemDataProperties<EntryType.SKILL> };
-export type LancerSTATUS = LancerItem & { data: LancerItemDataProperties<EntryType.STATUS> };
-export type LancerTAG = LancerItem & { data: LancerItemDataProperties<EntryType.TAG> };
-export type LancerTALENT = LancerItem & { data: LancerItemDataProperties<EntryType.TALENT> };
-export type LancerWEAPON_MOD = LancerItem & { data: LancerItemDataProperties<EntryType.WEAPON_MOD> };
+type SystemShim<T extends LancerItemType> = LancerItem & { data: LancerItemDataProperties<T>, type: T, system: SystemDataType<T> };
+export type LancerCORE_BONUS = SystemShim<EntryType.CORE_BONUS>;
+export type LancerFRAME = SystemShim<EntryType.FRAME>;
+export type LancerLICENSE = SystemShim<EntryType.LICENSE>;
+export type LancerMECH_SYSTEM = SystemShim<EntryType.MECH_SYSTEM>;
+export type LancerMECH_WEAPON = SystemShim<EntryType.MECH_WEAPON>;
+export type LancerNPC_CLASS = SystemShim<EntryType.NPC_CLASS>;
+export type LancerNPC_FEATURE = SystemShim<EntryType.NPC_FEATURE>;
+export type LancerNPC_TEMPLATE = SystemShim<EntryType.NPC_TEMPLATE>;
+export type LancerORGANIZATION = SystemShim<EntryType.ORGANIZATION>;
+export type LancerPILOT_ARMOR = SystemShim<EntryType.PILOT_ARMOR>;
+export type LancerPILOT_GEAR = SystemShim<EntryType.PILOT_GEAR>;
+export type LancerPILOT_WEAPON = SystemShim<EntryType.PILOT_WEAPON>;
+export type LancerRESERVE = SystemShim<EntryType.RESERVE>;
+export type LancerSKILL = SystemShim<EntryType.SKILL>;
+export type LancerSTATUS = SystemShim<EntryType.STATUS>;
+export type LancerTAG = SystemShim<EntryType.TAG>;
+export type LancerTALENT = SystemShim<EntryType.TALENT>;
+export type LancerWEAPON_MOD = SystemShim<EntryType.WEAPON_MOD>;
 
 // This seems like it could be removed eventually
 export type LancerItemType =

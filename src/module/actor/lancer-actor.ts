@@ -28,7 +28,7 @@ interface LancerActorDataSource<T extends EntryType> {
   type: T;
   data: RegEntryTypes<T>;
 }
-interface LancerActorDataProperties<T extends EntryType> {
+interface LancerActorDataProperties<T extends LancerActorType> {
   type: T;
   data: SystemDataType<T>;
 }
@@ -1277,10 +1277,11 @@ export class LancerActor extends Actor {
 
 
 // Typeguards
-export type LancerPILOT = LancerActor & { data: LancerActorDataProperties<EntryType.PILOT> };
-export type LancerMECH = LancerActor & { data: LancerActorDataProperties<EntryType.MECH> };
-export type LancerNPC = LancerActor & { data: LancerActorDataProperties<EntryType.NPC> };
-export type LancerDEPLOYABLE = LancerActor & { data: LancerActorDataProperties<EntryType.DEPLOYABLE> };
+type SystemShim<T extends LancerActorType> = LancerActor & { data: LancerActorDataProperties<T>, type: T, system: SystemDataType<T> };
+export type LancerPILOT = SystemShim<EntryType.PILOT>;
+export type LancerMECH = SystemShim<EntryType.MECH>;
+export type LancerNPC = SystemShim<EntryType.NPC>;
+export type LancerDEPLOYABLE = SystemShim<EntryType.DEPLOYABLE>;
 
 export type LancerActorType = EntryType.MECH | EntryType.DEPLOYABLE | EntryType.NPC | EntryType.PILOT;
 export const LancerActorTypes: LancerActorType[] = [

@@ -218,11 +218,6 @@ export function is_ref(v: any): v is RegRef<any> {
   return (v as RegRef<any> | null)?.fallback_lid !== undefined;
 }
 
-// Check that a parsed result is probably an item
-// export function is_item(v: any): v is RegRef<any> {
-// let vt = v as LancerItem<LancerItemType> | null; // Better type
-// return vt?._id !== undefined && vt?.type !== undefined && LancerItemTypes
-// }
 // Helper function to format a dotpath to not have any square brackets, instead using pure dot notation
 export function format_dotpath(path: string): string {
   return path.replace(/\[/g, ".").replace(/]/g, "");
