@@ -832,6 +832,7 @@ textarea {
   text-overflow: ellipsis;
   /* overflow: hidden; */ /* Disabled this to get context menus working */
   font-weight: normal;
+  text-transform: uppercase;
 
   display: flex;
   flex-direction: row;

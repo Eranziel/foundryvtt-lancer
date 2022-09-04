@@ -5,7 +5,7 @@ import * as mm from "machine-mind";
 import type { IContentPack, IContentPackManifest } from "machine-mind";
 
 // TODO: use the version from MM... once it's real.
-export const core_update = "3.0.42"; // typed_lancer_data.info.version;
+export const core_update = "3.0.46"; // typed_lancer_data.info.version;
 
 function addLCPManager(app: Application, html: any) {
   if (app.options.id == "compendium") {

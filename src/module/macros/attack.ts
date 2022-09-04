@@ -19,7 +19,6 @@ import {
 import { is_limited, is_overkill } from "machine-mind/dist/funcs";
 import { is_loading, is_self_heat } from "machine-mind/dist/classes/mech/EquipUtil";
 import { FoundryReg } from "../mm-util/foundry-reg";
-import { ref_params } from "../helpers/refs";
 import { checkForHit } from "../helpers/automation/targeting";
 import type { AccDiffData, AccDiffDataSerialized, RollModifier } from "../helpers/acc_diff";
 import { getMacroSpeaker, ownedItemFromString } from "./_util";
@@ -332,17 +331,28 @@ export async function openBasicAttack(rerollData?: AccDiffData) {
     damage: [],
   };
 
+  let statActor = actor; // Source for the attack bonus stat
   let pilotEnt: Pilot;
-  if (actor.is_mech()) {
-    pilotEnt = (await actor.data.data.derived.mm_promise).Pilot!;
+
+  if (actor.is_deployable()) {
+    const deployer = (await actor.data.data.derived.mm_promise).Deployer;
+    if (deployer) statActor = deployer.Flags.orig_doc;
+  }
+
+  console.log(statActor);
+
+  if (statActor.is_mech()) {
+    pilotEnt = (await statActor.data.data.derived.mm_promise).Pilot!;
     mData.grit = pilotEnt.Grit;
-  } else if (actor.is_pilot()) {
-    pilotEnt = await actor.data.data.derived.mm_promise;
+  } else if (statActor.is_pilot()) {
+    pilotEnt = await statActor.data.data.derived.mm_promise;
     mData.grit = pilotEnt.Grit;
-  } else if (actor.is_npc()) {
-    const mm = await actor.data.data.derived.mm_promise;
+  } else if (statActor.is_npc()) {
+    const mm = await statActor.data.data.derived.mm_promise;
     let tier_bonus: number = mm.Tier;
     mData.grit = tier_bonus || 0;
+  } else if (statActor.is_deployable()) {
+    mData.grit = 0;
   } else {
     ui.notifications!.error(`Error preparing targeting macro - ${actor.name} is an unknown type!`);
     return;
