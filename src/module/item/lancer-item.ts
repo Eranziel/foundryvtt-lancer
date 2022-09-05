@@ -246,7 +246,7 @@ export class LancerItem extends Item {
     await super._preCreate(data, options, user);
     // If base item has data, then we are probably importing. Skip this step
     // @ts-expect-error Should be fixed with v10 types
-    if (Object.keys(data.ownership).length > 1) {
+    if (data.system.lid != "") {
       console.log(`${lp} New ${this.type} has data provided from an import, skipping default init.`);
       return;
     }
@@ -338,7 +338,7 @@ export class LancerItem extends Item {
 
     // @ts-expect-error Should be fixed with v10 types
     this.updateSource({
-      system: default_data,
+      // system: default_data,
       img: img,
       name: default_data.name,
     });
