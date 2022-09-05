@@ -64,7 +64,7 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
         return null;
     }
 
-    const scale = hex ? Math.sqrt(3) / 2 : 1;
+    const scale = 1; // hex ? Math.sqrt(3) / 2 : 1;
     const templateData = {
       t: shape,
       user: game.user!.id,
