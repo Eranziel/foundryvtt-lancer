@@ -139,7 +139,8 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
 
         if (this.isBurst) snapped = this.snapToToken(center);
 
-        this.data.update({ x: snapped.x, y: snapped.y });
+        // @ts-expect-error
+        this.document.updateSource({ x: snapped.x, y: snapped.y });
         this.refresh();
         moveTime = now;
       };
