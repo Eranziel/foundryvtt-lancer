@@ -336,7 +336,8 @@ export class LancerItem extends Item {
     // Sync the name
     default_data.name = this.name ?? default_data.name;
 
-    this.update({
+    // @ts-expect-error Should be fixed with v10 types
+    this.updateSource({
       system: default_data,
       img: img,
       name: default_data.name,
