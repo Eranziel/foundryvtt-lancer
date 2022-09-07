@@ -33,7 +33,7 @@ export const registerSettings = function () {
     config: false,
     // @ts-ignore There's probably a fix for this
     type: Object,
-    default: {index: []}
+    default: { index: [] },
   });
 
   game.settings.registerMenu(game.system.id, LANCER.setting_compcon_login, {
@@ -136,13 +136,16 @@ export const registerSettings = function () {
     config: false,
     type: Object,
     onChange: setAppearance,
-    default: {}
+    default: {},
   });
   game.settings.register(game.system.id, "combat-tracker-sort", {
     scope: "world",
     config: false,
     type: Boolean,
-    onChange: () => game.combats?.render(),
+    onChange: v => {
+      CONFIG.LancerInitiative.sort = v as boolean;
+      game.combats?.render();
+    },
     default: true,
   });
   Hooks.callAll("LancerInitiativeInit");
