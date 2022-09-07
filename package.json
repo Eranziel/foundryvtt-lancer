@@ -15,7 +15,8 @@
     "watch": "gulp watch",
     "serve": "gulp serve",
     "format": "prettier --write --config .prettierrc.json 'src/**/*.ts'",
-    "clean": "rm -fR dist && gulp link --clean"
+    "clean": "rm -fR dist && gulp link --clean",
+    "prepare": "husky install"
   },
   "author": "",
   "license": "",
@@ -28,7 +29,9 @@
     "fs-extra": "^9.1.0",
     "gulp": "^4.0.2",
     "gulp-git": "^2.10.1",
+    "husky": "^8.0.1",
     "json-stringify-pretty-compact": "^2.0.0",
+    "lint-staged": "^13.0.3",
     "nanoid": "^3.1.31",
     "prettier": "2.0.5",
     "rollup-plugin-visualizer": "^5.5.2",
@@ -52,5 +55,8 @@
     "machine-mind": "0.2.4",
     "marked": "^4.0.10",
     "tippy.js": "^6.3.1"
+  },
+  "lint-staged": {
+    "*.ts": "prettier --write"
   }
 }
