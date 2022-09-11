@@ -118,10 +118,13 @@ export function range_editor(path: string, options: HelperOptions) {
   let value_options = ext_helper_hash(options, { value: range.Value });
   let value_input = std_string_input(path + ".Value", value_options);
 
+  let delete_button = `<a class="gen-control" data-action="splice" data-path="${path}" style="margin: 4px;"><i class="fas fa-trash"></i></a>`;
+
   return `<div class="flexrow flex-center" style="padding: 5px;">
     ${icon_html}
     ${range_type_selector}
     ${value_input}
+    ${delete_button}
   </div>
   `;
 }
@@ -1181,7 +1184,10 @@ export function buildSystemHTML(data: MechSystem): string {
     }).join("");
   }
 
-  let html = `<div class="card clipped-bot system-wrapper" ${ref_params(data.as_ref(), data.Flags.orig_doc.uuid)} style="margin: 0px;">
+  let html = `<div class="card clipped-bot system-wrapper" ${ref_params(
+    data.as_ref(),
+    data.Flags.orig_doc.uuid
+  )} style="margin: 0px;">
   <div class="lancer-header mech-system">// SYSTEM :: ${data.Name} //</div>
   ${eff ? eff : ""}
   ${actions ? actions : ""}
