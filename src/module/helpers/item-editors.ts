@@ -277,9 +277,7 @@ export function item_edit_license(helper: HelperOptions): string {
 
   if (!cd || !license) licenseInfo = "No license";
   else
-    licenseInfo = `<div class="valid ${EntryType.LICENSE} ref lancer-license-header medium clipped-top" ${ref_params(
-      cd.ref
-    )}>
+    licenseInfo = `<div class="valid ${EntryType.LICENSE} ref lancer-license-header medium clipped-top" ${ref_params(cd.ref, cd.uuid)}>
     <i class="cci cci-license i--m i--dark"> </i>
     <span class="major modifier-name">${license.Name}</span>
   </div>`;

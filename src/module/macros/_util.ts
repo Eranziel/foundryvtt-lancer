@@ -40,7 +40,8 @@ export function ownedItemFromString(i: string, actor: LancerActor): LancerItem |
   // Get the item
   let item = actor.items.get(i);
   if (!item && actor.is_mech()) {
-    let pilot = game.actors!.get(actor.data.data.pilot?.id ?? "");
+    // @ts-expect-error Should be fixed with v10 types
+    let pilot = game.actors!.get(actor.system.pilot?.id ?? "");
     item = pilot?.items.get(i);
   }
 

@@ -46,7 +46,7 @@ function as_document_blob<T extends EntryType>(entry: LiveEntryTypes<T>): any {
   return mergeObject(
     {
       _id: entry.RegistryID,
-      data: entry.save(),
+      system: entry.save(),
     },
     flags.top_level_data
   );
@@ -99,7 +99,7 @@ export class NuWrapper<T extends EntryType> extends DocumentCollectionWrapper<T>
   // Scene and pack will never both be set
   pack: string | null;
 
-  private static async lookup_collection<G extends EntryType>(entry_type: G, cfg: FoundryRegNameParsed) {
+  private static async lookup_collection_and_parent<G extends EntryType>(entry_type: G, cfg: FoundryRegNameParsed) {
     if (cfg.src == "comp_actor") {
       // Get our desired pack
       let actor_pack = game.packs.get(cfg.comp_id);
@@ -114,7 +114,7 @@ export class NuWrapper<T extends EntryType> extends DocumentCollectionWrapper<T>
       }
 
       // Victory! Return the actors item collection
-      return actor.items;
+      return [actor.items, actor];
     } else if (cfg.src == "game_actor") {
       // Lookup the actor
       let actor = game.actors!.get(cfg.actor_id);
@@ -123,7 +123,7 @@ export class NuWrapper<T extends EntryType> extends DocumentCollectionWrapper<T>
       }
 
       // Success!
-      return actor.items;
+      return [actor.items, actor];
     } else if (cfg.src == "scene_token") {
       // Lookup scene
       let scene = game.scenes!.get(cfg.scene_id);
@@ -143,32 +143,32 @@ export class NuWrapper<T extends EntryType> extends DocumentCollectionWrapper<T>
       }
 
       // Return the token actor. Success!
-      return token.actor.items;
+      return [token.actor.items, token.actor];
     } else if (cfg.src == "comp") {
       // Get the pack collection.
       let pack = game.packs.get(cfg.comp_id);
       if (!pack) {
         throw new Error(`Pack ${cfg.comp_id} does not exist`);
       }
-      return pack;
+      return [pack, undefined];
     } else if (cfg.src == "comp_core") {
       // Get the pack collection, derived from our type
       let pack = await get_pack(entry_type);
       if (!pack) {
         throw new Error(`Failed to (re)-generate core pack ${entry_type}`);
       }
-      return pack;
+      return [pack, undefined];
     } else if (cfg.src == "game") {
       // Get the appropriate world collection
       if (is_actor_type(entry_type)) {
-        return game.actors;
+        return [game.actors, undefined];
       } else {
-        return game.items;
+        return [game.items, undefined];
       }
     } else if (cfg.src == "scene") {
       // A bit weird, but we return game.actors
       // Separate logic will make sure that we update with the right parent
-      return game.actors;
+      return [game.actors, undefined];
     } else {
       throw new Error(`Invalid cfg.src ${(cfg as any).src}`);
     }
@@ -179,13 +179,21 @@ export class NuWrapper<T extends EntryType> extends DocumentCollectionWrapper<T>
   // Has .documentClass, which we use to call updateDocuments etc
   // (Sometimes) has .parent. If we have an actor, will have .parent that yields actordata
   // collection: Promise<any>; // 0.8 Should be EmbeddedCollection | WorldCollection, and can be of Items or Actors
-  private _cached_collection: Promise<any> | null = null;
+  private _cached_collection_and_parent: Promise<any> | null = null;
   // Resolves our collection as appropriate. Async to handle comp_actor cases. We only do this if we need to, hence it not being in constructor
-  private async collection(): Promise<any> {
-    if (!this._cached_collection) {
-      this._cached_collection = NuWrapper.lookup_collection(this.entry_type, this.cfg);
+  private async collection_and_parent(): Promise<any> {
+    if (!this._cached_collection_and_parent) {
+      this._cached_collection_and_parent = NuWrapper.lookup_collection_and_parent(this.entry_type, this.cfg);
     }
-    return this._cached_collection;
+    return this._cached_collection_and_parent;
+  }
+
+  private async collection(): Promise<any> {
+    return (await this.collection_and_parent())[0];
+  }
+
+  private async parent(): Promise<any> {
+    return (await this.collection_and_parent())[1];
   }
 
   constructor(type: T, cfg: FoundryRegNameParsed) {
@@ -221,10 +229,10 @@ export class NuWrapper<T extends EntryType> extends DocumentCollectionWrapper<T>
     // 0.8 Should eventually be DocumentModificationContext
     // Attempt to resolve
     let collection = await this.collection();
-    let parent = collection.parent; // Will give base actor / token
+    let parent = await this.parent(); // Will give base actor / token
 
     if (parent) {
-      // Fix if document option exists (sometimes collection.parent will just be an ActorData)
+      // Fix if document option exists (sometimes parent will just be an ActorData)
       if (parent.document) {
         parent = parent.document;
       }
@@ -311,7 +319,7 @@ export class NuWrapper<T extends EntryType> extends DocumentCollectionWrapper<T>
     // Check its type and return
     if (fi && fi.type == this.entry_type) {
       return {
-        data: fi.data.data as RegEntryTypes<T>,
+        data: fi.system as RegEntryTypes<T>,
         document: fi as EntFor<T>,
         id,
         type: this.entry_type,
@@ -325,12 +333,13 @@ export class NuWrapper<T extends EntryType> extends DocumentCollectionWrapper<T>
   async query(query_obj: { [key: string]: any }): Promise<GetResult<T>[]> {
     // If we are a pack must first call .getDocuments() to fetch all
     let collection = await this.collection();
+    let parent = await this.parent();
     let all: any[];
-    if (this.pack && !collection.parent) {
+    if (this.pack && !parent) {
       // Need to prepend every key with "data."
       let new_query: typeof query_obj = {};
       for (let kv of Object.entries(query_obj)) {
-        new_query["data." + kv[0]] = kv[1];
+        new_query["system." + kv[0]] = kv[1];
       }
 
       all = await collection.getDocuments({
@@ -358,8 +367,8 @@ export class NuWrapper<T extends EntryType> extends DocumentCollectionWrapper<T>
 
     // Having retrieved all, just map to our GetResult format
     return all.map((e: any) => ({
-      id: (e.data as any)._id,
-      data: e.data.data as RegEntryTypes<T>,
+      id: e._id,
+      data: e.system as RegEntryTypes<T>,
       document: e as EntFor<T>,
       type: this.entry_type,
     }));

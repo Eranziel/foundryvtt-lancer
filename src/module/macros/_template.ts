@@ -6,8 +6,8 @@ import type { LancerToken } from "../token";
  * MeasuredTemplate
  * @param templateId - The id of the template to use
  */
- export function targetsFromTemplate(templateId: string): void {
-  const highlight = canvas?.grid?.getHighlightLayer(`Template.${templateId}`);
+export function targetsFromTemplate(templateId: string): void {
+  const highlight = canvas?.grid?.getHighlightLayer(`MeasuredTemplate.${templateId}`);
   const grid = canvas?.grid;
   if (highlight === undefined || canvas === undefined || grid === undefined || canvas.ready !== true) return;
   const test_token = (token: LancerToken) => {

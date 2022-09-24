@@ -370,7 +370,7 @@ export function deployer_slot(data_path: string, options: HelperOptions): string
   }
 
   return `
-    <div class="card clipped ${cd.ref.type} ref valid clickable-ref" ${ref_params(cd.ref)}>
+    <div class="card clipped ${cd.ref.type} ref valid clickable-ref" ${ref_params(cd.ref, cd.uuid)}>
       <div class="compact-deployer medium flexrow" >
         <span class="img-bar" style="background-image: url(${existing.Flags.top_level_data.img});"> </span>
         <div class="major modifier-name i--light">${existing.Type.toUpperCase()} ${existing.Name}</div>

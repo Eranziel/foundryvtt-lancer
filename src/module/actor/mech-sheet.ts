@@ -108,7 +108,8 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
 
     overchargeText.on("click", ev => {
       if (!this.actor.is_mech()) return;
-      this._setOverchargeLevel(ev, Math.min(this.actor.data.data.overcharge + 1, 3));
+      // @ts-expect-error Should be fixed with v10 types
+      this._setOverchargeLevel(ev, Math.min(this.actor.system.overcharge + 1, 3));
     });
 
     // Overcharge reset

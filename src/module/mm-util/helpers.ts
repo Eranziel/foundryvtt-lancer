@@ -3,81 +3,8 @@ import { is_actor_type, LancerActor, LancerActorType } from "../actor/lancer-act
 import { PACK_SCOPE } from "../compBuilder";
 import { friendly_entrytype_name } from "../config";
 import type { AnyMMItem, LancerItem, LancerItemType } from "../item/lancer-item";
+import { FetcherCache } from "../util/async";
 import { FoundryFlagData, FoundryReg } from "./foundry-reg";
-
-// Simple caching mechanism for handling async fetchable values for a certain length of time
-export class FetcherCache<A, T> {
-  // The currently cached value
-  private cached_values: Map<A, Promise<T>> = new Map();
-  private cached_resolved_values: Map<A, T> = new Map();
-
-  // Holds the expiration time of specified keys. Repeated access will keep alive for longer
-  private timeout_map: Map<A, number> = new Map();
-
-  constructor(private readonly timeout: number, private readonly fetch_func: (arg: A) => Promise<T>) {}
-
-  // Fetch the value using the specified arg
-  async fetch(arg: A): Promise<T> {
-    let now = Date.now();
-
-    // Refresh the lookup on our target value (or set it for the first time, depending) ((if we have a timeout))
-    this.timeout_map.set(arg, now + this.timeout);
-
-    // Pre-emptively cleanup
-    this.cleanup();
-
-    // Check if we have cached data. If so, yield. If not, create
-    let cached = this.cached_values.get(arg);
-    if (cached) {
-      return cached;
-    } else {
-      let new_val_promise = this.fetch_func(arg);
-      this.cached_values.set(arg, new_val_promise);
-      new_val_promise.then(resolved => this.cached_resolved_values.set(arg, resolved));
-      return new_val_promise;
-    }
-  }
-
-  // Fetch the value iff it is currently cached. Essentially a no-cost peek, useful for editing the cached val without doing a full re-fetch
-  // Refreshes cache time
-  soft_fetch(arg: A): T | null {
-    if (this.cached_resolved_values.has(arg)) {
-      this.timeout_map.set(arg, Date.now() + this.timeout);
-      return this.cached_resolved_values.get(arg)!;
-    }
-    return null;
-  }
-
-  // Do we have this value resolved?
-  has_resolved(arg: A): boolean {
-    return this.cached_resolved_values.has(arg);
-  }
-
-  // Destroys all entries that should be destroyed
-  private cleanup() {
-    let now = Date.now();
-    for (let [arg, expire] of this.timeout_map.entries()) {
-      if (expire < now) {
-        this.timeout_map.delete(arg);
-        this.cached_values.delete(arg);
-      }
-    }
-  }
-
-  // Destroy a particular set of cached values
-  public flush(arg: A) {
-    this.cached_values.delete(arg);
-    this.cached_resolved_values.delete(arg);
-    this.timeout_map.delete(arg);
-  }
-
-  // Destroy all entries, period.
-  public flush_all() {
-    this.cached_values.clear();
-    this.cached_resolved_values.clear();
-    this.timeout_map.clear();
-  }
-}
 
 export async function mm_wrap_item<T extends LancerItemType>(
   item: LancerItem,
@@ -137,7 +64,7 @@ export async function mm_wrap_item<T extends LancerItemType>(
 
   // Load up the item. This _should_ always work
   // let entry = (await reg.get_cat(item.type).get_live(ctx, item.id)) as LiveEntryTypes<T>;
-  let cat = reg.get_cat(item.data.type);
+  let cat = reg.get_cat(item.type);
   let entry = (await cat.dangerous_wrap_doc(ctx, item)) as LiveEntryTypes<T>;
   if (!entry) {
     throw new Error("Something went wrong while trying to contextualize an item...");
@@ -180,7 +107,7 @@ export async function mm_wrap_actor<T extends EntryType & LancerActorType>(
   let ctx = use_existing_ctx || new OpCtx();
 
   // let entry = (await reg.get_cat(actor.data.type).get_live(ctx, id)) as LiveEntryTypes<T>;
-  let cat = reg.get_cat(actor.data.type);
+  let cat = reg.get_cat(actor.type);
   let entry = (await cat.dangerous_wrap_doc(ctx, actor as any)) as LiveEntryTypes<T>;
   if (!entry) {
     throw new Error("Something went wrong while trying to contextualize an actor...");
@@ -236,7 +163,8 @@ export async function find_license_for(
 
   // If an actor was supplied, we first check their inventory.
   if (in_actor) {
-    let actor_mm = await in_actor.data.data.derived.mm_promise;
+    // @ts-expect-error Should be fixed with v10 types
+    let actor_mm = await in_actor.system.derived.mm_promise;
 
     // Only pilots should have licenses, so for mechs we go to active pilot
     let pilot: Pilot | null = null;
@@ -259,7 +187,7 @@ export async function find_license_for(
 
 // The cache to implement the above. Doesn't need to last long - this just happens in bursts
 // Just keeps track of license refs by name
-const world_and_comp_license_cache = new FetcherCache<string, License | null>(60_000, async license_name => {
+const world_and_comp_license_cache = new FetcherCache<string, License | null>(async license_name => {
   let ctx = new OpCtx();
   let world_reg = new FoundryReg("game"); // Actor src doesn't matter at all
   let world_license = await world_reg.get_cat(EntryType.LICENSE).lookup_live(ctx, { key: license_name });
@@ -279,7 +207,7 @@ const world_and_comp_license_cache = new FetcherCache<string, License | null>(60
     `Did not find ${license_name} in world/core compendium. Note that external compendiums are not (yet) scanned as part of this procedure`
   );
   return null;
-});
+}, 60_000);
 
 // Get the owner of an item, or null if none exists
 export function mm_owner<T extends LancerItemType>(item: RegEntry<T>): LancerActor | null {

@@ -34,7 +34,8 @@ export function handleActorExport(actor: LegacyLancerActor | LancerActor, downlo
   }
 
   let dump = null;
-  switch (actor.data.type) {
+  // @ts-expect-error Should be fixed with v10 types
+  switch (actor.type) {
     case "pilot":
       // @ts-ignore I'm just going to assume all of this works but it probably doesn't
       dump = handlePilotExport(actor);
@@ -68,7 +69,7 @@ export function handleActorExport(actor: LegacyLancerActor | LancerActor, downlo
 
 export function addExportButton(actor: LegacyLancerActor | LancerActor, html: JQuery) {
   // @ts-ignore I'm just going to assume all of this works but it probably doesn't
-  const id = actor.data._id;
+  const id = actor._id;
   if (!document.getElementById(id) && validForExport(actor)) {
     // if (!document.getElementById(id)) {
 
@@ -137,11 +138,11 @@ type FakePackedNPC = {
 //
 // HANDLERS
 function handleNPCExport(actor: LegacyLancerActor) {
-  const data = actor.data as any;
+  const data = actor as any;
   console.log(`Exporting NPC: ${data.name}`);
 
   const items = (data as any).items;
-  const mech = data.data.mech;
+  const mech = data.mech;
   const cla = items.find((item: any) => item.type === "npc_class");
   const stats: object = {
     activations: (data as any).activations,
@@ -166,20 +167,20 @@ function handleNPCExport(actor: LegacyLancerActor) {
 
   const exportNPC: FakePackedNPC = {
     id: nanoid(),
-    class: cla ? cla.data.id : "",
-    tier: data.data.tier_num,
+    class: cla ? cla.id : "",
+    tier: data.tier_num,
     name: data.name,
     labels: [],
-    templates: items.filter((item: any) => item.type === "npc_template").map((item: any) => item.data.id),
+    templates: items.filter((item: any) => item.type === "npc_template").map((item: any) => item.id),
     items: items
       .filter((item: any) => item.type === "npc_feature")
       .map((item: any) => {
         return {
-          itemID: item.data.id,
-          tier: data.data.tier_num,
+          itemID: item.id,
+          tier: data.tier_num,
           destroyed: false,
-          charged: item.data.charged,
-          uses: item.data.uses,
+          charged: item.charged,
+          uses: item.uses,
         };
       }),
     stats: stats,
@@ -200,16 +201,16 @@ function handleNPCExport(actor: LegacyLancerActor) {
 }
 
 function handlePilotExport(actor: LegacyLancerActor) {
-  const data = actor.data as any;
+  const data = actor as any;
   console.log(`Exporting Pilot: ${data.name}`);
-  // const loadout = actor.data.data.loadout;
+  // const loadout = actor.system.loadout;
   // const frame = loadout.frame?.fallback_lid;
   // if (!frame) return; // Throw error in future?
 
-  const items: Collection<Item> = (data as any).items;
-  const pilot = (data.data as any).pilot;
-  const mech = (data.data as any).mech;
-  const loadout = (data.data as any).mech_loadout;
+  const items: Collection<Item> = data.items;
+  const pilot = data.pilot;
+  const mech = data.mech;
+  const loadout = data.mech_loadout;
 
   // Pilot Loadout
   const pilotLoadout: PackedPilotLoadoutData = {
@@ -219,8 +220,8 @@ function handlePilotExport(actor: LegacyLancerActor) {
       .filter((item: Item) => item.type === "pilot_armor")
       .map((item: any) => {
         return {
-          id: item.data.data.id,
-          uses: item.data.data.uses ? item.data.data.uses : 0,
+          id: item.system.id,
+          uses: item.system.uses ? item.system.uses : 0,
           destroyed: false,
           cascading: false,
           customDamageType: null,
@@ -230,8 +231,8 @@ function handlePilotExport(actor: LegacyLancerActor) {
       .filter((item: Item) => item.type === "pilot_weapon")
       .map((item: any) => {
         return {
-          id: item.data.data.id,
-          uses: item.data.data.uses ? item.data.data.uses : 0,
+          id: item.system.id,
+          uses: item.system.uses ? item.system.uses : 0,
           destroyed: false,
           cascading: false,
           customDamageType: null,
@@ -241,8 +242,8 @@ function handlePilotExport(actor: LegacyLancerActor) {
       .filter((item: Item) => item.type === "pilot_gear")
       .map((item: any) => {
         return {
-          id: item.data.data.id,
-          uses: item.data.data.uses ? item.data.data.uses : 0,
+          id: item.system.id,
+          uses: item.system.uses ? item.system.uses : 0,
           destroyed: false,
           cascading: false,
           customDamageType: null,
@@ -255,22 +256,22 @@ function handlePilotExport(actor: LegacyLancerActor) {
     id: nanoid(),
     name: "Primary",
     systems: items
-      .filter((item: any) => item.type === "mech_system" && !item.data.integrated)
+      .filter((item: any) => item.type === "mech_system" && !item.integrated)
       .map((item: any) => {
         return {
-          id: item.data.data.id,
-          uses: item.data.data.uses ? item.data.data.uses : 0,
+          id: item.system.id,
+          uses: item.system.uses ? item.system.uses : 0,
           destroyed: false,
           cascading: false,
           note: "",
         };
       }),
     integratedSystems: items
-      .filter((item: any) => item.type === "mech_system" && item.data.integrated)
+      .filter((item: any) => item.type === "mech_system" && item.integrated)
       .map((item: any) => {
         return {
-          id: item.data.data.id,
-          uses: item.data.data.uses ? item.data.data.uses : 0,
+          id: item.system.id,
+          uses: item.system.uses ? item.system.uses : 0,
           destroyed: false,
           cascading: false,
           note: "",
@@ -300,11 +301,11 @@ function handlePilotExport(actor: LegacyLancerActor) {
     cloudID: pilot.cloud_code,
     cloudOwnerID: pilot.cloud_owner_code,
     lastCloudUpdate: pilot.cloud_time,
-    player_name: data.data.player_name,
-    status: data.data.status,
-    text_appearance: data.data.text_appearance,
-    portrait: data.data.portrait,
-    cloud_portrait: data.data.cloud_portrait,
+    player_name: data.player_name,
+    status: data.status,
+    text_appearance: data.text_appearance,
+    portrait: data.portrait,
+    cloud_portrait: data.cloud_portrait,
     cc_ver: "",
     quirk: pilot.quirk,
     brews: [],
@@ -319,22 +320,22 @@ function handlePilotExport(actor: LegacyLancerActor) {
     skills: items
       .filter((item: Item) => item.type === "skill")
       .map((item: any) => {
-        return { id: item.data.data.id, rank: item.data.data.rank };
+        return { id: item.system.id, rank: item.system.rank };
       }),
     talents: items
       .filter((item: Item) => item.type === "talent")
       .map((item: any) => {
-        return { id: item.data.data.id, rank: item.data.data.rank };
+        return { id: item.system.id, rank: item.system.rank };
       }),
     // @ts-ignore I'm just going to assume all of this works but it probably doesn't
-    core_bonuses: items.filter((item: Item) => item.type === "core_bonus").map((item: any) => item.data.data.id),
+    core_bonuses: items.filter((item: Item) => item.type === "core_bonus").map((item: any) => item.system.id),
     loadout: pilotLoadout,
     mechs: [
       {
         id: nanoid(),
         name: mech.name,
         // @ts-ignore I'm just going to assume all of this works but it probably doesn't
-        frame: frame ? frame.data.data.id : undefined,
+        frame: frame ? frame.system.id : undefined,
         active: true,
         current_structure: mech.structure.value,
         current_hp: mech.hp.value,
@@ -392,14 +393,14 @@ function mapMount(mount: any) {
 
 function mapWeapon(weapon: any): FakePackedWeapon {
   return {
-    size: weapon.data.mount,
+    size: weapon.mount,
     weapon: {
-      id: weapon.data.id,
-      uses: weapon.data.uses,
+      id: weapon.id,
+      uses: weapon.uses,
       destroyed: false,
       cascading: false,
-      loaded: weapon.data.loaded,
-      mod: weapon.data.mod as any,
+      loaded: weapon.loaded,
+      mod: weapon.mod as any,
       customDamageType: null,
       selectedProfile: 0,
     },
@@ -408,5 +409,5 @@ function mapWeapon(weapon: any): FakePackedWeapon {
 
 export function validForExport(actor: LegacyLancerActor | LancerActor) {
   // @ts-ignore I'm just going to assume all of this works but it probably doesn't
-  return !actor.data.data?.cc_ver?.startsWith("MchMnd2");
+  return !actor.system?.cc_ver?.startsWith("MchMnd2");
 }

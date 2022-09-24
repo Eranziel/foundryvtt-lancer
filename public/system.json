@@ -1,24 +1,22 @@
 {
-  "name": "lancer",
   "id": "lancer",
   "title": "LANCER",
   "description": "A Foundry VTT game system for <a href=\"https://massif-press.itch.io/corebook-pdf\">Lancer</a> by <a href=\"https://massif-press.itch.io/\">Massif Press</a>, a mud-and-lasers tactical mech RPG.",
-  "version": "1.3.1",
-  "minimumCoreVersion": "9",
-  "compatibleCoreVersion": "9",
+  "version": "1.4.0-alpha.1",
   "compatibility": {
-    "minimum": 9,
-    "verified": "9.280",
-    "maximum": 9
+    "minimum": 10,
+    "verified": "10.284",
+    "maximum": 10
   },
   "authors": [
-    "Eranziel",
-    "Grygon",
-    "Whitespine",
-    "SohumB",
-    "BoltsJ",
-    "Valkyrion",
-    "Kuenaimaku"
+    {"name": "Eranziel"},
+    {"name": "Grygon"},
+    {"name": "Whitespine"},
+    {"name": "SohumB"},
+    {"name": "BoltsJ"},
+    {"name": "Valkyrion"},
+    {"name": "Kuenaimaku"},
+    {"name": "dodgepong"}
   ],
   "scripts": [],
   "esmodules": ["index.js"],
@@ -33,14 +31,14 @@
       "system": "lancer",
       "module": "lancer",
       "path": "./packs/aoe-templates.db",
-      "entity": "Macro"
+      "type": "Macro"
     },
     {
       "name": "core_macros",
       "label": "LANCER Macros",
       "system": "lancer",
       "path": "./packs/core_macros.db",
-      "entity": "Macro"
+      "type": "Macro"
     }
   ],
   "languages": [
@@ -57,7 +55,7 @@
   "secondaryTokenAttribute": "",
   "url": "https://github.com/Eranziel/foundryvtt-lancer",
   "manifest": "https://github.com/Eranziel/foundryvtt-lancer/releases/latest/download/system.json",
-  "download": "https://github.com/Eranziel/foundryvtt-lancer/releases/download/v1.3.1/lancer-v1.3.1.zip",
+  "download": "https://github.com/Eranziel/foundryvtt-lancer/releases/download/v1.4.0-alpha.1/lancer-v1.4.0-alpha.1.zip",
   "license": "GNU GPLv3",
   "readme": "https://github.com/Eranziel/foundryvtt-lancer/blob/beta-release/README.md",
   "bugs": "https://github.com/Eranziel/foundryvtt-lancer/issues/new/choose",

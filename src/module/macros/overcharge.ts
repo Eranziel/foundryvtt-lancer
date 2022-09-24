@@ -39,7 +39,8 @@ export async function prepareOverchargeMacro(a: string) {
   // Prep data
   let roll = await new Roll(rollText).evaluate({ async: true });
 
-  let mech = actor.data.data.derived.mm!;
+  // @ts-expect-error Should be fixed with v10 types
+  let mech = actor.system.derived.mm!;
 
   let mData: LancerOverchargeMacroData = {
     level: mech.OverchargeCount,

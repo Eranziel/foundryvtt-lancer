@@ -54,7 +54,8 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
       // Cloud download
       let download = html.find('.cloud-control[data-action*="download"]');
       let actor = this.actor;
-      if (actor.is_pilot() && actor.data.data.derived.mm!.CloudID) {
+      // @ts-expect-error Should be fixed with v10 types
+      if (actor.is_pilot() && actor.system.derived.mm!.CloudID) {
         download.on("click", async ev => {
           ev.stopPropagation();
 
@@ -178,7 +179,8 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
   }
 
   async activateMech(mech: Mech) {
-    let this_mm = this.actor.data.data.derived.mm as Pilot;
+    // @ts-expect-error Should be fixed with v10 types
+    let this_mm = this.actor.system.derived.mm as Pilot;
     // Set active mech
     this_mm.ActiveMechRef = mech.as_ref();
     if (mech.Pilot?.RegistryID != mech.RegistryID) {
@@ -191,7 +193,8 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
   }
 
   async deactivateMech() {
-    let this_mm = this.actor.data.data.derived.mm as Pilot;
+    // @ts-expect-error Should be fixed with v10 types
+    let this_mm = this.actor.system.derived.mm as Pilot;
 
     // Unset active mech
     this_mm.ActiveMechRef = null;
@@ -268,7 +271,7 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
     } else if (is_new && drop.Type === EntryType.PILOT_ARMOR) {
       // If new armor, try to equip to first empty slot
       for (let i = 0; i < loadout.Armor.length; i++) {
-        if (!loadout.Gear[i]) {
+        if (!loadout.Armor[i]) {
           loadout.Armor[i] = drop;
           break;
         }
@@ -321,7 +324,8 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
     if (!this.actor.is_pilot()) return;
     // Do some pre-processing
     // Do these only if the callsign updated
-    if (this.actor.data.data.callsign !== formData["data.pilot.callsign"]) {
+    // @ts-expect-error Should be fixed with v10 types
+    if (this.actor.system.callsign !== formData["data.pilot.callsign"]) {
       // Use the Actor's name for the pilot's callsign
       // formData["name"] = formData["data.callsign"];
       // Copy the pilot's callsign to the prototype token
@@ -389,12 +393,15 @@ export function all_mech_preview(_helper: HelperOptions): string {
     ?.filter(
       a =>
         a.is_mech() &&
-        !!a.data.data.pilot &&
-        a.data.data.pilot.id === _helper.data.root.actor.id &&
+        // @ts-expect-error Should be fixed with v10 types
+        !!a.system.pilot &&
+        // @ts-expect-error Should be fixed with v10 types
+        a.system.pilot.id === _helper.data.root.actor.id &&
         a.id !== active_mech?.RegistryID
     )
     .map((m, k) => {
-      let inactive_mech = m.data.data.derived.mm;
+      // @ts-expect-error Should be fixed with v10 types
+      let inactive_mech = m.system.derived.mm;
 
       if (!inactive_mech) return;
 
@@ -405,8 +412,8 @@ export function all_mech_preview(_helper: HelperOptions): string {
 
       html = html.concat(`
       <div class="flexrow inactive-row">
-        <a class="activate-mech" ${ref_params(cd.ref)}><i class="cci cci-activate"></i></a>
-        <div class="major valid ${cd.ref.type} ref" ${ref_params(cd.ref)}>${m.name}</div>
+        <a class="activate-mech" ${ref_params(cd.ref, cd.uuid)}><i class="cci cci-activate"></i></a>
+        <div class="major valid ${cd.ref.type} ref" ${ref_params(cd.ref, cd.uuid)}>${m.name}</div>
       </div>
     `);
     });
@@ -455,7 +462,7 @@ export function active_mech_preview(mech: Mech, path: string, _helper: HelperOpt
     <a class="deactivate-mech"><i class="cci cci-activate"></i></a>
       <span>ACTIVE MECH: ${mech.Name}</span>
     </div>
-    <img class="valid ${cd.ref.type} ref" ${ref_params(cd.ref)} src="${mech.Flags.top_level_data.img}"/>
+    <img class="valid ${cd.ref.type} ref" ${ref_params(cd.ref, cd.uuid)} src="${mech.Flags.top_level_data.img}"/>
     ${stats_html}
   </div>`);
 

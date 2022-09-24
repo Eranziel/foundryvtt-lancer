@@ -15,7 +15,8 @@ export async function prepareCoreActiveMacro(a: string) {
   let actor = getMacroSpeaker(a);
   if (!actor || !actor.is_mech()) return;
 
-  let mech = await actor.data.data.derived.mm_promise;
+  // @ts-expect-error Should be fixed with v10 types
+  let mech = await actor.system.derived.mm_promise;
   if (!mech.Frame) return;
 
   if (!mech.CurrentCoreEnergy) {
@@ -62,7 +63,8 @@ export async function prepareCorePassiveMacro(a: string) {
   let actor = getMacroSpeaker(a);
   if (!actor || !actor.is_mech()) return;
 
-  let mech = await actor.data.data.derived.mm_promise;
+  // @ts-expect-error Should be fixed with v10 types
+  let mech = await actor.system.derived.mm_promise;
   if (!mech.Frame) return;
 
   let mData: LancerTextMacroData = {
@@ -84,7 +86,8 @@ export async function prepareCorePassiveMacro(a: string) {
   let mech = getMacroSpeaker(a);
   if (!mech || !mech.is_mech()) return;
 
-  var ent = await mech.data.data.derived.mm_promise;
+  // @ts-expect-error Should be fixed with v10 types
+  var ent = await mech.system.derived.mm_promise;
   if (!ent.Frame) return;
 
   let trait = ent.Frame.Traits[index];

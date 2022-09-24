@@ -64,7 +64,7 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
         return null;
     }
 
-    const scale = hex ? Math.sqrt(3) / 2 : 1;
+    const scale = 1; // hex ? Math.sqrt(3) / 2 : 1;
     const templateData = {
       t: shape,
       user: game.user!.id,
@@ -139,7 +139,8 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
 
         if (this.isBurst) snapped = this.snapToToken(center);
 
-        this.data.update({ x: snapped.x, y: snapped.y });
+        // @ts-expect-error
+        this.document.updateSource({ x: snapped.x, y: snapped.y });
         this.refresh();
         moveTime = now;
       };
@@ -167,12 +168,14 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
           if (token) {
             const ignore = this.data.flags[game.system.id].ignore.tokens;
             ignore.push(token);
-            this.data.update({
+            //@ts-expect-error
+            this.document.updateSource({
               [`flags.${game.system.id}.ignore.tokens`]: ignore,
             });
           }
         }
-        this.data.update(destination);
+        //@ts-expect-error
+        this.document.updateSource(destination);
         const template = (<MeasuredTemplateDocument[]>(
           await canvas.scene!.createEmbeddedDocuments("MeasuredTemplate", [this.data.toObject()])
         )).shift();
@@ -189,7 +192,8 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
         event.stopPropagation();
         let delta = canvas.grid!.type > CONST.GRID_TYPES.SQUARE ? 30 : 15;
         let snap = event.shiftKey ? delta : 5;
-        this.data.update({ direction: this.data.direction + snap * Math.sign(event.deltaY) });
+        //@ts-expect-error
+        this.document.updateSource({ direction: this.data.direction + snap * Math.sign(event.deltaY) });
         this.refresh();
       };
 
@@ -232,13 +236,15 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
         else return r;
       }, null);
     if (token) {
-      this.data.update({
+      //@ts-expect-error
+      this.document.updateSource({
         distance: this.getBurstDistance(token.data.width),
         [`flags.${game.system.id}.burstToken`]: token.id,
       });
       return token.center;
     } else {
-      this.data.update({ distance: this.getBurstDistance(1) });
+      //@ts-expect-error
+      this.document.updateSource({ distance: this.getBurstDistance(1) });
       return this.snapToCenter({ x, y });
     }
   }
@@ -248,18 +254,17 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
    */
   private getBurstDistance(size: number): number {
     const hex = canvas.grid!.type > 1;
-    const scale = hex ? Math.sqrt(3) / 2 : 1;
     let val = parseInt(this.range.val);
     if (hex) {
       if (size === 2) val += 0.7 - (val > 2 ? 0.1 : 0);
-      if (size === 3) val += 1.2;
+      if (size === 3) val += 1.2; 
       if (size === 4) val += 1.5;
     } else {
       if (size === 2) val += 0.9;
       if (size === 3) val += 1.4;
       if (size === 4) val += 1.9;
     }
-    return (val + 0.1) * scale;
+    return val + 0.1;
   }
 }
 

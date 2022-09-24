@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "foundryvtt-lancer",
-  "version": "1.3.1",
+  "version": "1.4.0-alpha.1",
   "description": "",
   "sideEffects": [
     "src/lancer.scss",
@@ -51,7 +51,7 @@
     "aws-amplify": "^4.2.9",
     "fp-ts": "^2.11.2",
     "io-ts": "^2.2.16",
-    "lancer-initiative": "^2.0.1",
+    "lancer-initiative": "^3.1.0",
     "machine-mind": "0.2.4",
     "marked": "^4.0.10",
     "tippy.js": "^6.3.1"

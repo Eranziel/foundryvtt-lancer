@@ -47,7 +47,8 @@ export class InventoryDialog extends Dialog {
   // @ts-ignore Dialog is apparently cut off from async in league types
   async getData(): Promise<InventoryDialogData> {
     // Fill out our categories
-    let mm = await this.actor.data.data.derived.mm_promise;
+    // @ts-expect-error Should be fixed with v10 types
+    let mm = await this.actor.system.derived.mm_promise;
     return {
       ...super.getData(),
       categories: this.populate_categories(mm), // this.populate_categories()

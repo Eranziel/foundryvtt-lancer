@@ -11,7 +11,8 @@ export async function prepareChargeMacro(a: string | LancerActor) {
   // Determine which Actor to speak as
   let actor = getMacroSpeaker(a);
   if (!actor || !actor.is_npc()) return;
-  const npc = actor.data.data.derived.mm;
+  // @ts-expect-error Should be fixed with v10 types
+  const npc = actor.system.derived.mm;
   const feats = npc?.Features;
   if (!feats) return;
 
@@ -21,6 +22,7 @@ export async function prepareChargeMacro(a: string | LancerActor) {
   // Iterate over each system with recharge, if val of tag is lower or equal to roll, set to charged.
 
   let changed: { name: string; target: string | null | number | undefined; charged: boolean }[] = [];
+  // @ts-expect-error Should be fixed with v10 types
   feats.forEach(feat => {
     if (!feat.Charged) {
       const recharge = feat.Tags.find((tag: TagInstance) => tag.Tag.LID === "tg_recharge");
