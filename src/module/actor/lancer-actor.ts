@@ -908,7 +908,9 @@ export class LancerActor extends Actor {
           // Check and see if we have a custom token (not from imgur) set, and if we don't, set the token image.
           if (
             // @ts-expect-error Should be fixed with v10 types
-            this.token?.img === "systems/lancer/assets/icons/pilot.svg" || this.token?.img?.includes("imgur")
+            this.token?.img === "systems/lancer/assets/icons/pilot.svg" ||
+            // @ts-expect-error Should be fixed with v10 types
+            this.token?.img?.includes("imgur")
           ) {
             flags.top_level_data["token.img"] = new_img;
           }
@@ -1121,7 +1123,7 @@ export class LancerActor extends Actor {
 
           // If the Size of the ent has changed since the last update, set the
           // protype token size to the new size
-    // @ts-expect-error Should be fixed with v10 types
+          // @ts-expect-error Should be fixed with v10 types
           const cached_token_size = this.token?.flags[game.system.id]?.mm_size;
           if (!cached_token_size || cached_token_size !== mm.Size) {
             const size = mm.Size <= 1 ? 1 : mm.Size;
@@ -1216,7 +1218,7 @@ export class LancerActor extends Actor {
   protected async _preCreate(...[data, options, user]: Parameters<Actor["_preCreate"]>): Promise<void> {
     await super._preCreate(data, options, user);
     // @ts-expect-error Should be fixed with v10 types
-    if (data.system.lid != "") {
+    if (data.system?.lid != "") {
       console.log(`${lp} New ${this.type} has data provided from an import, skipping default init.`);
       return;
     }
@@ -1257,7 +1259,7 @@ export class LancerActor extends Actor {
         actorLink: [EntryType.PILOT, EntryType.MECH].includes(this.type),
         disposition: disposition,
         name: this.name ?? default_data.name,
-      }
+      },
     });
   }
 
@@ -1332,7 +1334,7 @@ export class LancerActor extends Actor {
       }
     } else if (this.is_deployable()) {
       // If deployable, same deal
-    // @ts-expect-error Should be fixed with v10 types
+      // @ts-expect-error Should be fixed with v10 types
       let dep_data = this.system;
       if (dep_data.deployer) {
         dependency = dep_data.deployer;
