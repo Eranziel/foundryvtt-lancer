@@ -669,7 +669,7 @@ Hooks.on("getActorDirectoryEntryContext", (_html: JQuery<HTMLElement>, ctxOption
     icon: '<i class="fas fa-user-circle"></i>',
     condition: (li: any) => {
       const actor = game.actors?.get(li.data("documentId"));
-      return actor?.data.type === "pilot" && validForExport(actor);
+      return actor?.type === "pilot" && validForExport(actor);
     },
     callback: (li: any) => {
       const actor = game.actors?.get(li.data("documentId"));
@@ -684,7 +684,7 @@ Hooks.on("getActorDirectoryEntryContext", (_html: JQuery<HTMLElement>, ctxOption
     icon: '<i class="fas fa-user-circle"></i>',
     condition: (li: any) => {
       const actor = game.actors?.get(li.data("documentId"));
-      return actor?.data.type === "pilot" && validForExport(actor);
+      return actor?.type === "pilot" && validForExport(actor);
     },
     callback: (li: any) => {
       const actor = game.actors?.get(li.data("documentId"));
@@ -819,7 +819,8 @@ async function versionCheck(): Promise<"none" | "minor" | "major"> {
 
   // If it's 0 then it's a fresh install
   if (currentVersion === "0" || currentVersion === "") {
-    await game.settings.set(game.system.id, LANCER.setting_migration, game.system.data.version);
+    // @ts-expect-error Should be fixed with v10 types
+    await game.settings.set(game.system.id, LANCER.setting_migration, game.system.version);
     await promptInstallCoreData();
     return "none";
   }
@@ -913,7 +914,8 @@ async function showChangelog() {
     let renderChangelog = (changelog: string) => {
       new Dialog(
         {
-          title: `Welcome to LANCER v${game.system.data.version}`,
+          // @ts-expect-error Should be fixed with v10 types
+          title: `Welcome to LANCER v${game.system.version}`,
           content: WELCOME(changelog),
           buttons: {
             dont_show: {
@@ -936,7 +938,8 @@ async function showChangelog() {
 
     // Get an automatic changelog for our version
     let req = $.get(
-      `https://raw.githubusercontent.com/Eranziel/foundryvtt-lancer/v${game.system.data.version}/CHANGELOG.md`
+      // @ts-expect-error Should be fixed with v10 types
+      `https://raw.githubusercontent.com/Eranziel/foundryvtt-lancer/v${game.system.version}/CHANGELOG.md`
     );
     req.done(async (data, _status) => {
       // Regex magic to only grab the first 25 lines

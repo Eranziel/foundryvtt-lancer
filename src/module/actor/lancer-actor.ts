@@ -771,7 +771,7 @@ export class LancerActor extends Actor {
       let unit_folder = this.folder;
       console.log("Unit folder id:", unit_folder?.id);
       // @ts-expect-error Should be fixed with v10 types
-      let permission = duplicate(this._source.permission);
+      let permission = duplicate(this.ownership);
 
       // Check whether players are allowed to create Actors
       if (!game.user?.can("ACTOR_CREATE")) {
@@ -1280,7 +1280,7 @@ export class LancerActor extends Actor {
       ) &&
       (this.is_mech() || this.is_npc())
     ) {
-      const data = changed.data as DeepPartial<RegMechData | RegNpcData>;
+      const data = changed as DeepPartial<RegMechData | RegNpcData>;
       if (
         "heat" in (data ?? {}) &&
         // @ts-expect-error Should be fixed with v10 types

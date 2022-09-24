@@ -336,7 +336,7 @@ export class NuWrapper<T extends EntryType> extends DocumentCollectionWrapper<T>
     let parent = await this.parent();
     let all: any[];
     if (this.pack && !parent) {
-      // Need to prepend every key with "data."
+      // Need to prepend every key with "system."
       let new_query: typeof query_obj = {};
       for (let kv of Object.entries(query_obj)) {
         new_query["system." + kv[0]] = kv[1];
@@ -357,7 +357,7 @@ export class NuWrapper<T extends EntryType> extends DocumentCollectionWrapper<T>
 
         // Check each k, v
         for (let [k, v] of Object.entries(query_obj)) {
-          if (doc.data._source.data[k] != v) {
+          if (doc._source.system[k] != v) {
             return false; // Failure! Filter it out
           }
         }

@@ -44,6 +44,7 @@ import { InventoryDialog } from "../apps/inventory";
 import { HANDLER_activate_item_context_menus, HANDLER_activate_edit_counter } from "../helpers/item";
 import { getActionTrackerOptions } from "../settings";
 import { modAction } from "../action/actionTracker";
+import { PrototypeTokenData } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs";
 const lp = LANCER.log_prefix;
 
 /**
@@ -58,7 +59,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
 
   static get defaultOptions(): ActorSheet.Options {
     return mergeObject(super.defaultOptions, {
-      scrollY: [".scroll-body"]
+      scrollY: [".scroll-body"],
     });
   }
 
@@ -461,7 +462,8 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
   _propagateMMData(formData: any): any {
     // Pushes relevant field data from the form to other appropriate locations,
     // e.x. to synchronize name between token and actor
-    let token = this.actor.data["token"];
+    // @ts-expect-error should be fixed and not need the "as" with v10 types
+    let token = this.actor["token"] as PrototypeTokenData;
 
     // Get the basics
     let new_top: any = {
