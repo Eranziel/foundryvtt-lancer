@@ -257,7 +257,7 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
     let val = parseInt(this.range.val);
     if (hex) {
       if (size === 2) val += 0.7 - (val > 2 ? 0.1 : 0);
-      if (size === 3) val += 1.2; 
+      if (size === 3) val += 1.2;
       if (size === 4) val += 1.5;
     } else {
       if (size === 2) val += 0.9;

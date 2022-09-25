@@ -21,7 +21,7 @@ const encodedMacroWhitelist = [
   "stabilizeMacro",
   "structureMacro",
   "overheatMacro",
-  "fullRepairMacro"
+  "fullRepairMacro",
 ];
 
 /**

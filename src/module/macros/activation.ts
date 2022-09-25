@@ -17,15 +17,13 @@ import { rollTechMacro } from "./tech";
 
 const lp = LANCER.log_prefix;
 
-
-export function encodeActivationMacroData(actor: any, item: any): string  {
+export function encodeActivationMacroData(actor: any, item: any): string {
   return encodeMacroData({
     title: "?",
     fn: "prepareActivationMacro",
     args: [actor, item],
   });
 }
-
 
 /**
  * Dispatch wrapper for the "action chips" on the bottom of many items, traits, systems, and so on.

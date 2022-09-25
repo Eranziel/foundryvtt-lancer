@@ -20,9 +20,7 @@ function adjacentSpotter(actor: LancerActor): boolean {
   function adjacent(token: LancerToken) {
     const otherSpaces = token.getOccupiedSpaces();
     const rays = spaces.flatMap(s => otherSpaces.map(t => ({ ray: new Ray(s, t) })));
-    const min_d = Math.min(
-      ...canvas.grid!.grid!.measureDistances(rays, { gridSpaces: true })
-    );
+    const min_d = Math.min(...canvas.grid!.grid!.measureDistances(rays, { gridSpaces: true }));
     return min_d < 1.1;
   }
 

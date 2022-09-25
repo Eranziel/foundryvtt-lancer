@@ -22,7 +22,7 @@ export class AutomationConfig extends FormApplication<FormApplication.Options, A
     return {
       ...getAutomationOptions(true),
       ...game.settings.get(game.system.id, LANCER.setting_automation),
-    }
+    };
   }
 
   /** @override */

@@ -1149,9 +1149,9 @@ export function buildChipHTML(
     let data: string | undefined;
     if (macroData?.fullData) data = `data-macro=${encodeMacroData(macroData.fullData)}`;
     else data = `data-${macroData.isDep ? "deployable" : "activation"}=${macroData.num}`;
-    return `<a class="${
-      macroData?.fullData ? "lancer-macro" : `macroable`
-    } activation-chip activation-${activation.toLowerCase().replace(/\s+/g, "")}" ${data}>
+    return `<a class="${macroData?.fullData ? "lancer-macro" : `macroable`} activation-chip activation-${activation
+      .toLowerCase()
+      .replace(/\s+/g, "")}" ${data}>
             ${macroData.icon ? macroData.icon : ""}
             ${activation.toUpperCase()}
           </a>`;

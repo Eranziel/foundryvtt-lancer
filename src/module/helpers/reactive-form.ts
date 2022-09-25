@@ -1,4 +1,4 @@
-import { gentle_merge } from '../helpers/commons';
+import { gentle_merge } from "../helpers/commons";
 
 // this captures a useful pattern where we want to make a reactive form
 // that is rooted on "raw data" rather than a Foundry Document
@@ -8,8 +8,10 @@ import { gentle_merge } from '../helpers/commons';
 // * the name attributes in the html form directly match the keys in the raw data
 //     (modulo gentle_merge)
 // * the template contains precisely one HTML form as its outermost element
-export default abstract class ReactiveForm<DataModel extends object, ViewModel extends DataModel>
-  extends FormApplication<FormApplication.Options, DataModel, DataModel> {
+export default abstract class ReactiveForm<
+  DataModel extends object,
+  ViewModel extends DataModel
+> extends FormApplication<FormApplication.Options, DataModel, DataModel> {
   declare object: DataModel;
 
   #resolve: ((data: DataModel) => void) | null = null;
@@ -29,7 +31,7 @@ export default abstract class ReactiveForm<DataModel extends object, ViewModel e
     this.promise = new Promise((resolve, reject) => {
       this.#resolve = resolve;
       this.#reject = reject;
-    })
+    });
   }
 
   abstract getViewModel(data: DataModel): ViewModel;
@@ -42,7 +44,7 @@ export default abstract class ReactiveForm<DataModel extends object, ViewModel e
   // cancel buttons need explicit handling
   activateListeners(html: JQuery) {
     super.activateListeners(html);
-    html.find(".cancel").on("click", async (_ev) => {
+    html.find(".cancel").on("click", async _ev => {
       return this.close();
     });
   }
@@ -75,7 +77,7 @@ export default abstract class ReactiveForm<DataModel extends object, ViewModel e
     if (this.#reject) {
       this.#reject();
       this.#resolve = null;
-    };
+    }
     // @ts-ignore .8
     return super.close(options);
   }

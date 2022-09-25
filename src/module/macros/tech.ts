@@ -2,13 +2,8 @@
 import { LANCER } from "../config";
 import type { LancerItem } from "../item/lancer-item";
 import type { LancerActor } from "../actor/lancer-actor";
-import type {
-  LancerMacroData,
-  LancerTechMacroData,
-} from "../interfaces";
-import type {
-  NpcFeature,
-} from "machine-mind";
+import type { LancerMacroData, LancerTechMacroData } from "../interfaces";
+import type { NpcFeature } from "machine-mind";
 import type { AccDiffDataSerialized } from "../helpers/acc_diff";
 import { encodeMacroData } from "./_encode";
 import { getMacroSpeaker } from "./_util";
@@ -21,7 +16,6 @@ export async function prepareTechMacro(a: string, t: string, rerollData?: AccDif
   // Determine which Actor to speak as
   let actor = getMacroSpeaker(a);
   if (!actor) return;
-
 
   let mData: LancerTechMacroData = {
     title: "",
@@ -37,16 +31,16 @@ export async function prepareTechMacro(a: string, t: string, rerollData?: AccDif
     // if we weren't passed an item assume generic "basic tech attack" roll
     // TODO: make an actual flow to this that lets people pick an action/invade/item
     mData.action = "Quick";
-    mData.title = "BASIC"
+    mData.title = "BASIC";
 
     if (actor.is_mech()) {
       // @ts-expect-error Should be fixed with v10 types
       const mm = await actor.system.derived.mm_promise;
-      mData.t_atk = mm.TechAttack
+      mData.t_atk = mm.TechAttack;
     } else if (actor.is_npc()) {
       // @ts-expect-error Should be fixed with v10 types
       const mm = await actor.system.derived.mm_promise;
-      mData.t_atk = mm.Sys
+      mData.t_atk = mm.Sys;
     } else {
       ui.notifications!.error(`Error rolling tech attack macro (not a valid tech attacker).`);
       return Promise.resolve();
@@ -102,7 +96,6 @@ export async function prepareTechMacro(a: string, t: string, rerollData?: AccDif
     console.log(`${lp} Tech Attack Macro Item:`, item, mData);
   }
 
-
   let partialMacroData = {
     title: "Reroll tech attack",
     fn: "prepareTechMacro",
@@ -123,7 +116,13 @@ export async function rollTechMacro(
   let { AccDiffData } = await import("../helpers/acc_diff");
   const initialData = rerollData
     ? AccDiffData.fromObject(rerollData, item ?? actor)
-    : AccDiffData.fromParams(item ?? actor, data.tags, data.title, targets, data.acc > 0 ? [data.acc, 0] : [0, -data.acc]);
+    : AccDiffData.fromParams(
+        item ?? actor,
+        data.tags,
+        data.title,
+        targets,
+        data.acc > 0 ? [data.acc, 0] : [0, -data.acc]
+      );
 
   let promptedData;
   try {

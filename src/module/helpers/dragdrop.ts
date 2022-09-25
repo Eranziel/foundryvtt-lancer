@@ -184,15 +184,16 @@ export function HANDLER_enable_dragging(
   });
 }
 
-export type FoundryDropData = { // TODO - update to league type, when those typings work
+export type FoundryDropData = {
+  // TODO - update to league type, when those typings work
   type: "Actor" | "Item" | "JournalEntry" | "Macro"; // TODO: Scenes, sounds
   uuid: string;
-}
+};
 
 // Result of resolving a native drop to its corresponding document
 // Mostly just for ease of typing
 export type ResolvedDropData =
-  {
+  | {
       type: "Item";
       document: LancerItem;
     }
@@ -220,58 +221,66 @@ export async function resolve_native_drop(drop: string | FoundryDropData): Promi
   if (!drop) {
     // Attempt uuid route
     let document = await fromUuid(drop);
-    if(!document) return null;
-    if(document instanceof LancerActor) {
+    if (!document) return null;
+    if (document instanceof LancerActor) {
       return {
         type: "Actor",
-        document
-      }
-    } else if(document instanceof LancerItem) {
+        document,
+      };
+    } else if (document instanceof LancerItem) {
       return {
         type: "Item",
-        document
-      }
-    } else if(document instanceof Macro) {
+        document,
+      };
+    } else if (document instanceof Macro) {
       return {
         type: "Macro",
-        document
-      }
-    } else if(document instanceof JournalEntry) {
+        document,
+      };
+    } else if (document instanceof JournalEntry) {
       return {
         type: "JournalEntry",
-        document
-      }
+        document,
+      };
     }
   } else {
-    // We presume it to be a normal dropData. 
-    if(drop.type == "Actor") {
+    // We presume it to be a normal dropData.
+    if (drop.type == "Actor") {
       // @ts-ignore
       let document = await LancerActor.fromDropData(drop);
-      return document ? {
-        type: "Actor",
-        document
-      } : null;
-    } else if(drop.type == "Item") {
+      return document
+        ? {
+            type: "Actor",
+            document,
+          }
+        : null;
+    } else if (drop.type == "Item") {
       // @ts-ignore
       let document = await LancerItem.fromDropData(drop);
-      return document ? {
-        type: "Item",
-        document
-      } : null;
-    } else if(drop.type == "JournalEntry") {
+      return document
+        ? {
+            type: "Item",
+            document,
+          }
+        : null;
+    } else if (drop.type == "JournalEntry") {
       // @ts-ignore
       let document = await JournalEntry.fromDropData(drop);
-      return document ? {
-        type: "JournalEntry",
-        document
-      } : null;
-    } else if(drop.type == "Macro") {
+      return document
+        ? {
+            type: "JournalEntry",
+            document,
+          }
+        : null;
+    } else if (drop.type == "Macro") {
       // @ts-ignore
       let document = await Macro.fromDropData(drop);
-      return document ? {
-        type: "Macro",
-        document 
-      } : null;
+      return document
+        ? {
+            type: "Macro",
+            document,
+          }
+        : null;
     }
   }
   return null;
@@ -285,10 +294,9 @@ export function convert_ref_to_native_drop<T extends EntryType>(ref: RegRef<T>):
 
 // A basic cache suitable for native drop lookups - a common task
 export type DragFetcherCache = FetcherCache<string | FoundryDropData, ResolvedDropData | null>;
-export function dragResolverCache(): DragFetcherCache  {
+export function dragResolverCache(): DragFetcherCache {
   return new FetcherCache(resolve_native_drop);
 }
-
 
 // Wraps a call to enable_dropping to specifically handle both RegRef drops and NativeDrops.
 // Convenient for if you really only care about the final resolved RegEntry result (which is like, 90% of the time)

@@ -85,7 +85,7 @@ export function ref_commons<T extends EntryType>(
     img,
     name,
     ref,
-    uuid
+    uuid,
   };
 }
 
@@ -172,7 +172,9 @@ export async function HANDLER_activate_ref_clicking<T extends EntryType>(event: 
 }
 
 // Given a ref element (as created by simple_mm_ref or similar function), reconstruct a RegRef to the item it is referencing
-export function recreate_ref_from_element<T extends EntryType>(element: HTMLElement): (RegRef<T> & {uuid: string}) | null {
+export function recreate_ref_from_element<T extends EntryType>(
+  element: HTMLElement
+): (RegRef<T> & { uuid: string }) | null {
   let id = element.dataset.id;
   let type = element.dataset.type as T | undefined;
   let reg_name = element.dataset.regName;
@@ -199,7 +201,7 @@ export function recreate_ref_from_element<T extends EntryType>(element: HTMLElem
     type,
     reg_name,
     fallback_lid,
-    uuid 
+    uuid,
   };
 }
 
@@ -238,7 +240,10 @@ export function mm_ref_portrait<T extends EntryType>(
   _helper: HelperOptions
 ) {
   // Fetch the image
-  return `<img class="profile-img ref valid ${item.Type}" src="${img}" data-edit="${img_path}" ${ref_params(item.as_ref(), item.Flags.orig_doc.uuid)} width="100" height="100" />`;
+  return `<img class="profile-img ref valid ${item.Type}" src="${img}" data-edit="${img_path}" ${ref_params(
+    item.as_ref(),
+    item.Flags.orig_doc.uuid
+  )} width="100" height="100" />`;
 }
 
 // Use this slot callback to add items of certain kind(s) to a list.
@@ -395,9 +400,9 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
         };
 
         retStr += `<li class="talent-rank-compact card clipped" style="padding: 5px">
-        <a class="cci cci-rank-${
-          i + 1
-        } i--l i--dark talent-macro lancer-macro" data-macro="${encodeMacroData(macroData)}" style="grid-area: 1/1/2/2"></a>
+        <a class="cci cci-rank-${i + 1} i--l i--dark talent-macro lancer-macro" data-macro="${encodeMacroData(
+          macroData
+        )}" style="grid-area: 1/1/2/2"></a>
         <span class="major" style="grid-area: 1/2/2/3">${talent.Ranks[i]?.Name}</span>
         <div class="effect-text" style="grid-area: 2/1/3/3">
         ${talent.Ranks[i]?.Description}
