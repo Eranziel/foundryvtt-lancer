@@ -13,7 +13,7 @@ export function fullRepairMacro(a: string) {
   return new Promise<boolean>((resolve, reject) => {
     new Dialog({
       title: `FULL REPAIR - ${actor?.name}`,
-      content: `<h3>Are you sure you want to fully repair the ${actor?.data.type} ${actor?.name}?`,
+      content: `<h3>Are you sure you want to fully repair the ${actor?.type} ${actor?.name}?`,
       buttons: {
         submit: {
           icon: '<i class="fas fa-check"></i>',

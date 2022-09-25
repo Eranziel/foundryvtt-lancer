@@ -135,7 +135,6 @@ export class LancerItem extends Item {
   private _job_tracker!: Map<number, Promise<AnyMMItem>>;
   private _prev_derived: this["data"]["data"]["derived"] | undefined;
 
-
   /**
    * Force name down to item,
    * And more importantly, perform MM workflow
@@ -172,7 +171,7 @@ export class LancerItem extends Item {
       };
 
       // We set it normally.
-    // @ts-expect-error Should be fixed with v10 types
+      // @ts-expect-error Should be fixed with v10 types
       this.system.derived = dr;
     } else {
       // Otherwise, grab existing
@@ -220,7 +219,10 @@ export class LancerItem extends Item {
           if (this.actor) {
             // @ts-expect-error Should be fixed with v10 types
             let actor_mm = await this.actor.system.derived.mm_promise;
-            if (actor_mm.Type == EntryType.MECH || actor_mm.Type == EntryType.PILOT) {
+            if (
+              (actor_mm.Type == EntryType.MECH || actor_mm.Type == EntryType.PILOT) &&
+              !(this.is_pilot_armor() || this.is_pilot_gear() || this.is_pilot_weapon())
+            ) {
               // Add pilot/mech lim bonus
               dr.max_uses += actor_mm.LimitedBonus;
             }

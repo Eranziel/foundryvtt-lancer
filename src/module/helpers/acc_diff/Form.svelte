@@ -196,7 +196,7 @@
               class="accdiff-weight flex-center flexrow total-label" for="total-display-0">
               Total
               {#if targets.length > 0}
-                vs {targets[0].target.data.name}
+                vs {targets[0].target.name}
               {/if}
             </label>
           {/key}

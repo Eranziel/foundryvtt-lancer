@@ -6,10 +6,7 @@ import type {
   LancerTextMacroData,
   LancerReactionMacroData,
 } from "../interfaces";
-import {
-  EntryType,
-  NpcFeatureType,
-} from "machine-mind";
+import { EntryType, NpcFeatureType } from "machine-mind";
 import { applyCollapseListeners } from "../helpers/collapse";
 import { getMacroSpeaker, ownedItemFromString } from "./_util";
 import { prepareAttackMacro } from "./attack";
@@ -40,7 +37,7 @@ export async function prepareItemMacro(a: string, i: string, options?: any) {
   if (!item) return;
 
   // Make a macro depending on the type
-  switch (item.data.type) {
+  switch (item.type) {
     // Skills
     case EntryType.SKILL:
       let skillData: LancerStatMacroData = {
