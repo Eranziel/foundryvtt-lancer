@@ -14,35 +14,7 @@ CONFIG.TextEditor.enrichers = CONFIG.TextEditor.enrichers.concat([
         | { _id: string; img: string; name: string; sort: number; system: { lid: string } }
         // @ts-expect-error V10
         | undefined = game.items?.find(i => i.system.lid === lid) ?? game.actors?.find(a => a.system.lid === lid);
-      let databases = [
-        "tag",
-        "frame",
-        "core_bonus",
-        "mech_weapon",
-        "mech_system",
-        "weapon_mod",
-        "npc_class",
-        "npc_template",
-        "npc_feature",
-        "talent",
-        "pilot_armor",
-        "pilot_gear",
-        "pilot_weapon",
-        "skill",
-        "pilot",
-        "mech",
-        "npc",
-        "deployable",
-        "manufacturer",
-        "license",
-        "environment",
-        "faction",
-        "organization",
-        "reserve",
-        "sitrep",
-        "status",
-        "quirk",
-      ];
+      let databases = game.packs.filter(p => ["Actor", "Item"].includes(p.documentName));
       const data = {
         cls: ["content-link"],
         icon: undefined as string | undefined,
@@ -50,10 +22,9 @@ CONFIG.TextEditor.enrichers = CONFIG.TextEditor.enrichers.concat([
         name: label,
       };
       while (!doc && databases.length > 0) {
-        const db = game.packs.get("world." + databases.pop());
+        const db = databases.pop();
         if (!db) continue;
-        // @ts-expect-error You can use different fields
-        const index = await db.getIndex({ fields: ["system.lid"] });
+        const index = await db.getIndex();
         // @ts-expect-error V10
         doc = index.find(i => i.system.lid === lid);
         // @ts-expect-error v10
