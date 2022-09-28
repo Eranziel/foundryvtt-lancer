@@ -8,12 +8,9 @@ CONFIG.TextEditor.enrichers = CONFIG.TextEditor.enrichers.concat([
     enricher: async (match: string[], _opts: unknown) => {
       const lid = match[1];
       const label: string | undefined = match[2];
-      let doc:
-        | LancerActor
-        | LancerItem
-        | { _id: string; img: string; name: string; sort: number; system: { lid: string } }
-        // @ts-expect-error V10
-        | undefined = game.items?.find(i => i.system.lid === lid) ?? game.actors?.find(a => a.system.lid === lid);
+      let doc: LancerActor | LancerItem | { _id: string; name: string; system: { lid: string } } | undefined =
+        // @ts-expect-error v10
+        game.items?.find(i => i.system.lid === lid) ?? game.actors?.find(a => a.system.lid === lid);
       let databases = game.packs.filter(p => ["Actor", "Item"].includes(p.documentName));
       const data = {
         cls: ["content-link"],
