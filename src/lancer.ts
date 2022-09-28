@@ -158,6 +158,8 @@ import { handleRenderCombatCarousel } from "./module/helpers/combat-carousel";
 import { measureDistances } from "./module/grid";
 import { fromLid, fromLidSync } from "./module/helpers/from-lid";
 
+import "./module/helpers/text-enrichers";
+
 const lp = LANCER.log_prefix;
 
 window.addEventListener("unhandledrejection", function (event) {
