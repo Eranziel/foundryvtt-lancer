@@ -1173,8 +1173,6 @@ export class LancerActor extends Actor {
       }
     } else if (this.is_deployable()) {
       // TODO
-    } else if (this.is_deployable()) {
-      // TODO
     }
   }
 

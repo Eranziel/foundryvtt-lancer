@@ -17,7 +17,7 @@ import {
   WeaponType,
 } from "machine-mind";
 import { DeployableType } from "machine-mind/dist/classes/Deployable";
-import { LancerActor, LancerDEPLOYABLE, LancerPILOT } from "./actor/lancer-actor";
+import { LancerActor, LancerDEPLOYABLE, LancerMECH, LancerPILOT } from "./actor/lancer-actor";
 import {
   LancerFRAME,
   LancerItem,
@@ -121,16 +121,17 @@ export namespace SystemTemplates {
         value: T;
       }
     | {
-        status: "missing"; // Was unable to resolve successfully 
+        status: "missing"; // Was unable to resolve successfully
         value: null;
       };
 
   // UUID refs could be in the compendium (oh no!). In which case they'll be a promise. bleh
-  export type ResolvedUuidRef<T> = ResolvedEmbeddedRef<T>
+  export type ResolvedUuidRef<T> =
+    | ResolvedEmbeddedRef<T>
     | {
         status: "async";
         value: Promise<T>;
-    };
+      };
 }
 
 // Note: We could have, theoretically, done this via clever OMIT spam.
@@ -354,7 +355,6 @@ interface SystemDataTypesMap extends DataTypeMap {
     purpose: OrgType;
   };
 
-
   [EntryType.PILOT_ARMOR]: SystemTemplates.item_universal &
     SystemTemplates.bascdt & {
       description: string;
@@ -376,7 +376,7 @@ interface SystemDataTypesMap extends DataTypeMap {
     };
   [EntryType.PILOT]: SystemTemplates.actor_universal &
     SystemTemplates.action_tracking & {
-      active_mech: SystemTemplates.ResolvedUuidRef<UUIDRef> | null;
+      active_mech: SystemTemplates.ResolvedUuidRef<LancerMECH> | null;
       background: string;
       callsign: string;
       cloud_id: string;
