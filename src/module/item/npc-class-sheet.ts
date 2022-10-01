@@ -54,7 +54,7 @@ export class LancerNPCClassSheet extends LancerItemSheet<EntryType.NPC_CLASS> {
     // Propogate to owner
     // TODO: still needed with new MM?
     // if(this.item.isOwned) {
-    //   (<LancerActor>this.item.actor).swapNPCClassOrTier((<LancerNPCClass>this.item).data.data.stats,false);
+    //   (<LancerActor>this.item.actor).swapNPCClassOrTier((<LancerNPCClass>this.item).system.stats,false);
     // }
 
     // Update the Item

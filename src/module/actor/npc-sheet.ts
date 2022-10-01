@@ -15,7 +15,7 @@ const lp = LANCER.log_prefix;
 /**
  * Extend the basic ActorSheet
  */
-export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC>{
+export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
   /**
    * Extend and override the default options used by the NPC Sheet
    */
@@ -149,21 +149,16 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC>{
 
   can_root_drop_entry(item: ResolvedDropData): boolean {
     // Reject any non npc item
-    return item.type == "Item" && (
-      item.document.is_npc_class() || 
-      item.document.is_npc_feature() || 
-      item.document.is_npc_template()
+    return (
+      item.type == "Item" &&
+      (item.document.is_npc_class() || item.document.is_npc_feature() || item.document.is_npc_template())
     );
   }
 
   // Take ownership of appropriate items. Already filtered by can_drop_entry
-  async on_root_drop(
-    base_drop: ResolvedDropData,
-    event: JQuery.DropEvent,
-    _dest: JQuery<HTMLElement>
-  ): Promise<void> {
+  async on_root_drop(base_drop: ResolvedDropData, event: JQuery.DropEvent, _dest: JQuery<HTMLElement>): Promise<void> {
     // Type guard
-    if(!this.actor.is_npc()) return;
+    if (!this.actor.is_npc()) return;
 
     // Take posession
     let [drop, is_new] = await this.quick_own_drop(base_drop);
@@ -177,23 +172,37 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC>{
 
       // Mark replaced classes for deletion
       let delete_targets = [];
-      if (this.actor.is_npc() && doc.is_npc_class() && this.actor.data.data.class) {
+      if (this.actor.is_npc() && doc.is_npc_class() && this.actor.system.class) {
+        // But before we do that, destroy all old classes
         // If we have a class, get rid of it
-        let class_data = this.actor.data.data.class.data.data as SystemDataType<EntryType.NPC_CLASS>;
-        let class_features = findMatchingFeaturesInNpc(this.actor, [...class_data.base_features, ...class_data.optional_features]);
+        let old_class = this.actor.system.class;
+        let class_features = findMatchingFeaturesInNpc(this.actor, [
+          ...old_class.system.base_features,
+          ...old_class.system.optional_features,
+        ]);
         delete_targets.push(...class_features.map(f => f.id));
       }
 
       // And add all new features
-      if(doc.is_npc_template() || doc.is_npc_class()) {
+      if (doc.is_npc_template() || doc.is_npc_class()) {
         for (let feat of doc.data.data.base_features) {
           await insinuate([], this.actor as LancerNPC);
         }
         needs_refresh = true;
       }
-      if(doc.is_npc_class()) {
+      if (doc.is_npc_class()) {
         await this.actor.swapFrameImage(this.actor, this.actor.data.data.class, doc);
       }
+    }
+
+    // If a new item was added, fill our hp, stress, and structure to match new maxes
+    if (needs_refresh) {
+      // Update this, to re-populate arrays etc to reflect new item
+      await this.actor.update({
+        "system.hp": this.actor.system.hp.max,
+        "system.stress": this.actor.system.stress.max,
+        "system.structure": this.actor.system.structure.max,
+      });
     }
 
     // We also may need to sort the item
@@ -228,19 +237,19 @@ function handleClassDelete(ctx: GenControlContext<LancerActorSheetData<EntryType
     let pt = ctx.path_target;
     if (pt instanceof LancerItem && (pt.is_npc_template() || pt.is_npc_class())) {
       let matches = findMatchingFeaturesInNpc(ctx.data.actor, [...pt.base_features, ...pt.optional_features]);
-      ctx.data.actor.deleteEmbeddedDocuments("Item", matches.map(m => m.id).filter(x=>x) as string[]);
+      ctx.data.actor.deleteEmbeddedDocuments("Item", matches.map(m => m.id).filter(x => x) as string[]);
     }
   }
 }
 
 // Given a list of npc features, return the corresponding entries on the provided npc
 export function findMatchingFeaturesInNpc(npc: LancerNPC, features: LancerNPC_FEATURE[]): LancerNPC_FEATURE[] {
-  if(!npc.is_npc()) return [];
+  if (!npc.is_npc()) return [];
   let result = [];
   for (let predicate_feature of features) {
     for (let candidate_feature of npc.data.data.features) {
       if (candidate_feature.data.data.lid == predicate_feature.data.data.lid) {
-        result.push(candidate_feature); 
+        result.push(candidate_feature);
       }
     }
   }

@@ -1,12 +1,5 @@
 import { LANCER, TypeIcon } from "../config";
-import {
-  EntryType,
-  funcs,
-  NpcFeatureType,
-  RangeType,
-  RegEntryTypes,
-  RegRangeData,
-} from "machine-mind";
+import { EntryType, funcs, NpcFeatureType, RangeType, RegEntryTypes, RegRangeData } from "machine-mind";
 import { SystemDataType } from "../system-template";
 
 const lp = LANCER.log_prefix;
@@ -79,29 +72,37 @@ declare global {
   }
 }
 
-
-export class LancerItem extends Item { 
+export class LancerItem extends Item {
   /**
    * Returns all ranges for the item that match the provided range types
    */
   rangesFor(types: Set<RangeType> | RangeType[]): RegRangeData[] {
     const i = null as unknown as Item; // TODO remove
 
-
     const filter = new Set(types);
-    switch (this.data.type) {
+    switch (this.type) {
       case EntryType.MECH_WEAPON:
-        const p = this.data.data.selected_profile;
-        return this.data.data.profiles[p].range.filter(r => filter.has(r.type));
+        // @ts-expect-error Should be fixed with v10 types
+        const p = this.system.selected_profile;
+        // @ts-expect-error Should be fixed with v10 types
+        return this.system.profiles[p].range.filter(r => filter.has(r.type));
       case EntryType.PILOT_WEAPON:
-        return this.data.data.range.filter(r => filter.has(r.type));
+        // @ts-expect-error Should be fixed with v10 types
+        return this.system.range.filter(r => filter.has(r.type));
       case EntryType.NPC_FEATURE:
-        if (this.data.data.type !== NpcFeatureType.Weapon) return [];
-        return this.data.data.range.filter(r => filter.has(r.type));
+        // @ts-expect-error Should be fixed with v10 types
+        if (this.system.type !== NpcFeatureType.Weapon) return [];
+        // @ts-expect-error Should be fixed with v10 types
+        return this.system.range.filter(r => filter.has(r.type));
       default:
         return [];
     }
   }
+
+  // Use this to prevent race conditions / carry over data
+  private _current_prepare_job_id!: number;
+  private _job_tracker!: Map<number, Promise<AnyMMItem>>;
+  private _prev_derived: this["data"]["data"]["derived"] | undefined;
 
   /**
    * Force name down to item,
@@ -143,37 +144,36 @@ export class LancerItem extends Item {
    * Want to destroy derived data before passing it to an update
    */
   async update(data: any, options = {}) {
-    if (data?.data?.derived) {
-      delete data.data.derived;
+    if (data?.derived) {
+      delete data.derived;
     }
+    console.log("Data:", data);
     return super.update(data, options);
   }
 
   protected async _preCreate(...[data, options, user]: Parameters<Item["_preCreate"]>): Promise<void> {
     await super._preCreate(data, options, user);
     // If base item has data, then we are probably importing. Skip this step
-    if (data?.data) return;
+    // @ts-expect-error Should be fixed with v10 types
+    if (data.system.lid != "") {
+      console.log(`${lp} New ${this.type} has data provided from an import, skipping default init.`);
+      return;
+    }
 
-    console.log(`${lp} Initializing new ${this.data.type}`);
+    console.log(`${lp} Initializing new ${this.type}`);
 
     // Select default image
-    let icon_lookup: string = this.data.type;
+    let icon_lookup: string = this.type;
     if (this.is_npc_feature()) {
-      icon_lookup += this.data.type;
+      icon_lookup += this.type;
     }
     let img = TypeIcon(icon_lookup);
 
     let default_data: RegEntryTypes<LancerItemType>;
-    switch (this.data.type) {
+    switch (this.type) {
       default:
       case EntryType.CORE_BONUS:
         default_data = funcs.defaults.CORE_BONUS();
-      case EntryType.ENVIRONMENT:
-        default_data = funcs.defaults.ENVIRONMENT();
-        break;
-      case EntryType.FACTION:
-        default_data = funcs.defaults.FACTION();
-        break;
       case EntryType.FRAME:
         default_data = funcs.defaults.FRAME();
         break;
@@ -210,14 +210,8 @@ export class LancerItem extends Item {
       case EntryType.PILOT_WEAPON:
         default_data = funcs.defaults.PILOT_WEAPON();
         break;
-      case EntryType.QUIRK:
-        default_data = funcs.defaults.QUIRK();
-        break;
       case EntryType.RESERVE:
         default_data = funcs.defaults.RESERVE();
-        break;
-      case EntryType.SITREP:
-        default_data = funcs.defaults.SITREP();
         break;
       case EntryType.SKILL:
         default_data = funcs.defaults.SKILL();
@@ -239,8 +233,9 @@ export class LancerItem extends Item {
     // Sync the name
     default_data.name = this.name ?? default_data.name;
 
-    this.data.update({
-      data: default_data,
+    // @ts-expect-error Should be fixed with v10 types
+    this.updateSource({
+      // system: default_data,
       img: img,
       name: default_data.name,
     });
@@ -303,7 +298,11 @@ export class LancerItem extends Item {
   }
 }
 
-type SystemShim<T extends LancerItemType> = LancerItem & { data: LancerItemDataProperties<T>, type: T, system: SystemDataType<T> };
+type SystemShim<T extends LancerItemType> = LancerItem & {
+  data: LancerItemDataProperties<T>;
+  type: T;
+  system: SystemDataType<T>;
+};
 export type LancerCORE_BONUS = SystemShim<EntryType.CORE_BONUS>;
 export type LancerFRAME = SystemShim<EntryType.FRAME>;
 export type LancerLICENSE = SystemShim<EntryType.LICENSE>;

@@ -6,10 +6,7 @@ import type {
   LancerTextMacroData,
   LancerReactionMacroData,
 } from "../interfaces";
-import {
-  EntryType,
-  NpcFeatureType,
-} from "machine-mind";
+import { EntryType, NpcFeatureType } from "machine-mind";
 import { applyCollapseListeners } from "../helpers/collapse";
 import { getMacroSpeaker, ownedItemFromString } from "./_util";
 import { prepareAttackMacro } from "./attack";
@@ -41,12 +38,13 @@ export async function prepareItemMacro(a: string, i: string, options?: any) {
   if (!item) return;
 
   // Make a macro depending on the type
-  switch (item.data.type) {
+  switch (item.type) {
     // Skills
     case EntryType.SKILL:
       let skillData: LancerStatMacroData = {
         title: item.name!,
-        bonus: item.data.data.rank * 2,
+        // @ts-expect-error Should be fixed with v10 types
+        bonus: item.system.rank * 2,
       };
       await rollTriggerMacro(actor, skillData);
       break;
@@ -57,15 +55,18 @@ export async function prepareItemMacro(a: string, i: string, options?: any) {
       break;
     // Systems
     case EntryType.MECH_SYSTEM:
-      await rollSystemMacro(actor, item.data.data.derived.mm!);
+      // @ts-expect-error Should be fixed with v10 types
+      await rollSystemMacro(actor, item.system.derived.mm!);
       break;
     // Talents
     case EntryType.TALENT:
       // If we aren't passed a rank, default to current rank
-      let rank = options.rank ? options.rank : item.data.data.curr_rank;
+      // @ts-expect-error Should be fixed with v10 types
+      let rank = options.rank ? options.rank : item.system.curr_rank;
 
       let talData: LancerTalentMacroData = {
-        talent: item.data.data,
+        // @ts-expect-error Should be fixed with v10 types
+        talent: item.system,
         rank: rank,
       };
 
@@ -75,8 +76,10 @@ export async function prepareItemMacro(a: string, i: string, options?: any) {
     case EntryType.PILOT_GEAR:
       let gearData: LancerTextMacroData = {
         title: item.name!,
-        description: item.data.data.description,
-        tags: item.data.data.tags,
+        // @ts-expect-error Should be fixed with v10 types
+        description: item.system.description,
+        // @ts-expect-error Should be fixed with v10 types
+        tags: item.system.tags,
       };
 
       await rollTextMacro(actor, gearData);
@@ -86,14 +89,16 @@ export async function prepareItemMacro(a: string, i: string, options?: any) {
     case EntryType.CORE_BONUS:
       let CBdata: LancerTextMacroData = {
         title: item.name,
-        description: item.data.data.effect,
+        description: item.system.effect,
       };
 
       await rollTextMacro(actor, CBdata);
       break;
-      *//*
+      */
+  /*
     case EntryType.NPC_FEATURE:
-      switch (item.data.data.type) {
+      // @ts-expect-error Should be fixed with v10 types
+      switch (item.system.type) {
         case NpcFeatureType.Weapon:
           await prepareAttackMacro({ actor, item, options });
           break;
@@ -104,8 +109,10 @@ export async function prepareItemMacro(a: string, i: string, options?: any) {
         case NpcFeatureType.Trait:
           let sysData: LancerTextMacroData = {
             title: item.name!,
-            description: item.data.data.effect,
-            tags: item.data.data.tags,
+            // @ts-expect-error Should be fixed with v10 types
+            description: item.system.effect,
+            // @ts-expect-error Should be fixed with v10 types
+            tags: item.system.tags,
           };
 
           await rollTextMacro(actor, sysData);
@@ -113,9 +120,12 @@ export async function prepareItemMacro(a: string, i: string, options?: any) {
         case NpcFeatureType.Reaction:
           let reactData: LancerReactionMacroData = {
             title: item.name!,
-            trigger: item.data.data.trigger,
-            effect: item.data.data.effect,
-            tags: item.data.data.tags,
+            // @ts-expect-error Should be fixed with v10 types
+            trigger: item.system.trigger,
+            // @ts-expect-error Should be fixed with v10 types
+            effect: item.system.effect,
+            // @ts-expect-error Should be fixed with v10 types
+            tags: item.system.tags,
           };
 
           await rollReactionMacro(actor, reactData);

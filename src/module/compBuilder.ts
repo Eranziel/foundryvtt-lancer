@@ -53,7 +53,8 @@ export async function import_cp(
       // Get them all
       let docs = await pack.getDocuments();
       // Get their ids
-      let doc_lids = docs.map(d => (d as LancerActor | LancerItem).data.data.lid);
+      // @ts-expect-error Should be fixed with v10 types
+      let doc_lids = docs.map(d => (d as LancerActor | LancerItem).system.lid);
       existing_lids.push(...doc_lids);
     }
 

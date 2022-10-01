@@ -50,7 +50,7 @@ export class LancerToken extends Token {
    * the token occupies.
    */
   getOccupiedSpaces(): Point[] {
-    let pos: { x: number; y: number } = this.data;
+    let pos: { x: number; y: number } = { x: this.x, y: this.y };
     // Invalidate the cache if the position is different than when it was last calculated.
     if (Math.floor(pos.x) !== Math.floor(this._spaces.at.x) || Math.floor(pos.y) !== Math.floor(this._spaces.at.y)) {
       this._spaces.at = { ...pos };
@@ -77,8 +77,8 @@ export class LancerToken extends Token {
 
       // TODO: Gridless isn't handled, probably split this off to two utility
       // functions that handle gridded vs gridless properly
-      for (let i = tx - 1; i <= tx + this.data.width + 1; i++) {
-        for (let j = ty - 1; j <= ty + this.data.height + 1; j++) {
+      for (let i = tx - 1; i <= tx + this.width + 1; i++) {
+        for (let j = ty - 1; j <= ty + this.height + 1; j++) {
           let pos = { x: 0, y: 0 };
           [pos.x, pos.y] = canvas.grid!.grid!.getPixelsFromGridPosition(i, j);
           [pos.x, pos.y] = canvas.grid!.getCenter(pos.x + 1, pos.y + 1);

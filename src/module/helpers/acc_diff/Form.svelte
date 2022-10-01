@@ -67,7 +67,8 @@
    const t = WeaponRangeTemplate.fromRange(range, token);
    if (!t) return;
    fade('out');
-   t.data.update({ [`flags.${game.system.id}.isAttack`]: true });
+   // @ts-expect-error v10
+   t.document.updateSource({ [`flags.${game.system.id}.isAttack`]: true });
    t.placeTemplate()
      .catch(e => {
        console.warn(e);
@@ -195,7 +196,7 @@
               class="accdiff-weight flex-center flexrow total-label" for="total-display-0">
               Total
               {#if targets.length > 0}
-                vs {targets[0].target.data.name}
+                vs {targets[0].target.name}
               {/if}
             </label>
           {/key}

@@ -2,13 +2,8 @@
 import { LANCER } from "../config";
 import type { LancerItem } from "../item/lancer-item";
 import type { LancerActor } from "../actor/lancer-actor";
-import type {
-  LancerMacroData,
-  LancerTechMacroData,
-} from "../interfaces";
-import type {
-  NpcFeature,
-} from "machine-mind";
+import type { LancerMacroData, LancerTechMacroData } from "../interfaces";
+import type { NpcFeature } from "machine-mind";
 import type { AccDiffDataSerialized } from "../helpers/acc_diff";
 import { encodeMacroData } from "./_encode";
 import { getMacroSpeaker } from "./_util";
@@ -21,7 +16,6 @@ export async function prepareTechMacro(a: string, t: string, rerollData?: AccDif
   // Determine which Actor to speak as
   let actor = getMacroSpeaker(a);
   if (!actor) return;
-
 
   let mData: LancerTechMacroData = {
     title: "",
@@ -37,10 +31,10 @@ export async function prepareTechMacro(a: string, t: string, rerollData?: AccDif
     // if we weren't passed an item assume generic "basic tech attack" roll
     // TODO: make an actual flow to this that lets people pick an action/invade/item
     mData.action = "Quick";
-    mData.title = "BASIC"
+    mData.title = "BASIC";
 
     if (actor.is_mech() || actor.is_npc()) {
-      mData.t_atk = actor.data.data.tech_attack; // TODO: make extra sure we populate this for npcs
+      mData.t_atk = actor.system.tech_attack; // TODO: make extra sure we populate this for npcs
     } else {
       ui.notifications!.error(`Error rolling tech attack macro (not a valid tech attacker).`);
       return Promise.resolve();
@@ -61,26 +55,29 @@ export async function prepareTechMacro(a: string, t: string, rerollData?: AccDif
     if (item.is_mech_system()) {
       debugger;
       /*
-      const tData = item.data.data as LancerMechSystemData;
+      const tData = item.system as LancerMechSystemData;
       mData.t_atk = (item.actor!.data as LancerPilotActorData).data.mech.tech_attack;
       mData.tags = tData.tags;
       mData.effect = ""; // TODO */
     } else if (item.is_npc_feature()) {
-      const mm: NpcFeature = await item.data.data.derived.mm_promise;
+      // @ts-expect-error Should be fixed with v10 types
+      const mm: NpcFeature = await item.system.derived.mm_promise;
       let tier_index: number = mm.TierOverride;
       if (!mm.TierOverride) {
         if (item.actor === null && actor.is_npc()) {
           // Use selected actor
-          tier_index = actor.data.data.tier - 1;
+          // @ts-expect-error Should be fixed with v10 types
+          tier_index = actor.system.tier - 1;
         } else if (item.actor!.is_npc()) {
           // Use provided actor
-          tier_index = item.actor.data.data.tier - 1;
+          // @ts-expect-error Should be fixed with v10 types
+          tier_index = item.actor.system.tier - 1;
         }
       } else {
         // Correct to be index
         tier_index -= 1;
       }
-  
+
       mData.t_atk = mm.AttackBonus[tier_index] ?? 0;
       mData.acc = mm.Accuracy[tier_index] ?? 0;
       mData.tags = mm.Tags;
@@ -92,7 +89,6 @@ export async function prepareTechMacro(a: string, t: string, rerollData?: AccDif
     }
     console.log(`${lp} Tech Attack Macro Item:`, item, mData);
   }
-
 
   let partialMacroData = {
     title: "Reroll tech attack",
@@ -114,7 +110,13 @@ export async function rollTechMacro(
   let { AccDiffData } = await import("../helpers/acc_diff");
   const initialData = rerollData
     ? AccDiffData.fromObject(rerollData, item ?? actor)
-    : AccDiffData.fromParams(item ?? actor, data.tags, data.title, targets, data.acc > 0 ? [data.acc, 0] : [0, -data.acc]);
+    : AccDiffData.fromParams(
+        item ?? actor,
+        data.tags,
+        data.title,
+        targets,
+        data.acc > 0 ? [data.acc, 0] : [0, -data.acc]
+      );
 
   let promptedData;
   try {

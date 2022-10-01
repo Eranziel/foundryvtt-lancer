@@ -16,7 +16,8 @@ export async function prepareStatMacro(a: string, statKey: string, rerollData?: 
 
   const statPath = statKey.split(".");
 
-  let bonus: number = resolve_dotpath(actor, statKey.substr(3));
+  // TODO: we'll need to figure out some way of "migrating" old macros. for the time being, a primitive Proxy solution will probably do fine
+  let bonus: number = resolve_dotpath(actor, statKey.substring(3));
 
   let mData: LancerStatMacroData = {
     title: statPath[statPath.length - 1].toUpperCase(),

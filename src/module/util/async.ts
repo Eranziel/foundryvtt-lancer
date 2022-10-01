@@ -14,9 +14,9 @@ export class FetcherCache<K, V> {
 
   // Updates the timeout map for the specified key to be now + timeout
   private stroke_timer(key: K) {
-      this.timeout_map.set(key, Date.now() + this.timeout);
+    this.timeout_map.set(key, Date.now() + this.timeout);
   }
-  // Fetch the value iff it is currently cached. 
+  // Fetch the value iff it is currently cached.
   peek(arg: K): V | null {
     this.stroke_timer(arg);
     return this.cached_resolved_values.get(arg) ?? null;
@@ -40,10 +40,10 @@ export class FetcherCache<K, V> {
     }
   }
 
-  // As peek, but startes a fetch job if value is not yet 
+  // As peek, but startes a fetch job if value is not yet
   sync_fetch(key: K): V | typeof PENDING {
     let peeked = this.peek(key);
-    if(peeked === null) {
+    if (peeked === null) {
       this.fetch(key);
       return PENDING;
     } else {

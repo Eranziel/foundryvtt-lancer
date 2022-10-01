@@ -1,3 +1,9 @@
+# 1.3.1 (2022-09-04)
+## Bug Fixes
+* #463 - Add missing delete button for range types in NPC features.
+* Add a section with basic attack macro buttons to all actor sheets (including pilots and deployables).
+* Update core data to lancer-data version 3.0.46.
+
 # 1.3.0 (2022-09-03)
 ## Features
 * #23 - Added JSON import for pilots

@@ -109,11 +109,13 @@ export class LancerActionManager extends Application {
     const token = canvas.tokens?.controlled?.[0];
     if (token && token.inCombat && token.actor) {
       const actor = token.actor as LancerActor;
-      if(actor.is_mech() || actor.is_npc()) {
+      // TODO: Remove when action data is properly within MM.
+      // @ts-expect-error Should be fixed with v10 types
+      if ((actor.is_mech() || actor.is_npc()) && token.actor.system.action_tracker === undefined) {
         this.target = token.actor;
         return this.updateActions(token.actor, _defaultActionData(token.actor));
       }
-    } 
+    }
     this.target = null;
   }
 
@@ -157,9 +159,11 @@ export class LancerActionManager extends Application {
   }
 
   private loadUserPos() {
-    if (!(game.user?.data.flags["action-manager"] && game.user.data.flags["action-manager"].pos)) return;
+    // @ts-expect-error Should be fixed with v10 types
+    if (!(game.user?.flags["action-manager"] && game.user.flags["action-manager"].pos)) return;
 
-    const pos = game.user.data.flags["action-manager"].pos;
+    // @ts-expect-error Should be fixed with v10 types
+    const pos = game.user.flags["action-manager"].pos;
     const appPos = this.position;
     return new Promise(resolve => {
       function loop() {

@@ -16,15 +16,13 @@ import { rollTechMacro } from "./tech";
 
 const lp = LANCER.log_prefix;
 
-
-export function encodeActivationMacroData(actor: any, item: any): string  {
+export function encodeActivationMacroData(actor: any, item: any): string {
   return encodeMacroData({
     title: "?",
     fn: "prepareActivationMacro",
     args: [actor, item],
   });
 }
-
 
 /**
  * Dispatch wrapper for the "action chips" on the bottom of many items, traits, systems, and so on.
@@ -49,7 +47,8 @@ export async function prepareActivationMacro(
   let item: LancerItem | undefined;
   item = actor.items.get(i);
   if (!item && actor.is_mech()) {
-    let pilot = game.actors!.get(actor.data.data.pilot?.id ?? "");
+    // @ts-expect-error Should be fixed with v10 types
+    let pilot = game.actors!.get(actor.system.pilot?.id ?? "");
     item = pilot?.items.get(i);
   }
 
@@ -63,13 +62,14 @@ export async function prepareActivationMacro(
     return ui.notifications!.error(`Error rolling tech attack macro - ${item.name} is not a System or Feature!`);
   }
 
-  if (getAutomationOptions().limited_loading && is_tagged(item) && is_limited(item) && item.Uses <= 0) {
+  // TODO: alter these generic functions to handle non mm items
+  if (getAutomationOptions().limited_loading && is_tagged(item) && is_limited(item) && item.system.uses <= 0) {
     ui.notifications!.error(`Error using item--you have no uses left!`);
     return;
   }
 
   // TODO--handle NPC Activations
-  if (item.Type === EntryType.NPC_FEATURE) return;
+  if (item.is_npc_feature()) return;
 
   switch (type) {
     case ActivationOptions.ACTION:
@@ -140,12 +140,12 @@ async function _prepareTechActionMacro(
 
   /*
   if (item.is_npc_feature()) {
-    const tData = item.data.data as RegNpcTechData;
+    const tData = item.system as RegNpcTechData;
     let tier: number;
     if (item.actor === null) {
-      tier = actor.data.data.tier_num - 1;
+      tier = actor.system.tier_num - 1;
     } else {
-      tier = item.actor.data.data.tier_num - 1;
+      tier = item.actor.system.tier_num - 1;
     }
     mData.t_atk =
       tData.attack_bonus && tData.attack_bonus.length 6> tier ? tData.attack_bonus[tier] : 0;

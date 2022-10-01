@@ -2,9 +2,7 @@
 import { LANCER } from "../config";
 import type { LancerActor } from "../actor/lancer-actor";
 import type { LancerTextMacroData } from "../interfaces";
-import {
-    TagInstance
-} from "machine-mind";
+import { TagInstance } from "machine-mind";
 import { getMacroSpeaker } from "./_util";
 import { renderMacroTemplate } from "./_render";
 
@@ -43,5 +41,3 @@ export async function rollTextMacro(actor: LancerActor, data: LancerTextMacroDat
   const template = `systems/${game.system.id}/templates/chat/generic-card.hbs`;
   return renderMacroTemplate(actor, template, data);
 }
-  
-  

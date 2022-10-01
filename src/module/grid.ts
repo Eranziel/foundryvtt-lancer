@@ -7,7 +7,8 @@ export function measureDistances(
   if (!options?.gridSpaces) return BaseGrid.prototype.measureDistances.call(this, segments, options);
 
   const mode = game.settings.get(game.system.id, LANCER.setting_square_grid_diagonals);
-  const grid_distance = canvas.scene?.data.gridDistance ?? 0;
+  // @ts-expect-error Should be fixed with v10 types
+  const grid_distance = canvas.scene?.grid.distance ?? 0;
   let diag_parity = 0; // Track the parity of the diagonals so that 121 can't be cheesed
 
   return segments.map(s => {

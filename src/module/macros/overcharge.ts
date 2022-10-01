@@ -9,7 +9,7 @@ import { renderMacroTemplate } from "./_render";
 
 const lp = LANCER.log_prefix;
 
-export function encodeOverchargeMacroData(actor_id: string): string  {
+export function encodeOverchargeMacroData(actor_id: string): string {
   return encodeMacroData({
     title: "OVERCHARGE",
     fn: "prepareOverchargeMacro",

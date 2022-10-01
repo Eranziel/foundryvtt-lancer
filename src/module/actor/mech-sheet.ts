@@ -65,9 +65,7 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
       // For setting pilot
       return true;
     } else if (item.type == "Item") {
-      return item.document.is_mech_system() || 
-        item.document.is_mech_weapon() || 
-        item.document.is_frame();
+      return item.document.is_mech_system() || item.document.is_mech_weapon() || item.document.is_frame();
     } else {
       return false;
     }
@@ -79,7 +77,7 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
 
     // Now, do sensible things with it
     // TODO
-      /*
+    /*
     if (is_new && drop.type == "Item" && drop.document.is_frame() && this.actor.is_mech()) {
       // If new frame, auto swap with prior frame
       await this.actor.swapFrameImage(this.actor, this.actor.data.data.loadout.frame, drop);
@@ -110,7 +108,8 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
 
     overchargeText.on("click", ev => {
       if (!this.actor.is_mech()) return;
-      this._setOverchargeLevel(ev, Math.min(this.actor.data.data.overcharge + 1, 3));
+      // @ts-expect-error Should be fixed with v10 types
+      this._setOverchargeLevel(ev, Math.min(this.actor.system.overcharge + 1, 3));
     });
 
     // Overcharge reset

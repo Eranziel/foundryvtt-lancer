@@ -1,14 +1,20 @@
 import type { HelperOptions } from "handlebars";
-import {
-  Action,
-  SystemType,
-  EntryType,
-} from "machine-mind";
+import { Action, SystemType, EntryType } from "machine-mind";
 import { is_limited } from "machine-mind/dist/classes/mech/EquipUtil";
 import { is_actor_type } from "../actor/lancer-actor";
 import { TypeIcon } from "../config";
 import type { LancerMacroData } from "../interfaces";
-import { LancerItem, is_item_type, LancerItemType, LancerMECH_SYSTEM, LancerMECH_WEAPON, LancerNPC_FEATURE, LancerPILOT_GEAR, LancerPILOT_WEAPON, LancerWEAPON_MOD } from "../item/lancer-item";
+import {
+  LancerItem,
+  is_item_type,
+  LancerItemType,
+  LancerMECH_SYSTEM,
+  LancerMECH_WEAPON,
+  LancerNPC_FEATURE,
+  LancerPILOT_GEAR,
+  LancerPILOT_WEAPON,
+  LancerWEAPON_MOD,
+} from "../item/lancer-item";
 import { encodeMacroData } from "../macros";
 import { effect_box, gentle_merge, read_form, resolve_dotpath, resolve_helper_dotpath, sp_display } from "./commons";
 import {
@@ -25,6 +31,28 @@ import { compact_tag_list } from "./tags";
 import { CollapseRegistry } from "./loadout";
 import { LancerDoc } from "../util/doc";
 
+// We use these for virtually every ref function
+export function ref_commons<T extends EntryType>(
+  item: LancerDoc | null
+): null | {
+  img: string;
+  name: string;
+  uuid: string;
+} {
+  // Nulls beget nulls
+  if (!item) {
+    return null;
+  }
+
+  // TODO: Maybe just eliminate this entirely. its kind of dumb in a post MM world
+
+  // Combine and return
+  return {
+    img: item.img,
+    name: item.name,
+    uuid: item.uuid,
+  };
+}
 
 // Creates the params common to all refs, essentially just the html-ified version of a RegRef
 export function ref_params(doc: LancerDoc, path?: string) {
@@ -110,7 +138,7 @@ export async function HANDLER_activate_ref_clicking<T extends EntryType>(event: 
 
 // Given a ref element (as created by simple_mm_ref or similar function), find the item it is currently referencing
 export async function resolve_ref_element<T extends EntryType>(
-  element: HTMLElement,
+  element: HTMLElement
 ): Promise<foundry.abstract.Document<any> | null> {
   return element.dataset.uuid ? fromUuid(element.dataset.uuid) : null;
 }
@@ -130,7 +158,9 @@ export function mm_ref_portrait<T extends EntryType>(
   _helper: HelperOptions
 ) {
   // Fetch the image
-  return `<img class="profile-img ref valid ${item.type}" src="${img}" data-edit="${img_path}" ${ref_params(item)} width="100" height="100" />`;
+  return `<img class="profile-img ref valid ${item.type}" src="${img}" data-edit="${img_path}" ${ref_params(
+    item
+  )} width="100" height="100" />`;
 }
 
 // Use this slot callback to add items of certain kind(s) to a list.
@@ -224,7 +254,7 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
       }
       return `<li class="valid ref card clipped mech-system item ${
         sys.SysType === SystemType.Tech ? "tech-item" : ""
-      }" ${ref_params(cd.ref)} style="margin: 0;">
+      }" ${ref_params(cd.ref, cd.uuid)} style="margin: 0;">
         <div class="lancer-header ${sys.Destroyed ? "destroyed" : ""}" style="grid-area: 1/1/2/3; display: flex">
           <i class="${sys.Destroyed ? "mdi mdi-cog" : icon}"> </i>
           <a class="lancer-macro" data-macro="${encodeMacroData(macroData)}"><i class="mdi mdi-message"></i></a>
@@ -253,7 +283,7 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
 
     case EntryType.TALENT:
       let talent: Talent = <Talent>(<any>item);
-      let retStr = `<li class="card clipped talent-compact item ref valid" ${ref_params(cd.ref)}>
+      let retStr = `<li class="card clipped talent-compact item ref valid" ${ref_params(cd.ref, cd.uuid)}>
         <div class="lancer-talent-header medium clipped-top" style="grid-area: 1/1/2/4">
           <i class="cci cci-talent i--m"></i>
           <span class="major">${talent.Name}</span>
@@ -283,9 +313,9 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
         };
 
         retStr += `<li class="talent-rank-compact card clipped" style="padding: 5px">
-        <a class="cci cci-rank-${
-          i + 1
-        } i--l i--dark talent-macro lancer-macro" data-macro="${encodeMacroData(macroData)}" style="grid-area: 1/1/2/2"></a>
+        <a class="cci cci-rank-${i + 1} i--l i--dark talent-macro lancer-macro" data-macro="${encodeMacroData(
+          macroData
+        )}" style="grid-area: 1/1/2/2"></a>
         <span class="major" style="grid-area: 1/2/2/3">${talent.Ranks[i]?.Name}</span>
         <div class="effect-text" style="grid-area: 2/1/3/3">
         ${talent.Ranks[i]?.Description}
@@ -302,7 +332,7 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
     case EntryType.SKILL:
       let skill: Skill = <Skill>(<any>item);
       return `
-      <li class="card clipped skill-compact item macroable ref valid" ${ref_params(cd.ref)}>
+      <li class="card clipped skill-compact item macroable ref valid" ${ref_params(cd.ref, cd.uuid)}>
         <div class="lancer-trigger-header medium clipped-top" style="grid-area: 1/1/2/3">
           <i class="cci cci-skill i--m i--dark"> </i>
           <span class="major modifier-name">${skill.Name}</span>
@@ -322,7 +352,7 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
     case EntryType.CORE_BONUS:
       let cb: CoreBonus = <CoreBonus>(<any>item);
       return `
-      <li class="card clipped item ref valid" ${ref_params(cd.ref)}>
+      <li class="card clipped item ref valid" ${ref_params(cd.ref, cd.uuid)}>
         <div class="lancer-corebonus-header medium clipped-top" style="grid-area: 1/1/2/3">
           <i class="cci cci-corebonus i--m i--dark"> </i>
           <span class="major modifier-name">${cb.Name}</span>
@@ -348,7 +378,7 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
       console.log("You're using the default refview, you may not want that");
       return `
       <div class="valid ${cd.ref.type} ref clickable-ref ref-card" 
-              ${ref_params(cd.ref)}>
+              ${ref_params(cd.ref, cd.uuid)}>
         <img class="ref-icon" src="${cd.img}"></img>
         <span class="major">${cd.name}</span>
         <hr class="vsep"> 
@@ -361,8 +391,13 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
 }
 
 export function limited_uses_indicator(
-  item: LancerMECH_WEAPON | LancerMECH_SYSTEM | LancerWEAPON_MOD 
-      | LancerPILOT_WEAPON | LancerPILOT_GEAR | LancerNPC_FEATURE,
+  item:
+    | LancerMECH_WEAPON
+    | LancerMECH_SYSTEM
+    | LancerWEAPON_MOD
+    | LancerPILOT_WEAPON
+    | LancerPILOT_GEAR
+    | LancerNPC_FEATURE,
   path: string
 ): string {
   const uses = item.data.data.uses;

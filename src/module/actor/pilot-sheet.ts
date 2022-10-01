@@ -4,7 +4,7 @@ import { LancerActorSheet } from "./lancer-actor-sheet";
 import { EntryType, Mech, PackedPilotData, Pilot, funcs } from "machine-mind";
 import type { HelperOptions } from "handlebars";
 import { buildCounterHeader, buildCounterHTML } from "../helpers/item";
-import { ref_doc_common_attrs, ref_params, resolve_ref_element, simple_mm_ref } from "../helpers/refs";
+import { ref_params, resolve_ref_element, simple_mm_ref } from "../helpers/refs";
 import { resolve_dotpath } from "../helpers/commons";
 import { is_actor_type, LancerActor, LancerMECH, LancerPILOT } from "./lancer-actor";
 import { fetchPilotViaCache, fetchPilotViaShareCode, pilotCache } from "../util/compcon";
@@ -18,7 +18,7 @@ const COUNTER_MAX = 8;
 /**
  * Extend the basic ActorSheet
  */
-export class LancerPilotSheet extends LancerActorSheet {
+export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
   /**
    * Extend and override the default options used by the Pilot Sheet
    * @returns {Object}
@@ -55,7 +55,7 @@ export class LancerPilotSheet extends LancerActorSheet {
       // Cloud download
       let download = html.find('.cloud-control[data-action*="download"]');
       let actor = this.actor;
-      if (actor.is_pilot() && actor.data.data.cloud_id) {
+      if (actor.is_pilot() && actor.system.cloud_id) {
         download.on("click", async ev => {
           ev.stopPropagation();
 
@@ -182,20 +182,20 @@ export class LancerPilotSheet extends LancerActorSheet {
     // TODO
     let pilot = this.actor as LancerPILOT;
     // Set active mech
-    await pilot.update({"system.active_mech": mech.uuid});
-    await mech.update({"system.pilot": pilot.uuid});
+    await pilot.update({ "system.active_mech": mech.uuid });
+    await mech.update({ "system.pilot": pilot.uuid });
   }
 
   async deactivateMech() {
     // Unset active mech
     await this.actor.update({
-      "active_mech": null
+      active_mech: null,
     });
   }
 
   async getData() {
     const data = await super.getData(); // Not fully populated yet!
-    // TODO 
+    // TODO
     /*
 
     data.active_mech = await data.mm.ActiveMech();
@@ -229,17 +229,18 @@ export class LancerPilotSheet extends LancerActorSheet {
     }
 
     // Accept pilot items
-    if (item.type == "Item" && (
-      item.document.is_core_bonus() ||
-      item.document.is_pilot_weapon() || 
-      item.document.is_pilot_armor() || 
-      item.document.is_pilot_gear() || 
-      item.document.is_license() || 
-      item.document.is_skill() || 
-      item.document.is_talent() || 
-      item.document.is_organization() || 
-      item.document.is_reserve()
-    )) {
+    if (
+      item.type == "Item" &&
+      (item.document.is_core_bonus() ||
+        item.document.is_pilot_weapon() ||
+        item.document.is_pilot_armor() ||
+        item.document.is_pilot_gear() ||
+        item.document.is_license() ||
+        item.document.is_skill() ||
+        item.document.is_talent() ||
+        item.document.is_organization() ||
+        item.document.is_reserve())
+    ) {
       return true;
     }
 
@@ -247,11 +248,7 @@ export class LancerPilotSheet extends LancerActorSheet {
     return false;
   }
 
-  async on_root_drop(
-    base_drop: ResolvedDropData,
-    event: JQuery.DropEvent,
-    _dest: JQuery<HTMLElement>
-  ): Promise<void> {
+  async on_root_drop(base_drop: ResolvedDropData, event: JQuery.DropEvent, _dest: JQuery<HTMLElement>): Promise<void> {
     let sheet_data = await this.getData();
 
     // Take posession
@@ -260,14 +257,14 @@ export class LancerPilotSheet extends LancerActorSheet {
     let loadout = pilot.data.data.loadout;
 
     // Now, do sensible things with it
-    if(drop.type == "Item") {
+    if (drop.type == "Item") {
       // Handle all pilot item types
       if (drop.document.is_pilot_weapon()) {
         // If new weapon, try to equip to first empty slot
         for (let i = 0; i < loadout.weapons.length; i++) {
           if (!loadout.weapons[i]) {
             await pilot.update({
-              [`system.loadout.weapons.${i}`]: drop.document.uuid
+              [`system.loadout.weapons.${i}`]: drop.document.uuid,
             });
             break;
           }
@@ -277,7 +274,7 @@ export class LancerPilotSheet extends LancerActorSheet {
         for (let i = 0; i < loadout.gear.length; i++) {
           if (!loadout.gear[i]) {
             await pilot.update({
-              [`system.loadout.gear.${i}`]: drop.document.uuid
+              [`system.loadout.gear.${i}`]: drop.document.uuid,
             });
             break;
           }
@@ -287,14 +284,14 @@ export class LancerPilotSheet extends LancerActorSheet {
         for (let i = 0; i < loadout.armor.length; i++) {
           if (!loadout.armor[i]) {
             await pilot.update({
-              [`system.loadout.armor.${i}`]: drop.document.uuid
+              [`system.loadout.armor.${i}`]: drop.document.uuid,
             });
             break;
           }
         }
-      } else if (is_new && drop.document.is_talent() || drop.document.is_skill()) {
+      } else if ((is_new && drop.document.is_talent()) || drop.document.is_skill()) {
         // If new skill or talent, reset to level 1
-        await drop.document.update({"system.rank": 1});
+        await drop.document.update({ "system.rank": 1 });
       }
     } else if (drop.type == "Actor" && drop.document.is_mech()) {
       this.activateMech(drop.document);
@@ -337,7 +334,8 @@ export class LancerPilotSheet extends LancerActorSheet {
     if (!this.actor.is_pilot()) return;
     // Do some pre-processing
     // Do these only if the callsign updated
-    if (this.actor.data.data.callsign !== formData["data.pilot.callsign"]) {
+    // @ts-expect-error Should be fixed with v10 types
+    if (this.actor.system.callsign !== formData["data.pilot.callsign"]) {
       // Use the Actor's name for the pilot's callsign
       // formData["name"] = formData["data.callsign"];
       // Copy the pilot's callsign to the prototype token
@@ -395,8 +393,7 @@ export function pilot_counters(pilot: Pilot, _helper: HelperOptions): string {
 }
 
 export function all_mech_preview(_helper: HelperOptions): string {
-
-  return "TODO"; 
+  return "TODO";
   let this_mm: Pilot = _helper.data.root.mm;
   let active_mech: Mech | null = _helper.data.root.active_mech;
 
@@ -407,8 +404,10 @@ export function all_mech_preview(_helper: HelperOptions): string {
     ?.filter(
       a =>
         a.is_mech() &&
-        !!a.data.data.pilot &&
-        a.data.data.pilot.id === _helper.data.root.actor.id &&
+        // @ts-expect-error Should be fixed with v10 types
+        !!a.system.pilot &&
+        // @ts-expect-error Should be fixed with v10 types
+        a.system.pilot.id === _helper.data.root.actor.id &&
         a.id !== active_mech?.RegistryID
     )
     .map((m, k) => {
@@ -419,8 +418,8 @@ export function all_mech_preview(_helper: HelperOptions): string {
 
       html = html.concat(`
       <div class="flexrow inactive-row">
-        <a class="activate-mech" ${ref_params(cd.ref)}><i class="cci cci-activate"></i></a>
-        <div class="major valid ${cd.ref.type} ref" ${ref_params(cd.ref)}>${m.name}</div>
+        <a class="activate-mech" ${ref_params(cd.ref, cd.uuid)}><i class="cci cci-activate"></i></a>
+        <div class="major valid ${cd.ref.type} ref" ${ref_params(cd.ref, cd.uuid)}>${m.name}</div>
       </div>
     `);
     });
@@ -469,7 +468,7 @@ export function active_mech_preview(mech: Mech, path: string, _helper: HelperOpt
     <a class="deactivate-mech"><i class="cci cci-activate"></i></a>
       <span>ACTIVE MECH: ${mech.Name}</span>
     </div>
-    <img class="valid ${cd.ref.type} ref" ${ref_params(cd.ref)} src="${mech.Flags.top_level_data.img}"/>
+    <img class="valid ${cd.ref.type} ref" ${ref_params(cd.ref, cd.uuid)} src="${mech.Flags.top_level_data.img}"/>
     ${stats_html}
   </div>`);
 

@@ -4,10 +4,7 @@ import { getAutomationOptions } from "../settings";
 import type { LancerItem } from "../item/lancer-item";
 import type { LancerActor } from "../actor/lancer-actor";
 import type { LancerAttackMacroData, LancerMacroData } from "../interfaces";
-import {
-  DamageType,
-  funcs,
-} from "machine-mind";
+import { DamageType, funcs } from "machine-mind";
 import { is_limited, is_overkill } from "machine-mind/dist/funcs";
 import { is_loading, is_self_heat } from "machine-mind/dist/classes/mech/EquipUtil";
 import { checkForHit } from "../helpers/automation/targeting";
@@ -69,7 +66,7 @@ export async function prepareEncodedAttackMacro(
   options: AttackMacroOptions,
   rerollData: AccDiffDataSerialized
 ) {
-/*
+  /*
   if (actor_ref == null) {
     return openBasicAttack();
   }
@@ -122,7 +119,7 @@ export async function prepareAttackMacro(
     damage: [],
     // @ts-ignore this should be on everything, right? TODO: Make sure the mech
     // weapon type is correctly defined
-    tags: item.data.data.derived.mm?.Tags,
+    tags: item.system.derived.mm?.Tags,
     overkill: false,
     effect: "",
     loaded: true,
@@ -135,13 +132,18 @@ export async function prepareAttackMacro(
 
   // We can safely split off pilot/mech weapons by actor type
   if (actor.is_mech() && item.is_mech_weapon()) {
-    pilotEnt = (await actor.data.data.derived.mm_promise).Pilot!;
-    itemEnt = await item.data.data.derived.mm_promise;
+    // @ts-expect-error Should be fixed with v10 types
+    pilotEnt = (await actor.system.derived.mm_promise).Pilot!;
+    // @ts-expect-error Should be fixed with v10 types
+    itemEnt = await item.system.derived.mm_promise;
 
+    // @ts-expect-error Should be fixed with v10 types
     weaponData = itemEnt.SelectedProfile;
 
     mData.loaded = itemEnt.Loaded;
+    // @ts-expect-error Should be fixed with v10 types
     mData.destroyed = itemEnt.Destroyed;
+    // @ts-expect-error Should be fixed with v10 types
     mData.damage = weaponData.BaseDamage;
     mData.grit = pilotEnt.Grit;
     mData.acc = 0;
@@ -149,15 +151,22 @@ export async function prepareAttackMacro(
     mData.overkill = is_overkill(itemEnt);
     mData.self_heat = is_self_heat(itemEnt);
     mData.effect = weaponData.Effect;
+    // @ts-expect-error Should be fixed with v10 types
     mData.on_attack = weaponData.OnAttack;
+    // @ts-expect-error Should be fixed with v10 types
     mData.on_hit = weaponData.OnHit;
+    // @ts-expect-error Should be fixed with v10 types
     mData.on_crit = weaponData.OnCrit;
   } else if (actor.is_pilot() && item.is_pilot_weapon()) {
-    pilotEnt = await actor.data.data.derived.mm_promise;
-    itemEnt = await item.data.data.derived.mm_promise;
+    // @ts-expect-error Should be fixed with v10 types
+    pilotEnt = await actor.system.derived.mm_promise;
+    // @ts-expect-error Should be fixed with v10 types
+    itemEnt = await item.system.derived.mm_promise;
+    // @ts-expect-error Should be fixed with v10 types
     weaponData = itemEnt;
 
     mData.loaded = itemEnt.Loaded;
+    // @ts-expect-error Should be fixed with v10 types
     mData.damage = weaponData.Damage;
     mData.grit = pilotEnt.Grit;
     mData.acc = 0;
@@ -166,15 +175,20 @@ export async function prepareAttackMacro(
     mData.self_heat = is_self_heat(itemEnt);
     mData.effect = weaponData.Effect;
   } else if (actor.is_npc() && item.is_npc_feature()) {
-    itemEnt = await item.data.data.derived.mm_promise;
+    // @ts-expect-error Should be fixed with v10 types
+    itemEnt = await item.system.derived.mm_promise;
+    // @ts-expect-error Should be fixed with v10 types
     let tier_index: number = itemEnt.TierOverride;
+    // @ts-expect-error Should be fixed with v10 types
     if (!itemEnt.TierOverride) {
       if (item.actor === null) {
         // Use selected actor
-        tier_index = actor.data.data.tier - 1;
+        // @ts-expect-error Should be fixed with v10 types
+        tier_index = actor.system.tier - 1;
       } else if (item.actor.is_npc()) {
         // Use provided actor
-        tier_index = item.actor.data.data.tier - 1;
+        // @ts-expect-error Should be fixed with v10 types
+        tier_index = item.actor.system.tier - 1;
       }
     } else {
       // Fix to be index
@@ -182,17 +196,24 @@ export async function prepareAttackMacro(
     }
 
     mData.loaded = itemEnt.Loaded;
-    mData.destroyed = item.data.data.destroyed;
+    // @ts-expect-error Should be fixed with v10 types
+    mData.destroyed = item.system.destroyed;
     // This can be a string... but can also be a number...
+    // @ts-expect-error Should be fixed with v10 types
     mData.grit = Number(itemEnt.AttackBonus[tier_index]) || 0;
+    // @ts-expect-error Should be fixed with v10 types
     mData.acc = itemEnt.Accuracy[tier_index];
 
     // Reduce damage values to only this tier
+    // @ts-expect-error Should be fixed with v10 types
     mData.damage = itemEnt.Damage[tier_index] ?? [];
+    // @ts-expect-error Should be fixed with v10 types
     mData.tags = itemEnt.Tags;
     mData.overkill = funcs.is_overkill(itemEnt);
     mData.self_heat = is_self_heat(itemEnt);
+    // @ts-expect-error Should be fixed with v10 types
     mData.on_hit = itemEnt.OnHit;
+    // @ts-expect-error Should be fixed with v10 types
     mData.effect = itemEnt.Effect;
   } else {
     ui.notifications!.error(`Error preparing attack macro - ${actor.name} is an unknown type!`);
@@ -237,15 +258,18 @@ export async function prepareAttackMacro(
   // Check if weapon if loaded.
   if (getAutomationOptions().limited_loading && getAutomationOptions().attacks) {
     if (is_loading(itemEnt) && !itemEnt.Loaded) {
-      ui.notifications!.warn(`Weapon ${item.data.data.name} is not loaded!`);
+      // @ts-expect-error Should be fixed with v10 types
+      ui.notifications!.warn(`Weapon ${item.system.name} is not loaded!`);
       return;
     }
     if (is_limited(itemEnt) && itemEnt.Uses <= 0) {
-      ui.notifications!.warn(`Weapon ${item.data.data.name} has no remaining uses!`);
+      // @ts-expect-error Should be fixed with v10 types
+      ui.notifications!.warn(`Weapon ${item.system.name} has no remaining uses!`);
       return;
     }
     if (mData.destroyed) {
-      ui.notifications!.warn(`Weapon ${item.data.data.name} is destroyed!`);
+      // @ts-expect-error Should be fixed with v10 types
+      ui.notifications!.warn(`Weapon ${item.system.name} is destroyed!`);
       return;
     }
   }
@@ -282,7 +306,8 @@ export async function prepareAttackMacro(
   let rerollMacro = {
     title: "Reroll attack",
     fn: "prepareEncodedAttackMacro",
-    args: [actor.data.data.derived.mm!.as_ref(), item.id, options, promptedData.toObject()],
+    // @ts-expect-error Should be fixed with v10 types
+    args: [actor.system.derived.mm!.as_ref(), item.id, options, promptedData.toObject()],
   };
 
   await rollAttackMacro(actor, atkRolls, mData, rerollMacro);
@@ -331,20 +356,24 @@ export async function openBasicAttack(rerollData?: AccDiffData) {
   let pilotEnt: Pilot;
 
   if (actor.is_deployable()) {
-    const deployer = (await actor.data.data.derived.mm_promise).Deployer;
+    // @ts-expect-error Should be fixed with v10 types
+    const deployer = (await actor.system.derived.mm_promise).Deployer;
     if (deployer) statActor = deployer.Flags.orig_doc;
   }
 
   console.log(statActor);
 
   if (statActor.is_mech()) {
-    pilotEnt = (await statActor.data.data.derived.mm_promise).Pilot!;
+    // @ts-expect-error Should be fixed with v10 types
+    pilotEnt = (await statActor.system.derived.mm_promise).Pilot!;
     mData.grit = pilotEnt.Grit;
   } else if (statActor.is_pilot()) {
-    pilotEnt = await statActor.data.data.derived.mm_promise;
+    // @ts-expect-error Should be fixed with v10 types
+    pilotEnt = await statActor.system.derived.mm_promise;
     mData.grit = pilotEnt.Grit;
   } else if (statActor.is_npc()) {
-    const mm = await statActor.data.data.derived.mm_promise;
+    // @ts-expect-error Should be fixed with v10 types
+    const mm = await statActor.system.derived.mm_promise;
     let tier_bonus: number = mm.Tier;
     mData.grit = tier_bonus || 0;
   } else if (statActor.is_deployable()) {
@@ -359,7 +388,8 @@ export async function openBasicAttack(rerollData?: AccDiffData) {
   let rerollMacro = {
     title: "Reroll attack",
     fn: "prepareEncodedAttackMacro",
-    args: [actor.data.data.derived.mm!.as_ref(), null, {}, promptedData.toObject()],
+    // @ts-expect-error Should be fixed with v10 types
+    args: [actor.system.derived.mm!.as_ref(), null, {}, promptedData.toObject()],
   };
 
   await rollAttackMacro(actor, atkRolls, mData, rerollMacro);
@@ -402,7 +432,8 @@ export async function checkTargets(
         return {
           attack: { roll: attack_roll, tt: attack_tt },
           hit: {
-            token: { name: target.data.name!, img: target.data.img! },
+            // @ts-expect-error Token structure has changed
+            token: { name: target.name!, img: target.document.texture?.src },
             total: String(attack_roll.total).padStart(2, "0"),
             hit: await checkForHit(isSmart, attack_roll, actor),
             crit: (attack_roll.total || 0) >= 20,
@@ -519,7 +550,8 @@ async function rollAttackMacro(
 
   if (getAutomationOptions().attack_self_heat) {
     if (actor.is_mech() || actor.is_npc()) {
-      await actor.update({"data.heat": overkill_heat + self_heat});
+      // @ts-expect-error Should be fixed with v10 types
+      await actor.update({ "system.heat": overkill_heat + self_heat });
     }
   }
 
