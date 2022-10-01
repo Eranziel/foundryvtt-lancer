@@ -1,7 +1,7 @@
 import { LANCER } from "../config";
 import type { LancerMacroData, LancerTalentMacroData } from "../interfaces";
 import { is_item_type, LancerItem } from "../item/lancer-item";
-import { is_actor_type, LancerActor } from "../actor/lancer-actor";
+import { LancerActor } from "../actor/lancer-actor";
 
 const lp = LANCER.log_prefix;
 

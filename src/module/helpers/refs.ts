@@ -1,7 +1,6 @@
 import type { HelperOptions } from "handlebars";
 import { Action, SystemType, EntryType } from "machine-mind";
 import { is_limited } from "machine-mind/dist/classes/mech/EquipUtil";
-import { is_actor_type } from "../actor/lancer-actor";
 import { TypeIcon } from "../config";
 import type { LancerMacroData } from "../interfaces";
 import {

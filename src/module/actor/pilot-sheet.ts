@@ -6,7 +6,7 @@ import type { HelperOptions } from "handlebars";
 import { buildCounterHeader, buildCounterHTML } from "../helpers/item";
 import { ref_params, resolve_ref_element, simple_mm_ref } from "../helpers/refs";
 import { resolve_dotpath } from "../helpers/commons";
-import { is_actor_type, LancerActor, LancerMECH, LancerPILOT } from "./lancer-actor";
+import { LancerActor, LancerMECH, LancerPILOT } from "./lancer-actor";
 import { fetchPilotViaCache, fetchPilotViaShareCode, pilotCache } from "../util/compcon";
 import { LancerItem, LancerItemType } from "../item/lancer-item";
 import { clicker_num_input } from "../helpers/actor";

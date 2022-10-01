@@ -16,7 +16,7 @@ import {
 } from "../helpers/refs";
 import type { LancerActorSheetData, LancerMacroData, LancerStatMacroData } from "../interfaces";
 import { LancerItem, is_item_type, LancerItemType } from "../item/lancer-item";
-import { LancerActor, is_actor_type, LancerActorType } from "./lancer-actor";
+import { LancerActor, LancerActorType } from "./lancer-actor";
 import {
   encodeMacroData,
   prepareActivationMacro,

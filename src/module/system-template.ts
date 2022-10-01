@@ -117,11 +117,11 @@ export namespace SystemTemplates {
   // Note that "didn't resolve" is distinct from null, and so we track that separately
   export type ResolvedEmbeddedRef<T> =
     | {
-        status: "resolved"; // Resolved successfully!
+        status: "resolved"; // Resolved successfully! Value should be usable
         value: T;
       }
     | {
-        status: "missing"; // Was unable to resolve successfully
+        status: "missing"; // Was unable to resolve successfully. This indicates an invalid ref that should be purged
         value: null;
       };
 
@@ -129,7 +129,7 @@ export namespace SystemTemplates {
   export type ResolvedUuidRef<T> =
     | ResolvedEmbeddedRef<T>
     | {
-        status: "async";
+        status: "async"; // Was unable to resolve synchronously, but as of yet may be resolved as a promise. Oftentimes, we will choose to ignore the async possible
         value: Promise<T>;
       };
 }
@@ -250,7 +250,7 @@ interface SystemDataTypesMap extends DataTypeMap {
       };
       meltdown_timer: number | null;
       notes: string;
-      pilot: SystemTemplates.ResolvedEmbeddedRef<LancerPILOT> | null; // UUID to a LancerPILOT
+      pilot: SystemTemplates.ResolvedUuidRef<LancerPILOT> | null; // UUID to a LancerPILOT
 
       // TODO: derived convenience arrays of features/actions? Active class?
     };
