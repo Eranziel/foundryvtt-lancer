@@ -1,12 +1,13 @@
 import { LANCER, TypeIcon } from "../config";
 import { EntryType, funcs, NpcFeatureType, RangeType, RegEntryTypes, RegRangeData } from "machine-mind";
 import { SystemDataType } from "../system-template";
+import { SourceDataType } from "../source-template";
 
 const lp = LANCER.log_prefix;
 
 interface LancerItemDataSource<T extends LancerItemType> {
   type: T;
-  data: RegEntryTypes<T>;
+  data: SourceDataType<T>;
 }
 interface LancerItemDataProperties<T extends LancerItemType> {
   type: T;
@@ -98,11 +99,6 @@ export class LancerItem extends Item {
         return [];
     }
   }
-
-  // Use this to prevent race conditions / carry over data
-  private _current_prepare_job_id!: number;
-  private _job_tracker!: Map<number, Promise<AnyMMItem>>;
-  private _prev_derived: this["data"]["data"]["derived"] | undefined;
 
   /**
    * Force name down to item,
@@ -303,24 +299,24 @@ type SystemShim<T extends LancerItemType> = LancerItem & {
   type: T;
   system: SystemDataType<T>;
 };
-export type LancerCORE_BONUS = SystemShim<EntryType.CORE_BONUS>;
-export type LancerFRAME = SystemShim<EntryType.FRAME>;
-export type LancerLICENSE = SystemShim<EntryType.LICENSE>;
-export type LancerMECH_SYSTEM = SystemShim<EntryType.MECH_SYSTEM>;
-export type LancerMECH_WEAPON = SystemShim<EntryType.MECH_WEAPON>;
-export type LancerNPC_CLASS = SystemShim<EntryType.NPC_CLASS>;
-export type LancerNPC_FEATURE = SystemShim<EntryType.NPC_FEATURE>;
-export type LancerNPC_TEMPLATE = SystemShim<EntryType.NPC_TEMPLATE>;
-export type LancerORGANIZATION = SystemShim<EntryType.ORGANIZATION>;
-export type LancerPILOT_ARMOR = SystemShim<EntryType.PILOT_ARMOR>;
-export type LancerPILOT_GEAR = SystemShim<EntryType.PILOT_GEAR>;
-export type LancerPILOT_WEAPON = SystemShim<EntryType.PILOT_WEAPON>;
-export type LancerRESERVE = SystemShim<EntryType.RESERVE>;
-export type LancerSKILL = SystemShim<EntryType.SKILL>;
-export type LancerSTATUS = SystemShim<EntryType.STATUS>;
-export type LancerTAG = SystemShim<EntryType.TAG>;
-export type LancerTALENT = SystemShim<EntryType.TALENT>;
-export type LancerWEAPON_MOD = SystemShim<EntryType.WEAPON_MOD>;
+export type LancerCORE_BONUS = LancerItem & { system: SystemDataType<EntryType.CORE_BONUS> };
+export type LancerFRAME = LancerItem & { system: SystemDataType<EntryType.FRAME> };
+export type LancerLICENSE = LancerItem & { system: SystemDataType<EntryType.LICENSE> };
+export type LancerMECH_SYSTEM = LancerItem & { system: SystemDataType<EntryType.MECH_SYSTEM> };
+export type LancerMECH_WEAPON = LancerItem & { system: SystemDataType<EntryType.MECH_WEAPON> };
+export type LancerNPC_CLASS = LancerItem & { system: SystemDataType<EntryType.NPC_CLASS> };
+export type LancerNPC_FEATURE = LancerItem & { system: SystemDataType<EntryType.NPC_FEATURE> };
+export type LancerNPC_TEMPLATE = LancerItem & { system: SystemDataType<EntryType.NPC_TEMPLATE> };
+export type LancerORGANIZATION = LancerItem & { system: SystemDataType<EntryType.ORGANIZATION> };
+export type LancerPILOT_ARMOR = LancerItem & { system: SystemDataType<EntryType.PILOT_ARMOR> };
+export type LancerPILOT_GEAR = LancerItem & { system: SystemDataType<EntryType.PILOT_GEAR> };
+export type LancerPILOT_WEAPON = LancerItem & { system: SystemDataType<EntryType.PILOT_WEAPON> };
+export type LancerRESERVE = LancerItem & { system: SystemDataType<EntryType.RESERVE> };
+export type LancerSKILL = LancerItem & { system: SystemDataType<EntryType.SKILL> };
+export type LancerSTATUS = LancerItem & { system: SystemDataType<EntryType.STATUS> };
+export type LancerTAG = LancerItem & { system: SystemDataType<EntryType.TAG> };
+export type LancerTALENT = LancerItem & { system: SystemDataType<EntryType.TALENT> };
+export type LancerWEAPON_MOD = LancerItem & { system: SystemDataType<EntryType.WEAPON_MOD> };
 
 // This seems like it could be removed eventually
 export type LancerItemType =
@@ -342,7 +338,7 @@ export type LancerItemType =
   | EntryType.TALENT
   | EntryType.WEAPON_MOD
   | EntryType.TAG;
-export const LancerItemTypes = [
+export const ITEM_TYPES = [
   EntryType.CORE_BONUS,
   EntryType.FRAME,
   EntryType.LICENSE,
@@ -362,5 +358,5 @@ export const LancerItemTypes = [
   EntryType.TAG,
 ];
 export function is_item_type(type: EntryType): type is LancerItemType {
-  return LancerItemTypes.includes(type);
+  return ITEM_TYPES.includes(type);
 }
