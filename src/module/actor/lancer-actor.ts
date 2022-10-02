@@ -17,7 +17,7 @@ import { StabOptions1, StabOptions2 } from "../enums";
 import { fix_modify_token_attribute } from "../token";
 import { findEffect } from "../helpers/acc_diff";
 import { AppliedDamage } from "./damage-calc";
-import { SystemDataType } from "../system-template";
+import { SystemDataType, SystemTemplates } from "../system-template";
 import { AE_MODE_SET_JSON } from "../effects/lancer-active-effect";
 import { SourceDataType } from "../source-template";
 const lp = LANCER.log_prefix;
@@ -361,6 +361,7 @@ export class LancerActor extends Actor {
     await this.remove_all_active_effects();
     //TODO fix to be a real type
     let changes: Record<string, any> = {
+      // @ts-expect-error System's broken unless narrowed
       "data.hp": this.system.hp.max,
       "data.burn": 0,
       "data.overshield": 0,
@@ -591,17 +592,14 @@ export class LancerActor extends Actor {
   }
 
   async damage_calc(damage: AppliedDamage, ap = false, paracausal = false): Promise<number> {
-    // @ts-expect-error Should be fixed with v10 types
-    const ent = await this.system.derived.mm_promise;
-
     const armored_damage_types = ["Kinetic", "Energy", "Explosive", "Variable"] as const;
 
-    const ap_damage_types = ["Burn", "Heat"] as const;
+    const ap_damage_types = [DamageType.Burn, DamageType.Heat] as const;
 
-    let writeback_needed = false;
+    let changes = {} as Record<string, number>;
 
     // Entities without Heat Caps take Energy Damage instead
-    if (!("CurrentHeat" in ent)) {
+    if (this.is_pilot()) {
       damage.Energy += damage.Heat;
       damage.Heat = 0;
     }
@@ -612,22 +610,21 @@ export class LancerActor extends Actor {
     }
 
     /**
-     * FIXME - Once Deployables and Pilots have Resistances, only include the
-     * Shredded check.
-     */
-
-    /**
      * Step 2: Reduce damage due to armor.
      * Step 3: Reduce damage due to resistance.
      * Armor reduction may favor attacker or defender depending on automation.
      * Default is "favors defender".
      */
-    if (!paracausal && !findEffect(this, "shredded") && !is_reg_dep(ent) && !is_reg_pilot(ent)) {
+    if (!paracausal && !findEffect(this, "shredded")) {
       const defense_favor = true; // getAutomationOptions().defenderArmor
-      const resist_armor_damage = armored_damage_types.filter(t => ent.Resistances[t]);
-      const normal_armor_damage = armored_damage_types.filter(t => !ent.Resistances[t]);
-      const resist_ap_damage = ap_damage_types.filter(t => ent.Resistances[t]);
-      let armor = ap ? 0 : ent.Armor;
+      // @ts-expect-error System's broken
+      const resist_armor_damage = armored_damage_types.filter(t => this.system.resistances[t]);
+      // @ts-expect-error System's broken
+      const normal_armor_damage = armored_damage_types.filter(t => !this.system.resistances[t]);
+      // @ts-expect-error System's broken
+      const resist_ap_damage = ap_damage_types.filter(t => this.system.resistances[t]);
+      // @ts-expect-error System's broken
+      let armor = ap ? 0 : this.system.armor;
       let leftover_armor: number; // Temp 'storage' variable for tracking used armor
 
       // Defender-favored: Deduct Armor from non-resisted damages first
@@ -661,35 +658,37 @@ export class LancerActor extends Actor {
       }
     }
 
-    if ("CurrentHeat" in ent && damage.Heat > 0) {
-      ent.CurrentHeat += damage.Heat;
-      writeback_needed = true;
+    // Only set heat on items that have it
+    if (this.has_heat_cap()) {
+      changes["system.heat"] = this.system.heat.value + damage.Heat;
     }
 
     const armor_damage = Math.ceil(damage.Kinetic + damage.Energy + damage.Explosive + damage.Variable);
     let total_damage = armor_damage + damage.Burn;
 
     // Reduce Overshield first
-    if (ent.Overshield) {
-      const leftover_overshield = Math.max(ent.Overshield - total_damage, 0);
-      total_damage = Math.max(total_damage - ent.Overshield, 0);
-      ent.Overshield = leftover_overshield;
-      writeback_needed = true;
+    // @ts-expect-error System's broken
+    if (this.system.overshield.value) {
+      // @ts-expect-error System's broken
+      const leftover_overshield = Math.max(this.system.overshield.value - total_damage, 0);
+      // @ts-expect-error System's broken
+      total_damage = Math.max(total_damage - this.system.overshield.value, 0);
+      changes["system.overshield"] = leftover_overshield;
     }
 
     // Finally reduce HP by remaining damage
     if (total_damage) {
-      ent.CurrentHP -= total_damage;
-      writeback_needed = true;
+      // @ts-expect-error System's broken
+      changes["system.hp"] = this.system.hp.value - total_damage;
     }
 
     // Add to Burn stat
     if (damage.Burn) {
-      ent.Burn += damage.Burn;
-      writeback_needed = true;
+      // @ts-expect-error System's broken
+      changes["system.burn"] = this.system.burn + damage.Burn;
     }
 
-    if (writeback_needed) await ent.writeback();
+    await this.update(changes);
 
     return total_damage;
   }
@@ -977,7 +976,9 @@ export class LancerActor extends Actor {
     // protype token size to the new size
     // @ts-expect-error Flags is throwing a weird error. Missing type?
     const cached_token_size = this.token?.flags?.[game.system.id]?.mm_size;
+    // @ts-expect-error System's broken
     if (!cached_token_size || cached_token_size !== this.system.size) {
+      // @ts-expect-error System's broken
       const size = Math.max(1, this.system.size);
       this.token?.update({
         width: size,
@@ -996,6 +997,7 @@ export class LancerActor extends Actor {
     }
 
     // Update prior max hp val
+    // @ts-expect-error System's broken
     this.prior_max_hp = this.system.hp.max;
   }
 
@@ -1166,6 +1168,7 @@ export class LancerActor extends Actor {
               },
               transfer: false,
               flags: {},
+              _id: null,
             });
           })
         );
@@ -1233,6 +1236,11 @@ export class LancerActor extends Actor {
   }
   is_deployable(): this is LancerDEPLOYABLE {
     return this.data.type === EntryType.DEPLOYABLE;
+  }
+
+  // Quick checkers
+  has_heat_cap(): this is { system: SystemTemplates.heat } {
+    return (this as any).system.heat !== undefined;
   }
 
   /**

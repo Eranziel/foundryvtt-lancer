@@ -196,7 +196,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
   }
 
   _activateCollapses(html: JQuery) {
-    let prefix = `lancer-collapse-${this.object._id}-`;
+    let prefix = `lancer-collapse-${this.object.id}-`;
     let triggers = html.find(".collapse-trigger");
     // Init according to session store.
     triggers.each((_index, trigger) => {
