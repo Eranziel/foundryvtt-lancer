@@ -7,7 +7,7 @@ import {
   SystemType,
   WeaponSize,
   WeaponType,
-} from "./enums";
+} from "../../enums";
 
 export interface PackedActionData {
   name?: string;
@@ -60,6 +60,11 @@ export interface PackedDamageData {
   type: DamageType;
   val: string | number;
   override?: boolean; // If player can set the damage of this, I guess????
+}
+
+export interface PackedRangeData {
+  type: RangeType;
+  val: number;
 }
 
 export interface PackedBonusData {

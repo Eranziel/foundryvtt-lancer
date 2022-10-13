@@ -1,46 +1,27 @@
 // @ts-nocheck
 const fields = foundry.data.fields;
 
-import { Synergy, SystemType, WeaponSize, WeaponType } from "machine-mind";
+import { DamageTypeChecklist, RangeTypeChecklist, WeaponSizeChecklist, WeaponTypeChecklist } from "../../enums";
 
-export enum SynergyLocations {
-  Any,
-  ActiveEffects,
-  Rest,
-  Weapon,
-  System,
-  Move,
-  Boost,
-  Other,
-  Ram,
-  Grapple,
-  TechAttack,
-  Overcharge,
-  Skill_check,
-  Overwatch,
-  ImprovisedAttack,
-  Disengage,
-  Stabilize,
-  Tech,
-  Lock_on,
-  Hull,
-  Agility,
-  Systems,
-  Engineering,
+// Make all fields required, force val to string, and use checklists
+export interface BonusData {
+  lid: string;
+  val: string;
+  damage_types: DamageTypeChecklist;
+  range_types: RangeTypeChecklist;
+  weapon_types: WeaponTypeChecklist;
+  weapon_sizes: WeaponSizeChecklist;
+
+  overwrite: boolean;
+  replace: boolean;
 }
 
-export interface SynergyData {
-  locations: SynergyLocation[];
-  detail: string;
-  system_types?: Array<SystemType | "any">;
-  weapon_types?: Array<WeaponType | "any">;
-  weapon_sizes?: Array<WeaponSize | "any">;
-}
-
-export class SynergyField extends fields.SchemaField {
+export class BonusField extends fields.SchemaField {
   constructor(options = {}) {
     super(
       {
+        lid: new StringField({ nullable: false }), // Don't really want an LID field here
+        val: new StringField({ nullable: false }),
         locations: new fields.ArrayField(
           new fields.StringField({ choices: Object.values(SynergyLocations), initial: SynergyLocations.Any })
         ),

@@ -1,3 +1,6 @@
+import { DamageType, DamageTypeChecklist } from "../../enums";
+import { PackedDamageData } from "../../util/mmigration/packed-types";
+
 // @ts-nocheck
 const fields = foundry.data.fields;
 
@@ -8,6 +11,8 @@ export interface DamageData {
 }
 
 export class Damage implements Readonly<DamageData> {
+  type: DamageType;
+  val: string;
   constructor(data: DamageData) {
     this.type = data.type;
     this.val = data.val;
@@ -20,25 +25,29 @@ export class Damage implements Readonly<DamageData> {
     };
   }
 
+  copy(): Damage {
+    return new Damage(this.save());
+  }
+
   // Methods / getters / Various formatting options
   get icon(): string {
-    return Damage.icon_for(this.DamageType);
+    return Damage.IconFor(this.type);
   }
 
   get text(): string {
-    return `${this.Value} ${this.DamageType} Damage`;
+    return `${this.val} ${this.type} Damage`;
   }
 
   get discord_emoji(): string {
-    return Damage.discord_emoji_for(this.DamageType);
+    return Damage.DiscordEmojiFor(this.type);
   }
 
   get color(): string {
-    return Damage.color_for(this.DamageType);
+    return Damage.ColorFor(this.type);
   }
 
   // Returns the discord emoji corresponding to the provided damage type
-  public static unpack(dat: PackedDamageData): DamageData {
+  public static Unpack(dat: PackedDamageData): DamageData {
     return {
       type: dat.type,
       val: "" + dat.val,
@@ -74,7 +83,9 @@ export class Damage implements Readonly<DamageData> {
 
   // Undo the above conversion
   public static FlattenChecklist(damages: DamageTypeChecklist): DamageType[] {
-    return Object.keys(damages).filter(d => damages[d]) as DamageType[];
+    return Object.entries(damages)
+      .filter(dv => dv[1])
+      .map(dv => dv[0]) as DamageType[];
   }
 
   // Combine two arrays of damage. Does not edit originals
@@ -85,10 +96,10 @@ export class Damage implements Readonly<DamageData> {
     // For each b, try to find a matching a and add them together
     for (let db of b) {
       // Get a match on
-      let to_be_modified = result.find(result_d => result_d.DamageType == db.DamageType);
+      let to_be_modified = result.find(result_d => result_d.type == db.type);
       if (to_be_modified) {
         // We found existing damage of that type. Sum on the new stuff
-        to_be_modified.Value += ` + ${db.Value}`;
+        to_be_modified.val += ` + ${db.val}`;
       } else {
         // Did not already have that damage type. Add it
         result.push(db.copy());
@@ -98,7 +109,7 @@ export class Damage implements Readonly<DamageData> {
   }
 }
 
-// A single <type, value> pairing for damage. Mimics RegDamageData
+// Maps DamageData to a damage class
 export class DamageField extends fields.SchemaField {
   constructor(options = {}) {
     super(
@@ -111,7 +122,7 @@ export class DamageField extends fields.SchemaField {
   }
 
   /** @override */
-  initialize(model, name, value: RegDamageData) {
+  initialize(model, name, value: DamageData) {
     // Coerce to a range
     return new Damage(value);
   }

@@ -1,27 +1,25 @@
-import { Any } from "io-ts";
 import {
   ActivationType,
-  AnyRegNpcFeatureData,
+  DeployableType,
   EntryType,
   FittingSize,
   FrameEffectUse,
-  ISynergyData,
   MechType,
   MountType,
   OrgType,
-  RegActionData,
-  RegBonusData,
-  RegCounterData,
-  RegDamageData,
-  RegRangeData,
   ReserveType,
   SystemType,
   WeaponSize,
   WeaponSizeChecklist,
   WeaponType,
   WeaponTypeChecklist,
-} from "machine-mind";
-import { DeployableType } from "machine-mind/dist/classes/Deployable";
+} from "./enums";
+import { ActionData } from "./models/bits/action";
+import { BonusData } from "./models/bits/bonus";
+import { CounterData } from "./models/bits/counter";
+import { DamageData } from "./models/bits/damage";
+import { RangeData } from "./models/bits/range";
+import { SynergyData } from "./models/bits/synergy";
 
 export type DataTypeMap = { [key in EntryType]: object };
 
@@ -53,7 +51,7 @@ export namespace SourceTemplates {
     };
 
     activations: number;
-    custom_counters: RegCounterData[];
+    custom_counters: CounterData[];
   }
 
   export interface item_universal {
@@ -69,9 +67,9 @@ export namespace SourceTemplates {
 
   // The core data in virtually every lancer item
   export interface bascdt {
-    actions: RegActionData[];
-    synergies: ISynergyData[];
-    counters: RegCounterData[];
+    actions: ActionData[];
+    synergies: SynergyData[];
+    counters: CounterData[];
     deployables: UUIDRef[];
     integrated: UUIDRef[];
     tags: TagField[];
@@ -139,10 +137,10 @@ interface SourceDataTypesMap extends DataTypeMap {
     };
   [EntryType.DEPLOYABLE]: SourceTemplates.actor_universal &
     SourceTemplates.heat & {
-      actions: RegActionData[];
-      bonuses: RegBonusData[];
-      counters: RegCounterData[];
-      synergies: ISynergyData[];
+      actions: ActionData[];
+      bonuses: BonusData[];
+      counters: CounterData[];
+      synergies: SynergyData[];
       tags: SourceTemplates.TagField[];
       activation: ActivationType;
       armor: number;
@@ -182,11 +180,11 @@ interface SourceDataTypesMap extends DataTypeMap {
         tech_attack: number;
       };
       traits: Array<{
-        bonuses: RegBonusData[];
-        counters: RegCounterData[];
+        bonuses: BonusData[];
+        counters: CounterData[];
         integrated: UUIDRef[];
         deployables: UUIDRef[];
-        actions: RegActionData[];
+        actions: ActionData[];
       }>;
       core_system: {
         name: string;
@@ -197,19 +195,19 @@ interface SourceDataTypesMap extends DataTypeMap {
 
         active_name: string;
         active_effect: string; // v-html
-        active_synergies: ISynergyData[];
-        active_bonuses: RegBonusData[];
-        active_actions: RegActionData[];
+        active_synergies: SynergyData[];
+        active_bonuses: BonusData[];
+        active_actions: ActionData[];
 
         // Should mirror actives exactly
         passive_name?: string;
         passive_effect?: string; // v-html,
-        passive_synergies?: ISynergyData[];
-        passive_actions: RegActionData[];
-        passive_bonuses: RegBonusData[];
+        passive_synergies?: SynergyData[];
+        passive_actions: ActionData[];
+        passive_bonuses: BonusData[];
 
         deployables: UUIDRef[];
-        counters: RegCounterData[];
+        counters: CounterData[];
         integrated: UUIDRef[];
         tags: SourceTemplates.TagField[];
       };
@@ -264,8 +262,8 @@ interface SourceDataTypesMap extends DataTypeMap {
       profiles: Array<{
         name: string;
         type: WeaponType;
-        damage: RegDamageData[];
-        range: RegRangeData[];
+        damage: DamageData[];
+        range: RangeData[];
         tags: SourceTemplates.TagField[];
         description: string;
         effect: string;
@@ -275,10 +273,10 @@ interface SourceDataTypesMap extends DataTypeMap {
         cost: number;
         skirmishable: boolean;
         barrageable: boolean;
-        actions: RegActionData[];
-        bonuses: RegBonusData[];
-        synergies: ISynergyData[];
-        counters: RegCounterData[];
+        actions: ActionData[];
+        bonuses: BonusData[];
+        synergies: SynergyData[];
+        counters: CounterData[];
       }>;
       loaded: false;
       selected_profile: number;
@@ -322,7 +320,7 @@ interface SourceDataTypesMap extends DataTypeMap {
       size: number; // TODO: don't miss this in migrations
     }>;
   };
-  [EntryType.NPC_FEATURE]: AnyRegNpcFeatureData; // TODO make this owned by lancer-vtt? maybe?
+  [EntryType.NPC_FEATURE]: any[]; // TODO make this owned by lancer-vtt? maybe?
   [EntryType.NPC_TEMPLATE]: SourceTemplates.item_universal & {
     description: string;
     base_features: UUIDRef[];
@@ -348,8 +346,8 @@ interface SourceDataTypesMap extends DataTypeMap {
   [EntryType.PILOT_WEAPON]: SourceTemplates.item_universal &
     SourceTemplates.bascdt & {
       description: string;
-      range: RegRangeData[];
-      damage: RegDamageData[];
+      range: RangeData[];
+      damage: DamageData[];
       effect: string;
       loaded: boolean;
       uses: number;
@@ -410,11 +408,11 @@ interface SourceDataTypesMap extends DataTypeMap {
       name: string;
       description: string;
       exclusive: boolean;
-      actions: RegActionData[];
-      bonuses: RegBonusData[];
-      synergies: ISynergyData[];
+      actions: ActionData[];
+      bonuses: BonusData[];
+      synergies: SynergyData[];
       deployables: UUIDRef[];
-      counters: RegCounterData[];
+      counters: CounterData[];
       integrated: UUIDRef[];
     }>;
     terse: string;
@@ -424,13 +422,13 @@ interface SourceDataTypesMap extends DataTypeMap {
     SourceTemplates.destructible &
     SourceTemplates.licensed & {
       added_tags: SourceTemplates.TagField[];
-      added_damage: RegDamageData[];
+      added_damage: DamageData[];
       effect: string;
       sp: number;
       uses: number;
       allowed_sizes: WeaponSizeChecklist;
       allowed_types: WeaponTypeChecklist;
-      added_range: RegRangeData[];
+      added_range: RangeData[];
     };
 }
 

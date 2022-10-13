@@ -1,23 +1,17 @@
+import { LancerActor, LancerDEPLOYABLE, LancerMECH, LancerPILOT } from "./actor/lancer-actor";
 import {
   ActivationType,
+  DeployableType,
   EntryType,
   FittingSize,
   FrameEffectUse,
-  ISynergyData,
   MechType,
   MountType,
   OrgType,
-  RegActionData,
-  RegBonusData,
-  RegCounterData,
-  RegDamageData,
-  RegRangeData,
   SystemType,
   WeaponSize,
   WeaponType,
-} from "machine-mind";
-import { DeployableType } from "machine-mind/dist/classes/Deployable";
-import { LancerActor, LancerDEPLOYABLE, LancerMECH, LancerPILOT } from "./actor/lancer-actor";
+} from "./enums";
 import {
   LancerFRAME,
   LancerItem,
@@ -27,6 +21,11 @@ import {
   LancerNPC_FEATURE,
   LancerWEAPON_MOD,
 } from "./item/lancer-item";
+import { ActionData } from "./models/bits/action";
+import { BonusData } from "./models/bits/bonus";
+import { CounterData } from "./models/bits/counter";
+import { Damage } from "./models/bits/damage";
+import { SynergyData } from "./models/bits/synergy";
 import { BoundedNum, DataTypeMap, FullBoundedNum, SourceDataType, SourceTemplates, UUIDRef } from "./source-template";
 
 export namespace SystemTemplates {
@@ -52,7 +51,7 @@ export namespace SystemTemplates {
     };
 
     activations: number;
-    custom_counters: RegCounterData[];
+    custom_counters: CounterData[];
     // We replace these with bounded alternatives
     hp: FullBoundedNum;
     overshield: FullBoundedNum;
@@ -89,9 +88,9 @@ export namespace SystemTemplates {
 
   // Modify bascdt to use system tagfields, and resolved deployables/integrateds
   export interface bascdt {
-    actions: RegActionData[];
-    synergies: ISynergyData[];
-    counters: RegCounterData[];
+    actions: ActionData[];
+    synergies: SynergyData[];
+    counters: CounterData[];
     deployables: ResolvedUuidRef<LancerDEPLOYABLE>[];
     integrated: ResolvedUuidRef<LancerItem>[];
     tags: TagField[]; // Redefined
@@ -106,6 +105,11 @@ export namespace SystemTemplates {
   export interface struss {
     stress: FullBoundedNum;
     structure: FullBoundedNum;
+  }
+
+  // Uses to be bounded
+  export interface limited {
+    uses: FullBoundedNum;
   }
 
   export interface TagField extends SourceTemplates.TagField {
@@ -147,10 +151,10 @@ interface SystemDataTypesMap extends DataTypeMap {
 
   [EntryType.DEPLOYABLE]: SystemTemplates.actor_universal &
     SystemTemplates.heat & {
-      actions: RegActionData[];
-      bonuses: RegBonusData[];
-      counters: RegCounterData[];
-      synergies: ISynergyData[];
+      actions: ActionData[];
+      bonuses: BonusData[];
+      counters: CounterData[];
+      synergies: SynergyData[];
       tags: SystemTemplates.TagField[];
       activation: ActivationType;
       armor: number;
@@ -190,11 +194,11 @@ interface SystemDataTypesMap extends DataTypeMap {
         tech_attack: number;
       };
       traits: Array<{
-        bonuses: RegBonusData[];
-        counters: RegCounterData[];
+        bonuses: BonusData[];
+        counters: CounterData[];
         integrated: SystemTemplates.ResolvedUuidRef<LancerItem>[];
         deployables: SystemTemplates.ResolvedUuidRef<LancerDEPLOYABLE>[];
-        actions: RegActionData[];
+        actions: ActionData[];
       }>;
       core_system: {
         name: string;
@@ -205,19 +209,19 @@ interface SystemDataTypesMap extends DataTypeMap {
 
         active_name: string;
         active_effect: string; // v-html
-        active_synergies: ISynergyData[];
-        active_bonuses: RegBonusData[];
-        active_actions: RegActionData[];
+        active_synergies: SynergyData[];
+        active_bonuses: BonusData[];
+        active_actions: ActionData[];
 
         // Should mirror actives exactly
         passive_name?: string;
         passive_effect?: string; // v-html,
-        passive_synergies?: ISynergyData[];
-        passive_actions: RegActionData[];
-        passive_bonuses: RegBonusData[];
+        passive_synergies?: SynergyData[];
+        passive_actions: ActionData[];
+        passive_bonuses: BonusData[];
 
         deployables: SystemTemplates.ResolvedUuidRef<LancerDEPLOYABLE>[];
-        counters: RegCounterData[];
+        counters: CounterData[];
         integrated: SystemTemplates.ResolvedUuidRef<LancerItem>[];
         tags: SystemTemplates.TagField[];
       };
@@ -258,25 +262,25 @@ interface SystemDataTypesMap extends DataTypeMap {
   [EntryType.MECH_SYSTEM]: SystemTemplates.item_universal &
     SystemTemplates.bascdt &
     SystemTemplates.destructible &
+    SystemTemplates.limited &
     SystemTemplates.licensed & {
       effect: string;
       sp: number;
-      uses: number;
       description: string;
       type: SystemType;
     };
   [EntryType.MECH_WEAPON]: SystemTemplates.item_universal &
     SystemTemplates.destructible &
+    SystemTemplates.limited &
     SystemTemplates.licensed & {
       deployables: SystemTemplates.ResolvedUuidRef<LancerDEPLOYABLE>[];
       integrated: SystemTemplates.ResolvedUuidRef<LancerItem>[];
       sp: number;
-      uses: number;
       profiles: Array<{
         name: string;
         type: WeaponType;
-        damage: RegDamageData[];
-        range: RegRangeData[];
+        damage: Damage[];
+        range: Range[];
         tags: SystemTemplates.TagField[];
         description: string;
         effect: string;
@@ -286,10 +290,10 @@ interface SystemDataTypesMap extends DataTypeMap {
         cost: number;
         skirmishable: boolean;
         barrageable: boolean;
-        actions: RegActionData[];
-        bonuses: RegBonusData[];
-        synergies: ISynergyData[];
-        counters: RegCounterData[];
+        actions: ActionData[];
+        bonuses: BonusData[];
+        synergies: SynergyData[];
+        counters: CounterData[];
       }>;
       loaded: false;
       selected_profile: number;
@@ -356,23 +360,23 @@ interface SystemDataTypesMap extends DataTypeMap {
   };
 
   [EntryType.PILOT_ARMOR]: SystemTemplates.item_universal &
-    SystemTemplates.bascdt & {
+    SystemTemplates.bascdt &
+    SystemTemplates.limited & {
       description: string;
-      uses: number;
     };
   [EntryType.PILOT_GEAR]: SystemTemplates.item_universal &
-    SystemTemplates.bascdt & {
+    SystemTemplates.bascdt &
+    SystemTemplates.limited & {
       description: string;
-      uses: number;
     };
   [EntryType.PILOT_WEAPON]: SystemTemplates.item_universal &
-    SystemTemplates.bascdt & {
+    SystemTemplates.bascdt &
+    SystemTemplates.limited & {
       description: string;
-      range: RegRangeData[];
-      damage: RegDamageData[];
+      range: Range[];
+      damage: Damage[];
       effect: string;
       loaded: boolean;
-      uses: number;
     };
   [EntryType.PILOT]: SystemTemplates.actor_universal &
     SystemTemplates.action_tracking & {

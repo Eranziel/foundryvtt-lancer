@@ -2,7 +2,7 @@
  * Module class for moderation of actor action data.
  */
 
-import { ActionData, ActionType } from ".";
+import { ActionTrackingData, ActionType } from ".";
 import { LancerActor, LancerMECH } from "../actor/lancer-actor";
 
 export const _defaultActionData = (target: LancerActor) => {
@@ -12,7 +12,7 @@ export const _defaultActionData = (target: LancerActor) => {
     full: true,
     quick: true,
     reaction: true,
-  } as ActionData;
+  } as ActionTrackingData;
 };
 export const _endTurnActionData = () => {
   return {
@@ -21,14 +21,14 @@ export const _endTurnActionData = () => {
     full: false,
     quick: false,
     reaction: true,
-  } as ActionData;
+  } as ActionTrackingData;
 };
 
 /**
  * Get proxy for ease of migration when we change over to MM data backing.
  * @returns actions map.
  */
-export function getActions(actor: LancerActor): ActionData | null {
+export function getActions(actor: LancerActor): ActionTrackingData | null {
   if (actor.is_mech()) {
     return actor.data.data.action_tracker;
   } else {
@@ -38,7 +38,7 @@ export function getActions(actor: LancerActor): ActionData | null {
 /**
  * Set proxy for ease of migration when we change over to MM data backing.
  */
-export async function updateActions(actor: LancerActor, actions: ActionData) {
+export async function updateActions(actor: LancerActor, actions: ActionTrackingData) {
   await actor.update({ "data.action_tracker": actions });
   // this.token?.update({ "flags.lancer.actions": actions });
 }

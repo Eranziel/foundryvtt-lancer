@@ -1,3 +1,7 @@
+import { LancerMECH } from "../../actor/lancer-actor";
+import { RangeType, RangeTypeChecklist } from "../../enums";
+import { LancerMECH_WEAPON, LancerWEAPON_MOD } from "../../item/lancer-item";
+
 // @ts-nocheck
 const fields = foundry.data.fields;
 
@@ -7,34 +11,38 @@ export interface RangeData {
   val: string;
 }
 
-export type RangeTypeChecklist = { [key in RangeType]: boolean };
-
 // Represents a single range for a weapon. Line 8, range 10, burst 2, etc. Blast will have a separate entry for its "normal" range and the range of the explosion
 export class Range implements Required<RangeData> {
+  type: RangeType;
+  val: string;
   constructor(data: RangeData) {
     this.type = data.type;
     this.val = data.val;
   }
 
-  save(): RegRangeData {
+  save(): RangeData {
     return {
       type: this.type,
       val: this.val,
     };
   }
 
+  copy(): Range {
+    return new Range(this.save());
+  }
+
   // A simple text output. Perhaps unnecessary - kept from compcon
   public get formatted(): string {
-    if (this.Bonuses) return `${this.RangeType} ${this.Value} (+${this.Bonuses})`;
-    return `${this.RangeType} ${this.Value}`;
+    // if (this.bonuses) return `${this.RangeType} ${this.Value} (+${this.Bonuses})`;
+    return `${this.type} ${this.val}`;
   }
 
   public get icon(): string {
-    return Range.icon_for(this.RangeType);
+    return Range.IconFor(this.type);
   }
 
   public get discord_emoji(): string {
-    return Range.discord_emoji_for(this.RangeType);
+    return Range.DiscordEmojiFor(this.type);
   }
 
   // Returns the discord emoji corresponding to the provided range type
@@ -54,11 +62,15 @@ export class Range implements Required<RangeData> {
 
   // Gives the bonus-included ranges for the given mech weapon
   public static CalcTotalRangeWithBonuses(
-    weapon: MechWeapon,
-    profile: MechWeaponProfile,
-    mech: Mech,
-    mod?: WeaponMod
+    weapon: LancerMECH_WEAPON,
+    profile_index: number,
+    mech: LancerMECH,
+    mod?: LancerWEAPON_MOD
   ): Range[] {
+    /* TODO 
+    // Select the profile
+    let profile = weapon.system.profiles[profile_index];
+
     // Cut down to bonuses that affect ranges
     let all_bonuses = mech.AllBonuses.concat(mod?.Bonuses ?? []).filter(x => x.LID === "range");
 
@@ -98,6 +110,8 @@ export class Range implements Required<RangeData> {
       output.push(new_range);
     }
     return output;
+    */
+    return [];
   }
 
   // Convert a range type array to a checklist. If no range types provided, assume all
@@ -116,7 +130,9 @@ export class Range implements Required<RangeData> {
 
   // Undo the above conversion
   public static FlattenChecklist(ranges: RangeTypeChecklist): RangeType[] {
-    return Object.keys(ranges).filter(r => ranges[r]) as RangeType[];
+    return Object.entries(ranges)
+      .filter(rv => rv[1])
+      .map(rv => rv[0]) as RangeType[];
   }
 
   // Combine two arrays of damage. Does not edit originals
@@ -127,10 +143,10 @@ export class Range implements Required<RangeData> {
     // For each b, try to find a matching a and add them together
     for (let db of b) {
       // Get a match on
-      let to_be_modified = result.find(result_d => result_d.RangeType == db.RangeType);
+      let to_be_modified = result.find(result_d => result_d.type == db.type);
       if (to_be_modified) {
         // We found existing damage of that type. Sum on the new stuff
-        to_be_modified.Value += ` + ${db.Value}`;
+        to_be_modified.val += ` + ${db.val}`;
       } else {
         // Did not already have that damage type. Add it
         result.push(db.copy());
@@ -140,7 +156,7 @@ export class Range implements Required<RangeData> {
   }
 }
 
-// A single <type, value> pairing for range. Mimics RegRangeData
+// Maps RangeData to a Range class
 export class RangeField extends fields.SchemaField {
   constructor(options = {}) {
     super(
@@ -153,7 +169,7 @@ export class RangeField extends fields.SchemaField {
   }
 
   /** @override */
-  initialize(model, name, value: RegRangeData) {
+  initialize(model, name, value: RangeData) {
     // Coerce to a range
     return new Range(value);
   }

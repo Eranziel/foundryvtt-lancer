@@ -1,5 +1,5 @@
 import type { LancerActor } from "../actor/lancer-actor";
-import type { ActionData, ActionType } from ".";
+import type { ActionTrackingData, ActionType } from ".";
 import tippy from "tippy.js";
 import { getActionTrackerOptions } from "../settings";
 import { getActions, modAction, toggleAction, updateActions, _defaultActionData } from "./actionTracker";
@@ -70,13 +70,13 @@ export class LancerActionManager extends Application {
    * Get proxy for ease of migration when we change over to MM data backing.
    * @returns actions map.
    */
-  private getActions(): ActionData | null {
+  private getActions(): ActionTrackingData | null {
     return this.target ? getActions(this.target) : null;
   }
   /**
    * Set proxy for ease of migration when we change over to MM data backing.
    */
-  private async updateActions(actor: LancerActor, actions: ActionData) {
+  private async updateActions(actor: LancerActor, actions: ActionTrackingData) {
     await updateActions(actor, actions);
     // this.token?.update({ "flags.lancer.actions": actions });
   }
