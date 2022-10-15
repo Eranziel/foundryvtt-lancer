@@ -1,3 +1,4 @@
+import { ActionTrackingData } from "./action";
 import {
   ActivationType,
   DeployableType,
@@ -6,6 +7,8 @@ import {
   FrameEffectUse,
   MechType,
   MountType,
+  NpcFeatureType,
+  NpcTechType,
   OrgType,
   ReserveType,
   SystemType,
@@ -73,6 +76,7 @@ export namespace SourceTemplates {
     deployables: UUIDRef[];
     integrated: UUIDRef[];
     tags: TagField[];
+    bonuses: BonusData[];
   }
 
   // For items and mods that can enter failing states
@@ -82,16 +86,9 @@ export namespace SourceTemplates {
   }
 
   export interface action_tracking {
-    action_tracker: {
-      protocol: boolean;
-      move: number;
-      full: boolean;
-      quick: boolean;
-      reaction: boolean;
-      free: boolean;
-      used_reactions: string[];
-    };
+    action_tracker: ActionTrackingData;
   }
+
   export interface heat {
     heat: number;
   }
@@ -107,24 +104,76 @@ export namespace SourceTemplates {
     name: string;
   }
 
-  export type _npc_base = item_universal & // TODO: determine whether this is necessary
-    destructible & {
-      origin: {
-        type: "Class" | "Template";
-        name: string;
-        base: boolean;
-      };
-      effect: string;
-      bonus: Record<string, number>; // TODO: clarify this type. as same as base stats item
-      override: Record<string, number>; // TODO: clarify this type. as same as base stats item. Probably after we flatten it into an array
-      tags: TagField[];
+  // These are provided/modified by npc classes and features
+  export interface NpcStatBlock {
+    activations: number;
+    armor: number;
+    hp: number;
+    evade: number;
+    edef: number;
+    heatcap: number;
+    speed: number;
+    sensor: number;
+    save: number;
+    hull: number;
+    agility: number;
+    systems: number;
+    engineering: number;
+    size: number;
+    structure: number;
+    stress: number;
+  }
 
-      charged: boolean;
-      uses: number;
-      loaded: boolean;
+  export interface BaseNpcFeatureData {
+    lid: string;
+    // We strip origin - it isn't particularly helpful to store in source, but could be derived maybe
+    effect: string;
+    bonus: Partial<NpcStatBlock>;
+    override: Partial<NpcStatBlock>;
+    tags: TagField[];
+    type: NpcFeatureType;
 
-      tier_override: number;
-    };
+    // State tracking. Not always used
+    charged: boolean;
+    uses: number;
+    loaded: boolean;
+    destroyed: boolean;
+
+    // If we want this feature to have a distinct tier fixed regardless of underlying npc tier
+    tier_override: number;
+  }
+
+  export interface NpcWeaponData extends BaseNpcFeatureData {
+    weapon_type: string;
+    damage: DamageData[][]; // Damage array by tier
+    range: RangeData[][]; // Range array by ties
+    on_hit: string;
+    accuracy: number[]; // Accuracy by tier
+    attack_bonus: number[]; // Attack bonus by tier
+    type: NpcFeatureType.Weapon;
+  }
+
+  export interface NpcTraitData extends BaseNpcFeatureData {
+    type: NpcFeatureType.Trait;
+  }
+
+  export interface NpcReactionData extends BaseNpcFeatureData {
+    type: NpcFeatureType.Reaction;
+    trigger: string;
+  }
+
+  export interface NpcSystemData extends BaseNpcFeatureData {
+    type: NpcFeatureType.System;
+  }
+
+  export interface NpcTechData extends BaseNpcFeatureData {
+    type: NpcFeatureType.Tech;
+    tech_type: NpcTechType;
+    accuracy: number[]; // Accuracy by tier
+    attack_bonus: number[]; // Attack bonus by tier
+  }
+
+  export type AnyNpcFeature = NpcTechData | NpcSystemData | NpcReactionData | NpcTraitData | NpcWeaponData;
 }
 
 interface SourceDataTypesMap extends DataTypeMap {
@@ -145,6 +194,10 @@ interface SourceDataTypesMap extends DataTypeMap {
       activation: ActivationType;
       armor: number;
       cost: number;
+      max_hp: number;
+      max_heat: number;
+      size: number;
+      speed: number; // Some have it!
       edef: number;
       evasion: number;
       instances: number;
@@ -156,7 +209,7 @@ interface SourceDataTypesMap extends DataTypeMap {
       type: DeployableType;
       avail_mounted: boolean;
       avail_unmounted: boolean;
-      deployer: UUIDRef;
+      deployer: UUIDRef | null;
     };
   [EntryType.FRAME]: SourceTemplates.item_universal &
     SourceTemplates.licensed & {
@@ -180,11 +233,15 @@ interface SourceDataTypesMap extends DataTypeMap {
         tech_attack: number;
       };
       traits: Array<{
+        name: string;
+        description: string;
         bonuses: BonusData[];
         counters: CounterData[];
         integrated: UUIDRef[];
         deployables: UUIDRef[];
         actions: ActionData[];
+        synergies: SynergyData[];
+        use: FrameEffectUse;
       }>;
       core_system: {
         name: string;
@@ -223,9 +280,9 @@ interface SourceDataTypesMap extends DataTypeMap {
     SourceTemplates.struss & {
       overcharge: number;
       repairs: number;
+      core_active: boolean;
+      core_energy: boolean;
       loadout: {
-        core_active: boolean;
-        core_energy: boolean;
         frame: EmbeddedRef | null; // ID to a LancerFRAME on the mech
         weapon_mounts: Array<{
           slots: Array<{
@@ -239,6 +296,7 @@ interface SourceDataTypesMap extends DataTypeMap {
         systems: Array<EmbeddedRef>;
       };
       meltdown_timer: number | null;
+      ejected: boolean;
       notes: string;
       pilot: UUIDRef | null; // UUID to a LancerPILOT
     };
@@ -303,24 +361,9 @@ interface SourceDataTypesMap extends DataTypeMap {
     };
     base_features: UUIDRef[];
     optional_features: UUIDRef[];
-    base_stats: Array<{
-      activations: number;
-      armor: number;
-      hp: number;
-      evade: number;
-      edef: number;
-      heatcap: number;
-      speed: number;
-      sensor: number;
-      save: number;
-      hull: number;
-      agility: number;
-      systems: number;
-      engineering: number;
-      size: number; // TODO: don't miss this in migrations
-    }>;
+    base_stats: Array<SourceTemplates.NpcStatBlock>;
   };
-  [EntryType.NPC_FEATURE]: any[]; // TODO make this owned by lancer-vtt? maybe?
+  [EntryType.NPC_FEATURE]: SourceTemplates.AnyNpcFeature;
   [EntryType.NPC_TEMPLATE]: SourceTemplates.item_universal & {
     description: string;
     base_features: UUIDRef[];
@@ -361,7 +404,7 @@ interface SourceDataTypesMap extends DataTypeMap {
       cloud_owner_id: string;
       history: string;
       last_cloud_update: string;
-      level: string;
+      level: number;
       loadout: {
         armor: UUIDRef[];
         gear: UUIDRef[];
@@ -382,7 +425,7 @@ interface SourceDataTypesMap extends DataTypeMap {
       resource_note: string;
       resource_cost: string;
       type: ReserveType;
-      used: string;
+      used: boolean;
       description: string;
     };
   [EntryType.SKILL]: SourceTemplates.item_universal & {
@@ -393,7 +436,6 @@ interface SourceDataTypesMap extends DataTypeMap {
   };
   [EntryType.STATUS]: SourceTemplates.item_universal & {
     effects: string;
-    icon: string;
     type: "Status" | "Condition" | "Effect";
   };
   [EntryType.TAG]: SourceTemplates.item_universal & {
@@ -403,7 +445,6 @@ interface SourceDataTypesMap extends DataTypeMap {
   [EntryType.TALENT]: SourceTemplates.item_universal & {
     curr_rank: number;
     description: string;
-    icon: string;
     ranks: Array<{
       name: string;
       description: string;
@@ -424,6 +465,7 @@ interface SourceDataTypesMap extends DataTypeMap {
       added_tags: SourceTemplates.TagField[];
       added_damage: DamageData[];
       effect: string;
+      description: string;
       sp: number;
       uses: number;
       allowed_sizes: WeaponSizeChecklist;

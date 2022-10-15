@@ -1,7 +1,9 @@
 import { LANCER, TypeIcon } from "../config";
-import { EntryType, funcs, NpcFeatureType, RangeType, RegEntryTypes, RegRangeData } from "machine-mind";
-import { SystemDataType } from "../system-template";
+import { SystemDataType, SystemTemplates } from "../system-template";
 import { SourceDataType } from "../source-template";
+import { ActionTrackingData } from "../action";
+import { EntryType } from "../enums";
+import * as defaults from "../util/mmigration/defaults";
 
 const lp = LANCER.log_prefix;
 
@@ -169,60 +171,54 @@ export class LancerItem extends Item {
     switch (this.type) {
       default:
       case EntryType.CORE_BONUS:
-        default_data = funcs.defaults.CORE_BONUS();
+        default_data = defaults.CORE_BONUS();
       case EntryType.FRAME:
-        default_data = funcs.defaults.FRAME();
+        default_data = defaults.FRAME();
         break;
       case EntryType.LICENSE:
-        default_data = funcs.defaults.LICENSE();
-        break;
-      case EntryType.MANUFACTURER:
-        default_data = funcs.defaults.MANUFACTURER();
+        default_data = defaults.LICENSE();
         break;
       case EntryType.MECH_SYSTEM:
-        default_data = funcs.defaults.MECH_SYSTEM();
+        default_data = defaults.MECH_SYSTEM();
         break;
       case EntryType.MECH_WEAPON:
-        default_data = funcs.defaults.MECH_WEAPON();
+        default_data = defaults.MECH_WEAPON();
         break;
       case EntryType.NPC_CLASS:
-        default_data = funcs.defaults.NPC_CLASS();
+        default_data = defaults.NPC_CLASS();
         break;
       case EntryType.NPC_FEATURE:
-        default_data = funcs.defaults.NPC_FEATURE();
+        default_data = defaults.NPC_FEATURE();
         break;
       case EntryType.NPC_TEMPLATE:
-        default_data = funcs.defaults.NPC_TEMPLATE();
+        default_data = defaults.NPC_TEMPLATE();
         break;
       case EntryType.ORGANIZATION:
-        default_data = funcs.defaults.ORGANIZATION();
+        default_data = defaults.ORGANIZATION();
         break;
       case EntryType.PILOT_ARMOR:
-        default_data = funcs.defaults.PILOT_ARMOR();
+        default_data = defaults.PILOT_ARMOR();
         break;
       case EntryType.PILOT_GEAR:
-        default_data = funcs.defaults.PILOT_GEAR();
+        default_data = defaults.PILOT_GEAR();
         break;
       case EntryType.PILOT_WEAPON:
-        default_data = funcs.defaults.PILOT_WEAPON();
+        default_data = defaults.PILOT_WEAPON();
         break;
       case EntryType.RESERVE:
-        default_data = funcs.defaults.RESERVE();
+        default_data = defaults.RESERVE();
         break;
       case EntryType.SKILL:
-        default_data = funcs.defaults.SKILL();
+        default_data = defaults.SKILL();
         break;
       case EntryType.STATUS:
-        default_data = funcs.defaults.STATUS();
-        break;
-      case EntryType.TAG:
-        default_data = funcs.defaults.TAG_TEMPLATE();
+        default_data = defaults.STATUS();
         break;
       case EntryType.TALENT:
-        default_data = funcs.defaults.TALENT();
+        default_data = defaults.TALENT();
         break;
       case EntryType.WEAPON_MOD:
-        default_data = funcs.defaults.WEAPON_MOD();
+        default_data = defaults.WEAPON_MOD();
         break;
     }
 
@@ -292,13 +288,17 @@ export class LancerItem extends Item {
   is_weapon_mod(): this is LancerWEAPON_MOD {
     return this.data.type === EntryType.WEAPON_MOD;
   }
+
+  // Quick checkers
+  is_limited(): this is { system: SystemTemplates.limited } {
+    return (this as any).system.uses !== undefined && (this as any).system.uses.max > 0;
+  }
+
+  has_actions(): this is { system: { actions: ActionTrackingData[] } } {
+    return (this as any).actions !== undefined;
+  }
 }
 
-type SystemShim<T extends LancerItemType> = LancerItem & {
-  data: LancerItemDataProperties<T>;
-  type: T;
-  system: SystemDataType<T>;
-};
 export type LancerCORE_BONUS = LancerItem & { system: SystemDataType<EntryType.CORE_BONUS> };
 export type LancerFRAME = LancerItem & { system: SystemDataType<EntryType.FRAME> };
 export type LancerLICENSE = LancerItem & { system: SystemDataType<EntryType.LICENSE> };

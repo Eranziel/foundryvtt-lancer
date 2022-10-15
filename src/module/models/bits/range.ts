@@ -130,9 +130,7 @@ export class Range implements Required<RangeData> {
 
   // Undo the above conversion
   public static FlattenChecklist(ranges: RangeTypeChecklist): RangeType[] {
-    return Object.entries(ranges)
-      .filter(rv => rv[1])
-      .map(rv => rv[0]) as RangeType[];
+    return Object.keys(ranges).filter(r => ranges[r as keyof RangeTypeChecklist]) as RangeType[];
   }
 
   // Combine two arrays of damage. Does not edit originals

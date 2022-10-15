@@ -83,9 +83,7 @@ export class Damage implements Readonly<DamageData> {
 
   // Undo the above conversion
   public static FlattenChecklist(damages: DamageTypeChecklist): DamageType[] {
-    return Object.entries(damages)
-      .filter(dv => dv[1])
-      .map(dv => dv[0]) as DamageType[];
+    return Object.keys(damages).filter(d => damages[d as keyof DamageTypeChecklist]) as DamageType[];
   }
 
   // Combine two arrays of damage. Does not edit originals

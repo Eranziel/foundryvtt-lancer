@@ -88,6 +88,10 @@
       "activation": "",
       "armor": 0,
       "cost": 1,
+      "max_hp": 5,
+      "max_heat": 5,
+      "size": 0.5,
+      "speed": 1,
       "edef": 8,
       "evasion": 5,
       "instances": 1,
@@ -95,8 +99,15 @@
       "detail": "",
       "recall": "",
       "redeploy": "",
-
       "type": "",
+      "resistances": {
+        "Burn": false,
+        "Energy": false,
+        "Explosive": false,
+        "Heat": false,
+        "Kinetic": false,
+        "Variable": false
+      },
       "avail_mounted": true,
       "avail_unmounted": false,
       "deployer": null

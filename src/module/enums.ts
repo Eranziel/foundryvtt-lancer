@@ -191,6 +191,38 @@ export enum WeaponType {
 
 export type WeaponTypeChecklist = { [key in WeaponType]: boolean };
 
+export function MakeWeaponTypeChecklist(types: WeaponType[]): WeaponTypeChecklist {
+  let override = types.length == 0;
+  return {
+    CQB: override || types.includes(WeaponType.CQB),
+    Cannon: override || types.includes(WeaponType.Cannon),
+    Launcher: override || types.includes(WeaponType.Launcher),
+    Melee: override || types.includes(WeaponType.Melee),
+    Nexus: override || types.includes(WeaponType.Nexus),
+    Rifle: override || types.includes(WeaponType.Rifle),
+  };
+}
+
+// Undo the above conversion
+export function FlattenWeaponTypeChecklist(types: WeaponTypeChecklist): WeaponType[] {
+  return Object.keys(types).filter(t => types[t as keyof WeaponTypeChecklist]) as WeaponType[];
+}
+
+export function MakeWeaponSizeChecklist(types: WeaponSize[]): WeaponSizeChecklist {
+  let override = types.length == 0;
+  return {
+    Auxiliary: override || types.includes(WeaponSize.Aux),
+    Heavy: override || types.includes(WeaponSize.Heavy),
+    Main: override || types.includes(WeaponSize.Main),
+    Superheavy: override || types.includes(WeaponSize.Superheavy),
+  };
+}
+
+// Undo the above conversion
+export function FlattenWeaponSizeChecklist(sizes: WeaponSizeChecklist): WeaponSize[] {
+  return Object.keys(sizes).filter(s => sizes[s as keyof WeaponSizeChecklist]) as WeaponSize[];
+}
+
 export enum SystemType {
   System = "System",
   AI = "AI",
