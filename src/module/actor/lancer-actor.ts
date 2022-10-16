@@ -1,6 +1,5 @@
 import { LANCER, replace_default_resource, TypeIcon } from "../config";
 import {
-  EntryType,
   funcs,
   PackedPilotData,
   RegEntryTypes,
@@ -13,11 +12,11 @@ import {
 import { LancerHooks, LancerSubscription } from "../helpers/hooks";
 // import { LancerFRAME, LancerItem, LancerItemType, LancerNPC_CLASS } from "../item/lancer-item";
 import { renderMacroTemplate, encodeMacroData, prepareOverheatMacro, prepareStructureMacro } from "../macros";
-import { StabOptions1, StabOptions2 } from "../enums";
+import { EntryType, StabOptions1, StabOptions2 } from "../enums";
 import { fix_modify_token_attribute } from "../token";
 import { findEffect } from "../helpers/acc_diff";
 import { AppliedDamage } from "./damage-calc";
-import { SystemDataType, SystemTemplates } from "../system-template";
+import { SystemData, SystemDataType, SystemTemplates } from "../system-template";
 import { AE_MODE_SET_JSON } from "../effects/lancer-active-effect";
 import { SourceDataType } from "../source-template";
 const lp = LANCER.log_prefix;
@@ -1316,10 +1315,10 @@ export class LancerActor extends Actor {
 }
 
 // Typeguards
-export type LancerPILOT = LancerActor & { system: SystemDataType<EntryType.PILOT> };
-export type LancerMECH = LancerActor & { system: SystemDataType<EntryType.MECH> };
-export type LancerNPC = LancerActor & { system: SystemDataType<EntryType.NPC> };
-export type LancerDEPLOYABLE = LancerActor & { system: SystemDataType<EntryType.DEPLOYABLE> };
+export type LancerPILOT = LancerActor & { system: SystemData.Pilot };
+export type LancerMECH = LancerActor & { system: SystemData.Mech };
+export type LancerNPC = LancerActor & { system: SystemData.Npc };
+export type LancerDEPLOYABLE = LancerActor & { system: SystemData.Deployable };
 
 export type LancerActorType = EntryType.MECH | EntryType.DEPLOYABLE | EntryType.NPC | EntryType.PILOT;
 export const ACTOR_TYPES: LancerActorType[] = [EntryType.MECH, EntryType.DEPLOYABLE, EntryType.NPC, EntryType.PILOT];

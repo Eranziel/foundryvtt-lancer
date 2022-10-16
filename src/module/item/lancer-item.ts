@@ -1,9 +1,10 @@
 import { LANCER, TypeIcon } from "../config";
-import { SystemDataType, SystemTemplates } from "../system-template";
+import { SystemData, SystemDataType, SystemTemplates } from "../system-template";
 import { SourceDataType } from "../source-template";
-import { ActionTrackingData } from "../action";
-import { EntryType } from "../enums";
+import { EntryType, RangeType } from "../enums";
 import * as defaults from "../util/mmigration/defaults";
+import { ActionData } from "../models/bits/action";
+import { RangeData } from "../models/bits/range";
 
 const lp = LANCER.log_prefix;
 
@@ -79,7 +80,7 @@ export class LancerItem extends Item {
   /**
    * Returns all ranges for the item that match the provided range types
    */
-  rangesFor(types: Set<RangeType> | RangeType[]): RegRangeData[] {
+  rangesFor(types: Set<RangeType> | RangeType[]): RangeData[] {
     const i = null as unknown as Item; // TODO remove
 
     const filter = new Set(types);
@@ -167,7 +168,7 @@ export class LancerItem extends Item {
     }
     let img = TypeIcon(icon_lookup);
 
-    let default_data: RegEntryTypes<LancerItemType>;
+    let default_data: SourceDataType<LancerItemType>;
     switch (this.type) {
       default:
       case EntryType.CORE_BONUS:
@@ -222,14 +223,11 @@ export class LancerItem extends Item {
         break;
     }
 
-    // Sync the name
-    default_data.name = this.name ?? default_data.name;
-
     // @ts-expect-error Should be fixed with v10 types
     this.updateSource({
-      // system: default_data,
+      system: default_data,
       img: img,
-      name: default_data.name,
+      name: this.name ?? `New ${this.type}`,
     });
   }
 
@@ -294,29 +292,29 @@ export class LancerItem extends Item {
     return (this as any).system.uses !== undefined && (this as any).system.uses.max > 0;
   }
 
-  has_actions(): this is { system: { actions: ActionTrackingData[] } } {
+  has_actions(): this is { system: { actions: ActionData[] } } {
     return (this as any).actions !== undefined;
   }
 }
 
-export type LancerCORE_BONUS = LancerItem & { system: SystemDataType<EntryType.CORE_BONUS> };
-export type LancerFRAME = LancerItem & { system: SystemDataType<EntryType.FRAME> };
-export type LancerLICENSE = LancerItem & { system: SystemDataType<EntryType.LICENSE> };
-export type LancerMECH_SYSTEM = LancerItem & { system: SystemDataType<EntryType.MECH_SYSTEM> };
-export type LancerMECH_WEAPON = LancerItem & { system: SystemDataType<EntryType.MECH_WEAPON> };
-export type LancerNPC_CLASS = LancerItem & { system: SystemDataType<EntryType.NPC_CLASS> };
-export type LancerNPC_FEATURE = LancerItem & { system: SystemDataType<EntryType.NPC_FEATURE> };
-export type LancerNPC_TEMPLATE = LancerItem & { system: SystemDataType<EntryType.NPC_TEMPLATE> };
-export type LancerORGANIZATION = LancerItem & { system: SystemDataType<EntryType.ORGANIZATION> };
-export type LancerPILOT_ARMOR = LancerItem & { system: SystemDataType<EntryType.PILOT_ARMOR> };
-export type LancerPILOT_GEAR = LancerItem & { system: SystemDataType<EntryType.PILOT_GEAR> };
-export type LancerPILOT_WEAPON = LancerItem & { system: SystemDataType<EntryType.PILOT_WEAPON> };
-export type LancerRESERVE = LancerItem & { system: SystemDataType<EntryType.RESERVE> };
-export type LancerSKILL = LancerItem & { system: SystemDataType<EntryType.SKILL> };
-export type LancerSTATUS = LancerItem & { system: SystemDataType<EntryType.STATUS> };
-export type LancerTAG = LancerItem & { system: SystemDataType<EntryType.TAG> };
-export type LancerTALENT = LancerItem & { system: SystemDataType<EntryType.TALENT> };
-export type LancerWEAPON_MOD = LancerItem & { system: SystemDataType<EntryType.WEAPON_MOD> };
+export type LancerCORE_BONUS = LancerItem & { system: SystemData.CoreBonus };
+export type LancerFRAME = LancerItem & { system: SystemData.Frame };
+export type LancerLICENSE = LancerItem & { system: SystemData.License };
+export type LancerMECH_SYSTEM = LancerItem & { system: SystemData.MechSystem };
+export type LancerMECH_WEAPON = LancerItem & { system: SystemData.MechWeapon };
+export type LancerNPC_CLASS = LancerItem & { system: SystemData.NpcClass };
+export type LancerNPC_FEATURE = LancerItem & { system: SystemData.NpcFeature };
+export type LancerNPC_TEMPLATE = LancerItem & { system: SystemData.NpcTemplate };
+export type LancerORGANIZATION = LancerItem & { system: SystemData.Organization };
+export type LancerPILOT_ARMOR = LancerItem & { system: SystemData.PilotArmor };
+export type LancerPILOT_GEAR = LancerItem & { system: SystemData.PilotGear };
+export type LancerPILOT_WEAPON = LancerItem & { system: SystemData.PilotWeapon };
+export type LancerRESERVE = LancerItem & { system: SystemData.Reserve };
+export type LancerSKILL = LancerItem & { system: SystemData.Skill };
+export type LancerSTATUS = LancerItem & { system: SystemData.Status };
+export type LancerTAG = LancerItem & { system: SystemData.Tag };
+export type LancerTALENT = LancerItem & { system: SystemData.Talent };
+export type LancerWEAPON_MOD = LancerItem & { system: SystemData.WeaponMod };
 
 // This seems like it could be removed eventually
 export type LancerItemType =
