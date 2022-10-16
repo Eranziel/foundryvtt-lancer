@@ -24,7 +24,8 @@ import {
 import { ActionData } from "./models/bits/action";
 import { BonusData } from "./models/bits/bonus";
 import { CounterData } from "./models/bits/counter";
-import { Damage } from "./models/bits/damage";
+import { Damage, DamageData } from "./models/bits/damage";
+import { RangeData } from "./models/bits/range";
 import { SynergyData } from "./models/bits/synergy";
 import { BoundedNum, DataTypeMap, FullBoundedNum, SourceDataType, SourceTemplates, UUIDRef } from "./source-template";
 
@@ -115,6 +116,36 @@ export namespace SystemTemplates {
   export interface TagField extends SourceTemplates.TagField {
     num_val: number | null;
     description: string; // Async fetched
+  }
+
+  // NPC stuff
+  export namespace NPC {
+    // Everything herein is more or less an exact copy
+    export interface StatBlock extends SourceTemplates.NPC.StatBlock {}
+
+    // This small helper type is just used to repair npc types "tags" field
+    type NPCFixup<T extends { tags: SourceTemplates.TagField[] }> = Omit<T, "tags"> & { tags: TagField };
+
+    export interface WeaponData extends NPCFixup<SourceTemplates.NPC.WeaponData> {
+      // The current tier's values for these
+      tier_damage: DamageData[];
+      tier_range: RangeData[];
+      tier_accuracy: number;
+      tier_attack_bonus: number;
+    }
+
+    export interface TraitData extends NPCFixup<SourceTemplates.NPC.TraitData> {}
+
+    export interface ReactionData extends NPCFixup<SourceTemplates.NPC.ReactionData> {}
+
+    export interface SystemData extends NPCFixup<SourceTemplates.NPC.SystemData> {}
+
+    export interface TechData extends NPCFixup<SourceTemplates.NPC.TechData> {
+      tier_accuracy: number;
+      tier_attack_bonus: number;
+    }
+
+    export type AnyFeature = TechData | SystemData | ReactionData | TraitData | WeaponData;
   }
 
   // Embedded refs local to the actor, can always be resolved synchronously
@@ -344,7 +375,7 @@ interface SystemDataTypesMap extends DataTypeMap {
       size: number; // TODO: don't miss this in migrations
     }>;
   };
-  [EntryType.NPC_FEATURE]: {}; // TODO: all this
+  [EntryType.NPC_FEATURE]: SystemTemplates.item_universal & SystemTemplates.NPC.AnyFeature;
   [EntryType.NPC_TEMPLATE]: SystemTemplates.item_universal & {
     description: string;
     base_features: SystemTemplates.ResolvedUuidRef<LancerNPC_FEATURE>[];

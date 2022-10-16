@@ -104,76 +104,79 @@ export namespace SourceTemplates {
     name: string;
   }
 
-  // These are provided/modified by npc classes and features
-  export interface NpcStatBlock {
-    activations: number;
-    armor: number;
-    hp: number;
-    evade: number;
-    edef: number;
-    heatcap: number;
-    speed: number;
-    sensor: number;
-    save: number;
-    hull: number;
-    agility: number;
-    systems: number;
-    engineering: number;
-    size: number;
-    structure: number;
-    stress: number;
+  export namespace NPC {
+    // These are provided/modified by npc classes and features
+    export interface StatBlock {
+      activations: number;
+      armor: number;
+      hp: number;
+      evade: number;
+      edef: number;
+      heatcap: number;
+      speed: number;
+      sensor: number;
+      save: number;
+      hull: number;
+      agility: number;
+      systems: number;
+      engineering: number;
+      size: number;
+      structure: number;
+      stress: number;
+    }
+
+    // All features have at least this core data
+    export interface BaseFeatureData {
+      lid: string;
+      // We strip origin - it isn't particularly helpful to store in source, but could be derived maybe
+      effect: string;
+      bonus: Partial<StatBlock>;
+      override: Partial<StatBlock>;
+      tags: TagField[];
+      type: NpcFeatureType;
+
+      // State tracking. Not always used
+      charged: boolean;
+      uses: number;
+      loaded: boolean;
+      destroyed: boolean;
+
+      // If we want this feature to have a distinct tier fixed regardless of underlying npc tier
+      tier_override: number;
+    }
+
+    export interface WeaponData extends BaseFeatureData {
+      weapon_type: string;
+      damage: DamageData[][]; // Damage array by tier
+      range: RangeData[][]; // Range array by ties
+      on_hit: string;
+      accuracy: number[]; // Accuracy by tier
+      attack_bonus: number[]; // Attack bonus by tier
+      type: NpcFeatureType.Weapon;
+    }
+
+    export interface TraitData extends BaseFeatureData {
+      type: NpcFeatureType.Trait;
+    }
+
+    export interface ReactionData extends BaseFeatureData {
+      type: NpcFeatureType.Reaction;
+      trigger: string;
+    }
+
+    export interface SystemData extends BaseFeatureData {
+      type: NpcFeatureType.System;
+    }
+
+    export interface TechData extends BaseFeatureData {
+      type: NpcFeatureType.Tech;
+      tech_type: NpcTechType;
+      accuracy: number[]; // Accuracy by tier
+      attack_bonus: number[]; // Attack bonus by tier
+    }
+
+    export type AnyFeature = TechData | SystemData | ReactionData | TraitData | WeaponData;
   }
-
-  export interface BaseNpcFeatureData {
-    lid: string;
-    // We strip origin - it isn't particularly helpful to store in source, but could be derived maybe
-    effect: string;
-    bonus: Partial<NpcStatBlock>;
-    override: Partial<NpcStatBlock>;
-    tags: TagField[];
-    type: NpcFeatureType;
-
-    // State tracking. Not always used
-    charged: boolean;
-    uses: number;
-    loaded: boolean;
-    destroyed: boolean;
-
-    // If we want this feature to have a distinct tier fixed regardless of underlying npc tier
-    tier_override: number;
-  }
-
-  export interface NpcWeaponData extends BaseNpcFeatureData {
-    weapon_type: string;
-    damage: DamageData[][]; // Damage array by tier
-    range: RangeData[][]; // Range array by ties
-    on_hit: string;
-    accuracy: number[]; // Accuracy by tier
-    attack_bonus: number[]; // Attack bonus by tier
-    type: NpcFeatureType.Weapon;
-  }
-
-  export interface NpcTraitData extends BaseNpcFeatureData {
-    type: NpcFeatureType.Trait;
-  }
-
-  export interface NpcReactionData extends BaseNpcFeatureData {
-    type: NpcFeatureType.Reaction;
-    trigger: string;
-  }
-
-  export interface NpcSystemData extends BaseNpcFeatureData {
-    type: NpcFeatureType.System;
-  }
-
-  export interface NpcTechData extends BaseNpcFeatureData {
-    type: NpcFeatureType.Tech;
-    tech_type: NpcTechType;
-    accuracy: number[]; // Accuracy by tier
-    attack_bonus: number[]; // Attack bonus by tier
-  }
-
-  export type AnyNpcFeature = NpcTechData | NpcSystemData | NpcReactionData | NpcTraitData | NpcWeaponData;
 }
 
 interface SourceDataTypesMap extends DataTypeMap {
@@ -361,9 +364,9 @@ interface SourceDataTypesMap extends DataTypeMap {
     };
     base_features: UUIDRef[];
     optional_features: UUIDRef[];
-    base_stats: Array<SourceTemplates.NpcStatBlock>;
+    base_stats: Array<SourceTemplates.NPC.StatBlock>;
   };
-  [EntryType.NPC_FEATURE]: SourceTemplates.AnyNpcFeature;
+  [EntryType.NPC_FEATURE]: SourceTemplates.NPC.AnyFeature;
   [EntryType.NPC_TEMPLATE]: SourceTemplates.item_universal & {
     description: string;
     base_features: UUIDRef[];
