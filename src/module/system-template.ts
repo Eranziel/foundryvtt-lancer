@@ -146,6 +146,7 @@ export namespace SystemTemplates {
     }
 
     export type AnyFeature = TechData | SystemData | ReactionData | TraitData | WeaponData;
+    export type AllFeature = TechData & SystemData & ReactionData & TraitData & WeaponData;
   }
 
   // Embedded refs local to the actor, can always be resolved synchronously
@@ -376,7 +377,7 @@ export namespace SystemData {
       size: number; // TODO: don't miss this in migrations
     }>;
   }
-  export type NpcFeature = SystemTemplates.item_universal & SystemTemplates.NPC.AnyFeature;
+  export type NpcFeature = SystemTemplates.NPC.AnyFeature;
   export interface NpcTemplate extends SystemTemplates.item_universal {
     description: string;
     base_features: SystemTemplates.ResolvedUuidRef<LancerNPC_FEATURE>[];

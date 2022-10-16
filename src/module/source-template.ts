@@ -368,7 +368,7 @@ export namespace SourceData {
     optional_features: UUIDRef[];
     base_stats: Array<SourceTemplates.NPC.StatBlock>;
   }
-  export type NpcFeature = SourceTemplates.item_universal & SourceTemplates.NPC.AllFeature;
+  export type NpcFeature = SourceTemplates.NPC.AnyFeature;
   export interface NpcTemplate extends SourceTemplates.item_universal {
     description: string;
     base_features: UUIDRef[];

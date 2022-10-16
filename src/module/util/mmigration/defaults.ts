@@ -20,8 +20,8 @@ import {
 import { nanoid } from "nanoid";
 import { DeployableType } from "../../enums";
 import { ActionData } from "../../models/bits/action";
-import { BonusData } from "../../models/bits/bonus";
-import { SourceDataType, SourceTemplates } from "../../source-template";
+import { BonusData, GenerateBonus } from "../../models/bits/bonus";
+import { SourceData, SourceDataType, SourceTemplates } from "../../source-template";
 import { Damage, DamageData } from "../../models/bits/damage";
 import { ActionTrackingData } from "../../action";
 import { RangeData } from "../../models/bits/range";
@@ -351,11 +351,11 @@ export function NPC_CLASS(): SourceDataType<EntryType.NPC_CLASS> {
   };
 }
 
-export function NPC_FEATURE(): SourceDataType<EntryType.NPC_FEATURE> {
+export function NPC_FEATURE(): SourceData.NpcFeature {
   return NPC_TRAIT();
 }
 
-function npc_feature_commons(): SourceTemplates.BaseNpcFeatureData {
+function npc_feature_commons(): SourceTemplates.NPC.BaseFeatureData {
   return {
     lid: "npcf_" + nanoid(),
     tags: [],
@@ -371,7 +371,7 @@ function npc_feature_commons(): SourceTemplates.BaseNpcFeatureData {
   };
 }
 
-export function NPC_TECH(): SourceTemplates.NpcTechData {
+export function NPC_TECH(): SourceTemplates.NPC.TechData {
   return {
     ...npc_feature_commons(),
     type: NpcFeatureType.Tech,
@@ -381,7 +381,7 @@ export function NPC_TECH(): SourceTemplates.NpcTechData {
   };
 }
 
-export function NPC_WEAPON(): SourceTemplates.NpcWeaponData {
+export function NPC_WEAPON(): SourceTemplates.NPC.WeaponData {
   return {
     ...npc_feature_commons(),
     type: NpcFeatureType.Weapon,
@@ -408,7 +408,7 @@ export function RANGE(): RangeData {
   };
 }
 
-export function NPC_REACTION(): SourceTemplates.NpcReactionData {
+export function NPC_REACTION(): SourceTemplates.NPC.ReactionData {
   return {
     ...npc_feature_commons(),
     trigger: "Undefined trigger",
@@ -416,14 +416,14 @@ export function NPC_REACTION(): SourceTemplates.NpcReactionData {
   };
 }
 
-export function NPC_TRAIT(): SourceTemplates.NpcTraitData {
+export function NPC_TRAIT(): SourceTemplates.NPC.TraitData {
   return {
     ...npc_feature_commons(),
     type: NpcFeatureType.Trait,
   };
 }
 
-export function NPC_SYSTEM(): SourceTemplates.NpcSystemData {
+export function NPC_SYSTEM(): SourceTemplates.NPC.SystemData {
   return {
     ...npc_feature_commons(),
     type: NpcFeatureType.System,
@@ -439,7 +439,7 @@ export function NPC_TEMPLATE(): SourceDataType<EntryType.NPC_TEMPLATE> {
   };
 }
 
-export function NPC_STATS(): SourceTemplates.NpcStatBlock {
+export function NPC_STATS(): SourceTemplates.NPC.StatBlock {
   return {
     activations: 0,
     agility: 0,
@@ -491,11 +491,11 @@ export function PILOT_ARMOR(): SourceDataType<EntryType.PILOT_ARMOR> {
   return {
     ...PILOT_GEAR(),
     bonuses: [
-      Bonus.generate("pilot_hp", 3, true).save(),
-      Bonus.generate("pilot_evasion", 3, true).save(),
-      Bonus.generate("pilot_edef", 3, true).save(),
-      Bonus.generate("pilot_speed", 3, true).save(),
-      Bonus.generate("pilot_armor", 0, true).save(),
+      GenerateBonus("pilot_hp", 3, true),
+      GenerateBonus("pilot_evasion", 3, true),
+      GenerateBonus("pilot_edef", 3, true),
+      GenerateBonus("pilot_speed", 3, true),
+      GenerateBonus("pilot_armor", 0, true),
     ],
   };
 }
