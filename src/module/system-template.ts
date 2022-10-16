@@ -376,7 +376,7 @@ export namespace SystemData {
       size: number; // TODO: don't miss this in migrations
     }>;
   }
-  export interface NpcFeature extends SystemTemplates.item_universal /* SystemTemplates.NPC.AnyFeature */ {}
+  export type NpcFeature = SystemTemplates.item_universal & SystemTemplates.NPC.AnyFeature;
   export interface NpcTemplate extends SystemTemplates.item_universal {
     description: string;
     base_features: SystemTemplates.ResolvedUuidRef<LancerNPC_FEATURE>[];
