@@ -176,187 +176,189 @@ export namespace SourceTemplates {
     }
 
     export type AnyFeature = TechData | SystemData | ReactionData | TraitData | WeaponData;
+    export type AllFeature = TechData & SystemData & ReactionData & TraitData & WeaponData;
   }
 }
 
-interface SourceDataTypesMap extends DataTypeMap {
-  [EntryType.CORE_BONUS]: SourceTemplates.item_universal &
-    SourceTemplates.bascdt & {
-      description: string;
-      effect: string;
-      mounted_effect: string;
-      manufacturer: string;
-    };
-  [EntryType.DEPLOYABLE]: SourceTemplates.actor_universal &
-    SourceTemplates.heat & {
-      actions: ActionData[];
-      bonuses: BonusData[];
-      counters: CounterData[];
-      synergies: SynergyData[];
-      tags: SourceTemplates.TagField[];
-      activation: ActivationType;
+export namespace SourceData {
+  export interface CoreBonus extends SourceTemplates.item_universal, SourceTemplates.bascdt {
+    description: string;
+    effect: string;
+    mounted_effect: string;
+    manufacturer: string;
+  }
+  export interface Deployable extends SourceTemplates.actor_universal, SourceTemplates.heat {
+    actions: ActionData[];
+    bonuses: BonusData[];
+    counters: CounterData[];
+    synergies: SynergyData[];
+    tags: SourceTemplates.TagField[];
+    activation: ActivationType;
+    armor: number;
+    cost: number;
+    max_hp: number;
+    max_heat: number;
+    size: number;
+    speed: number; // Some have it!
+    edef: number;
+    evasion: number;
+    instances: number;
+    deactivation: ActivationType;
+    detail: string;
+    recall: ActivationType;
+    redeploy: ActivationType;
+
+    type: DeployableType;
+    avail_mounted: boolean;
+    avail_unmounted: boolean;
+    deployer: UUIDRef | null;
+  }
+  export interface Frame extends SourceTemplates.item_universal, SourceTemplates.licensed {
+    description: string;
+    mechtype: MechType[];
+    mounts: MountType[];
+    stats: {
       armor: number;
-      cost: number;
-      max_hp: number;
-      max_heat: number;
-      size: number;
-      speed: number; // Some have it!
       edef: number;
       evasion: number;
-      instances: number;
-      deactivation: ActivationType;
-      detail: string;
-      recall: ActivationType;
-      redeploy: ActivationType;
-
-      type: DeployableType;
-      avail_mounted: boolean;
-      avail_unmounted: boolean;
-      deployer: UUIDRef | null;
+      heatcap: number;
+      hp: number;
+      repcap: number;
+      save: number;
+      sensor_range: number;
+      size: number;
+      sp: number;
+      speed: number;
+      stress: number;
+      structure: number;
+      tech_attack: number;
     };
-  [EntryType.FRAME]: SourceTemplates.item_universal &
-    SourceTemplates.licensed & {
+    traits: Array<{
+      name: string;
       description: string;
-      mechtype: MechType[];
-      mounts: MountType[];
-      stats: {
-        armor: number;
-        edef: number;
-        evasion: number;
-        heatcap: number;
-        hp: number;
-        repcap: number;
-        save: number;
-        sensor_range: number;
-        size: number;
-        sp: number;
-        speed: number;
-        stress: number;
-        structure: number;
-        tech_attack: number;
-      };
-      traits: Array<{
-        name: string;
-        description: string;
-        bonuses: BonusData[];
-        counters: CounterData[];
-        integrated: UUIDRef[];
-        deployables: UUIDRef[];
-        actions: ActionData[];
-        synergies: SynergyData[];
-        use: FrameEffectUse;
-      }>;
-      core_system: {
-        name: string;
-        description: string; // v-html
-        activation: ActivationType;
-        deactivation?: ActivationType;
-        use?: FrameEffectUse; // This maybe should be deprecated
+      bonuses: BonusData[];
+      counters: CounterData[];
+      integrated: UUIDRef[];
+      deployables: UUIDRef[];
+      actions: ActionData[];
+      synergies: SynergyData[];
+      use: FrameEffectUse;
+    }>;
+    core_system: {
+      name: string;
+      description: string; // v-html
+      activation: ActivationType;
+      deactivation?: ActivationType;
+      use?: FrameEffectUse; // This maybe should be deprecated
 
-        active_name: string;
-        active_effect: string; // v-html
-        active_synergies: SynergyData[];
-        active_bonuses: BonusData[];
-        active_actions: ActionData[];
+      active_name: string;
+      active_effect: string; // v-html
+      active_synergies: SynergyData[];
+      active_bonuses: BonusData[];
+      active_actions: ActionData[];
 
-        // Should mirror actives exactly
-        passive_name?: string;
-        passive_effect?: string; // v-html,
-        passive_synergies?: SynergyData[];
-        passive_actions: ActionData[];
-        passive_bonuses: BonusData[];
+      // Should mirror actives exactly
+      passive_name?: string;
+      passive_effect?: string; // v-html,
+      passive_synergies?: SynergyData[];
+      passive_actions: ActionData[];
+      passive_bonuses: BonusData[];
 
-        deployables: UUIDRef[];
-        counters: CounterData[];
-        integrated: UUIDRef[];
-        tags: SourceTemplates.TagField[];
-      };
+      deployables: UUIDRef[];
+      counters: CounterData[];
+      integrated: UUIDRef[];
+      tags: SourceTemplates.TagField[];
     };
-  [EntryType.LICENSE]: SourceTemplates.item_universal & {
+  }
+  export interface License extends SourceTemplates.item_universal {
     manufacturer: string;
     key: string;
     rank: number;
-  };
-  [EntryType.MECH]: SourceTemplates.actor_universal &
-    SourceTemplates.action_tracking &
-    SourceTemplates.heat &
-    SourceTemplates.struss & {
-      overcharge: number;
-      repairs: number;
-      core_active: boolean;
-      core_energy: boolean;
-      loadout: {
-        frame: EmbeddedRef | null; // ID to a LancerFRAME on the mech
-        weapon_mounts: Array<{
-          slots: Array<{
-            weapon: EmbeddedRef | null; // ID to a LancerMECH_WEAPON on the mech
-            mod: EmbeddedRef | null; // ID to a LancerWEAPON_MOD on the mech
-            size: FittingSize;
-          }>;
-          type: MountType;
-          bracing: boolean;
+  }
+  export interface Mech
+    extends SourceTemplates.actor_universal,
+      SourceTemplates.action_tracking,
+      SourceTemplates.heat,
+      SourceTemplates.struss {
+    overcharge: number;
+    repairs: number;
+    core_active: boolean;
+    core_energy: boolean;
+    loadout: {
+      frame: EmbeddedRef | null; // ID to a LancerFRAME on the mech
+      weapon_mounts: Array<{
+        slots: Array<{
+          weapon: EmbeddedRef | null; // ID to a LancerMECH_WEAPON on the mech
+          mod: EmbeddedRef | null; // ID to a LancerWEAPON_MOD on the mech
+          size: FittingSize;
         }>;
-        systems: Array<EmbeddedRef>;
-      };
-      meltdown_timer: number | null;
-      ejected: boolean;
-      notes: string;
-      pilot: UUIDRef | null; // UUID to a LancerPILOT
-    };
-  [EntryType.MECH_SYSTEM]: SourceTemplates.item_universal &
-    SourceTemplates.bascdt &
-    SourceTemplates.destructible &
-    SourceTemplates.licensed & {
-      effect: string;
-      sp: number;
-      uses: number;
-      description: string;
-      type: SystemType;
-    };
-  [EntryType.MECH_WEAPON]: SourceTemplates.item_universal &
-    SourceTemplates.destructible &
-    SourceTemplates.licensed & {
-      deployables: UUIDRef[];
-      integrated: UUIDRef[];
-      sp: number;
-      uses: number;
-      profiles: Array<{
-        name: string;
-        type: WeaponType;
-        damage: DamageData[];
-        range: RangeData[];
-        tags: SourceTemplates.TagField[];
-        description: string;
-        effect: string;
-        on_attack: string;
-        on_hit: string;
-        on_crit: string;
-        cost: number;
-        skirmishable: boolean;
-        barrageable: boolean;
-        actions: ActionData[];
-        bonuses: BonusData[];
-        synergies: SynergyData[];
-        counters: CounterData[];
+        type: MountType;
+        bracing: boolean;
       }>;
-      loaded: false;
-      selected_profile: number;
-      size: WeaponSize;
-      no_core_bonuses: boolean;
-      no_mods: boolean;
-      no_bonuses: boolean;
-      no_synergies: boolean;
-      no_attack: boolean;
+      systems: Array<EmbeddedRef>;
     };
-  [EntryType.NPC]: SourceTemplates.actor_universal &
-    SourceTemplates.action_tracking &
-    SourceTemplates.heat &
-    SourceTemplates.struss & {
-      notes: string;
-      meltdown_timer: number | null;
-      tier: number;
-    };
-  [EntryType.NPC_CLASS]: SourceTemplates.item_universal & {
+    meltdown_timer: number | null;
+    ejected: boolean;
+    notes: string;
+    pilot: UUIDRef | null; // UUID to a LancerPILOT
+  }
+  export interface MechSystem
+    extends SourceTemplates.item_universal,
+      SourceTemplates.bascdt,
+      SourceTemplates.destructible,
+      SourceTemplates.licensed {
+    effect: string;
+    sp: number;
+    uses: number;
+    description: string;
+    type: SystemType;
+  }
+  export interface MechWeapon
+    extends SourceTemplates.item_universal,
+      SourceTemplates.destructible,
+      SourceTemplates.licensed {
+    deployables: UUIDRef[];
+    integrated: UUIDRef[];
+    sp: number;
+    uses: number;
+    profiles: Array<{
+      name: string;
+      type: WeaponType;
+      damage: DamageData[];
+      range: RangeData[];
+      tags: SourceTemplates.TagField[];
+      description: string;
+      effect: string;
+      on_attack: string;
+      on_hit: string;
+      on_crit: string;
+      cost: number;
+      skirmishable: boolean;
+      barrageable: boolean;
+      actions: ActionData[];
+      bonuses: BonusData[];
+      synergies: SynergyData[];
+      counters: CounterData[];
+    }>;
+    loaded: false;
+    selected_profile: number;
+    size: WeaponSize;
+    no_core_bonuses: boolean;
+    no_mods: boolean;
+    no_bonuses: boolean;
+    no_synergies: boolean;
+    no_attack: boolean;
+  }
+  export interface Npc
+    extends SourceTemplates.actor_universal,
+      SourceTemplates.action_tracking,
+      SourceTemplates.heat,
+      SourceTemplates.struss {
+    notes: string;
+    meltdown_timer: number | null;
+    tier: number;
+  }
+  export interface NpcClass extends SourceTemplates.item_universal {
     role: string;
     info: {
       flavor: string;
@@ -365,87 +367,82 @@ interface SourceDataTypesMap extends DataTypeMap {
     base_features: UUIDRef[];
     optional_features: UUIDRef[];
     base_stats: Array<SourceTemplates.NPC.StatBlock>;
-  };
-  [EntryType.NPC_FEATURE]: SourceTemplates.NPC.AnyFeature;
-  [EntryType.NPC_TEMPLATE]: SourceTemplates.item_universal & {
+  }
+  export interface NpcFeature extends SourceTemplates.item_universal /*, SourceTemplates.NPC.AllFeature */ {}
+  export interface NpcTemplate extends SourceTemplates.item_universal {
     description: string;
     base_features: UUIDRef[];
     optional_features: UUIDRef[];
-  };
-  [EntryType.ORGANIZATION]: SourceTemplates.item_universal & {
+  }
+  export interface Organization extends SourceTemplates.item_universal {
     actions: string;
     description: string;
     efficiency: number;
     influence: 0;
     purpose: OrgType;
-  };
-  [EntryType.PILOT_ARMOR]: SourceTemplates.item_universal &
-    SourceTemplates.bascdt & {
-      description: string;
-      uses: number;
+  }
+  export interface PilotArmor extends SourceTemplates.item_universal, SourceTemplates.bascdt {
+    description: string;
+    uses: number;
+  }
+  export interface PilotGear extends SourceTemplates.item_universal, SourceTemplates.bascdt {
+    description: string;
+    uses: number;
+  }
+  export interface PilotWeapon extends SourceTemplates.item_universal, SourceTemplates.bascdt {
+    description: string;
+    range: RangeData[];
+    damage: DamageData[];
+    effect: string;
+    loaded: boolean;
+    uses: number;
+  }
+  export interface Pilot extends SourceTemplates.actor_universal, SourceTemplates.action_tracking {
+    active_mech: UUIDRef | null;
+    background: string;
+    callsign: string;
+    cloud_id: string;
+    cloud_owner_id: string;
+    history: string;
+    last_cloud_update: string;
+    level: number;
+    loadout: {
+      armor: UUIDRef[];
+      gear: UUIDRef[];
+      weapons: UUIDRef[];
     };
-  [EntryType.PILOT_GEAR]: SourceTemplates.item_universal &
-    SourceTemplates.bascdt & {
-      description: string;
-      uses: number;
-    };
-  [EntryType.PILOT_WEAPON]: SourceTemplates.item_universal &
-    SourceTemplates.bascdt & {
-      description: string;
-      range: RangeData[];
-      damage: DamageData[];
-      effect: string;
-      loaded: boolean;
-      uses: number;
-    };
-  [EntryType.PILOT]: SourceTemplates.actor_universal &
-    SourceTemplates.action_tracking & {
-      active_mech: UUIDRef | null;
-      background: string;
-      callsign: string;
-      cloud_id: string;
-      cloud_owner_id: string;
-      history: string;
-      last_cloud_update: string;
-      level: number;
-      loadout: {
-        armor: UUIDRef[];
-        gear: UUIDRef[];
-        weapons: UUIDRef[];
-      };
-      mech_skills: [number, number, number, number];
-      mounted: boolean;
-      notes: string;
-      player_name: string;
-      status: string;
-      text_appearance: string;
-    };
-  [EntryType.RESERVE]: SourceTemplates.item_universal &
-    SourceTemplates.bascdt & {
-      consumable: boolean;
-      label: string;
-      resource_name: string;
-      resource_note: string;
-      resource_cost: string;
-      type: ReserveType;
-      used: boolean;
-      description: string;
-    };
-  [EntryType.SKILL]: SourceTemplates.item_universal & {
+    mech_skills: [number, number, number, number];
+    mounted: boolean;
+    notes: string;
+    player_name: string;
+    status: string;
+    text_appearance: string;
+  }
+  export interface Reserve extends SourceTemplates.item_universal, SourceTemplates.bascdt {
+    consumable: boolean;
+    label: string;
+    resource_name: string;
+    resource_note: string;
+    resource_cost: string;
+    type: ReserveType;
+    used: boolean;
+    description: string;
+  }
+  export interface Skill extends SourceTemplates.item_universal {
     description: string;
     detail: string;
     family: string;
     rank: number;
-  };
-  [EntryType.STATUS]: SourceTemplates.item_universal & {
+  }
+  export interface Status extends SourceTemplates.item_universal {
     effects: string;
     type: "Status" | "Condition" | "Effect";
-  };
-  [EntryType.TAG]: SourceTemplates.item_universal & {
+  }
+  export interface Tag extends SourceTemplates.item_universal {
     description: string;
     hidden: boolean;
-  };
-  [EntryType.TALENT]: SourceTemplates.item_universal & {
+  }
+  export interface Talent extends SourceTemplates.item_universal {
     curr_rank: number;
     description: string;
     ranks: Array<{
@@ -460,21 +457,48 @@ interface SourceDataTypesMap extends DataTypeMap {
       integrated: UUIDRef[];
     }>;
     terse: string;
-  };
-  [EntryType.WEAPON_MOD]: SourceTemplates.item_universal &
-    SourceTemplates.bascdt &
-    SourceTemplates.destructible &
-    SourceTemplates.licensed & {
-      added_tags: SourceTemplates.TagField[];
-      added_damage: DamageData[];
-      effect: string;
-      description: string;
-      sp: number;
-      uses: number;
-      allowed_sizes: WeaponSizeChecklist;
-      allowed_types: WeaponTypeChecklist;
-      added_range: RangeData[];
-    };
+  }
+  export interface WeaponMod
+    extends SourceTemplates.item_universal,
+      SourceTemplates.bascdt,
+      SourceTemplates.destructible,
+      SourceTemplates.licensed {
+    added_tags: SourceTemplates.TagField[];
+    added_damage: DamageData[];
+    effect: string;
+    description: string;
+    sp: number;
+    uses: number;
+    allowed_sizes: WeaponSizeChecklist;
+    allowed_types: WeaponTypeChecklist;
+    added_range: RangeData[];
+  }
 }
+
+export type SourceDataTypesMap = {
+  // [EntryType.CONDITION]: IStatusData;
+  [EntryType.CORE_BONUS]: SourceData.CoreBonus;
+  [EntryType.DEPLOYABLE]: SourceData.Deployable;
+  [EntryType.FRAME]: SourceData.Frame;
+  [EntryType.LICENSE]: SourceData.License;
+  [EntryType.MECH]: SourceData.Mech;
+  [EntryType.MECH_SYSTEM]: SourceData.MechSystem;
+  [EntryType.MECH_WEAPON]: SourceData.MechWeapon;
+  [EntryType.NPC]: SourceData.Npc;
+  [EntryType.NPC_CLASS]: SourceData.NpcClass;
+  [EntryType.NPC_FEATURE]: SourceData.NpcFeature;
+  [EntryType.NPC_TEMPLATE]: SourceData.NpcTemplate;
+  [EntryType.ORGANIZATION]: SourceData.Organization;
+  [EntryType.PILOT_ARMOR]: SourceData.PilotArmor;
+  [EntryType.PILOT_GEAR]: SourceData.PilotGear;
+  [EntryType.PILOT_WEAPON]: SourceData.PilotWeapon;
+  [EntryType.PILOT]: SourceData.Pilot;
+  [EntryType.RESERVE]: SourceData.Reserve;
+  [EntryType.SKILL]: SourceData.Skill;
+  [EntryType.STATUS]: SourceData.Status;
+  [EntryType.TAG]: SourceData.Tag;
+  [EntryType.TALENT]: SourceData.Talent;
+  [EntryType.WEAPON_MOD]: SourceData.WeaponMod;
+};
 
 export type SourceDataType<T extends EntryType> = T extends keyof SourceDataTypesMap ? SourceDataTypesMap[T] : never;
