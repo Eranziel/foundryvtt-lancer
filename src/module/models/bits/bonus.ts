@@ -2,6 +2,7 @@
 const fields = foundry.data.fields;
 
 import { DamageTypeChecklist, RangeTypeChecklist, WeaponSizeChecklist, WeaponTypeChecklist } from "../../enums";
+import { BONUS } from "../../util/mmigration/defaults";
 
 // Make all fields required, force val to string, and use checklists
 export interface BonusData {
@@ -39,4 +40,20 @@ export class BonusField extends fields.SchemaField {
       options
     );
   }
+}
+
+// Just a more convenient constructor
+export function GenerateBonus(
+  lid: string,
+  val: string | number,
+  replace: boolean = false,
+  overwrite: boolean = false
+): BonusData {
+  return {
+    ...BONUS(),
+    lid,
+    val: "" + val,
+    replace,
+    overwrite,
+  };
 }

@@ -1,8 +1,8 @@
+// @ts-nocheck
 import { LancerMECH } from "../../actor/lancer-actor";
 import { RangeType, RangeTypeChecklist } from "../../enums";
 import { LancerMECH_WEAPON, LancerWEAPON_MOD } from "../../item/lancer-item";
 
-// @ts-nocheck
 const fields = foundry.data.fields;
 
 // Clone of RegRangeData

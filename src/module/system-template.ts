@@ -189,6 +189,10 @@ export namespace SystemData {
     activation: ActivationType;
     armor: number;
     cost: number;
+    max_hp: number;
+    max_heat: number;
+    size: number;
+    speed: number;
     edef: number;
     evasion: number;
     instances: number;
@@ -200,7 +204,7 @@ export namespace SystemData {
     type: DeployableType;
     avail_mounted: boolean;
     avail_unmounted: boolean;
-    deployer: SystemTemplates.ResolvedEmbeddedRef<LancerActor>;
+    deployer: SystemTemplates.ResolvedEmbeddedRef<LancerActor> | null;
   }
   export interface Frame extends SystemTemplates.item_universal, SystemTemplates.licensed {
     description: string;
@@ -267,9 +271,9 @@ export namespace SystemData {
       SystemTemplates.struss {
     overcharge: number;
     repairs: FullBoundedNum;
+    core_active: boolean;
+    core_energy: boolean;
     loadout: {
-      core_active: boolean;
-      core_energy: boolean;
       frame: SystemTemplates.ResolvedEmbeddedRef<LancerFRAME> | null; // UUID to a LancerFRAME
       weapon_mounts: Array<{
         slots: Array<{

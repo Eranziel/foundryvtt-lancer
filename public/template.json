@@ -91,7 +91,7 @@
       "max_hp": 5,
       "max_heat": 5,
       "size": 0.5,
-      "speed": 1,
+      "speed": 0,
       "edef": 8,
       "evasion": 5,
       "instances": 1,

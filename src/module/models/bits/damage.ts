@@ -1,7 +1,7 @@
+// @ts-nocheck
 import { DamageType, DamageTypeChecklist } from "../../enums";
 import { PackedDamageData } from "../../util/mmigration/packed-types";
 
-// @ts-nocheck
 const fields = foundry.data.fields;
 
 // Clone of RegDamageData
