@@ -76,7 +76,7 @@ export namespace SourceTemplates {
     counters: CounterData[];
     deployables: UUIDRef[];
     integrated: UUIDRef[];
-    tags: TagField[];
+    tags: TagData[];
     bonuses: BonusData[];
   }
 

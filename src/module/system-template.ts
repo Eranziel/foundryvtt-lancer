@@ -10,7 +10,9 @@ import {
   OrgType,
   SystemType,
   WeaponSize,
+  WeaponSizeChecklist,
   WeaponType,
+  WeaponTypeChecklist,
 } from "./enums";
 import {
   LancerFRAME,
@@ -124,7 +126,10 @@ export namespace SystemTemplates {
     export interface StatBlock extends SourceTemplates.NPC.StatBlock {}
 
     // This small helper type is just used to repair npc types "tags" field
-    type NPCFixup<T extends { tags: TagData[] }> = Omit<T, "tags"> & { tags: Tag[] };
+    type NPCFixup<T extends { tags: TagData[]; uses: number }> = Omit<T, "tags" | "uses"> & {
+      tags: Tag[];
+      uses: FullBoundedNum;
+    };
 
     export interface WeaponData extends NPCFixup<SourceTemplates.NPC.WeaponData> {
       // The current tier's values for these
@@ -459,7 +464,21 @@ export namespace SystemData {
     synergies: ActionData[];
     counters: ActionData[];
   }
-  export interface WeaponMod extends SourceData.WeaponMod {}
+  export interface WeaponMod
+    extends SystemTemplates.item_universal,
+      SystemTemplates.bascdt,
+      SystemTemplates.destructible,
+      SystemTemplates.licensed {
+    added_tags: TagData[];
+    added_damage: Damage[];
+    effect: string;
+    description: string;
+    sp: number;
+    uses: FullBoundedNum;
+    allowed_sizes: WeaponSizeChecklist;
+    allowed_types: WeaponTypeChecklist;
+    added_range: Range[];
+  }
 }
 
 export type SystemDataTypesMap = {
