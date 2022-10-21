@@ -115,7 +115,7 @@
     "mech": {
       "templates": ["universal", "action_tracking", "heat", "statuses", "struss"],
       "core_active": false,
-      "core_energy": true,
+      "core_energy": 1,
       "overcharge": 0,
       "repairs": 0,
       "loadout": {

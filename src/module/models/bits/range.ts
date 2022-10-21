@@ -1,9 +1,9 @@
-// @ts-nocheck
 import { LancerMECH } from "../../actor/lancer-actor";
 import { RangeType, RangeTypeChecklist } from "../../enums";
 import { LancerMECH_WEAPON, LancerWEAPON_MOD } from "../../item/lancer-item";
 
-const fields = foundry.data.fields;
+// @ts-ignore
+const fields: any = foundry.data.fields;
 
 // Clone of RegRangeData
 export interface RangeData {
@@ -13,8 +13,8 @@ export interface RangeData {
 
 // Represents a single range for a weapon. Line 8, range 10, burst 2, etc. Blast will have a separate entry for its "normal" range and the range of the explosion
 export class Range implements Required<RangeData> {
-  type: RangeType;
-  val: string;
+  readonly type: RangeType;
+  readonly val: string;
   constructor(data: RangeData) {
     this.type = data.type;
     this.val = data.val;
@@ -167,13 +167,13 @@ export class RangeField extends fields.SchemaField {
   }
 
   /** @override */
-  initialize(model, name, value: RangeData) {
+  initialize(model: unknown, name: unknown, value: RangeData) {
     // Coerce to a range
     return new Range(value);
   }
 
   /** @override */
-  _cast(value) {
+  _cast(value: any) {
     if (value instanceof Range) {
       return value.save();
     } else {

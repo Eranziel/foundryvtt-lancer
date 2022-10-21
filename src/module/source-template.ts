@@ -23,6 +23,7 @@ import { CounterData } from "./models/bits/counter";
 import { DamageData } from "./models/bits/damage";
 import { RangeData } from "./models/bits/range";
 import { SynergyData } from "./models/bits/synergy";
+import { TagData } from "./models/bits/tag";
 
 export type DataTypeMap = { [key in EntryType]: object };
 
@@ -98,12 +99,6 @@ export namespace SourceTemplates {
     structure: number;
   }
 
-  export interface TagField {
-    lid: string;
-    value: string;
-    name: string;
-  }
-
   export namespace NPC {
     // These are provided/modified by npc classes and features
     export interface StatBlock {
@@ -132,7 +127,7 @@ export namespace SourceTemplates {
       effect: string;
       bonus: Partial<StatBlock>;
       override: Partial<StatBlock>;
-      tags: TagField[];
+      tags: TagData[];
       type: NpcFeatureType;
 
       // State tracking. Not always used
@@ -192,7 +187,7 @@ export namespace SourceData {
     bonuses: BonusData[];
     counters: CounterData[];
     synergies: SynergyData[];
-    tags: SourceTemplates.TagField[];
+    tags: TagData[];
     activation: ActivationType;
     armor: number;
     cost: number;
@@ -267,7 +262,7 @@ export namespace SourceData {
       deployables: UUIDRef[];
       counters: CounterData[];
       integrated: UUIDRef[];
-      tags: SourceTemplates.TagField[];
+      tags: TagData[];
     };
   }
   export interface License extends SourceTemplates.item_universal {
@@ -283,7 +278,7 @@ export namespace SourceData {
     overcharge: number;
     repairs: number;
     core_active: boolean;
-    core_energy: boolean;
+    core_energy: number;
     loadout: {
       frame: EmbeddedRef | null; // ID to a LancerFRAME on the mech
       weapon_mounts: Array<{
@@ -326,7 +321,7 @@ export namespace SourceData {
       type: WeaponType;
       damage: DamageData[];
       range: RangeData[];
-      tags: SourceTemplates.TagField[];
+      tags: TagData[];
       description: string;
       effect: string;
       on_attack: string;
@@ -463,7 +458,7 @@ export namespace SourceData {
       SourceTemplates.bascdt,
       SourceTemplates.destructible,
       SourceTemplates.licensed {
-    added_tags: SourceTemplates.TagField[];
+    added_tags: TagData[];
     added_damage: DamageData[];
     effect: string;
     description: string;

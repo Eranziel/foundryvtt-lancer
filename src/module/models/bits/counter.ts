@@ -1,6 +1,6 @@
 import { LIDField } from "../shared";
 
-// @ts-nocheck
+// @ts-ignore
 const fields: any = foundry.data.fields;
 
 export interface CounterData {

@@ -1,8 +1,8 @@
-// @ts-nocheck
 import { DamageType, DamageTypeChecklist } from "../../enums";
 import { PackedDamageData } from "../../util/mmigration/packed-types";
 
-const fields = foundry.data.fields;
+// @ts-ignore
+const fields: any = foundry.data.fields;
 
 // Clone of RegDamageData
 export interface DamageData {
@@ -10,9 +10,10 @@ export interface DamageData {
   val: string;
 }
 
+// "Hydrated" DamageData
 export class Damage implements Readonly<DamageData> {
-  type: DamageType;
-  val: string;
+  readonly type: DamageType;
+  readonly val: string;
   constructor(data: DamageData) {
     this.type = data.type;
     this.val = data.val;
@@ -120,13 +121,13 @@ export class DamageField extends fields.SchemaField {
   }
 
   /** @override */
-  initialize(model, name, value: DamageData) {
+  initialize(model: unknown, name: unknown, value: DamageData) {
     // Coerce to a range
     return new Damage(value);
   }
 
   /** @override */
-  _cast(value) {
+  _cast(value: any) {
     if (value instanceof Damage) {
       return value.save();
     } else {

@@ -1,10 +1,10 @@
-// @ts-nocheck
-const fields = foundry.data.fields;
-
-import { ActivePeriod } from "machine-mind/dist/classes/Action";
+import { ActivationType, ActivePeriod } from "../../enums";
 import { LIDField } from "../shared";
-import { DamageField } from "./damage";
-import { RangeField } from "./range";
+import { DamageData, DamageField } from "./damage";
+import { RangeData, RangeField } from "./range";
+
+// @ts-ignore
+const fields: any = foundry.data.fields;
 
 // Lightly trimmed
 export interface ActionData {
@@ -24,8 +24,8 @@ export interface ActionData {
   available_mounted: boolean;
   heat_cost: number;
   synergy_locations: string[];
-  damage: RegDamageData[];
-  range: RegRangeData[];
+  damage: DamageData[];
+  range: RangeData[];
   log: string;
   // ignore_used: boolean;
 }
@@ -61,19 +61,20 @@ class FrequencyField extends fields.StringField {
       return { interval: "Unlimited" };
     }
 
-    try {
-      let [_, uses, interval] = freq.match("(d)+s*/s*(.*)");
-      if (![Object.keys(ActivePeriod)].includes(interval)) {
-        throw new Error(
-          `Frequency interval must one of [${Object.values(ActivePeriod).join(" | ")}]. Illegal option: ${interval}`
-        );
-      } else if (uses < 1) {
-        throw new Error(`Frequency use count must be a positive integer. Illegal option: ${uses}`);
-      } else {
-        return { uses, interval };
-      }
-    } catch (e: TypeError) {
+    let match = freq.match("(d)+s*/s*(.*)");
+    if (!match) {
       throw new Error(`Frequency must be of a format alike "X / [${Object.values(ActivePeriod).join(" | ")}]`);
+    }
+    let uses = Number.parseInt(match[1]);
+    let interval = match[2] as ActivePeriod;
+    if (!Object.keys(ActivePeriod).includes(interval)) {
+      throw new Error(
+        `Frequency interval must one of [${Object.values(ActivePeriod).join(" | ")}]. Illegal option: ${interval}`
+      );
+    } else if (uses < 1) {
+      throw new Error(`Frequency use count must be a positive integer. Illegal option: ${uses}`);
+    } else {
+      return { uses, interval };
     }
   }
 }

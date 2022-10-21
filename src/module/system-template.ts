@@ -19,14 +19,18 @@ import {
   LancerMECH_WEAPON,
   LancerNPC_CLASS,
   LancerNPC_FEATURE,
+  LancerPILOT_ARMOR,
+  LancerPILOT_GEAR,
+  LancerPILOT_WEAPON,
   LancerWEAPON_MOD,
 } from "./item/lancer-item";
 import { ActionData } from "./models/bits/action";
 import { BonusData } from "./models/bits/bonus";
 import { CounterData } from "./models/bits/counter";
-import { Damage, DamageData } from "./models/bits/damage";
-import { RangeData } from "./models/bits/range";
+import { Damage } from "./models/bits/damage";
+import { Range } from "./models/bits/range";
 import { SynergyData } from "./models/bits/synergy";
+import { Tag, TagData } from "./models/bits/tag";
 import { FullBoundedNum, SourceData, SourceTemplates, UUIDRef } from "./source-template";
 
 export namespace SystemTemplates {
@@ -89,12 +93,13 @@ export namespace SystemTemplates {
 
   // Modify bascdt to use system tagfields, and resolved deployables/integrateds
   export interface bascdt {
+    bonuses: BonusData[];
     actions: ActionData[];
     synergies: SynergyData[];
     counters: CounterData[];
     deployables: ResolvedUuidRef<LancerDEPLOYABLE>[];
     integrated: ResolvedUuidRef<LancerItem>[];
-    tags: TagField[]; // Redefined
+    tags: Tag[]; // Redefined
   }
 
   // Modify heat to be bounded
@@ -113,23 +118,18 @@ export namespace SystemTemplates {
     uses: FullBoundedNum;
   }
 
-  export interface TagField extends SourceTemplates.TagField {
-    num_val: number | null;
-    description: string; // Async fetched
-  }
-
   // NPC stuff
   export namespace NPC {
     // Everything herein is more or less an exact copy
     export interface StatBlock extends SourceTemplates.NPC.StatBlock {}
 
     // This small helper type is just used to repair npc types "tags" field
-    type NPCFixup<T extends { tags: SourceTemplates.TagField[] }> = Omit<T, "tags"> & { tags: TagField };
+    type NPCFixup<T extends { tags: TagData[] }> = Omit<T, "tags"> & { tags: Tag[] };
 
     export interface WeaponData extends NPCFixup<SourceTemplates.NPC.WeaponData> {
       // The current tier's values for these
-      tier_damage: DamageData[];
-      tier_range: RangeData[];
+      tier_damage: Damage[];
+      tier_range: Range[];
       tier_accuracy: number;
       tier_attack_bonus: number;
     }
@@ -185,7 +185,7 @@ export namespace SystemData {
     bonuses: BonusData[];
     counters: CounterData[];
     synergies: SynergyData[];
-    tags: SystemTemplates.TagField[];
+    tags: Tag[];
     activation: ActivationType;
     armor: number;
     cost: number;
@@ -256,7 +256,7 @@ export namespace SystemData {
       deployables: SystemTemplates.ResolvedUuidRef<LancerDEPLOYABLE>[];
       counters: CounterData[];
       integrated: SystemTemplates.ResolvedUuidRef<LancerItem>[];
-      tags: SystemTemplates.TagField[];
+      tags: Tag[];
     };
   }
   export interface License extends SystemTemplates.item_universal {
@@ -272,7 +272,7 @@ export namespace SystemData {
     overcharge: number;
     repairs: FullBoundedNum;
     core_active: boolean;
-    core_energy: boolean;
+    core_energy: number;
     loadout: {
       frame: SystemTemplates.ResolvedEmbeddedRef<LancerFRAME> | null; // UUID to a LancerFRAME
       weapon_mounts: Array<{
@@ -317,7 +317,7 @@ export namespace SystemData {
       type: WeaponType;
       damage: Damage[];
       range: Range[];
-      tags: SystemTemplates.TagField[];
+      tags: Tag[];
       description: string;
       effect: string;
       on_attack: string;
@@ -341,7 +341,7 @@ export namespace SystemData {
     no_attack: boolean;
 
     // Derived - all tags across all profiles
-    all_tags: SystemTemplates.TagField[];
+    all_tags: Tag[];
   }
   export interface Npc
     extends SystemTemplates.actor_universal,
@@ -419,9 +419,9 @@ export namespace SystemData {
     last_cloud_update: string;
     level: string;
     loadout: {
-      armor: UUIDRef[];
-      gear: UUIDRef[];
-      weapons: UUIDRef[];
+      armor: SystemTemplates.ResolvedEmbeddedRef<LancerPILOT_ARMOR>[];
+      gear: SystemTemplates.ResolvedEmbeddedRef<LancerPILOT_GEAR>[];
+      weapons: SystemTemplates.ResolvedEmbeddedRef<LancerPILOT_WEAPON>[];
     };
     mech_skills: [number, number, number, number];
     mounted: boolean;
@@ -434,7 +434,31 @@ export namespace SystemData {
   export interface Skill extends SourceData.Skill {}
   export interface Status extends SourceData.Status {}
   export interface Tag extends SourceData.Tag {}
-  export interface Talent extends SourceData.Talent {}
+
+  export interface Talent {
+    // Copied
+    curr_rank: number;
+    description: string;
+    terse: string;
+
+    // but with replaced bascdt
+    ranks: Array<{
+      name: string;
+      description: string;
+      exclusive: boolean;
+      actions: ActionData[];
+      bonuses: BonusData[];
+      synergies: SynergyData[];
+      deployables: SystemTemplates.ResolvedUuidRef<LancerActor>[];
+      counters: CounterData[];
+      integrated: SystemTemplates.ResolvedUuidRef<LancerItem>[];
+    }>;
+
+    // Flattened lists, computed
+    actions: ActionData[];
+    synergies: ActionData[];
+    counters: ActionData[];
+  }
   export interface WeaponMod extends SourceData.WeaponMod {}
 }
 

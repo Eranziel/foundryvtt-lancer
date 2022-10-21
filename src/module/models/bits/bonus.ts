@@ -1,8 +1,17 @@
-// @ts-nocheck
-const fields = foundry.data.fields;
-
-import { DamageTypeChecklist, RangeTypeChecklist, WeaponSizeChecklist, WeaponTypeChecklist } from "../../enums";
+import {
+  DamageTypeChecklist,
+  RangeTypeChecklist,
+  SystemType,
+  WeaponSize,
+  WeaponSizeChecklist,
+  WeaponType,
+  WeaponTypeChecklist,
+} from "../../enums";
 import { BONUS } from "../../util/mmigration/defaults";
+import { SynergyLocations } from "./synergy";
+
+// @ts-ignore
+const fields: any = foundry.data.fields;
 
 // Make all fields required, force val to string, and use checklists
 export interface BonusData {
@@ -21,8 +30,8 @@ export class BonusField extends fields.SchemaField {
   constructor(options = {}) {
     super(
       {
-        lid: new StringField({ nullable: false }), // Don't really want an LID field here
-        val: new StringField({ nullable: false }),
+        lid: new fields.StringField({ nullable: false }), // Don't really want an LID field here
+        val: new fields.StringField({ nullable: false }),
         locations: new fields.ArrayField(
           new fields.StringField({ choices: Object.values(SynergyLocations), initial: SynergyLocations.Any })
         ),

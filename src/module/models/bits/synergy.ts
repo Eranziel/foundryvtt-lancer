@@ -1,5 +1,5 @@
-// @ts-nocheck
-const fields = foundry.data.fields;
+// @ts-ignore
+const fields: any = foundry.data.fields;
 
 import { Synergy, SystemType, WeaponSize, WeaponType } from "machine-mind";
 
@@ -30,7 +30,7 @@ export enum SynergyLocations {
 }
 
 export interface SynergyData {
-  locations: SynergyLocation[];
+  locations: SynergyLocations[];
   detail: string;
   system_types?: Array<SystemType | "any">;
   weapon_types?: Array<WeaponType | "any">;
