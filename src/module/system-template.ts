@@ -352,6 +352,8 @@ export namespace SystemData {
 
     // Derived - all tags across all profiles
     all_tags: Tag[];
+    // The current profile
+    active_profile: this["profiles"][0];
   }
   export interface Npc
     extends SystemTemplates.actor_universal,
@@ -443,7 +445,6 @@ export namespace SystemData {
   export interface Reserve extends SourceData.Reserve {}
   export interface Skill extends SourceData.Skill {}
   export interface Status extends SourceData.Status {}
-  export interface Tag extends SourceData.Tag {}
 
   export interface Talent {
     // Copied
@@ -474,7 +475,7 @@ export namespace SystemData {
       SystemTemplates.bascdt,
       SystemTemplates.destructible,
       SystemTemplates.licensed {
-    added_tags: TagData[];
+    added_tags: Tag[];
     added_damage: Damage[];
     effect: string;
     description: string;
@@ -507,7 +508,6 @@ export type SystemDataTypesMap = {
   [EntryType.RESERVE]: SystemData.Reserve;
   [EntryType.SKILL]: SystemData.Skill;
   [EntryType.STATUS]: SystemData.Status;
-  [EntryType.TAG]: SystemData.Tag;
   [EntryType.TALENT]: SystemData.Talent;
   [EntryType.WEAPON_MOD]: SystemData.WeaponMod;
 };

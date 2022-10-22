@@ -433,10 +433,6 @@ export namespace SourceData {
     effects: string;
     type: "Status" | "Condition" | "Effect";
   }
-  export interface Tag extends SourceTemplates.item_universal {
-    description: string;
-    hidden: boolean;
-  }
   export interface Talent extends SourceTemplates.item_universal {
     curr_rank: number;
     description: string;
@@ -491,7 +487,6 @@ export type SourceDataTypesMap = {
   [EntryType.RESERVE]: SourceData.Reserve;
   [EntryType.SKILL]: SourceData.Skill;
   [EntryType.STATUS]: SourceData.Status;
-  [EntryType.TAG]: SourceData.Tag;
   [EntryType.TALENT]: SourceData.Talent;
   [EntryType.WEAPON_MOD]: SourceData.WeaponMod;
 };

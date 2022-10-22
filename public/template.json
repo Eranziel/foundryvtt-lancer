@@ -146,8 +146,7 @@
       "reserve",
       "status",
       "talent",
-      "skill",
-      "tag"
+      "skill"
     ],
     "templates": {
       "universal": {
@@ -442,11 +441,6 @@
       "detail": "",
       "family": "cha",
       "rank": 1
-    },
-    "tag": {
-      "templates": ["universal"],
-      "description": "",
-      "hidden": false
     }
   }
 }
