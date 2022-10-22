@@ -126,12 +126,15 @@ export namespace SystemTemplates {
     export interface StatBlock extends SourceTemplates.NPC.StatBlock {}
 
     // This small helper type is just used to repair npc types "tags" field
-    type NPCFixup<T extends { tags: TagData[]; uses: number }> = Omit<T, "tags" | "uses"> & {
+    type NPCFixup<T extends { tags: TagData[]; uses: number }> = Omit<T, "tags" | "uses" | "range" | "damage"> & {
       tags: Tag[];
       uses: FullBoundedNum;
     };
 
     export interface WeaponData extends NPCFixup<SourceTemplates.NPC.WeaponData> {
+      range: Range[][];
+      damage: Damage[][];
+
       // The current tier's values for these
       tier_damage: Damage[];
       tier_range: Range[];
@@ -232,6 +235,8 @@ export namespace SystemData {
       tech_attack: number;
     };
     traits: Array<{
+      name: string;
+      description: string;
       bonuses: BonusData[];
       counters: CounterData[];
       integrated: SystemTemplates.ResolvedUuidRef<LancerItem>[];
