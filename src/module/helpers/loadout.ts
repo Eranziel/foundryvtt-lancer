@@ -1,26 +1,15 @@
 import type { HelperOptions } from "handlebars";
-import {
-  EntryType,
-  Mech,
-  MechLoadout,
-  SystemMount,
-  Pilot,
-  Frame,
-  RegEntry,
-  FrameTrait,
-  Action,
-  Deployable,
-  CoreSystem,
-} from "machine-mind";
-import type { WeaponMount } from "machine-mind";
-import { ChipIcons } from "../enums";
+import { ChipIcons, EntryType } from "../enums";
 import type { LancerMacroData } from "../interfaces";
 import { encodeMacroData } from "../macros";
 import { inc_if, resolve_helper_dotpath, array_path_edit } from "./commons";
 import { mech_weapon_refview, buildActionHTML, buildDeployableHTML, buildChipHTML } from "./item";
-import { editable_mm_ref_list_item, ref_doc_common_attrs, ref_params, simple_mm_ref } from "./refs";
+import { editable_mm_ref_list_item, ref_params, simple_ref_slot } from "./refs";
 import { compact_tag_list } from "./tags";
-import type { LancerActor } from "../actor/lancer-actor";
+import type { LancerActor, LancerMECH, LancerPILOT } from "../actor/lancer-actor";
+import { SystemData } from "../system-template";
+import { LancerCORE_BONUS, LancerFRAME } from "../item/lancer-item";
+import { ActionData } from "../models/bits/action";
 
 export type CollapseRegistry = { [LID: string]: number };
 
@@ -31,6 +20,8 @@ function system_mount(
   helper: HelperOptions,
   registry?: CollapseRegistry
 ): string {
+  return "TODO";
+  /*
   let mount = resolve_helper_dotpath(helper, mount_path) as SystemMount;
   if (!mount) return "";
 
@@ -47,6 +38,7 @@ function system_mount(
     array_path_edit(helper.data.root, mount_path, null, "delete");
     return system_mount(mech_path, mount_path, helper);
   }
+  */
 }
 
 // A drag-drop slot for a weapon mount. TODO: delete button, clear button
@@ -56,14 +48,14 @@ function weapon_mount(
   helper: HelperOptions,
   registry: CollapseRegistry
 ): string {
-  let mount = resolve_helper_dotpath(helper, mount_path) as WeaponMount;
+  let mount = resolve_helper_dotpath(helper, mount_path) as SystemData.Mech["loadout"]["weapon_mounts"][0];
 
   // If bracing, override
-  if (mount.Bracing) {
+  if (mount.bracing) {
     return ` 
     <div class="mount card" >
       <div class="lancer-header mount-type-ctx-root" data-path="${mount_path}">
-        <span>${mount.MountType} Weapon Mount</span>
+        <span>${mount.type} Weapon Mount</span>
         <a class="gen-control fas fa-trash" data-action="splice" data-path="${mount_path}"></a>
         <a class="reset-weapon-mount-button fas fa-redo" data-path="${mount_path}"></a>
       </div>
@@ -73,16 +65,16 @@ function weapon_mount(
     </div>`;
   }
 
-  let slots = mount.Slots.map((slot, index) =>
-    mech_weapon_refview(`${mount_path}.Slots.${index}.Weapon`, mech_path, helper, registry, slot.Size)
+  let slots = mount.slots.map((slot, index) =>
+    mech_weapon_refview(`${mount_path}.Slots.${index}.Weapon`, mech_path, helper, registry, slot.size)
   );
   let err = mount.validate() ?? "";
 
   // FLEX mount weirdness.
-  if (!err && mount.MountType === "Flex") {
-    if (mount.Slots[0].Weapon && mount.Slots[0].Weapon.Size === "Main") {
+  if (!err && mount.type === "Flex") {
+    if (mount.slots[0].weapon && mount.slots[0].weapon.value?.system.size === "Main") {
       slots.pop();
-    } else if (mount.Slots[1].Weapon && mount.Slots[1].Size === "Auxiliary") {
+    } else if (mount.slots[1].weapon?.value?.system.size && mount.slots[1].size === "Auxiliary") {
       slots[0] = slots[0].replace("Insert Main", "Insert Auxiliary");
     }
   }
@@ -90,7 +82,7 @@ function weapon_mount(
   return ` 
     <div class="mount card" >
       <div class="lancer-header mount-type-ctx-root" data-path="${mount_path}">
-        <span>${mount.MountType} Weapon Mount</span>
+        <span>${mount.type} Weapon Mount</span>
         <a class="gen-control fas fa-trash" data-action="splice" data-path="${mount_path}"></a>
         <a class="reset-weapon-mount-button fas fa-redo" data-path="${mount_path}"></a>
       </div>
@@ -108,8 +100,8 @@ function all_weapon_mount_view(
   helper: HelperOptions,
   registry: CollapseRegistry
 ) {
-  let loadout = resolve_helper_dotpath(helper, loadout_path) as MechLoadout;
-  const weapon_mounts = loadout.WepMounts.map((_wep, index) =>
+  let loadout = resolve_helper_dotpath(helper, loadout_path) as SystemData.Mech["loadout"];
+  const weapon_mounts = loadout.weapon_mounts.map((_wep, index) =>
     weapon_mount(mech_path, `${loadout_path}.WepMounts.${index}`, helper, registry)
   );
 
@@ -133,9 +125,9 @@ function all_system_mount_view(
   helper: HelperOptions,
   _registry: CollapseRegistry
 ) {
-  let loadout = resolve_helper_dotpath(helper, loadout_path) as MechLoadout;
-  const system_slots = loadout.SysMounts.map((_sys, index) =>
-    system_mount(mech_path, `${loadout_path}.SysMounts.${index}`, helper, _registry)
+  let loadout = resolve_helper_dotpath(helper, loadout_path) as LancerMECH["system"]["loadout"];
+  const system_slots = loadout.systems.map(
+    (_sys, index) => system_mount(mech_path, `${loadout_path}.SysMounts.${index}`, helper, _registry) // TODO: rework
   );
 
   // Archiving add button: <a class="gen-control fas fa-plus" data-action="append" data-path="${loadout_path}.SysMounts" data-action-value="(struct)sys_mount"></a>
@@ -159,7 +151,7 @@ function all_system_mount_view(
  * - Ref validation (you shouldn't be able to equip another mechs items, etc)
  */
 export function mech_loadout(mech_path: string, helper: HelperOptions): string {
-  const mech: Mech = resolve_helper_dotpath(helper, mech_path);
+  const mech: LancerMECH = resolve_helper_dotpath(helper, mech_path);
   const registry: CollapseRegistry = {};
 
   if (!mech) {
@@ -176,19 +168,15 @@ export function mech_loadout(mech_path: string, helper: HelperOptions): string {
 // Create a div with flags for dropping native pilots
 export function pilot_slot(data_path: string, options: HelperOptions): string {
   // get the existing
-  let existing = resolve_helper_dotpath<Pilot | null>(options, data_path, null);
-  if (!existing) return simple_mm_ref(EntryType.PILOT, existing, "No Pilot", data_path, true);
-
-  // Generate commons
-  let cd = ref_doc_common_attrs(existing);
-  if (!cd) return simple_mm_ref(EntryType.PILOT, existing, "No Pilot", data_path, true);
+  let existing = resolve_helper_dotpath<LancerPILOT | null>(options, data_path, null);
+  if (!existing) return simple_ref_slot(EntryType.PILOT, existing, "No Pilot", data_path, true);
 
   return `<div class="pilot-summary">
-    <img class="valid ${cd.ref.type} ref clickable-ref" ${ref_params(cd.ref, cd.uuid)} style="height: 100%" src="${
-    existing.Flags.top_level_data.img
+    <img class="valid ${existing.type} ref clickable-ref" ${ref_params(existing)} style="height: 100%" src="${
+    existing.img
   }"/>
     <div class="license-level">
-      <span>LL${existing.Level}</span>
+      <span>LL${existing.system.level}</span>
     </div>
 </div>`;
 }
@@ -202,23 +190,19 @@ export function pilot_slot(data_path: string, options: HelperOptions): string {
  * @return            HTML for the frame reference, typically for inclusion in a mech sheet.
  */
 export function mech_frame_refview(actor: LancerActor, frame_path: string, helper: HelperOptions): string {
-  let frame = resolve_helper_dotpath<Frame | null>(helper, frame_path, null);
-  if (!frame) return simple_mm_ref(EntryType.FRAME, frame, "No Frame", frame_path, true);
-
-  // Generate commons
-  let cd = ref_doc_common_attrs(frame);
-  if (!cd) return simple_mm_ref(EntryType.FRAME, frame, "No Frame", frame_path, true);
+  let frame = resolve_helper_dotpath<LancerFRAME | null>(helper, frame_path, null);
+  if (!frame) return simple_ref_slot(EntryType.FRAME, frame, "No Frame", frame_path, true);
 
   return `
-    <div class="card mech-frame ${ref_params(cd.ref, cd.uuid)}">
+    <div class="card mech-frame ${ref_params(frame)}">
       <span class="lancer-header submajor clipped-top">
-        ${frame.Source?.LID} ${frame.Name}
+       ${frame.name}
       </span>
       <div class="wraprow double">
         <div class="frame-traits flexcol">
           ${frameTraits(actor, frame)}
         </div>
-        ${inc_if(buildCoreSysHTML(actor, frame.CoreSystem), frame.CoreSystem)}
+        ${inc_if(buildCoreSysHTML(actor, frame.system.core_system), frame.system.core_system)}
       </div>
     </div>
     `;
@@ -230,24 +214,22 @@ export function mech_frame_refview(actor: LancerActor, frame_path: string, helpe
  * @param core    The core system.
  * @return        HTML for the core system, typically for inclusion in a mech sheet.
  */
-function buildCoreSysHTML(actor: LancerActor, core: CoreSystem): string {
+function buildCoreSysHTML(actor: LancerActor, core: LancerFRAME["system"]["core_system"]): string {
   let tags: string | undefined;
-  if (core.Tags !== undefined) {
-    tags = compact_tag_list("", core.Tags, false);
-  }
+  tags = compact_tag_list("", core.tags, false);
 
   // Removing desc temporarily because of space constraints
   // <div class="frame-core-desc">${core.Description ? core.Description : ""}</div>
 
   // Generate core passive HTML only if it has one
   let passive = "";
-  if (core.PassiveEffect !== "" || core.PassiveActions.length > 0 || core.PassiveBonuses.length > 0) {
+  if (core.passive_effect !== "" || core.passive_actions.length > 0 || core.passive_bonuses.length > 0) {
     passive = `<div class="frame-passive">${frame_passive(core)}</div>`;
   }
 
   return `<div class="core-wrapper frame-coresys clipped-top" style="padding: 0;">
     <div class="lancer-title coresys-title clipped-top">
-      <span>${core.Name}</span> // CORE
+      <span>${core.name}</span> // CORE
       <i 
         class="mdi mdi-unfold-less-horizontal collapse-trigger collapse-icon" 
         data-collapse-id="${actor.id}_coresys" > 
@@ -261,23 +243,29 @@ function buildCoreSysHTML(actor: LancerActor, core: CoreSystem): string {
   </div>`;
 }
 
-function frameTraits(actor: LancerActor, frame: Frame): string {
-  return frame.Traits.map((t: FrameTrait, i: number) => {
-    return buildFrameTrait(actor, t, i);
-  }).join("");
+function frameTraits(actor: LancerActor, frame: LancerFRAME): string {
+  return frame.system.traits
+    .map((t, i) => {
+      return buildFrameTrait(actor, t, i);
+    })
+    .join("");
 }
 
-function buildFrameTrait(actor: LancerActor, trait: FrameTrait, index: number): string {
-  let actionHTML = trait.Actions.map((a: Action, i: number | undefined) => {
-    return buildActionHTML(a, { full: true, num: i });
-  }).join("");
+function buildFrameTrait(actor: LancerActor, trait: LancerFRAME["system"]["traits"][0], index: number): string {
+  let actionHTML = trait.actions
+    .map((a, i) => {
+      return buildActionHTML(a, { full: true, num: i });
+    })
+    .join("");
 
-  let depHTML = trait.Deployables.map((d: Deployable, i: number | undefined) => {
-    return buildDeployableHTML(d, true, i);
-  }).join("");
+  let depHTML = trait.deployables
+    .map((d, i) => {
+      return d.status == "resolved" ? buildDeployableHTML(d.value, true, i) : "";
+    })
+    .join("");
 
   let macroData: LancerMacroData = {
-    title: trait.Name,
+    title: trait.name,
     iconPath: `systems/${game.system.id}/assets/icons/macro-icons/trait.svg`,
     fn: "prepareFrameTraitMacro",
     args: [actor.id, index],
@@ -286,28 +274,32 @@ function buildFrameTrait(actor: LancerActor, trait: FrameTrait, index: number): 
   return `<div class="frame-trait clipped-top">
     <div class="lancer-header submajor frame-trait-header" style="display: flex">
       <a class="lancer-macro" data-macro="${encodeMacroData(macroData)}"><i class="mdi mdi-message"></i></a>
-      <span class="minor grow">${trait.Name}</span>
+      <span class="minor grow">${trait.name}</span>
     </div>
     <div class="lancer-body">
-      <div class="effect-text">${trait.Description}</div>
+      <div class="effect-text">${trait.description}</div>
       ${actionHTML ? actionHTML : ""}
       ${depHTML ? depHTML : ""}
     </div>
   </div>`;
 }
 
-function frame_active(actor: LancerActor, core: CoreSystem): string {
+function frame_active(actor: LancerActor, core: LancerFRAME["system"]["core_system"]): string {
   // So we have a CoreSystem with all the traits of an action inside itself as Active and Passive...
   // And then it has whole other arrays for its actions
   // :pain:
 
-  let actionHTML = core.ActiveActions.map((a: Action, i: number | undefined) => {
-    return buildActionHTML(a, { full: true, num: i });
-  }).join("");
+  let actionHTML = core.active_actions
+    .map((a: ActionData, i: number | undefined) => {
+      return buildActionHTML(a, { full: true, num: i });
+    })
+    .join("");
 
-  let depHTML = core.Deployables.map((d: Deployable, i: number | undefined) => {
-    return buildDeployableHTML(d, true, i);
-  }).join("");
+  let depHTML = core.deployables
+    .map((d, i) => {
+      return d.status == "resolved" ? buildDeployableHTML(d.value, true, i) : "";
+    })
+    .join("");
 
   // Should find a better way to do this...
   let coreMacroData: LancerMacroData = {
@@ -320,35 +312,37 @@ function frame_active(actor: LancerActor, core: CoreSystem): string {
   return `
   <div class="core-active-wrapper clipped-top">
     <span class="lancer-header submajor">
-      ${core.ActiveName} // ACTIVE
+      ${core.active_name} // ACTIVE
     </span>
     <div class="lancer-body">
       <div class="effect-text">
-        ${core.ActiveEffect ? core.ActiveEffect : ""}
+        ${core.active_effect ?? ""}
       </div>
       ${actionHTML ? actionHTML : ""}
       ${depHTML ? depHTML : ""}
-      ${buildChipHTML(core.Activation, { icon: ChipIcons.Core, fullData: coreMacroData })}
+      ${buildChipHTML(core.activation, { icon: ChipIcons.Core, fullData: coreMacroData })}
     </div>
   </div>
   `;
 }
 
-function frame_passive(core: CoreSystem): string {
-  let actionHTML = core.PassiveActions.map((a: Action, i: number | undefined) => {
-    return buildActionHTML(a, { full: true, num: i });
-  }).join("");
+function frame_passive(core: LancerFRAME["system"]["core_system"]): string {
+  let actionHTML = core.passive_actions
+    .map((a: ActionData, i: number | undefined) => {
+      return buildActionHTML(a, { full: true, num: i });
+    })
+    .join("");
 
   return `
   <div class="core-active-wrapper clipped-top">
     <span class="lancer-header submajor">
-      ${core.PassiveName} // PASSIVE
+      ${core.passive_name ?? ""} // PASSIVE
     </span>
     <div class="lancer-body">
       <div class="effect-text">
-        ${core.PassiveEffect ? core.PassiveEffect : ""}
+        ${core.passive_effect ?? ""}
       </div>
-      ${actionHTML ? actionHTML : ""}
+      ${actionHTML ?? ""}
     </div>
   </div>
   `;

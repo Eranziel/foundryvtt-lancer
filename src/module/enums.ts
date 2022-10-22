@@ -82,7 +82,6 @@ export enum EntryType {
   RESERVE = "reserve",
   SKILL = "skill",
   STATUS = "status",
-  TAG = "tag",
   TALENT = "talent",
 }
 

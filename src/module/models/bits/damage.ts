@@ -12,8 +12,8 @@ export interface DamageData {
 
 // "Hydrated" DamageData
 export class Damage implements Readonly<DamageData> {
-  readonly type: DamageType;
-  readonly val: string;
+  type: DamageType;
+  val: string;
   constructor(data: DamageData) {
     this.type = data.type;
     this.val = data.val;

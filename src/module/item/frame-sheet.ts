@@ -1,4 +1,4 @@
-import type { EntryType } from "machine-mind";
+import { EntryType } from "../enums";
 import { LancerItemSheet } from "./item-sheet";
 
 /**

@@ -1,16 +1,16 @@
 import { LANCER } from "../config";
 const lp = LANCER.log_prefix;
 import { LancerActorSheet } from "./lancer-actor-sheet";
-import { EntryType, Mech, PackedPilotData, Pilot, funcs } from "machine-mind";
 import type { HelperOptions } from "handlebars";
 import { buildCounterHeader, buildCounterHTML } from "../helpers/item";
-import { ref_params, resolve_ref_element, simple_mm_ref } from "../helpers/refs";
+import { ref_params, resolve_ref_element, simple_ref_slot } from "../helpers/refs";
 import { resolve_dotpath } from "../helpers/commons";
 import { LancerActor, LancerMECH, LancerPILOT } from "./lancer-actor";
 import { fetchPilotViaCache, fetchPilotViaShareCode, pilotCache } from "../util/compcon";
 import { LancerItem, LancerItemType } from "../item/lancer-item";
 import { clicker_num_input } from "../helpers/actor";
 import { ResolvedDropData } from "../helpers/dragdrop";
+import { EntryType } from "../enums";
 
 const shareCodeMatcher = /^[A-Z0-9\d]{6}$/g;
 const COUNTER_MAX = 8;
@@ -108,7 +108,6 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
             return;
           }
           await actor.importCC(raw_pilot_data);
-          this._currData = null;
         });
       } else {
         download.addClass("disabled-cloud");
@@ -132,9 +131,9 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
       let mechActivators = html.find(".activate-mech");
       mechActivators.on("click", async ev => {
         ev.stopPropagation();
-        let mech = await resolve_ref_element(ev.currentTarget);
+        let mech = (await resolve_ref_element(ev.currentTarget)) as LancerActor | null;
 
-        if (!mech || !(mech as LancerActor).is_mech()) return;
+        if (!mech || !mech.is_mech()) return;
 
         this.activateMech(mech);
       });
@@ -249,12 +248,13 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
   }
 
   async on_root_drop(base_drop: ResolvedDropData, event: JQuery.DropEvent, _dest: JQuery<HTMLElement>): Promise<void> {
+    if (!this.actor.is_pilot()) return; // Just for types really
     let sheet_data = await this.getData();
 
     // Take posession
     let [drop, is_new] = await this.quick_own_drop(base_drop);
     let pilot = this.actor as LancerPILOT;
-    let loadout = pilot.data.data.loadout;
+    let loadout = pilot.system.loadout;
 
     // Now, do sensible things with it
     if (drop.type == "Item") {
@@ -298,31 +298,6 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
     }
   }
 
-  async _commitCurrMM() {
-    if (this._currData) {
-      // we prioritise vault ids here, so when the user selects a vault id via dropdown
-      // it gets saved and any rawID doesn't, so the render clears the rawID
-      // i.e., editing vaultID clears rawID
-      // other way around happens in the rawID input listener
-      let assignSplit = (str: string) => {
-        if (str.match(/\/\//)) {
-          let [owner, id] = str.split("//");
-          this._currData!.mm.CloudOwnerID = owner;
-          this._currData!.mm.CloudID = id;
-        } else {
-          this._currData!.mm.CloudID = str;
-        }
-      };
-
-      if (this._currData.vaultID) {
-        assignSplit(this._currData.vaultID);
-      } else {
-        assignSplit(this._currData.rawID);
-      }
-    }
-    return super._commitCurrMM();
-  }
-
   /* -------------------------------------------- */
 
   /**
@@ -334,12 +309,11 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
     if (!this.actor.is_pilot()) return;
     // Do some pre-processing
     // Do these only if the callsign updated
-    // @ts-expect-error Should be fixed with v10 types
-    if (this.actor.system.callsign !== formData["data.pilot.callsign"]) {
+    if (this.actor.system.callsign !== formData["callsign"]) {
       // Use the Actor's name for the pilot's callsign
       // formData["name"] = formData["data.callsign"];
       // Copy the pilot's callsign to the prototype token
-      formData["actor.token.name"] = formData["data.callsign"];
+      formData["token.name"] = formData["callsign"];
     }
     // Then let parent handle
     return super._updateObject(event, formData);
@@ -393,9 +367,8 @@ export function pilot_counters(pilot: Pilot, _helper: HelperOptions): string {
 }
 
 export function all_mech_preview(_helper: HelperOptions): string {
-  return "TODO";
   let this_mm: Pilot = _helper.data.root.mm;
-  let active_mech: Mech | null = _helper.data.root.active_mech;
+  let active_mech: LancerMECH | null = _helper.data.root.active_mech;
 
   let html = ``;
 
@@ -404,37 +377,28 @@ export function all_mech_preview(_helper: HelperOptions): string {
     ?.filter(
       a =>
         a.is_mech() &&
-        // @ts-expect-error Should be fixed with v10 types
-        !!a.system.pilot &&
-        // @ts-expect-error Should be fixed with v10 types
-        a.system.pilot.id === _helper.data.root.actor.id &&
-        a.id !== active_mech?.RegistryID
+        a.system.pilot?.status == "resolved" &&
+        a.system.pilot.value.id === _helper.data.root.actor.id &&
+        a.id !== active_mech?.id
     )
-    .map((m, k) => {
-      if (!is_reg_mech(inactive_mech)) return;
-
-      let cd = ref_doc_common_attrs(inactive_mech);
-      if (!cd) return simple_mm_ref(EntryType.MECH, inactive_mech, "ERROR LOADING MECH", "", true);
-
+    .map((inactive_mech, k) => {
       html = html.concat(`
       <div class="flexrow inactive-row">
         <a class="activate-mech" ${ref_params(cd.ref, cd.uuid)}><i class="cci cci-activate"></i></a>
-        <div class="major valid ${cd.ref.type} ref" ${ref_params(cd.ref, cd.uuid)}>${m.name}</div>
+        <div class="major valid ${cd.ref.type} ref" ${ref_params(cd.ref, cd.uuid)}>${inactive_mech.name}</div>
       </div>
     `);
     });
 
-  let cd = ref_doc_common_attrs(this_mm);
   if (active_mech) return active_mech_preview(active_mech, "active_mech", _helper).concat(html);
   else return html;
 }
 
-export function active_mech_preview(mech: Mech, path: string, _helper: HelperOptions): string {
+export function active_mech_preview(mech: LancerMECH | null, path: string, _helper: HelperOptions): string {
   var html = ``;
 
   // Generate commons
-  let cd = ref_doc_common_attrs(mech);
-  if (!cd) return simple_mm_ref(EntryType.MECH, mech, "No Active Mech", path, true);
+  if (!mech) return simple_ref_slot(EntryType.MECH, mech, "No Active Mech", path, true);
 
   // Making ourselves easy templates for the preview in case we want to switch in the future
   let preview_stats_arr = [

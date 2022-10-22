@@ -550,7 +550,6 @@ async function rollAttackMacro(
 
   if (getAutomationOptions().attack_self_heat) {
     if (actor.is_mech() || actor.is_npc()) {
-      // @ts-expect-error Should be fixed with v10 types
       await actor.update({ "system.heat": overkill_heat + self_heat });
     }
   }

@@ -63,29 +63,32 @@ export async function prepareActivationMacro(
   }
 
   // TODO: alter these generic functions to handle non mm items
-  if (getAutomationOptions().limited_loading && is_tagged(item) && is_limited(item) && item.system.uses <= 0) {
+  if (getAutomationOptions().limited_loading && item.is_limited() && item.system.uses.value <= 0) {
     ui.notifications!.error(`Error using item--you have no uses left!`);
     return;
   }
 
-  // TODO--handle NPC Activations
-  if (item.is_npc_feature()) return;
-
   switch (type) {
     case ActivationOptions.ACTION:
-      switch (item.Actions[index].Activation) {
-        case ActivationType.FullTech:
-        case ActivationType.Invade:
-        case ActivationType.QuickTech:
-          let partialMacroData = {
-            title: "Reroll activation",
-            fn: "prepareActivationMacro",
-            args: [a, i, type, index],
-          };
-          await _prepareTechActionMacro(actor, item, index, partialMacroData, rerollData);
-          break;
-        default:
-          await _prepareTextActionMacro(actor, item, index);
+      if (item.has_actions()) {
+        switch (item.system.actions[index].activation) {
+          case ActivationType.FullTech:
+          case ActivationType.Invade:
+          case ActivationType.QuickTech:
+            let partialMacroData = {
+              title: "Reroll activation",
+              fn: "prepareActivationMacro",
+              args: [a, i, type, index],
+            };
+            await _prepareTechActionMacro(actor, item, index, partialMacroData, rerollData);
+            break;
+          default:
+            await _prepareTextActionMacro(actor, item, index);
+        }
+      } else {
+        ui.notifications!.error(
+          `Error using item - Usage type specified as "action" but no actions accessible on this item type`
+        );
       }
       break;
     case ActivationOptions.DEPLOYABLE:
@@ -93,9 +96,10 @@ export async function prepareActivationMacro(
   }
 
   // Wait until the end to deduct a use so we're sure it completed succesfully
-  if (getAutomationOptions().limited_loading && is_tagged(item) && is_limited(item)) {
-    item.Uses = item.Uses - 1;
-    await item.writeback();
+  if (getAutomationOptions().limited_loading && item.is_limited()) {
+    await item.update({
+      "system.uses": item.system.uses.value - 1,
+    });
   }
 
   return;
@@ -107,12 +111,12 @@ async function _prepareTextActionMacro(
   index: number
 ) {
   // Support this later...
-  // TODO: pilot gear and NPC features
-  if (!item.is_mech_system() && !item.is_talent() && !item.is_npc_feature()) return;
-
-  let action = item.data.data.actions[index];
-  let tags = item.is_mech_system() ? item.data.data.tags : [];
-  await renderMacroHTML(actor, buildActionHTML(action, { full: true, tags: tags }));
+  // TODO: pilot gear, mech weapons, etc
+  if (item.is_mech_system() || item.is_talent()) {
+    let action = item.system.actions[index];
+    let tags = item.is_mech_system() ? item.system.tags : [];
+    await renderMacroHTML(actor, buildActionHTML(action, { full: true, tags: tags }));
+  }
 }
 
 async function _prepareTechActionMacro(
@@ -123,19 +127,19 @@ async function _prepareTechActionMacro(
   rerollData?: AccDiffDataSerialized
 ) {
   // Support this later...
-  // TODO: pilot gear and NPC features
-  if (!item.is_mech_system() && !item.is_talent() && !item.is_npc_feature()) return;
+  // TODO: pilot gear
+  if (!item.is_mech_system() && !item.is_talent()) return;
   if (!actor.is_mech() && !actor.is_npc()) return;
 
-  let action = item.data.data.actions[index];
+  let action = item.system.actions[index];
 
   let mData: LancerTechMacroData = {
-    title: action.Name,
-    t_atk: actor.is_mech() ? actor.data.data.tech_attack : 0,
+    title: action.name,
+    t_atk: actor.is_mech() ? actor.system.tech_attack : 0,
     acc: 0,
-    action: action.Name.toUpperCase(),
-    effect: action.Detail,
-    tags: item.is_mech_system() ? item.data.data.tags : [],
+    action: action.name.toUpperCase(),
+    effect: action.detail,
+    tags: item.is_mech_system() ? item.system.tags : [],
   };
 
   /*
@@ -167,7 +171,7 @@ async function _prepareDeployableMacro(
   if (!item.is_mech_system() && !item.is_talent()) return;
 
   /* TODO
-  let dep = item.data.data.deployables[index];
+  let dep = item.system.deployables[index];
 
   await renderMacroHTML(actor.flags.orig_doc, buildDeployableHTML(dep, true));
   */

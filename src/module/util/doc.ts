@@ -1,11 +1,38 @@
-import { EntryType, License, LicensedItem, LiveEntryTypes, OpCtx, Pilot, RegEntry } from "machine-mind";
-import { is_actor_type, LancerActor, LancerActorType, LancerDEPLOYABLE, LancerMECH, LancerNPC, LancerPILOT } from "../actor/lancer-actor";
+import {
+  is_actor_type,
+  LancerActor,
+  LancerActorType,
+  LancerDEPLOYABLE,
+  LancerMECH,
+  LancerNPC,
+  LancerPILOT,
+} from "../actor/lancer-actor";
 import { PACK_SCOPE } from "../compBuilder";
 import { friendly_entrytype_name } from "../config";
-import type { LancerCORE_BONUS, LancerFRAME, LancerItem, LancerItemType, LancerLICENSE, LancerMECH_SYSTEM, LancerMECH_WEAPON, LancerNPC_CLASS, LancerNPC_FEATURE, LancerNPC_TEMPLATE, LancerORGANIZATION, LancerPILOT_ARMOR, LancerPILOT_GEAR, LancerPILOT_WEAPON, LancerRESERVE, LancerSKILL, LancerSTATUS, LancerTAG, LancerTALENT, LancerWEAPON_MOD } from "../item/lancer-item";
+import { EntryType } from "../enums";
+import type {
+  LancerCORE_BONUS,
+  LancerFRAME,
+  LancerItem,
+  LancerItemType,
+  LancerLICENSE,
+  LancerMECH_SYSTEM,
+  LancerMECH_WEAPON,
+  LancerNPC_CLASS,
+  LancerNPC_FEATURE,
+  LancerNPC_TEMPLATE,
+  LancerORGANIZATION,
+  LancerPILOT_ARMOR,
+  LancerPILOT_GEAR,
+  LancerPILOT_WEAPON,
+  LancerRESERVE,
+  LancerSKILL,
+  LancerSTATUS,
+  LancerTALENT,
+  LancerWEAPON_MOD,
+} from "../item/lancer-item";
 import { SystemTemplates } from "../system-template";
 import { FetcherCache } from "./async";
-
 
 // Sort mm items. Moves moverand to dest, either before or after depending on third arg
 export async function resort_item(moverand: LancerItem, dest: LancerItem, sort_before = true) {
@@ -29,10 +56,7 @@ export async function resort_item(moverand: LancerItem, dest: LancerItem, sort_b
 // }
 
 // Helper for finding what license an item comes from. Checks by name, an inelegant solution but probably good enough
-export async function find_license_for(
-  item: LancerItem,
-  in_actor?: LancerActor
-): Promise<LancerLICENSE | null> {
+export async function find_license_for(item: LancerItem, in_actor?: LancerActor): Promise<LancerLICENSE | null> {
   // If the item does not have a license name, then we just bail
   let license_name = (item.data.data as SystemTemplates.licensed).license;
   if (!license_name) {
@@ -43,15 +67,17 @@ export async function find_license_for(
   if (in_actor) {
     // Only pilots should have licenses, so for mechs we go to active pilot
     let pilot: LancerPILOT | null = null;
-    if (in_actor.is_mech()) {
-      pilot = in_actor.data.data.pilot;
+    if (in_actor.is_mech() && in_actor.system.pilot?.status == "resolved") {
+      pilot = in_actor.system.pilot.value;
     }
 
     // Check pilot inventory, in case they have a weird custom license
     if (pilot) {
-      let found = pilot.data.data.licenses.find(lic => lic.key == license_name);
+      let found = pilot.items
+        .filter(i => i.is_license())
+        .find(lic => (lic as LancerLICENSE).system.key == license_name);
       if (found) {
-        return found;
+        return found as LancerLICENSE;
       }
     }
   }
@@ -63,7 +89,7 @@ export async function find_license_for(
 // The cache to implement the above. Doesn't need to last long - this just happens in bursts
 // Just keeps track of license refs by name
 const world_and_comp_license_cache = new FetcherCache<string, LancerLICENSE | null>(async license_name => {
-  // TODO 
+  // TODO
   /*
   let ctx = new OpCtx();
   let world_reg = new FoundryReg("game"); // Actor src doesn't matter at all
@@ -151,8 +177,7 @@ export async function get_pack(
   }
 }
 
-
-// Copy an item to an actor, also copying any necessary subitems 
+// Copy an item to an actor, also copying any necessary subitems
 // (or at least, clearing links to them).
 // Has no effect if destination is same as existing parent
 // Items are not returned in order
@@ -160,8 +185,8 @@ export async function insinuate(items: Array<LancerItem>, to: LancerActor): Prom
   console.warn("TODO: Re-implement insinuate, more sanely this time");
   let old_items = [];
   let new_items = [];
-  for(let item of items) {
-    if(item.parent == to) {
+  for (let item of items) {
+    if (item.parent == to) {
       old_items.push(item);
     } else {
       new_items.push(item.toObject());
@@ -173,7 +198,7 @@ export async function insinuate(items: Array<LancerItem>, to: LancerActor): Prom
   return [...old_items, ...actual_new_items];
 }
 
-// 
+//
 
 type DataTypeMap = { [key in EntryType]: object };
 
@@ -184,7 +209,6 @@ interface LancerDocMap extends DataTypeMap {
   [EntryType.DEPLOYABLE]: LancerDEPLOYABLE;
   [EntryType.FRAME]: LancerFRAME;
   [EntryType.LICENSE]: LancerLICENSE;
-  [EntryType.MANUFACTURER]: LancerMANUFACTURER;
   [EntryType.MECH]: LancerMECH;
   [EntryType.MECH_SYSTEM]: LancerMECH_SYSTEM;
   [EntryType.MECH_WEAPON]: LancerMECH_WEAPON;
@@ -200,11 +224,7 @@ interface LancerDocMap extends DataTypeMap {
   [EntryType.RESERVE]: LancerRESERVE;
   [EntryType.SKILL]: LancerSKILL;
   [EntryType.STATUS]: LancerSTATUS;
-  [EntryType.TAG]: LancerTAG;
   [EntryType.TALENT]: LancerTALENT;
   [EntryType.WEAPON_MOD]: LancerWEAPON_MOD;
 }
-export type LancerDoc<T extends EntryType = EntryType> = T extends keyof LancerDocMap
-  ? LancerDocMap[T]
-  : never;
-
+export type LancerDoc<T extends EntryType = EntryType> = T extends keyof LancerDocMap ? LancerDocMap[T] : never;

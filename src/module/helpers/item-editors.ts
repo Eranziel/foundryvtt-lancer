@@ -1,22 +1,17 @@
 import type { HelperOptions } from "handlebars";
-import {
-  Bonus,
-  Damage,
-  License,
-  WeaponSize,
-  WeaponType,
-  Action,
-  Deployable,
-  Synergy,
-  ActivationType,
-  EntryType,
-} from "machine-mind";
 import { bonuses_display, damage_editor, range_editor, buildActionHTML, buildDeployableHTML } from "./item";
 import { large_textbox_card, resolve_helper_dotpath, std_enum_select, std_num_input } from "./commons";
 import { ref_params } from "./refs";
+import { LancerLICENSE } from "../item/lancer-item";
+import { ActionData } from "../models/bits/action";
+import { Damage } from "../models/bits/damage";
+import { BonusData } from "../models/bits/bonus";
+import { LancerDEPLOYABLE } from "../actor/lancer-actor";
+import { SynergyData } from "../models/bits/synergy";
+import { ActivationType, EntryType, WeaponSize, WeaponType } from "../enums";
 
 export function item_edit_arrayed_actions(path: string, title: string, helper: HelperOptions): string {
-  let action_arr: Array<Action> = resolve_helper_dotpath(helper, path);
+  let action_arr: Array<ActionData> = resolve_helper_dotpath(helper, path);
 
   let action_detail = "";
 
@@ -103,7 +98,7 @@ export function item_edit_arrayed_range(path: string, title: string, helper: Hel
  * @returns         HTML for an editable bonus area
  */
 export function item_edit_arrayed_bonuses(path: string, helper: HelperOptions): string {
-  let arr: Bonus[] = resolve_helper_dotpath(helper, path);
+  let arr: BonusData[] = resolve_helper_dotpath(helper, path);
   if (!arr) arr = [];
   return bonuses_display(path, arr, true);
 }
@@ -121,10 +116,10 @@ export function item_edit_arrayed_counters(): string {
  * @returns         HTML for an editable deployable area
  */
 export function item_edit_arrayed_deployables(path: string, title: string, helper: HelperOptions): string {
-  let dep_arr: Array<Deployable> = resolve_helper_dotpath(helper, path);
+  let dep_arr: Array<LancerDEPLOYABLE> = resolve_helper_dotpath(helper, path);
 
   let depHTML = dep_arr
-    .map((d: Deployable, i: number | undefined) => {
+    .map((d, i) => {
       return buildDeployableHTML(d, true, i);
     })
     .join("");
@@ -146,10 +141,10 @@ export function item_edit_arrayed_deployables(path: string, title: string, helpe
  * @returns         HTML for an editable synergy area
  */
 export function item_edit_arrayed_synergies(path: string, title: string, helper: HelperOptions): string {
-  let syn_arr: Array<Synergy> = resolve_helper_dotpath(helper, path);
+  let syn_arr: Array<SynergyData> = resolve_helper_dotpath(helper, path);
 
   let synHTML = syn_arr
-    .map((d: Synergy, i: number | undefined) => {
+    .map((d, i) => {
       return ``;
     })
     .join("");
@@ -271,19 +266,17 @@ export function item_edit_arrayed_integrated(path: string, title: string, helper
  * @returns         HTML for license in string format
  */
 export function item_edit_license(helper: HelperOptions): string {
-  let license: License | null = helper.data.root.license;
+  let license: LancerLICENSE | null = helper.data.root.license;
   let licenseInfo: string;
-  let cd = ref_doc_common_attrs(license);
-
-  if (!cd || !license) licenseInfo = "No license";
-  else
+  if (!license) licenseInfo = "No license";
+  else {
     licenseInfo = `<div class="valid ${EntryType.LICENSE} ref lancer-license-header medium clipped-top" ${ref_params(
-      cd.ref,
-      cd.uuid
+      license
     )}>
     <i class="cci cci-license i--m i--dark"> </i>
-    <span class="major modifier-name">${license.Name}</span>
+    <span class="major modifier-name">${license.name}</span>
   </div>`;
+  }
 
   return `      
     <div class="flexcol edit-license-wrapper">

@@ -1,6 +1,6 @@
 import { LancerItemType } from "./item/lancer-item";
 import { EffectData } from "./helpers/npc";
-import { Damage, License, LiveEntryTypes, TagInstance } from "machine-mind";
+import { Damage, License, LiveEntryTypes, Tag } from "machine-mind";
 import { LancerActorType } from "./actor/lancer-actor";
 
 // ------------------------------------------------------
@@ -10,7 +10,7 @@ import { LancerActorType } from "./actor/lancer-actor";
 // These single generic type should cover all basic sheet use cases
 export interface LancerItemSheetData<T extends LancerItemType> extends ItemSheet.Data<ItemSheet.Options> {
   // The license, if it could be recovered
-  license: License | null;
+  license: LANCERLicense | null;
 }
 
 export type CachedCloudPilot = {
@@ -48,7 +48,7 @@ declare interface LancerAttackMacroData {
   on_attack?: string;
   on_hit?: string; // For NPC weapons - to be removed once they use EffectData
   on_crit?: string;
-  tags: TagInstance[];
+  tags: Tag[];
   loaded?: boolean;
   destroyed?: boolean;
 }

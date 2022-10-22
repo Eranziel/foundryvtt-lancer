@@ -1,4 +1,3 @@
-import type { TagInstance } from "machine-mind";
 import * as t from "io-ts";
 
 import type { LancerActor } from "../../actor/lancer-actor";
@@ -332,7 +331,7 @@ export class AccDiffData {
 
   static fromParams(
     runtimeData?: LancerItem | LancerActor,
-    tags?: TagInstance[],
+    tags?: Tag[],
     title?: string,
     targets?: Token[],
     starting?: [number, number]

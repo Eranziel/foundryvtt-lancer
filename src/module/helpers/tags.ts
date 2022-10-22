@@ -1,31 +1,24 @@
-import { EntryType } from "machine-mind";
-import { array_path_edit, resolve_dotpath } from "./commons";
 import type { LancerActorSheetData, LancerItemSheetData } from "../interfaces";
 import { DragFetcherCache, HANDLER_enable_doc_dropping } from "./dragdrop";
-import { ref_params } from "./refs";
-import { promptText } from "../apps/simple-prompt";
-import { LancerItem, LancerTAG } from "../item/lancer-item";
+import { Tag } from "../models/bits/tag";
 
 // A small tag display containing just the label and value
-export function compact_tag(tag_path: string, tag: LancerTAG): string {
+export function compact_tag(tag_path: string, tag: Tag): string {
   // Format the {VAL} out of the name
-  let formatted_name = tag.data.data.name.replace("{VAL}", `${tag.data.data.value ?? "?"}`);
-  return `<div class="editable-tag-instance valid ref compact-tag flexrow" data-path="${tag_path}" ${ref_params(
-    tag.Tag.as_ref(),
-    tag.Tag.Flags.orig_doc.uuid
-  )}>
+  let formatted_name = tag.name.replace("{VAL}", `${tag.val ?? "?"}`);
+  return `<div class="editable-tag-instance valid ref compact-tag flexrow" data-path="${tag_path}">
       <i class="mdi mdi-label i--s i--light"></i>
       <span style="margin: 3px;" >${formatted_name}</span>
     </div>`;
 }
 
 // The above, but on an array, filtering out hidden as appropriate
-export function compact_tag_list(tag_array_path: string, tags: TagInstance[], allow_drop: boolean): string {
+export function compact_tag_list(tag_array_path: string, tags: Tag[], allow_drop: boolean): string {
   // Collect all of the tags, formatting them using `compact_tag`
   let processed_tags: string[] = [];
   for (let i = 0; i < tags.length; i++) {
     let tag = tags[i];
-    if (!tag.Tag.Hidden) {
+    if (!tag.hidden) {
       // We want to show it!
       let affixed_path = `${tag_array_path}.${i}`;
       processed_tags.push(compact_tag(affixed_path, tag));
@@ -53,6 +46,7 @@ export function HANDLER_activate_tag_context_menus<T extends LancerActorSheetDat
   data_getter: () => Promise<T> | T,
   commit_func: (data: T) => void | Promise<void>
 ) {
+  /* TODO
   // This option allows the user to remove the right-clicked tag
   let remove = {
     name: "Remove Tag",
@@ -83,10 +77,10 @@ export function HANDLER_activate_tag_context_menus<T extends LancerActorSheetDat
       let tag_path = html[0].dataset.path ?? "";
 
       // Get the tag
-      let tag_instance: TagInstance = resolve_dotpath(cd, tag_path);
+      let tag_instance: Tag = resolve_dotpath(cd, tag_path);
 
       // Check existence
-      if (!(tag_instance instanceof TagInstance)) return; // Stinky
+      if (!(tag_instance instanceof Tag)) return; // Stinky
 
       // Spawn the dialogue to edit
       let new_val = await promptText("Edit Tag", (tag_instance.Value ?? "").toString());
@@ -103,6 +97,7 @@ export function HANDLER_activate_tag_context_menus<T extends LancerActorSheetDat
 
   // Finally, setup the context menu
   new ContextMenu(html, ".editable-tag-instance", [remove, set_value]);
+  */
 }
 
 // Enables dropping of tags into open designated by .ref-list-append classed divs
@@ -115,6 +110,7 @@ export function HANDLER_activate_tag_dropping<T>(
   data_getter: () => Promise<T> | T,
   commit_func: (data: T) => void | Promise<void>
 ) {
+  /* TODO
   HANDLER_enable_doc_dropping(
     html.find(".tag-list-append"),
     resolver,
@@ -124,7 +120,7 @@ export function HANDLER_activate_tag_dropping<T>(
       let path = dest[0].dataset.path!;
       if (path) {
         // Make an instance of the tag
-        let tag_instance = new TagInstance(tag_ent.Registry, tag_ent.OpCtx, {
+        let tag_instance = new Tag(tag_ent.Registry, tag_ent.OpCtx, {
           tag: (tag_ent as TagTemplate).as_ref(),
           val: 1,
         });
@@ -145,4 +141,5 @@ export function HANDLER_activate_tag_dropping<T>(
       }
     }
   );
+  */
 }

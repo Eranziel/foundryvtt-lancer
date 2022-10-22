@@ -1,13 +1,13 @@
-import type { EntryType, LicensedItem } from "machine-mind";
 import { LancerItemSheet } from "./item-sheet";
 import { HANDLER_activate_item_context_menus } from "../helpers/item";
 import { LancerItemSheetData } from "../interfaces";
+import { EntryType } from "../enums";
 
 /**
  * Extend the generic Lancer item sheet
  * @extends {LancerItemSheet}
  */
-export class LancerLicenseSheet extends LancerItemSheet {
+export class LancerLicenseSheet extends LancerItemSheet<EntryType.LICENSE> {
   /**
    * @override
    * Extend and override the default options used by the generic Lancer item sheet
@@ -38,8 +38,8 @@ export class LancerLicenseSheet extends LancerItemSheet {
     (sup as any)["unlocks"] = unlocks;
 
     // Pass it along
-    return sup;
     */
+    return sup;
   }
 
   /**

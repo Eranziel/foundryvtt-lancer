@@ -1,30 +1,11 @@
 import type { HelperOptions } from "handlebars";
-import {
-  EntryType,
-  LiveEntryTypes,
-  RegEntry,
-  Range,
-  Damage,
-  RegRef,
-  funcs,
-  MountType,
-  RangeType,
-  DamageType,
-  SystemMount,
-  WeaponMount,
-  WeaponSize,
-  MechWeaponProfile,
-  FrameTrait,
-  Bonus,
-  SerUtil,
-  Action,
-  Counter,
-} from "machine-mind";
 import { HTMLEditDialog } from "../apps/text-editor";
 import type { ContextMenuItem, GenControlContext, LancerActorSheetData, LancerItemSheetData } from "../interfaces";
+import * as defaults from "../util/mmigration/defaults";
 
-import { WeaponType, ActivationType } from "machine-mind";
+import { WeaponType, ActivationType, WeaponSize } from "machine-mind";
 import tippy from "tippy.js";
+import { MountType } from "../enums";
 
 // A shorthand for only including the first string if the second value is truthy
 export function inc_if(val: string, test: any) {
@@ -78,6 +59,10 @@ export function gentle_merge(dest: any, flat_data: any) {
  * Inserted BEFORE that element. If specified index is beyond the length of the array, will simply be appended.
  * If "delete" specified, deletes (splices) instead. Value is unused
  * Has no effect if target is not an array.
+ * @param target The object our path dives into
+ * @param flat_path A dotpath to our target property
+ * @param value The item we wish to insert into the array, if we are inserting
+ * @param mode Whether we are inserting or deleting into the array
  */
 export function array_path_edit(target: any, flat_path: string, value: any, mode: "insert" | "delete") {
   // Break it up
@@ -112,6 +97,71 @@ export function array_path_edit(target: any, flat_path: string, value: any, mode
     }
   } else {
     console.error(`Unable to insert array item "${lead}[${tail}]": not an array (or not a valid index)`);
+  }
+}
+
+/**
+ * As above, but generates the "after" state of the targeted property.
+ * Suitable for use with .updates. Does not actually edit the object.
+ * As an example,
+ *
+ * array_path_edit_result({ foo: [ 1, 2, 3 ]}, "foo.2", 5, "insert")
+ * will yield
+ * {
+ *  path: "foo",
+ *  new_val: [1, 2, 5, 3]
+ * }
+ * @param target The object our path dives into
+ * @param flat_path A dotpath to our target property
+ * @param value The item we wish to insert into the array, if we are inserting
+ * @param mode Whether we are inserting or deleting into the array
+ */
+export function array_path_edit_changes(
+  target: any,
+  flat_path: string,
+  value: any,
+  mode: "insert" | "delete"
+): { path: string; new_val: any } {
+  // Break it up
+  flat_path = format_dotpath(flat_path);
+  let split = flat_path.split(".");
+  let tail = split.splice(split.length - 1)[0];
+  let lead = split.join(".");
+
+  let index = parseInt(tail);
+  let array = resolve_dotpath(target, lead);
+  if (Array.isArray(array) && !Number.isNaN(index)) {
+    // Bound our index
+    if (index > array.length) {
+      index = array.length;
+    }
+    if (index < 0) {
+      // For negative indexes, count back from end, python style.
+      // With the caveat that this also shifts behavior to insert AFTER. So, -1 to append to end, -2 to 1 before end, etc.
+      index = array.length + index + 1;
+
+      // If still negative, then we've gone backwards past start of list, and so we bound to zero
+      if (index < 0) {
+        index = 0;
+      }
+    }
+
+    // Different behavior depending on mode
+    if (mode == "delete") {
+      return {
+        path: lead,
+        new_val: [...array.slice(0, index), ...array.slice(index + 1)], // Drop element at index
+      };
+    } else if (mode == "insert") {
+      return {
+        path: lead,
+        new_val: [...array.slice(0, index), value, ...array.slice(index)], // Insert element at index
+      };
+    } else {
+      throw new Error("Invalid path edit mode " + mode);
+    }
+  } else {
+    throw new Error(`Unable to insert array item "${lead}[${tail}]": not an array (or not a valid index)`);
   }
 }
 
@@ -211,11 +261,6 @@ export function safe_json_parse(str: string): any | null {
   } catch {
     return null;
   }
-}
-
-// Check that a parsed result is probably a ref
-export function is_ref(v: any): v is RegRef<any> {
-  return (v as RegRef<any> | null)?.fallback_lid !== undefined;
 }
 
 // Helper function to format a dotpath to not have any square brackets, instead using pure dot notation
@@ -339,11 +384,10 @@ export function HANDLER_activate_general_controls<T extends LancerActorSheetData
       let raw_val = elt.dataset.actionValue;
 
       let data = await data_getter();
-      let value: any = undefined;
+      let val: any = undefined;
       if (raw_val) {
-        let result = await parse_control_val(raw_val, data.mm);
-        let success = result[0];
-        value = result[1];
+        let result = await parse_control_val(raw_val);
+        let { success, val } = result;
         if (!success) {
           console.error(`Gen control failed: Bad data-action-value: ${raw_val}`);
           return; // Bad arg - no effect
@@ -364,7 +408,7 @@ export function HANDLER_activate_general_controls<T extends LancerActorSheetData
         data,
         path_target: (resolve_dotpath(data, elt.dataset.path!) as RegEntry<any>) ?? null,
         item_override: item_override_path ? resolve_dotpath(data, item_override_path) : null,
-        parsed_val: value,
+        parsed_val: val,
       };
 
       // Check our less reliably fetchable data
@@ -388,13 +432,13 @@ export function HANDLER_activate_general_controls<T extends LancerActorSheetData
         gentle_merge(ctx.data, { [ctx.path]: null });
       } else if (ctx.action == "set") {
         // Set the target space
-        gentle_merge(ctx.data, { [ctx.path]: value });
+        gentle_merge(ctx.data, { [ctx.path]: val });
       } else if (ctx.action == "append") {
         // Append to target array
-        array_path_edit(ctx.data, ctx.path + "[-1]", value, "insert");
+        array_path_edit(ctx.data, ctx.path + "[-1]", val, "insert");
       } else if (ctx.action == "insert") {
         // insert into target array
-        array_path_edit(ctx.data, ctx.path + "[-1]", value, "insert");
+        array_path_edit(ctx.data, ctx.path + "[-1]", val, "insert");
       } else {
         console.error("Unknown gen control action: " + ctx.action);
       }
@@ -420,7 +464,7 @@ export function HANDLER_activate_general_controls<T extends LancerActorSheetData
 
 // Used by above to figure out how to handle "set"/"append" args
 // Returns [success: boolean, val: any]
-async function parse_control_val(raw_val: string, ctx: LiveEntryTypes<EntryType>): Promise<[boolean, any]> {
+async function parse_control_val(raw_val: string): Promise<{ success: boolean; val: any }> {
   // Determine what we're working with
   let match = raw_val.match(/\((.*?)\)(.*)/);
   if (match) {
@@ -430,99 +474,72 @@ async function parse_control_val(raw_val: string, ctx: LiveEntryTypes<EntryType>
       case "int":
         let parsed_int = parseInt(val);
         if (!Number.isNaN(parsed_int)) {
-          return [true, parsed_int];
+          return { success: true, val: parsed_int };
         }
         break;
       case "float":
         let parsed_float = parseFloat(val);
         if (!Number.isNaN(parsed_float)) {
-          return [true, parsed_float];
+          return { success: true, val: parsed_float };
         }
         break;
       case "bool":
         if (val == "true") {
-          return [true, true];
+          return { success: true, val: true };
         } else if (val == "false") {
-          return [true, false];
+          return { success: true, val: false };
         }
       case "struct":
-        return control_structs(val, ctx);
+        return control_structs(val);
     }
   }
 
   // No success
-  return [false, null];
+  return { success: false, val: null };
 }
 
 // Used by above to insert/set more advanced items. Expand as needed
 // Returns [success: boolean, val: any]
-async function control_structs(key: string, on: LiveEntryTypes<EntryType>): Promise<[boolean, any]> {
+async function control_structs(key: string): Promise<{ success: boolean; val: any }> {
   // Look for a matching result
   switch (key) {
     case "empty_array":
-      return [true, []];
+      return { success: true, val: [] };
     case "string":
-      return [true, ""];
+      return { success: true, val: "" };
     case "npc_stat_array":
-      return [true, [0, 0, 0]];
+      return { success: true, val: [0, 0, 0] };
     case "frame_trait":
-      let trait = new FrameTrait(on.Registry, on.OpCtx, funcs.defaults.FRAME_TRAIT());
-      return [true, await trait.load_done()];
+      let trait = defaults.FRAME_TRAIT();
+      return { success: true, val: trait };
     case "bonus":
-      return [true, new Bonus(funcs.defaults.BONUS())];
+      return { success: true, val: defaults.BONUS() };
     case "action":
-      return [true, new Action(funcs.defaults.ACTION())];
+      return { success: true, val: defaults.ACTION() };
     case "counter":
-      return [
-        true,
-        new Counter({
-          lid: "tempLID",
-          name: "New Counter",
-          min: 1,
-          max: 6,
-          default_value: 1,
-          val: 1,
-        }),
-      ];
+      return { success: true, val: defaults.COUNTER() };
     case "mount_type":
-      return [true, MountType.Main];
+      return { success: true, val: MountType.Main };
     case "range":
-      return [
-        true,
-        new Range({
-          type: RangeType.Range,
-          val: "5",
-        }),
-      ];
+      return { success: true, val: defaults.RANGE() };
     case "damage":
-      return [
-        true,
-        new Damage({
-          type: DamageType.Kinetic,
-          val: "1d6",
-        }),
-      ];
-    case "sys_mount":
-      let sys_mount = new SystemMount(on.Registry, on.OpCtx, { system: null }, null as any); // This null part may be a bit unstable, but we immediately save and that has no effect
-      return [true, await sys_mount.load_done()];
+      return { success: true, val: defaults.DAMAGE() };
     case "wep_mount":
-      let wep_mount = new WeaponMount(on.Registry, on.OpCtx, funcs.defaults.WEAPON_MOUNT_DATA(), null as any); // See above
-      return [true, await wep_mount.load_done()];
+      return { success: true, val: defaults.WEAPON_MOUNT() };
     case "weapon_profile":
-      let profile = new MechWeaponProfile(on.Registry, on.OpCtx, funcs.defaults.WEAPON_PROFILE());
-      return [true, await profile.load_done()];
+      return { success: true, val: defaults.WEAPON_PROFILE() };
     case "talent_rank":
-      return [true, funcs.defaults.TALENT_RANK()];
+      return { success: true, val: defaults.TALENT_RANK() };
     case "WeaponSize":
-      return [true, WeaponSize.Aux];
+      return { success: true, val: WeaponSize.Main };
     case "WeaponType":
-      return [true, WeaponType.CQB];
+      return { success: true, val: WeaponType.Rifle };
     case "ActivationType":
-      return [true, ActivationType.Quick];
+      return { success: true, val: ActivationType.Quick };
   }
 
   // Didn't find a match
-  return [false, null];
+  return { success: false, val: null };
 }
 
 // Our standardized functions for making simple key-value input pair
@@ -656,7 +673,7 @@ export function std_enum_select<T extends string>(path: string, enum_: { [key: s
   }
 
   // Restrict value to the enum
-  let selected = SerUtil.restrict_enum(enum_, default_val, value!);
+  let selected = restrict_enum(enum_, default_val, value!);
 
   let choices: string[] = [];
   for (let choice of Object.values(enum_)) {
@@ -807,4 +824,20 @@ export function tippy_context_menu(
       instance.show();
     });
   });
+}
+
+// Isolates a value to ensure it is compliant with a list of values
+export function restrict_choices<T extends string>(choices: T[], default_choice: T, provided?: string): T {
+  return choices.includes(provided as T) ? (provided as T) : default_choice;
+}
+
+// List possible values of an enum
+export function list_enum<T extends string>(enum_: { [key: string]: T }): T[] {
+  return Object.keys(enum_).map(k => enum_[k]);
+}
+
+// Isolates a value to ensure it is enum compliant
+export function restrict_enum<T extends string>(enum_: { [key: string]: T }, default_choice: T, provided?: string): T {
+  let choices = list_enum(enum_);
+  return restrict_choices(choices, default_choice, provided);
 }

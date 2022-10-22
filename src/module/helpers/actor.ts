@@ -1,12 +1,12 @@
 import type { HelperOptions } from "handlebars";
-import { EntryType, funcs, Mech, Npc, Pilot } from "machine-mind";
 import { ext_helper_hash, inc_if, resolve_helper_dotpath, selected, std_num_input, std_x_of_y } from "./commons";
-import { ref_doc_common_attrs, ref_params, simple_mm_ref } from "./refs";
+import { ref_params, simple_ref_slot } from "./refs";
 import { encodeMacroData } from "../macros";
 import { encodeOverchargeMacroData } from "../macros/overcharge";
 import type { ActionType } from "../action";
-import type { LancerActor } from "../actor/lancer-actor";
+import type { LancerActor, LancerMECH, LancerNPC, LancerPILOT } from "../actor/lancer-actor";
 import { getActionTrackerOptions } from "../settings";
+import { EntryType } from "../enums";
 
 // ---------------------------------------
 // Some simple stat editing thingies
@@ -358,22 +358,17 @@ export function is_combatant(actor: LancerActor) {
 // Create a div with flags for dropping native pilots/mechs/npcs
 export function deployer_slot(data_path: string, options: HelperOptions): string {
   // get the existing
-  let existing = resolve_helper_dotpath<Pilot | Mech | Npc | null>(options, data_path, null);
+  let existing = resolve_helper_dotpath<LancerPILOT | LancerMECH | LancerNPC | null>(options, data_path, null);
   if (!existing) {
-    return simple_mm_ref([EntryType.PILOT, EntryType.MECH, EntryType.NPC], existing, "No Deployer", data_path, true);
+    return simple_ref_slot([EntryType.PILOT, EntryType.MECH, EntryType.NPC], existing, "No Deployer", data_path, true);
   }
 
   // Generate commons
-  let cd = ref_doc_common_attrs(existing);
-  if (!cd) {
-    return simple_mm_ref([EntryType.PILOT, EntryType.MECH, EntryType.NPC], existing, "No Deployer", data_path, true);
-  }
-
   return `
-    <div class="card clipped ${cd.ref.type} ref valid clickable-ref" ${ref_params(cd.ref, cd.uuid)}>
+    <div class="card clipped ${existing.type} ref valid clickable-ref" ${ref_params(existing)}>
       <div class="compact-deployer medium flexrow" >
-        <span class="img-bar" style="background-image: url(${existing.Flags.top_level_data.img});"> </span>
-        <div class="major modifier-name i--light">${existing.Type.toUpperCase()} ${existing.Name}</div>
+        <span class="img-bar" style="background-image: url(${existing.img});"> </span>
+        <div class="major modifier-name i--light">${existing.type.toUpperCase()} ${existing.name}</div>
       </div>
     </div>`;
 }

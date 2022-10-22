@@ -99,7 +99,9 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
     super.activateListeners(html);
 
     let getfunc = () => this.getData();
-    let commitfunc = (_: any) => this._commitCurrMM();
+    let commitfunc = (_: any) => {
+      console.log("Commit func machine [B]roke");
+    };
 
     // Make refs clickable
     $(html).find(".ref.valid.clickable-ref:not(.profile-img)").on("click", HANDLER_activate_ref_clicking);
@@ -122,7 +124,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
     HANDLER_activate_counter_listeners(html, getfunc);
 
     // Grab pre-existing ctx if available
-    let resolver = new dragResolverCache();
+    let resolver = dragResolverCache();
 
     // Enable hex use triggers.
     HANDLER_activate_uses_editor(html, getfunc);
@@ -186,19 +188,15 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
   async getData(): Promise<LancerItemSheetData<T>> {
     const data = super.getData() as LancerItemSheetData<T>; // Not fully populated yet!
 
-    // Wait for preparations to complete
-    let tmp_dat = this.item.system;
-
     // Additionally we would like to find a matching license. Re-use ctx, try both a world and global reg, actor as well if it exists
     data.license = null;
     if (this.actor?.is_pilot() || this.actor?.is_mech()) {
-      data.license = await find_license_for(data.mm, this.actor!);
+      data.license = await find_license_for(this.item, this.actor!);
     } else {
-      data.license = await find_license_for(data.mm);
+      data.license = await find_license_for(this.item);
     }
 
     console.log(`${lp} Rendering with following item ctx: `, data);
-    this._currData = data;
     return data;
   }
 

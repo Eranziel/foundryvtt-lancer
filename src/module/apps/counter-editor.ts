@@ -1,32 +1,29 @@
-import { Counter, RegEntry, Talent } from "machine-mind";
+import { LancerActor } from "../actor/lancer-actor";
 import { gentle_merge, resolve_dotpath } from "../helpers/commons";
+import { LancerItem, LancerTALENT } from "../item/lancer-item";
+import { CounterData } from "../models/bits/counter";
 
 /**
  * A helper FormApplication subclass for editing a counter
  * @extends {FormApplication}
  */
-export class CounterEditForm<O> extends FormApplication {
+export class CounterEditForm extends FormApplication {
   _updateObject(event: Event, formData?: object): Promise<unknown> {
     debugger;
     return new Promise(() => {});
   }
   // The counter we're editing
-  counter: Counter;
-  source: Talent;
+  counter: CounterData;
+  target: LancerItem;
 
   // Where it is
   path: string;
 
-  constructor(target: O, path: string, dialogData: Dialog.Data, options: Partial<Dialog.Options> = {}) {
+  constructor(target: LancerItem, path: string, dialogData: Dialog.Data, options: Partial<Dialog.Options> = {}) {
     super(dialogData, options);
     this.path = path;
-    let replace_path = path.replace(".counter", ".source");
+    this.target = target;
     this.counter = resolve_dotpath(target, path);
-    if (path == replace_path) {
-      this.source = resolve_dotpath(target, "mm");
-    } else {
-      this.source = resolve_dotpath(target, replace_path);
-    }
   }
 
   /* -------------------------------------------- */
@@ -50,8 +47,6 @@ export class CounterEditForm<O> extends FormApplication {
     return {
       ...super.getData(),
       counter: this.counter,
-      path: this.path,
-      source: this.source,
     };
   }
 
@@ -63,40 +58,51 @@ export class CounterEditForm<O> extends FormApplication {
       ev.stopPropagation();
       const input = ev.currentTarget as HTMLInputElement;
 
-      const item = this.counter;
-      const writeback = this.source;
+      let new_val = input.value;
+      const num_val = input.valueAsNumber;
 
-      const newVal = input.value;
-      const numVal = input.valueAsNumber;
+      // Pre-fixup value
       switch (input.name) {
-        case "Min":
-          if (!Number.isNaN(numVal)) {
-            item.Min = numVal;
-            if (item.Value < numVal) {
-              item.Value = numVal;
-            }
+        case "min":
+        case "max":
+        case "val":
+          if (Number.isNaN(num_val)) {
+            ui.notifications?.error(`${num_val} is not a valid numeric value`);
+            return;
           }
-          break;
-        case "Value":
-          !Number.isNaN(numVal) && (item.Value = numVal);
-          break;
-        case "Max":
-          if (!Number.isNaN(numVal)) {
-            item.Max = numVal;
-            if (item.Value > numVal) {
-              item.Value = numVal;
-            }
-          }
-          break;
         case "Name":
-          item.Name = newVal.trim();
+          new_val = new_val.trim();
           break;
       }
 
-      this.close();
+      // Begin building object
+      let changes: Record<string, any> = {
+        [`${this.path}.${input.name}`]: new_val,
+      };
 
-      await writeback.writeback();
-      console.debug(item);
+      // Fixup value if min or max has moved it
+      switch (input.name) {
+        case "min":
+          if (this.counter.val < num_val) {
+            changes[`${this.path}.val`] = num_val; // bound
+          }
+          break;
+        case "max":
+          if (this.counter.val > num_val) {
+            changes[`${this.path}.val`] = num_val; // bound
+          }
+          break;
+        case "val":
+          if (this.counter.min > num_val) {
+            changes[`${this.path}.val`] = this.counter.min; // bound
+          } else if (this.counter.max && this.counter.max < num_val) {
+            changes[`${this.path}.val`] = this.counter.max; // bound
+          }
+          break;
+      }
+
+      await this.target.update(changes);
+      this.close();
     });
   }
 
@@ -110,7 +116,9 @@ export class CounterEditForm<O> extends FormApplication {
    * @param writeback_obj
    * @returns
    */
-  static async edit_counter<T>(in_object: T, at_path: string, writeback_obj: RegEntry<any>): Promise<void> {
+  static async edit_counter<T>(in_object: T, at_path: string, writeback_obj: LancerItem | LancerActor): Promise<void> {
+    return;
+    /* TODO - work out how we want to handle this in new paradigm. Also, use read_form
     return new Promise((resolve, _reject) => {
       const dlg = new this(in_object, at_path, {
         title: "Edit Counter",
@@ -145,7 +153,7 @@ export class CounterEditForm<O> extends FormApplication {
 
               // Do the merge
               gentle_merge(in_object, flat_data);
-              resolve(writeback_obj.writeback());
+              resolve(writeback_obj.update());
             },
           },
           cancel: {
@@ -158,6 +166,6 @@ export class CounterEditForm<O> extends FormApplication {
         close: () => resolve(),
       });
       dlg.render(true);
-    });
+    });*/
   }
 }

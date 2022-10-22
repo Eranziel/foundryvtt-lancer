@@ -16,6 +16,7 @@ import {
   MechType,
   MakeWeaponTypeChecklist,
   MakeWeaponSizeChecklist,
+  FittingSize,
 } from "../../enums";
 import { nanoid } from "nanoid";
 import { DeployableType } from "../../enums";
@@ -25,6 +26,7 @@ import { SourceData, SourceDataType, SourceTemplates } from "../../source-templa
 import { Damage, DamageData } from "../../models/bits/damage";
 import { ActionTrackingData } from "../../action";
 import { RangeData } from "../../models/bits/range";
+import { CounterData } from "../../models/bits/counter";
 
 const DEFAULT_DESCRIPTION = "...";
 
@@ -89,6 +91,17 @@ export function ACTION(): ActionData {
     terse: "Terse Description",
     trigger: "",
     available_mounted: true,
+  };
+}
+
+export function COUNTER(): CounterData {
+  return {
+    lid: "count_" + nanoid(),
+    name: "New Counter",
+    min: 1,
+    max: 6,
+    default_value: 1,
+    val: 1,
   };
 }
 
@@ -230,7 +243,7 @@ export function MECH(): SourceDataType<EntryType.MECH> {
     custom_counters: [],
     burn: 0,
     core_active: false,
-    core_energy: true,
+    core_energy: 1,
     heat: 0,
     hp: 0,
     overcharge: 0,
@@ -616,7 +629,7 @@ export function TALENT_RANK(): SourceDataType<EntryType.TALENT>["ranks"][0] {
   };
 }
 
-export function WEAPON_PROFILE(): SourceDataType<EntryType.MECH_WEAPON>["profiles"][0] {
+export function WEAPON_PROFILE(): SourceData.MechWeapon["profiles"][0] {
   return {
     name: "Standard Profile",
     actions: [],
@@ -635,6 +648,22 @@ export function WEAPON_PROFILE(): SourceDataType<EntryType.MECH_WEAPON>["profile
     barrageable: true,
     cost: 1,
     skirmishable: true,
+  };
+}
+
+export function WEAPON_MOUNT(): SourceData.Mech["loadout"]["weapon_mounts"][0] {
+  return {
+    type: MountType.Main,
+    bracing: false,
+    slots: [MOUNT_SLOT()],
+  };
+}
+
+export function MOUNT_SLOT(): SourceData.Mech["loadout"]["weapon_mounts"][0]["slots"][0] {
+  return {
+    mod: null,
+    size: FittingSize.Main,
+    weapon: null,
   };
 }
 

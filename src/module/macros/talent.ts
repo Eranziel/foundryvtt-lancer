@@ -23,7 +23,6 @@ export async function prepareTalentMacro(a: string, i: string, rank: number) {
   if (!item || !item.is_talent()) return;
 
   let talData: LancerTalentMacroData = {
-    // @ts-expect-error Should be fixed with v10 types
     talent: item.system,
     rank: rank,
   };

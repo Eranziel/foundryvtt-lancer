@@ -2,12 +2,12 @@
 import { LANCER } from "../config";
 import type { LancerActor } from "../actor/lancer-actor";
 import { buildSystemHTML } from "../helpers/item";
-import type { MechSystem } from "machine-mind";
 import { renderMacroHTML } from "./_render";
+import { LancerMECH_SYSTEM } from "../item/lancer-item";
 
 const lp = LANCER.log_prefix;
 
-export async function rollSystemMacro(actor: LancerActor, data: MechSystem) {
+export async function rollSystemMacro(actor: LancerActor, data: LancerMECH_SYSTEM) {
   if (!actor) return Promise.resolve();
 
   // Construct the template

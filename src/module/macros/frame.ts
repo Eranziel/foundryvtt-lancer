@@ -16,18 +16,18 @@ export async function prepareCoreActiveMacro(a: string) {
   let actor = getMacroSpeaker(a);
   if (!actor || !actor.is_mech()) return;
 
-  if (actor.data.data.loadout.frame?.status != "resolved") return;
+  if (actor.system.loadout.frame?.status != "resolved") return;
 
-  if (!actor.data.data.core_energy) {
+  if (!actor.system.core_active) {
     ui.notifications!.warn(`No core power remaining on this frame!`);
     return;
   }
 
-  let frame = actor.data.data.loadout.frame;
+  let frame = actor.system.loadout.frame;
   let mData: LancerTextMacroData = {
-    title: frame.data.data.core_system.active_name,
-    description: frame.data.data.core_system.active_effect,
-    tags: frame.data.data.core_system.tags,
+    title: frame.value.system.core_system.active_name,
+    description: frame.value.system.core_system.active_effect,
+    tags: frame.value.system.core_system.tags,
   };
 
   // TODO--setting for this?
@@ -40,8 +40,8 @@ export async function prepareCoreActiveMacro(a: string) {
         icon: '<i class="fas fa-check"></i>',
         label: "Yes",
         callback: async _dlg => {
-          da.update({ "data.core_energy": Math.max(da.data.data.core_energy - 1, 0) });
-          console.log(`${lp} Automatically consumed core power for ${da.data.data.lid}`);
+          da.update({ "system.core_energy": Math.max(da.system.core_energy - 1, 0) });
+          console.log(`${lp} Automatically consumed core power for ${da.system.lid}`);
           if (actor) rollTextMacro(actor, mData);
         },
       },

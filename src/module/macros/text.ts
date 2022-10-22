@@ -2,9 +2,9 @@
 import { LANCER } from "../config";
 import type { LancerActor } from "../actor/lancer-actor";
 import type { LancerTextMacroData } from "../interfaces";
-import { TagInstance } from "machine-mind";
 import { getMacroSpeaker } from "./_util";
 import { renderMacroTemplate } from "./_render";
+import { Tag } from "../models/bits/tag";
 
 const lp = LANCER.log_prefix;
 
@@ -15,7 +15,7 @@ const lp = LANCER.log_prefix;
  * @param text  Data path to text to be displayed by the macro
  * @param tags  Can optionally pass through an array of tags to be rendered
  */
-export function prepareTextMacro(a: string, title: string, text: string, tags?: TagInstance[]) {
+export function prepareTextMacro(a: string, title: string, text: string, tags?: Tag[]) {
   // Determine which Actor to speak as
   let actor = getMacroSpeaker(a);
   if (!actor) return;

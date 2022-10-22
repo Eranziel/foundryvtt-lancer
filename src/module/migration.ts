@@ -4,7 +4,7 @@ import { LANCER } from "./config";
 import { handleActorExport } from "./helpers/io";
 import { LancerActor, LancerNpcData } from "./actor/lancer-actor";
 import { core_update, LCPIndex, LCPManager, updateCore } from "./apps/lcpManager";
-import { EntryType, NpcClass, NpcFeature, NpcTemplate, RegTagInstanceData } from "machine-mind";
+import { EntryType, NpcClass, NpcFeature, NpcTemplate, RegTagData } from "machine-mind";
 import { LancerItem } from "./item/lancer-item";
 import { RegRef } from "machine-mind/dist/registry";
 import { arrayify_object } from "./helpers/commons";
@@ -568,7 +568,7 @@ export const migrateItemData = async function (item: LancerItem<NpcClass | NpcTe
             reg_name: "comp_core",
             type: EntryType.TAG,
           };
-          let newTag: RegTagInstanceData = {
+          let newTag: RegTagData = {
             tag: newTagRef,
             val: tag.val,
           };

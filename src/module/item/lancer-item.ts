@@ -36,7 +36,6 @@ type LancerItemSource =
   | LancerItemDataSource<EntryType.RESERVE>
   | LancerItemDataSource<EntryType.SKILL>
   | LancerItemDataSource<EntryType.STATUS>
-  | LancerItemDataSource<EntryType.TAG>
   | LancerItemDataSource<EntryType.TALENT>
   | LancerItemDataSource<EntryType.WEAPON_MOD>;
 
@@ -60,7 +59,6 @@ type LancerItemProperties =
   | LancerItemDataProperties<EntryType.RESERVE>
   | LancerItemDataProperties<EntryType.SKILL>
   | LancerItemDataProperties<EntryType.STATUS>
-  | LancerItemDataProperties<EntryType.TAG>
   | LancerItemDataProperties<EntryType.TALENT>
   | LancerItemDataProperties<EntryType.WEAPON_MOD>;
 
@@ -277,9 +275,6 @@ export class LancerItem extends Item {
   is_status(): this is LancerSTATUS {
     return this.data.type === EntryType.STATUS;
   }
-  is_tag(): this is LancerTAG {
-    return this.data.type === EntryType.TAG;
-  }
   is_talent(): this is LancerTALENT {
     return this.data.type === EntryType.TALENT;
   }
@@ -312,7 +307,6 @@ export type LancerPILOT_WEAPON = LancerItem & { system: SystemData.PilotWeapon }
 export type LancerRESERVE = LancerItem & { system: SystemData.Reserve };
 export type LancerSKILL = LancerItem & { system: SystemData.Skill };
 export type LancerSTATUS = LancerItem & { system: SystemData.Status };
-export type LancerTAG = LancerItem & { system: SystemData.Tag };
 export type LancerTALENT = LancerItem & { system: SystemData.Talent };
 export type LancerWEAPON_MOD = LancerItem & { system: SystemData.WeaponMod };
 
@@ -334,8 +328,7 @@ export type LancerItemType =
   | EntryType.SKILL
   | EntryType.STATUS
   | EntryType.TALENT
-  | EntryType.WEAPON_MOD
-  | EntryType.TAG;
+  | EntryType.WEAPON_MOD;
 export const ITEM_TYPES = [
   EntryType.CORE_BONUS,
   EntryType.FRAME,
@@ -353,7 +346,6 @@ export const ITEM_TYPES = [
   EntryType.STATUS,
   EntryType.TALENT,
   EntryType.WEAPON_MOD,
-  EntryType.TAG,
 ];
 export function is_item_type(type: EntryType): type is LancerItemType {
   return ITEM_TYPES.includes(type);

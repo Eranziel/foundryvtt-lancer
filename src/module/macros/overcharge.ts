@@ -40,17 +40,17 @@ export async function prepareOverchargeMacro(a: string) {
   let roll = await new Roll(rollText).evaluate({ async: true });
 
   let mData: LancerOverchargeMacroData = {
-    level: actor.data.data.overcharge,
+    level: actor.system.overcharge,
     roll: roll,
   };
 
   // Assume we can always increment overcharge here...
   let changes: any = {}; // TODO: cool types on stuff like this?
-  changes["data.overcharge"] = Math.min(actor.data.data.overcharge + 1, 3);
+  changes["data.overcharge"] = Math.min(actor.system.overcharge + 1, 3);
 
   // Only increase heat if we haven't disabled it
   if (getAutomationOptions().overcharge_heat) {
-    changes["data.heat"] = actor.data.data.heat.value + roll.total!;
+    changes["data.heat"] = actor.system.heat.value + roll.total!;
   }
 
   await actor.update(changes);

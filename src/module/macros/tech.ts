@@ -66,11 +66,9 @@ export async function prepareTechMacro(a: string, t: string, rerollData?: AccDif
       if (!mm.TierOverride) {
         if (item.actor === null && actor.is_npc()) {
           // Use selected actor
-          // @ts-expect-error Should be fixed with v10 types
           tier_index = actor.system.tier - 1;
         } else if (item.actor!.is_npc()) {
           // Use provided actor
-          // @ts-expect-error Should be fixed with v10 types
           tier_index = item.actor.system.tier - 1;
         }
       } else {

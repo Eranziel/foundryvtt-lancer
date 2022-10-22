@@ -2,7 +2,6 @@
 import { LANCER } from "../config";
 // Import JSON data
 import { EntryType, NpcFeatureType } from "machine-mind";
-import { is_ref } from "../helpers/commons";
 
 import { isValidEncodedMacro } from "./_encode";
 

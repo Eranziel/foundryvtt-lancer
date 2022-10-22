@@ -13,8 +13,8 @@ export interface RangeData {
 
 // Represents a single range for a weapon. Line 8, range 10, burst 2, etc. Blast will have a separate entry for its "normal" range and the range of the explosion
 export class Range implements Required<RangeData> {
-  readonly type: RangeType;
-  readonly val: string;
+  type: RangeType;
+  val: string;
   constructor(data: RangeData) {
     this.type = data.type;
     this.val = data.val;

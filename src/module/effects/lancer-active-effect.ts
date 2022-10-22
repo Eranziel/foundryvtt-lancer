@@ -1,11 +1,6 @@
 import { ActiveEffectDataConstructorData } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs/activeEffectData";
 import { EffectChangeData } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs/effectChangeData";
-import {
-  DamageTypeChecklist,
-  RangeTypeChecklist,
-  WeaponSizeChecklist,
-  WeaponTypeChecklist,
-} from "machine-mind";
+import { DamageTypeChecklist, RangeTypeChecklist, WeaponSizeChecklist, WeaponTypeChecklist } from "machine-mind";
 import { LancerActor } from "../actor/lancer-actor";
 import { LancerItem } from "../item/lancer-item";
 
@@ -53,10 +48,10 @@ export class LancerActiveEffect extends ActiveEffect {
 
   /**
    * Determine whether this Active Effect is suppressed or not.
-   * 
-   * If a weapon is supplied, then the effect will ONLY apply if this is a restricted effect 
+   *
+   * If a weapon is supplied, then the effect will ONLY apply if this is a restricted effect
    * tied to that weapon
-   * 
+   *
    * TODO: Narrow type on weapon to actual LancerMechWeapon
    */
   shouldApply(actor: LancerActor, weapon?: LancerItem) {
@@ -71,13 +66,13 @@ export class LancerActiveEffect extends ActiveEffect {
 
     // Never apply if a weapon type restriction exists and its not a weapon, or if
     // is a weapon and no type restriction exists
-    if(this.isRestricted()) {
+    if (this.isRestricted()) {
       // Restricted? Unless the weapon checks out, ignore
-      if(!weapon) return false;
-      if(!this.restrictionsApply(weapon)) return false;
-    } else if(weapon) {
+      if (!weapon) return false;
+      if (!this.restrictionsApply(weapon)) return false;
+    } else if (weapon) {
       // Weapon but not restricted? Already been applied normally, ignore
-      return false; 
+      return false;
     }
 
     return true;
@@ -93,8 +88,8 @@ export class LancerActiveEffect extends ActiveEffect {
     if (tf.target_type === "deployable" && !actor.is_deployable()) return false;
     if (tf.target_type === "chassis" && !(actor.is_mech() || actor.is_npc())) return false;
     return true;
-  } 
-  
+  }
+
   /**
    * Determine whether this Active Effect is a restricted weapon type
    */
@@ -108,16 +103,16 @@ export class LancerActiveEffect extends ActiveEffect {
    * Determine whether this Active Effect applies to the given weapon
    */
   restrictionsApply(weapon: LancerItem): boolean {
-    if(!weapon.is_mech_weapon()) return false;
-    let sel_prof = weapon.data.data.profiles[weapon.data.data.selected_profile];
+    if (!weapon.is_mech_weapon()) return false;
+    let sel_prof = weapon.system.active_profile;
     let r = this.#typedFlags.restrictions;
-    if(!r) return false;
+    if (!r) return false;
 
     // Now start checking
-    if(r.weapon_size && !r.weapon_size[weapon.data.data.size]) return false;
-    if(r.weapon_type && !r.weapon_type[sel_prof.type]) return false;
-    if(r.damage && !sel_prof.damage.some(d => r!.damage![d.type])) return false;
-    if(r.range && !sel_prof.range.some(d => r!.range![d.type])) return false;
+    if (r.weapon_size && !r.weapon_size[weapon.system.size]) return false;
+    if (r.weapon_type && !r.weapon_type[sel_prof.type]) return false;
+    if (r.damage && !sel_prof.damage.some(d => r!.damage![d.type])) return false;
+    if (r.range && !sel_prof.range.some(d => r!.range![d.type])) return false;
 
     // Passed the test
     return true;
@@ -201,23 +196,25 @@ export class LancerActiveEffect extends ActiveEffect {
   }
 }
 
-
 // To support our effect passdown
 export const AE_MODE_SET_JSON = 11;
 export const AE_MODE_APPEND_JSON = 12;
-Hooks.on("applyActiveEffect", function (actor: LancerActor, change: EffectChangeData, current: any, _delta: any, _changes: any) {
-  if(change.mode == AE_MODE_SET_JSON || change.mode == AE_MODE_APPEND_JSON) {
-    try {
-      let parsed_delta = JSON.parse(change.value);
-      // Ok, now set it to wherever it was labeled
-      if(change.mode == AE_MODE_SET_JSON) {
-        foundry.utils.setProperty(actor.data, change.key, parsed_delta);
-      } else if(change.mode == AE_MODE_APPEND_JSON) {
-        foundry.utils.getProperty(actor.data, change.key).push(parsed_delta);
+Hooks.on(
+  "applyActiveEffect",
+  function (actor: LancerActor, change: EffectChangeData, current: any, _delta: any, _changes: any) {
+    if (change.mode == AE_MODE_SET_JSON || change.mode == AE_MODE_APPEND_JSON) {
+      try {
+        let parsed_delta = JSON.parse(change.value);
+        // Ok, now set it to wherever it was labeled
+        if (change.mode == AE_MODE_SET_JSON) {
+          foundry.utils.setProperty(actor.data, change.key, parsed_delta);
+        } else if (change.mode == AE_MODE_APPEND_JSON) {
+          foundry.utils.getProperty(actor.data, change.key).push(parsed_delta);
+        }
+      } catch (e) {
+        // Nothing to do really, except log it
+        console.warn(`Data transfer active effect corrupted, ${change.value}`);
       }
-    } catch (e) { 
-      // Nothing to do really, except log it
-      console.warn(`Data transfer active effect corrupted, ${change.value}`);
     }
   }
-});
+);

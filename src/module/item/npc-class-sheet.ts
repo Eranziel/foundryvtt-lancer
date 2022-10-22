@@ -1,5 +1,5 @@
-import type { EntryType } from "machine-mind";
 import { LANCER } from "../config";
+import { EntryType } from "../enums";
 import { LancerItemSheet } from "./item-sheet";
 import type { LancerItem } from "./lancer-item";
 const lp = LANCER.log_prefix;

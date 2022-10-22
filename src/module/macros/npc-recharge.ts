@@ -1,7 +1,6 @@
 // Import TypeScript modules
 import { LANCER } from "../config";
 import type { LancerActor } from "../actor/lancer-actor";
-import { TagInstance } from "machine-mind";
 import { getMacroSpeaker } from "./_util";
 import { renderMacroTemplate } from "./_render";
 
@@ -26,7 +25,7 @@ export async function prepareChargeMacro(a: string | LancerActor) {
   // @ts-expect-error Should be fixed with v10 types
   feats.forEach(feat => {
     if (!feat.Charged) {
-      const recharge = feat.Tags.find((tag: TagInstance) => tag.Tag.LID === "tg_recharge");
+      const recharge = feat.Tags.find((tag: Tag) => tag.Tag.LID === "tg_recharge");
       if (recharge && recharge.Value && recharge.Value <= (roll.total ?? 0)) {
         feat.Charged = true;
         feat.writeback();

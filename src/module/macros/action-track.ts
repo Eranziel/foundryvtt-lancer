@@ -1,4 +1,4 @@
-import { ActionData } from "../action";
+import { ActionTrackingData } from "../action";
 import { getActions } from "../action/actionTracker";
 import { LancerActor } from "../actor/lancer-actor";
 import { prepareTextMacro } from "./text";
@@ -28,7 +28,7 @@ export function prepareActionTrackMacro(a: string, start: boolean) {
   prepareTextMacro(a, "Action Status", text);
 }
 
-function condensedActionButtonHTML(actor: LancerActor, actions: ActionData) {
+function condensedActionButtonHTML(actor: LancerActor, actions: ActionTrackingData) {
   function constructButton(action: string, active: boolean) {
     let mIcon;
     switch (action) {

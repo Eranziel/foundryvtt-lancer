@@ -1,8 +1,5 @@
 import type { HelperOptions } from "handlebars";
-import { Action, SystemType, EntryType } from "machine-mind";
-import { is_limited } from "machine-mind/dist/classes/mech/EquipUtil";
 import { TypeIcon } from "../config";
-import type { LancerMacroData } from "../interfaces";
 import {
   LancerItem,
   is_item_type,
@@ -29,29 +26,8 @@ import { buildActionHTML, buildDeployableHTML, license_ref } from "./item";
 import { compact_tag_list } from "./tags";
 import { CollapseRegistry } from "./loadout";
 import { LancerDoc } from "../util/doc";
-
-// We use these for virtually every ref function
-export function ref_commons<T extends EntryType>(
-  item: LancerDoc | null
-): null | {
-  img: string;
-  name: string;
-  uuid: string;
-} {
-  // Nulls beget nulls
-  if (!item) {
-    return null;
-  }
-
-  // TODO: Maybe just eliminate this entirely. its kind of dumb in a post MM world
-
-  // Combine and return
-  return {
-    img: item.img,
-    name: item.name,
-    uuid: item.uuid,
-  };
-}
+import { EntryType } from "../enums";
+import { LancerActor } from "../actor/lancer-actor";
 
 // Creates the params common to all refs, essentially just the html-ified version of a RegRef
 export function ref_params(doc: LancerDoc, path?: string) {
@@ -64,7 +40,7 @@ export function ref_params(doc: LancerDoc, path?: string) {
 
 // A multiplexer-helper on machine-mind objects, to create actor/item ref items
 // If a slot_path is provided, then this will additionally be a valid drop-settable location for items of this type
-export function simple_mm_ref<T extends EntryType>(
+export function simple_ref_slot<T extends EntryType>(
   types: T | T[],
   doc: LancerDoc<T> | null,
   fallback: string = "Empty",
@@ -138,8 +114,18 @@ export async function HANDLER_activate_ref_clicking<T extends EntryType>(event: 
 // Given a ref element (as created by simple_mm_ref or similar function), find the item it is currently referencing
 export async function resolve_ref_element<T extends EntryType>(
   element: HTMLElement
-): Promise<foundry.abstract.Document<any> | null> {
-  return element.dataset.uuid ? fromUuid(element.dataset.uuid) : null;
+): Promise<LancerItem | LancerActor | null> {
+  if (!element.dataset.uuid) {
+    return null;
+  } else {
+    let found = await fromUuid(element.dataset.uuid);
+    if (found && (found instanceof LancerItem || found instanceof LancerActor)) {
+      return found;
+    } else if (found) {
+      console.warn(`Ref element pointed at a ${found.documentName} - unsupported`);
+    }
+    return null;
+  }
 }
 
 //
@@ -189,9 +175,9 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
   let collapse_trigger = "";
   if (registry != null) {
     // On sheet, enable collapse.
-    registry[doc.id] == null && (registry[doc.id] = 0);
+    registry[doc.id!] == null && (registry[doc.id!] = 0);
 
-    let collapseNumCheck = ++registry[doc.id];
+    let collapseNumCheck = ++registry[doc.id!];
     collapseID = `${doc.id}_${collapseNumCheck}`;
   }
   if (collapseID) {
@@ -399,7 +385,7 @@ export function limited_uses_indicator(
     | LancerNPC_FEATURE,
   path: string
 ): string {
-  const uses = item.data.data.uses;
+  const uses = item.system.uses;
 
   const hexes = [...Array(uses.max)].map((_ele, index) => {
     const available = index + 1 <= uses.value;
