@@ -107,23 +107,20 @@ declare interface LancerMacroData {
   title: string;
 }
 
-export interface GenControlContext<T> {
+export interface GenControlContext {
   // T is whatever is yielded by get_data/handled by commit_func
   // Raw information
-  elt: HTMLElement;
-  path: string;
-  action: "delete" | "null" | "splice" | "set" | "append" | "insert";
-  raw_val?: string;
-  item_override_path?: string; // For writeback overriding
+  elt: HTMLElement; // The control element which fired this control event
+  base_document: LancerActor | LancerItem; // The base document of this sheet
+  path: string; // The data path stored on the control
+  action: "delete" | "null" | "splice" | "set" | "append" | "insert"; // The action stored on the control
+  raw_val?: string; // The unprocessed val stored on the control, if applicable
 
   // Deduced information
-  data: T; // Typically the sheet data
   path_target: null | any; // What path resolved to on data, if anything
-  item_override: Document | null;
+  target_document: LancerActor | LancerItem; // The last document we were able to resolve on the path. Will be the target of our update
+  relative_path: string; // Our update path relative to document
   parsed_val?: any; // Parsed version of raw_val
-
-  // For hooks to use
-  commit_func: (data: T) => void | Promise<void>;
 }
 
 // Context menu interface compatible with core foundry and our custom tippy menus

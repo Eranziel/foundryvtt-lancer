@@ -316,7 +316,7 @@ export function overcharge_button(actor: LancerActor, overcharge_path: string, o
   const overcharge_sequence = actor.getOverchargeSequence() || ["+1", "+1d3", "+1d6", "+1d6 + 4"];
 
   let index = resolve_helper_dotpath(options, overcharge_path) as number;
-  index = funcs.bound(index, 0, overcharge_sequence.length - 1);
+  index = Math.max(0, Math.min(overcharge_sequence.length - 1), index);
   let over_val = overcharge_sequence[index];
   return `
     <div class="flexcol card clipped">

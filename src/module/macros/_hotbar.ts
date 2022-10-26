@@ -78,7 +78,7 @@ export async function onHotbarDrop(_bar: any, data: any, slot: number) {
       // in theory this old method is entirely depreciated
       ui.notifications!.error(`You are trying to drop a broken drop source! ("${title}")`);
       return;
-    } else if (is_ref(data)) {
+    } else if (/*is_ref(data)*/ false) {
       /*
       TODO
       var item = await new FoundryReg().resolve(new OpCtx(), data);

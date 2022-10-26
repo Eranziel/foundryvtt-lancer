@@ -5,6 +5,7 @@ import { EntryType, RangeType } from "../enums";
 import * as defaults from "../util/mmigration/defaults";
 import { ActionData } from "../models/bits/action";
 import { RangeData } from "../models/bits/range";
+import { Tag } from "../models/bits/tag";
 
 const lp = LANCER.log_prefix;
 
@@ -282,9 +283,42 @@ export class LancerItem extends Item {
     return this.data.type === EntryType.WEAPON_MOD;
   }
 
-  // Quick checkers
+  // Quick checkers/getters
+  get_tags(): Tag[] | null {
+    if (
+      this.is_pilot_armor() ||
+      this.is_pilot_gear() ||
+      this.is_pilot_weapon() ||
+      this.is_mech_system() ||
+      this.is_npc_feature() ||
+      this.is_core_bonus()
+    ) {
+      // TODO: I probably missed some here
+      return this.system.tags;
+    } else if (this.is_mech_weapon()) {
+      return this.system.all_tags;
+    } else if (this.is_frame()) {
+      return this.system.core_system.tags;
+    } else {
+      return null;
+    }
+  }
+
+  get_limited(): number | null {
+    let lim_tag = this.get_tags()?.find(t => t.is_limited);
+    if (lim_tag) {
+      return lim_tag.num_val;
+    } else {
+      return null;
+    }
+  }
+
   is_limited(): this is { system: SystemTemplates.limited } {
     return (this as any).system.uses !== undefined && (this as any).system.uses.max > 0;
+  }
+
+  is_loading(): boolean {
+    return (this.get_tags() ?? []).some(t => t.is_loading);
   }
 
   has_actions(): this is { system: { actions: ActionData[] } } {

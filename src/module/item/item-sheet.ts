@@ -149,13 +149,13 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
     HANDLER_activate_popout_text_editor(html, getfunc, commitfunc);
 
     // Enable general controls, so items can be deleted and such
-    HANDLER_activate_general_controls(html, getfunc, commitfunc);
+    HANDLER_activate_general_controls(html, this.item);
 
     // Enable tag dropping
     HANDLER_activate_tag_dropping(resolver, html, getfunc, commitfunc);
 
     // Enable action editors
-    activate_action_editor(html, getfunc, commitfunc);
+    activate_action_editor(html, this.item);
   }
 
   /* -------------------------------------------- */

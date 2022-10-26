@@ -196,9 +196,9 @@ export class LancerActiveEffect extends ActiveEffect {
   }
 }
 
-// To support our effect passdown
-export const AE_MODE_SET_JSON = 11;
-export const AE_MODE_APPEND_JSON = 12;
+// To support our effect passdown. Lie about it being a valid number type
+export const AE_MODE_SET_JSON = 11 as 1;
+export const AE_MODE_APPEND_JSON = 12 as 2;
 Hooks.on(
   "applyActiveEffect",
   function (actor: LancerActor, change: EffectChangeData, current: any, _delta: any, _changes: any) {

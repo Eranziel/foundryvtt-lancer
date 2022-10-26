@@ -8,6 +8,7 @@ import { LancerItem } from "../../item/lancer-item";
 import Invisibility from "./invisibility";
 import Spotter from "./spotter";
 import { LancerToken } from "../../token";
+import { Tag } from "../../models/bits/tag";
 
 export function findEffect(actor: LancerActor, effect: string): ActiveEffect | null {
   // @ts-expect-error Should be fixed with v10 types
@@ -344,7 +345,7 @@ export class AccDiffData {
     };
 
     for (let tag of tags || []) {
-      switch (tag.Tag.LID) {
+      switch (tag.lid) {
         case "tg_accurate":
           weapon.accurate = true;
           break;

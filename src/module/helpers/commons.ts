@@ -6,6 +6,9 @@ import * as defaults from "../util/mmigration/defaults";
 import { WeaponType, ActivationType, WeaponSize } from "machine-mind";
 import tippy from "tippy.js";
 import { MountType } from "../enums";
+import { LancerActor } from "../actor/lancer-actor";
+import { LancerItem } from "../item/lancer-item";
+import { SystemTemplates } from "../system-template";
 
 // A shorthand for only including the first string if the second value is truthy
 export function inc_if(val: string, test: any) {
@@ -269,22 +272,41 @@ export function format_dotpath(path: string): string {
 }
 
 // Helper function to get arbitrarily deep array references
+// Returns every item along the path, starting with the object itself
+// Any failed resolutions will still be emitted, but as an undefined
+export function resolve_full_dotpath(obj: any, dotpath: string): Array<unknown> {
+  let pathlets = format_dotpath(dotpath).split(".");
+
+  // Resolve each key
+  let result: any[] = [obj];
+  for (let k of pathlets) {
+    obj = obj?.[k];
+    result.push(obj);
+  }
+  return result;
+}
+
+// Helper function to get arbitrarily deep array references
+// Returns every item along the path, starting with the object itself
+// Any failed resolutions will still be emitted, but as an undefined
 export function resolve_dotpath(
-  object: any,
-  path: string,
+  obj: any,
+  dotpath: string,
   default_: any = null,
   opts?: {
-    shorten_by?: number;
+    shorten_by?: number; // If provided, skip the last N path items
   }
-) {
-  let pathlets = format_dotpath(path).split(".");
+): unknown {
+  let path = resolve_full_dotpath(obj, dotpath);
+  let item;
 
-  // Shorten path if requested to do so
-  if (opts?.shorten_by && opts?.shorten_by > 0) {
-    pathlets.splice(-opts.shorten_by);
+  // Get the last item, or one even further back if shorten-by provided
+  if (opts?.shorten_by) {
+    item = path[path.length - 1 - opts.shorten_by];
+  } else {
+    item = path[path.length - 1];
   }
-
-  return pathlets.reduce((o, k) => o?.[k], object) ?? default_;
+  return item === undefined ? default_ : item;
 }
 
 // Helper function to get arbitrarily deep array references, specifically in a helperoptions, and with better types for that matter
@@ -365,12 +387,11 @@ export function ext_helper_hash(
  * It has no influence on the behavior of the operation, but can nonetheless be useful for augmenting other behaviors.
  * (e.x. to delete associated entities when remove buttons cleared)
  */
-export function HANDLER_activate_general_controls<T extends LancerActorSheetData<any> | LancerItemSheetData<any>>(
+export function HANDLER_activate_general_controls(
   html: JQuery,
   // Retrieves the data that we will operate on
-  data_getter: () => Promise<T> | T,
-  commit_func: (data: T) => void | Promise<void>,
-  post_hook?: (ctrl_info: GenControlContext<T>) => any
+  document: LancerActor | LancerItem,
+  post_hook?: (ctrl_info: GenControlContext) => any
 ) {
   html
     .find(".gen-control")
@@ -380,10 +401,8 @@ export function HANDLER_activate_general_controls<T extends LancerActorSheetData
 
       // Collect the raw information / perform initial conversions
       let elt = event.currentTarget;
-      let item_override_path = elt.dataset.commitItem;
       let raw_val = elt.dataset.actionValue;
 
-      let data = await data_getter();
       let val: any = undefined;
       if (raw_val) {
         let result = await parse_control_val(raw_val);
@@ -395,20 +414,34 @@ export function HANDLER_activate_general_controls<T extends LancerActorSheetData
       }
 
       // Construct our ctx
-      let ctx: GenControlContext<T> = {
+      let path = elt.dataset.path!;
+      let path_items = resolve_full_dotpath(document, path);
+      let target_document = document;
+      let relative_path = path;
+      for (let i = 0; i < path_items.length; i++) {
+        let pi = path_items[i];
+        if (pi instanceof LancerActor || pi instanceof LancerItem) {
+          target_document = pi; // Want it to be last along the list
+          relative_path = format_dotpath(path)
+            .split(".")
+            .slice(i + 1)
+            .join("."); // ANd make our relative path to it
+          console.log(`Sliced path "${path}" at index ${i} to produce subpath ${relative_path}`);
+        }
+      }
+      let ctx: GenControlContext = {
         // Base
         elt,
-        path: elt.dataset.path!,
+        path,
         action: <any>elt.dataset.action,
         raw_val: elt.dataset.actionValue,
-        item_override_path,
-        commit_func,
+        base_document: document,
 
         // Derived
-        data,
-        path_target: (resolve_dotpath(data, elt.dataset.path!) as RegEntry<any>) ?? null,
-        item_override: item_override_path ? resolve_dotpath(data, item_override_path) : null,
+        path_target: resolve_dotpath(document, elt.dataset.path!),
         parsed_val: val,
+        target_document,
+        relative_path,
       };
 
       // Check our less reliably fetchable data
@@ -416,43 +449,34 @@ export function HANDLER_activate_general_controls<T extends LancerActorSheetData
         console.error("Gen control failed: missing path");
       } else if (!ctx.action) {
         console.error("Gen control failed: missing action");
-      } else if (!data) {
-        console.error("Gen control failed: data could not be retrieved");
+      } else if (!target_document) {
+        console.error("Gen control failed: target document does not exist");
       }
 
       // Perform action
       if (ctx.action == "delete") {
         // Find and delete the item at that path
-        ctx.path_target?.destroy_entry();
+        ctx.path_target?.delete();
       } else if (ctx.action == "splice") {
         // Splice out the value at path dest, then writeback
-        array_path_edit(ctx.data, ctx.path, null, "delete");
+        let changes = array_path_edit_changes(ctx.target_document, ctx.relative_path, null, "delete");
+        await ctx.target_document.update({ [changes.path]: changes.new_val });
       } else if (ctx.action == "null") {
         // Null out the target space
-        gentle_merge(ctx.data, { [ctx.path]: null });
-      } else if (ctx.action == "set") {
+        await ctx.target_document.update({ [ctx.relative_path]: null });
+      } else if (ctx.action == "set" && ctx.parsed_val !== undefined) {
         // Set the target space
-        gentle_merge(ctx.data, { [ctx.path]: val });
+        await ctx.target_document.update({ [ctx.relative_path]: ctx.parsed_val });
       } else if (ctx.action == "append") {
         // Append to target array
-        array_path_edit(ctx.data, ctx.path + "[-1]", val, "insert");
+        let changes = array_path_edit_changes(ctx.target_document, ctx.relative_path + "[-1]", val, "insert");
+        await ctx.target_document.update({ [changes.path]: changes.new_val });
       } else if (ctx.action == "insert") {
-        // insert into target array
-        array_path_edit(ctx.data, ctx.path + "[-1]", val, "insert");
+        // insert into target array at the specified location
+        let changes = array_path_edit_changes(ctx.target_document, ctx.relative_path, val, "insert");
+        await ctx.target_document.update({ [changes.path]: changes.new_val });
       } else {
         console.error("Unknown gen control action: " + ctx.action);
-      }
-
-      // Handle writing back our changes
-      if (ctx.item_override_path) {
-        try {
-          await ctx.item_override!.writeback();
-        } catch (e) {
-          console.error(`Failed to writeback item at path "${ctx.item_override_path}"`, e);
-          return;
-        }
-      } else {
-        await commit_func(ctx.data);
       }
 
       // Post hook if necessary
@@ -840,4 +864,14 @@ export function list_enum<T extends string>(enum_: { [key: string]: T }): T[] {
 export function restrict_enum<T extends string>(enum_: { [key: string]: T }, default_choice: T, provided?: string): T {
   let choices = list_enum(enum_);
   return restrict_choices(choices, default_choice, provided);
+}
+
+export function filter_resolved_sync<T>(refs: SystemTemplates.ResolvedUuidRef<T>[]): T[] {
+  let result: T[] = [];
+  for (let ref of refs) {
+    if (ref.status == "resolved") {
+      result.push(ref.value);
+    }
+  }
+  return result;
 }

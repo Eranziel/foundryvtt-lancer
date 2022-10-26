@@ -35,7 +35,7 @@ export class HTMLEditDialog<O> extends FormApplication {
     );
     this.target = target;
     this.text_path = text_path;
-    this.text = resolve_dotpath(target, text_path);
+    this.text = resolve_dotpath(target, text_path) as string;
     this.commit_callback = commit_func;
     this.resolve = resolve_func;
   }

@@ -19,6 +19,7 @@ import { AppliedDamage } from "./damage-calc";
 import { SystemData, SystemDataType, SystemTemplates } from "../system-template";
 import { AE_MODE_SET_JSON } from "../effects/lancer-active-effect";
 import { SourceDataType } from "../source-template";
+import * as defaults from "../util/mmigration/defaults";
 const lp = LANCER.log_prefix;
 
 const DEFAULT_OVERCHARGE_SEQUENCE = ["+1", "+1d3", "+1d6", "+1d6+4"];
@@ -1032,37 +1033,33 @@ export class LancerActor extends Actor {
     }
 
     console.log(`${lp} Initializing new ${this.type}`);
-    let default_data: RegEntryTypes<LancerActorType> & { actions?: unknown };
+    let default_data: Record<string, any>;
     let disposition: ValueOf<typeof CONST["TOKEN_DISPOSITIONS"]> = CONST.TOKEN_DISPOSITIONS.FRIENDLY;
     switch (this.type) {
       case EntryType.NPC:
-        default_data = funcs.defaults.NPC();
+        default_data = defaults.NPC();
         disposition = CONST.TOKEN_DISPOSITIONS.HOSTILE;
         break;
       case EntryType.PILOT:
-        default_data = funcs.defaults.PILOT();
+        default_data = defaults.PILOT();
         break;
       case EntryType.DEPLOYABLE:
-        default_data = funcs.defaults.DEPLOYABLE();
+        default_data = defaults.DEPLOYABLE();
         disposition = CONST.TOKEN_DISPOSITIONS.NEUTRAL;
         break;
       case EntryType.MECH:
       default:
         // Idk, just in case
-        default_data = funcs.defaults.MECH();
+        default_data = defaults.MECH();
         default_data.actions = { full: true };
         break;
     }
-
-    // Sync the name
-    default_data.name = this.name ?? default_data.name;
 
     // Put in the basics
     // @ts-expect-error Should be fixed with v10 types
     this.updateSource({
       system: default_data,
       img: TypeIcon(this.type),
-      name: default_data.name,
       // Link the token to the Actor for pilots and mechs, but not for NPCs or deployables
       prototypeToken: {
         actorLink: [EntryType.PILOT, EntryType.MECH].includes(this.type),
@@ -1177,6 +1174,23 @@ export class LancerActor extends Actor {
       }
     } else if (this.is_deployable()) {
       // TODO
+    }
+  }
+
+  /**
+   * Yields a simple error message on a misconfigured mount, or null if no issues detected.
+   * @param loadout
+   * @param mount
+   */
+  validateMount(mount: SystemData.Mech["loadout"]["weapon_mounts"][0]): string | null {
+    if (this.is_mech()) {
+      let loadout = this.system.loadout;
+      console.log("Mounts aren't validated yet but soon (tm)!");
+      return null; // TODO
+    } else {
+      throw new Error(
+        `${this.type} actors have no mounts to validate. Call this method on the actor you're trying to check against!`
+      );
     }
   }
 

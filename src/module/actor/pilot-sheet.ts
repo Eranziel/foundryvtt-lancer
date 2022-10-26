@@ -11,6 +11,7 @@ import { LancerItem, LancerItemType } from "../item/lancer-item";
 import { clicker_num_input } from "../helpers/actor";
 import { ResolvedDropData } from "../helpers/dragdrop";
 import { EntryType } from "../enums";
+import { PackedPilotData } from "../util/mmigration/packed-types";
 
 const shareCodeMatcher = /^[A-Z0-9\d]{6}$/g;
 const COUNTER_MAX = 8;
@@ -320,23 +321,24 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
   }
 }
 
-export function pilot_counters(pilot: Pilot, _helper: HelperOptions): string {
+export function pilot_counters(pilot: LancerPILOT, _helper: HelperOptions): string {
   let counter_detail = "";
 
-  let counter_arr = pilot.PilotCounters;
+  /*
+  let counter_arr = pilot.system.custom_counters;
   let custom_path = "mm.CustomCounters";
 
   for (let i = 0; i < counter_arr.length; i++) {
     // Only allow deletion if the Pilot is the source
-    const counter = counter_arr[i].counter;
-    if (counter.Max != null) {
-      if (counter.Max <= COUNTER_MAX) {
+    const counter = counter_arr[i];
+    if (counter.max != null) {
+      if (counter.max <= COUNTER_MAX) {
         counter_detail = counter_detail.concat(
           buildCounterHTML(
             counter,
             `mm.PilotCounters.${i}.counter`,
             `mm.PilotCounters.${i}.source`,
-            counter_arr[i].source === pilot
+            counter_arr[i] === pilot
           )
         );
       } else {
@@ -345,7 +347,7 @@ export function pilot_counters(pilot: Pilot, _helper: HelperOptions): string {
             counter,
             `mm.PilotCounters.${i}.counter`,
             `mm.PilotCounters.${i}.source`,
-            counter_arr[i].source === pilot
+            counter_arr[i] === pilot
           ),
           clicker_num_input(`mm.PilotCounters.${i}.counter.Value`, counter.Max, _helper),
           "</div>"
@@ -364,10 +366,12 @@ export function pilot_counters(pilot: Pilot, _helper: HelperOptions): string {
       ${counter_detail}
     </div>
   </div>`;
+  */
+  // TODO
+  return "";
 }
 
 export function all_mech_preview(_helper: HelperOptions): string {
-  let this_mm: Pilot = _helper.data.root.mm;
   let active_mech: LancerMECH | null = _helper.data.root.active_mech;
 
   let html = ``;
@@ -375,17 +379,19 @@ export function all_mech_preview(_helper: HelperOptions): string {
   /// I still feel like this is pretty inefficient... but it's probably the best we can do for now
   game?.actors
     ?.filter(
-      a =>
-        a.is_mech() &&
-        a.system.pilot?.status == "resolved" &&
-        a.system.pilot.value.id === _helper.data.root.actor.id &&
-        a.id !== active_mech?.id
+      mech =>
+        mech.is_mech() &&
+        mech.system.pilot?.status == "resolved" &&
+        mech.system.pilot.value.id === _helper.data.root.actor.id &&
+        mech.id !== active_mech?.id
     )
-    .map((inactive_mech, k) => {
+    .map((inactive_mech_, k) => {
+      // TODO: Figure out why the stored document type is so bizarre
+      let inactive_mech = inactive_mech_ as unknown as LancerMECH;
       html = html.concat(`
       <div class="flexrow inactive-row">
-        <a class="activate-mech" ${ref_params(cd.ref, cd.uuid)}><i class="cci cci-activate"></i></a>
-        <div class="major valid ${cd.ref.type} ref" ${ref_params(cd.ref, cd.uuid)}>${inactive_mech.name}</div>
+        <a class="activate-mech" ${ref_params(inactive_mech)}><i class="cci cci-activate"></i></a>
+        <div class="major valid ${EntryType.MECH} ref" ${ref_params(inactive_mech)}>${inactive_mech.name}</div>
       </div>
     `);
     });
@@ -430,9 +436,9 @@ export function active_mech_preview(mech: LancerMECH | null, path: string, _help
   <div class="mech-preview">
     <div class="mech-preview-titlebar">
     <a class="deactivate-mech"><i class="cci cci-activate"></i></a>
-      <span>ACTIVE MECH: ${mech.Name}</span>
+      <span>ACTIVE MECH: ${mech.name}</span>
     </div>
-    <img class="valid ${cd.ref.type} ref" ${ref_params(cd.ref, cd.uuid)} src="${mech.Flags.top_level_data.img}"/>
+    <img class="valid ${mech.type} ref" ${ref_params(mech)} src="${mech.img}"/>
     ${stats_html}
   </div>`);
 

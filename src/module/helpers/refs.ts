@@ -551,7 +551,7 @@ export function HANDLER_activate_ref_drop_clearing<T>(
 }
 
 /**
- * Use this for previews of items. Will prevent change/submit events from propagating all the way up,
+ * Use this for ui forms of items. Will prevent change/submit events from propagating all the way up,
  * and instead call writeback() on the appropriate document instead.
  * Control in same way as generic action handler: with the "data-commit-item" property pointing at the MM item
  */
@@ -575,11 +575,10 @@ export function HANDLER_intercept_form_changes<T>(
     let sheet_data = await data_getter();
     let path = evt.currentTarget.dataset.commitItem;
     if (path) {
-      let item_data = resolve_dotpath(sheet_data, path);
-      if (item_data) {
-        // Apply and writeback
-        gentle_merge(sheet_data, form_data); // Will apply any modifications to the item
-        await item_data.writeback();
+      let doc = resolve_dotpath(sheet_data, path) as LancerItem | LancerActor;
+      if (doc) {
+        // Apply
+        await doc.update(form_data);
       }
     }
   });

@@ -1,11 +1,11 @@
 import { LANCER } from "../config";
 import { LancerActorSheet } from "./lancer-actor-sheet";
-import { EntryType, MountType, SystemMount, WeaponMount } from "machine-mind";
 import { resolve_dotpath } from "../helpers/commons";
-import type { LancerItem, LancerItemType } from "../item/lancer-item";
 import tippy from "tippy.js";
 import type { LancerActor, LancerMECH } from "./lancer-actor";
 import { ResolvedDropData } from "../helpers/dragdrop";
+import { EntryType, MountType, SystemType } from "../enums";
+import { SystemData } from "../system-template";
 
 /**
  * Extend the basic ActorSheet
@@ -108,7 +108,6 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
 
     overchargeText.on("click", ev => {
       if (!this.actor.is_mech()) return;
-      // @ts-expect-error Should be fixed with v10 types
       this._setOverchargeLevel(ev, Math.min(this.actor.system.overcharge + 1, 3));
     });
 
@@ -127,8 +126,9 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
    */
   async _setOverchargeLevel(_event: JQuery.ClickEvent, level: number) {
     let a = this.actor as LancerMECH;
-    a.data.data.overcharge_level = level;
-    await this._commitCurrMM();
+    return a.update({
+      "system.overcharge": level,
+    });
   }
 
   /**
@@ -161,15 +161,16 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
           let mount_path = html[0].dataset.path ?? "";
 
           // Get the current mount
-          let mount: WeaponMount = resolve_dotpath(cd, mount_path);
+          let mount = resolve_dotpath(cd, mount_path) as SystemData.Mech["loadout"]["weapon_mounts"][0];
           if (!mount) {
             console.error("Bad mountpath:", mount_path);
           }
 
           // Edit it. Someday we'll want to have a way to resize without nuking. that day is not today
-          mount.MountType = mount_type;
-          mount.Bracing = false;
-          mount.reset();
+          // TODO
+          mount.type = mount_type;
+          mount.bracing = false;
+          // mount.reset();
 
           // Write back
           await this._commitCurrMM();
@@ -186,17 +187,18 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
         let mount_path = html[0].dataset.path ?? "";
 
         // Get the current mount
-        let mount: WeaponMount = resolve_dotpath(cd, mount_path);
+        let mount = resolve_dotpath(cd, mount_path) as SystemData.Mech["loadout"]["weapon_mounts"][0];
         if (!mount) {
           console.error("Bad mountpath:", mount_path);
         }
 
         // Set as bracing
-        mount.Bracing = true;
-        mount.reset();
+        console.log("TODO");
+        // mount.bracing = true;
+        // mount.reset();
 
         // Write back
-        await this._commitCurrMM();
+        // await this._commitCurrMM();
       },
     });
 
@@ -210,22 +212,25 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
   ) {
     evt.stopPropagation();
     let data = await this.getData();
-    let mech = data.mm;
+    let mech = this.actor as LancerMECH;
     let path = evt.currentTarget?.dataset?.path;
 
     switch (mode) {
       case "reset-all-weapon-mounts":
-        await mech.Loadout.reset_weapon_mounts();
+        // await mech.Loadout.reset_weapon_mounts();
+        ui.notifications?.info("TODO: Reset the mounts");
         break;
       case "reset-sys":
         if (!path) return;
-        let sys_mount = resolve_dotpath(data, path) as SystemMount;
-        sys_mount.System = null;
+        // ui.notifications?.info("TODO: Reset the systems");
+        // let sys_mount = resolve_dotpath(data, path) as SystemMount;
+        // sys_mount.System = null;
         break;
       case "reset-wep":
         if (!path) return;
-        let wep_mount = resolve_dotpath(data, path) as WeaponMount;
-        wep_mount?.reset();
+        // ui.notifications?.info("TODO: Reset the weapons");
+        // let wep_mount = resolve_dotpath(data, path) as WeaponMount;
+        // wep_mount?.reset();
         break;
       default:
         return; // no-op

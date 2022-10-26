@@ -1,5 +1,6 @@
-import { Bonus, DamageType, RangeType, WeaponSize, WeaponType } from "machine-mind";
+import { DamageType, RangeType, WeaponSize, WeaponType } from "../enums";
 import { gentle_merge, resolve_dotpath } from "../helpers/commons";
+import { BonusData } from "../models/bits/bonus";
 
 /**
  * A helper Dialog subclass for editing a bonus
@@ -7,7 +8,7 @@ import { gentle_merge, resolve_dotpath } from "../helpers/commons";
  */
 export class BonusEditDialog<O> extends Dialog {
   // The bonus we're editing
-  bonus: Bonus;
+  bonus: BonusData;
 
   // Where it is
   bonus_path: string;
@@ -15,18 +16,18 @@ export class BonusEditDialog<O> extends Dialog {
   constructor(target: O, bonus_path: string, dialogData: Dialog.Data, options: Partial<Dialog.Options> = {}) {
     super(dialogData, options);
     this.bonus_path = bonus_path;
-    this.bonus = resolve_dotpath(target, bonus_path);
+    this.bonus = resolve_dotpath(target, bonus_path) as BonusData;
   }
 
   /* -------------------------------------------- */
 
   /** @override */
-  static get defaultOptions(): DialogOptions {
+  static get defaultOptions() {
     return {
       ...super.defaultOptions,
       template: `systems/${game.system.id}/templates/window/bonus.hbs`,
       width: 400,
-      height: "auto",
+      height: "auto" as const,
       classes: ["lancer"],
     };
   }

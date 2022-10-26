@@ -152,7 +152,8 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
   activate_general_controls(html: JQuery) {
     let getfunc = this.getData;
     let commitfunc = (_: any) => this._commitCurrMM();
-    HANDLER_activate_general_controls(html, getfunc, commitfunc);
+    HANDLER_activate_general_controls(html, this.actor);
+    // TODO
   }
 
   _activateMacroDragging(html: JQuery) {

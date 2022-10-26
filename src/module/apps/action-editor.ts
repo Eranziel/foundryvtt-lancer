@@ -1,4 +1,3 @@
-import type { Action, RegEntry } from "machine-mind";
 import {
   gentle_merge,
   HANDLER_activate_general_controls,
@@ -6,28 +5,30 @@ import {
   resolve_dotpath,
 } from "../helpers/commons";
 import { HANDLER_intercept_form_changes } from "../helpers/refs";
+import { LancerItem } from "../item/lancer-item";
+import { ActionData } from "../models/bits/action";
 /**
  * A helper Dialog subclass for editing a bonus
  * @extends {Dialog}
  */
 // TODO: Narrow O a little bit here
-export class ActionEditDialog<O> extends Dialog {
+export class ActionEditDialog extends Dialog {
   // The bonus we're editing
-  action: Action;
+  action: ActionData;
 
   // Where it is
   action_path: string;
 
-  // Who it's going back to
-  origin_item: RegEntry<any>;
+  // What to submit updates to
+  target: LancerItem;
 
-  constructor(target: O, action_path: string, dialogData: Dialog.Data, options: Partial<Dialog.Options> = {}) {
+  constructor(target: LancerItem, action_path: string, dialogData: Dialog.Data, options: Partial<Dialog.Options> = {}) {
     super(dialogData, options);
 
     //@ts-ignore I don't want to mess around with the generic typing but this is fine
-    this.origin_item = target.mm;
+    this.target = target.mm;
     this.action_path = action_path;
-    this.action = resolve_dotpath(target, action_path);
+    this.action = resolve_dotpath(target, action_path) as ActionData;
   }
 
   /* -------------------------------------------- */
@@ -37,7 +38,7 @@ export class ActionEditDialog<O> extends Dialog {
     return mergeObject(super.defaultOptions, {
       template: `systems/${game.system.id}/templates/window/action_editor.hbs`,
       width: 400,
-      height: "auto",
+      height: "auto" as const,
       classes: ["lancer"],
     });
   }
@@ -63,21 +64,16 @@ export class ActionEditDialog<O> extends Dialog {
     // Everything below here is only needed if the sheet is editable
 
     let getfunc = () => this.getData();
-    let commitfunc = (_: any) => this._commitCurrMM();
+    // let commitfunc = (_: any) => this._commitCurrMM();
 
     // Enable general controls, so items can be deleted and such
-    HANDLER_activate_general_controls(html, getfunc, commitfunc);
+    // HANDLER_activate_general_controls(html, this., commitfunc);
 
     // Item-referencing inputs
     HANDLER_intercept_form_changes(html, getfunc);
 
     // Enable popout editors
-    HANDLER_activate_popout_text_editor(html, getfunc, commitfunc);
-  }
-
-  async _commitCurrMM() {
-    await this.origin_item.writeback();
-    this.render();
+    HANDLER_activate_popout_text_editor(html, getfunc, console.log);
   }
 
   /**
@@ -145,7 +141,6 @@ export class ActionEditDialog<O> extends Dialog {
       // Do the merge
       gentle_merge(this, flat_data);
       this.close();
-      await this._commitCurrMM();
     }
   }
 
@@ -160,7 +155,7 @@ export class ActionEditDialog<O> extends Dialog {
    * @returns                 Promise for completion
    */
   static async edit_action<T>(
-    in_object: T,
+    in_object: LancerItem,
     at_path: string,
     _commit_callback: (v: T) => void | Promise<void>
   ): Promise<void> {
@@ -183,17 +178,17 @@ export class ActionEditDialog<O> extends Dialog {
 }
 
 // Allows right clicking bonuses to edit them
-export function activate_action_editor<T>(
+export function activate_action_editor(
   html: JQuery,
-  data_getter: () => Promise<T> | T,
-  commit_func: (data: T) => void | Promise<void>
+  item: LancerItem
+  // commit_func: (data: T) => void | Promise<void>
 ) {
   let bonuses = html.find(".action-editor");
   bonuses.on("click", async event => {
     // Find the bonus
     let action_path = event.currentTarget.dataset.path;
     if (!action_path) return;
-    let data = await data_getter();
-    return ActionEditDialog.edit_action(data, action_path, commit_func).catch(e => console.error("Dialog failed", e));
+    // TODO reinstate commit func
+    return ActionEditDialog.edit_action(item, action_path, () => {}).catch(e => console.error("Dialog failed", e));
   });
 }

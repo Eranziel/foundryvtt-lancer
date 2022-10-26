@@ -68,35 +68,35 @@ export class InventoryDialog extends Dialog {
   }
 
   // Get the appropriate cats for the given mm actor
-  populate_categories(mm: LancerActor): FilledCategory[] {
+  populate_categories(actor: LancerActor): FilledCategory[] {
     // Decide categories based on type
     let cats: FilledCategory[] = [];
-    if (mm instanceof Mech) {
+    if (actor instanceof Mech) {
       cats = [
         {
           label: "Frames",
-          items: mm.OwnedFrames,
+          items: actor.OwnedFrames,
         },
         {
           label: "Weapons",
-          items: mm.OwnedMechWeapons,
+          items: actor.OwnedMechWeapons,
         },
         {
           label: "Systems",
-          items: mm.OwnedSystems,
+          items: actor.OwnedSystems,
         },
         {
           label: "Mods",
-          items: mm.OwnedWeaponMods,
+          items: actor.OwnedWeaponMods,
         },
         {
           label: "Statuses",
-          items: mm.StatusesAndConditions,
+          items: actor.StatusesAndConditions,
           // path: "mm.StatusesAndConditions"
         },
       ];
     } else {
-      console.warn("Cannot yet show inventory for " + mm.Type);
+      console.warn("Cannot yet show inventory for " + actor.type);
     }
     return cats;
   }

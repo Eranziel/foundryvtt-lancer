@@ -30,7 +30,7 @@ export const _endTurnActionData = () => {
  */
 export function getActions(actor: LancerActor): ActionTrackingData | null {
   if (actor.is_mech()) {
-    return actor.data.data.action_tracker;
+    return actor.system.action_tracker;
   } else {
     return null;
   }

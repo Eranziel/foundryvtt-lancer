@@ -389,13 +389,16 @@ export function HANDLER_activate_edit_counter<T>(html: JQuery, data_getter: () =
     let writeback_path = evt.currentTarget.dataset.writeback_path;
     if (!path || !writeback_path) throw "Counters weren't set up right";
 
+    return; // TODO
+    /*
     let data = await data_getter();
 
     let document = resolve_dotpath(data, writeback_path) as LancerItem | LancerActor | null;
 
     if (!document) throw new Error("Writeback is broken");
 
-    return CounterEditForm.edit_counter(data, path, document).catch(e => console.error("Dialog failed", e));
+    return CounterEditForm.edit_counter(item, path, document).catch(e => console.error("Dialog failed", e));
+    */
   });
 }
 
@@ -541,7 +544,7 @@ export function pilot_weapon_refview(weapon_path: string, helper: HelperOptions)
 // Helper for showing a pilot gear, or a slot to hold it (if path is provided)
 export function pilot_gear_refview(gear_path: string, helper: HelperOptions): string {
   // Fetch the item
-  let gear: LancerPILOT_GEAR | null = resolve_dotpath(helper.data?.root, gear_path);
+  let gear = resolve_dotpath(helper.data?.root, gear_path) as LancerPILOT_GEAR | null;
 
   if (!gear) {
     // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
@@ -555,7 +558,7 @@ export function pilot_gear_refview(gear_path: string, helper: HelperOptions): st
 
   // Conditionally show uses
   let uses = "";
-  if (gear.is_limited()) {
+  if (gear.get_limited()) {
     uses = limited_uses_indicator(gear, gear_path);
   }
 
@@ -1401,11 +1404,11 @@ export function HANDLER_activate_item_context_menus<
       let sheet_data = await data_getter();
       let path = html[0].dataset.path ?? "";
       if (path) {
-        let item: LancerMECH_WEAPON | LancerMECH_SYSTEM | LancerNPC_FEATURE | null = resolve_dotpath(
-          sheet_data,
-          path,
-          null
-        );
+        let item = resolve_dotpath(sheet_data, path, null) as
+          | LancerMECH_WEAPON
+          | LancerMECH_SYSTEM
+          | LancerNPC_FEATURE
+          | null;
         if (item) {
           await item.update({ "system.destroyed": !item.system.destroyed });
         }
@@ -1421,11 +1424,11 @@ export function HANDLER_activate_item_context_menus<
       console.log(sheet_data, html, path);
       // Delete the weapon
       if (path) {
-        let item: LancerMECH_WEAPON | LancerMECH_SYSTEM | LancerNPC_FEATURE | null = resolve_dotpath(
-          sheet_data,
-          path,
-          null
-        );
+        let item = resolve_dotpath(sheet_data, path, null) as
+          | LancerMECH_WEAPON
+          | LancerMECH_SYSTEM
+          | LancerNPC_FEATURE
+          | null;
         if (item)
           // await item.destroy_entry(); //
           // Then commit
@@ -1555,7 +1558,7 @@ export function HANDLER_activate_profile_context_menus<T extends LancerItemSheet
         // Make sure we aren't deleting the last item
         let profile_path_parts = format_dotpath(profile_path).split(".");
         let weapon_path = profile_path_parts.slice(0, profile_path_parts.length - 2).join(".");
-        let weapon: LancerMECH_WEAPON | null = resolve_dotpath(cd, weapon_path, null);
+        let weapon = resolve_dotpath(cd, weapon_path, null) as LancerMECH_WEAPON | null;
 
         if ((weapon?.system.profiles.length ?? 0) <= 1) {
           ui.notifications!.error("Cannot delete last profile on a weapon");
@@ -1581,7 +1584,7 @@ export function HANDLER_activate_profile_context_menus<T extends LancerItemSheet
       let profile_path = html[0].dataset.path ?? "";
 
       // Get the profile
-      let profile: LancerMECH_WEAPON["system"]["profiles"][0] = resolve_dotpath(cd, profile_path);
+      let profile = resolve_dotpath(cd, profile_path) as LancerMECH_WEAPON["system"]["profiles"][0];
 
       // Spawn the dialogue to edit
       let new_val = await promptText("Rename profile", (profile.name ?? "").toString());

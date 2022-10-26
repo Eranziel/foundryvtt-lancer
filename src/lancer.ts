@@ -58,7 +58,6 @@ tippy.setDefaultProps({ theme: "lancer-small", arrow: false, delay: [400, 200] }
 // tippy.setDefaultProps({ theme: "lancer", arrow: false, delay: [400, 200], hideOnClick: false, trigger: "click"});
 
 // Import node modules
-import { EntryType, Bonus, funcs } from "machine-mind";
 import {
   resolve_helper_dotpath,
   popout_editor_button,
@@ -85,7 +84,6 @@ import {
   pilot_weapon_refview,
   pilot_gear_refview,
   license_ref,
-  manufacturer_ref,
   uses_control,
   single_bonus_editor,
   buildCounterArrayHTML,
@@ -156,6 +154,8 @@ import { MechModel } from "./module/models/actors/mech";
 import { MechSystemModel } from "./module/models/items/mech_system";
 import { handleRenderCombatCarousel } from "./module/helpers/combat-carousel";
 import { measureDistances } from "./module/grid";
+import { BonusData } from "./module/models/bits/bonus";
+import { EntryType } from "./module/enums";
 
 const lp = LANCER.log_prefix;
 
@@ -390,16 +390,16 @@ Hooks.once("init", async function () {
 
   // ------------------------------------------------------------------------
   // Tag helpers
-  Handlebars.registerHelper("is-tagged", function (item: any) {
-    return funcs.is_tagged(item);
+  Handlebars.registerHelper("is-tagged", function (item: LancerItem) {
+    return item.get_tags;
   });
 
-  Handlebars.registerHelper("is-limited", function (item: funcs.TaggedEquippable) {
-    return funcs.is_limited(item);
+  Handlebars.registerHelper("is-limited", function (item: LancerItem) {
+    return item.get_limited;
   });
 
-  Handlebars.registerHelper("is-loading", function (item: funcs.TaggedEquippable) {
-    return funcs.is_loading(item);
+  Handlebars.registerHelper("is-loading", function (item: LancerItem) {
+    return item.is_loading;
   });
 
   // ------------------------------------------------------------------------
@@ -431,7 +431,7 @@ Hooks.once("init", async function () {
 
   // ------------------------------------------------------------------------
   // License data
-  Handlebars.registerHelper("ref-manufacturer", manufacturer_ref);
+  // Handlebars.registerHelper("ref-manufacturer", manufacturer_ref);
   Handlebars.registerHelper("ref-license", license_ref);
 
   // ------------------------------------------------------------------------
@@ -442,10 +442,10 @@ Hooks.once("init", async function () {
 
   // ------------------------------------------------------------------------
   // Bonuses
-  Handlebars.registerHelper("edit-bonuses-view", (bonuses_path: string, bonuses_array: Bonus[]) =>
+  Handlebars.registerHelper("edit-bonuses-view", (bonuses_path: string, bonuses_array: BonusData[]) =>
     bonuses_display(bonuses_path, bonuses_array, true)
   );
-  Handlebars.registerHelper("read-bonuses-view", (bonuses_path: string, bonuses_array: Bonus[]) =>
+  Handlebars.registerHelper("read-bonuses-view", (bonuses_path: string, bonuses_array: BonusData[]) =>
     bonuses_display(bonuses_path, bonuses_array, false)
   );
   Handlebars.registerHelper("bonuses-view", bonuses_display); // Takes a third arg
@@ -753,7 +753,6 @@ function setupSheets() {
       EntryType.WEAPON_MOD,
       EntryType.NPC_FEATURE,
       EntryType.ORGANIZATION,
-      EntryType.SITREP,
     ],
     makeDefault: true,
   });

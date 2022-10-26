@@ -48,6 +48,7 @@ function weapon_mount(
   helper: HelperOptions,
   registry: CollapseRegistry
 ): string {
+  let mech = resolve_helper_dotpath(helper, mech_path) as LancerMECH;
   let mount = resolve_helper_dotpath(helper, mount_path) as SystemData.Mech["loadout"]["weapon_mounts"][0];
 
   // If bracing, override
@@ -66,9 +67,9 @@ function weapon_mount(
   }
 
   let slots = mount.slots.map((slot, index) =>
-    mech_weapon_refview(`${mount_path}.Slots.${index}.Weapon`, mech_path, helper, registry, slot.size)
+    mech_weapon_refview(`${mount_path}.slots.${index}.weapon`, mech_path, helper, registry, slot.size)
   );
-  let err = mount.validate() ?? "";
+  let err = mech.validateMount(mount) ?? "";
 
   // FLEX mount weirdness.
   if (!err && mount.type === "Flex") {

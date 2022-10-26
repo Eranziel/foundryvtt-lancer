@@ -1,8 +1,8 @@
 import { LancerActorSheet } from "./lancer-actor-sheet";
-import { EntryType } from "machine-mind";
 import { LancerActor } from "./lancer-actor";
 import { LancerItem } from "../item/lancer-item";
 import { ResolvedDropData } from "../helpers/dragdrop";
+import { EntryType } from "../enums";
 
 /**
  * Extend the basic ActorSheet

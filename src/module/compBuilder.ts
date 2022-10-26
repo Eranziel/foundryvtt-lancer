@@ -28,6 +28,7 @@ export async function import_cp(
 ): Promise<void> {
   await set_all_lock(false);
 
+  /* TODO: 
   try {
     // Stub in a progress callback so we don't have to null check it all the time
     if (!progress_callback) {
@@ -59,8 +60,6 @@ export async function import_cp(
     }
 
     // Import data to the actual foundry reg
-    let comp_reg = new FoundryReg("comp_core");
-
     let transmit_count = 0;
     let progress_hook = (doc: any) => {
       if (doc.pack && !doc.parent) {
@@ -85,6 +84,7 @@ export async function import_cp(
   } catch (err) {
     console.error(err);
   }
+  */
   await set_all_lock(true);
 }
 

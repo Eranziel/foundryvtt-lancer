@@ -2,14 +2,14 @@ import type { GenControlContext, LancerActorSheetData, LancerStatMacroData } fro
 import { LANCER } from "../config";
 import { LancerActorSheet } from "./lancer-actor-sheet";
 import { prepareItemMacro, prepareStatMacro } from "../macros";
-import { EntryType } from "machine-mind";
 import tippy from "tippy.js";
 import { LancerItem, is_item_type, LancerItemType, LancerNPC_FEATURE } from "../item/lancer-item";
 import { insinuate, resort_item } from "../util/doc";
-import { HANDLER_activate_general_controls } from "../helpers/commons";
+import { filter_resolved_sync, HANDLER_activate_general_controls } from "../helpers/commons";
 import { LancerActor, LancerNPC } from "./lancer-actor";
 import { DropHandlerFunc, ResolvedDropData } from "../helpers/dragdrop";
 import { SystemDataType } from "../system-template";
+import { EntryType } from "../enums";
 const lp = LANCER.log_prefix;
 
 /**
@@ -142,7 +142,7 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
     let commitfunc = (_: any) => this._commitCurrMM();
 
     // Enable NPC class/template-deletion controls
-    HANDLER_activate_general_controls(html, getfunc, commitfunc, handleClassDelete);
+    HANDLER_activate_general_controls(html, this.actor, handleClassDelete);
   }
 
   /* -------------------------------------------- */
@@ -177,21 +177,21 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
         // If we have a class, get rid of it
         let old_class = this.actor.system.class;
         let class_features = findMatchingFeaturesInNpc(this.actor, [
-          ...old_class.system.base_features,
-          ...old_class.system.optional_features,
+          ...filter_resolved_sync(old_class.system.base_features),
+          ...filter_resolved_sync(old_class.system.optional_features),
         ]);
         delete_targets.push(...class_features.map(f => f.id));
       }
 
       // And add all new features
       if (doc.is_npc_template() || doc.is_npc_class()) {
-        for (let feat of doc.data.data.base_features) {
+        for (let feat of doc.system.base_features) {
           await insinuate([], this.actor as LancerNPC);
         }
         needs_refresh = true;
       }
       if (doc.is_npc_class()) {
-        await this.actor.swapFrameImage(this.actor, this.actor.data.data.class, doc);
+        await this.actor.swapFrameImage(this.actor, this.actor.system.class, doc);
       }
     }
 
@@ -232,12 +232,15 @@ function getStatInput(event: Event): HTMLInputElement | HTMLDataElement | null {
 }
 
 // Removes class/features when a delete happens
-function handleClassDelete(ctx: GenControlContext<LancerActorSheetData<EntryType.NPC>>) {
+function handleClassDelete(ctx: GenControlContext) {
   if (ctx.action == "delete") {
-    let pt = ctx.path_target;
+    let pt = ctx.path_target as LancerItem;
     if (pt instanceof LancerItem && (pt.is_npc_template() || pt.is_npc_class())) {
-      let matches = findMatchingFeaturesInNpc(ctx.data.actor, [...pt.base_features, ...pt.optional_features]);
-      ctx.data.actor.deleteEmbeddedDocuments("Item", matches.map(m => m.id).filter(x => x) as string[]);
+      let matches = findMatchingFeaturesInNpc(ctx.target_document, [
+        ...filter_resolved_sync(pt.system.base_features),
+        ...filter_resolved_sync(pt.system.optional_features),
+      ]);
+      ctx.target_document.deleteEmbeddedDocuments("Item", matches.map(m => m.id).filter(x => x) as string[]);
     }
   }
 }
@@ -247,8 +250,8 @@ export function findMatchingFeaturesInNpc(npc: LancerNPC, features: LancerNPC_FE
   if (!npc.is_npc()) return [];
   let result = [];
   for (let predicate_feature of features) {
-    for (let candidate_feature of npc.data.data.features) {
-      if (candidate_feature.data.data.lid == predicate_feature.data.data.lid) {
+    for (let candidate_feature of npc.system.features) {
+      if (candidate_feature.system.lid == predicate_feature.system.lid) {
         result.push(candidate_feature);
       }
     }
