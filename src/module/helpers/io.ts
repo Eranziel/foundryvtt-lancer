@@ -1,19 +1,19 @@
 // TODO: This needs a complete once-over as a lot of the stuff in here appears broken
-import type {
-  EntryType,
+import { nanoid } from "nanoid";
+import type { LancerActor } from "../actor/lancer-actor";
+import { EntryType } from "../enums";
+import {
   PackedMechData,
   PackedMechLoadoutData,
   PackedPilotData,
   PackedPilotLoadoutData,
-} from "machine-mind";
-import { nanoid } from "nanoid";
-import type { LancerActor } from "../actor/lancer-actor";
+} from "../util/mmigration/packed-types";
 
 // GOODBYE LEGACY TYPES
 type LegacyLancerActor = {
   name: string;
   data: {
-    type: EntryType;
+    type: string;
     data?: {
       cc_ver?: string;
     };

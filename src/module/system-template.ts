@@ -24,6 +24,7 @@ import {
   LancerPILOT_ARMOR,
   LancerPILOT_GEAR,
   LancerPILOT_WEAPON,
+  LancerTALENT,
   LancerWEAPON_MOD,
 } from "./item/lancer-item";
 import { ActionData } from "./models/bits/action";
@@ -441,12 +442,15 @@ export namespace SystemData {
     player_name: string;
     status: string;
     text_appearance: string;
+
+    // Collected items
+    talents: LancerTALENT[];
   }
   export interface Reserve extends SourceData.Reserve {}
   export interface Skill extends SourceData.Skill {}
   export interface Status extends SourceData.Status {}
 
-  export interface Talent {
+  export interface Talent extends SystemTemplates.item_universal {
     // Copied
     curr_rank: number;
     description: string;

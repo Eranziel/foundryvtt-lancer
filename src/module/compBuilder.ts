@@ -1,10 +1,11 @@
 import { LANCER } from "./config";
 const lp = LANCER.log_prefix;
-import { EntryType, funcs, IContentPack, RegEnv, StaticReg } from "machine-mind";
 import { LCPIndex } from "./apps/lcpManager";
 import { get_pack } from "./util/doc";
 import type { LancerActor } from "./actor/lancer-actor";
 import type { LancerItem } from "./item/lancer-item";
+import { EntryType } from "./enums";
+import { IContentPack } from "./util/mmigration/packed-types";
 
 export const PACK_SCOPE = "world";
 

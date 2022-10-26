@@ -3,7 +3,6 @@ import { LANCER } from "../config";
 import type { LancerItem } from "../item/lancer-item";
 import type { LancerActor } from "../actor/lancer-actor";
 import type { LancerMacroData, LancerTechMacroData } from "../interfaces";
-import type { NpcFeature } from "machine-mind";
 import type { AccDiffDataSerialized } from "../helpers/acc_diff";
 import { encodeMacroData } from "./_encode";
 import { getMacroSpeaker } from "./_util";

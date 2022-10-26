@@ -3,7 +3,8 @@
  * https://gitlab.com/foundrynet/dnd5e/-/blob/master/module/pixi/ability-template.js
  */
 
-import { RangeType, RegRangeData } from "machine-mind";
+import { RangeType } from "../enums";
+import { RangeData } from "../models/bits/range";
 
 /**
  * MeasuredTemplate sublcass to create a placeable template on weapon attacks
@@ -272,7 +273,7 @@ declare global {
   interface FlagConfig {
     MeasuredTemplate: {
       [game.system.id]: {
-        range: RegRangeData;
+        range: RangeData;
         creator?: string;
         burstToken?: string;
         ignore: {

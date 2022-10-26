@@ -1,4 +1,3 @@
-import { EntryType, TagTemplate } from "machine-mind";
 import { LancerItem } from "../../item/lancer-item";
 import { SourceTemplates } from "../../source-template";
 import { SystemTemplates } from "../../system-template";

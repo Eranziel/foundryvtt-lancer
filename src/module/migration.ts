@@ -4,9 +4,7 @@ import { LANCER } from "./config";
 import { handleActorExport } from "./helpers/io";
 import { LancerActor, LancerNpcData } from "./actor/lancer-actor";
 import { core_update, LCPIndex, LCPManager, updateCore } from "./apps/lcpManager";
-import { EntryType, NpcClass, NpcFeature, NpcTemplate, RegTagData } from "machine-mind";
 import { LancerItem } from "./item/lancer-item";
-import { RegRef } from "machine-mind/dist/registry";
 import { arrayify_object } from "./helpers/commons";
 import { LancerTokenDocument } from "./token";
 

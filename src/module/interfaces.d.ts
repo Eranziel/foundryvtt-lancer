@@ -1,6 +1,5 @@
 import { LancerItemType } from "./item/lancer-item";
 import { EffectData } from "./helpers/npc";
-import { Damage, License, LiveEntryTypes, Tag } from "machine-mind";
 import { LancerActorType } from "./actor/lancer-actor";
 
 // ------------------------------------------------------

@@ -1,5 +1,4 @@
 import type { LancerInitiativeConfig } from "lancer-initiative";
-import type { IContentPackManifest } from "machine-mind";
 import type { AutomationOptions } from "./module/settings";
 import type { LancerActionManager } from "./module/action/actionManager";
 
@@ -17,7 +16,7 @@ declare global {
     }
   }
   interface Game {
-    lancer: Record<string, unknown>,
+    lancer: Record<string, unknown>;
     action_manager?: LancerActionManager;
   }
 

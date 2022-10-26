@@ -2,6 +2,9 @@ import {
   ActivationType,
   DamageType,
   FittingSize,
+  FrameEffectUse,
+  MountType,
+  NpcFeatureType,
   OrgType,
   RangeType,
   SkillFamily,
@@ -44,18 +47,6 @@ export interface PackedSkillData {
   custom?: true;
   custom_desc?: string;
   custom_detail?: string;
-}
-
-export interface PackedTalentRank {
-  name: string;
-  description: string; // v-html
-  exclusive: boolean; // see below
-  actions?: PackedActionData[];
-  bonuses?: PackedBonusData[];
-  synergies?: PackedSynergyData[];
-  deployables?: PackedDeployableData[];
-  counters?: PackedCounterData[];
-  integrated?: string[];
 }
 
 export interface PackedDamageData {
@@ -373,4 +364,445 @@ export interface PackedMechWeaponSaveData extends PackedEquipmentData {
   mod?: PackedEquipmentData;
   customDamageType?: string;
   maxUseOverride?: number;
+}
+
+export interface IContentPackManifest {
+  name: string;
+  item_prefix: string; // Note - this is applied only on initial load. Dynamic, at runtime packs do not care about this
+  author: string;
+  version: string;
+  description?: string;
+  website?: string;
+  image_url?: string;
+}
+export interface IContentPackData {
+  manufacturers: PackedManufacturerData[];
+  factions: PackedFactionData[];
+  coreBonuses: PackedCoreBonusData[];
+  frames: PackedFrameData[];
+  weapons: PackedMechWeaponData[];
+  systems: PackedMechSystemData[];
+  mods: PackedWeaponModData[];
+  pilotGear: PackedPilotEquipmentData[];
+  talents: PackedTalentData[];
+  tags: PackedTagTemplateData[];
+
+  npcClasses: PackedNpcClassData[];
+  npcFeatures: AnyPackedNpcFeatureData[];
+  npcTemplates: PackedNpcTemplateData[];
+
+  // New additions courtesy of whitespine
+  skills?: PackedSkillData[];
+  statuses?: PackedStatusData[];
+  reserves?: PackedReserveData[];
+  environments?: PackedEnvironmentData[];
+  sitreps?: PackedSitrepData[];
+  quirks?: string[];
+}
+
+export interface IContentPack {
+  id: string;
+  active: boolean;
+  manifest: IContentPackManifest;
+  data: IContentPackData;
+}
+
+interface PackedManufacturerData {
+  name: string;
+  logo: string;
+  light: string;
+  description: string;
+  dark: string;
+  quote: string;
+  logo_url?: string;
+  id: string;
+}
+
+interface PackedFactionData {
+  name: string;
+  description: string;
+  logo: string;
+  color: string;
+  logo_url?: string;
+  id: string;
+}
+
+export interface PackedCoreBonusData {
+  name: string;
+  effect: string; // v-html
+  description: string; // v-html
+  mounted_effect?: string;
+  synergies?: ISynergyData[];
+  id: string;
+  bonuses?: PackedBonusData[];
+  deployables?: PackedDeployableData[];
+  counters?: PackedCounterData[];
+  integrated?: string[];
+  source: string; // must be the same as the Manufacturer ID to sort correctly
+  actions?: PackedActionData[];
+}
+
+export interface PackedFrameData {
+  license_level: number; // set to zero for this item to be available to a LL0 character
+  name: string;
+  mechtype: string[]; // can be customized
+  y_pos: number; // used for vertical alignment of the mech in banner views (like in the new mech selector)
+  description: string; // v-html
+  mounts: MountType[];
+  stats: IFrameStats;
+  image_url?: string;
+  other_art?: IArtLocation[];
+  id: string;
+  traits: PackedFrameTraitData[];
+  core_system: PackedCoreSystemData;
+  source: string;
+  variant?: string; // If an alt frame, this is the primary license name
+}
+export interface IFrameStats {
+  size: number;
+  structure: number;
+  stress: number;
+  armor: number;
+  hp: number;
+  evasion: number;
+  edef: number;
+  heatcap: number;
+  repcap: number;
+  sensor_range: number;
+  tech_attack: number;
+  save: number;
+  speed: number;
+  sp: number;
+}
+
+export interface PackedCoreSystemData {
+  name: string;
+  description: string; // v-html
+  activation: ActivationType;
+  deactivation?: ActivationType;
+  use?: FrameEffectUse;
+
+  //
+  active_name: string;
+  active_effect: string; // v-html
+  active_synergies: ISynergyData[];
+
+  // Basically the same but passives
+  passive_name?: string;
+  passive_effect?: string; // v-html,
+  passive_synergies?: ISynergyData[];
+
+  // And all the rest
+  deployables?: PackedDeployableData[];
+  counters?: PackedCounterData[];
+  integrated?: string[];
+  tags: PackedTagInstanceData[];
+  active_bonuses?: PackedBonusData[];
+  passive_bonuses?: PackedBonusData[];
+  active_actions?: PackedActionData[];
+  passive_actions?: PackedActionData[];
+}
+
+export interface PackedTagInstanceData {
+  id: string;
+  val?: string | number;
+}
+
+export interface IArtLocation {
+  tag?: string;
+  src?: string;
+  url?: string;
+}
+
+export interface PackedFrameTraitData {
+  name: string;
+  description: string; // v-html
+  use?: FrameEffectUse;
+  synergies?: ISynergyData[];
+  integrated?: string[];
+  counters?: PackedCounterData[];
+  deployables?: PackedDeployableData[];
+  bonuses?: PackedBonusData[];
+  actions?: PackedActionData[];
+}
+
+export interface PackedMechWeaponData {
+  id: string;
+  name: string;
+  source: string; // must be the same as the Manufacturer ID to sort correctly
+  license: string; // reference to the Frame name of the associated license
+  license_level: number; // set to zero for this item to be available to a LL0 character
+  mount: WeaponSize;
+  type?: WeaponType;
+  damage?: PackedDamageData[];
+  range?: PackedRangeData[];
+  tags?: PackedTagInstanceData[];
+  sp?: number;
+  description: string; // v-html
+  effect?: string; // v-html
+  on_attack?: string; // v-html
+  on_hit?: string; // v-html
+  on_crit?: string; // v-html
+  actions?: PackedActionData[];
+  bonuses?: PackedBonusData[];
+  synergies?: ISynergyData[];
+  deployables?: PackedDeployableData[];
+  counters?: PackedCounterData[];
+  integrated?: string[];
+  cost?: number; // How many limited uses to consume per firing?
+  skirmish?: boolean; // Can we fire this weapon as part of a skirmish? Default true
+  barrage?: boolean; // Can we fire this weapon as part of a barrage? Default true
+  profiles: PackedMechWeaponProfile[];
+
+  // Some weapons don't like nice things
+  no_attack?: boolean;
+  no_bonus?: boolean;
+  no_synergy?: boolean;
+  no_mods?: boolean;
+  no_core_bonus?: boolean;
+}
+export type PackedMechWeaponProfile = Partial<
+  Omit<PackedMechWeaponData, "id" | "profiles" | "source" | "license" | "license_level" | "mount" | "sp">
+>;
+
+export interface PackedMechSystemData {
+  name: string;
+  license: string; // reference to the Frame name of the associated license
+  license_level: number; // set to zero for this item to be available to a LL0 character
+  type?: SystemType;
+  sp: number;
+  description: string; // v-html
+  effect: string; // v-html
+  synergies?: ISynergyData[];
+
+  id: string;
+  deployables?: PackedDeployableData[];
+  integrated?: string[];
+  counters?: PackedCounterData[];
+  bonuses?: PackedBonusData[];
+  actions?: PackedActionData[];
+  tags?: PackedTagInstanceData[];
+  source: string; // must be the same as the Manufacturer ID to sort correctly
+}
+
+export interface PackedWeaponModData {
+  name: string;
+  sp: number;
+  description: string;
+  license: string; // Frame Name
+  license_level: number; // set to 0 to be available to all Pilots
+  effect: string; // v-html
+  synergies?: ISynergyData[];
+
+  id: string;
+  source: string; // Manufacturer ID
+  tags: PackedTagInstanceData[]; // tags related to the mod itself
+  added_tags?: PackedTagInstanceData[]; // tags propogated to the weapon the mod is installed on
+  deployables?: PackedDeployableData[];
+  counters?: PackedCounterData[];
+  bonuses?: PackedBonusData[]; // these bonuses are applied to the pilot, not parent weapon
+  actions?: PackedActionData[];
+  added_damage?: PackedDamageData[]; // damage added to the weapon the mod is installed on
+  added_range?: PackedRangeData[]; // range added to the weapon the mod is installed on
+  integrated?: string[];
+  restricted_types?: WeaponType[]; // weapon types the mod CAN NOT be applied to
+  restricted_sizes?: WeaponSize[]; // weapon sizes the mod CAN NOT be applied to
+  allowed_types?: WeaponType[]; // weapon types the mod CAN be applied to
+  allowed_sizes?: WeaponSize[]; // weapon sizes the mod CAN be applied to
+}
+
+export type PackedPilotEquipmentData = PackedPilotWeaponData | PackedPilotArmorData | PackedPilotGearData;
+
+interface AllPilotStuffPackedData {
+  id: string;
+  name: string; // v-html
+  description: string;
+  actions?: PackedActionData[]; // these are only available to UNMOUNTED pilots
+  bonuses?: PackedBonusData[]; // these bonuses are applied to the pilot, not parent system
+  synergies?: ISynergyData[];
+  deployables?: PackedDeployableData[];
+  tags?: PackedTagInstanceData[];
+}
+
+export interface PackedPilotWeaponData extends AllPilotStuffPackedData {
+  type: "Weapon";
+  damage: PackedDamageData[];
+  range: PackedRangeData[];
+  effect?: string;
+}
+export interface PackedPilotGearData extends AllPilotStuffPackedData {
+  type: "Gear";
+}
+
+export interface PackedPilotArmorData extends AllPilotStuffPackedData {
+  type: "Armor";
+}
+
+export interface PackedTalentData {
+  id: string;
+  name: string;
+  icon: string;
+  terse: string; // terse text used in short descriptions. The fewer characters the better
+  description: string; // v-html
+  ranks: PackedTalentRank[];
+}
+
+export interface PackedTalentRank {
+  name: string;
+  description: string; // v-html
+  exclusive: boolean; // see below
+  actions?: PackedActionData[];
+  bonuses?: PackedBonusData[];
+  synergies?: ISynergyData[];
+  deployables?: PackedDeployableData[];
+  counters?: PackedCounterData[];
+  integrated?: string[];
+}
+
+interface AllNpcClassData {
+  name: string;
+  role: string;
+  info: { flavor: string; tactics: string };
+  power: number;
+}
+export interface PackedNpcClassData extends AllNpcClassData {
+  id: string;
+  base_features: string[];
+  optional_features: string[];
+  stats: PackedNpcClassStats;
+}
+
+export interface PackedNpcClassStats {
+  activations: number[];
+  armor: number[];
+  hp: number[];
+  evade: number[];
+  edef: number[];
+  heatcap: number[];
+  speed: number[];
+  sensor: number[];
+  save: number[];
+  hull: number[];
+  agility: number[];
+  systems: number[];
+  engineering: number[];
+  size: number[][];
+  structure?: number[];
+  stress?: number[];
+}
+
+// Combines all of our types
+export type AnyPackedNpcFeatureData =
+  | PackedNpcTechData
+  | PackedNpcTraitData
+  | PackedNpcWeaponData
+  | PackedNpcSystemData
+  | PackedNpcWeaponData
+  | PackedNpcReactionData;
+
+// Note: At present, just a raw implementation of the compcon method, which is due to be refactored at some point
+interface PackedNpcFeatureData {
+  id: string;
+  name: string;
+  origin: IOriginData;
+  effect?: string;
+  bonus?: object;
+  override?: object;
+
+  tags: PackedTagInstanceData[];
+  locked: boolean; // If it can be removed, maybe?
+  hide_active: boolean; // ???????
+  type: NpcFeatureType;
+}
+
+export interface PackedNpcWeaponData extends PackedNpcFeatureData {
+  weapon_type: string;
+  damage: PackedNpcDamageData[];
+  range: PackedRangeData[];
+  on_hit: string;
+  accuracy?: number[] | null;
+  attack_bonus?: number[] | null;
+  tags: PackedTagInstanceData[];
+  type: NpcFeatureType.Weapon;
+}
+
+export interface PackedNpcTraitData extends PackedNpcFeatureData {
+  type: NpcFeatureType.Trait;
+}
+
+export interface PackedNpcReactionData extends PackedNpcFeatureData {
+  type: NpcFeatureType.Reaction;
+  trigger: string;
+}
+
+export interface PackedNpcSystemData extends PackedNpcFeatureData {
+  type: NpcFeatureType.System;
+}
+
+export interface PackedNpcTechData extends PackedNpcFeatureData {
+  type: NpcFeatureType.Tech;
+
+  tags: PackedTagInstanceData[];
+  tech_type: string;
+  accuracy?: number[] | null;
+  attack_bonus?: number[] | null;
+}
+
+export interface IOriginData {
+  type: "Class" | "Template";
+  name: string; // The class or template it is from
+  base: boolean; // Whether it is a base feature of that class or template
+}
+
+export interface PackedNpcDamageData {
+  type: string;
+  damage: number[]; // The damage at each tier
+}
+
+export interface PackedNpcTemplateData {
+  name: string;
+  description: string;
+  power: number;
+  id: string;
+  base_features: string[];
+  optional_features: string[];
+}
+
+export interface PackedSkillData {
+  id: string;
+  name: string;
+  description: string; // terse, prefer fewest chars
+  detail: string; // v-html
+  family: SkillFamily;
+  rank?: number;
+  custom?: true;
+  custom_desc?: string;
+  custom_detail?: string;
+}
+
+export interface PackedStatusData {
+  name: string;
+  icon: string;
+  terse?: string;
+  effects: string | string[];
+  type: "Status" | "Condition";
+}
+
+export interface PackedEnvironmentData {
+  id: string;
+  name: string;
+  description: string; // v-html
+}
+
+export interface PackedSitrepData {
+  name: string;
+  description: string;
+  pcVictory: string;
+  enemyVictory: string;
+  noVictory?: string;
+  deployment?: string;
+  objective?: string;
+  controlZone?: string;
+  extraction?: string;
+  id: string;
 }

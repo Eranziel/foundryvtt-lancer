@@ -6,7 +6,6 @@ import type {
   LancerTextMacroData,
   LancerReactionMacroData,
 } from "../interfaces";
-import { EntryType, NpcFeatureType } from "machine-mind";
 import { applyCollapseListeners } from "../helpers/collapse";
 import { getMacroSpeaker, ownedItemFromString } from "./_util";
 import { prepareAttackMacro } from "./attack";

@@ -1,7 +1,7 @@
+import { SystemType, WeaponSize, WeaponType } from "../../enums";
+
 // @ts-ignore
 const fields: any = foundry.data.fields;
-
-import { Synergy, SystemType, WeaponSize, WeaponType } from "machine-mind";
 
 export enum SynergyLocations {
   Any,

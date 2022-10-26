@@ -1,8 +1,7 @@
 import { stateless } from "./serde";
 import type { AccDiffPlugin, AccDiffPluginData } from "./plugin";
 import type { AccDiffData, AccDiffTarget } from "./index";
-import type { LancerActor } from "../../actor/lancer-actor";
-import type { Mech, Pilot } from "machine-mind";
+import type { LancerActor, LancerPILOT } from "../../actor/lancer-actor";
 import type { LancerToken } from "../../token";
 
 // this is an example of a case implemented without defining a full class
@@ -30,7 +29,7 @@ function adjacentSpotter(actor: LancerActor): boolean {
     // @ts-expect-error Should be fixed with v10 types
     .map((t: LancerToken) => (t.actor!.system.derived.mm! as Mech).Pilot);
 
-  return !!adjacentPilots.find((p: Pilot | null) => p?.Talents.find(t => t.LID == "t_spotter"));
+  return !!adjacentPilots.find((p: LancerPILOT | null) => p?.system.talents.find(t => t.system.lid == "t_spotter"));
 }
 
 function spotter(): AccDiffPluginData {

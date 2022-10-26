@@ -1,9 +1,8 @@
-import { RegRef } from "machine-mind";
-import { EntryType } from "machine-mind";
 import { LancerActor } from "../actor/lancer-actor";
 import { LancerItem } from "../item/lancer-item";
 import { safe_json_parse } from "./commons";
 import { FetcherCache, PENDING } from "../util/async";
+import { EntryType } from "../enums";
 
 ////////////// HERE BE DRAGON DROPS ////////////
 // Very useful:
@@ -399,18 +398,20 @@ export function HANDLER_enable_mm_dragging(items: string | JQuery, start_stop?: 
 
 // Tracks state and handles global flag set/unsetting.
 // Only set by HANDLER_enable_mm_dragging. If you're using other things, well, good luck
+// TODO: Fix to handle standard drags, or remove it
 export const GlobalMMDragState = {
   dragging: false as boolean,
   curr_dragged_type: EntryType,
   curr_dragged_entity: null as LancerActor | LancerItem | null, // If it is a native document, we set this
-  curr_dragged_ref: null as RegRef<EntryType> | null, // If it is a ref, we set this
+  curr_dragged_ref: null as any | null, // If it is a ref, we set this
 };
 
 function dragging_class(for_type: EntryType): string {
   return `dragging-${for_type}`;
 }
 
-function set_global_drag(to: LancerActor | LancerItem | RegRef<any>) {
+function set_global_drag(to: LancerActor | LancerItem | any /*RegRef<any>*/) {
+  // TODO
   // Check for duplicate work and clear if that isn't the case
   if (GlobalMMDragState.curr_dragged_entity == to || GlobalMMDragState.curr_dragged_ref == to) {
     return; // don't repeat
@@ -420,7 +421,7 @@ function set_global_drag(to: LancerActor | LancerItem | RegRef<any>) {
   // Mark us as dragging and store the draggee
   GlobalMMDragState.dragging = true;
   let type: EntryType;
-  let rr = to as RegRef<any>;
+  let rr = to as /*RegRef<any>*/ any; // TODO
   let doc = to as LancerActor | LancerItem;
   if (rr.fallback_lid !== undefined) {
     GlobalMMDragState.curr_dragged_ref = rr;
@@ -474,7 +475,7 @@ export function applyGlobalDragListeners() {
 
         // No joy - is it by chance already a ref
         if (!resolved) {
-          let ar = safe_json_parse(text) as RegRef<any>;
+          let ar = safe_json_parse(text) as any; /*RegRef<any>*/
           if (ar?.fallback_lid !== undefined) {
             // It's a ref!
             set_global_drag(ar);

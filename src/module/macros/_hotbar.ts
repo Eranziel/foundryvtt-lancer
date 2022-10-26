@@ -1,7 +1,7 @@
 // Import TypeScript modules
 import { LANCER } from "../config";
+import { EntryType, NpcFeatureType } from "../enums";
 // Import JSON data
-import { EntryType, NpcFeatureType } from "machine-mind";
 
 import { isValidEncodedMacro } from "./_encode";
 

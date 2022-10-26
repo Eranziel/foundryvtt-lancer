@@ -16,7 +16,6 @@ import {
   HANDLER_activate_ref_clicking,
   HANDLER_activate_uses_editor,
 } from "../helpers/refs";
-import { OpCtx, Counter, RegEntry } from "machine-mind";
 import {
   HANDLER_activate_edit_bonus,
   HANDLER_activate_item_context_menus,
@@ -198,12 +197,5 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
 
     console.log(`${lp} Rendering with following item ctx: `, data);
     return data;
-  }
-
-  // Get the ctx that our actor + its items reside in. If an unowned item we'll just yield null
-  getCtx(): OpCtx | null {
-    // @ts-expect-error Should be fixed with v10 types
-    let ctx = this.item.system.derived.mm?.OpCtx;
-    return ctx ?? null;
   }
 }

@@ -1,18 +1,8 @@
 import { LANCER, replace_default_resource, TypeIcon } from "../config";
-import {
-  funcs,
-  PackedPilotData,
-  RegEntryTypes,
-  Frame,
-  RegMechData,
-  RegNpcData,
-  Damage,
-  DamageType,
-} from "machine-mind";
 import { LancerHooks, LancerSubscription } from "../helpers/hooks";
 // import { LancerFRAME, LancerItem, LancerItemType, LancerNPC_CLASS } from "../item/lancer-item";
 import { renderMacroTemplate, encodeMacroData, prepareOverheatMacro, prepareStructureMacro } from "../macros";
-import { EntryType, StabOptions1, StabOptions2 } from "../enums";
+import { DamageType, EntryType, StabOptions1, StabOptions2 } from "../enums";
 import { fix_modify_token_attribute } from "../token";
 import { findEffect } from "../helpers/acc_diff";
 import { AppliedDamage } from "./damage-calc";
@@ -20,6 +10,7 @@ import { SystemData, SystemDataType, SystemTemplates } from "../system-template"
 import { AE_MODE_SET_JSON } from "../effects/lancer-active-effect";
 import { SourceDataType } from "../source-template";
 import * as defaults from "../util/mmigration/defaults";
+import { PackedPilotData } from "../util/mmigration/packed-types";
 const lp = LANCER.log_prefix;
 
 const DEFAULT_OVERCHARGE_SEQUENCE = ["+1", "+1d3", "+1d6", "+1d6+4"];

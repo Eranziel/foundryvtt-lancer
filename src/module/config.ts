@@ -1,7 +1,7 @@
 // Namespace configuration Values
 
-import { EntryType, NpcFeatureType } from "machine-mind";
 import type { LancerActorType } from "./actor/lancer-actor";
+import { EntryType, NpcFeatureType } from "./enums";
 import type { LancerItemType } from "./item/lancer-item";
 
 const ASCII = `
@@ -192,7 +192,6 @@ const FRIENDLY_DOCUMENT_NAMES_SINGULAR = {
   [EntryType.PILOT_GEAR]: "Pilot Gear",
   [EntryType.PILOT_WEAPON]: "Pilot Weapon",
   [EntryType.RESERVE]: "Reserve",
-  [EntryType.SITREP]: "Sitrep",
   [EntryType.SKILL]: "Skill",
   [EntryType.STATUS]: "Status/Condition",
   [EntryType.TALENT]: "Talent",

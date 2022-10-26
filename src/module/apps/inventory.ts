@@ -1,4 +1,3 @@
-import { Mech } from "machine-mind";
 import type { LancerActor } from "../actor/lancer-actor";
 import { HANDLER_activate_general_controls } from "../helpers/commons";
 import {
@@ -71,27 +70,27 @@ export class InventoryDialog extends Dialog {
   populate_categories(actor: LancerActor): FilledCategory[] {
     // Decide categories based on type
     let cats: FilledCategory[] = [];
-    if (actor instanceof Mech) {
+    if (actor.is_mech()) {
       cats = [
         {
           label: "Frames",
-          items: actor.OwnedFrames,
+          items: actor.items.filter(i => i.is_frame()),
         },
         {
           label: "Weapons",
-          items: actor.OwnedMechWeapons,
+          items: actor.items.filter(i => i.is_mech_weapon()),
         },
         {
           label: "Systems",
-          items: actor.OwnedSystems,
+          items: actor.items.filter(i => i.is_mech_system()),
         },
         {
           label: "Mods",
-          items: actor.OwnedWeaponMods,
+          items: actor.items.filter(i => i.is_weapon_mod()),
         },
         {
           label: "Statuses",
-          items: actor.StatusesAndConditions,
+          items: actor.items.filter(i => i.is_status()),
           // path: "mm.StatusesAndConditions"
         },
       ];

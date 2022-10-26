@@ -3,9 +3,8 @@ import { HTMLEditDialog } from "../apps/text-editor";
 import type { ContextMenuItem, GenControlContext, LancerActorSheetData, LancerItemSheetData } from "../interfaces";
 import * as defaults from "../util/mmigration/defaults";
 
-import { WeaponType, ActivationType, WeaponSize } from "machine-mind";
 import tippy from "tippy.js";
-import { MountType } from "../enums";
+import { ActivationType, MountType, WeaponSize, WeaponType } from "../enums";
 import { LancerActor } from "../actor/lancer-actor";
 import { LancerItem } from "../item/lancer-item";
 import { SystemTemplates } from "../system-template";

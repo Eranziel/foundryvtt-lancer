@@ -1,4 +1,5 @@
-import { Damage, DamageType } from "machine-mind";
+import { DamageType } from "../enums";
+import { Damage } from "../models/bits/damage";
 
 export class AppliedDamage {
   public Kinetic: number;
@@ -19,7 +20,7 @@ export class AppliedDamage {
 
   public sum_damage(damageData: Damage[], damageType: DamageType): number {
     return damageData.reduce((sum, d) => {
-      return sum + (d.DamageType === damageType ? parseInt(d.Value) : 0);
+      return sum + (d.type === damageType ? parseInt(d.val) : 0);
     }, 0);
   }
 }

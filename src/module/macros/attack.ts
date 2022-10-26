@@ -4,14 +4,12 @@ import { getAutomationOptions } from "../settings";
 import type { LancerItem } from "../item/lancer-item";
 import type { LancerActor } from "../actor/lancer-actor";
 import type { LancerAttackMacroData, LancerMacroData } from "../interfaces";
-import { DamageType, funcs } from "machine-mind";
-import { is_limited, is_overkill } from "machine-mind/dist/funcs";
-import { is_loading, is_self_heat } from "machine-mind/dist/classes/mech/EquipUtil";
 import { checkForHit } from "../helpers/automation/targeting";
 import type { AccDiffData, AccDiffDataSerialized, RollModifier } from "../helpers/acc_diff";
 import { getMacroSpeaker, ownedItemFromString } from "./_util";
 import { encodeMacroData } from "./_encode";
 import { renderMacroTemplate } from "./_render";
+import { DamageType } from "../enums";
 
 const lp = LANCER.log_prefix;
 
