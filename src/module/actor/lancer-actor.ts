@@ -1230,16 +1230,16 @@ export class LancerActor extends Actor {
 
   // Typeguards
   is_pilot(): this is LancerPILOT {
-    return this.data.type === EntryType.PILOT;
+    return this.type === EntryType.PILOT;
   }
   is_mech(): this is LancerMECH {
-    return this.data.type === EntryType.MECH;
+    return this.type === EntryType.MECH;
   }
   is_npc(): this is LancerNPC {
-    return this.data.type === EntryType.NPC;
+    return this.type === EntryType.NPC;
   }
   is_deployable(): this is LancerDEPLOYABLE {
-    return this.data.type === EntryType.DEPLOYABLE;
+    return this.type === EntryType.DEPLOYABLE;
   }
 
   // Quick checkers

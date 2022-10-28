@@ -232,55 +232,55 @@ export class LancerItem extends Item {
 
   // Typeguards
   is_core_bonus(): this is LancerCORE_BONUS {
-    return this.data.type === EntryType.CORE_BONUS;
+    return this.type === EntryType.CORE_BONUS;
   }
   is_frame(): this is LancerFRAME {
-    return this.data.type === EntryType.FRAME;
+    return this.type === EntryType.FRAME;
   }
   is_license(): this is LancerLICENSE {
-    return this.data.type === EntryType.LICENSE;
+    return this.type === EntryType.LICENSE;
   }
   is_mech_system(): this is LancerMECH_SYSTEM {
-    return this.data.type === EntryType.MECH_SYSTEM;
+    return this.type === EntryType.MECH_SYSTEM;
   }
   is_mech_weapon(): this is LancerMECH_WEAPON {
-    return this.data.type === EntryType.MECH_WEAPON;
+    return this.type === EntryType.MECH_WEAPON;
   }
   is_npc_class(): this is LancerNPC_CLASS {
-    return this.data.type === EntryType.NPC_CLASS;
+    return this.type === EntryType.NPC_CLASS;
   }
   is_npc_feature(): this is LancerNPC_FEATURE {
-    return this.data.type === EntryType.NPC_FEATURE;
+    return this.type === EntryType.NPC_FEATURE;
   }
   is_npc_template(): this is LancerNPC_TEMPLATE {
-    return this.data.type === EntryType.NPC_TEMPLATE;
+    return this.type === EntryType.NPC_TEMPLATE;
   }
   is_organization(): this is LancerORGANIZATION {
-    return this.data.type === EntryType.ORGANIZATION;
+    return this.type === EntryType.ORGANIZATION;
   }
   is_pilot_armor(): this is LancerPILOT_ARMOR {
-    return this.data.type === EntryType.PILOT_ARMOR;
+    return this.type === EntryType.PILOT_ARMOR;
   }
   is_pilot_gear(): this is LancerPILOT_GEAR {
-    return this.data.type === EntryType.PILOT_GEAR;
+    return this.type === EntryType.PILOT_GEAR;
   }
   is_pilot_weapon(): this is LancerPILOT_WEAPON {
-    return this.data.type === EntryType.PILOT_WEAPON;
+    return this.type === EntryType.PILOT_WEAPON;
   }
   is_reserve(): this is LancerRESERVE {
-    return this.data.type === EntryType.RESERVE;
+    return this.type === EntryType.RESERVE;
   }
   is_skill(): this is LancerSKILL {
-    return this.data.type === EntryType.SKILL;
+    return this.type === EntryType.SKILL;
   }
   is_status(): this is LancerSTATUS {
-    return this.data.type === EntryType.STATUS;
+    return this.type === EntryType.STATUS;
   }
   is_talent(): this is LancerTALENT {
-    return this.data.type === EntryType.TALENT;
+    return this.type === EntryType.TALENT;
   }
   is_weapon_mod(): this is LancerWEAPON_MOD {
-    return this.data.type === EntryType.WEAPON_MOD;
+    return this.type === EntryType.WEAPON_MOD;
   }
 
   // Quick checkers/getters
