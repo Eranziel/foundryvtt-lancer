@@ -142,9 +142,8 @@ export class LancerItem extends Item {
    * Want to destroy derived data before passing it to an update
    */
   async update(data: any, options = {}) {
-    if (data?.derived) {
-      delete data.derived;
-    }
+    // @ts-expect-error
+    data = this.system.full_update_data(data);
     return super.update(data, options);
   }
 

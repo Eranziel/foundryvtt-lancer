@@ -1,5 +1,7 @@
+import { boolean } from "io-ts";
 import { LancerActor } from "../actor/lancer-actor";
 import { EntryType } from "../enums";
+import { format_dotpath } from "../helpers/commons";
 import { LancerItem } from "../item/lancer-item";
 import { SystemTemplates } from "../system-template";
 
@@ -11,6 +13,74 @@ const EMBEDDED_REF_WIP_MARKER = Symbol("EMBEDDED_REF_FIELD_MARKER");
 // @ts-expect-error
 export class LancerDataModel<T> extends foundry.abstract.DataModel<T> {
   // For you, sohum. Svelte it to your heart's content
+
+  /**
+   * A more sophisticated mergeobject
+   * @param update_data the update data to apply
+   */
+  full_update_data(update_data: object): object {
+    // @ts-expect-error
+    let system = this.toObject();
+    return fancy_merge_data({ system }, update_data);
+  }
+}
+
+/**
+ * Merge data, except it handles arrays.
+ *
+ */
+export function fancy_merge_data(full_source_data: any, update_data: any): any {
+  if (full_source_data == null) throw new Error("Cannot merge with null or undefined - try again");
+  for (let [k, v] of Object.entries(update_data)) {
+    // Prepare for dotpath traversal
+    k = format_dotpath(k);
+
+    // Detect deletes
+    let del = k.startsWith("-=");
+    if (del) {
+      k = k.slice(2);
+    }
+
+    // Detect dots
+    let di = k.indexOf(".");
+    if (di != -1) {
+      if (del) {
+        throw new Error("'-=' in dotpath must go at penultimate pathlet. E.x. 'system.whatever.-=val'");
+      }
+
+      // Dotpath - go recursive on that key
+      let fore = k.slice(0, di);
+      let aft = k.slice(di + 1);
+
+      // Find existing value and branch on its existence
+      let prior = full_source_data[fore];
+      if (prior) {
+        // Recursive
+        fancy_merge_data(prior, { [aft]: v });
+      } else {
+        // New value at this location
+        full_source_data[fore] = { [aft]: v };
+      }
+    } else {
+      // Not a dotpath - assign/delete directly. Fairly trivial
+      if (del) {
+        if (Array.isArray(full_source_data)) {
+          // Splice it
+          full_source_data.splice(parseInt(k), 1);
+        } else if (typeof full_source_data == "object") {
+          // Delete it
+          delete full_source_data[k];
+        } else {
+          // Unhandled type or nonexistant val
+          console.warn("'-=' in update may only target Object or Array items");
+        }
+      } else {
+        // Just assign it - simple as
+        full_source_data[k] = v;
+      }
+    }
+  }
+  return full_source_data;
 }
 
 // Use this for all LIDs, to ensure consistent formatting

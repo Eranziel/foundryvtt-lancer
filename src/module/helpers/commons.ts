@@ -427,7 +427,7 @@ export function ext_helper_hash(
 export function HANDLER_activate_general_controls(
   html: JQuery,
   // Retrieves the data that we will operate on
-  document: LancerActor | LancerItem,
+  doc: LancerActor | LancerItem,
   post_hook?: (ctrl_info: GenControlContext) => any
 ) {
   html
@@ -443,42 +443,30 @@ export function HANDLER_activate_general_controls(
       let val: any = undefined;
       if (raw_val) {
         let result = await parse_control_val(raw_val);
-        let { success, val } = result;
-        if (!success) {
+        if (!result.success) {
           console.error(`Gen control failed: Bad data-action-value: ${raw_val}`);
           return; // Bad arg - no effect
+        } else {
+          val = result.val;
         }
       }
 
       // Construct our ctx
       let path = elt.dataset.path!;
-      let path_items = stepwise_resolve_dotpath(document, path);
-      let target_document = document;
-      let relative_path = path;
-      for (let i = 0; i < path_items.length; i++) {
-        let pi = path_items[i];
-        if (pi instanceof LancerActor || pi instanceof LancerItem) {
-          target_document = pi; // Want it to be last along the list
-          relative_path = format_dotpath(path)
-            .split(".")
-            .slice(i + 1)
-            .join("."); // ANd make our relative path to it
-          console.log(`Sliced path "${path}" at index ${i} to produce subpath ${relative_path}`);
-        }
-      }
+      let dd = drilldown_document(doc, path);
       let ctx: GenControlContext = {
         // Base
         elt,
         path,
         action: <any>elt.dataset.action,
         raw_val: elt.dataset.actionValue,
-        base_document: document,
+        base_document: doc,
 
         // Derived
-        path_target: resolve_dotpath(document, elt.dataset.path!),
+        path_target: resolve_dotpath(doc, elt.dataset.path!),
         parsed_val: val,
-        target_document,
-        relative_path,
+        target_document: dd.sub_doc,
+        relative_path: dd.sub_path,
       };
 
       // Check our less reliably fetchable data
@@ -486,7 +474,7 @@ export function HANDLER_activate_general_controls(
         console.error("Gen control failed: missing path");
       } else if (!ctx.action) {
         console.error("Gen control failed: missing action");
-      } else if (!target_document) {
+      } else if (!dd.sub_doc) {
         console.error("Gen control failed: target document does not exist");
       }
 
