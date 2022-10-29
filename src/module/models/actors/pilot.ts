@@ -1,16 +1,11 @@
+import { template_action_tracking, template_statuses, template_universal_actor } from "./shared";
 
-import {
-  template_action_tracking,
-  template_statuses,
-  template_universal_actor,
-} from "./shared";
-
-import { BoundedNumberField, LancerDataModel, LIDField, UUIDRefField } from "../shared";
+import { FakeBoundedNumberField, LancerDataModel, LIDField, ResolvedUUIDRefField } from "../shared";
 
 const fields: any = foundry.data.fields;
 
 const pilotSchema = {
-  active_mech: new UUIDRefField(),
+  active_mech: new ResolvedUUIDRefField(),
   background: new fields.HTMLField(),
   callsign: new fields.StringField(),
   cloudID: new fields.StringField(),
@@ -21,14 +16,14 @@ const pilotSchema = {
 
   loadout: new fields.SchemaField({
     lid: new LIDField(),
-    armor: new fields.ArrayField(new UUIDRefField()),
-    gear: new fields.ArrayField(new UUIDRefField()),
-    weapons: new fields.ArrayField(new UUIDRefField()),
+    armor: new fields.ArrayField(new ResolvedUUIDRefField()),
+    gear: new fields.ArrayField(new ResolvedUUIDRefField()),
+    weapons: new fields.ArrayField(new ResolvedUUIDRefField()),
   }),
 
   mechSkills: new fields.ArrayField(new fields.NumberField({ min: 0, max: 6, integer: true }), {
     validate: (x: number[]) => x.length == 4,
-    initial: [0, 0, 0, 0]
+    initial: [0, 0, 0, 0],
   }),
 
   mounted: new fields.BooleanField(),

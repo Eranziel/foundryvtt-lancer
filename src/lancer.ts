@@ -156,6 +156,7 @@ import { handleRenderCombatCarousel } from "./module/helpers/combat-carousel";
 import { measureDistances } from "./module/grid";
 import { BonusData } from "./module/models/bits/bonus";
 import { EntryType } from "./module/enums";
+import { FrameModel } from "./module/models/items/frame";
 
 const lp = LANCER.log_prefix;
 
@@ -175,6 +176,8 @@ Hooks.once("init", async function () {
   game.documentTypes.Item.forEach(type => (CONFIG.Item.compendiumIndexFields = ["lid"]));
   // @ts-expect-error
   CONFIG.Actor.systemDataModels[EntryType.MECH] = MechModel;
+  // @ts-expect-error
+  CONFIG.Item.systemDataModels[EntryType.FRAME] = FrameModel;
   // @ts-expect-error
   CONFIG.Item.systemDataModels[EntryType.MECH_SYSTEM] = MechSystemModel;
   // TODO: Register the rest of our models

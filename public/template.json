@@ -181,7 +181,7 @@
       "templates": ["universal", "licensed"],
       "description": "",
       "mechtype": [
-        "BALANCED"
+        "Balanced"
       ],
       "mounts": [],
       "stats": {
@@ -205,7 +205,7 @@
         "name": "",
         "description": "",
         "use": "",
-        "activation": "",
+        "activation": "Quick",
         "active_name": "",
         "active_effect": "",
         "active_actions": [],
