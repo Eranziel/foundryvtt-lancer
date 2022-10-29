@@ -1,14 +1,11 @@
-import {
-  DamageTypeChecklist,
-  RangeTypeChecklist,
-  SystemType,
-  WeaponSize,
-  WeaponSizeChecklist,
-  WeaponType,
-  WeaponTypeChecklist,
-} from "../../enums";
+import { DamageTypeChecklist, RangeTypeChecklist, WeaponSizeChecklist, WeaponTypeChecklist } from "../../enums";
 import { BONUS } from "../../util/mmigration/defaults";
-import { SynergyLocations } from "./synergy";
+import {
+  DamageTypeChecklistField,
+  RangeTypeChecklistField,
+  WeaponSizeChecklistField,
+  WeaponTypeChecklistField,
+} from "../shared";
 
 // @ts-ignore
 const fields: any = foundry.data.fields;
@@ -32,19 +29,12 @@ export class BonusField extends fields.SchemaField {
       {
         lid: new fields.StringField({ nullable: false }), // Don't really want an LID field here
         val: new fields.StringField({ nullable: false }),
-        locations: new fields.ArrayField(
-          new fields.StringField({ choices: Object.values(SynergyLocations), initial: SynergyLocations.Any })
-        ),
-        detail: new fields.StringField({ nullable: false }),
-        system_types: new fields.ArrayField(
-          new fields.StringField({ choices: Object.values(SystemType), initial: SystemType.System })
-        ),
-        weapon_types: new fields.ArrayField(
-          new fields.StringField({ choices: Object.values(WeaponType), initial: WeaponType.Rifle })
-        ),
-        weapon_sizes: new fields.ArrayField(
-          new fields.StringField({ choices: Object.values(WeaponSize), initial: WeaponSize.Main })
-        ),
+        overwrite: new fields.BooleanField(),
+        replace: new fields.BooleanField(),
+        damage_types: new DamageTypeChecklistField(),
+        range_types: new RangeTypeChecklistField(),
+        weapon_types: new WeaponTypeChecklistField(),
+        weapon_sizes: new WeaponSizeChecklistField(),
       },
       options
     );

@@ -136,7 +136,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
     HANDLER_activate_ref_drop_clearing(html, getfunc, commitfunc);
 
     // Enable bonus editors
-    HANDLER_activate_edit_bonus(html, getfunc, commitfunc);
+    HANDLER_activate_edit_bonus(html, this.item);
 
     // Enable tag editing
     HANDLER_activate_tag_context_menus(html, getfunc, commitfunc);

@@ -1,8 +1,5 @@
-import { boolean } from "io-ts";
-import { LancerActor } from "../actor/lancer-actor";
-import { EntryType } from "../enums";
+import { DamageType, EntryType, RangeType, WeaponSize, WeaponType } from "../enums";
 import { format_dotpath } from "../helpers/commons";
-import { LancerItem } from "../item/lancer-item";
 import { SystemTemplates } from "../system-template";
 
 // @ts-ignore
@@ -249,5 +246,39 @@ export class FakeBoundedNumberField extends fields.NumberField {
       value = value.value ?? 0;
     }
     return super._cast(value);
+  }
+}
+
+// Schemafields for our type checklists
+export class ChecklistField extends fields.SchemaField {
+  constructor(target_enum: Record<string, string>, options = {}) {
+    let scaffold: Record<string, any> = {};
+    for (let val of Object.values(target_enum)) {
+      scaffold[val] = new fields.BooleanField({ initial: true });
+    }
+    super(scaffold, options);
+  }
+}
+
+export class DamageTypeChecklistField extends ChecklistField {
+  constructor(options = {}) {
+    super(DamageType, options);
+  }
+}
+
+export class RangeTypeChecklistField extends ChecklistField {
+  constructor(options = {}) {
+    super(RangeType, options);
+  }
+}
+
+export class WeaponTypeChecklistField extends ChecklistField {
+  constructor(options = {}) {
+    super(WeaponType, options);
+  }
+}
+export class WeaponSizeChecklistField extends ChecklistField {
+  constructor(options = {}) {
+    super(WeaponSize, options);
   }
 }

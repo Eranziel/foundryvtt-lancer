@@ -15,6 +15,7 @@ import {
 import { compact_tag_list } from "./tags";
 import {
   array_path_edit,
+  drilldown_document,
   effect_box,
   ext_helper_hash,
   format_dotpath,
@@ -262,75 +263,6 @@ export function npc_feature_preview(npc_feature_path: string, helper: HelperOpti
 }
 
 /** Expected arguments:
- * - bonus_path=<string path to the individual bonus item>,  ex: ="doc.mm.Bonuses.3"
- * - bonus=<bonus object to pre-populate with>
- */
-export function single_bonus_editor(bonus_path: string, bonus: BonusData, options: HelperOptions) {
-  // Our main two inputs
-  let id_input = std_string_input(`${bonus_path}.LID`, ext_helper_hash(options, { label: "ID" }));
-  let val_input = std_string_input(`${bonus_path}.Value`, ext_helper_hash(options, { label: "Value" }));
-
-  // Icon factory
-  let iconer = new IconFactory({
-    size: "m",
-  });
-
-  // Our type options
-  let damage_checkboxes: string[] = [];
-  for (let dt of Object.values(DamageType)) {
-    damage_checkboxes.push(
-      std_checkbox(`${bonus_path}.DamageTypes.${dt}`, ext_helper_hash(options, { label: iconer.r(Damage.IconFor(dt)) }))
-    );
-  }
-
-  let range_checkboxes: string[] = [];
-  for (let rt of Object.values(RangeType)) {
-    range_checkboxes.push(
-      std_checkbox(`${bonus_path}.RangeTypes.${rt}`, ext_helper_hash(options, { label: iconer.r(Range.IconFor(rt)) }))
-    );
-  }
-
-  let type_checkboxes: string[] = [];
-  for (let wt of Object.values(WeaponType)) {
-    type_checkboxes.push(std_checkbox(`${bonus_path}.WeaponTypes.${wt}`, ext_helper_hash(options, { label: wt })));
-  }
-
-  let size_checkboxes: string[] = [];
-  for (let st of Object.values(WeaponSize)) {
-    size_checkboxes.push(std_checkbox(`${bonus_path}.WeaponSizes.${st}`, ext_helper_hash(options, { label: st })));
-  }
-
-  // Consolidate them into rows
-  return `
-    <div class="flexcol">
-      <span class="lancer-header">INFO</span>
-      ${id_input}
-      ${val_input}
-
-      <div class="wraprow double">
-        <div class="flexcol">
-          <span class="lancer-header">DAMAGE TYPES</span>
-          ${damage_checkboxes.join(" ")}
-        </div>
-        <div class="flexcol">
-          <span class="lancer-header">RANGES TYPES</span>
-          ${range_checkboxes.join(" ")}
-        </div>
-
-        <div class="flexcol">
-          <span class="lancer-header">WEAPON TYPES</span>
-          ${type_checkboxes.join(" ")}
-        </div>
-        <div class="flexcol">
-          <span class="lancer-header">WEAPON SIZES</span>
-          ${size_checkboxes.join(" ")}
-        </div>
-      </div>
-    </div>
-    `;
-}
-
-/** Expected arguments:
  * - bonuses_path=<string path to the bonuses array>,  ex: ="doc.mm.Bonuses"
  * - bonuses=<bonus array to pre-populate with>.
  * Displays a list of bonuses, with buttons to add/delete (if edit true)
@@ -345,7 +277,7 @@ export function bonuses_display(bonuses_path: string, bonuses_array: BonusData[]
     let title = `<span class="grow">${bonus.lid}</span> ${inc_if(delete_button, edit)}`; // Todo: maybe return to
     let boxed = `
       <div class="bonus ${inc_if("editable", edit)}" data-path="${bonuses_path}.${i}">
-        ${effect_box(title, "" + bonus.lid)}
+        ${effect_box(title, bonus.lid || "undefined")}
       </div>
     `;
     items.push(boxed);
@@ -366,18 +298,15 @@ export function bonuses_display(bonuses_path: string, bonuses_array: BonusData[]
 }
 
 // Allows right clicking bonuses to edit them
-export function HANDLER_activate_edit_bonus<T>(
-  html: JQuery,
-  data_getter: () => Promise<T> | T,
-  commit_func: (data: T) => void | Promise<void>
-) {
-  let bonuses = html.find(".editable.bonus");
-  bonuses.on("click", async event => {
-    // Find the bonus
-    let bonus_path = event.currentTarget.dataset.path;
-    if (!bonus_path) return;
-    let data = await data_getter();
-    return BonusEditDialog.edit_bonus(data, bonus_path, commit_func).catch(e => console.error("Dialog failed", e));
+export function HANDLER_activate_edit_bonus<T>(html: JQuery, root_doc: LancerItem | LancerActor) {
+  html.find(".editable.bonus").on("click", async evt => {
+    evt.stopPropagation();
+    const elt = evt.currentTarget;
+    const path = elt.dataset.path;
+    if (path) {
+      let dd = drilldown_document(root_doc, path);
+      return BonusEditDialog.edit_bonus(dd.sub_doc, dd.sub_path);
+    }
   });
 }
 

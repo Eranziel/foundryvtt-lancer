@@ -85,7 +85,6 @@ import {
   pilot_gear_refview,
   license_ref,
   uses_control,
-  single_bonus_editor,
   buildCounterArrayHTML,
   loading_indicator,
   weapon_mod_ref,
@@ -452,7 +451,6 @@ Hooks.once("init", async function () {
     bonuses_display(bonuses_path, bonuses_array, false)
   );
   Handlebars.registerHelper("bonuses-view", bonuses_display); // Takes a third arg
-  Handlebars.registerHelper("edit-bonus", single_bonus_editor);
   Handlebars.registerHelper("popout-editor-button", popout_editor_button);
   // Deployables and Actions
   Handlebars.registerHelper("deployable-card", buildDeployableHTML);

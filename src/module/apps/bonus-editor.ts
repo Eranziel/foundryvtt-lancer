@@ -1,22 +1,48 @@
-import { DamageType, RangeType, WeaponSize, WeaponType } from "../enums";
-import { gentle_merge, resolve_dotpath } from "../helpers/commons";
+import { LancerActor } from "../actor/lancer-actor";
+import {
+  DamageType,
+  DamageTypeChecklist,
+  RangeType,
+  RangeTypeChecklist,
+  WeaponSize,
+  WeaponSizeChecklist,
+  WeaponType,
+  WeaponTypeChecklist,
+} from "../enums";
+import { gentle_merge, IconFactory, resolve_dotpath } from "../helpers/commons";
+import { LancerItem } from "../item/lancer-item";
 import { BonusData } from "../models/bits/bonus";
+import { Damage } from "../models/bits/damage";
+import { Range } from "../models/bits/range";
 
 /**
  * A helper Dialog subclass for editing a bonus
  * @extends {Dialog}
  */
-export class BonusEditDialog<O> extends Dialog {
+export class BonusEditDialog extends FormApplication {
+  // The document we're editing
+  target: LancerActor | LancerItem;
+
   // The bonus we're editing
   bonus: BonusData;
 
   // Where it is
   bonus_path: string;
 
-  constructor(target: O, bonus_path: string, dialogData: Dialog.Data, options: Partial<Dialog.Options> = {}) {
-    super(dialogData, options);
+  // Promise to signal completion of workflow
+  resolve: () => any;
+
+  constructor(target: LancerActor | LancerItem, bonus_path: string, options: any, resolve_func: () => any) {
+    super(
+      {
+        hasPerm: () => true, // We give it a dummy object because we don't want it messing with our shit
+      },
+      options
+    );
+    this.target = target;
     this.bonus_path = bonus_path;
     this.bonus = resolve_dotpath(target, bonus_path) as BonusData;
+    this.resolve = resolve_func;
   }
 
   /* -------------------------------------------- */
@@ -29,6 +55,9 @@ export class BonusEditDialog<O> extends Dialog {
       width: 400,
       height: "auto" as const,
       classes: ["lancer"],
+      submitOnChange: false,
+      submitOnClose: false,
+      closeOnSubmit: true,
     };
   }
 
@@ -36,15 +65,65 @@ export class BonusEditDialog<O> extends Dialog {
    * Expose our data
    */
   getData(): any {
+    let iconer = new IconFactory({
+      size: "m",
+    });
+
     return {
       ...super.getData(),
-      damage_types: Object.values(DamageType),
-      range_types: Object.values(RangeType),
-      weapon_types: Object.values(WeaponType),
-      weapon_sizes: Object.values(WeaponSize),
+      damages: Object.values(DamageType).map(dt => ({
+        key: dt,
+        label: iconer.r(Damage.IconFor(dt)),
+        val: this.bonus.damage_types[dt],
+      })),
+      ranges: Object.values(RangeType).map(rt => ({
+        key: rt,
+        label: iconer.r(Range.IconFor(rt)),
+        val: this.bonus.range_types[rt],
+      })),
+      sizes: Object.values(WeaponSize).map(ws => ({
+        key: ws,
+        label: ws,
+        val: this.bonus.weapon_sizes[ws],
+      })),
+      types: Object.values(WeaponType).map(wt => ({
+        key: wt,
+        label: wt,
+        val: this.bonus.weapon_types[wt],
+      })),
       bonus: this.bonus,
-      path: this.bonus_path,
     };
+  }
+
+  /** @override */
+  async _updateObject(_event: unknown, form_data: Record<string, string | number | boolean>) {
+    let new_bonus: BonusData = {
+      lid: form_data.lid as string,
+      val: form_data.val as string,
+      overwrite: form_data.overwrite as boolean,
+      replace: form_data.replace as boolean,
+      damage_types: {} as DamageTypeChecklist,
+      range_types: {} as RangeTypeChecklist,
+      weapon_sizes: {} as WeaponSizeChecklist,
+      weapon_types: {} as WeaponTypeChecklist,
+    };
+
+    // Populate checkboxes
+    for (let dt of Object.values(DamageType)) {
+      new_bonus.damage_types[dt] = form_data[dt] as boolean;
+    }
+    for (let rt of Object.values(RangeType)) {
+      new_bonus.range_types[rt] = form_data[rt] as boolean;
+    }
+    for (let wt of Object.values(WeaponType)) {
+      new_bonus.weapon_types[wt] = form_data[wt] as boolean;
+    }
+    for (let ws of Object.values(WeaponSize)) {
+      new_bonus.weapon_sizes[ws] = form_data[ws] as boolean;
+    }
+
+    // Do the merge
+    this.target.update({ [this.bonus_path]: new_bonus }).then(this.resolve);
   }
 
   /* -------------------------------------------- */
@@ -52,58 +131,18 @@ export class BonusEditDialog<O> extends Dialog {
   /**
    * A helper constructor function which displays the bonus editor and returns a Promise once it's
    * workflow has been resolved.
-   * @param {Actor5e} actor
    * @return {Promise}
    */
-  static async edit_bonus<T>(
-    in_object: T,
-    at_path: string,
-    commit_callback: (v: T) => void | Promise<void>
-  ): Promise<void> {
+  static async edit_bonus(in_object: LancerActor | LancerItem, at_path: string): Promise<void> {
     return new Promise((resolve, _reject) => {
-      const dlg = new this(in_object, at_path, {
-        title: "Edit bonus",
-        content: "",
-        buttons: {
-          confirm: {
-            icon: '<i class="fas fa-save"></i>',
-            label: "Save",
-            callback: html => {
-              // Idk how to get form data - FormData doesn't work :(
-              // Just collect inputs manually
-              let flat_data: any = {};
-              $(html)
-                .find("input")
-                .each((_i, elt) => {
-                  // Retrieve input info
-                  let name = elt.name;
-                  let val: boolean | string;
-                  if (elt.type == "text") {
-                    val = elt.value;
-                  } else if (elt.type == "checkbox") {
-                    val = elt.checked;
-                  } else {
-                    return;
-                  }
-
-                  // Add to form
-                  flat_data[name] = val;
-                });
-
-              // Do the merge
-              gentle_merge(in_object, flat_data);
-              resolve(Promise.resolve(commit_callback(in_object)));
-            },
-          },
-          cancel: {
-            icon: '<i class="fas fa-times"></i>',
-            label: "Cancel",
-            callback: () => resolve(),
-          },
+      const dlg = new this(
+        in_object,
+        at_path,
+        {
+          title: "Edit bonus",
         },
-        default: "confirm",
-        close: () => resolve(),
-      });
+        resolve
+      );
       dlg.render(true);
     });
   }
