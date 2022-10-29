@@ -145,7 +145,6 @@ export class LancerItem extends Item {
     if (data?.derived) {
       delete data.derived;
     }
-    console.log("Data:", data);
     return super.update(data, options);
   }
 

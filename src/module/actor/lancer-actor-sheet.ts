@@ -116,7 +116,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     HANDLER_intercept_form_changes(html, getfunc);
 
     // Enable popout editors
-    HANDLER_activate_popout_text_editor(html, getfunc, commitfunc);
+    HANDLER_activate_popout_text_editor(html, this.actor);
 
     HANDLER_activate_edit_counter(html, getfunc);
 

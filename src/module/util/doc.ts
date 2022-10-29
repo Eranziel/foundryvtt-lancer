@@ -58,7 +58,7 @@ export async function resort_item(moverand: LancerItem, dest: LancerItem, sort_b
 // Helper for finding what license an item comes from. Checks by name, an inelegant solution but probably good enough
 export async function find_license_for(item: LancerItem, in_actor?: LancerActor): Promise<LancerLICENSE | null> {
   // If the item does not have a license name, then we just bail
-  let license_name = (item.data.data as SystemTemplates.licensed).license;
+  let license_name = ((item as any).system as SystemTemplates.licensed).license;
   if (!license_name) {
     return null;
   }

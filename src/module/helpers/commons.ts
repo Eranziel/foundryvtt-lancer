@@ -273,30 +273,69 @@ export function format_dotpath(path: string): string {
 // Helper function to get arbitrarily deep array references
 // Returns every item along the path, starting with the object itself
 // Any failed resolutions will still be emitted, but as an undefined
-export function resolve_full_dotpath(obj: any, dotpath: string): Array<unknown> {
+export function stepwise_resolve_dotpath(
+  obj: any,
+  dotpath: string
+): Array<{
+  pathlet: string | null;
+  val: unknown;
+}> {
   let pathlets = format_dotpath(dotpath).split(".");
 
   // Resolve each key
-  let result: any[] = [obj];
-  for (let k of pathlets) {
-    obj = obj?.[k];
-    result.push(obj);
+  let result = [
+    {
+      pathlet: null as string | null,
+      val: obj,
+    },
+  ];
+  for (let pathlet of pathlets) {
+    obj = obj?.[pathlet];
+    result.push({
+      pathlet,
+      val: obj,
+    });
   }
   return result;
 }
 
+export function drilldown_document(
+  root_doc: LancerActor | LancerItem,
+  path: string
+): {
+  sub_doc: LancerActor | LancerItem;
+  sub_path: string;
+} {
+  let steps = stepwise_resolve_dotpath(root_doc, path);
+  for (let i = steps.length - 1; i >= 0; i--) {
+    // Walk it back till first document
+    let step = steps[i];
+    if (step.val instanceof foundry.abstract.Document) {
+      // Recombine rest of path
+      let sub_path = steps
+        .slice(i + 1)
+        .map(v => v.pathlet)
+        .join(".");
+      let sub_doc = step.val as LancerActor | LancerItem;
+      return { sub_doc, sub_path };
+    }
+  }
+  throw new Error("Drilldown document must have at least one document in its path");
+}
+
 // Helper function to get arbitrarily deep array references
 // Returns every item along the path, starting with the object itself
-// Any failed resolutions will still be emitted, but as an undefined
+// Any failed resolutions will still be emitted, but as a dedicated symbol
+const RESOLVE_FAIL = Symbol("Fail");
 export function resolve_dotpath(
   obj: any,
   dotpath: string,
-  default_: any = null,
+  default_: any = RESOLVE_FAIL,
   opts?: {
     shorten_by?: number; // If provided, skip the last N path items
   }
 ): unknown {
-  let path = resolve_full_dotpath(obj, dotpath);
+  let path = stepwise_resolve_dotpath(obj, dotpath);
   let item;
 
   // Get the last item, or one even further back if shorten-by provided
@@ -305,7 +344,7 @@ export function resolve_dotpath(
   } else {
     item = path[path.length - 1];
   }
-  return item === undefined ? default_ : item;
+  return item.val === undefined ? default_ : item.val;
 }
 
 // Helper function to get arbitrarily deep array references, specifically in a helperoptions, and with better types for that matter
@@ -319,13 +358,12 @@ export function resolve_helper_dotpath(
   try_parent: boolean = false
 ): any {
   if (try_parent) {
-    const false_fail = "MaybeWecanTryagian"; // A temporary default value. Distinguish this from like, a "real" null/default/whatever
     let data = helper.data;
 
     // Loop until no _parent
     while (data) {
-      let resolved = resolve_dotpath(data?.root, path, false_fail);
-      if (resolved != false_fail) {
+      let resolved = resolve_dotpath(data?.root, path);
+      if (resolved != RESOLVE_FAIL) {
         // Looks like we found something!
         return resolved;
       }
@@ -414,7 +452,7 @@ export function HANDLER_activate_general_controls(
 
       // Construct our ctx
       let path = elt.dataset.path!;
-      let path_items = resolve_full_dotpath(document, path);
+      let path_items = stepwise_resolve_dotpath(document, path);
       let target_document = document;
       let relative_path = path;
       for (let i = 0; i < path_items.length; i++) {
@@ -717,19 +755,18 @@ export function popout_editor_button(path: string) {
   return `<a class="fas fa-edit popout-text-edit-button" data-path="${path}"> </a>`;
 }
 
-export function HANDLER_activate_popout_text_editor<T extends LancerActorSheetData<any> | LancerItemSheetData<any>>(
+export function HANDLER_activate_popout_text_editor(
   html: JQuery,
   // Retrieves the data that we will operate on
-  data_getter: () => Promise<T> | T,
-  commit_func: (data: T) => void | Promise<void>
+  root_doc: LancerActor | LancerItem
 ) {
   html.find(".popout-text-edit-button").on("click", async evt => {
-    let cd = await data_getter();
     evt.stopPropagation();
     const elt = evt.currentTarget;
     const path = elt.dataset.path;
     if (path) {
-      await HTMLEditDialog.edit_text(cd, path, commit_func);
+      let dd = drilldown_document(root_doc, path);
+      await HTMLEditDialog.edit_text(dd.sub_doc, dd.sub_path);
     }
   });
 }

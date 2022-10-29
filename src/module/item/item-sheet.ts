@@ -145,7 +145,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
     HANDLER_activate_profile_context_menus(html, getfunc, commitfunc);
 
     // Enable popout editors
-    HANDLER_activate_popout_text_editor(html, getfunc, commitfunc);
+    HANDLER_activate_popout_text_editor(html, this.item);
 
     // Enable general controls, so items can be deleted and such
     HANDLER_activate_general_controls(html, this.item);
@@ -186,6 +186,8 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
    */
   async getData(): Promise<LancerItemSheetData<T>> {
     const data = super.getData() as LancerItemSheetData<T>; // Not fully populated yet!
+    // @ts-ignore
+    (data as any).system = data.data.system; // Alias
 
     // Additionally we would like to find a matching license. Re-use ctx, try both a world and global reg, actor as well if it exists
     data.license = null;

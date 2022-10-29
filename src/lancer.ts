@@ -118,7 +118,7 @@ import type { HelperOptions } from "handlebars";
 import {
   editable_mm_ref_list_item,
   simple_ref_slot,
-  mm_ref_portrait,
+  ref_portrait,
   mm_ref_list_append_slot,
   editable_mm_ref_list_item_native,
   limited_uses_indicator,
@@ -413,7 +413,7 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("ref-mm-list-item-append", mm_ref_list_append_slot);
   Handlebars.registerHelper("pilot-slot", pilot_slot);
   Handlebars.registerHelper("deployer-slot", deployer_slot); // Can be pilot, npc, or mech. Preferably mech, lol
-  Handlebars.registerHelper("ref-portrait-img", mm_ref_portrait);
+  Handlebars.registerHelper("ref-portrait-img", ref_portrait);
 
   // ------------------------------------------------------------------------
   // Pilot stuff

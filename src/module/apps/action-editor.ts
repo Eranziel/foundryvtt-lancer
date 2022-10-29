@@ -73,7 +73,7 @@ export class ActionEditDialog extends Dialog {
     HANDLER_intercept_form_changes(html, getfunc);
 
     // Enable popout editors
-    HANDLER_activate_popout_text_editor(html, getfunc, console.log);
+    HANDLER_activate_popout_text_editor(html, this.target);
   }
 
   /**

@@ -136,7 +136,7 @@ export async function resolve_ref_element<T extends EntryType>(
  * @param img_path The path to read/edit said image
  * @param item The reffable MM item/actor itself
  */
-export function mm_ref_portrait<T extends EntryType>(
+export function ref_portrait<T extends EntryType>(
   img: string,
   img_path: string,
   item: LancerDoc<T>,
