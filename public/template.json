@@ -206,7 +206,7 @@
         "description": "",
         "use": "",
         "activation": "Quick",
-        "active_name": "",
+        "active_name": "ACTIVE",
         "active_effect": "",
         "active_actions": [],
         "active_bonuses": [],
@@ -217,7 +217,7 @@
         "integrated": [],
         "passive_actions": [],
         "passive_effect": "",
-        "passive_name": "",
+        "passive_name": "PASSIVE",
         "passive_bonuses": [],
         "passive_synergies": [],
         "tags": []
