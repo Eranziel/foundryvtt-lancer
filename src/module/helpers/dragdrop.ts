@@ -397,97 +397,100 @@ export function HANDLER_enable_mm_dragging(items: string | JQuery, start_stop?: 
 }
 
 // Tracks state and handles global flag set/unsetting.
-// Only set by HANDLER_enable_mm_dragging. If you're using other things, well, good luck
-// TODO: Fix to handle standard drags, or remove it
-export const GlobalMMDragState = {
-  dragging: false as boolean,
-  curr_dragged_type: EntryType,
-  curr_dragged_entity: null as LancerActor | LancerItem | null, // If it is a native document, we set this
-  curr_dragged_ref: null as any | null, // If it is a ref, we set this
+interface GlobalDraggingFalse {
+  dragging: false;
+  type: null;
+  doc: null;
+  uuid: null;
+}
+interface GlobalDraggingTrue {
+  dragging: true;
+  type: EntryType;
+  doc: LancerActor | LancerItem;
+  uuid: string;
+}
+export let GlobalDragState: GlobalDraggingFalse | GlobalDraggingTrue = {
+  dragging: false,
+  doc: null,
+  type: null,
+  uuid: null,
 };
 
 function dragging_class(for_type: EntryType): string {
   return `dragging-${for_type}`;
 }
 
-function set_global_drag(to: LancerActor | LancerItem | any /*RegRef<any>*/) {
-  // TODO
-  // Check for duplicate work and clear if that isn't the case
-  if (GlobalMMDragState.curr_dragged_entity == to || GlobalMMDragState.curr_dragged_ref == to) {
+function set_global_drag(to: LancerActor | LancerItem | null) {
+  if (GlobalDragState.doc == to) {
     return; // don't repeat
   }
-  clear_global_drag();
+
+  console.log("Setting global drag to ", to);
+
+  // Clear if necessary
+  if (GlobalDragState.dragging) {
+    $("body").removeClass(dragging_class(GlobalDragState.type));
+    GlobalDragState = {
+      dragging: false,
+      doc: null,
+      type: null,
+      uuid: null,
+    };
+  }
+
+  if (to == null) return; // Done
 
   // Mark us as dragging and store the draggee
-  GlobalMMDragState.dragging = true;
-  let type: EntryType;
-  let rr = to as /*RegRef<any>*/ any; // TODO
-  let doc = to as LancerActor | LancerItem;
-  if (rr.fallback_lid !== undefined) {
-    GlobalMMDragState.curr_dragged_ref = rr;
-    type = rr.type;
-  } else if (doc.data !== undefined) {
-    GlobalMMDragState.curr_dragged_entity = doc;
-    type = doc.data.type;
-  } else {
-    console.error("Error while setting global drag");
-    return; // hmmm
-  }
-
-  // @ts-ignore
-  GlobalMMDragState.curr_dragged_type = type;
+  GlobalDragState = {
+    dragging: true,
+    doc: to,
+    type: to.type,
+    uuid: to.uuid,
+  };
 
   // Add an appropriate class
-  $("body").addClass(dragging_class(type));
-}
-
-function clear_global_drag() {
-  if (GlobalMMDragState.dragging) {
-    GlobalMMDragState.dragging = false;
-    if (GlobalMMDragState.curr_dragged_entity) {
-      $("body").removeClass(dragging_class(GlobalMMDragState.curr_dragged_entity.data.type));
-    } else if (GlobalMMDragState.curr_dragged_ref?.type) {
-      $("body").removeClass(dragging_class(GlobalMMDragState.curr_dragged_ref.type));
-    }
-    GlobalMMDragState.curr_dragged_entity = null;
-    GlobalMMDragState.curr_dragged_ref = null;
-  }
+  $("body").addClass(dragging_class(to.type));
 }
 
 // Setup global drag mm resolution
 export function applyGlobalDragListeners() {
   let body = document.getElementsByTagName("body")[0];
+  let cancel_token = { canceled: false };
 
   // Capture when we start dragging anything anywhere - this covers regrefs and native drags
   body.addEventListener(
     "dragstart",
-    e => {
-      // Even though we are capturing, we need to wait a moment so the event data transfer can occur
-      setTimeout(async () => {
-        // Ok. Try to resolve
-        let text = e.dataTransfer?.getData("text/plain") ?? null;
-        if (!text) {
-          // Drop it - we can't really do much about this happening
-          return;
-        }
-
-        let resolved = await resolve_native_drop(text);
-
-        // No joy - is it by chance already a ref
-        if (!resolved) {
-          let ar = safe_json_parse(text) as any; /*RegRef<any>*/
-          if (ar?.fallback_lid !== undefined) {
-            // It's a ref!
-            set_global_drag(ar);
+    evt => {
+      // Attempt to recover the item
+      let target = evt.target as HTMLElement | undefined;
+      let uuid = "";
+      if (target?.dataset?.id) {
+        // Is our set uuid
+        uuid = target.dataset.id;
+      } else if (target?.dataset?.documentId) {
+        // Is a foundry sidebar or compendium drag
+        let sbt = $(target).parents(".sidebar-tab")[0];
+        if (sbt) {
+          // Can deduce type based on the tab
+          let tab = sbt.dataset.tab!;
+          uuid = `${tab.charAt(0).capitalize()}${tab.slice(1, tab.length - 1)}.${target.dataset.documentId}`;
+        } else {
+          let cd = $(target).parents(".compendium.directory")[0];
+          if (cd) {
+            // Can deduce pack based on the directory
+            let pack = cd.dataset.pack;
+            uuid = `Compendium.${pack}.${target.dataset.documentId}`;
           }
-          return; // Well! no idea what that is
         }
+      }
 
-        // Upon success
-        if (resolved.type == "Item" || resolved.type == "Actor") {
-          set_global_drag(resolved.document);
+      // May or may not have a uuid by now
+      // If we do, tell it to try setting global drag
+      fromUuid(uuid).then(doc => {
+        if (!cancel_token.canceled) {
+          set_global_drag(doc as LancerActor | LancerItem | null);
         }
-      }, 100);
+      });
     },
     {
       capture: true, // We don't want people preventing us from seeing this!
@@ -499,7 +502,9 @@ export function applyGlobalDragListeners() {
   body.addEventListener(
     "dragend",
     e => {
-      clear_global_drag();
+      set_global_drag(null);
+      cancel_token.canceled = true;
+      cancel_token = { canceled: false };
     },
     {
       capture: true, // Same as above
