@@ -305,6 +305,7 @@ export function drilldown_document(
 ): {
   sub_doc: LancerActor | LancerItem;
   sub_path: string;
+  terminus: any;
 } {
   let steps = stepwise_resolve_dotpath(root_doc, path);
   for (let i = steps.length - 1; i >= 0; i--) {
@@ -317,7 +318,7 @@ export function drilldown_document(
         .map(v => v.pathlet)
         .join(".");
       let sub_doc = step.val as LancerActor | LancerItem;
-      return { sub_doc, sub_path };
+      return { sub_doc, sub_path, terminus: steps[steps.length - 1].val };
     }
   }
   throw new Error("Drilldown document must have at least one document in its path");
@@ -743,11 +744,7 @@ export function popout_editor_button(path: string) {
   return `<a class="fas fa-edit popout-text-edit-button" data-path="${path}"> </a>`;
 }
 
-export function HANDLER_activate_popout_text_editor(
-  html: JQuery,
-  // Retrieves the data that we will operate on
-  root_doc: LancerActor | LancerItem
-) {
+export function HANDLER_activate_popout_text_editor(html: JQuery, root_doc: LancerActor | LancerItem) {
   html.find(".popout-text-edit-button").on("click", async evt => {
     evt.stopPropagation();
     const elt = evt.currentTarget;

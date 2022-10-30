@@ -94,14 +94,14 @@
       <div class="lancer-header">INTEGRATED GEAR</div>
       {{#each system.core_system.integrated as |integrated index|}}
         {{#if (eq integrated.type "mech_system")}}
-          {{{ref-mm-controllable-item-native (concat "system.core_system.integrated." index) null }}}
+          {{{item-preview-native (concat "system.core_system.integrated." index) null }}}
         {{else if (eq integrated.type "mech_weapon")}}
           <div style="margin:3px 10px">
             {{{mech-weapon-preview (concat "system.core_system.integrated." index) "" }}}
           </div>
         {{else}}
           {{!-- Fallback - typically there should be nothing other than mech systems and weapons, but just in case.--}}
-          {{{ref-mm-controllable-item-native (concat "system.core_system.integrated." index) null }}}
+          {{{item-preview-native (concat "system.core_system.integrated." index) null }}}
         {{/if}}
       {{/each}}
       {{#each system.core_system.deployables as |deployable index|}}

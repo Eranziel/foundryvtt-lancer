@@ -1399,16 +1399,16 @@ code.horus:hover {
   margin: auto;
 }
 
-.mod-plus-button {
+.clicker-plus-button {
   clip-path: polygon(75% 0%, 100% 50%, 75% 100%, 0% 100%, 20% 50%, 0% 0%);
 }
 
-.mod-minus-button {
+.clicker-minus-button {
   clip-path: polygon(100% 0%, 80% 50%, 100% 100%, 25% 100%, 0% 50%, 25% 0%);
 }
 
-.mod-minus-button,
-.mod-plus-button {
+.clicker-minus-button,
+.clicker-plus-button {
   cursor: pointer;
   width: 30px;
   height: 30px;

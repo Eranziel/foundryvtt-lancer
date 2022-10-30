@@ -117,10 +117,10 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
     }
 
     // Make +/- buttons work
-    HANDLER_activate_plus_minus_buttons(html, getfunc, () => this.submit({}));
+    HANDLER_activate_plus_minus_buttons(html, this.item);
 
     // Make counter pips work
-    HANDLER_activate_counter_listeners(html, getfunc);
+    HANDLER_activate_counter_listeners(html, this.item);
 
     // Grab pre-existing ctx if available
     let resolver = dragResolverCache();
@@ -187,7 +187,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
   async getData(): Promise<LancerItemSheetData<T>> {
     const data = super.getData() as LancerItemSheetData<T>; // Not fully populated yet!
     // @ts-ignore
-    (data as any).system = data.data.system; // Alias
+    (data as any).system = this.item.system; // Alias
 
     // Additionally we would like to find a matching license. Re-use ctx, try both a world and global reg, actor as well if it exists
     data.license = null;

@@ -6,7 +6,7 @@
             </span>
             {{#each cat.items as |item item_index|}}
               {{#if (eq item.Type "mech_system")}}
-                {{{ref-mm-controllable-item-native (concat "categories." cat_index ".items." item_index) "delete" }}}
+                {{{item-preview-native (concat "categories." cat_index ".items." item_index) "delete" }}}
               {{else if (eq item.Type "mech_weapon")}}
                 <div style="margin:3px 10px">
                   {{{mech-weapon-preview (concat "categories." cat_index ".items." item_index) "" }}}
@@ -19,7 +19,7 @@
                 {{{ref-frame item (concat "categories." cat_index ".items." item_index) }}}
               {{else}}
               {{!-- Fallback - typically there should be nothing other than mech systems, weapons, mods, and frames, but just in case.--}}
-                {{{ref-mm-controllable-item-native (concat "categories." cat_index ".items." item_index) "delete" }}}
+                {{{item-preview-native (concat "categories." cat_index ".items." item_index) "delete" }}}
               {{/if}}
             {{/each}}
         {{/each}}

@@ -1131,9 +1131,9 @@ export function buildCounterHTML(
 
   return `${buildCounterHeader(data, path, writeback_path, can_delete)}
     <div class="flexrow flex-center no-wrap">
-      <button class="mod-minus-button" type="button">-</button>
+      <button class="clicker-minus-button hex" type="button">-</button>
       ${hexes.join("")}
-      <button class="mod-plus-button" type="button">+</button>
+      <button class="clicker-plus-button hex" type="button">+</button>
     </div>
   </div>`;
 }
@@ -1228,73 +1228,71 @@ function _updateButtonSiblingData(button: JQuery<HTMLElement>, delta: number) {
 }
 
 async function _updateCounterData<T extends LancerActorSheetData<any> | LancerItemSheetData<any>>(
-  data: T,
-  path: string | undefined,
-  writeback_path: string | undefined,
+  root_doc: LancerActor | LancerItem,
+  path: string,
   delta: number
 ) {
-  /* TODO
-  if (path && writeback_path) {
-    const item = resolve_dotpath(data, path) as CounterData;
-    const writeback = resolve_dotpath(data, writeback_path) as RegEntry<any>;
-    const min = item.min || 0;
-    const max = item.max || 6;
+  let dd = drilldown_document(root_doc, path);
+  const counter = dd.terminus as CounterData;
+  const min = counter.min || 0;
+  const max = counter.max || 6;
 
-    if (delta < 0) {
-      // Deduct uses.
-      item.val = item.val > min && item.val + delta > min ? item.val + delta : min;
-    } else {
-      // Increment uses.
-      item.val = item.val < max && item.val + delta < max ? item.val + delta : max;
-    }
+  let new_val = counter.val;
+  if (new_val < min) new_val = min;
+  if (new_val > max) new_val = max;
 
-    await writeback.writeback();
-    console.debug(item);
-  }
-  */
+  dd.sub_doc.update({ [dd.sub_path + ".val"]: new_val });
 }
 
-export function HANDLER_activate_plus_minus_buttons<T extends LancerActorSheetData<any> | LancerItemSheetData<any>>(
-  html: JQuery,
-  // Retrieves the data that we will operate on
-  data_getter: () => Promise<T> | T,
-  form_callback: () => any
-) {
-  const mod_handler = (delta: number) => async (ev: Event) => {
-    if (!ev.currentTarget) return; // No target, let other handlers take care of it.
-    const button = $(ev.currentTarget as HTMLElement);
-    const writeback_parents = button.parents("div[data-writeback_path]");
-    if (writeback_parents.length > 0) {
-      const params = writeback_parents[0].dataset;
-      const data = await data_getter();
-      _updateCounterData(data, params.path, params.writeback_path, delta);
-    } else {
-      _updateButtonSiblingData(button, delta);
-      form_callback();
-    }
-  };
+// Handles  +/- buttons around _an input_
+export function HANDLER_activate_plus_minus_buttons(html: JQuery, root_doc: LancerActor | LancerItem) {
+  const mod_handler =
+    (delta: number) => async (evt: JQuery.ClickEvent<HTMLElement, undefined, HTMLElement, HTMLElement>) => {
+      evt.stopPropagation();
+      const elt = $(evt.currentTarget).siblings("input")[0] as HTMLInputElement;
+      const path = elt.name;
+      if (path) {
+        let dd = drilldown_document(root_doc, path);
+        dd.sub_doc.update({ [dd.sub_path]: elt.valueAsNumber + delta });
+      }
+    };
 
   // Behavior is identical, just +1 or -1 depending on button
-  let decr = html.find('button[class*="mod-minus-button"]');
+  let decr = html.find('button[class*="clicker-minus-button"].input-update');
   decr.on("click", mod_handler(-1));
-  let incr = html.find('button[class*="mod-plus-button"]');
+  let incr = html.find('button[class*="clicker-plus-button"].input-update');
   incr.on("click", mod_handler(+1));
 }
 
-export function HANDLER_activate_counter_listeners<T extends LancerActorSheetData<any> | LancerItemSheetData<any>>(
-  html: JQuery,
-  // Retrieves the data that we will operate on
-  data_getter: () => Promise<T> | T
-) {
-  let elements = html.find(".counter-hex");
-  elements.on("click", async ev => {
-    ev.stopPropagation();
-
-    const params = ev.currentTarget.dataset;
-    const available = params.available === "true";
-    const data = await data_getter();
-    _updateCounterData(data, params.path, params.writeback_path, available ? -1 : 1);
+// Handles +/- buttons and hex clickables for _counters_
+export function HANDLER_activate_counter_listeners(html: JQuery, root_doc: LancerActor | LancerItem) {
+  // Make the hexes themselves clickable
+  html.find(".counter-hex").on("click", async evt => {
+    evt.stopPropagation();
+    const elt = evt.currentTarget;
+    const path = elt.dataset.path;
+    const available = elt.dataset.available === "true";
+    if (path) {
+      _updateCounterData(root_doc, path, available ? 1 : -1);
+    }
   });
+
+  // Make the +/- buttons clickable
+  const mod_handler =
+    (delta: number) => async (evt: JQuery.ClickEvent<HTMLElement, undefined, HTMLElement, HTMLElement>) => {
+      evt.stopPropagation();
+      const elt = $(evt.currentTarget).siblings(".counter-hex")[0];
+      const path = elt.dataset.path;
+      if (path) {
+        _updateCounterData(root_doc, path, delta);
+      }
+    };
+
+  // Behavior is identical, just +1 or -1 depending on button
+  let decr = html.find('button[class*="clicker-minus-button"].hex');
+  decr.on("click", mod_handler(-1));
+  let incr = html.find('button[class*="clicker-plus-button"].hex');
+  incr.on("click", mod_handler(+1));
 }
 
 export function HANDLER_activate_item_context_menus<

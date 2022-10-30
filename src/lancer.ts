@@ -156,6 +156,7 @@ import { measureDistances } from "./module/grid";
 import { BonusData } from "./module/models/bits/bonus";
 import { EntryType } from "./module/enums";
 import { FrameModel } from "./module/models/items/frame";
+import { PilotModel } from "./module/models/actors/pilot";
 
 const lp = LANCER.log_prefix;
 
@@ -179,6 +180,8 @@ Hooks.once("init", async function () {
   CONFIG.Item.systemDataModels[EntryType.FRAME] = FrameModel;
   // @ts-expect-error
   CONFIG.Item.systemDataModels[EntryType.MECH_SYSTEM] = MechSystemModel;
+  // @ts-expect-error
+  CONFIG.Actor.systemDataModels[EntryType.PILOT] = PilotModel;
   // TODO: Register the rest of our models
 
   // Register custom system settings
@@ -407,8 +410,8 @@ Hooks.once("init", async function () {
   // ------------------------------------------------------------------------
   // Refs
   Handlebars.registerHelper("simple-ref", simple_ref_slot);
-  Handlebars.registerHelper("ref-mm-controllable-item", item_preview);
-  Handlebars.registerHelper("ref-mm-controllable-item-native", editable_mm_ref_list_item_native);
+  Handlebars.registerHelper("item-preview", item_preview);
+  Handlebars.registerHelper("item-preview-native", editable_mm_ref_list_item_native);
   Handlebars.registerHelper("ref-mm-list-item-append", mm_ref_list_append_slot);
   Handlebars.registerHelper("pilot-slot", pilot_slot);
   Handlebars.registerHelper("deployer-slot", deployer_slot); // Can be pilot, npc, or mech. Preferably mech, lol

@@ -15,8 +15,10 @@ import {
   WeaponTypeChecklist,
 } from "./enums";
 import {
+  LancerCORE_BONUS,
   LancerFRAME,
   LancerItem,
+  LancerLICENSE,
   LancerMECH_SYSTEM,
   LancerMECH_WEAPON,
   LancerNPC_CLASS,
@@ -24,6 +26,7 @@ import {
   LancerPILOT_ARMOR,
   LancerPILOT_GEAR,
   LancerPILOT_WEAPON,
+  LancerSKILL,
   LancerTALENT,
   LancerWEAPON_MOD,
 } from "./item/lancer-item";
@@ -457,7 +460,11 @@ export namespace SystemData {
     eng: number;
 
     // Collected items
+    core_bonuses: LancerCORE_BONUS[];
+    licenses: LancerLICENSE[];
+    skills: LancerSKILL[];
     talents: LancerTALENT[];
+    counters: CounterData[];
   }
   export interface Reserve extends SourceData.Reserve {}
   export interface Skill extends SourceData.Skill {}

@@ -86,6 +86,12 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     let getfunc = () => this.getData();
     let commitfunc = (_: any) => this._commitCurrMM();
 
+    // Make +/- buttons work
+    HANDLER_activate_plus_minus_buttons(html, this.actor);
+
+    // Make counter pips work
+    HANDLER_activate_counter_listeners(html, this.actor);
+
     // Enable hex use triggers.
     HANDLER_activate_uses_editor(html, getfunc);
 

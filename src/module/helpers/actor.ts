@@ -137,11 +137,11 @@ export function compact_stat_edit(icon: string, data_path: string, max_path: str
 }
 
 // An editable field with +/- buttons
-export function clicker_num_input(data_path: string, max: number, options: HelperOptions) {
+export function clicker_num_input(data_path: string, options: HelperOptions) {
   return `<div class="flexrow arrow-input-container">
-      <button class="mod-minus-button" type="button">-</button>
+      <button class="clicker-minus-button input-update" type="button">-</button>
       ${std_num_input(data_path, ext_helper_hash(options, { classes: "lancer-stat minor", default: 0 }))}
-      <button class="mod-plus-button" data-max="${max}" type="button">+</button>
+      <button class="clicker-plus-button input-update" type="button">+</button>
     </div>`;
 }
 
@@ -170,10 +170,10 @@ export function clicker_stat_card(
       </div>
       <div class="flexrow">
         ${button}
-        ${clicker_num_input(data_path, -1, options)}
+        ${clicker_num_input(data_path, options)}
         ${
           button
-            ? data_path == "mm.Pilot.Grit" || data_path === "mm.Tier"
+            ? data_path == "system.grit" || data_path === "system.tier"
               ? _rollable_macro_button(macroBasicData, { icon: "cci cci-weapon" })
               : "<div></div>"
             : ""
@@ -291,7 +291,7 @@ export function npc_clicker_stat_card(title: string, data_path: string, options:
     tier_clickers.push(`
       <div class="flexrow stat-container" style="align-self: center;">
         <i class="cci cci-npc-tier-${tier} i--m i--dark"></i>
-        ${clicker_num_input(`${data_path}.${tier - 1}`, 3, options)}
+        ${clicker_num_input(`${data_path}.${tier - 1}`, options)}
       </div>`);
     tier++;
   }

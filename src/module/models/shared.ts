@@ -92,6 +92,7 @@ export class LIDField extends fields.StringField {
 }
 
 export class ResolvedEmbeddedRefField extends fields.StringField {
+  // The acceptable document.type's for this to resolve to. Null is any
   allowed_types: EntryType[] | null;
 
   /**
@@ -150,7 +151,7 @@ export class ResolvedEmbeddedRefField extends fields.StringField {
         };
       }
     } else {
-      return value;
+      return null;
     }
   }
 }
@@ -158,37 +159,33 @@ export class ResolvedEmbeddedRefField extends fields.StringField {
 // Similar to the foreignDocumentField, except untyped and supports uuids
 // Supports both sync and async lookup
 export class ResolvedUUIDRefField extends fields.StringField {
-  // The acceptable document.type's for this to resolve to
-  // Null is wildcard
-  accepted_types: string[] | null;
+  // The acceptable document.type's for this to resolve to. Null is any
+  allowed_types: string[] | null;
 
-  constructor(accepted_types?: string[], options = {}) {
+  /**
+   * @param {StringFieldOptions} options  Options which configure the behavior of the field
+   */
+  constructor(options: { allowed_types?: EntryType[] } & Record<string, any> = {}) {
     super(options);
-    this.accepted_types = accepted_types ?? null;
+    this.allowed_types = options.allowed_types ?? null;
   }
 
   /** @inheritdoc */
   static get _defaults() {
     return mergeObject(super._defaults, {
-      required: true,
-      blank: false,
-      nullable: true,
       initial: null,
-      readonly: true,
-      validationError: "is not a valid Document UUID string",
+      blank: false,
+      trim: true,
+      nullable: true,
     });
   }
 
   /** @override */
   _cast(value: any) {
-    if (typeof value == "object" && value.uuid) {
-      //
-      return value.uuid;
-    } else if (value === null) {
-      return value;
-    } else {
-      return String(value);
+    if (value?.uuid) {
+      value = value.uuid;
     }
+    return String(value);
   }
 
   /** @override */
@@ -205,26 +202,44 @@ export class ResolvedUUIDRefField extends fields.StringField {
   }
 
   /** @inheritdoc */
-  initialize(model: unknown, name: string, value: string | null) {
-    // if ( this.idOnly ) return value;
-    // if ( !game.collections ) return value; // server-side
-    let rv = {
-      uuid: value,
-      doc_async: () => (value ? fromUuid(value) : null),
-    };
-    Object.defineProperty(rv, "doc_sync", {
-      get: () => {
-        //@ts-expect-error missing type
-        let v = fromUuidSync(value);
-        if (!(v instanceof foundry.abstract.Document)) {
-          v = null; // It was a compendium reference. Stinky!
-        }
-        return v;
-      },
-      set() {}, // no-op
-      configurable: false,
-    });
-    return rv;
+  initialize(value: string, model: any): null | SystemTemplates.ResolvedUuidRef<any> {
+    if (value != null) {
+      //@ts-expect-error missing type
+      let sub = fromUuidSync(value);
+      if (!sub) {
+        console.log("Attempting async lookup", model, value);
+        return {
+          status: "async",
+          value: fromUuid(sub).then(x => {
+            if (!x) return null;
+            if (this.allowed_types && !this.allowed_types.includes((x as any).type)) {
+              console.error(
+                `Failed to resolve embedded ref: Wrong type ${(x as any).type} not in ${this.allowed_types.join("|")}`
+              );
+              return null;
+            }
+            return x;
+          }),
+        };
+      } else if (this.allowed_types && !this.allowed_types.includes(sub.type)) {
+        console.error(
+          `Failed to resolve embedded ref: Wrong type ${sub.type} not in ${this.allowed_types.join("|")}`,
+          model,
+          value
+        );
+        return {
+          status: "missing",
+          value: null,
+        };
+      } else {
+        return {
+          status: "resolved",
+          value: sub,
+        };
+      }
+    } else {
+      return null;
+    }
   }
 }
 

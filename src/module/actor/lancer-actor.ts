@@ -929,10 +929,6 @@ export class LancerActor extends Actor {
       stunned: false,
     };
 
-    // Combine these shared attrs
-    if (this.is_pilot() || this.is_mech()) {
-    }
-
     if (this.is_pilot()) {
       this.system.grit = Math.ceil(this.system.level / 2);
       this.system.hull = this.system.mech_skills[0];
@@ -1044,6 +1040,15 @@ export class LancerActor extends Actor {
     // Update prior max hp val
     // @ts-expect-error System's broken
     this.prior_max_hp = this.system.hp.max;
+  }
+
+  /** @override
+   * Want to preserve our arrays
+   */
+  async update(data: any, options: any = {}) {
+    // @ts-expect-error
+    data = this.system.full_update_data(data);
+    return super.update(data, options);
   }
 
   /** @override

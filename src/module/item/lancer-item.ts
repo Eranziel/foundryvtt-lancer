@@ -144,7 +144,7 @@ export class LancerItem extends Item {
   }
 
   /** @override
-   * Want to destroy derived data before passing it to an update
+   * Want to preserve our arrays
    */
   async update(data: any, options = {}) {
     // @ts-expect-error

@@ -121,7 +121,7 @@
       <div class="card clipped">
         <h2 class="lancer-title clipped">{{localize "lancer.pilot-sheet.abilities.talents"}}</h2>
         {{#each system.pilot.value.talents as |talent index|}}
-        {{{ref-mm-controllable-item (concat "system.pilot.value.talents." index) ""}}}
+        {{{item-preview (concat "system.pilot.value.talents." index) ""}}}
         {{/each}}
       </div>
     </div>

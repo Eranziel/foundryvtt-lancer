@@ -1,27 +1,33 @@
 import { template_action_tracking, template_statuses, template_universal_actor } from "./shared";
 
-import { FakeBoundedNumberField, LancerDataModel, LIDField, ResolvedUUIDRefField } from "../shared";
+import {
+  FakeBoundedNumberField,
+  LancerDataModel,
+  LIDField,
+  ResolvedEmbeddedRefField,
+  ResolvedUUIDRefField,
+} from "../shared";
+import { EntryType } from "../../enums";
 
 const fields: any = foundry.data.fields;
 
-const pilotSchema = {
-  active_mech: new ResolvedUUIDRefField(),
+const pilot_schema = {
+  active_mech: new ResolvedUUIDRefField({ allowed_types: [EntryType.MECH] }),
   background: new fields.HTMLField(),
   callsign: new fields.StringField(),
-  cloudID: new fields.StringField(),
-  cloudOwnerID: new fields.StringField(),
+  cloud_id: new fields.StringField(),
+  cloud_owner_id: new fields.StringField(),
   history: new fields.HTMLField(),
-  lastCloudUpdate: new fields.StringField(),
+  last_cloud_update: new fields.StringField(),
   level: new fields.NumberField({ min: 0, max: 12, integer: true }),
 
   loadout: new fields.SchemaField({
-    lid: new LIDField(),
-    armor: new fields.ArrayField(new ResolvedUUIDRefField()),
-    gear: new fields.ArrayField(new ResolvedUUIDRefField()),
-    weapons: new fields.ArrayField(new ResolvedUUIDRefField()),
+    armor: new fields.ArrayField(new ResolvedEmbeddedRefField("Item", { allowed_types: [EntryType.PILOT_ARMOR] })),
+    gear: new fields.ArrayField(new ResolvedEmbeddedRefField("Item", { allowed_types: [EntryType.PILOT_GEAR] })),
+    weapons: new fields.ArrayField(new ResolvedEmbeddedRefField("Item", { allowed_types: [EntryType.PILOT_WEAPON] })),
   }),
 
-  mechSkills: new fields.ArrayField(new fields.NumberField({ min: 0, max: 6, integer: true }), {
+  mech_skills: new fields.ArrayField(new fields.NumberField({ min: 0, max: 6, integer: true }), {
     validate: (x: number[]) => x.length == 4,
     initial: [0, 0, 0, 0],
   }),
@@ -30,16 +36,17 @@ const pilotSchema = {
   notes: new fields.HTMLField(),
   player_name: new fields.StringField(),
   status: new fields.StringField(),
+  text_appearance: new fields.HTMLField(),
 
   ...template_universal_actor(),
   ...template_action_tracking(),
   ...template_statuses(),
 };
 
-type PilotSchema = typeof pilotSchema;
+type PilotSchema = typeof pilot_schema;
 
 export class PilotModel extends LancerDataModel<"PilotModel"> {
   static defineSchema(): PilotSchema {
-    return pilotSchema;
+    return pilot_schema;
   }
 }

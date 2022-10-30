@@ -49,10 +49,10 @@
       "active_mech": null,
       "background": "",
       "callsign": "",
-      "cloudID": "",
-      "cloudOwnerID": "",
+      "cloud_id": "",
+      "cloud_owner_id": "",
       "history": "",
-      "lastCloudUpdate": "",
+      "last_cloud_update": "",
       "level": 0,
       "loadout": {
         "lid": "",
@@ -60,7 +60,7 @@
         "gear": [],
         "weapons": []
       },
-      "mechSkills": [
+      "mech_skills": [
         0,
         0,
         0,
