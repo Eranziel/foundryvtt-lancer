@@ -296,12 +296,18 @@ export namespace SystemData {
         bracing: boolean;
       }>;
       systems: LancerMECH_SYSTEM[];
+      sp: FullBoundedNum; // Derived
     };
     meltdown_timer: number | null;
     notes: string;
     pilot: SystemTemplates.ResolvedUuidRef<LancerPILOT> | null; // UUID to a LancerPILOT
 
     // TODO: derived convenience arrays of features/actions? Active class?
+    grit: number;
+    hull: number;
+    agi: number;
+    sys: number;
+    eng: number;
   }
 
   export interface MechSystem
@@ -430,7 +436,7 @@ export namespace SystemData {
     cloud_owner_id: string;
     history: string;
     last_cloud_update: string;
-    level: string;
+    level: number;
     loadout: {
       armor: SystemTemplates.ResolvedEmbeddedRef<LancerPILOT_ARMOR>[];
       gear: SystemTemplates.ResolvedEmbeddedRef<LancerPILOT_GEAR>[];
@@ -442,6 +448,13 @@ export namespace SystemData {
     player_name: string;
     status: string;
     text_appearance: string;
+
+    // Derived attributes
+    grit: number;
+    hull: number;
+    agi: number;
+    sys: number;
+    eng: number;
 
     // Collected items
     talents: LancerTALENT[];
@@ -470,9 +483,9 @@ export namespace SystemData {
     }>;
 
     // Flattened lists, computed
-    actions: ActionData[];
-    synergies: ActionData[];
-    counters: ActionData[];
+    actions: ActionData[]; // All unlocked actions
+    synergies: ActionData[]; // All unlocked synergies
+    counters: ActionData[]; // All unlocked counters
   }
   export interface WeaponMod
     extends SystemTemplates.item_universal,

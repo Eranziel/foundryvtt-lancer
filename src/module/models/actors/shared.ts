@@ -59,6 +59,8 @@ export function template_universal_actor() {
 
     hp: new FakeBoundedNumberField(),
     overshield: new FakeBoundedNumberField(),
+
+    // Our derived property melange - not actually here! We generate those in prepareData
   };
 }
 

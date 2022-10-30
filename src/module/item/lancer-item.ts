@@ -138,6 +138,11 @@ export class LancerItem extends Item {
     */
   }
 
+  prepareFinalAttributes(): void {
+    // Called after bonuses have been set up. Allows us to set up ranges etc with bonuses
+    // TODO
+  }
+
   /** @override
    * Want to destroy derived data before passing it to an update
    */

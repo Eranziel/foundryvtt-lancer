@@ -4,30 +4,30 @@ import type { LancerMacroData } from "../interfaces";
 import { encodeMacroData } from "../macros";
 import { inc_if, resolve_helper_dotpath, array_path_edit } from "./commons";
 import { mech_weapon_refview, buildActionHTML, buildDeployableHTML, buildChipHTML } from "./item";
-import { editable_mm_ref_list_item, ref_params, simple_ref_slot } from "./refs";
+import { item_preview, ref_params, simple_ref_slot } from "./refs";
 import { compact_tag_list } from "./tags";
 import type { LancerActor, LancerMECH, LancerPILOT } from "../actor/lancer-actor";
-import { SystemData } from "../system-template";
-import { LancerCORE_BONUS, LancerFRAME } from "../item/lancer-item";
+import { SystemData, SystemTemplates } from "../system-template";
+import { LancerCORE_BONUS, LancerFRAME, LancerMECH_SYSTEM } from "../item/lancer-item";
 import { ActionData } from "../models/bits/action";
 
 export type CollapseRegistry = { [LID: string]: number };
 
 // A drag-drop slot for a system mount. TODO: delete button, clear button
-function system_mount(
+function system_view(
   mech_path: string,
-  mount_path: string,
+  system_path: string,
   helper: HelperOptions,
   registry?: CollapseRegistry
 ): string {
-  return "TODO";
-  /*
-  let mount = resolve_helper_dotpath(helper, mount_path) as SystemMount;
-  if (!mount) return "";
+  let system = resolve_helper_dotpath(
+    helper,
+    system_path
+  ) as SystemTemplates.ResolvedEmbeddedRef<LancerMECH_SYSTEM> | null;
+  if (!system) return "";
 
-  let item_: RegEntry<EntryType.MECH_SYSTEM> | null = resolve_helper_dotpath(helper, `${mount_path}.System`);
-  if (item_) {
-    let slot = editable_mm_ref_list_item(`${mount_path}.System`, "delete", helper, registry);
+  if (system && system.status == "resolved") {
+    let slot = item_preview(`${system_path}`, "delete", helper, registry);
 
     return ` 
       <div class="mount card clipped">
@@ -35,10 +35,8 @@ function system_mount(
       </div>`;
   } else {
     // Assuming we just want to delete empty mounts, which may be a faulty assumption
-    array_path_edit(helper.data.root, mount_path, null, "delete");
-    return system_mount(mech_path, mount_path, helper);
+    return "TODO: Handle bad slot";
   }
-  */
 }
 
 // A drag-drop slot for a weapon mount. TODO: delete button, clear button
@@ -119,16 +117,11 @@ function all_weapon_mount_view(
     `;
 }
 
-// Helper to display all system mounts on a mech loadout
-function all_system_mount_view(
-  mech_path: string,
-  loadout_path: string,
-  helper: HelperOptions,
-  _registry: CollapseRegistry
-) {
+// Helper to display all systems mounted on a mech loadout
+function all_system_view(mech_path: string, loadout_path: string, helper: HelperOptions, _registry: CollapseRegistry) {
   let loadout = resolve_helper_dotpath(helper, loadout_path) as LancerMECH["system"]["loadout"];
-  const system_slots = loadout.systems.map(
-    (_sys, index) => system_mount(mech_path, `${loadout_path}.SysMounts.${index}`, helper, _registry) // TODO: rework
+  const system_views = loadout.systems.map((_sys, index) =>
+    system_view(mech_path, `${loadout_path}.systems.${index}`, helper, _registry)
   );
 
   // Archiving add button: <a class="gen-control fas fa-plus" data-action="append" data-path="${loadout_path}.SysMounts" data-action-value="(struct)sys_mount"></a>
@@ -140,7 +133,7 @@ function all_system_mount_view(
       <span style="height:15px;width:48px;padding:0;"></span>
     </span>
     <div class="flexcol collapse" data-collapse-id="systems">
-      ${system_slots.join("")}
+      ${system_views.join("")}
     </div>
     `;
 }
@@ -158,26 +151,27 @@ export function mech_loadout(mech_path: string, helper: HelperOptions): string {
   if (!mech) {
     return "err";
   }
-  const loadout_path = `${mech_path}.Loadout`;
+  const loadout_path = `${mech_path}.system.loadout`;
   return `
     <div class="flexcol">
         ${all_weapon_mount_view(mech_path, loadout_path, helper, registry)}
-        ${all_system_mount_view(mech_path, loadout_path, helper, registry)}
+        ${all_system_view(mech_path, loadout_path, helper, registry)}
     </div>`;
 }
 
 // Create a div with flags for dropping native pilots
 export function pilot_slot(data_path: string, options: HelperOptions): string {
   // get the existing
-  let existing = resolve_helper_dotpath<LancerPILOT | null>(options, data_path, null);
-  if (!existing) return simple_ref_slot(EntryType.PILOT, existing, "No Pilot", data_path, true);
+  let existing = resolve_helper_dotpath<SystemTemplates.ResolvedUuidRef<LancerPILOT> | null>(options, data_path, null);
+  if (!existing) return simple_ref_slot(EntryType.PILOT, null, "No Pilot", data_path, true);
+  if (existing.status != "resolved") return simple_ref_slot(EntryType.PILOT, null, "Pilot MIA", data_path, true);
 
   return `<div class="pilot-summary">
-    <img class="valid ${existing.type} ref clickable-ref" ${ref_params(existing)} style="height: 100%" src="${
-    existing.img
-  }"/>
+    <img class="valid ${existing.value.type} ref clickable-ref" ${ref_params(
+    existing.value
+  )} style="height: 100%" src="${existing.value.img}"/>
     <div class="license-level">
-      <span>LL${existing.system.level}</span>
+      <span>LL${existing.value.system.level}</span>
     </div>
 </div>`;
 }
@@ -186,24 +180,30 @@ export function pilot_slot(data_path: string, options: HelperOptions): string {
  * Builds HTML for a frame reference. Either an empty ref to give a drop target, or a preview
  * with traits and core system.
  * @param actor       Actor the ref belongs to.
- * @param frame_path  Path to the frame's location in actor data.
+ * @param frame_slot_path  Path to the frame slot's location in actor data.
  * @param helper      Standard helper options.
  * @return            HTML for the frame reference, typically for inclusion in a mech sheet.
  */
-export function mech_frame_refview(actor: LancerActor, frame_path: string, helper: HelperOptions): string {
-  let frame = resolve_helper_dotpath<LancerFRAME | null>(helper, frame_path, null);
-  if (!frame) return simple_ref_slot(EntryType.FRAME, frame, "No Frame", frame_path, true);
+export function mech_frame_refview(actor: LancerActor, frame_slot_path: string, helper: HelperOptions): string {
+  let frame = resolve_helper_dotpath<SystemTemplates.ResolvedEmbeddedRef<LancerFRAME> | null>(
+    helper,
+    frame_slot_path,
+    null
+  );
+  if (!frame) return simple_ref_slot(EntryType.FRAME, null, "No Frame", frame_slot_path, true);
+  if (frame.status == "missing")
+    return simple_ref_slot(EntryType.FRAME, null, "Error Resolving Frame", frame_slot_path, true);
 
   return `
-    <div class="card mech-frame ${ref_params(frame)}">
+    <div class="card mech-frame ${ref_params(frame.value)}">
       <span class="lancer-header submajor clipped-top">
-       ${frame.name}
+       ${frame.value.name}
       </span>
       <div class="wraprow double">
         <div class="frame-traits flexcol">
-          ${frameTraits(actor, frame)}
+          ${frameTraits(actor, frame.value)}
         </div>
-        ${inc_if(buildCoreSysHTML(actor, frame.system.core_system), frame.system.core_system)}
+        ${inc_if(buildCoreSysHTML(actor, frame.value.system.core_system), frame.value.system.core_system)}
       </div>
     </div>
     `;

@@ -894,17 +894,71 @@ export class LancerActor extends Actor {
    */
   prepareData() {
     this._preliminary = true;
+
+    // 1. Performs the following:
+    // - Prepare base system data model.
+    // - Prepare embedded items & effects.
+    // - Prepare derived data (first pass, since this._preliminary = true).
     super.prepareData();
-    // Internally we have just
-    // - prepared base data (system)
-    // - prepared embedded data (items, active effects, + apply active effects)
-    // - prepared derived data
+
+    // 2. Initialize our derived stat fields, and any type-specific fields
+    // @ts-expect-error
+    let sys: SystemTemplates.actor_universal = this.system;
+    sys.edef = 0;
+    sys.evasion = 0;
+    sys.speed = 0;
+    sys.armor = 0;
+    sys.size = 0;
+    sys.save = 0;
+    sys.sensor_range = 0;
+    sys.tech_attack = 0;
+    sys.statuses = {
+      dangerzone: false,
+      downandout: false,
+      engaged: false,
+      exposed: false,
+      invisible: false,
+      prone: false,
+      shutdown: false,
+      immobilized: false,
+      impaired: false,
+      jammed: false,
+      lockon: false,
+      shredded: false,
+      slow: false,
+      stunned: false,
+    };
+
+    // Combine these shared attrs
+    if (this.is_pilot() || this.is_mech()) {
+    }
+
+    if (this.is_pilot()) {
+      this.system.grit = Math.ceil(this.system.level / 2);
+      this.system.hull = this.system.mech_skills[0];
+      this.system.agi = this.system.mech_skills[1];
+      this.system.sys = this.system.mech_skills[2];
+      this.system.eng = this.system.mech_skills[3];
+    } else if (this.is_mech()) {
+      this.system.grit = 0;
+      this.system.hull = 0;
+      this.system.agi = 0;
+      this.system.sys = 0;
+      this.system.eng = 0;
+    } else if (this.is_npc()) {
+      // TODO
+    } else if (this.is_deployable()) {
+      // TODO
+    }
+
     // We then apply all other active effects
     this._preliminary = false;
     this.applyActiveEffects();
 
     // Finally, ask items to prepare their final attributes
-    // this.items.forEach(item => item.prepareFinalAttributes()); // TODO
+    this.items.forEach(item => item.prepareFinalAttributes()); // TODO
+
+    console.log("prepare done");
   }
 
   /** @override

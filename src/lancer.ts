@@ -115,7 +115,7 @@ import {
 } from "./module/helpers/actor";
 import type { HelperOptions } from "handlebars";
 import {
-  editable_mm_ref_list_item,
+  item_preview,
   simple_ref_slot,
   ref_portrait,
   mm_ref_list_append_slot,
@@ -407,7 +407,7 @@ Hooks.once("init", async function () {
   // ------------------------------------------------------------------------
   // Refs
   Handlebars.registerHelper("simple-ref", simple_ref_slot);
-  Handlebars.registerHelper("ref-mm-controllable-item", editable_mm_ref_list_item);
+  Handlebars.registerHelper("ref-mm-controllable-item", item_preview);
   Handlebars.registerHelper("ref-mm-controllable-item-native", editable_mm_ref_list_item_native);
   Handlebars.registerHelper("ref-mm-list-item-append", mm_ref_list_append_slot);
   Handlebars.registerHelper("pilot-slot", pilot_slot);

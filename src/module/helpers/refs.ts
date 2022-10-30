@@ -10,6 +10,7 @@ import {
   LancerPILOT_GEAR,
   LancerPILOT_WEAPON,
   LancerWEAPON_MOD,
+  LancerTALENT,
 } from "../item/lancer-item";
 import { encodeMacroData } from "../macros";
 import { effect_box, gentle_merge, read_form, resolve_dotpath, resolve_helper_dotpath, sp_display } from "./commons";
@@ -26,8 +27,9 @@ import { buildActionHTML, buildDeployableHTML, license_ref } from "./item";
 import { compact_tag_list } from "./tags";
 import { CollapseRegistry } from "./loadout";
 import { LancerDoc } from "../util/doc";
-import { EntryType } from "../enums";
+import { EntryType, SystemType } from "../enums";
 import { LancerActor } from "../actor/lancer-actor";
+import { LancerMacroData } from "../interfaces";
 
 // Creates the params common to all refs, essentially just the html-ified version of a RegRef
 export function ref_params(doc: LancerDoc, path?: string) {
@@ -152,7 +154,7 @@ export function ref_portrait<T extends EntryType>(
 
 // A helper suitable for showing lists of refs that can be deleted/spliced out, or slots that can be nulled
 // trash_actions controls what happens when the trashcan is clicked. Delete destroys an item, splice removes it from the array it is found in, and null replaces with null
-export function editable_mm_ref_list_item<T extends LancerItemType>(
+export function item_preview<T extends LancerItemType>(
   item_path: string,
   trash_action: "delete" | "splice" | "null" | null,
   helper: HelperOptions,
@@ -185,68 +187,68 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
   }
 
   ui.notifications?.error("TODO: SYSTEM REF VIEWS");
-  return "";
-  /*
-  switch (doc.type) {
-    case EntryType.MECH_SYSTEM:
-      let sys: MechSystem = <MechSystem>(<any>item);
-      let icon: string;
-      let sp: string;
-      let desc: string | undefined;
-      let actions: string | undefined;
-      let deployables: string | undefined;
-      let eff: string | undefined;
+  if (doc.is_mech_system()) {
+    let icon: string;
+    let sp: string;
+    let desc: string | undefined;
+    let actions: string | undefined;
+    let deployables: string | undefined;
+    let eff: string | undefined;
 
-      const icon_types = [SystemType.Deployable, SystemType.Drone, SystemType.Mod, SystemType.System, SystemType.Tech];
-      icon = icon_types.includes(sys.SysType)
-        ? `cci cci-${sys.SysType.toLowerCase()} i--m i--click`
-        : `cci cci-system i--m i--click`;
+    const icon_types = [SystemType.Deployable, SystemType.Drone, SystemType.Mod, SystemType.System, SystemType.Tech];
+    icon = icon_types.includes(doc.system.type)
+      ? `cci cci-${doc.system.type.toLowerCase()} i--m i--click`
+      : `cci cci-system i--m i--click`;
 
-      sp = sp_display(sys.SP ? sys.SP : 0);
+    sp = sp_display(doc.system.sp ?? 0);
 
-      if (sys.Description && sys.Description !== "No description") {
-        desc = `<div class="desc-text" style="padding: 5px">
-          ${sys.Description}
+    if (doc.system.description && doc.system.description !== "No description") {
+      desc = `<div class="desc-text" style="padding: 5px">
+          ${doc.system.description}
         </div>`;
-      }
+    }
 
-      if (sys.Effect) {
-        eff = effect_box("EFFECT", sys.Effect);
-      }
+    if (doc.system.effect) {
+      eff = effect_box("EFFECT", doc.system.effect);
+    }
 
-      if (sys.Actions.length) {
-        actions = sys.Actions.map((a: Action, i: number | undefined) => {
+    if (doc.system.actions.length) {
+      actions = doc.system.actions
+        .map((a, i) => {
           return buildActionHTML(a, { full: true, num: i });
-        }).join("");
-      }
+        })
+        .join("");
+    }
 
-      if (sys.Deployables.length) {
-        deployables = sys.Deployables.map((d: Deployable, i: number) => {
-          return buildDeployableHTML(d, true, i);
-        }).join("");
-      }
+    if (doc.system.deployables.length) {
+      deployables = doc.system.deployables
+        .map((d, i) => {
+          return d.status == "resolved" ? buildDeployableHTML(d.value, true, i) : "UNRESOLVED";
+        })
+        .join("");
+    }
 
-      let macroData: LancerMacroData = {
-        iconPath: `systems/${game.system.id}/assets/icons/macro-icons/mech_system.svg`,
-        title: sys.Name,
-        fn: "prepareItemMacro",
-        args: [sys.Flags.orig_doc.actor?.id ?? "", sys.Flags.orig_doc.id],
-      };
+    let macroData: LancerMacroData = {
+      iconPath: `systems/${game.system.id}/assets/icons/macro-icons/mech_system.svg`,
+      title: doc.name!,
+      fn: "prepareItemMacro",
+      args: [doc.actor?.id ?? "", doc.id],
+    };
 
-      let limited = "";
-      if (is_limited(sys)) {
-        limited = limited_uses_indicator(sys, item_path);
-      }
-      return `<li class="valid ref card clipped mech-system item ${
-        sys.SysType === SystemType.Tech ? "tech-item" : ""
-      }" ${ref_params(cd.ref, cd.uuid)} style="margin: 0;">
-        <div class="lancer-header ${sys.Destroyed ? "destroyed" : ""}" style="grid-area: 1/1/2/3; display: flex">
-          <i class="${sys.Destroyed ? "mdi mdi-cog" : icon}"> </i>
+    let limited = "";
+    if (doc.is_limited()) {
+      limited = limited_uses_indicator(doc, item_path);
+    }
+    return `<li class="valid ref card clipped mech-system item ${
+      doc.system.type === SystemType.Tech ? "tech-item" : ""
+    }" ${ref_params(doc)} style="margin: 0;">
+        <div class="lancer-header ${doc.system.destroyed ? "destroyed" : ""}" style="grid-area: 1/1/2/3; display: flex">
+          <i class="${doc.system.destroyed ? "mdi mdi-cog" : icon}"> </i>
           <a class="lancer-macro" data-macro="${encodeMacroData(macroData)}"><i class="mdi mdi-message"></i></a>
-          <span class="minor grow">${sys.Name}</span>
+          <span class="minor grow">${doc.name}</span>
           ${collapse_trigger}
           <div class="ref-list-controls">
-            <a class="lancer-context-menu" data-context-menu="${item.Type}" data-path="${item_path}"">
+            <a class="lancer-context-menu" data-context-menu="${doc.type}" data-path="${item_path}"">
               <i class="fas fa-ellipsis-v"></i>
             </a>
           </div>
@@ -262,117 +264,111 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
           ${eff ? eff : ""}
           ${actions ? actions : ""}
           ${deployables ? deployables : ""}
-          ${compact_tag_list(item_path + ".Tags", sys.Tags, false)}
+          ${compact_tag_list(item_path + ".system.tags", doc.system.tags, false)}
         </div>
         </li>`;
-
-    case EntryType.TALENT:
-      let talent: Talent = <Talent>(<any>item);
-      let retStr = `<li class="card clipped talent-compact item ref valid" ${ref_params(cd.ref, cd.uuid)}>
+  } else if (doc.is_talent()) {
+    let retStr = `<li class="card clipped talent-compact item ref valid" ${ref_params(doc)}>
         <div class="lancer-talent-header medium clipped-top" style="grid-area: 1/1/2/4">
           <i class="cci cci-talent i--m"></i>
-          <span class="major">${talent.Name}</span>
+          <span class="major">${doc.name}</span>
           ${collapse_trigger}
           <div class="ref-list-controls">
-            <a class="lancer-context-menu" data-context-menu="${item.Type}" data-path="${item_path}"">
+            <a class="lancer-context-menu" data-context-menu="${doc.type}" data-path="${item_path}"">
               <i class="fas fa-ellipsis-v"></i>
             </a>
           </div>
         </div>
       <ul ${collapse_trigger ? `class="collapse" data-collapse-id="${collapseID}"` : ""} style="grid-area: 2/1/3/3">`;
 
-      for (var i = 0; i < talent.CurrentRank; i++) {
-        let talent_actions = "";
+    for (var i = 0; i < doc.system.curr_rank; i++) {
+      let talent_actions = "";
 
-        if (talent.Ranks[i].Actions) {
-          talent_actions = talent.Ranks[i].Actions.map((a: Action) => {
-            return buildActionHTML(a, { full: true, num: talent.Actions.indexOf(a) });
-          }).join("");
-        }
+      if (doc.system.ranks[i].actions) {
+        talent_actions = doc.system.ranks[i].actions
+          .map(a => {
+            return buildActionHTML(a, { full: true, num: (doc as LancerTALENT).system.actions.indexOf(a) });
+          })
+          .join("");
+      }
 
-        let macroData: LancerMacroData = {
-          iconPath: `systems/${game.system.id}/assets/icons/macro-icons/talent.svg`,
-          title: talent.Ranks[i]?.Name,
-          fn: "prepareTalentMacro",
-          args: [talent.Flags.orig_doc.actor?.id ?? "", talent.Flags.orig_doc.id, i],
-        };
+      let macroData: LancerMacroData = {
+        iconPath: `systems/${game.system.id}/assets/icons/macro-icons/talent.svg`,
+        title: doc.system.ranks[i]?.name,
+        fn: "prepareTalentMacro",
+        args: [doc.actor?.id ?? "", doc.id, i],
+      };
 
-        retStr += `<li class="talent-rank-compact card clipped" style="padding: 5px">
+      retStr += `<li class="talent-rank-compact card clipped" style="padding: 5px">
         <a class="cci cci-rank-${i + 1} i--l i--dark talent-macro lancer-macro" data-macro="${encodeMacroData(
-          macroData
-        )}" style="grid-area: 1/1/2/2"></a>
-        <span class="major" style="grid-area: 1/2/2/3">${talent.Ranks[i]?.Name}</span>
+        macroData
+      )}" style="grid-area: 1/1/2/2"></a>
+        <span class="major" style="grid-area: 1/2/2/3">${doc.system.ranks[i]?.name}</span>
         <div class="effect-text" style="grid-area: 2/1/3/3">
-        ${talent.Ranks[i]?.Description}
+        ${doc.system.ranks[i]?.description}
         ${talent_actions}
         </div>
         </li>`;
-      }
+    }
 
-      retStr += `</ul>
+    retStr += `</ul>
       </li>`;
 
-      return retStr;
-
-    case EntryType.SKILL:
-      let skill: Skill = <Skill>(<any>item);
-      return `
-      <li class="card clipped skill-compact item macroable ref valid" ${ref_params(cd.ref, cd.uuid)}>
+    return retStr;
+  } else if (doc.is_skill()) {
+    return `
+      <li class="card clipped skill-compact item macroable ref valid" ${ref_params(doc)}>
         <div class="lancer-trigger-header medium clipped-top" style="grid-area: 1/1/2/3">
           <i class="cci cci-skill i--m i--dark"> </i>
-          <span class="major modifier-name">${skill.Name}</span>
+          <span class="major modifier-name">${doc.name}</span>
           <div class="ref-list-controls">
-            <a class="lancer-context-menu" data-context-menu="${item.Type}" data-path="${item_path}"">
+            <a class="lancer-context-menu" data-context-menu="${doc.type}" data-path="${item_path}">
               <i class="fas fa-ellipsis-v"></i>
             </a>
           </div>
         </div>
         <a class="flexrow skill-macro" style="grid-area: 2/1/3/2;">
           <i class="fas fa-dice-d20 i--sm i--dark"></i>
-          <div class="major roll-modifier" style="align-self: center">+${skill.CurrentRank * 2}</div>
+          <div class="major roll-modifier" style="align-self: center">+${doc.system.rank * 2}</div>
         </a>
-        <div class="desc-text" style="grid-area: 2/2/3/3">${skill.Description}</div>
+        <div class="desc-text" style="grid-area: 2/2/3/3">${doc.system.description}</div>
       </li>`;
-
-    case EntryType.CORE_BONUS:
-      let cb: CoreBonus = <CoreBonus>(<any>item);
-      return `
-      <li class="card clipped item ref valid" ${ref_params(cd.ref, cd.uuid)}>
+  } else if (doc.is_core_bonus()) {
+    return `
+      <li class="card clipped item ref valid" ${ref_params(doc)}>
         <div class="lancer-corebonus-header medium clipped-top" style="grid-area: 1/1/2/3">
           <i class="cci cci-corebonus i--m i--dark"> </i>
-          <span class="major modifier-name">${cb.Name}</span>
+          <span class="major modifier-name">${doc.name}</span>
           ${collapse_trigger}
           <div class="ref-list-controls">
-            <a class="lancer-context-menu" data-context-menu="${item.Type}" data-path="${item_path}"">
+            <a class="lancer-context-menu" data-context-menu="${doc.type}" data-path="${item_path}">
               <i class="fas fa-ellipsis-v"></i>
             </a>
           </div>
         </div>
         <div ${collapse_trigger ? `class="collapse" data-collapse-id="${collapseID}"` : ""}>
-          <div class="desc-text" style="grid-area: 2/2/3/3">${cb.Description}</div>
-          <div style="grid-area: 2/3/3/4">${cb.Effect}</div>
+          <div class="desc-text" style="grid-area: 2/2/3/3">${doc.system.description}</div>
+          <div style="grid-area: 2/3/3/4">${doc.system.effect}</div>
         </div>
       </li>`;
-
-    case EntryType.LICENSE:
-      let license: License = <License>(<any>item);
-      return license_ref(license, license.CurrentRank, item_path);
-
-    default:
-      // Basically the same as the simple ref card, but with control added
-      console.log("You're using the default refview, you may not want that");
-      return `
-      <div class="valid ${cd.ref.type} ref clickable-ref ref-card" 
-              ${ref_params(cd.ref, cd.uuid)}>
-        <img class="ref-icon" src="${cd.img}"></img>
-        <span class="major">${cd.name}</span>
+  } else if (doc.is_license()) {
+    return license_ref(doc, doc.system.rank, item_path);
+  } else {
+    // Basically the same as the simple ref card, but with control added
+    console.log("You're using the default refview, you may not want that");
+    return `
+      <div class="valid ${doc.type} ref clickable-ref ref-card" 
+              ${ref_params(doc)}>
+        <img class="ref-icon" src="${doc.img}"></img>
+        <span class="major">${doc.name}</span>
         <hr class="vsep"> 
         <div class="ref-list-controls">
-          ${trash_can}
+          <a class="lancer-context-menu" data-context-menu="${doc.type}" data-path="${item_path}">
+            <i class="fas fa-ellipsis-v"></i>
+          </a>
         </div>
       </div>`;
   }
-  */
 }
 
 export function limited_uses_indicator(
@@ -403,7 +399,7 @@ export function editable_mm_ref_list_item_native(
   trash_action: "delete" | "splice" | "null" | null,
   helper: HelperOptions
 ) {
-  return editable_mm_ref_list_item(item_path, trash_action, helper).replace("ref ref-card", "ref ref-card native-drag");
+  return item_preview(item_path, trash_action, helper).replace("ref ref-card", "ref ref-card native-drag");
 }
 
 // Put this at the end of ref lists to have a place to drop things. Supports both native and non-native drops

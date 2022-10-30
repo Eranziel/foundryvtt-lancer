@@ -8,7 +8,7 @@
             lancer.placeholder.name"}}" />
         </h1>
       </div>
-      {{{ref-portrait-img actor.img "img" mm}}}
+      {{{ref-portrait-img actor.img "img" actor}}}
     </header>
 
     {{!-- Sheet Tab Navigation --}}
@@ -23,28 +23,28 @@
   <section class="sheet-body scroll-body">
     <div class="tab stats" data-group="primary" data-tab="stats">
       <div class="stat-grid">
-        {{{stat-edit-max-card "HP" "mdi mdi-heart-outline" "mm.CurrentHP" "mm.MaxHP"}}}
-        {{{stat-edit-max-card "HEAT" "cci cci-heat" "mm.CurrentHeat" "mm.HeatCapacity"}}}
-        {{{stat-view-card "EVASION" "cci cci-evasion" "mm.Evasion"}}}
-        {{{stat-view-card "ARMOR" "mdi mdi-shield-outline" "mm.Armor"}}}
-        {{{stat-edit-max-card "STRUCTURE" "cci cci-structure" "mm.CurrentStructure" "mm.MaxStructure"}}}
-        {{{stat-edit-max-card "STRESS" "cci cci-reactor" "mm.CurrentStress" "mm.MaxStress"}}}
-        {{{stat-view-card "E-DEF" "cci cci-edef" "mm.EDefense"}}}
-        {{{stat-view-card "SPEED" "mdi mdi-arrow-right-bold-hexagon-outline" "mm.Speed"}}}
-        {{{stat-view-card "SAVE" "cci cci-save" "mm.SaveTarget"}}}
-        {{{stat-view-card "SENSORS" "cci cci-sensor" "mm.SensorRange"}}}
-        {{{tech-flow-card "TECH ATK" "cci cci-tech-full" "mm.TechAttack"}}}
-        {{{stat-edit-card "BURN" "cci cci-burn" "mm.Burn"}}}
-        {{{stat-edit-card "O.SHIELD" "mdi mdi-shield-star-outline" "mm.Overshield"}}}
-        {{{stat-edit-max-card "REPAIRS" "cci cci-repair" "mm.CurrentRepairs" "mm.RepairCapacity"}}}
+        {{{stat-edit-max-card "HP" "mdi mdi-heart-outline" "system.hp.value" "system.hp.max"}}}
+        {{{stat-edit-max-card "HEAT" "cci cci-heat" "system.heat.value" "system.heat.max"}}}
+        {{{stat-view-card "EVASION" "cci cci-evasion" "system.evasion"}}}
+        {{{stat-view-card "ARMOR" "mdi mdi-shield-outline" "system.armor"}}}
+        {{{stat-edit-max-card "STRUCTURE" "cci cci-structure" "system.structure.value" "system.structure.max"}}}
+        {{{stat-edit-max-card "STRESS" "cci cci-reactor" "system.stress.value" "system.stress.max"}}}
+        {{{stat-view-card "E-DEF" "cci cci-edef" "system.edef"}}}
+        {{{stat-view-card "SPEED" "mdi mdi-arrow-right-bold-hexagon-outline" "system.speed"}}}
+        {{{stat-view-card "SAVE" "cci cci-save" "system.save_target"}}}
+        {{{stat-view-card "SENSORS" "cci cci-sensor" "system.sensor_range"}}}
+        {{{tech-flow-card "TECH ATK" "cci cci-tech-full" "system.tech_attack"}}}
+        {{{stat-edit-card "BURN" "cci cci-burn" "system.burn"}}}
+        {{{stat-edit-card "O.SHIELD" "mdi mdi-shield-star-outline" "system.overshield.value"}}}
+        {{{stat-edit-max-card "REPAIRS" "cci cci-repair" "system.repairs.value" "system.repairs.max"}}}
         <div class="size-card">
-          {{#if (eq mm.Size 0.5)}}
+          {{#if (eq system.size 0.5)}}
           <i class="cci cci-size-half size-icon theme--main"></i>
           {{else}}
-          <i class="cci cci-size-{{mm.Size}} size-icon theme--main"></i>
+          <i class="cci cci-size-{{system.size}} size-icon theme--main"></i>
           {{/if}}
         </div>
-        {{{overcharge-button actor "mm.OverchargeCount"}}}
+        {{{overcharge-button actor "system.overcharge"}}}
         <div class="flexcol card clipped">
           <div class="lancer-header">
             <span class="major">
@@ -52,18 +52,18 @@
             </span>
           </div>
           <div class="flexrow stat-container">
-            <input name="mm.CurrentCoreEnergy" class="core-power-toggle mdi mdi-battery" style="margin: auto;"
-              type="checkbox" data-dtype="Boolean" {{checked mm.CurrentCoreEnergy}} />
+            <input name="system.core_energy" class="core-power-toggle mdi mdi-battery" style="margin: auto;"
+              type="checkbox" data-dtype="Boolean" {{checked system.core_energy}} />
           </div>
         </div>
-        {{{stat-rollable-card "GRIT" "cci cci-armor" "mm.Pilot.Grit"}}}
-        {{{pilot-slot "mm.Pilot"}}}
+        {{{stat-rollable-card "GRIT" "cci cci-armor" "system.pilot.value.grit"}}}
+        {{{pilot-slot "system.pilot"}}}
 
         <div class="wraprow double hase">
-          {{{stat-rollable-card "HUL" "" "mm.Hull"}}}
-          {{{stat-rollable-card "AGI" "" "mm.Agi"}}}
-          {{{stat-rollable-card "SYS" "" "mm.Sys"}}}
-          {{{stat-rollable-card "ENG" "" "mm.Eng"}}}
+          {{{stat-rollable-card "HUL" "" "system.hull"}}}
+          {{{stat-rollable-card "AGI" "" "system.agi"}}}
+          {{{stat-rollable-card "SYS" "" "system.sys"}}}
+          {{{stat-rollable-card "ENG" "" "system.eng"}}}
         </div>
         <div class="inventory" style="flex: inherit;margin:3px 10px">
           <button style="padding: 8px 16px"> View Inventory </button>
@@ -75,11 +75,11 @@
             {{localize "lancer.mech-sheet.macros.label" }}
           </span>
           <div class="lancer-macro-grid">
-            {{{macro-button "STABILIZE" "stabilizeMacro" "mm" }}}
-            {{{macro-button "FULL REPAIR" "fullRepairMacro" "mm" }}}
+            {{{macro-button "STABILIZE" "stabilizeMacro" "actor" }}}
+            {{{macro-button "FULL REPAIR" "fullRepairMacro" "actor" }}}
             <div style="margin:0px 8px;border-left: 2px solid #a2a2a2;"></div>
-            {{{macro-button "STRUCTURE" "prepareStructureMacro" "mm" }}}
-            {{{macro-button "OVERHEAT" "prepareOverheatMacro" "mm" }}}
+            {{{macro-button "STRUCTURE" "prepareStructureMacro" "actor" }}}
+            {{{macro-button "OVERHEAT" "prepareOverheatMacro" "actor" }}}
           </div>
         </div>
         {{#if (is-combatant actor)}}
@@ -100,19 +100,19 @@
     </div>
 
     <div class="tab loadout" data-group="primary" data-tab="loadout">
-      {{{mech-frame actor "mm.Loadout.Frame"}}}
+      {{{mech-frame actor "system.loadout.frame"}}}
       <div class="card clipped">
         <span class="lancer-header submajor">BASIC ATTACKS</span>
         <div class="lancer-macro-grid">
-          {{{macro-button "MELEE/RANGED" "prepareEncodedAttackMacro" "mm" }}}
-          {{{macro-button "TECH" "prepareTechMacro" "mm" }}}
+          {{{macro-button "MELEE/RANGED" "prepareEncodedAttackMacro" "actor" }}}
+          {{{macro-button "TECH" "prepareTechMacro" "actor" }}}
         </div>
       </div>
       <div class="card">
         <span class="lancer-header major">
-          {{localize "lancer.mech-sheet.system.label" total=mm.Loadout.TotalSP max=mm.MaxSP}}
+          {{localize "lancer.mech-sheet.system.label" total=system.loadout.sp.value max=system.loadout.sp.max}}
         </span>
-        {{{mech-loadout "mm"}}}
+        {{{mech-loadout "actor"}}}
       </div>
     </div>
 
@@ -120,8 +120,8 @@
       {{!-- Talents --}}
       <div class="card clipped">
         <h2 class="lancer-title clipped">{{localize "lancer.pilot-sheet.abilities.talents"}}</h2>
-        {{#each mm.Pilot.Talents as |skill index|}}
-        {{{ref-mm-controllable-item (concat "mm.Pilot.Talents." index) ""}}}
+        {{#each system.pilot.value.talents as |talent index|}}
+        {{{ref-mm-controllable-item (concat "system.pilot.value.talents." index) ""}}}
         {{/each}}
       </div>
     </div>
