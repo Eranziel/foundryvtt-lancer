@@ -138,9 +138,6 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
 
   // So it can be overridden
   activate_general_controls(html: JQuery) {
-    let getfunc = () => this.getData();
-    let commitfunc = (_: any) => this._commitCurrMM();
-
     // Enable NPC class/template-deletion controls
     HANDLER_activate_general_controls(html, this.actor, handleClassDelete);
   }

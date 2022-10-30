@@ -11,6 +11,7 @@ import { AE_MODE_SET_JSON } from "../effects/lancer-active-effect";
 import { SourceDataType } from "../source-template";
 import * as defaults from "../util/mmigration/defaults";
 import { PackedPilotData } from "../util/mmigration/packed-types";
+import { getAutomationOptions } from "../settings";
 const lp = LANCER.log_prefix;
 
 const DEFAULT_OVERCHARGE_SEQUENCE = ["+1", "+1d3", "+1d6", "+1d6+4"];
@@ -1123,7 +1124,6 @@ export class LancerActor extends Actor {
    * On the result of an update, we want to cascade derived data.
    */
   protected _onUpdate(...[changed, options, user]: Parameters<Actor["_onUpdate"]>) {
-    /*
     super._onUpdate(changed, options, user);
     LancerHooks.call(this);
 
@@ -1137,7 +1137,8 @@ export class LancerActor extends Actor {
       ) &&
       (this.is_mech() || this.is_npc())
     ) {
-      const data = changed as DeepPartial<RegMechData | RegNpcData>;
+      const data = changed as any; // DeepPartial<RegMechData | RegNpcData>;
+      console.log("Checking structuring");
       if (
         "heat" in (data ?? {}) &&
         // @ts-expect-error Should be fixed with v10 types
@@ -1152,7 +1153,6 @@ export class LancerActor extends Actor {
         prepareStructureMacro(this);
       }
     }
-    */
   }
 
   // As with _onUpdate, want to cascade

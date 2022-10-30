@@ -84,7 +84,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     this._activateMacroDragging(html);
 
     let getfunc = () => this.getData();
-    let commitfunc = (_: any) => this._commitCurrMM();
+    let commitfunc = (_: any) => {};
 
     // Make +/- buttons work
     HANDLER_activate_plus_minus_buttons(html, this.actor);
@@ -141,10 +141,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
 
   // So it can be overridden
   activate_general_controls(html: JQuery) {
-    let getfunc = this.getData;
-    let commitfunc = (_: any) => this._commitCurrMM();
     HANDLER_activate_general_controls(html, this.actor);
-    // TODO
   }
 
   _activateMacroDragging(html: JQuery) {
@@ -452,38 +449,27 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     }
   }
 
-  _propagateMMData(formData: any): any {
-    // TODO: This isn't relevant anymore
-
+  _propagateData(formData: any): any {
     // Pushes relevant field data from the form to other appropriate locations,
     // e.x. to synchronize name between token and actor
     // @ts-expect-error should be fixed and not need the "as" with v10 types
-    let token = this.actor["token"] as PrototypeTokenData;
+    let token = this.actor.prototypeToken as PrototypeTokenData;
 
-    // Get the basics
-    let new_top: any = {
-      img: formData.img,
-      name: formData.name,
-    };
-
-    // Set the prototype token image if the prototype token isn't initialized
     if (!token) {
-      new_top["token.img"] = formData["img"];
-      new_top["token.name"] = formData["name"];
-    }
-
-    // Update token image if it matches the old actor image - keep in sync
-    // Ditto for name
-    else {
-      if (this.actor.img === token["img"] && this.actor.img !== formData["img"]) {
-        new_top["token.img"] = formData["img"];
-      } // Otherwise don't update token
+      // Set the prototype token image if the prototype token isn't initialized
+      formData["prototypeToken.texture.src"] = formData["img"];
+      formData["prototypeToken.name"] = formData["name"];
+    } else {
+      // Update token image if it matches the old actor image - keep in sync
+      // @ts-expect-error
+      if (this.actor.img === token.texture.src && this.actor.img !== formData["img"]) {
+        formData["prototypeToken.texture.src"] = formData["img"];
+      }
+      // Ditto for name
       if (this.actor.name === token["name"] && this.actor.name !== formData["name"]) {
-        new_top["token.name"] = formData["name"];
+        formData["prototypeToken.name"] = formData["name"];
       }
     }
-
-    return new_top;
   }
 
   /**
@@ -492,21 +478,12 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
    * @private
    */
   async _updateObject(_event: Event, formData: any): Promise<LancerActor | undefined> {
-    // Bound NPC tier as it is one of the most frequent sheet breakers. TODO: more general solution
-    if ("npctier" in formData) {
-      formData["mm.Tier"] = Number.parseInt(formData["npctier"]) || 1;
-    }
+    // Automatically propagates changes to image/name
+    this._propagateData(formData);
 
-    // Automatically propagates changes that should affect multiple things.
-    let new_top = this._propagateMMData(formData);
+    // Simple writeback
+    await this.actor.update(formData);
 
-    // Combine the data, making sure to propagate the "top level data" to the appropriate location in flags
-    // TODO:
-    /*
-    gentle_merge(ct, formData);
-    mergeObject((ct.mm.Flags as FoundryFlagData<any>).top_level_data, new_top);
-    await this._commitCurrMM();
-    */
     return this.actor;
   }
 
@@ -522,24 +499,8 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     console.log(`${lp} Rendering with following actor ctx: `, data);
     return data;
   }
-
-  // Write back our currently cached _currData, then refresh this sheet
-  // Useful for when we want to do non form-based alterations
-  async _commitCurrMM() {
-    ui.notifications?.error("Sheet writeback is broken");
-    /*
-    // TODO
-    let cd = this._currData;
-    this._currData = null;
-    await cd?.mm.writeback();
-
-    // Compendium entries don't re-draw appropriately unless we do this. 0.8 Should fix, hopefully
-    if (this.actor.compendium) {
-      this.render();
-    }
-    */
-  }
 }
+
 function rollStatMacro(_actor: unknown, _mData: LancerStatMacroData) {
   throw new Error("Function not implemented.");
 }

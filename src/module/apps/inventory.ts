@@ -40,17 +40,12 @@ export class InventoryDialog extends Dialog {
     });
   }
 
-  /** @override
-   * Expose our data. Note that everything should be ready by now
-   */
-  // @ts-ignore Dialog is apparently cut off from async in league types
+  // @ts-expect-error Dialog is apparently cut off from async in league types
   async getData(): Promise<InventoryDialogData> {
     // Fill out our categories
-    // @ts-expect-error Should be fixed with v10 types
-    let mm = await this.actor.system.derived.mm_promise;
     return {
       ...super.getData(),
-      categories: this.populate_categories(mm), // this.populate_categories()
+      categories: this.populate_categories(this.actor),
     };
   }
 
@@ -87,6 +82,50 @@ export class InventoryDialog extends Dialog {
         {
           label: "Mods",
           items: actor.items.filter(i => i.is_weapon_mod()),
+        },
+        {
+          label: "Statuses",
+          items: actor.items.filter(i => i.is_status()),
+          // path: "mm.StatusesAndConditions"
+        },
+      ];
+    } else if (actor.is_pilot()) {
+      cats = [
+        {
+          label: "Weapons",
+          items: actor.items.filter(i => i.is_pilot_weapon()),
+        },
+        {
+          label: "Armor",
+          items: actor.items.filter(i => i.is_pilot_armor()),
+        },
+        {
+          label: "Gear",
+          items: actor.items.filter(i => i.is_pilot_gear()),
+        },
+        {
+          label: "Talents",
+          items: actor.items.filter(i => i.is_talent()),
+        },
+        {
+          label: "Skills",
+          items: actor.items.filter(i => i.is_skill()),
+        },
+        {
+          label: "Licenses",
+          items: actor.items.filter(i => i.is_license()),
+        },
+        {
+          label: "Core Bonuses",
+          items: actor.items.filter(i => i.is_core_bonus()),
+        },
+        {
+          label: "Reserves",
+          items: actor.items.filter(i => i.is_reserve()),
+        },
+        {
+          label: "Organizations",
+          items: actor.items.filter(i => i.is_organization()),
         },
         {
           label: "Statuses",

@@ -28,6 +28,13 @@ export class LancerDataModel<T> extends foundry.abstract.DataModel<T> {
  */
 export function fancy_merge_data(full_source_data: any, update_data: any): any {
   if (full_source_data == null) throw new Error("Cannot merge with null or undefined - try again");
+  if (
+    typeof full_source_data == "number" ||
+    typeof full_source_data == "string" ||
+    typeof full_source_data == "boolean"
+  ) {
+    return update_data; // Handle in parent
+  }
   for (let [k, v] of Object.entries(update_data)) {
     // Prepare for dotpath traversal
     k = format_dotpath(k);
@@ -53,7 +60,7 @@ export function fancy_merge_data(full_source_data: any, update_data: any): any {
       let prior = full_source_data[fore];
       if (prior) {
         // Recursive
-        fancy_merge_data(prior, { [aft]: v });
+        full_source_data[fore] = fancy_merge_data(prior, { [aft]: v });
       } else {
         // New value at this location
         full_source_data[fore] = { [aft]: v };
@@ -246,7 +253,7 @@ export class ResolvedUUIDRefField extends fields.StringField {
 // Use this to represent a field that is effectively just a number, but should present as a min/max/value field in expanded `system` data
 export class FakeBoundedNumberField extends fields.NumberField {
   /** @override */
-  initialize(model: unknown, name: string, value: number) {
+  initialize(value: string, model: any) {
     // Expand to a somewhat reasonable range. `prepareData` functions should handle the rest
     return {
       min: 0,

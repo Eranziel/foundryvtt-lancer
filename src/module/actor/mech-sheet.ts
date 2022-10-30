@@ -173,7 +173,7 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
           // mount.reset();
 
           // Write back
-          await this._commitCurrMM();
+          // await this._commitCurrMM();
         },
       });
     }
@@ -222,20 +222,18 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
         break;
       case "reset-sys":
         if (!path) return;
-        // ui.notifications?.info("TODO: Reset the systems");
+        ui.notifications?.info("TODO: Reset the systems");
         // let sys_mount = resolve_dotpath(data, path) as SystemMount;
         // sys_mount.System = null;
         break;
       case "reset-wep":
         if (!path) return;
-        // ui.notifications?.info("TODO: Reset the weapons");
+        ui.notifications?.info("TODO: Reset the weapons");
         // let wep_mount = resolve_dotpath(data, path) as WeaponMount;
         // wep_mount?.reset();
         break;
       default:
         return; // no-op
     }
-
-    await this._commitCurrMM();
   }
 }
