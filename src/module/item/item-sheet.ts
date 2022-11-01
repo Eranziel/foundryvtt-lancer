@@ -8,12 +8,11 @@ import {
 } from "../helpers/commons";
 import { HANDLER_activate_counter_listeners, HANDLER_activate_plus_minus_buttons } from "../helpers/item";
 import {
-  HANDLER_activate_native_ref_dragging,
   HANDLER_activate_ref_dragging,
-  HANDLER_activate_ref_drop_clearing,
-  HANDLER_activate_ref_drop_setting,
-  HANDLER_add_ref_to_list_on_drop,
-  HANDLER_activate_ref_clicking,
+  HANDLER_activate_ref_slot_clearing,
+  HANDLER_activate_ref_slot_dropping,
+  HANDLER_add_doc_to_list_on_drop,
+  click_evt_open_ref,
   HANDLER_activate_uses_editor,
 } from "../helpers/refs";
 import {
@@ -25,7 +24,6 @@ import { HANDLER_activate_tag_context_menus, HANDLER_activate_tag_dropping } fro
 import { CollapseHandler } from "../helpers/collapse";
 import { activate_action_editor } from "../apps/action-editor";
 import { find_license_for } from "../util/doc";
-import { dragResolverCache } from "../helpers/dragdrop";
 
 const lp = LANCER.log_prefix;
 
@@ -103,11 +101,10 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
     };
 
     // Make refs clickable
-    $(html).find(".ref.valid.clickable-ref:not(.profile-img)").on("click", HANDLER_activate_ref_clicking);
+    $(html).find(".ref.set:not(.profile-img)").on("click", click_evt_open_ref);
 
     // Enable ref dragging
     HANDLER_activate_ref_dragging(html);
-    HANDLER_activate_native_ref_dragging(html);
 
     this._activate_context_listeners(html, getfunc, commitfunc);
 
@@ -122,18 +119,15 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
     // Make counter pips work
     HANDLER_activate_counter_listeners(html, this.item);
 
-    // Grab pre-existing ctx if available
-    let resolver = dragResolverCache();
-
     // Enable hex use triggers.
     HANDLER_activate_uses_editor(html, getfunc);
 
     // Allow dragging items into lists
-    HANDLER_add_ref_to_list_on_drop(resolver, html, getfunc, commitfunc);
+    HANDLER_add_doc_to_list_on_drop(html, this.item);
 
     // Allow set things by drop. Mostly we use this for manufacturer/license dragging
-    HANDLER_activate_ref_drop_setting(resolver, html, null, null, getfunc, commitfunc); // Don't restrict what can be dropped past type, and don't take ownership or whatever
-    HANDLER_activate_ref_drop_clearing(html, getfunc, commitfunc);
+    HANDLER_activate_ref_slot_dropping(html, this.item, null); // Don't restrict what can be dropped past type, and don't take ownership or whatever
+    HANDLER_activate_ref_slot_clearing(html, this.item);
 
     // Enable bonus editors
     HANDLER_activate_edit_bonus(html, this.item);
@@ -151,7 +145,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
     HANDLER_activate_general_controls(html, this.item);
 
     // Enable tag dropping
-    HANDLER_activate_tag_dropping(resolver, html, getfunc, commitfunc);
+    HANDLER_activate_tag_dropping(html, getfunc, commitfunc);
 
     // Enable action editors
     activate_action_editor(html, this.item);

@@ -12,13 +12,37 @@ export class LancerDataModel<T> extends foundry.abstract.DataModel<T> {
   // For you, sohum. Svelte it to your heart's content
 
   /**
-   * A more sophisticated mergeobject
+   * Create a full update payload, e.g. to preserve arrays
    * @param update_data the update data to apply
    */
   full_update_data(update_data: object): object {
     // @ts-expect-error
     let system = this.toObject();
     return fancy_merge_data({ system }, update_data);
+  }
+
+  // A list of tasks to be called to finish up preparations on this model
+  _pre_finalize_tasks!: Array<() => any>;
+
+  /**
+   * Add a job to this model to be called pre-finalize
+   */
+  add_pre_finalize_task(task: () => any) {
+    this._pre_finalize_tasks.push(task);
+  }
+
+  /**
+   * Call this in prepare data to finalize our jobs
+   */
+  finalize_tasks() {
+    this._pre_finalize_tasks.forEach(x => x());
+    this._pre_finalize_tasks = [];
+  }
+
+  // Have to override this to set up our tasks
+  _initialize(...args: any) {
+    this._pre_finalize_tasks = [];
+    super._initialize(...args);
   }
 }
 
@@ -132,34 +156,39 @@ export class ResolvedEmbeddedRefField extends fields.StringField {
   }
 
   /** @inheritdoc */
-  initialize(value: string, model: any): null | SystemTemplates.ResolvedEmbeddedRef<any> {
-    if (value != null) {
-      let sub = model?.parent?.getEmbeddedDocument(this.embedded_collection, value);
-      if (!sub) {
-        console.log("Failed to resolve embedded ref: ID not found.", model, value);
-        return {
-          status: "missing",
-          value: null,
-        };
-      } else if (this.allowed_types && !this.allowed_types.includes(sub.type)) {
-        console.log(
-          `Failed to resolve embedded ref: Wrong type ${sub.type} not in ${this.allowed_types.join("|")}`,
-          model,
-          value
-        );
-        return {
-          status: "missing",
-          value: null,
-        };
-      } else {
-        return {
-          status: "resolved",
-          value: sub,
-        };
+  initialize(value: string | null, model: LancerDataModel<any>): null | SystemTemplates.ResolvedEmbeddedRef<any> {
+    if (!value) return null;
+
+    // Create shell
+    let shell = {} as SystemTemplates.ResolvedEmbeddedRef<any>;
+
+    // Create job
+    model.add_pre_finalize_task(() => {
+      if (value != null) {
+        // @ts-expect-error
+        let sub: LancerItem | ActiveEffect | null =
+          model?.parent?.getEmbeddedDocument(this.embedded_collection, value) ?? null;
+        if (!sub) {
+          console.log("Failed to resolve embedded ref: ID not found.", model, value);
+          shell.status = "missing";
+          shell.value = null;
+        } else if (this.allowed_types && !this.allowed_types.includes(sub.type)) {
+          console.log(
+            `Failed to resolve embedded ref: Wrong type ${sub.type} not in ${this.allowed_types.join("|")}`,
+            model,
+            value
+          );
+          shell.status = "missing";
+          shell.value = null;
+        } else {
+          shell.status = "resolved";
+          shell.value = sub;
+        }
       }
-    } else {
-      return null;
-    }
+    });
+
+    // Return our shell, which will be filled by the above job
+    return shell;
   }
 }
 
@@ -214,10 +243,15 @@ export class ResolvedUUIDRefField extends fields.StringField {
       //@ts-expect-error missing type
       let sub = fromUuidSync(value);
       if (!sub) {
-        console.log("Attempting async lookup", model, value);
         return {
           status: "async",
-          value: fromUuid(sub).then(x => {
+          value: (async () => {
+            let x = await fromUuid(value);
+            if (!x) {
+              // Retry once
+              await new Promise((a, d) => setTimeout(a, 100));
+              x = await fromUuid(value);
+            }
             if (!x) return null;
             if (this.allowed_types && !this.allowed_types.includes((x as any).type)) {
               console.error(
@@ -226,7 +260,7 @@ export class ResolvedUUIDRefField extends fields.StringField {
               return null;
             }
             return x;
-          }),
+          })(),
         };
       } else if (this.allowed_types && !this.allowed_types.includes(sub.type)) {
         console.error(

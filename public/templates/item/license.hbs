@@ -28,7 +28,7 @@
         </div>
         {{#each unlock_array as |unlock unlock_index|}}
           {{#if (eq unlock.Type "mech_system")}}
-            {{{item-preview-native (concat "unlocks." rank "." unlock_index) null }}}
+            {{{item-preview (concat "unlocks." rank "." unlock_index) null "uuid" }}}
           {{else if (eq unlock.Type "mech_weapon")}}
             <div style="margin:3px 10px">
               {{{mech-weapon-preview (concat "unlocks." rank "." unlock_index) "" }}}
@@ -42,7 +42,7 @@
           {{else}}
             {{!-- Fallback - typically there should be nothing other than mech systems, weapons, mods, and frames,
             but just in case.--}}
-            {{{item-preview-native (concat "unlocks." rank "." unlock_index) null }}}
+            {{{item-preview (concat "unlocks." rank "." unlock_index) null  "uuid" }}}
           {{/if}}
         {{/each}}
       </div>

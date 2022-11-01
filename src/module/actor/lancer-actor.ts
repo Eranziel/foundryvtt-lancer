@@ -902,7 +902,11 @@ export class LancerActor extends Actor {
     // - Prepare derived data (first pass, since this._preliminary = true).
     super.prepareData();
 
-    // 2. Initialize our derived stat fields, and any type-specific fields
+    // 2. Now that embedded docs populated, we can finish up our internal embedded field finalization
+    // @ts-expect-error
+    this.system.finalize_tasks();
+
+    // 3. Initialize our derived stat fields, and any type-specific fields
     // @ts-expect-error
     let sys: SystemTemplates.actor_universal = this.system;
     sys.edef = 0;
@@ -948,11 +952,11 @@ export class LancerActor extends Actor {
       // TODO
     }
 
-    // We then apply all other active effects
+    // 4. We then apply all other active effects
     this._preliminary = false;
     this.applyActiveEffects();
 
-    // Finally, ask items to prepare their final attributes
+    // 5. Finally, ask items to prepare their final attributes
     this.items.forEach(item => item.prepareFinalAttributes()); // TODO
 
     console.log("prepare done");
@@ -966,7 +970,7 @@ export class LancerActor extends Actor {
    */
   prepareDerivedData() {
     // Reset subscriptions for new data
-    this.setupLancerHooks();
+    // we might not need this any more this.setupLancerHooks();
 
     // Changes in max-hp should heal the actor. But certain requirements must be met
     // - Must know prior (would be in dr.hp.max). If 0, do nothing
@@ -1078,7 +1082,7 @@ export class LancerActor extends Actor {
   protected async _preCreate(...[data, options, user]: Parameters<Actor["_preCreate"]>): Promise<void> {
     await super._preCreate(data, options, user);
     // @ts-expect-error Should be fixed with v10 types
-    if (data.system?.lid != "") {
+    if (data.system?.lid) {
       console.log(`${lp} New ${this.type} has data provided from an import, skipping default init.`);
       return;
     }

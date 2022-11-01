@@ -1,6 +1,6 @@
 import { LancerItemType } from "./item/lancer-item";
 import { EffectData } from "./helpers/npc";
-import { LancerActorType } from "./actor/lancer-actor";
+import { LancerActorType, LancerMECH, LancerPILOT } from "./actor/lancer-actor";
 
 // ------------------------------------------------------
 // |       SHEET DATA TYPES                             |
@@ -20,8 +20,9 @@ export type CachedCloudPilot = {
 };
 
 export interface LancerActorSheetData<T extends LancerActorType> extends ActorSheet.Data<ActorSheet.Options> {
-  // Store active mech at the root level
-  active_mech: LancerActor | null;
+  // Store active mech/pilot at the root level
+  active_mech?: LancerMECH;
+  pilot?: LancerPILOT;
   // Store cloud pilot cache and potential cloud ids at the root level
   pilotCache: CachedCloudPilot[];
   cleanedOwnerID: string;
@@ -90,7 +91,7 @@ declare interface LancerReactionMacroData {
 declare interface LancerTextMacroData {
   title: string;
   description: string;
-  item_id?: string;
+  item_uuid?: string;
   tags?: TagDataShort[];
 }
 

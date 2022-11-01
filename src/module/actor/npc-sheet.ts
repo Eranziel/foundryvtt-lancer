@@ -7,7 +7,7 @@ import { LancerItem, is_item_type, LancerItemType, LancerNPC_FEATURE } from "../
 import { insinuate, resort_item } from "../util/doc";
 import { filter_resolved_sync, HANDLER_activate_general_controls } from "../helpers/commons";
 import { LancerActor, LancerNPC } from "./lancer-actor";
-import { DropHandlerFunc, ResolvedDropData } from "../helpers/dragdrop";
+import { DropHandler, ResolvedDropData } from "../helpers/dragdrop";
 import { SystemDataType } from "../system-template";
 import { EntryType } from "../enums";
 const lp = LANCER.log_prefix;
@@ -56,7 +56,7 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
 
         const el = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
         let id = this.token && !this.token.isLinked ? this.token.id! : this.actor.id!;
-        prepareItemMacro(id, <string>el.getAttribute("data-id")).then();
+        prepareItemMacro(id, el.dataset.uuid as string).then();
       });
 
       // Stat rollers
@@ -89,7 +89,7 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
         if (!ev.currentTarget) return; // No target, let other handlers take care of it.
         ev.stopPropagation();
         const techElement = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
-        let techId = techElement.getAttribute("data-id");
+        let techId = techElement.dataset.uuid;
         let id = this.token && !this.token.isLinked ? this.token.id! : this.actor.id!;
         prepareItemMacro(id, techId!);
       });

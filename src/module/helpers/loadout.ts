@@ -27,7 +27,7 @@ function system_view(
   if (!system) return "";
 
   if (system && system.status == "resolved") {
-    let slot = item_preview(`${system_path}`, "delete", helper, registry);
+    let slot = item_preview(system_path, "delete", "doc", helper, registry);
 
     return ` 
       <div class="mount card clipped">
@@ -162,16 +162,27 @@ export function mech_loadout(mech_path: string, helper: HelperOptions): string {
 // Create a div with flags for dropping native pilots
 export function pilot_slot(data_path: string, options: HelperOptions): string {
   // get the existing
-  let existing = resolve_helper_dotpath<SystemTemplates.ResolvedUuidRef<LancerPILOT> | null>(options, data_path, null);
-  if (!existing) return simple_ref_slot(EntryType.PILOT, null, "No Pilot", data_path, true);
-  if (existing.status != "resolved") return simple_ref_slot(EntryType.PILOT, null, "Pilot MIA", data_path, true);
+  let pilot: LancerPILOT;
+  if (options.hash.value) {
+    pilot = options.hash.value;
+  } else {
+    let existing =
+      options.hash["value"] ??
+      resolve_helper_dotpath<SystemTemplates.ResolvedUuidRef<LancerPILOT> | null>(options, data_path, null);
+    if (!existing || existing.status == "missing")
+      return simple_ref_slot(data_path, [EntryType.PILOT], "uuid-ref", options);
+    if (existing.status == "async") return "<span> Do not yet support ";
+    pilot = existing.value;
+  }
 
   return `<div class="pilot-summary">
-    <img class="valid ${existing.value.type} ref clickable-ref" ${ref_params(
-    existing.value
-  )} style="height: 100%" src="${existing.value.img}"/>
+    <img class="ref slot set pilot" 
+         ${ref_params(pilot, data_path)} 
+         data-mode="uuid-ref"
+         data-accept-types="pilot"
+         style="height: 100%" src="${pilot.img}"/>
     <div class="license-level">
-      <span>LL${existing.value.system.level}</span>
+      <span>LL${pilot.system.level}</span>
     </div>
 </div>`;
 }
@@ -190,9 +201,8 @@ export function mech_frame_refview(actor: LancerActor, frame_slot_path: string, 
     frame_slot_path,
     null
   );
-  if (!frame) return simple_ref_slot(EntryType.FRAME, null, "No Frame", frame_slot_path, true);
-  if (frame.status == "missing")
-    return simple_ref_slot(EntryType.FRAME, null, "Error Resolving Frame", frame_slot_path, true);
+  if (!frame || frame.status == "missing")
+    return simple_ref_slot(frame_slot_path, [EntryType.FRAME], "embed-ref", helper);
 
   return `
     <div class="card mech-frame ${ref_params(frame.value)}">

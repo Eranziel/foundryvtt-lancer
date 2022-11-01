@@ -360,12 +360,12 @@ export function deployer_slot(data_path: string, options: HelperOptions): string
   // get the existing
   let existing = resolve_helper_dotpath<LancerPILOT | LancerMECH | LancerNPC | null>(options, data_path, null);
   if (!existing) {
-    return simple_ref_slot([EntryType.PILOT, EntryType.MECH, EntryType.NPC], existing, "No Deployer", data_path, true);
+    return simple_ref_slot(data_path, [EntryType.PILOT, EntryType.MECH, EntryType.NPC], "uuid-ref", options);
   }
 
   // Generate commons
   return `
-    <div class="card clipped ${existing.type} ref valid clickable-ref" ${ref_params(existing)}>
+    <div class="card clipped ${existing.type} ref valid" ${ref_params(existing)}>
       <div class="compact-deployer medium flexrow" >
         <span class="img-bar" style="background-image: url(${existing.img});"> </span>
         <div class="major modifier-name i--light">${existing.type.toUpperCase()} ${existing.name}</div>

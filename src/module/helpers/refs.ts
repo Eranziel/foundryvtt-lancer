@@ -13,14 +13,21 @@ import {
   LancerTALENT,
 } from "../item/lancer-item";
 import { encodeMacroData } from "../macros";
-import { effect_box, gentle_merge, read_form, resolve_dotpath, resolve_helper_dotpath, sp_display } from "./commons";
 import {
-  AllowDropPredicateFunc,
-  AllowResolvedDropPredicateFunc,
-  DragFetcherCache,
+  array_path_edit_changes,
+  drilldown_document,
+  effect_box,
+  gentle_merge,
+  read_form,
+  resolve_dotpath,
+  resolve_helper_dotpath,
+  sp_display,
+} from "./commons";
+import {
+  DropPredicate,
+  FoundryDropData,
   HANDLER_enable_doc_dropping,
   HANDLER_enable_dragging,
-  HANDLER_enable_mm_dragging,
   ResolvedDropData,
 } from "./dragdrop";
 import { buildActionHTML, buildDeployableHTML, license_ref } from "./item";
@@ -30,97 +37,108 @@ import { LancerDoc } from "../util/doc";
 import { EntryType, SystemType } from "../enums";
 import { LancerActor } from "../actor/lancer-actor";
 import { LancerMacroData } from "../interfaces";
+import { SystemTemplates } from "../system-template";
+
+/*
+"Ref" manifesto - Things for handling everything in data that is either a ResolvedUuidRefField or ResolvedEmbeddedRefField.
+
+.ref - Signals that it is a ref, more of a marker class than anything
+  .set - Signals that the ref currently has a value
+  .empty - signals that the ref does not have a value. Only really matters for `slot`
+
+  .slot - Signals that the ref can be set via a drag event
+  .list-item - Signals that the ref is part of a list of refs
+
+data-uuid ~= "Actor.293180213" = UUID (even if embed) of the item, if .set
+data-accept-types ~= "<Type1> <Type2> ..." = Space-separated list of EntryTypes to accept
+data-mode = RefMode = How the ref, if it is a slot, should be set.
+
+helper options:
+ - value=??? = An override of what to show. Instead of showing what the path is resolved to, show this
+*/
+
+export type RefMode = "embed-ref" | "uuid-ref";
 
 // Creates the params common to all refs, essentially just the html-ified version of a RegRef
 export function ref_params(doc: LancerDoc, path?: string) {
   if (path) {
-    return ` data-id="${doc.uuid ?? doc}" data-type="${doc.type}" data-path="${path}" `;
+    return ` data-uuid="${doc.uuid}" data-path="${path}" `;
   } else {
-    return ` data-id="${doc.uuid ?? doc}" data-type="${doc.type}" `;
+    return ` data-uuid="${doc.uuid}" `;
   }
 }
 
-// A multiplexer-helper on machine-mind objects, to create actor/item ref items
+// A small, visually appealing slot for indicating where an item can go / is
 // If a slot_path is provided, then this will additionally be a valid drop-settable location for items of this type
-export function simple_ref_slot<T extends EntryType>(
-  types: T | T[],
-  doc: LancerDoc<T> | null,
-  fallback: string = "Empty",
-  slot_path: string = "",
-  native: boolean = false
+export function simple_ref_slot(
+  path: string = "",
+  accept_types: string | EntryType[],
+  mode: RefMode,
+  _helper: HelperOptions
 ) {
-  // Flatten types
-  if (!Array.isArray(types)) {
-    types = [types];
+  // Format types
+  let flat_types: string;
+  let arr_types: EntryType[];
+  if (Array.isArray(accept_types)) {
+    arr_types = accept_types;
+    flat_types = accept_types.join(" ");
+  } else {
+    arr_types = accept_types.split(" ") as EntryType[];
+    flat_types = accept_types;
   }
-  let flat_types = types.join(" ");
 
-  // Generate path snippet
-  let settable_snippet = "";
-  if (slot_path) {
-    settable_snippet = ` drop-settable `;
-  }
+  // Get present value
+  let doc =
+    _helper.hash["value"] ?? (resolve_helper_dotpath(_helper, path) as SystemTemplates.ResolvedUuidRef<LancerDoc>);
 
-  // Generate native drop snippet if we want one
-  let native_drop_snippet = native ? " native-refdrop " : "";
-
-  if (!doc) {
-    // Show an icon for each potential type
-    let icons = types.map(t => `<img class="ref-icon" src="${TypeIcon(t)}"></img>`);
+  if (!doc || doc.status == "missing") {
+    // Show an icon for each accepted type
+    let icons = (arr_types || ["dummy"]).filter(t => t).map(t => `<img class="ref-icon" src="${TypeIcon(t)}"></img>`);
 
     // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
-    return `<div class="ref ref-card ${native_drop_snippet} ${settable_snippet} ${flat_types}" 
-                        data-path="${slot_path}" 
-                        data-type="${flat_types}">
+    return `<div class="ref ref-card empty slot" 
+                 data-accept-types="${flat_types}"
+                 data-path="${path}"
+                 data-mode="${mode}">
           ${icons.join(" ")}
-          <span class="major">${fallback}</span>
+          <span class="major">Empty</span>
+      </div>`;
+  } else if (doc.status == "async") {
+    return `<span>ASYNC not handled yet</span>`;
+  } else {
+    // The data-type
+    return `<div class="ref set slot ref-card" 
+                  data-accept-types="${flat_types}"
+                  data-path="${path}"
+                  data-mode="${mode}"
+                  ${ref_params(doc.value)}
+                  >
+          <img class="ref-icon" src="${doc.value.img}"></img>
+          <span class="major">${doc.value.name}</span>
       </div>`;
   }
-
-  // The data-type
-  return `<div class="valid ${doc.type} ref clickable-ref ref-card ${native_drop_snippet} ${settable_snippet}" 
-                ${ref_params(doc)}
-                data-path="${slot_path}" >
-         <img class="ref-icon" src="${doc.img}"></img>
-         <span class="major">${doc.name}</span>
-     </div>`;
 }
 
-// The hook to handle clicks on refs. Opens/focuses the clicked item's window
-// $(html).find(".ref.valid").on("click", HANDLER_onClickRef);
-export async function HANDLER_activate_ref_clicking<T extends EntryType>(event: any) {
+// A helper hook to handle clicks on refs. Opens/focuses the clicked item's window
+export async function click_evt_open_ref(event: any) {
   event.preventDefault();
   event.stopPropagation();
-  const element = event.currentTarget;
-
-  ui.notifications!.error("Ref clicking broken");
-  /*
-  const found_doc = await resolve_ref_element(element);
-  if (!found_doc) return;
-
-  // We didn't really need the fully resolved class but, hwatever
-  // open that link
-  let sheet = (found_doc.Flags as FoundryFlagData<T>).orig_doc.sheet;
-
-  // If the sheet is already rendered:
-  if (sheet?.rendered) {
-    sheet.maximize(); // typings say "maximise", are incorrect
-    sheet.bringToTop();
+  const elt = event.currentTarget;
+  const uuid = elt?.dataset?.uuid;
+  if (uuid) {
+    const doc = await fromUuid(uuid);
+    if (doc) {
+      (doc as LancerActor | LancerItem).render(true);
+    }
   }
-
-  // Otherwise render the sheet
-  else sheet?.render(true);
-  */
 }
 
 // Given a ref element (as created by simple_mm_ref or similar function), find the item it is currently referencing
-export async function resolve_ref_element<T extends EntryType>(
-  element: HTMLElement
-): Promise<LancerItem | LancerActor | null> {
-  if (!element.dataset.uuid) {
+export async function resolve_ref_element(elt: HTMLElement): Promise<LancerItem | LancerActor | null> {
+  if (!elt.dataset.uuid) {
     return null;
   } else {
-    let found = await fromUuid(element.dataset.uuid);
+    let found = await fromUuid(elt.dataset.uuid);
     if (found && (found instanceof LancerItem || found instanceof LancerActor)) {
       return found;
     } else if (found) {
@@ -145,23 +163,41 @@ export function ref_portrait<T extends EntryType>(
   _helper: HelperOptions
 ) {
   // Fetch the image
-  return `<img class="profile-img ref valid ${item.type}" src="${img}" data-edit="${img_path}" ${ref_params(
+  return `<img class="profile-img ref set" src="${img}" data-edit="${img_path}" ${ref_params(
     item
   )} width="100" height="100" />`;
 }
 
 // Use this slot callback to add items of certain kind(s) to a list.
 
-// A helper suitable for showing lists of refs that can be deleted/spliced out, or slots that can be nulled
+// A helper suitable for showing a small preview of a ref (slot)
+// In general, any preview here is less for "use" (e.x. don't tend to have elaborate macros) and more just to show something is there
 // trash_actions controls what happens when the trashcan is clicked. Delete destroys an item, splice removes it from the array it is found in, and null replaces with null
 export function item_preview<T extends LancerItemType>(
   item_path: string,
   trash_action: "delete" | "splice" | "null" | null,
+  mode: "doc" | "embed-ref" | "uuid-ref", // Is this to an embedded ref
   helper: HelperOptions,
   registry?: CollapseRegistry
 ): string {
-  // Fetch the item
-  let doc: LancerDoc<T> | null = resolve_helper_dotpath(helper, item_path);
+  // Fetch
+  let fetched = resolve_helper_dotpath(helper, item_path);
+  let doc: LancerDoc<T> | null;
+  if (!!helper.hash["value"]) {
+    doc = helper.hash["value"] as LancerDoc<T>;
+  } else if (mode == "uuid-ref" || mode == "embed-ref") {
+    let f = fetched as SystemTemplates.ResolvedUuidRef<LancerDoc<T>>;
+    if (f.status == "resolved") {
+      doc = f.value;
+    } else {
+      return `<span>ERROR: Unhandled ref status ${f.status}</span>`;
+    }
+  } else if (mode == "doc") {
+    doc = fetched as LancerDoc<T>;
+  } else {
+    throw new Error("Bad item preview mode " + mode);
+  }
+
   if (!doc) {
     // This probably shouldn't be happening
     console.error(`Unable to resolve ${item_path} in `, helper.data);
@@ -186,7 +222,7 @@ export function item_preview<T extends LancerItemType>(
     collapse_trigger = `<i class="mdi mdi-unfold-less-horizontal collapse-trigger collapse-icon" data-collapse-id="${collapseID}"> </i>`;
   }
 
-  ui.notifications?.error("TODO: SYSTEM REF VIEWS");
+  // Handle based on type
   if (doc.is_mech_system()) {
     let icon: string;
     let sp: string;
@@ -239,7 +275,7 @@ export function item_preview<T extends LancerItemType>(
     if (doc.is_limited()) {
       limited = limited_uses_indicator(doc, item_path);
     }
-    return `<li class="valid ref card clipped mech-system item ${
+    return `<li class="ref set card clipped mech-system item ${
       doc.system.type === SystemType.Tech ? "tech-item" : ""
     }" ${ref_params(doc)} style="margin: 0;">
         <div class="lancer-header ${doc.system.destroyed ? "destroyed" : ""}" style="grid-area: 1/1/2/3; display: flex">
@@ -247,7 +283,7 @@ export function item_preview<T extends LancerItemType>(
           <a class="lancer-macro" data-macro="${encodeMacroData(macroData)}"><i class="mdi mdi-message"></i></a>
           <span class="minor grow">${doc.name}</span>
           ${collapse_trigger}
-          <div class="ref-list-controls">
+          <div class="ref-controls">
             <a class="lancer-context-menu" data-context-menu="${doc.type}" data-path="${item_path}"">
               <i class="fas fa-ellipsis-v"></i>
             </a>
@@ -268,12 +304,12 @@ export function item_preview<T extends LancerItemType>(
         </div>
         </li>`;
   } else if (doc.is_talent()) {
-    let retStr = `<li class="card clipped talent-compact item ref valid" ${ref_params(doc)}>
+    let retStr = `<li class="card clipped talent-compact item ref set" ${ref_params(doc)}>
         <div class="lancer-talent-header medium clipped-top" style="grid-area: 1/1/2/4">
           <i class="cci cci-talent i--m"></i>
           <span class="major">${doc.name}</span>
           ${collapse_trigger}
-          <div class="ref-list-controls">
+          <div class="ref-controls">
             <a class="lancer-context-menu" data-context-menu="${doc.type}" data-path="${item_path}"">
               <i class="fas fa-ellipsis-v"></i>
             </a>
@@ -317,11 +353,11 @@ export function item_preview<T extends LancerItemType>(
     return retStr;
   } else if (doc.is_skill()) {
     return `
-      <li class="card clipped skill-compact item macroable ref valid" ${ref_params(doc)}>
+      <li class="card clipped skill-compact item macroable ref set" ${ref_params(doc)}>
         <div class="lancer-trigger-header medium clipped-top" style="grid-area: 1/1/2/3">
           <i class="cci cci-skill i--m i--dark"> </i>
           <span class="major modifier-name">${doc.name}</span>
-          <div class="ref-list-controls">
+          <div class="ref-controls">
             <a class="lancer-context-menu" data-context-menu="${doc.type}" data-path="${item_path}">
               <i class="fas fa-ellipsis-v"></i>
             </a>
@@ -335,12 +371,12 @@ export function item_preview<T extends LancerItemType>(
       </li>`;
   } else if (doc.is_core_bonus()) {
     return `
-      <li class="card clipped item ref valid" ${ref_params(doc)}>
+      <li class="card clipped item ref set" ${ref_params(doc)}>
         <div class="lancer-corebonus-header medium clipped-top" style="grid-area: 1/1/2/3">
           <i class="cci cci-corebonus i--m i--dark"> </i>
           <span class="major modifier-name">${doc.name}</span>
           ${collapse_trigger}
-          <div class="ref-list-controls">
+          <div class="ref-controls">
             <a class="lancer-context-menu" data-context-menu="${doc.type}" data-path="${item_path}">
               <i class="fas fa-ellipsis-v"></i>
             </a>
@@ -357,12 +393,12 @@ export function item_preview<T extends LancerItemType>(
     // Basically the same as the simple ref card, but with control added
     console.log("You're using the default refview, you may not want that");
     return `
-      <div class="valid ${doc.type} ref clickable-ref ref-card" 
+      <div class="ref set ref-card" 
               ${ref_params(doc)}>
         <img class="ref-icon" src="${doc.img}"></img>
         <span class="major">${doc.name}</span>
         <hr class="vsep"> 
-        <div class="ref-list-controls">
+        <div class="ref-controls">
           <a class="lancer-context-menu" data-context-menu="${doc.type}" data-path="${item_path}">
             <i class="fas fa-ellipsis-v"></i>
           </a>
@@ -393,24 +429,69 @@ export function limited_uses_indicator(
   return `<div class="clipped card limited-card">USES ${hexes.join("")}</div>`;
 }
 
-// Exactly as above, but drags as a native when appropriate handlers called
-export function editable_mm_ref_list_item_native(
-  item_path: string,
-  trash_action: "delete" | "splice" | "null" | null,
-  helper: HelperOptions
-) {
-  return item_preview(item_path, trash_action, helper).replace("ref ref-card", "ref ref-card native-drag");
-}
-
 // Put this at the end of ref lists to have a place to drop things. Supports both native and non-native drops
 // Allowed types is a list of space-separated allowed types. "mech pilot mech_weapon", for instance
-export function mm_ref_list_append_slot(item_array_path: string, allowed_types: string, _helper: HelperOptions) {
+export function item_preview_list(
+  item_array_path: string,
+  allowed_types: string,
+  mode: "doc" | RefMode,
+  _helper: HelperOptions,
+  collapse?: CollapseRegistry
+) {
+  let embeds = resolve_helper_dotpath(_helper, item_array_path) as SystemTemplates.ResolvedUuidRef<
+    LancerActor | LancerItem
+  >[];
+  let previews = embeds.map((x, i) => {
+    item_preview(`${item_array_path}.${i}`, null, mode, _helper, collapse);
+  });
   return `
-    <div class="ref ref-card ref-list-append ${allowed_types}" 
-            data-path="${item_array_path}" 
-            data-type="${allowed_types}">
-      <span class="major">Drop to add item</span>
+    <div class="flexcol ref-list" 
+         data-path="${item_array_path}" 
+         data-type="${allowed_types}"
+         data-mode="${mode}">
+         ${previews.join("")}
     </div>`;
+}
+
+// Enables dropping of items into open slots at the end of lists generated by mm_ref_list_append_slot
+// This doesn't handle natives. Requires two callbacks: One to get the item that will actually have its list appended,
+// and one to commit any changes to aforementioned object
+export function HANDLER_add_doc_to_list_on_drop<T>(html: JQuery, root_doc: LancerActor | LancerItem) {
+  // Use our handy dandy helper
+  HANDLER_enable_doc_dropping(html.find(".ref.ref-list"), async (rdd, evt) => {
+    if (!(rdd.type == "Actor" || rdd.type == "Item")) return; // For now, don't allow adding macros etc to lists
+
+    // Gather context information
+    let path = evt[0].dataset.path;
+    let mode = evt[0].dataset.mode as "embed-ref" | "uuid-ref";
+    let allowed_items_raw = evt[0].dataset.type ?? "";
+
+    // Check type is allowed type
+    if (allowed_items_raw && !allowed_items_raw.includes(rdd.document.type)) return;
+
+    // Coerce val to appropriate type
+    let val;
+    if (mode == "embed-ref") {
+      val = rdd.document.id;
+    } else if (mode == "uuid-ref") {
+      val = rdd.document.uuid;
+    } else if (mode == "doc") {
+      return; // Cannot drop here
+    } else {
+      console.error("Ref list drop 'mode' missing");
+      return;
+    }
+
+    // Try to apply the list addition
+    if (path) {
+      let dd = drilldown_document(root_doc, path);
+      let array = dd.terminus;
+      if (Array.isArray(array)) {
+        let changes = array_path_edit_changes(dd.sub_doc, dd.sub_path + ".-1", val, "insert");
+        dd.sub_doc.update({ [changes.path]: changes.new_val });
+      }
+    }
+  });
 }
 
 export function HANDLER_activate_uses_editor<T>(
@@ -444,47 +525,31 @@ export function HANDLER_activate_uses_editor<T>(
   */
 }
 
-// Enables dropping of items into open slots at the end of lists generated by mm_ref_list_append_slot
-// This doesn't handle natives. Requires two callbacks: One to get the item that will actually have its list appended,
-// and one to commit any changes to aforementioned object
-export function HANDLER_add_ref_to_list_on_drop<T>(
-  resolver: DragFetcherCache,
-  html: JQuery,
-  // Retrieves the data that we will operate on
-  data_getter: () => Promise<T> | T,
-  commit_func: (data: T) => void | Promise<void>
-) {
-  /*
-  // Use our handy dandy helper
-  HANDLER_enable_doc_dropping(
-    html.find(".ref.ref-list-append"),
-    resolver,
-    null, // In general these are explicitly meant to refer to "outside" items, so no real filtering needed
-    async (entry, evt) => {
-      let data = await data_getter();
-      let path = evt[0].dataset.path;
-      if (path) {
-        let array = resolve_dotpath(data, path) as Array<RegEntry<any>>;
-        if (Array.isArray(array)) {
-          array.push(entry);
-          console.debug("Success", entry, array);
-          await commit_func(data);
-        }
-      }
-    }
-  );
-  */
-}
-
-// Enables dragging of ref cards (or anything with .ref.valid and the appropriate fields)
+// Enables dragging of ref cards (or anything with .ref.set and the appropriate fields)
 // Highlights anything labeled with classes "ref drop-settable ${type}" where ${type} is the type of the dragged item
 // This doesn't handle natives
 export function HANDLER_activate_ref_dragging(html: JQuery) {
   // Allow refs to be dragged arbitrarily
-  HANDLER_enable_mm_dragging(html.find(".ref.valid"), (start_stop, src, _evt) => {
+  HANDLER_enable_dragging(
+    html.find(".ref.set"),
+    (source, evt) => {
+      let uuid = evt.currentTarget.dataset.uuid as string;
+      if (!uuid || !(uuid.includes("Item.") || uuid.includes("Actor."))) {
+        console.error("Unable to properly drag ref", source, evt.currentTarget);
+        throw new Error("Drag error");
+      }
+      let result: FoundryDropData = {
+        type: uuid.includes("Item.") ? "Item" : "Actor",
+        uuid,
+      };
+      return JSON.stringify(result);
+    },
+
+    (start_stop, src, _evt) => {
+      /*
     // Highlight valid drop points
     let drop_set_target_selector = `.ref.drop-settable.${src[0].dataset.type}`;
-    let drop_append_target_selector = `.ref.ref-list-append.${src[0].dataset.type}`;
+    let drop_append_target_selector = `.ref.ref-list.${src[0].dataset.type}`;
     let target_selector = `${drop_set_target_selector}, ${drop_append_target_selector}`;
 
     if (start_stop == "start") {
@@ -492,56 +557,60 @@ export function HANDLER_activate_ref_dragging(html: JQuery) {
     } else {
       $(target_selector).removeClass("highlight-can-drop");
     }
-  });
-}
-
-// Enables dragging of ref cards (or anything with .ref.valid and the appropriate fields) marked with ".native-drag", converting the dragged item to a native foundry ref
-export function HANDLER_activate_native_ref_dragging(html: JQuery) {
-  return HANDLER_activate_ref_dragging(html);
+    */
+    }
+  );
 }
 
 // Allow every ".ref.drop-settable" spot to be dropped onto, with a payload of a JSON RegRef
-// Uses same getter/commit func scheme as other callbacks
-// Additionally provides the "pre_finalize_drop" function to (primarily) facillitate taking posession of items
-export function HANDLER_activate_ref_drop_setting<T>(
-  resolver: DragFetcherCache,
+// Additionally provides the "pre_finalize_drop" function to (primarily) facillitate taking posession of items,
+// but in general apply whatever transformations deemed necessary
+export function HANDLER_activate_ref_slot_dropping(
   html: JQuery,
-  can_drop: null | AllowResolvedDropPredicateFunc,
-  pre_finalize_drop: ((drop: ResolvedDropData) => Promise<ResolvedDropData>) | null,
-  data_getter: () => Promise<T> | T,
-  commit_func: (data: T) => void | Promise<void>
+  root_doc: LancerActor | LancerItem,
+  pre_finalize_drop: ((drop: ResolvedDropData) => Promise<ResolvedDropData>) | null
 ) {
-  HANDLER_enable_doc_dropping(html.find(".ref.drop-settable"), resolver, can_drop, async (entry, evt) => {
+  HANDLER_enable_doc_dropping(html.find(".ref.slot"), async (drop, dest, evt) => {
     // Pre-finalize the entry
     if (pre_finalize_drop) {
-      entry = await pre_finalize_drop(entry);
+      drop = await pre_finalize_drop(drop);
+    }
+
+    // Decide the mode
+    let path = dest[0].dataset.path;
+    let mode = dest[0].dataset.mode as RefMode;
+    let types = dest[0].dataset.acceptTypes as string;
+    let val;
+    if (mode == "embed-ref") {
+      val = drop.document.id;
+    } else if (mode == "uuid-ref") {
+      val = drop.document.uuid;
+    } else {
+      throw new Error("Illegal drop mode " + mode);
+    }
+
+    // Check allows
+    if (types && !types.includes((drop.document as any).type ?? "err")) {
+      return;
     }
 
     // Then just merge-set to the path
-    let data = await data_getter();
-    let path = evt[0].dataset.path;
     if (path) {
-      // Set the item at the data path
-      gentle_merge(data, { [path]: entry });
-      await commit_func(data);
+      let dd = drilldown_document(root_doc, path);
+      dd.sub_doc.update({ [dd.sub_path]: val });
     }
   });
 }
 // Allow every ".ref.drop-settable" spot to be right-click cleared
 // Uses same getter/commit func scheme as other callbacks
-export function HANDLER_activate_ref_drop_clearing<T>(
-  html: JQuery,
-  data_getter: () => Promise<T> | T,
-  commit_func: (data: T) => void | Promise<void>
-) {
-  html.find(".ref.drop-settable").on("contextmenu", async event => {
-    let data = await data_getter();
+export function HANDLER_activate_ref_slot_clearing(html: JQuery, root_doc: LancerActor | LancerItem) {
+  html.find(".ref.slot").on("contextmenu", async event => {
     let path = event.target.dataset.path;
     if (path) {
-      // Check there's anything there before doing anything
-      if (!resolve_dotpath(data, path)) return;
-      gentle_merge(data, { [path]: null });
-      await commit_func(data);
+      let dd = drilldown_document(root_doc, path);
+      if (dd.terminus) {
+        dd.sub_doc.update({ [dd.sub_path]: null });
+      }
     }
   });
 }

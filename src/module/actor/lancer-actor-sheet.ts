@@ -5,13 +5,13 @@ import {
   resolve_dotpath,
   HANDLER_activate_popout_text_editor,
 } from "../helpers/commons";
-import { dragResolverCache, HANDLER_enable_doc_dropping, FoundryDropData, ResolvedDropData } from "../helpers/dragdrop";
+import { HANDLER_enable_doc_dropping, ResolvedDropData } from "../helpers/dragdrop";
 import { HANDLER_activate_counter_listeners, HANDLER_activate_plus_minus_buttons } from "../helpers/item";
 import {
   HANDLER_activate_ref_dragging,
-  HANDLER_activate_ref_drop_clearing,
-  HANDLER_activate_ref_drop_setting,
-  HANDLER_activate_ref_clicking,
+  HANDLER_activate_ref_slot_clearing,
+  HANDLER_activate_ref_slot_dropping,
+  click_evt_open_ref,
   HANDLER_activate_uses_editor,
 } from "../helpers/refs";
 import type { LancerActorSheetData, LancerMacroData, LancerStatMacroData } from "../interfaces";
@@ -69,7 +69,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     this._activateActionGridListeners(html);
 
     // Make generic refs clickable to open the item
-    $(html).find(".ref.valid.clickable-ref:not(.profile-img)").on("click", HANDLER_activate_ref_clicking);
+    $(html).find(".ref.set:not(.profile-img)").on("click", click_evt_open_ref);
 
     // Enable ref dragging
     HANDLER_activate_ref_dragging(html);
@@ -101,19 +101,9 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     // Enable viewing inventory on sheets that support it
     this._activateInventoryButton(html);
 
-    // Make our resolver
-    let resolver = dragResolverCache();
-
     // Make refs droppable, in such a way that we take ownership when dropped
-    HANDLER_activate_ref_drop_setting(
-      resolver,
-      html,
-      this.can_root_drop_entry,
-      x => this.quick_own_drop(x).then(v => v[0]),
-      getfunc,
-      commitfunc
-    );
-    HANDLER_activate_ref_drop_clearing(html, getfunc, commitfunc);
+    HANDLER_activate_ref_slot_dropping(html, this.actor, x => this.quick_own_drop(x).then(v => v[0]));
+    HANDLER_activate_ref_slot_clearing(html, this.actor);
 
     // Enable general controls, so items can be deleted and such
     this.activate_general_controls(html);
@@ -132,10 +122,8 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     // Add root dropping
     HANDLER_enable_doc_dropping(
       html,
-      resolver,
-      (entry, _dest, _event) => this.can_root_drop_entry(entry),
       async (entry, _dest, _event) => this.on_root_drop(entry, _event, _dest),
-      () => {}
+      (entry, _dest, _event) => this.can_root_drop_entry(entry)
     );
   }
 
@@ -248,7 +236,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       ev.stopPropagation();
 
       const weaponElement = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
-      const weaponId = weaponElement.getAttribute("data-id");
+      const weaponId = weaponElement.dataset.uuid;
       if (!weaponId) return ui.notifications!.warn(`Error rolling macro: No weapon ID!`);
       const weapon = this.actor.items.get(weaponId);
       if (!weapon) return ui.notifications!.warn(`Error rolling macro: Couldn't find weapon with ID ${weaponId}.`);
@@ -273,7 +261,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       const el = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
 
       let id = this.token && !this.token.isLinked ? this.token.id! : this.actor.id!;
-      prepareItemMacro(id, el.getAttribute("data-id")!);
+      prepareItemMacro(id, el.dataset.uuid!);
     });
 
     // Action-chip (system? Or broader?) macros
@@ -282,7 +270,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
 
       const el = ev.currentTarget;
 
-      const item = $(el).closest(".item")[0].getAttribute("data-id");
+      const item = $(el).closest(".item")[0].dataset.uuid;
       if (!item) throw Error("No item ID from activation chip");
 
       const activation = parseInt(el.getAttribute("data-activation"));

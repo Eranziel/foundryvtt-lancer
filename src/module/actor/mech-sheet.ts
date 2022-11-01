@@ -6,6 +6,7 @@ import type { LancerActor, LancerMECH } from "./lancer-actor";
 import { ResolvedDropData } from "../helpers/dragdrop";
 import { EntryType, MountType, SystemType } from "../enums";
 import { SystemData } from "../system-template";
+import { LancerActorSheetData } from "../interfaces";
 
 /**
  * Extend the basic ActorSheet
@@ -235,5 +236,13 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
       default:
         return; // no-op
     }
+  }
+
+  async getData(): Promise<LancerActorSheetData<EntryType.MECH>> {
+    let data = await super.getData();
+    // @ts-expect-error
+    data.pilot = await this.actor.system.pilot?.value;
+    // data.pilot = await this.actor.system.pilot;
+    return data;
   }
 }

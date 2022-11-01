@@ -737,7 +737,7 @@ tr.lcp-index-header {
 }
 
 /* Control box in the right side of a ref card. Delete button, etc */
-.ref-list-controls {
+.ref-controls {
   margin: 5px;
   margin-left: auto;
   max-width: 40px;
@@ -1537,8 +1537,8 @@ input.core-power-toggle:not(:checked)::before {
 }
 
 /* Glow effect courtesy of https://codepen.io/jackrugile/pen/ABeIi */
-.highlight-can-drop {
-  animation: glow 800ms ease-out infinite alternate;
+@mixin glow {
+  animation: glow-anim 800ms ease-out infinite alternate;
   background: #222922;
   background: linear-gradient(#333933, #222922);
   border-color: #393;
@@ -1547,7 +1547,7 @@ input.core-power-toggle:not(:checked)::before {
   outline: none;
 }
 
-@keyframes glow {
+@keyframes glow-anim {
   0% {
     border-color: #393;
     box-shadow: 0 0 5px rgba(0, 255, 0, 0.2), inset 0 0 5px rgba(0, 255, 0, 0.1), 0 2px 0 #000;
@@ -2282,11 +2282,6 @@ Here, this means we want to allow for drag stuff etc to show contextually if:
 
 .drop-settable:not(.valid) {
   align-items: center;
-}
-
-/* Separate, older version for tags */
-.ref-list-append.highlight-can-drop {
-  visibility: visible;
 }
 
 .disabled-cloud {

@@ -777,7 +777,7 @@ export function license_ref(license: LancerLICENSE | null, level: number, item_p
       <div class="lancer-header lancer-license-header medium clipped-top" style="grid-area: 1/1/2/3">
         <i class="cci cci-license i--m i--dark"> </i>
         <div class="major modifier-name">${license.name} ${license.system.rank}</div>
-        <div class="ref-list-controls">
+        <div class="ref-controls">
           <a class="lancer-context-menu" data-context-menu="${license.type}" data-path="${item_path}"">
             <i class="fas fa-ellipsis-v"></i>
           </a>
@@ -797,7 +797,7 @@ export function frame_ref(frame: LancerFRAME | null, item_path?: string): string
       <div class="compact-frame medium flexrow">
         <span class="img-bar" style="background-image: url(${frame_img})"></span>
         <div class="major modifier-name i--light">${frame.system.manufacturer} ${frame.name}</div>
-        <div class="ref-list-controls">
+        <div class="ref-controls">
           <a class="lancer-context-menu" data-context-menu="${frame.type}" data-path="${item_path}"">
             <i class="fas fa-ellipsis-v i--light"></i>
           </a>
@@ -817,7 +817,7 @@ export function npc_class_ref(npc_class: LancerNPC_CLASS | null, item_path?: str
       <div class="compact-class medium flexrow">
         <span class="img-bar" style="background-image: url(${frame_img})"></span>
         <div class="major modifier-name i--light">${npc_class.name} // ${npc_class.system.role.toUpperCase()}</div>
-        <div class="ref-list-controls">
+        <div class="ref-controls">
           <a class="lancer-context-menu" data-context-menu="${npc_class.type}" data-path="${item_path}"">
             <i class="fas fa-ellipsis-v i--light"></i>
           </a>
@@ -836,7 +836,7 @@ export function npc_template_ref(template: LancerNPC_TEMPLATE | null, item_path?
       <div class="compact-template medium flexrow">
         <span class="img-bar" style="background-image: url(${template.img})"></span>
         <div class="major modifier-name i--light">${template.name}</div>
-        <div class="ref-list-controls">
+        <div class="ref-controls">
           <a class="lancer-context-menu" data-context-menu="${template.type}" data-path="${item_path}"">
             <i class="fas fa-ellipsis-v i--light"></i>
           </a>
@@ -1308,7 +1308,7 @@ export function HANDLER_activate_item_context_menus<
     name: view_only ? "View" : "Edit",
     icon: view_only ? `<i class="fas fa-eye"></i>` : `<i class="fas fa-edit"></i>`,
     callback: async (html: JQuery) => {
-      let element = html.closest(".ref.valid")[0];
+      let element = html.closest(".ref.set")[0];
       if (element) {
         const found_doc = (await resolve_ref_element(element)) as LancerItem | LancerActor;
         if (!found_doc) return;
@@ -1351,15 +1351,8 @@ export function HANDLER_activate_item_context_menus<
       console.log(sheet_data, html, path);
       // Delete the weapon
       if (path) {
-        let item = resolve_dotpath(sheet_data, path, null) as
-          | LancerMECH_WEAPON
-          | LancerMECH_SYSTEM
-          | LancerNPC_FEATURE
-          | null;
-        if (item)
-          // await item.destroy_entry(); //
-          // Then commit
-          await commit_func(sheet_data);
+        let item = resolve_dotpath(sheet_data, path, null) as LancerItem | null;
+        if (item) item.delete();
       }
     },
   };

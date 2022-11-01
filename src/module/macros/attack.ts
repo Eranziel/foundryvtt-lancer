@@ -60,7 +60,7 @@ type AttackMacroOptions = {
 
 export async function prepareEncodedAttackMacro(
   actor_uuid: string,
-  item_id: string | null,
+  item_uuid: string | null,
   options: AttackMacroOptions,
   rerollData: AccDiffDataSerialized
 ) {
@@ -72,7 +72,7 @@ export async function prepareEncodedAttackMacro(
   let opCtx = new OpCtx();
   let mm = await reg.resolve(opCtx, actor_ref);
   let actor = mm.Flags.orig_doc;
-  let item = item_id ? ownedItemFromString(item_id, actor) : null;
+  let item = item_uuid ? ownedItemFromString(item_uuid, actor) : null;
   let { AccDiffData } = await import("../helpers/acc_diff");
   let accdiff = AccDiffData.fromObject(rerollData, item ?? actor);
   if (item) {
@@ -555,7 +555,7 @@ async function rollAttackMacro(
   // Output
   const templateData = {
     title: data.title,
-    item_id: rerollMacro.args[1],
+    item_uuid: rerollMacro.args[1],
     attacks: attacks,
     hits: hits,
     defense: isSmart ? "E-DEF" : "EVASION",

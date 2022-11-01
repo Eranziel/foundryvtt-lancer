@@ -404,7 +404,7 @@ export function active_mech_preview(mech: LancerMECH | null, path: string, _help
   var html = ``;
 
   // Generate commons
-  if (!mech) return simple_ref_slot(EntryType.MECH, mech, "No Active Mech", path, true);
+  if (!mech) return simple_ref_slot(path, [EntryType.MECH], "uuid-ref", _helper);
 
   // Making ourselves easy templates for the preview in case we want to switch in the future
   let preview_stats_arr = [

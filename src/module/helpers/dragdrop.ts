@@ -10,42 +10,38 @@ import { EntryType } from "../enums";
 // more raw api data:
 // https://developer.mozilla.org/en-US/docs/Web/API/Document/drag_event
 
-/**
- * Enables dropability on the specified jquery items/query.
- * The first argument is either an existing jquery object, or a string with which to $() make it
- *
- * The second argument is a callback provided with the data for the drag, the dest of the drag, as well as the dragover event.
- * It is called once, on a successful drop
- * Note that it is guaranteed to have passed the allow_drop function if one was provided
- * Not all of these arguments are usually necessary: remember you can just _ away unused vars
- *
- * The third argument is an optional callback provided with the dest of the drag, as well as the dragover event.
- * It determines if the dest is a valid drop target
- *
- * The fourth and final argument is an optional callback provided with all info as the drop handler, but also is informed if the mouse is entering or exiting
- * This can be used for fancier on-hover enter/exit visual behavior. It is only called if dropping is permitted on that item
- */
 export type AnyDragoverEvent = JQuery.DragOverEvent | JQuery.DragEnterEvent | JQuery.DragLeaveEvent | JQuery.DropEvent;
-export type DropHandlerFunc = (data: string, drag_dest: JQuery, drop_event: JQuery.DropEvent) => void;
-export type AllowDropPredicateFunc = (data: string, drag_dest: JQuery, dragover_event: AnyDragoverEvent) => boolean;
-export type HoverHandlerFunc = (
+export type DropHandler = (doc: ResolvedDropData, dest: JQuery, evt: JQuery.DropEvent) => void;
+export type DropPredicate = (drop: ResolvedDropData, drag_dest: JQuery, dragover_event: AnyDragoverEvent) => boolean;
+export type HoverHandler = (
   mode: "enter" | "leave",
-  data: string,
+  doc: ResolvedDropData,
   drag_dest: JQuery,
   drag_event: JQuery.DragEnterEvent | JQuery.DragLeaveEvent
 ) => void;
 
-export function HANDLER_enable_dropping(
-  items: string | JQuery,
-  drop_handler: DropHandlerFunc,
-  allow_drop?: AllowDropPredicateFunc,
-  hover_handler?: HoverHandlerFunc
+/**
+ * Enables dropability on the specified jquery items, using the global drag state as a lookup to allow synchronous doc handling
+ *
+ * @param items Either an existing jquery object, or a string with which to $() make it
+ *
+ * @param drop_handler: Callback provided with the data for the drag, the dest of the drag, as well as the dragover event.
+ * It is called once, on a successful drop
+ * Note that it is guaranteed to have passed the allow_drop function if one was provided
+ * Not all of these arguments are usually necessary: remember you can just _ away unused vars
+ *
+ * @param allow_drop: Optional callback provided with the dest of the drag, as well as the dragover event.
+ * It determines if the dest is a valid drop target
+ *
+ * @param hover_handler: Optional callback provided with all info as the drop handler, but also is informed if the mouse is entering or exiting
+ * This can be used for fancier on-hover enter/exit visual behavior. It is only called if dropping is permitted on that item
+ */
+export function HANDLER_enable_doc_dropping(
+  items: JQuery,
+  drop_handler: DropHandler,
+  allow_drop?: DropPredicate,
+  hover_handler?: HoverHandler
 ) {
-  // Force to jq
-  if (typeof items == "string") {
-    items = $(items);
-  }
-
   // Bind these individually, so we don't have to rely so much on the drop target being preserved
   items.each((_, _item) => {
     let item = $(_item);
@@ -53,11 +49,10 @@ export function HANDLER_enable_dropping(
     // To permit dropping, we must override the base dragover behavior.
     item.on("dragover", event => {
       // Get/check data
-      let data = event.originalEvent?.dataTransfer?.getData("text/plain");
-      if (!data) return;
+      if (!GlobalDragPreview) return;
 
       // Check if we can drop
-      let drop_permitted = !allow_drop || allow_drop(data, item, event);
+      let drop_permitted = !allow_drop || allow_drop(GlobalDragPreview, item, event);
 
       // If permitted, override behavior to allow drops
       if (drop_permitted) {
@@ -68,12 +63,8 @@ export function HANDLER_enable_dropping(
 
     // We also must signal this via the dragenter event
     item.on("dragenter", event => {
-      // Get/check data. Don't want to fire on elements we cant even drop in
-      let data = event.originalEvent?.dataTransfer?.getData("text/plain");
-      if (!data) return;
-
       // Check if we can drop
-      let drop_permitted = !allow_drop || allow_drop(data, item, event);
+      let drop_permitted = GlobalDragPreview && (!allow_drop || allow_drop(GlobalDragPreview, item, event));
 
       if (drop_permitted) {
         // Override behavior to allow dropping here
@@ -81,7 +72,7 @@ export function HANDLER_enable_dropping(
 
         // While we're here, fire hover handler if drop is allowed
         if (hover_handler) {
-          hover_handler("enter", data, item, event);
+          hover_handler("enter", GlobalDragPreview!, item, event);
         }
         return false;
       }
@@ -89,38 +80,30 @@ export function HANDLER_enable_dropping(
       return true; // I guess?
     });
 
-    // Bind a leave if we are doing hover stuff
+    // Bind a leave event as well, but only if we are doing hover stuff
     if (hover_handler) {
       item.on("dragleave", event => {
-        // Get/check data
-        let data = event.originalEvent?.dataTransfer?.getData("text/plain");
-        if (!data) return;
-
-        // Unfortunately, the docs read as though we still need to check if a drag was permitted on the item we are leaving. Browser doesn't seem to remember!
-        let drop_permitted = !allow_drop || allow_drop(data, item, event);
+        // Due to weirdness of drop spec, we must double check here even if dragenter said no
+        let drop_permitted = GlobalDragPreview && (!allow_drop || allow_drop(GlobalDragPreview, item, event));
 
         if (drop_permitted) {
-          hover_handler("leave", data, item, event);
+          hover_handler("leave", GlobalDragPreview!, item, event);
         }
       });
     }
 
     // Finally and most importantly, dropping
     item.on("drop", event => {
-      // Get/check data
-      let data = event.originalEvent?.dataTransfer?.getData("text/plain");
-      if (!data) return;
-
       // Check dropability just to be safe - some event may have trickled down here somehow
-      if (allow_drop && !allow_drop(data, item, event)) {
+      if (!GlobalDragPreview || (allow_drop && !allow_drop(GlobalDragPreview, item, event))) {
         return;
       }
 
-      // Finally, call our predicate. It can decide to stop propagation if it wishes
-      drop_handler(data, item, event);
-
-      event.preventDefault();
+      // It is guaranteed to be acceptable to our can_drop function and basic type checks, so we
+      // don't want it to propagate any further
       event.stopPropagation();
+      event.preventDefault();
+      drop_handler(GlobalDragPreview!, item, event);
     });
   });
 }
@@ -182,7 +165,7 @@ export function HANDLER_enable_dragging(
 
 export type FoundryDropData = {
   // TODO - update to league type, when those typings work
-  type: "Actor" | "Item" | "JournalEntry" | "Macro"; // TODO: Scenes, sounds
+  type: "Actor" | "Item" | "JournalEntry" | "Macro" | "Scene"; // TODO: Scenes, sounds
   uuid: string;
 };
 
@@ -200,6 +183,10 @@ export type ResolvedDropData =
   | {
       type: "JournalEntry";
       document: JournalEntry;
+    }
+  | {
+      type: "Scene";
+      document: Scene;
     }
   | {
       type: "Macro";
@@ -283,173 +270,55 @@ export async function resolve_native_drop(drop: string | FoundryDropData): Promi
 }
 
 // A basic cache suitable for native drop lookups - a common task
-export type DragFetcherCache = FetcherCache<string | FoundryDropData, ResolvedDropData | null>;
-export function dragResolverCache(): DragFetcherCache {
-  return new FetcherCache(resolve_native_drop);
-}
+// export type DragFetcherCache = FetcherCache<string | FoundryDropData, ResolvedDropData | null>;
+// export function dragResolverCache(): DragFetcherCache {
+// return new FetcherCache(resolve_native_drop);
+// }
 
-// Wraps a call to enable_dropping to specifically handle both RegRef drops and NativeDrops.
-// Convenient for if you really only care about the final resolved RegEntry result (which is like, 90% of the time)
-// The additional
-// Allows use of hover_handler for styling
-// Also enables native ref dropping
-export type AllowResolvedDropPredicateFunc = (
-  drop: ResolvedDropData,
-  drag_dest: JQuery,
-  dragover_event: AnyDragoverEvent
-) => boolean;
-
-export function HANDLER_enable_doc_dropping(
-  html_items: string | JQuery,
-  cache: DragFetcherCache,
-  can_drop: null | AllowResolvedDropPredicateFunc,
-  on_drop: (entry: ResolvedDropData, dest: JQuery, evt: JQuery.DropEvent) => void,
-  hover_handler?: HoverHandlerFunc
-) {
-  // Make a helper for checking dest dataset
-  const check_targ_type = (drop: ResolvedDropData, elt: JQuery<HTMLElement>) => {
-    // Check that the dest type matches. dest_type must always be provided
-    // Using `includes` allows for multiple types
-    let dest_type = elt[0].dataset.type;
-    if (!dest_type) return true;
-    else if (drop.type != "Actor" && drop.type != "Item") return false; // Cant specify types on these
-    else return dest_type.includes(drop.document.type);
-  };
-
-  HANDLER_enable_dropping(
-    html_items,
-    async (data, dest, evt) => {
-      // Resolve the data once more. Should just be cached, otherwise this would never have been permitted
-      let resolved = await cache.fetch(data);
-
-      // It is guaranteed to be acceptable to our can_drop function and basic type checks, so we
-      // don't want it to propagate any further
-      evt.stopPropagation();
-
-      if (resolved) {
-        // Check type
-        if (!check_targ_type(resolved, dest)) {
-          return false;
-        }
-
-        // If we have another predicate and it fails, then bail!
-        if (can_drop && !can_drop(resolved, dest, evt)) {
-          return false;
-        }
-
-        on_drop(resolved, dest, evt);
-      } else {
-        console.error(
-          "Failed to resolve ref. This should never happen at this stage - verify that prior guards are properly validating drop options",
-          data
-        );
-      }
-    },
-
-    // Allow drop must be synchronous, but we need to fetch async data...
-    // We use the MMResolverCache to handle this! Nice!
-    // When it _is_ done, we can retrieve synchronously from the cache! Nice!
-    (data, dest, evt) => {
-      // Resolve the data if we can, and otherwise spawn a task to do so
-      let resolved = cache.sync_fetch(data);
-
-      // We aren't there yet
-      if (resolved === PENDING) {
-        return true; // Note - this allows dropping unresolved items! We allow this for particularly speedy users. We therefore need to check can_drop again in actual drop func
-      } else if (!resolved) {
-        console.warn("Failed to resolve ref.", data);
-        return false; // Can't drop something that was completed+unresolveable, lol
-      }
-
-      // Check type
-      if (!check_targ_type(resolved, dest)) {
-        return false;
-      }
-
-      // If we have another predicate and it fails, then bail!
-      if (can_drop && !can_drop(resolved, dest, evt)) {
-        return false;
-      }
-
-      // Otherwise, we have received a regentry of the correct type and stuff, so just give it the go-ahead
-      return true;
-    },
-    hover_handler
-  );
-}
-
-// Wraps a call to enable_dragging that attempts to derive a RegRef JSON from the dragged element
-export function HANDLER_enable_mm_dragging(items: string | JQuery, start_stop?: DragStartEndFunc) {
-  HANDLER_enable_dragging(
-    items,
-    drag_src => {
-      // Drag a JSON ref
-      // TODO
-      let ref = null; // recreate_ref_from_element(drag_src[0]);
-      if (ref) {
-        return JSON.stringify(ref);
-      } else {
-        return "";
-      }
-    },
-    start_stop
-  );
-}
-
-// Tracks state and handles global flag set/unsetting.
-interface GlobalDraggingFalse {
-  dragging: false;
-  type: null;
-  doc: null;
-  uuid: null;
-}
-interface GlobalDraggingTrue {
-  dragging: true;
-  type: EntryType;
-  doc: LancerActor | LancerItem;
-  uuid: string;
-}
-export let GlobalDragState: GlobalDraggingFalse | GlobalDraggingTrue = {
-  dragging: false,
-  doc: null,
-  type: null,
-  uuid: null,
-};
+// GlobalDragState provides a resolved document of whatever is being dragged, if a document can be resolved
+export let GlobalDragPreview: ResolvedDropData | null = null;
 
 function dragging_class(for_type: EntryType): string {
   return `dragging-${for_type}`;
 }
 
-function set_global_drag(to: LancerActor | LancerItem | null) {
-  if (GlobalDragState.doc == to) {
-    return; // don't repeat
-  }
-
+function set_global_drag(to: LancerActor | LancerItem | Macro | Journal | Scene | null) {
   console.log("Setting global drag to ", to);
 
   // Clear if necessary
-  if (GlobalDragState.dragging) {
-    $("body").removeClass(dragging_class(GlobalDragState.type));
-    GlobalDragState = {
-      dragging: false,
-      doc: null,
-      type: null,
-      uuid: null,
-    };
+  if (GlobalDragPreview?.type == "Actor" || GlobalDragPreview?.type == "Item") {
+    $("body").removeClass(dragging_class(GlobalDragPreview.document.type));
   }
 
-  if (to == null) return; // Done
-
-  // Mark us as dragging and store the draggee
-  GlobalDragState = {
-    dragging: true,
-    doc: to,
-    type: to.type,
-    uuid: to.uuid,
-  };
+  // Store the draggee
+  if (to instanceof LancerActor) {
+    GlobalDragPreview = {
+      document: to,
+      type: "Actor",
+    };
+  } else if (to instanceof LancerItem) {
+    GlobalDragPreview = {
+      document: to,
+      type: "Item",
+    };
+  } else if (to instanceof Macro) {
+    GlobalDragPreview = {
+      document: to,
+      type: "Macro",
+    };
+  } else if (to instanceof Scene) {
+    GlobalDragPreview = {
+      document: to,
+      type: "Scene",
+    };
+  } else if (to == null) {
+    GlobalDragPreview = null;
+  }
 
   // Add an appropriate class
-  $("body").addClass(dragging_class(to.type));
+  if (GlobalDragPreview?.type == "Actor" || GlobalDragPreview?.type == "Item") {
+    $("body").addClass(dragging_class(GlobalDragPreview.document.type));
+  }
 }
 
 // Setup global drag mm resolution
@@ -464,9 +333,9 @@ export function applyGlobalDragListeners() {
       // Attempt to recover the item
       let target = evt.target as HTMLElement | undefined;
       let uuid = "";
-      if (target?.dataset?.id) {
+      if (target?.dataset?.uuid) {
         // Is our set uuid
-        uuid = target.dataset.id;
+        uuid = target.dataset.uuid!;
       } else if (target?.dataset?.documentId) {
         // Is a foundry sidebar or compendium drag
         let sbt = $(target).parents(".sidebar-tab")[0];
@@ -483,6 +352,8 @@ export function applyGlobalDragListeners() {
           }
         }
       }
+
+      // TODO: handle journals, macros, scenes
 
       // May or may not have a uuid by now
       // If we do, tell it to try setting global drag

@@ -1,10 +1,6 @@
 import type { LancerActor } from "../actor/lancer-actor";
 import { HANDLER_activate_general_controls } from "../helpers/commons";
-import {
-  HANDLER_activate_native_ref_dragging,
-  HANDLER_activate_ref_dragging,
-  HANDLER_activate_ref_clicking,
-} from "../helpers/refs";
+import { HANDLER_activate_ref_dragging, click_evt_open_ref } from "../helpers/refs";
 import { HANDLER_activate_item_context_menus } from "../helpers/item";
 
 interface FilledCategory {
@@ -157,12 +153,11 @@ export class InventoryDialog extends Dialog {
 
     // Enable ref dragging
     HANDLER_activate_ref_dragging(html);
-    HANDLER_activate_native_ref_dragging(html);
 
     HANDLER_activate_item_context_menus(html, getfunc, commitfunc);
 
     // Make refs clickable to open the item
-    $(html).find(".ref.valid.clickable-ref").on("click", HANDLER_activate_ref_clicking);
+    $(html).find(".ref.set").on("click", click_evt_open_ref);
   }
 
   static async show_inventory(actor: LancerActor): Promise<void> {

@@ -1,5 +1,4 @@
 import type { LancerActorSheetData, LancerItemSheetData } from "../interfaces";
-import { DragFetcherCache, HANDLER_enable_doc_dropping } from "./dragdrop";
 import { Tag } from "../models/bits/tag";
 
 // A small tag display containing just the label and value
@@ -100,11 +99,10 @@ export function HANDLER_activate_tag_context_menus<T extends LancerActorSheetDat
   */
 }
 
-// Enables dropping of tags into open designated by .ref-list-append classed divs
+// Enables dropping of tags into open designated by .ref-list classed divs
 // Explicitly designed to handle natives. Generates a tag instance corresponding to that native, with a default value of 1
 // Follows conventional HANDLER design patterns
 export function HANDLER_activate_tag_dropping<T>(
-  resolver: DragFetcherCache,
   html: JQuery,
   // Retrieves the data that we will operate on
   data_getter: () => Promise<T> | T,

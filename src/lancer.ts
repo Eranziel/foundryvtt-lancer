@@ -118,8 +118,7 @@ import {
   item_preview,
   simple_ref_slot,
   ref_portrait,
-  mm_ref_list_append_slot,
-  editable_mm_ref_list_item_native,
+  item_preview_list,
   limited_uses_indicator,
 } from "./module/helpers/refs";
 import { mech_loadout, pilot_slot, mech_frame_refview } from "./module/helpers/loadout";
@@ -349,6 +348,10 @@ Hooks.once("init", async function () {
     return str.toUpperCase();
   });
 
+  Handlebars.registerHelper("arr", function (...args) {
+    return args;
+  });
+
   // For loops in Handlebars
   Handlebars.registerHelper("for", function (n: any, block: any) {
     var accum = "";
@@ -411,8 +414,7 @@ Hooks.once("init", async function () {
   // Refs
   Handlebars.registerHelper("simple-ref", simple_ref_slot);
   Handlebars.registerHelper("item-preview", item_preview);
-  Handlebars.registerHelper("item-preview-native", editable_mm_ref_list_item_native);
-  Handlebars.registerHelper("ref-mm-list-item-append", mm_ref_list_append_slot);
+  Handlebars.registerHelper("item-preview-list", item_preview_list);
   Handlebars.registerHelper("pilot-slot", pilot_slot);
   Handlebars.registerHelper("deployer-slot", deployer_slot); // Can be pilot, npc, or mech. Preferably mech, lol
   Handlebars.registerHelper("ref-portrait-img", ref_portrait);
