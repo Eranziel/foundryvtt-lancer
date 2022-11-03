@@ -406,7 +406,10 @@ export namespace SourceData {
       gear: UUIDRef[];
       weapons: UUIDRef[];
     };
-    mech_skills: [number, number, number, number];
+    hull: number;
+    agi: number;
+    sys: number;
+    eng: number;
     mounted: boolean;
     notes: string;
     player_name: string;

@@ -27,10 +27,10 @@ const pilot_schema = {
     weapons: new fields.ArrayField(new ResolvedEmbeddedRefField("Item", { allowed_types: [EntryType.PILOT_WEAPON] })),
   }),
 
-  mech_skills: new fields.ArrayField(new fields.NumberField({ min: 0, max: 6, integer: true }), {
-    validate: (x: number[]) => x.length == 4,
-    initial: [0, 0, 0, 0],
-  }),
+  hull: new fields.NumberField({ min: 0, max: 6, integer: true }),
+  agi: new fields.NumberField({ min: 0, max: 6, integer: true }),
+  sys: new fields.NumberField({ min: 0, max: 6, integer: true }),
+  eng: new fields.NumberField({ min: 0, max: 6, integer: true }),
 
   mounted: new fields.BooleanField(),
   notes: new fields.HTMLField(),

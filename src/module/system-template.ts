@@ -445,7 +445,10 @@ export namespace SystemData {
       gear: SystemTemplates.ResolvedEmbeddedRef<LancerPILOT_GEAR>[];
       weapons: SystemTemplates.ResolvedEmbeddedRef<LancerPILOT_WEAPON>[];
     };
-    mech_skills: [number, number, number, number];
+    hull: number;
+    agi: number;
+    sys: number;
+    eng: number;
     mounted: boolean;
     notes: string;
     player_name: string;
@@ -454,10 +457,6 @@ export namespace SystemData {
 
     // Derived attributes
     grit: number;
-    hull: number;
-    agi: number;
-    sys: number;
-    eng: number;
 
     // Collected items
     core_bonuses: LancerCORE_BONUS[];
