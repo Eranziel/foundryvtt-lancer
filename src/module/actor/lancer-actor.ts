@@ -7,11 +7,11 @@ import { fix_modify_token_attribute } from "../token";
 import { findEffect } from "../helpers/acc_diff";
 import { AppliedDamage } from "./damage-calc";
 import { SystemData, SystemDataType, SystemTemplates } from "../system-template";
-import { AE_MODE_SET_JSON, LancerActiveEffect } from "../effects/lancer-active-effect";
 import { SourceDataType } from "../source-template";
 import * as defaults from "../util/mmigration/defaults";
 import { PackedPilotData } from "../util/mmigration/packed-types";
 import { getAutomationOptions } from "../settings";
+import { pilot_downstream_effects } from "../effects/converter";
 const lp = LANCER.log_prefix;
 
 const DEFAULT_OVERCHARGE_SEQUENCE = ["+1", "+1d3", "+1d6", "+1d6+4"];
@@ -53,9 +53,6 @@ declare global {
  * Extend the Actor class for Lancer Actors.
  */
 export class LancerActor extends Actor {
-  // Tracks data propagation
-  subscriptions: LancerSubscription[] = [];
-
   // Kept for comparing previous to next values
   prior_max_hp = -1;
 
@@ -159,7 +156,7 @@ export class LancerActor extends Actor {
           let macroData = encodeMacroData({
             title: "Engineering",
             fn: "prepareStatMacro",
-            args: [this.id, "mm.Eng"],
+            args: [this.id, "system.eng"],
           });
 
           secondaryRoll = `<button class="chat-button chat-macro-button" data-macro="${macroData}"><i class="fas fa-dice-d20"></i> Engineering</button>`;
@@ -298,7 +295,7 @@ export class LancerActor extends Actor {
           let macroData = encodeMacroData({
             title: "Hull",
             fn: "prepareStatMacro",
-            args: [this.id, "mm.Hull"],
+            args: [this.id, "system.pcd.hull"],
           });
 
           secondaryRoll = `<button class="chat-button chat-macro-button" data-macro="${macroData}"><i class="fas fa-dice-d20"></i> Hull</button>`;
@@ -500,22 +497,6 @@ export class LancerActor extends Actor {
   async remove_all_active_effects() {
     let effects_to_delete = this.effects
       .filter(e => e.sourceName === "None")
-      .map(e => {
-        return e.id ?? "";
-      });
-    await this.deleteEmbeddedDocuments("ActiveEffect", effects_to_delete);
-  }
-
-  /**
-   * Wipes all ActiveEffects that aren't NPC tiers from the Actor.
-   * May be subject to updates to protect additional ActiveEffects.
-   */
-  async remove_nontier_active_effects() {
-    let npc_tier_exp = /npc_tier_(\d)$/;
-    let effects_to_delete = this.effects
-      .filter(e => {
-        return e.sourceName === "None" && !npc_tier_exp.test(e.data.flags.core?.statusId ?? "");
-      })
       .map(e => {
         return e.id ?? "";
       });
@@ -890,18 +871,12 @@ export class LancerActor extends Actor {
   /** @override
    * We require a customized active effect application workflow
    */
-  prepareData() {
-    // 1. Performs the following:
-    // - Prepare base system data model.
-    // - Prepare embedded items & effects.
-    // - Prepare derived data (first pass, since this._preliminary = true).
-    super.prepareData();
-
-    // 2. Now that embedded docs populated, we can finish up our internal embedded field finalization
+  prepareBaseData() {
+    // 1. First, finalize our system tasks. Items should be (minimally) prepared by now, so we can resolve embedded items
     // @ts-expect-error
     this.system.finalize_tasks();
 
-    // 3. Initialize our derived stat fields, and any type-specific fields
+    // 2. Initialize our universal derived stat fields
     // @ts-expect-error
     let sys: SystemTemplates.actor_universal = this.system;
     sys.edef = 0;
@@ -925,8 +900,10 @@ export class LancerActor extends Actor {
       jammed: false,
       lockon: false,
       shredded: false,
-      slow: false,
+      slowed: false,
       stunned: false,
+      hidden: false,
+      invisibe: false,
     };
     sys.resistances = {
       Burn: false,
@@ -942,51 +919,57 @@ export class LancerActor extends Actor {
     };
     sys.weapon_bonuses = [];
 
-    // Establish type specific attributes / perform type specific prep steps
+    // 3. Query effects to set status flags
+    for (let eff of this.effects) {
+      let status_id = (eff.getFlag("core", "statusId") ?? null) as null | keyof typeof sys.statuses;
+      if (status_id && sys.statuses[status_id] === false) {
+        sys.statuses[status_id] = true;
+      }
+    }
+
+    // 4. Establish type specific attributes / perform type specific prep steps
     if (this.is_pilot()) {
       this.system.grit = Math.ceil(this.system.level / 2);
     } else if (this.is_mech()) {
-      // Mark loadout items as equipped TODO
-      this.system.loadout.sp = { max: 0, min: 0, value: 0 };
-      this.system.loadout.ai_cap = { max: 0, min: 0, value: 0 };
+      // Mark loadout items as equipped, while aggregating sp/ai
+      let equipped_sp = 0;
+      let equipped_ai = 0;
+      if (this.system.loadout.frame?.status == "resolved") {
+        this.system.loadout.frame.value.system.equipped = true;
+      }
+      for (let system of this.system.loadout.systems) {
+        if (system.status == "resolved") {
+          system.value.system.equipped = true;
+          equipped_sp += system.value.system.sp;
+          equipped_ai += system.value.system.tags.some(t => t.is_ai) ? 1 : 0;
+        }
+      }
+      for (let mount of this.system.loadout.weapon_mounts) {
+        for (let slot of mount.slots) {
+          if (slot.weapon?.status == "resolved") {
+            slot.weapon.value.system.equipped = true;
+            equipped_sp += slot.weapon.value.system.sp;
+          }
+          if (slot.mod?.status == "resolved") {
+            slot.mod.value.system.equipped = true;
+            equipped_ai += slot.mod.value.system.tags.some(t => t.is_ai) ? 1 : 0;
+          }
+        }
+      }
+
+      // Initialize loadout statistics. Maxs will be fixed by active effects
+      this.system.loadout.sp = { max: 0, min: 0, value: equipped_sp };
+      this.system.loadout.ai_cap = { max: 1, min: 0, value: equipped_ai };
     } else if (this.is_npc()) {
       // TODO
     } else if (this.is_deployable()) {
       // TODO
     }
-
-    // 4. We then apply all non-restricted active effects
-    this.applyActiveEffects();
-
-    // 5. Compute some
-
-    // 6. Finally, ask items to prepare their final attributes, while providing
-    this.items.forEach(item => {
-      /*
-      if (item.is_mech_weapon()) {
-        // @ts-expect-error
-        let sys_clone = this.system.clone();
-        let pseudo_actor = { system: sys_clone };
-        for (let _eff of this.effects) {
-          let eff = _eff as LancerActiveEffect;
-          // Only apply those that were passed over because restricted
-          if (eff.isSuppressed && !eff.isPassthrough && eff.restrictionsAllow(item)) {
-
-            // Apply appropriate restricted effects
-            item.prepareFinalAttributes(pseudo_actor);
-          }
-        }
-      }
-      */
-    }); // TODO
-
-    console.log("prepare done");
+    console.log("Base prepare done");
   }
 
   /** @override
    * We need to, in order:
-   *  - Re-generate all of our subscriptions
-   *  -
    *  - Re-compute any derived attributes
    */
   prepareDerivedData() {
@@ -1009,6 +992,26 @@ export class LancerActor extends Actor {
       return new_hp;
     };
 
+    // Ask items to prepare their final attributes using weapon_bonuses
+    this.items.forEach(item => {
+      /*
+      if (item.is_mech_weapon()) {
+        // @ts-expect-error
+        let sys_clone = this.system.clone();
+        let pseudo_actor = { system: sys_clone };
+        for (let _eff of this.effects) {
+          let eff = _eff as LancerActiveEffect;
+          // Only apply those that were passed over because restricted
+          if (eff.isSuppressed && !eff.isPassthrough && eff.restrictionsAllow(item)) {
+
+            // Apply appropriate restricted effects
+            item.prepareFinalAttributes(pseudo_actor);
+          }
+        }
+      }
+      */
+    }); // TODO
+
     // If our max hp changed, do somethin'
     /*
     TODO: Move this to a pre-update hook
@@ -1022,32 +1025,16 @@ export class LancerActor extends Actor {
           );
         }
     */
-
-    // Set the general props. All actors have at least these
-    if (this.is_mech()) {
-      let frame = this.system.loadout.frame;
-      this.system.edef = 0;
-      this.system.evasion = 0;
-      this.system.speed = 0;
-      this.system.armor = 0;
-      // TODO - the rest
-    } else if (this.is_pilot()) {
-      // TODO
-    } else if (this.is_deployable()) {
-      // TODO
-    } else if (this.is_npc()) {
-      // TODO
-    }
-
     // If the Size of the ent has changed since the last update, set the
     // protype token size to the new size
     // @ts-expect-error Flags is throwing a weird error. Missing type?
-    const cached_token_size = this.token?.flags?.[game.system.id]?.mm_size;
+    const cached_token_size = this.prototypeToken?.width;
     // @ts-expect-error System's broken
     if (!cached_token_size || cached_token_size !== this.system.size) {
       // @ts-expect-error System's broken
       const size = Math.max(1, this.system.size);
-      this.token?.update({
+      // @ts-expect-error
+      this.prototypeToken?.update({
         width: size,
         height: size,
         flags: {
@@ -1055,9 +1042,6 @@ export class LancerActor extends Actor {
             borderSize: size,
             altSnapping: true,
             evenSnap: !(size % 2),
-          },
-          [game.system.id]: {
-            mm_size: size,
           },
         },
       });
@@ -1164,91 +1148,39 @@ export class LancerActor extends Actor {
     ) {
       const data = changed as any; // DeepPartial<RegMechData | RegNpcData>;
       console.log("Checking structuring");
-      if (
-        "heat" in (data ?? {}) &&
-        // @ts-expect-error Should be fixed with v10 types
-        (data?.heat ?? 0) > (this.system.derived.mm?.HeatCapacity ?? 0) &&
-        // @ts-expect-error Should be fixed with v10 types
-        (this.system.derived.mm?.CurrentStress ?? 0) > 0
-      ) {
+      if ((data.heat ?? 0) > this.system.heat.max && this.system.stress.value > 0) {
         prepareOverheatMacro(this);
       }
-      // @ts-expect-error Should be fixed with v10 types
-      if ("hp" in (data ?? {}) && (data?.hp ?? 0) <= 0 && (this.system.derived.mm?.CurrentStructure ?? 0) > 0) {
+      if ((data.hp ?? 1) <= 0 && this.system.structure.value > 0) {
         prepareStructureMacro(this);
       }
     }
   }
 
-  // As with _onUpdate, want to cascade
-  _onUpdateEmbeddedDocuments(...args: Parameters<Actor["_onUpdateEmbeddedDocuments"]>) {
-    super._onUpdateEmbeddedDocuments(...args);
-    LancerHooks.call(this);
-  }
-
-  _onDelete(...args: Parameters<Actor["_onDelete"]>) {
-    super._onDelete(...args);
-
-    this.subscriptions?.forEach(subscription => {
-      subscription.unsubscribe();
-    });
-    this.subscriptions = [];
-  }
-
-  setupLancerHooks() {
+  sendChangesDownward() {
+    // Call this whenever update an item with probable children
     // If we're a compendium document, don't actually do anything
     if (this.compendium) {
       return;
     }
 
-    // Clear old subs
-    this.subscriptions?.forEach(subscription => {
-      subscription.unsubscribe();
-    });
-    this.subscriptions = [];
-
     // If we are a mech, we need to subscribe to our pilot (if it exists and resolved sync)
-    if (this.is_mech()) {
-      if (this.system.pilot?.status == "resolved") {
-        let pilot = this.system.pilot.value;
-        this.subscriptions.push(
-          LancerHooks.on(pilot, async _ => {
-            // TODO: get this working once bonuses are properyl implemented
-            console.debug(`Pilot ${pilot!.name} propagating effects to ${this.name}`);
-            // Just copy them with minor alterations, for now
-            let pilot_effects = pilot!.effects.map(e => e.toObject());
-            for (let eff of pilot_effects) {
-              eff.origin = pilot!.uuid;
-              eff.flags.from_pilot = true;
-              eff.label = `[PILOT] ${eff.label}`;
-            }
+    if (this.is_pilot()) {
+      if (this.system.active_mech?.status == "resolved") {
+        let mech = this.system.active_mech.value;
+        let changes = pilot_downstream_effects(this as LancerPILOT);
 
-            // We also need to bake our necessary pilot information into an active effect
-            pilot_effects.push({
-              label: "Pilot Stats",
-              changes: [
-                {
-                  mode: AE_MODE_SET_JSON as any,
-                  key: "pilot_inherited",
-                  value: JSON.stringify(pilot!.toObject().data),
-                },
-              ],
-              disabled: false,
-              duration: {
-                startTime: null,
-              },
-              transfer: false,
-              flags: {},
-              _id: null,
-            });
-          })
+        // Get rid of old from this pilot
+        let old = mech.effects.filter(e => (e.getFlag("lancer", "cascade_origin") as string) == this.uuid);
+        mech.deleteEmbeddedDocuments(
+          "ActiveEffect",
+          old.map(e => e.id!)
         );
 
-        // Also, let any listeners on us know!
-        LancerHooks.call(this);
+        // Add new from this pilot
+        // @ts-expect-error
+        mech.createEmbeddedDocuments("ActiveEffect", changes);
       }
-    } else if (this.is_deployable()) {
-      // TODO
     }
   }
 

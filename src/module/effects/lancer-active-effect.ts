@@ -143,15 +143,17 @@ export class LancerActiveEffect extends ActiveEffect {
   }
 }
 
-// To support our effect passdown. Lie about it being a valid number type
-export const AE_MODE_SET_JSON = 11 as 1;
-export const AE_MODE_APPEND_JSON = 12 as 2;
+// To support more effects, we add several effect types.
+export const AE_MODE_SET_JSON = 11 as any;
+export const AE_MODE_APPEND_JSON = 12 as any;
+const _json_cache = {} as Record<string, any>;
 Hooks.on(
   "applyActiveEffect",
   function (actor: LancerActor, change: EffectChangeData, current: any, _delta: any, _changes: any) {
     if (change.mode == AE_MODE_SET_JSON || change.mode == AE_MODE_APPEND_JSON) {
       try {
-        let parsed_delta = JSON.parse(change.value);
+        let parsed_delta = _json_cache[change.value] ?? JSON.parse(change.value);
+        _json_cache[change.value] = parsed_delta;
         // Ok, now set it to wherever it was labeled
         if (change.mode == AE_MODE_SET_JSON) {
           foundry.utils.setProperty(actor.data, change.key, parsed_delta);
@@ -160,7 +162,7 @@ Hooks.on(
         }
       } catch (e) {
         // Nothing to do really, except log it
-        console.warn(`Data transfer active effect corrupted, ${change.value}`);
+        console.warn(`JSON effect parse failed, ${change.value}`);
       }
     }
   }

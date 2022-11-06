@@ -1,8 +1,9 @@
+import { LancerPILOT } from "../actor/lancer-actor";
 import { EntryType } from "../enums";
 import { LancerFRAME, LancerMECH_WEAPON } from "../item/lancer-item";
 import { BonusData } from "../models/bits/bonus";
 import { SystemData, SystemTemplates } from "../system-template";
-import { LancerActiveEffectConstructorData, LancerEffectTarget } from "./lancer-active-effect";
+import { AE_MODE_SET_JSON, LancerActiveEffectConstructorData, LancerEffectTarget } from "./lancer-active-effect";
 
 // Makes a active effect for a frame. Frames should automatically regenerate these when edited
 type FrameStatKey = keyof SystemData.Frame["stats"];
@@ -37,6 +38,45 @@ export function effect_for_frame(frame: LancerFRAME): LancerActiveEffectConstruc
     transfer: true,
     changes,
   };
+}
+
+export function pilot_downstream_effects(pilot: LancerPILOT): LancerActiveEffectConstructorData[] {
+  console.debug(`Pilot ${pilot.name} propagating effects to ${pilot.name}`);
+  let result_effects = [] as LancerActiveEffectConstructorData[];
+
+  // First get effects that don't target the pilot directly
+  let passdown_effects = pilot.effects.filter(e => {
+    let tt = e.getFlag("lancer", "target_type") as string | null;
+    return !!(tt && tt != EntryType.PILOT);
+  });
+
+  // Add metadata and label tweak
+  for (let eff of passdown_effects) {
+    let pde = eff.toObject() as LancerActiveEffectConstructorData;
+    pde.flags.lancer.cascade_origin = pilot.uuid;
+    pde.label = `[PILOT] ${pde.label}`;
+  }
+
+  // We also need to bake our necessary pilot information into an active effect
+  result_effects.push({
+    label: "Pilot Stats",
+    changes: [
+      {
+        mode: AE_MODE_SET_JSON as any,
+        key: "system.pcd",
+        // @ts-expect-error
+        value: JSON.stringify(pilot.system.toObject()),
+      },
+    ],
+    origin: pilot.uuid,
+    flags: {
+      lancer: {
+        target_type: EntryType.MECH,
+        cascade_origin: pilot.uuid,
+      },
+    },
+  });
+  return result_effects;
 }
 
 // Converts a single bonus to a single active effect
