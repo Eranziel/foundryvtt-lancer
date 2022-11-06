@@ -1,5 +1,4 @@
-import type { LancerActor } from "../actor/lancer-actor";
-import type { LancerItem } from "../item/lancer-item";
+import { fromLidSync } from "./from-lid";
 
 //@ts-expect-error v10
 CONFIG.TextEditor.enrichers = CONFIG.TextEditor.enrichers.concat([
@@ -8,34 +7,25 @@ CONFIG.TextEditor.enrichers = CONFIG.TextEditor.enrichers.concat([
     enricher: async (match: string[], _opts: unknown) => {
       const lid = match[1];
       const label: string | undefined = match[2];
-      let doc: LancerActor | LancerItem | { _id: string; name: string; system: { lid: string } } | undefined =
-        // @ts-expect-error v10
-        game.items?.find(i => i.system.lid === lid) ?? game.actors?.find(a => a.system.lid === lid);
-      let databases = game.packs.filter(p => ["Actor", "Item"].includes(p.documentName));
+      // Ideally, in the future, we'll have a way to get an initial index with the correct fields
+      await Promise.all(game.packs.filter(p => ["Actor", "Item"].includes(p.documentName)).map(db => db.getIndex()));
+      let doc = fromLidSync(lid);
       const data = {
         cls: ["content-link"],
         icon: undefined as string | undefined,
         dataset: {} as Record<string, string>,
         name: label,
       };
-      while (!doc && databases.length > 0) {
-        const db = databases.pop();
-        if (!db) continue;
-        const index = await db.getIndex();
-        // @ts-expect-error V10
-        doc = index.find(i => i.system.lid === lid);
-        // @ts-expect-error v10
-        if (doc) data.dataset.pack = db.metadata.id;
-      }
       if (doc) {
         if (doc instanceof foundry.abstract.Document) {
           // @ts-expect-error v10
           return doc.toAnchor({ attrs: { draggable: true }, classes: data.cls, name: data.name });
         }
         data.name ??= doc.name || lid;
-        const doc_type = game.packs.get(data.dataset.pack)?.documentName ?? "Item";
+        const doc_type = game.packs.get(doc.pack)?.documentName ?? "Item";
         data.dataset.type = doc_type;
         data.dataset.id = doc._id;
+        data.dataset.pack = doc.pack;
         data.dataset.uuid = `Compendium.${data.dataset.pack}.${doc._id}`;
         data.icon = CONFIG[doc_type].sidebarIcon;
       } else {
