@@ -928,9 +928,26 @@ export class LancerActor extends Actor {
     }
 
     // 4. Establish type specific attributes / perform type specific prep steps
+    // HASE is pretty generic. All but pilot need defaults - pilot gets from source
+    if (this.is_mech() || this.is_deployable() || this.is_npc()) {
+      this.system.hull = 0;
+      this.system.agi = 0;
+      this.system.sys = 0;
+      this.system.eng = 0;
+    }
+
     if (this.is_pilot()) {
       this.system.grit = Math.ceil(this.system.level / 2);
     } else if (this.is_mech()) {
+      // Take HASE from pilot, if resolved
+      if (this.system.pilot?.status == "resolved") {
+        // TODO - take from psd instead? Maybe?
+        this.system.hull = this.system.pilot.value.system.hull;
+        this.system.agi = this.system.pilot.value.system.agi;
+        this.system.sys = this.system.pilot.value.system.sys;
+        this.system.eng = this.system.pilot.value.system.eng;
+      }
+
       // Mark loadout items as equipped, while aggregating sp/ai
       let equipped_sp = 0;
       let equipped_ai = 0;

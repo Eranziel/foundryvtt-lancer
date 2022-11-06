@@ -113,6 +113,12 @@ export namespace SystemTemplates {
       variable: boolean;
     };
 
+    // All actors will populate these. Pilots have them by default
+    hull: number;
+    agi: number;
+    sys: number;
+    eng: number;
+
     // Set by active effects
     bonuses: {
       flat: RollBonusTargets;
@@ -475,10 +481,6 @@ export namespace SystemData {
       gear: SystemTemplates.ResolvedEmbeddedRef<LancerPILOT_GEAR>[];
       weapons: SystemTemplates.ResolvedEmbeddedRef<LancerPILOT_WEAPON>[];
     };
-    hull: number;
-    agi: number;
-    sys: number;
-    eng: number;
     mounted: boolean;
     notes: string;
     player_name: string;
