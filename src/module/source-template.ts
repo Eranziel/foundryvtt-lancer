@@ -30,7 +30,7 @@ export type DataTypeMap = { [key in EntryType]: object };
 export interface BoundedNum {
   min?: number;
   max?: number;
-  value: 0;
+  value: number;
 }
 
 export type FullBoundedNum = Required<BoundedNum>;

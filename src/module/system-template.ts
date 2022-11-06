@@ -98,8 +98,10 @@ export namespace SystemTemplates {
       jammed: boolean;
       lockon: boolean;
       shredded: boolean;
-      slow: boolean;
+      slowed: boolean;
       stunned: boolean;
+      hidden: boolean;
+      invisibe: boolean;
     };
     resistances: {
       // These can be set by active effects
@@ -319,17 +321,17 @@ export namespace SystemData {
     core_active: boolean;
     core_energy: number;
     loadout: {
-      frame: SystemTemplates.ResolvedEmbeddedRef<LancerFRAME> | null; // UUID to a LancerFRAME
+      frame: SystemTemplates.ResolvedEmbeddedRef<LancerFRAME> | null;
       weapon_mounts: Array<{
         slots: Array<{
-          weapon: SystemTemplates.ResolvedEmbeddedRef<LancerMECH_WEAPON> | null; // UUID to a LancerMECH_WEAPON
-          mod: SystemTemplates.ResolvedEmbeddedRef<LancerWEAPON_MOD> | null; // UUID to a LancerWEAPON_MOD
+          weapon: SystemTemplates.ResolvedEmbeddedRef<LancerMECH_WEAPON> | null;
+          mod: SystemTemplates.ResolvedEmbeddedRef<LancerWEAPON_MOD> | null;
           size: FittingSize;
         }>;
         type: MountType;
         bracing: boolean;
       }>;
-      systems: LancerMECH_SYSTEM[];
+      systems: SystemTemplates.ResolvedEmbeddedRef<LancerMECH_SYSTEM>[];
       sp: FullBoundedNum; // Entirely derived
       ai_cap: FullBoundedNum; // Entirely derived
     };
@@ -337,7 +339,7 @@ export namespace SystemData {
     notes: string;
     pilot: SystemTemplates.ResolvedUuidRef<LancerPILOT> | null; // UUID to a LancerPILOT
 
-    // Set by pilot active effect? mayb
+    // Set by pilot active effect
     psd: null | Pilot; // Short for "pilot system dump". An active-effect provided dump of active pilots sytem data
   }
 
