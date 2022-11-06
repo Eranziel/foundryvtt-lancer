@@ -6,6 +6,9 @@ import * as defaults from "../util/mmigration/defaults";
 import { ActionData } from "../models/bits/action";
 import { RangeData } from "../models/bits/range";
 import { Tag } from "../models/bits/tag";
+import { LancerActiveEffectConstructorData } from "../effects/lancer-active-effect";
+import { convert_bonus, effect_for_frame } from "../effects/converter";
+import { BonusData } from "../models/bits/bonus";
 
 const lp = LANCER.log_prefix;
 
@@ -109,17 +112,12 @@ export class LancerItem extends Item {
   prepareData() {
     super.prepareData();
 
-    console.warn("TODO: Re-implement item data preparation");
-    /*
-    // If no id, leave
-    if (!this.id) return;
-
-    let d = foundry.utils.duplicate(this.toObject());
-    // Push down name
-    if (!this.data.img) this.data.img = CONST.DEFAULT_TOKEN;
+    // @ts-expect-error
+    this.system.equipped = false;
 
     // compute max uses if needed
     // TODO: Re-implement base limits
+    /*
     let base_limit = d.base_limit;
     if (base_limit) {
       dr.max_uses = base_limit; // A decent baseline - start with the limited tag
@@ -133,15 +131,14 @@ export class LancerItem extends Item {
         }
       }
     }
-    
-    return d;
     */
   }
 
-  prepareFinalAttributes(): void {
-    // Called after bonuses have been set up. Allows us to set up ranges etc with bonuses
-    // TODO
-  }
+  /**
+   * Method used by mech weapons (and perhaps some other miscellaneous items???) to prepare their individual stats
+   * using the bonuses described in the provided synthetic actor.
+   */
+  prepareFinalAttributes(system: SystemData.Mech | SystemData.Pilot): void {}
 
   /** @override
    * Want to preserve our arrays
@@ -150,6 +147,47 @@ export class LancerItem extends Item {
     // @ts-expect-error
     data = this.system.full_update_data(data);
     return super.update(data, options);
+  }
+
+  /**
+   * Generates an updated changelist for this item.
+   * This active effect is meant to represent this items "core" transfer effect, if any.
+   */
+  async update_innate_effects() {
+    // First, cull all innate/bonus effects
+    await this.deleteEmbeddedDocuments(
+      "ActiveEffect",
+      this.effects
+        .filter(
+          e =>
+            e.id != null &&
+            ((e.getFlag("lancer", "item_innate") as boolean) || (e.getFlag("lancer", "item_bonus") as boolean))
+        )
+        .map(e => e.id!)
+    );
+
+    // Then, regenerate them
+    let bonuses: BonusData[] = [];
+    let innate: LancerActiveEffectConstructorData | null = null;
+    if (this.is_frame()) {
+      bonuses = [...this.system.core_system.passive_bonuses, ...this.system.traits.flatMap(t => t.bonuses)];
+      innate = effect_for_frame(this as LancerFRAME);
+    } else if (this.is_pilot_armor() || this.is_core_bonus() || this.is_mech_system()) {
+      bonuses = this.system.bonuses;
+    } else {
+      console.log("TODO other effects");
+    }
+
+    // Convert bonuses
+    let bonus_effects = bonuses
+      .map(b => convert_bonus(`${this.name} - ${b.lid}`, b))
+      .filter(b => b) as LancerActiveEffectConstructorData[];
+
+    if (innate) {
+      bonus_effects.push(innate);
+    }
+
+    return this.createEmbeddedDocuments("ActiveEffect", bonus_effects as any);
   }
 
   protected async _preCreate(...[data, options, user]: Parameters<Item["_preCreate"]>): Promise<void> {

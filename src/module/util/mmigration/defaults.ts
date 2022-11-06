@@ -175,7 +175,6 @@ export function DEPLOYABLE(): SourceDataType<EntryType.DEPLOYABLE> {
     size: 0.5,
     speed: 0,
     type: DeployableType.Deployable,
-    resistances: Damage.MakeChecklist([]),
     avail_unmounted: false,
     avail_mounted: true,
     deployer: null,
@@ -262,14 +261,6 @@ export function MECH(): SourceDataType<EntryType.MECH> {
     notes: "",
     overshield: 0,
     pilot: null,
-    resistances: {
-      Variable: false,
-      Kinetic: false,
-      Heat: false,
-      Explosive: false,
-      Energy: false,
-      Burn: false,
-    },
     action_tracker: ACTION_TRACKER(),
   };
 }
@@ -340,7 +331,6 @@ export function NPC(): SourceDataType<EntryType.NPC> {
     custom_counters: [],
     lid: "npc_" + nanoid(),
     overshield: 0,
-    resistances: Damage.MakeChecklist([]),
     tier: 1,
     stress: 1,
     structure: 1,
@@ -561,7 +551,6 @@ export function PILOT(): SourceDataType<EntryType.PILOT> {
     text_appearance: "",
     overshield: 0,
     burn: 0,
-    resistances: Damage.MakeChecklist([]),
     action_tracker: ACTION_TRACKER(),
     activations: 1,
     cloud_id: "",

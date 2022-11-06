@@ -41,7 +41,9 @@ import { FullBoundedNum, SourceData, SourceTemplates, UUIDRef } from "./source-t
 
 export namespace SystemTemplates {
   // We mimic these types, such that if we later decide to modify how they are hydrated, our job is easier
-  export interface item_universal extends SourceTemplates.item_universal {}
+  export interface item_universal extends SourceTemplates.item_universal {
+    equipped: boolean; // Derived
+  }
   export interface licensed extends SourceTemplates.licensed {}
   export interface destructible extends SourceTemplates.destructible {}
   export interface action_tracking extends SourceTemplates.action_tracking {}

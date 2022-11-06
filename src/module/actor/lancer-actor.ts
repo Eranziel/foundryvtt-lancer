@@ -7,7 +7,7 @@ import { fix_modify_token_attribute } from "../token";
 import { findEffect } from "../helpers/acc_diff";
 import { AppliedDamage } from "./damage-calc";
 import { SystemData, SystemDataType, SystemTemplates } from "../system-template";
-import { AE_MODE_SET_JSON } from "../effects/lancer-active-effect";
+import { AE_MODE_SET_JSON, LancerActiveEffect } from "../effects/lancer-active-effect";
 import { SourceDataType } from "../source-template";
 import * as defaults from "../util/mmigration/defaults";
 import { PackedPilotData } from "../util/mmigration/packed-types";
@@ -58,9 +58,6 @@ export class LancerActor extends Actor {
 
   // Kept for comparing previous to next values
   prior_max_hp = -1;
-
-  // Are we currently in our preliminary effect application phase?
-  _preliminary = false;
 
   /**
    * Performs overheat
@@ -894,8 +891,6 @@ export class LancerActor extends Actor {
    * We require a customized active effect application workflow
    */
   prepareData() {
-    this._preliminary = true;
-
     // 1. Performs the following:
     // - Prepare base system data model.
     // - Prepare embedded items & effects.
@@ -933,31 +928,57 @@ export class LancerActor extends Actor {
       slow: false,
       stunned: false,
     };
+    sys.resistances = {
+      Burn: false,
+      Energy: false,
+      Explosive: false,
+      Heat: false,
+      Kinetic: false,
+      Variable: false,
+    };
+    sys.bonuses = {
+      flat: defaults.ROLL_BONUS_TARGETS(),
+      accuracy: defaults.ROLL_BONUS_TARGETS(),
+    };
+    sys.weapon_bonuses = [];
 
+    // Establish type specific attributes / perform type specific prep steps
     if (this.is_pilot()) {
       this.system.grit = Math.ceil(this.system.level / 2);
-      this.system.hull = this.system.mech_skills[0];
-      this.system.agi = this.system.mech_skills[1];
-      this.system.sys = this.system.mech_skills[2];
-      this.system.eng = this.system.mech_skills[3];
     } else if (this.is_mech()) {
-      this.system.grit = 0;
-      this.system.hull = 0;
-      this.system.agi = 0;
-      this.system.sys = 0;
-      this.system.eng = 0;
+      // Mark loadout items as equipped TODO
+      this.system.loadout.sp = { max: 0, min: 0, value: 0 };
+      this.system.loadout.ai_cap = { max: 0, min: 0, value: 0 };
     } else if (this.is_npc()) {
       // TODO
     } else if (this.is_deployable()) {
       // TODO
     }
 
-    // 4. We then apply all other active effects
-    this._preliminary = false;
+    // 4. We then apply all non-restricted active effects
     this.applyActiveEffects();
 
-    // 5. Finally, ask items to prepare their final attributes
-    this.items.forEach(item => item.prepareFinalAttributes()); // TODO
+    // 5. Compute some
+
+    // 6. Finally, ask items to prepare their final attributes, while providing
+    this.items.forEach(item => {
+      /*
+      if (item.is_mech_weapon()) {
+        // @ts-expect-error
+        let sys_clone = this.system.clone();
+        let pseudo_actor = { system: sys_clone };
+        for (let _eff of this.effects) {
+          let eff = _eff as LancerActiveEffect;
+          // Only apply those that were passed over because restricted
+          if (eff.isSuppressed && !eff.isPassthrough && eff.restrictionsAllow(item)) {
+
+            // Apply appropriate restricted effects
+            item.prepareFinalAttributes(pseudo_actor);
+          }
+        }
+      }
+      */
+    }); // TODO
 
     console.log("prepare done");
   }

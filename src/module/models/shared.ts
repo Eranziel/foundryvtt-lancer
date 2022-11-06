@@ -1,5 +1,6 @@
 import { DamageType, EntryType, RangeType, WeaponSize, WeaponType } from "../enums";
 import { format_dotpath } from "../helpers/commons";
+import { LancerItem } from "../item/lancer-item";
 import { SystemTemplates } from "../system-template";
 
 // @ts-ignore
@@ -165,14 +166,14 @@ export class ResolvedEmbeddedRefField extends fields.StringField {
     // Create job
     model.add_pre_finalize_task(() => {
       if (value != null) {
-        // @ts-expect-error
         let sub: LancerItem | ActiveEffect | null =
+          // @ts-expect-error
           model?.parent?.getEmbeddedDocument(this.embedded_collection, value) ?? null;
         if (!sub) {
           console.log("Failed to resolve embedded ref: ID not found.", model, value);
           shell.status = "missing";
           shell.value = null;
-        } else if (this.allowed_types && !this.allowed_types.includes(sub.type)) {
+        } else if (this.allowed_types && sub instanceof LancerItem && !this.allowed_types.includes(sub.type)) {
           console.log(
             `Failed to resolve embedded ref: Wrong type ${sub.type} not in ${this.allowed_types.join("|")}`,
             model,
