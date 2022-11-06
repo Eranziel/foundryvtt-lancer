@@ -156,6 +156,7 @@ import { LancerCombat, LancerCombatant, LancerCombatTracker } from "lancer-initi
 import { LancerCombatTrackerConfig } from "./module/helpers/lancer-initiative-config-form";
 import { handleRenderCombatCarousel } from "./module/helpers/combat-carousel";
 import { measureDistances } from "./module/grid";
+import { fromLid, fromLidSync } from "./module/helpers/from-lid";
 
 const lp = LANCER.log_prefix;
 
@@ -214,6 +215,8 @@ Hooks.once("init", async function () {
     targetsFromTemplate: macros.targetsFromTemplate,
     migrations: migrations,
     getAutomationOptions: getAutomationOptions,
+    fromLid: fromLid,
+    fromLidSync: fromLidSync,
 
     // For whitespines testing /('o')/
     tmp: {
@@ -228,7 +231,11 @@ Hooks.once("init", async function () {
 
   // Record Configuration Values
   CONFIG.Actor.documentClass = LancerActor;
+  // @ts-expect-error v10
+  CONFIG.Actor.compendiumIndexFields.push("system.lid");
   CONFIG.Item.documentClass = LancerItem;
+  // @ts-expect-error v10
+  CONFIG.Item.compendiumIndexFields.push("system.lid");
   CONFIG.Token.documentClass = LancerTokenDocument;
   CONFIG.Token.objectClass = LancerToken;
   CONFIG.Combat.documentClass = LancerCombat;
