@@ -61,13 +61,13 @@ export namespace SourceTemplates {
 
   // The core data in virtually every lancer item
   export interface bascdt {
+    bonuses: BonusData[];
     actions: ActionData[];
     synergies: SynergyData[];
     counters: CounterData[];
     deployables: UUIDRef[];
     integrated: UUIDRef[];
     tags: TagData[];
-    bonuses: BonusData[];
   }
 
   // For items and mods that can enter failing states

@@ -14,12 +14,12 @@
         "burn": 0,
 
         "resistances": {
-          "Kinetic": false,
-          "Energy": false,
-          "Explosive": false,
-          "Heat": false,
-          "Burn": false,
-          "Variable": false
+          "kinetic": false,
+          "energy": false,
+          "explosive": false,
+          "heat": false,
+          "burn": false,
+          "variable": false
         },
 
         "activations": 1,
@@ -111,7 +111,7 @@
       "deployer": null
     },
     "mech": {
-      "templates": ["universal", "action_tracking", "heat", "statuses", "struss"],
+      "templates": ["universal", "action_tracking", "heat", "struss"],
       "core_active": false,
       "core_energy": 1,
       "overcharge": 0,
@@ -156,6 +156,7 @@
         "manufacturer": ""
       },
       "bascdt": {
+        "bonuses": [],
         "actions": [],
         "synergies": [],
         "counters": [],

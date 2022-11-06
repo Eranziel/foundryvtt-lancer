@@ -588,11 +588,11 @@ export class LancerActor extends Actor {
     if (!paracausal && !findEffect(this, "shredded")) {
       const defense_favor = true; // getAutomationOptions().defenderArmor
       // @ts-expect-error System's broken
-      const resist_armor_damage = armored_damage_types.filter(t => this.system.resistances[t]);
+      const resist_armor_damage = armored_damage_types.filter(t => this.system.resistances[t.toLowerCase()]);
       // @ts-expect-error System's broken
-      const normal_armor_damage = armored_damage_types.filter(t => !this.system.resistances[t]);
+      const normal_armor_damage = armored_damage_types.filter(t => !this.system.resistances[t.toLowerCase()]);
       // @ts-expect-error System's broken
-      const resist_ap_damage = ap_damage_types.filter(t => this.system.resistances[t]);
+      const resist_ap_damage = ap_damage_types.filter(t => this.system.resistances[t.toLowerCase()]);
       // @ts-expect-error System's broken
       let armor = ap ? 0 : this.system.armor;
       let leftover_armor: number; // Temp 'storage' variable for tracking used armor
@@ -906,12 +906,12 @@ export class LancerActor extends Actor {
       invisibe: false,
     };
     sys.resistances = {
-      Burn: false,
-      Energy: false,
-      Explosive: false,
-      Heat: false,
-      Kinetic: false,
-      Variable: false,
+      burn: false,
+      energy: false,
+      explosive: false,
+      heat: false,
+      kinetic: false,
+      variable: false,
     };
     sys.bonuses = {
       flat: defaults.ROLL_BONUS_TARGETS(),
