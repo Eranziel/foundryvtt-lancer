@@ -44,16 +44,6 @@ export namespace SourceTemplates {
     hp: number;
     overshield: number;
     burn: number;
-
-    resistances: {
-      Kinetic: boolean;
-      Energy: boolean;
-      Explosive: boolean;
-      Heat: boolean;
-      Burn: boolean;
-      Variable: boolean;
-    };
-
     activations: number;
     custom_counters: CounterData[];
   }

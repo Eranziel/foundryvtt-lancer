@@ -4,17 +4,6 @@ import { FakeBoundedNumberField, LIDField } from "../shared";
 const fields: any = foundry.data.fields;
 
 /**
- * Holds any bonuses that can't be accomplished just by direct application of active effects to the actor
- */
-interface BonusesMap {
-  // wip
-  bonus_range: number;
-  bonus_damage: string;
-  bonus_tags: string[]; // List of LID's of tags to add. Should only really be used with conditional / temporary things
-  // ... Todo
-}
-
-/**
  * Tracks core statuses, and allows for active effects to easily and non-exclusively apply impaired.
  * We use the names of keys from lancer-data, but with dashes removed
  */
@@ -44,16 +33,6 @@ export function template_universal_actor() {
   return {
     lid: new LIDField(),
     burn: new fields.NumberField({ min: 0, integer: true, nullable: false }),
-
-    resistances: new fields.SchemaField({
-      Kinetic: new fields.BooleanField(),
-      Energy: new fields.BooleanField(),
-      Explosive: new fields.BooleanField(),
-      Heat: new fields.BooleanField(),
-      Burn: new fields.BooleanField(),
-      Variable: new fields.BooleanField(),
-    }),
-
     activations: new fields.NumberField({ min: 0, integer: true, nullable: false }),
     custom_counters: new fields.ArrayField(new CounterField()),
 

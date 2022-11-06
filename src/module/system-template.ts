@@ -46,20 +46,24 @@ export namespace SystemTemplates {
   export interface destructible extends SourceTemplates.destructible {}
   export interface action_tracking extends SourceTemplates.action_tracking {}
 
+  // Allows for applying bonuses to specific roll types
+  export interface RollBonusTargets {
+    range_attack: number;
+    melee_attack: number;
+    tech_attack: number;
+    ram: number;
+    grapple: number;
+    hull: number;
+    agi: number;
+    sys: number;
+    eng: number;
+  }
+
   // And, here are the ones where we ended up modifying them!
   export type actor_universal = {
     // These are exactly the same
     lid: string;
     burn: number;
-
-    resistances: {
-      Kinetic: boolean;
-      Energy: boolean;
-      Explosive: boolean;
-      Heat: boolean;
-      Burn: boolean;
-      Variable: boolean;
-    };
 
     activations: number;
     custom_counters: CounterData[];
@@ -95,6 +99,31 @@ export namespace SystemTemplates {
       slow: boolean;
       stunned: boolean;
     };
+    resistances: {
+      // These can be set by active effects
+      Kinetic: boolean;
+      Energy: boolean;
+      Explosive: boolean;
+      Heat: boolean;
+      Burn: boolean;
+      Variable: boolean;
+    };
+
+    // Set by active effects
+    bonuses: {
+      flat: RollBonusTargets;
+      accuracy: RollBonusTargets;
+    };
+
+    // Also set by active effects, but to allow for more specific criteria. TODO - finalize details of this
+    weapon_bonuses: Array<{
+      sizes: BonusData["weapon_sizes"];
+      types: BonusData["weapon_types"];
+      damages: BonusData["damage_types"];
+      ranges: BonusData["range_types"];
+      bonus: "range" | "damage";
+      value: number;
+    }>;
   };
 
   // Modify bascdt to use system tagfields, and resolved deployables/integrateds
@@ -194,7 +223,7 @@ export namespace SystemData {
 
   export interface Deployable extends SystemTemplates.actor_universal, SystemTemplates.heat {
     actions: ActionData[];
-    bonuses: BonusData[];
+    // bonuses: BonusData[];
     counters: CounterData[];
     synergies: SynergyData[];
     tags: Tag[];
@@ -299,18 +328,15 @@ export namespace SystemData {
         bracing: boolean;
       }>;
       systems: LancerMECH_SYSTEM[];
-      sp: FullBoundedNum; // Derived
+      sp: FullBoundedNum; // Entirely derived
+      ai_cap: FullBoundedNum; // Entirely derived
     };
     meltdown_timer: number | null;
     notes: string;
     pilot: SystemTemplates.ResolvedUuidRef<LancerPILOT> | null; // UUID to a LancerPILOT
 
-    // TODO: derived convenience arrays of features/actions? Active class?
-    grit: number;
-    hull: number;
-    agi: number;
-    sys: number;
-    eng: number;
+    // Set by pilot active effect? mayb
+    psd: null | Pilot; // Short for "pilot system dump". An active-effect provided dump of active pilots sytem data
   }
 
   export interface MechSystem

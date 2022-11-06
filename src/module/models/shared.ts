@@ -291,7 +291,7 @@ export class FakeBoundedNumberField extends fields.NumberField {
     // Expand to a somewhat reasonable range. `prepareData` functions should handle the rest
     return {
       min: 0,
-      max: value || 1,
+      max: 0,
       value,
     };
   }

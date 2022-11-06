@@ -27,6 +27,7 @@ import { Damage, DamageData } from "../../models/bits/damage";
 import { ActionTrackingData } from "../../action";
 import { RangeData } from "../../models/bits/range";
 import { CounterData } from "../../models/bits/counter";
+import { SystemTemplates } from "../../system-template";
 
 const DEFAULT_DESCRIPTION = "...";
 
@@ -694,5 +695,19 @@ export function WEAPON_MOD(): SourceDataType<EntryType.WEAPON_MOD> {
     added_range: [],
     bonuses: [],
     synergies: [],
+  };
+}
+
+export function ROLL_BONUS_TARGETS(): SystemTemplates.RollBonusTargets {
+  return {
+    hull: 0,
+    agi: 0,
+    sys: 0,
+    eng: 0,
+    melee_attack: 0,
+    range_attack: 0,
+    tech_attack: 0,
+    grapple: 0,
+    ram: 0,
   };
 }
