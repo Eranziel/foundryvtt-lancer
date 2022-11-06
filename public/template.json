@@ -14,12 +14,12 @@
         "burn": 0,
 
         "resistances": {
-          "Kinetic": false,
-          "Energy": false,
-          "Explosive": false,
-          "Heat": false,
-          "Burn": false,
-          "Variable": false
+          "kinetic": false,
+          "energy": false,
+          "explosive": false,
+          "heat": false,
+          "burn": false,
+          "variable": false
         },
 
         "activations": 1,

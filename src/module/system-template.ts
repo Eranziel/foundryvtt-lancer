@@ -103,12 +103,12 @@ export namespace SystemTemplates {
     };
     resistances: {
       // These can be set by active effects
-      Kinetic: boolean;
-      Energy: boolean;
-      Explosive: boolean;
-      Heat: boolean;
-      Burn: boolean;
-      Variable: boolean;
+      kinetic: boolean;
+      energy: boolean;
+      explosive: boolean;
+      heat: boolean;
+      burn: boolean;
+      variable: boolean;
     };
 
     // Set by active effects
