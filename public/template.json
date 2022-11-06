@@ -111,7 +111,7 @@
       "deployer": null
     },
     "mech": {
-      "templates": ["universal", "action_tracking", "heat", "statuses", "struss"],
+      "templates": ["universal", "action_tracking", "heat", "struss"],
       "core_active": false,
       "core_energy": 1,
       "overcharge": 0,
