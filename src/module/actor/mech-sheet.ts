@@ -77,27 +77,27 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
     let [drop, is_new] = await this.quick_own_drop(base_drop);
 
     // Now, do sensible things with it
-    // TODO
-    /*
-    if (is_new && drop.type == "Item" && drop.document.is_frame() && this.actor.is_mech()) {
+    if (drop.type == "Item" && drop.document.is_frame() && this.actor.is_mech()) {
       // If new frame, auto swap with prior frame
-      await this.actor.swapFrameImage(this.actor, this.actor.data.data.loadout.frame, drop);
-      this_mm.Loadout.Frame = drop;
+      if (is_new) {
+        await this.actor.swapFrameImage(this.actor, this.actor.system.loadout.frame?.value ?? null, drop.document);
+      }
+      this.actor.update({
+        "system.loadout.frame": drop.document.id,
+      });
 
       // Reset mounts
-      await this_mm.Loadout.reset_weapon_mounts();
-    } else if (is_new && drop.Type === EntryType.MECH_WEAPON) {
+      // await this_mm.Loadout.reset_weapon_mounts();
+    } else if (is_new && drop.type == "Item" && drop.document.is_mech_weapon()) {
       // If frame, weapon, put it in an available slot
-      await this_mm.Loadout.equip_weapon(drop);
-    } else if (is_new && drop.Type === EntryType.MECH_SYSTEM) {
-      await this_mm.Loadout.equip_system(drop);
-    } else if (drop.Type == EntryType.PILOT) {
-      this_mm.Pilot = drop;
+      // await this_mm.Loadout.equip_weapon(drop);
+    } else if (is_new && drop.type == "Item" && drop.document.is_mech_system()) {
+      // await this_mm.Loadout.equip_system(drop);
+    } else if (drop.type == "Actor" && drop.document.is_pilot()) {
+      await this.actor.update({
+        "system.pilot": drop.document.uuid,
+      });
     }
-
-    // Writeback when done. Even if nothing explicitly changed, probably good to trigger a redraw (unless this is double-tapping? idk)
-    await this_mm.writeback();
-      */
   }
 
   /**

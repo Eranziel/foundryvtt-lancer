@@ -12,6 +12,7 @@ import * as defaults from "../util/mmigration/defaults";
 import { PackedPilotData } from "../util/mmigration/packed-types";
 import { getAutomationOptions } from "../settings";
 import { pilot_downstream_effects } from "../effects/converter";
+import { LancerFRAME, LancerNPC_CLASS } from "../item/lancer-item";
 const lp = LANCER.log_prefix;
 
 const DEFAULT_OVERCHARGE_SEQUENCE = ["+1", "+1d3", "+1d6", "+1d6+4"];
@@ -1290,8 +1291,8 @@ export class LancerActor extends Actor {
    */
   async swapFrameImage(
     robot: LancerMECH | LancerNPC,
-    oldFrame: any, // LancerFRAME | LancerNPC_CLASS | null,
-    newFrame: any // LancerFRAME | LancerNPC_CLASS
+    oldFrame: LancerFRAME | LancerNPC_CLASS | null,
+    newFrame: LancerFRAME | LancerNPC_CLASS
   ): Promise<string> {
     ui.notifications?.error("TODO: Reimplement frame image swapping");
     return "";
