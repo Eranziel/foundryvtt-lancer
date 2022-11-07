@@ -1995,6 +1995,12 @@ a.activation-chip > i.mdi {
   text-align: center;
 }
 
+// Effects
+.active-effect {
+  border-radius: 5px groove;
+  border-color: var(--main-theme-color);
+}
+
 // Stabilize dialog
 
 .stabilize-wrapper .button-label {

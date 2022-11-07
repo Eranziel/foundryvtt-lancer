@@ -38,6 +38,7 @@ import { EntryType, SystemType } from "../enums";
 import { LancerActor } from "../actor/lancer-actor";
 import { LancerMacroData } from "../interfaces";
 import { SystemTemplates } from "../system-template";
+import { LancerActiveEffect } from "../effects/lancer-active-effect";
 
 /*
 "Ref" manifesto - Things for handling everything in data that is either a ResolvedUuidRefField or ResolvedEmbeddedRefField.
@@ -134,12 +135,14 @@ export async function click_evt_open_ref(event: any) {
 }
 
 // Given a ref element (as created by simple_mm_ref or similar function), find the item it is currently referencing
-export async function resolve_ref_element(elt: HTMLElement): Promise<LancerItem | LancerActor | null> {
+export async function resolve_ref_element(
+  elt: HTMLElement
+): Promise<LancerItem | LancerActor | LancerActiveEffect | null> {
   if (!elt.dataset.uuid) {
     return null;
   } else {
     let found = await fromUuid(elt.dataset.uuid);
-    if (found && (found instanceof LancerItem || found instanceof LancerActor)) {
+    if (found && (found instanceof LancerItem || found instanceof LancerActor || found instanceof LancerActiveEffect)) {
       return found;
     } else if (found) {
       console.warn(`Ref element pointed at a ${found.documentName} - unsupported`);

@@ -40,7 +40,8 @@ export class LancerActiveEffect extends ActiveEffect {
   /* --------------------------------------------- */
 
   get #typedFlags(): LancerActiveEffectFlags {
-    return this.data.flags as any;
+    // @ts-expect-error
+    return this.flags;
   }
 
   /**
@@ -102,44 +103,42 @@ export class LancerActiveEffect extends ActiveEffect {
   /**
    * Prepare the data structure for Active Effects which are currently applied to an Actor or Item.
    */
-  static prepareActiveEffectCategories(actor: LancerActor, effects: LancerActiveEffect[]) {
+  static prepareActiveEffectCategories(
+    actor: LancerActor
+  ): Array<{ type: string; label: string; effects: LancerActiveEffect[] }> {
     // Define effect header categories
-    const categories = {
-      passive: {
-        type: "passive",
-        // label: game.i18n.localize("DND5E.EffectTemporary"),
-        label: "Enabled",
-        effects: [] as LancerActiveEffect[],
-      },
-      inherited: {
-        type: "inherited",
-        label: "Inherited",
-        effects: [] as LancerActiveEffect[],
-      },
-      disabled: {
-        type: "disabled",
-        label: "Disabled",
-        effects: [] as LancerActiveEffect[],
-      },
-      passthrough: {
-        type: "passthrough",
-        label: game.i18n.localize("DND5E.EffectUnavailable"),
-        effects: [] as LancerActiveEffect[],
-        info: [game.i18n.localize("DND5E.EffectUnavailableInfo")],
-      },
+    let passives = {
+      type: "passive",
+      label: game.i18n.localize("lancer.effect.categories.passive"),
+      effects: [] as LancerActiveEffect[],
+    };
+    let inherited = {
+      type: "inherited",
+      label: game.i18n.localize("lancer.effect.categories.inherited"),
+      effects: [] as LancerActiveEffect[],
+    };
+    let disabled = {
+      type: "disabled",
+      label: game.i18n.localize("lancer.effect.categories.disabled"),
+      effects: [] as LancerActiveEffect[],
+    };
+    let passthrough = {
+      type: "passthrough",
+      label: game.i18n.localize("lancer.effect.categories.passthrough"),
+      effects: [] as LancerActiveEffect[],
     };
 
     // Iterate over active effects, classifying them into categories
-    for (let e of effects) {
+    for (let e of actor.effects.contents as LancerActiveEffect[]) {
       // e._getSourceName(); // Trigger a lookup for the source name
-      if (e.isPassthrough()) categories.passthrough.effects.push(e);
-      else if (e.data.disabled) categories.disabled.effects.push(e);
-      else if (e.#typedFlags.lancer.cascade_origin) categories.inherited.effects.push(e);
-      else categories.passive.effects.push(e);
+      if (e.isPassthrough()) passthrough.effects.push(e);
+      else if (e.data.disabled) disabled.effects.push(e);
+      else if (e.#typedFlags.lancer.cascade_origin) inherited.effects.push(e);
+      else passives.effects.push(e);
     }
 
     // categories.suppressed.hidden = !categories.suppressed.effects.length;
-    return categories;
+    return [passives, inherited, disabled, passthrough];
   }
 }
 

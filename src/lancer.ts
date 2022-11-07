@@ -156,6 +156,8 @@ import { BonusData } from "./module/models/bits/bonus";
 import { EntryType } from "./module/enums";
 import { FrameModel } from "./module/models/items/frame";
 import { PilotModel } from "./module/models/actors/pilot";
+import { effect_categories_view, effect_view } from "./module/helpers/effects";
+import { LancerActiveEffect } from "./module/effects/lancer-active-effect";
 
 const lp = LANCER.log_prefix;
 
@@ -233,6 +235,7 @@ Hooks.once("init", async function () {
   // Record Configuration Values
   CONFIG.Actor.documentClass = LancerActor;
   CONFIG.Item.documentClass = LancerItem;
+  CONFIG.ActiveEffect.documentClass = LancerActiveEffect;
   CONFIG.Token.documentClass = LancerTokenDocument;
   CONFIG.Token.objectClass = LancerToken;
   CONFIG.Combat.documentClass = LancerCombat;
@@ -427,6 +430,11 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("counter-array", buildCounterArrayHTML);
   Handlebars.registerHelper("pilot-counters", pilot_counters);
   Handlebars.registerHelper("all-mech-preview", all_mech_preview);
+
+  // ------------------------------------------------------------------------
+  // Effects
+  Handlebars.registerHelper("effect-categories-view", effect_categories_view);
+  Handlebars.registerHelper("effect-view", effect_view);
 
   // ------------------------------------------------------------------------
   // Tags

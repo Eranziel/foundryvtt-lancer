@@ -19,7 +19,8 @@
             "tabs": {
                 "stats": "<MECH//STATS>",
                 "loadout": "<MECH//LOADOUT>",
-                "talents": "<PILOT//TALENTS>"
+                "talents": "<PILOT//TALENTS>",
+                "effects": "<STATUSES//EFFECTS>"
             },
             "core": {
                 "label": "CORE"
@@ -176,6 +177,14 @@
             "121": "1-2-1: Diagonal moves alternate cost from 1 to 2",
             "222": "2-2-2: Manhattan distance. Diagonals cost 2",
             "euc": "Euclidean: Euclidian distance rounded"
+        },
+        "effect": {
+            "categories": {
+                "passive": "Passive",
+                "passthrough": "Passthrough",
+                "disabled": "Disabled",
+                "inherited": "Inherited"
+            }
         }
     },
     "LANCERINITIATIVE": {

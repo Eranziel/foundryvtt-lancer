@@ -35,6 +35,7 @@ import { getActionTrackerOptions } from "../settings";
 import { modAction } from "../action/actionTracker";
 import { insinuate, LancerDoc } from "../util/doc";
 import { PrototypeTokenData } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs";
+import { LancerActiveEffect } from "../effects/lancer-active-effect";
 const lp = LANCER.log_prefix;
 
 /**
@@ -483,7 +484,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     const data = await super.getData(); // Not fully populated yet!
     // @ts-expect-error
     data.system = this.actor.system; // Alias
-
+    data.effect_categories = LancerActiveEffect.prepareActiveEffectCategories(this.actor);
     console.log(`${lp} Rendering with following actor ctx: `, data);
     return data;
   }

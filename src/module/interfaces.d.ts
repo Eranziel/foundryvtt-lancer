@@ -1,6 +1,7 @@
 import { LancerItemType } from "./item/lancer-item";
 import { EffectData } from "./helpers/npc";
 import { LancerActorType, LancerMECH, LancerPILOT } from "./actor/lancer-actor";
+import { LancerActiveEffect } from "./effects/lancer-active-effect";
 
 // ------------------------------------------------------
 // |       SHEET DATA TYPES                             |
@@ -28,6 +29,7 @@ export interface LancerActorSheetData<T extends LancerActorType> extends ActorSh
   cleanedOwnerID: string;
   vaultID: string;
   rawID: string;
+  effect_categories: ReturnType<typeof LancerActiveEffect["prepareActiveEffectCategories"]>;
 }
 
 // -------- Macro data -------------------------------------

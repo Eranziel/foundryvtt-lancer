@@ -72,6 +72,7 @@ import { ActionData } from "../models/bits/action";
 import { Tag } from "../models/bits/tag";
 import { LancerActor, LancerDEPLOYABLE, LancerMECH } from "../actor/lancer-actor";
 import { CounterData } from "../models/bits/counter";
+import { LancerActiveEffect } from "../effects/lancer-active-effect";
 
 /**
  * Handlebars helper for weapon size selector
@@ -1308,9 +1309,10 @@ export function HANDLER_activate_item_context_menus<
     name: view_only ? "View" : "Edit",
     icon: view_only ? `<i class="fas fa-eye"></i>` : `<i class="fas fa-edit"></i>`,
     callback: async (html: JQuery) => {
-      let element = html.closest(".ref.set")[0];
+      let element = html.closest("[data-uuid]")[0];
+      console.log("element?", html);
       if (element) {
-        const found_doc = (await resolve_ref_element(element)) as LancerItem | LancerActor;
+        const found_doc = await resolve_ref_element(element);
         if (!found_doc) return;
 
         let sheet = found_doc.sheet;
@@ -1343,16 +1345,14 @@ export function HANDLER_activate_item_context_menus<
     },
   };
   let remove: ContextMenuEntry = {
-    name: "Remove",
+    name: "Delete",
     icon: '<i class="fas fa-fw fa-trash"></i>',
     callback: async (html: JQuery) => {
-      let sheet_data = await data_getter();
-      let path = html[0].dataset.path ?? "";
-      console.log(sheet_data, html, path);
-      // Delete the weapon
-      if (path) {
-        let item = resolve_dotpath(sheet_data, path, null) as LancerItem | null;
-        if (item) item.delete();
+      let element = html.closest("[data-uuid]")[0];
+      if (element) {
+        const found_doc = await resolve_ref_element(element);
+        if (!found_doc) return;
+        found_doc.delete();
       }
     },
   };
@@ -1444,6 +1444,7 @@ export function HANDLER_activate_item_context_menus<
   tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"frame\"]`), "click", e_r);
   tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"npc_class\"]`), "click", e_r);
   tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"npc_template\"]`), "click", e_r);
+  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"active-effect\"]`), "click", e_r);
 
   // Only some counters can be deleted
   tippy_context_menu(
