@@ -2,13 +2,24 @@ import type { LancerActor } from "../actor/lancer-actor";
 import type { LancerItem } from "../item/lancer-item";
 
 /**
+ * Interface for the destructured options to fromLid and fromLidSync.
+ */
+interface FromLidOpts {
+  /**
+   * Where to look for the item
+   * @default "all"
+   */
+  source: "all" | "world" | "compendium";
+}
+
+/**
  * Retrieve a Document by its Lancer ID
  * @param lid    - The Lancer ID to look up
  * @param source - Where to look for the item
  */
-export async function fromLid(lid: string, source: "all" | "world" | "compendium" = "all") {
-  const search_world = source === "all" || source === "world";
-  const search_compendium = source === "all" || source === "compendium";
+export async function fromLid(lid: string, { source = "all" }: Partial<FromLidOpts> = {}) {
+  const search_world = source !== "compendium";
+  const search_compendium = source !== "world";
 
   let document: unknown;
   if (search_world)
@@ -40,9 +51,9 @@ export async function fromLid(lid: string, source: "all" | "world" | "compendium
  * @param lid    - The Lancer ID to look up
  * @param source - Where to look for the item
  */
-export function fromLidSync(lid: string, source: "all" | "world" | "compendium" = "all") {
-  const search_world = source === "all" || source === "world";
-  const search_compendium = source === "all" || source === "compendium";
+export function fromLidSync(lid: string, { source = "all" }: Partial<FromLidOpts> = {}) {
+  const search_world = source !== "compendium";
+  const search_compendium = source !== "world";
 
   let document: unknown;
 
