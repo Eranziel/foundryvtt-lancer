@@ -125,12 +125,9 @@ export async function click_evt_open_ref(event: any) {
   event.preventDefault();
   event.stopPropagation();
   const elt = event.currentTarget;
-  const uuid = elt?.dataset?.uuid;
-  if (uuid) {
-    const doc = await fromUuid(uuid);
-    if (doc) {
-      (doc as LancerActor | LancerItem).render(true);
-    }
+  const doc = await resolve_ref_element(elt);
+  if (doc) {
+    doc.sheet?.render(true, { focus: true });
   }
 }
 
