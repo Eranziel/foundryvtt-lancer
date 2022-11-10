@@ -340,13 +340,16 @@ export namespace SystemData {
       systems: SystemTemplates.ResolvedEmbeddedRef<LancerMECH_SYSTEM>[];
       sp: FullBoundedNum; // Entirely derived
       ai_cap: FullBoundedNum; // Entirely derived
+      limited_bonus: number; // Entirely derived
     };
     meltdown_timer: number | null;
     notes: string;
     pilot: SystemTemplates.ResolvedUuidRef<LancerPILOT> | null; // UUID to a LancerPILOT
+    overcharge_sequence: string[]; // Derived so its overrideable
 
     // Set by pilot active effect
-    psd: null | Pilot; // Short for "pilot system dump". An active-effect provided dump of active pilots sytem data
+    grit: number;
+    psd: null | SourceData.Pilot; // Short for "pilot system dump". An active-effect provided dump of active pilots sytem data
   }
 
   export interface MechSystem
@@ -411,7 +414,6 @@ export namespace SystemData {
     tier: number;
 
     // TODO: derived convenience arrays of features/actions? Active class?
-    features: LancerNPC_FEATURE[];
     class: LancerNPC_CLASS | null;
   }
   export interface NpcClass extends SystemTemplates.item_universal {

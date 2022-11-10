@@ -391,7 +391,6 @@ export function item_preview<T extends LancerItemType>(
     return license_ref(doc, doc.system.rank, item_path);
   } else {
     // Basically the same as the simple ref card, but with control added
-    console.log("You're using the default refview, you may not want that");
     return `
       <div class="ref set ref-card" 
               ${ref_params(doc)}>

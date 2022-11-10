@@ -150,23 +150,10 @@ export class LancerItem extends Item {
   }
 
   /**
-   * Generates an updated changelist for this item.
-   * This active effect is meant to represent this items "core" transfer effect, if any.
+   * Generates the effect data for this items bonuses and innate effects
    */
-  async update_innate_effects() {
-    // First, cull all innate/bonus effects
-    await this.deleteEmbeddedDocuments(
-      "ActiveEffect",
-      this.effects
-        .filter(
-          e =>
-            e.id != null &&
-            ((e.getFlag("lancer", "item_innate") as boolean) || (e.getFlag("lancer", "item_bonus") as boolean))
-        )
-        .map(e => e.id!)
-    );
-
-    // Then, regenerate them
+  generate_innate_effects(): LancerActiveEffectConstructorData[] {
+    // Generate from bonus + innate
     let bonuses: BonusData[] = [];
     let innate: LancerActiveEffectConstructorData | null = null;
     if (this.is_frame()) {
@@ -187,7 +174,7 @@ export class LancerItem extends Item {
       bonus_effects.push(innate);
     }
 
-    return this.createEmbeddedDocuments("ActiveEffect", bonus_effects as any);
+    return bonus_effects;
   }
 
   protected async _preCreate(...[data, options, user]: Parameters<Item["_preCreate"]>): Promise<void> {

@@ -283,8 +283,6 @@ function dragging_class(for_type: EntryType): string {
 }
 
 function set_global_drag(to: LancerActor | LancerItem | Macro | Journal | Scene | null) {
-  console.log("Setting global drag to ", to);
-
   // Clear if necessary
   if (GlobalDragPreview?.type == "Actor" || GlobalDragPreview?.type == "Item") {
     $("body").removeClass(dragging_class(GlobalDragPreview.document.type));

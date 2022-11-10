@@ -12,7 +12,22 @@ import * as defaults from "../util/mmigration/defaults";
 import { PackedPilotData } from "../util/mmigration/packed-types";
 import { getAutomationOptions } from "../settings";
 import { pilot_downstream_effects } from "../effects/converter";
-import { LancerFRAME, LancerNPC_CLASS } from "../item/lancer-item";
+import {
+  LancerFRAME,
+  LancerItem,
+  LancerMECH_SYSTEM,
+  LancerMECH_WEAPON,
+  LancerNPC_CLASS,
+  LancerNPC_FEATURE,
+  LancerNPC_TEMPLATE,
+  LancerPILOT_ARMOR,
+  LancerPILOT_GEAR,
+  LancerPILOT_WEAPON,
+  LancerWEAPON_MOD,
+} from "../item/lancer-item";
+import { LancerActiveEffect } from "../effects/lancer-active-effect";
+import { LancerActiveEffectConstructorData } from "../effects/lancer-active-effect";
+import { filter_resolved_sync } from "../helpers/commons";
 const lp = LANCER.log_prefix;
 
 const DEFAULT_OVERCHARGE_SEQUENCE = ["+1", "+1d3", "+1d6", "+1d6+4"];
@@ -54,8 +69,15 @@ declare global {
  * Extend the Actor class for Lancer Actors.
  */
 export class LancerActor extends Actor {
-  // Kept for comparing previous to next values
-  prior_max_hp = -1;
+  // Kept for comparing previous to next values / doing deltas
+  #prior_max_hp = -1;
+  #curr_max_hp = -1;
+
+  // Private variables for tracking innate item effect propagation
+  #prior_innate_effect_constructor_data: LancerActiveEffectConstructorData[] = [];
+  #prior_innate_effect_string: string = ""; // JSON-ified
+  #curr_innate_effect_constructor_data: LancerActiveEffectConstructorData[] = [];
+  #curr_innate_effect_string = ""; // JSON-ified
 
   /**
    * Performs overheat
@@ -296,7 +318,7 @@ export class LancerActor extends Actor {
           let macroData = encodeMacroData({
             title: "Hull",
             fn: "prepareStatMacro",
-            args: [this.id, "system.pcd.hull"],
+            args: [this.id, "system.hull"],
           });
 
           secondaryRoll = `<button class="chat-button chat-macro-button" data-macro="${macroData}"><i class="fas fa-dice-d20"></i> Hull</button>`;
@@ -388,57 +410,53 @@ export class LancerActor extends Actor {
 
   // Do the specified junk to an item. Returns an object suitable for updateEmbeddedDocuments
   private refresh(
-    item: any, // LancerItem, // TODO: Restore type specificity
+    item: LancerItem,
     opts: {
       repair?: boolean;
       reload?: boolean;
       refill?: boolean;
     }
   ): any {
-    // TODO: Make this typed
-    let changes: any = { _id: item.id }; // TODO: Make this typed
-    if (opts.repair) {
-      if ((item as any).destroyed !== undefined) {
-        changes["data.destroyed"] = false;
-      }
+    let changes: any = { _id: item.id };
+    if (opts.repair && (item as any).destroyed !== undefined) {
+      changes["system.destroyed"] = false;
     }
-    if (opts.reload) {
-      if ((item as any).loaded !== undefined) {
-        changes["data.loaded"] = true;
-      }
+    if (opts.reload && (item as any).loaded !== undefined) {
+      changes["system.loaded"] = true;
     }
-    if (opts.refill) {
-      changes["data.uses"] = (item as any).uses.max; // TODO: type this as well
+    if (opts.refill && (item as any).uses !== undefined) {
+      changes["system.uses"] = (item as any).uses.max;
     }
 
     return changes;
   }
 
   // List the _relevant_ loadout items on this actor
-  private list_loadout(): any[] {
-    // Array<LancerItem> { // TODO: FIx type
-    // Array<PilotWeapon | MechWeapon | PilotArmor | PilotGear | MechSystem | WeaponMod | NpcFeature>
-    // TODO: Restore specificity
-    let result: any[] = [];
+  // For mechs this is everthing in system.loadout, IE: Mech weapons, Mech Systems, Frame
+  private list_loadout(): Array<LancerItem> {
+    let result = [] as LancerItem[];
+    let it = this.itemTypes;
     if (this.is_mech()) {
+      if (this.system.loadout.frame?.status == "resolved") result.push(this.system.loadout.frame.value);
       // Do all of the weapons/systems/mods on our loadout
       for (let mount of this.system.loadout.weapon_mounts) {
         for (let slot of mount.slots) {
           // Do weapon
-          if (slot.weapon) {
-            result.push(slot.weapon);
+          if (slot.weapon?.status == "resolved") {
+            result.push(slot.weapon.value);
           }
           // Do mod
-          if (slot.mod) {
-            result.push(slot.mod);
+          if (slot.mod?.status == "resolved") {
+            result.push(slot.mod.value);
           }
         }
       }
 
       // Do all systems now
-      result.push(...this.system.loadout.systems);
+      result.push(...filter_resolved_sync(this.system.loadout.systems));
     } else if (this.is_npc()) {
-      // result.push(...ent.Features); // TODO
+      if (this.system.class) result.push(this.system.class);
+      result.push(...it.npc_class, ...it.npc_template, ...it.npc_feature);
     } else if (this.is_pilot()) {
       // result.push(...ent.OwnedPilotWeapons, ...ent.OwnedPilotArmor, ...ent.OwnedPilotGear); // TODO
     } else {
@@ -940,15 +958,6 @@ export class LancerActor extends Actor {
     if (this.is_pilot()) {
       this.system.grit = Math.ceil(this.system.level / 2);
     } else if (this.is_mech()) {
-      // Take HASE from pilot, if resolved
-      if (this.system.pilot?.status == "resolved") {
-        // TODO - take from psd instead? Maybe?
-        this.system.hull = this.system.pilot.value.system.hull;
-        this.system.agi = this.system.pilot.value.system.agi;
-        this.system.sys = this.system.pilot.value.system.sys;
-        this.system.eng = this.system.pilot.value.system.eng;
-      }
-
       // Mark loadout items as equipped, while aggregating sp/ai
       let equipped_sp = 0;
       let equipped_ai = 0;
@@ -978,12 +987,17 @@ export class LancerActor extends Actor {
       // Initialize loadout statistics. Maxs will be fixed by active effects
       this.system.loadout.sp = { max: 0, min: 0, value: equipped_sp };
       this.system.loadout.ai_cap = { max: 1, min: 0, value: equipped_ai };
+      this.system.loadout.limited_bonus = 0;
+
+      // Other misc
+      this.system.overcharge_sequence = DEFAULT_OVERCHARGE_SEQUENCE;
+      this.system.psd = null;
+      this.system.grit = 0;
     } else if (this.is_npc()) {
       // TODO
     } else if (this.is_deployable()) {
       // TODO
     }
-    console.log("Base prepare done");
   }
 
   /** @override
@@ -1043,31 +1057,30 @@ export class LancerActor extends Actor {
           );
         }
     */
-    // If the Size of the ent has changed since the last update, set the
-    // protype token size to the new size
-    // @ts-expect-error Flags is throwing a weird error. Missing type?
-    const cached_token_size = this.prototypeToken?.width;
-    // @ts-expect-error System's broken
-    if (!cached_token_size || cached_token_size !== this.system.size) {
-      // @ts-expect-error System's broken
-      const size = Math.max(1, this.system.size);
-      // @ts-expect-error
-      this.prototypeToken?.update({
-        width: size,
-        height: size,
-        flags: {
-          "hex-size-support": {
-            borderSize: size,
-            altSnapping: true,
-            evenSnap: !(size % 2),
-          },
-        },
-      });
-    }
 
-    // Update prior max hp val
+    // Track shift in values
+    this.#prior_innate_effect_constructor_data = this.#curr_innate_effect_constructor_data;
+    this.#prior_innate_effect_string = this.#curr_innate_effect_string;
+    this.#prior_max_hp = this.#curr_max_hp;
+    this.#curr_innate_effect_constructor_data = this.#collectActiveEffects();
+    this.#curr_innate_effect_string = JSON.stringify(this.#curr_innate_effect_constructor_data);
     // @ts-expect-error System's broken
-    this.prior_max_hp = this.system.hp.max;
+    this.#curr_max_hp = this.system.hp.max;
+    if (!this.#prior_innate_effect_string) {
+      // Make them synchronized - this will only happen on first prepare
+      this.#prior_innate_effect_constructor_data = this.#curr_innate_effect_constructor_data;
+      this.#prior_innate_effect_string = this.#curr_innate_effect_string;
+      this.#prior_max_hp = this.#curr_max_hp;
+    }
+    if (this.#prior_innate_effect_string != this.#curr_innate_effect_string) {
+      console.log(
+        "PI change",
+        this.#prior_innate_effect_string,
+        this.#prior_innate_effect_constructor_data,
+        this.#curr_innate_effect_string,
+        this.#curr_innate_effect_constructor_data
+      );
+    }
   }
 
   /** @override
@@ -1152,29 +1165,75 @@ export class LancerActor extends Actor {
    */
   protected _onUpdate(...[changed, options, user]: Parameters<Actor["_onUpdate"]>) {
     super._onUpdate(changed, options, user);
-    LancerHooks.call(this);
-
-    // Check for overheating / structure
-    if (
-      getAutomationOptions().structure &&
-      this.isOwner &&
-      !(
-        game.users?.players.reduce((a, u) => a || (u.active && this.testUserPermission(u, "OWNER")), false) &&
-        game.user?.isGM
-      ) &&
-      (this.is_mech() || this.is_npc())
-    ) {
-      const data = changed as any; // DeepPartial<RegMechData | RegNpcData>;
-      console.log("Checking structuring");
-      if ((data.heat ?? 0) > this.system.heat.max && this.system.stress.value > 0) {
-        prepareOverheatMacro(this);
-      }
-      if ((data.hp ?? 1) <= 0 && this.system.structure.value > 0) {
-        prepareStructureMacro(this);
-      }
+    if (game.userId != user) {
+      return;
     }
+    this.regenerateEquippedEffects()
+      .then(_ => {
+        return this.sendChangesDownward();
+      })
+      .then(_ => {
+        // Check for overheating / structure
+        if (
+          getAutomationOptions().structure &&
+          this.isOwner &&
+          !(
+            game.users?.players.reduce((a, u) => a || (u.active && this.testUserPermission(u, "OWNER")), false) &&
+            game.user?.isGM
+          ) &&
+          (this.is_mech() || this.is_npc())
+        ) {
+          const data = changed as any; // DeepPartial<RegMechData | RegNpcData>;
+          console.log("Checking structuring");
+          if ((data.heat ?? 0) > this.system.heat.max && this.system.stress.value > 0) {
+            prepareOverheatMacro(this);
+          }
+          if ((data.hp ?? 1) <= 0 && this.system.structure.value > 0) {
+            prepareStructureMacro(this);
+          }
+        }
+      })
+      .then(_ => {
+        // If the Size of the ent has changed since the last update, set the
+        // protype token size to the new size
+        // @ts-expect-error System's broken
+        if (this.prototypeToken?.width !== this.system.size) {
+          // @ts-expect-error System's broken
+          const size = Math.max(1, this.system.size);
+          // @ts-expect-error
+          return this.prototypeToken?.update({
+            width: size,
+            height: size,
+            flags: {
+              "hex-size-support": {
+                borderSize: size,
+                altSnapping: true,
+                evenSnap: !(size % 2),
+              },
+            },
+          });
+        }
+      });
   }
 
+  /** @inheritdoc */
+  _onUpdateEmbeddedDocuments(
+    embeddedName: "Item" | "ActiveEffect",
+    documents: LancerItem[] | LancerActiveEffect[],
+    result: any,
+    options: any,
+    user: string
+  ) {
+    super._onUpdateEmbeddedDocuments(embeddedName, documents, result, options, user);
+    if (game.userId != user) {
+      return;
+    }
+    this.regenerateEquippedEffects().then(_ => this.sendChangesDownward());
+  }
+
+  /**
+   * Sends appropriate active effects to "children"
+   */
   sendChangesDownward() {
     // Call this whenever update an item with probable children
     // If we're a compendium document, don't actually do anything
@@ -1203,6 +1262,35 @@ export class LancerActor extends Actor {
   }
 
   /**
+   * Resets active effects on this item to match equipment.
+   */
+  async regenerateEquippedEffects(): Promise<boolean> {
+    // Get what effects we'll apply
+    if (this.#curr_innate_effect_string != this.#prior_innate_effect_string) {
+      // Change detected
+      // First, cull all innate effects
+      let old_innates = this.effects.filter(e => !!e.id && (e.getFlag("lancer", "innate") as boolean)).map(e => e.id!);
+      await this.deleteEmbeddedDocuments("ActiveEffect", old_innates);
+      await this.createEmbeddedDocuments("ActiveEffect", this.#curr_innate_effect_constructor_data as any);
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Collect bonuses from "active" items, IE all "equipped" items that are not destroyed
+   */
+  #collectActiveEffects(): LancerActiveEffectConstructorData[] {
+    let effects: LancerActiveEffectConstructorData[] = [];
+    for (let i of this.list_loadout()) {
+      if ((i as unknown as { system: SystemTemplates.destructible }).system.destroyed !== false) {
+        effects.push(...i.generate_innate_effects());
+      }
+    }
+    return effects;
+  }
+
+  /**
    * Yields a simple error message on a misconfigured mount, or null if no issues detected.
    * @param loadout
    * @param mount
@@ -1220,44 +1308,13 @@ export class LancerActor extends Actor {
   }
 
   /**
-   * Returns the overcharge rolls, modified by bonuses. Only applicable for mechs.
-   */
-  getOverchargeSequence(): string[] | null {
-    // Function is only applicable to mechs.
-    if (!this.is_mech()) return null;
-
-    let oc_rolls = DEFAULT_OVERCHARGE_SEQUENCE;
-
-    // TODO - Fix overcharge sequences to be a system property, and make sure bonus LID "overcharge" properly overrides it
-    // let oc_bonus = this
-    // if (oc_bonus.length > 0) {
-    // oc_rolls = oc_bonus[0].Value.split(",");
-    // }
-    /*
-    let oc_rolls = ["+1", "+1d3", "+1d6", "+1d6+4"];
-    // @ts-expect-error Should be fixed with v10 types
-    const mech = this.system.derived.mm;
-    if (!mech) return oc_rolls;
-
-    // @ts-expect-error Should be fixed with v10 types
-    let oc_bonus = mech.AllBonuses.filter(b => {
-      return b.LID === "overcharge";
-    });
-    if (oc_bonus.length > 0) {
-      oc_rolls = oc_bonus[0].Value.split(",");
-    }
-    */
-    return oc_rolls;
-  }
-
-  /**
    * Returns the current overcharge roll/text. Only applicable for mechs.
    */
   getOverchargeRoll(): string | null {
     // Function is only applicable to mechs.
     if (!this.is_mech()) return null;
 
-    const oc_rolls = this.getOverchargeSequence();
+    const oc_rolls = this.system.overcharge_sequence;
     if (!oc_rolls || oc_rolls.length < 4) return null;
     return oc_rolls[this.system.overcharge];
   }

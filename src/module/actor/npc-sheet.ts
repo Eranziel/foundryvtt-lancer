@@ -247,7 +247,7 @@ export function findMatchingFeaturesInNpc(npc: LancerNPC, features: LancerNPC_FE
   if (!npc.is_npc()) return [];
   let result = [];
   for (let predicate_feature of features) {
-    for (let candidate_feature of npc.system.features) {
+    for (let candidate_feature of npc.itemTypes.npc_feature as LancerNPC_FEATURE[]) {
       if (candidate_feature.system.lid == predicate_feature.system.lid) {
         result.push(candidate_feature);
       }

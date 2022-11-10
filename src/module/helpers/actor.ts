@@ -312,8 +312,8 @@ export function npc_clicker_stat_card(title: string, data_path: string, options:
  * @param overcharge_path Path to current overcharge level, from 0 to 3
  * @param options Options object to pass to resolve_helper_dotpath
  */
-export function overcharge_button(actor: LancerActor, overcharge_path: string, options: HelperOptions): string {
-  const overcharge_sequence = actor.getOverchargeSequence() || ["+1", "+1d3", "+1d6", "+1d6 + 4"];
+export function overcharge_button(actor: LancerMECH, overcharge_path: string, options: HelperOptions): string {
+  const overcharge_sequence = actor.system.overcharge_sequence;
 
   let index = resolve_helper_dotpath(options, overcharge_path) as number;
   index = Math.max(0, Math.min(overcharge_sequence.length - 1), index);

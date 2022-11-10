@@ -5,6 +5,9 @@ import { BonusData } from "../models/bits/bonus";
 import { SystemData, SystemTemplates } from "../system-template";
 import { AE_MODE_SET_JSON, LancerActiveEffectConstructorData, LancerEffectTarget } from "./lancer-active-effect";
 
+const INNATE_STAT_PRIORITY = 10;
+const PILOT_STAT_PRIORITY = 20;
+
 // Makes a active effect for a frame. Frames should automatically regenerate these when edited
 type FrameStatKey = keyof SystemData.Frame["stats"];
 type MechStatKey = keyof SystemData.Mech;
@@ -13,7 +16,6 @@ export function effect_for_frame(frame: LancerFRAME): LancerActiveEffectConstruc
     "armor",
     "edef",
     "evasion",
-    "hp",
     "save",
     "sensor_range",
     "size",
@@ -26,12 +28,28 @@ export function effect_for_frame(frame: LancerFRAME): LancerActiveEffectConstruc
   let changes: LancerActiveEffectConstructorData["changes"] = keys.map(key => ({
     key: `system.${key}`,
     mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-    priority: 10,
+    priority: INNATE_STAT_PRIORITY,
     value: frame.system.stats[key],
   }));
 
+  // Two weirder ones
+  changes!.push({
+    key: "system.hp.max",
+    mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+    priority: INNATE_STAT_PRIORITY,
+    // @ts-expect-error
+    value: frame.system.stats.hp,
+  });
+  changes!.push({
+    key: "system.heat.max",
+    mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+    priority: INNATE_STAT_PRIORITY,
+    // @ts-expect-error
+    value: frame.system.stats.heatcap,
+  });
+
   return {
-    flags: { lancer: { item_innate: true } },
+    flags: { lancer: { innate: true } },
     label: frame.name,
     icon: frame.img,
     origin: frame.uuid,
@@ -50,20 +68,114 @@ export function pilot_downstream_effects(pilot: LancerPILOT): LancerActiveEffect
     return !!(tt && tt != EntryType.PILOT);
   });
 
-  // Add metadata and label tweak
+  // Add metadata and label tweak to mark them as passthrough
   for (let eff of passdown_effects) {
     let pde = eff.toObject() as LancerActiveEffectConstructorData;
     pde.flags.lancer.cascade_origin = pilot.uuid;
     pde.label = `[PILOT] ${pde.label}`;
   }
 
-  // We also need to bake our necessary pilot information into an active effect
+  // Bake HASE into an active effect
+
   result_effects.push({
     label: "Pilot Stats",
     changes: [
+      // HASE
+      {
+        mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+        key: "system.hull",
+        priority: INNATE_STAT_PRIORITY,
+        // @ts-expect-error
+        value: pilot.system.hull,
+      },
+      {
+        mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+        key: "system.hp.max",
+        priority: PILOT_STAT_PRIORITY,
+        // @ts-expect-error
+        value: 2 * pilot.system.hull,
+      },
+      {
+        mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+        key: "system.repairs.max",
+        priority: PILOT_STAT_PRIORITY,
+        // @ts-expect-error
+        value: Math.floor(pilot.system.hull / 2),
+      },
+      {
+        mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+        key: "system.agi",
+        priority: PILOT_STAT_PRIORITY,
+        // @ts-expect-error
+        value: pilot.system.agi,
+      },
+      {
+        mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+        key: "system.evasion",
+        priority: PILOT_STAT_PRIORITY,
+        // @ts-expect-error
+        value: pilot.system.agi,
+      },
+      {
+        mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+        key: "system.speed",
+        priority: PILOT_STAT_PRIORITY,
+        // @ts-expect-error
+        value: Math.floor(pilot.system.agi / 2),
+      },
+      {
+        mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+        key: "system.sys",
+        priority: PILOT_STAT_PRIORITY,
+        // @ts-expect-error
+        value: pilot.system.sys,
+      },
+      {
+        mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+        key: "system.edef",
+        priority: PILOT_STAT_PRIORITY,
+        // @ts-expect-error
+        value: pilot.system.sys,
+      },
+      {
+        mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+        key: "system.loadout.sp.max",
+        priority: PILOT_STAT_PRIORITY,
+        // @ts-expect-error
+        value: Math.floor(pilot.system.sys / 2),
+      },
+      {
+        mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+        key: "system.eng",
+        priority: PILOT_STAT_PRIORITY,
+        // @ts-expect-error
+        value: pilot.system.eng,
+      },
+      {
+        mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+        key: "system.heat.max",
+        priority: PILOT_STAT_PRIORITY,
+        // @ts-expect-error
+        value: pilot.system.eng,
+      },
+      {
+        mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+        key: "system.loadout.limited_bonus",
+        priority: PILOT_STAT_PRIORITY,
+        // @ts-expect-error
+        value: Math.floor(pilot.system.eng / 2),
+      },
+      {
+        mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+        key: "system.grit",
+        priority: PILOT_STAT_PRIORITY,
+        // @ts-expect-error
+        value: pilot.system.grit,
+      },
+      // Bake the rest of the pilot source data into an active effect
       {
         mode: AE_MODE_SET_JSON as any,
-        key: "system.pcd",
+        key: "system.psd",
         // @ts-expect-error
         value: JSON.stringify(pilot.system.toObject()),
       },
@@ -98,7 +210,7 @@ export function convert_bonus(label: string, bonus: BonusData): null | LancerAct
     // Broadly speaking, we ignore overwrite and replace, as they are largely unused
     // However, if one or the other is set, we do tweak our AE mode as a halfhearted compatibility attempt
     let mode = bonus.replace || bonus.overwrite ? CONST.ACTIVE_EFFECT_MODES.OVERRIDE : CONST.ACTIVE_EFFECT_MODES.ADD;
-    let priority = bonus.replace || bonus.overwrite ? 50 : 10;
+    let priority = bonus.replace || bonus.overwrite ? 50 : INNATE_STAT_PRIORITY;
     let value = bonus.val;
 
     // First try to infer the target type.
@@ -301,7 +413,7 @@ export function convert_bonus(label: string, bonus: BonusData): null | LancerAct
       flags: {
         lancer: {
           target_type,
-          item_bonus: true,
+          innate: true,
         },
       },
       changes,
