@@ -2286,7 +2286,7 @@ Here, this means we want to allow for drag stuff etc to show contextually if:
   }
 }
 
-.drop-settable:not(.valid) {
+.slot:not(.set) {
   align-items: center;
 }
 

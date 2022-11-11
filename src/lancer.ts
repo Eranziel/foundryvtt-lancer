@@ -75,7 +75,7 @@ import {
   range_editor,
   npc_attack_bonus_preview,
   npc_accuracy_preview,
-  mech_weapon_refview,
+  mech_loadout_weapon_slot,
   system_type_selector,
   npc_feature_preview,
   damage_editor,
@@ -476,7 +476,7 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("wpn-damage-sel", damage_editor);
   Handlebars.registerHelper("npcf-atk", npc_attack_bonus_preview);
   Handlebars.registerHelper("npcf-acc", npc_accuracy_preview);
-  Handlebars.registerHelper("mech-weapon-preview", mech_weapon_refview);
+  Handlebars.registerHelper("mech-weapon-preview", mech_loadout_weapon_slot);
   Handlebars.registerHelper("wpn-mod-ref", weapon_mod_ref);
 
   // ------------------------------------------------------------------------

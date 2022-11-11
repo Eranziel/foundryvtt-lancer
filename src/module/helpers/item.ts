@@ -72,6 +72,7 @@ import { ActionData } from "../models/bits/action";
 import { Tag } from "../models/bits/tag";
 import { LancerActor, LancerDEPLOYABLE, LancerMECH } from "../actor/lancer-actor";
 import { CounterData } from "../models/bits/counter";
+import { SystemTemplates } from "../system-template";
 
 /**
  * Handlebars helper for weapon size selector
@@ -517,29 +518,35 @@ export function pilot_gear_refview(gear_path: string, helper: HelperOptions): st
 
 /**
  * Handlebars helper for a mech weapon preview card. Doubles as a slot. Mech path needed for bonuses
+ * SPECIFICALLY for loadout
  */
-export function mech_weapon_refview(
+export function mech_loadout_weapon_slot(
   weapon_path: string,
   options: HelperOptions,
   registry?: CollapseRegistry,
   size?: FittingSize
 ): string {
   // Fetch the item(s)
-  let weapon: LancerMECH_WEAPON | null = resolve_helper_dotpath(options, weapon_path);
+  let weapon_slot: SystemTemplates.ResolvedEmbeddedRef<LancerMECH_WEAPON> | null = resolve_helper_dotpath(
+    options,
+    weapon_path
+  );
   let actor: LancerActor | null = resolve_helper_dotpath(options, "actor");
-  let mod_path = weapon_path.substr(0, weapon_path.lastIndexOf(".")) + ".Mod";
+  let mod_path = weapon_path.substr(0, weapon_path.lastIndexOf(".")) + ".mod";
   let mod: LancerWEAPON_MOD | null = resolve_helper_dotpath(options, mod_path);
 
-  if (!weapon) {
+  if (weapon_slot?.status != "resolved") {
     // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
     return `
-      <div class="${EntryType.MECH_WEAPON} ref drop-settable card flexrow" 
+      <div class="${EntryType.MECH_WEAPON} ref slot empty card flexrow" 
            data-path="${weapon_path}" 
-           data-type="${EntryType.MECH_WEAPON}">
+           data-type="${EntryType.MECH_WEAPON}"
+           data-mode="embed-ref">
         <img class="ref-icon" src="${TypeIcon(EntryType.MECH_WEAPON)}"></img>
         <span class="major">Insert ${size ? size : "any"} weapon</span>
       </div>`;
   }
+  let weapon = weapon_slot.value;
 
   let mod_text: string = "";
   if (mod) {
@@ -547,7 +554,7 @@ export function mech_weapon_refview(
   } else {
     // Make a refbox, hidden
     mod_text = `
-    <div class="${EntryType.WEAPON_MOD} ref drop-settable card flexrow"
+    <div class="${EntryType.WEAPON_MOD} ref slot set card flexrow"
         data-path="${mod_path}"
         data-type="${EntryType.WEAPON_MOD}">
       <i class="cci cci-weaponmod i--m i--light"> </i>
@@ -558,7 +565,7 @@ export function mech_weapon_refview(
   let collapseID;
   if (registry != null) {
     // On sheet, enable collapse.
-    registry[weapon.system.lid] == null && (registry[weapon.system.lid] = 0);
+    if (registry[weapon.system.lid] == null) registry[weapon.system.lid] = 0;
 
     let collapseNumCheck = ++registry[weapon.system.lid];
     collapseID = `${weapon.system.lid}_${collapseNumCheck}`;
@@ -573,7 +580,7 @@ export function mech_weapon_refview(
       profiles += `<a class="gen-control weapon-profile ${
         i === weapon.system.selected_profile ? "selected-profile" : ""
       }"
-data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.selected_profile" data-commit-item="${weapon_path}">
+data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.value.selected_profile">
 <span class="minor">${p.name}</span>
 </a>`;
     }
@@ -602,7 +609,7 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.select
   // Generate loading segment as needed
   let loading = "";
   if (weapon.system.all_tags.some(t => t.is_loading)) {
-    loading = loading_indicator(weapon.system.loaded, weapon_path);
+    loading = loading_indicator(weapon.system.loaded, weapon_path + ".value");
   }
 
   // Generate effects
@@ -613,7 +620,7 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.select
 
   let limited = "";
   if (weapon.system.all_tags.some(t => t.is_limited)) {
-    limited = limited_uses_indicator(weapon, weapon_path);
+    limited = limited_uses_indicator(weapon, weapon_path + ".value");
   }
 
   return `

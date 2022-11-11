@@ -525,7 +525,6 @@ export function HANDLER_activate_uses_editor<T>(
 }
 
 // Enables dragging of ref cards (or anything with .ref.set and the appropriate fields)
-// Highlights anything labeled with classes "ref drop-settable ${type}" where ${type} is the type of the dragged item
 // This doesn't handle natives
 export function HANDLER_activate_ref_dragging(html: JQuery) {
   // Allow refs to be dragged arbitrarily

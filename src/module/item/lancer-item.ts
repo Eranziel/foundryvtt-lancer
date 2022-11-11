@@ -115,6 +115,11 @@ export class LancerItem extends Item {
     // @ts-expect-error
     this.system.equipped = false;
 
+    if (this.is_mech_weapon()) {
+      this.system.all_tags = this.system.profiles.flatMap(p => p.tags);
+      this.system.active_profile = this.system.profiles[this.system.selected_profile] ?? this.system.profiles[0];
+    }
+
     // compute max uses if needed
     // TODO: Re-implement base limits
     /*

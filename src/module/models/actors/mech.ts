@@ -22,7 +22,7 @@ const mech_schema = {
       new fields.SchemaField({
         slots: new fields.ArrayField(
           new fields.SchemaField({
-            weapon: new ResolvedEmbeddedRefField("Item", { allowed_types: [EntryType.MECH_SYSTEM] }),
+            weapon: new ResolvedEmbeddedRefField("Item", { allowed_types: [EntryType.MECH_WEAPON] }),
             mod: new ResolvedEmbeddedRefField("Item", { allowed_types: [EntryType.WEAPON_MOD] }),
             size: new fields.StringField({ nullable: false, choices: FittingSize }),
           })

@@ -3,7 +3,7 @@ import { ChipIcons, EntryType } from "../enums";
 import type { LancerMacroData } from "../interfaces";
 import { encodeMacroData } from "../macros";
 import { inc_if, resolve_helper_dotpath, array_path_edit } from "./commons";
-import { mech_weapon_refview, buildActionHTML, buildDeployableHTML, buildChipHTML } from "./item";
+import { mech_loadout_weapon_slot, buildActionHTML, buildDeployableHTML, buildChipHTML } from "./item";
 import { item_preview, ref_params, simple_ref_slot } from "./refs";
 import { compact_tag_list } from "./tags";
 import type { LancerActor, LancerMECH, LancerPILOT } from "../actor/lancer-actor";
@@ -55,7 +55,7 @@ function weapon_mount(mount_path: string, helper: HelperOptions, registry: Colla
   }
 
   let slots = mount.slots.map((slot, index) =>
-    mech_weapon_refview(`${mount_path}.slots.${index}.weapon`, helper, registry, slot.size)
+    mech_loadout_weapon_slot(`${mount_path}.slots.${index}.weapon`, helper, registry, slot.size)
   );
   let err = mech.validateMount(mount) ?? "";
 
