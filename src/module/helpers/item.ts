@@ -72,7 +72,6 @@ import { ActionData } from "../models/bits/action";
 import { Tag } from "../models/bits/tag";
 import { LancerActor, LancerDEPLOYABLE, LancerMECH } from "../actor/lancer-actor";
 import { CounterData } from "../models/bits/counter";
-import { LancerActiveEffect } from "../effects/lancer-active-effect";
 
 /**
  * Handlebars helper for weapon size selector
@@ -112,10 +111,10 @@ export function range_editor(path: string, options: HelperOptions) {
 
   // Extend the options to not have to repeat lookup
   let type_options = ext_helper_hash(options, { value: range.type }, { default: RangeType.Range });
-  let range_type_selector = std_enum_select(path + ".RangeType", RangeType, type_options);
+  let range_type_selector = std_enum_select(path + ".type", RangeType, type_options);
 
   let value_options = ext_helper_hash(options, { value: range.val });
-  let value_input = std_string_input(path + ".Value", value_options);
+  let value_input = std_string_input(path + ".val", value_options);
 
   let delete_button = `<a class="gen-control" data-action="splice" data-path="${path}" style="margin: 4px;"><i class="fas fa-trash"></i></a>`;
 
@@ -139,10 +138,10 @@ export function damage_editor(path: string, options: HelperOptions) {
   let icon_html = `<i class="cci ${damage.icon} i--m"></i>`;
 
   let type_options = ext_helper_hash(options, { value: damage.type }, { default: DamageType.Kinetic });
-  let damage_type_selector = std_enum_select(path + ".DamageType", DamageType, type_options);
+  let damage_type_selector = std_enum_select(path + ".type", DamageType, type_options);
 
   let value_options = ext_helper_hash(options, { value: damage.val });
-  let value_input = std_string_input(path + ".Value", value_options);
+  let value_input = std_string_input(path + ".val", value_options);
 
   let delete_button = `<a class="gen-control" data-action="splice" data-path="${path}" style="margin: 4px;"><i class="fas fa-trash"></i></a>`;
 
@@ -665,7 +664,7 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.select
 
 export function loading_indicator(loaded: boolean, weapon_path: string): string {
   let loading_icon = `mdi ${loaded ? "mdi-hexagon-slice-6" : "mdi-hexagon-outline"} loaded-hex`;
-  let indicator = `<a class="gen-control" data-action="set" data-action-value="(bool)${!loaded}" data-path="${weapon_path}.Loaded" data-commit-item="${weapon_path}"><i class="${loading_icon} i--m"></i></a>`;
+  let indicator = `<a class="gen-control" data-action="set" data-action-value="(bool)${!loaded}" data-path="${weapon_path}.loaded" data-commit-item="${weapon_path}"><i class="${loading_icon} i--m"></i></a>`;
   return `<div class="clipped card limited-card">LOADED ${indicator}</div>`;
 }
 

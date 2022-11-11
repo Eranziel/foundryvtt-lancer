@@ -7,19 +7,19 @@
         {{{item-edit-license}}}
       </div>
     </div>
-    {{{ ref-portrait-img item.img "img" mm }}}
+    {{{ ref-portrait-img item.img "img" item }}}
   </header>
 
   {{!-- Sheet Tab Navigation --}}
   <nav class="lancer-tabs" data-group="primary">
-    {{#each mm.Profiles as |profile prof_index|}}
-      <a class="item lancer-tab medium weapon-profile-tab" data-tab="profile{{prof_index}}" data-path="mm.Profiles.{{prof_index}}"> 
-        &lt;{{profile.Name}}&gt;
+    {{#each system.profiles as |profile prof_index|}}
+      <a class="item lancer-tab medium weapon-profile-tab" data-tab="profile{{prof_index}}" data-path="system.profiles.{{prof_index}}"> 
+        &lt;{{profile.name}}&gt;
       </a>
     {{/each}}
 
     {{!-- Fake tab to add new profiles --}}
-    <a class="item lancer-tab medium gen-control" data-action="append" data-action-value="(struct)weapon_profile" data-path="mm.Profiles">+</a>
+    <a class="item lancer-tab medium gen-control" data-action="append" data-action-value="(struct)weapon_profile" data-path="system.profiles">+</a>
   </nav>
 
 
@@ -29,60 +29,60 @@
       {{!-- Size --}}
       <div class="card clipped">
         <div class="lancer-header major ">SIZE</div>
-        {{{wpn-size-sel "mm.Size"}}}
+        {{{wpn-size-sel "system.size"}}}
       </div>
 
       {{!-- Status --}}
       <div class="card clipped">
         <div class="lancer-header major ">STATUS</div>
         <div class="flexrow" style="align-self: center;">
-          {{#if (is-loading mm)}}
-            {{{loading-indicator mm.Loaded "mm"}}}
+          {{#if item.is_limited}}
+            {{{loading-indicator system.loaded "item"}}}
           {{/if}}
-          {{#if (is-limited mm)}}
-            {{{limited-uses-indicator mm "mm"}}}
+          {{#if item.is_limited}}
+            {{{limited-uses-indicator item "item"}}}
           {{/if}}
         </div>
       </div>
 
-      {{#each mm.Profiles as |profile prof_index|}}
+      {{#each system.profiles as |profile prof_index|}}
       <div class="tab profile{{prof_index}} double" data-group="primary" data-tab="profile{{prof_index}}">
         <div class="wraprow quintuple">
 
           {{!-- Type --}}
           <div class="card clipped">
             <span class="lancer-header submajor ">TYPE</span>
-            {{{wpn-type-sel (concat "mm.Profiles." prof_index ".WepType") }}}
+            {{{wpn-type-sel (concat "system.profiles." prof_index ".type") }}}
           </div>
 
           {{!-- Range --}}
-          {{{item-edit-arrayed-range (concat "mm.Profiles." prof_index ".BaseRange") "RANGE"}}}
+          {{{item-edit-arrayed-range (concat "system.profiles." prof_index ".range") "RANGE"}}}
 
           {{!-- Damage --}}
-          {{{item-edit-arrayed-damage (concat "mm.Profiles." prof_index ".BaseDamage") "DAMAGE"}}}
+          {{{item-edit-arrayed-damage (concat "system.profiles." prof_index ".damage") "DAMAGE"}}}
 
           {{!-- Description --}}
-          {{{textarea-card "DESCRIPTION" (concat "mm.Profiles." prof_index ".Description") }}}
+          {{{textarea-card "DESCRIPTION" (concat "system.profiles." prof_index ".description") }}}
 
           {{!-- Effect --}}
-          {{{textarea-card "EFFECT" (concat "mm.Profiles." prof_index ".Effect") }}}
+          {{{textarea-card "EFFECT" (concat "system.profiles." prof_index ".effect") }}}
 
           {{!-- On Attack --}}
-          {{{textarea-card "ON ATTACK" (concat "mm.Profiles." prof_index ".OnAttack") }}}
+          {{{textarea-card "ON ATTACK" (concat "system.profiles." prof_index ".on_attack") }}}
 
           {{!-- On Hit --}}
-          {{{textarea-card "ON HIT" (concat "mm.Profiles." prof_index ".OnHit") }}}
+          {{{textarea-card "ON HIT" (concat "system.profiles." prof_index ".on_hit") }}}
 
           {{!-- On Crit --}}
-          {{{textarea-card "ON CRIT" (concat "mm.Profiles." prof_index ".OnCrit") }}}
+          {{{textarea-card "ON CRIT" (concat "system.profiles." prof_index ".on_crit") }}}
 
           {{!-- Actions --}}
-          {{{item-edit-arrayed-actions "mm.Actions" "ADDED ACTIONS"}}}
+          {{{item-edit-arrayed-actions (concat "system.profiles." prof_index ".actions") "ADDED ACTIONS"}}}
 
           {{!-- Tags --}}
           <div class="card full">
             <span class="lancer-header submajor">TAGS</span>
-            {{{mm-tag-list (concat "mm.Profiles." prof_index ".Tags") profile.Tags ../editable}}}
+            {{{mm-tag-list (concat "system.profiles." prof_index ".tags") profile.tags ../editable}}}
           </div>
         </div>
       </div>

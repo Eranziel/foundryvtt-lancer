@@ -158,6 +158,7 @@ import { FrameModel } from "./module/models/items/frame";
 import { PilotModel } from "./module/models/actors/pilot";
 import { effect_categories_view, effect_view } from "./module/helpers/effects";
 import { LancerActiveEffect } from "./module/effects/lancer-active-effect";
+import { MechWeaponModel } from "./module/models/items/mech_weapon";
 
 const lp = LANCER.log_prefix;
 
@@ -179,6 +180,8 @@ Hooks.once("init", async function () {
   CONFIG.Actor.systemDataModels[EntryType.MECH] = MechModel;
   // @ts-expect-error
   CONFIG.Item.systemDataModels[EntryType.FRAME] = FrameModel;
+  // @ts-expect-error
+  CONFIG.Item.systemDataModels[EntryType.MECH_WEAPON] = MechWeaponModel;
   // @ts-expect-error
   CONFIG.Item.systemDataModels[EntryType.MECH_SYSTEM] = MechSystemModel;
   // @ts-expect-error
@@ -407,10 +410,6 @@ Hooks.once("init", async function () {
 
   Handlebars.registerHelper("is-limited", function (item: LancerItem) {
     return item.get_limited;
-  });
-
-  Handlebars.registerHelper("is-loading", function (item: LancerItem) {
-    return item.is_loading;
   });
 
   // ------------------------------------------------------------------------

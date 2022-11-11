@@ -121,7 +121,7 @@ export class DamageField extends fields.SchemaField {
   }
 
   /** @override */
-  initialize(model: unknown, name: unknown, value: DamageData) {
+  initialize(value: DamageData, model: unknown) {
     // Coerce to a range
     return new Damage(value);
   }

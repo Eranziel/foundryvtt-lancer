@@ -167,7 +167,7 @@ export class RangeField extends fields.SchemaField {
   }
 
   /** @override */
-  initialize(model: unknown, name: unknown, value: RangeData) {
+  initialize(value: RangeData, model: unknown) {
     // Coerce to a range
     return new Range(value);
   }
