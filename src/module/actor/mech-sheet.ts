@@ -158,23 +158,21 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
         icon: "",
         // condition: game.user.isGM,
         callback: async (html: JQuery) => {
-          let cd = await this.getData();
           let mount_path = html[0].dataset.path ?? "";
 
           // Get the current mount
-          let mount = resolve_dotpath(cd, mount_path) as SystemData.Mech["loadout"]["weapon_mounts"][0];
+          let mount = resolve_dotpath(this.actor, mount_path) as SystemData.Mech["loadout"]["weapon_mounts"][0];
           if (!mount) {
             console.error("Bad mountpath:", mount_path);
           }
 
           // Edit it. Someday we'll want to have a way to resize without nuking. that day is not today
-          // TODO
+          this.actor.update({
+            [mount_path + ".type"]: mount_type,
+            [mount_path + ".bracing"]: false,
+          });
           mount.type = mount_type;
           mount.bracing = false;
-          // mount.reset();
-
-          // Write back
-          // await this._commitCurrMM();
         },
       });
     }

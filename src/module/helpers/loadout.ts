@@ -14,12 +14,7 @@ import { ActionData } from "../models/bits/action";
 export type CollapseRegistry = { [LID: string]: number };
 
 // A drag-drop slot for a system mount. TODO: delete button, clear button
-function system_view(
-  mech_path: string,
-  system_path: string,
-  helper: HelperOptions,
-  registry?: CollapseRegistry
-): string {
+function system_view(system_path: string, helper: HelperOptions, registry?: CollapseRegistry): string {
   let system = resolve_helper_dotpath(
     helper,
     system_path
@@ -40,13 +35,8 @@ function system_view(
 }
 
 // A drag-drop slot for a weapon mount. TODO: delete button, clear button
-function weapon_mount(
-  mech_path: string,
-  mount_path: string,
-  helper: HelperOptions,
-  registry: CollapseRegistry
-): string {
-  let mech = resolve_helper_dotpath(helper, mech_path) as LancerMECH;
+function weapon_mount(mount_path: string, helper: HelperOptions, registry: CollapseRegistry): string {
+  let mech = resolve_helper_dotpath(helper, "actor") as LancerMECH;
   let mount = resolve_helper_dotpath(helper, mount_path) as SystemData.Mech["loadout"]["weapon_mounts"][0];
 
   // If bracing, override
@@ -65,7 +55,7 @@ function weapon_mount(
   }
 
   let slots = mount.slots.map((slot, index) =>
-    mech_weapon_refview(`${mount_path}.slots.${index}.weapon`, mech_path, helper, registry, slot.size)
+    mech_weapon_refview(`${mount_path}.slots.${index}.weapon`, helper, registry, slot.size)
   );
   let err = mech.validateMount(mount) ?? "";
 
@@ -93,23 +83,18 @@ function weapon_mount(
 }
 
 // Helper to display all weapon mounts on a mech loadout
-function all_weapon_mount_view(
-  mech_path: string,
-  loadout_path: string,
-  helper: HelperOptions,
-  registry: CollapseRegistry
-) {
+function all_weapon_mount_view(loadout_path: string, helper: HelperOptions, registry: CollapseRegistry) {
   let loadout = resolve_helper_dotpath(helper, loadout_path) as SystemData.Mech["loadout"];
   const weapon_mounts = loadout.weapon_mounts.map((_wep, index) =>
-    weapon_mount(mech_path, `${loadout_path}.WepMounts.${index}`, helper, registry)
+    weapon_mount(`${loadout_path}.weapon_mounts.${index}`, helper, registry)
   );
 
   return `
     <span class="lancer-header loadout-category submajor">
         <i class="mdi mdi-unfold-less-horizontal collapse-trigger collapse-icon" data-collapse-id="weapons"></i>   
         <span>MOUNTED WEAPONS</span>
-        <a class="gen-control fas fa-plus" data-action="append" data-path="${loadout_path}.WepMounts" data-action-value="(struct)wep_mount"></a>
-        <a class="reset-all-weapon-mounts-button fas fa-redo" data-path="${loadout_path}.WepMounts"></a>
+        <a class="gen-control fas fa-plus" data-action="append" data-path="${loadout_path}.weapon_mounts" data-action-value="(struct)wep_mount"></a>
+        <a class="reset-all-weapon-mounts-button fas fa-redo" data-path="${loadout_path}.weapon_mounts"></a>
     </span>
     <div class="wraprow double collapse" data-collapse-id="weapons">
       ${weapon_mounts.join("")}
@@ -118,10 +103,10 @@ function all_weapon_mount_view(
 }
 
 // Helper to display all systems mounted on a mech loadout
-function all_system_view(mech_path: string, loadout_path: string, helper: HelperOptions, _registry: CollapseRegistry) {
+function all_system_view(loadout_path: string, helper: HelperOptions, _registry: CollapseRegistry) {
   let loadout = resolve_helper_dotpath(helper, loadout_path) as LancerMECH["system"]["loadout"];
   const system_views = loadout.systems.map((_sys, index) =>
-    system_view(mech_path, `${loadout_path}.systems.${index}`, helper, _registry)
+    system_view(`${loadout_path}.systems.${index}`, helper, _registry)
   );
 
   // Archiving add button: <a class="gen-control fas fa-plus" data-action="append" data-path="${loadout_path}.SysMounts" data-action-value="(struct)sys_mount"></a>
@@ -144,18 +129,14 @@ function all_system_view(mech_path: string, loadout_path: string, helper: Helper
  * - .... system mods :)
  * - Ref validation (you shouldn't be able to equip another mechs items, etc)
  */
-export function mech_loadout(mech_path: string, helper: HelperOptions): string {
-  const mech: LancerMECH = resolve_helper_dotpath(helper, mech_path);
+export function mech_loadout(helper: HelperOptions): string {
   const registry: CollapseRegistry = {};
 
-  if (!mech) {
-    return "err";
-  }
-  const loadout_path = `${mech_path}.system.loadout`;
+  const loadout_path = `system.loadout`;
   return `
     <div class="flexcol">
-        ${all_weapon_mount_view(mech_path, loadout_path, helper, registry)}
-        ${all_system_view(mech_path, loadout_path, helper, registry)}
+        ${all_weapon_mount_view(loadout_path, helper, registry)}
+        ${all_system_view(loadout_path, helper, registry)}
     </div>`;
 }
 

@@ -521,14 +521,13 @@ export function pilot_gear_refview(gear_path: string, helper: HelperOptions): st
  */
 export function mech_weapon_refview(
   weapon_path: string,
-  mech_path: string | "",
   options: HelperOptions,
   registry?: CollapseRegistry,
   size?: FittingSize
 ): string {
   // Fetch the item(s)
   let weapon: LancerMECH_WEAPON | null = resolve_helper_dotpath(options, weapon_path);
-  let mech_: LancerMECH | null = resolve_helper_dotpath(options, mech_path);
+  let actor: LancerActor | null = resolve_helper_dotpath(options, "actor");
   let mod_path = weapon_path.substr(0, weapon_path.lastIndexOf(".")) + ".Mod";
   let mod: LancerWEAPON_MOD | null = resolve_helper_dotpath(options, mod_path);
 
@@ -589,9 +588,9 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.select
   let profile_path = `${weapon_path}.profiles.${weapon.system.selected_profile}`;
 
   // Augment ranges
-  let ranges = profile.range;
-  if (mech_) {
-    ranges = Range.CalcTotalRangeWithBonuses(weapon, weapon.system.selected_profile, mech_, mod ?? undefined);
+  /*
+  if (mech) {
+    ranges = Range.CalcTotalRangeWithBonuses(weapon, weapon.system.selected_profile, mech, mod ?? undefined);
   }
 
   // Augment tags
@@ -599,6 +598,7 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.select
   if (mod) {
     tags = Tag.MergeTags(tags, mod.system.added_tags);
   }
+  */
 
   // Generate loading segment as needed
   let loading = "";
@@ -619,13 +619,12 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.select
 
   return `
   <div class="mech-weapon-wrapper${mod_text ? "-modded" : ""}">
-    <div class="valid ${EntryType.MECH_WEAPON} 
-    ref drop-settable flexcol lancer-weapon-container macroable item"
+    <div class="ref slot set ${EntryType.MECH_WEAPON} flexcol lancer-weapon-container macroable item"
                   ${ref_params(weapon, weapon_path)}
                   style="max-height: fit-content;">
       <div class="lancer-header ${weapon.system.destroyed ? "destroyed" : ""}">
         <i class="${weapon.system.destroyed ? "mdi mdi-cog" : "cci cci-weapon i--m i--light"}"> </i>
-        <span class="minor" ${mech_ ? `data-collapse-store="${mech_.id}"` : ""}" >
+        <span class="minor" ${actor ? `data-collapse-store="${actor.id}"` : ""}" >
           ${weapon.name} // ${weapon.system.size.toUpperCase()} ${profile.type.toUpperCase()}
         </span>
         <i class="mdi mdi-unfold-less-horizontal collapse-trigger collapse-icon" data-collapse-id="${collapseID}"> </i>
@@ -639,7 +638,7 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.select
         <div class="flexrow" style="text-align: left; white-space: nowrap;">
           <a class="roll-attack"><i class="fas fa-dice-d20 i--m i--dark"></i></a>
           <hr class="vsep">
-          ${show_range_array(ranges, options)}
+          ${show_range_array(profile.range, options)}
           <hr class="vsep">
           ${show_damage_array(profile.damage, options)}
 
@@ -656,7 +655,7 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.select
           ${on_attack}
           ${on_hit}
           ${on_crit}
-          ${compact_tag_list(profile_path + ".Tags", tags, false)}
+          ${compact_tag_list(profile_path + ".tags", profile.tags, false)}
         </div>
         ${mod_text}
       </div>

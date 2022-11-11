@@ -59,7 +59,6 @@ export function effect_for_frame(frame: LancerFRAME): LancerActiveEffectConstruc
 }
 
 export function pilot_downstream_effects(pilot: LancerPILOT): LancerActiveEffectConstructorData[] {
-  console.debug(`Pilot ${pilot.name} propagating effects to ${pilot.name}`);
   let result_effects = [] as LancerActiveEffectConstructorData[];
 
   // First get effects that don't target the pilot directly
