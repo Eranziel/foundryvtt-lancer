@@ -28,6 +28,7 @@ import {
 import { LancerActiveEffect } from "../effects/lancer-active-effect";
 import { LancerActiveEffectConstructorData } from "../effects/lancer-active-effect";
 import { filter_resolved_sync } from "../helpers/commons";
+import { ChangeWatchHelper } from "../util/misc";
 const lp = LANCER.log_prefix;
 
 const DEFAULT_OVERCHARGE_SEQUENCE = ["+1", "+1d3", "+1d6", "+1d6+4"];
@@ -70,14 +71,9 @@ declare global {
  */
 export class LancerActor extends Actor {
   // Kept for comparing previous to next values / doing deltas
-  #prior_max_hp = -1;
-  #curr_max_hp = -1;
-
-  // Private variables for tracking innate item effect propagation
-  #prior_innate_effect_constructor_data: LancerActiveEffectConstructorData[] = [];
-  #prior_innate_effect_string: string = ""; // JSON-ified
-  #curr_innate_effect_constructor_data: LancerActiveEffectConstructorData[] = [];
-  #curr_innate_effect_string = ""; // JSON-ified
+  #max_hp_tracker = new ChangeWatchHelper();
+  #innate_effect_tracker = new ChangeWatchHelper();
+  #passdown_effect_tracker = new ChangeWatchHelper();
 
   /**
    * Performs overheat
@@ -1059,26 +1055,16 @@ export class LancerActor extends Actor {
     */
 
     // Track shift in values
-    this.#prior_innate_effect_constructor_data = this.#curr_innate_effect_constructor_data;
-    this.#prior_innate_effect_string = this.#curr_innate_effect_string;
-    this.#prior_max_hp = this.#curr_max_hp;
-    this.#curr_innate_effect_constructor_data = this.#collectActiveEffects();
-    this.#curr_innate_effect_string = JSON.stringify(this.#curr_innate_effect_constructor_data);
-    // @ts-expect-error System's broken
-    this.#curr_max_hp = this.system.hp.max;
-    if (!this.#prior_innate_effect_string) {
-      // Make them synchronized - this will only happen on first prepare
-      this.#prior_innate_effect_constructor_data = this.#curr_innate_effect_constructor_data;
-      this.#prior_innate_effect_string = this.#curr_innate_effect_string;
-      this.#prior_max_hp = this.#curr_max_hp;
-    }
-    if (this.#prior_innate_effect_string != this.#curr_innate_effect_string) {
+    // @ts-expect-error
+    this.#max_hp_tracker.setValue(this.system.hp.max);
+    this.#innate_effect_tracker.setValue(this.#collectActiveEffects());
+    if (this.#innate_effect_tracker.invalid) {
       console.log(
         "PI change",
-        this.#prior_innate_effect_string,
-        this.#prior_innate_effect_constructor_data,
-        this.#curr_innate_effect_string,
-        this.#curr_innate_effect_constructor_data
+        this.#innate_effect_tracker.prior_string,
+        this.#innate_effect_tracker.prior_value,
+        this.#innate_effect_tracker.curr_string,
+        this.#innate_effect_tracker.curr_value
       );
     }
   }
@@ -1235,18 +1221,13 @@ export class LancerActor extends Actor {
    * Sends appropriate active effects to "children"
    */
   sendChangesDownward() {
-    // Call this whenever update an item with probable children
-    // If we're a compendium document, don't actually do anything
-    if (this.compendium) {
-      return;
-    }
-
-    // If we are a mech, we need to subscribe to our pilot (if it exists and resolved sync)
+    // Call this whenever update this actors stats in any meaningful way
     if (this.is_pilot()) {
       if (this.system.active_mech?.status == "resolved") {
         let mech = this.system.active_mech.value;
         let changes = pilot_downstream_effects(this as LancerPILOT);
 
+        console.debug(`Pilot ${this.name} propagating effects to ${mech.name}`);
         // Get rid of old from this pilot
         let old = mech.effects.filter(e => (e.getFlag("lancer", "cascade_origin") as string) == this.uuid);
         mech.deleteEmbeddedDocuments(
@@ -1266,12 +1247,12 @@ export class LancerActor extends Actor {
    */
   async regenerateEquippedEffects(): Promise<boolean> {
     // Get what effects we'll apply
-    if (this.#curr_innate_effect_string != this.#prior_innate_effect_string) {
+    if (this.#innate_effect_tracker.invalid) {
       // Change detected
       // First, cull all innate effects
       let old_innates = this.effects.filter(e => !!e.id && (e.getFlag("lancer", "innate") as boolean)).map(e => e.id!);
       await this.deleteEmbeddedDocuments("ActiveEffect", old_innates);
-      await this.createEmbeddedDocuments("ActiveEffect", this.#curr_innate_effect_constructor_data as any);
+      await this.createEmbeddedDocuments("ActiveEffect", this.#innate_effect_tracker.curr_value as any);
       return true;
     }
     return false;
