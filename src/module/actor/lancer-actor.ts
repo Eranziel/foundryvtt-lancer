@@ -1282,16 +1282,20 @@ export class LancerActor extends Actor {
     ) {
       const data = changed as DeepPartial<RegMechData | RegNpcData>;
       if (
-        "heat" in (data ?? {}) &&
         // @ts-expect-error Should be fixed with v10 types
-        (data?.heat ?? 0) > (this.system.derived.mm?.HeatCapacity ?? 0) &&
+        "heat" in (data.system ?? {}) &&
+        (data?.system.heat ?? 0) > (this.system.derived.mm?.HeatCapacity ?? 0) &&
         // @ts-expect-error Should be fixed with v10 types
         (this.system.derived.mm?.CurrentStress ?? 0) > 0
       ) {
         prepareOverheatMacro(this);
       }
       // @ts-expect-error Should be fixed with v10 types
-      if ("hp" in (data ?? {}) && (data?.hp ?? 0) <= 0 && (this.system.derived.mm?.CurrentStructure ?? 0) > 0) {
+      if (
+        "hp" in (data.system ?? {}) &&
+        (data?.system.hp ?? 0) <= 0 &&
+        (this.system.derived.mm?.CurrentStructure ?? 0) > 0
+      ) {
         prepareStructureMacro(this);
       }
     }
