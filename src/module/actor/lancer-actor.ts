@@ -852,7 +852,7 @@ export class LancerActor extends Actor {
           flags.top_level_data["permission"] = permission;
           flags.top_level_data["token.name"] = data.callsign;
           // @ts-expect-error Should be fixed with v10 types
-          flags.top_level_data["token.disposition"] = this.token?.disposition;
+          flags.top_level_data["token.disposition"] = this.prototypeToken?.disposition;
           flags.top_level_data["token.actorLink"] = true;
 
           // the following block of code is version 1 to ensure all weapons are their own unique object in the registry.
@@ -1219,7 +1219,7 @@ export class LancerActor extends Actor {
     await super._preCreate(data, options, user);
     // @ts-expect-error Should be fixed with v10 types
     if (data.system) {
-      console.log(`${lp} New ${this.type} has data provided from an import, skipping default init.`);
+      console.log(`${lp} New ${this.type} has data provided from an import, skipping default init.`, data);
       return;
     }
 
