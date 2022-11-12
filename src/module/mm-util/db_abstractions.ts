@@ -42,6 +42,11 @@ function as_document_blob<T extends EntryType>(entry: LiveEntryTypes<T>): any {
     flags.top_level_data.name;
   }
 
+  // v10 - Replace folder object with folder id
+  if (flags.top_level_data.folder && flags.top_level_data.folder.id) {
+    flags.top_level_data.folder = flags.top_level_data.folder.id;
+  }
+
   // Combine saved data with top level data
   return mergeObject(
     {
