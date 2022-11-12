@@ -1284,16 +1284,19 @@ export class LancerActor extends Actor {
       if (
         // @ts-expect-error Should be fixed with v10 types
         "heat" in (data.system ?? {}) &&
+        // @ts-expect-error Should be fixed with v10 types
         (data?.system.heat ?? 0) > (this.system.derived.mm?.HeatCapacity ?? 0) &&
         // @ts-expect-error Should be fixed with v10 types
         (this.system.derived.mm?.CurrentStress ?? 0) > 0
       ) {
         prepareOverheatMacro(this);
       }
-      // @ts-expect-error Should be fixed with v10 types
       if (
+        // @ts-expect-error Should be fixed with v10 types
         "hp" in (data.system ?? {}) &&
+        // @ts-expect-error Should be fixed with v10 types
         (data?.system.hp ?? 0) <= 0 &&
+        // @ts-expect-error Should be fixed with v10 types
         (this.system.derived.mm?.CurrentStructure ?? 0) > 0
       ) {
         prepareStructureMacro(this);
