@@ -1218,7 +1218,7 @@ export class LancerActor extends Actor {
   protected async _preCreate(...[data, options, user]: Parameters<Actor["_preCreate"]>): Promise<void> {
     await super._preCreate(data, options, user);
     // @ts-expect-error Should be fixed with v10 types
-    if (data.system?.lid != "") {
+    if (data.system) {
       console.log(`${lp} New ${this.type} has data provided from an import, skipping default init.`);
       return;
     }
