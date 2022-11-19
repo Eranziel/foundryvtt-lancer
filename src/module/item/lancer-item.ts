@@ -120,23 +120,12 @@ export class LancerItem extends Item {
       this.system.active_profile = this.system.profiles[this.system.selected_profile] ?? this.system.profiles[0];
     }
 
-    // compute max uses if needed
-    // TODO: Re-implement base limits
-    /*
-    let base_limit = d.base_limit;
-    if (base_limit) {
-      dr.max_uses = base_limit; // A decent baseline - start with the limited tag
-
-      // If we have an actor, then try to get limited bonuses
-      if (this.actor) {
-        let actor_mm = await this.actor.data.data.derived.mm_promise;
-        if (actor_mm.Type == EntryType.MECH || actor_mm.Type == EntryType.PILOT) {
-          // Add pilot/mech lim bonus
-          dr.max_uses += actor_mm.LimitedBonus;
-        }
+    if (this.actor?.is_mech()) {
+      let lb = this.actor.system.loadout.limited_bonus;
+      if (this.is_limited()) {
+        this.system.uses.max += lb;
       }
     }
-    */
   }
 
   /**
