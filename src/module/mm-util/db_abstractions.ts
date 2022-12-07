@@ -343,14 +343,22 @@ export class NuWrapper<T extends EntryType> extends DocumentCollectionWrapper<T>
     if (this.pack && !parent) {
       // Need to prepend every key with "system."
       let new_query: typeof query_obj = {};
+      let legacy_query: typeof query_obj = {};
       for (let kv of Object.entries(query_obj)) {
         new_query["system." + kv[0]] = kv[1];
+        legacy_query["data." + kv[0]] = kv[1];
       }
 
       all = await collection.getDocuments({
         ...new_query,
         type: this.entry_type,
       });
+      if(!all.length) { // v9 backwards compendium support
+        all = await collection.getDocuments({
+          ...legacy_query,
+          type: this.entry_type,
+        });
+      }
     } else {
       all = collection.contents;
       // But we have to filter it ourselves - no getDocuments query here!
