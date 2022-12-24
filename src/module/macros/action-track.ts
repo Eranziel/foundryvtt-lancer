@@ -1,5 +1,5 @@
 import { ActionTrackingData } from "../action";
-import { getActions } from "../action/actionTracker";
+import { getActions } from "../action/action-tracker";
 import { LancerActor } from "../actor/lancer-actor";
 import { prepareTextMacro } from "./text";
 import { getMacroSpeaker } from "./_util";

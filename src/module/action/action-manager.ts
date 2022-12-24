@@ -2,7 +2,7 @@ import type { LancerActor } from "../actor/lancer-actor";
 import type { ActionTrackingData, ActionType } from ".";
 import tippy from "tippy.js";
 import { getActionTrackerOptions } from "../settings";
-import { getActions, modAction, toggleAction, updateActions, _defaultActionData } from "./actionTracker";
+import { getActions, modAction, toggleAction, updateActions, _defaultActionData } from "./action-tracker";
 
 // TODO: Properly namespace this flag into the system scope
 declare global {

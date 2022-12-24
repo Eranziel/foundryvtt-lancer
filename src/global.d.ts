@@ -1,6 +1,6 @@
 import type { LancerInitiativeConfig } from "lancer-initiative";
 import type { AutomationOptions } from "./module/settings";
-import type { LancerActionManager } from "./module/action/actionManager";
+import type { LancerActionManager } from "./module/action/action-manager";
 
 declare global {
   // Since we never use these before `init` tell league types that they are

@@ -1,5 +1,5 @@
 import { LancerCombat } from "lancer-initiative";
-import { modAction } from "../../action/actionTracker";
+import { modAction } from "../../action/action-tracker";
 import { LancerActor } from "../../actor/lancer-actor";
 import { prepareChargeMacro } from "../../macros";
 import { prepareActionTrackMacro } from "../../macros/action-track";

@@ -26,7 +26,7 @@ import { populatePilotCache } from "./module/util/compcon";
 
 import { action_type_selector } from "./module/helpers/npc";
 
-import { LancerActionManager } from "./module/action/actionManager";
+import { LancerActionManager } from "./module/action/action-manager";
 
 // Import applications
 import { LancerPilotSheet, pilot_counters, all_mech_preview } from "./module/actor/pilot-sheet";
@@ -39,11 +39,11 @@ import { LancerLicenseSheet } from "./module/item/license-sheet";
 import { WeaponRangeTemplate } from "./module/pixi/weapon-range-template";
 
 // Import helpers
-import { preloadTemplates } from "./module/preloadTemplates";
+import { preloadTemplates } from "./module/preload-templates";
 import { getAutomationOptions, registerSettings } from "./module/settings";
 import { compact_tag_list } from "./module/helpers/tags";
 import * as migrations from "./module/migration";
-import { addLCPManager, updateCore, core_update } from "./module/apps/lcpManager";
+import { addLCPManager, updateCore, core_update } from "./module/apps/lcp-manager";
 
 // Import sliding HUD (used for accuracy/difficulty windows)
 import * as slidingHUD from "./module/helpers/slidinghud";
