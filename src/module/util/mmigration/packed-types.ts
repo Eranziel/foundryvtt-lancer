@@ -376,20 +376,20 @@ export interface IContentPackManifest {
   image_url?: string;
 }
 export interface IContentPackData {
-  manufacturers: PackedManufacturerData[];
-  factions: PackedFactionData[];
-  coreBonuses: PackedCoreBonusData[];
-  frames: PackedFrameData[];
-  weapons: PackedMechWeaponData[];
-  systems: PackedMechSystemData[];
-  mods: PackedWeaponModData[];
-  pilotGear: PackedPilotEquipmentData[];
-  talents: PackedTalentData[];
-  tags: PackedTagTemplateData[];
+  manufacturers?: PackedManufacturerData[];
+  factions?: PackedFactionData[];
+  coreBonuses?: PackedCoreBonusData[];
+  frames?: PackedFrameData[];
+  weapons?: PackedMechWeaponData[];
+  systems?: PackedMechSystemData[];
+  mods?: PackedWeaponModData[];
+  pilotGear?: PackedPilotEquipmentData[];
+  talents?: PackedTalentData[];
+  tags?: PackedTagTemplateData[];
 
-  npcClasses: PackedNpcClassData[];
-  npcFeatures: AnyPackedNpcFeatureData[];
-  npcTemplates: PackedNpcTemplateData[];
+  npcClasses?: PackedNpcClassData[];
+  npcFeatures?: AnyPackedNpcFeatureData[];
+  npcTemplates?: PackedNpcTemplateData[];
 
   // New additions courtesy of whitespine
   skills?: PackedSkillData[];

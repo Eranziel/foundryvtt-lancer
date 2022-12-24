@@ -13,7 +13,7 @@
  import Total from './Total.svelte';
  import PlusMinusInput from './PlusMinusInput.svelte';
  import type { LancerItem } from '../../item/lancer-item';
- import { RangeType } from 'machine-mind';
+ import { RangeType } from '../../enums';
  import { WeaponRangeTemplate } from '../../pixi/weapon-range-template';
  import { fade } from '../slidinghud';
  import { targetsFromTemplate } from '../../macros';

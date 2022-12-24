@@ -52,9 +52,10 @@
     "fp-ts": "^2.11.2",
     "io-ts": "^2.2.16",
     "lancer-initiative": "^3.1.0",
-    "machine-mind": "0.2.4",
     "marked": "^4.0.10",
-    "tippy.js": "^6.3.1"
+    "lancer-data": "^3.0.47",
+    "tippy.js": "^6.3.1",
+    "jszip": "^3.10.1"
   },
   "lint-staged": {
     "*.ts": "prettier --write"

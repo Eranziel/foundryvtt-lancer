@@ -1,5 +1,4 @@
-import { WeaponType } from "machine-mind";
-import { WeaponSize } from "../../enums";
+import { WeaponSize, WeaponType } from "../../enums";
 import { ActionField } from "../bits/action";
 import { BonusField } from "../bits/bonus";
 import { CounterField } from "../bits/counter";

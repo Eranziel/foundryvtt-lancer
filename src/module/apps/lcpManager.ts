@@ -1,8 +1,8 @@
 import { LANCER } from "../config";
 const lp = LANCER.log_prefix;
-import { import_cp, clearCompendiumData, set_all_lock } from "../compBuilder";
-import * as mm from "machine-mind";
+import { importCP, clearCompendiumData, setAllLock } from "../comp-builder";
 import { IContentPack, IContentPackManifest } from "../util/mmigration/packed-types";
+import { getBaseContentPack, parseContentPack } from "../util/lcp-parser";
 
 // TODO: use the version from MM... once it's real.
 export const core_update = "3.0.46"; // typed_lancer_data.info.version;
@@ -71,7 +71,6 @@ class LCPManager extends Application {
     this.cp = null;
     this.manifest = null;
     this.coreVersion = game.settings.get(game.system.id, LANCER.setting_core_data);
-    // TODO: pull available core version from machine-mind
     this.coreUpdate = core_update;
     console.log(`${lp} Lancer Data version:`, this.coreVersion);
     this.lcpIndex = new LCPIndex(game.settings.get(game.system.id, LANCER.setting_lcps).index);
@@ -175,20 +174,20 @@ class LCPManager extends Application {
 
   async _onLcpParsed(fileData: string | null) {
     if (!fileData) return;
-    this.cp = await mm.funcs.parseContentPack(fileData);
+    this.cp = await parseContentPack(fileData);
     this.manifest = {
       ...this.cp.manifest,
       item_prefix: "",
       skills: this.cp.data.skills?.length ?? 0,
-      talents: this.cp.data.talents.length ?? 0,
-      gear: this.cp.data.pilotGear.length ?? 0,
-      frames: this.cp.data.frames.length,
-      systems: this.cp.data.systems.length,
-      weapons: this.cp.data.weapons.length,
+      talents: this.cp.data.talents?.length ?? 0,
+      gear: this.cp.data.pilotGear?.length ?? 0,
+      frames: this.cp.data.frames?.length,
+      systems: this.cp.data.systems?.length,
+      weapons: this.cp.data.weapons?.length,
       // mods: this.cp.WeaponMods.length,
-      npc_classes: this.cp.data.npcClasses.length,
-      npc_templates: this.cp.data.npcTemplates.length,
-      npc_features: this.cp.data.npcFeatures.length,
+      npc_classes: this.cp.data.npcClasses?.length,
+      npc_templates: this.cp.data.npcTemplates?.length,
+      npc_features: this.cp.data.npcFeatures?.length,
     };
     console.log(`${lp} Manifest of selected LCP:`, this.manifest);
     this.render();
@@ -211,7 +210,7 @@ class LCPManager extends Application {
     ui.notifications!.info(`Starting import of ${cp.manifest.name} v${cp.manifest.version}. Please wait.`);
     console.log(`${lp} Starting import of ${cp.manifest.name} v${cp.manifest.version}.`);
     console.log(`${lp} Parsed content pack:`, cp);
-    await import_cp(cp, (x, y) => this.update_progress_bar(x, y));
+    await importCP(cp, (x, y) => this.update_progress_bar(x, y));
     ui.notifications!.info(`Import of ${cp.manifest.name} v${cp.manifest.version} complete.`);
     console.log(`Import of ${cp.manifest.name} v${cp.manifest.version} complete.`);
 
@@ -244,14 +243,14 @@ export async function updateCore(version: string, manager?: LCPManager) {
 
   console.log(`${lp} Updating Lancer Core data to v${version}`);
   try {
-    await import_cp(mm.funcs.get_base_content_pack(), progress_func);
+    await importCP(getBaseContentPack(), progress_func);
   } catch (err) {
     console.error(err);
 
     ui.notifications!.warn(
       `Lancer Core data update ran into an issue... Please open the compendium manager and attempt an update after clearing LCPs.`
     );
-    await set_all_lock(true);
+    await setAllLock(true);
     return;
   }
 

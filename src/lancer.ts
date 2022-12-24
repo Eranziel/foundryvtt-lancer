@@ -159,6 +159,7 @@ import { PilotModel } from "./module/models/actors/pilot";
 import { effect_categories_view, effect_view } from "./module/helpers/effects";
 import { LancerActiveEffect } from "./module/effects/lancer-active-effect";
 import { MechWeaponModel } from "./module/models/items/mech_weapon";
+import { CoreBonusModel } from "./module/models/items/core_bonus";
 
 const lp = LANCER.log_prefix;
 
@@ -176,6 +177,8 @@ Hooks.once("init", async function () {
   // game.documentTypes.Item.forEach(type => CONFIG.Item.systemDataModels[type] = MyItemModel);
   // @ts-expect-error
   game.documentTypes.Item.forEach(type => (CONFIG.Item.compendiumIndexFields = ["lid"]));
+  // @ts-expect-error
+  CONFIG.Item.systemDataModels[EntryType.CORE_BONUS] = CoreBonusModel;
   // @ts-expect-error
   CONFIG.Actor.systemDataModels[EntryType.MECH] = MechModel;
   // @ts-expect-error

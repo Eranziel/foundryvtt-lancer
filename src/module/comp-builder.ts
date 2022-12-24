@@ -10,8 +10,8 @@ import { IContentPack } from "./util/mmigration/packed-types";
 export const PACK_SCOPE = "world";
 
 // Clear all packs
-export async function clear_all(): Promise<void> {
-  await set_all_lock(false);
+export async function clearAll(): Promise<void> {
+  await setAllLock(false);
   for (let p of Object.values(EntryType)) {
     let pack = game.packs.get(`${PACK_SCOPE}.${p}`);
     if (!pack) continue;
@@ -20,33 +20,37 @@ export async function clear_all(): Promise<void> {
     let keys = docs.map(d => d.id!);
     await pack.documentClass.deleteDocuments(keys, { pack: pack.collection });
   }
-  await set_all_lock(true);
+  await setAllLock(true);
 }
 
-export async function import_cp(
+export async function importCP(
   cp: IContentPack,
   progress_callback?: (done: number, out_of: number) => void
 ): Promise<void> {
-  await set_all_lock(false);
+  await setAllLock(false);
 
-  /* TODO: 
   try {
     // Stub in a progress callback so we don't have to null check it all the time
     if (!progress_callback) {
       progress_callback = (_a, _b) => {};
     }
 
-    // Make a static reg, and load in the reg for pre-processing
-    let env = new RegEnv();
-    let tmp_lcp_reg = new StaticReg(env);
-    await funcs.intake_pack(cp, tmp_lcp_reg);
-
-    // Count the total items in the reg. We only do this for counting
+    // Count the total items in the reg. We only do this for progress bar accurace
     let total_items = 0;
-    for (let type of Object.values(EntryType)) {
-      let cat = tmp_lcp_reg.get_cat(type);
-      total_items += (await cat.raw_map()).size;
-    }
+    total_items += cp.data.coreBonuses?.length ?? 0;
+    total_items += cp.data.frames?.length ?? 0;
+    total_items += cp.data.mods?.length ?? 0;
+    total_items += cp.data.npcClasses?.length ?? 0;
+    total_items += cp.data.npcFeatures?.length ?? 0;
+    total_items += cp.data.npcTemplates?.length ?? 0;
+    total_items += cp.data.pilotGear?.length ?? 0;
+    total_items += cp.data.reserves?.length ?? 0;
+    total_items += cp.data.skills?.length ?? 0;
+    total_items += cp.data.statuses?.length ?? 0;
+    total_items += cp.data.systems?.length ?? 0;
+    total_items += cp.data.tags?.length ?? 0;
+    total_items += cp.data.talents?.length ?? 0;
+    total_items += cp.data.weapons?.length ?? 0;
 
     // Iterate over everything in core, collecting all lids
     let existing_lids: string[] = [];
@@ -71,9 +75,9 @@ export async function import_cp(
     };
     Hooks.on("createActor", progress_hook);
     Hooks.on("createItem", progress_hook);
-    await funcs.intake_pack(cp, comp_reg, (_type, reg_val) => {
-      return !existing_lids.includes(reg_val.lid);
-    });
+
+    console.log("TODO");
+
     Hooks.off("createActor", progress_hook);
     Hooks.off("createItem", progress_hook);
 
@@ -85,13 +89,12 @@ export async function import_cp(
   } catch (err) {
     console.error(err);
   }
-  */
-  await set_all_lock(true);
+  await setAllLock(true);
 }
 
 // Lock/Unlock all packs
 export let IS_IMPORTING = false;
-export async function set_all_lock(lock = false) {
+export async function setAllLock(lock = false) {
   IS_IMPORTING = !lock;
   for (let p of Object.values(EntryType)) {
     const key = `${PACK_SCOPE}.${p}`;
@@ -105,6 +108,6 @@ export async function clearCompendiumData() {
   console.log(`${lp} Clearing all LANCER Compendium data.`);
   await game.settings.set(game.system.id, LANCER.setting_core_data, "0.0.0");
   await game.settings.set(game.system.id, LANCER.setting_lcps, new LCPIndex(null));
-  await clear_all();
+  await clearAll();
   ui.notifications!.info(`LANCER Compendiums cleared.`);
 }

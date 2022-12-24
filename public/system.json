@@ -5,8 +5,7 @@
   "version": "1.4.0-alpha.1",
   "compatibility": {
     "minimum": 10,
-    "verified": "10.284",
-    "maximum": 10
+    "verified": "10.284"
   },
   "authors": [
     {"name": "Eranziel"},

@@ -8,7 +8,6 @@ export class MechSystemModel extends LancerDataModel {
   static defineSchema() {
     return {
       effect: new fields.HTMLField(),
-      source: new fields.StringField({ nullable: true }),
       sp: new fields.NumberField({ nullable: false, initial: 0 }),
       uses: new fields.NumberField({ nullable: false, initial: 0 }),
       description: new fields.HTMLField(),

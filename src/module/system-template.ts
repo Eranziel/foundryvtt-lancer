@@ -33,7 +33,7 @@ import {
 import { ActionData } from "./models/bits/action";
 import { BonusData } from "./models/bits/bonus";
 import { CounterData } from "./models/bits/counter";
-import { Damage } from "./models/bits/damage";
+import { Damage, DamageData } from "./models/bits/damage";
 import { Range } from "./models/bits/range";
 import { SynergyData } from "./models/bits/synergy";
 import { Tag, TagData } from "./models/bits/tag";
@@ -221,13 +221,20 @@ export namespace SystemTemplates {
       };
 }
 
+// Use this for some "collected" items (e.x. all counters on a mech) or for effect-applied data
+export type Origined<T> = {
+  label: string;
+  origin: string;
+  val: T;
+};
+
 // Note: We could have, theoretically, done this via clever OMIT spam.
 // But I _tried_ that. the result was hideous, confusing in the extreme. We're not doing it
 export namespace SystemData {
   export interface CoreBonus extends SystemTemplates.item_universal, SystemTemplates.bascdt {
     description: string;
     effect: string;
-    mounted_effect: string;
+    mounted_effect: string; // Effect attached to a mount modified by this
     manufacturer: string;
   }
 
@@ -389,6 +396,11 @@ export namespace SystemData {
       bonuses: BonusData[];
       synergies: SynergyData[];
       counters: CounterData[];
+
+      // Derived - though for now not really used (much)
+      bonus_damage: Origined<DamageData>[];
+      bonus_tags: Origined<Tag>[];
+      added_range: Origined<Range>[];
     }>;
     loaded: false;
     selected_profile: number;

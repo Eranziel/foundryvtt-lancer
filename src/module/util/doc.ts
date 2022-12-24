@@ -7,7 +7,7 @@ import {
   LancerNPC,
   LancerPILOT,
 } from "../actor/lancer-actor";
-import { PACK_SCOPE } from "../compBuilder";
+import { PACK_SCOPE } from "../comp-builder";
 import { friendly_entrytype_name } from "../config";
 import { EntryType } from "../enums";
 import type {
