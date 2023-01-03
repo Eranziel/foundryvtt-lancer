@@ -970,6 +970,10 @@ textarea {
     background-color: var(--main-theme-color);
   }
 
+  .reserve & {
+    background-color: var(--main-theme-color);
+  }
+
   .mech_weapon:hover &,
   .weapon_mod:hover &,
   .npc-weapon:hover &,
@@ -981,7 +985,8 @@ textarea {
   .npc-tech:hover &,
   .npc-reaction:hover &,
   .pilot_gear:hover &,
-  .pilot_armor:hover & {
+  .pilot_armor:hover &,
+  .reserve:hover & {
     box-shadow: var(--hover-bright);
   }
 

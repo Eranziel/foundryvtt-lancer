@@ -3,7 +3,7 @@
 /* ------------------------------------ */
 
 import type { HelperOptions } from "handlebars";
-import type { MechWeapon, TagInstance } from "machine-mind";
+import type { MechWeapon, Reserve, TagInstance } from "machine-mind";
 import {
   Action,
   ActivationType,
@@ -594,6 +594,44 @@ export function pilot_gear_refview(gear_path: string, helper: HelperOptions): st
       </div>
 
       ${compact_tag_list(gear_path + ".Tags", gear.Tags, false)}
+    </div>
+  </div>`;
+}
+
+// Helper for showing a reserve, or a slot to hold it (if path is provided)
+export function reserve_refview(reserve_path: string, helper: HelperOptions): string {
+  // Fetch the item
+  let reserve_: Reserve | null = resolve_dotpath(helper.data?.root, reserve_path);
+
+  // Generate commons
+  let cd = ref_commons(reserve_);
+
+  if (!cd) {
+    // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
+    return `<div class="${EntryType.RESERVE} ref drop-settable card flexrow"
+                        data-path="${reserve_path}"
+                        data-type="${EntryType.RESERVE}">
+          <img class="ref-icon" src="${TypeIcon(EntryType.RESERVE)}"></img>
+          <span class="major">Equip reserve</span>
+      </div>`;
+  }
+
+  let reserve = reserve_!;
+
+  return `<div class="valid ${EntryType.RESERVE} ref drop-settable card clipped macroable item"
+                ${ref_params(cd.ref, reserve_path)} >
+    <div class="lancer-header">
+      <i class="cci cci-generic-item i--m"> </i>
+      <a class="gear-macro macroable"><i class="mdi mdi-message"></i></a>
+      <span class="minor">${reserve.Name}</span>
+      <a class="lancer-context-menu" data-context-menu="${reserve.Type}" data-path="${reserve_path}"">
+        <i class="fas fa-ellipsis-v"></i>
+      </a>
+    </div>
+    <div class="flexcol">
+      <div class="effect-text" style=" padding: 5px">
+        ${reserve.Description}
+      </div>
     </div>
   </div>`;
 }
@@ -1499,6 +1537,7 @@ export function HANDLER_activate_item_context_menus<
   tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"pilot_weapon\"]`), "click", e_r);
   tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"pilot_armor\"]`), "click", e_r);
   tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"pilot_gear\"]`), "click", e_r);
+  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"reserve\"]`), "click", e_r);
   tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"talent\"]`), "click", e_r);
   tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"skill\"]`), "click", e_r);
   tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"core_bonus\"]`), "click", e_r);

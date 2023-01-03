@@ -148,6 +148,15 @@
           {{#each mm.Loadout.Gear as |gear key|}} {{{pilot-gear-slot (concat "mm.Loadout.Gear." key)}}} {{/each}}
         </div>
       </div>
+
+      {{!-- Reserves --}}
+      <div class="flexrow">
+        {{!-- Reserves --}}
+        <div class="card clipped">
+          <h2 class="lancer-title clipped-top">{{localize "lancer.pilot-sheet.tactical.reserves"}}</h2>
+          {{#each mm.Reserves as |reserve index|}} {{{reserve-slot (concat "mm.Reserves." index)}}} {{/each}}
+        </div>
+      </div>
     </div>
 
     {{!-- Pilot Tactical Tab --}}
