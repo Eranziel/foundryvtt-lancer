@@ -1,3 +1,9 @@
+# 1.4.0-beta.1 (2023-01-03)
+## Features
+* Beta release for Foundry v10 compatibility!
+* Several QOL updates to Scan macro including better organization and hiding Exotic features.
+* Added `game.lancer.fromLid` and `game.lancer.fromLidSync` functions to allow module and macro devs easier lookups in Lancer compendiums.
+
 # 1.3.1 (2022-09-04)
 ## Bug Fixes
 * #463 - Add missing delete button for range types in NPC features.
