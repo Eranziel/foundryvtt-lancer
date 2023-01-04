@@ -129,12 +129,15 @@ export const STATUSES = [
 export function WELCOME(changelog: string): string {
   return `<div style="margin: 10px 5px">
 
-  <h2>V10 WARNING</h2>
-  <p>Lancer does not yet have a stable release for Foundry v10! You can check the <a href="https://docs.google.com/spreadsheets/d/e/2PACX-1vRrcQL-r09Bi4MsbHUXlmOVx6DP4Ju143zRmk3HiUK2qU6gA3naxuSUcyv3EVhjMThXzJ_455jnyWfK/pubhtml">
-  v10 compatibility spreadsheet</a> or the <a href="https://foundryvtt.com/packages/lancer">Lancer system listing</a>
-  to see if a compatible version has been released yet, or grab the <b>Foundry Club</b> role on
-  <a href="https://discord.gg/7dnpJm46">PilotNET, the Lancer Discord server</a>, to be notified about updates to the
-  Lancer system.</p>
+  <h2>V10 BETA - USE AT YOUR OWN RISK!</h2>
+  <p>Welcome to the beta release for Lancer on Foundry v10!</p>
+  
+  <p><b>As this is a beta, use at your own risk! Make lots of backups!</b></p>
+  
+  <p>While we have tried our best to eliminate all game-breaking bugs, there is a lot of code and so something may
+  have slipped through the cracks. Please post any problems you find to the "Foundry V10 Work" thread in the
+  <code>#lancer-vtt</code> channel on <a href="https://discord.gg/7dnpJm46">PilotNET, the Lancer Discord server</a>.
+  (Any compatibility warning messages in your browser console are welcome there as well!) </p>
   
   <h2>Welcome to Lancer on Foundry!</h2>
   <p>If you haven't already, check out the project wiki for 
