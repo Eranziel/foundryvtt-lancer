@@ -14,7 +14,7 @@ const lp = LANCER.log_prefix;
  * @param i The item id that is being rolled
  * @param rank The rank of the talent to roll
  */
- export async function prepareTalentMacro(a: string, i: string, rank: number) {
+export async function prepareTalentMacro(a: string, i: string, rank: number) {
   // Determine which Actor to speak as
   let actor = getMacroSpeaker(a);
   if (!actor) return;
@@ -23,7 +23,8 @@ const lp = LANCER.log_prefix;
   if (!item || !item.is_talent()) return;
 
   let talData: LancerTalentMacroData = {
-    talent: item.data.data,
+    // @ts-expect-error Should be fixed with v10 types
+    talent: item.system,
     rank: rank,
   };
 

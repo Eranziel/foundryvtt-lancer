@@ -796,7 +796,7 @@ export function weapon_mod_ref(mod_path: string, weapon_path: string | null, opt
 
   return `
   <div class="valid item flexcol clipped-top ref ${EntryType.WEAPON_MOD}"
-      ${weapon_path ? ref_params(cd.ref, weapon_path) : ref_params(cd.ref)}>
+      ${weapon_path ? ref_params(cd.ref, weapon_path) : ref_params(cd.ref, cd.uuid)}>
     <div class="lancer-header">
       <i class="cci cci-weaponmod i--m i--light"> </i>
       <span class="minor">${mod.Name}</span>
@@ -853,7 +853,7 @@ export function license_ref(license: License | null, level: number, item_path?: 
         `;
   } else {
     return `
-    <li class="card clipped item macroable ref valid" ${ref_params(cd.ref)}>
+    <li class="card clipped item macroable ref valid" ${ref_params(cd.ref, cd.uuid)}>
       <div class="lancer-header lancer-license-header medium clipped-top" style="grid-area: 1/1/2/3">
         <i class="cci cci-license i--m i--dark"> </i>
         <div class="major modifier-name">${license!.Name} ${license!.CurrentRank}</div>
@@ -874,7 +874,7 @@ export function frame_ref(frame: Frame | null, item_path?: string): string {
   } else {
     let frame_img = encodeURI(frameToPath[frame.Name.toUpperCase()]);
     return `
-    <li class="card clipped item ref valid" ${ref_params(cd.ref)}>
+    <li class="card clipped item ref valid" ${ref_params(cd.ref, cd.uuid)}>
       <div class="compact-frame medium flexrow">
         <span class="img-bar" style="background-image: url(${frame_img})"></span>
         <div class="major modifier-name i--light">${frame.Source?.LID} ${frame.Name}</div>
@@ -895,7 +895,7 @@ export function npc_class_ref(npc_class: NpcClass | null, item_path?: string): s
   } else {
     let frame_img = encodeURI(frameToPath[npc_class.Name.toUpperCase()]);
     return `
-    <div class="card clipped item ref valid" ${ref_params(cd.ref)}>
+    <div class="card clipped item ref valid" ${ref_params(cd.ref, cd.uuid)}>
       <div class="compact-class medium flexrow">
         <span class="img-bar" style="background-image: url(${frame_img})"></span>
         <div class="major modifier-name i--light">${npc_class.Name} // ${npc_class.Role.toUpperCase()}</div>
@@ -915,7 +915,7 @@ export function npc_template_ref(npc_tmpl: NpcTemplate | null, item_path?: strin
     return "";
   } else {
     return `
-    <div class="card clipped item ref valid" ${ref_params(cd.ref)}>
+    <div class="card clipped item ref valid" ${ref_params(cd.ref, cd.uuid)}>
       <div class="compact-template medium flexrow">
         <span class="img-bar" style="background-image: url(${npc_tmpl.Flags.top_level_data.img})"></span>
         <div class="major modifier-name i--light">${npc_tmpl.Name}</div>
@@ -1149,9 +1149,9 @@ export function buildChipHTML(
     let data: string | undefined;
     if (macroData?.fullData) data = `data-macro=${encodeMacroData(macroData.fullData)}`;
     else data = `data-${macroData.isDep ? "deployable" : "activation"}=${macroData.num}`;
-    return `<a class="${
-      macroData?.fullData ? "lancer-macro" : `macroable`
-    } activation-chip activation-${activation.toLowerCase().replace(/\s+/g, "")}" ${data}>
+    return `<a class="${macroData?.fullData ? "lancer-macro" : `macroable`} activation-chip activation-${activation
+      .toLowerCase()
+      .replace(/\s+/g, "")}" ${data}>
             ${macroData.icon ? macroData.icon : ""}
             ${activation.toUpperCase()}
           </a>`;
@@ -1184,7 +1184,10 @@ export function buildSystemHTML(data: MechSystem): string {
     }).join("");
   }
 
-  let html = `<div class="card clipped-bot system-wrapper" ${ref_params(data.as_ref())} style="margin: 0px;">
+  let html = `<div class="card clipped-bot system-wrapper" ${ref_params(
+    data.as_ref(),
+    data.Flags.orig_doc.uuid
+  )} style="margin: 0px;">
   <div class="lancer-header mech-system">// SYSTEM :: ${data.Name} //</div>
   ${eff ? eff : ""}
   ${actions ? actions : ""}

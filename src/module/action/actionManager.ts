@@ -59,7 +59,8 @@ export class LancerActionManager extends Application {
   getData(_options = {}) {
     return {
       position: this.position,
-      name: this.target && this.target.data.name.toLocaleUpperCase(),
+      // @ts-expect-error Should be fixed with v10 types
+      name: this.target && this.target.name.toLocaleUpperCase(),
       actions: this.getActions(),
       clickable: game.user?.isGM || getActionTrackerOptions().allowPlayers,
     };
@@ -107,10 +108,11 @@ export class LancerActionManager extends Application {
   private async updateControlledToken() {
     if (!canvas.ready) return;
     const token = canvas.tokens?.controlled[0];
-    if (token && token.inCombat && (token.actor?.data.type === "mech" || token.actor?.data.type === "npc")) {
+    if (token && token.inCombat && (token.actor?.type === "mech" || token.actor?.type === "npc")) {
       // TEMPORARY HANDLING OF OLD TOKENS
       // TODO: Remove when action data is properly within MM.
-      if (token.actor.data.data.action_tracker === undefined) {
+      // @ts-expect-error Should be fixed with v10 types
+      if (token.actor.system.action_tracker === undefined) {
         await this.updateActions(token.actor, _defaultActionData(token.actor));
       }
       this.target = token.actor;
@@ -157,9 +159,11 @@ export class LancerActionManager extends Application {
   }
 
   private loadUserPos() {
-    if (!(game.user?.data.flags["action-manager"] && game.user.data.flags["action-manager"].pos)) return;
+    // @ts-expect-error Should be fixed with v10 types
+    if (!(game.user?.flags["action-manager"] && game.user.flags["action-manager"].pos)) return;
 
-    const pos = game.user.data.flags["action-manager"].pos;
+    // @ts-expect-error Should be fixed with v10 types
+    const pos = game.user.flags["action-manager"].pos;
     const appPos = this.position;
     return new Promise(resolve => {
       function loop() {

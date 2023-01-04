@@ -16,7 +16,8 @@ export async function prepareStatMacro(a: string, statKey: string, rerollData?: 
 
   const statPath = statKey.split(".");
 
-  let mm_ent = await actor.data.data.derived.mm_promise;
+  // @ts-expect-error Should be fixed with v10 types
+  let mm_ent = await actor.system.derived.mm_promise;
 
   let bonus: number = resolve_dotpath(mm_ent, statKey.substr(3));
 

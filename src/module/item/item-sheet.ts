@@ -5,7 +5,7 @@ import {
   HANDLER_activate_general_controls,
   gentle_merge,
   HANDLER_activate_popout_text_editor,
-  resolve_dotpath
+  resolve_dotpath,
 } from "../helpers/commons";
 import { HANDLER_activate_counter_listeners, HANDLER_activate_plus_minus_buttons } from "../helpers/item";
 import {
@@ -42,7 +42,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
     if (this.item.is_mech_weapon()) {
       // @ts-ignore IDK if this even does anything
       // TODO Figure out if this even does anything
-      this.options.initial = `profile${this.item.data.data.selected_profile || 0}`;
+      this.options.initial = `profile${this.item.system.selected_profile || 0}`;
     }
   }
 
@@ -71,7 +71,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
   /** @override */
   get template() {
     const path = `systems/${game.system.id}/templates/item`;
-    return `${path}/${this.item.data.type}.hbs`;
+    return `${path}/${this.item.type}.hbs`;
   }
 
   /* -------------------------------------------- */
@@ -198,9 +198,8 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
     const data = super.getData() as LancerItemSheetData<T>; // Not fully populated yet!
 
     // Wait for preparations to complete
-    let tmp_dat = this.item.data;
     // @ts-ignore T doesn't narrow this.item.data
-    data.mm = await tmp_dat.data.derived.mm_promise;
+    data.mm = await this.item.system.derived.mm_promise;
 
     // Additionally we would like to find a matching license. Re-use ctx, try both a world and global reg, actor as well if it exists
     data.license = null;
@@ -237,7 +236,8 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
 
   // Get the ctx that our actor + its items reside in. If an unowned item we'll just yield null
   getCtx(): OpCtx | null {
-    let ctx = this.item.data.data.derived.mm?.OpCtx;
+    // @ts-expect-error Should be fixed with v10 types
+    let ctx = this.item.system.derived.mm?.OpCtx;
     return ctx ?? null;
   }
 }

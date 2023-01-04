@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "foundryvtt-lancer",
-  "version": "1.3.1",
+  "version": "1.4.0-beta.1",
   "description": "",
   "sideEffects": [
     "src/lancer.scss",
@@ -15,7 +15,8 @@
     "watch": "gulp watch",
     "serve": "gulp serve",
     "format": "prettier --write --config .prettierrc.json 'src/**/*.ts'",
-    "clean": "rm -fR dist && gulp link --clean"
+    "clean": "rm -fR dist && gulp link --clean",
+    "prepare": "husky install"
   },
   "author": "",
   "license": "",
@@ -28,9 +29,11 @@
     "fs-extra": "^9.1.0",
     "gulp": "^4.0.2",
     "gulp-git": "^2.10.1",
+    "husky": "^8.0.1",
     "json-stringify-pretty-compact": "^2.0.0",
+    "lint-staged": "^13.0.3",
     "nanoid": "^3.1.31",
-    "prettier": "2.0.5",
+    "prettier": "^2.7.1",
     "rollup-plugin-visualizer": "^5.5.2",
     "sass": "^1.40.0",
     "svelte": "^3.49.0",
@@ -48,9 +51,12 @@
     "aws-amplify": "^4.2.9",
     "fp-ts": "^2.11.2",
     "io-ts": "^2.2.16",
-    "lancer-initiative": "^2.0.1",
+    "lancer-initiative": "^3.1.0",
     "machine-mind": "0.2.4",
     "marked": "^4.0.10",
     "tippy.js": "^6.3.1"
+  },
+  "lint-staged": {
+    "*.ts": "prettier --write"
   }
 }

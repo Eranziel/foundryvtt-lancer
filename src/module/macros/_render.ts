@@ -34,7 +34,7 @@ export async function renderMacroTemplate(actor: LancerActor | undefined, templa
 export async function renderMacroHTML(actor: LancerActor | undefined, html: HTMLElement | string, roll?: Roll) {
   const rollMode = game.settings.get("core", "rollMode");
   const whisper_roll = rollMode !== "roll" ? ChatMessage.getWhisperRecipients("GM").filter(u => u.active) : undefined;
-  const chat_data = {
+  let chat_data = {
     type: roll ? CONST.CHAT_MESSAGE_TYPES.ROLL : CONST.CHAT_MESSAGE_TYPES.IC,
     roll: roll,
     speaker: {
@@ -45,6 +45,7 @@ export async function renderMacroHTML(actor: LancerActor | undefined, html: HTML
     content: html,
     whisper: roll ? whisper_roll : [],
   };
+  if (!roll) delete chat_data.roll;
   // @ts-ignore This is fine
   const cm = await ChatMessage.create(chat_data);
   cm?.render();

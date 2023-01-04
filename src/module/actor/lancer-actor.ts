@@ -116,7 +116,7 @@ export class LancerActor extends Actor {
   // Kept for comparing previous to next values
   prior_max_hp = -1;
 
-  // Kept separately so it can be used by items. Same as in our .data.data.derived.mm_promise
+  // Kept separately so it can be used by items. Same as in our .system.derived.mm_promise
   _actor_ctx!: OpCtx;
 
   /**
@@ -129,7 +129,8 @@ export class LancerActor extends Actor {
       ui.notifications!.warn("Can only overheat NPCs and Mechs");
       return;
     }
-    const mech = await this.data.data.derived.mm_promise;
+    // @ts-expect-error Should be fixed with v10 types
+    const mech = await this.system.derived.mm_promise;
     if (!reroll_data) {
       if (mech.CurrentHeat > mech.HeatCapacity && mech.CurrentStress > 0) {
         // https://discord.com/channels/426286410496999425/760966283545673730/789297842228297748
@@ -185,7 +186,8 @@ export class LancerActor extends Actor {
       "Emergency Shunt",
     ];
 
-    let ent = await this.data.data.derived.mm_promise;
+    // @ts-expect-error Should be fixed with v10 types
+    let ent = await this.system.derived.mm_promise;
     if ((reroll_data?.stress ?? ent.CurrentStress) >= ent.MaxStress) {
       ui.notifications!.info("The mech is at full Stress, no overheating check to roll.");
       return;
@@ -264,7 +266,9 @@ export class LancerActor extends Actor {
       ui.notifications!.warn("Can only structure NPCs and Mechs");
       return;
     }
-    const mech = await this.data.data.derived.mm_promise;
+
+    // @ts-expect-error Should be fixed with v10 types
+    const mech = await this.system.derived.mm_promise;
     if (!reroll_data) {
       if (mech.CurrentHP < 1 && mech.CurrentStructure > 0) {
         if (mech.CurrentStructure > 1) mech.CurrentHP += mech.MaxHP;
@@ -315,7 +319,8 @@ export class LancerActor extends Actor {
       "Glancing Blow",
     ];
 
-    let mech = (await this.data.data.derived.mm_promise) as Mech | Npc;
+    // @ts-expect-error Should be fixed with v10 types
+    let mech = (await this.system.derived.mm_promise) as Mech | Npc;
     if ((reroll_data?.structure ?? mech.CurrentStructure) >= mech.MaxStructure) {
       ui.notifications!.info("The mech is at full Structure, no structure check to roll.");
       return;
@@ -399,7 +404,8 @@ export class LancerActor extends Actor {
   // Fully repair actor
   // Even pilots can be fully repaired
   async full_repair() {
-    let ent = await this.data.data.derived.mm_promise;
+    // @ts-expect-error Should be fixed with v10 types
+    let ent = await this.system.derived.mm_promise;
 
     await this.remove_all_active_effects();
     ent.CurrentHP = ent.MaxHP;
@@ -463,7 +469,8 @@ export class LancerActor extends Actor {
   private async list_items(): Promise<
     Array<PilotWeapon | MechWeapon | PilotArmor | PilotGear | MechSystem | WeaponMod | NpcFeature>
   > {
-    let ent = (await this.data.data.derived.mm_promise) as Mech | Pilot | Npc | Deployable;
+    // @ts-expect-error Should be fixed with v10 types
+    let ent = (await this.system.derived.mm_promise) as Mech | Pilot | Npc | Deployable;
     let result: any[] = [];
     if (is_reg_mech(ent)) {
       // Do all of the weapons/systems/mods on our loadout
@@ -583,7 +590,8 @@ export class LancerActor extends Actor {
    * @returns   Details to be printed to chat
    */
   async stabilize(o1: StabOptions1, o2: StabOptions2): Promise<string> {
-    let ent = await this.data.data.derived.mm_promise;
+    // @ts-expect-error Should be fixed with v10 types
+    let ent = await this.system.derived.mm_promise;
 
     let return_text = "";
 
@@ -632,7 +640,8 @@ export class LancerActor extends Actor {
   }
 
   async damage_calc(damage: AppliedDamage, ap = false, paracausal = false): Promise<number> {
-    const ent = await this.data.data.derived.mm_promise;
+    // @ts-expect-error Should be fixed with v10 types
+    const ent = await this.system.derived.mm_promise;
 
     const armored_damage_types = ["Kinetic", "Energy", "Explosive", "Variable"] as const;
 
@@ -736,7 +745,7 @@ export class LancerActor extends Actor {
 
   // Imports packed pilot data, from either a vault id or gist id
   async importCC(data: PackedPilotData, clearFirst = false) {
-    if (this.data.type !== "pilot") {
+    if (this.type !== "pilot") {
       return;
     }
     if (data == null) return;
@@ -745,7 +754,8 @@ export class LancerActor extends Actor {
     console.log("Importing pilot from Comp/Con. Raw data:", data);
 
     try {
-      const mm = await this.data.data.derived.mm_promise;
+      // @ts-expect-error Should be fixed with v10 types
+      const mm = await this.system.derived.mm_promise;
       // This block is kept for posterity, in case we want to re-implement automatic folder creation.
       // Get/create folder for sub-actors
       // let unit_folder_name = `${data.callsign}'s Units`;
@@ -755,12 +765,13 @@ export class LancerActor extends Actor {
       //     name: unit_folder_name,
       //     type: "Actor",
       //     sorting: "a",
-      //     parent: this.data.folder || null,
+      //     parent: this.folder || null,
       //   });
       // }
       let unit_folder = this.folder;
       console.log("Unit folder id:", unit_folder?.id);
-      let permission = duplicate(this.data._source.permission);
+      // @ts-expect-error Should be fixed with v10 types
+      let permission = duplicate(this.ownership);
 
       // Check whether players are allowed to create Actors
       if (!game.user?.can("ACTOR_CREATE")) {
@@ -840,7 +851,8 @@ export class LancerActor extends Actor {
           flags.top_level_data["img"] = new_img;
           flags.top_level_data["permission"] = permission;
           flags.top_level_data["token.name"] = data.callsign;
-          flags.top_level_data["token.disposition"] = this.data.token.disposition;
+          // @ts-expect-error Should be fixed with v10 types
+          flags.top_level_data["token.disposition"] = this.prototypeToken?.disposition;
           flags.top_level_data["token.actorLink"] = true;
 
           // the following block of code is version 1 to ensure all weapons are their own unique object in the registry.
@@ -895,8 +907,10 @@ export class LancerActor extends Actor {
 
           // Check and see if we have a custom token (not from imgur) set, and if we don't, set the token image.
           if (
-            this.data.token.img === "systems/lancer/assets/icons/pilot.svg" ||
-            this.data.token.img?.includes("imgur")
+            // @ts-expect-error Should be fixed with v10 types
+            this.token?.img === "systems/lancer/assets/icons/pilot.svg" ||
+            // @ts-expect-error Should be fixed with v10 types
+            this.token?.img?.includes("imgur")
           ) {
             flags.top_level_data["token.img"] = new_img;
           }
@@ -928,7 +942,7 @@ export class LancerActor extends Actor {
   }
 
   async clearBadData() {
-    await this.deleteEmbeddedDocuments("Item", Array.from(this.data.items.keys()));
+    await this.deleteEmbeddedDocuments("Item", Array.from(this.items.keys()));
   }
 
   /* -------------------------------------------- */
@@ -1000,15 +1014,19 @@ export class LancerActor extends Actor {
       // Otherwise, grab existing/prior
       dr = this._prev_derived;
     }
-    this.data.data.derived = dr;
+    // @ts-expect-error Should be fixed with v10 types
+    this.system.derived = dr;
 
     // Update our known values now, synchronously.
-    dr.hp.value = this.data.data.hp;
+    // @ts-expect-error Should be fixed with v10 types
+    dr.hp.value = this.system.hp;
     if (this.is_mech() || this.is_npc() || this.is_deployable()) {
-      let md = this.data.data;
+      // @ts-expect-error Should be fixed with v10 types
+      let md = this.system;
       dr.heat.value = md.heat;
       if (!this.is_deployable()) {
-        let md = this.data.data;
+        // @ts-expect-error Should be fixed with v10 types
+        let md = this.system;
         dr.stress.value = md.stress;
         dr.structure.value = md.structure;
       }
@@ -1030,7 +1048,7 @@ export class LancerActor extends Actor {
         let ctx = new OpCtx();
         let env = new RegEnv();
         let reg = new StaticReg(env);
-        let ent = await reg.get_cat(this.data.type).create_default(ctx);
+        let ent = await reg.get_cat(this.type).create_default(ctx);
         return ent;
       })
       .then(mm => {
@@ -1105,10 +1123,11 @@ export class LancerActor extends Actor {
 
           // If the Size of the ent has changed since the last update, set the
           // protype token size to the new size
-          const cached_token_size = this.data.token.flags[game.system.id]?.mm_size;
+          // @ts-expect-error Should be fixed with v10 types
+          const cached_token_size = this.token?.flags[game.system.id]?.mm_size;
           if (!cached_token_size || cached_token_size !== mm.Size) {
             const size = mm.Size <= 1 ? 1 : mm.Size;
-            this.data.token.update({
+            this.token?.update({
               width: size,
               height: size,
               flags: {
@@ -1164,7 +1183,8 @@ export class LancerActor extends Actor {
    * to allow negative hps, which are useful for structure checks
    */
   async modifyTokenAttribute(attribute: any, value: any, isDelta = false, isBar = true) {
-    const current = foundry.utils.getProperty(this.data.data, attribute);
+    // @ts-expect-error Should be fixed with v10 types
+    const current = foundry.utils.getProperty(this.system, attribute);
 
     let updates;
     if (isBar) {
@@ -1187,9 +1207,9 @@ export class LancerActor extends Actor {
   async update(...[data, context = undefined]: Parameters<Actor["update"]>) {
     // Never submit derived data. Typically won't show up here regardless
     // @ts-expect-error Sohouldn't appear on this data
-    if (data?.data?.derived) {
+    if (data?.derived) {
       // @ts-expect-error Shouldn't appear on this data
-      delete data.data?.derived;
+      delete data?.derived;
     }
 
     return super.update(data, context);
@@ -1197,15 +1217,16 @@ export class LancerActor extends Actor {
 
   protected async _preCreate(...[data, options, user]: Parameters<Actor["_preCreate"]>): Promise<void> {
     await super._preCreate(data, options, user);
-    if (data.data) {
-      console.log(`${lp} New ${this.type} has data provided from an import, skipping default init.`);
+    // @ts-expect-error Should be fixed with v10 types
+    if (data.system) {
+      console.log(`${lp} New ${this.type} has data provided from an import, skipping default init.`, data);
       return;
     }
 
-    console.log(`${lp} Initializing new ${this.data.type}`);
+    console.log(`${lp} Initializing new ${this.type}`);
     let default_data: RegEntryTypes<LancerActorType> & { actions?: unknown };
     let disposition: ValueOf<typeof CONST["TOKEN_DISPOSITIONS"]> = CONST.TOKEN_DISPOSITIONS.FRIENDLY;
-    switch (this.data.type) {
+    switch (this.type) {
       case EntryType.NPC:
         default_data = funcs.defaults.NPC();
         disposition = CONST.TOKEN_DISPOSITIONS.HOSTILE;
@@ -1228,14 +1249,17 @@ export class LancerActor extends Actor {
     default_data.name = this.name ?? default_data.name;
 
     // Put in the basics
-    this.data.update({
-      data: default_data,
-      img: TypeIcon(this.data.type),
+    // @ts-expect-error Should be fixed with v10 types
+    this.updateSource({
+      system: default_data,
+      img: TypeIcon(this.type),
       name: default_data.name,
       // Link the token to the Actor for pilots and mechs, but not for NPCs or deployables
-      "token.actorLink": [EntryType.PILOT, EntryType.MECH].includes(this.data.type),
-      "token.disposition": disposition,
-      "token.name": this.name ?? default_data.name,
+      prototypeToken: {
+        actorLink: [EntryType.PILOT, EntryType.MECH].includes(this.type),
+        disposition: disposition,
+        name: this.name ?? default_data.name,
+      },
     });
   }
 
@@ -1256,15 +1280,25 @@ export class LancerActor extends Actor {
       ) &&
       (this.is_mech() || this.is_npc())
     ) {
-      const data = changed.data as DeepPartial<RegMechData | RegNpcData>;
+      const data = changed as DeepPartial<RegMechData | RegNpcData>;
       if (
-        "heat" in (data ?? {}) &&
-        (data?.heat ?? 0) > (this.data.data.derived.mm?.HeatCapacity ?? 0) &&
-        (this.data.data.derived.mm?.CurrentStress ?? 0) > 0
+        // @ts-expect-error Should be fixed with v10 types
+        "heat" in (data.system ?? {}) &&
+        // @ts-expect-error Should be fixed with v10 types
+        (data?.system.heat ?? 0) > (this.system.derived.mm?.HeatCapacity ?? 0) &&
+        // @ts-expect-error Should be fixed with v10 types
+        (this.system.derived.mm?.CurrentStress ?? 0) > 0
       ) {
         prepareOverheatMacro(this);
       }
-      if ("hp" in (data ?? {}) && (data?.hp ?? 0) <= 0 && (this.data.data.derived.mm?.CurrentStructure ?? 0) > 0) {
+      if (
+        // @ts-expect-error Should be fixed with v10 types
+        "hp" in (data.system ?? {}) &&
+        // @ts-expect-error Should be fixed with v10 types
+        (data?.system.hp ?? 0) <= 0 &&
+        // @ts-expect-error Should be fixed with v10 types
+        (this.system.derived.mm?.CurrentStructure ?? 0) > 0
+      ) {
         prepareStructureMacro(this);
       }
     }
@@ -1300,13 +1334,15 @@ export class LancerActor extends Actor {
     let dependency: RegRef<LancerActorType> | null = null;
     // If we are a mech, we need to subscribe to our pilot (if it exists)
     if (this.is_mech()) {
-      let mech_data = this.data.data;
+      // @ts-expect-error Should be fixed with v10 types
+      let mech_data = this.system;
       if (mech_data.pilot) {
         dependency = mech_data.pilot;
       }
     } else if (this.is_deployable()) {
       // If deployable, same deal
-      let dep_data = this.data.data;
+      // @ts-expect-error Should be fixed with v10 types
+      let dep_data = this.system;
       if (dep_data.deployer) {
         dependency = dep_data.deployer;
       }
@@ -1324,7 +1360,8 @@ export class LancerActor extends Actor {
         this.prepareDerivedData();
 
         // Wait for it to be done
-        await this.data.data.derived.mm_promise;
+        // @ts-expect-error Should be fixed with v10 types
+        await this.system.derived.mm_promise;
 
         // Trigger a render. Sheets may need to show something different now
         this.render();
@@ -1344,9 +1381,11 @@ export class LancerActor extends Actor {
     if (!this.is_mech()) return null;
 
     let oc_rolls = ["+1", "+1d3", "+1d6", "+1d6+4"];
-    const mech = this.data.data.derived.mm;
+    // @ts-expect-error Should be fixed with v10 types
+    const mech = this.system.derived.mm;
     if (!mech) return oc_rolls;
 
+    // @ts-expect-error Should be fixed with v10 types
     let oc_bonus = mech.AllBonuses.filter(b => {
       return b.LID === "overcharge";
     });
@@ -1365,21 +1404,22 @@ export class LancerActor extends Actor {
 
     const oc_rolls = this.getOverchargeSequence();
     if (!oc_rolls || oc_rolls.length < 4) return null;
-    return oc_rolls[this.data.data.overcharge];
+    // @ts-expect-error Should be fixed with v10 types
+    return oc_rolls[this.system.overcharge];
   }
 
   // Typeguards
   is_pilot(): this is LancerActor & { data: LancerActorDataProperties<EntryType.PILOT> } {
-    return this.data.type === EntryType.PILOT;
+    return this.type === EntryType.PILOT;
   }
   is_mech(): this is LancerActor & { data: LancerActorDataProperties<EntryType.MECH> } {
-    return this.data.type === EntryType.MECH;
+    return this.type === EntryType.MECH;
   }
   is_npc(): this is LancerActor & { data: LancerActorDataProperties<EntryType.NPC> } {
-    return this.data.type === EntryType.NPC;
+    return this.type === EntryType.NPC;
   }
   is_deployable(): this is LancerActor & { data: LancerActorDataProperties<EntryType.DEPLOYABLE> } {
-    return this.data.type === EntryType.DEPLOYABLE;
+    return this.type === EntryType.DEPLOYABLE;
   }
 
   /**
@@ -1408,29 +1448,35 @@ export class LancerActor extends Actor {
     // Check the token
     // Add manual check for the aws images
     if (
-      this.data.token.img == oldFramePath ||
-      this.data.token.img == defaultImg ||
-      this.data.token.img?.includes("compcon-image-assets")
+      // @ts-expect-error Should be fixed with v10 types
+      this.token?.img == oldFramePath ||
+      // @ts-expect-error Should be fixed with v10 types
+      this.token?.img == defaultImg ||
+      // @ts-expect-error Should be fixed with v10 types
+      this.token?.img?.includes("compcon-image-assets")
     ) {
       newData.token = { img: newFramePath };
       changed = true;
     }
 
     // Check the actor
-    if (this.data.img == oldFramePath || this.data.img == defaultImg) {
+    if (this.img == oldFramePath || this.img == defaultImg) {
       newData.img = newFramePath;
 
       // Have to set our top level data in MM or it will overwrite it...
       robot.Flags.top_level_data.img = newFramePath;
       if (
-        this.data.token.img?.includes("systems/lancer/assets/retrograde-minis") ||
-        this.data.token.img == defaultImg
+        // @ts-expect-error Should be fixed with v10 types
+        this.token?.img?.includes("systems/lancer/assets/retrograde-minis") ||
+        // @ts-expect-error Should be fixed with v10 types
+        this.token?.img == defaultImg
       ) {
         //we can override any retrograde assets, or the default image
         robot.Flags.top_level_data["token.img"] = newFramePath;
       } else {
         //do not override any custom tokens
-        robot.Flags.top_level_data["token.img"] = this.data.token.img;
+        // @ts-expect-error Should be fixed with v10 types
+        robot.Flags.top_level_data["token.img"] = this.token?.img;
       }
       changed = true;
     }

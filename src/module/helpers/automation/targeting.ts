@@ -11,7 +11,8 @@ export function getTargets(): LancerActor[] {
 }
 
 export async function checkForHit(tech: boolean, roll: Roll, target: LancerActor): Promise<boolean> {
-  let mm = await target.data.data.derived.mm_promise;
+  // @ts-expect-error Should be fixed with v10 types
+  let mm = await target.system.derived.mm_promise;
   let def: number = tech ? mm.EDefense || 8 : mm.Evasion || 5;
 
   return (roll.total ?? 0) >= def;

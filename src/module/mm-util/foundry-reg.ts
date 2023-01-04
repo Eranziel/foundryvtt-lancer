@@ -41,12 +41,7 @@ import {
 } from "machine-mind";
 import { LancerActor, LancerActorType } from "../actor/lancer-actor";
 import type { LancerItem, LancerItemType } from "../item/lancer-item";
-import {
-  DocumentCollectionWrapper,
-  EntFor as DocFor,
-  GetResult,
-  NuWrapper
-} from "./db_abstractions";
+import { DocumentCollectionWrapper, EntFor as DocFor, GetResult, NuWrapper } from "./db_abstractions";
 import { is_core_pack_name } from "./helpers";
 
 // Pluck
@@ -86,39 +81,46 @@ export interface FoundryFlagData<T extends EntryType = EntryType> {
   orig_doc_name: string;
 
   // Will be included in any create/update calls. Merged in after the real data. Should/must be in flat key format (please!)
-  top_level_data: { 
+  top_level_data: {
     // name: string,
     // folder: string,
     // img: string
-    [key: string]: any 
+    [key: string]: any;
   };
 }
 
 /**
  * Parsed configuration for our registry, describing on where we intend to lookup ids etc
  */
-export type FoundryRegNameParsed = {
-  src: "game";
-} | {
-  src: "game_actor";
-  actor_id: ActorID;
-} | {
-  src: "scene";
-  scene_id: SceneID;
-} | {
-  src: "scene_token";
-  scene_id: SceneID;
-  token_id: TokenID;
-} | {
-  src: "comp_core";
-} | {
-  src: "comp";
-  comp_id: CompendiumID
-} | {
-  src: "comp_actor";
-  comp_id: CompendiumID;
-  actor_id: ActorID;
-}
+export type FoundryRegNameParsed =
+  | {
+      src: "game";
+    }
+  | {
+      src: "game_actor";
+      actor_id: ActorID;
+    }
+  | {
+      src: "scene";
+      scene_id: SceneID;
+    }
+  | {
+      src: "scene_token";
+      scene_id: SceneID;
+      token_id: TokenID;
+    }
+  | {
+      src: "comp_core";
+    }
+  | {
+      src: "comp";
+      comp_id: CompendiumID;
+    }
+  | {
+      src: "comp_actor";
+      comp_id: CompendiumID;
+      actor_id: ActorID;
+    };
 
 ///////////////////////////////// REGISTRY IMPLEMENTATION ///////////////////////////////////////
 type ActorID = string;
@@ -135,28 +137,35 @@ type Source_GameActor = `${Source_Game}|${ActorID}`;
 type Source_TokenActor = `${Source_Scene}|${SceneID}|${TokenID}`;
 type Source_CustomCompendium = `${Source_Compendium}|${CompendiumID}`;
 type Source_CompActor = `${Source_Compendium}|${CompendiumID}|${ActorID}`;
-export type FoundryRegName = Source_Game | Source_Scene | Source_Core | Source_CustomCompendium | Source_GameActor | Source_TokenActor | Source_CompActor;
+export type FoundryRegName =
+  | Source_Game
+  | Source_Scene
+  | Source_Core
+  | Source_CustomCompendium
+  | Source_GameActor
+  | Source_TokenActor
+  | Source_CompActor;
 /**
  * NEW
  * Format of registry names:
  * One of the following:
  * game             - Encompasses the global `game.items` collection.  Equivalent to the "Items.<item_id>" uuid pattern.
  *                    Also encompasses the   `game.actors` collection. Equivalent to the "Actors.<actor_id>" uuid pattern.
- * 
- * game|<aid>       - Inventoried registry. Contains the items for game-scoped actor <aid>. 
+ *
+ * game|<aid>       - Inventoried registry. Contains the items for game-scoped actor <aid>.
  *                    Equivalent to "Actors.<aid>.Item.<item_id>" uuid pattern.
- * 
+ *
  * scene|<sid>      - Encompasses all UNLINKED tokens actors on scene <sid>. Equivalent to "Scene.<scene_id>.Token.<token_id>" uuid pattern.
  *                    Currently only really can hold actors-typed entrys, but if "dropped" items ever become a thing will cover that as well
- *               
- * scene|<sid>|<aid> -Encompasses all items owned by synthetic actor <aid> on scene <sid>. 
+ *
+ * scene|<sid>|<aid> -Encompasses all items owned by synthetic actor <aid> on scene <sid>.
  *                    Equivalent to "Scene.<scene_id>.Token.<token_id>.Item.<item_id>" uuid pattern.
- * 
+ *
  * comp_core         - Encompasses all entries across all items located in the core compendiums (IE those fetched by get_pack)
  * comp|<comp_id>    - Encompasses all entries within the _NON_CORE_ compendium at comp_id. These are slightly harder to enumerate to, naturally
  * comp|<comp_id>|<actor_id>   - Encompasses all item entries owned by the specified actor_id located in the specific compendium comp_id
- *          
- * 
+ *
+ *
  * DEPRECATED
  *    > Format of registry names:
  *    > <item_source>|<actor_source>
@@ -173,7 +182,7 @@ export type FoundryRegName = Source_Game | Source_Scene | Source_Core | Source_C
  *    > compendium               // The general compendium registry
  *    > world                    // The general world registry
  *    > token                    // The token layer
- * 
+ *
  * DEPRECATED TRANSLATION?
  * compendium|<anything>              -> comp
  * compendium_inv:<actor_id>|<anything>  -> lookup actor <actor> -> comp|<that_actor_pack_id>|<that_actor_id>
@@ -182,11 +191,11 @@ export type FoundryRegName = Source_Game | Source_Scene | Source_Core | Source_C
  * token_inv:<token_id>|<anything>    -> lookup token <token_id> in all scenes -> scene|<that_token_scene_id>|<that_token_id>
  */
 export class FoundryReg extends Registry {
-  // Give a registry for the provided inventoried item. 
+  // Give a registry for the provided inventoried item.
   async switch_reg_inv(for_inv_item: InventoriedRegEntry<EntryType>): Promise<Registry> {
     // Determine based on actor metadata
     let flags = for_inv_item.Flags as FoundryFlagData<EntryType>;
-    let actor = flags.orig_doc as LancerActor;  
+    let actor = flags.orig_doc as LancerActor;
 
     // If a compendium actor, make a comp_actor reg
     // If a token, make a scene_token reg
@@ -201,12 +210,12 @@ export class FoundryReg extends Registry {
       return new FoundryReg({
         src: "scene_token",
         scene_id: actor.token!.parent!.id!,
-        token_id: actor.token!.id!
+        token_id: actor.token!.id!,
       });
     } else {
       return new FoundryReg({
         src: "game_actor",
-        actor_id: actor.id!
+        actor_id: actor.id!,
       });
     }
   }
@@ -223,7 +232,7 @@ export class FoundryReg extends Registry {
   }
 
   async switch_reg(reg_id: string) {
-      return new FoundryReg(reg_id as FoundryRegName) as this;
+    return new FoundryReg(reg_id as FoundryRegName) as this;
   }
 
   // The configuration name we were provided
@@ -231,19 +240,14 @@ export class FoundryReg extends Registry {
   parsed_config: FoundryRegNameParsed;
 
   // Quick function for generating an item/actor wrapper depending on if we have an actor / depending if the type is an actor type
-  protected make_wrapper<T extends EntryType>(
-    config: FoundryRegNameParsed,
-    for_type: T
-  ): DocumentCollectionWrapper<T> {
+  protected make_wrapper<T extends EntryType>(config: FoundryRegNameParsed, for_type: T): DocumentCollectionWrapper<T> {
     return new NuWrapper(for_type, config);
   }
 
   // Our reviver function-maker. Revivers are responsible for converting reg entry data into full fledged objects, and managing OpCtx state
-  protected make_revive_func<T extends EntryType>(
-    for_type: T,
-    clazz: EntryConstructor<T>
-  ): ReviveFunc<T> {
-    return async (reg, ctx, id, raw, flag, opts) => { // <--- Revive func
+  protected make_revive_func<T extends EntryType>(for_type: T, clazz: EntryConstructor<T>): ReviveFunc<T> {
+    return async (reg, ctx, id, raw, flag, opts) => {
+      //         ^ Revive func
       // Our actual builder function shared between all cats.
       // First check for existing item in ctx
       let pre = ctx.get(reg.name(), id);
@@ -254,9 +258,9 @@ export class FoundryReg extends Registry {
       }
 
       // Wait ready if necessary
-      if(opts?.wait_ctx_ready ?? true) {
-          // await pre.load_done(); -- unnecessary 
-          await pre.ctx_ready();
+      if (opts?.wait_ctx_ready ?? true) {
+        // await pre.load_done(); -- unnecessary
+        await pre.ctx_ready();
       }
 
       // And we're done
@@ -282,19 +286,19 @@ export class FoundryReg extends Registry {
     );
   }
 
-  // Turns reg args provided as a dict into a dict. 
+  // Turns reg args provided as a dict into a dict.
   public static parse_reg_args(args: FoundryRegName): FoundryRegNameParsed {
     /// 0.9 BETA COMPAT BLOCK
     // 0.9 beta tester compat spot-fixes the earlier naming convention for refs
     // We will eventually want to remove these, probably
     let cpargs = args as string;
-    if(cpargs == "compendium|compendium") {
+    if (cpargs == "compendium|compendium") {
       args = "comp_core";
       console.debug(`Tweaked to be "${args}" from "${cpargs}"`);
-    } else if(cpargs == "world|world") {
+    } else if (cpargs == "world|world") {
       args = "game";
       console.debug(`Tweaked to be "${args}" from "${cpargs}"`);
-    } else if(cpargs.slice(0, "world_inv".length) == "world_inv") {
+    } else if (cpargs.slice(0, "world_inv".length) == "world_inv") {
       // * world_inv:<actor_id>|<anything>    -> game|<actor>
       let actor_id = cpargs.slice("world_inv".length + 1).split("|")[0];
       args = `game|${actor_id}` as FoundryRegName;
@@ -303,59 +307,58 @@ export class FoundryReg extends Registry {
     // We don't bother converting the rest. Anyone who has made more esoteric things like compendium pilots will simply have to deal
     /// END 0.9 BETA COMPAT BLOCK
 
-
-    // Tokenize 
+    // Tokenize
     let tokens = args.split("|");
 
     // Begin processing
-    if(tokens[0] == "game") {
-      if(tokens[1]) {
+    if (tokens[0] == "game") {
+      if (tokens[1]) {
         // Is "game|<actor_id>" inventory
         return {
           src: "game_actor",
-          actor_id: tokens[1]
+          actor_id: tokens[1],
         };
       } else {
         // Is "game" globals
         return {
-          src: "game"
+          src: "game",
         };
-      } 
-    } else if(tokens[0] == "scene") {
-      if(tokens[2]) {
+      }
+    } else if (tokens[0] == "scene") {
+      if (tokens[2]) {
         // Is "scene|<scene_id>|<actor_id>" specific token inventory listing
         return {
           src: "scene_token",
           scene_id: tokens[1],
-          token_id: tokens[2]
+          token_id: tokens[2],
         };
-      } else if(tokens[1]) {
+      } else if (tokens[1]) {
         // Is "scene|<scene_id>" token listing
         return {
           src: "scene",
-          scene_id: tokens[1]
-        }
-      } 
-    } else if(tokens[0] == "comp") {
-      if(tokens[2]) {
+          scene_id: tokens[1],
+        };
+      }
+    } else if (tokens[0] == "comp") {
+      if (tokens[2]) {
         // Is "comp|<comp_id>|<actor_id>" specific compendium actor inventory
         return {
           src: "comp_actor",
           comp_id: tokens[1],
-          actor_id: tokens[2]
+          actor_id: tokens[2],
         };
-      } else if(tokens[1]) {
+      } else if (tokens[1]) {
         // Is targeting a specifc compendium "comp|<comp_id>" all-compendium item amalgam
         return {
           src: "comp",
-          comp_id: tokens[1]
-        }
+          comp_id: tokens[1],
+        };
       }
-    } else if(tokens[0] == "comp_core") {
+    } else if (tokens[0] == "comp_core") {
       // Is targeting core compendium
       return {
-        src: "comp_core"
-      }
+        src: "comp_core",
+      };
     }
 
     // None of the above returned? For shame!
@@ -364,7 +367,7 @@ export class FoundryReg extends Registry {
 
   // Turns reg args provided as a dict into a string.
   private static un_parse_reg_args(args: FoundryRegNameParsed): FoundryRegName {
-    switch(args.src) {
+    switch (args.src) {
       case "game":
         return "game";
       case "comp":
@@ -389,7 +392,7 @@ export class FoundryReg extends Registry {
   constructor(config: FoundryRegNameParsed | FoundryRegName = "game") {
     super();
 
-    if(typeof config == "string") {
+    if (typeof config == "string") {
       // Save the raw name
       this.raw_config = config;
 
@@ -434,18 +437,17 @@ export class FoundryReg extends Registry {
     this.init_finalize();
   }
 
-
   get inventory_for_ref(): RegRef<EntryType> | null {
-    if(this.parsed_config.src == "game_actor") {
+    if (this.parsed_config.src == "game_actor") {
       return {
         reg_name: "game",
         type: null,
         id: this.parsed_config.actor_id,
         fallback_lid: "", // no need
       };
-    } else if(this.parsed_config.src == "comp_actor") {
+    } else if (this.parsed_config.src == "comp_actor") {
       // Want to be careful to keep core pack items as "core" refs.
-      if(is_core_pack_name(this.parsed_config.comp_id)) {
+      if (is_core_pack_name(this.parsed_config.comp_id)) {
         return {
           reg_name: "comp_core",
           type: null,
@@ -459,16 +461,16 @@ export class FoundryReg extends Registry {
           type: null,
           id: this.parsed_config.actor_id,
           fallback_lid: "",
-        }
+        };
       }
-    } else if(this.parsed_config.src == "scene_token") {
+    } else if (this.parsed_config.src == "scene_token") {
       return {
         reg_name: `scene|${this.parsed_config.scene_id}`,
         id: this.parsed_config.token_id,
         fallback_lid: "",
-        type: null
+        type: null,
       };
-    } else { 
+    } else {
       // We arent!
       return null;
     }
@@ -494,12 +496,14 @@ export class FoundryRegCat<T extends EntryType> extends RegCat<T> {
   }
 
   // Look through all entries
-  async lookup_raw(criteria: {[key: string]: any}): Promise<{ id: string; val: RegEntryTypes<T> }[]> {
+  async lookup_raw(criteria: { [key: string]: any }): Promise<{ id: string; val: RegEntryTypes<T> }[]> {
     // Just call criteria on all items. O(n) lookup, which is obviously not ideal, but if it must be done it must be done
-    return this._handler.query(criteria).then(m => m.map(x => ({
-      id: x.id,
-      val: x.data
-    })));
+    return this._handler.query(criteria).then(m =>
+      m.map(x => ({
+        id: x.id,
+        val: x.data,
+      }))
+    );
   }
 
   // User entry '.get'
@@ -525,7 +529,7 @@ export class FoundryRegCat<T extends EntryType> extends RegCat<T> {
       top_level_data: {
         name: g.document.name,
         img: g.document.img,
-        folder: g.document.data.folder || null
+        folder: g.document.folder || null,
       },
     };
     return await this.revive_func(this.registry, ctx, g.id, g.data, flags, load_options);
@@ -540,24 +544,31 @@ export class FoundryRegCat<T extends EntryType> extends RegCat<T> {
     return this.revive_and_flag(retrieved, ctx, load_options);
   }
 
-  // Directly wrap a foundry document, without going through get_live resolution mechanism. 
+  // Directly wrap a foundry document, without going through get_live resolution mechanism.
   // Modestly dangerous, but can save a lot of repeated computation
   // BE CAREFUL! IF YOU WRAP A DOCUMENT IN A REGISTRY THAT WOULDNT HAVE FETCHED IT, IT WONT WRITE BACK PROPERLY
-  async dangerous_wrap_doc(ctx: OpCtx, ent: T extends LancerActorType ? LancerActor : T extends LancerItemType ? LancerItem : never, wait_ready: boolean = true): Promise<LiveEntryTypes<T> | null> {
+  async dangerous_wrap_doc(
+    ctx: OpCtx,
+    ent: T extends LancerActorType ? LancerActor : T extends LancerItemType ? LancerItem : never,
+    wait_ready: boolean = true
+  ): Promise<LiveEntryTypes<T> | null> {
     let id = ent.id!;
 
-    // ID is different if we are an unlinked token 
-    if(ent instanceof LancerActor && ent.isToken) {
+    // ID is different if we are an unlinked token
+    if (ent instanceof LancerActor && ent.isToken) {
       id = ent.token!.id!;
     }
 
     let contrived: GetResult<T> = {
       document: ent as any,
       id,
-      data: ent.data.data as any,
-      type: ent.data.type as T
+      // @ts-expect-error Should be fixed with v10 types
+      data: ent.system as any,
+      type: ent.type as T,
     };
-    return this.revive_and_flag(contrived, ctx, {wait_ctx_ready: wait_ready}); // Probably want to be ready
+    return this.revive_and_flag(contrived, ctx, {
+      wait_ctx_ready: wait_ready,
+    }); // Probably want to be ready
   }
 
   // Just call revive on each of the 'entries', and sort by sort id if we can
@@ -569,7 +580,7 @@ export class FoundryRegCat<T extends EntryType> extends RegCat<T> {
     }
     let result = await Promise.all(sub_pending);
     // Sort
-    return result.sort((a, b) => (a.Flags.orig_doc?.data?.sort ?? 0) - (b.Flags.orig_doc?.data?.sort ?? 0));
+    return result.sort((a, b) => (a.Flags.orig_doc?.sort ?? 0) - (b.Flags.orig_doc?.sort ?? 0));
   }
 
   // Use our update function
@@ -585,19 +596,20 @@ export class FoundryRegCat<T extends EntryType> extends RegCat<T> {
   // Create and revive
   async create_many_live(ctx: OpCtx, ...vals: RegEntryTypes<T>[]): Promise<LiveEntryTypes<T>[]> {
     return this._handler.create_many(vals).then(created => {
-      return Promise.all(created.map(c => this.revive_and_flag(c, ctx)))
+      return Promise.all(created.map(c => this.revive_and_flag(c, ctx)));
     });
   }
 
   // Just create using our handler
   async create_many_raw(...vals: RegEntryTypes<T>[]): Promise<RegRef<T>[]> {
-    return this._handler.create_many(vals).then(created => created.map(c => ({
+    return this._handler.create_many(vals).then(created =>
+      created.map(c => ({
         id: c.id,
         fallback_lid: "",
         type: c.type,
         reg_name: this.registry.name(),
-      })
-    ));
+      }))
+    );
   }
 
   // Just delegate above

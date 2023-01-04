@@ -44,6 +44,7 @@ import { InventoryDialog } from "../apps/inventory";
 import { HANDLER_activate_item_context_menus, HANDLER_activate_edit_counter } from "../helpers/item";
 import { getActionTrackerOptions } from "../settings";
 import { modAction } from "../action/actionTracker";
+import { PrototypeTokenData } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs";
 const lp = LANCER.log_prefix;
 
 /**
@@ -55,6 +56,12 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
 > {
   // Tracks collapse state between renders
   protected collapse_handler = new CollapseHandler();
+
+  static get defaultOptions(): ActorSheet.Options {
+    return mergeObject(super.defaultOptions, {
+      scrollY: [".scroll-body"],
+    });
+  }
 
   /* -------------------------------------------- */
   /**
@@ -191,7 +198,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
   }
 
   _activateCollapses(html: JQuery) {
-    let prefix = `lancer-collapse-${this.object.data._id}-`;
+    let prefix = `lancer-collapse-${this.object._id}-`;
     let triggers = html.find(".collapse-trigger");
     // Init according to session store.
     triggers.each((_index, trigger) => {
@@ -455,7 +462,8 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
   _propagateMMData(formData: any): any {
     // Pushes relevant field data from the form to other appropriate locations,
     // e.x. to synchronize name between token and actor
-    let token = this.actor.data["token"];
+    // @ts-expect-error should be fixed and not need the "as" with v10 types
+    let token = this.actor["token"] as PrototypeTokenData;
 
     // Get the basics
     let new_top: any = {
@@ -472,10 +480,10 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     // Update token image if it matches the old actor image - keep in sync
     // Ditto for name
     else {
-      if (this.actor.data.img === token["img"] && this.actor.img !== formData["img"]) {
+      if (this.actor.img === token["img"] && this.actor.img !== formData["img"]) {
         new_top["token.img"] = formData["img"];
       } // Otherwise don't update token
-      if (this.actor.data.name === token["name"] && this.actor.name !== formData["name"]) {
+      if (this.actor.name === token["name"] && this.actor.name !== formData["name"]) {
         new_top["token.name"] = formData["name"];
       }
     }
@@ -516,11 +524,12 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
 
     // Drag up the mm context (when ready) to a top level entry in the sheet data
     // @ts-ignore T doesn't narrow this.actor.data
-    data.mm = await this.actor.data.data.derived.mm_promise;
+    data.mm = await this.actor.system.derived.mm_promise;
 
     // Also wait for all of their items
     for (let i of this.actor.items.contents) {
-      await i.data.data.derived?.mm_promise; // The ? is necessary in case of a foundry internal race condition
+      // @ts-expect-error Should be fixed with v10 types
+      await i.system.derived?.mm_promise; // The ? is necessary in case of a foundry internal race condition
     }
 
     console.log(`${lp} Rendering with following actor ctx: `, data);
