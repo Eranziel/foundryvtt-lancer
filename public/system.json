@@ -1,11 +1,13 @@
 {
   "id": "lancer",
+  "name": "lancer",
   "title": "LANCER",
   "description": "A Foundry VTT game system for <a href=\"https://massif-press.itch.io/corebook-pdf\">Lancer</a> by <a href=\"https://massif-press.itch.io/\">Massif Press</a>, a mud-and-lasers tactical mech RPG.",
-  "version": "1.4.0-alpha.1",
+  "version": "1.4.0-beta.1",
+  "minimumCoreVersion": "10",
   "compatibility": {
     "minimum": 10,
-    "verified": "10.284",
+    "verified": "10.290",
     "maximum": 10
   },
   "authors": [
@@ -29,7 +31,6 @@
       "name": "aoe-templates",
       "label": "AoE Templates",
       "system": "lancer",
-      "module": "lancer",
       "path": "./packs/aoe-templates.db",
       "type": "Macro"
     },
