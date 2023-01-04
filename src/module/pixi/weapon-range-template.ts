@@ -74,7 +74,7 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
       x: 0,
       y: 0,
       angle: 58,
-      fillColor: game.user!.data.color,
+      fillColor: game.user!.color,
       flags: {
         [game.system.id]: {
           range: { type, val },
@@ -164,9 +164,11 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
         let destination = this.snapToCenter(event.data.getLocalPosition(this.layer));
         if (this.isBurst) {
           destination = this.snapToToken(event.data.getLocalPosition(this.layer));
-          const token = this.data.flags[game.system.id].burstToken;
+          //@ts-expect-error v10
+          const token = this.document.flags[game.system.id].burstToken;
           if (token) {
-            const ignore = this.data.flags[game.system.id].ignore.tokens;
+            //@ts-expect-error v10
+            const ignore = this.document.flags[game.system.id].ignore.tokens;
             ignore.push(token);
             //@ts-expect-error
             this.document.updateSource({
@@ -177,7 +179,7 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
         //@ts-expect-error
         this.document.updateSource(destination);
         const template = (<MeasuredTemplateDocument[]>(
-          await canvas.scene!.createEmbeddedDocuments("MeasuredTemplate", [this.data.toObject()])
+          await canvas.scene!.createEmbeddedDocuments("MeasuredTemplate", [this.document.toObject()])
         )).shift();
         if (template === undefined) {
           reject(new Error("Template creation failed"));
@@ -238,7 +240,8 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
     if (token) {
       //@ts-expect-error
       this.document.updateSource({
-        distance: this.getBurstDistance(token.data.width),
+        // @ts-expect-error v10
+        distance: this.getBurstDistance(token.document.width),
         [`flags.${game.system.id}.burstToken`]: token.id,
       });
       return token.center;
