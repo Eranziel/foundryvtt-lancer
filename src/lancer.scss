@@ -2349,7 +2349,8 @@ Here, this means we want to allow for drag stuff etc to show contextually if:
   margin: 4px;
 }
 
-#combat {
+#combat,
+#combat-popout {
   #combat-tracker {
     .combatant {
       .token-initiative {
@@ -2446,10 +2447,13 @@ Here, this means we want to allow for drag stuff etc to show contextually if:
   }
 }
 
-#combat #combat-tracker li.combatant.turn-done {
-  // Furnace crap
-  color: inherit;
-  text-decoration: inherit;
+#combat,
+#combat-popout {
+  #combat-tracker li.combatant.turn-done {
+    // Furnace crap
+    color: inherit;
+    text-decoration: inherit;
+  }
 }
 
 #lancer-initiative-settings {
