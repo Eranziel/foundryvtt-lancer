@@ -1,7 +1,8 @@
-import { DamageType, EntryType, RangeType, WeaponSize, WeaponType } from "../enums";
+import { DamageType, EntryType, RangeType, SystemType, WeaponSize, WeaponType } from "../enums";
 import { format_dotpath } from "../helpers/commons";
 import { LancerItem } from "../item/lancer-item";
 import { SystemTemplates } from "../system-template";
+import { PackedDeployableData } from "../util/unpacking/packed-types";
 
 // @ts-ignore
 const fields: any = foundry.data.fields;
@@ -338,4 +339,16 @@ export class WeaponSizeChecklistField extends ChecklistField {
   constructor(options = {}) {
     super(WeaponSize, options);
   }
+}
+
+export class SystemTypeChecklistField extends ChecklistField {
+  constructor(options = {}) {
+    super(SystemType, options);
+  }
+}
+
+// Use this to track pending jobs while unpacking
+export interface UnpackContext {
+  pendingDeployables: PackedDeployableData[];
+  // Idk, do we really need anything else?
 }

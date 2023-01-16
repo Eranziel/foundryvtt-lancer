@@ -1,61 +1,127 @@
-import { SystemType, WeaponSize, WeaponType } from "../../enums";
+import {
+  AllSynergyLocations,
+  DamageTypeChecklist,
+  makeSystemTypeChecklist,
+  makeWeaponSizeChecklist,
+  makeWeaponTypeChecklist,
+  RangeTypeChecklist,
+  SynergyLocation,
+  SystemType,
+  SystemTypeChecklist,
+  WeaponSize,
+  WeaponSizeChecklist,
+  WeaponType,
+  WeaponTypeChecklist,
+} from "../../enums";
+import { PackedSynergyData } from "../../util/unpacking/packed-types";
+import {
+  DamageTypeChecklistField,
+  RangeTypeChecklistField,
+  SystemTypeChecklistField,
+  WeaponSizeChecklistField,
+  WeaponTypeChecklistField,
+} from "../shared";
 
 // @ts-ignore
 const fields: any = foundry.data.fields;
 
-export enum SynergyLocations {
-  Any,
-  ActiveEffects,
-  Rest,
-  Weapon,
-  System,
-  Move,
-  Boost,
-  Other,
-  Ram,
-  Grapple,
-  TechAttack,
-  Overcharge,
-  Skill_check,
-  Overwatch,
-  ImprovisedAttack,
-  Disengage,
-  Stabilize,
-  Tech,
-  Lock_on,
-  Hull,
-  Agility,
-  Systems,
-  Engineering,
-}
-
 export interface SynergyData {
-  locations: SynergyLocations[];
+  locations: SynergyLocation[];
   detail: string;
-  system_types?: Array<SystemType | "any">;
-  weapon_types?: Array<WeaponType | "any">;
-  weapon_sizes?: Array<WeaponSize | "any">;
+  system_types?: SystemTypeChecklist | null;
+  damage_types: DamageTypeChecklist | null;
+  range_types: RangeTypeChecklist | null;
+  weapon_types: WeaponTypeChecklist | null;
+  weapon_sizes: WeaponSizeChecklist | null;
 }
 
 export class SynergyField extends fields.SchemaField {
   constructor(options = {}) {
     super(
       {
-        locations: new fields.ArrayField(
-          new fields.StringField({ choices: Object.values(SynergyLocations), initial: SynergyLocations.Any })
-        ),
+        locations: new fields.ArrayField(new fields.StringField({ choices: AllSynergyLocations, initial: "any" })),
         detail: new fields.StringField({ nullable: false }),
-        system_types: new fields.ArrayField(
-          new fields.StringField({ choices: Object.values(SystemType), initial: SystemType.System })
-        ),
-        weapon_types: new fields.ArrayField(
-          new fields.StringField({ choices: Object.values(WeaponType), initial: WeaponType.Rifle })
-        ),
-        weapon_sizes: new fields.ArrayField(
-          new fields.StringField({ choices: Object.values(WeaponSize), initial: WeaponSize.Main })
-        ),
+        damage_types: new DamageTypeChecklistField({ nullable: true }),
+        range_types: new RangeTypeChecklistField({ nullable: true }),
+        weapon_types: new WeaponTypeChecklistField({ nullable: true }),
+        weapon_sizes: new WeaponSizeChecklistField({ nullable: true }),
+        system_types: new SystemTypeChecklistField({ nullable: true }),
       },
       options
     );
   }
+}
+
+export function unpackSynergy(data: PackedSynergyData): SynergyData {
+  // Have to do a lot of annoying fixup
+  let locations: SynergyLocation[] = [];
+  if (Array.isArray(data.locations)) {
+    locations = data.locations;
+  } else {
+    locations = data.locations ? [data.locations] : ["any"];
+  }
+
+  let sizes: WeaponSizeChecklist | null = null;
+  if (data.weapon_sizes) {
+    let x = data.weapon_sizes;
+    if (!Array.isArray(x)) {
+      x = [x];
+    }
+    if (x.includes("any")) {
+      x = [WeaponSize.Aux, WeaponSize.Heavy, WeaponSize.Main, WeaponSize.Superheavy];
+    }
+    sizes = makeWeaponSizeChecklist(x as WeaponSize[]);
+  }
+
+  let types: WeaponTypeChecklist | null = null;
+  if (data.weapon_types) {
+    let x = data.weapon_types;
+    if (!Array.isArray(x)) {
+      x = [x];
+    }
+    if (x.includes("any")) {
+      x = [
+        WeaponType.CQB,
+        WeaponType.Cannon,
+        WeaponType.Launcher,
+        WeaponType.Melee,
+        WeaponType.Nexus,
+        WeaponType.Rifle,
+      ];
+    }
+    types = makeWeaponTypeChecklist(x as WeaponType[]);
+  }
+
+  let systems: SystemTypeChecklist | null = null;
+  if (data.system_types) {
+    let x = data.system_types;
+    if (!Array.isArray(x)) {
+      x = [x];
+    }
+    if (x.includes("any")) {
+      x = [
+        SystemType.AI,
+        SystemType.Armor,
+        SystemType.Deployable,
+        SystemType.Drone,
+        SystemType.FlightSystem,
+        SystemType.Integrated,
+        SystemType.Mod,
+        SystemType.Shield,
+        SystemType.System,
+        SystemType.Tech,
+      ];
+    }
+    systems = makeSystemTypeChecklist(x as SystemType[]);
+  }
+
+  return {
+    detail: data.detail,
+    locations,
+    damage_types: null,
+    range_types: null,
+    weapon_sizes: sizes,
+    weapon_types: types,
+    system_types: systems,
+  };
 }

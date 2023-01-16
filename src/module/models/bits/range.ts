@@ -1,6 +1,7 @@
 import { LancerMECH } from "../../actor/lancer-actor";
 import { RangeType, RangeTypeChecklist } from "../../enums";
 import { LancerMECH_WEAPON, LancerWEAPON_MOD } from "../../item/lancer-item";
+import { PackedRangeData } from "../../util/unpacking/packed-types";
 
 // @ts-ignore
 const fields: any = foundry.data.fields;
@@ -180,4 +181,12 @@ export class RangeField extends fields.SchemaField {
       return super._cast(value);
     }
   }
+}
+
+// Converts an lcp range into our expected format
+export function unpackRange(data: PackedRangeData): RangeData {
+  return {
+    type: data.type,
+    val: data.val.toString(),
+  };
 }

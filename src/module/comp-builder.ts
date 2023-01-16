@@ -5,7 +5,7 @@ import { get_pack } from "./util/doc";
 import type { LancerActor } from "./actor/lancer-actor";
 import type { LancerItem } from "./item/lancer-item";
 import { EntryType } from "./enums";
-import { IContentPack } from "./util/mmigration/packed-types";
+import { IContentPack } from "./util/unpacking/packed-types";
 
 export const PACK_SCOPE = "world";
 

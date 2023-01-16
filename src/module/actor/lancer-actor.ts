@@ -8,8 +8,8 @@ import { findEffect } from "../helpers/acc_diff";
 import { AppliedDamage } from "./damage-calc";
 import { SystemData, SystemDataType, SystemTemplates } from "../system-template";
 import { SourceDataType } from "../source-template";
-import * as defaults from "../util/mmigration/defaults";
-import { PackedPilotData } from "../util/mmigration/packed-types";
+import * as defaults from "../util/unpacking/defaults";
+import { PackedPilotData } from "../util/unpacking/packed-types";
 import { getAutomationOptions } from "../settings";
 import { pilot_downstream_effects } from "../effects/converter";
 import {

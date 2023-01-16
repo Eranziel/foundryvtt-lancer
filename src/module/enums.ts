@@ -190,38 +190,6 @@ export enum WeaponType {
 
 export type WeaponTypeChecklist = { [key in WeaponType]: boolean };
 
-export function MakeWeaponTypeChecklist(types: WeaponType[]): WeaponTypeChecklist {
-  let override = types.length == 0;
-  return {
-    CQB: override || types.includes(WeaponType.CQB),
-    Cannon: override || types.includes(WeaponType.Cannon),
-    Launcher: override || types.includes(WeaponType.Launcher),
-    Melee: override || types.includes(WeaponType.Melee),
-    Nexus: override || types.includes(WeaponType.Nexus),
-    Rifle: override || types.includes(WeaponType.Rifle),
-  };
-}
-
-// Undo the above conversion
-export function FlattenWeaponTypeChecklist(types: WeaponTypeChecklist): WeaponType[] {
-  return Object.keys(types).filter(t => types[t as keyof WeaponTypeChecklist]) as WeaponType[];
-}
-
-export function MakeWeaponSizeChecklist(types: WeaponSize[]): WeaponSizeChecklist {
-  let override = types.length == 0;
-  return {
-    Auxiliary: override || types.includes(WeaponSize.Aux),
-    Heavy: override || types.includes(WeaponSize.Heavy),
-    Main: override || types.includes(WeaponSize.Main),
-    Superheavy: override || types.includes(WeaponSize.Superheavy),
-  };
-}
-
-// Undo the above conversion
-export function FlattenWeaponSizeChecklist(sizes: WeaponSizeChecklist): WeaponSize[] {
-  return Object.keys(sizes).filter(s => sizes[s as keyof WeaponSizeChecklist]) as WeaponSize[];
-}
-
 export enum SystemType {
   System = "System",
   AI = "AI",
@@ -234,6 +202,8 @@ export enum SystemType {
   Integrated = "Integrated",
   Mod = "Mod",
 }
+
+export type SystemTypeChecklist = { [key in SystemType]: boolean };
 
 export enum Duration {
   Free = "Free",
@@ -342,7 +312,7 @@ export enum SkillFamily {
 }
 
 export type SynergyLocation =
-  | "any"
+  | "any" // Acts as a wildcard
   | "active_effects"
   | "rest"
   | "weapon"
@@ -365,6 +335,32 @@ export type SynergyLocation =
   | "agility"
   | "systems"
   | "engineering";
+export const AllSynergyLocations = [
+  ,
+  "any", // Acts as a wildcard
+  "active_effects",
+  "rest",
+  "weapon",
+  "system",
+  "move",
+  "boost",
+  "other",
+  "ram",
+  "grapple",
+  "tech_attack",
+  "overcharge",
+  "skill_check",
+  "overwatch",
+  "improvised_attack",
+  "disengage",
+  "stabilize",
+  "tech",
+  "lock_on",
+  "hull",
+  "agility",
+  "systems",
+  "engineering",
+];
 
 export enum DeployableType {
   Deployable = "Deployable",
@@ -378,4 +374,57 @@ export enum ActivePeriod {
   Encounter = "Encounter",
   Mission = "Mission",
   Unlimited = "Unlimited",
+}
+
+export function makeWeaponTypeChecklist(types: WeaponType[]): WeaponTypeChecklist {
+  let override = types.length == 0;
+  return {
+    CQB: override || types.includes(WeaponType.CQB),
+    Cannon: override || types.includes(WeaponType.Cannon),
+    Launcher: override || types.includes(WeaponType.Launcher),
+    Melee: override || types.includes(WeaponType.Melee),
+    Nexus: override || types.includes(WeaponType.Nexus),
+    Rifle: override || types.includes(WeaponType.Rifle),
+  };
+}
+
+// Undo the above conversion
+export function flattenWeaponTypeChecklist(types: WeaponTypeChecklist): WeaponType[] {
+  return Object.keys(types).filter(t => types[t as keyof WeaponTypeChecklist]) as WeaponType[];
+}
+
+export function makeWeaponSizeChecklist(types: WeaponSize[]): WeaponSizeChecklist {
+  let override = types.length == 0;
+  return {
+    Auxiliary: override || types.includes(WeaponSize.Aux),
+    Heavy: override || types.includes(WeaponSize.Heavy),
+    Main: override || types.includes(WeaponSize.Main),
+    Superheavy: override || types.includes(WeaponSize.Superheavy),
+  };
+}
+
+// Undo the above conversion
+export function flattenWeaponSizeChecklist(sizes: WeaponSizeChecklist): WeaponSize[] {
+  return Object.keys(sizes).filter(s => sizes[s as keyof WeaponSizeChecklist]) as WeaponSize[];
+}
+
+export function makeSystemTypeChecklist(types: SystemType[]): SystemTypeChecklist {
+  let override = types.length == 0;
+  return {
+    System: override || types.includes(SystemType.System),
+    AI: override || types.includes(SystemType.AI),
+    Shield: override || types.includes(SystemType.Shield),
+    Deployable: override || types.includes(SystemType.Deployable),
+    Drone: override || types.includes(SystemType.Drone),
+    Tech: override || types.includes(SystemType.Tech),
+    Armor: override || types.includes(SystemType.Armor),
+    "Flight System": override || types.includes(SystemType.FlightSystem),
+    Integrated: override || types.includes(SystemType.Integrated),
+    Mod: override || types.includes(SystemType.Mod),
+  };
+}
+
+// Undo the above conversion
+export function flattenSystemTypeChecklist(types: SystemTypeChecklist): SystemType[] {
+  return Object.keys(types).filter(t => types[t as keyof SystemTypeChecklist]) as SystemType[];
 }

@@ -1,7 +1,7 @@
 import { LANCER } from "../config";
 const lp = LANCER.log_prefix;
 import { importCP, clearCompendiumData, setAllLock } from "../comp-builder";
-import { IContentPack, IContentPackManifest } from "../util/mmigration/packed-types";
+import { IContentPack, IContentPackManifest } from "../util/unpacking/packed-types";
 import { getBaseContentPack, parseContentPack } from "../util/lcp-parser";
 
 // TODO: use the version from MM... once it's real.

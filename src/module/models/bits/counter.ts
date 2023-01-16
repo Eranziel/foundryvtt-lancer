@@ -1,3 +1,4 @@
+import { PackedCounterData } from "../../util/unpacking/packed-types";
 import { LIDField } from "../shared";
 
 // @ts-ignore
@@ -48,4 +49,17 @@ export class CounterField extends fields.SchemaField {
   _validateType(value: CounterData) {
     if (value.max !== null && value.max < value.min) throw new Error("max must be > min");
   }
+}
+
+// Converts an lcp counter entry into our expected format
+export function unpackCounter(data: PackedCounterData): CounterData {
+  let default_value = data.default_value ?? data.min ?? 0;
+  return {
+    default_value,
+    val: default_value,
+    lid: data.id,
+    max: data.max ?? 999,
+    min: data.min ?? 0,
+    name: data.name,
+  };
 }

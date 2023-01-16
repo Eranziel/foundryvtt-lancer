@@ -14,7 +14,7 @@ import {
   PackedTagTemplateData,
   PackedTalentData,
   PackedWeaponModData,
-} from "./mmigration/packed-types";
+} from "./unpacking/packed-types";
 
 export const CORE_BREW_ID = "core";
 

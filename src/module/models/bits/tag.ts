@@ -2,6 +2,7 @@ import { LancerItem } from "../../item/lancer-item";
 import { SourceTemplates } from "../../source-template";
 import { SystemTemplates } from "../../system-template";
 import { compendium_lookup_lid } from "../../util/lid";
+import { PackedTagData, PackedTagTemplateData } from "../../util/unpacking/packed-types";
 import { LIDField } from "../shared";
 
 // @ts-ignore
@@ -184,4 +185,17 @@ export class TagField extends fields.SchemaField {
     }
     return super._cast(value);
   }
+}
+
+export function unpackTagTemplate(data: PackedTagTemplateData): any {
+  return {
+    // TODO
+  };
+}
+
+export function unpackTag(data: PackedTagData): TagData {
+  return {
+    lid: data.id,
+    val: (data.val ?? "").toString(),
+  };
 }

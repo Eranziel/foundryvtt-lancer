@@ -1,7 +1,8 @@
 import { ActivationType, ActivePeriod } from "../../enums";
+import { PackedActionData } from "../../util/unpacking/packed-types";
 import { LIDField } from "../shared";
-import { DamageData, DamageField } from "./damage";
-import { RangeData, RangeField } from "./range";
+import { DamageData, DamageField, unpackDamage } from "./damage";
+import { RangeData, RangeField, unpackRange } from "./range";
 
 // @ts-ignore
 const fields: any = foundry.data.fields;
@@ -20,13 +21,13 @@ export interface ActionData {
   pilot: boolean;
   mech: boolean;
   // hide_active: boolean;
-  confirm: string[];
-  available_mounted: boolean;
+  // confirm: string[];
+  // available_mounted: boolean;
   heat_cost: number;
   synergy_locations: string[];
   damage: DamageData[];
   range: RangeData[];
-  log: string;
+  // log: string;
   // ignore_used: boolean;
 }
 
@@ -95,17 +96,38 @@ export class ActionField extends fields.SchemaField {
         detail: new fields.HTMLField(),
         pilot: new fields.BooleanField(),
         mech: new fields.BooleanField(),
-        confirm: new fields.StringField(),
-        available_mounted: new fields.BooleanField(),
+        // confirm: new fields.StringField(),
+        // available_mounted: new fields.BooleanField(),
         heat_cost: new fields.NumberField({ min: 0, integer: true, nullable: false }),
         // TODO: synergy_locations: make em more fancy or somethin
         synergy_locations: new fields.ArrayField(new fields.StringField()),
         damage: new fields.ArrayField(new DamageField()),
         range: new fields.ArrayField(new RangeField()),
         // ignore_used?
-        log: new fields.StringField(),
+        // log: new fields.StringField(),
       },
       options
     );
   }
+}
+
+// Converts an lcp action into our expected format
+export function unpackAction(data: PackedActionData): ActionData {
+  return {
+    activation: data.activation ?? ActivationType.Quick,
+    cost: data.cost ?? 0,
+    damage: data.damage?.map(unpackDamage) ?? [],
+    detail: data.detail ?? "",
+    frequency: data.frequency ?? "",
+    heat_cost: data.heat_cost ?? 0,
+    init: data.init ?? "",
+    lid: data.id ?? "",
+    mech: data.mech ?? true,
+    name: data.name ?? "New Action",
+    pilot: data.pilot ?? false,
+    range: data.range?.map(unpackRange) ?? [],
+    synergy_locations: data.synergy_locations ?? [],
+    terse: data.terse ?? "",
+    trigger: data.trigger ?? "",
+  };
 }

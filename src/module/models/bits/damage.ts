@@ -1,5 +1,5 @@
 import { DamageType, DamageTypeChecklist } from "../../enums";
-import { PackedDamageData } from "../../util/mmigration/packed-types";
+import { PackedDamageData } from "../../util/unpacking/packed-types";
 
 // @ts-ignore
 const fields: any = foundry.data.fields;
@@ -134,4 +134,12 @@ export class DamageField extends fields.SchemaField {
       return super._cast(value);
     }
   }
+}
+
+// Converts an lcp damage entry into our expected format
+export function unpackDamage(data: PackedDamageData): DamageData {
+  return {
+    type: data.type,
+    val: data.val?.toString() ?? "1",
+  };
 }

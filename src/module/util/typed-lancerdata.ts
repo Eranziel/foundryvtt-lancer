@@ -41,7 +41,7 @@ import {
   PackedTagTemplateData,
   PackedTalentData,
   PackedMechWeaponData,
-} from "./mmigration/packed-types";
+} from "./unpacking/packed-types";
 
 export interface GlossaryItem {
   name: string;

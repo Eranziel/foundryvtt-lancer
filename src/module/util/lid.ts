@@ -58,3 +58,11 @@ export class LIDLookupCache extends FetcherCache<string, LancerActor | LancerIte
     super(key => compendium_lookup_lid(key), timeout);
   }
 }
+
+// Converts things like "LEAVIATHAN HEAVY ASSAULT CANNON" into "leaviathan_heavy_assault_cannon"
+export function slugify(name: string): string {
+  return name
+    .trim()
+    .replace(/[:\\\/-\s]+/g, "_")
+    .toLowerCase();
+}

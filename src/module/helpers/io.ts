@@ -7,7 +7,7 @@ import {
   PackedMechLoadoutData,
   PackedPilotData,
   PackedPilotLoadoutData,
-} from "../util/mmigration/packed-types";
+} from "../util/unpacking/packed-types";
 
 // GOODBYE LEGACY TYPES
 type LegacyLancerActor = {

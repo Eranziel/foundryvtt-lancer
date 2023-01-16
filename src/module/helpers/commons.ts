@@ -1,7 +1,7 @@
 import type { HelperOptions } from "handlebars";
 import { HTMLEditDialog } from "../apps/text-editor";
 import type { ContextMenuItem, GenControlContext, LancerActorSheetData, LancerItemSheetData } from "../interfaces";
-import * as defaults from "../util/mmigration/defaults";
+import * as defaults from "../util/unpacking/defaults";
 
 import tippy from "tippy.js";
 import { ActivationType, MountType, WeaponSize, WeaponType } from "../enums";
@@ -702,12 +702,14 @@ export function std_checkbox(path: string, options: HelperOptions) {
  * By default, just invoked with a path expression which is resolved into a value, which is used as the initial selection
  * However, can supply the following
  * - `value`: Override the initial value with one resolved from elsewhere. Useful if get/set don't go to same place
- * - `classes`: Additional classes to put on the select.
+ * - `select_classes`: Additional classes to put on the select.
+ * - `label_classes`: Additional classes to put on the select.
  * - `default`: Change the default value if resolution fails. Otherwise, we just use the first one in the enum.
  */
 export function std_enum_select<T extends string>(path: string, enum_: { [key: string]: T }, options: HelperOptions) {
   // Get the classes to add
-  let select_classes: string = options.hash["classes"] || "";
+  let select_classes: string = options.hash["select_classes"] || "";
+  let label_classes: string = options.hash["label_classes"] || "";
 
   // Get the default. If undefined, use first found.
   let default_val: T | undefined = options.hash["default"];
@@ -736,7 +738,14 @@ export function std_enum_select<T extends string>(path: string, enum_: { [key: s
       <select name="${path}" class="${select_classes}" data-type="String" style="height: 2em; align-self: center; margin: 4px;" >
         ${choices.join("")}
       </select>`;
-  return select;
+  if (options.hash["label"]) {
+    return `<label class="flexrow no-wrap ${label_classes}">
+      ${options.hash["label"]}
+      ${select}
+    </label>`;
+  } else {
+    return select;
+  }
 }
 
 // A button to open a popout editor targeting the specified path

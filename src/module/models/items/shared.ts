@@ -1,7 +1,7 @@
 import { CounterField } from "../bits/counter";
 import { ActionField } from "../bits/action";
 import { SynergyField } from "../bits/synergy";
-import { LIDField, ResolvedUUIDRefField } from "../shared";
+import { LIDField } from "../shared";
 import { TagField } from "../bits/tag";
 
 //@ts-ignore
@@ -25,8 +25,8 @@ export function template_bascdt() {
     actions: new fields.ArrayField(new ActionField()),
     synergies: new fields.ArrayField(new SynergyField()),
     counters: new fields.ArrayField(new CounterField()),
-    deployables: new fields.ArrayField(new ResolvedUUIDRefField()),
-    integrated: new fields.ArrayField(new ResolvedUUIDRefField()),
+    deployables: new fields.ArrayField(new LIDField()),
+    integrated: new fields.ArrayField(new LIDField()),
     tags: new fields.ArrayField(new TagField()),
   };
 }

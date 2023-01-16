@@ -14,14 +14,14 @@ import {
   WeaponType,
   EntryType,
   MechType,
-  MakeWeaponTypeChecklist,
-  MakeWeaponSizeChecklist,
+  makeWeaponTypeChecklist,
+  makeWeaponSizeChecklist,
   FittingSize,
 } from "../../enums";
 import { nanoid } from "nanoid";
 import { DeployableType } from "../../enums";
 import { ActionData } from "../../models/bits/action";
-import { BonusData, GenerateBonus } from "../../models/bits/bonus";
+import { BonusData, generateBonus } from "../../models/bits/bonus";
 import { SourceData, SourceDataType, SourceTemplates } from "../../source-template";
 import { Damage, DamageData } from "../../models/bits/damage";
 import { ActionTrackingData } from "../../action";
@@ -78,20 +78,20 @@ export function ACTION(): ActionData {
     lid: "act_" + nanoid(),
     activation: ActivationType.Quick,
     detail: DEFAULT_DESCRIPTION,
-    confirm: ["CONFIRM"],
+    // confirm: ["CONFIRM"],
     cost: 1,
     frequency: "",
     heat_cost: 0,
     init: "",
     damage: [],
     range: [],
-    log: "",
+    // log: "",
     mech: true,
     pilot: true,
     synergy_locations: [],
     terse: "Terse Description",
     trigger: "",
-    available_mounted: true,
+    // available_mounted: true,
   };
 }
 
@@ -495,11 +495,11 @@ export function PILOT_ARMOR(): SourceDataType<EntryType.PILOT_ARMOR> {
   return {
     ...PILOT_GEAR(),
     bonuses: [
-      GenerateBonus("pilot_hp", 3, true),
-      GenerateBonus("pilot_evasion", 3, true),
-      GenerateBonus("pilot_edef", 3, true),
-      GenerateBonus("pilot_speed", 3, true),
-      GenerateBonus("pilot_armor", 0, true),
+      generateBonus("pilot_hp", 3, true),
+      generateBonus("pilot_evasion", 3, true),
+      generateBonus("pilot_edef", 3, true),
+      generateBonus("pilot_speed", 3, true),
+      generateBonus("pilot_armor", 0, true),
     ],
   };
 }
@@ -678,8 +678,8 @@ export function WEAPON_MOD(): SourceDataType<EntryType.WEAPON_MOD> {
     tags: [],
     sp: 0,
     uses: 0,
-    allowed_sizes: MakeWeaponSizeChecklist([]),
-    allowed_types: MakeWeaponTypeChecklist([]),
+    allowed_sizes: makeWeaponSizeChecklist([]),
+    allowed_types: makeWeaponTypeChecklist([]),
     actions: [],
     added_range: [],
     bonuses: [],
