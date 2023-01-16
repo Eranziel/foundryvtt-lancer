@@ -1104,11 +1104,11 @@ export function buildSystemHTML(system: LancerMECH_SYSTEM): string {
   }
 
   if (system.system.deployables) {
-    deployables = system.system.deployables
+    deployables = ""; /* system.system.deployables
       .map((d, i) => {
         return d.status == "resolved" ? buildDeployableHTML(d.value, false) : d.status;
       })
-      .join("");
+      .join("");*/
   }
 
   let html = `<div class="card clipped-bot system-wrapper" ${ref_params(system)} style="margin: 0px;">

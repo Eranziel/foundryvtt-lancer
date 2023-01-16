@@ -3,9 +3,14 @@ const lp = LANCER.log_prefix;
 import { LCPIndex } from "./apps/lcp-manager";
 import { get_pack } from "./util/doc";
 import type { LancerActor } from "./actor/lancer-actor";
-import type { LancerItem } from "./item/lancer-item";
+import { LancerItem } from "./item/lancer-item";
 import { EntryType } from "./enums";
 import { IContentPack } from "./util/unpacking/packed-types";
+import { UnpackContext } from "./models/shared";
+import { unpackMechWeapon } from "./models/items/mech_weapon";
+import { unpackFrame } from "./models/items/frame";
+import { unpackMechSystem } from "./models/items/mech_system";
+import { unpackCoreBonus } from "./models/items/core_bonus";
 
 export const PACK_SCOPE = "world";
 
@@ -36,21 +41,21 @@ export async function importCP(
     }
 
     // Count the total items in the reg. We only do this for progress bar accurace
-    let total_items = 0;
-    total_items += cp.data.coreBonuses?.length ?? 0;
-    total_items += cp.data.frames?.length ?? 0;
-    total_items += cp.data.mods?.length ?? 0;
-    total_items += cp.data.npcClasses?.length ?? 0;
-    total_items += cp.data.npcFeatures?.length ?? 0;
-    total_items += cp.data.npcTemplates?.length ?? 0;
-    total_items += cp.data.pilotGear?.length ?? 0;
-    total_items += cp.data.reserves?.length ?? 0;
-    total_items += cp.data.skills?.length ?? 0;
-    total_items += cp.data.statuses?.length ?? 0;
-    total_items += cp.data.systems?.length ?? 0;
-    total_items += cp.data.tags?.length ?? 0;
-    total_items += cp.data.talents?.length ?? 0;
-    total_items += cp.data.weapons?.length ?? 0;
+    let totalItems = 0;
+    totalItems += cp.data.coreBonuses?.length ?? 0;
+    totalItems += cp.data.frames?.length ?? 0;
+    totalItems += cp.data.mods?.length ?? 0;
+    totalItems += cp.data.npcClasses?.length ?? 0;
+    totalItems += cp.data.npcFeatures?.length ?? 0;
+    totalItems += cp.data.npcTemplates?.length ?? 0;
+    totalItems += cp.data.pilotGear?.length ?? 0;
+    totalItems += cp.data.reserves?.length ?? 0;
+    totalItems += cp.data.skills?.length ?? 0;
+    totalItems += cp.data.statuses?.length ?? 0;
+    totalItems += cp.data.systems?.length ?? 0;
+    totalItems += cp.data.tags?.length ?? 0;
+    totalItems += cp.data.talents?.length ?? 0;
+    totalItems += cp.data.weapons?.length ?? 0;
 
     // Iterate over everything in core, collecting all lids
     let existing_lids: string[] = [];
@@ -70,22 +75,47 @@ export async function importCP(
       if (doc.pack && !doc.parent) {
         // Presumably part of this import
         transmit_count++;
-        progress_callback!(transmit_count, total_items);
+        progress_callback!(transmit_count, totalItems);
       }
     };
-    Hooks.on("createActor", progress_hook);
     Hooks.on("createItem", progress_hook);
 
-    console.log("TODO");
+    let context: UnpackContext = {
+      createdDeployables: [],
+    };
 
-    Hooks.off("createActor", progress_hook);
+    let allCoreBonuses = cp.data.coreBonuses?.map(cb => unpackCoreBonus(cb, context)) ?? [];
+    let allFrames = cp.data.frames?.map(d => unpackFrame(d, context)) ?? [];
+    let allMods = [];
+    let allNpcClasses = [];
+    let allNpcFeatures = [];
+    let allNpcTemplates = [];
+    let allPilotGear = [];
+    let allReserves = [];
+    let allSkills = [];
+    let allStatuses = [];
+    let allSystems = cp.data.systems?.map(s => unpackMechSystem(s, context)) ?? [];
+    let allTags = [];
+    let allTalents = []; // ;cp.data.talents?.map(d => unpackTalent)
+    let allWeapons = cp.data.weapons?.map(d => unpackMechWeapon(d, context)) ?? [];
+
+    let allDeployables =
+      // Get creating
+      await CONFIG.Item.documentClass.createDocuments(allCoreBonuses, { pack: `world.${EntryType.CORE_BONUS}` });
+    await CONFIG.Item.documentClass.createDocuments(allFrames, { pack: `world.${EntryType.FRAME}` });
+    await CONFIG.Item.documentClass.createDocuments(allSystems, { pack: `world.${EntryType.MECH_SYSTEM}` });
+    await CONFIG.Item.documentClass.createDocuments(allWeapons, { pack: `world.${EntryType.MECH_WEAPON}` });
+    await CONFIG.Actor.documentClass.createDocuments(context.createdDeployables, {
+      pack: `world.${EntryType.DEPLOYABLE}`,
+    });
+
     Hooks.off("createItem", progress_hook);
 
     // Finish by forcing all packs to re-prepare
     for (let p of Object.values(EntryType)) {
       (await get_pack(p)).clear();
     }
-    progress_callback(transmit_count, total_items);
+    progress_callback(transmit_count, totalItems);
   } catch (err) {
     console.error(err);
   }

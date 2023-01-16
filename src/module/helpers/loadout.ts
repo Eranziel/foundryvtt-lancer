@@ -250,11 +250,11 @@ function buildFrameTrait(actor: LancerActor, trait: LancerFRAME["system"]["trait
     })
     .join("");
 
-  let depHTML = trait.deployables
+  let depHTML = "TODO"; /* trait.deployables
     .map((d, i) => {
       return d.status == "resolved" ? buildDeployableHTML(d.value, true, i) : "";
     })
-    .join("");
+    .join("");*/
 
   let macroData: LancerMacroData = {
     title: trait.name,
@@ -287,11 +287,11 @@ function frame_active(actor: LancerActor, core: LancerFRAME["system"]["core_syst
     })
     .join("");
 
-  let depHTML = core.deployables
+  let depHTML = "TODO"; /*core.deployables
     .map((d, i) => {
       return d.status == "resolved" ? buildDeployableHTML(d.value, true, i) : "";
     })
-    .join("");
+    .join("");*/
 
   // Should find a better way to do this...
   let coreMacroData: LancerMacroData = {

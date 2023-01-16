@@ -174,8 +174,8 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
         // If we have a class, get rid of it
         let old_class = this.actor.system.class;
         let class_features = findMatchingFeaturesInNpc(this.actor, [
-          ...filter_resolved_sync(old_class.system.base_features),
-          ...filter_resolved_sync(old_class.system.optional_features),
+          ...old_class.system.base_features,
+          ...old_class.system.optional_features,
         ]);
         delete_targets.push(...class_features.map(f => f.id));
       }
@@ -228,14 +228,14 @@ function getStatInput(event: Event): HTMLInputElement | HTMLDataElement | null {
     | HTMLDataElement;
 }
 
-// Removes class/features when a delete happens
+// Removes class/features when a delete of class/template happens
 function handleClassDelete(ctx: GenControlContext) {
   if (ctx.action == "delete") {
     let pt = ctx.path_target as LancerItem;
     if (pt instanceof LancerItem && (pt.is_npc_template() || pt.is_npc_class())) {
       let matches = findMatchingFeaturesInNpc(ctx.target_document, [
-        ...filter_resolved_sync(pt.system.base_features),
-        ...filter_resolved_sync(pt.system.optional_features),
+        ...pt.system.base_features,
+        ...pt.system.optional_features,
       ]);
       ctx.target_document.deleteEmbeddedDocuments("Item", matches.map(m => m.id).filter(x => x) as string[]);
     }
@@ -243,12 +243,12 @@ function handleClassDelete(ctx: GenControlContext) {
 }
 
 // Given a list of npc features, return the corresponding entries on the provided npc
-export function findMatchingFeaturesInNpc(npc: LancerNPC, features: LancerNPC_FEATURE[]): LancerNPC_FEATURE[] {
+export function findMatchingFeaturesInNpc(npc: LancerNPC, feature_ids: string[]): LancerNPC_FEATURE[] {
   if (!npc.is_npc()) return [];
   let result = [];
-  for (let predicate_feature of features) {
+  for (let predicate_lid of feature_ids) {
     for (let candidate_feature of npc.itemTypes.npc_feature as LancerNPC_FEATURE[]) {
-      if (candidate_feature.system.lid == predicate_feature.system.lid) {
+      if (candidate_feature.system.lid == predicate_lid) {
         result.push(candidate_feature);
       }
     }

@@ -433,10 +433,10 @@ export function weapon_bonus_affects(
   let sel_prof = weapon.system.active_profile;
 
   // Now start checking
-  if (!bonus.sizes[weapon.system.size]) return false;
-  if (!bonus.types[sel_prof.type]) return false;
-  if (!sel_prof.damage.some(d => bonus.damages[d.type])) return false;
-  if (!sel_prof.range.some(d => bonus.ranges[d.type])) return false;
+  if (!bonus.sizes?.[weapon.system.size]) return false;
+  if (!bonus.types?.[sel_prof.type]) return false;
+  if (!sel_prof.damage.some(d => bonus.damages?.[d.type])) return false;
+  if (!sel_prof.range.some(d => bonus.ranges?.[d.type])) return false;
 
   // Passed the test
   return true;

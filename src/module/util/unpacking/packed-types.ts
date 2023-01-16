@@ -443,6 +443,7 @@ export interface PackedCoreBonusData {
 }
 
 export interface PackedFrameData {
+  license_id?: string;
   license_level: number; // set to zero for this item to be available to a LL0 character
   name: string;
   mechtype: string[]; // can be customized

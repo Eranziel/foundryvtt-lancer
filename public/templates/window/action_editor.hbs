@@ -1,25 +1,18 @@
 <form>
     <div class="flexcol">
-        {{{std-string-input "action.Name" label="ACTION NAME"}}}
-        <div class="flexrow">
-            <div class="flexcol">
-                <span>AVAILABLE MOUNTED:</span>
-                <input type="checkbox" name="action.AvailableMounted" {{checked action.AvailableMounted}}>
-            </div>
-            <div class="flexcol">
-                <span>AVAILABLE UNMOUNTED:</span>
-                <input type="checkbox" name=" action.AvailableUnmounted" {{checked action.AvailableUnmounted}}>
-            </div>
-            {{{item-edit-enum "action.Activation" "ActivationType" label="Activation Type"}}}
-        </div>
-        {{!-- Need to have an array of strings for ConfirmText --}}
-        {{{std-num-input "action.Cost" label="COST"}}}
-        {{{std-num-input "action.HeatCost" label="HEAT COST"}}}
-        {{{item-edit-arrayed-damage "action.Damage" "DAMAGE"}}}
-        {{{item-edit-arrayed-range "action.Range" "RANGE"}}}
-        {{{textarea-card "DETAILS" "action.Detail"}}} 
-        {{{textarea-card "TERSE DESCRIPTION" "action.Terse"}}} 
-        {{{std-num-input "action.trigger" label="TRIGGER"}}}
+        {{{std-string-input "action.name" label="ACTION NAME"}}}
+        {{{std-string-input "action.lid" label="ACTION ID"}}}
+        {{{std-select "action.activation" activation_type label="TYPE"}}}
+        {{{std-num-input "action.cost" label="COST"}}}
+        {{{std-num-input "action.frequency" label="FREQUENCY"}}}
+        <!--{{{std-string-input "action.init" label="FREQUENCY"}}}-->
+        {{{std-string-input "action.trigger" label="TRIGGER"}}}
+        {{{std-string-input "action.terse" label="TERSE"}}} 
+        {{{textarea-card "DETAILS" "action.detail"}}} 
+        {{{std-num-input "action.heat_cost" label="HEAT COST"}}}
+        <!-- TODO: Synergy --> 
+        {{{item-edit-arrayed-damage "action.damage" "DAMAGE"}}}
+        {{{item-edit-arrayed-range "action.range" "RANGE"}}}
 
     </div>
 </form>

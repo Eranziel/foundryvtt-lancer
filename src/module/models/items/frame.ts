@@ -1,11 +1,15 @@
-import { ActivationType, FrameEffectUse, MechType, MountType } from "../../enums";
-import { ActionField } from "../bits/action";
-import { BonusField } from "../bits/bonus";
-import { CounterField } from "../bits/counter";
-import { SynergyField } from "../bits/synergy";
-import { TagField } from "../bits/tag";
-import { LancerDataModel, ResolvedUUIDRefField } from "../shared";
-import { template_universal_item, template_bascdt, template_destructible, template_licensed } from "./shared";
+import { ActivationType, EntryType, FrameEffectUse, MechType, MountType } from "../../enums";
+import { restrict_enum } from "../../helpers/commons";
+import { SourceData } from "../../source-template";
+import { PackedFrameData } from "../../util/unpacking/packed-types";
+import { unpackDeployable } from "../actors/deployable";
+import { ActionField, unpackAction } from "../bits/action";
+import { BonusField, unpackBonus } from "../bits/bonus";
+import { CounterField, unpackCounter } from "../bits/counter";
+import { SynergyField, unpackSynergy } from "../bits/synergy";
+import { TagField, unpackTag } from "../bits/tag";
+import { LancerDataModel, LIDField, UnpackContext } from "../shared";
+import { template_universal_item, template_licensed } from "./shared";
 
 // @ts-ignore
 const fields: any = foundry.data.fields;
@@ -36,8 +40,8 @@ const frame_schema = {
       description: new fields.HTMLField(),
       bonuses: new fields.ArrayField(new BonusField()),
       counters: new fields.ArrayField(new CounterField()),
-      integrated: new fields.ArrayField(new ResolvedUUIDRefField()),
-      deployables: new fields.ArrayField(new ResolvedUUIDRefField()),
+      integrated: new fields.ArrayField(new LIDField()),
+      deployables: new fields.ArrayField(new LIDField()),
       actions: new fields.ArrayField(new ActionField()),
       synergies: new fields.ArrayField(new SynergyField()),
       use: new fields.StringField({ nullable: false, choices: Object.values(FrameEffectUse) }),
@@ -62,9 +66,9 @@ const frame_schema = {
     passive_bonuses: new fields.ArrayField(new BonusField()),
     passive_actions: new fields.ArrayField(new ActionField()),
 
-    deployables: new fields.ArrayField(new ResolvedUUIDRefField()),
+    deployables: new fields.ArrayField(new LIDField()),
     counters: new fields.ArrayField(new CounterField()),
-    integrated: new fields.ArrayField(new ResolvedUUIDRefField()),
+    integrated: new fields.ArrayField(new LIDField()),
     tags: new fields.ArrayField(new TagField()),
   }),
   ...template_universal_item(),
@@ -75,4 +79,61 @@ export class FrameModel extends LancerDataModel<"FrameModel"> {
   static defineSchema() {
     return frame_schema;
   }
+}
+
+export function unpackFrame(
+  data: PackedFrameData,
+  context: UnpackContext
+): {
+  name: string;
+  type: EntryType.FRAME;
+  system: DeepPartial<SourceData.Frame>;
+} {
+  let cs = data.core_system;
+  return {
+    name: data.name,
+    type: EntryType.FRAME,
+    system: {
+      core_system: {
+        activation: cs.activation,
+        active_actions: cs.active_actions?.map(unpackAction),
+        active_bonuses: cs.active_bonuses?.map(unpackBonus),
+        active_effect: cs.active_effect,
+        active_name: cs.active_name,
+        active_synergies: cs.active_synergies?.map(unpackSynergy),
+        counters: cs.counters?.map(unpackCounter),
+        deactivation: cs.deactivation,
+        deployables: cs.deployables?.map(d => unpackDeployable(d, context)),
+        description: cs.description,
+        integrated: cs.integrated,
+        name: cs.name,
+        passive_actions: cs.passive_actions?.map(unpackAction),
+        passive_bonuses: cs.passive_bonuses?.map(unpackBonus),
+        passive_effect: cs.passive_effect,
+        passive_name: cs.passive_name,
+        passive_synergies: cs.passive_synergies?.map(unpackSynergy),
+        tags: cs.tags?.map(unpackTag),
+        use: cs.use,
+      },
+      description: data.description,
+      license: data.license_id ?? data.id,
+      license_level: data.license_level,
+      lid: data.id,
+      manufacturer: data.source,
+      mechtype: data.mechtype?.map(mt => restrict_enum(MechType, MechType.Striker, mt)),
+      mounts: data.mounts,
+      stats: data.stats,
+      traits: data.traits?.map(t => ({
+        actions: t.actions?.map(unpackAction),
+        bonuses: t.bonuses?.map(unpackBonus),
+        counters: t.counters?.map(unpackCounter),
+        deployables: t.deployables?.map(d => unpackDeployable(d, context)),
+        description: t.description,
+        integrated: t.integrated,
+        name: t.name,
+        synergies: t.synergies?.map(unpackSynergy),
+        use: t.use,
+      })),
+    },
+  };
 }

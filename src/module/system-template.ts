@@ -37,7 +37,7 @@ import { Damage, DamageData } from "./models/bits/damage";
 import { Range } from "./models/bits/range";
 import { SynergyData } from "./models/bits/synergy";
 import { Tag, TagData } from "./models/bits/tag";
-import { FullBoundedNum, SourceData, SourceTemplates, UUIDRef } from "./source-template";
+import { FullBoundedNum, LIDRef, SourceData, SourceTemplates, UUIDRef } from "./source-template";
 
 export namespace SystemTemplates {
   // We mimic these types, such that if we later decide to modify how they are hydrated, our job is easier
@@ -142,8 +142,8 @@ export namespace SystemTemplates {
     actions: ActionData[];
     synergies: SynergyData[];
     counters: CounterData[];
-    deployables: ResolvedUuidRef<LancerDEPLOYABLE>[];
-    integrated: ResolvedUuidRef<LancerItem>[];
+    deployables: LIDRef[];
+    integrated: LIDRef[];
     tags: Tag[]; // Redefined
   }
 
@@ -262,7 +262,7 @@ export namespace SystemData {
     type: DeployableType;
     avail_mounted: boolean;
     avail_unmounted: boolean;
-    deployer: SystemTemplates.ResolvedEmbeddedRef<LancerActor> | null;
+    deployer: SystemTemplates.ResolvedUuidRef<LancerActor> | null;
   }
   export interface Frame extends SystemTemplates.item_universal, SystemTemplates.licensed {
     description: string;
@@ -289,8 +289,8 @@ export namespace SystemData {
       description: string;
       bonuses: BonusData[];
       counters: CounterData[];
-      integrated: SystemTemplates.ResolvedUuidRef<LancerItem>[];
-      deployables: SystemTemplates.ResolvedUuidRef<LancerDEPLOYABLE>[];
+      integrated: LIDRef[];
+      deployables: LIDRef[];
       actions: ActionData[];
     }>;
     core_system: {
@@ -313,9 +313,9 @@ export namespace SystemData {
       passive_actions: ActionData[];
       passive_bonuses: BonusData[];
 
-      deployables: SystemTemplates.ResolvedUuidRef<LancerDEPLOYABLE>[];
+      deployables: LIDRef[];
       counters: CounterData[];
-      integrated: SystemTemplates.ResolvedUuidRef<LancerItem>[];
+      integrated: LIDRef[];
       tags: Tag[];
     };
   }
@@ -375,8 +375,8 @@ export namespace SystemData {
       SystemTemplates.destructible,
       SystemTemplates.limited,
       SystemTemplates.licensed {
-    deployables: SystemTemplates.ResolvedUuidRef<LancerDEPLOYABLE>[];
-    integrated: SystemTemplates.ResolvedUuidRef<LancerItem>[];
+    deployables: LIDRef[];
+    integrated: LIDRef[];
     sp: number;
     profiles: Array<{
       name: string;
@@ -434,8 +434,8 @@ export namespace SystemData {
       flavor: string;
       tactics: string;
     };
-    base_features: SystemTemplates.ResolvedUuidRef<LancerNPC_FEATURE>[];
-    optional_features: SystemTemplates.ResolvedUuidRef<LancerNPC_FEATURE>[];
+    base_features: LIDRef[];
+    optional_features: LIDRef[];
     base_stats: Array<{
       activations: number;
       armor: number;
@@ -456,8 +456,8 @@ export namespace SystemData {
   export type NpcFeature = SystemTemplates.NPC.AnyFeature;
   export interface NpcTemplate extends SystemTemplates.item_universal {
     description: string;
-    base_features: SystemTemplates.ResolvedUuidRef<LancerNPC_FEATURE>[];
-    optional_features: SystemTemplates.ResolvedUuidRef<LancerNPC_FEATURE>[];
+    base_features: LIDRef[];
+    optional_features: LIDRef[];
   }
 
   export interface Organization extends SystemTemplates.item_universal {
@@ -529,9 +529,9 @@ export namespace SystemData {
       actions: ActionData[];
       bonuses: BonusData[];
       synergies: SynergyData[];
-      deployables: SystemTemplates.ResolvedUuidRef<LancerActor>[];
+      deployables: LIDRef[];
       counters: CounterData[];
-      integrated: SystemTemplates.ResolvedUuidRef<LancerItem>[];
+      integrated: LIDRef[];
     }>;
 
     // Flattened lists, computed

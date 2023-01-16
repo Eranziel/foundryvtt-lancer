@@ -68,6 +68,7 @@ import {
   std_password_input,
   std_num_input,
   std_checkbox,
+  std_enum_select,
 } from "./module/helpers/commons";
 import {
   weapon_size_selector,
@@ -401,6 +402,7 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("std-password-input", std_password_input);
   Handlebars.registerHelper("std-num-input", std_num_input);
   Handlebars.registerHelper("std-checkbox", std_checkbox);
+  Handlebars.registerHelper("std-select", std_enum_select);
   Handlebars.registerHelper("action-button", action_button);
   Handlebars.registerHelper("macro-button", macro_button);
   Handlebars.registerHelper("tech-flow-card", tech_flow_card);

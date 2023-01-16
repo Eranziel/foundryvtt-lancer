@@ -257,11 +257,12 @@ export function item_preview<T extends LancerItemType>(
     }
 
     if (doc.system.deployables.length) {
-      deployables = doc.system.deployables
+      deployables = "TODO";
+      /*doc.system.deployables
         .map((d, i) => {
           return d.status == "resolved" ? buildDeployableHTML(d.value, true, i) : "UNRESOLVED";
         })
-        .join("");
+        .join("");*/
     }
 
     let macroData: LancerMacroData = {

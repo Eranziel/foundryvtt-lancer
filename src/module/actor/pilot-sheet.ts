@@ -11,7 +11,7 @@ import { LancerItem, LancerItemType } from "../item/lancer-item";
 import { clicker_num_input } from "../helpers/actor";
 import { ResolvedDropData } from "../helpers/dragdrop";
 import { EntryType } from "../enums";
-import { PackedPilotData } from "../util/mmigration/packed-types";
+import { PackedPilotData } from "../util/unpacking/packed-types";
 
 const shareCodeMatcher = /^[A-Z0-9\d]{6}$/g;
 const COUNTER_MAX = 8;

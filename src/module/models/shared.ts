@@ -1,6 +1,7 @@
 import { DamageType, EntryType, RangeType, SystemType, WeaponSize, WeaponType } from "../enums";
 import { format_dotpath } from "../helpers/commons";
 import { LancerItem } from "../item/lancer-item";
+import { SourceData } from "../source-template";
 import { SystemTemplates } from "../system-template";
 import { PackedDeployableData } from "../util/unpacking/packed-types";
 
@@ -349,6 +350,10 @@ export class SystemTypeChecklistField extends ChecklistField {
 
 // Use this to track pending jobs while unpacking
 export interface UnpackContext {
-  pendingDeployables: PackedDeployableData[];
+  createdDeployables: Array<{
+    name: string;
+    type: EntryType.DEPLOYABLE;
+    system: DeepPartial<SourceData.Deployable>;
+  }>;
   // Idk, do we really need anything else?
 }

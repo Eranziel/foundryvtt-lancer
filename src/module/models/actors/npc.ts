@@ -11,10 +11,10 @@ import { LancerDataModel } from "../shared";
 const fields: any = foundry.data.fields;
 
 const npc_schema = {
-  destroyed: new fields.Boolean({initial: false}),
-  meltdown_timer: new fields.NumberField({required: false, nullable: true, integer: true, min: 0}),
+  destroyed: new fields.Boolean({ initial: false }),
+  meltdown_timer: new fields.NumberField({ required: false, nullable: true, integer: true, min: 0 }),
   notes: new fields.HTMLField(),
-  tier: new fields.NumberField({min: 1, max: 3, integer: true}),
+  tier: new fields.NumberField({ min: 1, max: 3, integer: true }),
 
   ...template_universal_actor(),
   ...template_action_tracking(),

@@ -34,8 +34,11 @@ export interface BoundedNum {
 }
 
 export type FullBoundedNum = Required<BoundedNum>;
-export type UUIDRef = string; // A UUID. TODO: Implement a fallback lid measure?
+export type UUIDRef = string; // A UUID reference to a document.
 export type EmbeddedRef = string; // A local item on an actor. Used for loadouts / active equipment
+export type LIDRef = string; // A LID reference to a document.
+// UUID lookups are comparatively expensive, and should only be done when we need them, not passively
+// Additionally, maintaining things as LID references in general makes them less fragile
 // Each tag holds a minified version of the full version, which should theoretically be accessible via clicking on it
 
 export namespace SourceTemplates {
@@ -65,8 +68,8 @@ export namespace SourceTemplates {
     actions: ActionData[];
     synergies: SynergyData[];
     counters: CounterData[];
-    deployables: UUIDRef[];
-    integrated: UUIDRef[];
+    deployables: LIDRef[];
+    integrated: LIDRef[];
     tags: TagData[];
   }
 
@@ -223,8 +226,8 @@ export namespace SourceData {
       description: string;
       bonuses: BonusData[];
       counters: CounterData[];
-      integrated: UUIDRef[];
-      deployables: UUIDRef[];
+      integrated: LIDRef[];
+      deployables: LIDRef[];
       actions: ActionData[];
       synergies: SynergyData[];
       use: FrameEffectUse;
@@ -249,9 +252,9 @@ export namespace SourceData {
       passive_actions: ActionData[];
       passive_bonuses: BonusData[];
 
-      deployables: UUIDRef[];
+      deployables: LIDRef[];
       counters: CounterData[];
-      integrated: UUIDRef[];
+      integrated: LIDRef[];
       tags: TagData[];
     };
   }
@@ -302,8 +305,8 @@ export namespace SourceData {
     extends SourceTemplates.item_universal,
       SourceTemplates.destructible,
       SourceTemplates.licensed {
-    deployables: UUIDRef[];
-    integrated: UUIDRef[];
+    deployables: LIDRef[];
+    integrated: LIDRef[];
     sp: number;
     uses: number;
     profiles: Array<{
@@ -436,9 +439,9 @@ export namespace SourceData {
       actions: ActionData[];
       bonuses: BonusData[];
       synergies: SynergyData[];
-      deployables: UUIDRef[];
+      deployables: LIDRef[];
       counters: CounterData[];
-      integrated: UUIDRef[];
+      integrated: LIDRef[];
     }>;
     terse: string;
   }

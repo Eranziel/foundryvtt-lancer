@@ -74,22 +74,22 @@ export class BonusEditDialog extends FormApplication {
       damages: Object.values(DamageType).map(dt => ({
         key: dt,
         label: iconer.r(Damage.IconFor(dt)),
-        val: this.bonus.damage_types[dt],
+        val: this.bonus.damage_types?.[dt] ?? false,
       })),
       ranges: Object.values(RangeType).map(rt => ({
         key: rt,
         label: iconer.r(Range.IconFor(rt)),
-        val: this.bonus.range_types[rt],
+        val: this.bonus.range_types?.[rt] ?? false,
       })),
       sizes: Object.values(WeaponSize).map(ws => ({
         key: ws,
         label: ws,
-        val: this.bonus.weapon_sizes[ws],
+        val: this.bonus.weapon_sizes?.[ws] ?? false,
       })),
       types: Object.values(WeaponType).map(wt => ({
         key: wt,
         label: wt,
-        val: this.bonus.weapon_types[wt],
+        val: this.bonus.weapon_types?.[wt] ?? false,
       })),
       bonus: this.bonus,
     };
@@ -109,15 +109,19 @@ export class BonusEditDialog extends FormApplication {
     };
 
     // Populate checkboxes
+    new_bonus.damage_types = {} as DamageTypeChecklist;
     for (let dt of Object.values(DamageType)) {
       new_bonus.damage_types[dt] = form_data[dt] as boolean;
     }
+    new_bonus.range_types = {} as RangeTypeChecklist;
     for (let rt of Object.values(RangeType)) {
       new_bonus.range_types[rt] = form_data[rt] as boolean;
     }
+    new_bonus.weapon_types = {} as WeaponTypeChecklist;
     for (let wt of Object.values(WeaponType)) {
       new_bonus.weapon_types[wt] = form_data[wt] as boolean;
     }
+    new_bonus.weapon_sizes = {} as WeaponSizeChecklist;
     for (let ws of Object.values(WeaponSize)) {
       new_bonus.weapon_sizes[ws] = form_data[ws] as boolean;
     }
