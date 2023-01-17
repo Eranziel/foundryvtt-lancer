@@ -1125,7 +1125,7 @@ export class LancerActor extends Actor {
           // protype token size to the new size
           // @ts-expect-error Should be fixed with v10 types
           const cached_token_size = this.token?.flags[game.system.id]?.mm_size;
-          if (!cached_token_size || cached_token_size !== mm.Size) {
+          if (this.token && (cached_token_size === undefined || cached_token_size !== mm.Size)) {
             const size = mm.Size <= 1 ? 1 : mm.Size;
             this.token?.update({
               width: size,
@@ -1137,7 +1137,7 @@ export class LancerActor extends Actor {
                   evenSnap: !(size % 2),
                 },
                 [game.system.id]: {
-                  mm_size: size,
+                  mm_size: mm.Size,
                 },
               },
             });
