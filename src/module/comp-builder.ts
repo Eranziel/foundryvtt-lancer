@@ -96,12 +96,11 @@ export async function importCP(
     let allStatuses = [];
     let allSystems = cp.data.systems?.map(s => unpackMechSystem(s, context)) ?? [];
     let allTags = [];
-    let allTalents = []; // ;cp.data.talents?.map(d => unpackTalent)
+    let allTalents = [];
     let allWeapons = cp.data.weapons?.map(d => unpackMechWeapon(d, context)) ?? [];
 
-    let allDeployables =
-      // Get creating
-      await CONFIG.Item.documentClass.createDocuments(allCoreBonuses, { pack: `world.${EntryType.CORE_BONUS}` });
+    // Get creating
+    await CONFIG.Item.documentClass.createDocuments(allCoreBonuses, { pack: `world.${EntryType.CORE_BONUS}` });
     await CONFIG.Item.documentClass.createDocuments(allFrames, { pack: `world.${EntryType.FRAME}` });
     await CONFIG.Item.documentClass.createDocuments(allSystems, { pack: `world.${EntryType.MECH_SYSTEM}` });
     await CONFIG.Item.documentClass.createDocuments(allWeapons, { pack: `world.${EntryType.MECH_WEAPON}` });
