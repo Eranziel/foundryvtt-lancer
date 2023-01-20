@@ -1,3 +1,9 @@
+# 1.4.1 (2023-01-17)
+## Bug Fixes
+* #500 - Fix activation icon size in popout combat tracker.
+* #503 - Fix bug causing new item creation to fail.
+* #506 - Fix bug causing some tokens to be automatically resized on load.
+
 # 1.4.0-beta.1 (2023-01-03)
 ## Features
 * Beta release for Foundry v10 compatibility!
