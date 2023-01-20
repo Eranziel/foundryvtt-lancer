@@ -457,7 +457,6 @@ export class LancerActor extends Actor {
     } else if (this.is_pilot()) {
       // result.push(...ent.OwnedPilotWeapons, ...ent.OwnedPilotArmor, ...ent.OwnedPilotGear); // TODO
     } else {
-      ui.notifications!.warn("Cannot reload deployables");
     }
     return result;
   }
@@ -998,7 +997,7 @@ export class LancerActor extends Actor {
 
     // 5. If owner, check for and cleanup any unresolved references. This could possibly be checked less frequently but this is the safest way of doing this
     if (this.isOwner) {
-      this.#cleanupUnresolvedReferences();
+      this._cleanupUnresolvedReferences();
     }
   }
 
@@ -1267,7 +1266,7 @@ export class LancerActor extends Actor {
   /**
    * Check our loadout as applicable to cleanup any unresolved references
    */
-  #cleanupUnresolvedReferences() {
+  _cleanupUnresolvedReferences() {
     // Bundled updates are theoretically rare, but if they ever were to occur its better than just first-instinct-updating 30 times
     let needCleanup = false;
     if (this.is_pilot()) {
