@@ -1,7 +1,7 @@
 # Lancer System for FoundryVTT
 A Foundry VTT system for the [Lancer RPG](https://massif-press.itch.io/corebook-pdf) by [Massif Press](https://massif-press.itch.io/). 
 
-**CAUTION:** Lancer does not yet have a stable release for Foundry v10. ***Do not*** launch your Lancer worlds on v10, as Foundry will automatically migrate your data and make it incompatible with v9. ***Always always always*** back up your data before updating Foundry!
+**CAUTION:** Lancer is now compatible with Foundry v10. If you launch your Lancer worlds on v10, Foundry will automatically migrate your data and make it incompatible with v9. ***Always always always*** back up your data before updating Foundry!
 
 ## Attribution and Acknowledgements
 The Lancer universe and all related setting materials are copyright Massif Press, used by permission.
@@ -25,3 +25,8 @@ Simply search for Lancer in the Foundry system browser and install from there.
 ## Development Setup
 
 [See here](https://github.com/Eranziel/foundryvtt-lancer/wiki/Development-Setup)
+
+## Legal
+"Lancer for FoundryVTT" is not an official _Lancer_ product; it is a third party work, and is not affiliated with Massif Press. "Lancer for FoundryVTT" is published via the _Lancer_ Third Party License.
+
+_Lancer_ is copyright Massif Press.
