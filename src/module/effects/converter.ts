@@ -195,9 +195,11 @@ export function convert_bonus(label: string, bonus: BonusData): null | LancerAct
   // Separate logic for "restricted" bonuses
   if (bonus.range_types || bonus.damage_types || bonus.weapon_sizes || bonus.weapon_types) {
     if (bonus.lid == "damage") {
+      // TODO
     } else if (bonus.lid == "range") {
+      // TODO
     } else {
-      ui.notifications?.warn("Bonus restrictions should");
+      ui.notifications?.warn("Bonus restrictions have no effect");
     }
     ui.notifications?.warn("Bonus damage/range generation not yet fully supported");
     return null;

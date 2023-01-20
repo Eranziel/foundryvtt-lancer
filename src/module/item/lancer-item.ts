@@ -173,14 +173,6 @@ export class LancerItem extends Item {
 
   protected async _preCreate(...[data, options, user]: Parameters<Item["_preCreate"]>): Promise<void> {
     await super._preCreate(data, options, user);
-    // If base item has data, then we are probably importing. Skip this step
-    // @ts-expect-error Should be fixed with v10 types
-    if (data.system?.lid) {
-      console.log(`${lp} New ${this.type} has data provided from an import, skipping default init.`);
-      return;
-    }
-
-    console.log(`${lp} Initializing new ${this.type}`);
 
     // Select default image
     let icon_lookup: string = this.type;
@@ -189,6 +181,18 @@ export class LancerItem extends Item {
     }
     let img = TypeIcon(icon_lookup);
 
+    // If base item has data, then we are probably importing. Skip 90% of our import procedures
+    // @ts-expect-error Should be fixed with v10 types
+    if (data.system?.lid) {
+      console.log(`${lp} New ${this.type} has data provided from an import, skipping default init.`);
+      if (!data.img || data.img == "icons/svg/item-bag.svg") {
+        // @ts-expect-error Should be fixed with v10 types
+        this.updateSource({ img });
+      }
+      return;
+    }
+
+    console.log(`${lp} Initializing new ${this.type}`);
     let default_data: SourceDataType<LancerItemType>;
     switch (this.type) {
       default:

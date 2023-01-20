@@ -29,6 +29,7 @@ import { LancerActiveEffect } from "../effects/lancer-active-effect";
 import { LancerActiveEffectConstructorData } from "../effects/lancer-active-effect";
 import { filter_resolved_sync } from "../helpers/commons";
 import { ChangeWatchHelper } from "../util/misc";
+import { frameToPath } from "./retrograde-map";
 const lp = LANCER.log_prefix;
 
 const DEFAULT_OVERCHARGE_SEQUENCE = ["+1", "+1d3", "+1d6", "+1d6+4"];
@@ -1332,12 +1333,9 @@ export class LancerActor extends Actor {
     oldFrame: LancerFRAME | LancerNPC_CLASS | null,
     newFrame: LancerFRAME | LancerNPC_CLASS
   ): Promise<string> {
-    ui.notifications?.error("TODO: Reimplement frame image swapping");
-    return "";
-    /*
-    let oldFramePath = frameToPath[oldFrame?.Name || ""];
-    let newFramePath = frameToPath[newFrame?.Name || ""];
-    let defaultImg = is_reg_mech(robot)
+    let oldFramePath = frameToPath[oldFrame?.name || ""];
+    let newFramePath = frameToPath[newFrame?.name || ""];
+    let defaultImg = robot.is_mech()
       ? "systems/lancer/assets/icons/mech.svg"
       : "systems/lancer/assets/icons/npc_class.svg";
 
@@ -1345,39 +1343,24 @@ export class LancerActor extends Actor {
     let changed = false;
     let newData: Parameters<this["update"]>[0] = {};
 
+    // First deduce if either our token or actor images are candidates for overwrite
+    let isStandard = (x: string) =>
+      x == oldFramePath ||
+      x == defaultImg ||
+      x.includes("compcon-image-assets" || x.includes("systems/lancer/assets/retrograde-minis"));
+    // @ts-expect-error Should be fixed with v10 types
+    let isTokenStandard = isStandard(this.prototypeToken?.texture?.src || oldFramePath);
+    let isActorStandard = isStandard(this.img || oldFramePath);
+
     // Check the token
-    // Add manual check for the aws images
-    if (
-      // @ts-expect-error Should be fixed with v10 types
-      this.token?.img == oldFramePath ||
-      // @ts-expect-error Should be fixed with v10 types
-      this.token?.img == defaultImg ||
-      // @ts-expect-error Should be fixed with v10 types
-      this.token?.img?.includes("compcon-image-assets")
-    ) {
-      newData.token = { img: newFramePath };
+    if (isTokenStandard) {
+      newData["prototypeToken.texture.src"] = newFramePath;
       changed = true;
     }
 
     // Check the actor
-    if (this.img == oldFramePath || this.img == defaultImg) {
+    if (isActorStandard) {
       newData.img = newFramePath;
-
-      // Have to set our top level data in MM or it will overwrite it...
-      robot.Flags.top_level_data.img = newFramePath;
-      if (
-        // @ts-expect-error Should be fixed with v10 types
-        this.token?.img?.includes("systems/lancer/assets/retrograde-minis") ||
-        // @ts-expect-error Should be fixed with v10 types
-        this.token?.img == defaultImg
-      ) {
-        //we can override any retrograde assets, or the default image
-        robot.Flags.top_level_data["token.img"] = newFramePath;
-      } else {
-        //do not override any custom tokens
-        // @ts-expect-error Should be fixed with v10 types
-        robot.Flags.top_level_data["token.img"] = this.token?.img;
-      }
       changed = true;
     }
 
@@ -1387,7 +1370,6 @@ export class LancerActor extends Actor {
     }
 
     return newFramePath;
-  */
   }
 }
 
