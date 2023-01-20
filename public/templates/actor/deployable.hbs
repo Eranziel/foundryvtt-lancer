@@ -12,7 +12,7 @@
         />
       </h1>
     </div>
-    {{{ ref-portrait-img actor.img "img" mm }}}
+    {{{ ref-portrait-img actor.img "img" actor }}}
   </header>
 
   {{!-- Sheet Tab Navigation --}}
@@ -27,21 +27,25 @@
     {{!-- Active Tab --}}
     <div class="tab manage" data-group="primary" data-tab="status">
       <div class="wraprow quadruple">
-        {{{stat-edit-max-card "HP" "mdi mdi-heart-outline" "mm.CurrentHP" "mm.MaxHP" }}}
-        {{{stat-edit-max-card "HEAT" "cci cci-heat" "mm.CurrentHeat" "mm.HeatCapacity" }}}
-        {{{stat-edit-card "BURN" "cci cci-burn" "mm.Burn" }}}
-        {{{stat-edit-card "OVERSHIELD" "mdi mdi-shield-star-outline" "mm.Overshield" }}}
-        {{{stat-view-card "SIZE" (concat "mdi " mm.SizeIcon) "mm.Size" }}}
-        {{{stat-view-card "ARMOR" "mdi mdi-shield-outline" "mm.Armor" }}}
-        {{{stat-view-card "EVASION" "cci cci-evasion" "mm.Evasion" }}}
-        {{{stat-view-card "E-DEF" "cci cci-edef" "mm.EDefense" }}}
-        {{{stat-view-card "SPEED" "mdi mdi-arrow-right-bold-hexagon-outline" "mm.Speed" }}}
-        {{{stat-view-card "SAVE" "cci cci-save" "mm.SaveTarget" }}}
+        {{{stat-edit-max-card "HP" "mdi mdi-heart-outline" "system.hp.value" "system.hp.max" }}}
+        {{{stat-edit-max-card "HEAT" "cci cci-heat" "system.heat.value" "system.heat.max" }}}
+        {{{stat-edit-card "BURN" "cci cci-burn" "system.burn" }}}
+        {{{stat-edit-card "OVERSHIELD" "mdi mdi-shield-star-outline" "system.overshield.value" }}}
+        {{#if (eq system.size 0.5)}}
+          {{{stat-view-card "SIZE" "cci cci-size-half size-icon" "system.size" }}}
+        {{else}}
+          {{{stat-view-card "SIZE" (concat "cci cci-size-" system.size " size-icon") "system.size" }}}
+        {{/if}}
+        {{{stat-view-card "ARMOR" "mdi mdi-shield-outline" "system.armor" }}}
+        {{{stat-view-card "EVASION" "cci cci-evasion" "system.evasion" }}}
+        {{{stat-view-card "E-DEF" "cci cci-edef" "system.edef" }}}
+        {{{stat-view-card "SPEED" "mdi mdi-arrow-right-bold-hexagon-outline" "system.speed" }}}
+        {{{stat-view-card "SAVE" "cci cci-save" "system.save" }}}
 
         <div class="card clipped full lancer-macro-grid">
           <span class="lancer-header submajor">BASIC ATTACKS</span>
           <div class="lancer-macro-grid">
-            {{{macro-button "BASIC ATTACK" "prepareEncodedAttackMacro" "mm" }}}
+            {{{macro-button "BASIC ATTACK" "prepareEncodedAttackMacro" "actor" }}}
           </div>
         </div>
 
@@ -49,14 +53,10 @@
           <div class="lancer-header major">
             {{localize "lancer.deployable-sheet.deployer.label"}}
           </div>
-          {{{deployer-slot "mm.Deployer" }}}
+          {{{deployer-slot "system.deployer" }}}
         </div>
 
-        {{{textarea-card "DETAILS" "mm.Detail"}}} {{!-- {{{stat-edit-max-card "REPAIRS" "cci
-        cci-repair" "mm.CurrentRepairs" "mm.RepairCapacity" }}} {{{stat-view-card "ATTACK"
-        "cci cci-heart" "mm.AttackBonus" }}} {{{stat-view-card "TECH ATK" "cci cci-tech-full"
-        "mm.TechAttack" }}} {{{stat-view-card "SENSORS" "cci cci-sensor" "mm.SensorRange"
-        }}} --}}
+        {{{textarea-card "DETAILS" "system.detail"}}}  
       </div>
     </div>
 
@@ -67,18 +67,14 @@
         <span class="lancer-header major" style="text-align: center;">{{localize "lancer.deployable-sheet.stats.label"}}</span>
         <div class="card clipped wraprow quadruple">
           <div class="wraprow quadruple">
-            {{{clicker-stat-card "MAX HP" "mdi mdi-heart-outline" "mm.BaseMaxHP" false }}}
-            {{{clicker-stat-card "ARMOR" "mdi mdi-shield-outline" "mm.BaseArmor" false }}}
-            {{{clicker-stat-card "REPAIRS" "cci cci-repair" "mm.BaseRepairCapacity" false }}}
-            {{{clicker-stat-card "EVASION" "cci cci-evasion" "mm.BaseEvasion" false }}}
-            {{{clicker-stat-card "E-DEF" "cci cci-edef" "mm.BaseEDefense" false }}}
-            {{{clicker-stat-card "HEAT CAP" "cci cci-heatcap" "mm.BaseHeatCapacity" false }}}
-            {{{clicker-stat-card "SPEED" "mdi mdi-arrow-right-bold-hexagon-outline" "mm.BaseSpeed" false }}}
-            {{{clicker-stat-card "TECH ATK" "cci cci-tech-full" "mm.BaseTechAttack" true }}}
-            {{{clicker-stat-card "SENSORS" "cci cci-sensor" "mm.BaseSensorRange" false }}}
-            {{{clicker-stat-card "SAVE" "cci cci-save" "mm.BaseSaveTarget" false }}}
-            {{{clicker-stat-card "SIZE" "cci cci-hexagon" "mm.BaseSize" false }}}
-            {{{clicker-stat-card "COST" "cci cci-hexagon" "mm.Cost" false }}}
+            {{{clicker-stat-card "MAX HP" "mdi mdi-heart-outline" "system.max_hp" false }}}
+            {{{clicker-stat-card "ARMOR" "mdi mdi-shield-outline" "system.armor" false }}}
+            {{{clicker-stat-card "EVASION" "cci cci-evasion" "system.evasion" false }}}
+            {{{clicker-stat-card "E-DEF" "cci cci-edef" "system.edef" false }}}
+            {{{clicker-stat-card "HEAT CAP" "cci cci-heatcap" "system.max_heat" false }}}
+            {{{clicker-stat-card "SPEED" "mdi mdi-arrow-right-bold-hexagon-outline" "system.speed" false }}}
+            {{{clicker-stat-card "SIZE" "cci cci-hexagon" "system.size" false }}}
+            {{{clicker-stat-card "COST" "cci cci-hexagon" "system.cost" false }}}
           </div>
         </div>
       </div>
