@@ -9,7 +9,7 @@ import { unpackCounter } from "../bits/counter";
 import { unpackSynergy } from "../bits/synergy";
 import { unpackTag } from "../bits/tag";
 import { restrict_enum } from "../../helpers/commons";
-import { DeployableType } from "../../enums";
+import { DeployableType, EntryType } from "../../enums";
 import { slugify } from "../../util/lid";
 
 const fields: any = foundry.data.fields;
@@ -44,7 +44,7 @@ export function unpackDeployableData(data: PackedDeployableData): Partial<Source
     tags: data.tags?.map(unpackTag),
     activation: data.activation,
     armor: data.armor,
-    activations: undefined,
+    activations: 0,
     avail_mounted: undefined,
     avail_unmounted: undefined,
     burn: undefined,
@@ -73,6 +73,12 @@ export function unpackDeployableData(data: PackedDeployableData): Partial<Source
 // When we unpack a deployable, we generate for it a slugified name
 export function unpackDeployable(data: PackedDeployableData, context: UnpackContext): string {
   let lid = "dep_" + slugify(data.name);
-  // TODO
+  let unpacked = unpackDeployableData(data);
+  unpacked.lid = lid;
+  context.createdDeployables.push({
+    name: data.name,
+    system: unpacked,
+    type: EntryType.DEPLOYABLE,
+  });
   return lid;
 }
