@@ -180,8 +180,8 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
    */
   async getData(): Promise<LancerItemSheetData<T>> {
     const data = super.getData() as LancerItemSheetData<T>; // Not fully populated yet!
-    // @ts-ignore
-    (data as any).system = this.item.system; // Alias
+    // @ts-expect-error v9???
+    data.system = this.item.system; // Set our alias
 
     // Additionally we would like to find a matching license. Re-use ctx, try both a world and global reg, actor as well if it exists
     data.license = null;

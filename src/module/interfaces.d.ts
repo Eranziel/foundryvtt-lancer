@@ -2,6 +2,7 @@ import { LancerItemType } from "./item/lancer-item";
 import { EffectData } from "./helpers/npc";
 import { LancerActorType, LancerMECH, LancerPILOT } from "./actor/lancer-actor";
 import { LancerActiveEffect } from "./effects/lancer-active-effect";
+import { SystemDataTypesMap, SystemDataType } from "./system-template";
 
 // ------------------------------------------------------
 // |       SHEET DATA TYPES                             |
@@ -11,6 +12,7 @@ import { LancerActiveEffect } from "./effects/lancer-active-effect";
 export interface LancerItemSheetData<T extends LancerItemType> extends ItemSheet.Data<ItemSheet.Options> {
   // The license, if it could be recovered
   license: LANCERLicense | null;
+  system: SystemDataType<T>;
 }
 
 export type CachedCloudPilot = {
