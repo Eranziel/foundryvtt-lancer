@@ -7,7 +7,7 @@ import { fix_modify_token_attribute } from "../token";
 import { findEffect } from "../helpers/acc_diff";
 import { AppliedDamage } from "./damage-calc";
 import { SystemData, SystemDataType, SystemTemplates } from "../system-template";
-import { SourceDataType } from "../source-template";
+import { SourceData, SourceDataType } from "../source-template";
 import * as defaults from "../util/unpacking/defaults";
 import { PackedPilotData } from "../util/unpacking/packed-types";
 import { getAutomationOptions } from "../settings";
@@ -995,6 +995,11 @@ export class LancerActor extends Actor {
     } else if (this.is_deployable()) {
       // TODO
     }
+
+    // 5. If owner, check for and cleanup any unresolved references. This could possibly be checked less frequently but this is the safest way of doing this
+    if (this.isOwner) {
+      this.#cleanupUnresolvedReferences();
+    }
   }
 
   /** @override
@@ -1257,6 +1262,58 @@ export class LancerActor extends Actor {
       return true;
     }
     return false;
+  }
+
+  /**
+   * Check our loadout as applicable to cleanup any unresolved references
+   */
+  #cleanupUnresolvedReferences() {
+    // Bundled updates are theoretically rare, but if they ever were to occur its better than just first-instinct-updating 30 times
+    let needCleanup = false;
+    if (this.is_pilot()) {
+      // TODO
+    } else if (this.is_mech()) {
+      // @ts-expect-error
+      let cleanupLoadout = duplicate(this.system._source.loadout) as SourceData.Mech["loadout"];
+      let currLoadout = this.system.loadout;
+      // Frame is simple
+      if (currLoadout.frame?.status == "missing") {
+        cleanupLoadout.frame = null;
+        needCleanup = true;
+      }
+
+      // Systems are annoying. Remove all missing references corresponding source entry, then mark as needing cleanup if that shortened our array
+      let priorSystemsLength = cleanupLoadout.systems.length;
+      cleanupLoadout.systems = cleanupLoadout.systems.filter(
+        (_, index) => currLoadout.systems[index].status != "missing"
+      );
+      if (priorSystemsLength > cleanupLoadout.systems.length) {
+        needCleanup = true;
+      }
+
+      // Weapons are incredibly annoying. Traverse and nullify corresponding slots
+      for (let i = 0; i < currLoadout.weapon_mounts.length; i++) {
+        let mount = currLoadout.weapon_mounts[i];
+        for (let j = 0; j < mount.slots.length; j++) {
+          let slot = mount.slots[j];
+          if (slot.mod?.status == "missing") {
+            cleanupLoadout.weapon_mounts[i].slots[j].mod = null;
+            needCleanup = true;
+          }
+          if (slot.weapon?.status == "missing") {
+            cleanupLoadout.weapon_mounts[i].slots[j].weapon = null;
+            needCleanup = true;
+          }
+        }
+      }
+
+      // Only update if necessary
+      if (needCleanup) {
+        console.log("Cleaning up unused items...");
+        this.update({ system: { loadout: cleanupLoadout } });
+      }
+    }
+    // Deployables and NPCs don't have embedded junk, so we don't mess with 'em
   }
 
   /**
