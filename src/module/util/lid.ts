@@ -8,9 +8,9 @@ import { EntryType } from "../enums";
 /**
  * Lookup all documents with the associated lid in the given types.
  * Document types are checked in order. If no type(s) supplied, all are queried.
- * short_circuit will make it stop with first valid result. Will still return all results of that category
+ * short_circuit will make it stop with first valid result. Will still return all results of that category, but will not check further categories
  */
-export async function compendium_lookup_lid_plural(
+export async function lookupLIDPlural(
   lid: string,
   short_circuit: boolean = true,
   types?: EntryType | EntryType[]
@@ -40,11 +40,11 @@ export async function compendium_lookup_lid_plural(
 }
 
 // As compendium_lookup_lid, but just takes first result
-export async function compendium_lookup_lid(
+export async function lookupLID(
   lid: string,
   types?: EntryType | EntryType[]
 ): Promise<LancerActor | LancerItem | null> {
-  let res = await compendium_lookup_lid_plural(lid, true, types);
+  let res = await lookupLIDPlural(lid, true, types);
   if (res.length) {
     return res[0];
   } else {
@@ -55,7 +55,7 @@ export async function compendium_lookup_lid(
 // A fetcher cache for LIDs
 export class LIDLookupCache extends FetcherCache<string, LancerActor | LancerItem | null> {
   constructor(timeout?: number) {
-    super(key => compendium_lookup_lid(key), timeout);
+    super(key => lookupLID(key), timeout);
   }
 }
 

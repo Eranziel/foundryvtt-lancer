@@ -1,7 +1,3 @@
-import { LancerItem } from "../../item/lancer-item";
-import { SourceTemplates } from "../../source-template";
-import { SystemTemplates } from "../../system-template";
-import { compendium_lookup_lid } from "../../util/lid";
 import { PackedTagData, PackedTagTemplateData } from "../../util/unpacking/packed-types";
 import { LIDField } from "../shared";
 
