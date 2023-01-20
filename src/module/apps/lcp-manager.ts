@@ -210,33 +210,26 @@ class LCPManager extends Application {
     ui.notifications!.info(`Starting import of ${cp.manifest.name} v${cp.manifest.version}. Please wait.`);
     console.log(`${lp} Starting import of ${cp.manifest.name} v${cp.manifest.version}.`);
     console.log(`${lp} Parsed content pack:`, cp);
-    await importCP(cp, (x, y) => this.update_progress_bar(x, y));
-    ui.notifications!.info(`Import of ${cp.manifest.name} v${cp.manifest.version} complete.`);
+    await importCP(cp, (x, y) => this.updateProgressBar(x, y));
+    this.updateProgressBar(1, 1);
     console.log(`Import of ${cp.manifest.name} v${cp.manifest.version} complete.`);
 
     this.updateLcpIndex(manifest);
   }
 
-  update_progress_bar(done: number, out_of: number) {
-    $(this.element).find(".lcp-progress").prop("value", done);
-    $(this.element).find(".lcp-progress").prop("max", out_of);
+  updateProgressBar(done: number, outOf: number) {
+    let percent = Math.ceil((done / outOf) * 100);
+    // @ts-expect-error v9
+    SceneNavigation.displayProgressBar({ label: "Importing...", pct: percent });
   }
 }
 
 export { LCPManager, addLCPManager, LCPIndex };
 
 export async function updateCore(version: string, manager?: LCPManager) {
-  let progress = 1;
-  let progress_func = (x: any, y: any) => {
+  let progress_func = (done: any, outOf: any) => {
     // If we're passing a manager, let it do things as well
-    if (manager) manager.update_progress_bar(x, y);
-    // Provide updates every 25%
-    const denom = 4;
-    let incr = Math.ceil(y / denom);
-    if (x >= incr * progress) {
-      ui.notifications!.info(`${progress * (100 / denom)}% of Lancer Core data updated`);
-      progress += 1;
-    }
+    if (manager) manager.updateProgressBar(done, outOf);
   };
 
   ui.notifications!.info(`Updating Lancer Core data to v${version}. Please wait.`);
@@ -254,6 +247,7 @@ export async function updateCore(version: string, manager?: LCPManager) {
     return;
   }
 
-  ui.notifications!.info(`Lancer Core data update complete.`);
+  // @ts-expect-error v9
+  SceneNavigation.displayProgressBar({ label: "DONE", pct: 100 });
   await game.settings.set(game.system.id, LANCER.setting_core_data, version);
 }
