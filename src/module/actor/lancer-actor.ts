@@ -812,7 +812,7 @@ export class LancerActor extends Actor {
             // Narrow down our destination options to find one that's in the proper folder
             let dest_deployables = (await dest_cat.list_live(source_item.OpCtx)) as Deployable[];
             return dest_deployables.find(dd => {
-              let dd_folder_id: string = dd.Flags.orig_doc.document.folder;
+              let dd_folder_id: string = dd.Flags.orig_doc.folder;
               console.log(
                 "Checking folder: " + dd.Name + " has folder id " + dd_folder_id + " which ?== " + unit_folder?.id
               );
