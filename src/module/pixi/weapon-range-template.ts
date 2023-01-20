@@ -44,7 +44,7 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
    */
   static fromRange({ type, val }: WeaponRangeTemplate["range"], creator?: Token): WeaponRangeTemplate | null {
     if (!canvas.ready) return null;
-    const dist = parseInt(val);
+    const dist = val;
     if (isNaN(dist)) return null;
     const hex: boolean = (canvas.grid?.type ?? 0) >= 2;
     const grid_distance = (canvas.scene?.dimensions as Partial<Canvas.Dimensions> | undefined)?.distance ?? 1;
@@ -255,7 +255,7 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
    */
   private getBurstDistance(size: number): number {
     const hex = canvas.grid!.type > 1;
-    let val = parseInt(this.range.val);
+    let val = this.range.val;
     if (hex) {
       if (size === 2) val += 0.7 - (val > 2 ? 0.1 : 0);
       if (size === 3) val += 1.2;

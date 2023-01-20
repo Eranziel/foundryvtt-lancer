@@ -408,7 +408,7 @@ export function DAMAGE(): DamageData {
 export function RANGE(): RangeData {
   return {
     type: RangeType.Range,
-    val: "5",
+    val: 5,
   };
 }
 
@@ -511,7 +511,7 @@ export function PILOT_WEAPON(): SourceDataType<EntryType.PILOT_WEAPON> {
     range: [
       {
         type: RangeType.Range,
-        val: "5",
+        val: 5,
       },
     ],
     damage: [

@@ -9,13 +9,13 @@ const fields: any = foundry.data.fields;
 // Clone of RegRangeData
 export interface RangeData {
   type: RangeType;
-  val: string;
+  val: number;
 }
 
 // Represents a single range for a weapon. Line 8, range 10, burst 2, etc. Blast will have a separate entry for its "normal" range and the range of the explosion
 export class Range implements Required<RangeData> {
   type: RangeType;
-  val: string;
+  val: number;
   constructor(data: RangeData) {
     this.type = data.type;
     this.val = data.val;
@@ -144,8 +144,8 @@ export class Range implements Required<RangeData> {
       // Get a match on
       let to_be_modified = result.find(result_d => result_d.type == db.type);
       if (to_be_modified) {
-        // We found existing damage of that type. Sum on the new stuff
-        to_be_modified.val += ` + ${db.val}`;
+        // We found existing range of that type. Sum on the new stuff
+        to_be_modified.val += db.val;
       } else {
         // Did not already have that damage type. Add it
         result.push(db.copy());
@@ -187,6 +187,6 @@ export class RangeField extends fields.SchemaField {
 export function unpackRange(data: PackedRangeData): RangeData {
   return {
     type: data.type,
-    val: data.val.toString(),
+    val: Number.parseInt(data.val.toString()) || 0,
   };
 }
