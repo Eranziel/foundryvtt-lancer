@@ -199,9 +199,9 @@ export function convert_bonus(label: string, bonus: BonusData): null | LancerAct
     } else if (bonus.lid == "range") {
       // TODO
     } else {
-      ui.notifications?.warn("Bonus restrictions have no effect");
+      // ui.notifications?.warn("Bonus restrictions have no effect");
     }
-    ui.notifications?.warn("Bonus damage/range generation not yet fully supported");
+    // ui.notifications?.warn("Bonus damage/range generation not yet fully supported");
     return null;
   } else {
     let changes: Required<LancerActiveEffectConstructorData["changes"]> = [];

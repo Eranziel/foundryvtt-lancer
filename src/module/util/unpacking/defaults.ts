@@ -31,6 +31,8 @@ import { SystemTemplates } from "../../system-template";
 
 const DEFAULT_DESCRIPTION = "...";
 
+// TODO: Deprecate this in favor of just letting fields handle defaults? Maybe?
+
 // Our default bonus basically does nothing but allows everything
 export function BONUS(): BonusData {
   return {
@@ -158,22 +160,25 @@ export function DEPLOYABLE(): SourceDataType<EntryType.DEPLOYABLE> {
     synergies: [],
     tags: [],
     activation: ActivationType.None,
-    armor: 0,
+    stats: {
+      armor: 0,
+      edef: 0,
+      evasion: 0,
+      heatcap: 0,
+      hp: 0,
+      save: 0,
+      size: 0,
+      speed: 0,
+    },
     cost: 1,
     instances: 1,
     hp: 0,
     heat: 0,
     deactivation: ActivationType.None,
     detail: "",
-    edef: 0,
-    evasion: 0,
-    max_heat: 5,
-    max_hp: 0,
     overshield: 0,
     recall: ActivationType.None,
     redeploy: ActivationType.None,
-    size: 0.5,
-    speed: 0,
     type: DeployableType.Deployable,
     avail_unmounted: false,
     avail_mounted: true,

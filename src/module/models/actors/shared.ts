@@ -36,8 +36,8 @@ export function template_universal_actor() {
     activations: new fields.NumberField({ min: 0, integer: true, nullable: false, initial: 1 }),
     custom_counters: new fields.ArrayField(new CounterField()),
 
-    hp: new FakeBoundedNumberField(),
-    overshield: new FakeBoundedNumberField(),
+    hp: new FakeBoundedNumberField({ integer: true, nullable: false, initial: 0 }),
+    overshield: new FakeBoundedNumberField({ integer: true, nullable: false, initial: 0 }),
 
     // Our derived property melange - not actually here! We generate those in prepareData
   };
@@ -59,14 +59,14 @@ export function template_action_tracking() {
 
 export function template_heat() {
   return {
-    stress: new FakeBoundedNumberField(),
+    heat: new FakeBoundedNumberField({ integer: true, nullable: false, initial: 0 }),
   };
 }
 
 export function template_struss() {
   return {
-    stress: new FakeBoundedNumberField(),
-    structure: new FakeBoundedNumberField(),
+    stress: new FakeBoundedNumberField({ integer: true, nullable: false, initial: 0 }),
+    structure: new FakeBoundedNumberField({ integer: true, nullable: false, initial: 0 }),
   };
 }
 

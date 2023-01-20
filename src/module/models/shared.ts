@@ -289,6 +289,10 @@ export class ResolvedUUIDRefField extends fields.StringField {
 
 // Use this to represent a field that is effectively just a number, but should present as a min/max/value field in expanded `system` data
 export class FakeBoundedNumberField extends fields.NumberField {
+  constructor(a: any = undefined) {
+    super(a);
+  }
+
   /** @override */
   initialize(value: string, model: any) {
     // Expand to a somewhat reasonable range. `prepareData` functions should handle the rest

@@ -32,7 +32,7 @@
         {{{stat-edit-card "BURN" "cci cci-burn" "system.burn" }}}
         {{{stat-edit-card "OVERSHIELD" "mdi mdi-shield-star-outline" "system.overshield.value" }}}
         {{#if (eq system.size 0.5)}}
-          {{{stat-view-card "SIZE" "cci cci-size-half size-icon" "system.size" }}}
+          {{{stat-view-card "SIZE" "cci cci-size-half" "system.size" }}}
         {{else}}
           {{{stat-view-card "SIZE" (concat "cci cci-size-" system.size ) "system.size" }}}
         {{/if}}
@@ -67,13 +67,13 @@
         <span class="lancer-header major" style="text-align: center;">{{localize "lancer.deployable-sheet.stats.label"}}</span>
         <div class="card clipped wraprow quadruple">
           <div class="wraprow quadruple">
-            {{{clicker-stat-card "MAX HP" "mdi mdi-heart-outline" "system.max_hp" false }}}
-            {{{clicker-stat-card "ARMOR" "mdi mdi-shield-outline" "system.armor" false }}}
-            {{{clicker-stat-card "EVASION" "cci cci-evasion" "system.evasion" false }}}
-            {{{clicker-stat-card "E-DEF" "cci cci-edef" "system.edef" false }}}
-            {{{clicker-stat-card "HEAT CAP" "cci cci-heatcap" "system.max_heat" false }}}
-            {{{clicker-stat-card "SPEED" "mdi mdi-arrow-right-bold-hexagon-outline" "system.speed" false }}}
-            {{{clicker-stat-card "SIZE" "cci cci-hexagon" "system.size" false }}}
+            {{{clicker-stat-card "MAX HP" "mdi mdi-heart-outline" "system.stats.hp" false }}}
+            {{{clicker-stat-card "ARMOR" "mdi mdi-shield-outline" "system.stats.armor" false }}}
+            {{{clicker-stat-card "EVASION" "cci cci-evasion" "system.stats.evasion" false }}}
+            {{{clicker-stat-card "E-DEF" "cci cci-edef" "system.stats.edef" false }}}
+            {{{clicker-stat-card "HEAT CAP" "cci cci-heatcap" "system.stats.heatcap" false }}}
+            {{{clicker-stat-card "SPEED" "mdi mdi-arrow-right-bold-hexagon-outline" "system.stats.speed" false }}}
+            {{{clicker-stat-card "SIZE" "cci cci-hexagon" "system.stats.size" false }}}
             {{{clicker-stat-card "COST" "cci cci-hexagon" "system.cost" false }}}
           </div>
         </div>

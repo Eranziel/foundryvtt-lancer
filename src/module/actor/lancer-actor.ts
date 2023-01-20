@@ -72,9 +72,9 @@ declare global {
  */
 export class LancerActor extends Actor {
   // Kept for comparing previous to next values / doing deltas
-  #max_hp_tracker = new ChangeWatchHelper();
-  #innate_effect_tracker = new ChangeWatchHelper();
-  #passdown_effect_tracker = new ChangeWatchHelper();
+  _maxHPTracker = new ChangeWatchHelper();
+  _innateEffectTracker = new ChangeWatchHelper();
+  _passdownEffectTracker = new ChangeWatchHelper();
 
   /**
    * Performs overheat
@@ -992,7 +992,14 @@ export class LancerActor extends Actor {
     } else if (this.is_npc()) {
       // TODO
     } else if (this.is_deployable()) {
-      // TODO
+      sys.armor = this.system.stats.armor;
+      sys.edef = this.system.stats.edef;
+      sys.evasion = this.system.stats.evasion;
+      this.system.heat.max = this.system.stats.heatcap;
+      sys.hp.max = this.system.stats.hp;
+      sys.save = this.system.stats.save;
+      sys.size = this.system.stats.size;
+      sys.speed = this.system.stats.speed;
     }
 
     // 5. If owner, check for and cleanup any unresolved references. This could possibly be checked less frequently but this is the safest way of doing this
@@ -1059,17 +1066,17 @@ export class LancerActor extends Actor {
         }
     */
 
-    // Track shift in values
+    // Track shift in values. Use optional to handle compendium bulk-created items, which handle strangely
     // @ts-expect-error
-    this.#max_hp_tracker.setValue(this.system.hp.max);
-    this.#innate_effect_tracker.setValue(this.#collectActiveEffects());
-    if (this.#innate_effect_tracker.invalid) {
+    this._maxHPTracker?.setValue(this.system.hp.max);
+    this._innateEffectTracker?.setValue(this.#collectActiveEffects());
+    if (this._innateEffectTracker?.invalid) {
       console.log(
         "PI change",
-        this.#innate_effect_tracker.prior_string,
-        this.#innate_effect_tracker.prior_value,
-        this.#innate_effect_tracker.curr_string,
-        this.#innate_effect_tracker.curr_value
+        this._innateEffectTracker.prior_string,
+        this._innateEffectTracker.prior_value,
+        this._innateEffectTracker.curr_string,
+        this._innateEffectTracker.curr_value
       );
     }
   }
@@ -1252,12 +1259,12 @@ export class LancerActor extends Actor {
    */
   async regenerateEquippedEffects(): Promise<boolean> {
     // Get what effects we'll apply
-    if (this.#innate_effect_tracker.invalid) {
+    if (this._innateEffectTracker.invalid) {
       // Change detected
       // First, cull all innate effects
       let old_innates = this.effects.filter(e => !!e.id && (e.getFlag("lancer", "innate") as boolean)).map(e => e.id!);
       await this.deleteEmbeddedDocuments("ActiveEffect", old_innates);
-      await this.createEmbeddedDocuments("ActiveEffect", this.#innate_effect_tracker.curr_value as any);
+      await this.createEmbeddedDocuments("ActiveEffect", this._innateEffectTracker.curr_value as any);
       return true;
     }
     return false;

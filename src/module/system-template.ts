@@ -245,14 +245,17 @@ export namespace SystemData {
     synergies: SynergyData[];
     tags: Tag[];
     activation: ActivationType;
-    armor: number;
+    stats: {
+      armor: number;
+      edef: number;
+      evasion: number;
+      heatcap: number;
+      hp: number;
+      save: number;
+      size: number;
+      speed: number;
+    };
     cost: number;
-    max_hp: number;
-    max_heat: number;
-    size: number;
-    speed: number;
-    edef: number;
-    evasion: number;
     instances: number;
     deactivation: ActivationType;
     detail: string;

@@ -21,14 +21,17 @@ const deployable_schema = {
   synergies: new fields.ArrayField(new SynergyField()),
   tags: new fields.ArrayField(new TagField()),
   activation: new fields.StringField({ choices: Object.values(ActivationType), initial: ActivationType.Quick }),
-  armor: new fields.NumberField({ min: 0, integer: true, nullable: false, initial: 0 }),
+  stats: new fields.SchemaField({
+    armor: new fields.NumberField({ min: 0, integer: true, nullable: false, initial: 0 }),
+    edef: new fields.NumberField({ min: 0, integer: true, nullable: false, initial: 10 }),
+    evasion: new fields.NumberField({ min: 0, integer: true, nullable: false, initial: 10 }),
+    heatcap: new fields.NumberField({ min: 1, integer: true, nullable: false, initial: 5 }),
+    hp: new fields.NumberField({ min: 1, integer: true, nullable: false, initial: 5 }),
+    save: new fields.NumberField({ min: 0, integer: true, nullable: false, initial: 10 }),
+    size: new fields.NumberField({ min: 0.5, integer: false, nullable: false, initial: 0.5 }),
+    speed: new fields.NumberField({ min: 0, integer: true, nullable: false, initial: 0 }),
+  }),
   cost: new fields.NumberField({ min: 0, integer: true, nullable: false, initial: 1 }),
-  max_hp: new fields.NumberField({ min: 1, integer: true, nullable: false, initial: 5 }),
-  max_heat: new fields.NumberField({ min: 1, integer: true, nullable: false, initial: 5 }),
-  size: new fields.NumberField({ min: 0.5, integer: false, nullable: false, initial: 0.5 }),
-  speed: new fields.NumberField({ min: 0, integer: true, nullable: false, initial: 0 }),
-  edef: new fields.NumberField({ min: 0, integer: true, nullable: false, initial: 10 }),
-  evasion: new fields.NumberField({ min: 0, integer: true, nullable: false, initial: 10 }),
   instances: new fields.NumberField({ min: 1, integer: true, nullable: false, initial: 1 }),
   deactivation: new fields.StringField({ choices: Object.values(ActivationType), initial: ActivationType.Quick }),
   detail: new fields.HTMLField(),
@@ -55,15 +58,24 @@ export class DeployableModel extends LancerDataModel<"DeployableModel"> {
   }
 }
 
-export function unpackDeployableData(data: PackedDeployableData): Partial<SourceData.Deployable> {
-  return {
+export function unpackDeployableData(data: PackedDeployableData): DeepPartial<SourceData.Deployable> {
+  let rv = {
     actions: data.actions?.map(unpackAction),
     bonuses: data.bonuses?.map(unpackBonus),
     counters: data.counters?.map(unpackCounter),
     synergies: data.synergies?.map(unpackSynergy),
     tags: data.tags?.map(unpackTag),
     activation: data.activation,
-    armor: data.armor,
+    stats: {
+      armor: data.armor,
+      edef: data.edef,
+      evasion: data.evasion,
+      heatcap: data.heatcap,
+      hp: data.hp,
+      save: data.save,
+      size: data.size,
+      speed: data.speed,
+    },
     activations: 0,
     avail_mounted: undefined,
     avail_unmounted: undefined,
@@ -73,21 +85,21 @@ export function unpackDeployableData(data: PackedDeployableData): Partial<Source
     deactivation: data.deactivation,
     deployer: undefined,
     detail: data.detail,
-    edef: data.edef, // Deployables have a very specific default stat spread
-    evasion: data.evasion,
-    heat: undefined,
-    hp: undefined,
     instances: data.instances,
     lid: undefined,
-    max_heat: data.heatcap,
-    max_hp: data.hp,
     overshield: undefined,
     recall: data.recall,
     redeploy: data.redeploy,
-    size: data.size,
-    speed: data.speed,
     type: restrict_enum(DeployableType, DeployableType.Deployable, data.type),
   };
+
+  // For some drones.... its the best we can do
+  if (typeof data.hp == "string") {
+    rv.stats.hp = 5;
+    rv.detail = (rv.detail ?? "") + `<br>Base Max HP = ${data.hp}`;
+  }
+
+  return rv;
 }
 
 // When we unpack a deployable, we generate for it a slugified name
