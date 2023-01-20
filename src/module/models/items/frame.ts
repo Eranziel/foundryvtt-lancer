@@ -46,8 +46,8 @@ const frame_schema = {
       synergies: new fields.ArrayField(new SynergyField()),
       use: new fields.StringField({
         nullable: false,
-        choices: Object.values(ActivationType),
-        initial: ActivationType.Free,
+        choices: Object.values(FrameEffectUse),
+        initial: FrameEffectUse.Unknown,
       }),
     })
   ),
@@ -117,7 +117,7 @@ export function unpackFrame(
         passive_name: cs.passive_name,
         passive_synergies: cs.passive_synergies?.map(unpackSynergy),
         tags: cs.tags?.map(unpackTag),
-        use: cs.use,
+        use: restrict_enum(FrameEffectUse, FrameEffectUse.Unknown, cs.use),
       },
       description: data.description,
       license: data.license_id ?? data.id,
@@ -136,7 +136,7 @@ export function unpackFrame(
         integrated: t.integrated,
         name: t.name,
         synergies: t.synergies?.map(unpackSynergy),
-        use: t.use,
+        use: restrict_enum(FrameEffectUse, FrameEffectUse.Unknown, t.use),
       })),
     },
   };
