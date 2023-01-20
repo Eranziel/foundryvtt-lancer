@@ -41,10 +41,10 @@ export class BonusField extends fields.SchemaField {
         val: new fields.StringField({ nullable: false }),
         overwrite: new fields.BooleanField(),
         replace: new fields.BooleanField(),
-        damage_types: new DamageTypeChecklistField({ nullable: true }),
-        range_types: new RangeTypeChecklistField({ nullable: true }),
-        weapon_types: new WeaponTypeChecklistField({ nullable: true }),
-        weapon_sizes: new WeaponSizeChecklistField({ nullable: true }),
+        damage_types: new DamageTypeChecklistField(),
+        range_types: new RangeTypeChecklistField(),
+        weapon_types: new WeaponTypeChecklistField(),
+        weapon_sizes: new WeaponSizeChecklistField(),
       },
       options
     );

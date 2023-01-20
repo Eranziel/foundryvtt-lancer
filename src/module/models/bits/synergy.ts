@@ -41,11 +41,11 @@ export class SynergyField extends fields.SchemaField {
       {
         locations: new fields.ArrayField(new fields.StringField({ choices: AllSynergyLocations, initial: "any" })),
         detail: new fields.StringField({ nullable: false }),
-        damage_types: new DamageTypeChecklistField({ nullable: true }),
-        range_types: new RangeTypeChecklistField({ nullable: true }),
-        weapon_types: new WeaponTypeChecklistField({ nullable: true }),
-        weapon_sizes: new WeaponSizeChecklistField({ nullable: true }),
-        system_types: new SystemTypeChecklistField({ nullable: true }),
+        damage_types: new DamageTypeChecklistField(),
+        range_types: new RangeTypeChecklistField(),
+        weapon_types: new WeaponTypeChecklistField(),
+        weapon_sizes: new WeaponSizeChecklistField(),
+        system_types: new SystemTypeChecklistField(),
       },
       options
     );
