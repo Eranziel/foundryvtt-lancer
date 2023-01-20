@@ -45,7 +45,10 @@ export class MechWeaponModel extends LancerDataModel {
       ),
       loaded: new fields.BooleanField(),
       selected_profile: new fields.NumberField({ nullable: false, initial: 0 }),
-      size: new fields.StringField({ choices: Object.values(WeaponSize), initial: WeaponSize.Main }),
+      size: new fields.StringField({
+        choices: Object.values(WeaponSize).concat("Ship-class" as unknown as WeaponSize),
+        initial: WeaponSize.Main,
+      }),
       no_core_bonuses: new fields.BooleanField(),
       no_mods: new fields.BooleanField(),
       no_bonuses: new fields.BooleanField(),

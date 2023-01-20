@@ -60,6 +60,7 @@ export function unpackSynergy(data: PackedSynergyData): SynergyData {
   } else {
     locations = data.locations ? [data.locations] : ["any"];
   }
+  locations = locations.map(l => l.toLowerCase()) as SynergyLocation[];
 
   let sizes: WeaponSizeChecklist | null = null;
   if (data.weapon_sizes) {

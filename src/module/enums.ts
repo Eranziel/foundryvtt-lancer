@@ -334,7 +334,8 @@ export type SynergyLocation =
   | "hull"
   | "agility"
   | "systems"
-  | "engineering";
+  | "engineering"
+  | "brace";
 export const AllSynergyLocations = [
   ,
   "any", // Acts as a wildcard
@@ -360,6 +361,7 @@ export const AllSynergyLocations = [
   "agility",
   "systems",
   "engineering",
+  "brace",
 ];
 
 export enum DeployableType {

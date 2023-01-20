@@ -16,7 +16,7 @@ const fields: any = foundry.data.fields;
 
 const deployable_schema = {
   armor: new fields.NumberField({ min: 0, integer: true, nullable: false, initial: 0 }),
-  destroyed: new fields.Boolean({ initial: false }),
+  destroyed: new fields.BooleanField({ initial: false }),
   edef: new fields.NumberField({ min: 0, integer: true, nullable: false, initial: 8 }),
   evasion: new fields.NumberField({ min: 0, integer: true, nullable: false, initial: 5 }),
   notes: new fields.HTMLField(),

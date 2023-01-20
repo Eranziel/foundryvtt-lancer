@@ -62,15 +62,21 @@ class FrequencyField extends fields.StringField {
       return { interval: "Unlimited" };
     }
 
-    let match = freq.match("(d)+s*/s*(.*)");
+    let match = freq.match(/(\d)+\s*\/\s*(.*)/);
     if (!match) {
-      throw new Error(`Frequency must be of a format alike "X / [${Object.values(ActivePeriod).join(" | ")}]`);
+      throw new Error(
+        `Frequency must be of a format alike "X / [${Object.values(ActivePeriod).join(
+          " | "
+        )}]. Illegal option: "${freq}"`
+      );
     }
     let uses = Number.parseInt(match[1]);
     let interval = match[2] as ActivePeriod;
+    // Force capitalize interval first char
+    interval = (interval[0].toUpperCase() + interval.substring(1)) as ActivePeriod;
     if (!Object.keys(ActivePeriod).includes(interval)) {
       throw new Error(
-        `Frequency interval must one of [${Object.values(ActivePeriod).join(" | ")}]. Illegal option: ${interval}`
+        `Frequency interval must one of [${Object.values(ActivePeriod).join(" | ")}]. Illegal option: "${interval}"`
       );
     } else if (uses < 1) {
       throw new Error(`Frequency use count must be a positive integer. Illegal option: ${uses}`);

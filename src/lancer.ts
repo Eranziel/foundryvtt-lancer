@@ -161,6 +161,8 @@ import { effect_categories_view, effect_view } from "./module/helpers/effects";
 import { LancerActiveEffect } from "./module/effects/lancer-active-effect";
 import { MechWeaponModel } from "./module/models/items/mech_weapon";
 import { CoreBonusModel } from "./module/models/items/core_bonus";
+import { NpcModel } from "./module/models/actors/npc";
+import { DeployableModel } from "./module/models/actors/deployable";
 
 const lp = LANCER.log_prefix;
 
@@ -181,16 +183,20 @@ Hooks.once("init", async function () {
   // @ts-expect-error
   CONFIG.Item.systemDataModels[EntryType.CORE_BONUS] = CoreBonusModel;
   // @ts-expect-error
-  CONFIG.Actor.systemDataModels[EntryType.MECH] = MechModel;
-  // @ts-expect-error
   CONFIG.Item.systemDataModels[EntryType.FRAME] = FrameModel;
   // @ts-expect-error
   CONFIG.Item.systemDataModels[EntryType.MECH_WEAPON] = MechWeaponModel;
   // @ts-expect-error
   CONFIG.Item.systemDataModels[EntryType.MECH_SYSTEM] = MechSystemModel;
+
+  // @ts-expect-error
+  CONFIG.Actor.systemDataModels[EntryType.MECH] = MechModel;
   // @ts-expect-error
   CONFIG.Actor.systemDataModels[EntryType.PILOT] = PilotModel;
-  // TODO: Register the rest of our models
+  // @ts-expect-error
+  CONFIG.Actor.systemDataModels[EntryType.NPC] = NpcModel;
+  // @ts-expect-error
+  CONFIG.Actor.systemDataModels[EntryType.DEPLOYABLE] = DeployableModel;
 
   // Register custom system settings
   registerSettings();

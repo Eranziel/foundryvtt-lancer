@@ -44,7 +44,11 @@ const frame_schema = {
       deployables: new fields.ArrayField(new LIDField()),
       actions: new fields.ArrayField(new ActionField()),
       synergies: new fields.ArrayField(new SynergyField()),
-      use: new fields.StringField({ nullable: false, choices: Object.values(FrameEffectUse) }),
+      use: new fields.StringField({
+        nullable: false,
+        choices: Object.values(ActivationType),
+        initial: ActivationType.Free,
+      }),
     })
   ),
   core_system: new fields.SchemaField({
