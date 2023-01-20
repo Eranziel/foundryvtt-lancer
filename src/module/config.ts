@@ -128,17 +128,6 @@ export const STATUSES = [
 
 export function WELCOME(changelog: string): string {
   return `<div style="margin: 10px 5px">
-
-  <h2>V10 BETA - USE AT YOUR OWN RISK!</h2>
-  <p>Welcome to the beta release for Lancer on Foundry v10!</p>
-  
-  <p><b>As this is a beta, use at your own risk! Make lots of backups!</b></p>
-  
-  <p>While we have tried our best to eliminate all game-breaking bugs, there is a lot of code and so something may
-  have slipped through the cracks. Please post any problems you find to the "Foundry V10 Work" thread in the
-  <code>#lancer-vtt</code> channel on <a href="https://discord.gg/7dnpJm46">PilotNET, the Lancer Discord server</a>.
-  (Any compatibility warning messages in your browser console are welcome there as well!) </p>
-  
   <h2>Welcome to Lancer on Foundry!</h2>
   <p>If you haven't already, check out the project wiki for 
   <a href="https://github.com/Eranziel/foundryvtt-lancer/wiki/FAQ">FAQ</a>
@@ -159,9 +148,20 @@ export function WELCOME(changelog: string): string {
 
   <p>You can report issues on GitHub here: 
   <a href="https://github.com/Eranziel/foundryvtt-lancer/issues">https://github.com/Eranziel/foundryvtt-lancer/issues</a></p>
-  
-  <p><h1>Change Log:
-  ${changelog}
+  <br/>
+  <h2>Legal</h2>
+  <div style="text-align: center; margin-top: .5em" class="flex-center">
+    <a href="https://massifpress.com/legal">
+      <img style="max-width: 350px; border: none" src="https://massifpress.com/_next/image?url=%2Fimages%2Flegal%2Fpowered_by_Lancer-01.svg&w=640&q=75" alt="Powered by Lancer">
+    </a>
+  </div>
+  <p>"Lancer for FoundryVTT" is not an official <i>Lancer</i> product; it is a third party work, and is not affiliated with Massif Press. "Lancer for FoundryVTT" is published via the <i>Lancer</i> Third Party License.</p>
+  <p><i>Lancer</i> is copyright Massif Press.</p>
+  <br/>
+  <p>
+    <h1>Change Log:</h1>
+    ${changelog}
+  </p>
   
   <p><a href="https://github.com/Eranziel/foundryvtt-lancer/blob/master/CHANGELOG.md">Click here for the full changelog.</a></p>
   </div>
