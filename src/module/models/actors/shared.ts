@@ -32,8 +32,8 @@ export interface StatConMap {
 export function template_universal_actor() {
   return {
     lid: new LIDField(),
-    burn: new fields.NumberField({ min: 0, integer: true, nullable: false }),
-    activations: new fields.NumberField({ min: 0, integer: true, nullable: false }),
+    burn: new fields.NumberField({ min: 0, integer: true, nullable: false, initial: 0 }),
+    activations: new fields.NumberField({ min: 0, integer: true, nullable: false, initial: 1 }),
     custom_counters: new fields.ArrayField(new CounterField()),
 
     hp: new FakeBoundedNumberField(),
