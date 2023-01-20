@@ -19,31 +19,23 @@ export class LancerFrameSheet extends LancerItemSheet<EntryType.FRAME> {
 
   // Handle the "delete" option of the mounts
   async _onChangeMount(event: any) {
-    // TODO
-    /*
     // Get the index
     const elt = $(event.currentTarget);
     const index = elt.prop("index");
     const value = elt.prop("value");
     if (value == "delete") {
-      // If delete, then delete
+      // If delete, then circumvent normal update to delete the mount
+      event.stopPropagation();
       let data = await this.getData();
 
       // Splice it out
-      let mounts = [...data.mm.Mounts];
+      // @ts-expect-error V10 issue
+      let mounts = [...data.system.mounts];
       mounts.splice(index, 1);
-      data.mm.Mounts = mounts;
-
-      // Save it
-      await data.mm.writeback();
-
-      // No need to submit
-      event.stopPropagation();
-
-      // But do need to refresh
-      this.render();
+      this.item.update({
+        "system.mounts": mounts,
+      });
     }
-    */
   }
 
   /**
