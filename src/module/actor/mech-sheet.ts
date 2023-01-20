@@ -79,10 +79,8 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
     // Now, do sensible things with it
     if (drop.type == "Item" && drop.document.is_frame() && this.actor.is_mech()) {
       // If new frame, auto swap with prior frame
-      if (is_new) {
-        await this.actor.swapFrameImage(this.actor, this.actor.system.loadout.frame?.value ?? null, drop.document);
-      }
-      this.actor.update({
+      await this.actor.swapFrameImage(this.actor, this.actor.system.loadout.frame?.value ?? null, drop.document);
+      await this.actor.update({
         "system.loadout.frame": drop.document.id,
       });
 

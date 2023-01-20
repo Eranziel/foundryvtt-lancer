@@ -364,7 +364,12 @@ export class LancerActor extends Actor {
   // Fully repair actor
   // Even pilots can be fully repaired
   async full_repair() {
-    await this.remove_all_active_effects();
+    // Remove all statuses affecting this mech. Keep active effects generally - most are positive
+    await this.removeAllStatuses();
+
+    // Remove unequipped items
+    this._deleteUnequippedItems();
+
     //TODO fix to be a real type
     let changes: Record<string, any> = {
       // @ts-expect-error System's broken unless narrowed
@@ -507,15 +512,17 @@ export class LancerActor extends Actor {
   }
 
   /**
-   * Wipes all (unsourced) ActiveEffects from the Actor.
+   * Wipes all Statuses and (unsourced) ActiveEffects from the Actor.
    */
-  async remove_all_active_effects() {
+  async removeAllStatuses() {
     let effects_to_delete = this.effects
       .filter(e => e.sourceName === "None")
       .map(e => {
         return e.id ?? "";
       });
     await this.deleteEmbeddedDocuments("ActiveEffect", effects_to_delete);
+    let items_to_delete = this.items.filter(i => i.is_status()).map(i => i.id) as string[];
+    await this.deleteEmbeddedDocuments("Item", items_to_delete);
   }
 
   /**
@@ -954,15 +961,11 @@ export class LancerActor extends Actor {
     if (this.is_pilot()) {
       this.system.grit = Math.ceil(this.system.level / 2);
     } else if (this.is_mech()) {
-      // Mark loadout items as equipped, while aggregating sp/ai
+      // Aggregate sp/ai
       let equipped_sp = 0;
       let equipped_ai = 0;
-      if (this.system.loadout.frame?.status == "resolved") {
-        this.system.loadout.frame.value.system.equipped = true;
-      }
       for (let system of this.system.loadout.systems) {
         if (system.status == "resolved") {
-          system.value.system.equipped = true;
           equipped_sp += system.value.system.sp;
           equipped_ai += system.value.system.tags.some(t => t.is_ai) ? 1 : 0;
         }
@@ -970,11 +973,9 @@ export class LancerActor extends Actor {
       for (let mount of this.system.loadout.weapon_mounts) {
         for (let slot of mount.slots) {
           if (slot.weapon?.status == "resolved") {
-            slot.weapon.value.system.equipped = true;
             equipped_sp += slot.weapon.value.system.sp;
           }
           if (slot.mod?.status == "resolved") {
-            slot.mod.value.system.equipped = true;
             equipped_ai += slot.mod.value.system.tags.some(t => t.is_ai) ? 1 : 0;
           }
         }
@@ -1001,11 +1002,6 @@ export class LancerActor extends Actor {
       sys.size = this.system.stats.size;
       sys.speed = this.system.stats.speed;
     }
-
-    // 5. If owner, check for and cleanup any unresolved references. This could possibly be checked less frequently but this is the safest way of doing this
-    if (this.isOwner) {
-      this._cleanupUnresolvedReferences();
-    }
   }
 
   /** @override
@@ -1013,27 +1009,8 @@ export class LancerActor extends Actor {
    *  - Re-compute any derived attributes
    */
   prepareDerivedData() {
-    // Reset subscriptions for new data
-    // we might not need this any more this.setupLancerHooks();
-
-    // Changes in max-hp should heal the actor. But certain requirements must be met
-    // - Must know prior (would be in dr.hp.max). If 0, do nothing
-    // - Must not be dead. If HP <= 0, do nothing
-    // - New HP must be valid. If 0, do nothing
-    // If above two are true, then set HP = HP - OldMaxHP + NewMaxHP. This should never drop the ent below 1 hp
-    const hp_change_corrector = (curr_hp: number, old_max: number, new_max: number) => {
-      if (curr_hp <= 0) return curr_hp;
-      if (old_max <= 0) return curr_hp;
-      if (new_max <= 0) return curr_hp;
-      let new_hp = curr_hp - old_max + new_max;
-      if (new_hp < 1) new_hp = 1;
-
-      // Return so it can also be set to the MM item
-      return new_hp;
-    };
-
     // Ask items to prepare their final attributes using weapon_bonuses
-    this.items.forEach(item => {
+    for (let item of this.items.contents) {
       /*
       if (item.is_mech_weapon()) {
         // @ts-expect-error
@@ -1049,22 +1026,35 @@ export class LancerActor extends Actor {
           }
         }
       }
+ // TODO
       */
-    }); // TODO
+    }
 
-    // If our max hp changed, do somethin'
-    /*
-    TODO: Move this to a pre-update hook
-    let curr_hp = this.system.hp.value;
-    let max_hp = this.system.hp.max;
-    let corrected_hp = hp_change_corrector(curr_hp, this.prior_max_hp, max_hp);
-        if (curr_hp != corrected_hp) {
-          // Cancel christmas. We gotta update ourselves to reflect the new HP change >:(
-          console.warn(
-            "TODO: figure out a more elegant way to update hp based on max hp than calling update in prepareData. Maybe only choice."
-          );
+    // Track equipping if pilot or mech
+    if (this.is_pilot()) {
+      // TODO
+    } else if (this.is_mech()) {
+      // Mark things equipped
+      let ld = this.system.loadout;
+      if (ld.frame?.status == "resolved") {
+        ld.frame.value.system.equipped = true;
+      }
+      for (let system of ld.systems) {
+        if (system.status == "resolved") {
+          system.value.system.equipped = true;
         }
-    */
+      }
+      for (let mount of this.system.loadout.weapon_mounts) {
+        for (let slot of mount.slots) {
+          if (slot.weapon?.status == "resolved") {
+            slot.weapon.value.system.equipped = true;
+          }
+          if (slot.mod?.status == "resolved") {
+            slot.mod.value.system.equipped = true;
+          }
+        }
+      }
+    }
 
     // Track shift in values. Use optional to handle compendium bulk-created items, which handle strangely
     // @ts-expect-error
@@ -1082,7 +1072,7 @@ export class LancerActor extends Actor {
   }
 
   /** @override
-   * Want to preserve our arrays
+   * Want to preserve our arrays, so we use full_update_data to hydrate our update data
    */
   async update(data: any, options: any = {}) {
     // @ts-expect-error
@@ -1163,9 +1153,14 @@ export class LancerActor extends Actor {
    */
   protected _onUpdate(...[changed, options, user]: Parameters<Actor["_onUpdate"]>) {
     super._onUpdate(changed, options, user);
-    if (game.userId != user) {
+    if (game.userId != user || !this.isOwner) {
       return;
     }
+
+    // Remove unresolved references
+    this._cleanupUnresolvedReferences();
+
+    // Propagate equipped effects
     this.regenerateEquippedEffects()
       .then(_ => {
         return this.sendChangesDownward();
@@ -1271,6 +1266,31 @@ export class LancerActor extends Actor {
   }
 
   /**
+   * Check our items for any that aren't equipped, and delete them
+   */
+
+  _deleteUnequippedItems() {
+    let deleteIds: string[] = [];
+    let now = Date.now();
+
+    // Flag all unequipped mech equipment
+    for (let item of this.items.contents) {
+      if (item.id && this.is_mech()) {
+        if (
+          (item.is_frame() || item.is_mech_system() || item.is_mech_weapon() || item.is_weapon_mod()) &&
+          !item.system.equipped
+        ) {
+          deleteIds.push(item.id);
+        }
+      } else if (item.id && this.is_pilot()) {
+        // TODO
+      }
+    }
+    // Kill!
+    if (deleteIds.length) this.deleteEmbeddedDocuments("Item", deleteIds);
+  }
+
+  /**
    * Check our loadout as applicable to cleanup any unresolved references
    */
   _cleanupUnresolvedReferences() {
@@ -1315,7 +1335,7 @@ export class LancerActor extends Actor {
 
       // Only update if necessary
       if (needCleanup) {
-        console.log("Cleaning up unused items...");
+        console.log("Cleaning up unresolved items...");
         this.update({ system: { loadout: cleanupLoadout } });
       }
     }
