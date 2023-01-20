@@ -104,7 +104,7 @@
           {{{item-preview (concat "system.core_system.integrated." index) null true }}}
         {{/if}}
       {{/each}}
-      {{#each system.core_system.deployables as |deployable index|}}
+      {{#each coreDeployables as |deployable index|}}
         {{{deployable-card deployable "true" index }}}
       {{/each}}
     </div>

@@ -17,6 +17,7 @@ export async function lookupLIDPlural(
 ): Promise<Array<LancerActor | LancerItem>> {
   // Note: typeless lookup is (somewhat obviously) up to 13x more expensive than non
   if (!types) {
+    // TODO: Try to guess faster by using slug prefix. ex mw -> check mech weapons first
     types = Object.values(EntryType);
   } else if (!Array.isArray(types)) {
     types = [types];
@@ -25,16 +26,10 @@ export async function lookupLIDPlural(
   let result: Array<LancerActor | LancerItem> = [];
   for (let t of types) {
     let pack = game.packs.get(`world.${t}`)!;
-    await pack?.getDocuments({ lid: lid }).then(docs => {
-      if (docs.length) {
-        if (short_circuit) {
-          return docs;
-        } else {
-          // @ts-expect-error TS2590
-          result.push(...e);
-        }
-      }
-    });
+    let newDocs = await pack?.getDocuments({ "system.lid": lid });
+    // @ts-expect-error v9
+    result.push(...newDocs);
+    if (short_circuit && result.length) break;
   }
   return result;
 }
@@ -50,6 +45,18 @@ export async function lookupLID(
   } else {
     return null;
   }
+}
+
+// A simplified helper for the quite-common task of looking up deployables
+export async function lookupDeployables(lids: string[]) {
+  let foundDeployables = await Promise.all(lids.map(lid => lookupLID(lid, EntryType.DEPLOYABLE)));
+  return foundDeployables.filter(x => x);
+}
+
+// A simplified helper for the quite-common task of looking up integrated
+export async function lookupIntegrated(lids: string[]) {
+  let foundDeployables = await Promise.all(lids.map(lid => lookupLID(lid)));
+  return foundDeployables.filter(x => x);
 }
 
 // A fetcher cache for LIDs
