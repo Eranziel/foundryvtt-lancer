@@ -34,7 +34,7 @@
         {{#if (eq system.size 0.5)}}
           {{{stat-view-card "SIZE" "cci cci-size-half size-icon" "system.size" }}}
         {{else}}
-          {{{stat-view-card "SIZE" (concat "cci cci-size-" system.size " size-icon") "system.size" }}}
+          {{{stat-view-card "SIZE" (concat "cci cci-size-" system.size ) "system.size" }}}
         {{/if}}
         {{{stat-view-card "ARMOR" "mdi mdi-shield-outline" "system.armor" }}}
         {{{stat-view-card "EVASION" "cci cci-evasion" "system.evasion" }}}

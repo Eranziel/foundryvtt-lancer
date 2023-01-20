@@ -1,28 +1,48 @@
 import { template_heat, template_statuses, template_universal_actor } from "./shared";
 
-import { LancerDataModel, UnpackContext } from "../shared";
+import { LancerDataModel, ResolvedUUIDRefField, UnpackContext } from "../shared";
 import { PackedDeployableData } from "../../util/unpacking/packed-types";
 import { SourceData } from "../../source-template";
-import { unpackAction } from "../bits/action";
+import { ActionField, unpackAction } from "../bits/action";
 import { unpackBonus } from "../bits/bonus";
-import { unpackCounter } from "../bits/counter";
-import { unpackSynergy } from "../bits/synergy";
-import { unpackTag } from "../bits/tag";
+import { CounterField, unpackCounter } from "../bits/counter";
+import { SynergyField, unpackSynergy } from "../bits/synergy";
+import { TagField, unpackTag } from "../bits/tag";
 import { restrict_enum } from "../../helpers/commons";
-import { DeployableType, EntryType } from "../../enums";
+import { ActivationType, DeployableType, EntryType } from "../../enums";
 import { slugify } from "../../util/lid";
 
 const fields: any = foundry.data.fields;
 
 const deployable_schema = {
+  actions: new fields.ArrayField(new ActionField()),
+  // bonuses: new fields.ArrayField(new BonusField()),
+  counters: new fields.ArrayField(new CounterField()),
+  synergies: new fields.ArrayField(new SynergyField()),
+  tags: new fields.ArrayField(new TagField()),
+  activation: new fields.StringField({ choices: Object.values(ActivationType), initial: ActivationType.Quick }),
   armor: new fields.NumberField({ min: 0, integer: true, nullable: false, initial: 0 }),
-  destroyed: new fields.BooleanField({ initial: false }),
-  edef: new fields.NumberField({ min: 0, integer: true, nullable: false, initial: 8 }),
-  evasion: new fields.NumberField({ min: 0, integer: true, nullable: false, initial: 5 }),
-  notes: new fields.HTMLField(),
+  cost: new fields.NumberField({ min: 0, integer: true, nullable: false, initial: 1 }),
+  max_hp: new fields.NumberField({ min: 1, integer: true, nullable: false, initial: 5 }),
+  max_heat: new fields.NumberField({ min: 1, integer: true, nullable: false, initial: 5 }),
+  size: new fields.NumberField({ min: 0.5, integer: false, nullable: false, initial: 0.5 }),
+  speed: new fields.NumberField({ min: 0, integer: true, nullable: false, initial: 0 }),
+  edef: new fields.NumberField({ min: 0, integer: true, nullable: false, initial: 10 }),
+  evasion: new fields.NumberField({ min: 0, integer: true, nullable: false, initial: 10 }),
+  instances: new fields.NumberField({ min: 1, integer: true, nullable: false, initial: 1 }),
+  deactivation: new fields.StringField({ choices: Object.values(ActivationType), initial: ActivationType.Quick }),
+  detail: new fields.HTMLField(),
+  recall: new fields.StringField({ choices: Object.values(ActivationType), initial: ActivationType.Quick }),
+  redeploy: new fields.StringField({ choices: Object.values(ActivationType), initial: ActivationType.Quick }),
 
-  // TODO: Fill out the rest
+  type: new fields.StringField({ choices: Object.values(DeployableType), initial: DeployableType.Deployable }),
+  avail_mounted: new fields.BooleanField({ initial: true }),
+  avail_unmounted: new fields.BooleanField({ initial: false }),
+  deployer: new ResolvedUUIDRefField({ allowed_types: [EntryType.MECH, EntryType.PILOT, EntryType.NPC] }),
+  // destroyed: new fields.BooleanField({ initial: false }),
+  // notes: new fields.HTMLField(),
 
+  // destroyed: new fields.BooleanField({ initial: false }),
   ...template_universal_actor(),
   ...template_heat(),
   ...template_statuses(),
@@ -53,7 +73,7 @@ export function unpackDeployableData(data: PackedDeployableData): Partial<Source
     deactivation: data.deactivation,
     deployer: undefined,
     detail: data.detail,
-    edef: data.edef,
+    edef: data.edef, // Deployables have a very specific default stat spread
     evasion: data.evasion,
     heat: undefined,
     hp: undefined,
