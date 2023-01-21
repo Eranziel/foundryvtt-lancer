@@ -463,7 +463,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     // Pushes relevant field data from the form to other appropriate locations,
     // e.x. to synchronize name between token and actor
     // @ts-expect-error should be fixed and not need the "as" with v10 types
-    let token = this.actor["token"] as PrototypeTokenData;
+    let token = this.actor.prototypeToken as PrototypeTokenData;
 
     // Get the basics
     let new_top: any = {
@@ -476,13 +476,11 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       new_top["token.img"] = formData["img"];
       new_top["token.name"] = formData["name"];
     }
-
     // Update token image if it matches the old actor image - keep in sync
-    // Ditto for name
     else {
       if (this.actor.img === token["img"] && this.actor.img !== formData["img"]) {
         new_top["token.img"] = formData["img"];
-      } // Otherwise don't update token
+      } // Same for name
       if (this.actor.name === token["name"] && this.actor.name !== formData["name"]) {
         new_top["token.name"] = formData["name"];
       }
