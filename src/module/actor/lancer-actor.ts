@@ -1124,10 +1124,12 @@ export class LancerActor extends Actor {
           // If the Size of the ent has changed since the last update, set the
           // protype token size to the new size
           // @ts-expect-error Should be fixed with v10 types
-          const cached_token_size = this.token?.flags[game.system.id]?.mm_size;
-          if (this.token && (cached_token_size === undefined || cached_token_size !== mm.Size)) {
+          const cached_token_size = this.prototypeToken?.flags[game.system.id]?.mm_size;
+          // @ts-expect-error Should be fixed with v10 types
+          if (this.prototypeToken && (cached_token_size === undefined || cached_token_size !== mm.Size)) {
             const size = mm.Size <= 1 ? 1 : mm.Size;
-            this.token?.update({
+            // @ts-expect-error Should be fixed with v10 types
+            this.prototypeToken?.update({
               width: size,
               height: size,
               flags: {
