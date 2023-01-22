@@ -1,3 +1,11 @@
+# 1.4.2 (2023-01-21)
+## Features
+* #507 - Update README and welcome message to use the Lancer 3rd Party License.
+## Bug Fixes
+* #510 & #512 - Fix issues preventing Comp/Con import.
+* #511 - Fix issue causing token images to be overwritten with actor image on every edit to the actor.
+* #516 - Fix bug preventing actor Size changes from automatically configuring prototype token dimensions.
+
 # 1.4.1 (2023-01-17)
 ## Bug Fixes
 * #500 - Fix activation icon size in popout combat tracker.
