@@ -13,6 +13,7 @@ declare global {
  */
 export class LancerTokenDocument extends TokenDocument {
   /** @inheritdoc */
+  /*
   getBarAttribute(barName: string, { alternative }: { alternative?: string | undefined } | undefined = {}) {
     let result = super.getBarAttribute(barName, { alternative });
     if (result && !result.editable) {
@@ -26,6 +27,7 @@ export class LancerTokenDocument extends TokenDocument {
     }
     return result;
   }
+  */
 }
 /**
  * Extend the base Token class to implement additional system-specific logic.

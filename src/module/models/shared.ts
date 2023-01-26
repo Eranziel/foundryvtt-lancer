@@ -263,9 +263,16 @@ export class ResolvedUUIDRefField extends fields.StringField {
             console.error(
               `Failed to resolve embedded ref: Wrong type ${(x as any).type} not in ${this.allowed_types.join("|")}`
             );
-            return null;
+            shell.status = "missing";
+            shell.value = null;
           }
-          return x;
+          // Async resolved quickly & successfully
+          shell.status = "resolved";
+          // Set it as non enumerable to avoid circular issues
+          Object.defineProperty(shell, "value", {
+            value: sub,
+            enumerable: false,
+          });
         })();
       } else if (this.allowed_types && !this.allowed_types.includes(sub.type)) {
         console.error(
@@ -276,8 +283,13 @@ export class ResolvedUUIDRefField extends fields.StringField {
         shell.status = "missing";
         shell.value = null;
       } else {
+        // Sync resolved quickly and successfully
         shell.status = "resolved";
-        shell.value = sub;
+        // Set it as non enumerable to avoid circular issues
+        Object.defineProperty(shell, "value", {
+          value: sub,
+          enumerable: false,
+        });
       }
     });
 
