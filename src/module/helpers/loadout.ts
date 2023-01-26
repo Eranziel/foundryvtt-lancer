@@ -287,7 +287,7 @@ function frame_active(actor: LancerActor, core: LancerFRAME["system"]["core_syst
     })
     .join("");
 
-  let depHTML = "TODO"; /*core.deployables
+  let depHTML = "TODO - DEPLOYABLES"; /*core.deployables
     .map((d, i) => {
       return d.status == "resolved" ? buildDeployableHTML(d.value, true, i) : "";
     })
