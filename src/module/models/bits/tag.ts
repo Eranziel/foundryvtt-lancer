@@ -43,7 +43,6 @@ export class Tag implements Readonly<TagData> {
       this.description = assocTag.description;
       this.hidden = assocTag.hidden;
     }
-    console.log(tagConfig, assocTag, data.lid);
   }
 
   get num_val(): number | null {

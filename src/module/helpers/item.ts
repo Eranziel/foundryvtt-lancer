@@ -538,7 +538,7 @@ export function mech_loadout_weapon_slot(
   if (weapon_slot?.status != "resolved") {
     // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
     return `
-      <div class="${EntryType.MECH_WEAPON} ref slot empty card flexrow" 
+      <div class="${EntryType.MECH_WEAPON} ref slot empty drop-settable card flexrow" 
            data-path="${weapon_path}" 
            data-type="${EntryType.MECH_WEAPON}"
            data-mode="embed-ref">
@@ -625,8 +625,9 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.value.
 
   return `
   <div class="mech-weapon-wrapper${mod_text ? "-modded" : ""}">
-    <div class="ref slot set ${EntryType.MECH_WEAPON} flexcol lancer-weapon-container macroable item"
+    <div class="ref slot set drop-settable ${EntryType.MECH_WEAPON} flexcol lancer-weapon-container macroable item"
                   ${ref_params(weapon, weapon_path)}
+                  data-mode="embed-ref"
                   style="max-height: fit-content;">
       <div class="lancer-header ${weapon.system.destroyed ? "destroyed" : ""}">
         <i class="${weapon.system.destroyed ? "mdi mdi-cog" : "cci cci-weapon i--m i--light"}"> </i>
@@ -639,7 +640,7 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.value.
         </a>
       </div> 
       <div class="lancer-body collapse" data-collapse-id="${collapseID}">
-        ${weapon.system.sp || ""}
+        ${weapon.system.sp ? `<strong>${weapon.system.sp} SP</strong>` : ""}
         ${profiles}
         <div class="flexrow" style="text-align: left; white-space: nowrap;">
           <a class="roll-attack"><i class="fas fa-dice-d20 i--m i--dark"></i></a>

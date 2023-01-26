@@ -9,7 +9,6 @@ import { HANDLER_enable_doc_dropping, ResolvedDropData } from "../helpers/dragdr
 import { HANDLER_activate_counter_listeners, HANDLER_activate_plus_minus_buttons } from "../helpers/item";
 import {
   HANDLER_activate_ref_dragging,
-  HANDLER_activate_ref_slot_clearing,
   HANDLER_activate_ref_slot_dropping,
   click_evt_open_ref,
   HANDLER_activate_uses_editor,
@@ -70,7 +69,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     this._activateActionGridListeners(html);
 
     // Make generic refs clickable to open the item
-    $(html).find(".ref.set:not(.profile-img)").on("click", click_evt_open_ref);
+    $(html).find(".ref.set.click-open").on("click", click_evt_open_ref);
 
     // Enable ref dragging
     HANDLER_activate_ref_dragging(html);
@@ -104,7 +103,6 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
 
     // Make refs droppable, in such a way that we take ownership when dropped
     HANDLER_activate_ref_slot_dropping(html, this.actor, x => this.quick_own_drop(x).then(v => v[0]));
-    HANDLER_activate_ref_slot_clearing(html, this.actor);
 
     // Enable general controls, so items can be deleted and such
     this.activate_general_controls(html);

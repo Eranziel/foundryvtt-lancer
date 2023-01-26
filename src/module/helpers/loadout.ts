@@ -22,7 +22,7 @@ function system_view(system_path: string, helper: HelperOptions, registry?: Coll
   if (!system) return "";
 
   if (system && system.status == "resolved") {
-    let slot = item_preview(system_path, "delete", "doc", helper, registry);
+    let slot = item_preview(system_path, "delete", "embed-ref", helper, registry);
 
     return ` 
       <div class="mount card clipped">
@@ -157,7 +157,7 @@ export function pilot_slot(data_path: string, options: HelperOptions): string {
   }
 
   return `<div class="pilot-summary">
-    <img class="ref slot set pilot" 
+    <img class="ref slot set pilot click-open" 
          ${ref_params(pilot, data_path)} 
          data-mode="uuid-ref"
          data-accept-types="pilot"

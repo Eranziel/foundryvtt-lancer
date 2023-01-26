@@ -108,7 +108,7 @@ export function simple_ref_slot(
     return `<span>ASYNC not handled yet</span>`;
   } else {
     // The data-type
-    return `<div class="ref set slot ref-card" 
+    return `<div class="ref set slot ref-card click-open" 
                   data-accept-types="${flat_types}"
                   data-path="${path}"
                   data-mode="${mode}"
@@ -393,7 +393,7 @@ export function item_preview<T extends LancerItemType>(
   } else {
     // Basically the same as the simple ref card, but with control added
     return `
-      <div class="ref set ref-card" 
+      <div class="ref set ref-card click-open" 
               ${ref_params(doc)}>
         <img class="ref-icon" src="${doc.img}"></img>
         <span class="major">${doc.name}</span>
@@ -569,7 +569,7 @@ export function HANDLER_activate_ref_slot_dropping(
   root_doc: LancerActor | LancerItem,
   pre_finalize_drop: ((drop: ResolvedDropData) => Promise<ResolvedDropData>) | null
 ) {
-  HANDLER_enable_doc_dropping(html.find(".ref.slot"), async (drop, dest, evt) => {
+  HANDLER_enable_doc_dropping(html.find(".ref.slot.drop-settable"), async (drop, dest, evt) => {
     // Pre-finalize the entry
     if (pre_finalize_drop) {
       drop = await pre_finalize_drop(drop);
@@ -589,6 +589,8 @@ export function HANDLER_activate_ref_slot_dropping(
     }
 
     // Check allows
+    console.log("Checking allowance");
+    console.log(types, (drop.document as any).type);
     if (types && !types.includes((drop.document as any).type ?? "err")) {
       return;
     }
@@ -597,19 +599,6 @@ export function HANDLER_activate_ref_slot_dropping(
     if (path) {
       let dd = drilldown_document(root_doc, path);
       dd.sub_doc.update({ [dd.sub_path]: val });
-    }
-  });
-}
-// Allow every ".ref.drop-settable" spot to be right-click cleared
-// Uses same getter/commit func scheme as other callbacks
-export function HANDLER_activate_ref_slot_clearing(html: JQuery, root_doc: LancerActor | LancerItem) {
-  html.find(".ref.slot").on("contextmenu", async event => {
-    let path = event.target.dataset.path;
-    if (path) {
-      let dd = drilldown_document(root_doc, path);
-      if (dd.terminus) {
-        dd.sub_doc.update({ [dd.sub_path]: null });
-      }
     }
   });
 }

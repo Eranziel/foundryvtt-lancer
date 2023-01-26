@@ -9,7 +9,6 @@ import {
 import { HANDLER_activate_counter_listeners, HANDLER_activate_plus_minus_buttons } from "../helpers/item";
 import {
   HANDLER_activate_ref_dragging,
-  HANDLER_activate_ref_slot_clearing,
   HANDLER_activate_ref_slot_dropping,
   HANDLER_add_doc_to_list_on_drop,
   click_evt_open_ref,
@@ -101,7 +100,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
     };
 
     // Make refs clickable
-    $(html).find(".ref.set:not(.profile-img)").on("click", click_evt_open_ref);
+    $(html).find(".ref.set.click-open").on("click", click_evt_open_ref);
 
     // Enable ref dragging
     HANDLER_activate_ref_dragging(html);
@@ -127,7 +126,6 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
 
     // Allow set things by drop. Mostly we use this for manufacturer/license dragging
     HANDLER_activate_ref_slot_dropping(html, this.item, null); // Don't restrict what can be dropped past type, and don't take ownership or whatever
-    HANDLER_activate_ref_slot_clearing(html, this.item);
 
     // Enable bonus editors
     HANDLER_activate_edit_bonus(html, this.item);
