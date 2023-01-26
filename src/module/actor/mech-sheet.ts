@@ -91,7 +91,10 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
       // If frame, weapon, put it in an available slot
       // await this_mm.Loadout.equip_weapon(drop);
     } else if (is_new && drop.type == "Item" && drop.document.is_mech_system()) {
-      // await this_mm.Loadout.equip_system(drop);
+      let oldSystems: string[] = (this.actor as any).system._source.loadout.systems;
+      await this.actor.update({
+        "system.loadout.systems": [...oldSystems, drop.document.id],
+      });
     } else if (drop.type == "Actor" && drop.document.is_pilot()) {
       await this.actor.update({
         "system.pilot": drop.document.uuid,
