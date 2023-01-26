@@ -32,7 +32,7 @@ export function effect_for_frame(frame: LancerFRAME): LancerActiveEffectConstruc
     value: frame.system.stats[key],
   }));
 
-  // Two weirder ones
+  // Three weirder ones
   changes!.push({
     key: "system.hp.max",
     mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
@@ -46,6 +46,13 @@ export function effect_for_frame(frame: LancerFRAME): LancerActiveEffectConstruc
     priority: INNATE_STAT_PRIORITY,
     // @ts-expect-error
     value: frame.system.stats.heatcap,
+  });
+  changes!.push({
+    key: "system.loadout.sp.max",
+    mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+    priority: INNATE_STAT_PRIORITY,
+    // @ts-expect-error
+    value: frame.system.stats.sp,
   });
 
   return {
