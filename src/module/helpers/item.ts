@@ -1171,7 +1171,6 @@ export function buildCounterHeader(
 export function buildCounterArrayHTML(
   counters: CounterData[] | { counter: CounterData; source: any }[],
   path: string,
-  custom_path?: string,
   fully_editable?: boolean
 ): string {
   let counter_detail = "";
@@ -1203,9 +1202,8 @@ export function buildCounterArrayHTML(
   <div class="card clipped double">
     <span class="lancer-header submajor ">
       COUNTERS
-      <a class="gen-control fas fa-plus" data-action="append" data-path="${
-        custom_path ? custom_path : path
-      }" data-action-value="(struct)counter"></a>
+      <a class="gen-control fas fa-plus" data-action="append" data-path="${path}"
+       data-action-value="(struct)counter"></a>
     </span>
     ${counter_detail}
   </div>`;

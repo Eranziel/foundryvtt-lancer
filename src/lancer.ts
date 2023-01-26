@@ -163,6 +163,7 @@ import { MechWeaponModel } from "./module/models/items/mech_weapon";
 import { CoreBonusModel } from "./module/models/items/core_bonus";
 import { NpcModel } from "./module/models/actors/npc";
 import { DeployableModel } from "./module/models/actors/deployable";
+import { TalentModel } from "./module/models/items/talent";
 
 const lp = LANCER.log_prefix;
 
@@ -188,6 +189,8 @@ Hooks.once("init", async function () {
   CONFIG.Item.systemDataModels[EntryType.MECH_WEAPON] = MechWeaponModel;
   // @ts-expect-error
   CONFIG.Item.systemDataModels[EntryType.MECH_SYSTEM] = MechSystemModel;
+  // @ts-expect-error
+  CONFIG.Item.systemDataModels[EntryType.TALENT] = TalentModel;
 
   // @ts-expect-error
   CONFIG.Actor.systemDataModels[EntryType.MECH] = MechModel;

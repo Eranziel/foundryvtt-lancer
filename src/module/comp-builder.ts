@@ -12,6 +12,7 @@ import { unpackFrame } from "./models/items/frame";
 import { unpackMechSystem } from "./models/items/mech_system";
 import { unpackCoreBonus } from "./models/items/core_bonus";
 import { TagData, TagTemplateData, unpackTag, unpackTagTemplate } from "./models/bits/tag";
+import { unpackTalent } from "./models/items/talent";
 
 export const PACK_SCOPE = "world";
 
@@ -97,13 +98,14 @@ export async function importCP(
     let allStatuses = [];
     let allSystems = cp.data.systems?.map(s => unpackMechSystem(s, context)) ?? [];
     let allTags = cp.data.tags?.map(t => unpackTagTemplate(t)) ?? [];
-    let allTalents = [];
+    let allTalents = cp.data.talents?.map(t => unpackTalent(t, context)) ?? [];
     let allWeapons = cp.data.weapons?.map(d => unpackMechWeapon(d, context)) ?? [];
 
     // Get creating
     await CONFIG.Item.documentClass.createDocuments(allCoreBonuses, { pack: `world.${EntryType.CORE_BONUS}` });
     await CONFIG.Item.documentClass.createDocuments(allFrames, { pack: `world.${EntryType.FRAME}` });
     await CONFIG.Item.documentClass.createDocuments(allSystems, { pack: `world.${EntryType.MECH_SYSTEM}` });
+    await CONFIG.Item.documentClass.createDocuments(allTalents, { pack: `world.${EntryType.TALENT}` });
     await CONFIG.Item.documentClass.createDocuments(allWeapons, { pack: `world.${EntryType.MECH_WEAPON}` });
     await CONFIG.Actor.documentClass.createDocuments(context.createdDeployables, {
       pack: `world.${EntryType.DEPLOYABLE}`,
