@@ -99,7 +99,7 @@ export function pilot_downstream_effects(pilot: LancerPILOT): LancerActiveEffect
         key: "system.hp.max",
         priority: PILOT_STAT_PRIORITY,
         // @ts-expect-error
-        value: 2 * pilot.system.hull,
+        value: 2 * pilot.system.hull + pilot.system.grit,
       },
       {
         mode: CONST.ACTIVE_EFFECT_MODES.ADD,
