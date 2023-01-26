@@ -167,26 +167,24 @@ export class ResolvedEmbeddedRefField extends fields.StringField {
 
     // Create job
     model.add_pre_finalize_task(() => {
-      if (value != null) {
-        let sub: LancerItem | ActiveEffect | null =
-          // @ts-expect-error
-          model?.parent?.getEmbeddedDocument(this.embedded_collection, value) ?? null;
-        if (!sub) {
-          console.log("Failed to resolve embedded ref: ID not found.", model, value);
-          shell.status = "missing";
-          shell.value = null;
-        } else if (this.allowed_types && sub instanceof LancerItem && !this.allowed_types.includes(sub.type)) {
-          console.log(
-            `Failed to resolve embedded ref: Wrong type ${sub.type} not in ${this.allowed_types.join("|")}`,
-            model,
-            value
-          );
-          shell.status = "missing";
-          shell.value = null;
-        } else {
-          shell.status = "resolved";
-          shell.value = sub;
-        }
+      let sub: LancerItem | ActiveEffect | null =
+        // @ts-expect-error
+        model?.parent?.getEmbeddedDocument(this.embedded_collection, value) ?? null;
+      if (!sub) {
+        console.log("Failed to resolve embedded ref: ID not found.", model, value);
+        shell.status = "missing";
+        shell.value = null;
+      } else if (this.allowed_types && sub instanceof LancerItem && !this.allowed_types.includes(sub.type)) {
+        console.log(
+          `Failed to resolve embedded ref: Wrong type ${sub.type} not in ${this.allowed_types.join("|")}`,
+          model,
+          value
+        );
+        shell.status = "missing";
+        shell.value = null;
+      } else {
+        shell.status = "resolved";
+        shell.value = sub;
       }
     });
 
@@ -242,48 +240,49 @@ export class ResolvedUUIDRefField extends fields.StringField {
 
   /** @inheritdoc */
   initialize(value: string, model: any): null | SystemTemplates.ResolvedUuidRef<any> {
-    if (value != null) {
+    if (!value) return null;
+
+    // Create shell
+    let shell = {} as SystemTemplates.ResolvedUuidRef<any>;
+
+    // Create job
+    model.add_pre_finalize_task(() => {
       //@ts-expect-error missing type
       let sub = fromUuidSync(value);
       if (!sub) {
-        return {
-          status: "async",
-          value: (async () => {
-            let x = await fromUuid(value);
-            if (!x) {
-              // Retry once
-              await new Promise((a, d) => setTimeout(a, 100));
-              x = await fromUuid(value);
-            }
-            if (!x) return null;
-            if (this.allowed_types && !this.allowed_types.includes((x as any).type)) {
-              console.error(
-                `Failed to resolve embedded ref: Wrong type ${(x as any).type} not in ${this.allowed_types.join("|")}`
-              );
-              return null;
-            }
-            return x;
-          })(),
-        };
+        shell.status = "async";
+        shell.value = (async () => {
+          let x = await fromUuid(value);
+          if (!x) {
+            // Retry once
+            await new Promise((a, d) => setTimeout(a, 100));
+            x = await fromUuid(value);
+          }
+          if (!x) return null;
+          if (this.allowed_types && !this.allowed_types.includes((x as any).type)) {
+            console.error(
+              `Failed to resolve embedded ref: Wrong type ${(x as any).type} not in ${this.allowed_types.join("|")}`
+            );
+            return null;
+          }
+          return x;
+        })();
       } else if (this.allowed_types && !this.allowed_types.includes(sub.type)) {
         console.error(
           `Failed to resolve embedded ref: Wrong type ${sub.type} not in ${this.allowed_types.join("|")}`,
           model,
           value
         );
-        return {
-          status: "missing",
-          value: null,
-        };
+        shell.status = "missing";
+        shell.value = null;
       } else {
-        return {
-          status: "resolved",
-          value: sub,
-        };
+        shell.status = "resolved";
+        shell.value = sub;
       }
-    } else {
-      return null;
-    }
+    });
+
+    // Return our shell, which will be filled by the above job
+    return shell;
   }
 }
 

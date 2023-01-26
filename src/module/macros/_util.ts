@@ -35,23 +35,3 @@ export function getMacroSpeaker(a_id?: string | LancerActor): LancerActor | unde
   }
   return actor;
 }
-
-export function ownedItemFromString(i: string, actor: LancerActor): LancerItem | null {
-  // Get the item
-  let item = actor.items.get(i);
-  if (!item && actor.is_mech()) {
-    // @ts-expect-error Should be fixed with v10 types
-    let pilot = game.actors!.get(actor.system.pilot?.id ?? "");
-    item = pilot?.items.get(i);
-  }
-
-  if (!item) {
-    ui.notifications!.error(`Error preparing macro: could not find Item ${i} owned by Actor ${actor.name}.`);
-    return null;
-  } else if (!item.isOwned) {
-    ui.notifications!.error(`Error preparing macro: ${item.name} is not owned by an Actor.`);
-    return null;
-  }
-
-  return item;
-}

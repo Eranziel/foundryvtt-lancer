@@ -3,6 +3,8 @@ import { EffectData } from "./helpers/npc";
 import { LancerActorType, LancerMECH, LancerPILOT } from "./actor/lancer-actor";
 import { LancerActiveEffect } from "./effects/lancer-active-effect";
 import { SystemDataTypesMap, SystemDataType } from "./system-template";
+import { Damage, DamageData } from "./models/bits/damage";
+import { Tag } from "./models/bits/tag";
 
 // ------------------------------------------------------
 // |       SHEET DATA TYPES                             |
@@ -34,7 +36,7 @@ export interface LancerActorSheetData<T extends LancerActorType> extends ActorSh
   effect_categories: ReturnType<typeof LancerActiveEffect["prepareActiveEffectCategories"]>;
 }
 
-// -------- Macro data -------------------------------------
+// -------- Macro data types -------------------------------------
 declare interface LancerStatMacroData {
   title: string;
   bonus: string | number;
@@ -46,7 +48,7 @@ declare interface LancerAttackMacroData {
   title: string;
   grit: number;
   acc: number;
-  damage: Damage[];
+  damage: DamageData[];
   overkill?: boolean;
   effect?: EffectData | string;
   on_attack?: string;

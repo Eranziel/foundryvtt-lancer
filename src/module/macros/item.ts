@@ -7,7 +7,7 @@ import type {
   LancerReactionMacroData,
 } from "../interfaces";
 import { applyCollapseListeners } from "../helpers/collapse";
-import { getMacroSpeaker, ownedItemFromString } from "./_util";
+import { getMacroSpeaker } from "./_util";
 import { prepareAttackMacro } from "./attack";
 import { rollReactionMacro } from "./reaction";
 import { rollSystemMacro } from "./system";
@@ -15,25 +15,35 @@ import { rollTalentMacro } from "./talent";
 import { prepareTechMacro } from "./tech";
 import { rollTextMacro } from "./text";
 import { rollTriggerMacro } from "./trigger";
+import { EntryType, NpcFeatureType } from "../enums";
+import {
+  LancerCORE_BONUS,
+  LancerItem,
+  LancerMECH_SYSTEM,
+  LancerNPC_FEATURE,
+  LancerSKILL,
+  LancerTALENT,
+} from "../item/lancer-item";
+import { SystemData, SystemTemplates } from "../system-template";
 
 const lp = LANCER.log_prefix;
 
 /**
  * Generic macro preparer for any item.
  * Given an actor and item, will prepare data for the macro then roll it.
- * @param a The actor id to speak as
- * @param i The item id that is being rolled
+ * @param actorID The global actor id to speak as
+ * @param itemUUID The item uuid that is being rolled
  * @param options Ability to pass through various options to the item.
  *      Talents can use rank: value.
  *      Weapons can use accBonus or damBonus
  */
-export async function prepareItemMacro(a: string, i: string, options?: any) {
+export async function prepareItemMacro(actorID: string, itemUUID: string, options?: any) {
   // Determine which Actor to speak as
-  /* TODO
-  let actor = getMacroSpeaker(a);
+  let actor = getMacroSpeaker(actorID);
   if (!actor) return;
 
-  const item = ownedItemFromString(i, actor);
+  // @ts-expect-error
+  const item = fromUuidSync(itemUUID) as LancerItem | null;
   if (!item) return;
 
   // Make a macro depending on the type
@@ -42,8 +52,7 @@ export async function prepareItemMacro(a: string, i: string, options?: any) {
     case EntryType.SKILL:
       let skillData: LancerStatMacroData = {
         title: item.name!,
-        // @ts-expect-error Should be fixed with v10 types
-        bonus: item.system.rank * 2,
+        bonus: (item as LancerSKILL).system.rank * 2,
       };
       await rollTriggerMacro(actor, skillData);
       break;
@@ -54,14 +63,12 @@ export async function prepareItemMacro(a: string, i: string, options?: any) {
       break;
     // Systems
     case EntryType.MECH_SYSTEM:
-      // @ts-expect-error Should be fixed with v10 types
-      await rollSystemMacro(actor, item.system.derived.mm!);
+      await rollSystemMacro(actor, item as LancerMECH_SYSTEM);
       break;
     // Talents
     case EntryType.TALENT:
       // If we aren't passed a rank, default to current rank
-      // @ts-expect-error Should be fixed with v10 types
-      let rank = options.rank ? options.rank : item.system.curr_rank;
+      let rank = options.rank ? options.rank : (item as LancerTALENT).system.curr_rank;
 
       let talData: LancerTalentMacroData = {
         // @ts-expect-error Should be fixed with v10 types
@@ -84,34 +91,27 @@ export async function prepareItemMacro(a: string, i: string, options?: any) {
       await rollTextMacro(actor, gearData);
       break;
     // Core bonuses can just be text, right?
-    /*
     case EntryType.CORE_BONUS:
       let CBdata: LancerTextMacroData = {
-        title: item.name,
-        description: item.system.effect,
+        title: item.name ?? "",
+        description: (item as LancerCORE_BONUS).system.effect,
       };
-
       await rollTextMacro(actor, CBdata);
       break;
-      */
-  /*
     case EntryType.NPC_FEATURE:
-      // @ts-expect-error Should be fixed with v10 types
-      switch (item.system.type) {
+      switch ((item as LancerNPC_FEATURE).system.type) {
         case NpcFeatureType.Weapon:
           await prepareAttackMacro({ actor, item, options });
           break;
         case NpcFeatureType.Tech:
-          await prepareTechMacro(a, i);
+          await prepareTechMacro(actorID, itemUUID);
           break;
         case NpcFeatureType.System:
         case NpcFeatureType.Trait:
           let sysData: LancerTextMacroData = {
             title: item.name!,
-            // @ts-expect-error Should be fixed with v10 types
-            description: item.system.effect,
-            // @ts-expect-error Should be fixed with v10 types
-            tags: item.system.tags,
+            description: (item as LancerNPC_FEATURE).system.effect,
+            tags: (item as LancerNPC_FEATURE).system.tags, // Todo: cronch tags?
           };
 
           await rollTextMacro(actor, sysData);
@@ -119,12 +119,9 @@ export async function prepareItemMacro(a: string, i: string, options?: any) {
         case NpcFeatureType.Reaction:
           let reactData: LancerReactionMacroData = {
             title: item.name!,
-            // @ts-expect-error Should be fixed with v10 types
-            trigger: item.system.trigger,
-            // @ts-expect-error Should be fixed with v10 types
-            effect: item.system.effect,
-            // @ts-expect-error Should be fixed with v10 types
-            tags: item.system.tags,
+            trigger: ((item as LancerNPC_FEATURE).system as SystemTemplates.NPC.ReactionData).trigger,
+            effect: ((item as LancerNPC_FEATURE).system as SystemTemplates.NPC.ReactionData).effect,
+            tags: ((item as LancerNPC_FEATURE).system as SystemTemplates.NPC.ReactionData).tags,
           };
 
           await rollReactionMacro(actor, reactData);
@@ -137,5 +134,4 @@ export async function prepareItemMacro(a: string, i: string, options?: any) {
   }
 
   applyCollapseListeners();
-  */
 }

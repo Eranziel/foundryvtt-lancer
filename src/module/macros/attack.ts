@@ -1,15 +1,17 @@
 // Import TypeScript modules
 import { LANCER } from "../config";
 import { getAutomationOptions } from "../settings";
-import type { LancerItem } from "../item/lancer-item";
-import type { LancerActor } from "../actor/lancer-actor";
+import type { LancerItem, LancerMECH_WEAPON, LancerNPC_FEATURE, LancerPILOT_WEAPON } from "../item/lancer-item";
+import type { LancerActor, LancerPILOT } from "../actor/lancer-actor";
 import type { LancerAttackMacroData, LancerMacroData } from "../interfaces";
 import { checkForHit } from "../helpers/automation/targeting";
 import type { AccDiffData, AccDiffDataSerialized, RollModifier } from "../helpers/acc_diff";
-import { getMacroSpeaker, ownedItemFromString } from "./_util";
+import { getMacroSpeaker } from "./_util";
 import { encodeMacroData } from "./_encode";
 import { renderMacroTemplate } from "./_render";
 import { DamageType } from "../enums";
+import { SystemTemplates } from "../system-template";
+import { SourceData } from "../source-template";
 
 const lp = LANCER.log_prefix;
 
@@ -59,20 +61,15 @@ type AttackMacroOptions = {
 };
 
 export async function prepareEncodedAttackMacro(
-  actor_uuid: string,
-  item_uuid: string | null,
+  actorUUID: string,
+  itemUUID: string | null,
   options: AttackMacroOptions,
   rerollData: AccDiffDataSerialized
 ) {
-  /*
-  if (actor_ref == null) {
-    return openBasicAttack();
-  }
-  let reg = new FoundryReg();
-  let opCtx = new OpCtx();
-  let mm = await reg.resolve(opCtx, actor_ref);
-  let actor = mm.Flags.orig_doc;
-  let item = item_uuid ? ownedItemFromString(item_uuid, actor) : null;
+  // @ts-expect-error
+  let actor = fromUuidSync(actorUUID) as LancerActor;
+  // @ts-expect-error
+  let item = itemUUID ? (fromUuidSync(itemUUID) as LancerItem) : null;
   let { AccDiffData } = await import("../helpers/acc_diff");
   let accdiff = AccDiffData.fromObject(rerollData, item ?? actor);
   if (item) {
@@ -80,7 +77,6 @@ export async function prepareEncodedAttackMacro(
   } else {
     return openBasicAttack(accdiff);
   }
-  */
 }
 
 /**
@@ -108,84 +104,60 @@ export async function prepareAttackMacro(
   },
   rerollData?: AccDiffData
 ) {
-  /*
+  console.log("ATTAKKK");
   if (!item.is_npc_feature() && !item.is_mech_weapon() && !item.is_pilot_weapon()) return;
-  let mData: LancerAttackMacroData = {
+  let macroData: LancerAttackMacroData = {
     title: item.name ?? "",
     grit: 0,
     acc: 0,
     damage: [],
-    // @ts-ignore this should be on everything, right? TODO: Make sure the mech
-    // weapon type is correctly defined
-    tags: item.system.derived.mm?.Tags,
+    tags: [],
     overkill: false,
     effect: "",
     loaded: true,
     destroyed: false,
   };
 
-  let weaponData: NpcFeature | PilotWeapon | MechWeaponProfile;
-  let pilotEnt: Pilot;
-  let itemEnt: MechWeapon | PilotWeapon | NpcFeature;
+  let pilot: LancerPILOT;
 
   // We can safely split off pilot/mech weapons by actor type
   if (actor.is_mech() && item.is_mech_weapon()) {
-    // @ts-expect-error Should be fixed with v10 types
-    pilotEnt = (await actor.system.derived.mm_promise).Pilot!;
-    // @ts-expect-error Should be fixed with v10 types
-    itemEnt = await item.system.derived.mm_promise;
+    if (actor.system.pilot?.status != "resolved") {
+      ui.notifications?.warn("Cannot fire a weapon on a non-piloted mech!");
+      return;
+    }
 
-    // @ts-expect-error Should be fixed with v10 types
-    weaponData = itemEnt.SelectedProfile;
-
-    mData.loaded = itemEnt.Loaded;
-    // @ts-expect-error Should be fixed with v10 types
-    mData.destroyed = itemEnt.Destroyed;
-    // @ts-expect-error Should be fixed with v10 types
-    mData.damage = weaponData.BaseDamage;
-    mData.grit = pilotEnt.Grit;
-    mData.acc = 0;
-    mData.tags = weaponData.Tags;
-    mData.overkill = is_overkill(itemEnt);
-    mData.self_heat = is_self_heat(itemEnt);
-    mData.effect = weaponData.Effect;
-    // @ts-expect-error Should be fixed with v10 types
-    mData.on_attack = weaponData.OnAttack;
-    // @ts-expect-error Should be fixed with v10 types
-    mData.on_hit = weaponData.OnHit;
-    // @ts-expect-error Should be fixed with v10 types
-    mData.on_crit = weaponData.OnCrit;
+    pilot = actor.system.pilot?.value;
+    let profile = item.system.active_profile;
+    macroData.loaded = item.system.loaded;
+    macroData.destroyed = item.system.destroyed;
+    macroData.damage = profile.damage;
+    macroData.grit = pilot?.system.grit;
+    macroData.acc = 0;
+    macroData.tags = profile.tags;
+    macroData.overkill = profile.tags.some(t => t.is_overkill);
+    macroData.self_heat = profile.tags.some(t => t.is_selfheat);
+    macroData.effect = profile.effect;
+    macroData.on_attack = profile.on_attack;
+    macroData.on_hit = profile.on_hit;
+    macroData.on_crit = profile.on_crit;
   } else if (actor.is_pilot() && item.is_pilot_weapon()) {
-    // @ts-expect-error Should be fixed with v10 types
-    pilotEnt = await actor.system.derived.mm_promise;
-    // @ts-expect-error Should be fixed with v10 types
-    itemEnt = await item.system.derived.mm_promise;
-    // @ts-expect-error Should be fixed with v10 types
-    weaponData = itemEnt;
-
-    mData.loaded = itemEnt.Loaded;
-    // @ts-expect-error Should be fixed with v10 types
-    mData.damage = weaponData.Damage;
-    mData.grit = pilotEnt.Grit;
-    mData.acc = 0;
-    mData.tags = weaponData.Tags;
-    mData.overkill = is_overkill(itemEnt);
-    mData.self_heat = is_self_heat(itemEnt);
-    mData.effect = weaponData.Effect;
+    macroData.loaded = item.system.loaded;
+    macroData.damage = item.system.damage;
+    macroData.grit = actor.system.grit;
+    macroData.acc = 0;
+    macroData.tags = item.system.tags;
+    macroData.overkill = item.system.tags.some(t => t.is_overkill);
+    macroData.self_heat = item.system.tags.some(t => t.is_selfheat);
+    macroData.effect = item.system.effect;
   } else if (actor.is_npc() && item.is_npc_feature()) {
-    // @ts-expect-error Should be fixed with v10 types
-    itemEnt = await item.system.derived.mm_promise;
-    // @ts-expect-error Should be fixed with v10 types
-    let tier_index: number = itemEnt.TierOverride;
-    // @ts-expect-error Should be fixed with v10 types
-    if (!itemEnt.TierOverride) {
+    let tier_index: number = item.system.tier_override;
+    if (!item.system.tier_override) {
       if (item.actor === null) {
         // Use selected actor
-        // @ts-expect-error Should be fixed with v10 types
         tier_index = actor.system.tier - 1;
       } else if (item.actor.is_npc()) {
         // Use provided actor
-        // @ts-expect-error Should be fixed with v10 types
         tier_index = item.actor.system.tier - 1;
       }
     } else {
@@ -193,26 +165,19 @@ export async function prepareAttackMacro(
       tier_index--;
     }
 
-    mData.loaded = itemEnt.Loaded;
-    // @ts-expect-error Should be fixed with v10 types
-    mData.destroyed = item.system.destroyed;
-    // This can be a string... but can also be a number...
-    // @ts-expect-error Should be fixed with v10 types
-    mData.grit = Number(itemEnt.AttackBonus[tier_index]) || 0;
-    // @ts-expect-error Should be fixed with v10 types
-    mData.acc = itemEnt.Accuracy[tier_index];
+    let asWeapon = item.system as SystemTemplates.NPC.WeaponData;
+    macroData.loaded = item.system.loaded;
+    macroData.destroyed = item.system.destroyed;
+    macroData.grit = Number(asWeapon.attack_bonus[tier_index]) || 0; // Sometimes the data's a string
+    macroData.acc = asWeapon.accuracy[tier_index];
 
     // Reduce damage values to only this tier
-    // @ts-expect-error Should be fixed with v10 types
-    mData.damage = itemEnt.Damage[tier_index] ?? [];
-    // @ts-expect-error Should be fixed with v10 types
-    mData.tags = itemEnt.Tags;
-    mData.overkill = funcs.is_overkill(itemEnt);
-    mData.self_heat = is_self_heat(itemEnt);
-    // @ts-expect-error Should be fixed with v10 types
-    mData.on_hit = itemEnt.OnHit;
-    // @ts-expect-error Should be fixed with v10 types
-    mData.effect = itemEnt.Effect;
+    macroData.damage = asWeapon.damage[tier_index] ?? [];
+    macroData.tags = asWeapon.tags;
+    macroData.overkill = asWeapon.tags.some(t => t.is_overkill);
+    macroData.self_heat = asWeapon.tags.some(t => t.is_selfheat);
+    macroData.on_hit = asWeapon.on_hit;
+    macroData.effect = asWeapon.effect;
   } else {
     ui.notifications!.error(`Error preparing attack macro - ${actor.name} is an unknown type!`);
     return Promise.resolve();
@@ -220,7 +185,7 @@ export async function prepareAttackMacro(
 
   // Check for damages that are missing type
   let typeMissing = false;
-  mData.damage.forEach((d: any) => {
+  macroData.damage.forEach((d: any) => {
     if (d.type === "" && d.val != "" && d.val != 0) typeMissing = true;
   });
   // Warn about missing damage type if the value is non-zero
@@ -231,41 +196,35 @@ export async function prepareAttackMacro(
   // Options processing
   if (options) {
     if (options.accBonus) {
-      mData.grit += options.accBonus;
+      macroData.grit += options.accBonus;
     }
     if (options.damBonus) {
-      let i = mData.damage.findIndex(dam => {
-        return dam.DamageType === options.damBonus.type;
-      });
+      let i = macroData.damage.findIndex(dam => dam.type === options.damBonus.type);
       if (i >= 0) {
         // We need to clone so it doesn't go all the way back up to the weapon
-        let damClone = { ...mData.damage[i] };
-        if (parseInt(damClone.Value) > 0) {
-          damClone.Value = `${damClone.Value}+${options.damBonus.val}`;
+        let damClone = { ...macroData.damage[i] };
+        if (parseInt(damClone.val) > 0) {
+          damClone.val = `${damClone.val}+${options.damBonus.val}`;
         } else {
-          damClone.Value = options.damBonus.val.toString();
+          damClone.val = options.damBonus.val.toString();
         }
-        // @ts-expect-error Not the full class, but it should work for our purposes.
-        mData.damage[i] = damClone;
+        macroData.damage[i] = damClone;
       } else {
-        // @ts-expect-error Not the full class, but it should work for our purposes.
-        mData.damage.push({ Value: options.damBonus.val.toString(), DamageType: options.damBonus.type });
+        macroData.damage.push({ val: options.damBonus.val.toString(), type: options.damBonus.type });
       }
     }
   }
   // Check if weapon if loaded.
   if (getAutomationOptions().limited_loading && getAutomationOptions().attacks) {
-    if (is_loading(itemEnt) && !itemEnt.Loaded) {
-      // @ts-expect-error Should be fixed with v10 types
-      ui.notifications!.warn(`Weapon ${item.system.name} is not loaded!`);
+    if (item.is_loading() && !item.system.loaded) {
+      ui.notifications!.warn(`Weapon ${item.name} is not loaded!`);
       return;
     }
-    if (is_limited(itemEnt) && itemEnt.Uses <= 0) {
-      // @ts-expect-error Should be fixed with v10 types
-      ui.notifications!.warn(`Weapon ${item.system.name} has no remaining uses!`);
+    if (item.is_limited() && item.system.uses.value <= 0) {
+      ui.notifications!.warn(`Weapon ${item.name} has no remaining uses!`);
       return;
     }
-    if (mData.destroyed) {
+    if (macroData.destroyed) {
       // @ts-expect-error Should be fixed with v10 types
       ui.notifications!.warn(`Weapon ${item.system.name} is destroyed!`);
       return;
@@ -277,7 +236,13 @@ export async function prepareAttackMacro(
   let { AccDiffData } = await import("../helpers/acc_diff");
   const initialData =
     rerollData ??
-    AccDiffData.fromParams(item, mData.tags, mData.title, targets, mData.acc > 0 ? [mData.acc, 0] : [0, -mData.acc]);
+    AccDiffData.fromParams(
+      item,
+      macroData.tags,
+      macroData.title,
+      targets,
+      macroData.acc > 0 ? [macroData.acc, 0] : [0, -macroData.acc]
+    );
 
   let promptedData;
   try {
@@ -287,33 +252,33 @@ export async function prepareAttackMacro(
     return;
   }
 
-  const atkRolls = attackRolls(mData.grit, promptedData);
+  const atkRolls = attackRolls(macroData.grit, promptedData);
 
   // Deduct charge if LOADING weapon.
   if (getAutomationOptions().limited_loading && getAutomationOptions().attacks) {
-    if (is_loading(itemEnt)) {
-      itemEnt.Loaded = false;
-      await itemEnt.writeback();
+    let changes: DeepPartial<SourceData.MechWeapon> = {};
+    let needChange = false;
+    if (item.is_loading()) {
+      changes.loaded = false;
+      needChange = true;
     }
-    if (is_limited(itemEnt)) {
-      itemEnt.Uses = itemEnt.Uses - 1;
-      await itemEnt.writeback();
+    if (item.is_limited()) {
+      changes.uses = Math.max(item.system.uses.value - 1, 0);
+      needChange = true;
     }
+    if (needChange) await item.update({ system: changes });
   }
 
   let rerollMacro = {
     title: "Reroll attack",
     fn: "prepareEncodedAttackMacro",
-    // @ts-expect-error Should be fixed with v10 types
-    args: [actor.system.derived.mm!.as_ref(), item.id, options, promptedData.toObject()],
+    args: [actor.id, item.uuid, options, promptedData.toObject()],
   };
 
-  await rollAttackMacro(actor, atkRolls, mData, rerollMacro);
-*/
+  await rollAttackMacro(actor, atkRolls, macroData, rerollMacro);
 }
 
 export async function openBasicAttack(rerollData?: AccDiffData) {
-  /*
   let { isOpen, open } = await import("../helpers/slidinghud");
 
   // if the hud is already open, and we're not overriding with new reroll data, just bail out
@@ -351,31 +316,26 @@ export async function openBasicAttack(rerollData?: AccDiffData) {
   };
 
   let statActor = actor; // Source for the attack bonus stat
-  let pilotEnt: Pilot;
 
   if (actor.is_deployable()) {
-    // @ts-expect-error Should be fixed with v10 types
-    const deployer = (await actor.system.derived.mm_promise).Deployer;
-    if (deployer) statActor = deployer.Flags.orig_doc;
+    if (actor.system.deployer?.status == "resolved") {
+      statActor = actor.system.deployer.value;
+    }
   }
 
   console.log(statActor);
 
   if (statActor.is_mech()) {
-    // @ts-expect-error Should be fixed with v10 types
-    pilotEnt = (await statActor.system.derived.mm_promise).Pilot!;
-    mData.grit = pilotEnt.Grit;
+    if (statActor.system.pilot?.status == "resolved") {
+      mData.grit = statActor.system.pilot.value.system.grit;
+    }
   } else if (statActor.is_pilot()) {
-    // @ts-expect-error Should be fixed with v10 types
-    pilotEnt = await statActor.system.derived.mm_promise;
-    mData.grit = pilotEnt.Grit;
+    mData.grit = statActor.system.grit;
   } else if (statActor.is_npc()) {
-    // @ts-expect-error Should be fixed with v10 types
-    const mm = await statActor.system.derived.mm_promise;
-    let tier_bonus: number = mm.Tier;
-    mData.grit = tier_bonus || 0;
+    let tierBonus: number = statActor.system.tier;
+    mData.grit = tierBonus || 0;
   } else if (statActor.is_deployable()) {
-    mData.grit = 0;
+    mData.grit = 0; // We couldn't
   } else {
     ui.notifications!.error(`Error preparing targeting macro - ${actor.name} is an unknown type!`);
     return;
@@ -386,12 +346,10 @@ export async function openBasicAttack(rerollData?: AccDiffData) {
   let rerollMacro = {
     title: "Reroll attack",
     fn: "prepareEncodedAttackMacro",
-    // @ts-expect-error Should be fixed with v10 types
-    args: [actor.system.derived.mm!.as_ref(), null, {}, promptedData.toObject()],
+    args: [actor.id, null, {}, promptedData.toObject()],
   };
 
   await rollAttackMacro(actor, atkRolls, mData, rerollMacro);
-*/
 }
 
 type AttackResult = {
@@ -460,7 +418,7 @@ async function rollAttackMacro(
   data: LancerAttackMacroData,
   rerollMacro: LancerMacroData
 ) {
-  const isSmart = data.tags.findIndex(tag => tag.Tag.LID === "tg_smart") > -1;
+  const isSmart = data.tags.some(tag => tag.is_smart);
   const { attacks, hits } = await checkTargets(atkRolls, isSmart);
 
   // Iterate through damage types, rolling each
@@ -478,34 +436,33 @@ async function rollAttackMacro(
   let self_heat = 0;
 
   const has_normal_hit =
-    (hits.length === 0 && !!attacks.find(attack => (attack.roll.total ?? 0) < 20)) ||
-    !!hits.find(hit => hit.hit && !hit.crit);
+    (hits.length === 0 && attacks.some(attack => (attack.roll.total ?? 0) < 20)) ||
+    hits.some(hit => hit.hit && !hit.crit);
   const has_crit_hit =
-    (hits.length === 0 && !!attacks.find(attack => (attack.roll.total ?? 0) >= 20)) || !!hits.find(hit => hit.crit);
+    (hits.length === 0 && attacks.some(attack => (attack.roll.total ?? 0) >= 20)) || hits.some(hit => hit.crit);
 
   // If we hit evaluate normal damage, even if we only crit, we'll use this in
   // the next step for crits
   if (has_normal_hit || has_crit_hit) {
     for (const x of data.damage) {
-      if (x.Value === "" || x.Value == "0") continue; // Skip undefined and zero damage
-      let d_formula = x.Value.toString();
-      let droll: Roll | undefined = new Roll(d_formula);
+      if (!x.val || x.val == "0") continue; // Skip undefined and zero damage
+      let damageRoll: Roll | undefined = new Roll(x.val);
       // Add overkill if enabled.
       if (data.overkill) {
-        droll.terms.forEach(term => {
+        damageRoll.terms.forEach(term => {
           if (term instanceof Die) term.modifiers = ["x1", `kh${term.number}`].concat(term.modifiers);
         });
       }
 
-      await droll.evaluate({ async: true });
+      await damageRoll.evaluate({ async: true });
       // @ts-expect-error DSN options aren't typed
-      droll.dice.forEach(d => (d.options.rollOrder = 2));
-      const tt = await droll.getTooltip();
+      damageRoll.dice.forEach(d => (d.options.rollOrder = 2));
+      const tooltip = await damageRoll.getTooltip();
 
       damage_results.push({
-        roll: droll,
-        tt: tt,
-        d_type: x.DamageType,
+        roll: damageRoll,
+        tt: tooltip,
+        d_type: x.type,
       });
     }
   }
@@ -543,7 +500,7 @@ async function rollAttackMacro(
   if (data.self_heat) {
     // Once the double tag thing is fixed, this should iterate over all tags
     // instead just using the first one.
-    self_heat = parseInt(`${data.tags.find(tag => tag.Tag.LID === "tg_heat_self")?.Value ?? 0}`);
+    self_heat = parseInt(`${data.tags.find(tag => tag.is_selfheat)?.num_val ?? 0}`);
   }
 
   if (getAutomationOptions().attack_self_heat) {
@@ -570,7 +527,6 @@ async function rollAttackMacro(
     rerollMacroData: encodeMacroData(rerollMacro),
   };
 
-  console.debug(templateData);
   const template = `systems/${game.system.id}/templates/chat/attack-card.hbs`;
   return await renderMacroTemplate(actor, template, templateData);
 }
