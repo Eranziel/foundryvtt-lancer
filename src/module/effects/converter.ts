@@ -145,6 +145,13 @@ export function pilot_downstream_effects(pilot: LancerPILOT): LancerActiveEffect
       },
       {
         mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+        key: "system.tech_attack",
+        priority: PILOT_STAT_PRIORITY,
+        // @ts-expect-error
+        value: pilot.system.sys,
+      },
+      {
+        mode: CONST.ACTIVE_EFFECT_MODES.ADD,
         key: "system.loadout.sp.max",
         priority: PILOT_STAT_PRIORITY,
         // @ts-expect-error
