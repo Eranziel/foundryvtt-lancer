@@ -1,23 +1,34 @@
+import { LANCER } from "../../config";
 import { PackedTagData, PackedTagTemplateData } from "../../util/unpacking/packed-types";
 import { LIDField } from "../shared";
 
 // @ts-ignore
 const fields: any = foundry.data.fields;
 
+// Stored on items
 export interface TagData {
   lid: string;
   val: string;
 }
 
+// Stored in config
+export interface TagTemplateData {
+  lid: string;
+  name: string;
+  description: string;
+  filter_ignore: boolean; // ??? No idea what this does tbh
+  hidden: boolean; // Used to trigger hidden behaviors
+}
+
 const PLACEHOLDER = "...";
 
-// "Hydrated" TagData.
+// TagData "Hydrated" with TagTemplateData.
 export class Tag implements Readonly<TagData> {
   lid: string;
   val: string;
 
   name: string = PLACEHOLDER;
-  description: string = PLACEHOLDER;
+  description: string = "Tag not found";
   hidden: boolean = false; // Decent first guess
 
   constructor(data: TagData) {
@@ -25,16 +36,14 @@ export class Tag implements Readonly<TagData> {
     this.val = data.val;
 
     // Begin a job to look it up from the actual tag object
-    /*
-    compendium_lookup_lid(data.lid, EntryType.TAG).then(doc => {
-      if (doc && doc instanceof LancerItem && doc.is_tag()) {
-        this.name = doc.name || "";
-        this.description = doc.system.description;
-      } else {
-        this.name = "MISSINGTAG";
-        this.description = `Tag "${data.lid}" was not found in your tag compendium`;
-      }
-    });*/
+    let tagConfig = game.settings.get(game.system.id, LANCER.setting_tag_config) as Record<string, TagTemplateData>;
+    let assocTag = tagConfig[data.lid];
+    if (assocTag) {
+      this.name = assocTag.name;
+      this.description = assocTag.description;
+      this.hidden = assocTag.hidden;
+    }
+    console.log(tagConfig, assocTag, data.lid);
   }
 
   get num_val(): number | null {
@@ -158,7 +167,6 @@ export class Tag implements Readonly<TagData> {
 // Tag fields populate fuller metadata from the settings (or something? It's tbd), in spite of the field itself just being an lid value pair
 export class TagField extends fields.SchemaField {
   constructor(options = {}) {
-    // TODO: Finalize this so it actually behaves as expected
     super(
       {
         lid: new LIDField(),
@@ -169,7 +177,7 @@ export class TagField extends fields.SchemaField {
   }
 
   /** @override */
-  initialize(model: unknown, name: unknown, value: TagData) {
+  initialize(value: TagData, model: unknown) {
     return new Tag(value);
   }
 
@@ -183,9 +191,13 @@ export class TagField extends fields.SchemaField {
   }
 }
 
-export function unpackTagTemplate(data: PackedTagTemplateData): any {
+export function unpackTagTemplate(data: PackedTagTemplateData): TagTemplateData {
   return {
-    // TODO
+    description: data.description,
+    filter_ignore: data.filter_ignore ?? false,
+    hidden: data.hidden ?? false,
+    lid: data.id,
+    name: data.name,
   };
 }
 

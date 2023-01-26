@@ -169,6 +169,7 @@ export const LANCER = {
   setting_auto_structure: "autoCalcStructure" as const,
   setting_dsn_setup: "dsnSetup" as const,
   setting_square_grid_diagonals: "squareGridDiagonals" as const,
+  setting_tag_config: "tagConfig" as const,
   // setting_120: "warningFor120" as const, // Old setting, currently unused.
   // setting_beta_warning: "warningForBeta" as const, // Old setting, currently unused.
 };

@@ -36,6 +36,15 @@ export const registerSettings = function () {
     default: { index: [] },
   });
 
+  game.settings.register(game.system.id, LANCER.setting_tag_config, {
+    name: "Tags",
+    scope: "world",
+    config: false,
+    // @ts-ignore There's probably a fix for this
+    type: Object,
+    default: {},
+  });
+
   game.settings.registerMenu(game.system.id, LANCER.setting_compcon_login, {
     name: "Comp/Con Login",
     label: "Log in to Comp/Con",

@@ -11,6 +11,7 @@ import { unpackMechWeapon } from "./models/items/mech_weapon";
 import { unpackFrame } from "./models/items/frame";
 import { unpackMechSystem } from "./models/items/mech_system";
 import { unpackCoreBonus } from "./models/items/core_bonus";
+import { TagData, TagTemplateData, unpackTag, unpackTagTemplate } from "./models/bits/tag";
 
 export const PACK_SCOPE = "world";
 
@@ -70,12 +71,12 @@ export async function importCP(
     }
 
     // Import data to the actual foundry reg
-    let transmit_count = 0;
+    let transmitCount = 0;
     let progress_hook = (doc: any) => {
       if (doc.pack && !doc.parent) {
         // Presumably part of this import
-        transmit_count++;
-        progress_callback!(transmit_count, totalItems);
+        transmitCount++;
+        progress_callback!(transmitCount, totalItems);
       }
     };
     Hooks.on("createItem", progress_hook);
@@ -95,7 +96,7 @@ export async function importCP(
     let allSkills = [];
     let allStatuses = [];
     let allSystems = cp.data.systems?.map(s => unpackMechSystem(s, context)) ?? [];
-    let allTags = [];
+    let allTags = cp.data.tags?.map(t => unpackTagTemplate(t)) ?? [];
     let allTalents = [];
     let allWeapons = cp.data.weapons?.map(d => unpackMechWeapon(d, context)) ?? [];
 
@@ -108,13 +109,25 @@ export async function importCP(
       pack: `world.${EntryType.DEPLOYABLE}`,
     });
 
+    // Tags are stored in config
+    let newTagConfig = foundry.utils.duplicate(game.settings.get(game.system.id, LANCER.setting_tag_config)) as Record<
+      string,
+      TagTemplateData
+    >;
+    for (let t of allTags) {
+      transmitCount++;
+      newTagConfig[t.lid] = t;
+      progress_callback(transmitCount, totalItems);
+    }
+    game.settings.set(game.system.id, LANCER.setting_tag_config, newTagConfig);
+
     Hooks.off("createItem", progress_hook);
 
     // Finish by forcing all packs to re-prepare
     for (let p of Object.values(EntryType)) {
       (await get_pack(p)).clear();
     }
-    progress_callback(transmit_count, totalItems);
+    progress_callback(transmitCount, totalItems);
   } catch (err) {
     console.error(err);
   }
