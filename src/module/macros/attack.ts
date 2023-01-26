@@ -63,15 +63,15 @@ type AttackMacroOptions = {
 export async function prepareEncodedAttackMacro(
   actorUUID: string,
   itemUUID: string | null,
-  options: AttackMacroOptions,
-  rerollData: AccDiffDataSerialized
+  options?: AttackMacroOptions,
+  rerollData?: AccDiffDataSerialized
 ) {
   // @ts-expect-error
   let actor = fromUuidSync(actorUUID) as LancerActor;
   // @ts-expect-error
   let item = itemUUID ? (fromUuidSync(itemUUID) as LancerItem) : null;
   let { AccDiffData } = await import("../helpers/acc_diff");
-  let accdiff = AccDiffData.fromObject(rerollData, item ?? actor);
+  let accdiff = rerollData ? AccDiffData.fromObject(rerollData, item ?? actor) : undefined;
   if (item) {
     return prepareAttackMacro({ actor, item, options }, accdiff);
   } else {
