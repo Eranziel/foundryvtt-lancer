@@ -6,13 +6,13 @@ import { getMacroSpeaker } from "./_util";
 
 /**
  * Renders out an update of the current action status for a turn change in combat.
- * @param a     String of the actor ID to roll the macro as
+ * @param actorUUID     String of the actor UUID to roll the macro as
  * @param actions Action data of the actor
  * @param start True if start of turn, false if end of turn
  */
-export function prepareActionTrackMacro(a: string, start: boolean) {
+export function prepareActionTrackMacro(actorUUID: string, start: boolean) {
   // Determine which Actor to speak as
-  let actor = getMacroSpeaker(a);
+  let actor = getMacroSpeaker(actorUUID);
   if (!actor) return;
 
   const actions = getActions(actor);
@@ -25,7 +25,7 @@ export function prepareActionTrackMacro(a: string, start: boolean) {
     text = `// ${actor.name} is ending their turn: //<br/>`;
     text += condensedActionButtonHTML(actor, actions);
   }
-  prepareTextMacro(a, "Action Status", text);
+  prepareTextMacro(actorUUID, "Action Status", text);
 }
 
 function condensedActionButtonHTML(actor: LancerActor, actions: ActionTrackingData) {

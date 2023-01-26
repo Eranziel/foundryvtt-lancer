@@ -22,12 +22,10 @@ function _rollable_macro_button(macroData: string, overrides: ButtonOverrides = 
   </a>`;
 }
 
-export function get_actor_id(options: HelperOptions): string | null {
+export function getActorUUID(options: HelperOptions): string | null {
   // Determine whether this is an unlinked token, so we can encode the correct id for the macro.
-  const r_actor = options.data.root.actor as LancerActor | undefined;
-  let id = r_actor?.token && !r_actor.token.isLinked ? r_actor.token.id : r_actor?.id!;
-  //console.log(r_actor?.id, id);
-  return id;
+  const rActor = options.data.root.actor as LancerActor | undefined;
+  return rActor?.uuid ?? null;
 }
 
 // Shows an X / MAX clipped card
@@ -76,7 +74,7 @@ export function stat_view_card(
   let macroData = encodeMacroData({
     title: title,
     fn: "prepareStatMacro",
-    args: [get_actor_id(options), data_path],
+    args: [getActorUUID(options), data_path],
   });
   let macroBasicData = encodeMacroData({ title: "BASIC ATTACK", fn: "prepareEncodedAttackMacro", args: [] });
   if (options.rollable) macro_button = _rollable_macro_button(macroData);
@@ -154,11 +152,11 @@ export function clicker_stat_card(
   options: HelperOptions
 ): string {
   let button = "";
-  let id = get_actor_id(options);
+  let uuid = getActorUUID(options);
   let macroData = encodeMacroData({
     title: title,
     fn: "prepareStatMacro",
-    args: [id, data_path],
+    args: [uuid, data_path],
   });
   let macroBasicData = encodeMacroData({ title: "BASIC ATTACK", fn: "prepareEncodedAttackMacro", args: [] });
   if (roller)
@@ -215,10 +213,10 @@ export function action_button(
 export function macro_button(
   title: string,
   macro: string,
-  data_path: string,
+  actorPath: string,
   options: HelperOptions & { rollable?: boolean }
 ): string {
-  let args = [get_actor_id(options), null];
+  let args = [getActorUUID(options), null];
   let mIcon;
   switch (macro) {
     case "fullRepairMacro":
@@ -235,7 +233,6 @@ export function macro_button(
       break;
     case "prepareEncodedAttackMacro":
       mIcon = "cci-weapon";
-      args = [];
       break;
     case "prepareTechMacro":
       mIcon = "cci-tech-quick";
@@ -261,7 +258,7 @@ export function tech_flow_card(title: string, icon: string, data_path: string, o
   let macroData = encodeMacroData({
     title: title,
     fn: "prepareTechMacro",
-    args: [get_actor_id(options), null],
+    args: [getActorUUID(options), null],
   });
 
   return `

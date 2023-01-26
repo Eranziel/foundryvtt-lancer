@@ -67,7 +67,6 @@ export function applyCollapseListeners() {
     dom.removeEventListener("click", handleCollapse);
     dom.addEventListener("click", handleCollapse);
   });
-  console.log("Reapplying collapse listeners...");
 }
 
 const handleCollapse = (ev: Event) => {
