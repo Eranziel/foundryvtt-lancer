@@ -157,7 +157,7 @@ export class InventoryDialog extends Dialog {
     HANDLER_activate_item_context_menus(html, getfunc, commitfunc);
 
     // Make refs clickable to open the item
-    $(html).find(".ref.set").on("click", click_evt_open_ref);
+    $(html).find(".ref.set.click-open").on("click", click_evt_open_ref);
   }
 
   static async show_inventory(actor: LancerActor): Promise<void> {
