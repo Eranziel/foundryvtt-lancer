@@ -84,7 +84,9 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     this._activateMacroDragging(html);
 
     let getfunc = () => this.getData();
-    let commitfunc = (_: any) => {};
+    let commitfunc = (_: any) => {
+      console.error("DEPRECATED");
+    };
 
     // Make +/- buttons work
     HANDLER_activate_plus_minus_buttons(html, this.actor);
