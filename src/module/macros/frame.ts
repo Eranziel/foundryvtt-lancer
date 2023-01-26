@@ -18,7 +18,7 @@ export async function prepareCoreActiveMacro(a: string) {
 
   if (actor.system.loadout.frame?.status != "resolved") return;
 
-  if (!actor.system.core_active) {
+  if (!actor.system.core_energy) {
     ui.notifications!.warn(`No core power remaining on this frame!`);
     return;
   }
