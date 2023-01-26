@@ -498,6 +498,9 @@ export namespace SystemData {
       gear: SystemTemplates.ResolvedEmbeddedRef<LancerPILOT_GEAR>[];
       weapons: SystemTemplates.ResolvedEmbeddedRef<LancerPILOT_WEAPON>[];
     };
+
+    // HASE is from universal
+
     mounted: boolean;
     notes: string;
     player_name: string;
