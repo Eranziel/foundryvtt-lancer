@@ -157,7 +157,7 @@ export function pilot_slot(data_path: string, options: HelperOptions): string {
   }
 
   return `<div class="pilot-summary">
-    <img class="ref slot set pilot click-open" 
+    <img class="ref set pilot click-open" 
          ${ref_params(pilot, data_path)} 
          data-mode="uuid-ref"
          data-accept-types="pilot"

@@ -95,10 +95,10 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     HANDLER_activate_counter_listeners(html, this.actor);
 
     // Enable hex use triggers.
-    HANDLER_activate_uses_editor(html, getfunc);
+    HANDLER_activate_uses_editor(html, this.actor);
 
     // Enable context menu triggers.
-    HANDLER_activate_item_context_menus(html, getfunc, commitfunc);
+    HANDLER_activate_item_context_menus(html, this.actor);
 
     // Enable viewing inventory on sheets that support it
     this._activateInventoryButton(html);

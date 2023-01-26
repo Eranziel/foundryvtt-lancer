@@ -15,7 +15,7 @@ import {
 import { encodeMacroData } from "../macros";
 import {
   array_path_edit_changes,
-  drilldown_document,
+  drilldownDocument,
   effect_box,
   gentle_merge,
   read_form,
@@ -35,7 +35,7 @@ import { compact_tag_list } from "./tags";
 import { CollapseRegistry } from "./loadout";
 import { LancerDoc } from "../util/doc";
 import { EntryType, SystemType } from "../enums";
-import { LancerActor } from "../actor/lancer-actor";
+import { LancerActor, LancerPILOT } from "../actor/lancer-actor";
 import { LancerMacroData } from "../interfaces";
 import { SystemTemplates } from "../system-template";
 import { LancerActiveEffect } from "../effects/lancer-active-effect";
@@ -45,10 +45,9 @@ import { LancerActiveEffect } from "../effects/lancer-active-effect";
 
 .ref - Signals that it is a ref, more of a marker class than anything
   .set - Signals that the ref currently has a value
-  .empty - signals that the ref does not have a value. Only really matters for `slot`
+  .slot - Styling indicator for an empty ref slot. Almost if not always drop-settable
 
-  .slot - Signals that the ref can be set via a drag event
-  .list-item - Signals that the ref is part of a list of refs
+  .drop-settable - Signals that the ref can be set via a drag event
 
 data-uuid ~= "Actor.293180213" = UUID (even if embed) of the item, if .set
 data-accept-types ~= "<Type1> <Type2> ..." = Space-separated list of EntryTypes to accept
@@ -97,7 +96,7 @@ export function simple_ref_slot(
     let icons = (arr_types || ["dummy"]).filter(t => t).map(t => `<img class="ref-icon" src="${TypeIcon(t)}"></img>`);
 
     // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
-    return `<div class="ref ref-card empty slot" 
+    return `<div class="ref ref-card slot" 
                  data-accept-types="${flat_types}"
                  data-path="${path}"
                  data-mode="${mode}">
@@ -108,7 +107,7 @@ export function simple_ref_slot(
     return `<span>ASYNC not handled yet</span>`;
   } else {
     // The data-type
-    return `<div class="ref set slot ref-card click-open" 
+    return `<div class="ref ref-card set click-open" 
                   data-accept-types="${flat_types}"
                   data-path="${path}"
                   data-mode="${mode}"
@@ -484,7 +483,7 @@ export function HANDLER_add_doc_to_list_on_drop<T>(html: JQuery, root_doc: Lance
 
     // Try to apply the list addition
     if (path) {
-      let dd = drilldown_document(root_doc, path);
+      let dd = drilldownDocument(root_doc, path);
       let array = dd.terminus;
       if (Array.isArray(array)) {
         let changes = array_path_edit_changes(dd.sub_doc, dd.sub_path + ".-1", val, "insert");
@@ -494,35 +493,28 @@ export function HANDLER_add_doc_to_list_on_drop<T>(html: JQuery, root_doc: Lance
   });
 }
 
-export function HANDLER_activate_uses_editor<T>(
-  html: JQuery,
-  // Retrieves the data that we will operate on
-  data_getter: () => Promise<T> | T
-) {
-  /* TODO
+export function HANDLER_activate_uses_editor<T>(html: JQuery, doc: LancerActor | LancerItem) {
   let elements = html.find(".uses-hex");
   elements.on("click", async ev => {
     ev.stopPropagation();
 
     const params = ev.currentTarget.dataset;
-    const data = await data_getter();
     if (params.path) {
-      const item = resolve_dotpath(data, params.path) as MechSystem;
+      const dd = drilldownDocument(doc, params.path);
+      const item = dd.sub_doc as LancerMECH_SYSTEM | LancerMECH_WEAPON | LancerPILOT_GEAR | LancerNPC_FEATURE;
       const available = params.available === "true";
 
+      let newUses = item.system.uses.value;
       if (available) {
         // Deduct uses.
-        item.Uses = item.Uses > 0 ? item.Uses - 1 : 0;
+        newUses = Math.max(newUses - 1, item.system.uses.min);
       } else {
         // Increment uses.
-        item.Uses = item.Uses < item.OrigData.derived.max_uses ? item.Uses + 1 : item.OrigData.derived.max_uses;
+        newUses = Math.min(newUses + 1, item.system.uses.max);
       }
-
-      await item.writeback();
-      console.debug(item);
+      item.update({ "system.uses": newUses });
     }
   });
-  */
 }
 
 // Enables dragging of ref cards (or anything with .ref.set and the appropriate fields)
@@ -569,7 +561,7 @@ export function HANDLER_activate_ref_slot_dropping(
   root_doc: LancerActor | LancerItem,
   pre_finalize_drop: ((drop: ResolvedDropData) => Promise<ResolvedDropData>) | null
 ) {
-  HANDLER_enable_doc_dropping(html.find(".ref.slot.drop-settable"), async (drop, dest, evt) => {
+  HANDLER_enable_doc_dropping(html.find(".ref.drop-settable"), async (drop, dest, evt) => {
     // Pre-finalize the entry
     if (pre_finalize_drop) {
       drop = await pre_finalize_drop(drop);
@@ -597,7 +589,7 @@ export function HANDLER_activate_ref_slot_dropping(
 
     // Then just merge-set to the path
     if (path) {
-      let dd = drilldown_document(root_doc, path);
+      let dd = drilldownDocument(root_doc, path);
       dd.sub_doc.update({ [dd.sub_path]: val });
     }
   });
@@ -605,17 +597,12 @@ export function HANDLER_activate_ref_slot_dropping(
 
 /**
  * Use this for ui forms of items. Will prevent change/submit events from propagating all the way up,
- * and instead call writeback() on the appropriate document instead.
- * Control in same way as generic action handler: with the "data-commit-item" property pointing at the MM item
+ * and instead call update() on the appropriate document instead.
+ * Control in same way as generic action handler: with the "data-update-interceptor" property pointing at the document
  */
-export function HANDLER_intercept_form_changes<T>(
-  html: JQuery,
-  // Retrieves the data that we will operate on
-  data_getter: () => Promise<T> | T
-  // commit_func: (data: T) => void | Promise<void> -- not necessary
-) {
-  // Capture anywhere with a data-commit-item path specified
-  let capturers = html.find("[data-commit-item]");
+export function HANDLER_intercept_form_changes<T>(html: JQuery, data_getter: () => Promise<T> | T) {
+  // Capture anywhere with a data-update-interceptor path specified
+  let capturers = html.find("[data-update-interceptor]");
   capturers.on("change", async evt => {
     // Don't let it reach root form
     evt.stopPropagation();

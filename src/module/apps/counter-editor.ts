@@ -12,12 +12,17 @@ export class CounterEditForm extends Dialog {
   counter: CounterData;
 
   // The item we're editing it on
-  target: LancerItem;
+  target: LancerItem | LancerActor;
 
   // Where it is
   path: string;
 
-  constructor(target: LancerItem, path: string, dialogData: Dialog.Data, options: Partial<Dialog.Options> = {}) {
+  constructor(
+    target: LancerItem | LancerActor,
+    path: string,
+    dialogData: Dialog.Data,
+    options: Partial<Dialog.Options> = {}
+  ) {
     super(dialogData, options);
     this.path = path;
     this.target = target;
@@ -90,18 +95,14 @@ export class CounterEditForm extends Dialog {
   /**
    * A helper constructor function which displays the bonus editor and returns a Promise once it's
    * workflow has been resolved.
-   * @param in_object
-   * @param at_path
+   * @param doc
+   * @param path
    * @param writeback_obj
    * @returns
    */
-  static async edit_counter<T>(
-    in_object: LancerItem,
-    at_path: string,
-    writeback_obj: LancerItem | LancerActor
-  ): Promise<void> {
+  static async edit_counter<T>(doc: LancerItem | LancerActor, path: string): Promise<void> {
     return new Promise((resolve, _reject) => {
-      const dlg: CounterEditForm = new this(in_object, at_path, {
+      const dlg: CounterEditForm = new this(doc, path, {
         title: "Edit Counter",
         content: "",
         buttons: {

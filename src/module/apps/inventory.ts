@@ -154,7 +154,7 @@ export class InventoryDialog extends Dialog {
     // Enable ref dragging
     HANDLER_activate_ref_dragging(html);
 
-    HANDLER_activate_item_context_menus(html, getfunc, commitfunc);
+    HANDLER_activate_item_context_menus(html, this.actor);
 
     // Make refs clickable to open the item
     $(html).find(".ref.set.click-open").on("click", click_evt_open_ref);

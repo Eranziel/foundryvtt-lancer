@@ -76,14 +76,9 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
    * @param data_getter      Reference to a function which can provide the sheet data
    * @param commit_func      Reference to a function which can commit/save data back to the document
    */
-  _activate_context_listeners(
-    html: JQuery,
-    // Retrieves the data that we will operate on
-    data_getter: () => Promise<LancerItemSheetData<T>> | LancerItemSheetData<T>,
-    commit_func: (data: LancerItemSheetData<T>) => void | Promise<void>
-  ) {
+  _activate_context_listeners(html: JQuery) {
     // Enable custom context menu triggers. If the sheet is not editable, show only the "view" option.
-    HANDLER_activate_item_context_menus(html, data_getter, commit_func, !this.options.editable);
+    HANDLER_activate_item_context_menus(html, this.item, !this.options.editable);
   }
 
   /**
@@ -96,7 +91,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
 
     let getfunc = () => this.getData();
     let commitfunc = (_: any) => {
-      console.log("Commit func machine [B]roke");
+      ui.notifications?.error("DEPRECATED");
     };
 
     // Make refs clickable
@@ -105,7 +100,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
     // Enable ref dragging
     HANDLER_activate_ref_dragging(html);
 
-    this._activate_context_listeners(html, getfunc, commitfunc);
+    this._activate_context_listeners(html);
 
     // Everything below here is only needed if the sheet is editable
     if (!this.options.editable) {
@@ -119,7 +114,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
     HANDLER_activate_counter_listeners(html, this.item);
 
     // Enable hex use triggers.
-    HANDLER_activate_uses_editor(html, getfunc);
+    HANDLER_activate_uses_editor(html, this.item);
 
     // Allow dragging items into lists
     HANDLER_add_doc_to_list_on_drop(html, this.item);

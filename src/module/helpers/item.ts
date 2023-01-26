@@ -15,7 +15,8 @@ import {
 import { compact_tag_list } from "./tags";
 import {
   array_path_edit,
-  drilldown_document,
+  array_path_edit_changes,
+  drilldownDocument,
   effect_box,
   ext_helper_hash,
   format_dotpath,
@@ -305,7 +306,7 @@ export function HANDLER_activate_edit_bonus<T>(html: JQuery, root_doc: LancerIte
     const elt = evt.currentTarget;
     const path = elt.dataset.path;
     if (path) {
-      let dd = drilldown_document(root_doc, path);
+      let dd = drilldownDocument(root_doc, path);
       return BonusEditDialog.edit_bonus(dd.sub_doc, dd.sub_path);
     }
   });
@@ -538,7 +539,7 @@ export function mech_loadout_weapon_slot(
   if (weapon_slot?.status != "resolved") {
     // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
     return `
-      <div class="${EntryType.MECH_WEAPON} ref slot empty drop-settable card flexrow" 
+      <div class="${EntryType.MECH_WEAPON} ref slot drop-settable card flexrow" 
            data-path="${weapon_path}" 
            data-type="${EntryType.MECH_WEAPON}"
            data-mode="embed-ref">
@@ -554,7 +555,7 @@ export function mech_loadout_weapon_slot(
   } else {
     // Make a refbox, hidden
     mod_text = `
-    <div class="${EntryType.WEAPON_MOD} ref slot set card flexrow"
+    <div class="${EntryType.WEAPON_MOD} ref slot drop-settable card flexrow"
         data-path="${mod_path}"
         data-type="${EntryType.WEAPON_MOD}">
       <i class="cci cci-weaponmod i--m i--light"> </i>
@@ -625,7 +626,7 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.value.
 
   return `
   <div class="mech-weapon-wrapper${mod_text ? "-modded" : ""}">
-    <div class="ref slot set drop-settable ${EntryType.MECH_WEAPON} flexcol lancer-weapon-container macroable item"
+    <div class="ref set drop-settable ${EntryType.MECH_WEAPON} flexcol lancer-weapon-container macroable item"
                   ${ref_params(weapon, weapon_path)}
                   data-mode="embed-ref"
                   style="max-height: fit-content;">
@@ -672,7 +673,7 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.value.
 
 export function loading_indicator(loaded: boolean, weapon_path: string): string {
   let loading_icon = `mdi ${loaded ? "mdi-hexagon-slice-6" : "mdi-hexagon-outline"} loaded-hex`;
-  let indicator = `<a class="gen-control" data-action="set" data-action-value="(bool)${!loaded}" data-path="${weapon_path}.loaded" data-commit-item="${weapon_path}"><i class="${loading_icon} i--m"></i></a>`;
+  let indicator = `<a class="gen-control" data-action="set" data-action-value="(bool)${!loaded}" data-path="${weapon_path}.loaded" data-update-interceptor="${weapon_path}"><i class="${loading_icon} i--m"></i></a>`;
   return `<div class="clipped card limited-card">LOADED ${indicator}</div>`;
 }
 
@@ -1156,7 +1157,7 @@ export function buildCounterHeader(
 ): string {
   //
   return `
-  <div class="card clipped-bot counter-wrapper" data-path="${path}" data-writeback_path="${writeback_path}">
+  <div class="card clipped-bot counter-wrapper" data-path="${path}">
     <div class="lancer-header">
       <span>// ${data.name} //</span>
       <a class="lancer-context-menu" data-context-menu="counter" data-path="${path}" data-can-delete="${
@@ -1239,7 +1240,7 @@ async function _updateCounterData<T extends LancerActorSheetData<any> | LancerIt
   path: string,
   delta: number
 ) {
-  let dd = drilldown_document(root_doc, path);
+  let dd = drilldownDocument(root_doc, path);
   const counter = dd.terminus as CounterData;
   const min = counter.min || 0;
   const max = counter.max || 6;
@@ -1259,7 +1260,7 @@ export function HANDLER_activate_plus_minus_buttons(html: JQuery, root_doc: Lanc
       const elt = $(evt.currentTarget).siblings("input")[0] as HTMLInputElement;
       const path = elt.name;
       if (path) {
-        let dd = drilldown_document(root_doc, path);
+        let dd = drilldownDocument(root_doc, path);
         dd.sub_doc.update({ [dd.sub_path]: elt.valueAsNumber + delta });
       }
     };
@@ -1302,13 +1303,9 @@ export function HANDLER_activate_counter_listeners(html: JQuery, root_doc: Lance
   incr.on("click", mod_handler(+1));
 }
 
-export function HANDLER_activate_item_context_menus<
-  T extends LancerActorSheetData<any> | LancerItemSheetData<any> | InventoryDialogData
->(
+export function HANDLER_activate_item_context_menus(
   html: JQuery,
-  // Retrieves the data that we will operate on
-  data_getter: () => Promise<T> | T,
-  commit_func: (data: T) => void | Promise<void>,
+  doc: LancerActor | LancerItem,
   view_only: boolean = false
 ) {
   let edit: ContextMenuEntry = {
@@ -1336,14 +1333,9 @@ export function HANDLER_activate_item_context_menus<
     name: "Toggle Destroyed",
     icon: `<i class="fas fa-fw fa-wrench"></i>`,
     callback: async (html: JQuery) => {
-      let sheet_data = await data_getter();
       let path = html[0].dataset.path ?? "";
       if (path) {
-        let item = resolve_dotpath(sheet_data, path, null) as
-          | LancerMECH_WEAPON
-          | LancerMECH_SYSTEM
-          | LancerNPC_FEATURE
-          | null;
+        let item = resolve_dotpath(doc, path, null) as LancerMECH_WEAPON | LancerMECH_SYSTEM | LancerNPC_FEATURE | null;
         if (item) {
           await item.update({ "system.destroyed": !item.system.destroyed });
         }
@@ -1366,11 +1358,11 @@ export function HANDLER_activate_item_context_menus<
     name: "Remove",
     icon: '<i class="fas fa-fw fa-trash"></i>',
     callback: async (html: JQuery) => {
-      let sheet_data = await data_getter();
-      let path = html[0].dataset.path ?? "";
-      console.log(sheet_data, html, path);
-      array_path_edit(sheet_data, path, null, "delete");
-      await commit_func(sheet_data);
+      // let path = html[0].dataset.path ?? "";
+      // let dd = drilldownDocument(actor, path);
+      // let update = array_path_edit_changes(dd.sub_doc, dd.sub_path, null, "delete");
+      // dd.sub_doc.update({[update.path]: update});
+      ui.notifications?.error("This needs some fixing");
     },
   };
 
@@ -1382,48 +1374,20 @@ export function HANDLER_activate_item_context_menus<
       // Find the counter
       let counter_el = html.closest(".counter-wrapper")[0];
       let path = counter_el.dataset.path;
-      let writeback_path = counter_el.dataset.writeback_path;
-      if (!path || !writeback_path) throw "Counters weren't set up right";
-
-      let data = await data_getter();
-
-      // TODO:
-      /*
-      let writeback_obj: RegEntry<any> | null = resolve_dotpath(data, writeback_path);
-
-      if (!writeback_obj) throw "Writeback is broken";
-
-      return CounterEditForm.edit_counter(data, path, writeback_obj).catch(e => console.error("Dialog failed", e));
-      */
+      let dd = drilldownDocument(doc, path!);
+      return CounterEditForm.edit_counter(dd.sub_doc, dd.sub_path).catch(e => console.error("Dialog failed", e));
     },
   };
   let counter_remove: ContextMenuEntry = {
     name: "Remove",
     icon: '<i class="fas fa-fw fa-trash"></i>',
     callback: async (html: JQuery) => {
-      let sheet_data = await data_getter();
-
       // Find the counter
       let counter_el = html.closest(".counter-wrapper")[0];
       let path = counter_el.dataset.path;
-      let writeback_path = counter_el.dataset.writeback_path;
-      if (!path || !writeback_path) throw "Counters weren't set up right";
-
-      let data = await data_getter();
-
-      // TODO
-      /*
-      // Should always be the owning document if we're able to delete
-      let entry: RegEntry<any> = resolve_dotpath(sheet_data, "mm", null);
-      let counter: CounterData = resolve_dotpath(sheet_data, path, null);
-
-      // Only allow this on Pilots for now, could plausibly generalize at some point
-      if (!is_reg_pilot(entry)) return;
-
-      let index = entry.CustomCounters.indexOf(counter);
-      entry.CustomCounters.splice(index, 1);
-      entry.writeback();
-      */
+      let dd = drilldownDocument(doc, path!);
+      let change = array_path_edit_changes(dd.sub_doc, dd.sub_path, null, "delete");
+      await doc.update({ [change.path]: change.new_val });
     },
   };
 

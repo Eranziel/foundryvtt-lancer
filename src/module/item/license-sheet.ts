@@ -45,14 +45,9 @@ export class LancerLicenseSheet extends LancerItemSheet<EntryType.LICENSE> {
   /**
    * @override
    */
-  _activate_context_listeners(
-    html: JQuery,
-    // Retrieves the data that we will operate on
-    data_getter: () => Promise<LancerItemSheetData<EntryType.LICENSE>> | LancerItemSheetData<EntryType.LICENSE>,
-    commit_func: (data: LancerItemSheetData<EntryType.LICENSE>) => void | Promise<void>
-  ) {
+  _activate_context_listeners(html: JQuery) {
     // Enable custom context menu triggers with only the "view" option.
-    HANDLER_activate_item_context_menus(html, data_getter, commit_func, true);
+    HANDLER_activate_item_context_menus(html, this.item, true);
   }
 
   /**

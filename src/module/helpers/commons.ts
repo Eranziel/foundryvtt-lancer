@@ -248,11 +248,13 @@ export function sp_display(sp: number | string) {
 }
 
 export function charged_box(charged: boolean, path: string) {
-  return `<div class="clipped card charged-box ${
-    charged ? "charged" : ""
-  }"><span style="margin:4px;">Charged:</span><a style="margin-top:2px;" class="gen-control" data-action="set" data-action-value="(bool)${!charged}" data-path="${path}.Charged" data-commit-item="${path}"><i class="hex hex-white mdi ${
-    charged ? "mdi-hexagon-slice-6" : "mdi-hexagon-outline"
-  }"></i></a></div>`;
+  return `<div class="clipped card charged-box ${inc_if("charged", charged)}">
+            <span style="margin:4px;">Charged:</span>
+            <a style="margin-top:2px;" class="gen-control" data-action="set" data-action-value="(bool)${!charged}" data-path="${path}.system.charged" data-update-interceptor="${path}">
+              <i class="hex hex-white mdi ${charged ? "mdi-hexagon-slice-6" : "mdi-hexagon-outline"}">
+              </i>
+            </a>
+          </div>`;
 }
 
 // JSON parses a string, returning null instead of an exception on a failed parse
@@ -273,6 +275,7 @@ export function format_dotpath(path: string): string {
 // Helper function to get arbitrarily deep array references
 // Returns every item along the path, starting with the object itself
 // Any failed resolutions will still be emitted, but as an undefined
+// An empty string resolved in this way will simply return root.
 export function stepwise_resolve_dotpath(
   obj: any,
   dotpath: string
@@ -299,15 +302,22 @@ export function stepwise_resolve_dotpath(
   return result;
 }
 
-export function drilldown_document(
-  root_doc: LancerActor | LancerItem,
+/**
+ * A variant of resolve_dotpath that provides more context about documents we encounter along the way.
+ *
+ * @param rootDoc The document we are starting at
+ * @param path The path to resolve
+ * @returns An object providing context on the path and result relative to the most deploy nested document we encounter
+ */
+export function drilldownDocument(
+  rootDoc: LancerActor | LancerItem,
   path: string
 ): {
-  sub_doc: LancerActor | LancerItem;
-  sub_path: string;
-  terminus: any;
+  sub_doc: LancerActor | LancerItem; // The last document traversed while following path from root_doc. Usually just root_doc
+  sub_path: string; // Path to terminus, continuing from sub_doc
+  terminus: any; // What was found at the end of the path
 } {
-  let steps = stepwise_resolve_dotpath(root_doc, path);
+  let steps = stepwise_resolve_dotpath(rootDoc, path);
   for (let i = steps.length - 1; i >= 0; i--) {
     // Walk it back till first document
     let step = steps[i];
@@ -454,7 +464,7 @@ export function HANDLER_activate_general_controls(
 
       // Construct our ctx
       let path = elt.dataset.path!;
-      let dd = drilldown_document(doc, path);
+      let dd = drilldownDocument(doc, path);
       let ctx: GenControlContext = {
         // Base
         elt,
@@ -759,7 +769,7 @@ export function HANDLER_activate_popout_text_editor(html: JQuery, root_doc: Lanc
     const elt = evt.currentTarget;
     const path = elt.dataset.path;
     if (path) {
-      let dd = drilldown_document(root_doc, path);
+      let dd = drilldownDocument(root_doc, path);
       await HTMLEditDialog.edit_text(dd.sub_doc, dd.sub_path);
     }
   });
