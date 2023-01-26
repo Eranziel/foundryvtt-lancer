@@ -4,9 +4,10 @@ import { resolve_dotpath } from "../helpers/commons";
 import tippy from "tippy.js";
 import type { LancerActor, LancerMECH } from "./lancer-actor";
 import { ResolvedDropData } from "../helpers/dragdrop";
-import { EntryType, MountType, SystemType } from "../enums";
+import { EntryType, fittingsForMount, FittingSize, MountType, SystemType } from "../enums";
 import { SystemData } from "../system-template";
 import { LancerActorSheetData } from "../interfaces";
+import { SourceData } from "../source-template";
 
 /**
  * Extend the basic ActorSheet
@@ -150,27 +151,47 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
   // Allows user to change mount size via right click ctx
   _activateMountContextMenus(html: any) {
     let mount_options: any[] = [];
-    for (let mount_type of Object.values(MountType)) {
+
+    // Handle generic mount type
+    for (let selection of Object.values(MountType)) {
       mount_options.push({
-        name: mount_type,
+        name: selection,
         icon: "",
-        // condition: game.user.isGM,
         callback: async (html: JQuery) => {
-          let mount_path = html[0].dataset.path ?? "";
+          let mountPath = html[0].dataset.path ?? "";
 
           // Get the current mount
-          let mount = resolve_dotpath(this.actor, mount_path) as SystemData.Mech["loadout"]["weapon_mounts"][0];
+          let mount = resolve_dotpath(this.actor, mountPath) as SystemData.Mech["loadout"]["weapon_mounts"][0];
           if (!mount) {
-            console.error("Bad mountpath:", mount_path);
+            console.error("Bad mountpath:", mountPath);
           }
 
-          // Edit it. Someday we'll want to have a way to resize without nuking. that day is not today
+          // Construct our new slots based on old slots
+          let newSlots: SourceData.Mech["loadout"]["weapon_mounts"][0]["slots"] = [];
+          let newSlotTypes = fittingsForMount(selection);
+          newSlots = newSlots.splice(newSlotTypes.length); // Cut off everything past this end
+          for (let i = 0; i < newSlotTypes.length; i++) {
+            if (mount.slots[i]?.weapon?.value) {
+              newSlots.push({
+                mod: mount.slots[i].mod?.value?.id ?? null,
+                size: newSlotTypes[i],
+                weapon: mount.slots[i].weapon?.value?.id ?? null,
+              });
+            } else {
+              newSlots.push({
+                mod: null,
+                size: newSlotTypes[i],
+                weapon: null,
+              });
+            }
+          }
+
+          // Put the edits
           this.actor.update({
-            [mount_path + ".type"]: mount_type,
-            [mount_path + ".bracing"]: false,
+            [mountPath + ".type"]: selection,
+            [mountPath + ".bracing"]: false,
+            [mountPath + ".slots"]: newSlots,
           });
-          mount.type = mount_type;
-          mount.bracing = false;
         },
       });
     }
@@ -181,21 +202,20 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
       icon: "",
       callback: async (html: JQuery) => {
         let cd = await this.getData();
-        let mount_path = html[0].dataset.path ?? "";
+        let mountPath = html[0].dataset.path ?? "";
 
         // Get the current mount
-        let mount = resolve_dotpath(cd, mount_path) as SystemData.Mech["loadout"]["weapon_mounts"][0];
+        let mount = resolve_dotpath(cd, mountPath) as SystemData.Mech["loadout"]["weapon_mounts"][0];
         if (!mount) {
-          console.error("Bad mountpath:", mount_path);
+          console.error("Bad mountpath:", mountPath);
         }
 
         // Set as bracing
-        console.log("TODO");
-        // mount.bracing = true;
-        // mount.reset();
-
-        // Write back
-        // await this._commitCurrMM();
+        this.actor.update({
+          [mountPath + ".type"]: MountType.Unknown,
+          [mountPath + ".bracing"]: true,
+          [mountPath + ".slots"]: [],
+        });
       },
     });
 

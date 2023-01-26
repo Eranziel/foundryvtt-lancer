@@ -2,7 +2,7 @@ import { LANCER, replace_default_resource, TypeIcon } from "../config";
 import { LancerHooks, LancerSubscription } from "../helpers/hooks";
 // import { LancerFRAME, LancerItem, LancerItemType, LancerNPC_CLASS } from "../item/lancer-item";
 import { renderMacroTemplate, encodeMacroData, prepareOverheatMacro, prepareStructureMacro } from "../macros";
-import { DamageType, EntryType, StabOptions1, StabOptions2 } from "../enums";
+import { DamageType, EntryType, FittingSize, MountType, StabOptions1, StabOptions2, WeaponSize } from "../enums";
 import { fix_modify_token_attribute } from "../token";
 import { findEffect } from "../helpers/acc_diff";
 import { AppliedDamage } from "./damage-calc";
@@ -1271,7 +1271,6 @@ export class LancerActor extends Actor {
 
   _deleteUnequippedItems() {
     let deleteIds: string[] = [];
-    let now = Date.now();
 
     // Flag all unequipped mech equipment
     for (let item of this.items.contents) {
@@ -1283,7 +1282,9 @@ export class LancerActor extends Actor {
           deleteIds.push(item.id);
         }
       } else if (item.id && this.is_pilot()) {
-        // TODO
+        if ((item.is_pilot_armor() || item.is_pilot_weapon() || item.is_pilot_gear()) && !item.system.equipped) {
+          deleteIds.push(item.id);
+        }
       }
     }
     // Kill!
@@ -1297,7 +1298,25 @@ export class LancerActor extends Actor {
     // Bundled updates are theoretically rare, but if they ever were to occur its better than just first-instinct-updating 30 times
     let needCleanup = false;
     if (this.is_pilot()) {
-      // TODO
+      // @ts-expect-error
+      let cleanupLoadout = duplicate(this.system._source.loadout) as SourceData.Pilot["loadout"];
+      let currLoadout = this.system.loadout;
+      // Fairly simple
+      cleanupLoadout.armor = cleanupLoadout.armor.filter((_, index) => currLoadout.armor[index].status != "missing");
+      cleanupLoadout.gear = cleanupLoadout.gear.filter((_, index) => currLoadout.gear[index].status != "missing");
+      cleanupLoadout.weapons = cleanupLoadout.weapons.filter(
+        (_, index) => currLoadout.weapons[index].status != "missing"
+      );
+
+      // Only cleanup on length mismatch
+      if (
+        cleanupLoadout.armor.length != currLoadout.armor.length ||
+        cleanupLoadout.gear.length != currLoadout.gear.length ||
+        cleanupLoadout.weapons.length != currLoadout.weapons.length
+      ) {
+        console.log("Cleaning up unresolved items...");
+        this.update({ system: { loadout: cleanupLoadout } });
+      }
     } else if (this.is_mech()) {
       // @ts-expect-error
       let cleanupLoadout = duplicate(this.system._source.loadout) as SourceData.Mech["loadout"];
@@ -1357,14 +1376,58 @@ export class LancerActor extends Actor {
 
   /**
    * Yields a simple error message on a misconfigured mount, or null if no issues detected.
-   * @param loadout
-   * @param mount
+   * @param mount Specific mount to validate
    */
   validateMount(mount: SystemData.Mech["loadout"]["weapon_mounts"][0]): string | null {
     if (this.is_mech()) {
       let loadout = this.system.loadout;
-      console.log("Mounts aren't validated yet but soon (tm)!");
-      return null; // TODO
+      let hasBracing = loadout.weapon_mounts.some(m => m.bracing);
+      let hasSuper = false;
+      let hasFlexMain = false;
+      let weaponCount = 0;
+      let result = "";
+
+      // If someone has messed up fittings, then they probably did so on purpose.
+      // Thus, we only check that within each slot the size makes sense
+
+      for (let slot of mount.slots) {
+        if (slot.weapon?.status != "resolved") continue;
+        weaponCount += 1;
+        // if (slot.weapon.value.system.size == WeaponSize.)
+
+        // See if it fits
+        const weaponSizeScore =
+          {
+            [WeaponSize.Aux]: 1,
+            [WeaponSize.Main]: 2,
+            [WeaponSize.Heavy]: 3,
+            [WeaponSize.Superheavy]: 3,
+          }[slot.weapon.value.system.size] ?? 4;
+        const fittingSizeScore =
+          {
+            [FittingSize.Auxiliary]: 1,
+            [FittingSize.Main]: 2,
+            [FittingSize.Flex]: 2,
+            [FittingSize.Heavy]: 3,
+            [FittingSize.Integrated]: 4,
+          }[slot.size] ?? 0;
+        if (weaponSizeScore > fittingSizeScore) {
+          result += `Weapon of size ${slot.weapon.value.system.size} cannot fit on fitting of size ${slot.size}. `;
+          continue;
+        }
+        if (slot.size == FittingSize.Flex && weaponSizeScore > 1) {
+          hasFlexMain = true;
+        }
+        if (slot.weapon.value.system.size == WeaponSize.Superheavy) {
+          hasSuper = true;
+        }
+      }
+
+      if (hasFlexMain && weaponCount > 1) {
+        result += `Flex mounts can either have two Auxillary or one Main weapon.`;
+      }
+
+      return result || null;
     } else {
       throw new Error(
         `${this.type} actors have no mounts to validate. Call this method on the actor you're trying to check against!`

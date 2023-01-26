@@ -135,9 +135,30 @@ export function getMountType(raw: string): MountType {
 export enum FittingSize {
   Auxiliary = "Auxiliary",
   Main = "Main",
-  Flex = "Flex",
+  Flex = "Flex", // Behaves as a main, but allows us to complain if used as a main with a sibling slot
   Heavy = "Heavy",
   Integrated = "Integrated", // wildcard basically
+}
+
+// Return an acceptable setting of fittings for a given mount type
+export function fittingsForMount(mount: MountType): FittingSize[] {
+  switch (mount) {
+    case MountType.Aux:
+      return [FittingSize.Auxiliary];
+    case MountType.AuxAux:
+      return [FittingSize.Auxiliary, FittingSize.Auxiliary];
+    case MountType.Flex:
+      return [FittingSize.Flex, FittingSize.Auxiliary];
+    case MountType.Main:
+      return [FittingSize.Main];
+    case MountType.MainAux:
+      return [FittingSize.Main, FittingSize.Auxiliary];
+    case MountType.Heavy:
+      return [FittingSize.Heavy];
+    case MountType.Integrated:
+    case MountType.Unknown:
+      return [FittingSize.Integrated];
+  }
 }
 
 export function getFittingSize(raw: string): FittingSize {
@@ -174,7 +195,7 @@ export function getWeaponSize(raw: string): WeaponSize {
       return WeaponSize.Aux;
     case "heavy":
       return WeaponSize.Heavy;
-    case "superheavyj":
+    case "superheavy":
       return WeaponSize.Superheavy;
   }
 }
