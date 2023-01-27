@@ -89,8 +89,6 @@ export class LancerActor extends Actor {
     if (!reroll_data) {
       if (this.system.heat.value > this.system.heat.max && this.system.stress.value > 0) {
         // https://discord.com/channels/426286410496999425/760966283545673730/789297842228297748
-        if (this.system.stress.value > 1) this.system.heat.value -= this.system.heat.max;
-        this.system.stress.value -= 1;
         await this.update({
           "system.stress": this.system.stress.value - 1,
           "system.heat": this.system.heat.value - this.system.heat.max,
@@ -229,7 +227,7 @@ export class LancerActor extends Actor {
       if (hp.value < 1 && structure.value > 0) {
         await this.update({
           "system.structure": structure.value - 1,
-          "system.hp": hp.value - hp.max,
+          "system.hp": hp.value + hp.max,
         });
       } else {
         return;
@@ -373,9 +371,9 @@ export class LancerActor extends Actor {
     //TODO fix to be a real type
     let changes: Record<string, any> = {
       // @ts-expect-error System's broken unless narrowed
-      "data.hp": this.system.hp.max,
-      "data.burn": 0,
-      "data.overshield": 0,
+      "system.hp": this.system.hp.max,
+      "system.burn": 0,
+      "system.overshield": 0,
     };
 
     // Things for heat-havers
@@ -1177,11 +1175,10 @@ export class LancerActor extends Actor {
           (this.is_mech() || this.is_npc())
         ) {
           const data = changed as any; // DeepPartial<RegMechData | RegNpcData>;
-          console.log("Checking structuring");
-          if ((data.heat ?? 0) > this.system.heat.max && this.system.stress.value > 0) {
+          if ((data.system?.heat ?? 0) > this.system.heat.max && this.system.stress.value > 0) {
             prepareOverheatMacro(this);
           }
-          if ((data.hp ?? 1) <= 0 && this.system.structure.value > 0) {
+          if ((data.system?.hp ?? 1) <= 0 && this.system.structure.value > 0) {
             prepareStructureMacro(this);
           }
         }

@@ -8,12 +8,15 @@ const lp = LANCER.log_prefix;
 
 /**
  * Performs a roll on the overheat table for the given actor
- * @param a           - Actor or ID of actor to overheat
+ * @param actorUUID   - Actor or ID of actor to overheat
  * @param reroll_data - Data to use if rerolling. Setting this also supresses the dialog.
  */
-export async function prepareOverheatMacro(a: string | LancerActor, reroll_data?: { stress: number }): Promise<void> {
+export async function prepareOverheatMacro(
+  actorUUID: string | LancerActor,
+  reroll_data?: { stress: number }
+): Promise<void> {
   // Determine which Actor to speak as
-  let actor = getMacroSpeaker(a);
+  let actor = getMacroSpeaker(actorUUID);
   if (!actor) return;
 
   if (!actor.is_mech() && !actor.is_npc()) {
