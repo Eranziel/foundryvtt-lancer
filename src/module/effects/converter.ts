@@ -20,8 +20,6 @@ export function effect_for_frame(frame: LancerFRAME): LancerActiveEffectConstruc
     "sensor_range",
     "size",
     "speed",
-    "stress",
-    "structure",
     "tech_attack",
   ];
   // @ts-expect-error Shouldn't be restricted to not take numbers I don't think
@@ -32,7 +30,7 @@ export function effect_for_frame(frame: LancerFRAME): LancerActiveEffectConstruc
     value: frame.system.stats[key],
   }));
 
-  // Three weirder ones
+  // The weirder ones
   changes!.push({
     key: "system.hp.max",
     mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
@@ -41,11 +39,32 @@ export function effect_for_frame(frame: LancerFRAME): LancerActiveEffectConstruc
     value: frame.system.stats.hp,
   });
   changes!.push({
+    key: "system.structure.max",
+    mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+    priority: INNATE_STAT_PRIORITY,
+    // @ts-expect-error
+    value: frame.system.stats.structure,
+  });
+  changes!.push({
+    key: "system.stress.max",
+    mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+    priority: INNATE_STAT_PRIORITY,
+    // @ts-expect-error
+    value: frame.system.stats.stress,
+  });
+  changes!.push({
     key: "system.heat.max",
     mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
     priority: INNATE_STAT_PRIORITY,
     // @ts-expect-error
     value: frame.system.stats.heatcap,
+  });
+  changes!.push({
+    key: "system.repairs.max",
+    mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+    priority: INNATE_STAT_PRIORITY,
+    // @ts-expect-error
+    value: frame.system.stats.repcap,
   });
   changes!.push({
     key: "system.loadout.sp.max",
@@ -149,6 +168,13 @@ export function pilot_downstream_effects(pilot: LancerPILOT): LancerActiveEffect
         priority: PILOT_STAT_PRIORITY,
         // @ts-expect-error
         value: pilot.system.sys,
+      },
+      {
+        mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+        key: "system.save",
+        priority: PILOT_STAT_PRIORITY,
+        // @ts-expect-error
+        value: pilot.system.grit,
       },
       {
         mode: CONST.ACTIVE_EFFECT_MODES.ADD,
