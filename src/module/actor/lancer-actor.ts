@@ -392,7 +392,7 @@ export class LancerActor extends Actor {
     if (this.is_mech()) {
       changes["system.core_energy"] = 1;
       changes["system.core_active"] = false;
-      changes["system.overcharge"] = 1;
+      changes["system.overcharge"] = 0;
       changes["system.repairs"] = this.system.repairs.max;
       changes["system.meltdown_timer"] = null;
     }
@@ -1261,6 +1261,8 @@ export class LancerActor extends Actor {
         // @ts-expect-error
         mech.createEmbeddedDocuments("ActiveEffect", changes);
       }
+    } else {
+      // Send to deployers TODO
     }
   }
 
@@ -1458,7 +1460,6 @@ export class LancerActor extends Actor {
     if (!this.is_mech()) return null;
 
     const oc_rolls = this.system.overcharge_sequence;
-    if (!oc_rolls || oc_rolls.length < 4) return null;
     return oc_rolls[this.system.overcharge];
   }
 
