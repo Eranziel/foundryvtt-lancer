@@ -427,6 +427,10 @@ Hooks.once("init", async function () {
     return item.is_limited();
   });
 
+  Handlebars.registerHelper("is-loading", function (item: LancerItem) {
+    return item.is_loading();
+  });
+
   // ------------------------------------------------------------------------
   // Refs
   Handlebars.registerHelper("simple-ref", simple_ref_slot);

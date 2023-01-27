@@ -36,10 +36,10 @@
       <div class="card clipped">
         <div class="lancer-header major ">STATUS</div>
         <div class="flexrow" style="align-self: center;">
-          {{#if item.is_limited}}
+          {{#if (is-loading item)}}
             {{{loading-indicator system.loaded "item"}}}
           {{/if}}
-          {{#if item.is_limited}}
+          {{#if (is-limited item)}}
             {{{limited-uses-indicator item "item"}}}
           {{/if}}
         </div>

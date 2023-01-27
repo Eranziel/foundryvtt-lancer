@@ -13,7 +13,7 @@ import { ActionData } from "../models/bits/action";
 
 export type CollapseRegistry = { [LID: string]: number };
 
-// A drag-drop slot for a system mount. TODO: delete button, clear button
+// A drag-drop slot for a system mount.
 function system_view(system_path: string, helper: HelperOptions, registry?: CollapseRegistry): string {
   let system = resolve_helper_dotpath(
     helper,
@@ -22,7 +22,7 @@ function system_view(system_path: string, helper: HelperOptions, registry?: Coll
   if (!system) return "";
 
   if (system && system.status == "resolved") {
-    let slot = item_preview(system_path, "delete", "embed-ref", helper, registry);
+    let slot = item_preview(system_path, "splice", "embed-ref", helper, registry);
 
     return ` 
       <div class="mount card clipped">
