@@ -310,8 +310,8 @@ export namespace SystemData {
       active_actions: ActionData[];
 
       // Should mirror actives exactly
-      passive_name?: string;
-      passive_effect?: string; // v-html,
+      passive_name: string;
+      passive_effect: string; // v-html,
       passive_synergies?: SynergyData[];
       passive_actions: ActionData[];
       passive_bonuses: BonusData[];
