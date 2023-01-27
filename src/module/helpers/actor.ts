@@ -313,7 +313,7 @@ export function overcharge_button(actor: LancerMECH, overcharge_path: string, op
   const overcharge_sequence = actor.system.overcharge_sequence;
 
   let index = resolve_helper_dotpath(options, overcharge_path) as number;
-  index = Math.max(0, Math.min(overcharge_sequence.length - 1), index);
+  index = Math.max(0, Math.min(overcharge_sequence.length - 1, index));
   let over_val = overcharge_sequence[index];
   return `
     <div class="flexcol card clipped">
