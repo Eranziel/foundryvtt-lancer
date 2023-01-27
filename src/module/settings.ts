@@ -108,7 +108,7 @@ export const registerSettings = function () {
     scope: "world",
     config: false,
     type: Object,
-    default: {},
+    default: getAutomationOptions(true),
   });
 
   game.settings.register(game.system.id, LANCER.setting_actionTracker, {
@@ -159,64 +159,8 @@ export const registerSettings = function () {
   });
   Hooks.callAll("LancerInitiativeInit");
   setAppearance(getTrackerAppearance());
-
-  /**
-   * TODO: Remove when automation setting migration no longer needed.
-   * @deprecated since 1.0.3
-   */
-  game.settings.register(game.system.id, LANCER.setting_automation_switch, {
-    scope: "world",
-    config: false,
-    type: Boolean,
-    default: true,
-  });
-
-  /**
-   * TODO: Remove when automation setting migration no longer needed.
-   * @deprecated since 1.0.3
-   */
-  game.settings.register(game.system.id, LANCER.setting_automation_attack, {
-    scope: "world",
-    config: false,
-    type: Boolean,
-    default: true,
-  });
-
-  /**
-   * TODO: Remove when automation setting migration no longer needed.
-   * @deprecated since 1.0.3
-   */
-  game.settings.register(game.system.id, LANCER.setting_auto_structure, {
-    scope: "world",
-    config: false,
-    type: Boolean,
-    default: true,
-  });
-
-  /**
-   * TODO: Remove when automation setting migration no longer needed.
-   * @deprecated since 1.0.3
-   */
-  game.settings.register(game.system.id, LANCER.setting_pilot_oc_heat, {
-    scope: "world",
-    config: false,
-    type: Boolean,
-    default: true,
-  });
-
-  /**
-   * TODO: Remove when automation setting migration no longer needed.
-   * @deprecated since 1.0.3
-   */
-  game.settings.register(game.system.id, LANCER.setting_overkill_heat, {
-    scope: "world",
-    config: false,
-    type: Boolean,
-    default: true,
-  });
 };
 
-//
 // > GENERAL AUTOMATION
 /**
  * Retrieve the automation settings for the system. If automation is turned

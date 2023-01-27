@@ -39,9 +39,8 @@ export class AutomationConfig extends FormApplication<FormApplication.Options, A
 
   /** @override */
   async _updateObject(_: Event, data: Record<string, unknown>): Promise<void> {
-    const defs = getAutomationOptions(true);
-    const set = foundry.utils.diffObject(defs, data, { inner: true });
-    game.settings.set(game.system.id, LANCER.setting_automation, set);
+    console.log(data);
+    game.settings.set(game.system.id, LANCER.setting_automation, data);
   }
 
   /**
