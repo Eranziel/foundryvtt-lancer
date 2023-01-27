@@ -100,7 +100,7 @@ export class LancerActiveEffect extends ActiveEffect {
       if (e.isPassthrough()) passthrough.effects.push(e);
       // @ts-expect-error
       else if (e.disabled) disabled.effects.push(e);
-      else if (e._typedFlags.lancer.cascade_origin) inherited.effects.push(e);
+      else if (e._typedFlags.lancer?.cascade_origin) inherited.effects.push(e);
       else passives.effects.push(e);
     }
 
