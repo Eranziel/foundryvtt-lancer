@@ -1009,6 +1009,8 @@ export class LancerActor extends Actor {
   prepareDerivedData() {
     // Ask items to prepare their final attributes using weapon_bonuses
     for (let item of this.items.contents) {
+      // @ts-expect-error
+      item.prepareFinalAttributes(this.system);
       /*
       if (item.is_mech_weapon()) {
         // @ts-expect-error

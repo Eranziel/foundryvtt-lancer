@@ -115,16 +115,17 @@ export class LancerItem extends Item {
     // @ts-expect-error
     this.system.equipped = false;
 
+    // Collect all tags on mech weapons
     if (this.is_mech_weapon()) {
       this.system.all_tags = this.system.profiles.flatMap(p => p.tags);
       this.system.active_profile = this.system.profiles[this.system.selected_profile] ?? this.system.profiles[0];
     }
 
-    if (this.actor?.is_mech()) {
-      let lb = this.actor.system.loadout.limited_bonus;
-      if (this.is_limited()) {
-        this.system.uses.max += lb;
-      }
+    // Apply limited max from tags, as applicable
+    let tags = this.get_tags() ?? [];
+    let lim_tag = tags.find(t => t.is_limited);
+    if (lim_tag && this._tracks_uses()) {
+      this.system.uses.max = lim_tag.num_val ?? 0; // We will apply bonuses later
     }
   }
 
@@ -132,7 +133,14 @@ export class LancerItem extends Item {
    * Method used by mech weapons (and perhaps some other miscellaneous items???) to prepare their individual stats
    * using the bonuses described in the provided synthetic actor.
    */
-  prepareFinalAttributes(system: SystemData.Mech | SystemData.Pilot): void {}
+  prepareFinalAttributes(system: SystemData.Mech | SystemData.Pilot): void {
+    // At the very least, we can apply limited bonuses from our parent
+    if (this.actor?.is_mech()) {
+      if (this._tracks_uses()) {
+        this.system.uses.max += (system as SystemData.Mech).loadout.limited_bonus;
+      }
+    }
+  }
 
   /** @override
    * Want to preserve our arrays
@@ -339,8 +347,12 @@ export class LancerItem extends Item {
     }
   }
 
+  _tracks_uses(): this is { system: SystemTemplates.uses } {
+    return (this as any).system.uses !== undefined;
+  }
+
   is_limited(): this is { system: SystemTemplates.uses } {
-    return (this as any).system.uses !== undefined && (this as any).system.uses.max > 0;
+    return this._tracks_uses() && this.system.uses.max > 0;
   }
 
   is_loading(): boolean {
