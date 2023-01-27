@@ -162,7 +162,7 @@ export const LANCER = {
   setting_compcon_login: "compconLogin" as const,
   setting_automation: "automationOptions" as const,
   setting_automation_switch: "automationSwitch" as const,
-  setting_automation_attack: "attackSwitch" as const,
+  setting_automation_attack: "attackSwitch" as const, // Deprecated
   setting_actionTracker: "actionTracker" as const,
   setting_pilot_oc_heat: "autoOCHeat" as const,
   setting_overkill_heat: "autoOKillHeat" as const,

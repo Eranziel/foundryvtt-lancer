@@ -348,7 +348,7 @@ export class LancerItem extends Item {
   }
 
   has_actions(): this is { system: { actions: ActionData[] } } {
-    return (this as any).actions !== undefined;
+    return (this as any).system.actions !== undefined;
   }
 }
 

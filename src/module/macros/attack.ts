@@ -371,7 +371,7 @@ export async function checkTargets(
   attacks: AttackResult[];
   hits: HitResult[];
 }> {
-  if (game.settings.get(game.system.id, LANCER.setting_automation_attack) && atkRolls.targeted.length > 0) {
+  if (getAutomationOptions().attacks && atkRolls.targeted.length > 0) {
     let data = await Promise.all(
       atkRolls.targeted.map(async targetingData => {
         let target = targetingData.target;

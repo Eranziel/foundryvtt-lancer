@@ -24,35 +24,30 @@ export function encodeActivationMacroData(actor: any, item: any): string {
 
 /**
  * Dispatch wrapper for the "action chips" on the bottom of many items, traits, systems, and so on.
- * @param a       {string}                    Actor to roll as.
- * @param i       {string}                    Item to use.
+ * @param actorUUID       {string | LancerActor}                   Actor to roll as.
+ * @param itemUUID       {string}                    Item to use.
  * @param type    {ActivationOptions}         Options for how to perform the activation
  * @param index   {number}                    ?
  * @param rerollData {AccDiffDataSerialized}  saved accdiff data for rerolls
  */
 export async function prepareActivationMacro(
-  a: string,
-  i: string,
+  actorUUID: string | LancerActor,
+  itemUUID: string,
   type: ActivationOptions,
   index: number,
   rerollData?: AccDiffDataSerialized
 ) {
   // Determine which Actor to speak as
-  let actor = getMacroSpeaker(a);
+  let actor = getMacroSpeaker(actorUUID);
   if (!actor) return;
 
   // Get the item
-  let item: LancerItem | undefined;
-  item = actor.items.get(i);
-  if (!item && actor.is_mech()) {
-    // @ts-expect-error Should be fixed with v10 types
-    let pilot = game.actors!.get(actor.system.pilot?.id ?? "");
-    item = pilot?.items.get(i);
-  }
+  // @ts-expect-error
+  let item = fromUuidSync(itemUUID) as LancerItem;
 
   if (!item || (!actor.is_mech() && !actor.is_pilot())) {
     return ui.notifications!.error(
-      `Error preparing tech attack macro - could not find Item ${i} owned by Actor ${a}! Did you add the Item to the token, instead of the source Actor?`
+      `Error preparing tech attack macro - could not find Item ${itemUUID} owned by Actor ${actorUUID}! Did you add the Item to the token, instead of the source Actor?`
     );
   } else if (!item.isOwned) {
     return ui.notifications!.error(`Error rolling tech attack macro - ${item.name} is not owned by an Actor!`);
@@ -76,7 +71,7 @@ export async function prepareActivationMacro(
             let partialMacroData = {
               title: "Reroll activation",
               fn: "prepareActivationMacro",
-              args: [a, i, type, index],
+              args: [actorUUID, itemUUID, type, index],
             };
             await _prepareTechActionMacro(actor, item, index, partialMacroData, rerollData);
             break;
