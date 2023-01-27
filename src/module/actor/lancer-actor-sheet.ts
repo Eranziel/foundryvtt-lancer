@@ -300,7 +300,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     let target = <HTMLElement>event.currentTarget;
 
     let title = target.closest(".action-wrapper")?.querySelector(".action-title")?.textContent;
-    let itemId = target.closest(".item")?.getAttribute("data-id");
+    let itemId = target.closest(".item")?.getAttribute("data-uuid");
 
     if (!itemId) throw Error("No item found");
 
