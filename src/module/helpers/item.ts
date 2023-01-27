@@ -1299,7 +1299,6 @@ export function HANDLER_activate_item_context_menus(
     icon: view_only ? `<i class="fas fa-eye"></i>` : `<i class="fas fa-edit"></i>`,
     callback: async (html: JQuery) => {
       let element = html.closest("[data-uuid]")[0];
-      console.log("element?", html);
       if (element) {
         const found_doc = await resolve_ref_element(element);
         if (!found_doc) return;
