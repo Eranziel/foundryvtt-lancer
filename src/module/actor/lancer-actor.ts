@@ -1224,6 +1224,21 @@ export class LancerActor extends Actor {
     this.regenerateEquippedEffects().then(_ => this.sendChangesDownward());
   }
 
+  // Same exact thing as above
+  _onDeleteEmbeddedDocuments(
+    embeddedName: "Item" | "ActiveEffect",
+    documents: LancerItem[] | LancerActiveEffect[],
+    result: any,
+    options: any,
+    user: string
+  ) {
+    super._onUpdateEmbeddedDocuments(embeddedName, documents, result, options, user);
+    if (game.userId != user) {
+      return;
+    }
+    this.regenerateEquippedEffects().then(_ => this.sendChangesDownward());
+  }
+
   /**
    * Sends appropriate active effects to "children"
    */
