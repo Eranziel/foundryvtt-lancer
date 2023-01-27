@@ -509,13 +509,6 @@ export namespace SystemData {
 
     // Derived attributes
     grit: number;
-
-    // Collected items
-    core_bonuses: LancerCORE_BONUS[];
-    licenses: LancerLICENSE[];
-    skills: LancerSKILL[];
-    talents: LancerTALENT[];
-    counters: CounterData[];
   }
   export interface Reserve extends SourceData.Reserve {}
   export interface Skill extends SourceData.Skill {}

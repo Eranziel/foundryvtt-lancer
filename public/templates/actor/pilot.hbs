@@ -167,7 +167,7 @@
       {{!-- Talents --}}
       <div class="card clipped">
         <h2 class="lancer-title clipped">{{localize "lancer.pilot-sheet.abilities.talents"}}</h2>
-        {{#each system.talents as |skill index|}} {{{item-preview (concat "system.talents." index) "delete" }}}
+        {{#each itemTypes.talent as |talent index|}} {{{item-preview (concat "itemTypes.talent." index) "delete" "doc" }}}
         {{/each}}
       </div>
 
@@ -176,15 +176,13 @@
         {{!-- Licenses --}}
         <div class="card clipped">
           <h2 class="lancer-title clipped-top">{{localize "lancer.pilot-sheet.tactical.licenses"}}</h2>
-          {{#each system.licenses as |license index|}} {{{ref-license license license.current_rank (concat "system.licenses."
-          index) }}} {{/each}}
+          {{#each itemTypes.license as |license index|}} {{{ref-license license license.current_rank (concat "itemTypes.license." index) }}} {{/each}}
         </div>
 
         {{!-- Core Bonuses --}}
         <div class="card clipped">
           <h2 class="lancer-title clipped-top">{{localize "lancer.pilot-sheet.tactical.cores"}}</h2>
-          {{#each system.core_bonuses as |core_bonus index|}} {{{item-preview (concat "system.core_bonuses." index)
-          "delete" }}} {{/each}}
+          {{#each itemTypes.core_bonus as |core_bonus index|}} {{{item-preview (concat "itemTypes.core_bonus." index) "delete" "doc" }}} {{/each}}
         </div>
       </div>
 

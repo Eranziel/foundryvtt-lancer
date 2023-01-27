@@ -485,6 +485,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     const data = await super.getData(); // Not fully populated yet!
     // @ts-expect-error
     data.system = this.actor.system; // Alias
+    data.itemTypes = this.actor.itemTypes;
     data.effect_categories = LancerActiveEffect.prepareActiveEffectCategories(this.actor);
     console.log(`${lp} Rendering with following actor ctx: `, data);
     return data;

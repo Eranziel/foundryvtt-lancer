@@ -34,6 +34,8 @@ export interface LancerActorSheetData<T extends LancerActorType> extends ActorSh
   vaultID: string;
   rawID: string;
   effect_categories: ReturnType<typeof LancerActiveEffect["prepareActiveEffectCategories"]>;
+  system: SystemDataType<T>;
+  itemTypes: LancerActor["itemTypes"];
 }
 
 // -------- Macro data types -------------------------------------

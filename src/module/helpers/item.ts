@@ -1124,20 +1124,15 @@ export function buildSystemHTML(system: LancerMECH_SYSTEM): string {
 }
 
 // This has gotten very messy to account for the pilots, should refactor - TODO
-export function buildCounterHTML(
-  data: CounterData,
-  path: string,
-  writeback_path: string,
-  can_delete?: boolean
-): string {
+export function buildCounterHTML(data: CounterData, path: string, can_delete?: boolean): string {
   let hexes = [...Array(data.max)].map((_ele, index) => {
     const available = index + 1 <= data.val;
     return `<i class="counter-hex mdi ${
       available ? "mdi-hexagon-slice-6" : "mdi-hexagon-outline"
-    } theme--light" data-available="${available}" data-path="${path}" data-writeback_path="${writeback_path}"></i>`;
+    } theme--light" data-available="${available}" data-path="${path}"></i>`;
   });
 
-  return `${buildCounterHeader(data, path, writeback_path, can_delete)}
+  return `${buildCounterHeader(data, path, can_delete)}
     <div class="flexrow flex-center no-wrap">
       <button class="clicker-minus-button hex" type="button">-</button>
       ${hexes.join("")}
@@ -1149,12 +1144,7 @@ export function buildCounterHTML(
 /**
  * NOTE IT DOES NOT INCLUDE TRAILING /div tag!
  */
-export function buildCounterHeader(
-  data: CounterData,
-  path: string,
-  writeback_path: string,
-  can_delete?: boolean
-): string {
+export function buildCounterHeader(data: CounterData, path: string, can_delete?: boolean): string {
   //
   return `
   <div class="card clipped-bot counter-wrapper" data-path="${path}">
@@ -1184,16 +1174,14 @@ export function buildCounterArrayHTML(
   if (counters.length > 0) {
     if (isCounters(counters)) {
       for (let i = 0; i < counters.length; i++) {
-        counter_detail = counter_detail.concat(buildCounterHTML(counters[i], path.concat(`.${i}`), "mm"));
+        counter_detail = counter_detail.concat(buildCounterHTML(counters[i], path.concat(`.${i}`)));
       }
     } else {
       counter_arr = counters.map(x => {
         return x.counter;
       });
       for (let i = 0; i < counters.length; i++) {
-        counter_detail = counter_detail.concat(
-          buildCounterHTML(counter_arr[i], path.concat(`.${i}.counter`), path.concat(`.${i}.source`))
-        );
+        counter_detail = counter_detail.concat(buildCounterHTML(counter_arr[i], path.concat(`.${i}.counter`)));
       }
     }
   }

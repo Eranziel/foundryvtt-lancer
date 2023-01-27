@@ -393,6 +393,7 @@ Hooks.once("init", async function () {
     for (let x of it) s += block(x);
     return s;
   });
+  Handlebars.registerHelper("stringify", (x: any) => JSON.stringify(x));
 
   Handlebars.registerHelper("textarea-card", large_textbox_card);
 
