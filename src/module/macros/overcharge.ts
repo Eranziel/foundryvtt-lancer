@@ -6,6 +6,7 @@ import type { LancerOverchargeMacroData } from "../interfaces";
 import { encodeMacroData } from "./_encode";
 import { getMacroSpeaker } from "./_util";
 import { renderMacroTemplate } from "./_render";
+import { SystemData } from "../system-template";
 
 const lp = LANCER.log_prefix;
 
@@ -30,11 +31,7 @@ export async function prepareOverchargeMacro(a: string) {
   }
 
   // And here too... we should probably revisit our type definitions...
-  let rollText = actor.getOverchargeRoll();
-  if (!rollText) {
-    ui.notifications!.warn(`Error in getting overcharge roll...`);
-    return;
-  }
+  let rollText = actor.getOverchargeRoll()!;
 
   // Prep data
   let roll = await new Roll(rollText).evaluate({ async: true });
@@ -45,15 +42,15 @@ export async function prepareOverchargeMacro(a: string) {
   };
 
   // Assume we can always increment overcharge here...
-  let changes: any = {}; // TODO: cool types on stuff like this?
-  changes["data.overcharge"] = Math.min(actor.system.overcharge + 1, 3);
+  let changes: DeepPartial<SystemData.Mech> = {}; // TODO: cool types on stuff like this?
+  changes["overcharge"] = Math.min(actor.system.overcharge + 1, actor.system.overcharge_sequence.length - 1);
 
   // Only increase heat if we haven't disabled it
   if (getAutomationOptions().overcharge_heat) {
-    changes["data.heat"] = actor.system.heat.value + roll.total!;
+    changes.heat = { value: actor.system.heat.value + roll.total! };
   }
 
-  await actor.update(changes);
+  await actor.update({ system: changes });
 
   return rollOverchargeMacro(actor, mData);
 }

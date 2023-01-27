@@ -9,11 +9,11 @@ const lp = LANCER.log_prefix;
 
 /**
  * Prepares a macro to present core active information for
- * @param a     String of the actor ID to roll the macro as, and who we're getting core info for
+ * @param actorUUID     String of the actor UUID to roll the macro as, and who we're getting core info for
  */
-export async function prepareCoreActiveMacro(a: string) {
+export async function prepareCoreActiveMacro(actorUUID: string) {
   // Determine which Actor to speak as
-  let actor = getMacroSpeaker(a);
+  let actor = getMacroSpeaker(actorUUID);
   if (!actor || !actor.is_mech()) return;
 
   if (actor.system.loadout.frame?.status != "resolved") return;
@@ -57,46 +57,44 @@ export async function prepareCoreActiveMacro(a: string) {
 /**
  * Prepares a macro to present core passive information for
  * Checks whether they have a passive since that could get removed on swap
- * @param a     String of the actor ID to roll the macro as, and who we're getting core info for
+ * @param actorUUID     String of the actor UUID to roll the macro as, and who we're getting core info for
  */
-export async function prepareCorePassiveMacro(a: string) {
+export async function prepareCorePassiveMacro(actorUUID: string) {
   // Determine which Actor to speak as
-  let actor = getMacroSpeaker(a);
-  if (!actor || !actor.is_mech()) return;
+  let mech = getMacroSpeaker(actorUUID);
+  if (!mech || !mech.is_mech()) return;
 
-  // @ts-expect-error Should be fixed with v10 types
-  let mech = await actor.system.derived.mm_promise;
-  if (!mech.Frame) return;
+  let frame = mech.system.loadout.frame?.value;
+  if (!frame) return;
 
   let mData: LancerTextMacroData = {
-    title: mech.Frame.CoreSystem.PassiveName,
-    description: mech.Frame.CoreSystem.PassiveEffect,
-    tags: mech.Frame.CoreSystem.Tags,
+    title: frame.system.core_system.passive_name,
+    description: frame.system.core_system.passive_effect,
+    tags: frame.system.core_system.tags,
   };
 
-  rollTextMacro(actor, mData).then();
+  rollTextMacro(mech, mData).then();
 }
 
 /**
  * Prepares a macro to present frame trait information
- * @param a     String of the actor ID to roll the macro as, and who we're getting frame trait for
+ * @param actorUUID     String of the actor ID to roll the macro as, and who we're getting frame trait for
  * @param index Index of the frame trait to roll
  */
-export async function prepareFrameTraitMacro(a: string, index: number) {
+export async function prepareFrameTraitMacro(actorUUID: string, index: number) {
   // Determine which Actor to speak as
-  let mech = getMacroSpeaker(a);
+  let mech = getMacroSpeaker(actorUUID);
   if (!mech || !mech.is_mech()) return;
 
-  // @ts-expect-error Should be fixed with v10 types
-  var ent = await mech.system.derived.mm_promise;
-  if (!ent.Frame) return;
+  let frame = mech.system.loadout.frame?.value;
+  if (!frame) return;
 
-  let trait = ent.Frame.Traits[index];
+  let trait = frame.system.traits[index];
   if (!trait) return;
 
   let mData: LancerTextMacroData = {
-    title: trait.Name,
-    description: trait.Description,
+    title: trait.name,
+    description: trait.description,
   };
 
   rollTextMacro(mech, mData).then();
