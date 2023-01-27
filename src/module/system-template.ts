@@ -152,15 +152,15 @@ export namespace SystemTemplates {
     heat: FullBoundedNum;
   }
 
+  // Modify uses to be bounded
+  export interface uses {
+    uses: FullBoundedNum;
+  }
+
   // Modify struct/stress to be bounded
   export interface struss {
     stress: FullBoundedNum;
     structure: FullBoundedNum;
-  }
-
-  // Uses to be bounded
-  export interface limited {
-    uses: FullBoundedNum;
   }
 
   // NPC stuff
@@ -366,8 +366,8 @@ export namespace SystemData {
     extends SystemTemplates.item_universal,
       SystemTemplates.bascdt,
       SystemTemplates.destructible,
-      SystemTemplates.limited,
-      SystemTemplates.licensed {
+      SystemTemplates.licensed,
+      SystemTemplates.uses {
     effect: string;
     sp: number;
     description: string;
@@ -376,8 +376,8 @@ export namespace SystemData {
   export interface MechWeapon
     extends SystemTemplates.item_universal,
       SystemTemplates.destructible,
-      SystemTemplates.limited,
-      SystemTemplates.licensed {
+      SystemTemplates.licensed,
+      SystemTemplates.uses {
     deployables: LIDRef[];
     integrated: LIDRef[];
     sp: number;
@@ -471,13 +471,13 @@ export namespace SystemData {
     purpose: OrgType;
   }
 
-  export interface PilotArmor extends SystemTemplates.item_universal, SystemTemplates.bascdt, SystemTemplates.limited {
+  export interface PilotArmor extends SystemTemplates.item_universal, SystemTemplates.bascdt, SystemTemplates.uses {
     description: string;
   }
-  export interface PilotGear extends SystemTemplates.item_universal, SystemTemplates.bascdt, SystemTemplates.limited {
+  export interface PilotGear extends SystemTemplates.item_universal, SystemTemplates.bascdt, SystemTemplates.uses {
     description: string;
   }
-  export interface PilotWeapon extends SystemTemplates.item_universal, SystemTemplates.bascdt, SystemTemplates.limited {
+  export interface PilotWeapon extends SystemTemplates.item_universal, SystemTemplates.bascdt, SystemTemplates.uses {
     description: string;
     range: Range[];
     damage: Damage[];
@@ -542,13 +542,13 @@ export namespace SystemData {
     extends SystemTemplates.item_universal,
       SystemTemplates.bascdt,
       SystemTemplates.destructible,
-      SystemTemplates.licensed {
+      SystemTemplates.licensed,
+      SystemTemplates.uses {
     added_tags: Tag[];
     added_damage: Damage[];
     effect: string;
     description: string;
     sp: number;
-    uses: FullBoundedNum;
     allowed_sizes: WeaponSizeChecklist;
     allowed_types: WeaponTypeChecklist;
     added_range: Range[];

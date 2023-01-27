@@ -87,6 +87,10 @@ export namespace SourceTemplates {
     heat: number;
   }
 
+  export interface uses {
+    uses: number;
+  }
+
   export interface struss {
     stress: number;
     structure: number;
@@ -297,21 +301,21 @@ export namespace SourceData {
     extends SourceTemplates.item_universal,
       SourceTemplates.bascdt,
       SourceTemplates.destructible,
-      SourceTemplates.licensed {
+      SourceTemplates.licensed,
+      SourceTemplates.uses {
     effect: string;
     sp: number;
-    uses: number;
     description: string;
     type: SystemType;
   }
   export interface MechWeapon
     extends SourceTemplates.item_universal,
       SourceTemplates.destructible,
-      SourceTemplates.licensed {
+      SourceTemplates.licensed,
+      SourceTemplates.uses {
     deployables: LIDRef[];
     integrated: LIDRef[];
     sp: number;
-    uses: number;
     profiles: Array<{
       name: string;
       type: WeaponType;
@@ -372,21 +376,18 @@ export namespace SourceData {
     influence: 0;
     purpose: OrgType;
   }
-  export interface PilotArmor extends SourceTemplates.item_universal, SourceTemplates.bascdt {
+  export interface PilotArmor extends SourceTemplates.item_universal, SourceTemplates.bascdt, SourceTemplates.uses {
     description: string;
-    uses: number;
   }
-  export interface PilotGear extends SourceTemplates.item_universal, SourceTemplates.bascdt {
+  export interface PilotGear extends SourceTemplates.item_universal, SourceTemplates.bascdt, SourceTemplates.uses {
     description: string;
-    uses: number;
   }
-  export interface PilotWeapon extends SourceTemplates.item_universal, SourceTemplates.bascdt {
+  export interface PilotWeapon extends SourceTemplates.item_universal, SourceTemplates.bascdt, SourceTemplates.uses {
     description: string;
     range: RangeData[];
     damage: DamageData[];
     effect: string;
     loaded: boolean;
-    uses: number;
   }
   export interface Pilot extends SourceTemplates.actor_universal, SourceTemplates.action_tracking {
     active_mech: UUIDRef | null;
@@ -452,13 +453,13 @@ export namespace SourceData {
     extends SourceTemplates.item_universal,
       SourceTemplates.bascdt,
       SourceTemplates.destructible,
-      SourceTemplates.licensed {
+      SourceTemplates.licensed,
+      SourceTemplates.uses {
     added_tags: TagData[];
     added_damage: DamageData[];
     effect: string;
     description: string;
     sp: number;
-    uses: number;
     allowed_sizes: WeaponSizeChecklist;
     allowed_types: WeaponTypeChecklist;
     added_range: RangeData[];

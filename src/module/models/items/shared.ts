@@ -1,7 +1,7 @@
 import { CounterField } from "../bits/counter";
 import { ActionField } from "../bits/action";
 import { SynergyField } from "../bits/synergy";
-import { LIDField } from "../shared";
+import { FakeBoundedNumberField, LIDField } from "../shared";
 import { TagField } from "../bits/tag";
 
 //@ts-ignore
@@ -17,6 +17,12 @@ export function template_destructible() {
   return {
     cascading: new fields.BooleanField(),
     destroyed: new fields.BooleanField(),
+  };
+}
+
+export function template_uses() {
+  return {
+    uses: new FakeBoundedNumberField({ integer: true, nullable: false, initial: 0 }),
   };
 }
 

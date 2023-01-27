@@ -8,7 +8,13 @@ import { unpackCounter } from "../bits/counter";
 import { unpackSynergy } from "../bits/synergy";
 import { unpackTag } from "../bits/tag";
 import { LancerDataModel, UnpackContext } from "../shared";
-import { template_universal_item, template_bascdt, template_destructible, template_licensed } from "./shared";
+import {
+  template_universal_item,
+  template_bascdt,
+  template_destructible,
+  template_licensed,
+  template_uses,
+} from "./shared";
 
 const fields: any = foundry.data.fields;
 
@@ -18,13 +24,13 @@ export class MechSystemModel extends LancerDataModel {
     return {
       effect: new fields.HTMLField(),
       sp: new fields.NumberField({ nullable: false, initial: 0 }),
-      uses: new fields.NumberField({ nullable: false, initial: 0 }),
       description: new fields.HTMLField(),
       type: new fields.StringField(),
       ...template_universal_item(),
       ...template_bascdt(),
       ...template_destructible(),
       ...template_licensed(),
+      ...template_uses(),
     };
   }
 }

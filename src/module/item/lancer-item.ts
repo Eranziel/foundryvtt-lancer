@@ -339,7 +339,7 @@ export class LancerItem extends Item {
     }
   }
 
-  is_limited(): this is { system: SystemTemplates.limited } {
+  is_limited(): this is { system: SystemTemplates.uses } {
     return (this as any).system.uses !== undefined && (this as any).system.uses.max > 0;
   }
 

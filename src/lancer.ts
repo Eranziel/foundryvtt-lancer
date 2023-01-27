@@ -420,11 +420,11 @@ Hooks.once("init", async function () {
   // ------------------------------------------------------------------------
   // Tag helpers
   Handlebars.registerHelper("is-tagged", function (item: LancerItem) {
-    return item.get_tags;
+    return item.get_tags() != null;
   });
 
   Handlebars.registerHelper("is-limited", function (item: LancerItem) {
-    return item.get_limited;
+    return item.is_limited();
   });
 
   // ------------------------------------------------------------------------
