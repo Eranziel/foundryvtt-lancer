@@ -1,3 +1,4 @@
+import { LancerActor } from "../actor/lancer-actor";
 import { DamageType, EntryType, RangeType, SystemType, WeaponSize, WeaponType } from "../enums";
 import { format_dotpath } from "../helpers/commons";
 import { LancerItem } from "../item/lancer-item";
@@ -125,7 +126,7 @@ export class LIDField extends fields.StringField {
   }
 }
 
-export class ResolvedEmbeddedRefField extends fields.StringField {
+export class EmbeddedRefField extends fields.StringField {
   // The acceptable document.type's for this to resolve to. Null is any
   allowed_types: EntryType[] | null;
 
@@ -194,8 +195,8 @@ export class ResolvedEmbeddedRefField extends fields.StringField {
 }
 
 // Similar to the foreignDocumentField, except untyped and supports uuids
-// Supports both sync and async lookup
-export class ResolvedUUIDRefField extends fields.StringField {
+// Supports only sync lookup
+export class SyncUUIDRefField extends fields.StringField {
   // The acceptable document.type's for this to resolve to. Null is any
   allowed_types: string[] | null;
 
@@ -239,44 +240,22 @@ export class ResolvedUUIDRefField extends fields.StringField {
   }
 
   /** @inheritdoc */
-  initialize(value: string, model: any): null | SystemTemplates.ResolvedUuidRef<any> {
+  initialize(value: string, model: any): null | SystemTemplates.ResolvedAsyncUuidRef<any> {
     if (!value) return null;
 
     // Create shell
-    let shell = {} as SystemTemplates.ResolvedUuidRef<any>;
+    let shell = {} as SystemTemplates.ResolvedAsyncUuidRef<any>;
 
     // Create job
     model.add_pre_finalize_task(() => {
-      //@ts-expect-error missing type
-      let sub = fromUuidSync(value);
-      if (!sub) {
-        shell.status = "async";
-        shell.value = (async () => {
-          let x = await fromUuid(value);
-          if (!x) {
-            // Retry once
-            await new Promise((a, d) => setTimeout(a, 100));
-            x = await fromUuid(value);
-          }
-          if (!x) return null;
-          if (this.allowed_types && !this.allowed_types.includes((x as any).type)) {
-            console.error(
-              `Failed to resolve embedded ref: Wrong type ${(x as any).type} not in ${this.allowed_types.join("|")}`
-            );
-            shell.status = "missing";
-            shell.value = null;
-          }
-          // Async resolved quickly & successfully
-          shell.status = "resolved";
-          // Set it as non enumerable to avoid circular issues
-          Object.defineProperty(shell, "value", {
-            value: sub,
-            enumerable: false,
-          });
-        })();
-      } else if (this.allowed_types && !this.allowed_types.includes(sub.type)) {
+      let syncRes = fromUuidSync(value) as LancerActor | LancerItem;
+      if (!syncRes) {
+        console.error(`Failed to resolve uuid ref: Not found ${value}`, model, value);
+        shell.status = "missing";
+        shell.value = null;
+      } else if (this.allowed_types && !this.allowed_types.includes(syncRes.type)) {
         console.error(
-          `Failed to resolve embedded ref: Wrong type ${sub.type} not in ${this.allowed_types.join("|")}`,
+          `Failed to resolve uuid ref: Wrong type ${syncRes.type} not in ${this.allowed_types.join("|")}`,
           model,
           value
         );
@@ -287,7 +266,112 @@ export class ResolvedUUIDRefField extends fields.StringField {
         shell.status = "resolved";
         // Set it as non enumerable to avoid circular issues
         Object.defineProperty(shell, "value", {
-          value: sub,
+          value: syncRes,
+          enumerable: false,
+        });
+      }
+    });
+
+    // Return our shell, which will be filled by the above job
+    return shell;
+  }
+}
+
+// Similar to the foreignDocumentField, except untyped and supports uuids
+// Supports both sync and async lookup
+// I'm not really sure what this would usually be used for... prefer Sync in almost all cases
+export class AsyncUUIDRefField extends fields.StringField {
+  // The acceptable document.type's for this to resolve to. Null is any
+  allowed_types: string[] | null;
+
+  /**
+   * @param {StringFieldOptions} options  Options which configure the behavior of the field
+   */
+  constructor(options: { allowed_types?: EntryType[] } & Record<string, any> = {}) {
+    super(options);
+    this.allowed_types = options.allowed_types ?? null;
+  }
+
+  /** @inheritdoc */
+  static get _defaults() {
+    return mergeObject(super._defaults, {
+      initial: null,
+      blank: false,
+      trim: true,
+      nullable: true,
+    });
+  }
+
+  /** @override */
+  _cast(value: any) {
+    if (value?.uuid) {
+      value = value.uuid;
+    }
+    return String(value);
+  }
+
+  /** @override */
+  _validateType(value: string | null) {
+    try {
+      if (value) {
+        //@ts-expect-error  Missing type
+        _parseUuid(value);
+        return true; // A definitive success
+      }
+    } catch (e) {
+      throw new Error("Not a valid uuid");
+    }
+  }
+
+  /** @inheritdoc */
+  initialize(value: string, model: any): null | SystemTemplates.ResolvedAsyncUuidRef<any> {
+    if (!value) return null;
+
+    // Create shell
+    let shell = {} as SystemTemplates.ResolvedAsyncUuidRef<any>;
+
+    // Create job
+    model.add_pre_finalize_task(() => {
+      let syncRes = fromUuidSync(value) as LancerActor | LancerItem;
+      if (!syncRes) {
+        shell.status = "async";
+        shell.value = (async () => {
+          let asyncRes = await fromUuid(value);
+          if (!asyncRes) {
+            // Retry once
+            await new Promise((a, d) => setTimeout(a, 100));
+            asyncRes = await fromUuid(value);
+          }
+          if (!asyncRes) return null;
+          if (this.allowed_types && !this.allowed_types.includes((asyncRes as any).type)) {
+            console.error(
+              `Failed to resolve uuid ref: Wrong type ${(asyncRes as any).type} not in ${this.allowed_types.join("|")}`
+            );
+            shell.status = "missing";
+            shell.value = null;
+          }
+          // Async resolved quickly & successfully
+          shell.status = "resolved";
+          // Set it as non enumerable to avoid circular issues
+          Object.defineProperty(shell, "value", {
+            value: asyncRes,
+            enumerable: false,
+          });
+        })();
+      } else if (this.allowed_types && !this.allowed_types.includes(syncRes.type)) {
+        console.error(
+          `Failed to resolve uuid ref: Wrong type ${syncRes.type} not in ${this.allowed_types.join("|")}`,
+          model,
+          value
+        );
+        shell.status = "missing";
+        shell.value = null;
+      } else {
+        // Sync resolved quickly and successfully
+        shell.status = "resolved";
+        // Set it as non enumerable to avoid circular issues
+        Object.defineProperty(shell, "value", {
+          value: syncRes,
           enumerable: false,
         });
       }

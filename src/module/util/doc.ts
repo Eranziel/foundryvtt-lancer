@@ -33,6 +33,8 @@ import type {
 } from "../item/lancer-item";
 import { SystemTemplates } from "../system-template";
 import { FetcherCache } from "./async";
+import { lookupDeployables, lookupLID, lookupOwnedDeployables } from "./lid";
+import { requestImport } from "./requests";
 
 // Sort mm items. Moves moverand to dest, either before or after depending on third arg
 export async function resort_item(moverand: LancerItem, dest: LancerItem, sort_before = true) {
@@ -180,25 +182,65 @@ export async function get_pack(
 // Copy an item to an actor, also copying any necessary subitems
 // (or at least, clearing links to them).
 // Has no effect if destination is same as existing parent
-// Items are not returned in order
+// Items are not returned in order - returned items include additional items, and also attempt to find
 export async function insinuate(items: Array<LancerItem>, to: LancerActor): Promise<Array<LancerItem>> {
-  console.warn("TODO: Re-implement insinuate, more sanely this time");
-  let old_items = [];
-  let new_items = [];
+  let oldItems = [];
+  let newItems = [];
   for (let item of items) {
     if (item.parent == to) {
-      old_items.push(item);
+      oldItems.push(item);
     } else {
-      new_items.push(item.toObject());
+      newItems.push(item.toObject());
     }
   }
+
   // Await and recombine
   // @ts-ignore
-  let actual_new_items: LancerItem[] = await to.createEmbeddedDocuments("Item", new_items);
-  return [...old_items, ...actual_new_items];
+  let actualNewItems: LancerItem[] = await to.createEmbeddedDocuments("Item", newItems);
+
+  // Prompt for deployables if they don't yet exist
+  for (let item of actualNewItems) {
+    await importDeployablesFor(item, to);
+  }
+
+  // Post-process
+  return [...oldItems, ...actualNewItems];
 }
 
-//
+/** Given an item, requests the import of all deployables referenced on that item, to be owned by the provided actor
+ *
+ * @param item The item to search for deployables
+ * @param owner Who to associate the deployables with
+ */
+export async function importDeployablesFor(item: LancerItem, owner: LancerActor) {
+  // Deployables owned by pilot, not mech
+  if (owner.is_mech() && owner.system.pilot?.status == "resolved") owner = owner.system.pilot.value;
+
+  let existing = lookupOwnedDeployables(owner);
+  let existingLIDs = existing.map(d => d.system.lid);
+  let deps: string[] = [];
+  deps.push(...((item as any).system.deployables ?? []));
+  if (item.is_frame()) {
+    deps.push(...item.system.core_system.deployables);
+  }
+  let requiredLIDs = [];
+  for (let d of deps) {
+    if (!existingLIDs.includes(d)) {
+      // We need to keep it!
+      requiredLIDs.push(d);
+    }
+  }
+
+  if (!requiredLIDs.length) return;
+
+  // Now find them
+  let imports = await lookupDeployables(requiredLIDs);
+
+  // And try to bring them in
+  for (let i of imports) {
+    if (i instanceof LancerActor) await requestImport(i, owner);
+  }
+}
 
 type DataTypeMap = { [key in EntryType]: object };
 

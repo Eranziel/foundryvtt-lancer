@@ -1,18 +1,12 @@
 import { template_action_tracking, template_statuses, template_universal_actor } from "./shared";
 
-import {
-  FakeBoundedNumberField,
-  LancerDataModel,
-  LIDField,
-  ResolvedEmbeddedRefField,
-  ResolvedUUIDRefField,
-} from "../shared";
+import { FakeBoundedNumberField, LancerDataModel, LIDField, EmbeddedRefField, SyncUUIDRefField } from "../shared";
 import { EntryType } from "../../enums";
 
 const fields: any = foundry.data.fields;
 
 const pilot_schema = {
-  active_mech: new ResolvedUUIDRefField({ allowed_types: [EntryType.MECH] }),
+  active_mech: new SyncUUIDRefField({ allowed_types: [EntryType.MECH] }),
   background: new fields.HTMLField(),
   callsign: new fields.StringField(),
   cloud_id: new fields.StringField(),
@@ -22,9 +16,9 @@ const pilot_schema = {
   level: new fields.NumberField({ min: 0, max: 12, integer: true }),
 
   loadout: new fields.SchemaField({
-    armor: new fields.ArrayField(new ResolvedEmbeddedRefField("Item", { allowed_types: [EntryType.PILOT_ARMOR] })),
-    gear: new fields.ArrayField(new ResolvedEmbeddedRefField("Item", { allowed_types: [EntryType.PILOT_GEAR] })),
-    weapons: new fields.ArrayField(new ResolvedEmbeddedRefField("Item", { allowed_types: [EntryType.PILOT_WEAPON] })),
+    armor: new fields.ArrayField(new EmbeddedRefField("Item", { allowed_types: [EntryType.PILOT_ARMOR] })),
+    gear: new fields.ArrayField(new EmbeddedRefField("Item", { allowed_types: [EntryType.PILOT_GEAR] })),
+    weapons: new fields.ArrayField(new EmbeddedRefField("Item", { allowed_types: [EntryType.PILOT_WEAPON] })),
   }),
 
   hull: new fields.NumberField({ min: 0, max: 6, integer: true }),

@@ -164,6 +164,8 @@ import { CoreBonusModel } from "./module/models/items/core_bonus";
 import { NpcModel } from "./module/models/actors/npc";
 import { DeployableModel } from "./module/models/actors/deployable";
 import { TalentModel } from "./module/models/items/talent";
+import { fulfillImportActor } from "./module/util/requests";
+import { lookupOwnedDeployables } from "./module/util/lid";
 
 const lp = LANCER.log_prefix;
 
@@ -226,6 +228,7 @@ Hooks.once("init", async function () {
     },
     helpers: {
       gridDist,
+      lookupOwnedDeployables,
     },
     prepareItemMacro: macros.prepareItemMacro,
     prepareStatMacro: macros.prepareStatMacro,
@@ -243,6 +246,7 @@ Hooks.once("init", async function () {
     prepareStructureSecondaryRollMacro: macros.prepareStructureSecondaryRollMacro,
     fullRepairMacro: macros.fullRepairMacro,
     stabilizeMacro: macros.stabilizeMacro,
+    importActor: fulfillImportActor,
     targetsFromTemplate: macros.targetsFromTemplate,
     migrations: migrations,
     getAutomationOptions: getAutomationOptions,
@@ -715,6 +719,9 @@ Hooks.on("renderChatMessage", async (cm: ChatMessage, html: any, data: any) => {
       if (element.attributes.getNamedItem("data-macro")) {
         ev.stopPropagation();
         runEncodedMacro(element);
+        if (element.classList.contains("self-destruct")) {
+          cm.delete();
+        }
         return true;
       }
       return false;

@@ -222,7 +222,7 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
   }
 
   // Pilots can handle most stuff
-  can_root_drop_entry(item: ResolvedDropData): boolean {
+  canRootDrop(item: ResolvedDropData): boolean {
     // Accept mechs, so as to change their pilot
     if (item.type == "Actor" && item.document.is_mech()) {
       return true;
@@ -248,12 +248,12 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
     return false;
   }
 
-  async on_root_drop(base_drop: ResolvedDropData, event: JQuery.DropEvent, _dest: JQuery<HTMLElement>): Promise<void> {
+  async onRootDrop(base_drop: ResolvedDropData, event: JQuery.DropEvent, _dest: JQuery<HTMLElement>): Promise<void> {
     if (!this.actor.is_pilot()) return; // Just for types really
     let sheet_data = await this.getData();
 
     // Take posession
-    let [drop, is_new] = await this.quick_own_drop(base_drop);
+    let [drop, is_new] = await this.quickOwnDrop(base_drop);
     let pilot = this.actor as LancerPILOT;
     let loadout = pilot.system.loadout;
 

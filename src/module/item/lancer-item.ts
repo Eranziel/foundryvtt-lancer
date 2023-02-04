@@ -362,6 +362,40 @@ export class LancerItem extends Item {
   has_actions(): this is { system: { actions: ActionData[] } } {
     return (this as any).system.actions !== undefined;
   }
+
+  // Checks that the provided document is not null, and is a lancer actor
+  static async fromUuid(x: string | LancerItem, messagePrefix?: string): Promise<LancerItem> {
+    if (x instanceof LancerItem) return x;
+    x = (await this.fromUuid(x)) as LancerItem;
+    if (!x) {
+      let message = `${messagePrefix ? messagePrefix + " | " : ""}Item ${x} not found.`;
+      ui.notifications?.error(message);
+      throw new Error(message);
+    }
+    if (!(x instanceof LancerItem)) {
+      let message = `${messagePrefix ? messagePrefix + " | " : ""}Document ${x} not an item.`;
+      ui.notifications?.error(message);
+      throw new Error(message);
+    }
+    return x;
+  }
+
+  // Checks that the provided document is not null, and is a lancer actor
+  static fromUuidSync(x: string | LancerItem, messagePrefix?: string): LancerItem {
+    if (x instanceof LancerItem) return x;
+    x = this.fromUuidSync(x) as LancerItem;
+    if (!x) {
+      let message = `${messagePrefix ? messagePrefix + " | " : ""}Item ${x} not found.`;
+      ui.notifications?.error(message);
+      throw new Error(message);
+    }
+    if (!(x instanceof LancerItem)) {
+      let message = `${messagePrefix ? messagePrefix + " | " : ""}Document ${x} not an item.`;
+      ui.notifications?.error(message);
+      throw new Error(message);
+    }
+    return x;
+  }
 }
 
 export type LancerCORE_BONUS = LancerItem & { system: SystemData.CoreBonus };

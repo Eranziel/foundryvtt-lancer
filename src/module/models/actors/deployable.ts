@@ -1,6 +1,6 @@
 import { template_heat, template_statuses, template_universal_actor } from "./shared";
 
-import { LancerDataModel, ResolvedUUIDRefField, UnpackContext } from "../shared";
+import { LancerDataModel, SyncUUIDRefField, UnpackContext } from "../shared";
 import { PackedDeployableData } from "../../util/unpacking/packed-types";
 import { SourceData } from "../../source-template";
 import { ActionField, unpackAction } from "../bits/action";
@@ -41,7 +41,8 @@ const deployable_schema = {
   type: new fields.StringField({ choices: Object.values(DeployableType), initial: DeployableType.Deployable }),
   avail_mounted: new fields.BooleanField({ initial: true }),
   avail_unmounted: new fields.BooleanField({ initial: false }),
-  deployer: new ResolvedUUIDRefField({ allowed_types: [EntryType.MECH, EntryType.PILOT, EntryType.NPC] }),
+  deployer: new SyncUUIDRefField({ allowed_types: [EntryType.MECH, EntryType.PILOT, EntryType.NPC] }),
+  owner: new SyncUUIDRefField({ allowed_types: [EntryType.MECH, EntryType.PILOT, EntryType.NPC] }),
   // destroyed: new fields.BooleanField({ initial: false }),
   // notes: new fields.HTMLField(),
 

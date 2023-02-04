@@ -1,5 +1,5 @@
 import { LancerActor } from "../actor/lancer-actor";
-import { gentle_merge, resolve_dotpath } from "../helpers/commons";
+import { resolve_dotpath } from "../helpers/commons";
 import { LancerItem } from "../item/lancer-item";
 
 /**

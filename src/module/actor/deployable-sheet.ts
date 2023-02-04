@@ -28,7 +28,7 @@ export class LancerDeployableSheet extends LancerActorSheet<EntryType.DEPLOYABLE
   }
 
   // Need to allow this stuff for setting deployable
-  can_root_drop_entry(item: ResolvedDropData): boolean {
+  canRootDrop(item: ResolvedDropData): boolean {
     // Accept actors
     return item.type == "Actor" && [EntryType.PILOT, EntryType.MECH, EntryType.NPC].includes(item.document.type);
   }

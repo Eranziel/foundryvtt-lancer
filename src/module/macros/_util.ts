@@ -20,8 +20,7 @@ export function getMacroSpeaker(provActor?: string | LancerActor): LancerActor |
     if (actor) return actor;
     actor = game.actors!.tokens[provActor!];
     if (actor) return actor;
-    // @ts-expect-error
-    actor = fromUuidSync(provActor);
+    actor = LancerActor.fromUuidSync(provActor);
     if (actor) return actor;
   }
 

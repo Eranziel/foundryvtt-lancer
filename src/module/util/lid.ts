@@ -1,4 +1,4 @@
-import { LancerActor } from "../actor/lancer-actor";
+import { LancerActor, LancerDEPLOYABLE } from "../actor/lancer-actor";
 import { FetcherCache } from "./async";
 import { LancerItem } from "../item/lancer-item";
 import { EntryType } from "../enums";
@@ -51,6 +51,13 @@ export async function lookupLID(
 export async function lookupDeployables(lids: string[]) {
   let foundDeployables = await Promise.all(lids.map(lid => lookupLID(lid, EntryType.DEPLOYABLE)));
   return foundDeployables.filter(x => x);
+}
+
+// Lookup deployables that have the provided actor set as their owner
+export function lookupOwnedDeployables(owner: LancerActor): LancerDEPLOYABLE[] {
+  let foundDeployables = game.actors!.filter(a => !!(a.is_deployable() && a.system.owner?.value == owner));
+  // @ts-expect-error
+  return foundDeployables.filter(x => x) as LancerDEPLOYABLE[];
 }
 
 // A simplified helper for the quite-common task of looking up integrated

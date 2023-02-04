@@ -24,39 +24,6 @@ export function selected(truthytest: any): string {
   return truthytest ? "selected" : "";
 }
 
-/** Performs a similar behavior to the foundry inplace mergeObject, but is more forgiving for arrays, is universally non-destructive, and doesn't create new fields (but will create new indices).
- * Expects flattened data. Does not go recursive
- */
-export function gentle_merge(dest: any, flat_data: any) {
-  // Make sure either both objects or both arrays
-  if (!(dest instanceof Object || dest instanceof Array) || !(flat_data instanceof Object)) {
-    throw new Error("One of original or other are not Objects or Arrays!");
-  }
-
-  // Try to apply each
-  for (let [k, v] of Object.entries(flat_data)) {
-    let curr = dest;
-    let leading = k.split(".");
-    let tail = leading.splice(leading.length - 1)[0];
-
-    // Drill down to reach tail, if we can
-    for (let p of leading) {
-      let next = curr[p];
-
-      curr = next;
-      if (!curr) break;
-    }
-
-    // If curr still exists and is an array or object, attempt the assignment
-    if (curr instanceof Object && curr[tail] !== undefined) {
-      // Implicitly hits array as well
-      curr[tail] = v;
-    } else {
-      // console.log(`Gentlemerge skipped key "${k}" while merging `, dest, flat_data);
-    }
-  }
-}
-
 /** Insert an array item specified by a dot pathspec, in place
  * Inserted BEFORE that element. If specified index is beyond the length of the array, will simply be appended.
  * If "delete" specified, deletes (splices) instead. Value is unused
@@ -906,7 +873,7 @@ export function restrict_enum<T extends string>(enum_: { [key: string]: T }, def
   return restrict_choices(choices, default_choice, provided);
 }
 
-export function filter_resolved_sync<T>(refs: SystemTemplates.ResolvedUuidRef<T>[]): T[] {
+export function filter_resolved_sync<T>(refs: SystemTemplates.ResolvedAsyncUuidRef<T>[]): T[] {
   let result: T[] = [];
   for (let ref of refs) {
     if (ref.status == "resolved") {

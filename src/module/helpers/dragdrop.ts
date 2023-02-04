@@ -349,6 +349,8 @@ export function applyGlobalDragListeners() {
             uuid = `Compendium.${pack}.${target.dataset.documentId}`;
           }
         }
+      } else {
+        return; // Not a uuid
       }
 
       // TODO: handle journals, macros, scenes

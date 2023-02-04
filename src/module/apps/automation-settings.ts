@@ -39,7 +39,6 @@ export class AutomationConfig extends FormApplication<FormApplication.Options, A
 
   /** @override */
   async _updateObject(_: Event, data: Record<string, unknown>): Promise<void> {
-    console.log(data);
     game.settings.set(game.system.id, LANCER.setting_automation, data);
   }
 

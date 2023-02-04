@@ -42,8 +42,7 @@ export async function prepareItemMacro(actorID: string, itemUUID: string, option
   let actor = getMacroSpeaker(actorID);
   if (!actor) return;
 
-  // @ts-expect-error
-  const item = fromUuidSync(itemUUID) as LancerItem | null;
+  const item = LancerItem.fromUuidSync(itemUUID);
   if (!item) return;
 
   // Make a macro depending on the type

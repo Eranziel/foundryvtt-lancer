@@ -1,5 +1,4 @@
 import {
-  gentle_merge,
   HANDLER_activate_general_controls,
   HANDLER_activate_popout_text_editor,
   resolve_dotpath,
@@ -139,7 +138,7 @@ export class ActionEditDialog extends Dialog {
         });
 
       // Do the merge
-      gentle_merge(this, flat_data);
+      // TODO
       this.close();
     }
   }
@@ -159,6 +158,8 @@ export class ActionEditDialog extends Dialog {
     at_path: string,
     _commit_callback: (v: T) => void | Promise<void>
   ): Promise<void> {
+    console.warn("TODO - mimic bonus-editor, which is a more clean implementationk");
+    /*
     return new Promise((resolve, _reject) => {
       const dlg = new this(in_object, at_path, {
         title: "Edit Action",
@@ -174,6 +175,7 @@ export class ActionEditDialog extends Dialog {
       });
       dlg.render(true);
     });
+  */
   }
 }
 

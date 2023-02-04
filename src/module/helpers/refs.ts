@@ -17,7 +17,6 @@ import {
   array_path_edit_changes,
   drilldownDocument,
   effect_box,
-  gentle_merge,
   read_form,
   resolve_dotpath,
   resolve_helper_dotpath,
@@ -89,7 +88,7 @@ export function simple_ref_slot(
 
   // Get present value
   let doc =
-    _helper.hash["value"] ?? (resolve_helper_dotpath(_helper, path) as SystemTemplates.ResolvedUuidRef<LancerDoc>);
+    _helper.hash["value"] ?? (resolve_helper_dotpath(_helper, path) as SystemTemplates.ResolvedAsyncUuidRef<LancerDoc>);
 
   if (!doc || doc.status == "missing") {
     // Show an icon for each accepted type
@@ -185,7 +184,7 @@ export function item_preview<T extends LancerItemType>(
   if (!!helper.hash["value"]) {
     doc = helper.hash["value"] as LancerDoc<T>;
   } else if (mode == "uuid-ref" || mode == "embed-ref") {
-    let f = fetched as SystemTemplates.ResolvedUuidRef<LancerDoc<T>>;
+    let f = fetched as SystemTemplates.ResolvedAsyncUuidRef<LancerDoc<T>>;
     if (f.status == "resolved") {
       doc = f.value;
     } else {
@@ -437,7 +436,7 @@ export function item_preview_list(
   _helper: HelperOptions,
   collapse?: CollapseRegistry
 ) {
-  let embeds = resolve_helper_dotpath(_helper, item_array_path) as SystemTemplates.ResolvedUuidRef<
+  let embeds = resolve_helper_dotpath(_helper, item_array_path) as SystemTemplates.ResolvedAsyncUuidRef<
     LancerActor | LancerItem
   >[];
   let previews = embeds.map((x, i) => {

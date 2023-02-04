@@ -211,9 +211,10 @@ export namespace SystemTemplates {
         status: "missing"; // Was unable to resolve successfully. This indicates an invalid ref that should be purged
         value: null;
       };
+  export type ResolvedSyncUuidRef<T> = ResolvedEmbeddedRef<T>;
 
   // UUID refs could be in the compendium (oh no!). In which case they'll be a promise. bleh
-  export type ResolvedUuidRef<T> =
+  export type ResolvedAsyncUuidRef<T> =
     | ResolvedEmbeddedRef<T>
     | {
         status: "async"; // Was unable to resolve synchronously, but as of yet may be resolved as a promise. Oftentimes, we will choose to ignore the async possible
@@ -265,7 +266,8 @@ export namespace SystemData {
     type: DeployableType;
     avail_mounted: boolean;
     avail_unmounted: boolean;
-    deployer: SystemTemplates.ResolvedUuidRef<LancerActor> | null;
+    deployer: SystemTemplates.ResolvedSyncUuidRef<LancerActor> | null;
+    owner: SystemTemplates.ResolvedSyncUuidRef<LancerActor> | null;
   }
   export interface Frame extends SystemTemplates.item_universal, SystemTemplates.licensed {
     description: string;
@@ -354,7 +356,7 @@ export namespace SystemData {
     };
     meltdown_timer: number | null;
     notes: string;
-    pilot: SystemTemplates.ResolvedUuidRef<LancerPILOT> | null; // UUID to a LancerPILOT
+    pilot: SystemTemplates.ResolvedSyncUuidRef<LancerPILOT> | null; // UUID to a LancerPILOT
     overcharge_sequence: string[]; // Derived so its overrideable
 
     // Set by pilot active effect
@@ -485,7 +487,7 @@ export namespace SystemData {
     loaded: boolean;
   }
   export interface Pilot extends SystemTemplates.actor_universal, SystemTemplates.action_tracking {
-    active_mech: SystemTemplates.ResolvedUuidRef<LancerMECH> | null;
+    active_mech: SystemTemplates.ResolvedSyncUuidRef<LancerMECH> | null;
     background: string;
     callsign: string;
     cloud_id: string;

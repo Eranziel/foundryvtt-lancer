@@ -149,7 +149,7 @@ export function pilot_slot(data_path: string, options: HelperOptions): string {
   } else {
     let existing =
       options.hash["value"] ??
-      resolve_helper_dotpath<SystemTemplates.ResolvedUuidRef<LancerPILOT> | null>(options, data_path, null);
+      resolve_helper_dotpath<SystemTemplates.ResolvedAsyncUuidRef<LancerPILOT> | null>(options, data_path, null);
     if (!existing || existing.status == "missing")
       return simple_ref_slot(data_path, [EntryType.PILOT], "uuid-ref", options);
     if (existing.status == "async") return "<span> Do not yet support ";

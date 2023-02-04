@@ -9,7 +9,7 @@ import {
   WeaponType,
   WeaponTypeChecklist,
 } from "../enums";
-import { gentle_merge, IconFactory, resolve_dotpath } from "../helpers/commons";
+import { IconFactory, resolve_dotpath } from "../helpers/commons";
 import { LancerItem } from "../item/lancer-item";
 import { BonusData } from "../models/bits/bonus";
 import { Damage } from "../models/bits/damage";

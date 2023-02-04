@@ -1,7 +1,7 @@
 // Import TypeScript modules
 import { LANCER } from "../config";
 import { getAutomationOptions } from "../settings";
-import type { LancerItem } from "../item/lancer-item";
+import { LancerItem } from "../item/lancer-item";
 import type { LancerActor } from "../actor/lancer-actor";
 import type { LancerMacroData, LancerTechMacroData } from "../interfaces";
 import type { AccDiffDataSerialized } from "../helpers/acc_diff";
@@ -42,14 +42,8 @@ export async function prepareActivationMacro(
   if (!actor) return;
 
   // Get the item
-  // @ts-expect-error
-  let item = fromUuidSync(itemUUID) as LancerItem;
-
-  if (!item || (!actor.is_mech() && !actor.is_pilot())) {
-    return ui.notifications!.error(
-      `Error preparing tech attack macro - could not find Item ${itemUUID} owned by Actor ${actorUUID}! Did you add the Item to the token, instead of the source Actor?`
-    );
-  } else if (!item.isOwned) {
+  let item = LancerItem.fromUuidSync(itemUUID, "Error preparing tech attack macro");
+  if (!item.isOwned) {
     return ui.notifications!.error(`Error rolling tech attack macro - ${item.name} is not owned by an Actor!`);
   } else if (!item.is_mech_system() && !item.is_npc_feature() && !item.is_talent()) {
     return ui.notifications!.error(`Error rolling tech attack macro - ${item.name} is not a System or Feature!`);

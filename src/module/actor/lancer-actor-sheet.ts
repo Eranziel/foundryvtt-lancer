@@ -1,10 +1,5 @@
 import { LANCER } from "../config";
-import {
-  HANDLER_activate_general_controls,
-  gentle_merge,
-  resolve_dotpath,
-  HANDLER_activate_popout_text_editor,
-} from "../helpers/commons";
+import { HANDLER_activate_general_controls, HANDLER_activate_popout_text_editor } from "../helpers/commons";
 import { HANDLER_enable_doc_dropping, ResolvedDropData } from "../helpers/dragdrop";
 import { HANDLER_activate_counter_listeners, HANDLER_activate_plus_minus_buttons } from "../helpers/item";
 import {
@@ -104,7 +99,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     this._activateInventoryButton(html);
 
     // Make refs droppable, in such a way that we take ownership when dropped
-    HANDLER_activate_ref_slot_dropping(html, this.actor, x => this.quick_own_drop(x).then(v => v[0]));
+    HANDLER_activate_ref_slot_dropping(html, this.actor, x => this.quickOwnDrop(x).then(v => v[0]));
 
     // Enable general controls, so items can be deleted and such
     this.activate_general_controls(html);
@@ -123,8 +118,8 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     // Add root dropping
     HANDLER_enable_doc_dropping(
       html,
-      async (entry, _dest, _event) => this.on_root_drop(entry, _event, _dest),
-      (entry, _dest, _event) => this.can_root_drop_entry(entry)
+      async (entry, _dest, _event) => this.onRootDrop(entry, _event, _dest),
+      (entry, _dest, _event) => this.canRootDrop(entry)
     );
   }
 
@@ -238,11 +233,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
 
       const weaponElement = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
       const weaponId = weaponElement.dataset.uuid;
-      if (!weaponId) return ui.notifications!.warn(`Error rolling macro: No weapon ID!`);
-      // @ts-expect-error
-      const weapon = fromUuidSync(weaponId);
-      if (!weapon) return ui.notifications!.warn(`Error rolling macro: Couldn't find weapon with ID ${weaponId}.`);
-
+      const weapon = LancerItem.fromUuidSync(weaponId ?? "null", "Error rolling macro");
       let id = this.token && !this.token.isLinked ? this.token.id! : this.actor.id!;
       prepareItemMacro(id, weapon.uuid!);
     });
@@ -388,13 +379,13 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
   // A grand filter that pre-decides if we can drop an item ref anywhere within this sheet. Should be implemented by child sheets
   // We generally assume that a global item is droppable if it matches our types, and that an owned item is droppable if it is owned by this actor
   // This is more of a permissions/suitability question
-  can_root_drop_entry(_item: ResolvedDropData): boolean {
+  canRootDrop(_item: ResolvedDropData): boolean {
     return false;
   }
 
   // This function is called on any dragged item that percolates down to root without being handled
   // Override/extend as appropriate
-  async on_root_drop(_item: ResolvedDropData, _event: JQuery.DropEvent, _dest: JQuery<HTMLElement>): Promise<void> {}
+  async onRootDrop(_item: ResolvedDropData, _event: JQuery.DropEvent, _dest: JQuery<HTMLElement>): Promise<void> {}
 
   // Override base behavior
   async _onDrop(_evt: DragEvent) {
@@ -404,18 +395,14 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
   // Makes us own (or rather, creates an owned copy of) the provided item if we don't already.
   // The second return value indicates whether a new copy was made (true), or if we already owned it/it is an actor (false)
   // Note: this operation also fixes limited to be the full capability of our actor
-  async quick_own<T extends LancerItemType>(document: LancerItem): Promise<[LancerItem, boolean]> {
+  async quickOwn(document: LancerItem): Promise<[LancerItem, boolean]> {
     if (document.parent != this.actor) {
       let [result] = await insinuate([document], this.actor);
-      /* TODO
-        pre_final_write: rec => {
-          // Pull a sneaky: set the limited value to max before insinuating
-          if (funcs.is_tagged(rec.pending) && (rec.pending as any).Uses != undefined) {
-            let as_lim = rec.pending as NpcFeature | MechWeapon | MechSystem | PilotWeapon | PilotGear | WeaponMod;
-            as_lim.Uses = funcs.limited_max(as_lim) + (this_mm instanceof Mech ? this_mm.LimitedBonus : 0);
-          }
-        },
-        */
+      if (result.is_limited()) {
+        await result.update({
+          "system.uses.value": result.system.uses.max,
+        });
+      }
       return [result, true];
     } else {
       // Its already owned
@@ -424,15 +411,15 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
   }
 
   // As quick_own, but for any drop. Maintains drop structure, since not necessarily guaranteed to have made an item
-  async quick_own_drop(drop: ResolvedDropData): Promise<[ResolvedDropData, boolean]> {
+  async quickOwnDrop(drop: ResolvedDropData): Promise<[ResolvedDropData, boolean]> {
     if (drop.type == "Item") {
-      let [v, n] = await this.quick_own(drop.document);
+      let [document, new_] = await this.quickOwn(drop.document);
       return [
         {
           type: "Item",
-          document: v,
+          document,
         },
-        n,
+        new_,
       ];
     } else {
       return [drop, false];

@@ -207,6 +207,7 @@ export namespace SourceData {
     avail_mounted: boolean;
     avail_unmounted: boolean;
     deployer: UUIDRef | null;
+    owner: UUIDRef | null;
   }
   export interface Frame extends SourceTemplates.item_universal, SourceTemplates.licensed {
     description: string;

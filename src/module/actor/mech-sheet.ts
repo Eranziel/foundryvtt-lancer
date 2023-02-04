@@ -8,6 +8,7 @@ import { EntryType, fittingsForMount, FittingSize, MountType, SystemType } from 
 import { SystemData } from "../system-template";
 import { LancerActorSheetData } from "../interfaces";
 import { SourceData } from "../source-template";
+import { importDeployablesFor } from "../util/doc";
 
 /**
  * Extend the basic ActorSheet
@@ -61,7 +62,7 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
     });
   }
 
-  can_root_drop_entry(item: ResolvedDropData): boolean {
+  canRootDrop(item: ResolvedDropData): boolean {
     // Reject any non npc / non pilot item
     if (item.type == "Actor" && item.document.is_pilot()) {
       // For setting pilot
@@ -73,11 +74,10 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
     }
   }
 
-  async on_root_drop(base_drop: ResolvedDropData): Promise<void> {
+  async onRootDrop(base_drop: ResolvedDropData): Promise<void> {
     // Take posession
-    let [drop, is_new] = await this.quick_own_drop(base_drop);
+    let [drop, is_new] = await this.quickOwnDrop(base_drop);
 
-    // Now, do sensible things with it
     if (drop.type == "Item" && drop.document.is_frame() && this.actor.is_mech()) {
       // If new frame, auto swap with prior frame
       await this.actor.swapFrameImage(this.actor, this.actor.system.loadout.frame?.value ?? null, drop.document);

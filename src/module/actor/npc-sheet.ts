@@ -10,6 +10,7 @@ import { LancerActor, LancerNPC } from "./lancer-actor";
 import { DropHandler, ResolvedDropData } from "../helpers/dragdrop";
 import { SystemDataType } from "../system-template";
 import { EntryType } from "../enums";
+import { lookupLID } from "../util/lid";
 const lp = LANCER.log_prefix;
 
 /**
@@ -144,7 +145,7 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
 
   /* -------------------------------------------- */
 
-  can_root_drop_entry(item: ResolvedDropData): boolean {
+  canRootDrop(item: ResolvedDropData): boolean {
     // Reject any non npc item
     return (
       item.type == "Item" &&
@@ -153,12 +154,12 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
   }
 
   // Take ownership of appropriate items. Already filtered by can_drop_entry
-  async on_root_drop(base_drop: ResolvedDropData, event: JQuery.DropEvent, _dest: JQuery<HTMLElement>): Promise<void> {
+  async onRootDrop(base_drop: ResolvedDropData, event: JQuery.DropEvent, _dest: JQuery<HTMLElement>): Promise<void> {
     // Type guard
     if (!this.actor.is_npc()) return;
 
     // Take posession
-    let [drop, is_new] = await this.quick_own_drop(base_drop);
+    let [drop, is_new] = await this.quickOwnDrop(base_drop);
 
     // Flag to know if we need to reset stats
     let needs_refresh = false;
@@ -182,9 +183,13 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
 
       // And add all new features
       if (doc.is_npc_template() || doc.is_npc_class()) {
-        for (let feat of doc.system.base_features) {
-          await insinuate([], this.actor as LancerNPC);
-        }
+        let baseFeatures = (await Promise.all(
+          doc.system.base_features.map(lid => lookupLID(lid, EntryType.NPC_FEATURE))
+        )) as LancerItem[];
+        await insinuate(
+          baseFeatures.filter(x => x),
+          this.actor as LancerNPC
+        );
         needs_refresh = true;
       }
       if (doc.is_npc_class()) {

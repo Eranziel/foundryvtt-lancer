@@ -1,5 +1,5 @@
 import { LancerActor } from "../actor/lancer-actor";
-import { gentle_merge, read_form, resolve_dotpath } from "../helpers/commons";
+import { read_form, resolve_dotpath } from "../helpers/commons";
 import { LancerItem, LancerTALENT } from "../item/lancer-item";
 import { CounterData } from "../models/bits/counter";
 

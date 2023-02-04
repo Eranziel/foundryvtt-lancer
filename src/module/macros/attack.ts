@@ -1,8 +1,8 @@
 // Import TypeScript modules
 import { LANCER } from "../config";
 import { getAutomationOptions } from "../settings";
-import type { LancerItem, LancerMECH_WEAPON, LancerNPC_FEATURE, LancerPILOT_WEAPON } from "../item/lancer-item";
-import type { LancerActor, LancerPILOT } from "../actor/lancer-actor";
+import { LancerItem, LancerMECH_WEAPON, LancerNPC_FEATURE, LancerPILOT_WEAPON } from "../item/lancer-item";
+import { LancerActor, LancerPILOT } from "../actor/lancer-actor";
 import type { LancerAttackMacroData, LancerMacroData } from "../interfaces";
 import { checkForHit } from "../helpers/automation/targeting";
 import type { AccDiffData, AccDiffDataSerialized, RollModifier } from "../helpers/acc_diff";
@@ -66,10 +66,8 @@ export async function prepareEncodedAttackMacro(
   options?: AttackMacroOptions,
   rerollData?: AccDiffDataSerialized
 ) {
-  // @ts-expect-error
-  let actor = fromUuidSync(actorUUID) as LancerActor;
-  // @ts-expect-error
-  let item = itemUUID ? (fromUuidSync(itemUUID) as LancerItem) : null;
+  let actor = LancerActor.fromUuidSync(actorUUID);
+  let item = itemUUID ? LancerItem.fromUuidSync(itemUUID) : null;
   let { AccDiffData } = await import("../helpers/acc_diff");
   let accdiff = rerollData ? AccDiffData.fromObject(rerollData, item ?? actor) : undefined;
   if (item) {

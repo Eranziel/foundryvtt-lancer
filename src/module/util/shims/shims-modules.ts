@@ -39,3 +39,6 @@ declare module "lancer-data" {
   // const npc_systems: any
   // const npc_template_systems: any
 }
+
+// TODO: remove this when v10 types
+declare function fromUuidSync(uuid: string): foundry.abstract.Document<any, any> | null;

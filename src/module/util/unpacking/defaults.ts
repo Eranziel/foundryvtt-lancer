@@ -183,6 +183,7 @@ export function DEPLOYABLE(): SourceDataType<EntryType.DEPLOYABLE> {
     avail_unmounted: false,
     avail_mounted: true,
     deployer: null,
+    owner: null,
     burn: 0,
     activations: 0,
     custom_counters: [],

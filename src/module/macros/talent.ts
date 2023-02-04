@@ -20,8 +20,7 @@ export async function prepareTalentMacro(actorID: string, itemUUID: string, rank
   let actor = getMacroSpeaker(actorID);
   if (!actor) return;
 
-  // @ts-expect-error
-  const item = fromUuidSync(itemUUID) as LancerItem;
+  const item = LancerItem.fromUuidSync(itemUUID);
   if (!item || !item.is_talent()) return;
 
   let talData: LancerTalentMacroData = {

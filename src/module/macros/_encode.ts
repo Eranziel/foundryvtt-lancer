@@ -18,6 +18,7 @@ const encodedMacroWhitelist = [
   "prepareStructureSecondaryRollMacro",
   "prepareOverheatMacro",
   "prepareStructureMacro",
+  "importIntegrated",
   "stabilizeMacro",
   "structureMacro",
   "overheatMacro",
@@ -42,7 +43,6 @@ export function encodeMacroData(data: LancerMacroData): string {
 }
 
 export async function runEncodedMacro(el: HTMLElement | LancerMacroData) {
-  console.log(el);
   let data: LancerMacroData | null = null;
 
   if (el instanceof HTMLElement) {
