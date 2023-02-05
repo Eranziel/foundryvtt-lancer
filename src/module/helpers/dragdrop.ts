@@ -49,7 +49,7 @@ export function HANDLER_enable_doc_dropping(
     // To permit dropping, we must override the base dragover behavior.
     item.on("dragover", event => {
       // Get/check data
-      if (!GlobalDragPreview) return;
+      if (!GlobalDragPreview) return true; // Blanket allow drops if we don't know whats dragging
 
       // Check if we can drop
       let drop_permitted = !allow_drop || allow_drop(GlobalDragPreview, item, event);
@@ -64,7 +64,8 @@ export function HANDLER_enable_doc_dropping(
     // We also must signal this via the dragenter event
     item.on("dragenter", event => {
       // Check if we can drop
-      let drop_permitted = GlobalDragPreview && (!allow_drop || allow_drop(GlobalDragPreview, item, event));
+      if (!GlobalDragPreview) return true; // Blanket allow drops if we don't know whats dragging
+      let drop_permitted = !allow_drop || allow_drop(GlobalDragPreview, item, event);
 
       if (drop_permitted) {
         // Override behavior to allow dropping here
@@ -93,9 +94,13 @@ export function HANDLER_enable_doc_dropping(
     }
 
     // Finally and most importantly, dropping
-    item.on("drop", event => {
+    item.on("drop", async event => {
       // Check dropability just to be safe - some event may have trickled down here somehow
-      if (!GlobalDragPreview || (allow_drop && !allow_drop(GlobalDragPreview, item, event))) {
+      let rdd = GlobalDragPreview;
+      if (!rdd && event.originalEvent?.dataTransfer?.getData("text/plain")) {
+        rdd = await resolveNativeDrop(event.originalEvent.dataTransfer.getData("text/plain"));
+      }
+      if (!rdd || (allow_drop && !allow_drop(rdd, item, event))) {
         return;
       }
 
@@ -103,7 +108,7 @@ export function HANDLER_enable_doc_dropping(
       // don't want it to propagate any further
       event.stopPropagation();
       event.preventDefault();
-      drop_handler(GlobalDragPreview!, item, event);
+      drop_handler(rdd!, item, event);
     });
   });
 }
@@ -196,7 +201,7 @@ export type ResolvedDropData =
 // Resolves a native foundry actor/item drop event datatransfer to the actual contained actor/item/journal
 // This can be annoying, so we made it a dedicated method
 // Input is either a stringified JSON dropData or a uuid
-export async function resolve_native_drop(drop: string | FoundryDropData): Promise<ResolvedDropData | null> {
+export async function resolveNativeDrop(drop: string | FoundryDropData): Promise<ResolvedDropData | null> {
   // Get dropped data
   if (typeof drop == "string") {
     drop = safe_json_parse(drop) as FoundryDropData;

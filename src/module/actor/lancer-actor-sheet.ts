@@ -102,7 +102,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     HANDLER_activate_ref_slot_dropping(html, this.actor, x => this.quickOwnDrop(x).then(v => v[0]));
 
     // Enable general controls, so items can be deleted and such
-    this.activate_general_controls(html);
+    HANDLER_activate_general_controls(html, this.actor);
 
     // Item-referencing inputs
     HANDLER_intercept_form_changes(html, getfunc);
@@ -121,11 +121,6 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       async (entry, _dest, _event) => this.onRootDrop(entry, _event, _dest),
       (entry, _dest, _event) => this.canRootDrop(entry)
     );
-  }
-
-  // So it can be overridden
-  activate_general_controls(html: JQuery) {
-    HANDLER_activate_general_controls(html, this.actor);
   }
 
   _activateMacroDragging(html: JQuery) {
@@ -388,8 +383,8 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
   async onRootDrop(_item: ResolvedDropData, _event: JQuery.DropEvent, _dest: JQuery<HTMLElement>): Promise<void> {}
 
   // Override base behavior
-  async _onDrop(_evt: DragEvent) {
-    return;
+  protected _createDragDropHandlers(): DragDrop[] {
+    return [];
   }
 
   // Makes us own (or rather, creates an owned copy of) the provided item if we don't already.

@@ -1,14 +1,12 @@
-import type { GenControlContext, LancerActorSheetData, LancerStatMacroData } from "../interfaces";
+import type { GenControlContext, LancerStatMacroData } from "../interfaces";
 import { LANCER } from "../config";
 import { LancerActorSheet } from "./lancer-actor-sheet";
 import { prepareItemMacro, prepareStatMacro } from "../macros";
 import tippy from "tippy.js";
-import { LancerItem, is_item_type, LancerItemType, LancerNPC_FEATURE } from "../item/lancer-item";
-import { insinuate, resort_item } from "../util/doc";
-import { filter_resolved_sync, HANDLER_activate_general_controls } from "../helpers/commons";
-import { LancerActor, LancerNPC } from "./lancer-actor";
-import { DropHandler, ResolvedDropData } from "../helpers/dragdrop";
-import { SystemDataType } from "../system-template";
+import { LancerItem, LancerNPC_FEATURE } from "../item/lancer-item";
+import { insinuate } from "../util/doc";
+import { LancerNPC } from "./lancer-actor";
+import { ResolvedDropData } from "../helpers/dragdrop";
 import { EntryType } from "../enums";
 import { lookupLID } from "../util/lid";
 const lp = LANCER.log_prefix;
@@ -135,12 +133,6 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
       content: "Right Click to Destroy",
       delay: [300, 100],
     });
-  }
-
-  // So it can be overridden
-  activate_general_controls(html: JQuery) {
-    // Enable NPC class/template-deletion controls
-    HANDLER_activate_general_controls(html, this.actor, handleClassDelete);
   }
 
   /* -------------------------------------------- */
