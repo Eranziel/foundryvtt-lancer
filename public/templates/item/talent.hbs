@@ -51,19 +51,15 @@
         }}}
         <div class="integrated-wrapper card clipped flexcol">
           <div class="lancer-header" style="font-weight: bold">INTEGRATED GEAR</div>
-          {{#each rank.Integrated as |integrated integ_index|}}
-            {{#if (eq integrated.Type "mech_system")}}
-              {{{item-preview (concat "system.ranks." index ".integrated." integ_index) null }}}
-            {{else if (eq integrated.Type "mech_weapon")}}
-              <div style="margin:3px 10px">
-                {{{mech-weapon-preview (concat "system.ranks." index ".integrated." integ_index) "" }}}
-              </div>
-            {{else}}
-              {{!-- Fallback - typically there should be nothing other than mech systems and weapons,
-              but just in case.--}}
-              {{{item-preview (concat "system.ranks." index ".integrated." integ_index) null }}}
-            {{/if}}
+          <ul>
+          {{#each rank.integrated as |integrated integ_index|}}
+            <li>
+              <code>
+                {{integrated}}
+              </code>
+            </li>
           {{/each}}
+          </ul>
         </div>
         {{{item-edit-arrayed-deployables (concat "system.ranks." index ".deployables") "DEPLOYABLES"}}}
         {{{item-edit-arrayed-synergies (concat "system.ranks." index ".synergies") "SYNERGIES"}}}

@@ -92,21 +92,18 @@
     {{!-- Integrated --}}
     <div class="integrated-wrapper card clipped flexcol">
       <div class="lancer-header">INTEGRATED GEAR</div>
+      <ul>
       {{#each system.core_system.integrated as |integrated index|}}
-        {{#if (eq integrated.type "mech_system")}}
-          {{{item-preview (concat "system.core_system.integrated." index) null true }}}
-        {{else if (eq integrated.type "mech_weapon")}}
-          <div style="margin:3px 10px">
-            {{{mech-weapon-preview (concat "system.core_system.integrated." index) "" }}}
-          </div>
-        {{else}}
-          {{!-- Fallback - typically there should be nothing other than mech systems and weapons, but just in case.--}}
-          {{{item-preview (concat "system.core_system.integrated." index) null true }}}
-        {{/if}}
+        <li>
+          <code>
+            {{integrated}}
+          </code>
+        </li>
       {{/each}}
       {{#each coreDeployables as |deployable index|}}
         {{{deployable-card deployable "true" index }}}
       {{/each}}
+      </ul>
     </div>
 
     {{!-- Passive Description + Bonuses --}}

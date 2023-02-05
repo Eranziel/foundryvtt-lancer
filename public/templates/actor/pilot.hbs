@@ -113,7 +113,7 @@
       {{!-- Skill Triggers --}}
       <div class="card clipped">
         <h2 class="lancer-title clipped">{{localize "lancer.pilot-sheet.abilities.skills"}}</h2>
-        {{#each system.skills as |skill index|}} {{{item-preview (concat "system.skills." index) "delete" }}}
+        {{#each system.skills as |skill index|}} {{{item-preview (concat "system.skills." index) "delete" "doc" }}}
         {{/each}}
       </div>
 
