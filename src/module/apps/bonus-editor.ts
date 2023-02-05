@@ -32,7 +32,12 @@ export class BonusEditDialog extends FormApplication {
   // Promise to signal completion of workflow
   resolve: () => any;
 
-  constructor(target: LancerActor | LancerItem, bonus_path: string, options: any, resolve_func: () => any) {
+  constructor(
+    target: LancerActor | LancerItem,
+    bonus_path: string,
+    options: Partial<FormApplication.Options>,
+    resolve_func: () => any
+  ) {
     super(
       {
         hasPerm: () => true, // We give it a dummy object because we don't want it messing with our shit
@@ -137,17 +142,17 @@ export class BonusEditDialog extends FormApplication {
    * workflow has been resolved.
    * @return {Promise}
    */
-  static async edit_bonus(in_object: LancerActor | LancerItem, at_path: string): Promise<void> {
+  static async edit_bonus(document: LancerActor | LancerItem, path: string): Promise<void> {
     return new Promise((resolve, _reject) => {
-      const dlg = new this(
-        in_object,
-        at_path,
+      const app = new this(
+        document,
+        path,
         {
           title: "Edit bonus",
         },
         resolve
       );
-      dlg.render(true);
+      app.render(true);
     });
   }
 }
