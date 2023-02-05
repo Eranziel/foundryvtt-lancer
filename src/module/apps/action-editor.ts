@@ -7,27 +7,39 @@ import { HANDLER_intercept_form_changes } from "../helpers/refs";
 import { LancerItem } from "../item/lancer-item";
 import { ActionData } from "../models/bits/action";
 /**
- * A helper Dialog subclass for editing a bonus
+ * A helper Dialog subclass for editing an action
  * @extends {Dialog}
  */
-// TODO: Narrow O a little bit here
-export class ActionEditDialog extends Dialog {
+export class ActionEditDialog extends FormApplication {
+  // What to submit updates to
+  target: LancerItem;
+
   // The bonus we're editing
   action: ActionData;
 
   // Where it is
   action_path: string;
 
-  // What to submit updates to
-  target: LancerItem;
+  // Promise to signal completion of workflow
+  resolve: () => any;
 
-  constructor(target: LancerItem, action_path: string, dialogData: Dialog.Data, options: Partial<Dialog.Options> = {}) {
-    super(dialogData, options);
+  constructor(
+    target: LancerItem,
+    action_path: string,
+    options: Partial<FormApplication.Options> = {},
+    resolve_func: () => any
+  ) {
+    super(
+      {
+        hasPerm: () => true,
+      },
+      options
+    );
 
-    //@ts-ignore I don't want to mess around with the generic typing but this is fine
-    this.target = target.mm;
+    this.target = target;
     this.action_path = action_path;
     this.action = resolve_dotpath(target, action_path) as ActionData;
+    this.resolve = resolve_func;
   }
 
   /* -------------------------------------------- */
@@ -39,6 +51,9 @@ export class ActionEditDialog extends Dialog {
       width: 400,
       height: "auto" as const,
       classes: ["lancer"],
+      submitOnChange: false,
+      submitOnClose: false,
+      closeOnSubmit: true,
     });
   }
 
@@ -59,88 +74,16 @@ export class ActionEditDialog extends Dialog {
    * @param html {HTMLElement}   The prepared HTML object ready to be rendered into the DOM
    */
   activateListeners(html: JQuery<HTMLElement>) {
-    super.activateListeners(html);
-    // Everything below here is only needed if the sheet is editable
-
-    let getfunc = () => this.getData();
-    // let commitfunc = (_: any) => this._commitCurrMM();
-
-    // Enable general controls, so items can be deleted and such
-    // HANDLER_activate_general_controls(html, this., commitfunc);
-
-    // Item-referencing inputs
-    HANDLER_intercept_form_changes(html, getfunc);
-
-    // Enable popout editors
+    super.activateListeners(html); // Enable popout editors
     HANDLER_activate_popout_text_editor(html, this.target);
   }
 
-  /**
-   * Handle a left-mouse click on one of the dialog choice buttons
-   * @param {MouseEvent} event    The left-mouse click event
-   * @private
-   */
-  _onClickButton(event: MouseEvent) {
-    //@ts-ignore League types have the wrong event type again
-    const id = event.currentTarget.dataset.button;
-    // Just pass through our button id
-    this.submit(id);
-  }
-
-  /**
-   * Submit the Dialog by selecting one of its buttons
-   * @private
-   */
-  // @ts-ignore This is definitely busted, but it will have to be fixed later
-  async submit(id: string) {
-    let button = this.data.buttons[id];
-    if (button) {
-      try {
-        if (button.callback) button.callback(this.element);
-        this.close();
-      } catch (err) {
-        ui.notifications!.error(`${err}`);
-        if (err instanceof Error) {
-          throw err;
-        } else {
-          throw new Error(`${err}`);
-        }
-      }
-    } else if (id === "confirm") {
-      let flat_data: any = {};
-      $(this.element)
-        .find("input")
-        .each((_i, elt) => {
-          // Retrieve input info
-          let name = elt.name;
-          let val: boolean | string;
-          if (elt.type == "text") {
-            val = elt.value;
-          } else if (elt.type == "checkbox") {
-            val = elt.checked;
-          } else {
-            return;
-          }
-
-          // Add to form
-          flat_data[name] = val;
-        });
-
-      $(this.element)
-        .find("select")
-        .each((_i, elt: HTMLSelectElement) => {
-          // Retrieve input info
-          let name = elt.name;
-          let val = elt.selectedOptions[0].value;
-
-          // Add to form
-          flat_data[name] = val;
-        });
-
-      // Do the merge
-      // TODO
-      this.close();
-    }
+  /** @override */
+  async _updateObject(_event: unknown, form_data: Record<string, string | number | boolean>) {
+    // Do the merge
+    ui.notifications?.warn("TODO");
+    console.log(form_data);
+    // this.target.update({ [this.action_path]: form_data }).then(this.resolve);
   }
 
   /* -------------------------------------------- */
@@ -148,49 +91,33 @@ export class ActionEditDialog extends Dialog {
   /**
    * A helper constructor function which displays the action editor and returns a Promise once it's
    * workflow has been resolved.
-   * @param in_object         Object we're within
-   * @param at_path           Path object is located at
-   * @param commit_callback   Callback func on commit
-   * @returns                 Promise for completion
    */
   static async edit_action<T>(
-    in_object: LancerItem,
-    at_path: string,
+    document: LancerItem,
+    path: string,
     _commit_callback: (v: T) => void | Promise<void>
   ): Promise<void> {
-    console.warn("TODO - mimic bonus-editor, which is a more clean implementationk");
-    /*
     return new Promise((resolve, _reject) => {
-      const dlg = new this(in_object, at_path, {
-        title: "Edit Action",
-        content: "",
-        // All the buttons config isn't actually controlled here
-        buttons: {
-          cancel: {
-            label: "Cancel",
-          },
+      const app = new this(
+        document,
+        path,
+        {
+          title: "Edit action",
         },
-        default: "Save",
-        close: () => resolve(),
-      });
-      dlg.render(true);
+        resolve
+      );
+      app.render(true);
     });
-  */
   }
 }
 
 // Allows right clicking bonuses to edit them
-export function activate_action_editor(
-  html: JQuery,
-  item: LancerItem
-  // commit_func: (data: T) => void | Promise<void>
-) {
+export function activate_action_editor(html: JQuery, item: LancerItem) {
   let bonuses = html.find(".action-editor");
   bonuses.on("click", async event => {
     // Find the bonus
     let action_path = event.currentTarget.dataset.path;
     if (!action_path) return;
-    // TODO reinstate commit func
     return ActionEditDialog.edit_action(item, action_path, () => {}).catch(e => console.error("Dialog failed", e));
   });
 }
