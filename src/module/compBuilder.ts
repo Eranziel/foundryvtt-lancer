@@ -12,10 +12,17 @@ export const PACK_SCOPE = "world";
 // Clear all packs
 export async function clear_all(): Promise<void> {
   await set_all_lock(false);
-  for (let p of Object.values(EntryType)) {
+  const entryTypes = Object.values(EntryType);
+  for (let i = 0; i < entryTypes.length; i++) {
+    const p = entryTypes[i];
     let pack = game.packs.get(`${PACK_SCOPE}.${p}`);
     if (!pack) continue;
 
+    // @ts-expect-error Fixed in v10?
+    SceneNavigation.displayProgressBar({
+      label: `Clearing ${pack.metadata?.label}`,
+      pct: Math.round(((i + 1) / entryTypes.length) * 100),
+    });
     let docs = await pack.getDocuments();
     let keys = docs.map(d => d.id!);
     await pack.documentClass.deleteDocuments(keys, { pack: pack.collection });

@@ -200,7 +200,7 @@ class LCPManager extends Application {
       return;
     }
     if (!this.lcpFile) {
-      ui.notifications!.error(`Import error: no file selected.`);
+      ui.notifications!.error(`You must select an LCP file before importing.`);
       return;
     }
 
@@ -211,33 +211,30 @@ class LCPManager extends Application {
     ui.notifications!.info(`Starting import of ${cp.manifest.name} v${cp.manifest.version}. Please wait.`);
     console.log(`${lp} Starting import of ${cp.manifest.name} v${cp.manifest.version}.`);
     console.log(`${lp} Parsed content pack:`, cp);
-    await import_cp(cp, (x, y) => this.update_progress_bar(x, y));
+    const message = `Importing ${cp.manifest.name} v${cp.manifest.version}`;
+    await import_cp(cp, (x, y) => update_progress_bar(x, y, message));
     ui.notifications!.info(`Import of ${cp.manifest.name} v${cp.manifest.version} complete.`);
+    update_progress_bar(1, 1, message); // Make sure the progress bar disappears.
     console.log(`Import of ${cp.manifest.name} v${cp.manifest.version} complete.`);
 
     this.updateLcpIndex(manifest);
   }
+}
 
-  update_progress_bar(done: number, out_of: number) {
-    $(this.element).find(".lcp-progress").prop("value", done);
-    $(this.element).find(".lcp-progress").prop("max", out_of);
-  }
+function update_progress_bar(done: number, out_of: number, message?: string) {
+  // @ts-expect-error Fixed in v10?
+  SceneNavigation.displayProgressBar({
+    label: message,
+    pct: Math.round((done / out_of) * 100),
+  });
 }
 
 export { LCPManager, addLCPManager, LCPIndex };
 
 export async function updateCore(version: string, manager?: LCPManager) {
-  let progress = 1;
+  const progressMessage = `Updating Lancer Core data to v${version}`;
   let progress_func = (x: any, y: any) => {
-    // If we're passing a manager, let it do things as well
-    if (manager) manager.update_progress_bar(x, y);
-    // Provide updates every 25%
-    const denom = 4;
-    let incr = Math.ceil(y / denom);
-    if (x >= incr * progress) {
-      ui.notifications!.info(`${progress * (100 / denom)}% of Lancer Core data updated`);
-      progress += 1;
-    }
+    update_progress_bar(x, y, progressMessage);
   };
 
   ui.notifications!.info(`Updating Lancer Core data to v${version}. Please wait.`);
@@ -252,9 +249,11 @@ export async function updateCore(version: string, manager?: LCPManager) {
       `Lancer Core data update ran into an issue... Please open the compendium manager and attempt an update after clearing LCPs.`
     );
     await set_all_lock(true);
+    update_progress_bar(1, 1, progressMessage); // Make sure the progress bar disappears.
     return;
   }
 
   ui.notifications!.info(`Lancer Core data update complete.`);
+  update_progress_bar(1, 1, progressMessage); // Make sure the progress bar disappears.
   await game.settings.set(game.system.id, LANCER.setting_core_data, version);
 }
