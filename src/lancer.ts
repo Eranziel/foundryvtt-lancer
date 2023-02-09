@@ -868,9 +868,10 @@ async function doMigration() {
       }
       // Perform the migration
       await migrations.migrateWorld();
+      await migrations.minorMigration();
     } else if (migration == "minor") {
       // Perform the migration
-      await migrations.minor09Migration();
+      await migrations.minorMigration();
     }
     // Set the version for future migration and welcome message checking
     await game.settings.set(game.system.id, LANCER.setting_migration, game.system.data.version);

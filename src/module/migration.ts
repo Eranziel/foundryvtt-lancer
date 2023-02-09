@@ -173,38 +173,25 @@ Please refresh the page to try again.</p>`,
   });
 };
 
-export const minor09Migration = async function () {
-  // Migrate World Actors
-  for (let a of game.actors.contents) {
-    try {
-      const updateData = await migrateActorData(a, true);
-      if (!isObjectEmpty(updateData)) {
-        console.log(`Migrating Actor ${a.name}`);
-        await a.update(updateData);
-      }
-    } catch (err) {
-      console.log(err);
-    }
+/**
+ * Perform minor migration tasks.
+ * As of 1.4.3, this involves migrating world compendium packs to v10 format.
+ */
+export const minorMigration = async function () {
+  const packs = game.packs.filter(p => ["Actor", "Item"].includes(p.documentName));
+  for (let i = 0; i < packs.length; i++) {
+    const pack = packs[i];
+    SceneNavigation.displayProgressBar({
+      label: `Migrating ${pack.metadata.label}`,
+      pct: Math.round((i / packs.length) * 100),
+    });
+    await pack.configure({ private: pack.config.private, locked: false });
+    await pack.migrate();
+    await pack.configure({ private: pack.config.private, locked: true });
   }
-
-  // Migrate Actor Override Tokens
-  for (let s of game.scenes.contents) {
-    try {
-      console.log(`Migrating Scene ${s.name}`);
-      let updateData = await migrateSceneData(s, true);
-      if (updateData && !isObjectEmpty(updateData)) {
-        await s.update(updateData);
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  }
-
-  for (let p of game.packs.contents) {
-    if (p.metadata.package === "world" && ["Actor", "Item", "Scene"].includes(p.metadata.type)) {
-      await migrateCompendium(p);
-    }
-  }
+  SceneNavigation.displayProgressBar({ label: "Finished migration", pct: 100 });
+  ui.notifications?.info("Migration complete, please reload.", { permanent: true });
+  await SettingsConfig.reloadConfirm();
 };
 
 /* -------------------------------------------- */
