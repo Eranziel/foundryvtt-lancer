@@ -478,7 +478,8 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     }
     // Update token image if it matches the old actor image - keep in sync
     else {
-      if (this.actor.img === token["img"] && this.actor.img !== formData["img"]) {
+      // @ts-expect-error should be fixed with v10 types
+      if (this.actor.img === token.texture?.src && this.actor.img !== formData["img"]) {
         new_top["token.img"] = formData["img"];
       } // Same for name
       if (this.actor.name === token["name"] && this.actor.name !== formData["name"]) {
