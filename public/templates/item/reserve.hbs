@@ -19,29 +19,30 @@
 
   {{!-- Sheet Body --}}
   <section class="sheet-body">
-    <div class="flexrow">
-      <div class="flexcol">
-        <span>CONSUMABLE:</span>
-        <input type="checkbox" name="mm.Consumable" {{checked mm.Consumable}}>
-      </div>
-      <div class="flexcol">
-        <span>USED:</span>
-        <input type="checkbox" name="mm.Used" {{checked mm.Used}}>
+    {{{textarea-card "DESCRIPTION" "mm.Description"}}}
+    <div class="card clipped">
+      <div class="lancer-header">CONFIGURATION</div>
+      <div class="flexrow">
+        <div
+          <span>TYPE:</span>{{{item-edit-enum     "mm.ReserveType"     "ReserveType" label="RESERVE TYPE"}}}
+        </div>
+        <div class="flexcol" style="align-items: center;">
+          <span>CONSUMABLE:</span>
+          <input type="checkbox" name="mm.Consumable" {{checked mm.Consumable}}>
+        </div>
+        {{#if mm.Consumable}}
+          {{{reserve-used-indicator mm "mm"}}}
+        {{/if}}
       </div>
     </div>
-      {{{textarea-card "DESCRIPTION" "mm.Description"}}}
-      {{{item-edit-arrayed-actions      "mm.Actions"        "ACTIONS"}}}
-      {{{item-edit-arrayed-bonuses      "mm.Bonuses"}}}
-      {{{counter-array mm.Counters "mm.Counters" "mm.Counters" true}}}
-      {{{item-edit-arrayed-deployables  "mm.Deployables"                "DEPLOYABLES"}}}
-      {{{item-edit-arrayed-integrated   "mm.Integrated"                 "INTEGRATED ITEMS"}}}
-      {{{item-edit-arrayed-synergies    "mm.Synergies"                  "SYNERGIES"}}}
     <div class="flexrow">
-      {{{std-string-input             "mm.ReserveType"    label="RESERVE TYPE"}}}
-      {{{std-string-input             "mm.ResourceCost"   label="RESOURCE COST"}}}
-      {{{std-string-input             "mm.ResourceLabel"  label="RESOURCE LABEL"}}}
-      {{{std-string-input             "mm.ResourceName"   label="RESOURCE NAME"}}}
-      {{{std-string-input             "mm.ResourceNote"   label="RESOURCE NOTE"}}}
+      {{!-- TODO: pretty this up a bit --}}
+      {{{textarea-card      "RESOURCE NAME"      "mm.ResourceName"}}}
+      {{{textarea-card      "RESOURCE LABEL"     "mm.ResourceLabel"}}}
+    </div>
+    <div class="flexrow">
+      {{{textarea-card      "RESOURCE COST"      "mm.ResourceCost"}}}
+      {{{textarea-card      "RESOURCE NOTE"      "mm.ResourceNote"}}}
     </div>
   </section>
 </form>
