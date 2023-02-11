@@ -126,6 +126,7 @@ import {
   mm_ref_list_append_slot,
   editable_mm_ref_list_item_native,
   limited_uses_indicator,
+  reserve_used_indicator,
 } from "./module/helpers/refs";
 import { mech_loadout, pilot_slot, mech_frame_refview } from "./module/helpers/loadout";
 import {
@@ -506,6 +507,7 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("item-edit-sp", item_edit_sp);
   Handlebars.registerHelper("item-edit-uses", item_edit_uses);
   Handlebars.registerHelper("limited-uses-indicator", limited_uses_indicator);
+  Handlebars.registerHelper("reserve-used-indicator", reserve_used_indicator);
   Handlebars.registerHelper("loading-indicator", loading_indicator);
 
   // ------------------------------------------------------------------------

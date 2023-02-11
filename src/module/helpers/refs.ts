@@ -498,6 +498,12 @@ export function limited_uses_indicator(
   return `<div class="clipped card limited-card">USES ${hexes.join("")}</div>`;
 }
 
+export function reserve_used_indicator(item: Reserve, path: string): string {
+  const hexes = hex_array(item.Used ? 0 : 1, 1, path);
+
+  return `<div class="clipped card limited-card">USED ${hexes.join("")}</div>`;
+}
+
 function limited_HTML(
   item: MechWeapon | MechSystem | PilotWeapon | PilotGear,
   path: string,

@@ -220,6 +220,17 @@ function resolve_enum(enum_name: string): any {
       return WeaponType;
     case "ActivationType":
       return ActivationType;
+    case "ReserveType":
+      // machine-mind and C/C don't seem to fully agree, so we're making our own for now.
+      return {
+        Resources: "Resources",
+        Resource: "Resources",
+        Tactical: "Tactical",
+        Mech: "Mech",
+        Project: "Project",
+        Organization: "Organization",
+        Bonus: "Bonus",
+      };
     default:
       console.debug("Using default enum with enum_name of ".concat(enum_name));
       return none_enum;

@@ -61,7 +61,14 @@ import {
   std_x_of_y,
   tippy_context_menu,
 } from "./commons";
-import { hex_array, limited_uses_indicator, ref_commons, ref_params, resolve_ref_element } from "./refs";
+import {
+  hex_array,
+  limited_uses_indicator,
+  ref_commons,
+  ref_params,
+  reserve_used_indicator,
+  resolve_ref_element,
+} from "./refs";
 import { ActivationOptions, ChipIcons } from "../enums";
 import type { LancerActorSheetData, LancerItemSheetData, LancerMacroData } from "../interfaces";
 import { encodeMacroData } from "../macros";
@@ -652,15 +659,13 @@ export function reserve_refview(reserve_path: string, helper: HelperOptions): st
     case ReserveType.Tactical:
       icon = "cci cci-reserve-tac";
       break;
-    default: // No
+    default:
       icon = "cci cci-reserve-tac";
       break;
   }
   let uses = "";
   if (reserve.Consumable) {
-    uses = `<div class="clipped card limited-card">
-      ${hex_array(reserve.Used ? 0 : 1, 1, reserve_path).join("")}
-    </div>`;
+    uses = reserve_used_indicator(reserve, reserve_path);
   }
 
   return `<div class="valid ${EntryType.RESERVE} ref drop-settable card clipped macroable item"
