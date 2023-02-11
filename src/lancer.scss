@@ -1368,6 +1368,12 @@ code.horus:hover {
   align-items: center;
   flex-grow: 0;
   margin: 3px 10px;
+  min-width: 3em;
+  height: 3em;
+  background: rgba(0,0,0,0.25);
+  border: 1px solid rgba(0,0,0,0.25);
+  border-radius: 5px;
+  box-shadow: 1px 1px 1px 0.6px #000000b3;
 }
 
 .system-macro {
