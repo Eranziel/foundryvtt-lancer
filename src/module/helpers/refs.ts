@@ -476,6 +476,15 @@ export function editable_mm_ref_list_item<T extends LancerItemType>(
   }
 }
 
+export function hex_array(curr: number, max: number, path: string) {
+  return [...Array(max)].map((_ele, index) => {
+    const available = index + 1 <= curr;
+    return `<a><i class="uses-hex mdi ${
+      available ? "mdi-hexagon-slice-6" : "mdi-hexagon-outline"
+    } theme--light" data-available="${available}" data-path="${path}"></i></a>`;
+  });
+}
+
 export function limited_uses_indicator(
   item: MechWeapon | MechSystem | WeaponMod | PilotWeapon | PilotGear | NpcFeature,
   path: string
@@ -483,12 +492,7 @@ export function limited_uses_indicator(
   const uses = item.Uses;
   const maxUses = item.OrigData.derived.max_uses;
 
-  const hexes = [...Array(maxUses)].map((_ele, index) => {
-    const available = index + 1 <= uses;
-    return `<a><i class="uses-hex mdi ${
-      available ? "mdi-hexagon-slice-6" : "mdi-hexagon-outline"
-    } theme--light" data-available="${available}" data-path="${path}"></i></a>`;
-  });
+  const hexes = hex_array(uses, maxUses, path);
 
   return `<div class="clipped card limited-card">USES ${hexes.join("")}</div>`;
 }
