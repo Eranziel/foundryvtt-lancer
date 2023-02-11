@@ -1,8 +1,6 @@
 /* TODO: Maybe multiple stylesheets is a good idea? Check out ITCSS and segment them by their layer */
 /* TODO: Webcomponents. Tags, cards, compact stat */
 
-@import "https://cdn.jsdelivr.net/npm/@mdi/font@5.9.55/css/materialdesignicons.min.css";
-
 /* Item/document types, useful for shorthand */
 $item-types: core_bonus environment faction frame manufacturer npc_class npc_template npc_feature weapon_mod mech_system
   mech_weapon organization pilot_armor pilot_gear pilot_weapon reserve sitrep skill status tag talent quirk;

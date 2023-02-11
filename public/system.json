@@ -24,7 +24,8 @@
   "esmodules": ["index.js"],
   "styles": [
     "style.css",
-    "fonts/compcon/glyphs.css"
+    "fonts/compcon/glyphs.css",
+    "fonts/mdi.css"
   ],
   "packs": [
     {
