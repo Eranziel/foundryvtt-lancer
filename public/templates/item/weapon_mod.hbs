@@ -42,34 +42,12 @@
       </div>
       <div class="flexcol" style="flex-basis: 33%;">
         {{{item-edit-license}}}
+        {{{item-edit-sp                   "mm.SP"}}}
+        {{#if (is-limited mm)}}
+          {{{limited-uses-indicator mm "mm"}}}
+        {{/if}}
         {{{item-edit-arrayed-enum         "Allowed Sizes"         "mm.AllowedSizes"     "WeaponSize"}}}
         {{{item-edit-arrayed-enum         "Allowed Types"         "mm.AllowedTypes"     "WeaponType"}}}
-        {{{item-edit-uses                 "mm.Uses" "data.derived.max_uses"}}}
-        {{{item-edit-sp                   "mm.SP"}}}
       </div>
-        {{!-- 
-            Fields needed for:
-            Arrayed
-              Actions -Action-
-              AddedDamage -Damage-
-              AddedRange -Range-
-              AddedTags -Tag-
-              AllowedSizes -WeaponSize-
-              AllowedTypes -WeaponType-
-              Bonuses -Bonus-
-              Counters -Counter-
-              Deployables -Deployable-
-              Synergies -Synergy-
-              Tags -Tag-
-
-            Effect
-            Integrated
-            License
-              + LicenseLevel
-            * Name
-            SP
-            Uses (?) (no max uses)
-
-          --}}
     </section>
   </form>

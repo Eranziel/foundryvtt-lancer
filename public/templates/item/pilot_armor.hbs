@@ -14,7 +14,9 @@
   
   {{!-- Uses --}}
   <div>
-      {{{item-edit-uses "mm.Uses" "mm.MaxUses"}}}
+    {{#if (is-limited mm)}}
+      {{{limited-uses-indicator mm "mm"}}}
+    {{/if}}
   </div>
 
   {{!-- Bonuses --}} 
