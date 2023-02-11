@@ -85,6 +85,7 @@ import {
   pilot_armor_slot,
   pilot_weapon_refview,
   pilot_gear_refview,
+  reserve_refview,
   license_ref,
   manufacturer_ref,
   uses_control,
@@ -425,6 +426,7 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("pilot-armor-slot", pilot_armor_slot);
   Handlebars.registerHelper("pilot-weapon-slot", pilot_weapon_refview);
   Handlebars.registerHelper("pilot-gear-slot", pilot_gear_refview);
+  Handlebars.registerHelper("reserve-slot", reserve_refview);
   Handlebars.registerHelper("counter-array", buildCounterArrayHTML);
   Handlebars.registerHelper("pilot-counters", pilot_counters);
   Handlebars.registerHelper("all-mech-preview", all_mech_preview);
