@@ -3,7 +3,7 @@
 /* ------------------------------------ */
 
 import type { HelperOptions } from "handlebars";
-import type { MechWeapon, Reserve, TagInstance } from "machine-mind";
+import { MechWeapon, Reserve, ReserveType, TagInstance } from "machine-mind";
 import {
   Action,
   ActivationType,
@@ -61,7 +61,7 @@ import {
   std_x_of_y,
   tippy_context_menu,
 } from "./commons";
-import { limited_uses_indicator, ref_commons, ref_params, resolve_ref_element } from "./refs";
+import { hex_array, limited_uses_indicator, ref_commons, ref_params, resolve_ref_element } from "./refs";
 import { ActivationOptions, ChipIcons } from "../enums";
 import type { LancerActorSheetData, LancerItemSheetData, LancerMacroData } from "../interfaces";
 import { encodeMacroData } from "../macros";
@@ -617,11 +617,56 @@ export function reserve_refview(reserve_path: string, helper: HelperOptions): st
   }
 
   let reserve = reserve_!;
+  let icon = "";
+  const resTypes = [
+    ReserveType.Mech,
+    ReserveType.Organization,
+    ReserveType.Project,
+    ReserveType.Resources,
+    ReserveType.Tactical,
+    "Resource", // machine-mind bug? Reserves from Comp/Con are Resource instead of Resources
+    "Bonus",
+  ];
+  let resType = resTypes.includes(reserve.ReserveType)
+    ? reserve.ReserveType
+    : resTypes.includes(reserve.ResourceLabel)
+    ? reserve.ResourceLabel
+    : reserve.ReserveType;
+  switch (resType) {
+    case "Bonus": // missing?
+      icon = "cci cci-accuracy";
+      break;
+    case ReserveType.Mech:
+      icon = "cci cci-reserve-mech";
+      break;
+    case ReserveType.Organization:
+      icon = "mdi mdi-account-multiple";
+      break;
+    case ReserveType.Project:
+      icon = "cci cci-orbital";
+      break;
+    case ReserveType.Resources:
+    case "Resource": // machine-mind bug?
+      icon = "cci cci-reserve-resource";
+      break;
+    case ReserveType.Tactical:
+      icon = "cci cci-reserve-tac";
+      break;
+    default: // No
+      icon = "cci cci-reserve-tac";
+      break;
+  }
+  let uses = "";
+  if (reserve.Consumable) {
+    uses = `<div class="clipped card limited-card">
+      ${hex_array(reserve.Used ? 0 : 1, 1, reserve_path).join("")}
+    </div>`;
+  }
 
   return `<div class="valid ${EntryType.RESERVE} ref drop-settable card clipped macroable item"
                 ${ref_params(cd.ref, reserve_path)} >
     <div class="lancer-header">
-      <i class="cci cci-generic-item i--m"> </i>
+      <i class="${icon} i--m"> </i>
       <a class="gear-macro macroable"><i class="mdi mdi-message"></i></a>
       <span class="minor">${reserve.Name}</span>
       <a class="lancer-context-menu" data-context-menu="${reserve.Type}" data-path="${reserve_path}"">
@@ -629,8 +674,11 @@ export function reserve_refview(reserve_path: string, helper: HelperOptions): st
       </a>
     </div>
     <div class="flexcol">
-      <div class="effect-text" style=" padding: 5px">
-        ${reserve.Description}
+      <div class="flexrow">
+        <div class="effect-text" style=" padding: 5px">
+          ${reserve.Description}
+        </div>
+        ${uses}
       </div>
     </div>
   </div>`;

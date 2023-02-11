@@ -14,6 +14,7 @@ import {
   PilotWeapon,
   RegEntry,
   RegRef,
+  Reserve,
   Skill,
   SystemType,
   Talent,
@@ -545,17 +546,26 @@ export function HANDLER_activate_uses_editor<T>(
     const params = ev.currentTarget.dataset;
     const data = await data_getter();
     if (params.path) {
-      const item = resolve_dotpath(data, params.path) as MechSystem;
+      const item = resolve_dotpath(data, params.path) as
+        | MechSystem
+        | MechWeapon
+        | WeaponMod
+        | NpcFeature
+        | PilotGear
+        | PilotWeapon
+        | Reserve;
       const available = params.available === "true";
-
-      if (available) {
-        // Deduct uses.
-        item.Uses = item.Uses > 0 ? item.Uses - 1 : 0;
+      if (item.Type === EntryType.RESERVE) {
+        item.Used = !item.Used;
       } else {
-        // Increment uses.
-        item.Uses = item.Uses < item.OrigData.derived.max_uses ? item.Uses + 1 : item.OrigData.derived.max_uses;
+        if (available) {
+          // Deduct uses.
+          item.Uses = item.Uses > 0 ? item.Uses - 1 : 0;
+        } else {
+          // Increment uses.
+          item.Uses = item.Uses < item.OrigData.derived.max_uses ? item.Uses + 1 : item.OrigData.derived.max_uses;
+        }
       }
-
       await item.writeback();
       console.debug(item);
     }
