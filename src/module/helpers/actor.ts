@@ -291,7 +291,7 @@ export function npc_clicker_stat_card(title: string, data_path: string, options:
     tier_clickers.push(`
       <div class="flexrow stat-container" style="align-self: center;">
         <i class="cci cci-npc-tier-${tier} i--m i--dark"></i>
-        ${clicker_num_input(`${data_path}.${tier - 1}`, 3, options)}
+        ${clicker_num_input(`${data_path}.${tier - 1}`, 100, options)}
       </div>`);
     tier++;
   }
