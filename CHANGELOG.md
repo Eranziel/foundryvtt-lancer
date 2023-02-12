@@ -1,3 +1,21 @@
+# 1.5.0 (2023-02-11) 
+## Features
+* #268 - Add Reserves to Pilot sheets! Thanks to dodgepong for a lot of the heavy lifting on this one!
+* #509 - Add role to NPC Class sheet.
+* Added "Scan to Journal" macro to compendium - thanks Valkyrion and Vixiea!
+* Updated "Custom Paint Job" macro for CUB/Triggler to work with v10 - thanks CSMcFarland!
+* Added feature to embed references to Lancer items from compendiums. e.g. @LancerID[mw_shotgun] - thanks Bolts! Examples:
+  * @LancerID[mf_blackbear] - reference to the Blackbeard frame item.
+  * @LancerID[mw_shotgun]{Boomstick} - reference to the GMS Shotgun mech weapon, with the embed button saying "Boomstick".
+* Use Foundry's built-in scene progress bar for displaying LCP import progress.
+## Bug Fixes
+* $469 - Fix max value on NPC Class sheet stats.
+* #486 - Fix misleading message when overheating single-stress NPCs.
+* #494 - Fix displaying bonus data twice on Core Bonus Sheet.
+* #520 - Fix bug causing actor and prototype token images to desync.
+* Migrate v9-format compendiums to v10 format.
+* Fix some errors during Comp/Con import.
+
 # 1.4.2 (2023-01-21)
 ## Features
 * #507 - Update README and welcome message to use the Lancer 3rd Party License.
