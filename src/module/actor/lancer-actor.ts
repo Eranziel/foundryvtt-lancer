@@ -243,7 +243,8 @@ export class LancerActor extends Actor {
       };
     } else {
       // You ded
-      let title = stressTableT[0];
+      // Single-stress NPCs should use the Emergency Shunt message instead
+      let title = ent.MaxStress > 1 ? stressTableT[0] : stressTableT[6];
       let text = stressTableD(0, 0, ent.MaxStress);
       templateData = {
         val: ent.CurrentStress,
