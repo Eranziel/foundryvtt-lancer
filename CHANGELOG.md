@@ -1,3 +1,9 @@
+# 1.5.1 (2023-02-12)
+## Bug Fixes
+* #521 - Fix chat button macro for reserves.
+* #522 - "Resources" was listed twice in reserve type selector.
+* Fix bug in Scan (Journal) compendium macro which caused it to fail if the token actor name had been modified.
+
 # 1.5.0 (2023-02-11) 
 ## Features
 * #268 - Add Reserves to Pilot sheets! Thanks to dodgepong for a lot of the heavy lifting on this one!
