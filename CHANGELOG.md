@@ -9,7 +9,7 @@
   * `@LancerID[mw_shotgun]{Boomstick}` - reference to the GMS Shotgun mech weapon, with the embed button saying "Boomstick".
 * Use Foundry's built-in scene progress bar for displaying LCP import progress.
 ## Bug Fixes
-* $469 - Fix max value on NPC Class sheet stats.
+* #469 - Fix max value on NPC Class sheet stats.
 * #486 - Fix misleading message when overheating single-stress NPCs.
 * #494 - Fix displaying bonus data twice on Core Bonus Sheet.
 * #520 - Fix bug causing actor and prototype token images to desync.
