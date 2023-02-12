@@ -5,8 +5,8 @@
 * Added "Scan to Journal" macro to compendium - thanks Valkyrion and Vixiea!
 * Updated "Custom Paint Job" macro for CUB/Triggler to work with v10 - thanks CSMcFarland!
 * Added feature to embed references to Lancer items from compendiums. e.g. @LancerID[mw_shotgun] - thanks Bolts! Examples:
-  * @LancerID[mf_blackbeard] - reference to the Blackbeard frame item.
-  * @LancerID[mw_shotgun]{Boomstick} - reference to the GMS Shotgun mech weapon, with the embed button saying "Boomstick".
+  * `@LancerID[mf_blackbeard]` - reference to the Blackbeard frame item.
+  * `@LancerID[mw_shotgun]{Boomstick}` - reference to the GMS Shotgun mech weapon, with the embed button saying "Boomstick".
 * Use Foundry's built-in scene progress bar for displaying LCP import progress.
 ## Bug Fixes
 * $469 - Fix max value on NPC Class sheet stats.
