@@ -856,40 +856,59 @@ export class LancerActor extends Actor {
           flags.top_level_data["token.disposition"] = this.prototypeToken?.disposition;
           flags.top_level_data["token.actorLink"] = true;
 
-          // the following block of code is version 1 to ensure all weapons are their own unique object in the registry.
-          // This is primarily to fix issues with loading weapons. I am not particularly proud of the method (maybe a bit more writing and deleting than I'd like)
-          // We iterate over every available mount, telling the registry to generate a new instance of itself, we then replace it in the mount and delete the original.
-          // This is done only to avoid messing with how the Machine Mind deals with populating the sheet.
-
-          for (let i = 0; i < mech.Loadout.WepMounts.length; i++) {
-            for (let k = 0; k < mech.Loadout.WepMounts[i].Slots.length; k++) {
-              let oldWepLocation = mech.Loadout.WepMounts[i].Slots[k];
-              //console.log(`processing mount ${i}, slot ${k} :`,oldWepLocation)
-              let newWep =
-                (await oldWepLocation.Weapon?.Registry.create_live(
-                  EntryType.MECH_WEAPON,
-                  oldWepLocation.Weapon.OpCtx,
-                  oldWepLocation.Weapon.OrigData
-                )) || null;
-              //console.log("Our brand new weapon: ", newWep)
-              oldWepLocation.Weapon?.Registry.delete(EntryType.MECH_WEAPON, oldWepLocation.Weapon.RegistryID);
-              oldWepLocation.Weapon = newWep;
+          // Ensure each mounted weapon and mod is a unique instance, so that loaded/limited/etc... is tracked individually
+          const mounted: { weps: MechWeapon[]; mods: WeaponMod[] } = { weps: [], mods: [] };
+          for (const mount of mech.Loadout.WepMounts) {
+            for (const slot of mount.Slots) {
+              if (slot.Weapon) {
+                // Check to see if this weapon was found in another mount already
+                if (mounted.weps.find(w => w.RegistryID === slot.Weapon?.RegistryID)) {
+                  // Replace the weapon with a distinct copy
+                  let newWep =
+                    (await slot.Weapon?.Registry.create_live(
+                      EntryType.MECH_WEAPON,
+                      slot.Weapon.OpCtx,
+                      slot.Weapon.OrigData
+                    )) || null;
+                  slot.Weapon = newWep;
+                } else {
+                  // If this unique weapon hasn't been encountered before, add it to the array.
+                  mounted.weps.push(slot.Weapon);
+                }
+              }
+              if (slot.Mod) {
+                mounted.mods.push(slot.Mod);
+                // Check to see if this mod was found in another mount already
+                if (mounted.mods.find(m => m.RegistryID === slot.Mod?.RegistryID)) {
+                  // Replace the weapon with a distinct copy
+                  let newMod =
+                    (await slot.Mod?.Registry.create_live(EntryType.WEAPON_MOD, slot.Mod.OpCtx, slot.Mod.OrigData)) ||
+                    null;
+                  slot.Mod = newMod;
+                } else {
+                  // If this unique mod hasn't been encountered before, add it to the array.
+                  mounted.mods.push(slot.Mod);
+                }
+              }
             }
           }
-
-          // We proceed to do a similar process for the mech systems. This is to ensure non-unique systems can be disabled individually on the mech sheet
-          for (let i = 0; i < mech.Loadout.SysMounts.length; i++) {
-            let oldSystemLocation = mech.Loadout.SysMounts[i];
-            let newSys =
-              (await oldSystemLocation.System?.Registry.create_live(
-                EntryType.MECH_SYSTEM,
-                oldSystemLocation.System.OpCtx,
-                oldSystemLocation.System.OrigData
-              )) || null;
-            oldSystemLocation.System?.Registry.delete(EntryType.MECH_SYSTEM, oldSystemLocation.System.RegistryID);
-            oldSystemLocation.System = newSys;
+          // Likewise, ensure all systems have unique instances.
+          const mountedSys: MechSystem[] = [];
+          for (const sysMount of mech.Loadout.SysMounts) {
+            if (!sysMount.System) continue;
+            if (mountedSys.find(s => s.RegistryID === sysMount.System?.RegistryID)) {
+              let newSys =
+                (await sysMount.System?.Registry.create_live(
+                  EntryType.MECH_SYSTEM,
+                  sysMount.System.OpCtx,
+                  sysMount.System.OrigData
+                )) || null;
+              sysMount.System = newSys;
+            } else {
+              mountedSys.push(sysMount.System);
+            }
           }
-
+          // Save new copies of weapons, mods, and systems.
           await mech.writeback();
 
           // If we've got a frame (which we should) check for setting Retrograde image
