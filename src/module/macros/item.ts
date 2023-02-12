@@ -94,6 +94,26 @@ export async function prepareItemMacro(a: string, i: string, options?: any) {
       await rollTextMacro(actor, CBdata);
       break;
       */
+    case EntryType.RESERVE:
+      let reserveData: LancerTextMacroData = {
+        // @ts-expect-error Should be fixed with v10 types
+        title: `RESERVE :: ${item.system.resource_name ? item.system.resource_name : item.name}`,
+        // @ts-expect-error Should be fixed with v10 types
+        description: (item.system.label ? `<b>${item.system.label}</b></br>` : "") + item.system.description,
+        item_id: item.id!,
+      };
+      // @ts-expect-error Should be fixed with v10 types
+      if (item.system.resource_cost) {
+        // @ts-expect-error Should be fixed with v10 types
+        reserveData.description += `</br>${item.system.resource_cost}`;
+      }
+      // @ts-expect-error Should be fixed with v10 types
+      if (item.system.resource_notes) {
+        // @ts-expect-error Should be fixed with v10 types
+        reserveData.description += `</br><b>Note:</b>${item.system.resource_notes}`;
+      }
+      await rollTextMacro(actor, reserveData);
+      break;
     case EntryType.NPC_FEATURE:
       // @ts-expect-error Should be fixed with v10 types
       switch (item.system.type) {

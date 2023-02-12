@@ -223,7 +223,6 @@ function resolve_enum(enum_name: string): any {
     case "ReserveType":
       // machine-mind and C/C don't seem to fully agree, so we're making our own for now.
       return {
-        Resources: "Resources",
         Resource: "Resources",
         Tactical: "Tactical",
         Mech: "Mech",

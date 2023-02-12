@@ -672,7 +672,7 @@ export function reserve_refview(reserve_path: string, helper: HelperOptions): st
                 ${ref_params(cd.ref, reserve_path)} >
     <div class="lancer-header">
       <i class="${icon} i--m"> </i>
-      <a class="gear-macro macroable"><i class="mdi mdi-message"></i></a>
+      <a class="reserve-macro macroable"><i class="mdi mdi-message"></i></a>
       <span class="minor">${reserve.Name}</span>
       <a class="lancer-context-menu" data-context-menu="${reserve.Type}" data-path="${reserve_path}"">
         <i class="fas fa-ellipsis-v"></i>
