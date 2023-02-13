@@ -353,12 +353,13 @@ export function single_action_editor(path: string, options: HelperOptions) {
 // Helper for showing a piece of armor, or a slot to hold it (if path is provided)
 export function pilot_armor_slot(armor_path: string, helper: HelperOptions): string {
   // Fetch the item
-  let armor: LancerPILOT_ARMOR | null = resolve_helper_dotpath(helper, armor_path);
+  let armor: SystemTemplates.ResolvedEmbeddedRef<LancerPILOT_ARMOR> = resolve_helper_dotpath(helper, armor_path);
 
   // Generate commons
-  if (!armor) {
+  if (!armor.value) {
     // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
     return `<div class="${EntryType.PILOT_ARMOR} ref drop-settable card" 
+                        data-mode="embed-ref"
                         data-path="${armor_path}" 
                         data-type="${EntryType.PILOT_ARMOR}">
           <img class="ref-icon" src="${TypeIcon(EntryType.PILOT_ARMOR)}"></img>
@@ -367,18 +368,19 @@ export function pilot_armor_slot(armor_path: string, helper: HelperOptions): str
   }
 
   // Need to look in bonuses to find what we need
-  let armor_val = armor.system.bonuses.find(b => b.lid == "pilot_armor")?.val ?? "0";
-  let speed_val = armor.system.bonuses.find(b => b.lid == "pilot_speed")?.val ?? "0";
-  let edef_val = armor.system.bonuses.find(b => b.lid == "pilot_edef")?.val ?? "0";
-  let eva_val = armor.system.bonuses.find(b => b.lid == "pilot_evasion")?.val ?? "0";
-  let hp_val = armor.system.bonuses.find(b => b.lid == "pilot_hp")?.val ?? "0";
+  let bonuses = armor.value.system.bonuses;
+  let armor_val = bonuses.find(b => b.lid == "pilot_armor")?.val ?? "0";
+  let speed_val = bonuses.find(b => b.lid == "pilot_speed")?.val ?? "0";
+  let edef_val = bonuses.find(b => b.lid == "pilot_edef")?.val ?? "0";
+  let eva_val = bonuses.find(b => b.lid == "pilot_evasion")?.val ?? "0";
+  let hp_val = bonuses.find(b => b.lid == "pilot_hp")?.val ?? "0";
 
-  return `<div class="valid ref drop-settable card clipped pilot-armor-compact item" 
-                ${ref_params(armor, armor_path)} >
+  return `<div class="valid ref drop-settable card clipped pilot-armor-compact item" data-mode="embed-ref"
+                ${ref_params(armor.value, armor_path)} >
             <div class="lancer-header">
               <i class="mdi mdi-shield-outline i--m i--light"> </i>
-              <span class="minor">${armor!.name}</span>
-              <a class="lancer-context-menu" data-context-menu="${armor.type}" data-path="${armor_path}"">
+              <span class="minor">${armor.value.name}</span>
+              <a class="lancer-context-menu" data-context-menu="${armor.value.type}" data-path="${armor_path}"">
                 <i class="fas fa-ellipsis-v"></i>
               </a>
             </div>
@@ -405,23 +407,27 @@ export function pilot_armor_slot(armor_path: string, helper: HelperOptions): str
               </div>
             </div>
             <div class="effect-text" style=" padding: 5px">
-              ${armor.system.description}
+              ${armor.value.system.description}
             </div>
-            ${compact_tag_list(armor_path + ".Tags", armor.system.tags, false)}
+            ${compact_tag_list(armor_path + ".Tags", armor.value.system.tags, false)}
           </div>`;
 }
 
 // Helper for showing a pilot weapon, or a slot to hold it (if path is provided)
 export function pilot_weapon_refview(weapon_path: string, helper: HelperOptions): string {
   // Fetch the item
-  let weapon: LancerPILOT_WEAPON | null = resolve_helper_dotpath(helper, weapon_path);
+  let weapon: SystemTemplates.ResolvedEmbeddedRef<LancerPILOT_WEAPON> | null = resolve_helper_dotpath(
+    helper,
+    weapon_path
+  );
 
   // Generate commons
-  if (!weapon) {
+  if (!weapon?.value) {
     // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
     return `<div class="${EntryType.PILOT_WEAPON} ref drop-settable card flexrow" 
                         data-path="${weapon_path}" 
-                        data-type="${EntryType.PILOT_WEAPON}">
+                        data-type="${EntryType.PILOT_WEAPON}"
+                        data-mode="embed-ref">
           <img class="ref-icon" src="${TypeIcon(EntryType.PILOT_WEAPON)}"></img>
           <span class="major">Equip weapon</span>
       </div>`;
@@ -429,23 +435,24 @@ export function pilot_weapon_refview(weapon_path: string, helper: HelperOptions)
 
   let loading = "";
   // Generate loading segment as needed
-  if (weapon.system.tags.some(t => t.is_loading)) {
-    loading = loading_indicator(weapon.system.loaded, weapon_path);
+  if (weapon.value.system.tags.some(t => t.is_loading)) {
+    loading = loading_indicator(weapon.value.system.loaded, weapon_path);
   }
   // Generate limited segment as needed
   let limited = "";
-  if (weapon.system.tags.some(t => t.is_limited)) {
-    limited_uses_indicator(weapon, weapon_path);
+  if (weapon.value.system.tags.some(t => t.is_limited)) {
+    limited_uses_indicator(weapon.value, weapon_path);
   }
 
   return `<div class="valid ${
     EntryType.PILOT_WEAPON
   } ref drop-settable card clipped pilot-weapon-compact item macroable"
-                ${ref_params(weapon, weapon_path)} >
+                ${ref_params(weapon.value, weapon_path)} 
+                data-mode="embed-ref">
     <div class="lancer-header">
       <i class="cci cci-weapon i--m i--light"> </i>
-      <span class="minor">${weapon.name}</span>
-              <a class="lancer-context-menu" data-context-menu="${weapon.type}" data-path="${weapon_path}"">
+      <span class="minor">${weapon.value.name}</span>
+              <a class="lancer-context-menu" data-context-menu="${weapon.value.type}" data-path="${weapon_path}"">
                 <i class="fas fa-ellipsis-v"></i>
               </a>
     </div>
@@ -455,9 +462,9 @@ export function pilot_weapon_refview(weapon_path: string, helper: HelperOptions)
           <i class="fas fa-dice-d20 i--sm i--dark"></i>
           
         </a>
-        ${show_range_array(weapon.system.range, helper)}
+        ${show_range_array(weapon.value.system.range, helper)}
         <hr class="vsep">
-        ${show_damage_array(weapon.system.damage, helper)}
+        ${show_damage_array(weapon.value.system.damage, helper)}
         
         ${inc_if(`<hr class="vsep"><div class="uses-wrapper">`, loading || limited)}
         <!-- Loading toggle, if we are loading-->
@@ -467,7 +474,7 @@ export function pilot_weapon_refview(weapon_path: string, helper: HelperOptions)
         ${inc_if(`</div>`, loading || limited)}
       </div>
 
-      ${compact_tag_list(weapon_path + ".system.tags", weapon.system.tags, false)}
+      ${compact_tag_list(weapon_path + ".system.tags", weapon.value.system.tags, false)}
     </div>
   </div>`;
 }

@@ -205,10 +205,12 @@ export namespace SystemTemplates {
   export type ResolvedEmbeddedRef<T> =
     | {
         status: "resolved"; // Resolved successfully! Value should be usable
+        id: string;
         value: T;
       }
     | {
         status: "missing"; // Was unable to resolve successfully. This indicates an invalid ref that should be purged
+        id: string;
         value: null;
       };
   export type ResolvedSyncUuidRef<T> = ResolvedEmbeddedRef<T>;
@@ -218,6 +220,7 @@ export namespace SystemTemplates {
     | ResolvedEmbeddedRef<T>
     | {
         status: "async"; // Was unable to resolve synchronously, but as of yet may be resolved as a promise. Oftentimes, we will choose to ignore the async possible
+        id: string;
         value: Promise<T>;
       };
 }

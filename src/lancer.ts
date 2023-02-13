@@ -166,6 +166,9 @@ import { DeployableModel } from "./module/models/actors/deployable";
 import { TalentModel } from "./module/models/items/talent";
 import { fulfillImportActor } from "./module/util/requests";
 import { lookupOwnedDeployables } from "./module/util/lid";
+import { PilotArmorModel } from "./module/models/items/pilot_armor";
+import { PilotGearModel } from "./module/models/items/pilot_gear";
+import { PilotWeaponModel } from "./module/models/items/pilot_weapon";
 
 const lp = LANCER.log_prefix;
 
@@ -183,6 +186,12 @@ Hooks.once("init", async function () {
   // game.documentTypes.Item.forEach(type => CONFIG.Item.systemDataModels[type] = MyItemModel);
   // @ts-expect-error
   game.documentTypes.Item.forEach(type => (CONFIG.Item.compendiumIndexFields = ["lid"]));
+  // @ts-expect-error
+  CONFIG.Item.systemDataModels[EntryType.PILOT_ARMOR] = PilotArmorModel;
+  // @ts-expect-error
+  CONFIG.Item.systemDataModels[EntryType.PILOT_GEAR] = PilotGearModel;
+  // @ts-expect-error
+  CONFIG.Item.systemDataModels[EntryType.PILOT_WEAPON] = PilotWeaponModel;
   // @ts-expect-error
   CONFIG.Item.systemDataModels[EntryType.CORE_BONUS] = CoreBonusModel;
   // @ts-expect-error

@@ -5,7 +5,12 @@ import { get_pack } from "./util/doc";
 import type { LancerActor } from "./actor/lancer-actor";
 import { LancerItem } from "./item/lancer-item";
 import { EntryType } from "./enums";
-import { IContentPack } from "./util/unpacking/packed-types";
+import {
+  IContentPack,
+  PackedPilotArmorData,
+  PackedPilotGearData,
+  PackedPilotWeaponData,
+} from "./util/unpacking/packed-types";
 import { UnpackContext } from "./models/shared";
 import { unpackMechWeapon } from "./models/items/mech_weapon";
 import { unpackFrame } from "./models/items/frame";
@@ -13,6 +18,9 @@ import { unpackMechSystem } from "./models/items/mech_system";
 import { unpackCoreBonus } from "./models/items/core_bonus";
 import { TagData, TagTemplateData, unpackTag, unpackTagTemplate } from "./models/bits/tag";
 import { unpackTalent } from "./models/items/talent";
+import { unpackPilotArmor } from "./models/items/pilot_armor";
+import { unpackPilotGear } from "./models/items/pilot_gear";
+import { unpackPilotWeapon } from "./models/items/pilot_weapon";
 
 export const PACK_SCOPE = "world";
 
@@ -92,7 +100,17 @@ export async function importCP(
     let allNpcClasses = [];
     let allNpcFeatures = [];
     let allNpcTemplates = [];
-    let allPilotGear = [];
+    let allPilotArmor =
+      cp.data.pilotGear
+        ?.filter(g => g.type == "Armor")
+        .map(pa => unpackPilotArmor(pa as PackedPilotArmorData, context)) ?? [];
+    let allPilotGear =
+      cp.data.pilotGear?.filter(g => g.type == "Gear").map(pa => unpackPilotGear(pa as PackedPilotGearData, context)) ??
+      [];
+    let allPilotWeapons =
+      cp.data.pilotGear
+        ?.filter(g => g.type == "Weapon")
+        .map(pa => unpackPilotWeapon(pa as PackedPilotWeaponData, context)) ?? [];
     let allReserves = [];
     let allSkills = [];
     let allStatuses = [];
@@ -102,6 +120,9 @@ export async function importCP(
     let allWeapons = cp.data.weapons?.map(d => unpackMechWeapon(d, context)) ?? [];
 
     // Get creating
+    await CONFIG.Item.documentClass.createDocuments(allPilotArmor, { pack: `world.${EntryType.PILOT_ARMOR}` });
+    await CONFIG.Item.documentClass.createDocuments(allPilotGear, { pack: `world.${EntryType.PILOT_GEAR}` });
+    await CONFIG.Item.documentClass.createDocuments(allPilotWeapons, { pack: `world.${EntryType.PILOT_WEAPON}` });
     await CONFIG.Item.documentClass.createDocuments(allCoreBonuses, { pack: `world.${EntryType.CORE_BONUS}` });
     await CONFIG.Item.documentClass.createDocuments(allFrames, { pack: `world.${EntryType.FRAME}` });
     await CONFIG.Item.documentClass.createDocuments(allSystems, { pack: `world.${EntryType.MECH_SYSTEM}` });

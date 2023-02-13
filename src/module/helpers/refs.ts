@@ -322,7 +322,7 @@ export function item_preview<T extends LancerItemType>(
       if (doc.system.ranks[i].actions) {
         talent_actions = doc.system.ranks[i].actions
           .map(a => {
-            return buildActionHTML(a, { full: true, num: (doc as LancerTALENT).system.actions.indexOf(a) });
+            return buildActionHTML(a, { full: true, num: (doc as LancerTALENT).system.ranks[i].actions.indexOf(a) });
           })
           .join("");
       }
@@ -580,8 +580,6 @@ export function HANDLER_activate_ref_slot_dropping(
     }
 
     // Check allows
-    console.log("Checking allowance");
-    console.log(types, (drop.document as any).type);
     if (types && !types.includes((drop.document as any).type ?? "err")) {
       return;
     }

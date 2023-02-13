@@ -50,14 +50,14 @@ export interface PackedSkillData {
 }
 
 export interface PackedDamageData {
-  type: DamageType;
-  val: string | number;
+  type?: DamageType;
+  val?: string | number;
   override?: boolean; // If player can set the damage of this, I guess????
 }
 
 export interface PackedRangeData {
-  type: RangeType;
-  val: number;
+  type?: RangeType;
+  val?: string | number;
 }
 
 export interface PackedBonusData {

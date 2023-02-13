@@ -261,31 +261,31 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
     if (drop.type == "Item") {
       // Handle all pilot item types
       if (drop.document.is_pilot_weapon()) {
-        // If new weapon, try to equip to first empty slot
-        for (let i = 0; i < loadout.weapons.length; i++) {
+        // If new weapon, try to equip to first empty slot / first post slot
+        for (let i = 0; i <= loadout.weapons.length; i++) {
           if (!loadout.weapons[i]) {
             await pilot.update({
-              [`system.loadout.weapons.${i}`]: drop.document.uuid,
+              [`system.loadout.weapons.${i}`]: drop.document.id,
             });
             break;
           }
         }
       } else if (drop.document.is_pilot_gear()) {
-        // If new gear, try to equip to first empty slot
-        for (let i = 0; i < loadout.gear.length; i++) {
+        // If new gear, try to equip to first empty slot / first post slot
+        for (let i = 0; i <= loadout.gear.length; i++) {
           if (!loadout.gear[i]) {
             await pilot.update({
-              [`system.loadout.gear.${i}`]: drop.document.uuid,
+              [`system.loadout.gear.${i}`]: drop.document.id,
             });
             break;
           }
         }
       } else if (drop.document.is_pilot_armor()) {
-        // If new armor, try to equip to first empty slot
-        for (let i = 0; i < loadout.armor.length; i++) {
+        // If new armor, try to equip to first empty slot / first post slot
+        for (let i = 0; i <= loadout.armor.length; i++) {
           if (!loadout.armor[i]) {
             await pilot.update({
-              [`system.loadout.armor.${i}`]: drop.document.uuid,
+              [`system.loadout.armor.${i}`]: drop.document.id,
             });
             break;
           }
