@@ -777,7 +777,7 @@ export function read_form(form_element: HTMLFormElement): Record<string, string 
   // @ts-ignore The typings don't yet include this utility class
   let form_data = new FormDataExtended(form_element);
   // @ts-ignore We may want to double check this, but it's probably fine
-  return form_data.toObject();
+  return form_data.object();
 }
 
 /** Clip paths kill native foundry context menus. Mix our own!

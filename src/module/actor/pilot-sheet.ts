@@ -324,32 +324,18 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
 export function pilot_counters(pilot: LancerPILOT, _helper: HelperOptions): string {
   let counter_detail = "";
 
-  /*
   let counter_arr = pilot.system.custom_counters;
-  let custom_path = "mm.CustomCounters";
 
   for (let i = 0; i < counter_arr.length; i++) {
     // Only allow deletion if the Pilot is the source
     const counter = counter_arr[i];
     if (counter.max != null) {
       if (counter.max <= COUNTER_MAX) {
-        counter_detail = counter_detail.concat(
-          buildCounterHTML(
-            counter,
-            `mm.PilotCounters.${i}.counter`,
-            `mm.PilotCounters.${i}.source`,
-            counter_arr[i] === pilot
-          )
-        );
+        counter_detail = counter_detail.concat(buildCounterHTML(counter, `system.custom_counters.${i}`, true));
       } else {
         counter_detail = counter_detail.concat(
-          buildCounterHeader(
-            counter,
-            `mm.PilotCounters.${i}.counter`,
-            `mm.PilotCounters.${i}.source`,
-            counter_arr[i] === pilot
-          ),
-          clicker_num_input(`mm.PilotCounters.${i}.counter.Value`, counter.Max, _helper),
+          buildCounterHeader(counter, `system.custom_counters.${i}`, true),
+          clicker_num_input(`system.custom_counters.${i}.val`, _helper),
           "</div>"
         );
       }
@@ -360,15 +346,12 @@ export function pilot_counters(pilot: LancerPILOT, _helper: HelperOptions): stri
   <div class="card clipped double">
     <span class="lancer-header submajor" style="padding-right: 5px">
       <span>COUNTERS</span>
-      <a class="gen-control fas fa-plus" data-action="append" data-path="${custom_path}" data-action-value="(struct)counter"></a>
+      <a class="gen-control fas fa-plus" data-action="append" data-path="system.custom_counters" data-action-value="(struct)counter"></a>
     </span>
     <div class="wraprow double">
       ${counter_detail}
     </div>
   </div>`;
-  */
-  // TODO
-  return "";
 }
 
 export function all_mech_preview(_helper: HelperOptions): string {
