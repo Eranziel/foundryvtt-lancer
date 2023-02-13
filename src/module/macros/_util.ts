@@ -31,8 +31,10 @@ export function getMacroSpeaker(provActor?: string | LancerActor): LancerActor |
     if (actor) return actor;
   }
 
-  console.log("Couldn't resolve:", provActor);
-  ui.notifications!.warn(`Failed to find Actor for macro. Do you need to select a token?`);
+  if (!provActor || !actor) {
+    console.log("Couldn't resolve:", provActor);
+    ui.notifications!.warn(`Failed to find Actor for macro. Do you need to select a token?`);
+  }
 
-  return actor;
+  return game.user?.character; // I guess???
 }

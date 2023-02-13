@@ -5,9 +5,9 @@ import { prepareTextMacro } from "./text";
 
 const lp = LANCER.log_prefix;
 
-export function fullRepairMacro(a: string) {
+export function fullRepairMacro(actorUUID: string) {
   // Determine which Actor to speak as
-  let actor = getMacroSpeaker(a);
+  let actor = getMacroSpeaker(actorUUID);
   if (!actor) return Promise.reject();
 
   return new Promise<boolean>((resolve, reject) => {
@@ -25,7 +25,7 @@ export function fullRepairMacro(a: string) {
             }
 
             await actor.full_repair();
-            prepareTextMacro(a, "REPAIRED", `Notice: ${actor.name} has been fully repaired.`);
+            prepareTextMacro(actorUUID, "REPAIRED", `Notice: ${actor.name} has been fully repaired.`);
             resolve(true);
           },
         },

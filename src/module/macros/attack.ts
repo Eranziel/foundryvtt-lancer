@@ -66,14 +66,14 @@ export async function prepareEncodedAttackMacro(
   options?: AttackMacroOptions,
   rerollData?: AccDiffDataSerialized
 ) {
-  let actor = LancerActor.fromUuidSync(actorUUID);
+  let actor = getMacroSpeaker(actorUUID)!;
   let item = itemUUID ? LancerItem.fromUuidSync(itemUUID) : null;
   let { AccDiffData } = await import("../helpers/acc_diff");
   let accdiff = rerollData ? AccDiffData.fromObject(rerollData, item ?? actor) : undefined;
   if (item) {
     return prepareAttackMacro({ actor, item, options }, accdiff);
   } else {
-    return openBasicAttack(accdiff);
+    return openBasicAttack(actor, accdiff);
   }
 }
 
@@ -276,7 +276,7 @@ export async function prepareAttackMacro(
   await rollAttackMacro(actor, atkRolls, macroData, rerollMacro);
 }
 
-export async function openBasicAttack(rerollData?: AccDiffData) {
+export async function openBasicAttack(actor: string | LancerActor, rerollData?: AccDiffData) {
   let { isOpen, open } = await import("../helpers/slidinghud");
 
   // if the hud is already open, and we're not overriding with new reroll data, just bail out
@@ -287,7 +287,7 @@ export async function openBasicAttack(rerollData?: AccDiffData) {
 
   let { AccDiffData } = await import("../helpers/acc_diff");
 
-  let actor = getMacroSpeaker();
+  actor = getMacroSpeaker(actor)!;
 
   let data =
     rerollData ?? AccDiffData.fromParams(actor, undefined, "Basic Attack", Array.from(game!.user!.targets), undefined);
@@ -296,12 +296,6 @@ export async function openBasicAttack(rerollData?: AccDiffData) {
   try {
     promptedData = await open("attack", data);
   } catch (_e) {
-    return;
-  }
-
-  actor = actor ?? getMacroSpeaker();
-  if (!actor) {
-    ui.notifications!.error("Can't find unit to attack as. Please select a token.");
     return;
   }
 
