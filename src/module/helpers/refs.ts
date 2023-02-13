@@ -462,7 +462,7 @@ export function HANDLER_add_doc_to_list_on_drop<T>(html: JQuery, root_doc: Lance
     // Gather context information
     let path = evt[0].dataset.path;
     let mode = evt[0].dataset.mode as "embed-ref" | "uuid-ref";
-    let allowed_items_raw = evt[0].dataset.type ?? "";
+    let allowed_items_raw = evt[0].dataset.acceptTypes ?? "";
 
     // Check type is allowed type
     if (allowed_items_raw && !allowed_items_raw.includes(rdd.document.type)) return;

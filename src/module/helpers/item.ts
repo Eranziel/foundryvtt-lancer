@@ -353,15 +353,15 @@ export function single_action_editor(path: string, options: HelperOptions) {
 // Helper for showing a piece of armor, or a slot to hold it (if path is provided)
 export function pilot_armor_slot(armor_path: string, helper: HelperOptions): string {
   // Fetch the item
-  let armor: SystemTemplates.ResolvedEmbeddedRef<LancerPILOT_ARMOR> = resolve_helper_dotpath(helper, armor_path);
+  let armor: SystemTemplates.ResolvedEmbeddedRef<LancerPILOT_ARMOR> | null = resolve_helper_dotpath(helper, armor_path);
 
   // Generate commons
-  if (!armor.value) {
+  if (!armor?.value) {
     // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
     return `<div class="${EntryType.PILOT_ARMOR} ref drop-settable card" 
                         data-mode="embed-ref"
                         data-path="${armor_path}" 
-                        data-type="${EntryType.PILOT_ARMOR}">
+                        data-accept-types="${EntryType.PILOT_ARMOR}">
           <img class="ref-icon" src="${TypeIcon(EntryType.PILOT_ARMOR)}"></img>
           <span class="major">Equip armor</span>
       </div>`;
@@ -375,8 +375,11 @@ export function pilot_armor_slot(armor_path: string, helper: HelperOptions): str
   let eva_val = bonuses.find(b => b.lid == "pilot_evasion")?.val ?? "0";
   let hp_val = bonuses.find(b => b.lid == "pilot_hp")?.val ?? "0";
 
-  return `<div class="valid ref drop-settable card clipped pilot-armor-compact item" data-mode="embed-ref"
-                ${ref_params(armor.value, armor_path)} >
+  return `<div class="valid ref drop-settable card clipped pilot-armor-compact item" 
+                ${ref_params(armor.value, armor_path)} 
+                data-mode="embed-ref"
+                data-accept-types="${EntryType.PILOT_ARMOR}"
+                >
             <div class="lancer-header">
               <i class="mdi mdi-shield-outline i--m i--light"> </i>
               <span class="minor">${armor.value.name}</span>
@@ -426,7 +429,7 @@ export function pilot_weapon_refview(weapon_path: string, helper: HelperOptions)
     // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
     return `<div class="${EntryType.PILOT_WEAPON} ref drop-settable card flexrow" 
                         data-path="${weapon_path}" 
-                        data-type="${EntryType.PILOT_WEAPON}"
+                        data-accept-types="${EntryType.PILOT_WEAPON}"
                         data-mode="embed-ref">
           <img class="ref-icon" src="${TypeIcon(EntryType.PILOT_WEAPON)}"></img>
           <span class="major">Equip weapon</span>
@@ -448,6 +451,7 @@ export function pilot_weapon_refview(weapon_path: string, helper: HelperOptions)
     EntryType.PILOT_WEAPON
   } ref drop-settable card clipped pilot-weapon-compact item macroable"
                 ${ref_params(weapon.value, weapon_path)} 
+                data-accept-types="${EntryType.PILOT_WEAPON}"
                 data-mode="embed-ref">
     <div class="lancer-header">
       <i class="cci cci-weapon i--m i--light"> </i>
@@ -482,13 +486,17 @@ export function pilot_weapon_refview(weapon_path: string, helper: HelperOptions)
 // Helper for showing a pilot gear, or a slot to hold it (if path is provided)
 export function pilot_gear_refview(gear_path: string, helper: HelperOptions): string {
   // Fetch the item
-  let gear = resolve_dotpath(helper.data?.root, gear_path) as LancerPILOT_GEAR | null;
+  let gear = resolve_dotpath(
+    helper.data?.root,
+    gear_path
+  ) as SystemTemplates.ResolvedEmbeddedRef<LancerPILOT_GEAR> | null;
 
-  if (!gear) {
+  if (!gear?.value) {
     // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
     return `<div class="${EntryType.PILOT_GEAR} ref drop-settable card flexrow" 
                         data-path="${gear_path}" 
-                        data-type="${EntryType.PILOT_GEAR}">
+                        data-accept-types="${EntryType.PILOT_GEAR}"
+                        data-mode="embed-ref">
           <img class="ref-icon" src="${TypeIcon(EntryType.PILOT_GEAR)}"></img>
           <span class="major">Equip gear</span>
       </div>`;
@@ -496,17 +504,19 @@ export function pilot_gear_refview(gear_path: string, helper: HelperOptions): st
 
   // Conditionally show uses
   let uses = "";
-  if (gear.get_limited()) {
-    uses = limited_uses_indicator(gear, gear_path);
+  if (gear.value.get_limited()) {
+    uses = limited_uses_indicator(gear.value, gear_path);
   }
 
   return `<div class="valid ${EntryType.PILOT_GEAR} ref drop-settable card clipped macroable item"
-                ${ref_params(gear, gear_path)} >
+                ${ref_params(gear.value, gear_path)} 
+                data-accept-types="${EntryType.PILOT_GEAR}"
+                data-mode="embed-ref">
     <div class="lancer-header">
       <i class="cci cci-generic-item i--m"> </i>
       <a class="gear-macro macroable"><i class="mdi mdi-message"></i></a>
-      <span class="minor">${gear.name}</span>
-      <a class="lancer-context-menu" data-context-menu="${gear.type}" data-path="${gear_path}"">
+      <span class="minor">${gear.value.name!}</span>
+      <a class="lancer-context-menu" data-context-menu="${gear.value.type}" data-path="${gear_path}"">
         <i class="fas fa-ellipsis-v"></i>
       </a>
     </div>
@@ -516,10 +526,10 @@ export function pilot_gear_refview(gear_path: string, helper: HelperOptions): st
       </div>
 
       <div class="effect-text" style=" padding: 5px">
-        ${gear.system.description}
+        ${gear.value.system.description}
       </div>
 
-      ${compact_tag_list(gear_path + ".Tags", gear.system.tags, false)}
+      ${compact_tag_list(gear_path + ".value.system.tags", gear.value.system.tags, false)}
     </div>
   </div>`;
 }

@@ -1322,24 +1322,24 @@ export class LancerActor extends Actor {
       let currLoadout = this.system.loadout;
       // Fairly simple
       cleanupLoadout.armor = cleanupLoadout.armor.filter((_, index) => {
-        if (currLoadout.armor[index].status == "missing") {
-          killedIds.push(currLoadout.armor[index].id);
+        if (currLoadout.armor[index]?.status == "missing") {
+          killedIds.push(currLoadout.armor[index]!.id);
           return false;
         } else {
           return true;
         }
       });
       cleanupLoadout.gear = cleanupLoadout.gear.filter((_, index) => {
-        if (currLoadout.gear[index].status == "missing") {
-          killedIds.push(currLoadout.gear[index].id);
+        if (currLoadout.gear[index]?.status == "missing") {
+          killedIds.push(currLoadout.gear[index]!.id);
           return false;
         } else {
           return true;
         }
       });
       cleanupLoadout.weapons = cleanupLoadout.weapons.filter((_, index) => {
-        if (currLoadout.weapons[index].status == "missing") {
-          killedIds.push(currLoadout.weapons[index].id);
+        if (currLoadout.weapons[index]?.status == "missing") {
+          killedIds.push(currLoadout.weapons[index]!.id);
           return false;
         } else {
           return true;

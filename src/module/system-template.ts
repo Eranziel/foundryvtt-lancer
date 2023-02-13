@@ -499,9 +499,9 @@ export namespace SystemData {
     last_cloud_update: string;
     level: number;
     loadout: {
-      armor: SystemTemplates.ResolvedEmbeddedRef<LancerPILOT_ARMOR>[];
-      gear: SystemTemplates.ResolvedEmbeddedRef<LancerPILOT_GEAR>[];
-      weapons: SystemTemplates.ResolvedEmbeddedRef<LancerPILOT_WEAPON>[];
+      armor: Array<SystemTemplates.ResolvedEmbeddedRef<LancerPILOT_ARMOR> | null>;
+      gear: Array<SystemTemplates.ResolvedEmbeddedRef<LancerPILOT_GEAR> | null>;
+      weapons: Array<SystemTemplates.ResolvedEmbeddedRef<LancerPILOT_WEAPON> | null>;
     };
 
     // HASE is from universal
