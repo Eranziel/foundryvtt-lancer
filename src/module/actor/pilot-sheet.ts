@@ -250,7 +250,6 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
 
   async onRootDrop(base_drop: ResolvedDropData, event: JQuery.DropEvent, _dest: JQuery<HTMLElement>): Promise<void> {
     if (!this.actor.is_pilot()) return; // Just for types really
-    let sheet_data = await this.getData();
 
     // Take posession
     let [drop, is_new] = await this.quickOwnDrop(base_drop);

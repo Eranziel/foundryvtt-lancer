@@ -106,7 +106,7 @@ export function HANDLER_enable_doc_dropping(
 
       // It is guaranteed to be acceptable to our can_drop function and basic type checks, so we
       // don't want it to propagate any further
-      event.stopPropagation();
+      event.stopImmediatePropagation();
       event.preventDefault();
       drop_handler(rdd!, item, event);
     });

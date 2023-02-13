@@ -12,19 +12,7 @@ import * as defaults from "../util/unpacking/defaults";
 import { PackedPilotData } from "../util/unpacking/packed-types";
 import { getAutomationOptions } from "../settings";
 import { pilot_downstream_effects } from "../effects/converter";
-import {
-  LancerFRAME,
-  LancerItem,
-  LancerMECH_SYSTEM,
-  LancerMECH_WEAPON,
-  LancerNPC_CLASS,
-  LancerNPC_FEATURE,
-  LancerNPC_TEMPLATE,
-  LancerPILOT_ARMOR,
-  LancerPILOT_GEAR,
-  LancerPILOT_WEAPON,
-  LancerWEAPON_MOD,
-} from "../item/lancer-item";
+import { LancerFRAME, LancerItem, LancerNPC_CLASS } from "../item/lancer-item";
 import { LancerActiveEffect } from "../effects/lancer-active-effect";
 import { LancerActiveEffectConstructorData } from "../effects/lancer-active-effect";
 import { filter_resolved_sync } from "../helpers/commons";
@@ -66,6 +54,9 @@ declare global {
     Actor: typeof LancerActor;
   }
 }
+
+// Track deletions here to avoid double-tapping delete of active effects
+const deleteIdCache = new Set<string>();
 
 /**
  * Extend the Actor class for Lancer Actors.
@@ -504,7 +495,7 @@ export class LancerActor extends Actor {
    * Locates an ActiveEffect on the Actor by name and removes it if present.
    * @param effect String name of the ActiveEffect to remove.
    */
-  async remove_active_effect(effect: string) {
+  async removeActiveEffect(effect: string) {
     const target_effect = findEffect(this, effect);
     target_effect?.delete();
   }
@@ -543,7 +534,7 @@ export class LancerActor extends Actor {
     if (o1 === StabOptions1.Cool) {
       return_text = return_text.concat("Mech is cooling itself. @Compendium[world.status.EXPOSED] cleared.<br>");
       await this.update({ "system.heat": 0 });
-      this.remove_active_effect("exposed");
+      this.removeActiveEffect("exposed");
     } else if (o1 === StabOptions1.Repair) {
       if (this.is_mech()) {
         if (this.system.repairs.value <= 0) {
@@ -1231,17 +1222,32 @@ export class LancerActor extends Actor {
     options: any,
     user: string
   ) {
-    super._onUpdateEmbeddedDocuments(embeddedName, documents, result, options, user);
+    super._onDeleteEmbeddedDocuments(embeddedName, documents, result, options, user);
     if (game.userId != user) {
       return;
     }
-    this.regenerateEquippedEffects().then(_ => this.sendChangesDownward());
+    return this.regenerateEquippedEffects().then(_ => this.sendChangesDownward());
+  }
+
+  /**
+   * Delete an active effect(s) without worrying if its been deleted before
+   */
+  async _safeDeleteEmbedded(collection: "Item" | "ActiveEffect", ...effects: ActiveEffect[] | Item[]): Promise<any> {
+    let toDelete = [];
+    for (let e of effects) {
+      let u = e.id ?? "";
+      if (!deleteIdCache.has(u)) {
+        deleteIdCache.add(u);
+        toDelete.push(u);
+      }
+    }
+    return this.deleteEmbeddedDocuments(collection, toDelete);
   }
 
   /**
    * Sends appropriate active effects to "children"
    */
-  sendChangesDownward() {
+  async sendChangesDownward() {
     // Call this whenever update this actors stats in any meaningful way
     if (this.is_pilot()) {
       if (this.system.active_mech?.status == "resolved") {
@@ -1251,14 +1257,11 @@ export class LancerActor extends Actor {
         console.debug(`Pilot ${this.name} propagating effects to ${mech.name}`);
         // Get rid of old from this pilot
         let old = mech.effects.filter(e => (e.getFlag("lancer", "cascade_origin") as string) == this.uuid);
-        mech.deleteEmbeddedDocuments(
-          "ActiveEffect",
-          old.map(e => e.id!)
-        );
+        await mech._safeDeleteEmbedded("ActiveEffect", ...old);
 
         // Add new from this pilot
         // @ts-expect-error
-        mech.createEmbeddedDocuments("ActiveEffect", changes);
+        await mech.createEmbeddedDocuments("ActiveEffect", changes);
       }
     } else {
       // Send to deployers TODO
@@ -1273,8 +1276,8 @@ export class LancerActor extends Actor {
     if (this._innateEffectTracker.invalid) {
       // Change detected
       // First, cull all innate effects
-      let old_innates = this.effects.filter(e => !!e.id && (e.getFlag("lancer", "innate") as boolean)).map(e => e.id!);
-      await this.deleteEmbeddedDocuments("ActiveEffect", old_innates);
+      let old = this.effects.filter(e => !!e.id && (e.getFlag("lancer", "innate") as boolean));
+      await this._safeDeleteEmbedded("ActiveEffect", ...old);
       await this.createEmbeddedDocuments("ActiveEffect", this._innateEffectTracker.curr_value as any);
       return true;
     }
@@ -1312,25 +1315,40 @@ export class LancerActor extends Actor {
    */
   _cleanupUnresolvedReferences() {
     // Bundled updates are theoretically rare, but if they ever were to occur its better than just first-instinct-updating 30 times
-    let needCleanup = false;
+    let killedIds: string[] = [];
     if (this.is_pilot()) {
       // @ts-expect-error
       let cleanupLoadout = duplicate(this.system._source.loadout) as SourceData.Pilot["loadout"];
       let currLoadout = this.system.loadout;
       // Fairly simple
-      cleanupLoadout.armor = cleanupLoadout.armor.filter((_, index) => currLoadout.armor[index].status != "missing");
-      cleanupLoadout.gear = cleanupLoadout.gear.filter((_, index) => currLoadout.gear[index].status != "missing");
-      cleanupLoadout.weapons = cleanupLoadout.weapons.filter(
-        (_, index) => currLoadout.weapons[index].status != "missing"
-      );
+      cleanupLoadout.armor = cleanupLoadout.armor.filter((_, index) => {
+        if (currLoadout.armor[index].status == "missing") {
+          killedIds.push(currLoadout.armor[index].id);
+          return false;
+        } else {
+          return true;
+        }
+      });
+      cleanupLoadout.gear = cleanupLoadout.gear.filter((_, index) => {
+        if (currLoadout.gear[index].status == "missing") {
+          killedIds.push(currLoadout.gear[index].id);
+          return false;
+        } else {
+          return true;
+        }
+      });
+      cleanupLoadout.weapons = cleanupLoadout.weapons.filter((_, index) => {
+        if (currLoadout.weapons[index].status == "missing") {
+          killedIds.push(currLoadout.weapons[index].id);
+          return false;
+        } else {
+          return true;
+        }
+      });
 
       // Only cleanup on length mismatch
-      if (
-        cleanupLoadout.armor.length != currLoadout.armor.length ||
-        cleanupLoadout.gear.length != currLoadout.gear.length ||
-        cleanupLoadout.weapons.length != currLoadout.weapons.length
-      ) {
-        console.log("Cleaning up unresolved items...");
+      if (killedIds.length) {
+        console.log(`Cleaning up unresolved ids ${killedIds.join(", ")}...`);
         this.update({ system: { loadout: cleanupLoadout } });
       }
     } else if (this.is_mech()) {
@@ -1339,18 +1357,19 @@ export class LancerActor extends Actor {
       let currLoadout = this.system.loadout;
       // Frame is simple
       if (currLoadout.frame?.status == "missing") {
+        killedIds.push(currLoadout.frame.id);
         cleanupLoadout.frame = null;
-        needCleanup = true;
       }
 
       // Systems are annoying. Remove all missing references corresponding source entry, then mark as needing cleanup if that shortened our array
-      let priorSystemsLength = cleanupLoadout.systems.length;
-      cleanupLoadout.systems = cleanupLoadout.systems.filter(
-        (_, index) => currLoadout.systems[index].status != "missing"
-      );
-      if (priorSystemsLength > cleanupLoadout.systems.length) {
-        needCleanup = true;
-      }
+      cleanupLoadout.systems = cleanupLoadout.systems.filter((_, index) => {
+        if (currLoadout.systems[index].status == "missing") {
+          killedIds.push(currLoadout.systems[index].id);
+          return false;
+        } else {
+          return true;
+        }
+      });
 
       // Weapons are incredibly annoying. Traverse and nullify corresponding slots
       for (let i = 0; i < currLoadout.weapon_mounts.length; i++) {
@@ -1359,18 +1378,18 @@ export class LancerActor extends Actor {
           let slot = mount.slots[j];
           if (slot.mod?.status == "missing") {
             cleanupLoadout.weapon_mounts[i].slots[j].mod = null;
-            needCleanup = true;
+            killedIds.push(slot.mod.id);
           }
           if (slot.weapon?.status == "missing") {
             cleanupLoadout.weapon_mounts[i].slots[j].weapon = null;
-            needCleanup = true;
+            killedIds.push(slot.weapon.id);
           }
         }
       }
 
       // Only update if necessary
-      if (needCleanup) {
-        console.log("Cleaning up unresolved items...");
+      if (killedIds.length) {
+        console.log(`Cleaning up unresolved ids ${killedIds.join(", ")}...`);
         this.update({ system: { loadout: cleanupLoadout } });
       }
     }

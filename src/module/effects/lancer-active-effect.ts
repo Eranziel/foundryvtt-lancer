@@ -34,8 +34,6 @@ export interface LancerActiveEffectConstructorData extends ActiveEffectDataConst
 }
 
 export class LancerActiveEffect extends ActiveEffect {
-  /* --------------------------------------------- */
-
   get _typedFlags(): LancerActiveEffectFlags {
     // TODO :remove this when flags are properly represented on effects
     // @ts-expect-error
