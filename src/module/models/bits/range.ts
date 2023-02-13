@@ -185,8 +185,9 @@ export class RangeField extends fields.SchemaField {
 
 // Converts an lcp range into our expected format
 export function unpackRange(data: PackedRangeData): RangeData {
+  let type = data.type?.capitalize() as RangeType; // can only help, really
   return {
-    type: data.type,
-    val: Number.parseInt(data.val.toString()) || 0,
+    type: type ?? RangeType.Range,
+    val: Number.parseInt(data.val?.toString() ?? "0") || 0,
   };
 }

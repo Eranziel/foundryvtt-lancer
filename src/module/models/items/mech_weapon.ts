@@ -117,8 +117,8 @@ export function unpackMechWeapon(
     // The rest is left to the profile
     let tags = has_profiles ? [...parent_tags, ...(prof.tags?.map(unpackTag) ?? [])] : parent_tags;
     profiles.push({
-      damage: prof.damage?.map(unpackDamage),
-      range: prof.range?.map(unpackRange),
+      damage: prof.damage?.filter(d => d.val != "N/A").map(unpackDamage),
+      range: prof.range?.filter(d => d.val != "N/A").map(unpackRange),
       tags,
       effect: prof.effect,
       on_attack: prof.on_attack,

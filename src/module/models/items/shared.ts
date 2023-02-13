@@ -3,6 +3,7 @@ import { ActionField } from "../bits/action";
 import { SynergyField } from "../bits/synergy";
 import { FakeBoundedNumberField, LIDField } from "../shared";
 import { TagField } from "../bits/tag";
+import { BonusField } from "../bits/bonus";
 
 //@ts-ignore
 const fields: any = foundry.data.fields;
@@ -28,6 +29,7 @@ export function template_uses() {
 
 export function template_bascdt() {
   return {
+    bonuses: new fields.ArrayField(new BonusField()),
     actions: new fields.ArrayField(new ActionField()),
     synergies: new fields.ArrayField(new SynergyField()),
     counters: new fields.ArrayField(new CounterField()),

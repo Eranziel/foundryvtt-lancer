@@ -47,14 +47,6 @@ export class Damage implements Readonly<DamageData> {
     return Damage.ColorFor(this.type);
   }
 
-  // Returns the discord emoji corresponding to the provided damage type
-  public static Unpack(dat: PackedDamageData): DamageData {
-    return {
-      type: dat.type,
-      val: "" + dat.val,
-    };
-  }
-
   // Returns the css font icon corresponding to the provided damage type
   public static IconFor(dt: DamageType): string {
     return `cci-${dt.toLowerCase()}`;
@@ -138,8 +130,9 @@ export class DamageField extends fields.SchemaField {
 
 // Converts an lcp damage entry into our expected format
 export function unpackDamage(data: PackedDamageData): DamageData {
+  let type = data.type?.capitalize() as DamageType; // can only help, really
   return {
-    type: data.type,
+    type,
     val: data.val?.toString() ?? "1",
   };
 }

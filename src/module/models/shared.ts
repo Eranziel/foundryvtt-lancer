@@ -9,8 +9,6 @@ import { PackedDeployableData } from "../util/unpacking/packed-types";
 // @ts-ignore
 const fields: any = foundry.data.fields;
 
-const EMBEDDED_REF_WIP_MARKER = Symbol("EMBEDDED_REF_FIELD_MARKER");
-
 // @ts-expect-error
 export class LancerDataModel<T> extends foundry.abstract.DataModel<T> {
   // For you, sohum. Svelte it to your heart's content
@@ -164,7 +162,9 @@ export class EmbeddedRefField extends fields.StringField {
     if (!value) return null;
 
     // Create shell
-    let shell = {} as SystemTemplates.ResolvedEmbeddedRef<any>;
+    let shell = {
+      id: value,
+    } as SystemTemplates.ResolvedEmbeddedRef<any>;
 
     // Create job
     model.add_pre_finalize_task(() => {
@@ -244,7 +244,9 @@ export class SyncUUIDRefField extends fields.StringField {
     if (!value) return null;
 
     // Create shell
-    let shell = {} as SystemTemplates.ResolvedAsyncUuidRef<any>;
+    let shell = {
+      id: value,
+    } as SystemTemplates.ResolvedAsyncUuidRef<any>;
 
     // Create job
     model.add_pre_finalize_task(() => {
@@ -328,7 +330,9 @@ export class AsyncUUIDRefField extends fields.StringField {
     if (!value) return null;
 
     // Create shell
-    let shell = {} as SystemTemplates.ResolvedAsyncUuidRef<any>;
+    let shell = {
+      id: value,
+    } as SystemTemplates.ResolvedAsyncUuidRef<any>;
 
     // Create job
     model.add_pre_finalize_task(() => {

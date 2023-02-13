@@ -55,12 +55,11 @@ export class SynergyField extends fields.SchemaField {
 export function unpackSynergy(data: PackedSynergyData): SynergyData {
   // Have to do a lot of annoying fixup
   let locations: SynergyLocation[] = [];
-  if (Array.isArray(data.locations)) {
-    locations = data.locations;
-  } else {
-    locations = data.locations ? [data.locations] : ["any"];
-  }
-  locations = locations.map(l => l.toLowerCase()) as SynergyLocation[];
+  locations = locations.flatMap(base => {
+    let l = base.toLowerCase().trim();
+    if (l.includes(",")) return l.split(",").map(sub_l => sub_l.trim());
+    return l;
+  }) as SynergyLocation[];
 
   let sizes: WeaponSizeChecklist | null = null;
   if (data.weapon_sizes) {
