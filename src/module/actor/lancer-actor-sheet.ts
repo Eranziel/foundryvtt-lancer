@@ -253,7 +253,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     });
 
     // Action-chip (system? Or broader?) macros
-    html.find("a.activation-chip:not(.lancer-macro)").on("click", (ev: JQuery.ClickEvent) => {
+    html.find("a.activation-chip:not(.lancer-macro)").on("click", ev => {
       ev.stopPropagation();
 
       const el = ev.currentTarget;
@@ -261,8 +261,8 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       const item = $(el).closest(".item")[0].dataset.uuid;
       if (!item) throw Error("No item ID from activation chip");
 
-      const activation = parseInt(el.getAttribute("data-activation"));
-      const deployable = parseInt(el.getAttribute("data-deployable"));
+      const activation = parseInt(el.dataset.activation ?? "");
+      const deployable = parseInt(el.dataset.deployable ?? "");
 
       if (!Number.isNaN(activation)) {
         prepareActivationMacro(this.actor.id!, item, ActivationOptions.ACTION, activation);

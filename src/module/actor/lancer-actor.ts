@@ -1536,7 +1536,7 @@ export class LancerActor extends Actor {
   // Checks that the provided document is not null, and is a lancer actor
   static async fromUuid(x: string | LancerActor, messagePrefix?: string): Promise<LancerActor> {
     if (x instanceof LancerActor) return x;
-    x = (await this.fromUuid(x)) as LancerActor;
+    x = (await fromUuid(x)) as LancerActor;
     if (!x) {
       let message = `${messagePrefix ? messagePrefix + " | " : ""}Actor ${x} not found.`;
       ui.notifications?.error(message);
@@ -1553,7 +1553,7 @@ export class LancerActor extends Actor {
   // Checks that the provided document is not null, and is a lancer actor
   static fromUuidSync(x: string | LancerActor, messagePrefix?: string): LancerActor {
     if (x instanceof LancerActor) return x;
-    x = this.fromUuidSync(x) as LancerActor;
+    x = fromUuidSync(x) as LancerActor;
     if (!x) {
       let message = `${messagePrefix ? messagePrefix + " | " : ""}Actor ${x} not found.`;
       ui.notifications?.error(message);
