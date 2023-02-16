@@ -12,6 +12,7 @@ import { clicker_num_input } from "../helpers/actor";
 import { ResolvedDropData } from "../helpers/dragdrop";
 import { EntryType } from "../enums";
 import { PackedPilotData } from "../util/unpacking/packed-types";
+import { importCC } from "./import";
 
 const shareCodeMatcher = /^[A-Z0-9\d]{6}$/g;
 const COUNTER_MAX = 8;
@@ -108,7 +109,7 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
             console.error(`Failed to import pilot. vaultID: ${self.vaultID}, rawID: ${self.rawID}`);
             return;
           }
-          await actor.importCC(raw_pilot_data);
+          await importCC(this.actor as LancerPILOT, raw_pilot_data);
         });
       } else {
         download.addClass("disabled-cloud");
@@ -172,7 +173,7 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
     console.log(`${lp} Starting import of ${pilotData.name}, Callsign ${pilotData.callsign}.`);
     console.log(`${lp} Parsed Pilot Data pack:`, pilotData);
 
-    await actor.importCC(pilotData);
+    await importCC(this.actor as LancerPILOT, pilotData);
     ui.notifications!.info(`Import of ${pilotData.name}, Callsign ${pilotData.callsign} complete.`);
     console.log(`${lp} Import of ${pilotData.name}, Callsign ${pilotData.callsign} complete.`);
     this.render();
@@ -250,6 +251,8 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
 
   async onRootDrop(base_drop: ResolvedDropData, event: JQuery.DropEvent, _dest: JQuery<HTMLElement>): Promise<void> {
     if (!this.actor.is_pilot()) return; // Just for types really
+
+    console.log("ROOOOT DROP");
 
     // Take posession
     let [drop, is_new] = await this.quickOwnDrop(base_drop);

@@ -504,7 +504,7 @@ export function pilot_gear_refview(gear_path: string, helper: HelperOptions): st
 
   // Conditionally show uses
   let uses = "";
-  if (gear.value.get_limited()) {
+  if (gear.value.getLimitedBase()) {
     uses = limited_uses_indicator(gear.value, gear_path);
   }
 

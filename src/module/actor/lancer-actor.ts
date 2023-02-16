@@ -11,8 +11,8 @@ import { SourceData, SourceDataType } from "../source-template";
 import * as defaults from "../util/unpacking/defaults";
 import { PackedPilotData } from "../util/unpacking/packed-types";
 import { getAutomationOptions } from "../settings";
-import { pilot_downstream_effects } from "../effects/converter";
-import { LancerFRAME, LancerItem, LancerNPC_CLASS } from "../item/lancer-item";
+import { pilotInnateEffect } from "../effects/converter";
+import { LancerFRAME, LancerItem, LancerNPC_CLASS, LancerNPC_FEATURE } from "../item/lancer-item";
 import { LancerActiveEffect } from "../effects/lancer-active-effect";
 import { LancerActiveEffectConstructorData } from "../effects/lancer-active-effect";
 import { filter_resolved_sync } from "../helpers/commons";
@@ -63,9 +63,7 @@ const deleteIdCache = new Set<string>();
  */
 export class LancerActor extends Actor {
   // Kept for comparing previous to next values / doing deltas
-  _maxHPTracker = new ChangeWatchHelper();
-  _innateEffectTracker = new ChangeWatchHelper();
-  _passdownEffectTracker = new ChangeWatchHelper();
+  _passdownEffectTracker = new ChangeWatchHelper(); // Holds effects that are/will be passed down to descendants. Invalidation means we must pass down effects again
 
   /**
    * Performs overheat
@@ -422,9 +420,9 @@ export class LancerActor extends Actor {
     return changes;
   }
 
-  // List the _relevant_ loadout items on this actor
+  // List the all equipped loadout items on this actor
   // For mechs this is everthing in system.loadout, IE: Mech weapons, Mech Systems, Frame
-  private list_loadout(): Array<LancerItem> {
+  private listLoadout(): Array<LancerItem> {
     let result = [] as LancerItem[];
     let it = this.itemTypes;
     if (this.is_mech()) {
@@ -459,7 +457,7 @@ export class LancerActor extends Actor {
    * Find all limited systems and set them to their max/repaired/ideal state
    */
   async restore_all_items() {
-    let fixes = this.list_loadout().map(i =>
+    let fixes = this.listLoadout().map(i =>
       this.refresh(i, {
         reload: true,
         repair: true,
@@ -473,22 +471,14 @@ export class LancerActor extends Actor {
    * Find all owned items and set them to be not destroyed
    */
   async repair_all_items() {
-    return Promise.all(
-      (await this.list_loadout())
-        .map(i =>
-          this.refresh(i, {
-            repair: true,
-          })
-        )
-        .map(i => i.writeback())
-    );
+    return Promise.all(this.listLoadout().map(i => this.refresh(i, { repair: true })));
   }
 
   /**
    * Find all owned weapons and (generate the changes necessary to) reload them
    */
   reload_all_items() {
-    return this.list_loadout().map(i => this.refresh(i, { reload: true }));
+    return this.listLoadout().map(i => this.refresh(i, { reload: true }));
   }
 
   /**
@@ -640,7 +630,7 @@ export class LancerActor extends Actor {
     }
 
     // Only set heat on items that have it
-    if (this.has_heat_cap()) {
+    if (this.hasHeatcap()) {
       changes["system.heat"] = this.system.heat.value + damage.Heat;
     }
 
@@ -672,209 +662,6 @@ export class LancerActor extends Actor {
     await this.update(changes);
 
     return total_damage;
-  }
-
-  // Imports packed pilot data, from either a vault id or gist id
-  async importCC(data: PackedPilotData, clearFirst = false) {
-    /*
-    TODO
-    if (this.type !== EntryType.PILOT) {
-      return;
-    }
-    if (data == null) return;
-    if (clearFirst) await this.clearItems();
-
-    try {
-      // @ts-expect-error Should be fixed with v10 types
-      const mm = await this.system.derived.mm_promise;
-      // This block is kept for posterity, in case we want to re-implement automatic folder creation.
-      // Get/create folder for sub-actors
-      // let unit_folder_name = `${data.callsign}'s Units`;
-      // let unit_folder = game.folders.getName(unit_folder_name);
-      // if (!unit_folder) {
-      //   unit_folder = await Folder.create({
-      //     name: unit_folder_name,
-      //     type: "Actor",
-      //     sorting: "a",
-      //     parent: this.folder || null,
-      //   });
-      // }
-      let unit_folder = this.folder;
-      console.log("Unit folder id:", unit_folder?.id);
-      // @ts-expect-error Should be fixed with v10 types
-      let permission = duplicate(this.ownership);
-
-      // Check whether players are allowed to create Actors
-      if (!game.user?.can("ACTOR_CREATE")) {
-        new Dialog({
-          title: "Cannot Create Actors",
-          content: `<p>You are not permitted to create actors, so sync may fail.</p>
-            <p>Your GM can allow Players/Trusted Players to create actors in Settings->Configure Permissions.</p>`,
-          buttons: {
-            ok: {
-              icon: '<i class="fas fa-check"></i>',
-              label: "OK",
-            },
-          },
-          default: "ok",
-        }).render(true);
-      }
-
-      // Setup registries
-      // We look for missing items in world first, compendium second
-      let ps1 = new FoundryReg("game");
-      let ps2 = new FoundryReg("comp_core");
-
-      // Setup relinker to be folder bound for actors
-      let base_relinker = quick_relinker<any>({
-        key_pairs: [
-          ["LID", "lid"],
-          ["Name", "name"],
-        ],
-      });
-
-      // Setup sync tracking etc
-      let synced_deployables: Deployable[] = []; // Track these as we go
-      let synced_data = await funcs.cloud_sync(data, mm as Pilot, [ps1, ps2], {
-        relinker: async (source_item, dest_reg, dest_cat) => {
-          // Link by specific subfolder if deployable
-          if (source_item.Type == EntryType.DEPLOYABLE) {
-            console.debug("Relinking deployable: ", source_item);
-            // Narrow down our destination options to find one that's in the proper folder
-            let dest_deployables = (await dest_cat.list_live(source_item.OpCtx)) as Deployable[];
-            return dest_deployables.find(dd => {
-              let dd_folder_id: string = dd.Flags.orig_doc.data.folder;
-              console.log(
-                "Checking folder: " + dd.Name + " has folder id " + dd_folder_id + " which ?== " + unit_folder?.id
-              );
-              if (dd_folder_id != unit_folder?.id) {
-                return false;
-              }
-
-              // Still need to have the right name, though. Do by substring since we reformat quite a bit
-              return dd.Name.includes(source_item.Name);
-            });
-          } else {
-            return base_relinker(source_item, dest_reg, dest_cat);
-          }
-        },
-        // Rename and rehome deployables
-        // @TODO: pilot typing weirdness.
-        sync_deployable_nosave: (dep: Deployable) => {
-          let flags = dep.Flags as FoundryFlagData<EntryType.DEPLOYABLE>;
-          let owned_name = dep.Name.includes(data.callsign) ? dep.Name : `${data.callsign}'s ${dep.Name}`;
-          flags.top_level_data["name"] = owned_name;
-          flags.top_level_data["folder"] = unit_folder ? unit_folder.id : null;
-          flags.top_level_data["token.name"] = owned_name;
-          flags.top_level_data["permission"] = permission;
-          flags.top_level_data["token.disposition"] = CONST.TOKEN_DISPOSITIONS.NEUTRAL;
-          // dep.writeback(); -- do this later, after setting active!
-          synced_deployables.push(dep);
-        },
-        // Rename and rehome mechs
-        sync_mech: async (mech: Mech) => {
-          let flags = mech.Flags as FoundryFlagData<EntryType.MECH>;
-          let portrait = mech.CloudPortrait || mech.Frame?.ImageUrl || "";
-          let new_img = replace_default_resource(flags.top_level_data["img"], portrait);
-
-          flags.top_level_data["name"] = mech.Name;
-          flags.top_level_data["folder"] = unit_folder ? unit_folder.id : null;
-          flags.top_level_data["img"] = new_img;
-          flags.top_level_data["permission"] = permission;
-          flags.top_level_data["token.name"] = data.callsign;
-          // @ts-expect-error Should be fixed with v10 types
-          flags.top_level_data["token.disposition"] = this.token?.disposition;
-          flags.top_level_data["token.actorLink"] = true;
-
-          // the following block of code is version 1 to ensure all weapons are their own unique object in the registry.
-          // This is primarily to fix issues with loading weapons. I am not particularly proud of the method (maybe a bit more writing and deleting than I'd like)
-          // We iterate over every available mount, telling the registry to generate a new instance of itself, we then replace it in the mount and delete the original.
-          // This is done only to avoid messing with how the Machine Mind deals with populating the sheet.
-
-          for (let i = 0; i < mech.Loadout.WepMounts.length; i++) {
-            for (let k = 0; k < mech.Loadout.WepMounts[i].Slots.length; k++) {
-              let oldWepLocation = mech.Loadout.WepMounts[i].Slots[k];
-              //console.log(`processing mount ${i}, slot ${k} :`,oldWepLocation)
-              let newWep =
-                (await oldWepLocation.Weapon?.Registry.create_live(
-                  EntryType.MECH_WEAPON,
-                  oldWepLocation.Weapon.OpCtx,
-                  oldWepLocation.Weapon.OrigData
-                )) || null;
-              //console.log("Our brand new weapon: ", newWep)
-              oldWepLocation.Weapon?.Registry.delete(EntryType.MECH_WEAPON, oldWepLocation.Weapon.RegistryID);
-              oldWepLocation.Weapon = newWep;
-            }
-          }
-
-          // We proceed to do a similar process for the mech systems. This is to ensure non-unique systems can be disabled individually on the mech sheet
-          for (let i = 0; i < mech.Loadout.SysMounts.length; i++) {
-            let oldSystemLocation = mech.Loadout.SysMounts[i];
-            let newSys =
-              (await oldSystemLocation.System?.Registry.create_live(
-                EntryType.MECH_SYSTEM,
-                oldSystemLocation.System.OpCtx,
-                oldSystemLocation.System.OrigData
-              )) || null;
-            oldSystemLocation.System?.Registry.delete(EntryType.MECH_SYSTEM, oldSystemLocation.System.RegistryID);
-            oldSystemLocation.System = newSys;
-          }
-
-          await mech.writeback();
-
-          // If we've got a frame (which we should) check for setting Retrograde image
-          if (mech.Frame && (await (mech.Flags.orig_doc as LancerActor).swapFrameImage(mech, null, mech.Frame))) {
-            // Write back again if we swapped images
-            await mech.writeback();
-          }
-        },
-        // Set pilot token
-        sync_pilot: (pilot: Pilot) => {
-          let flags = pilot.Flags as FoundryFlagData<EntryType.PILOT>;
-          let new_img = replace_default_resource(flags.top_level_data["img"], pilot.CloudPortrait);
-          flags.top_level_data["name"] = pilot.Name;
-          flags.top_level_data["img"] = new_img;
-          flags.top_level_data["token.name"] = pilot.Callsign;
-
-          // Check and see if we have a custom token (not from imgur) set, and if we don't, set the token image.
-          if (
-            // @ts-expect-error Should be fixed with v10 types
-            this.token?.img === "systems/lancer/assets/icons/pilot.svg" ||
-            // @ts-expect-error Should be fixed with v10 types
-            this.token?.img?.includes("imgur")
-          ) {
-            flags.top_level_data["token.img"] = new_img;
-          }
-        },
-      });
-
-      // Now we can iterate over deploys, setting their deployer to active mech and writing back again. Set all deployers to the pilots active mech
-      let active = await (synced_data as any).ActiveMech();
-      for (let deployable of synced_deployables) {
-        if (active) {
-          deployable.Deployer = active;
-        }
-        deployable.writeback();
-      }
-
-      // Reset curr data and render all
-      this.render();
-      (await synced_data.Mechs()).forEach((m: Mech) => m.Flags.orig_doc.render());
-
-      ui.notifications!.info("Successfully loaded pilot new state.");
-    } catch (e) {
-      console.warn(e);
-      if (e instanceof Error) {
-        ui.notifications!.warn(`Failed to update pilot, likely due to missing LCP data: ${e.message}`);
-      } else {
-        ui.notifications!.warn(`Failed to update pilot, likely due to missing LCP data: ${e}`);
-      }
-    }
-    */
-  }
-
-  async clearItems() {
-    await this.deleteEmbeddedDocuments("Item", Array.from(this.items.keys()));
   }
 
   /* -------------------------------------------- */
@@ -998,32 +785,25 @@ export class LancerActor extends Actor {
    *  - Re-compute any derived attributes
    */
   prepareDerivedData() {
-    // Ask items to prepare their final attributes using weapon_bonuses
-    for (let item of this.items.contents) {
-      // @ts-expect-error
-      item.prepareFinalAttributes(this.system);
-      /*
-      if (item.is_mech_weapon()) {
-        // @ts-expect-error
-        let sys_clone = this.system.clone();
-        let pseudo_actor = { system: sys_clone };
-        for (let _eff of this.effects) {
-          let eff = _eff as LancerActiveEffect;
-          // Only apply those that were passed over because restricted
-          if (eff.isSuppressed && !eff.isPassthrough && eff.restrictionsAllow(item)) {
-
-            // Apply appropriate restricted effects
-            item.prepareFinalAttributes(pseudo_actor);
-          }
-        }
-      }
- // TODO
-      */
-    }
-
     // Track equipping if pilot or mech
     if (this.is_pilot()) {
-      // TODO
+      // Mark things equipped
+      let ld = this.system.loadout;
+      for (let armor of ld.armor) {
+        if (armor?.status == "resolved") {
+          armor.value.system.equipped = true;
+        }
+      }
+      for (let weapon of ld.weapons) {
+        if (weapon?.status == "resolved") {
+          weapon.value.system.equipped = true;
+        }
+      }
+      for (let gear of ld.gear) {
+        if (gear?.status == "resolved") {
+          gear.value.system.equipped = true;
+        }
+      }
     } else if (this.is_mech()) {
       // Mark things equipped
       let ld = this.system.loadout;
@@ -1047,19 +827,14 @@ export class LancerActor extends Actor {
       }
     }
 
-    // Track shift in values. Use optional to handle compendium bulk-created items, which handle strangely
-    // @ts-expect-error
-    this._maxHPTracker?.setValue(this.system.hp.max);
-    this._innateEffectTracker?.setValue(this.#collectActiveEffects());
-    if (this._innateEffectTracker?.invalid) {
-      console.log(
-        "PI change",
-        this._innateEffectTracker.prior_string,
-        this._innateEffectTracker.prior_value,
-        this._innateEffectTracker.curr_string,
-        this._innateEffectTracker.curr_value
-      );
+    // Ask items to prepare their final attributes using weapon_bonuses / equip information
+    for (let item of this.items.contents) {
+      // @ts-expect-error
+      item.prepareFinalAttributes(this.system);
     }
+
+    // Track shift in values. Use optional to handle compendium bulk-created items, which handle strangely
+    this._passdownEffectTracker?.setValue(this._collectPassdownEffects());
   }
 
   /** @override
@@ -1075,7 +850,7 @@ export class LancerActor extends Actor {
    * This is mostly copy-pasted from Actor.modifyTokenAttribute
    * to allow negative hps, which are useful for structure checks
    */
-  async modifyTokenAttribute(attribute: any, value: any, isDelta = false, isBar = true) {
+  async modifyTokenAttribute(attribute: string, value: any, isDelta = false, isBar = true) {
     // @ts-expect-error Should be fixed with v10 types
     const current = foundry.utils.getProperty(this.system, attribute);
 
@@ -1143,6 +918,7 @@ export class LancerActor extends Actor {
    * On the result of an update, we want to cascade derived data.
    */
   protected _onUpdate(...[changed, options, user]: Parameters<Actor["_onUpdate"]>) {
+    console.log("OnUpdate");
     super._onUpdate(changed, options, user);
     if (game.userId != user || !this.isOwner) {
       return;
@@ -1151,10 +927,18 @@ export class LancerActor extends Actor {
     // Remove unresolved references
     this._cleanupUnresolvedReferences();
 
-    // Propagate equipped effects
-    this.regenerateEquippedEffects()
-      .then(_ => {
-        return this.sendChangesDownward();
+    // First try to regenerate our innate effect. If this is a no-op, it won't actually do any db operations
+    this._regenerateInnateEffect();
+    (async () => {})()
+      .then(async () => {
+        // Must regenerate all item effects in case of loadout change. TODO: specifically monitor for loadout changes. This is still mostly no-ops, but nevertheless it feels wasteful
+        for (let item of this.items.contents) {
+          if (item.isEquipped()) {
+            await this._regenerateItemEffects(item, "update");
+          } else {
+            await this._regenerateItemEffects(item, "delete");
+          }
+        }
       })
       .then(_ => {
         // Check for overheating / structure
@@ -1200,6 +984,33 @@ export class LancerActor extends Actor {
   }
 
   /** @inheritdoc */
+  _onCreateEmbeddedDocuments(
+    embeddedName: "Item" | "ActiveEffect",
+    documents: LancerItem[] | LancerActiveEffect[],
+    result: any,
+    options: any,
+    user: string
+  ) {
+    console.log("OnCreateEmbedded", embeddedName, documents);
+    super._onCreateEmbeddedDocuments(embeddedName, documents, result, options, user);
+    if (game.userId != user) {
+      return;
+    }
+
+    // Create effects from new items
+    if (embeddedName == "Item") {
+      for (let item of documents as LancerItem[]) {
+        if (item.isEquipped()) {
+          item._generatedEffectTracker.clean();
+          this._regenerateItemEffects(item, "create");
+        }
+      }
+    } else {
+      this.propagateEffects(); // Effects have changed
+    }
+  }
+
+  /** @inheritdoc */
   _onUpdateEmbeddedDocuments(
     embeddedName: "Item" | "ActiveEffect",
     documents: LancerItem[] | LancerActiveEffect[],
@@ -1207,14 +1018,26 @@ export class LancerActor extends Actor {
     options: any,
     user: string
   ) {
+    console.log("OnUpdateEmbedded", embeddedName, documents);
     super._onUpdateEmbeddedDocuments(embeddedName, documents, result, options, user);
     if (game.userId != user) {
       return;
     }
-    this.regenerateEquippedEffects().then(_ => this.sendChangesDownward());
+
+    // (Possibly) update effects from updated items, if the effects they provide have changed & item is equipped
+    if (embeddedName == "Item") {
+      for (let item of documents as LancerItem[]) {
+        if (item.isEquipped() && item._generatedEffectTracker.isDirty) {
+          item._generatedEffectTracker.clean();
+          this._regenerateItemEffects(item as LancerItem, "update");
+        }
+      }
+    } else {
+      this.propagateEffects(); // Effects have changed
+    }
   }
 
-  // Same exact thing as above
+  /** @inheritdoc */
   _onDeleteEmbeddedDocuments(
     embeddedName: "Item" | "ActiveEffect",
     documents: LancerItem[] | LancerActiveEffect[],
@@ -1222,66 +1045,131 @@ export class LancerActor extends Actor {
     options: any,
     user: string
   ) {
+    console.log("OnDeleteEmbedded", embeddedName, documents);
     super._onDeleteEmbeddedDocuments(embeddedName, documents, result, options, user);
     if (game.userId != user) {
       return;
     }
-    return this.regenerateEquippedEffects().then(_ => this.sendChangesDownward());
+
+    // Clear effects from deleted items
+    if (embeddedName == "ActiveEffect") {
+      this.propagateEffects(); // Effects have changed
+    }
   }
 
   /**
    * Delete an active effect(s) without worrying if its been deleted before
    */
   async _safeDeleteEmbedded(collection: "Item" | "ActiveEffect", ...effects: ActiveEffect[] | Item[]): Promise<any> {
+    if (!effects.length) return;
     let toDelete = [];
     for (let e of effects) {
-      let u = e.id ?? "";
+      let u = e.uuid ?? "";
       if (!deleteIdCache.has(u)) {
         deleteIdCache.add(u);
-        toDelete.push(u);
+        toDelete.push(e.id!);
       }
     }
     return this.deleteEmbeddedDocuments(collection, toDelete);
   }
 
   /**
-   * Sends appropriate active effects to "children"
+   * Sends appropriate active effects to "children".
+   * Utilizes passdown effect tracker to minimize how often we actually send it. As such, feel free to call it as often as you want
+   * TODO: Minimally update???
+   * Debounced
    */
-  async sendChangesDownward() {
+  propagateEffects = foundry.utils.debounce((force: boolean = false) => this.propagateEffectsInner(force), 500);
+  async propagateEffectsInner(force: boolean = false) {
+    if (!force && !this._passdownEffectTracker.isDirty) {
+      console.log("Skipping a passdown");
+      return;
+    }
+    console.log("Performing a passdown");
+    const propagateTo = async (target: LancerActor) => {
+      console.debug(`Actor ${this.name} propagating effects to ${target.name}`);
+      // Get rid of old from this pilot
+      let old = target.effects.filter(e => (e.getFlag("lancer", "passdown_parent") as string) == this.uuid);
+      await target._safeDeleteEmbedded("ActiveEffect", ...old); // TODO - update in place??
+
+      // Add new from this pilot
+      let changes: LancerActiveEffectConstructorData[] = foundry.utils.duplicate(
+        this._passdownEffectTracker.curr_value
+      );
+      changes.forEach(c => (c.flags.lancer.passdown_parent = this.uuid));
+
+      // @ts-expect-error
+      await target.createEmbeddedDocuments("ActiveEffect", changes);
+    };
+
     // Call this whenever update this actors stats in any meaningful way
     if (this.is_pilot()) {
       if (this.system.active_mech?.status == "resolved") {
-        let mech = this.system.active_mech.value;
-        let changes = pilot_downstream_effects(this as LancerPILOT);
-
-        console.debug(`Pilot ${this.name} propagating effects to ${mech.name}`);
-        // Get rid of old from this pilot
-        let old = mech.effects.filter(e => (e.getFlag("lancer", "cascade_origin") as string) == this.uuid);
-        await mech._safeDeleteEmbedded("ActiveEffect", ...old);
-
-        // Add new from this pilot
-        // @ts-expect-error
-        await mech.createEmbeddedDocuments("ActiveEffect", changes);
+        await propagateTo(this.system.active_mech.value);
       }
     } else {
-      // Send to deployers TODO
+      // Send to deployables TODO
     }
   }
 
   /**
-   * Resets active effects on this item to match equipment.
+   * (Re)generates/clears active effects for this item.
+   * Removes old effects first.
+   * create: This should be called when the item is created
+   * update: This should be called anytime we detect the item's generated effect as having changed
+   * delete: This should be called when the item is deleted
    */
-  async regenerateEquippedEffects(): Promise<boolean> {
-    // Get what effects we'll apply
-    if (this._innateEffectTracker.invalid) {
-      // Change detected
-      // First, cull all innate effects
-      let old = this.effects.filter(e => !!e.id && (e.getFlag("lancer", "innate") as boolean));
-      await this._safeDeleteEmbedded("ActiveEffect", ...old);
-      await this.createEmbeddedDocuments("ActiveEffect", this._innateEffectTracker.curr_value as any);
-      return true;
+  async _regenerateItemEffects(item: LancerItem, mode: "create" | "update" | "delete"): Promise<void> {
+    // Get prior effects
+    let old: LancerActiveEffect[] = [];
+    let newEffects: LancerActiveEffectConstructorData[] = item._generatedEffectTracker.curr_value;
+    if (mode != "create") {
+      // @ts-expect-error Origin is a root property now
+      old = this.effects.filter(e => e.origin == item.uuid) as LancerActiveEffect[];
     }
-    return false;
+
+    // Based on mode, handle
+    if (mode == "delete") {
+      await this._safeDeleteEmbedded("ActiveEffect", ...old);
+    } else if (mode == "create") {
+      // Just create wholesale
+      await this.createEmbeddedDocuments("ActiveEffect", newEffects as any);
+    } else {
+      // If old matches length, then try to update itemwise. This works 99% of the time
+      if (old.length == newEffects.length) {
+        let sim = foundry.utils.duplicate(newEffects);
+        sim.forEach((x, i) => (x._id = old[i].id));
+        await this.updateEmbeddedDocuments("ActiveEffect", sim);
+      } else {
+        // Otherwise just recreate wholesale (e.x. if going from none -> some effects, etc)
+        await this._safeDeleteEmbedded("ActiveEffect", ...old);
+        await this.createEmbeddedDocuments("ActiveEffect", newEffects as any);
+      }
+    }
+  }
+
+  /**
+   * (Re)generates this actors innate effect, whose sole purpose is to be passed down.
+   */
+  async _regenerateInnateEffect(): Promise<void> {
+    if (this.is_pilot()) {
+      // @ts-expect-error Origin/Label are root properties now
+      let old = this.effects.filter(e => e.origin == this.uuid && e.label == "Pilot Stats") as LancerActiveEffect[];
+      // Sanity cleanup if we have somehow created duplicates
+      if (old.length > 1) {
+        await this._safeDeleteEmbedded("ActiveEffect", ...old);
+        old = [];
+      }
+
+      if (old.length == 0) {
+        // Generate
+        // @ts-expect-error - I'm not really sure why this is causing issues
+        await this.createEmbeddedDocuments("ActiveEffect", [pilotInnateEffect(this)]);
+      } else {
+        // Update
+        await old[0].update(pilotInnateEffect(this));
+      }
+    }
   }
 
   /**
@@ -1289,7 +1177,7 @@ export class LancerActor extends Actor {
    */
 
   _deleteUnequippedItems() {
-    let deleteIds: string[] = [];
+    let deletables: LancerItem[] = [];
 
     // Flag all unequipped mech equipment
     for (let item of this.items.contents) {
@@ -1298,16 +1186,16 @@ export class LancerActor extends Actor {
           (item.is_frame() || item.is_mech_system() || item.is_mech_weapon() || item.is_weapon_mod()) &&
           !item.system.equipped
         ) {
-          deleteIds.push(item.id);
+          deletables.push(item);
         }
       } else if (item.id && this.is_pilot()) {
         if ((item.is_pilot_armor() || item.is_pilot_weapon() || item.is_pilot_gear()) && !item.system.equipped) {
-          deleteIds.push(item.id);
+          deletables.push(item);
         }
       }
     }
     // Kill!
-    if (deleteIds.length) this.deleteEmbeddedDocuments("Item", deleteIds);
+    if (deletables.length) this._safeDeleteEmbedded("Item", ...deletables);
   }
 
   /**
@@ -1397,15 +1285,43 @@ export class LancerActor extends Actor {
   }
 
   /**
-   * Collect bonuses from "active" items, IE all "equipped" items that are not destroyed
+   * Collect from our current effects (and pilot/mech innate effects) any that should be passed down to descendants.
+   * as well as from any innate features (pilot grit, mech save target, etc)
    */
-  #collectActiveEffects(): LancerActiveEffectConstructorData[] {
-    let effects: LancerActiveEffectConstructorData[] = [];
-    for (let i of this.list_loadout()) {
-      if ((i as unknown as { system: SystemTemplates.destructible }).system.destroyed !== false) {
-        effects.push(...i.generate_innate_effects());
-      }
+  _collectPassdownEffects(): LancerActiveEffectConstructorData[] {
+    if (this.is_deployable()) return [];
+
+    // Start with all of them
+    let effects = this.effects.map(e => e.toObject()) as unknown as LancerActiveEffectConstructorData[];
+
+    // Get innate effects
+    if (this.is_pilot()) {
+    } else if (this.is_mech()) {
+      // todo
+    } else if (this.is_npc()) {
+      // todo
     }
+
+    // Remove all that we "consume" at this level. AKA only pass down unhandled effects
+    effects = effects.filter(e => {
+      switch (e.flags.lancer?.target_type) {
+        case EntryType.PILOT:
+          return false; // Something targeting pilot will never get passed down, since who could possibly receive it?
+        case EntryType.MECH:
+          return this.is_pilot(); // Only pilots can pass down to mechs
+        case EntryType.NPC:
+          return false; // Nothing can pass down to an npc
+        case EntryType.DEPLOYABLE:
+        case "only_deployable":
+        case "only_drone":
+          return true; // Can always pass down to a deployable, seeing as they don't get to execute this function
+        case "mech_and_npc":
+          return this.is_pilot(); // Again, only makes sense to pass down if we are a pilot
+        default:
+          return false; // don't pass down by default
+      }
+    });
+
     return effects;
   }
 
@@ -1462,6 +1378,10 @@ export class LancerActor extends Actor {
         result += `Flex mounts can either have two Auxillary or one Main weapon.`;
       }
 
+      if (hasSuper && !hasBracing) {
+        result += `Superheavy weapons require a mount to be set as "Bracing".`;
+      }
+
       return result || null;
     } else {
       throw new Error(
@@ -1496,10 +1416,9 @@ export class LancerActor extends Actor {
   }
 
   // Quick checkers
-  has_heat_cap(): this is { system: SystemTemplates.heat } {
+  hasHeatcap(): this is { system: SystemTemplates.heat } {
     return (this as any).system.heat !== undefined;
   }
-
   /**
    * Taking a new and old frame/class, swaps the actor and/or token images if
    * we detect that the image isn't custom. Will check each individually

@@ -10,11 +10,17 @@ export class ChangeWatchHelper {
   curr_value: any = null;
   curr_string = "";
 
-  // Whether the most recent setValue changed the value
-  invalid: boolean = false;
+  // Whether a call to setValue changed the value.
+  isDirty: boolean = false;
+
+  // Clears dirty
+  public clean() {
+    this.isDirty = true;
+  }
 
   /**
-   * Set the value, returning true (and marking self as "invalid")
+   * Set the value, returning true (and marking self as "dirty") if its different from our initial value
+   * Initial call will never mark dirty bit
    * @param to
    */
   public setValue(to: any): boolean {
@@ -38,7 +44,9 @@ export class ChangeWatchHelper {
     }
 
     // Test change
-    this.invalid = this.curr_string != this.prior_string;
-    return this.invalid;
+    if (!first && !this.isDirty) {
+      this.isDirty = this.curr_string != this.prior_string;
+    }
+    return this.isDirty;
   }
 }

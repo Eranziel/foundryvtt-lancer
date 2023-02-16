@@ -169,6 +169,7 @@ import { lookupOwnedDeployables } from "./module/util/lid";
 import { PilotArmorModel } from "./module/models/items/pilot_armor";
 import { PilotGearModel } from "./module/models/items/pilot_gear";
 import { PilotWeaponModel } from "./module/models/items/pilot_weapon";
+import { importCC } from "./module/actor/import";
 
 const lp = LANCER.log_prefix;
 
@@ -437,11 +438,11 @@ Hooks.once("init", async function () {
   });
 
   Handlebars.registerHelper("is-limited", function (item: LancerItem) {
-    return item.is_limited();
+    return item.isLimited();
   });
 
   Handlebars.registerHelper("is-loading", function (item: LancerItem) {
-    return item.is_loading();
+    return item.isLoading();
   });
 
   // ------------------------------------------------------------------------
@@ -683,7 +684,7 @@ Hooks.on("getActorDirectoryEntryContext", (_html: JQuery<HTMLElement>, ctxOption
       const actor = game.actors?.get(li.data("documentId"));
       // @ts-ignore Migrations?
       const dump = handleActorExport(actor, false);
-      dump && actor?.importCC(dump as any, true);
+      if (dump && actor?.is_pilot()) importCC(actor, dump as any, true);
     },
   };
 

@@ -271,7 +271,7 @@ export function item_preview<T extends LancerItemType>(
     };
 
     let limited = "";
-    if (doc.is_limited()) {
+    if (doc.isLimited()) {
       limited = limited_uses_indicator(doc, item_path);
     }
     return `<li class="ref set card clipped mech-system item ${

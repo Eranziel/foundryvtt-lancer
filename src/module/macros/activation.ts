@@ -50,14 +50,14 @@ export async function prepareActivationMacro(
   }
 
   // TODO: alter these generic functions to handle non mm items
-  if (getAutomationOptions().limited_loading && item.is_limited() && item.system.uses.value <= 0) {
+  if (getAutomationOptions().limited_loading && item.isLimited() && item.system.uses.value <= 0) {
     ui.notifications!.error(`Error using item--you have no uses left!`);
     return;
   }
 
   switch (type) {
     case ActivationOptions.ACTION:
-      if (item.has_actions()) {
+      if (item.hasActions()) {
         switch (item.system.actions[index].activation) {
           case ActivationType.FullTech:
           case ActivationType.Invade:
@@ -83,7 +83,7 @@ export async function prepareActivationMacro(
   }
 
   // Wait until the end to deduct a use so we're sure it completed succesfully
-  if (getAutomationOptions().limited_loading && item.is_limited()) {
+  if (getAutomationOptions().limited_loading && item.isLimited()) {
     await item.update({
       "system.uses": item.system.uses.value - 1,
     });

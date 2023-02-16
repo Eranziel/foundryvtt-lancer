@@ -214,11 +214,11 @@ export async function prepareAttackMacro(
   }
   // Check if weapon if loaded.
   if (getAutomationOptions().limited_loading && getAutomationOptions().attacks) {
-    if (item.is_loading() && !item.system.loaded) {
+    if (item.isLoading() && !item.system.loaded) {
       ui.notifications!.warn(`Weapon ${item.name} is not loaded!`);
       return;
     }
-    if (item.is_limited() && item.system.uses.value <= 0) {
+    if (item.isLimited() && item.system.uses.value <= 0) {
       ui.notifications!.warn(`Weapon ${item.name} has no remaining uses!`);
       return;
     }
@@ -256,11 +256,11 @@ export async function prepareAttackMacro(
   if (getAutomationOptions().limited_loading && getAutomationOptions().attacks) {
     let changes: DeepPartial<SourceData.MechWeapon> = {};
     let needChange = false;
-    if (item.is_loading()) {
+    if (item.isLoading()) {
       changes.loaded = false;
       needChange = true;
     }
-    if (item.is_limited()) {
+    if (item.isLimited()) {
       changes.uses = Math.max(item.system.uses.value - 1, 0);
       needChange = true;
     }

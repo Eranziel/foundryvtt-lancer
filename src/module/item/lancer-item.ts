@@ -7,8 +7,9 @@ import { ActionData } from "../models/bits/action";
 import { RangeData } from "../models/bits/range";
 import { Tag } from "../models/bits/tag";
 import { LancerActiveEffectConstructorData } from "../effects/lancer-active-effect";
-import { convert_bonus, effect_for_frame } from "../effects/converter";
+import { convertBonus, effect_for_frame as frameInnate } from "../effects/converter";
 import { BonusData } from "../models/bits/bonus";
+import { ChangeWatchHelper } from "../util/misc";
 
 const lp = LANCER.log_prefix;
 
@@ -79,6 +80,11 @@ declare global {
 }
 
 export class LancerItem extends Item {
+  // Internally helps us monitor for when active effects need to be regenerated
+  // Dirty => Need to regenerate
+  // Value => Current effects
+  _generatedEffectTracker = new ChangeWatchHelper();
+
   /**
    * Returns all ranges for the item that match the provided range types
    */
@@ -124,7 +130,7 @@ export class LancerItem extends Item {
     // Apply limited max from tags, as applicable
     let tags = this.get_tags() ?? [];
     let lim_tag = tags.find(t => t.is_limited);
-    if (lim_tag && this._tracks_uses()) {
+    if (lim_tag && this._hasUses()) {
       this.system.uses.max = lim_tag.num_val ?? 0; // We will apply bonuses later
     }
   }
@@ -136,10 +142,13 @@ export class LancerItem extends Item {
   prepareFinalAttributes(system: SystemData.Mech | SystemData.Pilot): void {
     // At the very least, we can apply limited bonuses from our parent
     if (this.actor?.is_mech()) {
-      if (this._tracks_uses()) {
+      if (this._hasUses()) {
         this.system.uses.max += (system as SystemData.Mech).loadout.limited_bonus;
       }
     }
+
+    // Update our change watcher.
+    this._generatedEffectTracker.setValue(this._generateEffectData());
   }
 
   /** @override
@@ -152,24 +161,46 @@ export class LancerItem extends Item {
   }
 
   /**
-   * Generates the effect data for this items bonuses and innate effects
+   * Generates the effect data for this items bonuses and innate effects (such as those from armor, a frame, etc).
+   * Generates no effects if item is destroyed, or unequipped.
+   * Does not care if item is equipped or not.
    */
-  generate_innate_effects(): LancerActiveEffectConstructorData[] {
-    // Generate from bonus + innate
+  _generateEffectData(): LancerActiveEffectConstructorData[] {
+    // Destroyed items produce no effects
+    if ((this as any).destroyed === true || !this.isEquipped()) return [];
+
+    // Generate from bonuses + innate
     let bonuses: BonusData[] = [];
     let innate: LancerActiveEffectConstructorData | null = null;
-    if (this.is_frame()) {
-      bonuses = [...this.system.core_system.passive_bonuses, ...this.system.traits.flatMap(t => t.bonuses)];
-      innate = effect_for_frame(this as LancerFRAME);
-    } else if (this.is_pilot_armor() || this.is_core_bonus() || this.is_mech_system()) {
-      bonuses = this.system.bonuses;
-    } else {
-      console.log("TODO other effects");
-    }
+    switch (this.type) {
+      case EntryType.FRAME:
+        bonuses = [
+          ...(this as unknown as LancerFRAME).system.core_system.passive_bonuses,
+          ...(this as unknown as LancerFRAME).system.traits.flatMap(t => t.bonuses),
+        ];
+        innate = frameInnate(this as unknown as LancerFRAME);
+        break;
+      case EntryType.PILOT_ARMOR:
+      case EntryType.PILOT_GEAR:
+      case EntryType.PILOT_WEAPON:
+      case EntryType.MECH_SYSTEM:
+      case EntryType.WEAPON_MOD:
+      case EntryType.CORE_BONUS:
+        bonuses = (this as any).system.bonuses;
+        break;
+      case EntryType.MECH_WEAPON:
+        bonuses = (this as unknown as LancerMECH_WEAPON).system.active_profile.bonuses;
+        break;
+      case EntryType.TALENT:
+        bonuses = (this as unknown as LancerTALENT).system.ranks
+          .slice(0, (this as unknown as LancerTALENT).system.curr_rank)
+          .flatMap(r => r.bonuses);
+        break;
+    } // Nothing else needs particular care
 
     // Convert bonuses
     let bonus_effects = bonuses
-      .map(b => convert_bonus(`${this.name} - ${b.lid}`, b))
+      .map(b => convertBonus(this.uuid, `${this.name} - ${b.lid}`, b))
       .filter(b => b) as LancerActiveEffectConstructorData[];
 
     if (innate) {
@@ -338,7 +369,8 @@ export class LancerItem extends Item {
     }
   }
 
-  get_limited(): number | null {
+  // Returns this items limit tag value
+  getLimitedBase(): number | null {
     let lim_tag = this.get_tags()?.find(t => t.is_limited);
     if (lim_tag) {
       return lim_tag.num_val;
@@ -347,20 +379,30 @@ export class LancerItem extends Item {
     }
   }
 
-  _tracks_uses(): this is { system: SystemTemplates.uses } {
+  // Returns true & type info if this item tracks uses (whether or not it has the limited tag)
+  _hasUses(): this is { system: SystemTemplates.uses } {
     return (this as any).system.uses !== undefined;
   }
 
-  is_limited(): this is { system: SystemTemplates.uses } {
-    return this._tracks_uses() && this.system.uses.max > 0;
+  // Returns true & type info if this has the limited tag
+  isLimited(): this is { system: SystemTemplates.uses } {
+    return this._hasUses() && this.system.uses.max > 0;
   }
 
-  is_loading(): boolean {
+  // Returns true if this has the loading tag
+  isLoading(): boolean {
     return (this.get_tags() ?? []).some(t => t.is_loading);
   }
 
-  has_actions(): this is { system: { actions: ActionData[] } } {
+  // Returns true & type information if this item has action data
+  hasActions(): this is { system: { actions: ActionData[] } } {
     return (this as any).system.actions !== undefined;
+  }
+
+  // Returns true either if this is equipped, or if equipping has no meaning. False if not on an actor
+  isEquipped(): boolean {
+    let eq = (this as any).system.equipped;
+    return this.actor ? eq || eq === undefined : false;
   }
 
   // Checks that the provided document is not null, and is a lancer actor

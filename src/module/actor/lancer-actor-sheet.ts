@@ -393,7 +393,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
   async quickOwn(document: LancerItem): Promise<[LancerItem, boolean]> {
     if (document.parent != this.actor) {
       let [result] = await insinuate([document], this.actor);
-      if (result.is_limited()) {
+      if (result.isLimited()) {
         await result.update({
           "system.uses.value": result.system.uses.max,
         });
