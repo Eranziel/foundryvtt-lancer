@@ -31,8 +31,9 @@ export interface LancerActiveEffectFlags {
     // If specified, disable unless this
     target_type?: LancerEffectTarget;
 
-    // The actor (uuid) this was copied from, if applicable. Regardless of the true origin, this is the nearest ancestor
-    passdown_parent?: string | null;
+    // When we propagate an effect, the origin becomes the parent actor.
+    // This field maintains the true original
+    deep_origin?: string | null;
   };
 }
 
@@ -120,7 +121,7 @@ export class LancerActiveEffect extends ActiveEffect {
       if (!e.affectsUs()) passthrough.effects.push(e);
       // @ts-expect-error
       else if (e.disabled) disabled.effects.push(e);
-      else if (e._typedFlags.lancer?.passdown_parent) inherited.effects.push(e);
+      else if (e._typedFlags.lancer?.deep_origin) inherited.effects.push(e);
       else passives.effects.push(e);
     }
 

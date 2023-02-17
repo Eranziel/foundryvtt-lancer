@@ -1077,23 +1077,32 @@ export class LancerActor extends Actor {
   propagateEffects = foundry.utils.debounce((force: boolean = false) => this.propagateEffectsInner(force), 500);
   propagateEffectsInner(force: boolean = false) {
     if (!force && !this._passdownEffectTracker.isDirty) {
-      console.log("Skipping a passdown");
+      console.log("Skipping a propagate");
       return;
     }
-    console.log("Performing a passdown");
+    console.log("Performing a propagate");
     const propagateTo = (target: LancerActor) => {
       console.debug(`Actor ${this.name} propagating effects to ${target.name}`);
       // Add new from this pilot
       let changes: LancerActiveEffectConstructorData[] = foundry.utils.duplicate(
         this._passdownEffectTracker.curr_value
       );
-      changes.forEach(c => (c.flags.lancer.passdown_parent = this.uuid));
+      changes.forEach(c => {
+        c.flags.lancer ??= {};
+        c.flags.lancer.deep_origin = c.origin;
+        c.origin = this.uuid;
+      });
+      console.log("Setting changes:", changes);
       target.effectHelper.setEphemeralEffects(this.uuid, changes);
     };
 
     // Call this whenever update this actors stats in any meaningful way
     if (this.is_pilot()) {
-      if (this.system.active_mech?.status == "resolved") {
+      // Only propagate if we have a satisfied two-way binding
+      if (
+        this.system.active_mech?.status == "resolved" &&
+        this.system.active_mech.value.system.pilot?.id == this.uuid
+      ) {
         propagateTo(this.system.active_mech.value);
       }
     } else {
