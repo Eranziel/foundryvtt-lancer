@@ -5,6 +5,10 @@ import { LancerActiveEffect, LancerActiveEffectConstructorData } from "./lancer-
 
 /**
  * A helper class purposed with managing active effects on a particular actor
+ *
+ * TODO: make it so these are actually removeable in a sane way by users.
+ * As it stands, they will regenerate in-perpetuity without a clear way for the player to remove them
+ * Possibly: when _we_ delete, set flag on around the operation. All other deletes will purge from expectedEffects
  */
 export class EffectHelper {
   /**

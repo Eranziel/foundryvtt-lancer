@@ -12,23 +12,23 @@ declare global {
  * @extends {TokenDocument}
  */
 export class LancerTokenDocument extends TokenDocument {
-  /** @inheritdoc */
-  /*
-  getBarAttribute(barName: string, { alternative }: { alternative?: string | undefined } | undefined = {}) {
-    let result = super.getBarAttribute(barName, { alternative });
-    if (result && !result.editable) {
-      const attr = result.attribute;
-      if (attr.includes("derived.")) {
-        let new_key = un_derive_attr_key(attr);
-        // Get the model, and see if it _should_ be editable
-        const model = game.system.model.Actor[this.actor!.type];
-        result.editable = hasProperty(model!, new_key);
+  _onCreate(data: any, options: any, userID: string): any {
+    super._onCreate(data, options, userID);
+
+    if (userID != game.user?.id) return;
+
+    // Propagate effects from owner upon creation
+    if (this.actor?.is_deployable() && this.actor.system.owner?.status == "resolved") {
+      let owner = this.actor.system.owner.value;
+      if (owner.is_pilot() && owner.system.active_mech?.status == "resolved") {
+        owner = owner.system.active_mech.value;
       }
+      let ownerEffects = owner.effectHelper.collectPassdownEffects();
+      this.actor.effectHelper.setEphemeralEffects(this.actor.uuid, ownerEffects);
     }
-    return result;
   }
-  */
 }
+
 /**
  * Extend the base Token class to implement additional system-specific logic.
  * @extends {Token}

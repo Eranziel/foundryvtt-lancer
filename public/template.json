@@ -108,7 +108,7 @@
       },
       "avail_mounted": true,
       "avail_unmounted": false,
-      "deployer": null
+      "owner": null
     },
     "mech": {
       "templates": ["universal", "action_tracking", "heat", "struss"],

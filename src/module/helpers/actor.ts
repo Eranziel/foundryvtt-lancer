@@ -7,6 +7,7 @@ import type { ActionType } from "../action";
 import type { LancerActor, LancerMECH, LancerNPC, LancerPILOT } from "../actor/lancer-actor";
 import { getActionTrackerOptions } from "../settings";
 import { EntryType } from "../enums";
+import { SystemTemplates } from "../system-template";
 
 // ---------------------------------------
 // Some simple stat editing thingies
@@ -355,17 +356,19 @@ export function is_combatant(actor: LancerActor) {
 // Create a div with flags for dropping native pilots/mechs/npcs
 export function deployer_slot(data_path: string, options: HelperOptions): string {
   // get the existing
-  let existing = resolve_helper_dotpath<LancerPILOT | LancerMECH | LancerNPC | null>(options, data_path, null);
-  if (!existing) {
+  let existing = resolve_helper_dotpath<SystemTemplates.ResolvedSyncUuidRef<
+    LancerPILOT | LancerMECH | LancerNPC
+  > | null>(options, data_path, null);
+  if (!existing?.value) {
     return simple_ref_slot(data_path, [EntryType.PILOT, EntryType.MECH, EntryType.NPC], "uuid-ref", options);
   }
 
   // Generate commons
   return `
-    <div class="card clipped ${existing.type} ref valid" ${ref_params(existing)}>
+    <div class="card clipped ${existing.value.type} ref set click-open" ${ref_params(existing.value)}>
       <div class="compact-deployer medium flexrow" >
-        <span class="img-bar" style="background-image: url(${existing.img});"> </span>
-        <div class="major modifier-name i--light">${existing.type.toUpperCase()} ${existing.name}</div>
+        <span class="img-bar" style="background-image: url(${existing.value.img});"> </span>
+        <div class="major modifier-name i--light">${existing.value.type.toUpperCase()} ${existing.value.name}</div>
       </div>
     </div>`;
 }

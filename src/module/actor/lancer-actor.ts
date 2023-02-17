@@ -1092,7 +1092,6 @@ export class LancerActor extends Actor {
         c.flags.lancer.deep_origin = c.origin;
         c.origin = this.uuid;
       });
-      console.log("Setting changes:", changes);
       target.effectHelper.setEphemeralEffects(this.uuid, changes);
     };
 
@@ -1105,8 +1104,6 @@ export class LancerActor extends Actor {
       ) {
         propagateTo(this.system.active_mech.value);
       }
-    } else {
-      // Send to deployables TODO
     }
   }
 
