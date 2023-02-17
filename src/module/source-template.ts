@@ -400,9 +400,9 @@ export namespace SourceData {
     last_cloud_update: string;
     level: number;
     loadout: {
-      armor: UUIDRef[];
-      gear: UUIDRef[];
-      weapons: UUIDRef[];
+      armor: Array<UUIDRef | null>;
+      gear: Array<UUIDRef | null>;
+      weapons: Array<UUIDRef | null>;
     };
     hull: number;
     agi: number;

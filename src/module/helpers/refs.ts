@@ -586,6 +586,7 @@ export function HANDLER_activate_ref_slot_dropping(
 
     // Then just merge-set to the path
     if (path) {
+      console.log("SLOT DROP");
       let dd = drilldownDocument(root_doc, path);
       dd.sub_doc.update({ [dd.sub_path]: val });
     }

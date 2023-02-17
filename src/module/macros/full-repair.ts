@@ -24,7 +24,7 @@ export function fullRepairMacro(actorUUID: string) {
               return reject();
             }
 
-            await actor.full_repair();
+            await actor.fullRepair();
             prepareTextMacro(actorUUID, "REPAIRED", `Notice: ${actor.name} has been fully repaired.`);
             resolve(true);
           },

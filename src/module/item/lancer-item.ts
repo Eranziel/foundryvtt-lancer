@@ -7,7 +7,7 @@ import { ActionData } from "../models/bits/action";
 import { RangeData } from "../models/bits/range";
 import { Tag } from "../models/bits/tag";
 import { LancerActiveEffectConstructorData } from "../effects/lancer-active-effect";
-import { convertBonus, effect_for_frame as frameInnate } from "../effects/converter";
+import { convertBonus, frameInnateEffect as frameInnate } from "../effects/converter";
 import { BonusData } from "../models/bits/bonus";
 import { ChangeWatchHelper } from "../util/misc";
 
@@ -118,8 +118,24 @@ export class LancerItem extends Item {
   prepareData() {
     super.prepareData();
 
-    // @ts-expect-error
-    this.system.equipped = false;
+    // Default equipped based on if its something that must manually be equipped,
+    // or is just inherently equipped
+    switch (this.type) {
+      case EntryType.MECH_SYSTEM:
+      case EntryType.MECH_WEAPON:
+      case EntryType.WEAPON_MOD:
+      case EntryType.FRAME:
+      case EntryType.PILOT_GEAR:
+      case EntryType.PILOT_ARMOR:
+      case EntryType.PILOT_WEAPON:
+        // @ts-expect-error
+        this.system.equipped = false;
+        break;
+      default:
+        // @ts-expect-error
+        this.system.equipped = true;
+        break;
+    }
 
     // Collect all tags on mech weapons
     if (this.is_mech_weapon()) {
@@ -402,7 +418,7 @@ export class LancerItem extends Item {
   // Returns true either if this is equipped, or if equipping has no meaning. False if not on an actor
   isEquipped(): boolean {
     let eq = (this as any).system.equipped;
-    return this.actor ? eq || eq === undefined : false;
+    return this.actor ? eq : false;
   }
 
   // Checks that the provided document is not null, and is a lancer actor

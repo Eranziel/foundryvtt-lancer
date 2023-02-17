@@ -11,7 +11,7 @@ const PILOT_STAT_PRIORITY = 20;
 // Makes a active effect for a frame. Frames should automatically regenerate these when edited
 type FrameStatKey = keyof SystemData.Frame["stats"];
 type MechStatKey = keyof SystemData.Mech;
-export function effect_for_frame(frame: LancerFRAME): LancerActiveEffectConstructorData {
+export function frameInnateEffect(frame: LancerFRAME): LancerActiveEffectConstructorData {
   let keys: Array<FrameStatKey & MechStatKey> = [
     "armor",
     "edef",
@@ -455,7 +455,7 @@ export function convertBonus(
 /**
  * Determine whether this Active Effect applies to the given weapon
  */
-export function weapon_bonus_affects(
+export function bonusAffectsWeapon(
   weapon: LancerMECH_WEAPON,
   bonus: SystemTemplates.actor_universal["weapon_bonuses"][0]
 ): boolean {

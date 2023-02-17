@@ -1,6 +1,6 @@
 import * as t from "io-ts";
 
-import type { LancerActor } from "../../actor/lancer-actor";
+import type { LancerActor, LancerMECH } from "../../actor/lancer-actor";
 import type { AccDiffPlugin, AccDiffPluginData, AccDiffPluginCodec } from "./plugin";
 import { enclass, encode, decode } from "./serde";
 import { LancerItem } from "../../item/lancer-item";
@@ -9,11 +9,7 @@ import Invisibility from "./invisibility";
 import Spotter from "./spotter";
 import { LancerToken } from "../../token";
 import { Tag } from "../../models/bits/tag";
-
-export function findEffect(actor: LancerActor, effect: string): ActiveEffect | null {
-  // @ts-expect-error Should be fixed with v10 types
-  return actor.effects.find(eff => eff.flags.core?.statusId?.endsWith(effect) ?? false) ?? null;
-}
+import { LancerActiveEffect } from "../../effects/lancer-active-effect";
 
 export enum Cover {
   None = 0,
@@ -67,7 +63,7 @@ export class AccDiffWeapon {
   }
 
   get impaired(): ActiveEffect | null {
-    return (this.#data?.lancerActor && findEffect(this.#data.lancerActor, "impaired")) ?? null;
+    return (this.#data?.lancerActor && this.#data.lancerActor?.effectHelper.findEffect("impaired")) ?? null;
   }
 
   total(cover: number) {
@@ -215,12 +211,12 @@ export class AccDiffTarget {
     }
   }
 
-  get usingLockOn(): null | ActiveEffect {
+  get usingLockOn(): null | LancerActiveEffect {
     return (this.consumeLockOn && this.lockOnAvailable) || null;
   }
 
-  get lockOnAvailable(): null | ActiveEffect {
-    return findEffect(this.target.actor!, "lockon");
+  get lockOnAvailable(): null | LancerActiveEffect {
+    return this.target.actor?.effectHelper.findEffect("lockon") ?? null; // TODO - use status flag
   }
 
   get total() {

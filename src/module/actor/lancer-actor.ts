@@ -4,7 +4,6 @@ import { LancerHooks, LancerSubscription } from "../helpers/hooks";
 import { renderMacroTemplate, encodeMacroData, prepareOverheatMacro, prepareStructureMacro } from "../macros";
 import { DamageType, EntryType, FittingSize, MountType, StabOptions1, StabOptions2, WeaponSize } from "../enums";
 import { fix_modify_token_attribute } from "../token";
-import { findEffect } from "../helpers/acc_diff";
 import { AppliedDamage } from "./damage-calc";
 import { SystemData, SystemDataType, SystemTemplates } from "../system-template";
 import { SourceData, SourceDataType } from "../source-template";
@@ -18,6 +17,7 @@ import { LancerActiveEffectConstructorData } from "../effects/lancer-active-effe
 import { filter_resolved_sync } from "../helpers/commons";
 import { ChangeWatchHelper } from "../util/misc";
 import { frameToPath } from "./retrograde-map";
+import { EffectHelper } from "../effects/effector";
 const lp = LANCER.log_prefix;
 
 const DEFAULT_OVERCHARGE_SEQUENCE = ["+1", "+1d3", "+1d6", "+1d6+4"];
@@ -55,8 +55,9 @@ declare global {
   }
 }
 
-// Track deletions here to avoid double-tapping delete of active effects
+// Track deletions here to avoid double-tapping delete of active effects.
 const deleteIdCache = new Set<string>();
+const deleteIdCacheCleanup = foundry.utils.debounce(() => deleteIdCache.clear(), 20_000); // If 20 seconds pass without us modifying delete id cache, wipe it
 
 /**
  * Extend the Actor class for Lancer Actors.
@@ -64,6 +65,9 @@ const deleteIdCache = new Set<string>();
 export class LancerActor extends Actor {
   // Kept for comparing previous to next values / doing deltas
   _passdownEffectTracker = new ChangeWatchHelper(); // Holds effects that are/will be passed down to descendants. Invalidation means we must pass down effects again
+
+  /** Helps us manage our ephemeral effects, as well as providing miscellaneous utility functions */
+  effectHelper = new EffectHelper(this);
 
   /**
    * Performs overheat
@@ -350,14 +354,13 @@ export class LancerActor extends Actor {
 
   // Fully repair actor
   // Even pilots can be fully repaired
-  async full_repair() {
+  async fullRepair() {
     // Remove all statuses affecting this mech. Keep active effects generally - most are positive
-    await this.removeAllStatuses();
+    await this.effectHelper.removeAllStatuses();
 
     // Remove unequipped items
     this._deleteUnequippedItems();
 
-    //TODO fix to be a real type
     let changes: Record<string, any> = {
       // @ts-expect-error System's broken unless narrowed
       "system.hp": this.system.hp.max,
@@ -384,16 +387,12 @@ export class LancerActor extends Actor {
       changes["system.meltdown_timer"] = null;
     }
 
-    // Things just for pilots - propagate a repair to their mech
+    // Pilots propagate a repair to their mech
     if (this.is_pilot()) {
-      ui.notifications!.error("Rep pilot doesnt repair mech todo fix"); // TODO
-      // let mech = await ent.ActiveMech();
-      // if (mech) {
-      // await mech.Flags.orig_doc.full_repair();
-      // }
+      await this.system.active_mech?.value?.fullRepair();
     }
 
-    if (!this.is_deployable()) await this.restore_all_items();
+    if (!this.is_deployable()) await this.restoreAllItems();
     await this.update(changes);
   }
 
@@ -456,7 +455,7 @@ export class LancerActor extends Actor {
   /**
    * Find all limited systems and set them to their max/repaired/ideal state
    */
-  async restore_all_items() {
+  async restoreAllItems() {
     let fixes = this.listLoadout().map(i =>
       this.refresh(i, {
         reload: true,
@@ -470,38 +469,15 @@ export class LancerActor extends Actor {
   /**
    * Find all owned items and set them to be not destroyed
    */
-  async repair_all_items() {
+  async repairAllItems() {
     return Promise.all(this.listLoadout().map(i => this.refresh(i, { repair: true })));
   }
 
   /**
    * Find all owned weapons and (generate the changes necessary to) reload them
    */
-  reload_all_items() {
+  reloadAllItems() {
     return this.listLoadout().map(i => this.refresh(i, { reload: true }));
-  }
-
-  /**
-   * Locates an ActiveEffect on the Actor by name and removes it if present.
-   * @param effect String name of the ActiveEffect to remove.
-   */
-  async removeActiveEffect(effect: string) {
-    const target_effect = findEffect(this, effect);
-    target_effect?.delete();
-  }
-
-  /**
-   * Wipes all Statuses and (unsourced) ActiveEffects from the Actor.
-   */
-  async removeAllStatuses() {
-    let effects_to_delete = this.effects
-      .filter(e => e.sourceName === "None")
-      .map(e => {
-        return e.id ?? "";
-      });
-    await this.deleteEmbeddedDocuments("ActiveEffect", effects_to_delete);
-    let items_to_delete = this.items.filter(i => i.is_status()).map(i => i.id) as string[];
-    await this.deleteEmbeddedDocuments("Item", items_to_delete);
   }
 
   /**
@@ -524,7 +500,7 @@ export class LancerActor extends Actor {
     if (o1 === StabOptions1.Cool) {
       return_text = return_text.concat("Mech is cooling itself. @Compendium[world.status.EXPOSED] cleared.<br>");
       await this.update({ "system.heat": 0 });
-      this.removeActiveEffect("exposed");
+      this.effectHelper.removeActiveEffect("exposed");
     } else if (o1 === StabOptions1.Repair) {
       if (this.is_mech()) {
         if (this.system.repairs.value <= 0) {
@@ -550,7 +526,7 @@ export class LancerActor extends Actor {
         break;
       case StabOptions2.Reload:
         return_text = return_text.concat("Mech has selected full reload, reloading...");
-        item_changes = this.reload_all_items();
+        item_changes = this.reloadAllItems();
         break;
       default:
         return ``;
@@ -576,7 +552,7 @@ export class LancerActor extends Actor {
     }
 
     // Step 1: Exposed doubles non-burn, non-heat damage
-    if (findEffect(this, "exposed")) {
+    if (this.effectHelper.findEffect("exposed")) {
       armored_damage_types.forEach(d => (damage[d] *= 2));
     }
 
@@ -586,7 +562,7 @@ export class LancerActor extends Actor {
      * Armor reduction may favor attacker or defender depending on automation.
      * Default is "favors defender".
      */
-    if (!paracausal && !findEffect(this, "shredded")) {
+    if (!paracausal && !this.effectHelper.findEffect("shredded")) {
       const defense_favor = true; // getAutomationOptions().defenderArmor
       // @ts-expect-error System's broken
       const resist_armor_damage = armored_damage_types.filter(t => this.system.resistances[t.toLowerCase()]);
@@ -782,7 +758,8 @@ export class LancerActor extends Actor {
 
   /** @override
    * We need to, in order:
-   *  - Re-compute any derived attributes
+   *  - Mark things as equipped
+   *  - Finalize derived data on weaponry based on fully prepared actor statistics
    */
   prepareDerivedData() {
     // Track equipping if pilot or mech
@@ -834,7 +811,7 @@ export class LancerActor extends Actor {
     }
 
     // Track shift in values. Use optional to handle compendium bulk-created items, which handle strangely
-    this._passdownEffectTracker?.setValue(this._collectPassdownEffects());
+    this._passdownEffectTracker?.setValue(this.effectHelper.collectPassdownEffects());
   }
 
   /** @override
@@ -847,8 +824,7 @@ export class LancerActor extends Actor {
   }
 
   /** @override
-   * This is mostly copy-pasted from Actor.modifyTokenAttribute
-   * to allow negative hps, which are useful for structure checks
+   * This is mostly copy-pasted from Actor.modifyTokenAttribute to allow negative hps, which are useful for structure checks
    */
   async modifyTokenAttribute(attribute: string, value: any, isDelta = false, isBar = true) {
     // @ts-expect-error Should be fixed with v10 types
@@ -869,6 +845,10 @@ export class LancerActor extends Actor {
     return allowed ? this.update(updates) : this;
   }
 
+  /** @override
+   * This is overridden to pre-populate with slightly more sensible data,
+   * such as nicer icons and default names, token dispositions, etc
+   */
   protected async _preCreate(...[data, options, user]: Parameters<Actor["_preCreate"]>): Promise<void> {
     await super._preCreate(data, options, user);
     // @ts-expect-error Should be fixed with v10 types
@@ -915,7 +895,7 @@ export class LancerActor extends Actor {
   }
 
   /** @override
-   * On the result of an update, we want to cascade derived data.
+   * Upon an actor being updated, we want to trigger automated cleanup, effect generation, etc
    */
   protected _onUpdate(...[changed, options, user]: Parameters<Actor["_onUpdate"]>) {
     console.log("OnUpdate");
@@ -924,66 +904,69 @@ export class LancerActor extends Actor {
       return;
     }
 
-    // Remove unresolved references
+    // Many of the operations below MIGHT cause DB operations (async operations!).
+    // We can't really await them here, nor should we - they will re-trigger an onUpdate as necessary
+    // Remove unresolved references.
     this._cleanupUnresolvedReferences();
 
     // First try to regenerate our innate effect. If this is a no-op, it won't actually do any db operations
-    this._regenerateInnateEffect();
-    (async () => {})()
-      .then(async () => {
-        // Must regenerate all item effects in case of loadout change. TODO: specifically monitor for loadout changes. This is still mostly no-ops, but nevertheless it feels wasteful
-        for (let item of this.items.contents) {
-          if (item.isEquipped()) {
-            await this._regenerateItemEffects(item, "update");
-          } else {
-            await this._regenerateItemEffects(item, "delete");
-          }
-        }
-      })
-      .then(_ => {
-        // Check for overheating / structure
-        if (
-          getAutomationOptions().structure &&
-          this.isOwner &&
-          !(
-            game.users?.players.reduce((a, u) => a || (u.active && this.testUserPermission(u, "OWNER")), false) &&
-            game.user?.isGM
-          ) &&
-          (this.is_mech() || this.is_npc())
-        ) {
-          const data = changed as any; // DeepPartial<RegMechData | RegNpcData>;
-          if ((data.system?.heat ?? 0) > this.system.heat.max && this.system.stress.value > 0) {
-            prepareOverheatMacro(this);
-          }
-          if ((data.system?.hp ?? 1) <= 0 && this.system.structure.value > 0) {
-            prepareStructureMacro(this);
-          }
-        }
-      })
-      .then(_ => {
-        // If the Size of the ent has changed since the last update, set the
-        // protype token size to the new size
-        // @ts-expect-error System's broken
-        if (this.prototypeToken?.width !== this.system.size) {
-          // @ts-expect-error System's broken
-          const size = Math.max(1, this.system.size);
-          // @ts-expect-error
-          return this.prototypeToken?.update({
-            width: size,
-            height: size,
-            flags: {
-              "hex-size-support": {
-                borderSize: size,
-                altSnapping: true,
-                evenSnap: !(size % 2),
-              },
-            },
-          });
-        }
+    if (this.is_pilot()) {
+      this.effectHelper.setEphemeralEffects(this.uuid, [pilotInnateEffect(this)]);
+    }
+
+    // Then re-asset all of our item effects
+    for (let item of this.items.contents) {
+      if (item.isEquipped()) {
+        this.effectHelper.setEphemeralEffectsFromItem(item);
+      } else {
+        this.effectHelper.clearEphemeralEffects(item.uuid);
+      }
+    }
+
+    // Check for overheating / structure
+    if (
+      getAutomationOptions().structure &&
+      this.isOwner &&
+      !(
+        game.users?.players.reduce((a, u) => a || (u.active && this.testUserPermission(u, "OWNER")), false) &&
+        game.user?.isGM
+      ) &&
+      (this.is_mech() || this.is_npc())
+    ) {
+      const data = changed as any; // DeepPartial<RegMechData | RegNpcData>;
+      if ((data.system?.heat ?? 0) > this.system.heat.max && this.system.stress.value > 0) {
+        prepareOverheatMacro(this);
+      }
+      if ((data.system?.hp ?? 1) <= 0 && this.system.structure.value > 0) {
+        prepareStructureMacro(this);
+      }
+    }
+
+    // If the Size of the ent has changed since the last update, set the
+    // protype token size to the new size
+    // @ts-expect-error System's broken
+    if (this.prototypeToken?.width !== this.system.size) {
+      // @ts-expect-error System's broken
+      const size = Math.max(1, this.system.size);
+      // @ts-expect-error
+      this.prototypeToken?.update({
+        width: size,
+        height: size,
+        flags: {
+          "hex-size-support": {
+            borderSize: size,
+            altSnapping: true,
+            evenSnap: !(size % 2),
+          },
+        },
       });
+    }
   }
 
-  /** @inheritdoc */
+  /** @inheritdoc
+   * Due to the complex effects equipment can have on an actors statistical values, it is necessary to be sure our
+   * effects are kept in lockstep as items are created, updated, and deleted
+   */
   _onCreateEmbeddedDocuments(
     embeddedName: "Item" | "ActiveEffect",
     documents: LancerItem[] | LancerActiveEffect[],
@@ -1001,8 +984,7 @@ export class LancerActor extends Actor {
     if (embeddedName == "Item") {
       for (let item of documents as LancerItem[]) {
         if (item.isEquipped()) {
-          item._generatedEffectTracker.clean();
-          this._regenerateItemEffects(item, "create");
+          this.effectHelper.setEphemeralEffectsFromItem(item);
         }
       }
     } else {
@@ -1028,8 +1010,7 @@ export class LancerActor extends Actor {
     if (embeddedName == "Item") {
       for (let item of documents as LancerItem[]) {
         if (item.isEquipped() && item._generatedEffectTracker.isDirty) {
-          item._generatedEffectTracker.clean();
-          this._regenerateItemEffects(item as LancerItem, "update");
+          this.effectHelper.setEphemeralEffectsFromItem(item);
         }
       }
     } else {
@@ -1047,18 +1028,31 @@ export class LancerActor extends Actor {
   ) {
     console.log("OnDeleteEmbedded", embeddedName, documents);
     super._onDeleteEmbeddedDocuments(embeddedName, documents, result, options, user);
+    // Mark them all as deleted
+    for (let doc of documents) {
+      deleteIdCache.add(doc.uuid);
+    }
+    deleteIdCacheCleanup();
+
+    // Only continue if we did this
     if (game.userId != user) {
       return;
     }
 
     // Clear effects from deleted items
-    if (embeddedName == "ActiveEffect") {
+    if (embeddedName == "Item") {
+      for (let item of documents as LancerItem[]) {
+        this.effectHelper.clearEphemeralEffects(item.uuid);
+      }
+      this._cleanupUnresolvedReferences();
+    } else {
       this.propagateEffects(); // Effects have changed
     }
   }
 
   /**
-   * Delete an active effect(s) without worrying if its been deleted before
+   * Delete an active effect(s) without worrying if its been deleted before.
+   * There is still technically an _exceedingly_ narrow window in which we can get duplicate deletion of effects, but this mitigates it
    */
   async _safeDeleteEmbedded(collection: "Item" | "ActiveEffect", ...effects: ActiveEffect[] | Item[]): Promise<any> {
     if (!effects.length) return;
@@ -1070,6 +1064,7 @@ export class LancerActor extends Actor {
         toDelete.push(e.id!);
       }
     }
+    deleteIdCacheCleanup();
     return this.deleteEmbeddedDocuments(collection, toDelete);
   }
 
@@ -1080,95 +1075,29 @@ export class LancerActor extends Actor {
    * Debounced
    */
   propagateEffects = foundry.utils.debounce((force: boolean = false) => this.propagateEffectsInner(force), 500);
-  async propagateEffectsInner(force: boolean = false) {
+  propagateEffectsInner(force: boolean = false) {
     if (!force && !this._passdownEffectTracker.isDirty) {
       console.log("Skipping a passdown");
       return;
     }
     console.log("Performing a passdown");
-    const propagateTo = async (target: LancerActor) => {
+    const propagateTo = (target: LancerActor) => {
       console.debug(`Actor ${this.name} propagating effects to ${target.name}`);
-      // Get rid of old from this pilot
-      let old = target.effects.filter(e => (e.getFlag("lancer", "passdown_parent") as string) == this.uuid);
-      await target._safeDeleteEmbedded("ActiveEffect", ...old); // TODO - update in place??
-
       // Add new from this pilot
       let changes: LancerActiveEffectConstructorData[] = foundry.utils.duplicate(
         this._passdownEffectTracker.curr_value
       );
       changes.forEach(c => (c.flags.lancer.passdown_parent = this.uuid));
-
-      // @ts-expect-error
-      await target.createEmbeddedDocuments("ActiveEffect", changes);
+      target.effectHelper.setEphemeralEffects(this.uuid, changes);
     };
 
     // Call this whenever update this actors stats in any meaningful way
     if (this.is_pilot()) {
       if (this.system.active_mech?.status == "resolved") {
-        await propagateTo(this.system.active_mech.value);
+        propagateTo(this.system.active_mech.value);
       }
     } else {
       // Send to deployables TODO
-    }
-  }
-
-  /**
-   * (Re)generates/clears active effects for this item.
-   * Removes old effects first.
-   * create: This should be called when the item is created
-   * update: This should be called anytime we detect the item's generated effect as having changed
-   * delete: This should be called when the item is deleted
-   */
-  async _regenerateItemEffects(item: LancerItem, mode: "create" | "update" | "delete"): Promise<void> {
-    // Get prior effects
-    let old: LancerActiveEffect[] = [];
-    let newEffects: LancerActiveEffectConstructorData[] = item._generatedEffectTracker.curr_value;
-    if (mode != "create") {
-      // @ts-expect-error Origin is a root property now
-      old = this.effects.filter(e => e.origin == item.uuid) as LancerActiveEffect[];
-    }
-
-    // Based on mode, handle
-    if (mode == "delete") {
-      await this._safeDeleteEmbedded("ActiveEffect", ...old);
-    } else if (mode == "create") {
-      // Just create wholesale
-      await this.createEmbeddedDocuments("ActiveEffect", newEffects as any);
-    } else {
-      // If old matches length, then try to update itemwise. This works 99% of the time
-      if (old.length == newEffects.length) {
-        let sim = foundry.utils.duplicate(newEffects);
-        sim.forEach((x, i) => (x._id = old[i].id));
-        await this.updateEmbeddedDocuments("ActiveEffect", sim);
-      } else {
-        // Otherwise just recreate wholesale (e.x. if going from none -> some effects, etc)
-        await this._safeDeleteEmbedded("ActiveEffect", ...old);
-        await this.createEmbeddedDocuments("ActiveEffect", newEffects as any);
-      }
-    }
-  }
-
-  /**
-   * (Re)generates this actors innate effect, whose sole purpose is to be passed down.
-   */
-  async _regenerateInnateEffect(): Promise<void> {
-    if (this.is_pilot()) {
-      // @ts-expect-error Origin/Label are root properties now
-      let old = this.effects.filter(e => e.origin == this.uuid && e.label == "Pilot Stats") as LancerActiveEffect[];
-      // Sanity cleanup if we have somehow created duplicates
-      if (old.length > 1) {
-        await this._safeDeleteEmbedded("ActiveEffect", ...old);
-        old = [];
-      }
-
-      if (old.length == 0) {
-        // Generate
-        // @ts-expect-error - I'm not really sure why this is causing issues
-        await this.createEmbeddedDocuments("ActiveEffect", [pilotInnateEffect(this)]);
-      } else {
-        // Update
-        await old[0].update(pilotInnateEffect(this));
-      }
     }
   }
 
@@ -1209,28 +1138,28 @@ export class LancerActor extends Actor {
       let cleanupLoadout = duplicate(this.system._source.loadout) as SourceData.Pilot["loadout"];
       let currLoadout = this.system.loadout;
       // Fairly simple
-      cleanupLoadout.armor = cleanupLoadout.armor.filter((_, index) => {
+      cleanupLoadout.armor = cleanupLoadout.armor.map((_, index) => {
         if (currLoadout.armor[index]?.status == "missing") {
-          killedIds.push(currLoadout.armor[index]!.id);
-          return false;
+          killedIds.push(cleanupLoadout.armor[index]!);
+          return null;
         } else {
-          return true;
+          return cleanupLoadout.armor[index];
         }
       });
-      cleanupLoadout.gear = cleanupLoadout.gear.filter((_, index) => {
+      cleanupLoadout.gear = cleanupLoadout.gear.map((_, index) => {
         if (currLoadout.gear[index]?.status == "missing") {
-          killedIds.push(currLoadout.gear[index]!.id);
-          return false;
+          killedIds.push(cleanupLoadout.gear[index]!);
+          return null;
         } else {
-          return true;
+          return cleanupLoadout.gear[index];
         }
       });
-      cleanupLoadout.weapons = cleanupLoadout.weapons.filter((_, index) => {
+      cleanupLoadout.weapons = cleanupLoadout.weapons.map((_, index) => {
         if (currLoadout.weapons[index]?.status == "missing") {
-          killedIds.push(currLoadout.weapons[index]!.id);
-          return false;
+          killedIds.push(cleanupLoadout.weapons[index]!);
+          return null;
         } else {
-          return true;
+          return cleanupLoadout.weapons[index];
         }
       });
 
@@ -1283,48 +1212,6 @@ export class LancerActor extends Actor {
     }
     // Deployables and NPCs don't have embedded junk, so we don't mess with 'em
   }
-
-  /**
-   * Collect from our current effects (and pilot/mech innate effects) any that should be passed down to descendants.
-   * as well as from any innate features (pilot grit, mech save target, etc)
-   */
-  _collectPassdownEffects(): LancerActiveEffectConstructorData[] {
-    if (this.is_deployable()) return [];
-
-    // Start with all of them
-    let effects = this.effects.map(e => e.toObject()) as unknown as LancerActiveEffectConstructorData[];
-
-    // Get innate effects
-    if (this.is_pilot()) {
-    } else if (this.is_mech()) {
-      // todo
-    } else if (this.is_npc()) {
-      // todo
-    }
-
-    // Remove all that we "consume" at this level. AKA only pass down unhandled effects
-    effects = effects.filter(e => {
-      switch (e.flags.lancer?.target_type) {
-        case EntryType.PILOT:
-          return false; // Something targeting pilot will never get passed down, since who could possibly receive it?
-        case EntryType.MECH:
-          return this.is_pilot(); // Only pilots can pass down to mechs
-        case EntryType.NPC:
-          return false; // Nothing can pass down to an npc
-        case EntryType.DEPLOYABLE:
-        case "only_deployable":
-        case "only_drone":
-          return true; // Can always pass down to a deployable, seeing as they don't get to execute this function
-        case "mech_and_npc":
-          return this.is_pilot(); // Again, only makes sense to pass down if we are a pilot
-        default:
-          return false; // don't pass down by default
-      }
-    });
-
-    return effects;
-  }
-
   /**
    * Yields a simple error message on a misconfigured mount, or null if no issues detected.
    * @param mount Specific mount to validate
