@@ -854,6 +854,10 @@ export class LancerActor extends Actor {
     // @ts-expect-error Should be fixed with v10 types
     if (data.system?.lid) {
       console.log(`${lp} New ${this.type} has data provided from an import, skipping default init.`);
+      if (!data.img || data.img == "icons/svg/mystery-man.svg") {
+        // @ts-expect-error Should be fixed with v10 types
+        this.updateSource({ img });
+      }
       return;
     }
 
