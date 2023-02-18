@@ -89,8 +89,8 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
       // await this_mm.Loadout.reset_weapon_mounts();
     } else if (is_new && drop.type == "Item" && drop.document.is_mech_weapon()) {
       // If frame, weapon, put it in first available slot. Who cares if it fits
-      // @ts-expect-error
       let currMounts: SourceData.Mech["loadout"]["weapon_mounts"] = foundry.utils.duplicate(
+        // @ts-expect-error
         this.actor.system._source.loadout.weapon_mounts
       );
       let set = false;

@@ -3,7 +3,7 @@ import { LancerHooks, LancerSubscription } from "../helpers/hooks";
 // import { LancerFRAME, LancerItem, LancerItemType, LancerNPC_CLASS } from "../item/lancer-item";
 import { renderMacroTemplate, encodeMacroData, prepareOverheatMacro, prepareStructureMacro } from "../macros";
 import { DamageType, EntryType, FittingSize, MountType, StabOptions1, StabOptions2, WeaponSize } from "../enums";
-import { fix_modify_token_attribute } from "../token";
+import { fix_modify_token_attribute, LancerTokenDocument } from "../token";
 import { AppliedDamage } from "./damage-calc";
 import { SystemData, SystemDataType, SystemTemplates } from "../system-template";
 import { SourceData, SourceDataType } from "../source-template";
@@ -66,7 +66,7 @@ export class LancerActor extends Actor {
   // Kept for comparing previous to next values / doing deltas
   _passdownEffectTracker = new ChangeWatchHelper(); // Holds effects that are/will be passed down to descendants. Invalidation means we must pass down effects again
 
-  /** Helps us manage our ephemeral effects, as well as providing miscellaneous utility functions */
+  // Helps us manage our ephemeral effects, as well as providing miscellaneous utility functions
   effectHelper = new EffectHelper(this);
 
   /**
@@ -851,12 +851,13 @@ export class LancerActor extends Actor {
    */
   protected async _preCreate(...[data, options, user]: Parameters<Actor["_preCreate"]>): Promise<void> {
     await super._preCreate(data, options, user);
+
     // @ts-expect-error Should be fixed with v10 types
     if (data.system?.lid) {
       console.log(`${lp} New ${this.type} has data provided from an import, skipping default init.`);
       if (!data.img || data.img == "icons/svg/mystery-man.svg") {
         // @ts-expect-error Should be fixed with v10 types
-        this.updateSource({ img });
+        this.updateSource({ img: TypeIcon(this.type) });
       }
       return;
     }
@@ -1051,6 +1052,16 @@ export class LancerActor extends Actor {
       this._cleanupUnresolvedReferences();
     } else {
       this.propagateEffects(); // Effects have changed
+      // Warn if it appears that a user has tried to delete a managed effect
+      if (!this.effectHelper._deletingEffect) {
+        for (let doc of documents as LancerActiveEffect[]) {
+          if (doc._typedFlags.lancer.ephemeral) {
+            let msg =
+              "Attempting to delete an effect sourced from an item or other actor. It might regenerate! Instead of deleting the effect, delete the source.";
+            ui.notifications?.warn(msg);
+          }
+        }
+      }
     }
   }
 
@@ -1415,6 +1426,8 @@ export class LancerActor extends Actor {
       ui.notifications?.error(message);
       throw new Error(message);
     }
+    // @ts-ignore
+    if (x instanceof LancerTokenDocument) x = x.actor!;
     if (!(x instanceof LancerActor)) {
       let message = `${messagePrefix ? messagePrefix + " | " : ""}Document ${x} not an actor.`;
       ui.notifications?.error(message);

@@ -33,6 +33,16 @@ export class LancerDeployableSheet extends LancerActorSheet<EntryType.DEPLOYABLE
     return item.type == "Actor" && [EntryType.PILOT, EntryType.MECH, EntryType.NPC].includes(item.document.type);
   }
 
+  async onRootDrop(
+    drop: ResolvedDropData,
+    _event: JQuery.DropEvent<any, any, any, any>,
+    _dest: JQuery<HTMLElement>
+  ): Promise<void> {
+    if (drop.type == "Actor" && drop.document != this.actor) {
+      this.actor.update({ "system.owner": drop.document.uuid });
+    }
+  }
+
   /* -------------------------------------------- */
 
   /**

@@ -6,9 +6,6 @@ import { LancerActiveEffect, LancerActiveEffectConstructorData } from "./lancer-
 /**
  * A helper class purposed with managing active effects on a particular actor
  *
- * TODO: make it so these are actually removeable in a sane way by users.
- * As it stands, they will regenerate in-perpetuity without a clear way for the player to remove them
- * Possibly: when _we_ delete, set flag on around the operation. All other deletes will purge from expectedEffects
  */
 export class EffectHelper {
   /**
@@ -21,7 +18,10 @@ export class EffectHelper {
 
   // If flagged as true, then an edit was made to managedEffects while currTask was running.
   // This signals to currTask that it needs to re-run
-  private dirty = false;
+  #dirty = false;
+
+  // If true, the helper is currently deleting an effect
+  _deletingEffect = false;
 
   constructor(private readonly actor: LancerActor) {}
 
@@ -47,7 +47,7 @@ export class EffectHelper {
   // Attempts to set all of our effects to rights
   #trySynchronize(): void {
     if (this.#currTask) {
-      this.dirty = true;
+      this.#dirty = true;
     } else {
       this.#synchronize();
     }
@@ -84,8 +84,8 @@ export class EffectHelper {
         }
 
         // Reset dirty if necessary, otherwise exit loop
-        if (this.dirty) {
-          this.dirty = false;
+        if (this.#dirty) {
+          this.#dirty = false;
         } else {
           done = true;
           this.#currTask = null;
@@ -99,7 +99,9 @@ export class EffectHelper {
     // First, if presently have too many effects, prune it back
     if (currEffects.length > desiredEffects.length) {
       let toDelete = currEffects.slice(desiredEffects.length);
+      this._deletingEffect = true;
       await this.actor._safeDeleteEmbedded("ActiveEffect", ...toDelete);
+      this._deletingEffect = false;
     }
 
     // Then, update existing effects in-place to match new desired data
