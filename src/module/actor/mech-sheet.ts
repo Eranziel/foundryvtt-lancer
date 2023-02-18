@@ -7,7 +7,7 @@ import { ResolvedDropData } from "../helpers/dragdrop";
 import { EntryType, fittingsForMount, FittingSize, MountType, SystemType } from "../enums";
 import { SystemData } from "../system-template";
 import { LancerActorSheetData } from "../interfaces";
-import { SourceData } from "../source-template";
+import { SourceData, SourceTemplates } from "../source-template";
 import { importDeployablesFor } from "../util/doc";
 
 /**
@@ -88,8 +88,25 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
       // Reset mounts
       // await this_mm.Loadout.reset_weapon_mounts();
     } else if (is_new && drop.type == "Item" && drop.document.is_mech_weapon()) {
-      // If frame, weapon, put it in an available slot
-      // await this_mm.Loadout.equip_weapon(drop);
+      // If frame, weapon, put it in first available slot. Who cares if it fits
+      // @ts-expect-error
+      let currMounts: SourceData.Mech["loadout"]["weapon_mounts"] = foundry.utils.duplicate(
+        this.actor.system._source.loadout.weapon_mounts
+      );
+      let set = false;
+      for (let mount of currMounts) {
+        if (set) break;
+        for (let i = 0; i < mount.slots.length; i++) {
+          if (!mount.slots[i].weapon) {
+            mount.slots[i].weapon = drop.document.id;
+            set = true;
+            break;
+          }
+        }
+      }
+      await this.actor.update({
+        "system.loadout.weapon_mounts": currMounts,
+      });
     } else if (is_new && drop.type == "Item" && drop.document.is_mech_system()) {
       let oldSystems: string[] = (this.actor as any).system._source.loadout.systems;
       await this.actor.update({
@@ -231,20 +248,29 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
     evt: JQuery.ClickEvent
   ) {
     evt.stopPropagation();
-    let data = await this.getData();
     let mech = this.actor as LancerMECH;
     let path = evt.currentTarget?.dataset?.path;
 
     switch (mode) {
       case "reset-all-weapon-mounts":
         // await mech.Loadout.reset_weapon_mounts();
-        ui.notifications?.info("TODO: Reset the mounts");
+        let newMounts = [] as SourceData.Mech["loadout"]["weapon_mounts"];
+        if (mech.system.loadout.frame?.value) {
+          let expFrames = mech.system.loadout.frame.value.system.mounts;
+          newMounts = expFrames.map(mt => ({
+            bracing: false,
+            slots: fittingsForMount(mt).map(f => ({
+              weapon: null,
+              mod: null,
+              size: f,
+            })),
+            type: mt,
+          }));
+        }
+        this.actor.update({ "system.loadout.weapons": newMounts });
         break;
       case "reset-sys":
-        if (!path) return;
-        ui.notifications?.info("TODO: Reset the systems");
-        // let sys_mount = resolve_dotpath(data, path) as SystemMount;
-        // sys_mount.System = null;
+        this.actor.update({ "system.loadout.systems": [] });
         break;
       case "reset-wep":
         if (!path) return;

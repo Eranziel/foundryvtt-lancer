@@ -26,6 +26,7 @@ export function effect_categories_view(
 ) {
   let categories = [] as string[];
   for (let cat of effects) {
+    // if(!cat.effects.length) continue;
     categories.push(`
         <div class="card clipped">
             <span class="lancer-header submajor">${cat.label}</span>

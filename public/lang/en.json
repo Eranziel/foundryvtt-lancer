@@ -20,7 +20,7 @@
                 "stats": "<MECH//STATS>",
                 "loadout": "<MECH//LOADOUT>",
                 "talents": "<PILOT//TALENTS>",
-                "effects": "<STATUSES//EFFECTS>"
+                "effects": "<EFFECTS//ACTIVE>"
             },
             "core": {
                 "label": "CORE"

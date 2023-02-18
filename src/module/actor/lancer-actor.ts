@@ -1109,6 +1109,27 @@ export class LancerActor extends Actor {
         propagateTo(this.system.active_mech.value);
       }
     }
+
+    // Propagate effects from owner upon creation. Pilots don't do this - their mechs will, instead
+    else if (this.is_mech()) {
+      let pilot = this.system.pilot?.value ?? null;
+      // Find our controlled deployables
+      let ownedDeployables = game.actors!.filter(
+        a =>
+          a.is_deployable() &&
+          a.system.owner !== null &&
+          (a.system.owner.value == this || a.system.owner.value == pilot)
+      );
+      for (let dep of ownedDeployables) {
+        propagateTo(dep);
+      }
+    } else if (this.is_npc()) {
+      // Find our controlled deployables. Simpler here
+      let ownedDeployables = game.actors!.filter(a => a.is_deployable() && a.system.owner?.value == this);
+      for (let dep of ownedDeployables) {
+        propagateTo(dep);
+      }
+    }
   }
 
   /**

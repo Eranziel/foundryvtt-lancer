@@ -11,23 +11,7 @@ declare global {
  * Extend the base TokenDocument class to implement system-specific HP bar logic.
  * @extends {TokenDocument}
  */
-export class LancerTokenDocument extends TokenDocument {
-  _onCreate(data: any, options: any, userID: string): any {
-    super._onCreate(data, options, userID);
-
-    if (userID != game.user?.id) return;
-
-    // Propagate effects from owner upon creation
-    if (this.actor?.is_deployable() && this.actor.system.owner?.status == "resolved") {
-      let owner = this.actor.system.owner.value;
-      if (owner.is_pilot() && owner.system.active_mech?.status == "resolved") {
-        owner = owner.system.active_mech.value;
-      }
-      let ownerEffects = owner.effectHelper.collectPassdownEffects();
-      this.actor.effectHelper.setEphemeralEffects(this.actor.uuid, ownerEffects);
-    }
-  }
-}
+export class LancerTokenDocument extends TokenDocument {}
 
 /**
  * Extend the base Token class to implement additional system-specific logic.

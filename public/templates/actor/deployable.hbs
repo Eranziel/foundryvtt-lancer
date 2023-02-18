@@ -19,6 +19,7 @@
   <nav class="lancer-tabs" data-group="primary">
     <a class="item lancer-tab medium" data-tab="status">{{localize "lancer.deployable-sheet.tabs.status"}}</a>
     <a class="item lancer-tab medium" data-tab="config">{{localize "lancer.deployable-sheet.tabs.config"}}</a>
+    <a class="item lancer-tab medium" data-tab="effects">{{localize "lancer.mech-sheet.tabs.effects"}}</a>
     <!--<a class="item lancer-tab medium" data-tab="mech">&lt;FRAME//LOADOUT&gt;</a>-->
   </nav>
 
@@ -78,6 +79,10 @@
           </div>
         </div>
       </div>
+    </div>
+
+    <div class="tab effects" data-group="primary" data-tab="effects">
+      {{{effect-categories-view effect_categories}}} 
     </div>
   </section>
 </form>
