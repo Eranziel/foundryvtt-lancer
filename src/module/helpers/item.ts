@@ -269,7 +269,8 @@ export function npc_feature_preview(npc_feature_path: string, helper: HelperOpti
  * - bonuses=<bonus array to pre-populate with>.
  * Displays a list of bonuses, with buttons to add/delete (if edit true)
  */
-export function bonuses_display(bonuses_path: string, bonuses_array: BonusData[], edit: boolean) {
+export function bonuses_display(bonuses_path: string, edit: boolean, helper: HelperOptions) {
+  let bonuses_array: BonusData[] = resolve_helper_dotpath(helper, bonuses_path);
   let items: string[] = [];
 
   // Render each bonus
@@ -279,7 +280,7 @@ export function bonuses_display(bonuses_path: string, bonuses_array: BonusData[]
     let title = `<span class="grow">${bonus.lid}</span> ${inc_if(delete_button, edit)}`; // Todo: maybe return to
     let boxed = `
       <div class="bonus ${inc_if("editable", edit)}" data-path="${bonuses_path}.${i}">
-        ${effect_box(title, bonus.lid || "undefined")}
+        ${effect_box(title, bonus.val)}
       </div>
     `;
     items.push(boxed);
@@ -718,8 +719,7 @@ export function weapon_mod_ref(mod_path: string, weapon_path: string | null, opt
       </div>`;
   }
   let effect = mod.system.effect ? effect_box("Effect", mod.system.effect) : "";
-  let bonuses =
-    mod.system.bonuses.length > 0 ? bonuses_display(`${mod_path}.system.bonuses`, mod.system.bonuses, false) : "";
+  let bonuses = mod.system.bonuses.length > 0 ? bonuses_display(`${mod_path}.system.bonuses`, false, options) : "";
   let added_tags = "";
   if (mod.system.added_tags.length) {
     added_tags = `

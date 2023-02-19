@@ -4,24 +4,23 @@
   <header class="sheet-header card clipped-bot">
     <div class="flexcol grow">
       <h1 class="charname"><input class="header-field" name="name" type="text" value="{{item.name}}" placeholder="{{localize "lancer.placeholder.name"}}"/></h1>
-      {{{ ref-manufacturer "mm.Source" }}}
     </div>
-    {{{ ref-portrait-img item.img "img" mm }}}
+    {{{ ref-portrait-img item.img "img" item }}}
   </header>
 
   {{!-- Sheet Body --}}
   <div class="flexcol">
-    {{{textarea-card "DESCRIPTION"    "mm.Description"}}}
-    {{{textarea-card "EFFECT"         "mm.Effect"}}}
-    {{{textarea-card "MOUNTED EFFECT" "mm.MountedEffect"}}}
-    {{{item-edit-arrayed-actions      "mm.Actions"      "ACTIONS"}}}
-    {{{item-edit-arrayed-bonuses      "mm.Bonuses"}}}
-    {{{item-edit-arrayed-synergies    "mm.Synergies"    "SYNERGIES"}}}
-    {{{item-edit-arrayed-deployables  "mm.Deployables"  "DEPLOYABLES"}}}
-    {{{counter-array mm.Counters      "mm.Counters"     true}}}
-    {{{item-edit-arrayed-integrated   "mm.Integrated"   "INTEGRATED ITEMS"}}}
+    {{{textarea-card "DESCRIPTION"    "system.description"}}}
+    {{{textarea-card "EFFECT"         "system.effect"}}}
+    {{{textarea-card "MOUNTED EFFECT" "system.mountedEffect"}}}
+    {{{item-edit-arrayed-actions      "system.actions"      "ACTIONS"}}}
+    {{{item-edit-arrayed-bonuses      "system.bonuses"}}}
+    {{{item-edit-arrayed-synergies    "system.synergies"    "SYNERGIES"}}}
+    {{{item-edit-arrayed-deployables  "system.deployables"  "DEPLOYABLES"}}}
+    {{{counter-array system.Counters      "system.counters"     true}}}
+    {{{item-edit-arrayed-integrated   "system.integrated"   "INTEGRATED ITEMS"}}}
 
     {{!-- Bonuses --}}
-    {{{bonuses-view "mm.Bonuses" mm.Bonuses editable}}}
+    {{{bonuses-view "system.bonuses" editable}}}
   </div>
 </form>

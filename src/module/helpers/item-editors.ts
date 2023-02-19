@@ -100,7 +100,7 @@ export function item_edit_arrayed_range(path: string, title: string, helper: Hel
 export function item_edit_arrayed_bonuses(path: string, helper: HelperOptions): string {
   let arr: BonusData[] = resolve_helper_dotpath(helper, path);
   if (!arr) arr = [];
-  return bonuses_display(path, arr, true);
+  return bonuses_display(path, true, helper);
 }
 
 export function item_edit_arrayed_counters(): string {

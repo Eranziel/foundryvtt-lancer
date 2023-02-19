@@ -251,6 +251,7 @@ export class LancerActor extends Actor {
 
     if (this.is_pilot()) {
       this.system.grit = Math.ceil(this.system.level / 2);
+      this.system.hp.max = 6 + this.system.grit;
     } else if (this.is_mech()) {
       // Aggregate sp/ai
       let equipped_sp = 0;

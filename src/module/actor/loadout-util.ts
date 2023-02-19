@@ -197,7 +197,7 @@ export class LoadoutHelper {
       }
     } else if (this.actor.is_mech()) {
       // @ts-expect-error
-      let cleanupLoadout = duplicate(this.system._source.loadout) as SourceData.Mech["loadout"];
+      let cleanupLoadout = foundry.utils.duplicate(this.actor.system._source.loadout) as SourceData.Mech["loadout"];
       let currLoadout = this.actor.system.loadout;
       // Frame is simple
       if (currLoadout.frame?.status == "missing") {

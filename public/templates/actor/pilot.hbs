@@ -51,16 +51,16 @@
       <div style="display: grid; grid-template: auto / 1fr 1fr;">
         <div class="card clipped" style="grid-area: 1/1/2/3;">
           <span class="lancer-header major">{{localize "lancer.pilot-sheet.cloud-header.label"}}</span>
-          <select class="lancer-input major lancer-text-field" style="text-align: center;" name="vaultID"
-            data-type="String">
-            {{#select vaultID}}
+          <select class="lancer-input major lancer-text-field" style="text-align: center;" name="selectCloudId"
+            data-type="String"  >
+            {{#select system.cloud_id}}
             <option value="">{{localize "lancer.pilot-sheet.cloud-header.vaultID"}}</option>
             {{#each pilotCache}}
             <option value="{{id}}">{{callsign}} // {{name}}</option>
             {{/each}}
             {{/select}}
           </select>
-          <input class="lancer-input major" style="text-align: center;" type="string" name="rawID" value="{{rawID}}"
+          <input class="lancer-input major" style="text-align: center;" type="string" name="system.cloud_id" value="{{system.cloud_id}}"
             data-dtype="String" placeholder="{{localize "lancer.pilot-sheet.cloud-header.raw-placeholder"}}" />
         </div>
 

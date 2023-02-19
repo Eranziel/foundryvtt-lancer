@@ -73,7 +73,7 @@
           </a>
         </div>
         <div class="desc-text">{{{safe-html trait.description }}}</div>
-        {{{bonuses-view (concat "system.traits." trait_index ".bonuses") trait.bonuses ../editable}}}
+        {{{bonuses-view (concat "system.traits." trait_index ".bonuses") ../editable}}}
       </div>
     {{/each}}
   </div>
@@ -115,7 +115,7 @@
         {{{popout-editor-button "system.core_system.passive_effect" }}}
       </div>
       <div class="desc-text">{{{safe-html system.core_system.passive_effect }}}</div>
-      {{{bonuses-view "system.core_system.passive_bonuses" system.core_system.passive_bonuses editable }}} 
+      {{{bonuses-view "system.core_system.passive_bonuses" editable }}} 
       {{#each system.core_system.passive_actions as |action index|}}
         {{{action-card action}}}
       {{/each}}
@@ -130,7 +130,7 @@
         {{{popout-editor-button "system.core_system.active_effect" }}}
       </div>
       <div class="desc-text">{{{safe-html system.core_system.active_effect }}}</div>
-      {{{bonuses-view "system.core_system.active_bonuses" system.core_system.active_bonuses editable}}}
+      {{{bonuses-view "system.core_system.active_bonuses" editable}}}
       {{#each system.core_system.active_actions as |action index|}}
         {{{action-card action}}}
       {{/each}}

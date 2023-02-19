@@ -63,7 +63,7 @@ function weapon_mount(mount_path: string, helper: HelperOptions, registry: Colla
   if (!err && mount.type === "Flex") {
     if (mount.slots[0].weapon && mount.slots[0].weapon.value?.system.size === "Main") {
       slots.pop();
-    } else if (mount.slots[1].weapon?.value?.system.size && mount.slots[1].size === "Auxiliary") {
+    } else if (mount.slots[1]?.weapon?.value?.system.size && mount.slots[1].size === "Auxiliary") {
       slots[0] = slots[0].replace("Insert Main", "Insert Auxiliary");
     }
   }

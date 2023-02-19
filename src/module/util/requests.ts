@@ -48,16 +48,23 @@ export async function fulfillImportActor(compDeployable: string | LancerActor, f
   }
 
   // If pilot, get callsign
-  let ownerName = forActor.name;
-  if (forActor.is_pilot()) {
-    ownerName = forActor.system.callsign || forActor.name;
-  }
-
-  let newName = `${compDeployable.name} [${ownerName}]`;
   return LancerActor.create({
     ...compDeployable.toObject(),
     "system.owner": forActor.uuid,
-    name: newName,
+    name: deployableName(compDeployable.name!, forActor),
     folder: forActor.folder?.id,
+    // @ts-expect-error Should be fixed with v10 types
+    ownership: foundry.utils.duplicate(forActor.ownership),
   });
+}
+
+// Returns a name for a deployable that includes its owners name or callsign as appropriate
+export function deployableName(baseName: string, owner: LancerActor | null): string {
+  if (!owner) return baseName;
+  let ownerName = owner.name;
+  if (owner.is_pilot()) {
+    ownerName = owner.system.callsign || owner.name;
+  }
+
+  return `${baseName} [${ownerName}]`;
 }

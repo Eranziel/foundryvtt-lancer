@@ -52,39 +52,39 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
     if (!this.options.editable) return;
 
     if (this.actor.isOwner) {
+      let pilot = this.actor as LancerPILOT;
       // Item/Macroable Dragging
+
+      // Cloud id select
+      let cloudSelect = html.find('select[name="selectCloudId"]');
+      cloudSelect.on("change", evt => {
+        evt.stopPropagation();
+        pilot.update({ "system.cloud_id": (evt.target as HTMLSelectElement).value });
+      });
 
       // Cloud download
       let download = html.find('.cloud-control[data-action*="download"]');
-      let actor = this.actor;
-      if (actor.is_pilot() && actor.system.cloud_id) {
+      if (pilot.system.cloud_id) {
         download.on("click", async ev => {
           ev.stopPropagation();
 
-          let self = await this.getData();
           // Fetch data to sync
           let raw_pilot_data = null;
-          if (self.rawID.match(shareCodeMatcher)) {
+          if (pilot.system.cloud_id.match(shareCodeMatcher)) {
             // pilot share codes
             ui.notifications!.info("Importing character from share code...");
-            console.log(`Attempting import with share code: ${self.rawID}`);
+            console.log(`Attempting import with share code: ${pilot.system.cloud_id}`);
             try {
-              raw_pilot_data = await fetchPilotViaShareCode(self.rawID);
+              raw_pilot_data = await fetchPilotViaShareCode(pilot.system.cloud_id);
             } catch (error) {
               ui.notifications!.error("Error importing from share code. Share code may need to be refreshed.");
-              console.error(`Failed import with share code ${self.rawID}, error:`, error);
+              console.error(`Failed import with share code ${pilot.system.cloud_id}, error:`, error);
               return;
             }
-          } else if (self.rawID) {
-            ui.notifications!.warn(
-              "Invalid share code format. Share codes must be exactly six alphanumeric characters."
-            );
-            console.warn(`Failed import with invalid share code format: ${self.rawID}`);
-            return;
-          } else if (self.vaultID != "") {
+          } else if (pilot.system.cloud_id) {
             // Vault ID from a logged-in Comp/Con account
             ui.notifications!.info("Importing character from COMP/CON account...");
-            const cachedPilot = self.pilotCache.find(p => p.cloudID == self.vaultID);
+            const cachedPilot = pilotCache().find(p => p.cloudID == pilot.system.cloud_id);
             if (cachedPilot != undefined) {
               try {
                 raw_pilot_data = await fetchPilotViaCache(cachedPilot);
@@ -92,21 +92,20 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
                 ui.notifications!.error(
                   "Failed to import from COMP/CON account. Try refreshing the page to reload pilot list."
                 );
-                console.error(`Failed to import vaultID ${self.vaultID} via pilot list, error:`, error);
+                console.error(`Failed to import vaultID ${pilot.system.cloud_id} via pilot list, error:`, error);
                 return;
               }
             } else {
               ui.notifications!.error(
                 "Failed to import from COMP/CON account. Try refreshing the page to reload pilot list"
               );
-              console.error(`Failed to find pilot in cache, vaultID: ${self.vaultID}`);
+              console.error(`Failed to find pilot in cache, vaultID: ${pilot.system.cloud_id}`);
               return;
             }
           } else {
             ui.notifications!.error(
               "Could not find character to import! No pilot selected via dropdown and no share code entered."
             );
-            console.error(`Failed to import pilot. vaultID: ${self.vaultID}, rawID: ${self.rawID}`);
             return;
           }
           await importCC(this.actor as LancerPILOT, raw_pilot_data);
@@ -116,9 +115,7 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
       }
 
       // JSON Import
-      if (actor.is_pilot()) {
-        html.find("#pilot-json-import").on("change", ev => this._onPilotJsonUpload(ev, actor));
-      }
+      html.find("#pilot-json-import").on("change", ev => this._onPilotJsonUpload(ev));
 
       // editing rawID clears vaultID
       // (other way happens automatically because we prioritise vaultID in commit)
@@ -149,7 +146,7 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
     }
   }
 
-  _onPilotJsonUpload(ev: JQuery.ChangeEvent<HTMLElement, undefined, HTMLElement, HTMLElement>, actor: LancerActor) {
+  _onPilotJsonUpload(ev: JQuery.ChangeEvent<HTMLElement, undefined, HTMLElement, HTMLElement>) {
     let files = (ev.target as HTMLInputElement).files;
     let jsonFile: File | null = null;
     if (files) jsonFile = files[0];
@@ -159,7 +156,7 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
     const fr = new FileReader();
     fr.readAsBinaryString(jsonFile);
     fr.addEventListener("load", (ev: ProgressEvent) => {
-      this._onPilotJsonParsed((ev.target as FileReader).result as string, actor);
+      this._onPilotJsonParsed((ev.target as FileReader).result as string, this.actor);
     });
   }
 
@@ -196,28 +193,25 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
 
   async getData() {
     const data = await super.getData(); // Not fully populated yet!
-    // TODO
-    /*
+    const pilot = this.actor as LancerPILOT;
 
-    data.active_mech = await data.mm.ActiveMech();
     data.pilotCache = pilotCache();
 
     // use the select if and only if we have the pilot in our cache
-    let useSelect = data.mm.CloudID && data.pilotCache.find(p => p.cloudID == data.mm.CloudID);
+    let pilotInSelect = data.pilotCache.find(p => p.cloudID == pilot.system.cloud_id);
 
-    if (useSelect) {
+    if (pilotInSelect) {
       // if this is a vault id we know of
-      data.vaultID = data.mm.CloudID;
+      data.vaultID = pilot.system.cloud_id;
       data.rawID = "";
-    } else if (data.mm.CloudID && data.mm.CloudID.match(shareCodeMatcher)) {
+    } else if (pilot.system.cloud_id && pilot.system.cloud_id.match(shareCodeMatcher)) {
       // If this was a share code, show it in the input box so it can be edited
-      data.rawID = data.mm.CloudID;
       data.vaultID = "";
+      data.rawID = pilot.system.cloud_id;
     } else {
       data.rawID = "";
       data.vaultID = "";
     }
-    */
 
     return data;
   }

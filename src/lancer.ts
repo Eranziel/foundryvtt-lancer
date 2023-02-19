@@ -489,13 +489,7 @@ Hooks.once("init", async function () {
 
   // ------------------------------------------------------------------------
   // Bonuses
-  Handlebars.registerHelper("edit-bonuses-view", (bonuses_path: string, bonuses_array: BonusData[]) =>
-    bonuses_display(bonuses_path, bonuses_array, true)
-  );
-  Handlebars.registerHelper("read-bonuses-view", (bonuses_path: string, bonuses_array: BonusData[]) =>
-    bonuses_display(bonuses_path, bonuses_array, false)
-  );
-  Handlebars.registerHelper("bonuses-view", bonuses_display); // Takes a third arg
+  Handlebars.registerHelper("bonuses-view", bonuses_display);
   Handlebars.registerHelper("popout-editor-button", popout_editor_button);
   // Deployables and Actions
   Handlebars.registerHelper("deployable-card", buildDeployableHTML);

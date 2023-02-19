@@ -226,6 +226,12 @@ export class LancerItem extends Item {
     return bonus_effects;
   }
 
+  /** @inheritdoc */
+  static async _onDeleteDocuments() {
+    // Default implementation of this will delete active effects associated with this object.
+    // We do that ourselves using effectManager, so to prevent fighting we disable this here
+  }
+
   protected async _preCreate(...[data, options, user]: Parameters<Item["_preCreate"]>): Promise<void> {
     await super._preCreate(data, options, user);
 
