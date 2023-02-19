@@ -3,12 +3,12 @@ import { FetcherCache } from "./async";
 import { LancerItem } from "../item/lancer-item";
 import { EntryType } from "../enums";
 
-// Mechanisms for LID resolution
-
 /**
  * Lookup all documents with the associated lid in the given types.
  * Document types are checked in order. If no type(s) supplied, all are queried.
  * short_circuit will make it stop with first valid result. Will still return all results of that category, but will not check further categories
+ *
+ * TODO: re-implement using bolts' lid performance imprvoements
  */
 export async function lookupLIDPlural(
   lid: string,

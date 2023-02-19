@@ -494,7 +494,6 @@ export namespace SystemData {
     background: string;
     callsign: string;
     cloud_id: string;
-    cloud_owner_id: string;
     history: string;
     last_cloud_update: string;
     level: number;

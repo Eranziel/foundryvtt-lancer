@@ -10,7 +10,6 @@ const pilot_schema = {
   background: new fields.HTMLField(),
   callsign: new fields.StringField(),
   cloud_id: new fields.StringField(),
-  cloud_owner_id: new fields.StringField(),
   history: new fields.HTMLField(),
   last_cloud_update: new fields.StringField(),
   level: new fields.NumberField({ min: 0, max: 12, integer: true }),

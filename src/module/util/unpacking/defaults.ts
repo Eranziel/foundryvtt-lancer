@@ -256,7 +256,6 @@ export function MECH(): SourceDataType<EntryType.MECH> {
     repairs: 0,
     stress: 0,
     structure: 0,
-    ejected: false,
     lid: "mech_" + nanoid(),
     loadout: {
       frame: null,
@@ -560,7 +559,6 @@ export function PILOT(): SourceDataType<EntryType.PILOT> {
     action_tracker: ACTION_TRACKER(),
     activations: 1,
     cloud_id: "",
-    cloud_owner_id: "",
     last_cloud_update: "",
   };
 }

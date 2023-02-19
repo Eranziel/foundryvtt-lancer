@@ -50,12 +50,10 @@
       "background": "",
       "callsign": "",
       "cloud_id": "",
-      "cloud_owner_id": "",
       "history": "",
       "last_cloud_update": "",
       "level": 0,
       "loadout": {
-        "lid": "",
         "armor": [],
         "gear": [],
         "weapons": []

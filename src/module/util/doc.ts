@@ -226,7 +226,7 @@ export async function importDeployablesFor(item: LancerItem, owner: LancerActor)
   let requiredLIDs = [];
   for (let d of deps) {
     if (!existingLIDs.includes(d)) {
-      // We need to keep it!
+      // We need to keep it! It's new
       requiredLIDs.push(d);
     }
   }

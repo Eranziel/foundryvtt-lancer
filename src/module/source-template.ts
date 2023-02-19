@@ -294,7 +294,6 @@ export namespace SourceData {
       systems: Array<EmbeddedRef>;
     };
     meltdown_timer: number | null;
-    ejected: boolean;
     notes: string;
     pilot: UUIDRef | null; // UUID to a LancerPILOT
   }
@@ -395,14 +394,13 @@ export namespace SourceData {
     background: string;
     callsign: string;
     cloud_id: string;
-    cloud_owner_id: string;
     history: string;
     last_cloud_update: string;
     level: number;
     loadout: {
-      armor: Array<UUIDRef | null>;
-      gear: Array<UUIDRef | null>;
-      weapons: Array<UUIDRef | null>;
+      armor: Array<EmbeddedRef | null>;
+      gear: Array<EmbeddedRef | null>;
+      weapons: Array<EmbeddedRef | null>;
     };
     hull: number;
     agi: number;
