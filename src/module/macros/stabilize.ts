@@ -28,7 +28,7 @@ export async function stabilizeMacro(a: string) {
             let o1 = <StabOptions1>$(dlg).find(".stabilize-options-1:checked").first().val();
             let o2 = <StabOptions2>$(dlg).find(".stabilize-options-2:checked").first().val();
 
-            let text = await actor.stabilize(o1, o2);
+            let text = await actor.strussHelper.stabilize(o1, o2);
 
             if (!text) return;
 

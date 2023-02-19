@@ -57,7 +57,7 @@ function weapon_mount(mount_path: string, helper: HelperOptions, registry: Colla
   let slots = mount.slots.map((slot, index) =>
     mech_loadout_weapon_slot(`${mount_path}.slots.${index}.weapon`, helper, registry, slot.size)
   );
-  let err = mech.validateMount(mount) ?? "";
+  let err = mech.loadoutHelper.validateMount(mount) ?? "";
 
   // FLEX mount weirdness.
   if (!err && mount.type === "Flex") {

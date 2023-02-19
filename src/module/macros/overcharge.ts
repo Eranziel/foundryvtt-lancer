@@ -31,7 +31,7 @@ export async function prepareOverchargeMacro(a: string) {
   }
 
   // And here too... we should probably revisit our type definitions...
-  let rollText = actor.getOverchargeRoll()!;
+  let rollText = actor.strussHelper.getOverchargeRoll()!;
 
   // Prep data
   let roll = await new Roll(rollText).evaluate({ async: true });

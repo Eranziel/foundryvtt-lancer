@@ -39,7 +39,7 @@ export async function prepareStructureMacro(
   }
 
   // Hand it off to the actor to structure
-  await actor.structure(reroll_data);
+  await actor.strussHelper.structure(reroll_data);
 }
 
 export function prepareStructureSecondaryRollMacro(registryId: string) {

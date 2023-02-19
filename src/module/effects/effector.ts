@@ -152,6 +152,66 @@ export class EffectHelper {
     return effects;
   }
 
+  /**
+   * Sends appropriate active effects to "children".
+   * Utilizes passdown effect tracker to minimize how often we actually send it. As such, feel free to call it as often as you want
+   * TODO: Minimally update???
+   * Debounced
+   */
+  propagateEffects = foundry.utils.debounce((force: boolean = false) => this.propagateEffectsInner(force), 500);
+  propagateEffectsInner(force: boolean = false) {
+    if (!force && !this.actor._passdownEffectTracker.isDirty) {
+      console.log("Skipping a propagate");
+      return;
+    }
+    console.log("Performing a propagate");
+    const propagateTo = (target: LancerActor) => {
+      console.debug(`Actor ${this.actor.name} propagating effects to ${target.name}`);
+      // Add new from this pilot
+      let changes: LancerActiveEffectConstructorData[] = foundry.utils.duplicate(
+        this.actor._passdownEffectTracker.curr_value
+      );
+      changes.forEach(c => {
+        c.flags.lancer ??= {};
+        c.flags.lancer.deep_origin = c.origin;
+        c.origin = this.actor.uuid;
+      });
+      target.effectHelper.setEphemeralEffects(this.actor.uuid, changes);
+    };
+
+    // Call this whenever update this actors stats in any meaningful way
+    if (this.actor.is_pilot()) {
+      // Only propagate if we have a satisfied two-way binding
+      if (
+        this.actor.system.active_mech?.status == "resolved" &&
+        this.actor.system.active_mech.value.system.pilot?.id == this.actor.uuid
+      ) {
+        propagateTo(this.actor.system.active_mech.value);
+      }
+    }
+
+    // Propagate effects from owner upon creation. Pilots don't do this - their mechs will, instead
+    else if (this.actor.is_mech()) {
+      let pilot = this.actor.system.pilot?.value ?? null;
+      // Find our controlled deployables
+      let ownedDeployables = game.actors!.filter(
+        a =>
+          a.is_deployable() &&
+          a.system.owner !== null &&
+          (a.system.owner.value == this.actor || a.system.owner.value == pilot)
+      );
+      for (let dep of ownedDeployables) {
+        propagateTo(dep);
+      }
+    } else if (this.actor.is_npc()) {
+      // Find our controlled deployables. Simpler here
+      let ownedDeployables = game.actors!.filter(a => a.is_deployable() && a.system.owner?.value == this.actor);
+      for (let dep of ownedDeployables) {
+        propagateTo(dep);
+      }
+    }
+  }
+
   // ########### Miscellaneous effect helper stuff that also lives here just to be in the same "namespace" so to speak #########
 
   /**

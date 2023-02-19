@@ -38,5 +38,5 @@ export async function prepareOverheatMacro(
   }
 
   // Hand it off to the actor to overheat
-  await actor.overheat(reroll_data);
+  await actor.strussHelper.overheat(reroll_data);
 }
