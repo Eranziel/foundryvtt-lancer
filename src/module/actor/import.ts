@@ -17,7 +17,6 @@ import {
 import { SourceData } from "../source-template";
 import { insinuate } from "../util/doc";
 import { lookupLID } from "../util/lid";
-import { deployableName } from "../util/requests";
 import {
   PackedEquipmentData,
   PackedMechWeaponSaveData,
@@ -170,6 +169,7 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
     // Perform base pilot update
     await pilot.update({
       name: data.name,
+      img: replace_default_resource(pilot.img, data.cloud_portrait),
       system: {
         "hp.value": data.current_hp,
 
@@ -194,6 +194,11 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
         player_name: data.player_name,
         status: data.status,
         text_appearance: data.text_appearance,
+      },
+      prototypeToken: {
+        name: data.name,
+        // @ts-expect-error
+        "texture.src": replace_default_resource(pilot.prototypeToken?.texture?.src, data.cloud_portrait, pilot.img),
       },
     });
 
@@ -223,7 +228,6 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
       };
 
       // Do our preliminary loadout buildup
-      let new_img = replace_default_resource(mech.img!, cloud_mech.portrait);
       let loadout = cloud_mech.loadouts[cloud_mech.active_loadout_index];
 
       // Populate our frame
@@ -290,11 +294,17 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
       await mech.update({
         name: cloud_mech.name,
         folder: unit_folder ? unit_folder.id : null,
-        img: new_img,
+        img: replace_default_resource(mech.img, cloud_mech.portrait),
         permission,
         prototypeToken: {
           name: pilot.system.callsign || cloud_mech.name,
           disposition: CONST.TOKEN_DISPOSITIONS.FRIENDLY,
+          // @ts-expect-error
+          "texture.src": replace_default_resource(
+            mech.prototypeToken?.texture?.src,
+            cloud_mech.cloud_portrait,
+            pilot.img
+          ),
         },
         system: {
           // Universal stuff

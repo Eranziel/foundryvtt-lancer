@@ -269,15 +269,21 @@ export function TypeIcon(type: string, macro?: boolean): string {
 }
 
 // A substitution method that replaces the first argument IFF it is an img that we don't think should be preserved, and if the trimmed replacement string is truthy
-export function replace_default_resource(current: string, replacement: string | null): string {
-  // If no replacement, then obviously keep initial
-  if (!replacement?.trim()) {
-    return current;
-  }
-
-  // If empty or from system path or mystery man, replace
+export function replace_default_resource(
+  current: string | null | undefined,
+  ...replacements: Array<string | null>
+): string {
   if (!current?.trim() || current.includes("systems/lancer") || current == "icons/svg/mystery-man.svg") {
-    return replacement;
+    for (let replacement of replacements) {
+      // If no replacement, skip
+      if (!replacement?.trim()) {
+        continue;
+      }
+
+      // If empty or from system path or mystery man, replace
+      return replacement;
+    }
+    return current || ""; // We've got nothing
   }
 
   // Otherwise keep as is

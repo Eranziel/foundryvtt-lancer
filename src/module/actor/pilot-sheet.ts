@@ -361,7 +361,7 @@ export function all_mech_preview(_helper: HelperOptions): string {
   ) ?? []) as unknown as LancerMECH[];
   let as_html = [];
   for (let m of owned_mechs) {
-    as_html.push(`${mech_preview(m, m == active_mech, _helper)}</div>`);
+    as_html.push(mech_preview(m, m == active_mech, _helper));
   }
   return as_html.join("");
 }
