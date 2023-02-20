@@ -351,10 +351,8 @@ export function NPC_CLASS(): SourceDataType<EntryType.NPC_CLASS> {
     lid: "npcc_" + nanoid(),
     base_features: [],
     base_stats: [NPC_STATS(), NPC_STATS(), NPC_STATS()],
-    info: {
-      tactics: "No tactics provided",
-      flavor: "No flavor provided",
-    },
+    tactics: "No tactics provided",
+    flavor: "No flavor provided",
     optional_features: [],
     role: "UNKNOWN",
   };
@@ -377,6 +375,7 @@ function npc_feature_commons(): SourceTemplates.NPC.BaseFeatureData {
     loaded: true,
     destroyed: false,
     tier_override: 0,
+    cascading: false,
   };
 }
 
@@ -398,7 +397,7 @@ export function NPC_WEAPON(): SourceTemplates.NPC.WeaponData {
     attack_bonus: [0, 0, 0],
     weapon_type: "Unknown",
     damage: [[DAMAGE()], [DAMAGE()], [DAMAGE()]],
-    range: [[RANGE()], [RANGE()], [RANGE()]],
+    range: [RANGE()],
     on_hit: "",
   };
 }

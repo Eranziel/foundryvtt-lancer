@@ -176,6 +176,9 @@ import "./module/helpers/text-enrichers";
 import { fromLid, fromLidSync } from "./module/helpers/from-lid";
 import { SkillModel } from "./module/models/items/skill";
 import { LicenseModel } from "./module/models/items/license";
+import { NpcTemplateModel } from "./module/models/items/npc_template";
+import { NpcClassModel } from "./module/models/items/npc_class";
+import { NpcFeatureModel } from "./module/models/items/npc_feature";
 
 const lp = LANCER.log_prefix;
 
@@ -213,6 +216,12 @@ Hooks.once("init", async function () {
   CONFIG.Item.systemDataModels[EntryType.SKILL] = SkillModel;
   // @ts-expect-error
   CONFIG.Item.systemDataModels[EntryType.TALENT] = TalentModel;
+  // @ts-expect-error
+  CONFIG.Item.systemDataModels[EntryType.NPC_CLASS] = NpcClassModel;
+  // @ts-expect-error
+  CONFIG.Item.systemDataModels[EntryType.NPC_TEMPLATE] = NpcTemplateModel;
+  // @ts-expect-error
+  CONFIG.Item.systemDataModels[EntryType.NPC_FEATURE] = NpcFeatureModel;
 
   // @ts-expect-error
   CONFIG.Actor.systemDataModels[EntryType.MECH] = MechModel;

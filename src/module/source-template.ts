@@ -118,7 +118,7 @@ export namespace SourceTemplates {
     }
 
     // All features have at least this core data
-    export interface BaseFeatureData {
+    export interface BaseFeatureData extends uses, destructible {
       lid: string;
       // We strip origin - it isn't particularly helpful to store in source, but could be derived maybe
       effect: string;
@@ -129,9 +129,7 @@ export namespace SourceTemplates {
 
       // State tracking. Not always used
       charged: boolean;
-      uses: number;
       loaded: boolean;
-      destroyed: boolean;
 
       // If we want this feature to have a distinct tier fixed regardless of underlying npc tier
       tier_override: number;
@@ -140,7 +138,7 @@ export namespace SourceTemplates {
     export interface WeaponData extends BaseFeatureData {
       weapon_type: string;
       damage: DamageData[][]; // Damage array by tier
-      range: RangeData[][]; // Range array by ties
+      range: RangeData[]; // Range array
       on_hit: string;
       accuracy: number[]; // Accuracy by tier
       attack_bonus: number[]; // Attack bonus by tier
@@ -355,10 +353,8 @@ export namespace SourceData {
   }
   export interface NpcClass extends SourceTemplates.item_universal {
     role: string;
-    info: {
-      flavor: string;
-      tactics: string;
-    };
+    flavor: string;
+    tactics: string;
     base_features: UUIDRef[];
     optional_features: UUIDRef[];
     base_stats: Array<SourceTemplates.NPC.StatBlock>;

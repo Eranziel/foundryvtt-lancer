@@ -24,6 +24,9 @@ import { unpackPilotWeapon } from "./models/items/pilot_weapon";
 import { unpackSkill } from "./models/items/skill";
 import { unpackLicense } from "./models/items/license";
 import { slugify } from "./util/lid";
+import { unpackNpcClass } from "./models/items/npc_class";
+import { unpackNpcTemplate } from "./models/items/npc_template";
+import { unpackNpcFeature } from "./models/items/npc_feature";
 
 export const PACK_SCOPE = "world";
 
@@ -100,9 +103,9 @@ export async function importCP(
     let allCoreBonuses = cp.data.coreBonuses?.map(cb => unpackCoreBonus(cb, context)) ?? [];
     let allFrames = cp.data.frames?.map(d => unpackFrame(d, context)) ?? [];
     let allMods = [];
-    let allNpcClasses = [];
-    let allNpcFeatures = [];
-    let allNpcTemplates = [];
+    let allNpcClasses = cp.data.npcClasses?.map(d => unpackNpcClass(d, context)) ?? [];
+    let allNpcFeatures = cp.data.npcFeatures?.map(d => unpackNpcFeature(d, context)) ?? [];
+    let allNpcTemplates = cp.data.npcTemplates?.map(d => unpackNpcTemplate(d, context)) ?? [];
     let allPilotArmor =
       cp.data.pilotGear
         ?.filter(g => g.type == "Armor")
@@ -142,6 +145,9 @@ export async function importCP(
     await CONFIG.Item.documentClass.createDocuments(allTalents, { pack: `world.${EntryType.TALENT}` });
     await CONFIG.Item.documentClass.createDocuments(allWeapons, { pack: `world.${EntryType.MECH_WEAPON}` });
     await CONFIG.Item.documentClass.createDocuments(allLicenses, { pack: `world.${EntryType.LICENSE}` });
+    await CONFIG.Item.documentClass.createDocuments(allNpcClasses, { pack: `world.${EntryType.NPC_CLASS}` });
+    await CONFIG.Item.documentClass.createDocuments(allNpcTemplates, { pack: `world.${EntryType.NPC_TEMPLATE}` });
+    await CONFIG.Item.documentClass.createDocuments(allNpcFeatures, { pack: `world.${EntryType.NPC_FEATURE}` });
     await CONFIG.Actor.documentClass.createDocuments(context.createdDeployables, {
       pack: `world.${EntryType.DEPLOYABLE}`,
     });
