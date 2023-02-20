@@ -299,8 +299,8 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
         prototypeToken: {
           name: pilot.system.callsign || cloud_mech.name,
           disposition: CONST.TOKEN_DISPOSITIONS.FRIENDLY,
-          // @ts-expect-error
           "texture.src": replace_default_resource(
+            // @ts-expect-error
             mech.prototypeToken?.texture?.src,
             cloud_mech.cloud_portrait,
             pilot.img

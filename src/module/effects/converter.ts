@@ -244,7 +244,7 @@ export function npcClassInnateEffect(class_: LancerNPC_CLASS): LancerActiveEffec
   ];
 
   let tier = (class_?.actor as LancerNPC | undefined)?.system.tier ?? 1;
-  let bs = class_.system.base_stats[tier];
+  let bs = class_.system.base_stats[tier - 1];
 
   // @ts-expect-error Shouldn't be restricted to not take numbers I don't think
   let changes: LancerActiveEffectConstructorData["changes"] = keys.map(key => ({
