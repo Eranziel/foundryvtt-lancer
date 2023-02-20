@@ -4,6 +4,7 @@ import {
   LancerCORE_BONUS,
   LancerFRAME,
   LancerItem,
+  LancerLICENSE,
   LancerMECH_SYSTEM,
   LancerMECH_WEAPON,
   LancerPILOT_ARMOR,
@@ -108,6 +109,7 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
       }
 
       // Do skills
+      console.log(data.skills);
       for (let skill of data.skills) {
         if (skill.custom) {
           pilot.createEmbeddedDocuments("Item", [
@@ -136,6 +138,17 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
           itemUpdates.push({
             _id: t.id,
             "system.curr_rank": talent.rank,
+          });
+        }
+      }
+
+      // Do licenses
+      for (let license of data.licenses) {
+        let t = (await getPilotItemByLid(license.id.replace("mf", "lic"), EntryType.LICENSE)) as LancerLICENSE | null;
+        if (t) {
+          itemUpdates.push({
+            _id: t.id,
+            "system.curr_rank": license.rank,
           });
         }
       }
@@ -361,7 +374,6 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
 
       // Apply all of these weapon updates
       await mech.updateEmbeddedDocuments("Item", itemUpdates);
-      console.log(itemUpdates);
     }
 
     // Fix active mech

@@ -250,7 +250,7 @@ function buildFrameTrait(actor: LancerActor, trait: LancerFRAME["system"]["trait
     })
     .join("");
 
-  let depHTML = "TODO"; /* trait.deployables
+  let depHTML = "TODO deployables"; /* trait.deployables
     .map((d, i) => {
       return d.status == "resolved" ? buildDeployableHTML(d.value, true, i) : "";
     })

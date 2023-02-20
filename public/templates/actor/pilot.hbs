@@ -113,7 +113,8 @@
       {{!-- Skill Triggers --}}
       <div class="card clipped">
         <h2 class="lancer-title clipped">{{localize "lancer.pilot-sheet.abilities.skills"}}</h2>
-        {{#each system.skills as |skill index|}} {{{item-preview (concat "system.skills." index) "delete" "doc" }}}
+        {{#each itemTypes.skill as |skill index|}} 
+          {{{item-preview (concat "itemTypes.skill." index) "delete" "doc" }}}
         {{/each}}
       </div>
 
@@ -182,7 +183,7 @@
         {{!-- Licenses --}}
         <div class="card clipped">
           <h2 class="lancer-title clipped-top">{{localize "lancer.pilot-sheet.tactical.licenses"}}</h2>
-          {{#each itemTypes.license as |license index|}} {{{ref-license license license.current_rank (concat "itemTypes.license." index) }}} {{/each}}
+          {{#each itemTypes.license as |license index|}} {{{ref-license (concat "itemTypes.license." index) }}} {{/each}}
         </div>
 
         {{!-- Core Bonuses --}}

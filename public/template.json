@@ -226,7 +226,7 @@
       "templates": ["universal"],
       "manufacturer": "",
       "key": "",
-      "rank": 0
+      "curr_rank": 1
     },
     "npc_class": {
       "templates": ["universal"],
@@ -437,7 +437,7 @@
       "description": "",
       "detail": "",
       "family": "cha",
-      "rank": 1
+      "curr_rank": 1
     }
   }
 }

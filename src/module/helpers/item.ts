@@ -871,18 +871,13 @@ export function manufacturer_ref(source_path: string, helper: HelperOptions): st
 
 // A specific MM ref helper focused on displaying license info.
 // This if for display purposes and does not provide editable fields
-export function license_ref(license: LancerLICENSE | null, level: number, item_path?: string): string {
-  if (!license) {
-    return `<div class="valid ${EntryType.LICENSE} ref ref-card"> 
-              <h3 class="license-name">${license!.name} ${level}</h3>
-            </div>
-        `;
-  } else {
-    return `
+export function license_ref(item_path: string, helper: HelperOptions): string {
+  let license = resolve_helper_dotpath(helper, item_path) as LancerLICENSE;
+  return `
     <li class="card clipped item macroable ref valid" ${ref_params(license)}>
       <div class="lancer-header lancer-license-header medium clipped-top" style="grid-area: 1/1/2/3">
         <i class="cci cci-license i--m i--dark"> </i>
-        <div class="major modifier-name">${license.name} ${license.system.rank}</div>
+        <div class="major modifier-name">${license.name} ${license.system.curr_rank}</div>
         <div class="ref-controls">
           <a class="lancer-context-menu" data-context-menu="${license.type}" data-path="${item_path}"">
             <i class="fas fa-ellipsis-v"></i>
@@ -890,7 +885,6 @@ export function license_ref(license: LancerLICENSE | null, level: number, item_p
         </div>
       </div>
     </li>`;
-  }
 }
 
 export function frame_ref(frame: LancerFRAME | null, item_path?: string): string {

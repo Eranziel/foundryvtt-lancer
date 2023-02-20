@@ -239,7 +239,7 @@ export function LICENSE(): SourceDataType<EntryType.LICENSE> {
     lid: "lic_" + nanoid(),
     manufacturer: "GMS",
     key: "",
-    rank: 0,
+    curr_rank: 1,
   };
 }
 

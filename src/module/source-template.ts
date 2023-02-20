@@ -269,7 +269,7 @@ export namespace SourceData {
   export interface License extends SourceTemplates.item_universal {
     manufacturer: string;
     key: string;
-    rank: number;
+    curr_rank: number;
   }
   export interface Mech
     extends SourceTemplates.actor_universal,

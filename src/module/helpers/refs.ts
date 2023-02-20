@@ -257,7 +257,7 @@ export function item_preview<T extends LancerItemType>(
     }
 
     if (doc.system.deployables.length) {
-      deployables = "TODO";
+      deployables = "TODO Deployables";
       /*doc.system.deployables
         .map((d, i) => {
           return d.status == "resolved" ? buildDeployableHTML(d.value, true, i) : "UNRESOLVED";
@@ -391,7 +391,7 @@ export function item_preview<T extends LancerItemType>(
         </div>
       </li>`;
   } else if (doc.is_license()) {
-    return license_ref(doc, doc.system.rank, item_path);
+    return license_ref(item_path, helper);
   } else {
     // Basically the same as the simple ref card, but with control added
     return `
