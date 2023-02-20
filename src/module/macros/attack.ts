@@ -166,7 +166,7 @@ export async function prepareAttackMacro(
     macroData.loaded = item.system.loaded;
     macroData.destroyed = item.system.destroyed;
     macroData.grit = Number(asWeapon.attack_bonus[tier_index]) || 0; // Sometimes the data's a string
-    macroData.acc = asWeapon.accuracy[tier_index];
+    macroData.acc = asWeapon.accuracy[tier_index] ?? 0;
 
     // Reduce damage values to only this tier
     macroData.damage = asWeapon.damage[tier_index] ?? [];
@@ -269,7 +269,7 @@ export async function prepareAttackMacro(
   let rerollMacro = {
     title: "Reroll attack",
     fn: "prepareEncodedAttackMacro",
-    args: [actor.id, item.uuid, options, promptedData.toObject()],
+    args: [actor.uuid, item.uuid, options, promptedData.toObject()],
   };
 
   await rollAttackMacro(actor, atkRolls, macroData, rerollMacro);
@@ -337,7 +337,7 @@ export async function openBasicAttack(actor: string | LancerActor, rerollData?: 
   let rerollMacro = {
     title: "Reroll attack",
     fn: "prepareEncodedAttackMacro",
-    args: [actor.id, null, {}, promptedData.toObject()],
+    args: [actor.uuid, null, {}, promptedData.toObject()],
   };
 
   await rollAttackMacro(actor, atkRolls, mData, rerollMacro);

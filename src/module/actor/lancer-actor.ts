@@ -590,7 +590,7 @@ export class LancerActor extends Actor {
       // Warn if it appears that a user has tried to delete a managed effect
       if (!this.effectHelper._deletingEffect) {
         for (let doc of documents as LancerActiveEffect[]) {
-          if (doc._typedFlags.lancer.ephemeral) {
+          if (doc._typedFlags?.lancer?.ephemeral) {
             let msg =
               "Attempting to delete an effect sourced from an item or other actor. It might regenerate! Instead of deleting the effect, delete the source.";
             ui.notifications?.warn(msg);

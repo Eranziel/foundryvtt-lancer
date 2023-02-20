@@ -123,7 +123,7 @@ export class StrussHelper {
         rerollMacroData: encodeMacroData({
           title: "Overheating",
           fn: "prepareOverheatMacro",
-          args: [this.actor.id!, { stress: remStress }],
+          args: [this.actor.uuid!, { stress: remStress }],
         }),
       };
     } else {
@@ -272,7 +272,7 @@ export class StrussHelper {
         rerollMacroData: encodeMacroData({
           title: "Structure Damage",
           fn: "prepareStructureMacro",
-          args: [this.actor.id!, { structure: remStruct }],
+          args: [this.actor.uuid!, { structure: remStruct }],
         }),
       };
     } else {
