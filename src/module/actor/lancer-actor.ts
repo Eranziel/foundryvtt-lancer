@@ -463,6 +463,9 @@ export class LancerActor extends Actor {
       }
     }
 
+    // If changing active mech, force a propagate
+    if ((changed as any).system?.active_mech) this.effectHelper.propagateEffects(true);
+
     // Check for overheating / structure
     if (
       getAutomationOptions().structure &&

@@ -324,7 +324,7 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
                   loaded: data.loaded,
                   destroyed: data.destroyed,
                   cascading: data.cascading,
-                  uses: data.uses,
+                  "uses.value": data.uses,
                 },
               });
             }
@@ -337,7 +337,7 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
                 system: {
                   destroyed: data.destroyed,
                   cascading: data.cascading,
-                  uses: data.uses,
+                  "uses.value": data.uses,
                 },
               });
             }
@@ -361,6 +361,7 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
 
       // Apply all of these weapon updates
       await mech.updateEmbeddedDocuments("Item", itemUpdates);
+      console.log(itemUpdates);
     }
 
     // Fix active mech

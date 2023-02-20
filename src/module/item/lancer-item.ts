@@ -158,7 +158,7 @@ export class LancerItem extends Item {
   prepareFinalAttributes(system: SystemData.Mech | SystemData.Pilot): void {
     // At the very least, we can apply limited bonuses from our parent
     if (this.actor?.is_mech()) {
-      if (this._hasUses()) {
+      if (this._hasUses() && this.system.uses.max) {
         this.system.uses.max += (system as SystemData.Mech).loadout.limited_bonus;
       }
     }

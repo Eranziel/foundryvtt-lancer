@@ -173,6 +173,7 @@ import { PilotWeaponModel } from "./module/models/items/pilot_weapon";
 import { importCC } from "./module/actor/import";
 
 import "./module/helpers/text-enrichers";
+import { fromLid, fromLidSync } from "./module/helpers/from-lid";
 
 const lp = LANCER.log_prefix;
 

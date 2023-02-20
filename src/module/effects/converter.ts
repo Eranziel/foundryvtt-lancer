@@ -5,8 +5,9 @@ import { BonusData } from "../models/bits/bonus";
 import { SystemData, SystemTemplates } from "../system-template";
 import { AE_MODE_SET_JSON, LancerActiveEffectConstructorData, LancerEffectTarget } from "./lancer-active-effect";
 
-const INNATE_STAT_PRIORITY = 10;
-const PILOT_STAT_PRIORITY = 20;
+const FRAME_STAT_PRIORITY = 10;
+const BONUS_STAT_PRIORITY = 20;
+const PILOT_STAT_PRIORITY = 30;
 
 // Makes a active effect for a frame. Frames should automatically regenerate these when edited
 type FrameStatKey = keyof SystemData.Frame["stats"];
@@ -26,7 +27,7 @@ export function frameInnateEffect(frame: LancerFRAME): LancerActiveEffectConstru
   let changes: LancerActiveEffectConstructorData["changes"] = keys.map(key => ({
     key: `system.${key}`,
     mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-    priority: INNATE_STAT_PRIORITY,
+    priority: FRAME_STAT_PRIORITY,
     value: frame.system.stats[key],
   }));
 
@@ -34,42 +35,42 @@ export function frameInnateEffect(frame: LancerFRAME): LancerActiveEffectConstru
   changes!.push({
     key: "system.hp.max",
     mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-    priority: INNATE_STAT_PRIORITY,
+    priority: FRAME_STAT_PRIORITY,
     // @ts-expect-error
     value: frame.system.stats.hp,
   });
   changes!.push({
     key: "system.structure.max",
     mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-    priority: INNATE_STAT_PRIORITY,
+    priority: FRAME_STAT_PRIORITY,
     // @ts-expect-error
     value: frame.system.stats.structure,
   });
   changes!.push({
     key: "system.stress.max",
     mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-    priority: INNATE_STAT_PRIORITY,
+    priority: FRAME_STAT_PRIORITY,
     // @ts-expect-error
     value: frame.system.stats.stress,
   });
   changes!.push({
     key: "system.heat.max",
     mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-    priority: INNATE_STAT_PRIORITY,
+    priority: FRAME_STAT_PRIORITY,
     // @ts-expect-error
     value: frame.system.stats.heatcap,
   });
   changes!.push({
     key: "system.repairs.max",
     mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-    priority: INNATE_STAT_PRIORITY,
+    priority: FRAME_STAT_PRIORITY,
     // @ts-expect-error
     value: frame.system.stats.repcap,
   });
   changes!.push({
     key: "system.loadout.sp.max",
     mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-    priority: INNATE_STAT_PRIORITY,
+    priority: FRAME_STAT_PRIORITY,
     // @ts-expect-error
     value: frame.system.stats.sp,
   });
@@ -98,7 +99,7 @@ export function pilotInnateEffect(pilot: LancerPILOT): LancerActiveEffectConstru
       {
         mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
         key: "system.hull",
-        priority: INNATE_STAT_PRIORITY,
+        priority: PILOT_STAT_PRIORITY,
         // @ts-expect-error
         value: pilot.system.hull,
       },
@@ -239,7 +240,7 @@ export function convertBonus(
   // Broadly speaking, we ignore overwrite and replace, as they are largely unused
   // However, if one or the other is set, we do tweak our AE mode as a halfhearted compatibility attempt
   let mode = bonus.replace || bonus.overwrite ? CONST.ACTIVE_EFFECT_MODES.OVERRIDE : CONST.ACTIVE_EFFECT_MODES.ADD;
-  let priority = bonus.replace || bonus.overwrite ? 50 : INNATE_STAT_PRIORITY;
+  let priority = bonus.replace || bonus.overwrite ? 50 : BONUS_STAT_PRIORITY;
   let value = bonus.val;
 
   // First try to infer the target type.
