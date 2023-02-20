@@ -29,9 +29,14 @@ import { LancerActor, LancerDEPLOYABLE, LancerMECH, LancerPILOT } from "./lancer
 
 // Imports packed pilot data, from either a vault id or gist id
 export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearFirst = false) {
+  console.log("Importing Pilot", pilot, data);
   if (!pilot.is_pilot() || !data) return;
   if (clearFirst) {
     await pilot.deleteEmbeddedDocuments("Item", Array.from(pilot.items.keys()));
+    let existing_mechs = game.actors?.filter(x => x.is_mech() && x.system.pilot?.value == pilot) ?? [];
+    for (let m of existing_mechs) {
+      await m.deleteEmbeddedDocuments("Item", Array.from(m.items.keys()));
+    }
   }
 
   try {
@@ -109,7 +114,6 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
       }
 
       // Do skills
-      console.log(data.skills);
       for (let skill of data.skills) {
         if (skill.custom) {
           pilot.createEmbeddedDocuments("Item", [

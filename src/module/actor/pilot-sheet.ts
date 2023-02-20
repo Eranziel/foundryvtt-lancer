@@ -4,7 +4,7 @@ import { LancerActorSheet } from "./lancer-actor-sheet";
 import type { HelperOptions } from "handlebars";
 import { buildCounterHeader, buildCounterHTML } from "../helpers/item";
 import { ref_params, resolve_ref_element, simple_ref_slot } from "../helpers/refs";
-import { resolve_dotpath } from "../helpers/commons";
+import { inc_if, resolve_dotpath } from "../helpers/commons";
 import { LancerActor, LancerMECH, LancerPILOT } from "./lancer-actor";
 import { fetchPilotViaCache, fetchPilotViaShareCode, pilotCache } from "../util/compcon";
 import { LancerItem, LancerItemType } from "../item/lancer-item";
@@ -130,7 +130,7 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
       let mechActivators = html.find(".activate-mech");
       mechActivators.on("click", async ev => {
         ev.stopPropagation();
-        let mech = (await resolve_ref_element(ev.currentTarget)) as LancerActor | null;
+        let mech = (await resolve_ref_element(ev.currentTarget.parentElement!)) as LancerActor | null;
 
         if (!mech || !mech.is_mech()) return;
 
@@ -176,18 +176,17 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
     this.render();
   }
 
-  async activateMech(mech: LancerMECH) {
-    // TODO
+  activateMech(mech: LancerMECH) {
     let pilot = this.actor as LancerPILOT;
     // Set active mech
-    await pilot.update({ "system.active_mech": mech.uuid });
-    await mech.update({ "system.pilot": pilot.uuid });
+    pilot.update({ "system.active_mech": mech.uuid });
+    mech.update({ "system.pilot": pilot.uuid });
   }
 
   async deactivateMech() {
     // Unset active mech
     await this.actor.update({
-      active_mech: null,
+      "system.active_mech": null,
     });
   }
 
@@ -351,52 +350,39 @@ export function pilot_counters(pilot: LancerPILOT, _helper: HelperOptions): stri
 }
 
 export function all_mech_preview(_helper: HelperOptions): string {
-  let active_mech: LancerMECH | null = _helper.data.root.active_mech;
-
-  let html = ``;
+  let active_mech: LancerMECH | null = _helper.data.root.system.active_mech?.value;
 
   /// I still feel like this is pretty inefficient... but it's probably the best we can do for now
-  game?.actors
-    ?.filter(
-      mech =>
-        mech.is_mech() &&
-        mech.system.pilot?.status == "resolved" &&
-        mech.system.pilot.value.id === _helper.data.root.actor.id &&
-        mech.id !== active_mech?.id
-    )
-    .map((inactive_mech_, k) => {
-      // TODO: Figure out why the stored document type is so bizarre
-      let inactive_mech = inactive_mech_ as unknown as LancerMECH;
-      html = html.concat(`
-      <div class="flexrow inactive-row">
-        <a class="activate-mech" ${ref_params(inactive_mech)}><i class="cci cci-activate"></i></a>
-        <div class="major valid ${EntryType.MECH} ref" ${ref_params(inactive_mech)}>${inactive_mech.name}</div>
-      </div>
-    `);
-    });
-
-  if (active_mech) return active_mech_preview(active_mech, "active_mech", _helper).concat(html);
-  else return html;
+  let owned_mechs = (game?.actors?.filter(
+    mech =>
+      mech.is_mech() &&
+      mech.system.pilot?.status == "resolved" &&
+      mech.system.pilot.value.id === _helper.data.root.actor.id
+  ) ?? []) as unknown as LancerMECH[];
+  let as_html = [];
+  for (let m of owned_mechs) {
+    as_html.push(`${mech_preview(m, m == active_mech, _helper)}</div>`);
+  }
+  return as_html.join("");
 }
 
-export function active_mech_preview(mech: LancerMECH | null, path: string, _helper: HelperOptions): string {
+export function mech_preview(mech: LancerMECH, active: boolean, _helper: HelperOptions): string {
   var html = ``;
 
   // Generate commons
-  if (!mech) return simple_ref_slot(path, [EntryType.MECH], "uuid-ref", _helper);
 
   // Making ourselves easy templates for the preview in case we want to switch in the future
   let preview_stats_arr = [
-    { title: "HP", icon: "mdi mdi-heart-outline", path: "CurrentHP" },
-    { title: "HEAT", icon: "cci cci-heat", path: "CurrentHeat" },
-    { title: "EVASION", icon: "cci cci-evasion", path: "Evasion" },
-    { title: "ARMOR", icon: "mdi mdi-shield-outline", path: "Armor" },
-    { title: "STRUCTURE", icon: "cci cci-structure", path: "CurrentStructure" },
-    { title: "STRESS", icon: "cci cci-reactor", path: "CurrentStress" },
-    { title: "E-DEF", icon: "cci cci-edef", path: "EDefense" },
-    { title: "SPEED", icon: "mdi mdi-arrow-right-bold-hexagon-outline", path: "Speed" },
-    { title: "SAVE", icon: "cci cci-save", path: "SaveTarget" },
-    { title: "SENSORS", icon: "cci cci-sensor", path: "SensorRange" },
+    { title: "HP", icon: "mdi mdi-heart-outline", path: "system.hp.value" },
+    { title: "HEAT", icon: "cci cci-heat", path: "system.heat.value" },
+    { title: "EVASION", icon: "cci cci-evasion", path: "system.evasion" },
+    { title: "ARMOR", icon: "mdi mdi-shield-outline", path: "system.armor" },
+    { title: "STRUCTURE", icon: "cci cci-structure", path: "system.structure.value" },
+    { title: "STRESS", icon: "cci cci-reactor", path: "system.stress.value" },
+    { title: "E-DEF", icon: "cci cci-edef", path: "system.edef" },
+    { title: "SPEED", icon: "mdi mdi-arrow-right-bold-hexagon-outline", path: "system.speed" },
+    { title: "SAVE", icon: "cci cci-save", path: "system.save" },
+    { title: "SENSORS", icon: "cci cci-sensor", path: "system.sensor_range" },
   ];
 
   var stats_html = ``;
@@ -407,17 +393,21 @@ export function active_mech_preview(mech: LancerMECH | null, path: string, _help
     <div class="mech-preview-stat-wrapper">
       <i class="${builder.icon} i--m i--dark"> </i>
       <span class="major">${builder.title}</span>
-      <span class="major">${resolve_dotpath(mech, builder.path)}</span>
+      <span class="major">${resolve_dotpath(mech, builder.path, 0)}</span>
     </div>`);
   }
 
+  let button = active
+    ? `<a class="deactivate-mech"><i class="cci cci-deactivate"></i></a>`
+    : `<a class="activate-mech"><i class="cci cci-activate"></i></a>`;
+
   html = html.concat(`
   <div class="mech-preview">
-    <div class="mech-preview-titlebar">
-    <a class="deactivate-mech"><i class="cci cci-activate"></i></a>
-      <span>ACTIVE MECH: ${mech.name}</span>
+    <div class="mech-preview-titlebar ref set click-open ${active ? "active" : "inactive"}" ${ref_params(mech)}>
+      ${button}
+      <span>${mech.name}${inc_if(" // ACTIVE", active)}</span>
     </div>
-    <img class="valid ${mech.type} ref" ${ref_params(mech)} src="${mech.img}"/>
+    <img src="${mech.img}"/>
     ${stats_html}
   </div>`);
 

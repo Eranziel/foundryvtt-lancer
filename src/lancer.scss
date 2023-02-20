@@ -2193,6 +2193,18 @@ a.action {
   display: grid;
   grid-template-rows: 2em 3em 3em 3em 3em 3em;
   grid-template-columns: 14em 1fr 1fr;
+
+  .activate-mech {
+    flex-grow: unset;
+    font-size: 2em;
+    height: 1em;
+  }
+
+  .deactivate-mech {
+    font-size: 1.5em;
+    height: 1em;
+    margin-right: 0.4em;
+  }
 }
 
 .mech-preview img {
@@ -2209,12 +2221,19 @@ a.action {
   flex-direction: row;
   flex-wrap: nowrap;
   justify-content: flex-start;
-  background-color: var(--main-theme-color, fuchsia);
   color: white;
   padding: 3px 10px;
   min-height: max-content;
   align-items: center;
   margin-right: 5em;
+  cursor: pointer;
+
+  &.active {
+    background-color: var(--main-theme-color, fuchsia);
+  }
+  &.inactive {
+    background-color: var(--ref-color, fuchsia);
+  }
 }
 
 .mech-preview-stat-wrapper {
@@ -2325,25 +2344,6 @@ Here, this means we want to allow for drag stuff etc to show contextually if:
   grid-row: 1/2;
 }
 
-.activate-mech {
-  flex-grow: unset;
-  font-size: 2em;
-  height: 1em;
-}
-
-.inactive-row {
-  align-items: center;
-}
-.inactive-row > .major {
-  // It looks off without it...
-  margin-top: 1px;
-}
-
-.deactivate-mech {
-  font-size: 1.5em;
-  height: 1em;
-  margin-right: 0.4em;
-}
 
 /* Lancer Initiative stuff
    This is plain css for now */
