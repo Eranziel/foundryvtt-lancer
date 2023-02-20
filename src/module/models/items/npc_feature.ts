@@ -109,6 +109,7 @@ export function unpackNpcFeature(
     let bs = base.system as Partial<SourceTemplates.NPC.WeaponData>;
     bs.accuracy = data.accuracy ?? [];
     bs.attack_bonus = data.attack_bonus ?? [];
+    bs.weapon_type = data.weapon_type;
 
     // Build out damage
     bs.damage = [];

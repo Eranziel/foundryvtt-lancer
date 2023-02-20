@@ -152,7 +152,7 @@
         {{!-- Reserves --}}
         <div class="card clipped">
           <h2 class="lancer-title clipped-top">{{localize "lancer.pilot-sheet.tactical.reserves"}}</h2>
-          {{#each mm.Reserves as |reserve index|}} {{{reserve-slot (concat "mm.Reserves." index)}}} {{/each}}
+          {{#each itemTypes.reserve as |reserve index|}} {{{reserve-slot (concat "itemTypes.reserve." index)}}} {{/each}}
         </div>
       </div>
     </div>

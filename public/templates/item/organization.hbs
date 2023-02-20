@@ -13,18 +13,18 @@
             />
           </h1>
         </div>
-        {{{ ref-portrait-img item.img "img" mm }}}
+        {{{ ref-portrait-img item.img "img" item }}}
       </div>
     </header>
   
     {{!-- Sheet Body --}}
     <section class="sheet-body">
-      {{{textarea-card "DESCRIPTION" "mm.Description"}}}
-      {{{textarea-card "ACTIONS" "mm.Actions"}}}
+      {{{textarea-card "DESCRIPTION" "system.description"}}}
+      {{{textarea-card "ACTIONS" "system.actions"}}}
       <div class="flexrow">
-        {{{std-num-input             "mm.Efficiency"    label="EFFICIENCY"}}}
-        {{{std-num-input             "mm.Influence"    label="INFLUENCE"}}}
-        {{{std-string-input          "mm.Purpose"    label="PURPOSE"}}}
+        {{{std-num-input             "system.efficiency"    label="EFFICIENCY"}}}
+        {{{std-num-input             "system.influence"    label="INFLUENCE"}}}
+        {{{std-string-input          "system.purpose"    label="PURPOSE"}}}
       </div>
     </section>
   </form>

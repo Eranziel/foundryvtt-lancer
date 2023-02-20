@@ -430,6 +430,7 @@ export namespace SourceData {
     curr_rank: number;
   }
   export interface Status extends SourceTemplates.item_universal {
+    terse: string;
     effects: string;
     type: "Status" | "Condition" | "Effect";
   }

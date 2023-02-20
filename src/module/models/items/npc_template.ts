@@ -10,6 +10,7 @@ const fields: any = foundry.data.fields;
 export class NpcTemplateModel extends LancerDataModel {
   static defineSchema() {
     return {
+      description: new fields.HTMLField(),
       base_features: new fields.ArrayField(new LIDField()),
       optional_features: new fields.ArrayField(new LIDField()),
       ...template_universal_item(),
@@ -26,11 +27,13 @@ export function unpackNpcTemplate(
   type: EntryType.NPC_TEMPLATE;
   system: DeepPartial<SourceData.NpcTemplate>;
 } {
+  console.log(data);
   return {
     name: data.name,
     type: EntryType.NPC_TEMPLATE,
     system: {
       lid: data.id,
+      description: data.description,
       base_features: data.base_features,
       optional_features: data.optional_features,
     },

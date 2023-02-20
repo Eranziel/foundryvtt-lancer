@@ -80,8 +80,6 @@ export function addExportButton(actor: LegacyLancerActor | LancerActor, html: JQ
   }
 }
 
-// TODO: replace my legacy type fakes with MM proper Packed types.
-
 //
 // Pilot
 type FakePackedEquipmentState = {

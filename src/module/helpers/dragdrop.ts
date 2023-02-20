@@ -324,7 +324,7 @@ function setGlobalDrag(to: LancerActor | LancerItem | Macro | Journal | Scene | 
   }
 }
 
-// Setup global drag mm resolution
+// Setup global drag resolution
 export function applyGlobalDragListeners() {
   let body = document.getElementsByTagName("body")[0];
   let cancel_token = { canceled: false };

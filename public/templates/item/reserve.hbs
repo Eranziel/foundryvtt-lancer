@@ -13,36 +13,36 @@
           />
         </h1>
       </div>
-      {{{ ref-portrait-img item.img "img" mm }}}
+      {{{ ref-portrait-img item.img "img" item }}}
     </div>
   </header>
 
   {{!-- Sheet Body --}}
   <section class="sheet-body">
-    {{{textarea-card "DESCRIPTION" "mm.Description"}}}
+    {{{textarea-card "DESCRIPTION" "system.description"}}}
     <div class="card clipped">
       <div class="lancer-header">CONFIGURATION</div>
       <div class="flexrow">
         <div
-          <span>TYPE:</span>{{{item-edit-enum     "mm.ReserveType"     "ReserveType" label="RESERVE TYPE"}}}
+          <span>TYPE:</span>{{{item-edit-enum     "system.reserve_type"     "ReserveType" label="RESERVE TYPE"}}}
         </div>
         <div class="flexcol" style="align-items: center;">
           <span>CONSUMABLE:</span>
-          <input type="checkbox" name="mm.Consumable" {{checked mm.Consumable}}>
+          <input type="checkbox" name="system.consumable" {{checked system.consumable}}>
         </div>
-        {{#if mm.Consumable}}
-          {{{reserve-used-indicator mm "mm"}}}
+        {{#if system.consumable}}
+          {{{reserve-used-indicator item "item"}}}
         {{/if}}
       </div>
     </div>
     <div class="flexrow">
       {{!-- TODO: pretty this up a bit --}}
-      {{{textarea-card      "RESOURCE NAME"      "mm.ResourceName"}}}
-      {{{textarea-card      "RESOURCE LABEL"     "mm.ResourceLabel"}}}
+      {{{textarea-card      "RESOURCE NAME"      "system.resource_name"}}}
+      {{{textarea-card      "RESOURCE LABEL"     "system.label"}}}
     </div>
     <div class="flexrow">
-      {{{textarea-card      "RESOURCE COST"      "mm.ResourceCost"}}}
-      {{{textarea-card      "RESOURCE NOTE"      "mm.ResourceNote"}}}
+      {{{textarea-card      "RESOURCE COST"      "system.resource_cost"}}}
+      {{{textarea-card      "RESOURCE NOTE"      "system.resource_note"}}}
     </div>
   </section>
 </form>

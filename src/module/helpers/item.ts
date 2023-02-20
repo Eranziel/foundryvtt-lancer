@@ -265,7 +265,7 @@ export function npc_feature_preview(npc_feature_path: string, helper: HelperOpti
 }
 
 /** Expected arguments:
- * - bonuses_path=<string path to the bonuses array>,  ex: ="doc.mm.Bonuses"
+ * - bonuses_path=<string path to the bonuses array>,  ex: ="doc.system.bonuses"
  * - bonuses=<bonus array to pre-populate with>.
  * Displays a list of bonuses, with buttons to add/delete (if edit true)
  */
@@ -335,7 +335,7 @@ export function HANDLER_activate_edit_counter<T>(html: JQuery, data_getter: () =
 }
 
 /** Expected arguments:
- * - bonus_path=<string path to the individual bonus item>,  ex: ="doc.mm.Bonuses.3"
+ * - bonus_path=<string path to the individual bonus item>,  ex: ="doc.system.actions.3"
  * - bonus=<bonus object to pre-populate with>
  */
 export function single_action_editor(path: string, options: HelperOptions) {
@@ -842,7 +842,7 @@ export function weapon_mod_ref(mod_path: string, weapon_path: string | null, opt
   </div>`;
 }
 
-// A specific MM ref helper focused on displaying manufacturer info.
+// A specific ref helper focused on displaying manufacturer info.
 /*
 export function manufacturer_ref(source_path: string, helper: HelperOptions): string {
   let source_: Manufacturer | null = resolve_helper_dotpath(helper, source_path);
@@ -867,7 +867,7 @@ export function manufacturer_ref(source_path: string, helper: HelperOptions): st
 }
 */
 
-// A specific MM ref helper focused on displaying license info.
+// A specific ref helper focused on displaying license info.
 // This if for display purposes and does not provide editable fields
 export function license_ref(item_path: string, helper: HelperOptions): string {
   let license = resolve_helper_dotpath(helper, item_path) as LancerLICENSE;

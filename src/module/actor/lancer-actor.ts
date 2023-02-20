@@ -639,7 +639,7 @@ export class LancerActor extends Actor {
   /**
    * Taking a new and old frame/class, swaps the actor and/or token images if
    * we detect that the image isn't custom. Will check each individually
-   * @param robot     A MM Mech or NPC, passed through to avoid data overwrites
+   * @param robot     A Mech or NPC, passed through to avoid data overwrites
    * @param oldFrame  Old Frame or NPC Class
    * @param newFrame  New Frame or NPC Class
    * @returns         The newFrame if any updates were performed

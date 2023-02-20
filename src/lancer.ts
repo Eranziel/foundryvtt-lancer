@@ -180,6 +180,9 @@ import { NpcTemplateModel } from "./module/models/items/npc_template";
 import { NpcClassModel } from "./module/models/items/npc_class";
 import { NpcFeatureModel } from "./module/models/items/npc_feature";
 import { LancerNPCClassSheet } from "./module/item/npc-class-sheet";
+import { WeaponModModel } from "./module/models/items/weapon_mod";
+import { ReserveModel } from "./module/models/items/reserve";
+import { StatusModel } from "./module/models/items/status";
 
 const lp = LANCER.log_prefix;
 
@@ -214,7 +217,13 @@ Hooks.once("init", async function () {
   // @ts-expect-error
   CONFIG.Item.systemDataModels[EntryType.MECH_SYSTEM] = MechSystemModel;
   // @ts-expect-error
+  CONFIG.Item.systemDataModels[EntryType.WEAPON_MOD] = WeaponModModel;
+  // @ts-expect-error
+  CONFIG.Item.systemDataModels[EntryType.RESERVE] = ReserveModel;
+  // @ts-expect-error
   CONFIG.Item.systemDataModels[EntryType.SKILL] = SkillModel;
+  // @ts-expect-error
+  CONFIG.Item.systemDataModels[EntryType.STATUS] = StatusModel;
   // @ts-expect-error
   CONFIG.Item.systemDataModels[EntryType.TALENT] = TalentModel;
   // @ts-expect-error

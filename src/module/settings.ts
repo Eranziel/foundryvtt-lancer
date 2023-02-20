@@ -138,7 +138,7 @@ export const registerSettings = function () {
       enemy_color: "#d98f30",
       done_color: "#444444",
     },
-    activations: "derived.mm.Activations",
+    activations: "system.activations",
   };
   game.settings.register(game.system.id, "combat-tracker-appearance", {
     scope: "world",

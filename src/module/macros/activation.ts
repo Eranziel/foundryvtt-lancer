@@ -49,7 +49,6 @@ export async function prepareActivationMacro(
     return ui.notifications!.error(`Error rolling tech attack macro - ${item.name} is not a System or Feature!`);
   }
 
-  // TODO: alter these generic functions to handle non mm items
   if (getAutomationOptions().limited_loading && item.isLimited() && item.system.uses.value <= 0) {
     ui.notifications!.error(`Error using item--you have no uses left!`);
     return;

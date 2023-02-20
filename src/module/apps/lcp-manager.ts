@@ -3,9 +3,9 @@ const lp = LANCER.log_prefix;
 import { importCP, clearCompendiumData, setAllLock } from "../comp-builder";
 import { IContentPack, IContentPackManifest } from "../util/unpacking/packed-types";
 import { getBaseContentPack, parseContentPack } from "../util/lcp-parser";
+import { info } from "../util/typed-lancerdata";
 
-// TODO: use the version from MM... once it's real.
-export const core_update = "3.0.46"; // typed_lancer_data.info.version;
+export const core_update = info.version;
 
 function addLCPManager(app: Application, html: any) {
   if (app.options.id == "compendium") {

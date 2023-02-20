@@ -57,7 +57,7 @@ export class InventoryDialog extends Dialog {
     return super.close(options);
   }
 
-  // Get the appropriate cats for the given mm actor
+  // Get the appropriate cats for the given actor
   populate_categories(actor: LancerActor): FilledCategory[] {
     // Decide categories based on type
     let cats: FilledCategory[] = [];
@@ -82,7 +82,6 @@ export class InventoryDialog extends Dialog {
         {
           label: "Statuses",
           items: actor.items.filter(i => i.is_status()),
-          // path: "mm.StatusesAndConditions"
         },
       ];
     } else if (actor.is_pilot()) {
@@ -126,7 +125,6 @@ export class InventoryDialog extends Dialog {
         {
           label: "Statuses",
           items: actor.items.filter(i => i.is_status()),
-          // path: "mm.StatusesAndConditions"
         },
       ];
     } else {

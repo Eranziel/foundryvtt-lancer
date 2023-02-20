@@ -19,7 +19,7 @@ export async function checkForHit(tech: boolean, roll: Roll, target: LancerActor
 }
 
 // Quickly computes the distance between two tokens as a number of grid units
-// TODO: Make it size aware, using the token.document.mm.Size if it exists? Prefer htss size
+// TODO: Make it size aware, using the token.document.system.size if it exists? Prefer htss size
 export function gridDist(token1: Token, token2: Token) {
   let c1 = token1.center;
   let c2 = token2.center;

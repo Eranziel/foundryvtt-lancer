@@ -23,10 +23,12 @@ import { unpackPilotGear } from "./models/items/pilot_gear";
 import { unpackPilotWeapon } from "./models/items/pilot_weapon";
 import { unpackSkill } from "./models/items/skill";
 import { unpackLicense } from "./models/items/license";
-import { slugify } from "./util/lid";
 import { unpackNpcClass } from "./models/items/npc_class";
 import { unpackNpcTemplate } from "./models/items/npc_template";
 import { unpackNpcFeature } from "./models/items/npc_feature";
+import { unpackWeaponMod } from "./models/items/weapon_mod";
+import { unpackReserve } from "./models/items/reserve";
+import { unpackStatus } from "./models/items/status";
 
 export const PACK_SCOPE = "world";
 
@@ -102,7 +104,7 @@ export async function importCP(
 
     let allCoreBonuses = cp.data.coreBonuses?.map(cb => unpackCoreBonus(cb, context)) ?? [];
     let allFrames = cp.data.frames?.map(d => unpackFrame(d, context)) ?? [];
-    let allMods = [];
+    let allMods = cp.data.mods?.map(d => unpackWeaponMod(d, context)) ?? [];
     let allNpcClasses = cp.data.npcClasses?.map(d => unpackNpcClass(d, context)) ?? [];
     let allNpcFeatures = cp.data.npcFeatures?.map(d => unpackNpcFeature(d, context)) ?? [];
     let allNpcTemplates = cp.data.npcTemplates?.map(d => unpackNpcTemplate(d, context)) ?? [];
@@ -117,9 +119,9 @@ export async function importCP(
       cp.data.pilotGear
         ?.filter(g => g.type == "Weapon")
         .map(pa => unpackPilotWeapon(pa as PackedPilotWeaponData, context)) ?? [];
-    let allReserves = [];
+    let allReserves = cp.data.reserves?.map(s => unpackReserve(s, context)) ?? [];
     let allSkills = cp.data.skills?.map(s => unpackSkill(s, context)) ?? [];
-    let allStatuses = [];
+    let allStatuses = cp.data.statuses?.map(s => unpackStatus(s, context)) ?? [];
     let allSystems = cp.data.systems?.map(s => unpackMechSystem(s, context)) ?? [];
     let allTags = cp.data.tags?.map(t => unpackTagTemplate(t)) ?? [];
     let allTalents = cp.data.talents?.map(t => unpackTalent(t, context)) ?? [];
@@ -137,17 +139,20 @@ export async function importCP(
     // Get creating
     await CONFIG.Item.documentClass.createDocuments(allCoreBonuses, { pack: `world.${EntryType.CORE_BONUS}` });
     await CONFIG.Item.documentClass.createDocuments(allFrames, { pack: `world.${EntryType.FRAME}` });
-    await CONFIG.Item.documentClass.createDocuments(allPilotArmor, { pack: `world.${EntryType.PILOT_ARMOR}` });
-    await CONFIG.Item.documentClass.createDocuments(allPilotGear, { pack: `world.${EntryType.PILOT_GEAR}` });
-    await CONFIG.Item.documentClass.createDocuments(allPilotWeapons, { pack: `world.${EntryType.PILOT_WEAPON}` });
-    await CONFIG.Item.documentClass.createDocuments(allSkills, { pack: `world.${EntryType.SKILL}` });
-    await CONFIG.Item.documentClass.createDocuments(allSystems, { pack: `world.${EntryType.MECH_SYSTEM}` });
-    await CONFIG.Item.documentClass.createDocuments(allTalents, { pack: `world.${EntryType.TALENT}` });
-    await CONFIG.Item.documentClass.createDocuments(allWeapons, { pack: `world.${EntryType.MECH_WEAPON}` });
+    await CONFIG.Item.documentClass.createDocuments(allMods, { pack: `world.${EntryType.WEAPON_MOD}` });
     await CONFIG.Item.documentClass.createDocuments(allLicenses, { pack: `world.${EntryType.LICENSE}` });
     await CONFIG.Item.documentClass.createDocuments(allNpcClasses, { pack: `world.${EntryType.NPC_CLASS}` });
     await CONFIG.Item.documentClass.createDocuments(allNpcTemplates, { pack: `world.${EntryType.NPC_TEMPLATE}` });
     await CONFIG.Item.documentClass.createDocuments(allNpcFeatures, { pack: `world.${EntryType.NPC_FEATURE}` });
+    await CONFIG.Item.documentClass.createDocuments(allPilotArmor, { pack: `world.${EntryType.PILOT_ARMOR}` });
+    await CONFIG.Item.documentClass.createDocuments(allPilotGear, { pack: `world.${EntryType.PILOT_GEAR}` });
+    await CONFIG.Item.documentClass.createDocuments(allPilotWeapons, { pack: `world.${EntryType.PILOT_WEAPON}` });
+    await CONFIG.Item.documentClass.createDocuments(allReserves, { pack: `world.${EntryType.RESERVE}` });
+    await CONFIG.Item.documentClass.createDocuments(allSkills, { pack: `world.${EntryType.SKILL}` });
+    await CONFIG.Item.documentClass.createDocuments(allStatuses, { pack: `world.${EntryType.STATUS}` });
+    await CONFIG.Item.documentClass.createDocuments(allSystems, { pack: `world.${EntryType.MECH_SYSTEM}` });
+    await CONFIG.Item.documentClass.createDocuments(allTalents, { pack: `world.${EntryType.TALENT}` });
+    await CONFIG.Item.documentClass.createDocuments(allWeapons, { pack: `world.${EntryType.MECH_WEAPON}` });
     await CONFIG.Actor.documentClass.createDocuments(context.createdDeployables, {
       pack: `world.${EntryType.DEPLOYABLE}`,
     });

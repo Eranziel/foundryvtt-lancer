@@ -160,7 +160,7 @@ export async function resolve_ref_element(
  * so that they can be used as a sort of "self" ref
  *
  * @param img_path The path to read/edit said image
- * @param item The reffable MM item/actor itself
+ * @param item The reffable item/actor itself
  */
 export function ref_portrait<T extends EntryType>(
   img: string,

@@ -5,7 +5,7 @@
       <div class="header-fields">
         <h1 class="charname"><input class="header-field" name="name" type="text" value="{{item.name}}" placeholder="{{localize "lancer.placeholder.name"}}"/></h1>
       </div>
-      {{{ ref-portrait-img item.img "img" mm }}}
+      {{{ ref-portrait-img item.img "img" item }}}
     </div>
   </header>
 
@@ -14,7 +14,7 @@
     <div class="card clipped">
       <div class="lancer-header major ">STATUS</div>
       <div class="flexrow" style="align-self: center;">
-        {{#if (is-limited mm)}}
+        {{#if (is-limited item)}}
           {{{limited-uses-indicator "item"}}}
         {{/if}}
       </div>
@@ -31,7 +31,7 @@
     {{!-- Tags --}}
     <div class="card">
       <span class="lancer-header major">TAGS</span>
-      {{{tag-list "system.tags" system.Tags editable}}}
+      {{{tag-list "system.tags" system.tags editable}}}
     </div>
     
   </div>

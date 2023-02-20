@@ -36,7 +36,7 @@ import { FetcherCache } from "./async";
 import { lookupDeployables, lookupLID, lookupOwnedDeployables } from "./lid";
 import { requestImport } from "./requests";
 
-// Sort mm items. Moves moverand to dest, either before or after depending on third arg
+// Sort items. Moves moverand to dest, either before or after depending on third arg
 export async function resort_item(moverand: LancerItem, dest: LancerItem, sort_before = true) {
   // Make sure owner is the same
   if (!dest.actor || !moverand.actor || dest.actor != moverand.actor) {

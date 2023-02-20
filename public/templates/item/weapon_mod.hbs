@@ -13,41 +13,41 @@
             />
           </h1>
         </div>
-        {{{ ref-portrait-img item.img "img" mm }}}
+        {{{ ref-portrait-img item.img "img" item }}}
       </div>
     </header>
   
     {{!-- Sheet Body --}}
     <section class="sheet-body flexrow sheet-weapon-mod">
       <div class="flexcol" style="flex-basis: 66%">
-        {{{item-edit-effect               "mm.Effect"}}}
-        {{{item-edit-arrayed-actions      "mm.Actions"        "ADDED ACTIONS"}}}
-        {{{item-edit-arrayed-damage       "mm.AddedDamage"    "ADDED DAMAGE"}}}
-        {{{item-edit-arrayed-range        "mm.AddedRange"     "ADDED RANGE"}}}
+        {{{item-edit-effect               "system.effect"}}}
+        {{{item-edit-arrayed-actions      "system.actions"        "ADDED ACTIONS"}}}
+        {{{item-edit-arrayed-damage       "system.added_damage"    "ADDED DAMAGE"}}}
+        {{{item-edit-arrayed-range        "system.added_range"     "ADDED RANGE"}}}
         <div class="card full">
           <span class="lancer-header submajor">ADDED TAGS</span>
-          {{{tag-list "mm.AddedTags" mm.AddedTags editable}}}
+          {{{tag-list "system.added_tags" system.added_tags editable}}}
         </div>
-        {{{item-edit-arrayed-bonuses      "mm.Bonuses"}}}
+        {{{item-edit-arrayed-bonuses      "system.bonuses"}}}
         <div class="flexrow">
-          {{{counter-array mm.Counters "mm.Counters" true}}}
+          {{{counter-array system.counters "system.counters" true}}}
         </div>
-        {{{item-edit-arrayed-deployables  "mm.Deployables"                "ADDED DEPLOYABLES"}}}
-        {{{item-edit-arrayed-synergies    "mm.Synergies"                  "SYNERGIES"}}}
-        {{{item-edit-arrayed-integrated   "mm.Integrated"                 "INTEGRATED ITEMS"}}}
+        {{{item-edit-arrayed-deployables  "system.deployables"                "ADDED DEPLOYABLES"}}}
+        {{{item-edit-arrayed-synergies    "system.synergies"                  "SYNERGIES"}}}
+        {{{item-edit-arrayed-integrated   "system.integrated"                 "INTEGRATED ITEMS"}}}
         <div class="card full">
           <span class="lancer-header submajor">TAGS</span>
-          {{{tag-list "mm.Tags" mm.Tags editable}}}
+          {{{tag-list "system.tags" system.tags editable}}}
         </div>
       </div>
       <div class="flexcol" style="flex-basis: 33%;">
         {{{item-edit-license}}}
-        {{{item-edit-sp                   "mm.SP"}}}
-        {{#if (is-limited mm)}}
+        {{{item-edit-sp                   "system.sp"}}}
+        {{#if (is-limited item)}}
           {{{limited-uses-indicator "item"}}}
         {{/if}}
-        {{{item-edit-arrayed-enum         "Allowed Sizes"         "mm.AllowedSizes"     "WeaponSize"}}}
-        {{{item-edit-arrayed-enum         "Allowed Types"         "mm.AllowedTypes"     "WeaponType"}}}
+        {{{item-edit-arrayed-enum         "Allowed Sizes"         "system.allowed_sizes"     "WeaponSize"}}}
+        {{{item-edit-arrayed-enum         "Allowed Types"         "system.allowed_types"     "WeaponType"}}}
       </div>
     </section>
   </form>

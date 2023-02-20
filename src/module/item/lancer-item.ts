@@ -116,8 +116,10 @@ export class LancerItem extends Item {
   }
 
   /**
-   * Force name down to item,
-   * And more importantly, perform MM workflow
+   * Perform preliminary item preparation.
+   * Set equipped to its initial value (to be later finalized)
+   * Set active weapon profile
+   * Set limited max based on tags
    */
   prepareData() {
     super.prepareData();

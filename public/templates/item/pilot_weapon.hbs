@@ -6,7 +6,7 @@
       <div class="header-fields">
         <h1 class="charname"><input class="header-field" name="name" type="text" value="{{item.name}}" placeholder="{{localize "lancer.placeholder.name"}}"/></h1>
       </div>
-      {{{ ref-portrait-img item.img "img" mm }}}
+      {{{ ref-portrait-img item.img "img" item }}}
     </div>
   </header>
   <div class="flexcol">
@@ -14,10 +14,10 @@
     <div class="card clipped">
       <div class="lancer-header major ">STATUS</div>
       <div class="flexrow" style="align-self: center;">
-        {{#if (is-loading mm)}}
-          {{{loading-indicator mm.Loaded "mm"}}}
+        {{#if (is-loading item)}}
+          {{{loading-indicator system.loaded "item"}}}
         {{/if}}
-        {{#if (is-limited mm)}}
+        {{#if (is-limited item)}}
           {{{limited-uses-indicator "item"}}}
         {{/if}}
       </div>
@@ -25,23 +25,23 @@
 
     {{!-- Weapon Stats --}}
     <div class="flexrow">
-      {{{item-edit-arrayed-range        "mm.Range"     "RANGE"}}}
-      {{{item-edit-arrayed-damage       "mm.Damage"    "DAMAGE"}}}
+      {{{item-edit-arrayed-range        "system.range"     "RANGE"}}}
+      {{{item-edit-arrayed-damage       "system.damage"    "DAMAGE"}}}
     </div>
 
-    {{{textarea-card "DESCRIPTION" "mm.Description"}}}
-    {{{textarea-card "EFFECT" "mm.Effect"}}}
+    {{{textarea-card "DESCRIPTION" "system.description"}}}
+    {{{textarea-card "EFFECT" "system.effect"}}}
 
     {{!-- Bonuses --}}
-    {{{item-edit-arrayed-actions      "mm.Actions"        "ACTIONS"}}}
-    {{{item-edit-arrayed-bonuses      "mm.Bonuses"}}}
-    {{{item-edit-arrayed-deployables  "mm.Deployables"    "DEPLOYABLES"}}}
-    {{{item-edit-arrayed-synergies    "mm.Synergies"      "SYNERGIES"}}}
+    {{{item-edit-arrayed-actions      "system.actions"        "ACTIONS"}}}
+    {{{item-edit-arrayed-bonuses      "system.bonuses"}}}
+    {{{item-edit-arrayed-deployables  "system.deployables"    "DEPLOYABLES"}}}
+    {{{item-edit-arrayed-synergies    "system.synergies"      "SYNERGIES"}}}
 
     {{!-- Tags --}}
     <div class="card full">
       <span class="lancer-header major">TAGS</span>
-      {{{tag-list "mm.Tags" mm.Tags editable}}}
+      {{{tag-list "system.tags" system.tags editable}}}
     </div>
 
   </div>

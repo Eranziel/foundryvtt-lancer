@@ -91,7 +91,7 @@ export function stat_view_card(
         <span class="lancer-stat major" data-path="${data_path}">${data_val}</span>
         ${
           macro_button
-            ? data_path == "mm.Pilot.Grit" || data_path === "mm.Tier"
+            ? data_path == "system.grit" || data_path === "system.tier"
               ? _rollable_macro_button(macroBasicData, { icon: "cci cci-weapon" })
               : "<div></div>"
             : ""
