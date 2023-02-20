@@ -179,6 +179,7 @@ import { LicenseModel } from "./module/models/items/license";
 import { NpcTemplateModel } from "./module/models/items/npc_template";
 import { NpcClassModel } from "./module/models/items/npc_class";
 import { NpcFeatureModel } from "./module/models/items/npc_feature";
+import { LancerNPCClassSheet } from "./module/item/npc-class-sheet";
 
 const lp = LANCER.log_prefix;
 
@@ -498,7 +499,7 @@ Hooks.once("init", async function () {
   // Tags
   // Handlebars.registerHelper("compact-tag", renderCompactTag);
   // Handlebars.registerPartial("tag-list", compactTagList);
-  Handlebars.registerHelper("mm-tag-list", compact_tag_list);
+  Handlebars.registerHelper("tag-list", compact_tag_list);
   // Handlebars.registerHelper("chunky-tag", renderChunkyTag);
   // Handlebars.registerHelper("full-tag", renderFullTag);
 
@@ -828,8 +829,7 @@ function setupSheets() {
   });
   Items.registerSheet("lancer", LancerFrameSheet, { types: [EntryType.FRAME], makeDefault: true });
   Items.registerSheet("lancer", LancerLicenseSheet, { types: [EntryType.LICENSE], makeDefault: true });
-  // Items.registerSheet("lancer", LancerNPCClassSheet, {
-  Items.registerSheet("lancer", LancerItemSheet, {
+  Items.registerSheet("lancer", LancerNPCClassSheet, {
     types: [EntryType.NPC_CLASS, EntryType.NPC_TEMPLATE],
     makeDefault: true,
   });

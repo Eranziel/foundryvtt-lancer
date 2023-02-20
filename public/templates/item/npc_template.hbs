@@ -4,10 +4,10 @@
     <div class="header-fields">
       <h1 class="charname"><input class="header-field" name="name" type="text" value="{{item.name}}" placeholder="{{localize "lancer.placeholder.name"}}"/></h1>
     </div>
-    {{{ ref-portrait-img item.img "img" mm }}}
+    {{{ ref-portrait-img item.img "img" item }}}
   </header>
   
-  {{{textarea-card "DESCRIPTION" "mm.Description"}}}
+  {{{textarea-card "DESCRIPTION" "system.description"}}}
   
   </div>
   <div class="flexcol" style="margin: 10px;">
@@ -15,7 +15,7 @@
       <span class="major">BASE FEATURES</span>
     </div>
 
-    {{{item-preview-list "system.base_features" "npc_feature" "uuid-ref"}}}
+    {{{item-preview-list "base_features" "npc_feature" "doc"}}}
   </div>
 
   <div class="flexcol" style="margin: 10px;">
@@ -23,9 +23,6 @@
       <span class="major">OPTIONAL FEATURES</span>
     </div>
 
-    {{#each mm.OptionalFeatures as |feature feature_index|}}
-      {{{npc-feat-preview (concat "mm.OptionalFeatures." feature_index) trash-action="splice" }}}
-    {{/each}}
-    {{{item-preview-list "system.optional_features" "npc_feature" "uuid-ref"}}}
+    {{{item-preview-list "optional_features" "npc_feature" "doc"}}}
   </div>
 </form>

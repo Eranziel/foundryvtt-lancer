@@ -51,6 +51,12 @@ export class NpcFeatureModel extends LancerDataModel {
       // Tech - mostly covered by weapon
       tech_type: new fields.StringField({ choices: Object.values(NpcTechType), initial: NpcTechType.Quick }),
 
+      // Origin data - track where it came from
+      origin: new fields.SchemaField({
+        type: new fields.StringField(),
+        name: new fields.StringField(),
+      }),
+
       // Templates
       ...template_destructible(),
       ...template_uses(),
@@ -122,7 +128,7 @@ export function unpackNpcFeature(
           done = false;
         }
       }
-      bs.damage.push(sub_damage);
+      if (!done) bs.damage.push(sub_damage);
       i += 1;
     }
 

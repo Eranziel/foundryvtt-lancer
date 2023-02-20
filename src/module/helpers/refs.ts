@@ -30,7 +30,13 @@ import {
   HANDLER_enable_dragging,
   ResolvedDropData,
 } from "./dragdrop";
-import { buildActionHTML, buildDeployableHTML, license_ref, mech_loadout_weapon_slot } from "./item";
+import {
+  buildActionHTML,
+  buildDeployableHTML,
+  license_ref,
+  mech_loadout_weapon_slot,
+  npc_feature_preview,
+} from "./item";
 import { compact_tag_list } from "./tags";
 import { CollapseRegistry } from "./loadout";
 import { LancerDoc } from "../util/doc";
@@ -392,6 +398,8 @@ export function item_preview<T extends LancerItemType>(
       </li>`;
   } else if (doc.is_license()) {
     return license_ref(item_path, helper);
+  } else if (doc.is_npc_feature()) {
+    return npc_feature_preview(item_path, helper);
   } else {
     // Basically the same as the simple ref card, but with control added
     return `
@@ -451,12 +459,9 @@ export function item_preview_list(
   _helper: HelperOptions,
   collapse?: CollapseRegistry
 ) {
-  let embeds = resolve_helper_dotpath(_helper, item_array_path) as SystemTemplates.ResolvedAsyncUuidRef<
-    LancerActor | LancerItem
-  >[];
-  let previews = embeds.map((x, i) => {
-    item_preview(`${item_array_path}.${i}`, null, mode, _helper, collapse);
-  });
+  let embeds = resolve_helper_dotpath(_helper, item_array_path) as Array<any>;
+  let trash = _helper.hash["trash"] ?? null;
+  let previews = embeds.map((_, i) => item_preview(`${item_array_path}.${i}`, trash, mode, _helper, collapse));
   return `
     <div class="flexcol ref-list" 
          data-path="${item_array_path}" 

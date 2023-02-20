@@ -1,7 +1,7 @@
 import { EntryType } from "../../enums";
 import { SourceData } from "../../source-template";
 import { PackedNpcClassData, PackedSkillData } from "../../util/unpacking/packed-types";
-import { LancerDataModel, UnpackContext } from "../shared";
+import { LancerDataModel, LIDField, UnpackContext } from "../shared";
 import { template_universal_item } from "./shared";
 
 const fields: any = foundry.data.fields;
@@ -10,10 +10,12 @@ const fields: any = foundry.data.fields;
 export class NpcClassModel extends LancerDataModel {
   static defineSchema() {
     return {
-      description: new fields.HTMLField(),
-      detail: new fields.StringField(),
-      family: new fields.StringField(),
-      curr_rank: new fields.NumberField({ nullable: false, initial: 1, min: 1, max: 3 }),
+      role: new fields.StringField(),
+      flavor: new fields.HTMLField(),
+      tactics: new fields.HTMLField(),
+      base_features: new fields.ArrayField(new LIDField()),
+      optional_features: new fields.ArrayField(new LIDField()),
+      base_stats: new fields.ArrayField(new fields.ObjectField()),
       ...template_universal_item(),
     };
   }
@@ -31,7 +33,7 @@ export function unpackNpcClass(
   let stats: SourceData.NpcClass["base_stats"] = [];
   for (let i = 0; i < 3; i++) {
     const giv = (key: string) => {
-      let x: number | number[] | number[][] = (data as any)[key] ?? [0];
+      let x: number | number[] | number[][] = (data.stats as any)[key] ?? [0];
       x = Array.isArray(x) ? x : [x];
       x = x.length == 0 ? [0] : x;
       let y = i >= x.length ? x[x.length - 1] : x[i];

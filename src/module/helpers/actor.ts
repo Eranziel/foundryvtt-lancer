@@ -277,19 +277,24 @@ export function tech_flow_card(title: string, icon: string, data_path: string, o
     `;
 }
 
-export function npc_clicker_stat_card(title: string, data_path: string, options: HelperOptions): string {
-  let data_val_arr: number[] = resolve_helper_dotpath(options, data_path) ?? [];
+export function npc_clicker_stat_card(
+  title: string,
+  data_base_path: string,
+  key: string,
+  options: HelperOptions
+): string {
+  let stat_blocks: Array<Record<string, number>> = resolve_helper_dotpath(options, data_base_path) ?? [];
   let tier_clickers: string[] = [];
   let tier = 1;
 
   // Reset button
 
   // Make a clicker for every tier
-  for (let val of data_val_arr) {
+  for (let val of stat_blocks) {
     tier_clickers.push(`
       <div class="flexrow stat-container" style="align-self: center;">
         <i class="cci cci-npc-tier-${tier} i--m i--dark"></i>
-        ${clicker_num_input(`${data_path}.${tier - 1}`, options)}
+        ${clicker_num_input(`${data_base_path}.${tier - 1}.${key}`, options)}
       </div>`);
     tier++;
   }
@@ -297,7 +302,7 @@ export function npc_clicker_stat_card(title: string, data_path: string, options:
     <div class="card clipped">
       <div class="flexrow lancer-header major">
         <span class="lancer-header major ">${title}</span>
-        <a class="gen-control" data-path="${data_path}" data-action="set" data-action-value="(struct)npc_stat_array"><i class="fas fa-redo"></i></a>
+        <a class="gen-control" data-path="${data_base_path}" data-action="set" data-action-value="(struct)npc_stat_array"><i class="fas fa-redo"></i></a>
       </div>
       ${tier_clickers.join("")}
     </div>`;

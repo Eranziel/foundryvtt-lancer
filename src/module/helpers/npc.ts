@@ -231,7 +231,9 @@ export function npc_weapon_effect_preview(path: string, options: HelperOptions) 
         ${subheader_items.join(sep)}
       </div>
       <div>
-        <span>${feature_data.type ?? "Weapon"} // feature_data.Origin.name feature_data.Origin.type Feature</span>
+        <span>${feature_data.type ?? "Weapon"} // ${npc_feature.system.origin.name} ${
+      npc_feature.system.origin.type
+    } Feature (TODO ORIGIN)</span>
       </div>
       ${effect_box("ON HIT", feature_data.on_hit)}
       ${effect_box("EFFECT", feature_data.effect)}

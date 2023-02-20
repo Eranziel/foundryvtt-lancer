@@ -359,7 +359,13 @@ export function NPC_CLASS(): SourceDataType<EntryType.NPC_CLASS> {
 }
 
 export function NPC_FEATURE(): SourceData.NpcFeature {
-  return NPC_TRAIT();
+  return {
+    ...NPC_TRAIT(),
+    origin: {
+      name: "N/A",
+      type: "N/A",
+    },
+  };
 }
 
 function npc_feature_commons(): SourceTemplates.NPC.BaseFeatureData {

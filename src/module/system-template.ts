@@ -460,7 +460,12 @@ export namespace SystemData {
       size: number; // TODO: don't miss this in migrations
     }>;
   }
-  export type NpcFeature = SystemTemplates.NPC.AnyFeature;
+  export type NpcFeature = SystemTemplates.NPC.AnyFeature & {
+    origin: {
+      type: string;
+      name: string;
+    };
+  };
   export interface NpcTemplate extends SystemTemplates.item_universal {
     description: string;
     base_features: LIDRef[];

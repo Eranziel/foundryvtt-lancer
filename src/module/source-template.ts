@@ -359,7 +359,12 @@ export namespace SourceData {
     optional_features: UUIDRef[];
     base_stats: Array<SourceTemplates.NPC.StatBlock>;
   }
-  export type NpcFeature = SourceTemplates.NPC.AnyFeature;
+  export type NpcFeature = SourceTemplates.NPC.AnyFeature & {
+    origin: {
+      type: string;
+      name: string;
+    };
+  };
   export interface NpcTemplate extends SourceTemplates.item_universal {
     description: string;
     base_features: UUIDRef[];

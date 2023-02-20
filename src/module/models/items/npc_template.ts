@@ -1,7 +1,7 @@
 import { EntryType } from "../../enums";
 import { SourceData } from "../../source-template";
 import { PackedNpcClassData, PackedNpcTemplateData, PackedSkillData } from "../../util/unpacking/packed-types";
-import { LancerDataModel, UnpackContext } from "../shared";
+import { LancerDataModel, LIDField, UnpackContext } from "../shared";
 import { template_universal_item } from "./shared";
 
 const fields: any = foundry.data.fields;
@@ -10,10 +10,8 @@ const fields: any = foundry.data.fields;
 export class NpcTemplateModel extends LancerDataModel {
   static defineSchema() {
     return {
-      description: new fields.HTMLField(),
-      detail: new fields.StringField(),
-      family: new fields.StringField(),
-      curr_rank: new fields.NumberField({ nullable: false, initial: 1, min: 1, max: 3 }),
+      base_features: new fields.ArrayField(new LIDField()),
+      optional_features: new fields.ArrayField(new LIDField()),
       ...template_universal_item(),
     };
   }
