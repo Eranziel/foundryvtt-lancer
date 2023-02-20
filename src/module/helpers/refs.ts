@@ -38,6 +38,7 @@ import { LancerActor, LancerPILOT } from "../actor/lancer-actor";
 import { LancerMacroData } from "../interfaces";
 import { SystemTemplates } from "../system-template";
 import { LancerActiveEffect } from "../effects/lancer-active-effect";
+import { SourceData } from "../source-template";
 
 /*
 "Ref" manifesto - Things for handling everything in data that is either a ResolvedUuidRefField or ResolvedEmbeddedRefField.
@@ -570,9 +571,9 @@ export function HANDLER_activate_ref_slot_dropping(
     let path = dest[0].dataset.path;
     let mode = dest[0].dataset.mode as RefMode;
     let types = dest[0].dataset.acceptTypes as string;
-    let val;
+    let val: string;
     if (mode == "embed-ref") {
-      val = drop.document.id;
+      val = drop.document.id!;
     } else if (mode == "uuid-ref") {
       val = drop.document.uuid;
     } else {
@@ -584,11 +585,39 @@ export function HANDLER_activate_ref_slot_dropping(
       return;
     }
 
-    // Then just merge-set to the path
+    // Then set it to path, with an added correction of unsetting any other place its set on the same document's loadout (if path in loadout)
     if (path) {
-      console.log("SLOT DROP");
       let dd = drilldownDocument(root_doc, path);
-      dd.sub_doc.update({ [dd.sub_path]: val });
+      let updateData = {} as any;
+      if (path.includes("loadout") && dd.sub_doc instanceof LancerActor) {
+        // Do clear-correction here
+        if (dd.sub_doc.is_pilot()) {
+          // If other occurrences of val
+          let cl = (dd.sub_doc as any).system._source.loadout as SourceData.Pilot["loadout"];
+          if (cl.armor.some(x => x == val))
+            updateData["system.loadout.armor"] = cl.armor.map(x => (x == val ? null : x));
+          if (cl.gear.some(x => x == val)) updateData["system.loadout.gear"] = cl.gear.map(x => (x == val ? null : x));
+          if (cl.weapons.some(x => x == val))
+            updateData["system.loadout.weapons"] = cl.weapons.map(x => (x == val ? null : x));
+        } else if (dd.sub_doc.is_mech()) {
+          let cl = (dd.sub_doc as any).system._source.loadout as SourceData.Mech["loadout"];
+          if (cl.systems.some(x => x == val))
+            updateData["system.loadout.systems"] = cl.systems.map(x => (x == val ? null : x));
+          if (cl.weapon_mounts.some(x => x.slots.some(y => y.weapon == val || y.mod == val))) {
+            updateData["system.loadout.weapon_mounts"] = cl.weapon_mounts.map(wm => ({
+              slots: wm.slots.map(s => ({
+                weapon: s.weapon == val ? null : s.weapon,
+                mod: s.mod == val ? null : s.mod,
+                size: s.size,
+              })),
+              bracing: wm.bracing,
+              type: wm.type,
+            }));
+          }
+        }
+      }
+      updateData[dd.sub_path] = val;
+      dd.sub_doc.update(updateData);
     }
   });
 }
