@@ -772,7 +772,7 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.value.
 
 export function loading_indicator(loaded: boolean, weapon_path: string): string {
   let loading_icon = `mdi ${loaded ? "mdi-hexagon-slice-6" : "mdi-hexagon-outline"} loaded-hex`;
-  let indicator = `<a class="gen-control" data-action="set" data-action-value="(bool)${!loaded}" data-path="${weapon_path}.loaded" data-update-interceptor="${weapon_path}"><i class="${loading_icon} i--m"></i></a>`;
+  let indicator = `<a class="gen-control" data-action="set" data-action-value="(bool)${!loaded}" data-path="${weapon_path}.loaded"><i class="${loading_icon} i--m"></i></a>`;
   return `<div class="clipped card limited-card">LOADED ${indicator}</div>`;
 }
 

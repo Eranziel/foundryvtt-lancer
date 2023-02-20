@@ -161,7 +161,6 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
       let doc = drop.document;
 
       // Mark replaced classes for deletion
-      let delete_targets = [];
       if (this.actor.is_npc() && doc.is_npc_class() && this.actor.system.class) {
         // But before we do that, destroy all old classes
         // If we have a class, get rid of it
@@ -170,7 +169,7 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
           ...old_class.system.base_features,
           ...old_class.system.optional_features,
         ]);
-        delete_targets.push(...class_features.map(f => f.id));
+        await this.actor._safeDeleteEmbedded("Item", old_class, ...class_features);
       }
 
       // And add all new features

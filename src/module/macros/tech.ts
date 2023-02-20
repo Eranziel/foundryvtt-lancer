@@ -18,9 +18,7 @@ export async function prepareTechMacro(
   rerollData?: AccDiffDataSerialized
 ) {
   // Determine which Actor to speak as
-  let actor: LancerActor | null | undefined = actorUUID
-    ? ((await fromUuid(actorUUID)) as LancerActor)
-    : getMacroSpeaker();
+  let actor = getMacroSpeaker(actorUUID);
   if (!actor) return;
 
   let mData: LancerTechMacroData = {

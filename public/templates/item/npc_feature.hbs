@@ -100,8 +100,8 @@
             {{/select}}
           </select>
         </div>
-        {{{npc-clicker-stat-card "ATTACK BONUS" "system.attack_bonus"}}}
-        {{{npc-clicker-stat-card "ACCURACY" "system" "accuracy"}}}
+        {{{npc-clicker-statarr-card "ATTACK BONUS" "system" "attack_bonus"}}}
+        {{{npc-clicker-statarr-card "ACCURACY" "system" "accuracy"}}}
         {{{textarea-card "EFFECT" "system.effect"}}}
       </div>
     {{/if}}
@@ -113,7 +113,7 @@
           <span class="lancer-header major">
             TYPE
           </span>
-          <input name="system.wepType" type="text" value="{{system.wepType}}" placeholder="Weapon Type" />
+          <input name="system.weapon_type" type="text" value="{{system.weapon_type}}" placeholder="Weapon Type" />
         </div>
         <div class="double"></div>
         {{! Range }}
@@ -135,9 +135,9 @@
           {{/each}}
         </div>
         {{! Attack Bonus }}
-        {{{npc-clicker-stat-card "ATTACK BONUS" "system.attack_bonus"}}}
+        {{{npc-clicker-statarr-card "ATTACK BONUS" "system" "attack_bonus"}}}
         {{! Accuracy }}
-        {{{npc-clicker-stat-card "ACCURACY" "system" "accuracy"}}}
+        {{{npc-clicker-statarr-card "ACCURACY" "system" "accuracy"}}}
         {{! All Damages }}
         {{#each system.damage as |tier_damage_array tier_index|}}
           <div class="card clipped">

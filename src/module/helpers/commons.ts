@@ -217,7 +217,7 @@ export function sp_display(sp: number | string) {
 export function charged_box(charged: boolean, path: string) {
   return `<div class="clipped card charged-box ${inc_if("charged", charged)}">
             <span style="margin:4px;">Charged:</span>
-            <a style="margin-top:2px;" class="gen-control" data-action="set" data-action-value="(bool)${!charged}" data-path="${path}.system.charged" data-update-interceptor="${path}">
+            <a style="margin-top:2px;" class="gen-control" data-action="set" data-action-value="(bool)${!charged}" data-path="${path}.system.charged">
               <i class="hex hex-white mdi ${charged ? "mdi-hexagon-slice-6" : "mdi-hexagon-outline"}">
               </i>
             </a>

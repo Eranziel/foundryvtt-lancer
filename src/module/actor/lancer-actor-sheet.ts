@@ -20,7 +20,6 @@ import {
 } from "../macros";
 import { ActivationOptions } from "../enums";
 import { applyCollapseListeners, CollapseHandler } from "../helpers/collapse";
-import { HANDLER_intercept_form_changes } from "../helpers/refs";
 import { addExportButton } from "../helpers/io";
 import type { ActionType } from "../action";
 import { InventoryDialog } from "../apps/inventory";
@@ -103,9 +102,6 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
 
     // Enable general controls, so items can be deleted and such
     HANDLER_activate_general_controls(html, this.actor);
-
-    // Item-referencing inputs
-    HANDLER_intercept_form_changes(html, getfunc);
 
     // Enable popout editors
     HANDLER_activate_popout_text_editor(html, this.actor);

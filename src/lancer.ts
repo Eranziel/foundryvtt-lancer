@@ -106,7 +106,7 @@ import {
   deployer_slot,
   is_combatant,
   macro_button,
-  npc_clicker_stat_card,
+  npc_stat_block_clicker_card,
   npc_tier_selector,
   overcharge_button,
   stat_edit_card,
@@ -446,7 +446,8 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("stat-edit-card", stat_edit_card);
   Handlebars.registerHelper("stat-edit-max-card", stat_edit_card_max);
   Handlebars.registerHelper("clicker-stat-card", clicker_stat_card);
-  Handlebars.registerHelper("npc-clicker-stat-card", npc_clicker_stat_card);
+  Handlebars.registerHelper("npc-clicker-statblock-card", npc_stat_block_clicker_card);
+  Handlebars.registerHelper("npc-clicker-statarr-card", npc_stat_block_clicker_card);
   Handlebars.registerHelper("std-string-input", std_string_input);
   Handlebars.registerHelper("std-text-input", std_text_input);
   Handlebars.registerHelper("std-password-input", std_password_input);

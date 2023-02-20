@@ -644,32 +644,3 @@ export function HANDLER_activate_ref_slot_dropping(
     }
   });
 }
-
-/**
- * Use this for ui forms of items. Will prevent change/submit events from propagating all the way up,
- * and instead call update() on the appropriate document instead.
- * Control in same way as generic action handler: with the "data-update-interceptor" property pointing at the document
- */
-export function HANDLER_intercept_form_changes<T>(html: JQuery, data_getter: () => Promise<T> | T) {
-  // Capture anywhere with a data-update-interceptor path specified
-  let capturers = html.find("[data-update-interceptor]");
-  capturers.on("change", async evt => {
-    // Don't let it reach root form
-    evt.stopPropagation();
-
-    // Get our form data. We're kinda just replicating what would happen in onUpdate, but minus all of the fancier processing that is needed there
-    let form = $(evt.target).parents("form")[0];
-    let form_data = read_form(form);
-
-    // Get our target data
-    let sheet_data = await data_getter();
-    let path = evt.currentTarget.dataset.commitItem;
-    if (path) {
-      let doc = resolve_dotpath(sheet_data, path) as LancerItem | LancerActor;
-      if (doc) {
-        // Apply
-        await doc.update(form_data);
-      }
-    }
-  });
-}

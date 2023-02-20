@@ -102,7 +102,6 @@ export async function prepareAttackMacro(
   },
   rerollData?: AccDiffData
 ) {
-  console.log("ATTAKKK");
   if (!item.is_npc_feature() && !item.is_mech_weapon() && !item.is_pilot_weapon()) return;
   let macroData: LancerAttackMacroData = {
     title: item.name ?? "",

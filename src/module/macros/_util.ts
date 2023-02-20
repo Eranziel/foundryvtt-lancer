@@ -10,7 +10,7 @@ const lp = LANCER.log_prefix;
  * @param provActor - The Actor to search for. If an id, try to search for the
  *               appropriate actor to use, if an Actor document, use that doc.
  */
-export function getMacroSpeaker(provActor?: string | LancerActor): LancerActor | undefined {
+export function getMacroSpeaker(provActor?: string | LancerActor | null): LancerActor | undefined {
   // If we have an actor already, we're gtg
   if (provActor instanceof Actor) return provActor;
 

@@ -209,7 +209,7 @@ export function npc_weapon_effect_preview(path: string, options: HelperOptions) 
 
   // Get the mid-body stuff. Real meat and potatos of a weapon
   if (feature_data.range.length) {
-    subheader_items.push(show_range_array(feature_data.range[tier_index], options));
+    subheader_items.push(show_range_array(feature_data.range, options));
   }
   if (feature_data.damage[tier_index] && feature_data.damage[tier_index].length) {
     subheader_items.push(show_damage_array(feature_data.damage[tier_index], options));

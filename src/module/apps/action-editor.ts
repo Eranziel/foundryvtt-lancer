@@ -3,7 +3,6 @@ import {
   HANDLER_activate_popout_text_editor,
   resolve_dotpath,
 } from "../helpers/commons";
-import { HANDLER_intercept_form_changes } from "../helpers/refs";
 import { LancerItem } from "../item/lancer-item";
 import { ActionData } from "../models/bits/action";
 /**
