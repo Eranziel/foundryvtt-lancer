@@ -174,6 +174,8 @@ import { importCC } from "./module/actor/import";
 
 import "./module/helpers/text-enrichers";
 import { fromLid, fromLidSync } from "./module/helpers/from-lid";
+import { SkillModel } from "./module/models/items/skill";
+import { LicenseModel } from "./module/models/items/license";
 
 const lp = LANCER.log_prefix;
 
@@ -202,9 +204,13 @@ Hooks.once("init", async function () {
   // @ts-expect-error
   CONFIG.Item.systemDataModels[EntryType.FRAME] = FrameModel;
   // @ts-expect-error
+  CONFIG.Item.systemDataModels[EntryType.LICENSE] = LicenseModel;
+  // @ts-expect-error
   CONFIG.Item.systemDataModels[EntryType.MECH_WEAPON] = MechWeaponModel;
   // @ts-expect-error
   CONFIG.Item.systemDataModels[EntryType.MECH_SYSTEM] = MechSystemModel;
+  // @ts-expect-error
+  CONFIG.Item.systemDataModels[EntryType.SKILL] = SkillModel;
   // @ts-expect-error
   CONFIG.Item.systemDataModels[EntryType.TALENT] = TalentModel;
 

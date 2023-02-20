@@ -3,7 +3,7 @@ const lp = LANCER.log_prefix;
 import { LCPIndex } from "./apps/lcp-manager";
 import { get_pack } from "./util/doc";
 import type { LancerActor } from "./actor/lancer-actor";
-import { LancerItem } from "./item/lancer-item";
+import { LancerItem, LancerLICENSE } from "./item/lancer-item";
 import { EntryType } from "./enums";
 import {
   IContentPack,
@@ -21,6 +21,9 @@ import { unpackTalent } from "./models/items/talent";
 import { unpackPilotArmor } from "./models/items/pilot_armor";
 import { unpackPilotGear } from "./models/items/pilot_gear";
 import { unpackPilotWeapon } from "./models/items/pilot_weapon";
+import { unpackSkill } from "./models/items/skill";
+import { unpackLicense } from "./models/items/license";
+import { slugify } from "./util/lid";
 
 export const PACK_SCOPE = "world";
 
@@ -112,22 +115,33 @@ export async function importCP(
         ?.filter(g => g.type == "Weapon")
         .map(pa => unpackPilotWeapon(pa as PackedPilotWeaponData, context)) ?? [];
     let allReserves = [];
-    let allSkills = [];
+    let allSkills = cp.data.skills?.map(s => unpackSkill(s, context)) ?? [];
     let allStatuses = [];
     let allSystems = cp.data.systems?.map(s => unpackMechSystem(s, context)) ?? [];
     let allTags = cp.data.tags?.map(t => unpackTagTemplate(t)) ?? [];
     let allTalents = cp.data.talents?.map(t => unpackTalent(t, context)) ?? [];
     let allWeapons = cp.data.weapons?.map(d => unpackMechWeapon(d, context)) ?? [];
+    let allLicenses = [];
+    let existingLicenses =
+      (await game.packs.get(`world.${EntryType.LICENSE}`)?.getDocuments())?.map(l => (l as any).system.key) ?? [];
+    for (let frame of cp.data.frames ?? []) {
+      let lid = frame.license_id ?? frame.id;
+      // Check existing
+      if (existingLicenses.includes(lid)) continue;
+      allLicenses.push(unpackLicense(frame.name, lid, frame.source, context));
+    }
 
     // Get creating
+    await CONFIG.Item.documentClass.createDocuments(allCoreBonuses, { pack: `world.${EntryType.CORE_BONUS}` });
+    await CONFIG.Item.documentClass.createDocuments(allFrames, { pack: `world.${EntryType.FRAME}` });
     await CONFIG.Item.documentClass.createDocuments(allPilotArmor, { pack: `world.${EntryType.PILOT_ARMOR}` });
     await CONFIG.Item.documentClass.createDocuments(allPilotGear, { pack: `world.${EntryType.PILOT_GEAR}` });
     await CONFIG.Item.documentClass.createDocuments(allPilotWeapons, { pack: `world.${EntryType.PILOT_WEAPON}` });
-    await CONFIG.Item.documentClass.createDocuments(allCoreBonuses, { pack: `world.${EntryType.CORE_BONUS}` });
-    await CONFIG.Item.documentClass.createDocuments(allFrames, { pack: `world.${EntryType.FRAME}` });
+    await CONFIG.Item.documentClass.createDocuments(allSkills, { pack: `world.${EntryType.SKILL}` });
     await CONFIG.Item.documentClass.createDocuments(allSystems, { pack: `world.${EntryType.MECH_SYSTEM}` });
     await CONFIG.Item.documentClass.createDocuments(allTalents, { pack: `world.${EntryType.TALENT}` });
     await CONFIG.Item.documentClass.createDocuments(allWeapons, { pack: `world.${EntryType.MECH_WEAPON}` });
+    await CONFIG.Item.documentClass.createDocuments(allLicenses, { pack: `world.${EntryType.LICENSE}` });
     await CONFIG.Actor.documentClass.createDocuments(context.createdDeployables, {
       pack: `world.${EntryType.DEPLOYABLE}`,
     });

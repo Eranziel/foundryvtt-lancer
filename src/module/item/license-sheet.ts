@@ -2,6 +2,7 @@ import { LancerItemSheet } from "./item-sheet";
 import { HANDLER_activate_item_context_menus } from "../helpers/item";
 import { LancerItemSheetData } from "../interfaces";
 import { EntryType } from "../enums";
+import { LancerItem, LancerLICENSE } from "./lancer-item";
 
 /**
  * Extend the generic Lancer item sheet
@@ -20,26 +21,35 @@ export class LancerLicenseSheet extends LancerItemSheet<EntryType.LICENSE> {
   }
 
   async getData() {
-    let sup = await super.getData();
-    // TODO
-    /*
-
+    let data = await super.getData();
+    let license = this.item as LancerLICENSE;
 
     // Build an unlocks array
-    let ranks = Array.from(scan.ByLevel.keys()).sort();
-    let unlocks: LicensedItem[][] = [];
-    if (ranks.length) {
-      for (let i = 0; i <= ranks[ranks.length - 1]; i++) {
-        unlocks.push(scan.ByLevel.get(i) ?? []);
+
+    // let ranks = Array.from(scan.ByLevel.keys()).sort();
+    let unlocks: LancerItem[][] = [[]];
+
+    // Find the assoc frame
+    for (let et of [EntryType.FRAME, EntryType.MECH_SYSTEM, EntryType.MECH_WEAPON, EntryType.WEAPON_MOD]) {
+      let pack = game.packs.get(`world.${et}`);
+      if (pack) {
+        let docs = await pack.getDocuments({ "system.license": license.system.key });
+        for (let d of docs as LancerItem[]) {
+          let rank = (d as any).system.license_level as number;
+          while (unlocks.length <= rank) {
+            unlocks.push([]);
+          }
+          unlocks[rank].push(d);
+        }
       }
     }
+    console.log(unlocks);
 
     // Put the unlocks array in. Don't bother meddling the type
-    (sup as any)["unlocks"] = unlocks;
+    (data as any)["unlocks"] = unlocks;
 
     // Pass it along
-    */
-    return sup;
+    return data;
   }
 
   /**

@@ -237,8 +237,8 @@ export function FRAME(): SourceDataType<EntryType.FRAME> {
 export function LICENSE(): SourceDataType<EntryType.LICENSE> {
   return {
     lid: "lic_" + nanoid(),
-    key: "UNKNOWN",
     manufacturer: "GMS",
+    key: "",
     rank: 0,
   };
 }
@@ -590,7 +590,7 @@ export function SKILL(): SourceDataType<EntryType.SKILL> {
     description: "No description",
     detail: "",
     family: SkillFamily.cha,
-    rank: 1,
+    curr_rank: 1,
   };
 }
 

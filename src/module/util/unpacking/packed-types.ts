@@ -561,6 +561,7 @@ export interface PackedMechWeaponData {
   no_synergy?: boolean;
   no_mods?: boolean;
   no_core_bonus?: boolean;
+  license_id?: string;
 }
 export type PackedMechWeaponProfile = Partial<
   Omit<PackedMechWeaponData, "id" | "profiles" | "source" | "license" | "license_level" | "mount" | "sp">
@@ -584,6 +585,7 @@ export interface PackedMechSystemData {
   actions?: PackedActionData[];
   tags?: PackedTagInstanceData[];
   source: string; // must be the same as the Manufacturer ID to sort correctly
+  license_id?: string;
 }
 
 export interface PackedWeaponModData {
@@ -610,6 +612,7 @@ export interface PackedWeaponModData {
   restricted_sizes?: WeaponSize[]; // weapon sizes the mod CAN NOT be applied to
   allowed_types?: WeaponType[]; // weapon types the mod CAN be applied to
   allowed_sizes?: WeaponSize[]; // weapon sizes the mod CAN be applied to
+  license_id?: string;
 }
 
 export type PackedPilotEquipmentData = PackedPilotWeaponData | PackedPilotArmorData | PackedPilotGearData;

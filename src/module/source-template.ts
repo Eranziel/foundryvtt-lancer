@@ -426,7 +426,7 @@ export namespace SourceData {
     description: string;
     detail: string;
     family: string;
-    rank: number;
+    curr_rank: number;
   }
   export interface Status extends SourceTemplates.item_universal {
     effects: string;

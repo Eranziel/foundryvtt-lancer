@@ -30,7 +30,7 @@ import {
   HANDLER_enable_dragging,
   ResolvedDropData,
 } from "./dragdrop";
-import { buildActionHTML, buildDeployableHTML, license_ref } from "./item";
+import { buildActionHTML, buildDeployableHTML, license_ref, mech_loadout_weapon_slot } from "./item";
 import { compact_tag_list } from "./tags";
 import { CollapseRegistry } from "./loadout";
 import { LancerDoc } from "../util/doc";
@@ -304,6 +304,8 @@ export function item_preview<T extends LancerItemType>(
           ${compact_tag_list(item_path + ".system.tags", doc.system.tags, false)}
         </div>
         </li>`;
+  } else if (doc.is_mech_weapon()) {
+    return `<span>TODO: Refactor mech_loadout_weapon_slot to fit here again</span>`; // mech_loadout_weapon_slot(item_path, helper, undefined, undefined);
   } else if (doc.is_talent()) {
     let retStr = `<li class="card clipped talent-compact item ref set" ${ref_params(doc)}>
         <div class="lancer-talent-header medium clipped-top" style="grid-area: 1/1/2/4">
@@ -366,7 +368,7 @@ export function item_preview<T extends LancerItemType>(
         </div>
         <a class="flexrow skill-macro" style="grid-area: 2/1/3/2;">
           <i class="fas fa-dice-d20 i--sm i--dark"></i>
-          <div class="major roll-modifier" style="align-self: center">+${doc.system.rank * 2}</div>
+          <div class="major roll-modifier" style="align-self: center">+${doc.system.curr_rank * 2}</div>
         </a>
         <div class="desc-text" style="grid-area: 2/2/3/3">${doc.system.description}</div>
       </li>`;

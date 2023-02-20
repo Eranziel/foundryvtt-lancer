@@ -121,7 +121,7 @@ export function unpackFrame(
       },
       description: data.description,
       license: data.license_id ?? data.id,
-      license_level: data.license_level,
+      license_level: data.license_level ?? 2,
       lid: data.id,
       manufacturer: data.source,
       mechtype: data.mechtype?.map(mt => restrict_enum(MechType, MechType.Striker, mt)),

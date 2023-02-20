@@ -77,7 +77,7 @@ export async function find_license_for(item: LancerItem, in_actor?: LancerActor)
     if (pilot) {
       let found = pilot.items
         .filter(i => i.is_license())
-        .find(lic => (lic as LancerLICENSE).system.key == license_name);
+        .find(lic => (lic as LancerLICENSE).system.lid == license_name);
       if (found) {
         return found as LancerLICENSE;
       }

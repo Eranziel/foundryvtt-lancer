@@ -327,11 +327,7 @@ export namespace SystemData {
       tags: Tag[];
     };
   }
-  export interface License extends SystemTemplates.item_universal {
-    manufacturer: string;
-    key: string;
-    rank: number;
-  }
+  export interface License extends SourceData.License {}
   export interface Mech
     extends SystemTemplates.actor_universal,
       SystemTemplates.action_tracking,

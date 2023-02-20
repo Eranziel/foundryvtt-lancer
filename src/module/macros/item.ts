@@ -51,7 +51,7 @@ export async function prepareItemMacro(actorID: string, itemUUID: string, option
     case EntryType.SKILL:
       let skillData: LancerStatMacroData = {
         title: item.name!,
-        bonus: (item as LancerSKILL).system.rank * 2,
+        bonus: (item as LancerSKILL).system.curr_rank * 2,
       };
       await rollTriggerMacro(actor, skillData);
       break;

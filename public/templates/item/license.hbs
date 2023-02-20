@@ -5,7 +5,7 @@
       <input class="header-field" name="name" type="text" value="{{item.name}}"
              placeholder="{{localize "lancer.placeholder.name"}}" />
     </h1>
-    {{{ref-portrait-img item.img "img" mm}}}
+    {{{ref-portrait-img item.img "img" item}}}
   </header>
   <div>
     {{#if item.isOwned }}
@@ -13,7 +13,7 @@
         <span style="text-align: right;padding: 4px;">
           RANK:
         </span>
-        {{{l-num-input "mm.CurrentRank"}}}
+        {{{l-num-input "system.current_rank"}}}
       </div>
     {{/if}}
   </div>
@@ -27,22 +27,14 @@
           </span>
         </div>
         {{#each unlock_array as |unlock unlock_index|}}
-          {{#if (eq unlock.Type "mech_system")}}
-            {{{item-preview (concat "unlocks." rank "." unlock_index) null "uuid" }}}
-          {{else if (eq unlock.Type "mech_weapon")}}
-            <div style="margin:3px 10px">
-              {{{mech-weapon-preview (concat "unlocks." rank "." unlock_index) "" }}}
-            </div>
-          {{else if (eq unlock.Type "weapon_mod")}}
+          {{#if (eq unlock.type "weapon_mod")}}
             <div style="margin:3px 10px">
               {{{wpn-mod-ref (concat "unlocks." rank "." unlock_index) null }}}
             </div>
-          {{else if (eq unlock.Type "frame")}}
+          {{else if (eq unlock.type "frame")}}
             {{{ref-frame unlock (concat "unlocks." rank "." unlock_index) }}}
           {{else}}
-            {{!-- Fallback - typically there should be nothing other than mech systems, weapons, mods, and frames,
-            but just in case.--}}
-            {{{item-preview (concat "unlocks." rank "." unlock_index) null  "uuid" }}}
+            {{{item-preview (concat "unlocks." rank "." unlock_index) null  "doc" }}}
           {{/if}}
         {{/each}}
       </div>
