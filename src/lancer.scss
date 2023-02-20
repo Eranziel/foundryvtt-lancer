@@ -716,8 +716,7 @@ tr.lcp-index-header {
   }
 }
 
-/* Valid, as a prefix, indicates that a ref is satisfied. It has ${ref_params()} */
-.valid.ref.ref-card {
+.set.ref.ref-card {
   background-color: var(--ref-color);
   color: black;
 }

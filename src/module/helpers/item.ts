@@ -376,7 +376,7 @@ export function pilot_armor_slot(armor_path: string, helper: HelperOptions): str
   let eva_val = bonuses.find(b => b.lid == "pilot_evasion")?.val ?? "0";
   let hp_val = bonuses.find(b => b.lid == "pilot_hp")?.val ?? "0";
 
-  return `<div class="valid ref drop-settable card clipped pilot-armor-compact item" 
+  return `<div class="set ref drop-settable card clipped pilot-armor-compact item" 
                 ${ref_params(armor.value, armor_path)} 
                 data-mode="embed-ref"
                 data-accept-types="${EntryType.PILOT_ARMOR}"
@@ -448,9 +448,7 @@ export function pilot_weapon_refview(weapon_path: string, helper: HelperOptions)
     limited_uses_indicator(weapon.value, weapon_path);
   }
 
-  return `<div class="valid ${
-    EntryType.PILOT_WEAPON
-  } ref drop-settable card clipped pilot-weapon-compact item macroable"
+  return `<div class="set ${EntryType.PILOT_WEAPON} ref drop-settable card clipped pilot-weapon-compact item macroable"
                 ${ref_params(weapon.value, weapon_path)} 
                 data-accept-types="${EntryType.PILOT_WEAPON}"
                 data-mode="embed-ref">
@@ -509,7 +507,7 @@ export function pilot_gear_refview(gear_path: string, helper: HelperOptions): st
     uses = limited_uses_indicator(gear.value, gear_path);
   }
 
-  return `<div class="valid ${EntryType.PILOT_GEAR} ref drop-settable card clipped macroable item"
+  return `<div class="set ${EntryType.PILOT_GEAR} ref drop-settable card clipped macroable item"
                 ${ref_params(gear.value, gear_path)} 
                 data-accept-types="${EntryType.PILOT_GEAR}"
                 data-mode="embed-ref">
@@ -595,7 +593,7 @@ export function reserve_refview(reserve_path: string, helper: HelperOptions): st
     uses = reserve_used_indicator(reserve_path, helper);
   }
 
-  return `<div class="valid ${EntryType.RESERVE} ref drop-settable card clipped macroable item"
+  return `<div class="set ${EntryType.RESERVE} ref drop-settable card clipped macroable item"
                 ${ref_params(reserve, reserve_path)} >
     <div class="lancer-header">
       <i class="${icon} i--m"> </i>
@@ -821,7 +819,7 @@ export function weapon_mod_ref(mod_path: string, weapon_path: string | null, opt
   }
 
   return `
-  <div class="valid item flexcol clipped-top ref ${EntryType.WEAPON_MOD}" ${ref_params(mod)}>
+  <div class="set item flexcol clipped-top ref ${EntryType.WEAPON_MOD}" ${ref_params(mod)}>
     <div class="lancer-header">
       <i class="cci cci-weaponmod i--m i--light"> </i>
       <span class="minor">${mod.name}</span>
@@ -852,7 +850,7 @@ export function manufacturer_ref(source_path: string, helper: HelperOptions): st
   // TODO? maybe do a little bit more here, aesthetically speaking
   if (cd) {
     let source = source_!;
-    return `<div class="valid ${EntryType.MANUFACTURER} ref ref-card drop-settable" ${ref_params(cd.ref, source_path)}> 
+    return `<div class="set ${EntryType.MANUFACTURER} ref ref-card drop-settable" ${ref_params(cd.ref, source_path)}> 
               <h3 class="mfr-name" style="color: ${source!.GetColor(false)};">
                 <i class="i--m cci ${source.Logo}"></i>
                 ${source!.LID}
@@ -874,7 +872,7 @@ export function manufacturer_ref(source_path: string, helper: HelperOptions): st
 export function license_ref(item_path: string, helper: HelperOptions): string {
   let license = resolve_helper_dotpath(helper, item_path) as LancerLICENSE;
   return `
-    <li class="card clipped item macroable ref valid" ${ref_params(license)}>
+    <li class="card clipped item macroable ref set" ${ref_params(license)}>
       <div class="lancer-header lancer-license-header medium clipped-top" style="grid-area: 1/1/2/3">
         <i class="cci cci-license i--m i--dark"> </i>
         <div class="major modifier-name">${license.name} ${license.system.curr_rank}</div>
@@ -893,7 +891,7 @@ export function frame_ref(frame: LancerFRAME | null, item_path?: string): string
   } else {
     let frame_img = encodeURI(frameToPath[frame.name!.toUpperCase()]);
     return `
-    <li class="card clipped item ref valid" ${ref_params(frame)}>
+    <li class="card clipped item ref set" ${ref_params(frame)}>
       <div class="compact-frame medium flexrow">
         <span class="img-bar" style="background-image: url(${frame_img})"></span>
         <div class="major modifier-name i--light">${frame.system.manufacturer} ${frame.name}</div>
@@ -913,7 +911,7 @@ export function npc_class_ref(npc_class: LancerNPC_CLASS | null, item_path?: str
   } else {
     let frame_img = encodeURI(frameToPath[npc_class.name!.toUpperCase()]);
     return `
-    <div class="card clipped item ref valid" ${ref_params(npc_class)}>
+    <div class="card clipped item ref set click-open" ${ref_params(npc_class)}>
       <div class="compact-class medium flexrow">
         <span class="img-bar" style="background-image: url(${frame_img})"></span>
         <div class="major modifier-name i--light">${npc_class.name} // ${npc_class.system.role.toUpperCase()}</div>
@@ -932,7 +930,7 @@ export function npc_template_ref(template: LancerNPC_TEMPLATE | null, item_path?
     return "";
   } else {
     return `
-    <div class="card clipped item ref valid" ${ref_params(template)}>
+    <div class="card clipped item ref set" ${ref_params(template)}>
       <div class="compact-template medium flexrow">
         <span class="img-bar" style="background-image: url(${template.img})"></span>
         <div class="major modifier-name i--light">${template.name}</div>

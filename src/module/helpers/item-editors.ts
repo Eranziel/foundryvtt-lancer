@@ -280,7 +280,7 @@ export function item_edit_license(helper: HelperOptions): string {
   let licenseInfo: string;
   if (!license) licenseInfo = "No license";
   else {
-    licenseInfo = `<div class="valid ${EntryType.LICENSE} ref lancer-license-header medium clipped-top" ${ref_params(
+    licenseInfo = `<div class="set ${EntryType.LICENSE} ref lancer-license-header medium clipped-top" ${ref_params(
       license
     )}>
     <i class="cci cci-license i--m i--dark"> </i>

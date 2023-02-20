@@ -203,7 +203,7 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
     /*
     if (drop.Type == EntryType.NPC_FEATURE) {
       // Try to find a ref
-      let nearest = $(event.target).closest(".valid.ref");
+      let nearest = $(event.target).closest(".set.ref");
       if (nearest.length) {
         // ok, now try to resolve it
         let target = await resolve_ref_element(nearest[0], ctx);
