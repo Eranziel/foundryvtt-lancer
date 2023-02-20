@@ -108,7 +108,6 @@ export function HANDLER_enable_doc_dropping(
       // don't want it to propagate any further
       event.stopImmediatePropagation();
       event.preventDefault();
-      console.log("Successdrop :)");
       drop_handler(rdd!, item, event);
     });
   });

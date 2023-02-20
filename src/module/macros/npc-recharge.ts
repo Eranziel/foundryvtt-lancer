@@ -26,7 +26,9 @@ export async function prepareChargeMacro(actorUUID: string | LancerActor) {
       const recharge = feat.system.tags.find(tag => tag.is_recharge);
       if (recharge && recharge.num_val && recharge.num_val <= (roll.total ?? 0)) {
         await feat.update({ "system.charged": true });
-        changed.push({ name: feat.name!, target: recharge?.num_val, charged: feat.system.charged });
+      }
+      if (recharge) {
+        changed.push({ name: feat.name!, target: recharge.num_val, charged: feat.system.charged });
       }
     }
   }
