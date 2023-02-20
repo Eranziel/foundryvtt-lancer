@@ -288,7 +288,7 @@ function dragging_class(for_type: EntryType): string {
   return `dragging-${for_type}`;
 }
 
-function set_global_drag(to: LancerActor | LancerItem | Macro | Journal | Scene | null) {
+function setGlobalDrag(to: LancerActor | LancerItem | Macro | Journal | Scene | null) {
   // Clear if necessary
   if (GlobalDragPreview?.type == "Actor" || GlobalDragPreview?.type == "Item") {
     $("body").removeClass(dragging_class(GlobalDragPreview.document.type));
@@ -365,7 +365,7 @@ export function applyGlobalDragListeners() {
       // If we do, tell it to try setting global drag
       fromUuid(uuid).then(doc => {
         if (!cancel_token.canceled) {
-          set_global_drag(doc as LancerActor | LancerItem | null);
+          setGlobalDrag(doc as LancerActor | LancerItem | null);
         }
       });
     },
@@ -379,7 +379,7 @@ export function applyGlobalDragListeners() {
   body.addEventListener(
     "dragend",
     e => {
-      set_global_drag(null);
+      setGlobalDrag(null);
       cancel_token.canceled = true;
       cancel_token = { canceled: false };
     },

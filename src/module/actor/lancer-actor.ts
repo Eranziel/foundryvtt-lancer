@@ -1,20 +1,15 @@
 import { LANCER, replace_default_resource, TypeIcon } from "../config";
-import { LancerHooks, LancerSubscription } from "../helpers/hooks";
-// import { LancerFRAME, LancerItem, LancerItemType, LancerNPC_CLASS } from "../item/lancer-item";
 import { renderMacroTemplate, encodeMacroData, prepareOverheatMacro, prepareStructureMacro } from "../macros";
 import { DamageType, EntryType, FittingSize, MountType, StabOptions1, StabOptions2, WeaponSize } from "../enums";
 import { fix_modify_token_attribute, LancerTokenDocument } from "../token";
 import { AppliedDamage } from "./damage-calc";
 import { SystemData, SystemDataType, SystemTemplates } from "../system-template";
-import { SourceData, SourceDataType } from "../source-template";
+import { SourceDataType } from "../source-template";
 import * as defaults from "../util/unpacking/defaults";
-import { PackedPilotData } from "../util/unpacking/packed-types";
 import { getAutomationOptions } from "../settings";
 import { pilotInnateEffect } from "../effects/converter";
 import { LancerFRAME, LancerItem, LancerNPC_CLASS, LancerNPC_FEATURE } from "../item/lancer-item";
 import { LancerActiveEffect } from "../effects/lancer-active-effect";
-import { LancerActiveEffectConstructorData } from "../effects/lancer-active-effect";
-import { filter_resolved_sync } from "../helpers/commons";
 import { ChangeWatchHelper } from "../util/misc";
 import { frameToPath } from "./retrograde-map";
 import { EffectHelper } from "../effects/effector";
@@ -282,6 +277,8 @@ export class LancerActor extends Actor {
       this.system.overcharge_sequence = DEFAULT_OVERCHARGE_SEQUENCE;
       this.system.psd = null;
       this.system.grit = 0;
+      this.system.stress_repair_cost = 2;
+      this.system.structure_repair_cost = 2;
     } else if (this.is_npc()) {
       // TODO
     } else if (this.is_deployable()) {
@@ -394,7 +391,6 @@ export class LancerActor extends Actor {
 
     // @ts-expect-error Should be fixed with v10 types
     if (data.system?.lid) {
-      console.log(`${lp} New ${this.type} has data provided from an import, skipping default init.`);
       if (!data.img || data.img == "icons/svg/mystery-man.svg") {
         // @ts-expect-error Should be fixed with v10 types
         this.updateSource({ img: TypeIcon(this.type) });
@@ -402,7 +398,6 @@ export class LancerActor extends Actor {
       return;
     }
 
-    console.log(`${lp} Initializing new ${this.type}`);
     let default_data: Record<string, any>;
     let disposition: ValueOf<typeof CONST["TOKEN_DISPOSITIONS"]> = CONST.TOKEN_DISPOSITIONS.FRIENDLY;
     switch (this.type) {
@@ -444,7 +439,6 @@ export class LancerActor extends Actor {
    * Upon an actor being updated, we want to trigger automated cleanup, effect generation, etc
    */
   protected _onUpdate(...[changed, options, user]: Parameters<Actor["_onUpdate"]>) {
-    console.log("OnUpdate");
     super._onUpdate(changed, options, user);
     if (game.userId != user || !this.isOwner) {
       return;
@@ -520,7 +514,6 @@ export class LancerActor extends Actor {
     options: any,
     user: string
   ) {
-    console.log("OnCreateEmbedded", embeddedName, documents);
     super._onCreateEmbeddedDocuments(embeddedName, documents, result, options, user);
     if (game.userId != user) {
       return;
@@ -546,7 +539,6 @@ export class LancerActor extends Actor {
     options: any,
     user: string
   ) {
-    console.log("OnUpdateEmbedded", embeddedName, documents);
     super._onUpdateEmbeddedDocuments(embeddedName, documents, result, options, user);
     if (game.userId != user) {
       return;
@@ -572,7 +564,6 @@ export class LancerActor extends Actor {
     options: any,
     user: string
   ) {
-    console.log("OnDeleteEmbedded", embeddedName, documents);
     super._onDeleteEmbeddedDocuments(embeddedName, documents, result, options, user);
     // Mark them all as deleted
     for (let doc of documents) {

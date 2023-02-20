@@ -334,8 +334,14 @@ export function convertBonus(
       target_type = EntryType.MECH;
       changes.push({ mode, value, priority, key: "system.ai.max" });
       break;
-    // case "cheap_struct":
-    // case "cheap_stress":
+    case "cheap_struct":
+      target_type = EntryType.MECH;
+      changes.push({ mode, value: 1 as any, priority, key: "system.structure_repair_cost" });
+      break;
+    case "cheap_stress":
+      target_type = EntryType.MECH;
+      changes.push({ mode, value: 1 as any, priority, key: "system.stress_repair_cost" });
+      break;
     // case "overcharge":
     // case "limited_bonus":
     case "pilot_hp":

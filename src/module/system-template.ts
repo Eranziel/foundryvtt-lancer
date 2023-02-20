@@ -362,6 +362,9 @@ export namespace SystemData {
     pilot: SystemTemplates.ResolvedSyncUuidRef<LancerPILOT> | null; // UUID to a LancerPILOT
     overcharge_sequence: string[]; // Derived so its overrideable
 
+    structure_repair_cost: number;
+    stress_repair_cost: number;
+
     // Set by pilot active effect
     grit: number;
     psd: null | SourceData.Pilot; // Short for "pilot system dump". An active-effect provided dump of active pilots sytem data
