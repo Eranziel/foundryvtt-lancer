@@ -42,21 +42,21 @@ export function unpackNpcClass(
     };
     stats.push({
       activations: giv("activations"),
-      agility: giv("agility"),
+      agi: giv("agility"),
       armor: giv("armor"),
       edef: giv("edef"),
-      engineering: giv("engineering"),
-      evade: giv("evade"),
+      eng: giv("engineering"),
+      evasion: giv("evade"),
       heatcap: giv("heatcap"),
       hp: giv("hp"),
       hull: giv("hull"),
       save: giv("save"),
-      sensor: giv("sensor"),
+      sensor_range: giv("sensor"),
       size: giv("size"),
       speed: giv("speed"),
       stress: giv("stress"),
       structure: giv("structure"),
-      systems: giv("systems"),
+      sys: giv("systems"),
     });
   }
 

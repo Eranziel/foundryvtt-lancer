@@ -149,6 +149,7 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
   async onRootDrop(base_drop: ResolvedDropData, event: JQuery.DropEvent, _dest: JQuery<HTMLElement>): Promise<void> {
     // Type guard
     if (!this.actor.is_npc()) return;
+    let old_class = this.actor.system.class;
 
     // Take posession
     let [drop, is_new] = await this.quickOwnDrop(base_drop);
@@ -161,10 +162,9 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
       let doc = drop.document;
 
       // Mark replaced classes for deletion
-      if (this.actor.is_npc() && doc.is_npc_class() && this.actor.system.class) {
+      if (this.actor.is_npc() && doc.is_npc_class() && old_class) {
         // But before we do that, destroy all old classes
         // If we have a class, get rid of it
-        let old_class = this.actor.system.class;
         let class_features = findMatchingFeaturesInNpc(this.actor, [
           ...old_class.system.base_features,
           ...old_class.system.optional_features,

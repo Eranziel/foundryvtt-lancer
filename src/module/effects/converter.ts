@@ -1,15 +1,20 @@
-import { LancerPILOT } from "../actor/lancer-actor";
+import { LancerNPC, LancerPILOT } from "../actor/lancer-actor";
 import { EntryType } from "../enums";
-import { LancerFRAME, LancerMECH_WEAPON } from "../item/lancer-item";
+import { LancerFRAME, LancerMECH_WEAPON, LancerNPC_CLASS } from "../item/lancer-item";
 import { BonusData } from "../models/bits/bonus";
 import { SystemData, SystemTemplates } from "../system-template";
-import { AE_MODE_SET_JSON, LancerActiveEffectConstructorData, LancerEffectTarget } from "./lancer-active-effect";
+import {
+  AE_MODE_SET_JSON,
+  LancerActiveEffect,
+  LancerActiveEffectConstructorData,
+  LancerEffectTarget,
+} from "./lancer-active-effect";
 
 const FRAME_STAT_PRIORITY = 10;
 const BONUS_STAT_PRIORITY = 20;
 const PILOT_STAT_PRIORITY = 30;
 
-// Makes a active effect for a frame. Frames should automatically regenerate these when edited
+// Makes an active effect for a frame.
 type FrameStatKey = keyof SystemData.Frame["stats"];
 type MechStatKey = keyof SystemData.Mech;
 export function frameInnateEffect(frame: LancerFRAME): LancerActiveEffectConstructorData {
@@ -216,6 +221,76 @@ export function pilotInnateEffect(pilot: LancerPILOT): LancerActiveEffectConstru
         ephemeral: true,
       },
     },
+  };
+}
+
+// Makes an active effect for an npc class.
+type ClassStatKey = keyof SystemData.NpcClass["base_stats"][0];
+type NpcStatKey = keyof SystemData.Npc;
+export function npcClassInnateEffect(class_: LancerNPC_CLASS): LancerActiveEffectConstructorData {
+  let keys: Array<ClassStatKey & NpcStatKey> = [
+    "activations",
+    "armor",
+    "evasion",
+    "edef",
+    "speed",
+    "sensor_range",
+    "save",
+    "hull",
+    "agi",
+    "sys",
+    "eng",
+    "size",
+  ];
+
+  let tier = (class_?.actor as LancerNPC | undefined)?.system.tier ?? 1;
+  let bs = class_.system.base_stats[tier];
+
+  // @ts-expect-error Shouldn't be restricted to not take numbers I don't think
+  let changes: LancerActiveEffectConstructorData["changes"] = keys.map(key => ({
+    key: `system.${key}`,
+    mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+    priority: FRAME_STAT_PRIORITY,
+    value: bs[key],
+  }));
+
+  // The weirder ones
+  changes!.push({
+    key: "system.hp.max",
+    mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+    priority: FRAME_STAT_PRIORITY,
+    // @ts-expect-error
+    value: bs.hp,
+  });
+  changes!.push({
+    key: "system.structure.max",
+    mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+    priority: FRAME_STAT_PRIORITY,
+    // @ts-expect-error
+    value: bs.structure,
+  });
+  changes!.push({
+    key: "system.stress.max",
+    mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+    priority: FRAME_STAT_PRIORITY,
+    // @ts-expect-error
+    value: bs.stress,
+  });
+  changes!.push({
+    key: "system.heat.max",
+    mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+    priority: FRAME_STAT_PRIORITY,
+    // @ts-expect-error
+    value: bs.heatcap,
+  });
+
+  return {
+    flags: { lancer: { ephemeral: true } },
+    label: class_.name,
+    icon: class_.img,
+    origin: class_.uuid,
+    transfer: true,
+    changes,
   };
 }
 

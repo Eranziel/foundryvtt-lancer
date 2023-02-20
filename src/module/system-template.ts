@@ -446,16 +446,16 @@ export namespace SystemData {
       activations: number;
       armor: number;
       hp: number;
-      evade: number;
+      evasion: number;
       edef: number;
       heatcap: number;
       speed: number;
-      sensor: number;
+      sensor_range: number;
       save: number;
       hull: number;
-      agility: number;
-      systems: number;
-      engineering: number;
+      agi: number;
+      sys: number;
+      eng: number;
       size: number; // TODO: don't miss this in migrations
     }>;
   }

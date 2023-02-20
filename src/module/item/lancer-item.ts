@@ -7,7 +7,11 @@ import { ActionData } from "../models/bits/action";
 import { RangeData } from "../models/bits/range";
 import { Tag } from "../models/bits/tag";
 import { LancerActiveEffectConstructorData } from "../effects/lancer-active-effect";
-import { convertBonus, frameInnateEffect as frameInnate } from "../effects/converter";
+import {
+  convertBonus,
+  frameInnateEffect as frameInnate,
+  npcClassInnateEffect as npcClassInnate,
+} from "../effects/converter";
 import { BonusData } from "../models/bits/bonus";
 import { ChangeWatchHelper } from "../util/misc";
 
@@ -195,6 +199,9 @@ export class LancerItem extends Item {
           ...(this as unknown as LancerFRAME).system.traits.flatMap(t => t.bonuses),
         ];
         innate = frameInnate(this as unknown as LancerFRAME);
+        break;
+      case EntryType.NPC_CLASS:
+        innate = npcClassInnate(this as unknown as LancerNPC_CLASS);
         break;
       case EntryType.PILOT_ARMOR:
       case EntryType.PILOT_GEAR:
