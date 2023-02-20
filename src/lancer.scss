@@ -707,7 +707,6 @@ tr.lcp-index-header {
   margin: 3px;
   display: flex;
   align-items: center;
-  cursor: pointer;
   text-align: center;
   max-height: 40px;
 
@@ -719,6 +718,10 @@ tr.lcp-index-header {
 .set.ref.ref-card {
   background-color: var(--ref-color);
   color: black;
+}
+
+.click-open {
+  cursor: pointer;
 }
 
 .ref-icon {
@@ -1827,7 +1830,6 @@ a.activation-chip > i.mdi {
 
   position: relative;
   text-align: center;
-  cursor: pointer;
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
@@ -2225,7 +2227,6 @@ a.action {
   min-height: max-content;
   align-items: center;
   margin-right: 5em;
-  cursor: pointer;
 
   &.active {
     background-color: var(--main-theme-color, fuchsia);
