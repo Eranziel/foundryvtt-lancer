@@ -84,6 +84,7 @@ import {
   pilot_armor_slot,
   pilot_weapon_refview,
   pilot_gear_refview,
+  reserve_refview,
   license_ref,
   uses_control,
   buildCounterArrayHTML,
@@ -121,6 +122,7 @@ import {
   ref_portrait,
   item_preview_list,
   limited_uses_indicator,
+  reserve_used_indicator,
 } from "./module/helpers/refs";
 import { mech_loadout, pilot_slot, mech_frame_refview } from "./module/helpers/loadout";
 import {
@@ -153,7 +155,6 @@ import { MechModel } from "./module/models/actors/mech";
 import { MechSystemModel } from "./module/models/items/mech_system";
 import { handleRenderCombatCarousel } from "./module/helpers/combat-carousel";
 import { measureDistances } from "./module/grid";
-import { BonusData } from "./module/models/bits/bonus";
 import { EntryType } from "./module/enums";
 import { FrameModel } from "./module/models/items/frame";
 import { PilotModel } from "./module/models/actors/pilot";
@@ -170,6 +171,8 @@ import { PilotArmorModel } from "./module/models/items/pilot_armor";
 import { PilotGearModel } from "./module/models/items/pilot_gear";
 import { PilotWeaponModel } from "./module/models/items/pilot_weapon";
 import { importCC } from "./module/actor/import";
+
+import "./module/helpers/text-enrichers";
 
 const lp = LANCER.log_prefix;
 
@@ -260,10 +263,16 @@ Hooks.once("init", async function () {
     targetsFromTemplate: macros.targetsFromTemplate,
     migrations: migrations,
     getAutomationOptions: getAutomationOptions,
+    fromLid: fromLid,
+    fromLidSync: fromLidSync,
   };
 
   // Record Configuration Values
   CONFIG.Actor.documentClass = LancerActor;
+  // @ts-expect-error v10
+  CONFIG.Actor.compendiumIndexFields.push("system.lid");
+  // @ts-expect-error v10
+  CONFIG.Item.compendiumIndexFields.push("system.lid");
   CONFIG.Item.documentClass = LancerItem;
   CONFIG.ActiveEffect.documentClass = LancerActiveEffect;
   CONFIG.Token.documentClass = LancerTokenDocument;
@@ -459,6 +468,7 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("pilot-armor-slot", pilot_armor_slot);
   Handlebars.registerHelper("pilot-weapon-slot", pilot_weapon_refview);
   Handlebars.registerHelper("pilot-gear-slot", pilot_gear_refview);
+  Handlebars.registerHelper("reserve-slot", reserve_refview);
   Handlebars.registerHelper("counter-array", buildCounterArrayHTML);
   Handlebars.registerHelper("pilot-counters", pilot_counters);
   Handlebars.registerHelper("all-mech-preview", all_mech_preview);
@@ -536,6 +546,7 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("item-edit-sp", item_edit_sp);
   Handlebars.registerHelper("item-edit-uses", item_edit_uses);
   Handlebars.registerHelper("limited-uses-indicator", limited_uses_indicator);
+  Handlebars.registerHelper("reserve-used-indicator", reserve_used_indicator);
   Handlebars.registerHelper("loading-indicator", loading_indicator);
 
   // ------------------------------------------------------------------------
@@ -859,9 +870,10 @@ async function doMigration() {
       }
       // Perform the migration
       await migrations.migrateWorld();
+      await migrations.minorMigration();
     } else if (migration == "minor") {
       // Perform the migration
-      await migrations.minor09Migration();
+      await migrations.minorMigration();
     }
     // Set the version for future migration and welcome message checking
     await game.settings.set(game.system.id, LANCER.setting_migration, game.system.data.version);

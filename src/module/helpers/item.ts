@@ -20,18 +20,16 @@ import {
   effect_box,
   ext_helper_hash,
   format_dotpath,
-  IconFactory,
   inc_if,
   resolve_dotpath,
   resolve_helper_dotpath,
   sp_display,
-  std_checkbox,
   std_enum_select,
   std_string_input,
   std_x_of_y,
   tippy_context_menu,
 } from "./commons";
-import { limited_uses_indicator, ref_params, resolve_ref_element } from "./refs";
+import { limited_uses_indicator, ref_params, reserve_used_indicator, resolve_ref_element } from "./refs";
 import {
   ActivationOptions,
   ActivationType,
@@ -40,6 +38,7 @@ import {
   EntryType,
   FittingSize,
   RangeType,
+  ReserveType,
   SystemType,
   WeaponSize,
   WeaponType,
@@ -67,6 +66,7 @@ import {
   LancerPILOT_ARMOR,
   LancerPILOT_GEAR,
   LancerPILOT_WEAPON,
+  LancerRESERVE,
   LancerWEAPON_MOD,
 } from "../item/lancer-item";
 import { ActionData } from "../models/bits/action";
@@ -531,6 +531,87 @@ export function pilot_gear_refview(gear_path: string, helper: HelperOptions): st
       </div>
 
       ${compact_tag_list(gear_path + ".value.system.tags", gear.value.system.tags, false)}
+    </div>
+  </div>`;
+}
+
+// Helper for showing a reserve, or a slot to hold it (if path is provided)
+export function reserve_refview(reserve_path: string, helper: HelperOptions): string {
+  // Fetch the item
+  let reserve = resolve_helper_dotpath(helper, reserve_path) as LancerRESERVE | null;
+
+  // Generate commons
+  if (!reserve) {
+    // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
+    return `<div class="${EntryType.RESERVE} ref drop-settable card flexrow"
+                        data-path="${reserve_path}"
+                        data-type="${EntryType.RESERVE}">
+          <img class="ref-icon" src="${TypeIcon(EntryType.RESERVE)}"></img>
+          <span class="major">Equip reserve</span>
+      </div>`;
+  }
+
+  let icon = "";
+  const resTypes = [
+    ReserveType.Mech,
+    ReserveType.Organization,
+    ReserveType.Project,
+    ReserveType.Resources,
+    ReserveType.Tactical,
+    "Resource", // machine-mind bug? Reserves from Comp/Con are Resource instead of Resources
+    "Bonus",
+  ];
+  let resType = resTypes.includes(reserve.system.type)
+    ? reserve.system.type
+    : resTypes.includes(reserve.system.label)
+    ? reserve.system.label
+    : reserve.system.type;
+  switch (resType) {
+    case "Bonus": // missing?
+      icon = "cci cci-accuracy";
+      break;
+    case ReserveType.Mech:
+      icon = "cci cci-reserve-mech";
+      break;
+    case ReserveType.Organization:
+      icon = "mdi mdi-account-multiple";
+      break;
+    case ReserveType.Project:
+      icon = "cci cci-orbital";
+      break;
+    case ReserveType.Resources:
+    case "Resource": // machine-mind bug?
+      icon = "cci cci-reserve-resource";
+      break;
+    case ReserveType.Tactical:
+      icon = "cci cci-reserve-tac";
+      break;
+    default:
+      icon = "cci cci-reserve-tac";
+      break;
+  }
+  let uses = "";
+  if (reserve.system.consumable) {
+    uses = reserve_used_indicator(reserve_path, helper);
+  }
+
+  return `<div class="valid ${EntryType.RESERVE} ref drop-settable card clipped macroable item"
+                ${ref_params(reserve, reserve_path)} >
+    <div class="lancer-header">
+      <i class="${icon} i--m"> </i>
+      <a class="reserve-macro macroable"><i class="mdi mdi-message"></i></a>
+      <span class="minor">${reserve.name}</span>
+      <a class="lancer-context-menu" data-context-menu="${reserve.type}" data-path="${reserve_path}"">
+        <i class="fas fa-ellipsis-v"></i>
+      </a>
+    </div>
+    <div class="flexcol">
+      <div class="flexrow">
+        <div class="effect-text" style=" padding: 5px">
+          ${reserve.system.description}
+        </div>
+        ${uses}
+      </div>
     </div>
   </div>`;
 }
@@ -1409,6 +1490,7 @@ export function HANDLER_activate_item_context_menus(
   tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"pilot_weapon\"]`), "click", e_r);
   tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"pilot_armor\"]`), "click", e_r);
   tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"pilot_gear\"]`), "click", e_r);
+  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"reserve\"]`), "click", e_r);
   tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"talent\"]`), "click", e_r);
   tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"skill\"]`), "click", e_r);
   tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"core_bonus\"]`), "click", e_r);

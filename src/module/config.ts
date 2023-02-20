@@ -108,23 +108,16 @@ export const STATUSES = [
 
 export function WELCOME(changelog: string): string {
   return `<div style="margin: 10px 5px">
-
-  <h2>V10 WARNING</h2>
-  <p>Lancer does not yet have a stable release for Foundry v10! You can check the <a href="https://docs.google.com/spreadsheets/d/e/2PACX-1vRrcQL-r09Bi4MsbHUXlmOVx6DP4Ju143zRmk3HiUK2qU6gA3naxuSUcyv3EVhjMThXzJ_455jnyWfK/pubhtml">
-  v10 compatibility spreadsheet</a> or the <a href="https://foundryvtt.com/packages/lancer">Lancer system listing</a>
-  to see if a compatible version has been released yet, or grab the <b>Foundry Club</b> role on
-  <a href="https://discord.gg/7dnpJm46">PilotNET, the Lancer Discord server</a>, to be notified about updates to the
-  Lancer system.</p>
-  
+  <div style="text-align: center; margin-top: .5em" class="flex-center">
+    <a href="https://massifpress.com/legal">
+      <img style="max-width: 350px; border: none" src="https://massifpress.com/_next/image?url=%2Fimages%2Flegal%2Fpowered_by_Lancer-01.svg&w=640&q=75" alt="Powered by Lancer">
+    </a>
+  </div>
   <h2>Welcome to Lancer on Foundry!</h2>
   <p>If you haven't already, check out the project wiki for 
   <a href="https://github.com/Eranziel/foundryvtt-lancer/wiki/FAQ">FAQ</a>
   and a list of <a href="https://github.com/Eranziel/foundryvtt-lancer/wiki/Resources">recommended modules</a>, as well
   as other information about how to use the system.</p>
-  
-  <p>In particular, we <i>strongly</i> recommend the
-  <a href="https://foundryvtt.com/packages/hex-size-support/">"Hex Token Size Support"</a> module 
-  (even if you don't use hexes it is very useful for tweaking token art size and placement).</p>
   
   <span>Special thanks to <a class="center" href="https://www.retrogrademinis.com/">Retrograde Minis</a> for our default token artwork.</span>
 
@@ -136,9 +129,15 @@ export function WELCOME(changelog: string): string {
 
   <p>You can report issues on GitHub here: 
   <a href="https://github.com/Eranziel/foundryvtt-lancer/issues">https://github.com/Eranziel/foundryvtt-lancer/issues</a></p>
-  
-  <p><h1>Change Log:
-  ${changelog}
+  <br/>
+  <h2>Legal</h2>
+  <p>"Lancer for FoundryVTT" is not an official <i>Lancer</i> product; it is a third party work, and is not affiliated with Massif Press. "Lancer for FoundryVTT" is published via the <i>Lancer</i> Third Party License.</p>
+  <p><i>Lancer</i> is copyright Massif Press.</p>
+  <br/>
+  <p>
+    <h1>Change Log:</h1>
+    ${changelog}
+  </p>
   
   <p><a href="https://github.com/Eranziel/foundryvtt-lancer/blob/master/CHANGELOG.md">Click here for the full changelog.</a></p>
   </div>

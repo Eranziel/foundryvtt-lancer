@@ -8,7 +8,7 @@ import { getActionTrackerOptions, getAutomationOptions } from "../../settings";
 export async function handleCombatUpdate(...[combat, changed]: Parameters<Hooks.UpdateDocument<typeof Combat>>) {
   if (game.user?.isGM) {
     if (!("turn" in changed) && changed.round !== 1) return;
-    if (game.combats!.get(combat.id!)?.data?.combatants.contents.length == 0) return;
+    if (game.combats!.get(combat.id!)?.combatants.contents.length == 0) return;
 
     if (getAutomationOptions().enabled) {
       // TODO: Update foundryvtt typings.
@@ -60,13 +60,13 @@ function processEndTurn(actor: LancerActor) {
 
 function lookup(combat: LancerCombat, id: String | null) {
   if (id) {
-    return combat.data.combatants.find(com => com.id === id)?.actor;
+    return combat.combatants.find(com => com.id === id)?.actor;
   } else return undefined;
 }
 
 function refreshReactions(combat: LancerCombat | null) {
   if (combat) {
-    combat.data.combatants.map(comb => {
+    combat.combatants.map(comb => {
       if (comb.actor) {
         modAction(comb.actor, false, "reaction");
       }

@@ -242,7 +242,9 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       // Gear rollers
       .add(html.find(".gear-macro"))
       // Core bonus
-      .add(html.find(".cb-macro"));
+      .add(html.find(".cb-macro"))
+      // Reserve
+      .add(html.find(".reserve-macro"));
     itemMacros.on("click", (ev: any) => {
       ev.stopPropagation(); // Avoids triggering parent event handlers
 

@@ -1,3 +1,47 @@
+# 1.5.1 (2023-02-12)
+## Bug Fixes
+* #521 - Fix chat button macro for reserves.
+* #522 - "Resources" was listed twice in reserve type selector.
+* Fix bug in Scan (Journal) compendium macro which caused it to fail if the token actor name had been modified.
+
+# 1.5.0 (2023-02-11) 
+## Features
+* #268 - Add Reserves to Pilot sheets! Thanks to dodgepong for a lot of the heavy lifting on this one!
+* #509 - Add role to NPC Class sheet.
+* Added "Scan to Journal" macro to compendium - thanks Valkyrion and Vixiea!
+* Updated "Custom Paint Job" macro for CUB/Triggler to work with v10 - thanks CSMcFarland!
+* Added feature to embed references to Lancer items from compendiums. e.g. @LancerID[mw_shotgun] - thanks Bolts! Examples:
+  * `@LancerID[mf_blackbeard]` - reference to the Blackbeard frame item.
+  * `@LancerID[mw_shotgun]{Boomstick}` - reference to the GMS Shotgun mech weapon, with the embed button saying "Boomstick".
+* Use Foundry's built-in scene progress bar for displaying LCP import progress.
+## Bug Fixes
+* #469 - Fix max value on NPC Class sheet stats.
+* #486 - Fix misleading message when overheating single-stress NPCs.
+* #494 - Fix displaying bonus data twice on Core Bonus Sheet.
+* #520 - Fix bug causing actor and prototype token images to desync.
+* Migrate v9-format compendiums to v10 format.
+* Fix some errors during Comp/Con import.
+
+# 1.4.2 (2023-01-21)
+## Features
+* #507 - Update README and welcome message to use the Lancer 3rd Party License.
+## Bug Fixes
+* #510 & #512 - Fix issues preventing Comp/Con import.
+* #511 - Fix issue causing token images to be overwritten with actor image on every edit to the actor.
+* #516 - Fix bug preventing actor Size changes from automatically configuring prototype token dimensions.
+
+# 1.4.1 (2023-01-17)
+## Bug Fixes
+* #500 - Fix activation icon size in popout combat tracker.
+* #503 - Fix bug causing new item creation to fail.
+* #506 - Fix bug causing some tokens to be automatically resized on load.
+
+# 1.4.0-beta.1 (2023-01-03)
+## Features
+* Beta release for Foundry v10 compatibility!
+* Several QOL updates to Scan macro including better organization and hiding Exotic features.
+* Added `game.lancer.fromLid` and `game.lancer.fromLidSync` functions to allow module and macro devs easier lookups in Lancer compendiums.
+
 # 1.3.1 (2022-09-04)
 ## Bug Fixes
 * #463 - Add missing delete button for range types in NPC features.

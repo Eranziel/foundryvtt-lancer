@@ -199,7 +199,7 @@ class LCPManager extends Application {
       return;
     }
     if (!this.lcpFile) {
-      ui.notifications!.error(`Import error: no file selected.`);
+      ui.notifications!.error(`You must select an LCP file before importing.`);
       return;
     }
 

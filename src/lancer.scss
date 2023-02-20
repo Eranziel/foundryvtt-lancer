@@ -1,8 +1,6 @@
 /* TODO: Maybe multiple stylesheets is a good idea? Check out ITCSS and segment them by their layer */
 /* TODO: Webcomponents. Tags, cards, compact stat */
 
-@import "https://cdn.jsdelivr.net/npm/@mdi/font@5.9.55/css/materialdesignicons.min.css";
-
 /* Item/document types, useful for shorthand */
 $item-types: core_bonus environment faction frame manufacturer npc_class npc_template npc_feature weapon_mod mech_system
   mech_weapon organization pilot_armor pilot_gear pilot_weapon reserve sitrep skill status tag talent quirk;
@@ -970,6 +968,10 @@ textarea {
     background-color: var(--main-theme-color);
   }
 
+  .reserve & {
+    background-color: var(--main-theme-color);
+  }
+
   .mech_weapon:hover &,
   .weapon_mod:hover &,
   .npc-weapon:hover &,
@@ -981,7 +983,8 @@ textarea {
   .npc-tech:hover &,
   .npc-reaction:hover &,
   .pilot_gear:hover &,
-  .pilot_armor:hover & {
+  .pilot_armor:hover &,
+  .reserve:hover & {
     box-shadow: var(--hover-bright);
   }
 
@@ -1365,6 +1368,12 @@ code.horus:hover {
   align-items: center;
   flex-grow: 0;
   margin: 3px 10px;
+  min-width: 3em;
+  height: 3em;
+  background: rgba(0,0,0,0.25);
+  border: 1px solid rgba(0,0,0,0.25);
+  border-radius: 5px;
+  box-shadow: 1px 1px 1px 0.6px #000000b3;
 }
 
 .system-macro {
@@ -2350,7 +2359,8 @@ Here, this means we want to allow for drag stuff etc to show contextually if:
   margin: 4px;
 }
 
-#combat {
+#combat,
+#combat-popout {
   #combat-tracker {
     .combatant {
       .token-initiative {
@@ -2447,10 +2457,13 @@ Here, this means we want to allow for drag stuff etc to show contextually if:
   }
 }
 
-#combat #combat-tracker li.combatant.turn-done {
-  // Furnace crap
-  color: inherit;
-  text-decoration: inherit;
+#combat,
+#combat-popout {
+  #combat-tracker li.combatant.turn-done {
+    // Furnace crap
+    color: inherit;
+    text-decoration: inherit;
+  }
 }
 
 #lancer-initiative-settings {

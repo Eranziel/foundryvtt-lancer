@@ -20,7 +20,8 @@ export function targetsFromTemplate(templateId: string): void {
   // Test if each token occupies a targeted space and target it if true
   const targets = canvas
     .tokens!.placeables.filter(t => {
-      let skip = ignore.tokens.includes(t.id) || ignore.dispositions.includes(t.data.disposition);
+      // @ts-expect-error v10
+      let skip = ignore.tokens.includes(t.id) || ignore.dispositions.includes(t.document.disposition);
       return !skip && test_token(t);
     })
     .map(t => t.id);

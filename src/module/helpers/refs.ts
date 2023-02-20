@@ -11,6 +11,7 @@ import {
   LancerPILOT_WEAPON,
   LancerWEAPON_MOD,
   LancerTALENT,
+  LancerRESERVE,
 } from "../item/lancer-item";
 import { encodeMacroData } from "../macros";
 import {
@@ -406,6 +407,15 @@ export function item_preview<T extends LancerItemType>(
   }
 }
 
+export function hex_array(curr: number, max: number, path: string) {
+  return [...Array(max)].map((_ele, index) => {
+    const available = index + 1 <= curr;
+    return `<a><i class="uses-hex mdi ${
+      available ? "mdi-hexagon-slice-6" : "mdi-hexagon-outline"
+    } theme--light" data-available="${available}" data-path="${path}"></i></a>`;
+  });
+}
+
 export function limited_uses_indicator(
   item:
     | LancerMECH_WEAPON
@@ -418,14 +428,16 @@ export function limited_uses_indicator(
 ): string {
   const uses = item.system.uses;
 
-  const hexes = [...Array(uses.max)].map((_ele, index) => {
-    const available = index + 1 <= uses.value;
-    return `<a><i class="uses-hex mdi ${
-      available ? "mdi-hexagon-slice-6" : "mdi-hexagon-outline"
-    } theme--light" data-available="${available}" data-path="${path}"></i></a>`;
-  });
+  const hexes = hex_array(uses.value, uses.max, path);
 
   return `<div class="clipped card limited-card">USES ${hexes.join("")}</div>`;
+}
+
+export function reserve_used_indicator(path: string, helper: HelperOptions): string {
+  let item = resolve_helper_dotpath(helper, path) as LancerRESERVE;
+  const hexes = hex_array(item.system.used ? 0 : 1, 1, path);
+
+  return `<div class="clipped card limited-card">USED ${hexes.join("")}</div>`;
 }
 
 // Put this at the end of ref lists to have a place to drop things. Supports both native and non-native drops
@@ -505,14 +517,18 @@ export function HANDLER_activate_uses_editor<T>(html: JQuery, doc: LancerActor |
       const available = params.available === "true";
 
       let newUses = item.system.uses.value;
-      if (available) {
-        // Deduct uses.
-        newUses = Math.max(newUses - 1, item.system.uses.min);
+      if (item.is_reserve()) {
+        item.update({ "system.used": true });
       } else {
-        // Increment uses.
-        newUses = Math.min(newUses + 1, item.system.uses.max);
+        if (available) {
+          // Deduct uses.
+          newUses = Math.max(newUses - 1, item.system.uses.min);
+        } else {
+          // Increment uses.
+          newUses = Math.min(newUses + 1, item.system.uses.max);
+        }
+        item.update({ "system.uses": newUses });
       }
-      item.update({ "system.uses": newUses });
     }
   });
 }

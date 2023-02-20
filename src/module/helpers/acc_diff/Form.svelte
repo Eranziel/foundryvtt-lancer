@@ -220,7 +220,7 @@
                   animate:flip={{duration: 200}}
                   class="flexcol card accdiff-target">
                   <label class="flexrow flex-center card card-title" for={data.target.id}>
-                    {data.target.data.name}
+                    {data.target.document.name}
                   </label>
                   <div class="flexrow accdiff-total">
                     <Total bind:target={data} id={`total-display-${i}`} />

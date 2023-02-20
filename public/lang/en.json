@@ -89,6 +89,7 @@
                 "armor": "ARMOR",
                 "weapons": "WEAPONS",
                 "gear": "GEAR",
+                "reserves": "RESERVES",
                 "licenses": "LICENSES",
                 "cores": "CORE BONUSES"
             },

@@ -1,11 +1,14 @@
 {
   "id": "lancer",
+  "name": "lancer",
   "title": "LANCER",
-  "description": "A Foundry VTT game system for <a href=\"https://massif-press.itch.io/corebook-pdf\">Lancer</a> by <a href=\"https://massif-press.itch.io/\">Massif Press</a>, a mud-and-lasers tactical mech RPG.",
-  "version": "1.4.0-alpha.1",
+  "description": "<p>A Foundry VTT game system for <a href=\"https://massif-press.itch.io/corebook-pdf\">Lancer</a> by <a href=\"https://massif-press.itch.io/\">Massif Press</a>, a mud-and-lasers tactical mech RPG.</p><p>\"Lancer for FoundryVTT\" is not an official <i>Lancer</i> product; it is a third party work, and is not affiliated with Massif Press. \"Lancer for FoundryVTT\" is published via the <i>Lancer</i> Third Party License.</p><p><i>Lancer</i> is copyright Massif Press.</p>",
+  "version": "1.5.1",
+  "minimumCoreVersion": "10",
   "compatibility": {
     "minimum": 10,
-    "verified": "10.284"
+    "verified": "10.291",
+    "maximum": 10
   },
   "authors": [
     {"name": "Eranziel"},
@@ -21,14 +24,14 @@
   "esmodules": ["index.js"],
   "styles": [
     "style.css",
-    "fonts/compcon/glyphs.css"
+    "fonts/compcon/glyphs.css",
+    "fonts/mdi.css"
   ],
   "packs": [
     {
       "name": "aoe-templates",
       "label": "AoE Templates",
       "system": "lancer",
-      "module": "lancer",
       "path": "./packs/aoe-templates.db",
       "type": "Macro"
     },
@@ -54,9 +57,22 @@
   "secondaryTokenAttribute": "",
   "url": "https://github.com/Eranziel/foundryvtt-lancer",
   "manifest": "https://github.com/Eranziel/foundryvtt-lancer/releases/latest/download/system.json",
-  "download": "https://github.com/Eranziel/foundryvtt-lancer/releases/download/v1.4.0-alpha.1/lancer-v1.4.0-alpha.1.zip",
+  "download": "https://github.com/Eranziel/foundryvtt-lancer/releases/download/v1.5.1/lancer-v1.5.1.zip",
   "license": "GNU GPLv3",
   "readme": "https://github.com/Eranziel/foundryvtt-lancer/blob/beta-release/README.md",
   "bugs": "https://github.com/Eranziel/foundryvtt-lancer/issues/new/choose",
-  "changelog": "https://github.com/Eranziel/foundryvtt-lancer/blob/beta-release/CHANGELOG.md"
+  "changelog": "https://github.com/Eranziel/foundryvtt-lancer/blob/beta-release/CHANGELOG.md",
+  "manifestPlusVersion": "1.2.0",
+  "media": [
+    {
+      "type": "cover",
+      "url": "https://massifpress.com/_next/image?url=%2Fimages%2Flegal%2Fpowered_by_Lancer-01.svg&w=640&q=75",
+      "caption": "Powered by Lancer"
+    },
+    {
+      "type": "icon",
+      "url": "https://massifpress.com/_next/image?url=%2Fimages%2Flegal%2Fpowered_by_Lancer-01.svg&w=640&q=75",
+      "caption": "Powered by Lancer"
+    }
+  ]
 }

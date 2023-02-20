@@ -59,7 +59,8 @@ export class LancerActionManager extends Application {
   getData(_options = {}) {
     return {
       position: this.position,
-      name: this.target && this.target.data.name.toLocaleUpperCase(),
+      // @ts-expect-error Should be fixed with v10 types
+      name: this.target && this.target.name.toLocaleUpperCase(),
       actions: this.getActions(),
       clickable: game.user?.isGM || getActionTrackerOptions().allowPlayers,
     };

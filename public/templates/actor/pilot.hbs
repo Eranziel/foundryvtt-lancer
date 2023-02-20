@@ -117,9 +117,6 @@
         {{/each}}
       </div>
 
-      {{!-- Reserves --}}
-      {{!-- TODO --}}
-
       <div class="card clipped lancer-macro-grid">
           {{{macro-button "BASIC ATTACK" "prepareEncodedAttackMacro" "actor" }}}
       </div>
@@ -146,6 +143,15 @@
         <div class="card clipped">
           <h2 class="lancer-title clipped-top">{{localize "lancer.pilot-sheet.tactical.gear"}}</h2>
           {{#each system.loadout.gear as |gear key|}} {{{pilot-gear-slot (concat "system.loadout.gear." key)}}} {{/each}}
+        </div>
+      </div>
+
+      {{!-- Reserves --}}
+      <div class="flexrow">
+        {{!-- Reserves --}}
+        <div class="card clipped">
+          <h2 class="lancer-title clipped-top">{{localize "lancer.pilot-sheet.tactical.reserves"}}</h2>
+          {{#each mm.Reserves as |reserve index|}} {{{reserve-slot (concat "mm.Reserves." index)}}} {{/each}}
         </div>
       </div>
     </div>
