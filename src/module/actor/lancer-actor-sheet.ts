@@ -390,13 +390,15 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
   // Note: this operation also fixes limited to be the full capability of our actor
   async quickOwn(document: LancerItem): Promise<[LancerItem, boolean]> {
     if (document.parent != this.actor) {
-      let [result] = await insinuate([document], this.actor);
-      if (result.isLimited()) {
-        await result.update({
-          "system.uses.value": result.system.uses.max,
-        });
+      let results = await insinuate([document], this.actor);
+      for (let newItem of results) {
+        if (newItem.isLimited()) {
+          await newItem.update({
+            "system.uses.value": newItem.system.uses.max,
+          });
+        }
       }
-      return [result, true];
+      return [results[0], true];
     } else {
       // Its already owned
       return [document, false];

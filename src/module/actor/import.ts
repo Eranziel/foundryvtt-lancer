@@ -305,8 +305,7 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
           "texture.src": replace_default_resource(
             // @ts-expect-error
             mech.prototypeToken?.texture?.src,
-            cloud_mech.cloud_portrait,
-            pilot.img
+            cloud_mech.cloud_portrait
           ),
         },
         system: {

@@ -1,4 +1,4 @@
-import { FittingSize, WeaponSize } from "../enums";
+import { fittingsForMount, FittingSize, MountType, WeaponSize } from "../enums";
 import { filter_resolved_sync } from "../helpers/commons";
 import { LancerItem } from "../item/lancer-item";
 import { SourceData } from "../source-template";
@@ -303,5 +303,79 @@ export class LoadoutHelper {
         `${this.actor.type} actors have no mounts to validate. Call this method on the actor you're trying to check against!`
       );
     }
+  }
+
+  /**
+   * Reset the mounts to the default for the frame + core bonus configuration
+   * Will automatically equip the frames integrated mount
+   * @returns
+   */
+  async resetMounts() {
+    if (!this.actor.is_mech()) return;
+
+    let newMounts = [] as SourceData.Mech["loadout"]["weapon_mounts"];
+
+    let frame = this.actor.system.loadout.frame?.value;
+    if (frame) {
+      const gen_mount = (mt: MountType) => ({
+        bracing: false,
+        slots: fittingsForMount(mt).map(f => ({
+          weapon: null,
+          mod: null,
+          size: f,
+        })),
+        type: mt,
+      });
+      let baseMounts = frame.system.mounts;
+
+      let pilot = this.actor.system.pilot?.value;
+      // @ts-expect-error
+      const get_cb = (lid: string) => pilot?.itemTypes.core_bonus.find(cb => cb.system.lid == lid);
+      let retrofitting = get_cb("cb_mount_retrofitting");
+      let improved_armament = get_cb("cb_improved_armament");
+      let integrated_weapon = get_cb("cb_integrated_weapon");
+
+      // If improved armament, add a main mount if we need to
+      if (baseMounts.length < 3 && improved_armament) {
+        baseMounts.push(MountType.Main);
+      }
+
+      // If retrofitting, replace worst mount type with a main/aux
+      if (retrofitting) {
+        for (let mt of [MountType.Aux, MountType.AuxAux, MountType.Main, MountType.Flex]) {
+          if (baseMounts.findSplice(x => x == mt, MountType.MainAux)) break;
+        }
+      }
+
+      // If integrated, add an integrated
+      if (integrated_weapon) {
+        baseMounts = [MountType.Integrated, ...baseMounts];
+      }
+
+      // If frame has an integrated weapon, insert that (or those) as our first weapon(s)
+      for (let integrated_lid of frame.system.core_system.integrated) {
+        // @ts-expect-error
+        let corr_item = this.actor.items.find(x => x.system.lid == integrated_lid);
+        if (corr_item && corr_item.is_mech_weapon()) {
+          newMounts.push({
+            bracing: false,
+            slots: [
+              {
+                mod: null,
+                size: FittingSize.Integrated,
+                weapon: corr_item.id!,
+              },
+            ],
+            type: MountType.Integrated,
+          });
+        }
+      }
+
+      // Generate rest of our mounts
+      for (let mt of baseMounts) {
+        newMounts.push(gen_mount(mt));
+      }
+    }
+    this.actor.update({ "system.loadout.weapon_mounts": newMounts });
   }
 }

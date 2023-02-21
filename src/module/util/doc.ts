@@ -182,7 +182,7 @@ export async function get_pack(
 // Copy an item to an actor, also copying any necessary subitems
 // (or at least, clearing links to them).
 // Has no effect if destination is same as existing parent
-// Items are not returned in order - returned items include additional items, and also attempt to find
+// Items are not returned in order - returned items include additional integrated items that were imported as part of this
 export async function insinuate(items: Array<LancerItem>, to: LancerActor): Promise<Array<LancerItem>> {
   let oldItems = [];
   let newItems = [];
@@ -191,11 +191,25 @@ export async function insinuate(items: Array<LancerItem>, to: LancerActor): Prom
       oldItems.push(item);
     } else {
       newItems.push(item.toObject());
+
+      // Also get integrated!
+      let integrated: string[] = [];
+      if (item.is_frame()) {
+        integrated = item.system.core_system.integrated;
+      } else if (item.is_mech_system() || item.is_mech_weapon()) {
+        integrated = item.system.integrated;
+      }
+      for (let i of integrated) {
+        let found = await lookupLID(i);
+        if (found) {
+          newItems.push(found.toObject());
+        }
+      }
     }
   }
 
   // Await and recombine
-  // @ts-ignore
+  // @ts-expect-error
   let actualNewItems: LancerItem[] = await to.createEmbeddedDocuments("Item", newItems);
 
   // Prompt for deployables if they don't yet exist

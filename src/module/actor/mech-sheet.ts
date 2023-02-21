@@ -84,9 +84,7 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
       await this.actor.update({
         "system.loadout.frame": drop.document.id,
       });
-
-      // Reset mounts
-      // await this_mm.Loadout.reset_weapon_mounts();
+      await this.actor.loadoutHelper.resetMounts();
     } else if (is_new && drop.type == "Item" && drop.document.is_mech_weapon()) {
       // If frame, weapon, put it in first available slot. Who cares if it fits
       let currMounts: SourceData.Mech["loadout"]["weapon_mounts"] = foundry.utils.duplicate(
@@ -115,6 +113,9 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
     } else if (drop.type == "Actor" && drop.document.is_pilot()) {
       await this.actor.update({
         "system.pilot": drop.document.uuid,
+      });
+      await drop.document.update({
+        "system.active_mech": this.actor.uuid,
       });
     }
   }
@@ -253,21 +254,7 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
 
     switch (mode) {
       case "reset-all-weapon-mounts":
-        // await mech.Loadout.reset_weapon_mounts();
-        let newMounts = [] as SourceData.Mech["loadout"]["weapon_mounts"];
-        if (mech.system.loadout.frame?.value) {
-          let expFrames = mech.system.loadout.frame.value.system.mounts;
-          newMounts = expFrames.map(mt => ({
-            bracing: false,
-            slots: fittingsForMount(mt).map(f => ({
-              weapon: null,
-              mod: null,
-              size: f,
-            })),
-            type: mt,
-          }));
-        }
-        this.actor.update({ "system.loadout.weapons": newMounts });
+        await this.actor.loadoutHelper.resetMounts();
         break;
       case "reset-sys":
         this.actor.update({ "system.loadout.systems": [] });
