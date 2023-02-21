@@ -248,22 +248,25 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
       // Populate our weapons and mods
       let flatMounts: PackedMountData[] = [];
       let assocWeaponData = new Map<string, PackedMechWeaponSaveData>();
-      flatMounts.push(loadout.integratedWeapon);
-      flatMounts.push(loadout.improved_armament);
+      if (loadout.integratedWeapon?.slots.some(x => x.weapon)) flatMounts.push(loadout.integratedWeapon);
+      if (loadout.improved_armament?.slots.some(x => x.weapon)) flatMounts.push(loadout.improved_armament);
       flatMounts.push(
-        ...loadout.integratedMounts.map(im => ({
-          mount_type: MountType.Integrated,
-          slots: [
-            {
-              weapon: im.weapon,
-              mod: null,
-              size: FittingSize.Integrated,
-            },
-          ],
-          extra: [],
-          bonus_effects: [],
-        }))
+        ...loadout.integratedMounts
+          .map(im => ({
+            mount_type: MountType.Integrated,
+            slots: [
+              {
+                weapon: im.weapon,
+                mod: null,
+                size: FittingSize.Integrated,
+              },
+            ],
+            extra: [],
+            bonus_effects: [],
+          }))
+          .filter(im => im.slots.some(x => x.weapon))
       );
+      flatMounts.push(...loadout.mounts);
       let populatedMounts: SourceData.Mech["loadout"]["weapon_mounts"] = [];
       for (let mount of flatMounts) {
         let slots: typeof populatedMounts[0]["slots"] = [];
