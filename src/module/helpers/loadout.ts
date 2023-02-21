@@ -14,15 +14,15 @@ import { ActionData } from "../models/bits/action";
 export type CollapseRegistry = { [LID: string]: number };
 
 // A drag-drop slot for a system mount.
-function system_view(system_path: string, helper: HelperOptions, registry?: CollapseRegistry): string {
+function system_view(system_path: string, options: HelperOptions, collapse?: CollapseRegistry): string {
   let system = resolve_helper_dotpath(
-    helper,
+    options,
     system_path
   ) as SystemTemplates.ResolvedEmbeddedRef<LancerMECH_SYSTEM> | null;
   if (!system) return "";
 
   if (system && system.status == "resolved") {
-    let slot = item_preview(system_path, "splice", "embed-ref", helper, registry);
+    let slot = item_preview(system_path, "splice", "embed-ref", options, collapse);
 
     return ` 
       <div class="mount card clipped">
@@ -35,9 +35,9 @@ function system_view(system_path: string, helper: HelperOptions, registry?: Coll
 }
 
 // A drag-drop slot for a weapon mount. TODO: delete button, clear button
-function weapon_mount(mount_path: string, helper: HelperOptions, registry: CollapseRegistry): string {
-  let mech = resolve_helper_dotpath(helper, "actor") as LancerMECH;
-  let mount = resolve_helper_dotpath(helper, mount_path) as SystemData.Mech["loadout"]["weapon_mounts"][0];
+function weapon_mount(mount_path: string, options: HelperOptions, collapse: CollapseRegistry): string {
+  let mech = resolve_helper_dotpath(options, "actor") as LancerMECH;
+  let mount = resolve_helper_dotpath(options, mount_path) as SystemData.Mech["loadout"]["weapon_mounts"][0];
 
   // If bracing, override
   if (mount.bracing) {
@@ -55,7 +55,7 @@ function weapon_mount(mount_path: string, helper: HelperOptions, registry: Colla
   }
 
   let slots = mount.slots.map((slot, index) =>
-    mech_loadout_weapon_slot(`${mount_path}.slots.${index}.weapon`, helper, registry, slot.size)
+    mech_loadout_weapon_slot(`${mount_path}.slots.${index}.weapon`, options, collapse, slot.size)
   );
   let err = mech.loadoutHelper.validateMount(mount) ?? "";
 
@@ -81,10 +81,10 @@ function weapon_mount(mount_path: string, helper: HelperOptions, registry: Colla
 }
 
 // Helper to display all weapon mounts on a mech loadout
-function all_weapon_mount_view(loadout_path: string, helper: HelperOptions, registry: CollapseRegistry) {
-  let loadout = resolve_helper_dotpath(helper, loadout_path) as SystemData.Mech["loadout"];
+function all_weapon_mount_view(loadout_path: string, options: HelperOptions, collapse: CollapseRegistry) {
+  let loadout = resolve_helper_dotpath(options, loadout_path) as SystemData.Mech["loadout"];
   const weapon_mounts = loadout.weapon_mounts.map((_wep, index) =>
-    weapon_mount(`${loadout_path}.weapon_mounts.${index}`, helper, registry)
+    weapon_mount(`${loadout_path}.weapon_mounts.${index}`, options, collapse)
   );
 
   return `
@@ -101,10 +101,10 @@ function all_weapon_mount_view(loadout_path: string, helper: HelperOptions, regi
 }
 
 // Helper to display all systems mounted on a mech loadout
-function all_system_view(loadout_path: string, helper: HelperOptions, _registry: CollapseRegistry) {
-  let loadout = resolve_helper_dotpath(helper, loadout_path) as LancerMECH["system"]["loadout"];
+function all_system_view(loadout_path: string, options: HelperOptions, collapse: CollapseRegistry) {
+  let loadout = resolve_helper_dotpath(options, loadout_path) as LancerMECH["system"]["loadout"];
   const system_views = loadout.systems.map((_sys, index) =>
-    system_view(`${loadout_path}.systems.${index}`, helper, _registry)
+    system_view(`${loadout_path}.systems.${index}`, options, collapse)
   );
 
   // Archiving add button: <a class="gen-control fas fa-plus" data-action="append" data-path="${loadout_path}.SysMounts" data-action-value="(struct)sys_mount"></a>
@@ -121,20 +121,20 @@ function all_system_view(loadout_path: string, helper: HelperOptions, _registry:
     `;
 }
 
-/** Suuuuuper work in progress helper. The loadout view for a mech (tech here can mostly be reused for pilot)
+/** Suuuuuper work in progress options. The loadout view for a mech (tech here can mostly be reused for pilot)
  * TODO:
  * - Weapon mods
  * - .... system mods :)
  * - Ref validation (you shouldn't be able to equip another mechs items, etc)
  */
-export function mech_loadout(helper: HelperOptions): string {
-  const registry: CollapseRegistry = {};
+export function mech_loadout(options: HelperOptions): string {
+  const collapse: CollapseRegistry = {};
 
   const loadout_path = `system.loadout`;
   return `
     <div class="flexcol">
-        ${all_weapon_mount_view(loadout_path, helper, registry)}
-        ${all_system_view(loadout_path, helper, registry)}
+        ${all_weapon_mount_view(loadout_path, options, collapse)}
+        ${all_system_view(loadout_path, options, collapse)}
     </div>`;
 }
 
@@ -174,14 +174,14 @@ export function pilot_slot(data_path: string, options: HelperOptions): string {
  * @param helper      Standard helper options.
  * @return            HTML for the frame reference, typically for inclusion in a mech sheet.
  */
-export function mech_frame_refview(actor: LancerActor, frame_slot_path: string, helper: HelperOptions): string {
+export function mech_frame_refview(actor: LancerActor, frame_slot_path: string, options: HelperOptions): string {
   let frame = resolve_helper_dotpath<SystemTemplates.ResolvedEmbeddedRef<LancerFRAME> | null>(
-    helper,
+    options,
     frame_slot_path,
     null
   );
   if (!frame || frame.status == "missing")
-    return simple_ref_slot(frame_slot_path, [EntryType.FRAME], "embed-ref", helper);
+    return simple_ref_slot(frame_slot_path, [EntryType.FRAME], "embed-ref", options);
 
   return `
     <div class="card mech-frame ${ref_params(frame.value)}">

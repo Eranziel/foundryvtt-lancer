@@ -326,17 +326,17 @@ export function resolve_dotpath(
 }
 
 // Helper function to get arbitrarily deep array references, specifically in a helperoptions, and with better types for that matter
-export function resolve_helper_dotpath<T>(helper: HelperOptions, path: string): T;
-export function resolve_helper_dotpath<T>(helper: HelperOptions, path: string, default_: T): T;
-export function resolve_helper_dotpath<T>(helper: HelperOptions, path: string, default_: T, try_parent: boolean): T;
+export function resolve_helper_dotpath<T>(options: HelperOptions, path: string): T;
+export function resolve_helper_dotpath<T>(options: HelperOptions, path: string, default_: T): T;
+export function resolve_helper_dotpath<T>(options: HelperOptions, path: string, default_: T, try_parent: boolean): T;
 export function resolve_helper_dotpath(
-  helper: HelperOptions,
+  options: HelperOptions,
   path: string,
   default_: any = null,
   try_parent: boolean = false
 ): any {
   if (try_parent) {
-    let data = helper.data;
+    let data = options.data;
 
     // Loop until no _parent
     while (data) {
@@ -352,7 +352,7 @@ export function resolve_helper_dotpath(
     return default_;
   } else {
     // Trivial wrapper.
-    return resolve_dotpath(helper.data?.root, path, default_);
+    return resolve_dotpath(options.data?.root, path, default_);
   }
 }
 
@@ -362,19 +362,19 @@ export function resolve_helper_dotpath(
  * @argument overrides These properties will be inserted regardless of pre-existing value
  */
 export function ext_helper_hash(
-  orig_helper: HelperOptions,
+  orig_options: HelperOptions,
   overrides: HelperOptions["hash"],
   defaults: HelperOptions["hash"] = {}
 ): HelperOptions {
   return {
-    fn: orig_helper.fn,
-    inverse: orig_helper.inverse,
+    fn: orig_options.fn,
+    inverse: orig_options.inverse,
     hash: {
       ...defaults,
-      ...orig_helper.hash,
+      ...orig_options.hash,
       ...overrides,
     },
-    data: orig_helper.data,
+    data: orig_options.data,
   };
 }
 
@@ -756,8 +756,8 @@ export function safe_html_helper(orig: string) {
 }
 
 // These typically are the exact same so we made a helper for 'em
-export function large_textbox_card(title: string, text_path: string, helper: HelperOptions) {
-  let resolved = resolve_helper_dotpath(helper, text_path, "");
+export function large_textbox_card(title: string, text_path: string, options: HelperOptions) {
+  let resolved = resolve_helper_dotpath(options, text_path, "");
   return `
   <div class="card full clipped">
     <div class="lancer-header">

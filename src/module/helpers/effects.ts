@@ -4,7 +4,7 @@ import { LancerActiveEffect } from "../effects/lancer-active-effect";
 /**
  * Handlebars helper for a single effect
  */
-export function effect_view(effect: LancerActiveEffect, helper: HelperOptions): string {
+export function effect_view(effect: LancerActiveEffect, options: HelperOptions): string {
   // @ts-expect-error
   let label = effect.label;
   return `<div class="flexrow active-effect" data-uuid="${effect.uuid}">
@@ -22,7 +22,7 @@ export function effect_view(effect: LancerActiveEffect, helper: HelperOptions): 
  */
 export function effect_categories_view(
   effects: ReturnType<typeof LancerActiveEffect["prepareActiveEffectCategories"]>,
-  helper: HelperOptions
+  options: HelperOptions
 ) {
   let categories = [] as string[];
   for (let cat of effects) {
@@ -31,7 +31,7 @@ export function effect_categories_view(
         <div class="card clipped">
             <span class="lancer-header submajor">${cat.label}</span>
             <div class="flexcol">
-                ${cat.effects.map(e => effect_view(e, helper)).join("")}
+                ${cat.effects.map(e => effect_view(e, options)).join("")}
             </div>
         </div>
         `);

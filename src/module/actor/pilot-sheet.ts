@@ -316,7 +316,7 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
   }
 }
 
-export function pilot_counters(pilot: LancerPILOT, _helper: HelperOptions): string {
+export function pilot_counters(pilot: LancerPILOT, _options: HelperOptions): string {
   let counter_detail = "";
 
   let counter_arr = pilot.system.custom_counters;
@@ -330,7 +330,7 @@ export function pilot_counters(pilot: LancerPILOT, _helper: HelperOptions): stri
       } else {
         counter_detail = counter_detail.concat(
           buildCounterHeader(counter, `system.custom_counters.${i}`, true),
-          clicker_num_input(`system.custom_counters.${i}.val`, _helper),
+          clicker_num_input(`system.custom_counters.${i}.val`, _options),
           "</div>"
         );
       }
@@ -349,24 +349,24 @@ export function pilot_counters(pilot: LancerPILOT, _helper: HelperOptions): stri
   </div>`;
 }
 
-export function all_mech_preview(_helper: HelperOptions): string {
-  let active_mech: LancerMECH | null = _helper.data.root.system.active_mech?.value;
+export function all_mech_preview(_options: HelperOptions): string {
+  let active_mech: LancerMECH | null = _options.data.root.system.active_mech?.value;
 
   /// I still feel like this is pretty inefficient... but it's probably the best we can do for now
   let owned_mechs = (game?.actors?.filter(
     mech =>
       mech.is_mech() &&
       mech.system.pilot?.status == "resolved" &&
-      mech.system.pilot.value.id === _helper.data.root.actor.id
+      mech.system.pilot.value.id === _options.data.root.actor.id
   ) ?? []) as unknown as LancerMECH[];
   let as_html = [];
   for (let m of owned_mechs) {
-    as_html.push(mech_preview(m, m == active_mech, _helper));
+    as_html.push(mech_preview(m, m == active_mech, _options));
   }
   return as_html.join("");
 }
 
-export function mech_preview(mech: LancerMECH, active: boolean, _helper: HelperOptions): string {
+export function mech_preview(mech: LancerMECH, active: boolean, _options: HelperOptions): string {
   var html = ``;
 
   // Generate commons

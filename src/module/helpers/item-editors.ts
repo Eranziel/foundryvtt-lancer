@@ -10,8 +10,8 @@ import { LancerDEPLOYABLE } from "../actor/lancer-actor";
 import { SynergyData } from "../models/bits/synergy";
 import { ActivationType, EntryType, WeaponSize, WeaponType } from "../enums";
 
-export function item_edit_arrayed_actions(path: string, title: string, helper: HelperOptions): string {
-  let action_arr: Array<ActionData> = resolve_helper_dotpath(helper, path);
+export function item_edit_arrayed_actions(path: string, title: string, options: HelperOptions): string {
+  let action_arr: Array<ActionData> = resolve_helper_dotpath(options, path);
 
   let action_detail = "";
 
@@ -42,14 +42,14 @@ export function item_edit_arrayed_actions(path: string, title: string, helper: H
  * @param helper    Standard helper object
  * @returns         HTML for an editable damage area
  */
-export function item_edit_arrayed_damage(path: string, title: string, helper: HelperOptions): string {
-  let dam_arr: Array<Damage> = resolve_helper_dotpath(helper, path);
+export function item_edit_arrayed_damage(path: string, title: string, options: HelperOptions): string {
+  let dam_arr: Array<Damage> = resolve_helper_dotpath(options, path);
 
   let dam_detail = "";
 
   if (dam_arr) {
     for (let i = 0; i < dam_arr.length; i++) {
-      dam_detail = dam_detail.concat(damage_editor(path.concat(`.${i}`), helper));
+      dam_detail = dam_detail.concat(damage_editor(path.concat(`.${i}`), options));
     }
   }
 
@@ -70,14 +70,14 @@ export function item_edit_arrayed_damage(path: string, title: string, helper: He
  * @param helper    Standard helper object
  * @returns         HTML for an editable range area
  */
-export function item_edit_arrayed_range(path: string, title: string, helper: HelperOptions): string {
-  let range_arr: Array<Range> = resolve_helper_dotpath(helper, path);
+export function item_edit_arrayed_range(path: string, title: string, options: HelperOptions): string {
+  let range_arr: Array<Range> = resolve_helper_dotpath(options, path);
 
   let range_detail = "";
 
   if (range_arr) {
     for (let i = 0; i < range_arr.length; i++) {
-      range_detail = range_detail.concat(range_editor(path.concat(`.${i}`), helper));
+      range_detail = range_detail.concat(range_editor(path.concat(`.${i}`), options));
     }
   }
 
@@ -97,10 +97,10 @@ export function item_edit_arrayed_range(path: string, title: string, helper: Hel
  * @param helper    Standard helper object
  * @returns         HTML for an editable bonus area
  */
-export function item_edit_arrayed_bonuses(path: string, helper: HelperOptions): string {
-  let arr: BonusData[] = resolve_helper_dotpath(helper, path);
+export function item_edit_arrayed_bonuses(path: string, options: HelperOptions): string {
+  let arr: BonusData[] = resolve_helper_dotpath(options, path);
   if (!arr) arr = [];
-  return bonuses_display(path, true, helper);
+  return bonuses_display(path, true, options);
 }
 
 export function item_edit_arrayed_counters(): string {
@@ -115,8 +115,8 @@ export function item_edit_arrayed_counters(): string {
  * @param helper    Standard helper object
  * @returns         HTML for an editable deployable area
  */
-export function item_edit_arrayed_deployables(path: string, title: string, helper: HelperOptions): string {
-  let dep_arr: Array<LancerDEPLOYABLE> = resolve_helper_dotpath(helper, path);
+export function item_edit_arrayed_deployables(path: string, title: string, options: HelperOptions): string {
+  let dep_arr: Array<LancerDEPLOYABLE> = resolve_helper_dotpath(options, path);
 
   let depHTML = dep_arr
     .map((d, i) => {
@@ -140,8 +140,8 @@ export function item_edit_arrayed_deployables(path: string, title: string, helpe
  * @param helper    Standard helper object
  * @returns         HTML for an editable synergy area
  */
-export function item_edit_arrayed_synergies(path: string, title: string, helper: HelperOptions): string {
-  let syn_arr: Array<SynergyData> = resolve_helper_dotpath(helper, path);
+export function item_edit_arrayed_synergies(path: string, title: string, options: HelperOptions): string {
+  let syn_arr: Array<SynergyData> = resolve_helper_dotpath(options, path);
 
   let synHTML = syn_arr
     .map((d, i) => {
@@ -170,10 +170,10 @@ export function item_edit_arrayed_synergies(path: string, title: string, helper:
  * @param helper        Standard helper object
  * @returns             HTML for an array of selectable, addable and removable items from the struct
  */
-export function item_edit_arrayed_enum(title: string, path: string, enum_name: string, helper: HelperOptions): string {
+export function item_edit_arrayed_enum(title: string, path: string, enum_name: string, options: HelperOptions): string {
   let resolved_enum = resolve_enum(enum_name);
 
-  let enum_arr: Array<typeof resolved_enum> = resolve_helper_dotpath(helper, path);
+  let enum_arr: Array<typeof resolved_enum> = resolve_helper_dotpath(options, path);
 
   let selector_detail = "";
 
@@ -181,7 +181,7 @@ export function item_edit_arrayed_enum(title: string, path: string, enum_name: s
     for (let i = 0; i < enum_arr.length; i++) {
       selector_detail = selector_detail.concat(`
             <div class="flexrow">
-                ${std_enum_select(path.concat(`.${i}`), resolved_enum, helper)}
+                ${std_enum_select(path.concat(`.${i}`), resolved_enum, options)}
                 <a class="gen-control fas fa-trash" data-action="splice" data-path="${path.concat(`.${i}`)}"></a>
             </div>`);
     }
@@ -197,11 +197,11 @@ export function item_edit_arrayed_enum(title: string, path: string, enum_name: s
     </div>`;
 }
 
-export function item_edit_enum(path: string, enum_name: string, helper: HelperOptions) {
+export function item_edit_enum(path: string, enum_name: string, options: HelperOptions) {
   let resolved_enum = resolve_enum(enum_name);
   // Resolve the enum name
 
-  return std_enum_select(path, resolved_enum, helper);
+  return std_enum_select(path, resolved_enum, options);
 }
 
 function resolve_enum(enum_name: string): any {
@@ -237,9 +237,9 @@ function resolve_enum(enum_name: string): any {
  * @param helper    Standard helper
  * @returns         HTML for effect editor
  */
-export function item_edit_effect(path: string, helper: HelperOptions): string {
+export function item_edit_effect(path: string, options: HelperOptions): string {
   // TODO: We can do better than this
-  return large_textbox_card("EFFECT", path, helper);
+  return large_textbox_card("EFFECT", path, options);
 }
 
 /**
@@ -249,8 +249,8 @@ export function item_edit_effect(path: string, helper: HelperOptions): string {
  * @param helper    Standard helper object
  * @returns         HTML for an editable integrated area
  */
-export function item_edit_arrayed_integrated(path: string, title: string, helper: HelperOptions): string {
-  let int_arr: Array<string> = resolve_helper_dotpath(helper, path);
+export function item_edit_arrayed_integrated(path: string, title: string, options: HelperOptions): string {
+  let int_arr: Array<string> = resolve_helper_dotpath(options, path);
 
   let intHTML = int_arr
     .map((s: string, i: number | undefined) => {
@@ -275,8 +275,8 @@ export function item_edit_arrayed_integrated(path: string, title: string, helper
  * @param helper    Standard helper from the template
  * @returns         HTML for license in string format
  */
-export function item_edit_license(helper: HelperOptions): string {
-  let license: LancerLICENSE | null = helper.data.root.license;
+export function item_edit_license(options: HelperOptions): string {
+  let license: LancerLICENSE | null = options.data.root.license;
   let licenseInfo: string;
   if (!license) licenseInfo = "No license";
   else {
@@ -293,7 +293,7 @@ export function item_edit_license(helper: HelperOptions): string {
         ${licenseInfo}
         <div class="flexrow rank-wrapper">
             <span>Rank</span>
-            <input name="system.license_level" value="${helper.data.root.data.system.license_level}" type="number" data-dtype="Number" />
+            <input name="system.license_level" value="${options.data.root.data.system.license_level}" type="number" data-dtype="Number" />
         </div>
     </div>`;
 }
@@ -304,10 +304,10 @@ export function item_edit_license(helper: HelperOptions): string {
  * @param helper    Standard helper
  * @returns         HTML for our SP editor
  */
-export function item_edit_sp(path: string, helper: HelperOptions): string {
+export function item_edit_sp(path: string, options: HelperOptions): string {
   console.log("TODO: Using temporary SP editor");
-  helper.hash["label"] = "SP:";
-  return std_num_input(path, helper);
+  options.hash["label"] = "SP:";
+  return std_num_input(path, options);
 }
 
 /**
@@ -317,9 +317,9 @@ export function item_edit_sp(path: string, helper: HelperOptions): string {
  * @param helper         Standard helper from the template for a given document
  * @returns              HTML to edit Uses and Max Uses
  */
-export function item_edit_uses(cur_uses_path: string, max_uses_path: string, helper: HelperOptions): string {
-  let cur_uses = resolve_helper_dotpath(helper, cur_uses_path);
-  let max_uses = resolve_helper_dotpath(helper, max_uses_path);
+export function item_edit_uses(cur_uses_path: string, max_uses_path: string, options: HelperOptions): string {
+  let cur_uses = resolve_helper_dotpath(options, cur_uses_path);
+  let max_uses = resolve_helper_dotpath(options, max_uses_path);
 
   // If we don't have max uses, it's not already limited--so we should add the tag
   if (!max_uses) return ``;

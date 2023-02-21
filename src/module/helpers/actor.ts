@@ -358,8 +358,8 @@ export function overcharge_button(actor: LancerMECH, overcharge_path: string, op
  * Handlebars helper for an NPC tier selector
  * @param tier The tier ID string
  */
-export function npc_tier_selector(tier_path: string, helper: HelperOptions) {
-  let tier: number = resolve_helper_dotpath(helper, tier_path) ?? 1;
+export function npc_tier_selector(tier_path: string, options: HelperOptions) {
+  let tier: number = resolve_helper_dotpath(options, tier_path) ?? 1;
   let tiers: string[] = [1, 2, 3].map(
     tier_option => `
     <option value="${tier_option}" ${selected(tier_option === tier)}>TIER ${tier_option}</option>

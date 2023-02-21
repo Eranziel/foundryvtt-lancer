@@ -81,7 +81,7 @@ export function simple_ref_slot(
   path: string = "",
   accept_types: string | EntryType[],
   mode: RefMode,
-  _helper: HelperOptions
+  _options: HelperOptions
 ) {
   // Format types
   let flat_types: string;
@@ -96,7 +96,8 @@ export function simple_ref_slot(
 
   // Get present value
   let doc =
-    _helper.hash["value"] ?? (resolve_helper_dotpath(_helper, path) as SystemTemplates.ResolvedAsyncUuidRef<LancerDoc>);
+    _options.hash["value"] ??
+    (resolve_helper_dotpath(_options, path) as SystemTemplates.ResolvedAsyncUuidRef<LancerDoc>);
 
   if (!doc || doc.status == "missing") {
     // Show an icon for each accepted type
@@ -166,7 +167,7 @@ export function ref_portrait<T extends EntryType>(
   img: string,
   img_path: string,
   item: LancerDoc<T>,
-  _helper: HelperOptions
+  _options: HelperOptions
 ) {
   // Fetch the image
   return `<img class="profile-img ref set" src="${img}" data-edit="${img_path}" ${ref_params(
@@ -183,14 +184,14 @@ export function item_preview<T extends LancerItemType>(
   item_path: string,
   trash_action: "delete" | "splice" | "null" | null,
   mode: "doc" | "embed-ref" | "uuid-ref", // Is this to an embedded ref
-  helper: HelperOptions,
-  registry?: CollapseRegistry
+  options: HelperOptions,
+  collapse?: CollapseRegistry
 ): string {
   // Fetch
-  let fetched = resolve_helper_dotpath(helper, item_path);
+  let fetched = resolve_helper_dotpath(options, item_path);
   let doc: LancerDoc<T> | null;
-  if (!!helper.hash["value"]) {
-    doc = helper.hash["value"] as LancerDoc<T>;
+  if (!!options.hash["value"]) {
+    doc = options.hash["value"] as LancerDoc<T>;
   } else if (mode == "uuid-ref" || mode == "embed-ref") {
     let f = fetched as SystemTemplates.ResolvedAsyncUuidRef<LancerDoc<T>>;
     if (f.status == "resolved") {
@@ -206,7 +207,7 @@ export function item_preview<T extends LancerItemType>(
 
   if (!doc) {
     // This probably shouldn't be happening
-    console.error(`Unable to resolve ${item_path} in `, helper.data);
+    console.error(`Unable to resolve ${item_path} in `, options.data);
     return "ERR: Devs, don't try and show null things in a list. this ain't a slot (but it could be if you did some magic)";
   }
   // Make a re-used trashcan imprint
@@ -217,11 +218,11 @@ export function item_preview<T extends LancerItemType>(
 
   let collapseID;
   let collapse_trigger = "";
-  if (registry != null) {
+  if (collapse != null) {
     // On sheet, enable collapse.
-    registry[doc.id!] == null && (registry[doc.id!] = 0);
+    collapse[doc.id!] == null && (collapse[doc.id!] = 0);
 
-    let collapseNumCheck = ++registry[doc.id!];
+    let collapseNumCheck = ++collapse[doc.id!];
     collapseID = `${doc.id}_${collapseNumCheck}`;
   }
   if (collapseID) {
@@ -311,7 +312,7 @@ export function item_preview<T extends LancerItemType>(
         </div>
         </li>`;
   } else if (doc.is_mech_weapon()) {
-    return `<span>TODO: Refactor mech_loadout_weapon_slot to fit here again</span>`; // mech_loadout_weapon_slot(item_path, helper, undefined, undefined);
+    return `<span>TODO: Refactor mech_loadout_weapon_slot to fit here again</span>`; // mech_loadout_weapon_slot(item_path, options, undefined, undefined);
   } else if (doc.is_talent()) {
     let retStr = `<li class="card clipped talent-compact item ref set" ${ref_params(doc)}>
         <div class="lancer-talent-header medium clipped-top" style="grid-area: 1/1/2/4">
@@ -397,9 +398,9 @@ export function item_preview<T extends LancerItemType>(
         </div>
       </li>`;
   } else if (doc.is_license()) {
-    return license_ref(item_path, helper);
+    return license_ref(item_path, options);
   } else if (doc.is_npc_feature()) {
-    return npc_feature_preview(item_path, helper);
+    return npc_feature_preview(item_path, options);
   } else {
     // Basically the same as the simple ref card, but with control added
     return `
@@ -443,8 +444,8 @@ export function limited_uses_indicator(
   return `<div class="clipped card limited-card">USES ${hexes.join("")}</div>`;
 }
 
-export function reserve_used_indicator(path: string, helper: HelperOptions): string {
-  let item = resolve_helper_dotpath(helper, path) as LancerRESERVE;
+export function reserve_used_indicator(path: string, options: HelperOptions): string {
+  let item = resolve_helper_dotpath(options, path) as LancerRESERVE;
   const hexes = hex_array(item.system.used ? 0 : 1, 1, path);
 
   return `<div class="clipped card limited-card">USED ${hexes.join("")}</div>`;
@@ -456,12 +457,12 @@ export function item_preview_list(
   item_array_path: string,
   allowed_types: string,
   mode: "doc" | RefMode,
-  _helper: HelperOptions,
+  options: HelperOptions,
   collapse?: CollapseRegistry
 ) {
-  let embeds = resolve_helper_dotpath(_helper, item_array_path) as Array<any>;
-  let trash = _helper.hash["trash"] ?? null;
-  let previews = embeds.map((_, i) => item_preview(`${item_array_path}.${i}`, trash, mode, _helper, collapse));
+  let embeds = resolve_helper_dotpath(options, item_array_path) as Array<any>;
+  let trash = options.hash["trash"] ?? null;
+  let previews = embeds.map((_, i) => item_preview(`${item_array_path}.${i}`, trash, mode, options, collapse));
   return `
     <div class="flexcol ref-list" 
          data-path="${item_array_path}" 

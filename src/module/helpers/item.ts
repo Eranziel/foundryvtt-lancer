@@ -78,21 +78,21 @@ import { SystemTemplates } from "../system-template";
 /**
  * Handlebars helper for weapon size selector
  */
-export function weapon_size_selector(path: string, helper: HelperOptions) {
-  if (!helper.hash["default"]) {
-    helper.hash["default"] = WeaponSize.Main;
+export function weapon_size_selector(path: string, options: HelperOptions) {
+  if (!options.hash["default"]) {
+    options.hash["default"] = WeaponSize.Main;
   }
-  return std_enum_select(path, WeaponSize, helper);
+  return std_enum_select(path, WeaponSize, options);
 }
 
 /**
  * Handlebars helper for weapon type selector. First parameter is the existing selection.
  */
-export function weapon_type_selector(path: string, helper: HelperOptions) {
-  if (!helper.hash["default"]) {
-    helper.hash["default"] = WeaponType.Rifle;
+export function weapon_type_selector(path: string, options: HelperOptions) {
+  if (!options.hash["default"]) {
+    options.hash["default"] = WeaponType.Rifle;
   }
-  return std_enum_select(path, WeaponType, helper);
+  return std_enum_select(path, WeaponType, options);
 }
 
 /**
@@ -235,8 +235,8 @@ export function system_type_selector(path: string, options: HelperOptions) {
  * Handlebars partial for limited uses remaining
  * TODO: make look more like compcon
  */
-export function uses_control(uses_path: string, max_uses: number, helper: HelperOptions) {
-  const curr_uses = resolve_helper_dotpath(helper, uses_path, 0);
+export function uses_control(uses_path: string, max_uses: number, options: HelperOptions) {
+  const curr_uses = resolve_helper_dotpath(options, uses_path, 0);
   return `
     <div class="card clipped">
       <span class="lancer-header"> USES </span>
@@ -245,20 +245,20 @@ export function uses_control(uses_path: string, max_uses: number, helper: Helper
     `;
 }
 
-export function npc_feature_preview(npc_feature_path: string, helper: HelperOptions) {
-  let feature: LancerNPC_FEATURE = resolve_helper_dotpath(helper, npc_feature_path);
+export function npc_feature_preview(npc_feature_path: string, options: HelperOptions) {
+  let feature: LancerNPC_FEATURE = resolve_helper_dotpath(options, npc_feature_path);
 
   switch (feature.system.type) {
     case "Reaction":
-      return npc_reaction_effect_preview(npc_feature_path, helper);
+      return npc_reaction_effect_preview(npc_feature_path, options);
     case "System":
-      return npc_system_effect_preview(npc_feature_path, helper);
+      return npc_system_effect_preview(npc_feature_path, options);
     case "Trait":
-      return npc_trait_effect_preview(npc_feature_path, helper);
+      return npc_trait_effect_preview(npc_feature_path, options);
     case "Tech":
-      return npc_tech_effect_preview(npc_feature_path, helper);
+      return npc_tech_effect_preview(npc_feature_path, options);
     case "Weapon":
-      return npc_weapon_effect_preview(npc_feature_path, helper);
+      return npc_weapon_effect_preview(npc_feature_path, options);
     default:
       return "bad feature";
   }
@@ -269,8 +269,8 @@ export function npc_feature_preview(npc_feature_path: string, helper: HelperOpti
  * - bonuses=<bonus array to pre-populate with>.
  * Displays a list of bonuses, with buttons to add/delete (if edit true)
  */
-export function bonuses_display(bonuses_path: string, edit: boolean, helper: HelperOptions) {
-  let bonuses_array: BonusData[] = resolve_helper_dotpath(helper, bonuses_path);
+export function bonuses_display(bonuses_path: string, edit: boolean, options: HelperOptions) {
+  let bonuses_array: BonusData[] = resolve_helper_dotpath(options, bonuses_path);
   let items: string[] = [];
 
   // Render each bonus
@@ -352,9 +352,12 @@ export function single_action_editor(path: string, options: HelperOptions) {
 }
 
 // Helper for showing a piece of armor, or a slot to hold it (if path is provided)
-export function pilot_armor_slot(armor_path: string, helper: HelperOptions): string {
+export function pilot_armor_slot(armor_path: string, options: HelperOptions): string {
   // Fetch the item
-  let armor: SystemTemplates.ResolvedEmbeddedRef<LancerPILOT_ARMOR> | null = resolve_helper_dotpath(helper, armor_path);
+  let armor: SystemTemplates.ResolvedEmbeddedRef<LancerPILOT_ARMOR> | null = resolve_helper_dotpath(
+    options,
+    armor_path
+  );
 
   // Generate commons
   if (!armor?.value) {
@@ -418,10 +421,10 @@ export function pilot_armor_slot(armor_path: string, helper: HelperOptions): str
 }
 
 // Helper for showing a pilot weapon, or a slot to hold it (if path is provided)
-export function pilot_weapon_refview(weapon_path: string, helper: HelperOptions): string {
+export function pilot_weapon_refview(weapon_path: string, options: HelperOptions): string {
   // Fetch the item
   let weapon: SystemTemplates.ResolvedEmbeddedRef<LancerPILOT_WEAPON> | null = resolve_helper_dotpath(
-    helper,
+    options,
     weapon_path
   );
 
@@ -465,9 +468,9 @@ export function pilot_weapon_refview(weapon_path: string, helper: HelperOptions)
           <i class="fas fa-dice-d20 i--sm i--dark"></i>
           
         </a>
-        ${show_range_array(weapon.value.system.range, helper)}
+        ${show_range_array(weapon.value.system.range, options)}
         <hr class="vsep">
-        ${show_damage_array(weapon.value.system.damage, helper)}
+        ${show_damage_array(weapon.value.system.damage, options)}
         
         ${inc_if(`<hr class="vsep"><div class="uses-wrapper">`, loading || limited)}
         <!-- Loading toggle, if we are loading-->
@@ -483,10 +486,10 @@ export function pilot_weapon_refview(weapon_path: string, helper: HelperOptions)
 }
 
 // Helper for showing a pilot gear, or a slot to hold it (if path is provided)
-export function pilot_gear_refview(gear_path: string, helper: HelperOptions): string {
+export function pilot_gear_refview(gear_path: string, options: HelperOptions): string {
   // Fetch the item
   let gear = resolve_dotpath(
-    helper.data?.root,
+    options.data?.root,
     gear_path
   ) as SystemTemplates.ResolvedEmbeddedRef<LancerPILOT_GEAR> | null;
 
@@ -534,9 +537,9 @@ export function pilot_gear_refview(gear_path: string, helper: HelperOptions): st
 }
 
 // Helper for showing a reserve, or a slot to hold it (if path is provided)
-export function reserve_refview(reserve_path: string, helper: HelperOptions): string {
+export function reserve_refview(reserve_path: string, options: HelperOptions): string {
   // Fetch the item
-  let reserve = resolve_helper_dotpath(helper, reserve_path) as LancerRESERVE | null;
+  let reserve = resolve_helper_dotpath(options, reserve_path) as LancerRESERVE | null;
 
   // Generate commons
   if (!reserve) {
@@ -590,7 +593,7 @@ export function reserve_refview(reserve_path: string, helper: HelperOptions): st
   }
   let uses = "";
   if (reserve.system.consumable) {
-    uses = reserve_used_indicator(reserve_path, helper);
+    uses = reserve_used_indicator(reserve_path, options);
   }
 
   return `<div class="set ${EntryType.RESERVE} ref drop-settable card clipped macroable item"
@@ -621,7 +624,7 @@ export function reserve_refview(reserve_path: string, helper: HelperOptions): st
 export function mech_loadout_weapon_slot(
   weapon_path: string,
   options: HelperOptions,
-  registry?: CollapseRegistry,
+  collapse?: CollapseRegistry,
   size?: FittingSize
 ): string {
   // Fetch the item(s)
@@ -661,11 +664,11 @@ export function mech_loadout_weapon_slot(
   }
 
   let collapseID;
-  if (registry != null) {
+  if (collapse != null) {
     // On sheet, enable collapse.
-    if (registry[weapon.system.lid] == null) registry[weapon.system.lid] = 0;
+    if (collapse[weapon.system.lid] == null) collapse[weapon.system.lid] = 0;
 
-    let collapseNumCheck = ++registry[weapon.system.lid];
+    let collapseNumCheck = ++collapse[weapon.system.lid];
     collapseID = `${weapon.system.lid}_${collapseNumCheck}`;
   }
 
@@ -844,8 +847,8 @@ export function weapon_mod_ref(mod_path: string, weapon_path: string | null, opt
 
 // A specific ref helper focused on displaying manufacturer info.
 /*
-export function manufacturer_ref(source_path: string, helper: HelperOptions): string {
-  let source_: Manufacturer | null = resolve_helper_dotpath(helper, source_path);
+export function manufacturer_ref(source_path: string, options: HelperOptions): string {
+  let source_: Manufacturer | null = resolve_helper_dotpath(options, source_path);
   let cd = ref_doc_common_attrs(source_);
   // TODO? maybe do a little bit more here, aesthetically speaking
   if (cd) {
@@ -869,8 +872,8 @@ export function manufacturer_ref(source_path: string, helper: HelperOptions): st
 
 // A specific ref helper focused on displaying license info.
 // This if for display purposes and does not provide editable fields
-export function license_ref(item_path: string, helper: HelperOptions): string {
-  let license = resolve_helper_dotpath(helper, item_path) as LancerLICENSE;
+export function license_ref(item_path: string, options: HelperOptions): string {
+  let license = resolve_helper_dotpath(options, item_path) as LancerLICENSE;
   return `
     <li class="card clipped item macroable ref set" ${ref_params(license)}>
       <div class="lancer-header lancer-license-header medium clipped-top" style="grid-area: 1/1/2/3">
