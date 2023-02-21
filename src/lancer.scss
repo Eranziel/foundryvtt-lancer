@@ -183,6 +183,10 @@ button {
   background-color: var(--main-theme-color, fuchsia);
   margin: 10px;
   color: white;
+
+  &.inactive-mech {
+    background-color: var(--secondary-theme-color, fuchsia);
+  }
 }
 
 .lancer.sheet header .details {
@@ -2232,7 +2236,7 @@ a.action {
     background-color: var(--main-theme-color, fuchsia);
   }
   &.inactive {
-    background-color: var(--ref-color, fuchsia);
+    background-color: var(--secondary-theme-color, fuchsia);
   }
 }
 

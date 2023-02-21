@@ -26,22 +26,29 @@ export class EffectHelper {
   constructor(private readonly actor: LancerActor) {}
 
   // Set the expected effects for a given uuid
-  setEphemeralEffects(uuid: string, data: LancerActiveEffectConstructorData[]): void {
+  // Kick off an update if update == true
+  setEphemeralEffects(uuid: string, data: LancerActiveEffectConstructorData[], update: boolean): void {
     this.#expectedEffects.set(uuid, data);
-    this.#trySynchronize();
+    if (update) {
+      this.#trySynchronize();
+    }
   }
 
   // Update our effects for the given item
-  setEphemeralEffectsFromItem(item: LancerItem) {
+  // Kick off an update if update == true
+  setEphemeralEffectsFromItem(item: LancerItem, update: boolean) {
     let uuid = item.uuid;
     let data = item._generatedEffectTracker.curr_value;
-    this.setEphemeralEffects(uuid, data);
+    this.setEphemeralEffects(uuid, data, update);
   }
 
   // Clear the expected effects for a given uuid
-  clearEphemeralEffects(uuid: string): void {
+  // Kick off an update if update == true
+  clearEphemeralEffects(uuid: string, update: boolean): void {
     this.#expectedEffects.set(uuid, []); // Don't actually delete it yet! That will occur in synchronize
-    this.#trySynchronize();
+    if (update) {
+      this.#trySynchronize();
+    }
   }
 
   // Attempts to set all of our effects to rights
@@ -155,11 +162,16 @@ export class EffectHelper {
   /**
    * Sends appropriate active effects to "children".
    * Utilizes passdown effect tracker to minimize how often we actually send it. As such, feel free to call it as often as you want
+   * @param update Whether this operation can/should cause updates
+   * @param force If update is also true, whether we should force effect re-creation
    * TODO: Minimally update???
    * Debounced
    */
-  propagateEffects = foundry.utils.debounce((force: boolean = false) => this.propagateEffectsInner(force), 500);
-  propagateEffectsInner(force: boolean = false) {
+  propagateEffects = foundry.utils.debounce(
+    (cause_updates: boolean, force: boolean = false) => this.propagateEffectsInner(cause_updates, force),
+    500
+  );
+  propagateEffectsInner(update: boolean, force: boolean = false) {
     if (!force && !this.actor._passdownEffectTracker.isDirty) {
       console.log("Skipping a propagate");
       return;
@@ -176,7 +188,7 @@ export class EffectHelper {
         c.flags.lancer.deep_origin = c.origin;
         c.origin = this.actor.uuid;
       });
-      target.effectHelper.setEphemeralEffects(this.actor.uuid, changes);
+      target.effectHelper.setEphemeralEffects(this.actor.uuid, changes, update);
     };
 
     // Call this whenever update this actors stats in any meaningful way

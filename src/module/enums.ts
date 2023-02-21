@@ -396,6 +396,7 @@ export enum ActivePeriod {
   Turn = "Turn",
   Round = "Round",
   Encounter = "Encounter",
+  Scene = "Scene",
   Mission = "Mission",
   Unlimited = "Unlimited",
 }

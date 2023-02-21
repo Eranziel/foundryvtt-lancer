@@ -440,7 +440,26 @@ export class LancerActor extends Actor {
    */
   protected _onUpdate(...[changed, options, user]: Parameters<Actor["_onUpdate"]>) {
     super._onUpdate(changed, options, user);
-    if (game.userId != user || !this.isOwner) {
+    let i_did_this = game.userId == user;
+
+    // If changing active mech, force a propagate, and force all mechs to render
+    if ((changed as any).system?.active_mech !== undefined) {
+      this.effectHelper.propagateEffects(i_did_this, true);
+      // @ts-expect-error
+      let owned_mechs = game.actors?.filter(a => a.is_mech() && a.system.pilot?.value == this);
+      owned_mechs?.forEach(m => m.render());
+    }
+
+    // First try to regenerate our innate effect. If this is a no-op, it won't actually do any db operations
+    if (this.is_pilot()) {
+      // TODO - experiment with how the behaves with multiple users given that we currently only trigger this when the editing user
+      // In theory we might need a "no-op" set ephemeral effects, that tells it what it oughj
+      this.effectHelper.setEphemeralEffects(this.uuid, [pilotInnateEffect(this)], i_did_this);
+    }
+
+    // All other changes we want to only be handled by this user who actually triggered the effect
+    // This is to prevent duplicate work + avoid permissions errors + they started it and should handle structuring/stressing
+    if (!i_did_this) {
       return;
     }
 
@@ -449,23 +468,14 @@ export class LancerActor extends Actor {
     // Remove unresolved references.
     this.loadoutHelper.cleanupUnresolvedReferences();
 
-    // First try to regenerate our innate effect. If this is a no-op, it won't actually do any db operations
-    if (this.is_pilot()) {
-      this.effectHelper.setEphemeralEffects(this.uuid, [pilotInnateEffect(this)]);
-    }
-
     // Then re-asset all of our item effects
     for (let item of this.items.contents) {
       if (item.isEquipped()) {
-        this.effectHelper.setEphemeralEffectsFromItem(item);
+        this.effectHelper.setEphemeralEffectsFromItem(item, i_did_this);
       } else {
-        this.effectHelper.clearEphemeralEffects(item.uuid);
+        this.effectHelper.clearEphemeralEffects(item.uuid, i_did_this);
       }
     }
-
-    // If changing active mech, force a propagate
-    if ((changed as any).system?.active_mech) this.effectHelper.propagateEffects(true);
-
     // Check for overheating / structure
     if (
       getAutomationOptions().structure &&
@@ -518,19 +528,17 @@ export class LancerActor extends Actor {
     user: string
   ) {
     super._onCreateEmbeddedDocuments(embeddedName, documents, result, options, user);
-    if (game.userId != user) {
-      return;
-    }
+    let cause_updates = game.userId == user;
 
     // Create effects from new items
     if (embeddedName == "Item") {
       for (let item of documents as LancerItem[]) {
         if (item.isEquipped()) {
-          this.effectHelper.setEphemeralEffectsFromItem(item);
+          this.effectHelper.setEphemeralEffectsFromItem(item, cause_updates); // Update the effects this item creates
         }
       }
     } else {
-      this.effectHelper.propagateEffects(); // Effects have changed
+      this.effectHelper.propagateEffects(cause_updates); // Effects have changed - need to propagate
     }
   }
 
@@ -543,19 +551,17 @@ export class LancerActor extends Actor {
     user: string
   ) {
     super._onUpdateEmbeddedDocuments(embeddedName, documents, result, options, user);
-    if (game.userId != user) {
-      return;
-    }
+    let cause_updates = game.userId == user;
 
     // (Possibly) update effects from updated items, if the effects they provide have changed & item is equipped
     if (embeddedName == "Item") {
       for (let item of documents as LancerItem[]) {
         if (item.isEquipped() && item._generatedEffectTracker.isDirty) {
-          this.effectHelper.setEphemeralEffectsFromItem(item);
+          this.effectHelper.setEphemeralEffectsFromItem(item, cause_updates); // Update the effects this item creates
         }
       }
     } else {
-      this.effectHelper.propagateEffects(); // Effects have changed
+      this.effectHelper.propagateEffects(cause_updates); // Effects have changed - need to propagate
     }
   }
 
@@ -568,25 +574,24 @@ export class LancerActor extends Actor {
     user: string
   ) {
     super._onDeleteEmbeddedDocuments(embeddedName, documents, result, options, user);
-    // Mark them all as deleted
+    // Mark them all as deleted for delete-deduplication purposes
     for (let doc of documents) {
       deleteIdCache.add(doc.uuid);
     }
     deleteIdCacheCleanup();
 
-    // Only continue if we did this
-    if (game.userId != user) {
-      return;
-    }
+    let cause_updates = game.userId == user;
 
     // Clear effects from deleted items
     if (embeddedName == "Item") {
       for (let item of documents as LancerItem[]) {
-        this.effectHelper.clearEphemeralEffects(item.uuid);
+        this.effectHelper.clearEphemeralEffects(item.uuid, cause_updates);
       }
-      this.loadoutHelper.cleanupUnresolvedReferences();
+      if (cause_updates) {
+        this.loadoutHelper.cleanupUnresolvedReferences();
+      }
     } else {
-      this.effectHelper.propagateEffects(); // Effects have changed
+      this.effectHelper.propagateEffects(cause_updates); // Effects have changed
       // Warn if it appears that a user has tried to delete a managed effect
       if (!this.effectHelper._deletingEffect) {
         for (let doc of documents as LancerActiveEffect[]) {

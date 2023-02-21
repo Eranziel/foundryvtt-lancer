@@ -273,7 +273,9 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
   async getData(): Promise<LancerActorSheetData<EntryType.MECH>> {
     let data = await super.getData();
     // @ts-expect-error
-    data.pilot = await this.actor.system.pilot?.value;
+    data.pilot = this.actor.system.pilot?.value;
+    // @ts-expect-error
+    data.is_active = this.actor.system.pilot?.value?.system.active_mech?.value == this.actor;
     // data.pilot = await this.actor.system.pilot;
     return data;
   }

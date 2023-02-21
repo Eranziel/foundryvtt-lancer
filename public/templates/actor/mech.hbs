@@ -1,12 +1,13 @@
 <form class="{{cssClass}} lancer-sheet" autocomplete="off">
   {{! Sheet Header }}
   <div>
-    <header class="sheet-header card clipped-bot">
-      <div grow>
+    <header class="sheet-header card clipped-bot {{#if (not is_active)}}inactive-mech{{/if}}">
+      <div>
         <h1 class="charname">
           <input class="header-field" name="name" type="text" value="{{actor.name}}" placeholder="{{localize "
             lancer.placeholder.name"}}" />
         </h1>
+        {{#if (not is_active)}}<span>WARNING: INACTIVE MECH - PILOT BONUSES NOT TRACKED</span>{{/if}}
       </div>
       {{{ref-portrait-img actor.img "img" actor}}}
     </header>

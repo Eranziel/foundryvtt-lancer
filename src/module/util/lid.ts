@@ -31,6 +31,11 @@ export async function lookupLIDPlural(
     result.push(...newDocs);
     if (short_circuit && result.length) break;
   }
+
+  if (result.length == 0) {
+    ui.notifications?.error(`Error looking up LID '${lid}'. Ensure you have all required LCPs for this actor.`);
+  }
+
   return result;
 }
 
