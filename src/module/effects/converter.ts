@@ -176,7 +176,7 @@ export function pilotInnateEffect(pilot: LancerPILOT): LancerActiveEffectConstru
         key: "system.loadout.sp.max",
         priority: PILOT_STAT_PRIORITY,
         // @ts-expect-error
-        value: Math.floor(pilot.system.sys / 2),
+        value: Math.floor(pilot.system.sys / 2) + pilot.system.grit,
       },
       {
         mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
