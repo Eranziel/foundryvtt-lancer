@@ -105,7 +105,7 @@ export class StrussHelper {
           let macroData = encodeMacroData({
             title: "Engineering",
             fn: "prepareStatMacro",
-            args: [this.actor.id, "system.eng"],
+            args: [this.actor.uuid, "system.eng"],
           });
 
           secondaryRoll = `<button class="chat-button chat-macro-button" data-macro="${macroData}"><i class="fas fa-dice-d20"></i> Engineering</button>`;
@@ -244,7 +244,7 @@ export class StrussHelper {
           let macroData = encodeMacroData({
             title: "Hull",
             fn: "prepareStatMacro",
-            args: [this.actor.id, "system.hull"],
+            args: [this.actor.uuid, "system.hull"],
           });
 
           secondaryRoll = `<button class="chat-button chat-macro-button" data-macro="${macroData}"><i class="fas fa-dice-d20"></i> Hull</button>`;
@@ -254,7 +254,7 @@ export class StrussHelper {
             // Since we can't change prepareTextMacro too much or break everyone's macros
             title: "Roll for Destruction",
             fn: "prepareStructureSecondaryRollMacro",
-            args: [this.actor.id],
+            args: [this.actor.uuid],
           });
 
           secondaryRoll = `<button class="chat-macro-button"><a class="chat-button" data-macro="${macroData}"><i class="fas fa-dice-d20"></i> Destroy</a></button>`;

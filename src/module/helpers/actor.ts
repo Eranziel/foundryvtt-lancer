@@ -347,7 +347,7 @@ export function overcharge_button(actor: LancerMECH, overcharge_path: string, op
         <span class="major">OVERCHARGE</span>
       </div>
       <div class="overcharge-container">
-        ${_rollable_macro_button(encodeOverchargeMacroData(actor.id!), { classes: "overcharge-macro" })}
+        ${_rollable_macro_button(encodeOverchargeMacroData(actor.uuid!), { classes: "overcharge-macro" })}
         <a class="overcharge-text">${over_val}</a>
         <a class="overcharge-reset mdi mdi-restore"></a>
       </div>

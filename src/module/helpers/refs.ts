@@ -275,7 +275,7 @@ export function item_preview<T extends LancerItemType>(
       iconPath: `systems/${game.system.id}/assets/icons/macro-icons/mech_system.svg`,
       title: doc.name!,
       fn: "prepareItemMacro",
-      args: [doc.actor?.id ?? "", doc.id],
+      args: [doc.actor?.uuid ?? "", doc.uuid],
     };
 
     let limited = "";
@@ -341,7 +341,7 @@ export function item_preview<T extends LancerItemType>(
         iconPath: `systems/${game.system.id}/assets/icons/macro-icons/talent.svg`,
         title: doc.system.ranks[i]?.name,
         fn: "prepareTalentMacro",
-        args: [doc.actor?.id ?? "", doc.id, i],
+        args: [doc.actor?.uuid ?? "", doc.uuid, i],
       };
 
       retStr += `<li class="talent-rank-compact card clipped" style="padding: 5px">

@@ -260,7 +260,7 @@ function buildFrameTrait(actor: LancerActor, trait: LancerFRAME["system"]["trait
     title: trait.name,
     iconPath: `systems/${game.system.id}/assets/icons/macro-icons/trait.svg`,
     fn: "prepareFrameTraitMacro",
-    args: [actor.id, index],
+    args: [actor.uuid, index],
   };
 
   return `<div class="frame-trait clipped-top">
@@ -298,7 +298,7 @@ function frame_active(actor: LancerActor, core: LancerFRAME["system"]["core_syst
     title: `${actor.name} | CORE POWER`,
     iconPath: `systems/${game.system.id}/assets/icons/macro-icons/corebonus.svg`,
     fn: "prepareCoreActiveMacro",
-    args: [actor.id],
+    args: [actor.uuid],
   };
 
   return `

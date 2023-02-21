@@ -246,7 +246,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
 
       const el = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
 
-      let id = this.token && !this.token.isLinked ? this.token.id! : this.actor.id!;
+      let id = this.token && !this.token.isLinked ? this.token.actor?.uuid! : this.actor.uuid!;
       prepareItemMacro(id, el.dataset.uuid!);
     });
 
@@ -263,9 +263,9 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       const deployable = parseInt(el.dataset.deployable ?? "");
 
       if (!Number.isNaN(activation)) {
-        prepareActivationMacro(this.actor.id!, item, ActivationOptions.ACTION, activation);
+        prepareActivationMacro(this.actor.uuid!, item, ActivationOptions.ACTION, activation);
       } else if (!Number.isNaN(deployable)) {
-        prepareActivationMacro(this.actor.id!, item, ActivationOptions.DEPLOYABLE, deployable);
+        prepareActivationMacro(this.actor.uuid!, item, ActivationOptions.DEPLOYABLE, deployable);
       }
     });
 
@@ -312,7 +312,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       iconPath: `systems/${game.system.id}/assets/icons/macro-icons/mech_system.svg`,
       title: title!,
       fn: "prepareActivationMacro",
-      args: [this.actor.id!, itemId, activationOption, activationIndex],
+      args: [this.actor.uuid!, itemId, activationOption, activationIndex],
     };
 
     event.dataTransfer?.setData("text/plain", JSON.stringify(macroData));

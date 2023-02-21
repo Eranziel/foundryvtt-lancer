@@ -10,11 +10,11 @@ import { SystemData } from "../system-template";
 
 const lp = LANCER.log_prefix;
 
-export function encodeOverchargeMacroData(actor_id: string): string {
+export function encodeOverchargeMacroData(actor_uuid: string): string {
   return encodeMacroData({
     title: "OVERCHARGE",
     fn: "prepareOverchargeMacro",
-    args: [actor_id],
+    args: [actor_uuid],
     iconPath: `systems/${game.system.id}/assets/icons/macro-icons/overcharge.svg`,
   });
 }
