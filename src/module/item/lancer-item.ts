@@ -149,6 +149,16 @@ export class LancerItem extends Item {
       this.system.active_profile = this.system.profiles[this.system.selected_profile] ?? this.system.profiles[0];
     }
 
+    // Talent apply unlocked items
+    if (this.is_talent()) {
+      let unlocked_ranks = this.system.ranks.slice(0, this.system.curr_rank);
+      this.system.actions = unlocked_ranks.flatMap(a => a.actions);
+      this.system.bonuses = unlocked_ranks.flatMap(a => a.bonuses);
+      this.system.counters = unlocked_ranks.flatMap(a => a.counters);
+      this.system.synergies = unlocked_ranks.flatMap(a => a.synergies);
+      // TODO - handle exclusive
+    }
+
     // Apply limited max from tags, as applicable
     let tags = this.get_tags() ?? [];
     let lim_tag = tags.find(t => t.is_limited);
@@ -211,15 +221,11 @@ export class LancerItem extends Item {
       case EntryType.MECH_SYSTEM:
       case EntryType.WEAPON_MOD:
       case EntryType.CORE_BONUS:
+      case EntryType.TALENT:
         bonuses = (this as any).system.bonuses;
         break;
       case EntryType.MECH_WEAPON:
         bonuses = (this as unknown as LancerMECH_WEAPON).system.active_profile.bonuses;
-        break;
-      case EntryType.TALENT:
-        bonuses = (this as unknown as LancerTALENT).system.ranks
-          .slice(0, (this as unknown as LancerTALENT).system.curr_rank)
-          .flatMap(r => r.bonuses);
         break;
     } // Nothing else needs particular care
 

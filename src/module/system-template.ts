@@ -542,8 +542,9 @@ export namespace SystemData {
 
     // Flattened lists, computed
     actions: ActionData[]; // All unlocked actions
-    synergies: ActionData[]; // All unlocked synergies
-    counters: ActionData[]; // All unlocked counters
+    bonuses: BonusData[]; // All unlocked bonuses
+    synergies: SynergyData[]; // All unlocked synergies
+    counters: CounterData[]; // All unlocked counters
   }
   export interface WeaponMod
     extends SystemTemplates.item_universal,
