@@ -454,7 +454,7 @@ export class LancerActor extends Actor {
     if (this.is_pilot()) {
       // TODO - experiment with how the behaves with multiple users given that we currently only trigger this when the editing user
       // In theory we might need a "no-op" set ephemeral effects, that tells it what it oughj
-      this.effectHelper.setEphemeralEffects(this.uuid, [pilotInnateEffect(this)], i_did_this);
+      this.effectHelper.setEphemeralEffects(this.uuid, [pilotInnateEffect(this)], i_did_this, false);
     }
 
     // All other changes we want to only be handled by this user who actually triggered the effect
@@ -609,7 +609,11 @@ export class LancerActor extends Actor {
    * Delete an active effect(s) without worrying if its been deleted before.
    * There is still technically an _exceedingly_ narrow window in which we can get duplicate deletion of effects, but this mitigates it
    */
-  async _safeDeleteEmbedded(collection: "Item" | "ActiveEffect", ...effects: ActiveEffect[] | Item[]): Promise<any> {
+  async _safeDeleteEmbedded(
+    collection: "Item" | "ActiveEffect",
+    effects: ActiveEffect[] | Item[],
+    options?: DocumentModificationContext
+  ): Promise<any> {
     if (!effects.length) return;
     let toDelete = [];
     for (let e of effects) {
@@ -620,7 +624,7 @@ export class LancerActor extends Actor {
       }
     }
     deleteIdCacheCleanup();
-    return this.deleteEmbeddedDocuments(collection, toDelete);
+    return this.deleteEmbeddedDocuments(collection, toDelete, options);
   }
 
   // Typeguards

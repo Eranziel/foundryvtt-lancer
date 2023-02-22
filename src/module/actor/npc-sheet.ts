@@ -169,7 +169,7 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
           ...old_class.system.base_features,
           ...old_class.system.optional_features,
         ]);
-        await this.actor._safeDeleteEmbedded("Item", old_class, ...class_features);
+        await this.actor._safeDeleteEmbedded("Item", [old_class, ...class_features]);
       }
 
       // And add all new features

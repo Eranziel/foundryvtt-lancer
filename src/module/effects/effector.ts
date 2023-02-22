@@ -3,6 +3,11 @@ import { EntryType } from "../enums";
 import { LancerItem } from "../item/lancer-item";
 import { LancerActiveEffect, LancerActiveEffectConstructorData } from "./lancer-active-effect";
 
+interface EffectsState {
+  data: LancerActiveEffectConstructorData[];
+  visible: boolean;
+}
+
 /**
  * A helper class purposed with managing active effects on a particular actor
  *
@@ -11,7 +16,7 @@ export class EffectHelper {
   /**
    * Maps uuid -> list of associated effects managed by this effector
    */
-  #expectedEffects: Map<string, LancerActiveEffectConstructorData[]> = new Map();
+  #expectedEffects: Map<string, EffectsState> = new Map();
 
   // Our current effect management task
   #currTask: Promise<any> | null = null;
@@ -27,8 +32,14 @@ export class EffectHelper {
 
   // Set the expected effects for a given uuid
   // Kick off an update if update == true
-  setEphemeralEffects(uuid: string, data: LancerActiveEffectConstructorData[], update: boolean): void {
-    this.#expectedEffects.set(uuid, data);
+  // If render, then the update will require redraw. Multiple accumulated renders
+  setEphemeralEffects(
+    uuid: string,
+    data: LancerActiveEffectConstructorData[],
+    update: boolean,
+    visible: boolean = true
+  ): void {
+    this.#expectedEffects.set(uuid, { data, visible });
     if (update) {
       this.#trySynchronize();
     }
@@ -36,16 +47,19 @@ export class EffectHelper {
 
   // Update our effects for the given item
   // Kick off an update if update == true
-  setEphemeralEffectsFromItem(item: LancerItem, update: boolean) {
+  setEphemeralEffectsFromItem(item: LancerItem, update: boolean, visible: boolean = true) {
     let uuid = item.uuid;
     let data = item._generatedEffectTracker.curr_value;
-    this.setEphemeralEffects(uuid, data, update);
+    this.setEphemeralEffects(uuid, data, update, visible);
   }
 
   // Clear the expected effects for a given uuid
   // Kick off an update if update == true
-  clearEphemeralEffects(uuid: string, update: boolean): void {
-    this.#expectedEffects.set(uuid, []); // Don't actually delete it yet! That will occur in synchronize
+  clearEphemeralEffects(uuid: string, update: boolean, visible: boolean = true): void {
+    this.#expectedEffects.set(uuid, {
+      data: [],
+      visible,
+    }); // Don't actually delete it yet! That will occur in synchronize
     if (update) {
       this.#trySynchronize();
     }
@@ -61,11 +75,14 @@ export class EffectHelper {
   }
 
   // Make sure that all of our managedEffects match what they ought to be. Debounced by 100ms
-  #synchronize = foundry.utils.debounce(() => this.#synchronizeInner(), 100);
-  #synchronizeInner() {
+  #synchronize() {
     this.#currTask = new Promise<void>(async (succ, rej) => {
       let done = false;
       while (!done) {
+        // Sleep 100 ms
+        await new Promise(s => setTimeout(s, 100));
+        this.#dirty = false; // We're going
+
         // Build a mapping of current effects -> uuid
         let currOriginMap = new Map<string, LancerActiveEffect[]>();
         for (let eff of this.actor.effects.contents) {
@@ -84,7 +101,7 @@ export class EffectHelper {
           currEffects = currEffects.filter(e => e._typedFlags.lancer?.ephemeral === true);
 
           // If desired zero effects, then remove from expected effects. MUST occur before we await anything to avoid a race condition
-          if (evs.length == 0) toClear.push(uuid);
+          if (evs.data.length == 0) toClear.push(uuid);
 
           // Perform reconcile
           await this.#reconcileEffects(currEffects, evs);
@@ -102,27 +119,27 @@ export class EffectHelper {
     });
   }
 
-  async #reconcileEffects(currEffects: LancerActiveEffect[], desiredEffects: LancerActiveEffectConstructorData[]) {
+  async #reconcileEffects(currEffects: LancerActiveEffect[], desiredEffects: EffectsState) {
     // First, if presently have too many effects, prune it back
-    if (currEffects.length > desiredEffects.length) {
-      let toDelete = currEffects.slice(desiredEffects.length);
+    if (currEffects.length > desiredEffects.data.length) {
+      let toDelete = currEffects.slice(desiredEffects.data.length);
       this._deletingEffect = true;
-      await this.actor._safeDeleteEmbedded("ActiveEffect", ...toDelete);
+      await this.actor._safeDeleteEmbedded("ActiveEffect", toDelete, { render: desiredEffects.visible });
       this._deletingEffect = false;
     }
 
     // Then, update existing effects in-place to match new desired data
-    let inPlaceUpdates = foundry.utils.duplicate(desiredEffects.slice(0, currEffects.length));
+    let inPlaceUpdates = foundry.utils.duplicate(desiredEffects.data.slice(0, currEffects.length));
     if (inPlaceUpdates.length) {
       inPlaceUpdates.forEach((ipu, index) => (ipu._id = currEffects[index].id)); // Tell them "I should update this existing effect"
-      await this.actor.updateEmbeddedDocuments("ActiveEffect", inPlaceUpdates);
+      await this.actor.updateEmbeddedDocuments("ActiveEffect", inPlaceUpdates, { render: desiredEffects.visible });
     }
 
     // Finally, if our desired exceed what we could handle by editing existing, add any new effects as necessary
-    if (currEffects.length < desiredEffects.length) {
-      let toAdd = desiredEffects.slice(currEffects.length);
+    if (currEffects.length < desiredEffects.data.length) {
+      let toAdd = desiredEffects.data.slice(currEffects.length);
       // @ts-expect-error
-      await this.actor.createEmbeddedDocuments("ActiveEffect", toAdd);
+      await this.actor.createEmbeddedDocuments("ActiveEffect", toAdd, { render: desiredEffects.visible });
     }
   }
 
@@ -173,10 +190,8 @@ export class EffectHelper {
   );
   propagateEffectsInner(update: boolean, force: boolean = false) {
     if (!force && !this.actor._passdownEffectTracker.isDirty) {
-      console.log("Skipping a propagate");
       return;
     }
-    console.log("Performing a propagate");
     const propagateTo = (target: LancerActor) => {
       console.debug(`Actor ${this.actor.name} propagating effects to ${target.name}`);
       // Add new from this pilot
@@ -233,9 +248,9 @@ export class EffectHelper {
    */
   async removeAllStatuses() {
     let effects_to_delete = this.actor.effects.filter(e => e.sourceName === "None");
-    await this.actor._safeDeleteEmbedded("ActiveEffect", ...effects_to_delete);
+    await this.actor._safeDeleteEmbedded("ActiveEffect", effects_to_delete);
     let items_to_delete = this.actor.items.filter(i => i.is_status());
-    await this.actor._safeDeleteEmbedded("Item", ...items_to_delete);
+    await this.actor._safeDeleteEmbedded("Item", items_to_delete);
   }
   /**
    * Locates an ActiveEffect on the Actor by name and removes it if present.

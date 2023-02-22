@@ -163,7 +163,7 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
       let toDelete = pilot_item_pool.filter(x =>
         [EntryType.TALENT, EntryType.SKILL, EntryType.CORE_BONUS].includes(x.type!)
       );
-      await pilot._safeDeleteEmbedded("Item", ...toDelete);
+      await pilot._safeDeleteEmbedded("Item", toDelete);
     }
 
     // Perform base pilot update
