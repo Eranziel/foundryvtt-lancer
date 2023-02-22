@@ -14,8 +14,8 @@ import {
 } from "../item/lancer-item";
 import { array_path_edit_changes, drilldownDocument, resolve_helper_dotpath } from "./commons";
 import { FoundryDropData, HANDLER_enable_doc_dropping, HANDLER_enable_dragging, ResolvedDropData } from "./dragdrop";
-import { license_ref, mech_weapon_display as mechWeaponView, npc_feature_preview } from "./item";
-import { mech_system_view as mechSystemView } from "./loadout";
+import { framePreview, license_ref, mech_weapon_display as mechWeaponView, npc_feature_preview } from "./item";
+import { frameView as loadoutFrameView, mech_system_view as mechSystemView } from "./loadout";
 import { LancerDoc } from "../util/doc";
 import { EntryType, SystemType } from "../enums";
 import { LancerActor, LancerPILOT } from "../actor/lancer-actor";
@@ -179,6 +179,8 @@ export function item_preview<T extends LancerItemType>(
     return license_ref(item_path, options);
   } else if (doc.is_npc_feature()) {
     return npc_feature_preview(item_path, options);
+  } else if (doc.is_frame()) {
+    return framePreview(item_path, options);
   } else {
     // Basically the same as the simple ref card, but with control added
     return `

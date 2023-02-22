@@ -868,18 +868,19 @@ export function license_ref(item_path: string, options: HelperOptions): string {
     </li>`;
 }
 
-export function frame_ref(frame: LancerFRAME | null, item_path?: string): string {
+export function framePreview(path: string, options: HelperOptions): string {
+  let frame = resolve_helper_dotpath<LancerFRAME>(options, path);
   if (!frame) {
     return "";
   } else {
     let frame_img = encodeURI(frameToPath[frame.name!.toUpperCase()]);
     return `
-    <li class="card clipped item ref set" ${ref_params(frame)}>
+    <li class="card clipped item ref set click-open" ${ref_params(frame)}>
       <div class="compact-frame medium flexrow">
         <span class="img-bar" style="background-image: url(${frame_img})"></span>
         <div class="major modifier-name i--light">${frame.system.manufacturer} ${frame.name}</div>
         <div class="ref-controls">
-          <a class="lancer-context-menu" data-context-menu="${frame.type}" data-path="${item_path}"">
+          <a class="lancer-context-menu" data-context-menu="${frame.type}" data-path="${path}"">
             <i class="fas fa-ellipsis-v i--light"></i>
           </a>
         </div>
@@ -1140,7 +1141,7 @@ export function buildDeployableHTML(dep: LancerDEPLOYABLE, full?: boolean, num?:
 
 export function buildChipHTML(
   activation: ActivationType,
-  macroData?: { icon?: ChipIcons; num?: number; isDep?: boolean; fullData?: LancerMacroData }
+  macroData?: { icon?: ChipIcons; num?: number; isDep?: boolean; fullData?: LancerMacroData | null }
 ): string {
   if (macroData && (macroData?.fullData || macroData?.num !== undefined)) {
     if (!macroData.icon) macroData.icon = ChipIcons.Chat;
