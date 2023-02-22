@@ -233,14 +233,13 @@ export function pilot_slot(data_path: string, options: HelperOptions): string {
 /**
  * Builds HTML for a frame reference. Either an empty ref to give a drop target, or a preview
  * with traits and core system.
- * @param actor       Actor the ref belongs to.
- * @param frame_slot_path  Path to the frame slot's location in actor data.
- * @param helper      Standard helper options.
+ * @param frame_path  Path to the frame location
+ * @param options      Standard helper options.
  * @return            HTML for the frame reference, typically for inclusion in a mech sheet.
  */
-export function mech_frame_refview(actor: LancerActor, frame_slot_path: string, options: HelperOptions): string {
-  let frame = resolve_helper_dotpath<LancerFRAME | null>(options, frame_slot_path);
-  if (!frame) return simple_ref_slot(frame_slot_path, [EntryType.FRAME], options);
+export function frameView(frame_path: string, options: HelperOptions): string {
+  let frame = resolve_helper_dotpath<LancerFRAME | null>(options, frame_path);
+  if (!frame) return simple_ref_slot(frame_path, [EntryType.FRAME], options);
 
   return `
     <div class="card mech-frame ${ref_params(frame)}">
@@ -249,9 +248,9 @@ export function mech_frame_refview(actor: LancerActor, frame_slot_path: string, 
       </span>
       <div class="wraprow double">
         <div class="frame-traits flexcol">
-          ${frameTraits(actor, frame)}
+          ${frameTraits(frame)}
         </div>
-        ${inc_if(buildCoreSysHTML(actor, frame.system.core_system), frame.system.core_system)}
+        ${inc_if(buildCoreSysHTML(frame), frame.system.core_system)}
       </div>
     </div>
     `;
@@ -259,12 +258,12 @@ export function mech_frame_refview(actor: LancerActor, frame_slot_path: string, 
 
 /**
  * Builds HTML for a mech's core system.
- * @param actor   Mech actor which owns the core system.
- * @param core    The core system.
+ * @param frame   The frame
  * @return        HTML for the core system, typically for inclusion in a mech sheet.
  */
-function buildCoreSysHTML(actor: LancerActor, core: LancerFRAME["system"]["core_system"]): string {
+function buildCoreSysHTML(frame: LancerFRAME): string {
   let tags: string | undefined;
+  let core = frame.system.core_system;
   tags = compact_tag_list("", core.tags, false);
 
   // Removing desc temporarily because of space constraints
@@ -281,48 +280,43 @@ function buildCoreSysHTML(actor: LancerActor, core: LancerFRAME["system"]["core_
       <span>${core.name}</span> // CORE
       <i 
         class="mdi mdi-unfold-less-horizontal collapse-trigger collapse-icon" 
-        data-collapse-id="${actor.id}_coresys" > 
+        data-collapse-id="${frame.id}_core" > 
       </i>
     </div>
-    <div class="collapse" data-collapse-id="${actor.id}_coresys">
-      <div class="frame-active">${frame_active(actor, core)}</div>
+    <div class="collapse" data-collapse-id="${frame.id}_core">
+      <div class="frame-active">${frame_active(frame)}</div>
       ${passive}
       ${tags ? tags : ""}
     </div>
   </div>`;
 }
 
-function frameTraits(actor: LancerActor, frame: LancerFRAME): string {
+function frameTraits(frame: LancerFRAME): string {
   return frame.system.traits
-    .map((t, i) => {
-      return buildFrameTrait(actor, t, i);
-    })
-    .join("");
-}
+    .map((trait, index) => {
+      let actionHTML = trait.actions.map((a, i) => buildActionHTML(a, { full: true, num: i })).join("");
 
-function buildFrameTrait(actor: LancerActor, trait: LancerFRAME["system"]["traits"][0], index: number): string {
-  let actionHTML = trait.actions
-    .map((a, i) => {
-      return buildActionHTML(a, { full: true, num: i });
-    })
-    .join("");
-
-  let depHTML = "TODO deployables"; /* trait.deployables
+      let depHTML = "TODO deployables"; /* trait.deployables
     .map((d, i) => {
       return d.status == "resolved" ? buildDeployableHTML(d.value, true, i) : "";
     })
     .join("");*/
 
-  let macroData: LancerMacroData = {
-    title: trait.name,
-    iconPath: `systems/${game.system.id}/assets/icons/macro-icons/trait.svg`,
-    fn: "prepareFrameTraitMacro",
-    args: [actor.uuid, index],
-  };
+      let macroData: LancerMacroData | null = frame.actor
+        ? {
+            title: trait.name,
+            iconPath: `systems/${game.system.id}/assets/icons/macro-icons/trait.svg`,
+            fn: "prepareFrameTraitMacro",
+            args: [frame.actor.uuid, index],
+          }
+        : null;
 
-  return `<div class="frame-trait clipped-top">
+      return `<div class="frame-trait clipped-top">
     <div class="lancer-header submajor frame-trait-header" style="display: flex">
-      <a class="lancer-macro" data-macro="${encodeMacroData(macroData)}"><i class="mdi mdi-message"></i></a>
+      ${inc_if(
+        `<a class="lancer-macro" data-macro="${encodeMacroData(macroData!)}"><i class="mdi mdi-message"></i></a>`,
+        macroData
+      )}
       <span class="minor grow">${trait.name}</span>
     </div>
     <div class="lancer-body">
@@ -331,13 +325,12 @@ function buildFrameTrait(actor: LancerActor, trait: LancerFRAME["system"]["trait
       ${depHTML ? depHTML : ""}
     </div>
   </div>`;
+    })
+    .join("");
 }
 
-function frame_active(actor: LancerActor, core: LancerFRAME["system"]["core_system"]): string {
-  // So we have a CoreSystem with all the traits of an action inside itself as Active and Passive...
-  // And then it has whole other arrays for its actions
-  // :pain:
-
+function frame_active(frame: LancerFRAME): string {
+  let core = frame.system.core_system;
   let actionHTML = core.active_actions
     .map((a: ActionData, i: number | undefined) => {
       return buildActionHTML(a, { full: true, num: i });
@@ -351,12 +344,14 @@ function frame_active(actor: LancerActor, core: LancerFRAME["system"]["core_syst
     .join("");*/
 
   // Should find a better way to do this...
-  let coreMacroData: LancerMacroData = {
-    title: `${actor.name} | CORE POWER`,
-    iconPath: `systems/${game.system.id}/assets/icons/macro-icons/corebonus.svg`,
-    fn: "prepareCoreActiveMacro",
-    args: [actor.uuid],
-  };
+  let coreMacroData: LancerMacroData | null = frame.actor
+    ? {
+        title: `${frame.actor.name} | CORE POWER`,
+        iconPath: `systems/${game.system.id}/assets/icons/macro-icons/corebonus.svg`,
+        fn: "prepareCoreActiveMacro",
+        args: [frame.actor.uuid],
+      }
+    : null;
 
   return `
   <div class="core-active-wrapper clipped-top">

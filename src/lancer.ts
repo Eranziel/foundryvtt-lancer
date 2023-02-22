@@ -89,12 +89,9 @@ import {
   uses_control,
   buildCounterArrayHTML,
   loading_indicator,
-  weapon_mod_ref,
   buildDeployableHTML,
   buildActionFullHTML,
-  frame_ref,
-  npc_class_ref,
-  npc_template_ref,
+  framePreview,
   action_type_icon,
 } from "./module/helpers/item";
 import {
@@ -124,7 +121,7 @@ import {
   limited_uses_indicator,
   reserve_used_indicator,
 } from "./module/helpers/refs";
-import { mech_loadout, pilot_slot, mech_frame_refview } from "./module/helpers/loadout";
+import { mech_loadout, pilot_slot, frameView } from "./module/helpers/loadout";
 import {
   item_edit_arrayed_actions,
   item_edit_arrayed_damage,
@@ -583,7 +580,7 @@ Hooks.once("init", async function () {
   // ------------------------------------------------------------------------
   // Mech components
   Handlebars.registerHelper("mech-loadout", mech_loadout);
-  Handlebars.registerHelper("mech-frame", mech_frame_refview);
+  Handlebars.registerHelper("mech-frame", frameView);
 
   // ------------------------------------------------------------------------
   // NPC components

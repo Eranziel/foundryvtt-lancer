@@ -2,6 +2,7 @@ import type { LancerActor } from "../actor/lancer-actor";
 import { HANDLER_activate_general_controls } from "../helpers/commons";
 import { HANDLER_activate_ref_dragging, click_evt_open_ref } from "../helpers/refs";
 import { HANDLER_activate_item_context_menus } from "../helpers/item";
+import { applyCollapseListeners, initializeCollapses } from "../helpers/collapse";
 
 interface FilledCategory {
   label: string;
@@ -141,13 +142,15 @@ export class InventoryDialog extends Dialog {
   activateListeners(html: JQuery<HTMLElement>) {
     super.activateListeners(html);
 
+    initializeCollapses(html);
+    applyCollapseListeners(html);
+
     // Everything below here is only needed if the sheet is editable
     let getfunc = () => this.getData();
     let commitfunc = (_: any) => {};
 
     // Enable general controls, so items can be deleted and such
-    // TODO: This is going to probably cause an error every time it runs.
-    HANDLER_activate_general_controls(html, <any>getfunc, commitfunc);
+    HANDLER_activate_general_controls(html, this.actor);
 
     // Enable ref dragging
     HANDLER_activate_ref_dragging(html);
