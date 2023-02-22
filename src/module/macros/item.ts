@@ -6,7 +6,6 @@ import type {
   LancerTextMacroData,
   LancerReactionMacroData,
 } from "../interfaces";
-import { applyCollapseListeners } from "../helpers/collapse";
 import { getMacroSpeaker } from "./_util";
 import { prepareAttackMacro } from "./attack";
 import { rollReactionMacro } from "./reaction";
@@ -151,6 +150,4 @@ export async function prepareItemMacro(actorID: string, itemUUID: string, option
       console.log("No macro exists for that item type");
       return ui.notifications!.error(`Error - No macro exists for that item type`);
   }
-
-  applyCollapseListeners();
 }

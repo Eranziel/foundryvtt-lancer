@@ -1,3 +1,8 @@
+import { LancerActor } from "../actor/lancer-actor";
+import { LancerItem } from "../item/lancer-item";
+
+export type CollapseRegistry = { [LID: string]: number };
+
 export const COLLAPSE_KEY = "collapse_state";
 /** To make collapsible work on a sheet, that sheet must export as part of its getData() function an instance of this object,
  * under the key [COLLAPSE_KEY]
@@ -18,55 +23,79 @@ export class CollapseHandler {
   }
 }
 
-/** Enables clicking any `collapse-ctrl` will collapse any `collapse-item` if they have the same `collapse-id`.
- * Collapse id only needs to be unique within descendants of the provided JQuery, so no need to get too fancy with those mechanisms
+/**Generate a UID for the given collapse item
+ *
+ * */
+
+/**
+ * Generate a unique id for the given collapse item
+ * @param collapse Collapse ID registry to operate in
+ * @param doc The document / id we are generating a new ID based off of
+ * @param no_inc Whether we should re-use the previous index, if one exists. This allows consecutively generated IDs to be aliased to each other - they will collapse each other
  */
-export function HANDLER_activate_collapsibles(html: JQuery, handler: CollapseHandler) {
-  // Perform initial state setting
-  $(html)
-    .find(".collapse-item")
-    .each((_index, item) => {
-      let id = $(item).attr("collapse-id") ?? "";
-      if (handler.get(id)) {
-        $(item).addClass("expanded");
-      } else {
-        $(item).addClass("collapsed");
-      }
-    });
+export function collapseID(
+  collapse: CollapseRegistry,
+  doc: string | LancerActor | LancerItem | null | undefined,
+  no_inc: boolean
+): string {
+  // On sheet, enable collapse.
+  let doc_id: string;
+  if (doc instanceof foundry.abstract.Document) {
+    doc_id = doc.id ?? "ephem";
+  } else if (typeof doc == "string") {
+    doc_id = doc;
+  } else {
+    doc_id = "uncat";
+  }
+  if (collapse[doc_id] == undefined) collapse[doc_id] = 0;
+  let collapse_index: number;
+  if (no_inc) {
+    collapse_index = collapse[doc_id];
+  } else {
+    collapse_index = ++collapse[doc_id];
+  }
+  return `${doc_id}_${collapse_index}`;
+}
 
-  // Setup the event listener
-  $(html)
-    .find(".collapse-ctrl")
-    .on("click", evt => {
-      // Don't want other stuff to happen
-      evt.preventDefault();
-      evt.stopPropagation();
+/**
+ * Generates a button for toggling collapse state of a thing. To be used in conjuncture with collapseParam
+ * @param collapse G
+ * @param doc
+ * @param no_increment
+ * @returns
+ */
+export function collapseButton(
+  collapse: CollapseRegistry | undefined | null,
+  doc?: string | LancerActor | LancerItem | null,
+  no_increment: boolean = false
+) {
+  if (collapse) {
+    return `<i class="mdi mdi-unfold-less-horizontal collapse-trigger collapse-icon" data-collapse-id="${collapseID(
+      collapse,
+      doc,
+      no_increment
+    )}"> </i>`;
+  }
+  return "";
+}
 
-      // Toggle the handler such that classes will be set properly on re-draw
-      let id = $(evt.currentTarget).attr("collapse-id") ?? "";
-      let state = handler.toggle(id);
-
-      // Set appropriate class on all items
-      let selector = `.collapse-item[collapse-id="${id}"]`;
-      if (state) {
-        // Remove collapsed, add expanded.
-        html.find(selector).removeClass("collapsed").addClass("expanded");
-      } else {
-        html.find(selector).removeClass("expanded").addClass("collapsed");
-      }
-    });
+export function collapseParam(
+  collapse: CollapseRegistry | undefined | null,
+  doc?: string | LancerActor | LancerItem | null,
+  no_increment: boolean = false
+) {
+  if (collapse) {
+    return `data-collapse-id="${collapseID(collapse, doc, no_increment)}"`;
+  }
+  return "";
 }
 
 // V2
 /**
  * Generalized collapse activator
  */
-export function applyCollapseListeners() {
-  const query = document.querySelectorAll(".collapse-trigger");
-  query.forEach(dom => {
-    dom.removeEventListener("click", handleCollapse);
-    dom.addEventListener("click", handleCollapse);
-  });
+export function applyCollapseListeners(html: JQuery) {
+  html.find(".collapse-trigger").on("click", handleCollapse);
 }
 
 const handleCollapse = (ev: Event) => {
@@ -74,19 +103,34 @@ const handleCollapse = (ev: Event) => {
 
   let prefix = `lancer-collapse`;
   // On click, find matching collapse, and toggle collapsed class.
-  let store = (ev.currentTarget as Element).getAttribute("data-collapse-store");
   let id = (ev.currentTarget as Element).getAttribute("data-collapse-id");
 
   let collapse = document.querySelector(`.collapse[data-collapse-id="${id}"]`);
   if (collapse?.classList.contains("collapsed")) {
     collapse.classList.remove("collapsed");
-    store && sessionStorage.setItem(`${prefix}-${store}-${id}`, "opened");
+    sessionStorage.setItem(`${prefix}-${id}`, "opened");
   } else {
     collapse?.classList.add("collapsed");
-    store && sessionStorage.setItem(`${prefix}-${store}-${id}`, "closed");
+    sessionStorage.setItem(`${prefix}-${id}`, "closed");
   }
   // console.debug(collapse);
 };
+
+export function initializeCollapses(html: JQuery) {
+  let collapse_sections = html.find(".collapse");
+  // Init according to session store.
+  collapse_sections.each((_index, section) => {
+    let id = section.getAttribute("data-collapse-id");
+    if (id) {
+      let ssv = sessionStorage.getItem("lancer-collapse-" + id);
+      if (ssv == "opened") {
+        section.classList.remove("collapsed");
+      } else if (ssv == "closed") {
+        section.classList.add("collapsed");
+      }
+    }
+  });
+}
 
 // Trusty uuid gen.
 export function uuid4(): string {

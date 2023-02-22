@@ -9,9 +9,10 @@ import { BonusData } from "../models/bits/bonus";
 import { LancerDEPLOYABLE } from "../actor/lancer-actor";
 import { SynergyData } from "../models/bits/synergy";
 import { ActivationType, EntryType, WeaponSize, WeaponType } from "../enums";
+import { RangeData } from "../models/bits/range";
 
 export function item_edit_arrayed_actions(path: string, title: string, options: HelperOptions): string {
-  let action_arr: Array<ActionData> = resolve_helper_dotpath(options, path);
+  let action_arr = resolve_helper_dotpath<ActionData[]>(options, path);
 
   let action_detail = "";
 
@@ -43,7 +44,7 @@ export function item_edit_arrayed_actions(path: string, title: string, options: 
  * @returns         HTML for an editable damage area
  */
 export function item_edit_arrayed_damage(path: string, title: string, options: HelperOptions): string {
-  let dam_arr: Array<Damage> = resolve_helper_dotpath(options, path);
+  let dam_arr = resolve_helper_dotpath<ActionData[]>(options, path);
 
   let dam_detail = "";
 
@@ -71,7 +72,7 @@ export function item_edit_arrayed_damage(path: string, title: string, options: H
  * @returns         HTML for an editable range area
  */
 export function item_edit_arrayed_range(path: string, title: string, options: HelperOptions): string {
-  let range_arr: Array<Range> = resolve_helper_dotpath(options, path);
+  let range_arr = resolve_helper_dotpath<RangeData[]>(options, path);
 
   let range_detail = "";
 
@@ -98,8 +99,7 @@ export function item_edit_arrayed_range(path: string, title: string, options: He
  * @returns         HTML for an editable bonus area
  */
 export function item_edit_arrayed_bonuses(path: string, options: HelperOptions): string {
-  let arr: BonusData[] = resolve_helper_dotpath(options, path);
-  if (!arr) arr = [];
+  let arr = resolve_helper_dotpath<BonusData[]>(options, path, []);
   return bonuses_display(path, true, options);
 }
 
@@ -116,7 +116,7 @@ export function item_edit_arrayed_counters(): string {
  * @returns         HTML for an editable deployable area
  */
 export function item_edit_arrayed_deployables(path: string, title: string, options: HelperOptions): string {
-  let dep_arr: Array<LancerDEPLOYABLE> = resolve_helper_dotpath(options, path);
+  let dep_arr = resolve_helper_dotpath<LancerDEPLOYABLE[]>(options, path, []);
 
   let depHTML = dep_arr
     .map((d, i) => {
@@ -141,7 +141,7 @@ export function item_edit_arrayed_deployables(path: string, title: string, optio
  * @returns         HTML for an editable synergy area
  */
 export function item_edit_arrayed_synergies(path: string, title: string, options: HelperOptions): string {
-  let syn_arr: Array<SynergyData> = resolve_helper_dotpath(options, path);
+  let syn_arr = resolve_helper_dotpath<SynergyData[]>(options, path, []);
 
   let synHTML = syn_arr
     .map((d, i) => {
@@ -173,7 +173,7 @@ export function item_edit_arrayed_synergies(path: string, title: string, options
 export function item_edit_arrayed_enum(title: string, path: string, enum_name: string, options: HelperOptions): string {
   let resolved_enum = resolve_enum(enum_name);
 
-  let enum_arr: Array<typeof resolved_enum> = resolve_helper_dotpath(options, path);
+  let enum_arr = resolve_helper_dotpath<Array<typeof resolve_enum>>(options, path, []);
 
   let selector_detail = "";
 
@@ -250,7 +250,7 @@ export function item_edit_effect(path: string, options: HelperOptions): string {
  * @returns         HTML for an editable integrated area
  */
 export function item_edit_arrayed_integrated(path: string, title: string, options: HelperOptions): string {
-  let int_arr: Array<string> = resolve_helper_dotpath(options, path);
+  let int_arr = resolve_helper_dotpath<Array<string>>(options, path, []);
 
   let intHTML = int_arr
     .map((s: string, i: number | undefined) => {

@@ -306,7 +306,7 @@ export function npc_stat_block_clicker_card(
 
 // Simpler case of above. Seem damage for a use case
 export function npc_stat_array_clicker_card(title: string, data_path: string, options: HelperOptions): string {
-  let stats: number[][] = resolve_helper_dotpath(options, data_path) ?? [];
+  let stats = resolve_helper_dotpath<number[][]>(options, data_path) ?? [];
   let tier_clickers: string[] = [];
 
   // Make a clicker for every tier
@@ -359,7 +359,7 @@ export function overcharge_button(actor: LancerMECH, overcharge_path: string, op
  * @param tier The tier ID string
  */
 export function npc_tier_selector(tier_path: string, options: HelperOptions) {
-  let tier: number = resolve_helper_dotpath(options, tier_path) ?? 1;
+  let tier = resolve_helper_dotpath<number>(options, tier_path) ?? 1;
   let tiers: string[] = [1, 2, 3].map(
     tier_option => `
     <option value="${tier_option}" ${selected(tier_option === tier)}>TIER ${tier_option}</option>
@@ -381,19 +381,17 @@ export function is_combatant(actor: LancerActor) {
 // Create a div with flags for dropping native pilots/mechs/npcs
 export function deployer_slot(data_path: string, options: HelperOptions): string {
   // get the existing
-  let existing = resolve_helper_dotpath<SystemTemplates.ResolvedSyncUuidRef<
-    LancerPILOT | LancerMECH | LancerNPC
-  > | null>(options, data_path, null);
-  if (!existing?.value) {
-    return simple_ref_slot(data_path, [EntryType.PILOT, EntryType.MECH, EntryType.NPC], "uuid-ref", options);
+  let existing = resolve_helper_dotpath<LancerPILOT | LancerMECH | LancerNPC | null>(options, data_path, null);
+  if (!existing) {
+    return simple_ref_slot(data_path, [EntryType.PILOT, EntryType.MECH, EntryType.NPC], options);
   }
 
   // Generate commons
   return `
-    <div class="card clipped ${existing.value.type} ref set click-open" ${ref_params(existing.value)}>
+    <div class="card clipped ${existing.type} ref set click-open" ${ref_params(existing)}>
       <div class="compact-deployer medium flexrow" >
-        <span class="img-bar" style="background-image: url(${existing.value.img});"> </span>
-        <div class="major modifier-name i--light">${existing.value.type.toUpperCase()} ${existing.value.name}</div>
+        <span class="img-bar" style="background-image: url(${existing.img});"> </span>
+        <div class="major modifier-name i--light">${existing.type.toUpperCase()} ${existing.name}</div>
       </div>
     </div>`;
 }

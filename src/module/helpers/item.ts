@@ -45,8 +45,7 @@ import {
 } from "../enums";
 import type { LancerActorSheetData, LancerItemSheetData, LancerMacroData } from "../interfaces";
 import { encodeMacroData } from "../macros";
-import type { CollapseRegistry } from "./loadout";
-import { uuid4 } from "./collapse";
+import { collapseButton, collapseParam, CollapseRegistry, uuid4 } from "./collapse";
 import { promptText } from "../apps/simple-prompt";
 import { CounterEditForm } from "../apps/counter-editor";
 import { frameToPath } from "../actor/retrograde-map";
@@ -73,7 +72,6 @@ import { ActionData } from "../models/bits/action";
 import { Tag } from "../models/bits/tag";
 import { LancerActor, LancerDEPLOYABLE, LancerMECH } from "../actor/lancer-actor";
 import { CounterData } from "../models/bits/counter";
-import { SystemTemplates } from "../system-template";
 
 /**
  * Handlebars helper for weapon size selector
@@ -99,9 +97,10 @@ export function weapon_type_selector(path: string, options: HelperOptions) {
  * Handlebars helper for range type/value editing
  * Supply with path to Range, and any args that you'd like passed down to the standard input editors, as well as
  */
-export function range_editor(path: string, options: HelperOptions) {
+export function range_editor(path: string, options: HelperOptions): string {
   // Lookup the range so we can draw icon.
-  let range: Range = resolve_helper_dotpath(options, path);
+  let range = resolve_helper_dotpath<Range>(options, path);
+  if (!range) return "";
 
   let icon_html = `<i class="cci ${range.icon} i--m i--dark"></i>`;
   /* TODO: For a next iteration--would be really nifty to set it up to select images rather than text. 
@@ -133,9 +132,10 @@ export function range_editor(path: string, options: HelperOptions) {
  * Handlebars helper for weapon damage type/value editing.
  * Supply with path to Damage, and any args that you'd like passed down to the standard input editors
  */
-export function damage_editor(path: string, options: HelperOptions) {
+export function damage_editor(path: string, options: HelperOptions): string {
   // Lookup the damage so we can draw icon.
-  let damage: Damage = resolve_helper_dotpath(options, path);
+  let damage = resolve_helper_dotpath<Damage>(options, path);
+  if (!damage) return "";
 
   let icon_html = `<i class="cci ${damage.icon} i--m"></i>`;
 
@@ -235,7 +235,7 @@ export function system_type_selector(path: string, options: HelperOptions) {
  * Handlebars partial for limited uses remaining
  * TODO: make look more like compcon
  */
-export function uses_control(uses_path: string, max_uses: number, options: HelperOptions) {
+export function uses_control(uses_path: string, max_uses: number, options: HelperOptions): string {
   const curr_uses = resolve_helper_dotpath(options, uses_path, 0);
   return `
     <div class="card clipped">
@@ -245,8 +245,9 @@ export function uses_control(uses_path: string, max_uses: number, options: Helpe
     `;
 }
 
-export function npc_feature_preview(npc_feature_path: string, options: HelperOptions) {
-  let feature: LancerNPC_FEATURE = resolve_helper_dotpath(options, npc_feature_path);
+export function npc_feature_preview(npc_feature_path: string, options: HelperOptions): string {
+  let feature = resolve_helper_dotpath<LancerNPC_FEATURE>(options, npc_feature_path);
+  if (!feature) return "";
 
   switch (feature.system.type) {
     case "Reaction":
@@ -270,7 +271,7 @@ export function npc_feature_preview(npc_feature_path: string, options: HelperOpt
  * Displays a list of bonuses, with buttons to add/delete (if edit true)
  */
 export function bonuses_display(bonuses_path: string, edit: boolean, options: HelperOptions) {
-  let bonuses_array: BonusData[] = resolve_helper_dotpath(options, bonuses_path);
+  let bonuses_array = resolve_helper_dotpath<BonusData[]>(options, bonuses_path, []);
   let items: string[] = [];
 
   // Render each bonus
@@ -354,13 +355,10 @@ export function single_action_editor(path: string, options: HelperOptions) {
 // Helper for showing a piece of armor, or a slot to hold it (if path is provided)
 export function pilot_armor_slot(armor_path: string, options: HelperOptions): string {
   // Fetch the item
-  let armor: SystemTemplates.ResolvedEmbeddedRef<LancerPILOT_ARMOR> | null = resolve_helper_dotpath(
-    options,
-    armor_path
-  );
+  let armor: LancerPILOT_ARMOR | null = resolve_helper_dotpath(options, armor_path);
 
   // Generate commons
-  if (!armor?.value) {
+  if (!armor) {
     // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
     return `<div class="${EntryType.PILOT_ARMOR} ref drop-settable card" 
                         data-mode="embed-ref"
@@ -372,7 +370,7 @@ export function pilot_armor_slot(armor_path: string, options: HelperOptions): st
   }
 
   // Need to look in bonuses to find what we need
-  let bonuses = armor.value.system.bonuses;
+  let bonuses = armor.system.bonuses;
   let armor_val = bonuses.find(b => b.lid == "pilot_armor")?.val ?? "0";
   let speed_val = bonuses.find(b => b.lid == "pilot_speed")?.val ?? "0";
   let edef_val = bonuses.find(b => b.lid == "pilot_edef")?.val ?? "0";
@@ -380,14 +378,14 @@ export function pilot_armor_slot(armor_path: string, options: HelperOptions): st
   let hp_val = bonuses.find(b => b.lid == "pilot_hp")?.val ?? "0";
 
   return `<div class="set ref drop-settable card clipped pilot-armor-compact item" 
-                ${ref_params(armor.value, armor_path)} 
+                ${ref_params(armor, armor_path)} 
                 data-mode="embed-ref"
                 data-accept-types="${EntryType.PILOT_ARMOR}"
                 >
             <div class="lancer-header">
               <i class="mdi mdi-shield-outline i--m i--light"> </i>
-              <span class="minor">${armor.value.name}</span>
-              <a class="lancer-context-menu" data-context-menu="${armor.value.type}" data-path="${armor_path}"">
+              <span class="minor">${armor.name}</span>
+              <a class="lancer-context-menu" data-context-menu="${armor.type}" data-path="${armor_path}"">
                 <i class="fas fa-ellipsis-v"></i>
               </a>
             </div>
@@ -414,22 +412,19 @@ export function pilot_armor_slot(armor_path: string, options: HelperOptions): st
               </div>
             </div>
             <div class="effect-text" style=" padding: 5px">
-              ${armor.value.system.description}
+              ${armor.system.description}
             </div>
-            ${compact_tag_list(armor_path + ".Tags", armor.value.system.tags, false)}
+            ${compact_tag_list(armor_path + ".Tags", armor.system.tags, false)}
           </div>`;
 }
 
 // Helper for showing a pilot weapon, or a slot to hold it (if path is provided)
 export function pilot_weapon_refview(weapon_path: string, options: HelperOptions): string {
   // Fetch the item
-  let weapon: SystemTemplates.ResolvedEmbeddedRef<LancerPILOT_WEAPON> | null = resolve_helper_dotpath(
-    options,
-    weapon_path
-  );
+  let weapon: LancerPILOT_WEAPON | null = resolve_helper_dotpath(options, weapon_path);
 
   // Generate commons
-  if (!weapon?.value) {
+  if (!weapon) {
     // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
     return `<div class="${EntryType.PILOT_WEAPON} ref drop-settable card flexrow" 
                         data-path="${weapon_path}" 
@@ -442,23 +437,23 @@ export function pilot_weapon_refview(weapon_path: string, options: HelperOptions
 
   let loading = "";
   // Generate loading segment as needed
-  if (weapon.value.system.tags.some(t => t.is_loading)) {
-    loading = loading_indicator(weapon.value.system.loaded, weapon_path);
+  if (weapon.system.tags.some(t => t.is_loading)) {
+    loading = loading_indicator(weapon.system.loaded, weapon_path);
   }
   // Generate limited segment as needed
   let limited = "";
-  if (weapon.value.system.tags.some(t => t.is_limited)) {
-    limited_uses_indicator(weapon.value, weapon_path);
+  if (weapon.system.tags.some(t => t.is_limited)) {
+    limited_uses_indicator(weapon, weapon_path);
   }
 
   return `<div class="set ${EntryType.PILOT_WEAPON} ref drop-settable card clipped pilot-weapon-compact item macroable"
-                ${ref_params(weapon.value, weapon_path)} 
+                ${ref_params(weapon, weapon_path)} 
                 data-accept-types="${EntryType.PILOT_WEAPON}"
                 data-mode="embed-ref">
     <div class="lancer-header">
       <i class="cci cci-weapon i--m i--light"> </i>
-      <span class="minor">${weapon.value.name}</span>
-              <a class="lancer-context-menu" data-context-menu="${weapon.value.type}" data-path="${weapon_path}"">
+      <span class="minor">${weapon.name}</span>
+              <a class="lancer-context-menu" data-context-menu="${weapon.type}" data-path="${weapon_path}"">
                 <i class="fas fa-ellipsis-v"></i>
               </a>
     </div>
@@ -468,9 +463,9 @@ export function pilot_weapon_refview(weapon_path: string, options: HelperOptions
           <i class="fas fa-dice-d20 i--sm i--dark"></i>
           
         </a>
-        ${show_range_array(weapon.value.system.range, options)}
+        ${show_range_array(weapon.system.range, options)}
         <hr class="vsep">
-        ${show_damage_array(weapon.value.system.damage, options)}
+        ${show_damage_array(weapon.system.damage, options)}
         
         ${inc_if(`<hr class="vsep"><div class="uses-wrapper">`, loading || limited)}
         <!-- Loading toggle, if we are loading-->
@@ -480,7 +475,7 @@ export function pilot_weapon_refview(weapon_path: string, options: HelperOptions
         ${inc_if(`</div>`, loading || limited)}
       </div>
 
-      ${compact_tag_list(weapon_path + ".system.tags", weapon.value.system.tags, false)}
+      ${compact_tag_list(weapon_path + ".system.tags", weapon.system.tags, false)}
     </div>
   </div>`;
 }
@@ -488,12 +483,9 @@ export function pilot_weapon_refview(weapon_path: string, options: HelperOptions
 // Helper for showing a pilot gear, or a slot to hold it (if path is provided)
 export function pilot_gear_refview(gear_path: string, options: HelperOptions): string {
   // Fetch the item
-  let gear = resolve_dotpath(
-    options.data?.root,
-    gear_path
-  ) as SystemTemplates.ResolvedEmbeddedRef<LancerPILOT_GEAR> | null;
+  let gear = resolve_dotpath(options.data?.root, gear_path) as LancerPILOT_GEAR | null;
 
-  if (!gear?.value) {
+  if (!gear) {
     // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
     return `<div class="${EntryType.PILOT_GEAR} ref drop-settable card flexrow" 
                         data-path="${gear_path}" 
@@ -506,19 +498,19 @@ export function pilot_gear_refview(gear_path: string, options: HelperOptions): s
 
   // Conditionally show uses
   let uses = "";
-  if (gear.value.getLimitedBase()) {
-    uses = limited_uses_indicator(gear.value, gear_path);
+  if (gear.getLimitedBase()) {
+    uses = limited_uses_indicator(gear, gear_path);
   }
 
   return `<div class="set ${EntryType.PILOT_GEAR} ref drop-settable card clipped macroable item"
-                ${ref_params(gear.value, gear_path)} 
+                ${ref_params(gear, gear_path)} 
                 data-accept-types="${EntryType.PILOT_GEAR}"
                 data-mode="embed-ref">
     <div class="lancer-header">
       <i class="cci cci-generic-item i--m"> </i>
       <a class="gear-macro macroable"><i class="mdi mdi-message"></i></a>
-      <span class="minor">${gear.value.name!}</span>
-      <a class="lancer-context-menu" data-context-menu="${gear.value.type}" data-path="${gear_path}"">
+      <span class="minor">${gear.name!}</span>
+      <a class="lancer-context-menu" data-context-menu="${gear.type}" data-path="${gear_path}"">
         <i class="fas fa-ellipsis-v"></i>
       </a>
     </div>
@@ -528,10 +520,10 @@ export function pilot_gear_refview(gear_path: string, options: HelperOptions): s
       </div>
 
       <div class="effect-text" style=" padding: 5px">
-        ${gear.value.system.description}
+        ${gear.system.description}
       </div>
 
-      ${compact_tag_list(gear_path + ".value.system.tags", gear.value.system.tags, false)}
+      ${compact_tag_list(gear_path + ".system.tags", gear.system.tags, false)}
     </div>
   </div>`;
 }
@@ -619,24 +611,17 @@ export function reserve_refview(reserve_path: string, options: HelperOptions): s
 
 /**
  * Handlebars helper for a mech weapon preview card. Doubles as a slot. Mech path needed for bonuses
- * SPECIFICALLY for loadout
+ * SPECIFICALLY for loadout - expects things to be slot based
  */
 export function mech_loadout_weapon_slot(
   weapon_path: string,
-  options: HelperOptions,
-  collapse?: CollapseRegistry,
-  size?: FittingSize
+  mod_path: string,
+  size: FittingSize, // Needed if slot is empty
+  options: HelperOptions
 ): string {
   // Fetch the item(s)
-  let weapon_slot: SystemTemplates.ResolvedEmbeddedRef<LancerMECH_WEAPON> | null = resolve_helper_dotpath(
-    options,
-    weapon_path
-  );
-  let actor: LancerActor | null = resolve_helper_dotpath(options, "actor");
-  let mod_path = weapon_path.substr(0, weapon_path.lastIndexOf(".")) + ".mod";
-  let mod: LancerWEAPON_MOD | null = resolve_helper_dotpath(options, mod_path);
-
-  if (weapon_slot?.status != "resolved") {
+  let weapon: LancerMECH_WEAPON | null = resolve_helper_dotpath(options, weapon_path);
+  if (!weapon) {
     // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
     return `
       <div class="${EntryType.MECH_WEAPON} ref slot drop-settable card flexrow" 
@@ -646,31 +631,18 @@ export function mech_loadout_weapon_slot(
         <img class="ref-icon" src="${TypeIcon(EntryType.MECH_WEAPON)}"></img>
         <span class="major">Insert ${size ? size : "any"} weapon</span>
       </div>`;
-  }
-  let weapon = weapon_slot.value;
-
-  let mod_text: string = "";
-  if (mod) {
-    mod_text = weapon_mod_ref(mod_path, weapon_path, options);
   } else {
-    // Make a refbox, hidden
-    mod_text = `
-    <div class="${EntryType.WEAPON_MOD} ref slot drop-settable card flexrow"
-        data-path="${mod_path}"
-        data-type="${EntryType.WEAPON_MOD}">
-      <i class="cci cci-weaponmod i--m i--light"> </i>
-      <span>No Mod Installed</span>
-    </div>`;
+    return mech_weapon_display(weapon_path, mod_path, options);
   }
+}
 
-  let collapseID;
-  if (collapse != null) {
-    // On sheet, enable collapse.
-    if (collapse[weapon.system.lid] == null) collapse[weapon.system.lid] = 0;
+export function mech_weapon_display(weapon_path: string, mod_path: string | null, options: HelperOptions): string {
+  let actor: LancerActor | null = resolve_helper_dotpath(options, "actor");
+  let weapon = resolve_helper_dotpath<LancerMECH_WEAPON>(options, weapon_path);
+  let mod_text = mod_path ? weapon_mod_ref(mod_path, weapon_path, options) : "";
+  let collapse = resolve_helper_dotpath<CollapseRegistry>(options, "collapse");
 
-    let collapseNumCheck = ++collapse[weapon.system.lid];
-    collapseID = `${weapon.system.lid}_${collapseNumCheck}`;
-  }
+  if (!weapon) return "";
 
   // Do we need a profile selector?
   let profiles = "";
@@ -681,7 +653,7 @@ export function mech_loadout_weapon_slot(
       profiles += `<a class="gen-control weapon-profile ${
         i === weapon.system.selected_profile ? "selected-profile" : ""
       }"
-data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.value.selected_profile">
+data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.selected_profile">
 <span class="minor">${p.name}</span>
 </a>`;
     }
@@ -710,7 +682,7 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.value.
   // Generate loading segment as needed
   let loading = "";
   if (weapon.system.all_tags.some(t => t.is_loading)) {
-    loading = loading_indicator(weapon.system.loaded, weapon_path + ".value");
+    loading = loading_indicator(weapon.system.loaded, weapon_path);
   }
 
   // Generate effects
@@ -721,7 +693,7 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.value.
 
   let limited = "";
   if (weapon.system.all_tags.some(t => t.is_limited)) {
-    limited = limited_uses_indicator(weapon, weapon_path + ".value");
+    limited = limited_uses_indicator(weapon, weapon_path);
   }
 
   return `
@@ -732,15 +704,15 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.value.
                   style="max-height: fit-content;">
       <div class="lancer-header ${weapon.system.destroyed ? "destroyed" : ""}">
         <i class="${weapon.system.destroyed ? "mdi mdi-cog" : "cci cci-weapon i--m i--light"}"> </i>
-        <span class="minor" ${actor ? `data-collapse-store="${actor.id}"` : ""}" >
+        <span class="minor" >
           ${weapon.name} // ${weapon.system.size.toUpperCase()} ${profile.type.toUpperCase()}
         </span>
-        <i class="mdi mdi-unfold-less-horizontal collapse-trigger collapse-icon" data-collapse-id="${collapseID}"> </i>
+        ${collapseButton(collapse, weapon)}
         <a class="lancer-context-menu" data-context-menu="${EntryType.MECH_WEAPON}" data-path="${weapon_path}">
           <i class="fas fa-ellipsis-v"></i>
         </a>
       </div> 
-      <div class="lancer-body collapse" data-collapse-id="${collapseID}">
+      <div class="lancer-body collapse" ${collapseParam(collapse, weapon, true)}>
         ${weapon.system.sp ? `<strong>${weapon.system.sp} SP</strong>` : ""}
         ${profiles}
         <div class="flexrow" style="text-align: left; white-space: nowrap;">
@@ -777,10 +749,18 @@ export function loading_indicator(loaded: boolean, weapon_path: string): string 
   return `<div class="clipped card limited-card">LOADED ${indicator}</div>`;
 }
 
+// Renders a weapon mod slot
 export function weapon_mod_ref(mod_path: string, weapon_path: string | null, options: HelperOptions): string {
   let mod: LancerWEAPON_MOD | null = resolve_helper_dotpath(options, mod_path);
   let weapon: LancerMECH_WEAPON | null = weapon_path ? resolve_helper_dotpath(options, weapon_path) : null;
-  if (!mod || (weapon_path && !weapon)) return "";
+  if (!mod) {
+    return `<div class="${EntryType.WEAPON_MOD} ref slot drop-settable card flexrow"
+        data-path="${mod_path}"
+        data-type="${EntryType.WEAPON_MOD}">
+      <i class="cci cci-weaponmod i--m i--light"> </i>
+      <span>No Mod Installed</span>
+    </div>`;
+  }
 
   let sp = mod.system.sp ? sp_display(mod.system.sp) : "";
   let limited = mod.system.tags.some(t => t.is_limited) ? limited_uses_indicator(mod, mod_path) : "";
@@ -1007,14 +987,14 @@ export function buildActionHTML(
     // If we don't have a trigger do a simple detail
     if (!action.trigger)
       detailText = `
-        <div class="action-detail collapse ${options.full ? "" : "collapsed"}" data-collapse-id="${collID}">
+        <div class="action-detail ${options.full ? "" : "collapsed"}" data-collapse-id="${collID}">
           <hr class="hsep">
           ${action.detail}
         </div>`;
     // Otherwise, look to be explicit about which is which
     else {
       detailText = `
-        <div class="action-detail collapse ${options.full ? "" : "collapsed"}" data-collapse-id="${collID}">
+        <div class="action-detail ${options.full ? "" : "collapsed"}" data-collapse-id="${collID}">
           <hr class="hsep">
           <div class="overline">${game.i18n.localize("lancer.chat-card.label.trigger")}</div> 
           <div>${action.trigger}</div>
@@ -1112,7 +1092,7 @@ export function buildDeployableHTML(dep: LancerDEPLOYABLE, full?: boolean, num?:
 
   let collID = uuid4();
   detailText = `
-    <div class="deployable-detail collapse ${full ? "" : "collapsed"}" data-collapse-id="${collID}">
+    <div class="deployable-detail ${full ? "" : "collapsed"}" data-collapse-id="${collID}">
       <hr class="hsep">
       ${dep.system.detail}
     </div>`;

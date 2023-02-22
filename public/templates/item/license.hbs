@@ -27,15 +27,7 @@
           </span>
         </div>
         {{#each unlock_array as |unlock unlock_index|}}
-          {{#if (eq unlock.type "weapon_mod")}}
-            <div style="margin:3px 10px">
-              {{{wpn-mod-ref (concat "unlocks." rank "." unlock_index) null }}}
-            </div>
-          {{else if (eq unlock.type "frame")}}
-            {{{ref-frame unlock (concat "unlocks." rank "." unlock_index) }}}
-          {{else}}
-            {{{item-preview (concat "unlocks." rank "." unlock_index) null  "doc" }}}
-          {{/if}}
+          {{{item-preview (concat "unlocks." rank "." unlock_index) null  }}}
         {{/each}}
       </div>
     {{/each}}

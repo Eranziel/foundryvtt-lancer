@@ -20,7 +20,7 @@ import {
   HANDLER_activate_profile_context_menus,
 } from "../helpers/item";
 import { HANDLER_activate_tag_context_menus, HANDLER_activate_tag_dropping } from "../helpers/tags";
-import { CollapseHandler } from "../helpers/collapse";
+import { applyCollapseListeners, CollapseHandler, initializeCollapses } from "../helpers/collapse";
 import { activate_action_editor } from "../apps/action-editor";
 import { find_license_for } from "../util/doc";
 
@@ -88,6 +88,10 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
    */
   activateListeners(html: JQuery) {
     super.activateListeners(html);
+
+    // Enable collapse triggers.
+    initializeCollapses(html);
+    applyCollapseListeners(html);
 
     let getfunc = () => this.getData();
     let commitfunc = (_: any) => {
@@ -175,6 +179,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
     const data = super.getData() as LancerItemSheetData<T>; // Not fully populated yet!
     // @ts-expect-error v9???
     data.system = this.item.system; // Set our alias
+    data.collapse = {};
 
     // Additionally we would like to find a matching license. Re-use ctx, try both a world and global reg, actor as well if it exists
     data.license = null;

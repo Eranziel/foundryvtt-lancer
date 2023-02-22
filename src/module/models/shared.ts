@@ -151,6 +151,7 @@ export class EmbeddedRefField extends fields.StringField {
 
   /** @override */
   _cast(value: any) {
+    if (value?.value) value = value.value;
     if (value?.id) {
       value = value.id;
     }
@@ -220,6 +221,7 @@ export class SyncUUIDRefField extends fields.StringField {
 
   /** @override */
   _cast(value: any) {
+    if (value?.value) value = value.value;
     if (value?.uuid) {
       value = value.uuid;
     }
@@ -306,6 +308,7 @@ export class AsyncUUIDRefField extends fields.StringField {
 
   /** @override */
   _cast(value: any) {
+    if (value?.value) value = value.value;
     if (value?.uuid) {
       value = value.uuid;
     }

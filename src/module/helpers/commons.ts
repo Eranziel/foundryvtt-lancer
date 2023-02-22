@@ -326,7 +326,7 @@ export function resolve_dotpath(
 }
 
 // Helper function to get arbitrarily deep array references, specifically in a helperoptions, and with better types for that matter
-export function resolve_helper_dotpath<T>(options: HelperOptions, path: string): T;
+export function resolve_helper_dotpath<T>(options: HelperOptions, path: string): T | null;
 export function resolve_helper_dotpath<T>(options: HelperOptions, path: string, default_: T): T;
 export function resolve_helper_dotpath<T>(options: HelperOptions, path: string, default_: T, try_parent: boolean): T;
 export function resolve_helper_dotpath(

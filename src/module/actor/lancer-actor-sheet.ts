@@ -19,7 +19,7 @@ import {
   runEncodedMacro,
 } from "../macros";
 import { ActivationOptions } from "../enums";
-import { applyCollapseListeners, CollapseHandler } from "../helpers/collapse";
+import { applyCollapseListeners, CollapseHandler, initializeCollapses } from "../helpers/collapse";
 import { addExportButton } from "../helpers/io";
 import type { ActionType } from "../action";
 import { InventoryDialog } from "../apps/inventory";
@@ -57,7 +57,8 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     super.activateListeners(html);
 
     // Enable collapse triggers.
-    this._activateCollapses(html);
+    initializeCollapses(html);
+    applyCollapseListeners(html);
 
     // Enable any action grid buttons.
     this._activateActionGridListeners(html);
@@ -157,23 +158,6 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
 
     let data = JSON.parse(decodeURI(window.atob(encoded)));
     e.dataTransfer?.setData("text/plain", JSON.stringify(data));
-  }
-
-  _activateCollapses(html: JQuery) {
-    let prefix = `lancer-collapse-${this.object.id}-`;
-    let triggers = html.find(".collapse-trigger");
-    // Init according to session store.
-    triggers.each((_index, trigger) => {
-      let id = trigger.getAttribute("data-collapse-id");
-      if (id !== null && sessionStorage.getItem(prefix + id) !== null) {
-        let collapse = document.querySelector(`.collapse[data-collapse-id=${id}]`);
-        sessionStorage.getItem(prefix + id) === "opened"
-          ? collapse?.classList.remove("collapsed")
-          : collapse?.classList.add("collapsed");
-      }
-    });
-
-    applyCollapseListeners();
   }
 
   async _activateActionGridListeners(html: JQuery) {
@@ -465,6 +449,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
    */
   async getData(): Promise<LancerActorSheetData<T>> {
     const data = await super.getData(); // Not fully populated yet!
+    data.collapse = {};
     // @ts-expect-error
     data.system = this.actor.system; // Alias
     data.itemTypes = this.actor.itemTypes;

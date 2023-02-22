@@ -10,42 +10,19 @@ import {
   LancerPILOT_GEAR,
   LancerPILOT_WEAPON,
   LancerWEAPON_MOD,
-  LancerTALENT,
   LancerRESERVE,
 } from "../item/lancer-item";
-import { encodeMacroData } from "../macros";
-import {
-  array_path_edit_changes,
-  drilldownDocument,
-  effect_box,
-  read_form,
-  resolve_dotpath,
-  resolve_helper_dotpath,
-  sp_display,
-} from "./commons";
-import {
-  DropPredicate,
-  FoundryDropData,
-  HANDLER_enable_doc_dropping,
-  HANDLER_enable_dragging,
-  ResolvedDropData,
-} from "./dragdrop";
-import {
-  buildActionHTML,
-  buildDeployableHTML,
-  license_ref,
-  mech_loadout_weapon_slot,
-  npc_feature_preview,
-} from "./item";
-import { compact_tag_list } from "./tags";
-import { CollapseRegistry } from "./loadout";
+import { array_path_edit_changes, drilldownDocument, resolve_helper_dotpath } from "./commons";
+import { FoundryDropData, HANDLER_enable_doc_dropping, HANDLER_enable_dragging, ResolvedDropData } from "./dragdrop";
+import { license_ref, mech_weapon_display as mechWeaponView, npc_feature_preview } from "./item";
+import { mech_system_view as mechSystemView } from "./loadout";
 import { LancerDoc } from "../util/doc";
 import { EntryType, SystemType } from "../enums";
 import { LancerActor, LancerPILOT } from "../actor/lancer-actor";
-import { LancerMacroData } from "../interfaces";
-import { SystemTemplates } from "../system-template";
-import { LancerActiveEffect } from "../effects/lancer-active-effect";
+import { coreBonusView, skillView, talent_view as talentView } from "./pilot";
+import { CollapseRegistry } from "./collapse";
 import { SourceData } from "../source-template";
+import { LancerActiveEffect } from "../effects/lancer-active-effect";
 
 /*
 "Ref" manifesto - Things for handling everything in data that is either a ResolvedUuidRefField or ResolvedEmbeddedRefField.
@@ -64,8 +41,6 @@ helper options:
  - value=??? = An override of what to show. Instead of showing what the path is resolved to, show this
 */
 
-export type RefMode = "embed-ref" | "uuid-ref";
-
 // Creates the params common to all refs, essentially just the html-ified version of a RegRef
 export function ref_params(doc: LancerDoc, path?: string) {
   if (path) {
@@ -77,12 +52,7 @@ export function ref_params(doc: LancerDoc, path?: string) {
 
 // A small, visually appealing slot for indicating where an item can go / is
 // If a slot_path is provided, then this will additionally be a valid drop-settable location for items of this type
-export function simple_ref_slot(
-  path: string = "",
-  accept_types: string | EntryType[],
-  mode: RefMode,
-  _options: HelperOptions
-) {
+export function simple_ref_slot(path: string = "", accept_types: string | EntryType[], _options: HelperOptions) {
   // Format types
   let flat_types: string;
   let arr_types: EntryType[];
@@ -95,9 +65,7 @@ export function simple_ref_slot(
   }
 
   // Get present value
-  let doc =
-    _options.hash["value"] ??
-    (resolve_helper_dotpath(_options, path) as SystemTemplates.ResolvedAsyncUuidRef<LancerDoc>);
+  let doc = _options.hash["value"] ?? (resolve_helper_dotpath(_options, path) as LancerDoc);
 
   if (!doc || doc.status == "missing") {
     // Show an icon for each accepted type
@@ -106,23 +74,21 @@ export function simple_ref_slot(
     // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
     return `<div class="ref ref-card slot" 
                  data-accept-types="${flat_types}"
-                 data-path="${path}"
-                 data-mode="${mode}">
+                 data-path="${path}">
           ${icons.join(" ")}
           <span class="major">Empty</span>
       </div>`;
-  } else if (doc.status == "async") {
+  } else if (doc.then !== undefined) {
     return `<span>ASYNC not handled yet</span>`;
   } else {
     // The data-type
     return `<div class="ref ref-card set click-open" 
                   data-accept-types="${flat_types}"
                   data-path="${path}"
-                  data-mode="${mode}"
-                  ${ref_params(doc.value)}
+                  ${ref_params(doc)}
                   >
-          <img class="ref-icon" src="${doc.value.img}"></img>
-          <span class="major">${doc.value.name}</span>
+          <img class="ref-icon" src="${doc.img}"></img>
+          <span class="major">${doc.name}</span>
       </div>`;
   }
 }
@@ -183,32 +149,14 @@ export function ref_portrait<T extends EntryType>(
 export function item_preview<T extends LancerItemType>(
   item_path: string,
   trash_action: "delete" | "splice" | "null" | null,
-  mode: "doc" | "embed-ref" | "uuid-ref", // Is this to an embedded ref
-  options: HelperOptions,
-  collapse?: CollapseRegistry
+  options: HelperOptions
 ): string {
   // Fetch
-  let fetched = resolve_helper_dotpath(options, item_path);
-  let doc: LancerDoc<T> | null;
-  if (!!options.hash["value"]) {
-    doc = options.hash["value"] as LancerDoc<T>;
-  } else if (mode == "uuid-ref" || mode == "embed-ref") {
-    let f = fetched as SystemTemplates.ResolvedAsyncUuidRef<LancerDoc<T>>;
-    if (f.status == "resolved") {
-      doc = f.value;
-    } else {
-      return `<span>ERROR: Unhandled ref status ${f.status}</span>`;
-    }
-  } else if (mode == "doc") {
-    doc = fetched as LancerDoc<T>;
-  } else {
-    throw new Error("Bad item preview mode " + mode);
-  }
-
+  let doc = resolve_helper_dotpath<LancerDoc<T>>(options, item_path);
   if (!doc) {
     // This probably shouldn't be happening
     console.error(`Unable to resolve ${item_path} in `, options.data);
-    return "ERR: Devs, don't try and show null things in a list. this ain't a slot (but it could be if you did some magic)";
+    return "<span>err</span>";
   }
   // Make a re-used trashcan imprint
   let trash_can = "";
@@ -216,187 +164,17 @@ export function item_preview<T extends LancerItemType>(
     trash_can = `<a class="gen-control i--white" data-action="${trash_action}" data-path="${item_path}"><i class="fas fa-trash"></i></a>`;
   }
 
-  let collapseID;
-  let collapse_trigger = "";
-  if (collapse != null) {
-    // On sheet, enable collapse.
-    collapse[doc.id!] == null && (collapse[doc.id!] = 0);
-
-    let collapseNumCheck = ++collapse[doc.id!];
-    collapseID = `${doc.id}_${collapseNumCheck}`;
-  }
-  if (collapseID) {
-    collapse_trigger = `<i class="mdi mdi-unfold-less-horizontal collapse-trigger collapse-icon" data-collapse-id="${collapseID}"> </i>`;
-  }
-
   // Handle based on type
   if (doc.is_mech_system()) {
-    let icon: string;
-    let sp: string;
-    let desc: string | undefined;
-    let actions: string | undefined;
-    let deployables: string | undefined;
-    let eff: string | undefined;
-
-    const icon_types = [SystemType.Deployable, SystemType.Drone, SystemType.Mod, SystemType.System, SystemType.Tech];
-    icon = icon_types.includes(doc.system.type)
-      ? `cci cci-${doc.system.type.toLowerCase()} i--m i--click`
-      : `cci cci-system i--m i--click`;
-
-    sp = sp_display(doc.system.sp ?? 0);
-
-    if (doc.system.description && doc.system.description !== "No description") {
-      desc = `<div class="desc-text" style="padding: 5px">
-          ${doc.system.description}
-        </div>`;
-    }
-
-    if (doc.system.effect) {
-      eff = effect_box("EFFECT", doc.system.effect);
-    }
-
-    if (doc.system.actions.length) {
-      actions = doc.system.actions
-        .map((a, i) => {
-          return buildActionHTML(a, { full: true, num: i });
-        })
-        .join("");
-    }
-
-    if (doc.system.deployables.length) {
-      deployables = "TODO Deployables";
-      /*doc.system.deployables
-        .map((d, i) => {
-          return d.status == "resolved" ? buildDeployableHTML(d.value, true, i) : "UNRESOLVED";
-        })
-        .join("");*/
-    }
-
-    let macroData: LancerMacroData = {
-      iconPath: `systems/${game.system.id}/assets/icons/macro-icons/mech_system.svg`,
-      title: doc.name!,
-      fn: "prepareItemMacro",
-      args: [doc.actor?.uuid ?? "", doc.uuid],
-    };
-
-    let limited = "";
-    if (doc.isLimited()) {
-      limited = limited_uses_indicator(doc, item_path + ".value");
-    }
-    return `<li class="ref set card clipped mech-system item ${
-      doc.system.type === SystemType.Tech ? "tech-item" : ""
-    }" ${ref_params(doc)} style="margin: 0;">
-        <div class="lancer-header ${doc.system.destroyed ? "destroyed" : ""}" style="grid-area: 1/1/2/3; display: flex">
-          <i class="${doc.system.destroyed ? "mdi mdi-cog" : icon}"> </i>
-          <a class="lancer-macro" data-macro="${encodeMacroData(macroData)}"><i class="mdi mdi-message"></i></a>
-          <span class="minor grow">${doc.name}</span>
-          ${collapse_trigger}
-          <div class="ref-controls">
-            <a class="lancer-context-menu" data-context-menu="${doc.type}" data-path="${item_path}"">
-              <i class="fas fa-ellipsis-v"></i>
-            </a>
-          </div>
-        </div>
-        <div ${collapse_trigger ? `class="collapse" data-collapse-id="${collapseID}"` : ""} style="padding: 0.5em">
-          <div class="flexrow">
-            ${sp}
-            <div class="uses-wrapper">
-              ${limited}
-            </div>
-          </div>
-<!--          ${desc ? desc : ""}-->
-          ${eff ? eff : ""}
-          ${actions ? actions : ""}
-          ${deployables ? deployables : ""}
-          ${compact_tag_list(item_path + ".system.tags", doc.system.tags, false)}
-        </div>
-        </li>`;
+    return mechSystemView(item_path, options);
   } else if (doc.is_mech_weapon()) {
-    return `<span>TODO: Refactor mech_loadout_weapon_slot to fit here again</span>`; // mech_loadout_weapon_slot(item_path, options, undefined, undefined);
+    return mechWeaponView(item_path, null, options);
   } else if (doc.is_talent()) {
-    let retStr = `<li class="card clipped talent-compact item ref set" ${ref_params(doc)}>
-        <div class="lancer-talent-header medium clipped-top" style="grid-area: 1/1/2/4">
-          <i class="cci cci-talent i--m"></i>
-          <span class="major">${doc.name}</span>
-          ${collapse_trigger}
-          <div class="ref-controls">
-            <a class="lancer-context-menu" data-context-menu="${doc.type}" data-path="${item_path}"">
-              <i class="fas fa-ellipsis-v"></i>
-            </a>
-          </div>
-        </div>
-      <ul ${collapse_trigger ? `class="collapse" data-collapse-id="${collapseID}"` : ""} style="grid-area: 2/1/3/3">`;
-
-    for (var i = 0; i < doc.system.curr_rank; i++) {
-      let talent_actions = "";
-
-      if (doc.system.ranks[i].actions) {
-        talent_actions = doc.system.ranks[i].actions
-          .map(a => {
-            return buildActionHTML(a, { full: true, num: (doc as LancerTALENT).system.ranks[i].actions.indexOf(a) });
-          })
-          .join("");
-      }
-
-      let macroData: LancerMacroData = {
-        iconPath: `systems/${game.system.id}/assets/icons/macro-icons/talent.svg`,
-        title: doc.system.ranks[i]?.name,
-        fn: "prepareTalentMacro",
-        args: [doc.actor?.uuid ?? "", doc.uuid, i],
-      };
-
-      retStr += `<li class="talent-rank-compact card clipped" style="padding: 5px">
-        <a class="cci cci-rank-${i + 1} i--l i--dark talent-macro lancer-macro" data-macro="${encodeMacroData(
-        macroData
-      )}" style="grid-area: 1/1/2/2"></a>
-        <span class="major" style="grid-area: 1/2/2/3">${doc.system.ranks[i]?.name}</span>
-        <div class="effect-text" style="grid-area: 2/1/3/3">
-        ${doc.system.ranks[i]?.description}
-        ${talent_actions}
-        </div>
-        </li>`;
-    }
-
-    retStr += `</ul>
-      </li>`;
-
-    return retStr;
+    return talentView(item_path, options);
   } else if (doc.is_skill()) {
-    return `
-      <li class="card clipped skill-compact item macroable ref set" ${ref_params(doc)}>
-        <div class="lancer-trigger-header medium clipped-top" style="grid-area: 1/1/2/3">
-          <i class="cci cci-skill i--m i--dark"> </i>
-          <span class="major modifier-name">${doc.name}</span>
-          <div class="ref-controls">
-            <a class="lancer-context-menu" data-context-menu="${doc.type}" data-path="${item_path}">
-              <i class="fas fa-ellipsis-v"></i>
-            </a>
-          </div>
-        </div>
-        <a class="flexrow skill-macro" style="grid-area: 2/1/3/2;">
-          <i class="fas fa-dice-d20 i--sm i--dark"></i>
-          <div class="major roll-modifier" style="align-self: center">+${doc.system.curr_rank * 2}</div>
-        </a>
-        <div class="desc-text" style="grid-area: 2/2/3/3">${doc.system.description}</div>
-      </li>`;
+    return skillView(item_path, options);
   } else if (doc.is_core_bonus()) {
-    return `
-      <li class="card clipped item ref set" ${ref_params(doc)}>
-        <div class="lancer-corebonus-header medium clipped-top" style="grid-area: 1/1/2/3">
-          <i class="cci cci-corebonus i--m i--dark"> </i>
-          <span class="major modifier-name">${doc.name}</span>
-          ${collapse_trigger}
-          <div class="ref-controls">
-            <a class="lancer-context-menu" data-context-menu="${doc.type}" data-path="${item_path}">
-              <i class="fas fa-ellipsis-v"></i>
-            </a>
-          </div>
-        </div>
-        <div ${collapse_trigger ? `class="collapse" data-collapse-id="${collapseID}"` : ""}>
-          <div class="desc-text" style="grid-area: 2/2/3/3">${doc.system.description}</div>
-          <div style="grid-area: 2/3/3/4">${doc.system.effect}</div>
-        </div>
-      </li>`;
+    return coreBonusView(item_path, options);
   } else if (doc.is_license()) {
     return license_ref(item_path, options);
   } else if (doc.is_npc_feature()) {
@@ -453,21 +231,14 @@ export function reserve_used_indicator(path: string, options: HelperOptions): st
 
 // Put this at the end of ref lists to have a place to drop things. Supports both native and non-native drops
 // Allowed types is a list of space-separated allowed types. "mech pilot mech_weapon", for instance
-export function item_preview_list(
-  item_array_path: string,
-  allowed_types: string,
-  mode: "doc" | RefMode,
-  options: HelperOptions,
-  collapse?: CollapseRegistry
-) {
-  let embeds = resolve_helper_dotpath(options, item_array_path) as Array<any>;
+export function item_preview_list(item_array_path: string, allowed_types: string, options: HelperOptions) {
+  let embeds = resolve_helper_dotpath<Array<any>>(options, item_array_path, []);
   let trash = options.hash["trash"] ?? null;
-  let previews = embeds.map((_, i) => item_preview(`${item_array_path}.${i}`, trash, mode, options, collapse));
+  let previews = embeds.map((_, i) => item_preview(`${item_array_path}.${i}`, trash, options));
   return `
     <div class="flexcol ref-list" 
          data-path="${item_array_path}" 
-         data-type="${allowed_types}"
-         data-mode="${mode}">
+         data-type="${allowed_types}">
          ${previews.join("")}
     </div>`;
 }
@@ -482,24 +253,13 @@ export function HANDLER_add_doc_to_list_on_drop<T>(html: JQuery, root_doc: Lance
 
     // Gather context information
     let path = evt[0].dataset.path;
-    let mode = evt[0].dataset.mode as "embed-ref" | "uuid-ref";
     let allowed_items_raw = evt[0].dataset.acceptTypes ?? "";
 
     // Check type is allowed type
     if (allowed_items_raw && !allowed_items_raw.includes(rdd.document.type)) return;
 
     // Coerce val to appropriate type
-    let val;
-    if (mode == "embed-ref") {
-      val = rdd.document.id;
-    } else if (mode == "uuid-ref") {
-      val = rdd.document.uuid;
-    } else if (mode == "doc") {
-      return; // Cannot drop here
-    } else {
-      console.error("Ref list drop 'mode' missing");
-      return;
-    }
+    let val = rdd.document;
 
     // Try to apply the list addition
     if (path) {
@@ -593,16 +353,8 @@ export function HANDLER_activate_ref_slot_dropping(
 
     // Decide the mode
     let path = dest[0].dataset.path;
-    let mode = dest[0].dataset.mode as RefMode;
     let types = dest[0].dataset.acceptTypes as string;
-    let val: string;
-    if (mode == "embed-ref") {
-      val = drop.document.id!;
-    } else if (mode == "uuid-ref") {
-      val = drop.document.uuid;
-    } else {
-      throw new Error("Illegal drop mode " + mode);
-    }
+    let val = drop.document;
 
     // Check allows
     if (types && !types.includes((drop.document as any).type ?? "err")) {
@@ -611,27 +363,31 @@ export function HANDLER_activate_ref_slot_dropping(
 
     // Then set it to path, with an added correction of unsetting any other place its set on the same document's loadout (if path in loadout)
     if (path) {
-      let dd = drilldownDocument(root_doc, path);
+      let dd = drilldownDocument(
+        root_doc,
+        path.endsWith(".value") ? path.slice(0, path.length - ".value".length) : path
+      ); // If dropping onto an item.value, then truncate to target the item
       let updateData = {} as any;
       if (path.includes("loadout") && dd.sub_doc instanceof LancerActor) {
         // Do clear-correction here
         if (dd.sub_doc.is_pilot()) {
           // If other occurrences of val
           let cl = (dd.sub_doc as any).system._source.loadout as SourceData.Pilot["loadout"];
-          if (cl.armor.some(x => x == val))
-            updateData["system.loadout.armor"] = cl.armor.map(x => (x == val ? null : x));
-          if (cl.gear.some(x => x == val)) updateData["system.loadout.gear"] = cl.gear.map(x => (x == val ? null : x));
-          if (cl.weapons.some(x => x == val))
-            updateData["system.loadout.weapons"] = cl.weapons.map(x => (x == val ? null : x));
+          if (cl.armor.some(x => x == val.id))
+            updateData["system.loadout.armor"] = cl.armor.map(x => (x == val.id ? null : x));
+          if (cl.gear.some(x => x == val.id))
+            updateData["system.loadout.gear"] = cl.gear.map(x => (x == val.id ? null : x));
+          if (cl.weapons.some(x => x == val.id))
+            updateData["system.loadout.weapons"] = cl.weapons.map(x => (x == val.id ? null : x));
         } else if (dd.sub_doc.is_mech()) {
           let cl = (dd.sub_doc as any).system._source.loadout as SourceData.Mech["loadout"];
-          if (cl.systems.some(x => x == val))
-            updateData["system.loadout.systems"] = cl.systems.map(x => (x == val ? null : x));
-          if (cl.weapon_mounts.some(x => x.slots.some(y => y.weapon == val || y.mod == val))) {
+          if (cl.systems.some(x => x == val.id))
+            updateData["system.loadout.systems"] = cl.systems.map(x => (x == val.id ? null : x));
+          if (cl.weapon_mounts.some(x => x.slots.some(y => y.weapon == val.id || y.mod == val.id))) {
             updateData["system.loadout.weapon_mounts"] = cl.weapon_mounts.map(wm => ({
               slots: wm.slots.map(s => ({
-                weapon: s.weapon == val ? null : s.weapon,
-                mod: s.mod == val ? null : s.mod,
+                weapon: s.weapon == val.id ? null : s.weapon,
+                mod: s.mod == val.id ? null : s.mod,
                 size: s.size,
               })),
               bracing: wm.bracing,
@@ -640,7 +396,7 @@ export function HANDLER_activate_ref_slot_dropping(
           }
         }
       }
-      updateData[dd.sub_path] = val;
+      updateData[dd.sub_path] = val.id;
       dd.sub_doc.update(updateData);
     }
   });

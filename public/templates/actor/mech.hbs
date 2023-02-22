@@ -102,7 +102,7 @@
     </div>
 
     <div class="tab loadout" data-group="primary" data-tab="loadout">
-      {{{mech-frame actor "system.loadout.frame"}}}
+      {{{mech-frame actor "system.loadout.frame.value"}}}
       <div class="card clipped">
         <span class="lancer-header submajor">BASIC ATTACKS</span>
         <div class="lancer-macro-grid">
@@ -124,7 +124,7 @@
       <div class="card clipped">
         <h2 class="lancer-title clipped">{{localize "lancer.pilot-sheet.abilities.talents"}}</h2>
         {{#each system.pilot.value.itemTypes.talent as |talent index|}}
-          {{{item-preview (concat "system.pilot.value.itemTypes.talent." index) null "doc" }}}
+          {{{item-preview (concat "system.pilot.value.itemTypes.talent." index) null }}}
         {{/each}}
       </div>
       {{/if}}

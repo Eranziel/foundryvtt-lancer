@@ -141,7 +141,7 @@ import {
   item_edit_arrayed_integrated,
   item_edit_enum,
 } from "./module/helpers/item-editors";
-import { applyCollapseListeners } from "./module/helpers/collapse";
+import { applyCollapseListeners, initializeCollapses } from "./module/helpers/collapse";
 import { handleCombatUpdate } from "./module/helpers/automation/combat";
 import { handleActorExport, validForExport } from "./module/helpers/io";
 import { runEncodedMacro } from "./module/macros";
@@ -520,9 +520,6 @@ Hooks.once("init", async function () {
 
   // ------------------------------------------------------------------------
   // Frame/Class/Template data
-  Handlebars.registerHelper("ref-frame", frame_ref);
-  Handlebars.registerHelper("ref-npc-class", npc_class_ref);
-  Handlebars.registerHelper("ref-npc-template", npc_template_ref);
 
   // ------------------------------------------------------------------------
   // Bonuses
@@ -541,7 +538,6 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("npcf-atk", npc_attack_bonus_preview);
   Handlebars.registerHelper("npcf-acc", npc_accuracy_preview);
   Handlebars.registerHelper("mech-weapon-preview", mech_loadout_weapon_slot);
-  Handlebars.registerHelper("wpn-mod-ref", weapon_mod_ref);
 
   // ------------------------------------------------------------------------
   // Systems
@@ -637,7 +633,6 @@ export const system_ready: Promise<void> = new Promise(success => {
     await doMigration();
     await showChangelog();
 
-    applyCollapseListeners();
     applyGlobalDragListeners();
 
     game.action_manager = new LancerActionManager();
@@ -752,11 +747,12 @@ Hooks.on("renderCombatTracker", (...[_app, html]: Parameters<Hooks.RenderApplica
     });
 });
 
-Hooks.on("renderChatMessage", async (cm: ChatMessage, html: any, data: any) => {
+Hooks.on("renderChatMessage", async (cm: ChatMessage, html: JQuery, data: any) => {
   // Reapply listeners.
-  applyCollapseListeners();
+  initializeCollapses(html);
+  applyCollapseListeners(html);
 
-  html.find(".chat-button").on("click", (ev: MouseEvent) => {
+  html.find(".chat-button").on("click", ev => {
     function checkTarget(element: HTMLElement) {
       if (element.attributes.getNamedItem("data-macro")) {
         ev.stopPropagation();

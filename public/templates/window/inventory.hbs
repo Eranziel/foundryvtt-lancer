@@ -5,22 +5,7 @@
                 {{cat.label}}
             </span>
             {{#each cat.items as |item item_index|}}
-              {{#if (eq item.Type "mech_system")}}
-                {{{item-preview (concat "categories." cat_index ".items." item_index) "delete" "doc" }}}
-              {{else if (eq item.Type "mech_weapon")}}
-                <div style="margin:3px 10px">
-                  {{{mech-weapon-preview (concat "categories." cat_index ".items." item_index) "" }}}
-                </div>
-              {{else if (eq item.Type "weapon_mod")}}
-                <div style="margin:3px 10px">
-                  {{{wpn-mod-ref (concat "categories." cat_index ".items." item_index) null }}}
-                </div>
-              {{else if (eq item.Type "frame")}}
-                {{{ref-frame item (concat "categories." cat_index ".items." item_index) }}}
-              {{else}}
-              {{!-- Fallback - typically there should be nothing other than mech systems, weapons, mods, and frames, but just in case.--}}
-                {{{item-preview (concat "categories." cat_index ".items." item_index) "delete" "doc" }}}
-              {{/if}}
+              {{{item-preview (concat "categories." cat_index ".items." item_index) "delete" }}}
             {{/each}}
         {{/each}}
     </div>

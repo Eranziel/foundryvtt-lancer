@@ -5,6 +5,7 @@ import { LancerActiveEffect } from "./effects/lancer-active-effect";
 import { SystemDataTypesMap, SystemDataType } from "./system-template";
 import { Damage, DamageData } from "./models/bits/damage";
 import { Tag } from "./models/bits/tag";
+import { CollapseRegistry } from "./helpers/collapse";
 
 // ------------------------------------------------------
 // |       SHEET DATA TYPES                             |
@@ -15,6 +16,7 @@ export interface LancerItemSheetData<T extends LancerItemType> extends ItemSheet
   // The license, if it could be recovered
   license: LANCERLicense | null;
   system: SystemDataType<T>;
+  collapse: CollapseRegistry;
 }
 
 export type CachedCloudPilot = {
@@ -36,6 +38,7 @@ export interface LancerActorSheetData<T extends LancerActorType> extends ActorSh
   effect_categories: ReturnType<typeof LancerActiveEffect["prepareActiveEffectCategories"]>;
   system: SystemDataType<T>;
   itemTypes: LancerActor["itemTypes"];
+  collapse: CollapseRegistry;
 }
 
 // -------- Macro data types -------------------------------------

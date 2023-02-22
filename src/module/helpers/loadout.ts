@@ -1,41 +1,107 @@
 import type { HelperOptions } from "handlebars";
-import { ChipIcons, EntryType } from "../enums";
+import { ChipIcons, EntryType, SystemType } from "../enums";
 import type { LancerMacroData } from "../interfaces";
 import { encodeMacroData } from "../macros";
-import { inc_if, resolve_helper_dotpath, array_path_edit } from "./commons";
+import { inc_if, resolve_helper_dotpath, array_path_edit, sp_display, effect_box } from "./commons";
 import { mech_loadout_weapon_slot, buildActionHTML, buildDeployableHTML, buildChipHTML } from "./item";
-import { item_preview, ref_params, simple_ref_slot } from "./refs";
+import { item_preview, limited_uses_indicator, ref_params, simple_ref_slot } from "./refs";
 import { compact_tag_list } from "./tags";
 import type { LancerActor, LancerMECH, LancerPILOT } from "../actor/lancer-actor";
 import { SystemData, SystemTemplates } from "../system-template";
 import { LancerCORE_BONUS, LancerFRAME, LancerMECH_SYSTEM } from "../item/lancer-item";
 import { ActionData } from "../models/bits/action";
-
-export type CollapseRegistry = { [LID: string]: number };
+import { collapseButton, collapseParam, CollapseRegistry } from "./collapse";
 
 // A drag-drop slot for a system mount.
-function system_view(system_path: string, options: HelperOptions, collapse?: CollapseRegistry): string {
-  let system = resolve_helper_dotpath(
-    options,
-    system_path
-  ) as SystemTemplates.ResolvedEmbeddedRef<LancerMECH_SYSTEM> | null;
-  if (!system) return "";
+export function mech_system_view(system_path: string, options: HelperOptions): string {
+  let collapse = resolve_helper_dotpath<CollapseRegistry>(options, "collapse");
+  let doc = resolve_helper_dotpath<LancerMECH_SYSTEM>(options, system_path);
+  if (!doc) return ""; // Hide our shame
 
-  if (system && system.status == "resolved") {
-    let slot = item_preview(system_path, "splice", "embed-ref", options, collapse);
+  let icon: string;
+  let sp: string;
+  let desc: string | undefined;
+  let actions: string | undefined;
+  let deployables: string | undefined;
+  let eff: string | undefined;
 
-    return ` 
-      <div class="mount card clipped">
-        ${slot}
-      </div>`;
-  } else {
-    // Assuming we just want to delete empty mounts, which may be a faulty assumption
-    return "TODO: Handle bad slot";
+  const icon_types = [SystemType.Deployable, SystemType.Drone, SystemType.Mod, SystemType.System, SystemType.Tech];
+  icon = icon_types.includes(doc.system.type)
+    ? `cci cci-${doc.system.type.toLowerCase()} i--m i--click`
+    : `cci cci-system i--m i--click`;
+
+  sp = sp_display(doc.system.sp ?? 0);
+
+  if (doc.system.description && doc.system.description !== "No description") {
+    desc = `<div class="desc-text" style="padding: 5px">
+          ${doc.system.description}
+        </div>`;
   }
+
+  if (doc.system.effect) {
+    eff = effect_box("EFFECT", doc.system.effect);
+  }
+
+  if (doc.system.actions.length) {
+    actions = doc.system.actions
+      .map((a, i) => {
+        return buildActionHTML(a, { full: true, num: i });
+      })
+      .join("");
+  }
+
+  if (doc.system.deployables.length) {
+    deployables = "TODO Deployables";
+    /*doc.system.deployables
+        .map((d, i) => {
+          return d.status == "resolved" ? buildDeployableHTML(d.value, true, i) : "UNRESOLVED";
+        })
+        .join("");*/
+  }
+
+  let macroData: LancerMacroData = {
+    iconPath: `systems/${game.system.id}/assets/icons/macro-icons/mech_system.svg`,
+    title: doc.name!,
+    fn: "prepareItemMacro",
+    args: [doc.actor?.uuid ?? "", doc.uuid],
+  };
+
+  let limited = "";
+  if (doc.isLimited()) {
+    limited = limited_uses_indicator(doc, system_path + ".value");
+  }
+  return `<li class="ref set card clipped mech-system item ${
+    doc.system.type === SystemType.Tech ? "tech-item" : ""
+  }" ${ref_params(doc)} style="margin: 0;">
+        <div class="lancer-header ${doc.system.destroyed ? "destroyed" : ""}" style="grid-area: 1/1/2/3; display: flex">
+          <i class="${doc.system.destroyed ? "mdi mdi-cog" : icon}"> </i>
+          <a class="lancer-macro" data-macro="${encodeMacroData(macroData)}"><i class="mdi mdi-message"></i></a>
+          <span class="minor grow">${doc.name}</span>
+          ${collapseButton(collapse, doc)}
+          <div class="ref-controls">
+            <a class="lancer-context-menu" data-context-menu="${doc.type}" data-path="${system_path}"">
+              <i class="fas fa-ellipsis-v"></i>
+            </a>
+          </div>
+        </div>
+        <div class="collapse" ${collapseParam(collapse, doc, true)} style="padding: 0.5em">
+          <div class="flexrow">
+            ${sp}
+            <div class="uses-wrapper">
+              ${limited}
+            </div>
+          </div>
+<!--          ${desc ? desc : ""}-->
+          ${eff ? eff : ""}
+          ${actions ? actions : ""}
+          ${deployables ? deployables : ""}
+          ${compact_tag_list(system_path + ".system.tags", doc.system.tags, false)}
+        </div>
+        </li>`;
 }
 
 // A drag-drop slot for a weapon mount. TODO: delete button, clear button
-function weapon_mount(mount_path: string, options: HelperOptions, collapse: CollapseRegistry): string {
+function weapon_mount(mount_path: string, options: HelperOptions): string {
   let mech = resolve_helper_dotpath(options, "actor") as LancerMECH;
   let mount = resolve_helper_dotpath(options, mount_path) as SystemData.Mech["loadout"]["weapon_mounts"][0];
 
@@ -55,7 +121,12 @@ function weapon_mount(mount_path: string, options: HelperOptions, collapse: Coll
   }
 
   let slots = mount.slots.map((slot, index) =>
-    mech_loadout_weapon_slot(`${mount_path}.slots.${index}.weapon`, options, collapse, slot.size)
+    mech_loadout_weapon_slot(
+      `${mount_path}.slots.${index}.weapon.value`,
+      `${mount_path}.slots.${index}.mod.value`,
+      slot.size,
+      options
+    )
   );
   let err = mech.loadoutHelper.validateMount(mount) ?? "";
 
@@ -81,10 +152,10 @@ function weapon_mount(mount_path: string, options: HelperOptions, collapse: Coll
 }
 
 // Helper to display all weapon mounts on a mech loadout
-function all_weapon_mount_view(loadout_path: string, options: HelperOptions, collapse: CollapseRegistry) {
+function all_weapon_mount_view(loadout_path: string, options: HelperOptions) {
   let loadout = resolve_helper_dotpath(options, loadout_path) as SystemData.Mech["loadout"];
   const weapon_mounts = loadout.weapon_mounts.map((_wep, index) =>
-    weapon_mount(`${loadout_path}.weapon_mounts.${index}`, options, collapse)
+    weapon_mount(`${loadout_path}.weapon_mounts.${index}`, options)
   );
 
   return `
@@ -101,10 +172,10 @@ function all_weapon_mount_view(loadout_path: string, options: HelperOptions, col
 }
 
 // Helper to display all systems mounted on a mech loadout
-function all_system_view(loadout_path: string, options: HelperOptions, collapse: CollapseRegistry) {
+function all_system_view(loadout_path: string, options: HelperOptions) {
   let loadout = resolve_helper_dotpath(options, loadout_path) as LancerMECH["system"]["loadout"];
   const system_views = loadout.systems.map((_sys, index) =>
-    system_view(`${loadout_path}.systems.${index}`, options, collapse)
+    mech_system_view(`${loadout_path}.systems.${index}.value`, options)
   );
 
   // Archiving add button: <a class="gen-control fas fa-plus" data-action="append" data-path="${loadout_path}.SysMounts" data-action-value="(struct)sys_mount"></a>
@@ -121,20 +192,16 @@ function all_system_view(loadout_path: string, options: HelperOptions, collapse:
     `;
 }
 
-/** Suuuuuper work in progress options. The loadout view for a mech (tech here can mostly be reused for pilot)
- * TODO:
+/** The loadout view for a mech
  * - Weapon mods
  * - .... system mods :)
- * - Ref validation (you shouldn't be able to equip another mechs items, etc)
  */
 export function mech_loadout(options: HelperOptions): string {
-  const collapse: CollapseRegistry = {};
-
   const loadout_path = `system.loadout`;
   return `
     <div class="flexcol">
-        ${all_weapon_mount_view(loadout_path, options, collapse)}
-        ${all_system_view(loadout_path, options, collapse)}
+        ${all_weapon_mount_view(loadout_path, options)}
+        ${all_system_view(loadout_path, options)}
     </div>`;
 }
 
@@ -145,13 +212,10 @@ export function pilot_slot(data_path: string, options: HelperOptions): string {
   if (options.hash.value) {
     pilot = options.hash.value;
   } else {
-    let existing =
-      options.hash["value"] ??
-      resolve_helper_dotpath<SystemTemplates.ResolvedAsyncUuidRef<LancerPILOT> | null>(options, data_path, null);
-    if (!existing || existing.status == "missing")
-      return simple_ref_slot(data_path, [EntryType.PILOT], "uuid-ref", options);
-    if (existing.status == "async") return "<span> Do not yet support ";
-    pilot = existing.value;
+    pilot = resolve_helper_dotpath<LancerPILOT | null>(options, data_path)!;
+    if (!pilot) {
+      return simple_ref_slot(data_path, [EntryType.PILOT], options);
+    }
   }
 
   return `<div class="pilot-summary">
@@ -175,24 +239,19 @@ export function pilot_slot(data_path: string, options: HelperOptions): string {
  * @return            HTML for the frame reference, typically for inclusion in a mech sheet.
  */
 export function mech_frame_refview(actor: LancerActor, frame_slot_path: string, options: HelperOptions): string {
-  let frame = resolve_helper_dotpath<SystemTemplates.ResolvedEmbeddedRef<LancerFRAME> | null>(
-    options,
-    frame_slot_path,
-    null
-  );
-  if (!frame || frame.status == "missing")
-    return simple_ref_slot(frame_slot_path, [EntryType.FRAME], "embed-ref", options);
+  let frame = resolve_helper_dotpath<LancerFRAME | null>(options, frame_slot_path);
+  if (!frame) return simple_ref_slot(frame_slot_path, [EntryType.FRAME], options);
 
   return `
-    <div class="card mech-frame ${ref_params(frame.value)}">
+    <div class="card mech-frame ${ref_params(frame)}">
       <span class="lancer-header submajor clipped-top">
-       ${frame.value.name}
+       ${frame.name}
       </span>
       <div class="wraprow double">
         <div class="frame-traits flexcol">
-          ${frameTraits(actor, frame.value)}
+          ${frameTraits(actor, frame)}
         </div>
-        ${inc_if(buildCoreSysHTML(actor, frame.value.system.core_system), frame.value.system.core_system)}
+        ${inc_if(buildCoreSysHTML(actor, frame.system.core_system), frame.system.core_system)}
       </div>
     </div>
     `;

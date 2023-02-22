@@ -36,7 +36,7 @@ export const EffectIcons = {
 /**
  * Handlebars helper for effect action type
  */
-export function action_type_selector(a_type: string, data_target: string) {
+export function action_type_selector(a_type: string, data_target: string): string {
   const a = a_type ? a_type.toLowerCase() : ActivationType.None.toLowerCase();
   let html = '<div class="flexrow flex-center" style="padding: 5px; flex-wrap: nowrap;">';
   html += action_type_icon(a_type);
@@ -65,7 +65,12 @@ function del_button(path: string, options: HelperOptions): string {
   return `<a class="gen-control" data-action="${trash_action}" data-path="${path}"><i class="fas fa-trash"></i></a>`;
 }
 
-function npc_feature_scaffold(path: string, npc_feature: LancerNPC_FEATURE, body: string, options: HelperOptions) {
+function npc_feature_scaffold(
+  path: string,
+  npc_feature: LancerNPC_FEATURE,
+  body: string,
+  options: HelperOptions
+): string {
   let feature_class = `npc-${npc_feature.type.toLowerCase()}`;
   let icon = `cci-${npc_feature.type.toLowerCase()}`;
   if (npc_feature.system.type === NpcFeatureType.Tech) icon += "-quick";
@@ -87,8 +92,9 @@ function npc_feature_scaffold(path: string, npc_feature: LancerNPC_FEATURE, body
   </div>`;
 }
 
-export function npc_reaction_effect_preview(path: string, options: HelperOptions) {
-  let npc_feature: LancerNPC_FEATURE = resolve_helper_dotpath(options, path);
+export function npc_reaction_effect_preview(path: string, options: HelperOptions): string {
+  let npc_feature = resolve_helper_dotpath<LancerNPC_FEATURE>(options, path);
+  if (!npc_feature) return "";
   return npc_feature_scaffold(
     path,
     npc_feature,
@@ -107,8 +113,9 @@ export function npc_reaction_effect_preview(path: string, options: HelperOptions
 }
 
 // The below 2 funcs just map to this one, because they all do the same thing
-function npc_system_trait_effect_preview(path: string, options: HelperOptions) {
-  let npc_feature: LancerNPC_FEATURE = resolve_helper_dotpath(options, path);
+function npc_system_trait_effect_preview(path: string, options: HelperOptions): string {
+  let npc_feature = resolve_helper_dotpath<LancerNPC_FEATURE>(options, path);
+  if (!npc_feature) return "";
   return npc_feature_scaffold(
     path,
     npc_feature,
@@ -136,7 +143,8 @@ export function npc_trait_effect_preview(path: string, options: HelperOptions) {
 
 export function npc_tech_effect_preview(path: string, options: HelperOptions) {
   // Get the feature
-  let npc_feature: LancerNPC_FEATURE = resolve_helper_dotpath(options, path);
+  let npc_feature = resolve_helper_dotpath<LancerNPC_FEATURE>(options, path);
+  if (!npc_feature) return "";
   let feature_data = npc_feature.system as SystemTemplates.NPC.TechData;
 
   // Get the tier (or default 1)
@@ -184,9 +192,10 @@ export function npc_tech_effect_preview(path: string, options: HelperOptions) {
   );
 }
 
-export function npc_weapon_effect_preview(path: string, options: HelperOptions) {
+export function npc_weapon_effect_preview(path: string, options: HelperOptions): string {
   // Get the feature
-  let npc_feature: LancerNPC_FEATURE = resolve_helper_dotpath(options, path);
+  let npc_feature = resolve_helper_dotpath<LancerNPC_FEATURE>(options, path);
+  if (!npc_feature) return "";
   let feature_data = npc_feature.system as SystemTemplates.NPC.WeaponData;
 
   let loading: string | undefined;
