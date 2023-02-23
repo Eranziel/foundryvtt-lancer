@@ -45,7 +45,7 @@ import {
 } from "../enums";
 import type { LancerActorSheetData, LancerItemSheetData, LancerMacroData } from "../interfaces";
 import { encodeMacroData } from "../macros";
-import { collapseButton, collapseParam, CollapseRegistry, uuid4 } from "./collapse";
+import { collapseButton, collapseParam, CollapseRegistry } from "./collapse";
 import { promptText } from "../apps/simple-prompt";
 import { CounterEditForm } from "../apps/counter-editor";
 import { frameToPath } from "../actor/retrograde-map";
@@ -978,7 +978,6 @@ export function buildActionHTML(
   let tags: string | undefined;
   let editor: string | undefined;
 
-  let collID = uuid4();
   // TODO--can probably do better than this
   if (options) {
     // Not using type yet but let's plan forward a bit
@@ -988,14 +987,14 @@ export function buildActionHTML(
     // If we don't have a trigger do a simple detail
     if (!action.trigger)
       detailText = `
-        <div class="action-detail ${options.full ? "" : "collapsed"}" data-collapse-id="${collID}">
+        <div class="action-detail">
           <hr class="hsep">
           ${action.detail}
         </div>`;
     // Otherwise, look to be explicit about which is which
     else {
       detailText = `
-        <div class="action-detail ${options.full ? "" : "collapsed"}" data-collapse-id="${collID}">
+        <div class="action-detail ${options.full ? "" : "collapsed"}">
           <hr class="hsep">
           <div class="overline">${game.i18n.localize("lancer.chat-card.label.trigger")}</div> 
           <div>${action.trigger}</div>
@@ -1044,7 +1043,7 @@ export function buildActionHTML(
   <div class="action-wrapper">
     <div class="title-wrapper flexrow">
       ${action_type_icon(action.activation)}
-      <span class="action-title collapse-trigger" data-collapse-id="${collID}">
+      <span class="action-title collapse-trigger">
         ${action.name ? action.name.toUpperCase() : ""}
       </span>
       ${editor ? editor : ""}
@@ -1091,18 +1090,13 @@ export function buildDeployableHTML(dep: LancerDEPLOYABLE, full?: boolean, num?:
   let chip: string;
   let activation: ActivationType | undefined;
 
-  let collID = uuid4();
-  detailText = `
-    <div class="deployable-detail ${full ? "" : "collapsed"}" data-collapse-id="${collID}">
+  detailText = "";
+  if (full)
+    detailText = `
+    <div class="deployable-detail">
       <hr class="hsep">
       ${dep.system.detail}
     </div>`;
-  // TODO--can probably do better than this
-  /*
-    Until further notice, Actions in Deployables are just... not
-    if(dep.Actions.length) {
-      detailText += dep.Actions.map((a) => {return buildActionHTML(a)})
-    } */
 
   // All places we could get our activation, in preferred order
   let activationSources = [
@@ -1129,7 +1123,7 @@ export function buildDeployableHTML(dep: LancerDEPLOYABLE, full?: boolean, num?:
   <div class="deployable-wrapper">
     <div class="title-wrapper flexrow">
       ${action_type_icon(activation)}
-      <span class="deployable-title collapse-trigger" data-collapse-id="${collID}">
+      <span class="deployable-title collapse-trigger">
         ${dep.name ? dep.name.toUpperCase() : ""}
       </span>
     </div>

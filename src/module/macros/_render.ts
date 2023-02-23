@@ -1,14 +1,13 @@
 // Import TypeScript modules
+import { nanoid } from "nanoid";
 import type { LancerActor } from "../actor/lancer-actor";
-import { uuid4 } from "../helpers/collapse";
 
 /**
  *
  */
 // TODO: Indexed types for templates
 export async function renderMacroTemplate(actor: LancerActor | undefined, template: string, templateData: any) {
-  const cardUUID = uuid4();
-  templateData._uuid = cardUUID;
+  templateData._uuid = nanoid();
 
   const html = await renderTemplate(template, templateData);
 
