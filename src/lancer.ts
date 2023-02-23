@@ -305,13 +305,8 @@ Hooks.once("init", async function () {
   // @ts-expect-error TODO: fix up Options vs ApplicationOptions once we have more modern types
   CONFIG.ui.combat = LancerCombatTracker;
 
-  // Set up system status icons
-  const keepStock = game.settings.get(game.system.id, LANCER.setting_stock_icons);
-  // @ts-expect-error TODO: Remove this expect when have v9 types
-  let statuses: StatusEffect[] = [];
-  if (keepStock) statuses = statuses.concat(CONFIG.statusEffects);
-  statuses = statuses.concat(STATUSES);
-  CONFIG.statusEffects = statuses;
+  // Set up default system status icons
+  LancerActiveEffect.populateConfig(false);
 
   // Register Web Components
   customElements.define("card-clipped", class LancerClippedCard extends HTMLDivElement {}, {
@@ -612,30 +607,26 @@ Hooks.once("init", async function () {
 /* When ready                           */
 /* ------------------------------------ */
 // Make an awaitable for when this shit is done
-export const system_ready: Promise<void> = new Promise(success => {
-  Hooks.once("ready", async function () {
-    // Register sheet application classes
-    setupSheets();
+Hooks.once("ready", async function () {
+  // Register sheet application classes
+  setupSheets();
 
-    Hooks.on("updateCombat", handleCombatUpdate);
+  Hooks.on("updateCombat", handleCombatUpdate);
 
-    // Wait for sanity check to complete.
-    // let ready: boolean = false;
-    // while (!ready) {
-    //   await sleep(100);
-    //   ready = !!(<LancerGame>game).lancer?.finishedInit;
-    // }
-    console.log(`${lp} Foundry ready, doing final checks.`);
+  console.log(`${lp} Foundry ready, doing final checks.`);
 
-    await doMigration();
-    await showChangelog();
+  await doMigration();
+  await showChangelog();
 
-    applyGlobalDragListeners();
+  applyGlobalDragListeners();
 
-    game.action_manager = new LancerActionManager();
-    await game.action_manager!.init();
+  game.action_manager = new LancerActionManager();
+  game.action_manager!.init();
 
-    success();
+  // Set up compendium-based statuses icons
+  LancerActiveEffect.populateConfig(true);
+  Hooks.on("updateCompendium", collection => {
+    if (collection?.metadata?.id == `world.${EntryType.STATUS}`) LancerActiveEffect.populateConfig(true);
   });
 });
 

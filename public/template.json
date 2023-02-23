@@ -422,7 +422,7 @@
       "templates": ["universal"],
       "effects": "",
       "icon": "",
-      "type": "Status"
+      "type": "status"
     },
     "talent": {
       "templates": ["universal"],

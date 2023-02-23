@@ -432,7 +432,7 @@ export namespace SourceData {
   export interface Status extends SourceTemplates.item_universal {
     terse: string;
     effects: string;
-    type: "Status" | "Condition" | "Effect";
+    type: "status" | "condition" | "effect";
   }
   export interface Talent extends SourceTemplates.item_universal {
     curr_rank: number;

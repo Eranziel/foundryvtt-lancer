@@ -604,7 +604,7 @@ export function STATUS(): SourceDataType<EntryType.STATUS> {
     lid: "cond_" + nanoid(),
     effects: "Unknown effect",
     terse: "Unknown",
-    type: "Status",
+    type: "status",
   };
 }
 

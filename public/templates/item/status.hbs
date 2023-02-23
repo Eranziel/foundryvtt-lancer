@@ -17,6 +17,7 @@
               {{#select system.type}}
               <option class="i--dark" value="status">STATUS</option>
               <option class="i--dark" value="condition">CONDITION</option>
+              <option class="i--dark" value="effect">EFFECT</option>
               {{/select}}
             </select>
           </div>
@@ -27,7 +28,7 @@
   
     {{!-- Sheet Body --}}
     <section class="sheet-body">
-      {{{item-edit-effect               "system.terse"}}}
-      {{{textarea-card      "DESCRIPTION"      "system.effects"}}}
+      {{{item-edit-effect "system.terse"}}}
+      {{{textarea-card "DESCRIPTION" "system.effects"}}}
     </section>
   </form>

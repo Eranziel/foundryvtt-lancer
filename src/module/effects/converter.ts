@@ -1,6 +1,6 @@
 import { LancerNPC, LancerPILOT } from "../actor/lancer-actor";
 import { EntryType } from "../enums";
-import { LancerFRAME, LancerMECH_WEAPON, LancerNPC_CLASS } from "../item/lancer-item";
+import { LancerFRAME, LancerMECH_WEAPON, LancerNPC_CLASS, LancerSTATUS } from "../item/lancer-item";
 import { BonusData } from "../models/bits/bonus";
 import { SystemData, SystemTemplates } from "../system-template";
 import {
@@ -13,6 +13,7 @@ import {
 const FRAME_STAT_PRIORITY = 10;
 const BONUS_STAT_PRIORITY = 20;
 const PILOT_STAT_PRIORITY = 30;
+const EFFECT_STAT_PRIORITY = 40;
 
 // Makes an active effect for a frame.
 type FrameStatKey = keyof SystemData.Frame["stats"];
@@ -214,11 +215,63 @@ export function pilotInnateEffect(pilot: LancerPILOT): LancerActiveEffectConstru
         value: JSON.stringify(pilot.system.toObject()),
       }*/
     ],
+    icon: pilot.img,
     origin: pilot.uuid,
     flags: {
       lancer: {
         target_type: EntryType.MECH,
         ephemeral: true,
+      },
+    },
+  };
+}
+
+/**
+ * Creates the ActiveEffect data for a status/condition
+ */
+export function statusInnateEffect(status: LancerSTATUS): LancerActiveEffectConstructorData {
+  let changes: LancerActiveEffectConstructorData["changes"] = [
+    {
+      key: `system.statuses.${status.system.lid}`,
+      mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+      priority: EFFECT_STAT_PRIORITY,
+    },
+  ];
+  return {
+    label: status.name,
+    changes,
+    origin: status.uuid,
+    icon: status.img,
+    flags: {
+      lancer: {
+        ephemeral: true,
+        status_type: status.system.type,
+      },
+      core: {
+        // So it can be deleted via the ui if it is a core active effect
+        statusId: status.system.lid,
+      },
+    },
+  };
+}
+
+/**
+ * Creates the pseudo-activeeffect-data that goes in the CONFIG.statusEffects variable,
+ * based on a particular status
+ * @param status Status to convert
+ * @returns A value to be placed in CONFIG.statusEffects
+ */
+export function statusConfigEffect(status: LancerSTATUS): any {
+  let base = statusInnateEffect(status);
+  return {
+    id: status.system.lid,
+    label: base.label,
+    changes: base.changes,
+    origin: base.origin,
+    icon: base.icon,
+    flags: {
+      lancer: {
+        status_type: status.system.type,
       },
     },
   };

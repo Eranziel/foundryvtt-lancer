@@ -1,6 +1,7 @@
 import { ActiveEffectDataConstructorData } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs/activeEffectData";
 import { EffectChangeData } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs/effectChangeData";
 import { LancerActor } from "../actor/lancer-actor";
+import { LANCER, STATUSES } from "../config";
 import {
   DamageTypeChecklist,
   DeployableType,
@@ -10,6 +11,7 @@ import {
   WeaponTypeChecklist,
 } from "../enums";
 import { LancerItem, LancerMECH_WEAPON } from "../item/lancer-item";
+import { statusConfigEffect } from "./converter";
 
 // Chassis = mech or standard npc
 export type LancerEffectTarget =
@@ -34,6 +36,9 @@ export interface LancerActiveEffectFlags {
     // When we propagate an effect, the origin becomes the parent actor.
     // This field maintains the true original
     deep_origin?: string | null;
+
+    // If this is a status, effect, or condition - whichever of those it is
+    status_type?: "status" | "effect" | "condition";
   };
 }
 
@@ -127,6 +132,28 @@ export class LancerActiveEffect extends ActiveEffect {
 
     // categories.suppressed.hidden = !categories.suppressed.effects.length;
     return [passives, inherited, disabled, passthrough];
+  }
+
+  // Populate config with our static/compendium statuses instead of the builtin ones
+  static async populateConfig(from_compendium: boolean) {
+    const keepStock = game.settings.get(game.system.id, LANCER.setting_stock_icons);
+
+    // @ts-expect-error TODO: Remove this expect when have v9 types
+    let statuses: StatusEffect[] = [];
+    if (keepStock) statuses = statuses.concat(CONFIG.statusEffects);
+    if (from_compendium) {
+      let pack = game.packs.get(`world.${EntryType.STATUS}`);
+      let all_statuses = await pack?.getDocuments();
+      if (all_statuses?.length) {
+        // @ts-expect-error
+        statuses = statuses.concat(all_statuses.map(statusConfigEffect));
+      } else {
+        statuses = statuses.concat(STATUSES);
+      }
+    } else {
+      statuses = statuses.concat(STATUSES);
+    }
+    CONFIG.statusEffects = statuses;
   }
 }
 
