@@ -23,7 +23,9 @@ export default class CompconLoginForm extends FormApplication {
   async _updateObject(_event: any, formData: any) {
     try {
       const { Auth } = await import("@aws-amplify/auth");
-      let res = await Auth.signIn(formData.username, formData.password);
+      
+      //username will be converted to lowercase to make emails case insensitive
+      let res = await Auth.signIn(formData.username.toLocaleLowerCase(), formData.password);
       ui.notifications!.info("Logged in as " + res.attributes.email);
       // we have a fresh login token, let's populate the pilot cache
       // no need to block on it, it can happen in the background
