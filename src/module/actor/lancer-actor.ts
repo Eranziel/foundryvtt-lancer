@@ -1,6 +1,6 @@
-import { LANCER, replace_default_resource, TypeIcon } from "../config";
-import { renderMacroTemplate, encodeMacroData, prepareOverheatMacro, prepareStructureMacro } from "../macros";
-import { DamageType, EntryType, FittingSize, MountType, StabOptions1, StabOptions2, WeaponSize } from "../enums";
+import { LANCER, TypeIcon } from "../config";
+import { prepareOverheatMacro, prepareStructureMacro } from "../macros";
+import { DamageType, EntryType } from "../enums";
 import { fix_modify_token_attribute, LancerTokenDocument } from "../token";
 import { AppliedDamage } from "./damage-calc";
 import { SystemData, SystemDataType, SystemTemplates } from "../system-template";

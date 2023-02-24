@@ -24,7 +24,7 @@ import {
   PackedPilotData,
   PackedPilotEquipmentState,
 } from "../util/unpacking/packed-types";
-import { LancerActor, LancerDEPLOYABLE, LancerMECH, LancerPILOT } from "./lancer-actor";
+import { LancerActor, LancerMECH, LancerPILOT } from "./lancer-actor";
 
 // Imports packed pilot data, from either a vault id or gist id
 export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearFirst = false) {

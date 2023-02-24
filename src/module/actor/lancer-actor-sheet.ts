@@ -11,13 +11,7 @@ import {
 import type { LancerActorSheetData, LancerMacroData, LancerStatMacroData } from "../interfaces";
 import { LancerItem, is_item_type, LancerItemType } from "../item/lancer-item";
 import { LancerActor, LancerActorType } from "./lancer-actor";
-import {
-  encodeMacroData,
-  prepareActivationMacro,
-  prepareChargeMacro,
-  prepareItemMacro,
-  runEncodedMacro,
-} from "../macros";
+import { prepareActivationMacro, prepareChargeMacro, prepareItemMacro, runEncodedMacro } from "../macros";
 import { ActivationOptions } from "../enums";
 import { applyCollapseListeners, CollapseHandler, initializeCollapses } from "../helpers/collapse";
 import { addExportButton } from "../helpers/io";
@@ -26,7 +20,7 @@ import { InventoryDialog } from "../apps/inventory";
 import { HANDLER_activate_item_context_menus, HANDLER_activate_edit_counter } from "../helpers/item";
 import { getActionTrackerOptions } from "../settings";
 import { modAction } from "../action/action-tracker";
-import { insinuate, LancerDoc } from "../util/doc";
+import { insinuate } from "../util/doc";
 import { PrototypeTokenData } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs";
 import { LancerActiveEffect } from "../effects/lancer-active-effect";
 const lp = LANCER.log_prefix;

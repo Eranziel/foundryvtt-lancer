@@ -390,6 +390,7 @@ export class AsyncUUIDRefField extends fields.StringField {
 }
 
 // Use this to represent a field that is effectively just a number, but should present as a min/max/value field in expanded `system` data
+// This is 10% so we can show them with bars, and 90% because usually the max is computed and we don't want to confuse anyone
 export class FakeBoundedNumberField extends fields.NumberField {
   constructor(a: any = undefined) {
     super(a);
