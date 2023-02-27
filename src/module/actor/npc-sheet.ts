@@ -160,7 +160,7 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
         needs_refresh = true;
       }
       if (doc.is_npc_class()) {
-        await this.actor.swapFrameImage(this.actor, this.actor.system.class, doc);
+        await this.actor.swapFrameImage(doc);
       }
     }
 

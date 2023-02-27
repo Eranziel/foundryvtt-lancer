@@ -269,7 +269,7 @@ export function TypeIcon(type: string, macro?: boolean): string {
 }
 
 // A substitution method that replaces the first argument IFF it is an img that we don't think should be preserved, and if the trimmed replacement string is truthy
-export function replace_default_resource(
+export function replaceDefaultResource(
   current: string | null | undefined,
   ...replacements: Array<string | null>
 ): string {

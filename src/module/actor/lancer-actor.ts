@@ -1,4 +1,4 @@
-import { LANCER, TypeIcon } from "../config";
+import { LANCER, replaceDefaultResource, TypeIcon } from "../config";
 import { prepareOverheatMacro, prepareStructureMacro } from "../macros";
 import { DamageType, EntryType } from "../enums";
 import { fix_modify_token_attribute, LancerTokenDocument } from "../token";
@@ -648,53 +648,26 @@ export class LancerActor extends Actor {
   /**
    * Taking a new and old frame/class, swaps the actor and/or token images if
    * we detect that the image isn't custom. Will check each individually
-   * @param robot     A Mech or NPC, passed through to avoid data overwrites
    * @param oldFrame  Old Frame or NPC Class
    * @param newFrame  New Frame or NPC Class
    * @returns         The newFrame if any updates were performed
    */
-  async swapFrameImage(
-    robot: LancerMECH | LancerNPC,
-    oldFrame: LancerFRAME | LancerNPC_CLASS | null,
-    newFrame: LancerFRAME | LancerNPC_CLASS
-  ): Promise<string> {
-    let oldFramePath = frameToPath[oldFrame?.name || ""];
-    let newFramePath = frameToPath[newFrame?.name || ""];
-    let defaultImg = robot.is_mech()
+  async swapFrameImage(newFrame: LancerFRAME | LancerNPC_CLASS): Promise<void> {
+    if (!(this.is_mech() || this.is_deployable())) return;
+
+    let new_frame_path = frameToPath(newFrame?.name);
+    let default_img = this.is_mech()
       ? "systems/lancer/assets/icons/mech.svg"
       : "systems/lancer/assets/icons/npc_class.svg";
 
-    if (!newFramePath) newFramePath = defaultImg;
-    let changed = false;
-    let newData: Parameters<this["update"]>[0] = {};
-
-    // First deduce if either our token or actor images are candidates for overwrite
-    let isStandard = (x: string) =>
-      x == oldFramePath ||
-      x == defaultImg ||
-      x.includes("compcon-image-assets" || x.includes("systems/lancer/assets/retrograde-minis"));
     // @ts-expect-error Should be fixed with v10 types
-    let isTokenStandard = isStandard(this.prototypeToken?.texture?.src || oldFramePath);
-    let isActorStandard = isStandard(this.img || oldFramePath);
+    let curr_token: string | null | undefined = this.prototypeToken?.texture?.src;
+    let curr_actor: string | null | undefined = this.img;
 
-    // Check the token
-    if (isTokenStandard) {
-      newData["prototypeToken.texture.src"] = newFramePath;
-      changed = true;
-    }
-
-    // Check the actor
-    if (isActorStandard) {
-      newData.img = newFramePath;
-      changed = true;
-    }
-
-    if (changed) {
-      console.log(`${lp} Automatically updating image: `, newData);
-      await this.update(newData);
-    }
-
-    return newFramePath;
+    await this.update({
+      img: replaceDefaultResource(curr_actor, new_frame_path, default_img),
+      "prototypeToken.texture.src": replaceDefaultResource(curr_token, new_frame_path, default_img),
+    });
   }
 
   // Checks that the provided document is not null, and is a lancer actor
@@ -706,6 +679,8 @@ export class LancerActor extends Actor {
       ui.notifications?.error(message);
       throw new Error(message);
     }
+    // @ts-ignore Infinite recursion for some reason
+    if (x instanceof TokenDocument) x = x.actor!;
     if (!(x instanceof LancerActor)) {
       let message = `${messagePrefix ? messagePrefix + " | " : ""}Document ${x} not an actor.`;
       ui.notifications?.error(message);

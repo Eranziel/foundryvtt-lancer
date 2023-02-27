@@ -879,7 +879,7 @@ export function framePreview(path: string, options: HelperOptions): string {
   if (!frame) {
     return "";
   } else {
-    let frame_img = encodeURI(frameToPath[frame.name!.toUpperCase()]);
+    let frame_img = encodeURI(frameToPath(frame.name) ?? "systems/lancer/assets/icons/frame.svg");
     return `
     <li class="card clipped item ref set click-open" ${ref_params(frame)}>
       <div class="compact-frame medium flexrow">
@@ -899,7 +899,7 @@ export function npc_class_ref(npc_class: LancerNPC_CLASS | null, item_path?: str
   if (!npc_class) {
     return "";
   } else {
-    let frame_img = encodeURI(frameToPath[npc_class.name!.toUpperCase()]);
+    let frame_img = encodeURI(frameToPath(npc_class.name) ?? "systems/lancer/assets/icons/npc_class.svg");
     return `
     <div class="card clipped item ref set click-open" ${ref_params(npc_class)}>
       <div class="compact-class medium flexrow">

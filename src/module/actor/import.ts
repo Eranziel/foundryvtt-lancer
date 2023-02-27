@@ -1,4 +1,4 @@
-import { replace_default_resource } from "../config";
+import { replaceDefaultResource } from "../config";
 import { EntryType, FittingSize, MountType } from "../enums";
 import {
   LancerCORE_BONUS,
@@ -25,6 +25,7 @@ import {
   PackedPilotEquipmentState,
 } from "../util/unpacking/packed-types";
 import { LancerActor, LancerMECH, LancerPILOT } from "./lancer-actor";
+import { frameToPath } from "./retrograde-map";
 
 // Imports packed pilot data, from either a vault id or gist id
 export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearFirst = false) {
@@ -169,7 +170,7 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
     // Perform base pilot update
     await pilot.update({
       name: data.name,
-      img: replace_default_resource(pilot.img, data.cloud_portrait),
+      img: replaceDefaultResource(pilot.img, data.cloud_portrait),
       system: {
         "hp.value": data.current_hp,
 
@@ -198,7 +199,7 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
       prototypeToken: {
         name: data.name,
         // @ts-expect-error
-        "texture.src": replace_default_resource(pilot.prototypeToken?.texture?.src, data.cloud_portrait, pilot.img),
+        "texture.src": replaceDefaultResource(pilot.prototypeToken?.texture?.src, data.cloud_portrait, pilot.img),
       },
     });
 
@@ -208,6 +209,13 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
       // Find the existing mech, or create one as necessary
       let mech = game.actors!.find(m => m.is_mech() && m.system.lid == cloud_mech.id) as unknown as LancerMECH | null;
       if (!mech) {
+        if (!game.user?.hasPermission("ACTOR_CREATE")) {
+          ui.notifications?.warn(
+            `Could not import mech '${cloud_mech.name}' as you lack the permission to create new actors. Please ask your GM for assistance (either they import for you, or give you permissions)`
+          );
+          continue;
+        }
+
         mech = (await LancerActor.create({
           name: cloud_mech.name,
           type: EntryType.MECH,
@@ -297,15 +305,16 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
       await mech.update({
         name: cloud_mech.name,
         folder: unit_folder ? unit_folder.id : null,
-        img: replace_default_resource(mech.img, cloud_mech.portrait),
+        img: replaceDefaultResource(mech.img, cloud_mech.portrait, frame ? frameToPath(frame.name) : null),
         permission,
         prototypeToken: {
           name: pilot.system.callsign || cloud_mech.name,
           disposition: CONST.TOKEN_DISPOSITIONS.FRIENDLY,
-          "texture.src": replace_default_resource(
+          "texture.src": replaceDefaultResource(
             // @ts-expect-error
             mech.prototypeToken?.texture?.src,
-            cloud_mech.cloud_portrait
+            cloud_mech.cloud_portrait,
+            frame ? frameToPath(frame.name) : null
           ),
         },
         system: {

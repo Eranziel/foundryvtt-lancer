@@ -234,8 +234,7 @@ export async function resolveNativeDrop(drop: string | FoundryDropData): Promise
   } else {
     // We presume it to be a normal dropData.
     if (drop.type == "Actor") {
-      // @ts-ignore
-      let document = await LancerActor.fromDropData(drop);
+      let document = await LancerActor.fromUuid(drop.uuid);
       return document
         ? {
             type: "Actor",
@@ -243,8 +242,7 @@ export async function resolveNativeDrop(drop: string | FoundryDropData): Promise
           }
         : null;
     } else if (drop.type == "Item") {
-      // @ts-ignore
-      let document = await LancerItem.fromDropData(drop);
+      let document = await LancerItem.fromUuid(drop.uuid);
       return document
         ? {
             type: "Item",

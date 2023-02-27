@@ -19,7 +19,7 @@ export async function requestImport(compendiumActor: LancerActor, forPilot: Lanc
     title: `Import ${LancerActor.name}`,
   });
 
-  let content = `<button class="self-destruct" data-macro="${macroData}">
+  let content = `<button class="chat-button self-destruct" data-macro="${macroData}">
                         IMPORT ${compendiumActor.name} FOR ${LancerActor.name}?
                     </button>`;
 
@@ -39,6 +39,7 @@ export async function requestImport(compendiumActor: LancerActor, forPilot: Lanc
  * @param forActor The actor (or actor UUID) to associate the new deployable with
  */
 export async function fulfillImportActor(compDeployable: string | LancerActor, forActor: string | LancerActor) {
+  if (!game.user?.hasPermission("ACTOR_CREATE")) throw new Error("You do not have permissions to import an actor!");
   compDeployable = await LancerActor.fromUuid(compDeployable);
   forActor = await LancerActor.fromUuid(forActor);
 

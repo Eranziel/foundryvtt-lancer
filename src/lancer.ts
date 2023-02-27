@@ -183,6 +183,7 @@ import { StatusModel } from "./module/models/items/status";
 const lp = LANCER.log_prefix;
 
 window.addEventListener("unhandledrejection", function (event) {
+  ui.notifications?.error(event.reason); // TODO Remove
   console.error("Unhandled rejection (promise: ", event.promise, ", reason: ", event.reason, ").");
 });
 
@@ -743,18 +744,17 @@ Hooks.on("renderChatMessage", async (cm: ChatMessage, html: JQuery, data: any) =
   applyCollapseListeners(html);
 
   html.find(".chat-button").on("click", ev => {
-    function checkTarget(element: HTMLElement) {
-      if (element.attributes.getNamedItem("data-macro")) {
-        ev.stopPropagation();
-        runEncodedMacro(element);
-        if (element.classList.contains("self-destruct")) {
+    let elt = $(ev.target).closest("[data-macro]")[0];
+    if (elt?.dataset.macro) {
+      ev.stopPropagation();
+      runEncodedMacro(elt).then(_ => {
+        if (elt.classList.contains("self-destruct")) {
           cm.delete();
         }
-        return true;
-      }
-      return false;
+      });
+      return true;
     }
-    checkTarget(ev.target as HTMLElement) || checkTarget(ev.currentTarget as HTMLElement);
+    return false;
   });
 });
 

@@ -20,6 +20,7 @@ const encodedMacroWhitelist = [
   "structureMacro",
   "overheatMacro",
   "fullRepairMacro",
+  "importActor",
 ];
 
 /**
@@ -47,15 +48,13 @@ export async function runEncodedMacro(el: HTMLElement) {
   let data: LancerMacro.Invocation | null = null;
   let encoded = el.attributes.getNamedItem("data-macro")?.nodeValue;
   if (!encoded) {
-    console.warn("No macro data available");
-    return;
+    throw new Error("No macro data available");
   }
 
   data = decodeMacroData(encoded) as LancerMacro.Invocation;
 
   if (!isValidEncodedMacro(data)) {
-    console.error("Attempting to call invalid encoded macro");
-    return;
+    throw new Error("Attempting to call invalid encoded macro");
   }
 
   let fn = game.lancer[data.fn];

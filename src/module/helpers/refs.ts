@@ -311,7 +311,7 @@ export function HANDLER_activate_ref_dragging(html: JQuery) {
     html.find(".ref.set"),
     (source, evt) => {
       let uuid = evt.currentTarget.dataset.uuid as string;
-      if (!uuid || !(uuid.includes("Item.") || uuid.includes("Actor."))) {
+      if (!uuid || !(uuid.includes("Item.") || uuid.includes("Actor.") || uuid.includes("Token."))) {
         console.error("Unable to properly drag ref", source, evt.currentTarget);
         throw new Error("Drag error");
       }
