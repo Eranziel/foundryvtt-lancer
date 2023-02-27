@@ -217,7 +217,7 @@ export function actor_macro_button(
   macro: string,
   options: HelperOptions & { rollable?: boolean }
 ): string {
-  let args = [getActorUUID(options), null];
+  let args = [getActorUUID(options)];
   let mIcon;
   switch (macro) {
     case "fullRepairMacro":

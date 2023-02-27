@@ -77,12 +77,7 @@ async function _prepareTextActionMacro(item: LancerItem, path: string) {
   await renderMacroHTML(actor, buildActionHTML(item, path, { full: true }));
 }
 
-async function _prepareTechActionMacro(
-  item: LancerItem,
-  path: string,
-  invocation: LancerMacro.Invocation,
-  accDiff?: AccDiffDataSerialized
-) {
+async function _prepareTechActionMacro(item: LancerItem, path: string) {
   let actor = item.actor!;
   let action = resolve_dotpath<ActionData>(item, path)!;
 
@@ -95,22 +90,6 @@ async function _prepareTechActionMacro(
     effect: action.detail,
     tags: item.is_mech_system() ? item.system.tags : [],
   };
-
-  /*
-  if (item.is_npc_feature()) {
-    const tData = item.system as RegNpcTechData;
-    let tier: number;
-    if (item.actor === null) {
-      tier = actor.system.tier_num - 1;
-    } else {
-      tier = item.actor.system.tier_num - 1;
-    }
-    mData.t_atk =
-      tData.attack_bonus && tData.attack_bonus.length 6> tier ? tData.attack_bonus[tier] : 0;
-    mData.acc = tData.accuracy && tData.accuracy.length > tier ? tData.accuracy[tier] : 0;
-    mData.tags = await SerUtil.process_tags(new FoundryReg(), new OpCtx(), tData.tags);
-    mData.detail = tData.effect ? tData.effect : "";
-  } */
 
   await rollTechMacro(mData);
 }

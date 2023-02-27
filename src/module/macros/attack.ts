@@ -65,7 +65,6 @@ export function attackRolls(flat_bonus: number, acc_diff: AccDiffData): AttackRo
  *            - accBonus        Flat bonus to accuracy
  *            - damBonus        Object of form {type: val} to apply flat damage bonus of given type.
  *                              The "Bonus" type is recommended but not required
- * @param rerollData {AccDiffData?} saved accdiff data for rerolls
  */
 export async function prepareAttackMacro(
   doc: string | LancerActor | LancerItem,
