@@ -7,10 +7,10 @@ import { LancerActiveEffect } from "../effects/lancer-active-effect";
 export function effect_view(effect: LancerActiveEffect, options: HelperOptions): string {
   // @ts-expect-error
   let label = effect.label;
-  return `<div class="flexrow active-effect" data-uuid="${effect.uuid}">
-                <div>
-                    Label: ${label}
-                </div>
+  return `<div class="active-effect" data-uuid="${effect.uuid}">
+                <span>
+                    ${label}
+                </span>
                 <a class="lancer-context-menu" data-context-menu="active-effect">
                     <i class="fas fa-ellipsis-v"></i>
                 </a>

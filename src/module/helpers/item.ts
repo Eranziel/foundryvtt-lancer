@@ -420,7 +420,7 @@ export function pilot_armor_slot(armor_path: string, options: HelperOptions): st
             <div class="effect-text" style=" padding: 5px">
               ${armor.system.description}
             </div>
-            ${compact_tag_list(armor_path + ".Tags", armor.system.tags, false)}
+            ${compact_tag_list(armor_path + ".system.tags", armor.system.tags, false)}
           </div>`;
 }
 
@@ -970,12 +970,13 @@ export function action_type_icon(a_type: string) {
  * @param path  Path to the action within the document
  * @param options Options such as:
  *        full    Determines if we should generate full HTML info or just mini version (title & action)
+ *        tags    If we should show tags here
  * @returns Activation HTML in string form
  */
 export function buildActionHTML(
   doc: LancerItem | LancerActor,
   path: string,
-  options?: { editable?: boolean; full?: boolean }
+  options?: { editable?: boolean; full?: boolean; tags?: boolean }
 ): string {
   let action = resolve_dotpath<ActionData>(doc, path);
   if (!action) return "";
@@ -984,58 +985,53 @@ export function buildActionHTML(
   let tags: string | undefined;
   let editor: string | undefined;
 
-  if (options) {
-    // Not using type yet but let's plan forward a bit
-    let type: ActivationOptions;
-    let icon: ChipIcons | undefined;
+  // Not using type yet but let's plan forward a bit
+  let icon: ChipIcons | undefined;
 
-    // If we don't have a trigger do a simple detail
-    if (!action.trigger)
-      detailText = `
-        <div class="action-detail">
-          <hr class="hsep">
-          ${action.detail}
-        </div>`;
-    // Otherwise, look to be explicit about which is which
-    else {
-      detailText = `
-        <div class="action-detail ${options.full ? "" : "collapsed"}">
-          <hr class="hsep">
-          <div class="overline">${game.i18n.localize("lancer.chat-card.label.trigger")}</div> 
-          <div>${action.trigger}</div>
-          <div class="overline">${game.i18n.localize("lancer.chat-card.label.effect")}</div> 
-          <div>${action.detail}</div> 
-        </div>`;
-    }
-
-    // Deduce what type of action it is broadly. Tech? Deployable? Normal? It wouldn't be a weapon, not here anyways
-    switch (action.activation) {
-      case ActivationType.QuickTech:
-      case ActivationType.FullTech:
-      case ActivationType.Invade:
-        type = ActivationOptions.TECH;
-        icon = ChipIcons.Roll;
-        break;
-      default:
-        type = ActivationOptions.ACTION;
-        icon = ChipIcons.Chat;
-        break;
-    }
-
-    chip = buildChipHTML(action.activation, { icon: icon, uuid: doc.uuid, path: path });
-
-    if (options.editable) {
-      // If it's editable, it's deletable
-      editor = `
-      <div class="action-editor-wrapper">
-        <a class="gen-control" data-uuid="${doc.uuid} data-action="splice" data-path="${path}"><i class="fas fa-trash"></i></a>
-        <a class="action-editor fas fa-edit" data-path="${path}"></a>
+  // If we don't have a trigger do a simple detail
+  if (!action.trigger)
+    detailText = `
+      <div class="action-detail">
+        <hr class="hsep">
+        ${action.detail}
       </div>`;
-    }
+  // Otherwise, look to be explicit about which is which
+  else {
+    detailText = `
+      <div class="action-detail ${options?.full ? "" : "collapsed"}">
+        <hr class="hsep">
+        <div class="overline">${game.i18n.localize("lancer.chat-card.label.trigger")}</div> 
+        <div>${action.trigger}</div>
+        <div class="overline">${game.i18n.localize("lancer.chat-card.label.effect")}</div> 
+        <div>${action.detail}</div> 
+      </div>`;
+  }
 
-    if (doc instanceof LancerItem && doc.getTags()) {
-      tags = compact_tag_list("", doc.getTags()!, false);
-    }
+  // Deduce what type of action it is broadly. Tech? Deployable? Normal? It wouldn't be a weapon, not here anyways
+  switch (action.activation) {
+    case ActivationType.QuickTech:
+    case ActivationType.FullTech:
+    case ActivationType.Invade:
+      icon = ChipIcons.Roll;
+      break;
+    default:
+      icon = ChipIcons.Chat;
+      break;
+  }
+
+  chip = buildChipHTML(action.activation, { icon: icon, uuid: doc.uuid, path: path });
+
+  if (options?.editable) {
+    // If it's editable, it's deletable
+    editor = `
+    <div class="action-editor-wrapper">
+      <a class="gen-control" data-uuid="${doc.uuid} data-action="splice" data-path="${path}"><i class="fas fa-trash"></i></a>
+      <a class="action-editor fas fa-edit" data-path="${path}"></a>
+    </div>`;
+  }
+
+  if (options?.tags && doc instanceof LancerItem && doc.getTags()) {
+    tags = compact_tag_list("", doc.getTags()!, false);
   }
 
   return `
@@ -1043,19 +1039,21 @@ export function buildActionHTML(
     <div class="title-wrapper flexrow">
       ${action_type_icon(action.activation)}
       <span class="action-title collapse-trigger">
-        ${action.name ? action.name.toUpperCase() : ""}
+        ${action.name?.toUpperCase() ?? doc.name}
       </span>
-      ${editor ? editor : ""}
+      ${editor ?? ""}
     </div>
-    ${detailText ? detailText : ""}
+    ${detailText ?? ""}
     ${chip}
-    ${tags ? tags : ""}
+    ${tags ?? ""}
   </div>
   `;
 }
 
 export function buildActionArrayHTML(doc: LancerActor | LancerItem, path: string): string {
-  return "WIPACTIONS";
+  let actions = resolve_dotpath<Array<ActionData>>(doc, path, []);
+  let cards = actions.map((_, i) => buildActionHTML(doc, `${path}.${i}`));
+  return cards.join("");
 }
 
 /**
@@ -1159,7 +1157,7 @@ export function buildChipHTML(
     if (macroData?.fullData) {
       data = `data-macro=${encodeMacroData(macroData.fullData)}`;
     } else {
-      data = `data-uuid=${macroData.uuid} data-path="${macroData.path}`;
+      data = `data-uuid=${macroData.uuid} data-path="${macroData.path}"`;
     }
     return `<a class="${macroData?.fullData ? "lancer-macro" : "activation-macro"} activation-chip activation-${slugify(
       activation,

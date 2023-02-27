@@ -6,27 +6,22 @@ import type { AccDiffDataSerialized } from "../helpers/acc_diff";
 import { buildActionHTML, buildDeployableHTML } from "../helpers/item";
 import { ActivationOptions, ActivationType } from "../enums";
 import { renderMacroHTML, renderMacroTemplate } from "./_render";
-import { rollTechMacro } from "./tech";
+import { prepareTechMacro, rollTechMacro } from "./tech";
 import { resolve_dotpath } from "../helpers/commons";
 import { ActionData } from "../models/bits/action";
 import { lookupOwnedDeployables } from "../util/lid";
 import { LancerMacro } from "./interfaces";
+import { prepareTextMacro } from "./text";
 
 /**
  * Dispatch wrapper for the "action chips" on the bottom of many items, traits, systems, and so on.
- * @param itemUUID       {string}                    Item to use.
- * @param type    {ActivationOptions}         Options for how to perform the activation
+ * @param item   {string}                    Item to use.
+ * @param type   {ActivationOptions}         Options for how to perform the activation
  * @param path   {string}                    ?
- * @param rerollData {AccDiffDataSerialized}  saved accdiff data for rerolls
  */
-export async function prepareActivationMacro(
-  itemUUID: string,
-  type: ActivationOptions,
-  path: string,
-  rerollData?: AccDiffDataSerialized
-) {
+export async function prepareActivationMacro(item: string | LancerItem, type: ActivationOptions, path: string) {
   // Get the item
-  let item = LancerItem.fromUuidSync(itemUUID, "Error preparing tech attack macro");
+  item = LancerItem.fromUuidSync(item, "Error preparing tech attack macro");
   if (!item.actor) {
     return ui.notifications!.error(`Error rolling activation macro - ${item.name} is not owned by an Actor!`);
   }
@@ -36,30 +31,21 @@ export async function prepareActivationMacro(
     return;
   }
 
-  switch (type) {
-    case ActivationOptions.ACTION:
-      let action = resolve_dotpath<ActionData>(item, path);
-      if (action) {
-        switch (action?.activation) {
-          case ActivationType.FullTech:
-          case ActivationType.Invade:
-          case ActivationType.QuickTech:
-            let partialMacroData = {
-              title: "Reroll activation",
-              fn: "prepareActivationMacro",
-              args: [itemUUID, type, path],
-            };
-            await _prepareTechActionMacro(item, path, partialMacroData, rerollData);
-            break;
-          default:
-            await _prepareTextActionMacro(item, path);
-        }
+  if (type == ActivationOptions.ACTION) {
+    let action = resolve_dotpath<ActionData>(item, path);
+    if (action) {
+      if (action.tech_attack || action.activation == ActivationType.Invade) {
+        await prepareTechMacro(item.uuid, {
+          action_path: path,
+        });
       } else {
-        ui.notifications!.error(`Failed to resolve action ${path}`);
+        await prepareTextMacro(item.actor, action.name ?? item.name, buildActionHTML(item, path));
       }
-      break;
-    case ActivationOptions.DEPLOYABLE:
-      await _prepareDeployableMacro(item, path);
+    } else {
+      ui.notifications!.error(`Failed to resolve action ${path}`);
+    }
+  } else if (type == ActivationOptions.DEPLOYABLE) {
+    await prepareDeployableMacro(item, path);
   }
 
   // Wait until the end to deduct a use so we're sure it completed succesfully
@@ -72,12 +58,7 @@ export async function prepareActivationMacro(
   return;
 }
 
-async function _prepareTextActionMacro(item: LancerItem, path: string) {
-  let actor = item.actor!;
-  await renderMacroHTML(actor, buildActionHTML(item, path, { full: true }));
-}
-
-async function _prepareTechActionMacro(item: LancerItem, path: string) {
+async function prepareTechActionMacro(item: LancerItem, path: string) {
   let actor = item.actor!;
   let action = resolve_dotpath<ActionData>(item, path)!;
 
@@ -90,11 +71,12 @@ async function _prepareTechActionMacro(item: LancerItem, path: string) {
     effect: action.detail,
     tags: item.is_mech_system() ? item.system.tags : [],
   };
+  prepareTechMacro(item.uuid);
 
   await rollTechMacro(mData);
 }
 
-async function _prepareDeployableMacro(item: LancerItem, path: string) {
+async function prepareDeployableMacro(item: LancerItem, path: string) {
   let deployable_lid = resolve_dotpath<string>(item, path);
   let dep = lookupOwnedDeployables(item.actor!).find(d => (d as LancerDEPLOYABLE).system.lid == deployable_lid);
   if (dep) {

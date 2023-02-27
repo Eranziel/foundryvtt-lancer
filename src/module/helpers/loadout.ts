@@ -50,7 +50,7 @@ export function mech_system_view(system_path: string, options: HelperOptions): s
   }
 
   if (doc.system.actions.length) {
-    actions = buildActionHTML(doc, "system.actions");
+    actions = buildActionArrayHTML(doc, "system.actions");
   }
 
   if (doc.system.deployables.length) {

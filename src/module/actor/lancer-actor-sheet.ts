@@ -187,14 +187,6 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       runEncodedMacro(ev.currentTarget);
     });
 
-    /*
-    // Stat rollers
-    let statMacro = html.find(".roll-stat");
-    statMacro.on("click", ev => {
-      ev.stopPropagation(); // Avoids triggering parent event handlers
-      prepareStatMacro(this.actor._id, this.getStatPath(ev)!);
-    });*/
-
     // Weapon rollers
     let weaponMacro = html.find(".roll-attack");
     weaponMacro.on("click", ev => {

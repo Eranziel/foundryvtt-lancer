@@ -15,7 +15,12 @@ const lp = LANCER.log_prefix;
  * @param text  Data path to text to be displayed by the macro
  * @param tags  Can optionally pass through an array of tags to be rendered
  */
-export function prepareTextMacro(actor: string | LancerActor, title: string, text: string, tags?: Tag[]) {
+export function prepareTextMacro(
+  actor: string | LancerActor,
+  title: string,
+  text: string,
+  tags?: Tag[]
+): Promise<void> {
   let mData: LancerMacro.TextRoll = {
     docUUID: actor instanceof LancerActor ? actor.uuid : actor,
     title,
@@ -23,7 +28,7 @@ export function prepareTextMacro(actor: string | LancerActor, title: string, tex
     tags: tags,
   };
 
-  rollTextMacro(mData);
+  return rollTextMacro(mData);
 }
 
 /**

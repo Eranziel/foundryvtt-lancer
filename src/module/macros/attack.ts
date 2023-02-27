@@ -15,8 +15,6 @@ import { LancerMacro } from "./interfaces";
 import { openSlidingHud } from "../helpers/slidinghud";
 import { Tag } from "../models/bits/tag";
 
-const lp = LANCER.log_prefix;
-
 function rollStr(bonus: number, total: number): string {
   let modStr = "";
   if (total != 0) {
@@ -289,7 +287,8 @@ export async function rollAttackMacro(data: LancerMacro.WeaponRoll, reroll: bool
   };
 
   const atkRolls = attackRolls(data.flat_bonus, add);
-  const isSmart = data.tags.map(t => new Tag(t)).some(tag => tag.is_smart);
+  const hydratedTags = data.tags?.map(t => new Tag(t)) ?? [];
+  const isSmart = hydratedTags.some(tag => tag.is_smart);
   const { attacks, hits } = await checkTargets(atkRolls, isSmart);
 
   // Iterate through damage types, rolling each
@@ -307,7 +306,7 @@ export async function rollAttackMacro(data: LancerMacro.WeaponRoll, reroll: bool
   // If we hit evaluate normal damage, even if we only crit, we'll use this in
   // the next step for crits
   if (has_normal_hit || has_crit_hit) {
-    for (const x of data.damage) {
+    for (const x of data.damage ?? []) {
       if (!x.val || x.val == "0") continue; // Skip undefined and zero damage
       let damageRoll: Roll | undefined = new Roll(x.val);
       // Add overkill if enabled.
@@ -384,7 +383,7 @@ export async function rollAttackMacro(data: LancerMacro.WeaponRoll, reroll: bool
     on_attack: data.on_attack ? data.on_attack : null,
     on_hit: data.on_hit ? data.on_hit : null,
     on_crit: data.on_crit ? data.on_crit : null,
-    tags: data.tags,
+    tags: hydratedTags,
     rerollMacroData: encodeMacroData(rerollInvocation),
   };
 

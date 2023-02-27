@@ -20,6 +20,7 @@ export interface ActionData {
   detail: string;
   pilot: boolean;
   mech: boolean;
+  tech_attack: boolean;
   // hide_active: boolean;
   // confirm: string[];
   // available_mounted: boolean;
@@ -102,6 +103,7 @@ export class ActionField extends fields.SchemaField {
         detail: new fields.HTMLField(),
         pilot: new fields.BooleanField(),
         mech: new fields.BooleanField(),
+        tech_attack: new fields.BooleanField(),
         // confirm: new fields.StringField(),
         // available_mounted: new fields.BooleanField(),
         heat_cost: new fields.NumberField({ min: 0, integer: true, nullable: false }),
@@ -135,5 +137,6 @@ export function unpackAction(data: PackedActionData): ActionData {
     synergy_locations: data.synergy_locations ?? [],
     terse: data.terse ?? "",
     trigger: data.trigger ?? "",
+    tech_attack: data.tech_attack ?? false,
   };
 }

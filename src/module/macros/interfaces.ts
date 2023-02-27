@@ -35,12 +35,12 @@ export namespace LancerMacro {
     on_hit?: string;
 
     self_heat?: string; // The self heat roll if present
-    tags: TagData[];
+    tags?: TagData[];
   }
 
   // Specifically for weapons
   export interface WeaponRoll extends AttackRoll {
-    damage: DamageData[];
+    damage?: DamageData[];
     loaded?: boolean;
     destroyed?: boolean;
     overkill?: boolean;

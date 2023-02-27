@@ -25,6 +25,7 @@ export interface PackedActionData {
   detail: string;
   pilot?: boolean;
   mech?: boolean;
+  tech_attack?: boolean;
   hide_active?: boolean;
   synergy_locations?: string[];
   confirm?: string[];

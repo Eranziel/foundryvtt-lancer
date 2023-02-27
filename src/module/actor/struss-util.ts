@@ -1,5 +1,6 @@
 import { StabOptions1, StabOptions2 } from "../enums";
 import { encodeMacroData, renderMacroTemplate } from "../macros";
+import { SystemData } from "../system-template";
 import { LancerActor } from "./lancer-actor";
 
 /**
@@ -304,8 +305,8 @@ export class StrussHelper {
       return "";
     }
 
-    let changes: any = {}; // TODO
-    let item_changes: any = null; // TODO
+    let changes: any = {};
+    let item_changes: any = []; // TODO
 
     if (o1 === StabOptions1.Cool) {
       return_text = return_text.concat("Mech is cooling itself. @Compendium[world.status.EXPOSED] cleared.<br>");
@@ -326,7 +327,7 @@ export class StrussHelper {
     switch (o2) {
       case StabOptions2.ClearBurn:
         return_text = return_text.concat("Mech has selected full burn clear.");
-        changes["data.burn"] = 0;
+        changes["system.burn"] = 0;
         break;
       case StabOptions2.ClearOtherCond:
         return_text = return_text.concat("Mech has selected to clear an allied condition. Please clear manually.");

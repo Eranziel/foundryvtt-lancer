@@ -36,8 +36,6 @@ export enum NPCTag {
 
 export enum ActivationOptions {
   ACTION = "Action",
-  TECH = "Tech",
-  ATTACK = "Attack",
   DEPLOYABLE = "Deployable",
 }
 

@@ -93,6 +93,7 @@ export function ACTION(): ActionData {
     synergy_locations: [],
     terse: "Terse Description",
     trigger: "",
+    tech_attack: false,
     // available_mounted: true,
   };
 }

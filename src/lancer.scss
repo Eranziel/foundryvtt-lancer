@@ -1642,7 +1642,7 @@ a.flexrow.skill-macro {
   font-weight: bold;
 }
 // Action activation types
-$activations-types: none passive quick quicktech invade full fulltech other reaction protocol free move;
+$activations-types: none passive quick quick-tech invade full full-tech other reaction protocol free move;
 // The rgb-based colors I just made up, not sure if there are official colors for those
 $activations-colors: rgb(204, 10, 10) rgb(98, 0, 255) #3949ab #3949ab #222222 #283593 #283593 rgb(162, 0, 255) #512da8
   #007676 #00695c rgb(204, 10, 10);
@@ -2014,7 +2014,12 @@ a.activation-chip > i.mdi {
 // Effects
 .active-effect {
   border-radius: 5px groove;
-  border-color: var(--main-theme-color);
+  border: black solid 1px;
+  display: grid;
+  grid-template-columns: 1fr 30px;
+  justify-items: start;
+  margin: 3px;
+  padding: 3px;
 }
 
 // Stabilize dialog

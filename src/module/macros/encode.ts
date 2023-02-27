@@ -1,9 +1,4 @@
-import { LANCER } from "../config";
-import { is_item_type, LancerItem } from "../item/lancer-item";
-import { LancerActor } from "../actor/lancer-actor";
 import { LancerMacro } from "./interfaces";
-
-const lp = LANCER.log_prefix;
 
 const encodedMacroWhitelist = [
   "prepareActivationMacro",
@@ -44,20 +39,19 @@ export function encodeMacroData(data: LancerMacro.Invocation): string {
   return window.btoa(encodeURI(JSON.stringify(data)));
 }
 
-export async function runEncodedMacro(el: HTMLElement | LancerMacro.Invocation) {
+export function decodeMacroData(encoded: string): LancerMacro.Invocation {
+  return JSON.parse(decodeURI(window.atob(encoded))) as LancerMacro.Invocation;
+}
+
+export async function runEncodedMacro(el: HTMLElement) {
   let data: LancerMacro.Invocation | null = null;
-
-  if (el instanceof HTMLElement) {
-    let encoded = el.attributes.getNamedItem("data-macro")?.nodeValue;
-    if (!encoded) {
-      console.warn("No macro data available");
-      return;
-    }
-
-    data = JSON.parse(decodeURI(window.atob(encoded))) as LancerMacro.Invocation;
-  } else {
-    data = el as LancerMacro.Invocation;
+  let encoded = el.attributes.getNamedItem("data-macro")?.nodeValue;
+  if (!encoded) {
+    console.warn("No macro data available");
+    return;
   }
+
+  data = decodeMacroData(encoded) as LancerMacro.Invocation;
 
   if (!isValidEncodedMacro(data)) {
     console.error("Attempting to call invalid encoded macro");
