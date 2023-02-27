@@ -802,7 +802,7 @@ export function weapon_mod_ref(mod_path: string, weapon_path: string | null, opt
   if (mod.system.actions.length) {
     actions = mod.system.actions
       .map((_, i) => {
-        return buildActionHTML(mod!, `system.actions.${i}`, { full: true });
+        return buildActionArrayHTML(mod!, `system.actions.${i}`);
       })
       .join("");
   }
@@ -1183,12 +1183,7 @@ export function buildSystemHTML(system: LancerMECH_SYSTEM): string {
   }
 
   if (system.system.actions) {
-    actions = system.system.actions
-      .map((_, i) => {
-        // return buildActionHTML(a, { full: !i && useFirstActivation });
-        return buildActionHTML(system, `system.actions.${i}`, { full: false });
-      })
-      .join("");
+    actions = buildActionArrayHTML(system, "system.action");
   }
 
   if (system.system.deployables) {

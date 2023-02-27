@@ -4,7 +4,7 @@ import { encodeMacroData } from "../macros";
 import { LancerMacro } from "../macros/interfaces";
 import { collapseButton, collapseParam, CollapseRegistry } from "./collapse";
 import { resolve_helper_dotpath } from "./commons";
-import { buildActionArrayHTML, buildActionHTML } from "./item";
+import { buildActionArrayHTML } from "./item";
 import { ref_params } from "./refs";
 
 export function talent_view(talent_path: string, options: HelperOptions) {

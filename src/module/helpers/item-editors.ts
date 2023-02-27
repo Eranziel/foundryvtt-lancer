@@ -1,13 +1,5 @@
 import type { HelperOptions } from "handlebars";
-import {
-  bonuses_display,
-  damage_editor,
-  range_editor,
-  buildActionHTML,
-  buildDeployableHTML,
-  buildActionArrayHTML,
-  buildDeployablesArray,
-} from "./item";
+import { bonuses_display, damage_editor, range_editor, buildActionArrayHTML, buildDeployablesArray } from "./item";
 import {
   drilldownDocument,
   extendHelper as extendHelper,

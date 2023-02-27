@@ -328,10 +328,7 @@ function frameTraits(frame_path: string, options: HelperOptions): string {
 function frame_active(frame_path: string, options: HelperOptions): string {
   let frame = resolve_helper_dotpath<LancerFRAME>(options, frame_path)!;
   let core = frame.system.core_system;
-  let actionHTML = core.active_actions.map((_, i) =>
-    buildActionHTML(frame, `system.active_actions.${i}`, { full: true })
-  );
-
+  let actionHTML = buildActionArrayHTML(frame, `system.core_system.active_actions`);
   let depHTML = buildDeployablesArray(frame, "system.core.deployables", options);
 
   // Should find a better way to do this...
@@ -365,7 +362,7 @@ function frame_passive(frame: LancerFRAME): string {
   let core = frame.system.core_system;
   let actionHTML = core.passive_actions
     .map((_, i) => {
-      return buildActionHTML(frame, "system.core_system.passive_actions", { full: true });
+      return buildActionArrayHTML(frame, "system.core_system.passive_actions");
     })
     .join("");
 
