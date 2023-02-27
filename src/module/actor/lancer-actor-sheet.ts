@@ -199,7 +199,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       prepareItemMacro(weapon.uuid!);
     });
 
-    // TODO: This should really just be a single item-macro class
+    // TODO: For sanity's sake, merge these into a single "macro" handler
     // Trigger rollers
     let itemMacros = html
       .find(".skill-macro")
@@ -316,28 +316,6 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     button.on("click", async (ev: Event) => {
       ev.preventDefault();
       return InventoryDialog.show_inventory(this.actor as LancerActor);
-    });
-  }
-
-  /**
-   * Activate event listeners for trigger macros using the prepared sheet HTML
-   * @param html {JQuery}   The prepared HTML object ready to be rendered into the DOM
-   */
-  activateTriggerListeners(html: JQuery) {
-    // Trigger rollers
-    let triggerMacro = html.find(".roll-trigger");
-    triggerMacro.on("click", ev => {
-      if (!ev.currentTarget) return; // No target, let other handlers take care of it.
-      ev.stopPropagation(); // Avoids triggering parent event handlers
-
-      let mData: LancerMacro.StatRoll = {
-        docUUID: this.actor.uuid,
-        title: $(ev.currentTarget).closest(".skill-compact").find(".modifier-name").text(),
-        bonus: parseInt($(ev.currentTarget).find(".roll-modifier").text()),
-      };
-
-      console.log(`${lp} Rolling '${mData.title}' trigger (d20 + ${mData.bonus})`);
-      rollStatMacro(mData);
     });
   }
 

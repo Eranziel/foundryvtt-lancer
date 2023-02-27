@@ -52,6 +52,11 @@ export async function prepareTechMacro(
       // NPC features don't really have explicit actions
       let tier_index: number = (item.system.tier_override || (item.actor as LancerNPC).system.tier) - 1;
 
+      if (item.system.tags.some(t => t.is_recharge) && !item.system.charged) {
+        ui.notifications!.warn(`Feature ${item.name} is not charged!`);
+        return;
+      }
+
       let sys = item.system as SystemTemplates.NPC.TechData;
       let acc = sys.accuracy[tier_index] ?? 0;
       acc_diff = AccDiffData.fromParams(item, item.getTags() ?? [], item.name!, Array.from(game.user!.targets), acc);
@@ -105,6 +110,12 @@ export async function prepareTechMacro(
   // Summon prompt
   acc_diff = await openSlidingHud("attack", acc_diff);
   mData.acc_diff = acc_diff.toObject();
+
+  // Un-charge
+  if (item && item.is_npc_feature() && item.system.tags.some(t => t.is_recharge)) {
+    await item.update({ "system.charged": false });
+  }
+
   await rollTechMacro(mData as LancerMacro.AttackRoll);
 }
 

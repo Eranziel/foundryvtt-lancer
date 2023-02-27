@@ -12,6 +12,10 @@ export async function resolveItemOrActor(provided: string | LancerActor | Lancer
   if (typeof provided == "string") {
     provided = (await fromUuid(provided)) as LancerActor | LancerItem;
   }
+  if (provided instanceof TokenDocument) {
+    // @ts-ignore Infinite recursion for some reason
+    provided = provided.actor;
+  }
   if (provided instanceof LancerActor) {
     return {
       actor: provided,

@@ -21,6 +21,7 @@ export namespace LancerMacro {
   // Configuration passed to initiate a stat roll
   export interface StatRoll extends BaseRoll {
     bonus: string | number;
+    acc_diff: AccDiffDataSerialized;
     effect?: string;
   }
 

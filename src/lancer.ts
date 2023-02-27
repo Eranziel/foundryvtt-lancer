@@ -89,9 +89,9 @@ import {
   uses_control,
   buildCounterArrayHTML,
   loading_indicator,
-  buildDeployableHTML,
-  framePreview,
   action_type_icon,
+  npc_class_ref,
+  npc_template_ref,
 } from "./module/helpers/item";
 import {
   action_button,
@@ -579,6 +579,10 @@ Hooks.once("init", async function () {
   // NPC components
   Handlebars.registerHelper("tier-selector", npc_tier_selector);
   Handlebars.registerHelper("npc-feat-preview", npc_feature_preview);
+  Handlebars.registerHelper("ref-npc-class", npc_class_ref);
+  Handlebars.registerHelper("ref-npc-template", npc_template_ref);
+
+  // Stat rollers
 
   // ------------------------------------------------------------------------
   // Actor helpers

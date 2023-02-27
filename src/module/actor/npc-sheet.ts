@@ -58,31 +58,6 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
         prepareItemMacro(el.dataset.uuid!);
       });
 
-      // Stat rollers
-      let statMacro = html.find(".roll-stat");
-      statMacro.on("click", ev => {
-        if (!ev.currentTarget) return; // No target, let other handlers take care of it.
-        ev.stopPropagation(); // Avoids triggering parent event handlers
-
-        // Find the stat input to get the stat's key to pass to the macro function
-        const statInput: HTMLInputElement = $(ev.currentTarget)
-          .closest(".stat-container")
-          .find(".lancer-stat")[0] as HTMLInputElement;
-        let tSplit = statInput.name.split(".");
-        let mData: LancerMacro.StatRoll = {
-          docUUID: this.actor.uuid,
-          title: tSplit[tSplit.length - 1].toUpperCase(),
-          bonus: statInput.value,
-        };
-
-        let id = this.token && !this.token.isLinked ? this.token.id! : this.actor.id!;
-        console.log(`${lp} Rolling ${mData.title} check, bonus: ${mData.bonus}`);
-        prepareStatMacro(id, this.getStatPath(ev)!);
-      });
-
-      // Trigger rollers
-      this.activateTriggerListeners(html);
-
       // Tech rollers
       let techMacro = html.find(".roll-tech");
       techMacro.on("click", ev => {
