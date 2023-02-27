@@ -55,7 +55,9 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
         ev.stopPropagation(); // Avoids triggering parent event handlers
 
         const el = $(ev.currentTarget).closest("[data-uuid]")[0] as HTMLElement;
-        prepareItemMacro(el.dataset.uuid!);
+        prepareItemMacro(el.dataset.uuid!, {
+          display: true,
+        });
       });
 
       // Tech rollers

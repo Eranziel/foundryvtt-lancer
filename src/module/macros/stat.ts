@@ -52,7 +52,7 @@ export async function prepareSkillMacro(item: string | LancerItem) {
 // Rollers
 
 export async function rollStatMacro(data: LancerMacro.StatRoll) {
-  let { actor } = await resolveItemOrActor(data.docUUID);
+  let { actor } = resolveItemOrActor(data.docUUID);
   if (!actor) return;
 
   // Get accuracy/difficulty with a prompt

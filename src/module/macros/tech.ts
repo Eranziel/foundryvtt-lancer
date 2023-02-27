@@ -24,7 +24,7 @@ export async function prepareTechMacro(
   }
 ) {
   // Determine provided doc
-  let { item, actor } = await resolveItemOrActor(docUUID);
+  let { item, actor } = resolveItemOrActor(docUUID);
   if (!actor) return;
 
   let mData: Partial<LancerMacro.AttackRoll>;
@@ -121,7 +121,7 @@ export async function prepareTechMacro(
 
 export async function rollTechMacro(data: LancerMacro.AttackRoll, reroll: boolean = false) {
   // Get actor
-  let { actor } = await resolveItemOrActor(data.docUUID);
+  let { actor } = resolveItemOrActor(data.docUUID);
   if (!actor) return;
 
   // Populate and possibly regenerate ADD if reroll

@@ -36,7 +36,7 @@ export function prepareTextMacro(
  * @param data {LancerTextMacroData} Prepared macro data.
  */
 export async function rollTextMacro(data: LancerMacro.TextRoll) {
-  let { actor } = await resolveItemOrActor(data.docUUID);
+  let { actor } = resolveItemOrActor(data.docUUID);
   if (!actor) return;
 
   const template = `systems/${game.system.id}/templates/chat/generic-card.hbs`;

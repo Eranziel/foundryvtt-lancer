@@ -11,22 +11,27 @@ import { LancerMacro } from "./interfaces";
 import { SystemTemplates } from "../system-template";
 import { rollReactionMacro } from "./reaction";
 
-export async function prepareNPCFeatureMacro(item: string | LancerItem) {
+export async function prepareNPCFeatureMacro(
+  item: string | LancerItem,
+  options?: {
+    display?: boolean;
+  }
+) {
   item = LancerItem.fromUuidSync(item);
   if (!item.actor || !item.is_npc_feature()) return;
 
   switch (item.system.type) {
     case NpcFeatureType.Weapon:
-      return prepareAttackMacro(item);
+      if (!options?.display) return prepareAttackMacro(item);
     case NpcFeatureType.Tech:
-      return prepareTechMacro(item);
+      if (!options?.display) return prepareTechMacro(item);
     case NpcFeatureType.System:
     case NpcFeatureType.Trait:
       let sysData: LancerMacro.TextRoll = {
         docUUID: item.uuid,
         title: item.name!,
         description: item.system.effect,
-        tags: item.system.tags, // Todo: cronch tags?
+        tags: item.system.tags,
       };
 
       return rollTextMacro(sysData);

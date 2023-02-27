@@ -2,6 +2,7 @@ import type { HelperOptions } from "handlebars";
 import { ActivationType, EntryType, NpcFeatureType } from "../enums";
 import { LancerNPC_FEATURE } from "../item/lancer-item";
 import { SystemData, SystemTemplates } from "../system-template";
+import { slugify } from "../util/lid";
 import { charged_box, effect_box, resolve_helper_dotpath } from "./commons";
 import {
   action_type_icon,
@@ -71,8 +72,8 @@ function npc_feature_scaffold(
   body: string,
   options: HelperOptions
 ): string {
-  let feature_class = `npc-${npc_feature.type.toLowerCase()}`;
-  let icon = `cci-${npc_feature.type.toLowerCase()}`;
+  let feature_class = `npc-${slugify(npc_feature.system.type, "-")}`;
+  let icon = `cci-${slugify(npc_feature.system.type, "-")}`;
   if (npc_feature.system.type === NpcFeatureType.Tech) icon += "-quick";
   let macro_button = "";
   if (npc_feature.system.type !== NpcFeatureType.Weapon) {
@@ -240,7 +241,7 @@ export function npc_weapon_effect_preview(path: string, options: HelperOptions):
         ${subheader_items.join(sep)}
       </div>
       <div>
-        <span>${feature_data.type ?? "Weapon"} // ${npc_feature.system.origin.name} ${
+        <span>${feature_data.weapon_type} // ${npc_feature.system.origin.name} ${
       npc_feature.system.origin.type
     } Feature (TODO ORIGIN)</span>
       </div>

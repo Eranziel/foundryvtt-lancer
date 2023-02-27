@@ -131,7 +131,7 @@ export namespace SourceTemplates {
       charged: boolean;
       loaded: boolean;
 
-      // If we want this feature to have a distinct tier fixed regardless of underlying npc tier
+      // If we want this feature to have a distinct tier fixed regardless of underlying npc tier. 0 = no override
       tier_override: number;
     }
 

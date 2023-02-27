@@ -18,6 +18,7 @@ import { LancerCORE_BONUS, LancerFRAME, LancerMECH_SYSTEM } from "../item/lancer
 import { ActionData } from "../models/bits/action";
 import { collapseButton, collapseParam, CollapseRegistry } from "./collapse";
 import { LancerMacro } from "../macros/interfaces";
+import { slugify } from "../util/lid";
 
 // A drag-drop slot for a system mount.
 export function mech_system_view(system_path: string, options: HelperOptions): string {
@@ -34,7 +35,7 @@ export function mech_system_view(system_path: string, options: HelperOptions): s
 
   const icon_types = [SystemType.Deployable, SystemType.Drone, SystemType.Mod, SystemType.System, SystemType.Tech];
   icon = icon_types.includes(doc.system.type)
-    ? `cci cci-${doc.system.type.toLowerCase()} i--m i--click`
+    ? `cci cci-${slugify(doc.system.type, "-")} i--m i--click`
     : `cci cci-system i--m i--click`;
 
   sp = sp_display(doc.system.sp ?? 0);

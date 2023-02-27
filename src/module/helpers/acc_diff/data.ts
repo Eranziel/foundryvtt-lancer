@@ -341,6 +341,8 @@ export class AccDiffData {
       plugins: {} as { [k: string]: any },
     };
 
+    console.log(starting);
+
     // Fix number to array
     if (!starting) {
       starting = [0, 0];

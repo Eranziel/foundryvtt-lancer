@@ -18,9 +18,9 @@ import { prepareNPCFeatureMacro } from "./npc";
 export async function prepareItemMacro(
   item: string | LancerItem,
   options?: {
-    rank?: number;
-    flat_bonus?: number;
-    title?: string;
+    rank?: number; // Rank override for talents
+    title?: string; // TODO - more wide support. Use this as a title
+    display?: boolean; // TODO - more wide support. Print this item instead of rolling it
   }
 ) {
   item = LancerItem.fromUuidSync(item);
@@ -37,7 +37,7 @@ export async function prepareItemMacro(
     case EntryType.MECH_SYSTEM:
       return prepareSystemMacro(item);
     case EntryType.TALENT:
-      return prepareTalentMacro(item, options?.rank);
+      return prepareTalentMacro(item, options);
     case EntryType.PILOT_GEAR:
       return preparePilotGearMacro(item);
     case EntryType.CORE_BONUS:
@@ -45,7 +45,7 @@ export async function prepareItemMacro(
     case EntryType.RESERVE:
       return prepareReserveMacro(item);
     case EntryType.NPC_FEATURE:
-      return prepareNPCFeatureMacro(item);
+      return prepareNPCFeatureMacro(item, options);
     default:
       console.log("No macro exists for that item type");
       return ui.notifications!.error(`Error - No macro exists for that item type`);

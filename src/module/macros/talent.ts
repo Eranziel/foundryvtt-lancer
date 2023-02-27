@@ -10,7 +10,12 @@ const lp = LANCER.log_prefix;
  * @param itemUUID The item id that is being rolled
  * @param rank The rank of the talent to roll
  */
-export async function prepareTalentMacro(itemUUID: string | LancerItem, rank?: number) {
+export async function prepareTalentMacro(
+  itemUUID: string | LancerItem,
+  options?: {
+    rank?: number;
+  }
+) {
   // Determine which Actor to speak as
   const item = LancerItem.fromUuidSync(itemUUID);
   if (!item || !item.actor || !item.is_talent()) return;
@@ -18,7 +23,7 @@ export async function prepareTalentMacro(itemUUID: string | LancerItem, rank?: n
   // Construct the template
   const templateData = {
     title: item.name,
-    rank: item.system.ranks[rank ?? item.system.curr_rank],
+    rank: item.system.ranks[options?.rank ?? item.system.curr_rank],
     lvl: item.system.curr_rank,
   };
   const template = `systems/${game.system.id}/templates/chat/talent-card.hbs`;

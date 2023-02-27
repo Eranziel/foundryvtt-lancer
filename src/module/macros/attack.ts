@@ -72,7 +72,7 @@ export async function prepareAttackMacro(
   }
 ) {
   // Determine provided doc
-  let { item, actor } = await resolveItemOrActor(doc);
+  let { item, actor } = resolveItemOrActor(doc);
   if (!actor) return;
 
   let mData: Partial<LancerMacro.WeaponRoll> = {
@@ -120,12 +120,12 @@ export async function prepareAttackMacro(
     } else if (item.is_npc_feature()) {
       if (!actor?.is_npc()) return;
 
-      let tier_index = (item.system.tier_override ?? actor.system.tier) - 1;
+      let tier_index = (item.system.tier_override || actor.system.tier) - 1;
 
       let asWeapon = item.system as SystemTemplates.NPC.WeaponData;
       mData.loaded = item.system.loaded;
       mData.destroyed = item.system.destroyed;
-      mData.flat_bonus = asWeapon.attack_bonus[tier_index]; // Sometimes the data's a string
+      mData.flat_bonus = asWeapon.attack_bonus[tier_index] ?? 0;
 
       // Reduce damage values to only this tier
       mData.damage = asWeapon.damage[tier_index] ?? [];
@@ -139,7 +139,7 @@ export async function prepareAttackMacro(
         asWeapon.tags,
         mData.title,
         Array.from(game.user!.targets),
-        asWeapon.accuracy[tier_index]
+        asWeapon.accuracy[tier_index] ?? 0
       );
     } else if (item.is_pilot_weapon()) {
       if (!actor?.is_pilot()) return;
@@ -266,7 +266,7 @@ export async function checkTargets(
 
 export async function rollAttackMacro(data: LancerMacro.WeaponRoll, reroll: boolean = false) {
   // Get actor / item->actor (can be either)
-  let { item, actor } = await resolveItemOrActor(data.docUUID);
+  let { item, actor } = resolveItemOrActor(data.docUUID);
   if (!actor) {
     return;
   }

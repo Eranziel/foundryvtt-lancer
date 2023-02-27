@@ -5,12 +5,12 @@ import { LancerItem } from "../item/lancer-item";
 const lp = LANCER.log_prefix;
 
 // Helper function for resolving an ambiguous uuid argument
-export async function resolveItemOrActor(provided: string | LancerActor | LancerItem): Promise<{
+export function resolveItemOrActor(provided: string | LancerActor | LancerItem): {
   actor: LancerActor | null;
   item: LancerItem | null;
-}> {
+} {
   if (typeof provided == "string") {
-    provided = (await fromUuid(provided)) as LancerActor | LancerItem;
+    provided = fromUuidSync(provided) as LancerActor | LancerItem;
   }
   if (provided instanceof TokenDocument) {
     // @ts-ignore Infinite recursion for some reason
