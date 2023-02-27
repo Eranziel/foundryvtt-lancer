@@ -1,5 +1,4 @@
 import { LancerItemType } from "./item/lancer-item";
-import { EffectData } from "./helpers/npc";
 import { LancerActorType, LancerMECH, LancerPILOT } from "./actor/lancer-actor";
 import { LancerActiveEffect } from "./effects/lancer-active-effect";
 import { SystemDataTypesMap, SystemDataType } from "./system-template";
@@ -39,83 +38,6 @@ export interface LancerActorSheetData<T extends LancerActorType> extends ActorSh
   system: SystemDataType<T>;
   itemTypes: LancerActor["itemTypes"];
   collapse: CollapseRegistry;
-}
-
-// -------- Macro data types -------------------------------------
-declare interface LancerStatMacroData {
-  title: string;
-  bonus: string | number;
-  effect?: EffectData | string;
-}
-
-declare interface LancerAttackMacroData {
-  self_heat?: boolean;
-  title: string;
-  grit: number;
-  acc: number;
-  damage: DamageData[];
-  overkill?: boolean;
-  effect?: EffectData | string;
-  on_attack?: string;
-  on_hit?: string; // For NPC weapons - to be removed once they use EffectData
-  on_crit?: string;
-  tags: Tag[];
-  loaded?: boolean;
-  destroyed?: boolean;
-}
-
-declare interface LancerTechMacroData {
-  title: string;
-  t_atk: number;
-  action: string;
-  acc: number;
-  effect: string;
-  tags: TagDataShort[];
-}
-
-declare interface LancerActionMacroData {
-  title: string;
-  t_atk: number;
-  acc: number;
-  actionName: string;
-  detail: string;
-  tags: TagDataShort[];
-}
-
-declare interface LancerTalentMacroData {
-  talent: LancerTalentData;
-  rank: number;
-}
-
-declare interface LancerGenericMacroData {
-  title: string;
-  effect: EffectData | string;
-}
-
-declare interface LancerReactionMacroData {
-  title: string;
-  trigger: string;
-  effect: string;
-  tags?: TagDataShort[];
-}
-
-declare interface LancerTextMacroData {
-  title: string;
-  description: string;
-  item_uuid?: string;
-  tags?: TagDataShort[];
-}
-
-declare interface LancerOverchargeMacroData {
-  level: number;
-  roll: Roll;
-}
-
-declare interface LancerMacroData {
-  fn: string;
-  args: any[];
-  iconPath?: string;
-  title: string;
 }
 
 export interface GenControlContext {

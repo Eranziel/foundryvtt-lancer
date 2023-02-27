@@ -1,42 +1,38 @@
 // Import TypeScript modules
 import { LANCER } from "../config";
-import type { LancerActor } from "../actor/lancer-actor";
-import type { LancerTextMacroData } from "../interfaces";
-import { getMacroSpeaker } from "./_util";
+import { LancerActor } from "../actor/lancer-actor";
 import { renderMacroTemplate } from "./_render";
 import { Tag } from "../models/bits/tag";
+import { LancerMacro } from "./interfaces";
+import { resolveItemOrActor } from "./util";
 
 const lp = LANCER.log_prefix;
 
 /**
  * Given basic information, prepares a generic text-only macro to display descriptions etc
- * @param a     String of the actor ID to roll the macro as
+ * @param actor Actor or actor uuid to roll the macro as
  * @param title Data path to title of the macro
  * @param text  Data path to text to be displayed by the macro
  * @param tags  Can optionally pass through an array of tags to be rendered
  */
-export function prepareTextMacro(a: string, title: string, text: string, tags?: Tag[]) {
-  // Determine which Actor to speak as
-  let actor = getMacroSpeaker(a);
-  if (!actor) return;
-
-  // Note to self--use this in the future if I need string -> var lookup: var.split('.').reduce((o,i)=>o[i], game.data)
-  let mData: LancerTextMacroData = {
-    title: title,
+export function prepareTextMacro(actor: string | LancerActor, title: string, text: string, tags?: Tag[]) {
+  let mData: LancerMacro.TextRoll = {
+    docUUID: actor instanceof LancerActor ? actor.uuid : actor,
+    title,
     description: text,
     tags: tags,
   };
 
-  rollTextMacro(actor, mData).then();
+  rollTextMacro(mData);
 }
 
 /**
  * Given prepared data, handles rolling of a generic text-only macro to display descriptions etc.
- * @param actor {Actor} Actor rolling the macro.
  * @param data {LancerTextMacroData} Prepared macro data.
  */
-export async function rollTextMacro(actor: LancerActor, data: LancerTextMacroData) {
-  if (!actor) return Promise.resolve();
+export async function rollTextMacro(data: LancerMacro.TextRoll) {
+  let { actor } = await resolveItemOrActor(data.docUUID);
+  if (!actor) return;
 
   const template = `systems/${game.system.id}/templates/chat/generic-card.hbs`;
   return renderMacroTemplate(actor, template, data);

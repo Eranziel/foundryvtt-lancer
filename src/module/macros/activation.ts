@@ -1,52 +1,34 @@
 // Import TypeScript modules
-import { LANCER } from "../config";
 import { getAutomationOptions } from "../settings";
 import { LancerItem } from "../item/lancer-item";
-import type { LancerActor } from "../actor/lancer-actor";
-import type { LancerMacroData, LancerTechMacroData } from "../interfaces";
+import type { LancerDEPLOYABLE } from "../actor/lancer-actor";
 import type { AccDiffDataSerialized } from "../helpers/acc_diff";
 import { buildActionHTML, buildDeployableHTML } from "../helpers/item";
 import { ActivationOptions, ActivationType } from "../enums";
-import { encodeMacroData } from "./_encode";
-import { getMacroSpeaker } from "./_util";
-import { renderMacroHTML } from "./_render";
+import { renderMacroHTML, renderMacroTemplate } from "./_render";
 import { rollTechMacro } from "./tech";
-
-const lp = LANCER.log_prefix;
-
-export function encodeActivationMacroData(actor: any, item: any): string {
-  return encodeMacroData({
-    title: "?",
-    fn: "prepareActivationMacro",
-    args: [actor, item],
-  });
-}
+import { resolve_dotpath } from "../helpers/commons";
+import { ActionData } from "../models/bits/action";
+import { lookupOwnedDeployables } from "../util/lid";
+import { LancerMacro } from "./interfaces";
 
 /**
  * Dispatch wrapper for the "action chips" on the bottom of many items, traits, systems, and so on.
- * @param actorUUID       {string | LancerActor}                   Actor to roll as.
  * @param itemUUID       {string}                    Item to use.
  * @param type    {ActivationOptions}         Options for how to perform the activation
- * @param index   {number}                    ?
+ * @param path   {string}                    ?
  * @param rerollData {AccDiffDataSerialized}  saved accdiff data for rerolls
  */
 export async function prepareActivationMacro(
-  actorUUID: string | LancerActor,
   itemUUID: string,
   type: ActivationOptions,
-  index: number,
+  path: string,
   rerollData?: AccDiffDataSerialized
 ) {
-  // Determine which Actor to speak as
-  let actor = getMacroSpeaker(actorUUID);
-  if (!actor) return;
-
   // Get the item
   let item = LancerItem.fromUuidSync(itemUUID, "Error preparing tech attack macro");
-  if (!item.isOwned) {
-    return ui.notifications!.error(`Error rolling tech attack macro - ${item.name} is not owned by an Actor!`);
-  } else if (!item.is_mech_system() && !item.is_npc_feature() && !item.is_talent()) {
-    return ui.notifications!.error(`Error rolling tech attack macro - ${item.name} is not a System or Feature!`);
+  if (!item.actor) {
+    return ui.notifications!.error(`Error rolling activation macro - ${item.name} is not owned by an Actor!`);
   }
 
   if (getAutomationOptions().limited_loading && item.isLimited() && item.system.uses.value <= 0) {
@@ -56,29 +38,28 @@ export async function prepareActivationMacro(
 
   switch (type) {
     case ActivationOptions.ACTION:
-      if (item.hasActions()) {
-        switch (item.system.actions[index].activation) {
+      let action = resolve_dotpath<ActionData>(item, path);
+      if (action) {
+        switch (action?.activation) {
           case ActivationType.FullTech:
           case ActivationType.Invade:
           case ActivationType.QuickTech:
             let partialMacroData = {
               title: "Reroll activation",
               fn: "prepareActivationMacro",
-              args: [actorUUID, itemUUID, type, index],
+              args: [itemUUID, type, path],
             };
-            await _prepareTechActionMacro(actor, item, index, partialMacroData, rerollData);
+            await _prepareTechActionMacro(item, path, partialMacroData, rerollData);
             break;
           default:
-            await _prepareTextActionMacro(actor, item, index);
+            await _prepareTextActionMacro(item, path);
         }
       } else {
-        ui.notifications!.error(
-          `Error using item - Usage type specified as "action" but no actions accessible on this item type`
-        );
+        ui.notifications!.error(`Failed to resolve action ${path}`);
       }
       break;
     case ActivationOptions.DEPLOYABLE:
-      await _prepareDeployableMacro(actor, item, index);
+      await _prepareDeployableMacro(item, path);
   }
 
   // Wait until the end to deduct a use so we're sure it completed succesfully
@@ -91,37 +72,24 @@ export async function prepareActivationMacro(
   return;
 }
 
-async function _prepareTextActionMacro(
-  actor: LancerActor,
-  item: LancerItem, // TODO: more specific types // Talent | MechSystem | NpcFeature,
-  index: number
-) {
-  // Support this later...
-  // TODO: pilot gear, mech weapons, etc
-  if (item.is_mech_system() || item.is_talent()) {
-    let action = item.system.actions[index];
-    let tags = item.is_mech_system() ? item.system.tags : [];
-    await renderMacroHTML(actor, buildActionHTML(action, { full: true, tags: tags }));
-  }
+async function _prepareTextActionMacro(item: LancerItem, path: string) {
+  let actor = item.actor!;
+  await renderMacroHTML(actor, buildActionHTML(item, path, { full: true }));
 }
 
 async function _prepareTechActionMacro(
-  actor: LancerActor, // TODO - restrict to mech or pilot
-  item: LancerItem, // TODO: more specific types // Talent | MechSystem | NpcFeature,
-  index: number,
-  partialMacroData: LancerMacroData,
-  rerollData?: AccDiffDataSerialized
+  item: LancerItem,
+  path: string,
+  invocation: LancerMacro.Invocation,
+  accDiff?: AccDiffDataSerialized
 ) {
-  // Support this later...
-  // TODO: pilot gear
-  if (!item.is_mech_system() && !item.is_talent()) return;
-  if (!actor.is_mech() && !actor.is_npc()) return;
+  let actor = item.actor!;
+  let action = resolve_dotpath<ActionData>(item, path)!;
 
-  let action = item.system.actions[index];
-
-  let mData: LancerTechMacroData = {
+  let mData: LancerMacro.AttackRoll = {
     title: action.name,
-    t_atk: actor.is_mech() ? actor.system.tech_attack : 0,
+    // @ts-expect-error
+    tech_attack: actor.system.tech_attack,
     acc: 0,
     action: action.name.toUpperCase(),
     effect: action.detail,
@@ -144,21 +112,26 @@ async function _prepareTechActionMacro(
     mData.detail = tData.effect ? tData.effect : "";
   } */
 
-  await rollTechMacro(actor, mData, partialMacroData, rerollData);
+  await rollTechMacro(mData);
 }
 
-async function _prepareDeployableMacro(
-  actor: LancerActor, // TODO: Mech | Pilot | Npc,
-  item: LancerItem, // TODO: Talent | MechSystem | NpcFeature,
-  index: number
-) {
-  // Support this later...
-  // TODO: pilot gear (and NPC features later?)
-  if (!item.is_mech_system() && !item.is_talent()) return;
-
-  /* TODO
-  let dep = item.system.deployables[index];
-
-  await renderMacroHTML(actor.flags.orig_doc, buildDeployableHTML(dep, true));
-  */
+async function _prepareDeployableMacro(item: LancerItem, path: string) {
+  let deployable_lid = resolve_dotpath<string>(item, path);
+  let dep = lookupOwnedDeployables(item.actor!).find(d => (d as LancerDEPLOYABLE).system.lid == deployable_lid);
+  if (dep) {
+    // This is awful
+    await renderMacroHTML(
+      item.actor!,
+      buildDeployableHTML(
+        dep,
+        {
+          item,
+          path,
+        },
+        false
+      )
+    );
+  } else {
+    ui.notifications?.error("Failed to resolve deployable");
+  }
 }

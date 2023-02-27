@@ -1,24 +1,22 @@
 // Import TypeScript modules
 import { LANCER } from "../config";
-import type { LancerActor } from "../actor/lancer-actor";
+import { LancerActor } from "../actor/lancer-actor";
 import { getAutomationOptions } from "../settings";
-import { getMacroSpeaker } from "./_util";
 import { prepareTextMacro } from "./text";
 
 const lp = LANCER.log_prefix;
 
 /**
  * Performs a roll on the structure table for the given actor
- * @param a           - Actor or ID of actor to structure
+ * @param actor   - Actor or ID of actor to structure
  * @param reroll_data - Data to use if rerolling. Setting this also supresses the dialog.
  */
 export async function prepareStructureMacro(
-  a: string | LancerActor,
+  actor: string | LancerActor,
   reroll_data?: { structure: number }
 ): Promise<void> {
   // Determine which Actor to speak as
-  let actor = getMacroSpeaker(a);
-  if (!actor) return;
+  actor = LancerActor.fromUuidSync(actor);
 
   if (!actor.is_mech() && !actor.is_npc()) {
     ui.notifications!.warn("Only Mechs and NPCs can take struct damage");
@@ -30,7 +28,7 @@ export async function prepareStructureMacro(
       ui.notifications!.info("Token has hp remaining. No need to roll structure.");
       return;
     }
-    const { open } = await import("../helpers/slidinghud");
+    const { openSlidingHud: open } = await import("../helpers/slidinghud");
     try {
       await open("struct", { stat: "structure", title: "Structure Damage", lancerActor: actor });
     } catch (_e) {
@@ -42,13 +40,16 @@ export async function prepareStructureMacro(
   await actor.strussHelper.structure(reroll_data);
 }
 
-export function prepareStructureSecondaryRollMacro(registryId: string) {
+export function prepareStructureSecondaryRollMacro(actor: string | LancerActor) {
+  // Determine which Actor to speak as
+  actor = LancerActor.fromUuidSync(actor);
+
   // @ts-ignore
   let roll = new Roll("1d6").evaluate({ async: false });
   let result = roll.total!;
   if (result <= 3) {
     prepareTextMacro(
-      registryId,
+      actor,
       "Destroy Weapons",
       `
 <div class="dice-roll lancer-dice-roll">
@@ -63,7 +64,7 @@ export function prepareStructureSecondaryRollMacro(registryId: string) {
     );
   } else {
     prepareTextMacro(
-      registryId,
+      actor,
       "Destroy Systems",
       `
 <div class="dice-roll lancer-dice-roll">

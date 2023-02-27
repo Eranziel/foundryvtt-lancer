@@ -48,5 +48,4 @@ export async function renderMacroHTML(actor: LancerActor | undefined, html: HTML
   // @ts-ignore This is fine
   const cm = await ChatMessage.create(chat_data);
   cm?.render();
-  return Promise.resolve();
 }

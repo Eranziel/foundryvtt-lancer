@@ -79,9 +79,9 @@ export class LIDLookupCache extends FetcherCache<string, LancerActor | LancerIte
 }
 
 // Converts things like "LEAVIATHAN HEAVY ASSAULT CANNON" into "leaviathan_heavy_assault_cannon"
-export function slugify(name: string): string {
+export function slugify(name: string, dash: string = "_"): string {
   return name
     .trim()
-    .replace(/[:\\\/-\s]+/g, "_")
+    .replace(/[:\\\/-\s]+/g, dash)
     .toLowerCase();
 }

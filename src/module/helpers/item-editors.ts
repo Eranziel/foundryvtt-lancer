@@ -1,27 +1,38 @@
 import type { HelperOptions } from "handlebars";
-import { bonuses_display, damage_editor, range_editor, buildActionHTML, buildDeployableHTML } from "./item";
-import { large_textbox_card, resolve_helper_dotpath, std_enum_select, std_num_input } from "./commons";
+import {
+  bonuses_display,
+  damage_editor,
+  range_editor,
+  buildActionHTML,
+  buildDeployableHTML,
+  buildActionArrayHTML,
+  buildDeployablesArray,
+} from "./item";
+import {
+  drilldownDocument,
+  extendHelper as extendHelper,
+  helper_root_doc,
+  large_textbox_card,
+  resolve_helper_dotpath,
+  std_enum_select,
+  std_num_input,
+} from "./commons";
 import { ref_params } from "./refs";
-import { LancerLICENSE } from "../item/lancer-item";
+import { LancerItem, LancerLICENSE } from "../item/lancer-item";
 import { ActionData } from "../models/bits/action";
-import { Damage } from "../models/bits/damage";
 import { BonusData } from "../models/bits/bonus";
-import { LancerDEPLOYABLE } from "../actor/lancer-actor";
 import { SynergyData } from "../models/bits/synergy";
 import { ActivationType, EntryType, WeaponSize, WeaponType } from "../enums";
 import { RangeData } from "../models/bits/range";
 
 export function item_edit_arrayed_actions(path: string, title: string, options: HelperOptions): string {
-  let action_arr = resolve_helper_dotpath<ActionData[]>(options, path);
+  let doc = helper_root_doc(options);
+  let dd = drilldownDocument(doc, path);
 
   let action_detail = "";
 
-  if (action_arr) {
-    for (let i = 0; i < action_arr.length; i++) {
-      action_detail = action_detail.concat(
-        buildActionHTML(action_arr[i], { editable: true, path: path.concat(`.${i}`), full: true, num: i })
-      );
-    }
+  if (dd.terminus) {
+    action_detail = buildActionArrayHTML(dd.sub_doc, dd.sub_path);
   }
 
   return `
@@ -116,13 +127,11 @@ export function item_edit_arrayed_counters(): string {
  * @returns         HTML for an editable deployable area
  */
 export function item_edit_arrayed_deployables(path: string, title: string, options: HelperOptions): string {
-  let dep_arr = resolve_helper_dotpath<LancerDEPLOYABLE[]>(options, path, []);
+  let root = helper_root_doc(options);
+  let dd = drilldownDocument(root, path);
 
-  let depHTML = dep_arr
-    .map((d, i) => {
-      return buildDeployableHTML(d, true, i);
-    })
-    .join("");
+  if (!(dd.sub_doc instanceof LancerItem)) return "";
+  let depHTML = buildDeployablesArray(dd.sub_doc, dd.sub_path, options);
 
   return `
     <div class="card clipped">

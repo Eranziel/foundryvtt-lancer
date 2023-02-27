@@ -1,10 +1,10 @@
 import type { HelperOptions } from "handlebars";
-import { LancerMacroData } from "../interfaces";
 import { LancerCORE_BONUS, LancerSKILL, LancerTALENT } from "../item/lancer-item";
 import { encodeMacroData } from "../macros";
+import { LancerMacro } from "../macros/interfaces";
 import { collapseButton, collapseParam, CollapseRegistry } from "./collapse";
 import { resolve_helper_dotpath } from "./commons";
-import { buildActionHTML } from "./item";
+import { buildActionArrayHTML, buildActionHTML } from "./item";
 import { ref_params } from "./refs";
 
 export function talent_view(talent_path: string, options: HelperOptions) {
@@ -28,18 +28,14 @@ export function talent_view(talent_path: string, options: HelperOptions) {
     let talent_actions = "";
 
     if (talent.system.ranks[i].actions) {
-      talent_actions = talent.system.ranks[i].actions
-        .map(a => {
-          return buildActionHTML(a, { full: true, num: (talent as LancerTALENT).system.ranks[i].actions.indexOf(a) });
-        })
-        .join("");
+      talent_actions = buildActionArrayHTML(talent, `system.ranks.${i}.actions`);
     }
 
-    let macroData: LancerMacroData = {
+    let macroData: LancerMacro.Invocation = {
       iconPath: `systems/${game.system.id}/assets/icons/macro-icons/talent.svg`,
       title: talent.system.ranks[i]?.name,
       fn: "prepareTalentMacro",
-      args: [talent.actor?.uuid ?? "", talent.uuid, i],
+      args: [talent.uuid, i],
     };
 
     retStr += `<li class="talent-rank-compact card clipped" style="padding: 5px">
@@ -64,7 +60,7 @@ export function skillView(skill_path: string, options: HelperOptions) {
   let skill = resolve_helper_dotpath<LancerSKILL>(options, skill_path);
   if (!skill) return "";
   return `
-      <li class="card clipped skill-compact item macroable ref set" ${ref_params(skill)}>
+      <li class="card clipped skill-compact item ref set" ${ref_params(skill)}>
         <div class="lancer-trigger-header medium clipped-top" style="grid-area: 1/1/2/3">
           <i class="cci cci-skill i--m i--dark"> </i>
           <span class="major modifier-name">${skill.name}</span>

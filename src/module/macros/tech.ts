@@ -1,120 +1,96 @@
 // Import TypeScript modules
 import { LANCER } from "../config";
-import type { LancerItem } from "../item/lancer-item";
-import type { LancerActor, LancerMECH, LancerNPC } from "../actor/lancer-actor";
-import type { LancerMacroData, LancerTechMacroData } from "../interfaces";
-import type { AccDiffDataSerialized } from "../helpers/acc_diff";
-import { encodeMacroData } from "./_encode";
-import { getMacroSpeaker } from "./_util";
+import { LancerActor, LancerNPC } from "../actor/lancer-actor";
+import { AccDiffData, AccDiffDataSerialized } from "../helpers/acc_diff";
+import { encodeMacroData } from "./encode";
+import { resolveItemOrActor } from "./util";
 import { renderMacroTemplate } from "./_render";
 import { attackRolls, checkTargets } from "./attack";
 import { SystemTemplates } from "../system-template";
+import { LancerMacro } from "./interfaces";
+import { openSlidingHud } from "../helpers/slidinghud";
+import { LancerItem } from "../item/lancer-item";
 
 const lp = LANCER.log_prefix;
 
-export async function prepareTechMacro(
-  actorUUID: string | null,
-  techItemUUID: string,
-  rerollData?: AccDiffDataSerialized
-) {
-  // Determine which Actor to speak as
-  let actor = getMacroSpeaker(actorUUID);
+export async function prepareTechMacro(docUUID: string | LancerActor | LancerItem) {
+  // Determine provided doc
+  let { item, actor } = await resolveItemOrActor(docUUID);
   if (!actor) return;
 
-  let mData: LancerTechMacroData = {
-    title: "",
-    t_atk: 0,
-    acc: 0,
-    effect: "",
-    tags: [],
-    action: "",
-  };
-  let item: LancerItem | undefined;
-
-  if (!techItemUUID) {
-    // if we weren't passed an item assume generic "basic tech attack" roll
+  let mData: Partial<LancerMacro.AttackRoll>;
+  let acc_diff: AccDiffData;
+  if (actor && !item) {
+    // If we weren't passed an item assume generic "basic tech attack" roll
     // TODO: make an actual flow to this that lets people pick an action/invade/item
-    mData.action = "Quick";
-    mData.title = "BASIC";
 
-    if (actor.is_mech() || actor.is_npc()) {
-      mData.t_atk = actor.system.tech_attack; // TODO: make extra sure we populate this for npcs
-    } else {
+    if (!(actor.is_mech() || actor.is_npc())) {
       ui.notifications!.error(`Error rolling tech attack macro (not a valid tech attacker).`);
-      return Promise.resolve();
+      return;
     }
-  } else {
+    let acc = actor.is_mech() && actor.system.loadout.frame?.value?.system.lid == "mf_goblin" ? 1 : 0;
+    acc_diff = AccDiffData.fromParams(actor, [], "BASIC TECH", Array.from(game.user!.targets), acc);
+    mData = {
+      docUUID: actor.uuid,
+      title: "BASIC TECH",
+      flat_bonus: actor.system.tech_attack,
+      tags: [],
+      attack_type: "Quick Tech",
+    };
+  } else if (item) {
     // Get the item
-    const item = actor.items.get(techItemUUID);
-    if (!item) {
-      return ui.notifications!.error(
-        `Error preparing tech attack macro - could not find Item ${techItemUUID} owned by Actor ${actorUUID}! Did you add the Item to the token, instead of the source Actor?`
-      );
-    } else if (!item.isOwned) {
-      return ui.notifications!.error(`Error rolling tech attack macro - ${item.name} is not owned by an Actor!`);
-    }
-
-    mData.title = item.name!;
-
-    if (item.is_mech_system()) {
-      mData.t_atk = (item.actor as LancerMECH).system.tech_attack;
-      mData.tags = item.system.tags;
-      mData.effect = item.system.effect;
-    } else if (item.is_npc_feature()) {
+    if (item.is_npc_feature()) {
       let tier_index: number = (item.system.tier_override || (item.actor as LancerNPC).system.tier) - 1;
 
       let sys = item.system as SystemTemplates.NPC.TechData;
-      mData.t_atk = sys.attack_bonus[tier_index] ?? 0;
-      mData.acc = sys.accuracy[tier_index] ?? 0;
-      mData.tags = sys.tags;
-      mData.effect = sys.effect;
-      mData.action = sys.tech_type;
+      let acc = sys.accuracy[tier_index] ?? 0;
+      acc_diff = AccDiffData.fromParams(item, item.getTags() ?? [], item.name!, Array.from(game.user!.targets), acc);
+      mData = {
+        docUUID: item.uuid,
+        title: item.name!,
+        attack_type: sys.tech_type,
+        flat_bonus: sys.attack_bonus[tier_index] ?? 0,
+        tags: sys.tags.map(t => t.save()),
+        effect: sys.effect,
+      };
     } else {
-      ui.notifications!.error(`Error rolling tech attack macro`);
-      return Promise.resolve();
+      ui.notifications!.error(
+        `Error rolling tech attack macro - not the appropriate way of invoking this type of item, probably`
+      );
+      return;
     }
     console.log(`${lp} Tech Attack Macro Item:`, item, mData);
-  }
-
-  let partialMacroData = {
-    title: "Reroll tech attack",
-    fn: "prepareTechMacro",
-    args: [actorUUID, techItemUUID],
-  };
-
-  await rollTechMacro(actor, mData, partialMacroData, rerollData, item);
-}
-
-export async function rollTechMacro(
-  actor: LancerActor,
-  data: LancerTechMacroData,
-  partialMacroData: LancerMacroData,
-  rerollData?: AccDiffDataSerialized,
-  item?: LancerItem
-) {
-  const targets = Array.from(game!.user!.targets);
-  let { AccDiffData } = await import("../helpers/acc_diff");
-  const initialData = rerollData
-    ? AccDiffData.fromObject(rerollData, item ?? actor)
-    : AccDiffData.fromParams(
-        item ?? actor,
-        data.tags,
-        data.title,
-        targets,
-        data.acc > 0 ? [data.acc, 0] : [0, -data.acc]
-      );
-
-  let promptedData;
-  try {
-    let { open } = await import("../helpers/slidinghud");
-    promptedData = await open("attack", initialData);
-  } catch (_e) {
+  } else {
     return;
   }
 
-  partialMacroData.args.push(promptedData.toObject());
+  // Summon prompt
+  acc_diff = await openSlidingHud("attack", acc_diff);
+  mData.acc_diff = acc_diff.toObject();
+  await rollTechMacro(mData as LancerMacro.AttackRoll);
+}
 
-  let atkRolls = attackRolls(data.t_atk, promptedData);
+export async function rollTechMacro(data: LancerMacro.AttackRoll, reroll: boolean = false) {
+  // Get actor
+  let { actor } = await resolveItemOrActor(data.docUUID);
+  if (!actor) return;
+
+  // Populate and possibly regenerate ADD if reroll
+  let add = AccDiffData.fromObject(data.acc_diff);
+  if (reroll) {
+    // Re-prompt
+    add.replaceTargets(Array.from(game!.user!.targets));
+    add = await openSlidingHud("attack", add);
+    data.acc_diff = add.toObject();
+  }
+
+  let rerollInvocation: LancerMacro.Invocation = {
+    title: "RollMacro",
+    fn: "rollTechMacro",
+    args: [data, true],
+  };
+
+  let atkRolls = attackRolls(data.flat_bonus, add);
   if (!atkRolls) return;
 
   const { attacks, hits } = await checkTargets(atkRolls, true); // true = all tech attacks are "smart"
@@ -124,10 +100,9 @@ export async function rollTechMacro(
     title: data.title,
     attacks: attacks,
     hits: hits,
-    action: data.action,
     effect: data.effect ? data.effect : null,
     tags: data.tags,
-    rerollMacroData: encodeMacroData(partialMacroData),
+    rerollMacroData: encodeMacroData(rerollInvocation),
   };
 
   const template = `systems/${game.system.id}/templates/chat/tech-attack-card.hbs`;

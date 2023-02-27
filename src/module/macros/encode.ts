@@ -1,13 +1,13 @@
 import { LANCER } from "../config";
-import type { LancerMacroData, LancerTalentMacroData } from "../interfaces";
 import { is_item_type, LancerItem } from "../item/lancer-item";
 import { LancerActor } from "../actor/lancer-actor";
+import { LancerMacro } from "./interfaces";
 
 const lp = LANCER.log_prefix;
 
 const encodedMacroWhitelist = [
   "prepareActivationMacro",
-  "prepareEncodedAttackMacro",
+  "prepareAttackMacro",
   "prepareTechMacro",
   "prepareStatMacro",
   "prepareItemMacro",
@@ -18,6 +18,8 @@ const encodedMacroWhitelist = [
   "prepareStructureSecondaryRollMacro",
   "prepareOverheatMacro",
   "prepareStructureMacro",
+  "rollAttackMacro",
+  "rollTechMacro",
   "importIntegrated",
   "stabilizeMacro",
   "structureMacro",
@@ -29,21 +31,21 @@ const encodedMacroWhitelist = [
  * Verifies the given data, will print specific errors/warnings on validation.
  * @param data The data to verify.
  */
-export function isValidEncodedMacro(data: LancerMacroData): boolean {
-  if (encodedMacroWhitelist.indexOf(data.fn) < 0) {
+export function isValidEncodedMacro(data: LancerMacro.Invocation): boolean {
+  if (!encodedMacroWhitelist.includes(data.fn)) {
     console.error(`Macro '${data.fn}' is not a whitelisted encoded macros.`);
     return false;
   }
 
-  return true;
+  return !!(data.args && data.title);
 }
 
-export function encodeMacroData(data: LancerMacroData): string {
+export function encodeMacroData(data: LancerMacro.Invocation): string {
   return window.btoa(encodeURI(JSON.stringify(data)));
 }
 
-export async function runEncodedMacro(el: HTMLElement | LancerMacroData) {
-  let data: LancerMacroData | null = null;
+export async function runEncodedMacro(el: HTMLElement | LancerMacro.Invocation) {
+  let data: LancerMacro.Invocation | null = null;
 
   if (el instanceof HTMLElement) {
     let encoded = el.attributes.getNamedItem("data-macro")?.nodeValue;
@@ -52,9 +54,9 @@ export async function runEncodedMacro(el: HTMLElement | LancerMacroData) {
       return;
     }
 
-    data = JSON.parse(decodeURI(window.atob(encoded))) as LancerMacroData;
+    data = JSON.parse(decodeURI(window.atob(encoded))) as LancerMacro.Invocation;
   } else {
-    data = el as LancerMacroData;
+    data = el as LancerMacro.Invocation;
   }
 
   if (!isValidEncodedMacro(data)) {

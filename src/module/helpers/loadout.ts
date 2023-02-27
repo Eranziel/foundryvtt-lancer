@@ -1,16 +1,23 @@
 import type { HelperOptions } from "handlebars";
 import { ChipIcons, EntryType, SystemType } from "../enums";
-import type { LancerMacroData } from "../interfaces";
 import { encodeMacroData } from "../macros";
 import { inc_if, resolve_helper_dotpath, array_path_edit, sp_display, effect_box } from "./commons";
-import { mech_loadout_weapon_slot, buildActionHTML, buildDeployableHTML, buildChipHTML } from "./item";
+import {
+  mech_loadout_weapon_slot,
+  buildActionHTML,
+  buildDeployableHTML,
+  buildChipHTML,
+  buildDeployablesArray,
+  buildActionArrayHTML,
+} from "./item";
 import { item_preview, limited_uses_indicator, ref_params, simple_ref_slot } from "./refs";
 import { compact_tag_list } from "./tags";
-import type { LancerActor, LancerMECH, LancerPILOT } from "../actor/lancer-actor";
+import { LancerActor, LancerDEPLOYABLE, LancerMECH, LancerPILOT } from "../actor/lancer-actor";
 import { SystemData, SystemTemplates } from "../system-template";
 import { LancerCORE_BONUS, LancerFRAME, LancerMECH_SYSTEM } from "../item/lancer-item";
 import { ActionData } from "../models/bits/action";
 import { collapseButton, collapseParam, CollapseRegistry } from "./collapse";
+import { LancerMacro } from "../macros/interfaces";
 
 // A drag-drop slot for a system mount.
 export function mech_system_view(system_path: string, options: HelperOptions): string {
@@ -43,27 +50,18 @@ export function mech_system_view(system_path: string, options: HelperOptions): s
   }
 
   if (doc.system.actions.length) {
-    actions = doc.system.actions
-      .map((a, i) => {
-        return buildActionHTML(a, { full: true, num: i });
-      })
-      .join("");
+    actions = buildActionHTML(doc, "system.actions");
   }
 
   if (doc.system.deployables.length) {
-    deployables = "TODO Deployables";
-    /*doc.system.deployables
-        .map((d, i) => {
-          return d.status == "resolved" ? buildDeployableHTML(d.value, true, i) : "UNRESOLVED";
-        })
-        .join("");*/
+    deployables = buildDeployablesArray(doc, "system.deployables", options);
   }
 
-  let macroData: LancerMacroData = {
+  let macroData: LancerMacro.Invocation = {
     iconPath: `systems/${game.system.id}/assets/icons/macro-icons/mech_system.svg`,
     title: doc.name!,
     fn: "prepareItemMacro",
-    args: [doc.actor?.uuid ?? "", doc.uuid],
+    args: [doc.uuid],
   };
 
   let limited = "";
@@ -248,9 +246,9 @@ export function frameView(frame_path: string, options: HelperOptions): string {
       </span>
       <div class="wraprow double">
         <div class="frame-traits flexcol">
-          ${frameTraits(frame)}
+          ${frameTraits(frame_path, options)}
         </div>
-        ${inc_if(buildCoreSysHTML(frame), frame.system.core_system)}
+        ${inc_if(buildCoreSysHTML(frame_path, options), frame.system.core_system)}
       </div>
     </div>
     `;
@@ -261,7 +259,8 @@ export function frameView(frame_path: string, options: HelperOptions): string {
  * @param frame   The frame
  * @return        HTML for the core system, typically for inclusion in a mech sheet.
  */
-function buildCoreSysHTML(frame: LancerFRAME): string {
+function buildCoreSysHTML(frame_path: string, options: HelperOptions): string {
+  let frame = resolve_helper_dotpath<LancerFRAME>(options, frame_path)!;
   let tags: string | undefined;
   let core = frame.system.core_system;
   tags = compact_tag_list("", core.tags, false);
@@ -272,7 +271,7 @@ function buildCoreSysHTML(frame: LancerFRAME): string {
   // Generate core passive HTML only if it has one
   let passive = "";
   if (core.passive_effect !== "" || core.passive_actions.length > 0 || core.passive_bonuses.length > 0) {
-    passive = `<div class="frame-passive">${frame_passive(core)}</div>`;
+    passive = `<div class="frame-passive">${frame_passive(frame)}</div>`;
   }
 
   return `<div class="core-wrapper frame-coresys clipped-top" style="padding: 0;">
@@ -284,25 +283,21 @@ function buildCoreSysHTML(frame: LancerFRAME): string {
       </i>
     </div>
     <div class="collapse" data-collapse-id="${frame.id}_core">
-      <div class="frame-active">${frame_active(frame)}</div>
+      <div class="frame-active">${frame_active(frame_path, options)}</div>
       ${passive}
       ${tags ? tags : ""}
     </div>
   </div>`;
 }
 
-function frameTraits(frame: LancerFRAME): string {
+function frameTraits(frame_path: string, options: HelperOptions): string {
+  let frame = resolve_helper_dotpath<LancerFRAME>(options, frame_path)!;
   return frame.system.traits
     .map((trait, index) => {
-      let actionHTML = trait.actions.map((a, i) => buildActionHTML(a, { full: true, num: i })).join("");
+      let actionHTML = buildActionArrayHTML(frame, `frame.system.traits.${index}.actions`);
+      let depHTML = buildDeployablesArray(frame, `system.traits.${index}.deployables`, options);
 
-      let depHTML = "TODO deployables"; /* trait.deployables
-    .map((d, i) => {
-      return d.status == "resolved" ? buildDeployableHTML(d.value, true, i) : "";
-    })
-    .join("");*/
-
-      let macroData: LancerMacroData | null = frame.actor
+      let macroData: LancerMacro.Invocation | null = frame.actor
         ? {
             title: trait.name,
             iconPath: `systems/${game.system.id}/assets/icons/macro-icons/trait.svg`,
@@ -329,22 +324,17 @@ function frameTraits(frame: LancerFRAME): string {
     .join("");
 }
 
-function frame_active(frame: LancerFRAME): string {
+function frame_active(frame_path: string, options: HelperOptions): string {
+  let frame = resolve_helper_dotpath<LancerFRAME>(options, frame_path)!;
   let core = frame.system.core_system;
-  let actionHTML = core.active_actions
-    .map((a: ActionData, i: number | undefined) => {
-      return buildActionHTML(a, { full: true, num: i });
-    })
-    .join("");
+  let actionHTML = core.active_actions.map((_, i) =>
+    buildActionHTML(frame, `system.active_actions.${i}`, { full: true })
+  );
 
-  let depHTML = "TODO - DEPLOYABLES"; /*core.deployables
-    .map((d, i) => {
-      return d.status == "resolved" ? buildDeployableHTML(d.value, true, i) : "";
-    })
-    .join("");*/
+  let depHTML = buildDeployablesArray(frame, "system.core.deployables", options);
 
   // Should find a better way to do this...
-  let coreMacroData: LancerMacroData | null = frame.actor
+  let coreMacroData: LancerMacro.Invocation | null = frame.actor
     ? {
         title: `${frame.actor.name} | CORE POWER`,
         iconPath: `systems/${game.system.id}/assets/icons/macro-icons/corebonus.svg`,
@@ -370,10 +360,11 @@ function frame_active(frame: LancerFRAME): string {
   `;
 }
 
-function frame_passive(core: LancerFRAME["system"]["core_system"]): string {
+function frame_passive(frame: LancerFRAME): string {
+  let core = frame.system.core_system;
   let actionHTML = core.passive_actions
-    .map((a: ActionData, i: number | undefined) => {
-      return buildActionHTML(a, { full: true, num: i });
+    .map((_, i) => {
+      return buildActionHTML(frame, "system.core_system.passive_actions", { full: true });
     })
     .join("");
 

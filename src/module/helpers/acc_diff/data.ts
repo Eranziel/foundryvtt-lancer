@@ -1,6 +1,6 @@
 import * as t from "io-ts";
 
-import type { LancerActor, LancerMECH } from "../../actor/lancer-actor";
+import type { LancerActor } from "../../actor/lancer-actor";
 import type { AccDiffPlugin, AccDiffPluginData, AccDiffPluginCodec } from "./plugin";
 import { enclass, encode, decode } from "./serde";
 import { LancerItem } from "../../item/lancer-item";
@@ -300,6 +300,7 @@ export class AccDiffData {
     };
   }
 
+  // Decode from a serialized object, optionally populating remaining data from an item
   static fromObject(obj: AccDiffDataSerialized, runtimeData?: LancerItem | LancerActor): AccDiffData {
     let ret = decode(obj, AccDiffData.codec);
     ret.hydrate(runtimeData);
@@ -331,7 +332,7 @@ export class AccDiffData {
     tags?: Tag[],
     title?: string,
     targets?: Token[],
-    starting?: [number, number]
+    starting?: [number, number] | number
   ): AccDiffData {
     let weapon = {
       accurate: false,
@@ -339,6 +340,13 @@ export class AccDiffData {
       seeking: false,
       plugins: {} as { [k: string]: any },
     };
+
+    // Fix number to array
+    if (!starting) {
+      starting = [0, 0];
+    } else if (typeof starting == "number") {
+      starting = starting >= 0 ? [starting, 0] : [0, -starting];
+    }
 
     for (let tag of tags || []) {
       switch (tag.lid) {
@@ -356,8 +364,8 @@ export class AccDiffData {
 
     let base = {
       cover: Cover.None,
-      accuracy: starting ? starting[0] : 0,
-      difficulty: starting ? starting[1] : 0,
+      accuracy: starting[0],
+      difficulty: starting[1],
       plugins: {} as { [k: string]: any },
     };
 

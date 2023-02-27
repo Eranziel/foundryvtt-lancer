@@ -90,7 +90,6 @@ import {
   buildCounterArrayHTML,
   loading_indicator,
   buildDeployableHTML,
-  buildActionFullHTML,
   framePreview,
   action_type_icon,
 } from "./module/helpers/item";
@@ -102,7 +101,7 @@ import {
   compact_stat_view,
   deployer_slot,
   is_combatant,
-  macro_button,
+  actor_macro_button,
   npc_stat_block_clicker_card,
   npc_tier_selector,
   overcharge_button,
@@ -278,8 +277,10 @@ Hooks.once("init", async function () {
     prepareOverheatMacro: macros.prepareOverheatMacro,
     prepareStructureMacro: macros.prepareStructureMacro,
     prepareActivationMacro: macros.prepareActivationMacro,
-    prepareEncodedAttackMacro: macros.prepareEncodedAttackMacro,
+    prepareAttackMacro: macros.prepareAttackMacro,
     prepareStructureSecondaryRollMacro: macros.prepareStructureSecondaryRollMacro,
+    rollTechMacro: macros.rollTechMacro,
+    rollAttackMacro: macros.rollAttackMacro,
     fullRepairMacro: macros.fullRepairMacro,
     stabilizeMacro: macros.stabilizeMacro,
     importActor: fulfillImportActor,
@@ -456,13 +457,13 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("std-checkbox", std_checkbox);
   Handlebars.registerHelper("std-select", std_enum_select);
   Handlebars.registerHelper("action-button", action_button);
-  Handlebars.registerHelper("macro-button", macro_button);
+  Handlebars.registerHelper("macro-button", actor_macro_button);
   Handlebars.registerHelper("tech-flow-card", tech_flow_card);
 
   // ------------------------------------------------------------------------
   // Tag helpers
   Handlebars.registerHelper("is-tagged", function (item: LancerItem) {
-    return item.get_tags() != null;
+    return item.getTags() != null;
   });
 
   Handlebars.registerHelper("is-limited", function (item: LancerItem) {
@@ -517,9 +518,6 @@ Hooks.once("init", async function () {
   // Bonuses
   Handlebars.registerHelper("bonuses-view", bonuses_display);
   Handlebars.registerHelper("popout-editor-button", popout_editor_button);
-  // Deployables and Actions
-  Handlebars.registerHelper("deployable-card", buildDeployableHTML);
-  Handlebars.registerHelper("action-card", buildActionFullHTML);
 
   // ------------------------------------------------------------------------
   // Weapons

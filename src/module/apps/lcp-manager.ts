@@ -112,7 +112,7 @@ class LCPManager extends Application {
   activateListeners(html: JQuery<HTMLElement>) {
     super.activateListeners(html);
     document.getElementsByClassName("lcp-core-update")[0]?.addEventListener("click", (ev: Event) => {
-      this._onCoreUpdateButtonClick(<MouseEvent>ev).then();
+      this._onCoreUpdateButtonClick(<MouseEvent>ev);
     });
     let fileInput = document.getElementById("lcp-file");
     if (fileInput) {
@@ -121,7 +121,7 @@ class LCPManager extends Application {
       };
     }
     document.getElementsByClassName("lcp-import")[0]?.addEventListener("click", () => {
-      this._onImportButtonClick().then();
+      this._onImportButtonClick();
     });
     document.getElementsByClassName("lcp-clear-all")[0]?.addEventListener("click", (ev: Event) => {
       this._onClearAllButtonClick(<MouseEvent>ev);
@@ -168,7 +168,7 @@ class LCPManager extends Application {
     const fr = new FileReader();
     fr.readAsBinaryString(this.lcpFile);
     fr.addEventListener("load", (ev: ProgressEvent) => {
-      this._onLcpParsed((ev.target as FileReader).result as string).then();
+      this._onLcpParsed((ev.target as FileReader).result as string);
     });
   }
 

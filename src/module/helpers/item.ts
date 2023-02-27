@@ -18,9 +18,10 @@ import {
   array_path_edit_changes,
   drilldownDocument,
   effect_box,
-  ext_helper_hash,
+  extendHelper,
   format_dotpath,
   inc_if,
+  popout_editor_button,
   resolve_dotpath,
   resolve_helper_dotpath,
   sp_display,
@@ -43,7 +44,7 @@ import {
   WeaponSize,
   WeaponType,
 } from "../enums";
-import type { LancerActorSheetData, LancerItemSheetData, LancerMacroData } from "../interfaces";
+import type { LancerActorSheetData, LancerItemSheetData } from "../interfaces";
 import { encodeMacroData } from "../macros";
 import { collapseButton, collapseParam, CollapseRegistry } from "./collapse";
 import { promptText } from "../apps/simple-prompt";
@@ -72,6 +73,11 @@ import { ActionData } from "../models/bits/action";
 import { Tag } from "../models/bits/tag";
 import { LancerActor, LancerDEPLOYABLE, LancerMECH } from "../actor/lancer-actor";
 import { CounterData } from "../models/bits/counter";
+import { LancerDoc } from "../util/doc";
+import { item_edit_arrayed_actions } from "./item-editors";
+import { slugify } from "../util/lid";
+import { MacroData } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/module.mjs";
+import { LancerMacro } from "../macros/interfaces";
 
 /**
  * Handlebars helper for weapon size selector
@@ -111,10 +117,10 @@ export function range_editor(path: string, options: HelperOptions): string {
   */
 
   // Extend the options to not have to repeat lookup
-  let type_options = ext_helper_hash(options, { value: range.type }, { default: RangeType.Range });
+  let type_options = extendHelper(options, { value: range.type }, { default: RangeType.Range });
   let range_type_selector = std_enum_select(path + ".type", RangeType, type_options);
 
-  let value_options = ext_helper_hash(options, { value: range.val });
+  let value_options = extendHelper(options, { value: range.val });
   let value_input = std_string_input(path + ".val", value_options);
 
   let delete_button = `<a class="gen-control" data-action="splice" data-path="${path}" style="margin: 4px;"><i class="fas fa-trash"></i></a>`;
@@ -139,10 +145,10 @@ export function damage_editor(path: string, options: HelperOptions): string {
 
   let icon_html = `<i class="cci ${damage.icon} i--m"></i>`;
 
-  let type_options = ext_helper_hash(options, { value: damage.type }, { default: DamageType.Kinetic });
+  let type_options = extendHelper(options, { value: damage.type }, { default: DamageType.Kinetic });
   let damage_type_selector = std_enum_select(path + ".type", DamageType, type_options);
 
-  let value_options = ext_helper_hash(options, { value: damage.val });
+  let value_options = extendHelper(options, { value: damage.val });
   let value_input = std_string_input(path + ".val", value_options);
 
   let delete_button = `<a class="gen-control" data-action="splice" data-path="${path}" style="margin: 4px;"><i class="fas fa-trash"></i></a>`;
@@ -228,7 +234,7 @@ export function npc_accuracy_preview(acc: number) {
  * Handlebars partial for weapon type selector
  */
 export function system_type_selector(path: string, options: HelperOptions) {
-  return std_enum_select(path, SystemType, ext_helper_hash(options, {}, { default: SystemType.System }));
+  return std_enum_select(path, SystemType, extendHelper(options, {}, { default: SystemType.System }));
 }
 
 /**
@@ -341,8 +347,8 @@ export function HANDLER_activate_edit_counter<T>(html: JQuery, data_getter: () =
  */
 export function single_action_editor(path: string, options: HelperOptions) {
   // Make inputs for each important field
-  let id_input = std_string_input(`${path}.LID`, ext_helper_hash(options, { label: "ID" }));
-  let name_input = std_string_input(`${path}.Name`, ext_helper_hash(options, { label: "Name" }));
+  let id_input = std_string_input(`${path}.LID`, extendHelper(options, { label: "ID" }));
+  let name_input = std_string_input(`${path}.Name`, extendHelper(options, { label: "Name" }));
 
   // Consolidate them into rows
   return `<div class="card" style="align-content: flex-start">
@@ -446,7 +452,7 @@ export function pilot_weapon_refview(weapon_path: string, options: HelperOptions
     limited_uses_indicator(weapon, weapon_path);
   }
 
-  return `<div class="set ${EntryType.PILOT_WEAPON} ref drop-settable card clipped pilot-weapon-compact item macroable"
+  return `<div class="set ${EntryType.PILOT_WEAPON} ref drop-settable card clipped pilot-weapon-compact item"
                 ${ref_params(weapon, weapon_path)} 
                 data-accept-types="${EntryType.PILOT_WEAPON}"
                 data-mode="embed-ref">
@@ -502,13 +508,13 @@ export function pilot_gear_refview(gear_path: string, options: HelperOptions): s
     uses = limited_uses_indicator(gear, gear_path);
   }
 
-  return `<div class="set ${EntryType.PILOT_GEAR} ref drop-settable card clipped macroable item"
+  return `<div class="set ${EntryType.PILOT_GEAR} ref drop-settable card clipped item"
                 ${ref_params(gear, gear_path)} 
                 data-accept-types="${EntryType.PILOT_GEAR}"
                 data-mode="embed-ref">
     <div class="lancer-header">
       <i class="cci cci-generic-item i--m"> </i>
-      <a class="gear-macro macroable"><i class="mdi mdi-message"></i></a>
+      <a class="gear-macro"><i class="mdi mdi-message"></i></a>
       <span class="minor">${gear.name!}</span>
       <a class="lancer-context-menu" data-context-menu="${gear.type}" data-path="${gear_path}"">
         <i class="fas fa-ellipsis-v"></i>
@@ -588,11 +594,11 @@ export function reserve_refview(reserve_path: string, options: HelperOptions): s
     uses = reserve_used_indicator(reserve_path, options);
   }
 
-  return `<div class="set ${EntryType.RESERVE} ref drop-settable card clipped macroable item"
+  return `<div class="set ${EntryType.RESERVE} ref drop-settable card clipped item"
                 ${ref_params(reserve, reserve_path)} >
     <div class="lancer-header">
       <i class="${icon} i--m"> </i>
-      <a class="reserve-macro macroable"><i class="mdi mdi-message"></i></a>
+      <a class="reserve-macro"><i class="mdi mdi-message"></i></a>
       <span class="minor">${reserve.name}</span>
       <a class="lancer-context-menu" data-context-menu="${reserve.type}" data-path="${reserve_path}"">
         <i class="fas fa-ellipsis-v"></i>
@@ -698,7 +704,7 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.select
 
   return `
   <div class="mech-weapon-wrapper${mod_text ? "-modded" : ""}">
-    <div class="ref set drop-settable ${EntryType.MECH_WEAPON} flexcol lancer-weapon-container macroable item"
+    <div class="ref set drop-settable ${EntryType.MECH_WEAPON} flexcol lancer-weapon-container item"
                   ${ref_params(weapon, weapon_path)}
                   data-mode="embed-ref"
                   style="max-height: fit-content;">
@@ -795,8 +801,8 @@ export function weapon_mod_ref(mod_path: string, weapon_path: string | null, opt
   let actions = "";
   if (mod.system.actions.length) {
     actions = mod.system.actions
-      .map((a: ActionData, i: number | undefined) => {
-        return buildActionHTML(a, { full: true, num: i });
+      .map((_, i) => {
+        return buildActionHTML(mod!, `system.actions.${i}`, { full: true });
       })
       .join("");
   }
@@ -855,7 +861,7 @@ export function manufacturer_ref(source_path: string, options: HelperOptions): s
 export function license_ref(item_path: string, options: HelperOptions): string {
   let license = resolve_helper_dotpath(options, item_path) as LancerLICENSE;
   return `
-    <li class="card clipped item macroable ref set" ${ref_params(license)}>
+    <li class="card clipped item ref set" ${ref_params(license)}>
       <div class="lancer-header lancer-license-header medium clipped-top" style="grid-area: 1/1/2/3">
         <i class="cci cci-license i--m i--dark"> </i>
         <div class="major modifier-name">${license.name} ${license.system.curr_rank}</div>
@@ -959,26 +965,25 @@ export function action_type_icon(a_type: string) {
 }
 
 /**
- * Builds the HTML for a given action
- * @param action  Standard action to generate in HTML form
+ * Builds the HTML for a given action in a given document
+ * @param doc  Document which holds the action
+ * @param path  Path to the action within the document
  * @param options Options such as:
  *        full    Determines if we should generate full HTML info or just mini version (title & action)
- *        number  If we're building full, we can pass through a number to denote which index of action
- *                this is for macro purposes. Only used for macro-able actions
- *        tags    Array of Tags which can optionally be passed
  * @returns Activation HTML in string form
  */
-// TODO: The options are out of control
 export function buildActionHTML(
-  action: ActionData,
-  options?: { editable?: boolean; path?: string; full?: boolean; num?: number; tags?: Tag[] }
+  doc: LancerItem | LancerActor,
+  path: string,
+  options?: { editable?: boolean; full?: boolean }
 ): string {
+  let action = resolve_dotpath<ActionData>(doc, path);
+  if (!action) return "";
   let detailText: string | undefined;
   let chip: string | undefined;
   let tags: string | undefined;
   let editor: string | undefined;
 
-  // TODO--can probably do better than this
   if (options) {
     // Not using type yet but let's plan forward a bit
     let type: ActivationOptions;
@@ -1003,40 +1008,34 @@ export function buildActionHTML(
         </div>`;
     }
 
-    if (options.num !== undefined) {
-      switch (action.activation) {
-        case ActivationType.QuickTech:
-        case ActivationType.FullTech:
-        case ActivationType.Invade:
-          type = ActivationOptions.TECH;
-          icon = ChipIcons.Roll;
-          break;
-        default:
-          type = ActivationOptions.ACTION;
-          icon = ChipIcons.Chat;
-          break;
-      }
-
-      chip = buildChipHTML(action.activation, { icon: icon, num: options.num });
-
-      if (options.editable) {
-        if (!options.path) throw Error("You're trying to edit an action without a path");
-        // If it's editable, it's deletable
-        editor = `
-        <div class="action-editor-wrapper">
-          <a class="gen-control" data-action="splice" data-path="${options.path}"><i class="fas fa-trash"></i></a>
-          <a class="action-editor fas fa-edit" data-path="${options.path}"></a>
-        </div>`;
-      }
+    // Deduce what type of action it is broadly. Tech? Deployable? Normal? It wouldn't be a weapon, not here anyways
+    switch (action.activation) {
+      case ActivationType.QuickTech:
+      case ActivationType.FullTech:
+      case ActivationType.Invade:
+        type = ActivationOptions.TECH;
+        icon = ChipIcons.Roll;
+        break;
+      default:
+        type = ActivationOptions.ACTION;
+        icon = ChipIcons.Chat;
+        break;
     }
 
-    if (options.tags !== undefined) {
-      tags = compact_tag_list("", options.tags, false);
-    }
-  }
+    chip = buildChipHTML(action.activation, { icon: icon, uuid: doc.uuid, path: path });
 
-  if (!chip) {
-    chip = buildChipHTML(action.activation);
+    if (options.editable) {
+      // If it's editable, it's deletable
+      editor = `
+      <div class="action-editor-wrapper">
+        <a class="gen-control" data-uuid="${doc.uuid} data-action="splice" data-path="${path}"><i class="fas fa-trash"></i></a>
+        <a class="action-editor fas fa-edit" data-path="${path}"></a>
+      </div>`;
+    }
+
+    if (doc instanceof LancerItem && doc.getTags()) {
+      tags = compact_tag_list("", doc.getTags()!, false);
+    }
   }
 
   return `
@@ -1055,40 +1054,53 @@ export function buildActionHTML(
   `;
 }
 
-/**
- * Wrapper for buildActionHTML that always builds the full card.
- * @param action  Standard action to generate in HTML form
- * @param options Options such as:
- *        number  A number to denote which index of action
- *                this is for macro purposes. Only used for macro-able actions.
- *        tags    Array of Tags which can optionally be passed
- * @returns Activation HTML in string form
- */
-export function buildActionFullHTML(
-  action: ActionData,
-  options?: { editable?: boolean; path?: string; num?: number; tags?: Tag[] }
-): string {
-  return buildActionHTML(action, {
-    editable: options?.editable,
-    path: options?.path,
-    full: true,
-    num: options?.num,
-    tags: options?.tags,
-  });
+export function buildActionArrayHTML(doc: LancerActor | LancerItem, path: string): string {
+  return "WIPACTIONS";
 }
 
 /**
- * Builds the HTML for a given in-system deployable
- * @param dep     Deployable to generate in HTML form
- * @param full    Determines if we should generate full HTML info or just mini version (title & action)
- * @param num     If we're building full, we can pass through a number to denote which index of action
- *                this is for macro purposes. Only used for macro-able actions
+ * Builds the HTML for a given in-system deployable.
+ * @param item  Path to this item
+ * @param array_path  Path to this deployables (LID) location relative to item
  * @returns Activation HTML in string form
  */
-export function buildDeployableHTML(dep: LancerDEPLOYABLE, full?: boolean, num?: number): string {
+export function buildDeployablesArray(item: LancerItem, array_path: string, options: HelperOptions): string {
+  let cards = [] as string[];
+  let lids = resolve_dotpath<Array<string>>(item, array_path, []);
+  for (let lid of lids) {
+    let dep = resolve_helper_dotpath<LancerDEPLOYABLE>(options, `lids.${lid}`);
+    if (dep) {
+      cards.push(
+        buildDeployableHTML(
+          dep,
+          {
+            item,
+            path: array_path,
+          },
+          false
+        )
+      );
+    }
+  }
+  return cards.join("");
+}
+
+/**
+ * Builds the HTML for a given deployable.
+ * @param dep The deployable, already resolved
+ * @param source Information about where it came from, if applicable
+ * @returns Activation HTML in string form
+ */
+export function buildDeployableHTML(
+  dep: LancerDEPLOYABLE,
+  source: {
+    item: LancerItem;
+    path: string;
+  } | null,
+  full: boolean
+): string {
   let detailText: string | undefined;
   let chip: string;
-  let activation: ActivationType | undefined;
 
   detailText = "";
   if (full)
@@ -1099,24 +1111,12 @@ export function buildDeployableHTML(dep: LancerDEPLOYABLE, full?: boolean, num?:
     </div>`;
 
   // All places we could get our activation, in preferred order
-  let activationSources = [
-    dep.system.activation,
-    dep.system.redeploy,
-    dep.system.recall,
-    dep.system.actions.length ? dep.system.actions[0].activation : ActivationType.None,
-  ];
-  for (var i = 0; i < activationSources.length; i++) {
-    if (activationSources[i] !== ActivationType.None) {
-      activation = activationSources[i];
-    }
-  }
+  let activation = dep.system.activation;
 
-  if (!activation) activation = ActivationType.Quick;
-
-  if (num !== undefined) {
-    chip = buildChipHTML(activation, { icon: ChipIcons.Deployable, num: num, isDep: true });
+  if (source) {
+    chip = buildChipHTML(activation, { icon: ChipIcons.Deployable, uuid: source.item.uuid, path: source.path });
   } else {
-    chip = buildChipHTML(activation);
+    chip = buildChipHTML(activation, { icon: ChipIcons.Deployable });
   }
 
   return `
@@ -1133,18 +1133,38 @@ export function buildDeployableHTML(dep: LancerDEPLOYABLE, full?: boolean, num?:
   `;
 }
 
+/** Build a little clickable chip to activate an item.
+ * If trying to use a deployable, you should still provide the item uuid & the path to the deployable within it
+ *
+ * @param activation The type of activation.
+ * @param macroData More substantive information about it
+ * @returns
+ */
 export function buildChipHTML(
   activation: ActivationType,
-  macroData?: { icon?: ChipIcons; num?: number; isDep?: boolean; fullData?: LancerMacroData | null }
+  macroData?: {
+    icon?: ChipIcons;
+
+    // These must be provided together
+    uuid?: string;
+    path?: string;
+
+    // Or just provide a prebuilt invocation
+    fullData?: LancerMacro.Invocation | null;
+  }
 ): string {
-  if (macroData && (macroData?.fullData || macroData?.num !== undefined)) {
+  if (macroData && (macroData.fullData || (macroData.uuid && macroData.path !== undefined))) {
     if (!macroData.icon) macroData.icon = ChipIcons.Chat;
     let data: string | undefined;
-    if (macroData?.fullData) data = `data-macro=${encodeMacroData(macroData.fullData)}`;
-    else data = `data-${macroData.isDep ? "deployable" : "activation"}=${macroData.num}`;
-    return `<a class="${macroData?.fullData ? "lancer-macro" : `macroable`} activation-chip activation-${activation
-      .toLowerCase()
-      .replace(/\s+/g, "")}" ${data}>
+    if (macroData?.fullData) {
+      data = `data-macro=${encodeMacroData(macroData.fullData)}`;
+    } else {
+      data = `data-uuid=${macroData.uuid} data-path="${macroData.path}`;
+    }
+    return `<a class="${macroData?.fullData ? "lancer-macro" : "activation-macro"} activation-chip activation-${slugify(
+      activation,
+      "-"
+    )}" ${data}>
             ${macroData.icon ? macroData.icon : ""}
             ${activation.toUpperCase()}
           </a>`;
@@ -1166,9 +1186,9 @@ export function buildSystemHTML(system: LancerMECH_SYSTEM): string {
 
   if (system.system.actions) {
     actions = system.system.actions
-      .map((a, i) => {
+      .map((_, i) => {
         // return buildActionHTML(a, { full: !i && useFirstActivation });
-        return buildActionHTML(a, { full: false });
+        return buildActionHTML(system, `system.actions.${i}`, { full: false });
       })
       .join("");
   }

@@ -160,7 +160,7 @@ export class LancerItem extends Item {
     }
 
     // Apply limited max from tags, as applicable
-    let tags = this.get_tags() ?? [];
+    let tags = this.getTags() ?? [];
     let lim_tag = tags.find(t => t.is_limited);
     if (lim_tag && this._hasUses()) {
       this.system.uses.max = lim_tag.num_val ?? 0; // We will apply bonuses later
@@ -386,7 +386,7 @@ export class LancerItem extends Item {
   }
 
   // Quick checkers/getters
-  get_tags(): Tag[] | null {
+  getTags(): Tag[] | null {
     if (
       this.is_pilot_armor() ||
       this.is_pilot_gear() ||
@@ -408,7 +408,7 @@ export class LancerItem extends Item {
 
   // Returns this items limit tag value
   getLimitedBase(): number | null {
-    let lim_tag = this.get_tags()?.find(t => t.is_limited);
+    let lim_tag = this.getTags()?.find(t => t.is_limited);
     if (lim_tag) {
       return lim_tag.num_val;
     } else {
@@ -428,7 +428,7 @@ export class LancerItem extends Item {
 
   // Returns true if this has the loading tag
   isLoading(): boolean {
-    return (this.get_tags() ?? []).some(t => t.is_loading);
+    return (this.getTags() ?? []).some(t => t.is_loading);
   }
 
   // Returns true & type information if this item has action data

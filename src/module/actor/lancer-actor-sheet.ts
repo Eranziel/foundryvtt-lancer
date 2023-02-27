@@ -8,7 +8,7 @@ import {
   click_evt_open_ref,
   HANDLER_activate_uses_editor,
 } from "../helpers/refs";
-import type { LancerActorSheetData, LancerMacroData, LancerStatMacroData } from "../interfaces";
+import type { LancerActorSheetData } from "../interfaces";
 import { LancerItem, is_item_type, LancerItemType } from "../item/lancer-item";
 import { LancerActor, LancerActorType } from "./lancer-actor";
 import { prepareActivationMacro, prepareChargeMacro, prepareItemMacro, runEncodedMacro } from "../macros";
@@ -23,6 +23,8 @@ import { modAction } from "../action/action-tracker";
 import { insinuate } from "../util/doc";
 import { PrototypeTokenData } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs";
 import { LancerActiveEffect } from "../effects/lancer-active-effect";
+import { LancerMacro } from "../macros/interfaces";
+import { rollStatMacro } from "../macros/stat";
 const lp = LANCER.log_prefix;
 
 /**
@@ -121,7 +123,6 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     html
       .find('li[class*="item"]')
       .add('span[class*="item"]')
-      .add('[class*="macroable"]')
       .add('[class*="lancer-macro"]')
       .each((_i, item) => {
         if (item.classList.contains("inventory-header")) return;
@@ -200,11 +201,10 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       if (!ev.currentTarget) return; // No target, let other handlers take care of it.
       ev.stopPropagation();
 
-      const weaponElement = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
+      const weaponElement = $(ev.currentTarget).closest("[data-uuid]")[0] as HTMLElement;
       const weaponId = weaponElement.dataset.uuid;
-      const weapon = LancerItem.fromUuidSync(weaponId ?? "null", "Error rolling macro");
-      let id = this.token && !this.token.isLinked ? this.token.id! : this.actor.id!;
-      prepareItemMacro(id, weapon.uuid!);
+      const weapon = LancerItem.fromUuidSync(weaponId ?? "", "Error rolling macro");
+      prepareItemMacro(weapon.uuid!);
     });
 
     // TODO: This should really just be a single item-macro class
@@ -222,28 +222,29 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     itemMacros.on("click", (ev: any) => {
       ev.stopPropagation(); // Avoids triggering parent event handlers
 
-      const el = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
-
-      let id = this.token && !this.token.isLinked ? this.token.actor?.uuid! : this.actor.uuid!;
-      prepareItemMacro(id, el.dataset.uuid!);
+      const el = $(ev.currentTarget).closest("[data-uuid]")[0] as HTMLElement;
+      prepareItemMacro(el.dataset.uuid!);
     });
 
     // Action-chip (system? Or broader?) macros
-    html.find("a.activation-chip:not(.lancer-macro)").on("click", ev => {
+    html.find(".activation-macro").on("click", ev => {
       ev.stopPropagation();
 
       const el = ev.currentTarget;
 
-      const item = $(el).closest(".item")[0].dataset.uuid;
-      if (!item) throw Error("No item ID from activation chip");
+      const item = el.dataset.uuid;
+      const path = el.dataset.path;
+      if (!item || !path) throw Error("No item ID from activation chip");
 
-      const activation = parseInt(el.dataset.activation ?? "");
-      const deployable = parseInt(el.dataset.deployable ?? "");
+      let is_action = path.includes("action");
+      let is_deployable = path.includes("deployable");
 
-      if (!Number.isNaN(activation)) {
-        prepareActivationMacro(this.actor.uuid!, item, ActivationOptions.ACTION, activation);
-      } else if (!Number.isNaN(deployable)) {
-        prepareActivationMacro(this.actor.uuid!, item, ActivationOptions.DEPLOYABLE, deployable);
+      if (is_action) {
+        prepareActivationMacro(item, ActivationOptions.ACTION, path);
+      } else if (is_deployable) {
+        prepareActivationMacro(item, ActivationOptions.DEPLOYABLE, path);
+      } else {
+        ui.notifications?.error("Could not infer action type");
       }
     });
 
@@ -286,11 +287,11 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     }
 
     // send as a generated macro:
-    let macroData: LancerMacroData = {
+    let macroData: LancerMacro.Invocation = {
       iconPath: `systems/${game.system.id}/assets/icons/macro-icons/mech_system.svg`,
       title: title!,
       fn: "prepareActivationMacro",
-      args: [this.actor.uuid!, itemId, activationOption, activationIndex],
+      args: [itemId, activationOption, activationIndex],
     };
 
     event.dataTransfer?.setData("text/plain", JSON.stringify(macroData));
@@ -337,13 +338,14 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       if (!ev.currentTarget) return; // No target, let other handlers take care of it.
       ev.stopPropagation(); // Avoids triggering parent event handlers
 
-      let mData: LancerStatMacroData = {
+      let mData: LancerMacro.StatRoll = {
+        docUUID: this.actor.uuid,
         title: $(ev.currentTarget).closest(".skill-compact").find(".modifier-name").text(),
         bonus: parseInt($(ev.currentTarget).find(".roll-modifier").text()),
       };
 
       console.log(`${lp} Rolling '${mData.title}' trigger (d20 + ${mData.bonus})`);
-      rollStatMacro(this.actor, mData);
+      rollStatMacro(mData);
     });
   }
 
@@ -451,8 +453,4 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     console.log(`${lp} Rendering with following actor ctx: `, data);
     return data;
   }
-}
-
-function rollStatMacro(_actor: unknown, _mData: LancerStatMacroData) {
-  throw new Error("Function not implemented.");
 }

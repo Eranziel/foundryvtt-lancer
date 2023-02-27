@@ -1,14 +1,9 @@
 // Import TypeScript modules
-import { LANCER } from "../config";
 import { getAutomationOptions } from "../settings";
-import type { LancerActor } from "../actor/lancer-actor";
-import type { LancerOverchargeMacroData } from "../interfaces";
-import { encodeMacroData } from "./_encode";
-import { getMacroSpeaker } from "./_util";
+import { LancerActor, LancerMECH } from "../actor/lancer-actor";
+import { encodeMacroData } from "./encode";
 import { renderMacroTemplate } from "./_render";
-import { SystemData } from "../system-template";
-
-const lp = LANCER.log_prefix;
+import { LancerMacro } from "./interfaces";
 
 export function encodeOverchargeMacroData(actor_uuid: string): string {
   return encodeMacroData({
@@ -19,10 +14,9 @@ export function encodeOverchargeMacroData(actor_uuid: string): string {
   });
 }
 
-export async function prepareOverchargeMacro(a: string) {
+export async function prepareOverchargeMacro(actor: LancerActor | string) {
   // Determine which Actor to speak as
-  let actor = getMacroSpeaker(a);
-  if (!actor) return;
+  actor = LancerActor.fromUuidSync(actor);
 
   // Validate that we're overcharging a mech
   if (!actor.is_mech()) {
@@ -30,35 +24,32 @@ export async function prepareOverchargeMacro(a: string) {
     return;
   }
 
-  // And here too... we should probably revisit our type definitions...
   let rollText = actor.strussHelper.getOverchargeRoll()!;
 
-  // Prep data
-  let roll = await new Roll(rollText).evaluate({ async: true });
-
-  let mData: LancerOverchargeMacroData = {
+  let mData: LancerMacro.OverchargeRoll = {
     level: actor.system.overcharge,
-    roll: roll,
+    roll: rollText,
   };
 
   // Assume we can always increment overcharge here...
-  let changes: DeepPartial<SystemData.Mech> = {}; // TODO: cool types on stuff like this?
-  changes["overcharge"] = Math.min(actor.system.overcharge + 1, actor.system.overcharge_sequence.length - 1);
-
-  // Only increase heat if we haven't disabled it
-  if (getAutomationOptions().overcharge_heat) {
-    changes.heat = { value: actor.system.heat.value + roll.total! };
-  }
-
-  await actor.update({ system: changes });
+  await actor.update({
+    "system.overcharge": Math.min(actor.system.overcharge + 1, actor.system.overcharge_sequence.length - 1),
+  });
 
   return rollOverchargeMacro(actor, mData);
 }
 
-async function rollOverchargeMacro(actor: LancerActor, data: LancerOverchargeMacroData) {
-  if (!actor) return Promise.resolve();
+async function rollOverchargeMacro(actor: LancerActor, data: LancerMacro.OverchargeRoll) {
+  if (!actor) return;
 
-  const roll_tt = await data.roll.getTooltip();
+  // Prep data
+  let roll = await new Roll(data.roll).evaluate({ async: true });
+  const roll_tt = await roll.getTooltip();
+
+  // Only increase heat if we haven't disabled it
+  if (getAutomationOptions().overcharge_heat) {
+    await actor.update({ "system.heat.value": (actor as LancerMECH).system.heat.value + roll.total! });
+  }
 
   // Construct the template
   const templateData = {

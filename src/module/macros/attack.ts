@@ -1,17 +1,19 @@
 // Import TypeScript modules
 import { LANCER } from "../config";
 import { getAutomationOptions } from "../settings";
-import { LancerItem, LancerMECH_WEAPON, LancerNPC_FEATURE, LancerPILOT_WEAPON } from "../item/lancer-item";
-import { LancerActor, LancerPILOT } from "../actor/lancer-actor";
-import type { LancerAttackMacroData, LancerMacroData } from "../interfaces";
+import { LancerItem } from "../item/lancer-item";
+import { LancerActor } from "../actor/lancer-actor";
 import { checkForHit } from "../helpers/automation/targeting";
-import type { AccDiffData, AccDiffDataSerialized, RollModifier } from "../helpers/acc_diff";
-import { getMacroSpeaker } from "./_util";
-import { encodeMacroData } from "./_encode";
+import { AccDiffData, AccDiffDataSerialized, RollModifier } from "../helpers/acc_diff";
+import { resolveItemOrActor } from "./util";
+import { encodeMacroData } from "./encode";
 import { renderMacroTemplate } from "./_render";
 import { DamageType } from "../enums";
 import { SystemTemplates } from "../system-template";
 import { SourceData } from "../source-template";
+import { LancerMacro } from "./interfaces";
+import { openSlidingHud } from "../helpers/slidinghud";
+import { Tag } from "../models/bits/tag";
 
 const lp = LANCER.log_prefix;
 
@@ -39,48 +41,26 @@ type AttackRolls = {
   }[];
 };
 
-export function attackRolls(bonus: number, accdiff: AccDiffData): AttackRolls {
-  let perRoll = Object.values(accdiff.weapon.plugins);
-  let base = perRoll.concat(Object.values(accdiff.base.plugins));
+/** Create the attack roll(s) for a given attack configuration */
+export function attackRolls(flat_bonus: number, acc_diff: AccDiffData): AttackRolls {
+  let perRoll = Object.values(acc_diff.weapon.plugins);
+  let base = perRoll.concat(Object.values(acc_diff.base.plugins));
   return {
-    roll: applyPluginsToRoll(rollStr(bonus, accdiff.base.total), base),
-    targeted: accdiff.targets.map(tad => {
+    roll: applyPluginsToRoll(rollStr(flat_bonus, acc_diff.base.total), base),
+    targeted: acc_diff.targets.map(tad => {
       let perTarget = perRoll.concat(Object.values(tad.plugins));
       return {
         target: tad.target,
-        roll: applyPluginsToRoll(rollStr(bonus, tad.total), perTarget),
+        roll: applyPluginsToRoll(rollStr(flat_bonus, tad.total), perTarget),
         usedLockOn: tad.usingLockOn,
       };
     }),
   };
 }
 
-type AttackMacroOptions = {
-  accBonus: number;
-  damBonus: { type: DamageType; val: number };
-};
-
-export async function prepareEncodedAttackMacro(
-  actorUUID: string,
-  itemUUID: string | null,
-  options?: AttackMacroOptions,
-  rerollData?: AccDiffDataSerialized
-) {
-  let actor = getMacroSpeaker(actorUUID)!;
-  let item = itemUUID ? LancerItem.fromUuidSync(itemUUID) : null;
-  let { AccDiffData } = await import("../helpers/acc_diff");
-  let accdiff = rerollData ? AccDiffData.fromObject(rerollData, item ?? actor) : undefined;
-  if (item) {
-    return prepareAttackMacro({ actor, item, options }, accdiff);
-  } else {
-    return openBasicAttack(actor, accdiff);
-  }
-}
-
 /**
  * Standalone prepare function for attacks, since they're complex.
- * @param actor   {Actor}       Actor to roll as. Assumes properly prepared item.
- * @param item    {LancerItem}  Weapon to attack with. Assumes ownership from actor.
+ * @param doc                   Weapon/Actor to attack with. Can be passed as a uuid or a document
  * @param options {Object}      Options that can be passed through. Current options:
  *            - accBonus        Flat bonus to accuracy
  *            - damBonus        Object of form {type: val} to apply flat damage bonus of given type.
@@ -88,264 +68,148 @@ export async function prepareEncodedAttackMacro(
  * @param rerollData {AccDiffData?} saved accdiff data for rerolls
  */
 export async function prepareAttackMacro(
-  {
-    actor,
-    item,
-    options,
-  }: {
-    actor: LancerActor;
-    item: LancerItem;
-    options?: {
-      accBonus: number;
-      damBonus: { type: DamageType; val: number };
-    };
-  },
-  rerollData?: AccDiffData
+  doc: string | LancerActor | LancerItem,
+  options?: {
+    flat_bonus?: number;
+    title?: string;
+  }
 ) {
-  if (!item.is_npc_feature() && !item.is_mech_weapon() && !item.is_pilot_weapon()) return;
-  let macroData: LancerAttackMacroData = {
-    title: item.name ?? "",
-    grit: 0,
-    acc: 0,
-    damage: [],
-    tags: [],
-    overkill: false,
-    effect: "",
-    loaded: true,
-    destroyed: false,
-  };
+  // Determine provided doc
+  let { item, actor } = await resolveItemOrActor(doc);
+  if (!actor) return;
 
-  let pilot: LancerPILOT;
+  let mData: Partial<LancerMacro.WeaponRoll> = {
+    docUUID: item?.uuid ?? actor?.uuid,
+  };
+  let acc_diff: AccDiffData;
+  let item_changes: DeepPartial<SourceData.MechWeapon | SourceData.NpcFeature | SourceData.PilotWeapon> = {};
 
   // We can safely split off pilot/mech weapons by actor type
-  if (actor.is_mech() && item.is_mech_weapon()) {
-    if (actor.system.pilot?.status != "resolved") {
-      ui.notifications?.warn("Cannot fire a weapon on a non-piloted mech!");
-      return;
-    }
+  if (!item && actor) {
+    mData.title = options?.title ?? "BASIC ATTACK";
+    mData.flat_bonus = 0;
+    if (actor.is_deployable() && actor.system.owner?.value) actor = actor.system.owner?.value;
+    if (actor.is_pilot() || actor.is_mech()) mData.flat_bonus = actor.system.grit;
+    else if (actor.is_npc()) mData.flat_bonus = actor.system.tier;
+    acc_diff = AccDiffData.fromParams(actor, [], mData.title, Array.from(game.user!.targets));
+  } else if (doc instanceof LancerItem) {
+    // Weapon attack
+    item = doc;
+    let actor = doc.actor;
 
-    pilot = actor.system.pilot?.value;
-    let profile = item.system.active_profile;
-    macroData.loaded = item.system.loaded;
-    macroData.destroyed = item.system.destroyed;
-    macroData.damage = profile.damage;
-    macroData.grit = pilot?.system.grit;
-    macroData.acc = 0;
-    macroData.tags = profile.tags;
-    macroData.overkill = profile.tags.some(t => t.is_overkill);
-    macroData.self_heat = profile.tags.some(t => t.is_selfheat);
-    macroData.effect = profile.effect;
-    macroData.on_attack = profile.on_attack;
-    macroData.on_hit = profile.on_hit;
-    macroData.on_crit = profile.on_crit;
-  } else if (actor.is_pilot() && item.is_pilot_weapon()) {
-    macroData.loaded = item.system.loaded;
-    macroData.damage = item.system.damage;
-    macroData.grit = actor.system.grit;
-    macroData.acc = 0;
-    macroData.tags = item.system.tags;
-    macroData.overkill = item.system.tags.some(t => t.is_overkill);
-    macroData.self_heat = item.system.tags.some(t => t.is_selfheat);
-    macroData.effect = item.system.effect;
-  } else if (actor.is_npc() && item.is_npc_feature()) {
-    let tier_index: number = item.system.tier_override;
-    if (!item.system.tier_override) {
-      if (item.actor === null) {
-        // Use selected actor
-        tier_index = actor.system.tier - 1;
-      } else if (item.actor.is_npc()) {
-        // Use provided actor
-        tier_index = item.actor.system.tier - 1;
+    // This works for everything
+    mData.title = item.name!;
+
+    if (item.is_mech_weapon()) {
+      if (!actor?.is_mech()) return;
+      if (!actor.system.pilot?.value) {
+        ui.notifications?.warn("Cannot fire a weapon on a non-piloted mech!");
+        return;
       }
+      let pilot = actor.system.pilot?.value;
+      let profile = item.system.active_profile;
+      mData.loaded = item.system.loaded;
+      mData.destroyed = item.system.destroyed;
+      mData.damage = profile.damage;
+      mData.flat_bonus = pilot.system.grit;
+      mData.tags = profile.tags;
+      mData.overkill = profile.tags.some(t => t.is_overkill);
+      mData.self_heat = profile.tags.find(t => t.is_selfheat)?.val;
+      mData.effect = profile.effect;
+      mData.on_attack = profile.on_attack;
+      mData.on_hit = profile.on_hit;
+      mData.on_crit = profile.on_crit;
+      acc_diff = AccDiffData.fromParams(item, profile.tags, mData.title, Array.from(game.user!.targets));
+    } else if (item.is_npc_feature()) {
+      if (!actor?.is_npc()) return;
+
+      let tier_index = (item.system.tier_override ?? actor.system.tier) - 1;
+
+      let asWeapon = item.system as SystemTemplates.NPC.WeaponData;
+      mData.loaded = item.system.loaded;
+      mData.destroyed = item.system.destroyed;
+      mData.flat_bonus = asWeapon.attack_bonus[tier_index]; // Sometimes the data's a string
+
+      // Reduce damage values to only this tier
+      mData.damage = asWeapon.damage[tier_index] ?? [];
+      mData.tags = asWeapon.tags;
+      mData.overkill = asWeapon.tags.some(t => t.is_overkill);
+      mData.self_heat = asWeapon.tags.find(t => t.is_selfheat)?.val;
+      mData.on_hit = asWeapon.on_hit;
+      mData.effect = asWeapon.effect;
+      acc_diff = AccDiffData.fromParams(
+        item,
+        asWeapon.tags,
+        mData.title,
+        Array.from(game.user!.targets),
+        asWeapon.accuracy[tier_index]
+      );
+    } else if (item.is_pilot_weapon()) {
+      if (!actor?.is_pilot()) return;
+      mData.loaded = item.system.loaded;
+      mData.damage = item.system.damage;
+      mData.flat_bonus = actor.system.grit;
+      mData.tags = item.system.tags;
+      mData.overkill = item.system.tags.some(t => t.is_overkill);
+      mData.self_heat = item.system.tags.find(t => t.is_selfheat)?.val;
+      mData.effect = item.system.effect;
+      acc_diff = AccDiffData.fromParams(item, item.system.tags, mData.title, Array.from(game.user!.targets));
     } else {
-      // Fix to be index
-      tier_index--;
+      ui.notifications!.error(`Error preparing attack macro - ${item.name} is an unknown type!`);
+      return;
     }
 
-    let asWeapon = item.system as SystemTemplates.NPC.WeaponData;
-    macroData.loaded = item.system.loaded;
-    macroData.destroyed = item.system.destroyed;
-    macroData.grit = Number(asWeapon.attack_bonus[tier_index]) || 0; // Sometimes the data's a string
-    macroData.acc = asWeapon.accuracy[tier_index] ?? 0;
-
-    // Reduce damage values to only this tier
-    macroData.damage = asWeapon.damage[tier_index] ?? [];
-    macroData.tags = asWeapon.tags;
-    macroData.overkill = asWeapon.tags.some(t => t.is_overkill);
-    macroData.self_heat = asWeapon.tags.some(t => t.is_selfheat);
-    macroData.on_hit = asWeapon.on_hit;
-    macroData.effect = asWeapon.effect;
-  } else {
-    ui.notifications!.error(`Error preparing attack macro - ${actor.name} is an unknown type!`);
-    return Promise.resolve();
-  }
-
-  // Check for damages that are missing type
-  let typeMissing = false;
-  macroData.damage.forEach((d: any) => {
-    if (d.type === "" && d.val != "" && d.val != 0) typeMissing = true;
-  });
-  // Warn about missing damage type if the value is non-zero
-  if (typeMissing) {
-    ui.notifications!.warn(`Warning: ${item.name} has a damage value without type!`);
-  }
-
-  // Options processing
-  if (options) {
-    if (options.accBonus) {
-      macroData.grit += options.accBonus;
-    }
-    if (options.damBonus) {
-      let i = macroData.damage.findIndex(dam => dam.type === options.damBonus.type);
-      if (i >= 0) {
-        // We need to clone so it doesn't go all the way back up to the weapon
-        let damClone = { ...macroData.damage[i] };
-        if (parseInt(damClone.val) > 0) {
-          damClone.val = `${damClone.val}+${options.damBonus.val}`;
+    // Check if weapon if loaded / mark it as not
+    if (getAutomationOptions().limited_loading && getAutomationOptions().attacks) {
+      // Check loading, and mark unloaded
+      if (item.isLoading()) {
+        if (!item.system.loaded) {
+          ui.notifications!.warn(`Weapon ${item.name} is not loaded!`);
+          return;
         } else {
-          damClone.val = options.damBonus.val.toString();
+          item_changes.loaded = false;
         }
-        macroData.damage[i] = damClone;
-      } else {
-        macroData.damage.push({ val: options.damBonus.val.toString(), type: options.damBonus.type });
+      }
+
+      // Check limited, and mark one less
+      if (item.isLimited()) {
+        if (item.system.uses.value <= 0) {
+          ui.notifications!.warn(`Weapon ${item.name} has no remaining uses!`);
+          return;
+        } else {
+          item_changes.uses = Math.max(item.system.uses.value - 1, 0);
+        }
+      }
+
+      // Don't allow firing destroyed weapons, I guess?
+      if (mData.destroyed) {
+        ui.notifications!.warn(`Weapon ${item.name!} is destroyed!`);
+        return;
       }
     }
-  }
-  // Check if weapon if loaded.
-  if (getAutomationOptions().limited_loading && getAutomationOptions().attacks) {
-    if (item.isLoading() && !item.system.loaded) {
-      ui.notifications!.warn(`Weapon ${item.name} is not loaded!`);
-      return;
-    }
-    if (item.isLimited() && item.system.uses.value <= 0) {
-      ui.notifications!.warn(`Weapon ${item.name} has no remaining uses!`);
-      return;
-    }
-    if (macroData.destroyed) {
-      // @ts-expect-error Should be fixed with v10 types
-      ui.notifications!.warn(`Weapon ${item.system.name} is destroyed!`);
-      return;
-    }
-  }
-
-  // Prompt the user before deducting charges.
-  const targets = Array.from(game!.user!.targets);
-  let { AccDiffData } = await import("../helpers/acc_diff");
-  const initialData =
-    rerollData ??
-    AccDiffData.fromParams(
-      item,
-      macroData.tags,
-      macroData.title,
-      targets,
-      macroData.acc > 0 ? [macroData.acc, 0] : [0, -macroData.acc]
-    );
-
-  let promptedData;
-  try {
-    let { open } = await import("../helpers/slidinghud");
-    promptedData = await open("attack", initialData);
-  } catch (_e) {
-    return;
-  }
-
-  const atkRolls = attackRolls(macroData.grit, promptedData);
-
-  // Deduct charge if LOADING weapon.
-  if (getAutomationOptions().limited_loading && getAutomationOptions().attacks) {
-    let changes: DeepPartial<SourceData.MechWeapon> = {};
-    let needChange = false;
-    if (item.isLoading()) {
-      changes.loaded = false;
-      needChange = true;
-    }
-    if (item.isLimited()) {
-      changes.uses = Math.max(item.system.uses.value - 1, 0);
-      needChange = true;
-    }
-    if (needChange) await item.update({ system: changes });
-  }
-
-  let rerollMacro = {
-    title: "Reroll attack",
-    fn: "prepareEncodedAttackMacro",
-    args: [actor.uuid, item.uuid, options, promptedData.toObject()],
-  };
-
-  await rollAttackMacro(actor, atkRolls, macroData, rerollMacro);
-}
-
-export async function openBasicAttack(actor: string | LancerActor, rerollData?: AccDiffData) {
-  let { isOpen, open } = await import("../helpers/slidinghud");
-
-  // if the hud is already open, and we're not overriding with new reroll data, just bail out
-  let wasOpen = await isOpen("attack");
-  if (wasOpen && !rerollData) {
-    return;
-  }
-
-  let { AccDiffData } = await import("../helpers/acc_diff");
-
-  actor = getMacroSpeaker(actor)!;
-
-  let data =
-    rerollData ?? AccDiffData.fromParams(actor, undefined, "Basic Attack", Array.from(game!.user!.targets), undefined);
-
-  let promptedData;
-  try {
-    promptedData = await open("attack", data);
-  } catch (_e) {
-    return;
-  }
-
-  let mData = {
-    title: "BASIC ATTACK",
-    grit: 0,
-    acc: 0,
-    tags: [],
-    damage: [],
-  };
-
-  let statActor = actor; // Source for the attack bonus stat
-
-  if (actor.is_deployable()) {
-    if (actor.system.deployer?.status == "resolved") {
-      statActor = actor.system.deployer.value;
-    }
-  }
-
-  console.log(statActor);
-
-  if (statActor.is_mech()) {
-    if (statActor.system.pilot?.status == "resolved") {
-      mData.grit = statActor.system.pilot.value.system.grit;
-    }
-  } else if (statActor.is_pilot()) {
-    mData.grit = statActor.system.grit;
-  } else if (statActor.is_npc()) {
-    let tierBonus: number = statActor.system.tier;
-    mData.grit = tierBonus || 0;
-  } else if (statActor.is_deployable()) {
-    mData.grit = 0; // We couldn't
   } else {
-    ui.notifications!.error(`Error preparing targeting macro - ${actor.name} is an unknown type!`);
-    return;
+    return; // Can't really attack as anything else...
   }
 
-  const atkRolls = attackRolls(mData.grit, promptedData);
+  // Everything from here on out is generic between basic and weapon attacks
+  acc_diff = await openSlidingHud("attack", acc_diff);
+  mData.acc_diff = acc_diff.toObject();
 
-  let rerollMacro = {
-    title: "Reroll attack",
-    fn: "prepareEncodedAttackMacro",
-    args: [actor.uuid, null, {}, promptedData.toObject()],
-  };
+  // Commit item updates
+  if (item) await item.update({ system: item_changes });
 
-  await rollAttackMacro(actor, atkRolls, mData, rerollMacro);
+  await rollAttackMacro(mData as LancerMacro.WeaponRoll);
 }
 
 type AttackResult = {
   roll: Roll;
-  tt: string | HTMLElement | JQuery<HTMLElement>;
+  tt: string | HTMLElement | JQuery<HTMLElement>; // Tooltip
+};
+
+type DamageResult = {
+  roll: Roll;
+  tt: string | HTMLElement | JQuery<HTMLElement>; // Tooltip
+  d_type: DamageType;
 };
 
 type HitResult = {
@@ -403,26 +267,35 @@ export async function checkTargets(
   }
 }
 
-async function rollAttackMacro(
-  actor: LancerActor,
-  atkRolls: AttackRolls,
-  data: LancerAttackMacroData,
-  rerollMacro: LancerMacroData
-) {
-  const isSmart = data.tags.some(tag => tag.is_smart);
+export async function rollAttackMacro(data: LancerMacro.WeaponRoll, reroll: boolean = false) {
+  // Get actor / item->actor (can be either)
+  let { item, actor } = await resolveItemOrActor(data.docUUID);
+  if (!actor) {
+    return;
+  }
+
+  // Populate and possibly regenerate ADD if reroll
+  let add = AccDiffData.fromObject(data.acc_diff);
+  if (reroll) {
+    // Re-prompt
+    add.replaceTargets(Array.from(game!.user!.targets));
+    add = await openSlidingHud("attack", add);
+    data.acc_diff = add.toObject();
+  }
+
+  let rerollInvocation: LancerMacro.Invocation = {
+    title: "RollMacro",
+    fn: "rollAttackMacro",
+    args: [data, true],
+  };
+
+  const atkRolls = attackRolls(data.flat_bonus, add);
+  const isSmart = data.tags.map(t => new Tag(t)).some(tag => tag.is_smart);
   const { attacks, hits } = await checkTargets(atkRolls, isSmart);
 
   // Iterate through damage types, rolling each
-  let damage_results: Array<{
-    roll: Roll;
-    tt: string;
-    d_type: DamageType;
-  }> = [];
-  let crit_damage_results: Array<{
-    roll: Roll;
-    tt: string;
-    d_type: DamageType;
-  }> = [];
+  let damage_results: Array<DamageResult> = [];
+  let crit_damage_results: Array<DamageResult> = [];
   let overkill_heat = 0;
   let self_heat = 0;
 
@@ -489,21 +362,19 @@ async function rollAttackMacro(
   }
 
   if (data.self_heat) {
-    // Once the double tag thing is fixed, this should iterate over all tags
-    // instead just using the first one.
-    self_heat = parseInt(`${data.tags.find(tag => tag.is_selfheat)?.num_val ?? 0}`);
+    self_heat = (await new Roll(data.self_heat).roll({ async: true })).total!;
   }
 
   if (getAutomationOptions().attack_self_heat) {
     if (actor.is_mech() || actor.is_npc()) {
-      await actor.update({ "system.heat": overkill_heat + self_heat });
+      await actor.update({ "system.heat.value": actor.system.heat.value + overkill_heat + self_heat });
     }
   }
 
   // Output
   const templateData = {
     title: data.title,
-    item_uuid: rerollMacro.args[1],
+    item_uuid: data.docUUID,
     attacks: attacks,
     hits: hits,
     defense: isSmart ? "E-DEF" : "EVASION",
@@ -515,7 +386,7 @@ async function rollAttackMacro(
     on_hit: data.on_hit ? data.on_hit : null,
     on_crit: data.on_crit ? data.on_crit : null,
     tags: data.tags,
-    rerollMacroData: encodeMacroData(rerollMacro),
+    rerollMacroData: encodeMacroData(rerollInvocation),
   };
 
   const template = `systems/${game.system.id}/templates/chat/attack-card.hbs`;

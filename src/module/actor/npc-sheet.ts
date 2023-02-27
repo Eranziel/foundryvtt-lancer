@@ -1,4 +1,4 @@
-import type { GenControlContext, LancerStatMacroData } from "../interfaces";
+import type { GenControlContext } from "../interfaces";
 import { LANCER } from "../config";
 import { LancerActorSheet } from "./lancer-actor-sheet";
 import { prepareItemMacro, prepareStatMacro } from "../macros";
@@ -9,6 +9,7 @@ import { LancerNPC } from "./lancer-actor";
 import { ResolvedDropData } from "../helpers/dragdrop";
 import { EntryType } from "../enums";
 import { lookupLID } from "../util/lid";
+import { LancerMacro } from "../macros/interfaces";
 const lp = LANCER.log_prefix;
 
 /**
@@ -53,9 +54,8 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
       itemMacros.on("click", (ev: any) => {
         ev.stopPropagation(); // Avoids triggering parent event handlers
 
-        const el = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
-        let id = this.token && !this.token.isLinked ? this.token.id! : this.actor.id!;
-        prepareItemMacro(id, el.dataset.uuid as string).then();
+        const el = $(ev.currentTarget).closest("[data-uuid]")[0] as HTMLElement;
+        prepareItemMacro(el.dataset.uuid!);
       });
 
       // Stat rollers
@@ -69,7 +69,8 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
           .closest(".stat-container")
           .find(".lancer-stat")[0] as HTMLInputElement;
         let tSplit = statInput.name.split(".");
-        let mData: LancerStatMacroData = {
+        let mData: LancerMacro.StatRoll = {
+          docUUID: this.actor.uuid,
           title: tSplit[tSplit.length - 1].toUpperCase(),
           bonus: statInput.value,
         };
@@ -87,21 +88,19 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
       techMacro.on("click", ev => {
         if (!ev.currentTarget) return; // No target, let other handlers take care of it.
         ev.stopPropagation();
-        const techElement = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
+        const techElement = $(ev.currentTarget).closest("[data-uuid]")[0] as HTMLElement;
         let techId = techElement.dataset.uuid;
-        let id = this.token && !this.token.isLinked ? this.token.id! : this.actor.id!;
-        prepareItemMacro(id, techId!);
+        prepareItemMacro(techId!);
       });
 
       // Item/Macroable Dragging
-      const haseMacroHandler = (e: DragEvent) => this._onDragMacroableStart(e);
       html
         .find('li[class*="item"]')
         .add('span[class*="item"]')
-        .add('[class*="macroable"]')
         .each((_i: number, item: any) => {
           if (item.classList.contains("inventory-header")) return;
-          if (item.classList.contains("roll-stat")) item.addEventListener("dragstart", haseMacroHandler, false);
+          if (item.classList.contains("roll-stat"))
+            item.addEventListener("dragstart", this._onDragMacroableStart, false);
           if (item.classList.contains("item"))
             item.addEventListener("dragstart", (ev: DragEvent) => this._onDragStart(ev), false);
           item.setAttribute("draggable", "true");

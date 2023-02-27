@@ -101,7 +101,7 @@
         </li>
       {{/each}}
       {{#each coreDeployables as |deployable index|}}
-        {{{deployable-card deployable "true" index }}}
+        todo deployable
       {{/each}}
       </ul>
     </div>
@@ -117,7 +117,7 @@
       <div class="desc-text">{{{safe-html system.core_system.passive_effect }}}</div>
       {{{bonuses-view "system.core_system.passive_bonuses" editable }}} 
       {{#each system.core_system.passive_actions as |action index|}}
-        {{{action-card action}}}
+        todo action
       {{/each}}
     </div>
 
@@ -132,7 +132,7 @@
       <div class="desc-text">{{{safe-html system.core_system.active_effect }}}</div>
       {{{bonuses-view "system.core_system.active_bonuses" editable}}}
       {{#each system.core_system.active_actions as |action index|}}
-        {{{action-card action}}}
+        todo action
       {{/each}}
     </div>
     <div class="tags-container" style="margin: 10px;">

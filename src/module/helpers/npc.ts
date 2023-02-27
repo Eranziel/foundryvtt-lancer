@@ -76,7 +76,7 @@ function npc_feature_scaffold(
   if (npc_feature.system.type === NpcFeatureType.Tech) icon += "-quick";
   let macro_button = "";
   if (npc_feature.system.type !== NpcFeatureType.Weapon) {
-    macro_button = `<a class="macroable item-macro"><i class="mdi mdi-message"></i></a>`;
+    macro_button = `<a class="item-macro"><i class="mdi mdi-message"></i></a>`;
   }
   return `
   <div class="set ref card item ${feature_class}" ${ref_params(npc_feature)}>

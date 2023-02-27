@@ -1,5 +1,5 @@
 import type { HelperOptions } from "handlebars";
-import { ext_helper_hash, inc_if, resolve_helper_dotpath, selected, std_num_input, std_x_of_y } from "./commons";
+import { extendHelper, inc_if, resolve_helper_dotpath, selected, std_num_input, std_x_of_y } from "./commons";
 import { ref_params, simple_ref_slot } from "./refs";
 import { encodeMacroData } from "../macros";
 import { encodeOverchargeMacroData } from "../macros/overcharge";
@@ -58,7 +58,7 @@ export function stat_edit_card(title: string, icon: string, data_path: string, o
         <i class="${icon} i--m header-icon"> </i>
         <span class="major">${title}</span>
       </div>
-      ${std_num_input(data_path, ext_helper_hash(options, { classes: "lancer-stat" }))}
+      ${std_num_input(data_path, extendHelper(options, { classes: "lancer-stat" }))}
     </div>
     `;
 }
@@ -77,7 +77,7 @@ export function stat_view_card(
     fn: "prepareStatMacro",
     args: [getActorUUID(options), data_path],
   });
-  let macroBasicData = encodeMacroData({ title: "BASIC ATTACK", fn: "prepareEncodedAttackMacro", args: [] });
+  let macroBasicData = encodeMacroData({ title: "BASIC ATTACK", fn: "prepareAttackMacro", args: [] });
   if (options.rollable) macro_button = _rollable_macro_button(macroData);
 
   return `
@@ -129,7 +129,7 @@ export function compact_stat_edit(icon: string, data_path: string, max_path: str
   return `        
         <div class="compact-stat">
           <i class="${icon} i--m i--dark"></i>
-          ${std_num_input(data_path, ext_helper_hash(options, { classes: "lancer-stat minor" }))}
+          ${std_num_input(data_path, extendHelper(options, { classes: "lancer-stat minor" }))}
           ${max_html}
         </div>
     `;
@@ -139,7 +139,7 @@ export function compact_stat_edit(icon: string, data_path: string, max_path: str
 export function clicker_num_input(data_path: string, options: HelperOptions) {
   return `<div class="flexrow arrow-input-container">
       <button class="clicker-minus-button input-update" type="button">-</button>
-      ${std_num_input(data_path, ext_helper_hash(options, { classes: "lancer-stat minor", default: 0 }))}
+      ${std_num_input(data_path, extendHelper(options, { classes: "lancer-stat minor", default: 0 }))}
       <button class="clicker-plus-button input-update" type="button">+</button>
     </div>`;
 }
@@ -159,7 +159,7 @@ export function clicker_stat_card(
     fn: "prepareStatMacro",
     args: [uuid, data_path],
   });
-  let macroBasicData = encodeMacroData({ title: "BASIC ATTACK", fn: "prepareEncodedAttackMacro", args: [] });
+  let macroBasicData = encodeMacroData({ title: "BASIC ATTACK", fn: "prepareAttackMacro", args: [] });
   if (roller)
     button = `<a class="lancer-macro i--dark i--sm" data-macro="${macroData}"><i class="fas fa-dice-d20"></i></a>`;
   return `<div class="card clipped stat-container">
@@ -211,10 +211,10 @@ export function action_button(
     `;
 }
 
-export function macro_button(
+// Suitable for any macros that take a single argument: the actor uuid
+export function actor_macro_button(
   title: string,
   macro: string,
-  actorPath: string,
   options: HelperOptions & { rollable?: boolean }
 ): string {
   let args = [getActorUUID(options), null];
@@ -232,7 +232,7 @@ export function macro_button(
     case "prepareStructureMacro":
       mIcon = "cci-condition-shredded";
       break;
-    case "prepareEncodedAttackMacro":
+    case "prepareAttackMacro":
       mIcon = "cci-weapon";
       break;
     case "prepareTechMacro":

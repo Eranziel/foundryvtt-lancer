@@ -1,21 +1,20 @@
 // Import TypeScript modules
 import { LANCER } from "../config";
 import { StabOptions1, StabOptions2 } from "../enums";
-import { getMacroSpeaker } from "./_util";
 import { prepareTextMacro } from "./text";
+import { LancerActor } from "../actor/lancer-actor";
 
 const lp = LANCER.log_prefix;
 
-export async function stabilizeMacro(a: string) {
+export async function prepareStabilizeMacro(actor_: string | LancerActor) {
   // Determine which Actor to speak as
-  let actor = getMacroSpeaker(a);
-  if (!actor) return Promise.reject();
+  let actor = LancerActor.fromUuidSync(actor_); // Re-define to avoid TS weird
 
   let template = await renderTemplate(`systems/${game.system.id}/templates/window/promptStabilize.hbs`, {});
 
   return new Promise<boolean>((resolve, reject) => {
     new Dialog({
-      title: `STABILIZE - ${actor?.name}`,
+      title: `STABILIZE - ${actor.name!}`,
       content: template,
       buttons: {
         submit: {
@@ -33,7 +32,7 @@ export async function stabilizeMacro(a: string) {
             if (!text) return;
 
             prepareTextMacro(
-              a,
+              actor,
               `${actor.name?.capitalize()} HAS STABILIZED`,
               `${actor.name} has stabilized.<br>${text}`
             );

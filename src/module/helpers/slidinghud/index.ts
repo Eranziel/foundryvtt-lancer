@@ -3,6 +3,14 @@ import type { AccDiffData } from "../acc_diff";
 import type { StructStressData } from "../struct_stress/data";
 
 let hud: HUDZone;
+// Look - I don't really know enough typescript to get it right,
+// but these will hold the success/reject of any
+let activeCallbacks: Record<keyof HUDData, null | [(value: any) => any, () => any]> = {
+  attack: null,
+  hase: null,
+  struct: null,
+  stress: null,
+};
 
 export async function attach() {
   if (!hud) {
@@ -10,23 +18,32 @@ export async function attach() {
     hud = new HUDZone({
       target: document.body,
     });
+    for (let key of ["attack", "hase", "struct", "stress"] as Array<keyof HUDData>) {
+      hud.$on(`${key}.submit`, (ev: any) => {
+        activeCallbacks[key]?.[0](ev.detail);
+        activeCallbacks[key] = null;
+      });
+      hud.$on(`${key}.cancel`, () => {
+        activeCallbacks[key]?.[1]();
+        activeCallbacks[key] = null;
+      });
+    }
   }
   return hud;
 }
 
-export async function open<T extends keyof HUDData>(key: T, data: HUDData[T]): Promise<HUDData[T]> {
+export async function openSlidingHud<T extends keyof HUDData>(key: T, data: HUDData[T]): Promise<HUDData[T]> {
   let hud = await attach();
 
   // open the hud, cancelling existing listeners
   hud.open(key, data);
 
   return new Promise((resolve, reject) => {
-    hud.$on(`${key}.submit`, (ev: CustomEvent<HUDData[T]>) => resolve(ev.detail));
-    hud.$on(`${key}.cancel`, () => reject());
+    activeCallbacks[key] = [resolve, reject];
   });
 }
 
-export async function isOpen(key: keyof HUDData): Promise<boolean> {
+export async function isHudOpen(key: keyof HUDData): Promise<boolean> {
   let hud = await attach();
   return hud.isOpen(key);
 }

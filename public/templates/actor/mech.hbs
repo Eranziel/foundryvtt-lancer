@@ -77,11 +77,11 @@
             {{localize "lancer.mech-sheet.macros.label" }}
           </span>
           <div class="lancer-macro-grid">
-            {{{macro-button "STABILIZE" "stabilizeMacro" "actor" }}}
-            {{{macro-button "FULL REPAIR" "fullRepairMacro" "actor" }}}
+            {{{macro-button "STABILIZE" "stabilizeMacro" }}}
+            {{{macro-button "FULL REPAIR" "fullRepairMacro" }}}
             <div style="margin:0px 8px;border-left: 2px solid #a2a2a2;"></div>
-            {{{macro-button "STRUCTURE" "prepareStructureMacro" "actor" }}}
-            {{{macro-button "OVERHEAT" "prepareOverheatMacro" "actor" }}}
+            {{{macro-button "STRUCTURE" "prepareStructureMacro" }}}
+            {{{macro-button "OVERHEAT" "prepareOverheatMacro" }}}
           </div>
         </div>
         {{#if (is-combatant actor)}}
@@ -106,8 +106,8 @@
       <div class="card clipped">
         <span class="lancer-header submajor">BASIC ATTACKS</span>
         <div class="lancer-macro-grid">
-          {{{macro-button "MELEE/RANGED" "prepareEncodedAttackMacro" "actor" }}}
-          {{{macro-button "TECH" "prepareTechMacro" "actor" }}}
+          {{{macro-button "MELEE/RANGED" "prepareAttackMacro" }}}
+          {{{macro-button "TECH" "prepareTechMacro" }}}
         </div>
       </div>
       <div class="card">

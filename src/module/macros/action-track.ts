@@ -2,18 +2,15 @@ import { ActionTrackingData } from "../action";
 import { getActions } from "../action/action-tracker";
 import { LancerActor } from "../actor/lancer-actor";
 import { prepareTextMacro } from "./text";
-import { getMacroSpeaker } from "./_util";
 
 /**
  * Renders out an update of the current action status for a turn change in combat.
- * @param actorUUID     String of the actor UUID to roll the macro as
- * @param actions Action data of the actor
+ * @param actor     String of the actor UUID to roll the macro as
  * @param start True if start of turn, false if end of turn
  */
-export function prepareActionTrackMacro(actorUUID: string, start: boolean) {
+export function prepareActionTrackMacro(actor: string | LancerActor, start: boolean) {
   // Determine which Actor to speak as
-  let actor = getMacroSpeaker(actorUUID);
-  if (!actor) return;
+  actor = LancerActor.fromUuidSync(actor);
 
   const actions = getActions(actor);
   if (!actions) return;
@@ -25,7 +22,7 @@ export function prepareActionTrackMacro(actorUUID: string, start: boolean) {
     text = `// ${actor.name} is ending their turn: //<br/>`;
     text += condensedActionButtonHTML(actor, actions);
   }
-  prepareTextMacro(actorUUID, "Action Status", text);
+  prepareTextMacro(actor, "Action Status", text);
 }
 
 function condensedActionButtonHTML(actor: LancerActor, actions: ActionTrackingData) {

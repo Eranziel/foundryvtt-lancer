@@ -1,36 +1,49 @@
 // Import TypeScript modules
 import { LANCER } from "../config";
-import type { LancerActor } from "../actor/lancer-actor";
-import type { LancerStatMacroData } from "../interfaces";
+import { LancerActor } from "../actor/lancer-actor";
 import { resolve_dotpath } from "../helpers/commons";
-import type { AccDiffDataSerialized } from "../helpers/acc_diff";
-import { getMacroSpeaker } from "./_util";
 import { renderMacroTemplate } from "./_render";
+import { LancerMacro } from "./interfaces";
+import { LancerItem, LancerSKILL } from "../item/lancer-item";
 
 const lp = LANCER.log_prefix;
 
-export async function prepareStatMacro(a: string, statKey: string, rerollData?: AccDiffDataSerialized) {
+export async function prepareStatMacro(actor: string | LancerActor, statKey: string) {
   // Determine which Actor to speak as
-  let actor = getMacroSpeaker(a);
-  if (!actor) return;
+  actor = LancerActor.fromUuidSync(actor);
 
   const statPath = statKey.split(".");
 
-  // TODO: we'll need to figure out some way of "migrating" old macros. for the time being, a primitive Proxy solution will probably do fine
   let bonus = resolve_dotpath(actor, statKey) as number;
 
-  let mData: LancerStatMacroData = {
+  let mData: LancerMacro.StatRoll = {
     title: statPath[statPath.length - 1].toUpperCase(),
+    docUUID: actor.uuid,
     bonus,
   };
 
-  rollStatMacro(actor, mData).then();
+  rollStatMacro(mData);
+}
+
+/**
+ * Generic macro preparer for a skill
+ * @param item The item id that is being rolled
+ */
+export async function prepareSkillMacro(item: string | LancerItem) {
+  // Determine which Actor to speak as
+  item = LancerItem.fromUuidSync(item);
+  let skillData: LancerMacro.StatRoll = {
+    title: item.name!,
+    bonus: (item as LancerSKILL).system.curr_rank * 2,
+    docUUID: item.uuid,
+  };
+  await rollStatMacro(skillData);
 }
 
 // Rollers
 
-export async function rollStatMacro(actor: LancerActor, data: LancerStatMacroData) {
-  if (!actor) return Promise.resolve();
+export async function rollStatMacro(data: LancerMacro.StatRoll) {
+  let actor = LancerActor.fromUuidSync(data.docUUID, "Failed to roll stat macro");
 
   // Get accuracy/difficulty with a prompt
   let { AccDiffData } = await import("../helpers/acc_diff");
@@ -38,7 +51,7 @@ export async function rollStatMacro(actor: LancerActor, data: LancerStatMacroDat
 
   let promptedData;
   try {
-    let { open } = await import("../helpers/slidinghud");
+    let { openSlidingHud: open } = await import("../helpers/slidinghud");
     promptedData = await open("hase", initialData);
   } catch (_e) {
     return;

@@ -304,11 +304,12 @@ export function drilldownDocument(
 // Helper function to get arbitrarily deep array references
 // Returns every item along the path, starting with the object itself
 // Any failed resolutions will still be emitted, but as a dedicated symbol
-const RESOLVE_FAIL = Symbol("Fail");
+export function resolve_dotpath<T>(ob: any, path: string): T | null;
+export function resolve_dotpath<T>(ob: any, path: string, default_: T): T;
 export function resolve_dotpath(
   obj: any,
   dotpath: string,
-  default_: any = RESOLVE_FAIL,
+  default_: any = null,
   opts?: {
     shorten_by?: number; // If provided, skip the last N path items
   }
@@ -325,6 +326,13 @@ export function resolve_dotpath(
   return item.val === undefined ? default_ : item.val;
 }
 
+// Get the root item from the helper
+export function helper_root_doc(options: HelperOptions): LancerActor | LancerItem {
+  let root = options.data?.root;
+  return root.item ?? root.actor;
+}
+
+const RESOLVE_FAIL = Symbol("Fail");
 // Helper function to get arbitrarily deep array references, specifically in a helperoptions, and with better types for that matter
 export function resolve_helper_dotpath<T>(options: HelperOptions, path: string): T | null;
 export function resolve_helper_dotpath<T>(options: HelperOptions, path: string, default_: T): T;
@@ -340,7 +348,7 @@ export function resolve_helper_dotpath(
 
     // Loop until no _parent
     while (data) {
-      let resolved = resolve_dotpath(data?.root, path);
+      let resolved = resolve_dotpath(data?.root, path, RESOLVE_FAIL);
       if (resolved != RESOLVE_FAIL) {
         // Looks like we found something!
         return resolved;
@@ -361,10 +369,10 @@ export function resolve_helper_dotpath(
  * @argument defaults These properties will be inserted iff the hash doesn't already have that value.
  * @argument overrides These properties will be inserted regardless of pre-existing value
  */
-export function ext_helper_hash(
+export function extendHelper(
   orig_options: HelperOptions,
-  overrides: HelperOptions["hash"],
-  defaults: HelperOptions["hash"] = {}
+  overrides: Record<string, any>,
+  defaults: Record<string, any> = {}
 ): HelperOptions {
   return {
     fn: orig_options.fn,
@@ -431,7 +439,17 @@ export function HANDLER_activate_general_controls(
 
       // Construct our ctx
       let path = elt.dataset.path!;
-      let dd = drilldownDocument(doc, path);
+      let docOverride: LancerActor | LancerItem | null = null;
+      let dd: ReturnType<typeof drilldownDocument>;
+      if (elt.dataset.uuid) {
+        docOverride = (await fromUuid(elt.dataset.uuid)) as any;
+        if (!docOverride) {
+          return ui.notifications?.error("Bad uuid: " + elt.dataset.uuid);
+        }
+        dd = drilldownDocument(docOverride, path);
+      } else {
+        dd = drilldownDocument(doc, path);
+      }
       let ctx: GenControlContext = {
         // Base
         elt,
@@ -441,7 +459,7 @@ export function HANDLER_activate_general_controls(
         base_document: doc,
 
         // Derived
-        path_target: resolve_dotpath(doc, elt.dataset.path!),
+        path_target: dd.terminus,
         parsed_val: val,
         target_document: dd.sub_doc,
         relative_path: dd.sub_path,
