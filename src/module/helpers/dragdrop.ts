@@ -94,21 +94,29 @@ export function HANDLER_enable_doc_dropping(
     }
 
     // Finally and most importantly, dropping
-    item.on("drop", async event => {
+    item.on("drop", event => {
       // Check dropability just to be safe - some event may have trickled down here somehow
-      let rdd = GlobalDragPreview;
-      if (!rdd && event.originalEvent?.dataTransfer?.getData("text/plain")) {
-        rdd = await resolveNativeDrop(event.originalEvent.dataTransfer.getData("text/plain"));
-      }
-      if (!rdd || (allow_drop && !allow_drop(rdd, item, event))) {
+      if (!event.originalEvent?.dataTransfer?.getData("text/plain")) {
         return;
       }
 
-      // It is guaranteed to be acceptable to our can_drop function and basic type checks, so we
-      // don't want it to propagate any further
-      event.stopImmediatePropagation();
-      event.preventDefault();
-      drop_handler(rdd!, item, event);
+      if (GlobalDragPreview) {
+        // We can proceed synchronously
+        let rdd = GlobalDragPreview;
+        if (!allow_drop || allow_drop(rdd, item, event)) {
+          // It's a good drop - prevent propagation and handle
+          event.stopImmediatePropagation();
+          event.preventDefault();
+          drop_handler(rdd, item, event);
+        }
+      } else {
+        // Unfortunately, if global drag preview isn't set then it is necessary for us to aggressively cancel events to prevent possible duplicate drop handling
+        event.stopImmediatePropagation();
+        event.preventDefault();
+        resolveNativeDrop(event.originalEvent.dataTransfer.getData("text/plain")).then(rdd => {
+          if (rdd && (!allow_drop || allow_drop(rdd, item, event))) drop_handler(rdd, item, event);
+        });
+      }
     });
   });
 }
@@ -314,6 +322,7 @@ function setGlobalDrag(to: LancerActor | LancerItem | Macro | Journal | Scene | 
     };
   } else if (to == null) {
     GlobalDragPreview = null;
+    return;
   }
 
   // Add an appropriate class
@@ -360,8 +369,9 @@ export function applyGlobalDragListeners() {
 
       // May or may not have a uuid by now
       // If we do, tell it to try setting global drag
+      let cancel_token_copy = cancel_token;
       fromUuid(uuid).then(doc => {
-        if (!cancel_token.canceled) {
+        if (!cancel_token_copy.canceled) {
           setGlobalDrag(doc as LancerActor | LancerItem | null);
         }
       });
@@ -372,17 +382,18 @@ export function applyGlobalDragListeners() {
     }
   );
 
-  // Clear whenever we stop dragging anywhere
-  body.addEventListener(
-    "dragend",
-    e => {
-      setGlobalDrag(null);
-      cancel_token.canceled = true;
-      cancel_token = { canceled: false };
-    },
-    {
-      capture: true, // Same as above
-      passive: true,
-    }
-  );
+  // Clear whenever we stop dragging anywhere. Have to handle both drag end and drop.
+  const endListener = () => {
+    setGlobalDrag(null);
+    cancel_token.canceled = true;
+    cancel_token = { canceled: false };
+  };
+  body.addEventListener("dragend", endListener, {
+    capture: true, // Same as above
+    passive: true,
+  });
+  body.addEventListener("drop", endListener, {
+    capture: true, // Same as above
+    passive: true,
+  });
 }

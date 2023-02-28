@@ -80,7 +80,7 @@ function npc_feature_scaffold(
     macro_button = `<a class="item-macro"><i class="mdi mdi-message"></i></a>`;
   }
   return `
-  <div class="set ref card item ${feature_class}" ${ref_params(npc_feature)}>
+  <div class="set ref card ${feature_class}" ${ref_params(npc_feature)}>
     <div class="flexrow lancer-header clipped-top ${npc_feature.system.destroyed ? "destroyed" : ""}">
       <i class="${npc_feature.system.destroyed ? "mdi mdi-cog" : `cci ${icon} i--m i--light`}"> </i>
       ${macro_button}

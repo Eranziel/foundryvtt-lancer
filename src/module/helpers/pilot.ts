@@ -11,7 +11,7 @@ export function talent_view(talent_path: string, options: HelperOptions) {
   let collapse = resolve_helper_dotpath<CollapseRegistry>(options, "collapse");
   let talent = resolve_helper_dotpath<LancerTALENT>(options, talent_path);
   if (!talent) return "";
-  let retStr = `<li class="card clipped talent-compact item ref set" ${ref_params(talent)}>
+  let retStr = `<li class="card clipped talent-compact ref set" ${ref_params(talent)}>
         <div class="lancer-talent-header medium clipped-top" style="grid-area: 1/1/2/4">
           <i class="cci cci-talent i--m"></i>
           <span class="major">${talent.name}</span>
@@ -60,7 +60,7 @@ export function skillView(skill_path: string, options: HelperOptions) {
   let skill = resolve_helper_dotpath<LancerSKILL>(options, skill_path);
   if (!skill) return "";
   return `
-      <li class="card clipped skill-compact item ref set" ${ref_params(skill)}>
+      <li class="card clipped skill-compact ref set" ${ref_params(skill)}>
         <div class="lancer-trigger-header medium clipped-top" style="grid-area: 1/1/2/3">
           <i class="cci cci-skill i--m i--dark"> </i>
           <span class="major modifier-name">${skill.name}</span>
@@ -83,7 +83,7 @@ export function coreBonusView(item_path: string, options: HelperOptions) {
   let collapse = resolve_helper_dotpath<CollapseRegistry>(options, "collapse");
   if (!coreBonus) return "";
   return `
-      <li class="card clipped item ref set" ${ref_params(coreBonus)}>
+      <li class="card clipped ref set" ${ref_params(coreBonus)}>
         <div class="lancer-corebonus-header medium clipped-top" style="grid-area: 1/1/2/3">
           <i class="cci cci-corebonus i--m i--dark"> </i>
           <span class="major modifier-name">${coreBonus.name}</span>

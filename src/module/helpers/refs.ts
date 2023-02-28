@@ -240,7 +240,7 @@ export function item_preview_list(item_array_path: string, allowed_types: string
   return `
     <div class="flexcol ref-list" 
          data-path="${item_array_path}" 
-         data-type="${allowed_types}">
+         data-accept-types="${allowed_types}">
          ${previews.join("")}
     </div>`;
 }

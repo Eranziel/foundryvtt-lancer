@@ -69,7 +69,7 @@ export function mech_system_view(system_path: string, options: HelperOptions): s
   if (doc.isLimited()) {
     limited = limited_uses_indicator(doc, system_path + ".value");
   }
-  return `<li class="ref set card clipped mech-system item ${
+  return `<li class="ref set card clipped mech-system ${
     doc.system.type === SystemType.Tech ? "tech-item" : ""
   }" ${ref_params(doc)} style="margin: 0;">
         <div class="lancer-header ${doc.system.destroyed ? "destroyed" : ""}" style="grid-area: 1/1/2/3; display: flex">
@@ -220,8 +220,7 @@ export function pilot_slot(data_path: string, options: HelperOptions): string {
   return `<div class="pilot-summary">
     <img class="ref set pilot click-open" 
          ${ref_params(pilot, data_path)} 
-         data-mode="uuid-ref"
-         data-accept-types="pilot"
+         data-accept-types="${EntryType.PILOT}"
          style="height: 100%" src="${pilot.img}"/>
     <div class="license-level">
       <span>LL${pilot.system.level}</span>

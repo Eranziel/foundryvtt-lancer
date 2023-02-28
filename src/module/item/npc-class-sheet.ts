@@ -19,7 +19,6 @@ export class LancerNPCClassSheet extends LancerItemSheet<EntryType.NPC_CLASS | E
     return mergeObject(super.defaultOptions, {
       width: 900,
       height: 750,
-      dragDrop: [{ dragSelector: ".item" }],
     });
   }
 

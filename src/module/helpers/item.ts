@@ -367,7 +367,6 @@ export function pilot_armor_slot(armor_path: string, options: HelperOptions): st
   if (!armor) {
     // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
     return `<div class="${EntryType.PILOT_ARMOR} ref drop-settable card" 
-                        data-mode="embed-ref"
                         data-path="${armor_path}" 
                         data-accept-types="${EntryType.PILOT_ARMOR}">
           <img class="ref-icon" src="${TypeIcon(EntryType.PILOT_ARMOR)}"></img>
@@ -385,7 +384,6 @@ export function pilot_armor_slot(armor_path: string, options: HelperOptions): st
 
   return `<div class="set ref drop-settable card clipped pilot-armor-compact item" 
                 ${ref_params(armor, armor_path)} 
-                data-mode="embed-ref"
                 data-accept-types="${EntryType.PILOT_ARMOR}"
                 >
             <div class="lancer-header">
@@ -434,8 +432,7 @@ export function pilot_weapon_refview(weapon_path: string, options: HelperOptions
     // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
     return `<div class="${EntryType.PILOT_WEAPON} ref drop-settable card flexrow" 
                         data-path="${weapon_path}" 
-                        data-accept-types="${EntryType.PILOT_WEAPON}"
-                        data-mode="embed-ref">
+                        data-accept-types="${EntryType.PILOT_WEAPON}">
           <img class="ref-icon" src="${TypeIcon(EntryType.PILOT_WEAPON)}"></img>
           <span class="major">Equip weapon</span>
       </div>`;
@@ -454,8 +451,7 @@ export function pilot_weapon_refview(weapon_path: string, options: HelperOptions
 
   return `<div class="set ${EntryType.PILOT_WEAPON} ref drop-settable card clipped pilot-weapon-compact item"
                 ${ref_params(weapon, weapon_path)} 
-                data-accept-types="${EntryType.PILOT_WEAPON}"
-                data-mode="embed-ref">
+                data-accept-types="${EntryType.PILOT_WEAPON}">
     <div class="lancer-header">
       <i class="cci cci-weapon i--m i--light"> </i>
       <span class="minor">${weapon.name}</span>
@@ -495,8 +491,7 @@ export function pilot_gear_refview(gear_path: string, options: HelperOptions): s
     // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
     return `<div class="${EntryType.PILOT_GEAR} ref drop-settable card flexrow" 
                         data-path="${gear_path}" 
-                        data-accept-types="${EntryType.PILOT_GEAR}"
-                        data-mode="embed-ref">
+                        data-accept-types="${EntryType.PILOT_GEAR}">
           <img class="ref-icon" src="${TypeIcon(EntryType.PILOT_GEAR)}"></img>
           <span class="major">Equip gear</span>
       </div>`;
@@ -510,8 +505,7 @@ export function pilot_gear_refview(gear_path: string, options: HelperOptions): s
 
   return `<div class="set ${EntryType.PILOT_GEAR} ref drop-settable card clipped item"
                 ${ref_params(gear, gear_path)} 
-                data-accept-types="${EntryType.PILOT_GEAR}"
-                data-mode="embed-ref">
+                data-accept-types="${EntryType.PILOT_GEAR}">
     <div class="lancer-header">
       <i class="cci cci-generic-item i--m"> </i>
       <a class="gear-macro"><i class="mdi mdi-message"></i></a>
@@ -544,7 +538,7 @@ export function reserve_refview(reserve_path: string, options: HelperOptions): s
     // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
     return `<div class="${EntryType.RESERVE} ref drop-settable card flexrow"
                         data-path="${reserve_path}"
-                        data-type="${EntryType.RESERVE}">
+                        data-accept-types="${EntryType.RESERVE}">
           <img class="ref-icon" src="${TypeIcon(EntryType.RESERVE)}"></img>
           <span class="major">Equip reserve</span>
       </div>`;
@@ -632,8 +626,7 @@ export function mech_loadout_weapon_slot(
     return `
       <div class="${EntryType.MECH_WEAPON} ref slot drop-settable card flexrow" 
            data-path="${weapon_path}" 
-           data-type="${EntryType.MECH_WEAPON}"
-           data-mode="embed-ref">
+           data-accept-types="${EntryType.MECH_WEAPON}">
         <img class="ref-icon" src="${TypeIcon(EntryType.MECH_WEAPON)}"></img>
         <span class="major">Insert ${size ? size : "any"} weapon</span>
       </div>`;
@@ -659,7 +652,7 @@ export function mech_weapon_display(weapon_path: string, mod_path: string | null
       profiles += `<a class="gen-control weapon-profile ${
         i === weapon.system.selected_profile ? "selected-profile" : ""
       }"
-data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.selected_profile">
+data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.system.selected_profile">
 <span class="minor">${p.name}</span>
 </a>`;
     }
@@ -704,9 +697,9 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.select
 
   return `
   <div class="mech-weapon-wrapper${mod_text ? "-modded" : ""}">
-    <div class="ref set drop-settable ${EntryType.MECH_WEAPON} flexcol lancer-weapon-container item"
+    <div class="ref set drop-settable ${EntryType.MECH_WEAPON} flexcol item"
                   ${ref_params(weapon, weapon_path)}
-                  data-mode="embed-ref"
+                  data-accept-types="${EntryType.MECH_WEAPON}"
                   style="max-height: fit-content;">
       <div class="lancer-header ${weapon.system.destroyed ? "destroyed" : ""}">
         <i class="${weapon.system.destroyed ? "mdi mdi-cog" : "cci cci-weapon i--m i--light"}"> </i>
@@ -751,7 +744,7 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.select
 
 export function loading_indicator(loaded: boolean, weapon_path: string): string {
   let loading_icon = `mdi ${loaded ? "mdi-hexagon-slice-6" : "mdi-hexagon-outline"} loaded-hex`;
-  let indicator = `<a class="gen-control" data-action="set" data-action-value="(bool)${!loaded}" data-path="${weapon_path}.loaded"><i class="${loading_icon} i--m"></i></a>`;
+  let indicator = `<a class="gen-control" data-action="set" data-action-value="(bool)${!loaded}" data-path="${weapon_path}.system.loaded"><i class="${loading_icon} i--m"></i></a>`;
   return `<div class="clipped card limited-card">LOADED ${indicator}</div>`;
 }
 
@@ -762,7 +755,7 @@ export function weapon_mod_ref(mod_path: string, weapon_path: string | null, opt
   if (!mod) {
     return `<div class="${EntryType.WEAPON_MOD} ref slot drop-settable card flexrow"
         data-path="${mod_path}"
-        data-type="${EntryType.WEAPON_MOD}">
+        data-accept-types="${EntryType.WEAPON_MOD}">
       <i class="cci cci-weaponmod i--m i--light"> </i>
       <span>No Mod Installed</span>
     </div>`;
@@ -808,7 +801,7 @@ export function weapon_mod_ref(mod_path: string, weapon_path: string | null, opt
   }
 
   return `
-  <div class="set item flexcol clipped-top ref ${EntryType.WEAPON_MOD}" ${ref_params(mod)}>
+  <div class="set flexcol clipped-top ref ${EntryType.WEAPON_MOD}" ${ref_params(mod)}>
     <div class="lancer-header">
       <i class="cci cci-weaponmod i--m i--light"> </i>
       <span class="minor">${mod.name}</span>
@@ -861,7 +854,7 @@ export function manufacturer_ref(source_path: string, options: HelperOptions): s
 export function license_ref(item_path: string, options: HelperOptions): string {
   let license = resolve_helper_dotpath(options, item_path) as LancerLICENSE;
   return `
-    <li class="card clipped item ref set" ${ref_params(license)}>
+    <li class="card clipped ref set" ${ref_params(license)}>
       <div class="lancer-header lancer-license-header medium clipped-top" style="grid-area: 1/1/2/3">
         <i class="cci cci-license i--m i--dark"> </i>
         <div class="major modifier-name">${license.name} ${license.system.curr_rank}</div>
@@ -881,7 +874,7 @@ export function framePreview(path: string, options: HelperOptions): string {
   } else {
     let frame_img = encodeURI(frameToPath(frame.name) ?? "systems/lancer/assets/icons/frame.svg");
     return `
-    <li class="card clipped item ref set click-open" ${ref_params(frame)}>
+    <li class="card clipped ref set click-open" ${ref_params(frame)}>
       <div class="compact-frame medium flexrow">
         <span class="img-bar" style="background-image: url(${frame_img})"></span>
         <div class="major modifier-name i--light">${frame.system.manufacturer} ${frame.name}</div>
@@ -901,7 +894,7 @@ export function npc_class_ref(npc_class: LancerNPC_CLASS | null, item_path?: str
   } else {
     let frame_img = encodeURI(frameToPath(npc_class.name) ?? "systems/lancer/assets/icons/npc_class.svg");
     return `
-    <div class="card clipped item ref set click-open" ${ref_params(npc_class)}>
+    <div class="card clipped ref set click-open" ${ref_params(npc_class)}>
       <div class="compact-class medium flexrow">
         <span class="img-bar" style="background-image: url(${frame_img})"></span>
         <div class="major modifier-name i--light">${npc_class.name} // ${npc_class.system.role.toUpperCase()}</div>
@@ -920,7 +913,7 @@ export function npc_template_ref(template: LancerNPC_TEMPLATE | null, item_path?
     return "";
   } else {
     return `
-    <div class="card clipped item ref set" ${ref_params(template)}>
+    <div class="card clipped ref set" ${ref_params(template)}>
       <div class="compact-template medium flexrow">
         <span class="img-bar" style="background-image: url(${template.img})"></span>
         <div class="major modifier-name i--light">${template.name}</div>

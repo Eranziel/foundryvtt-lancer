@@ -75,9 +75,6 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     this._activateMacroDragging(html);
 
     let getfunc = () => this.getData();
-    let commitfunc = (_: any) => {
-      console.error("DEPRECATED");
-    };
 
     // Make +/- buttons work
     HANDLER_activate_plus_minus_buttons(html, this.actor);
@@ -255,7 +252,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     let target = <HTMLElement>event.currentTarget;
 
     let title = target.closest(".action-wrapper")?.querySelector(".action-title")?.textContent;
-    let itemId = target.closest(".item")?.getAttribute("data-uuid");
+    let itemId = target.closest("[data-uuid]")?.getAttribute("data-uuid");
 
     if (!itemId) throw Error("No item found");
 
