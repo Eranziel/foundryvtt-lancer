@@ -151,10 +151,9 @@ export class EmbeddedRefField extends fields.StringField {
 
   /** @override */
   _cast(value: any) {
+    if (value?.id) value = value.id;
     if (value?.value) value = value.value;
-    if (value?.id) {
-      value = value.id;
-    }
+    if (value?.id) value = value.id; // Intentionally duplicated
     return String(value);
   }
 
@@ -221,10 +220,9 @@ export class SyncUUIDRefField extends fields.StringField {
 
   /** @override */
   _cast(value: any) {
+    if (value?.uuid) value = value.uuid;
     if (value?.value) value = value.value;
-    if (value?.uuid) {
-      value = value.uuid;
-    }
+    if (value?.uuid) value = value.uuid; // Intentionally duplicated
     return String(value);
   }
 

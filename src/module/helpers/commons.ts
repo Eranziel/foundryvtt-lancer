@@ -7,7 +7,6 @@ import tippy from "tippy.js";
 import { ActivationType, MountType, WeaponSize, WeaponType } from "../enums";
 import { LancerActor } from "../actor/lancer-actor";
 import { LancerItem } from "../item/lancer-item";
-import { SystemTemplates } from "../system-template";
 
 // A shorthand for only including the first string if the second value is truthy
 export function inc_if(val: string, test: any) {
