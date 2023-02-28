@@ -590,18 +590,15 @@ export function convertBonus(
 /**
  * Determine whether this Active Effect applies to the given weapon
  */
-export function bonusAffectsWeapon(
-  weapon: LancerMECH_WEAPON,
-  bonus: SystemTemplates.actor_universal["weapon_bonuses"][0]
-): boolean {
+export function bonusAffectsWeapon(weapon: LancerMECH_WEAPON, bonus: BonusData): boolean {
   if (!weapon.is_mech_weapon()) return false;
   let sel_prof = weapon.system.active_profile;
 
   // Now start checking
-  if (!bonus.sizes?.[weapon.system.size]) return false;
-  if (!bonus.types?.[sel_prof.type]) return false;
-  if (!sel_prof.damage.some(d => bonus.damages?.[d.type])) return false;
-  if (!sel_prof.range.some(d => bonus.ranges?.[d.type])) return false;
+  if (bonus.weapon_sizes?.[weapon.system.size] === false) return false;
+  if (bonus.weapon_types?.[sel_prof.type] === false) return false;
+  if (!sel_prof.damage.some(d => bonus.damage_types?.[d.type] === false)) return false;
+  if (!sel_prof.range.some(d => bonus.range_types?.[d.type] === false)) return false;
 
   // Passed the test
   return true;

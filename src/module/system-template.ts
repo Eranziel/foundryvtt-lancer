@@ -120,20 +120,23 @@ export namespace SystemTemplates {
     eng: number;
 
     // Set by active effects
+    // TODO
+    /*
     bonuses: {
       flat: RollBonusTargets;
       accuracy: RollBonusTargets;
     };
+    */
 
     // Also set by active effects, but to allow for more specific criteria. TODO - finalize details of this
-    weapon_bonuses: Array<{
+    /*weapon_bonuses: Array<{
       sizes: BonusData["weapon_sizes"];
       types: BonusData["weapon_types"];
       damages: BonusData["damage_types"];
       ranges: BonusData["range_types"];
       bonus: "range" | "damage";
       value: number;
-    }>;
+    }>;*/
   };
 
   // Modify bascdt to use system tagfields, and resolved deployables/integrateds
@@ -364,6 +367,7 @@ export namespace SystemData {
     // Set by pilot active effect
     grit: number;
     psd: null | SourceData.Pilot; // Short for "pilot system dump". An active-effect provided dump of active pilots sytem data
+    all_bonuses: BonusData[]; // All bonuses across everything
   }
 
   export interface MechSystem
@@ -404,10 +408,10 @@ export namespace SystemData {
       synergies: SynergyData[];
       counters: CounterData[];
 
-      // Derived - though for now not really used (much)
-      bonus_damage: DamageData[];
+      // Derived, crudely for now
+      bonus_damage: Damage[];
       bonus_tags: Tag[];
-      added_range: Range[];
+      bonus_range: Range[];
     }>;
     loaded: false;
     selected_profile: number;

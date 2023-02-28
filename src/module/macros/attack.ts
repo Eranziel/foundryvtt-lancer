@@ -107,10 +107,9 @@ export async function prepareAttackMacro(
       let profile = item.system.active_profile;
       mData.loaded = item.system.loaded;
       mData.destroyed = item.system.destroyed;
-      mData.damage = profile.damage;
+      mData.damage = [...profile.damage, ...profile.bonus_damage];
       mData.flat_bonus = pilot.system.grit;
-      mData.tags = profile.tags.map(t => t.save());
-      if (item.system.mod) mData.tags.push(...item.system.mod.system.added_tags);
+      mData.tags = [...profile.tags, ...profile.bonus_tags];
       mData.overkill = profile.tags.some(t => t.is_overkill);
       mData.self_heat = profile.tags.find(t => t.is_selfheat)?.val;
       mData.effect = profile.effect;

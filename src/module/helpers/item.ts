@@ -793,15 +793,14 @@ export function weapon_mod_ref(mod_path: string, weapon_path: string | null, opt
   let tags = mod.system.tags.length ? compact_tag_list(`${mod_path}.system.tags`, mod.system.tags, false) : "";
   let actions = "";
   if (mod.system.actions.length) {
-    actions = mod.system.actions
-      .map((_, i) => {
-        return buildActionArrayHTML(mod!, `system.actions.${i}`);
-      })
-      .join("");
+    actions = buildActionArrayHTML(mod, "system.actions");
   }
 
   return `
-  <div class="set flexcol clipped-top ref ${EntryType.WEAPON_MOD}" ${ref_params(mod)}>
+  <div class="set flexcol clipped-top ref ${EntryType.WEAPON_MOD} drop-settable" ${ref_params(
+    mod,
+    mod_path
+  )} data-accept-types="${EntryType.WEAPON_MOD}">
     <div class="lancer-header">
       <i class="cci cci-weaponmod i--m i--light"> </i>
       <span class="minor">${mod.name}</span>

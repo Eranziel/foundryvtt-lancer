@@ -1,19 +1,22 @@
 import { LANCER, TypeIcon } from "../config";
 import { SystemData, SystemDataType, SystemTemplates } from "../system-template";
 import { SourceDataType } from "../source-template";
-import { EntryType, NpcFeatureType, RangeType } from "../enums";
+import { DamageType, EntryType, NpcFeatureType, RangeType, WeaponType } from "../enums";
 import * as defaults from "../util/unpacking/defaults";
 import { ActionData } from "../models/bits/action";
-import { RangeData } from "../models/bits/range";
+import { RangeData, Range } from "../models/bits/range";
 import { Tag } from "../models/bits/tag";
 import { LancerActiveEffectConstructorData } from "../effects/lancer-active-effect";
 import {
+  bonusAffectsWeapon,
   convertBonus,
   frameInnateEffect as frameInnate,
   npcClassInnateEffect as npcClassInnate,
 } from "../effects/converter";
 import { BonusData } from "../models/bits/bonus";
 import { ChangeWatchHelper } from "../util/misc";
+import { LancerMECH } from "../actor/lancer-actor";
+import { Damage } from "../models/bits/damage";
 
 const lp = LANCER.log_prefix;
 
@@ -176,6 +179,46 @@ export class LancerItem extends Item {
     if (this.actor?.is_mech()) {
       if (this._hasUses() && this.system.uses.max) {
         this.system.uses.max += (system as SystemData.Mech).loadout.limited_bonus;
+      }
+    }
+
+    if (this.is_mech_weapon()) {
+      // Add mod bonuses
+      if (this.system.mod) {
+        this.system.active_profile.bonus_damage = [...this.system.mod.system.added_damage];
+        this.system.active_profile.bonus_range = [...this.system.mod.system.added_range];
+        this.system.active_profile.bonus_tags = [...this.system.mod.system.added_tags];
+      }
+
+      // Add all bonuses
+      let bonuses = (system as SystemData.Mech).all_bonuses;
+      for (let b of bonuses) {
+        if (b.lid == "damage") {
+          if (!bonusAffectsWeapon(this, b)) continue;
+          this.system.active_profile.bonus_damage.push(
+            new Damage({
+              type: this.system.active_profile.damage[0]?.type ?? DamageType.Variable,
+              val: b.val,
+            })
+          );
+        } else if (b.lid == "range") {
+          if (!bonusAffectsWeapon(this, b)) continue;
+          if (this.system.active_profile.type == WeaponType.Melee) {
+            this.system.active_profile.bonus_range.push(
+              new Range({
+                type: RangeType.Threat,
+                val: parseInt(b.val) ?? 0,
+              })
+            );
+          } else {
+            this.system.active_profile.bonus_range.push(
+              new Range({
+                type: RangeType.Range,
+                val: parseInt(b.val) ?? 0,
+              })
+            );
+          }
+        }
       }
     }
 
@@ -393,14 +436,36 @@ export class LancerItem extends Item {
       this.is_pilot_weapon() ||
       this.is_mech_system() ||
       this.is_npc_feature() ||
+      this.is_weapon_mod() ||
       this.is_core_bonus()
     ) {
-      // TODO: I probably missed some here
       return this.system.tags;
     } else if (this.is_mech_weapon()) {
       return this.system.all_tags;
     } else if (this.is_frame()) {
       return this.system.core_system.tags;
+    } else {
+      return null;
+    }
+  }
+
+  getBonuses(): BonusData[] | null {
+    if (
+      this.is_pilot_armor() ||
+      this.is_pilot_gear() ||
+      this.is_pilot_weapon() ||
+      this.is_mech_system() ||
+      this.is_core_bonus()
+    ) {
+      return this.system.bonuses;
+    } else if (this.is_mech_weapon()) {
+      return this.system.active_profile.bonuses;
+    } else if (this.is_frame()) {
+      if (this.actor && (this.actor as LancerMECH).system.core_active) {
+        return [...this.system.core_system.passive_bonuses, ...this.system.core_system.active_bonuses];
+      } else {
+        return this.system.core_system.passive_bonuses;
+      }
     } else {
       return null;
     }

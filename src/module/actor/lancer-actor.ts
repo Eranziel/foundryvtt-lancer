@@ -221,11 +221,12 @@ export class LancerActor extends Actor {
       kinetic: false,
       variable: false,
     };
+    /*
     sys.bonuses = {
       flat: defaults.ROLL_BONUS_TARGETS(),
       accuracy: defaults.ROLL_BONUS_TARGETS(),
     };
-    sys.weapon_bonuses = [];
+    */
 
     // 3. Query effects to set status flags
     for (let eff of this.effects) {
@@ -342,11 +343,18 @@ export class LancerActor extends Actor {
           }
         }
       }
+
+      // Collect all bonuses
+      // TODO - eventually we would rather have these handled via active effects
+      this.system.all_bonuses = [];
+      for (let item of this.loadoutHelper.listLoadout()) {
+        this.system.all_bonuses.push(...(item.getBonuses() ?? []));
+      }
     }
 
     // Ask items to prepare their final attributes using weapon_bonuses / equip information
     for (let item of this.items.contents) {
-      // @ts-expect-error
+      // @ts-expect-error Eventually this will have per-item active effects. For now, it doesn't. cope i guess lol
       item.prepareFinalAttributes(this.system);
     }
 

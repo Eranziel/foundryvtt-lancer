@@ -33,7 +33,7 @@ export class LoadoutHelper {
 
   // List the all equipped loadout items on this actor
   // For mechs this is everthing in system.loadout, IE: Mech weapons, Mech Systems, Frame
-  private listLoadout(): Array<LancerItem> {
+  listLoadout(): Array<LancerItem> {
     let result = [] as LancerItem[];
     let it = this.actor.itemTypes;
     if (this.actor.is_mech()) {
