@@ -109,7 +109,8 @@ export async function prepareAttackMacro(
       mData.destroyed = item.system.destroyed;
       mData.damage = profile.damage;
       mData.flat_bonus = pilot.system.grit;
-      mData.tags = profile.tags;
+      mData.tags = profile.tags.map(t => t.save());
+      if (item.system.mod) mData.tags.push(...item.system.mod.system.added_tags);
       mData.overkill = profile.tags.some(t => t.is_overkill);
       mData.self_heat = profile.tags.find(t => t.is_selfheat)?.val;
       mData.effect = profile.effect;
@@ -129,7 +130,7 @@ export async function prepareAttackMacro(
 
       // Reduce damage values to only this tier
       mData.damage = asWeapon.damage[tier_index] ?? [];
-      mData.tags = asWeapon.tags;
+      mData.tags = asWeapon.tags.map(t => t.save());
       mData.overkill = asWeapon.tags.some(t => t.is_overkill);
       mData.self_heat = asWeapon.tags.find(t => t.is_selfheat)?.val;
       mData.on_hit = asWeapon.on_hit;
@@ -146,7 +147,7 @@ export async function prepareAttackMacro(
       mData.loaded = item.system.loaded;
       mData.damage = item.system.damage;
       mData.flat_bonus = actor.system.grit;
-      mData.tags = item.system.tags;
+      mData.tags = item.system.tags.map(t => t.save());
       mData.overkill = item.system.tags.some(t => t.is_overkill);
       mData.self_heat = item.system.tags.find(t => t.is_selfheat)?.val;
       mData.effect = item.system.effect;

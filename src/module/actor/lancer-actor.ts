@@ -336,6 +336,9 @@ export class LancerActor extends Actor {
           }
           if (slot.mod?.status == "resolved") {
             slot.mod.value.system.equipped = true;
+            if (slot.weapon?.status == "resolved") {
+              slot.weapon.value.system.mod = slot.mod.value;
+            }
           }
         }
       }

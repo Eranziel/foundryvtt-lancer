@@ -405,9 +405,9 @@ export namespace SystemData {
       counters: CounterData[];
 
       // Derived - though for now not really used (much)
-      bonus_damage: Origined<DamageData>[];
-      bonus_tags: Origined<Tag>[];
-      added_range: Origined<Range>[];
+      bonus_damage: DamageData[];
+      bonus_tags: Tag[];
+      added_range: Range[];
     }>;
     loaded: false;
     selected_profile: number;
@@ -422,6 +422,8 @@ export namespace SystemData {
     all_tags: Tag[];
     // The current profile
     active_profile: this["profiles"][0];
+    // The mod on this slot
+    mod: LancerWEAPON_MOD;
   }
   export interface Npc
     extends SystemTemplates.actor_universal,
