@@ -58,11 +58,22 @@ export async function lookupDeployables(lids: string[]) {
   return foundDeployables.filter(x => x);
 }
 
-// Lookup deployables that have the provided actor set as their owner
-export function lookupOwnedDeployables(owner: LancerActor): LancerDEPLOYABLE[] {
+// Lookup deployables that have the provided actor set as their owner, keyed by lid
+export function lookupOwnedDeployables(owner: LancerActor): Record<string, LancerDEPLOYABLE> {
+  if (owner.is_deployable()) return {};
+  if (owner.isToken) return {}; // This might be possible if we could recover the original actor somehow?
+  if (owner.is_mech() && owner.system.pilot?.value) {
+    owner = owner.system.pilot.value;
+  } else if (owner.is_mech()) {
+    return {};
+  }
   let foundDeployables = game.actors!.filter(a => !!(a.is_deployable() && a.system.owner?.value == owner));
-  // @ts-expect-error
-  return foundDeployables.filter(x => x) as LancerDEPLOYABLE[];
+  let result: Record<string, LancerDEPLOYABLE> = {};
+  // @ts-expect-error v10
+  for (let dep of foundDeployables as LancerDEPLOYABLE[]) {
+    result[dep.system.lid] = dep;
+  }
+  return result;
 }
 
 // A simplified helper for the quite-common task of looking up integrated

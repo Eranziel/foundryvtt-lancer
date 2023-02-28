@@ -274,6 +274,10 @@ function buildCoreSysHTML(frame_path: string, options: HelperOptions): string {
   if (core.passive_effect !== "" || core.passive_actions.length > 0 || core.passive_bonuses.length > 0) {
     passive = `<div class="frame-passive">${frame_passive(frame)}</div>`;
   }
+  let deployables = "";
+  if (core.deployables.length) {
+    deployables = buildDeployablesArray(frame, "system.core_system.deployables", options);
+  }
 
   return `<div class="core-wrapper frame-coresys clipped-top" style="padding: 0;">
     <div class="lancer-title coresys-title clipped-top">
@@ -286,6 +290,7 @@ function buildCoreSysHTML(frame_path: string, options: HelperOptions): string {
     <div class="collapse" data-collapse-id="${frame.id}_core">
       <div class="frame-active">${frame_active(frame_path, options)}</div>
       ${passive}
+      ${deployables}
       ${tags ? tags : ""}
     </div>
   </div>`;

@@ -1,5 +1,4 @@
 import { fittingsForMount, FittingSize, MountType, WeaponSize } from "../enums";
-import { filter_resolved_sync } from "../helpers/commons";
 import { LancerItem } from "../item/lancer-item";
 import { SourceData } from "../source-template";
 import { SystemData } from "../system-template";
@@ -54,7 +53,7 @@ export class LoadoutHelper {
       }
 
       // Do all systems now
-      result.push(...filter_resolved_sync(this.actor.system.loadout.systems));
+      result.push(...(this.actor.system.loadout.systems.filter(x => x?.value).map(x => x!.value) as LancerItem[]));
     } else if (this.actor.is_npc()) {
       if (this.actor.system.class) result.push(this.actor.system.class);
       result.push(...it.npc_class, ...it.npc_template, ...it.npc_feature);
@@ -207,8 +206,8 @@ export class LoadoutHelper {
 
       // Systems are annoying. Remove all missing references corresponding source entry, then mark as needing cleanup if that shortened our array
       cleanupLoadout.systems = cleanupLoadout.systems.filter((_, index) => {
-        if (currLoadout.systems[index].status == "missing") {
-          killedIds.push(currLoadout.systems[index].id);
+        if (currLoadout.systems[index]?.status == "missing") {
+          killedIds.push(currLoadout.systems[index]!.id);
           return false;
         } else {
           return true;

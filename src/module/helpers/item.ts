@@ -1066,7 +1066,7 @@ export function buildDeployablesArray(item: LancerItem, array_path: string, opti
   let cards = [] as string[];
   let lids = resolve_dotpath<Array<string>>(item, array_path, []);
   for (let lid of lids) {
-    let dep = resolve_helper_dotpath<LancerDEPLOYABLE>(options, `lids.${lid}`);
+    let dep = resolve_helper_dotpath<LancerDEPLOYABLE>(options, `deployables.${lid}`);
     if (dep) {
       cards.push(
         buildDeployableHTML(
@@ -1075,9 +1075,11 @@ export function buildDeployablesArray(item: LancerItem, array_path: string, opti
             item,
             path: array_path,
           },
-          false
+          options.hash["full"] ?? false
         )
       );
+    } else {
+      cards.push(`<span>Unresolved deployabled LID "${lid}". Re-import + Set yourself as its owner</span>`);
     }
   }
   return cards.join("");
@@ -1118,15 +1120,15 @@ export function buildDeployableHTML(
   }
 
   return `
-  <div class="deployable-wrapper">
-    <div class="title-wrapper flexrow">
-      ${action_type_icon(activation)}
-      <span class="deployable-title collapse-trigger">
+  <div class="deployable-wrapper ref set click-open" ${ref_params(dep)}>
+    <img style="grid-area: img; border: none" src="${encodeURI(dep.img!)}">
+    <div style="grid-area: title" class="title-wrapper">
+      <span class="deployable-title">
         ${dep.name ? dep.name.toUpperCase() : ""}
       </span>
     </div>
-    ${detailText ? detailText : ""}
-    ${chip}
+    <div style="grid-area: desc">${detailText ? detailText : ""}</div>
+    <div style="grid-area: chip">${chip}</div>
   </div>
   `;
 }

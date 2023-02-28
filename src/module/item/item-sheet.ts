@@ -23,6 +23,9 @@ import { HANDLER_activate_tag_context_menus, HANDLER_activate_tag_dropping } fro
 import { applyCollapseListeners, CollapseHandler, initializeCollapses } from "../helpers/collapse";
 import { activate_action_editor } from "../apps/action-editor";
 import { find_license_for } from "../util/doc";
+import { lookupOwnedDeployables } from "../util/lid";
+import { EntryType } from "../enums";
+import { LancerDEPLOYABLE } from "../actor/lancer-actor";
 
 const lp = LANCER.log_prefix;
 
@@ -177,9 +180,23 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
    */
   async getData(): Promise<LancerItemSheetData<T>> {
     const data = super.getData() as LancerItemSheetData<T>; // Not fully populated yet!
-    // @ts-expect-error v9???
+    // @ts-expect-error v10
     data.system = this.item.system; // Set our alias
     data.collapse = {};
+
+    // Populate deployables depending on our context
+    data.deployables = {};
+    if (!this.item.pack && this.item.actor) {
+      // Use those owned in the world
+      data.deployables = lookupOwnedDeployables(this.item.actor);
+    } else {
+      // Use compendium. This is probably overkill but, who well
+      let deps = (await game.packs.get(`world.${EntryType.DEPLOYABLE}`)?.getDocuments()) ?? [];
+      // @ts-expect-error
+      for (let d of deps as LancerDEPLOYABLE) {
+        data.deployables[d.system.lid] = d;
+      }
+    }
 
     // Additionally we would like to find a matching license. Re-use ctx, try both a world and global reg, actor as well if it exists
     data.license = null;

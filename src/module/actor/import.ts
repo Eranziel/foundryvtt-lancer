@@ -384,6 +384,7 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
       }
       // Systems
       for (let system of mech.system.loadout.systems) {
+        if (!system?.value) continue;
         let data = assocSystemData.get(system.id);
         if (data) {
           itemUpdates.push({

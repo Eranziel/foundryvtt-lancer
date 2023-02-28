@@ -1706,11 +1706,20 @@ $activations-colors: rgb(204, 10, 10) rgb(98, 0, 255) #3949ab #3949ab #222222 #2
 }
 
 .action-wrapper,
-.deployable-wrapper,
 .core-active-wrapper,
 .core-passive-wrapper {
   display: flex;
   flex-direction: column;
+}
+
+.deployable-wrapper {
+  display: grid;
+  grid-template-columns: 48px 1fr auto;
+  grid-template-rows: 20px 1fr;
+  grid-template-areas:  
+    "img title title" 
+    "img desc chip" 
+  ;
 }
 
 .action-wrapper,

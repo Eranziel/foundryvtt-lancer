@@ -890,13 +890,3 @@ export function restrict_enum<T extends string>(enum_: { [key: string]: T }, def
   let choices = list_enum(enum_);
   return restrict_choices(choices, default_choice, provided);
 }
-
-export function filter_resolved_sync<T>(refs: SystemTemplates.ResolvedAsyncUuidRef<T>[]): T[] {
-  let result: T[] = [];
-  for (let ref of refs) {
-    if (ref.status == "resolved") {
-      result.push(ref.value);
-    }
-  }
-  return result;
-}

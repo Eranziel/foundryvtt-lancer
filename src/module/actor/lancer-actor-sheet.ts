@@ -24,7 +24,7 @@ import { insinuate } from "../util/doc";
 import { PrototypeTokenData } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs";
 import { LancerActiveEffect } from "../effects/lancer-active-effect";
 import { LancerMacro } from "../macros/interfaces";
-import { rollStatMacro } from "../macros/stat";
+import { lookupOwnedDeployables } from "../util/lid";
 const lp = LANCER.log_prefix;
 
 /**
@@ -420,6 +420,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     data.system = this.actor.system; // Alias
     data.itemTypes = this.actor.itemTypes;
     data.effect_categories = LancerActiveEffect.prepareActiveEffectCategories(this.actor);
+    data.deployables = lookupOwnedDeployables(this.actor);
     console.log(`${lp} Rendering with following actor ctx: `, data);
     return data;
   }

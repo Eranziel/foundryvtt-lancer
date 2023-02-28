@@ -348,7 +348,7 @@ export namespace SystemData {
         type: MountType;
         bracing: boolean;
       }>;
-      systems: SystemTemplates.ResolvedEmbeddedRef<LancerMECH_SYSTEM>[];
+      systems: Array<SystemTemplates.ResolvedEmbeddedRef<LancerMECH_SYSTEM> | null>; // Will rarely be null, but it is possible
       sp: FullBoundedNum; // Entirely derived
       ai_cap: FullBoundedNum; // Entirely derived
       limited_bonus: number; // Entirely derived

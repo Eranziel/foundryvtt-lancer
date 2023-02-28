@@ -231,7 +231,7 @@ export async function importDeployablesFor(item: LancerItem, owner: LancerActor)
   if (owner.is_mech() && owner.system.pilot?.status == "resolved") owner = owner.system.pilot.value;
 
   let existing = lookupOwnedDeployables(owner);
-  let existingLIDs = existing.map(d => d.system.lid);
+  let existingLIDs = Object.keys(existing);
   let deps: string[] = [];
   deps.push(...((item as any).system.deployables ?? []));
   if (item.is_frame()) {

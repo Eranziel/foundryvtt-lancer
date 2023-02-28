@@ -1,5 +1,5 @@
 import { LancerItemType } from "./item/lancer-item";
-import { LancerActorType, LancerMECH, LancerPILOT } from "./actor/lancer-actor";
+import { LancerActorType, LancerDEPLOYABLE, LancerMECH, LancerPILOT } from "./actor/lancer-actor";
 import { LancerActiveEffect } from "./effects/lancer-active-effect";
 import { SystemDataTypesMap, SystemDataType } from "./system-template";
 import { Damage, DamageData } from "./models/bits/damage";
@@ -16,6 +16,7 @@ export interface LancerItemSheetData<T extends LancerItemType> extends ItemSheet
   license: LANCERLicense | null;
   system: SystemDataType<T>;
   collapse: CollapseRegistry;
+  deployables: Record<string, LancerDEPLOYABLE>;
 }
 
 export type CachedCloudPilot = {
@@ -38,6 +39,7 @@ export interface LancerActorSheetData<T extends LancerActorType> extends ActorSh
   system: SystemDataType<T>;
   itemTypes: LancerActor["itemTypes"];
   collapse: CollapseRegistry;
+  deployables: Record<string, LancerDEPLOYABLE>;
 }
 
 export interface GenControlContext {

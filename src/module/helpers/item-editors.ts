@@ -123,7 +123,7 @@ export function item_edit_arrayed_deployables(path: string, title: string, optio
   let dd = drilldownDocument(root, path);
 
   if (!(dd.sub_doc instanceof LancerItem)) return "";
-  let depHTML = buildDeployablesArray(dd.sub_doc, dd.sub_path, options);
+  let depHTML = buildDeployablesArray(dd.sub_doc, dd.sub_path, extendHelper(options, { full: true }));
 
   return `
     <div class="card clipped">

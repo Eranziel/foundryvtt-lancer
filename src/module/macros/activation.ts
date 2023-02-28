@@ -77,8 +77,8 @@ async function prepareTechActionMacro(item: LancerItem, path: string) {
 }
 
 async function prepareDeployableMacro(item: LancerItem, path: string) {
-  let deployable_lid = resolve_dotpath<string>(item, path);
-  let dep = lookupOwnedDeployables(item.actor!).find(d => (d as LancerDEPLOYABLE).system.lid == deployable_lid);
+  let deployable_lid = resolve_dotpath<string>(item, path, "");
+  let dep = lookupOwnedDeployables(item.actor!)[deployable_lid];
   if (dep) {
     // This is awful
     await renderMacroHTML(

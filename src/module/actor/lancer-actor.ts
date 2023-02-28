@@ -252,7 +252,7 @@ export class LancerActor extends Actor {
       let equipped_sp = 0;
       let equipped_ai = 0;
       for (let system of this.system.loadout.systems) {
-        if (system.status == "resolved") {
+        if (system?.status == "resolved") {
           equipped_sp += system.value.system.sp;
           equipped_ai += system.value.system.tags.some(t => t.is_ai) ? 1 : 0;
         }
@@ -325,7 +325,7 @@ export class LancerActor extends Actor {
         ld.frame.value.system.equipped = true;
       }
       for (let system of ld.systems) {
-        if (system.status == "resolved") {
+        if (system?.status == "resolved") {
           system.value.system.equipped = true;
         }
       }
