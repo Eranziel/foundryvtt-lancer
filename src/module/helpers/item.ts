@@ -76,7 +76,6 @@ import { CounterData } from "../models/bits/counter";
 import { LancerDoc } from "../util/doc";
 import { item_edit_arrayed_actions } from "./item-editors";
 import { slugify } from "../util/lid";
-import { MacroData } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/module.mjs";
 import { LancerMacro } from "../macros/interfaces";
 
 /**

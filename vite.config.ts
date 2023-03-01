@@ -1,10 +1,12 @@
-import type { UserConfig } from "vite";
+import { defineConfig } from "vite";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
 import { visualizer } from "rollup-plugin-visualizer";
-import checker from "vite-plugin-checker";
-const path = require("path");
+import type { UserConfig } from "vite";
+// import preprocess from "svelte-preprocess";
+// const path = require("path");
+import path from "path";
 
-const config: UserConfig = {
+const config = defineConfig({
   root: "src/",
   base: "/systems/lancer/",
   publicDir: path.resolve(__dirname, "public"),
@@ -34,7 +36,6 @@ const config: UserConfig = {
     outDir: path.resolve(__dirname, "dist"),
     emptyOutDir: true,
     sourcemap: true,
-    brotliSize: true,
     terserOptions: {
       mangle: false,
       keep_classnames: true,
@@ -49,17 +50,24 @@ const config: UserConfig = {
   },
   plugins: [
     svelte({
-      configFile: "../svelte.config.cjs", // relative to src/
+      // preprocess: preprocess(),
+      configFile: "../svelte.config.js", // relative to src/
     }),
+    /*
     checker({
       typescript: true,
       // svelte: { root: __dirname },
     }),
+    */
     visualizer({
       gzipSize: true,
       template: "treemap",
     }),
   ],
-};
+});
+
+// export default defineConfig({
+// plugins: [svelte()],
+// })
 
 export default config;

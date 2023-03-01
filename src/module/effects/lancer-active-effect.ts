@@ -1,16 +1,8 @@
-import { ActiveEffectDataConstructorData } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs/activeEffectData";
-import { EffectChangeData } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs/effectChangeData";
+import type { ActiveEffectDataConstructorData } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs/activeEffectData";
+import type { EffectChangeData } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs/effectChangeData";
 import { LancerActor } from "../actor/lancer-actor";
 import { LANCER, STATUSES } from "../config";
-import {
-  DamageTypeChecklist,
-  DeployableType,
-  EntryType,
-  RangeTypeChecklist,
-  WeaponSizeChecklist,
-  WeaponTypeChecklist,
-} from "../enums";
-import { LancerItem, LancerMECH_WEAPON } from "../item/lancer-item";
+import { DeployableType, EntryType } from "../enums";
 import { statusConfigEffect } from "./converter";
 
 // Chassis = mech or standard npc

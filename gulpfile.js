@@ -1,14 +1,15 @@
-const gulp = require("gulp");
-const fs = require("fs-extra");
-const path = require("path");
-const chalk = require("chalk");
-const archiver = require("archiver");
-const stringify = require("json-stringify-pretty-compact");
-const cp = require("child_process");
+import gulp from "gulp";
+import fs from "fs-extra";
+import path from "path";
+import chalk from "chalk";
+import archiver from "archiver";
+import stringify from "json-stringify-pretty-compact";
+import cp from "child_process";
 
-const git = require("gulp-git");
+import git from "gulp-git";
 
-const argv = require("yargs").argv;
+import yargs from "yargs";
+const argv = yargs.argv;
 
 function getConfig() {
   const configPath = path.resolve(process.cwd(), "foundryconfig.json");
@@ -39,7 +40,7 @@ function getManifest() {
 /*		BUILDING  		*/
 /********************/
 
-function build() {
+export function build() {
   return cp.spawn("npx", ["vite", "build"], { stdio: "inherit", shell: true });
 }
 
@@ -53,12 +54,12 @@ function _distWatcher() {
   });
 }
 
-function watch() {
+export function watch() {
   _distWatcher();
   return cp.spawn("npx", ["vite", "build", "-w"], { stdio: "inherit", shell: true });
 }
 
-function serve() {
+export function serve() {
   _distWatcher();
   // forward arguments on serves
   const serveArg = process.argv[2];
@@ -76,7 +77,7 @@ function serve() {
 /**
  * Link build to User Data folder
  */
-async function linkUserData() {
+export async function linkUserData() {
   const name = path.basename(path.resolve("."));
   const config = fs.readJSONSync("foundryconfig.json");
 
@@ -127,7 +128,7 @@ async function linkUserData() {
 /**
  * Package build
  */
-async function packageBuild() {
+export async function packageBuild() {
   const manifest = getManifest();
 
   try {
@@ -174,7 +175,7 @@ async function packageBuild() {
 /**
  * Update version and URLs in the manifest JSON
  */
-function updateManifest(cb) {
+export function updateManifest(cb) {
   const packageJson = fs.readJSONSync("package.json");
   const config = getConfig(),
     manifest = getManifest(),
@@ -265,13 +266,5 @@ function gitTag() {
   });
 }
 
-const execGit = gulp.series(gitAdd, gitCommit, gitTag);
-
-exports.build = build;
-exports.watch = watch;
-exports.serve = serve;
-exports.link = linkUserData;
-exports.package = packageBuild;
-exports.manifest = updateManifest;
-exports.git = execGit;
-exports.publish = gulp.series(updateManifest, build, packageBuild, execGit);
+export const execGit = gulp.series(gitAdd, gitCommit, gitTag);
+export const publish = gulp.series(updateManifest, build, packageBuild, execGit);

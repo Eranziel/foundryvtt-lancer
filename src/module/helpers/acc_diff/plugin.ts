@@ -1,8 +1,8 @@
-import type * as t from "io-ts";
+import * as t from "io-ts";
 import { LancerItem } from "../../item/lancer-item";
 import { LancerActor } from "../../actor/lancer-actor";
 
-import type { AccDiffData } from "./index";
+import type { AccDiffData, AccDiffTarget } from "./index";
 
 // Implementing a plugin means implementing
 // * a data object that can compute its view behaviour,
@@ -12,18 +12,18 @@ import type { AccDiffData } from "./index";
 // You don't _have_ to make the data object a class with static methods for the constructors
 // but it's convenient
 
-declare interface CheckboxUI {
-  uiElement: "checkbox" = "checkbox";
+export interface CheckboxUI {
+  uiElement: "checkbox";
   slug: string;
   humanLabel: string;
   get uiState(): boolean;
-  set uiState(data: boolean): this;
+  set uiState(data: boolean);
   get disabled(): boolean;
   get visible(): boolean;
 }
 
-declare interface NoUI {
-  uiElement: "none" = "none";
+export interface NoUI {
+  uiElement: "none";
 }
 
 type UIBehaviour = CheckboxUI | NoUI;
@@ -37,16 +37,16 @@ declare interface Dehydrated {
   // the codec handles all serializable data,
   // but we might want to pick up data from the environment too
   // all perTarget codecs get the target as well
-  hydrate(data: AccDiffData, target?: AccDiffTarget);
+  hydrate(data: AccDiffData, target?: AccDiffTarget): void;
 }
 
 export type AccDiffPluginData = UIBehaviour & RollModifier & Dehydrated;
 export type AccDiffCheckboxPluginData = CheckboxUI & RollModifier & Dehydrated;
 export type AccDiffNoUIPluginData = NoUI & RollModifier & Dehydrated;
 
-export type AccDiffPluginCodec<C extends AccDiffPluginData, O, I> = Codec<C, O, I>;
+export type AccDiffPluginCodec<C extends AccDiffPluginData, O, I> = t.Type<C, O, I>;
 
-declare interface AccDiffPlugin<Data extends AccDiffPluginData> {
+declare interface AccDiffPlugin<Data extends AccDiffPluginData, O, I> {
   slug: string;
   // the codec lets us know how to persist whatever data you need for rerolls
   codec: AccDiffPluginCodec<Data, O, I>;
@@ -64,4 +64,4 @@ declare interface AccDiffPlugin<Data extends AccDiffPluginData> {
   // will be called twice on the same roll, so watch out for that
 }
 
-export type Data<T> = T extends AccDiffPlugin<infer D> ? D : never;
+export type Data<T> = T extends AccDiffPlugin<infer D, any, any> ? D : never;

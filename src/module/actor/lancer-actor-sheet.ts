@@ -21,7 +21,7 @@ import { HANDLER_activate_item_context_menus, HANDLER_activate_edit_counter } fr
 import { getActionTrackerOptions } from "../settings";
 import { modAction } from "../action/action-tracker";
 import { insinuate } from "../util/doc";
-import { PrototypeTokenData } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs";
+import type { PrototypeTokenData } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs";
 import { LancerActiveEffect } from "../effects/lancer-active-effect";
 import { LancerMacro } from "../macros/interfaces";
 import { lookupOwnedDeployables } from "../util/lid";
