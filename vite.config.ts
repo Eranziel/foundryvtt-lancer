@@ -1,7 +1,6 @@
 import { defineConfig } from "vite";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
 import { visualizer } from "rollup-plugin-visualizer";
-import type { UserConfig } from "vite";
 // import preprocess from "svelte-preprocess";
 // const path = require("path");
 import path from "path";
@@ -65,9 +64,5 @@ const config = defineConfig({
     }),
   ],
 });
-
-// export default defineConfig({
-// plugins: [svelte()],
-// })
 
 export default config;
