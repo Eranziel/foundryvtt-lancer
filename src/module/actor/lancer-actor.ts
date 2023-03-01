@@ -3,12 +3,13 @@ import { prepareOverheatMacro, prepareStructureMacro } from "../macros";
 import { DamageType, EntryType } from "../enums";
 import { fix_modify_token_attribute, LancerTokenDocument } from "../token";
 import { AppliedDamage } from "./damage-calc";
-import { SystemData, SystemDataType, SystemTemplates } from "../system-template";
-import { SourceDataType } from "../source-template";
+import type { SystemData, SystemTemplates } from "../system-template";
+import type { SystemDataType } from "../system-template";
+import type { SourceDataType } from "../source-template";
 import * as defaults from "../util/unpacking/defaults";
 import { getAutomationOptions } from "../settings";
 import { pilotInnateEffect } from "../effects/converter";
-import { LancerFRAME, LancerItem, LancerNPC_CLASS, LancerNPC_FEATURE } from "../item/lancer-item";
+import type { LancerFRAME, LancerItem, LancerNPC_CLASS } from "../item/lancer-item";
 import { LancerActiveEffect } from "../effects/lancer-active-effect";
 import { ChangeWatchHelper } from "../util/misc";
 import { frameToPath } from "./retrograde-map";
@@ -410,7 +411,7 @@ export class LancerActor extends Actor {
     }
 
     let default_data: Record<string, any>;
-    let disposition: ValueOf<typeof CONST["TOKEN_DISPOSITIONS"]> = CONST.TOKEN_DISPOSITIONS.FRIENDLY;
+    let disposition: ValueOf<(typeof CONST)["TOKEN_DISPOSITIONS"]> = CONST.TOKEN_DISPOSITIONS.FRIENDLY;
     switch (this.type) {
       case EntryType.NPC:
         default_data = defaults.NPC();

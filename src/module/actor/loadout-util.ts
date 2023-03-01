@@ -1,7 +1,7 @@
 import { fittingsForMount, FittingSize, MountType, WeaponSize } from "../enums";
 import { LancerItem } from "../item/lancer-item";
-import { SourceData } from "../source-template";
-import { SystemData } from "../system-template";
+import type { SourceData } from "../source-template";
+import type { SystemData } from "../system-template";
 import { LancerActor } from "./lancer-actor";
 
 /** Holds helper methods for loadout validation etc */

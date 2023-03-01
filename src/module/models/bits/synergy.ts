@@ -1,19 +1,21 @@
 import {
-  AllSynergyLocations,
-  DamageTypeChecklist,
   makeSystemTypeChecklist,
   makeWeaponSizeChecklist,
   makeWeaponTypeChecklist,
+  SystemType,
+  WeaponSize,
+  WeaponType,
+} from "../../enums";
+import type {
+  AllSynergyLocations,
+  DamageTypeChecklist,
   RangeTypeChecklist,
   SynergyLocation,
-  SystemType,
   SystemTypeChecklist,
-  WeaponSize,
   WeaponSizeChecklist,
-  WeaponType,
   WeaponTypeChecklist,
 } from "../../enums";
-import { PackedSynergyData } from "../../util/unpacking/packed-types";
+import type { PackedSynergyData } from "../../util/unpacking/packed-types";
 import {
   DamageTypeChecklistField,
   RangeTypeChecklistField,

@@ -2,7 +2,8 @@
 // We do not care about this file being super rigorous
 import { LANCER } from "./config";
 import { handleActorExport } from "./helpers/io";
-import { LancerActor, LancerNpcData } from "./actor/lancer-actor";
+import { LancerActor } from "./actor/lancer-actor";
+import type { LancerNpcData } from "./actor/lancer-actor";
 import { core_update, LCPIndex, LCPManager, updateCore } from "./apps/lcp-manager";
 import { LancerItem } from "./item/lancer-item";
 import { arrayify_object } from "./helpers/commons";

@@ -1,22 +1,19 @@
-<script context="module">
- import { blur, crossfade } from 'svelte/transition';
- let lockonCounter = 0;
- let counter = 0;
-
- // @ts-ignore the only issue is that crossfade can take a fn for duration and blur can't
- let [send, recv] = crossfade({ fallback: blur });
-</script>
-
 <script lang="ts">
  import type { AccDiffBase, AccDiffTarget } from './index';
 
  import { onMount } from 'svelte';
- import { fly } from 'svelte/transition';
+ import { fly, blur, crossfade } from 'svelte/transition';
 
  import tippy from "tippy.js";
 
  import Plugin from './Plugin.svelte';
  import ConsumeLockOn from './ConsumeLockOn.svelte';
+
+ let lockonCounter = 0;
+ let counter = 0;
+
+ // @ts-ignore the only issue is that crossfade can take a fn for duration and blur can't
+ let [send, recv] = crossfade({ fallback: blur });
 
  export let target: AccDiffBase | AccDiffTarget;
  export let onlyTarget: boolean = false;
@@ -24,13 +21,17 @@
  function isTarget(v: any): v is AccDiffTarget {
    return v?.target;
  }
+ function targetIcon(v: Token) {
+  // @ts-expect-error
+  return v.document.texture?.src
+ }
 
  export let id = `accdiff-total-display-${counter++}`;
  let lockonId = isTarget(target) ? `accdiff-total-display-consume-lockon-${lockonCounter++}` : '';
 
  let pluginClasses = Object.values(target.plugins).filter((plugin) => {
-   return plugin.uiElement == "checkbox" && plugin.uiState;
-}).map((plugin) => `accdiff-total-${plugin.slug}`).join(" ");
+    return plugin.uiElement == "checkbox" && plugin.uiState;
+  }).map((plugin) => `accdiff-total-${plugin.slug}`).join(" ");
 
  let imgElement: HTMLElement;
  let dropdownElement: HTMLElement;
@@ -47,47 +48,49 @@
  })
 </script>
 
-{#if isTarget(target)}
-  <div
-    in:send={{key: `${id}-img`, delay: 100, duration: 200}}
-    out:recv={{key: `${id}-img`, duration: 200}}
-    class="accdiff-grid {pluginClasses}">
-    <img class="lancer-hit-thumb accdiff-target-has-dropdown"
-         alt={target.target.name ?? undefined}
-         src={target.target.document.texture?.src} bind:this={imgElement} />
-    <label for={lockonId} class:checked={target.usingLockOn} class:disabled={!target.lockOnAvailable}
-           title="Consume Lock On (+1)">
-      <i class="cci cci-condition-lock-on"
-         class:i--click={target.lockOnAvailable}
-         class:i--sm={!target.usingLockOn}
-         class:i--l={target.usingLockOn}
-         ></i>
-      <ConsumeLockOn bind:lockOn={target} visible={false} id={lockonId} />
-    </label>
-  </div>
-  {#if !onlyTarget}
-    <div class="accdiff-target-dropdown" bind:this={dropdownElement}>
-      {#each Object.keys(target.plugins) as key}
-        <Plugin bind:data={target.plugins[key]} />
+<div>
+  {#if isTarget(target)}
+    <div
+      in:send={{key: `${id}-img`, delay: 100, duration: 200}}
+      out:recv={{key: `${id}-img`, duration: 200}}
+      class="accdiff-grid {pluginClasses}">
+      <img class="lancer-hit-thumb accdiff-target-has-dropdown"
+          alt={target.target.name ?? undefined}
+          src={targetIcon(target.target)} bind:this={imgElement} />
+      <label for={lockonId} class:checked={target.usingLockOn} class:disabled={!target.lockOnAvailable}
+            title="Consume Lock On (+1)">
+        <i class="cci cci-condition-lock-on"
+          class:i--click={target.lockOnAvailable}
+          class:i--sm={!target.usingLockOn}
+          class:i--l={target.usingLockOn}
+          ></i>
+        <ConsumeLockOn bind:lockOn={target} visible={false} id={lockonId} />
+      </label>
+    </div>
+    {#if !onlyTarget}
+      <div class="accdiff-target-dropdown" bind:this={dropdownElement}>
+        {#each Object.keys(target.plugins) as key}
+          <Plugin bind:data={target.plugins[key]} />
+        {/each}
+      </div>
+    {/if}
+  {/if}
+  <div class="accdiff-grid accdiff-weight" in:send={{key: id}} out:recv={{key: id}}>
+    <div class="grid-enforcement total-container {pluginClasses}"
+      class:accurate={target.total > 0} class:inaccurate={target.total < 0}>
+      <!-- #key blocks currently break |local, see https://github.com/sveltejs/svelte/issues/5950 -->
+      {#each [target.total] as total (target.total)}
+        <div id={id} transition:blur class="card clipped total">
+          <span in:fly|local={{y: -50, duration: 400}} out:fly|local={{y: 50, duration: 200}}>
+            {Math.abs(total)}
+          </span>
+          <i in:fly|local={{y: -50, duration: 200}} out:fly|local={{y: 50, duration: 200}}
+            class="cci i--m i--dark white--text middle"
+            class:cci-accuracy={total >= 0}
+            class:cci-difficulty={total < 0} ></i>
+        </div>
       {/each}
     </div>
-  {/if}
-{/if}
-<div class="accdiff-grid accdiff-weight" in:send={{key: id}} out:recv={{key: id}}>
-  <div class="grid-enforcement total-container {pluginClasses}"
-    class:accurate={target.total > 0} class:inaccurate={target.total < 0}>
-    <!-- #key blocks currently break |local, see https://github.com/sveltejs/svelte/issues/5950 -->
-    {#each [target.total] as total (target.total)}
-      <div id={id} transition:blur class="card clipped total">
-        <span in:fly|local={{y: -50, duration: 400}} out:fly|local={{y: 50, duration: 200}}>
-          {Math.abs(total)}
-        </span>
-        <i in:fly|local={{y: -50, duration: 200}} out:fly|local={{y: 50, duration: 200}}
-          class="cci i--m i--dark white--text middle"
-          class:cci-accuracy={total >= 0}
-          class:cci-difficulty={total < 0} ></i>
-      </div>
-    {/each}
   </div>
 </div>
 

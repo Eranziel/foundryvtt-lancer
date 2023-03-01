@@ -1,19 +1,18 @@
 import { EntryType, NpcFeatureType, NpcTechType } from "../../enums";
-import { restrict_choices, restrict_enum } from "../../helpers/commons";
-import { SourceData, SourceTemplates } from "../../source-template";
-import {
-  PackedNpcClassData,
+import { restrict_enum } from "../../helpers/commons";
+import type { SourceData, SourceTemplates } from "../../source-template";
+import type {
   PackedNpcReactionData,
   PackedNpcSystemData,
   PackedNpcTechData,
   PackedNpcTraitData,
   PackedNpcWeaponData,
-  PackedSkillData,
 } from "../../util/unpacking/packed-types";
-import { DamageData, DamageField, unpackDamage } from "../bits/damage";
-import { RangeData, RangeField, unpackRange } from "../bits/range";
+import { DamageField, unpackDamage } from "../bits/damage";
+import type { DamageData } from "../bits/damage";
+import { RangeField, unpackRange } from "../bits/range";
 import { TagField, unpackTag } from "../bits/tag";
-import { LancerDataModel, UnpackContext } from "../shared";
+import type { LancerDataModel, UnpackContext } from "../shared";
 import { template_destructible, template_universal_item, template_uses } from "./shared";
 
 const fields: any = foundry.data.fields;

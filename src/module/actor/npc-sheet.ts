@@ -3,13 +3,12 @@ import { LANCER } from "../config";
 import { LancerActorSheet } from "./lancer-actor-sheet";
 import { prepareItemMacro, prepareStatMacro } from "../macros";
 import tippy from "tippy.js";
-import { LancerItem, LancerNPC_FEATURE } from "../item/lancer-item";
+import type { LancerItem, LancerNPC_FEATURE } from "../item/lancer-item";
 import { insinuate } from "../util/doc";
-import { LancerNPC } from "./lancer-actor";
-import { ResolvedDropData } from "../helpers/dragdrop";
+import type { LancerNPC } from "./lancer-actor";
+import type { ResolvedDropData } from "../helpers/dragdrop";
 import { EntryType } from "../enums";
 import { lookupLID } from "../util/lid";
-import { LancerMacro } from "../macros/interfaces";
 const lp = LANCER.log_prefix;
 
 /**

@@ -1,5 +1,3 @@
-import { LancerActor } from "../actor/lancer-actor";
-
 export type ActionTrackingData = {
   protocol: boolean;
   move: number;

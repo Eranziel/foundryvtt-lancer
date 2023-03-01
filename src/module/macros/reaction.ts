@@ -2,7 +2,7 @@
 import { LANCER } from "../config";
 import { LancerActor } from "../actor/lancer-actor";
 import { renderMacroTemplate } from "./_render";
-import { LancerMacro } from "./interfaces";
+import type { LancerMacro } from "./interfaces";
 import { resolveItemOrActor } from "./util";
 
 const lp = LANCER.log_prefix;

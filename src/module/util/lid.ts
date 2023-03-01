@@ -1,4 +1,5 @@
-import { LancerActor, LancerDEPLOYABLE } from "../actor/lancer-actor";
+import { LancerActor } from "../actor/lancer-actor";
+import type { LancerDEPLOYABLE } from "../actor/lancer-actor";
 import { FetcherCache } from "./async";
 import { LancerItem } from "../item/lancer-item";
 import { EntryType } from "../enums";

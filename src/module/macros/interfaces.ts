@@ -1,7 +1,7 @@
 import { ActionType } from "../action";
 import { ActivationType } from "../enums";
 import { AccDiffData, AccDiffDataSerialized } from "../helpers/acc_diff";
-import { DamageData } from "../models/bits/damage";
+import type { DamageData } from "../models/bits/damage";
 import { Tag, TagData } from "../models/bits/tag";
 
 // -------- Macro data types -------------------------------------

@@ -1,7 +1,7 @@
 <svelte:options accessors={true} />
 
 <script lang="ts">
- import type SvelteComponent from "*.svelte";
+ import type { SvelteComponent } from "svelte";
 
  import { flip } from 'svelte/animate';
  import { slide } from 'svelte/transition';

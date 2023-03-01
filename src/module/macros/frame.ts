@@ -1,8 +1,9 @@
 // Import TypeScript modules
 import { LANCER } from "../config";
 import { rollTextMacro } from "./text";
-import { LancerActor, LancerMECH } from "../actor/lancer-actor";
-import { LancerMacro } from "./interfaces";
+import { LancerActor } from "../actor/lancer-actor";
+import type { LancerMECH } from "../actor/lancer-actor";
+import type { LancerMacro } from "./interfaces";
 
 const lp = LANCER.log_prefix;
 

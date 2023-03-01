@@ -1,7 +1,7 @@
 import { EntryType, WeaponSize, WeaponType } from "../../enums";
 import { restrict_enum } from "../../helpers/commons";
-import { SourceData } from "../../source-template";
-import { PackedMechWeaponData } from "../../util/unpacking/packed-types";
+import type { SourceData } from "../../source-template";
+import type { PackedMechWeaponData } from "../../util/unpacking/packed-types";
 import { unpackDeployable } from "../actors/deployable";
 import { ActionField, unpackAction } from "../bits/action";
 import { BonusField, unpackBonus } from "../bits/bonus";
@@ -10,7 +10,7 @@ import { DamageField, unpackDamage } from "../bits/damage";
 import { RangeField, unpackRange } from "../bits/range";
 import { SynergyField, unpackSynergy } from "../bits/synergy";
 import { TagField, unpackTag } from "../bits/tag";
-import { LancerDataModel, LIDField, UnpackContext } from "../shared";
+import type { LancerDataModel, LIDField, UnpackContext } from "../shared";
 import {
   template_universal_item,
   template_bascdt,

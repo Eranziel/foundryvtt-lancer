@@ -1,5 +1,5 @@
 import { LANCER } from "../../config";
-import { PackedTagData, PackedTagTemplateData } from "../../util/unpacking/packed-types";
+import type { PackedTagData, PackedTagTemplateData } from "../../util/unpacking/packed-types";
 import { LIDField } from "../shared";
 
 // @ts-ignore

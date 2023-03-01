@@ -3,10 +3,10 @@ import { LANCER } from "../config";
 import { LancerActor } from "../actor/lancer-actor";
 import { resolve_dotpath } from "../helpers/commons";
 import { renderMacroTemplate } from "./_render";
-import { LancerMacro } from "./interfaces";
-import { LancerItem, LancerSKILL } from "../item/lancer-item";
+import type { LancerMacro } from "./interfaces";
+import type { LancerItem, LancerSKILL } from "../item/lancer-item";
 import { resolveItemOrActor } from "./util";
-import { AccDiffData } from "../helpers/acc_diff";
+import type { AccDiffData } from "../helpers/acc_diff";
 import { openSlidingHud } from "../helpers/slidinghud";
 
 const lp = LANCER.log_prefix;

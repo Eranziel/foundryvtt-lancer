@@ -20,14 +20,15 @@ import {
 } from "../../enums";
 import { nanoid } from "nanoid";
 import { DeployableType } from "../../enums";
-import { ActionData } from "../../models/bits/action";
-import { BonusData, generateBonus } from "../../models/bits/bonus";
-import { SourceData, SourceDataType, SourceTemplates } from "../../source-template";
-import { Damage, DamageData } from "../../models/bits/damage";
-import { ActionTrackingData } from "../../action";
-import { RangeData } from "../../models/bits/range";
-import { CounterData } from "../../models/bits/counter";
-import { SystemTemplates } from "../../system-template";
+import type { ActionData } from "../../models/bits/action";
+import { generateBonus } from "../../models/bits/bonus";
+import type { BonusData } from "../../models/bits/bonus";
+import type { SourceData, SourceDataType, SourceTemplates } from "../../source-template";
+import type { DamageData } from "../../models/bits/damage";
+import type { ActionTrackingData } from "../../action";
+import type { RangeData } from "../../models/bits/range";
+import type { CounterData } from "../../models/bits/counter";
+import type { SystemTemplates } from "../../system-template";
 
 const DEFAULT_DESCRIPTION = "...";
 

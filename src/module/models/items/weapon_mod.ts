@@ -1,6 +1,6 @@
 import { EntryType, makeWeaponSizeChecklist, makeWeaponTypeChecklist } from "../../enums";
-import { SourceData } from "../../source-template";
-import { PackedMechSystemData, PackedWeaponModData } from "../../util/unpacking/packed-types";
+import type { SourceData } from "../../source-template";
+import type { PackedWeaponModData } from "../../util/unpacking/packed-types";
 import { unpackDeployable } from "../actors/deployable";
 import { unpackAction } from "../bits/action";
 import { unpackBonus } from "../bits/bonus";
@@ -9,7 +9,7 @@ import { DamageField, unpackDamage } from "../bits/damage";
 import { RangeField, unpackRange } from "../bits/range";
 import { unpackSynergy } from "../bits/synergy";
 import { TagField, unpackTag } from "../bits/tag";
-import { LancerDataModel, UnpackContext, WeaponSizeChecklistField, WeaponTypeChecklistField } from "../shared";
+import type { LancerDataModel, UnpackContext, WeaponSizeChecklistField, WeaponTypeChecklistField } from "../shared";
 import {
   template_universal_item,
   template_bascdt,

@@ -1,6 +1,7 @@
 import { LANCER } from "../config";
 import { HANDLER_activate_general_controls, HANDLER_activate_popout_text_editor } from "../helpers/commons";
-import { HANDLER_enable_doc_dropping, ResolvedDropData } from "../helpers/dragdrop";
+import { HANDLER_enable_doc_dropping } from "../helpers/dragdrop";
+import type { ResolvedDropData } from "../helpers/dragdrop";
 import { HANDLER_activate_counter_listeners, HANDLER_activate_plus_minus_buttons } from "../helpers/item";
 import {
   HANDLER_activate_ref_dragging,
@@ -9,8 +10,9 @@ import {
   HANDLER_activate_uses_editor,
 } from "../helpers/refs";
 import type { LancerActorSheetData } from "../interfaces";
-import { LancerItem, is_item_type, LancerItemType } from "../item/lancer-item";
-import { LancerActor, LancerActorType } from "./lancer-actor";
+import { LancerItem } from "../item/lancer-item";
+import { LancerActor } from "./lancer-actor";
+import type { LancerActorType } from "./lancer-actor";
 import { prepareActivationMacro, prepareChargeMacro, prepareItemMacro, runEncodedMacro } from "../macros";
 import { ActivationOptions } from "../enums";
 import { applyCollapseListeners, CollapseHandler, initializeCollapses } from "../helpers/collapse";
@@ -23,7 +25,7 @@ import { modAction } from "../action/action-tracker";
 import { insinuate } from "../util/doc";
 import type { PrototypeTokenData } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs";
 import { LancerActiveEffect } from "../effects/lancer-active-effect";
-import { LancerMacro } from "../macros/interfaces";
+import type { LancerMacro } from "../macros/interfaces";
 import { lookupOwnedDeployables } from "../util/lid";
 const lp = LANCER.log_prefix;
 

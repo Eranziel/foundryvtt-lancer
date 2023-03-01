@@ -1,8 +1,9 @@
 import { template_heat, template_statuses, template_universal_actor } from "./shared";
 
-import { LancerDataModel, SyncUUIDRefField, UnpackContext } from "../shared";
-import { PackedDeployableData } from "../../util/unpacking/packed-types";
-import { SourceData } from "../../source-template";
+import { LancerDataModel, SyncUUIDRefField } from "../shared";
+import type { UnpackContext } from "../shared";
+import type { PackedDeployableData } from "../../util/unpacking/packed-types";
+import type { SourceData } from "../../source-template";
 import { ActionField, unpackAction } from "../bits/action";
 import { unpackBonus } from "../bits/bonus";
 import { CounterField, unpackCounter } from "../bits/counter";

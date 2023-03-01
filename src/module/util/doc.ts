@@ -1,12 +1,5 @@
-import {
-  is_actor_type,
-  LancerActor,
-  LancerActorType,
-  LancerDEPLOYABLE,
-  LancerMECH,
-  LancerNPC,
-  LancerPILOT,
-} from "../actor/lancer-actor";
+import { is_actor_type, LancerActor } from "../actor/lancer-actor";
+import type { LancerActorType, LancerDEPLOYABLE, LancerMECH, LancerNPC, LancerPILOT } from "../actor/lancer-actor";
 import { PACK_SCOPE } from "../comp-builder";
 import { friendly_entrytype_name } from "../config";
 import { EntryType } from "../enums";
@@ -31,7 +24,7 @@ import type {
   LancerTALENT,
   LancerWEAPON_MOD,
 } from "../item/lancer-item";
-import { SystemTemplates } from "../system-template";
+import type { SystemTemplates } from "../system-template";
 import { FetcherCache } from "./async";
 import { lookupDeployables, lookupLID, lookupOwnedDeployables } from "./lid";
 import { requestImport } from "./requests";

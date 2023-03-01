@@ -2,11 +2,11 @@ import { LancerActorSheet } from "./lancer-actor-sheet";
 import { resolve_dotpath } from "../helpers/commons";
 import tippy from "tippy.js";
 import type { LancerMECH } from "./lancer-actor";
-import { ResolvedDropData } from "../helpers/dragdrop";
+import type { ResolvedDropData } from "../helpers/dragdrop";
 import { EntryType, fittingsForMount, FittingSize, MountType, SystemType } from "../enums";
-import { SystemData } from "../system-template";
-import { LancerActorSheetData } from "../interfaces";
-import { SourceData } from "../source-template";
+import type { SystemData } from "../system-template";
+import type { LancerActorSheetData } from "../interfaces";
+import type { SourceData } from "../source-template";
 
 /**
  * Extend the basic ActorSheet

@@ -1,5 +1,6 @@
-import { DamageType, DamageTypeChecklist } from "../../enums";
-import { PackedDamageData } from "../../util/unpacking/packed-types";
+import { DamageType } from "../../enums";
+import type { DamageTypeChecklist } from "../../enums";
+import type { PackedDamageData } from "../../util/unpacking/packed-types";
 
 // @ts-ignore
 const fields: any = foundry.data.fields;

@@ -1,7 +1,7 @@
 import { LANCER } from "../config";
 const lp = LANCER.log_prefix;
 import { importCP, clearCompendiumData, setAllLock } from "../comp-builder";
-import { IContentPack, IContentPackManifest } from "../util/unpacking/packed-types";
+import type { IContentPack, IContentPackManifest } from "../util/unpacking/packed-types";
 import { getBaseContentPack, parseContentPack } from "../util/lcp-parser";
 import { info } from "../util/typed-lancerdata";
 

@@ -45,16 +45,16 @@ import {
   WeaponType,
 } from "../enums";
 import type { LancerActorSheetData, LancerItemSheetData } from "../interfaces";
-import { encodeMacroData } from "../macros";
-import { collapseButton, collapseParam, CollapseRegistry } from "./collapse";
+import type { encodeMacroData } from "../macros";
+import type { collapseButton, collapseParam, CollapseRegistry } from "./collapse";
 import { promptText } from "../apps/simple-prompt";
 import { CounterEditForm } from "../apps/counter-editor";
 import { frameToPath } from "../actor/retrograde-map";
-import { InventoryDialogData } from "../apps/inventory";
+import type { InventoryDialogData } from "../apps/inventory";
 import { Damage } from "../models/bits/damage";
 import { Range } from "../models/bits/range";
-import { BonusData } from "../models/bits/bonus";
-import {
+import type { BonusData } from "../models/bits/bonus";
+import type {
   LancerFRAME,
   LancerItem,
   LancerLICENSE,
@@ -69,14 +69,12 @@ import {
   LancerRESERVE,
   LancerWEAPON_MOD,
 } from "../item/lancer-item";
-import { ActionData } from "../models/bits/action";
-import { Tag } from "../models/bits/tag";
-import { LancerActor, LancerDEPLOYABLE, LancerMECH } from "../actor/lancer-actor";
-import { CounterData } from "../models/bits/counter";
-import { LancerDoc } from "../util/doc";
-import { item_edit_arrayed_actions } from "./item-editors";
+import type { ActionData } from "../models/bits/action";
+import { LancerActor } from "../actor/lancer-actor";
+import type { LancerDEPLOYABLE, LancerMECH } from "../actor/lancer-actor";
+import type { CounterData } from "../models/bits/counter";
 import { slugify } from "../util/lid";
-import { LancerMacro } from "../macros/interfaces";
+import type { LancerMacro } from "../macros/interfaces";
 
 /**
  * Handlebars helper for weapon size selector

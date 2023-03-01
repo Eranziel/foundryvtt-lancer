@@ -1,5 +1,5 @@
 import { LancerItem } from "../item/lancer-item";
-import { LancerMacro } from "./interfaces";
+import type { LancerMacro } from "./interfaces";
 import { rollTextMacro } from "./text";
 
 export async function preparePilotGearMacro(item: string | LancerItem) {

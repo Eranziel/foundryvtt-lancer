@@ -1,6 +1,6 @@
 import * as t from "io-ts";
 import { LancerActor } from "../../actor/lancer-actor";
-import { AccDiffPlugin, AccDiffCheckboxPluginData, AccDiffPluginCodec } from "./plugin";
+import type { AccDiffPlugin, AccDiffCheckboxPluginData, AccDiffPluginCodec } from "./plugin";
 import { AccDiffData, AccDiffTarget } from "./index";
 import { enclass } from "./serde";
 
@@ -105,4 +105,4 @@ export default class Invisibility implements AccDiffCheckboxPluginData {
 }
 
 // to check whether the static methods match the interface
-const _klass: AccDiffPlugin<Invisibility> = Invisibility;
+const _klass: AccDiffPlugin<Invisibility, any, any> = Invisibility;

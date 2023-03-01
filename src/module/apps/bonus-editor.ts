@@ -1,17 +1,9 @@
 import { LancerActor } from "../actor/lancer-actor";
-import {
-  DamageType,
-  DamageTypeChecklist,
-  RangeType,
-  RangeTypeChecklist,
-  WeaponSize,
-  WeaponSizeChecklist,
-  WeaponType,
-  WeaponTypeChecklist,
-} from "../enums";
+import { DamageType, RangeType, WeaponSize, WeaponType } from "../enums";
+import type { DamageTypeChecklist, RangeTypeChecklist, WeaponSizeChecklist, WeaponTypeChecklist } from "../enums";
 import { IconFactory, resolve_dotpath } from "../helpers/commons";
 import { LancerItem } from "../item/lancer-item";
-import { BonusData } from "../models/bits/bonus";
+import type { BonusData } from "../models/bits/bonus";
 import { Damage } from "../models/bits/damage";
 import { Range } from "../models/bits/range";
 

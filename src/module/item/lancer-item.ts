@@ -1,21 +1,22 @@
 import { LANCER, TypeIcon } from "../config";
-import { SystemData, SystemDataType, SystemTemplates } from "../system-template";
-import { SourceDataType } from "../source-template";
+import type { SystemData, SystemDataType, SystemTemplates } from "../system-template";
+import type { SourceDataType } from "../source-template";
 import { DamageType, EntryType, NpcFeatureType, RangeType, WeaponType } from "../enums";
 import * as defaults from "../util/unpacking/defaults";
-import { ActionData } from "../models/bits/action";
-import { RangeData, Range } from "../models/bits/range";
+import type { ActionData } from "../models/bits/action";
+import { Range } from "../models/bits/range";
+import type { RangeData } from "../models/bits/range";
 import { Tag } from "../models/bits/tag";
-import { LancerActiveEffectConstructorData } from "../effects/lancer-active-effect";
+import type { LancerActiveEffectConstructorData } from "../effects/lancer-active-effect";
 import {
   bonusAffectsWeapon,
   convertBonus,
   frameInnateEffect as frameInnate,
   npcClassInnateEffect as npcClassInnate,
 } from "../effects/converter";
-import { BonusData } from "../models/bits/bonus";
+import type { BonusData } from "../models/bits/bonus";
 import { ChangeWatchHelper } from "../util/misc";
-import { LancerMECH } from "../actor/lancer-actor";
+import type { LancerMECH } from "../actor/lancer-actor";
 import { Damage } from "../models/bits/damage";
 
 const lp = LANCER.log_prefix;
@@ -24,7 +25,7 @@ interface LancerItemDataSource<T extends LancerItemType> {
   type: T;
   data: SourceDataType<T>;
 }
-interface LancerItemDataProperties<T extends LancerItemType> {
+interface LancerItemDataProperties<T extends LancerIxtemType> {
   type: T;
   data: SystemDataType<T>;
 }

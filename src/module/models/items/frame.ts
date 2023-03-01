@@ -1,14 +1,14 @@
 import { ActivationType, EntryType, FrameEffectUse, MechType, MountType } from "../../enums";
 import { restrict_enum } from "../../helpers/commons";
-import { SourceData } from "../../source-template";
-import { PackedFrameData } from "../../util/unpacking/packed-types";
+import type { SourceData } from "../../source-template";
+import type { PackedFrameData } from "../../util/unpacking/packed-types";
 import { unpackDeployable } from "../actors/deployable";
 import { ActionField, unpackAction } from "../bits/action";
 import { BonusField, unpackBonus } from "../bits/bonus";
 import { CounterField, unpackCounter } from "../bits/counter";
 import { SynergyField, unpackSynergy } from "../bits/synergy";
 import { TagField, unpackTag } from "../bits/tag";
-import { LancerDataModel, LIDField, UnpackContext } from "../shared";
+import type { LancerDataModel, LIDField, UnpackContext } from "../shared";
 import { template_universal_item, template_licensed } from "./shared";
 
 // @ts-ignore

@@ -1,11 +1,7 @@
 import type { LancerItemSheetData } from "../interfaces";
 import { LANCER } from "../config";
 import type { LancerItem, LancerItemType } from "./lancer-item";
-import {
-  HANDLER_activate_general_controls,
-  HANDLER_activate_popout_text_editor,
-  resolve_dotpath,
-} from "../helpers/commons";
+import { HANDLER_activate_general_controls, HANDLER_activate_popout_text_editor } from "../helpers/commons";
 import { HANDLER_activate_counter_listeners, HANDLER_activate_plus_minus_buttons } from "../helpers/item";
 import {
   HANDLER_activate_ref_dragging,
@@ -25,7 +21,7 @@ import { activate_action_editor } from "../apps/action-editor";
 import { find_license_for } from "../util/doc";
 import { lookupOwnedDeployables } from "../util/lid";
 import { EntryType } from "../enums";
-import { LancerDEPLOYABLE } from "../actor/lancer-actor";
+import type { LancerDEPLOYABLE } from "../actor/lancer-actor";
 
 const lp = LANCER.log_prefix;
 

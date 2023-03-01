@@ -2,8 +2,8 @@
  * Module class for moderation of actor action data.
  */
 
-import { ActionTrackingData, ActionType } from ".";
-import { LancerActor, LancerMECH } from "../actor/lancer-actor";
+import type { ActionTrackingData, ActionType } from ".";
+import { LancerActor } from "../actor/lancer-actor";
 
 export const _defaultActionData = (target: LancerActor) => {
   return {

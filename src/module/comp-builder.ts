@@ -3,20 +3,21 @@ const lp = LANCER.log_prefix;
 import { LCPIndex } from "./apps/lcp-manager";
 import { get_pack } from "./util/doc";
 import type { LancerActor } from "./actor/lancer-actor";
-import { LancerItem, LancerLICENSE } from "./item/lancer-item";
+import { LancerItem } from "./item/lancer-item";
 import { EntryType } from "./enums";
-import {
+import type {
   IContentPack,
   PackedPilotArmorData,
   PackedPilotGearData,
   PackedPilotWeaponData,
 } from "./util/unpacking/packed-types";
-import { UnpackContext } from "./models/shared";
+import type { UnpackContext } from "./models/shared";
 import { unpackMechWeapon } from "./models/items/mech_weapon";
 import { unpackFrame } from "./models/items/frame";
 import { unpackMechSystem } from "./models/items/mech_system";
 import { unpackCoreBonus } from "./models/items/core_bonus";
-import { TagData, TagTemplateData, unpackTag, unpackTagTemplate } from "./models/bits/tag";
+import { unpackTagTemplate } from "./models/bits/tag";
+import type { TagTemplateData } from "./models/bits/tag";
 import { unpackTalent } from "./models/items/talent";
 import { unpackPilotArmor } from "./models/items/pilot_armor";
 import { unpackPilotGear } from "./models/items/pilot_gear";

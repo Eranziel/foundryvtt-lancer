@@ -28,12 +28,12 @@ export interface NoUI {
 
 type UIBehaviour = CheckboxUI | NoUI;
 
-declare interface RollModifier {
+export interface RollModifier {
   modifyRoll(roll: string): string;
   get rollPrecedence(): number; // higher numbers happen earlier
 }
 
-declare interface Dehydrated {
+export interface Dehydrated {
   // the codec handles all serializable data,
   // but we might want to pick up data from the environment too
   // all perTarget codecs get the target as well
@@ -46,7 +46,7 @@ export type AccDiffNoUIPluginData = NoUI & RollModifier & Dehydrated;
 
 export type AccDiffPluginCodec<C extends AccDiffPluginData, O, I> = t.Type<C, O, I>;
 
-declare interface AccDiffPlugin<Data extends AccDiffPluginData, O, I> {
+export interface AccDiffPlugin<Data extends AccDiffPluginData, O, I> {
   slug: string;
   // the codec lets us know how to persist whatever data you need for rerolls
   codec: AccDiffPluginCodec<Data, O, I>;

@@ -2,9 +2,9 @@ import { LancerActor } from "../actor/lancer-actor";
 import { DamageType, EntryType, RangeType, SystemType, WeaponSize, WeaponType } from "../enums";
 import { format_dotpath } from "../helpers/commons";
 import { LancerItem } from "../item/lancer-item";
-import { SourceData } from "../source-template";
-import { SystemTemplates } from "../system-template";
-import { PackedDeployableData } from "../util/unpacking/packed-types";
+import type { SourceData } from "../source-template";
+import type { SystemTemplates } from "../system-template";
+import type { PackedDeployableData } from "../util/unpacking/packed-types";
 
 // @ts-ignore
 const fields: any = foundry.data.fields;

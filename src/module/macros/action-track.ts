@@ -1,4 +1,4 @@
-import { ActionTrackingData } from "../action";
+import type { ActionTrackingData } from "../action";
 import { getActions } from "../action/action-tracker";
 import { LancerActor } from "../actor/lancer-actor";
 import { prepareTextMacro } from "./text";

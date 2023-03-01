@@ -3,7 +3,7 @@ import type { AccDiffPlugin, AccDiffPluginData } from "./plugin";
 import type { AccDiffData, AccDiffTarget } from "./index";
 import type { LancerActor, LancerMECH, LancerPILOT } from "../../actor/lancer-actor";
 import type { LancerToken } from "../../token";
-import { LancerTALENT } from "../../item/lancer-item";
+import type { LancerTALENT } from "../../item/lancer-item";
 
 // this is an example of a case implemented without defining a full class
 function adjacentSpotter(actor: LancerActor): boolean {

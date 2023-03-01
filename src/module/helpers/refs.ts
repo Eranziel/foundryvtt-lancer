@@ -1,8 +1,7 @@
 import type { HelperOptions } from "handlebars";
 import { TypeIcon } from "../config";
-import {
-  LancerItem,
-  is_item_type,
+import { LancerItem } from "../item/lancer-item";
+import type {
   LancerItemType,
   LancerMECH_SYSTEM,
   LancerMECH_WEAPON,
@@ -13,16 +12,16 @@ import {
   LancerRESERVE,
 } from "../item/lancer-item";
 import { array_path_edit_changes, drilldownDocument, resolve_helper_dotpath } from "./commons";
-import { FoundryDropData, HANDLER_enable_doc_dropping, HANDLER_enable_dragging, ResolvedDropData } from "./dragdrop";
+import { HANDLER_enable_doc_dropping, HANDLER_enable_dragging } from "./dragdrop";
+import type { FoundryDropData, ResolvedDropData } from "./dragdrop";
 import { framePreview, license_ref, mech_weapon_display as mechWeaponView, npc_feature_preview } from "./item";
-import { frameView as loadoutFrameView, mech_system_view as mechSystemView } from "./loadout";
-import { LancerDoc } from "../util/doc";
-import { EntryType, SystemType } from "../enums";
-import { LancerActor, LancerPILOT } from "../actor/lancer-actor";
+import { mech_system_view as mechSystemView } from "./loadout";
+import type { LancerDoc } from "../util/doc";
+import { EntryType } from "../enums";
+import { LancerActor } from "../actor/lancer-actor";
 import { coreBonusView, skillView, talent_view as talentView } from "./pilot";
-import { CollapseRegistry } from "./collapse";
-import { SourceData } from "../source-template";
 import { LancerActiveEffect } from "../effects/lancer-active-effect";
+import type { SourceData } from "../source-template";
 
 /*
 "Ref" manifesto - Things for handling everything in data that is either a ResolvedUuidRefField or ResolvedEmbeddedRefField.

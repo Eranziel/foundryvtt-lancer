@@ -1,7 +1,7 @@
 import { LancerActor } from "../actor/lancer-actor";
 import { read_form, resolve_dotpath } from "../helpers/commons";
-import { LancerItem, LancerTALENT } from "../item/lancer-item";
-import { CounterData } from "../models/bits/counter";
+import { LancerItem } from "../item/lancer-item";
+import type { CounterData } from "../models/bits/counter";
 
 /**
  * A helper FormApplication subclass for editing a counter

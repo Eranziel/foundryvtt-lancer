@@ -1,7 +1,7 @@
 import { EntryType } from "../../enums";
-import { SourceData } from "../../source-template";
-import { PackedSkillData } from "../../util/unpacking/packed-types";
-import { LancerDataModel, UnpackContext } from "../shared";
+import type { SourceData } from "../../source-template";
+import type { PackedSkillData } from "../../util/unpacking/packed-types";
+import type { LancerDataModel, UnpackContext } from "../shared";
 import { template_universal_item } from "./shared";
 
 const fields: any = foundry.data.fields;

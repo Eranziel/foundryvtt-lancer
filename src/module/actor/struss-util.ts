@@ -1,6 +1,6 @@
 import { StabOptions1, StabOptions2 } from "../enums";
 import { encodeMacroData, renderMacroTemplate } from "../macros";
-import { SystemData } from "../system-template";
+import type { SystemData } from "../system-template";
 import { LancerActor } from "./lancer-actor";
 
 /**

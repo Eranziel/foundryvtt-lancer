@@ -1,10 +1,6 @@
-import {
-  HANDLER_activate_general_controls,
-  HANDLER_activate_popout_text_editor,
-  resolve_dotpath,
-} from "../helpers/commons";
+import { HANDLER_activate_popout_text_editor, resolve_dotpath } from "../helpers/commons";
 import { LancerItem } from "../item/lancer-item";
-import { ActionData } from "../models/bits/action";
+import type { ActionData } from "../models/bits/action";
 /**
  * A helper Dialog subclass for editing an action
  * @extends {Dialog}

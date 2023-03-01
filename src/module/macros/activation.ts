@@ -8,9 +8,9 @@ import { ActivationOptions, ActivationType } from "../enums";
 import { renderMacroHTML, renderMacroTemplate } from "./_render";
 import { prepareTechMacro, rollTechMacro } from "./tech";
 import { resolve_dotpath } from "../helpers/commons";
-import { ActionData } from "../models/bits/action";
+import type { ActionData } from "../models/bits/action";
 import { lookupOwnedDeployables } from "../util/lid";
-import { LancerMacro } from "./interfaces";
+import type { LancerMacro } from "./interfaces";
 import { prepareTextMacro } from "./text";
 
 /**

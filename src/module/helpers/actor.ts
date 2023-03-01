@@ -1,13 +1,12 @@
 import type { HelperOptions } from "handlebars";
 import { extendHelper, inc_if, resolve_helper_dotpath, selected, std_num_input, std_x_of_y } from "./commons";
 import { ref_params, simple_ref_slot } from "./refs";
-import { encodeMacroData } from "../macros";
-import { encodeOverchargeMacroData } from "../macros/overcharge";
+import type { encodeMacroData } from "../macros";
+import type { encodeOverchargeMacroData } from "../macros/overcharge";
 import type { ActionType } from "../action";
 import type { LancerActor, LancerMECH, LancerNPC, LancerPILOT } from "../actor/lancer-actor";
 import { getActionTrackerOptions } from "../settings";
 import { EntryType } from "../enums";
-import { SystemTemplates } from "../system-template";
 
 // ---------------------------------------
 // Some simple stat editing thingies

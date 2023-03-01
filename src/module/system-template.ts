@@ -1,4 +1,5 @@
-import { LancerActor, LancerDEPLOYABLE, LancerMECH, LancerPILOT } from "./actor/lancer-actor";
+import { LancerActor } from "./actor/lancer-actor";
+import type { LancerMECH, LancerPILOT } from "./actor/lancer-actor";
 import {
   ActivationType,
   DeployableType,
@@ -14,28 +15,22 @@ import {
   WeaponType,
   WeaponTypeChecklist,
 } from "./enums";
-import {
-  LancerCORE_BONUS,
+import type {
   LancerFRAME,
-  LancerItem,
-  LancerLICENSE,
   LancerMECH_SYSTEM,
   LancerMECH_WEAPON,
   LancerNPC_CLASS,
-  LancerNPC_FEATURE,
   LancerPILOT_ARMOR,
   LancerPILOT_GEAR,
   LancerPILOT_WEAPON,
-  LancerSKILL,
-  LancerTALENT,
   LancerWEAPON_MOD,
 } from "./item/lancer-item";
-import { ActionData } from "./models/bits/action";
-import { BonusData } from "./models/bits/bonus";
-import { CounterData } from "./models/bits/counter";
-import { Damage, DamageData } from "./models/bits/damage";
+import type { ActionData } from "./models/bits/action";
+import type { BonusData } from "./models/bits/bonus";
+import type { CounterData } from "./models/bits/counter";
+import { Damage } from "./models/bits/damage";
 import { Range } from "./models/bits/range";
-import { SynergyData } from "./models/bits/synergy";
+import type { SynergyData } from "./models/bits/synergy";
 import { Tag, TagData } from "./models/bits/tag";
 import { FullBoundedNum, LIDRef, SourceData, SourceTemplates, UUIDRef } from "./source-template";
 

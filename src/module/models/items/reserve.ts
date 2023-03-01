@@ -1,14 +1,14 @@
 import { EntryType, ReserveType } from "../../enums";
 import { restrict_enum } from "../../helpers/commons";
 import { dataTransfer } from "../../helpers/slidinghud/is-dragging";
-import { SourceData } from "../../source-template";
-import { PackedReserveData } from "../../util/unpacking/packed-types";
+import type { SourceData } from "../../source-template";
+import type { PackedReserveData } from "../../util/unpacking/packed-types";
 import { unpackDeployable } from "../actors/deployable";
 import { unpackAction } from "../bits/action";
 import { unpackBonus } from "../bits/bonus";
 import { unpackCounter } from "../bits/counter";
 import { unpackSynergy } from "../bits/synergy";
-import { LancerDataModel, UnpackContext } from "../shared";
+import type { LancerDataModel, UnpackContext } from "../shared";
 import { template_bascdt, template_universal_item } from "./shared";
 
 const fields: any = foundry.data.fields;

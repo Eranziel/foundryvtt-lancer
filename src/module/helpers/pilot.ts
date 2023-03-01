@@ -1,8 +1,9 @@
 import type { HelperOptions } from "handlebars";
-import { LancerCORE_BONUS, LancerSKILL, LancerTALENT } from "../item/lancer-item";
+import type { LancerCORE_BONUS, LancerSKILL, LancerTALENT } from "../item/lancer-item";
 import { encodeMacroData } from "../macros";
-import { LancerMacro } from "../macros/interfaces";
-import { collapseButton, collapseParam, CollapseRegistry } from "./collapse";
+import type { LancerMacro } from "../macros/interfaces";
+import { collapseButton, collapseParam } from "./collapse";
+import type { CollapseRegistry } from "./collapse";
 import { resolve_helper_dotpath } from "./commons";
 import { buildActionArrayHTML } from "./item";
 import { ref_params } from "./refs";

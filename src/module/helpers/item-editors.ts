@@ -10,12 +10,13 @@ import {
   std_num_input,
 } from "./commons";
 import { ref_params } from "./refs";
-import { LancerItem, LancerLICENSE } from "../item/lancer-item";
-import { ActionData } from "../models/bits/action";
-import { BonusData } from "../models/bits/bonus";
-import { SynergyData } from "../models/bits/synergy";
+import { LancerItem } from "../item/lancer-item";
+import type { LancerLICENSE } from "../item/lancer-item";
+import type { ActionData } from "../models/bits/action";
+import type { BonusData } from "../models/bits/bonus";
+import type { SynergyData } from "../models/bits/synergy";
 import { ActivationType, EntryType, WeaponSize, WeaponType } from "../enums";
-import { RangeData } from "../models/bits/range";
+import type { RangeData } from "../models/bits/range";
 
 export function item_edit_arrayed_actions(path: string, title: string, options: HelperOptions): string {
   let doc = helper_root_doc(options);

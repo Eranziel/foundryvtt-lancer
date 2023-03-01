@@ -1,14 +1,10 @@
-import { LancerNPC, LancerPILOT } from "../actor/lancer-actor";
+import type { LancerNPC, LancerPILOT } from "../actor/lancer-actor";
 import { EntryType } from "../enums";
-import { LancerFRAME, LancerMECH_WEAPON, LancerNPC_CLASS, LancerSTATUS } from "../item/lancer-item";
-import { BonusData } from "../models/bits/bonus";
-import { SystemData, SystemTemplates } from "../system-template";
-import {
-  AE_MODE_SET_JSON,
-  LancerActiveEffect,
-  LancerActiveEffectConstructorData,
-  LancerEffectTarget,
-} from "./lancer-active-effect";
+import type { LancerFRAME, LancerMECH_WEAPON, LancerNPC_CLASS, LancerSTATUS } from "../item/lancer-item";
+import type { BonusData } from "../models/bits/bonus";
+import type { SystemData } from "../system-template";
+import { AE_MODE_SET_JSON } from "./lancer-active-effect";
+import type { LancerActiveEffectConstructorData, LancerEffectTarget } from "./lancer-active-effect";
 
 const FRAME_STAT_PRIORITY = 10;
 const BONUS_STAT_PRIORITY = 20;

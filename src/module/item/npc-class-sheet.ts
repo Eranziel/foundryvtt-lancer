@@ -1,6 +1,6 @@
 import { LANCER } from "../config";
 import { EntryType } from "../enums";
-import { LancerItemSheetData } from "../interfaces";
+import type { LancerItemSheetData } from "../interfaces";
 import { lookupLID } from "../util/lid";
 import { LancerItemSheet } from "./item-sheet";
 import type { LancerItem, LancerNPC_CLASS, LancerNPC_TEMPLATE } from "./lancer-item";

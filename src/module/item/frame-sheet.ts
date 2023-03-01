@@ -1,5 +1,5 @@
 import { EntryType } from "../enums";
-import { LancerItemSheetData } from "../interfaces";
+import type { LancerItemSheetData } from "../interfaces";
 import { lookupDeployables, lookupLID } from "../util/lid";
 import { LancerItemSheet } from "./item-sheet";
 

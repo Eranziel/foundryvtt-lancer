@@ -40,9 +40,14 @@ function getManifest() {
 /*		BUILDING  		*/
 /********************/
 
-export function build() {
+export function svelte_check() {
+  return cp.spawn("npx", ["svelte-check"], { stdio: "inherit", shell: true });
+}
+
+export function vite_build() {
   return cp.spawn("npx", ["vite", "build"], { stdio: "inherit", shell: true });
 }
+export const build = gulp.series(svelte_check, vite_build);
 
 function _distWatcher() {
   const publicDirPath = path.resolve(process.cwd(), "public");

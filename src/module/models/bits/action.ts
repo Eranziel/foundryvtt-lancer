@@ -1,8 +1,10 @@
 import { ActivationType, ActivePeriod } from "../../enums";
-import { PackedActionData } from "../../util/unpacking/packed-types";
+import type { PackedActionData } from "../../util/unpacking/packed-types";
 import { LIDField } from "../shared";
-import { DamageData, DamageField, unpackDamage } from "./damage";
-import { RangeData, RangeField, unpackRange } from "./range";
+import { DamageField, unpackDamage } from "./damage";
+import type { DamageData } from "./damage";
+import { RangeField, unpackRange } from "./range";
+import type { RangeData } from "./range";
 
 // @ts-ignore
 const fields: any = foundry.data.fields;

@@ -1,7 +1,8 @@
 import { LancerItemSheet } from "./item-sheet";
 import { HANDLER_activate_item_context_menus } from "../helpers/item";
 import { EntryType } from "../enums";
-import { LancerItem, LancerLICENSE } from "./lancer-item";
+import { LancerItem } from "./lancer-item";
+import type { LancerLICENSE } from "./lancer-item";
 
 /**
  * Extend the generic Lancer item sheet

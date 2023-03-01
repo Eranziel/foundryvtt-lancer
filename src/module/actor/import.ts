@@ -1,6 +1,6 @@
 import { replaceDefaultResource } from "../config";
 import { EntryType, FittingSize, MountType } from "../enums";
-import {
+import type {
   LancerCORE_BONUS,
   LancerFRAME,
   LancerItem,
@@ -14,17 +14,18 @@ import {
   LancerTALENT,
   LancerWEAPON_MOD,
 } from "../item/lancer-item";
-import { SourceData } from "../source-template";
+import type { SourceData } from "../source-template";
 import { insinuate } from "../util/doc";
 import { lookupLID } from "../util/lid";
-import {
+import type {
   PackedEquipmentData,
   PackedMechWeaponSaveData,
   PackedMountData,
   PackedPilotData,
   PackedPilotEquipmentState,
 } from "../util/unpacking/packed-types";
-import { LancerActor, LancerMECH, LancerPILOT } from "./lancer-actor";
+import type { LancerMECH, LancerPILOT } from "./lancer-actor";
+import { LancerActor } from "./lancer-actor";
 import { frameToPath } from "./retrograde-map";
 
 // Imports packed pilot data, from either a vault id or gist id
@@ -277,7 +278,7 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
       flatMounts.push(...loadout.mounts);
       let populatedMounts: SourceData.Mech["loadout"]["weapon_mounts"] = [];
       for (let mount of flatMounts) {
-        let slots: typeof populatedMounts[0]["slots"] = [];
+        let slots: (typeof populatedMounts)[0]["slots"] = [];
         for (let slot of mount.slots) {
           let weapon = slot.weapon
             ? ((await getMechItemByLid(slot.weapon.id, EntryType.MECH_WEAPON)) as LancerMECH_WEAPON | null)

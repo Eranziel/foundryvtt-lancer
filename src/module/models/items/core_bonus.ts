@@ -1,13 +1,13 @@
 import { EntryType } from "../../enums";
-import { SourceData } from "../../source-template";
-import { PackedCoreBonusData } from "../../util/unpacking/packed-types";
+import type { SourceData } from "../../source-template";
+import type { PackedCoreBonusData } from "../../util/unpacking/packed-types";
 import { unpackDeployable } from "../actors/deployable";
 import { unpackAction } from "../bits/action";
 import { unpackBonus } from "../bits/bonus";
 import { unpackCounter } from "../bits/counter";
 import { unpackSynergy } from "../bits/synergy";
-import { LancerDataModel, UnpackContext } from "../shared";
-import { template_universal_item, template_bascdt, template_destructible, template_licensed } from "./shared";
+import type { LancerDataModel, UnpackContext } from "../shared";
+import { template_universal_item, template_bascdt } from "./shared";
 
 const fields: any = foundry.data.fields;
 

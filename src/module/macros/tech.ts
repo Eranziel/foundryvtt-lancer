@@ -1,16 +1,17 @@
 // Import TypeScript modules
 import { LANCER } from "../config";
-import { LancerActor, LancerMECH, LancerNPC } from "../actor/lancer-actor";
-import { AccDiffData, AccDiffDataSerialized } from "../helpers/acc_diff";
-import { encodeMacroData } from "./encode";
+import { LancerActor } from "../actor/lancer-actor";
+import type { LancerMECH, LancerNPC } from "../actor/lancer-actor";
+import { AccDiffData } from "../helpers/acc_diff";
+import type { encodeMacroData } from "./encode";
 import { resolveItemOrActor } from "./util";
 import { renderMacroTemplate } from "./_render";
 import { attackRolls, checkTargets } from "./attack";
-import { SystemTemplates } from "../system-template";
-import { LancerMacro } from "./interfaces";
+import type { SystemTemplates } from "../system-template";
+import type { LancerMacro } from "./interfaces";
 import { openSlidingHud } from "../helpers/slidinghud";
 import { LancerItem } from "../item/lancer-item";
-import { ActionData } from "../models/bits/action";
+import type { ActionData } from "../models/bits/action";
 import { resolve_dotpath } from "../helpers/commons";
 import { ActivationType } from "../enums";
 import { Tag } from "../models/bits/tag";

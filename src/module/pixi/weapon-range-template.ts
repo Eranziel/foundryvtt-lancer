@@ -4,7 +4,7 @@
  */
 
 import { RangeType } from "../enums";
-import { RangeData } from "../models/bits/range";
+import type { RangeData } from "../models/bits/range";
 
 /**
  * MeasuredTemplate sublcass to create a placeable template on weapon attacks
