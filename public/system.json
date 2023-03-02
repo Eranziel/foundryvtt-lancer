@@ -21,7 +21,7 @@
     {"name": "dodgepong"}
   ],
   "scripts": [],
-  "esmodules": ["index.js"],
+  "esmodules": ["lancer.js"],
   "styles": [
     "style.css",
     "fonts/compcon/glyphs.css",

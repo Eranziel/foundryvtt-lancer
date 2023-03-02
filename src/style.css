@@ -1,9 +1,0 @@
-/* only required in dev
-
- in prod, foundry loads style.css, as compiled by vite/rollup
- in prod, the import lancer.scss line at the top of lancer.ts indicates those rules
-          should be compiled into style.css
-
- in dev, foundry loads style.css, this file, which is a no-op
- in dev, lancer.ts imports lancer.scss directly
- */

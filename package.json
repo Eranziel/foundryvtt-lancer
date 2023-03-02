@@ -5,12 +5,13 @@
   "description": "",
   "sideEffects": [
     "src/lancer.scss",
-    "src/lancer.ts"
+    "src/lancer.ts",
+    "src/lancer.js"
   ],
   "scripts": {
     "package": "gulp package",
     "build": "gulp build",
-    "link": "gulp link",
+    "link": "gulp linkUserData",
     "build:watch": "gulp watch",
     "watch": "gulp watch",
     "serve": "gulp serve",
@@ -24,6 +25,8 @@
   "type": "module",
   "devDependencies": {
     "@league-of-foundry-developers/foundry-vtt-types": "0.8.9-10",
+    "@typhonjs-config/eslint-config": "^0.3.0",
+    "@typhonjs-fvtt/eslint-config-foundry.js": "^0.8.0",
     "@sveltejs/vite-plugin-svelte": "^2.0.3",
     "@tsconfig/svelte": "^3.0.0",
     "archiver": "^3.1.1",
@@ -38,7 +41,6 @@
     "prettier": "^2.7.1",
     "rollup-plugin-visualizer": "^5.5.2",
     "sass": "^1.40.0",
-    "svelte": "^3.55.1",
     "svelte-check": "^2.10.3",
     "svelte-language-server": "^0.15.5",
     "svelte-preprocess": "^5.0.1",
@@ -58,7 +60,8 @@
     "lancer-data": "^3.0.47",
     "lancer-initiative": "^3.1.0",
     "marked": "^4.0.10",
-    "tippy.js": "^6.3.1"
+    "tippy.js": "^6.3.1",
+    "svelte": "^3.55.1"
   },
   "lint-staged": {
     "*.ts": "prettier --write"

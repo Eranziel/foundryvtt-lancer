@@ -3,7 +3,7 @@
   "compilerOptions": {
     "target": "esnext",
     "experimentalDecorators": true,
-    "isolatedModules": false,
+    "isolatedModules": true,
     "module": "esnext",
     "sourceMap": true,
     "lib": [
