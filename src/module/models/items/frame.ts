@@ -8,7 +8,8 @@ import { BonusField, unpackBonus } from "../bits/bonus";
 import { CounterField, unpackCounter } from "../bits/counter";
 import { SynergyField, unpackSynergy } from "../bits/synergy";
 import { TagField, unpackTag } from "../bits/tag";
-import type { LancerDataModel, LIDField, UnpackContext } from "../shared";
+import { LancerDataModel, LIDField } from "../shared";
+import type { UnpackContext } from "../shared";
 import { template_universal_item, template_licensed } from "./shared";
 
 // @ts-ignore

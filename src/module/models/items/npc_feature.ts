@@ -12,7 +12,8 @@ import { DamageField, unpackDamage } from "../bits/damage";
 import type { DamageData } from "../bits/damage";
 import { RangeField, unpackRange } from "../bits/range";
 import { TagField, unpackTag } from "../bits/tag";
-import type { LancerDataModel, UnpackContext } from "../shared";
+import { LancerDataModel } from "../shared";
+import type { UnpackContext } from "../shared";
 import { template_destructible, template_universal_item, template_uses } from "./shared";
 
 const fields: any = foundry.data.fields;

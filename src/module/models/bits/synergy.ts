@@ -5,9 +5,9 @@ import {
   SystemType,
   WeaponSize,
   WeaponType,
+  AllSynergyLocations,
 } from "../../enums";
 import type {
-  AllSynergyLocations,
   DamageTypeChecklist,
   RangeTypeChecklist,
   SynergyLocation,

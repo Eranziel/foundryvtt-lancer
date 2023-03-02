@@ -2,7 +2,8 @@ import { EntryType } from "../../enums";
 import { restrict_choices, restrict_enum } from "../../helpers/commons";
 import type { SourceData } from "../../source-template";
 import type { PackedStatusData } from "../../util/unpacking/packed-types";
-import type { LancerDataModel, UnpackContext } from "../shared";
+import { LancerDataModel } from "../shared";
+import type { UnpackContext } from "../shared";
 import { template_universal_item } from "./shared";
 
 const fields: any = foundry.data.fields;

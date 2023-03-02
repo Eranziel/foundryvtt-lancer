@@ -6,7 +6,8 @@ import { ActionField, unpackAction } from "../bits/action";
 import { BonusField, unpackBonus } from "../bits/bonus";
 import { CounterField, unpackCounter } from "../bits/counter";
 import { SynergyField, unpackSynergy } from "../bits/synergy";
-import type { LancerDataModel, LIDField, UnpackContext } from "../shared";
+import { LancerDataModel, LIDField } from "../shared";
+import type { UnpackContext } from "../shared";
 import { template_universal_item, template_bascdt, template_destructible, template_licensed } from "./shared";
 
 const fields: any = foundry.data.fields;

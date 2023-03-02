@@ -5,7 +5,8 @@ import { unpackDeployable } from "../actors/deployable";
 import { unpackAction } from "../bits/action";
 import { unpackBonus } from "../bits/bonus";
 import { unpackSynergy } from "../bits/synergy";
-import type { LancerDataModel, UnpackContext } from "../shared";
+import { LancerDataModel } from "../shared";
+import type { UnpackContext } from "../shared";
 import { template_universal_item, template_bascdt, template_uses } from "./shared";
 
 const fields: any = foundry.data.fields;

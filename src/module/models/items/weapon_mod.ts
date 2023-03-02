@@ -9,7 +9,8 @@ import { DamageField, unpackDamage } from "../bits/damage";
 import { RangeField, unpackRange } from "../bits/range";
 import { unpackSynergy } from "../bits/synergy";
 import { TagField, unpackTag } from "../bits/tag";
-import type { LancerDataModel, UnpackContext, WeaponSizeChecklistField, WeaponTypeChecklistField } from "../shared";
+import { LancerDataModel, WeaponSizeChecklistField, WeaponTypeChecklistField } from "../shared";
+import type { UnpackContext } from "../shared";
 import {
   template_universal_item,
   template_bascdt,

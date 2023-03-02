@@ -252,5 +252,4 @@ export function npc_weapon_effect_preview(path: string, options: HelperOptions):
     `,
     options
   );
-  return "";
 }
