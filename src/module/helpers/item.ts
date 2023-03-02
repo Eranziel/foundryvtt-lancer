@@ -45,12 +45,12 @@ import {
   WeaponType,
 } from "../enums";
 import type { LancerActorSheetData, LancerItemSheetData } from "../interfaces";
-import type { encodeMacroData } from "../macros";
-import type { collapseButton, collapseParam, CollapseRegistry } from "./collapse";
+import { encodeMacroData } from "../macros";
+import { collapseButton, collapseParam } from "./collapse";
+import type { CollapseRegistry } from "./collapse";
 import { promptText } from "../apps/simple-prompt";
 import { CounterEditForm } from "../apps/counter-editor";
 import { frameToPath } from "../actor/retrograde-map";
-import type { InventoryDialogData } from "../apps/inventory";
 import { Damage } from "../models/bits/damage";
 import { Range } from "../models/bits/range";
 import type { BonusData } from "../models/bits/bonus";

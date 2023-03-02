@@ -6,7 +6,7 @@ import { LancerActor } from "../actor/lancer-actor";
 import { checkForHit } from "../helpers/automation/targeting";
 import { AccDiffData } from "../helpers/acc_diff";
 import { resolveItemOrActor } from "./util";
-import type { encodeMacroData } from "./encode";
+import { encodeMacroData } from "./encode";
 import { renderMacroTemplate } from "./_render";
 import { DamageType } from "../enums";
 import type { SystemTemplates } from "../system-template";

@@ -3,7 +3,7 @@ import { LANCER } from "../config";
 import { LancerActor } from "../actor/lancer-actor";
 import type { LancerMECH, LancerNPC } from "../actor/lancer-actor";
 import { AccDiffData } from "../helpers/acc_diff";
-import type { encodeMacroData } from "./encode";
+import { encodeMacroData } from "./encode";
 import { resolveItemOrActor } from "./util";
 import { renderMacroTemplate } from "./_render";
 import { attackRolls, checkTargets } from "./attack";

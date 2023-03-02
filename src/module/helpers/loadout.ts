@@ -1,6 +1,6 @@
 import type { HelperOptions } from "handlebars";
 import { ChipIcons, EntryType, SystemType } from "../enums";
-import type { encodeMacroData } from "../macros";
+import { encodeMacroData } from "../macros";
 import { inc_if, resolve_helper_dotpath, array_path_edit, sp_display, effect_box } from "./commons";
 import { mech_loadout_weapon_slot, buildChipHTML, buildDeployablesArray, buildActionArrayHTML } from "./item";
 import { limited_uses_indicator, ref_params, simple_ref_slot } from "./refs";
@@ -8,7 +8,8 @@ import { compact_tag_list } from "./tags";
 import type { LancerMECH, LancerPILOT } from "../actor/lancer-actor";
 import type { SystemData } from "../system-template";
 import type { LancerFRAME, LancerMECH_SYSTEM } from "../item/lancer-item";
-import type { collapseButton, collapseParam, CollapseRegistry } from "./collapse";
+import { collapseButton, collapseParam } from "./collapse";
+import type { CollapseRegistry } from "./collapse";
 import type { LancerMacro } from "../macros/interfaces";
 import { slugify } from "../util/lid";
 

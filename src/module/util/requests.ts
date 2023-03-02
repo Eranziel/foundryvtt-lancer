@@ -1,6 +1,5 @@
 import { LancerActor } from "../actor/lancer-actor";
-import { LancerItem } from "../item/lancer-item";
-import type { encodeMacroData } from "../macros";
+import { encodeMacroData } from "../macros";
 
 /**
  *
