@@ -1,5 +1,6 @@
 import { LANCER } from "../config";
-import { ActionTrackerOptions, getActionTrackerOptions } from "../settings";
+import { getActionTrackerOptions } from "../settings";
+import type { ActionTrackerOptions } from "../settings";
 
 /**
  * Settings form for customizing the icon appearance of the icon used in the
