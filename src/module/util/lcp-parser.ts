@@ -1,4 +1,5 @@
-import JSZip, { JSZipObject } from "jszip";
+import JSZip from "jszip";
+import type { JSZipObject } from "jszip";
 import * as lancerData from "./typed-lancerdata";
 import type {
   AnyPackedNpcFeatureData,

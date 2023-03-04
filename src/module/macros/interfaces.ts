@@ -1,8 +1,10 @@
-import { ActionType } from "../action";
+import type { ActionType } from "../action";
 import { ActivationType } from "../enums";
-import { AccDiffData, AccDiffDataSerialized } from "../helpers/acc_diff";
+import { AccDiffData } from "../helpers/acc_diff";
+import type { AccDiffDataSerialized } from "../helpers/acc_diff";
 import type { DamageData } from "../models/bits/damage";
-import { Tag, TagData } from "../models/bits/tag";
+import { Tag } from "../models/bits/tag";
+import type { TagData } from "../models/bits/tag";
 
 // -------- Macro data types -------------------------------------
 // Within our macro ecosystem these serve 2 primary purposes

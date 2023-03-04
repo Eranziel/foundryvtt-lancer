@@ -117,6 +117,7 @@ export class AccDiffBase {
   hydrate(d: AccDiffData) {
     this.#weapon = d.weapon;
     for (let key of Object.keys(this.plugins)) {
+      //@ts-expect-error TODO
       this.plugins[key].hydrate(d, this);
     }
   }
@@ -311,8 +312,11 @@ export class AccDiffData {
     return encode(this, AccDiffData.codec);
   }
 
+  //@ts-expect-error TODO
   static plugins: AccDiffPlugin<AccDiffPluginData>[] = [];
+  //@ts-expect-error TODO
   static targetedPlugins: AccDiffPlugin<AccDiffPluginData>[] = [];
+  //@ts-expect-error TODO
   static registerPlugin<D extends AccDiffPluginData, P extends AccDiffPlugin<D>>(plugin: P) {
     if (plugin.perRoll) {
       AccDiffWeapon.pluginSchema[plugin.slug] = plugin.codec;

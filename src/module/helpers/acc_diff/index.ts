@@ -10,5 +10,4 @@ export type {
   AccDiffNoUIPluginData,
   AccDiffPluginCodec,
   AccDiffPlugin,
-  Data as AccDiffPluginDataOf,
 } from "./plugin";

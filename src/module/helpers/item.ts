@@ -54,9 +54,9 @@ import { frameToPath } from "../actor/retrograde-map";
 import { Damage } from "../models/bits/damage";
 import { Range } from "../models/bits/range";
 import type { BonusData } from "../models/bits/bonus";
+import { LancerItem } from "../item/lancer-item";
 import type {
   LancerFRAME,
-  LancerItem,
   LancerLICENSE,
   LancerMECH_SYSTEM,
   LancerMECH_WEAPON,

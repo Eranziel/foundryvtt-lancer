@@ -63,5 +63,3 @@ export interface AccDiffPlugin<Data extends AccDiffPluginData, O, I> {
   // if you implement perRoll AND either or both of the other two, `rollModifier`
   // will be called twice on the same roll, so watch out for that
 }
-
-export type Data<T> = T extends AccDiffPlugin<infer D, any, any> ? D : never;

@@ -9,7 +9,7 @@ import {
   click_evt_open_ref,
   HANDLER_activate_uses_editor,
 } from "../helpers/refs";
-import type { LancerActorSheetData } from "../interfaces";
+import type { GenControlContext, LancerActorSheetData } from "../interfaces";
 import { LancerItem } from "../item/lancer-item";
 import { LancerActor } from "./lancer-actor";
 import type { LancerActorType } from "./lancer-actor";
@@ -97,7 +97,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     HANDLER_activate_ref_slot_dropping(html, this.actor, x => this.quickOwnDrop(x).then(v => v[0]));
 
     // Enable general controls, so items can be deleted and such
-    HANDLER_activate_general_controls(html, this.actor);
+    HANDLER_activate_general_controls(html, this.actor, this._generalControlsPostHook);
 
     // Enable popout editors
     HANDLER_activate_popout_text_editor(html, this.actor);
@@ -114,6 +114,9 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       (entry, _dest, _event) => this.canRootDrop(entry)
     );
   }
+
+  // To be implemented by base classes as needed
+  _generalControlsPostHook(_ctx: GenControlContext) {}
 
   _activateMacroDragging(html: JQuery) {
     const ActionMacroHandler = (e: DragEvent) => this._onDragActivationChipStart(e);

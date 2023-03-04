@@ -178,6 +178,7 @@ import { LancerNPCClassSheet } from "./module/item/npc-class-sheet";
 import { WeaponModModel } from "./module/models/items/weapon_mod";
 import { ReserveModel } from "./module/models/items/reserve";
 import { StatusModel } from "./module/models/items/status";
+import MechSheetV2 from "./module/actor/new-mech-sheet";
 
 const lp = LANCER.log_prefix;
 
@@ -1027,3 +1028,5 @@ function addSettingsButtons(_app: Application, html: HTMLElement) {
     ).render(true);
   });
 }
+
+Hooks.once("ready", () => new MechSheetV2().render(true, { focus: true }));

@@ -67,7 +67,8 @@ function spotter(): AccDiffPluginData {
   return sp;
 }
 
-const Spotter: AccDiffPlugin<AccDiffPluginData> = {
+// TODO: Fix this type?
+const Spotter: AccDiffPlugin<AccDiffPluginData, any, any> = {
   slug: "spotter",
   codec: stateless(
     "Spotter",

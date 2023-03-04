@@ -3,7 +3,8 @@ import { LANCER } from "../config";
 import { LancerActorSheet } from "./lancer-actor-sheet";
 import { prepareItemMacro, prepareStatMacro } from "../macros";
 import tippy from "tippy.js";
-import type { LancerItem, LancerNPC_FEATURE } from "../item/lancer-item";
+import { LancerItem } from "../item/lancer-item";
+import type { LancerNPC_FEATURE } from "../item/lancer-item";
 import { insinuate } from "../util/doc";
 import type { LancerNPC } from "./lancer-actor";
 import type { ResolvedDropData } from "../helpers/dragdrop";
@@ -200,11 +201,12 @@ function getStatInput(event: Event): HTMLInputElement | HTMLDataElement | null {
 }
 
 // Removes class/features when a delete of class/template happens
-function handleClassDelete(ctx: GenControlContext) {
+/** @override */
+function _generalControlsPostHook(ctx: GenControlContext) {
   if (ctx.action == "delete") {
     let pt = ctx.path_target as LancerItem;
     if (pt instanceof LancerItem && (pt.is_npc_template() || pt.is_npc_class())) {
-      let matches = findMatchingFeaturesInNpc(ctx.target_document, [
+      let matches = findMatchingFeaturesInNpc(ctx.target_document as LancerNPC, [
         ...pt.system.base_features,
         ...pt.system.optional_features,
       ]);

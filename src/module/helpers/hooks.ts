@@ -1,4 +1,5 @@
-import { LancerActor, LancerActorType } from "../actor/lancer-actor";
+import { LancerActor } from "../actor/lancer-actor";
+import type { LancerActorType } from "../actor/lancer-actor";
 import type { LancerItem, LancerItemType } from "../item/lancer-item";
 
 export const DEBOUNCE_TIMEOUT = 500; // An update propagation hook will fire at most once every this many MS.

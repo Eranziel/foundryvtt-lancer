@@ -1,3 +1,4 @@
+//@ts-ignore
 import {
   glossary as _glossary,
   actions as _actions,
@@ -22,6 +23,7 @@ import {
   tags as _tags,
   talents as _talents,
   weapons as _weapons,
+  //@ts-ignore
 } from "lancer-data";
 import type {
   PackedActionData,

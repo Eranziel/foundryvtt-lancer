@@ -8,11 +8,11 @@ import {
   OrgType,
   RangeType,
   SkillFamily,
-  SynergyLocation,
   SystemType,
   WeaponSize,
   WeaponType,
 } from "../../enums";
+import type { SynergyLocation } from "../../enums";
 
 export interface PackedActionData {
   name?: string;

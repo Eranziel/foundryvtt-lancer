@@ -5,6 +5,7 @@ import { LancerItem } from "../item/lancer-item";
 import { LancerActor } from "../actor/lancer-actor";
 import { checkForHit } from "../helpers/automation/targeting";
 import { AccDiffData } from "../helpers/acc_diff";
+import type { RollModifier } from "../helpers/acc_diff";
 import { resolveItemOrActor } from "./util";
 import { encodeMacroData } from "./encode";
 import { renderMacroTemplate } from "./_render";

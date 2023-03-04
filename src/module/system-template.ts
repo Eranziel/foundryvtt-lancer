@@ -11,10 +11,9 @@ import {
   OrgType,
   SystemType,
   WeaponSize,
-  WeaponSizeChecklist,
   WeaponType,
-  WeaponTypeChecklist,
 } from "./enums";
+import type { WeaponSizeChecklist, WeaponTypeChecklist } from "./enums";
 import type {
   LancerFRAME,
   LancerMECH_SYSTEM,
@@ -31,8 +30,9 @@ import type { CounterData } from "./models/bits/counter";
 import { Damage } from "./models/bits/damage";
 import { Range } from "./models/bits/range";
 import type { SynergyData } from "./models/bits/synergy";
-import { Tag, TagData } from "./models/bits/tag";
-import { FullBoundedNum, LIDRef, SourceData, SourceTemplates, UUIDRef } from "./source-template";
+import { Tag } from "./models/bits/tag";
+import type { TagData } from "./models/bits/tag";
+import type { FullBoundedNum, LIDRef, SourceData, SourceTemplates, UUIDRef } from "./source-template";
 
 export namespace SystemTemplates {
   // We mimic these types, such that if we later decide to modify how they are hydrated, our job is easier
