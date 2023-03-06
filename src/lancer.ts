@@ -179,6 +179,8 @@ import { LancerNPCClassSheet } from "./module/item/npc-class-sheet.js";
 import { WeaponModModel } from "./module/models/items/weapon_mod.js";
 import { ReserveModel } from "./module/models/items/reserve.js";
 import { StatusModel } from "./module/models/items/status.js";
+import { Auth } from "@aws-amplify/auth";
+import { Storage } from "@aws-amplify/storage";
 import MechSheetV2 from "./module/actor/new-mech-sheet.js";
 
 const lp = LANCER.log_prefix;
@@ -918,8 +920,6 @@ async function configureAmplify() {
   const aws = (await import("./aws-exports.js")).default as {
     aws_cognito_identity_pool_id: string;
   };
-  const { Auth } = await import("@aws-amplify/auth");
-  const { Storage } = await import("@aws-amplify/storage");
 
   Auth.configure(aws);
   Storage.configure(aws);

@@ -1,5 +1,7 @@
 import type { CachedCloudPilot } from "../interfaces.js";
 import type { PackedPilotData } from "./unpacking/packed-types.js";
+import { Auth } from "@aws-amplify/auth";
+import { Storage } from "@aws-amplify/storage";
 
 // we only cache the id, cloud ids, and name; we're going to fetch all other data on user input
 // the point of the cache is not have the pilot actor window to wait for network calls
@@ -13,8 +15,6 @@ export function cleanCloudOwnerID(str: string): string {
 }
 
 export async function populatePilotCache(): Promise<CachedCloudPilot[]> {
-  const { Auth } = await import("@aws-amplify/auth");
-  const { Storage } = await import("@aws-amplify/storage");
   try {
     await Auth.currentSession(); // refresh the token if we need to
   } catch (e) {
@@ -23,11 +23,9 @@ export async function populatePilotCache(): Promise<CachedCloudPilot[]> {
   }
   const res = await Storage.list("pilot", {
     level: "protected",
-    // @ts-expect-error
     cacheControl: "no-cache",
   });
 
-  // @ts-expect-error
   const data: Array<PackedPilotData> = await Promise.all(res.map((obj: { key: string }) => fetchPilot(obj.key)));
   data.forEach(pilot => {
     pilot.mechs = [];
@@ -57,7 +55,6 @@ export async function fetchPilotViaShareCode(sharecode: string): Promise<PackedP
 export async function fetchPilotViaCache(cachedPilot: CachedCloudPilot): Promise<PackedPilotData> {
   const sanitizedName = cachedPilot.name.replace(/[^a-zA-Z\d\s:]/g, " ");
   const documentID = `pilot/${sanitizedName}--${cachedPilot.id}--active`;
-  const { Storage } = await import("@aws-amplify/storage");
   const req: any = {
     level: "protected",
     download: true,
@@ -83,14 +80,12 @@ export async function fetchPilot(cloudID: string, cloudOwnerID?: string): Promis
     cloudOwnerID = "us-east-1:" + cloudOwnerID;
   }
   try {
-    const { Auth } = await import("@aws-amplify/auth");
     await Auth.currentSession(); // refresh the token if we need to
   } catch (e) {
     ui.notifications!.error("Sync failed - you aren't logged into a Comp/Con account.");
     throw e;
   }
 
-  const { Storage } = await import("@aws-amplify/storage");
   const req: any = {
     level: "protected",
     download: true,

@@ -1,4 +1,5 @@
 import { populatePilotCache } from "../util/compcon.js";
+import { Auth } from "@aws-amplify/auth";
 
 export default class CompconLoginForm extends FormApplication {
   constructor(object?: any, options = {}) {
@@ -22,7 +23,6 @@ export default class CompconLoginForm extends FormApplication {
   /** @override */
   async _updateObject(_event: any, formData: any) {
     try {
-      const { Auth } = await import("@aws-amplify/auth");
       let res = await Auth.signIn(formData.username, formData.password);
       ui.notifications!.info("Logged in as " + res.attributes.email);
       // we have a fresh login token, let's populate the pilot cache
