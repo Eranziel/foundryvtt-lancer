@@ -1,23 +1,23 @@
-import { LANCER, TypeIcon } from "../config";
-import type { SystemData, SystemDataType, SystemTemplates } from "../system-template";
-import type { SourceDataType } from "../source-template";
-import { DamageType, EntryType, NpcFeatureType, RangeType, WeaponType } from "../enums";
-import * as defaults from "../util/unpacking/defaults";
-import type { ActionData } from "../models/bits/action";
-import { Range } from "../models/bits/range";
-import type { RangeData } from "../models/bits/range";
-import { Tag } from "../models/bits/tag";
-import type { LancerActiveEffectConstructorData } from "../effects/lancer-active-effect";
+import { LANCER, TypeIcon } from "../config.js";
+import type { SystemData, SystemDataType, SystemTemplates } from "../system-template.js";
+import type { SourceDataType } from "../source-template.js";
+import { DamageType, EntryType, NpcFeatureType, RangeType, WeaponType } from "../enums.js";
+import * as defaults from "../util/unpacking/defaults.js";
+import type { ActionData } from "../models/bits/action.js";
+import { Range } from "../models/bits/range.js";
+import type { RangeData } from "../models/bits/range.js";
+import { Tag } from "../models/bits/tag.js";
+import type { LancerActiveEffectConstructorData } from "../effects/lancer-active-effect.js";
 import {
   bonusAffectsWeapon,
   convertBonus,
   frameInnateEffect as frameInnate,
   npcClassInnateEffect as npcClassInnate,
-} from "../effects/converter";
-import type { BonusData } from "../models/bits/bonus";
-import { ChangeWatchHelper } from "../util/misc";
-import type { LancerMECH } from "../actor/lancer-actor";
-import { Damage } from "../models/bits/damage";
+} from "../effects/converter.js";
+import type { BonusData } from "../models/bits/bonus.js";
+import { ChangeWatchHelper } from "../util/misc.js";
+import type { LancerMECH } from "../actor/lancer-actor.js";
+import { Damage } from "../models/bits/damage.js";
 
 const lp = LANCER.log_prefix;
 

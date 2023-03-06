@@ -1,27 +1,27 @@
-import type { LancerItemSheetData } from "../interfaces";
-import { LANCER } from "../config";
-import type { LancerItem, LancerItemType } from "./lancer-item";
-import { HANDLER_activate_general_controls, HANDLER_activate_popout_text_editor } from "../helpers/commons";
-import { HANDLER_activate_counter_listeners, HANDLER_activate_plus_minus_buttons } from "../helpers/item";
+import type { LancerItemSheetData } from "../interfaces.js";
+import { LANCER } from "../config.js";
+import type { LancerItem, LancerItemType } from "./lancer-item.js";
+import { HANDLER_activate_general_controls, HANDLER_activate_popout_text_editor } from "../helpers/commons.js";
+import { HANDLER_activate_counter_listeners, HANDLER_activate_plus_minus_buttons } from "../helpers/item.js";
 import {
   HANDLER_activate_ref_dragging,
   HANDLER_activate_ref_slot_dropping,
   HANDLER_add_doc_to_list_on_drop,
   click_evt_open_ref,
   HANDLER_activate_uses_editor,
-} from "../helpers/refs";
+} from "../helpers/refs.js";
 import {
   HANDLER_activate_edit_bonus,
   HANDLER_activate_item_context_menus,
   HANDLER_activate_profile_context_menus,
-} from "../helpers/item";
-import { HANDLER_activate_tag_context_menus, HANDLER_activate_tag_dropping } from "../helpers/tags";
-import { applyCollapseListeners, CollapseHandler, initializeCollapses } from "../helpers/collapse";
-import { activate_action_editor } from "../apps/action-editor";
-import { find_license_for } from "../util/doc";
-import { lookupOwnedDeployables } from "../util/lid";
-import { EntryType } from "../enums";
-import type { LancerDEPLOYABLE } from "../actor/lancer-actor";
+} from "../helpers/item.js";
+import { HANDLER_activate_tag_context_menus, HANDLER_activate_tag_dropping } from "../helpers/tags.js";
+import { applyCollapseListeners, CollapseHandler, initializeCollapses } from "../helpers/collapse.js";
+import { activate_action_editor } from "../apps/action-editor.js";
+import { find_license_for } from "../util/doc.js";
+import { lookupOwnedDeployables } from "../util/lid.js";
+import { EntryType } from "../enums.js";
+import type { LancerDEPLOYABLE } from "../actor/lancer-actor.js";
 
 const lp = LANCER.log_prefix;
 

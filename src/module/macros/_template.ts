@@ -1,5 +1,5 @@
 // Import TypeScript modules
-import type { LancerToken } from "../token";
+import type { LancerToken } from "../token.js";
 
 /**
  * Sets user targets to tokens that are within the highlighted spaces of the

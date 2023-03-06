@@ -1,7 +1,7 @@
 // Import TypeScript modules
-import { LANCER } from "../config";
-import { renderMacroTemplate } from "./_render";
-import { LancerItem } from "../item/lancer-item";
+import { LANCER } from "../config.js";
+import { renderMacroTemplate } from "./_render.js";
+import { LancerItem } from "../item/lancer-item.js";
 
 const lp = LANCER.log_prefix;
 

@@ -4,9 +4,9 @@ import {
   template_statuses,
   template_struss,
   template_universal_actor,
-} from "./shared";
+} from "./shared.js";
 
-import { LancerDataModel } from "../shared";
+import { LancerDataModel } from "../shared.js";
 
 const fields: any = foundry.data.fields;
 

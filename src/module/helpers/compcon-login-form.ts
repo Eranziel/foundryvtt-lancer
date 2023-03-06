@@ -1,4 +1,4 @@
-import { populatePilotCache } from "../util/compcon";
+import { populatePilotCache } from "../util/compcon.js";
 
 export default class CompconLoginForm extends FormApplication {
   constructor(object?: any, options = {}) {

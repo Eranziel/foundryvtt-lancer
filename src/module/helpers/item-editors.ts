@@ -1,5 +1,5 @@
 import type { HelperOptions } from "handlebars";
-import { bonuses_display, damage_editor, range_editor, buildActionArrayHTML, buildDeployablesArray } from "./item";
+import { bonuses_display, damage_editor, range_editor, buildActionArrayHTML, buildDeployablesArray } from "./item.js";
 import {
   drilldownDocument,
   extendHelper as extendHelper,
@@ -8,15 +8,15 @@ import {
   resolve_helper_dotpath,
   std_enum_select,
   std_num_input,
-} from "./commons";
-import { ref_params } from "./refs";
-import { LancerItem } from "../item/lancer-item";
-import type { LancerLICENSE } from "../item/lancer-item";
-import type { ActionData } from "../models/bits/action";
-import type { BonusData } from "../models/bits/bonus";
-import type { SynergyData } from "../models/bits/synergy";
-import { ActivationType, EntryType, WeaponSize, WeaponType } from "../enums";
-import type { RangeData } from "../models/bits/range";
+} from "./commons.js";
+import { ref_params } from "./refs.js";
+import { LancerItem } from "../item/lancer-item.js";
+import type { LancerLICENSE } from "../item/lancer-item.js";
+import type { ActionData } from "../models/bits/action.js";
+import type { BonusData } from "../models/bits/bonus.js";
+import type { SynergyData } from "../models/bits/synergy.js";
+import { ActivationType, EntryType, WeaponSize, WeaponType } from "../enums.js";
+import type { RangeData } from "../models/bits/range.js";
 
 export function item_edit_arrayed_actions(path: string, title: string, options: HelperOptions): string {
   let doc = helper_root_doc(options);

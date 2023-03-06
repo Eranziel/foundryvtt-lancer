@@ -1,16 +1,16 @@
-import { EntryType, ReserveType } from "../../enums";
-import { restrict_enum } from "../../helpers/commons";
-import { dataTransfer } from "../../helpers/slidinghud/is-dragging";
-import type { SourceData } from "../../source-template";
-import type { PackedReserveData } from "../../util/unpacking/packed-types";
-import { unpackDeployable } from "../actors/deployable";
-import { unpackAction } from "../bits/action";
-import { unpackBonus } from "../bits/bonus";
-import { unpackCounter } from "../bits/counter";
-import { unpackSynergy } from "../bits/synergy";
-import { LancerDataModel } from "../shared";
-import type { UnpackContext } from "../shared";
-import { template_bascdt, template_universal_item } from "./shared";
+import { EntryType, ReserveType } from "../../enums.js";
+import { restrict_enum } from "../../helpers/commons.js";
+import { dataTransfer } from "../../helpers/slidinghud/is-dragging.js";
+import type { SourceData } from "../../source-template.js";
+import type { PackedReserveData } from "../../util/unpacking/packed-types.js";
+import { unpackDeployable } from "../actors/deployable.js";
+import { unpackAction } from "../bits/action.js";
+import { unpackBonus } from "../bits/bonus.js";
+import { unpackCounter } from "../bits/counter.js";
+import { unpackSynergy } from "../bits/synergy.js";
+import { LancerDataModel } from "../shared.js";
+import type { UnpackContext } from "../shared.js";
+import { template_bascdt, template_universal_item } from "./shared.js";
 
 const fields: any = foundry.data.fields;
 

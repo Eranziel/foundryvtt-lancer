@@ -1,8 +1,8 @@
-import type { LancerActor } from "../actor/lancer-actor";
-import type { ActionTrackingData, ActionType } from ".";
+import type { LancerActor } from "../actor/lancer-actor.js";
+import type { ActionTrackingData, ActionType } from "./index.js";
 import tippy from "tippy.js";
-import { getActionTrackerOptions } from "../settings";
-import { getActions, modAction, toggleAction, updateActions, _defaultActionData } from "./action-tracker";
+import { getActionTrackerOptions } from "../settings.js";
+import { getActions, modAction, toggleAction, updateActions, _defaultActionData } from "./action-tracker.js";
 
 // TODO: Properly namespace this flag into the system scope
 declare global {
@@ -17,6 +17,8 @@ declare global {
     };
   }
 }
+
+type t = typeof tippy;
 
 export class LancerActionManager extends Application {
   static DEF_LEFT = 600;
@@ -187,21 +189,27 @@ export class LancerActionManager extends Application {
   }
 
   private loadTooltips() {
+    //@ts-expect-error TODO Resolve
     tippy('.action[data-action="protocol"]', {
       content: "Protocol",
     });
+    //@ts-expect-error
     tippy('.action[data-action="full"]', {
       content: "Full Action",
     });
+    //@ts-expect-error
     tippy('.action[data-action="quick"]', {
       content: "Quick Action",
     });
+    //@ts-expect-error
     tippy('.action[data-action="move"]', {
       content: "Movement Action",
     });
+    //@ts-expect-error
     tippy('.action[data-action="reaction"]', {
       content: "Reaction",
     });
+    //@ts-expect-error
     tippy('.action[data-action="free"]', {
       content: "Free Actions",
     });

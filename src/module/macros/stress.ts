@@ -1,7 +1,8 @@
 // Import TypeScript modules
-import { LANCER } from "../config";
-import { LancerActor } from "../actor/lancer-actor";
-import { getAutomationOptions } from "../settings";
+import { LANCER } from "../config.js";
+import { LancerActor } from "../actor/lancer-actor.js";
+import { getAutomationOptions } from "../settings.js";
+import { openSlidingHud } from "../helpers/slidinghud/index.js";
 
 const lp = LANCER.log_prefix;
 
@@ -27,9 +28,8 @@ export async function prepareOverheatMacro(
       ui.notifications!.info("Token heat is within heat cap.");
       return;
     }
-    const { openSlidingHud: open } = await import("../helpers/slidinghud");
     try {
-      await open("stress", { stat: "stress", title: "Overheating", lancerActor: actor });
+      await openSlidingHud("stress", { stat: "stress", title: "Overheating", lancerActor: actor });
     } catch (_e) {
       return;
     }

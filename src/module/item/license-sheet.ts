@@ -1,8 +1,8 @@
-import { LancerItemSheet } from "./item-sheet";
-import { HANDLER_activate_item_context_menus } from "../helpers/item";
-import { EntryType } from "../enums";
-import { LancerItem } from "./lancer-item";
-import type { LancerLICENSE } from "./lancer-item";
+import { LancerItemSheet } from "./item-sheet.js";
+import { HANDLER_activate_item_context_menus } from "../helpers/item.js";
+import { EntryType } from "../enums.js";
+import { LancerItem } from "./lancer-item.js";
+import type { LancerLICENSE } from "./lancer-item.js";
 
 /**
  * Extend the generic Lancer item sheet

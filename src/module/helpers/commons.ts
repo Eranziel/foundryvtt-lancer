@@ -1,12 +1,12 @@
 import type { HelperOptions } from "handlebars";
-import { HTMLEditDialog } from "../apps/text-editor";
-import type { ContextMenuItem, GenControlContext, LancerActorSheetData, LancerItemSheetData } from "../interfaces";
-import * as defaults from "../util/unpacking/defaults";
+import { HTMLEditDialog } from "../apps/text-editor.js";
+import type { ContextMenuItem, GenControlContext, LancerActorSheetData, LancerItemSheetData } from "../interfaces.js";
+import * as defaults from "../util/unpacking/defaults.js";
 
 import tippy from "tippy.js";
-import { ActivationType, MountType, WeaponSize, WeaponType } from "../enums";
-import { LancerActor } from "../actor/lancer-actor";
-import { LancerItem } from "../item/lancer-item";
+import { ActivationType, MountType, WeaponSize, WeaponType } from "../enums.js";
+import { LancerActor } from "../actor/lancer-actor.js";
+import { LancerItem } from "../item/lancer-item.js";
 
 // A shorthand for only including the first string if the second value is truthy
 export function inc_if(val: string, test: any) {
@@ -841,6 +841,7 @@ export function tippy_context_menu(
     }
 
     // Make the instance
+    // @ts-expect-error
     const instance = tippy(_target, {
       appendTo: () => document.body, // "parent",
       placement: "bottom",

@@ -1,16 +1,16 @@
-import { ActivationType, EntryType, FrameEffectUse, MechType, MountType } from "../../enums";
-import { restrict_enum } from "../../helpers/commons";
-import type { SourceData } from "../../source-template";
-import type { PackedFrameData } from "../../util/unpacking/packed-types";
-import { unpackDeployable } from "../actors/deployable";
-import { ActionField, unpackAction } from "../bits/action";
-import { BonusField, unpackBonus } from "../bits/bonus";
-import { CounterField, unpackCounter } from "../bits/counter";
-import { SynergyField, unpackSynergy } from "../bits/synergy";
-import { TagField, unpackTag } from "../bits/tag";
-import { LancerDataModel, LIDField } from "../shared";
-import type { UnpackContext } from "../shared";
-import { template_universal_item, template_licensed } from "./shared";
+import { ActivationType, EntryType, FrameEffectUse, MechType, MountType } from "../../enums.js";
+import { restrict_enum } from "../../helpers/commons.js";
+import type { SourceData } from "../../source-template.js";
+import type { PackedFrameData } from "../../util/unpacking/packed-types.js";
+import { unpackDeployable } from "../actors/deployable.js";
+import { ActionField, unpackAction } from "../bits/action.js";
+import { BonusField, unpackBonus } from "../bits/bonus.js";
+import { CounterField, unpackCounter } from "../bits/counter.js";
+import { SynergyField, unpackSynergy } from "../bits/synergy.js";
+import { TagField, unpackTag } from "../bits/tag.js";
+import { LancerDataModel, LIDField } from "../shared.js";
+import type { UnpackContext } from "../shared.js";
+import { template_universal_item, template_licensed } from "./shared.js";
 
 // @ts-ignore
 const fields: any = foundry.data.fields;

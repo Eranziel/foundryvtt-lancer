@@ -1,8 +1,8 @@
-import { is_actor_type, LancerActor } from "../actor/lancer-actor";
-import type { LancerActorType, LancerDEPLOYABLE, LancerMECH, LancerNPC, LancerPILOT } from "../actor/lancer-actor";
-import { PACK_SCOPE } from "../comp-builder";
-import { friendly_entrytype_name } from "../config";
-import { EntryType } from "../enums";
+import { is_actor_type, LancerActor } from "../actor/lancer-actor.js";
+import type { LancerActorType, LancerDEPLOYABLE, LancerMECH, LancerNPC, LancerPILOT } from "../actor/lancer-actor.js";
+import { PACK_SCOPE } from "../comp-builder.js";
+import { friendly_entrytype_name } from "../config.js";
+import { EntryType } from "../enums.js";
 import type {
   LancerCORE_BONUS,
   LancerFRAME,
@@ -23,11 +23,11 @@ import type {
   LancerSTATUS,
   LancerTALENT,
   LancerWEAPON_MOD,
-} from "../item/lancer-item";
-import type { SystemTemplates } from "../system-template";
-import { FetcherCache } from "./async";
-import { lookupDeployables, lookupLID, lookupOwnedDeployables } from "./lid";
-import { requestImport } from "./requests";
+} from "../item/lancer-item.js";
+import type { SystemTemplates } from "../system-template.js";
+import { FetcherCache } from "./async.js";
+import { lookupDeployables, lookupLID, lookupOwnedDeployables } from "./lid.js";
+import { requestImport } from "./requests.js";
 
 // Sort items. Moves moverand to dest, either before or after depending on third arg
 export async function resort_item(moverand: LancerItem, dest: LancerItem, sort_before = true) {

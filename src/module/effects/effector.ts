@@ -1,8 +1,8 @@
-import { LancerActor } from "../actor/lancer-actor";
-import { EntryType } from "../enums";
-import { LancerItem } from "../item/lancer-item";
-import { LancerActiveEffect } from "./lancer-active-effect";
-import type { LancerActiveEffectConstructorData } from "./lancer-active-effect";
+import { LancerActor } from "../actor/lancer-actor.js";
+import { EntryType } from "../enums.js";
+import { LancerItem } from "../item/lancer-item.js";
+import { LancerActiveEffect } from "./lancer-active-effect.js";
+import type { LancerActiveEffectConstructorData } from "./lancer-active-effect.js";
 
 interface EffectsState {
   data: LancerActiveEffectConstructorData[];

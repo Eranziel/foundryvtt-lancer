@@ -1,5 +1,5 @@
 import type { HelperOptions } from "handlebars";
-import { LancerActiveEffect } from "../effects/lancer-active-effect";
+import { LancerActiveEffect } from "../effects/lancer-active-effect.js";
 
 /**
  * Handlebars helper for a single effect
@@ -21,7 +21,7 @@ export function effect_view(effect: LancerActiveEffect, options: HelperOptions):
  * Handlebars helper for an entire smattering of effects
  */
 export function effect_categories_view(
-  effects: ReturnType<typeof LancerActiveEffect["prepareActiveEffectCategories"]>,
+  effects: ReturnType<(typeof LancerActiveEffect)["prepareActiveEffectCategories"]>,
   options: HelperOptions
 ) {
   let categories = [] as string[];

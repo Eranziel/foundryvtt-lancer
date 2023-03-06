@@ -1,17 +1,17 @@
 // Import TypeScript modules
-import { getAutomationOptions } from "../settings";
-import { LancerItem } from "../item/lancer-item";
-import type { LancerDEPLOYABLE } from "../actor/lancer-actor";
-import type { AccDiffDataSerialized } from "../helpers/acc_diff";
-import { buildActionHTML, buildDeployableHTML } from "../helpers/item";
-import { ActivationOptions, ActivationType } from "../enums";
-import { renderMacroHTML, renderMacroTemplate } from "./_render";
-import { prepareTechMacro, rollTechMacro } from "./tech";
-import { resolve_dotpath } from "../helpers/commons";
-import type { ActionData } from "../models/bits/action";
-import { lookupOwnedDeployables } from "../util/lid";
-import type { LancerMacro } from "./interfaces";
-import { prepareTextMacro } from "./text";
+import { getAutomationOptions } from "../settings.js";
+import { LancerItem } from "../item/lancer-item.js";
+import type { LancerDEPLOYABLE } from "../actor/lancer-actor.js";
+import type { AccDiffDataSerialized } from "../helpers/acc_diff/index.js";
+import { buildActionHTML, buildDeployableHTML } from "../helpers/item.js";
+import { ActivationOptions, ActivationType } from "../enums.js";
+import { renderMacroHTML, renderMacroTemplate } from "./_render.js";
+import { prepareTechMacro, rollTechMacro } from "./tech.js";
+import { resolve_dotpath } from "../helpers/commons.js";
+import type { ActionData } from "../models/bits/action.js";
+import { lookupOwnedDeployables } from "../util/lid.js";
+import type { LancerMacro } from "./interfaces.js";
+import { prepareTextMacro } from "./text.js";
 
 /**
  * Dispatch wrapper for the "action chips" on the bottom of many items, traits, systems, and so on.

@@ -1,4 +1,4 @@
-import { fromLidSync } from "./from-lid";
+import { fromLidSync } from "./from-lid.js";
 
 //@ts-expect-error v10
 CONFIG.TextEditor.enrichers = CONFIG.TextEditor.enrichers.concat([

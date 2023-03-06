@@ -1,9 +1,9 @@
-import { LANCER } from "../config";
+import { LANCER } from "../config.js";
 const lp = LANCER.log_prefix;
-import { importCP, clearCompendiumData, setAllLock } from "../comp-builder";
-import type { IContentPack, IContentPackManifest } from "../util/unpacking/packed-types";
-import { getBaseContentPack, parseContentPack } from "../util/lcp-parser";
-import { info } from "../util/typed-lancerdata";
+import { importCP, clearCompendiumData, setAllLock } from "../comp-builder.js";
+import type { IContentPack, IContentPackManifest } from "../util/unpacking/packed-types.js";
+import { getBaseContentPack, parseContentPack } from "../util/lcp-parser.js";
+import { info } from "../util/typed-lancerdata.js";
 
 export const core_update = info.version;
 
@@ -219,7 +219,7 @@ class LCPManager extends Application {
 
   updateProgressBar(done: number, outOf: number) {
     let percent = Math.ceil((done / outOf) * 100);
-    // @ts-expect-error v9
+    // @ts-expect-error
     SceneNavigation.displayProgressBar({ label: "Importing...", pct: percent });
   }
 }
@@ -247,7 +247,7 @@ export async function updateCore(version: string, manager?: LCPManager) {
     return;
   }
 
-  // @ts-expect-error v9
+  // @ts-expect-error
   SceneNavigation.displayProgressBar({ label: "DONE", pct: 100 });
   await game.settings.set(game.system.id, LANCER.setting_core_data, version);
 }

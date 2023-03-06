@@ -1,8 +1,9 @@
 // Import TypeScript modules
-import { LANCER } from "../config";
-import { LancerActor } from "../actor/lancer-actor";
-import { getAutomationOptions } from "../settings";
-import { prepareTextMacro } from "./text";
+import { LANCER } from "../config.js";
+import { LancerActor } from "../actor/lancer-actor.js";
+import { getAutomationOptions } from "../settings.js";
+import { prepareTextMacro } from "./text.js";
+import { openSlidingHud } from "../helpers/slidinghud/index.js";
 
 const lp = LANCER.log_prefix;
 
@@ -28,9 +29,8 @@ export async function prepareStructureMacro(
       ui.notifications!.info("Token has hp remaining. No need to roll structure.");
       return;
     }
-    const { openSlidingHud: open } = await import("../helpers/slidinghud");
     try {
-      await open("struct", { stat: "structure", title: "Structure Damage", lancerActor: actor });
+      await openSlidingHud("struct", { stat: "structure", title: "Structure Damage", lancerActor: actor });
     } catch (_e) {
       return;
     }

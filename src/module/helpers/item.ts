@@ -3,16 +3,16 @@
 /* ------------------------------------ */
 
 import type { HelperOptions } from "handlebars";
-import { BonusEditDialog } from "../apps/bonus-editor";
-import { TypeIcon } from "../config";
+import { BonusEditDialog } from "../apps/bonus-editor.js";
+import { TypeIcon } from "../config.js";
 import {
   npc_reaction_effect_preview,
   npc_system_effect_preview,
   npc_tech_effect_preview,
   npc_trait_effect_preview,
   npc_weapon_effect_preview,
-} from "./npc";
-import { compact_tag_list } from "./tags";
+} from "./npc.js";
+import { compact_tag_list } from "./tags.js";
 import {
   array_path_edit,
   array_path_edit_changes,
@@ -29,8 +29,8 @@ import {
   std_string_input,
   std_x_of_y,
   tippy_context_menu,
-} from "./commons";
-import { limited_uses_indicator, ref_params, reserve_used_indicator, resolve_ref_element } from "./refs";
+} from "./commons.js";
+import { limited_uses_indicator, ref_params, reserve_used_indicator, resolve_ref_element } from "./refs.js";
 import {
   ActivationOptions,
   ActivationType,
@@ -43,18 +43,18 @@ import {
   SystemType,
   WeaponSize,
   WeaponType,
-} from "../enums";
-import type { LancerActorSheetData, LancerItemSheetData } from "../interfaces";
-import { encodeMacroData } from "../macros";
-import { collapseButton, collapseParam } from "./collapse";
-import type { CollapseRegistry } from "./collapse";
-import { promptText } from "../apps/simple-prompt";
-import { CounterEditForm } from "../apps/counter-editor";
-import { frameToPath } from "../actor/retrograde-map";
-import { Damage } from "../models/bits/damage";
-import { Range } from "../models/bits/range";
-import type { BonusData } from "../models/bits/bonus";
-import { LancerItem } from "../item/lancer-item";
+} from "../enums.js";
+import type { LancerActorSheetData, LancerItemSheetData } from "../interfaces.js";
+import { encodeMacroData } from "../macros.js";
+import { collapseButton, collapseParam } from "./collapse.js";
+import type { CollapseRegistry } from "./collapse.js";
+import { promptText } from "../apps/simple-prompt.js";
+import { CounterEditForm } from "../apps/counter-editor.js";
+import { frameToPath } from "../actor/retrograde-map.js";
+import { Damage } from "../models/bits/damage.js";
+import { Range } from "../models/bits/range.js";
+import type { BonusData } from "../models/bits/bonus.js";
+import { LancerItem } from "../item/lancer-item.js";
 import type {
   LancerFRAME,
   LancerLICENSE,
@@ -68,13 +68,13 @@ import type {
   LancerPILOT_WEAPON,
   LancerRESERVE,
   LancerWEAPON_MOD,
-} from "../item/lancer-item";
-import type { ActionData } from "../models/bits/action";
-import { LancerActor } from "../actor/lancer-actor";
-import type { LancerDEPLOYABLE, LancerMECH } from "../actor/lancer-actor";
-import type { CounterData } from "../models/bits/counter";
-import { slugify } from "../util/lid";
-import type { LancerMacro } from "../macros/interfaces";
+} from "../item/lancer-item.js";
+import type { ActionData } from "../models/bits/action.js";
+import { LancerActor } from "../actor/lancer-actor.js";
+import type { LancerDEPLOYABLE, LancerMECH } from "../actor/lancer-actor.js";
+import type { CounterData } from "../models/bits/counter.js";
+import { slugify } from "../util/lid.js";
+import type { LancerMacro } from "../macros/interfaces.js";
 
 /**
  * Handlebars helper for weapon size selector

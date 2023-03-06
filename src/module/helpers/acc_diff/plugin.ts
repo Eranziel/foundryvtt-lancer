@@ -1,8 +1,8 @@
 import * as t from "io-ts";
-import { LancerItem } from "../../item/lancer-item";
-import { LancerActor } from "../../actor/lancer-actor";
+import { LancerItem } from "../../item/lancer-item.js";
+import { LancerActor } from "../../actor/lancer-actor.js";
 
-import type { AccDiffData, AccDiffTarget } from "./index";
+import type { AccDiffData, AccDiffTarget } from "./index.js";
 
 // Implementing a plugin means implementing
 // * a data object that can compute its view behaviour,

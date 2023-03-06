@@ -1,15 +1,15 @@
 import * as t from "io-ts";
 
-import type { LancerActor } from "../../actor/lancer-actor";
-import type { AccDiffPlugin, AccDiffPluginData, AccDiffPluginCodec } from "./plugin";
-import { enclass, encode, decode } from "./serde";
-import { LancerItem } from "../../item/lancer-item";
+import type { LancerActor } from "../../actor/lancer-actor.js";
+import type { AccDiffPlugin, AccDiffPluginData, AccDiffPluginCodec } from "./plugin.js";
+import { enclass, encode, decode } from "./serde.js";
+import { LancerItem } from "../../item/lancer-item.js";
 
-import Invisibility from "./invisibility";
-import Spotter from "./spotter";
-import { LancerToken } from "../../token";
-import { Tag } from "../../models/bits/tag";
-import { LancerActiveEffect } from "../../effects/lancer-active-effect";
+import Invisibility from "./invisibility.js";
+import Spotter from "./spotter.js";
+import { LancerToken } from "../../token.js";
+import { Tag } from "../../models/bits/tag.js";
+import { LancerActiveEffect } from "../../effects/lancer-active-effect.js";
 
 export enum Cover {
   None = 0,

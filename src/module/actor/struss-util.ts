@@ -1,7 +1,7 @@
-import { StabOptions1, StabOptions2 } from "../enums";
-import { encodeMacroData, renderMacroTemplate } from "../macros";
-import type { SystemData } from "../system-template";
-import { LancerActor } from "./lancer-actor";
+import { StabOptions1, StabOptions2 } from "../enums.js";
+import { encodeMacroData, renderMacroTemplate } from "../macros.js";
+import type { SystemData } from "../system-template.js";
+import { LancerActor } from "./lancer-actor.js";
 
 /**
  * Helper methods for structure, stress, overheating, etc.

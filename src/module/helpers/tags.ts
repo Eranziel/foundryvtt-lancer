@@ -1,5 +1,5 @@
-import type { LancerActorSheetData, LancerItemSheetData } from "../interfaces";
-import { Tag } from "../models/bits/tag";
+import type { LancerActorSheetData, LancerItemSheetData } from "../interfaces.js";
+import { Tag } from "../models/bits/tag.js";
 
 // A small tag display containing just the label and value
 export function compact_tag(tag_path: string, tag: Tag): string {

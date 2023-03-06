@@ -1,5 +1,5 @@
-import type { LancerActor } from "../../actor/lancer-actor";
-import type { SystemTemplates } from "../../system-template";
+import type { LancerActor } from "../../actor/lancer-actor.js";
+import type { SystemTemplates } from "../../system-template.js";
 
 export function getTargets(): LancerActor[] {
   const targets = game.user!.targets;

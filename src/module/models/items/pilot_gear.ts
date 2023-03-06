@@ -1,13 +1,13 @@
-import { EntryType } from "../../enums";
-import type { SourceData } from "../../source-template";
-import type { PackedPilotGearData } from "../../util/unpacking/packed-types";
-import { unpackDeployable } from "../actors/deployable";
-import { unpackAction } from "../bits/action";
-import { unpackBonus } from "../bits/bonus";
-import { unpackSynergy } from "../bits/synergy";
-import { LancerDataModel } from "../shared";
-import type { UnpackContext } from "../shared";
-import { template_universal_item, template_bascdt, template_uses } from "./shared";
+import { EntryType } from "../../enums.js";
+import type { SourceData } from "../../source-template.js";
+import type { PackedPilotGearData } from "../../util/unpacking/packed-types.js";
+import { unpackDeployable } from "../actors/deployable.js";
+import { unpackAction } from "../bits/action.js";
+import { unpackBonus } from "../bits/bonus.js";
+import { unpackSynergy } from "../bits/synergy.js";
+import { LancerDataModel } from "../shared.js";
+import type { UnpackContext } from "../shared.js";
+import { template_universal_item, template_bascdt, template_uses } from "./shared.js";
 
 const fields: any = foundry.data.fields;
 

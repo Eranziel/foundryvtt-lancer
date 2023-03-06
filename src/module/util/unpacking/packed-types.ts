@@ -11,8 +11,8 @@ import {
   SystemType,
   WeaponSize,
   WeaponType,
-} from "../../enums";
-import type { SynergyLocation } from "../../enums";
+} from "../../enums.js";
+import type { SynergyLocation } from "../../enums.js";
 
 export interface PackedActionData {
   name?: string;

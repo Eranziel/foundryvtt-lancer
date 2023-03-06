@@ -1,17 +1,17 @@
 import type { HelperOptions } from "handlebars";
-import { ChipIcons, EntryType, SystemType } from "../enums";
-import { encodeMacroData } from "../macros";
-import { inc_if, resolve_helper_dotpath, array_path_edit, sp_display, effect_box } from "./commons";
-import { mech_loadout_weapon_slot, buildChipHTML, buildDeployablesArray, buildActionArrayHTML } from "./item";
-import { limited_uses_indicator, ref_params, simple_ref_slot } from "./refs";
-import { compact_tag_list } from "./tags";
-import type { LancerMECH, LancerPILOT } from "../actor/lancer-actor";
-import type { SystemData } from "../system-template";
-import type { LancerFRAME, LancerMECH_SYSTEM } from "../item/lancer-item";
-import { collapseButton, collapseParam } from "./collapse";
-import type { CollapseRegistry } from "./collapse";
-import type { LancerMacro } from "../macros/interfaces";
-import { slugify } from "../util/lid";
+import { ChipIcons, EntryType, SystemType } from "../enums.js";
+import { encodeMacroData } from "../macros.js";
+import { inc_if, resolve_helper_dotpath, array_path_edit, sp_display, effect_box } from "./commons.js";
+import { mech_loadout_weapon_slot, buildChipHTML, buildDeployablesArray, buildActionArrayHTML } from "./item.js";
+import { limited_uses_indicator, ref_params, simple_ref_slot } from "./refs.js";
+import { compact_tag_list } from "./tags.js";
+import type { LancerMECH, LancerPILOT } from "../actor/lancer-actor.js";
+import type { SystemData } from "../system-template.js";
+import type { LancerFRAME, LancerMECH_SYSTEM } from "../item/lancer-item.js";
+import { collapseButton, collapseParam } from "./collapse.js";
+import type { CollapseRegistry } from "./collapse.js";
+import type { LancerMacro } from "../macros/interfaces.js";
+import { slugify } from "../util/lid.js";
 
 // A drag-drop slot for a system mount.
 export function mech_system_view(system_path: string, options: HelperOptions): string {

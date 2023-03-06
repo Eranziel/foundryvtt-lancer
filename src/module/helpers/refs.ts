@@ -1,6 +1,6 @@
 import type { HelperOptions } from "handlebars";
-import { TypeIcon } from "../config";
-import { LancerItem } from "../item/lancer-item";
+import { TypeIcon } from "../config.js";
+import { LancerItem } from "../item/lancer-item.js";
 import type {
   LancerItemType,
   LancerMECH_SYSTEM,
@@ -10,18 +10,18 @@ import type {
   LancerPILOT_WEAPON,
   LancerWEAPON_MOD,
   LancerRESERVE,
-} from "../item/lancer-item";
-import { array_path_edit_changes, drilldownDocument, resolve_helper_dotpath } from "./commons";
-import { HANDLER_enable_doc_dropping, HANDLER_enable_dragging } from "./dragdrop";
-import type { FoundryDropData, ResolvedDropData } from "./dragdrop";
-import { framePreview, license_ref, mech_weapon_display as mechWeaponView, npc_feature_preview } from "./item";
-import { mech_system_view as mechSystemView } from "./loadout";
-import type { LancerDoc } from "../util/doc";
-import { EntryType } from "../enums";
-import { LancerActor } from "../actor/lancer-actor";
-import { coreBonusView, skillView, talent_view as talentView } from "./pilot";
-import { LancerActiveEffect } from "../effects/lancer-active-effect";
-import type { SourceData } from "../source-template";
+} from "../item/lancer-item.js";
+import { array_path_edit_changes, drilldownDocument, resolve_helper_dotpath } from "./commons.js";
+import { HANDLER_enable_doc_dropping, HANDLER_enable_dragging } from "./dragdrop.js";
+import type { FoundryDropData, ResolvedDropData } from "./dragdrop.js";
+import { framePreview, license_ref, mech_weapon_display as mechWeaponView, npc_feature_preview } from "./item.js";
+import { mech_system_view as mechSystemView } from "./loadout.js";
+import type { LancerDoc } from "../util/doc.js";
+import { EntryType } from "../enums.js";
+import { LancerActor } from "../actor/lancer-actor.js";
+import { coreBonusView, skillView, talent_view as talentView } from "./pilot.js";
+import { LancerActiveEffect } from "../effects/lancer-active-effect.js";
+import type { SourceData } from "../source-template.js";
 
 /*
 "Ref" manifesto - Things for handling everything in data that is either a ResolvedUuidRefField or ResolvedEmbeddedRefField.

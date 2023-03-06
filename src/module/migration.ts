@@ -1,13 +1,13 @@
 // @ts-nocheck
 // We do not care about this file being super rigorous
-import { LANCER } from "./config";
-import { handleActorExport } from "./helpers/io";
-import { LancerActor } from "./actor/lancer-actor";
-import type { LancerNpcData } from "./actor/lancer-actor";
-import { core_update, LCPIndex, LCPManager, updateCore } from "./apps/lcp-manager";
-import { LancerItem } from "./item/lancer-item";
-import { arrayify_object } from "./helpers/commons";
-import { LancerTokenDocument } from "./token";
+import { LANCER } from "./config.js";
+import { handleActorExport } from "./helpers/io.js";
+import { LancerActor } from "./actor/lancer-actor.js";
+import type { LancerNpcData } from "./actor/lancer-actor.js";
+import { core_update, LCPIndex, LCPManager, updateCore } from "./apps/lcp-manager.js";
+import { LancerItem } from "./item/lancer-item.js";
+import { arrayify_object } from "./helpers/commons.js";
+import { LancerTokenDocument } from "./token.js";
 
 let lp = LANCER.log_prefix;
 

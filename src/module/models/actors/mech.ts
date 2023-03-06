@@ -4,10 +4,10 @@ import {
   template_statuses,
   template_struss,
   template_universal_actor,
-} from "./shared";
+} from "./shared.js";
 
-import { FakeBoundedNumberField, LancerDataModel, EmbeddedRefField, SyncUUIDRefField } from "../shared";
-import { EntryType, FittingSize, MountType } from "../../enums";
+import { FakeBoundedNumberField, LancerDataModel, EmbeddedRefField, SyncUUIDRefField } from "../shared.js";
+import { EntryType, FittingSize, MountType } from "../../enums.js";
 
 const fields: any = foundry.data.fields;
 

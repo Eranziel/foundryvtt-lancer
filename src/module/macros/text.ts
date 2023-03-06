@@ -1,10 +1,10 @@
 // Import TypeScript modules
-import { LANCER } from "../config";
-import { LancerActor } from "../actor/lancer-actor";
-import { renderMacroTemplate } from "./_render";
-import { Tag } from "../models/bits/tag";
-import type { LancerMacro } from "./interfaces";
-import { resolveItemOrActor } from "./util";
+import { LANCER } from "../config.js";
+import { LancerActor } from "../actor/lancer-actor.js";
+import { renderMacroTemplate } from "./_render.js";
+import { Tag } from "../models/bits/tag.js";
+import type { LancerMacro } from "./interfaces.js";
+import { resolveItemOrActor } from "./util.js";
 
 const lp = LANCER.log_prefix;
 

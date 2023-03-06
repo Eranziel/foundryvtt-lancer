@@ -17,18 +17,18 @@ import {
   makeWeaponTypeChecklist,
   makeWeaponSizeChecklist,
   FittingSize,
-} from "../../enums";
+} from "../../enums.js";
 import { nanoid } from "nanoid";
-import { DeployableType } from "../../enums";
-import type { ActionData } from "../../models/bits/action";
-import { generateBonus } from "../../models/bits/bonus";
-import type { BonusData } from "../../models/bits/bonus";
-import type { SourceData, SourceDataType, SourceTemplates } from "../../source-template";
-import type { DamageData } from "../../models/bits/damage";
-import type { ActionTrackingData } from "../../action";
-import type { RangeData } from "../../models/bits/range";
-import type { CounterData } from "../../models/bits/counter";
-import type { SystemTemplates } from "../../system-template";
+import { DeployableType } from "../../enums.js";
+import type { ActionData } from "../../models/bits/action.js";
+import { generateBonus } from "../../models/bits/bonus.js";
+import type { BonusData } from "../../models/bits/bonus.js";
+import type { SourceData, SourceDataType, SourceTemplates } from "../../source-template.js";
+import type { DamageData } from "../../models/bits/damage.js";
+import type { ActionTrackingData } from "../../action/index.js";
+import type { RangeData } from "../../models/bits/range.js";
+import type { CounterData } from "../../models/bits/counter.js";
+import type { SystemTemplates } from "../../system-template.js";
 
 const DEFAULT_DESCRIPTION = "...";
 

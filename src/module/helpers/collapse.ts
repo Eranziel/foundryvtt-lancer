@@ -1,5 +1,5 @@
-import { LancerActor } from "../actor/lancer-actor";
-import { LancerItem } from "../item/lancer-item";
+import { LancerActor } from "../actor/lancer-actor.js";
+import { LancerItem } from "../item/lancer-item.js";
 
 export type CollapseRegistry = { [LID: string]: number };
 

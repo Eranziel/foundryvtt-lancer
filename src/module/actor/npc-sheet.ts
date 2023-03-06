@@ -1,15 +1,15 @@
-import type { GenControlContext } from "../interfaces";
-import { LANCER } from "../config";
-import { LancerActorSheet } from "./lancer-actor-sheet";
-import { prepareItemMacro, prepareStatMacro } from "../macros";
+import type { GenControlContext } from "../interfaces.js";
+import { LANCER } from "../config.js";
+import { LancerActorSheet } from "./lancer-actor-sheet.js";
+import { prepareItemMacro, prepareStatMacro } from "../macros.js";
 import tippy from "tippy.js";
-import { LancerItem } from "../item/lancer-item";
-import type { LancerNPC_FEATURE } from "../item/lancer-item";
-import { insinuate } from "../util/doc";
-import type { LancerNPC } from "./lancer-actor";
-import type { ResolvedDropData } from "../helpers/dragdrop";
-import { EntryType } from "../enums";
-import { lookupLID } from "../util/lid";
+import { LancerItem } from "../item/lancer-item.js";
+import type { LancerNPC_FEATURE } from "../item/lancer-item.js";
+import { insinuate } from "../util/doc.js";
+import type { LancerNPC } from "./lancer-actor.js";
+import type { ResolvedDropData } from "../helpers/dragdrop.js";
+import { EntryType } from "../enums.js";
+import { lookupLID } from "../util/lid.js";
 const lp = LANCER.log_prefix;
 
 /**
@@ -105,6 +105,7 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
   }
 
   private _activateTooltips() {
+    // @ts-expect-error
     tippy('[data-context-menu="toggle"][data-field="Destroyed"]', {
       content: "Right Click to Destroy",
       delay: [300, 100],

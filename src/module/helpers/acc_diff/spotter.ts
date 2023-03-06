@@ -1,9 +1,9 @@
-import { stateless } from "./serde";
-import type { AccDiffPlugin, AccDiffPluginData } from "./plugin";
-import type { AccDiffData, AccDiffTarget } from "./index";
-import type { LancerActor, LancerMECH, LancerPILOT } from "../../actor/lancer-actor";
-import type { LancerToken } from "../../token";
-import type { LancerTALENT } from "../../item/lancer-item";
+import { stateless } from "./serde.js";
+import type { AccDiffPlugin, AccDiffPluginData } from "./plugin.js";
+import type { AccDiffData, AccDiffTarget } from "./index.js";
+import type { LancerActor, LancerMECH, LancerPILOT } from "../../actor/lancer-actor.js";
+import type { LancerToken } from "../../token.js";
+import type { LancerTALENT } from "../../item/lancer-item.js";
 
 // this is an example of a case implemented without defining a full class
 function adjacentSpotter(actor: LancerActor): boolean {

@@ -1,14 +1,14 @@
-import { EntryType } from "../../enums";
-import type { SourceData } from "../../source-template";
-import type { PackedTalentData } from "../../util/unpacking/packed-types";
-import { unpackDeployable } from "../actors/deployable";
-import { ActionField, unpackAction } from "../bits/action";
-import { BonusField, unpackBonus } from "../bits/bonus";
-import { CounterField, unpackCounter } from "../bits/counter";
-import { SynergyField, unpackSynergy } from "../bits/synergy";
-import { LancerDataModel, LIDField } from "../shared";
-import type { UnpackContext } from "../shared";
-import { template_universal_item, template_bascdt, template_destructible, template_licensed } from "./shared";
+import { EntryType } from "../../enums.js";
+import type { SourceData } from "../../source-template.js";
+import type { PackedTalentData } from "../../util/unpacking/packed-types.js";
+import { unpackDeployable } from "../actors/deployable.js";
+import { ActionField, unpackAction } from "../bits/action.js";
+import { BonusField, unpackBonus } from "../bits/bonus.js";
+import { CounterField, unpackCounter } from "../bits/counter.js";
+import { SynergyField, unpackSynergy } from "../bits/synergy.js";
+import { LancerDataModel, LIDField } from "../shared.js";
+import type { UnpackContext } from "../shared.js";
+import { template_universal_item, template_bascdt, template_destructible, template_licensed } from "./shared.js";
 
 const fields: any = foundry.data.fields;
 

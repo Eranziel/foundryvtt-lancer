@@ -1,5 +1,5 @@
-import { LancerActor } from "../actor/lancer-actor";
-import { encodeMacroData } from "../macros";
+import { LancerActor } from "../actor/lancer-actor.js";
+import { encodeMacroData } from "../macros.js";
 
 /**
  *

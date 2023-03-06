@@ -1,8 +1,8 @@
-import { LancerActor } from "../actor/lancer-actor";
-import type { LancerDEPLOYABLE } from "../actor/lancer-actor";
-import { FetcherCache } from "./async";
-import { LancerItem } from "../item/lancer-item";
-import { EntryType } from "../enums";
+import { LancerActor } from "../actor/lancer-actor.js";
+import type { LancerDEPLOYABLE } from "../actor/lancer-actor.js";
+import { FetcherCache } from "./async.js";
+import { LancerItem } from "../item/lancer-item.js";
+import { EntryType } from "../enums.js";
 
 /**
  * Lookup all documents with the associated lid in the given types.
@@ -70,8 +70,7 @@ export function lookupOwnedDeployables(owner: LancerActor): Record<string, Lance
   }
   let foundDeployables = game.actors!.filter(a => !!(a.is_deployable() && a.system.owner?.value == owner));
   let result: Record<string, LancerDEPLOYABLE> = {};
-  // @ts-expect-error v10
-  for (let dep of foundDeployables as LancerDEPLOYABLE[]) {
+  for (let dep of foundDeployables as unknown as LancerDEPLOYABLE[]) {
     result[dep.system.lid] = dep;
   }
   return result;

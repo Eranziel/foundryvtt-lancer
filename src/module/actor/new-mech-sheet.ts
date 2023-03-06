@@ -1,4 +1,5 @@
-import { SvelteApplication } from "@typhonjs-fvtt/runtime/svelte/applicationzfake";
+// import { SvelteApplication } from "@typhonjs-fvtt/runtime/_dist/svelte/application";
+import { SvelteApplication } from "@typhonjs-fvtt/runtime/svelte/application";
 
 import MechSheetApp from "./app-mech-sheet.svelte";
 /*
@@ -8,7 +9,7 @@ import AppStateSessionApp        from './app-state/session-storage/AppStateSessi
 import ChatDialogContent         from './chatmessage/ChatDialogContent.svelte';
 import ContentEditableApp        from './editor/content-editable/ContentEditableApp.js';
 import BasicDocumentApp          from './document/basic/BasicDocumentApp.js';
-import EmbeddedDocApplication    from "./document/embedded-collection/EmbeddedDocApplication.js";
+import EmbeddedDocApplication    from "./document/embedded-collection/EmbeddedDocApplication.js.js";
 import HeaderButtonsApplication  from './header-buttons/HeaderButtonsApplication.js';
 import HelloFoundryApplication   from './hello/HelloFoundryApplication.js';
 import PositionApplication       from './position/app-control/PositionApplication.js';

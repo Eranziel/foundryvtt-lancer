@@ -1,20 +1,20 @@
 // Import TypeScript modules
-import { LANCER } from "../config";
-import { getAutomationOptions } from "../settings";
-import { LancerItem } from "../item/lancer-item";
-import { LancerActor } from "../actor/lancer-actor";
-import { checkForHit } from "../helpers/automation/targeting";
-import { AccDiffData } from "../helpers/acc_diff";
-import type { RollModifier } from "../helpers/acc_diff";
-import { resolveItemOrActor } from "./util";
-import { encodeMacroData } from "./encode";
-import { renderMacroTemplate } from "./_render";
-import { DamageType } from "../enums";
-import type { SystemTemplates } from "../system-template";
-import type { SourceData } from "../source-template";
-import type { LancerMacro } from "./interfaces";
-import { openSlidingHud } from "../helpers/slidinghud";
-import { Tag } from "../models/bits/tag";
+import { LANCER } from "../config.js";
+import { getAutomationOptions } from "../settings.js";
+import { LancerItem } from "../item/lancer-item.js";
+import { LancerActor } from "../actor/lancer-actor.js";
+import { checkForHit } from "../helpers/automation/targeting.js";
+import { AccDiffData } from "../helpers/acc_diff/index.js";
+import type { RollModifier } from "../helpers/acc_diff/index.js";
+import { resolveItemOrActor } from "./util.js";
+import { encodeMacroData } from "./encode.js";
+import { renderMacroTemplate } from "./_render.js";
+import { DamageType } from "../enums.js";
+import type { SystemTemplates } from "../system-template.js";
+import type { SourceData } from "../source-template.js";
+import type { LancerMacro } from "./interfaces.js";
+import { openSlidingHud } from "../helpers/slidinghud/index.js";
+import { Tag } from "../models/bits/tag.js";
 
 function rollStr(bonus: number, total: number): string {
   let modStr = "";

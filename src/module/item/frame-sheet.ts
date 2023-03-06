@@ -1,7 +1,7 @@
-import { EntryType } from "../enums";
-import type { LancerItemSheetData } from "../interfaces";
-import { lookupDeployables, lookupLID } from "../util/lid";
-import { LancerItemSheet } from "./item-sheet";
+import { EntryType } from "../enums.js";
+import type { LancerItemSheetData } from "../interfaces.js";
+import { lookupDeployables, lookupLID } from "../util/lid.js";
+import { LancerItemSheet } from "./item-sheet.js";
 
 /**
  * Extend the generic Lancer item sheet

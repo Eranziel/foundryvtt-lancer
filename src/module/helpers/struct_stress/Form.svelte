@@ -2,7 +2,7 @@
 
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
-  import type { LancerActor } from "../../actor/lancer-actor";
+  import type { LancerActor } from "../../actor/lancer-actor.js";
 
   export let title: string;
   export let stat: "structure" | "stress";

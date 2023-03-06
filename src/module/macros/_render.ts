@@ -1,6 +1,6 @@
 // Import TypeScript modules
 import { nanoid } from "nanoid";
-import type { LancerActor } from "../actor/lancer-actor";
+import type { LancerActor } from "../actor/lancer-actor.js";
 
 /**
  *
@@ -32,7 +32,10 @@ export async function renderMacroTemplate(actor: LancerActor | undefined, templa
 
 export async function renderMacroHTML(actor: LancerActor | undefined, html: HTMLElement | string, roll?: Roll) {
   const rollMode = game.settings.get("core", "rollMode");
-  const whisper_roll = rollMode !== "roll" ? ChatMessage.getWhisperRecipients("GM").filter(u => u.active) : undefined;
+  const whisper_roll =
+    rollMode !== CONST.DICE_ROLL_MODES.PUBLIC
+      ? ChatMessage.getWhisperRecipients("GM").filter(u => u.active)
+      : undefined;
   let chat_data = {
     type: roll ? CONST.CHAT_MESSAGE_TYPES.ROLL : CONST.CHAT_MESSAGE_TYPES.IC,
     roll: roll,

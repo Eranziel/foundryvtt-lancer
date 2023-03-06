@@ -1,6 +1,6 @@
 import type HUDZone from "./SlidingHUDZone.svelte";
-import type { AccDiffData } from "../acc_diff";
-import type { StructStressData } from "../struct_stress/data";
+import type { AccDiffData } from "../acc_diff/index.js";
+import type { StructStressData } from "../struct_stress/data.js";
 
 let hud: HUDZone;
 // Look - I don't really know enough typescript to get it right,

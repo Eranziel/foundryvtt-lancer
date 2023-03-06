@@ -1,8 +1,8 @@
 // Import TypeScript modules
-import { LANCER } from "../config";
-import { StabOptions1, StabOptions2 } from "../enums";
-import { prepareTextMacro } from "./text";
-import { LancerActor } from "../actor/lancer-actor";
+import { LANCER } from "../config.js";
+import { StabOptions1, StabOptions2 } from "../enums.js";
+import { prepareTextMacro } from "./text.js";
+import { LancerActor } from "../actor/lancer-actor.js";
 
 const lp = LANCER.log_prefix;
 

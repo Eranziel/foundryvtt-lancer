@@ -1,6 +1,6 @@
-import { LancerActor } from "../actor/lancer-actor";
-import { resolve_dotpath } from "../helpers/commons";
-import { LancerItem } from "../item/lancer-item";
+import { LancerActor } from "../actor/lancer-actor.js";
+import { resolve_dotpath } from "../helpers/commons.js";
+import { LancerItem } from "../item/lancer-item.js";
 
 /**
  * A helper Dialog subclass for editing html descriptions, which will automatically fixup html written to it (so the user doesn't just nuke themselves)

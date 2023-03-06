@@ -1,8 +1,8 @@
-import { LancerActorSheet } from "./lancer-actor-sheet";
-import { LancerActor } from "./lancer-actor";
-import { LancerItem } from "../item/lancer-item";
-import type { ResolvedDropData } from "../helpers/dragdrop";
-import { EntryType } from "../enums";
+import { LancerActorSheet } from "./lancer-actor-sheet.js";
+import { LancerActor } from "./lancer-actor.js";
+import { LancerItem } from "../item/lancer-item.js";
+import type { ResolvedDropData } from "../helpers/dragdrop.js";
+import { EntryType } from "../enums.js";
 
 /**
  * Extend the basic ActorSheet

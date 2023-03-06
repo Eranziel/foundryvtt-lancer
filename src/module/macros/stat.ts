@@ -1,14 +1,14 @@
 // Import TypeScript modules
-import { LANCER } from "../config";
-import { LancerActor } from "../actor/lancer-actor";
-import { resolve_dotpath } from "../helpers/commons";
-import { renderMacroTemplate } from "./_render";
-import type { LancerMacro } from "./interfaces";
-import { LancerItem } from "../item/lancer-item";
-import type { LancerSKILL } from "../item/lancer-item";
-import { resolveItemOrActor } from "./util";
-import { AccDiffData } from "../helpers/acc_diff";
-import { openSlidingHud } from "../helpers/slidinghud";
+import { LANCER } from "../config.js";
+import { LancerActor } from "../actor/lancer-actor.js";
+import { resolve_dotpath } from "../helpers/commons.js";
+import { renderMacroTemplate } from "./_render.js";
+import type { LancerMacro } from "./interfaces.js";
+import { LancerItem } from "../item/lancer-item.js";
+import type { LancerSKILL } from "../item/lancer-item.js";
+import { resolveItemOrActor } from "./util.js";
+import { AccDiffData } from "../helpers/acc_diff/index.js";
+import { openSlidingHud } from "../helpers/slidinghud/index.js";
 
 const lp = LANCER.log_prefix;
 

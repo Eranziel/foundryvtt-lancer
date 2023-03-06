@@ -1,6 +1,6 @@
 // Import TypeScript modules
-import { prepareTextMacro } from "./text";
-import { LancerActor } from "../actor/lancer-actor";
+import { prepareTextMacro } from "./text.js";
+import { LancerActor } from "../actor/lancer-actor.js";
 
 export function prepareFullRepairMacro(actor_: string | LancerActor) {
   // Determine which Actor to speak as

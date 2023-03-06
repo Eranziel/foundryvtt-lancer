@@ -1,9 +1,8 @@
 import * as t from "io-ts";
-import { isLeft, right, map } from "fp-ts/Either";
-import type { Either } from "fp-ts/Either";
+import { either } from "fp-ts";
 
-function unwrap<E, A>(e: Either<E, A>): A {
-  if (isLeft(e)) {
+function unwrap<E, A>(e: either.Either<E, A>): A {
+  if (either.isLeft(e)) {
     throw e.left;
   } else {
     return e.right;
@@ -17,7 +16,7 @@ export function enclass<Raw, Klass extends { get raw(): Raw }, I, O>(
   return new t.Type<Klass, O, I>(
     Constructor.name,
     (v: unknown): v is Klass => v instanceof Constructor,
-    data => map((d: Raw) => new Constructor(d))(codec.decode(data)),
+    data => either.map((d: Raw) => new Constructor(d))(codec.decode(data)),
     inst => codec.encode(inst.raw)
   );
 }
@@ -26,7 +25,7 @@ export function stateless<T>(name: string, predicate: t.Is<T>, synthesise: () =>
   return new t.Type<T, null, unknown>(
     name,
     predicate,
-    _ => right(synthesise()),
+    _ => either.right(synthesise()),
     _ => null
   );
 }

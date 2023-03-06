@@ -1,20 +1,20 @@
 // Import TypeScript modules
-import { LANCER } from "../config";
-import { LancerActor } from "../actor/lancer-actor";
-import type { LancerMECH, LancerNPC } from "../actor/lancer-actor";
-import { AccDiffData } from "../helpers/acc_diff";
-import { encodeMacroData } from "./encode";
-import { resolveItemOrActor } from "./util";
-import { renderMacroTemplate } from "./_render";
-import { attackRolls, checkTargets } from "./attack";
-import type { SystemTemplates } from "../system-template";
-import type { LancerMacro } from "./interfaces";
-import { openSlidingHud } from "../helpers/slidinghud";
-import { LancerItem } from "../item/lancer-item";
-import type { ActionData } from "../models/bits/action";
-import { resolve_dotpath } from "../helpers/commons";
-import { ActivationType } from "../enums";
-import { Tag } from "../models/bits/tag";
+import { LANCER } from "../config.js";
+import { LancerActor } from "../actor/lancer-actor.js";
+import type { LancerMECH, LancerNPC } from "../actor/lancer-actor.js";
+import { AccDiffData } from "../helpers/acc_diff/index.js";
+import { encodeMacroData } from "./encode.js";
+import { resolveItemOrActor } from "./util.js";
+import { renderMacroTemplate } from "./_render.js";
+import { attackRolls, checkTargets } from "./attack.js";
+import type { SystemTemplates } from "../system-template.js";
+import type { LancerMacro } from "./interfaces.js";
+import { openSlidingHud } from "../helpers/slidinghud/index.js";
+import { LancerItem } from "../item/lancer-item.js";
+import type { ActionData } from "../models/bits/action.js";
+import { resolve_dotpath } from "../helpers/commons.js";
+import { ActivationType } from "../enums.js";
+import { Tag } from "../models/bits/tag.js";
 
 const lp = LANCER.log_prefix;
 

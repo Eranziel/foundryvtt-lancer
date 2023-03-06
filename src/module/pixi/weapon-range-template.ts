@@ -3,8 +3,8 @@
  * https://gitlab.com/foundrynet/dnd5e/-/blob/master/module/pixi/ability-template.js
  */
 
-import { RangeType } from "../enums";
-import type { RangeData } from "../models/bits/range";
+import { RangeType } from "../enums.js";
+import type { RangeData } from "../models/bits/range.js";
 
 /**
  * MeasuredTemplate sublcass to create a placeable template on weapon attacks

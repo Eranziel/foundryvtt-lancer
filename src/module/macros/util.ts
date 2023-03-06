@@ -1,6 +1,6 @@
-import { LANCER } from "../config";
-import { LancerActor } from "../actor/lancer-actor";
-import { LancerItem } from "../item/lancer-item";
+import { LANCER } from "../config.js";
+import { LancerActor } from "../actor/lancer-actor.js";
+import { LancerItem } from "../item/lancer-item.js";
 
 const lp = LANCER.log_prefix;
 

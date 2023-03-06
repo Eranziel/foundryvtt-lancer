@@ -1,8 +1,8 @@
 // Namespace configuration Values
 
-import type { LancerActorType } from "./actor/lancer-actor";
-import { EntryType, NpcFeatureType } from "./enums";
-import type { LancerItemType } from "./item/lancer-item";
+import type { LancerActorType } from "./actor/lancer-actor.js";
+import { EntryType, NpcFeatureType } from "./enums.js";
+import type { LancerItemType } from "./item/lancer-item.js";
 
 const ASCII = `
 ╭╮╱╱╭━━━┳━╮╱╭┳━━━┳━━━┳━━━╮ 

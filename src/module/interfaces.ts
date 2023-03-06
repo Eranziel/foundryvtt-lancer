@@ -1,12 +1,12 @@
-import { LancerItem } from "./item/lancer-item";
-import type { LancerItemType } from "./item/lancer-item";
-import type { LancerLICENSE } from "./item/lancer-item";
-import { LancerActor } from "./actor/lancer-actor";
-import type { LancerActorType } from "./actor/lancer-actor";
-import type { LancerDEPLOYABLE, LancerMECH, LancerPILOT } from "./actor/lancer-actor";
-import { LancerActiveEffect } from "./effects/lancer-active-effect";
-import type { SystemDataType } from "./system-template";
-import type { CollapseRegistry } from "./helpers/collapse";
+import { LancerItem } from "./item/lancer-item.js";
+import type { LancerItemType } from "./item/lancer-item.js";
+import type { LancerLICENSE } from "./item/lancer-item.js";
+import { LancerActor } from "./actor/lancer-actor.js";
+import type { LancerActorType } from "./actor/lancer-actor.js";
+import type { LancerDEPLOYABLE, LancerMECH, LancerPILOT } from "./actor/lancer-actor.js";
+import { LancerActiveEffect } from "./effects/lancer-active-effect.js";
+import type { SystemDataType } from "./system-template.js";
+import type { CollapseRegistry } from "./helpers/collapse.js";
 
 // ------------------------------------------------------
 // |       SHEET DATA TYPES                             |

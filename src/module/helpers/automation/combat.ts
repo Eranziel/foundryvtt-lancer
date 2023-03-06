@@ -1,9 +1,9 @@
 import { LancerCombat } from "lancer-initiative";
-import { modAction } from "../../action/action-tracker";
-import { LancerActor } from "../../actor/lancer-actor";
-import { prepareChargeMacro } from "../../macros";
-import { prepareActionTrackMacro } from "../../macros/action-track";
-import { getActionTrackerOptions, getAutomationOptions } from "../../settings";
+import { modAction } from "../../action/action-tracker.js";
+import { LancerActor } from "../../actor/lancer-actor.js";
+import { prepareChargeMacro } from "../../macros.js";
+import { prepareActionTrackMacro } from "../../macros/action-track.js";
+import { getActionTrackerOptions, getAutomationOptions } from "../../settings.js";
 
 export async function handleCombatUpdate(...[combat, changed]: Parameters<Hooks.UpdateDocument<typeof Combat>>) {
   if (game.user?.isGM) {

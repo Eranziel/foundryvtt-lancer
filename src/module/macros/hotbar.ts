@@ -1,9 +1,9 @@
 // Import TypeScript modules
-import { LANCER } from "../config";
-import { EntryType, NpcFeatureType } from "../enums";
+import { LANCER } from "../config.js";
+import { EntryType, NpcFeatureType } from "../enums.js";
 // Import JSON data
 
-import { isValidEncodedMacro } from "./encode";
+import { isValidEncodedMacro } from "./encode.js";
 
 const lp = LANCER.log_prefix;
 

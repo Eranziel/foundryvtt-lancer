@@ -1,4 +1,4 @@
-import type { ActionTrackingData } from "./action";
+import type { ActionTrackingData } from "./action/index.js";
 import {
   ActivationType,
   DeployableType,
@@ -14,15 +14,15 @@ import {
   SystemType,
   WeaponSize,
   WeaponType,
-} from "./enums";
-import type { WeaponSizeChecklist, WeaponTypeChecklist } from "./enums";
-import type { ActionData } from "./models/bits/action";
-import type { BonusData } from "./models/bits/bonus";
-import type { CounterData } from "./models/bits/counter";
-import type { DamageData } from "./models/bits/damage";
-import type { RangeData } from "./models/bits/range";
-import type { SynergyData } from "./models/bits/synergy";
-import type { TagData } from "./models/bits/tag";
+} from "./enums.js";
+import type { WeaponSizeChecklist, WeaponTypeChecklist } from "./enums.js";
+import type { ActionData } from "./models/bits/action.js";
+import type { BonusData } from "./models/bits/bonus.js";
+import type { CounterData } from "./models/bits/counter.js";
+import type { DamageData } from "./models/bits/damage.js";
+import type { RangeData } from "./models/bits/range.js";
+import type { SynergyData } from "./models/bits/synergy.js";
+import type { TagData } from "./models/bits/tag.js";
 
 export type DataTypeMap = { [key in EntryType]: object };
 

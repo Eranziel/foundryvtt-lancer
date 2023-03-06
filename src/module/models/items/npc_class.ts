@@ -1,9 +1,9 @@
-import { EntryType } from "../../enums";
-import type { SourceData } from "../../source-template";
-import type { PackedNpcClassData } from "../../util/unpacking/packed-types";
-import { LancerDataModel, LIDField } from "../shared";
-import type { UnpackContext } from "../shared";
-import { template_universal_item } from "./shared";
+import { EntryType } from "../../enums.js";
+import type { SourceData } from "../../source-template.js";
+import type { PackedNpcClassData } from "../../util/unpacking/packed-types.js";
+import { LancerDataModel, LIDField } from "../shared.js";
+import type { UnpackContext } from "../shared.js";
+import { template_universal_item } from "./shared.js";
 
 const fields: any = foundry.data.fields;
 

@@ -1,35 +1,35 @@
-import { LANCER } from "./config";
+import { LANCER } from "./config.js";
 const lp = LANCER.log_prefix;
-import { LCPIndex } from "./apps/lcp-manager";
-import { get_pack } from "./util/doc";
-import type { LancerActor } from "./actor/lancer-actor";
-import { LancerItem } from "./item/lancer-item";
-import { EntryType } from "./enums";
+import { LCPIndex } from "./apps/lcp-manager.js";
+import { get_pack } from "./util/doc.js";
+import type { LancerActor } from "./actor/lancer-actor.js";
+import { LancerItem } from "./item/lancer-item.js";
+import { EntryType } from "./enums.js";
 import type {
   IContentPack,
   PackedPilotArmorData,
   PackedPilotGearData,
   PackedPilotWeaponData,
-} from "./util/unpacking/packed-types";
-import type { UnpackContext } from "./models/shared";
-import { unpackMechWeapon } from "./models/items/mech_weapon";
-import { unpackFrame } from "./models/items/frame";
-import { unpackMechSystem } from "./models/items/mech_system";
-import { unpackCoreBonus } from "./models/items/core_bonus";
-import { unpackTagTemplate } from "./models/bits/tag";
-import type { TagTemplateData } from "./models/bits/tag";
-import { unpackTalent } from "./models/items/talent";
-import { unpackPilotArmor } from "./models/items/pilot_armor";
-import { unpackPilotGear } from "./models/items/pilot_gear";
-import { unpackPilotWeapon } from "./models/items/pilot_weapon";
-import { unpackSkill } from "./models/items/skill";
-import { unpackLicense } from "./models/items/license";
-import { unpackNpcClass } from "./models/items/npc_class";
-import { unpackNpcTemplate } from "./models/items/npc_template";
-import { unpackNpcFeature } from "./models/items/npc_feature";
-import { unpackWeaponMod } from "./models/items/weapon_mod";
-import { unpackReserve } from "./models/items/reserve";
-import { unpackStatus } from "./models/items/status";
+} from "./util/unpacking/packed-types.js";
+import type { UnpackContext } from "./models/shared.js";
+import { unpackMechWeapon } from "./models/items/mech_weapon.js";
+import { unpackFrame } from "./models/items/frame.js";
+import { unpackMechSystem } from "./models/items/mech_system.js";
+import { unpackCoreBonus } from "./models/items/core_bonus.js";
+import { unpackTagTemplate } from "./models/bits/tag.js";
+import type { TagTemplateData } from "./models/bits/tag.js";
+import { unpackTalent } from "./models/items/talent.js";
+import { unpackPilotArmor } from "./models/items/pilot_armor.js";
+import { unpackPilotGear } from "./models/items/pilot_gear.js";
+import { unpackPilotWeapon } from "./models/items/pilot_weapon.js";
+import { unpackSkill } from "./models/items/skill.js";
+import { unpackLicense } from "./models/items/license.js";
+import { unpackNpcClass } from "./models/items/npc_class.js";
+import { unpackNpcTemplate } from "./models/items/npc_template.js";
+import { unpackNpcFeature } from "./models/items/npc_feature.js";
+import { unpackWeaponMod } from "./models/items/weapon_mod.js";
+import { unpackReserve } from "./models/items/reserve.js";
+import { unpackStatus } from "./models/items/status.js";
 
 export const PACK_SCOPE = "world";
 

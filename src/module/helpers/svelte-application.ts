@@ -1,10 +1,10 @@
-import type SvelteComponent from "*.svelte";
+import type { SvelteComponent } from "svelte";
 
 type SvelteAppOptions = Application.Options & {
   intro?: boolean;
 };
 
-export default class SvelteApp<DataModel extends Record<string, any>> extends Application {
+export default class SvelteApp<DataModel extends Record<string, any>> extends Application<SvelteAppOptions> {
   klass: typeof SvelteComponent;
   data: DataModel;
   component?: SvelteComponent;

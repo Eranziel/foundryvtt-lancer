@@ -1,5 +1,5 @@
-import type { LancerActor } from "../actor/lancer-actor";
-import type { LancerItem } from "../item/lancer-item";
+import type { LancerActor } from "../actor/lancer-actor.js";
+import type { LancerItem } from "../item/lancer-item.js";
 
 /**
  * Interface for the destructured options to fromLid and fromLidSync.

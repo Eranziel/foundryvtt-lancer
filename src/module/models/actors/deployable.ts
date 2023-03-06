@@ -1,17 +1,17 @@
-import { template_heat, template_statuses, template_universal_actor } from "./shared";
+import { template_heat, template_statuses, template_universal_actor } from "./shared.js";
 
-import { LancerDataModel, SyncUUIDRefField } from "../shared";
-import type { UnpackContext } from "../shared";
-import type { PackedDeployableData } from "../../util/unpacking/packed-types";
-import type { SourceData } from "../../source-template";
-import { ActionField, unpackAction } from "../bits/action";
-import { unpackBonus } from "../bits/bonus";
-import { CounterField, unpackCounter } from "../bits/counter";
-import { SynergyField, unpackSynergy } from "../bits/synergy";
-import { TagField, unpackTag } from "../bits/tag";
-import { restrict_enum } from "../../helpers/commons";
-import { ActivationType, DeployableType, EntryType } from "../../enums";
-import { slugify } from "../../util/lid";
+import { LancerDataModel, SyncUUIDRefField } from "../shared.js";
+import type { UnpackContext } from "../shared.js";
+import type { PackedDeployableData } from "../../util/unpacking/packed-types.js";
+import type { SourceData } from "../../source-template.js";
+import { ActionField, unpackAction } from "../bits/action.js";
+import { unpackBonus } from "../bits/bonus.js";
+import { CounterField, unpackCounter } from "../bits/counter.js";
+import { SynergyField, unpackSynergy } from "../bits/synergy.js";
+import { TagField, unpackTag } from "../bits/tag.js";
+import { restrict_enum } from "../../helpers/commons.js";
+import { ActivationType, DeployableType, EntryType } from "../../enums.js";
+import { slugify } from "../../util/lid.js";
 
 const fields: any = foundry.data.fields;
 

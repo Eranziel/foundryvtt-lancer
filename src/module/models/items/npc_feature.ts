@@ -1,20 +1,20 @@
-import { EntryType, NpcFeatureType, NpcTechType } from "../../enums";
-import { restrict_enum } from "../../helpers/commons";
-import type { SourceData, SourceTemplates } from "../../source-template";
+import { EntryType, NpcFeatureType, NpcTechType } from "../../enums.js";
+import { restrict_enum } from "../../helpers/commons.js";
+import type { SourceData, SourceTemplates } from "../../source-template.js";
 import type {
   PackedNpcReactionData,
   PackedNpcSystemData,
   PackedNpcTechData,
   PackedNpcTraitData,
   PackedNpcWeaponData,
-} from "../../util/unpacking/packed-types";
-import { DamageField, unpackDamage } from "../bits/damage";
-import type { DamageData } from "../bits/damage";
-import { RangeField, unpackRange } from "../bits/range";
-import { TagField, unpackTag } from "../bits/tag";
-import { LancerDataModel } from "../shared";
-import type { UnpackContext } from "../shared";
-import { template_destructible, template_universal_item, template_uses } from "./shared";
+} from "../../util/unpacking/packed-types.js";
+import { DamageField, unpackDamage } from "../bits/damage.js";
+import type { DamageData } from "../bits/damage.js";
+import { RangeField, unpackRange } from "../bits/range.js";
+import { TagField, unpackTag } from "../bits/tag.js";
+import { LancerDataModel } from "../shared.js";
+import type { UnpackContext } from "../shared.js";
+import { template_destructible, template_universal_item, template_uses } from "./shared.js";
 
 const fields: any = foundry.data.fields;
 

@@ -1,32 +1,32 @@
-import { LANCER } from "../config";
-import { HANDLER_activate_general_controls, HANDLER_activate_popout_text_editor } from "../helpers/commons";
-import { HANDLER_enable_doc_dropping } from "../helpers/dragdrop";
-import type { ResolvedDropData } from "../helpers/dragdrop";
-import { HANDLER_activate_counter_listeners, HANDLER_activate_plus_minus_buttons } from "../helpers/item";
+import { LANCER } from "../config.js";
+import { HANDLER_activate_general_controls, HANDLER_activate_popout_text_editor } from "../helpers/commons.js";
+import { HANDLER_enable_doc_dropping } from "../helpers/dragdrop.js";
+import type { ResolvedDropData } from "../helpers/dragdrop.js";
+import { HANDLER_activate_counter_listeners, HANDLER_activate_plus_minus_buttons } from "../helpers/item.js";
 import {
   HANDLER_activate_ref_dragging,
   HANDLER_activate_ref_slot_dropping,
   click_evt_open_ref,
   HANDLER_activate_uses_editor,
-} from "../helpers/refs";
-import type { GenControlContext, LancerActorSheetData } from "../interfaces";
-import { LancerItem } from "../item/lancer-item";
-import { LancerActor } from "./lancer-actor";
-import type { LancerActorType } from "./lancer-actor";
-import { prepareActivationMacro, prepareChargeMacro, prepareItemMacro, runEncodedMacro } from "../macros";
-import { ActivationOptions } from "../enums";
-import { applyCollapseListeners, CollapseHandler, initializeCollapses } from "../helpers/collapse";
-import { addExportButton } from "../helpers/io";
-import type { ActionType } from "../action";
-import { InventoryDialog } from "../apps/inventory";
-import { HANDLER_activate_item_context_menus, HANDLER_activate_edit_counter } from "../helpers/item";
-import { getActionTrackerOptions } from "../settings";
-import { modAction } from "../action/action-tracker";
-import { insinuate } from "../util/doc";
-import type { PrototypeTokenData } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs";
-import { LancerActiveEffect } from "../effects/lancer-active-effect";
-import type { LancerMacro } from "../macros/interfaces";
-import { lookupOwnedDeployables } from "../util/lid";
+} from "../helpers/refs.js";
+import type { GenControlContext, LancerActorSheetData } from "../interfaces.js";
+import { LancerItem } from "../item/lancer-item.js";
+import { LancerActor } from "./lancer-actor.js";
+import type { LancerActorType } from "./lancer-actor.js";
+import { prepareActivationMacro, prepareChargeMacro, prepareItemMacro, runEncodedMacro } from "../macros.js";
+import { ActivationOptions } from "../enums.js";
+import { applyCollapseListeners, CollapseHandler, initializeCollapses } from "../helpers/collapse.js";
+import { addExportButton } from "../helpers/io.js";
+import type { ActionType } from "../action/index.js";
+import { InventoryDialog } from "../apps/inventory.js";
+import { HANDLER_activate_item_context_menus, HANDLER_activate_edit_counter } from "../helpers/item.js";
+import { getActionTrackerOptions } from "../settings.js";
+import { modAction } from "../action/action-tracker.js";
+import { insinuate } from "../util/doc.js";
+import type { PrototypeTokenData } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs/prototypeTokenData.js";
+import { LancerActiveEffect } from "../effects/lancer-active-effect.js";
+import type { LancerMacro } from "../macros/interfaces.js";
+import { lookupOwnedDeployables } from "../util/lid.js";
 const lp = LANCER.log_prefix;
 
 /**

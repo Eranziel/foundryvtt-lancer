@@ -1,4 +1,4 @@
-import { LancerActor } from "../../actor/lancer-actor";
+import { LancerActor } from "../../actor/lancer-actor.js";
 
 export interface StructStressData {
   title: string;

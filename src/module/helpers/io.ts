@@ -1,12 +1,12 @@
 // TODO: This needs a complete once-over as a lot of the stuff in here appears broken
 import { nanoid } from "nanoid";
-import type { LancerActor } from "../actor/lancer-actor";
+import type { LancerActor } from "../actor/lancer-actor.js";
 import type {
   PackedMechData,
   PackedMechLoadoutData,
   PackedPilotData,
   PackedPilotLoadoutData,
-} from "../util/unpacking/packed-types";
+} from "../util/unpacking/packed-types.js";
 
 // GOODBYE LEGACY TYPES
 type LegacyLancerActor = {

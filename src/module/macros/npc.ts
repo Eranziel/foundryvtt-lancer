@@ -1,15 +1,15 @@
 // Import TypeScript modules
-import { LancerActor } from "../actor/lancer-actor";
-import { renderMacroTemplate } from "./_render";
-import { LancerItem } from "../item/lancer-item";
-import type { LancerNPC_FEATURE } from "../item/lancer-item";
-import { rollTextMacro } from "./text";
-import { NpcFeatureType } from "../enums";
-import { prepareAttackMacro } from "./attack";
-import { prepareTechMacro } from "./tech";
-import type { LancerMacro } from "./interfaces";
-import type { SystemTemplates } from "../system-template";
-import { rollReactionMacro } from "./reaction";
+import { LancerActor } from "../actor/lancer-actor.js";
+import { renderMacroTemplate } from "./_render.js";
+import { LancerItem } from "../item/lancer-item.js";
+import type { LancerNPC_FEATURE } from "../item/lancer-item.js";
+import { rollTextMacro } from "./text.js";
+import { NpcFeatureType } from "../enums.js";
+import { prepareAttackMacro } from "./attack.js";
+import { prepareTechMacro } from "./tech.js";
+import type { LancerMacro } from "./interfaces.js";
+import type { SystemTemplates } from "../system-template.js";
+import { rollReactionMacro } from "./reaction.js";
 
 export async function prepareNPCFeatureMacro(
   item: string | LancerItem,

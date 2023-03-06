@@ -6,7 +6,7 @@ import {
   WeaponSize,
   WeaponType,
   AllSynergyLocations,
-} from "../../enums";
+} from "../../enums.js";
 import type {
   DamageTypeChecklist,
   RangeTypeChecklist,
@@ -14,15 +14,15 @@ import type {
   SystemTypeChecklist,
   WeaponSizeChecklist,
   WeaponTypeChecklist,
-} from "../../enums";
-import type { PackedSynergyData } from "../../util/unpacking/packed-types";
+} from "../../enums.js";
+import type { PackedSynergyData } from "../../util/unpacking/packed-types.js";
 import {
   DamageTypeChecklistField,
   RangeTypeChecklistField,
   SystemTypeChecklistField,
   WeaponSizeChecklistField,
   WeaponTypeChecklistField,
-} from "../shared";
+} from "../shared.js";
 
 // @ts-ignore
 const fields: any = foundry.data.fields;

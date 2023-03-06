@@ -1,4 +1,4 @@
-import type { LancerMacro } from "./interfaces";
+import type { LancerMacro } from "./interfaces.js";
 
 const encodedMacroWhitelist = [
   "prepareActivationMacro",

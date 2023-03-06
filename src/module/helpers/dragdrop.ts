@@ -1,8 +1,8 @@
-import { LancerActor } from "../actor/lancer-actor";
-import { LancerItem } from "../item/lancer-item";
-import { safe_json_parse } from "./commons";
-import { FetcherCache, PENDING } from "../util/async";
-import { EntryType } from "../enums";
+import { LancerActor } from "../actor/lancer-actor.js";
+import { LancerItem } from "../item/lancer-item.js";
+import { safe_json_parse } from "./commons.js";
+import { FetcherCache, PENDING } from "../util/async.js";
+import { EntryType } from "../enums.js";
 
 ////////////// HERE BE DRAGON DROPS ////////////
 // Very useful:

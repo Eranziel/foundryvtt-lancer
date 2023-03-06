@@ -1,5 +1,5 @@
 import type { LancerCombat, LancerCombatant } from "lancer-initiative";
-import { LancerCombatTrackerConfig } from "./lancer-initiative-config-form";
+import { LancerCombatTrackerConfig } from "./lancer-initiative-config-form.js";
 
 const dispositions: Record<number, string> = {
   [-2]: "",

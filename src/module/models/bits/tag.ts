@@ -1,6 +1,6 @@
-import { LANCER } from "../../config";
-import type { PackedTagData, PackedTagTemplateData } from "../../util/unpacking/packed-types";
-import { LIDField } from "../shared";
+import { LANCER } from "../../config.js";
+import type { PackedTagData, PackedTagTemplateData } from "../../util/unpacking/packed-types.js";
+import { LIDField } from "../shared.js";
 
 // @ts-ignore
 const fields: any = foundry.data.fields;

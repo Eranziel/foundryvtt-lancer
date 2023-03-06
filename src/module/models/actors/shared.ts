@@ -1,6 +1,6 @@
-import { CounterField } from "../bits/counter";
-import { DamageField } from "../bits/damage";
-import { FakeBoundedNumberField, LIDField } from "../shared";
+import { CounterField } from "../bits/counter.js";
+import { DamageField } from "../bits/damage.js";
+import { FakeBoundedNumberField, LIDField } from "../shared.js";
 const fields: any = foundry.data.fields;
 
 /**

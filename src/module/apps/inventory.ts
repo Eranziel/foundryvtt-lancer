@@ -1,8 +1,8 @@
-import type { LancerActor } from "../actor/lancer-actor";
-import { HANDLER_activate_general_controls } from "../helpers/commons";
-import { HANDLER_activate_ref_dragging, click_evt_open_ref } from "../helpers/refs";
-import { HANDLER_activate_item_context_menus } from "../helpers/item";
-import { applyCollapseListeners, initializeCollapses } from "../helpers/collapse";
+import type { LancerActor } from "../actor/lancer-actor.js";
+import { HANDLER_activate_general_controls } from "../helpers/commons.js";
+import { HANDLER_activate_ref_dragging, click_evt_open_ref } from "../helpers/refs.js";
+import { HANDLER_activate_item_context_menus } from "../helpers/item.js";
+import { applyCollapseListeners, initializeCollapses } from "../helpers/collapse.js";
 
 interface FilledCategory {
   label: string;

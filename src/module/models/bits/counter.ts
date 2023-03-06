@@ -1,5 +1,5 @@
-import type { PackedCounterData } from "../../util/unpacking/packed-types";
-import { LIDField } from "../shared";
+import type { PackedCounterData } from "../../util/unpacking/packed-types.js";
+import { LIDField } from "../shared.js";
 
 // @ts-ignore
 const fields: any = foundry.data.fields;

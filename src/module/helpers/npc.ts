@@ -1,9 +1,9 @@
 import type { HelperOptions } from "handlebars";
-import { ActivationType, EntryType, NpcFeatureType } from "../enums";
-import type { LancerNPC_FEATURE } from "../item/lancer-item";
-import type { SystemTemplates } from "../system-template";
-import { slugify } from "../util/lid";
-import { charged_box, effect_box, resolve_helper_dotpath } from "./commons";
+import { ActivationType, EntryType, NpcFeatureType } from "../enums.js";
+import type { LancerNPC_FEATURE } from "../item/lancer-item.js";
+import type { SystemTemplates } from "../system-template.js";
+import { slugify } from "../util/lid.js";
+import { charged_box, effect_box, resolve_helper_dotpath } from "./commons.js";
 import {
   action_type_icon,
   loading_indicator,
@@ -11,9 +11,9 @@ import {
   npc_attack_bonus_preview,
   show_damage_array,
   show_range_array,
-} from "./item";
-import { limited_uses_indicator, ref_params } from "./refs";
-import { compact_tag_list } from "./tags";
+} from "./item.js";
+import { limited_uses_indicator, ref_params } from "./refs.js";
+import { compact_tag_list } from "./tags.js";
 
 export const EffectIcons = {
   Generic: `systems/lancer/assets/icons/generic_item.svg`,

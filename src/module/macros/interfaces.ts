@@ -1,10 +1,10 @@
-import type { ActionType } from "../action";
-import { ActivationType } from "../enums";
-import { AccDiffData } from "../helpers/acc_diff";
-import type { AccDiffDataSerialized } from "../helpers/acc_diff";
-import type { DamageData } from "../models/bits/damage";
-import { Tag } from "../models/bits/tag";
-import type { TagData } from "../models/bits/tag";
+import type { ActionType } from "../action/index.js";
+import { ActivationType } from "../enums.js";
+import { AccDiffData } from "../helpers/acc_diff/index.js";
+import type { AccDiffDataSerialized } from "../helpers/acc_diff/index.js";
+import type { DamageData } from "../models/bits/damage.js";
+import { Tag } from "../models/bits/tag.js";
+import type { TagData } from "../models/bits/tag.js";
 
 // -------- Macro data types -------------------------------------
 // Within our macro ecosystem these serve 2 primary purposes

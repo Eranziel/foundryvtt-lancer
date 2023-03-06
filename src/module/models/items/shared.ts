@@ -1,9 +1,9 @@
-import { CounterField } from "../bits/counter";
-import { ActionField } from "../bits/action";
-import { SynergyField } from "../bits/synergy";
-import { FakeBoundedNumberField, LIDField } from "../shared";
-import { TagField } from "../bits/tag";
-import { BonusField } from "../bits/bonus";
+import { CounterField } from "../bits/counter.js";
+import { ActionField } from "../bits/action.js";
+import { SynergyField } from "../bits/synergy.js";
+import { FakeBoundedNumberField, LIDField } from "../shared.js";
+import { TagField } from "../bits/tag.js";
+import { BonusField } from "../bits/bonus.js";
 
 //@ts-ignore
 const fields: any = foundry.data.fields;

@@ -1,15 +1,15 @@
-import { makeWeaponSizeChecklist, makeWeaponTypeChecklist } from "../../enums";
-import type { DamageTypeChecklist, RangeTypeChecklist, WeaponSizeChecklist, WeaponTypeChecklist } from "../../enums";
-import { BONUS } from "../../util/unpacking/defaults";
-import type { PackedBonusData } from "../../util/unpacking/packed-types";
+import { makeWeaponSizeChecklist, makeWeaponTypeChecklist } from "../../enums.js";
+import type { DamageTypeChecklist, RangeTypeChecklist, WeaponSizeChecklist, WeaponTypeChecklist } from "../../enums.js";
+import { BONUS } from "../../util/unpacking/defaults.js";
+import type { PackedBonusData } from "../../util/unpacking/packed-types.js";
 import {
   DamageTypeChecklistField,
   RangeTypeChecklistField,
   WeaponSizeChecklistField,
   WeaponTypeChecklistField,
-} from "../shared";
-import { Damage } from "./damage";
-import { Range } from "./range";
+} from "../shared.js";
+import { Damage } from "./damage.js";
+import { Range } from "./range.js";
 
 // @ts-ignore
 const fields: any = foundry.data.fields;

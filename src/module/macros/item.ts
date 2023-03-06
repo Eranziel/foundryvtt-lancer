@@ -1,12 +1,12 @@
 // Import TypeScript modules
-import { prepareAttackMacro } from "./attack";
-import { prepareSystemMacro } from "./system";
-import { prepareTalentMacro } from "./talent";
-import { EntryType } from "../enums";
-import { LancerItem } from "../item/lancer-item";
-import { prepareSkillMacro, rollStatMacro } from "./stat";
-import { prepareCoreBonusMacro, preparePilotGearMacro, prepareReserveMacro } from "./gear";
-import { prepareNPCFeatureMacro } from "./npc";
+import { prepareAttackMacro } from "./attack.js";
+import { prepareSystemMacro } from "./system.js";
+import { prepareTalentMacro } from "./talent.js";
+import { EntryType } from "../enums.js";
+import { LancerItem } from "../item/lancer-item.js";
+import { prepareSkillMacro, rollStatMacro } from "./stat.js";
+import { prepareCoreBonusMacro, preparePilotGearMacro, prepareReserveMacro } from "./gear.js";
+import { prepareNPCFeatureMacro } from "./npc.js";
 
 /**
  * Generic macro preparer for any item.

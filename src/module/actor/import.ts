@@ -1,5 +1,5 @@
-import { replaceDefaultResource } from "../config";
-import { EntryType, FittingSize, MountType } from "../enums";
+import { replaceDefaultResource } from "../config.js";
+import { EntryType, FittingSize, MountType } from "../enums.js";
 import type {
   LancerCORE_BONUS,
   LancerFRAME,
@@ -13,20 +13,20 @@ import type {
   LancerSKILL,
   LancerTALENT,
   LancerWEAPON_MOD,
-} from "../item/lancer-item";
-import type { SourceData } from "../source-template";
-import { insinuate } from "../util/doc";
-import { lookupLID } from "../util/lid";
+} from "../item/lancer-item.js";
+import type { SourceData } from "../source-template.js";
+import { insinuate } from "../util/doc.js";
+import { lookupLID } from "../util/lid.js";
 import type {
   PackedEquipmentData,
   PackedMechWeaponSaveData,
   PackedMountData,
   PackedPilotData,
   PackedPilotEquipmentState,
-} from "../util/unpacking/packed-types";
-import type { LancerMECH, LancerPILOT } from "./lancer-actor";
-import { LancerActor } from "./lancer-actor";
-import { frameToPath } from "./retrograde-map";
+} from "../util/unpacking/packed-types.js";
+import type { LancerMECH, LancerPILOT } from "./lancer-actor.js";
+import { LancerActor } from "./lancer-actor.js";
+import { frameToPath } from "./retrograde-map.js";
 
 // Imports packed pilot data, from either a vault id or gist id
 export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearFirst = false) {

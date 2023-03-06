@@ -1,5 +1,5 @@
-import { LancerActor } from "./actor/lancer-actor";
-import type { LancerMECH, LancerPILOT } from "./actor/lancer-actor";
+import { LancerActor } from "./actor/lancer-actor.js";
+import type { LancerMECH, LancerPILOT } from "./actor/lancer-actor.js";
 import {
   ActivationType,
   DeployableType,
@@ -12,8 +12,8 @@ import {
   SystemType,
   WeaponSize,
   WeaponType,
-} from "./enums";
-import type { WeaponSizeChecklist, WeaponTypeChecklist } from "./enums";
+} from "./enums.js";
+import type { WeaponSizeChecklist, WeaponTypeChecklist } from "./enums.js";
 import type {
   LancerFRAME,
   LancerMECH_SYSTEM,
@@ -23,16 +23,16 @@ import type {
   LancerPILOT_GEAR,
   LancerPILOT_WEAPON,
   LancerWEAPON_MOD,
-} from "./item/lancer-item";
-import type { ActionData } from "./models/bits/action";
-import type { BonusData } from "./models/bits/bonus";
-import type { CounterData } from "./models/bits/counter";
-import { Damage } from "./models/bits/damage";
-import { Range } from "./models/bits/range";
-import type { SynergyData } from "./models/bits/synergy";
-import { Tag } from "./models/bits/tag";
-import type { TagData } from "./models/bits/tag";
-import type { FullBoundedNum, LIDRef, SourceData, SourceTemplates, UUIDRef } from "./source-template";
+} from "./item/lancer-item.js";
+import type { ActionData } from "./models/bits/action.js";
+import type { BonusData } from "./models/bits/bonus.js";
+import type { CounterData } from "./models/bits/counter.js";
+import { Damage } from "./models/bits/damage.js";
+import { Range } from "./models/bits/range.js";
+import type { SynergyData } from "./models/bits/synergy.js";
+import { Tag } from "./models/bits/tag.js";
+import type { TagData } from "./models/bits/tag.js";
+import type { FullBoundedNum, LIDRef, SourceData, SourceTemplates, UUIDRef } from "./source-template.js";
 
 export namespace SystemTemplates {
   // We mimic these types, such that if we later decide to modify how they are hydrated, our job is easier
@@ -458,6 +458,8 @@ export namespace SystemData {
       sys: number;
       eng: number;
       size: number; // TODO: don't miss this in migrations
+      stress: number;
+      structure: number;
     }>;
   }
   export type NpcFeature = SystemTemplates.NPC.AnyFeature & {

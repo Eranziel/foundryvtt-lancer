@@ -1,6 +1,6 @@
 import JSZip from "jszip";
 import type { JSZipObject } from "jszip";
-import * as lancerData from "./typed-lancerdata";
+import * as lancerData from "./typed-lancerdata.js";
 import type {
   AnyPackedNpcFeatureData,
   IContentPack,
@@ -15,7 +15,7 @@ import type {
   PackedTagTemplateData,
   PackedTalentData,
   PackedWeaponModData,
-} from "./unpacking/packed-types";
+} from "./unpacking/packed-types.js";
 
 export const CORE_BREW_ID = "core";
 

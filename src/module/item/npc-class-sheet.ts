@@ -1,9 +1,9 @@
-import { LANCER } from "../config";
-import { EntryType } from "../enums";
-import type { LancerItemSheetData } from "../interfaces";
-import { lookupLID } from "../util/lid";
-import { LancerItemSheet } from "./item-sheet";
-import type { LancerItem, LancerNPC_CLASS, LancerNPC_TEMPLATE } from "./lancer-item";
+import { LANCER } from "../config.js";
+import { EntryType } from "../enums.js";
+import type { LancerItemSheetData } from "../interfaces.js";
+import { lookupLID } from "../util/lid.js";
+import { LancerItemSheet } from "./item-sheet.js";
+import type { LancerItem, LancerNPC_CLASS, LancerNPC_TEMPLATE } from "./lancer-item.js";
 const lp = LANCER.log_prefix;
 
 /**

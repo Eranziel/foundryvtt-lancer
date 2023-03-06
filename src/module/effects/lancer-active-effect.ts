@@ -1,9 +1,9 @@
-import type { ActiveEffectDataConstructorData } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs/activeEffectData";
-import type { EffectChangeData } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs/effectChangeData";
-import { LancerActor } from "../actor/lancer-actor";
-import { LANCER, STATUSES } from "../config";
-import { DeployableType, EntryType } from "../enums";
-import { statusConfigEffect } from "./converter";
+import type { ActiveEffectDataConstructorData } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs/activeEffectData.js";
+import type { EffectChangeData } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs/effectChangeData.js";
+import { LancerActor } from "../actor/lancer-actor.js";
+import { LANCER, STATUSES } from "../config.js";
+import { DeployableType, EntryType } from "../enums.js";
+import { statusConfigEffect } from "./converter.js";
 
 // Chassis = mech or standard npc
 export type LancerEffectTarget =
@@ -34,6 +34,7 @@ export interface LancerActiveEffectFlags {
   };
 }
 
+// export interface LancerActiveEffectConstructorData extends ActiveEffectData
 export interface LancerActiveEffectConstructorData extends ActiveEffectDataConstructorData {
   flags: Record<string, unknown> & LancerActiveEffectFlags;
 }

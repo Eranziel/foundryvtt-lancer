@@ -1,12 +1,12 @@
 import type { HelperOptions } from "handlebars";
-import type { LancerCORE_BONUS, LancerSKILL, LancerTALENT } from "../item/lancer-item";
-import { encodeMacroData } from "../macros";
-import type { LancerMacro } from "../macros/interfaces";
-import { collapseButton, collapseParam } from "./collapse";
-import type { CollapseRegistry } from "./collapse";
-import { resolve_helper_dotpath } from "./commons";
-import { buildActionArrayHTML } from "./item";
-import { ref_params } from "./refs";
+import type { LancerCORE_BONUS, LancerSKILL, LancerTALENT } from "../item/lancer-item.js";
+import { encodeMacroData } from "../macros.js";
+import type { LancerMacro } from "../macros/interfaces.js";
+import { collapseButton, collapseParam } from "./collapse.js";
+import type { CollapseRegistry } from "./collapse.js";
+import { resolve_helper_dotpath } from "./commons.js";
+import { buildActionArrayHTML } from "./item.js";
+import { ref_params } from "./refs.js";
 
 export function talent_view(talent_path: string, options: HelperOptions) {
   let collapse = resolve_helper_dotpath<CollapseRegistry>(options, "collapse");

@@ -1,4 +1,4 @@
-import { LANCER } from "./config";
+import { LANCER } from "./config.js";
 
 export function measureDistances(
   this: SquareGrid,

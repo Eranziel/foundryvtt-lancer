@@ -18,41 +18,42 @@ import {
   NEEDS_MINOR_MIGRATION_VERSION,
   WELCOME,
   NEEDS_AUTOMATION_MIGRATION_VERSION,
-} from "./module/config";
-import { LancerActor } from "./module/actor/lancer-actor";
-import { LancerItem } from "./module/item/lancer-item";
-import { populatePilotCache } from "./module/util/compcon";
+} from "./module/config.js";
+import { LancerActor } from "./module/actor/lancer-actor.js";
+import { LancerItem } from "./module/item/lancer-item.js";
+import { populatePilotCache } from "./module/util/compcon.js";
 
-import { action_type_selector } from "./module/helpers/npc";
+import { action_type_selector } from "./module/helpers/npc.js";
 
-import { LancerActionManager } from "./module/action/action-manager";
+import { LancerActionManager } from "./module/action/action-manager.js";
 
 // Import applications
-import { LancerPilotSheet, pilot_counters, all_mech_preview } from "./module/actor/pilot-sheet";
-import { LancerNPCSheet } from "./module/actor/npc-sheet";
-import { LancerDeployableSheet } from "./module/actor/deployable-sheet";
-import { LancerMechSheet } from "./module/actor/mech-sheet";
-import { LancerItemSheet } from "./module/item/item-sheet";
-import { LancerFrameSheet } from "./module/item/frame-sheet";
-import { LancerLicenseSheet } from "./module/item/license-sheet";
-import { WeaponRangeTemplate } from "./module/pixi/weapon-range-template";
+import { LancerPilotSheet, pilot_counters, all_mech_preview } from "./module/actor/pilot-sheet.js";
+import { LancerNPCSheet } from "./module/actor/npc-sheet.js";
+import { LancerDeployableSheet } from "./module/actor/deployable-sheet.js";
+import { LancerMechSheet } from "./module/actor/mech-sheet.js";
+import { LancerItemSheet } from "./module/item/item-sheet.js";
+import { LancerFrameSheet } from "./module/item/frame-sheet.js";
+import { LancerLicenseSheet } from "./module/item/license-sheet.js";
+import { WeaponRangeTemplate } from "./module/pixi/weapon-range-template.js";
 
 // Import helpers
-import { preloadTemplates } from "./module/preload-templates";
-import { getAutomationOptions, registerSettings } from "./module/settings";
-import { compact_tag_list } from "./module/helpers/tags";
-import * as migrations from "./module/migration";
-import { addLCPManager, updateCore, core_update } from "./module/apps/lcp-manager";
+import { preloadTemplates } from "./module/preload-templates.js";
+import { getAutomationOptions, registerSettings } from "./module/settings.js";
+import { compact_tag_list } from "./module/helpers/tags.js";
+import * as migrations from "./module/migration.js";
+import { addLCPManager, updateCore, core_update } from "./module/apps/lcp-manager.js";
 
 // Import sliding HUD (used for accuracy/difficulty windows)
-import * as slidingHUD from "./module/helpers/slidinghud";
+import * as slidingHUD from "./module/helpers/slidinghud/index.js";
 
 // Import Machine Mind and helpers
-import * as macros from "./module/macros";
+import * as macros from "./module/macros.js";
 
 // Import Tippy.js
 import tippy from "tippy.js";
 import "tippy.js/dist/tippy.css"; // optional for styling
+// @ts-expect-error TODO: Tippy types are broken with these import settings
 tippy.setDefaultProps({ theme: "lancer-small", arrow: false, delay: [400, 200] });
 // tippy.setDefaultProps({ theme: "lancer", arrow: false, delay: [400, 200], hideOnClick: false, trigger: "click"});
 
@@ -68,7 +69,7 @@ import {
   std_num_input,
   std_checkbox,
   std_enum_select,
-} from "./module/helpers/commons";
+} from "./module/helpers/commons.js";
 import {
   weapon_size_selector,
   weapon_type_selector,
@@ -91,7 +92,7 @@ import {
   action_type_icon,
   npc_class_ref,
   npc_template_ref,
-} from "./module/helpers/item";
+} from "./module/helpers/item.js";
 import {
   action_button,
   clicker_num_input,
@@ -109,7 +110,7 @@ import {
   stat_rollable_card,
   stat_view_card,
   tech_flow_card,
-} from "./module/helpers/actor";
+} from "./module/helpers/actor.js";
 import type { HelperOptions } from "handlebars";
 import {
   item_preview,
@@ -118,8 +119,8 @@ import {
   item_preview_list,
   limited_uses_indicator,
   reserve_used_indicator,
-} from "./module/helpers/refs";
-import { mech_loadout, pilot_slot, frameView } from "./module/helpers/loadout";
+} from "./module/helpers/refs.js";
+import { mech_loadout, pilot_slot, frameView } from "./module/helpers/loadout.js";
 import {
   item_edit_arrayed_actions,
   item_edit_arrayed_damage,
@@ -135,50 +136,50 @@ import {
   item_edit_uses,
   item_edit_arrayed_integrated,
   item_edit_enum,
-} from "./module/helpers/item-editors";
-import { applyCollapseListeners, initializeCollapses } from "./module/helpers/collapse";
-import { handleCombatUpdate } from "./module/helpers/automation/combat";
-import { handleActorExport, validForExport } from "./module/helpers/io";
-import { runEncodedMacro } from "./module/macros";
-import { LancerToken, LancerTokenDocument } from "./module/token";
-import { applyGlobalDragListeners } from "./module/helpers/dragdrop";
-import { gridDist } from "./module/helpers/automation/targeting";
-import CompconLoginForm from "./module/helpers/compcon-login-form";
+} from "./module/helpers/item-editors.js";
+import { applyCollapseListeners, initializeCollapses } from "./module/helpers/collapse.js";
+import { handleCombatUpdate } from "./module/helpers/automation/combat.js";
+import { handleActorExport, validForExport } from "./module/helpers/io.js";
+import { runEncodedMacro } from "./module/macros.js";
+import { LancerToken, LancerTokenDocument } from "./module/token.js";
+import { applyGlobalDragListeners } from "./module/helpers/dragdrop.js";
+import { gridDist } from "./module/helpers/automation/targeting.js";
+import CompconLoginForm from "./module/helpers/compcon-login-form.js";
 import { LancerCombat, LancerCombatant, LancerCombatTracker } from "lancer-initiative";
-import { LancerCombatTrackerConfig } from "./module/helpers/lancer-initiative-config-form";
-import { MechModel } from "./module/models/actors/mech";
-import { MechSystemModel } from "./module/models/items/mech_system";
-import { handleRenderCombatCarousel } from "./module/helpers/combat-carousel";
-import { measureDistances } from "./module/grid";
-import { EntryType } from "./module/enums";
-import { FrameModel } from "./module/models/items/frame";
-import { PilotModel } from "./module/models/actors/pilot";
-import { effect_categories_view, effect_view } from "./module/helpers/effects";
-import { LancerActiveEffect } from "./module/effects/lancer-active-effect";
-import { MechWeaponModel } from "./module/models/items/mech_weapon";
-import { CoreBonusModel } from "./module/models/items/core_bonus";
-import { NpcModel } from "./module/models/actors/npc";
-import { DeployableModel } from "./module/models/actors/deployable";
-import { TalentModel } from "./module/models/items/talent";
-import { fulfillImportActor } from "./module/util/requests";
-import { lookupOwnedDeployables } from "./module/util/lid";
-import { PilotArmorModel } from "./module/models/items/pilot_armor";
-import { PilotGearModel } from "./module/models/items/pilot_gear";
-import { PilotWeaponModel } from "./module/models/items/pilot_weapon";
-import { importCC } from "./module/actor/import";
+import { LancerCombatTrackerConfig } from "./module/helpers/lancer-initiative-config-form.js";
+import { MechModel } from "./module/models/actors/mech.js";
+import { MechSystemModel } from "./module/models/items/mech_system.js";
+import { handleRenderCombatCarousel } from "./module/helpers/combat-carousel.js";
+import { measureDistances } from "./module/grid.js";
+import { EntryType } from "./module/enums.js";
+import { FrameModel } from "./module/models/items/frame.js";
+import { PilotModel } from "./module/models/actors/pilot.js";
+import { effect_categories_view, effect_view } from "./module/helpers/effects.js";
+import { LancerActiveEffect } from "./module/effects/lancer-active-effect.js";
+import { MechWeaponModel } from "./module/models/items/mech_weapon.js";
+import { CoreBonusModel } from "./module/models/items/core_bonus.js";
+import { NpcModel } from "./module/models/actors/npc.js";
+import { DeployableModel } from "./module/models/actors/deployable.js";
+import { TalentModel } from "./module/models/items/talent.js";
+import { fulfillImportActor } from "./module/util/requests.js";
+import { lookupOwnedDeployables } from "./module/util/lid.js";
+import { PilotArmorModel } from "./module/models/items/pilot_armor.js";
+import { PilotGearModel } from "./module/models/items/pilot_gear.js";
+import { PilotWeaponModel } from "./module/models/items/pilot_weapon.js";
+import { importCC } from "./module/actor/import.js";
 
 import "./module/helpers/text-enrichers";
-import { fromLid, fromLidSync } from "./module/helpers/from-lid";
-import { SkillModel } from "./module/models/items/skill";
-import { LicenseModel } from "./module/models/items/license";
-import { NpcTemplateModel } from "./module/models/items/npc_template";
-import { NpcClassModel } from "./module/models/items/npc_class";
-import { NpcFeatureModel } from "./module/models/items/npc_feature";
-import { LancerNPCClassSheet } from "./module/item/npc-class-sheet";
-import { WeaponModModel } from "./module/models/items/weapon_mod";
-import { ReserveModel } from "./module/models/items/reserve";
-import { StatusModel } from "./module/models/items/status";
-import MechSheetV2 from "./module/actor/new-mech-sheet";
+import { fromLid, fromLidSync } from "./module/helpers/from-lid.js";
+import { SkillModel } from "./module/models/items/skill.js";
+import { LicenseModel } from "./module/models/items/license.js";
+import { NpcTemplateModel } from "./module/models/items/npc_template.js";
+import { NpcClassModel } from "./module/models/items/npc_class.js";
+import { NpcFeatureModel } from "./module/models/items/npc_feature.js";
+import { LancerNPCClassSheet } from "./module/item/npc-class-sheet.js";
+import { WeaponModModel } from "./module/models/items/weapon_mod.js";
+import { ReserveModel } from "./module/models/items/reserve.js";
+import { StatusModel } from "./module/models/items/status.js";
+import MechSheetV2 from "./module/actor/new-mech-sheet.js";
 
 const lp = LANCER.log_prefix;
 
@@ -304,7 +305,7 @@ Hooks.once("init", async function () {
   CONFIG.Token.objectClass = LancerToken;
   CONFIG.Combat.documentClass = LancerCombat;
   CONFIG.Combatant.documentClass = LancerCombatant;
-  // @ts-expect-error TODO: fix up Options vs ApplicationOptions once we have more modern types
+  // @ts-expect-error v10
   CONFIG.ui.combat = LancerCombatTracker;
 
   // Set up default system status icons
@@ -914,7 +915,7 @@ async function doMigration() {
 
 async function configureAmplify() {
   // Pull in the parts of AWS Amplify we need
-  const aws = (await import("./aws-exports")).default as {
+  const aws = (await import("./aws-exports.js")).default as {
     aws_cognito_identity_pool_id: string;
   };
   const { Auth } = await import("@aws-amplify/auth");
@@ -1029,4 +1030,4 @@ function addSettingsButtons(_app: Application, html: HTMLElement) {
   });
 }
 
-Hooks.once("ready", () => new MechSheetV2().render(true, { focus: true }));
+// Hooks.once("ready", () => new MechSheetV2().render(true, { focus: true }));

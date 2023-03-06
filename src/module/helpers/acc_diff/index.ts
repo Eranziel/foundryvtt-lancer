@@ -1,5 +1,5 @@
-export type { AccDiffDataSerialized } from "./data";
-export { Cover, AccDiffWeapon, AccDiffBase, AccDiffTarget, AccDiffData } from "./data";
+export type { AccDiffDataSerialized } from "./data.js";
+export { Cover, AccDiffWeapon, AccDiffBase, AccDiffTarget, AccDiffData } from "./data.js";
 export type {
   CheckboxUI,
   NoUI,
@@ -10,4 +10,4 @@ export type {
   AccDiffNoUIPluginData,
   AccDiffPluginCodec,
   AccDiffPlugin,
-} from "./plugin";
+} from "./plugin.js";

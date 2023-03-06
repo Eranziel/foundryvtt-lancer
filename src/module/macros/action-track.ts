@@ -1,7 +1,7 @@
-import type { ActionTrackingData } from "../action";
-import { getActions } from "../action/action-tracker";
-import { LancerActor } from "../actor/lancer-actor";
-import { prepareTextMacro } from "./text";
+import type { ActionTrackingData } from "../action/index.js";
+import { getActions } from "../action/action-tracker.js";
+import { LancerActor } from "../actor/lancer-actor.js";
+import { prepareTextMacro } from "./text.js";
 
 /**
  * Renders out an update of the current action status for a turn change in combat.

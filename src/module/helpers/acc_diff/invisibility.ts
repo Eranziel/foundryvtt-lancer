@@ -1,8 +1,8 @@
 import * as t from "io-ts";
-import { LancerActor } from "../../actor/lancer-actor";
-import type { AccDiffPlugin, AccDiffCheckboxPluginData, AccDiffPluginCodec } from "./plugin";
-import { AccDiffData, AccDiffTarget } from "./index";
-import { enclass } from "./serde";
+import { LancerActor } from "../../actor/lancer-actor.js";
+import type { AccDiffPlugin, AccDiffCheckboxPluginData, AccDiffPluginCodec } from "./plugin.js";
+import { AccDiffData, AccDiffTarget } from "./index.js";
+import { enclass } from "./serde.js";
 
 // you don't need to explicitly type the serialized data,
 // but if you do then io-ts codecs can do strong checks at runtime

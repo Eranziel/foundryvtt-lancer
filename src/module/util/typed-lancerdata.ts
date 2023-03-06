@@ -43,7 +43,7 @@ import type {
   PackedTagTemplateData,
   PackedTalentData,
   PackedMechWeaponData,
-} from "./unpacking/packed-types";
+} from "./unpacking/packed-types.js";
 
 export interface GlossaryItem {
   name: string;

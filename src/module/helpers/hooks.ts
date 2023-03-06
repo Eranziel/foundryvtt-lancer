@@ -1,6 +1,6 @@
-import { LancerActor } from "../actor/lancer-actor";
-import type { LancerActorType } from "../actor/lancer-actor";
-import type { LancerItem, LancerItemType } from "../item/lancer-item";
+import { LancerActor } from "../actor/lancer-actor.js";
+import type { LancerActorType } from "../actor/lancer-actor.js";
+import type { LancerItem, LancerItemType } from "../item/lancer-item.js";
 
 export const DEBOUNCE_TIMEOUT = 500; // An update propagation hook will fire at most once every this many MS.
 // Triggers on falling edge (meaning will wait for updates to stop pouring in before firing

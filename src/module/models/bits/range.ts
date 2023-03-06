@@ -1,8 +1,8 @@
-import type { LancerMECH } from "../../actor/lancer-actor";
-import { RangeType } from "../../enums";
-import type { RangeTypeChecklist } from "../../enums";
-import type { LancerMECH_WEAPON, LancerWEAPON_MOD } from "../../item/lancer-item";
-import type { PackedRangeData } from "../../util/unpacking/packed-types";
+import type { LancerMECH } from "../../actor/lancer-actor.js";
+import { RangeType } from "../../enums.js";
+import type { RangeTypeChecklist } from "../../enums.js";
+import type { LancerMECH_WEAPON, LancerWEAPON_MOD } from "../../item/lancer-item.js";
+import type { PackedRangeData } from "../../util/unpacking/packed-types.js";
 
 // @ts-ignore
 const fields: any = foundry.data.fields;

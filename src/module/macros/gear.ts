@@ -1,6 +1,6 @@
-import { LancerItem } from "../item/lancer-item";
-import type { LancerMacro } from "./interfaces";
-import { rollTextMacro } from "./text";
+import { LancerItem } from "../item/lancer-item.js";
+import type { LancerMacro } from "./interfaces.js";
+import { rollTextMacro } from "./text.js";
 
 export async function preparePilotGearMacro(item: string | LancerItem) {
   item = LancerItem.fromUuidSync(item);

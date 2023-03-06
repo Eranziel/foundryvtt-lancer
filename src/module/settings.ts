@@ -1,9 +1,9 @@
 import { getTrackerAppearance, setAppearance } from "lancer-initiative";
 import type { LancerCombat, LancerCombatant } from "lancer-initiative";
-import { LANCER } from "./config";
-import { AutomationConfig } from "./apps/automation-settings";
-import CompconLoginForm from "./helpers/compcon-login-form";
-import { ActionTrackerConfig } from "./apps/action-tracker-settings";
+import { LANCER } from "./config.js";
+import { AutomationConfig } from "./apps/automation-settings.js";
+import CompconLoginForm from "./helpers/compcon-login-form.js";
+import { ActionTrackerConfig } from "./apps/action-tracker-settings.js";
 
 export const registerSettings = function () {
   /**

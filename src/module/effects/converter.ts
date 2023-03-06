@@ -1,10 +1,10 @@
-import type { LancerNPC, LancerPILOT } from "../actor/lancer-actor";
-import { EntryType } from "../enums";
-import type { LancerFRAME, LancerMECH_WEAPON, LancerNPC_CLASS, LancerSTATUS } from "../item/lancer-item";
-import type { BonusData } from "../models/bits/bonus";
-import type { SystemData } from "../system-template";
-import { AE_MODE_SET_JSON } from "./lancer-active-effect";
-import type { LancerActiveEffectConstructorData, LancerEffectTarget } from "./lancer-active-effect";
+import type { LancerNPC, LancerPILOT } from "../actor/lancer-actor.js";
+import { EntryType } from "../enums.js";
+import type { LancerFRAME, LancerMECH_WEAPON, LancerNPC_CLASS, LancerSTATUS } from "../item/lancer-item.js";
+import type { BonusData } from "../models/bits/bonus.js";
+import type { SystemData } from "../system-template.js";
+import { AE_MODE_SET_JSON } from "./lancer-active-effect.js";
+import type { LancerActiveEffectConstructorData, LancerEffectTarget } from "./lancer-active-effect.js";
 
 const FRAME_STAT_PRIORITY = 10;
 const BONUS_STAT_PRIORITY = 20;
@@ -38,42 +38,42 @@ export function frameInnateEffect(frame: LancerFRAME): LancerActiveEffectConstru
     key: "system.hp.max",
     mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
     priority: FRAME_STAT_PRIORITY,
-    // @ts-expect-error
+    //@ts-expect-error
     value: frame.system.stats.hp,
   });
   changes!.push({
     key: "system.structure.max",
     mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
     priority: FRAME_STAT_PRIORITY,
-    // @ts-expect-error
+    //@ts-expect-error
     value: frame.system.stats.structure,
   });
   changes!.push({
     key: "system.stress.max",
     mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
     priority: FRAME_STAT_PRIORITY,
-    // @ts-expect-error
+    //@ts-expect-error
     value: frame.system.stats.stress,
   });
   changes!.push({
     key: "system.heat.max",
     mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
     priority: FRAME_STAT_PRIORITY,
-    // @ts-expect-error
+    //@ts-expect-error
     value: frame.system.stats.heatcap,
   });
   changes!.push({
     key: "system.repairs.max",
     mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
     priority: FRAME_STAT_PRIORITY,
-    // @ts-expect-error
+    //@ts-expect-error
     value: frame.system.stats.repcap,
   });
   changes!.push({
     key: "system.loadout.sp.max",
     mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
     priority: FRAME_STAT_PRIORITY,
-    // @ts-expect-error
+    //@ts-expect-error
     value: frame.system.stats.sp,
   });
 

@@ -1,12 +1,12 @@
-import { LancerActorSheet } from "./lancer-actor-sheet";
-import { resolve_dotpath } from "../helpers/commons";
+import { LancerActorSheet } from "./lancer-actor-sheet.js";
+import { resolve_dotpath } from "../helpers/commons.js";
 import tippy from "tippy.js";
-import type { LancerMECH } from "./lancer-actor";
-import type { ResolvedDropData } from "../helpers/dragdrop";
-import { EntryType, fittingsForMount, FittingSize, MountType, SystemType } from "../enums";
-import type { SystemData } from "../system-template";
-import type { LancerActorSheetData } from "../interfaces";
-import type { SourceData } from "../source-template";
+import type { LancerMECH } from "./lancer-actor.js";
+import type { ResolvedDropData } from "../helpers/dragdrop.js";
+import { EntryType, fittingsForMount, FittingSize, MountType, SystemType } from "../enums.js";
+import type { SystemData } from "../system-template.js";
+import type { LancerActorSheetData } from "../interfaces.js";
+import type { SourceData } from "../source-template.js";
 
 /**
  * Extend the basic ActorSheet
@@ -54,6 +54,7 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
   /* -------------------------------------------- */
 
   private static _activateTooltips() {
+    // @ts-expect-error
     tippy('[data-context-menu="toggle"][data-field="Destroyed"]', {
       content: "Right Click to Destroy",
       delay: [300, 100],

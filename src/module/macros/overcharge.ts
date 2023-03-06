@@ -1,10 +1,10 @@
 // Import TypeScript modules
-import { getAutomationOptions } from "../settings";
-import { LancerActor } from "../actor/lancer-actor";
-import type { LancerMECH } from "../actor/lancer-actor";
-import { encodeMacroData } from "./encode";
-import { renderMacroTemplate } from "./_render";
-import type { LancerMacro } from "./interfaces";
+import { getAutomationOptions } from "../settings.js";
+import { LancerActor } from "../actor/lancer-actor.js";
+import type { LancerMECH } from "../actor/lancer-actor.js";
+import { encodeMacroData } from "./encode.js";
+import { renderMacroTemplate } from "./_render.js";
+import type { LancerMacro } from "./interfaces.js";
 
 export function encodeOverchargeMacroData(actor_uuid: string): string {
   return encodeMacroData({

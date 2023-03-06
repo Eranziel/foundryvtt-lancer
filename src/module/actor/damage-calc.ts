@@ -1,5 +1,5 @@
-import { DamageType } from "../enums";
-import { Damage } from "../models/bits/damage";
+import { DamageType } from "../enums.js";
+import { Damage } from "../models/bits/damage.js";
 
 export class AppliedDamage {
   public Kinetic: number;

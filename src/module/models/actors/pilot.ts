@@ -1,7 +1,7 @@
-import { template_action_tracking, template_statuses, template_universal_actor } from "./shared";
+import { template_action_tracking, template_statuses, template_universal_actor } from "./shared.js";
 
-import { FakeBoundedNumberField, LancerDataModel, LIDField, EmbeddedRefField, SyncUUIDRefField } from "../shared";
-import { EntryType } from "../../enums";
+import { FakeBoundedNumberField, LancerDataModel, LIDField, EmbeddedRefField, SyncUUIDRefField } from "../shared.js";
+import { EntryType } from "../../enums.js";
 
 const fields: any = foundry.data.fields;
 
