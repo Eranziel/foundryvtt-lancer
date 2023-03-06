@@ -137,7 +137,7 @@ export class AccDiffTarget {
   difficulty: number;
   cover: Cover;
   consumeLockOn: boolean;
-  plugins: { [k: string]: any };
+  plugins: { [k: string]: AccDiffPluginData };
   #weapon!: AccDiffWeapon; // never use this class before calling hydrate
   #base!: AccDiffBase; // never use this class before calling hydrate
 

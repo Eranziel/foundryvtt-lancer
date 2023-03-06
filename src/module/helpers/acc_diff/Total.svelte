@@ -1,5 +1,5 @@
 <script lang="ts">
- import type { AccDiffBase, AccDiffTarget } from './index';
+ import type { AccDiffBase, AccDiffTarget } from './index.js';
 
  import { onMount } from 'svelte';
  import { fly, blur, crossfade } from 'svelte/transition';
@@ -31,6 +31,7 @@
 
  let pluginClasses = Object.values(target.plugins).filter((plugin) => {
     return plugin.uiElement == "checkbox" && plugin.uiState;
+    // @ts-ignore TODO
   }).map((plugin) => `accdiff-total-${plugin.slug}`).join(" ");
 
  let imgElement: HTMLElement;
@@ -38,6 +39,7 @@
 
  onMount(() => {
    if (imgElement && dropdownElement) {
+     //@ts-ignore tippy
      tippy(imgElement, {
        content: dropdownElement,
        interactive: true,

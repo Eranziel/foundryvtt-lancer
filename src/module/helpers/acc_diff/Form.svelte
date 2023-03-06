@@ -1,7 +1,7 @@
 <svelte:options accessors={true} />
 
 <script lang="ts">
- import type { AccDiffWeapon, AccDiffBase, AccDiffTarget } from './index';
+ import type { AccDiffWeapon, AccDiffBase, AccDiffTarget } from './index.js';
 
  import { slide } from 'svelte/transition';
  import { flip } from 'svelte/animate';
@@ -12,11 +12,11 @@
  import ConsumeLockOn from './ConsumeLockOn.svelte';
  import Total from './Total.svelte';
  import PlusMinusInput from './PlusMinusInput.svelte';
- import type { LancerItem } from '../../item/lancer-item';
- import { RangeType } from '../../enums';
- import { WeaponRangeTemplate } from '../../pixi/weapon-range-template';
- import { fade } from '../slidinghud';
- import { targetsFromTemplate } from '../../macros';
+ import type { LancerItem } from '../../item/lancer-item.js';
+ import { RangeType } from '../../enums.js';
+ import { WeaponRangeTemplate } from '../../pixi/weapon-range-template.js';
+ import { fade } from '../slidinghud/index.js';
+ import { targetsFromTemplate } from '../../macros.js';
 
  export let weapon: AccDiffWeapon;
  export let base: AccDiffBase;

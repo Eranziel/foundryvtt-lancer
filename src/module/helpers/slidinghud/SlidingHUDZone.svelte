@@ -7,9 +7,9 @@
  import { slide } from 'svelte/transition';
  import { createEventDispatcher } from 'svelte';
 
- import { sidebarWidth } from './sidebar-width';
- import { isDragging } from './is-dragging';
- import { userTargets } from './user-targets';
+ import { sidebarWidth } from './sidebar-width.js';
+ import { isDragging } from './is-dragging.js';
+ import { userTargets } from './user-targets.js';
  import AccDiffForm from '../acc_diff/Form.svelte';
  import StructStressForm from '../struct_stress/Form.svelte';
 

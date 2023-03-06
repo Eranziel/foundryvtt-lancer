@@ -4,7 +4,7 @@
 
 <script lang="ts">
  import { crossfade } from 'svelte/transition';
- import type { Cover } from './index';
+ import type { Cover } from './index.js';
  export let cover: Cover;
  export let disabled: boolean = false;
  export let labelClass: string = '';

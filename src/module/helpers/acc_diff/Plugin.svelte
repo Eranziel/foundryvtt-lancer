@@ -1,6 +1,6 @@
 <script lang="ts">
  import { slide } from 'svelte/transition';
- import type { AccDiffPluginData } from './plugin';
+ import type { AccDiffPluginData } from './plugin.js';
  export let data: AccDiffPluginData;
 </script>
 

@@ -12,4 +12,4 @@ stats.html
 dist/**/*
 debug.log
 foundry.js
-.vite-cache/*
+.vite-cache/**

@@ -1,24 +1,27 @@
 <script lang="ts">
    import { scale }                 from 'svelte/transition';
-   import { TJSApplicationShell }   from '@typhonjs-fvtt/runtime/svelte/component/core';
+   // @ts-ignore
+   // import { TJSApplicationShell }   from '@typhonjs-fvtt/runtime/svelte/component/core.js';
    export let elementRoot = void 0;
 
    function clicker() {
       alert("Foo");
    }
 
+// <TJSApplicationShell bind:elementRoot transition={scale} transitionOptions={{duration: 1000}}>
 </script>
+
 
 <svelte:options accessors={true}/>
 
-<TJSApplicationShell bind:elementRoot transition={scale} transitionOptions={{duration: 1000}}>
+<div>
    <main>
       <h1>New Mech Sheet</h1>
       <section>
       <button on:click={clicker}>Hello</button>
       </section>
    </main>
-</TJSApplicationShell>
+</div>
 
 <style lang="scss">
    main {
