@@ -189,6 +189,10 @@ export class LancerItem extends Item {
         this.system.active_profile.bonus_damage = [...this.system.mod.system.added_damage];
         this.system.active_profile.bonus_range = [...this.system.mod.system.added_range];
         this.system.active_profile.bonus_tags = [...this.system.mod.system.added_tags];
+      } else {
+        this.system.active_profile.bonus_damage = [];
+        this.system.active_profile.bonus_range = [];
+        this.system.active_profile.bonus_tags = [];
       }
 
       // Add all bonuses

@@ -55,7 +55,7 @@
   "dependencies": {
     "@typhonjs-fvtt/runtime": "^0.0.22",
     "@typhonjs-fvtt/svelte-standard": "^0.0.18",
-    "aws-amplify": "^4.2.9",
+    "aws-amplify": "5.0.17",
     "fp-ts": "^2.11.2",
     "io-ts": "^2.2.16",
     "jszip": "^3.10.1",

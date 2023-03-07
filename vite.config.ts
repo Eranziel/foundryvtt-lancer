@@ -35,12 +35,13 @@ const config = defineConfig({
   },
 
   server: {
-    port: 30001,
+    port: 20001,
+    host: "www.localhost.com",
     open: "/game",
     proxy: {
-      "^(?!/systems/lancer)": "http://localhost:30000/",
+      "^(?!/systems/lancer/)": "http://localhost.com:20000/",
       "/socket.io": {
-        target: "ws://localhost:30000",
+        target: "ws://localhost.com:20000",
         ws: true,
       },
     },
@@ -54,8 +55,11 @@ const config = defineConfig({
       },
     ],
   },
+  define: {
+    "process.env.NODE_ENV": JSON.stringify("development"),
+  },
   optimizeDeps: {
-    include: ["lancer-data", "jszip" /* "axios" */], // machine-mind's cjs dependencies
+    include: ["lancer-data", "jszip"], // machine-mind's cjs dependencies
   },
   build: {
     outDir: path.resolve(__dirname, "dist"),
