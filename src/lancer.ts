@@ -182,6 +182,7 @@ import { StatusModel } from "./module/models/items/status.js";
 import { Auth } from "@aws-amplify/auth";
 import { Storage } from "@aws-amplify/storage";
 import MechSheetV2 from "./module/actor/new-mech-sheet.js";
+import { parse as markedParse } from "marked";
 
 const lp = LANCER.log_prefix;
 
@@ -978,8 +979,7 @@ async function showChangelog() {
 
       trimmedChangelog = trimmedChangelog.substring(0, lastH1Pos);
 
-      let marked = await import("marked");
-      let changelog = marked.parse(trimmedChangelog);
+      let changelog = markedParse(trimmedChangelog);
 
       renderChangelog(changelog);
     });

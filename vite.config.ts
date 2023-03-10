@@ -1,11 +1,12 @@
 import { defineConfig } from "vite";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
 import preprocess from "svelte-preprocess";
-import { visualizer } from "rollup-plugin-visualizer";
 import resolve from "@rollup/plugin-node-resolve"; // This resolves NPM modules from node_modules.
 // @ts-ignore
-import { postcssConfig, terserConfig, typhonjsRuntime } from "@typhonjs-fvtt/runtime/rollup";
+import { postcssConfig, typhonjsRuntime } from "@typhonjs-fvtt/runtime/rollup";
 
+const HOST = "www.localhost.com";
+const PORT = 30000;
 const s_COMPRESS = false; // Set to true to compress the module bundle.
 const s_SOURCEMAPS = true; // Generate sourcemaps for the bundle (recommended).
 
@@ -36,12 +37,12 @@ const config = defineConfig({
 
   server: {
     port: 20001,
-    host: "www.localhost.com",
+    host: HOST,
     open: "/game",
     proxy: {
-      "^(?!/systems/lancer/)": "http://localhost.com:20000/",
+      "^(?!/systems/lancer/)": `http://${HOST}:${PORT}/`,
       "/socket.io": {
-        target: "ws://localhost.com:20000",
+        target: `ws://${HOST}:${PORT}`,
         ws: true,
       },
     },
@@ -53,13 +54,18 @@ const config = defineConfig({
         find: "./runtimeConfig",
         replacement: "./runtimeConfig.browser",
       },
+      {
+        find: "tslib",
+        replacement: "tslib/tslib.es6.js",
+      },
     ],
   },
   define: {
     "process.env.NODE_ENV": JSON.stringify("development"),
+    global: "globalThis",
   },
   optimizeDeps: {
-    include: ["lancer-data", "jszip"], // machine-mind's cjs dependencies
+    include: ["lancer-data", "jszip", "tslib"],
   },
   build: {
     outDir: path.resolve(__dirname, "dist"),
@@ -81,26 +87,13 @@ const config = defineConfig({
   plugins: [
     svelte({
       preprocess: preprocess(),
-      // preprocess: preprocess(),
       configFile: "../svelte.config.js", // relative to src/
     }),
-    /*
-    checker({
-      typescript: true,
-      // svelte: { root: __dirname },
-    }),
-    */
     resolve({
       browser: true,
       dedupe: ["svelte"],
     }),
-
     s_TYPHONJS_MODULE_LIB && typhonjsRuntime(),
-
-    // visualizer({
-    // gzipSize: true,
-    // template: "treemap",
-    // }),
   ],
 });
 
