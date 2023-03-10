@@ -4,4 +4,3 @@
 
 window.global = window;
 import * as LANCER from "./lancer.ts";
-console.warn("WECOME TO HELL");
