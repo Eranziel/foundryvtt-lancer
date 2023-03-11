@@ -3,7 +3,7 @@
 /* ------------------------------------ */
 
 import type { HelperOptions } from "handlebars";
-import { BonusEditDialog } from "../apps/bonus-editor.js";
+import { BonusEditDialog } from "../apps/editors/bonus-editor.js";
 import { TypeIcon } from "../config.js";
 import {
   npc_reaction_effect_preview,
@@ -21,7 +21,6 @@ import {
   extendHelper,
   format_dotpath,
   inc_if,
-  popout_editor_button,
   resolve_dotpath,
   resolve_helper_dotpath,
   sp_display,
@@ -49,7 +48,7 @@ import { encodeMacroData } from "../macros.js";
 import { collapseButton, collapseParam } from "./collapse.js";
 import type { CollapseRegistry } from "./collapse.js";
 import { promptText } from "../apps/simple-prompt.js";
-import { CounterEditForm } from "../apps/counter-editor.js";
+import { CounterEditForm } from "../apps/editors/counter-editor.js";
 import { frameToPath } from "../actor/retrograde-map.js";
 import { Damage } from "../models/bits/damage.js";
 import { Range } from "../models/bits/range.js";

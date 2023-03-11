@@ -1,6 +1,6 @@
-import { getAutomationOptions } from "../settings.js";
-import type { AutomationOptions } from "../settings.js";
-import { LANCER } from "../config.js";
+import { getAutomationOptions } from "../../settings.js";
+import type { AutomationOptions } from "../../settings.js";
+import { LANCER } from "../../config.js";
 /**
  * Settings form for customizing the icon appearance of the icon used in the
  * tracker

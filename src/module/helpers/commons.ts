@@ -1,6 +1,6 @@
 import type { HelperOptions } from "handlebars";
-import { HTMLEditDialog } from "../apps/text-editor.js";
-import type { ContextMenuItem, GenControlContext, LancerActorSheetData, LancerItemSheetData } from "../interfaces.js";
+import { HTMLEditDialog } from "../apps/editors/text-editor.js";
+import type { ContextMenuItem, GenControlContext } from "../interfaces.js";
 import * as defaults from "../util/unpacking/defaults.js";
 
 import tippy from "tippy.js";

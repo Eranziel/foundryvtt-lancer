@@ -42,7 +42,7 @@ import { preloadTemplates } from "./module/preload-templates.js";
 import { getAutomationOptions, registerSettings } from "./module/settings.js";
 import { compact_tag_list } from "./module/helpers/tags.js";
 import * as migrations from "./module/migration.js";
-import { addLCPManager, updateCore, core_update } from "./module/apps/lcp-manager.js";
+import { addLCPManager, updateCore, core_update } from "./module/apps/settings/lcp-manager.js";
 
 // Import sliding HUD (used for accuracy/difficulty windows)
 import * as slidingHUD from "./module/helpers/slidinghud/index.js";
@@ -181,7 +181,7 @@ import { ReserveModel } from "./module/models/items/reserve.js";
 import { StatusModel } from "./module/models/items/status.js";
 import { Auth } from "@aws-amplify/auth";
 import { Storage } from "@aws-amplify/storage";
-import MechSheetV2 from "./module/actor/new-mech-sheet.js";
+import MechSheetV2 from "./module/apps/sheets/new-mech-sheet.js";
 import { parse as markedParse } from "marked";
 
 const lp = LANCER.log_prefix;
@@ -1030,4 +1030,9 @@ function addSettingsButtons(_app: Application, html: HTMLElement) {
   });
 }
 
-// Hooks.once("ready", () => new MechSheetV2().render(true, { focus: true }));
+Hooks.once("ready", () => {
+  let some_mech = game.actors!.filter(x => x.is_mech())?.[0];
+  if (some_mech) {
+    new MechSheetV2(some_mech).render(true, { focus: true });
+  }
+});

@@ -17,7 +17,7 @@ import {
 } from "../helpers/item.js";
 import { HANDLER_activate_tag_context_menus, HANDLER_activate_tag_dropping } from "../helpers/tags.js";
 import { applyCollapseListeners, CollapseHandler, initializeCollapses } from "../helpers/collapse.js";
-import { activate_action_editor } from "../apps/action-editor.js";
+import { activate_action_editor } from "../apps/editors/action-editor.js";
 import { find_license_for } from "../util/doc.js";
 import { lookupOwnedDeployables } from "../util/lid.js";
 import { EntryType } from "../enums.js";

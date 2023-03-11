@@ -4,7 +4,7 @@ import { LANCER } from "./config.js";
 import { handleActorExport } from "./helpers/io.js";
 import { LancerActor } from "./actor/lancer-actor.js";
 import type { LancerNpcData } from "./actor/lancer-actor.js";
-import { core_update, LCPIndex, LCPManager, updateCore } from "./apps/lcp-manager.js";
+import { core_update, LCPIndex, LCPManager, updateCore } from "./apps/settings/lcp-manager.js";
 import { LancerItem } from "./item/lancer-item.js";
 import { arrayify_object } from "./helpers/commons.js";
 import { LancerTokenDocument } from "./token.js";

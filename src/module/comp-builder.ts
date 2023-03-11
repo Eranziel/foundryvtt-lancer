@@ -1,6 +1,6 @@
 import { LANCER } from "./config.js";
 const lp = LANCER.log_prefix;
-import { LCPIndex } from "./apps/lcp-manager.js";
+import { LCPIndex } from "./apps/settings/lcp-manager.js";
 import { get_pack } from "./util/doc.js";
 import type { LancerActor } from "./actor/lancer-actor.js";
 import { LancerItem } from "./item/lancer-item.js";

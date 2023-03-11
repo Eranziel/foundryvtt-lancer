@@ -18,7 +18,7 @@ import { ActivationOptions } from "../enums.js";
 import { applyCollapseListeners, CollapseHandler, initializeCollapses } from "../helpers/collapse.js";
 import { addExportButton } from "../helpers/io.js";
 import type { ActionType } from "../action/index.js";
-import { InventoryDialog } from "../apps/inventory.js";
+import { InventoryDialog } from "../apps/sheets/inventory.js";
 import { HANDLER_activate_item_context_menus, HANDLER_activate_edit_counter } from "../helpers/item.js";
 import { getActionTrackerOptions } from "../settings.js";
 import { modAction } from "../action/action-tracker.js";

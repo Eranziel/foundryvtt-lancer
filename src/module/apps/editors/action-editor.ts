@@ -1,6 +1,6 @@
-import { HANDLER_activate_popout_text_editor, resolve_dotpath } from "../helpers/commons.js";
-import { LancerItem } from "../item/lancer-item.js";
-import type { ActionData } from "../models/bits/action.js";
+import { HANDLER_activate_popout_text_editor, resolve_dotpath } from "../../helpers/commons.js";
+import { LancerItem } from "../../item/lancer-item.js";
+import type { ActionData } from "../../models/bits/action.js";
 /**
  * A helper Dialog subclass for editing an action
  * @extends {Dialog}

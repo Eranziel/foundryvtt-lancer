@@ -1,7 +1,7 @@
-import { LancerActor } from "../actor/lancer-actor.js";
-import { read_form, resolve_dotpath } from "../helpers/commons.js";
-import { LancerItem } from "../item/lancer-item.js";
-import type { CounterData } from "../models/bits/counter.js";
+import { LancerActor } from "../../actor/lancer-actor.js";
+import { read_form, resolve_dotpath } from "../../helpers/commons.js";
+import { LancerItem } from "../../item/lancer-item.js";
+import type { CounterData } from "../../models/bits/counter.js";
 
 /**
  * A helper FormApplication subclass for editing a counter

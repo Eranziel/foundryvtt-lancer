@@ -1,9 +1,9 @@
-import { LANCER } from "../config.js";
+import { LANCER } from "../../config.js";
 const lp = LANCER.log_prefix;
-import { importCP, clearCompendiumData, setAllLock } from "../comp-builder.js";
-import type { IContentPack, IContentPackManifest } from "../util/unpacking/packed-types.js";
-import { getBaseContentPack, parseContentPack } from "../util/lcp-parser.js";
-import { info } from "../util/typed-lancerdata.js";
+import { importCP, clearCompendiumData, setAllLock } from "../../comp-builder.js";
+import type { IContentPack, IContentPackManifest } from "../../util/unpacking/packed-types.js";
+import { getBaseContentPack, parseContentPack } from "../../util/lcp-parser.js";
+import { info } from "../../util/typed-lancerdata.js";
 
 export const core_update = info.version;
 

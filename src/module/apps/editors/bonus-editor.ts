@@ -1,11 +1,11 @@
-import { LancerActor } from "../actor/lancer-actor.js";
-import { DamageType, RangeType, WeaponSize, WeaponType } from "../enums.js";
-import type { DamageTypeChecklist, RangeTypeChecklist, WeaponSizeChecklist, WeaponTypeChecklist } from "../enums.js";
-import { IconFactory, resolve_dotpath } from "../helpers/commons.js";
-import { LancerItem } from "../item/lancer-item.js";
-import type { BonusData } from "../models/bits/bonus.js";
-import { Damage } from "../models/bits/damage.js";
-import { Range } from "../models/bits/range.js";
+import { LancerActor } from "../../actor/lancer-actor.js";
+import { DamageType, RangeType, WeaponSize, WeaponType } from "../../enums.js";
+import type { DamageTypeChecklist, RangeTypeChecklist, WeaponSizeChecklist, WeaponTypeChecklist } from "../../enums.js";
+import { IconFactory, resolve_dotpath } from "../../helpers/commons.js";
+import { LancerItem } from "../../item/lancer-item.js";
+import type { BonusData } from "../../models/bits/bonus.js";
+import { Damage } from "../../models/bits/damage.js";
+import { Range } from "../../models/bits/range.js";
 
 /**
  * A helper Dialog subclass for editing a bonus

@@ -1,25 +1,20 @@
-// import { SvelteApplication } from "@typhonjs-fvtt/runtime/_dist/svelte/application";
 import { SvelteApplication } from "@typhonjs-fvtt/runtime/svelte/application";
+import { TJSDocument } from "@typhonjs-fvtt/runtime/svelte/store";
 
 import MechSheetApp from "./app-mech-sheet.svelte";
-/*
-
-import AppStateClientSettingApp  from './app-state/client-setting/AppStateClientSettingApp.js';
-import AppStateSessionApp        from './app-state/session-storage/AppStateSessionApp.js';
-import ChatDialogContent         from './chatmessage/ChatDialogContent.svelte';
-import ContentEditableApp        from './editor/content-editable/ContentEditableApp.js';
-import BasicDocumentApp          from './document/basic/BasicDocumentApp.js';
-import EmbeddedDocApplication    from "./document/embedded-collection/EmbeddedDocApplication.js.js";
-import HeaderButtonsApplication  from './header-buttons/HeaderButtonsApplication.js';
-import HelloFoundryApplication   from './hello/HelloFoundryApplication.js';
-import PositionApplication       from './position/app-control/PositionApplication.js';
-import PositionBasicOverlayApp   from './position/basic-overlay/PositionBasicOverlayApp.js';
-import PositionBoxApplication    from './position/box/PositionBoxApplication.js';
-import PositionCarouselApp       from './position/carousel/PositionCarouselApp.js';
-*/
-//import ProseMirrorApp            from './editor/prosemirror/ProseMirrorApp.js';
+import { LancerActor } from "../../actor/lancer-actor.js";
 
 export default class MechSheetV2 extends SvelteApplication {
+  constructor(actor: LancerActor, options = {}) {
+    super({
+      svelte: {
+        props: {
+          actor: new TJSDocument(actor),
+        },
+      },
+    });
+  }
+
   /**
    * Default Application options
    */
@@ -54,17 +49,27 @@ export default class MechSheetV2 extends SvelteApplication {
 
     return foundry.utils.mergeObject(super.defaultOptions, {
       id: "essential-svelte-esm",
-      classes: ["tjs-essential-svelte-esm"],
+      classes: ["lancer", "sheet", "actor", "mech"],
       headerButtonNoClose: true,
       resizable: false,
       minimizable: true,
       popOut: false,
-      width: 225,
+      width: 800,
       height: "auto",
       positionOrtho: false,
       transformOrigin: null,
-      // title: 'EssentialESM.title',
+      title: "NEW MECH SHEET",
       zIndex: 95,
+
+      /*
+      tabs: [
+        {
+          navSelector: ".lancer-tabs",
+          contentSelector: ".sheet-body",
+          initial: "stats",
+        },
+      ],
+      */
 
       svelte: {
         class: MechSheetApp,
