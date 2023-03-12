@@ -850,7 +850,6 @@ textarea {
 
   /* For buttons/icons, we want them to not grow but also not just get squashed into nothing 
   * If this unbalances things, add an equal # of balancers to the other side
-  */
   a,
   i,
   img {
@@ -864,6 +863,7 @@ textarea {
     padding-left: 5px;
     padding-right: 5px;
   }
+  */
 
   /* Spans are the main bodies of headers. We want them to grow! 
   * Inputs too for those cases where the title is editable.

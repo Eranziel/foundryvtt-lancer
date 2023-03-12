@@ -20,20 +20,17 @@
     <StatEditCard path="system.burn" label="BURN" icon="cci cci-burn" />
     <div class="spacer"></div>
     <BoundedStatEditCard path="system.heat" label="HEAT" icon="cci cci-heat" />
-    <BoundedStatEditCard path="system.structure" label="STRUCT" icon="cci cci-structure" />
-    <BoundedStatEditCard path="system.stress" label="STRESS" icon="cci cci-reactor" />
     <StatViewCard path="system.save" label="SAVE" icon="cci cci-save" />
-    <Card>
+    <Card flat={true}>
       <span slot="header">Core</span>
       <DocCheckboxField path="system.core_energy" document={$actor} class="core-power-toggle mdi mdi-battery" style="margin: auto;" />
     </Card>
-    <div class="spacer"></div>
-    <i class="cci cci-size-{$actor.system.size >= 1 ? $actor.system.size : 'half'} size-icon theme--main" />
-    <div class="spacer"></div>
   </div>
   <div class="hull">
     <StatViewCard path="system.hull" label="HULL" clipped={true}/>
+    <StatViewCard path="system.hp.max" label="MAX HP"/>
     <BoundedStatEditCard path="system.repairs" label="REPAIRS" icon="cci cci-repair" />
+    <BoundedStatEditCard path="system.structure" label="STRUCT" icon="cci cci-structure" />
   </div>
   <div class="agi">
     <StatViewCard path="system.agi" label="AGI" clipped={true}/>
@@ -47,17 +44,17 @@
     <!--tech-flow-card "TECH ATK" "cci cci-tech-full" "system.tech_attack"-->
   </div>
   <div class="eng">
-    <StatViewCard path="system.sys" label="ENG" clipped={true}/>
+    <StatViewCard path="system.eng" label="ENG" clipped={true}/>
+    <BoundedStatEditCard path="system.stress" label="STRESS" icon="cci cci-reactor" />
+    <StatViewCard path="system.overcharge" label="O.CHARGE" />
   </div>
   <!--overcharge-button actor "system.overcharge"-->
-  <div style="grid-area: pilot">
-    <div class="lancer-header">
-      <span class="major">
-        <!--localize "lancer.mech-sheet.core.label"-->
-      </span>
-    </div>
+  <div class="size">
+    <i class="cci cci-size-{$actor.system.size >= 1 ? $actor.system.size : 'half'} size-icon theme--main" />
   </div>
-  <!--pilot-slot "system.pilot" value=pilot-->
+  <div class="pilot">
+    <!--pilot-slot "system.pilot" value=pilot-->
+  </div>
 </div>
 
 <style lang="scss">
@@ -76,17 +73,23 @@
   .misc {
     grid-area: misc;
   }
+  .size {
+    grid-area: size;
+  }
+  .pilot {
+    grid-area: pilot;
+  }
   .stat-header {
     font-size: larger;
     font-weight: bolder;
   }
   .grouped-stat-grid {
     display: grid;
-    grid-template-columns: 140px 140px 140px;
+    grid-template-columns: 170px 170px 170px 170px;
     grid-template-rows: 1fr 1fr;
     grid-template-areas:
-      "hull sys misc"
-      "agi eng misc"
+      "hull sys misc size"
+      "agi eng misc pilot"
   }
   .spacer {
     height: 10px;

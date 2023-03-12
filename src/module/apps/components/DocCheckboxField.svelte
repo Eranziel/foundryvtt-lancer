@@ -12,20 +12,19 @@
   export let style: string = "";
 
   // Current value
-  let value: string;
+  let value: boolean;
   $: value = resolve_dotpath(document, path);
 
   // Change callback
-  const onChange = (e: InputEvent) => {
-    let newValue = e.target.value;
+  const onInput = (e: InputEvent) => {
+    let newValue = e.target.checked;
     document.update({
         [path]: newValue
     });
   };
-
 </script>
 
-<input class="{$$props.class}" style="{style}" on:change={onChange} value="{value}" type="checkbox" />
+<input class="{$$props.class}" style="{style}" on:change={onInput} checked={value} type="checkbox" />
 
 <style lang="scss">
   input {

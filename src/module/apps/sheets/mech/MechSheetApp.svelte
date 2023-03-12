@@ -65,7 +65,7 @@
 
   <!-- Sheet Body ---->
   <section class="sheet-body scroll-body">
-    <div class="tab stats" style:display="{tab == 'stats' ? 'inherit' : 'none'}" >
+    <div class="tab stats" class:visible={tab == 'stats'}>
      <MechStats /> 
       <div class="pilot-frame-wrapper flexrow">
         <div class="card">
@@ -133,5 +133,11 @@
 </TJSApplicationShell>
 
 <style lang="scss">
+  .tab {
+    display: none;
 
+    &.visible {
+      display: inherit;
+    }
+  }
 </style>

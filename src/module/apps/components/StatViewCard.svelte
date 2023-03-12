@@ -17,9 +17,9 @@
   const actor: Readable<LancerActor> = getContext("actor");
 </script>
 
-<Card clipped={clipped}>
+<Card clipped={clipped} flat={true}>
   <svelte:fragment slot="header">
-    {#if icon}<i class="i--m i--light {icon}" />{/if}
+    {#if icon}<i class="i--s i--light {icon}" />{/if}
     {label}
   </svelte:fragment>
 
@@ -28,8 +28,4 @@
 </Card>
 
 <style lang="scss">
-  i {
-    float: left;
-  }
-
 </style>

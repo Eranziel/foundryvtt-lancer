@@ -18,24 +18,16 @@
   $: stat = resolve_dotpath($actor, path);
 </script>
 
-<Card clipped={true}>
-  <span slot="header">
-    {#if icon}<i class="i--m i--light {icon}" />{/if}
+<Card flat={true}>
+  <svelte:fragment slot="header">
+    {#if icon}<i class="i--s i--light {icon}" />{/if}
     {label}
-  </span>
+  </svelte:fragment>
 
   <div class="flexrow flex-center no-wrap">
-    <DocStringField
-      document={$actor}
-      integer={true}
-      path="{path}"
-      style="justify-content: left"
-    />
+    <DocStringField document={$actor} integer={true} {path} />
   </div>
 </Card>
 
 <style lang="scss">
-  i {
-    float: left;
-  }
 </style>
