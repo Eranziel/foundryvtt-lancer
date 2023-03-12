@@ -192,7 +192,7 @@ function updateManifest(cb) {
 
     /* Update version */
 
-    const versionMatch = /^(\d{1,}).(\d{1,}).(\d{1,})$/;
+    const versionMatch = /^(\d{1,}).(\d{1,}).(\d{1,})(-[a-zA-Z0-9]{0,})?$/;
     const currentVersion = manifest.file.version;
     let targetVersion = "";
 
