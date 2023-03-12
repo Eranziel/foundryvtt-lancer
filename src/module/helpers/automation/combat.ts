@@ -2,7 +2,7 @@ import { LancerCombat } from "lancer-initiative";
 import { modAction } from "../../action/action-tracker";
 import { LancerActor } from "../../actor/lancer-actor";
 import { prepareChargeMacro } from "../../macros";
-import { prepareActionTrackMacro } from "../../macros/action-track";
+import { prepareActionTrackMacro } from "../../flows/action-track";
 import { getActionTrackerOptions, getAutomationOptions } from "../../settings";
 
 export async function handleCombatUpdate(...[combat, changed]: Parameters<Hooks.UpdateDocument<typeof Combat>>) {

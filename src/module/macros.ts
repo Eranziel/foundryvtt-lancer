@@ -1,20 +1,20 @@
 // Import TypeScript modules
 
-export { onHotbarDrop } from "./macros/hotbar";
-export { targetsFromTemplate } from "./macros/_template";
-export { encodeMacroData, runEncodedMacro } from "./macros/encode";
-export { renderMacroTemplate, renderMacroHTML } from "./macros/_render";
-export { prepareActivationMacro } from "./macros/activation";
-export { prepareAttackMacro, rollAttackMacro } from "./macros/attack";
-export { prepareCoreActiveMacro, prepareCorePassiveMacro, prepareFrameTraitMacro } from "./macros/frame";
-export { prepareItemMacro } from "./macros/item";
-export { prepareChargeMacro } from "./macros/npc";
-export { prepareOverchargeMacro } from "./macros/overcharge";
-export { prepareStatMacro } from "./macros/stat";
-export { prepareTalentMacro } from "./macros/talent";
-export { prepareTechMacro, rollTechMacro } from "./macros/tech";
-export { prepareTextMacro } from "./macros/text";
-export { prepareStabilizeMacro as stabilizeMacro } from "./macros/stabilize";
-export { prepareOverheatMacro } from "./macros/stress";
-export { prepareStructureMacro, prepareStructureSecondaryRollMacro } from "./macros/structure";
-export { prepareFullRepairMacro as fullRepairMacro } from "./macros/full-repair";
+export { onHotbarDrop } from "./flows/hotbar";
+export { targetsFromTemplate } from "./flows/_template";
+export { encodeMacroData, runEncodedMacro } from "./flows/encode";
+export { renderMacroTemplate, renderMacroHTML } from "./flows/_render";
+export { prepareActivationMacro } from "./flows/activation";
+export { prepareAttackMacro, rollAttackMacro } from "./flows/attack";
+export { prepareCoreActiveMacro, prepareCorePassiveMacro, prepareFrameTraitMacro } from "./flows/frame";
+export { prepareItemMacro } from "./flows/item";
+export { prepareChargeMacro } from "./flows/npc";
+export { prepareOverchargeMacro } from "./flows/overcharge";
+export { prepareStatMacro } from "./flows/stat";
+export { prepareTalentMacro } from "./flows/talent";
+export { prepareTechMacro, rollTechMacro } from "./flows/tech";
+export { prepareTextMacro } from "./flows/text";
+export { prepareStabilizeMacro as stabilizeMacro } from "./flows/stabilize";
+export { prepareOverheatMacro } from "./flows/stress";
+export { prepareStructureMacro, prepareStructureSecondaryRollMacro } from "./flows/structure";
+export { prepareFullRepairMacro as fullRepairMacro } from "./flows/full-repair";

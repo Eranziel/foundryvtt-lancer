@@ -17,7 +17,7 @@ import { SystemData, SystemTemplates } from "../system-template";
 import { LancerCORE_BONUS, LancerFRAME, LancerMECH_SYSTEM } from "../item/lancer-item";
 import { ActionData } from "../models/bits/action";
 import { collapseButton, collapseParam, CollapseRegistry } from "./collapse";
-import { LancerMacro } from "../macros/interfaces";
+import { LancerMacro } from "../flows/interfaces";
 import { slugify } from "../util/lid";
 
 // A drag-drop slot for a system mount.

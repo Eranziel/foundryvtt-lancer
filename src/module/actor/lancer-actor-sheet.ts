@@ -23,7 +23,7 @@ import { modAction } from "../action/action-tracker";
 import { insinuate } from "../util/doc";
 import { PrototypeTokenData } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs";
 import { LancerActiveEffect } from "../effects/lancer-active-effect";
-import { LancerMacro } from "../macros/interfaces";
+import { LancerMacro } from "../flows/interfaces";
 import { lookupOwnedDeployables } from "../util/lid";
 const lp = LANCER.log_prefix;
 
