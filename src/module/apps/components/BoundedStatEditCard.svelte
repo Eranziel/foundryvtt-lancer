@@ -26,7 +26,7 @@
 
   <div class="flexrow flex-center no-wrap">
     <DocStringField
-      document={actor}
+      document={$actor}
       integer={true}
       path="{path}.value"
       style="justify-content: left"

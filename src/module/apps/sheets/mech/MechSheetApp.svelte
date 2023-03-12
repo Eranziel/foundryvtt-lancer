@@ -50,7 +50,7 @@
     <header class="sheet-header card clipped-bot" class:inactive-mech="{inactive}">
       <div>
         <h1 class="charname">
-          <DocStringField class="header-field" doc={actor} name="name" path="name" />
+          <DocStringField class="header-field" document={$actor} path="name" />
         </h1>
         {#if inactive}
         <span>WARNING: INACTIVE MECH - PILOT BONUSES NOT TRACKED</span>
