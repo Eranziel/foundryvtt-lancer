@@ -5,22 +5,22 @@
 - `getMacroSpeaker` is confusing and fragile.
 - Encoding macros into binary to embed in HTML data props is horrible. Next to impossible to troubleshoot/debug, resolution flow is even more confusing.
 - "Macros" feels like a misnomer, and is easily confused with user-written macros in Foundry and the compendium of macros in the system.
-  - Automation? Actions? Functions? Maybe just plain API?
+  - Will rename to Flows & Steps.
 
 ## Requirements
 
 - Better maintainability is key, clarity is a big part of that.
 - API documentation?
 - Flowchart showing entry points and resolution flow?
-- Macro API needs to be support the following contexts:
-  - Sheet functions - macro to call needs to be identifiable by element type & classes, data needs to either come from the sheet document (e.g. the sheet activates a click listener on `button.macro-class` and then inserts its document/ID into the macro call), or from data on HTML (e.g. click listener on `button.macro-class`, retrieve additional context from `data-X` properties to insert into the macro call).
-  - Foundry macros: `game.lancer.macroApiFunction(args)`. Either user-written, or dragged to hotbar from a sheet.
+- Flow API needs to support the following contexts:
+  - Sheet functions - flow to call needs to be identifiable by element type & classes, data needs to either come from the sheet document (e.g. the sheet activates a click listener on `button.flow-class` and then inserts its document/ID into the `flow.begin()` call), or from data on HTML (e.g. click listener on `button.flow-class`, retrieve additional context from `data-X` properties to insert into the `flow.begin()` call).
+  - TODO - update || Foundry macros: ~~`game.lancer.macroApiFunction(args)`. Either user-written, or dragged to hotbar from a sheet.~~
   - Modules, such as Token Action HUD.
   - System-level automation features, e.g. future action helpers.
   - Rerolling from a chat message - needs to encapsulate all of the state info from the original roll.
-- Identify what entry points to the macro flow are needed, minimize/combine them wherever possible.
+- Identify what entry points to each flow are needed, minimize/combine them wherever possible.
   - Make a clear distinction between the "public" parts which are intended to be used directly, and the "private" parts which are used within the API functions themselves to continue the flow towards final output.
-- Outputs of all functions are:
+- Outputs of all public functions are:
   - Chat card showing the desired info or results of the action.
     - If a roll was involved, there should be a reroll button on the card.
     - If there are follow-up effects (damage, conditions added/removed, further rolls, etc...), the chat card should include buttons to trigger those effects.
@@ -29,11 +29,15 @@
 ## Potential Issues
 
 - Backwards compatibility. Going to have to accept this. Modules like TAH will need new integrations, user macros will need to be rewritten/regenerated.
-  - Maybe write a short conversion guide? `prepareAttackMacro` is replaced with `weaponAttackMacro`, args change like so?
+  - Maybe write a short conversion guide? `prepareAttackMacro` is replaced with `weaponAttackFlow`, args change like so?
 - Are there any downsides to using UUIDs and eliminating `getMacroSpeaker`? Doesn't seem like it currently.
 - Is there functionality provided by the binary encoding approach that is hard to replace?
 
 ## API Spec
+
+Specific flows are implementations of the `Flow` abstract class. Each flow type has a pre-defined list of steps, which are either functions or another flow. Being able to nest flows allows for higher-level flows for future features such as actions, which will be composed of several sub-flows.
+
+Non-Flow steps are simply functions which take the flow's current state and (optionally) additional data, then performs a discrete portion of the flow's logic. For example, each of these is a step: check if a weapon is not destroyed, check if a weapon is loaded, trigger the attack HUD and await its results, print the resulting chat card showing the attack's results. Steps modify the flow's state object and sometimes the originating Item/Actor, so are therefore inherently side-effecty - that's their job!
 
 ### Rolls
 
@@ -72,8 +76,8 @@
 
 ### Chopping Block
 
-- **Item** - is this still necessary? Define the difference between Item, Activation, and Text macros.
-- **Talent** - show a Talent rank in chat. Wrapper for either an Item or Text macro; could likely be combined with those types.
+- **Item** - is this still necessary? Define the difference between Item, Activation, and Text flows.
+- **Talent** - show a Talent rank in chat. Wrapper for either an Item or Text flow; could likely be combined with those types.
 - **Trigger** - wrapper for a stat roll.
-- **Core Active/Passive** - use a mech's core system. Wrapper for an Activation macro, likely does not need to be separate.
-- **Frame Trait** - show a frame trait in chat. Wrapper for a Text macro, can be combined.
+- **Core Active/Passive** - use a mech's core system. Wrapper for an Activation flow, likely does not need to be separate.
+- **Frame Trait** - show a frame trait in chat. Wrapper for a Text flow, can be combined.
