@@ -172,7 +172,7 @@ button {
 
 /* Components Layer */
 .lancer.sheet .window-content {
-  background: #ededed; /* Overwrite the parchment background */
+  background: #ededed !important; /* Overwrite the parchment background */
 }
 
 .lancer.sheet header:not(.window-header) {
@@ -606,6 +606,7 @@ tr.lcp-index-header {
   clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
   -webkit-clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
   padding: 10px;
+  cursor: pointer;
 }
 
 .lancer-tab.active {
@@ -824,7 +825,7 @@ textarea {
   box-shadow: var(--hover-bright);
 }
 
-/* Consolidate all of our card header stuff stuff */
+/* Consolidate all of our card header stuff */
 .lancer-header {
   flex: 0 0 2em;
 
@@ -1434,6 +1435,7 @@ code.horus:hover {
 }
 
 input[type="number"] {
+  appearance: textfield;
   -moz-appearance: textfield;
 }
 

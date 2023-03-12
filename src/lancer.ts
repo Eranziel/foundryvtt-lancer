@@ -181,7 +181,7 @@ import { ReserveModel } from "./module/models/items/reserve.js";
 import { StatusModel } from "./module/models/items/status.js";
 import { Auth } from "@aws-amplify/auth";
 import { Storage } from "@aws-amplify/storage";
-import MechSheetV2 from "./module/apps/sheets/new-mech-sheet.js";
+import MechSheetV2 from "./module/apps/sheets/mech/new-mech-sheet.js";
 import { parse as markedParse } from "marked";
 
 const lp = LANCER.log_prefix;

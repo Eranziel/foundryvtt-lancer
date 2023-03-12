@@ -1,8 +1,8 @@
 import { SvelteApplication } from "@typhonjs-fvtt/runtime/svelte/application";
 import { TJSDocument } from "@typhonjs-fvtt/runtime/svelte/store";
 
-import MechSheetApp from "./app-mech-sheet.svelte";
-import { LancerActor } from "../../actor/lancer-actor.js";
+import MechSheetApp from "./MechSheetApp.svelte";
+import { LancerActor } from "../../../actor/lancer-actor.js";
 
 export default class MechSheetV2 extends SvelteApplication {
   constructor(actor: LancerActor, options = {}) {
