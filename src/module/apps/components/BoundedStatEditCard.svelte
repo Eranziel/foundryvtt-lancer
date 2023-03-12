@@ -29,10 +29,9 @@
       document={$actor}
       integer={true}
       path="{path}.value"
-      style="justify-content: left"
     />
     <span>/</span>
-    <span class="lancer-stat" style="justify-content: left"> {stat.max}</span>
+    <span class="lancer-stat">{stat.max}</span>
   </div>
 </Card>
 
