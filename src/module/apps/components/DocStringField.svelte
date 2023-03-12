@@ -37,7 +37,7 @@
 
 </script>
 
-<input style="{style}" on:change={onChange} value="{value}" type="{integer || float ? 'number' : 'string'}" />
+<input class="{$$props.class}" style="{style}" on:change={onChange} value="{value}" type="{integer || float ? 'number' : 'text'}" />
 
 <style lang="scss">
 

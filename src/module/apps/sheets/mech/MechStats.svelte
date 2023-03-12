@@ -26,7 +26,7 @@
     </Card>
     <StatViewCard path="system.save" label="SAVE" icon="cci cci-save" />
     <StatEditCard path="system.burn" label="BURN" icon="cci cci-burn" />
-    <StatEditCard path="system.overshield" label="O.SHIELD" icon="mdi mdi-shield-star-outline" />
+    <StatEditCard path="system.overshield.value" label="O.SHIELD" icon="mdi mdi-shield-star-outline" />
     <StatViewCard path="system.armor" label="ARMOR" icon="mdi mdi-shield-outline" />
 
     <Card>

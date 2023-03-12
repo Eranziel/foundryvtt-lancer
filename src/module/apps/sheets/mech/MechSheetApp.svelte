@@ -7,6 +7,7 @@
     import { TJSApplicationShell } from '@typhonjs-fvtt/runtime/svelte/component/core';
     import MechStats from "./MechStats.svelte";
     import Tabs from "../../components/Tabs.svelte";
+    import DocStringField from "../../components/DocStringField.svelte";
 
     import type { LancerActor, LancerMECH } from '../../../actor/lancer-actor.js';
     export let elementRoot = void 0;
@@ -37,7 +38,7 @@
     let tab = "stats";
 
     export let inactive: boolean;
-    $: inactive = $actor.system.pilot?.value.system.active_mech?.value != $actor;
+    $: inactive = $actor.system.pilot?.value?.system.active_mech?.value != $actor;
 
 </script>
 
@@ -49,7 +50,7 @@
     <header class="sheet-header card clipped-bot" class:inactive-mech="{inactive}">
       <div>
         <h1 class="charname">
-          <input class="header-field" name="name" type="text" value="{$actor.name}" placeholder="{game.i18n.localize('lancer.placeholder.name')}" />
+          <DocStringField class="header-field" doc={actor} name="name" path="name" />
         </h1>
         {#if inactive}
         <span>WARNING: INACTIVE MECH - PILOT BONUSES NOT TRACKED</span>
