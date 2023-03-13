@@ -1,19 +1,23 @@
 // Import TypeScript modules
 import { LANCER } from "../config";
 import { getAutomationOptions } from "../settings";
-import { LancerItem } from "../item/lancer-item";
+import { ITEM_TYPES, LancerItem } from "../item/lancer-item";
 import { LancerActor } from "../actor/lancer-actor";
 import { checkForHit } from "../helpers/automation/targeting";
-import { AccDiffData, AccDiffDataSerialized, RollModifier } from "../helpers/acc_diff";
+import { AccDiffData, RollModifier } from "../helpers/acc_diff";
 import { resolveItemOrActor } from "./util";
 import { encodeMacroData } from "./encode";
-import { renderMacroTemplate } from "./_render";
-import { DamageType } from "../enums";
+import { renderTemplateStep } from "./_render";
+import { DamageType, EntryType } from "../enums";
 import { SystemTemplates } from "../system-template";
-import { SourceData } from "../source-template";
-import { LancerMacro } from "./interfaces";
+import { SourceData, UUIDRef } from "../source-template";
+import { LancerFlowState } from "./interfaces";
 import { openSlidingHud } from "../helpers/slidinghud";
 import { Tag } from "../models/bits/tag";
+import { LancerToken } from "../token";
+import { Flow, FlowState } from "./flow";
+
+const lp = LANCER.log_prefix;
 
 function rollStr(bonus: number, total: number): string {
   let modStr = "";
@@ -75,7 +79,7 @@ export async function prepareAttackMacro(
   let { item, actor } = resolveItemOrActor(doc);
   if (!actor) return;
 
-  let mData: Partial<LancerMacro.WeaponRoll> = {
+  let mData: Partial<LancerFlowState.WeaponRollData> = {
     docUUID: item?.uuid ?? actor?.uuid,
   };
   let acc_diff: AccDiffData;
@@ -195,7 +199,7 @@ export async function prepareAttackMacro(
   // Commit item updates
   if (item) await item.update({ system: item_changes });
 
-  await rollAttackMacro(mData as LancerMacro.WeaponRoll);
+  await rollAttackMacro(mData as LancerFlowState.WeaponRollData);
 }
 
 type AttackResult = {
@@ -264,7 +268,7 @@ export async function checkTargets(
   }
 }
 
-export async function rollAttackMacro(data: LancerMacro.WeaponRoll, reroll: boolean = false) {
+export async function rollAttackMacro(data: LancerFlowState.WeaponRollData, reroll: boolean = false) {
   // Get actor / item->actor (can be either)
   let { item, actor } = resolveItemOrActor(data.docUUID);
   if (!actor) {
@@ -280,7 +284,7 @@ export async function rollAttackMacro(data: LancerMacro.WeaponRoll, reroll: bool
     data.acc_diff = add.toObject();
   }
 
-  let rerollInvocation: LancerMacro.Invocation = {
+  let rerollInvocation: LancerFlowState.InvocationData = {
     title: "RollMacro",
     fn: "rollAttackMacro",
     args: [data, true],
@@ -388,7 +392,7 @@ export async function rollAttackMacro(data: LancerMacro.WeaponRoll, reroll: bool
   };
 
   const template = `systems/${game.system.id}/templates/chat/attack-card.hbs`;
-  return await renderMacroTemplate(actor, template, templateData);
+  return await renderTemplateStep(actor, template, templateData);
 }
 
 /**

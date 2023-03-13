@@ -1,12 +1,12 @@
 import { LancerItem } from "../item/lancer-item";
-import { LancerMacro } from "./interfaces";
+import { LancerFlowState } from "./interfaces";
 import { rollTextMacro } from "./text";
 
 export async function preparePilotGearMacro(item: string | LancerItem) {
   item = LancerItem.fromUuidSync(item);
   if (!item.actor || !item.is_pilot_gear()) return;
 
-  let gearData: LancerMacro.TextRoll = {
+  let gearData: LancerFlowState.TextRollData = {
     docUUID: item.uuid,
     title: item.name!,
     description: item.system.description,
@@ -20,7 +20,7 @@ export async function prepareCoreBonusMacro(item: string | LancerItem) {
   item = LancerItem.fromUuidSync(item);
   if (!item.actor || !item.is_core_bonus()) return;
 
-  let cbData: LancerMacro.TextRoll = {
+  let cbData: LancerFlowState.TextRollData = {
     docUUID: item.uuid,
     title: item.name ?? "",
     description: item.system.effect,
@@ -32,7 +32,7 @@ export async function prepareReserveMacro(item: string | LancerItem) {
   item = LancerItem.fromUuidSync(item);
   if (!item.actor || !item.is_reserve()) return;
 
-  let reserveData: LancerMacro.TextRoll = {
+  let reserveData: LancerFlowState.TextRollData = {
     docUUID: item.uuid,
     title: `RESERVE :: ${item.system.resource_name ?? item.name}`,
     description: (item.system.label ? `<b>${item.system.label}</b></br>` : "") + item.system.description,

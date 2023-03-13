@@ -9,7 +9,7 @@ import { LancerNPC } from "./lancer-actor";
 import { ResolvedDropData } from "../helpers/dragdrop";
 import { EntryType } from "../enums";
 import { lookupLID } from "../util/lid";
-import { LancerMacro } from "../flows/interfaces";
+import { LancerFlowState } from "../flows/interfaces";
 const lp = LANCER.log_prefix;
 
 /**

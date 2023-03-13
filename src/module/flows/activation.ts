@@ -5,12 +5,12 @@ import type { LancerDEPLOYABLE } from "../actor/lancer-actor";
 import type { AccDiffDataSerialized } from "../helpers/acc_diff";
 import { buildActionHTML, buildDeployableHTML } from "../helpers/item";
 import { ActivationOptions, ActivationType } from "../enums";
-import { renderMacroHTML, renderMacroTemplate } from "./_render";
+import { createChatMessageStep, renderTemplateStep } from "./_render";
 import { prepareTechMacro, rollTechMacro } from "./tech";
 import { resolve_dotpath } from "../helpers/commons";
 import { ActionData } from "../models/bits/action";
 import { lookupOwnedDeployables } from "../util/lid";
-import { LancerMacro } from "./interfaces";
+import { LancerFlowState } from "./interfaces";
 import { prepareTextMacro } from "./text";
 
 /**
@@ -62,7 +62,7 @@ async function prepareTechActionMacro(item: LancerItem, path: string) {
   let actor = item.actor!;
   let action = resolve_dotpath<ActionData>(item, path)!;
 
-  let mData: LancerMacro.AttackRoll = {
+  let mData: LancerFlowState.AttackRollData = {
     title: action.name,
     // @ts-expect-error
     tech_attack: actor.system.tech_attack,
@@ -81,7 +81,7 @@ async function prepareDeployableMacro(item: LancerItem, path: string) {
   let dep = lookupOwnedDeployables(item.actor!)[deployable_lid];
   if (dep) {
     // This is awful
-    await renderMacroHTML(
+    await createChatMessageStep(
       item.actor!,
       buildDeployableHTML(
         dep,

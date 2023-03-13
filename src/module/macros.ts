@@ -3,7 +3,7 @@
 export { onHotbarDrop } from "./flows/hotbar";
 export { targetsFromTemplate } from "./flows/_template";
 export { encodeMacroData, runEncodedMacro } from "./flows/encode";
-export { renderMacroTemplate, renderMacroHTML } from "./flows/_render";
+export { renderTemplateStep as renderMacroTemplate, createChatMessageStep as renderMacroHTML } from "./flows/_render";
 export { prepareActivationMacro } from "./flows/activation";
 export { prepareAttackMacro, rollAttackMacro } from "./flows/attack";
 export { prepareCoreActiveMacro, prepareCorePassiveMacro, prepareFrameTraitMacro } from "./flows/frame";

@@ -23,7 +23,7 @@ import { modAction } from "../action/action-tracker";
 import { insinuate } from "../util/doc";
 import { PrototypeTokenData } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs";
 import { LancerActiveEffect } from "../effects/lancer-active-effect";
-import { LancerMacro } from "../flows/interfaces";
+import { LancerFlowState } from "../flows/interfaces";
 import { lookupOwnedDeployables } from "../util/lid";
 const lp = LANCER.log_prefix;
 
@@ -276,7 +276,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     }
 
     // send as a generated macro:
-    let macroData: LancerMacro.Invocation = {
+    let macroData: LancerFlowState.InvocationData = {
       iconPath: `systems/${game.system.id}/assets/icons/macro-icons/mech_system.svg`,
       title: title!,
       fn: "prepareActivationMacro",

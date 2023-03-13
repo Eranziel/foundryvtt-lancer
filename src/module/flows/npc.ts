@@ -1,13 +1,13 @@
 // Import TypeScript modules
 import { LANCER } from "../config";
 import { LancerActor } from "../actor/lancer-actor";
-import { renderMacroTemplate } from "./_render";
+import { renderTemplateStep } from "./_render";
 import { LancerItem, LancerNPC_FEATURE } from "../item/lancer-item";
 import { rollTextMacro } from "./text";
 import { NpcFeatureType } from "../enums";
 import { prepareAttackMacro } from "./attack";
 import { prepareTechMacro } from "./tech";
-import { LancerMacro } from "./interfaces";
+import { LancerFlowState } from "./interfaces";
 import { SystemTemplates } from "../system-template";
 import { rollReactionMacro } from "./reaction";
 
@@ -27,7 +27,7 @@ export async function prepareNPCFeatureMacro(
       if (!options?.display) return prepareTechMacro(item);
     case NpcFeatureType.System:
     case NpcFeatureType.Trait:
-      let sysData: LancerMacro.TextRoll = {
+      let sysData: LancerFlowState.TextRollData = {
         docUUID: item.uuid,
         title: item.name!,
         description: item.system.effect,
@@ -36,7 +36,7 @@ export async function prepareNPCFeatureMacro(
 
       return rollTextMacro(sysData);
     case NpcFeatureType.Reaction:
-      let reactData: LancerMacro.ReactionRoll = {
+      let reactData: LancerFlowState.ReactionRollData = {
         docUUID: item.uuid,
         title: item.name!,
         trigger: (item.system as SystemTemplates.NPC.ReactionData).trigger,
@@ -85,5 +85,5 @@ export async function prepareChargeMacro(actor: string | LancerActor) {
     changed: changed,
   };
   const template = `systems/${game.system.id}/templates/chat/charge-card.hbs`;
-  return renderMacroTemplate(npc, template, templateData);
+  return renderTemplateStep(npc, template, templateData);
 }

@@ -1,7 +1,7 @@
 import type { HelperOptions } from "handlebars";
 import { LancerCORE_BONUS, LancerSKILL, LancerTALENT } from "../item/lancer-item";
 import { encodeMacroData } from "../macros";
-import { LancerMacro } from "../flows/interfaces";
+import { LancerFlowState } from "../flows/interfaces";
 import { collapseButton, collapseParam, CollapseRegistry } from "./collapse";
 import { resolve_helper_dotpath } from "./commons";
 import { buildActionArrayHTML } from "./item";
@@ -31,7 +31,7 @@ export function talent_view(talent_path: string, options: HelperOptions) {
       talent_actions = buildActionArrayHTML(talent, `system.ranks.${i}.actions`);
     }
 
-    let macroData: LancerMacro.Invocation = {
+    let macroData: LancerFlowState.InvocationData = {
       iconPath: `systems/${game.system.id}/assets/icons/macro-icons/talent.svg`,
       title: talent.system.ranks[i]?.name,
       fn: "prepareTalentMacro",

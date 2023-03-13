@@ -1,6 +1,6 @@
 // Import TypeScript modules
 import { LANCER } from "../config";
-import { renderMacroTemplate } from "./_render";
+import { renderTemplateStep } from "./_render";
 import { LancerItem } from "../item/lancer-item";
 
 const lp = LANCER.log_prefix;
@@ -27,5 +27,5 @@ export async function prepareTalentMacro(
     lvl: item.system.curr_rank,
   };
   const template = `systems/${game.system.id}/templates/chat/talent-card.hbs`;
-  return renderMacroTemplate(item.actor!, template, templateData);
+  return renderTemplateStep(item.actor!, template, templateData);
 }

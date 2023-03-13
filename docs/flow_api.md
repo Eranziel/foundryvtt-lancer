@@ -104,9 +104,9 @@ Non-Flow steps are simply functions which take the flow's current state and (opt
 
 ## Existing Functions to Migrate
 
-- [ ] `_render.ts`
-  - [ ] `renderMacroTemplate(actor: LancerActor | undefined, template: string, templateData: any)`
-  - [ ] `renderMacroHTML(actor: LancerActor | undefined, html: HTMLElement | string, roll?: Roll)`
+- [x] `_render.ts`
+  - [x] `renderMacroTemplate(actor: LancerActor | undefined, template: string, templateData: any)` -> renderTemplateStep, make actor required
+  - [x] `renderMacroHTML(actor: LancerActor | undefined, html: HTMLElement | string, roll?: Roll)` -> createChatMessageStep, make actor required
 - [ ] `_template.ts`
   - [ ] `targetsFromTemplate(templateId: string): void`
 - [ ] `action-track.ts`
@@ -147,18 +147,8 @@ Non-Flow steps are simply functions which take the flow's current state and (opt
 - [ ] `hotbar.ts`
   - [ ] `_chooseItemImage(data: any): string` (unused?)
   - [ ] `onHotbarDrop(_bar: any, data: any, slot: number)`
-- [ ] `interfaces.ts` - all types, `LancerMacro` namespace
-  - [ ] `BaseRoll`
-  - [ ] `StatRoll`
-  - [ ] `AttackRoll`
-  - [ ] `WeaponRoll`
-  - [ ] `ActionUse`
-  - [ ] `TalentUse`
-  - [ ] `Generic`
-  - [ ] `ReactionRoll`
-  - [ ] `TextRoll`
-  - [ ] `OverchargeRoll`
-  - [ ] `Invocation`
+- [x] `interfaces.ts` - all interfaces, `LancerMacro` namespace. Rename to `LancerFlowState` namespace, add `Data` to each interface name.
+  - [ ] Add metadata to these types to facilitate flow extensibility
 - [ ] `item.ts`
   - [ ] `prepareItemMacro(item: string | LancerItem, options?: {rank?: number; title?: string; display?: boolean;})`
 - [ ] `npc.ts`

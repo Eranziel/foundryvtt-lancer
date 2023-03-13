@@ -2,7 +2,7 @@
 import { LANCER } from "../config";
 import { rollTextMacro } from "./text";
 import { LancerActor, LancerMECH } from "../actor/lancer-actor";
-import { LancerMacro } from "./interfaces";
+import { LancerFlowState } from "./interfaces";
 
 const lp = LANCER.log_prefix;
 
@@ -23,7 +23,7 @@ export async function prepareCoreActiveMacro(actor: string | LancerActor) {
   }
 
   let frame = actor.system.loadout.frame.value;
-  let mData: LancerMacro.TextRoll = {
+  let mData: LancerFlowState.TextRollData = {
     docUUID: frame.uuid,
     title: frame.system.core_system.active_name,
     description: frame.system.core_system.active_effect,
@@ -67,7 +67,7 @@ export async function prepareCorePassiveMacro(actor: string | LancerActor) {
   let frame = actor.system.loadout.frame?.value;
   if (!frame) return;
 
-  let mData: LancerMacro.TextRoll = {
+  let mData: LancerFlowState.TextRollData = {
     docUUID: frame.uuid,
     title: frame.system.core_system.passive_name,
     description: frame.system.core_system.passive_effect,
@@ -93,7 +93,7 @@ export async function prepareFrameTraitMacro(actor: string | LancerActor, index:
   let trait = frame.system.traits[index];
   if (!trait) return;
 
-  let mData: LancerMacro.TextRoll = {
+  let mData: LancerFlowState.TextRollData = {
     docUUID: frame.uuid,
     title: trait.name,
     description: trait.description,

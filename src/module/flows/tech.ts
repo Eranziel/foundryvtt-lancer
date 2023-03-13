@@ -4,10 +4,10 @@ import { LancerActor, LancerMECH, LancerNPC } from "../actor/lancer-actor";
 import { AccDiffData, AccDiffDataSerialized } from "../helpers/acc_diff";
 import { encodeMacroData } from "./encode";
 import { resolveItemOrActor } from "./util";
-import { renderMacroTemplate } from "./_render";
+import { renderTemplateStep } from "./_render";
 import { attackRolls, checkTargets } from "./attack";
 import { SystemTemplates } from "../system-template";
-import { LancerMacro } from "./interfaces";
+import { LancerFlowState } from "./interfaces";
 import { openSlidingHud } from "../helpers/slidinghud";
 import { LancerItem } from "../item/lancer-item";
 import { ActionData } from "../models/bits/action";
@@ -27,7 +27,7 @@ export async function prepareTechMacro(
   let { item, actor } = resolveItemOrActor(docUUID);
   if (!actor) return;
 
-  let mData: Partial<LancerMacro.AttackRoll>;
+  let mData: Partial<LancerFlowState.AttackRollData>;
   let acc_diff: AccDiffData;
   if (actor && !item) {
     // If we weren't passed an item assume generic "basic tech attack" roll
@@ -116,10 +116,10 @@ export async function prepareTechMacro(
     await item.update({ "system.charged": false });
   }
 
-  await rollTechMacro(mData as LancerMacro.AttackRoll);
+  await rollTechMacro(mData as LancerFlowState.AttackRollData);
 }
 
-export async function rollTechMacro(data: LancerMacro.AttackRoll, reroll: boolean = false) {
+export async function rollTechMacro(data: LancerFlowState.AttackRollData, reroll: boolean = false) {
   // Get actor
   let { actor } = resolveItemOrActor(data.docUUID);
   if (!actor) return;
@@ -133,7 +133,7 @@ export async function rollTechMacro(data: LancerMacro.AttackRoll, reroll: boolea
     data.acc_diff = add.toObject();
   }
 
-  let rerollInvocation: LancerMacro.Invocation = {
+  let rerollInvocation: LancerFlowState.InvocationData = {
     title: "RollMacro",
     fn: "rollTechMacro",
     args: [data, true],
@@ -155,5 +155,5 @@ export async function rollTechMacro(data: LancerMacro.AttackRoll, reroll: boolea
   };
 
   const template = `systems/${game.system.id}/templates/chat/tech-attack-card.hbs`;
-  return await renderMacroTemplate(actor, template, templateData);
+  return await renderTemplateStep(actor, template, templateData);
 }

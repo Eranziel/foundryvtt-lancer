@@ -2,8 +2,8 @@
 import { LANCER } from "../config";
 import { LancerActor } from "../actor/lancer-actor";
 import { resolve_dotpath } from "../helpers/commons";
-import { renderMacroTemplate } from "./_render";
-import { LancerMacro } from "./interfaces";
+import { renderTemplateStep } from "./_render";
+import { LancerFlowState } from "./interfaces";
 import { LancerItem, LancerSKILL } from "../item/lancer-item";
 import { resolveItemOrActor } from "./util";
 import { AccDiffData } from "../helpers/acc_diff";
@@ -21,7 +21,7 @@ export async function prepareStatMacro(actor: string | LancerActor, statKey: str
   let acc_diff = AccDiffData.fromParams(actor, undefined, statPath[statPath.length - 1].toUpperCase());
   acc_diff = await openSlidingHud("hase", acc_diff);
 
-  let mData: LancerMacro.StatRoll = {
+  let mData: LancerFlowState.StatRollData = {
     title: statPath[statPath.length - 1].toUpperCase(),
     docUUID: actor.uuid,
     bonus,
@@ -40,7 +40,7 @@ export async function prepareSkillMacro(item: string | LancerItem) {
   item = LancerItem.fromUuidSync(item);
   let acc_diff = AccDiffData.fromParams(item, undefined, item.name!);
   acc_diff = await openSlidingHud("hase", acc_diff);
-  let skillData: LancerMacro.StatRoll = {
+  let skillData: LancerFlowState.StatRollData = {
     title: item.name!,
     bonus: (item as LancerSKILL).system.curr_rank * 2,
     docUUID: item.uuid,
@@ -51,7 +51,7 @@ export async function prepareSkillMacro(item: string | LancerItem) {
 
 // Rollers
 
-export async function rollStatMacro(data: LancerMacro.StatRoll) {
+export async function rollStatMacro(data: LancerFlowState.StatRollData) {
   let { actor } = resolveItemOrActor(data.docUUID);
   if (!actor) return;
 
@@ -72,5 +72,5 @@ export async function rollStatMacro(data: LancerMacro.StatRoll) {
     effect: data.effect ? data.effect : null,
   };
   const template = `systems/${game.system.id}/templates/chat/stat-roll-card.hbs`;
-  return renderMacroTemplate(actor, template, templateData);
+  return renderTemplateStep(actor, template, templateData);
 }

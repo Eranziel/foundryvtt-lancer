@@ -1,7 +1,7 @@
 // Import TypeScript modules
 import { LANCER } from "../config";
 import { buildSystemHTML } from "../helpers/item";
-import { renderMacroHTML } from "./_render";
+import { createChatMessageStep } from "./_render";
 import { LancerItem } from "../item/lancer-item";
 
 const lp = LANCER.log_prefix;
@@ -11,5 +11,5 @@ export async function prepareSystemMacro(item: string | LancerItem) {
   if (!item.actor || !item.is_mech_system()) return;
   // Construct the template
   const html = buildSystemHTML(item);
-  return renderMacroHTML(item.actor, html);
+  return createChatMessageStep(item.actor, html);
 }

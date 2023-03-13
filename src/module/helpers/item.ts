@@ -77,7 +77,7 @@ import { LancerDoc } from "../util/doc";
 import { item_edit_arrayed_actions } from "./item-editors";
 import { slugify } from "../util/lid";
 import { MacroData } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/module.mjs";
-import { LancerMacro } from "../flows/interfaces";
+import { LancerFlowState } from "../flows/interfaces";
 
 /**
  * Handlebars helper for weapon size selector
@@ -1142,7 +1142,7 @@ export function buildChipHTML(
     path?: string;
 
     // Or just provide a prebuilt invocation
-    fullData?: LancerMacro.Invocation | null;
+    fullData?: LancerFlowState.InvocationData | null;
   }
 ): string {
   if (macroData && (macroData.fullData || (macroData.uuid && macroData.path !== undefined))) {

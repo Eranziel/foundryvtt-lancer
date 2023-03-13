@@ -1,9 +1,9 @@
 // Import TypeScript modules
 import { LANCER } from "../config";
 import { LancerActor } from "../actor/lancer-actor";
-import { renderMacroTemplate } from "./_render";
+import { renderTemplateStep } from "./_render";
 import { Tag } from "../models/bits/tag";
-import { LancerMacro } from "./interfaces";
+import { LancerFlowState } from "./interfaces";
 import { resolveItemOrActor } from "./util";
 
 const lp = LANCER.log_prefix;
@@ -21,7 +21,7 @@ export function prepareTextMacro(
   text: string,
   tags?: Tag[]
 ): Promise<void> {
-  let mData: LancerMacro.TextRoll = {
+  let mData: LancerFlowState.TextRollData = {
     docUUID: actor instanceof LancerActor ? actor.uuid : actor,
     title,
     description: text,
@@ -35,10 +35,10 @@ export function prepareTextMacro(
  * Given prepared data, handles rolling of a generic text-only macro to display descriptions etc.
  * @param data {LancerTextMacroData} Prepared macro data.
  */
-export async function rollTextMacro(data: LancerMacro.TextRoll) {
+export async function rollTextMacro(data: LancerFlowState.TextRollData) {
   let { actor } = resolveItemOrActor(data.docUUID);
   if (!actor) return;
 
   const template = `systems/${game.system.id}/templates/chat/generic-card.hbs`;
-  return renderMacroTemplate(actor, template, data);
+  return renderTemplateStep(actor, template, data);
 }

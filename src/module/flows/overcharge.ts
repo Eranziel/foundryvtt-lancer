@@ -2,8 +2,8 @@
 import { getAutomationOptions } from "../settings";
 import { LancerActor, LancerMECH } from "../actor/lancer-actor";
 import { encodeMacroData } from "./encode";
-import { renderMacroTemplate } from "./_render";
-import { LancerMacro } from "./interfaces";
+import { renderTemplateStep } from "./_render";
+import { LancerFlowState } from "./interfaces";
 
 export function encodeOverchargeMacroData(actor_uuid: string): string {
   return encodeMacroData({
@@ -26,7 +26,7 @@ export async function prepareOverchargeMacro(actor: LancerActor | string) {
 
   let rollText = actor.strussHelper.getOverchargeRoll()!;
 
-  let mData: LancerMacro.OverchargeRoll = {
+  let mData: LancerFlowState.OverchargeRollData = {
     level: actor.system.overcharge,
     roll: rollText,
   };
@@ -39,7 +39,7 @@ export async function prepareOverchargeMacro(actor: LancerActor | string) {
   return rollOverchargeMacro(actor, mData);
 }
 
-async function rollOverchargeMacro(actor: LancerActor, data: LancerMacro.OverchargeRoll) {
+async function rollOverchargeMacro(actor: LancerActor, data: LancerFlowState.OverchargeRollData) {
   if (!actor) return;
 
   // Prep data
@@ -59,5 +59,5 @@ async function rollOverchargeMacro(actor: LancerActor, data: LancerMacro.Overcha
     roll_tooltip: roll_tt,
   };
   const template = `systems/${game.system.id}/templates/chat/overcharge-card.hbs`;
-  return renderMacroTemplate(actor, template, templateData);
+  return renderTemplateStep(actor, template, templateData);
 }

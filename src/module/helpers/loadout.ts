@@ -17,7 +17,7 @@ import { SystemData, SystemTemplates } from "../system-template";
 import { LancerCORE_BONUS, LancerFRAME, LancerMECH_SYSTEM } from "../item/lancer-item";
 import { ActionData } from "../models/bits/action";
 import { collapseButton, collapseParam, CollapseRegistry } from "./collapse";
-import { LancerMacro } from "../flows/interfaces";
+import { LancerFlowState } from "../flows/interfaces";
 import { slugify } from "../util/lid";
 
 // A drag-drop slot for a system mount.
@@ -58,7 +58,7 @@ export function mech_system_view(system_path: string, options: HelperOptions): s
     deployables = buildDeployablesArray(doc, "system.deployables", options);
   }
 
-  let macroData: LancerMacro.Invocation = {
+  let macroData: LancerFlowState.InvocationData = {
     iconPath: `systems/${game.system.id}/assets/icons/macro-icons/mech_system.svg`,
     title: doc.name!,
     fn: "prepareItemMacro",
@@ -302,7 +302,7 @@ function frameTraits(frame_path: string, options: HelperOptions): string {
       let actionHTML = buildActionArrayHTML(frame, `frame.system.traits.${index}.actions`);
       let depHTML = buildDeployablesArray(frame, `system.traits.${index}.deployables`, options);
 
-      let macroData: LancerMacro.Invocation | null = frame.actor
+      let macroData: LancerFlowState.InvocationData | null = frame.actor
         ? {
             title: trait.name,
             iconPath: `systems/${game.system.id}/assets/icons/macro-icons/trait.svg`,
@@ -336,7 +336,7 @@ function frame_active(frame_path: string, options: HelperOptions): string {
   let depHTML = buildDeployablesArray(frame, "system.core.deployables", options);
 
   // Should find a better way to do this...
-  let coreMacroData: LancerMacro.Invocation | null = frame.actor
+  let coreMacroData: LancerFlowState.InvocationData | null = frame.actor
     ? {
         title: `${frame.actor.name} | CORE POWER`,
         iconPath: `systems/${game.system.id}/assets/icons/macro-icons/corebonus.svg`,
