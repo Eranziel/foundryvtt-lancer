@@ -60,6 +60,72 @@ export function attackRolls(flat_bonus: number, acc_diff: AccDiffData): AttackRo
   };
 }
 
+// TODO: make a type for weapon attack flow state which narrows the type on item??
+
+/**
+ * Flow for rolling weapon attacks against one or more targets
+ */
+export class WeaponAttackFlow extends Flow<LancerFlowState.WeaponRollData> {
+  constructor(uuid: UUIDRef | LancerItem | LancerActor, data?: LancerFlowState.WeaponRollData) {
+    super("WeaponAttackFlow", uuid, data);
+    this.steps.set("checkWeaponDestroyed", checkWeaponDestroyed);
+    this.steps.set("checkWeaponLoaded", checkWeaponLoaded);
+    this.steps.set("checkWeaponLimited", checkWeaponLimited);
+    this.steps.set("modifyAttackFromTags", dummyWeaponStep);
+    this.steps.set("collectWeaponEffects", dummyWeaponStep);
+    this.steps.set("collectAttackTargets", dummyWeaponStep);
+    this.steps.set("promptAccDiffConfig", dummyWeaponStep);
+    this.steps.set("rollAttacks", dummyWeaponStep);
+    this.steps.set("checkCrits", dummyWeaponStep);
+    this.steps.set("applySelfHeat", dummyWeaponStep);
+    this.steps.set("updateWeaponAfterAttack", dummyWeaponStep);
+    this.steps.set("printWeaponAttackCard", dummyWeaponStep);
+    // TODO: Start damage flow after attack?
+    // this.steps.set("applyDamage", DamageApplyFlow)
+  }
+
+  async begin(data?: LancerFlowState.WeaponRollData): Promise<boolean> {
+    if (
+      !this.state.item ||
+      (!this.state.item.is_mech_weapon() && !this.state.item.is_pilot_weapon() && !this.state.item.is_npc_feature())
+    ) {
+      console.log(`${lp} WeaponAttackFlow aborted - no weapon provided!`);
+      return false;
+    }
+    return await super.begin(data);
+  }
+}
+
+async function dummyWeaponStep(state: FlowState<LancerFlowState.WeaponRollData>) {
+  await setTimeout(() => (console.log("dummyWeaponStep"), 1000));
+  return true;
+}
+
+// Doesn't work as a type narrower
+function isWeapon(item: LancerItem | null): boolean {
+  return item instanceof LancerItem && (item.is_mech_weapon() || item.is_pilot_weapon() || item.is_npc_feature());
+}
+
+async function checkWeaponDestroyed(state: FlowState<LancerFlowState.WeaponRollData>): Promise<boolean> {
+  if (!state.item || (!state.item.is_mech_weapon() && !state.item.is_pilot_weapon() && !state.item.is_npc_feature()))
+    return false;
+  // if (state.item.is_pilot_weapon()) return true; // Pilot weapons can't be destroyed
+  if (state.item.system.destroyed) return false;
+  return true;
+}
+
+async function checkWeaponLoaded(state: FlowState<LancerFlowState.WeaponRollData>): Promise<boolean> {
+  if (!state.item || (!state.item.is_mech_weapon() && !state.item.is_pilot_weapon() && !state.item.is_npc_feature()))
+    return false;
+  return !state.item.isLoading() || state.item.system.loaded;
+}
+
+async function checkWeaponLimited(state: FlowState<LancerFlowState.WeaponRollData>): Promise<boolean> {
+  if (!state.item || (!state.item.is_mech_weapon() && !state.item.is_pilot_weapon() && !state.item.is_npc_feature()))
+    return false;
+  return !state.item.isLimited() || state.item.system.uses.val > 0;
+}
+
 /**
  * Standalone prepare function for attacks, since they're complex.
  * @param doc                   Weapon/Actor to attack with. Can be passed as a uuid or a document
