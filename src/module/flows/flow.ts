@@ -6,15 +6,18 @@ import { LANCER } from "../config";
 const lp = LANCER.log_prefix;
 
 /**
- * A Step is simply a function which is used inside a Flow for a discrete action.
+ * A Step is a function which is used inside a Flow for a discrete action.
+ * Steps are exepcted to modify the provided state object as appropriate for the
+ * work they are doing, and often include prompting and processing user input.
+ * @returns false if the flow should be aborted after this step.
  */
-export type Step<T, U> = (f: FlowState<T>, data: U) => Promise<void>;
+export type Step<T, U> = (state: FlowState<T>, options?: U) => Promise<boolean>;
 
 /**
  * Encapsulates the current state of a Flow. `data` is a generic object with the data
  * relevant to the specific Flow type.
  */
-type FlowState<T> = {
+export type FlowState<T> = {
   name: string;
   actor: LancerActor;
   item: LancerItem | null; // Not all flows involve items. e.g. structure/stress
@@ -87,21 +90,54 @@ export class Flow<T> {
   }
 
   /**
+   * Insert a step into the map, to be executed before an existing step
+   * @param key Existing step key
+   * @param step New step to insert
+   */
+  insertStepBefore(key: string, step: Step<T, any> | Flow<any>) {
+    // TODO
+  }
+
+  /**
+   * Insert a step into the map, to be executed after an existing step
+   * @param key Existing step key
+   * @param step New step to insert
+   */
+  insertStepAfter(key: string, step: Step<T, any> | Flow<any>) {
+    // TODO
+  }
+
+  /**
+   * Remove the given step from the steps to execute
+   * @param key Existing step key
+   */
+  removeStep(key: string) {
+    // TODO
+  }
+
+  /**
    * Start the flow. Each step is awaited in the order they were inserted to the map.
    * @param data Initial data for the specific flow to populate its state.data.
    */
-  async begin(data?: T) {
+  async begin(data?: T): Promise<boolean> {
     this.state.data = data;
     for (const [key, step] of this.steps.entries()) {
       console.log(`${lp} running flow step ${key}`);
       if (step instanceof Flow) {
         // Start the sub-flow
-        await step.begin();
+        if ((await step.begin()) === false) {
+          console.log(`${lp} flow aborted when ${key} returned false`);
+          return false;
+        }
       } else {
         // Execute the step. The step function will modify the flow state as needed.
-        await step(this.state, data);
+        if ((await step(this.state, data)) === false) {
+          console.log(`${lp} flow aborted when ${key} returned false`);
+          return false;
+        }
       }
     }
+    return true;
   }
 
   /**
