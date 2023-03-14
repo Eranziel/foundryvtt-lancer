@@ -11,7 +11,7 @@ import type { SourceData } from "../source-template.js";
 /**
  * Extend the basic ActorSheet
  */
-export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
+export class LancerMechSheetLegacy extends LancerActorSheet<EntryType.MECH> {
   /**
    * Extend and override the default options used by the NPC Sheet
    */
@@ -41,7 +41,7 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
   activateListeners(html: JQuery<HTMLElement>) {
     super.activateListeners(html);
 
-    LancerMechSheet._activateTooltips();
+    LancerMechSheetLegacy._activateTooltips();
 
     // Everything below here is only needed if the sheet is editable
     if (!this.options.editable) return;

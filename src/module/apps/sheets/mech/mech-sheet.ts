@@ -4,7 +4,7 @@ import { TJSDocument } from "@typhonjs-fvtt/runtime/svelte/store";
 import MechSheetApp from "./MechSheetApp.svelte";
 import { LancerActor } from "../../../actor/lancer-actor.js";
 
-export default class MechSheetV2 extends SvelteApplication {
+export default class LancerMechSheet extends SvelteApplication {
   constructor(actor: LancerActor, options = {}) {
     super({
       svelte: {
@@ -48,9 +48,10 @@ export default class MechSheetV2 extends SvelteApplication {
     //buttons.push({ title: 'ProseMirror', class: ProseMirrorApp });
 
     return foundry.utils.mergeObject(super.defaultOptions, {
+      // TODO: why don't we get the normal Foundry buttons in the window header?
+      // TODO: need a unique id per actor, otherwise Svelte won't let us open more than one at once
       id: "essential-svelte-esm",
       classes: ["lancer", "sheet", "actor", "mech"],
-      headerButtonNoClose: true,
       resizable: false,
       minimizable: true,
       popOut: false,

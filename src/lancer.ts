@@ -31,7 +31,7 @@ import { LancerActionManager } from "./module/action/action-manager.js";
 import { LancerPilotSheet, pilot_counters, all_mech_preview } from "./module/actor/pilot-sheet.js";
 import { LancerNPCSheet } from "./module/actor/npc-sheet.js";
 import { LancerDeployableSheet } from "./module/actor/deployable-sheet.js";
-import { LancerMechSheet } from "./module/actor/mech-sheet.js";
+import { LancerMechSheetLegacy } from "./module/actor/mech-sheet-legacy.js";
 import { LancerItemSheet } from "./module/item/item-sheet.js";
 import { LancerFrameSheet } from "./module/item/frame-sheet.js";
 import { LancerLicenseSheet } from "./module/item/license-sheet.js";
@@ -181,7 +181,7 @@ import { ReserveModel } from "./module/models/items/reserve.js";
 import { StatusModel } from "./module/models/items/status.js";
 import { Auth } from "@aws-amplify/auth";
 import { Storage } from "@aws-amplify/storage";
-import MechSheetV2 from "./module/apps/sheets/mech/new-mech-sheet.js";
+import LancerMechSheet from "./module/apps/sheets/mech/mech-sheet.js";
 import { parse as markedParse } from "marked";
 
 const lp = LANCER.log_prefix;
@@ -802,7 +802,8 @@ async function promptInstallCoreData() {
 function setupSheets() {
   Actors.unregisterSheet("core", ActorSheet);
   Actors.registerSheet("lancer", LancerPilotSheet, { types: [EntryType.PILOT], makeDefault: true });
-  Actors.registerSheet("lancer", LancerMechSheet, { types: [EntryType.MECH], makeDefault: true });
+  Actors.registerSheet("lancer", LancerMechSheetLegacy, { types: [EntryType.MECH], makeDefault: true });
+  Actors.registerSheet("lancer", LancerMechSheet, { types: [EntryType.MECH] }); // Not default yet
   Actors.registerSheet("lancer", LancerNPCSheet, { types: [EntryType.NPC], makeDefault: true });
   Actors.registerSheet("lancer", LancerDeployableSheet, {
     types: [EntryType.DEPLOYABLE],
@@ -1029,10 +1030,3 @@ function addSettingsButtons(_app: Application, html: HTMLElement) {
     ).render(true);
   });
 }
-
-Hooks.once("ready", () => {
-  let some_mech = game.actors!.filter(x => x.is_mech())?.[0];
-  if (some_mech) {
-    new MechSheetV2(some_mech).render(true, { focus: true });
-  }
-});
