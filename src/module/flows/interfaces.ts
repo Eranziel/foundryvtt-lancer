@@ -14,8 +14,8 @@ import { Tag, TagData } from "../models/bits/tag";
 export namespace LancerFlowState {
   // Shared by all rolls
   interface BaseRollData {
-    docUUID: string; // The item or actor this roll is principally based on
     title: string;
+    roll_str: string;
   }
 
   // Configuration passed to initiate a stat roll
@@ -30,22 +30,34 @@ export namespace LancerFlowState {
     flat_bonus: number;
     acc_diff: AccDiffDataSerialized;
 
-    // TODO: do we need these, or pull them from the weapon when needed?
-    attack_type: string;
+    attack_type: string; // Melee, Ranged, Quick Tech, Full Tech
     effect?: string;
     on_attack?: string;
     on_hit?: string;
 
     self_heat?: string; // The self heat roll if present
     tags?: TagData[];
+
+    scene_uuid?: string;
+    origin_space?: [number, number];
+    target_spaces?: [number, number][];
   }
 
   // Specifically for weapons
   export interface WeaponRollData extends AttackRollData {
     damage?: DamageData[];
+    bonus_damage?: DamageData[];
     loaded?: boolean;
     destroyed?: boolean;
     overkill?: boolean;
+    on_crit?: string;
+  }
+
+  export interface TechAttackRollData extends AttackRollData {
+    invade: boolean;
+    damage?: DamageData[]; // Typically heat for invades
+    bonus_damage?: DamageData[];
+    destroyed?: boolean;
     on_crit?: string;
   }
 
@@ -69,17 +81,17 @@ export namespace LancerFlowState {
     effect: string;
   }
 
-  export interface ReactionRollData extends BaseRollData {
+  // TODO: do Reaction and Text need to extend BaseRollData? Shouldn't typically have a roll...
+  export interface ReactionRollData {
     title: string;
     trigger: string;
     effect: string;
     tags?: TagData[];
   }
 
-  export interface TextRollData extends BaseRollData {
+  export interface TextRollData {
     title: string;
     description: string;
-    item_uuid?: string;
     tags?: TagData[];
   }
 
@@ -89,8 +101,14 @@ export namespace LancerFlowState {
     roll: string;
   }
 
+  // export interface StructureRollData {
+  // }
+
+  // export interface StressRollData {
+  // }
+
   // We encode these into our UI, and use them to quickly generate macro invocations
-  // TODO: deprecate?
+  // TODO: deprecate
   export interface InvocationData {
     fn: string;
     args: Array<any>;
