@@ -1,44 +1,45 @@
 <script lang="ts">
-    import { setContext } from 'svelte';
-    import { scale } from 'svelte/transition';
-    import type { Readable } from "svelte/store";
+  import { setContext } from 'svelte';
+  import { scale } from 'svelte/transition';
+  import type { Readable } from "svelte/store";
 
-    // @ts-ignore
-    import { TJSApplicationShell } from '@typhonjs-fvtt/runtime/svelte/component/core';
-    import MechStats from "./MechStats.svelte";
-    import Tabs from "../../components/Tabs.svelte";
-    import DocStringField from "../../components/DocStringField.svelte";
+  // @ts-ignore
+  import { TJSApplicationShell } from '@typhonjs-fvtt/runtime/svelte/component/core';
+  import MechStats from "./MechStats.svelte";
+  import Tabs from "../../components/Tabs.svelte";
+  import DocStringField from "../../components/DocStringField.svelte";
 
-    import type { LancerActor, LancerMECH } from '../../../actor/lancer-actor.js';
-    export let elementRoot = void 0;
+  import type { LancerActor, LancerMECH } from '../../../actor/lancer-actor.js';
+  import MechHeaderStats from './MechHeaderStats.svelte';
+  export let elementRoot = void 0;
 
-    export let actor: Readable<LancerMECH>;
-    setContext("actor", actor);
+  export let actor: Readable<LancerMECH>;
+  setContext("actor", actor);
 
 
-    // Tab data
-    const tabs = [
-      {
-        key: "stats",
-        label: game.i18n.localize("lancer.mech-sheet.tabs.stats")
-      },
-      {
-        key: "loadout",
-        label: game.i18n.localize("lancer.mech-sheet.tabs.loadout")
-      },
-      {
-        key: "talents",
-        label: game.i18n.localize("lancer.mech-sheet.tabs.talents")
-      },
-      {
-        key: "effects",
-        label: game.i18n.localize("lancer.mech-sheet.tabs.effects")
-      },
-    ];
-    let tab = "stats";
+  // Tab data
+  const tabs = [
+    {
+      key: "stats",
+      label: game.i18n.localize("lancer.mech-sheet.tabs.stats")
+    },
+    {
+      key: "loadout",
+      label: game.i18n.localize("lancer.mech-sheet.tabs.loadout")
+    },
+    {
+      key: "talents",
+      label: game.i18n.localize("lancer.mech-sheet.tabs.talents")
+    },
+    {
+      key: "effects",
+      label: game.i18n.localize("lancer.mech-sheet.tabs.effects")
+    },
+  ];
+  let tab = "stats";
 
-    export let inactive: boolean;
-    $: inactive = $actor.system.pilot?.value?.system.active_mech?.value != $actor;
+  export let inactive: boolean;
+  $: inactive = $actor.system.pilot?.value?.system.active_mech?.value != $actor;
 
 </script>
 
@@ -46,9 +47,9 @@
 <svelte:options accessors={true}/>
 
 <TJSApplicationShell bind:elementRoot transition={scale} transitionOptions={{duration: 1000}}>
-   <div>
+  <div>
     <header class="sheet-header card clipped-bot" class:inactive-mech="{inactive}">
-      <div>
+      <div class="charname-container">
         <h1 class="charname">
           <DocStringField class="header-field" document={$actor} path="name" />
         </h1>
@@ -57,6 +58,9 @@
         {/if}
       </div>
       <!--ref-portrait-img actor.img "img" actor-->
+      <div class="header-stats-container">
+        <MechHeaderStats />
+      </div>
     </header>
 
     <!-- Sheet Tab Navigation -->
@@ -66,7 +70,7 @@
   <!-- Sheet Body ---->
   <section class="sheet-body scroll-body">
     <div class="tab stats" class:visible={tab == 'stats'}>
-     <MechStats /> 
+      <MechStats /> 
       <div class="pilot-frame-wrapper flexrow">
         <div class="card">
           <span class="lancer-header submajor clipped-top">
@@ -133,6 +137,16 @@
 </TJSApplicationShell>
 
 <style lang="scss">
+  header.sheet-header {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    grid-template-rows: 2fr 1fr;
+
+    .charname-container {
+      grid-area: 1 / 1 / 2 / 4;
+    }
+  }
+
   .tab {
     display: none;
 

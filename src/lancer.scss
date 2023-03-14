@@ -173,6 +173,7 @@ button {
 /* Components Layer */
 .lancer.sheet .window-content {
   background: #ededed !important; /* Overwrite the parchment background */
+  padding: 0 !important; /* We generally don't need whitespace inside the edges of the sheet */
 }
 
 .lancer.sheet header:not(.window-header) {
@@ -181,7 +182,7 @@ button {
   flex-direction: row;
   justify-content: space-between;
   background-color: var(--main-theme-color, fuchsia);
-  margin: 10px;
+  margin: 0px 0px 10px 0px !important;
   color: white;
 
   &.inactive-mech {
