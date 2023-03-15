@@ -1,0 +1,21 @@
+
+@use '@material/linear-progress/index' as linear-progress;
+@use '@material/theme/index' as theme;
+
+.mdc-linear-progress {
+  height: 6px;
+  clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+
+  span.mdc-linear-progress__bar-inner {
+    border-top-width: 6px;
+  }
+}
+
+.hp-bar {
+  @include linear-progress.bar-color(theme.$green-500);
+  @include linear-progress.buffer-color(theme.$green-100);
+}
+.heat-bar {
+  @include linear-progress.bar-color(theme.$orange-500);
+  @include linear-progress.buffer-color(theme.$orange-100);
+}
