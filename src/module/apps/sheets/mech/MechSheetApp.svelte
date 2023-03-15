@@ -9,7 +9,7 @@
   import Tabs from "../../components/Tabs.svelte";
   import DocStringField from "../../components/DocStringField.svelte";
 
-  import type { LancerActor, LancerMECH } from '../../../actor/lancer-actor.js';
+  import type { LancerMECH } from '../../../actor/lancer-actor.js';
   import MechHeaderStats from './MechHeaderStats.svelte';
   export let elementRoot = void 0;
 
@@ -144,6 +144,11 @@
 
     .charname-container {
       grid-area: 1 / 1 / 2 / 4;
+    }
+    .header-stats-container {
+      grid-area: 2 / 1 / 3 / 4;
+      width: 100%;
+      height: 100%;
     }
   }
 

@@ -185,6 +185,10 @@ button {
   margin: 0px 0px 10px 0px !important;
   color: white;
 
+  &.card {
+    padding-bottom: 0px;
+  }
+
   &.inactive-mech {
     background-color: var(--secondary-theme-color, fuchsia);
   }
