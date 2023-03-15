@@ -9,6 +9,10 @@
 
 // Import SCSS into our build
 import "./lancer.scss";
+// Svelte Material UI CSS
+import "@smui/button/bare.css";
+import "@smui/card/bare.css";
+import "@smui/linear-progress/bare.css";
 
 // Import TypeScript modules
 import {
