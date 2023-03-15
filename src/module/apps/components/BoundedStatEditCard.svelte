@@ -6,7 +6,8 @@
   import DocStringField from "./DocStringField.svelte";
 
   import { resolve_dotpath } from "../../helpers/commons.js";
-  import type { SystemTemplates } from "../../system-template.js";
+  // TODO: troubleshoot why this import doesn't work once built.
+  // import { BoundedNum } from "../../source-template.js";
 
   // Props
   export let label: string;
@@ -14,8 +15,9 @@
   export let icon: string | null = null;
 
   const actor: Readable<LancerActor> = getContext("actor");
-  let stat: SystemTemplates.BoundedValue;
-  $: stat = resolve_dotpath($actor, path);
+  // TODO: stat should use the BoundedNum type
+  let stat: { min?: number, max?: number, value: number };
+  $: stat = resolve_dotpath($actor, path) ?? { value: 0 };
 </script>
 
 <Card flat={true}>

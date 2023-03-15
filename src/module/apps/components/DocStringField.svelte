@@ -17,16 +17,17 @@
 
   // Current value
   let value: string;
-  $: value = resolve_dotpath(document, path);
+  $: value = resolve_dotpath(document, path) ?? "";
 
   // Change callback
-  const onChange = (e: InputEvent) => {
-    let newValue = e.target.value;
+  const onChange = (e: Event & { currentTarget: EventTarget & HTMLInputElement; }) => {
+    let newValueStr = e.currentTarget.value;
+    let newValue: number = NaN;
     if(integer && float) console.error("Cannot be both integer and float");
-    if(integer) newValue = parseInt(newValue);
-    if(float) newValue = parseFloat(newValue);
+    if(integer) newValue = parseInt(newValueStr);
+    if(float) newValue = parseFloat(newValueStr);
     if((integer || float) && isNaN(newValue)) {
-      ui.notifications.warn("Field value must be numeric! Resetting...");
+      ui.notifications!.warn("Field value must be numeric! Resetting...");
       value = value;
       return;
     }

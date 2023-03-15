@@ -72,6 +72,8 @@ export class LancerActor extends Actor {
 
   // Helps us handle structuring/overheating, as well as providing miscellaneous utility functions for struct/stress
   strussHelper = new StrussHelper(this);
+  // TODO: remove override once we have proper v10 types
+  system: SystemDataType<any>;
 
   async damage_calc(damage: AppliedDamage, ap = false, paracausal = false): Promise<number> {
     const armored_damage_types = ["Kinetic", "Energy", "Explosive", "Variable"] as const;

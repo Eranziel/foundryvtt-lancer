@@ -13,11 +13,11 @@
 
   // Current value
   let value: boolean;
-  $: value = resolve_dotpath(document, path);
+  $: value = resolve_dotpath(document, path) ?? false;
 
   // Change callback
-  const onInput = (e: InputEvent) => {
-    let newValue = e.target.checked;
+  const onInput = (e: Event & { currentTarget: EventTarget & HTMLInputElement; }) => {
+    let newValue = e.currentTarget.checked;
     document.update({
         [path]: newValue
     });

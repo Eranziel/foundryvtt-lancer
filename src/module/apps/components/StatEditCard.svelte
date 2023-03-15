@@ -6,7 +6,6 @@
   import DocStringField from "./DocStringField.svelte";
 
   import { resolve_dotpath } from "../../helpers/commons.js";
-  import type { SystemTemplates } from "../../system-template.js";
 
   // Props
   export let label: string;
@@ -15,7 +14,7 @@
 
   const actor: Readable<LancerActor> = getContext("actor");
   let stat: number;
-  $: stat = resolve_dotpath($actor, path);
+  $: stat = resolve_dotpath($actor, path) ?? 0;
 </script>
 
 <Card flat={true}>
