@@ -65,11 +65,11 @@
     padding-right: 30px;
 
     display: grid;
-    grid-template-columns: 4em 1fr 1fr 4em 4em 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr 4em 4em 4em 4em;
     grid-template-rows: 1fr 1fr;
     grid-template-areas: 
-      "ev  hp     hp     os  edef heat   heat" 
-      "arm struct struct brn .    stress stress";
+      "struct   hp    hp    evasion armor  os   burn" 
+      "stress   heat  heat  edef    .      .    .";
 
     &:hover {
       height: 6em;
@@ -88,10 +88,10 @@
       justify-self: center;
     }
     .evasion {
-      grid-area: ev;
+      grid-area: evasion;
     }
     .armor {
-      grid-area: arm;
+      grid-area: armor;
     }
     .hp {
       grid-area: hp;
@@ -103,7 +103,7 @@
       grid-area: os;
     }
     .burn {
-      grid-area: brn;
+      grid-area: burn;
     }
     .edef {
       grid-area: edef;

@@ -25,7 +25,7 @@
 
 <div class="lancer-stat-bar flexrow">
   <i class="{icon} i--s"></i>
-  <span class="lancer-stat-bar-text">{stat.value} / {stat.max}</span>
+  <span class="lancer-stat-bar-text">{stat.value}&nbsp/&nbsp{stat.max}</span>
   <LinearProgress {progress} class={hp ? "hp-bar" : (heat ? "heat-bar" : "")} />
 </div>
 
@@ -40,8 +40,8 @@
     }
     .lancer-stat-bar-text {
       margin-left: 0.25em;
-      margin-right: 0.25em;
-      flex: 0.5;
+      margin-right: 0.75em;
+      flex: 0;
     }
   }
 
