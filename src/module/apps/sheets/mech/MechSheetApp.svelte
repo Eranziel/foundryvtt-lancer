@@ -140,7 +140,7 @@
   header.sheet-header {
     display: grid !important;
     grid-template-columns: 1fr 1fr 1fr 1fr;
-    grid-template-rows: 2fr 1fr;
+    grid-template-rows: 1.4fr 1fr;
 
     .charname-container {
       grid-area: 1 / 1 / 2 / 4;
@@ -149,6 +149,7 @@
       grid-area: 2 / 1 / 3 / 4;
       width: 100%;
       height: 100%;
+      position: relative; // Provide an anchor for the header stats
     }
   }
 

@@ -4,7 +4,6 @@
   import { LancerActor } from '../../actor/lancer-actor.js';
   import { resolve_dotpath } from '../../helpers/commons.js';
   import LinearProgress from '@smui/linear-progress';
-  import { includes } from 'fp-ts/lib/string.js';
   import "./stat-bar.scss";
 
   const actor: Readable<LancerActor> = getContext("actor");
@@ -26,6 +25,7 @@
 
 <div class="lancer-stat-bar flexrow">
   <i class="{icon} i--s"></i>
+  <span class="lancer-stat-bar-text">{stat.value} / {stat.max}</span>
   <LinearProgress {progress} class={hp ? "hp-bar" : (heat ? "heat-bar" : "")} />
 </div>
 
@@ -33,9 +33,15 @@
   .lancer-stat-bar {
     text-align: left;
     align-items: center;
+    transition: height 0.5s;
 
     & i {
       margin-right: 0.25em;
+    }
+    .lancer-stat-bar-text {
+      margin-left: 0.25em;
+      margin-right: 0.25em;
+      flex: 0.5;
     }
   }
 

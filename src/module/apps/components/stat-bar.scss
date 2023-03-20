@@ -2,12 +2,21 @@
 @use '@material/linear-progress/index' as linear-progress;
 @use '@material/theme/index' as theme;
 
+.header-stats:hover .lancer-stat-bar .mdc-linear-progress {
+  height: 14px;
+  span.mdc-linear-progress__bar-inner {
+    border-top-width: 16px;
+  }
+}
+
 .mdc-linear-progress {
   height: 6px;
   clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+  transition: height 0.5s;
 
   span.mdc-linear-progress__bar-inner {
-    border-top-width: 6px;
+    border-top-width: 8px;
+    transition: border-top-width 0.5s;
   }
 }
 
