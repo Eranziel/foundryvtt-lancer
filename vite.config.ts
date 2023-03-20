@@ -5,7 +5,7 @@ import resolve from "@rollup/plugin-node-resolve"; // This resolves NPM modules 
 // @ts-ignore
 import { postcssConfig, typhonjsRuntime } from "@typhonjs-fvtt/runtime/rollup";
 
-const HOST = "www.localhost.com";
+const HOST = "localhost";
 const PORT = 30000;
 const s_COMPRESS = false; // Set to true to compress the module bundle.
 const s_SOURCEMAPS = true; // Generate sourcemaps for the bundle (recommended).
