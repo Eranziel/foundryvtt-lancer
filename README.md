@@ -1,11 +1,12 @@
-# Lancer System for FoundryVTT
-A Foundry VTT system for the [Lancer RPG](https://massif-press.itch.io/corebook-pdf) by [Massif Press](https://massif-press.itch.io/). 
+# Experimentation of Beacon System for FoundryVTT
+An experimentation attempt of a Beacon VTT system for the [Beacon RPG](https://pirategonzalezgames.itch.io/beacon-playtest) by [Pirate Gonzalez Games](https://www.pirategonzalezgames.com/), just for messing around within my friend group.
 
-**CAUTION:** Lancer is now compatible with Foundry v10. If you launch your Lancer worlds on v10, Foundry will automatically migrate your data and make it incompatible with v9. ***Always always always*** back up your data before updating Foundry!
+A list of tasks being attempted will be available in issues, however I make no promises as to the continued development and maintenance of this project as I do not actually even know much about either Lancer or Beacon, and am just involved as a hobby.
 
 ## Attribution and Acknowledgements
-The Lancer universe and all related setting materials are copyright Massif Press, used by permission.
+The Beacon universe and all related setting materials belong to Pirate Gonzalez Games. I have not actually asked for permission and have no idea if I should, but do not think anyone will ever see this.
 
+(The below paragraph is unchanged from Eranziel's original acknowledgements)
 This project incorporates several resources and open source software (either in part or in whole). Without these, this project would be much poorer, and might not even exist in the first place. A huge thank you to all those who use their time and skills to enrich the world with their creations!
 * [Comp/Con](https://compcon.app), the incredible companion app for Lancer, created by beeftime and ari. ([Github](https://github.com/massif-press/compcon))
 * Comp/Con icons, created by megane.
@@ -17,7 +18,7 @@ This project incorporates several resources and open source software (either in 
 Additionally, a huge thank you and shout out to Animu36, Staubz, and Grygon for their help getting the alpha release brought up to speed and out the door!
 
 ## Setup and FAQ
-Please see [our wiki](https://github.com/Eranziel/foundryvtt-lancer/wiki) for guides and commonly asked questions.
+Do not set this up yet, it is not functional.
 
 ## System Installation
 Simply search for Lancer in the Foundry system browser and install from there.

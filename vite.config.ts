@@ -6,7 +6,7 @@ const path = require("path");
 
 const config: UserConfig = {
   root: "src/",
-  base: "/systems/lancer/",
+  base: "/systems/foundryvtt-bcn-experimentation/",
   publicDir: path.resolve(__dirname, "public"),
   server: {
     port: 30001,

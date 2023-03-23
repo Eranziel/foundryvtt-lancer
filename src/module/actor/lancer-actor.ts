@@ -928,7 +928,7 @@ export class LancerActor extends Actor {
           // Check and see if we have a custom token (not from imgur) set, and if we don't, set the token image.
           if (
             // @ts-expect-error Should be fixed with v10 types
-            this.token?.img === "systems/lancer/assets/icons/pilot.svg" ||
+            this.token?.img === "systems/foundryvtt-bcn-experimentation/assets/icons/pilot.svg" ||
             // @ts-expect-error Should be fixed with v10 types
             this.token?.img?.includes("imgur")
           ) {
@@ -1460,8 +1460,8 @@ export class LancerActor extends Actor {
     let oldFramePath = frameToPath[oldFrame?.Name || ""];
     let newFramePath = frameToPath[newFrame?.Name || ""];
     let defaultImg = is_reg_mech(robot)
-      ? "systems/lancer/assets/icons/mech.svg"
-      : "systems/lancer/assets/icons/npc_class.svg";
+      ? "systems/foundryvtt-bcn-experimentation/assets/icons/mech.svg"
+      : "systems/foundryvtt-bcn-experimentation/assets/icons/npc_class.svg";
 
     if (!newFramePath) newFramePath = defaultImg;
     let changed = false;
@@ -1489,7 +1489,7 @@ export class LancerActor extends Actor {
       robot.Flags.top_level_data.img = newFramePath;
       if (
         // @ts-expect-error Should be fixed with v10 types
-        this.token?.img?.includes("systems/lancer/assets/retrograde-minis") ||
+        this.token?.img?.includes("systems/foundryvtt-bcn-experimentation/assets/retrograde-minis") ||
         // @ts-expect-error Should be fixed with v10 types
         this.token?.img == defaultImg
       ) {
