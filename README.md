@@ -1,5 +1,5 @@
 # Experimentation of Beacon System for FoundryVTT
-An experimentation attempt of a Beacon VTT system for the [Beacon RPG](https://pirategonzalezgames.itch.io/beacon-playtest) by [Pirate Gonzalez Games](https://www.pirategonzalezgames.com/), just for messing around within my friend group. TEsting branch protection
+An experimentation attempt of a Beacon VTT system for the [Beacon RPG](https://pirategonzalezgames.itch.io/beacon-playtest) by [Pirate Gonzalez Games](https://www.pirategonzalezgames.com/), just for messing around within my friend group.
 
 A list of tasks being attempted will be available in issues, however I make no promises as to the continued development and maintenance of this project as I do not actually even know much about either Lancer or Beacon, and am just involved as a hobby.
 
