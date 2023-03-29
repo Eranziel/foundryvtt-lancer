@@ -431,7 +431,7 @@ export async function checkTargets(
         attack_roll.dice.forEach(d => (d.options.rollOrder = 1));
         const attack_tt = await attack_roll.getTooltip();
 
-        if (targetingData.usedLockOn) {
+        if (targetingData.usedLockOn && game.user!.isGM) {
           targetingData.usedLockOn.delete();
         }
 
@@ -596,6 +596,28 @@ async function rollAttackMacro(
   const template = `systems/${game.system.id}/templates/chat/attack-card.hbs`;
   return await renderMacroTemplate(actor, template, templateData, flags);
 }
+
+Hooks.on("createChatMessage", async (cm: ChatMessage, options: any, id: string) => {
+  // Consume lock-on if we are a GM
+  if (!game.user?.isGM) return;
+  const atkData: { origin: string; targets?: { id: string; consumedLockOn: boolean }[] } = cm.getFlag(
+    game.system.id,
+    "attackData"
+  ) as any;
+  if (!atkData || !atkData.targets) return;
+  atkData.targets.forEach(target => {
+    // Find the target in this scene
+    const tokenActor = game.canvas.scene?.tokens.find(token => token.id === target.id)?.actor;
+    if (!tokenActor) return;
+    console.log(`Consuming Lock On from Token ${target.id}`);
+    // @ts-expect-error should be fixed with v10 types
+    const effects = tokenActor.effects.filter(e => e.label === "Lock On") || [];
+    tokenActor?.deleteEmbeddedDocuments(
+      "ActiveEffect",
+      effects.map(e => e.id || "")
+    );
+  });
+});
 
 /**
  * Given an evaluated roll, create a new roll that doubles the dice and reuses
