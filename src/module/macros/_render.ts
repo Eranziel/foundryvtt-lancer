@@ -6,7 +6,12 @@ import { uuid4 } from "../helpers/collapse";
  *
  */
 // TODO: Indexed types for templates
-export async function renderMacroTemplate(actor: LancerActor | undefined, template: string, templateData: any) {
+export async function renderMacroTemplate(
+  actor: LancerActor | undefined,
+  template: string,
+  templateData: any,
+  flags?: any
+) {
   const cardUUID = uuid4();
   templateData._uuid = cardUUID;
 
@@ -28,10 +33,15 @@ export async function renderMacroTemplate(actor: LancerActor | undefined, templa
   }
   const roll = Roll.fromTerms([PoolTerm.fromRolls(aggregate)]);
 
-  return renderMacroHTML(actor, html, roll);
+  return renderMacroHTML(actor, html, roll, flags);
 }
 
-export async function renderMacroHTML(actor: LancerActor | undefined, html: HTMLElement | string, roll?: Roll) {
+export async function renderMacroHTML(
+  actor: LancerActor | undefined,
+  html: HTMLElement | string,
+  roll?: Roll,
+  flags?: any
+) {
   const rollMode = game.settings.get("core", "rollMode");
   const whisper_roll = rollMode !== "roll" ? ChatMessage.getWhisperRecipients("GM").filter(u => u.active) : undefined;
   let chat_data = {
@@ -44,6 +54,7 @@ export async function renderMacroHTML(actor: LancerActor | undefined, html: HTML
     },
     content: html,
     whisper: roll ? whisper_roll : [],
+    flags: flags ? { lancer: flags } : undefined,
   };
   if (!roll) delete chat_data.roll;
   // @ts-ignore This is fine

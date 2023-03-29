@@ -470,6 +470,14 @@ async function rollAttackMacro(
 ) {
   const isSmart = data.tags.findIndex(tag => tag.Tag.LID === "tg_smart") > -1;
   const { attacks, hits } = await checkTargets(atkRolls, isSmart);
+  const flags = {
+    attackData: {
+      origin: actor.id,
+      targets: atkRolls.targeted.map(t => {
+        return { id: t.target.id, lockOnConsumed: !!t.usedLockOn };
+      }),
+    },
+  };
 
   // Iterate through damage types, rolling each
   let damage_results: Array<{
@@ -586,7 +594,7 @@ async function rollAttackMacro(
 
   console.debug(templateData);
   const template = `systems/${game.system.id}/templates/chat/attack-card.hbs`;
-  return await renderMacroTemplate(actor, template, templateData);
+  return await renderMacroTemplate(actor, template, templateData, flags);
 }
 
 /**
