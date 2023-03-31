@@ -1,3 +1,8 @@
+# 1.5.3 (2023-03-31)
+## Bug Fixes
+* #529 - Fix issues with syncing pilot/mech images.
+* Make the new Ruin macro actually show up in the compendium.
+
 # 1.5.2 (2023-03-30)
 ## Features
 * Add a reload macro to the compendium, courtesy of Valk.
