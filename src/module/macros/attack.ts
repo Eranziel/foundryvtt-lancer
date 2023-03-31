@@ -51,6 +51,14 @@ type AttackRolls = {
   }[];
 };
 
+type AttackFlag = {
+  origin: string;
+  targets: {
+    id: string;
+    setConditions?: object; // keys are statusEffect ids, values are boolean to indicate whether to apply or remove
+  }[];
+};
+
 export function attackRolls(bonus: number, accdiff: AccDiffData): AttackRolls {
   let perRoll = Object.values(accdiff.weapon.plugins);
   let base = perRoll.concat(Object.values(accdiff.base.plugins));
@@ -470,13 +478,11 @@ async function rollAttackMacro(
 ) {
   const isSmart = data.tags.findIndex(tag => tag.Tag.LID === "tg_smart") > -1;
   const { attacks, hits } = await checkTargets(atkRolls, isSmart);
-  const flags = {
-    attackData: {
-      origin: actor.id,
-      targets: atkRolls.targeted.map(t => {
-        return { id: t.target.id, lockOnConsumed: !!t.usedLockOn };
-      }),
-    },
+  const atkFlag: AttackFlag = {
+    origin: actor.id!,
+    targets: atkRolls.targeted.map(t => {
+      return { id: t.target.id, setConditions: !!t.usedLockOn ? { lockon: !t.usedLockOn } : undefined };
+    }),
   };
 
   // Iterate through damage types, rolling each
@@ -594,27 +600,36 @@ async function rollAttackMacro(
 
   console.debug(templateData);
   const template = `systems/${game.system.id}/templates/chat/attack-card.hbs`;
-  return await renderMacroTemplate(actor, template, templateData, flags);
+  return await renderMacroTemplate(actor, template, templateData, { attackData: atkFlag });
 }
 
+// If user is GM, apply status changes to attacked tokens
 Hooks.on("createChatMessage", async (cm: ChatMessage, options: any, id: string) => {
   // Consume lock-on if we are a GM
   if (!game.user?.isGM) return;
-  const atkData: { origin: string; targets?: { id: string; consumedLockOn: boolean }[] } = cm.getFlag(
-    game.system.id,
-    "attackData"
-  ) as any;
+  const atkData: AttackFlag = cm.getFlag(game.system.id, "attackData") as any;
   if (!atkData || !atkData.targets) return;
   atkData.targets.forEach(target => {
     // Find the target in this scene
     const tokenActor = game.canvas.scene?.tokens.find(token => token.id === target.id)?.actor;
     if (!tokenActor) return;
-    console.log(`Consuming Lock On from Token ${target.id}`);
-    // @ts-expect-error should be fixed with v10 types
-    const effects = tokenActor.effects.filter(e => e.label === "Lock On") || [];
+    const statusToApply = [];
+    const statusToRemove = [];
+    for (const [stat, val] of Object.entries(target.setConditions || {})) {
+      if (val) {
+        // Apply status
+        console.log(`(Not) Applying ${stat} to Token ${target.id}`);
+        // TODO
+      } else {
+        // Remove status
+        console.log(`Removing ${stat} from Token ${target.id}`);
+        const effects = tokenActor.effects.filter(e => e.getFlag("core", "statusId") === stat) || [];
+        statusToRemove.push(...effects);
+      }
+    }
     tokenActor?.deleteEmbeddedDocuments(
       "ActiveEffect",
-      effects.map(e => e.id || "")
+      statusToRemove.map(e => e.id || "")
     );
   });
 });
